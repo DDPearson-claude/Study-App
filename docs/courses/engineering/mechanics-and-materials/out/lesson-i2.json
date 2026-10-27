@@ -1,0 +1,829 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-27T06:50:32.899Z",
+ "startedAt": "2026-10-27T06:50:32.899Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i2",
+  "title": "Moments and beams",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the nearer trestle's reaction arrow grow, and the far one's shrink as its arm lengthens, when you move the chain block along the beam.",
+   "title": "The beam on two trestles",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Screen",
+     "min": 0,
+     "max": 13,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [
+    {
+     "id": "leftReaction",
+     "label": "Left trestle's reaction",
+     "unit": "kN",
+     "decimals": 2
+    },
+    {
+     "id": "rightReaction",
+     "label": "Right trestle's reaction",
+     "unit": "kN",
+     "decimals": 2
+    },
+    {
+     "id": "pivotMoment",
+     "label": "Moment each way",
+     "unit": "kN m",
+     "decimals": 2
+    }
+   ],
+   "whatAmILookingAt": "The picture runs over fourteen small screens. The main picture is a lifting beam resting on two trestles 4 m apart, with a chain block hanging from it. The block's load is an arrow pointing down. Each trestle pushes up on the beam. That push is its reaction, drawn as an arrow to scale with a readout in kN. Each trestle's arm is its distance from the block, marked along the beam. The block slides along the beam, from 0 to 4 m from the left trestle, in 0.25 m steps. It opens 1 m from the left trestle. A stepper sets its load from 1 to 8 kN, opening at an example 6 kN. Tapping a trestle takes moments about it. That trestle becomes the pivot. Its own arrow greys out, because it passes through the pivot and has no moment. Two bars then show the clockwise and anticlockwise totals. A readout gives the moment each way in kN m. Each is a force times its distance from the pivot. The bars match at every setting, because the beam does not turn. The right trestle's reaction is the total moment about the left trestle divided by 4 m. The left trestle's reaction is the total load less that. So the nearer trestle carries more. The far one pushes on the longer arm. With the block at the middle, 2 m along, each carries half. A switch adds the beam's own weight, an example 2 kN, as an arrow at its middle. Another switch swaps the block for the same load spread evenly over 2 m, drawn as a row of small arrows. Its middle sits where the block was. It stays between 1 m and 3 m, so the whole spread fits on the beam. Its total acts at its middle. So the reactions match the block's at that point. Screen 1 shows a spanner on a nut: 150 N at 0.3 m makes 45 N m, and the same push at 0.15 m makes 22.5 N m. Screen 2 asks for the moment of a 200 N pull on the end of a 0.5 m bar, slanted so its line passes 0.3 m from the pivot. Screen 3 shows a plank balanced on a pivot, with 400 N at 1.5 m on one side and 600 N at 1 m on the other: 600 N m each way. Screen 4 asks where a 600 N load must hang to balance 300 N at 2 m. Screen 5 shows the lifting beam. Its reactions change as the block moves. Screen 6 asks which trestle carries more with the block 1 m from the left. Screen 7 takes moments about the left trestle: 6 × 1 = 6 kN m. So the right carries 1.5 kN and the left 4.5 kN. Screen 8 asks what the right trestle carries with an 8 kN block 3 m from the left. Screen 9 adds the beam's own weight and the spread load. With the 2 kN beam, the reactions are 5.5 kN and 2.5 kN. Screen 10 asks the right trestle's reaction on a 6 m beam weighing 3 kN, with a 4 kN block 1.5 m from the left. Screen 11 shows two hands turning a valve wheel 0.4 m across. Each pulls 100 N the opposite way. That makes 40 N m about the centre, and about either hand. Screens 12 to 14 mix it all. First comes a 0.5 m wheel turned by 80 N each side. Then comes a 4 m beam weighing 2 kN, with 4 kN spread over its right half. Last comes a 4 kN pump and a 2 kN motor at the two ends of a 3 m skid. Where is their centre of gravity? Some screens show an idea and the rest ask you to try it. Each puzzle offers three answers. A wrong pick is drawn, so you can see where it goes wrong.",
+   "ignores": "The beam is drawn rigid, so it does not bend or sag. Each trestle touches it at one point. Real trestles touch over a small width. The load hangs still. A load that swings or is snatched up can pull harder than its weight. The beam's weight is drawn at its middle, which is true only of a uniform beam. This picture does not say whether the beam itself is strong enough. That is a different question.",
+   "numbers": [
+    {
+     "label": "Screen, 1 to 14 (the stepper)",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Span between the trestles, m",
+     "value": 4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Block position slider's lowest distance from left trestle, m",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Block position slider's highest distance from left trestle, m",
+     "value": 4,
+     "kind": "control"
+    },
+    {
+     "label": "Block position slider's step, m",
+     "value": 0.25,
+     "kind": "control"
+    },
+    {
+     "label": "Block's opening distance from left trestle, m",
+     "value": 1,
+     "kind": "control"
+    },
+    {
+     "label": "Load stepper's lowest load, kN",
+     "value": 1,
+     "kind": "control"
+    },
+    {
+     "label": "Load stepper's highest load, kN",
+     "value": 8,
+     "kind": "control"
+    },
+    {
+     "label": "Example block load, kN",
+     "value": 6,
+     "kind": "control"
+    },
+    {
+     "label": "Block's moment about the left trestle, kN m",
+     "value": 6,
+     "kind": "computed"
+    },
+    {
+     "label": "Right trestle's reaction at the opening setting, kN",
+     "value": 1.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Left trestle's reaction at the opening setting, kN",
+     "value": 4.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Example beam's own weight, kN",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Middle of the beam, m from the left trestle",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Beam weight's moment about the left trestle, kN m",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Total moment about the left trestle with beam weight, kN m",
+     "value": 10,
+     "kind": "computed"
+    },
+    {
+     "label": "Right reaction with beam weight, kN",
+     "value": 2.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Left reaction with beam weight, kN",
+     "value": 5.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Length the spread load covers, m",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example spanner force, N",
+     "value": 150,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example spanner length, m",
+     "value": 0.3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Spanner's moment, N m",
+     "value": 45,
+     "kind": "computed"
+    },
+    {
+     "label": "Half the spanner distance, m",
+     "value": 0.15,
+     "kind": "computed"
+    },
+    {
+     "label": "Moment at half the distance, N m",
+     "value": 22.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 2 pull, N",
+     "value": 200,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 2 bar length, m",
+     "value": 0.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 2 right-angle distance to the pull's line, m",
+     "value": 0.3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 2 moment, N m",
+     "value": 60,
+     "kind": "computed"
+    },
+    {
+     "label": "Wrong pick: pull times bar length, N m",
+     "value": 100,
+     "kind": "computed"
+    },
+    {
+     "label": "Wrong pick: pull times the difference of distances, N m",
+     "value": 40,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 3 first load, N",
+     "value": 400,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 3 first distance, m",
+     "value": 1.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 3 second load, N",
+     "value": 600,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 3 second distance, m",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 3 moment each way, N m",
+     "value": 600,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 4 known load, N",
+     "value": 300,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 4 known distance, m",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 4 load to place, N",
+     "value": 600,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 4 answer distance, m",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 4 wrong pick: double distance, m",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 8 block load, kN",
+     "value": 8,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 8 block distance from left, m",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 8 right reaction, kN",
+     "value": 6,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 8 left reaction and wrong pick, kN",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 8 wrong pick: half the load, kN",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 10 beam span, m",
+     "value": 6,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 10 beam weight, kN",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 10 block load, kN",
+     "value": 4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 10 block distance from left, m",
+     "value": 1.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 10 right reaction, kN",
+     "value": 2.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 10 left reaction, kN",
+     "value": 4.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 10 wrong pick: beam weight left out, kN",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 10 wrong pick: beam weight at the far end, kN",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 11 valve wheel width, m",
+     "value": 0.4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 11 each hand's pull, N",
+     "value": 100,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 11 couple's moment, N m",
+     "value": 40,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 12 wheel width, m",
+     "value": 0.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 12 each side's pull, N",
+     "value": 80,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 12 couple's moment, N m",
+     "value": 40,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 13 spread load, kN",
+     "value": 4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 13 beam weight, kN",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example span, m",
+     "value": 5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example beam weight, kN",
+     "value": 1.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example block load, kN",
+     "value": 8,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example block distance from left, m",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example block moment about left, kN m",
+     "value": 16,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example beam middle, m",
+     "value": 2.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example beam weight moment, kN m",
+     "value": 3.75,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example total moment about left, kN m",
+     "value": 19.75,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example right reaction, kN",
+     "value": 3.95,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example total load, kN",
+     "value": 9.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example left reaction, kN",
+     "value": 5.55,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example block distance from right, m",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example check moment about right, kN m",
+     "value": 27.75,
+     "kind": "computed"
+    },
+    {
+     "label": "Spread load's centre, lowest, m from left trestle",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Spread load's centre, highest, m from left trestle",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Each trestle's share with the block at the middle, kN",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Total load with beam weight, kN",
+     "value": 8,
+     "kind": "computed"
+    },
+    {
+     "label": "Valve wheel's half-width in explain, m",
+     "value": 0.2,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 2 sin of the angle between the bar and the pull",
+     "value": 0.6,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 14 pump load, kN",
+     "value": 4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 14 motor load, kN",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 14 skid length, m",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 14 motor's moment about the pump, kN m",
+     "value": 6,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 14 total load, kN",
+     "value": 6,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 14 centre of gravity from the pump, m",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 14 wrong pick: the middle of the skid, m",
+     "value": 1.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 14 wrong pick: nearer the lighter motor, m",
+     "value": 2,
+     "kind": "computed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "You have met a force's turning effect, its [[moment]], as F r sin θ. It is the force times its distance from the pivot, measured at right angles to the force's line. On a spanner, 150 N at 0.3 m gives 45 N m. Push at half the distance and you get half the turning effect. A force can slide along its own line without changing its moment.[^1] So slide it to the point on its line nearest the pivot. There, the distance to the pivot meets the line at right angles. That right-angle distance is the arm. A slanted pull on the end of a bar has a shorter arm than the bar. The arm is the bar's length times sin θ, where θ is the angle between the bar and the pull.\n\nWhen something stays still, its turning effects balance. Any leftover turning effect would start it turning, just as a leftover force would start it moving. The clockwise moments add up to the same as the anticlockwise moments.[^2] That is the [[principle of moments]]. It holds about any point you choose.[^3] That gives you a useful trick. Choose the point where an unknown force acts. That force then has no distance from the pivot, so its moment is zero and it drops out.\n\nTake a lifting beam resting on two trestles 4 m apart. An example 6 kN chain block hangs 1 m from the left trestle. Take moments about the left trestle. The block turns the beam clockwise with 6 × 1 = 6 kN m. The right trestle pushes up 4 m away, turning it anticlockwise. So its push times 4 must make 6 kN m. That means it carries 1.5 kN. The two up pushes must add to the load. So the left trestle carries 6 − 1.5 = 4.5 kN. The nearer trestle carries more. Take moments about the block to see why. The left push times 1 m must balance the right push times 3 m. So the left push is three times the right. Hang the block at the middle and they share it equally.\n\nThe beam has weight too. On a uniform beam, each half balances the other about the middle. So its whole weight acts as one force at its middle. Any evenly spread load acts the same way, as its total at its middle. Say this beam weighs 2 kN. About the left trestle it adds 2 × 2 = 4 kN m. That makes 6 + 4 = 10 kN m. So the right trestle carries 10 ÷ 4 = 2.5 kN. The left carries the rest of the 8 kN, which is 5.5 kN.\n\nThe point where a whole body's or a group's weight acts is its [[centre of gravity]]. Moments find it. Put a 4 kN pump and a 2 kN motor at the two ends of a 3 m skid. About the pump, the motor gives 2 × 3 = 6 kN m. Their 6 kN total must give the same 6 kN m. So it acts 6 ÷ 6 = 1 m from the pump. The heavier load pulls it toward itself. Before a lift, the hook goes over that point.\n\nTwo equal pulls in opposite directions, on different lines, add up to no push at all. They only turn. Such a pair is called a [[couple]]. Turn a valve wheel 0.4 m across with 100 N from each hand. About the centre, each hand gives 100 × 0.2, so the two give 40 N m. About one hand, the other gives 100 × 0.4, still 40 N m. A couple's moment is the same about any point. The twist a motor puts on its shaft is a couple too.\n\n**To find what each support carries, take moments about one support, so its own push drops out. Then make the up pushes add to the load.**"
+  },
+  "analogy": {
+   "text": "Think of a current divider: two parallel paths sharing one current. The path with less resistance takes the bigger share, in inverse proportion. A beam's two supports share a point load the same way. Each support's share is in inverse proportion to its distance from the load. Put the block 1 m from one trestle and 3 m from the other. The shares are then 3 to 1, just as 1 Ω and 3 Ω in parallel split a current 3 to 1.",
+   "breaks": "Now hang a load on an overhang, beyond a support. The far support then takes a negative share, because the load lifts that end. No pair of resistors splits a current like that. A trestle cannot hold anything down, so a heavy enough overhang load tips the beam."
+  },
+  "practice": {
+   "text": "- Before the lift, work out each support's share. An off-centre load puts most of its weight on the nearer support. Check that support against its rating, not against half the load.\n- Sketch the beam. Mark each support, and every load with its distance from the left support.\n- Put the beam's own weight at its middle. Put an evenly spread load's total at the middle of where it lies.\n- Take moments about the left support. Add up each load times its distance. A load beyond it counts the other way.\n- Divide by the span. That is the right support's reaction.\n- Take that from the total load. That is the left support's reaction.\n- Check by taking moments about the right support. The two sides should match.\n\n**Rule of thumb:** each support carries the load times the load's distance from the other support, divided by the span. A block a quarter of the way along puts three quarters of its load on the nearer support.\n\n**Worked example:** a 5 m beam on two trestles weighs an example 1.5 kN. An 8 kN chain block hangs 2 m from the left. About the left trestle, the block gives 8 × 2 = 16 kN m. The beam's weight sits at 2.5 m and gives 1.5 × 2.5 = 3.75 kN m. That is 19.75 kN m in all. So the right trestle carries 19.75 ÷ 5 = 3.95 kN. The total load is 9.5 kN. So the left carries 9.5 − 3.95 = 5.55 kN. Check about the right trestle: 5.55 × 5 = 27.75 kN m, and 8 × 3 + 1.5 × 2.5 = 27.75 kN m.\n\n**Common mistakes**\n- Using the length of a slanted bar instead of the distance at right angles to the force's line.\n- Leaving out the beam's own weight, or putting a uniform beam's weight anywhere but its middle.\n- Giving the bigger share to the far support because more beam sits on its side.\n- Forgetting the force check at the end. The reactions must add up to the total load."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "Statics: Moment of Force — Engineering Statics (Baker)",
+    "url": "https://engineeringstatics.org/moment-of-force.html",
+    "quote": "But notice that a force may be slid along its line-of-action without changing the moment, because neither the magnitude of the force nor the moment arm changes."
+   },
+   {
+    "n": 2,
+    "title": "Moments - Forces and movement - KS3 Physics - BBC Bitesize — BBC Bitesize",
+    "url": "https://www.bbc.co.uk/bitesize/articles/z96g3j6",
+    "quote": "The principle of moments states that for an object to be balanced the total clockwise moment must be equal to the total anti-clockwise moment."
+   },
+   {
+    "n": 3,
+    "title": "9.2 The Second Condition for Equilibrium - College Physics 2e | OpenStax — OpenStax",
+    "url": "https://openstax.org/books/college-physics-2e/pages/9-2-the-second-condition-for-equilibrium",
+    "quote": "The second condition for equilibrium holds for any choice of pivot point"
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: skill -->\n<style>\n  [hidden] { display: none !important; }\n  .pz { max-width: 34rem; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .count { margin-top: 10px; }\n  .task { font-size: 1.15rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.06rem; font-weight: 400; line-height: 1.6; }\n  .fig { display: block; width: 100%; max-width: 26rem; margin-inline: auto; touch-action: pan-y; }\n  .fig.drag { touch-action: none; }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; }\n  .picks { flex-direction: column; gap: 8px; }\n  .picks .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; white-space: normal; line-height: 1.35; padding-top: 8px; padding-bottom: 8px; }\n  .picks .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  #outs { display: grid; grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr)); gap: 10px; }\n  .fb { font-weight: 700; min-height: 1.5em; }\n  .fb.right { color: var(--k-good); }\n  .why, .done { line-height: 1.6; }\n  .done .row { margin-top: 14px; }\n  .replay { justify-content: center; }\n  .replay .k-btn { flex: 0 0 auto; }\n  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }\n  /* The beam, its trestles and the block. */\n  .fig .beam { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.8; }\n  .fig .tres { stroke: var(--k-strong); stroke-width: 3; stroke-linecap: round; }\n  .fig .cap { fill: var(--k-strong); }\n  .fig .ground { stroke: var(--k-line); stroke-width: 2; }\n  .fig .block { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.8; }\n  .fig .dim { stroke: var(--k-accent); stroke-width: 1.4; }\n  .fig .ref { fill: none; stroke: var(--k-muted); stroke-width: 1.4; stroke-dasharray: 4 3; }\n  .fig .track { fill: var(--k-sunk); }\n  .fig .mbar { fill: var(--k-accent2); }\n  .fig .mbar-hot { fill: var(--k-warn); }\n  .fig .pivring { fill: var(--k-bg); stroke: var(--k-accent); stroke-width: 2.4; }\n  /* The plank, the spanner, the bar and the wheel. */\n  .fig .fulcrum { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.8; }\n  .fig .plank { stroke: var(--k-strong); stroke-width: 8; stroke-linecap: round; }\n  .fig .tool { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.8; }\n  .fig .jaw { fill: none; stroke: var(--k-strong); stroke-width: 6; }\n  .fig .nut { fill: var(--k-sunk); stroke: var(--k-ink); stroke-width: 1.6; }\n  .fig .pdot { fill: var(--k-accent); }\n  .fig .rod { stroke: var(--k-strong); stroke-width: 8; stroke-linecap: round; }\n  .fig .rim { fill: none; stroke: var(--k-strong); stroke-width: 6; }\n  .fig .hub { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.8; }\n  .fig .spoke { stroke: var(--k-strong); stroke-width: 3; }\n  .fig .arm { stroke: var(--k-accent2); stroke-width: 3; }\n  .fig .arm-hot { stroke: var(--k-warn); stroke-width: 3.2; }\n  .fig .arm-ghost { stroke: var(--k-accent2); stroke-width: 1.6; stroke-dasharray: 4 3; }\n  .fig .rt { fill: none; stroke: var(--k-accent2); stroke-width: 1.4; }\n  /* Forces: reactions are the main thing (navy); loads are ink; a mistake is red. */\n  .fig .ar-ink { stroke: var(--k-ink); stroke-width: 2.6; }\n  .fig .ah-ink { fill: var(--k-ink); }\n  .fig .ar-rx { stroke: var(--k-accent2); stroke-width: 3.4; }\n  .fig .ah-rx { fill: var(--k-accent2); }\n  .fig .ar-mut { stroke: var(--k-muted); stroke-width: 2.6; }\n  .fig .ah-mut { fill: var(--k-muted); }\n  .fig .ar-hot { stroke: var(--k-warn); stroke-width: 3.2; }\n  .fig .ah-hot { fill: var(--k-warn); }\n  .fig .ar-tot { stroke: var(--k-ink); stroke-width: 2; stroke-dasharray: 5 4; }\n  .fig .ah-tot { fill: var(--k-ink); }\n  .fig .ar-sm { stroke: var(--k-ink); stroke-width: 1.6; }\n  .fig .ah-sm { fill: var(--k-ink); }\n  /* Words on the pictures. */\n  .fig .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }\n  .fig .lab.t { fill: var(--k-accent); }\n  .fig .lab.n { fill: var(--k-accent2); }\n  .fig .lab.w { fill: var(--k-warn); }\n  .fig .lab.m { font-weight: 400; fill: var(--k-muted); }\n  .fig .lab.h { font-weight: 700; fill: var(--k-accent); letter-spacing: .02em; }\n  .fig .grip, .fig .tap { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; }\n  .fig .tap { cursor: pointer; }\n  .fig .grip:active { cursor: grabbing; }\n</style>\n\n<p class=\"lead\" id=\"lead\">A spanner on a nut, a plank on a pivot, a lifting beam on two trestles 4&nbsp;m apart with an example 6&nbsp;kN chain block, and a valve wheel. The other loads, pushes and weights are examples too.</p>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count\" id=\"count\"></p>\n    <p class=\"task say\" id=\"task\"></p>\n    <svg class=\"fig\" id=\"scene\" viewBox=\"0 0 340 322\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"art\"></g><g id=\"labs\"></g><g id=\"ui\"><rect id=\"tapL\" class=\"tap\" x=\"-200\" y=\"0\" width=\"10\" height=\"10\" aria-hidden=\"true\"></rect><rect id=\"tapR\" class=\"tap\" x=\"-200\" y=\"0\" width=\"10\" height=\"10\" aria-hidden=\"true\"></rect><circle id=\"grip\" class=\"grip\" cx=\"-100\" cy=\"-100\" r=\"22\" aria-hidden=\"true\"></circle></g></svg>\n    <div class=\"k-controls\" id=\"c-grip\"></div>\n    <div class=\"k-controls\" id=\"c-pos\"></div>\n    <div class=\"k-controls\" id=\"c-x\"></div>\n    <div class=\"k-controls\" id=\"c-load\"></div>\n    <div class=\"k-controls\" id=\"c-pivot\"></div>\n    <div class=\"k-controls\" id=\"c-own\"></div>\n    <div class=\"k-controls\" id=\"c-spread\"></div>\n    <div class=\"k-controls\" id=\"c-wp\"></div>\n    <div class=\"row replay\" id=\"replay\"></div>\n    <p class=\"say\" id=\"say\"></p>\n    <div class=\"k-readouts\" id=\"outs\"></div>\n    <div class=\"row picks say\" id=\"picks\"></div>\n    <div class=\"row acts\" id=\"acts\"></div>\n    <p class=\"fb say\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why say\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p><strong id=\"finish\"></strong></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\" id=\"cap\">Each moment is a force times its distance from the pivot, measured at right angles to the force's line.</p>\n\n<script>\n  // ---------- the rules ----------\n  const D2R = Math.PI / 180;\n  const SPAN = 4, OWN = 2, WIDE = 2;          // trestles 4 m apart; the beam's example 2 kN; a spread load's 2 m\n  // A beam on two trestles: a load P whose middle is c m from the left trestle, and the beam's own\n  // weight Wb at its middle. Moments about the left trestle give the right reaction; the rest is the left's.\n  function reactions(b) {\n    const mid = b.span / 2;\n    const mL = b.P * b.c + b.Wb * mid;                 // the loads' moment about the left trestle\n    const mR = b.P * (b.span - b.c) + b.Wb * mid;      // and about the right trestle\n    const RR = mL / b.span;\n    return { RL: b.P + b.Wb - RR, RR, mL, mR };\n  }\n  const SRC = {\n    bbc: 'https://www.bbc.co.uk/bitesize/articles/z96g3j6',\n    stat: 'https://engineeringstatics.org/moment-of-force.html',\n    os: 'https://openstax.org/books/college-physics-2e/pages/9-2-the-second-condition-for-equilibrium',\n  };\n  const nf = (v) => { const r = Math.round(v * 1000) / 1000; return (Math.abs(r) < 1e-9 ? '0' : String(r)).replace('-', '−'); };\n  const near = (a, b) => Math.abs(a - b) < 1e-6;\n\n  // Every number the words show, worked out from the rules (a check compares them with the lesson's).\n  const N = (() => {\n    const n = {};\n    n.sp = nf(150 * 0.3); n.sp2 = nf(150 * 0.15);\n    n.bar = nf(200 * 0.3); n.barL = nf(200 * 0.5); n.barD = nf(200 * (0.5 - 0.3));\n    n.pl = nf(400 * 1.5); n.hang = nf(300 * 2 / 600); n.hang4 = nf(2 * 2);\n    const a = reactions({ span: 4, P: 6, c: 1, Wb: 0 }); n.m6 = nf(a.mL); n.r6 = nf(a.RR); n.l6 = nf(a.RL); n.half6 = nf(6 / 2);\n    const b = reactions({ span: 4, P: 8, c: 3, Wb: 0 }); n.m8 = nf(b.mL); n.r8 = nf(b.RR); n.l8 = nf(b.RL); n.h8 = nf(8 / 2);\n    const w = reactions({ span: 4, P: 6, c: 1, Wb: OWN }); n.mw = nf(OWN * 2); n.mwT = nf(w.mL); n.rw = nf(w.RR); n.lw = nf(w.RL); n.tw = nf(6 + OWN);\n    const h = reactions({ span: 6, P: 4, c: 1.5, Wb: 3 }); n.ha = nf(4 * 1.5); n.hb = nf(3 * 3); n.hm = nf(h.mL); n.hr = nf(h.RR); n.hl = nf(h.RL);\n    n.hno = nf(4 * 1.5 / 6); n.hfar = nf((4 * 1.5 + 3 * 6) / 6);\n    n.c1 = nf(100 * 0.2); n.c = nf(2 * 100 * 0.2); n.ch = nf(100 * 0.4);\n    n.v1 = nf(80 * 0.25); n.v = nf(2 * 80 * 0.25); n.vh = nf(80 * 0.5); n.vf = nf(2 * 80 * 0.5);\n    const s = reactions({ span: 4, P: 4, c: 3, Wb: 2 }); n.sa = nf(4 * 3); n.sb = nf(2 * 2); n.sm = nf(s.mL); n.sr = nf(s.RR); n.sl = nf(s.RL); n.sno = nf(4 * 3 / 4);\n    n.gm = nf(2 * 3); n.gt = nf(4 + 2); n.g = nf(2 * 3 / (4 + 2)); n.gmid = nf(3 / 2); n.gfar = nf(4 * 3 / (4 + 2));\n    return n;\n  })();\n\n  // ---------- the lesson: SHOW screens demonstrate, DO screens are puzzles ----------\n  // scene: spanner, bar, plank, beam or wheel. set: where the controls open. slider: the controls\n  // shown. play: a demonstration sweeping one control ([seconds, value] keys); arrive: parts arriving.\n  // beam / plank / wheel: a puzzle's fixed picture. rr: the right reaction each answer stands for;\n  // val: the distance each answer stands for; arms: the arm each answer uses; marks: what a wrong one left out.\n  const STEPS = [\n    { show: true, scene: 'spanner', name: 'A spanner on a nut', slider: ['grip'],\n      play: { id: 'grip', keys: [[0.4, 0.3], [1.2, 0.3], [3.4, 0.15]] },\n      text: `You have met a force's turning effect, its *moment*, as F r sin θ. It is the force times its distance from the pivot, measured at right angles to the force's line. On a spanner, the pivot is the middle of the nut. 150 N at 0.3 m gives 150 × 0.3 = ${N.sp} N m. Push at half the distance and you get half the turning effect.`,\n      still: { grip: 0.15 } },\n    { kind: 'pick', scene: 'bar', name: 'A slanted pull',\n      task: 'A 200 N pull acts on the end of a 0.5 m bar. It is slanted, so its line passes 0.3 m from the pivot. What is its moment?',\n      opts: [`${N.barL} N m`, `${N.bar} N m`, `${N.barD} N m`], want: `${N.bar} N m`, arms: ['bar', 'perp', 'diff'],\n      hints: { [`${N.barL} N m`]: 'Not quite. That uses the length of the bar. Use the distance at right angles to the pull\\'s line.',\n        [`${N.barD} N m`]: 'Not quite. That takes 0.3 m from 0.5 m. The arm is the right-angle distance itself.' },\n      why: `A force can slide along its own line without changing its moment. So slide the pull to the point on its line nearest the pivot. There, the distance to the pivot meets the line at right angles. That distance, 0.3 m, is the *arm*. It is the bar's 0.5 m times sin θ, where θ is the angle between the bar and the pull. Here sin θ is 0.6. So the moment is 200 × 0.3 = ${N.bar} N m.` },\n    { show: true, scene: 'plank', name: 'Balance on a plank', plank: { L: 2, R: 2.25, left: [400, 1.5], right: 600, bmax: 1200 }, slider: ['pos'],\n      play: { id: 'pos', keys: [[0.4, 1.75], [1.0, 1.75], [3.4, 1]] },\n      text: `When something stays still, its turning effects balance. The clockwise moments add up to the same as the anticlockwise moments. That is the *principle of moments*. Here 400 N presses 1.5 m left of the pivot. That gives 400 × 1.5 = ${N.pl} N m anticlockwise. On the right, 600 N presses 1 m out. That gives 600 × 1 = 600 N m clockwise. So the plank stays level.`,\n      still: { pos: 1 } },\n    { kind: 'pick', scene: 'plank', name: 'Balance the plank', plank: { L: 2.5, R: 4.5, left: [300, 2], right: 600, bmax: 2400 },\n      task: '300 N presses on a plank 2 m left of its pivot. Where on the right must 600 N press to balance it?',\n      opts: ['2 m', `${N.hang} m`, `${N.hang4} m`], want: `${N.hang} m`, val: [2, +N.hang, +N.hang4],\n      hints: { '2 m': 'Not quite. At the same distance, 600 N turns it twice as hard as 300 N.',\n        [`${N.hang4} m`]: 'Not quite. The bigger load needs the shorter arm, not the longer one.' },\n      why: `300 N at 2 m gives 300 × 2 = 600 N m anticlockwise. The 600 N load must give 600 N m clockwise. So it must press 600 ÷ 600 = ${N.hang} m from the pivot. Twice the load needs half the distance.` },\n    { show: true, scene: 'beam', name: 'The lifting beam', slider: ['x', 'load'], outs: ['leftReaction', 'rightReaction'],\n      play: { id: 'x', keys: [[0.4, 1], [1.8, 2], [2.4, 2], [3.8, 3]] },\n      text: 'A lifting beam rests on two trestles 4 m apart. A chain block hangs from it with a 6 kN load. Each trestle pushes up on the beam. That push is its *reaction*. Together the two reactions hold up the load. Take moments about the block, and each trestle\\'s arm is its distance from it. Drag the block along the beam, or use the slider, and watch the reactions.',\n      read: 'As the block moves toward a trestle, that trestle\\'s reaction grows and the far one\\'s shrinks. With the block at the middle, each trestle carries half. Here it hangs 3 m along, so the right trestle is nearer and carries more.',\n      still: { x: 3 } },\n    { kind: 'pick', scene: 'beam', name: 'Which carries more?', nopiv: true, beam: { span: 4, P: 6, c: 1, Wb: 0 }, rr: [+N.l6, +N.r6, +N.half6],\n      task: 'The 6 kN block hangs 1 m from the left trestle. Which trestle carries more?',\n      opts: ['The right trestle', 'The left trestle', 'They carry the same'], want: 'The left trestle',\n      hints: { 'The right trestle': 'Not quite. More beam lies on the right, but that does not decide it. Compare the two arms.',\n        'They carry the same': 'Not quite. They share it equally only with the block at the middle.' },\n      why: 'The block is 1 m from the left trestle and 3 m from the right. Take moments about the block. The left push times 1 m must balance the right push times 3 m. So the left push is three times the right. The nearer trestle, the left one, carries more.' },\n    { show: true, scene: 'beam', name: 'Take moments about a trestle', slider: ['pivot'], pivot: true, arrive: 'bars', outs: ['leftReaction', 'rightReaction', 'pivotMoment'],\n      text: `The principle of moments holds about any point you choose. So choose the left trestle as the pivot. Its own push has no distance from it, so it drops out. The block turns the beam clockwise with 6 × 1 = ${N.m6} kN m. The right trestle pushes up 4 m away, turning it anticlockwise. So it carries 6 ÷ 4 = ${N.r6} kN. The left carries the rest, ${N.l6} kN. Tap a trestle to switch.`,\n      read: `About the left trestle, the block's 6 × 1 = ${N.m6} kN m clockwise matches the right trestle's ${N.r6} × 4 = ${N.m6} kN m anticlockwise. The left trestle's own push drops out. About the right trestle, the moments match too.`,\n      still: { pivot: 'L' } },\n    { kind: 'pick', scene: 'beam', name: 'An 8 kN block', beam: { span: 4, P: 8, c: 3, Wb: 0 }, rr: [+N.l8, +N.h8, +N.r8],\n      task: 'An 8 kN block hangs 3 m from the left trestle. What does the right trestle carry?',\n      opts: [`${N.l8} kN`, `${N.h8} kN`, `${N.r8} kN`], want: `${N.r8} kN`,\n      hints: { [`${N.l8} kN`]: 'Not quite. That is the left trestle\\'s share. The block is nearer the right one.',\n        [`${N.h8} kN`]: 'Not quite. That is half the load. It is right only with the block at the middle.' },\n      why: `Take moments about the left trestle. The block gives 8 × 3 = ${N.m8} kN m clockwise. The right trestle pushes up 4 m away. So it carries ${N.m8} ÷ 4 = ${N.r8} kN. The left carries the other ${N.l8} kN.` },\n    { show: true, scene: 'beam', name: 'The beam\\'s own weight', set: { own: true }, slider: ['own', 'spread', 'x'], arrive: 'weight', outs: ['leftReaction', 'rightReaction'],\n      text: `The beam has weight too. Each half of a uniform beam balances the other about its middle. So its whole weight acts there. This beam weighs 2 kN. About the left trestle it adds 2 × 2 = ${N.mw} kN m. With the block's ${N.m6} kN m, that makes ${N.mwT} kN m. So the right trestle carries ${N.mwT} ÷ 4 = ${N.rw} kN. The left carries the rest of the ${N.tw} kN, ${N.lw} kN. A load spread evenly also acts as its total at its middle.`,\n      still: { own: true, spread: false, x: 1 } },\n    { kind: 'pick', scene: 'beam', name: 'A heavier beam', beam: { span: 6, P: 4, c: 1.5, Wb: 3 }, rr: [+N.hno, +N.hr, +N.hfar], marks: ['noweight', null, 'farend'],\n      task: 'A 6 m beam weighs 3 kN. A 4 kN block hangs 1.5 m from the left trestle. What does the right trestle carry?',\n      opts: [`${N.hno} kN`, `${N.hr} kN`, `${N.hfar} kN`], want: `${N.hr} kN`,\n      hints: { [`${N.hno} kN`]: 'Not quite. That leaves out the beam\\'s own weight. Add its moment too.',\n        [`${N.hfar} kN`]: 'Not quite. That puts the beam\\'s weight at the far end. It acts at the middle.' },\n      why: `About the left trestle, the block gives 4 × 1.5 = ${N.ha} kN m. The beam's 3 kN acts at its middle, 3 m along. It gives 3 × 3 = ${N.hb} kN m. That makes ${N.hm} kN m. The right trestle pushes up 6 m away, so it carries ${N.hm} ÷ 6 = ${N.hr} kN. The left carries the other ${N.hl} kN.` },\n    { show: true, scene: 'wheel', name: 'A couple', wheel: { d: 0.4, F: 100 }, slider: ['wp'], arrive: 'wheel',\n      text: `Two equal pulls in opposite directions, on different lines, add up to no push at all. They only turn. Such a pair is called a *couple*. Each hand pulls 100 N on a valve wheel 0.4 m across. About the centre, each gives 100 × 0.2 = ${N.c1} N m, so the two give ${N.c} N m. About one hand, the other gives 100 × 0.4, still ${N.ch} N m. A couple's moment is the same about any point. The twist a motor puts on its shaft is a couple too.`,\n      still: { wp: 'C' } },\n    { kind: 'pick', scene: 'wheel', name: 'A wider wheel', wheel: { d: 0.5, F: 80 }, arms: ['one', 'both', 'full'],\n      task: 'Each hand pulls 80 N the opposite way on a wheel 0.5 m across. What is the couple\\'s moment?',\n      opts: [`${N.v1} N m`, `${N.v} N m`, `${N.vf} N m`], want: `${N.v} N m`,\n      hints: { [`${N.v1} N m`]: 'Not quite. That is one hand about the centre. Add the other hand\\'s moment.',\n        [`${N.vf} N m`]: 'Not quite. That counts each hand 0.5 m from the centre. Each is only 0.25 m away.' },\n      why: `About the centre, each hand is 0.25 m away and gives 80 × 0.25 = ${N.v1} N m. The two give ${N.v} N m. About one hand, the other gives 80 × 0.5 = ${N.vh} N m, the same.` },\n    { kind: 'pick', scene: 'beam', name: 'Spread over half', beam: { span: 4, P: 4, c: 3, Wb: 2, spread: true, w: 2 }, rr: [+N.sno, +N.sl, +N.sr], marks: ['noweight', null, null],\n      task: 'A 4 m beam weighs 2 kN. A 4 kN load is spread evenly over its right half. What does the right trestle carry?',\n      opts: [`${N.sno} kN`, `${N.sl} kN`, `${N.sr} kN`], want: `${N.sr} kN`,\n      hints: { [`${N.sno} kN`]: 'Not quite. That leaves out the beam\\'s own weight. Its 2 kN acts at the middle.',\n        [`${N.sl} kN`]: 'Not quite. That is the left trestle\\'s share. The load sits nearer the right.' },\n      why: `The spread load's total acts at the middle of the right half, 3 m along. About the left trestle it gives 4 × 3 = ${N.sa} kN m. The beam's 2 kN at its middle gives 2 × 2 = ${N.sb} kN m. That makes ${N.sm} kN m. So the right trestle carries ${N.sm} ÷ 4 = ${N.sr} kN. The left carries the other ${N.sl} kN.` },\n    { kind: 'pick', scene: 'skid', name: 'The centre of gravity', skid: { L: 3, A: 4, B: 2 }, val: [+N.gmid, +N.g, +N.gfar],\n      task: 'A 4 kN pump sits on one end of a 3 m skid and a 2 kN motor on the other. Ignore the skid\\'s own weight. Their *centre of gravity* is where their whole weight acts. How far from the pump is it?',\n      opts: [`${N.gmid} m`, `${N.g} m`, `${N.gfar} m`], want: `${N.g} m`,\n      hints: { [`${N.gmid} m`]: 'Not quite. That is the middle. It would be right only if the two weighed the same.',\n        [`${N.gfar} m`]: 'Not quite. That is nearer the lighter motor. The heavier pump pulls it toward itself.' },\n      why: `It is where one support could hold them level. Take moments about the pump. The motor gives 2 × 3 = ${N.gm} kN m. Their ${N.gt} kN total must give the same. So it acts ${N.gm} ÷ ${N.gt} = ${N.g} m from the pump. Before a lift, the hook goes over that point.` },\n  ];\n  const FINISH = 'To find what each support carries, take moments about one support, so its own push drops out. Then make the up pushes add to the load.';\n  const FADE = 0.35, ANS = 2.3;\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n  const calm = () => REDUCE || testing();\n  const el = (id) => document.getElementById(id);\n  const idx = (name) => STEPS.findIndex((d) => d.name === name);\n\n  // ---------- state ----------\n  const blank = () => ({ pick: null, res: null, why: false });\n  let S = STEPS.map(() => blank());\n  let finished = false, lastStep = -1, lastDone = false;\n  let T = Infinity, motionEnd = 0;          // seconds since the screen opened (a demonstration) or since Check\n  let SW = null;                            // a demonstration's sweep of one control\n  const BASE = { grip: 0.3, pos: 1, x: 1, load: 6, pivot: 'L', own: false, spread: false, wp: 'C' };\n  const CIDS = Object.keys(BASE);\n  let V = Object.assign({}, BASE);          // the settings as drawn (a sweep draws between steps)\n  const setupOf = (i) => Object.assign({}, BASE, STEPS[i].set || {});\n  const STEP = { grip: 0.05, pos: 0.25, x: 0.25 };\n  const snapTo = (id, v) => +(Math.round(v / STEP[id]) * STEP[id]).toFixed(2);\n  const same = (a, b) => (typeof a === 'number' || typeof b === 'number' ? Math.abs(+a - +b) < 1e-9 : a === b);\n  const shows = (d, id) => !!d.show && (d.slider || []).indexOf(id) >= 0;\n\n  // ---------- words with amber key terms (built with K.el, never innerHTML) ----------\n  const nb = (s) => String(s).replace(/(\\d) (?=(?:k?N|m|Ω)(?![\\w]))/g, '$1\\u00a0').replace(/(\\d\\u00a0k?N) m(?![\\w])/g, '$1\\u00a0m');\n  function write(node, s) {\n    s = nb(s);\n    node.textContent = '';\n    const re = /\\*([^*]+)\\*/g;\n    let from = 0, m;\n    while ((m = re.exec(s))) {\n      if (m.index > from) node.appendChild(document.createTextNode(s.slice(from, m.index)));\n      node.appendChild(K.el('span', { class: 'term' }, m[1]));\n      from = m.index + m[0].length;\n    }\n    if (from < s.length) node.appendChild(document.createTextNode(s.slice(from)));\n  }\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);\n  const mfmt = (v) => nf(v) + ' m';\n  const CTL = {\n    grip: K.control({ id: 'grip', label: 'Push from the nut', min: 0.15, max: 0.3, step: 0.05, value: 0.3, fmt: mfmt, snap: [0.15, 0.3], into: '#c-grip' }),\n    pos: K.control({ id: 'pos', label: '600 N load from the pivot', min: 0.5, max: 2, step: 0.25, value: 1, fmt: mfmt, snap: [1], into: '#c-pos' }),\n    x: K.control({ id: 'x', label: 'Block from the left trestle', min: 0, max: 4, step: 0.25, value: 1, fmt: mfmt, snap: [1, 2, 3], into: '#c-x' }),\n    load: K.control({ id: 'load', label: 'The block\\'s load', min: 1, max: 8, step: 1, value: 6, unit: 'kN', into: '#c-load' }),\n    pivot: K.choice({ id: 'pivot', label: 'Take moments about', options: [{ value: 'L', label: 'Left trestle' }, { value: 'R', label: 'Right trestle' }], value: 'L', into: '#c-pivot' }),\n    own: K.toggle({ id: 'own', label: 'The beam\\'s own weight', value: false, into: '#c-own' }),\n    spread: K.toggle({ id: 'spread', label: 'Spread the load over 2 m', value: false, into: '#c-spread' }),\n    wp: K.choice({ id: 'wp', label: 'Take moments about', options: [{ value: 'C', label: 'The centre' }, { value: 'H', label: 'The left hand' }], value: 'C', into: '#c-wp' }),\n  };\n  const CBOX = { grip: 'c-grip', pos: 'c-pos', x: 'c-x', load: 'c-load', pivot: 'c-pivot', own: 'c-own', spread: 'c-spread', wp: 'c-wp' };\n  const RID = ['leftReaction', 'rightReaction', 'pivotMoment'];\n  const RO = [\n    K.readout({ id: 'leftReaction', label: 'Left trestle\\'s reaction', unit: 'kN', decimals: 2, into: '#outs' }),\n    K.readout({ id: 'rightReaction', label: 'Right trestle\\'s reaction', unit: 'kN', decimals: 2, into: '#outs' }),\n    K.readout({ id: 'pivotMoment', label: 'Moment each way', unit: 'kN m', decimals: 2, into: '#outs' }),\n  ];\n  // The pure model: the beam as set, -> what each trestle carries and the moment each way about the pivot.\n  K.model((p) => {\n    const c = p.spread ? K.clamp(+p.x, 1, 3) : +p.x;\n    const r = reactions({ span: SPAN, P: +p.load, c, Wb: p.own ? OWN : 0 });\n    return { leftReaction: r.RL, rightReaction: r.RR, pivotMoment: p.pivot === 'R' ? r.mR : r.mL };\n  });\n\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;\n    st.pick = d.opts[k]; st.res = null; T = Infinity;\n  } }));\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (d.show || finished || st.res === 'right') return;\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = st.pick === d.want ? 'right' : 'wrong';\n    if (calm()) { T = Infinity; return; }\n    T = 0; motionEnd = ANS; play();\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    if (STEPS[at()].show || finished) return;\n    const st = S[at()]; st.why = !st.why;\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true;\n    motion.pause();\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {\n    const d = STEPS[at()];\n    if (finished || !d.show || !(d.play || d.arrive)) return;\n    startDemo(d);\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);\n  } });\n\n  // ---------- motion: a demonstration's sweep or arrivals, and an answer's drawing ----------\n  function sweepAt(keys, t) {\n    if (t <= keys[0][0]) return keys[0][1];\n    for (let k = 1; k < keys.length; k++) {\n      if (t <= keys[k][0]) { const a = keys[k - 1], b = keys[k]; return a[1] + (b[1] - a[1]) * K.ease((t - a[0]) / (b[0] - a[0])); }\n    }\n    return keys[keys.length - 1][1];\n  }\n  const motion = K.anim({ button: false, label: 'Motion', step: (dt) => {\n    if (finished) return false;\n    T += dt;\n    let busy = false;\n    if (SW) {\n      const v = sweepAt(SW.keys, T), r = snapTo(SW.id, v);\n      V[SW.id] = v;\n      if (!same(r, SW.last)) { SW.last = r; CTL[SW.id].set(r, true); }\n      if (T >= SW.end) SW = null; else busy = true;\n    }\n    K.refresh();\n    return busy || T < motionEnd;\n  } });\n  function play() { if (!motion.playing()) motion.play(); }\n  const demoEnd = (d) => (d.play ? d.play.keys[d.play.keys.length - 1][0] : d.arrive === 'bars' ? 2.8 + K.SOFT : d.arrive === 'weight' ? 2.4 : d.arrive === 'wheel' ? 3.9 : 0);\n  const demoStart = (d) => (d.play ? d.play.keys[0][0] : d.arrive ? 0.5 : FADE);\n  function startDemo(d) {\n    SW = null; T = Infinity;\n    if (d.play) {\n      const pl = d.play, v0 = pl.keys[0][1], v1 = pl.keys[pl.keys.length - 1][1];\n      if (calm()) { CTL[pl.id].set(v1, true); V[pl.id] = v1; return; }\n      CTL[pl.id].set(v0, true); V[pl.id] = v0;\n      SW = { id: pl.id, keys: pl.keys, last: v0, end: pl.keys[pl.keys.length - 1][0] };\n      T = 0; motionEnd = SW.end; play();\n    } else if (d.arrive && !calm()) { T = 0; motionEnd = demoEnd(d); play(); }\n  }\n  function settle() {\n    if (SW) { const v = SW.keys[SW.keys.length - 1][1]; CTL[SW.id].set(v, true); V[SW.id] = v; SW = null; }\n    T = Infinity;\n  }\n  function enterStep(i) {\n    lastStep = i; enter('stepbox'); SW = null; T = Infinity;\n    const d = STEPS[i], q = setupOf(i);\n    CIDS.forEach((id) => CTL[id].set(q[id], true));\n    V = Object.assign({}, q);\n    motion.pause();\n    if (d.show) startDemo(d);\n  }\n  function enter(id) {\n    if (REDUCE) return;\n    const b = el(id);\n    b.classList.remove('enter'); void b.offsetWidth; b.classList.add('enter');\n  }\n  const answeredOf = (st) => st.res === 'right' || st.res === 'wrong';\n  const pickIndex = (d, st) => (!d.show && answeredOf(st) && st.pick != null ? d.opts.indexOf(st.pick) : -1);\n  // Arrival times: a demonstration's from the screen opening, an answer's from Check; null, there from the start.\n  function tl(d, st) {\n    const t = { pick: null, b1: null, b2: null, st: null, piv: null, w: null, grow: null, p1: null, p2: null, arm: null, rot: null };\n    if (d.arrive === 'bars') { t.piv = 0.5; t.b1 = 1.0; t.b2 = 1.8; t.st = 2.8; }\n    else if (d.arrive === 'weight') { t.w = 0.5; t.grow = 1.2; }\n    else if (d.arrive === 'wheel') { t.p1 = 0.5; t.p2 = 0.9; t.arm = 1.5; t.rot = 0.5; }\n    else if (!d.show && answeredOf(st)) { t.pick = 0.1; t.b1 = 0.6; t.b2 = 1.0; t.st = 1.5; }\n    return t;\n  }\n  const vis = (t0) => (t0 == null ? 1 : K.arrive(T, t0));\n  const grow = (t0) => (t0 == null ? 1 : K.arrive(T, t0, 0.8));\n\n  // ---------- drawing helpers ----------\n  const fig = el('scene'), art = el('art'), labs = el('labs'), grip = el('grip');\n  let into = null, REC = null, LAB = [];\n  const add = (n) => (into || art).appendChild(n);\n  const r2 = (v) => Math.round(v * 100) / 100;\n  const ln = (x1, y1, x2, y2, cls) => add(K.svg('line', { class: cls, x1: r2(x1), y1: r2(y1), x2: r2(x2), y2: r2(y2) }));\n  const pa = (d, cls) => add(K.svg('path', { class: cls, d }));\n  const ci = (x, y, r, cls) => add(K.svg('circle', { class: cls, cx: r2(x), cy: r2(y), r }));\n  const box = (x, y, w, h, cls, rx) => add(K.svg('rect', { class: cls, x: r2(x), y: r2(y), width: r2(Math.max(0, w)), height: r2(Math.max(0, h)), rx: rx || 0 }));\n  function tx(x, y, s, cls, anchor) { REC.texts.push(String(s)); return add(K.svg('text', { class: cls || 'lab', x: r2(x), y: r2(y), 'text-anchor': anchor || 'middle' }, String(s))); }\n  function part(a, draw) { if (!(a > 0)) return; const g = add(K.svg('g')); K.fade(g, a, 0); const keep = into; into = g; try { draw(); } finally { into = keep; } }\n  // A label placed clear of the other words and of every line marked .av, arriving at a.\n  function lab(x, y, s, cls, anchor, a) {\n    if (a == null) a = 1;\n    if (!(a > 0)) return;\n    LAB.push({ x: r2(x), y: r2(y), text: String(s), class: 'lab' + (cls ? ' ' + cls : ''), anchor: anchor || 'middle', a });\n    REC.texts.push(String(s));\n  }\n  function flushLabels() {\n    const items = LAB;\n    LAB = [];\n    const ts = K.labels(labs, items.map((it) => ({ x: it.x, y: it.y, text: it.text, class: it.class, anchor: it.anchor })), { avoid: Array.from(art.querySelectorAll('.av')) }) || [];\n    ts.forEach((t, k) => { if (items[k] && items[k].a < 1) K.fade(t, items[k].a, 0); });\n  }\n  function setH(h) { REC.H = h; fig.setAttribute('viewBox', '0 0 340 ' + h); }\n  // An arrow: c is ink, rx (a reaction), mut (no moment about the pivot), hot (a mistake), tot or sm.\n  function arrow(x1, y1, x2, y2, c) {\n    const L = Math.hypot(x2 - x1, y2 - y1);\n    if (L < 1) return 0;\n    const ux = (x2 - x1) / L, uy = (y2 - y1) / L, hl = Math.min(c === 'sm' ? 6 : 10, L * 0.5), hw = hl * 0.5;\n    ln(x1, y1, x2 - ux * hl * 0.7, y2 - uy * hl * 0.7, 'ar-' + c + ' av');\n    pa('M' + r2(x2) + ' ' + r2(y2) + 'L' + r2(x2 - ux * hl - uy * hw) + ' ' + r2(y2 - uy * hl + ux * hw) + 'L' + r2(x2 - ux * hl + uy * hw) + ' ' + r2(y2 - uy * hl - ux * hw) + 'Z', 'ah-' + c + ' av');\n    return L;\n  }\n  function dim(x0, x1, y, text, a) {\n    if (Math.abs(x1 - x0) < 0.5) return;\n    part(a == null ? 1 : a, () => { ln(x0, y, x1, y, 'dim av'); ln(x0, y - 5, x0, y + 5, 'dim av'); ln(x1, y - 5, x1, y + 5, 'dim av'); });\n    lab((x0 + x1) / 2, y + 17, text, 't', 'middle', a);\n  }\n  // Two bars, clockwise and anticlockwise, drawn to one scale; whatever one has over the other is red.\n  function momentBars(y0, title, cw, acw, sc, t, aT) {\n    REC.cw = cw; REC.acw = acw; REC.bal = Math.abs(cw - acw) < 1e-6;\n    lab(12, y0, title, 'h', 'start', aT);\n    const lo = Math.min(cw, acw);\n    [['clockwise', cw, y0 + 10, t.b1], ['anticlockwise', acw, y0 + 32, t.b2]].forEach((row) => {\n      const g = grow(row[3]), L = Math.min(218, row[1] * sc) * g, Lc = Math.min(218, lo * sc) * g;\n      part(aT, () => {\n        tx(12, row[2] + 11, row[0], 'lab', 'start');\n        box(112, row[2], 218, 13, 'track', 2);\n        box(112, row[2], Lc, 13, 'mbar', 2);\n        if (L > Lc + 0.5) box(112 + Lc, row[2], L - Lc, 13, 'mbar-hot', 2);\n      });\n    });\n    lab(330, y0, REC.bal ? 'balanced' : 'would turn', REC.bal ? 'm' : 'w', 'end', vis(t.st));\n  }\n\n  // ---------- the spanner: 150 N on a 0.3 m spanner, pushed nearer the nut ----------\n  const NX = 62, NY = 98, SPX = 800;                      // the nut's middle; 800 units a metre\n  function drawSpanner() {\n    setH(212);\n    const r = V.grip, px = NX + r * SPX, m = 150 * r;\n    box(NX + 18, NY - 8, 0.3 * SPX + 16 - 18, 16, 'tool av', 8);\n    ci(NX, NY, 27, 'jaw av');\n    let hex = '';\n    for (let k = 0; k < 6; k++) { const a = k * 60 * D2R; hex += (k ? 'L' : 'M') + r2(NX + 17 * Math.cos(a)) + ' ' + r2(NY + 17 * Math.sin(a)); }\n    pa(hex + 'Z', 'nut av');\n    ci(NX, NY, 3, 'pdot');\n    lab(NX, NY - 38, 'pivot', 't', 'middle');\n    arrow(px, NY - 8 - 62, px, NY - 9, 'ink');\n    lab(px, NY - 80, '150 N', '', px > 290 ? 'end' : 'middle');\n    dim(NX, px, NY + 30, nf(snapTo('grip', r)) + ' m');\n    // the moment, as a bar: its full track is the moment at 0.3 m\n    const sc = 218 / 45;\n    tx(12, 176, 'moment', 'lab', 'start');\n    box(112, 165, 218, 14, 'track', 2);\n    box(112, 165, m * sc, 14, 'mbar', 2);\n    REC.mFill = m * sc;\n    lab(330, 202, 'the full bar is 45 N m, at 0.3 m', 'm', 'end');\n    return 'A spanner on a nut, pushed with 150 N ' + nf(snapTo('grip', r)) + ' m from the middle of the nut. A bar below shows its moment against the moment at 0.3 m.';\n  }\n\n  // ---------- the slanted pull on a 0.5 m bar ----------\n  function drawBarP(d, st) {\n    setH(226);\n    const O = [56, 60], E = [256, 60], u = [-0.8, 0.6], F = [E[0] + 160 * u[0], E[1] + 160 * u[1]];\n    const k = pickIndex(d, st), arm = k >= 0 ? d.arms[k] : null, t = tl(d, st), aP = vis(t.pick);\n    const nO = [(O[0] - F[0]) / 120, (O[1] - F[1]) / 120];        // from the foot toward the pivot\n    // the pull's line, dashed, and the right-angle distance to it\n    ln(E[0] - u[0] * 26, E[1] - u[1] * 26, F[0] + u[0] * 40, F[1] + u[1] * 40, 'ref av');\n    lab(F[0] + u[0] * 40 + 10, F[1] + u[1] * 40 + 16, 'the pull\\'s line', 'm', 'start');\n    ln(O[0], O[1], F[0], F[1], (arm === 'perp' ? 'arm' : 'arm-ghost') + ' av');\n    pa('M' + r2(F[0] + 9 * nO[0]) + ' ' + r2(F[1] + 9 * nO[1]) + 'L' + r2(F[0] + 9 * nO[0] - 9 * u[0]) + ' ' + r2(F[1] + 9 * nO[1] - 9 * u[1]) + 'L' + r2(F[0] - 9 * u[0]) + ' ' + r2(F[1] - 9 * u[1]), 'rt');\n    lab((O[0] + F[0]) / 2 - 12, (O[1] + F[1]) / 2 + 12, '0.3 m', 'n', 'end');\n    // the bar and its pivot\n    ln(O[0], O[1], E[0], E[1], 'rod av');\n    ci(O[0], O[1], 6, 'pivring av');\n    lab(O[0], O[1] - 16, 'pivot', 't', 'middle');\n    lab((O[0] + E[0]) / 2 + 30, O[1] - 14, '0.5 m', '', 'middle');\n    // the pull, on the end of the bar\n    arrow(E[0], E[1], E[0] + 70 * u[0], E[1] + 70 * u[1], 'ink');\n    lab(E[0] + 70 * u[0] + 10, E[1] + 70 * u[1] + 12, '200 N', '', 'start');\n    let words = 'A 0.5 m bar on a pivot, pulled at its far end with 200 N. The pull is slanted, so its line passes 0.3 m from the pivot, measured at right angles.';\n    REC.armM = null;\n    if (arm) {\n      REC.ansShown = true;\n      if (arm === 'perp') {\n        part(aP, () => arrow(F[0], F[1], F[0] + 70 * u[0], F[1] + 70 * u[1], 'ink'));\n        lab(F[0] + 70 * u[0] + 12, F[1] + 70 * u[1] + 4, 'slid along its line', 'm', 'start', aP);\n        REC.armM = 0.3;\n        words += ' The pull is slid along its line to the point nearest the pivot. Its arm is the 0.3 m right-angle distance.';\n      } else if (arm === 'bar') {\n        part(aP, () => ln(O[0], O[1], E[0], E[1], 'arm-hot av'));\n        lab((O[0] + E[0]) / 2, O[1] + 30, 'not at right angles', 'w', 'middle', aP);\n        REC.armM = 0.5;\n        words += ' The whole bar is marked as the arm, but it is not at right angles to the pull.';\n      } else {\n        part(aP, () => ln(O[0], O[1], O[0] + 80, O[1], 'arm-hot av'));\n        lab(O[0] + 40, O[1] + 30, '0.2 m is not an arm', 'w', 'start', aP);\n        REC.armM = 0.2;\n        words += ' A 0.2 m piece of the bar is marked as the arm, but it is not the distance to the pull\\'s line.';\n      }\n      REC.bal = K.near(200 * REC.armM, 200 * 0.3, 1e-9);\n    }\n    return words;\n  }\n\n  // ---------- the plank on a pivot ----------\n  function drawPlank(d, st) {\n    setH(262);\n    const pl = d.plank, t = tl(d, st), k = pickIndex(d, st), wrong = k >= 0 && st.res === 'wrong';\n    const ppm = 300 / (pl.L + pl.R), PX = 20 + pl.L * ppm, PY = 130, FS = 0.12, MSP = 192 / pl.bmax;\n    const posR = d.show ? V.pos : k >= 0 ? d.val[k] : null;\n    const aP = d.show ? 1 : vis(t.pick);\n    const mA = pl.left[0] * pl.left[1], mC = posR == null ? null : pl.right * posR;\n    const alpha = mC == null ? 0 : 6 * D2R * K.clamp((mC - mA) / 150, -1, 1) * aP;\n    REC.tilt = Math.abs(alpha) < 1e-9 ? 0 : alpha;\n    const P = (m) => [PX + m * ppm * Math.cos(alpha), PY + m * ppm * Math.sin(alpha)];\n    ln(8, PY + 34, 332, PY + 34, 'ground');\n    pa('M' + r2(PX) + ' ' + (PY + 5) + 'L' + r2(PX - 18) + ' ' + (PY + 34) + 'L' + r2(PX + 18) + ' ' + (PY + 34) + 'Z', 'fulcrum av');\n    const A = P(-pl.L), B = P(pl.R);\n    ln(A[0], A[1], B[0], B[1], 'plank av');\n    const q = P(-pl.left[1]), fl = pl.left[0] * FS;\n    arrow(q[0], q[1] - 5 - fl, q[0], q[1] - 5, 'ink');\n    lab(q[0], q[1] - 13 - fl, nf(pl.left[0]) + ' N', '', 'middle');\n    dim(PX, PX - pl.left[1] * ppm, PY + 50, nf(pl.left[1]) + ' m');\n    let words = 'A plank on a pivot, with ' + pl.left[0] + ' N pressing down ' + nf(pl.left[1]) + ' m to the left of it';\n    if (posR != null) {\n      const r = P(posR), fr = pl.right * FS, shown = d.show ? snapTo('pos', posR) : posR;\n      part(aP, () => arrow(r[0], r[1] - 5 - fr, r[0], r[1] - 5, wrong ? 'hot' : 'ink'));\n      lab(r[0], r[1] - 13 - fr, nf(pl.right) + ' N', wrong ? 'w' : '', 'middle', aP);\n      dim(PX, PX + posR * ppm, PY + 50, nf(shown) + ' m', aP);\n      momentBars(PY + 84, 'moments about the pivot', mC, mA, MSP, t, aP);\n      if (!d.show) REC.ansShown = true;\n      words += ' and ' + pl.right + ' N pressing down ' + nf(shown) + ' m to the right.' + (REC.bal ? ' It stays level.' : mC > mA ? ' The right end drops.' : ' The left end drops.') +\n        ' Bars compare the clockwise and anticlockwise moments.';\n    } else {\n      lab(PX + 2.2 * ppm, PY - 64, '600 N goes where?', '', 'middle');\n      words += '. Where 600 N must press on the right is the question.';\n    }\n    return words;\n  }\n\n  // ---------- the beam on two trestles ----------\n  const XL = 50, XR = 290, BY = 141, G = 281, KS = 14, MS = 8, MSL = 12;   // trestles at XL and XR; 14 units a kN; 8 units a kN m on a puzzle, 12 on the live beam\n  function drawBeam(d, st) {\n    const t = tl(d, st), k = pickIndex(d, st), ans = k >= 0, live = !!d.show;\n    const b = live ? { span: SPAN, P: +V.load, c: V.spread ? K.clamp(V.x, 1, 3) : V.x, Wb: V.own ? OWN : 0, spread: !!V.spread, w: WIDE }\n      : Object.assign({ spread: false, w: WIDE }, d.beam);\n    const span = b.span, ppm = (XR - XL) / span, X = (m) => XL + m * ppm, total = b.P + b.Wb;\n    const R = reactions(b);\n    let RL = R.RL, RR = R.RR;\n    if (live && d.arrive === 'weight' && b.Wb > 0) {\n      const R0 = reactions(Object.assign({}, b, { Wb: 0 })), g = K.arrive(T, t.grow, 1.2);\n      RL = R0.RL + (R.RL - R0.RL) * g; RR = R0.RR + (R.RR - R0.RR) * g;\n    }\n    if (ans) { RR = d.rr[k]; RL = total - RR; }\n    REC.RLd = RL; REC.RRd = RR;\n    if (ans && d.nopiv) REC.bal = near(RR, R.RR);\n    const shown = live || ans, wrong = ans && st.res === 'wrong', mark = ans ? (d.marks || [])[k] : null;\n    const piv = live ? (d.pivot ? V.pivot : null) : ans && !d.nopiv ? 'L' : null;\n    const aA = live ? 1 : vis(t.pick);\n    setH((live ? d.pivot : !d.nopiv) ? G + 100 : G + 42);\n    // the ground, the two trestles and the beam on them\n    ln(8, G, 332, G, 'ground');\n    [XL, XR].forEach((x) => {\n      ln(x, BY + 8, x - 24, G, 'tres av'); ln(x, BY + 8, x + 24, G, 'tres av');\n      ln(x - 15, G - 34, x + 15, G - 34, 'tres av');\n      box(x - 11, BY + 6, 22, 4, 'cap');\n    });\n    box(XL - 16, BY - 6, XR - XL + 32, 12, 'beam av', 2);\n    // the load: a chain block, or the same load spread evenly\n    const cx = X(b.c), cl = snapTo('x', b.c), right = b.c > span / 2 + 1e-9;\n    REC.blockX = cx;\n    if (!b.spread) {\n      box(cx - 10, BY + 6, 20, 14, 'block av', 3);\n      const ly = BY + 20 + b.P * KS;\n      arrow(cx, BY + 20, cx, ly, 'ink');\n      lab(cx + (right ? -9 : 9), BY + 26 + b.P * KS * 0.5, 'block ' + nf(b.P) + ' kN', '', right ? 'end' : 'start');\n    } else {\n      // eight small arrows, one on the middle of each equal piece, so none hides the total at the middle\n      const n = 8;\n      const lo = Math.max(X(b.c - b.w / 2 + b.w / (2 * n)), XL + 18), hi = Math.min(X(b.c + b.w / 2 - b.w / (2 * n)), XR - 18);\n      REC.smallX = [];\n      for (let j = 0; j < n; j++) { const xj = lo + (hi - lo) * j / (n - 1); REC.smallX.push(xj); arrow(xj, BY + 6, xj, BY + 24, 'sm'); }\n      lab(right ? X(b.c - b.w / 2) - 12 : X(b.c + b.w / 2) + 12, BY + 22, nf(b.P) + ' kN over ' + nf(b.w) + ' m', '', right ? 'end' : 'start');\n      // its total at its middle: on a puzzle, only once Check is pressed\n      const aTot = live ? 1 : ans ? vis(t.pick) : 0;\n      part(aTot, () => arrow(cx, BY + 6, cx, BY + 6 + b.P * KS, 'tot'));\n      lab(cx + (right ? -9 : 9), BY + 10 + b.P * KS, 'acts at its middle', 'm', right ? 'end' : 'start', aTot);\n    }\n    // the beam's own weight, at its middle\n    if (b.Wb > 0) {\n      const mx = X(span / 2), hot = mark === 'noweight' && wrong, aW = live && d.arrive === 'weight' ? vis(t.w) : 1, lr = b.c > span / 2 - 1e-9;\n      // pressing down on the top of the beam at its middle, labelled at its tail\n      part(aW, () => arrow(mx, BY - 7 - b.Wb * KS, mx, BY - 7, hot ? 'hot' : 'ink'));\n      lab(mx, BY - 14 - b.Wb * KS, 'beam ' + nf(b.Wb) + ' kN' + (hot ? ' left out' : ''), hot ? 'w' : '', 'middle', aW);\n      if (mark === 'farend' && wrong) {\n        part(aA, () => arrow(X(span) - 14, BY + 6, X(span) - 14, BY + 6 + b.Wb * KS, 'hot'));\n        lab(X(span) - 22, BY + 20 + b.Wb * KS, 'not at the end', 'w', 'end', aA);\n      }\n    }\n    // each trestle's push up on the beam: its reaction\n    REC.RLpx = null; REC.RRpx = null; REC.ansShown = ans;\n    [['L', XL, RL, 'left reaction', 'start', 1], ['R', XR, RR, 'right reaction', 'end', -1]].forEach((s) => {\n      const tx0 = s[1];\n      if (!shown) { lab(tx0 + s[5] * 12, BY - 22, '?', '', s[4]); return; }\n      const isP = piv === s[0], grey = isP && (live && d.arrive === 'bars' ? vis(t.piv) >= 0.5 : true);\n      const cls = grey ? 'mut' : wrong ? 'hot' : 'rx', len = Math.max(0, s[2]) * KS;\n      part(aA, () => arrow(tx0, BY - 7, tx0, BY - 7 - len, cls));\n      lab(tx0, BY - 15 - len, live ? s[3] : nf(s[2]) + ' kN', grey ? 'm' : wrong ? 'w' : 'n', 'middle', aA);\n      if (s[0] === 'L') REC.RLpx = len; else REC.RRpx = len;\n      if (isP) { REC.pivotCls = cls; REC.pivotArm = 0; }\n    });\n    // the pivot, when moments are taken about a trestle\n    const aT = live && d.arrive === 'bars' ? vis(t.piv) : aA;\n    if (piv) {\n      const px = piv === 'L' ? XL : XR;\n      part(aT, () => ci(px, BY, 5, 'pivring av'));\n      lab(px + (piv === 'L' ? 13 : -13), BY + 30, 'pivot', 't', piv === 'L' ? 'start' : 'end', aT);\n    }\n    // each trestle's arm: its distance from the load\n    if (b.spread && !live && !ans) {\n      const s0 = b.c - b.w / 2, s1 = b.c + b.w / 2;\n      dim(XL, X(s0), G + 14, nf(s0) + ' m');\n      dim(X(s0), X(s1), G + 14, nf(b.w) + ' m');\n      if (s1 < span - 1e-9) dim(X(s1), XR, G + 14, nf(span - s1) + ' m');\n    } else {\n      dim(XL, cx, G + 14, nf(live ? cl : b.c) + ' m');\n      dim(cx, XR, G + 14, nf(span - (live ? cl : b.c)) + ' m');\n    }\n    let words = 'A lifting beam on two trestles ' + nf(span) + ' m apart, ' + (b.spread\n      ? 'carrying ' + nf(b.P) + ' kN spread evenly over ' + nf(b.w) + ' m, its middle ' + nf(live ? cl : b.c) + ' m from the left trestle.'\n      : 'with a ' + nf(b.P) + ' kN chain block ' + nf(live ? cl : b.c) + ' m from the left trestle.');\n    if (b.Wb > 0) words += ' The beam\\'s own ' + nf(b.Wb) + ' kN acts at its middle.';\n    words += shown ? ' An arrow shows each trestle pushing up on the beam, the nearer one pushing harder.' : ' What each trestle carries is the question.';\n    // the moments about the pivot, clockwise and anticlockwise\n    if (piv) {\n      const loads = piv === 'L' ? b.P * b.c + b.Wb * span / 2 : b.P * (span - b.c) + b.Wb * span / 2;\n      const rx = piv === 'L' ? RR * span : RL * span;\n      momentBars(G + 50, 'moments about the ' + (piv === 'L' ? 'left' : 'right') + ' trestle', piv === 'L' ? loads : rx, piv === 'L' ? rx : loads, live ? MSL : MS, t, aT);\n      words += ' Bars compare the clockwise and anticlockwise moments about the ' + (piv === 'L' ? 'left' : 'right') + ' trestle, and they ' + (REC.bal ? 'match.' : 'do not match.');\n    }\n    return words;\n  }\n\n  // ---------- the valve wheel: a couple ----------\n  function drawWheel(d, st) {\n    const wh = d.wheel, live = !!d.show, t = tl(d, st), k = pickIndex(d, st), arm = k >= 0 ? d.arms[k] : null;\n    const Rp = wh.d / 2 * 400, FK = 0.6, F = wh.F, cx = 170, cy = 34 + F * FK;\n    setH(cy + Rp + 50);\n    const rot = live ? 50 * D2R * K.arrive(T, t.rot, 3.4) : 0;\n    ci(cx, cy, Rp, 'rim av');\n    for (let j = 0; j < 3; j++) {\n      const a = rot + j * 2 * Math.PI / 3 - Math.PI / 2;\n      ln(cx + 10 * Math.cos(a), cy + 10 * Math.sin(a), cx + (Rp - 3) * Math.cos(a), cy + (Rp - 3) * Math.sin(a), 'spoke av');\n    }\n    ci(cx, cy, 10, 'hub av');\n    const piv = live ? V.wp : null, Lx = cx - Rp, Rx = cx + Rp, a1 = live ? vis(t.p1) : 1, a2 = live ? vis(t.p2) : 1, aA = live ? vis(t.arm) : vis(t.pick);\n    // the two pulls, each on the rim, the opposite way\n    part(a1, () => arrow(Lx, cy, Lx, cy - F * FK, piv === 'H' ? 'mut' : 'ink'));\n    lab(Lx - 9, cy - F * FK * 0.55, nf(F) + ' N', piv === 'H' ? 'm' : '', 'end', a1);\n    part(a2, () => arrow(Rx, cy, Rx, cy + F * FK, 'ink'));\n    lab(Rx + 9, cy + F * FK * 0.55 + 4, nf(F) + ' N', '', 'start', a2);\n    dim(Lx, Rx, cy + Rp + 16, nf(wh.d) + ' m across');\n    let words = 'A valve wheel ' + nf(wh.d) + ' m across, turned by two hands on opposite sides of the rim, each pulling ' + nf(F) + ' N the opposite way.';\n    REC.armSum = null;\n    if (live) {\n      if (piv === 'C') {\n        part(aA, () => { ln(cx, cy, Lx, cy, 'arm av'); ln(cx, cy, Rx, cy, 'arm av'); });\n        lab((cx + Lx) / 2, cy - 9, nf(wh.d / 2) + ' m', 'n', 'middle', aA);\n        lab((cx + Rx) / 2, cy - 9, nf(wh.d / 2) + ' m', 'n', 'middle', aA);\n        REC.armSum = wh.d;\n        words += ' About the centre, each pull has an arm of ' + nf(wh.d / 2) + ' m.';\n      } else {\n        part(aA, () => { ln(Lx, cy, Rx, cy, 'arm av'); ci(Lx, cy, 5, 'pivring av'); });\n        lab((cx + Rx) / 2, cy - 9, nf(wh.d) + ' m', 'n', 'middle', aA);\n        lab(Lx + 12, cy + 22, 'pivot', 't', 'start', aA);\n        REC.armSum = wh.d;\n        words += ' About the left hand, its own pull drops out, and the other pull has an arm of ' + nf(wh.d) + ' m.';\n      }\n    } else if (arm) {\n      REC.ansShown = true;\n      if (arm === 'both') {\n        part(aA, () => { ln(cx, cy, Lx, cy, 'arm av'); ln(cx, cy, Rx, cy, 'arm av'); });\n        lab((cx + Lx) / 2, cy - 9, nf(wh.d / 2) + ' m', 'n', 'middle', aA);\n        lab((cx + Rx) / 2, cy - 9, nf(wh.d / 2) + ' m', 'n', 'middle', aA);\n        REC.armSum = wh.d;\n        words += ' About the centre, both pulls have an arm of ' + nf(wh.d / 2) + ' m.';\n      } else if (arm === 'one') {\n        part(aA, () => ln(cx, cy, Rx, cy, 'arm-hot av'));\n        lab((cx + Rx) / 2, cy - 9, 'one hand only', 'w', 'middle', aA);\n        REC.armSum = wh.d / 2;\n        words += ' Only one pull\\'s arm is counted.';\n      } else {\n        part(aA, () => { ln(Lx, cy - 5, Rx, cy - 5, 'arm-hot av'); ln(Lx, cy + 5, Rx, cy + 5, 'arm-hot av'); });\n        lab(cx, cy - 14, nf(wh.d) + ' m each', 'w', 'middle', aA);\n        REC.armSum = 2 * wh.d;\n        words += ' Each pull is given the whole width as its arm.';\n      }\n    }\n    if (REC.armSum != null) { REC.momentNm = F * REC.armSum; REC.bal = K.near(REC.momentNm, F * wh.d, 1e-9); }\n    return words;\n  }\n\n  // ---------- the skid: a pump and a motor, and where one support holds them level ----------\n  function drawSkid(d, st) {\n    setH(272);\n    const sk = d.skid, t = tl(d, st), k = pickIndex(d, st), SX = 40, SY = 128, ppm = 260 / sk.L, FK = 14;\n    const g = k >= 0 ? d.val[k] : null, aP = vis(t.pick);\n    const mA = g == null ? 0 : sk.A * g, mC = g == null ? 0 : sk.B * (sk.L - g);   // about the support: the pump anticlockwise, the motor clockwise\n    const alpha = g == null ? 0 : 6 * D2R * K.clamp((mC - mA) / 4, -1, 1) * aP;\n    REC.tilt = Math.abs(alpha) < 1e-9 ? 0 : alpha;\n    const GX = g == null ? SX : SX + g * ppm;\n    const P = (m) => { const o = SX + m * ppm - GX; return [GX + o * Math.cos(alpha), SY + o * Math.sin(alpha)]; };\n    ln(8, SY + 34, 332, SY + 34, 'ground');\n    if (g != null) part(aP, () => pa('M' + r2(GX) + ' ' + (SY + 5) + 'L' + r2(GX - 18) + ' ' + (SY + 34) + 'L' + r2(GX + 18) + ' ' + (SY + 34) + 'Z', 'fulcrum av'));\n    const A = P(0), B = P(sk.L);\n    ln(A[0], A[1], B[0], B[1], 'plank av');\n    arrow(A[0], A[1] - 5 - sk.A * FK, A[0], A[1] - 5, 'ink');\n    lab(A[0], A[1] - 13 - sk.A * FK, 'pump ' + nf(sk.A) + ' kN', '', 'start');\n    arrow(B[0], B[1] - 5 - sk.B * FK, B[0], B[1] - 5, 'ink');\n    lab(B[0], B[1] - 13 - sk.B * FK, 'motor ' + nf(sk.B) + ' kN', '', 'end');\n    let words = 'A ' + nf(sk.L) + ' m skid with a ' + nf(sk.A) + ' kN pump on its left end and a ' + nf(sk.B) + ' kN motor on its right end.';\n    if (g == null) {\n      dim(SX, SX + sk.L * ppm, SY + 50, nf(sk.L) + ' m');\n      words += ' Where one support could hold them level is the question.';\n    } else {\n      REC.ansShown = true;\n      dim(SX, GX, SY + 50, nf(g) + ' m', aP);\n      momentBars(SY + 84, 'moments about the support', mC, mA, 24, t, aP);\n      words += ' One support sits ' + nf(g) + ' m from the pump.' + (REC.bal ? ' It holds them level.' : mC > mA ? ' The motor end drops.' : ' The pump end drops.') +\n        ' Bars compare the clockwise and anticlockwise moments.';\n    }\n    return words;\n  }\n\n  // ---------- one picture for the step now ----------\n  function render(i, st) {\n    const d = STEPS[i];\n    art.textContent = ''; into = null; LAB = [];\n    REC = { texts: [], H: 0, cw: null, acw: null, bal: null, RLpx: null, RRpx: null, pivotCls: null, pivotArm: null, ansShown: false, armM: null, armSum: null,\n      momentNm: null, tilt: 0, mFill: null, blockX: null, RLd: null, RRd: null, smallX: null };\n    const words = d.scene === 'spanner' ? drawSpanner() : d.scene === 'bar' ? drawBarP(d, st) : d.scene === 'plank' ? drawPlank(d, st)\n      : d.scene === 'wheel' ? drawWheel(d, st) : d.scene === 'skid' ? drawSkid(d, st) : drawBeam(d, st);\n    flushLabels();\n    fig.setAttribute('aria-label', words);\n    const live = !finished && i === at();\n    const dragOn = live && d.scene === 'beam' && shows(d, 'x') && REC.blockX != null;\n    grip.style.display = dragOn ? '' : 'none';\n    if (dragOn) { grip.setAttribute('cx', r2(REC.blockX)); grip.setAttribute('cy', BY + 14); }\n    fig.classList.toggle('drag', dragOn);\n    const tapOn = live && d.scene === 'beam' && shows(d, 'pivot');\n    [['L', XL], ['R', XR]].forEach((s) => {\n      const r = el('tap' + s[0]);\n      r.style.display = tapOn ? '' : 'none';\n      if (tapOn) { r.setAttribute('x', s[1] - 30); r.setAttribute('y', 14); r.setAttribute('width', 60); r.setAttribute('height', G - 14); }\n    });\n    return REC;\n  }\n\n  // ---------- Dan drags the block along the beam, or taps a trestle ----------\n  const dragging = () => !finished && STEPS[at()].scene === 'beam' && shows(STEPS[at()], 'x');\n  function xFrom(e) {\n    const m = fig.getScreenCTM();\n    if (!m) return null;\n    const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(m.inverse());\n    const v = Math.round((q.x - XL) / ((XR - XL) / SPAN) / 0.25) * 0.25;\n    return V.spread ? K.clamp(v, 1, 3) : K.clamp(v, 0, SPAN);\n  }\n  let held = null;\n  grip.addEventListener('pointerdown', (e) => {\n    if (!dragging()) return;\n    held = e.pointerId;\n    try { grip.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows while the pointer stays on the block */ }\n    e.preventDefault();\n    K.reveal();\n    const v = xFrom(e);\n    if (v != null) CTL.x.set(v);\n  });\n  grip.addEventListener('pointermove', (e) => {\n    if (held !== e.pointerId || !dragging()) return;\n    e.preventDefault();\n    const v = xFrom(e);\n    if (v != null && !same(v, +CTL.x.get())) CTL.x.set(v);\n  });\n  const letGo = (e) => { if (held === e.pointerId) held = null; };\n  grip.addEventListener('pointerup', letGo);\n  grip.addEventListener('pointercancel', letGo);\n  grip.addEventListener('lostpointercapture', () => { held = null; });\n  ['L', 'R'].forEach((s) => el('tap' + s).addEventListener('click', () => {\n    const d = STEPS[at()];\n    if (finished || !shows(d, 'pivot')) return;\n    K.reveal();\n    CTL.pivot.set(s);\n  }));\n\n  // ---------- the words under the picture ----------\n  function sayFor(d, p) {\n    if (d.scene === 'spanner') {\n      const r = snapTo('grip', +p.grip), m = 150 * r;\n      if (near(r, 0.3)) return 'The push is 150 N, 0.3 m from the middle of the nut, so its moment is ' + nf(m) + ' N m.';\n      if (near(r, 0.15)) return 'The same 150 N at half the distance, 0.15 m, gives half the moment, ' + nf(m) + ' N m.';\n      return 'The same 150 N at ' + nf(r) + ' m gives 150 × ' + nf(r) + ' = ' + nf(m) + ' N m.';\n    }\n    if (d.scene === 'plank') {\n      const q = +p.pos, m = 600 * q;\n      if (near(q, 1)) return 'Both sides turn it with 600 N m, so the plank stays level.';\n      return q > 1 ? 'At ' + nf(q) + ' m out, the 600 N load turns it clockwise with ' + nf(m) + ' N m. That beats 600 N m, so the right end drops.'\n        : 'At ' + nf(q) + ' m out, the 600 N load turns it clockwise with only ' + nf(m) + ' N m. So the left end drops.';\n    }\n    if (d.scene === 'wheel') {\n      return p.wp === 'H' ? 'About the left hand, its own pull drops out. The other hand is 0.4 m away and gives 100 × 0.4 = ' + N.ch + ' N m.'\n        : 'About the centre, each hand is 0.2 m away and gives ' + N.c1 + ' N m. Together they give ' + N.c + ' N m.';\n    }\n    const L = nf(+p.load), x = p.spread ? K.clamp(+p.x, 1, 3) : +p.x;\n    if (d.pivot) return p.pivot === 'R' ? 'About the right trestle, its own push drops out. The left trestle\\'s push balances the block\\'s turning effect.'\n      : 'About the left trestle, the clockwise and anticlockwise moments match, so the beam stays still.';\n    if (d.arrive === 'weight') {\n      let s = p.spread ? 'Spread over 2 m, the ' + L + ' kN acts at its middle, ' + nf(x) + ' m along, just like the block. ' : '';\n      s += p.own ? 'The beam\\'s 2 kN acts at its middle, 2 m from each trestle.' : 'With the beam\\'s weight left out, the ' + L + ' kN load is all there is.';\n      return s;\n    }\n    if (near(x, 2)) return 'The block is at the middle, 2 m from each trestle, so each trestle carries half the ' + L + ' kN.';\n    if (x < 1e-9 || near(x, SPAN)) return 'The block hangs right over the ' + (x < 1 ? 'left' : 'right') + ' trestle, so that trestle carries all ' + L + ' kN and the other none.';\n    return 'The block is ' + nf(x) + ' m from the left trestle and ' + nf(SPAN - x) + ' m from the right. The ' + (x < 2 ? 'left' : 'right') + ' trestle is nearer, so it carries more of the ' + L + ' kN.';\n  }\n  function layout(i, d, st, p) {\n    const right = st.res === 'right';\n    el('stepbox').hidden = finished;\n    el('lead').hidden = finished || i !== 0;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length + ' · ' + d.name;\n    const task = el('task');\n    task.className = 'task say' + (d.show ? ' show' : '');\n    write(task, d.show ? d.text : d.task);\n    CIDS.forEach((id) => { el(CBOX[id]).hidden = !shows(d, id); });\n    const outs = d.show ? d.outs || [] : [];\n    el('outs').hidden = !outs.length;\n    RO.forEach((r, k) => { r.el.hidden = outs.indexOf(RID[k]) < 0; });\n    el('say').hidden = !d.show;\n    el('say').textContent = d.show ? nb(sayFor(d, p)) : '';\n    const opts = d.show ? [] : d.opts;\n    el('picks').hidden = !opts.length;\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(nb(opts[k]));\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n    el('acts').hidden = !!d.show;\n    el('replay').hidden = finished || !(d.show && (d.play || d.arrive)) || REDUCE;\n    checkBtn.el.hidden = right;\n    const fb = el('fb');\n    fb.hidden = !!d.show;\n    fb.className = 'fb say' + (right ? ' right' : '');\n    fb.textContent = d.show ? '' : right ? 'That\\'s it.' : st.res === 'wrong' ? nb(d.hints[st.pick] || '') : st.res === 'empty' ? 'Pick an answer first.' : '';\n    const why = el('why');\n    why.hidden = !!d.show || !st.why;\n    if (!d.show) write(why, d.why);\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !right);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  }\n\n  write(el('finish'), FINISH);\n  K.update((p) => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (!motion.playing() && (SW || T !== Infinity)) { settle(); K.refresh(); return; }\n    if (i !== lastStep) { enterStep(i); K.refresh(); return; }\n    // Dan took hold of the control a demonstration was moving.\n    if (SW && !same(+p[SW.id], SW.last)) SW = null;\n    // A control this screen does not show keeps the screen's own setting; a spread load stays on the beam.\n    const q = setupOf(i);\n    let fix = false;\n    CIDS.forEach((id) => {\n      if (shows(d, id)) return;\n      if (!same(p[id], q[id])) { CTL[id].set(q[id], true); fix = true; }\n    });\n    if (p.spread && (+p.x < 1 || +p.x > 3)) { CTL.x.set(K.clamp(+p.x, 1, 3), true); fix = true; }\n    if (fix) { K.refresh(); return; }\n    CIDS.forEach((id) => { if (!SW || SW.id !== id) V[id] = typeof BASE[id] === 'number' ? +p[id] : p[id]; });\n    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }\n    render(i, st);\n    layout(i, d, st, p);\n    if (d.show && d.arrive === 'weight' && T < demoEnd(d) && REC.RLd != null) { RO[0].set(REC.RLd); RO[1].set(REC.RRd); }\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);\n  function drawnAt(i, st, over) {\n    const keep = { T, V: Object.assign({}, V), SW };\n    T = Infinity; SW = null;\n    V = Object.assign(setupOf(i), over || {});\n    try { return render(i, st || blank()); }\n    finally { T = keep.T; V = keep.V; SW = keep.SW; render(at(), S[at()]); }\n  }\n  const answer = (i, o) => ({ pick: o, res: o === STEPS[i].want ? 'right' : 'wrong', why: false });\n  const OPEN = { x: 1, load: 6, own: false, spread: false, pivot: 'L' };\n  const atB = (over) => K.at(Object.assign({}, OPEN, over));\n  K.check('A 6 kN block 1 m from the left trestle: the right trestle carries 1.5 kN, the left 4.5 kN, and the moment each way is 6 kN m', () => {\n    const o = atB({});\n    return K.near(o.rightReaction, 1.5, 1e-9) && K.near(o.leftReaction, 4.5, 1e-9) && K.near(o.pivotMoment, 6, 1e-9);\n  });\n  K.check('With the beam\\'s own 2 kN, the reactions are 5.5 kN and 2.5 kN; with the block at the middle, each trestle carries 3 kN', () => {\n    const w = atB({ own: true }), m = atB({ x: 2 });\n    return K.near(w.leftReaction, 5.5, 1e-9) && K.near(w.rightReaction, 2.5, 1e-9) && K.near(m.leftReaction, 3, 1e-9) && K.near(m.rightReaction, 3, 1e-9);\n  });\n  K.check('The nearer trestle carries more: each step of the block to the right raises the right reaction and lowers the left, and the drawn arrows follow', () => {\n    const i = idx('The lifting beam');\n    let prev = null;\n    for (let x = 0; x <= SPAN + 1e-9; x += 0.25) {\n      const o = atB({ x }), r = drawnAt(i, blank(), { x });\n      if (x < 2 - 1e-9 && !(o.leftReaction > o.rightReaction)) return false;\n      if (x > 2 + 1e-9 && !(o.rightReaction > o.leftReaction)) return false;\n      if (!K.near(r.RRpx, o.rightReaction * KS, 1e-6) || !K.near(r.RLpx, o.leftReaction * KS, 1e-6)) return false;\n      if (prev && !(o.rightReaction > prev.rightReaction && o.leftReaction < prev.leftReaction)) return false;\n      prev = o;\n    }\n    return true;\n  });\n  K.check('The principle of moments states that for an object to be balanced the total clockwise moment must be equal to the total anti-clockwise moment: the drawn bars match at every block position, load, weight and pivot', () => {\n    const i = idx('Take moments about a trestle');\n    for (const pivot of ['L', 'R']) for (const x of [0, 1, 2.5, 4]) for (const load of [1, 6, 8]) for (const own of [false, true]) {\n      const r = drawnAt(i, blank(), { x, load, pivot, own });\n      if (r.bal !== true || !K.near(r.cw, r.acw, 1e-9)) return false;\n    }\n    return true;\n  }, { source: SRC.bbc });\n  K.check('The second condition for equilibrium holds for any choice of pivot point: about the right trestle, the moment each way is the left reaction times the span, and the load times its distance from that trestle', () => {\n    for (let x = 0; x <= SPAN + 1e-9; x += 0.25) {\n      const o = atB({ x, pivot: 'R' }), l = atB({ x });\n      if (!K.near(o.pivotMoment, l.leftReaction * SPAN, 1e-9) || !K.near(o.pivotMoment, 6 * (SPAN - x), 1e-9)) return false;\n    }\n    return true;\n  }, { source: SRC.os });\n  K.check('The torque exerted by the supporting force is zero relative to that pivot point: the pivot trestle\\'s own arrow is drawn in the muted style, with no arm', () =>\n    ['L', 'R'].every((pivot) => { const r = drawnAt(idx('Take moments about a trestle'), blank(), { pivot }); return r.pivotCls === 'mut' && r.pivotArm === 0; }), { source: SRC.os });\n  K.check('A force may be slid along its line of action without changing the moment: the slanted pull gives the same moment from the bar\\'s end as from the point on its line nearest the pivot', () => {\n    // in metres, the pivot at the origin and y up: the end E = (0.5, 0), the pull 200 N along (−0.8, −0.6)\n    const Fv = [-0.8 * 200, -0.6 * 200], cross = (r) => r[0] * Fv[1] - r[1] * Fv[0];\n    const foot = [0.5 - 0.4 * 0.8, -0.4 * 0.6];\n    return K.near(Math.abs(cross([0.5, 0])), 60, 1e-9) && K.near(Math.abs(cross(foot)), 60, 1e-9) && K.near(Math.hypot(foot[0], foot[1]), 0.3, 1e-9) &&\n      K.near(foot[0] * -0.8 + foot[1] * -0.6, 0, 1e-12);\n  }, { source: SRC.stat });\n  K.check('A load spread evenly acts as its total at its middle: summed in 400 small pieces, 6 kN over 2 m gives the block\\'s reactions at every middle from 1 m to 3 m', () => {\n    for (let c = 1; c <= 3 + 1e-9; c += 0.25) {\n      const s = atB({ spread: true, x: c }), b = atB({ x: c });\n      let m = 0;\n      for (let j = 0; j < 400; j++) m += (6 / 400) * (c - 1 + (j + 0.5) * 2 / 400);\n      if (!K.near(s.rightReaction, m / SPAN, 1e-9) || !K.near(s.leftReaction, b.leftReaction, 1e-9) || !K.near(s.rightReaction, b.rightReaction, 1e-9)) return false;\n    }\n    return true;\n  });\n  K.check('Half the distance gives half the moment: the spanner\\'s moment bar at 0.15 m is half its length at 0.3 m; and the plank stays level only with the 600 N load 1 m out', () => {\n    const a = drawnAt(0, blank(), { grip: 0.3 }).mFill, b = drawnAt(0, blank(), { grip: 0.15 }).mFill, qs = [0.5, 0.75, 1, 1.25, 1.5, 2];\n    const tilts = qs.map((q) => drawnAt(idx('Balance on a plank'), blank(), { pos: q }).tilt);\n    return a > 0 && K.near(b * 2, a, 1e-9) && tilts.every((tt, k) => (qs[k] === 1 ? tt === 0 : tt !== 0));\n  });\n  K.check('A couple\\'s moment is the same about any point: 100 N each way on a 0.4 m wheel gives 40 N m, and 80 N each way on a 0.5 m wheel gives 40 N m, about every point across the wheel', () => {\n    const couple = (F, dd, s) => { const r = dd / 2; return Math.abs((-r - s) * F + (r - s) * -F); };\n    for (let s = -0.3; s <= 0.3 + 1e-9; s += 0.05) if (!K.near(couple(100, 0.4, s), 40, 1e-9) || !K.near(couple(80, 0.5, s), 40, 1e-9)) return false;\n    return N.c === '40' && N.ch === '40' && N.v === '40' && N.vh === '40' &&\n      ['C', 'H'].every((wp) => K.near(drawnAt(idx('A couple'), blank(), { wp }).momentNm, 40, 1e-9));\n  });\n  K.check('The worked numbers: 45 and 22.5 N m on the spanner; 60 N m for the slanted pull; 600 N m each way, so 600 N balances at 1 m; 6 kN m, 1.5 and 4.5 kN; 24 kN m, 6 and 2 kN; 4 and 10 kN m, 2.5 and 5.5 kN; 6, 9 and 15 kN m, 2.5 and 4.5 kN; 12, 4 and 16 kN m, 4 and 2 kN; 6 kN m over 6 kN puts the centre of gravity 1 m from the pump', () =>\n    N.sp === '45' && N.sp2 === '22.5' && N.bar === '60' && N.barL === '100' && N.barD === '40' && N.pl === '600' && N.hang === '1' && N.hang4 === '4' &&\n    N.m6 === '6' && N.r6 === '1.5' && N.l6 === '4.5' && N.half6 === '3' && N.m8 === '24' && N.r8 === '6' && N.l8 === '2' && N.h8 === '4' &&\n    N.mw === '4' && N.mwT === '10' && N.rw === '2.5' && N.lw === '5.5' && N.tw === '8' && N.ha === '6' && N.hb === '9' && N.hm === '15' && N.hr === '2.5' && N.hl === '4.5' &&\n    N.hno === '1' && N.hfar === '4' && N.c1 === '20' && N.v1 === '20' && N.vf === '80' && N.sa === '12' && N.sb === '4' && N.sm === '16' && N.sr === '4' && N.sl === '2' && N.sno === '3' && N.gm === '6' && N.gt === '6' && N.g === '1' && N.gmid === '1.5' && N.gfar === '2');\n  K.check('Each puzzle offers three answers and accepts only its right one, every wrong answer has its own hint, its picture shows no answer before Check, and only the right answer balances once drawn', () =>\n    DO.every((i) => {\n      const d = STEPS[i];\n      if (d.opts.length !== 3 || d.opts.indexOf(d.want) < 0 || d.opts.some((o) => o !== d.want && !d.hints[o])) return false;\n      if (drawnAt(i, blank()).ansShown) return false;\n      return d.opts.every((o) => { const r = drawnAt(i, answer(i, o)); return r.ansShown && (o === d.want ? r.bal === true : r.bal === false); });\n    }));\n  K.check('Screen 6 draws both reactions in navy with no pivot; the spread puzzle marks where its load lies, not its middle, before Check; the small arrows keep clear of the trestles', () => {\n    const i6 = idx('Which carries more?'), r6 = drawnAt(i6, answer(i6, STEPS[i6].want));\n    const i13 = idx('Spread over half'), r13 = drawnAt(i13, blank());\n    return r6.cw === null && r6.pivotCls === null && r6.bal === true && r13.texts.indexOf('3 m') < 0 && r13.texts.indexOf('2 m') >= 0 &&\n      r13.smallX.length === 8 && r13.smallX.every((x) => x >= XL + 18 - 1e-6 && x <= XR - 18 + 1e-6);\n  });\n  K.check('Every demonstration starts after the screen\\'s fade and ends within 4.5 s of its screen opening; an answer is drawn within 3 s of Check', () =>\n    STEPS.filter((d) => d.show).every((d) => (d.play || d.arrive) && demoStart(d) >= FADE && demoEnd(d) <= 4.5) && 1.5 + K.SOFT <= ANS && ANS <= 3);\n\n  K.ready();\n</script>",
+  "title": "The beam on two trestles",
+  "brief": "The one thing you should see is the nearer trestle's reaction arrow grow, and the far one's shrink as its arm lengthens, when you move the chain block along the beam.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "A 6 kN block 1 m from the left trestle: the right trestle carries 1.5 kN, the left 4.5 kN, and the moment each way is 6 kN m",
+     "ok": true
+    },
+    {
+     "label": "With the beam's own 2 kN, the reactions are 5.5 kN and 2.5 kN; with the block at the middle, each trestle carries 3 kN",
+     "ok": true
+    },
+    {
+     "label": "The nearer trestle carries more: each step of the block to the right raises the right reaction and lowers the left, and the drawn arrows follow",
+     "ok": true
+    },
+    {
+     "label": "The principle of moments states that for an object to be balanced the total clockwise moment must be equal to the total anti-clockwise moment: the drawn bars match at every block position, load, weight and pivot",
+     "ok": true,
+     "source": "https://www.bbc.co.uk/bitesize/articles/z96g3j6"
+    },
+    {
+     "label": "The second condition for equilibrium holds for any choice of pivot point: about the right trestle, the moment each way is the left reaction times the span, and the load times its distance from that trestle",
+     "ok": true,
+     "source": "https://openstax.org/books/college-physics-2e/pages/9-2-the-second-condition-for-equilibrium"
+    },
+    {
+     "label": "The torque exerted by the supporting force is zero relative to that pivot point: the pivot trestle's own arrow is drawn in the muted style, with no arm",
+     "ok": true,
+     "source": "https://openstax.org/books/college-physics-2e/pages/9-2-the-second-condition-for-equilibrium"
+    },
+    {
+     "label": "A force may be slid along its line of action without changing the moment: the slanted pull gives the same moment from the bar's end as from the point on its line nearest the pivot",
+     "ok": true,
+     "source": "https://engineeringstatics.org/moment-of-force.html"
+    },
+    {
+     "label": "A load spread evenly acts as its total at its middle: summed in 400 small pieces, 6 kN over 2 m gives the block's reactions at every middle from 1 m to 3 m",
+     "ok": true
+    },
+    {
+     "label": "Half the distance gives half the moment: the spanner's moment bar at 0.15 m is half its length at 0.3 m; and the plank stays level only with the 600 N load 1 m out",
+     "ok": true
+    },
+    {
+     "label": "A couple's moment is the same about any point: 100 N each way on a 0.4 m wheel gives 40 N m, and 80 N each way on a 0.5 m wheel gives 40 N m, about every point across the wheel",
+     "ok": true
+    },
+    {
+     "label": "The worked numbers: 45 and 22.5 N m on the spanner; 60 N m for the slanted pull; 600 N m each way, so 600 N balances at 1 m; 6 kN m, 1.5 and 4.5 kN; 24 kN m, 6 and 2 kN; 4 and 10 kN m, 2.5 and 5.5 kN; 6, 9 and 15 kN m, 2.5 and 4.5 kN; 12, 4 and 16 kN m, 4 and 2 kN; 6 kN m over 6 kN puts the centre of gravity 1 m from the pump",
+     "ok": true
+    },
+    {
+     "label": "Each puzzle offers three answers and accepts only its right one, every wrong answer has its own hint, its picture shows no answer before Check, and only the right answer balances once drawn",
+     "ok": true
+    },
+    {
+     "label": "Screen 6 draws both reactions in navy with no pivot; the spread puzzle marks where its load lies, not its middle, before Check; the small arrows keep clear of the trestles",
+     "ok": true
+    },
+    {
+     "label": "Every demonstration starts after the screen's fade and ends within 4.5 s of its screen opening; an answer is drawn within 3 s of Check",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step",
+    "grip",
+    "pos",
+    "x",
+    "load",
+    "pivot",
+    "own",
+    "spread",
+    "wp"
+   ],
+   "readouts": [
+    "leftReaction",
+    "rightReaction",
+    "pivotMoment"
+   ],
+   "outputs": [
+    "leftReaction",
+    "rightReaction",
+    "pivotMoment"
+   ],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Screen",
+     "min": 0,
+     "max": 13,
+     "step": 1,
+     "steps": [
+      "A spanner on a nut",
+      "A slanted pull",
+      "Balance on a plank",
+      "Balance the plank",
+      "The lifting beam",
+      "Which carries more?",
+      "Take moments about a trestle",
+      "An 8 kN block",
+      "The beam's own weight",
+      "A heavier beam",
+      "A couple",
+      "A wider wheel",
+      "Spread over half",
+      "The centre of gravity"
+     ],
+     "value": 0
+    },
+    {
+     "id": "grip",
+     "kind": "control",
+     "label": "Push from the nut",
+     "min": 0.15,
+     "max": 0.3,
+     "step": 0.05,
+     "log": false,
+     "value": 0.3,
+     "shown": true,
+     "snap": [
+      0.15,
+      0.3
+     ]
+    },
+    {
+     "id": "pos",
+     "kind": "control",
+     "label": "600 N load from the pivot",
+     "min": 0.5,
+     "max": 2,
+     "step": 0.25,
+     "log": false,
+     "value": 1,
+     "shown": false,
+     "snap": [
+      1
+     ]
+    },
+    {
+     "id": "x",
+     "kind": "control",
+     "label": "Block from the left trestle",
+     "min": 0,
+     "max": 4,
+     "step": 0.25,
+     "log": false,
+     "value": 1,
+     "shown": false,
+     "snap": [
+      1,
+      2,
+      3
+     ]
+    },
+    {
+     "id": "load",
+     "kind": "control",
+     "label": "The block's load",
+     "min": 1,
+     "max": 8,
+     "step": 1,
+     "log": false,
+     "value": 6,
+     "shown": false
+    },
+    {
+     "id": "pivot",
+     "kind": "choice",
+     "label": "Take moments about",
+     "options": [
+      "L",
+      "R"
+     ],
+     "labels": [
+      "Left trestle",
+      "Right trestle"
+     ],
+     "value": "L",
+     "index": 0,
+     "shown": false
+    },
+    {
+     "id": "own",
+     "kind": "toggle",
+     "label": "The beam's own weight",
+     "options": [
+      false,
+      true
+     ],
+     "value": false,
+     "shown": false
+    },
+    {
+     "id": "spread",
+     "kind": "toggle",
+     "label": "Spread the load over 2 m",
+     "options": [
+      false,
+      true
+     ],
+     "value": false,
+     "shown": false
+    },
+    {
+     "id": "wp",
+     "kind": "choice",
+     "label": "Take moments about",
+     "options": [
+      "C",
+      "H"
+     ],
+     "labels": [
+      "The centre",
+      "The left hand"
+     ],
+     "value": "C",
+     "index": 0,
+     "shown": false
+    }
+   ],
+   "actions": [
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Check",
+    "Why?",
+    "Back",
+    "Continue",
+    "Play again",
+    "Start again",
+    "Motion"
+   ],
+   "answers": [],
+   "written": [],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 2
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-27T06:50:32.899Z",
+  "applied": [
+   {
+    "path": "analogy.breaks",
+    "problem": "It says an overhang load always needs a hold-down and always tips the beam, but the beam's own weight can outweigh a small overhang load, so only a heavy enough one tips it."
+   },
+   {
+    "path": "practice.text",
+    "problem": "The step \"add up each load times its distance\" gives a wrong reaction for a load hung beyond the left support, which turns the beam the other way and must be taken off."
+   },
+   {
+    "path": "interactive.whatAmILookingAt",
+    "problem": "With the beam-weight switch on, the right reaction is the total moment over 4 m, not the block's alone, and the anticlockwise bar is a reaction times its arm, not a load's."
+   },
+   {
+    "path": "interactive.ignores",
+    "problem": "A swinging load pulls hardest at the bottom of its swing, where it is not speeding up, so \"while it speeds up\" misstates when the extra pull happens."
+   }
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}

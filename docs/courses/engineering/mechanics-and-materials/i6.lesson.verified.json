@@ -1,0 +1,445 @@
+{
+  "iid": "i6",
+  "title": "Rotation: torque, inertia and run-up",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the speed climb in a straight line under a steady net torque, and take four times as long, when you slide the masses out to twice the radius.",
+    "title": "The spin-up rig",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Screen",
+        "min": 0,
+        "max": 13,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [
+      {
+        "id": "inertia",
+        "label": "Moment of inertia",
+        "unit": "kg m²",
+        "decimals": 2
+      },
+      {
+        "id": "runUp",
+        "label": "Run-up time",
+        "unit": "s",
+        "decimals": 1
+      },
+      {
+        "id": "energy",
+        "label": "Energy stored",
+        "unit": "kJ",
+        "decimals": 1
+      }
+    ],
+    "whatAmILookingAt": "The picture runs over fourteen small screens. The main picture is a spin-up rig. A motor turns a shaft. The shaft carries two arms, one either side, with a 25 kg mass on each. Dragging the masses along their arms sets how far out they sit. The radius runs from 0.1 to 0.4 m in 0.05 m steps and opens at 0.2 m. Dragging a torque handle sets the net torque on the shaft. It runs from 20 to 100 N m in 10 N m steps and opens at 50 N m. Net torque is what is left once the load and friction take their share. It is what speeds the shaft up. On Start, the shaft spins up from rest. The moment of inertia, I, is 2 × 25 × the radius squared. At 0.2 m that is 2 kg m². Each second, the shaft's speed rises by the net torque ÷ I. That is 50 ÷ 2 = 25 rad/s². Below the rig a graph plots the angular speed against time. Under a steady net torque its trace is a straight line. Its slope is that rise per second. The run stops at 151.8 rad/s, which is 1450 rev/min. The graph marks that speed. A second trace plots the energy stored, on its own axis. The energy is ½ × I × the speed squared. It climbs as a curve, slowly at first and steeply at the end. That is because the energy goes with the square of the speed. A bar beside the rig shows the same energy. Readouts give the moment of inertia in kg m², the run-up time in s, and the energy stored in kJ. The angular speed reads off the graph. On a narrow phone the three readouts wrap onto two lines. The run-up time is 151.8 ÷ the rise per second. At the opening settings that is 6.1 s. At 1450 rev/min the energy is ½ × 2 × 151.8² = 23,057 J. The readout shows 23.1 kJ. With the masses at 0.4 m, I is 8 kg m², four times as much. The same 50 N m then takes 24.3 s and stores 92.2 kJ. With them at 0.1 m, I is 0.5 kg m². The picture plays time four times faster than real. The clock still reads real seconds. A Motor and pump switch swaps the torque handle for two curves. A graph beside the rig draws them as torque against speed. The motor curve sketches the shape of a cage induction motor. It starts at 130 N m at rest and rises to a peak of 276 N m at 1125 rev/min. Then it falls steeply to zero at 1500 rev/min. That is the speed of its rotating field. It follows the rule torque = 2 × 276 ÷ (s ÷ 0.25 + 0.25 ÷ s). Here s is the slip. The slip is how far the shaft lags 1500 rev/min, as a fraction of that speed. The pump curve is a sketch too. It starts at zero at rest and rises with the square of the speed. It reaches 72.4 N m at 1450 rev/min. The shaded gap between the curves is the net torque. A dot rides along the curves at the shaft's speed. The net torque is 130 N m at rest. It widens as the motor nears its peak at 1125 rev/min. Then it closes fast, to nothing where the curves meet, near 1450 rev/min and 72.4 N m. So the speed trace climbs faster and faster at first, then bends over and levels off there. In this mode the run-up time is the time to reach 1435 rev/min. That is 99% of where the speed settles. The speed creeps up on the last bit ever more slowly. At 2 kg m² that is 1.9 s. Screen 1 runs the opening 50 N m on 2 kg m². The speed trace is a straight line that reaches 151.8 rad/s at 6.1 s. Screen 2 asks what the speed does under a steady net torque of 50 N m. The right pick is that it rises by the same amount every second. One wrong pick says it holds one steady speed set by the torque. The other says it rises fast and then levels off. Screen 3 pictures a shaft with just one arm and one mass. An arrow along its circle shows the arm's push on it. The mass slides from 0.2 m to 0.4 m. The push is the torque ÷ the radius, so it halves. Meanwhile the mass must move twice as fast along its bigger circle for the same angular speed. Screen 4 asks for the moment of inertia when each 25 kg mass slides from 0.2 m out to 0.4 m. The answer is 8 kg m², from 2 × 25 × 0.4². The wrong pick 4 kg m² doubles I with the radius. The wrong pick 20 kg m² comes from 2 × 25 × 0.4, with the radius not squared. Screen 5 runs 50 N m on 2 kg m², then on 8 kg m². The run-ups take 6.1 s, then 24.3 s. Screen 6 asks for the run-up time of a rotor from rest to 1450 rev/min. The rotor has I = 0.5 kg m² and a steady net torque of 40 N m. The answer is 1.9 s, from 151.8 ÷ 80. The wrong pick 18.1 s comes from 1450 ÷ 80, with the speed left in rev/min. The wrong pick 7.6 s comes from 151.8 ÷ 20, with the torque multiplied by I. Screen 7 shows that one arm turning through one radian. The push is the torque ÷ r, and it moves r metres along the circle. So the torque does T joules of work each radian. Each second it does T × ω joules. An 11 kW motor at 151.8 rad/s gives 11,000 ÷ 151.8 = 72.4 N m. Screen 8 asks for the power of a shaft carrying 40 N m at 960 rev/min. The answer is 4.02 kW. Here 960 rev/min is 100.5 rad/s, and 40 × 100.5 = 4021 W. The wrong pick 38.4 kW comes from 40 × 960, with the speed in rev/min. The wrong pick 640 W comes from 40 × 960 ÷ 60, with the speed in revolutions a second. Screen 9 runs the opening settings and watches the energy bar and trace. The speed line is straight. The energy curve bends up and ends at 23.1 kJ. Screen 10 says the rig stores 5.76 kJ at 725 rev/min. It asks how much the rig stores at 1450 rev/min. The answer is 23.1 kJ, four times as much for twice the speed. The wrong pick 11.5 kJ is twice as much, with the speed not squared. The wrong pick 5.76 kJ stays the same, as if the mass alone set the energy. Screen 11 turns on Motor and pump at 2 kg m² and runs it. The shaded gap widens at first, then closes fast as the dot nears full speed. The speed trace bends over and settles near 1450 rev/min. Screen 12 asks where the speed stops rising. The right pick is where the motor and pump curves meet. One wrong pick is where the motor's torque peaks. The other is 1500 rev/min, where the motor's torque falls to zero. Screens 13 and 14 mix it all. Screen 13 has a rig with two 10 kg masses 0.3 m out and a steady net torque of 30 N m. It asks for the run-up time from rest to 600 rev/min. The answer is 3.8 s. Its I is 2 × 10 × 0.3² = 1.8 kg m². So it gains 30 ÷ 1.8 = 16.7 rad/s each second. And 600 rev/min is 62.8 rad/s. The wrong pick 36.0 s comes from 600 ÷ 16.7, with the speed in rev/min. The wrong pick 12.6 s comes from I = 6 kg m², with the radius not squared. Screen 14 has a pump shaft running at a steady 1450 rev/min, while its motor gives 72.4 N m. It asks for the net torque. The answer is 0 N m. The wrong pick 72.4 N m takes the motor's torque as the net torque. The wrong pick 144.8 N m adds the motor's and pump's torques. Some screens show an idea and the rest ask you to try it. Each puzzle offers three answers. A wrong pick is drawn, so you can see where it goes wrong.",
+    "ignores": "Each mass is drawn as a point at its distance. The arms, hub and shaft are drawn as if they had no mass. A real rotor's own metal adds to its moment of inertia. With the torque handle, the net torque is held steady. So the speed would go on rising past 1450 rev/min. The picture stops the run there. Time plays four times faster than real. The motor and pump curves are sketches with example sizes. A real motor's curve and a real pump's load depend on their design. The masses pull hard on their arms at full speed. A real rotor must be built to hold them. That pull is not drawn. A real motor's large starting current and the heat it makes are left out too.",
+    "numbers": [
+      {
+        "label": "Screen, 1 to 14 (the stepper)",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Each mass, kg",
+        "value": 25,
+        "kind": "assumed"
+      },
+      {
+        "label": "Radius drag's lowest value, m",
+        "value": 0.1,
+        "kind": "control"
+      },
+      {
+        "label": "Radius drag's highest value, m",
+        "value": 0.4,
+        "kind": "control"
+      },
+      {
+        "label": "Radius drag's step, m",
+        "value": 0.05,
+        "kind": "control"
+      },
+      {
+        "label": "Radius drag's opening value, m",
+        "value": 0.2,
+        "kind": "control"
+      },
+      {
+        "label": "Net torque drag's lowest value, N m",
+        "value": 20,
+        "kind": "control"
+      },
+      {
+        "label": "Net torque drag's highest value, N m",
+        "value": 100,
+        "kind": "control"
+      },
+      {
+        "label": "Net torque drag's step, N m",
+        "value": 10,
+        "kind": "control"
+      },
+      {
+        "label": "Net torque drag's opening value, N m",
+        "value": 50,
+        "kind": "control"
+      },
+      {
+        "label": "Moment of inertia at 0.2 m, kg m²",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Moment of inertia at 0.4 m, kg m²",
+        "value": 8,
+        "kind": "computed"
+      },
+      {
+        "label": "Moment of inertia at 0.1 m, kg m²",
+        "value": 0.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Angular acceleration at opening settings, rad/s²",
+        "value": 25,
+        "kind": "computed"
+      },
+      {
+        "label": "Target speed, rev/min",
+        "value": 1450,
+        "kind": "assumed"
+      },
+      {
+        "label": "Target speed, rad/s",
+        "value": 151.8,
+        "kind": "computed"
+      },
+      {
+        "label": "Run-up time at opening settings, s",
+        "value": 6.1,
+        "kind": "computed"
+      },
+      {
+        "label": "Run-up time with masses at 0.4 m, s",
+        "value": 24.3,
+        "kind": "computed"
+      },
+      {
+        "label": "Energy at 1450 rev/min, J",
+        "value": 23057,
+        "kind": "computed"
+      },
+      {
+        "label": "Energy at 1450 rev/min, kJ",
+        "value": 23.1,
+        "kind": "computed"
+      },
+      {
+        "label": "Energy with masses at 0.4 m, kJ",
+        "value": 92.2,
+        "kind": "computed"
+      },
+      {
+        "label": "Time speed-up in the picture",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Motor sketch: torque at rest, N m",
+        "value": 130,
+        "kind": "computed"
+      },
+      {
+        "label": "Motor sketch: peak torque, N m",
+        "value": 276,
+        "kind": "assumed"
+      },
+      {
+        "label": "Motor sketch: speed at the peak, rev/min",
+        "value": 1125,
+        "kind": "computed"
+      },
+      {
+        "label": "Motor sketch: slip at the peak",
+        "value": 0.25,
+        "kind": "assumed"
+      },
+      {
+        "label": "Motor's rotating field speed, rev/min",
+        "value": 1500,
+        "kind": "assumed"
+      },
+      {
+        "label": "Pump sketch: torque at 1450 rev/min, N m",
+        "value": 72.4,
+        "kind": "computed"
+      },
+      {
+        "label": "Curves meet near, rev/min",
+        "value": 1450,
+        "kind": "computed"
+      },
+      {
+        "label": "Run-up target in motor and pump mode, rev/min",
+        "value": 1435,
+        "kind": "computed"
+      },
+      {
+        "label": "Fraction of settled speed for that target, %",
+        "value": 99,
+        "kind": "assumed"
+      },
+      {
+        "label": "Motor and pump run-up time at 2 kg m², s",
+        "value": 1.9,
+        "kind": "computed"
+      },
+      {
+        "label": "Example motor's power, kW",
+        "value": 11,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example motor's power, W",
+        "value": 11000,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example motor's torque at 1450 rev/min, N m",
+        "value": 72.4,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 6 moment of inertia, kg m²",
+        "value": 0.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 6 net torque, N m",
+        "value": 40,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 6 angular acceleration, rad/s²",
+        "value": 80,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 6 run-up time, s",
+        "value": 1.9,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 6 wrong pick: rev/min left in, s",
+        "value": 18.1,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 6 wrong pick: torque × I, s",
+        "value": 7.6,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 6 wrong pick: torque × I, rad/s²",
+        "value": 20,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 4 wrong pick: doubled, kg m²",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 4 wrong pick: radius not squared, kg m²",
+        "value": 20,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 8 torque, N m",
+        "value": 40,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 8 speed, rev/min",
+        "value": 960,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 8 speed, rad/s",
+        "value": 100.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 8 power, W",
+        "value": 4021,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 8 power, kW",
+        "value": 4.02,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 8 wrong pick: rev/min, kW",
+        "value": 38.4,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 8 wrong pick: rev/s, W",
+        "value": 640,
+        "kind": "computed"
+      },
+      {
+        "label": "Common mistake: rev/min left in, kW",
+        "value": 105,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 10 speed, rev/min",
+        "value": 725,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 10 energy at 725 rev/min, kJ",
+        "value": 5.76,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 10 wrong pick: speed not squared, kJ",
+        "value": 11.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 13 each mass, kg",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 13 radius, m",
+        "value": 0.3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 13 net torque, N m",
+        "value": 30,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 13 target speed, rev/min",
+        "value": 600,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 13 moment of inertia, kg m²",
+        "value": 1.8,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 13 angular acceleration, rad/s²",
+        "value": 16.7,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 13 target speed, rad/s",
+        "value": 62.8,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 13 run-up time, s",
+        "value": 3.8,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 13 wrong pick: rev/min left in, s",
+        "value": 36,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 13 wrong pick: radius not squared, kg m²",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 13 wrong pick: radius not squared, s",
+        "value": 12.6,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 14 net torque, N m",
+        "value": 0,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 14 wrong pick: torques added, N m",
+        "value": 144.8,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example: fan rotor's moment of inertia, kg m²",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example: net torque, N m",
+        "value": 40,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example: angular acceleration, rad/s²",
+        "value": 13.3,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example: run-up time, s",
+        "value": 11.4,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example: energy stored, kJ",
+        "value": 34.6,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "A steady net torque on a shaft makes its speed climb steadily. It does not hold the speed steady. The shaft's moment of inertia sets how fast the speed climbs. That depends on how much mass the shaft carries and how far out that mass sits. Torque is a moment on a shaft. It is the turning effect of a force. A motor's own torque acts like a couple. It turns the shaft without pushing it sideways. How fast the shaft turns is its [[angular speed]], ω, in radians per second. One turn is 2π radians. So 1450 rev/min is 1450 × 2π ÷ 60 = 151.8 rad/s.\n\nPicture one mass m on an arm r out from the shaft. A torque T on the shaft pushes it along its circle with a force T ÷ r. By Newton's second law, that force speeds the mass along its circle by T ÷ (m × r) each second. Its speed along the circle is ω × r. It moves r metres for each radian the shaft turns. So ω rises by that gain ÷ r. That is T ÷ (m × r²) each second. That rise per second is the [[angular acceleration]], α, in rad/s². The radius counts twice. A longer arm turns the same torque into a smaller push. The mass must also go faster round its bigger circle for the same ω. Add up m × r² for every mass on the shaft and you have its [[moment of inertia]], I, in kg m². So net torque = I × α. This is Newton's second law for turning. The spin-up rig has two 25 kg masses 0.2 m out. So I = 2 × 25 × 0.2² = 2 kg m². A steady net torque of 50 N m gives α = 50 ÷ 2 = 25 rad/s². The speed rises 25 rad/s every second. It reaches 151.8 rad/s in 151.8 ÷ 25 = 6.1 s. With the masses at 0.4 m, I becomes 8 kg m², four times as much. The same run-up then takes 24.3 s. A shaft turning at a steady speed has no net torque on it. It is just like a trolley rolling at a steady speed. The motor's torque just matches the load's and the friction's.\n\nPower works the same way as it does for a winch. When the shaft turns one radian, the push T ÷ r moves r metres along the circle. So the torque does T joules of work each radian. Each second it does T × ω joules. Power = T × ω. The speed must be in radians per second to give watts.[^1] So an 11 kW motor at 1450 rev/min gives 11,000 ÷ 151.8 = 72.4 N m. The stored energy comes the same way. Each mass moves at ω × r. So its energy of motion is ½ × m × (ω × r)². That is the same as ½ × (m × r²) × ω². Add the masses and a spinning shaft stores ½ × I × ω². The rig at 151.8 rad/s holds ½ × 2 × 151.8² = 23.1 kJ. Its speed climbs in a straight line. The energy goes with the square of the speed, so it climbs as a curve. Twice the speed stores four times the energy. More mass stores more energy at the same speed, and so does mass further out.[^2] A flywheel puts this store to work. An engine's torque rises and falls through each turn. The flywheel soaks up energy when the torque runs high and gives it back when it runs low. That keeps a diesel generator's speed steadier.[^3]\n\nA real motor's torque changes with its speed. A load such as a pump or a fan often needs more torque the faster it turns. The net torque is the gap between the two. On the rig's motor and pump, that gap widens at first, while the motor nears its peak torque. So the speed climbs faster and faster. Near full speed the gap closes fast, and the speed bends over. It settles where the motor's torque meets the load's. The spin-up rig is simplified. Its arms are light and it has no friction of its own. **A steady net torque raises a shaft's speed steadily, at α = torque ÷ I. The moment of inertia, I, grows with the mass and with the square of how far out it sits.**"
+  },
+  "analogy": {
+    "text": "Think of a steady current flowing into a capacitor. Its voltage climbs in a straight line. Each second it rises by the current ÷ the capacitance. A steady net torque raises a shaft's speed the same way. Each second it rises by the torque ÷ the moment of inertia. The stored energy matches too. A capacitor holds ½CV², and a shaft holds ½Iω². Twice the voltage stores four times as much energy, and so does twice the speed.",
+    "breaks": "An ordinary capacitor’s capacitance is fixed when it is made. A shaft’s moment of inertia changes whenever its mass moves in or out. Pull the mass inward on a freely spinning shaft, and it speeds up with no outside torque at all. Then torque = I × α no longer tells the whole story."
+  },
+  "practice": {
+    "text": "- Safe way first. A coasting shaft still holds ½ × I × ω² of energy. Isolate the motor. Wait until the shaft has stopped before you touch a coupling or take off a guard. Do not try to slow a turning shaft by hand.\n- Convert the speed to rad/s: rev/min × 2π ÷ 60.\n- Find I. Add m × r² for each mass, or take I from the maker's data.\n- Find the net torque. It is the motor's torque less the load's.\n- Angular acceleration = net torque ÷ I.\n- Run-up time = the speed ÷ the angular acceleration, while the net torque stays steady.\n- Power = torque × ω, and stored energy = ½ × I × ω².\n\n**Rules of thumb:** mass at twice the radius means four times the moment of inertia. That gives four times the run-up time for the same net torque. Twice the speed stores four times the energy.\n\n**Worked example:** a fan rotor has an example moment of inertia of 3 kg m². Its motor gives a steady net torque of 40 N m. It runs up to 1450 rev/min, which is 151.8 rad/s. Its angular acceleration is 40 ÷ 3 = 13.3 rad/s². So the run-up takes 151.8 ÷ 13.3 = 11.4 s. At full speed it stores ½ × 3 × 151.8² = 34.6 kJ. A real motor's net torque changes with speed. Treat the time as a first estimate.\n\n**Common mistakes**\n- Leaving the speed in rev/min. 72.4 N m × 1450 gives 105 kW. The motor really delivers 11 kW.\n- Forgetting to square the speed in ½ × I × ω².\n- Thinking a steady torque gives a steady speed. At a steady speed the net torque is zero.\n- Using m × r for a mass's share of I. It is m × r².\n- Taking the motor's whole torque as the net torque. The load takes its share first."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+    {
+      "n": 1,
+      "title": "Motor Calculations.PDF — Michigan Technological University",
+      "url": "https://pages.mtu.edu/~wjendres/ProductRealization1Course/DC_Motor_Calculations.pdf",
+      "quote": "In calculating rotational power, it is necessary to convert the velocity to units of rad/sec."
+    },
+    {
+      "n": 2,
+      "title": "How do flywheels store energy? - Explain that Stuff — Explain that Stuff",
+      "url": "https://www.explainthatstuff.com/flywheels.html",
+      "quote": "a flywheel will store more energy if it has either a higher moment of inertia (more mass or mass positioned further from its center)"
+    },
+    {
+      "title": "Ch 16 lecture notes — University of Babylon",
+      "url": "https://cdnx.uobabylon.edu.iq/lectures/exrvgga2SUCdmhXkJ0zj8g.pdf",
+      "quote": "a flywheel controls the speed variations caused by the fluctuation of the engine",
+      "n": 3
+    }
+  ]
+}

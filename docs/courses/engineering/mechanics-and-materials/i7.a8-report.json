@@ -1,0 +1,228 @@
+{
+  "report": {
+    "ok": false,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "The gear ratio is the input's angular speed ÷ the output's: 1450 ÷ 290 = 5 for the opening pair, and 1450 ÷ 96.7 = 15 with the second pair",
+        "ok": true,
+        "source": "https://eng.libretexts.org/Bookshelves/Mechanical_Engineering/Mechanics_Map_(Moore_2nd_Edition)/12:_Rigid_Body_Kinematics/12.04:_Belt-_and_Gear-Driven_Systems"
+      },
+      {
+        "label": "A belt that does not slip moves at the speed of both pulley rims: 6.1 m/s round the 80 mm pulley at 151.8 rad/s and round the 400 mm pulley at 30.4 rad/s",
+        "ok": true,
+        "source": "https://eng.libretexts.org/Bookshelves/Mechanical_Engineering/Mechanics_Map_(Moore_2nd_Edition)/12:_Rigid_Body_Kinematics/12.04:_Belt-_and_Gear-Driven_Systems"
+      },
+      {
+        "label": "Rotational power needs the speed in rad/s: 11 kW at 151.8 rad/s is 72.4 N m, and the drum's 4000 W at 25.13 rad/s is 159 N m, where 4000 ÷ 240 would give 16.7",
+        "ok": true,
+        "source": "https://pages.mtu.edu/~wjendres/ProductRealization1Course/DC_Motor_Calculations.pdf"
+      },
+      {
+        "label": "Speed reduced, torque increased, and the power out smaller than the power in: torque × speed out is the power out at every tooth count, and below 100% it is under 11 kW",
+        "ok": true,
+        "source": "https://uomustansiriyah.edu.iq/media/lectures/5/5_2021_12_11!08_32_40_PM.pdf"
+      },
+      {
+        "label": "The opening pair: 5 : 1 gives 290 rev/min and, at 95%, 344 N m and 10.45 kW with 550 W lost; the teeth meet at 6.1 m/s and push with 1810 N, giving 362 N m with no loss",
+        "ok": true
+      },
+      {
+        "label": "Two pairs: 5 × 3 = 15 gives 96.7 rev/min, 9.93 kW (about 90%) and 981 N m at 95% each, and the last shaft turns the same way as the motor",
+        "ok": true
+      },
+      {
+        "label": "Equal teeth pass the speed and torque through less the loss; a wheel smaller than the pinion speeds the pump shaft up and cuts its torque",
+        "ok": true
+      },
+      {
+        "label": "Both gears' teeth move at the same speed at the mesh: the drawn wheel turns by the pinion's teeth ÷ its own, at every tooth count",
+        "ok": true
+      },
+      {
+        "label": "Every puzzle answer is worked from its rule: 483 rev/min, 60 N m, 14.4 kW, 60 rev/min, 580 rev/min and 159 N m, with the wrong picks 4350, 6.7, 60 kW, 144, 360, 3625, 39.8 and 16.7",
+        "ok": true
+      },
+      {
+        "label": "Misalignment brings heat to couplings and bearings: the hot pump with parallel shafts 0.5 mm apart has parallel misalignment",
+        "ok": true,
+        "source": "https://www.energy.gov/sites/prod/files/2014/04/f15/importance_motor_shaft_motor_systemts4.pdf"
+      },
+      {
+        "label": "Each puzzle offers three answers and accepts only its right one; every wrong answer has its own hint and its working drawn in red, and nothing is marked before Check",
+        "ok": true
+      },
+      {
+        "label": "Every demonstration ends within 4 s of its screen opening, and every answer is drawn within 2.5 s of Check",
+        "ok": true
+      },
+      {
+        "label": "Every screen that shows an idea says it in 90 words or fewer",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": false,
+      "problems": [
+        "output \"powerOut\" has a readout, and the text \"10.45 kW\" (<text.lab>) prints its value too: while Dan answers a check on it, the app hides only the readout and the .say line, so this gives the answer away. Show that value in its readout alone (no label or aria-label repeating it)"
+      ]
+    },
+    "controls": [
+      "step",
+      "zp",
+      "zw",
+      "eff",
+      "pair2",
+      "belt"
+    ],
+    "readouts": [
+      "outSpeed",
+      "outTorque",
+      "powerOut"
+    ],
+    "outputs": [
+      "outSpeed",
+      "outTorque",
+      "powerOut"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Screen",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "steps": [
+          "The gear pair",
+          "Wheel speed",
+          "The push at the mesh",
+          "Wheel torque",
+          "Power passes through",
+          "Power out",
+          "A second pair",
+          "Two pairs",
+          "A belt",
+          "Belt speed",
+          "Lining up shafts",
+          "Winch drum",
+          "A hot coupling"
+        ],
+        "value": 0
+      },
+      {
+        "id": "zp",
+        "kind": "control",
+        "label": "Teeth on the pinion",
+        "min": 12,
+        "max": 40,
+        "step": 1,
+        "log": false,
+        "value": 20,
+        "shown": false
+      },
+      {
+        "id": "zw",
+        "kind": "control",
+        "label": "Teeth on the wheel",
+        "min": 12,
+        "max": 120,
+        "step": 1,
+        "log": false,
+        "value": 100,
+        "shown": false
+      },
+      {
+        "id": "eff",
+        "kind": "control",
+        "label": "Efficiency",
+        "min": 80,
+        "max": 100,
+        "step": 1,
+        "log": false,
+        "value": 95,
+        "shown": false,
+        "snap": [
+          95,
+          100
+        ]
+      },
+      {
+        "id": "pair2",
+        "kind": "toggle",
+        "label": "Second pair",
+        "options": [
+          false,
+          true
+        ],
+        "value": false,
+        "shown": false
+      },
+      {
+        "id": "belt",
+        "kind": "toggle",
+        "label": "Belt",
+        "options": [
+          false,
+          true
+        ],
+        "value": false,
+        "shown": false
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Play again",
+      "Back",
+      "Continue",
+      "Start again",
+      "Demonstration"
+    ],
+    "answers": [],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": false
+      },
+      {
+        "width": 720,
+        "ok": false
+      },
+      {
+        "width": 1040,
+        "ok": false
+      }
+    ]
+  },
+  "moved": [
+    "step = 4 (the first step that shows a control)",
+    "zp = 33",
+    "zw = 66",
+    "eff = 95",
+    "pair2 = true",
+    "belt = true"
+  ],
+  "shots": [
+    "/home/user/Study-App/build/engineering/mechanics-and-materials/i7.a8-360-light.png",
+    "/home/user/Study-App/build/engineering/mechanics-and-materials/i7.a8-360-light-moved.png",
+    "/home/user/Study-App/build/engineering/mechanics-and-materials/i7.a8-360-light-end.png",
+    "/home/user/Study-App/build/engineering/mechanics-and-materials/i7.a8-360-dark.png",
+    "/home/user/Study-App/build/engineering/mechanics-and-materials/i7.a8-360-dark-moved.png",
+    "/home/user/Study-App/build/engineering/mechanics-and-materials/i7.a8-360-dark-end.png",
+    "/home/user/Study-App/build/engineering/mechanics-and-materials/i7.a8-1280-light.png",
+    "/home/user/Study-App/build/engineering/mechanics-and-materials/i7.a8-1280-light-moved.png",
+    "/home/user/Study-App/build/engineering/mechanics-and-materials/i7.a8-1280-light-end.png",
+    "/home/user/Study-App/build/engineering/mechanics-and-materials/i7.a8-1280-dark.png",
+    "/home/user/Study-App/build/engineering/mechanics-and-materials/i7.a8-1280-dark-moved.png",
+    "/home/user/Study-App/build/engineering/mechanics-and-materials/i7.a8-1280-dark-end.png"
+  ]
+}

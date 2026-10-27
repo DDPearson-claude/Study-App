@@ -1,0 +1,289 @@
+{
+  "report": {
+    "ok": false,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "A 6 kN block 1 m from the left trestle: the right trestle carries 1.5 kN, the left 4.5 kN, and the moment each way is 6 kN m",
+        "ok": true
+      },
+      {
+        "label": "With the beam's own 2 kN, the reactions are 5.5 kN and 2.5 kN; with the block at the middle, each trestle carries 3 kN",
+        "ok": true
+      },
+      {
+        "label": "The nearer trestle carries more: each step of the block to the right raises the right reaction and lowers the left, and the drawn arrows follow",
+        "ok": true
+      },
+      {
+        "label": "The principle of moments states that for an object to be balanced the total clockwise moment must be equal to the total anti-clockwise moment: the drawn bars match at every block position, load, weight and pivot",
+        "ok": true,
+        "source": "https://www.bbc.co.uk/bitesize/articles/z96g3j6"
+      },
+      {
+        "label": "The second condition for equilibrium holds for any choice of pivot point: about the right trestle, the moment each way is the left reaction times the span, and the load times its distance from that trestle",
+        "ok": true,
+        "source": "https://openstax.org/books/college-physics-2e/pages/9-2-the-second-condition-for-equilibrium"
+      },
+      {
+        "label": "The torque exerted by the supporting force is zero relative to that pivot point: the pivot trestle's own arrow is drawn in the muted style, with no arm",
+        "ok": true,
+        "source": "https://openstax.org/books/college-physics-2e/pages/9-2-the-second-condition-for-equilibrium"
+      },
+      {
+        "label": "A force may be slid along its line of action without changing the moment: the slanted pull gives the same moment from the bar's end as from the point on its line nearest the pivot",
+        "ok": true,
+        "source": "https://engineeringstatics.org/moment-of-force.html"
+      },
+      {
+        "label": "A load spread evenly acts as its total at its middle: summed in 400 small pieces, 6 kN over 2 m gives the block's reactions at every middle from 1 m to 3 m",
+        "ok": true
+      },
+      {
+        "label": "Half the distance gives half the moment: the spanner's moment bar at 0.15 m is half its length at 0.3 m; and the plank stays level only with the 600 N load 1 m out",
+        "ok": true
+      },
+      {
+        "label": "A couple's moment is the same about any point: 100 N each way on a 0.4 m wheel gives 40 N m, and 80 N each way on a 0.5 m wheel gives 40 N m, about every point across the wheel",
+        "ok": true
+      },
+      {
+        "label": "The worked numbers: 45 and 22.5 N m on the spanner; 60 N m for the slanted pull; 600 N m each way, so 600 N balances at 1 m; 6 kN m, 1.5 and 4.5 kN; 24 kN m, 6 and 2 kN; 4 and 10 kN m, 2.5 and 5.5 kN; 6, 9 and 15 kN m, 2.5 and 4.5 kN; 12, 4 and 16 kN m, 4 and 2 kN; 6 kN m over 6 kN puts the centre of gravity 1 m from the pump",
+        "ok": true
+      },
+      {
+        "label": "Each puzzle offers three answers and accepts only its right one, every wrong answer has its own hint, its picture shows no answer before Check, and only the right answer balances once drawn",
+        "ok": false,
+        "error": "returned false"
+      },
+      {
+        "label": "Screen 6 draws both reactions in navy with no pivot; the spread puzzle marks where its load lies, not its middle, before Check; the small arrows keep clear of the trestles",
+        "ok": true
+      },
+      {
+        "label": "Every demonstration starts after the screen's fade and ends within 4.5 s of its screen opening; an answer is drawn within 3 s of Check",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "grip",
+      "pos",
+      "x",
+      "load",
+      "pivot",
+      "own",
+      "spread",
+      "wp"
+    ],
+    "readouts": [
+      "leftReaction",
+      "rightReaction",
+      "pivotMoment"
+    ],
+    "outputs": [
+      "leftReaction",
+      "rightReaction",
+      "pivotMoment"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Screen",
+        "min": 0,
+        "max": 13,
+        "step": 1,
+        "steps": [
+          "A spanner on a nut",
+          "A slanted pull",
+          "Balance on a plank",
+          "Balance the plank",
+          "The lifting beam",
+          "Which carries more?",
+          "Take moments about a trestle",
+          "An 8 kN block",
+          "The beam's own weight",
+          "A heavier beam",
+          "A couple",
+          "A wider wheel",
+          "Spread over half",
+          "The centre of gravity"
+        ],
+        "value": 0
+      },
+      {
+        "id": "grip",
+        "kind": "control",
+        "label": "Push from the nut",
+        "min": 0.15,
+        "max": 0.3,
+        "step": 0.05,
+        "log": false,
+        "value": 0.3,
+        "shown": true,
+        "snap": [
+          0.15,
+          0.3
+        ]
+      },
+      {
+        "id": "pos",
+        "kind": "control",
+        "label": "600 N load from the pivot",
+        "min": 0.5,
+        "max": 2,
+        "step": 0.25,
+        "log": false,
+        "value": 1,
+        "shown": false,
+        "snap": [
+          1
+        ]
+      },
+      {
+        "id": "x",
+        "kind": "control",
+        "label": "Block from the left trestle",
+        "min": 0,
+        "max": 4,
+        "step": 0.25,
+        "log": false,
+        "value": 1,
+        "shown": false,
+        "snap": [
+          1,
+          2,
+          3
+        ]
+      },
+      {
+        "id": "load",
+        "kind": "control",
+        "label": "The block's load",
+        "min": 1,
+        "max": 8,
+        "step": 1,
+        "log": false,
+        "value": 6,
+        "shown": false
+      },
+      {
+        "id": "pivot",
+        "kind": "choice",
+        "label": "Take moments about",
+        "options": [
+          "L",
+          "R"
+        ],
+        "labels": [
+          "Left trestle",
+          "Right trestle"
+        ],
+        "value": "L",
+        "index": 0,
+        "shown": false
+      },
+      {
+        "id": "own",
+        "kind": "toggle",
+        "label": "The beam's own weight",
+        "options": [
+          false,
+          true
+        ],
+        "value": false,
+        "shown": false
+      },
+      {
+        "id": "spread",
+        "kind": "toggle",
+        "label": "Spread the load over 2 m",
+        "options": [
+          false,
+          true
+        ],
+        "value": false,
+        "shown": false
+      },
+      {
+        "id": "wp",
+        "kind": "choice",
+        "label": "Take moments about",
+        "options": [
+          "C",
+          "H"
+        ],
+        "labels": [
+          "The centre",
+          "The left hand"
+        ],
+        "value": "C",
+        "index": 0,
+        "shown": false
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Back",
+      "Continue",
+      "Play again",
+      "Start again",
+      "Motion"
+    ],
+    "answers": [],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": false
+      },
+      {
+        "width": 720,
+        "ok": false
+      },
+      {
+        "width": 1040,
+        "ok": false
+      }
+    ]
+  },
+  "moved": [
+    "step = 1",
+    "grip = 0.26249999999999996",
+    "pos = 1.625",
+    "x = 3",
+    "load = 8",
+    "pivot = \"R\"",
+    "own = true",
+    "spread = true",
+    "wp = \"H\"",
+    "pressed \"Answer 1\""
+  ],
+  "shots": [
+    "/home/user/Study-App/build/engineering/mechanics-and-materials/i2.a8-360-light.png",
+    "/home/user/Study-App/build/engineering/mechanics-and-materials/i2.a8-360-light-moved.png",
+    "/home/user/Study-App/build/engineering/mechanics-and-materials/i2.a8-360-light-end.png",
+    "/home/user/Study-App/build/engineering/mechanics-and-materials/i2.a8-360-dark.png",
+    "/home/user/Study-App/build/engineering/mechanics-and-materials/i2.a8-360-dark-moved.png",
+    "/home/user/Study-App/build/engineering/mechanics-and-materials/i2.a8-360-dark-end.png",
+    "/home/user/Study-App/build/engineering/mechanics-and-materials/i2.a8-1280-light.png",
+    "/home/user/Study-App/build/engineering/mechanics-and-materials/i2.a8-1280-light-moved.png",
+    "/home/user/Study-App/build/engineering/mechanics-and-materials/i2.a8-1280-light-end.png",
+    "/home/user/Study-App/build/engineering/mechanics-and-materials/i2.a8-1280-dark.png",
+    "/home/user/Study-App/build/engineering/mechanics-and-materials/i2.a8-1280-dark-moved.png",
+    "/home/user/Study-App/build/engineering/mechanics-and-materials/i2.a8-1280-dark-end.png"
+  ]
+}

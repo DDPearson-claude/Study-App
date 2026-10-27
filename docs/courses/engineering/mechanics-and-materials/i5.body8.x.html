@@ -1,0 +1,1079 @@
+<!-- kind: quantity -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 34rem; margin-inline: auto; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .count { margin-top: 10px; }
+  .task { font-size: 1.15rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.06rem; font-weight: 400; line-height: 1.6; }
+  .fig { display: block; width: 100%; max-width: 26rem; margin-inline: auto; touch-action: pan-y; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .live .k-btn { flex: 1 1 auto; white-space: nowrap; }
+  .picks .k-btn { flex: 1 1 6rem; min-height: 48px; white-space: nowrap; font-size: 1.05rem; }
+  .picks.long { flex-direction: column; gap: 8px; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; white-space: normal; line-height: 1.35; padding-top: 8px; padding-bottom: 8px; }
+  .picks .k-btn[aria-pressed="true"] { border-color: var(--k-accent2); box-shadow: inset 0 0 0 2px var(--k-accent2); font-weight: 700; }
+  #outs { display: grid; grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr)); gap: 10px; }
+  .fb { font-weight: 700; min-height: 1.5em; }
+  .fb.right { color: var(--k-good); }
+  .why, .done { line-height: 1.6; }
+  .done .row { margin-top: 14px; }
+  .replay { justify-content: center; }
+  .replay .k-btn { flex: 0 0 auto; }
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }
+  /* The winch, its frame and the ground. */
+  .fig .beam { fill: var(--k-strong); }
+  .fig .frame { stroke: var(--k-strong); stroke-width: 4; stroke-linecap: round; }
+  .fig .ground { stroke: var(--k-strong); stroke-width: 2; }
+  .fig .hatch { stroke: var(--k-strong); stroke-width: 1.2; }
+  .fig .scale { stroke: var(--k-muted); stroke-width: 1.4; }
+  .fig .drum { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.8; }
+  .fig .spoke { stroke: var(--k-ink); stroke-width: 1.6; }
+  .fig .motor { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.8; }
+  .fig .cable { fill: none; stroke: var(--k-ink); stroke-width: 2; }
+  .fig .plug { fill: var(--k-ink); }
+  .fig .flow { fill: none; stroke: var(--k-accent2); stroke-width: 2.6; stroke-dasharray: 4 8; }
+  .fig .heat { fill: none; stroke: var(--k-muted); stroke-width: 1.8; stroke-dasharray: 3 2; }
+  .fig .rope { stroke: var(--k-ink); stroke-width: 1.8; }
+  .fig .chain { fill: none; stroke: var(--k-ink); stroke-width: 2.2; stroke-dasharray: 4 3; }
+  .fig .hook { fill: none; stroke: var(--k-ink); stroke-width: 1.8; }
+  .fig .load { fill: var(--k-fill1); stroke: var(--k-accent2); stroke-width: 2; }
+  .fig .ghost { fill: none; stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 5 4; }
+  .fig .handle { fill: var(--k-accent2); }
+  .fig .track { stroke: var(--k-strong); stroke-width: 4; stroke-linecap: round; }
+  .fig .tick { fill: none; stroke: var(--k-strong); stroke-width: 1.4; }
+  .fig .knob { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .fig .tool { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.8; }
+  .fig .boltc { fill: var(--k-sunk); stroke: var(--k-ink); stroke-width: 1.8; }
+  .fig .brk { fill: none; stroke: var(--k-muted); stroke-width: 1.5; }
+  /* Graphs. */
+  .fig .axis { stroke: var(--k-strong); stroke-width: 1.4; }
+  .fig .grid { stroke: var(--k-line); stroke-width: 1; stroke-dasharray: 3 4; }
+  .fig .ref { stroke: var(--k-muted); stroke-width: 1.4; stroke-dasharray: 6 4; }
+  .fig .drop { stroke: var(--k-muted); stroke-width: 1.2; stroke-dasharray: 3 3; }
+  .fig .l1 { fill: none; stroke: var(--k-accent2); stroke-width: 2.8; stroke-linecap: round; }
+  .fig .l2 { fill: none; stroke: var(--k-accent); stroke-width: 2.8; stroke-linecap: round; }
+  .fig .lbad { fill: none; stroke: var(--k-warn); stroke-width: 2.6; stroke-linecap: round; }
+  .fig .tri { fill: none; stroke: var(--k-amber-line); stroke-width: 2.4; }
+  .fig .dot1 { fill: var(--k-accent2); }
+  .fig .dot2 { fill: var(--k-accent); }
+  .fig .dotbad { fill: var(--k-warn); }
+  .fig .mk { stroke: var(--k-accent2); stroke-width: 2.4; }
+  .fig .mkbad { stroke: var(--k-warn); stroke-width: 2.4; }
+  /* Bars: power in navy, into the load a pale navy, losses muted; a dashed outline is the first lift. */
+  .fig .bin { fill: var(--k-accent2); }
+  .fig .bload { fill: var(--k-fill1); stroke: var(--k-accent2); stroke-width: 1.5; }
+  .fig .bloss { fill: var(--k-muted); }
+  .fig .bspeed { fill: var(--k-accent); }
+  .fig .bout { fill: none; stroke: var(--k-muted); stroke-width: 1.4; stroke-dasharray: 4 3; }
+  .fig .bbad { fill: none; stroke: var(--k-warn); stroke-width: 2.2; }
+  .fig .badfill { fill: var(--k-warn); fill-opacity: .14; stroke: var(--k-warn); stroke-width: 1.4; }
+  /* Arrows: a pull navy, a push ink, a speed muted, a mistake red. */
+  .fig .ar { stroke-width: 2.6; }
+  .fig .ar.nv, .fig .arc.nv { stroke: var(--k-accent2); }
+  .fig .ah.nv { fill: var(--k-accent2); }
+  .fig .ar.ink { stroke: var(--k-ink); }
+  .fig .ah.ink { fill: var(--k-ink); }
+  .fig .ar.mu { stroke: var(--k-muted); }
+  .fig .ah.mu { fill: var(--k-muted); }
+  .fig .ar.wr { stroke: var(--k-warn); }
+  .fig .ah.wr { fill: var(--k-warn); }
+  .fig .arc { fill: none; stroke-width: 2.4; }
+  /* Words on the pictures. */
+  .fig .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .fig .lab.sm { font-size: 12px; font-weight: 500; }
+  .fig .lab.m { fill: var(--k-muted); }
+  .fig .lab.n { fill: var(--k-accent2); }
+  .fig .lab.t { fill: var(--k-accent); }
+  .fig .lab.w { fill: var(--k-warn); }
+  .fig .lab.big { font-size: 15px; font-weight: 700; }
+  .fig .lab.wk { font-size: 13px; font-weight: 600; }
+  .fig .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }
+  .fig .grip:active { cursor: grabbing; }
+  .fig .grip:focus { outline: none; }
+  .fig .grip:focus-visible { stroke: var(--k-accent); stroke-width: 2; }
+</style>
+
+<p class="lead" id="lead">A motor winch lifts a load 10&nbsp;m. The height, the 80% efficiency and the puzzles' numbers are all examples.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task say" id="task"></p>
+    <svg class="fig" id="scene" viewBox="0 0 340 300" width="100%" role="img" aria-label=""><g id="art"></g><g id="ui"><rect id="gLoad" class="grip" x="0" y="0" width="0" height="0" role="slider" aria-label="Load mass" tabindex="-1" style="display:none"></rect><rect id="gSpeed" class="grip" x="0" y="0" width="0" height="0" role="slider" aria-label="Hoist speed" tabindex="-1" style="display:none"></rect></g></svg>
+    <div class="row live" id="live"></div>
+    <div class="row replay" id="replay"></div>
+    <p class="say" id="say"></p>
+    <div class="k-readouts" id="outs"></div>
+    <div class="row picks say" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb say" id="fb" aria-live="polite"></p>
+    <div class="note why say" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+<div id="c-hide" hidden></div>
+
+<p class="caption" id="cap">Work is force × distance. Power is work ÷ time, which for a steady pull is force × speed.</p>
+
+<script>
+  // ---------- the rules ----------
+  const G = 9.81, H = 10, EFF = 0.8, DROP = 1, DEG = Math.PI / 180;
+  const SRC = {
+    work: 'https://www.bbc.co.uk/bitesize/articles/zfgkh4j',
+    joule: 'https://www.bbc.co.uk/bitesize/guides/zw3wtv4/revision/3',
+    moment: 'https://www.bbc.co.uk/bitesize/articles/z96g3j6',
+  };
+  const weightOf = (m) => m * G;                          // N, a mass's weight
+  const workOf = (F, d) => F * d;                         // J, a force moved through a distance along it
+  const powerOf = (F, v) => F * v;                        // W, a steady pull's force × its speed
+  const speedAfter = (h) => Math.sqrt(2 * G * Math.max(0, h));   // m/s after a free fall from rest
+
+  // Numbers as the lesson writes them: fixed decimals, commas from 10,000 up.
+  function fx(v, dp) {
+    const k = Math.pow(10, dp), r = Math.round(Math.abs(v) * k + 1e-7) / k;
+    const parts = r.toFixed(dp).split('.');
+    let a = parts[0];
+    if (a.length > 4) a = a.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return (v < 0 && r > 0 ? '−' : '') + a + (parts[1] ? '.' + parts[1] : '');
+  }
+  // The same with trailing zeros dropped (0.2, 981, 490.5).
+  const nf = (v, dp) => { const s = fx(v, dp == null ? 2 : dp); return s.indexOf('.') < 0 ? s : s.replace(/0+$/, '').replace(/\.$/, ''); };
+
+  // Every number the words show, worked out from the rules.
+  const V1 = 0.2;
+  const N = (() => {
+    const F5 = weightOf(500), P1 = powerOf(F5, V1), P2 = powerOf(F5, V1 / 2), c30 = Math.cos(30 * DEG), s30 = Math.sin(30 * DEG);
+    const F2 = weightOf(200), J4 = workOf(F2, 5), F12 = weightOf(250), MA12 = F12 / 200, Win = 250 * 30, Wout = workOf(F5, 1);
+    return {
+      F5: nf(F5, 0), J5: nf(workOf(F5, H), 0), kJ5: fx(workOf(F5, H) / 1000, 2), t1: nf(H / V1, 0), t2: nf(H / (V1 / 2), 0),
+      P1: nf(P1, 1), P2: nf(P2, 1), In1: nf(P1 / EFF, 0), Loss1: nf(P1 / EFF - P1, 0), In2: nf(P2 / EFF, 0),
+      Jdrop: nf(workOf(F5, DROP), 0), vDrop: fx(speedAfter(DROP), 2),
+      p2: nf(200 * c30 * 5, 0), p2all: nf(200 * 5, 0), p2sin: nf(200 * s30 * 5, 0), p2F: fx(200 * c30, 1), p2up: nf(200 * s30, 0),
+      p4F: nf(F2, 0), p4J: nf(J4, 0), p4: nf(J4 / 20, 1), p4x: nf(J4 * 20, 0), p4v: nf(5 / 20, 2),
+      p8: nf(600 / 800 * 100, 0), p8x: nf(800 / 600 * 100, 0), p8l: nf((800 - 600) / 800 * 100, 0), p8loss: nf(800 - 600, 0),
+      p10: fx(speedAfter(0.8), 2), p10sq: fx(2 * G * 0.8, 1), p10no2: fx(Math.sqrt(G * 0.8), 2),
+      c11in: nf(Win, 0), c11out: nf(Wout, 0), c11eff: fx(Wout / Win * 100, 1), c11lost: nf(Win - Wout, 0), c11MA: fx(F5 / 250, 2), c11VR: nf(30 / 1, 0),
+      c12F: nf(F12, 1), c12MA: fx(MA12, 2), c12: fx(MA12 / 20 * 100, 1), c12x: nf(20 / MA12 * 100, 0), c12m: fx(250 / 200 / 20 * 100, 2),
+      m13: nf(P1, 0), m13ke: nf(0.5 * 500 * V1 * V1, 0), m13mv: nf(500 * V1, 0),
+    };
+  })();
+  // A SHOW screen's words for reading, where its last sentence asks for a move.
+  const readAs = (t, end) => t.replace(/ (Drag|Press)[^.]*\.$/, '') + ' ' + end;
+
+  // ---------- the lesson: SHOW screens demonstrate, DO screens are puzzles ----------
+  // winch: the winch screen's mode; outs: its readouts; btns: its buttons; drag: what Dan can drag;
+  // set: the screen's own settings. A puzzle: opts, want, hints; qw its givens, ow each answer's working.
+  const T1 = `A force does *work* when it moves something: force × the distance moved along it. That is the area under a force-distance graph. One joule is one newton moved through one metre. A winch lifts a 500 kg load at a steady speed. So the rope pulls with its weight, 500 × 9.81 = ${N.F5} N. Over 10 m that is ${N.F5} × 10 = ${N.J5} J, or ${N.kJ5} kJ. It is stored in the raised load as *potential energy*, weight × height. Drag the load to change its mass, then press Lift.`;
+  const T3 = `*Power* is how fast work is done. One joule each second is one watt. At 0.2 m/s the 10 m lift takes ${N.t1} s. So the power into the load is ${N.J5} ÷ ${N.t1} = ${N.P1} W. A steady pull gives a shortcut. Each second the load rises 0.2 m, so the rope does ${N.F5} × 0.2 = ${N.P1} J. So power = force × speed. On the graph, power is the slope. Drag the speed handle, then press Lift.`;
+  const T9 = `Let the brake off and stored energy turns into speed. The load falls freely, with the drum and motor's spin left out. The picture stops it after 1 m. By then the 500 kg load's weight has done ${N.F5} × 1 = ${N.Jdrop} J of work. That is now *kinetic energy*, ½ × mass × speed². From F = ma and v² = 2as, the work F × s = ½mv². The total stays the same: mgh = ½mv². The mass cancels, so any free-falling load reaches √(2 × 9.81 × 1) = ${N.vDrop} m/s. Drag the load to try another mass.`;
+  const HALF = ['The same energy at half the power', 'Half the energy at the same power', 'Half the energy at half the power'];
+  const STEPS = [
+    { show: true, winch: 'lift', name: 'Lift the load', outs: ['stored'], btns: ['lift'], drag: ['mass', 'speed'], text: T1,
+      read: readAs(T1, 'The graph shows the stored energy rising in a straight line.') },
+    { kind: 'pick', pic: 'pull', name: 'Pull at an angle',
+      task: 'A rope pulls a crate 5 m along the floor. It pulls with 200 N, at 30° to the floor. How much work does the pull do?',
+      opts: [`${N.p2all} J`, `${N.p2} J`, `${N.p2sin} J`], order: [1, 0, 2], want: `${N.p2} J`,
+      hints: { [`${N.p2all} J`]: 'Not quite. Only the part of the pull along the floor does work. Part of it pulls upwards.',
+        [`${N.p2sin} J`]: 'Not quite. That uses sin 30°, the upward part. The part along the floor uses cos 30°.' },
+      why: `Only the part of the pull along the movement does work. Along the floor that part is 200 × cos 30° = ${N.p2F} N. So the work is ${N.p2F} × 5 = ${N.p2} J. The upward part, ${N.p2up} N, moves nothing upwards, so it does no work.`,
+      qw: ['200 N at 30° to the floor, over 5 m'],
+      ow: { [`${N.p2all} J`]: [`200 × 5 = ${N.p2all} J uses the whole pull`], [`${N.p2} J`]: [`Along: 200 × cos 30° = ${N.p2F} N`, `${N.p2F} N × 5 m = ${N.p2} J`],
+        [`${N.p2sin} J`]: [`200 × sin 30° × 5 = ${N.p2sin} J`, 'That is the upward part'] } },
+    { show: true, winch: 'power', name: 'Power', outs: ['loadPower', 'stored'], btns: ['lift'], drag: ['mass', 'speed'], text: T3,
+      read: readAs(T3, 'A faster lift draws a steeper line up to the same energy.') },
+    { kind: 'pick', pic: 'pgraph', name: 'Power from work',
+      task: 'A winch lifts 200 kg through 5 m in 20 s. What power goes into the load?',
+      opts: [`${N.p4J} W`, `${N.p4} W`, `${N.p4x} W`], order: [0, 2, 1], want: `${N.p4} W`,
+      hints: { [`${N.p4J} W`]: `Not quite. ${N.p4J} J is the work. Power is the work ÷ the time.`,
+        [`${N.p4x} W`]: 'Not quite. That multiplies the work by the time. Divide by the time instead.' },
+      why: `The weight is 200 × 9.81 = ${N.p4F} N. The work is ${N.p4F} × 5 = ${N.p4J} J. It takes 20 s, so the power is ${N.p4J} ÷ 20 = ${N.p4} W. Force × speed agrees: ${N.p4F} × ${N.p4v} = ${N.p4} W.`,
+      qw: [`Work: ${N.p4F} N × 5 m = ${N.p4J} J`],
+      ow: { [`${N.p4J} W`]: [`${N.p4J} J is the work, not the power`], [`${N.p4} W`]: [`${N.p4J} J ÷ 20 s = ${N.p4} W`], [`${N.p4x} W`]: [`${N.p4J} × 20 = ${N.p4x}: J × s, not J ÷ s`] } },
+    { show: true, winch: 'half', name: 'Same lift, half speed', set: { half: true }, outs: ['loadPower', 'elecPower', 'stored'], btns: ['lift', 'half'], drag: ['mass', 'speed'],
+      text: `Same lift at half the speed: the same energy at half the power. At 0.1 m/s the force is still the load's weight. The height is still 10 m. So the work is the same ${N.kJ5} kJ. The time doubles to ${N.t2} s, so the power halves. The bars are half as long: ${N.P2} W into the load. The efficiency is held at 80% here, so the supply gives ${N.In2} W. A real motor's efficiency changes at half speed. Work says how much energy moves. Power says how fast.` },
+    { kind: 'pick', pic: 'halfQ', name: 'Half the speed',
+      task: 'The same load is lifted the same height at half the speed. What changes?',
+      opts: HALF, want: HALF[0],
+      hints: { [HALF[1]]: 'Not quite. The force and the height are the same, so the work is the same. Only the time changes.',
+        [HALF[2]]: 'Not quite. The energy stays the same, as the force and the height have not changed. Only the power halves.' },
+      why: 'The force is still the load\'s weight. The height is the same. So the work, force × distance, is the same. The lift takes twice as long. So the power, work ÷ time, halves.',
+      qw: [`At ${nf(V1, 2)} m/s: ${N.kJ5} kJ in ${N.t1} s`],
+      ow: { [HALF[0]]: [`At ${nf(V1 / 2, 2)} m/s: ${N.kJ5} kJ in ${N.t2} s`], [HALF[1]]: ['Half the energy? It still rises 10 m.'], [HALF[2]]: ['Half the energy? It still rises 10 m.'] } },
+    { show: true, winch: 'eff', name: 'Losses and efficiency', outs: ['loadPower', 'elecPower'], btns: ['lift'], drag: ['mass', 'speed'],
+      text: `*Efficiency* is the fraction of the power in that reaches the load: useful power out ÷ power in. The motor draws electrical power from the supply. For a DC motor that is volts × amps. Some of it is lost as heat on the way. Say this winch is 80% efficient. To put ${N.P1} W into the load, it draws ${N.P1} ÷ 0.8 = ${N.In1} W. The other ${N.Loss1} W becomes heat.` },
+    { kind: 'pick', pic: 'effQ', name: 'Efficiency',
+      task: 'A winch draws 800 W and puts 600 W into its load. How efficient is it?',
+      opts: [`${N.p8x}%`, `${N.p8}%`, `${N.p8l}%`], want: `${N.p8}%`,
+      hints: { [`${N.p8x}%`]: 'Not quite. That is the power in ÷ the power out. Put the useful power out on top.',
+        [`${N.p8l}%`]: 'Not quite. That is the losses ÷ the power in, the part wasted. Use the useful power out.' },
+      why: `Efficiency is useful power out ÷ power in. That is 600 ÷ 800 = 0.75, or ${N.p8}%. The other ${N.p8loss} W is lost as heat. Energy is never made, so no machine passes 100%.`,
+      qw: [],
+      ow: { [`${N.p8x}%`]: [`800 ÷ 600 = ${N.p8x}%: more out than in?`], [`${N.p8}%`]: [`600 ÷ 800 = 0.75, or ${N.p8}%`], [`${N.p8l}%`]: [`${N.p8loss} ÷ 800 = ${N.p8l}%: the part lost`] } },
+    { show: true, winch: 'fall', name: 'Brake off', set: { fall: DROP }, outs: ['stored'], btns: ['brake'], drag: ['mass'], text: T9,
+      read: readAs(T9, 'A heavier load stores more energy, but reaches the same speed.') },
+    { kind: 'pick', pic: 'fallQ', name: 'A free fall',
+      task: 'A 200 kg load falls freely for 0.8 m from rest. How fast is it moving?',
+      opts: [`${N.p10sq} m/s`, `${N.p10no2} m/s`, `${N.p10} m/s`], want: `${N.p10} m/s`,
+      hints: { [`${N.p10sq} m/s`]: `Not quite. ${N.p10sq} is 2 × 9.81 × 0.8, the speed squared. Take its square root.`,
+        [`${N.p10no2} m/s`]: 'Not quite. That leaves out the 2. Energy of motion is ½ × mass × speed², so speed² = 2 × 9.81 × the height.' },
+      why: `Its stored energy turns into energy of motion. So weight × height = ½ × mass × speed². The mass cancels, so speed² = 2 × 9.81 × 0.8 = ${N.p10sq}. So the speed is √${N.p10sq} = ${N.p10} m/s. The 200 kg does not matter.`,
+      qw: ['200 kg falls 0.8 m from rest'],
+      ow: { [`${N.p10sq} m/s`]: [`2 × 9.81 × 0.8 = ${N.p10sq}, the speed squared`], [`${N.p10no2} m/s`]: [`√(9.81 × 0.8) = ${N.p10no2}: the 2 is missing`], [`${N.p10} m/s`]: [`√(2 × 9.81 × 0.8) = ${N.p10} m/s`] } },
+    { show: true, pic: 'chain', name: 'A chain block',
+      text: `A chain block lifts by hand. Pull 30 m of hand chain with 250 N and a 500 kg load rises 1 m. Work in: 250 × 30 = ${N.c11in} J. Work out: ${N.F5} × 1 = ${N.c11out} J. So it is ${N.c11out} ÷ ${N.c11in} = ${N.c11eff}% efficient. Friction takes the other ${N.c11lost} J. Load ÷ effort is its *mechanical advantage*, ${N.F5} ÷ 250 = ${N.c11MA}. Chain pulled ÷ load lift is its *velocity ratio*, ${N.c11VR}. Efficiency, (load × lift) ÷ (effort × chain), regroups as (load ÷ effort) ÷ (chain ÷ lift). So ${N.c11MA} ÷ ${N.c11VR} is the same ${N.c11eff}%.` },
+    { kind: 'pick', pic: 'chainQ', name: 'Another chain block',
+      task: 'On another chain block, 200 N on the hand chain raises a 250 kg load. 20 m of chain lifts it 1 m. How efficient is it?',
+      opts: [`${N.c12x}%`, `${N.c12}%`, `${N.c12m}%`], order: [1, 0, 2], want: `${N.c12}%`,
+      hints: { [`${N.c12x}%`]: 'Not quite. That is the velocity ratio ÷ the mechanical advantage. Divide the other way.',
+        [`${N.c12m}%`]: 'Not quite. That uses 250 kg as the load. The load is its weight, 250 × 9.81 N.' },
+      why: `The load's weight is 250 × 9.81 = ${N.c12F} N. The mechanical advantage is ${N.c12F} ÷ 200 = ${N.c12MA}. The velocity ratio is 20 ÷ 1 = 20. So the efficiency is ${N.c12MA} ÷ 20 = ${N.c12}%.`,
+      qw: [],
+      ow: { [`${N.c12x}%`]: [`20 ÷ ${N.c12MA} = ${N.c12x}%: upside down`], [`${N.c12}%`]: [`Load: 250 × 9.81 = ${N.c12F} N`, `${N.c12F} ÷ 200 = ${N.c12MA}`, `${N.c12MA} ÷ 20 = ${N.c12}%`],
+        [`${N.c12m}%`]: [`250 ÷ 200 ÷ 20 = ${N.c12m}%: kg, not N`] } },
+    { kind: 'pick', pic: 'mix1', name: 'Power at the load',
+      task: 'A 500 kg load rises steadily at 0.2 m/s. What power goes into it?',
+      opts: [`${N.m13ke} W`, `${N.m13mv} W`, `${N.m13} W`], order: [0, 2, 1], want: `${N.m13} W`,
+      hints: { [`${N.m13ke} W`]: 'Not quite. That is its energy of motion, ½ × 500 × 0.2². At a steady speed that does not change.',
+        [`${N.m13mv} W`]: 'Not quite. That is the mass × the speed. Use the weight, 500 × 9.81 N.' },
+      why: `At a steady speed the rope pulls with the load's weight, 500 × 9.81 = ${N.F5} N. Power = force × speed = ${N.F5} × 0.2 = ${N.m13} W. All of it goes into height, as the speed does not change.`,
+      qw: [],
+      ow: { [`${N.m13ke} W`]: [`½ × 500 × 0.2² = ${N.m13ke} J, energy of motion`], [`${N.m13mv} W`]: [`500 × 0.2 = ${N.m13mv}: kg, not N`],
+        [`${N.m13} W`]: [`Pull: 500 × 9.81 = ${N.F5} N`, `${N.F5} N × 0.2 m/s = ${N.m13} W`] } },
+    { kind: 'pick', pic: 'bolt', name: 'The seized bolt',
+      task: 'A spanner puts a moment of 50 N m on a seized bolt. The bolt does not turn. How much work is done on the bolt?',
+      opts: ['50 J', `${nf(workOf(50, 0), 0)} J`, '50 W'], order: [0, 2, 1], want: `${nf(workOf(50, 0), 0)} J`,
+      hints: { '50 J': 'Not quite. A moment is in newton metres too, but it is not work. Work needs movement.',
+        '50 W': 'Not quite. A watt is a rate of doing work. Here no work is done at all.' },
+      why: 'Work is force × the distance moved along the force. The bolt does not turn, so nothing moves. So no work is done: 0 J. The 50 N m is a moment, a turning effect. It shares the newton metre, but it is not energy.',
+      qw: ['Moment: 50 N m. The bolt does not turn.'],
+      ow: { '50 J': ['50 N m is a moment, not work done'], '0 J': ['Nothing moved, so the work is 0 J'], '50 W': ['A watt is a joule each second'] } },
+  ];
+  const FINISH = 'Work is force × distance. Power is work ÷ time. So the same lift at half the speed puts the same energy into the load at half the power. The supply gives more than the load gets, as some is lost as heat.';
+  const ANS = 1.6;
+  // The order a puzzle's answers are shown in, so the right one is not always in the same place.
+  const optsOf = (d) => (d.order ? d.order.map((k) => d.opts[k]) : d.opts);
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  const calm = () => REDUCE || testing();
+  const el = (id) => document.getElementById(id);
+  const iOf = (k, v) => STEPS.findIndex((d) => d[k] === v);
+  const I_LIFT = iOf('winch', 'lift'), I_POW = iOf('winch', 'power'), I_HALF = iOf('winch', 'half'), I_EFF = iOf('winch', 'eff'), I_FALL = iOf('winch', 'fall');
+
+  // ---------- state ----------
+  const blank = () => ({ pick: null, res: null, why: false });
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false;
+  let T = Infinity, END = 0, MOT = null, INSTANT = false;   // seconds since the screen opened or the motion began; the motion
+  let REC = { wk: [], bars: null };
+  let latest = 0;
+  const BASE = { mass: 500, speed: V1, half: false, rise: H, fall: 0 };
+  const setupOf = (i) => Object.assign({}, BASE, STEPS[i].set || {});
+
+  // ---------- words with amber key terms (built with K.el, never innerHTML) ----------
+  function write(node, s) {
+    node.textContent = '';
+    const re = /\*([^*]+)\*/g;
+    let from = 0, m;
+    while ((m = re.exec(s))) {
+      if (m.index > from) node.appendChild(document.createTextNode(s.slice(from, m.index)));
+      node.appendChild(K.el('span', { class: 'term' }, m[1]));
+      from = m.index + m[0].length;
+    }
+    if (from < s.length) node.appendChild(document.createTextNode(s.slice(from)));
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => K.clamp(Math.round(+stepper.get()) || 0, 0, STEPS.length - 1);
+  // Set by dragging the load and the speed handle, and by the motion; kept out of sight.
+  const CTL = {
+    mass: K.control({ id: 'mass', label: 'Load mass', min: 100, max: 1000, step: 50, value: 500, unit: 'kg', into: '#c-hide' }),
+    speed: K.control({ id: 'speed', label: 'Hoist speed', min: 0.1, max: 0.5, step: 0.05, value: V1, unit: 'm/s', into: '#c-hide' }),
+    half: K.toggle({ id: 'half', label: 'Half speed', value: false, into: '#c-hide' }),
+    rise: K.control({ id: 'rise', label: 'Height risen', min: 0, max: H, step: 0.1, value: H, unit: 'm', into: '#c-hide' }),
+    fall: K.control({ id: 'fall', label: 'Fall with the brake off', min: 0, max: DROP, step: 0.05, value: 0, unit: 'm', into: '#c-hide' }),
+  };
+  const same = (a, b) => (typeof a === 'boolean' || typeof b === 'boolean' ? !!a === !!b : Math.abs(+a - +b) < 1e-9);
+  function setQuiet(id, v) { if (!same(CTL[id].get(), v)) CTL[id].set(v, true); }
+  function setAll(q) { Object.keys(BASE).forEach((id) => setQuiet(id, q[id])); }
+
+  const RID = ['loadPower', 'elecPower', 'stored'];
+  const RO = [
+    K.readout({ id: 'loadPower', label: 'Power into the load', unit: 'W', decimals: 1, fmt: (v) => nf(v, 1), into: '#outs' }),
+    K.readout({ id: 'elecPower', label: 'Electrical power in', unit: 'W', decimals: 0, into: '#outs' }),
+    K.readout({ id: 'stored', label: 'Energy stored', unit: 'kJ', decimals: 2, into: '#outs' }),
+  ];
+
+  // The settings a screen uses: half speed only on its own screen, the fall only with the brake off.
+  const stepOf = (p) => K.clamp(Math.round(+p.step) || 0, 0, STEPS.length - 1);
+  function eff(p, d) {
+    const w = d.winch, m = Math.round(+p.mass / 50) * 50, v1 = Math.round(+p.speed * 20) / 20, half = w === 'half' && !!p.half;
+    return { m, v1, v: half ? v1 / 2 : v1, half, rise: w === 'fall' ? H : K.clamp(+p.rise, 0, H), fall: w === 'fall' ? K.clamp(+p.fall, 0, DROP) : 0 };
+  }
+  // The pure model: the load, its speed and how far it has risen (or fallen) -> the power and the energy stored.
+  K.model((p) => {
+    const d = STEPS[stepOf(p)];
+    if (!d.winch) return { loadPower: 0, elecPower: 0, stored: 0 };
+    const e = eff(p, d), F = weightOf(e.m);
+    if (d.winch === 'fall') return { loadPower: 0, elecPower: 0, stored: workOf(F, H - e.fall) / 1000 };
+    return { loadPower: powerOf(F, e.v), elecPower: powerOf(F, e.v) / EFF, stored: workOf(F, e.rise) / 1000 };
+  });
+
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;
+    st.pick = optsOf(d)[k]; st.res = null; T = Infinity; anim.pause();
+  } }));
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished || st.res === 'right') return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = st.pick === d.want ? 'right' : 'wrong';
+    MOT = null; INSTANT = false; play(ANS);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const liftBtn = K.button({ label: 'Lift', into: '#live', press: () => runLift(false) });
+  const halfBtn = K.button({ label: 'Same lift, half speed', secondary: true, into: '#live', press: () => runLift(true) });
+  const brakeBtn = K.button({ label: 'Brake off', into: '#live', press: () => {
+    const d = STEPS[at()];
+    if (finished || d.winch !== 'fall') return;
+    setQuiet('fall', 0);
+    MOT = { kind: 'fall', at: 0, dur: 1.6 }; INSTANT = true; play(2.05);
+  } });
+  K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const d = STEPS[at()];
+    if (finished || d.pic !== 'chain') return;
+    MOT = null; INSTANT = false; play(demoPlan(d, K.params()).end);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true; anim.pause(); T = Infinity; settle();
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // ---------- motion: each screen's demonstration, Lift, Brake off and an answer's drawing ----------
+  // The graph's time axis is fixed across speeds (to 120 s; 240 s on the half-speed screen), so a
+  // faster lift draws a steeper line. A lift plays the whole axis in 5 s, so a slower lift takes longer.
+  const axisT = (d) => (d.winch === 'half' ? 240 : 120);
+  function liftPlan(d, p, at0) {
+    const e = eff(p, d), tEnd = H / e.v, tAx = axisT(d), R = tAx / 5, dur = tEnd / R;
+    return { mot: { kind: 'lift', at: at0, dur, R }, end: at0 + dur + 0.45 };
+  }
+  function demoPlan(d, p) {
+    if (d.winch === 'fall') return { mot: { kind: 'fall', at: 0.6, dur: 1.6 }, end: 2.65 };
+    if (d.winch) return liftPlan(d, p, 0.6);
+    if (d.pic === 'chain') return { mot: null, end: 4.7 };
+    return { mot: null, end: 0 };
+  }
+  function runLift(half) {
+    const d = STEPS[at()];
+    if (finished || !d.winch || d.winch === 'fall' || (half && d.winch !== 'half')) return;
+    if (d.winch === 'half') setQuiet('half', half);
+    setQuiet('rise', 0);
+    const plan = liftPlan(d, K.params(), 0);
+    MOT = plan.mot; INSTANT = true; play(plan.end);
+  }
+  function play(end) {
+    if (calm()) { T = Infinity; anim.pause(); settle(); return; }
+    T = 0; END = end; anim.play();
+  }
+  // Where the motion has got to: the height risen, the fall, and the model seconds into a lift.
+  function motionNow(d, e) {
+    const o = { rise: e.rise, fall: e.fall, tm: null, flowing: false, flow: 0 };
+    if (T !== Infinity && MOT && d.winch) {
+      if (MOT.kind === 'lift') {
+        const tm = K.clamp(T - MOT.at, 0, MOT.dur) * MOT.R;
+        o.tm = tm; o.rise = Math.min(H, e.v * tm); o.flowing = T > MOT.at && T < MOT.at + MOT.dur; o.flow = T * 24;
+      }
+      if (MOT.kind === 'fall') { const u = K.clamp((T - MOT.at) / MOT.dur, 0, 1); o.fall = DROP * u * u; }
+    }
+    return o;
+  }
+  // The hidden controls follow the motion, so the readouts do too.
+  function sync() {
+    const d = STEPS[at()];
+    if (!d.winch || !MOT) return;
+    const n = motionNow(d, eff(K.params(), d));
+    if (MOT.kind === 'lift') setQuiet('rise', Math.round(n.rise * 10) / 10);
+    if (MOT.kind === 'fall') setQuiet('fall', Math.round(n.fall * 20) / 20);
+  }
+  function settle() {
+    const d = STEPS[at()];
+    if (MOT && d.winch) { if (MOT.kind === 'lift') setQuiet('rise', H); if (MOT.kind === 'fall') setQuiet('fall', DROP); }
+    MOT = null; INSTANT = false;
+  }
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished || T === Infinity) return false;
+    T += dt;
+    if (T >= END) { T = Infinity; settle(); K.refresh(); return false; }
+    sync(); K.refresh();
+    return true;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; settle(); K.refresh(); } });
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter'); void box.offsetWidth; box.classList.add('enter');
+  }
+  function enterStep(i) {
+    lastStep = i; enter('stepbox');
+    anim.pause(); T = Infinity; MOT = null; INSTANT = false;
+    const d = STEPS[i];
+    setAll(setupOf(i));
+    if (d.show && !calm()) {
+      const plan = demoPlan(d, K.params());
+      if (plan.mot && plan.mot.kind === 'lift') setQuiet('rise', 0);
+      if (plan.mot && plan.mot.kind === 'fall') setQuiet('fall', 0);
+      MOT = plan.mot; T = 0; END = plan.end; anim.play();
+    }
+  }
+
+  // ---------- drawing helpers ----------
+  const svg = el('scene'), art = el('art'), gLoad = el('gLoad'), gSpeed = el('gSpeed');
+  let into = null;
+  const add = (n) => (into || art).appendChild(n);
+  const r2 = (v) => Math.round(v * 100) / 100;
+  function sv(tag, a) { const o = {}; Object.keys(a).forEach((k) => { o[k] = typeof a[k] === 'number' ? r2(a[k]) : a[k]; }); return add(K.svg(tag, o)); }
+  const rect = (cls, x, y, w, h, rx) => sv('rect', { class: cls, x, y, width: Math.max(0, w), height: Math.max(0, h), rx: rx || 0 });
+  const line = (cls, x1, y1, x2, y2) => sv('line', { class: cls, x1, y1, x2, y2 });
+  const path = (cls, d) => sv('path', { class: cls, d });
+  const circ = (cls, cx, cy, r) => sv('circle', { class: cls, cx, cy, r });
+  function text(x, y, s, cls, anchor) {
+    const t = sv('text', { class: 'lab' + (cls ? ' ' + cls : ''), x, y, 'text-anchor': anchor || 'middle' });
+    t.textContent = s;
+    return t;
+  }
+  const P = (x, y) => r2(x) + ' ' + r2(y);
+  function arrow(x1, y1, x2, y2, c, hl) {
+    const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+    if (L < 2) return;
+    const ux = dx / L, uy = dy / L, h = Math.min(hl || 9, L * 0.6), w = h * 0.55, bx = x2 - ux * h, by = y2 - uy * h;
+    line('ar ' + c, x1, y1, bx + ux * 0.5, by + uy * 0.5);
+    path('ah ' + c, 'M' + P(x2, y2) + 'L' + P(bx - uy * w, by + ux * w) + 'L' + P(bx + uy * w, by - ux * w) + 'Z');
+  }
+  // A clockwise arc arrow from angle a0 down to a1 (degrees, counted up from the right).
+  function arcArrow(cx, cy, r, a0, a1, c) {
+    const pt = (a) => [cx + r * Math.cos(a * DEG), cy - r * Math.sin(a * DEG)];
+    const s = pt(a0), e = pt(a1 + 9), hd = pt(a1), ux = Math.sin(a1 * DEG), uy = Math.cos(a1 * DEG), hl = 9, hw = 5;
+    path('arc ' + c, 'M' + P(s[0], s[1]) + 'A' + r + ' ' + r + ' 0 0 1 ' + P(e[0], e[1]));
+    const bx = hd[0] - ux * hl, by = hd[1] - uy * hl;
+    path('ah ' + c, 'M' + P(hd[0], hd[1]) + 'L' + P(bx - uy * hw, by + ux * hw) + 'L' + P(bx + uy * hw, by - ux * hw) + 'Z');
+  }
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g;
+    try { draw(); } finally { into = keep; }
+  }
+  // Arrivals: a part due at t0 seconds (noted for the timing check); a part tied to the lift.
+  function arr(t0, d) { d = d == null ? 0.5 : d; if (t0 + d > latest) latest = t0 + d; return K.arrive(T, t0, d); }
+  const vis = (t) => (t == null || INSTANT ? 1 : arr(t));
+  function mvis(tm) { if (T === Infinity || !MOT || MOT.kind !== 'lift') return 1; return arr(MOT.at + tm / MOT.R, 0.4); }
+
+  // ---------- the winch ----------
+  const GY = 202, PX = 13, LX = 128, DX = 138, DY = 27, DR = 10, SX0 = 232, SX1 = 324;
+  const loadW = (m) => 46 + 0.026 * m, loadH = (m) => 20 + 0.012 * m;
+  const sxOf = (v) => SX0 + (v - 0.1) / 0.4 * (SX1 - SX0);
+  const speedAt = (x) => 0.1 + (x - SX0) / (SX1 - SX0) * 0.4;
+  function winch(d, e, now) {
+    const F = weightOf(e.m), w = loadW(e.m), h = loadH(e.m), lifting = d.winch !== 'fall', drag = d.drag || [];
+    rect('beam', 46, 6, 168, 7, 2);
+    line('frame', 52, 13, 52, GY); line('frame', 208, 13, 208, GY);
+    line('ground', 6, GY, 238, GY);
+    for (let x = 16; x <= 238; x += 14) line('hatch', x, GY + 1, x - 6, GY + 8);
+    // the height scale, 0 to 10 m
+    line('scale', 40, GY, 40, GY - H * PX);
+    for (let k = 0; k <= H; k++) line('scale', k % 5 ? 37 : 34, GY - k * PX, 40, GY - k * PX);
+    text(31, GY - 1, '0', 'sm m', 'end'); text(31, GY - 5 * PX + 4, nf(H / 2, 0), 'sm m', 'end'); text(31, GY - H * PX + 4, nf(H, 0) + ' m', 'sm m', 'end');
+    // the drum turns as the rope winds on, or pays out with the brake off
+    const up = now.rise - now.fall, ang = up * PX / DR;
+    line('spoke', DX, 13, DX, DY - DR);
+    circ('drum', DX, DY, DR);
+    [0, Math.PI / 2].forEach((a0) => { const a = ang + a0, c = Math.cos(a) * (DR - 2.5), s = Math.sin(a) * (DR - 2.5); line('spoke', DX - c, DY - s, DX + c, DY + s); });
+    line('spoke', DX + DR, DY, 152, DY);
+    rect('motor', 152, 16, 42, 22, 3);
+    text(173, 31, 'motor', 'sm');
+    path('cable', 'M194 22H237');
+    circ('plug', 240, 22, 3);
+    text(248, 26, 'supply', 'sm m', 'start');
+    if (now.flowing) { const f = path('flow', 'M194 22H237'); f.style.strokeDashoffset = String(r2(-now.flow)); }
+    if (d.winch === 'eff') {
+      [176, 186, 196].forEach((x) => { const hp = path('heat', 'M' + x + ' 58q4 -4 0 -8q-4 -4 0 -8'); if (now.flowing) hp.style.strokeDashoffset = String(r2(-now.flow / 3)); });
+      text(214, 52, 'heat', 'sm m', 'start');
+    }
+    // the rope, the hook and the load
+    const yb = GY - up * PX, yt = yb - h;
+    line('rope', LX, DY, LX, yt - 7);
+    rect('hook', LX - 3, yt - 7, 6, 7, 1);
+    rect('load', LX - w / 2, yt, w, h, 3);
+    text(LX, yt + h / 2 + 4.5, nf(e.m, 0) + ' kg', 'sm');
+    const dragMass = drag.indexOf('mass') >= 0, dragSpeed = drag.indexOf('speed') >= 0;
+    if (dragMass) {
+      const yc = yt + h / 2, xl = LX - w / 2 - 4, xr = LX + w / 2 + 4;
+      path('handle', 'M' + P(xl, yc - 7) + 'L' + P(xl - 8, yc) + 'L' + P(xl, yc + 7) + 'Z');
+      path('handle', 'M' + P(xr, yc - 7) + 'L' + P(xr + 8, yc) + 'L' + P(xr, yc + 7) + 'Z');
+    }
+    if (lifting) {
+      // the rope's pull on the load, equal to its weight at a steady speed
+      arrow(LX - 11, yt - 2, LX - 11, yt - 24, 'nv', 8);
+      text(LX - 16, yt - 10, nf(F, 0) + ' N', 'n', 'end');
+    } else {
+      const off = up < H - 1e-9;
+      text(248, 46, off ? 'brake off' : 'brake on', off ? 'w sm' : 'm sm', 'start');
+      if (now.fall >= DROP - 1e-9) text(248, 62, 'paused at 1 m', 'm sm', 'start');
+      const v = speedAfter(now.fall);
+      if (v > 0.2) { const L = 10 * v; arrow(LX, yb + 2, LX, yb + 2 + L, 'mu', 8); text(LX + 8, yb + 6 + L / 2, fx(v, 2) + ' m/s', 'm sm', 'start'); }
+    }
+    if (dragSpeed) {
+      text(278, 92, 'hoist speed', 'sm t');
+      line('track', SX0, 126, SX1, 126);
+      for (let k = 0; k <= 8; k++) { const x = sxOf(0.1 + 0.05 * k); line('tick', x, 119, x, 133); }
+      const kx = sxOf(e.v1);
+      circ('knob', kx, 126, 9);
+      text(K.clamp(kx, 252, 300), 110, nf(e.v1, 2) + ' m/s', 'n big');
+    }
+    return { load: { x: LX - w / 2 - 14, y: yt - 6, w: w + 28, h: h + 12 }, mass: dragMass, speed: dragSpeed };
+  }
+
+  // ---------- bars: a ledger, each row a bar along one scale ----------
+  const SCALES = [[100, 50], [200, 100], [400, 200], [600, 200], [800, 200], [1000, 500], [1500, 500], [2000, 500], [3000, 1000], [4000, 1000], [5000, 1000], [6000, 2000], [8000, 2000]];
+  const niceScale = (v) => SCALES.find((s) => s[0] >= v * 1.0001) || SCALES[SCALES.length - 1];
+  function ledger(y0, rows, scale, o) {
+    o = o || {};
+    const BX = 106, BW = o.bw || 218, bx = (v) => BX + K.clamp(v / scale, 0, 1.2) * BW, spans = [];
+    rows.forEach((r, k) => {
+      const y = y0 + k * 22;
+      text(8, y + 11, r.name, 'sm', 'start');
+      if (r.ghost) rect('bout', bx(r.ghost[0]), y + 0.5, bx(r.ghost[1]) - bx(r.ghost[0]), 13, 2);
+      if (r.b - r.a > 1e-9) rect(r.cls, bx(r.a), y, bx(r.b) - bx(r.a), 14, 2);
+      if (r.num) part(o.numVis == null ? 1 : o.numVis, 0, () => text(bx(Math.max(r.b, r.ghost ? r.ghost[1] : 0)) + 6, y + 11, r.num, 'sm', 'start'));
+      spans.push([bx(r.a), bx(r.b)]);
+    });
+    let y = y0 + rows.length * 22;
+    if (o.ticks) {
+      const mx = o.ticks[0], st = o.ticks[1];
+      line('axis', BX, y - 3, BX + BW, y - 3);
+      for (let v = 0; v <= mx + 1e-9; v += st) {
+        const last = v + st > mx + 1e-9;
+        line('tick', bx(v), y - 3, bx(v), y + 1);
+        text(bx(v), y + 13, nf(v, 0) + (last ? ' ' + o.unit : ''), 'sm m', last ? 'end' : v === 0 ? 'start' : 'middle');
+      }
+      y += 18;
+    }
+    return { y, spans };
+  }
+  // The power ledger: power in, into the load, and the losses between them. On the half-speed
+  // screen the first lift's bars stay as dashed outlines.
+  function powerLedger(y0, e, keys, ghost) {
+    const F = weightOf(e.m), pl = powerOf(F, e.v), pin = pl / EFF, plF = powerOf(F, e.v1), pinF = plF / EFF;
+    const top = powerOf(F, 0.5), sc = niceScale(keys.length === 1 ? top : top / EFF);   // one scale at every speed, set by the fastest
+    let y = y0 + 4;
+    if (ghost) { rect('bout', 8, y + 2, 20, 11, 2); text(34, y + 12, 'first lift, at ' + nf(e.v1, 2) + ' m/s', 'sm m', 'start'); y += 22; }
+    const all = {
+      in: { name: 'Power in', a: 0, b: pin, cls: 'bin', ghost: ghost ? [0, pinF] : null },
+      load: { name: 'Into the load', a: 0, b: pl, cls: 'bload', ghost: ghost ? [0, plF] : null },
+      loss: { name: 'Losses', a: pl, b: pin, cls: 'bloss', ghost: ghost ? [plF, pinF] : null },
+    };
+    const L = ledger(y, keys.map((k) => all[k]), sc[0], { ticks: sc, unit: 'W' });
+    REC.bars = {};
+    keys.forEach((k, j) => { REC.bars[k] = L.spans[j]; });
+    return L.y;
+  }
+  // With the brake off: the energy stored by height, and the energy of motion it turns into.
+  function energyLedger(y0, e, now) {
+    const F = weightOf(e.m), E = workOf(F, H), X = workOf(F, now.fall);
+    text(8, y0 + 14, 'Energy: the total stays the same', 'sm m', 'start');
+    const L = ledger(y0 + 22, [
+      { name: 'Potential', a: 0, b: E - X, cls: 'bin', ghost: X > 0 ? [E - X, E] : null },
+      { name: 'Kinetic', a: 0, b: X, cls: 'bspeed', num: X > 0.5 ? nf(X, 0) + ' J' : null },
+    ], E, {});
+    return L.y + 4;
+  }
+
+  // ---------- the energy graph: energy stored against time ----------
+  function energyGraph(y0, d, e, now) {
+    const F = weightOf(e.m), E = workOf(F, H) / 1000, tAx = axisT(d);
+    const X0 = 40, X1 = 322, top = y0 + 24, bot = y0 + 124;
+    const xt = (t) => X0 + t / tAx * (X1 - X0), ye = (k) => bot - k;
+    text(8, y0 + 12, 'Energy stored (kJ)', 'sm m', 'start');
+    [25, 50, 75, 100].forEach((k) => { line('grid', X0, ye(k), X1, ye(k)); text(X0 - 6, ye(k) + 4, String(k), 'sm m', 'end'); });
+    text(X0 - 6, bot + 4, '0', 'sm m', 'end');
+    text(X0, bot + 17, '0 s', 'sm m');
+    text(X1, bot + 17, tAx + ' s', 'sm m', 'end');
+    line('axis', X0, top - 6, X0, bot); line('axis', X0, bot, X1, bot);
+    line('ref', X0, ye(E), X1, ye(E));
+    text(X1, ye(E) - 6, 'energy at 10 m', 'sm m', 'end');
+    const lines = [];
+    if (e.half) lines.push({ v: e.v1, t: now.tm == null ? H / e.v1 : Math.min(now.tm, H / e.v1), cls: 'l1', dot: 'dot1', lab: nf(e.v1, 2) + ' m/s', up: true });
+    lines.push({ v: e.v, t: now.rise / e.v, cls: e.half ? 'l2' : 'l1', dot: e.half ? 'dot2' : 'dot1', lab: e.half ? nf(e.v, 3) + ' m/s' : null, up: false });
+    lines.forEach((L) => {
+      const tE = H / L.v, k = F * L.v * L.t / 1000, x = xt(L.t), y = ye(k);
+      if (L.t > 1e-9) path(L.cls, 'M' + P(X0, bot) + 'L' + P(x, y));
+      circ(L.dot, x, y, 4.5);
+      if (L.t >= tE - 1e-6) part(mvis(tE), 0, () => { line('drop', xt(tE), ye(E) + 6, xt(tE), bot - 1); text(xt(tE), bot + 17, nf(tE, 1) + ' s', 'sm m'); });
+      if (L.lab && L.t >= 0.55 * tE - 1e-6) part(mvis(0.55 * tE), 0, () => {
+        const px = xt(0.55 * tE), py = ye(0.55 * E);
+        if (L.up) text(px - 8, py - 3, L.lab, 'sm n', 'end'); else text(px + 6, py + 15, L.lab, 'sm t', 'start');
+      });
+    });
+    if (d.winch === 'power') {
+      // the slope: energy gained ÷ time taken, which is the power
+      const tE = H / e.v, ta = 0.25 * tE, tb = 0.65 * tE, ka = F * e.v * ta / 1000, kb = F * e.v * tb / 1000;
+      if (now.rise / e.v >= tb - 1e-6) part(mvis(tb), 0, () => {
+        path('tri', 'M' + P(xt(ta), ye(ka)) + 'H' + r2(xt(tb)) + 'V' + r2(ye(kb)));
+        // its key sits on the title row, clear of the lines and the drop to the time axis
+        line('tri', 132, y0 + 8, 148, y0 + 8);
+        text(152, y0 + 12, 'slope = power', 'sm', 'start');
+      });
+    }
+    return bot + 24;
+  }
+
+  function winchScreen(d, p) {
+    const e = eff(p, d), now = motionNow(d, e), mode = d.winch;
+    const g = winch(d, e, now);
+    let y = 214;
+    if (mode === 'power') y = powerLedger(y, e, ['load'], false);
+    if (mode === 'half') y = powerLedger(y, e, ['in', 'load', 'loss'], e.half);
+    if (mode === 'eff') { y = powerLedger(y, e, ['in', 'load', 'loss'], false); text(8, y + 12, 'Into the load ÷ power in = ' + nf(EFF * 100, 0) + '%', 'sm', 'start'); y += 20; }
+    if (mode === 'fall') y = energyLedger(y, e, now);
+    if (mode === 'lift' || mode === 'power' || mode === 'half') y = energyGraph(y + 2, d, e, now);
+    const hNow = now.rise - now.fall;
+    const said = 'A motor winch on a frame holds a ' + nf(e.m, 0) + ' kg load ' + nf(hNow, 1) + ' m up' +
+      (mode === 'fall' ? ', with its brake ' + (hNow < H - 1e-9 ? 'off' : 'on') : ', lifting it at ' + nf(e.v, 3) + ' m/s') + '.';
+    return { h: y + 6, said, grip: g };
+  }
+
+  // ---------- the chain block ----------
+  function chainScene(c, u, lift) {
+    rect('beam', 20, 6, 150, 7, 2);
+    line('rope', 90, 13, 90, 22);
+    rect('motor', 68, 22, 44, 30, 6);
+    circ('drum', 122, 34, 7);
+    const ch = path('chain', 'M115 34V140A7 7 0 0 0 129 140V34');
+    ch.style.strokeDashoffset = String(r2(-u * 60));
+    arrow(129, 92, 129, 124, 'nv', 8);
+    text(136, 112, nf(c.F, 0) + ' N', 'n', 'start');
+    line('ground', 20, 189, 172, 189);
+    const yb = 188 - u * lift * 34, yt = yb - 26;
+    if (u > 0) rect('ghost', 66, 162, 48, 26, 3);
+    line('rope', 90, 52, 90, yt - 7);
+    rect('hook', 87, yt - 7, 6, 7, 1);
+    rect('load', 66, yt, 48, 26, 3);
+    text(90, yt + 17, nf(c.m, 0) + ' kg', 'sm');
+  }
+  function chainShow() {
+    const u = T === Infinity || INSTANT ? 1 : K.clamp((T - 0.6) / 3, 0, 1);
+    chainScene({ F: 250, m: 500 }, u, 1);
+    part(vis(3.6), 0, () => { path('brk', 'M58 188H52V154H58'); text(46, 175, '1 m', '', 'end'); text(138, 160, '30 m pulled', 'm sm', 'start'); });
+    const Win = 250 * 30, Wout = workOf(weightOf(500), 1);
+    const L = ledger(204, [
+      { name: 'Work in', a: 0, b: Win * u, cls: 'bin', num: N.c11in + ' J' },
+      { name: 'Work out', a: 0, b: Wout * u, cls: 'bload', num: N.c11out + ' J' },
+      { name: 'Friction', a: Wout * u, b: Win * u, cls: 'bloss', num: N.c11lost + ' J' },
+    ], Win, { bw: 160, numVis: vis(3.6) });
+    part(vis(3.9), 0, () => text(8, L.y + 16, 'Efficiency: ' + N.c11out + ' ÷ ' + N.c11in + ' = ' + N.c11eff + '%', 'wk', 'start'));
+    part(vis(4.1), 0, () => text(8, L.y + 40, 'Or: ' + N.c11MA + ' ÷ ' + N.c11VR + ' = ' + N.c11eff + '%', 'wk', 'start'));
+    return { h: L.y + 52, said: 'A chain block: 250 N on the hand chain pulls 30 m of chain and raises a 500 kg load 1 m.' };
+  }
+
+  // ---------- the puzzles' pictures ----------
+  const ansOf = (st) => ({ right: st.res === 'right', wrong: st.res === 'wrong' && st.pick != null, pick: st.pick, v: (t) => arr(t, 0.5) });
+  // The givens under a puzzle's picture, then the chosen answer's working once checked: red when wrong.
+  function working(y0, d, st, a) {
+    const q = d.qw || [], nMax = q.length + Math.max.apply(null, d.opts.map((o) => [].concat(d.ow[o]).length));
+    q.forEach((s, k) => { text(8, y0 + 18 + 24 * k, s, 'wk', 'start'); REC.wk.push({ s, ans: false, bad: false }); });
+    if (a.right || a.wrong) {
+      [].concat(d.ow[a.pick]).forEach((s, k) => part(a.v(0.15 + 0.3 * k), 4, () => {
+        text(8, y0 + 18 + 24 * (q.length + k), s, 'wk ' + (a.wrong ? 'w' : 'n'), 'start');
+        REC.wk.push({ s, ans: true, bad: a.wrong });
+      }));
+    }
+    return y0 + 18 + 24 * (nMax - 1) + 12;
+  }
+  const PICS = {
+    pull(d, st) {
+      const a = ansOf(st), c = Math.cos(30 * DEG), s = Math.sin(30 * DEG), L = 64, ox = 250, oy = 96;
+      line('ground', 10, 120, 330, 120);
+      for (let x = 20; x <= 330; x += 16) line('hatch', x, 121, x - 6, 128);
+      rect('ghost', 20, 86, 50, 34, 2); text(45, 107, 'start', 'sm m');
+      rect('load', 200, 86, 50, 34, 2);
+      path('brk', 'M20 134V140H200V134');
+      text(110, 156, nf(5, 0) + ' m', '', 'middle');
+      line('ref', ox, oy, 322, oy);
+      path('tick', 'M' + P(ox + 24, oy) + 'A24 24 0 0 0 ' + P(ox + 24 * c, oy - 24 * s));
+      text(ox + 40 * Math.cos(12 * DEG), oy - 40 * Math.sin(12 * DEG) + 4, '30°', 'sm', 'middle');
+      arrow(ox, oy, ox + L * c, oy - L * s, 'ink', 10);
+      text(ox + L * c - 4, oy - L * s - 8, nf(200, 0) + ' N', '', 'end');
+      if (a.right) part(a.v(0.1), 0, () => {
+        arrow(ox, oy, ox + L * c, oy, 'nv', 9); text(282, 144, N.p2F + ' N along', 'n sm');
+        arrow(ox, oy, ox, oy - L * s, 'mu', 8); text(244, 80, N.p2up + ' N up', 'm sm', 'end');
+      });
+      if (a.wrong && a.pick === d.opts[0]) part(a.v(0.1), 0, () => { arrow(ox, oy, ox + L, oy, 'wr', 9); text(282, 144, 'all 200 N along?', 'w sm'); });
+      if (a.wrong && a.pick === d.opts[2]) part(a.v(0.1), 0, () => { arrow(ox, oy, ox, oy - L * s, 'wr', 8); text(244, 80, N.p2up + ' N up', 'w sm', 'end'); });
+      return { h: working(160, d, st, a), said: 'A crate moved 5 m along a floor by a 200 N pull on a rope at 30 degrees to the floor.' };
+    },
+    pgraph(d, st) {
+      const a = ansOf(st), X0 = 56, X1 = 320, top = 30, bot = 150, J = workOf(weightOf(200), 5);
+      const xt = (t) => X0 + t / 25 * (X1 - X0), ye = (j) => bot - j / 10000 * (bot - top);
+      text(8, 16, 'Energy into the load (J)', 'sm m', 'start');
+      [5000, 10000].forEach((j) => { line('grid', X0, ye(j), X1, ye(j)); text(X0 - 6, ye(j) + 4, nf(j, 0), 'sm m', 'end'); });
+      text(X0 - 6, bot + 4, '0', 'sm m', 'end');
+      line('axis', X0, top - 6, X0, bot); line('axis', X0, bot, X1, bot);
+      [0, 10, 20].forEach((t) => text(xt(t), bot + 17, t + ' s', 'sm m'));
+      if (a.wrong && a.pick === d.opts[2]) part(a.v(0.1), 0, () => rect('badfill', X0, ye(J), xt(20) - X0, bot - ye(J), 0));
+      path('l1', 'M' + P(X0, bot) + 'L' + P(xt(20), ye(J)));
+      circ('dot1', xt(20), ye(J), 4.5);
+      text(xt(20) - 8, ye(J) - 6, N.p4J + ' J', 'n', 'end');
+      if (a.right) part(a.v(0.1), 0, () => {
+        const k1 = J / 4, k2 = 3 * J / 4;
+        path('tri', 'M' + P(xt(5), ye(k1)) + 'H' + r2(xt(15)) + 'V' + r2(ye(k2)));
+        text(xt(15) + 6, (ye(k1) + ye(k2)) / 2 + 4, 'slope = power', 'sm', 'start');
+      });
+      if (a.wrong && a.pick === d.opts[0]) part(a.v(0.1), 0, () => { line('lbad', X0 + 2, ye(J), xt(20) - 7, ye(J)); text(64, 50, 'the work, in J', 'w sm', 'start'); });
+      return { h: working(bot + 24, d, st, a), said: 'A graph of energy into a load against time: a straight line up to 9810 joules at 20 seconds.' };
+    },
+    halfQ(d, st) {
+      const a = ansOf(st), X0 = 40, X1 = 322, top = 30, bot = 130, tAx = 120, E = workOf(weightOf(500), H) / 1000;
+      const t1 = H / V1, t2 = H / (V1 / 2), xt = (t) => X0 + t / tAx * (X1 - X0), ye = (k) => bot - k / 60 * (bot - top);
+      const seg = (cls, t, k) => path(cls, 'M' + P(X0, bot) + 'L' + P(xt(t), ye(k)));
+      text(8, 16, 'Energy stored (kJ)', 'sm m', 'start');
+      [20, 40, 60].forEach((k) => { line('grid', X0, ye(k), X1, ye(k)); text(X0 - 6, ye(k) + 4, String(k), 'sm m', 'end'); });
+      text(X0 - 6, bot + 4, '0', 'sm m', 'end');
+      text(X0, bot + 17, '0 s', 'sm m');
+      line('axis', X0, top - 6, X0, bot); line('axis', X0, bot, X1, bot);
+      line('ref', X0, ye(E), X1, ye(E)); text(X1, ye(E) - 6, 'energy at 10 m', 'sm m', 'end');
+      seg('l1', t1, E); circ('dot1', xt(t1), ye(E), 4.5);
+      line('drop', xt(t1), ye(E) + 6, xt(t1), bot - 1); text(xt(t1), bot + 17, nf(t1, 0) + ' s', 'sm m');
+      text(xt(0.55 * t1) - 8, ye(0.55 * E) - 3, nf(V1, 2) + ' m/s', 'sm n', 'end');
+      if (a.right) part(a.v(0.1), 0, () => {
+        seg('l2', t2, E); circ('dot2', xt(t2), ye(E), 4.5);
+        line('drop', xt(t2), ye(E) + 6, xt(t2), bot - 1); text(xt(t2), bot + 17, nf(t2, 0) + ' s', 'sm m');
+        text(xt(0.55 * t2) + 6, ye(0.55 * E) + 15, nf(V1 / 2, 2) + ' m/s', 'sm t', 'start');
+      });
+      if (a.wrong) {
+        const t = a.pick === d.opts[1] ? (H / 2) / V1 : (H / 2) / (V1 / 2);
+        part(a.v(0.1), 0, () => { seg('lbad', t, E / 2); circ('dotbad', xt(t), ye(E / 2), 4.5); text(xt(t) + 8, ye(E / 2) + 14, 'half the energy', 'w sm', 'start'); });
+      }
+      return { h: working(bot + 26, d, st, a), said: 'A graph of energy stored against time for a 10 metre lift at 0.2 metres a second: a straight line up to its top at 50 seconds.' };
+    },
+    effQ(d, st) {
+      const a = ansOf(st), pin = 800, pl = 600;
+      text(8, 16, 'Power (W)', 'sm m', 'start');
+      const L = ledger(28, [
+        { name: 'Power in', a: 0, b: pin, cls: 'bin', num: nf(pin, 0) + ' W' },
+        { name: 'Into the load', a: 0, b: pl, cls: 'bload', num: nf(pl, 0) + ' W' },
+        { name: 'Losses', a: pl, b: pin, cls: 'bloss', num: nf(pin - pl, 0) + ' W' },
+      ], 1000, { bw: 180, ticks: [1000, 500], unit: 'W' });
+      if (a.right || a.wrong) part(a.v(0.1), 0, () => {
+        const mark = (k, cls) => { const sp = L.spans[k], y = 28 + 22 * k; rect(cls, sp[0] - 3, y - 3, sp[1] - sp[0] + 6, 20, 3); };
+        if (a.right) { mark(0, 'tri'); mark(1, 'tri'); } else if (a.pick === d.opts[0]) { mark(0, 'bbad'); mark(1, 'bbad'); } else { mark(0, 'bbad'); mark(2, 'bbad'); }
+      });
+      return { h: working(L.y + 4, d, st, a), said: 'Three bars: 800 watts of electrical power in, 600 watts into the load and 200 watts of losses.' };
+    },
+    fallQ(d, st) {
+      const a = ansOf(st), PXM = 70, h = 0.8, y1 = 14 + h * PXM;
+      rect('ghost', 40, 14, 60, 28, 3); text(70, 33, 'start', 'sm m');
+      rect('load', 40, y1, 60, 28, 3); text(70, y1 + 18, nf(200, 0) + ' kg', 'sm');
+      path('brk', 'M104 42H110V' + r2(y1 + 28) + 'H104'); text(116, (42 + y1 + 28) / 2 + 4, nf(h, 1) + ' m', '', 'start');
+      const A0 = 40, A1 = 320, ay = 150, sv2 = (v) => A0 + v / 16 * (A1 - A0);
+      line('axis', A0, ay, A1, ay);
+      [0, 4, 8, 12, 16].forEach((v) => { line('tick', sv2(v), ay - 4, sv2(v), ay + 4); text(sv2(v), ay + 18, String(v), 'sm m'); });
+      text((A0 + A1) / 2, ay + 36, 'speed after the fall (m/s)', 'sm m');
+      if (a.right || a.wrong) part(a.v(0.1), 0, () => {
+        const val = a.pick === d.opts[0] ? 2 * G * h : a.pick === d.opts[1] ? Math.sqrt(G * h) : speedAfter(h), x = sv2(val);
+        line(a.right ? 'mk' : 'mkbad', x, ay - 14, x, ay); circ(a.right ? 'dot1' : 'dotbad', x, ay, 5);
+        text(K.clamp(x, 60, 296), ay - 20, a.pick, (a.right ? 'n' : 'w') + ' sm', 'middle');
+        if (a.right) arrow(70, y1 + 30, 70, y1 + 30 + 5 * val, 'mu', 7);
+      });
+      return { h: working(ay + 44, d, st, a), said: 'A 200 kilogram load drawn before and after a free fall of 0.8 metres, above a speed scale from 0 to 16 metres a second.' };
+    },
+    chainQ(d, st) {
+      const a = ansOf(st);
+      chainScene({ F: 200, m: 250 }, 1, 1);
+      path('brk', 'M58 188H52V154H58'); text(46, 175, '1 m', '', 'end');
+      text(138, 160, '20 m pulled', 'm sm', 'start');
+      return { h: working(198, d, st, a), said: 'A chain block: 200 newtons on the hand chain, 20 metres of chain pulled, a 250 kilogram load raised 1 metre.' };
+    },
+    mix1(d, st) {
+      const a = ansOf(st);
+      line('rope', 120, 4, 120, 50); rect('hook', 117, 50, 6, 7, 1);
+      rect('load', 90, 57, 60, 30, 3); text(120, 76, nf(500, 0) + ' kg', 'sm');
+      arrow(164, 86, 164, 56, 'mu', 8); text(172, 75, 'steady ' + nf(V1, 2) + ' m/s', 'm sm', 'start');
+      if (a.right) part(a.v(0.1), 0, () => { arrow(109, 55, 109, 27, 'nv', 8); text(103, 44, N.F5 + ' N', 'n', 'end'); });
+      return { h: working(98, d, st, a), said: 'A 500 kilogram load on a rope, rising at a steady 0.2 metres a second.' };
+    },
+    bolt(d, st) {
+      const a = ansOf(st), bx = 84, by = 84;
+      if (a.wrong && a.pick === d.opts[0]) part(a.v(0.1), 0, () => {
+        const g = add(K.svg('g', { transform: 'rotate(18 ' + bx + ' ' + by + ')' })), keep = into;
+        into = g; rect('bbad', bx + 20, by - 8, 190, 16, 8); into = keep;
+        text(214, 46, 'only if it had turned', 'w sm', 'middle');
+      });
+      circ('tool', bx, by, 26);
+      rect('tool', bx + 20, by - 8, 190, 16, 8);
+      const hex = [0, 1, 2, 3, 4, 5].map((k) => P(bx + 15 * Math.cos(k * 60 * DEG), by + 15 * Math.sin(k * 60 * DEG)));
+      path('boltc', 'M' + hex.join('L') + 'Z');
+      arcArrow(bx, by, 40, 160, 20, 'nv');
+      text(bx, by - 50, '50 N m', 'n', 'middle');
+      arrow(bx + 196, by + 9, bx + 196, by + 38, 'ink', 8); text(bx + 204, by + 30, 'push', 'm sm', 'start');
+      text(bx, by + 46, 'seized', 'm sm', 'middle');
+      if (a.right) part(a.v(0.1), 0, () => text(200, 140, 'it does not move: 0 m', 'n sm', 'middle'));
+      return { h: working(150, d, st, a), said: 'A spanner on a seized bolt, with a turning moment of 50 newton metres on it.' };
+    },
+  };
+
+  // ---------- one screen's picture ----------
+  function placeGrips(d, g) {
+    const onL = !!(g && g.mass) && !finished, onS = !!(g && g.speed) && !finished;
+    gLoad.style.display = onL ? '' : 'none'; gSpeed.style.display = onS ? '' : 'none';
+    gLoad.setAttribute('tabindex', onL ? '0' : '-1'); gSpeed.setAttribute('tabindex', onS ? '0' : '-1');
+    if (onL) {
+      const r = g.load;
+      gLoad.setAttribute('x', r2(r.x)); gLoad.setAttribute('y', r2(r.y)); gLoad.setAttribute('width', r2(r.w)); gLoad.setAttribute('height', r2(Math.max(44, r.h)));
+      const m = +CTL.mass.get();
+      gLoad.setAttribute('aria-valuemin', '100'); gLoad.setAttribute('aria-valuemax', '1000'); gLoad.setAttribute('aria-valuenow', String(m)); gLoad.setAttribute('aria-valuetext', m + ' kg');
+    }
+    if (onS) {
+      gSpeed.setAttribute('x', '214'); gSpeed.setAttribute('y', '96'); gSpeed.setAttribute('width', '122'); gSpeed.setAttribute('height', '50');
+      const v = +CTL.speed.get();
+      gSpeed.setAttribute('aria-valuemin', '0.1'); gSpeed.setAttribute('aria-valuemax', '0.5'); gSpeed.setAttribute('aria-valuenow', String(v)); gSpeed.setAttribute('aria-valuetext', nf(v, 2) + ' m/s');
+    }
+  }
+  function render(i, p) {
+    const d = STEPS[i], st = S[i];
+    art.textContent = ''; into = null;
+    REC = { wk: [], bars: null };
+    const out = d.winch ? winchScreen(d, p) : d.pic === 'chain' ? chainShow() : PICS[d.pic](d, st);
+    svg.setAttribute('viewBox', '0 0 340 ' + Math.ceil(out.h));
+    svg.setAttribute('aria-label', out.said);
+    placeGrips(d, out.grip);
+    return REC;
+  }
+
+  // ---------- dragging the load and the speed handle ----------
+  let held = null;
+  function svgPt(ev) { const m = svg.getScreenCTM(); if (!m) return null; return new DOMPoint(ev.clientX, ev.clientY).matrixTransform(m.inverse()); }
+  const canDrag = (k) => { const d = STEPS[at()]; return !finished && (d.drag || []).indexOf(k) >= 0; };
+  function grab() {
+    if (anim.playing()) anim.pause();
+    if (T !== Infinity) { T = Infinity; settle(); }
+    K.reveal();
+  }
+  function setMass(m) { setQuiet('mass', K.clamp(Math.round(m / 50) * 50, 100, 1000)); K.refresh(); }
+  function setSpeed(v) { setQuiet('speed', K.clamp(Math.round(v * 20) / 20, 0.1, 0.5)); K.refresh(); }
+  gLoad.addEventListener('pointerdown', (ev) => {
+    if (!canDrag('mass')) return;
+    const q = svgPt(ev);
+    if (!q) return;
+    held = { id: ev.pointerId, kind: 'mass', x0: q.x, m0: +CTL.mass.get() };
+    try { gLoad.setPointerCapture(ev.pointerId); } catch (er) { /* the drag still follows while the pointer stays on the grip */ }
+    ev.preventDefault(); grab(); K.refresh();
+  });
+  gSpeed.addEventListener('pointerdown', (ev) => {
+    if (!canDrag('speed')) return;
+    const q = svgPt(ev);
+    if (!q) return;
+    held = { id: ev.pointerId, kind: 'speed' };
+    try { gSpeed.setPointerCapture(ev.pointerId); } catch (er) { /* as above */ }
+    ev.preventDefault(); grab(); setSpeed(speedAt(q.x));
+  });
+  [gLoad, gSpeed].forEach((g) => {
+    g.addEventListener('pointermove', (ev) => {
+      if (!held || held.id !== ev.pointerId) return;
+      const q = svgPt(ev);
+      if (!q) return;
+      ev.preventDefault();
+      if (held.kind === 'mass') setMass(held.m0 + (q.x - held.x0) * 900 / 150); else setSpeed(speedAt(q.x));
+    });
+    const letGo = (ev) => { if (held && held.id === ev.pointerId) held = null; };
+    g.addEventListener('pointerup', letGo);
+    g.addEventListener('pointercancel', letGo);
+    g.addEventListener('lostpointercapture', () => { held = null; });
+  });
+  gLoad.addEventListener('keydown', (ev) => {
+    const by = { ArrowRight: 50, ArrowUp: 50, ArrowLeft: -50, ArrowDown: -50 }[ev.key];
+    if (by == null || !canDrag('mass')) return;
+    ev.preventDefault(); grab(); setMass(+CTL.mass.get() + by);
+  });
+  gSpeed.addEventListener('keydown', (ev) => {
+    const by = { ArrowRight: 0.05, ArrowUp: 0.05, ArrowLeft: -0.05, ArrowDown: -0.05 }[ev.key];
+    if (by == null || !canDrag('speed')) return;
+    ev.preventDefault(); grab(); setSpeed(+CTL.speed.get() + by);
+  });
+
+  // ---------- the words under the picture ----------
+  function sayFor(d, p) {
+    const e = eff(p, d), F = weightOf(e.m), Fs = nf(F, 0), v = nf(e.v, 3), pl = powerOf(F, e.v), pin = pl / EFF, m = d.winch;
+    if (m === 'lift') {
+      if (e.rise <= 0) return 'The load sits on the ground, so the rope has done no work on it yet.';
+      return 'The rope pulls with ' + Fs + ' N and has lifted the load ' + nf(e.rise, 1) + ' m. So it has done ' + Fs + ' × ' + nf(e.rise, 1) + ' = ' + nf(F * e.rise, 0) + ' J of work, now stored in the load.';
+    }
+    if (m === 'power' || (m === 'half' && !e.half)) return 'At ' + v + ' m/s the 10 m lift takes ' + nf(H / e.v, 1) + ' s. Each second the rope does ' + Fs + ' × ' + v + ' = ' + nf(pl, 1) + ' J of work, so ' + nf(pl, 1) + ' W goes into the load.';
+    if (m === 'half') return 'At half speed, ' + v + ' m/s, the lift takes ' + nf(H / e.v, 1) + ' s instead of ' + nf(H / e.v1, 1) + ' s. The energy stored is the same, but ' + nf(pl, 1) + ' W goes into the load instead of ' + nf(powerOf(F, e.v1), 1) + ' W.';
+    if (m === 'eff') return 'The motor draws ' + nf(pin, 0) + ' W. Of that, ' + nf(pl, 1) + ' W goes into the load and ' + nf(pin - pl, 0) + ' W becomes heat. So ' + nf(pl, 1) + ' ÷ ' + nf(pin, 0) + ' = 80%.';
+    const E = workOf(F, H), X = workOf(F, e.fall);
+    if (e.fall <= 0) return 'The brake holds the load 10 m up, with ' + nf(E, 0) + ' J of energy stored in it.';
+    return 'After a ' + nf(e.fall, 2) + ' m fall, ' + nf(X, 0) + ' J of the ' + nf(E, 0) + ' J stored has turned into motion. Falling freely, with the drum and motor\'s spin left out, any load is now moving at ' + fx(speedAfter(e.fall), 2) + ' m/s.';
+  }
+  function layout(i, d, st, p) {
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('lead').hidden = finished || i !== 0;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task say' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    const b = d.btns || [];
+    el('live').hidden = finished || !b.length;
+    liftBtn.el.hidden = b.indexOf('lift') < 0; halfBtn.el.hidden = b.indexOf('half') < 0; brakeBtn.el.hidden = b.indexOf('brake') < 0;
+    const outs = d.outs || [];
+    el('outs').hidden = !outs.length;
+    RO.forEach((r, k) => { r.el.hidden = outs.indexOf(RID[k]) < 0; });
+    el('say').hidden = !d.winch;
+    el('say').textContent = d.winch ? sayFor(d, p) : '';
+    const opts = d.show ? [] : optsOf(d);
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 12));
+    pickBtns.forEach((bt, k) => {
+      bt.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      bt.setLabel(opts[k]);
+      bt.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    el('acts').hidden = !!d.show;
+    el('replay').hidden = finished || d.pic !== 'chain' || REDUCE;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb say' + (right ? ' right' : '');
+    fb.textContent = d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? (d.hints[st.pick] || '') : st.res === 'empty' ? 'Pick an answer first.' : '';
+    const why = el('why');
+    why.hidden = !!d.show || !st.why;
+    if (!d.show) write(why, d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  }
+
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (i !== lastStep) { enterStep(i); K.refresh(); return; }
+    // a motion that was stopped (the page hidden, a test) shows finished
+    if (T !== Infinity && !anim.playing()) { T = Infinity; settle(); K.refresh(); return; }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    render(i, p);
+    layout(i, d, st, p);
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const I_BOLT = iOf('pic', 'bolt');
+  const answer = (i, o) => ({ pick: o, res: o === STEPS[i].want ? 'right' : 'wrong', why: false });
+  const near = (a, b, tol) => K.near(a, b, tol);
+  const MASSES = [100, 250, 500, 750, 1000], SPEEDS = [0.1, 0.2, 0.35, 0.5];
+  const words = (s) => String(s).split(/\s+/).filter((w) => /[A-Za-z0-9]/.test(w)).length;
+  // A screen drawn in a given state, finished; returns what it drew.
+  function drawn(i, st, over) {
+    const keep = { S: S[i], T, MOT, INSTANT };
+    S[i] = st; T = Infinity; MOT = null; INSTANT = false;
+    try { return render(i, Object.assign({ step: i }, setupOf(i), over || {})); }
+    finally { S[i] = keep.S; T = keep.T; MOT = keep.MOT; INSTANT = keep.INSTANT; render(at(), K.params()); }
+  }
+
+  K.check('Work is the measure of energy transfer when a force moves an object through a distance: at every load and every height risen, the energy stored is the rope\'s pull × the height', () =>
+    MASSES.every((m) => [0, 2.5, 7.3, H].every((h) => near(K.at({ step: I_LIFT, mass: m, rise: h }).stored * 1000, weightOf(m) * h, 1e-6))), { source: SRC.work });
+  K.check('One joule of work is done when a force of one newton causes a movement of one metre, so the lift\'s joules are its newtons × its metres', () =>
+    workOf(1, 1) === 1 && near(workOf(weightOf(500), H), 49050, 1e-6) && N.J5 === '49,050', { source: SRC.joule });
+  K.check('Power is work done per unit of time: at every load and speed, the power into the load is the energy stored at the top ÷ the time the lift takes', () =>
+    MASSES.every((m) => SPEEDS.every((v) => { const o = K.at({ step: I_POW, mass: m, speed: v, rise: H }); return near(o.loadPower, o.stored * 1000 / (H / v), 1e-6 * o.loadPower); })), { source: SRC.work });
+  K.check('A moment is measured in newton metres, but it is not work: the bolt puzzle gives its moment in N m, and a bolt that does not turn has no work done on it', () => {
+    const d = STEPS[I_BOLT];
+    return /N m/.test(d.task) && d.want === nf(workOf(50, 0), 0) + ' J' && workOf(1000, 0) === 0 && d.opts.some((o) => o !== d.want && / J$/.test(o));
+  }, { source: SRC.moment });
+  K.check('The opening lift: 500 kg weighs 4905 N; at 0.2 m/s 981 W goes into the load and 1226 W is drawn, so 245 W is lost; 10 m stores 49.05 kJ, in 50 s', () => {
+    const o = K.at({ step: I_LIFT });
+    return near(weightOf(500), 4905, 1e-9) && near(o.loadPower, 981, 1e-9) && near(o.elecPower, 1226.25, 1e-9) && near(o.elecPower - o.loadPower, 245.25, 1e-9) &&
+      near(o.stored, 49.05, 1e-9) && N.t1 === '50' && N.In1 === '1226' && N.Loss1 === '245';
+  });
+  K.check('Same lift, half speed: both power readings halve, to 490.5 W and 613 W, and the same 49.05 kJ is stored in 100 s, twice the time', () => {
+    const a = K.at({ step: I_HALF, half: false }), b = K.at({ step: I_HALF, half: true });
+    return near(b.loadPower, a.loadPower / 2, 1e-9) && near(b.elecPower, a.elecPower / 2, 1e-9) && near(b.loadPower, 490.5, 1e-9) && Math.round(b.elecPower) === 613 &&
+      near(a.stored, b.stored, 1e-12) && near(b.stored, 49.05, 1e-9) && near(H / (V1 / 2), 2 * (H / V1), 1e-12) && N.t2 === '100';
+  });
+  K.check('Brake off: a 1 m free fall turns the weight × 1 m into motion, 4905 J for 500 kg, and reaches 4.43 m/s whatever the mass', () =>
+    near((K.at({ step: I_FALL, fall: 0 }).stored - K.at({ step: I_FALL, fall: 1 }).stored) * 1000, 4905, 1e-6) &&
+    MASSES.every((m) => {
+      const lost = (K.at({ step: I_FALL, mass: m, fall: 0 }).stored - K.at({ step: I_FALL, mass: m, fall: 1 }).stored) * 1000;
+      return near(lost, weightOf(m), 1e-6) && near(Math.sqrt(2 * lost / m), 4.4294, 1e-4);
+    }) && N.vDrop === '4.43');
+  K.check('Efficiency is useful power out ÷ power in: 80% at every load and speed, and the power-in bar is drawn exactly as long as the load and losses bars end to end', () => {
+    const ok = MASSES.every((m) => SPEEDS.every((v) => { const o = K.at({ step: I_EFF, mass: m, speed: v }); return near(o.loadPower / o.elecPower, EFF, 1e-12); }));
+    const r = drawn(I_EFF, blank(), { mass: 750, speed: 0.35 }).bars;
+    return ok && !!r && near(r.in[1], r.loss[1], 1e-6) && near(r.load[1], r.loss[0], 1e-6) && near(r.in[0], r.load[0], 1e-9);
+  });
+  K.check('Every puzzle answer is worked from its rule (866 J, 490.5 W, 75%, 3.96 m/s, 61.3%, 981 W, 0 J), and the chain block is 65.4% both ways', () => {
+    const w = (n) => STEPS[iOf('pic', n)].want;
+    return w('pull') === '866 J' && w('pgraph') === '490.5 W' && w('effQ') === '75%' && w('fallQ') === '3.96 m/s' && w('chainQ') === '61.3%' && w('mix1') === '981 W' && w('bolt') === '0 J' &&
+      near(workOf(weightOf(500), 1) / (250 * 30), (weightOf(500) / 250) / 30, 1e-12) && N.c11eff === '65.4' && N.c12x === '163' && N.c12m === '6.25' && N.p10sq === '15.7' && N.p10no2 === '2.80';
+  });
+  K.check('Each puzzle offers three answers and accepts only its right one; every wrong answer has its own hint and its working drawn in red, and nothing is marked before Check', () =>
+    DO.every((i) => {
+      const d = STEPS[i];
+      if (d.opts.length !== 3 || d.opts.indexOf(d.want) < 0) return false;
+      if (drawn(i, blank()).wk.some((x) => x.ans)) return false;
+      if (!drawn(i, answer(i, d.want)).wk.some((x) => x.ans && !x.bad)) return false;
+      return d.opts.filter((o) => o !== d.want).every((o) => !!d.hints[o] && drawn(i, answer(i, o)).wk.some((x) => x.ans && x.bad));
+    }));
+  K.check('Every demonstration ends within 5 s of its screen opening, and every answer is drawn within 2.5 s of Check', () => {
+    const keep = { T, MOT, INSTANT };
+    try {
+      return STEPS.every((d, i) => {
+        if (d.show) {
+          const p = Object.assign({ step: i }, setupOf(i)), plan = demoPlan(d, p);
+          T = Infinity; MOT = plan.mot; INSTANT = false; latest = 0;
+          render(i, p);
+          return plan.end <= 5 && latest <= 5;
+        }
+        return d.opts.every((o) => {
+          const keepS = S[i];
+          T = Infinity; MOT = null; latest = 0; S[i] = answer(i, o);
+          try { render(i, {}); } finally { S[i] = keepS; }
+          return latest <= 2.5 && ANS <= 2.5;
+        });
+      });
+    } finally { T = keep.T; MOT = keep.MOT; INSTANT = keep.INSTANT; render(at(), K.params()); }
+  });
+  K.check('Every screen that shows an idea says it in 90 words or fewer', () => STEPS.every((d) => !d.show || (words(d.text) <= 90 && (!d.read || words(d.read) <= 90))));
+
+  K.ready();
+</script>

@@ -1,0 +1,945 @@
+<!-- kind: skill -->
+<style>
+  [hidden] { display: none !important; }
+  .pz { max-width: 34rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .count { margin-top: 10px; }
+  .task { font-size: 1.15rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.06rem; font-weight: 400; line-height: 1.6; }
+  .fig { display: block; width: 100%; max-width: 26rem; margin-inline: auto; touch-action: pan-y; }
+  .fig.drag { touch-action: none; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .picks { flex-direction: column; gap: 8px; }
+  .picks .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; white-space: normal; line-height: 1.35; padding-top: 8px; padding-bottom: 8px; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  #outs { display: grid; grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr)); gap: 10px; }
+  .fb { font-weight: 700; min-height: 1.5em; }
+  .fb.right { color: var(--k-good); }
+  .why, .done { line-height: 1.6; }
+  .done .row { margin-top: 14px; }
+  .replay { justify-content: center; }
+  .replay .k-btn { flex: 0 0 auto; }
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }
+  /* The beam, its trestles and the block. */
+  .fig .beam { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.8; }
+  .fig .tres { stroke: var(--k-strong); stroke-width: 3; stroke-linecap: round; }
+  .fig .cap { fill: var(--k-strong); }
+  .fig .ground { stroke: var(--k-line); stroke-width: 2; }
+  .fig .block { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.8; }
+  .fig .dim { stroke: var(--k-accent); stroke-width: 1.4; }
+  .fig .ref { fill: none; stroke: var(--k-muted); stroke-width: 1.4; stroke-dasharray: 4 3; }
+  .fig .track { fill: var(--k-sunk); }
+  .fig .mbar { fill: var(--k-accent2); }
+  .fig .mbar-hot { fill: var(--k-warn); }
+  .fig .pivring { fill: var(--k-bg); stroke: var(--k-accent); stroke-width: 2.4; }
+  /* The plank, the spanner, the bar and the wheel. */
+  .fig .fulcrum { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.8; }
+  .fig .plank { stroke: var(--k-strong); stroke-width: 8; stroke-linecap: round; }
+  .fig .tool { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.8; }
+  .fig .jaw { fill: none; stroke: var(--k-strong); stroke-width: 6; }
+  .fig .nut { fill: var(--k-sunk); stroke: var(--k-ink); stroke-width: 1.6; }
+  .fig .pdot { fill: var(--k-accent); }
+  .fig .rod { stroke: var(--k-strong); stroke-width: 8; stroke-linecap: round; }
+  .fig .rim { fill: none; stroke: var(--k-strong); stroke-width: 6; }
+  .fig .hub { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.8; }
+  .fig .spoke { stroke: var(--k-strong); stroke-width: 3; }
+  .fig .arm { stroke: var(--k-accent2); stroke-width: 3; }
+  .fig .arm-hot { stroke: var(--k-warn); stroke-width: 3.2; }
+  .fig .arm-ghost { stroke: var(--k-accent2); stroke-width: 1.6; stroke-dasharray: 4 3; }
+  .fig .rt { fill: none; stroke: var(--k-accent2); stroke-width: 1.4; }
+  /* Forces: reactions are the main thing (navy); loads are ink; a mistake is red. */
+  .fig .ar-ink { stroke: var(--k-ink); stroke-width: 2.6; }
+  .fig .ah-ink { fill: var(--k-ink); }
+  .fig .ar-rx { stroke: var(--k-accent2); stroke-width: 3.4; }
+  .fig .ah-rx { fill: var(--k-accent2); }
+  .fig .ar-mut { stroke: var(--k-muted); stroke-width: 2.6; }
+  .fig .ah-mut { fill: var(--k-muted); }
+  .fig .ar-hot { stroke: var(--k-warn); stroke-width: 3.2; }
+  .fig .ah-hot { fill: var(--k-warn); }
+  .fig .ar-tot { stroke: var(--k-ink); stroke-width: 2; stroke-dasharray: 5 4; }
+  .fig .ah-tot { fill: var(--k-ink); }
+  .fig .ar-sm { stroke: var(--k-ink); stroke-width: 1.6; }
+  .fig .ah-sm { fill: var(--k-ink); }
+  /* Words on the pictures. */
+  .fig .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .fig .lab.t { fill: var(--k-accent); }
+  .fig .lab.n { fill: var(--k-accent2); }
+  .fig .lab.w { fill: var(--k-warn); }
+  .fig .lab.m { font-weight: 400; fill: var(--k-muted); }
+  .fig .lab.h { font-weight: 700; fill: var(--k-accent); letter-spacing: .02em; }
+  .fig .grip, .fig .tap { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; }
+  .fig .tap { cursor: pointer; }
+  .fig .grip:active { cursor: grabbing; }
+</style>
+
+<p class="lead" id="lead">A spanner on a nut, a plank on a pivot, a lifting beam on two trestles 4 m apart with an example 6 kN chain block, and a valve wheel. The other loads, pushes and weights are examples too.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task say" id="task"></p>
+    <svg class="fig" id="scene" viewBox="0 0 340 322" width="100%" role="img" aria-label=""><g id="art"></g><g id="labs"></g><g id="ui"><rect id="tapL" class="tap" x="-200" y="0" width="10" height="10" aria-hidden="true"></rect><rect id="tapR" class="tap" x="-200" y="0" width="10" height="10" aria-hidden="true"></rect><circle id="grip" class="grip" cx="-100" cy="-100" r="22" aria-hidden="true"></circle></g></svg>
+    <div class="k-controls" id="c-grip"></div>
+    <div class="k-controls" id="c-pos"></div>
+    <div class="k-controls" id="c-x"></div>
+    <div class="k-controls" id="c-load"></div>
+    <div class="k-controls" id="c-pivot"></div>
+    <div class="k-controls" id="c-own"></div>
+    <div class="k-controls" id="c-spread"></div>
+    <div class="k-controls" id="c-wp"></div>
+    <div class="row replay" id="replay"></div>
+    <p class="say" id="say"></p>
+    <div class="k-readouts" id="outs"></div>
+    <div class="row picks say" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb say" id="fb" aria-live="polite"></p>
+    <div class="note why say" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption" id="cap">Each moment is a force times its distance from the pivot, measured at right angles to the force's line.</p>
+
+<script>
+  // ---------- the rules ----------
+  const D2R = Math.PI / 180;
+  const SPAN = 4, OWN = 2, WIDE = 2;          // trestles 4 m apart; the beam's example 2 kN; a spread load's 2 m
+  // A beam on two trestles: a load P whose middle is c m from the left trestle, and the beam's own
+  // weight Wb at its middle. Moments about the left trestle give the right reaction; the rest is the left's.
+  function reactions(b) {
+    const mid = b.span / 2;
+    const mL = b.P * b.c + b.Wb * mid;                 // the loads' moment about the left trestle
+    const mR = b.P * (b.span - b.c) + b.Wb * mid;      // and about the right trestle
+    const RR = mL / b.span;
+    return { RL: b.P + b.Wb - RR, RR, mL, mR };
+  }
+  const SRC = {
+    bbc: 'https://www.bbc.co.uk/bitesize/articles/z96g3j6',
+    stat: 'https://engineeringstatics.org/moment-of-force.html',
+    os: 'https://openstax.org/books/college-physics-2e/pages/9-2-the-second-condition-for-equilibrium',
+  };
+  const nf = (v) => { const r = Math.round(v * 1000) / 1000; return (Math.abs(r) < 1e-9 ? '0' : String(r)).replace('-', '−'); };
+  const near = (a, b) => Math.abs(a - b) < 1e-6;
+
+  // Every number the words show, worked out from the rules (a check compares them with the lesson's).
+  const N = (() => {
+    const n = {};
+    n.sp = nf(150 * 0.3); n.sp2 = nf(150 * 0.15);
+    n.bar = nf(200 * 0.3); n.barL = nf(200 * 0.5); n.barD = nf(200 * (0.5 - 0.3));
+    n.pl = nf(400 * 1.5); n.hang = nf(300 * 2 / 600); n.hang4 = nf(2 * 2);
+    const a = reactions({ span: 4, P: 6, c: 1, Wb: 0 }); n.m6 = nf(a.mL); n.r6 = nf(a.RR); n.l6 = nf(a.RL); n.half6 = nf(6 / 2);
+    const b = reactions({ span: 4, P: 8, c: 3, Wb: 0 }); n.m8 = nf(b.mL); n.r8 = nf(b.RR); n.l8 = nf(b.RL); n.h8 = nf(8 / 2);
+    const w = reactions({ span: 4, P: 6, c: 1, Wb: OWN }); n.mw = nf(OWN * 2); n.mwT = nf(w.mL); n.rw = nf(w.RR); n.lw = nf(w.RL); n.tw = nf(6 + OWN);
+    const h = reactions({ span: 6, P: 4, c: 1.5, Wb: 3 }); n.ha = nf(4 * 1.5); n.hb = nf(3 * 3); n.hm = nf(h.mL); n.hr = nf(h.RR); n.hl = nf(h.RL);
+    n.hno = nf(4 * 1.5 / 6); n.hfar = nf((4 * 1.5 + 3 * 6) / 6);
+    n.c1 = nf(100 * 0.2); n.c = nf(2 * 100 * 0.2); n.ch = nf(100 * 0.4);
+    n.v1 = nf(80 * 0.25); n.v = nf(2 * 80 * 0.25); n.vh = nf(80 * 0.5); n.vf = nf(2 * 80 * 0.5);
+    const s = reactions({ span: 4, P: 4, c: 3, Wb: 2 }); n.sa = nf(4 * 3); n.sb = nf(2 * 2); n.sm = nf(s.mL); n.sr = nf(s.RR); n.sl = nf(s.RL); n.sno = nf(4 * 3 / 4);
+    return n;
+  })();
+
+  // ---------- the lesson: SHOW screens demonstrate, DO screens are puzzles ----------
+  // scene: spanner, bar, plank, beam or wheel. set: where the controls open. slider: the controls
+  // shown. play: a demonstration sweeping one control ([seconds, value] keys); arrive: parts arriving.
+  // beam / plank / wheel: a puzzle's fixed picture. rr: the right reaction each answer stands for;
+  // val: the distance each answer stands for; arms: the arm each answer uses; marks: what a wrong one left out.
+  const STEPS = [
+    { show: true, scene: 'spanner', name: 'A spanner on a nut', slider: ['grip'],
+      play: { id: 'grip', keys: [[0.4, 0.3], [1.2, 0.3], [3.4, 0.15]] },
+      text: `A force can turn things as well as push them. Its turning effect is called its *moment*. The moment is the force times its distance from the pivot. On a spanner, the pivot is the middle of the nut. 150 N at 0.3 m gives 150 × 0.3 = ${N.sp} N m. Push at half the distance and you get half the turning effect. Moments are measured in newton metres.`,
+      still: { grip: 0.15 } },
+    { kind: 'pick', scene: 'bar', name: 'A slanted pull',
+      task: 'A 200 N pull acts on the end of a 0.5 m bar. It is slanted, so its line passes 0.3 m from the pivot. What is its moment?',
+      opts: [`${N.barL} N m`, `${N.bar} N m`, `${N.barD} N m`], want: `${N.bar} N m`, arms: ['bar', 'perp', 'diff'],
+      hints: { [`${N.barL} N m`]: 'Not quite. That uses the length of the bar. Use the distance at right angles to the pull\'s line.',
+        [`${N.barD} N m`]: 'Not quite. That takes 0.3 m from 0.5 m. The arm is the right-angle distance itself.' },
+      why: `A force can slide along its own line without changing its moment. So slide the pull to the point on its line nearest the pivot. There, the distance to the pivot meets the line at right angles. That distance, 0.3 m, is the *arm*. So the moment is 200 × 0.3 = ${N.bar} N m.` },
+    { show: true, scene: 'plank', name: 'Balance on a plank', plank: { L: 2, R: 2.25, left: [400, 1.5], right: 600, bmax: 1200 }, slider: ['pos'],
+      play: { id: 'pos', keys: [[0.4, 1.75], [1.0, 1.75], [3.4, 1]] },
+      text: `When something stays still, its turning effects balance. The clockwise moments add up to the same as the anticlockwise moments. That is the *principle of moments*. Here 400 N presses 1.5 m left of the pivot. That gives 400 × 1.5 = ${N.pl} N m anticlockwise. On the right, 600 N presses 1 m out. That gives 600 × 1 = 600 N m clockwise. So the plank stays level.`,
+      still: { pos: 1 } },
+    { kind: 'pick', scene: 'plank', name: 'Balance the plank', plank: { L: 2.5, R: 4.5, left: [300, 2], right: 600, bmax: 2400 },
+      task: '300 N presses on a plank 2 m left of its pivot. Where on the right must 600 N press to balance it?',
+      opts: ['2 m', `${N.hang} m`, `${N.hang4} m`], want: `${N.hang} m`, val: [2, +N.hang, +N.hang4],
+      hints: { '2 m': 'Not quite. At the same distance, 600 N turns it twice as hard as 300 N.',
+        [`${N.hang4} m`]: 'Not quite. The bigger load needs the shorter arm, not the longer one.' },
+      why: `300 N at 2 m gives 300 × 2 = 600 N m anticlockwise. The 600 N load must give 600 N m clockwise. So it must press 600 ÷ 600 = ${N.hang} m from the pivot. Twice the load needs half the distance.` },
+    { show: true, scene: 'beam', name: 'The lifting beam', slider: ['x', 'load'], outs: ['leftReaction', 'rightReaction'],
+      play: { id: 'x', keys: [[0.4, 1], [1.8, 2], [2.4, 2], [3.8, 3]] },
+      text: 'A lifting beam rests on two trestles 4 m apart. A chain block hangs from it with a 6 kN load. Each trestle pushes up on the beam. That push is its *reaction*. Together the two reactions hold up the load. Each trestle\'s arm is its distance from the block. Drag the block along the beam, or use the slider, and watch the reactions.',
+      read: 'As the block moves toward a trestle, that trestle\'s reaction grows and the far one\'s shrinks. With the block at the middle, each trestle carries half. Here it hangs 3 m along, so the right trestle is nearer and carries more.',
+      still: { x: 3 } },
+    { kind: 'pick', scene: 'beam', name: 'Which carries more?', beam: { span: 4, P: 6, c: 1, Wb: 0 }, rr: [+N.l6, +N.r6, +N.half6],
+      task: 'The 6 kN block hangs 1 m from the left trestle. Which trestle carries more?',
+      opts: ['The right trestle', 'The left trestle', 'They carry the same'], want: 'The left trestle',
+      hints: { 'The right trestle': 'Not quite. More beam lies on the right, but that does not decide it. Compare the two arms.',
+        'They carry the same': 'Not quite. They share it equally only with the block at the middle.' },
+      why: 'The block is 1 m from the left trestle and 3 m from the right. The far trestle pushes on the longer arm. So a smaller push balances the same moment. The nearer trestle, the left one, carries more. The shares are 3 to 1.' },
+    { show: true, scene: 'beam', name: 'Take moments about a trestle', slider: ['pivot'], pivot: true, arrive: 'bars', outs: ['leftReaction', 'rightReaction', 'pivotMoment'],
+      text: `The principle of moments holds about any point you choose. So choose the left trestle as the pivot. Its own push has no distance from it, so it drops out. The block turns the beam clockwise with 6 × 1 = ${N.m6} kN m. The right trestle pushes up 4 m away, turning it anticlockwise. So it carries 6 ÷ 4 = ${N.r6} kN. The left carries the rest, ${N.l6} kN. Tap a trestle to switch.`,
+      read: `About the left trestle, the block's 6 × 1 = ${N.m6} kN m clockwise matches the right trestle's ${N.r6} × 4 = ${N.m6} kN m anticlockwise. The left trestle's own push drops out. About the right trestle, the moments match too.`,
+      still: { pivot: 'L' } },
+    { kind: 'pick', scene: 'beam', name: 'An 8 kN block', beam: { span: 4, P: 8, c: 3, Wb: 0 }, rr: [+N.l8, +N.h8, +N.r8],
+      task: 'An 8 kN block hangs 3 m from the left trestle. What does the right trestle carry?',
+      opts: [`${N.l8} kN`, `${N.h8} kN`, `${N.r8} kN`], want: `${N.r8} kN`,
+      hints: { [`${N.l8} kN`]: 'Not quite. That is the left trestle\'s share. The block is nearer the right one.',
+        [`${N.h8} kN`]: 'Not quite. That is half the load. It is right only with the block at the middle.' },
+      why: `Take moments about the left trestle. The block gives 8 × 3 = ${N.m8} kN m clockwise. The right trestle pushes up 4 m away. So it carries ${N.m8} ÷ 4 = ${N.r8} kN. The left carries the other ${N.l8} kN.` },
+    { show: true, scene: 'beam', name: 'The beam\'s own weight', set: { own: true }, slider: ['own', 'spread', 'x'], arrive: 'weight', outs: ['leftReaction', 'rightReaction'],
+      text: `The beam has weight too. Each half of a uniform beam balances the other about its middle. So its whole weight acts there. This beam weighs 2 kN. About the left trestle it adds 2 × 2 = ${N.mw} kN m, making ${N.mwT} kN m. So the right trestle carries ${N.mwT} ÷ 4 = ${N.rw} kN. The left carries the rest of the ${N.tw} kN, ${N.lw} kN. A load spread evenly also acts as its total at its middle.`,
+      still: { own: true, spread: false, x: 1 } },
+    { kind: 'pick', scene: 'beam', name: 'A heavier beam', beam: { span: 6, P: 4, c: 1.5, Wb: 3 }, rr: [+N.hno, +N.hr, +N.hfar], marks: ['noweight', null, 'farend'],
+      task: 'A 6 m beam weighs 3 kN. A 4 kN block hangs 1.5 m from the left trestle. What does the right trestle carry?',
+      opts: [`${N.hno} kN`, `${N.hr} kN`, `${N.hfar} kN`], want: `${N.hr} kN`,
+      hints: { [`${N.hno} kN`]: 'Not quite. That leaves out the beam\'s own weight. Add its moment too.',
+        [`${N.hfar} kN`]: 'Not quite. That puts the beam\'s weight at the far end. It acts at the middle.' },
+      why: `About the left trestle, the block gives 4 × 1.5 = ${N.ha} kN m. The beam's 3 kN acts at its middle, 3 m along. It gives 3 × 3 = ${N.hb} kN m. That makes ${N.hm} kN m. The right trestle pushes up 6 m away, so it carries ${N.hm} ÷ 6 = ${N.hr} kN. The left carries the other ${N.hl} kN.` },
+    { show: true, scene: 'wheel', name: 'A couple', wheel: { d: 0.4, F: 100 }, slider: ['wp'], arrive: 'wheel',
+      text: `Two equal pulls in opposite directions, on different lines, add up to no push at all. They only turn. Such a pair is called a *couple*. Each hand pulls 100 N on a valve wheel 0.4 m across. About the centre, each gives 100 × 0.2 = ${N.c1} N m, so the two give ${N.c} N m. About one hand, the other gives 100 × 0.4, still ${N.ch} N m. A couple's moment is the same about any point.`,
+      still: { wp: 'C' } },
+    { kind: 'pick', scene: 'wheel', name: 'A wider wheel', wheel: { d: 0.5, F: 80 }, arms: ['one', 'both', 'full'],
+      task: 'Each hand pulls 80 N the opposite way on a wheel 0.5 m across. What is the couple\'s moment?',
+      opts: [`${N.v1} N m`, `${N.v} N m`, `${N.vf} N m`], want: `${N.v} N m`,
+      hints: { [`${N.v1} N m`]: 'Not quite. That is one hand about the centre. Add the other hand\'s moment.',
+        [`${N.vf} N m`]: 'Not quite. That counts each hand 0.5 m from the centre. Each is only 0.25 m away.' },
+      why: `About the centre, each hand is 0.25 m away and gives 80 × 0.25 = ${N.v1} N m. The two give ${N.v} N m. About one hand, the other gives 80 × 0.5 = ${N.vh} N m, the same.` },
+    { kind: 'pick', scene: 'beam', name: 'Spread over half', beam: { span: 4, P: 4, c: 3, Wb: 2, spread: true, w: 2 }, rr: [+N.sno, +N.sl, +N.sr], marks: ['noweight', null, null],
+      task: 'A 4 m beam weighs 2 kN. A 4 kN load is spread evenly over its right half. What does the right trestle carry?',
+      opts: [`${N.sno} kN`, `${N.sl} kN`, `${N.sr} kN`], want: `${N.sr} kN`,
+      hints: { [`${N.sno} kN`]: 'Not quite. That leaves out the beam\'s own weight. Its 2 kN acts at the middle.',
+        [`${N.sl} kN`]: 'Not quite. That is the left trestle\'s share. The load sits nearer the right.' },
+      why: `The spread load's total acts at the middle of the right half, 3 m along. About the left trestle it gives 4 × 3 = ${N.sa} kN m. The beam's 2 kN at its middle gives 2 × 2 = ${N.sb} kN m. That makes ${N.sm} kN m. So the right trestle carries ${N.sm} ÷ 4 = ${N.sr} kN. The left carries the other ${N.sl} kN.` },
+  ];
+  const FINISH = 'To find what each support carries, take moments about one support, so its own push drops out. Then make the up pushes add to the load.';
+  const FADE = 0.35, ANS = 2.3;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  const calm = () => REDUCE || testing();
+  const el = (id) => document.getElementById(id);
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+
+  // ---------- state ----------
+  const blank = () => ({ pick: null, res: null, why: false });
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false;
+  let T = Infinity, motionEnd = 0;          // seconds since the screen opened (a demonstration) or since Check
+  let SW = null;                            // a demonstration's sweep of one control
+  const BASE = { grip: 0.3, pos: 1, x: 1, load: 6, pivot: 'L', own: false, spread: false, wp: 'C' };
+  const CIDS = Object.keys(BASE);
+  let V = Object.assign({}, BASE);          // the settings as drawn (a sweep draws between steps)
+  const setupOf = (i) => Object.assign({}, BASE, STEPS[i].set || {});
+  const STEP = { grip: 0.05, pos: 0.25, x: 0.25 };
+  const snapTo = (id, v) => +(Math.round(v / STEP[id]) * STEP[id]).toFixed(2);
+  const same = (a, b) => (typeof a === 'number' || typeof b === 'number' ? Math.abs(+a - +b) < 1e-9 : a === b);
+  const shows = (d, id) => !!d.show && (d.slider || []).indexOf(id) >= 0;
+
+  // ---------- words with amber key terms (built with K.el, never innerHTML) ----------
+  function write(node, s) {
+    node.textContent = '';
+    const re = /\*([^*]+)\*/g;
+    let from = 0, m;
+    while ((m = re.exec(s))) {
+      if (m.index > from) node.appendChild(document.createTextNode(s.slice(from, m.index)));
+      node.appendChild(K.el('span', { class: 'term' }, m[1]));
+      from = m.index + m[0].length;
+    }
+    if (from < s.length) node.appendChild(document.createTextNode(s.slice(from)));
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);
+  const mfmt = (v) => nf(v) + ' m';
+  const CTL = {
+    grip: K.control({ id: 'grip', label: 'Push from the nut', min: 0.15, max: 0.3, step: 0.05, value: 0.3, fmt: mfmt, snap: [0.15, 0.3], into: '#c-grip' }),
+    pos: K.control({ id: 'pos', label: '600 N load from the pivot', min: 0.5, max: 2, step: 0.25, value: 1, fmt: mfmt, snap: [1], into: '#c-pos' }),
+    x: K.control({ id: 'x', label: 'Block from the left trestle', min: 0, max: 4, step: 0.25, value: 1, fmt: mfmt, snap: [1, 2, 3], into: '#c-x' }),
+    load: K.control({ id: 'load', label: 'The block\'s load', min: 1, max: 10, step: 1, value: 6, unit: 'kN', into: '#c-load' }),
+    pivot: K.choice({ id: 'pivot', label: 'Take moments about', options: [{ value: 'L', label: 'Left trestle' }, { value: 'R', label: 'Right trestle' }], value: 'L', into: '#c-pivot' }),
+    own: K.toggle({ id: 'own', label: 'The beam\'s own weight', value: false, into: '#c-own' }),
+    spread: K.toggle({ id: 'spread', label: 'Spread the load over 2 m', value: false, into: '#c-spread' }),
+    wp: K.choice({ id: 'wp', label: 'Take moments about', options: [{ value: 'C', label: 'The centre' }, { value: 'H', label: 'The left hand' }], value: 'C', into: '#c-wp' }),
+  };
+  const CBOX = { grip: 'c-grip', pos: 'c-pos', x: 'c-x', load: 'c-load', pivot: 'c-pivot', own: 'c-own', spread: 'c-spread', wp: 'c-wp' };
+  const RID = ['leftReaction', 'rightReaction', 'pivotMoment'];
+  const RO = [
+    K.readout({ id: 'leftReaction', label: 'Left trestle\'s reaction', unit: 'kN', decimals: 2, into: '#outs' }),
+    K.readout({ id: 'rightReaction', label: 'Right trestle\'s reaction', unit: 'kN', decimals: 2, into: '#outs' }),
+    K.readout({ id: 'pivotMoment', label: 'Moment each way', unit: 'kN m', decimals: 2, into: '#outs' }),
+  ];
+  // The pure model: the beam as set, -> what each trestle carries and the moment each way about the pivot.
+  K.model((p) => {
+    const c = p.spread ? K.clamp(+p.x, 1, 3) : +p.x;
+    const r = reactions({ span: SPAN, P: +p.load, c, Wb: p.own ? OWN : 0 });
+    return { leftReaction: r.RL, rightReaction: r.RR, pivotMoment: p.pivot === 'R' ? r.mR : r.mL };
+  });
+
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;
+    st.pick = d.opts[k]; st.res = null; T = Infinity;
+  } }));
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished || st.res === 'right') return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = st.pick === d.want ? 'right' : 'wrong';
+    if (calm()) { T = Infinity; return; }
+    T = 0; motionEnd = ANS; play();
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    motion.pause();
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const d = STEPS[at()];
+    if (finished || !d.show || !(d.play || d.arrive)) return;
+    startDemo(d);
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // ---------- motion: a demonstration's sweep or arrivals, and an answer's drawing ----------
+  function sweepAt(keys, t) {
+    if (t <= keys[0][0]) return keys[0][1];
+    for (let k = 1; k < keys.length; k++) {
+      if (t <= keys[k][0]) { const a = keys[k - 1], b = keys[k]; return a[1] + (b[1] - a[1]) * K.ease((t - a[0]) / (b[0] - a[0])); }
+    }
+    return keys[keys.length - 1][1];
+  }
+  const motion = K.anim({ button: false, label: 'Motion', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    let busy = false;
+    if (SW) {
+      const v = sweepAt(SW.keys, T), r = snapTo(SW.id, v);
+      V[SW.id] = v;
+      if (!same(r, SW.last)) { SW.last = r; CTL[SW.id].set(r, true); }
+      if (T >= SW.end) SW = null; else busy = true;
+    }
+    K.refresh();
+    return busy || T < motionEnd;
+  } });
+  function play() { if (!motion.playing()) motion.play(); }
+  const demoEnd = (d) => (d.play ? d.play.keys[d.play.keys.length - 1][0] : d.arrive === 'bars' ? 2.8 + K.SOFT : d.arrive === 'weight' ? 2.4 : d.arrive === 'wheel' ? 3.9 : 0);
+  const demoStart = (d) => (d.play ? d.play.keys[0][0] : d.arrive ? 0.5 : FADE);
+  function startDemo(d) {
+    SW = null; T = Infinity;
+    if (d.play) {
+      const pl = d.play, v0 = pl.keys[0][1], v1 = pl.keys[pl.keys.length - 1][1];
+      if (calm()) { CTL[pl.id].set(v1, true); V[pl.id] = v1; return; }
+      CTL[pl.id].set(v0, true); V[pl.id] = v0;
+      SW = { id: pl.id, keys: pl.keys, last: v0, end: pl.keys[pl.keys.length - 1][0] };
+      T = 0; motionEnd = SW.end; play();
+    } else if (d.arrive && !calm()) { T = 0; motionEnd = demoEnd(d); play(); }
+  }
+  function settle() {
+    if (SW) { const v = SW.keys[SW.keys.length - 1][1]; CTL[SW.id].set(v, true); V[SW.id] = v; SW = null; }
+    T = Infinity;
+  }
+  function enterStep(i) {
+    lastStep = i; enter('stepbox'); SW = null; T = Infinity;
+    const d = STEPS[i], q = setupOf(i);
+    CIDS.forEach((id) => CTL[id].set(q[id], true));
+    V = Object.assign({}, q);
+    motion.pause();
+    if (d.show) startDemo(d);
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const b = el(id);
+    b.classList.remove('enter'); void b.offsetWidth; b.classList.add('enter');
+  }
+  const answeredOf = (st) => st.res === 'right' || st.res === 'wrong';
+  const pickIndex = (d, st) => (!d.show && answeredOf(st) && st.pick != null ? d.opts.indexOf(st.pick) : -1);
+  // Arrival times: a demonstration's from the screen opening, an answer's from Check; null, there from the start.
+  function tl(d, st) {
+    const t = { pick: null, b1: null, b2: null, st: null, piv: null, w: null, grow: null, p1: null, p2: null, arm: null, rot: null };
+    if (d.arrive === 'bars') { t.piv = 0.5; t.b1 = 1.0; t.b2 = 1.8; t.st = 2.8; }
+    else if (d.arrive === 'weight') { t.w = 0.5; t.grow = 1.2; }
+    else if (d.arrive === 'wheel') { t.p1 = 0.5; t.p2 = 0.9; t.arm = 1.5; t.rot = 0.5; }
+    else if (!d.show && answeredOf(st)) { t.pick = 0.1; t.b1 = 0.6; t.b2 = 1.0; t.st = 1.5; }
+    return t;
+  }
+  const vis = (t0) => (t0 == null ? 1 : K.arrive(T, t0));
+  const grow = (t0) => (t0 == null ? 1 : K.arrive(T, t0, 0.8));
+
+  // ---------- drawing helpers ----------
+  const fig = el('scene'), art = el('art'), labs = el('labs'), grip = el('grip');
+  let into = null, REC = null, LAB = [];
+  const add = (n) => (into || art).appendChild(n);
+  const r2 = (v) => Math.round(v * 100) / 100;
+  const ln = (x1, y1, x2, y2, cls) => add(K.svg('line', { class: cls, x1: r2(x1), y1: r2(y1), x2: r2(x2), y2: r2(y2) }));
+  const pa = (d, cls) => add(K.svg('path', { class: cls, d }));
+  const ci = (x, y, r, cls) => add(K.svg('circle', { class: cls, cx: r2(x), cy: r2(y), r }));
+  const box = (x, y, w, h, cls, rx) => add(K.svg('rect', { class: cls, x: r2(x), y: r2(y), width: r2(Math.max(0, w)), height: r2(Math.max(0, h)), rx: rx || 0 }));
+  function tx(x, y, s, cls, anchor) { REC.texts.push(String(s)); return add(K.svg('text', { class: cls || 'lab', x: r2(x), y: r2(y), 'text-anchor': anchor || 'middle' }, String(s))); }
+  function part(a, draw) { if (!(a > 0)) return; const g = add(K.svg('g')); K.fade(g, a, 0); const keep = into; into = g; try { draw(); } finally { into = keep; } }
+  // A label placed clear of the other words and of every line marked .av, arriving at a.
+  function lab(x, y, s, cls, anchor, a) {
+    if (a == null) a = 1;
+    if (!(a > 0)) return;
+    LAB.push({ x: r2(x), y: r2(y), text: String(s), class: 'lab' + (cls ? ' ' + cls : ''), anchor: anchor || 'middle', a });
+    REC.texts.push(String(s));
+  }
+  function flushLabels() {
+    const items = LAB;
+    LAB = [];
+    const ts = K.labels(labs, items.map((it) => ({ x: it.x, y: it.y, text: it.text, class: it.class, anchor: it.anchor })), { avoid: Array.from(art.querySelectorAll('.av')) }) || [];
+    ts.forEach((t, k) => { if (items[k] && items[k].a < 1) K.fade(t, items[k].a, 0); });
+  }
+  function setH(h) { REC.H = h; fig.setAttribute('viewBox', '0 0 340 ' + h); }
+  // An arrow: c is ink, rx (a reaction), mut (no moment about the pivot), hot (a mistake), tot or sm.
+  function arrow(x1, y1, x2, y2, c) {
+    const L = Math.hypot(x2 - x1, y2 - y1);
+    if (L < 1) return 0;
+    const ux = (x2 - x1) / L, uy = (y2 - y1) / L, hl = Math.min(c === 'sm' ? 6 : 10, L * 0.5), hw = hl * 0.5;
+    ln(x1, y1, x2 - ux * hl * 0.7, y2 - uy * hl * 0.7, 'ar-' + c + ' av');
+    pa('M' + r2(x2) + ' ' + r2(y2) + 'L' + r2(x2 - ux * hl - uy * hw) + ' ' + r2(y2 - uy * hl + ux * hw) + 'L' + r2(x2 - ux * hl + uy * hw) + ' ' + r2(y2 - uy * hl - ux * hw) + 'Z', 'ah-' + c + ' av');
+    return L;
+  }
+  function dim(x0, x1, y, text, a) {
+    if (Math.abs(x1 - x0) < 0.5) return;
+    part(a == null ? 1 : a, () => { ln(x0, y, x1, y, 'dim av'); ln(x0, y - 5, x0, y + 5, 'dim av'); ln(x1, y - 5, x1, y + 5, 'dim av'); });
+    lab((x0 + x1) / 2, y + 17, text, 't', 'middle', a);
+  }
+  // Two bars, clockwise and anticlockwise, drawn to one scale; whatever one has over the other is red.
+  function momentBars(y0, title, cw, acw, sc, t, aT) {
+    REC.cw = cw; REC.acw = acw; REC.bal = Math.abs(cw - acw) < 1e-6;
+    lab(12, y0, title, 'h', 'start', aT);
+    const lo = Math.min(cw, acw);
+    [['clockwise', cw, y0 + 10, t.b1], ['anticlockwise', acw, y0 + 32, t.b2]].forEach((row) => {
+      const g = grow(row[3]), L = Math.min(218, row[1] * sc) * g, Lc = Math.min(218, lo * sc) * g;
+      part(aT, () => {
+        tx(12, row[2] + 11, row[0], 'lab', 'start');
+        box(112, row[2], 218, 13, 'track', 2);
+        box(112, row[2], Lc, 13, 'mbar', 2);
+        if (L > Lc + 0.5) box(112 + Lc, row[2], L - Lc, 13, 'mbar-hot', 2);
+      });
+    });
+    lab(330, y0, REC.bal ? 'balanced' : 'would turn', REC.bal ? 'm' : 'w', 'end', vis(t.st));
+  }
+
+  // ---------- the spanner: 150 N on a 0.3 m spanner, pushed nearer the nut ----------
+  const NX = 62, NY = 98, SPX = 800;                      // the nut's middle; 800 units a metre
+  function drawSpanner() {
+    setH(212);
+    const r = V.grip, px = NX + r * SPX, m = 150 * r;
+    box(NX + 18, NY - 8, 0.3 * SPX + 16 - 18, 16, 'tool av', 8);
+    ci(NX, NY, 27, 'jaw av');
+    let hex = '';
+    for (let k = 0; k < 6; k++) { const a = k * 60 * D2R; hex += (k ? 'L' : 'M') + r2(NX + 17 * Math.cos(a)) + ' ' + r2(NY + 17 * Math.sin(a)); }
+    pa(hex + 'Z', 'nut av');
+    ci(NX, NY, 3, 'pdot');
+    lab(NX, NY - 38, 'pivot', 't', 'middle');
+    arrow(px, NY - 8 - 62, px, NY - 9, 'ink');
+    lab(px, NY - 80, '150 N', '', px > 290 ? 'end' : 'middle');
+    dim(NX, px, NY + 30, nf(snapTo('grip', r)) + ' m');
+    // the moment, as a bar: its full track is the moment at 0.3 m
+    const sc = 218 / 45;
+    tx(12, 176, 'moment', 'lab', 'start');
+    box(112, 165, 218, 14, 'track', 2);
+    box(112, 165, m * sc, 14, 'mbar', 2);
+    REC.mFill = m * sc;
+    lab(330, 202, 'the full bar is 45 N m, at 0.3 m', 'm', 'end');
+    return 'A spanner on a nut, pushed with 150 N ' + nf(snapTo('grip', r)) + ' m from the middle of the nut. A bar below shows its moment against the moment at 0.3 m.';
+  }
+
+  // ---------- the slanted pull on a 0.5 m bar ----------
+  function drawBarP(d, st) {
+    setH(226);
+    const O = [56, 60], E = [256, 60], u = [-0.8, 0.6], F = [E[0] + 160 * u[0], E[1] + 160 * u[1]];
+    const k = pickIndex(d, st), arm = k >= 0 ? d.arms[k] : null, t = tl(d, st), aP = vis(t.pick);
+    const nO = [(O[0] - F[0]) / 120, (O[1] - F[1]) / 120];        // from the foot toward the pivot
+    // the pull's line, dashed, and the right-angle distance to it
+    ln(E[0] - u[0] * 26, E[1] - u[1] * 26, F[0] + u[0] * 40, F[1] + u[1] * 40, 'ref av');
+    lab(F[0] + u[0] * 40 + 10, F[1] + u[1] * 40 + 16, 'the pull\'s line', 'm', 'start');
+    ln(O[0], O[1], F[0], F[1], (arm === 'perp' ? 'arm' : 'arm-ghost') + ' av');
+    pa('M' + r2(F[0] + 9 * nO[0]) + ' ' + r2(F[1] + 9 * nO[1]) + 'L' + r2(F[0] + 9 * nO[0] - 9 * u[0]) + ' ' + r2(F[1] + 9 * nO[1] - 9 * u[1]) + 'L' + r2(F[0] - 9 * u[0]) + ' ' + r2(F[1] - 9 * u[1]), 'rt');
+    lab((O[0] + F[0]) / 2 - 12, (O[1] + F[1]) / 2 + 12, '0.3 m', 'n', 'end');
+    // the bar and its pivot
+    ln(O[0], O[1], E[0], E[1], 'rod av');
+    ci(O[0], O[1], 6, 'pivring av');
+    lab(O[0], O[1] - 16, 'pivot', 't', 'middle');
+    lab((O[0] + E[0]) / 2 + 30, O[1] - 14, '0.5 m', '', 'middle');
+    // the pull, on the end of the bar
+    arrow(E[0], E[1], E[0] + 70 * u[0], E[1] + 70 * u[1], 'ink');
+    lab(E[0] + 70 * u[0] + 10, E[1] + 70 * u[1] + 12, '200 N', '', 'start');
+    let words = 'A 0.5 m bar on a pivot, pulled at its far end with 200 N. The pull is slanted, so its line passes 0.3 m from the pivot, measured at right angles.';
+    REC.armM = null;
+    if (arm) {
+      REC.ansShown = true;
+      if (arm === 'perp') {
+        part(aP, () => arrow(F[0], F[1], F[0] + 70 * u[0], F[1] + 70 * u[1], 'ink'));
+        lab(F[0] + 70 * u[0] + 12, F[1] + 70 * u[1] + 4, 'slid along its line', 'm', 'start', aP);
+        REC.armM = 0.3;
+        words += ' The pull is slid along its line to the point nearest the pivot. Its arm is the 0.3 m right-angle distance.';
+      } else if (arm === 'bar') {
+        part(aP, () => ln(O[0], O[1], E[0], E[1], 'arm-hot av'));
+        lab((O[0] + E[0]) / 2, O[1] + 30, 'not at right angles', 'w', 'middle', aP);
+        REC.armM = 0.5;
+        words += ' The whole bar is marked as the arm, but it is not at right angles to the pull.';
+      } else {
+        part(aP, () => ln(O[0], O[1], O[0] + 80, O[1], 'arm-hot av'));
+        lab(O[0] + 40, O[1] + 30, '0.2 m is not an arm', 'w', 'start', aP);
+        REC.armM = 0.2;
+        words += ' A 0.2 m piece of the bar is marked as the arm, but it is not the distance to the pull\'s line.';
+      }
+      REC.bal = K.near(200 * REC.armM, 200 * 0.3, 1e-9);
+    }
+    return words;
+  }
+
+  // ---------- the plank on a pivot ----------
+  function drawPlank(d, st) {
+    setH(262);
+    const pl = d.plank, t = tl(d, st), k = pickIndex(d, st), wrong = k >= 0 && st.res === 'wrong';
+    const ppm = 300 / (pl.L + pl.R), PX = 20 + pl.L * ppm, PY = 130, FS = 0.12, MSP = 192 / pl.bmax;
+    const posR = d.show ? V.pos : k >= 0 ? d.val[k] : null;
+    const aP = d.show ? 1 : vis(t.pick);
+    const mA = pl.left[0] * pl.left[1], mC = posR == null ? null : pl.right * posR;
+    const alpha = mC == null ? 0 : 6 * D2R * K.clamp((mC - mA) / 150, -1, 1) * aP;
+    REC.tilt = Math.abs(alpha) < 1e-9 ? 0 : alpha;
+    const P = (m) => [PX + m * ppm * Math.cos(alpha), PY + m * ppm * Math.sin(alpha)];
+    ln(8, PY + 34, 332, PY + 34, 'ground');
+    pa('M' + r2(PX) + ' ' + (PY + 5) + 'L' + r2(PX - 18) + ' ' + (PY + 34) + 'L' + r2(PX + 18) + ' ' + (PY + 34) + 'Z', 'fulcrum av');
+    const A = P(-pl.L), B = P(pl.R);
+    ln(A[0], A[1], B[0], B[1], 'plank av');
+    const q = P(-pl.left[1]), fl = pl.left[0] * FS;
+    arrow(q[0], q[1] - 5 - fl, q[0], q[1] - 5, 'ink');
+    lab(q[0], q[1] - 13 - fl, nf(pl.left[0]) + ' N', '', 'middle');
+    dim(PX, PX - pl.left[1] * ppm, PY + 50, nf(pl.left[1]) + ' m');
+    let words = 'A plank on a pivot, with ' + pl.left[0] + ' N pressing down ' + nf(pl.left[1]) + ' m to the left of it';
+    if (posR != null) {
+      const r = P(posR), fr = pl.right * FS, shown = d.show ? snapTo('pos', posR) : posR;
+      part(aP, () => arrow(r[0], r[1] - 5 - fr, r[0], r[1] - 5, wrong ? 'hot' : 'ink'));
+      lab(r[0], r[1] - 13 - fr, nf(pl.right) + ' N', wrong ? 'w' : '', 'middle', aP);
+      dim(PX, PX + posR * ppm, PY + 50, nf(shown) + ' m', aP);
+      momentBars(PY + 84, 'moments about the pivot', mC, mA, MSP, t, aP);
+      if (!d.show) REC.ansShown = true;
+      words += ' and ' + pl.right + ' N pressing down ' + nf(shown) + ' m to the right.' + (REC.bal ? ' It stays level.' : mC > mA ? ' The right end drops.' : ' The left end drops.') +
+        ' Bars compare the clockwise and anticlockwise moments.';
+    } else {
+      lab(PX + 2.2 * ppm, PY - 64, '600 N goes where?', '', 'middle');
+      words += '. Where 600 N must press on the right is the question.';
+    }
+    return words;
+  }
+
+  // ---------- the beam on two trestles ----------
+  const XL = 50, XR = 290, BY = 116, G = 222, KS = 8, MS = 8;   // trestles at XL and XR; 8 units a kN, 8 units a kN m
+  function drawBeam(d, st) {
+    const t = tl(d, st), k = pickIndex(d, st), ans = k >= 0, live = !!d.show;
+    const b = live ? { span: SPAN, P: +V.load, c: V.spread ? K.clamp(V.x, 1, 3) : V.x, Wb: V.own ? OWN : 0, spread: !!V.spread, w: WIDE }
+      : Object.assign({ spread: false, w: WIDE }, d.beam);
+    const span = b.span, ppm = (XR - XL) / span, X = (m) => XL + m * ppm, total = b.P + b.Wb;
+    const R = reactions(b);
+    let RL = R.RL, RR = R.RR;
+    if (live && d.arrive === 'weight' && b.Wb > 0) {
+      const R0 = reactions(Object.assign({}, b, { Wb: 0 })), g = K.arrive(T, t.grow, 1.2);
+      RL = R0.RL + (R.RL - R0.RL) * g; RR = R0.RR + (R.RR - R0.RR) * g;
+    }
+    if (ans) { RR = d.rr[k]; RL = total - RR; }
+    const shown = live || ans, wrong = ans && st.res === 'wrong', mark = ans ? (d.marks || [])[k] : null;
+    const piv = live ? (d.pivot ? V.pivot : null) : ans ? 'L' : null;
+    const aA = live ? 1 : vis(t.pick);
+    setH(live && !d.pivot ? G + 42 : G + 100);
+    // the ground, the two trestles and the beam on them
+    ln(8, G, 332, G, 'ground');
+    [XL, XR].forEach((x) => {
+      ln(x, BY + 8, x - 24, G, 'tres av'); ln(x, BY + 8, x + 24, G, 'tres av');
+      ln(x - 15, G - 34, x + 15, G - 34, 'tres av');
+      box(x - 11, BY + 6, 22, 4, 'cap');
+    });
+    box(XL - 16, BY - 6, XR - XL + 32, 12, 'beam av', 2);
+    // the load: a chain block, or the same load spread evenly
+    const cx = X(b.c), cl = snapTo('x', b.c), right = b.c > span / 2 + 1e-9;
+    REC.blockX = cx;
+    if (!b.spread) {
+      box(cx - 10, BY + 6, 20, 14, 'block av', 3);
+      const ly = BY + 20 + b.P * KS;
+      arrow(cx, BY + 20, cx, ly, 'ink');
+      lab(cx + (right ? -9 : 9), BY + 26 + b.P * KS * 0.5, 'block ' + nf(b.P) + ' kN', '', right ? 'end' : 'start');
+    } else {
+      const n = 9;
+      for (let j = 0; j < n; j++) { const xj = X(b.c - b.w / 2 + b.w * j / (n - 1)); arrow(xj, BY + 6, xj, BY + 24, 'sm'); }
+      lab(right ? X(b.c - b.w / 2) - 6 : X(b.c + b.w / 2) + 6, BY + 22, nf(b.P) + ' kN over ' + nf(b.w) + ' m', '', right ? 'end' : 'start');
+      part(aA, () => arrow(cx, BY + 6, cx, BY + 6 + b.P * KS, 'tot'));
+      lab(cx + (right ? -9 : 9), BY + 10 + b.P * KS, 'acts at its middle', 'm', right ? 'end' : 'start', aA);
+    }
+    // the beam's own weight, at its middle
+    if (b.Wb > 0) {
+      const mx = X(span / 2), hot = mark === 'noweight' && wrong, aW = live && d.arrive === 'weight' ? vis(t.w) : 1, lr = b.c > span / 2 - 1e-9;
+      part(aW, () => arrow(mx, BY + 6, mx, BY + 6 + b.Wb * KS, hot ? 'hot' : 'ink'));
+      lab(mx + (lr ? -9 : 9), BY + 14 + b.Wb * KS * 0.5, 'beam ' + nf(b.Wb) + ' kN' + (hot ? ' left out' : ''), hot ? 'w' : '', lr ? 'end' : 'start', aW);
+      if (mark === 'farend' && wrong) {
+        part(aA, () => arrow(X(span) - 14, BY + 6, X(span) - 14, BY + 6 + b.Wb * KS, 'hot'));
+        lab(X(span) - 22, BY + 20 + b.Wb * KS, 'not at the end', 'w', 'end', aA);
+      }
+    }
+    // each trestle's push up on the beam: its reaction
+    REC.RLpx = null; REC.RRpx = null; REC.ansShown = ans;
+    [['L', XL, RL, 'left reaction', 'start', 1], ['R', XR, RR, 'right reaction', 'end', -1]].forEach((s) => {
+      const tx0 = s[1];
+      if (!shown) { lab(tx0 + s[5] * 12, BY - 22, '?', '', s[4]); return; }
+      const isP = piv === s[0], grey = isP && (live && d.arrive === 'bars' ? vis(t.piv) >= 0.5 : true);
+      const cls = grey ? 'mut' : wrong ? 'hot' : 'rx', len = Math.max(0, s[2]) * KS;
+      part(aA, () => arrow(tx0, BY - 7, tx0, BY - 7 - len, cls));
+      lab(tx0 + s[5] * 9, Math.min(BY - 16, BY - 7 - len + 12), live ? s[3] : s[3] + ' ' + nf(s[2]) + ' kN', grey ? 'm' : wrong ? 'w' : 'n', s[4], aA);
+      if (s[0] === 'L') REC.RLpx = len; else REC.RRpx = len;
+      if (isP) { REC.pivotCls = cls; REC.pivotArm = 0; }
+    });
+    // the pivot, when moments are taken about a trestle
+    const aT = live && d.arrive === 'bars' ? vis(t.piv) : aA;
+    if (piv) {
+      const px = piv === 'L' ? XL : XR;
+      part(aT, () => ci(px, BY, 5, 'pivring av'));
+      lab(px + (piv === 'L' ? 13 : -13), BY + 30, 'pivot', 't', piv === 'L' ? 'start' : 'end', aT);
+    }
+    // each trestle's arm: its distance from the load
+    dim(XL, cx, G + 14, nf(live ? cl : b.c) + ' m');
+    dim(cx, XR, G + 14, nf(span - (live ? cl : b.c)) + ' m');
+    let words = 'A lifting beam on two trestles ' + nf(span) + ' m apart, ' + (b.spread
+      ? 'carrying ' + nf(b.P) + ' kN spread evenly over ' + nf(b.w) + ' m, its middle ' + nf(live ? cl : b.c) + ' m from the left trestle.'
+      : 'with a ' + nf(b.P) + ' kN chain block ' + nf(live ? cl : b.c) + ' m from the left trestle.');
+    if (b.Wb > 0) words += ' The beam\'s own ' + nf(b.Wb) + ' kN acts at its middle.';
+    words += shown ? ' An arrow shows each trestle pushing up on the beam, the nearer one pushing harder.' : ' What each trestle carries is the question.';
+    // the moments about the pivot, clockwise and anticlockwise
+    if (piv) {
+      const loads = piv === 'L' ? b.P * b.c + b.Wb * span / 2 : b.P * (span - b.c) + b.Wb * span / 2;
+      const rx = piv === 'L' ? RR * span : RL * span;
+      momentBars(G + 50, 'moments about the ' + (piv === 'L' ? 'left' : 'right') + ' trestle', piv === 'L' ? loads : rx, piv === 'L' ? rx : loads, MS, t, aT);
+      words += ' Bars compare the clockwise and anticlockwise moments about the ' + (piv === 'L' ? 'left' : 'right') + ' trestle, and they ' + (REC.bal ? 'match.' : 'do not match.');
+    }
+    return words;
+  }
+
+  // ---------- the valve wheel: a couple ----------
+  function drawWheel(d, st) {
+    const wh = d.wheel, live = !!d.show, t = tl(d, st), k = pickIndex(d, st), arm = k >= 0 ? d.arms[k] : null;
+    const Rp = wh.d / 2 * 400, FK = 0.6, F = wh.F, cx = 170, cy = 34 + F * FK;
+    setH(cy + Rp + 50);
+    const rot = live ? 50 * D2R * K.arrive(T, t.rot, 3.4) : 0;
+    ci(cx, cy, Rp, 'rim av');
+    for (let j = 0; j < 3; j++) {
+      const a = rot + j * 2 * Math.PI / 3 - Math.PI / 2;
+      ln(cx + 10 * Math.cos(a), cy + 10 * Math.sin(a), cx + (Rp - 3) * Math.cos(a), cy + (Rp - 3) * Math.sin(a), 'spoke av');
+    }
+    ci(cx, cy, 10, 'hub av');
+    const piv = live ? V.wp : null, Lx = cx - Rp, Rx = cx + Rp, a1 = live ? vis(t.p1) : 1, a2 = live ? vis(t.p2) : 1, aA = live ? vis(t.arm) : vis(t.pick);
+    // the two pulls, each on the rim, the opposite way
+    part(a1, () => arrow(Lx, cy, Lx, cy - F * FK, piv === 'H' ? 'mut' : 'ink'));
+    lab(Lx - 9, cy - F * FK * 0.55, nf(F) + ' N', piv === 'H' ? 'm' : '', 'end', a1);
+    part(a2, () => arrow(Rx, cy, Rx, cy + F * FK, 'ink'));
+    lab(Rx + 9, cy + F * FK * 0.55 + 4, nf(F) + ' N', '', 'start', a2);
+    dim(Lx, Rx, cy + Rp + 16, nf(wh.d) + ' m across');
+    let words = 'A valve wheel ' + nf(wh.d) + ' m across, turned by two hands on opposite sides of the rim, each pulling ' + nf(F) + ' N the opposite way.';
+    REC.armSum = null;
+    if (live) {
+      if (piv === 'C') {
+        part(aA, () => { ln(cx, cy, Lx, cy, 'arm av'); ln(cx, cy, Rx, cy, 'arm av'); });
+        lab((cx + Lx) / 2, cy - 9, nf(wh.d / 2) + ' m', 'n', 'middle', aA);
+        lab((cx + Rx) / 2, cy - 9, nf(wh.d / 2) + ' m', 'n', 'middle', aA);
+        REC.armSum = wh.d;
+        words += ' About the centre, each pull has an arm of ' + nf(wh.d / 2) + ' m.';
+      } else {
+        part(aA, () => { ln(Lx, cy, Rx, cy, 'arm av'); ci(Lx, cy, 5, 'pivring av'); });
+        lab((cx + Rx) / 2, cy - 9, nf(wh.d) + ' m', 'n', 'middle', aA);
+        lab(Lx + 12, cy + 22, 'pivot', 't', 'start', aA);
+        REC.armSum = wh.d;
+        words += ' About the left hand, its own pull drops out, and the other pull has an arm of ' + nf(wh.d) + ' m.';
+      }
+    } else if (arm) {
+      REC.ansShown = true;
+      if (arm === 'both') {
+        part(aA, () => { ln(cx, cy, Lx, cy, 'arm av'); ln(cx, cy, Rx, cy, 'arm av'); });
+        lab((cx + Lx) / 2, cy - 9, nf(wh.d / 2) + ' m', 'n', 'middle', aA);
+        lab((cx + Rx) / 2, cy - 9, nf(wh.d / 2) + ' m', 'n', 'middle', aA);
+        REC.armSum = wh.d;
+        words += ' About the centre, both pulls have an arm of ' + nf(wh.d / 2) + ' m.';
+      } else if (arm === 'one') {
+        part(aA, () => ln(cx, cy, Rx, cy, 'arm-hot av'));
+        lab((cx + Rx) / 2, cy - 9, 'one hand only', 'w', 'middle', aA);
+        REC.armSum = wh.d / 2;
+        words += ' Only one pull\'s arm is counted.';
+      } else {
+        part(aA, () => { ln(Lx, cy - 5, Rx, cy - 5, 'arm-hot av'); ln(Lx, cy + 5, Rx, cy + 5, 'arm-hot av'); });
+        lab(cx, cy - 14, nf(wh.d) + ' m each', 'w', 'middle', aA);
+        REC.armSum = 2 * wh.d;
+        words += ' Each pull is given the whole width as its arm.';
+      }
+    }
+    if (REC.armSum != null) { REC.momentNm = F * REC.armSum; REC.bal = K.near(REC.momentNm, F * wh.d, 1e-9); }
+    return words;
+  }
+
+  // ---------- one picture for the step now ----------
+  function render(i, st) {
+    const d = STEPS[i];
+    art.textContent = ''; into = null; LAB = [];
+    REC = { texts: [], H: 0, cw: null, acw: null, bal: null, RLpx: null, RRpx: null, pivotCls: null, pivotArm: null, ansShown: false, armM: null, armSum: null,
+      momentNm: null, tilt: 0, mFill: null, blockX: null };
+    const words = d.scene === 'spanner' ? drawSpanner() : d.scene === 'bar' ? drawBarP(d, st) : d.scene === 'plank' ? drawPlank(d, st)
+      : d.scene === 'wheel' ? drawWheel(d, st) : drawBeam(d, st);
+    flushLabels();
+    fig.setAttribute('aria-label', words);
+    const live = !finished && i === at();
+    const dragOn = live && d.scene === 'beam' && shows(d, 'x') && REC.blockX != null;
+    grip.style.display = dragOn ? '' : 'none';
+    if (dragOn) { grip.setAttribute('cx', r2(REC.blockX)); grip.setAttribute('cy', BY + 14); }
+    fig.classList.toggle('drag', dragOn);
+    const tapOn = live && d.scene === 'beam' && shows(d, 'pivot');
+    [['L', XL], ['R', XR]].forEach((s) => {
+      const r = el('tap' + s[0]);
+      r.style.display = tapOn ? '' : 'none';
+      if (tapOn) { r.setAttribute('x', s[1] - 30); r.setAttribute('y', 14); r.setAttribute('width', 60); r.setAttribute('height', G - 14); }
+    });
+    return REC;
+  }
+
+  // ---------- Dan drags the block along the beam, or taps a trestle ----------
+  const dragging = () => !finished && STEPS[at()].scene === 'beam' && shows(STEPS[at()], 'x');
+  function xFrom(e) {
+    const m = fig.getScreenCTM();
+    if (!m) return null;
+    const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(m.inverse());
+    const v = Math.round((q.x - XL) / ((XR - XL) / SPAN) / 0.25) * 0.25;
+    return V.spread ? K.clamp(v, 1, 3) : K.clamp(v, 0, SPAN);
+  }
+  let held = null;
+  grip.addEventListener('pointerdown', (e) => {
+    if (!dragging()) return;
+    held = e.pointerId;
+    try { grip.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows while the pointer stays on the block */ }
+    e.preventDefault();
+    K.reveal();
+    const v = xFrom(e);
+    if (v != null) CTL.x.set(v);
+  });
+  grip.addEventListener('pointermove', (e) => {
+    if (held !== e.pointerId || !dragging()) return;
+    e.preventDefault();
+    const v = xFrom(e);
+    if (v != null && !same(v, +CTL.x.get())) CTL.x.set(v);
+  });
+  const letGo = (e) => { if (held === e.pointerId) held = null; };
+  grip.addEventListener('pointerup', letGo);
+  grip.addEventListener('pointercancel', letGo);
+  grip.addEventListener('lostpointercapture', () => { held = null; });
+  ['L', 'R'].forEach((s) => el('tap' + s).addEventListener('click', () => {
+    const d = STEPS[at()];
+    if (finished || !shows(d, 'pivot')) return;
+    K.reveal();
+    CTL.pivot.set(s);
+  }));
+
+  // ---------- the words under the picture ----------
+  function sayFor(d, p) {
+    if (d.scene === 'spanner') {
+      const r = snapTo('grip', +p.grip), m = 150 * r;
+      if (near(r, 0.3)) return 'The push is 150 N, 0.3 m from the middle of the nut, so its moment is ' + nf(m) + ' N m.';
+      if (near(r, 0.15)) return 'The same 150 N at half the distance, 0.15 m, gives half the moment, ' + nf(m) + ' N m.';
+      return 'The same 150 N at ' + nf(r) + ' m gives 150 × ' + nf(r) + ' = ' + nf(m) + ' N m.';
+    }
+    if (d.scene === 'plank') {
+      const q = +p.pos, m = 600 * q;
+      if (near(q, 1)) return 'Both sides turn it with 600 N m, so the plank stays level.';
+      return q > 1 ? 'At ' + nf(q) + ' m out, the 600 N load turns it clockwise with ' + nf(m) + ' N m. That beats 600 N m, so the right end drops.'
+        : 'At ' + nf(q) + ' m out, the 600 N load turns it clockwise with only ' + nf(m) + ' N m. So the left end drops.';
+    }
+    if (d.scene === 'wheel') {
+      return p.wp === 'H' ? 'About the left hand, its own pull drops out. The other hand is 0.4 m away and gives 100 × 0.4 = ' + N.ch + ' N m.'
+        : 'About the centre, each hand is 0.2 m away and gives ' + N.c1 + ' N m. Together they give ' + N.c + ' N m.';
+    }
+    const L = nf(+p.load), x = p.spread ? K.clamp(+p.x, 1, 3) : +p.x;
+    if (d.pivot) return p.pivot === 'R' ? 'About the right trestle, its own push drops out. The left trestle\'s push balances the block\'s turning effect.'
+      : 'About the left trestle, the clockwise and anticlockwise moments match, so the beam stays still.';
+    if (d.arrive === 'weight') {
+      let s = p.spread ? 'Spread over 2 m, the ' + L + ' kN acts at its middle, ' + nf(x) + ' m along, just like the block. ' : '';
+      s += p.own ? 'The beam\'s 2 kN acts at its middle, 2 m from each trestle.' : 'With the beam\'s weight left out, the ' + L + ' kN load is all there is.';
+      return s;
+    }
+    if (near(x, 2)) return 'The block is at the middle, 2 m from each trestle, so each trestle carries half the ' + L + ' kN.';
+    if (x < 1e-9 || near(x, SPAN)) return 'The block hangs right over the ' + (x < 1 ? 'left' : 'right') + ' trestle, so that trestle carries all ' + L + ' kN and the other none.';
+    return 'The block is ' + nf(x) + ' m from the left trestle and ' + nf(SPAN - x) + ' m from the right. The ' + (x < 2 ? 'left' : 'right') + ' trestle is nearer, so it carries more of the ' + L + ' kN.';
+  }
+  function layout(i, d, st, p) {
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('lead').hidden = finished || i !== 0;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length + ' · ' + d.name;
+    const task = el('task');
+    task.className = 'task say' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    CIDS.forEach((id) => { el(CBOX[id]).hidden = !shows(d, id); });
+    const outs = d.show ? d.outs || [] : [];
+    el('outs').hidden = !outs.length;
+    RO.forEach((r, k) => { r.el.hidden = outs.indexOf(RID[k]) < 0; });
+    el('say').hidden = !d.show;
+    el('say').textContent = d.show ? sayFor(d, p) : '';
+    const opts = d.show ? [] : d.opts;
+    el('picks').hidden = !opts.length;
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    el('acts').hidden = !!d.show;
+    el('replay').hidden = finished || !(d.show && (d.play || d.arrive)) || REDUCE;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb say' + (right ? ' right' : '');
+    fb.textContent = d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? d.hints[st.pick] || '' : st.res === 'empty' ? 'Pick an answer first.' : '';
+    const why = el('why');
+    why.hidden = !!d.show || !st.why;
+    if (!d.show) write(why, d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  }
+
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!motion.playing() && (SW || T !== Infinity)) { settle(); K.refresh(); return; }
+    if (i !== lastStep) { enterStep(i); K.refresh(); return; }
+    // Dan took hold of the control a demonstration was moving.
+    if (SW && !same(+p[SW.id], SW.last)) SW = null;
+    // A control this screen does not show keeps the screen's own setting; a spread load stays on the beam.
+    const q = setupOf(i);
+    let fix = false;
+    CIDS.forEach((id) => {
+      if (shows(d, id)) return;
+      if (!same(p[id], q[id])) { CTL[id].set(q[id], true); fix = true; }
+    });
+    if (p.spread && (+p.x < 1 || +p.x > 3)) { CTL.x.set(K.clamp(+p.x, 1, 3), true); fix = true; }
+    if (fix) { K.refresh(); return; }
+    CIDS.forEach((id) => { if (!SW || SW.id !== id) V[id] = typeof BASE[id] === 'number' ? +p[id] : p[id]; });
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    render(i, st);
+    layout(i, d, st, p);
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  function drawnAt(i, st, over) {
+    const keep = { T, V: Object.assign({}, V), SW };
+    T = Infinity; SW = null;
+    V = Object.assign(setupOf(i), over || {});
+    try { return render(i, st || blank()); }
+    finally { T = keep.T; V = keep.V; SW = keep.SW; render(at(), S[at()]); }
+  }
+  const answer = (i, o) => ({ pick: o, res: o === STEPS[i].want ? 'right' : 'wrong', why: false });
+  const OPEN = { x: 1, load: 6, own: false, spread: false, pivot: 'L' };
+  const atB = (over) => K.at(Object.assign({}, OPEN, over));
+  K.check('A 6 kN block 1 m from the left trestle: the right trestle carries 1.5 kN, the left 4.5 kN, and the moment each way is 6 kN m', () => {
+    const o = atB({});
+    return K.near(o.rightReaction, 1.5, 1e-9) && K.near(o.leftReaction, 4.5, 1e-9) && K.near(o.pivotMoment, 6, 1e-9);
+  });
+  K.check('With the beam\'s own 2 kN, the reactions are 5.5 kN and 2.5 kN; with the block at the middle, each trestle carries 3 kN', () => {
+    const w = atB({ own: true }), m = atB({ x: 2 });
+    return K.near(w.leftReaction, 5.5, 1e-9) && K.near(w.rightReaction, 2.5, 1e-9) && K.near(m.leftReaction, 3, 1e-9) && K.near(m.rightReaction, 3, 1e-9);
+  });
+  K.check('The nearer trestle carries more: each step of the block to the right raises the right reaction and lowers the left, and the drawn arrows follow', () => {
+    const i = idx('The lifting beam');
+    let prev = null;
+    for (let x = 0; x <= SPAN + 1e-9; x += 0.25) {
+      const o = atB({ x }), r = drawnAt(i, blank(), { x });
+      if (x < 2 - 1e-9 && !(o.leftReaction > o.rightReaction)) return false;
+      if (x > 2 + 1e-9 && !(o.rightReaction > o.leftReaction)) return false;
+      if (!K.near(r.RRpx, o.rightReaction * KS, 1e-6) || !K.near(r.RLpx, o.leftReaction * KS, 1e-6)) return false;
+      if (prev && !(o.rightReaction > prev.rightReaction && o.leftReaction < prev.leftReaction)) return false;
+      prev = o;
+    }
+    return true;
+  });
+  K.check('The principle of moments states that for an object to be balanced the total clockwise moment must be equal to the total anti-clockwise moment: the drawn bars match at every block position, load, weight and pivot', () => {
+    const i = idx('Take moments about a trestle');
+    for (const pivot of ['L', 'R']) for (const x of [0, 1, 2.5, 4]) for (const load of [1, 6, 10]) for (const own of [false, true]) {
+      const r = drawnAt(i, blank(), { x, load, pivot, own });
+      if (r.bal !== true || !K.near(r.cw, r.acw, 1e-9)) return false;
+    }
+    return true;
+  }, { source: SRC.bbc });
+  K.check('The second condition for equilibrium holds for any choice of pivot point: about the right trestle, the moment each way is the left reaction times the span, and the load times its distance from that trestle', () => {
+    for (let x = 0; x <= SPAN + 1e-9; x += 0.25) {
+      const o = atB({ x, pivot: 'R' }), l = atB({ x });
+      if (!K.near(o.pivotMoment, l.leftReaction * SPAN, 1e-9) || !K.near(o.pivotMoment, 6 * (SPAN - x), 1e-9)) return false;
+    }
+    return true;
+  }, { source: SRC.os });
+  K.check('The torque exerted by the supporting force is zero relative to that pivot point: the pivot trestle\'s own arrow is drawn in the muted style, with no arm', () =>
+    ['L', 'R'].every((pivot) => { const r = drawnAt(idx('Take moments about a trestle'), blank(), { pivot }); return r.pivotCls === 'mut' && r.pivotArm === 0; }), { source: SRC.os });
+  K.check('A force may be slid along its line of action without changing the moment: the slanted pull gives the same moment from the bar\'s end as from the point on its line nearest the pivot', () => {
+    // in metres, the pivot at the origin and y up: the end E = (0.5, 0), the pull 200 N along (−0.8, −0.6)
+    const Fv = [-0.8 * 200, -0.6 * 200], cross = (r) => r[0] * Fv[1] - r[1] * Fv[0];
+    const foot = [0.5 - 0.4 * 0.8, -0.4 * 0.6];
+    return K.near(Math.abs(cross([0.5, 0])), 60, 1e-9) && K.near(Math.abs(cross(foot)), 60, 1e-9) && K.near(Math.hypot(foot[0], foot[1]), 0.3, 1e-9) &&
+      K.near(foot[0] * -0.8 + foot[1] * -0.6, 0, 1e-12);
+  }, { source: SRC.stat });
+  K.check('A load spread evenly acts as its total at its middle: summed in 400 small pieces, 6 kN over 2 m gives the block\'s reactions at every middle from 1 m to 3 m', () => {
+    for (let c = 1; c <= 3 + 1e-9; c += 0.25) {
+      const s = atB({ spread: true, x: c }), b = atB({ x: c });
+      let m = 0;
+      for (let j = 0; j < 400; j++) m += (6 / 400) * (c - 1 + (j + 0.5) * 2 / 400);
+      if (!K.near(s.rightReaction, m / SPAN, 1e-9) || !K.near(s.leftReaction, b.leftReaction, 1e-9) || !K.near(s.rightReaction, b.rightReaction, 1e-9)) return false;
+    }
+    return true;
+  });
+  K.check('Half the distance gives half the moment: the spanner\'s moment bar at 0.15 m is half its length at 0.3 m; and the plank stays level only with the 600 N load 1 m out', () => {
+    const a = drawnAt(0, blank(), { grip: 0.3 }).mFill, b = drawnAt(0, blank(), { grip: 0.15 }).mFill, qs = [0.5, 0.75, 1, 1.25, 1.5, 2];
+    const tilts = qs.map((q) => drawnAt(idx('Balance on a plank'), blank(), { pos: q }).tilt);
+    return a > 0 && K.near(b * 2, a, 1e-9) && tilts.every((tt, k) => (qs[k] === 1 ? tt === 0 : tt !== 0));
+  });
+  K.check('A couple\'s moment is the same about any point: 100 N each way on a 0.4 m wheel gives 40 N m, and 80 N each way on a 0.5 m wheel gives 40 N m, about every point across the wheel', () => {
+    const couple = (F, dd, s) => { const r = dd / 2; return Math.abs((-r - s) * F + (r - s) * -F); };
+    for (let s = -0.3; s <= 0.3 + 1e-9; s += 0.05) if (!K.near(couple(100, 0.4, s), 40, 1e-9) || !K.near(couple(80, 0.5, s), 40, 1e-9)) return false;
+    return N.c === '40' && N.ch === '40' && N.v === '40' && N.vh === '40' &&
+      ['C', 'H'].every((wp) => K.near(drawnAt(idx('A couple'), blank(), { wp }).momentNm, 40, 1e-9));
+  });
+  K.check('The worked numbers: 45 and 22.5 N m on the spanner; 60 N m for the slanted pull; 600 N m each way, so 600 N balances at 1 m; 6 kN m, 1.5 and 4.5 kN; 24 kN m, 6 and 2 kN; 4 and 10 kN m, 2.5 and 5.5 kN; 6, 9 and 15 kN m, 2.5 and 4.5 kN; 12, 4 and 16 kN m, 4 and 2 kN', () =>
+    N.sp === '45' && N.sp2 === '22.5' && N.bar === '60' && N.barL === '100' && N.barD === '40' && N.pl === '600' && N.hang === '1' && N.hang4 === '4' &&
+    N.m6 === '6' && N.r6 === '1.5' && N.l6 === '4.5' && N.half6 === '3' && N.m8 === '24' && N.r8 === '6' && N.l8 === '2' && N.h8 === '4' &&
+    N.mw === '4' && N.mwT === '10' && N.rw === '2.5' && N.lw === '5.5' && N.tw === '8' && N.ha === '6' && N.hb === '9' && N.hm === '15' && N.hr === '2.5' && N.hl === '4.5' &&
+    N.hno === '1' && N.hfar === '4' && N.c1 === '20' && N.v1 === '20' && N.vf === '80' && N.sa === '12' && N.sb === '4' && N.sm === '16' && N.sr === '4' && N.sl === '2' && N.sno === '3');
+  K.check('Each puzzle offers three answers and accepts only its right one, every wrong answer has its own hint, its picture shows no answer before Check, and only the right answer balances once drawn', () =>
+    DO.every((i) => {
+      const d = STEPS[i];
+      if (d.opts.length !== 3 || d.opts.indexOf(d.want) < 0 || d.opts.some((o) => o !== d.want && !d.hints[o])) return false;
+      if (drawnAt(i, blank()).ansShown) return false;
+      return d.opts.every((o) => { const r = drawnAt(i, answer(i, o)); return r.ansShown && (o === d.want ? r.bal === true : r.bal === false); });
+    }));
+  K.check('Every demonstration starts after the screen\'s fade and ends within 4.5 s of its screen opening; an answer is drawn within 3 s of Check', () =>
+    STEPS.filter((d) => d.show).every((d) => (d.play || d.arrive) && demoStart(d) >= FADE && demoEnd(d) <= 4.5) && 1.5 + K.SOFT <= ANS && ANS <= 3);
+
+  K.ready();
+</script>

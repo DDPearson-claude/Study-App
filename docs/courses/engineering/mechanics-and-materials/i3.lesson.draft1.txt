@@ -1,0 +1,512 @@
+{
+  "iid": "i3",
+  "title": "Stress, strain and how materials fail",
+  "format": "steps",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the bar spring back to no stretch before yield, but keep a permanent stretch after it, when you drag its stretch and let go.",
+    "title": "The tensile test bar",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Screen",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [
+      {
+        "id": "force",
+        "label": "Force on the bar",
+        "unit": "kN",
+        "decimals": 1
+      },
+      {
+        "id": "stress",
+        "label": "Stress",
+        "unit": "N/mm²",
+        "decimals": 0
+      },
+      {
+        "id": "strain",
+        "label": "Strain",
+        "unit": "%",
+        "decimals": 2
+      }
+    ],
+    "whatAmILookingAt": "The picture runs over thirteen small screens. The main picture is a steel test bar held in a testing machine's two grips. Two gauge marks on the bar sit 100 mm apart. The bar's section is an example 100 mm², about 11.3 mm across. You drag the lower grip down to stretch the bar, from 0 to 30 mm, opening at 0. An arrow at each grip shows the force on the bar. Readouts give the force in kN, the stress in N/mm² and the strain in per cent. The stress is the force in newtons ÷ the bar's first area, 100 mm². The strain is the stretch between the gauge marks ÷ 100 mm. So here the strain in per cent is the same number as the stretch in mm. Beside the bar, a dot runs along the stress-strain curve and draws the curve behind it. The curve is a sketch of a mild steel. Its straight start rises at 200 000 N/mm² for each whole unit of strain, steel's Young's modulus, and is labelled stiffness. It reaches an example yield strength of 250 N/mm² at 0.125% strain, which is 25 kN. Then it runs flat for a short step and rises in a gentle arch. It passes 360 N/mm² at 10% and peaks at an example 400 N/mm² at 20%, which is 40 kN. That peak is labelled strength, the tensile strength. Past the peak the bar draws in at one spot, into a neck. The stress falls to 320 N/mm², 32 kN, and the bar breaks at 30 mm. The first 0.5% of the strain axis is drawn far wider than the rest, so the straight start shows as a slope. Let go anywhere. The dot runs back down a line parallel to the straight start until the force is zero. Before yield that line ends at zero, so the bar springs back to its first length. After yield it ends to the right of zero, and the bar keeps that stretch, marked as permanent stretch in mm. The springback is the stress at letting go ÷ 200 000. Let go at 10 mm and 360 N/mm², and it springs back 0.18 mm and keeps 9.82 mm. Drag again and the dot climbs that same line back to the curve. After the break, a button fits a new bar. Screen 1 shows the same 10 kN pull on a 20 mm bar and a 10 mm bar. The 20 mm bar has 314 mm² of section, so 31.8 N/mm². The 10 mm bar has a quarter of the area, 78.5 mm², and four times the stress, 127 N/mm². Screen 2 asks the stress from a 6 kN pull on a rod of 40 mm² section: 150 N/mm². Its wrong picks are 6 kN, the force itself, and 0.0067 N/mm², the area ÷ the force. Screen 3 shows two steel bars at the same stress. The 1 m bar stretches 0.5 mm and the 2 m bar 1 mm, so both have a strain of 0.0005, or 0.05%. Screen 4 asks the strain of a 2.5 m rod stretched 1.5 mm: 0.0006. Its wrong picks are 0.6, from millimetres ÷ metres, and 1.67, the length ÷ the stretch. Screen 5 brings in the test bar and its straight start. At 20 kN it reads 200 N/mm² and 0.1%, a 0.1 mm stretch. Let go, it springs back to zero. Screen 6 asks the Young's modulus of an aluminium alloy bar that reads 70 N/mm² at 0.1% strain: 70 000 N/mm², about a third of steel's. Its wrong picks are 700 N/mm², from dividing by 0.1 instead of 0.001, and 70 N/mm², the stress itself. Screen 7 drags past yield and lets go, leaving a permanent stretch. A dashed line parallel to the straight start, from 0.2% strain, shows how yield is found when the curve has no clear corner. Screen 8 asks what stretch stays after letting go at 10 mm and 360 N/mm²: 9.82 mm. Its wrong picks are 0 mm, as if it all springs back, and 10 mm, as if none does. Screen 9 drags on past the peak to the neck and the break, and labels stiffness as the slope and strength as the height. Screen 10 shows two sketched curves, bar A with the steeper straight start and bar B with the higher peak, and asks which is stiffer: A. Screen 11 is the closing still. A dashed line on the curve marks an example working stress of 100 N/mm², so the factor of safety on yield is 250 ÷ 100 = 2.5. Beside it, a turning shaft bent a little by its load has one spot on its surface marked. A trace below shows that spot's stress swing from stretched to squeezed once every turn. Screens 12 and 13 mix it all. Screen 12 asks the safe working load of a 20 mm bar with a factor of safety of 5 on a 250 N/mm² yield: 15.7 kN. Its wrong picks are 78.5 kN, with no factor, and 3.1 kN, divided by 5 twice. Screen 13 asks the stretch of a 3 m steel tie of 200 mm² carrying 20 kN: 1.5 mm. Its wrong picks are 0.0015 mm, from leaving the force in kN, and 0.0005 mm, the strain with no length. Some screens show an idea and the rest ask you to try it. Each puzzle offers three answers, and a wrong pick is drawn so you can see where it goes wrong.",
+    "ignores": "The curve is a sketch of one mild steel with example values. Real steels vary a lot, and other metals have no flat step at yield. The first part of the strain axis is drawn far wider than the rest. Drawn to one scale, the straight start would look like a vertical line. The stress here is the force ÷ the bar's first area, as a test reports it. In the thinning neck the force is spread over less metal, so the stress there keeps rising. The bar is pulled slowly at room temperature. Speed, heat and cold change the curve. Fatigue is shown only as the shaft's stress swinging. How fast a crack grows, and how many turns it takes, are not shown. A part cut across, like a bolt in shear, is not shown either.",
+    "numbers": [
+      {
+        "label": "Screen, 1 to 13 (the stepper)",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Gauge length between the marks, mm",
+        "value": 100,
+        "kind": "assumed"
+      },
+      {
+        "label": "Test bar's section area, mm²",
+        "value": 100,
+        "kind": "assumed"
+      },
+      {
+        "label": "Test bar's diameter, mm",
+        "value": 11.3,
+        "kind": "computed"
+      },
+      {
+        "label": "Stretch drag's lowest value, mm",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Stretch drag's highest value, mm",
+        "value": 30,
+        "kind": "control"
+      },
+      {
+        "label": "Stretch drag's opening value, mm",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Steel's Young's modulus, N/mm²",
+        "value": 200000,
+        "kind": "constant"
+      },
+      {
+        "label": "Example yield strength of the steel, N/mm²",
+        "value": 250,
+        "kind": "assumed"
+      },
+      {
+        "label": "Strain at yield, %",
+        "value": 0.125,
+        "kind": "computed"
+      },
+      {
+        "label": "Force at yield, kN",
+        "value": 25,
+        "kind": "computed"
+      },
+      {
+        "label": "Sketch's stress at 10% strain, N/mm²",
+        "value": 360,
+        "kind": "assumed"
+      },
+      {
+        "label": "Strain at that point, %",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example tensile strength, N/mm²",
+        "value": 400,
+        "kind": "assumed"
+      },
+      {
+        "label": "Strain at the peak, %",
+        "value": 20,
+        "kind": "assumed"
+      },
+      {
+        "label": "Force at the peak, kN",
+        "value": 40,
+        "kind": "computed"
+      },
+      {
+        "label": "Stress where the bar breaks, N/mm²",
+        "value": 320,
+        "kind": "assumed"
+      },
+      {
+        "label": "Force where the bar breaks, kN",
+        "value": 32,
+        "kind": "computed"
+      },
+      {
+        "label": "Stretch where the bar breaks, mm",
+        "value": 30,
+        "kind": "assumed"
+      },
+      {
+        "label": "Widened first part of the strain axis, %",
+        "value": 0.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Springback after letting go at 10 mm, mm",
+        "value": 0.18,
+        "kind": "computed"
+      },
+      {
+        "label": "Permanent stretch after letting go at 10 mm, mm",
+        "value": 9.82,
+        "kind": "computed"
+      },
+      {
+        "label": "Yield offset for metals, % strain",
+        "value": 0.2,
+        "kind": "constant",
+        "source": 7
+      },
+      {
+        "label": "Screen 1 pull, kN",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 1 thick bar's diameter, mm",
+        "value": 20,
+        "kind": "assumed"
+      },
+      {
+        "label": "Thick bar's section area, mm²",
+        "value": 314,
+        "kind": "computed"
+      },
+      {
+        "label": "Thick bar's stress, N/mm²",
+        "value": 31.8,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 1 thin bar's diameter, mm",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Thin bar's section area, mm²",
+        "value": 78.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Thin bar's stress, N/mm²",
+        "value": 127,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 2 pull, kN",
+        "value": 6,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 2 rod's section area, mm²",
+        "value": 40,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 2 stress, N/mm²",
+        "value": 150,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 2 wrong pick: area ÷ force, N/mm²",
+        "value": 0.0067,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 3 short bar's length, m",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 3 short bar's stretch, mm",
+        "value": 0.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 3 long bar's length, m",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 3 long bar's stretch, mm",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 3 strain",
+        "value": 0.0005,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 3 strain, %",
+        "value": 0.05,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 4 rod's length, m",
+        "value": 2.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 4 rod's stretch, mm",
+        "value": 1.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 4 strain",
+        "value": 0.0006,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 4 wrong pick: mm ÷ m",
+        "value": 0.6,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 4 wrong pick: length ÷ stretch",
+        "value": 1.67,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 5 force, kN",
+        "value": 20,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 5 stress, N/mm²",
+        "value": 200,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 5 strain, %",
+        "value": 0.1,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 5 stretch, mm",
+        "value": 0.1,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 6 aluminium alloy's stress, N/mm²",
+        "value": 70,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 6 aluminium alloy's strain, %",
+        "value": 0.1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 6 strain as a fraction",
+        "value": 0.001,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 6 Young's modulus, N/mm²",
+        "value": 70000,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 6 wrong pick: divided by 0.1, N/mm²",
+        "value": 700,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 8 let-go stretch, mm",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 11 example working stress, N/mm²",
+        "value": 100,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 11 factor of safety on yield",
+        "value": 2.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 12 factor of safety",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 12 working stress, N/mm²",
+        "value": 50,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 12 safe working load, kN",
+        "value": 15.7,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 12 wrong pick: no factor, kN",
+        "value": 78.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 12 wrong pick: divided twice, kN",
+        "value": 3.1,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 13 tie's length, m",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 13 tie's section area, mm²",
+        "value": 200,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 13 pull, kN",
+        "value": 20,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 13 stress, N/mm²",
+        "value": 100,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 13 strain",
+        "value": 0.0005,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 13 stretch, mm",
+        "value": 1.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 13 wrong pick: force left in kN, mm",
+        "value": 0.0015,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 13 wrong pick: strain with no length",
+        "value": 0.0005,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example tie length, m",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example tie diameter, mm",
+        "value": 16,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example radius, mm",
+        "value": 8,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example pull, kN",
+        "value": 12,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example pull, N",
+        "value": 12000,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example area, mm²",
+        "value": 201,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example stress, N/mm²",
+        "value": 59.7,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example strain",
+        "value": 0.000298,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example length, mm",
+        "value": 4000,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example stretch, mm",
+        "value": 1.19,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example factor of safety",
+        "value": 4.2,
+        "kind": "computed"
+      },
+      {
+        "label": "Rule of thumb: steel's stretch per metre at 100 N/mm², mm",
+        "value": 0.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Rule of thumb stress, N/mm²",
+        "value": 100,
+        "kind": "assumed"
+      },
+      {
+        "label": "Strain in per cent to a fraction, divide by",
+        "value": 100,
+        "kind": "constant"
+      }
+    ]
+  },
+  "explain": {
+    "text": "Any pull stretches a metal bar a little. Pull harder and it stays stretched, and harder still it breaks. A tensile test pulls a bar steadily and plots the whole story as one curve. That curve shows three different things: how stiff the metal is, where it starts to stretch for good, and how strong it is. Remember each sling leg's tension in Forces in balance? This is what such a pull does to the metal.\n\nTo make the curve belong to the metal, not to one bar, take out the bar's size. A thicker bar spreads the same pull over more metal. So divide the force by the area of the bar's section. That is the [[stress]], in newtons per square millimetre. A 10 kN pull on a 20 mm bar, with 314 mm² of section, gives 31.8 N/mm². Stress is not a force. The same 10 kN on a 10 mm bar, with a quarter of the area, gives four times the stress, 127 N/mm². A longer bar stretches further under the same stress, because every millimetre of it stretches the same. So divide the stretch by the length. That is the [[strain]]. It is a length over a length, so it has no units. A 1 m bar stretched 0.5 mm has a strain of 0.0005, or 0.05%. A squeeze works the same way, with the stress and strain pushing instead of pulling.\n\nAt low stress, strain rises in step with stress, like a spring's load against its stretch.[^2] Take the load off and the bar springs back to its first length. The slope of that straight start, stress ÷ strain, is the elastic modulus.[^3] For a pull it is called [[Young's modulus]]. It is the metal's stiffness: how much stress it takes to stretch it a given amount. Steel's is about 200 000 N/mm². An aluminium alloy's is about a third of that, so the same stress stretches it about three times as far. Past a certain stress the line bends over, and the bar starts to stretch for good. That stress is the yield strength.[^6] Let go now and the bar springs back along a line parallel to the straight start, and keeps the rest of its stretch. Many metals bend over without a clear corner. Their yield strength is taken as the stress that leaves 0.2% of permanent strain.[^7] Pull on and the stress climbs to a peak, the tensile strength.[^8] Past it, the bar thins at one spot into a neck, and the force falls until it breaks. Stiffness is the slope of the straight start. Strength is the height of the peak. A metal can be stiff and weak, or springy and strong.\n\nSo a part is designed to run well below its yield strength. The factor of safety is the failing stress ÷ the working stress. Even well below yield, a load that comes and goes can crack a part. Each cycle grows a tiny crack a little, until the part breaks. That is fatigue. A turning shaft bent a little by its load sees it every turn. Each spot on its surface is stretched on one side and squeezed on the other. Textbooks add that fatigue is the most common way shafts fail. **Stiffness, yield and strength are three different things on one curve: the slope of its straight start, where it bends over, and the height of its peak.**"
+  },
+  "analogy": {
+    "text": "Think of a cable's resistance and its current rating. Resistance is the slope of its volts-against-amps line: how many volts it drops for each amp. Young's modulus is the slope of the stress-strain line in the same way: how much stress for each bit of strain. The current rating is a different number, a limit you must not pass. Strength is that limit for a bar. A cable with low resistance is not, for that reason, a high-rated one. A stiff bar is not, for that reason, a strong one.",
+    "breaks": "A cable's rating depends on how it is installed, and running it over heats it rather than changing it for good straight away. A bar pulled past yield keeps a permanent stretch, and nothing on a cable's volts-against-amps line behaves like that."
+  },
+  "practice": {
+    "text": "- Safe way first: never load a part past its safe working load. That figure already has the factor of safety in it, so it is a limit, not a target.\n- Find the area of the section in mm². For a round bar it is π × radius².\n- Work out the stress: the force in newtons ÷ the area. Use newtons, not kN.\n- Compare it with the metal's yield strength. For a part that must not bend for good, the factor of safety is the yield strength ÷ your stress.\n- For the stretch, divide the stress by Young's modulus to get the strain. Then multiply by the length in mm.\n- On anything that turns or shakes, ask whether the load comes and goes. If it does, fatigue can set a safe stress well below yield.\n\n**Rule of thumb:** half the diameter means a quarter of the area, so four times the stress. Steel stretches about 0.5 mm per metre at 100 N/mm².\n\n**Worked example:** a 4 m steel tie rod, 16 mm across, carries 12 kN. Its area is π × 8² = 201 mm². The stress is 12 000 ÷ 201 = 59.7 N/mm². The strain is 59.7 ÷ 200 000 = 0.000298, so it stretches 0.000298 × 4000 = 1.19 mm. If its steel yields at an example 250 N/mm², the factor of safety is 250 ÷ 59.7 = 4.2.\n\n**Common mistakes**\n- Treating a stress as a force. A stress is the force on each square millimetre.\n- Dividing the area by the force instead of the force by the area.\n- Using a strain in per cent as if it were a plain fraction, which puts the answer out by 100.\n- Mixing up stiffness and strength. A stiff part stretches little. A strong part takes a big stress before it fails.\n- Ignoring sharp corners such as a keyway. Fatigue cracks often start at them."
+  },
+  "say": null,
+  "checks": [],
+  "sources": [
+    {
+      "n": 2,
+      "title": "12.3 Stress, Strain, and Elastic Modulus - University Physics Volume 1 | OpenStax — OpenStax",
+      "url": "https://openstax.org/books/university-physics-volume-1/pages/12-3-stress-strain-and-elastic-modulus",
+      "quote": "Only when stress is sufficiently low is the deformation it causes in direct proportion to the stress value."
+    },
+    {
+      "n": 3,
+      "title": "12.3 Stress, Strain, and Elastic Modulus - University Physics Volume 1 | OpenStax — OpenStax",
+      "url": "https://openstax.org/books/university-physics-volume-1/pages/12-3-stress-strain-and-elastic-modulus",
+      "quote": "The proportionality constant in this relation is called the elastic modulus"
+    },
+    {
+      "n": 6,
+      "title": "Yield strength | Definition, Formula, Measurement, & Facts | Britannica — Britannica",
+      "url": "https://www.britannica.com/science/yield-strength",
+      "quote": "Yield strength is determined at the point where plastic deformation begins."
+    },
+    {
+      "n": 7,
+      "title": "Yield Strength — Instron",
+      "url": "https://www.instron.com/en/resources/glossary/yield-strength",
+      "quote": "Offset for metals is usually specified as 0.2%, i.e., the intersection of the offset line and the 0-stress axis is at 0.2% strain."
+    },
+    {
+      "n": 8,
+      "title": "L25 - Stress-Strain Curves 1, Elasic vs Plasic Behavior, Plasticity & Ductility, Yield Point, Hardness, Toughness.key — Iowa State University",
+      "url": "https://faculty.sites.iastate.edu/tec/files/inline-files/L25%20-%20Stress-Strain%20Curves%201,%20Elasic%20vs%20Plasic%20Behavior,%20Plasticity%20&%20Ductility,%20Yield%20Point,%20Hardness,%20Toughness.pdf",
+      "quote": "The tensile strength is the maximum on the stress-strain curve."
+    }
+  ],
+  "confidence": "simplified",
+  "contested": null
+}

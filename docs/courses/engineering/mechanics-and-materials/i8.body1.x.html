@@ -1,0 +1,981 @@
+<!-- kind: mechanism -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 34rem; margin-inline: auto; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .count { margin-top: 10px; }
+  .task { font-size: 1.15rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.06rem; font-weight: 400; line-height: 1.6; }
+  .fig { display: block; width: 100%; max-width: 26rem; margin-inline: auto; touch-action: pan-y; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .live { align-items: center; }
+  .picks .k-btn { flex: 1 1 6rem; min-height: 48px; white-space: nowrap; font-size: 1.05rem; }
+  .picks.long { flex-direction: column; gap: 8px; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; white-space: normal; line-height: 1.35; padding-top: 8px; padding-bottom: 8px; }
+  .picks .k-btn[aria-pressed="true"] { border-color: var(--k-accent2); box-shadow: inset 0 0 0 2px var(--k-accent2); font-weight: 700; }
+  #outs { display: grid; grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr)); gap: 10px; }
+  .fb { font-weight: 700; min-height: 1.5em; }
+  .fb.right { color: var(--k-good); }
+  .why, .done { line-height: 1.6; }
+  .done .row { margin-top: 14px; }
+  .replay { justify-content: center; }
+  .replay .k-btn { flex: 0 0 auto; }
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }
+  /* The rotor, its mounts and the ground. */
+  .fig .disc { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.6; }
+  .fig .hub { fill: var(--k-strong); }
+  .fig .spot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 1.5; }
+  .fig .wt { fill: var(--k-accent); stroke: var(--k-bg); stroke-width: 1.5; }
+  .fig .ped { fill: var(--k-sunk); stroke: var(--k-ink); stroke-width: 1.2; stroke-linejoin: round; }
+  .fig .beam { fill: var(--k-sunk); stroke: var(--k-ink); stroke-width: 1.4; }
+  .fig .spring { fill: none; stroke: var(--k-ink); stroke-width: 1.8; stroke-linejoin: round; }
+  .fig .base { fill: var(--k-strong); }
+  .fig .hatch { stroke: var(--k-strong); stroke-width: 1.2; }
+  .fig .box { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.4; }
+  .fig .shaftR { fill: var(--k-sunk); stroke: var(--k-ink); stroke-width: 1.2; }
+  .fig .beamS { fill: none; stroke: var(--k-strong); stroke-width: 10; }
+  .fig .sup { fill: var(--k-sunk); stroke: var(--k-ink); stroke-width: 1.2; stroke-linejoin: round; }
+  .fig .shk { fill: none; stroke: var(--k-accent2); stroke-width: 1.8; }
+  .fig .shkbad { fill: none; stroke: var(--k-warn); stroke-width: 1.8; }
+  /* The graph of shake against speed. */
+  .fig .axis, .fig .tick { stroke: var(--k-strong); stroke-width: 1.4; }
+  .fig .cl { fill: none; stroke: var(--k-muted); stroke-width: 1.3; stroke-dasharray: 5 4; }
+  .fig .cv { fill: none; stroke: var(--k-accent2); stroke-width: 2.4; stroke-linejoin: round; }
+  .fig .cvref { fill: none; stroke: var(--k-muted); stroke-width: 1.8; stroke-dasharray: 6 4; }
+  .fig .dots { fill: var(--k-accent2); }
+  .fig .now { fill: none; stroke: var(--k-accent2); stroke-width: 2.2; }
+  .fig .ring { fill: none; stroke: var(--k-accent2); stroke-width: 2.4; }
+  .fig .ringbad { fill: none; stroke: var(--k-warn); stroke-width: 2.4; }
+  .fig .ringm { fill: none; stroke: var(--k-muted); stroke-width: 2; }
+  .fig .band { fill: var(--k-fill3); }
+  .fig .dim { fill: none; stroke: var(--k-muted); stroke-width: 1.3; }
+  /* Arrows: the spot's pull navy, the weight's teal, their total ink, a mistake red. */
+  .fig .ar { stroke-width: 2.6; }
+  .fig .arc { fill: none; stroke-width: 2.4; stroke-linecap: round; }
+  .fig .ar.nv, .fig .arc.nv { stroke: var(--k-accent2); }
+  .fig .ah.nv { fill: var(--k-accent2); }
+  .fig .ar.t, .fig .arc.t { stroke: var(--k-accent); }
+  .fig .ah.t { fill: var(--k-accent); }
+  .fig .ar.k { stroke: var(--k-ink); stroke-width: 3; }
+  .fig .ah.k { fill: var(--k-ink); }
+  .fig .ar.wr, .fig .arc.wr { stroke: var(--k-warn); }
+  .fig .ah.wr { fill: var(--k-warn); }
+  /* Words on the pictures. */
+  .fig .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .fig .lab.sm { font-size: 12px; font-weight: 500; }
+  .fig .lab.b { font-weight: 700; }
+  .fig .lab.m { fill: var(--k-muted); }
+  .fig .lab.n { fill: var(--k-accent2); }
+  .fig .lab.t { fill: var(--k-accent); }
+  .fig .lab.w { fill: var(--k-warn); }
+  .fig .lab.wk { font-size: 13px; font-weight: 600; }
+</style>
+
+<p class="lead" id="lead">An example rotor: a 50 kg disc and shaft with a 20 g heavy spot 0.15 m from its axis, on mounts 500 kN/m stiff.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task say" id="task"></p>
+    <svg class="fig" id="scene" viewBox="0 0 340 340" width="100%" role="img" aria-label=""><g id="art"></g></svg>
+    <div class="k-controls" id="ctlS"></div>
+    <div class="k-controls" id="ctlD"></div>
+    <div class="k-controls" id="ctlB"></div>
+    <div class="row live" id="live"></div>
+    <div class="row replay" id="replay"></div>
+    <p class="say" id="say"></p>
+    <div class="k-readouts" id="outs"></div>
+    <div class="row picks say" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb say" id="fb" aria-live="polite"></p>
+    <div class="note why say" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption" id="cap">An example rotor, turning 20 times slower than real, with its shake drawn 40 times bigger.</p>
+
+<script>
+  // ---------- the rules ----------
+  const TAU = 2 * Math.PI, DEG = Math.PI / 180;
+  const M = 50, MS = 0.02, RSP = 0.15, MR = MS * RSP, KM = 500000;   // the example rotor: kg, kg, m, kg m, N/m
+  const SLOW = 20, BIG = 40, ZOPEN = 0.05, ROCK = 2.5;                // drawn 20 times slower, shake drawn 40 times bigger
+  const SRC = {
+    sq: 'https://web.mst.edu/~stutts/ME242/LABMANUAL/DynamicBalancingExp.pdf',
+    crit: 'https://www.engineersedge.com/vibration/dynamic_resonance_review_9853.htm',
+    res: 'https://openstax.org/books/college-physics-2e/pages/16-8-forced-oscillations-and-resonance',
+    planes: 'https://rotorlab.tamu.edu/me459/Rotor%20Balancing/Rotating_Machinery_Rotor_Balancing.pdf',
+  };
+  const radOf = (n) => n * TAU / 60;                 // rev/min -> rad/s
+  const rpmOf = (w) => w * 60 / TAU;                 // rad/s -> rev/min
+  const WN = Math.sqrt(KM / M);                      // the mounts swing on their own at 100 rad/s
+  const NCRIT = rpmOf(WN);                           // 955 rev/min, the critical speed
+  // The heavy spot's pull: mass × radius × the angular speed squared, the speed in rad/s.
+  const pullAt = (n, mr) => (mr == null ? MR : mr) * radOf(n) * radOf(n);
+  // The damping: 2 × the damping factor × √(k M).
+  const cOf = (z) => 2 * z * Math.sqrt(KM * M);
+  // The steady shake of the driven spring and mass, in mm: m r ω² ÷ √((k − M ω²)² + (c ω)²).
+  function shakeMm(n, z) { const w = radOf(n); return 1000 * MR * w * w / Math.hypot(KM - M * w * w, cOf(z) * w); }
+  // How far the swing lags the turning pull: none far below the critical speed, half a turn far above it.
+  const lagOf = (n, z) => { const w = radOf(n); return Math.atan2(cOf(z) * w, KM - M * w * w); };
+  // A 20 g balance weight 0.15 m out, at an angle round from the spot: the two pulls add as forces do.
+  const balF = (deg) => 2 * Math.abs(Math.cos(deg * DEG / 2));
+  // Screen 1: a mass on a spring driven by a push that comes and goes, at the opening damping factor.
+  const swingRel = (rf) => 1 / Math.hypot(1 - rf * rf, 2 * ZOPEN * rf);
+  // The long rotor: the up-and-down parts of the pulls at each end (spots on opposite sides).
+  const endPulls = (th, ends) => ({ L: Math.cos(th) - (ends ? Math.cos(th) : 0), R: -Math.cos(th) + (ends ? Math.cos(th) : 0) });
+
+  // Numbers as the lesson writes them: fixed decimals, commas from 10,000 up.
+  function fx(v, dp) {
+    const k = Math.pow(10, dp), r = Math.round(Math.abs(v) * k + 1e-7) / k;
+    const parts = r.toFixed(dp).split('.');
+    let a = parts[0];
+    if (a.length > 4) a = a.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return (v < 0 && r > 0 ? '−' : '') + a + (parts[1] ? '.' + parts[1] : '');
+  }
+  const nf = (v, dp) => { const s = fx(v, dp == null ? 2 : dp); return s.indexOf('.') < 0 ? s : s.replace(/0+$/, '').replace(/\.$/, ''); };
+
+  // Every number the words show, worked out from the rules.
+  const N = {
+    p1450: fx(pullAt(1450), 0), w2900: fx(radOf(2900), 1), p2900: fx(pullAt(2900), 0), p2x: fx(2 * pullAt(1450), 0),
+    fn: fx(WN / TAU, 1), crit: fx(NCRIT, 0), off: nf(1000 * MR / M, 2),
+    s300: fx(shakeMm(300, ZOPEN), 3), s1450: fx(shakeMm(1450, ZOPEN), 2), s2400: fx(shakeMm(2400, ZOPEN), 2),
+    pk05: nf(1000 * MR / M / (2 * ZOPEN), 2), q41: fx(balF(90), 2),
+    q5: fx(20 * 60, 0), q7: nf(1000 * MR / M / (2 * 0.1), 2),
+    q9: fx(30 * 0.10 / 0.15, 0), q9x: fx(30 * 0.15 / 0.10, 0), q9m: nf(30 * 0.10, 2), q9w: nf(30 * 0.15, 2),
+    q12w: fx(radOf(3000), 1), q12: fx(0.01 * 0.2 * radOf(3000) * radOf(3000), 0), q12r: fx(0.01 * 0.2 * 3000 * 3000, 0), q12s: fx(0.01 * 0.2 * 50 * 50, 0),
+    q13w: fx(Math.sqrt(2000000 / M), 0), q13: fx(rpmOf(Math.sqrt(2000000 / M)), 0), q13x: fx(4 * NCRIT, 0), q13h: fx(NCRIT / 2, 0),
+  };
+  // A SHOW screen's words for reading, where its last sentence asks for a move.
+  const readAs = (t, end) => t.replace(/ (Drag|Slide|Switch)[^.]*\.$/, '') + (end ? ' ' + end : '');
+
+  // ---------- the lesson: SHOW screens demonstrate, DO screens are puzzles ----------
+  const T2 = `A rotor with more mass on one side has an *unbalance*. Here a 20 g heavy spot sits 0.15 m from the axis. The shaft must pull it round. So the spot pulls the shaft outwards just as hard. That pull is the spot's mass × its radius × the angular speed squared, with the speed in rad/s. It points at the spot and turns with it. So it pushes the mounts up, then down, once a turn. Slide the speed to watch the pull grow.`;
+  const T4 = `As the speed sweeps up, the shake does not just grow. The 50 kg rotor on its mounts swings on its own at ${N.fn} times a second. That is its *natural frequency*. At ${N.crit} rev/min the rotor turns ${N.fn} times a second too. Each push then arrives in step with the swing and adds to it. That speed is the *critical speed*. The shake peaks there at ${N.pk05} mm. Above it, each push reverses before the rotor can follow. So the shake falls back and settles near ${N.off} mm.`;
+  const T6 = `*Damping* takes energy out of every swing. Here the damping factor rises from 0.05 to 0.2. The peak drops from ${N.pk05} mm to about 0.15 mm and spreads wider. Away from the peak, the shake hardly changes. At the critical speed the shake is ${N.off} mm ÷ (2 × the damping factor). So doubling the damping halves the peak. But damping only softens it. The pull is still there. Slide the damping down to 0.02 and the peak climbs to 1.5 mm.`;
+  const T8 = `Balancing removes the cause that damping only softens. A 20 g *balance weight* sits 0.15 m out, like the spot. At any speed its pull is just as big, and points at the weight. The two pulls add, as forces do. Beside the spot, the total pull is twice as big. A quarter turn away, it is ${N.q41} times as big. Opposite the spot, the two pulls cancel at every speed. The curve goes flat at zero. Slide the weight round to try others.`;
+  const T10 = `A long rotor needs more care. Here a 20 g heavy spot sits near each end, on opposite sides. Their two pulls cancel in total. But one pushes its end up while the other pushes the far end down. So together they rock the shaft end over end, as a *couple*. A balance weight at each end, opposite each spot, stops the rocking. A flexible rotor needs weights in more places. Switch Balance weights on to see it.`;
+  const T14 = `Two ideas build on this one. A beam bends under a load. A shaft twists a little as it carries torque. A gearbox's slow shaft is usually made thick to carry its torque. Good balance lets it carry that torque smoothly. So does a critical speed well clear of its running speed.`;
+  const hz = (s) => s + ' Hz', nw = (s) => s + ' N', rpm = (s) => s + ' rev/min', mm = (s) => s + ' mm', gr = (s) => s + ' g';
+  const MO = ['It passes through a critical speed', 'Its heavy spot pulls hardest at 950 rev/min', 'It is short of torque at 950 rev/min'];
+  const STEPS = [
+    { kind: 'pick', pic: 'springQ', name: 'In step',
+      task: 'A mass on a spring swings on its own at 2 Hz. A push that comes and goes drives it. Which push gives the biggest steady swing?',
+      opts: [hz('2'), hz('0.5'), hz('8')], order: [1, 0, 2], want: hz('2'),
+      hz: { [hz('2')]: 2, [hz('0.5')]: 0.5, [hz('8')]: 8 },
+      hints: { [hz('0.5')]: 'Not quite. A slow push just carries the mass along with it. The swing stays small.',
+        [hz('8')]: 'Not quite. A fast push reverses before the mass can get moving. It barely swings.' },
+      why: 'The mass swings on its own at 2 Hz. A push at 2 Hz arrives in step, once each swing. So each push adds to the swing. It grows until damping takes out as much as each push puts in. That is *resonance*.',
+      qw: [],
+      ow: { [hz('2')]: ['Each push arrives in step with the swing', 'So each one adds to it'], [hz('0.5')]: ['0.5 Hz: the mass just follows the push'],
+        [hz('8')]: ['8 Hz: each push reverses too soon'] } },
+    { show: true, rig: 'pull', name: 'The heavy spot\'s pull', text: T2, still: { rpm: 1450 },
+      read: readAs(T2, `At 1450 rev/min the pull is ${N.p1450} N.`) },
+    { kind: 'pick', pic: 'pullQ', name: 'Twice the speed',
+      task: `At 1450 rev/min the heavy spot pulls with ${N.p1450} N. What does it pull with at 2900 rev/min?`,
+      opts: [nw(N.p2900), nw(N.p2x), nw(N.p1450)], order: [1, 0, 2], want: nw(N.p2900),
+      pv: { [nw(N.p2900)]: pullAt(2900), [nw(N.p2x)]: 2 * pullAt(1450), [nw(N.p1450)]: pullAt(1450) },
+      hints: { [nw(N.p2x)]: 'Not quite. That doubles the pull with the speed. But the speed counts twice.',
+        [nw(N.p1450)]: 'Not quite. The faster the spot goes round, the harder the shaft must pull it.' },
+      why: `2900 rev/min is twice 1450. At double the speed, the spot moves twice as fast and swings its direction round twice as quickly. So the pull is four times as big. At ${N.w2900} rad/s it is 0.02 × 0.15 × ${N.w2900}² = ${N.p2900} N.`,
+      qw: [],
+      ow: { [nw(N.p2900)]: ['2900 is twice 1450', 'Speed counts twice: 2 × 2 = 4', `0.02 × 0.15 × ${N.w2900}² = ${N.p2900} N`],
+        [nw(N.p2x)]: [`2 × ${N.p1450} = ${N.p2x}: speed counted only once`], [nw(N.p1450)]: [`${N.p1450} N: as if speed made no difference`] } },
+    { show: true, rig: 'sweep', name: 'The critical speed', text: T4, still: { rpm: 2400 } },
+    { kind: 'pick', pic: 'pumpQ', name: 'Where it peaks',
+      task: 'A pump set\'s mounts swing on their own at 20 Hz. The pump runs up to 2900 rev/min. At what speed does it shake hardest on the way up?',
+      opts: [rpm(N.q5), rpm('2900'), rpm('20')], order: [1, 0, 2], want: rpm(N.q5),
+      nv: { [rpm(N.q5)]: 1200, [rpm('2900')]: 2900, [rpm('20')]: 20 },
+      hints: { [rpm('2900')]: 'Not quite. The shake does not just grow with speed. It peaks where the turns match the mounts\' own swing.',
+        [rpm('20')]: 'Not quite. 20 Hz is 20 turns a second. A minute has 60 seconds.' },
+      why: `The shake peaks where the shaft turns as often as the mounts swing: 20 times a second. That is 20 × 60 = ${N.q5} turns a minute, the pump's *critical speed*. Above it, the shake falls back.`,
+      qw: [],
+      ow: { [rpm(N.q5)]: ['20 Hz is 20 turns a second', `20 × 60 = ${N.q5} rev/min`], [rpm('2900')]: ['2900: the top speed, not the peak'],
+        [rpm('20')]: ['20: hertz not turned into rev/min'] } },
+    { show: true, rig: 'damp', name: 'Damping', text: T6, still: { zeta: 0.2 },
+      read: readAs(T6, 'At 0.02 the peak climbs to 1.5 mm.') },
+    { kind: 'pick', pic: 'dampQ', name: 'Double the damping',
+      task: `At a damping factor of 0.05 this rotor shakes ${N.pk05} mm at its critical speed. The damping doubles to 0.1. How far does it shake at the critical speed now?`,
+      opts: [mm(N.q7), mm('0'), mm(N.pk05)], order: [1, 0, 2], want: mm(N.q7),
+      sv: { [mm(N.q7)]: 0.3, [mm('0')]: 0, [mm(N.pk05)]: 0.6 },
+      hints: { [mm('0')]: 'Not quite. Damping softens the shake. The pull is still there, so the shake is too.',
+        [mm(N.pk05)]: 'Not quite. Damping does more than move the peak. It takes energy out of every swing.' },
+      why: `At the critical speed the shake is ${N.off} mm ÷ (2 × the damping factor). At 0.1 that is ${N.off} ÷ 0.2 = ${N.q7} mm. Doubling the damping halves the peak. The pull is still there.`,
+      qw: [],
+      ow: { [mm(N.q7)]: [`${N.off} ÷ (2 × 0.1) = ${N.q7} mm`, 'Double the damping, half the peak'], [mm('0')]: ['0 mm: damping softens, it cannot remove'],
+        [mm(N.pk05)]: [`${N.pk05} mm: as if damping only moved the peak`] } },
+    { show: true, rig: 'bal', name: 'A balance weight', text: T8, still: { bal: 180 },
+      read: readAs(T8, '') },
+    { kind: 'pick', pic: 'massQ', name: 'Balance mass',
+      task: 'A rotor has a 30 g heavy spot 0.10 m from its axis. A balance weight goes opposite, 0.15 m out. What mass must it have?',
+      opts: [gr(N.q9), gr('30'), gr(N.q9x)], order: [0, 1, 2], want: gr(N.q9),
+      mv: { [gr(N.q9)]: 20, [gr('30')]: 30, [gr(N.q9x)]: 45 },
+      hints: { [gr('30')]: 'Not quite. The weight sits further out, so it needs less mass. Match mass × radius.',
+        [gr(N.q9x)]: 'Not quite. That turns the radii upside down. Further out needs less mass, not more.' },
+      why: `The weight needs the same mass × radius as the spot: 30 × 0.10 = ${N.q9m}. At 0.15 m that takes ${N.q9m} ÷ 0.15 = ${N.q9} g. Then their pulls are equal and opposite at every speed.`,
+      qw: [],
+      ow: { [gr(N.q9)]: [`Same mass × radius: 30 × 0.10 = ${N.q9m}`, `${N.q9m} ÷ 0.15 = ${N.q9} g`], [gr('30')]: [`30 × 0.15 = ${N.q9w}: more than the spot's ${N.q9m}`],
+        [gr(N.q9x)]: [`30 × 0.15 ÷ 0.10 = ${N.q9x}: radii upside down`] } },
+    { show: true, rig: 'long', name: 'A long rotor', text: T10, still: { ends: true },
+      read: readAs(T10, '') },
+    { kind: 'pick', pic: 'motorQ', name: 'A shake on the way up',
+      task: 'A motor runs up to 1450 rev/min. It shakes hard for a moment near 950 rev/min, then runs smoothly. Why?',
+      opts: MO, order: [1, 0, 2], want: MO[0],
+      hints: { [MO[1]]: 'Not quite. The pull grows with the speed squared. It is bigger at 1450 rev/min than at 950.',
+        [MO[2]]: 'Not quite. Shaking needs a push that comes and goes. The turning pull gives one, once a turn.' },
+      why: 'Near 950 rev/min the motor turns as often as its mounts swing on their own. Each turn\'s push arrives in step, so the shake builds. Past that *critical speed*, each push reverses before the motor can follow. So it runs smoothly at 1450 rev/min.',
+      qw: [],
+      ow: { [MO[0]]: ['Near 950 it turns as the mounts swing', 'Past it, each push reverses too soon'], [MO[1]]: ['The pull grows with speed: most at 1450'],
+        [MO[2]]: ['Shaking needs a push that comes and goes'] } },
+    { kind: 'pick', pic: 'radQ', name: 'Pull at speed',
+      task: 'A 10 g heavy spot sits 0.2 m from the axis. The rotor turns at 3000 rev/min. How hard does the spot pull on the shaft?',
+      opts: [nw(N.q12), nw(N.q12r), nw(N.q12s)], order: [2, 0, 1], want: nw(N.q12),
+      pv: { [nw(N.q12)]: 0.01 * 0.2 * radOf(3000) * radOf(3000), [nw(N.q12r)]: 18000, [nw(N.q12s)]: 5 },
+      hints: { [nw(N.q12r)]: 'Not quite. The speed must be in rad/s, not rev/min.',
+        [nw(N.q12s)]: 'Not quite. 50 is turns a second. Each turn is 2π radians.' },
+      why: `First change the speed to rad/s: 3000 × 2π ÷ 60 = ${N.q12w} rad/s. The pull is the mass × the radius × the speed squared: 0.01 × 0.2 × ${N.q12w}² = ${N.q12} N.`,
+      qw: [],
+      ow: { [nw(N.q12)]: [`3000 × 2π ÷ 60 = ${N.q12w} rad/s`, `0.01 × 0.2 × ${N.q12w}² = ${N.q12} N`], [nw(N.q12r)]: [`0.01 × 0.2 × 3000² = ${N.q12r}: rev/min`],
+        [nw(N.q12s)]: [`0.01 × 0.2 × 50² = ${N.q12s}: rev/s, not rad/s`] } },
+    { kind: 'pick', pic: 'stiffQ', name: 'Stiffer mounts',
+      task: 'The 50 kg rotor\'s mounts are stiffened from 500 to 2000 kN/m. Where is its critical speed now?',
+      opts: [rpm(N.q13), rpm(N.q13x), rpm(N.q13h)], order: [2, 0, 1], want: rpm(N.q13),
+      nv: { [rpm(N.q13)]: rpmOf(Math.sqrt(2000000 / M)), [rpm(N.q13x)]: 4 * NCRIT, [rpm(N.q13h)]: NCRIT / 2 },
+      hints: { [rpm(N.q13x)]: 'Not quite. The natural frequency goes with the square root of the stiffness.',
+        [rpm(N.q13h)]: 'Not quite. Stiffer mounts spring back harder, so they swing faster.' },
+      why: `The mounts swing on their own at √(stiffness ÷ mass) rad/s. Four times the stiffness gives √4 = 2 times that. So √(2,000,000 ÷ 50) = ${N.q13w} rad/s, which is ${N.q13w} × 60 ÷ 2π = ${N.q13} rev/min.`,
+      qw: [],
+      ow: { [rpm(N.q13)]: [`√(2,000,000 ÷ 50) = ${N.q13w} rad/s`, `${N.q13w} × 60 ÷ 2π = ${N.q13} rev/min`], [rpm(N.q13x)]: [`4 × ${N.crit} = ${N.q13x}: square root left out`],
+        [rpm(N.q13h)]: [`${N.crit} ÷ 2 = ${N.q13h}: stiffer mounts raise it`] } },
+    { show: true, pic: 'next', name: 'What builds on this', text: T14 },
+  ];
+  const FINISH = 'An unbalanced rotor shakes its mounts hardest near its critical speed, where its turning rate matches the mounts\' natural frequency. Damping softens that peak. A balance weight with the same mass × radius, opposite the heavy spot, removes its cause.';
+  const ANS = 1.6;
+  const optsOf = (d) => (d.order ? d.order.map((k) => d.opts[k]) : d.opts);
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  const calm = () => REDUCE || testing();
+  const el = (id) => document.getElementById(id);
+  const iOf = (k, v) => STEPS.findIndex((d) => d[k] === v);
+  const I_PULL = iOf('rig', 'pull'), I_SW = iOf('rig', 'sweep'), I_DA = iOf('rig', 'damp'), I_BAL = iOf('rig', 'bal'), I_Q1 = iOf('pic', 'springQ');
+  const ROT = (d) => d.rig === 'pull' || d.rig === 'sweep' || d.rig === 'damp' || d.rig === 'bal';
+
+  // ---------- state ----------
+  const blank = () => ({ pick: null, res: null, why: false });
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false;
+  let T = Infinity, END = 0, MOT = null, setV = 0;   // seconds since a demonstration began; the control it glides
+  let PH = 30 * DEG;                                 // the disc's drawn angle: the heavy spot, clockwise from the top
+  let DOTS = new Set(), lastSweep = 0;               // the sweep's dots: one for every 20 rev/min passed
+  let REC = { wk: [] };
+  let latest = 0;
+  const BASE = { rpm: 300, zeta: 0.05, bal: 90, ends: false };
+  const SETUP = { pull: { rpm: 300 }, sweep: { rpm: 0 }, damp: { rpm: 955, zeta: 0.05 }, bal: { rpm: 1450, bal: 90 }, long: { ends: false } };
+  const END_OF = { pull: { rpm: 1450 }, sweep: { rpm: 2400 }, damp: { zeta: 0.2 }, bal: { bal: 180 } };
+  const setupOf = (i) => Object.assign({}, BASE, SETUP[STEPS[i].rig] || {});
+
+  // ---------- words with amber key terms (built with K.el, never innerHTML) ----------
+  function write(node, s) {
+    node.textContent = '';
+    const re = /\*([^*]+)\*/g;
+    let from = 0, m;
+    while ((m = re.exec(s))) {
+      if (m.index > from) node.appendChild(document.createTextNode(s.slice(from, m.index)));
+      node.appendChild(K.el('span', { class: 'term' }, m[1]));
+      from = m.index + m[0].length;
+    }
+    if (from < s.length) node.appendChild(document.createTextNode(s.slice(from)));
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => K.clamp(Math.round(+stepper.get()) || 0, 0, STEPS.length - 1);
+  const balTxt = (v) => {
+    const a = ((Math.round(+v) % 360) + 360) % 360, b = Math.min(a, 360 - a);
+    return b === 0 ? 'beside the spot' : b === 180 ? 'opposite the spot' : b === 90 ? 'a quarter turn away' : fx(b, 0) + '° from the spot';
+  };
+  const CTL = {
+    rpm: K.control({ id: 'rpm', label: 'Shaft speed', min: 0, max: 2400, step: 5, value: 300, fmt: (v) => fx(v, 0) + ' rev/min', snap: [955, 1450], into: '#ctlS' }),
+    zeta: K.control({ id: 'zeta', label: 'Damping factor', min: 0.02, max: 0.3, step: 0.01, value: 0.05, fmt: (v) => fx(v, 2), snap: [0.05, 0.1, 0.2], into: '#ctlD' }),
+    bal: K.control({ id: 'bal', label: 'Balance weight', min: 0, max: 360, step: 15, value: 90, fmt: balTxt, snap: [0, 90, 180, 270], into: '#ctlB' }),
+  };
+  CTL.ends = K.toggle({ id: 'ends', label: 'Balance weights', value: false, hint: 'Adds a 20 g weight at each end, opposite each spot', into: '#live' });
+  const same = (a, b) => (typeof a === 'boolean' || typeof b === 'boolean' ? !!a === !!b : Math.abs(+a - +b) < 1e-9);
+  function setQuiet(id, v) { if (!same(CTL[id].get(), v)) CTL[id].set(v, true); }
+  function setAll(q) { Object.keys(BASE).forEach((id) => setQuiet(id, q[id])); }
+  const quant = (id, v) => (id === 'rpm' ? Math.round(v / 5) * 5 : id === 'zeta' ? Math.round(v * 100) / 100 : Math.round(v / 15) * 15);
+
+  K.readout({ id: 'pull', label: 'Heavy spot\'s pull', unit: 'N', decimals: 0, fmt: (v) => fx(v, 0) + ' N', into: '#outs' });
+  K.readout({ id: 'shake', label: 'Shake at the mounts', unit: 'mm', decimals: 3, fmt: (v) => fx(v, 3) + ' mm', into: '#outs' });
+  K.readout({ id: 'omega', label: 'Shaft speed', unit: 'rad/s', decimals: 1, fmt: (v) => fx(v, 1) + ' rad/s', into: '#outs' });
+
+  // The settings a screen uses: the damping only on its own screen, the weight only on its own (at 1450 rev/min).
+  const stepOf = (p) => K.clamp(Math.round(+p.step) || 0, 0, STEPS.length - 1);
+  function rigOf(d, p) {
+    const n = d.rig === 'bal' ? 1450 : K.clamp(+p.rpm || 0, 0, 2400);
+    const z = d.rig === 'damp' ? K.clamp(+p.zeta || ZOPEN, 0.02, 0.3) : ZOPEN;
+    const a = d.rig === 'bal' ? (((Math.round(+p.bal || 0)) % 360) + 360) % 360 : null;
+    const f = a == null ? 1 : balF(a), X1 = shakeMm(n, z);
+    return { n, z, a, f, w: radOf(n), F: pullAt(n), X1, X: X1 * f, lag: lagOf(n, z) };
+  }
+  // The pure model: the speed, the damping and the weight -> the heavy spot's pull, the shake and the shaft speed.
+  K.model((p) => { const s = rigOf(STEPS[stepOf(p)], p); return { pull: s.F, shake: s.X, omega: s.w }; });
+
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;
+    st.pick = optsOf(d)[k]; st.res = null; T = Infinity; MOT = null;
+  } }));
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished || st.res === 'right') return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = st.pick === d.want ? 'right' : 'wrong';
+    MOT = null; play(ANS);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const replays = (d) => !!demoPlan(d).mot || d.pic === 'next';
+  K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const d = STEPS[at()];
+    if (finished || !replays(d)) return;
+    const plan = demoPlan(d);
+    MOT = plan.mot ? Object.assign({}, plan.mot) : null;
+    if (MOT) {
+      const v0 = MOT.segs[0][2];
+      setV = quant(MOT.id, v0); setQuiet(MOT.id, setV);
+      if (MOT.sweep) { DOTS.clear(); lastSweep = v0; }
+    }
+    play(plan.end);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true; anim.pause(); T = Infinity; settle();
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // ---------- motion: the disc turning, each screen's demonstration, an answer's drawing ----------
+  function demoPlan(d) {
+    if (d.rig === 'pull') return { mot: { id: 'rpm', segs: [[0.6, 3.6, 300, 1450]] }, end: 3.9 };
+    if (d.rig === 'sweep') return { mot: { id: 'rpm', segs: [[0.4, 4.4, 0, 2400]], sweep: true }, end: 4.6 };
+    if (d.rig === 'damp') return { mot: { id: 'zeta', segs: [[0.6, 3.1, 0.05, 0.2]] }, end: 3.4 };
+    if (d.rig === 'bal') return { mot: { id: 'bal', segs: [[0.5, 1.7, 90, 0], [2.2, 4.2, 0, 180]] }, end: 4.4 };
+    if (d.pic === 'next') return { mot: null, end: 1.8 };
+    return { mot: null, end: 0 };
+  }
+  function glideAt(mot, t) {
+    let v = mot.segs[0][2];
+    for (const [t0, t1, a, b] of mot.segs) {
+      if (t >= t1) { v = b; continue; }
+      if (t > t0) v = a + (b - a) * K.ease((t - t0) / (t1 - t0));
+      break;
+    }
+    return v;
+  }
+  // The sweep leaves a dot at every 20 rev/min it passes through.
+  function markRange(a, b) {
+    const lo = K.clamp(Math.min(a, b), 0, 2400), hi = K.clamp(Math.max(a, b), 0, 2400);
+    for (let k = Math.ceil(lo / 20 - 1e-9); k <= Math.floor(hi / 20 + 1e-9); k++) DOTS.add(k);
+    DOTS.add(Math.round(lo / 20)); DOTS.add(Math.round(hi / 20));
+  }
+  const spinning = () => !finished && !!STEPS[at()].rig && !calm();
+  function spinRate() {
+    const d = STEPS[at()];
+    return d.rig === 'long' ? radOf(1450) / SLOW : radOf(rigOf(d, K.params()).n) / SLOW;
+  }
+  function play(end) {
+    if (calm()) { T = Infinity; settle(); return; }
+    T = 0; END = end; anim.play();
+  }
+  // A glide moves its slider, so the readouts follow it.
+  function sync() {
+    if (!MOT) return;
+    const v = glideAt(MOT, T);
+    if (MOT.sweep) { markRange(lastSweep, v); lastSweep = v; }
+    const qv = quant(MOT.id, v);
+    if (!same(qv, setV)) { setV = qv; setQuiet(MOT.id, qv); }
+  }
+  function settle() {
+    if (MOT) {
+      const last = MOT.segs[MOT.segs.length - 1][3];
+      if (MOT.sweep) { markRange(MOT.segs[0][2], last); lastSweep = last; }
+      setV = quant(MOT.id, last); setQuiet(MOT.id, setV);
+    }
+    MOT = null;
+  }
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    dt = Math.min(dt, 0.1);
+    const spin = spinning();
+    if (spin) PH = (PH + spinRate() * dt) % TAU;
+    if (T !== Infinity) {
+      T += dt;
+      if (T >= END) { T = Infinity; settle(); } else sync();
+      K.refresh();
+      return true;
+    }
+    if (spin) render(at(), K.params());
+    return spin;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; settle(); K.refresh(); } });
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter'); void box.offsetWidth; box.classList.add('enter');
+  }
+  function enterStep(i) {
+    lastStep = i; enter('stepbox');
+    anim.pause(); T = Infinity; MOT = null;
+    const d = STEPS[i], q0 = setupOf(i);
+    setAll(q0);
+    DOTS = new Set(); lastSweep = q0.rpm;
+    if (d.show) {
+      const plan = demoPlan(d);
+      if (plan.mot) { MOT = Object.assign({}, plan.mot); setV = quant(MOT.id, MOT.segs[0][2]); }
+      if (calm()) settle();
+      else if (plan.end > 0) { T = 0; END = plan.end; }
+      else MOT = null;
+    }
+    if (!calm() && (T !== Infinity || !!d.rig)) anim.play();
+  }
+
+  // ---------- drawing helpers ----------
+  const svg = el('scene'), art = el('art');
+  let into = null;
+  const add = (n) => (into || art).appendChild(n);
+  const r2 = (v) => Math.round(v * 100) / 100;
+  function sv(tag, a) { const o = {}; Object.keys(a).forEach((k) => { o[k] = typeof a[k] === 'number' ? r2(a[k]) : a[k]; }); return add(K.svg(tag, o)); }
+  const rect = (cls, x, y, w, h, rx) => sv('rect', { class: cls, x, y, width: Math.max(0, w), height: Math.max(0, h), rx: rx || 0 });
+  const line = (cls, x1, y1, x2, y2) => sv('line', { class: cls, x1, y1, x2, y2 });
+  const path = (cls, d) => sv('path', { class: cls, d });
+  const circ = (cls, cx, cy, r) => sv('circle', { class: cls, cx, cy, r });
+  function text(x, y, s, cls, anchor) {
+    const t = sv('text', { class: 'lab' + (cls ? ' ' + cls : ''), x, y, 'text-anchor': anchor || 'middle' });
+    t.textContent = s;
+    return t;
+  }
+  const P = (x, y) => r2(x) + ' ' + r2(y);
+  function arrow(x1, y1, x2, y2, c, hl) {
+    const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+    if (L < 2) return;
+    const ux = dx / L, uy = dy / L, h = Math.min(hl || 9, L * 0.6), w = h * 0.55, bx = x2 - ux * h, by = y2 - uy * h;
+    line('ar ' + c, x1, y1, bx + ux * 0.5, by + uy * 0.5);
+    path('ah ' + c, 'M' + P(x2, y2) + 'L' + P(bx - uy * w, by + ux * w) + 'L' + P(bx + uy * w, by - ux * w) + 'Z');
+  }
+  // A curved arrow round (cx, cy), centred on direction mid (degrees, clockwise from the right),
+  // sweeping sw degrees; dir +1 turns clockwise, −1 anticlockwise.
+  function arcArrow(cx, cy, R, mid, sw, dir, c) {
+    const hl = 8, hw = 4.5, DG = DEG;
+    const a0 = (mid - dir * sw / 2) * DG, a1 = (mid + dir * sw / 2) * DG, aB = a1 - dir * hl / R;
+    const q = (a, rr) => [cx + rr * Math.cos(a), cy + rr * Math.sin(a)];
+    const p0 = q(a0, R), pB = q(aB, R), tip = q(a1, R), b1 = q(aB, R + hw), b2 = q(aB, R - hw);
+    const big = Math.abs(aB - a0) > Math.PI ? 1 : 0;
+    path('arc ' + c, 'M' + P(p0[0], p0[1]) + 'A' + r2(R) + ' ' + r2(R) + ' 0 ' + big + ' ' + (dir > 0 ? 1 : 0) + ' ' + P(pB[0], pB[1]));
+    path('ah ' + c, 'M' + P(tip[0], tip[1]) + 'L' + P(b1[0], b1[1]) + 'L' + P(b2[0], b2[1]) + 'Z');
+  }
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g;
+    try { draw(); } finally { into = keep; }
+  }
+  // Arrivals: a part due at t0 seconds (noted for the timing check).
+  function arr(t0, d) { d = d == null ? 0.5 : d; if (t0 + d > latest) latest = t0 + d; return K.arrive(T, t0, d); }
+  const vis = (t) => (t == null ? 1 : arr(t));
+  // A coil spring standing from y1 down to y2.
+  function spring(x, y1, y2, w, n) {
+    const h = (y2 - y1 - 8) / n;
+    let d = 'M' + P(x, y1) + 'L' + P(x, y1 + 4);
+    for (let k = 0; k < n; k++) d += 'L' + P(x + (k % 2 ? -w : w), y1 + 4 + h * (k + 0.5));
+    d += 'L' + P(x, y2 - 4) + 'L' + P(x, y2);
+    path('spring', d);
+  }
+  function ground(x1, x2, y) {
+    rect('base', x1, y, x2 - x1, 8, 1);
+    for (let x = x1 + 8; x <= x2; x += 12) line('hatch', x, y + 8, x - 6, y + 15);
+  }
+  function keyRows(rows, x0, y0) {
+    rows.forEach((r, k) => {
+      const y = y0 + 18 * k;
+      if (r.kind === 'dot') circ(r.c === 't' ? 'wt' : 'spot', x0 + 7, y - 4, 5);
+      else arrow(x0, y - 4, x0 + 16, y - 4, r.c, 6);
+      text(x0 + 22, y, r.text, 'sm', 'start');
+    });
+  }
+
+  // ---------- the graph of shake against speed ----------
+  const GX0 = 44, GX1 = 326, GMAX = 1.6;
+  function graph(y0, o) {
+    const yT = y0 + 28, yB = y0 + 136;
+    const G = { yT, yB, h: yB + 40, gx: (n) => GX0 + n * (GX1 - GX0) / 2400, gy: (X) => yB - Math.min(Math.max(X, 0), GMAX) * (yB - yT) / GMAX };
+    text(8, y0 + 14, 'shake (mm)', 'sm m', 'start');
+    (o.key || []).forEach((k) => keyItem(y0, k));
+    line('axis', GX0, yT - 6, GX0, yB); line('axis', GX0, yB, GX1, yB);
+    [0, 0.5, 1, 1.5].forEach((v) => { line('tick', GX0 - 4, G.gy(v), GX0, G.gy(v)); text(GX0 - 7, G.gy(v) + 4, v ? fx(v, 1) : '0', 'sm', 'end'); });
+    [0, 600, 1200, 1800, 2400].forEach((n, k) => { line('tick', G.gx(n), yB, G.gx(n), yB + 4); text(G.gx(n), yB + 17, fx(n, 0), 'sm', k === 4 ? 'end' : 'middle'); });
+    text(185, yB + 33, 'shaft speed (rev/min)', 'sm m', 'middle');
+    const xc = G.gx(NCRIT);
+    path('cl', 'M' + P(xc, yT) + 'V' + r2(yB));
+    text(xc + 8, yT + 12, 'critical speed', 'sm', 'start'); text(xc + 8, yT + 26, N.crit + ' rev/min', 'sm', 'start');
+    return G;
+  }
+  function keyItem(y0, k) { line(k.cls, k.x, y0 + 10, k.x + 16, y0 + 10); text(k.x + 21, y0 + 14, k.text, 'sm', 'start'); }
+  function curve(G, f, cls) {
+    let dd = '';
+    for (let n = 0; n <= 2400; n += 5) dd += (n ? 'L' : 'M') + P(G.gx(n), G.gy(f(n)));
+    path(cls, dd);
+  }
+
+  // ---------- the main picture: the disc on its springy mounts, and the graph ----------
+  const CX = 190, CY = 104, RD = 54, RSD = 46, SF = 0.4, BEAMY = 172;
+  const PXM = RSD / RSP, SHK = BIG * PXM / 1000;   // drawing units per metre (the spot sits 0.15 m out), and per mm of shake drawn 40 times bigger
+  const arrowLen = (F) => (F < 0.25 ? 0 : Math.max(F * SF, 10));   // the same scale on every rotor screen; tiny pulls keep a visible head
+  function rotorScreen(d, p) {
+    const s = rigOf(d, p), bal = d.rig === 'bal';
+    const aR = bal ? s.a * DEG : 0, A1 = s.X1 * SHK;
+    // the bearing's height now: the steady swing, lagging the turning pull
+    const u = A1 * Math.cos(PH - s.lag) + (bal ? A1 * Math.cos(PH + aR - s.lag) : 0);
+    const dy = -u, cy = CY + dy;
+    const rows = [{ kind: 'dot', c: 'nv', text: 'heavy spot 20 g' }, { kind: 'arrow', c: 'nv', text: 'its pull' }];
+    if (bal) rows.push({ kind: 'dot', c: 't', text: 'balance weight' }, { kind: 'arrow', c: 't', text: 'its pull' }, { kind: 'arrow', c: 'k', text: 'total pull' });
+    keyRows(rows, 8, 18);
+    text(8, 128, 'disc and shaft', 'sm', 'start'); text(8, 143, '50 kg', 'sm', 'start');
+    // the mounts, the bearing's foot and the pedestal: all but the ground move with the shake
+    ground(132, 248, 214);
+    spring(146, BEAMY + 10 + dy, 214, 8, 6); spring(234, BEAMY + 10 + dy, 214, 8, 6);
+    text(124, 200, 'mounts', 'sm', 'end'); text(124, 215, '500 kN/m', 'sm', 'end');
+    rect('beam', 128, BEAMY + dy, 124, 10, 2);
+    path('ped', 'M' + P(CX - 12, cy) + 'L' + P(CX + 12, cy) + 'L' + P(CX + 30, BEAMY + dy) + 'L' + P(CX - 30, BEAMY + dy) + 'Z');
+    // the shake: how far the bearing travels up and down
+    const A = s.X * SHK;
+    path('shk', 'M' + P(258, BEAMY - A) + 'H266M' + P(262, BEAMY - A) + 'V' + r2(BEAMY + A) + 'M' + P(258, BEAMY + A) + 'H266');
+    text(272, BEAMY + 4, 'shake', 'sm n', 'start');
+    // the disc, its heavy spot (drawn far bigger than a real one) and the pulls on its shaft
+    circ('disc', CX, cy, RD);
+    const to = (ang, L) => [CX + L * Math.sin(ang), cy - L * Math.cos(ang)];
+    const sp = to(PH, RSD);
+    circ('spot', sp[0], sp[1], 6);
+    if (bal) { const wq = to(PH + aR, RSD); circ('wt', wq[0], wq[1], 6); }
+    circ('hub', CX, cy, 7);
+    const L = arrowLen(s.F);
+    if (bal) {
+      const vx = Math.sin(PH) + Math.sin(PH + aR), vy = Math.cos(PH) + Math.cos(PH + aR), Lt = s.F * s.f * SF;
+      if (Lt >= 1) { const q = to(Math.atan2(vx, vy), Math.max(Lt, 10)); arrow(CX, cy, q[0], q[1], 'k', 10); }
+      if (L) { const q = to(PH + aR, L); arrow(CX, cy, q[0], q[1], 't', 9); }
+    }
+    if (L) { const q = to(PH, L); arrow(CX, cy, q[0], q[1], 'nv', 9); }
+    let h = 236;
+    if (d.rig !== 'pull') {
+      const G = graph(238, {
+        key: d.rig === 'damp' ? [{ cls: 'cvref', text: 'damping 0.05', x: 216 }] : bal ? [{ cls: 'cvref', text: 'no balance weight', x: 196 }] : [],
+      });
+      if (d.rig === 'sweep') {
+        let dd = '';
+        DOTS.forEach((k) => { const x = G.gx(k * 20), y = G.gy(shakeMm(k * 20, ZOPEN)); dd += 'M' + P(x - 1.7, y) + 'a1.7 1.7 0 1 0 3.4 0a1.7 1.7 0 1 0 -3.4 0'; });
+        if (dd) path('dots', dd);
+      } else {
+        curve(G, (n) => shakeMm(n, ZOPEN), 'cvref');
+        curve(G, (n) => shakeMm(n, s.z) * s.f, 'cv');
+      }
+      circ('now', G.gx(s.n), G.gy(s.X), 5);
+      h = G.h;
+    }
+    const said = 'A disc on a shaft, seen end on, turns at ' + fx(s.n, 0) + ' revolutions a minute on springy mounts. An arrow from its axis shows the heavy spot\'s pull' +
+      (bal ? ', a second the balance weight\'s pull and a third their total.' : '.') +
+      (d.rig === 'sweep' ? ' Below, a graph of shake against speed fills in dot by dot as the speed sweeps.' : d.rig !== 'pull' ? ' Below, a graph of shake against speed.' : '');
+    return { h, said };
+  }
+
+  // ---------- the long rotor, side on, with its two ends seen end on ----------
+  function longScreen(d, p) {
+    const ends = !!p.ends, cl = 150, PIV = 170, tilt = ends ? 0 : ROCK * Math.cos(PH);
+    [[96, PH, 'left end'], [244, PH + Math.PI, 'right end']].forEach(([x, th, name]) => {
+      circ('disc', x, 46, 22);
+      circ('spot', x + 15 * Math.sin(th), 46 - 15 * Math.cos(th), 4.5);
+      if (ends) circ('wt', x - 15 * Math.sin(th), 46 + 15 * Math.cos(th), 4.5);
+      circ('hub', x, 46, 3.5);
+      text(x, 84, name, 'sm', 'middle');
+    });
+    text(170, 50, 'end on', 'sm m', 'middle');
+    const t = tilt * DEG;
+    const rot = (x, y) => [PIV + (x - PIV) * Math.cos(t) - (y - cl) * Math.sin(t), cl + (x - PIV) * Math.sin(t) + (y - cl) * Math.cos(t)];
+    [40, 300].forEach((x) => { const b = rot(x, cl + 13); spring(b[0], b[1], 214, 7, 6); ground(x - 22, x + 22, 214); });
+    const g = add(K.svg('g', { transform: 'rotate(' + r2(tilt) + ' ' + PIV + ' ' + cl + ')' }));
+    const keep = into; into = g;
+    try {
+      rect('shaftR', 22, cl - 5, 296, 10, 2);
+      rect('box', 28, cl - 13, 24, 26, 3); rect('box', 288, cl - 13, 24, 26, 3);
+      rect('disc', 84, cl - 30, 172, 60, 6);
+      // the up-and-down part of each pull, at its spot's end
+      const Lh = 34, c = Math.cos(PH);
+      const vArrow = (x, v, cls) => { if (Math.abs(v) >= 3) arrow(x, cl, x, cl + v, cls, 8); };
+      vArrow(106, -Lh * c, 'nv'); vArrow(234, Lh * c, 'nv');
+      if (ends) { vArrow(118, Lh * c, 't'); vArrow(222, -Lh * c, 't'); }
+    } finally { into = keep; }
+    keyRows([{ kind: 'dot', c: 'nv', text: 'heavy spot 20 g' }, { kind: 'arrow', c: 'nv', text: 'its pull' }], 8, 244);
+    if (ends) keyRows([{ kind: 'dot', c: 't', text: 'balance weight' }, { kind: 'arrow', c: 't', text: 'its pull' }], 186, 244);
+    return { h: 270, said: 'A long rotor seen side on, on a springy mount at each end, with a heavy spot near each end on opposite sides' +
+      (ends ? ' and a balance weight opposite each spot. It turns without rocking.' : '. It rocks end over end as it turns.') };
+  }
+
+  // ---------- what builds on this ----------
+  function nextShow() {
+    part(vis(0.3), 4, () => {
+      path('sup', 'M50 66L42 80H58Z'); path('sup', 'M290 66L282 80H298Z');
+      path('beamS', 'M40 60Q170 86 300 60');
+      arrow(170, 14, 170, 62, 'nv', 9);
+      text(180, 32, 'load', 'sm n', 'start');
+      text(170, 112, 'a beam bends under a load', 'sm', 'middle');
+    });
+    part(vis(1.0), 4, () => {
+      rect('shaftR', 60, 152, 220, 26, 3);
+      arcArrow(60, 165, 24, 180, 150, 1, 'nv'); arcArrow(280, 165, 24, 0, 150, -1, 'nv');
+      text(60, 130, 'torque', 'sm n', 'middle'); text(280, 130, 'torque', 'sm n', 'middle');
+      text(170, 214, 'a shaft twists as it carries torque', 'sm', 'middle');
+    });
+    return { h: 222, said: 'Two sketches: a beam on two supports bending under a load, and a shaft with a torque at each end.' };
+  }
+
+  // ---------- the puzzles' pictures ----------
+  const ansOf = (st) => ({ right: st.res === 'right', wrong: st.res === 'wrong' && st.pick != null, pick: st.pick, v: (t) => arr(t, 0.5) });
+  const shown = (a) => a.right || a.wrong;
+  // The chosen answer's working once checked: red when wrong.
+  function working(y0, d, st, a) {
+    const q = d.qw || [], nMax = q.length + Math.max.apply(null, d.opts.map((o) => [].concat(d.ow[o]).length));
+    q.forEach((s, k) => { text(8, y0 + 18 + 24 * k, s, 'wk', 'start'); REC.wk.push({ s, ans: false, bad: false }); });
+    if (a.right || a.wrong) {
+      [].concat(d.ow[a.pick]).forEach((s, k) => part(a.v(0.15 + 0.3 * k), 4, () => {
+        text(8, y0 + 18 + 24 * (q.length + k), s, 'wk ' + (a.wrong ? 'w' : 'n'), 'start');
+        REC.wk.push({ s, ans: true, bad: a.wrong });
+      }));
+    }
+    return y0 + 18 + 24 * (nMax - 1) + 12;
+  }
+  const PICS = {
+    springQ(d, st) {
+      const a = ansOf(st);
+      line('axis', 110, 16, 230, 16);
+      for (let x = 118; x <= 230; x += 12) line('hatch', x, 16, x - 6, 9);
+      spring(170, 16, 96, 9, 8);
+      rect('box', 140, 96, 60, 40, 5); text(170, 121, 'mass', 'sm', 'middle');
+      arrow(170, 168, 170, 146, 'nv', 8); arrow(170, 168, 170, 190, 'nv', 8);
+      text(182, 164, 'a push that', 'sm n', 'start'); text(182, 179, 'comes and goes', 'sm n', 'start');
+      text(156, 46, 'swings on its own', 'sm', 'end'); text(156, 62, 'at 2 Hz', 'sm', 'end');
+      if (shown(a)) part(a.v(0.1), 0, () => {
+        // the steady swing, worked out from the driven swing's rule at the opening damping factor
+        const A = 3 * swingRel(d.hz[a.pick] / 2), lc = a.right ? 'sm n' : 'sm w';
+        path(a.right ? 'shk' : 'shkbad', 'M' + P(210, 116 - A) + 'H218M' + P(214, 116 - A) + 'V' + r2(116 + A) + 'M' + P(210, 116 + A) + 'H218');
+        text(226, 112, a.pick + ' push', lc, 'start'); text(226, 127, 'steady swing', lc, 'start');
+      });
+      return { h: working(198, d, st, a), said: 'A mass hangs on a spring that swings on its own at 2 hertz, driven by a push that comes and goes.' };
+    },
+    pullQ(d, st) {
+      const a = ansOf(st), QS = 0.2, ang = 45 * DEG;
+      const discQ = (cx, s) => { circ('disc', cx, 96, 38); circ('spot', cx + 30 * Math.sin(ang), 96 - 30 * Math.cos(ang), 5); circ('hub', cx, 96, 5); text(cx, 34, s, 'sm t', 'middle'); };
+      discQ(86, '1450 rev/min'); discQ(254, '2900 rev/min');
+      const L1 = Math.max(pullAt(1450) * QS, 10);
+      arrow(86, 96, 86 + L1 * Math.sin(ang), 96 - L1 * Math.cos(ang), 'nv', 8);
+      text(86, 156, N.p1450 + ' N', 'sm n', 'middle');
+      if (!shown(a)) text(254, 156, '? N', 'sm m', 'middle');
+      else part(a.v(0.1), 0, () => {
+        const L = Math.max(d.pv[a.pick] * QS, 10);
+        arrow(254, 96, 254 + L * Math.sin(ang), 96 - L * Math.cos(ang), a.right ? 'nv' : 'wr', 8);
+        text(254, 156, a.pick, a.right ? 'sm n' : 'sm w', 'middle');
+      });
+      return { h: working(166, d, st, a), said: 'Two discs with the same heavy spot: one at 1450 revolutions a minute pulling with ' + N.p1450 + ' newtons, and one at 2900, whose pull is asked.' };
+    },
+    pumpQ(d, st) {
+      const a = ansOf(st), sx = (n) => 30 + n * 290 / 3000, ay = 118;
+      text(8, 24, 'pump set', 'sm b', 'start'); text(8, 42, 'its mounts swing on their own at 20 Hz', 'sm', 'start');
+      text(30, 66, 'runs up to 2900 rev/min', 'sm t', 'start'); arrow(30, 76, sx(2900), 76, 't', 9);
+      line('axis', 30, ay, 320, ay);
+      [0, 1000, 2000, 3000].forEach((n, k) => { line('tick', sx(n), ay, sx(n), ay + 5); text(sx(n), ay + 18, fx(n, 0), 'sm', k === 3 ? 'end' : 'middle'); });
+      text(175, ay + 36, 'speed (rev/min)', 'sm m', 'middle');
+      if (shown(a)) part(a.v(0.1), 0, () => {
+        const x = sx(d.nv[a.pick]), an = x < 70 ? 'start' : x > 270 ? 'end' : 'middle', lx = an === 'start' ? x - 6 : an === 'end' ? x + 6 : x;
+        circ(a.right ? 'ring' : 'ringbad', x, ay, 7);
+        text(lx, ay - 14, a.pick, a.right ? 'sm n' : 'sm w', an);
+      });
+      return { h: working(ay + 44, d, st, a), said: 'A pump set whose mounts swing on their own at 20 hertz runs up to 2900 revolutions a minute, above a speed scale.' };
+    },
+    dampQ(d, st) {
+      const a = ansOf(st);
+      const G = graph(0, { key: [{ cls: 'cvref', text: 'damping 0.05', x: 104 }] });
+      curve(G, (n) => shakeMm(n, ZOPEN), 'cvref');
+      text(G.gx(NCRIT) + 8, G.gy(0.6) - 6, N.pk05 + ' mm', 'sm', 'start');
+      if (shown(a)) part(a.v(0.1), 0, () => {
+        if (a.right) { curve(G, (n) => shakeMm(n, 0.1), 'cv'); keyItem(0, { cls: 'cv', text: 'damping 0.1', x: 220 }); }
+        circ(a.right ? 'ring' : 'ringbad', G.gx(NCRIT), G.gy(d.sv[a.pick]), 6);
+      });
+      return { h: working(G.h, d, st, a), said: 'A graph of shake against speed for damping 0.05, peaking at ' + N.pk05 + ' millimetres at the critical speed.' };
+    },
+    massQ(d, st) {
+      const a = ansOf(st), cx = 150, cy = 100;
+      circ('disc', cx, cy, 70);
+      line('dim', cx, cy - 6, cx, cy - 24); line('dim', cx, cy + 6, cx, cy + 39);
+      circ('spot', cx, cy - 30, 6); circ('wt', cx, cy + 45, 6); circ('hub', cx, cy, 5);
+      text(cx + 10, cy - 26, '30 g', 'sm n', 'start'); text(cx - 8, cy - 10, '0.10 m', 'sm', 'end'); text(cx - 8, cy + 26, '0.15 m', 'sm', 'end');
+      if (!shown(a)) text(cx + 10, cy + 49, '? g', 'sm m', 'start');
+      else part(a.v(0.1), 0, () => {
+        const v = d.mv[a.pick];
+        text(cx + 10, cy + 49, a.pick, a.right ? 'sm t' : 'sm w', 'start');
+        text(262, 58, 'pulls', 'sm b', 'middle');
+        arrow(262, 100, 262, 70, 'nv', 9); text(272, 88, 'spot', 'sm n', 'start');
+        arrow(262, 100, 262, 100 + 10 * v * 0.15, a.right ? 't' : 'wr', 9); text(272, 124, 'weight', a.right ? 'sm t' : 'sm w', 'start');
+      });
+      return { h: working(186, d, st, a), said: 'A disc with a 30 gram heavy spot 0.10 metres from its axis and a balance weight opposite, 0.15 metres out, whose mass is asked.' };
+    },
+    motorQ(d, st) {
+      const a = ansOf(st), sx = (n) => 30 + n * 280 / 1500, ay = 118;
+      text(30, 30, 'runs up to 1450 rev/min', 'sm t', 'start'); arrow(30, 42, sx(1450), 42, 't', 9);
+      rect('band', sx(910), 82, sx(990) - sx(910), ay - 82, 0);
+      text(sx(910) - 4, 74, 'shakes hard', 'sm', 'end'); text(sx(1450), 74, 'runs smoothly', 'sm', 'end');
+      line('axis', 30, ay, 320, ay);
+      [0, 500, 1000, 1500].forEach((n, k) => { line('tick', sx(n), ay, sx(n), ay + 5); text(sx(n), ay + 18, fx(n, 0), 'sm', k === 3 ? 'end' : 'middle'); });
+      text(170, ay + 36, 'speed (rev/min)', 'sm m', 'middle');
+      if (shown(a)) part(a.v(0.1), 0, () => {
+        if (a.right) circ('ring', sx(950), 100, 17);
+        else circ('ringbad', a.pick === MO[1] ? sx(1450) : sx(950), 100, 17);
+      });
+      return { h: working(ay + 44, d, st, a), said: 'A speed scale from 0 to 1500 revolutions a minute: the motor runs up to 1450, shakes hard near 950 and runs smoothly at 1450.' };
+    },
+    radQ(d, st) {
+      const a = ansOf(st), cx = 100, cy = 100, ang = -45 * DEG;
+      circ('disc', cx, cy, 52);
+      circ('spot', cx + 40 * Math.sin(ang), cy - 40 * Math.cos(ang), 5); circ('hub', cx, cy, 5);
+      text(172, 40, '10 g heavy spot', 'sm', 'start'); text(172, 58, '0.2 m from the axis', 'sm', 'start'); text(172, 76, '3000 rev/min', 'sm t', 'start');
+      if (!shown(a)) text(cx, 176, '? N', 'sm m', 'middle');
+      else part(a.v(0.1), 0, () => {
+        const v = d.pv[a.pick], L = Math.min(Math.max(v * 0.2, 10), 112);
+        arrow(cx, cy, cx + L * Math.sin(ang), cy - L * Math.cos(ang), a.right ? 'nv' : 'wr', 9);
+        text(cx, 176, a.pick, a.right ? 'sm n' : 'sm w', 'middle');
+        if (v * 0.2 > 112) text(36, 14, 'off the scale', 'sm w', 'start');
+      });
+      return { h: working(188, d, st, a), said: 'A disc with a 10 gram heavy spot 0.2 metres from its axis, turning at 3000 revolutions a minute; the spot\'s pull is asked.' };
+    },
+    stiffQ(d, st) {
+      const a = ansOf(st), sx = (n) => 30 + n * 280 / 4000, ay = 126;
+      text(8, 24, '50 kg rotor', 'sm b', 'start');
+      text(8, 42, 'on 500 kN/m mounts: critical speed ' + N.crit + ' rev/min', 'sm', 'start');
+      text(8, 60, 'on 2000 kN/m mounts: ? rev/min', 'sm', 'start');
+      line('axis', 30, ay, 320, ay);
+      [0, 1000, 2000, 3000, 4000].forEach((n, k) => { line('tick', sx(n), ay, sx(n), ay + 5); text(sx(n), ay + 18, fx(n, 0), 'sm', k === 4 ? 'end' : 'middle'); });
+      text(170, ay + 36, 'speed (rev/min)', 'sm m', 'middle');
+      circ('ringm', sx(NCRIT), ay, 6); text(sx(NCRIT), ay - 14, '500 kN/m', 'sm m', 'middle');
+      if (shown(a)) part(a.v(0.1), 0, () => {
+        const x = sx(d.nv[a.pick]);
+        circ(a.right ? 'ring' : 'ringbad', x, ay, 7);
+        text(K.clamp(x, 40, 300), ay - 34, '2000 kN/m', a.right ? 'sm n' : 'sm w', 'middle');
+      });
+      return { h: working(ay + 44, d, st, a), said: 'A 50 kilogram rotor: on 500 kilonewton per metre mounts its critical speed is ' + N.crit + ' revolutions a minute; on 2000 it is asked.' };
+    },
+  };
+
+  // ---------- one screen's picture ----------
+  function render(i, p) {
+    const d = STEPS[i], st = S[i];
+    art.textContent = ''; into = null;
+    REC = { wk: [] };
+    const out = d.rig === 'long' ? longScreen(d, p) : d.rig ? rotorScreen(d, p) : d.pic === 'next' ? nextShow() : PICS[d.pic](d, st);
+    svg.setAttribute('viewBox', '0 0 340 ' + Math.ceil(out.h));
+    svg.setAttribute('aria-label', out.said);
+    return REC;
+  }
+
+  // ---------- the words under the picture ----------
+  function sayFor(d, p) {
+    if (!d.rig || T !== Infinity) return '';
+    if (d.rig === 'long') return p.ends ? 'Each end\'s weight cancels its own spot\'s pull. Nothing is left to rock the shaft.'
+      : 'The two pulls cancel in total. But they act at opposite ends, so they rock the shaft end over end.';
+    const s = rigOf(d, p), o = rigOf(d, Object.assign({}, setupOf(STEPS.indexOf(d)), END_OF[d.rig]));
+    // the line under the picture waits for a move: at the demonstration's end the words above say it all
+    if (['n', 'z', 'a'].every((k) => o[k] === s[k])) return '';
+    const X = fx(s.X, 3);
+    if (d.rig === 'pull') {
+      if (s.n === 0) return 'At rest the heavy spot does not pull on the shaft at all.';
+      if (s.F < 0.5) return 'At ' + fx(s.n, 0) + ' rev/min the heavy spot\'s pull is less than half a newton.';
+      return 'At ' + fx(s.n, 0) + ' rev/min the heavy spot pulls the shaft outwards with ' + fx(s.F, 0) + ' N. The pull turns with the spot, pushing the mounts up, then down, once a turn.';
+    }
+    if (d.rig === 'sweep') {
+      if (s.n === 0) return 'At rest nothing turns, so nothing shakes.';
+      if (s.n < 880) return 'Below the critical speed the pull is small, and the stiff mounts give only a little. The shake is ' + X + ' mm.';
+      if (s.n <= 1030) return 'Near ' + N.crit + ' rev/min each push arrives in step with the swing and adds to it. The shake is ' + X + ' mm.';
+      return 'Above the critical speed each push reverses before the rotor can follow. So the shake falls back, to ' + X + ' mm.';
+    }
+    if (d.rig === 'damp') {
+      const z = fx(s.z, 2);
+      return 'With a damping factor of ' + z + ', the shake at the critical speed is ' + N.off + ' ÷ (2 × ' + z + ') = ' + fx(0.06 / (2 * s.z), 3) + ' mm. At ' + fx(s.n, 0) + ' rev/min it is ' + X + ' mm.';
+    }
+    const b = Math.min(s.a, 360 - s.a);
+    if (b === 0) return 'Beside the spot, the two pulls add to twice one pull. So the shake doubles at every speed.';
+    if (b === 180) return 'Opposite the spot, the two pulls cancel at every speed. Nothing is left to shake the mounts.';
+    return 'The weight sits ' + fx(b, 0) + '° round from the spot. Together the two pulls make ' + fx(s.f, 2) + ' times one pull. So the shake is ' + fx(s.f, 2) + ' times its size without the weight.';
+  }
+  function layout(i, d, st, p) {
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('lead').hidden = finished || i !== I_PULL;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task say' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    el('ctlS').hidden = finished || !(d.rig === 'pull' || d.rig === 'sweep' || d.rig === 'damp');
+    el('ctlD').hidden = finished || d.rig !== 'damp';
+    el('ctlB').hidden = finished || d.rig !== 'bal';
+    el('live').hidden = finished || d.rig !== 'long';
+    el('outs').hidden = !ROT(d);
+    const sayTxt = sayFor(d, p);
+    el('say').hidden = !sayTxt;
+    el('say').textContent = sayTxt;
+    const opts = d.show ? [] : optsOf(d);
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 12));
+    pickBtns.forEach((bt, k) => {
+      bt.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      bt.setLabel(opts[k]);
+      bt.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    el('acts').hidden = !!d.show;
+    el('replay').hidden = finished || !replays(d) || REDUCE;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb say' + (right ? ' right' : '');
+    fb.textContent = d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? (d.hints[st.pick] || '') : st.res === 'empty' ? 'Pick an answer first.' : '';
+    const why = el('why');
+    why.hidden = !!d.show || !st.why;
+    if (!d.show) write(why, d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  }
+
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (i !== lastStep) { enterStep(i); K.refresh(); return; }
+    // a demonstration that was stopped (the page hidden, a test) shows finished
+    if (T !== Infinity && !anim.playing()) { T = Infinity; settle(); K.refresh(); return; }
+    // a slider moved by hand during a glide: the hand wins
+    if (MOT && !same(p[MOT.id], setV)) { T = Infinity; MOT = null; }
+    // sweeping the speed by hand leaves its dots too
+    if (d.rig === 'sweep' && !MOT) { markRange(lastSweep, +p.rpm); lastSweep = +p.rpm; }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    render(i, p);
+    layout(i, d, st, p);
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const answer = (i, o) => ({ pick: o, res: o === STEPS[i].want ? 'right' : 'wrong', why: false });
+  const near = (a, b, tol) => K.near(a, b, tol);
+  const words = (s) => String(s).split(/\s+/).filter((w) => /[A-Za-z0-9]/.test(w)).length;
+  // A screen drawn in a given state, finished; returns what it drew.
+  function drawn(i, st, over) {
+    const keep = { S: S[i], T, MOT };
+    S[i] = st; T = Infinity; MOT = null;
+    try { return render(i, Object.assign({ step: i }, setupOf(i), over || {})); }
+    finally { S[i] = keep.S; T = keep.T; MOT = keep.MOT; render(at(), K.params()); }
+  }
+  const peakOf = (z) => { let b = 0, bn = 0; for (let n = 0; n <= 2400; n += 5) { const x = K.at({ step: I_DA, rpm: n, zeta: z }).shake; if (x > b) { b = x; bn = n; } } return [b, bn]; };
+
+  K.check('Unbalance forces are proportional to the rotating speed of the rotor squared: at every speed, twice the speed gives four times the pull', () =>
+    [5, 100, 300, 600, 955, 1200].every((n) => near(K.at({ step: I_PULL, rpm: 2 * n }).pull / K.at({ step: I_PULL, rpm: n }).pull, 4, 1e-9)), { source: SRC.sq });
+  K.check('The pull is the mass × the radius × the angular speed squared, in rad/s: 31.4 rad/s and 3 N at 300 rev/min, 151.8 rad/s and 69 N at 1450, and 277 N at 2900, where doubling once would give 138', () => {
+    const a = K.at({ step: I_PULL, rpm: 300 }), b = K.at({ step: I_PULL, rpm: 1450 });
+    return fx(a.omega, 1) === '31.4' && fx(a.pull, 0) === '3' && fx(b.omega, 1) === '151.8' && fx(b.pull, 0) === '69' && N.p2900 === '277' && N.p2x === '138' &&
+      near(b.pull, 0.02 * 0.15 * b.omega * b.omega, 1e-9);
+  });
+  K.check('Dynamic resonance: the rotor speed at which the shake peaks is the critical speed, where the shaft turns as often as the mounts swing on their own', () => {
+    let best = 0, bx = -1;
+    for (let n = 0; n <= 2400; n += 5) { const x = K.at({ step: I_SW, rpm: n }).shake; if (x > bx) { bx = x; best = n; } }
+    return Math.abs(best - NCRIT) < 5 && near(radOf(NCRIT), Math.sqrt(KM / M), 1e-9);
+  }, { source: SRC.crit });
+  K.check('The mounts swing on their own at √(500,000 ÷ 50) = 100 rad/s, 15.9 times a second, so the critical speed is 955 rev/min, where the shake is 0.06 mm ÷ (2 × 0.05) = 0.6 mm', () =>
+    near(WN, 100, 1e-12) && N.fn === '15.9' && N.crit === '955' && near(shakeMm(NCRIT, ZOPEN), 0.6, 1e-9) && fx(K.at({ step: I_SW, rpm: 955 }).shake, 1) === '0.6' && N.pk05 === '0.6');
+  K.check('At damping 0.05 the shake is 0.007 mm at 300 rev/min, 0.11 mm at 1450 and 0.07 mm at 2400, and far above the critical speed it settles towards the 0.06 mm offset of the centre of mass', () =>
+    N.s300 === '0.007' && N.s1450 === '0.11' && N.s2400 === '0.07' && N.off === '0.06' && near(shakeMm(1e6, ZOPEN), 0.06, 1e-5) && shakeMm(2400, ZOPEN) > 0.06);
+  K.check('The greatest response is for the least amount of damping: across the damping slider, less damping always gives a higher peak', () => {
+    const pk = (z) => { let b = 0; for (let n = 850; n <= 1150; n += 5) b = Math.max(b, K.at({ step: I_DA, rpm: n, zeta: z }).shake); return b; };
+    const zs = [0.02, 0.05, 0.1, 0.2, 0.3];
+    return zs.every((z, k) => k === 0 || pk(z) < pk(zs[k - 1]));
+  }, { source: SRC.res });
+  K.check('More damping gives a lower, wider peak: 1.5 mm at 0.02, 0.6 mm at 0.05, and 0.15 mm near 995 rev/min at 0.2, while at 300 and 2400 rev/min the shake hardly changes', () => {
+    const p02 = peakOf(0.02), p05 = peakOf(0.05), p20 = peakOf(0.2);
+    const lo = (z) => K.at({ step: I_DA, rpm: 300, zeta: z }).shake, hi = (z) => K.at({ step: I_DA, rpm: 2400, zeta: z }).shake;
+    return fx(p02[0], 1) === '1.5' && fx(p05[0], 1) === '0.6' && fx(p20[0], 2) === '0.15' && p20[1] === 995 && Math.abs(lo(0.2) / lo(0.05) - 1) < 0.02 && Math.abs(hi(0.2) / hi(0.05) - 1) < 0.03;
+  });
+  K.check('Resonance occurs when the driving frequency equals the natural frequency: of the three pushes on the mass on a spring, the one at its own frequency swings it most', () =>
+    swingRel(2 / 2) > swingRel(0.5 / 2) && swingRel(2 / 2) > swingRel(8 / 2) && STEPS[I_Q1].want === '2 Hz', { source: SRC.res });
+  K.check('A balance weight with the same mass × radius cancels the pull at every speed opposite the spot, doubles it beside the spot, and makes it 1.41 times a quarter turn away', () => {
+    const one = K.at({ step: I_BAL, bal: 90 }).shake / balF(90);
+    return [100, 600, 955, 1450, 2400].every((n) => shakeMm(n, ZOPEN) * balF(180) < 1e-12 && near(shakeMm(n, ZOPEN) * balF(0), 2 * shakeMm(n, ZOPEN), 1e-12)) &&
+      K.at({ step: I_BAL, bal: 180 }).shake < 1e-12 && near(K.at({ step: I_BAL, bal: 0 }).shake, 2 * one, 1e-9) && N.q41 === '1.41' &&
+      near(K.at({ step: I_BAL, bal: 270 }).shake, K.at({ step: I_BAL, bal: 90 }).shake, 1e-12) && near(one, shakeMm(1450, ZOPEN), 1e-12);
+  });
+  K.check('A rigid rotor can be balanced at the two end planes: a weight at each end, opposite each spot, leaves no pull at either end, while without them the pulls cancel in total but rock the shaft', () =>
+    [0, 0.4, 1, 2, 3, 4.5].every((t) => { const w = endPulls(t, true), o = endPulls(t, false); return Math.abs(w.L) < 1e-12 && Math.abs(w.R) < 1e-12 && Math.abs(o.L + o.R) < 1e-12; }) &&
+    Math.abs(endPulls(0, false).L - endPulls(0, false).R) > 1, { source: SRC.planes });
+  K.check('Every puzzle answer is worked from its rule: 2 Hz, 277 N, 1200 rev/min, 0.3 mm, 20 g, 197 N and 1910 rev/min, with the wrong picks 138, 2900, 20, 0, 0.6, 30, 45, 18,000, 5, 3820 and 477', () => {
+    const w = (n) => STEPS[iOf('pic', n)].want;
+    return w('springQ') === '2 Hz' && w('pullQ') === '277 N' && w('pumpQ') === '1200 rev/min' && w('dampQ') === '0.3 mm' && w('massQ') === '20 g' && w('radQ') === '197 N' && w('stiffQ') === '1910 rev/min' &&
+      N.p2x === '138' && N.q9x === '45' && N.q12r === '18,000' && N.q12s === '5' && N.q13x === '3820' && N.q13h === '477' && N.q12w === '314.2' && N.w2900 === '303.7' && N.q13w === '200';
+  });
+  K.check('Each puzzle offers three answers and accepts only its right one; every wrong answer has its own hint and its working drawn in red, and nothing is marked before Check', () =>
+    DO.every((i) => {
+      const d = STEPS[i];
+      if (d.opts.length !== 3 || d.opts.indexOf(d.want) < 0) return false;
+      if (drawn(i, blank()).wk.some((x) => x.ans)) return false;
+      if (!drawn(i, answer(i, d.want)).wk.some((x) => x.ans && !x.bad)) return false;
+      return d.opts.filter((o) => o !== d.want).every((o) => !!d.hints[o] && drawn(i, answer(i, o)).wk.some((x) => x.ans && x.bad));
+    }));
+  K.check('Every demonstration ends within 5 s of its screen opening, and every answer is drawn within 2.5 s of Check', () => {
+    const keep = { T, MOT };
+    try {
+      return STEPS.every((d, i) => {
+        if (d.show) {
+          const plan = demoPlan(d);
+          T = Infinity; MOT = null; latest = 0;
+          render(i, Object.assign({ step: i }, setupOf(i)));
+          return plan.end <= 5 && latest <= Math.max(plan.end, 1);
+        }
+        return d.opts.every((o) => {
+          const keepS = S[i];
+          T = Infinity; MOT = null; latest = 0; S[i] = answer(i, o);
+          try { render(i, Object.assign({ step: i }, setupOf(i))); } finally { S[i] = keepS; }
+          return latest <= 2.5 && ANS <= 2.5;
+        });
+      });
+    } finally { T = keep.T; MOT = keep.MOT; render(at(), K.params()); }
+  });
+  K.check('Every screen that shows an idea says it in 90 words or fewer', () => STEPS.every((d) => !d.show || (words(d.text) <= 90 && (!d.read || words(d.read) <= 90))));
+
+  K.ready();
+</script>

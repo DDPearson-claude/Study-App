@@ -1,0 +1,1009 @@
+<!-- kind: mechanism -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 34rem; margin-inline: auto; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .count { margin-top: 10px; }
+  .task { font-size: 1.15rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.06rem; font-weight: 400; line-height: 1.6; }
+  .fig { display: block; width: 100%; max-width: 26rem; margin-inline: auto; touch-action: pan-y; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .live { align-items: center; }
+  .picks .k-btn { flex: 1 1 6rem; min-height: 48px; white-space: nowrap; font-size: 1.05rem; }
+  .picks.long { flex-direction: column; gap: 8px; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; white-space: normal; line-height: 1.35; padding-top: 8px; padding-bottom: 8px; }
+  .picks .k-btn[aria-pressed="true"] { border-color: var(--k-accent2); box-shadow: inset 0 0 0 2px var(--k-accent2); font-weight: 700; }
+  #outs { display: grid; grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr)); gap: 10px; }
+  .fb { font-weight: 700; min-height: 1.5em; }
+  .fb.right { color: var(--k-good); }
+  .why, .done { line-height: 1.6; }
+  .done .row { margin-top: 14px; }
+  .replay { justify-content: center; }
+  .replay .k-btn { flex: 0 0 auto; }
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }
+  /* Gears, pulleys and the belt. */
+  .fig .gear { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.1; stroke-linejoin: round; }
+  .fig .gear2 { fill: var(--k-sunk); stroke: var(--k-ink); stroke-width: 1.1; stroke-linejoin: round; }
+  .fig .mark { fill: var(--k-accent2); }
+  .fig .hub { fill: var(--k-strong); }
+  .fig .pulley { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.4; }
+  .fig .spoke { stroke: var(--k-muted); stroke-width: 2.2; stroke-linecap: round; }
+  .fig .belt { fill: none; stroke: var(--k-strong); stroke-width: 4; stroke-linejoin: round; }
+  .fig .meshdot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 1.5; }
+  .fig .knob { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  /* The power bar. */
+  .fig .band { fill: var(--k-fill1); stroke: var(--k-accent2); stroke-width: 1.3; stroke-linejoin: round; }
+  .fig .bandbad { fill: var(--k-warn); fill-opacity: .22; stroke: var(--k-warn); stroke-width: 1.3; }
+  .fig .heat { fill: var(--k-fill2); stroke: var(--k-amber-line); stroke-width: 1.2; stroke-linejoin: round; }
+  /* Shafts, boxes and couplings. */
+  .fig .box { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.4; }
+  .fig .shaftR { fill: var(--k-sunk); stroke: var(--k-ink); stroke-width: 1.2; }
+  .fig .flange { fill: var(--k-sunk); stroke: var(--k-ink); stroke-width: 1.4; }
+  .fig .drum { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.6; }
+  .fig .rope { stroke: var(--k-ink); stroke-width: 2; }
+  .fig .cl { fill: none; stroke: var(--k-muted); stroke-width: 1.3; stroke-dasharray: 9 3 2 3; }
+  .fig .dim, .fig .brk { fill: none; stroke: var(--k-muted); stroke-width: 1.3; }
+  .fig .axis { stroke: var(--k-strong); stroke-width: 1.4; }
+  .fig .tick { stroke: var(--k-strong); stroke-width: 1.4; }
+  .fig .ring { fill: none; stroke: var(--k-accent2); stroke-width: 2.4; }
+  .fig .ringbad { fill: none; stroke: var(--k-warn); stroke-width: 2.4; }
+  /* Arrows: speed teal, torque and push navy, a mistake red. */
+  .fig .ar { stroke-width: 2.6; }
+  .fig .arc { fill: none; stroke-width: 2.4; stroke-linecap: round; }
+  .fig .ar.nv, .fig .arc.nv { stroke: var(--k-accent2); }
+  .fig .ah.nv { fill: var(--k-accent2); }
+  .fig .ar.t, .fig .arc.t { stroke: var(--k-accent); }
+  .fig .ah.t { fill: var(--k-accent); }
+  .fig .ar.wr, .fig .arc.wr { stroke: var(--k-warn); }
+  .fig .ah.wr { fill: var(--k-warn); }
+  /* Words on the pictures. */
+  .fig .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .fig .lab.sm { font-size: 12px; font-weight: 500; }
+  .fig .lab.b { font-weight: 700; }
+  .fig .lab.m { fill: var(--k-muted); }
+  .fig .lab.n { fill: var(--k-accent2); }
+  .fig .lab.t { fill: var(--k-accent); }
+  .fig .lab.w { fill: var(--k-warn); }
+  .fig .lab.wk { font-size: 13px; font-weight: 600; }
+  .fig .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }
+  .fig .grip:active { cursor: grabbing; }
+  .fig .grip:focus { outline: none; }
+  .fig .grip:focus-visible { stroke: var(--k-accent); stroke-width: 2; }
+</style>
+
+<p class="lead" id="lead">An example 11 kW motor turns at 1450 rev/min. Its small gear drives a bigger gear on a pump's shaft.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task say" id="task"></p>
+    <svg class="fig" id="scene" viewBox="0 0 340 340" width="100%" role="img" aria-label=""><g id="art"></g><g id="ui"><rect id="gP" class="grip" x="0" y="0" width="0" height="0" role="slider" aria-label="Teeth on the motor's pinion" tabindex="-1" style="display:none"></rect><rect id="gW" class="grip" x="0" y="0" width="0" height="0" role="slider" aria-label="Teeth on the pump's wheel" tabindex="-1" style="display:none"></rect></g></svg>
+    <div class="k-controls" id="effbox"></div>
+    <div class="row live" id="live"></div>
+    <div class="row replay" id="replay"></div>
+    <p class="say" id="say"></p>
+    <div class="k-readouts" id="outs"></div>
+    <div class="row picks say" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb say" id="fb" aria-live="polite"></p>
+    <div class="note why say" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+<div id="c-hide" hidden></div>
+
+<p class="caption" id="cap">The motor is an example. The gears turn 50 times slower than real, but the readouts give real speeds.</p>
+
+<script>
+  // ---------- the rules ----------
+  const TAU = 2 * Math.PI, DEG = Math.PI / 180;
+  const P_IN = 11000, N_IN = 1450, MM = 4, SLOW = 50, Z2P = 20, Z2W = 60, PSI = 45 * DEG;
+  const SRC = {
+    ratio: 'https://eng.libretexts.org/Bookshelves/Mechanical_Engineering/Mechanics_Map_(Moore_2nd_Edition)/12:_Rigid_Body_Kinematics/12.04:_Belt-_and_Gear-Driven_Systems',
+    rads: 'https://pages.mtu.edu/~wjendres/ProductRealization1Course/DC_Motor_Calculations.pdf',
+    trade: 'https://uomustansiriyah.edu.iq/media/lectures/5/5_2021_12_11!08_32_40_PM.pdf',
+    align: 'https://www.energy.gov/sites/prod/files/2014/04/f15/importance_motor_shaft_motor_systemts4.pdf',
+  };
+  const radOf = (n) => n * TAU / 60;                 // rev/min -> rad/s
+  const W_IN = radOf(N_IN);                          // the motor: 1450 rev/min is 151.8 rad/s
+  const T_IN = P_IN / W_IN;                          // 11,000 W ÷ 151.8 rad/s = 72.4 N m
+  const ratioOf = (zIn, zOut) => zOut / zIn;         // the driven gear's teeth ÷ the driving gear's
+  // The train: the speed divides by the ratio, the torque multiplies by it and by the efficiency,
+  // and the power out is the power in × the efficiency (each pair losing its own share).
+  function train(zp, zw, eff, pair2) {
+    const ratio = ratioOf(zp, zw) * (pair2 ? ratioOf(Z2P, Z2W) : 1), e = Math.pow(eff, pair2 ? 2 : 1);
+    return { ratio, e, n: N_IN / ratio, T: T_IN * ratio * e, P: P_IN * e / 1000, loss: P_IN * (1 - e) };
+  }
+  const rimV = (zp) => W_IN * zp * MM / 2000;        // m/s at the mesh: the motor's ω × the pinion's radius
+  // A driven gear's angle when its driver is at thA, meshing in direction psi from the driver:
+  // the teeth sit in each other's gaps and their pitch circles roll without slipping.
+  const drivenAt = (thA, zA, zB, psi) => psi + Math.PI + Math.PI / zB - (zA / zB) * (thA - psi);
+
+  // Numbers as the lesson writes them: fixed decimals, commas from 10,000 up.
+  function fx(v, dp) {
+    const k = Math.pow(10, dp), r = Math.round(Math.abs(v) * k + 1e-7) / k;
+    const parts = r.toFixed(dp).split('.');
+    let a = parts[0];
+    if (a.length > 4) a = a.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return (v < 0 && r > 0 ? '−' : '') + a + (parts[1] ? '.' + parts[1] : '');
+  }
+  const nf = (v, dp) => { const s = fx(v, dp == null ? 2 : dp); return s.indexOf('.') < 0 ? s : s.replace(/0+$/, '').replace(/\.$/, ''); };
+  const spdTxt = (n) => fx(n, n < 99.95 ? 1 : 0);    // the pump shaft's speed, as its readout shows it
+
+  // Every number the words show, worked out from the rules.
+  const OPEN = train(20, 100, 0.95, false), COMP = train(20, 100, 0.95, true);
+  const N = {
+    W: fx(W_IN, 1), T: fx(T_IN, 1), v: fx(rimV(20), 1), F: fx(T_IN / 0.04, 0), T100: fx(T_IN * 5, 0),
+    T95: fx(OPEN.T, 0), P95: fx(OPEN.P, 2), L95: fx(OPEN.loss, 0), n5: fx(N_IN / 5, 0),
+    nC: fx(COMP.n, 1), PC: fx(COMP.P, 2), TC: fx(COMP.T, 0),
+    q2: fx(N_IN / 3, 0), q2x: fx(N_IN * 3, 0),
+    q4: fx(20 * 3, 0), q4x: fx(20 / 3, 1),
+    q6: fx(15 * 0.96, 1), q6x: fx(15 * 4, 0),
+    q8: fx(1440 / (4 * 6), 0), q8x: fx(1440 / (4 + 6), 0), q8f: fx(1440 / 4, 0),
+    q10: fx(1450 * 100 / 250, 0), q10x: fx(1450 * 250 / 100, 0),
+    q12n: fx(960 / 4, 0), q12w: fx(radOf(240), 2), q12: fx(4000 / radOf(240), 0), q12mw: fx(radOf(960), 1), q12m: fx(4000 / radOf(960), 1), q12r: fx(4000 / 240, 1),
+  };
+  // A SHOW screen's words for reading, where its last sentence asks for a move.
+  const readAs = (t, end) => t.replace(/ (Drag|Slide|Switch)[^.]*\.$/, '') + ' ' + end;
+
+  // ---------- the lesson: SHOW screens demonstrate, DO screens are puzzles ----------
+  const T1 = `The motor's 20-tooth *pinion* meshes with a 100-tooth *wheel* on the pump's shaft. Each pinion tooth that passes the dot pushes one wheel tooth past. So both gears' teeth move at the same speed there. The pinion turns five times to pass all 100 teeth. So the wheel turns five times slower: 1450 rev/min in, ${N.n5} rev/min out. The *gear ratio* is the driven gear's teeth ÷ the driving gear's teeth. Here that is 100 ÷ 20 = 5. Drag either gear's rim to change its teeth.`;
+  const T3 = `Torque goes the other way. The reason lies at the mesh. The pinion's teeth sit 0.04 m from its centre. So the motor's ${N.T} N m pushes them with ${N.T} ÷ 0.04 = ${N.F} N. That push acts on the wheel's tooth, and it pushes back just as hard. But the wheel's tooth sits 0.2 m from its centre, five times as far out. So the wheel's torque is ${N.F} × 0.2 = ${N.T100} N m. That is five times the motor's. Here nothing is lost to friction.`;
+  const T5 = `Power is torque × angular speed, with the speed in rad/s. Five times the torque at a fifth of the speed is the same power. So a gearbox cannot make power. Friction turns a little of it into heat. At 100% efficiency the full 11 kW passes through. At an example 95%, ${N.L95} W is lost at the mesh. The pump gets ${N.P95} kW. Its torque drops from ${N.T100} N m to ${N.T95} N m. Slide the efficiency to try others.`;
+  const T7 = `Two pairs in a row make a *compound gear train*. A second 20-tooth pinion sits on the wheel's shaft. It drives a 60-tooth wheel, a ratio of 3. The pump moves onto that last shaft. The ratios multiply: 5 × 3 = 15. So the pump shaft turns at 1450 ÷ 15 = ${N.nC} rev/min. Each pair loses its own share of the power. At 95% each, about 90% gets through. The pump shaft carries ${N.TC} N m. Switch Second pair off to compare.`;
+  const T9 = `A *belt* works the same way. If it does not slip, it moves at the speed of both pulley rims. So a belt's ratio is the driven pulley's diameter ÷ the driving pulley's diameter. Here that is 400 ÷ 80 = 5, the same as the gears. An open belt turns both pulleys the same way. Two gears meshing on their outsides turn opposite ways. Switch Belt off to compare.`;
+  const T11 = `The slow shaft carries almost five times the torque for the same power. So it is usually the thicker one. Its coupling must carry that torque too. A coupling's two shafts must have their centre lines in one straight line, within a small tolerance. Shafts that meet at an angle, or sit parallel but offset, have *misalignment*. It causes vibration, noise and heat. It also wears out bearings, couplings and shafts early.`;
+  const rpm = (s) => s + ' rev/min', nm = (s) => s + ' N m', kw = (s) => s + ' kW';
+  const AL = ['Parallel misalignment', 'Nothing: the shafts are parallel', 'Angular misalignment'];
+  const STEPS = [
+    { show: true, rig: 'pair', name: 'The gear pair', text: T1,
+      read: readAs(T1, 'More teeth on the wheel make the pump shaft turn slower and push harder.') },
+    { kind: 'pick', pic: 'ratioQ', name: 'Wheel speed',
+      task: 'A 15-tooth pinion turns at 1450 rev/min. It drives a 45-tooth wheel. How fast does the wheel turn?',
+      opts: [rpm(N.q2), rpm(N.q2x), rpm('1450')], order: [1, 0, 2], want: rpm(N.q2),
+      nv: { [rpm(N.q2)]: N_IN / 3, [rpm(N.q2x)]: N_IN * 3, [rpm('1450')]: N_IN },
+      hints: { [rpm(N.q2x)]: 'Not quite. That multiplies by the ratio. The bigger gear turns slower, so divide.',
+        [rpm('1450')]: 'Not quite. The pinion must turn three times to pass all 45 teeth. So the wheel turns slower.' },
+      why: `The ratio is 45 ÷ 15 = 3. The pinion must turn three times to pass all 45 of the wheel's teeth. So the wheel turns at 1450 ÷ 3 = ${N.q2} rev/min.`,
+      qw: [],
+      ow: { [rpm(N.q2)]: ['45 ÷ 15 = 3', `1450 ÷ 3 = ${N.q2} rev/min`], [rpm(N.q2x)]: [`1450 × 3 = ${N.q2x}: times the ratio, not ÷`],
+        [rpm('1450')]: ['1450: as if the gears kept the speed'] } },
+    { show: true, pic: 'push', name: 'The push at the mesh', text: T3 },
+    { kind: 'pick', pic: 'torqueQ', name: 'Wheel torque',
+      task: 'The same 15 and 45-tooth pair has 20 N m on its pinion. Nothing is lost to friction. What torque does the wheel\'s shaft carry?',
+      opts: [nm(N.q4), nm(N.q4x), nm('20')], order: [1, 2, 0], want: nm(N.q4),
+      tv: { [nm(N.q4)]: 60, [nm(N.q4x)]: 20 / 3, [nm('20')]: 20 },
+      hints: { [nm(N.q4x)]: 'Not quite. That divides the torque by the ratio. The wheel turns slower and pushes harder.',
+        [nm('20')]: 'Not quite. The wheel\'s teeth sit three times as far out. The same push there gives three times the torque.' },
+      why: `The ratio is 45 ÷ 15 = 3. The wheel's teeth sit three times as far from its centre as the pinion's. The same push at the mesh gives three times the torque: 20 × 3 = ${N.q4} N m.`,
+      qw: [],
+      ow: { [nm(N.q4)]: ['45 ÷ 15 = 3', `20 × 3 = ${N.q4} N m`], [nm(N.q4x)]: [`20 ÷ 3 = ${N.q4x}: divided, not ×`], [nm('20')]: ['20 N m: passed through unchanged'] } },
+    { show: true, rig: 'power', name: 'Power passes through', set: { eff: 100 }, still: { eff: 95 }, text: T5,
+      read: readAs(T5, 'A lower efficiency turns more of the power into heat.') },
+    { kind: 'pick', pic: 'powerQ', name: 'Power out',
+      task: '15 kW goes into a 4 : 1 gearbox. Its efficiency is 96%. How much power reaches the output shaft?',
+      opts: [kw(N.q6), kw(N.q6x), kw('15')], order: [1, 0, 2], want: kw(N.q6),
+      kv: { [kw(N.q6)]: 15 * 0.96, [kw(N.q6x)]: 60, [kw('15')]: 15 },
+      hints: { [kw(N.q6x)]: 'Not quite. That multiplies the power by the ratio. A gearbox cannot make power.',
+        [kw('15')]: 'Not quite. Friction turns a little of the power into heat. Take off the loss.' },
+      why: `A gearbox trades speed for torque, but it cannot make power. The power out is the power in × the efficiency: 15 × 0.96 = ${N.q6} kW. The rest turns to heat.`,
+      qw: [],
+      ow: { [kw(N.q6)]: [`15 × 0.96 = ${N.q6} kW`], [kw(N.q6x)]: [`15 × 4 = ${N.q6x} kW: power is not multiplied`], [kw('15')]: ['15 kW: the loss left out'] } },
+    { show: true, rig: 'pair2', name: 'A second pair', set: { pair2: true }, text: T7,
+      read: readAs(T7, 'With one pair only, the ratio is 5.') },
+    { kind: 'pick', pic: 'compoundQ', name: 'Two pairs',
+      task: 'A motor at 1440 rev/min drives a 4 : 1 pair, then a 6 : 1 pair. How fast does the output shaft turn?',
+      opts: [rpm(N.q8), rpm(N.q8x), rpm(N.q8f)], order: [1, 0, 2], want: rpm(N.q8),
+      hints: { [rpm(N.q8x)]: 'Not quite. That adds the ratios. In a compound train they multiply.',
+        [rpm(N.q8f)]: 'Not quite. That counts only the first pair. The second pair slows it six times more.' },
+      why: `The ratios multiply: 4 × 6 = 24. So the output turns at 1440 ÷ 24 = ${N.q8} rev/min. Pair by pair, 1440 ÷ 4 = ${N.q8f}, then ${N.q8f} ÷ 6 = ${N.q8}.`,
+      qw: [],
+      ow: { [rpm(N.q8)]: ['4 × 6 = 24', `1440 ÷ 24 = ${N.q8} rev/min`], [rpm(N.q8x)]: ['4 + 6 = 10: added, not multiplied', `1440 ÷ 10 = ${N.q8x} rev/min`],
+        [rpm(N.q8f)]: [`1440 ÷ 4 = ${N.q8f}: the second pair left out`] } },
+    { show: true, rig: 'belt', name: 'A belt', set: { belt: true }, text: T9,
+      read: readAs(T9, 'Gears give the same ratio, but turn the pump shaft the other way.') },
+    { kind: 'pick', pic: 'beltQ', name: 'Belt speed',
+      task: 'A 100 mm motor pulley turns at 1450 rev/min. A belt drives a 250 mm fan pulley. How fast does the fan turn?',
+      opts: [rpm(N.q10), rpm(N.q10x), rpm('1450')], order: [1, 0, 2], want: rpm(N.q10),
+      nv: { [rpm(N.q10)]: 580, [rpm(N.q10x)]: 3625, [rpm('1450')]: 1450 },
+      hints: { [rpm(N.q10x)]: 'Not quite. That turns the ratio upside down. The bigger pulley turns slower.',
+        [rpm('1450')]: 'Not quite. The belt moves at both rims\' speed. The bigger pulley needs more belt for each turn, so it turns slower.' },
+      why: `The belt moves at the speed of both pulley rims. The ratio is 250 ÷ 100 = 2.5. So the fan turns at 1450 ÷ 2.5 = ${N.q10} rev/min.`,
+      qw: [],
+      ow: { [rpm(N.q10)]: ['250 ÷ 100 = 2.5', `1450 ÷ 2.5 = ${N.q10} rev/min`], [rpm(N.q10x)]: [`1450 × 250 ÷ 100 = ${N.q10x}: upside down`],
+        [rpm('1450')]: ['1450: as if the belt kept the speed'] } },
+    { show: true, pic: 'align', name: 'Lining up shafts', text: T11 },
+    { kind: 'pick', pic: 'drumQ', name: 'Winch drum',
+      task: 'A 4 kW motor at 960 rev/min drives a winch drum through a 4 : 1 gearbox. Nothing is lost to friction. What torque does the drum shaft carry?',
+      opts: [nm(N.q12), nm(N.q12m), nm(N.q12r)], order: [1, 0, 2], want: nm(N.q12),
+      tv: { [nm(N.q12)]: 4000 / radOf(240), [nm(N.q12m)]: 4000 / radOf(960), [nm(N.q12r)]: 4000 / 240 },
+      hints: { [nm(N.q12m)]: 'Not quite. That is the motor\'s own torque. The gearbox multiplies it by 4.',
+        [nm(N.q12r)]: 'Not quite. That leaves the speed in rev/min. Change it to rad/s first.' },
+      why: `The drum turns at 960 ÷ 4 = ${N.q12n} rev/min. That is ${N.q12n} × 2π ÷ 60 = ${N.q12w} rad/s. Torque is power ÷ angular speed. So the drum carries 4000 ÷ ${N.q12w} = ${N.q12} N m.`,
+      qw: [],
+      ow: { [nm(N.q12)]: [`960 ÷ 4 = ${N.q12n} rev/min = ${N.q12w} rad/s`, `4000 ÷ ${N.q12w} = ${N.q12} N m`],
+        [nm(N.q12m)]: [`960 rev/min = ${N.q12mw} rad/s`, `4000 ÷ ${N.q12mw} = ${N.q12m}: the motor's own`], [nm(N.q12r)]: [`4000 ÷ ${N.q12n} = ${N.q12r}: still in rev/min`] } },
+    { kind: 'pick', pic: 'alignQ', name: 'A hot coupling',
+      task: 'A pump\'s coupling and bearings run hot after a refit. A check finds the two shafts parallel, but one sits 0.5 mm higher. What is wrong?',
+      opts: AL, order: [1, 0, 2], want: AL[0],
+      hints: { [AL[1]]: 'Not quite. Parallel is not enough. The two centre lines must be one line.',
+        [AL[2]]: 'Not quite. Angular misalignment is shafts meeting at an angle. These are parallel but offset.' },
+      why: 'The centre lines must lie in one straight line. Here they are parallel but 0.5 mm apart. That is parallel misalignment. It brings vibration, noise and heat, and wears out bearings and couplings early.',
+      qw: [],
+      ow: { [AL[0]]: ['Parallel, but 0.5 mm apart', 'Two centre lines, not one'], [AL[1]]: ['Parallel, yet still two lines'], [AL[2]]: ['No angle: the lines are parallel'] } },
+  ];
+  const FINISH = 'A gear pair divides the speed by its ratio and multiplies the torque by it. The power passes through, less a small loss. Ratios in a row multiply. A coupling\'s shafts must lie in one straight line.';
+  const ANS = 1.6;
+  const optsOf = (d) => (d.order ? d.order.map((k) => d.opts[k]) : d.opts);
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  const calm = () => REDUCE || testing();
+  const el = (id) => document.getElementById(id);
+  const iOf = (k, v) => STEPS.findIndex((d) => d[k] === v);
+  const I_PAIR = iOf('rig', 'pair'), I_POW = iOf('rig', 'power'), I_P2 = iOf('rig', 'pair2'), I_BELT = iOf('rig', 'belt'), I_AQ = iOf('pic', 'alignQ');
+
+  // ---------- state ----------
+  const blank = () => ({ pick: null, res: null, why: false });
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, lastTog = false, effSet = 95;
+  let T = Infinity, END = 0, MOT = null;   // seconds since a demonstration began; what it moves
+  let PH = 0;                              // the motor shaft's drawn angle (it turns clockwise)
+  const WD = W_IN / SLOW;                  // drawn rad/s: 50 times slower than real
+  let REC = { wk: [] };
+  let latest = 0;
+  const BASE = { zp: 20, zw: 100, eff: 95, pair2: false, belt: false };
+  const setupOf = (i) => Object.assign({}, BASE, STEPS[i].set || {});
+
+  // ---------- words with amber key terms (built with K.el, never innerHTML) ----------
+  function write(node, s) {
+    node.textContent = '';
+    const re = /\*([^*]+)\*/g;
+    let from = 0, m;
+    while ((m = re.exec(s))) {
+      if (m.index > from) node.appendChild(document.createTextNode(s.slice(from, m.index)));
+      node.appendChild(K.el('span', { class: 'term' }, m[1]));
+      from = m.index + m[0].length;
+    }
+    if (from < s.length) node.appendChild(document.createTextNode(s.slice(from)));
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => K.clamp(Math.round(+stepper.get()) || 0, 0, STEPS.length - 1);
+  // The tooth counts are set by dragging the gears' rims; their sliders stay out of sight.
+  const CTL = {
+    zp: K.control({ id: 'zp', label: 'Teeth on the pinion', min: 12, max: 40, step: 1, value: 20, into: '#c-hide' }),
+    zw: K.control({ id: 'zw', label: 'Teeth on the wheel', min: 12, max: 120, step: 1, value: 100, into: '#c-hide' }),
+    eff: K.control({ id: 'eff', label: 'Efficiency', min: 80, max: 100, step: 1, value: 95, fmt: (v) => fx(v, 0) + '%', snap: [95, 100], into: '#effbox' }),
+  };
+  CTL.pair2 = K.toggle({ id: 'pair2', label: 'Second pair', value: false, hint: 'Adds a 20-tooth pinion on the wheel\'s shaft, driving a 60-tooth wheel', into: '#live' });
+  CTL.belt = K.toggle({ id: 'belt', label: 'Belt', value: false, hint: 'Swaps the first gear pair for two pulleys and a belt', into: '#live' });
+  const same = (a, b) => (typeof a === 'boolean' || typeof b === 'boolean' ? !!a === !!b : Math.abs(+a - +b) < 1e-9);
+  function setQuiet(id, v) { if (!same(CTL[id].get(), v)) CTL[id].set(v, true); }
+  function setAll(q) { Object.keys(BASE).forEach((id) => setQuiet(id, q[id])); }
+
+  K.readout({ id: 'outSpeed', label: 'Pump shaft speed', unit: 'rev/min', decimals: 0, fmt: (v) => spdTxt(v) + ' rev/min', into: '#outs' });
+  K.readout({ id: 'outTorque', label: 'Pump shaft torque', unit: 'N m', decimals: 0, fmt: (v) => fx(v, 0) + ' N m', into: '#outs' });
+  K.readout({ id: 'powerOut', label: 'Power out', unit: 'kW', decimals: 2, fmt: (v) => fx(v, 2) + ' kW', into: '#outs' });
+
+  // The settings a screen uses: the switches only on their own screens.
+  const stepOf = (p) => K.clamp(Math.round(+p.step) || 0, 0, STEPS.length - 1);
+  function rigOf(d, p) {
+    const zp = K.clamp(Math.round(+p.zp) || 20, 12, 40), zw = K.clamp(Math.round(+p.zw) || 100, 12, 120);
+    const effP = K.clamp(Math.round(+p.eff) || 95, 80, 100);
+    const pair2 = d.rig === 'pair2' && !!p.pair2, belt = d.rig === 'belt' && !!p.belt;
+    return Object.assign({ zp, zw, effP, pair2, belt }, train(zp, zw, effP / 100, pair2));
+  }
+  // The pure model: tooth counts, efficiency and the switches -> the pump shaft's speed and torque, and the power out.
+  K.model((p) => { const s = rigOf(STEPS[stepOf(p)], p); return { outSpeed: s.n, outTorque: s.T, powerOut: s.P }; });
+
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;
+    st.pick = optsOf(d)[k]; st.res = null; T = Infinity; MOT = null;
+  } }));
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished || st.res === 'right') return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = st.pick === d.want ? 'right' : 'wrong';
+    MOT = null; play(ANS);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const replays = (d) => d.rig === 'power' || d.pic === 'push' || d.pic === 'align';
+  K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const d = STEPS[at()];
+    if (finished || !replays(d)) return;
+    const plan = demoPlan(d);
+    if (plan.mot && plan.mot.kind === 'eff') { effSet = plan.mot.from; setQuiet('eff', plan.mot.from); }
+    MOT = plan.mot; play(plan.end);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true; anim.pause(); T = Infinity; settle();
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // ---------- motion: the gears turning, each screen's demonstration, an answer's drawing ----------
+  function demoPlan(d) {
+    if (d.rig === 'power') return { mot: { kind: 'eff', at: 0.8, dur: 2.0, from: 100, to: 95 }, end: 3.2 };
+    if (d.rig === 'pair2' || d.rig === 'belt') return { mot: { kind: 'swap' }, end: 1.0 };
+    if (d.pic === 'push') return { mot: { kind: 'show' }, end: 3.0 };
+    if (d.pic === 'align') return { mot: { kind: 'show' }, end: 2.4 };
+    return { mot: null, end: 0 };
+  }
+  const spinning = () => !finished && !!STEPS[at()].rig && !calm();
+  function play(end) {
+    if (calm()) { T = Infinity; settle(); return; }
+    T = 0; END = end; anim.play();
+  }
+  // The efficiency glide moves the slider, so the readouts follow it.
+  function sync() {
+    if (!MOT || MOT.kind !== 'eff') return;
+    const f = K.clamp((T - MOT.at) / MOT.dur, 0, 1), v = Math.round(MOT.from + (MOT.to - MOT.from) * K.ease(f));
+    if (v !== effSet) { effSet = v; setQuiet('eff', v); }
+  }
+  function settle() {
+    if (MOT && MOT.kind === 'eff') { effSet = MOT.to; setQuiet('eff', MOT.to); }
+    MOT = null;
+  }
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    dt = Math.min(dt, 0.1);
+    const spin = spinning();
+    if (spin) PH += WD * dt;
+    if (T !== Infinity) {
+      T += dt;
+      if (T >= END) { T = Infinity; settle(); } else sync();
+      K.refresh();
+      return true;
+    }
+    if (spin) render(at(), K.params());
+    return spin;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; settle(); K.refresh(); } });
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter'); void box.offsetWidth; box.classList.add('enter');
+  }
+  function enterStep(i) {
+    lastStep = i; enter('stepbox');
+    anim.pause(); T = Infinity; MOT = null;
+    const d = STEPS[i], q = setupOf(i);
+    setAll(q); effSet = q.eff; lastTog = d.rig === 'pair2' ? !!q.pair2 : d.rig === 'belt' ? !!q.belt : false;
+    if (d.show) {
+      const plan = demoPlan(d);
+      if (calm()) { MOT = plan.mot; settle(); }
+      else if (plan.end > 0) { MOT = plan.mot; T = 0; END = plan.end; }
+    }
+    if (!calm() && (T !== Infinity || !!d.rig)) anim.play();
+  }
+
+  // ---------- drawing helpers ----------
+  const svg = el('scene'), art = el('art'), gP = el('gP'), gW = el('gW');
+  let into = null;
+  const add = (n) => (into || art).appendChild(n);
+  const r2 = (v) => Math.round(v * 100) / 100;
+  function sv(tag, a) { const o = {}; Object.keys(a).forEach((k) => { o[k] = typeof a[k] === 'number' ? r2(a[k]) : a[k]; }); return add(K.svg(tag, o)); }
+  const rect = (cls, x, y, w, h, rx) => sv('rect', { class: cls, x, y, width: Math.max(0, w), height: Math.max(0, h), rx: rx || 0 });
+  const line = (cls, x1, y1, x2, y2) => sv('line', { class: cls, x1, y1, x2, y2 });
+  const path = (cls, d) => sv('path', { class: cls, d });
+  const circ = (cls, cx, cy, r) => sv('circle', { class: cls, cx, cy, r });
+  function text(x, y, s, cls, anchor) {
+    const t = sv('text', { class: 'lab' + (cls ? ' ' + cls : ''), x, y, 'text-anchor': anchor || 'middle' });
+    t.textContent = s;
+    return t;
+  }
+  const P = (x, y) => r2(x) + ' ' + r2(y);
+  const pt = (cx, cy, r, a) => P(cx + r * Math.cos(a), cy + r * Math.sin(a));
+  function arrow(x1, y1, x2, y2, c, hl) {
+    const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+    if (L < 2) return;
+    const ux = dx / L, uy = dy / L, h = Math.min(hl || 9, L * 0.6), w = h * 0.55, bx = x2 - ux * h, by = y2 - uy * h;
+    line('ar ' + c, x1, y1, bx + ux * 0.5, by + uy * 0.5);
+    path('ah ' + c, 'M' + P(x2, y2) + 'L' + P(bx - uy * w, by + ux * w) + 'L' + P(bx + uy * w, by - ux * w) + 'Z');
+  }
+  // A curved arrow round (cx, cy), centred on direction mid (degrees, clockwise from the right),
+  // sweeping sw degrees; dir +1 turns clockwise, −1 anticlockwise. Its sweep is drawn to scale,
+  // with a least length that still shows its head.
+  function arcArrow(cx, cy, R, mid, sw, dir, c) {
+    const hl = 8, hw = 4.5, minSw = (hl + 4) / R / DEG;
+    sw = Math.min(330, Math.max(sw, minSw));
+    const a0 = (mid - dir * sw / 2) * DEG, a1 = (mid + dir * sw / 2) * DEG, aB = a1 - dir * hl / R;
+    const q = (a, rr) => [cx + rr * Math.cos(a), cy + rr * Math.sin(a)];
+    const p0 = q(a0, R), pB = q(aB, R), tip = q(a1, R), b1 = q(aB, R + hw), b2 = q(aB, R - hw);
+    const big = Math.abs(aB - a0) > Math.PI ? 1 : 0;
+    const e1 = path('arc ' + c, 'M' + P(p0[0], p0[1]) + 'A' + r2(R) + ' ' + r2(R) + ' 0 ' + big + ' ' + (dir > 0 ? 1 : 0) + ' ' + P(pB[0], pB[1]));
+    const e2 = path('ah ' + c, 'M' + P(tip[0], tip[1]) + 'L' + P(b1[0], b1[1]) + 'L' + P(b2[0], b2[1]) + 'Z');
+    return { els: [e1, e2], tip, ang: a1, cx, cy, R };
+  }
+  // Words by the heads of a shaft's arrows, kept clear of the other words and the arrows.
+  function arcWords(list) {
+    const lg = add(K.svg('g'));
+    const items = list.map((o) => {
+      const c = Math.cos(o.arc.ang), s = Math.sin(o.arc.ang), R = o.arc.R + 12;
+      return { x: r2(o.arc.cx + R * c), y: r2(o.arc.cy + R * s + 4), text: o.text, anchor: c > 0.35 ? 'start' : c < -0.35 ? 'end' : 'middle', class: 'lab sm ' + o.cls, size: 12 };
+    });
+    K.labels(lg, items, { avoid: list.reduce((acc, o) => acc.concat(o.arc.els), []) });
+  }
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g;
+    try { draw(); } finally { into = keep; }
+  }
+  // Arrivals: a part due at t0 seconds (noted for the timing check).
+  function arr(t0, d) { d = d == null ? 0.5 : d; if (t0 + d > latest) latest = t0 + d; return K.arrive(T, t0, d); }
+  const vis = (t) => (t == null ? 1 : arr(t));
+
+  // A gear: z block teeth round a pitch circle of radius r, turned to th; tooth 0 marked so the turning shows.
+  function gear(cx, cy, z, r, th, cls, td) {
+    const p = TAU / z, h = 0.25 * p, rr = r - td, rt = r + td;
+    let dd = '';
+    for (let k = 0; k < z; k++) {
+      const c = th + k * p;
+      dd += (k ? 'L' : 'M') + pt(cx, cy, rr, c - h) + 'L' + pt(cx, cy, rt, c - 0.75 * h) + 'L' + pt(cx, cy, rt, c + 0.75 * h) + 'L' + pt(cx, cy, rr, c + h);
+    }
+    path(cls || 'gear', dd + 'Z');
+    path('mark', 'M' + pt(cx, cy, rr - 0.6, th - h) + 'L' + pt(cx, cy, rt, th - 0.75 * h) + 'L' + pt(cx, cy, rt, th + 0.75 * h) + 'L' + pt(cx, cy, rr - 0.6, th + h) + 'Z');
+    circ('hub', cx, cy, Math.min(4.5, r * 0.3));
+  }
+  // A pulley: a rim, three spokes and a mark on the rim, turned to th.
+  function pulley(cx, cy, r, th) {
+    circ('pulley', cx, cy, r);
+    for (let k = 0; k < 3; k++) { const a = th + k * TAU / 3; if (r > 12) line('spoke', cx + 6 * Math.cos(a), cy + 6 * Math.sin(a), cx + (r - 5) * Math.cos(a), cy + (r - 5) * Math.sin(a)); }
+    circ('mark', cx + (r - 3.5) * Math.cos(th), cy + (r - 3.5) * Math.sin(th), 2.6);
+    circ('hub', cx, cy, 4.5);
+  }
+  // An open belt round two pulleys on one level: its path, and where a point u along it sits.
+  function beltPath(c1, r1, c2, r2_) {
+    const D = c2[0] - c1[0], ux = -(r2_ - r1) / D, uy = Math.sqrt(Math.max(0, 1 - ux * ux));
+    const aT = Math.atan2(-uy, ux), aB = Math.atan2(uy, ux);
+    const T1 = [c1[0] + r1 * ux, c1[1] - r1 * uy], T2 = [c2[0] + r2_ * ux, c2[1] - r2_ * uy];
+    const B1 = [c1[0] + r1 * ux, c1[1] + r1 * uy], B2 = [c2[0] + r2_ * ux, c2[1] + r2_ * uy];
+    const s2 = aB - aT, s1 = TAU - s2, L1 = Math.hypot(T2[0] - T1[0], T2[1] - T1[1]), A2 = r2_ * s2, A1 = r1 * s1, L = 2 * L1 + A1 + A2;
+    const d = 'M' + P(T1[0], T1[1]) + 'L' + P(T2[0], T2[1]) + 'A' + r2(r2_) + ' ' + r2(r2_) + ' 0 ' + (s2 > Math.PI ? 1 : 0) + ' 1 ' + P(B2[0], B2[1]) +
+      'L' + P(B1[0], B1[1]) + 'A' + r2(r1) + ' ' + r2(r1) + ' 0 ' + (s1 > Math.PI ? 1 : 0) + ' 1 ' + P(T1[0], T1[1]) + 'Z';
+    const mix = (a, b, f) => [a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f];
+    const where = (u) => {
+      u = ((u % L) + L) % L;
+      if (u < L1) return mix(T1, T2, u / L1);
+      u -= L1;
+      if (u < A2) { const a = aT + u / r2_; return [c2[0] + r2_ * Math.cos(a), c2[1] + r2_ * Math.sin(a)]; }
+      u -= A2;
+      if (u < L1) return mix(B2, B1, u / L1);
+      u -= L1;
+      const a = aB + u / r1; return [c1[0] + r1 * Math.cos(a), c1[1] + r1 * Math.sin(a)];
+    };
+    return { d, where, B1, B2 };
+  }
+
+  // ---------- the main picture: the motor's pinion, the pump's wheel and the power bar ----------
+  const CY = 134, CXP = 54, TD = 2.3, YB = CY + 150, HB = 30, H_RIG = YB + HB + 28;
+  const SPD = 120 / N_IN, TRQ = 24 / T_IN;   // degrees of arrow per rev/min and per N m, the same on every shaft
+  function geoOf(s) {
+    if (s.belt) {
+      const k = Math.min(1, 252 / (s.zp + 2 * s.zw)), rp = k * s.zp, rw = k * s.zw;
+      return { k, rp, rw, cxp: CXP, cxw: CXP + rp + 26 + rw, M: null };
+    }
+    return { k: 1, rp: s.zp, rw: s.zw, cxp: CXP, M: CXP + s.zp, cxw: CXP + s.zp + s.zw };
+  }
+  // The arrows on a shaft: inside a big gear, outside a small one, centred on the side away from its mate.
+  function shaftArcs(cx, cy, r, mid, dir, n, Tq, room) {
+    const inside = r >= 44, Rs = inside ? 0.42 * r : r + room, Rt = inside ? 0.64 * r : r + room + 10;
+    return [arcArrow(cx, cy, Rs, mid, n * SPD, dir, 't'), arcArrow(cx, cy, Rt, mid, Tq * TRQ, dir, 'nv')];
+  }
+  // Words for a shaft: inside a big gear (left of its hub), below a small one.
+  function shaftWords(cx, cy, r, lines, off, below) {
+    if (r >= 44) lines.forEach((s, k) => text(cx - off, cy - 2 + 15 * k, s, 'sm' + (k ? '' : ' b'), 'end'));
+    else lines.forEach((s, k) => text(cx - 4, cy + r + below + 15 * k, s, 'sm' + (k ? '' : ' b'), 'start'));
+  }
+  // The power bar: 11 kW in at the left, thinner past each loss, to the pump shaft.
+  function powerBar(losses, xEnd, effP, oneLoss) {
+    const x0 = 8, Y = YB, xh = xEnd - 10;
+    let h = HB;
+    const bot = [[x0, Y + h]], peels = [];
+    losses.forEach((L) => { const h2 = h * L.e; bot.push([L.x, Y + h], [L.x + 6, Y + h2]); if (h2 < h - 1e-9) peels.push({ x: L.x, h1: h, h2 }); h = h2; });
+    bot.push([xh, Y + h]);
+    path('band', 'M' + P(x0, Y) + 'L' + P(xh, Y) + 'L' + P(xh, Y - 4) + 'L' + P(xEnd + 2, Y + h / 2) + 'L' + P(xh, Y + h + 4) +
+      bot.reverse().map((q) => 'L' + P(q[0], q[1])).join('') + 'Z');
+    peels.forEach((q) => {
+      const w = Math.max(q.h1 - q.h2, 2.5), y1 = Y + q.h1, y2 = Y + HB + 14;
+      path('heat', 'M' + P(q.x - w / 2, y1 - 0.5) + 'L' + P(q.x + w / 2, y1 - 0.5) + 'L' + P(q.x + 10 + w / 2, y2) + 'L' + P(q.x + 10 - w / 2, y2) + 'Z');
+      text(q.x + 16 + w / 2, Y + HB + 20, oneLoss ? 'heat ' + fx(P_IN * (1 - effP / 100), 0) + ' W' : 'heat', 'sm', 'start');
+    });
+    text(x0, Y - 7, '11 kW in', 'sm', 'start');
+    text(xEnd + 7, Y + h / 2 + 4, 'out', 'sm m', 'start');
+  }
+  function rigScreen(d, p) {
+    const s = rigOf(d, p), g = geoOf(s), swap = d.rig === 'pair2' || d.rig === 'belt' ? vis(0.05) : 1;
+    const thW = s.belt ? PH * (g.rp + 2) / (g.rw + 2) : drivenAt(PH, s.zp, s.zw, 0);
+    const C2 = [g.cxw + (Z2P + Z2W) * Math.cos(PSI), CY + (Z2P + Z2W) * Math.sin(PSI)];
+    // the power bar, under everything
+    const losses = s.belt ? [{ x: (g.cxp + g.cxw) / 2, e: s.effP / 100 }] : s.pair2 ? [{ x: g.M, e: s.effP / 100 }, { x: g.cxw + Z2P * Math.cos(PSI), e: s.effP / 100 }] : [{ x: g.M, e: s.effP / 100 }];
+    powerBar(losses, s.pair2 ? C2[0] : g.cxw, s.effP, !s.pair2);
+    // the motor's words, above its gear
+    const yb = CY - (Math.max(g.rp, 20) + 30);
+    text(6, yb - 45, 'motor', 'sm b', 'start');
+    text(6, yb - 30, s.belt ? (MM * s.zp) + ' mm pulley' : s.zp + ' teeth', 'sm', 'start');
+    text(6, yb - 15, '1450 rev/min', 'sm t', 'start');
+    text(6, yb, N.T + ' N m', 'sm n', 'start');
+    let pump;
+    const drive = () => {
+      if (s.belt) {
+        const b = beltPath([g.cxp, CY], g.rp + 2, [g.cxw, CY], g.rw + 2);
+        pulley(g.cxp, CY, g.rp, PH); pulley(g.cxw, CY, g.rw, thW);
+        path('belt', b.d);
+        const q = b.where((g.rp + 2) * PH);
+        circ('meshdot', q[0], q[1], 4.5);
+        const mx = (b.B1[0] + b.B2[0]) / 2, my = (b.B1[1] + b.B2[1]) / 2;
+        text(mx - 6, my + 24, 'belt', 'sm', 'end'); text(mx - 6, my + 38, fx(rimV(s.zp), 1) + ' m/s', 'sm', 'end');
+        pump = { cx: g.cxw, cy: CY, r: g.rw, mid: 0, dir: 1, room: 10, words: ['pump', (MM * s.zw) + ' mm'] };
+      } else {
+        gear(g.cxp, CY, s.zp, g.rp, PH, 'gear', TD);
+        gear(g.cxw, CY, s.zw, g.rw, thW, 'gear', TD);
+        circ('meshdot', g.M, CY, 3.6);
+        text(g.M + 2, CY + g.rp + 24, 'teeth', 'sm', 'end'); text(g.M + 2, CY + g.rp + 38, fx(rimV(s.zp), 1) + ' m/s', 'sm', 'end');
+        pump = { cx: g.cxw, cy: CY, r: g.rw, mid: 0, dir: -1, room: 7, words: ['pump', s.zw + ' teeth'] };
+      }
+    };
+    if (d.rig === 'belt') part(swap, 0, drive); else drive();
+    // the motor's arrows: speed and torque, the same on every screen
+    arcArrow(g.cxp, CY, g.rp + (s.belt ? 10 : 7), 225, N_IN * SPD, 1, 't');
+    arcArrow(g.cxp, CY, g.rp + (s.belt ? 20 : 17), 225, T_IN * TRQ, 1, 'nv');
+    const pumpArrows = (q) => {
+      shaftWords(q.cx, q.cy, q.r, q.words, q.off || 9, q.room + 18);
+      const A = shaftArcs(q.cx, q.cy, q.r, q.mid, q.dir, s.n, s.T, q.room);
+      arcWords([{ arc: A[0], text: 'speed', cls: 't' }, { arc: A[1], text: 'torque', cls: 'n' }]);
+    };
+    if (s.pair2) {
+      part(swap, 0, () => {
+        const th2 = drivenAt(thW, Z2P, Z2W, PSI);
+        gear(C2[0], C2[1], Z2W, Z2W, th2, 'gear2', TD);
+        gear(g.cxw, CY, Z2P, Z2P, thW, 'gear2', TD);
+        if (g.rw >= 44) text(g.cxw - 28, CY - 2, s.zw + ' teeth', 'sm', 'end'); else text(g.cxw, CY - 32, s.zw + ' teeth', 'sm', 'middle');
+        pumpArrows({ cx: C2[0], cy: C2[1], r: Z2W, mid: PSI / DEG, dir: 1, room: 7, words: ['pump', Z2W + ' teeth'] });
+      });
+    } else if (pump) {
+      if (d.rig === 'belt') part(swap, 0, () => pumpArrows(pump)); else pumpArrows(pump);
+    }
+    // the rim handles
+    const grips = {};
+    if (!finished) {
+      const kp = { x: g.cxp + (g.rp + (s.belt ? 5 : 1)) * Math.cos(120 * DEG), y: CY + (g.rp + (s.belt ? 5 : 1)) * Math.sin(120 * DEG) };
+      const kw_ = { x: g.cxw, y: CY + g.rw + (s.belt ? 5 : 1) };
+      circ('knob', kp.x, kp.y, 7); circ('knob', kw_.x, kw_.y, 7);
+      grips.zp = { x: kp.x - 22, y: kp.y - 22, w: 44, h: 44, belt: s.belt, k: g.k, zp: s.zp, zw: s.zw };
+      grips.zw = { x: kw_.x - 22, y: kw_.y - 22, w: 44, h: 44, belt: s.belt, k: g.k, zp: s.zp, zw: s.zw };
+    }
+    const said = (s.belt ? 'A belt runs from an ' + MM * s.zp + ' millimetre motor pulley to a ' + MM * s.zw + ' millimetre pump pulley.'
+      : 'A ' + s.zp + '-tooth pinion on the motor drives a ' + s.zw + '-tooth wheel on the pump shaft' + (s.pair2 ? ', then a second pair of 20 and 60 teeth.' : '.')) +
+      ' Curved arrows show each shaft\'s speed and torque, and a bar below shows the power passing through.';
+    return { h: H_RIG, said, grips };
+  }
+
+  // ---------- the push at the mesh ----------
+  function dimH(x1, x2, y) { path('dim', 'M' + P(x1, y - 4) + 'V' + r2(y + 4) + 'M' + P(x1, y) + 'H' + r2(x2) + 'M' + P(x2, y - 4) + 'V' + r2(y + 4)); }
+  function pushShow() {
+    const rp = 20, rw = 100, cxp = CXP, M = cxp + rp, cxw = M + rw;
+    gear(cxp, CY, 20, rp, 0, 'gear', TD); gear(cxw, CY, 100, rw, drivenAt(0, 20, 100, 0), 'gear', TD);
+    text(6, CY - 86, 'motor', 'sm b', 'start'); text(6, CY - 71, N.T + ' N m', 'sm n', 'start');
+    arcArrow(cxp, CY, rp + 9, 150, T_IN * TRQ, 1, 'nv');
+    circ('meshdot', M, CY, 3.6);
+    part(vis(0.4), 4, () => {
+      dimH(cxp, M, CY + rp + 10); text(M, CY + rp + 27, '0.04 m', 'sm', 'end');
+      dimH(M, cxw, CY + rw + 10); text((M + cxw) / 2, CY + rw + 27, '0.2 m', 'sm', 'middle');
+    });
+    part(vis(1.0), 4, () => { arrow(M + 5, CY + 3, M + 5, CY + 44, 'nv'); text(M + 13, CY + 24, 'push', 'sm n', 'start'); text(M + 13, CY + 39, N.F + ' N', 'sm n', 'start'); });
+    part(vis(1.6), 4, () => { arrow(M - 5, CY - 3, M - 5, CY - 44, 't'); text(M - 12, CY - 44, 'push back', 'sm t', 'end'); text(M - 12, CY - 29, N.F + ' N', 'sm t', 'end'); });
+    part(vis(2.2), 4, () => { const A = arcArrow(cxw, CY, 64, 0, T_IN * 5 * TRQ, -1, 'nv'); text(A.tip[0] + 8, A.tip[1] - 6, N.T100 + ' N m', 'sm n', 'start'); });
+    return { h: CY + rw + 38, said: 'At the mesh the pinion\'s tooth pushes the wheel\'s tooth with ' + N.F + ' newtons, and is pushed back as hard. The pinion\'s radius is 0.04 metres and the wheel\'s 0.2 metres.' };
+  }
+
+  // ---------- couplings: in line, at an angle, offset ----------
+  function centreKey(y) { line('cl', 8, y, 44, y); text(50, y + 4, 'centre line of each shaft', 'sm m', 'start'); }
+  function couplingRow(yc, kind, amt) {
+    rect('box', 8, yc - 20, 64, 40, 5);
+    rect('shaftR', 72, yc - 5, 84, 10, 2);
+    rect('flange', 156, yc - 16, 7, 32, 2);
+    const tf = kind === 'angle' ? 'rotate(' + (-amt) + ' 164 ' + yc + ')' : kind === 'offset' ? 'translate(0 ' + (-amt) + ')' : null;
+    const g = add(K.svg('g', tf ? { transform: tf } : {}));
+    const keep = into; into = g;
+    try {
+      rect('flange', 165, yc - 16, 7, 32, 2);
+      rect('shaftR', 172, yc - 5, 80, 10, 2);
+      rect('box', 252, yc - 20, 48, 40, 5);
+      line('cl', 150, yc, 334, yc);
+    } finally { into = keep; }
+    line('cl', 4, yc, 334, yc);
+  }
+  function alignShow() {
+    centreKey(14);
+    [['In line', 'line', 0], ['Angular misalignment', 'angle', 8], ['Parallel misalignment', 'offset', 10]].forEach((r, k) => part(vis(0.3 + 0.6 * k), 4, () => {
+      const yc = 70 + 92 * k;
+      text(8, yc - 28, r[0], 'b', 'start');
+      couplingRow(yc, r[1], r[2]);
+      if (k === 0) { text(40, yc + 36, 'motor', 'sm m', 'middle'); text(276, yc + 36, 'pump', 'sm m', 'middle'); }
+    }));
+    return { h: 70 + 92 * 2 + 40, said: 'Three couplings joining a motor shaft to a pump shaft: in line, meeting at an angle, and parallel but offset. The angle and offset are exaggerated.' };
+  }
+
+  // ---------- the puzzles' pictures ----------
+  const ansOf = (st) => ({ right: st.res === 'right', wrong: st.res === 'wrong' && st.pick != null, pick: st.pick, v: (t) => arr(t, 0.5) });
+  // The givens under a puzzle's picture, then the chosen answer's working once checked: red when wrong.
+  function working(y0, d, st, a) {
+    const q = d.qw || [], nMax = q.length + Math.max.apply(null, d.opts.map((o) => [].concat(d.ow[o]).length));
+    q.forEach((s, k) => { text(8, y0 + 18 + 24 * k, s, 'wk', 'start'); REC.wk.push({ s, ans: false, bad: false }); });
+    if (a.right || a.wrong) {
+      [].concat(d.ow[a.pick]).forEach((s, k) => part(a.v(0.15 + 0.3 * k), 4, () => {
+        text(8, y0 + 18 + 24 * (q.length + k), s, 'wk ' + (a.wrong ? 'w' : 'n'), 'start');
+        REC.wk.push({ s, ans: true, bad: a.wrong });
+      }));
+    }
+    return y0 + 18 + 24 * (nMax - 1) + 12;
+  }
+  // The 15 and 45-tooth pair of the first two puzzles, drawn larger.
+  function smallPair() {
+    const cy = 98, cxp = 62, rp = 24, rw = 72, M = cxp + rp, cxw = M + rw;
+    gear(cxp, cy, 15, rp, 0, 'gear', 3.6); gear(cxw, cy, 45, rw, drivenAt(0, 15, 45, 0), 'gear', 3.6);
+    text(cxw - 9, cy + 4, '45 teeth', 'sm', 'end');
+    return { cy, cxp, rp, rw, M, cxw, bot: cy + rw + 4 };
+  }
+  const PICS = {
+    ratioQ(d, st) {
+      const a = ansOf(st), q = smallPair(), x = q.cxw + q.rw + 8;
+      text(6, 20, '15 teeth', 'sm', 'start'); text(6, 35, '1450 rev/min', 'sm t', 'start');
+      arcArrow(q.cxp, q.cy, q.rp + 8, 225, N_IN * SPD, 1, 't');
+      if (!(a.right || a.wrong)) text(x, q.cy + 4, '? rev/min', 'm', 'start');
+      else part(a.v(0.1), 0, () => { arcArrow(q.cxw, q.cy, 40, 0, d.nv[a.pick] * SPD, -1, a.right ? 't' : 'wr'); text(x, q.cy + 4, a.pick, a.right ? 't' : 'w', 'start'); });
+      return { h: working(q.bot + 8, d, st, a), said: 'A 15-tooth pinion turning at 1450 revolutions a minute drives a 45-tooth wheel, whose speed is asked.' };
+    },
+    torqueQ(d, st) {
+      const a = ansOf(st), q = smallPair(), x = q.cxw + q.rw + 8, TQ = 2;   // 2 degrees of arrow per N m
+      text(6, 20, '15 teeth', 'sm', 'start'); text(6, 35, '20 N m', 'sm n', 'start');
+      arcArrow(q.cxp, q.cy, q.rp + 9, 225, 20 * TQ, 1, 'nv');
+      if (!(a.right || a.wrong)) text(x, q.cy + 4, '? N m', 'm', 'start');
+      else part(a.v(0.1), 0, () => { arcArrow(q.cxw, q.cy, 46, 0, d.tv[a.pick] * TQ, -1, a.right ? 'nv' : 'wr'); text(x, q.cy + 4, a.pick, a.right ? 'n' : 'w', 'start'); });
+      return { h: working(q.bot + 8, d, st, a), said: 'A 15-tooth pinion with 20 newton metres on it drives a 45-tooth wheel, whose torque is asked.' };
+    },
+    powerQ(d, st) {
+      const a = ansOf(st), sx = (v) => 40 + v / 80 * 240, ay = 168;
+      rect('shaftR', 8, 49, 112, 12, 3); rect('box', 120, 26, 100, 58, 6); rect('shaftR', 220, 49, 112, 12, 3);
+      text(170, 52, '4 : 1', '', 'middle'); text(170, 70, '96%', 'sm', 'middle');
+      text(64, 40, 'in', 'sm m', 'middle'); text(276, 40, 'out', 'sm m', 'middle');
+      line('axis', 40, ay, 280, ay);
+      [0, 20, 40, 60, 80].forEach((v, k) => { line('tick', sx(v), ay, sx(v), ay + 5); text(sx(v), ay + 19, nf(v, 0) + (k === 4 ? ' kW' : ''), 'sm m', k === 4 ? 'end' : 'middle'); });
+      text(8, 117, 'in', 'sm', 'start'); rect('band', 40, 104, sx(15) - 40, 16, 2); text(sx(15) + 6, 117, '15 kW', 'sm n', 'start');
+      text(8, 148, 'out', 'sm', 'start');
+      if (!(a.right || a.wrong)) text(46, 148, '?', 'm', 'start');
+      else part(a.v(0.1), 0, () => {
+        const x1 = sx(d.kv[a.pick]);
+        if (a.right) { rect('band', 40, 135, x1 - 40, 16, 2); rect('heat', x1, 135, sx(15) - x1, 16, 0); }
+        else rect('bandbad', 40, 135, x1 - 40, 16, 2);
+        text(Math.max(x1, sx(15)) + 6, 148, a.pick, a.right ? 'sm n' : 'sm w', 'start');
+      });
+      return { h: working(ay + 26, d, st, a), said: 'A 4 to 1 gearbox of 96 percent efficiency with 15 kilowatts going in, above a power scale.' };
+    },
+    compoundQ(d, st) {
+      const a = ansOf(st), y = 74;
+      rect('shaftR', 8, y - 5, 90, 10, 2); rect('box', 98, y - 26, 52, 52, 6); rect('shaftR', 150, y - 5, 48, 10, 2);
+      rect('box', 198, y - 26, 52, 52, 6); rect('shaftR', 250, y - 5, 82, 10, 2);
+      text(124, y + 5, '4 : 1', '', 'middle'); text(224, y + 5, '6 : 1', '', 'middle');
+      text(52, y - 30, '1440', 'sm t', 'middle'); text(52, y - 16, 'rev/min', 'sm t', 'middle');
+      text(52, y + 26, 'motor', 'sm m', 'middle'); text(291, y + 26, 'output', 'sm m', 'middle');
+      if (!(a.right || a.wrong)) text(291, y - 16, '?', 't', 'middle');
+      else part(a.v(0.1), 0, () => {
+        const c = a.right ? 'sm t' : 'sm w';
+        if (a.right) { text(174, y - 30, N.q8f, 'sm t', 'middle'); text(174, y - 16, 'rev/min', 'sm t', 'middle'); }
+        text(291, y - 30, a.pick.replace(' rev/min', ''), c, 'middle'); text(291, y - 16, 'rev/min', c, 'middle');
+        if (a.pick === rpm(N.q8f)) circ('ringbad', 224, y, 34);
+      });
+      return { h: working(y + 36, d, st, a), said: 'A motor at 1440 revolutions a minute drives a 4 to 1 pair, then a 6 to 1 pair, to an output shaft whose speed is asked.' };
+    },
+    beltQ(d, st) {
+      const a = ansOf(st), cy = 100, c1 = [70, cy], r1 = 25, c2 = [232, cy], rB = 62.5;
+      pulley(c1[0], cy, r1, -Math.PI / 2); pulley(c2[0], cy, rB, -Math.PI / 2);
+      path('belt', beltPath(c1, r1 + 2, c2, rB + 2).d);
+      arcArrow(c1[0], cy, r1 + 11, 225, N_IN * SPD, 1, 't');
+      text(6, 20, '100 mm', 'sm', 'start'); text(6, 35, '1450 rev/min', 'sm t', 'start');
+      text(c2[0], cy + 26, 'fan', 'sm b', 'middle'); text(c2[0], cy + 41, '250 mm', 'sm', 'middle');
+      const yl = cy + rB + 24;
+      if (!(a.right || a.wrong)) text(c2[0], yl, '? rev/min', 'm', 'middle');
+      else part(a.v(0.1), 0, () => { arcArrow(c2[0], cy, 42, 0, d.nv[a.pick] * SPD, 1, a.right ? 't' : 'wr'); text(c2[0], yl, a.pick, a.right ? 't' : 'w', 'middle'); });
+      return { h: working(yl + 8, d, st, a), said: 'A 100 millimetre motor pulley at 1450 revolutions a minute drives a 250 millimetre fan pulley by belt; the fan speed is asked.' };
+    },
+    drumQ(d, st) {
+      const a = ansOf(st), y = 92, TQ = 120 / 159;   // degrees of arrow per N m
+      text(6, 22, '4 kW', 'sm', 'start'); text(6, 37, '960 rev/min', 'sm t', 'start');
+      rect('box', 8, y - 26, 64, 52, 6); text(40, y + 5, 'motor', 'sm', 'middle');
+      rect('shaftR', 72, y - 5, 48, 10, 2);
+      rect('box', 120, y - 30, 72, 60, 6); text(156, y - 4, 'gearbox', 'sm', 'middle'); text(156, y + 14, '4 : 1', '', 'middle');
+      rect('shaftR', 192, y - 5, 44, 10, 2);
+      circ('drum', 272, y, 36); circ('hub', 272, y, 5);
+      line('rope', 308, y, 308, y + 64); rect('box', 295, y + 64, 26, 22, 3);
+      text(266, y + 54, 'drum', 'sm m', 'middle');
+      const yl = y - 46;
+      if (!(a.right || a.wrong)) text(272, yl, '? N m', 'm', 'middle');
+      else part(a.v(0.1), 0, () => { arcArrow(272, y, 24, 270, d.tv[a.pick] * TQ, -1, a.right ? 'nv' : 'wr'); text(272, yl, a.pick, a.right ? 'n' : 'w', 'middle'); });
+      return { h: working(y + 92, d, st, a), said: 'A 4 kilowatt motor at 960 revolutions a minute drives a winch drum through a 4 to 1 gearbox; the drum\'s torque is asked.' };
+    },
+    alignQ(d, st) {
+      const a = ansOf(st), yc = 74;
+      centreKey(14);
+      couplingRow(yc, 'offset', 10);
+      text(40, yc + 36, 'motor', 'sm m', 'middle'); text(276, yc - 40, 'pump', 'sm m', 'middle');
+      path('brk', 'M318 ' + (yc - 10) + 'H326M322 ' + (yc - 10) + 'V' + yc + 'M318 ' + yc + 'H326');
+      text(336, yc + 24, '0.5 mm', 'sm', 'end');
+      if (a.right || a.wrong) part(a.v(0.1), 0, () => circ(a.right ? 'ring' : 'ringbad', 322, yc - 5, 13));
+      return { h: working(yc + 44, d, st, a), said: 'A motor shaft and a pump shaft joined by a coupling, parallel but with the pump shaft 0.5 millimetres higher, drawn exaggerated.' };
+    },
+  };
+
+  // ---------- one screen's picture ----------
+  let GRIP = {};
+  function placeGrips(g) {
+    GRIP = g || {};
+    [[gP, 'zp'], [gW, 'zw']].forEach(([node, k]) => {
+      const on = !!GRIP[k] && !finished;
+      node.style.display = on ? '' : 'none';
+      node.setAttribute('tabindex', on ? '0' : '-1');
+      if (!on) return;
+      const r = GRIP[k];
+      node.setAttribute('x', r2(r.x)); node.setAttribute('y', r2(r.y)); node.setAttribute('width', r2(r.w)); node.setAttribute('height', r2(r.h));
+      node.setAttribute('aria-valuemin', '12'); node.setAttribute('aria-valuemax', k === 'zp' ? '40' : '120');
+      node.setAttribute('aria-valuenow', String(+CTL[k].get())); node.setAttribute('aria-valuetext', (+CTL[k].get()) + ' teeth');
+    });
+  }
+  function render(i, p) {
+    const d = STEPS[i], st = S[i];
+    art.textContent = ''; into = null;
+    REC = { wk: [] };
+    const out = d.rig ? rigScreen(d, p) : d.pic === 'push' ? pushShow() : d.pic === 'align' ? alignShow() : PICS[d.pic](d, st);
+    svg.setAttribute('viewBox', '0 0 340 ' + Math.ceil(out.h));
+    svg.setAttribute('aria-label', out.said);
+    placeGrips(out.grips);
+    return REC;
+  }
+
+  // ---------- dragging the rims ----------
+  let held = null;
+  function svgPt(ev) { const m = svg.getScreenCTM(); if (!m) return null; return new DOMPoint(ev.clientX, ev.clientY).matrixTransform(m.inverse()); }
+  const canDrag = (k) => !finished && !!STEPS[at()].rig && !!GRIP[k];
+  function grab() {
+    if (T !== Infinity) { T = Infinity; settle(); }
+    K.reveal();
+  }
+  function setZ(k, z) { setQuiet(k, K.clamp(Math.round(z), 12, k === 'zp' ? 40 : 120)); K.refresh(); }
+  // From the pointer to a tooth count: the pinion by its distance from the motor's shaft, the wheel by
+  // how far below the shafts its rim sits. A belt drawing shrinks to fit when both pulleys are big.
+  function teethAt(k, q, g) {
+    if (k === 'zp') {
+      const r = Math.hypot(q.x - CXP, q.y - CY) - (g.belt ? 5 : 1);
+      if (!g.belt || r + 2 * g.zw <= 252) return r;
+      return 2 * g.zw * r / Math.max(1, 252 - r);
+    }
+    const r = q.y - CY - (g.belt ? 5 : 1);
+    if (!g.belt || g.zp + 2 * r <= 252) return r;
+    return 252 - 2 * r <= 0 ? 120 : r * g.zp / (252 - 2 * r);
+  }
+  [[gP, 'zp'], [gW, 'zw']].forEach(([node, k]) => {
+    node.addEventListener('pointerdown', (ev) => {
+      if (!canDrag(k)) return;
+      const q = svgPt(ev);
+      if (!q) return;
+      held = { id: ev.pointerId, k };
+      try { node.setPointerCapture(ev.pointerId); } catch (er) { /* the drag still follows while the pointer stays on the grip */ }
+      ev.preventDefault(); grab();
+    });
+    node.addEventListener('pointermove', (ev) => {
+      if (!held || held.id !== ev.pointerId || !GRIP[k]) return;
+      const q = svgPt(ev);
+      if (!q) return;
+      ev.preventDefault();
+      setZ(k, teethAt(k, q, GRIP[k]));
+    });
+    const letGo = (ev) => { if (held && held.id === ev.pointerId) held = null; };
+    node.addEventListener('pointerup', letGo);
+    node.addEventListener('pointercancel', letGo);
+    node.addEventListener('lostpointercapture', () => { held = null; });
+    node.addEventListener('keydown', (ev) => {
+      const by = { ArrowRight: 1, ArrowUp: 1, ArrowLeft: -1, ArrowDown: -1 }[ev.key];
+      if (by == null || !canDrag(k)) return;
+      ev.preventDefault(); grab();
+      setZ(k, +CTL[k].get() + by);
+    });
+  });
+
+  // ---------- the words under the picture ----------
+  function sayFor(d, p) {
+    if (d.pic === 'push') return 'The same ' + N.F + ' N push acts five times further out on the wheel. So the wheel\'s torque is five times the motor\'s: ' + N.T100 + ' N m.';
+    const s = rigOf(d, p), R = nf(s.zw / s.zp, 2), n = spdTxt(s.n), Tq = fx(s.T, 0);
+    if (d.rig === 'power') {
+      if (s.effP === 100) return 'At 100% the whole 11 kW reaches the pump. In a real gearbox, friction always turns a little of it into heat.';
+      return s.effP + '% of the 11 kW reaches the pump: ' + fx(s.P, 2) + ' kW. The other ' + fx(s.loss, 0) + ' W turns to heat at the mesh.';
+    }
+    if (d.rig === 'pair2') {
+      if (!s.pair2) return 'One pair alone gives a ratio of ' + R + '. Switch Second pair on to slow the pump shaft three times more.';
+      return 'The ratios multiply: ' + R + ' × 3 = ' + nf(s.ratio, 2) + '. The pump shaft turns at ' + n + ' rev/min, the same way as the motor. It carries ' + Tq + ' N m.';
+    }
+    if (d.rig === 'belt') {
+      if (!s.belt) return 'Gears give the same ratio of ' + R + '. But they turn the pump shaft the opposite way to the motor.';
+      const how = s.zw > s.zp ? R + ' times slower than' : s.zw < s.zp ? 'faster than' : 'at the same speed as';
+      return 'The belt moves at ' + fx(rimV(s.zp), 1) + ' m/s, as fast as both pulley rims. So the ' + MM * s.zw + ' mm pulley turns ' + how + ' the ' + MM * s.zp + ' mm one, the same way round.';
+    }
+    if (s.zw === s.zp) return 'Both gears have ' + s.zp + ' teeth, so the pump shaft turns at the motor\'s 1450 rev/min. It carries the motor\'s ' + N.T + ' N m, less the loss: ' + Tq + ' N m.';
+    if (s.zw < s.zp) return 'The wheel has fewer teeth than the pinion. So the pump shaft speeds up to ' + n + ' rev/min, and its torque falls to ' + Tq + ' N m.';
+    return 'The pinion turns ' + R + ' times for each turn of the wheel. So the pump shaft turns at ' + n + ' rev/min. It carries ' + Tq + ' N m, ' + R + ' times the motor\'s torque less the loss.';
+  }
+  function layout(i, d, st, p) {
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('lead').hidden = finished || i !== 0;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task say' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    el('effbox').hidden = finished || d.rig !== 'power';
+    const togs = d.rig === 'pair2' || d.rig === 'belt';
+    el('live').hidden = finished || !togs;
+    CTL.pair2.el.hidden = d.rig !== 'pair2'; CTL.belt.el.hidden = d.rig !== 'belt';
+    el('outs').hidden = !d.rig;
+    const talk = !!d.rig || d.pic === 'push';
+    el('say').hidden = !talk;
+    el('say').textContent = talk ? sayFor(d, p) : '';
+    const opts = d.show ? [] : optsOf(d);
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 12));
+    pickBtns.forEach((bt, k) => {
+      bt.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      bt.setLabel(opts[k]);
+      bt.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    el('acts').hidden = !!d.show;
+    el('replay').hidden = finished || !replays(d) || REDUCE;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb say' + (right ? ' right' : '');
+    fb.textContent = d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? (d.hints[st.pick] || '') : st.res === 'empty' ? 'Pick an answer first.' : '';
+    const why = el('why');
+    why.hidden = !!d.show || !st.why;
+    if (!d.show) write(why, d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  }
+
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (i !== lastStep) { enterStep(i); K.refresh(); return; }
+    // a demonstration that was stopped (the page hidden, a test) shows finished
+    if (T !== Infinity && !anim.playing()) { T = Infinity; settle(); K.refresh(); return; }
+    // the efficiency slider moved by hand during the glide: the hand wins
+    if (MOT && MOT.kind === 'eff' && Math.round(+p.eff) !== effSet) { T = Infinity; MOT = null; effSet = Math.round(+p.eff); }
+    // a switch flipped: the new parts arrive
+    if (d.rig === 'pair2' || d.rig === 'belt') {
+      const on = !!p[d.rig];
+      if (on !== lastTog) { lastTog = on; if (!calm()) { MOT = { kind: 'swap' }; T = 0; END = 1.0; anim.play(); } }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    render(i, p);
+    layout(i, d, st, p);
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const answer = (i, o) => ({ pick: o, res: o === STEPS[i].want ? 'right' : 'wrong', why: false });
+  const near = (a, b, tol) => K.near(a, b, tol);
+  const words = (s) => String(s).split(/\s+/).filter((w) => /[A-Za-z0-9]/.test(w)).length;
+  // A screen drawn in a given state, finished; returns what it drew.
+  function drawn(i, st, over) {
+    const keep = { S: S[i], T, MOT };
+    S[i] = st; T = Infinity; MOT = null;
+    try { return render(i, Object.assign({ step: i }, setupOf(i), over || {})); }
+    finally { S[i] = keep.S; T = keep.T; MOT = keep.MOT; render(at(), K.params()); }
+  }
+
+  K.check('The gear ratio is the input\'s angular speed ÷ the output\'s: 1450 ÷ 290 = 5 for the opening pair, and 1450 ÷ 96.7 = 15 with the second pair', () => {
+    const o = K.at({ step: I_PAIR }), c = K.at({ step: I_P2, pair2: true });
+    return near(o.outSpeed, 290, 1e-9) && near(N_IN / o.outSpeed, 5, 1e-12) && near(N_IN / c.outSpeed, 15, 1e-12) && spdTxt(c.outSpeed) === '96.7';
+  }, { source: SRC.ratio });
+  K.check('A belt that does not slip moves at the speed of both pulley rims: 6.1 m/s round the 80 mm pulley at 151.8 rad/s and round the 400 mm pulley at 30.4 rad/s', () => {
+    const o = K.at({ step: I_BELT, belt: true }), w = radOf(o.outSpeed);
+    return near(W_IN * 0.04, w * 0.2, 1e-9) && fx(w, 1) === '30.4' && N.v === '6.1' && N.W === '151.8' &&
+      [[12, 120], [40, 12], [25, 60]].every(([zp, zw]) => near(W_IN * zp * MM / 2000, radOf(K.at({ step: I_BELT, belt: true, zp, zw }).outSpeed) * zw * MM / 2000, 1e-9));
+  }, { source: SRC.ratio });
+  K.check('Rotational power needs the speed in rad/s: 11 kW at 151.8 rad/s is 72.4 N m, and the drum\'s 4000 W at 25.13 rad/s is 159 N m, where 4000 ÷ 240 would give 16.7', () =>
+    N.T === '72.4' && N.q12w === '25.13' && N.q12 === '159' && N.q12r === '16.7' && near(T_IN * W_IN, 11000, 1e-9), { source: SRC.rads });
+  K.check('Speed reduced, torque increased, and the power out smaller than the power in: torque × speed out is the power out at every tooth count, and below 100% it is under 11 kW', () => {
+    const Z = [[12, 12], [12, 120], [20, 100], [40, 12], [33, 47]];
+    return Z.every(([zp, zw]) => {
+      const o = K.at({ step: I_PAIR, zp, zw, eff: 100 }), q = K.at({ step: I_PAIR, zp, zw, eff: 90 });
+      return near(o.outTorque * radOf(o.outSpeed), 11000, 1e-6) && near(q.outTorque * radOf(q.outSpeed), q.powerOut * 1000, 1e-6) &&
+        (zp === zw ? near(o.outTorque, T_IN, 1e-9) : (o.outSpeed < N_IN) === (o.outTorque > T_IN)) && q.powerOut < 11;
+    });
+  }, { source: SRC.trade });
+  K.check('The opening pair: 5 : 1 gives 290 rev/min and, at 95%, 344 N m and 10.45 kW with 550 W lost; the teeth meet at 6.1 m/s and push with 1811 N, giving 362 N m with no loss', () => {
+    const o = K.at({ step: I_PAIR }), full = K.at({ step: I_POW, eff: 100 });
+    return fx(o.outSpeed, 0) === '290' && fx(o.outTorque, 0) === '344' && fx(o.powerOut, 2) === '10.45' && N.L95 === '550' &&
+      N.F === '1811' && fx(full.outTorque, 0) === '362' && fx(full.powerOut, 2) === '11.00';
+  });
+  K.check('Two pairs: 5 × 3 = 15 gives 96.7 rev/min, 9.93 kW (about 90%) and 981 N m at 95% each, and the last shaft turns the same way as the motor', () => {
+    const c = K.at({ step: I_P2, pair2: true }), th = (t) => drivenAt(drivenAt(t, 20, 100, 0), Z2P, Z2W, PSI);
+    return spdTxt(c.outSpeed) === '96.7' && fx(c.powerOut, 2) === '9.93' && fx(c.outTorque, 0) === '981' && fx(COMP.e * 100, 0) === '90' &&
+      drivenAt(1, 20, 100, 0) < drivenAt(0, 20, 100, 0) && th(1) > th(0);
+  });
+  K.check('Equal teeth pass the speed and torque through less the loss; a wheel smaller than the pinion speeds the pump shaft up and cuts its torque', () => {
+    const e = K.at({ step: I_PAIR, zp: 30, zw: 30 }), u = K.at({ step: I_PAIR, zp: 40, zw: 20 });
+    return near(e.outSpeed, N_IN, 1e-9) && near(e.outTorque, T_IN * 0.95, 1e-9) && near(u.outSpeed, 2900, 1e-9) && u.outTorque < T_IN;
+  });
+  K.check('Both gears\' teeth move at the same speed at the mesh: the drawn wheel turns by the pinion\'s teeth ÷ its own, at every tooth count', () =>
+    [[12, 120], [20, 100], [40, 12], [17, 63]].every(([zp, zw]) => near((drivenAt(0, zp, zw, 0) - drivenAt(1, zp, zw, 0)) * zw, zp, 1e-9) &&
+      near(rimV(zp), radOf(train(zp, zw, 1, false).n) * zw * MM / 2000, 1e-9)));
+  K.check('Every puzzle answer is worked from its rule: 483 rev/min, 60 N m, 14.4 kW, 60 rev/min, 580 rev/min and 159 N m, with the wrong picks 4350, 6.7, 60 kW, 144, 360, 3625, 39.8 and 16.7', () => {
+    const w = (n) => STEPS[iOf('pic', n)].want;
+    return w('ratioQ') === '483 rev/min' && w('torqueQ') === '60 N m' && w('powerQ') === '14.4 kW' && w('compoundQ') === '60 rev/min' && w('beltQ') === '580 rev/min' && w('drumQ') === '159 N m' &&
+      N.q2x === '4350' && N.q4x === '6.7' && N.q6x === '60' && N.q8x === '144' && N.q8f === '360' && N.q10x === '3625' && N.q12m === '39.8' && N.q12r === '16.7' && N.q12mw === '100.5';
+  });
+  K.check('Misalignment brings heat to couplings and bearings: the hot pump with parallel shafts 0.5 mm apart has parallel misalignment', () => STEPS[I_AQ].want === AL[0] && STEPS[I_AQ].opts.length === 3, { source: SRC.align });
+  K.check('Each puzzle offers three answers and accepts only its right one; every wrong answer has its own hint and its working drawn in red, and nothing is marked before Check', () =>
+    DO.every((i) => {
+      const d = STEPS[i];
+      if (d.opts.length !== 3 || d.opts.indexOf(d.want) < 0) return false;
+      if (drawn(i, blank()).wk.some((x) => x.ans)) return false;
+      if (!drawn(i, answer(i, d.want)).wk.some((x) => x.ans && !x.bad)) return false;
+      return d.opts.filter((o) => o !== d.want).every((o) => !!d.hints[o] && drawn(i, answer(i, o)).wk.some((x) => x.ans && x.bad));
+    }));
+  K.check('Every demonstration ends within 4 s of its screen opening, and every answer is drawn within 2.5 s of Check', () => {
+    const keep = { T, MOT };
+    try {
+      return STEPS.every((d, i) => {
+        if (d.show) {
+          const plan = demoPlan(d);
+          T = Infinity; MOT = null; latest = 0;
+          render(i, Object.assign({ step: i }, setupOf(i)));
+          return plan.end <= 4 && latest <= Math.max(plan.end, 1);
+        }
+        return d.opts.every((o) => {
+          const keepS = S[i];
+          T = Infinity; MOT = null; latest = 0; S[i] = answer(i, o);
+          try { render(i, Object.assign({ step: i }, setupOf(i))); } finally { S[i] = keepS; }
+          return latest <= 2.5 && ANS <= 2.5;
+        });
+      });
+    } finally { T = keep.T; MOT = keep.MOT; render(at(), K.params()); }
+  });
+  K.check('Every screen that shows an idea says it in 90 words or fewer', () => STEPS.every((d) => !d.show || (words(d.text) <= 90 && (!d.read || words(d.read) <= 90))));
+
+  K.ready();
+</script>

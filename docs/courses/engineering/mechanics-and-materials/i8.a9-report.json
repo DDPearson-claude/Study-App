@@ -1,0 +1,225 @@
+{
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "Unbalance forces are proportional to the rotating speed of the rotor squared: at every speed, twice the speed gives four times the pull",
+        "ok": true
+      },
+      {
+        "label": "The pull is the mass × the radius × the angular speed squared, in rad/s: 31.4 rad/s and 3 N at 300 rev/min, 151.8 rad/s and 69 N at 1450, and 277 N at 2900, where doubling once would give 138",
+        "ok": true
+      },
+      {
+        "label": "Dynamic resonance: the rotor speed at which the shake peaks is the critical speed, where the shaft turns as often as the mounts swing on their own",
+        "ok": true,
+        "source": "https://www.engineersedge.com/vibration/dynamic_resonance_review_9853.htm"
+      },
+      {
+        "label": "The mounts swing on their own at √(500,000 ÷ 50) = 100 rad/s, 15.9 times a second, so the critical speed is 955 rev/min, where the shake is 0.06 mm ÷ (2 × 0.05) = 0.6 mm",
+        "ok": true
+      },
+      {
+        "label": "At damping 0.05 the shake is 0.007 mm at 300 rev/min, 0.11 mm at 1450 and 0.07 mm at 2400, and far above the critical speed it settles towards the 0.06 mm offset of the centre of mass",
+        "ok": true
+      },
+      {
+        "label": "The greatest response is for the least amount of damping: across the damping slider, less damping always gives a higher peak",
+        "ok": true
+      },
+      {
+        "label": "More damping gives a lower, wider peak: 1.5 mm at 0.02, 0.6 mm at 0.05, and 0.15 mm near 995 rev/min at 0.2, while at 300 and 2400 rev/min the shake hardly changes",
+        "ok": true
+      },
+      {
+        "label": "Resonance occurs when the driving frequency equals the natural frequency: of the three pushes on the mass on a spring, the one at its own frequency swings it most",
+        "ok": true
+      },
+      {
+        "label": "A balance weight with the same mass × radius cancels the pull at every speed opposite the spot, doubles it beside the spot, and makes it 1.41 times a quarter turn away",
+        "ok": true
+      },
+      {
+        "label": "A rigid rotor can be balanced at the two end planes: a weight at each end, opposite each spot, leaves no pull at either end, while without them the pulls cancel in total but rock the shaft",
+        "ok": true
+      },
+      {
+        "label": "Every puzzle answer is worked from its rule: 2 Hz, 277 N, 1200 rev/min, 0.3 mm, 20 g, 197 N and 1910 rev/min, with the wrong picks 138, 2900, 20, 0, 0.6, 30, 45, 18,000, 5, 3820 and 477",
+        "ok": true
+      },
+      {
+        "label": "Each puzzle offers three answers and accepts only its right one; every wrong answer has its own hint and its working drawn in red, and nothing is marked before Check",
+        "ok": true
+      },
+      {
+        "label": "Every demonstration ends within 5 s of its screen opening, and every answer is drawn within 2.5 s of Check",
+        "ok": true
+      },
+      {
+        "label": "Every screen that shows an idea says it in 90 words or fewer",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "rpm",
+      "zeta",
+      "bal",
+      "ends"
+    ],
+    "readouts": [
+      "pull",
+      "shake",
+      "omega"
+    ],
+    "outputs": [
+      "pull",
+      "shake",
+      "omega"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Screen",
+        "min": 0,
+        "max": 13,
+        "step": 1,
+        "steps": [
+          "In step",
+          "The heavy spot's pull",
+          "Twice the speed",
+          "The critical speed",
+          "Where it peaks",
+          "Damping",
+          "Double the damping",
+          "A balance weight",
+          "Balance mass",
+          "A long rotor",
+          "A shake on the way up",
+          "Pull at speed",
+          "Stiffer mounts",
+          "What builds on this"
+        ],
+        "value": 0
+      },
+      {
+        "id": "rpm",
+        "kind": "control",
+        "label": "Shaft speed",
+        "min": 0,
+        "max": 2400,
+        "step": 5,
+        "log": false,
+        "value": 300,
+        "shown": false,
+        "snap": [
+          955,
+          1450
+        ]
+      },
+      {
+        "id": "zeta",
+        "kind": "control",
+        "label": "Damping factor",
+        "min": 0.02,
+        "max": 0.3,
+        "step": 0.01,
+        "log": false,
+        "value": 0.05,
+        "shown": false,
+        "snap": [
+          0.05,
+          0.1,
+          0.2
+        ]
+      },
+      {
+        "id": "bal",
+        "kind": "control",
+        "label": "Balance weight",
+        "min": 0,
+        "max": 360,
+        "step": 15,
+        "log": false,
+        "value": 90,
+        "shown": false,
+        "snap": [
+          0,
+          90,
+          180,
+          270
+        ]
+      },
+      {
+        "id": "ends",
+        "kind": "toggle",
+        "label": "Balance weights",
+        "options": [
+          false,
+          true
+        ],
+        "value": false,
+        "shown": false
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Play again",
+      "Back",
+      "Continue",
+      "Start again",
+      "Demonstration"
+    ],
+    "answers": [],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ]
+  },
+  "moved": [
+    "step = 1 (the first step that shows a control)",
+    "rpm = 1800",
+    "zeta = 0.22999999999999995",
+    "bal = 270",
+    "ends = true"
+  ],
+  "shots": [
+    "/home/user/Study-App/build/engineering/mechanics-and-materials/i8.a9-360-light.png",
+    "/home/user/Study-App/build/engineering/mechanics-and-materials/i8.a9-360-light-moved.png",
+    "/home/user/Study-App/build/engineering/mechanics-and-materials/i8.a9-360-light-end.png",
+    "/home/user/Study-App/build/engineering/mechanics-and-materials/i8.a9-360-dark.png",
+    "/home/user/Study-App/build/engineering/mechanics-and-materials/i8.a9-360-dark-moved.png",
+    "/home/user/Study-App/build/engineering/mechanics-and-materials/i8.a9-360-dark-end.png",
+    "/home/user/Study-App/build/engineering/mechanics-and-materials/i8.a9-1280-light.png",
+    "/home/user/Study-App/build/engineering/mechanics-and-materials/i8.a9-1280-light-moved.png",
+    "/home/user/Study-App/build/engineering/mechanics-and-materials/i8.a9-1280-light-end.png",
+    "/home/user/Study-App/build/engineering/mechanics-and-materials/i8.a9-1280-dark.png",
+    "/home/user/Study-App/build/engineering/mechanics-and-materials/i8.a9-1280-dark-moved.png",
+    "/home/user/Study-App/build/engineering/mechanics-and-materials/i8.a9-1280-dark-end.png"
+  ]
+}

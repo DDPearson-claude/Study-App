@@ -1,0 +1,459 @@
+TASK: build-interactive
+
+You are building one small interactive page for "My University", Dan's personal learning app. It lets him see one idea for himself by playing with it. It runs inside a sandboxed iframe on top of the house kit described below, and the app tests it automatically before Dan sees it.
+
+## The idea
+Topic: Mechanics and materials: forces, motion and machines
+Idea: Vibration, resonance and balance (An unbalanced rotor shakes its mounts hardest at its critical speed, where its turning rate matches the rate the mounts swing at on their own.)
+Kind: mechanism
+Dan knows a little about this topic. Show an equation on the page only if every symbol in it is labelled on the picture; otherwise say the rule in words.
+
+## What the interactive must show
+Brief: The one thing you should see is the shake build to a peak at the critical speed, where the heavy spot's turning pull meets the mounts in step, when you sweep the speed up.
+Title (the app shows it above the frame, so do not repeat it): The unbalanced rotor
+The rule (the app shows it just above the frame, under "What you're looking at"): The picture runs over fourteen small screens. The main picture is a disc on a shaft, seen end on. The disc has a heavy spot on it. The disc and shaft weigh 50 kg in all. The heavy spot is an example 20 g. It sits 0.15 m from the axis. The shaft's bearing sits on springy mounts that let it move up and down. Together the mounts are 500 kN/m stiff. An arrow from the axis to the heavy spot shows the spot's outward pull on the shaft. It turns with the disc and grows as you speed up. The speed drag runs from 0 to 2400 rev/min in 5 rev/min steps. It opens at 300 rev/min. As you sweep, each speed leaves a dot on a graph of shake against speed. So the response curve builds as you go. A damping slider runs the damping factor from 0.02 to 0.30 in steps of 0.01. It opens at an example 0.05. The rule for the pull is this. A mass going round a circle needs a pull towards the centre. That pull is m r ω²: its mass × its radius × the angular speed squared. The speed is in rad/s. So the spot pulls the shaft outwards just as hard. 300 rev/min is 31.4 rad/s. There the pull is 0.02 × 0.15 × 31.4² = 3.0 N. At 1450 rev/min the pull is 69 N. That speed is 151.8 rad/s. Seen from the side, the turning pull pushes the mounts up, then down, once a turn. The rule for the mounts is this. A mass M on a stiffness k swings on its own at its natural frequency, √(k ÷ M). Here that is √(500,000 ÷ 50) = 100 rad/s, or 15.9 times a second. So the critical speed is 15.9 turns a second. That is 955 rev/min. The shake is the steady swing of a driven spring and mass: shake = m r ω² ÷ √((k − M ω²)² + (c ω)²). Here c is the damping. It is 2 × the damping factor × √(k M). At the critical speed this comes to m r ÷ M ÷ (2 × the damping factor). The heavy spot moves the rotor's centre of mass off the shaft's line. The offset is m r ÷ M = 0.003 ÷ 50 m, which is 0.06 mm. Far above the critical speed, the rotor turns about that centre of mass. So the shake settles near 0.06 mm. At damping 0.05 the shake is 0.007 mm at 300 rev/min, 0.6 mm at 955 rev/min, 0.11 mm at 1450 rev/min and 0.07 mm at 2400 rev/min. At damping 0.2 the peak is wider and about 0.15 mm high. It sits near 995 rev/min. At 0.02 it is 1.5 mm. A balance weight of 20 g also sits 0.15 m out. You can drag it round the rim in 15° steps. It opens a quarter turn from the heavy spot. Its pull is an arrow too. The two arrows add, as forces do. Beside the spot, the total pull is twice as big. A quarter turn away, it is 1.41 times as big. Opposite the spot, the two pulls cancel at every speed. The arrows vanish and the curve goes flat at zero. Readouts give the heavy spot's pull in N, the shake in mm and the shaft speed in rad/s. On a narrow phone the three readouts wrap onto two lines. The disc turns 20 times slower than real. The readouts give real speeds. The shake is drawn 40 times bigger than real. Screen 1 has a mass on a spring with a natural frequency of 2 Hz. A push that comes and goes drives it. The screen asks which push gives the biggest steady swing. The right pick is a push at 2 Hz. The wrong picks are the slowest push at 0.5 Hz and the fastest push at 8 Hz. Screen 2 drags the speed from 300 to 1450 rev/min. The pull arrow grows from 3.0 N to 69 N and turns with the spot. The mounts move up and down once a turn. Screen 3 gives the pull as 69 N at 1450 rev/min. It asks the pull at 2900 rev/min. The answer is 277 N, four times as big. The speed doubles, and speed counts twice. The wrong pick 138 N doubles the pull with the speed. The wrong pick 69 N treats speed as making no difference. Screen 4 sweeps the speed from 0 to 2400 rev/min at damping 0.05. The curve builds dot by dot. The shake is tiny at first. It peaks at about 0.6 mm near 955 rev/min. Then it falls back to 0.11 mm at 1450 rev/min and settles near 0.06 mm. Screen 5 has a pump set whose mounts swing on their own at 20 Hz. It asks where the pump shakes hardest on its way up to 2900 rev/min. The answer is 1200 rev/min, from 20 × 60. The wrong pick 2900 rev/min is its top speed, as if shaking just grew with speed. The wrong pick 20 rev/min forgets to turn the hertz into rev/min. Screen 6 drags the damping slider from 0.05 to 0.2. The peak drops from 0.6 mm to about 0.15 mm and spreads wider. Away from the peak, the shake hardly changes. At 0.02 the peak climbs to 1.5 mm. Screen 7 doubles the damping factor from 0.05 to 0.1. It asks the shake at the critical speed. The answer is 0.3 mm, half of 0.6 mm. The wrong pick 0 mm treats damping as removing the shake. The wrong pick 0.6 mm treats damping as only moving the peak. Screen 8 drags the balance weight round the rim from a quarter turn away. Beside the spot the pull doubles. Opposite it, the pulls cancel and the curve goes flat at every speed. Screen 9 has a 30 g heavy spot 0.10 m from the axis. The balance weight goes opposite, 0.15 m out. The screen asks the weight's mass. The answer is 20 g, from 30 × 0.10 ÷ 0.15. The wrong pick 30 g copies the spot's mass. The wrong pick 45 g turns the radii upside down. Screen 10 turns on Long rotor. It shows a long rotor from the side. A 20 g heavy spot sits near each end, on opposite sides. The two pulls cancel in total. Yet together they rock the shaft end over end, as a couple. A balance weight at each end, opposite each spot, stops the rocking. Screens 11 to 13 mix it all. Screen 11 has a motor running up to 1450 rev/min. It shakes hard for a moment near 950 rev/min, then runs smoothly. The screen asks why. The right pick is that it passes through a critical speed. One wrong pick says the heavy spot pulls hardest at 950 rev/min. The other says the motor is short of torque at 950 rev/min. Screen 12 asks the pull of a 10 g heavy spot 0.2 m out at 3000 rev/min. That speed is 314.2 rad/s. So the pull is 0.01 × 0.2 × 314.2² = 197 N. The wrong pick 18,000 N leaves the speed in rev/min. The wrong pick 5 N uses 50 rev/s. Screen 13 stiffens the 50 kg rotor's mounts from 500 to 2000 kN/m. It asks the new critical speed. The answer is 1910 rev/min, because four times the stiffness doubles √(k ÷ M). The wrong pick 3820 rev/min is four times as fast. The wrong pick 477 rev/min treats stiffer mounts as lowering it. Screen 14 is a still panel of what builds on these ideas next. That is bending in beams and the twist in a shaft carrying torque. Some screens show an idea and the rest ask you to try it. Each puzzle offers three answers. A wrong pick is drawn so you can see where it goes wrong.
+What the model leaves out (the app shows this in its own panel; do not repeat it on the page): The mounts let the rotor move only up and down. They are drawn as simple springs. Real mounts let it move every way. The shaft itself bends a little too. That gives a real machine more than one critical speed. The damping is a setting, not worked out from the mounts' material. The heavy spot is drawn far bigger than a real one. The disc turns 20 times slower than real. The shake is drawn 40 times bigger. The curve shows the steady shake at each speed. On a real run-up the shake takes a moment to build. So a quick pass through the critical speed shakes less than the curve shows. The long rotor's view is a sketch. It does not compute the size of the rocking.
+Controls (use these ids, ranges and opening values exactly; when the prediction or a check names a setting of a slider, add it to that slider's snap):
+- id "step": Screen, from 0 to 13 in steps of 1, opening at 0
+Outputs (return each from K.model under exactly this key, and show it once: as a K.readout with the same id and the decimals given, which is how the explanation rounds it, or as a label on the drawing when the drawing already shows it, never both. Target checks read K.model, not the tile):
+- id "pull": Heavy spot's pull (N), decimals: 0
+- id "shake": Shake at the mounts (mm), decimals: 3
+- id "omega": Shaft speed (rad/s), decimals: 1
+Numbers it may show (control = Dan sets it; computed = from the rule; constant = a fixed real value; assumed = an example value, said once as an example in the lead line or a caption, then drawn as a plain value; date = a historical date or fact):
+- Screen, 1 to 14 (the stepper): 0 (control)
+- Disc and shaft's mass, kg: 50 (assumed)
+- Heavy spot's mass, g: 20 (assumed)
+- Heavy spot's mass, kg: 0.02 (assumed)
+- Heavy spot's radius, m: 0.15 (assumed)
+- Unbalance, mass × radius, kg m: 0.003 (computed)
+- Mounts' stiffness, kN/m: 500 (assumed)
+- Mounts' stiffness, N/m: 500000 (assumed)
+- Speed drag's lowest value, rev/min: 0 (control)
+- Speed drag's highest value, rev/min: 2400 (control)
+- Speed drag's step, rev/min: 5 (control)
+- Speed drag's opening value, rev/min: 300 (control)
+- Damping slider's lowest damping factor: 0.02 (control)
+- Damping slider's highest damping factor: 0.3 (control)
+- Damping slider's step: 0.01 (control)
+- Damping slider's opening damping factor: 0.05 (control)
+- Balance weight's mass, g: 20 (assumed)
+- Balance weight's radius, m: 0.15 (assumed)
+- Balance weight drag's step, degrees: 15 (control)
+- Opening speed in rad/s: 31.4 (computed)
+- Pull at 300 rev/min, N: 3 (computed)
+- Speed of 1450 rev/min in rad/s: 151.8 (computed)
+- Pull at 1450 rev/min, N: 69 (computed)
+- Speed of 2900 rev/min: 2900 (assumed)
+- Pull at 2900 rev/min, N: 277 (computed)
+- Natural frequency of rotor on mounts, rad/s: 100 (computed)
+- Natural frequency of rotor on mounts, Hz: 15.9 (computed)
+- Critical speed, rev/min: 955 (computed)
+- Centre of mass offset and high-speed shake, mm: 0.06 (computed)
+- Shake at 300 rev/min, damping 0.05, mm: 0.007 (computed)
+- Shake at 955 rev/min, damping 0.05, mm: 0.6 (computed)
+- Shake at 1450 rev/min, damping 0.05, mm: 0.11 (computed)
+- Shake at 2400 rev/min, damping 0.05, mm: 0.07 (computed)
+- Peak shake at damping 0.2, mm: 0.15 (computed)
+- Peak speed at damping 0.2, rev/min: 995 (computed)
+- Peak shake at damping 0.02, mm: 1.5 (computed)
+- Total pull, weight a quarter turn away, times one pull: 1.41 (computed)
+- Picture slowed by: 20 (assumed)
+- Shake drawn bigger by: 40 (assumed)
+- Screen 1 natural frequency, Hz: 2 (assumed)
+- Screen 1 slow push, Hz: 0.5 (assumed)
+- Screen 1 fast push, Hz: 8 (assumed)
+- Screen 3 wrong pick: doubled, N: 138 (computed)
+- Screen 5 mounts' natural frequency, Hz: 20 (assumed)
+- Screen 5 pump's top speed, rev/min: 2900 (assumed)
+- Screen 5 critical speed, rev/min: 1200 (computed)
+- Screen 7 doubled damping factor: 0.1 (assumed)
+- Screen 7 shake at critical speed, mm: 0.3 (computed)
+- Screen 9 heavy spot's mass, g: 30 (assumed)
+- Screen 9 heavy spot's radius, m: 0.1 (assumed)
+- Screen 9 balance weight's radius, m: 0.15 (assumed)
+- Screen 9 balance weight's mass, g: 20 (computed)
+- Screen 9 wrong pick: radii upside down, g: 45 (computed)
+- Screen 11 speed where it shakes, rev/min: 950 (assumed)
+- Screen 11 running speed, rev/min: 1450 (assumed)
+- Screen 12 heavy spot's mass, g: 10 (assumed)
+- Screen 12 heavy spot's radius, m: 0.2 (assumed)
+- Screen 12 speed, rev/min: 3000 (assumed)
+- Screen 12 speed, rad/s: 314.2 (computed)
+- Screen 12 pull, N: 197 (computed)
+- Screen 12 wrong pick: rev/min left in, N: 18000 (computed)
+- Screen 12 wrong pick: rev/s used, N: 5 (computed)
+- Screen 13 stiffer mounts, kN/m: 2000 (assumed)
+- Screen 13 new critical speed, rev/min: 1910 (computed)
+- Screen 13 wrong pick: four times, rev/min: 3820 (computed)
+- Screen 13 wrong pick: halved, rev/min: 477 (computed)
+- Worked example: heavy spot's mass, g: 12 (assumed)
+- Worked example: heavy spot's radius, m: 0.25 (assumed)
+- Worked example: fan speed, rev/min: 1480 (assumed)
+- Worked example: fan speed, rad/s: 155 (computed)
+- Worked example: pull, N: 72.1 (computed)
+- Worked example: balance weight's radius, m: 0.2 (assumed)
+- Worked example: balance weight's mass, g: 15 (computed)
+- Twisting critical speed margin, %: 10 (constant, source [1])
+
+## The explanation Dan reads after playing (use the same words for the same things)
+A heavy spot on a spinning rotor pulls its shaft outwards. The pull turns with it. So it pushes the mounts one way, then the other, once every turn. The shaking is worst near one speed. There the turning rate matches the rate the mounts swing at on their own. A balance weight opposite the heavy spot cancels that pull at every speed. It needs the same mass × radius.
+
+Start with the pull. A mass going round a circle needs a pull towards the centre to stay on it. That pull is m r ω²: the mass × its radius × the angular speed squared. The speed is in rad/s. A rotor with more mass on one side of its axis than the other has an unbalance. Its shaft must pull that heavy spot inwards. By Newton's third law, the spot pulls the shaft outwards just as hard. That outward pull points at the spot wherever it is, so it turns with the shaft. The speed counts twice. At double the speed, the spot moves twice as fast and swings its direction round twice as quickly. So the pull is four times as big. Take a 20 g spot 0.15 m from the axis at 1450 rev/min. That speed is 151.8 rad/s. Its pull is 0.02 × 0.15 × 151.8² = 69 N. At 2900 rev/min it is 277 N.
+
+Now the mounts. Remember the driven swing. A mass M on a spring of stiffness k swings on its own at its natural frequency. That is √(k ÷ M) in rad/s. Here the mass is a 50 kg rotor on mounts 500 kN/m stiff. They swing on their own at √(500,000 ÷ 50) = …
+
+## Sources
+The only web addresses this page may contain, each only as a K.check {source} on a check whose label restates what that source's quote says (a result of your rule, or a fact about your drawing, takes no source; the caption names a source in words). The app rejects any other:
+[1] by (Buddy) Wachel and Fred Szenasi — Turbomachinery Symposium (Wachel and Szenasi) (https://rotorlab.tamu.edu/me459/NOTES%209%20TPS%20lectures%20on%20torsional%20vibrations/1993%20Turbo%2022%20Torsional%20Vibes%20-%20Wachel.pdf): "If the critical speeds cannot be removed from the desired operating speed range, they should be avoided by a 10 percent margin, if feasible."
+[2] 6.1 GENERAL OBJECTIVES 1) To gain insight into the causes of undesirable vibration of rotors and to understand static a… (https://web.mst.edu/~stutts/ME242/LABMANUAL/DynamicBalancingExp.pdf): "The forces generated due to an unbalance are proportional to the rotating speed of the rotor squared. Therefore, the balancing of high-speed equipment is especially important."
+[3] Dynamic Resonance Review — Engineers Edge (https://www.engineersedge.com/vibration/dynamic_resonance_review_9853.htm): "This phenomenon is called dynamic resonance and the rotor speed at which it occurs is the critical speed."
+[4] 16.8 Forced Oscillations and Resonance - College Physics 2e | OpenStax — OpenStax (https://openstax.org/books/college-physics-2e/pages/16-8-forced-oscillations-and-resonance): "Resonance occurs when the driving frequency equals the natural frequency, and the greatest response is for the least amount of damping."
+[5] Rotating Machinery Rotor Balancing — Lifetime Reliability Solutions (https://rotorlab.tamu.edu/me459/Rotor%20Balancing/Rotating_Machinery_Rotor_Balancing.pdf): "A rigid rotor can be balanced at the two end planes and will stay in balance when in service. A flexible rotor will require multi-plane balancing."
+[6] Dynamic Resonance Review — Engineers Edge (https://www.engineersedge.com/vibration/dynamic_resonance_review_9853.htm): "As a result, rotating equipment is designed to operate at primary rotor speeds that do not coincide with the rotor assembly's natural frequencies."
+
+## Dan and how he learns
+- He learns best by doing: something visual he can push and watch respond. Warm, plain words, first principles; no jargon unless explained.
+- He uses an Android phone (this frame is about 340 px wide there, touch only) and a laptop (about 1000 px, where K.stage puts the controls beside the visual). Design for the phone first.
+
+## Rules for this page
+- There is no guess to protect: show everything from the start (no k-after-move), curves and results included.
+- The lead line says what is drawn, plainly ("Water from a 5 m drop hits the blades of a wheel"), not what to do: the app gives the action above the frame. Example values are said once there ("an example stream: a 5 m drop, 20 kg of water each second"), then the drawing labels them plainly ("5 m"), never "for example" on the drawing.
+- Every label and arrow sits on, or starts from, the thing it is about: a force arrow starts on the part it pushes; a speed arrow on the part that moves. Anything the rule says turns or flows does so (K.anim), at a speed that follows its control.
+- The .say sentence must make sense on its own to someone who has just read the explanation: what is happening on screen now, cause then effect, in everyday words; no term, threshold or comparison the page or the explanation has not named; a number as part of its whole ("353 W of the stream's 981 W is carried off by the water"). Bad: "The buckets move slower than half the jet speed, so the water still leaves going backwards, taking 353 W away with it." Good: "The buckets are moving slowly, so the water bounces off them still moving fast, and carries 353 W of its 981 W away downstream."
+- A key for the main drawing sits inside the drawing; show each quantity once (a bar, a readout or a curve, not all three); every number drawn that is worked out (a speed from a drop) is explained in "What you're looking at", or is left off.
+- Draw the cause the explanation gives, not only its effect, and let Dan cause it (a drag, a push, a switch); include the setting where the effect does not happen.
+- Mark the brief's one quantity on the picture itself, with a label saying what it is and its value (a bracket between the two heights reading "2.4 m"); an output with a readout is marked without its number, which the readout alone shows (the app hides it while Dan answers a check).
+- A shaded band states something true of the axis it spans: inputs across x, outputs across y. To show many inputs giving nearly the same output, shade the narrow output band (regions {y0, y1}).
+- Draw every comparison the explanation makes the same way, in the same place, on the axis where the effect happens. A time period is a bracket or thin band along the time axis, not a tall block.
+- Give each reference line its own look and a label beside it; every styled line is in the key or labelled on the drawing.
+- Draw only what the brief, the rule or the explanation names, with the same names. An extra figure says on itself how to read it: what its line stands for and which way is which.
+- Show only the numbers listed above or computed from the rule, each written the way the explanation writes it (the same rounding).
+- Any example cases you choose are fair and representative, never picked to exaggerate the effect.
+- Money, health and law: show how it works, never advice, and never a guaranteed outcome.
+
+## The house kit (complete API reference)
+You write the BODY of one page: HTML, an optional `<style>`, then one inline `<script>` ending
+with `K.ready()`. It runs in a sandboxed iframe on Dan's phone (about 340 px wide, touch) and
+laptop, with the global `K` and the kit's stylesheet. No network or storage: no web
+addresses, `fetch`, `localStorage`, `alert` or `prompt`.
+
+### Page shape that works
+1. `<p class="lead">`: one line saying what is drawn (the app adds title and action).
+2. The main visual with its controls right under it: `K.stage('#scene', '#controls')` keeps the
+   pair on one phone screen. A choice that re-sorts the picture may sit above it.
+3. `<p class="say">`: one sentence that changes with the state and says why. Then
+   `<div class="k-readouts">` for numbers the drawing does not label.
+4. Secondary figures and anything that grows go below.
+5. `<p class="caption">`: one short sentence, at most 20 words: where the numbers come from ("A
+   sketch, not measured data") or the rule in the explanation's words. No new claim, no law or
+   term the explanation does not teach. The app shows what the model leaves out.
+
+### Keep the answer hidden until Dan moves
+Dan predicts before he plays: open on a setting the question is not about, and hide whatever
+gives the answer away until his first move:
+- class `k-after-move` on any element (a mark, an arrow, a sentence): hidden, its space kept.
+  Hide the answer, not the controls or a whole figure (a blank hole fails the test).
+- `K.readout({..., afterMove: true})` shows "?" until then; plot series and marks take `afterMove: true` too.
+- `K.moved` is true from then on: in `K.update`, write `K.moved ? answer : question`.
+- `K.afterMove(fn)` runs `fn` once at that moment; `K.reveal()` marks it from your handlers.
+
+### The pipeline
+Controls register themselves; their values form `params` = `{id: value}`.
+```
+K.model(fn)        fn(params) -> outputs {name: number | string}. Pure: no DOM, no lists or objects.
+K.update(fn)       fn(params, outputs): draw everything here. More than one is allowed.
+K.at(over)         -> outputs of the model at those params (others take each control's starting value)
+K.check(label, fn, {source?})   fn() must return exactly true
+K.ready()          call once, last: draws the opening state and runs the checks
+K.complete()       at the lesson's end
+K.params()  K.outputs()  K.refresh()   (refresh reruns the pipeline after you change your own state)
+```
+A readout whose id is an output key updates itself.
+
+### Controls
+Every control takes `into` (a selector or element). Ids are unique; use the lesson's ids exactly.
+```
+K.control({id, label, min, max, step, value, unit?, prefix?, fmt?, log?, snap?, hint?, into}) -> {el, get(), set(v)}
+K.choice({id, label, options: [value | {value, label}], value, hint?, into}) -> {el, get, set}
+K.toggle({id, label, value: false, hint?, into}) -> {el, get, set}
+K.stepper({id, steps: [title | {title, text}], value: 0, compact?, label?, into}) -> {el, get, set, setSteps(list)}
+K.button({label, press, secondary?, into}) -> {el, press(), setLabel(text)}
+K.drag(el, {control, toValue(x, y)}) -> {el}
+```
+`control` is a big slider with − / + buttons. Keep `unit` short; `fmt(v)` returns the whole text;
+`log: true` spans decades; `snap: [values]` lands a drag exactly on a setting the prediction or a
+check names. `choice`: 2-8 short named options; `value` is an option's value or its 0-based
+index. `stepper` walks a process with Back / Next (`compact: true` when your diagram shows the
+content). `button` is an action (Send it in): use it, not plain buttons. `drag` lets Dan move
+the thing itself: `toValue` maps the pointer (viewBox units; px from `el`'s top-left for HTML)
+to the control's value; the first touch counts as his move.
+
+### Outputs
+```
+K.readout({id, label, unit?, prefix?, decimals?, fmt?, big?, hint?, afterMove?, into}) -> {el, set(v), get(), text()}
+```
+One rounding everywhere a number appears: `decimals` matching the lesson text, and the `.say`
+sentence built with `K.fmt(v, {decimals})` or `readout.text()`. Labels under 30 characters.
+While Dan answers a lesson check, the app hides that output's readout and the `.say` lines:
+never repeat a readout's value elsewhere (a label, an aria-label).
+```
+K.plot(target, opts) -> {draw(opts), x(v), y(v), invert(px, py), el, canvas}
+```
+- `x`, `y`: `{min, max, label, log?, prefix?, unit?, fmt?, ticks?}`. Leave out `y.min`/`y.max` to fit the data.
+- `series`: `[{fn: x => y | points: [[x, y], ...], label?, color?, dash?, width?, fill?, dots?, gaps?, afterMove?}]`
+- `shade`: `[{between: [a, b], label?, color?, x0?, x1?}]`: fills between two series (by label), a
+  series and a constant, or two functions.
+- `marks`: `[{x, y, label?, color?, guides?, afterMove?}]`: a dot with a label pill; `guides` adds dashed lines to the axes.
+- `regions`: `[{x0, x1, label?} | {y0, y1, label?}]` (a band); `lines`: `[{x | y, label?}]` (a dashed line).
+- `label`: the text alternative; `height`; `after(ctx, plot)` draws extras using `plot.x()`, `plot.y()`.
+
+`draw(opts)` redraws with `opts` over the creation options: call it in `K.update`. Values must be
+finite (`gaps: true` only where a gap is real). Series are navy, then teal; `color: 'muted',
+dash: true` for a baseline.
+```
+K.bars(target, {max?, unit?, prefix?, decimals?, fmt?}) -> {draw(items)}      items: [{label, value, color?}], values >= 0
+K.anim({step(dt, t), reset?, label?, autoplay?, button?, into}) -> {el, play, pause, toggle, reset, playing()}
+```
+`anim` adds a Play button (text `label`); `reset` adds Reset. When a switch, button or drag
+already starts the motion, pass `button: false` and call `play()` from that control: one control
+per action. In `step` advance your state (`dt` in seconds) and redraw; return `false` to stop. To
+drive a slider, keep the exact value yourself (the slider moves in whole steps).
+
+### Sound
+```
+K.sound.tone(hz, {dur?, type?, gain?})   K.sound.chord([hz, ...], {dur?, stagger?})   K.sound.stop()   K.sound.mute(on)
+K.sound.hold(hz, {type?, gain?, max?}) -> {set({hz?, gain?}), stop(), playing()}
+```
+`dur` in seconds (at most 10). Sound plays only from a `K.button` press, never `K.update`; show
+what is sounding. `hold` keeps a tone going while `set()` follows a slider. Phones can't play
+below about 150 Hz: use 200 to 2,000 Hz.
+
+### Drawings and helpers
+```
+K.el(tag, attrs?, ...children)    attrs: class, style, on: {click: fn}, text, html, dataset, any attribute
+K.svg(tag, attrs?, ...children)   the same in the SVG namespace
+K.labels(group, [{x, y, text, anchor?, size?, class?, color?}], {avoid?}) -> [<text>]
+K.stage(visual, controls, {max?, beside?}) -> {el}
+K.fmt(v, {decimals?, sig?, prefix?, unit?, percent?, sign?, compact?}) -> '1,234.5', '−3', '2.5 × 10⁶'
+K.near(a, b, tol)   K.clamp(v, lo, hi)   K.lerp(a, b, t)   K.linspace(a, b, n)   K.color(role, alpha?)
+K.ease(p)   K.arrive(T, t0, dur?)   K.fade(el, a, rise?)
+```
+Give an `<svg>` a viewBox about 340 wide, `width="100%"`, `role="img"` and an `aria-label` that
+follows the state. Text 13-16 units, never under 12 (a phone shows 340 units at about 0.9x). A
+row of N labels gets about 300/N units each; label only what differs. Every label sits on, or
+points to, something drawn. `K.labels` places labels (13 units unless `size`) clear of other
+text, the edges and the lines or shapes in `avoid`: use it for labels that move or appear later.
+Put an angle's label inside its wedge, beyond the arc, hidden while the wedge is too narrow.
+`K.stage` fits the pair in `max` px (600) on a phone; `beside: false` keeps it stacked.
+
+Draw the mechanism as it physically works. If the explanation gives a reason (X because Y), draw
+Y so Dan can watch it; parts that fit are drawn fitting (teeth in teeth), never two identical
+icons joined by a line; whatever the rule says happens (slides, grips, multiplies) happens on screen.
+
+### Colour
+Colour carries meaning. Use these roles as `var(--k-…)` or `K.color('fill2')` (`K.color('accent2',
+0.3)` is see-through); a colour name fails the test.
+- Lines and text: `ink`, `muted` (secondary, comparisons), `accent2` (navy: the main thing,
+  controls), `accent` (teal: small labels, a second series), `warn` (red: warnings and mistakes
+  only), `good` (green: "done" only), `amber-line` (amber lines that must stand out).
+- Fills: `bg` (page), `panel`, `sunk`, `amber` (note box), `hl` (key-term highlighter), `fill1`
+  (area of the main thing), `fill2` (highlighted area, amber), `fill3` (area of a second thing).
+- `cat1`-`cat4` (blue, orange, magenta, aqua): telling equal things apart, never meaning; with a
+  key or labels; cat1 and cat2 first. A thing with a familiar colour (water, fire) never gets
+  another thing's colour: use the nearest role and label it. What is still there stays solid:
+  mark a state such as unused with a label, not by fading it, and key any dashed style.
+- Also `--k-line`, `--k-strong` (borders), `--k-on-accent2` (text on navy), `--k-font`, `--k-r` (radius).
+
+Never describe colours by lightness or hue in words Dan reads ("the dark square"): dark mode
+changes them.
+
+Classes: `muted`, `small`, `k-label` (small teal caps), `term` (key term), `note` (amber box),
+`warn-note`, `panel`, `row`, `grid2`, `big`, `k-btn` (`secondary`), and a legend:
+`<div class="key"><span><i class="swatch" style="background:var(--k-accent2)"></i>Your push</span>
+<span><i class="swatch line dash" style="color:var(--k-muted)"></i>The limit</span></div>`.
+
+### Rules for a great interactive
+- One idea. The answer to Dan's prediction shows within about 3 seconds of his first move (add
+  a K.check that it does). Include something Dan causes and a case that surprises. One or two
+  controls, three at most.
+- Phone first: nothing wider than 340 px, no fixed widths over 300 px, rows wrap, no hover-only
+  information, tap targets at least 44 px. Size tiles and grid columns in rem (`minmax(6rem,
+  1fr)`): text grows a quarter at Text size XL, and no word may split across two lines.
+- Every number shown is a control, computed by the rule shown, a constant from the lesson, an
+  example value named once in the lead, or a date from the lesson. Never invent data, rates or chances.
+- The `.say` sentence describes what is on screen now, plainly and warmly, and reads right at the
+  extremes ("none of the 100"). Never claim Dan did something ("When you slid it to 20"):
+  describe the state, or write conditionally ("Push it past 20 and…").
+- 3-5 `K.check` known answers worked out by hand: an edge case, a shape fact (rises, halves,
+  always last), and one answer from outside your formula. `source` may ONLY be a URL from the
+  lesson's own sources, and only on a check whose label restates what that source's quote says;
+  a result of your rule, or a fact about your drawing, takes none. Compare numbers with
+  `K.near(a, b, tol)`: tolerance about a millionth of the size, a thousandth where rounding meets roots.
+- `K.anim` for motion, never timers: soft, unhurried, nothing popping in. Parts arrive about 0.6
+  s apart by `K.fade(el, K.arrive(T, t0))`; travel and growth use `K.ease`; a demonstration takes
+  3-5 s. No `vh` units, `position: fixed` or `height: 100%`.
+- Ideas without numbers (mechanism, process, structure, history, concept): prefer a timeline
+  slider, a named choice, a sorter or a drag; use `K.stepper` only when every step changes the
+  drawing. Checks assert order and structure facts.
+- A timeline runs forward: a slider rising left to right, its `fmt` showing the date (−500 as
+  "500 BC"), or a stepper of named events in order. A lesson's calendar-year control keeps its
+  range, its `fmt` showing the year; years after the first date are for new controls. Each dated
+  event appears as he reaches its date.
+
+### The self-test
+Before Dan sees it, the app loads your body 340, 720 and 1040 px wide, runs every check, moves
+every control, button, animation and drag, reveals the after-move parts, and looks again at Text
+size XL and in the other theme. It fails on an exception, NaN or undefined on the page, an update
+over 150 ms, sideways overflow, text cut off or over other text, SVG text under 11 px on a phone,
+a line or arrowhead through a label, text under 3:1 contrast with what is behind it, a colour
+name, a blank hole until a move, or no `K.ready()`.
+
+### Example
+```html
+<p class="lead">Lengthen the string and watch each swing take longer.</p>
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+<p class="caption">Small swings only; g = 9.81 m/s² is gravity at the Earth's surface.</p>
+<script>
+  const g = 9.81;
+  const period = (L) => 2 * Math.PI * Math.sqrt(L / g);
+  K.control({ id: 'L', label: 'String length', min: 0.1, max: 3, step: 0.05, value: 1, unit: 'm', snap: [2], into: '#controls' });
+  K.stage('#plot', '#controls');
+  K.readout({ id: 'T', label: 'One full swing takes', unit: 's', decimals: 2, into: '#outs' });
+  const plot = K.plot('#plot', { x: { min: 0, max: 3, label: 'Length (m)' }, y: { min: 0, max: 4, label: 'Period (s)' } });
+  K.model((p) => ({ T: period(p.L) }));
+  K.update((p, o) => {
+    plot.draw({ series: [{ fn: period }], marks: [{ x: p.L, y: o.T, guides: true }] });
+    document.getElementById('say').textContent = !K.moved ? 'Make the string four times longer: how much longer is each swing?'
+      : 'A ' + K.fmt(p.L, { decimals: 2 }) + ' m string swings there and back every ' + K.fmt(o.T, { decimals: 2 }) + ' s. Four times the length only doubles that.';
+  });
+  K.check('No length, no swing time', () => K.near(period(0), 0));
+  K.check('A seconds pendulum (2 s per swing) is 0.994 m long', () => K.near(period(0.994), 2, 0.002),
+    { source: 'https://en.wikipedia.org/wiki/Seconds_pendulum' });
+  K.check('Four times the length doubles the period', () => K.near(K.at({ L: 2 }).T / K.at({ L: 0.5 }).T, 2, 1e-9));
+  K.ready();
+</script>
+```
+
+
+## A finished example (kind: mechanism). Match its standard and structure, not its topic. Its SOURCE line and {source} addresses belong to that example's own lesson: never copy them
+<!-- kind: mechanism -->
+<style>
+  .push .floor { stroke: var(--k-strong); stroke-width: 2; }
+  .push .tick { stroke: var(--k-line); stroke-width: 2; }
+  .push .box { fill: var(--k-panel); stroke: var(--k-muted); stroke-width: 2; }
+  .push .mass { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  .push .yours { stroke: var(--k-accent2); fill: var(--k-accent2); stroke-width: 4; }
+  .push .grip { stroke: var(--k-accent); fill: var(--k-accent); stroke-width: 4; }
+  .push .most { fill: none; stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 4 3; }
+  .push .hand { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .push .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .push .lab.limit { fill: var(--k-muted); }
+</style>
+
+<p class="lead">Drag the round handle (or the slider) to push the box harder, and watch how hard the floor pushes back.</p>
+
+<svg class="push" id="scene" viewBox="0 0 340 170" role="img" aria-label="">
+  <g id="ticks"></g>
+  <line class="floor" x1="0" y1="100" x2="340" y2="100"/>
+  <rect class="box" id="box" x="150" y="40" width="80" height="60" rx="6"/>
+  <text class="mass" x="190" y="75" text-anchor="middle">20 kg</text>
+  <g id="yours"></g>
+  <line class="most" id="most" y1="122" y2="122" x2="232"/>
+  <g class="k-after-move" id="grip"></g>
+  <circle class="hand" id="hand" cy="70" r="10"/>
+  <g id="labels"></g>
+</svg>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<p class="caption">Example numbers: the floor grips with up to half the box's weight, kept while sliding (simplified: usually a little less).</p>
+
+<script>
+  // Source [1] of the lesson: static friction matches the push, up to a limit.
+  const SOURCE = 'https://en.wikipedia.org/wiki/Friction';
+  const M = 20, G = 9.81, GRIP = 0.5;          // the example box and floor (assumed values)
+  const MOST = GRIP * M * G;                   // the most the floor can grip with: 98.1 N
+  // A simplification, said in the caption: the grip stays at MOST while the box slides (real
+  // sliding friction is usually a little lower than the most a floor grips a box at rest).
+  const S = 0.75;                              // drawing units per newton, the same for both arrows
+  const N = (f) => K.fmt(f, { decimals: Number.isInteger(f) ? 0 : 1 }) + ' N';
+  // Sliding, what is left of the push after the grip speeds the box up (a negative one slows it).
+  const accel = (push) => (push - MOST) / M;
+
+  // The cause Dan controls: his push, by dragging the handle or the slider (they move together).
+  // A drag near the limit lands on it exactly (snap).
+  const push = K.control({ id: 'push', label: 'Your push', min: 0, max: 160, step: 1, value: 40, unit: 'N', snap: [MOST], into: '#controls' });
+  K.stage('#scene', '#controls');
+  const handX = (f) => 136 - f * S;
+  K.drag('#hand', { control: 'push', toValue: (x) => (136 - x) / S });   // its first touch reveals, like a slider move
+
+  // The pure model, for a box that starts at rest: the floor pushes back as hard as the push, up to its limit.
+  K.model((p) => ({ grip: Math.min(p.push, MOST), slides: p.push > MOST ? 'yes' : 'no' }));
+
+  // The box's own state while it slides. The motion runs whenever the push beats the grip, and
+  // stops when the box stands still again: no Play button, the push is what starts it.
+  let speed = 0, slid = 0;
+  const slide = K.anim({ button: false, step: (dt) => {
+    speed = Math.max(0, speed + accel(push.get()) * dt);
+    slid += speed * dt;
+    draw(K.params(), K.outputs());
+    return speed > 0 || push.get() > MOST;
+  } });
+
+  const svg = document.getElementById('scene');
+  // A straight arrow from x1 to x2 at height y: a line and a filled head.
+  function arrow(g, x1, x2, y, cls) {
+    g.textContent = '';
+    const dir = x2 > x1 ? 1 : -1;
+    if (Math.abs(x2 - x1) < 12) return null;
+    const line = K.svg('line', { class: cls, x1, y1: y, x2: x2 - dir * 9, y2: y });
+    g.append(line, K.svg('path', { class: cls, d: `M${x2} ${y}l${-dir * 11} -7v14z` }));
+    return line;
+  }
+  document.getElementById('most').setAttribute('x1', 232 - MOST * S);
+
+  function draw(p, o) {
+    // The floor's marks drift back while the box slides (the view follows the box).
+    const off = (slid * 40) % 20, ticks = document.getElementById('ticks');
+    ticks.textContent = '';
+    for (let x = 10 - off; x < 350; x += 20) ticks.appendChild(K.svg('line', { class: 'tick', x1: x, y1: 101, x2: x - 8, y2: 111 }));
+    const hx = handX(p.push), grip = speed > 0 ? MOST : o.grip;
+    document.getElementById('hand').setAttribute('cx', hx);
+    const yours = arrow(document.getElementById('yours'), hx + 10, 148, 70, 'yours');
+    const gripLine = arrow(document.getElementById('grip'), 232, 232 - grip * S, 122, 'grip');
+    // Labels move with their arrows; K.labels keeps them off the arrows, the box and the limit line.
+    K.labels('#labels', [
+      { x: (hx + 148) / 2, y: 56, text: p.push ? 'push ' + N(p.push) : 'no push', class: 'lab' },
+      { x: 152, y: 126, text: 'grip limit ' + N(MOST), anchor: 'end', class: 'lab limit' },
+    ].concat(K.moved && grip ? [{ x: 232 - grip * S / 2, y: 148, text: 'floor\'s grip ' + N(grip), class: 'lab' }] : []),
+      { avoid: [yours, gripLine, '#most', '#box', '#hand'].filter(Boolean) });
+    svg.setAttribute('aria-label', 'A 20 kg box on a floor, pushed with ' + N(p.push) + (K.moved ? '; the floor grips back with ' + N(grip) + (speed > 0 ? ', and the box is sliding.' : ', and the box stays put.') : '.'));
+
+    let text;
+    if (!K.moved) text = 'The hand pushes with ' + N(p.push) + ' and the box stays put. How hard is the floor pushing back? Make your guess, then drag the handle.';
+    else if (p.push > MOST) text = 'The push (' + N(p.push) + ') is more than the floor can grip with (' + N(MOST) + '), so the box slides and keeps speeding up: ' + K.fmt(speed, { decimals: 1 }) + ' m/s now.';
+    else if (speed > 0) text = 'The push is less than the grip again, so the grip slows the sliding box down: ' + K.fmt(speed, { decimals: 1 }) + ' m/s now.';
+    else if (p.push === 0) text = 'No push, so the floor pushes back with nothing: its grip only ever answers a push.';
+    else text = 'The floor pushes back with exactly ' + N(o.grip) + ', as hard as the hand pushes, so the box stays put. It can grip with up to ' + N(MOST) + '.';
+    document.getElementById('say').textContent = text;
+  }
+  K.update((p, o) => {
+    if (p.push > MOST && !slide.playing()) slide.play();
+    draw(p, o);
+  });
+
+  // Known answers, worked by hand, and the rule as the source states it.
+  K.check('A 40 N push: the floor pushes back with exactly 40 N, and the box stays put', () => K.at({ push: 40 }).grip === 40 && K.at({ push: 40 }).slides === 'no');
+  K.check('The most grip is half the weight: 0.5 × 20 kg × 9.81 m/s² = 98.1 N', () => K.near(MOST, 98.1, 1e-9));
+  K.check('Just past it (100 N) the box slides; in this simplified model the grip stays at 98.1 N', () => { const o = K.at({ push: 100 }); return o.slides === 'yes' && K.near(o.grip, 98.1, 1e-9); });
+  K.check('Pushing 20 N more than the grip speeds the 20 kg box up by 1 m/s every second', () => K.near(accel(MOST + 20), 1, 1e-9));
+  K.check('Static friction matches the push, up to a most of μ × the weight pressing down', () =>
+    [0, 30, 60, 98, 98.1, 120, 160].every((f) => K.near(K.at({ push: f }).grip, Math.min(f, GRIP * M * G), 1e-9)), { source: SOURCE });
+
+  K.ready();
+</script>
+
+## Output
+Return ONLY the body: HTML elements, an optional <style>, then one inline <script> that ends with K.ready(). No <html>, <head> or <body> tags, no markdown fences, no commentary before or after. Keep it under 40 KB.

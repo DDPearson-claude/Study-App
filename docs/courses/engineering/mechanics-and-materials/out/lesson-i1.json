@@ -1,0 +1,534 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-27T06:50:32.899Z",
+ "startedAt": "2026-10-27T06:50:32.899Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i1",
+  "title": "Forces in balance",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is each leg's tension arrow grow, with its vertical part held at half the load and its sideways part growing, when you spread the sling's legs.",
+   "title": "The sling and its hook",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Screen",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [
+    {
+     "id": "legTension",
+     "label": "Each leg's tension",
+     "unit": "kN",
+     "decimals": 2
+    },
+    {
+     "id": "angleFactor",
+     "label": "Load angle factor",
+     "unit": "",
+     "decimals": 3
+    },
+    {
+     "id": "angleFromHorizontal",
+     "label": "Leg angle from horizontal",
+     "unit": "°",
+     "decimals": 0
+    }
+   ],
+   "whatAmILookingAt": "The picture runs over thirteen small screens. The main picture is a load hanging from a two-leg sling on a crane hook. The load is an example 1000 kg. It weighs 9.81 kN, drawn as a fixed arrow pointing down. Each leg's tension is an arrow along the leg, drawn to scale. The right leg's vertical and sideways parts are dashed beside it. The left leg's parts are their mirror image. θ is marked at the hook, between a horizontal line and the right leg. Beside it sits the hook's free-body diagram. The crane wire's pull up and the two leg pulls lie nose to tail in a triangle. A slider sets the angle between the legs, from 60° to 150°. As the legs spread, the hook drops, just as it would on a shorter sling. Each leg's angle from the horizontal is θ. It is 90° less half the angle between the legs. Readouts give each leg's tension in kN and the load angle factor, 1 ÷ sin θ. A leg's vertical part is its tension times sin θ. Only that part holds the load up. So each leg's tension is half the weight times that factor. Past 120° between the legs, the tension arrows turn red. Each leg then carries more than the whole load. The two sideways parts are equal and opposite, so they cancel. A second, small picture is a crate on a deck. As its push arrow grows, a friction arrow grows to match it. Friction can match it up to a limit, μ times how hard the deck presses on the crate. Here the crate presses with an example 600 N and μ is an example 0.5, so the limit is 300 N. Past that, the crate slides. Screen 1 asks what single pull balances two 3 kN pulls, 120° apart, on a ring. Beside it, a crane hook holds a load on two legs 120° apart, the same three pulls upside down. Screen 2 shows the hook's free-body diagram at 60° between the legs. Screen 3 asks which forces act on the load. Screen 4 shows each leg's vertical and sideways parts, with the angle slider. At 60° between the legs, each leg pulls 5.66 kN. Screen 5 asks what each leg pulls at 120°. Screen 6 shows the load angle factor. It also shows the triangle at 120°, with three equal sides. Screen 7 asks for each leg's pull on a 2000 kg motor with legs at 45° from the horizontal. Screen 8 shows a leg that can safely take an example 8 kN. It is fine at 90° and overloaded at 120°, yet it is no weaker. Readouts give each leg's tension and the load angle factor. Screen 9 asks why that leg is overloaded. Screen 10 shows the crate held still by friction against a 200 N push. Screen 11 asks for the friction on that crate when it stays put under a 150 N push. Screens 12 and 13 mix it all: a chart's 60° from the horizontal, then the crane wire's pull at 120°. Some screens show an idea and the rest ask you to try it. Each puzzle offers three answers. A wrong pick is drawn, so you can see where it goes wrong.",
+   "ignores": "The legs and hook are drawn weightless, and the legs do not stretch. The load hangs still, with its weight centred between the picks. So both legs share it equally. A load whose centre of gravity sits off-centre loads one leg more than the other. A load that is snatched up or swinging can pull harder than its weight. The deck is level. On a sloping deck, friction also holds back part of the crate's weight. Once the crate slides, the picture keeps its friction at the limit. A real sliding crate usually needs a little less push to keep it going than to start it.",
+   "numbers": [
+    {
+     "label": "Screen, 1 to 13 (the stepper)",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Example load mass, kg",
+     "value": 1000,
+     "kind": "assumed"
+    },
+    {
+     "label": "Weight per kilogram, g, N/kg",
+     "value": 9.81,
+     "kind": "constant"
+    },
+    {
+     "label": "The example load's weight, kN",
+     "value": 9.81,
+     "kind": "computed"
+    },
+    {
+     "label": "Half the load, each leg's vertical share, kN",
+     "value": 4.905,
+     "kind": "computed"
+    },
+    {
+     "label": "Angle slider's lowest angle between legs, degrees",
+     "value": 60,
+     "kind": "control"
+    },
+    {
+     "label": "Angle slider's highest angle between legs, degrees",
+     "value": 150,
+     "kind": "control"
+    },
+    {
+     "label": "Angle slider's opening angle between legs, degrees",
+     "value": 60,
+     "kind": "control"
+    },
+    {
+     "label": "Each leg at 60° between legs, kN",
+     "value": 5.66,
+     "kind": "computed"
+    },
+    {
+     "label": "Each leg at 90° between legs, kN",
+     "value": 6.94,
+     "kind": "computed"
+    },
+    {
+     "label": "Each leg at 120° between legs, kN",
+     "value": 9.81,
+     "kind": "computed"
+    },
+    {
+     "label": "Each leg at 150° between legs, kN",
+     "value": 18.95,
+     "kind": "computed"
+    },
+    {
+     "label": "sin 60°, the vertical share of a leg at 60° from horizontal",
+     "value": 0.866,
+     "kind": "computed"
+    },
+    {
+     "label": "sin 30°, the vertical share of a leg at 30° from horizontal",
+     "value": 0.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Each leg's sideways part at 120° between legs, kN",
+     "value": 8.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Load angle factor at 90° from horizontal",
+     "value": 1,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "Load angle factor at 60° from horizontal",
+     "value": 1.155,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "Load angle factor at 45° from horizontal",
+     "value": 1.414,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "Load angle factor at 30° from horizontal",
+     "value": 2,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "Leg angle from horizontal that is extremely hazardous, degrees",
+     "value": 30,
+     "kind": "constant",
+     "source": 2
+    },
+    {
+     "label": "Each example ring pull in screen 1, kN",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Angle between the ring pulls in screen 1, degrees",
+     "value": 120,
+     "kind": "assumed"
+    },
+    {
+     "label": "Wrong pick: the two ring pulls' sizes added, kN",
+     "value": 6,
+     "kind": "computed"
+    },
+    {
+     "label": "Wrong pick: the ring pulls 60° apart, kN",
+     "value": 5.2,
+     "kind": "computed"
+    },
+    {
+     "label": "Example motor mass in screen 7, kg",
+     "value": 2000,
+     "kind": "assumed"
+    },
+    {
+     "label": "That motor's weight, kN",
+     "value": 19.62,
+     "kind": "computed"
+    },
+    {
+     "label": "Each leg at 45° from horizontal on that motor, kN",
+     "value": 13.87,
+     "kind": "computed"
+    },
+    {
+     "label": "Wrong pick: the whole motor times the factor, kN",
+     "value": 27.75,
+     "kind": "computed"
+    },
+    {
+     "label": "Example safe load for one leg in screen 8, kN",
+     "value": 8,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example force the deck presses on the crate with, its weight, N",
+     "value": 600,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example coefficient of friction, μ",
+     "value": 0.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Most friction the deck can give, μN, N",
+     "value": 300,
+     "kind": "computed"
+    },
+    {
+     "label": "Example push on the crate in screen 10, N",
+     "value": 200,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example push on the crate in screen 11, N",
+     "value": 150,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example pump mass in the worked example, kg",
+     "value": 500,
+     "kind": "assumed"
+    },
+    {
+     "label": "That pump's weight, N",
+     "value": 4905,
+     "kind": "computed"
+    },
+    {
+     "label": "Half that pump's weight, N",
+     "value": 2452.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Each leg on that pump at 90° between legs, kN",
+     "value": 3.47,
+     "kind": "computed"
+    },
+    {
+     "label": "Each leg on that pump at 90° between legs, N",
+     "value": 3468,
+     "kind": "computed"
+    },
+    {
+     "label": "Extra leg load at 60° from horizontal, %",
+     "value": 15,
+     "kind": "computed"
+    },
+    {
+     "label": "Extra leg load at 45° from horizontal, %",
+     "value": 40,
+     "kind": "computed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "Anything that stays still has forces on it that add to nothing. Any leftover force would start it moving.[^3] So you can find a force you cannot see. Pick one part, draw every force on it, and make them balance. That drawing is a [[free-body diagram]]. Every force on it comes from a giver. The giver either touches the part or acts from a distance, as the Earth does on its weight. Take the crane hook. The crane wire pulls it up, and each sling leg pulls it down along its own line. The hook stays still, so those three pulls laid nose to tail close a triangle.\n\nNow the sling. Each leg pulls along its own line, but only its vertical part holds the load up.[^4] With the load's weight centred between them, the two legs share it equally. So each vertical part is half the load's weight. The two legs lean the same amount in opposite directions. So their sideways parts are equal and opposite, and cancel. They lift nothing. As the legs spread, each leg leans further over. The same pull then has a smaller vertical part. So the pull must grow to keep its half of the load up. Call the leg's angle from the horizontal θ. Each leg's tension is then half the weight divided by sin θ. Take an example 1000 kg load, which weighs 9.81 kN. With 60° between the legs, θ is 60° and sin 60° is 0.866. Half the load is 4.905 kN. So each leg pulls 4.905 ÷ 0.866 = 5.66 kN. With 120° between the legs, θ is 30° and sin 30° is 0.5. Each leg now pulls 9.81 kN, the whole load. Of that pull, 8.50 kN is sideways. This is the ring pulled three ways again. Two equal pulls 120° apart balance one pull the same size.\n\nThe number 1 ÷ sin θ is the [[load angle factor]]. It is 1.155 at 60°, 1.414 at 45° and 2.000 at 30° from the horizontal.[^1] Each leg carries half the load times that factor. The leg is no weaker at a wide angle.[^5] Its strength stays the same while its load grows. So the angle alone can overload a sling. Say one leg can safely take 8 kN, as an example. At 60° between the legs it carries 5.66 kN and is fine. At 120° the same leg carries 9.81 kN and is overloaded. Friction is a force with a giver too. Push a crate along a level deck, and the deck grips its base. That grip holds it back along the deck. While the crate stays still, the grip matches your push exactly. It can do so only up to a limit, F = μN. N is how hard the deck presses on the crate. μ is the [[coefficient of friction]], set by the two surfaces. Once the crate slides, the grip drops a little, so it is easier to keep it going.[^6] Oil lowers μ, so both grips drop.[^7]\n\nSizing a pump's slow shaft starts the same way. Free it, then find what loads it. **Each leg holds up its share with its vertical part only. So the load in the legs of a sling increases as the angle between the legs increases.**[^8]"
+  },
+  "analogy": {
+   "text": "Think of a catenary wire: a wire strung between two buildings to carry a cable. Pull it tighter so it sags less. The tension at each end then climbs steeply, though the cable weighs the same. With level ends, each end holds up half the weight with its vertical part. A nearly flat wire has very little vertical part.",
+   "breaks": "A catenary's weight is spread along its length, so it hangs in a curve. Its angle changes from the ends to the middle. A sling's legs are straight, with the load at one point. So each leg's angle is the same all along it."
+  },
+  "practice": {
+   "text": "- Before the lift, check the angle between the legs. Keep each leg well above 30° from the horizontal.[^2]\n- Free one part. Draw it on its own.\n- Draw every force on it, and name the giver of each one.\n- Make them balance. The across parts add to nothing, and so do the up parts.\n- For a two-leg sling, find each leg's angle from the horizontal, θ. Check which angle a chart uses before you read it.\n- With the load's weight centred between the picks, each leg's tension is half the load times the load angle factor. That factor is 1 ÷ sin θ. Off centre, one leg takes more.\n- Compare that tension with what one leg can safely take.\n\n**Rule of thumb:** 60° from the horizontal adds about 15% to each leg's share. 45° adds about 40%. At 30°, each leg carries the whole load.\n\n**Worked example:** take an example 500 kg pump on a two-leg sling, with 90° between the legs. Its weight is 500 × 9.81 = 4905 N. So each leg's share is 2452.5 N. Each leg is at 45° from the horizontal, so the factor is 1.414. Each leg pulls 2452.5 × 1.414 = 3468 N, about 3.47 kN.\n\n**Common mistakes**\n- Halving the load and stopping there. Half is right only for legs hanging straight down.\n- Thinking a wide angle weakens the leg. Its strength is the same. Its load is bigger.\n- Reading an angle from the vertical as one from the horizontal. At 60° from the vertical, each leg carries the whole load, not 15% more than half.\n- Adding both leg tensions to get the hook's load. The sideways parts cancel, so the crane wire carries just the load.\n- Leaving friction off the diagram, or giving it its biggest value. On a still crate on a level deck, it only matches the push."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "Rigging, Load Calculations, and Sling Angle | Free Guide 2026 | OpenExamPrep — OpenExamPrep",
+    "url": "https://open-exam-prep.com/study-guides/bcsp-asp/mathematical-calculations-safety-math-noise-rigging-flow-and-radiation/rigging-load-calculations-and-sling-angle-effects",
+    "quote": "Load Angle Factors (1.000 at 90, 1.155 at 60, 1.414 at 45, 2.000 at 30 degrees) let you scale leg tension quickly."
+   },
+   {
+    "n": 2,
+    "title": "ihsa.ca — Industrial Health & Safety Association",
+    "url": "https://www.ihsa.ca/PDFs/Products/Id/DS033.pdf",
+    "quote": "Sling angles approaching 30° are extremely hazardous and must be avoided at all costs."
+   },
+   {
+    "n": 3,
+    "title": "5.2 Newton's First Law - University Physics Volume 1 | OpenStax — OpenStax",
+    "url": "https://openstax.org/books/university-physics-volume-1/pages/5-2-newtons-first-law",
+    "quote": "A body at rest remains at rest or, if in motion, remains in motion at constant velocity unless acted on by a net external force."
+   },
+   {
+    "n": 4,
+    "title": "Two-Leg Tension and Angle Reference — Free Study Guide 2026 | OpenExamPrep — OpenExamPrep",
+    "url": "https://open-exam-prep.com/study-guides/nccco-rigger-level-2/balanced-forces/two-leg-tension",
+    "quote": "Let the total supported load be W and each leg’s tension be T. Let θ be the angle between the sling and a horizontal reference through the picks. The vertical component of each tension is T sin θ."
+   },
+   {
+    "n": 5,
+    "title": "Hoisting & Rigging Fundamentals — US Department of Energy",
+    "url": "https://www.energy.gov/sites/prod/files/2014/01/f6/HoistingRigging_Fundamentals.pdf",
+    "quote": "Actually, there is no change in the tensile strength of the sling leg."
+   },
+   {
+    "n": 6,
+    "title": "6.2 Friction - University Physics Volume 1 | OpenStax — OpenStax",
+    "url": "https://openstax.org/books/university-physics-volume-1/pages/6-2-friction",
+    "quote": "Once in motion, it is easier to keep it in motion than it was to get it started, indicating that the kinetic frictional force is less than the static frictional force."
+   },
+   {
+    "n": 7,
+    "title": "6.2 Friction - University Physics Volume 1 | OpenStax — OpenStax",
+    "url": "https://openstax.org/books/university-physics-volume-1/pages/6-2-friction",
+    "quote": "If the floor is lubricated, both coefficients are considerably less than they would be without lubrication."
+   },
+   {
+    "n": 8,
+    "title": "Safe lifting by machine - HSE — HSE",
+    "url": "https://www.hse.gov.uk/work-equipment-machinery/lift-equipment.htm",
+    "quote": "Remember that the load in the legs of a sling increases as the angle between the legs increases"
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: quantity -->\n<style>\n  [hidden] { display: none !important; }\n  .pz { max-width: 34rem; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .count { margin-top: 10px; }\n  .task { font-size: 1.15rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.06rem; font-weight: 400; line-height: 1.6; }\n  .fig { display: block; width: 100%; max-width: 26rem; margin-inline: auto; touch-action: pan-y; }\n  .fig.drag { touch-action: none; }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; }\n  .picks { flex-direction: column; gap: 8px; }\n  .picks .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; white-space: normal; line-height: 1.35; padding-top: 8px; padding-bottom: 8px; }\n  .picks .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  #outs { display: grid; grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr)); gap: 10px; }\n  .fb { font-weight: 700; min-height: 1.5em; }\n  .fb.right { color: var(--k-good); }\n  .why, .done { line-height: 1.6; }\n  .done .row { margin-top: 14px; }\n  .replay { justify-content: center; }\n  .replay .k-btn { flex: 0 0 auto; }\n  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }\n  /* The lift: wire, legs, hook and load. */\n  .fig .wire { stroke: var(--k-strong); stroke-width: 2; }\n  .fig .leg { stroke: var(--k-strong); stroke-width: 3; stroke-linecap: round; }\n  .fig .hook { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 2.4; }\n  .fig .load { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.8; }\n  .fig .eye { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.6; }\n  .fig .fin { stroke: var(--k-line); stroke-width: 1.6; }\n  /* Forces: each leg's pull is the main thing; the others are ink; a mistake or danger is red. */\n  .fig .ar-ink { stroke: var(--k-ink); stroke-width: 2.6; }\n  .fig .ah-ink { fill: var(--k-ink); }\n  .fig .ar-leg { stroke: var(--k-accent2); stroke-width: 3.2; }\n  .fig .ah-leg { fill: var(--k-accent2); }\n  .fig .ar-hot { stroke: var(--k-warn); stroke-width: 3.2; }\n  .fig .ah-hot { fill: var(--k-warn); }\n  .fig .ar-gap { stroke: var(--k-warn); stroke-width: 2; stroke-dasharray: 5 4; }\n  .fig .ah-gap { fill: var(--k-warn); }\n  .fig .part { stroke: var(--k-accent2); stroke-width: 1.6; stroke-dasharray: 4 3; }\n  .fig .tick { stroke: var(--k-ink); stroke-width: 2.2; }\n  .fig .arc { fill: none; stroke: var(--k-accent); stroke-width: 1.6; }\n  .fig .ref { fill: none; stroke: var(--k-muted); stroke-width: 1.4; stroke-dasharray: 4 3; }\n  /* The ring and the crate. */\n  .fig .ring { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 3; }\n  .fig .rope { stroke: var(--k-strong); stroke-width: 2.5; }\n  .fig .deck { stroke: var(--k-strong); stroke-width: 3; }\n  .fig .deckf { fill: var(--k-sunk); }\n  .fig .crate { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.8; }\n  .fig .plank { stroke: var(--k-line); stroke-width: 1.5; }\n  /* Words on the pictures. */\n  .fig .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }\n  .fig .lab.t { fill: var(--k-accent); }\n  .fig .lab.n { fill: var(--k-accent2); }\n  .fig .lab.w { fill: var(--k-warn); }\n  .fig .lab.m { font-weight: 400; fill: var(--k-muted); }\n  .fig .ttl { font: 700 13px var(--k-font); fill: var(--k-accent); letter-spacing: .02em; }\n  .fig .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; }\n  .fig .grip:active { cursor: grabbing; }\n</style>\n\n<p class=\"lead\" id=\"lead\">A ring pulled three ways, an example 1000 kg load on a two-leg sling, and a crate on a level deck. The other loads and pushes are examples too.</p>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count\" id=\"count\"></p>\n    <p class=\"task say\" id=\"task\"></p>\n    <svg class=\"fig\" id=\"fig\" viewBox=\"0 0 340 264\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"art\"></g><g id=\"labs\"></g><g id=\"ui\"><circle id=\"grip\" class=\"grip\" cx=\"-100\" cy=\"-100\" r=\"22\" aria-hidden=\"true\"></circle></g></svg>\n    <div class=\"k-controls\" id=\"c-ang\"></div>\n    <div class=\"k-controls\" id=\"c-push\"></div>\n    <div class=\"row replay\" id=\"replay\"></div>\n    <p class=\"say\" id=\"say\"></p>\n    <div class=\"k-readouts\" id=\"outs\"></div>\n    <div class=\"row picks say\" id=\"picks\"></div>\n    <div class=\"row acts\" id=\"acts\"></div>\n    <p class=\"fb say\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why say\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p><strong id=\"finish\"></strong></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\" id=\"cap\">Each leg's tension is half the weight divided by sin θ, where θ is its angle from the horizontal.</p>\n\n<script>\n  // ---------- the rules ----------\n  const D2R = Math.PI / 180;\n  const GN = 9.81;                                        // newtons per kilogram\n  const kNof = (kg) => kg * GN / 1000;                    // a mass's weight in kN\n  const W1 = kNof(1000);                                  // the example load: 9.81 kN\n  const HALF = W1 / 2;                                    // each leg's vertical share\n  const thOf = (a) => 90 - a / 2;                         // a leg's angle from the horizontal, θ, for a° between the legs\n  const factorOf = (a) => 1 / Math.sin(thOf(a) * D2R);    // the load angle factor, 1 ÷ sin θ\n  const legOf = (a, w) => (w == null ? W1 : w) / 2 * factorOf(a);\n  const SAFE = 8;                                         // example: what one leg can safely take, kN\n  const MU = 0.5, PRESS = 600;                            // examples: the coefficient of friction, and how hard the deck presses on the crate, N\n  const GRIP = MU * PRESS;                                // the most friction the deck can give, μN: 300 N\n  const RING = 3;                                         // example: each ring pull, kN\n  const ringNeed = (sep) => 2 * RING * Math.cos(sep / 2 * D2R);   // the one pull that balances two RING pulls sep° apart\n  const frictionOf = (push) => Math.min(Math.max(0, push), GRIP);\n  const SRC = {\n    oep: 'https://open-exam-prep.com/study-guides/bcsp-asp/mathematical-calculations-safety-math-noise-rigging-flow-and-radiation/rigging-load-calculations-and-sling-angle-effects',\n    ihsa: 'https://www.ihsa.ca/PDFs/Products/Id/DS033.pdf',\n    newton: 'https://openstax.org/books/university-physics-volume-1/pages/5-2-newtons-first-law',\n    two: 'https://open-exam-prep.com/study-guides/nccco-rigger-level-2/balanced-forces/two-leg-tension',\n    doe: 'https://www.energy.gov/sites/prod/files/2014/01/f6/HoistingRigging_Fundamentals.pdf',\n    hse: 'https://www.hse.gov.uk/work-equipment-machinery/lift-equipment.htm',\n  };\n  const fx = (v, d) => (Math.abs(v) < 0.5 * Math.pow(10, -d) ? 0 : v).toFixed(d).replace('-', '−');\n\n  // Every number the words show, worked out from the rules (a check compares them with the lesson's).\n  const N = (() => {\n    const n = {}, mW = kNof(2000);\n    n.W = fx(W1, 2); n.half = fx(HALF, 3);\n    n.t30 = fx(legOf(30), 2); n.t60 = fx(legOf(60), 2); n.t90 = fx(legOf(90), 2); n.t120 = fx(legOf(120), 2); n.t150 = fx(legOf(150), 2);\n    n.side120 = fx(legOf(120) * Math.cos(thOf(120) * D2R), 2);\n    n.f60 = fx(factorOf(60), 3); n.f90 = fx(factorOf(90), 3); n.f120 = fx(factorOf(120), 3);\n    n.sin30 = fx(Math.sin(30 * D2R), 1);\n    n.mW = fx(mW, 2); n.mHalf = fx(mW / 2, 2); n.mT = fx(legOf(90, mW), 2); n.mWhole = fx(mW * factorOf(90), 2);\n    n.ring = fx(ringNeed(120), 0); n.ring60 = fx(ringNeed(60), 1); n.ringSum = fx(2 * RING, 0);\n    n.wire2 = fx(2 * legOf(120), 2);\n    n.pct60 = fx(100 * (factorOf(60) - 1), 0);\n    return n;\n  })();\n\n  // ---------- the lesson: SHOW screens demonstrate, DO screens are puzzles ----------\n  // scene: ring, sling or crate. set: where the controls open. slider: the control shown. play: a\n  // demonstration sweeping that control ([seconds, value] keys); arrive: forces arriving one by one.\n  // hookF: the forces on the hook; parts: each leg's dashed vertical and sideways parts; theta: the\n  // label on θ's arc; limit: the 8 kN safe mark; poly: the forces laid nose to tail (hook or load).\n  // ask: what a puzzle asks for; val: the value each answer stands for, drawn when it is checked.\n  const STEPS = [\n    { kind: 'pick', scene: 'ring', name: 'A ring pulled three ways', ask: 'ring',\n      task: `Two ropes pull on a ring with ${N.ring} kN each, 120° apart. What single pull holds the ring still?`,\n      opts: [`${N.ring} kN`, `${N.ringSum} kN`, `${N.ring60} kN`], want: `${N.ring} kN`, val: [ringNeed(120), 2 * RING, ringNeed(60)],\n      hints: { [`${N.ringSum} kN`]: 'Not quite. Pulls at an angle do not add like plain numbers. Lay them nose to tail.',\n        [`${N.ring60} kN`]: 'Not quite. That balances two pulls 60° apart. These are 120° apart.' },\n      why: `Lay the two ${N.ring} kN pulls nose to tail. The second turns 120° from the first, so they make two sides of a triangle with three equal sides. The side that closes it is also ${N.ring} kN, pointing straight down. So a ${N.ring} kN pull down holds the ring still.` },\n    { show: true, scene: 'sling', name: 'Free the hook', set: { ang: 60 }, hookF: true, poly: 'hook', arrive: true, outs: ['legTension'],\n      text: 'Take one part on its own and draw every force on it. That drawing is a *free-body diagram*. Each force has a giver. It touches the part, or acts from a distance, as the Earth does. The crane wire pulls the hook up. Each sling leg pulls it down along its own line. The hook stays still, so the three pulls add to nothing. Any leftover force would start it moving. Laid nose to tail, they close a triangle.' },\n    { kind: 'pick', scene: 'sling', name: 'Forces on the load', set: { ang: 60 }, freed: true, poly: 'load', ask: 'load',\n      task: 'Now free the load instead. Which forces act on it?',\n      opts: ['Its weight and the two leg pulls', 'Its weight alone', 'Its weight, the leg pulls and the wire\\'s pull'], want: 'Its weight and the two leg pulls',\n      sets: ['wl', 'w', 'wlx'],\n      hints: { 'Its weight alone': 'Not quite. Then nothing would hold it up. What touches the load?',\n        'Its weight, the leg pulls and the wire\\'s pull': 'Not quite. The wire touches the hook, not the load.' },\n      why: 'A force on the load needs a giver that touches it, or acts from a distance. The Earth gives its weight. The two legs touch it where they hook on, and each pulls along its own line. The wire touches only the hook. So the load\\'s diagram has three forces, and they close a triangle.' },\n    { show: true, scene: 'sling', name: 'Spread the legs', set: { ang: 60 }, slider: 'ang', hookF: true, parts: true, theta: 'θ', poly: 'hook',\n      play: { id: 'ang', keys: [[0.4, 60], [2.2, 140], [4.0, 60]] }, outs: ['legTension', 'angleFromHorizontal'],\n      text: `Only each leg's vertical part holds the load up. The two legs share it, so each vertical part is half the load, ${N.half} kN. The sideways parts are equal and opposite, so they cancel. Call each leg's angle from the horizontal θ. A leg's vertical part is its pull times sin θ. Spread the legs, and sin θ shrinks. So the pull must grow to keep the same vertical part. Drag the hook, or use the slider, to spread them.`,\n      read: `As the legs spread, each leg's pull grows. Its vertical part stays at ${N.half} kN, half the load, and its sideways part grows. At 60° between the legs, each leg pulls ${N.t60} kN.`,\n      still: { ang: 60 } },\n    { kind: 'pick', scene: 'sling', name: 'Legs at 120°', set: { ang: 120 }, hookF: true, parts: true, theta: 'θ', poly: 'hook', ask: 'legs',\n      task: 'The legs now have 120° between them. What does each leg pull?',\n      opts: [`${N.half} kN`, `${N.t60} kN`, `${N.t120} kN`], want: `${N.t120} kN`, val: [HALF, legOf(60), legOf(120)],\n      hints: { [`${N.half} kN`]: 'Not quite. That is half the load. It is right only for legs hanging straight down.',\n        [`${N.t60} kN`]: 'Not quite. 60° is each leg\\'s angle from the vertical. Use its angle from the horizontal.' },\n      why: `Each leg is 30° from the horizontal, and sin 30° is ${N.sin30}. So each leg pulls ${N.half} ÷ ${N.sin30} = ${N.t120} kN, the whole load. Of that pull, ${N.side120} kN is sideways. The triangle has three equal sides, just like the ring.` },\n    { show: true, scene: 'sling', name: 'The load angle factor', set: { ang: 60 }, slider: 'ang', hookF: true, parts: true, theta: 'θ', poly: 'hook', factorSay: true,\n      play: { id: 'ang', keys: [[0.4, 60], [3.2, 120]] }, outs: ['legTension'],\n      text: `Each leg's tension is half the load times one number, 1 ÷ sin θ. That number is the *load angle factor*. It is ${N.f60} at 60° from the horizontal, ${N.f90} at 45° and ${N.f120} at 30°. So 60° adds about ${N.pct60}% to each leg's half. Keep each leg well above 30° from the horizontal. A catenary wire pulled taut works the same way. The flatter it hangs, the harder its ends pull.`,\n      still: { ang: 120 } },\n    { kind: 'pick', scene: 'sling', name: 'A 2000 kg motor', set: { ang: 90 }, mass: 2000, motor: true, hookF: true, parts: true, theta: '45°', poly: 'hook', ask: 'legs',\n      task: `A 2000 kg motor weighs ${N.mW} kN. It hangs on a two-leg sling, each leg 45° from the horizontal. What does each leg pull?`,\n      opts: [`${N.mHalf} kN`, `${N.mT} kN`, `${N.mWhole} kN`], want: `${N.mT} kN`, val: [kNof(2000) / 2, legOf(90, kNof(2000)), kNof(2000) * factorOf(90)],\n      hints: { [`${N.mHalf} kN`]: 'Not quite. That is half the weight, right only for legs hanging straight down. Times it by the factor.',\n        [`${N.mWhole} kN`]: 'Not quite. Each leg holds up only half the weight.' },\n      why: `Each leg holds up half the weight, ${N.mHalf} kN. At 45° from the horizontal, the load angle factor is ${N.f90}. So each leg pulls ${N.mHalf} × ${N.f90} = ${N.mT} kN.` },\n    { show: true, scene: 'sling', name: 'No weaker, more load', set: { ang: 90 }, slider: 'ang', hookF: true, theta: 'θ', poly: 'hook', limit: true,\n      play: { id: 'ang', keys: [[0.4, 90], [3.0, 120]] }, outs: ['legTension', 'angleFactor'],\n      text: `Say one leg can safely take 8 kN. A wide angle does not make it weaker. Its strength stays the same while its load grows. At 90° between the legs, each leg carries ${N.t90} kN, so it is fine. At 120°, the same leg carries ${N.t120} kN and is overloaded. So the angle alone can overload a sling.`,\n      still: { ang: 120 } },\n    { kind: 'pick', scene: 'sling', name: 'Why overloaded?', set: { ang: 120 }, hookF: true, theta: 'θ', poly: 'hook', limit: true, ask: 'why',\n      task: 'At 120° between the legs, that 8 kN leg is overloaded. Why?',\n      opts: ['The angle weakened the leg', 'The angle raised the leg\\'s load', 'The load got heavier'], want: 'The angle raised the leg\\'s load', marks: ['strength', 'load', 'weight'],\n      hints: { 'The angle weakened the leg': 'Not quite. The leg is just as strong at any angle.',\n        'The load got heavier': `Not quite. The load still weighs ${N.W} kN.` },\n      why: `What the leg can safely take stays 8 kN at any angle. Only its vertical part holds the load up, and that must stay ${N.half} kN. Leaning 30° from the horizontal, the leg must pull ${N.t120} kN to give it. So its load passes its limit.` },\n    { show: true, scene: 'crate', name: 'Friction has a giver', set: { push: 0 }, slider: 'push',\n      play: { id: 'push', keys: [[0.4, 0], [3.0, 200]] },\n      text: 'Friction is a force with a giver too. Push a crate along a level deck, and the deck grips its base. While the crate stays still, the grip matches the push. It can grow only to a limit, F = μN. N is how hard the deck presses on the crate, its 600 N weight. μ is the *coefficient of friction*, set by the two surfaces. Here it is 0.5, so the limit is 300 N. Push harder, and the crate slides.',\n      read: 'The push grows to 200 N, and friction grows to match it, so the crate stays still. The deck could give up to 300 N.',\n      still: { push: 200 } },\n    { kind: 'pick', scene: 'crate', name: 'A crate that stays put', set: { push: 150 }, push: 150, ask: 'friction',\n      task: 'The crate weighs 600 N, and μ is 0.5. It stays put under a 150 N push. What friction acts on it?',\n      opts: ['0 N', '150 N', '300 N'], want: '150 N', val: [0, 150, 300],\n      hints: { '0 N': 'Not quite. Then the push would be left over, and the crate would slide.',\n        '300 N': 'Not quite. That is μN, the most the deck can give. Friction only matches the push.' },\n      why: 'The crate stays still, so the forces along the deck add to nothing. The push is 150 N forward, so friction is 150 N back. μN = 0.5 × 600 = 300 N is only the most the deck could give. Once a crate slides, its grip drops a little below that. Oil or grease lowers μ, so both grips drop.' },\n    { kind: 'pick', scene: 'sling', name: 'Read the chart right', set: { ang: 120 }, hookF: true, parts: true, theta: 'θ', poly: 'hook', ask: 'factor',\n      task: 'A chart gives the load angle factor by each leg\\'s angle from the horizontal. Your legs each sit 60° from the vertical. Which factor do you read?',\n      opts: [N.f60, N.f90, N.f120], want: N.f120, val: [factorOf(60), factorOf(90), factorOf(120)],\n      hints: { [N.f60]: 'Not quite. That is for 60° from the horizontal. Yours are 60° from the vertical.',\n        [N.f90]: 'Not quite. That is for 45°. Find each leg\\'s angle from the horizontal first.' },\n      why: `60° from the vertical is 90° − 60° = 30° from the horizontal. The factor at 30° is ${N.f120}. So each leg carries the whole load, not ${N.pct60}% more than half.` },\n    { kind: 'pick', scene: 'sling', name: 'The crane wire', set: { ang: 120 }, hookF: true, theta: 'θ', poly: 'hook', ask: 'wire',\n      task: `With 120° between the legs, each leg pulls ${N.t120} kN. What does the crane wire pull?`,\n      opts: [`${N.half} kN`, `${N.W} kN`, `${N.wire2} kN`], want: `${N.W} kN`, val: [HALF, W1, 2 * legOf(120)],\n      hints: { [`${N.half} kN`]: 'Not quite. That is one leg\\'s vertical part. The wire holds up both.',\n        [`${N.wire2} kN`]: 'Not quite. That adds both leg pulls. Their sideways parts cancel.' },\n      why: `Free the hook. Balance works one direction at a time. The sideways parts add to nothing, and so do the up and down parts. Each leg pulls the hook down with a vertical part of ${N.half} kN. So the wire pulls up ${N.half} + ${N.half} = ${N.W} kN, just the load.` },\n  ];\n  const FINISH = 'Free one part, draw every force on it, and make them balance. Each sling leg holds the load up with its vertical part only. So each leg pulls half the load times 1 ÷ sin θ, and spreading the legs raises it.';\n  const FADE = 0.35, ANS = 2.3;\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n  const calm = () => REDUCE || testing();\n  const el = (id) => document.getElementById(id);\n  const idx = (name) => STEPS.findIndex((d) => d.name === name);\n\n  // ---------- state ----------\n  const blank = () => ({ pick: null, res: null, why: false });\n  let S = STEPS.map(() => blank());\n  let finished = false, lastStep = -1, lastDone = false;\n  let T = Infinity, motionEnd = 0;          // seconds since the screen opened (a demonstration) or since Check\n  let SW = null;                            // a demonstration's sweep of one control\n  let AV = 60, PV = 0;                      // the angle between the legs and the push, as drawn\n  const BASE = { ang: 60, push: 0 };\n  const setupOf = (i) => Object.assign({}, BASE, STEPS[i].set || {});\n  const setV = (id, v) => { if (id === 'ang') AV = v; else PV = v; };\n  const snapTo = (id, v) => (id === 'ang' ? K.clamp(Math.round(v / 2) * 2, 60, 150) : K.clamp(Math.round(v / 10) * 10, 0, 400));\n\n  // ---------- words with amber key terms (built with K.el, never innerHTML) ----------\n  function write(node, s) {\n    node.textContent = '';\n    const re = /\\*([^*]+)\\*/g;\n    let from = 0, m;\n    while ((m = re.exec(s))) {\n      if (m.index > from) node.appendChild(document.createTextNode(s.slice(from, m.index)));\n      node.appendChild(K.el('span', { class: 'term' }, m[1]));\n      from = m.index + m[0].length;\n    }\n    if (from < s.length) node.appendChild(document.createTextNode(s.slice(from)));\n  }\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);\n  const angCtl = K.control({ id: 'ang', label: 'Angle between the legs', min: 60, max: 150, step: 2, value: 60, unit: '°', snap: [60, 90, 120], into: '#c-ang' });\n  const pushCtl = K.control({ id: 'push', label: 'Push on the crate', min: 0, max: 400, step: 10, value: 0, unit: 'N', snap: [150, 200, 300], into: '#c-push' });\n  const CTL = { ang: angCtl, push: pushCtl };\n  const RO = [\n    K.readout({ id: 'legTension', label: 'Each leg\\'s tension', unit: 'kN', decimals: 2, into: '#outs' }),\n    K.readout({ id: 'angleFactor', label: 'Load angle factor', decimals: 3, into: '#outs' }),\n    K.readout({ id: 'angleFromHorizontal', label: 'Leg angle from horizontal', unit: '°', decimals: 0, into: '#outs' }),\n  ];\n  const RID = ['legTension', 'angleFactor', 'angleFromHorizontal'];\n  K.model((p) => {\n    const a = +p.ang, th = thOf(a);\n    return { legTension: legOf(a), angleFactor: factorOf(a), angleFromHorizontal: th };\n  });\n\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;\n    st.pick = d.opts[k]; st.res = null; T = Infinity;\n  } }));\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (d.show || finished || st.res === 'right') return;\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = st.pick === d.want ? 'right' : 'wrong';\n    if (calm()) { T = Infinity; return; }\n    T = 0; motionEnd = ANS; play();\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    if (STEPS[at()].show || finished) return;\n    const st = S[at()]; st.why = !st.why;\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true;\n    motion.pause();\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {\n    const d = STEPS[at()];\n    if (finished || !d.show || !(d.play || d.arrive)) return;\n    startDemo(d);\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);\n  } });\n\n  // ---------- motion: a demonstration's sweep or arrivals, and an answer's drawing ----------\n  function sweepAt(keys, t) {\n    if (t <= keys[0][0]) return keys[0][1];\n    for (let k = 1; k < keys.length; k++) {\n      if (t <= keys[k][0]) { const a = keys[k - 1], b = keys[k]; return a[1] + (b[1] - a[1]) * K.ease((t - a[0]) / (b[0] - a[0])); }\n    }\n    return keys[keys.length - 1][1];\n  }\n  const motion = K.anim({ button: false, label: 'Motion', step: (dt) => {\n    if (finished) return false;\n    T += dt;\n    let busy = false;\n    if (SW) {\n      const v = sweepAt(SW.keys, T), r = snapTo(SW.id, v);\n      setV(SW.id, v);\n      if (r !== SW.last) { SW.last = r; CTL[SW.id].set(r, true); }\n      if (T >= SW.end) SW = null; else busy = true;\n    }\n    K.refresh();\n    return busy || T < motionEnd;\n  } });\n  function play() { if (!motion.playing()) motion.play(); }\n  function startDemo(d) {\n    SW = null; T = Infinity;\n    if (d.play) {\n      const pl = d.play, v0 = pl.keys[0][1], v1 = pl.keys[pl.keys.length - 1][1];\n      if (calm()) { CTL[pl.id].set(v1, true); setV(pl.id, v1); return; }\n      CTL[pl.id].set(v0, true); setV(pl.id, v0);\n      SW = { id: pl.id, keys: pl.keys, last: v0, end: pl.keys[pl.keys.length - 1][0] };\n      T = 0; motionEnd = SW.end; play();\n    } else if (d.arrive && !calm()) { T = 0; motionEnd = demoEnd(d); play(); }\n  }\n  function settle() {\n    if (SW) { const v = SW.keys[SW.keys.length - 1][1]; CTL[SW.id].set(v, true); setV(SW.id, v); SW = null; }\n    T = Infinity;\n  }\n  function enterStep(i) {\n    lastStep = i; enter('stepbox'); SW = null; T = Infinity;\n    const d = STEPS[i], q = setupOf(i);\n    angCtl.set(q.ang, true); pushCtl.set(q.push, true); AV = q.ang; PV = q.push;\n    motion.pause();\n    if (d.show) startDemo(d);\n  }\n  function enter(id) {\n    if (REDUCE) return;\n    const b = el(id);\n    b.classList.remove('enter'); void b.offsetWidth; b.classList.add('enter');\n  }\n  // Arrival times: a demonstration's from the screen opening, an answer's from Check; null, there from the start.\n  function tlOf(d, st) {\n    const t = { wire: null, legL: null, legR: null, pick: null, poly: () => null, gap: null };\n    if (d.arrive) { t.wire = 0.5; t.legL = 1.0; t.legR = 1.4; t.poly = (k) => 2.0 + 0.5 * k; t.gap = 3.0; }\n    else if (d.ask === 'why' && (st.res === 'right' || st.res === 'wrong')) t.pick = 0.1;\n    else if (!d.show && (st.res === 'right' || st.res === 'wrong')) { t.pick = 0.1; t.poly = (k) => 0.6 + 0.3 * k; t.gap = 1.5; }\n    return t;\n  }\n  const demoEnd = (d) => (d.play ? d.play.keys[d.play.keys.length - 1][0] : d.arrive ? 3.0 + K.SOFT : 0);\n  const demoStart = (d) => (d.play ? d.play.keys[0][0] : d.arrive ? 0.5 : FADE);\n  const vis = (t0) => (t0 == null ? 1 : K.arrive(T, t0));\n\n  // ---------- drawing helpers ----------\n  const fig = el('fig'), art = el('art'), labs = el('labs'), grip = el('grip');\n  let into = null, REC = null, LAB = [];\n  const add = (n) => (into || art).appendChild(n);\n  const r2 = (v) => Math.round(v * 100) / 100;\n  const ln = (x1, y1, x2, y2, cls) => add(K.svg('line', { class: cls, x1: r2(x1), y1: r2(y1), x2: r2(x2), y2: r2(y2) }));\n  const pa = (d, cls) => add(K.svg('path', { class: cls, d }));\n  const ci = (x, y, r, cls) => add(K.svg('circle', { class: cls, cx: r2(x), cy: r2(y), r }));\n  const box = (x, y, w, h, cls, rx) => add(K.svg('rect', { class: cls, x: r2(x), y: r2(y), width: r2(Math.max(0, w)), height: r2(Math.max(0, h)), rx: rx || 0 }));\n  function tx(x, y, s, cls, anchor) { REC.texts.push(String(s)); return add(K.svg('text', { class: cls || 'lab', x: r2(x), y: r2(y), 'text-anchor': anchor || 'middle' }, String(s))); }\n  function part(a, draw) { if (!(a > 0)) return; const g = add(K.svg('g')); K.fade(g, a, 0); const keep = into; into = g; try { draw(); } finally { into = keep; } }\n  // A label placed clear of the other words and of every line marked .av, arriving at a.\n  function lab(x, y, s, cls, anchor, a) {\n    if (a == null) a = 1;\n    if (!(a > 0)) return;\n    LAB.push({ x: r2(x), y: r2(y), text: String(s), class: 'lab' + (cls ? ' ' + cls : ''), anchor: anchor || 'middle', a });\n    REC.texts.push(String(s));\n  }\n  function flushLabels() {\n    const items = LAB;\n    LAB = [];\n    const ts = K.labels(labs, items.map((it) => ({ x: it.x, y: it.y, text: it.text, class: it.class, anchor: it.anchor })), { avoid: Array.from(art.querySelectorAll('.av')) }) || [];\n    ts.forEach((t, k) => { if (items[k] && items[k].a < 1) K.fade(t, items[k].a, 0); });\n  }\n  // An arrow: c is ink, leg, hot (a mistake or danger) or gap.\n  function arrow(x1, y1, x2, y2, c) {\n    const L = Math.hypot(x2 - x1, y2 - y1);\n    if (L < 1) return 0;\n    const ux = (x2 - x1) / L, uy = (y2 - y1) / L, hl = Math.min(10, L * 0.5), hw = hl * 0.5;\n    ln(x1, y1, x2 - ux * hl * 0.7, y2 - uy * hl * 0.7, 'ar-' + c + ' av');\n    pa('M' + r2(x2) + ' ' + r2(y2) + 'L' + r2(x2 - ux * hl - uy * hw) + ' ' + r2(y2 - uy * hl + ux * hw) + 'L' + r2(x2 - ux * hl + uy * hw) + ' ' + r2(y2 - uy * hl - ux * hw) + 'Z', 'ah-' + c + ' av');\n    return L;\n  }\n  // Forces laid nose to tail ({v: [x, y] in kN, y down; c; name; t}), s px per kN, placed in bx = [x0, x1, y0, y1].\n  function polygon(vs, s, bx, align, gapT, title) {\n    vs = vs.filter((f) => Math.hypot(f.v[0], f.v[1]) > 1e-9);\n    const pts = [[0, 0]];\n    vs.forEach((f) => { const q = pts[pts.length - 1]; pts.push([q[0] + f.v[0] * s, q[1] + f.v[1] * s]); });\n    const xs = pts.map((q) => q[0]), ys = pts.map((q) => q[1]);\n    const x0 = Math.min.apply(null, xs), x1 = Math.max.apply(null, xs), y0 = Math.min.apply(null, ys), y1 = Math.max.apply(null, ys);\n    const ox = align === 'right' ? bx[1] - x1 : (bx[0] + bx[1] - x0 - x1) / 2, oy = (bx[2] + bx[3] - y0 - y1) / 2;\n    const P = pts.map((q) => [q[0] + ox, q[1] + oy]), n = P.length - 1;\n    const cx = P.slice(0, Math.max(1, n)).reduce((a, q) => a + q[0], 0) / Math.max(1, n), cy = P.slice(0, Math.max(1, n)).reduce((a, q) => a + q[1], 0) / Math.max(1, n);\n    part(vis(vs.length ? vs[0].t : null), () => tx((bx[0] + bx[1]) / 2, 22, title || 'nose to tail', 'ttl'));\n    vs.forEach((f, k) => {\n      const A = P[k], B = P[k + 1], a = vis(f.t);\n      part(a, () => arrow(A[0], A[1], B[0], B[1], f.c));\n      if (!f.name) return;\n      const mx = (A[0] + B[0]) / 2, my = (A[1] + B[1]) / 2, len = Math.hypot(B[0] - A[0], B[1] - A[1]) || 1;\n      let nx = -(B[1] - A[1]) / len, ny = (B[0] - A[0]) / len;\n      if ((mx - cx) * nx + (my - cy) * ny < 0) { nx = -nx; ny = -ny; }\n      lab(mx + nx * 12, my + ny * 12 + 4.5, f.name, f.lc || '', nx > 0.3 ? 'start' : nx < -0.3 ? 'end' : 'middle', a);\n    });\n    const E = P[n], S0 = P[0], gx = S0[0] - E[0], gy = S0[1] - E[1], g = Math.hypot(gx, gy), ga = vis(gapT);\n    REC.gapKN = g / s;\n    if (g > 0.75) {\n      let nx = -gy / g, ny = gx / g;\n      const mx = (E[0] + S0[0]) / 2, my = (E[1] + S0[1]) / 2;\n      if ((mx - cx) * nx + (my - cy) * ny < 0) { nx = -nx; ny = -ny; }\n      part(ga, () => arrow(E[0] + nx * 7, E[1] + ny * 7, S0[0] + nx * 7, S0[1] + ny * 7, 'gap'));\n      lab(mx + nx * 18, my + ny * 18 + 4.5, 'gap', 'w', nx > 0.3 ? 'start' : nx < -0.3 ? 'end' : 'middle', ga);\n    } else lab((x0 + x1) / 2 + ox, y1 + oy + 20, 'balanced', 'm', 'middle', ga);\n    return P;\n  }\n  const answeredOf = (st) => st.res === 'right' || st.res === 'wrong';\n\n  // ---------- the sling: a load on two legs, hung from a crane hook ----------\n  const CX = 170, PL = 56, YP = 188, LH = 28, WPX = 80, HR = 6, OFF = 5;   // lifting points at CX ± PL on the load's top corners\n  const PS = 50 / WPX;                                   // the triangle beside it is drawn smaller than the sling\n  const PBOX = [200, 300, 36, 150];\n  // What the hook carries now: the load's weight, each leg's pull and the wire's pull (a puzzle's pick, once checked).\n  function hookLoads(d, st) {\n    const w = d.mass ? kNof(d.mass) : W1, k = st.pick != null && d.opts ? d.opts.indexOf(st.pick) : -1, ans = answeredOf(st) && k >= 0;\n    const L = { w, leg: legOf(AV, w), wire: w, legShown: true, wireShown: true, ans, k };\n    if (d.ask === 'legs' || d.ask === 'factor') { L.legShown = ans; if (ans) L.leg = d.ask === 'legs' ? d.val[k] : HALF * d.val[k]; }\n    if (d.ask === 'wire') { L.wireShown = ans; if (ans) L.wire = d.val[k]; }\n    return L;\n  }\n  // θ at the hook, between a horizontal line drawn outward to the right and the right leg: the\n  // angle from the horizontal, never the angle between the legs. ref: draw that line (when the\n  // right leg's sideways part is not already there to serve as it).\n  function thetaMark(th, text, hy, ref) {\n    const c = Math.cos(th), tn = Math.tan(th), w = text.length > 1 ? 26 : 9;\n    const xa = CX + Math.max(HR + 12, (20 + OFF / c) / tn), yb = hy + 14;\n    const ra = xa - CX - 3;\n    if (ref) ln(CX + HR + 2, hy, xa + w + 14, hy, 'ref av');\n    pa('M' + r2(CX + ra) + ' ' + r2(hy) + 'A' + r2(ra) + ' ' + r2(ra) + ' 0 0 1 ' + r2(CX + ra * c) + ' ' + r2(hy + ra * Math.sin(th)), 'arc av');\n    tx(xa + w / 2, yb, text, 'lab t');\n    REC.theta = true;\n  }\n  function drawSling(d, st) {\n    const a = AV, th = thOf(a) * D2R, c = Math.cos(th), sn = Math.sin(th);\n    const L = hookLoads(d, st), s = WPX / L.w, t = tlOf(d, st), wrong = st.res === 'wrong' && L.ans;\n    const hy = YP - PL * Math.tan(th);\n    REC.hookY = hy;\n    // the crane wire, the two legs, the hook and the load\n    ln(CX, 0, CX, hy - HR, 'wire av');\n    ln(CX - PL, YP, CX, hy, 'leg av');\n    ln(CX + PL, YP, CX, hy, 'leg av');\n    ci(CX, hy, HR, 'hook av');\n    if (d.motor) {\n      box(CX - PL, YP + 2, 2 * PL, LH - 4, 'load av', 9);\n      [-28, -16, 16, 28].forEach((dx) => ln(CX + dx, YP + 7, CX + dx, YP + LH - 7, 'fin'));\n      box(CX - PL + 6, YP + LH - 2, 12, 5, 'load av', 1); box(CX + PL - 18, YP + LH - 2, 12, 5, 'load av', 1);\n    } else box(CX - PL, YP, 2 * PL, LH, 'load av', 3);\n    ci(CX - PL, YP, 3, 'eye'); ci(CX + PL, YP, 3, 'eye');\n    // its weight, on the load\n    const wy = YP + LH / 2;\n    REC.weightPx = arrow(CX, wy, CX, wy + L.w * s, 'ink');\n    const wNum = !(d.show && d.slider === 'ang' && (d.outs || []).indexOf('legTension') >= 0);\n    lab(CX + 8, wy + 27, wNum ? 'weight ' + fx(L.w, 2) + ' kN' : 'weight', '', 'start');\n    let words = (d.motor ? 'A motor' : 'A load') + ' hangs from a two-leg sling on a crane hook, with ' + Math.round(a) + '° between the legs.';\n    // the forces on the hook\n    if (d.theta) thetaMark(th, d.theta, hy, !(d.parts && d.hookF && L.legShown));\n    if (d.hookF) {\n      if (L.wireShown) {\n        const wl = L.wire * s, bad = d.ask === 'wire' && wrong, aW = vis(d.ask === 'wire' ? t.pick : t.wire);\n        part(aW, () => arrow(CX, hy - HR, CX, hy - HR - wl, bad ? 'hot' : 'ink'));\n        lab(CX + 7, hy - HR - wl / 2 + 4.5, 'wire', bad ? 'w' : '', 'start', aW);\n        REC.wirePx = wl; REC.wireKN = L.wire;\n      } else lab(CX + 8, hy - 22, '?', '', 'start');\n      if (L.legShown) {\n        const ll = L.leg * s, over = L.leg > L.w * (1 + 1e-9), bad = (d.ask === 'legs' || d.ask === 'factor') && wrong, m = SAFE * s;\n        REC.legPx = ll; REC.legKN = L.leg; REC.hot = over || bad;\n        if (d.limit) { REC.limitPx = m; REC.over = L.leg > SAFE; }\n        [-1, 1].forEach((sg) => {\n          const ux = sg * c, uy = sn, x0 = CX + ux * HR + sg * sn * OFF, y0 = hy + uy * HR - c * OFF, xe = x0 + ux * ll, ye = y0 + uy * ll;\n          const aL = vis(L.ans && (d.ask === 'legs' || d.ask === 'factor') ? t.pick : sg < 0 ? t.legL : t.legR);\n          part(aL, () => {\n            if (d.limit && ll > m) { ln(x0, y0, x0 + ux * m, y0 + uy * m, 'ar-leg av'); arrow(x0 + ux * m, y0 + uy * m, xe, ye, 'hot'); }\n            else arrow(x0, y0, xe, ye, over || bad ? 'hot' : 'leg');\n            if (d.parts && sg > 0) { ln(x0, y0, xe, y0, 'part av'); ln(xe, y0, xe, ye, 'part av'); }\n            if (d.limit) { const mx = x0 + ux * m, my = y0 + uy * m; ln(mx + uy * 7, my - ux * 7, mx - uy * 7, my + ux * 7, 'tick av'); }\n          });\n          if (sg > 0) { REC.vertPx = uy * ll; REC.sidePx = c * ll; }\n          if (sg > 0 && d.show && d.parts) { lab(xe + 7, (y0 + ye) / 2 + 4.5, 'vertical', 'n', 'start', aL); lab((x0 + xe) / 2, y0 - 8, 'sideways', 'n', 'middle', aL); }\n        });\n        const aR = vis(L.ans && (d.ask === 'legs' || d.ask === 'factor') ? t.pick : t.legR), ex = CX + c * (HR + ll) + sn * OFF, ey = hy + sn * (HR + ll) - c * OFF;\n        lab(ex + 8, ey + 4, 'each leg\\'s pull', over || bad ? 'w' : 'n', 'start', aR);\n        if (d.limit) {\n          const qx = CX - c * (HR + m), qy = hy + sn * (HR + m);\n          REC.safeAt = [qx - sn * 12, qy - c * 12 + 4.5];\n          lab(REC.safeAt[0], REC.safeAt[1], 'safe 8 kN', '', 'end', aR);\n        }\n        words += ' Arrows show the wire pulling the hook up and each leg pulling it down along its own line' + (d.parts ? ', with the right leg\\'s vertical and sideways parts dashed. The left leg\\'s are their mirror image.' : '.');\n      } else {\n        lab(CX - c * 30 - 6, hy + sn * 30, '?', '', 'end'); lab(CX + c * 30 + 6, hy + sn * 30, '?', '', 'start');\n        words += ' Each leg\\'s pull on the hook is the question.';\n      }\n      if (d.parts && L.legShown) {\n        ln(14, 304, 32, 304, 'part');\n        tx(38, 308.5, 'one leg\\'s vertical and sideways parts', 'lab m', 'start');\n      }\n    }\n    // a puzzle about why the leg is overloaded: what each answer points at\n    if (d.ask === 'why' && L.ans) {\n      const mk = d.marks[L.k], aP = vis(t.pick);\n      if (mk === 'load') lab(CX + c * (HR + L.leg * s) + 8, hy + sn * (HR + L.leg * s) + 20, 'its load grew', 'n', 'start', aP);\n      if (mk === 'strength' && REC.safeAt) lab(REC.safeAt[0], REC.safeAt[1] - 16, 'still 8 kN', 'w', 'end', aP);\n      if (mk === 'weight') lab(CX - 8, wy + 27, 'still the same', 'w', 'end', aP);\n      REC.mark = mk;\n    }\n    // the load, freed: the forces on it alone\n    if (d.freed) {\n      box(CX - PL - 12, YP - 18, 2 * PL + 24, LH + 30, 'ref av', 8);\n      lab(CX + PL + 16, YP - 10, 'freed', 't', 'start');\n      if (L.ans) {\n        const set = d.sets[L.k], aP = vis(t.pick), ll = legOf(a) * s;\n        if (set.indexOf('l') >= 0) {\n          part(aP, () => { arrow(CX - PL, YP, CX - PL + c * ll, YP - sn * ll, 'leg'); arrow(CX + PL, YP, CX + PL - c * ll, YP - sn * ll, 'leg'); });\n          REC.legPx = ll;\n        }\n        if (set.indexOf('x') >= 0) {\n          part(aP, () => arrow(CX, YP - 2, CX, YP - 2 - WPX, 'hot'));\n          lab(CX + 7, YP - 2 - WPX / 2 + 4.5, 'wire\\'s pull', 'w', 'start', aP);\n          REC.wirePx = WPX;\n        }\n        if (set === 'w') lab(CX + PL + 10, YP + LH + 4, 'nothing holds it up', 'w', 'start', aP);\n        const vs = [{ v: [0, L.w], c: 'ink', name: 'weight', t: t.poly(0) }];\n        if (set.indexOf('l') >= 0) vs.push({ v: [c * legOf(a), -sn * legOf(a)], c: 'leg', name: 'leg', t: t.poly(1) }, { v: [-c * legOf(a), -sn * legOf(a)], c: 'leg', name: 'leg', t: t.poly(2) });\n        if (set.indexOf('x') >= 0) vs.push({ v: [0, -L.w], c: 'hot', name: 'wire', lc: 'w', t: t.poly(3) });\n        polygon(vs, s * PS, PBOX, 'center', t.gap);\n        words += ' The load is freed inside a dashed outline, and the chosen forces are drawn on it.';\n      } else words += ' A dashed outline frees the load.';\n    }\n    // the hook's pulls, nose to tail\n    if (d.poly === 'hook' && L.legShown && L.wireShown) {\n      const lc = REC.hot ? 'hot' : 'leg', wc = d.ask === 'wire' && wrong ? 'hot' : 'ink';\n      polygon([\n        { v: [0, -L.wire], c: wc, name: 'wire', lc: wc === 'hot' ? 'w' : '', t: t.poly(0) },\n        { v: [-c * L.leg, sn * L.leg], c: lc, name: 'leg', t: t.poly(1) },\n        { v: [c * L.leg, sn * L.leg], c: lc, name: 'leg', t: t.poly(2) },\n      ], s * PS, PBOX, 'right', t.gap);\n    }\n    if (REC.gapKN != null) words += REC.gapKN < 1e-6 ? ' Beside it, the pulls laid nose to tail close a triangle.' : ' Beside it, the pulls laid nose to tail leave a gap.';\n    return words;\n  }\n\n  // ---------- the ring: two ropes 120° apart and a third straight down ----------\n  const RX = 100, RY = 70, RR = 8, RSC = 16, RL = 96;\n  function drawRing(d, st) {\n    const c30 = Math.cos(30 * D2R), dA = [c30, -0.5], dB = [-c30, -0.5], t = tlOf(d, st);\n    const k = st.pick != null ? d.opts.indexOf(st.pick) : -1, ans = answeredOf(st) && k >= 0, wrong = ans && st.res === 'wrong';\n    [dA, dB].forEach((u) => ln(RX + u[0] * RR, RY + u[1] * RR, RX + u[0] * RL, RY + u[1] * RL, 'rope av'));\n    ln(RX, RY + RR, RX, 180, 'rope av');\n    ci(RX, RY, RR, 'ring av');\n    pa('M' + r2(RX + 26 * c30) + ' ' + r2(RY - 13) + 'A26 26 0 0 0 ' + r2(RX - 26 * c30) + ' ' + r2(RY - 13), 'arc av');\n    tx(RX, RY - 38, '120°', 'lab t');\n    const pl = RING * RSC;\n    [[dA, 'start', 1], [dB, 'end', -1]].forEach((q) => {\n      const u = q[0];\n      arrow(RX + u[0] * RR, RY + u[1] * RR, RX + u[0] * (RR + pl), RY + u[1] * (RR + pl), 'ink');\n      lab(RX + u[0] * (RR + pl * 0.6) + q[2] * 7, RY + u[1] * (RR + pl * 0.6) + 16, N.ring + ' kN', '', q[1]);\n    });\n    let words = 'A ring held by two ropes pulling ' + N.ring + ' kN each, 120° apart, and a third rope straight down.';\n    if (ans) {\n      const p = d.val[k], aP = vis(t.pick);\n      part(aP, () => arrow(RX, RY + RR, RX, RY + RR + p * RSC, wrong ? 'hot' : 'ink'));\n      lab(RX + 8, RY + RR + p * RSC * 0.5 + 4.5, d.opts[k], wrong ? 'w' : '', 'start', aP);\n      REC.pullPx = p * RSC;\n      polygon([\n        { v: [RING * c30, -RING / 2], c: 'ink', name: N.ring + ' kN', t: t.poly(0) },\n        { v: [-RING * c30, -RING / 2], c: 'ink', name: N.ring + ' kN', t: t.poly(1) },\n        { v: [0, p], c: wrong ? 'hot' : 'ink', name: d.opts[k], lc: wrong ? 'w' : '', t: t.poly(2) },\n      ], RSC, [208, 330, 20, 170], 'center', t.gap);\n      words += ' The third rope pulls ' + d.opts[k] + '. Laid nose to tail, the three pulls ' + (REC.gapKN < 1e-6 ? 'close a triangle.' : 'leave a gap.');\n    } else {\n      lab(RX + 12, RY + 48, '?', '', 'start');\n      // the crane hook the ring stands for: the same three pulls, upside down\n      const hx = 269, hy = 62, hd = 52, hv = hd * Math.tan(30 * D2R);\n      tx(hx, 22, 'a crane hook', 'ttl');\n      ln(hx, 30, hx, hy - 6, 'wire av');\n      ln(hx, hy, hx - hd, hy + hv, 'leg av'); ln(hx, hy, hx + hd, hy + hv, 'leg av');\n      ci(hx, hy, 6, 'hook av');\n      box(hx - hd, hy + hv, 2 * hd, 22, 'load av', 3);\n      tx(hx, hy + hv + 46, 'the same pulls,', 'lab m'); tx(hx, hy + hv + 62, 'upside down', 'lab m');\n      words += ' Its pull is the question. Beside it, a crane hook holds a load on two legs 120° apart: the same three pulls, upside down.';\n    }\n    return words;\n  }\n\n  // ---------- the crate: a push and the deck's grip, side by side ----------\n  const DY = 126, CWD = 60, CHT = 50, CL0 = 214, PY = 86, FY = 119, PXN = 0.25;\n  function drawCrate(d, st) {\n    const t = tlOf(d, st), k = st.pick != null && d.opts ? d.opts.indexOf(st.pick) : -1, ans = answeredOf(st) && k >= 0;\n    const push = d.ask === 'friction' ? d.push : PV;\n    const fr = d.ask === 'friction' ? (ans ? d.val[k] : null) : frictionOf(push);\n    const slides = d.ask !== 'friction' && push > GRIP + 1e-9;\n    const off = slides ? K.clamp((push - GRIP) / 100, 0, 1) * 40 : 0, cl = CL0 + off;\n    box(8, DY, 324, 10, 'deckf'); ln(8, DY, 332, DY, 'deck av');\n    box(cl, DY - CHT, CWD, CHT, 'crate av', 2);\n    ln(cl + 7, DY - CHT + 7, cl + CWD - 7, DY - 7, 'plank'); ln(cl + CWD - 7, DY - CHT + 7, cl + 7, DY - 7, 'plank');\n    // the most the deck can grip, dashed along friction's course\n    const gx = cl - GRIP * PXN;\n    ln(cl, FY, gx, FY, 'ref av'); ln(gx, FY - 4, gx, FY + 4, 'ref av');\n    const pl = push * PXN, fl = fr == null ? null : fr * PXN, aP = d.ask === 'friction' ? vis(t.pick) : 1;\n    REC.pushPx = pl; REC.frPx = fl; REC.slides = slides;\n    if (pl > 0.5) {\n      const extra = fl != null && pl > fl + 0.5 ? pl - fl : 0;\n      if (extra > 0) part(aP, () => ln(cl - pl, PY, cl - pl + extra, PY, 'ar-hot av'));\n      arrow(cl - pl + extra, PY, cl, PY, 'ink');\n      lab(cl - 6, PY - 11, 'push ' + Math.round(push) + ' N', '', 'end');\n    }\n    if (fl == null) lab(cl - 16, FY - 9, '?', '', 'end');\n    else {\n      const extra = fl > pl + 0.5 ? fl - pl : 0;\n      part(aP, () => {\n        if (extra > 0) { if (pl > 0.5) ln(cl, FY, cl - pl, FY, 'ar-ink av'); arrow(cl - pl, FY, cl - fl, FY, 'hot'); }\n        else if (fl > 0.5) arrow(cl, FY, cl - fl, FY, 'ink');\n      });\n      lab(cl - 6, FY - 9, 'friction ' + Math.round(fr) + ' N', extra > 0 || (d.ask === 'friction' && fl < 0.5) ? 'w' : '', 'end', aP);\n    }\n    if (slides) lab(cl + CWD / 2, DY - CHT - 22, 'slides', '', 'middle');\n    if (d.ask === 'friction' && ans) {\n      const net = push - fr;\n      lab(cl + CWD / 2, DY - CHT - 22,Math.abs(net) < 1e-9 ? 'balanced' : net > 0 ? 'would slide' : 'would slide back', Math.abs(net) < 1e-9 ? 'm' : 'w', 'middle', vis(t.gap));\n      REC.gapKN = Math.abs(net) / 1000;\n    }\n    // the key\n    ln(14, 160, 32, 160, 'ref'); tx(38, 164.5, 'most grip 300 N', 'lab m', 'start');\n    ln(170, 160, 188, 160, 'ar-hot'); tx(194, 164.5, 'left over', 'lab m', 'start');\n    return 'A crate on a level deck, with a push of ' + Math.round(push) + ' N from one side' +\n      (fr == null ? '. The friction on it is the question.' : ' and friction of ' + Math.round(fr) + ' N from the deck along its base' + (slides ? '. The crate slides.' : '.'));\n  }\n\n  // ---------- one picture for the step now ----------\n  function render(i, st) {\n    const d = STEPS[i];\n    art.textContent = ''; into = null; LAB = [];\n    REC = { texts: [], legPx: null, legKN: null, wirePx: null, wireKN: null, weightPx: null, gapKN: null, hot: false, limitPx: null, over: null,\n      hookY: null, vertPx: null, sidePx: null, pushPx: null, frPx: null, slides: false, pullPx: null, theta: false, mark: null };\n    const H = d.scene === 'ring' ? 190 : d.scene === 'crate' ? 172 : 316;\n    fig.setAttribute('viewBox', '0 0 340 ' + H);\n    const words = d.scene === 'ring' ? drawRing(d, st) : d.scene === 'crate' ? drawCrate(d, st) : drawSling(d, st);\n    flushLabels();\n    fig.setAttribute('aria-label', words);\n    const live = !finished && i === at() && d.show && d.slider === 'ang' && REC.hookY != null;\n    grip.style.display = live ? '' : 'none';\n    if (live) { grip.setAttribute('cx', CX); grip.setAttribute('cy', r2(REC.hookY)); }\n    fig.classList.toggle('drag', live);\n    return REC;\n  }\n\n  // ---------- Dan drags the hook: up closes the legs, down spreads them ----------\n  const dragging = () => !finished && STEPS[at()].show && STEPS[at()].slider === 'ang';\n  function angFrom(e) {\n    const m = fig.getScreenCTM();\n    if (!m) return null;\n    const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(m.inverse());\n    const th = Math.atan2(Math.max(1, YP - q.y), PL) / D2R;\n    return snapTo('ang', 180 - 2 * th);\n  }\n  let held = null;\n  grip.addEventListener('pointerdown', (e) => {\n    if (!dragging()) return;\n    held = e.pointerId;\n    try { grip.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows while the pointer stays on the hook */ }\n    e.preventDefault();\n    K.reveal();\n    const v = angFrom(e);\n    if (v != null) angCtl.set(v);\n  });\n  grip.addEventListener('pointermove', (e) => {\n    if (held !== e.pointerId || !dragging()) return;\n    e.preventDefault();\n    const v = angFrom(e);\n    if (v != null && v !== +angCtl.get()) angCtl.set(v);\n  });\n  const letGo = (e) => { if (held === e.pointerId) held = null; };\n  grip.addEventListener('pointerup', letGo);\n  grip.addEventListener('pointercancel', letGo);\n  grip.addEventListener('lostpointercapture', () => { held = null; });\n\n  // ---------- the words under the picture ----------\n  function sayFor(d, p, o) {\n    if (d.scene === 'crate') {\n      const q = Math.round(+p.push);\n      if (q === 0) return 'With no push, the deck needs no grip, so friction is 0 N.';\n      if (q <= GRIP) return 'Friction matches the ' + q + ' N push, so the crate stays still.';\n      return 'The deck can grip with at most ' + GRIP + ' N. The other ' + (q - GRIP) + ' N of the ' + q + ' N push is left over, so the crate slides.';\n    }\n    const a = Math.round(+p.ang), tt = fx(o.legTension, 2), th = fx(o.angleFromHorizontal, 0);\n    if (d.arrive) return 'The wire pulls up with ' + N.W + ' kN. Each leg pulls down with ' + tt + ' kN.';\n    if (d.factorSay) return 'The load angle factor is ' + fx(o.angleFactor, 3) + ', so each leg pulls ' + tt + ' kN.';\n    if (d.limit) return o.legTension > SAFE\n      ? 'With ' + a + '° between the legs, each leg pulls ' + tt + ' kN, over its safe 8 kN. The leg is no weaker, but its load is bigger.'\n      : 'With ' + a + '° between the legs, each leg pulls ' + tt + ' kN, within its safe 8 kN.';\n    let s;\n    if (a < 120) s = 'With ' + a + '° between the legs, each leg pulls ' + tt + ' kN.';\n    else if (a === 120) s = 'With 120° between the legs, each leg is 30° from the horizontal and pulls ' + tt + ' kN, the whole load.';\n    else s = 'With ' + a + '° between the legs, each leg pulls ' + tt + ' kN, more than the whole ' + N.W + ' kN load. Only ' + N.half + ' kN of it holds the load up.';\n    return s;\n  }\n  function layout(i, d, st, p, o) {\n    const right = st.res === 'right';\n    el('stepbox').hidden = finished;\n    el('lead').hidden = finished || i !== 0;\n    el('cap').hidden = !finished && i < idx('The load angle factor');\n    el('done').hidden = !finished;\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length + ' · ' + d.name;\n    const task = el('task');\n    task.className = 'task say' + (d.show ? ' show' : '');\n    write(task, d.show ? d.text : d.task);\n    el('c-ang').hidden = !(d.show && d.slider === 'ang');\n    el('c-push').hidden = !(d.show && d.slider === 'push');\n    const outs = d.show ? d.outs || [] : [];\n    el('outs').hidden = !outs.length;\n    RO.forEach((r, k) => { r.el.hidden = outs.indexOf(RID[k]) < 0; });\n    el('say').hidden = !d.show;\n    el('say').textContent = d.show ? sayFor(d, p, o) : '';\n    const opts = d.show ? [] : d.opts;\n    el('picks').hidden = !opts.length;\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(opts[k]);\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n    el('acts').hidden = !!d.show;\n    el('replay').hidden = finished || !(d.show && (d.play || d.arrive)) || REDUCE;\n    checkBtn.el.hidden = right;\n    const fb = el('fb');\n    fb.hidden = !!d.show;\n    fb.className = 'fb say' + (right ? ' right' : '');\n    fb.textContent = d.show ? '' : right ? 'That\\'s it.' : st.res === 'wrong' ? d.hints[st.pick] || '' : st.res === 'empty' ? 'Pick an answer first.' : '';\n    const why = el('why');\n    why.hidden = !!d.show || !st.why;\n    if (!d.show) write(why, d.why);\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !right);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  }\n\n  write(el('finish'), FINISH);\n  K.update((p, o) => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (!motion.playing() && (SW || T !== Infinity)) { settle(); K.refresh(); return; }\n    if (i !== lastStep) { enterStep(i); K.refresh(); return; }\n    // Dan took hold of the control a demonstration was moving.\n    if (SW && Math.round(+p[SW.id]) !== SW.last) SW = null;\n    // A control this screen does not show keeps the screen's own setting.\n    const q = setupOf(i);\n    let fix = false;\n    ['ang', 'push'].forEach((id) => {\n      if (d.show && d.slider === id) return;\n      if (+p[id] !== q[id]) { CTL[id].set(q[id], true); fix = true; }\n    });\n    if (fix) { K.refresh(); return; }\n    if (!SW) { AV = +p.ang; PV = +p.push; }\n    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }\n    render(i, st);\n    layout(i, d, st, p, o);\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);\n  function drawnAt(i, st, over) {\n    const keep = { T, AV, PV, SW };\n    T = Infinity; SW = null;\n    const q = Object.assign(setupOf(i), over || {});\n    AV = q.ang; PV = q.push;\n    try { return render(i, st || blank()); }\n    finally { T = keep.T; AV = keep.AV; PV = keep.PV; SW = keep.SW; render(at(), S[at()]); }\n  }\n  const answer = (i, o) => ({ pick: o, res: o === STEPS[i].want ? 'right' : 'wrong', why: false });\n  const ANGS = [60, 90, 120, 150];\n  K.check('Each leg pulls half the load ÷ sin θ: 5.66, 6.94, 9.81 and 18.95 kN at 60°, 90°, 120° and 150° between the legs, where θ is 60°, 45°, 30° and 15°', () =>\n    [['5.66', 60], ['6.94', 45], ['9.81', 30], ['18.95', 15]].every((r, k) => {\n      const o = K.at({ ang: ANGS[k] });\n      return fx(o.legTension, 2) === r[0] && K.near(o.angleFromHorizontal, r[1], 1e-9) && K.near(o.angleFactor * Math.sin(r[1] * D2R), 1, 1e-12);\n    }));\n  K.check('Load Angle Factors (1.000 at 90, 1.155 at 60, 1.414 at 45, 2.000 at 30 degrees) let you scale leg tension quickly: the page\\'s factor gives the same four', () =>\n    fx(K.at({ ang: 0 }).angleFactor, 3) === '1.000' && fx(K.at({ ang: 60 }).angleFactor, 3) === '1.155' && fx(K.at({ ang: 90 }).angleFactor, 3) === '1.414' &&\n    fx(K.at({ ang: 120 }).angleFactor, 3) === '2.000', { source: SRC.oep });\n  K.check('The vertical component of each tension is T sin θ, with θ from the horizontal: at every setting it is half the load, and the drawn vertical part keeps the same length', () => {\n    for (let a = 30; a <= 150; a += 2) { const o = K.at({ ang: a }); if (!K.near(o.legTension * Math.sin(o.angleFromHorizontal * D2R), HALF, 1e-9)) return false; }\n    const i = idx('Spread the legs');\n    return [60, 76, 90, 120, 150].every((a) => K.near(drawnAt(i, blank(), { ang: a }).vertPx, WPX / 2, 1e-6));\n  }, { source: SRC.two });\n  K.check('The load in the legs of a sling increases as the angle between the legs increases: each step of the slider raises it, and the drawn leg arrow grows with it', () => {\n    for (let a = 30; a < 150; a += 2) if (!(K.at({ ang: a + 2 }).legTension > K.at({ ang: a }).legTension)) return false;\n    const i = idx('Spread the legs'), L = ANGS.map((a) => drawnAt(i, blank(), { ang: a }).legPx);\n    return L.every((x, k) => k === 0 || x > L[k - 1]);\n  }, { source: SRC.hse });\n  K.check('There is no change in the tensile strength of the sling leg: its safe mark sits at the same place along the leg at every angle, and only the leg\\'s pull passes it', () => {\n    const i = idx('No weaker, more load'), r = [60, 90, 120, 150].map((a) => drawnAt(i, blank(), { ang: a }));\n    return r.every((x) => K.near(x.limitPx, SAFE * WPX / W1, 1e-9)) && r[0].over === false && r[1].over === false && r[2].over === true && r[3].over === true;\n  }, { source: SRC.doe });\n  K.check('Sling angles approaching 30° are extremely hazardous: the leg arrows turn to the warning colour only once each leg is below 30° from the horizontal, where it carries more than the whole load', () => {\n    const i = idx('Spread the legs');\n    return [60, 90, 120].every((a) => !drawnAt(i, blank(), { ang: a }).hot) && [124, 150].every((a) => drawnAt(i, blank(), { ang: a }).hot) && K.at({ ang: 124 }).legTension > W1;\n  }, { source: SRC.ihsa });\n  K.check('A body at rest remains at rest unless acted on by a net external force: every right answer\\'s forces close with no gap, every wrong one leaves a gap, and every demonstration\\'s triangle closes', () =>\n    DO.every((i) => {\n      const d = STEPS[i];\n      if (d.ask === 'why') return true;\n      return d.opts.every((o) => { const r = drawnAt(i, answer(i, o)); return o === d.want ? r.gapKN != null && r.gapKN < 1e-6 : r.gapKN > 1e-6; });\n    }) && STEPS.filter((d) => d.show && d.poly).every((d) => ANGS.every((a) => drawnAt(STEPS.indexOf(d), blank(), { ang: a }).gapKN < 1e-6)), { source: SRC.newton });\n  K.check('The worked numbers: two 3 kN pulls 120° apart need 3 kN (5.2 kN if 60° apart); at 120° each leg pulls 9.81 kN, 8.50 kN of it sideways; a 2000 kg motor weighs 19.62 kN, so 13.87 kN a leg at 45°; 60° adds 15%', () =>\n    N.ring === '3' && N.ring60 === '5.2' && N.ringSum === '6' && N.t60 === '5.66' && N.t90 === '6.94' && N.t120 === '9.81' && N.side120 === '8.50' && N.half === '4.905' &&\n    N.mW === '19.62' && N.mHalf === '9.81' && N.mT === '13.87' && N.mWhole === '27.75' && N.f60 === '1.155' && N.f90 === '1.414' && N.f120 === '2.000' &&\n    N.wire2 === '19.62' && N.pct60 === '15' && N.sin30 === '0.5' && N.W === '9.81');\n  K.check('Friction matches the push up to μN = 0.5 × 600 = 300 N, then holds at 300 N while the crate slides; while it stays still, the push and friction arrows are the same length', () => {\n    const i = idx('Friction has a giver');\n    const still = [0, 150, 200, 300].every((q) => { const r = drawnAt(i, blank(), { push: q }); return K.near(r.frPx, r.pushPx, 1e-9) && !r.slides; });\n    const r4 = drawnAt(i, blank(), { push: 400 });\n    return still && r4.slides && K.near(r4.frPx, GRIP * PXN, 1e-9) && frictionOf(150) === 150 && frictionOf(350) === GRIP;\n  });\n  K.check('The hook sits PL × tan θ above the lifting points, so it drops as the legs spread, as on a shorter sling', () => {\n    const i = idx('Spread the legs'), h = ANGS.map((a) => drawnAt(i, blank(), { ang: a }).hookY);\n    return h.every((y, k) => K.near(YP - y, PL * Math.tan(thOf(ANGS[k]) * D2R), 1e-6) && (k === 0 || y > h[k - 1]));\n  });\n  K.check('Each puzzle offers three answers and accepts only its right one, every wrong answer has its own hint, and its picture shows no answer before Check', () =>\n    DO.every((i) => {\n      const d = STEPS[i];\n      if (d.opts.length !== 3 || d.opts.indexOf(d.want) < 0 || d.opts.some((o) => o !== d.want && !d.hints[o])) return false;\n      const r = drawnAt(i, blank());\n      return (d.ask === 'why' || r.gapKN == null) && (d.ask === 'ring' || r.texts.indexOf(d.want) < 0) &&\n        (d.ask !== 'legs' && d.ask !== 'factor' || r.legPx == null) && (d.ask !== 'wire' || r.wirePx == null) &&\n        (d.ask !== 'ring' || r.pullPx == null) && (d.ask !== 'friction' || r.frPx == null);\n    }));\n  K.check('Every demonstration starts after the screen\\'s fade and ends within 4.5 s of its screen opening; an answer is drawn within 3 s of Check', () =>\n    STEPS.filter((d) => d.show).every((d) => demoStart(d) >= FADE && demoEnd(d) <= 4.5) && 1.5 + K.SOFT <= ANS && ANS <= 3);\n\n  K.ready();\n</script>",
+  "title": "The sling and its hook",
+  "brief": "The one thing you should see is each leg's tension arrow grow, with its vertical part held at half the load and its sideways part growing, when you spread the sling's legs.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "Each leg pulls half the load ÷ sin θ: 5.66, 6.94, 9.81 and 18.95 kN at 60°, 90°, 120° and 150° between the legs, where θ is 60°, 45°, 30° and 15°",
+     "ok": true
+    },
+    {
+     "label": "Load Angle Factors (1.000 at 90, 1.155 at 60, 1.414 at 45, 2.000 at 30 degrees) let you scale leg tension quickly: the page's factor gives the same four",
+     "ok": true,
+     "source": "https://open-exam-prep.com/study-guides/bcsp-asp/mathematical-calculations-safety-math-noise-rigging-flow-and-radiation/rigging-load-calculations-and-sling-angle-effects"
+    },
+    {
+     "label": "The vertical component of each tension is T sin θ, with θ from the horizontal: at every setting it is half the load, and the drawn vertical part keeps the same length",
+     "ok": true,
+     "source": "https://open-exam-prep.com/study-guides/nccco-rigger-level-2/balanced-forces/two-leg-tension"
+    },
+    {
+     "label": "The load in the legs of a sling increases as the angle between the legs increases: each step of the slider raises it, and the drawn leg arrow grows with it",
+     "ok": true,
+     "source": "https://www.hse.gov.uk/work-equipment-machinery/lift-equipment.htm"
+    },
+    {
+     "label": "There is no change in the tensile strength of the sling leg: its safe mark sits at the same place along the leg at every angle, and only the leg's pull passes it",
+     "ok": true,
+     "source": "https://www.energy.gov/sites/prod/files/2014/01/f6/HoistingRigging_Fundamentals.pdf"
+    },
+    {
+     "label": "Sling angles approaching 30° are extremely hazardous: the leg arrows turn to the warning colour only once each leg is below 30° from the horizontal, where it carries more than the whole load",
+     "ok": true,
+     "source": "https://www.ihsa.ca/PDFs/Products/Id/DS033.pdf"
+    },
+    {
+     "label": "A body at rest remains at rest unless acted on by a net external force: every right answer's forces close with no gap, every wrong one leaves a gap, and every demonstration's triangle closes",
+     "ok": true,
+     "source": "https://openstax.org/books/university-physics-volume-1/pages/5-2-newtons-first-law"
+    },
+    {
+     "label": "The worked numbers: two 3 kN pulls 120° apart need 3 kN (5.2 kN if 60° apart); at 120° each leg pulls 9.81 kN, 8.50 kN of it sideways; a 2000 kg motor weighs 19.62 kN, so 13.87 kN a leg at 45°; 60° adds 15%",
+     "ok": true
+    },
+    {
+     "label": "Friction matches the push up to μN = 0.5 × 600 = 300 N, then holds at 300 N while the crate slides; while it stays still, the push and friction arrows are the same length",
+     "ok": true
+    },
+    {
+     "label": "The hook sits PL × tan θ above the lifting points, so it drops as the legs spread, as on a shorter sling",
+     "ok": true
+    },
+    {
+     "label": "Each puzzle offers three answers and accepts only its right one, every wrong answer has its own hint, and its picture shows no answer before Check",
+     "ok": true
+    },
+    {
+     "label": "Every demonstration starts after the screen's fade and ends within 4.5 s of its screen opening; an answer is drawn within 3 s of Check",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step",
+    "ang",
+    "push"
+   ],
+   "readouts": [
+    "legTension",
+    "angleFactor",
+    "angleFromHorizontal"
+   ],
+   "outputs": [
+    "legTension",
+    "angleFactor",
+    "angleFromHorizontal"
+   ],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Screen",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "steps": [
+      "A ring pulled three ways",
+      "Free the hook",
+      "Forces on the load",
+      "Spread the legs",
+      "Legs at 120°",
+      "The load angle factor",
+      "A 2000 kg motor",
+      "No weaker, more load",
+      "Why overloaded?",
+      "Friction has a giver",
+      "A crate that stays put",
+      "Read the chart right",
+      "The crane wire"
+     ],
+     "value": 0
+    },
+    {
+     "id": "ang",
+     "kind": "control",
+     "label": "Angle between the legs",
+     "min": 60,
+     "max": 150,
+     "step": 2,
+     "log": false,
+     "value": 60,
+     "shown": false,
+     "snap": [
+      60,
+      90,
+      120
+     ]
+    },
+    {
+     "id": "push",
+     "kind": "control",
+     "label": "Push on the crate",
+     "min": 0,
+     "max": 400,
+     "step": 10,
+     "log": false,
+     "value": 0,
+     "shown": false,
+     "snap": [
+      150,
+      200,
+      300
+     ]
+    }
+   ],
+   "actions": [
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Check",
+    "Why?",
+    "Back",
+    "Continue",
+    "Play again",
+    "Start again",
+    "Motion"
+   ],
+   "answers": [],
+   "written": [],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 3
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-27T06:50:32.899Z",
+  "applied": [
+   {
+    "path": "explain.text",
+    "problem": "Three general claims hold only in the drawn case: legs share the load equally only with its weight centred between them; forces from a distance can push too (magnets), not only pull; friction matches the push exactly only on a level deck with a level push."
+   },
+   {
+    "path": "practice.text",
+    "problem": "The half-the-load step is unsafe as a general rule: with the centre of gravity off centre one leg carries more than half times the factor. The friction mistake also holds only on a level deck; a sloping deck (a boat at an angle) adds part of the weight."
+   },
+   {
+    "path": "interactive.ignores",
+    "problem": "The hook is also drawn weightless (the three-pull triangle needs it), the deck is level, and a swinging load pulls hardest at the bottom of its swing rather than while it speeds up; the panel should say so."
+   }
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}

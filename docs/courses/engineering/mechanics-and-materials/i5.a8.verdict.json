@@ -1,0 +1,217 @@
+{
+  "ok": false,
+  "reachChecked": true,
+  "problems": [
+    "Check failed: \"Every screen that shows an idea says it in 90 words or fewer\" (returned false)",
+    "Text cut off: SVG labels \"3000\" and \"4000 W\" are printed over each other (at step = step 5, and 3 more settings)",
+    "Text cut off: SVG labels \"25\" and \"0.2 m/s\" are printed over each other (at step = step 5, and 1 more setting)",
+    "Text cut off: SVG text \"0.2 m/s\" has a line through it (<line.axis>): move the label off the line (K.labels with avoid: [that line]) or stop the line short of it (at step = step 5, and 1 more setting)"
+  ],
+  "report": {
+    "ok": false,
+    "errors": [],
+    "overflow": false,
+    "clipped": [
+      "SVG labels \"3000\" and \"4000 W\" are printed over each other (at step = step 5, and 3 more settings)",
+      "SVG labels \"25\" and \"0.2 m/s\" are printed over each other (at step = step 5, and 1 more setting)",
+      "SVG text \"0.2 m/s\" has a line through it (<line.axis>): move the label off the line (K.labels with avoid: [that line]) or stop the line short of it (at step = step 5, and 1 more setting)"
+    ],
+    "checks": [
+      {
+        "label": "Work is the measure of energy transfer when a force moves an object through a distance: at every load and every height risen, the energy stored is the rope's pull × the height",
+        "ok": true,
+        "source": "https://www.bbc.co.uk/bitesize/articles/zfgkh4j"
+      },
+      {
+        "label": "One joule of work is done when a force of one newton causes a movement of one metre, so the lift's joules are its newtons × its metres",
+        "ok": true,
+        "source": "https://www.bbc.co.uk/bitesize/guides/zw3wtv4/revision/3"
+      },
+      {
+        "label": "Power is work done per unit of time: at every load and speed, the power into the load is the energy stored at the top ÷ the time the lift takes",
+        "ok": true,
+        "source": "https://www.bbc.co.uk/bitesize/articles/zfgkh4j"
+      },
+      {
+        "label": "A moment is measured in newton metres, but it is not work: the bolt puzzle gives its moment in N m, and a bolt that does not turn has no work done on it",
+        "ok": true,
+        "source": "https://www.bbc.co.uk/bitesize/articles/z96g3j6"
+      },
+      {
+        "label": "The opening lift: 500 kg weighs 4905 N; at 0.2 m/s 981 W goes into the load and 1226 W is drawn, so 245 W is lost; 10 m stores 49.05 kJ, in 50 s",
+        "ok": true
+      },
+      {
+        "label": "Same lift, half speed: both power readings halve, to 490.5 W and 613 W, and the same 49.05 kJ is stored in 100 s, twice the time",
+        "ok": true
+      },
+      {
+        "label": "Brake off: a 1 m free fall turns the weight × 1 m into motion, 4905 J for 500 kg, and reaches 4.43 m/s whatever the mass",
+        "ok": true
+      },
+      {
+        "label": "Efficiency is useful power out ÷ power in: 80% at every load and speed, and the power-in bar is drawn exactly as long as the load and losses bars end to end",
+        "ok": true
+      },
+      {
+        "label": "Every puzzle answer is worked from its rule (866 J, 490.5 W, 75%, 3.96 m/s, 61.3%, 981 W, 0 J), and the chain block is 65.4% both ways",
+        "ok": true
+      },
+      {
+        "label": "Each puzzle offers three answers and accepts only its right one; every wrong answer has its own hint and its working drawn in red, and nothing is marked before Check",
+        "ok": true
+      },
+      {
+        "label": "Every demonstration ends within 5 s of its screen opening, and every answer is drawn within 2.5 s of Check",
+        "ok": true
+      },
+      {
+        "label": "Every screen that shows an idea says it in 90 words or fewer",
+        "ok": false,
+        "error": "returned false"
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "mass",
+      "speed",
+      "half",
+      "rise",
+      "fall"
+    ],
+    "readouts": [
+      "loadPower",
+      "elecPower",
+      "stored"
+    ],
+    "outputs": [
+      "loadPower",
+      "elecPower",
+      "stored"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Screen",
+        "min": 0,
+        "max": 13,
+        "step": 1,
+        "steps": [
+          "Lift the load",
+          "Pull at an angle",
+          "Power",
+          "Power from work",
+          "Same lift, half speed",
+          "Half the speed",
+          "Losses and efficiency",
+          "Efficiency",
+          "Brake off",
+          "A free fall",
+          "A chain block",
+          "Another chain block",
+          "Power at the load",
+          "The seized bolt"
+        ],
+        "value": 0
+      },
+      {
+        "id": "mass",
+        "kind": "control",
+        "label": "Load mass",
+        "min": 100,
+        "max": 1000,
+        "step": 50,
+        "log": false,
+        "value": 500,
+        "shown": false
+      },
+      {
+        "id": "speed",
+        "kind": "control",
+        "label": "Hoist speed",
+        "min": 0.1,
+        "max": 0.5,
+        "step": 0.05,
+        "log": false,
+        "value": 0.2,
+        "shown": false
+      },
+      {
+        "id": "half",
+        "kind": "toggle",
+        "label": "Half speed",
+        "options": [
+          false,
+          true
+        ],
+        "value": false,
+        "shown": false
+      },
+      {
+        "id": "rise",
+        "kind": "control",
+        "label": "Height risen",
+        "min": 0,
+        "max": 10,
+        "step": 0.1,
+        "log": false,
+        "value": 0,
+        "shown": false
+      },
+      {
+        "id": "fall",
+        "kind": "control",
+        "label": "Fall with the brake off",
+        "min": 0,
+        "max": 1,
+        "step": 0.05,
+        "log": false,
+        "value": 0,
+        "shown": false
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Lift",
+      "Same lift, half speed",
+      "Brake off",
+      "Play again",
+      "Back",
+      "Continue",
+      "Start again",
+      "Demonstration"
+    ],
+    "answers": [],
+    "written": [],
+    "ready": true,
+    "warnings": [
+      "SVG labels \"120 s\" and \"100 s\" are only 2 px apart on one row, so they read as one: leave at least 4 px between them, or label only what differs (at speed = 0.10 m/s, and 1 more setting) [at 340 px wide]",
+      "SVG labels \"120 s\" and \"100 s\" are only 3 px apart on one row, so they read as one: leave at least 4 px between them, or label only what differs (at speed = 0.10 m/s, and 1 more setting) [at 720 and 1040 px wide]"
+    ],
+    "widths": [
+      {
+        "width": 340,
+        "ok": false
+      },
+      {
+        "width": 720,
+        "ok": false
+      },
+      {
+        "width": 1040,
+        "ok": false
+      }
+    ],
+    "foreign": [],
+    "unreachable": []
+  }
+}

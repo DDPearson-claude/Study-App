@@ -1,0 +1,429 @@
+TASK: build-interactive
+
+You are building one small interactive page for "My University", Dan's personal learning app. It lets him see one idea for himself by playing with it. It runs inside a sandboxed iframe on top of the house kit described below, and the app tests it automatically before Dan sees it.
+
+## The idea
+Topic: Mechanics and materials: forces, motion and machines
+Idea: Moments and beams (Taking moments, force times its distance at right angles, about one support of a loaded beam finds what each support carries.)
+Kind: skill
+Dan knows a little about this topic. Show an equation on the page only if every symbol in it is labelled on the picture; otherwise say the rule in words.
+
+## What the interactive must show
+Brief: The one thing you should see is the nearer trestle's reaction arrow grow, and the far one's shrink as its arm lengthens, when you move the chain block along the beam.
+Title (the app shows it above the frame, so do not repeat it): The beam on two trestles
+The rule (the app shows it just above the frame, under "What you're looking at"): The picture runs over thirteen small screens. The main picture is a lifting beam resting on two trestles 4 m apart, with a chain block hanging from it. The block's load is an arrow pointing down. Each trestle pushes up on the beam. That push is its reaction, drawn as an arrow to scale with a readout in kN. Each trestle's arm is its distance from the block, marked along the beam. The block slides along the beam, from 0 to 4 m from the left trestle, in 0.25 m steps. It opens 1 m from the left trestle. A stepper sets its load from 1 to 10 kN, opening at an example 6 kN. Tapping a trestle takes moments about it. That trestle becomes the pivot. Its own arrow greys out, because it passes through the pivot and has no moment. Two bars then show the clockwise and anticlockwise totals. A readout gives the moment each way in kN m. Each is a force times its distance from the pivot. The bars match at every setting, because the beam does not turn. The right trestle's reaction is the total moment about the left trestle divided by 4 m. The left trestle's reaction is the total load less that. So the nearer trestle carries more. The far one pushes on the longer arm. With the block at the middle, 2 m along, each carries half. A switch adds the beam's own weight, an example 2 kN, as an arrow at its middle. Another switch swaps the block for the same load spread evenly over 2 m, drawn as a row of small arrows. Its middle sits where the block was. It stays between 1 m and 3 m, so the whole spread fits on the beam. Its total acts at its middle. So the reactions match the block's at that point. Screen 1 shows a spanner on a nut: 150 N at 0.3 m makes 45 N m, and the same push at 0.15 m makes 22.5 N m. Screen 2 asks for the moment of a 200 N pull on the end of a 0.5 m bar, slanted so its line passes 0.3 m from the pivot. Screen 3 shows a plank balanced on a pivot, with 400 N at 1.5 m on one side and 600 N at 1 m on the other: 600 N m each way. Screen 4 asks where a 600 N load must hang to balance 300 N at 2 m. Screen 5 shows the lifting beam. Its reactions change as the block moves. Screen 6 asks which trestle carries more with the block 1 m from the left. Screen 7 takes moments about the left trestle: 6 × 1 = 6 kN m. So the right carries 1.5 kN and the left 4.5 kN. Screen 8 asks what the right trestle carries with an 8 kN block 3 m from the left. Screen 9 adds the beam's own weight and the spread load. With the 2 kN beam, the reactions are 5.5 kN and 2.5 kN. Screen 10 asks the right trestle's reaction on a 6 m beam weighing 3 kN, with a 4 kN block 1.5 m from the left. Screen 11 shows two hands turning a valve wheel 0.4 m across. Each pulls 100 N the opposite way. That makes 40 N m about the centre, and about either hand. Screens 12 and 13 mix it all. First comes a 0.5 m wheel turned by 80 N each side. Then comes a 4 m beam weighing 2 kN, with 4 kN spread over its right half. Some screens show an idea and the rest ask you to try it. Each puzzle offers three answers. A wrong pick is drawn, so you can see where it goes wrong.
+What the model leaves out (the app shows this in its own panel; do not repeat it on the page): The beam is drawn rigid, so it does not bend or sag. Each trestle touches it at one point. Real trestles touch over a small width. The load hangs still. A load that swings or is snatched up can pull harder than its weight. The beam's weight is drawn at its middle, which is true only of a uniform beam. This picture does not say whether the beam itself is strong enough. That is a different question.
+Controls (use these ids, ranges and opening values exactly; when the prediction or a check names a setting of a slider, add it to that slider's snap):
+- id "step": Screen, from 0 to 12 in steps of 1, opening at 0
+Outputs (return each from K.model under exactly this key, and show it once: as a K.readout with the same id and the decimals given, which is how the explanation rounds it, or as a label on the drawing when the drawing already shows it, never both. Target checks read K.model, not the tile):
+- id "leftReaction": Left trestle's reaction (kN), decimals: 2
+- id "rightReaction": Right trestle's reaction (kN), decimals: 2
+- id "pivotMoment": Moment each way (kN m), decimals: 2
+Numbers it may show (control = Dan sets it; computed = from the rule; constant = a fixed real value; assumed = an example value, said once as an example in the lead line or a caption, then drawn as a plain value; date = a historical date or fact):
+- Screen, 1 to 13 (the stepper): 0 (control)
+- Span between the trestles, m: 4 (assumed)
+- Block position slider's lowest distance from left trestle, m: 0 (control)
+- Block position slider's highest distance from left trestle, m: 4 (control)
+- Block position slider's step, m: 0.25 (control)
+- Block's opening distance from left trestle, m: 1 (control)
+- Load stepper's lowest load, kN: 1 (control)
+- Load stepper's highest load, kN: 10 (control)
+- Example block load, kN: 6 (control)
+- Block's moment about the left trestle, kN m: 6 (computed)
+- Right trestle's reaction at the opening setting, kN: 1.5 (computed)
+- Left trestle's reaction at the opening setting, kN: 4.5 (computed)
+- Example beam's own weight, kN: 2 (assumed)
+- Middle of the beam, m from the left trestle: 2 (computed)
+- Beam weight's moment about the left trestle, kN m: 4 (computed)
+- Total moment about the left trestle with beam weight, kN m: 10 (computed)
+- Right reaction with beam weight, kN: 2.5 (computed)
+- Left reaction with beam weight, kN: 5.5 (computed)
+- Length the spread load covers, m: 2 (assumed)
+- Example spanner force, N: 150 (assumed)
+- Example spanner length, m: 0.3 (assumed)
+- Spanner's moment, N m: 45 (computed)
+- Half the spanner distance, m: 0.15 (computed)
+- Moment at half the distance, N m: 22.5 (computed)
+- Screen 2 pull, N: 200 (assumed)
+- Screen 2 bar length, m: 0.5 (assumed)
+- Screen 2 right-angle distance to the pull's line, m: 0.3 (assumed)
+- Screen 2 moment, N m: 60 (computed)
+- Wrong pick: pull times bar length, N m: 100 (computed)
+- Wrong pick: pull times the difference of distances, N m: 40 (computed)
+- Screen 3 first load, N: 400 (assumed)
+- Screen 3 first distance, m: 1.5 (assumed)
+- Screen 3 second load, N: 600 (assumed)
+- Screen 3 second distance, m: 1 (assumed)
+- Screen 3 moment each way, N m: 600 (computed)
+- Screen 4 known load, N: 300 (assumed)
+- Screen 4 known distance, m: 2 (assumed)
+- Screen 4 load to place, N: 600 (assumed)
+- Screen 4 answer distance, m: 1 (computed)
+- Screen 4 wrong pick: double distance, m: 4 (computed)
+- Screen 8 block load, kN: 8 (assumed)
+- Screen 8 block distance from left, m: 3 (assumed)
+- Screen 8 right reaction, kN: 6 (computed)
+- Screen 8 left reaction and wrong pick, kN: 2 (computed)
+- Screen 8 wrong pick: half the load, kN: 4 (computed)
+- Screen 10 beam span, m: 6 (assumed)
+- Screen 10 beam weight, kN: 3 (assumed)
+- Screen 10 block load, kN: 4 (assumed)
+- Screen 10 block distance from left, m: 1.5 (assumed)
+- Screen 10 right reaction, kN: 2.5 (computed)
+- Screen 10 left reaction, kN: 4.5 (computed)
+- Screen 10 wrong pick: beam weight left out, kN: 1 (computed)
+- Screen 10 wrong pick: beam weight at the far end, kN: 4 (computed)
+- Screen 11 valve wheel width, m: 0.4 (assumed)
+- Screen 11 each hand's pull, N: 100 (assumed)
+- Screen 11 couple's moment, N m: 40 (computed)
+- Screen 12 wheel width, m: 0.5 (assumed)
+- Screen 12 each side's pull, N: 80 (assumed)
+- Screen 12 couple's moment, N m: 40 (computed)
+- Screen 13 spread load, kN: 4 (assumed)
+- Screen 13 beam weight, kN: 2 (assumed)
+- Worked example span, m: 5 (assumed)
+- Worked example beam weight, kN: 1.5 (assumed)
+- Worked example block load, kN: 8 (assumed)
+- Worked example block distance from left, m: 2 (assumed)
+- Worked example block moment about left, kN m: 16 (computed)
+- Worked example beam middle, m: 2.5 (computed)
+- Worked example beam weight moment, kN m: 3.75 (computed)
+- Worked example total moment about left, kN m: 19.75 (computed)
+- Worked example right reaction, kN: 3.95 (computed)
+- Worked example total load, kN: 9.5 (computed)
+- Worked example left reaction, kN: 5.55 (computed)
+- Worked example block distance from right, m: 3 (computed)
+- Worked example check moment about right, kN m: 27.75 (computed)
+- Spread load's centre, lowest, m from left trestle: 1 (assumed)
+- Spread load's centre, highest, m from left trestle: 3 (assumed)
+- Each trestle's share with the block at the middle, kN: 3 (computed)
+- Total load with beam weight, kN: 8 (computed)
+- Valve wheel's half-width in explain, m: 0.2 (computed)
+
+## The explanation Dan reads after playing (use the same words for the same things)
+A force can turn things as well as push them. Its turning effect is called its moment. The moment is the force times its distance from the pivot, measured at right angles to the force's line. You have met this on a spanner: 150 N on a 0.3 m spanner gives 45 N m. Push at half the distance and you get half the turning effect. Moments are measured in newton metres. A force can slide along its own line without changing its moment. So slide it to the point on its line nearest the pivot. There, the distance to the pivot meets the line at right angles. That right-angle distance is the arm. A slanted pull on the end of a bar has a shorter arm than the bar.
+
+When something stays still, its turning effects balance. Any leftover turning effect would start it turning, just as a leftover force would start it moving. The clockwise moments add up to the same as the anticlockwise moments. That is the principle of moments. It holds about any point you choose. That gives you a useful trick. Choose the point where an unknown force acts. That force then has no distance from the pivot, so its moment is zero and it drops out.
+
+Take a lifting beam resting on two trestles 4 m apart. An example 6 kN chain block hangs 1 m from the left trestle. Take moments about the left trestle. The block turns the beam clockwise with 6 × 1 = 6 kN m. The right trestle pushes up 4 m away, turning it anticlockwise. So …
+
+## Sources
+The only web addresses this page may contain, each only as a K.check {source} on a check whose label restates what that source's quote says (a result of your rule, or a fact about your drawing, takes no source; the caption names a source in words). The app rejects any other:
+[1] Moments - Forces and movement - KS3 Physics - BBC Bitesize — BBC Bitesize (https://www.bbc.co.uk/bitesize/articles/z96g3j6): "A moment is the turning effect of a force."
+[2] Moments - Forces and movement - KS3 Physics - BBC Bitesize — BBC Bitesize (https://www.bbc.co.uk/bitesize/articles/z96g3j6): "moment (M) is measured in newton metres (Nm)"
+[3] Statics: Moment of Force — Engineering Statics (Baker) (https://engineeringstatics.org/moment-of-force.html): "But notice that a force may be slid along its line-of-action without changing the moment, because neither the magnitude of the force nor the moment arm changes."
+[4] Moments - Forces and movement - KS3 Physics - BBC Bitesize — BBC Bitesize (https://www.bbc.co.uk/bitesize/articles/z96g3j6): "The principle of moments states that for an object to be balanced the total clockwise moment must be equal to the total anti-clockwise moment."
+[5] 9.2 The Second Condition for Equilibrium - College Physics 2e | OpenStax — OpenStax (https://openstax.org/books/college-physics-2e/pages/9-2-the-second-condition-for-equilibrium): "The second condition for equilibrium holds for any choice of pivot point"
+[6] 9.2 The Second Condition for Equilibrium - College Physics 2e | OpenStax — OpenStax (https://openstax.org/books/college-physics-2e/pages/9-2-the-second-condition-for-equilibrium): "Hence, the torque exerted by the supporting force is zero relative to that pivot point."
+
+## Dan and how he learns
+- He learns best by doing: something visual he can push and watch respond. Warm, plain words, first principles; no jargon unless explained.
+- He uses an Android phone (this frame is about 340 px wide there, touch only) and a laptop (about 1000 px, where K.stage puts the controls beside the visual). Design for the phone first.
+
+## Rules for this page
+- There is no guess to protect: show everything from the start (no k-after-move), curves and results included.
+- The lead line says what is drawn, plainly ("Water from a 5 m drop hits the blades of a wheel"), not what to do: the app gives the action above the frame. Example values are said once there ("an example stream: a 5 m drop, 20 kg of water each second"), then the drawing labels them plainly ("5 m"), never "for example" on the drawing.
+- Every label and arrow sits on, or starts from, the thing it is about: a force arrow starts on the part it pushes; a speed arrow on the part that moves. Anything the rule says turns or flows does so (K.anim), at a speed that follows its control.
+- The .say sentence must make sense on its own to someone who has just read the explanation: what is happening on screen now, cause then effect, in everyday words; no term, threshold or comparison the page or the explanation has not named; a number as part of its whole ("353 W of the stream's 981 W is carried off by the water"). Bad: "The buckets move slower than half the jet speed, so the water still leaves going backwards, taking 353 W away with it." Good: "The buckets are moving slowly, so the water bounces off them still moving fast, and carries 353 W of its 981 W away downstream."
+- A key for the main drawing sits inside the drawing; show each quantity once (a bar, a readout or a curve, not all three); every number drawn that is worked out (a speed from a drop) is explained in "What you're looking at", or is left off.
+- Draw the cause the explanation gives, not only its effect, and let Dan cause it (a drag, a push, a switch); include the setting where the effect does not happen.
+- Mark the brief's one quantity on the picture itself, with a label saying what it is and its value (a bracket between the two heights reading "2.4 m"); an output with a readout is marked without its number, which the readout alone shows (the app hides it while Dan answers a check).
+- A shaded band states something true of the axis it spans: inputs across x, outputs across y. To show many inputs giving nearly the same output, shade the narrow output band (regions {y0, y1}).
+- Draw every comparison the explanation makes the same way, in the same place, on the axis where the effect happens. A time period is a bracket or thin band along the time axis, not a tall block.
+- Give each reference line its own look and a label beside it; every styled line is in the key or labelled on the drawing.
+- Draw only what the brief, the rule or the explanation names, with the same names. An extra figure says on itself how to read it: what its line stands for and which way is which.
+- Show only the numbers listed above or computed from the rule, each written the way the explanation writes it (the same rounding).
+- Any example cases you choose are fair and representative, never picked to exaggerate the effect.
+- Money, health and law: show how it works, never advice, and never a guaranteed outcome.
+
+## The house kit (complete API reference)
+You write the BODY of one page: HTML, an optional `<style>`, then one inline `<script>` ending
+with `K.ready()`. It runs in a sandboxed iframe on Dan's phone (about 340 px wide, touch) and
+laptop, with the global `K` and the kit's stylesheet. No network or storage: no web
+addresses, `fetch`, `localStorage`, `alert` or `prompt`.
+
+### Page shape that works
+1. `<p class="lead">`: one line saying what is drawn (the app adds title and action).
+2. The main visual with its controls right under it: `K.stage('#scene', '#controls')` keeps the
+   pair on one phone screen. A choice that re-sorts the picture may sit above it.
+3. `<p class="say">`: one sentence that changes with the state and says why. Then
+   `<div class="k-readouts">` for numbers the drawing does not label.
+4. Secondary figures and anything that grows go below.
+5. `<p class="caption">`: one short sentence, at most 20 words: where the numbers come from ("A
+   sketch, not measured data") or the rule in the explanation's words. No new claim, no law or
+   term the explanation does not teach. The app shows what the model leaves out.
+
+### Keep the answer hidden until Dan moves
+Dan predicts before he plays: open on a setting the question is not about, and hide whatever
+gives the answer away until his first move:
+- class `k-after-move` on any element (a mark, an arrow, a sentence): hidden, its space kept.
+  Hide the answer, not the controls or a whole figure (a blank hole fails the test).
+- `K.readout({..., afterMove: true})` shows "?" until then; plot series and marks take `afterMove: true` too.
+- `K.moved` is true from then on: in `K.update`, write `K.moved ? answer : question`.
+- `K.afterMove(fn)` runs `fn` once at that moment; `K.reveal()` marks it from your handlers.
+
+### The pipeline
+Controls register themselves; their values form `params` = `{id: value}`.
+```
+K.model(fn)        fn(params) -> outputs {name: number | string}. Pure: no DOM, no lists or objects.
+K.update(fn)       fn(params, outputs): draw everything here. More than one is allowed.
+K.at(over)         -> outputs of the model at those params (others take each control's starting value)
+K.check(label, fn, {source?})   fn() must return exactly true
+K.ready()          call once, last: draws the opening state and runs the checks
+K.complete()       at the lesson's end
+K.params()  K.outputs()  K.refresh()   (refresh reruns the pipeline after you change your own state)
+```
+A readout whose id is an output key updates itself.
+
+### Controls
+Every control takes `into` (a selector or element). Ids are unique; use the lesson's ids exactly.
+```
+K.control({id, label, min, max, step, value, unit?, prefix?, fmt?, log?, snap?, hint?, into}) -> {el, get(), set(v)}
+K.choice({id, label, options: [value | {value, label}], value, hint?, into}) -> {el, get, set}
+K.toggle({id, label, value: false, hint?, into}) -> {el, get, set}
+K.stepper({id, steps: [title | {title, text}], value: 0, compact?, label?, into}) -> {el, get, set, setSteps(list)}
+K.button({label, press, secondary?, into}) -> {el, press(), setLabel(text)}
+K.drag(el, {control, toValue(x, y)}) -> {el}
+```
+`control` is a big slider with − / + buttons. Keep `unit` short; `fmt(v)` returns the whole text;
+`log: true` spans decades; `snap: [values]` lands a drag exactly on a setting the prediction or a
+check names. `choice`: 2-8 short named options; `value` is an option's value or its 0-based
+index. `stepper` walks a process with Back / Next (`compact: true` when your diagram shows the
+content). `button` is an action (Send it in): use it, not plain buttons. `drag` lets Dan move
+the thing itself: `toValue` maps the pointer (viewBox units; px from `el`'s top-left for HTML)
+to the control's value; the first touch counts as his move.
+
+### Outputs
+```
+K.readout({id, label, unit?, prefix?, decimals?, fmt?, big?, hint?, afterMove?, into}) -> {el, set(v), get(), text()}
+```
+One rounding everywhere a number appears: `decimals` matching the lesson text, and the `.say`
+sentence built with `K.fmt(v, {decimals})` or `readout.text()`. Labels under 30 characters.
+While Dan answers a lesson check, the app hides that output's readout and the `.say` lines:
+never repeat a readout's value elsewhere (a label, an aria-label).
+```
+K.plot(target, opts) -> {draw(opts), x(v), y(v), invert(px, py), el, canvas}
+```
+- `x`, `y`: `{min, max, label, log?, prefix?, unit?, fmt?, ticks?}`. Leave out `y.min`/`y.max` to fit the data.
+- `series`: `[{fn: x => y | points: [[x, y], ...], label?, color?, dash?, width?, fill?, dots?, gaps?, afterMove?}]`
+- `shade`: `[{between: [a, b], label?, color?, x0?, x1?}]`: fills between two series (by label), a
+  series and a constant, or two functions.
+- `marks`: `[{x, y, label?, color?, guides?, afterMove?}]`: a dot with a label pill; `guides` adds dashed lines to the axes.
+- `regions`: `[{x0, x1, label?} | {y0, y1, label?}]` (a band); `lines`: `[{x | y, label?}]` (a dashed line).
+- `label`: the text alternative; `height`; `after(ctx, plot)` draws extras using `plot.x()`, `plot.y()`.
+
+`draw(opts)` redraws with `opts` over the creation options: call it in `K.update`. Values must be
+finite (`gaps: true` only where a gap is real). Series are navy, then teal; `color: 'muted',
+dash: true` for a baseline.
+```
+K.bars(target, {max?, unit?, prefix?, decimals?, fmt?}) -> {draw(items)}      items: [{label, value, color?}], values >= 0
+K.anim({step(dt, t), reset?, label?, autoplay?, button?, into}) -> {el, play, pause, toggle, reset, playing()}
+```
+`anim` adds a Play button (text `label`); `reset` adds Reset. When a switch, button or drag
+already starts the motion, pass `button: false` and call `play()` from that control: one control
+per action. In `step` advance your state (`dt` in seconds) and redraw; return `false` to stop. To
+drive a slider, keep the exact value yourself (the slider moves in whole steps).
+
+### Sound
+```
+K.sound.tone(hz, {dur?, type?, gain?})   K.sound.chord([hz, ...], {dur?, stagger?})   K.sound.stop()   K.sound.mute(on)
+K.sound.hold(hz, {type?, gain?, max?}) -> {set({hz?, gain?}), stop(), playing()}
+```
+`dur` in seconds (at most 10). Sound plays only from a `K.button` press, never `K.update`; show
+what is sounding. `hold` keeps a tone going while `set()` follows a slider. Phones can't play
+below about 150 Hz: use 200 to 2,000 Hz.
+
+### Drawings and helpers
+```
+K.el(tag, attrs?, ...children)    attrs: class, style, on: {click: fn}, text, html, dataset, any attribute
+K.svg(tag, attrs?, ...children)   the same in the SVG namespace
+K.labels(group, [{x, y, text, anchor?, size?, class?, color?}], {avoid?}) -> [<text>]
+K.stage(visual, controls, {max?, beside?}) -> {el}
+K.fmt(v, {decimals?, sig?, prefix?, unit?, percent?, sign?, compact?}) -> '1,234.5', '−3', '2.5 × 10⁶'
+K.near(a, b, tol)   K.clamp(v, lo, hi)   K.lerp(a, b, t)   K.linspace(a, b, n)   K.color(role, alpha?)
+K.ease(p)   K.arrive(T, t0, dur?)   K.fade(el, a, rise?)
+```
+Give an `<svg>` a viewBox about 340 wide, `width="100%"`, `role="img"` and an `aria-label` that
+follows the state. Text 13-16 units, never under 12 (a phone shows 340 units at about 0.9x). A
+row of N labels gets about 300/N units each; label only what differs. Every label sits on, or
+points to, something drawn. `K.labels` places labels (13 units unless `size`) clear of other
+text, the edges and the lines or shapes in `avoid`: use it for labels that move or appear later.
+Put an angle's label inside its wedge, beyond the arc, hidden while the wedge is too narrow.
+`K.stage` fits the pair in `max` px (600) on a phone; `beside: false` keeps it stacked.
+
+Draw the mechanism as it physically works. If the explanation gives a reason (X because Y), draw
+Y so Dan can watch it; parts that fit are drawn fitting (teeth in teeth), never two identical
+icons joined by a line; whatever the rule says happens (slides, grips, multiplies) happens on screen.
+
+### Colour
+Colour carries meaning. Use these roles as `var(--k-…)` or `K.color('fill2')` (`K.color('accent2',
+0.3)` is see-through); a colour name fails the test.
+- Lines and text: `ink`, `muted` (secondary, comparisons), `accent2` (navy: the main thing,
+  controls), `accent` (teal: small labels, a second series), `warn` (red: warnings and mistakes
+  only), `good` (green: "done" only), `amber-line` (amber lines that must stand out).
+- Fills: `bg` (page), `panel`, `sunk`, `amber` (note box), `hl` (key-term highlighter), `fill1`
+  (area of the main thing), `fill2` (highlighted area, amber), `fill3` (area of a second thing).
+- `cat1`-`cat4` (blue, orange, magenta, aqua): telling equal things apart, never meaning; with a
+  key or labels; cat1 and cat2 first. A thing with a familiar colour (water, fire) never gets
+  another thing's colour: use the nearest role and label it. What is still there stays solid:
+  mark a state such as unused with a label, not by fading it, and key any dashed style.
+- Also `--k-line`, `--k-strong` (borders), `--k-on-accent2` (text on navy), `--k-font`, `--k-r` (radius).
+
+Never describe colours by lightness or hue in words Dan reads ("the dark square"): dark mode
+changes them.
+
+Classes: `muted`, `small`, `k-label` (small teal caps), `term` (key term), `note` (amber box),
+`warn-note`, `panel`, `row`, `grid2`, `big`, `k-btn` (`secondary`), and a legend:
+`<div class="key"><span><i class="swatch" style="background:var(--k-accent2)"></i>Your push</span>
+<span><i class="swatch line dash" style="color:var(--k-muted)"></i>The limit</span></div>`.
+
+### Rules for a great interactive
+- One idea. The answer to Dan's prediction shows within about 3 seconds of his first move (add
+  a K.check that it does). Include something Dan causes and a case that surprises. One or two
+  controls, three at most.
+- Phone first: nothing wider than 340 px, no fixed widths over 300 px, rows wrap, no hover-only
+  information, tap targets at least 44 px. Size tiles and grid columns in rem (`minmax(6rem,
+  1fr)`): text grows a quarter at Text size XL, and no word may split across two lines.
+- Every number shown is a control, computed by the rule shown, a constant from the lesson, an
+  example value named once in the lead, or a date from the lesson. Never invent data, rates or chances.
+- The `.say` sentence describes what is on screen now, plainly and warmly, and reads right at the
+  extremes ("none of the 100"). Never claim Dan did something ("When you slid it to 20"):
+  describe the state, or write conditionally ("Push it past 20 and…").
+- 3-5 `K.check` known answers worked out by hand: an edge case, a shape fact (rises, halves,
+  always last), and one answer from outside your formula. `source` may ONLY be a URL from the
+  lesson's own sources, and only on a check whose label restates what that source's quote says;
+  a result of your rule, or a fact about your drawing, takes none. Compare numbers with
+  `K.near(a, b, tol)`: tolerance about a millionth of the size, a thousandth where rounding meets roots.
+- `K.anim` for motion, never timers: soft, unhurried, nothing popping in. Parts arrive about 0.6
+  s apart by `K.fade(el, K.arrive(T, t0))`; travel and growth use `K.ease`; a demonstration takes
+  3-5 s. No `vh` units, `position: fixed` or `height: 100%`.
+- Ideas without numbers (mechanism, process, structure, history, concept): prefer a timeline
+  slider, a named choice, a sorter or a drag; use `K.stepper` only when every step changes the
+  drawing. Checks assert order and structure facts.
+- A timeline runs forward: a slider rising left to right, its `fmt` showing the date (−500 as
+  "500 BC"), or a stepper of named events in order. A lesson's calendar-year control keeps its
+  range, its `fmt` showing the year; years after the first date are for new controls. Each dated
+  event appears as he reaches its date.
+
+### The self-test
+Before Dan sees it, the app loads your body 340, 720 and 1040 px wide, runs every check, moves
+every control, button, animation and drag, reveals the after-move parts, and looks again at Text
+size XL and in the other theme. It fails on an exception, NaN or undefined on the page, an update
+over 150 ms, sideways overflow, text cut off or over other text, SVG text under 11 px on a phone,
+a line or arrowhead through a label, text under 3:1 contrast with what is behind it, a colour
+name, a blank hole until a move, or no `K.ready()`.
+
+### Example
+```html
+<p class="lead">Lengthen the string and watch each swing take longer.</p>
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+<p class="caption">Small swings only; g = 9.81 m/s² is gravity at the Earth's surface.</p>
+<script>
+  const g = 9.81;
+  const period = (L) => 2 * Math.PI * Math.sqrt(L / g);
+  K.control({ id: 'L', label: 'String length', min: 0.1, max: 3, step: 0.05, value: 1, unit: 'm', snap: [2], into: '#controls' });
+  K.stage('#plot', '#controls');
+  K.readout({ id: 'T', label: 'One full swing takes', unit: 's', decimals: 2, into: '#outs' });
+  const plot = K.plot('#plot', { x: { min: 0, max: 3, label: 'Length (m)' }, y: { min: 0, max: 4, label: 'Period (s)' } });
+  K.model((p) => ({ T: period(p.L) }));
+  K.update((p, o) => {
+    plot.draw({ series: [{ fn: period }], marks: [{ x: p.L, y: o.T, guides: true }] });
+    document.getElementById('say').textContent = !K.moved ? 'Make the string four times longer: how much longer is each swing?'
+      : 'A ' + K.fmt(p.L, { decimals: 2 }) + ' m string swings there and back every ' + K.fmt(o.T, { decimals: 2 }) + ' s. Four times the length only doubles that.';
+  });
+  K.check('No length, no swing time', () => K.near(period(0), 0));
+  K.check('A seconds pendulum (2 s per swing) is 0.994 m long', () => K.near(period(0.994), 2, 0.002),
+    { source: 'https://en.wikipedia.org/wiki/Seconds_pendulum' });
+  K.check('Four times the length doubles the period', () => K.near(K.at({ L: 2 }).T / K.at({ L: 0.5 }).T, 2, 1e-9));
+  K.ready();
+</script>
+```
+
+
+## A finished example (kind: quantity). Match its standard and structure, not its topic. Its SOURCE line and {source} addresses belong to that example's own lesson: never copy them
+<!-- kind: quantity -->
+<style>
+  .split { display: flex; height: 26px; border-radius: 8px; overflow: hidden; background: var(--k-sunk); }
+  .split .work { background: var(--k-accent2); transition: width .2s ease; }
+  .split-key { display: flex; justify-content: space-between; gap: 12px; margin-top: 6px; font-size: .9rem; color: var(--k-muted); }
+  .nowrap { white-space: nowrap; }
+</style>
+
+<p class="lead">Squeeze the air harder before the fuel burns in it, and watch how much more of the fuel's heat turns into useful work.</p>
+
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+
+<div>
+  <span class="k-label">Of every 100 units of heat from the fuel</span>
+  <div class="split" role="img" id="split" aria-label=""><i class="work" id="work"></i></div>
+  <div class="split-key"><span>Becomes work</span><span>Leaves in the hot exhaust</span></div>
+</div>
+
+<p class="caption">The ideal Brayton cycle with γ = 1.4 for air (NASA Glenn Research Center), an upper limit for real engines.</p>
+
+<script>
+  // gamma: ratio of specific heats for air, the value NASA Glenn's Brayton page uses.
+  const GAMMA = 1.4;
+  const SOURCE = 'https://www.grc.nasa.gov/www/k-12/airplane/brayton.html';
+  const pct = (r) => 100 * (1 - Math.pow(r, -(GAMMA - 1) / GAMMA));
+
+  const r = K.control({ id: 'r', label: 'Pressure ratio', hint: 'Pressure after the compressor ÷ pressure before it', min: 1, max: 50, step: 1, value: 8, unit: ':1', into: '#controls' });
+  K.readout({ id: 'eff', label: 'Ideal efficiency', unit: '%', decimals: 1, big: true, into: '#outs' });
+
+  K.stage('#plot', '#controls');   // stacked on a phone, side by side on a laptop
+
+  const plot = K.plot('#plot', {
+    x: { min: 1, max: 50, label: 'Pressure ratio' },
+    y: { min: 0, max: 100, label: 'Ideal efficiency (%)' },
+    label: 'Ideal efficiency rises steeply at low pressure ratios, then flattens',
+  });
+
+  // The pure model: pressure ratio -> ideal efficiency in percent.
+  K.model((p) => ({ eff: pct(p.r) }));
+
+  K.update((p, o) => {
+    plot.draw({
+      series: [{ fn: pct, label: 'Ideal efficiency' }],
+      marks: [{ x: p.r, y: o.eff, guides: true }],   // its value is in the readout alone
+    });
+    document.getElementById('work').style.width = o.eff + '%';
+    document.getElementById('split').setAttribute('aria-label', 'The filled part becomes work: ' + (o.eff < 50 ? 'under' : 'over') + ' half the heat');
+
+    let s;
+    if (p.r === 1) {
+      s = 'With no squeeze at all (r = 1), the hot gas has no extra pressure to push the turbine with, so no work comes out: 0%.';
+    } else if (p.r * 2 <= 50) {
+      const more = pct(p.r * 2) - o.eff;
+      s = 'At ' + p.r + ':1 an ideal engine turns ' + o.eff.toFixed(1) + '% of the fuel\'s heat into work. Doubling the squeeze to ' +
+        p.r * 2 + ':1 would add ' + more.toFixed(1) + ' more points.';
+    } else {
+      const less = o.eff - pct(p.r / 2);
+      s = 'At ' + p.r + ':1 an ideal engine turns ' + o.eff.toFixed(1) + '% of the fuel\'s heat into work. Halving the squeeze would cost only ' +
+        less.toFixed(1) + ' points: the curve has flattened.';
+    }
+    // Until Dan moves the slider the sentence invites rather than answers his prediction.
+    document.getElementById('say').textContent = K.moved ? s : 'Does doubling the squeeze double the work you get? Move the pressure ratio and see.';
+  });
+
+  // Known answers, worked out by hand from the formula.
+  K.check('No squeeze (r = 1) gives 0% efficiency', () => K.near(K.at({ r: 1 }).eff, 0, 1e-9));
+  K.check('r = 10 gives 48.2%, from the ideal Brayton formula', () => K.near(K.at({ r: 10 }).eff, 48.205, 0.001), { source: SOURCE });
+  K.check('Efficiency rises with every step up in pressure ratio', () => {
+    for (let x = 1; x < 50; x++) if (!(K.at({ r: x + 1 }).eff > K.at({ r: x }).eff)) return false;
+    return true;
+  });
+  K.check('Diminishing returns: 1 → 2 adds 18.0 points, 20 → 40 adds only 7.6', () =>
+    K.near(K.at({ r: 2 }).eff - K.at({ r: 1 }).eff, 17.97, 0.01) && K.near(K.at({ r: 40 }).eff - K.at({ r: 20 }).eff, 7.63, 0.01));
+  K.check('Even at r = 50 the ideal stays below 100% (67.3%)', () => K.near(K.at({ r: 50 }).eff, 67.30, 0.01));
+
+  K.ready();
+</script>
+
+## Output
+Return ONLY the body: HTML elements, an optional <style>, then one inline <script> that ends with K.ready(). No <html>, <head> or <body> tags, no markdown fences, no commentary before or after. Keep it under 40 KB.

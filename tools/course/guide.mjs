@@ -88,7 +88,7 @@ const terms = (s) => String(s || '').replace(/\*\*([^*\n]+)\*\*/g, '\u0000$1\u00
 // to act on the screen ("Drag a card…", "Tap a row to read why.", "Work each step yourself first,
 // then show it…"), or one that names a quiz control or its rules ("Skip to the practice", "two
 // wrong tries", "on to screen 2"). The same patterns take them out of a still (CAPTURE).
-const QUIZ_SENTENCE = /^(drag|tap|press|click|choose|pick|slide|swipe|touch|try (it|again|another|a different)|work (each|it|out)(?!\s+(?:(?:is|was|equals)\b|=))|check yours|have a go|move (the|a|either|one))\b/i;
+const QUIZ_SENTENCE = /^(drag|tap|press|click|choose|pick|slide|swipe|touch|try (it|again|another|a different)|work (each|it|out)(?!\s*:|\s+(?:(?:is|was|equals)\b|=))|check yours|have a go|move (the|a|either|one))\b/i;
 const QUIZ_ANYWHERE = /\b(skip to the practice|refresh the why|two wrong tries|on to (screen|step) \d+|(press|tap|click) (check|show|why|continue|next)|drag (the|a|either|one|it)\b)/i;
 // A guide page's words without them, reporting what went (the lesson's own words should say it in a
 // `read` sentence instead).

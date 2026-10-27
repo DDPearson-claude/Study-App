@@ -1,0 +1,180 @@
+{
+  "ok": false,
+  "reachChecked": true,
+  "problems": [
+    "While sweeping the controls: output \"angleFromHorizontal\" has a readout, and the text \"Each leg's tension is half the load tim…\" (<p#task.task>) prints its value too: while Dan answers a check on it, the app hides only the readout and the .say line, so this gives the answer away. Show that value in its readout alone (no label or aria-label repeating it)"
+  ],
+  "report": {
+    "ok": false,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "Each leg pulls half the load ÷ sin θ: 5.08, 5.66, 6.94, 9.81 and 18.95 kN at 30°, 60°, 90°, 120° and 150° between the legs, where θ is 75°, 60°, 45°, 30° and 15°",
+        "ok": true
+      },
+      {
+        "label": "Load Angle Factors (1.000 at 90, 1.155 at 60, 1.414 at 45, 2.000 at 30 degrees) let you scale leg tension quickly: the page's factor gives the same four",
+        "ok": true,
+        "source": "https://open-exam-prep.com/study-guides/bcsp-asp/mathematical-calculations-safety-math-noise-rigging-flow-and-radiation/rigging-load-calculations-and-sling-angle-effects"
+      },
+      {
+        "label": "The vertical component of each tension is T sin θ, with θ from the horizontal: at every setting it is half the load, and the drawn vertical part keeps the same length",
+        "ok": true,
+        "source": "https://open-exam-prep.com/study-guides/nccco-rigger-level-2/balanced-forces/two-leg-tension"
+      },
+      {
+        "label": "The load in the legs of a sling increases as the angle between the legs increases: each step of the slider raises it, and the drawn leg arrow grows with it",
+        "ok": true,
+        "source": "https://www.hse.gov.uk/work-equipment-machinery/lift-equipment.htm"
+      },
+      {
+        "label": "There is no change in the tensile strength of the sling leg: its safe mark sits at the same place along the leg at every angle, and only the leg's pull passes it",
+        "ok": true,
+        "source": "https://www.energy.gov/sites/prod/files/2014/01/f6/HoistingRigging_Fundamentals.pdf"
+      },
+      {
+        "label": "Sling angles approaching 30° are extremely hazardous: the leg arrows turn to the warning colour only once each leg is below 30° from the horizontal, where it carries more than the whole load",
+        "ok": true,
+        "source": "https://www.ihsa.ca/PDFs/Products/Id/DS033.pdf"
+      },
+      {
+        "label": "A body at rest remains at rest unless acted on by a net external force: every right answer's forces close with no gap, every wrong one leaves a gap, and every demonstration's triangle closes",
+        "ok": true,
+        "source": "https://openstax.org/books/university-physics-volume-1/pages/5-2-newtons-first-law"
+      },
+      {
+        "label": "The worked numbers: two 3 kN pulls 120° apart need 3 kN (5.2 kN if 60° apart); at 120° each leg pulls 9.81 kN, 8.50 kN of it sideways; a 2000 kg motor weighs 19.62 kN, so 13.87 kN a leg at 45°; 60° adds 15%",
+        "ok": true
+      },
+      {
+        "label": "Friction matches the push up to 300 N, then holds at 300 N while the crate slides; while it stays still, the push and friction arrows are the same length",
+        "ok": true
+      },
+      {
+        "label": "The hook sits PL × tan θ above the lifting points, so it drops as the legs spread, as on a shorter sling",
+        "ok": true
+      },
+      {
+        "label": "Each puzzle offers three answers and accepts only its right one, every wrong answer has its own hint, and its picture shows no answer before Check",
+        "ok": true
+      },
+      {
+        "label": "Every demonstration starts after the screen's fade and ends within 4.5 s of its screen opening; an answer is drawn within 3 s of Check",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": false,
+      "problems": [
+        "output \"angleFromHorizontal\" has a readout, and the text \"Each leg's tension is half the load tim…\" (<p#task.task>) prints its value too: while Dan answers a check on it, the app hides only the readout and the .say line, so this gives the answer away. Show that value in its readout alone (no label or aria-label repeating it)"
+      ]
+    },
+    "controls": [
+      "step",
+      "ang",
+      "push"
+    ],
+    "readouts": [
+      "legTension",
+      "angleFactor",
+      "angleFromHorizontal"
+    ],
+    "outputs": [
+      "legTension",
+      "angleFactor",
+      "angleFromHorizontal"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Screen",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "steps": [
+          "A ring pulled three ways",
+          "Free the hook",
+          "Forces on the load",
+          "Spread the legs",
+          "Legs at 120°",
+          "The load angle factor",
+          "A 2000 kg motor",
+          "No weaker, more load",
+          "Why overloaded?",
+          "Friction has a giver",
+          "A crate that stays put",
+          "Read the chart right",
+          "The crane wire"
+        ],
+        "value": 0
+      },
+      {
+        "id": "ang",
+        "kind": "control",
+        "label": "Angle between the legs",
+        "min": 30,
+        "max": 150,
+        "step": 2,
+        "log": false,
+        "value": 60,
+        "shown": false,
+        "snap": [
+          60,
+          90,
+          120
+        ]
+      },
+      {
+        "id": "push",
+        "kind": "control",
+        "label": "Push on the crate",
+        "min": 0,
+        "max": 400,
+        "step": 10,
+        "log": false,
+        "value": 0,
+        "shown": false,
+        "snap": [
+          150,
+          200,
+          300
+        ]
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Back",
+      "Continue",
+      "Play again",
+      "Start again",
+      "Motion"
+    ],
+    "answers": [],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": false
+      },
+      {
+        "width": 720,
+        "ok": false
+      },
+      {
+        "width": 1040,
+        "ok": false
+      }
+    ],
+    "foreign": [],
+    "unreachable": []
+  }
+}

@@ -1,0 +1,1264 @@
+<!-- kind: quantity -->
+<style>
+  [hidden] { display: none !important; }
+  .pz { max-width: 34rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .count { margin-top: 10px; }
+  .task { font-size: 1.15rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.06rem; font-weight: 400; line-height: 1.6; }
+  .fig { display: block; width: 100%; max-width: 26rem; margin-inline: auto; touch-action: pan-y; }
+  .fig.drag { touch-action: none; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .picks { flex-direction: column; gap: 8px; }
+  .picks .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; white-space: normal; line-height: 1.35; padding-top: 8px; padding-bottom: 8px; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  #outs { display: grid; grid-template-columns: repeat(auto-fit, minmax(6.5rem, 1fr)); gap: 10px; }
+  .fb { font-weight: 700; min-height: 1.5em; }
+  .fb.right { color: var(--k-good); }
+  .why, .done { line-height: 1.6; }
+  .done .row { margin-top: 14px; }
+  .replay { justify-content: center; }
+  .replay .k-btn { flex: 0 1 auto; min-width: 7rem; }
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }
+  /* Axes, the curve and its lines. */
+  .fig .axis { stroke: var(--k-ink); stroke-width: 1.4; }
+  .fig .tick { stroke: var(--k-muted); stroke-width: 1.2; }
+  .fig .guide { stroke: var(--k-muted); stroke-width: 1.2; stroke-dasharray: 3 3; }
+  .fig .curve { fill: none; stroke: var(--k-accent2); stroke-width: 2.6; stroke-linejoin: round; stroke-linecap: round; }
+  .fig .steel { fill: none; stroke: var(--k-muted); stroke-width: 2.2; stroke-linejoin: round; }
+  .fig .back { stroke: var(--k-accent); stroke-width: 2.4; stroke-linecap: round; }
+  .fig .offs { stroke: var(--k-muted); stroke-width: 1.8; stroke-dasharray: 6 4; }
+  .fig .work { stroke: var(--k-amber-line); stroke-width: 2.2; stroke-dasharray: 7 4; }
+  .fig .yl { stroke: var(--k-ink); stroke-width: 1.6; stroke-dasharray: 5 3; }
+  .fig .hotl { stroke: var(--k-warn); stroke-width: 2.6; stroke-linecap: round; }
+  .fig .hotd { fill: none; stroke: var(--k-warn); stroke-width: 2; stroke-dasharray: 5 4; }
+  .fig .hotbox { fill: none; stroke: var(--k-warn); stroke-width: 2.6; }
+  .fig .dot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 1.5; }
+  .fig .ca { fill: none; stroke: var(--k-cat1); stroke-width: 2.8; stroke-linejoin: round; }
+  .fig .cb { fill: none; stroke: var(--k-cat2); stroke-width: 2.8; stroke-linejoin: round; }
+  .fig .ca.thick, .fig .cb.thick { stroke-width: 6; stroke-linecap: round; }
+  /* The test bar, its grips and marks. */
+  .fig .metal { fill: var(--k-sunk); stroke: var(--k-ink); stroke-width: 1.4; }
+  .fig .grip-blk { fill: var(--k-strong); stroke: var(--k-ink); stroke-width: 1.4; }
+  .fig .gmark { stroke: var(--k-accent); stroke-width: 2.4; }
+  .fig .dim { stroke: var(--k-accent); stroke-width: 1.4; }
+  .fig .track { fill: var(--k-sunk); }
+  .fig .perm, .fig .mbar { fill: var(--k-accent2); }
+  .fig .spring { fill: var(--k-accent); }
+  .fig .mbar-hot { fill: var(--k-warn); }
+  .fig .cell { fill: var(--k-panel); stroke: var(--k-muted); stroke-width: 1; }
+  .fig .wall { fill: var(--k-sunk); stroke: var(--k-ink); stroke-width: 1.4; }
+  .fig .rodf, .fig .sec { fill: var(--k-sunk); stroke: var(--k-ink); stroke-width: 1.5; }
+  .fig .pdot { fill: var(--k-accent2); }
+  .fig .shaft { fill: none; stroke: var(--k-strong); stroke-width: 12; stroke-linecap: round; }
+  .fig .brg { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.4; }
+  .fig .trace { fill: none; stroke: var(--k-accent2); stroke-width: 2.4; stroke-linejoin: round; }
+  .fig .rot { fill: none; stroke: var(--k-muted); stroke-width: 1.6; }
+  .fig .ah-rot { fill: var(--k-muted); }
+  /* Forces: ink; a mistake is red. */
+  .fig .ar-ink { stroke: var(--k-ink); stroke-width: 2.6; }
+  .fig .ah-ink { fill: var(--k-ink); }
+  .fig .ar-hot { stroke: var(--k-warn); stroke-width: 2.6; }
+  .fig .ah-hot { fill: var(--k-warn); }
+  /* Words on the pictures. */
+  .fig .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .fig .lab.t { fill: var(--k-accent); }
+  .fig .lab.n { fill: var(--k-accent2); }
+  .fig .lab.w { fill: var(--k-warn); }
+  .fig .lab.m { font-weight: 400; fill: var(--k-muted); }
+  .fig .faint { fill: none; stroke: var(--k-muted); stroke-width: 1.8; stroke-opacity: .6; }
+  .fig .cutd { fill: var(--k-muted); }
+  .fig .zbox { fill: var(--k-panel); stroke: var(--k-muted); stroke-width: 1; }
+  .fig .area { fill: var(--k-cat2); fill-opacity: .16; stroke: none; }
+  .fig .notch { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.2; }
+  .fig .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; }
+  .fig .grip:active { cursor: grabbing; }
+</style>
+
+<p class="lead" id="lead">Two round steel bars, seen end on, carry the same pull.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task say" id="task"></p>
+    <svg class="fig" id="scene" viewBox="0 0 340 310" width="100%" role="img" aria-label=""><g id="art"></g><g id="fix"><g id="f-axy"></g><g id="f-gauge"></g><g id="f-str"></g><g id="f-brk"></g><g id="f-off"></g></g><g id="labs"></g><g id="ui"><circle id="grip" class="grip" cx="-100" cy="-100" r="24" aria-hidden="true"></circle></g></svg>
+    <div class="k-controls" id="c-ext"></div>
+    <div class="row replay" id="replay"></div>
+    <p class="say" id="say"></p>
+    <div class="k-readouts" id="outs"></div>
+    <div class="row picks say" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb say" id="fb" aria-live="polite"></p>
+    <div class="note why say" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption" id="cap">A sketch of one mild steel, not measured data. The first 0.5% of strain is drawn far wider than the rest.</p>
+
+<script>
+  // ---------- the rules ----------
+  const AREA = 100, GAUGE = 100;             // the test bar: an example 100 mm² section, marks 100 mm apart
+  const EMOD = 200000;                       // steel's Young's modulus, N/mm² for each whole unit of strain
+  const EPC = EMOD / 100;                    // the same for each 1% of strain
+  const YS = 250, EY = YS / EPC;             // the example yield strength, reached at 0.125%
+  const PL = 1.5;                            // where the sketch's short flat step ends, %
+  const S10 = 360, UTS = 400, EU = 20, SB = 320, BRK = 30, WIDE = 0.5, OFF = 0.2;
+  // The gentle arch from the flat step to the peak, shaped so it passes 360 N/mm² at 10%.
+  const NH = Math.log((UTS - S10) / (UTS - YS)) / Math.log((EU - 10) / (EU - PL));
+  // The sketch: the stress (N/mm²) at a strain e (%) while the bar is pulled on.
+  function sc(e) {
+    e = K.clamp(e, 0, BRK);
+    if (e <= EY) return EPC * e;
+    if (e <= PL) return YS;
+    if (e <= EU) return YS + (UTS - YS) * (1 - Math.pow((EU - e) / (EU - PL), NH));
+    const q = (e - EU) / (BRK - EU);
+    return UTS - (UTS - SB) * q * q;
+  }
+  // Pulled as far as m and let go: the stretch that springs back is the stress ÷ Young's modulus.
+  const permOf = (m) => Math.max(0, m - sc(m) / EPC);
+  // The stress at a stretch e after pulling as far as m: on the curve, or on the line back down.
+  function stressAt(e, m) {
+    if (e >= m - 1e-12) return sc(e);
+    const s = sc(m) - EPC * (m - e);
+    return s > 1e-9 ? s : 0;
+  }
+  // A faint curve for a metal with no clear corner: it leaves the same straight start and bends over toward RC.
+  const RC = 320;
+  const rc = (e) => RC * (1 - Math.exp(-EPC * e / RC));
+  // Where the 0.2% offset line (parallel to the straight start) cuts that curve, found by halving.
+  const CUT = (() => { let a = OFF, b = WIDE; for (let k = 0; k < 60; k++) { const c = (a + b) / 2; if (EPC * (c - OFF) < rc(c)) a = c; else b = c; } return (a + b) / 2; })();
+  const OTOP = OFF + RC / EPC;               // the dashed line is drawn up to 320 N/mm²
+  const SRC = {
+    instron: 'https://www.instron.com/en/resources/glossary/yield-strength',
+    ox: 'https://openstax.org/books/university-physics-volume-1/pages/12-3-stress-strain-and-elastic-modulus',
+    brit: 'https://www.britannica.com/science/yield-strength',
+    isu: 'https://faculty.sites.iastate.edu/tec/files/inline-files/L25%20-%20Stress-Strain%20Curves%201,%20Elasic%20vs%20Plasic%20Behavior,%20Plasticity%20&%20Ductility,%20Yield%20Point,%20Hardness,%20Toughness.pdf',
+  };
+  const GRID = 0.005;                        // the stretch moves in steps of 0.005 mm
+  const snapG = (v) => +(Math.round(K.clamp(v, 0, BRK) / GRID) * GRID).toFixed(3);
+  const gfloor = (v) => +(Math.floor(v / GRID + 1e-7) * GRID).toFixed(3);
+  function nf(v) {
+    const r = Math.round(v * 10000) / 10000;
+    if (Math.abs(r) < 1e-12) return '0';
+    let s = String(r);
+    if (/e/.test(s)) s = r.toFixed(4).replace(/0+$/, '');
+    const parts = s.split('.');
+    const g = Math.abs(r) >= 10000 ? parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ' ') : parts[0];
+    return g + (parts[1] ? '.' + parts[1] : '');
+  }
+  // A stretch in mm: two decimals from 1 mm up, three below (0.325 mm, 22.3 mm).
+  const mm = (v) => { const f = Math.abs(v) >= 1 ? 100 : 1000, r = Math.round(v * f) / f; return Math.abs(r) < 1e-9 ? '0' : String(r); };
+  const r3 = (v) => +v.toPrecision(3);
+  const near = (a, b) => Math.abs(a - b) < 1e-6;
+
+  // Every number the words show, worked out from the rules (a check compares them with the lesson's).
+  const N = (() => {
+    const n = {}, A20 = Math.PI * 10 * 10, A10 = Math.PI * 5 * 5;
+    n.A20 = A20; n.A10 = A10; n.s20v = 10000 / A20; n.s10v = 10000 / A10;
+    n.sh3 = nf(r3(5000 / A10)); n.key = nf(16000 / (8 * 40)); n.wk1 = nf(16000 / 40); n.wk2 = nf(16 / (8 * 40));
+    n.swl14 = nf(100 * AREA / 1000); n.swlN14 = nf(100 * AREA);
+    n.a20 = nf(r3(A20)); n.s20 = nf(r3(10000 / A20)); n.a10 = nf(r3(A10)); n.s10 = nf(r3(10000 / A10));
+    n.st2 = nf(6000 / 40); n.inv2 = nf(+(40 / 6000).toPrecision(2));
+    n.long3 = nf(0.5 * 2); n.str3 = nf(0.5 / 1000); n.str3pc = nf(0.5 / 1000 * 100);
+    n.str4 = nf(1.5 / 2500); n.w4a = nf(1.5 / 2.5); n.w4b = nf(r3(2.5 / 1.5));
+    n.s5 = nf(EPC * 0.1); n.f5 = nf(EPC * 0.1 * AREA / 1000); n.E = nf(EMOD);
+    n.E6 = nf(70 / (0.1 / 100)); n.w6 = nf(70 / 0.1);
+    n.s8 = nf(sc(10)); n.sb8 = nf(sc(10) / EMOD * GAUGE); n.keep8 = nf(permOf(10)); n.fr8 = nf(sc(10) / EMOD);
+    n.fos = nf(YS / 100);
+    n.ws12 = nf(YS / 5); n.swl = nf(r3(YS / 5 * A20 / 1000)); n.w12a = nf(r3(YS * A20 / 1000)); n.w12b = nf(+(YS / 5 * A20 / 1000 / 5).toPrecision(2));
+    n.swlN = nf(YS / 5 * r3(A20));
+    n.s13 = nf(20000 / 200); n.e13 = nf(20000 / 200 / EMOD); n.x13 = nf(20000 / 200 / EMOD * 3000); n.w13a = nf(20 / 200 / EMOD * 3000);
+    return n;
+  })();
+
+  // ---------- the lesson: SHOW screens demonstrate, DO screens are puzzles ----------
+  // live: the test bar Dan can stretch and let go. play: a demonstration moving the stretch
+  // ([seconds, mm] keys; rel: it is let go at the end). arrive: parts arriving on a still picture.
+  const STEPS = [
+    { show: true, scene: 'two', name: 'Stress', arrive: 'two',
+      text: `A thicker bar spreads the same pull over more metal. So divide the force by the area of the bar's section. That is the *stress*, in newtons per square millimetre. A 20 mm bar has ${N.a20} mm² of section. A 10 kN pull on it gives ${N.s20} N/mm². A 10 mm bar has a quarter of that area. The same 10 kN on it gives four times the stress, ${N.s10} N/mm². Stress is not a force.`,
+      still: {} },
+    { kind: 'pick', scene: 'grid', name: 'Work out a stress',
+      task: 'A rod has 40 mm² of section. It carries a 6 kN pull. What is the stress in it?',
+      opts: ['6 kN', `${N.st2} N/mm²`, `${N.inv2} N/mm²`], want: `${N.st2} N/mm²`, marks: ['whole', 'right', 'flip'],
+      hints: { '6 kN': 'Not quite. That is the whole pull. Stress is the pull on each square millimetre.',
+        [`${N.inv2} N/mm²`]: 'Not quite. That divides the area by the force. Divide the force by the area.' },
+      why: `Put the force in newtons first. 6 kN is 6000 N. Then share it over the section: 6000 ÷ 40 = ${N.st2}. So each square millimetre carries ${N.st2} N. The stress is ${N.st2} N/mm².` },
+    { show: true, scene: 'shear', name: 'Shear', arrive: 'shear',
+      text: `A pull acts along a bar. A *shear* load acts across a part instead. It tries to slide one side of a cut past the other. This pin joins two plates pulled opposite ways. The pin is cut across where the plates meet. Its *shear stress* is the force ÷ the area of that cut. A 10 mm pin has ${N.a10} mm² of section. A 5 kN load across it gives ${N.sh3} N/mm².`,
+      still: {} },
+    { kind: 'pick', scene: 'key', name: 'A key cut across',
+      task: 'A key locks a pulley to its shaft. It is cut across over 8 mm by 40 mm. It carries a 16 kN shear load. What is the shear stress in it?',
+      opts: [`${N.wk1} N/mm²`, `${N.key} N/mm²`, `${N.wk2} N/mm²`], want: `${N.key} N/mm²`,
+      hints: { [`${N.wk1} N/mm²`]: 'Not quite. That divides by the 40 mm length only. Divide by the whole area of the cut.',
+        [`${N.wk2} N/mm²`]: 'Not quite. That leaves the force in kN. Use 16 000 N.' },
+      why: `The cut is 8 × 40 = 320 mm². The load is 16 000 N. Share it over the cut: 16 000 ÷ 320 = ${N.key}. So the shear stress is ${N.key} N/mm².` },
+    { show: true, scene: 'strain', name: 'Strain', arrive: 'strain',
+      text: `A longer bar stretches further under the same stress, because every millimetre of it stretches the same. So divide the stretch by the length. That is the *strain*. It is a length over a length, so it has no units. These two steel bars carry the same stress. The 1 m bar stretches 0.5 mm and the 2 m bar ${N.long3} mm. Both have a strain of ${N.str3}, or ${N.str3pc}%.`,
+      still: {} },
+    { kind: 'pick', scene: 'rod', name: 'Work out a strain',
+      task: 'A 2.5 m rod stretches 1.5 mm. What is its strain?',
+      opts: [N.w4a, N.str4, N.w4b], want: N.str4,
+      hints: { [N.w4a]: 'Not quite. That divides millimetres by metres. Put both lengths in millimetres first.',
+        [N.w4b]: 'Not quite. That is the length over the stretch. Divide the stretch by the length.' },
+      why: `Put both lengths in the same unit. The rod is 2.5 m, which is 2500 mm. So the strain is 1.5 ÷ 2500 = ${N.str4}. Each millimetre of the rod stretches ${N.str4} mm.` },
+    { show: true, scene: 'test', name: 'The tensile test', live: true, outs: true,
+      play: { keys: [[0.5, 0], [2.0, 0.1], [2.6, 0.1], [3.5, 0]], rel: true },
+      text: `A tensile test pulls a bar steadily and records the force and the stretch. This steel bar has 100 mm² of section and marks 100 mm apart. At low stress, strain rises in step with stress. So the curve starts straight. Its slope is stress ÷ strain, called *Young's modulus*. It is the metal's stiffness. Steel's is about ${N.E} N/mm². Drag the lower grip down, then let go.`,
+      read: `A tensile test pulls a bar steadily and records the force and the stretch. This steel bar has 100 mm² of section and marks 100 mm apart. At low stress, strain rises in step with stress. So the curve starts straight. Its slope is stress ÷ strain, called Young's modulus. It is the metal's stiffness. Steel's is about ${N.E} N/mm². At ${N.f5} kN the bar reads ${N.s5} N/mm² and 0.1%, a 0.1 mm stretch. With the load off, it springs back to its first length.`,
+      still: () => liveState(0.1, 0.1, false) },
+    { kind: 'pick', scene: 'alu', name: 'Find a stiffness',
+      task: 'An aluminium alloy bar reads 70 N/mm² at 0.1% strain, on its straight start. What is its Young\'s modulus?',
+      opts: [`${N.w6} N/mm²`, `${N.E6} N/mm²`, '70 N/mm²'], want: `${N.E6} N/mm²`,
+      hints: { [`${N.w6} N/mm²`]: 'Not quite. That divides by 0.1. As a fraction, 0.1% is 0.001.',
+        '70 N/mm²': 'Not quite. That is the stress itself. Divide it by the strain.' },
+      why: `Young's modulus is stress ÷ strain. Turn the per cent into a fraction first. 0.1% is 0.001. Then 70 ÷ 0.001 = ${N.E6} N/mm². That is about a third of steel's. So the same stress stretches it about three times as far.` },
+    { show: true, scene: 'test', name: 'Past yield', live: true, outs: true, offset: true, offAt: 3.7,
+      play: { keys: [[0.5, 0], [2.4, 0.45], [2.8, 0.45], [3.6, 0.325]], rel: true },
+      text: `Past its *yield strength*, the bar starts to stretch for good. This steel's is ${YS} N/mm². Take the load off then, and only part of the stretch springs back. It comes back along a line parallel to the straight start. The bar keeps the rest. Many metals bend over with no clear corner, like the faint curve. Their yield strength is usually taken where the dashed line cuts the curve. That line starts at 0.2% strain and runs parallel to the straight start.`,
+      still: () => liveState(0.325, 0.45, true) },
+    { kind: 'pick', scene: 'test', name: 'What stays?',
+      task: `This bar is let go at 10 mm of stretch, at ${N.s8} N/mm². How much stretch does it keep?`,
+      opts: ['0 mm', `${N.keep8} mm`, '10 mm'], want: `${N.keep8} mm`,
+      hints: { '0 mm': 'Not quite. Past yield the bar has stretched for good. Only the elastic part springs back.',
+        '10 mm': 'Not quite. Some stretch always springs back. It comes back along a line parallel to the straight start.' },
+      why: `Only the elastic stretch springs back, with the same stiffness as the straight start. Its strain is the stress ÷ Young's modulus: ${N.s8} ÷ ${N.E} = ${N.fr8}. Over the 100 mm between the marks, that is ${N.sb8} mm. So the bar keeps 10 − ${N.sb8} = ${N.keep8} mm.` },
+    { show: true, scene: 'test', name: 'Peak, neck and break', live: true, outs: true, labels: true,
+      play: { keys: [[0.5, 0], [4.0, BRK]] },
+      text: `Pull on and the stress climbs to a peak. That peak is the *tensile strength*. This steel's is ${UTS} N/mm². Past it, the bar thins at one spot into a neck. The neck loses area faster than the metal gets stronger, so the force falls until it breaks. Stiffness is the slope of the straight start. Strength is the height of the peak. A metal can be stiff and weak, or springy and strong.`,
+      still: () => liveState(BRK, BRK, false) },
+    { show: true, scene: 'db', name: 'Ductile or brittle', arrive: 'db',
+      text: `Mild steel is *ductile*. It stretches a long way and necks before it breaks. A *brittle* material, such as glass or a ceramic, breaks with hardly any permanent stretch. *Toughness* is the energy a material soaks up before it breaks. It is the area under its curve. So a ductile metal is usually the tougher one. *Hardness* is different again. It is how well a surface resists denting or scratching.`,
+      still: {} },
+    { kind: 'pick', scene: 'ab', name: 'Stiff or strong?',
+      task: 'Bar A is brittle, and its curve has the steeper straight start. Bar B is ductile, with the higher peak. Which bar is stiffer?',
+      opts: ['Bar B', 'Bar A', 'Both the same'], want: 'Bar A',
+      hints: { 'Bar B': 'Not quite. B\'s higher peak makes it stronger, and its long curve makes it tougher. Stiffness is the slope of the straight start.',
+        'Both the same': 'Not quite. Compare the slopes of the two straight starts.' },
+      why: 'Stiffness is the slope of the straight start. A\'s is steeper, so the same stress stretches A less. B\'s higher peak makes B stronger, and its larger area makes it tougher. Neither makes it stiffer.' },
+    { show: true, scene: 'safe', name: 'Safety', arrive: 'safe',
+      text: `A part is designed to run well below its yield strength. The *factor of safety* is the failing stress ÷ the working stress. At a working stress of 100 N/mm², this steel has a factor of ${YS} ÷ 100 = ${N.fos} on yield. The *safe working load* is the working stress × the area of the section. For the 100 mm² test bar, that is 100 × 100 = ${N.swlN14} N, or ${N.swl14} kN.`,
+      still: {} },
+    { show: true, scene: 'shaft', name: 'Fatigue', arrive: 'shaft',
+      text: `Even well below yield, a load that comes and goes can crack a part. At a flaw or a sharp corner, such as a keyway, the stress is higher than in the rest. A crack starts there and grows a little with each cycle, until the part breaks. That is *fatigue*. A shaft bends a little under its load. As it turns, every spot on its surface feels this.`,
+      still: {} },
+    { kind: 'pick', scene: 'swl', name: 'A safe working load',
+      task: 'A 20 mm steel bar yields at 250 N/mm². It needs a factor of safety of 5 on yield. What is its safe working load?',
+      opts: [`${N.w12a} kN`, `${N.swl} kN`, `${N.w12b} kN`], want: `${N.swl} kN`,
+      hints: { [`${N.w12a} kN`]: 'Not quite. That loads the bar right up to yield. Divide the yield strength by the factor first.',
+        [`${N.w12b} kN`]: 'Not quite. That divides by 5 twice. Divide by the factor once.' },
+      why: `The working stress is 250 ÷ 5 = ${N.ws12} N/mm². The bar's area is π × 10² = ${N.a20} mm². So the load is ${N.ws12} × ${N.a20} = ${N.swlN} N, or ${N.swl} kN.` },
+    { kind: 'pick', scene: 'tie', name: 'A tie\'s stretch',
+      task: 'A 3 m steel tie has 200 mm² of section. It carries 20 kN. How far does it stretch?',
+      opts: [`${N.w13a} mm`, `${N.x13} mm`, `${N.e13} mm`], want: `${N.x13} mm`,
+      hints: { [`${N.w13a} mm`]: 'Not quite. That leaves the force in kN. Use 20 000 N.',
+        [`${N.e13} mm`]: 'Not quite. That is the strain. Multiply it by the length in millimetres.' },
+      why: `The stress is 20 000 ÷ 200 = ${N.s13} N/mm². The strain is ${N.s13} ÷ ${N.E} = ${N.e13}. The tie is 3000 mm long. So it stretches ${N.e13} × 3000 = ${N.x13} mm.` },
+  ];
+  const FINISH = 'Stiffness, yield and strength are three different things on one curve. Stiffness is the slope of its straight start. Yield is where it bends over. Strength is the height of its peak.';
+  const FADE = 0.35, ANS = 2.3, LGDUR = 1.2;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  const calm = () => REDUCE || testing();
+  const el = (id) => document.getElementById(id);
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+
+  // ---------- state ----------
+  const blank = () => ({ pick: null, res: null, why: false });
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false;
+  let T = Infinity, motionEnd = 0;          // seconds since a demonstration or an answer began
+  let SW = null, LG = null;                 // a demonstration's sweep of the stretch; a let-go running
+  let MX = 0, BROKEN = false, REL = false, LASTE = 0;   // furthest stretch so far; broken; let go
+  let V = { ext: 0 };                        // the stretch as drawn
+  const same = (a, b) => (typeof a === 'number' || typeof b === 'number' ? Math.abs(+a - +b) < 1e-9 : a === b);
+  const released = (e) => REL || (MX > 1e-9 && !BROKEN && !LG && e <= gfloor(permOf(MX)) + 1e-9);
+
+  // ---------- words with amber key terms (built with K.el, never innerHTML) ----------
+  const nb = (s) => String(s).replace(/(\d) (?=(?:N\/mm²|mm²|mm|kN|N|m)(?![\w]))/g, '$1 ');
+  function write(node, s) {
+    s = nb(s);
+    node.textContent = '';
+    const re = /\*([^*]+)\*/g;
+    let from = 0, m;
+    while ((m = re.exec(s))) {
+      if (m.index > from) node.appendChild(document.createTextNode(s.slice(from, m.index)));
+      node.appendChild(K.el('span', { class: 'term' }, m[1]));
+      from = m.index + m[0].length;
+    }
+    if (from < s.length) node.appendChild(document.createTextNode(s.slice(from)));
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);
+  const CTL = {
+    ext: K.control({ id: 'ext', label: 'Stretch between the marks', min: 0, max: BRK, step: GRID, value: 0, fmt: (v) => mm(v) + ' mm', into: '#c-ext' }),
+  };
+  K.readout({ id: 'force', label: 'Force on the bar', unit: 'kN', decimals: 1, into: '#outs' });
+  K.readout({ id: 'stress', label: 'Stress', unit: 'N/mm²', decimals: 0, into: '#outs' });
+  K.readout({ id: 'strain', label: 'Strain', unit: '%', decimals: 2, into: '#outs' });
+  // The pure model: the stretch now (and how far it has been pulled) -> force, stress and strain.
+  K.model((p) => {
+    const e = K.clamp(+p.ext || 0, 0, BRK);
+    const given = p.mx != null, m = given ? Math.max(+p.mx, e) : Math.max(MX, e);
+    const broken = given ? m >= BRK - 1e-9 : BROKEN;
+    const s = broken ? 0 : stressAt(e, m);
+    return { force: s * AREA / 1000, stress: s, strain: e / GAUGE * 100 };
+  });
+
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;
+    st.pick = d.opts[k]; st.res = null; T = Infinity;
+  } }));
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished || st.res === 'right') return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = st.pick === d.want ? 'right' : 'wrong';
+    if (calm()) { T = Infinity; return; }
+    T = 0; motionEnd = ANS; play();
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    motion.pause();
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  const letBtn = K.button({ label: 'Let go', secondary: true, into: '#replay', press: () => letGo() });
+  const newBtn = K.button({ label: 'Fit a new bar', secondary: true, into: '#replay', press: () => newBar() });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const d = STEPS[at()];
+    if (finished || !d.show || !(d.play || d.arrive)) return;
+    startDemo(d);
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // ---------- motion: a demonstration, a let-go, and an answer's drawing ----------
+  const uAt = (e) => uOf(e);
+  function sweepAt(keys, t) {
+    if (t <= keys[0][0]) return keys[0][1];
+    for (let k = 1; k < keys.length; k++) {
+      if (t <= keys[k][0]) {
+        const a = keys[k - 1], b = keys[k], p = K.ease((t - a[0]) / (b[0] - a[0]));
+        return eOf(uAt(a[1]) + (uAt(b[1]) - uAt(a[1])) * p);
+      }
+    }
+    return keys[keys.length - 1][1];
+  }
+  function setExt(v) { const g = snapG(v); CTL.ext.set(g, true); LASTE = g; }
+  const motion = K.anim({ button: false, label: 'Motion', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    let busy = false;
+    if (SW) {
+      setExt(sweepAt(SW.keys, T));
+      if (T >= SW.end) { const rel = SW.rel; setExt(SW.keys[SW.keys.length - 1][1]); SW = null; if (rel) REL = true; }
+      else busy = true;
+    }
+    if (LG) {
+      LG.t += dt;
+      const k = Math.min(1, LG.t / LGDUR);
+      setExt(LG.from + (LG.to - LG.from) * K.ease(k));
+      if (k >= 1) { LG = null; REL = true; } else busy = true;
+    }
+    K.refresh();
+    return busy || T < motionEnd;
+  } });
+  function play() { if (!motion.playing()) motion.play(); }
+  const demoEnd = (d) => (d.play ? Math.max(d.play.keys[d.play.keys.length - 1][0], d.offAt ? d.offAt + K.SOFT : 0)
+    : d.arrive === 'two' ? 2.2 + K.SOFT : d.arrive === 'strain' ? 2.6 + K.SOFT : d.arrive === 'shaft' ? 4.1 : d.arrive === 'shear' ? 1.8 + K.SOFT : d.arrive === 'db' ? 1.2 + K.SOFT : d.arrive === 'safe' ? 1.6 + K.SOFT : 0);
+  const demoStart = (d) => (d.play ? d.play.keys[0][0] : d.arrive ? 0.5 : FADE);
+  function finishPlay(pl) {
+    const m = Math.max.apply(null, pl.keys.map((k) => k[1]));
+    MX = m; BROKEN = m >= BRK - 1e-9; REL = !!pl.rel;
+    setExt(pl.keys[pl.keys.length - 1][1]);
+  }
+  function startDemo(d) {
+    SW = null; LG = null; T = Infinity;
+    if (d.live) { MX = 0; BROKEN = false; REL = false; setExt(0); }
+    if (d.play) {
+      if (calm()) { finishPlay(d.play); return; }
+      SW = { keys: d.play.keys, rel: !!d.play.rel, end: d.play.keys[d.play.keys.length - 1][0] };
+      T = 0; motionEnd = demoEnd(d); play();
+    } else if (d.arrive && !calm()) { T = 0; motionEnd = demoEnd(d); play(); }
+  }
+  function settle() {
+    if (SW) { finishPlay(SW); SW = null; }
+    if (LG) { setExt(LG.to); LG = null; REL = true; }
+    T = Infinity;
+  }
+  function liveState(e, m, rel) {
+    SW = null; LG = null; T = Infinity;
+    MX = m; BROKEN = m >= BRK - 1e-9; REL = !!rel;
+    setExt(e); V.ext = e;
+    K.refresh();
+  }
+  function letGo() {
+    const d = STEPS[at()];
+    if (finished || !d.live || BROKEN) return;
+    SW = null; T = Infinity;
+    const e = +CTL.ext.get(), to = gfloor(permOf(Math.max(MX, e)));
+    if (e <= to + 1e-9) { if (MX > 1e-9) REL = true; return; }
+    if (calm()) { LG = null; setExt(to); REL = true; return; }
+    LG = { from: e, to, t: 0 };
+    play();
+  }
+  function newBar() {
+    if (finished || !STEPS[at()].live || !BROKEN) return;
+    MX = 0; BROKEN = false; REL = false; LG = null; SW = null; T = Infinity;
+    setExt(0);
+  }
+  function enterStep(i) {
+    lastStep = i; enter('stepbox');
+    SW = null; LG = null; T = Infinity; MX = 0; BROKEN = false; REL = false;
+    setExt(0); V.ext = 0;
+    motion.pause();
+    const d = STEPS[i];
+    if (d.show) startDemo(d);
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const b = el(id);
+    b.classList.remove('enter'); void b.offsetWidth; b.classList.add('enter');
+  }
+  const answeredOf = (st) => st.res === 'right' || st.res === 'wrong';
+  const pickIndex = (d, st) => (!d.show && answeredOf(st) && st.pick != null ? d.opts.indexOf(st.pick) : -1);
+  // Arrival times: a demonstration's from the screen opening, an answer's from Check; null, there from the start.
+  function tl(d, st) {
+    const t = { pick: null, a1: null, a2: null, a3: null, g: null };
+    if (d.arrive === 'two') { t.a1 = 0.5; t.a2 = 0.9; t.g = 1.4; t.a3 = 2.2; }
+    else if (d.arrive === 'strain') { t.a1 = 0.5; t.g = 1.0; t.a3 = 2.6; }
+    else if (d.arrive === 'shear') { t.a1 = 0.5; t.a2 = 1.1; t.a3 = 1.8; }
+    else if (d.arrive === 'db') { t.a1 = 0.6; t.a2 = 1.2; }
+    else if (d.arrive === 'safe') { t.a1 = 0.5; t.a2 = 1.0; t.a3 = 1.6; }
+    else if (!d.show && answeredOf(st)) t.pick = 0.1;
+    return t;
+  }
+  const vis = (t0) => (t0 == null ? 1 : K.arrive(T, t0));
+
+  // ---------- drawing helpers ----------
+  const fig = el('scene'), art = el('art'), labs = el('labs'), grip = el('grip');
+  const SLOT = {};
+  ['axy', 'gauge', 'str', 'brk', 'off'].forEach((k) => { SLOT[k] = el('f-' + k); });
+  let into = null, REC = null, LAB = [];
+  const add = (n) => (into || art).appendChild(n);
+  const r2 = (v) => Math.round(v * 100) / 100;
+  const ln = (x1, y1, x2, y2, cls) => add(K.svg('line', { class: cls, x1: r2(x1), y1: r2(y1), x2: r2(x2), y2: r2(y2) }));
+  const pa = (d, cls) => add(K.svg('path', { class: cls, d }));
+  const ci = (x, y, r, cls) => add(K.svg('circle', { class: cls, cx: r2(x), cy: r2(y), r }));
+  const box = (x, y, w, h, cls, rx) => add(K.svg('rect', { class: cls, x: r2(x), y: r2(y), width: r2(Math.max(0, w)), height: r2(Math.max(0, h)), rx: rx || 0 }));
+  const path = (pts) => pts.map((q, k) => (k ? 'L' : 'M') + r2(q[0]) + ' ' + r2(q[1])).join('');
+  function tx(x, y, s, cls, anchor) { REC.texts.push(String(s)); return add(K.svg('text', { class: cls || 'lab', x: r2(x), y: r2(y), 'text-anchor': anchor || 'middle' }, String(s))); }
+  // A fixed label in its own slot, so each slot always holds the same words.
+  function ftx(slot, x, y, s, cls, anchor, a) {
+    if (a == null) a = 1;
+    if (!(a > 0)) return null;
+    REC.texts.push(String(s));
+    const t = K.svg('text', { class: cls || 'lab', x: r2(x), y: r2(y), 'text-anchor': anchor || 'middle' }, String(s));
+    SLOT[slot].appendChild(t);
+    if (a < 1) K.fade(t, a, 0);
+    return t;
+  }
+  function part(a, draw) { if (!(a > 0)) return; const g = add(K.svg('g')); K.fade(g, a, 0); const keep = into; into = g; try { draw(); } finally { into = keep; } }
+  // A label placed clear of the other words and of every line marked .av, arriving at a.
+  function lab(x, y, s, cls, anchor, a) {
+    if (a == null) a = 1;
+    if (!(a > 0)) return;
+    LAB.push({ x: r2(x), y: r2(y), text: String(s), class: 'lab' + (cls ? ' ' + cls : ''), anchor: anchor || 'middle', a });
+    REC.texts.push(String(s));
+  }
+  function flushLabels() {
+    const items = LAB;
+    LAB = [];
+    const ts = K.labels(labs, items.map((it) => ({ x: it.x, y: it.y, text: it.text, class: it.class, anchor: it.anchor })), { avoid: Array.from(art.querySelectorAll('.av')) }) || [];
+    ts.forEach((t, k) => { if (items[k] && items[k].a < 1) K.fade(t, items[k].a, 0); });
+  }
+  function setH(h) { REC.H = h; fig.setAttribute('viewBox', '0 0 340 ' + h); }
+  function arrow(x1, y1, x2, y2, c) {
+    const L = Math.hypot(x2 - x1, y2 - y1);
+    if (L < 1) return 0;
+    const ux = (x2 - x1) / L, uy = (y2 - y1) / L, hl = Math.min(10, L * 0.5), hw = hl * 0.5;
+    ln(x1, y1, x2 - ux * hl * 0.7, y2 - uy * hl * 0.7, 'ar-' + c + ' av');
+    pa('M' + r2(x2) + ' ' + r2(y2) + 'L' + r2(x2 - ux * hl - uy * hw) + ' ' + r2(y2 - uy * hl + ux * hw) + 'L' + r2(x2 - ux * hl + uy * hw) + ' ' + r2(y2 - uy * hl - ux * hw) + 'Z', 'ah-' + c + ' av');
+    return L;
+  }
+  function dim(x0, x1, y, text, a) {
+    if (Math.abs(x1 - x0) < 0.5) return;
+    part(a == null ? 1 : a, () => { ln(x0, y, x1, y, 'dim av'); ln(x0, y - 5, x0, y + 5, 'dim av'); ln(x1, y - 5, x1, y + 5, 'dim av'); });
+    if (text) lab((x0 + x1) / 2, y + 17, text, 't', 'middle', a);
+  }
+  // Dots spread evenly over a round section: each one an equal share of the pull.
+  function sun(cx, cy, R, n) {
+    for (let k = 0; k < n; k++) {
+      const r = 0.8 * R * Math.sqrt((k + 0.5) / n), th = k * 2.39996;
+      ci(cx + r * Math.cos(th), cy + r * Math.sin(th), 2.2, 'pdot');
+    }
+  }
+
+  // ---------- the test bar and its curve ----------
+  const BX = 40, GT = 36, GH = 20, M0 = 66, GL = 80, DEMAX = 40, BEND = M0 + GL + 10;
+  const PX = 152, PW = 176, PY = 200, KY = 0.38, UW = 0.45;
+  // The strain axis: the first 0.5% gets 45% of the width; the rest shares the other 55%.
+  const uOf = (e) => (e <= WIDE ? UW * e / WIDE : UW + (1 - UW) * (Math.min(e, BRK) - WIDE) / (BRK - WIDE));
+  const eOf = (u) => (u <= UW ? WIDE * u / UW : WIDE + (u - UW) / (1 - UW) * (BRK - WIDE));
+  const xOf = (e) => PX + PW * uOf(e), yOf = (s) => PY - s * KY;
+  function curvePts(m, X, Y) {
+    const um = uOf(Math.min(m, BRK)), us = [0];
+    [uOf(EY), uOf(WIDE), uOf(PL), uOf(EU)].forEach((u) => { if (u < um) us.push(u); });
+    for (let u = uOf(PL) + 0.004; u < um; u += 0.004) us.push(u);
+    us.push(um);
+    us.sort((a, b) => a - b);
+    return us.map((u) => { const e = Math.min(eOf(u), BRK); return [X(e), Y(sc(e))]; });
+  }
+  function barPath(xc, y0, y1, w, waist, ym) {
+    const h = w / 2, n = waist / 2, k = 26;
+    if (waist >= w - 0.01) return 'M' + r2(xc - h) + ' ' + r2(y0) + 'H' + r2(xc + h) + 'V' + r2(y1) + 'H' + r2(xc - h) + 'Z';
+    return 'M' + r2(xc - h) + ' ' + r2(y0) + 'H' + r2(xc + h) + 'V' + r2(ym - k) + 'Q' + r2(xc + h) + ' ' + r2(ym - k * 0.35) + ' ' + r2(xc + n) + ' ' + r2(ym) +
+      'Q' + r2(xc + h) + ' ' + r2(ym + k * 0.35) + ' ' + r2(xc + h) + ' ' + r2(ym + k) + 'V' + r2(y1) + 'H' + r2(xc - h) + 'V' + r2(ym + k) +
+      'Q' + r2(xc - h) + ' ' + r2(ym + k * 0.35) + ' ' + r2(xc - n) + ' ' + r2(ym) + 'Q' + r2(xc - h) + ' ' + r2(ym - k * 0.35) + ' ' + r2(xc - h) + ' ' + r2(ym - k) + 'Z';
+  }
+  function halfPath(xc, ya, yb, w, waist, top) {
+    const h = w / 2, n = waist / 2, k = 26;
+    if (top) return 'M' + r2(xc - h) + ' ' + r2(ya) + 'H' + r2(xc + h) + 'V' + r2(yb - k) + 'Q' + r2(xc + h) + ' ' + r2(yb - k * 0.35) + ' ' + r2(xc + n) + ' ' + r2(yb) +
+      'H' + r2(xc - n) + 'Q' + r2(xc - h) + ' ' + r2(yb - k * 0.35) + ' ' + r2(xc - h) + ' ' + r2(yb - k) + 'Z';
+    return 'M' + r2(xc - n) + ' ' + r2(ya) + 'H' + r2(xc + n) + 'Q' + r2(xc + h) + ' ' + r2(ya + k * 0.35) + ' ' + r2(xc + h) + ' ' + r2(ya + k) + 'V' + r2(yb) +
+      'H' + r2(xc - h) + 'V' + r2(ya + k) + 'Q' + r2(xc - h) + ' ' + r2(ya + k * 0.35) + ' ' + r2(xc - n) + ' ' + r2(ya) + 'Z';
+  }
+  function testAxes() {
+    ln(PX, PY, PX + PW + 6, PY, 'axis');
+    ln(PX, PY, PX, 26, 'axis');
+    const xb = xOf(WIDE);
+    ln(xb - 5, PY + 5, xb - 1, PY - 5, 'tick'); ln(xb + 1, PY + 5, xb + 5, PY - 5, 'tick');
+    [0, 100, 200, 300, 400].forEach((s) => { ln(PX - 4, yOf(s), PX, yOf(s), 'tick'); ftx('axy', PX - 6, yOf(s) + 4.5, String(s), 'lab m', 'end'); });
+    [0, WIDE, 10, 20, 30].forEach((e) => { ln(xOf(e), PY, xOf(e), PY + 4, 'tick'); ftx('axy', xOf(e), PY + 18, nf(e), 'lab m', 'middle'); });
+    ln(PX, yOf(YS), xOf(EY) - 3, yOf(YS), 'guide');
+    ftx('axy', PX - 6, yOf(YS) + 4.5, 'yield ' + YS, 'lab n', 'end');
+    ftx('axy', 112, 20, 'stress (N/mm²)', 'lab m', 'start');
+    ftx('axy', PX + PW, PY + 34, 'strain (%)', 'lab m', 'end');
+    ftx('axy', (PX + xb) / 2, PY + 34, 'widened', 'lab m', 'middle');
+  }
+  // The stretch split in two: what stays and what springs back, drawn to one scale.
+  function drawSplit(y, m, kept, title, hot, a) {
+    part(a == null ? 1 : a, () => {
+      tx(16, y, title, 'lab m', 'start');
+      box(16, y + 6, 308, 14, 'track', 2);
+      if (m <= 1e-9) { tx(170, y + 38, 'no stretch yet', 'lab m', 'middle'); return; }
+      const wK = 308 * K.clamp(kept / m, 0, 1);
+      if (wK > 0.3) box(16, y + 6, wK, 14, 'perm', 2);
+      if (308 - wK > 0.3) box(16 + wK, y + 6, 308 - wK, 14, 'spring', 2);
+      tx(16, y + 38, 'permanent ' + mm(kept) + ' mm', hot ? 'lab w' : 'lab n', 'start');
+      tx(324, y + 38, 'springback ' + mm(m - kept) + ' mm', 'lab t', 'end');
+    });
+    REC.kept = kept; REC.sb = m - kept;
+  }
+  // A small box that zooms in on the line back, to one scale: as steep on the page as the straight start.
+  const ZX0 = 66, ZY0 = 184, ZW = 70, ZH = 62, ZB = 240, ZP = 124, KZ = 0.13, XZ = PW * UW / WIDE * KZ / KY;
+  function zoom(m, cls, a, e) {
+    const X = (v) => ZP + XZ * (v - m), Y = (s) => ZB - s * KZ;
+    const foot = cls === 'back' ? m - sc(m) / EPC : m;
+    part(a, () => {
+      box(ZX0, ZY0, ZW, ZH, 'zbox av', 3);
+      ln(ZX0 + 4, ZB, ZX0 + ZW - 4, ZB, 'tick');
+      const pts = [];
+      for (let v = Math.max(0, m - 0.95); v < m; v += 0.01) pts.push([X(v), Y(sc(v))]);
+      pts.push([X(m), Y(sc(m))]);
+      pa(path(pts), 'curve');
+      ln(X(m), Y(sc(m)), X(foot), ZB, cls);
+      if (e != null) ci(X(e), Y(stressAt(e, m)), 3.5, 'dot');
+    });
+    lab(ZX0, ZY0 - 6, 'zoomed in', 'm', 'start', a);
+    REC.zoom = { slope: (ZB - Y(sc(m))) / Math.max(1e-9, X(m) - X(foot)), vertical: foot === m };
+  }
+  function drawTest(d, st) {
+    setH(326);
+    tx(16, 320, 'stretch drawn far larger', 'lab m', 'start');
+    const live = !!d.live, k = pickIndex(d, st), t = tl(d, st), aP = vis(t.pick);
+    const e = live ? V.ext : 10, m = live ? Math.max(MX, e) : 10, broken = live && BROKEN;
+    const rel = live && released(e);
+    const s = broken ? 0 : stressAt(e, m), force = s * AREA / 1000;
+    const q = K.clamp((e - EU) / (BRK - EU), 0, 1);
+    testAxes();
+    // the bar between the grips: all of its stretch is drawn between the marks
+    const dE = DEMAX * uOf(e), m1 = M0 + GL + dE, lowTop = BEND + dE, ym = (M0 + m1) / 2, w = 14, waist = w * (1 - 0.5 * q);
+    if (!broken) pa(barPath(BX, GT + GH - 6, lowTop + 6, w, waist, ym), 'metal av');
+    else { pa(halfPath(BX, GT + GH - 6, ym - 3, w, waist, true), 'metal av'); pa(halfPath(BX, ym + 3, lowTop + 6, w, waist, false), 'metal av'); }
+    box(BX - 22, GT, 44, GH, 'grip-blk av', 3);
+    box(BX - 22, lowTop, 44, GH, 'grip-blk av', 3);
+    ln(BX - 11, M0, BX + 11, M0, 'gmark');
+    ln(BX - 11, m1, BX + 11, m1, 'gmark');
+    REC.lowTop = lowTop;
+    // the force on the bar, an arrow at each grip
+    const FL = 0.7 * force;
+    REC.FL = FL;
+    if (FL >= 2) { arrow(BX, GT, BX, GT - FL, 'ink'); arrow(BX, lowTop + GH, BX, lowTop + GH + FL, 'ink'); }
+    lab(BX + 8, GT - 10, 'force', '', 'start', K.clamp((FL - 6) / 8, 0, 1));
+    // the 100 mm between the marks, and the stretch below it
+    ln(56, M0, 56, M0 + GL, 'dim av'); ln(52, M0, 60, M0, 'dim av'); ln(52, M0 + GL, 60, M0 + GL, 'dim av');
+    ftx('gauge', 62, 136, '100 mm', 'lab t', 'start');
+    if (dE >= 1) { ln(56, M0 + GL, 56, m1, 'dim av'); ln(52, m1, 60, m1, 'dim av'); }
+    lab(62, M0 + GL + dE / 2 + 5, 'stretch', 't', 'start', K.clamp((dE - 6) / 6, 0, 1));
+    lab(BX - 12, ym + 4, 'neck', '', 'end', K.clamp((q - 0.1) / 0.2, 0, 1));
+    // the curve, drawn as far as the bar has been pulled
+    if (m > 0) pa(path(curvePts(m, xOf, yOf)), 'curve av');
+    const aS = K.clamp((uOf(m) - uOf(EU)) / 0.04, 0, 1);
+    ftx('str', xOf(EU), yOf(UTS) - 9, 'strength ' + UTS, 'lab n', 'middle', aS);
+    if (broken) { const bx = xOf(BRK), by = yOf(SB); ln(bx - 5, by - 5, bx + 5, by + 5, 'axis'); ln(bx - 5, by + 5, bx + 5, by - 5, 'axis'); }
+    ftx('brk', PX + PW + 6, yOf(SB) + 20, 'break', 'lab m', 'end', broken ? 1 : 0);   // clear of the strength bracket
+    if (d.offset) {
+      const aO = T === Infinity ? 1 : K.arrive(T, d.offAt);
+      part(aO, () => {
+        const pts = [];
+        for (let v = 0; v <= WIDE + 1e-9; v += 0.01) pts.push([xOf(v), yOf(rc(v))]);
+        pa(path(pts), 'faint av');
+        ln(xOf(OFF), PY, xOf(OTOP), yOf(RC), 'offs av');
+        ci(xOf(CUT), yOf(rc(CUT)), 3.5, 'cutd');
+      });
+      lab(xOf(OTOP) + 4, yOf(RC) + 2, '0.2% offset', 'm', 'start', aO);
+      REC.off = [OFF, OTOP, aO, CUT];
+    }
+    if (d.labels) {
+      lab(164, 182, 'stiffness: the slope', 'n', 'start', K.clamp((uOf(m) - uOf(EY)) / 0.05, 0, 1));
+      part(aS, () => { ln(xOf(EU), PY, xOf(EU), yOf(UTS) + 7, 'dim av'); ln(xOf(EU) - 4, yOf(UTS) + 7, xOf(EU) + 4, yOf(UTS) + 7, 'dim av'); });
+      lab(xOf(EU) - 6, 140, 'strength:', 'n', 'end', aS);
+      lab(xOf(EU) - 6, 156, 'the height', 'n', 'end', aS);
+    }
+    let words = 'A steel test bar in a testing machine\'s grips, stretched ' + mm(e) + ' mm between its marks. Beside it, its stress-strain curve is drawn as far as the bar has been pulled.';
+    if (live) {
+      if (!broken && m > 0 && (e < m - 1e-9 || rel)) {
+        const pf = permOf(m);
+        ln(xOf(m), yOf(sc(m)), xOf(pf), PY, 'back av');
+        if (m > EY + 1e-9) { const far = xOf(pf) > 262; lab(far ? xOf(pf) - 6 : xOf(pf) + 6, PY - 8, 'springback', 't', far ? 'end' : 'start'); }
+        if (m > WIDE + 1e-9) zoom(m, 'back', 1, e);
+      }
+      if (!broken) { ci(xOf(e), yOf(s), 5.5, 'dot'); REC.dotX = xOf(e); REC.dotY = yOf(s); }
+      if (broken) { tx(16, 264, 'the bar has broken at its neck', 'lab m', 'start'); words += ' The bar has broken at its neck.'; }
+      else {
+        const kept = rel ? e : permOf(m);
+        drawSplit(264, m, kept, rel ? 'after the load comes off' : 'if the load came off now', false);
+        if (rel && m > 0) words += ' The load is off, and the bar keeps ' + mm(kept) + ' mm.';
+      }
+      return words;
+    }
+    // the puzzle: let go at 10 mm
+    ci(xOf(e), yOf(s), 5.5, 'dot'); REC.dotX = xOf(e); REC.dotY = yOf(s);
+    lab(xOf(e) - 8, yOf(s) - 12, 'let go here', '', 'end');
+    words = 'A steel test bar stretched 10 mm, with its curve drawn up to that point.';
+    if (k < 0) { drawSplit(264, 10, 0, 'after the load comes off', false, 0); tx(16, 264, 'after the load comes off', 'lab m', 'start'); box(16, 270, 308, 14, 'track', 2); tx(170, 302, 'what stays?', 'lab m', 'middle'); return words + ' What stays is the question.'; }
+    const opt = d.opts[k], right = opt === d.want;
+    const kept = opt === '0 mm' ? 0 : opt === '10 mm' ? 10 : permOf(10);
+    REC.ansShown = true; REC.ok = right;
+    part(aP, () => {
+      if (right) ln(xOf(10), yOf(sc(10)), xOf(kept), PY, 'back av');
+      else ln(xOf(10), yOf(sc(10)), opt === '0 mm' ? PX : xOf(10), PY, 'hotl av');
+    });
+    if (!right) lab(opt === '0 mm' ? 330 : xOf(10) - 6, 192, opt === '0 mm' ? 'not parallel to the start' : 'no springback', 'w', 'end', aP);
+    else lab(xOf(kept) - 6, PY - 8, 'springback', 't', 'end', aP);
+    if (opt !== '0 mm') zoom(10, right ? 'back' : 'hotl', aP);
+    drawSplit(264, 10, kept, 'after the load comes off', !right, aP);
+    return words + ' After the load comes off it keeps ' + mm(kept) + ' mm.';
+  }
+
+  // ---------- screen 1: the same pull on a 20 mm and a 10 mm bar ----------
+  function drawTwo(d) {
+    setH(312);
+    const t = tl(d, blank()), a1 = vis(t.a1), a2 = vis(t.a2), a3 = vis(t.a3), g = t.g == null ? 1 : K.arrive(T, t.g, 1.0);
+    const cols = [{ x: 92, R: 28, name: '20 mm bar, 10 kN', A: N.a20, S: N.s20v, St: N.s20 }, { x: 252, R: 14, name: '10 mm bar, 10 kN', A: N.a10, S: N.s10v, St: N.s10 }];
+    const KS = 1.1, base = 290;
+    REC.hS = [];
+    ln(40, base, 304, base, 'axis');
+    cols.forEach((c) => {
+      tx(c.x, 18, c.name, 'lab', 'middle');
+      ci(c.x, 66, c.R, 'sec av');
+      part(a1, () => sun(c.x, 66, c.R, 16));
+      part(a2, () => tx(c.x, 116, c.A + ' mm²', 'lab t', 'middle'));
+      const h = c.S * KS * g;
+      REC.hS.push(c.S * KS);
+      box(c.x - 20, base - h, 40, h, 'mbar');
+      part(a3, () => tx(c.x, base - c.S * KS - 8, c.St + ' N/mm²', 'lab n', 'middle'));
+    });
+    part(a1, () => { ci(22, 136, 2.2, 'pdot'); tx(30, 140, 'an equal share of the pull', 'lab m', 'start'); });
+    tx(172, 306, 'stress, drawn to one scale', 'lab m', 'middle');
+    return 'Two round steel bars end on, 20 mm and 10 mm across, each carrying 10 kN. The same number of dots shares the pull in each. Below, their stresses as bars to one scale: four times as tall for the thin bar.';
+  }
+
+  // ---------- screen 2: a 6 kN pull on 40 squares of 1 mm² ----------
+  function drawGrid(d, st) {
+    setH(200);
+    const k = pickIndex(d, st), t = tl(d, st), aP = vis(t.pick), mark = k >= 0 ? d.marks[k] : null;
+    tx(170, 20, 'a 6 kN pull on 40 mm² of section', 'lab', 'middle');
+    const C = 22, X0 = 170 - 4 * C, Y0 = 34;
+    for (let r = 0; r < 5; r++) for (let c = 0; c < 8; c++) box(X0 + c * C, Y0 + r * C, C, C, 'cell');
+    tx(170, Y0 + 5 * C + 18, 'each square is 1 mm²', 'lab m', 'middle');
+    let words = 'The section of a rod, drawn as 40 squares of 1 mm², carrying a 6 kN pull.';
+    if (mark) {
+      REC.ansShown = true; REC.ok = mark === 'right';
+      if (mark === 'right') {
+        part(aP, () => { for (let r = 0; r < 5; r++) for (let c = 0; c < 8; c++) ci(X0 + c * C + C / 2, Y0 + r * C + C / 2, 3, 'pdot'); });
+        lab(170, 190, `${N.st2} N on each square`, 'n', 'middle', aP);
+        words += ' Each square carries an equal share.';
+      } else if (mark === 'whole') {
+        part(aP, () => box(X0 - 4, Y0 - 4, 8 * C + 8, 5 * C + 8, 'hotbox av', 4));
+        lab(170, 190, '6 kN is the pull on all 40 squares at once', 'w', 'middle', aP);
+      } else {
+        lab(170, 190, `${N.inv2} is 40 ÷ 6000: area over force`, 'w', 'middle', aP);
+      }
+    }
+    return words;
+  }
+
+  // ---------- screen 3: a 1 m and a 2 m bar at the same stress ----------
+  function drawStrain(d) {
+    setH(214);
+    const t = tl(d, blank()), aA = vis(t.a1), g = t.g == null ? 1 : K.arrive(T, t.g, 1.4), aL = vis(t.a3);
+    const W0 = 24, M1 = 110, dlt = 4 * g;
+    box(12, 34, 12, 132, 'wall');
+    [[1, 62, '0.5'], [2, 134, N.long3]].forEach((row) => {
+      const Lm = row[0], y = row[1], n = Lm * 4, L0 = Lm * M1, L = L0 + n * dlt, xe = W0 + L;
+      box(W0, y - 5, L, 10, 'rodf av', 2);
+      for (let j = 1; j < n; j++) { const xj = W0 + j * (L0 / n + dlt); ln(xj, y - 5, xj, y + 5, 'gmark'); }
+      part(aA, () => arrow(xe, y, xe + 26, y, 'ink'));
+      dim(W0, W0 + L0, y + 24, Lm + ' m');
+      if (dlt > 0.2) { ln(W0 + L0, y - 9, W0 + L0, y + 9, 'guide'); part(g, () => { ln(W0 + L0, y - 15, xe, y - 15, 'dim av'); ln(xe, y - 19, xe, y - 11, 'dim av'); }); }
+      lab((W0 + L0 + xe) / 2, y - 24, row[2] + ' mm', 't', 'middle', aL);
+    });
+    lab(W0 + M1 + 16 * 1 + 32, 66, 'same stress', '', 'start', aA);
+    tx(16, 206, 'stretches drawn far larger', 'lab m', 'start');
+    lab(324, 206, `same strain, ${N.str3}`, 'n', 'end', aL);
+    return 'Two steel bars at the same stress, 1 m and 2 m long, each marked in quarter metres. Every quarter metre stretches the same, so the 2 m bar stretches twice as far.';
+  }
+
+  // ---------- screen 4: a 2.5 m rod stretched 1.5 mm ----------
+  function drawRod(d, st) {
+    setH(196);
+    const k = pickIndex(d, st), t = tl(d, st), aP = vis(t.pick), opt = k >= 0 ? d.opts[k] : null;
+    const W0 = 24, L0 = 180, Y = 62, dl = 12;
+    box(12, 30, 12, 64, 'wall');
+    box(W0, Y - 5, L0 + dl, 10, 'rodf av', 2);
+    arrow(W0 + L0 + dl, Y, W0 + L0 + dl + 26, Y, 'ink');
+    dim(W0, W0 + L0, Y + 24, '2.5 m');
+    ln(W0 + L0, Y - 9, W0 + L0, Y + 9, 'guide');
+    ln(W0 + L0, Y - 15, W0 + L0 + dl, Y - 15, 'dim av'); ln(W0 + L0 + dl, Y - 19, W0 + L0 + dl, Y - 11, 'dim av');
+    lab(W0 + L0 + dl / 2, Y - 24, '1.5 mm', 't', 'middle');
+    tx(16, 190, 'stretch drawn larger', 'lab m', 'start');
+    let words = 'A 2.5 m rod held at one end and pulled at the other, stretched 1.5 mm.';
+    if (opt) {
+      REC.ansShown = true; REC.ok = opt === d.want;
+      if (REC.ok) {
+        part(aP, () => { for (let j = 1; j < 5; j++) { const xj = W0 + j * (L0 + dl) / 5; ln(xj, Y - 5, xj, Y + 5, 'gmark'); } });
+        lab(170, 150, `1.5 mm ÷ 2500 mm = ${N.str4}`, 'n', 'middle', aP);
+        words += ' Every half metre of it stretches the same.';
+      } else {
+        const f = +opt, xe = W0 + L0 * (1 + f), clip = xe > 326;
+        part(aP, () => {
+          box(W0, 120, Math.min(xe, 326) - W0, 10, 'hotd av', 2);
+          if (clip) arrow(316, 125, 334, 125, 'hot');
+        });
+        lab(170, 154, `${opt} would mean each metre stretches ${opt} m`, 'w', 'middle', aP);
+        words += ' A red outline shows how long the rod would be at that strain.';
+      }
+    }
+    return words;
+  }
+
+  // ---------- screen 6: the aluminium alloy's straight start ----------
+  function drawAlu(d, st) {
+    setH(240);
+    const k = pickIndex(d, st), t = tl(d, st), aP = vis(t.pick), opt = k >= 0 ? d.opts[k] : null;
+    const X0 = 60, W = 260, Y0 = 200, KA = 0.5;
+    const X = (e) => X0 + W * e / WIDE, Y = (s) => Y0 - s * KA;
+    ln(X0, Y0, X0 + W + 4, Y0, 'axis'); ln(X0, Y0, X0, 34, 'axis');
+    [0, 0.1, 0.2, 0.3, 0.4, 0.5].forEach((e) => { ln(X(e), Y0, X(e), Y0 + 4, 'tick'); tx(X(e), Y0 + 18, nf(e), 'lab m', 'middle'); });
+    [0, 100, 200, 300].forEach((s) => { ln(X0 - 4, Y(s), X0, Y(s), 'tick'); tx(X0 - 6, Y(s) + 4.5, String(s), 'lab m', 'end'); });
+    tx(16, 22, 'stress (N/mm²)', 'lab m', 'start');
+    tx(X0 + W, Y0 + 34, 'strain (%)', 'lab m', 'end');
+    pa(path([[X(0), Y(0)], [X(EY), Y(YS)], [X(WIDE), Y(YS)]]), 'steel av');
+    tx(X(WIDE) - 2, Y(YS) - 8, 'steel', 'lab m', 'end');
+    ln(X(0.1), Y(70), X(0.1), Y0, 'guide'); ln(X0, Y(70), X(0.1), Y(70), 'guide');
+    tx(X0 - 6, Y(70) + 4.5, '70', 'lab m', 'end');
+    let words = 'A stress-strain plot of the first 0.5% of strain. Steel\'s straight start rises to its yield. An aluminium alloy bar reads 70 N/mm² at 0.1%.';
+    if (opt) {
+      REC.ansShown = true; REC.ok = opt === d.want;
+      const E = opt === d.want ? 70 / 0.001 : opt.indexOf(N.w6) === 0 ? 700 : 70;
+      const eEnd = REC.ok ? 0.3 : WIDE;
+      REC.slope = E;
+      part(aP, () => (E === 70 ? ln(X0, Y(70), X(0.1), Y(70), 'hotl av') : ln(X(0), Y(0), X(eEnd), Y(E * eEnd / 100), REC.ok ? 'curve av' : 'hotl av')));
+      if (REC.ok) lab(X(0.3) + 6, Y(210) + 4, `${N.E6} N/mm²`, 'n', 'start', aP);
+      else lab(316, 136, E === 700 ? `a slope of ${N.w6} runs far below the point` : '70 is the stress, not the slope', 'w', 'end', aP);
+      words += REC.ok ? ' A line through the point has a slope of 70 000 N/mm².' : E === 70 ? ' A red line marks 70 as a stress level, not a slope.' : ' The line for that answer misses the point.';
+    }
+    ci(X(0.1), Y(70), 5, 'dot');
+    tx(X(0.1) + 8, Y(70) + 15, 'aluminium alloy', 'lab n', 'start');
+    return words;
+  }
+
+  // ---------- screen 10: two sketched curves ----------
+  const AB = { A: 'M40 200L76 92L84 88', B: 'M40 200L110 120L120 120Q200 40 250 48Q280 52 300 62' };
+  function xmark(x, y) { ln(x - 5, y - 5, x + 5, y + 5, 'axis'); ln(x - 5, y + 5, x + 5, y - 5, 'axis'); }
+  function drawAB(d, st) {
+    setH(240);
+    const k = pickIndex(d, st), t = tl(d, st), aP = vis(t.pick), opt = k >= 0 ? d.opts[k] : null;
+    ln(40, 200, 324, 200, 'axis'); ln(40, 200, 40, 26, 'axis');
+    tx(46, 24, 'stress', 'lab m', 'start'); tx(324, 192, 'strain', 'lab m', 'end');
+    pa(AB.A, 'ca av'); pa(AB.B, 'cb av'); xmark(84, 88); xmark(300, 62);
+    tx(46, 70, 'A, brittle', 'lab', 'start'); tx(300, 88, 'B, ductile', 'lab', 'end');
+    let words = 'Two sketched stress-strain curves, each ending at its break. Brittle A has the steeper straight start and stops short. Ductile B has the higher peak and runs far.';
+    if (opt) {
+      REC.ansShown = true; REC.ok = opt === d.want;
+      if (REC.ok) {
+        part(aP, () => { pa('M40 200L76 92', 'ca thick av'); pa('M40 200L110 120', 'cb thick av'); });
+        lab(170, 226, 'A\'s straight start is steeper, so A is stiffer', 'n', 'middle', aP);
+      } else if (opt === 'Bar B') {
+        part(aP, () => ci(250, 48, 11, 'hotbox av'));
+        lab(170, 226, 'B\'s higher peak makes it stronger, not stiffer', 'w', 'middle', aP);
+      } else {
+        part(aP, () => { pa('M40 200L76 92', 'hotl av'); pa('M40 200L110 120', 'hotl av'); });
+        lab(170, 226, 'their straight starts have different slopes', 'w', 'middle', aP);
+      }
+    }
+    return words;
+  }
+
+  // ---------- screen 3: a pin cut across ----------
+  function drawShear(d) {
+    setH(216);
+    const t = tl(d, blank()), a1 = vis(t.a1), a2 = vis(t.a2), a3 = vis(t.a3);
+    box(30, 60, 190, 16, 'rodf av', 2);
+    box(120, 76, 190, 16, 'rodf av', 2);
+    box(160, 48, 20, 56, 'metal av', 3);
+    part(a1, () => { arrow(30, 68, 6, 68, 'ink'); arrow(310, 84, 334, 84, 'ink'); });
+    lab(14, 52, '5 kN', '', 'start', a1); lab(326, 108, '5 kN', '', 'end', a1);
+    part(a2, () => ln(154, 76, 186, 76, 'yl av'));
+    lab(170, 124, 'cut across where the plates meet', '', 'middle', a2);
+    tx(170, 146, 'the cut, end on', 'lab m', 'middle');
+    ci(170, 180, 26, 'sec av');
+    part(a3, () => sun(170, 180, 26, 16));
+    lab(136, 184, N.a10 + ' mm²', 't', 'end', a3);
+    lab(206, 174, '5000 N ÷ ' + N.a10 + ' mm²', '', 'start', a3);
+    lab(206, 194, '= ' + N.sh3 + ' N/mm²', 'n', 'start', a3);
+    return `Two plates pulled opposite ways, 5 kN each, joined by one 10 mm pin. The pin is cut across where the plates meet. Below, the cut end on: ${N.a10} mm², so 5000 ÷ ${N.a10} = ${N.sh3} N/mm².`;
+  }
+
+  // ---------- screen 4: a key cut across ----------
+  function drawKey(d, st) {
+    setH(236);
+    const k = pickIndex(d, st), t = tl(d, st), aP = vis(t.pick), opt = k >= 0 ? d.opts[k] : null;
+    ci(90, 110, 64, 'sec av');
+    ci(90, 110, 38, 'metal av');
+    box(81, 62, 18, 20, 'grip-blk av', 1);
+    ln(74, 72, 106, 72, 'yl av');
+    arrow(81, 66, 60, 66, 'ink'); arrow(99, 78, 120, 78, 'ink');
+    tx(90, 36, 'pulley', 'lab m', 'middle');
+    tx(90, 124, 'shaft', 'lab m', 'middle');
+    tx(90, 196, 'end on', 'lab m', 'middle');
+    const FX = 174, FY = 86, FW = 152, FH = 30;
+    tx(FX + FW / 2, 62, 'the cut face', 'lab m', 'middle');
+    tx(FX + FW / 2, 78, '8 mm by 40 mm', 'lab t', 'middle');
+    box(FX, FY, FW, FH, 'sec av', 2);
+    let words = 'A pulley on its shaft, end on, with a key between them. The key is cut across at the shaft\'s surface. Beside it, the cut face, 8 mm by 40 mm.';
+    if (opt) {
+      REC.ansShown = true; REC.ok = opt === d.want;
+      if (REC.ok) {
+        part(aP, () => { for (let r = 0; r < 3; r++) for (let c = 0; c < 12; c++) ci(FX + (c + 0.5) * FW / 12, FY + (r + 0.5) * FH / 3, 2.2, 'pdot'); });
+        lab(170, 222, `${N.key} N on each mm² of the cut`, 'n', 'middle', aP);
+        words += ' The load is shared evenly over the whole face.';
+      } else if (opt.indexOf(N.wk1) === 0) {
+        part(aP, () => ln(FX, FY + FH, FX + FW, FY + FH, 'hotl av'));
+        lab(170, 222, '16 000 ÷ 40 shares it along one edge, not the face', 'w', 'middle', aP);
+      } else lab(170, 222, '16 ÷ 320 leaves the force in kN', 'w', 'middle', aP);
+    }
+    return words;
+  }
+
+  // ---------- screen 12: ductile or brittle ----------
+  function drawDB(d) {
+    setH(236);
+    const t = tl(d, blank()), a1 = vis(t.a1), a2 = vis(t.a2);
+    const DUC = 'M40 200L64 110L74 110Q150 70 220 66Q270 66 300 84', BRI = 'M40 200L72 90Q78 86 82 86';
+    ln(40, 200, 324, 200, 'axis'); ln(40, 200, 40, 26, 'axis');
+    tx(46, 24, 'stress', 'lab m', 'start'); tx(324, 218, 'strain', 'lab m', 'end');
+    part(a1, () => pa(DUC + 'L300 200Z', 'area'));
+    pa(DUC, 'cb av'); pa(BRI, 'ca av'); xmark(300, 84); xmark(82, 86);
+    tx(300, 104, 'ductile', 'lab', 'end'); tx(90, 80, 'brittle', 'lab', 'start');
+    lab(180, 160, 'toughness: the area', 'n', 'middle', a2);
+    return 'Two sketched stress-strain curves, each ending at its break. The ductile one runs far, necks and breaks. The brittle one breaks soon after its straight start. The area under the ductile curve is shaded: its toughness.';
+  }
+
+  // ---------- screen 14: the working stress and the safe working load ----------
+  function drawSafe(d) {
+    setH(172);
+    const t = tl(d, blank()), a1 = vis(t.a1), a2 = vis(t.a2), a3 = vis(t.a3);
+    const X0 = 64, W = 256, Y0 = 120, KS = 0.24;
+    const X = (e) => X0 + W * uOf(e), Y = (s) => Y0 - s * KS;
+    ln(X0, Y0, X0 + W + 4, Y0, 'axis'); ln(X0, Y0, X0, 20, 'axis');
+    [0, 400].forEach((s) => { ln(X0 - 4, Y(s), X0, Y(s), 'tick'); ftx('axy', X0 - 6, Y(s) + 4.5, String(s), 'lab m', 'end'); });
+    ftx('axy', X0 - 6, Y(YS) + 4.5, 'yield ' + YS, 'lab n', 'end');
+    [0, WIDE, 30].forEach((e) => { ln(X(e), Y0, X(e), Y0 + 4, 'tick'); ftx('axy', X(e), Y0 + 17, nf(e), 'lab m', 'middle'); });
+    ftx('axy', 12, 12, 'stress (N/mm²)', 'lab m', 'start');
+    ftx('axy', 250, Y0 + 17, 'strain (%)', 'lab m', 'middle');
+    pa(path(curvePts(BRK, X, Y)), 'curve av');
+    part(a1, () => ln(X0, Y(100), X0 + W, Y(100), 'work av'));
+    lab(X0 + W - 2, Y(100) - 7, 'working stress 100', '', 'end', a1);
+    lab(X0 + W - 2, Y(100) + 17, `factor of safety ${YS} ÷ 100 = ${N.fos}`, 'n', 'end', a2);
+    lab(170, 162, `safe working load: 100 × 100 mm² = ${N.swl14} kN`, 'n', 'middle', a3);
+    return `The steel's curve with a dashed working stress line at 100 N/mm², well below yield. The factor of safety on yield is ${YS} ÷ 100 = ${N.fos}. The test bar's safe working load is 100 × 100 mm² = ${N.swl14} kN.`;
+  }
+
+  // ---------- screen 15: fatigue in a turning shaft ----------
+  function drawShaft(d) {
+    setH(254);
+    const prog = T === Infinity ? 1 : K.clamp((T - 0.5) / 3.6, 0, 1), ph = 4 * Math.PI * prog;
+    REC.phase = ph;
+    // the shaft, side on, bent a little by its load between two bearings
+    pa('M24 86Q120 102 216 86', 'shaft av');
+    [44, 196].forEach((x) => pa('M' + x + ' 96L' + (x - 10) + ' 112H' + (x + 10) + 'Z', 'brg av'));
+    arrow(120, 52, 120, 86, 'ink');
+    lab(128, 66, 'load', '', 'start');
+    tx(120, 134, 'turning, bent a little by its load', 'lab m', 'middle');
+    // the same shaft end on, its keyway marked, a crack growing from the keyway's corner
+    const CX = 282, CY = 92, R = 22;
+    ci(CX, CY, R, 'sec av');
+    pa('M' + r2(CX + 30 * Math.sin(0.5)) + ' ' + r2(CY - 30 * Math.cos(0.5)) + 'A30 30 0 0 1 ' + r2(CX + 30 * Math.sin(2.2)) + ' ' + r2(CY - 30 * Math.cos(2.2)), 'rot av');
+    const ex = CX + 30 * Math.sin(2.2), ey = CY - 30 * Math.cos(2.2), tdx = Math.cos(2.2), tdy = Math.sin(2.2);
+    pa('M' + r2(ex + 6 * tdx) + ' ' + r2(ey + 6 * tdy) + 'L' + r2(ex - 4 * tdy) + ' ' + r2(ey + 4 * tdx) + 'L' + r2(ex + 4 * tdy) + ' ' + r2(ey - 4 * tdx) + 'Z', 'ah-rot av');
+    const P = (r, th) => [CX + r * Math.sin(th), CY - r * Math.cos(th)];
+    const n1 = P(R + 0.5, ph - 0.2), n2 = P(R - 6, ph - 0.2), n3 = P(R - 6, ph + 0.2), n4 = P(R + 0.5, ph + 0.2);
+    pa(path([n1, n2, n3, n4]) + 'Z', 'notch');
+    const c0 = P(R - 6, ph + 0.2), c1 = P(R - 7 - 9 * prog, ph + 0.26);
+    ln(c0[0], c0[1], c1[0], c1[1], 'hotl');
+    REC.crack = 1 + 9 * prog;
+    tx(CX, 40, 'keyway, end on', 'lab m', 'middle');
+    tx(CX, 60, 'squeezed', 'lab', 'middle');
+    tx(CX, 132, 'stretched', 'lab', 'middle');
+    // the keyway's stress, turn by turn
+    const TX = 96, TW = 224, TY = 176, TA = 20;
+    ln(TX, TY, TX + TW, TY, 'tick');
+    tx(90, TY - 10, 'stretched', 'lab m', 'end');
+    tx(90, TY + 24, 'squeezed', 'lab m', 'end');
+    const pts = [];
+    for (let f = 0; f < ph; f += 0.1) pts.push([TX + TW * f / (4 * Math.PI), TY + TA * Math.cos(f)]);
+    pts.push([TX + TW * ph / (4 * Math.PI), TY + TA * Math.cos(ph)]);
+    if (pts.length > 1) pa(path(pts), 'trace av');
+    ci(pts[pts.length - 1][0], pts[pts.length - 1][1], 4, 'dot');
+    ln(TX, 210, TX + TW / 2, 210, 'dim av'); ln(TX, 206, TX, 214, 'dim av'); ln(TX + TW / 2, 206, TX + TW / 2, 214, 'dim av');
+    tx(TX + TW / 4, 224, 'one turn', 'lab t', 'middle');
+    tx(170, 248, 'a crack at the keyway grows a little each turn', 'lab w', 'middle');
+    return 'A turning shaft bent a little by its load, side on and end on, with its keyway marked. A trace shows the keyway stretched and then squeezed once every turn. A small crack at the keyway grows a little each turn.';
+  }
+
+  // ---------- screen 12: a safe working load ----------
+  function drawSwl(d, st) {
+    setH(236);
+    const k = pickIndex(d, st), t = tl(d, st), aP = vis(t.pick), opt = k >= 0 ? d.opts[k] : null;
+    box(28, 20, 76, 10, 'wall');
+    box(54, 30, 24, 120, 'rodf av', 2);
+    ln(54, 92, 78, 92, 'dim av'); ln(54, 87, 54, 97, 'dim av'); ln(78, 87, 78, 97, 'dim av');
+    tx(48, 96, '20 mm', 'lab t', 'end');
+    arrow(66, 150, 66, 192, 'ink');
+    const GX = 236, G0 = 210, KG = 0.5;
+    tx(GX + 12, 46, 'stress', 'lab m', 'middle');
+    box(GX, G0 - 300 * KG, 24, 300 * KG, 'track', 3);
+    ln(GX - 8, G0 - YS * KG, GX + 32, G0 - YS * KG, 'yl av');
+    tx(GX + 30, G0 - YS * KG - 6, 'yield ' + YS, 'lab', 'start');
+    let words = 'A 20 mm steel bar hanging from a support, pulled down at its foot. Beside it, a stress scale with the yield strength marked.';
+    if (!opt) { lab(74, 180, 'safe load?', '', 'start'); return words; }
+    REC.ansShown = true; REC.ok = opt === d.want;
+    const kN = parseFloat(opt), sig = kN * 1000 / N.A20;
+    REC.level = sig;
+    lab(74, 180, opt, REC.ok ? 'n' : 'w', 'start', aP);
+    part(aP, () => box(GX, G0 - sig * KG, 24, sig * KG, REC.ok ? 'mbar' : 'mbar-hot', 2));
+    if (REC.ok) {
+      lab(GX + 30, G0 - 50 * KG + 4, 'working ' + N.ws12, 'n', 'start', aP);
+      lab(GX + 30, G0 - 50 * KG + 20, '= 250 ÷ 5', 'n', 'start', aP);
+    } else if (sig > 100) lab(GX - 12, G0 - YS * KG + 26, 'no factor of safety', 'w', 'end', aP);
+    else lab(GX - 12, G0 - 14, '÷ 5 twice', 'w', 'end', aP);
+    return words + ' The answer\'s stress is filled in on the scale.';
+  }
+
+  // ---------- screen 13: a tie's stretch ----------
+  function drawTie(d, st) {
+    setH(224);
+    const k = pickIndex(d, st), t = tl(d, st), aP = vis(t.pick), opt = k >= 0 ? d.opts[k] : null, ok = opt === d.want;
+    const W0 = 24, L0 = 240, Y = 64, dl = opt && ok ? 18 * aP : 0;
+    box(12, 34, 12, 60, 'wall');
+    box(W0, Y - 4, L0 + dl, 8, 'rodf av', 2);
+    arrow(W0 + L0 + dl, Y, W0 + L0 + dl + 28, Y, 'ink');
+    lab(W0 + L0 + dl + 14, Y - 14, '20 kN', '', 'middle');
+    tx(W0 + L0 / 2, Y - 14, '200 mm² of section', 'lab m', 'middle');
+    dim(W0, W0 + L0, Y + 22, '3 m');
+    if (opt && ok) lab(16, 218, 'stretch drawn larger', 'm', 'start', aP);
+    let words = 'A 3 m steel tie held at one end, carrying 20 kN.';
+    if (!opt) { lab(330, Y + 39, 'stretch?', '', 'end'); return words + ' Its stretch is the question.'; }
+    REC.ansShown = true; REC.ok = ok;
+    if (ok) part(aP, () => { ln(W0 + L0, Y - 9, W0 + L0, Y + 9, 'guide'); ln(W0 + L0, Y + 22, W0 + L0 + 18, Y + 22, 'dim av'); ln(W0 + L0 + 18, Y + 17, W0 + L0 + 18, Y + 27, 'dim av'); });
+    lab(330, Y + 39, opt, ok ? 'n' : 'w', 'end', aP);
+    const L1 = `stress: 20 000 ÷ 200 = ${N.s13} N/mm²`, L2 = `strain: ${N.s13} ÷ ${N.E} = ${N.e13}`, L3 = `stretch: ${N.e13} × 3000 = ${N.x13} mm`;
+    if (ok) { lab(16, 140, L1, 'n', 'start', aP); lab(16, 164, L2, 'n', 'start', vis(0.5)); lab(16, 188, L3, 'n', 'start', vis(0.9)); }
+    else if (opt.indexOf(N.w13a) === 0) lab(16, 140, 'stress: 20 ÷ 200 leaves the force in kN', 'w', 'start', aP);
+    else { lab(16, 140, L1, 'n', 'start', aP); lab(16, 164, L2, 'n', 'start', vis(0.5)); lab(16, 188, `${N.e13} is the strain, not the stretch`, 'w', 'start', vis(0.9)); }
+    return words + ' The working is written below it.';
+  }
+
+  // ---------- one picture for the step now ----------
+  function render(i, st) {
+    const d = STEPS[i];
+    art.textContent = ''; into = null; LAB = [];
+    Object.keys(SLOT).forEach((k) => { SLOT[k].textContent = ''; });
+    REC = { zoom: null, crack: null, texts: [], H: 0, ansShown: false, ok: null, dotX: null, dotY: null, FL: 0, lowTop: null, kept: null, sb: null, off: null, hS: null, slope: null, level: null, phase: null };
+    const words = d.scene === 'two' ? drawTwo(d) : d.scene === 'grid' ? drawGrid(d, st) : d.scene === 'strain' ? drawStrain(d)
+      : d.scene === 'rod' ? drawRod(d, st) : d.scene === 'alu' ? drawAlu(d, st) : d.scene === 'ab' ? drawAB(d, st)
+      : d.scene === 'shear' ? drawShear(d) : d.scene === 'key' ? drawKey(d, st) : d.scene === 'db' ? drawDB(d)
+      : d.scene === 'safe' ? drawSafe(d) : d.scene === 'shaft' ? drawShaft(d) : d.scene === 'swl' ? drawSwl(d, st) : d.scene === 'tie' ? drawTie(d, st) : drawTest(d, st);
+    flushLabels();
+    fig.setAttribute('aria-label', words);
+    const on = !finished && i === at() && !!d.live && !BROKEN && REC.lowTop != null;
+    grip.style.display = on ? '' : 'none';
+    if (on) { grip.setAttribute('cx', BX); grip.setAttribute('cy', r2(REC.lowTop + GH / 2)); }
+    fig.classList.toggle('drag', on);
+    return REC;
+  }
+
+  // ---------- Dan drags the lower grip, and lets go ----------
+  const dragOn = () => !finished && !!STEPS[at()].live && !BROKEN;
+  function svgY(e) {
+    const m = fig.getScreenCTM();
+    if (!m) return null;
+    return new DOMPoint(e.clientX, e.clientY).matrixTransform(m.inverse()).y;
+  }
+  let held = null, offY = 0;
+  grip.addEventListener('pointerdown', (e) => {
+    if (!dragOn()) return;
+    held = e.pointerId;
+    try { grip.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows while the pointer stays on the grip */ }
+    e.preventDefault();
+    K.reveal();
+    SW = null; LG = null; T = Infinity; REL = false;
+    const y = svgY(e);
+    offY = y == null ? 0 : y - (BEND + DEMAX * uOf(+CTL.ext.get()));
+  });
+  grip.addEventListener('pointermove', (e) => {
+    if (held !== e.pointerId || !dragOn()) return;
+    e.preventDefault();
+    const y = svgY(e);
+    if (y == null) return;
+    const v = snapG(eOf(K.clamp((y - offY - BEND) / DEMAX, 0, 1)));
+    if (!same(v, +CTL.ext.get())) CTL.ext.set(v);
+  });
+  grip.addEventListener('pointerup', (e) => { if (held !== e.pointerId) return; held = null; letGo(); K.refresh(); });
+  grip.addEventListener('pointercancel', (e) => { if (held === e.pointerId) held = null; });
+  grip.addEventListener('lostpointercapture', () => { held = null; });
+
+  // ---------- the words under the picture ----------
+  const zoomNote = (m) => (m > WIDE + 1e-9 ? ' The zoomed box draws that line to one scale.' : '');
+  function sayLive(e) {
+    if (BROKEN) return 'The neck thinned until the bar broke, so it carries no force now.';
+    const m = Math.max(MX, e);
+    if (m <= 1e-9) return 'The bar is not stretched yet, so it carries no force.';
+    if (released(e)) {
+      return e <= 1e-9 ? 'With the load off before yield, the bar springs all the way back to its first length.'
+        : 'With the load off, the bar springs back ' + mm(m - e) + ' mm along a line parallel to the straight start, and keeps ' + mm(e) + ' mm.' + zoomNote(m);
+    }
+    if (e < m - 1e-9) return 'Part of the load is off, so the bar runs back down a line parallel to the straight start.' + zoomNote(m);
+    if (e <= EY + 1e-9) return 'The bar is on the straight start, so stress rises in step with strain. Let go here and it all springs back.';
+    if (e <= PL) return 'Past yield, the bar stretches at the same stress. Now some of the stretch stays for good.';
+    if (e <= EU) return 'The metal gets stronger as it stretches, so the stress climbs toward the peak.';
+    return 'Past the peak, the bar thins at one spot into a neck, so the force it carries falls.';
+  }
+  function sayFor(d, p) {
+    if (d.live) return sayLive(+p.ext);
+    if (d.scene === 'two') return 'The same 10 kN pull on a quarter of the metal gives four times the stress.';
+    if (d.scene === 'strain') return 'Each metre of either bar stretches 0.5 mm, so the 2 m bar stretches twice as far.';
+    if (d.scene === 'shear') return 'The whole 5 kN crosses one cut, so it is shared over the pin\'s section.';
+    if (d.scene === 'db') return 'Both curves start straight. Only the ductile one runs on, so it has far more area under it.';
+    if (d.scene === 'safe') return 'The working stress sits well below yield, with room to spare.';
+    return 'Each spot on the shaft\'s surface is stretched as it passes the bottom, and squeezed as it passes the top.';
+  }
+  function layout(i, d, st, p) {
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('lead').hidden = finished || i !== 0;
+    el('cap').hidden = finished || !(d.scene === 'test' || d.scene === 'safe');
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length + ' · ' + d.name;
+    const task = el('task');
+    task.className = 'task say' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    el('c-ext').hidden = !d.live;
+    el('outs').hidden = !d.outs;
+    el('say').hidden = !d.show;
+    el('say').textContent = d.show ? nb(sayFor(d, p)) : '';
+    const opts = d.show ? [] : d.opts;
+    el('picks').hidden = !opts.length;
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(nb(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    el('acts').hidden = !!d.show;
+    letBtn.el.hidden = finished || !(d.live && !BROKEN);
+    newBtn.el.hidden = finished || !(d.live && BROKEN);
+    replayBtn.el.hidden = finished || !(d.show && (d.play || d.arrive)) || REDUCE;
+    el('replay').hidden = letBtn.el.hidden && newBtn.el.hidden && replayBtn.el.hidden;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb say' + (right ? ' right' : '');
+    fb.textContent = d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? nb(d.hints[st.pick] || '') : st.res === 'empty' ? 'Pick an answer first.' : '';
+    const why = el('why');
+    why.hidden = !!d.show || !st.why;
+    if (!d.show) write(why, d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  }
+
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!motion.playing() && (SW || LG || T !== Infinity)) { settle(); K.refresh(); return; }
+    if (i !== lastStep) { enterStep(i); K.refresh(); return; }
+    // Dan took hold of the stretch while a demonstration or a let-go was moving it.
+    if ((SW || LG) && !same(+p.ext, LASTE)) { SW = null; LG = null; T = Infinity; }
+    let fix = false;
+    const e = +p.ext;
+    if (!d.live) {
+      if (!same(e, 0)) { CTL.ext.set(0, true); fix = true; }
+      MX = 0; BROKEN = false; REL = false; LASTE = 0;
+    } else if (BROKEN) {
+      if (!same(e, BRK)) { CTL.ext.set(BRK, true); fix = true; }
+      LASTE = +CTL.ext.get();
+    } else {
+      const pm = gfloor(permOf(MX));
+      if (e < pm - 1e-9) { CTL.ext.set(pm, true); fix = true; }
+      else if (e > MX) { MX = e; if (MX >= BRK - 1e-9) { BROKEN = true; fix = true; } }
+      if (!SW && !LG && !same(+CTL.ext.get(), LASTE)) REL = false;
+      LASTE = +CTL.ext.get();
+    }
+    if (fix) { K.refresh(); return; }
+    V.ext = e;
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    render(i, st);
+    layout(i, d, st, p);
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  function drawnAt(i, st, over) {
+    const keep = { T, V: Object.assign({}, V), SW, LG, MX, BROKEN, REL };
+    T = Infinity; SW = null; LG = null;
+    over = over || {};
+    V = { ext: over.ext || 0 }; MX = over.mx != null ? over.mx : V.ext; BROKEN = MX >= BRK - 1e-9; REL = !!over.rel;
+    try { return render(i, st || blank()); }
+    finally { T = keep.T; V = keep.V; SW = keep.SW; LG = keep.LG; MX = keep.MX; BROKEN = keep.BROKEN; REL = keep.REL; render(at(), S[at()]); }
+  }
+  const answer = (i, o) => ({ pick: o, res: o === STEPS[i].want ? 'right' : 'wrong', why: false });
+  const atE = (e, m) => K.at({ ext: e, mx: m == null ? e : m });
+  K.check('On the straight start, 0.1 mm of stretch reads 200 N/mm², 20 kN and 0.1%; yield, 250 N/mm² and 25 kN, comes at 0.125%', () => {
+    const a = atE(0.1), y = atE(EY);
+    return K.near(a.stress, 200, 1e-9) && K.near(a.force, 20, 1e-9) && K.near(a.strain, 0.1, 1e-12) && K.near(y.stress, 250, 1e-9) && K.near(y.force, 25, 1e-9) && K.near(EY, 0.125, 1e-12);
+  });
+  K.check('The sketch passes 360 N/mm² at 10%, peaks at 400 N/mm² and 40 kN at 20%, falls to 320 N/mm² by the 30 mm break, and carries nothing once broken', () => {
+    const a = atE(10), b = atE(20), c = atE(BRK);
+    return K.near(a.stress, 360, 1e-6) && K.near(b.stress, 400, 1e-9) && K.near(b.force, 40, 1e-9) && K.near(sc(BRK), 320, 1e-9) && K.near(sc(BRK) * AREA / 1000, 32, 1e-9) && c.force === 0 && c.stress === 0;
+  });
+  K.check('The tensile strength is the maximum on the stress-strain curve: no point on the sketch is higher than its peak', () => {
+    for (let e = 0; e <= BRK + 1e-9; e += GRID) if (sc(e) > sc(EU) + 1e-9) return false;
+    return K.near(sc(EU), UTS, 1e-9);
+  }, { source: SRC.isu });
+  K.check('Yield strength is determined at the point where plastic deformation begins: let go anywhere up to yield and no stretch stays; let go anywhere past it and some does', () => {
+    for (let e = 0; e <= BRK + 1e-9; e += 0.01) {
+      const kept = permOf(e);
+      if (e <= EY + 1e-12 && kept > 1e-9) return false;
+      if (e > EY + 1e-6 && !(kept > 0)) return false;
+    }
+    return true;
+  }, { source: SRC.brit });
+  K.check('Only when stress is sufficiently low is the deformation it causes in direct proportion to the stress value: stress ÷ strain stays the same all along the straight start, and falls away past yield', () => {
+    for (let e = 0.01; e <= EY + 1e-9; e += 0.005) if (!K.near(sc(e) / (e / 100), EMOD, 1e-3)) return false;
+    for (let e = EY + 0.01; e <= BRK; e += 0.25) if (!(sc(e) / (e / 100) < EMOD * 0.95)) return false;
+    return true;
+  }, { source: SRC.ox });
+  K.check('Offset for metals is usually specified as 0.2%: the dashed line from 0.2% strain, parallel to the straight start, cuts the faint rounded curve where it has bent over, and meets this sketch at its yield strength', () => {
+    const r = drawnAt(idx('Past yield'), blank(), { ext: 0.325, mx: 0.45, rel: true });
+    const top = OFF + YS / EPC;
+    return !!r.off && r.off[0] === OFF && K.near(r.off[1], OTOP, 1e-12) && K.near(rc(CUT), EPC * (CUT - OFF), 1e-6) && CUT > OFF && CUT < OTOP &&
+      rc(OFF) < EPC * OFF && K.near(sc(top), YS, 1e-9) && K.near(EPC * (top - OFF), YS, 1e-9) && Math.round(rc(CUT)) === 282;
+  }, { source: SRC.instron });
+  K.check('The zoomed box draws the line back to one scale: as steep on the page as the straight start; the 10 mm slip is drawn upright', () => {
+    const i = idx('What stays?'), start = (yOf(0) - yOf(YS)) / (xOf(EY) - xOf(0));
+    const r = drawnAt(i, answer(i, STEPS[i].want)), z = r.zoom && r.zoom.slope;
+    const w = drawnAt(i, answer(i, '10 mm')), n = drawnAt(i, blank()), live = drawnAt(idx('Past yield'), blank(), { ext: 4, mx: 5, rel: false });
+    return K.near(z, start, 1e-6) && w.zoom && w.zoom.vertical && !n.zoom && live.zoom && K.near(live.zoom.slope, start, 1e-6);
+  });
+  K.check('A shear stress is the force over the area of the cut: 5 kN across a 10 mm pin is 63.7 N/mm², and 16 kN across an 8 mm by 40 mm key is 50 N/mm²', () =>
+    N.sh3 === '63.7' && N.key === '50' && N.wk1 === '400' && N.wk2 === '0.05', { source: SRC.ox });
+  K.check('The fatigue crack at the keyway grows a little each turn: it is longer at the end than at the start', () => {
+    const i = idx('Fatigue'), keep = T;
+    T = 0.5; const a = render(i, blank()).crack; T = keep; const b = drawnAt(i, blank()).crack;
+    return a != null && b > a;
+  });
+  K.check('Let go at 10 mm and 360 N/mm²: the bar comes back down a line as steep as the straight start, springs back 0.18 mm and keeps 9.82 mm; let go at 0.1 mm, it keeps nothing', () => {
+    const half = atE(9.91, 10), off = atE(9.82, 10);
+    return K.near(permOf(10), 9.82, 1e-9) && K.near(half.stress, 180, 1e-6) && off.stress === 0 && permOf(0.1) === 0 && N.sb8 === '0.18' && N.keep8 === '9.82';
+  });
+  K.check('The drawing follows the model: at every stretch the dot sits at the stress, the force arrows grow with the force, and the grip moves down as the dot moves right', () => {
+    const i = idx('The tensile test');
+    let px = -1, pg = -1;
+    for (let e = 0; e < BRK - 0.2; e += 0.47) {
+      const v = snapG(e), r = drawnAt(i, blank(), { ext: v, mx: v }), o = atE(v);
+      if (!K.near(r.dotY, yOf(o.stress), 1e-6) || !K.near(r.FL, 0.7 * o.force, 1e-6)) return false;
+      if (!(r.dotX > px && r.lowTop > pg)) return false;
+      px = r.dotX; pg = r.lowTop;
+    }
+    return true;
+  });
+  K.check('Half the diameter gives a quarter of the area and four times the stress: the thin bar\'s drawn stress is four times the thick bar\'s', () => {
+    const r = drawnAt(0, blank());
+    return r.hS && K.near(r.hS[1] / r.hS[0], 4, 1e-9) && K.near(N.A20 / N.A10, 4, 1e-12);
+  });
+  K.check('The worked numbers: 314 mm², 31.8 and 127 N/mm²; 150 N/mm²; 0.0005 or 0.05%; 0.0006; 70 000 N/mm²; 0.18 mm back, 9.82 mm kept; 2.5; 50 N/mm² and 15.7 kN; 100 N/mm², 0.0005 and 1.5 mm; and each wrong answer\'s slip', () =>
+    N.a20 === '314' && N.s20 === '31.8' && N.a10 === '78.5' && N.s10 === '127' && N.st2 === '150' && N.inv2 === '0.0067' &&
+    N.str3 === '0.0005' && N.str3pc === '0.05' && N.long3 === '1' && N.str4 === '0.0006' && N.w4a === '0.6' && N.w4b === '1.67' &&
+    N.s5 === '200' && N.f5 === '20' && N.E6 === '70 000' && N.w6 === '700' && N.s8 === '360' && N.fr8 === '0.0018' &&
+    N.fos === '2.5' && N.swl14 === '10' && N.swlN14 === '10 000' && N.ws12 === '50' && N.swl === '15.7' && N.w12a === '78.5' && N.w12b === '3.1' && N.swlN === '15 700' &&
+    N.s13 === '100' && N.e13 === '0.0005' && N.x13 === '1.5' && N.w13a === '0.0015' && N.E === '200 000');
+  K.check('Each puzzle offers three answers and accepts only its right one, every wrong answer has its own hint, nothing is drawn as an answer before Check, and only the right answer is drawn as right', () =>
+    DO.every((i) => {
+      const d = STEPS[i];
+      if (d.opts.length !== 3 || d.opts.indexOf(d.want) < 0 || d.opts.some((o) => o !== d.want && !d.hints[o])) return false;
+      if (drawnAt(i, blank()).ansShown) return false;
+      return d.opts.every((o) => { const r = drawnAt(i, answer(i, o)); return r.ansShown === true && r.ok === (o === d.want); });
+    }));
+  K.check('Every demonstration starts after the screen\'s fade and ends within 4.5 s of its screen opening; an answer is drawn within 3 s of Check', () =>
+    STEPS.filter((d) => d.show).every((d) => (d.play || d.arrive) && demoStart(d) >= FADE && demoEnd(d) <= 4.5) && ANS <= 3);
+
+  K.ready();
+</script>

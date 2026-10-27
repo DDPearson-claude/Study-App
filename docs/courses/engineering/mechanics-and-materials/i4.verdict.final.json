@@ -1,0 +1,235 @@
+{
+  "ok": true,
+  "reachChecked": true,
+  "problems": [],
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "The opening run: at 1 s the speed is 0.25 m/s, the acceleration 0.25 m/s² and the net force 500 N; at 4 s it is 0.5 m/s with none; at 7 s it is 0.25 m/s, −0.25 m/s² and −500 N",
+        "ok": true
+      },
+      {
+        "label": "The area is the distance: 0.5 m by 2 s, 2.5 m by 6 s, 3 m by 8 s; screen 3 splits 1.5 m into a 1 m rectangle and a 0.5 m triangle, the same as the average speed times the time",
+        "ok": true
+      },
+      {
+        "label": "Summed in thin strips, the area under the speed line matches the distance the trolley is drawn at, for every corner setting",
+        "ok": true
+      },
+      {
+        "label": "The force graph follows the slope: measured from the speed line itself, the net force is the mass times its slope at every moment and every corner setting",
+        "ok": true
+      },
+      {
+        "label": "Any object moving at constant velocity has no net external force acting upon it: wherever the speed line is flat, at every top speed, the net force is zero, the force graph drawn sits on its zero line and no net force arrow is drawn",
+        "ok": true,
+        "source": "https://openstax.org/books/physics/pages/4-2-newtons-first-law-of-motion-inertia"
+      },
+      {
+        "label": "The acceleration of a system is directly proportional to and in the same direction as the net external force: at every corner setting and moment, the net force read is the mass times the acceleration, with the same sign",
+        "ok": true,
+        "source": "https://openstax.org/books/university-physics-volume-1/pages/5-3-newtons-second-law"
+      },
+      {
+        "label": "A body in motion remains in motion at constant velocity unless acted on by a net external force: with the push gone and friction off, the trolley keeps its speed to the end of the graph with no net force; with friction on, it slows and stops",
+        "ok": true,
+        "source": "https://openstax.org/books/university-physics-volume-1/pages/5-2-newtons-first-law"
+      },
+      {
+        "label": "With the push gone and friction on, the speed falls at 100 ÷ 2000 = 0.05 m/s², so the trolley stops 10 s and 2.5 m later",
+        "ok": true
+      },
+      {
+        "label": "The drive gives the net force plus friction: 600 N while speeding up and 100 N while running steady; braking, the brake gives 400 N and friction 100 N; the drive arrow drawn is longer while speeding up",
+        "ok": true
+      },
+      {
+        "label": "Couple up: each buffer pushes 1000 N for 0.5 s; A's momentum falls from 1000 to 500 kg m/s as B's rises from 0 to 500, the total stays 1000 at every moment, and the pair roll on at 0.25 m/s",
+        "ok": true
+      },
+      {
+        "label": "The worked numbers: 0.25 m/s², 0.5 m and 2 m; 0.2, 5 and 0.9; 1 m, 0.5 m and 1.5 m; 0.8, 1.6 and 0.1 m; 0.36, 0.9, 1.8 and 1.5 m; 500 N s each in the coupling; 500, 600 and 400 N; 0.25, 0.3 and 0.35 m/s²; 1000 N s and 1000 kg m/s; 600 and 3750; 500 N; 0.2, 0.4 and 0.8 m/s; 300, 400 and 1200 N",
+        "ok": true
+      },
+      {
+        "label": "No time given: v² = u² + 2as stops a trolley from 0.6 m/s at 0.2 m/s² in 0.36 ÷ 0.4 = 0.9 m, the same as the area under its speed line, ½ × 3 s × 0.6 m/s",
+        "ok": true
+      },
+      {
+        "label": "Each puzzle offers three answers and accepts only its right one, every wrong answer has its own hint, nothing is marked before Check, and once checked only the right answer is drawn without red",
+        "ok": true
+      },
+      {
+        "label": "Every demonstration starts after the screen's fade and ends within 5 s of its screen opening; an answer is drawn within 3 s of Check",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "top",
+      "upEnd",
+      "brakeStart",
+      "brakeEnd",
+      "time",
+      "friction",
+      "coast"
+    ],
+    "readouts": [
+      "speed",
+      "accel",
+      "netForce"
+    ],
+    "outputs": [
+      "speed",
+      "accel",
+      "netForce"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Screen",
+        "min": 0,
+        "max": 14,
+        "step": 1,
+        "steps": [
+          "Slope and area",
+          "Find the slope",
+          "Split the area",
+          "Braking distance",
+          "No time given",
+          "Take the push away",
+          "Running steady",
+          "The net force graph",
+          "Push against friction",
+          "Impulse and momentum",
+          "Momentum",
+          "Couple up",
+          "The push back",
+          "Shared speed",
+          "Net force from a graph"
+        ],
+        "value": 0
+      },
+      {
+        "id": "top",
+        "kind": "control",
+        "label": "Top speed",
+        "min": 0.1,
+        "max": 1,
+        "step": 0.1,
+        "log": false,
+        "value": 0.5,
+        "shown": false
+      },
+      {
+        "id": "upEnd",
+        "kind": "control",
+        "label": "Speeding up ends at",
+        "min": 1,
+        "max": 6,
+        "step": 0.5,
+        "log": false,
+        "value": 2,
+        "shown": false
+      },
+      {
+        "id": "brakeStart",
+        "kind": "control",
+        "label": "Braking starts at",
+        "min": 1,
+        "max": 15,
+        "step": 0.5,
+        "log": false,
+        "value": 6,
+        "shown": false
+      },
+      {
+        "id": "brakeEnd",
+        "kind": "control",
+        "label": "Braking ends at",
+        "min": 2,
+        "max": 16,
+        "step": 0.5,
+        "log": false,
+        "value": 8,
+        "shown": false
+      },
+      {
+        "id": "time",
+        "kind": "control",
+        "label": "Time",
+        "min": 0,
+        "max": 16,
+        "step": 0.1,
+        "log": false,
+        "value": 0,
+        "shown": true
+      },
+      {
+        "id": "friction",
+        "kind": "toggle",
+        "label": "Friction",
+        "options": [
+          false,
+          true
+        ],
+        "value": true,
+        "shown": false
+      },
+      {
+        "id": "coast",
+        "kind": "toggle",
+        "label": "Push taken away",
+        "options": [
+          false,
+          true
+        ],
+        "value": false,
+        "shown": false
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Back",
+      "Continue",
+      "Play",
+      "Take the push away",
+      "Play again",
+      "Start again",
+      "Motion"
+    ],
+    "answers": [],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ],
+    "foreign": [],
+    "unreachable": []
+  }
+}

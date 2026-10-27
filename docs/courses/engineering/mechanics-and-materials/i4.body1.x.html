@@ -1,0 +1,1161 @@
+<!-- kind: mechanism -->
+<style>
+  [hidden] { display: none !important; }
+  .pz { max-width: 34rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .count { margin-top: 10px; }
+  .task { font-size: 1.15rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.06rem; font-weight: 400; line-height: 1.6; }
+  .fig { display: block; width: 100%; max-width: 26rem; margin-inline: auto; touch-action: pan-y; }
+  .fig.drag { touch-action: none; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .picks { flex-direction: column; gap: 8px; }
+  .picks .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; white-space: normal; line-height: 1.35; padding-top: 8px; padding-bottom: 8px; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  #outs { display: grid; grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr)); gap: 10px; }
+  .fb { font-weight: 700; min-height: 1.5em; }
+  .fb.right { color: var(--k-good); }
+  .why, .done { line-height: 1.6; }
+  .done .row { margin-top: 14px; }
+  .replay { justify-content: center; }
+  .replay .k-btn { flex: 0 0 auto; }
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }
+  /* Graphs. */
+  .fig .axis { stroke: var(--k-strong); stroke-width: 1.4; }
+  .fig .grid { stroke: var(--k-line); stroke-width: 1; stroke-dasharray: 3 4; }
+  .fig .tick { stroke: var(--k-strong); stroke-width: 1.2; }
+  .fig .ref { fill: none; stroke: var(--k-muted); stroke-width: 1.3; stroke-dasharray: 4 3; }
+  .fig .vline { fill: none; stroke: var(--k-ink); stroke-width: 2.6; stroke-linejoin: round; }
+  .fig .fline { fill: none; stroke: var(--k-accent2); stroke-width: 2.6; stroke-linejoin: round; }
+  .fig .ghost { fill: none; stroke: var(--k-muted); stroke-width: 1.8; stroke-dasharray: 6 4; }
+  .fig .area { fill: var(--k-fill1); }
+  .fig .area3 { fill: var(--k-fill3); }
+  .fig .imp { fill: var(--k-fill2); }
+  .fig .tri { fill: var(--k-fill2); stroke: var(--k-amber-line); stroke-width: 1.6; stroke-linejoin: round; }
+  .fig .hot-area { fill: var(--k-warn); fill-opacity: .16; stroke: var(--k-warn); stroke-width: 1.6; }
+  .fig .hot-line { fill: none; stroke: var(--k-warn); stroke-width: 2.4; }
+  .fig .hot-rect { fill: none; stroke: var(--k-warn); stroke-width: 2; stroke-dasharray: 5 3; }
+  .fig .marker { stroke: var(--k-muted); stroke-width: 1.4; stroke-dasharray: 4 3; }
+  .fig .mdot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 1.5; }
+  .fig .vdot { fill: var(--k-ink); }
+  .fig .handle { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  /* The rail, the trolleys, the bars and the beam. */
+  .fig .rail { fill: var(--k-strong); }
+  .fig .body { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.8; }
+  .fig .wheel { fill: var(--k-sunk); stroke: var(--k-ink); stroke-width: 1.6; }
+  .fig .buf { fill: var(--k-sunk); stroke: var(--k-ink); stroke-width: 1.3; }
+  .fig .track { fill: var(--k-sunk); }
+  .fig .mbar { fill: var(--k-accent2); }
+  .fig .mbar-hot { fill: var(--k-warn); }
+  .fig .mbar-mut { fill: var(--k-muted); }
+  .fig .beam { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.6; }
+  .fig .beam-hot { fill: var(--k-panel); stroke: var(--k-warn); stroke-width: 2; }
+  .fig .piv { fill: var(--k-sunk); stroke: var(--k-ink); stroke-width: 1.6; }
+  .fig .turn { fill: none; stroke: var(--k-accent); stroke-width: 1.8; }
+  .fig .turn-hot { fill: none; stroke: var(--k-warn); stroke-width: 1.8; }
+  /* Arrows: forces in ink, friction teal, the net force navy, a mistake red, a speed muted. */
+  .fig .ar-ink { stroke: var(--k-ink); stroke-width: 2.6; }
+  .fig .ah-ink { fill: var(--k-ink); }
+  .fig .ar-t { stroke: var(--k-accent); stroke-width: 2.6; }
+  .fig .ah-t { fill: var(--k-accent); }
+  .fig .ar-net { stroke: var(--k-accent2); stroke-width: 3.6; }
+  .fig .ah-net { fill: var(--k-accent2); }
+  .fig .ar-hot { stroke: var(--k-warn); stroke-width: 3.2; }
+  .fig .ah-hot { fill: var(--k-warn); }
+  .fig .ar-mut { stroke: var(--k-muted); stroke-width: 2; }
+  .fig .ah-mut { fill: var(--k-muted); }
+  /* Words on the pictures. */
+  .fig .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .fig .lab.sm { font-size: 12px; }
+  .fig .lab.t { fill: var(--k-accent); }
+  .fig .lab.n { fill: var(--k-accent2); }
+  .fig .lab.w { fill: var(--k-warn); }
+  .fig .lab.m { font-weight: 400; fill: var(--k-muted); }
+  .fig .lab.h { font-weight: 700; fill: var(--k-accent); letter-spacing: .02em; }
+  .fig .lab.big { font-size: 15px; font-weight: 700; }
+  .fig .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; }
+  .fig .grip:active { cursor: grabbing; }
+</style>
+
+<p class="lead" id="lead">A crane trolley on a level rail, with an example mass of 2000&nbsp;kg and an example 100&nbsp;N of friction while it moves. The other trolleys, speeds and times are examples too.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task say" id="task"></p>
+    <svg class="fig" id="scene" viewBox="0 0 340 300" width="100%" role="img" aria-label=""><g id="art"></g><g id="arl"></g><g id="labs"></g><g id="ui"><circle id="gA" class="grip" cx="-100" cy="-100" r="22" aria-hidden="true"></circle><circle id="gB" class="grip" cx="-100" cy="-100" r="22" aria-hidden="true"></circle><circle id="gC" class="grip" cx="-100" cy="-100" r="22" aria-hidden="true"></circle></g></svg>
+    <div class="k-controls" id="c-time"></div>
+    <div class="k-controls" id="c-fric"></div>
+    <div class="row" id="live"></div>
+    <div class="row replay" id="replay"></div>
+    <p class="say" id="say"></p>
+    <div class="k-readouts" id="outs"></div>
+    <div class="row picks say" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb say" id="fb" aria-live="polite"></p>
+    <div class="note why say" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+<div id="c-hide" hidden></div>
+
+<p class="caption" id="cap">Net force = mass × acceleration, so the force graph follows the slope of the speed graph, not its height.</p>
+
+<script>
+  // ---------- the rules ----------
+  const M = 2000, FR = 100, TMAX = 16;     // the example trolley's mass, its example friction while it moves, the time axis
+  const SRC = {
+    first: 'https://openstax.org/books/university-physics-volume-1/pages/5-2-newtons-first-law',
+    steady: 'https://openstax.org/books/physics/pages/4-2-newtons-first-law-of-motion-inertia',
+    second: 'https://openstax.org/books/university-physics-volume-1/pages/5-3-newtons-second-law',
+  };
+  const nf = (v, dp) => { const k = Math.pow(10, dp == null ? 3 : dp), r = Math.round(v * k) / k; return (Math.abs(r) < 1e-9 ? '0' : String(r)).replace('-', '−'); };
+  const near = (a, b, tol) => Math.abs(a - b) < (tol == null ? 1e-6 : tol);
+  const fmtD = (d) => nf(d, 1);                       // distances, to 0.1 m everywhere
+
+  // A run is four straight parts: speeding up from rest, running steady, braking, at rest. With the
+  // push taken away after speeding up, friction alone slows it (or, with no friction, nothing does).
+  function norm(q) {
+    const top = K.clamp(Math.round(+q.top * 10) / 10, 0.1, 1);
+    const tA = K.clamp(Math.round(+q.upEnd * 2) / 2, 1, 6);
+    const tB = K.clamp(Math.round(+q.brakeStart * 2) / 2, tA, 15);
+    const tC = K.clamp(Math.round(+q.brakeEnd * 2) / 2, tB + 1, Math.min(TMAX, tB + 6));
+    return { top, upEnd: tA, brakeStart: tB, brakeEnd: tC, friction: !!q.friction, coast: !!q.coast };
+  }
+  function runOf(q) {
+    const v = q.top, tA = q.upEnd, fr = q.friction ? FR : 0;
+    let s = [{ t0: 0, t1: tA, v0: 0, a: v / tA, kind: 'up' }];
+    if (!q.coast) {
+      s.push({ t0: tA, t1: q.brakeStart, v0: v, a: 0, kind: 'steady' });
+      s.push({ t0: q.brakeStart, t1: q.brakeEnd, v0: v, a: -v / (q.brakeEnd - q.brakeStart), kind: 'brake' });
+      s.push({ t0: q.brakeEnd, t1: TMAX, v0: 0, a: 0, kind: 'rest' });
+    } else if (fr) {
+      const tS = Math.min(TMAX, tA + v * M / fr);
+      s.push({ t0: tA, t1: tS, v0: v, a: -fr / M, kind: 'coast' });
+      if (tS < TMAX) s.push({ t0: tS, t1: TMAX, v0: 0, a: 0, kind: 'rest' });
+    } else s.push({ t0: tA, t1: TMAX, v0: v, a: 0, kind: 'coast' });
+    s = s.filter((g) => g.t1 > g.t0 + 1e-9);
+    let d = 0;
+    s.forEach((g) => { g.d0 = d; const T = g.t1 - g.t0; d += g.v0 * T + 0.5 * g.a * T * T; });
+    const moving = s.filter((g) => g.kind !== 'rest');
+    return { segs: s, fr, total: d, end: moving.length ? moving[moving.length - 1].t1 : TMAX };
+  }
+  // The trolley at time t: its speed, acceleration, net force, distance, and the forces along the rail.
+  function stateAt(run, t) {
+    t = K.clamp(+t, 0, TMAX);
+    let g = run.segs[run.segs.length - 1];
+    for (let k = 0; k < run.segs.length; k++) if (t < run.segs[k].t1 - 1e-9) { g = run.segs[k]; break; }
+    const u = t - g.t0, v = Math.max(0, g.v0 + g.a * u), a = g.a, net = M * a;
+    const dist = g.d0 + g.v0 * u + 0.5 * g.a * u * u;
+    const fric = g.kind === 'rest' ? 0 : run.fr;
+    let drive = 0, brake = 0;
+    if (g.kind === 'up') drive = net + fric;
+    else if (g.kind === 'steady') drive = fric;
+    else if (g.kind === 'brake') { const need = -net; if (need >= fric) brake = need - fric; else drive = fric - need; }
+    return { v, a, net, dist, fric, drive, brake, kind: g.kind };
+  }
+  const forcePts = (run) => run.segs.reduce((o, g) => o.concat([[g.t0, M * g.a], [g.t1, M * g.a]]), []);
+  function linePts(run, tEnd, tFrom) {
+    const out = [], from = tFrom || 0;
+    run.segs.forEach((g) => {
+      if (g.t1 <= from + 1e-9 || g.t0 >= tEnd - 1e-9) return;
+      const a = Math.max(g.t0, from), b = Math.min(g.t1, tEnd);
+      if (!out.length) out.push([a, Math.max(0, g.v0 + g.a * (a - g.t0))]);
+      out.push([b, Math.max(0, g.v0 + g.a * (b - g.t0))]);
+    });
+    if (!out.length) out.push([from, 0]);
+    return out;
+  }
+  const forceRange = (run) => (run.segs.every((g) => Math.abs(M * g.a) <= 1000 + 1e-9) ? 1000 : 2000);
+
+  // Couple up: trolley A, 2000 kg at 0.5 m/s, meets trolley B, 2000 kg at rest; the buffers press
+  // with a steady 1000 N on each for 0.5 s; no friction. u is seconds since A set off (contact at 1.2 s).
+  const CPPM = 100, CXA = 50, CXB = 190, CC = 1.2, CP = 0.5, CF = 1000;
+  function coupleAt(u) {
+    u = K.clamp(u, 0, 3);
+    const aR = CF / M;
+    let vA, vB, xA, xB;
+    if (u <= CC) { vA = 0.5; vB = 0; xA = CXA + 0.5 * u * CPPM; xB = CXB; }
+    else if (u <= CC + CP) { const s = u - CC; vA = 0.5 - aR * s; vB = aR * s; xA = CXA + 0.5 * CC * CPPM + (0.5 * s - 0.5 * aR * s * s) * CPPM; xB = CXB + 0.5 * aR * s * s * CPPM; }
+    else { const s = u - CC - CP; vA = 0.5 - aR * CP; vB = aR * CP; xA = CXA + 0.5 * CC * CPPM + (0.5 * CP - 0.5 * aR * CP * CP) * CPPM + vA * s * CPPM; xB = CXB + 0.5 * aR * CP * CP * CPPM + vB * s * CPPM; }
+    return { vA, vB, xA, xB, pA: M * vA, pB: M * vB };
+  }
+
+  // Every number the words show, worked out from the rules (a check compares them with the lesson's).
+  const N = (() => {
+    const n = {};
+    n.a1 = nf(0.5 / 2); n.s1 = nf(0.5 * 2 * 0.5); n.s2 = nf(0.5 * 4); n.s12 = nf(0.5 * 2 * 0.5 + 0.5 * 4);
+    n.p2 = nf(0.6 / 3); n.p2w = nf(3 / 0.6); n.p2a = nf(0.5 * 3 * 0.6);
+    n.r3 = nf(0.5 * 2); n.t3 = nf(0.5 * 0.25 * 2 * 2); n.s3 = nf(0.5 * 2 + 0.5 * 0.25 * 2 * 2); n.v3 = nf(0.5 + 0.25 * 2);
+    n.p4 = nf(0.5 * 4 * 0.4); n.p4k = nf(0.4 * 4); n.p4s = nf(0.4 / 4); n.p4v = nf(0.4 / 2);
+    n.dec = nf(FR / M); n.tStop = nf(0.5 / (FR / M)); n.dStop = nf(0.5 * 0.5 * (0.5 / (FR / M)));
+    n.F1 = nf(M * 0.25); n.drive = nf(M * 0.25 + FR); n.brake = nf(M * 0.25 - FR);
+    n.p8n = nf(600 - FR); n.p8 = nf((600 - FR) / M); n.p8w = nf(600 / M); n.p8x = nf((600 + FR) / M); n.p8xF = nf(600 + FR);
+    n.imp = nf(500 * 2); n.mom = nf(M * 0.5); n.p10 = nf(1500 * 0.4); n.p10w = nf(1500 / 0.4);
+    n.cF = nf(M * (0.5 - 0.25) / CP); n.cTot = nf(M * 0.5); n.cEach = nf(M * 0.25); n.cV = nf(M * 0.5 / (2 * M)); n.cPair = nf(2 * M); n.p12h = nf(1000 / 2);
+    n.p13m = nf(1000 * 0.8); n.p13 = nf(1000 * 0.8 / 4000); n.p13h = nf(0.8 / 2); n.p13w = nf(4000 * 0.4); n.p13k = nf(4000 * 0.8);
+    n.p14d = nf(0.8 - 0.2); n.p14a = nf((0.8 - 0.2) / 4); n.p14 = nf(M * (0.8 - 0.2) / 4); n.p14e = nf(M * 0.8 / 4); n.p14n = nf(M * (0.8 - 0.2));
+    n.safe = nf(M * 0.5 / 0.5);
+    return n;
+  })();
+
+  // ---------- the lesson: SHOW screens demonstrate, DO screens are puzzles ----------
+  // live: the trolley under its graphs, run by the time control; ctl: the settings Dan can change there;
+  // vis: the controls shown; drag: the speed graph's corners can be dragged; force: the net force graph
+  // and the arrows on the trolley; demo: how the screen plays as it opens. marks: what each answer draws.
+  const STEPS = [
+    { show: true, live: true, scene: 'run', name: 'Slope and area', ctl: ['time', 'top', 'upEnd', 'brakeStart', 'brakeEnd'], vis: ['time'], drag: true,
+      outs: ['speed', 'accel'], demo: { keys: [[0.4, 0], [3.4, 6]] }, rate: 2,
+      text: `A 2000 kg crane trolley speeds up from rest to 0.5 m/s in 2 s. The *slope* of its speed line is its *acceleration*. Here that is 0.5 ÷ 2 = ${N.a1} m/s². The area under the line is the distance covered. The first part is a triangle, ½ × 2 × 0.5 = ${N.s1} m. The steady part adds 0.5 × 4 = ${N.s2} m. Drag a corner of the graph and press Play.`,
+      read: `A 2000 kg crane trolley speeds up from rest to 0.5 m/s in 2 s. The slope of its speed line is its acceleration. Here that is 0.5 ÷ 2 = ${N.a1} m/s². The area under the line is the distance covered. The first part is a triangle, ½ × 2 × 0.5 = ${N.s1} m. The steady part adds 0.5 × 4 = ${N.s2} m. So by 6 s it has gone ${N.s12} m.`,
+      still: { time: 6 } },
+    { kind: 'pick', scene: 'slopeP', name: 'Find the slope',
+      task: 'A trolley speeds up steadily from rest to 0.6 m/s in 3 s. What is its acceleration?',
+      opts: [`${N.p2} m/s²`, `${N.p2w} m/s²`, `${N.p2a} m`], want: `${N.p2} m/s²`, marks: ['slope', 'steep', 'area'],
+      hints: { [`${N.p2w} m/s²`]: 'Not quite. That is the time ÷ the speed. Divide the change in speed by the time.',
+        [`${N.p2a} m`]: 'Not quite. That is the area under the line, which is a distance. The acceleration is the slope.' },
+      why: `The slope is the rise in speed over the time it took. The speed rises by 0.6 m/s in 3 s. So the acceleration is 0.6 ÷ 3 = ${N.p2} m/s². Each second, it gains ${N.p2} m/s.` },
+    { show: true, scene: 'split', name: 'Split the area', arrive: 'split',
+      text: `When the speed doesn't start at zero, split the area. This line rises from 0.5 to ${N.v3} m/s in 2 s, at 0.25 m/s². Underneath is a rectangle, 0.5 × 2 = ${N.r3} m. That is how far the start speed alone would carry it. On top is a triangle, ½ × 0.25 × 2² = ${N.t3} m. That is the extra from speeding up. So it covers ${N.s3} m in all.` },
+    { kind: 'pick', scene: 'brakeP', name: 'Braking distance',
+      task: 'A trolley at 0.4 m/s brakes steadily to rest in 4 s. How far does it go while braking?',
+      opts: [`${N.p4k} m`, `${N.p4s} m`, `${N.p4} m`], want: `${N.p4} m`, marks: ['kept', 'slope', 'area'],
+      hints: { [`${N.p4k} m`]: 'Not quite. That is 0.4 × 4, as if it kept its speed. Its speed falls to zero.',
+        [`${N.p4s} m`]: 'Not quite. That is the speed ÷ the time, the slope. The distance is the area.' },
+      why: `The distance is the area under the speed line. Here that area is a triangle, 4 s wide and 0.4 m/s tall. So it is ½ × 4 × 0.4 = ${N.p4} m. That is the average speed, ${N.p4v} m/s, for 4 s.` },
+    { show: true, live: true, scene: 'run', name: 'Take the push away', set: { coast: true }, ctl: ['time', 'friction', 'coast'], vis: ['fric', 'push'], force: true, coastScene: true,
+      outs: ['speed', 'accel', 'netForce'], demo: { flip: true }, rate: 4,
+      text: `Here the drive's push is taken away once the trolley is at speed. The lower graph is the *net force*: every force along the rail, added up. With friction on, friction is the only force left. That is 100 N backwards, so the speed falls at 100 ÷ 2000 = ${N.dec} m/s². The trolley stops ${N.tStop} s and ${N.dStop} m later. With friction off, nothing acts along the rail. The net force is zero, and it rolls on at 0.5 m/s.`,
+      still: { friction: false, time: 16 } },
+    { kind: 'pick', scene: 'steadyP', name: 'Running steady',
+      task: 'The trolley runs steady at 0.5 m/s along a level rail. Which is true?',
+      opts: ['The push must be bigger than friction to keep it moving', 'The push equals friction, so the net force is zero', 'No force acts on it at all'],
+      want: 'The push equals friction, so the net force is zero', marks: ['bigger', 'equal', 'none'],
+      hints: { 'The push must be bigger than friction to keep it moving': 'Not quite. A bigger push would leave a net force, and the trolley would speed up.',
+        'No force acts on it at all': 'Not quite. Friction still holds it back with 100 N. The drive pushes 100 N forward to match.' },
+      why: 'Its speed is steady, so its acceleration is zero. So the net force is zero too. Friction holds it back with 100 N. The drive pushes forward with exactly 100 N. The two cancel. It needs no net force to keep moving.' },
+    { show: true, live: true, scene: 'run', name: 'The net force graph', ctl: ['time', 'top', 'upEnd', 'brakeStart', 'brakeEnd'], vis: ['time'], drag: true, force: true,
+      outs: ['speed', 'accel', 'netForce'], demo: { keys: [[0.4, 0], [4.4, 8]] }, rate: 2,
+      text: `Here is the whole run with its net force graph. Net force = mass × acceleration. So this graph follows the speed line's slope, not its height. Speeding up at 0.25 m/s² takes 2000 × 0.25 = ${N.F1} N. The drive gives ${N.drive} N, as friction takes 100 N. Running steady takes no net force, whatever the speed. Braking takes ${N.F1} N the other way. Drag a corner and watch the force graph.`,
+      read: `Here is the whole run with its net force graph. Net force = mass × acceleration. So this graph follows the speed line's slope, not its height. Speeding up at 0.25 m/s² takes 2000 × 0.25 = ${N.F1} N. The drive gives ${N.drive} N, as friction takes 100 N. Running steady takes no net force, whatever the speed. Braking takes ${N.F1} N the other way. The force graph steps up only while the speed rises, and down only while it falls.`,
+      still: { time: 1 } },
+    { kind: 'pick', scene: 'pushP', name: 'Push against friction',
+      task: 'The 2000 kg trolley\'s drive pushes 600 N. Friction holds it back with 100 N. What is its acceleration?',
+      opts: [`${N.p8w} m/s²`, `${N.p8} m/s²`, `${N.p8x} m/s²`], want: `${N.p8} m/s²`, marks: ['alone', 'net', 'added'],
+      hints: { [`${N.p8w} m/s²`]: 'Not quite. That uses the push alone. Take friction away first.',
+        [`${N.p8x} m/s²`]: 'Not quite. That adds friction to the push. Friction acts the other way, so take it away.' },
+      why: `Add the forces along the rail. 600 N forward and 100 N back leave ${N.p8n} N forward. That is the net force. So the acceleration is ${N.p8n} ÷ 2000 = ${N.p8} m/s².` },
+    { show: true, scene: 'impulse', name: 'Impulse and momentum', arrive: 'impulse',
+      text: `The area under the force graph means something too. While the trolley speeds up, 500 N acts for 2 s. That area, 500 × 2 = ${N.imp} N s, is the *impulse*. It gives the trolley 2000 × 0.5 = ${N.mom} kg m/s of *momentum*. Momentum is mass × velocity. A newton second is the same unit as a kg m/s. Don't mix momentum up with a *moment*. A moment is a turning effect, force × distance, in N m.` },
+    { kind: 'pick', scene: 'momP', name: 'Momentum',
+      task: 'A 1500 kg trolley rolls at 0.4 m/s. What is its momentum?',
+      opts: [`${N.p10} N m`, `${N.p10w} kg m/s`, `${N.p10} kg m/s`], want: `${N.p10} kg m/s`, marks: ['moment', 'div', 'mom'],
+      hints: { [`${N.p10} N m`]: 'Not quite. N m is the unit of a moment, a turning effect. Momentum is in kg m/s.',
+        [`${N.p10w} kg m/s`]: 'Not quite. That is the mass ÷ the speed. Momentum is mass × velocity.' },
+      why: `Momentum is mass × velocity. So it is 1500 × 0.4 = ${N.p10} kg m/s. A moment is a different thing: a force × a distance, in N m.` },
+    { show: true, scene: 'couple', name: 'Couple up', arrive: 'couple',
+      text: `Trolley A, 2000 kg at 0.5 m/s, rolls into trolley B, 2000 kg and still. There is no friction here. For 0.5 s their buffers press. A pushes B forward with ${N.cF} N, and B pushes A back with ${N.cF} N. Forces come in pairs. So A loses ${N.cEach} kg m/s of momentum and B gains ${N.cEach}. The total stays ${N.cTot} kg m/s. The coupled pair, ${N.cPair} kg, roll on at ${N.cV} m/s.` },
+    { kind: 'pick', scene: 'pairP', name: 'The push back',
+      task: 'In the coupling, A pushes B forward with 1000 N. How hard does B push on A?',
+      opts: ['1000 N backwards', 'No push at all', `${N.p12h} N backwards`], want: '1000 N backwards', marks: ['pair', 'none', 'half'],
+      hints: { 'No push at all': 'Not quite. Forces come in pairs. If A pushes B, B pushes A back.',
+        [`${N.p12h} N backwards`]: 'Not quite. A still trolley pushes back just as hard as it is pushed.' },
+      why: 'Forces come in pairs. When A pushes on B, B pushes back on A just as hard, the opposite way. So B pushes A with 1000 N backwards. That push is what slows A down.' },
+    { kind: 'pick', scene: 'shareP', name: 'Shared speed',
+      task: 'A 1000 kg trolley at 0.8 m/s couples to a still 3000 kg trolley. What is their shared speed?',
+      opts: [`${N.p13h} m/s`, '0.8 m/s', `${N.p13} m/s`], want: `${N.p13} m/s`, marks: [0.4, 0.8, 0.2],
+      hints: { [`${N.p13h} m/s`]: 'Not quite. Half the speed would be right only if the masses were equal.',
+        '0.8 m/s': 'Not quite. The moving trolley shares its momentum, so it slows down.' },
+      why: `Momentum before: 1000 × 0.8 = ${N.p13m} kg m/s. After, 4000 kg share that ${N.p13m} kg m/s. So the shared speed is ${N.p13m} ÷ 4000 = ${N.p13} m/s.` },
+    { kind: 'pick', scene: 'slope2P', name: 'Net force from a graph',
+      task: 'A 2000 kg trolley\'s speed rises steadily from 0.2 to 0.8 m/s in 4 s. What is the net force on it?',
+      opts: [`${N.p14e} N`, `${N.p14} N`, `${N.p14n} N`], want: `${N.p14} N`, marks: ['end', 'change', 'notime'],
+      hints: { [`${N.p14e} N`]: `Not quite. That uses the end speed. Use the change in speed, ${N.p14d} m/s.`,
+        [`${N.p14n} N`]: 'Not quite. That is the mass × the change in speed. Divide by the time first.' },
+      why: `The speed changes by 0.8 − 0.2 = ${N.p14d} m/s in 4 s. So the acceleration is ${N.p14d} ÷ 4 = ${N.p14a} m/s². The net force is 2000 × ${N.p14a} = ${N.p14} N.` },
+  ];
+  const FINISH = 'A moving thing needs no net force to keep moving. A net force changes its speed: net force = mass × acceleration. So the force graph follows the slope of the speed graph.';
+  const FADE = 0.35, ANS = 2.3;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  const calm = () => REDUCE || testing();
+  const el = (id) => document.getElementById(id);
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+
+  // ---------- state ----------
+  const blank = () => ({ pick: null, res: null, why: false });
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false;
+  let T = Infinity, motionEnd = 0;          // seconds since the screen opened (a demonstration) or since Check
+  let DEMO = null, RUN = null;              // a demonstration playing; Dan's own Play
+  const BASE = { top: 0.5, upEnd: 2, brakeStart: 6, brakeEnd: 8, time: 0, friction: true, coast: false };
+  const CIDS = Object.keys(BASE);
+  let V = Object.assign({}, BASE);          // the settings as drawn (the time runs smoothly between slider steps)
+  const setupOf = (i) => Object.assign({}, BASE, STEPS[i].set || {});
+  const same = (a, b) => (typeof a === 'number' || typeof b === 'number' ? Math.abs(+a - +b) < 1e-9 : a === b);
+  const shows = (d, id) => (d.ctl || []).indexOf(id) >= 0;
+  const q10 = (v) => Math.round(v * 10) / 10;
+
+  // ---------- words with amber key terms (built with K.el, never innerHTML) ----------
+  const nb = (s) => String(s).replace(/(\d) (?=(?:N|m|s|kg)(?![A-Za-z]))/g, '$1 ').replace(/kg m\/s/g, 'kg m/s').replace(/(\d N) (s|m)(?![\w])/g, '$1 $2');
+  function write(node, s) {
+    s = nb(s);
+    node.textContent = '';
+    const re = /\*([^*]+)\*/g;
+    let from = 0, m;
+    while ((m = re.exec(s))) {
+      if (m.index > from) node.appendChild(document.createTextNode(s.slice(from, m.index)));
+      node.appendChild(K.el('span', { class: 'term' }, m[1]));
+      from = m.index + m[0].length;
+    }
+    if (from < s.length) node.appendChild(document.createTextNode(s.slice(from)));
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);
+  const CTL = {
+    top: K.control({ id: 'top', label: 'Top speed', min: 0.1, max: 1, step: 0.1, value: 0.5, unit: 'm/s', into: '#c-hide' }),
+    upEnd: K.control({ id: 'upEnd', label: 'Speeding up ends at', min: 1, max: 6, step: 0.5, value: 2, unit: 's', into: '#c-hide' }),
+    brakeStart: K.control({ id: 'brakeStart', label: 'Braking starts at', min: 1, max: 15, step: 0.5, value: 6, unit: 's', into: '#c-hide' }),
+    brakeEnd: K.control({ id: 'brakeEnd', label: 'Braking ends at', min: 2, max: 16, step: 0.5, value: 8, unit: 's', into: '#c-hide' }),
+    time: K.control({ id: 'time', label: 'Time', min: 0, max: 16, step: 0.1, value: 0, fmt: (v) => nf(v, 1) + ' s', into: '#c-time' }),
+    friction: K.toggle({ id: 'friction', label: 'Friction', value: true, into: '#c-fric' }),
+    coast: K.toggle({ id: 'coast', label: 'Push taken away', value: false, into: '#c-hide' }),
+  };
+  const RID = ['speed', 'accel', 'netForce'];
+  const RO = [
+    K.readout({ id: 'speed', label: 'Speed', unit: 'm/s', decimals: 2, into: '#outs' }),
+    K.readout({ id: 'accel', label: 'Acceleration', unit: 'm/s²', decimals: 2, into: '#outs' }),
+    K.readout({ id: 'netForce', label: 'Net force', unit: 'N', decimals: 0, into: '#outs' }),
+  ];
+  // The pure model: the run as set, at the marker's time -> speed, acceleration and net force there.
+  // Screens without the trolley's run read nothing.
+  K.model((p) => {
+    const i = K.clamp(Math.round(+p.step) || 0, 0, STEPS.length - 1);
+    if (!STEPS[i].live) return { speed: 0, accel: 0, netForce: 0 };
+    const s = stateAt(runOf(norm(p)), +p.time);
+    return { speed: s.v, accel: s.a, netForce: s.net };
+  });
+
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;
+    st.pick = d.opts[k]; st.res = null; T = Infinity;
+  } }));
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished || st.res === 'right') return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = st.pick === d.want ? 'right' : 'wrong';
+    if (calm()) { T = Infinity; return; }
+    T = 0; motionEnd = ANS; play();
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    motion.pause();
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  // Dan's own run: from the start (or where the marker is) to the end of the run.
+  const playBtn = K.button({ label: 'Play', into: '#live', press: () => {
+    const d = STEPS[at()];
+    if (finished || !d.live) return;
+    if (RUN) { RUN = null; return; }
+    DEMO = null; T = Infinity;
+    const end = runOf(norm(K.params())).end;
+    const from = V.time >= end - 0.05 ? 0 : V.time;
+    if (calm()) { setTime(end); V.time = end; return; }
+    V.time = from; setTime(from);
+    RUN = { rate: d.rate || 2, to: end };
+    play();
+  } });
+  const pushBtn = K.button({ label: 'Take the push away', secondary: true, into: '#live', press: () => {
+    const d = STEPS[at()];
+    if (finished || !shows(d, 'coast')) return;
+    DEMO = null; RUN = null; T = Infinity;
+    CTL.coast.set(!CTL.coast.get(), true);
+    V.time = 0; setTime(0);
+  } });
+  K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const d = STEPS[at()];
+    if (finished || !d.show || !d.arrive) return;
+    startDemo(d);
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+  function setTime(v) { const r = K.clamp(q10(v), 0, TMAX); if (!same(r, CTL.time.get())) CTL.time.set(r, true); }
+
+  // ---------- motion: a demonstration, Dan's Play, arrivals and an answer's drawing ----------
+  // Screen 5 plays twice: first with friction on, then (after a soft fade) with friction off.
+  function demoState(d, Tq) {
+    const dm = d.demo;
+    if (dm.flip) {
+      if (Tq < 2.1) return { time: 2 + 10 * K.clamp((Tq - 0.4) / 1.43, 0, 1), friction: true, fade: 1 };
+      return { time: 2 + 14 * K.clamp((Tq - 2.6) / 2.0, 0, 1), friction: false, fade: K.arrive(Tq, 2.1, 0.5) };
+    }
+    const k = dm.keys;
+    return { time: k[0][1] + (k[1][1] - k[0][1]) * K.clamp((Tq - k[0][0]) / (k[1][0] - k[0][0]), 0, 1), fade: 1 };
+  }
+  const demoEnd = (d) => (d.live ? (d.demo.flip ? 4.6 : d.demo.keys[1][0]) : d.arrive === 'split' ? 2.6 : d.arrive === 'impulse' ? 3.9 : d.arrive === 'couple' ? 3.4 : 0);
+  const demoStart = (d) => (d.live ? 0.4 : d.arrive === 'split' ? 0.5 : 0.4);
+  function applyDemo(ds) {
+    V.time = ds.time; setTime(ds.time);
+    if (ds.friction != null && ds.friction !== !!CTL.friction.get()) { CTL.friction.set(ds.friction, true); V.friction = ds.friction; }
+  }
+  const motion = K.anim({ button: false, label: 'Motion', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    let busy = false;
+    const d = STEPS[at()];
+    if (DEMO && d.live) {
+      applyDemo(demoState(d, T));
+      if (T >= DEMO.end) DEMO = null; else busy = true;
+    }
+    if (RUN) {
+      V.time = Math.min(RUN.to, V.time + dt * RUN.rate);
+      setTime(V.time);
+      if (V.time >= RUN.to - 1e-9) RUN = null; else busy = true;
+    }
+    K.refresh();
+    return busy || T < motionEnd;
+  } });
+  function play() { if (!motion.playing()) motion.play(); }
+  function startDemo(d) {
+    DEMO = null; RUN = null; T = Infinity;
+    if (d.live && d.demo) {
+      if (calm()) { applyDemo(demoState(d, Infinity)); return; }
+      applyDemo(demoState(d, 0));
+      DEMO = { end: demoEnd(d) }; T = 0; motionEnd = DEMO.end; play();
+    } else if (d.arrive && !calm()) { T = 0; motionEnd = demoEnd(d); play(); }
+  }
+  function settle() {
+    const d = STEPS[at()];
+    if (DEMO && d.live) applyDemo(demoState(d, Infinity));
+    if (RUN) { V.time = RUN.to; setTime(RUN.to); }
+    DEMO = null; RUN = null; T = Infinity;
+  }
+  function enterStep(i) {
+    lastStep = i; enter('stepbox'); DEMO = null; RUN = null; T = Infinity;
+    const d = STEPS[i], q = setupOf(i);
+    CIDS.forEach((id) => CTL[id].set(q[id], true));
+    V = Object.assign({}, q);
+    motion.pause();
+    if (d.show) startDemo(d);
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const b = el(id);
+    b.classList.remove('enter'); void b.offsetWidth; b.classList.add('enter');
+  }
+  const answeredOf = (st) => st.res === 'right' || st.res === 'wrong';
+  const pickIndex = (d, st) => (!d.show && answeredOf(st) && st.pick != null ? d.opts.indexOf(st.pick) : -1);
+  const vis = (t0, dur) => (t0 == null ? 1 : K.arrive(T, t0, dur));
+
+  // ---------- drawing helpers ----------
+  const fig = el('scene'), art = el('art'), arl = el('arl'), labs = el('labs');
+  const GRIPS = { A: el('gA'), B: el('gB'), C: el('gC') };
+  let into = null, REC = null, LAB = [], SLOTS = [];
+  const add = (n) => (into || art).appendChild(n);
+  const r2 = (v) => Math.round(v * 100) / 100;
+  const ln = (x1, y1, x2, y2, cls) => add(K.svg('line', { class: cls, x1: r2(x1), y1: r2(y1), x2: r2(x2), y2: r2(y2) }));
+  const pa = (d, cls) => add(K.svg('path', { class: cls, d }));
+  const ci = (x, y, r, cls) => add(K.svg('circle', { class: cls, cx: r2(x), cy: r2(y), r }));
+  const box = (x, y, w, h, cls, rx) => add(K.svg('rect', { class: cls, x: r2(x), y: r2(y), width: r2(Math.max(0, w)), height: r2(Math.max(0, h)), rx: rx || 0 }));
+  const path = (pts, close) => 'M' + pts.map((p) => r2(p[0]) + ' ' + r2(p[1])).join('L') + (close ? 'Z' : '');
+  function tx(x, y, s, cls, anchor) { REC.texts.push(String(s)); return add(K.svg('text', { class: cls || 'lab', x: r2(x), y: r2(y), 'text-anchor': anchor || 'middle' }, String(s))); }
+  function part(a, draw) { if (!(a > 0)) return; const g = add(K.svg('g')); K.fade(g, a, 0); const keep = into; into = g; try { draw(); } finally { into = keep; } }
+  function hot() { REC.hot++; }
+  // A label placed clear of the other words and of every line marked .av, arriving at a.
+  function lab(x, y, s, cls, anchor, a) {
+    if (a == null) a = 1;
+    if (!(a > 0)) return;
+    LAB.push({ x: r2(x), y: r2(y), text: String(s), class: 'lab' + (cls ? ' ' + cls : ''), anchor: anchor || 'middle', a });
+    REC.texts.push(String(s));
+  }
+  // The arrow labels on a trolley: always four slots in one order (drive, brake, friction, net force).
+  function slot(k, x, y, s, cls, anchor, a) {
+    if (a == null) a = 1;
+    if (!(a > 0)) return;
+    SLOTS[k] = { x: r2(x), y: r2(y), text: String(s), class: 'lab' + (cls ? ' ' + cls : ''), anchor: anchor || 'middle', a };
+    REC.texts.push(String(s));
+  }
+  function flushLabels() {
+    const avoid = Array.from(art.querySelectorAll('.av'));
+    const four = [0, 1, 2, 3].map((k) => SLOTS[k] || { x: -60, y: -60, text: '', class: 'lab', anchor: 'middle', a: 1 });
+    const ts4 = K.labels(arl, four.map((it) => ({ x: it.x, y: it.y, text: it.text, class: it.class, anchor: it.anchor })), { avoid }) || [];
+    ts4.forEach((t, k) => { if (four[k] && four[k].a < 1) K.fade(t, four[k].a, 0); });
+    const items = LAB;
+    LAB = []; SLOTS = [];
+    const ts = K.labels(labs, items.map((it) => ({ x: it.x, y: it.y, text: it.text, class: it.class, anchor: it.anchor })), { avoid }) || [];
+    ts.forEach((t, k) => { if (items[k] && items[k].a < 1) K.fade(t, items[k].a, 0); });
+  }
+  function setH(h) { REC.H = h; fig.setAttribute('viewBox', '0 0 340 ' + h); }
+  // An arrow: c is ink, t (friction), net, hot (a mistake) or mut (a speed).
+  function arrow(x1, y1, x2, y2, c) {
+    const L = Math.hypot(x2 - x1, y2 - y1);
+    if (L < 1) return 0;
+    const ux = (x2 - x1) / L, uy = (y2 - y1) / L, hl = Math.min(c === 'net' ? 11 : 9, L * 0.6), hw = hl * 0.5;
+    ln(x1, y1, x2 - ux * hl * 0.7, y2 - uy * hl * 0.7, 'ar-' + c + ' av');
+    pa('M' + r2(x2) + ' ' + r2(y2) + 'L' + r2(x2 - ux * hl - uy * hw) + ' ' + r2(y2 - uy * hl + ux * hw) + 'L' + r2(x2 - ux * hl + uy * hw) + ' ' + r2(y2 - uy * hl - ux * hw) + 'Z', 'ah-' + c + ' av');
+    if (c === 'hot') hot();
+    return L;
+  }
+  // A time graph's frame: axes, ticks, a title, drawn to scale. Returns its X(t) and Y(value).
+  const GX0 = 52, GX1 = 324;
+  function frameT(o) {
+    const lo = o.vMin || 0;
+    const X = (t) => GX0 + t / o.tMax * (GX1 - GX0);
+    const Y = (v) => o.bottom - (v - lo) / (o.vMax - lo) * (o.bottom - o.top);
+    o.vTicks.forEach((v) => {
+      if (Math.abs(v) > 1e-9) ln(GX0, Y(v), GX1, Y(v), 'grid av');
+      tx(GX0 - 7, Y(v) + 4.5, nf(v), 'lab m', 'end');
+    });
+    ln(GX0, o.top - 4, GX0, o.bottom, 'axis av');
+    ln(GX0, Y(0), GX1, Y(0), 'axis av');
+    for (let t = 0; t <= o.tMax + 1e-9; t += o.tStep) ln(X(t), Y(0), X(t), Y(0) + 4, 'tick');
+    tx(GX0 + 6, o.top - 9, o.title, 'lab h', 'start');
+    return { X, Y };
+  }
+  function timeLabels(X, y, tMax, every) {
+    for (let t = 0; t <= tMax + 1e-9; t += every) {
+      const last = t > tMax - 1e-9;
+      tx(last ? X(t) + 9 : X(t), y, last ? nf(t) + ' s' : nf(t), 'lab m', last ? 'end' : 'middle');
+    }
+  }
+  // A crane trolley on the rail: body, two wheels, the words on its body.
+  function trolley(x, RY, words, a) {
+    part(a == null ? 1 : a, () => {
+      ci(x - 20, RY - 6, 6, 'wheel av'); ci(x + 20, RY - 6, 6, 'wheel av');
+      box(x - 32, RY - 36, 64, 24, 'body av', 4);
+      tx(x, RY - 19.5, words, 'lab sm', 'middle');
+    });
+  }
+  function rail(RY) { box(8, RY, 324, 6, 'rail av'); }
+  // A small beam turning about a pivot (a moment), its force at the far end; hotC marks a mistake.
+  function beamFig(x0, y0, len, ang, isHot) {
+    const c = Math.cos(ang), s = Math.sin(ang), ex = x0 + len * c, ey = y0 + len * s;
+    pa('M' + r2(x0) + ' ' + r2(y0 + 4) + 'L' + r2(x0 - 11) + ' ' + r2(y0 + 22) + 'L' + r2(x0 + 11) + ' ' + r2(y0 + 22) + 'Z', 'piv av');
+    pa(path([[x0 + 4 * s, y0 - 4 * c], [ex + 4 * s, ey - 4 * c], [ex - 4 * s, ey + 4 * c], [x0 - 4 * s, y0 + 4 * c]], true), (isHot ? 'beam-hot' : 'beam') + ' av');
+    arrow(ex - 4, ey - 34, ex - 4, ey - 6, isHot ? 'hot' : 'ink');
+    pa('M' + r2(x0 + 30) + ' ' + r2(y0 - 26) + 'A 36 36 0 0 1 ' + r2(x0 + 38) + ' ' + r2(y0 + 8), (isHot ? 'turn-hot' : 'turn') + ' av');
+    return { ex, ey };
+  }
+
+  // ---------- the trolley under its speed graph (and its net force graph) ----------
+  const SY0 = 24, SY1 = 124, FY0 = 214, FH = 56, PXS = (GX1 - GX0) / TMAX;
+  const AS = 0.06, alen = (f) => K.clamp(f * AS, 8, 110);
+  function railMax(d, q) {
+    let tot = runOf(q).total;
+    if (d.coastScene) tot = Math.max(tot, runOf(Object.assign({}, q, { friction: !q.friction })).total);
+    return [1, 2, 4, 8, 16].find((m) => m >= tot - 1e-9) || 16;
+  }
+  function drawRun(d) {
+    const q = norm(V), run = runOf(q), t = K.clamp(+V.time, 0, TMAX), s = stateAt(run, t);
+    const withF = !!d.force, RY = withF ? 362 : 208;
+    setH(withF ? 396 : 242);
+    const fa = DEMO && d.demo && d.demo.flip ? demoState(d, T).fade : 1;
+    REC.run = run; REC.state = s;
+    // the speed graph
+    const G = frameT({ top: SY0, bottom: SY1, tMax: TMAX, tStep: 2, vMax: 1, vTicks: [0, 0.5, 1], title: 'speed (m/s)' });
+    const X = G.X, Y = G.Y;
+    if (!withF) timeLabels(X, SY1 + 17, TMAX, 4);
+    // the area under the line so far: the distance covered
+    const sofar = linePts(run, t);
+    part(fa, () => pa(path([[X(0), Y(0)]].concat(sofar.map((p) => [X(p[0]), Y(p[1])]), [[X(t), Y(0)]]), true), 'area'));
+    // with friction off on screen 5, the run with friction stays as a dashed line to compare
+    if (d.coastScene && q.coast && !q.friction) {
+      const gr = runOf(Object.assign({}, q, { friction: true })), cg = gr.segs.find((g) => g.kind === 'coast');
+      pa(path(linePts(gr, TMAX, q.upEnd).map((p) => [X(p[0]), Y(p[1])])), 'ghost av');
+      if (cg) lab(X((cg.t0 + cg.t1) / 2) + 6, Y(q.top / 2) + 16, 'with friction', 'm', 'start');
+      REC.ghost = true;
+    }
+    // a slope triangle on each sloping part: the rise in speed over the time it took
+    run.segs.forEach((g) => {
+      if (g.kind === 'rest' || Math.abs(g.a) < 1e-12) return;
+      const v0 = g.v0, v1 = Math.max(0, g.v0 + g.a * (g.t1 - g.t0)), rise = v1 > v0;
+      const tri = rise ? [[g.t0, v0], [g.t0, v1], [g.t1, v1]] : [[g.t0, v0], [g.t1, v0], [g.t1, v1]];
+      part(g.kind === 'up' ? 1 : fa, () => pa(path(tri.map((p) => [X(p[0]), Y(p[1])]), true), 'tri av'));
+      lab((X(g.t0) + X(g.t1)) / 2, Y(Math.max(v0, v1)) - 7, (rise ? 'up ' : 'down ') + nf(Math.abs(v1 - v0), 2) + ' m/s in ' + nf(g.t1 - g.t0, 1) + ' s', '', 'middle', g.kind === 'up' ? 1 : fa);
+      REC.tris++;
+    });
+    // the speed line
+    pa(path(linePts(run, TMAX, 0).filter((p) => p[0] <= q.upEnd + 1e-9).map((p) => [X(p[0]), Y(p[1])])), 'vline av');
+    part(fa, () => pa(path(linePts(run, TMAX, q.upEnd).map((p) => [X(p[0]), Y(p[1])])), 'vline av'));
+    // the corners Dan drags
+    REC.corners = null;
+    if (d.drag && !q.coast) {
+      REC.corners = { A: [X(q.upEnd), Y(q.top)], B: [X(q.brakeStart), Y(q.top)], C: [X(q.brakeEnd), Y(0)] };
+      ['A', 'B', 'C'].forEach((k) => ci(REC.corners[k][0], REC.corners[k][1], 6, 'handle av'));
+    }
+    // the marker: where the trolley is now
+    part(fa, () => {
+      ln(X(t), SY0 - 2, X(t), SY1, 'marker av');
+      ci(X(t), Y(s.v), 4.5, 'mdot');
+    });
+    lab(Math.max(X(t / 2), GX0 + 44), SY1 - 10, fmtD(s.dist) + ' m so far', '', 'middle', fa);
+    REC.distLabel = fmtD(s.dist);
+    // the net force graph, on the same time line
+    if (withF) {
+      const R = forceRange(run);
+      const F = frameT({ top: FY0 - FH, bottom: FY0 + FH, vMin: -R, vMax: R, tMax: TMAX, tStep: 2, vTicks: [-R, -R / 2, 0, R / 2, R], title: 'net force (N)' });
+      timeLabels(X, FY0 + FH + 17, TMAX, 4);
+      const fp = forcePts(run);
+      pa(path(fp.filter((p) => p[0] <= q.upEnd + 1e-9).map((p) => [X(p[0]), F.Y(p[1])])), 'fline av');
+      part(fa, () => pa(path(fp.filter((p) => p[0] >= q.upEnd - 1e-9).map((p) => [X(p[0]), F.Y(p[1])])), 'fline av'));
+      part(fa, () => {
+        ln(X(t), FY0 - FH, X(t), FY0 + FH, 'marker av');
+        ci(X(t), F.Y(s.net), 4.5, 'mdot');
+      });
+      REC.forceFlat = fp.filter((p) => p[0] > q.upEnd + 1e-9 && p[0] < q.brakeStart - 1e-9).every((p) => p[1] === 0) || q.coast;
+      REC.forceY = (f) => F.Y(f);
+    }
+    // the trolley on its rail, where the area says it has got to
+    const Dm = railMax(d, q), ppm = 200 / Dm, XC = 96 + s.dist * ppm;
+    rail(RY);
+    for (let m = 0; m <= Dm + 1e-9; m += Dm > 8 ? 2 : 1) ln(96 + m * ppm, RY + 6, 96 + m * ppm, RY + 11, 'tick');
+    tx(96, RY + 25, '0', 'lab m', 'middle');
+    tx(296, RY + 25, nf(Dm) + ' m', 'lab m', 'middle');
+    trolley(XC, RY, '2000 kg', fa);
+    REC.trolleyX = XC; REC.ppm = ppm;
+    REC.driveL = 0; REC.netL = 0; REC.netDir = 0;
+    if (withF) forcesOn(XC, RY, s, fa);
+    const parts = q.coast
+      ? 'It speeds up to ' + nf(q.top) + ' m/s by ' + nf(q.upEnd) + ' s. Then the push goes' + (q.friction ? ', and friction slows it to rest at ' + nf(run.end) + ' s.' : ', and with no friction it rolls on to the end of the graph.')
+      : 'It speeds up to ' + nf(q.top) + ' m/s by ' + nf(q.upEnd) + ' s, runs steady until ' + nf(q.brakeStart) + ' s and brakes to rest at ' + nf(q.brakeEnd) + ' s.';
+    return 'A 2000 kg crane trolley on a level rail, under its speed-time graph' + (withF ? ' and its net force graph' : '') + '. ' + parts +
+      ' Shading under the speed line shows the distance covered so far' + (withF ? ', and arrows on the trolley show the forces along the rail.' : '.');
+  }
+  // The forces along the rail, each starting on the trolley, to one scale.
+  function forcesOn(x, RY, s, a) {
+    if (s.drive > 1e-9) {
+      const L = alen(s.drive); part(a, () => arrow(x + 33, RY - 24, x + 33 + L, RY - 24, 'ink'));
+      slot(0, x + 38 + L, RY - 20, 'drive ' + nf(s.drive, 0) + ' N', '', 'start', a); REC.driveL = L;
+    }
+    if (s.brake > 1e-9) {
+      const L = alen(s.brake); part(a, () => arrow(x - 33, RY - 24, x - 33 - L, RY - 24, 'ink'));
+      slot(1, x - 38 - L, RY - 20, 'brake ' + nf(s.brake, 0) + ' N', '', 'end', a);
+    }
+    if (s.fric > 1e-9) {
+      const L = alen(s.fric); part(a, () => arrow(x - 27, RY - 6, x - 27 - L, RY - 6, 't'));
+      slot(2, x - 27 - L / 2, RY + 22, 'friction ' + nf(s.fric, 0) + ' N', 't', 'middle', a);
+    }
+    if (Math.abs(s.net) > 1e-9) {
+      const L = alen(Math.abs(s.net)), dir = Math.sign(s.net);
+      part(a, () => arrow(x, RY - 46, x + dir * L, RY - 46, 'net'));
+      slot(3, x + dir * L / 2, RY - 54, 'net force', 'n', 'middle', a); REC.netL = L; REC.netDir = dir;
+    } else if (s.kind !== 'rest') slot(3, x, RY - 48, 'no net force', 'n', 'middle', a);
+  }
+
+  // ---------- the puzzles' graphs ----------
+  const PT = 34, PB = 184;
+  function pGraph(tMax) {
+    const G = frameT({ top: PT, bottom: PB, tMax, tStep: 1, vMax: 1, vTicks: [0, 0.5, 1], title: 'speed (m/s)' });
+    timeLabels(G.X, PB + 17, tMax, 1);
+    return G;
+  }
+  function drawSlopeP(d, st) {
+    setH(212);
+    const k = pickIndex(d, st), mk = k >= 0 ? d.marks[k] : null, aP = vis(0.15), G = pGraph(4), X = G.X, Y = G.Y;
+    if (mk === 'area') part(aP, () => { pa(path([[X(0), Y(0)], [X(3), Y(0.6)], [X(3), Y(0)]], true), 'hot-area av'); hot(); });
+    if (mk === 'slope') part(aP, () => pa(path([[X(0), Y(0)], [X(0), Y(0.6)], [X(3), Y(0.6)]], true), 'tri av'));
+    ln(X(3), Y(0.6), X(3), Y(0), 'ref av');
+    pa(path([[X(0), Y(0)], [X(3), Y(0.6)]]), 'vline av');
+    ci(X(3), Y(0.6), 4.5, 'vdot');
+    lab(X(3) + 8, Y(0.6) + 4, '0.6 m/s', '', 'start');
+    if (mk === 'slope') lab(X(1.5), Y(0.6) - 8, 'up 0.6 m/s in 3 s', '', 'middle', aP);
+    if (mk === 'steep') { part(aP, () => pa(path([[X(0), Y(0)], [X(0.2), Y(1)]]), 'hot-line av')); hot(); lab(X(0.2) + 8, Y(1) + 10, 'a slope of ' + N.p2w + ' m/s² is this steep', 'w', 'start', aP); }
+    if (mk === 'area') lab(X(1.95), Y(0.07), 'area ' + N.p2a + ' m', 'w', 'middle', aP);
+    REC.ans = k >= 0; REC.bal = k >= 0 ? mk === 'slope' : null;
+    return 'A speed-time graph. The speed rises steadily from rest to 0.6 m/s in 3 s.' + (mk === 'slope' ? ' A triangle marks the rise, 0.6 m/s, over the 3 s it took.' : mk === 'steep' ? ' A much steeper red line shows a slope of 5 m/s².' : mk === 'area' ? ' The area under the line is shaded red.' : '');
+  }
+  function drawBrakeP(d, st) {
+    setH(212);
+    const k = pickIndex(d, st), mk = k >= 0 ? d.marks[k] : null, aP = vis(0.15), G = pGraph(5), X = G.X, Y = G.Y;
+    if (mk === 'area') part(aP, () => pa(path([[X(0), Y(0)], [X(0), Y(0.4)], [X(4), Y(0)]], true), 'area av'));
+    if (mk === 'kept') part(aP, () => { box(X(0), Y(0.4), X(4) - X(0), Y(0) - Y(0.4), 'hot-rect av'); hot(); });
+    if (mk === 'slope') part(aP, () => { pa(path([[X(0), Y(0.4)], [X(4), Y(0.4)], [X(4), Y(0)]], true), 'hot-area av'); hot(); });
+    pa(path([[X(0), Y(0.4)], [X(4), Y(0)]]), 'vline av');
+    ci(X(0), Y(0.4), 4.5, 'vdot'); ci(X(4), Y(0), 4.5, 'vdot');
+    lab(X(0) + 10, Y(0.4) - 9, '0.4 m/s', '', 'start');
+    lab(X(4) + 8, Y(0) - 10, 'at rest', '', 'start');
+    if (mk === 'area') lab(X(1.15), Y(0.06), 'area ' + N.p4 + ' m', '', 'middle', aP);
+    if (mk === 'kept') lab(X(2), Y(0.4) - 9, N.p4k + ' m if it kept 0.4 m/s', 'w', 'middle', aP);
+    if (mk === 'slope') lab(X(2.6), Y(0.4) - 9, '0.4 ÷ 4 is the slope', 'w', 'middle', aP);
+    REC.ans = k >= 0; REC.bal = k >= 0 ? mk === 'area' : null;
+    return 'A speed-time graph. The speed falls steadily from 0.4 m/s to rest in 4 s.' + (mk === 'area' ? ' The triangle under the line is shaded.' : mk === 'kept' ? ' A red rectangle shows 0.4 m/s kept for 4 s.' : mk === 'slope' ? ' A red triangle marks the slope.' : '');
+  }
+  function drawSlope2P(d, st) {
+    setH(212);
+    const k = pickIndex(d, st), mk = k >= 0 ? d.marks[k] : null, aP = vis(0.15), G = pGraph(5), X = G.X, Y = G.Y;
+    if (mk === 'change') part(aP, () => pa(path([[X(0), Y(0.2)], [X(0), Y(0.8)], [X(4), Y(0.8)]], true), 'tri av'));
+    pa(path([[X(0), Y(0.2)], [X(4), Y(0.8)]]), 'vline av');
+    ci(X(0), Y(0.2), 4.5, 'vdot'); ci(X(4), Y(0.8), 4.5, 'vdot');
+    lab(X(0) + 10, Y(0.2) + 16, '0.2 m/s', '', 'start');
+    lab(X(4) + 8, Y(0.8) + 4, '0.8 m/s', '', 'start');
+    if (mk === 'change') lab(X(2), Y(0.8) - 9, 'up ' + N.p14d + ' m/s in 4 s', '', 'middle', aP);
+    if (mk === 'end') {
+      part(aP, () => { ln(X(4.4), Y(0), X(4.4), Y(0.8), 'hot-line av'); ln(X(4.4) - 5, Y(0), X(4.4) + 5, Y(0), 'hot-line av'); ln(X(4.4) - 5, Y(0.8), X(4.4) + 5, Y(0.8), 'hot-line av'); hot(); });
+      lab(X(4.4) - 8, Y(0.3), 'from rest: 0.8 m/s', 'w', 'end', aP);
+    }
+    if (mk === 'notime') {
+      part(aP, () => { ln(X(4.4), Y(0.2), X(4.4), Y(0.8), 'hot-line av'); ln(X(4.4) - 5, Y(0.2), X(4.4) + 5, Y(0.2), 'hot-line av'); ln(X(4.4) - 5, Y(0.8), X(4.4) + 5, Y(0.8), 'hot-line av'); hot(); });
+      lab(X(4.4) - 8, Y(0.3), 'the change, with no time', 'w', 'end', aP);
+    }
+    REC.ans = k >= 0; REC.bal = k >= 0 ? mk === 'change' : null;
+    return 'A speed-time graph. The speed rises steadily from 0.2 to 0.8 m/s in 4 s.' + (mk === 'change' ? ' A triangle marks the rise, 0.6 m/s, over the 4 s it took.' : mk ? ' A red bracket marks a speed with no time.' : '');
+  }
+  function drawSplit() {
+    setH(212);
+    const G = pGraph(3), X = G.X, Y = G.Y, aR = vis(0.5), aT = vis(1.2), aS = vis(1.9);
+    part(aR, () => box(X(0), Y(0.5), X(2) - X(0), Y(0) - Y(0.5), 'area av'));
+    part(aT, () => pa(path([[X(0), Y(0.5)], [X(2), Y(0.5)], [X(2), Y(1)]], true), 'area3 av'));
+    pa(path([[X(0), Y(0.5)], [X(2), Y(1)]]), 'vline av');
+    ci(X(0), Y(0.5), 4.5, 'vdot'); ci(X(2), Y(1), 4.5, 'vdot');
+    lab(X(1), Y(0.25), 'rectangle ' + N.r3 + ' m', '', 'middle', aR);
+    lab(X(1.5), Y(0.58), N.t3 + ' m', '', 'middle', aT);
+    lab(X(2) + 8, Y(0.5) + 4, N.s3 + ' m in all', 'n', 'start', aS);
+    lab(X(0.5), Y(0.9), 'slope 0.25 m/s²', 'm', 'middle');
+    REC.split = [1, 0.5];
+    return 'A speed-time graph. The speed rises steadily from 0.5 to 1 m/s in 2 s. The area under it is shaded as a rectangle, 1 m, with a triangle, 0.5 m, on top: 1.5 m in all.';
+  }
+  function drawSteadyP(d, st) {
+    setH(176);
+    const k = pickIndex(d, st), mk = k >= 0 ? d.marks[k] : null, aP = vis(0.15), RY = 128, x = 150, S2 = 0.3;
+    rail(RY);
+    trolley(x, RY, '2000 kg');
+    arrow(x - 20, 40, x + 30, 40, 'mut');
+    lab(x + 36, 44, 'steady 0.5 m/s', 'm', 'start');
+    arrow(x + 33, RY - 24, x + 33 + 100 * S2, RY - 24, 'ink');
+    arrow(x - 27, RY - 6, x - 27 - 100 * S2, RY - 6, 't');
+    if (mk === 'bigger') {
+      part(aP, () => { arrow(x + 33, RY - 24, x + 33 + 200 * S2, RY - 24, 'hot'); arrow(x, RY - 46, x + 100 * S2, RY - 46, 'hot'); });
+      lab(x + 38 + 200 * S2, RY - 20, 'a bigger push', 'w', 'start', aP);
+      lab(x + 15, RY - 54, 'net force: it would speed up', 'w', 'middle', aP);
+    } else lab(x + 38 + 100 * S2, RY - 20, mk ? 'drive 100 N' : 'drive', '', 'start');
+    if (mk === 'none') {
+      part(aP, () => arrow(x - 27, RY - 6, x - 27 - 100 * S2, RY - 6, 'hot'));
+      lab(x - 27 - 50 * S2, RY + 22, 'friction still acts', 'w', 'middle', aP);
+    } else lab(x - 27 - 50 * S2, RY + 22, mk ? 'friction 100 N' : 'friction', 't', 'middle');
+    if (mk === 'equal') lab(x, RY - 50, 'no net force', 'n', 'middle', aP);
+    REC.ans = k >= 0; REC.bal = k >= 0 ? mk === 'equal' : null;
+    return 'A 2000 kg trolley running steady at 0.5 m/s on a level rail. An arrow shows its drive pushing forward, another friction holding it back.' + (mk === 'equal' ? ' The two are equal, 100 N each, so there is no net force.' : mk === 'bigger' ? ' A bigger red push leaves a net force forward.' : mk === 'none' ? ' The friction arrow is marked in red: it still acts.' : '');
+  }
+  function drawPushP(d, st) {
+    setH(186);
+    const k = pickIndex(d, st), mk = k >= 0 ? d.marks[k] : null, aP = vis(0.15), RY = 140, x = 96, S2 = 0.12;
+    rail(RY);
+    trolley(x, RY, '2000 kg');
+    arrow(x + 33, RY - 24, x + 33 + 600 * S2, RY - 24, 'ink');
+    lab(x + 38 + 600 * S2, RY - 20, 'drive 600 N', '', 'start');
+    arrow(x - 27, RY - 6, x - 27 - 100 * S2, RY - 6, 't');
+    lab(x - 27, RY + 22, 'friction 100 N', 't', 'middle');
+    if (mk) {
+      const F = mk === 'net' ? 500 : mk === 'alone' ? 600 : 700, c = mk === 'net' ? 'net' : 'hot';
+      part(aP, () => arrow(x, RY - 50, x + F * S2, RY - 50, c));
+      lab(x + 6, RY - 60, mk === 'net' ? 'net force ' + N.p8n + ' N' : mk === 'alone' ? '600 N: friction left out' : N.p8xF + ' N: friction added on', mk === 'net' ? 'n' : 'w', 'start', aP);
+      REC.netF = F;
+    }
+    REC.ans = k >= 0; REC.bal = k >= 0 ? mk === 'net' : null;
+    return 'A 2000 kg trolley on a level rail. Its drive pushes 600 N forward and friction holds it back with 100 N.' + (mk ? ' An arrow above it shows a net force of ' + (mk === 'net' ? N.p8n : mk === 'alone' ? '600' : N.p8xF) + ' N.' : '');
+  }
+  function drawMomP(d, st) {
+    const k = pickIndex(d, st), mk = k >= 0 ? d.marks[k] : null, aP = vis(0.15), RY = 96, x = 96;
+    setH(mk === 'moment' ? 262 : 206);
+    rail(RY);
+    trolley(x, RY, '1500 kg');
+    arrow(x - 20, 40, x + 30, 40, 'mut');
+    lab(x + 36, 44, '0.4 m/s', 'm', 'start');
+    tx(GX0 + 6, 136, 'momentum (kg m/s)', 'lab h', 'start');
+    box(GX0, 146, GX1 - GX0, 16, 'track', 2);
+    tx(GX0, 180, '0', 'lab m', 'middle'); tx(GX1, 180, '4000', 'lab m', 'middle');
+    const W = (p) => p / 4000 * (GX1 - GX0);
+    if (mk === 'mom') { part(aP, () => box(GX0, 146, W(600), 16, 'mbar av', 2)); lab(GX0 + W(600) + 8, 158, '1500 × 0.4 = ' + N.p10, 'n', 'start', aP); }
+    if (mk === 'div') { part(aP, () => { box(GX0, 146, W(3750), 16, 'mbar-hot av', 2); hot(); }); lab(GX0 + 8, 182, '1500 ÷ 0.4 = ' + N.p10w + ': mass ÷ speed', 'w', 'start', aP); }
+    if (mk === 'moment') {
+      part(aP, () => { beamFig(70, 236, 120, 0, true); hot(); });
+      lab(205, 230, 'N m is a moment,', 'w', 'start', aP);
+      lab(205, 246, 'a turning effect', 'w', 'start', aP);
+    }
+    REC.ans = k >= 0; REC.bal = k >= 0 ? mk === 'mom' : null;
+    return 'A 1500 kg trolley rolling at 0.4 m/s, with an empty momentum bar below it.' + (mk === 'mom' ? ' The bar is filled to 600 kg m/s.' : mk === 'div' ? ' A red bar reaches 3750, the mass divided by the speed.' : mk === 'moment' ? ' A red beam turning about a pivot shows what N m measures.' : '');
+  }
+  function drawPairP(d, st) {
+    setH(176);
+    const k = pickIndex(d, st), mk = k >= 0 ? d.marks[k] : null, aP = vis(0.15), RY = 128, xA = 120, xB = xA + 80;
+    rail(RY);
+    box(xA + 32, RY - 28, 8, 8, 'buf av'); box(xB - 40, RY - 28, 8, 8, 'buf av');
+    trolley(xA, RY, 'A'); trolley(xB, RY, 'B');
+    arrow(xB + 33, RY - 24, xB + 33 + CF * AS, RY - 24, 'ink');
+    lab(xB + 33 + CF * AS / 2, RY - 50, 'A on B 1000 N', '', 'middle');
+    if (!mk) lab(xA - 56, RY - 20, '?', 'big', 'middle');
+    if (mk === 'pair') { part(aP, () => arrow(xA - 33, RY - 24, xA - 33 - CF * AS, RY - 24, 'net')); lab(xA - 33 - CF * AS / 2, RY - 50, 'B on A 1000 N', 'n', 'middle', aP); }
+    if (mk === 'half') { part(aP, () => arrow(xA - 33, RY - 24, xA - 33 - 500 * AS, RY - 24, 'hot')); lab(xA - 33 - 500 * AS / 2, RY - 50, '500 N', 'w', 'middle', aP); }
+    if (mk === 'none') { hot(); lab(xA - 40, RY - 50, 'no push back on A?', 'w', 'middle', aP); }
+    REC.ans = k >= 0; REC.bal = k >= 0 ? mk === 'pair' : null;
+    return 'Trolley A pressing on trolley B through their buffers. A pushes B forward with 1000 N.' + (mk === 'pair' ? ' B pushes A back with 1000 N.' : mk === 'half' ? ' A red arrow shows B pushing A back with only 500 N.' : mk === 'none' ? ' Nothing is drawn pushing back on A.' : ' How hard B pushes on A is the question.');
+  }
+  function drawShareP(d, st) {
+    setH(212);
+    const k = pickIndex(d, st), mk = k >= 0 ? d.marks[k] : null, aP = vis(0.15), RY = 96;
+    rail(RY);
+    trolley(70, RY, '1000 kg'); trolley(240, RY, '3000 kg');
+    arrow(50, 40, 100, 40, 'mut'); lab(106, 44, '0.8 m/s', 'm', 'start');
+    lab(240, 44, 'still', 'm', 'middle');
+    tx(GX0 + 6, 132, 'momentum (kg m/s)', 'lab h', 'start');
+    const X0 = 70, W = (p) => p / 3200 * 210;
+    [['before', 142], ['after', 172]].forEach((r) => { tx(10, r[1] + 12, r[0], 'lab', 'start'); box(X0, r[1], 210, 16, 'track', 2); });
+    box(X0, 142, W(800), 16, 'mbar av', 2);
+    lab(X0 + W(800) + 8, 155, '1000 × 0.8 = ' + N.p13m, 'n', 'start');
+    if (mk != null) {
+      const p = 4000 * mk, ok = near(mk, 0.2);
+      part(aP, () => { box(X0, 172, W(p), 16, (ok ? 'mbar' : 'mbar-hot') + ' av', 2); if (!ok) hot(); });
+      lab(ok ? X0 + W(p) + 8 : X0 + 6, ok ? 185 : 204, '4000 × ' + nf(mk) + ' = ' + nf(p) + (ok ? ', the same' : ': more than before'), ok ? 'n' : 'w', 'start', aP);
+      REC.after = p;
+    }
+    REC.ans = k >= 0; REC.bal = k >= 0 ? near(mk, 0.2) : null;
+    return 'A 1000 kg trolley at 0.8 m/s about to couple to a still 3000 kg trolley. A bar shows the momentum before, 800 kg m/s.' + (mk != null ? ' A second bar shows 4000 kg at ' + nf(mk) + ' m/s.' : '');
+  }
+
+  // ---------- impulse and momentum (screen 9) ----------
+  function drawImpulse() {
+    setH(334);
+    const tS = 2 * K.clamp(T === Infinity ? 1 : (T - 0.4) / 2, 0, 1), aL = vis(2.4), aB = vis(2.7);
+    const ang = -0.16 * (T === Infinity ? 1 : K.ease(K.clamp((T - 2.9) / 1.0, 0, 1)));
+    const F = frameT({ top: 30, bottom: 130, vMin: -1000, vMax: 1000, tMax: 8, tStep: 1, vTicks: [-1000, 0, 1000], title: 'net force (N)' });
+    timeLabels(F.X, 147, 8, 2);
+    if (tS > 0) pa(path([[F.X(0), F.Y(0)], [F.X(0), F.Y(500)], [F.X(tS), F.Y(500)], [F.X(tS), F.Y(0)]], true), 'imp av');
+    pa(path([[0, 500], [2, 500], [2, 0], [6, 0], [6, -500], [8, -500], [8, 0]].map((p) => [F.X(p[0]), F.Y(p[1])])), 'fline av');
+    lab(F.X(0) + 4, F.Y(500) - 9, '500 N × 2 s = ' + N.imp + ' N s', '', 'start', aL);
+    // the momentum it gives: mass × speed, growing while the force acts
+    tx(GX0 + 6, 172, 'momentum (kg m/s)', 'lab h', 'start');
+    box(GX0, 182, GX1 - GX0, 16, 'track', 2);
+    const pNow = M * 0.25 * tS;
+    box(GX0, 182, pNow / 1200 * (GX1 - GX0), 16, 'mbar av', 2);
+    tx(GX0, 214, '0', 'lab m', 'middle');
+    lab(188, 216, '2000 × 0.5 = ' + N.mom, 'n', 'middle', aL);
+    REC.mom = pNow;
+    // and a moment, which is not momentum: a beam turning about a pivot
+    part(aB, () => beamFig(60, 284, 110, ang, false));
+    lab(200, 262, 'a moment:', 't', 'start', aB);
+    lab(200, 278, 'force × distance,', 't', 'start', aB);
+    lab(200, 294, 'in N m', 't', 'start', aB);
+    return 'A net force graph: 500 N for the first 2 s is shaded, an area of 1000 N s. Below it a bar shows the trolley\'s momentum, 1000 kg m/s. Beside a small beam turning about a pivot, a label says a moment is force × distance, in N m.';
+  }
+
+  // ---------- couple up (screen 11) ----------
+  function drawCouple() {
+    setH(246);
+    const u = T === Infinity ? 3 : K.clamp(T - 0.4, 0, 3), c = coupleAt(u), RY = 112;
+    rail(RY);
+    const comp = Math.max(0, (c.xA + 40) - (c.xB - 40)), bl = 8 - comp / 2;
+    box(c.xA + 32, RY - 28, bl, 8, 'buf av'); box(c.xB - 32 - bl, RY - 28, bl, 8, 'buf av');
+    trolley(c.xA, RY, 'A'); trolley(c.xB, RY, 'B');
+    const aF = K.arrive(u, CC, 0.1) * (1 - K.arrive(u, CC + CP, 0.12));
+    if (aF > 0) {
+      part(aF, () => { arrow(c.xA - 33, RY - 24, c.xA - 33 - CF * AS, RY - 24, 'ink'); arrow(c.xB + 33, RY - 24, c.xB + 33 + CF * AS, RY - 24, 'ink'); });
+      lab(c.xA - 33 - CF * AS / 2, RY - 52, 'B on A ' + N.cF + ' N', '', 'middle', aF);
+      lab(c.xB + 33 + CF * AS / 2, RY - 52, 'A on B ' + N.cF + ' N', '', 'middle', aF);
+    }
+    const aPre = 1 - K.arrive(u, CC, 0.2), aPost = K.arrive(u, CC + CP, 0.3);
+    lab(c.xA, RY - 50, '0.5 m/s', 'm', 'middle', aPre);
+    lab(c.xB, RY - 50, 'still', 'm', 'middle', aPre);
+    lab((c.xA + c.xB) / 2, RY - 50, 'together ' + N.cV + ' m/s', 'm', 'middle', aPost);
+    // momentum: A's falls as B's grows, and the total stays the same
+    tx(GX0 + 6, 150, 'momentum (kg m/s)', 'lab h', 'start');
+    const X0 = 64, W = 216;
+    [['A', c.pA, 160, 'mbar'], ['B', c.pB, 184, 'mbar'], ['total', c.pA + c.pB, 208, 'mbar-mut']].forEach((r) => {
+      tx(10, r[2] + 12, r[0], 'lab', 'start');
+      box(X0, r[2], W, 14, 'track', 2);
+      box(X0, r[2], r[1] / 1000 * W, 14, r[3] + ' av', 2);
+      tx(332, r[2] + 12, nf(Math.round(r[1])), 'lab', 'end');
+    });
+    REC.c = c;
+    return 'Trolley A, 2000 kg, rolling at 0.5 m/s into trolley B, 2000 kg and still. Their buffers press for 0.5 s with 1000 N on each, pointing away from the other. Bars show A\'s momentum falling from 1000 to 500 kg m/s, B\'s rising from 0 to 500, and the total staying 1000. The pair roll on together at 0.25 m/s.';
+  }
+
+  // ---------- one picture for the step now ----------
+  function render(i, st) {
+    const d = STEPS[i];
+    art.textContent = ''; arl.textContent = ''; labs.textContent = ''; into = null; LAB = []; SLOTS = [];
+    REC = { texts: [], H: 0, hot: 0, ans: false, bal: null, tris: 0, corners: null, ghost: false };
+    const words = d.scene === 'run' ? drawRun(d) : d.scene === 'slopeP' ? drawSlopeP(d, st) : d.scene === 'brakeP' ? drawBrakeP(d, st)
+      : d.scene === 'split' ? drawSplit() : d.scene === 'steadyP' ? drawSteadyP(d, st) : d.scene === 'pushP' ? drawPushP(d, st)
+      : d.scene === 'impulse' ? drawImpulse() : d.scene === 'momP' ? drawMomP(d, st) : d.scene === 'couple' ? drawCouple()
+      : d.scene === 'pairP' ? drawPairP(d, st) : d.scene === 'shareP' ? drawShareP(d, st) : drawSlope2P(d, st);
+    flushLabels();
+    fig.setAttribute('aria-label', words);
+    const live = !finished && i === at() && !!REC.corners;
+    fig.classList.toggle('drag', live);
+    ['A', 'B', 'C'].forEach((k) => {
+      const g = GRIPS[k];
+      g.style.display = live ? '' : 'none';
+      if (live) { g.setAttribute('cx', r2(REC.corners[k][0])); g.setAttribute('cy', r2(REC.corners[k][1])); }
+    });
+    return REC;
+  }
+
+  // ---------- Dan drags the corners of the speed graph ----------
+  function svgPt(e) {
+    const m = fig.getScreenCTM();
+    if (!m) return null;
+    return new DOMPoint(e.clientX, e.clientY).matrixTransform(m.inverse());
+  }
+  let held = null;
+  function setQuiet(id, v) { if (!same(+CTL[id].get(), v)) { CTL[id].set(v, true); return true; } return false; }
+  function dragTo(k, pt) {
+    const q = norm(K.params()), t = (pt.x - GX0) / PXS, v = (SY1 - pt.y) / 100, h = (x) => Math.round(x * 2) / 2;
+    const top = K.clamp(Math.round(v * 10) / 10, 0.1, 1);
+    let ch = false;
+    if (k === 'A') { ch = setQuiet('upEnd', K.clamp(h(t), 1, Math.min(6, q.brakeStart))) || ch; ch = setQuiet('top', top) || ch; }
+    if (k === 'B') { ch = setQuiet('brakeStart', K.clamp(h(t), Math.max(q.upEnd, q.brakeEnd - 6), q.brakeEnd - 1)) || ch; ch = setQuiet('top', top) || ch; }
+    if (k === 'C') ch = setQuiet('brakeEnd', K.clamp(h(t), q.brakeStart + 1, Math.min(TMAX, q.brakeStart + 6))) || ch;
+    if (ch) K.refresh();
+  }
+  ['A', 'B', 'C'].forEach((k) => {
+    const g = GRIPS[k];
+    g.addEventListener('pointerdown', (e) => {
+      if (!REC || !REC.corners || finished) return;
+      const pt = svgPt(e);
+      if (!pt) return;
+      // corners close together: wait for the first move to say which one he means
+      const close = ['A', 'B', 'C'].filter((j) => Math.hypot(REC.corners[j][0] - pt.x, REC.corners[j][1] - pt.y) < 24);
+      held = { id: e.pointerId, k: close.length > 1 ? null : k, close, x: pt.x, y: pt.y };
+      try { g.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows while the pointer stays on the grip */ }
+      e.preventDefault();
+      K.reveal();
+    });
+    g.addEventListener('pointermove', (e) => {
+      if (!held || held.id !== e.pointerId || !REC || !REC.corners) return;
+      e.preventDefault();
+      const pt = svgPt(e);
+      if (!pt) return;
+      if (!held.k) {
+        const dx = pt.x - held.x, dy = pt.y - held.y;
+        if (Math.hypot(dx, dy) < 4) return;
+        const c = held.close.slice().sort((a, b) => REC.corners[a][0] - REC.corners[b][0]);
+        if (Math.abs(dy) > Math.abs(dx)) held.k = c.indexOf('B') >= 0 ? 'B' : c[0];
+        else held.k = dx > 0 ? c[c.length - 1] : c[0];
+      }
+      dragTo(held.k, pt);
+    });
+    const letGo = (e) => { if (held && held.id === e.pointerId) held = null; };
+    g.addEventListener('pointerup', letGo);
+    g.addEventListener('pointercancel', letGo);
+    g.addEventListener('lostpointercapture', () => { held = null; });
+  });
+
+  // ---------- the words under the picture ----------
+  const a2 = (v) => K.fmt(v, { decimals: 2 });
+  const f0 = (v) => K.fmt(v, { decimals: 0 });
+  function sayFor(d, p) {
+    const q = norm(p), run = runOf(q), s = stateAt(run, +p.time), D = fmtD(s.dist);
+    if (d.coastScene) {
+      if (q.coast && q.friction) return 'The push goes at ' + nf(q.upEnd) + ' s. Then friction is the only force along the rail, 100 N backwards. It slows the trolley at ' + nf(FR / M) + ' m/s² until it stops at ' + nf(run.end) + ' s.';
+      if (q.coast) return 'The push goes at ' + nf(q.upEnd) + ' s, and with no friction nothing acts along the rail. The net force is zero, so the trolley rolls on at ' + nf(q.top) + ' m/s.';
+      if (q.friction) return 'With the push kept on, the drive matches friction\'s 100 N while the trolley runs steady. So the net force is zero.';
+      return 'With no friction, the drive pushes only while the speed changes. Running steady, the trolley needs no push at all.';
+    }
+    const exact = near(Math.abs(s.a) * 100, Math.round(Math.abs(s.a) * 100), 1e-6);
+    if (d.force) {
+      if (s.kind === 'up') return 'Speeding up at ' + a2(s.a) + ' m/s² takes ' + (exact ? '2000 × ' + a2(s.a) + ' = ' : '') + f0(s.net) + ' N of net force. The drive gives ' + f0(s.drive) + ' N, as friction takes 100 N.';
+      if (s.kind === 'steady') return 'Running steady, so the net force is zero. The drive pushes 100 N, just enough to match friction.';
+      if (s.kind === 'brake') return s.brake > 0 || s.drive === 0
+        ? 'Braking at ' + a2(-s.a) + ' m/s² takes ' + f0(-s.net) + ' N of net force backwards. Friction gives 100 N of it, and the brake ' + f0(s.brake) + ' N.'
+        : 'Braking this gently takes only ' + f0(-s.net) + ' N backwards. Friction alone would take 100 N, so the drive still pushes ' + f0(s.drive) + ' N.';
+      return 'Stopped. Its speed no longer changes, so the net force is zero.';
+    }
+    if (s.kind === 'up') return 'Speeding up: ' + nf(q.top) + ' m/s gained in ' + nf(q.upEnd) + ' s, a slope of ' + a2(s.a) + ' m/s². ' + D + ' m covered so far.';
+    if (s.kind === 'steady') return 'Running steady at ' + nf(q.top) + ' m/s, so the slope is zero. Each second adds ' + nf(q.top) + ' m. ' + D + ' m covered so far.';
+    if (s.kind === 'brake') return 'Braking: ' + nf(q.top) + ' m/s lost in ' + nf(q.brakeEnd - q.brakeStart) + ' s, a slope of ' + a2(s.a) + ' m/s². ' + D + ' m covered so far.';
+    return 'At rest after ' + D + ' m. The whole area under the line is the distance it covered.';
+  }
+  function layout(i, d, st, p) {
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('lead').hidden = finished || i !== 0;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length + ' · ' + d.name;
+    const task = el('task');
+    task.className = 'task say' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    const vs = d.vis || [];
+    el('c-time').hidden = vs.indexOf('time') < 0;
+    el('c-fric').hidden = vs.indexOf('fric') < 0;
+    el('live').hidden = !d.live;
+    playBtn.setLabel(RUN ? 'Pause' : 'Play');
+    pushBtn.el.hidden = vs.indexOf('push') < 0;
+    pushBtn.setLabel(p.coast ? 'Give the push back' : 'Take the push away');
+    const outs = d.live ? d.outs || [] : [];
+    el('outs').hidden = !outs.length;
+    RO.forEach((r, k) => { r.el.hidden = outs.indexOf(RID[k]) < 0; });
+    el('say').hidden = !d.live;
+    el('say').textContent = d.live ? nb(sayFor(d, p)) : '';
+    const opts = d.show ? [] : d.opts;
+    el('picks').hidden = !opts.length;
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(nb(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    el('acts').hidden = !!d.show;
+    el('replay').hidden = finished || !(d.show && d.arrive) || REDUCE;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb say' + (right ? ' right' : '');
+    fb.textContent = d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? nb(d.hints[st.pick] || '') : st.res === 'empty' ? 'Pick an answer first.' : '';
+    const why = el('why');
+    why.hidden = !!d.show || !st.why;
+    if (!d.show) write(why, d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  }
+
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!motion.playing() && (DEMO || RUN || T !== Infinity)) { settle(); K.refresh(); return; }
+    if (i !== lastStep) { enterStep(i); K.refresh(); return; }
+    // Dan took hold of the time slider while it was running.
+    if ((DEMO || RUN) && !same(+p.time, K.clamp(q10(V.time), 0, TMAX))) { DEMO = null; RUN = null; T = Infinity; }
+    // A setting this screen does not let him change keeps the screen's own; the corners stay a valid run.
+    const q = setupOf(i), n = norm(p);
+    let fix = false;
+    CIDS.forEach((id) => {
+      if (shows(d, id)) return;
+      if (!same(p[id], q[id])) { CTL[id].set(q[id], true); fix = true; }
+    });
+    ['top', 'upEnd', 'brakeStart', 'brakeEnd'].forEach((id) => { if (!same(+CTL[id].get(), n[id])) { CTL[id].set(n[id], true); fix = true; } });
+    if (fix) { K.refresh(); return; }
+    CIDS.forEach((id) => { if (id !== 'time' || (!DEMO && !RUN)) V[id] = typeof BASE[id] === 'number' ? +p[id] : p[id]; });
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    render(i, st);
+    layout(i, d, st, p);
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  function drawnAt(i, st, over) {
+    const keep = { T, V: Object.assign({}, V), DEMO, RUN };
+    T = Infinity; DEMO = null; RUN = null;
+    V = Object.assign(setupOf(i), over || {});
+    try { return render(i, st || blank()); }
+    finally { T = keep.T; V = keep.V; DEMO = keep.DEMO; RUN = keep.RUN; render(at(), S[at()]); }
+  }
+  const answer = (i, o) => ({ pick: o, res: o === STEPS[i].want ? 'right' : 'wrong', why: false });
+  const S5 = idx('Take the push away'), S7 = idx('The net force graph');
+  K.check('The opening run: at 1 s the speed is 0.25 m/s, the acceleration 0.25 m/s² and the net force 500 N; at 4 s it is 0.5 m/s with none; at 7 s it is 0.25 m/s, −0.25 m/s² and −500 N', () => {
+    const a = K.at({ time: 1 }), b = K.at({ time: 4 }), c = K.at({ time: 7 });
+    return K.near(a.speed, 0.25, 1e-9) && K.near(a.accel, 0.25, 1e-9) && K.near(a.netForce, 500, 1e-6) &&
+      K.near(b.speed, 0.5, 1e-9) && b.accel === 0 && b.netForce === 0 &&
+      K.near(c.speed, 0.25, 1e-9) && K.near(c.accel, -0.25, 1e-9) && K.near(c.netForce, -500, 1e-6);
+  });
+  K.check('The area is the distance: 0.5 m by 2 s, 2.5 m by 6 s, 3 m by 8 s; screen 3 splits 1.5 m into a 1 m rectangle and a 0.5 m triangle, the same as the average speed times the time', () => {
+    const r = runOf(norm(BASE));
+    return K.near(stateAt(r, 2).dist, 0.5, 1e-9) && K.near(stateAt(r, 6).dist, 2.5, 1e-9) && K.near(stateAt(r, 8).dist, 3, 1e-9) &&
+      N.r3 === '1' && N.t3 === '0.5' && N.s3 === '1.5' && K.near(0.5 * (0.5 + 1) * 2, 1.5, 1e-12) && drawnAt(idx('Split the area'), blank()).split.join() === '1,0.5';
+  });
+  K.check('Summed in thin strips, the area under the speed line matches the distance the trolley is drawn at, for every corner setting', () => {
+    for (const top of [0.1, 0.5, 1]) for (const upEnd of [1, 3.5, 6]) for (const brakeEnd of [8, 12]) {
+      const r = runOf(norm({ top, upEnd, brakeStart: 7, brakeEnd, friction: true, coast: false }));
+      let A = 0;
+      const n = 1600;
+      for (let k = 0; k < n; k++) A += stateAt(r, (k + 0.5) * TMAX / n).v * TMAX / n;
+      if (!K.near(A, stateAt(r, TMAX).dist, 1e-6)) return false;
+    }
+    const d = drawnAt(0, blank(), { time: 6 });
+    return d.distLabel === '2.5' && K.near(d.trolleyX, 96 + 2.5 * d.ppm, 1e-6);
+  });
+  K.check('The force graph follows the slope: measured from the speed line itself, the net force is the mass times its slope at every moment and every corner setting', () => {
+    for (const top of [0.1, 0.6, 1]) for (const upEnd of [1, 3.5, 6]) for (const brakeEnd of [8, 12]) {
+      const r = runOf(norm({ top, upEnd, brakeStart: 7, brakeEnd, friction: true, coast: false }));
+      for (let t = 0; t < TMAX - 0.1; t += 0.25) {
+        const h = 1e-4, s0 = stateAt(r, t), s1 = stateAt(r, t + h);
+        if (!K.near(s0.net, M * (s1.v - s0.v) / h, 1e-3)) return false;
+      }
+    }
+    return true;
+  });
+  K.check('Any object moving at constant velocity has no net external force acting upon it: wherever the speed line is flat, at every top speed, the net force is zero, the force graph drawn sits on its zero line and no net force arrow is drawn', () => {
+    for (const top of [0.1, 0.3, 0.5, 0.8, 1]) for (const time of [2, 3, 4.5, 5.9]) {
+      const o = K.at({ top, time });
+      if (o.netForce !== 0 || !K.near(o.speed, top, 1e-9)) return false;
+    }
+    const r = drawnAt(S7, blank(), { time: 4 });
+    return r.forceFlat === true && r.netL === 0;
+  }, { source: SRC.steady });
+  K.check('The acceleration of a system is directly proportional to and in the same direction as the net external force: at every corner setting and moment, the net force read is the mass times the acceleration, with the same sign', () => {
+    for (const top of [0.1, 0.5, 1]) for (const upEnd of [1, 2, 6]) for (const brakeEnd of [7, 8, 12]) for (const time of [0.5, 3, 6.5, 7.5, 13]) {
+      const o = K.at({ top, upEnd, brakeStart: 6, brakeEnd, time });
+      if (!K.near(o.netForce, M * o.accel, 1e-9) || Math.sign(o.netForce) !== Math.sign(o.accel)) return false;
+    }
+    return true;
+  }, { source: SRC.second });
+  K.check('A body in motion remains in motion at constant velocity unless acted on by a net external force: with the push gone and friction off, the trolley keeps its speed to the end of the graph with no net force; with friction on, it slows and stops', () => {
+    for (let time = 2; time <= TMAX + 1e-9; time += 0.5) {
+      const o = K.at({ step: S5, coast: true, friction: false, time });
+      if (!K.near(o.speed, 0.5, 1e-12) || o.netForce !== 0) return false;
+    }
+    return K.at({ step: S5, coast: true, friction: true, time: 12 }).speed === 0 && K.near(K.at({ step: S5, coast: true, friction: true, time: 7 }).netForce, -FR, 1e-9);
+  }, { source: SRC.first });
+  K.check('With the push gone and friction on, the speed falls at 100 ÷ 2000 = 0.05 m/s², so the trolley stops 10 s and 2.5 m later', () => {
+    const r = runOf(norm(Object.assign({}, BASE, { coast: true, friction: true }))), g = r.segs.find((x) => x.kind === 'coast');
+    return K.near(g.a, -0.05, 1e-12) && K.near(g.t1 - g.t0, 10, 1e-9) && K.near(stateAt(r, 12).dist - stateAt(r, 2).dist, 2.5, 1e-9) &&
+      N.dec === '0.05' && N.tStop === '10' && N.dStop === '2.5';
+  });
+  K.check('The drive gives the net force plus friction: 600 N while speeding up and 100 N while running steady; braking, the brake gives 400 N and friction 100 N; the drive arrow drawn is longer while speeding up', () => {
+    const r = runOf(norm(BASE)), a = stateAt(r, 1), b = stateAt(r, 4), c = stateAt(r, 7);
+    return K.near(a.drive, 600, 1e-9) && K.near(b.drive, 100, 1e-9) && K.near(c.brake, 400, 1e-9) && c.drive === 0 && K.near(c.fric, 100, 1e-9) &&
+      N.drive === '600' && N.brake === '400' && drawnAt(S7, blank(), { time: 1 }).driveL > drawnAt(S7, blank(), { time: 4 }).driveL;
+  });
+  K.check('Couple up: each buffer pushes 1000 N for 0.5 s; A\'s momentum falls from 1000 to 500 kg m/s as B\'s rises from 0 to 500, the total stays 1000 at every moment, and the pair roll on at 0.25 m/s', () => {
+    for (let u = 0; u <= 3 + 1e-9; u += 0.05) { const c = coupleAt(u); if (!K.near(c.pA + c.pB, 1000, 1e-9)) return false; }
+    const e = coupleAt(3), b = coupleAt(CC);
+    return K.near(b.pA, 1000, 1e-9) && b.pB === 0 && K.near(e.pA, 500, 1e-9) && K.near(e.pB, 500, 1e-9) && K.near(e.vA, 0.25, 1e-12) && K.near(e.vB, 0.25, 1e-12) &&
+      N.cF === '1000' && N.cV === '0.25' && N.cEach === '500' && N.cTot === '1000';
+  });
+  K.check('The worked numbers: 0.25 m/s², 0.5 m and 2 m; 0.2, 5 and 0.9; 1 m, 0.5 m and 1.5 m; 0.8, 1.6 and 0.1 m; 500, 600 and 400 N; 0.25, 0.3 and 0.35 m/s²; 1000 N s and 1000 kg m/s; 600 and 3750; 500 N; 0.2, 0.4 and 0.8 m/s; 300, 400 and 1200 N', () =>
+    N.a1 === '0.25' && N.s1 === '0.5' && N.s2 === '2' && N.p2 === '0.2' && N.p2w === '5' && N.p2a === '0.9' && N.v3 === '1' &&
+    N.p4 === '0.8' && N.p4k === '1.6' && N.p4s === '0.1' && N.F1 === '500' && N.p8 === '0.25' && N.p8w === '0.3' && N.p8x === '0.35' &&
+    N.imp === '1000' && N.mom === '1000' && N.p10 === '600' && N.p10w === '3750' && N.p12h === '500' && N.p13 === '0.2' && N.p13h === '0.4' &&
+    N.p13m === '800' && N.p14 === '300' && N.p14e === '400' && N.p14n === '1200' && N.p14a === '0.15' && N.safe === '2000');
+  K.check('Each puzzle offers three answers and accepts only its right one, every wrong answer has its own hint, nothing is marked before Check, and once checked only the right answer is drawn without red', () =>
+    DO.every((i) => {
+      const d = STEPS[i];
+      if (d.opts.length !== 3 || d.opts.indexOf(d.want) < 0 || d.opts.some((o) => o !== d.want && !d.hints[o])) return false;
+      const b = drawnAt(i, blank());
+      if (b.ans || b.hot) return false;
+      return d.opts.every((o) => { const r = drawnAt(i, answer(i, o)); return r.ans && (o === d.want ? r.bal === true && r.hot === 0 : r.bal === false && r.hot > 0); });
+    }));
+  K.check('Every demonstration starts after the screen\'s fade and ends within 5 s of its screen opening; an answer is drawn within 3 s of Check', () =>
+    STEPS.filter((d) => d.show).every((d) => demoStart(d) >= FADE && demoEnd(d) > demoStart(d) && demoEnd(d) <= 5) && ANS <= 3);
+
+  K.ready();
+</script>

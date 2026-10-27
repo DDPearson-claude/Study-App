@@ -1,0 +1,520 @@
+{
+  "iid": "i2",
+  "title": "Moments and beams",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the nearer trestle's reaction arrow grow, and the far one's shrink as its arm lengthens, when you move the chain block along the beam.",
+    "title": "The beam on two trestles",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Screen",
+        "min": 0,
+        "max": 13,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [
+      {
+        "id": "leftReaction",
+        "label": "Left trestle's reaction",
+        "unit": "kN",
+        "decimals": 2
+      },
+      {
+        "id": "rightReaction",
+        "label": "Right trestle's reaction",
+        "unit": "kN",
+        "decimals": 2
+      },
+      {
+        "id": "pivotMoment",
+        "label": "Moment each way",
+        "unit": "kN m",
+        "decimals": 2
+      }
+    ],
+    "whatAmILookingAt": "The picture runs over fourteen small screens. The main picture is a lifting beam resting on two trestles 4 m apart, with a chain block hanging from it. The block's load is an arrow pointing down. Each trestle pushes up on the beam. That push is its reaction, drawn as an arrow to scale with a readout in kN. Each trestle's arm is its distance from the block, marked along the beam. The block slides along the beam, from 0 to 4 m from the left trestle, in 0.25 m steps. It opens 1 m from the left trestle. A stepper sets its load from 1 to 8 kN, opening at an example 6 kN. Tapping a trestle takes moments about it. That trestle becomes the pivot. Its own arrow greys out, because it passes through the pivot and has no moment. Two bars then show the clockwise and anticlockwise totals. A readout gives the moment each way in kN m. Each is a force times its distance from the pivot. The bars match at every setting, because the beam does not turn. The right trestle's reaction is the total moment about the left trestle divided by 4 m. The left trestle's reaction is the total load less that. So the nearer trestle carries more. The far one pushes on the longer arm. With the block at the middle, 2 m along, each carries half. A switch adds the beam's own weight, an example 2 kN, as an arrow at its middle. Another switch swaps the block for the same load spread evenly over 2 m, drawn as a row of small arrows. Its middle sits where the block was. It stays between 1 m and 3 m, so the whole spread fits on the beam. Its total acts at its middle. So the reactions match the block's at that point. Screen 1 shows a spanner on a nut: 150 N at 0.3 m makes 45 N m, and the same push at 0.15 m makes 22.5 N m. Screen 2 asks for the moment of a 200 N pull on the end of a 0.5 m bar, slanted so its line passes 0.3 m from the pivot. Screen 3 shows a plank balanced on a pivot, with 400 N at 1.5 m on one side and 600 N at 1 m on the other: 600 N m each way. Screen 4 asks where a 600 N load must hang to balance 300 N at 2 m. Screen 5 shows the lifting beam. Its reactions change as the block moves. Screen 6 asks which trestle carries more with the block 1 m from the left. Screen 7 takes moments about the left trestle: 6 × 1 = 6 kN m. So the right carries 1.5 kN and the left 4.5 kN. Screen 8 asks what the right trestle carries with an 8 kN block 3 m from the left. Screen 9 adds the beam's own weight and the spread load. With the 2 kN beam, the reactions are 5.5 kN and 2.5 kN. Screen 10 asks the right trestle's reaction on a 6 m beam weighing 3 kN, with a 4 kN block 1.5 m from the left. Screen 11 shows two hands turning a valve wheel 0.4 m across. Each pulls 100 N the opposite way. That makes 40 N m about the centre, and about either hand. Screens 12 to 14 mix it all. First comes a 0.5 m wheel turned by 80 N each side. Then comes a 4 m beam weighing 2 kN, with 4 kN spread over its right half. Last comes a 4 kN pump and a 2 kN motor at the two ends of a 3 m skid. Where is their centre of gravity? Some screens show an idea and the rest ask you to try it. Each puzzle offers three answers. A wrong pick is drawn, so you can see where it goes wrong.",
+    "ignores": "The beam is drawn rigid, so it does not bend or sag. Each trestle touches it at one point. Real trestles touch over a small width. The load hangs still. A load that swings or is snatched up can pull harder than its weight. The beam's weight is drawn at its middle, which is true only of a uniform beam. This picture does not say whether the beam itself is strong enough. That is a different question.",
+    "numbers": [
+      {
+        "label": "Screen, 1 to 14 (the stepper)",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Span between the trestles, m",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Block position slider's lowest distance from left trestle, m",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Block position slider's highest distance from left trestle, m",
+        "value": 4,
+        "kind": "control"
+      },
+      {
+        "label": "Block position slider's step, m",
+        "value": 0.25,
+        "kind": "control"
+      },
+      {
+        "label": "Block's opening distance from left trestle, m",
+        "value": 1,
+        "kind": "control"
+      },
+      {
+        "label": "Load stepper's lowest load, kN",
+        "value": 1,
+        "kind": "control"
+      },
+      {
+        "label": "Load stepper's highest load, kN",
+        "value": 8,
+        "kind": "control"
+      },
+      {
+        "label": "Example block load, kN",
+        "value": 6,
+        "kind": "control"
+      },
+      {
+        "label": "Block's moment about the left trestle, kN m",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "Right trestle's reaction at the opening setting, kN",
+        "value": 1.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Left trestle's reaction at the opening setting, kN",
+        "value": 4.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Example beam's own weight, kN",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Middle of the beam, m from the left trestle",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Beam weight's moment about the left trestle, kN m",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Total moment about the left trestle with beam weight, kN m",
+        "value": 10,
+        "kind": "computed"
+      },
+      {
+        "label": "Right reaction with beam weight, kN",
+        "value": 2.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Left reaction with beam weight, kN",
+        "value": 5.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Length the spread load covers, m",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example spanner force, N",
+        "value": 150,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example spanner length, m",
+        "value": 0.3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Spanner's moment, N m",
+        "value": 45,
+        "kind": "computed"
+      },
+      {
+        "label": "Half the spanner distance, m",
+        "value": 0.15,
+        "kind": "computed"
+      },
+      {
+        "label": "Moment at half the distance, N m",
+        "value": 22.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 2 pull, N",
+        "value": 200,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 2 bar length, m",
+        "value": 0.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 2 right-angle distance to the pull's line, m",
+        "value": 0.3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 2 moment, N m",
+        "value": 60,
+        "kind": "computed"
+      },
+      {
+        "label": "Wrong pick: pull times bar length, N m",
+        "value": 100,
+        "kind": "computed"
+      },
+      {
+        "label": "Wrong pick: pull times the difference of distances, N m",
+        "value": 40,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 3 first load, N",
+        "value": 400,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 3 first distance, m",
+        "value": 1.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 3 second load, N",
+        "value": 600,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 3 second distance, m",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 3 moment each way, N m",
+        "value": 600,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 4 known load, N",
+        "value": 300,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 4 known distance, m",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 4 load to place, N",
+        "value": 600,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 4 answer distance, m",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 4 wrong pick: double distance, m",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 8 block load, kN",
+        "value": 8,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 8 block distance from left, m",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 8 right reaction, kN",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 8 left reaction and wrong pick, kN",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 8 wrong pick: half the load, kN",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 10 beam span, m",
+        "value": 6,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 10 beam weight, kN",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 10 block load, kN",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 10 block distance from left, m",
+        "value": 1.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 10 right reaction, kN",
+        "value": 2.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 10 left reaction, kN",
+        "value": 4.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 10 wrong pick: beam weight left out, kN",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 10 wrong pick: beam weight at the far end, kN",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 11 valve wheel width, m",
+        "value": 0.4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 11 each hand's pull, N",
+        "value": 100,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 11 couple's moment, N m",
+        "value": 40,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 12 wheel width, m",
+        "value": 0.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 12 each side's pull, N",
+        "value": 80,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 12 couple's moment, N m",
+        "value": 40,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 13 spread load, kN",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 13 beam weight, kN",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example span, m",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example beam weight, kN",
+        "value": 1.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example block load, kN",
+        "value": 8,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example block distance from left, m",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example block moment about left, kN m",
+        "value": 16,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example beam middle, m",
+        "value": 2.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example beam weight moment, kN m",
+        "value": 3.75,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example total moment about left, kN m",
+        "value": 19.75,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example right reaction, kN",
+        "value": 3.95,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example total load, kN",
+        "value": 9.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example left reaction, kN",
+        "value": 5.55,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example block distance from right, m",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example check moment about right, kN m",
+        "value": 27.75,
+        "kind": "computed"
+      },
+      {
+        "label": "Spread load's centre, lowest, m from left trestle",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Spread load's centre, highest, m from left trestle",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Each trestle's share with the block at the middle, kN",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Total load with beam weight, kN",
+        "value": 8,
+        "kind": "computed"
+      },
+      {
+        "label": "Valve wheel's half-width in explain, m",
+        "value": 0.2,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 2 sin of the angle between the bar and the pull",
+        "value": 0.6,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 14 pump load, kN",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 14 motor load, kN",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 14 skid length, m",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 14 motor's moment about the pump, kN m",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 14 total load, kN",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 14 centre of gravity from the pump, m",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 14 wrong pick: the middle of the skid, m",
+        "value": 1.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 14 wrong pick: nearer the lighter motor, m",
+        "value": 2,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "You have met a force's turning effect, its [[moment]], as F r sin θ. It is the force times its distance from the pivot, measured at right angles to the force's line. On a spanner, 150 N at 0.3 m gives 45 N m. Push at half the distance and you get half the turning effect. A force can slide along its own line without changing its moment.[^1] So slide it to the point on its line nearest the pivot. There, the distance to the pivot meets the line at right angles. That right-angle distance is the arm. A slanted pull on the end of a bar has a shorter arm than the bar. The arm is the bar's length times sin θ, where θ is the angle between the bar and the pull.\n\nWhen something stays still, its turning effects balance. Any leftover turning effect would start it turning, just as a leftover force would start it moving. The clockwise moments add up to the same as the anticlockwise moments.[^2] That is the [[principle of moments]]. It holds about any point you choose.[^3] That gives you a useful trick. Choose the point where an unknown force acts. That force then has no distance from the pivot, so its moment is zero and it drops out.\n\nTake a lifting beam resting on two trestles 4 m apart. An example 6 kN chain block hangs 1 m from the left trestle. Take moments about the left trestle. The block turns the beam clockwise with 6 × 1 = 6 kN m. The right trestle pushes up 4 m away, turning it anticlockwise. So its push times 4 must make 6 kN m. That means it carries 1.5 kN. The two up pushes must add to the load. So the left trestle carries 6 − 1.5 = 4.5 kN. The nearer trestle carries more. Take moments about the block to see why. The left push times 1 m must balance the right push times 3 m. So the left push is three times the right. Hang the block at the middle and they share it equally.\n\nThe beam has weight too. On a uniform beam, each half balances the other about the middle. So its whole weight acts as one force at its middle. Any evenly spread load acts the same way, as its total at its middle. Say this beam weighs 2 kN. About the left trestle it adds 2 × 2 = 4 kN m. That makes 6 + 4 = 10 kN m. So the right trestle carries 10 ÷ 4 = 2.5 kN. The left carries the rest of the 8 kN, which is 5.5 kN.\n\nThe point where a whole body's or a group's weight acts is its [[centre of gravity]]. Moments find it. Put a 4 kN pump and a 2 kN motor at the two ends of a 3 m skid. About the pump, the motor gives 2 × 3 = 6 kN m. Their 6 kN total must give the same 6 kN m. So it acts 6 ÷ 6 = 1 m from the pump. The heavier load pulls it toward itself. Before a lift, the hook goes over that point.\n\nTwo equal pulls in opposite directions, on different lines, add up to no push at all. They only turn. Such a pair is called a [[couple]]. Turn a valve wheel 0.4 m across with 100 N from each hand. About the centre, each hand gives 100 × 0.2, so the two give 40 N m. About one hand, the other gives 100 × 0.4, still 40 N m. A couple's moment is the same about any point. The twist a motor puts on its shaft is a couple too.\n\n**To find what each support carries, take moments about one support, so its own push drops out. Then make the up pushes add to the load.**"
+  },
+  "analogy": {
+    "text": "Think of a current divider: two parallel paths sharing one current. The path with less resistance takes the bigger share, in inverse proportion. A beam's two supports share a point load the same way. Each support's share is in inverse proportion to its distance from the load. Put the block 1 m from one trestle and 3 m from the other. The shares are then 3 to 1, just as 1 Ω and 3 Ω in parallel split a current 3 to 1.",
+    "breaks": "Now hang a load on an overhang, beyond a support. The far support then takes a negative share, because the load lifts that end. No pair of resistors splits a current like that. A trestle cannot hold anything down, so a heavy enough overhang load tips the beam."
+  },
+  "practice": {
+    "text": "- Before the lift, work out each support's share. An off-centre load puts most of its weight on the nearer support. Check that support against its rating, not against half the load.\n- Sketch the beam. Mark each support, and every load with its distance from the left support.\n- Put the beam's own weight at its middle. Put an evenly spread load's total at the middle of where it lies.\n- Take moments about the left support. Add up each load times its distance. A load beyond it counts the other way.\n- Divide by the span. That is the right support's reaction.\n- Take that from the total load. That is the left support's reaction.\n- Check by taking moments about the right support. The two sides should match.\n\n**Rule of thumb:** each support carries the load times the load's distance from the other support, divided by the span. A block a quarter of the way along puts three quarters of its load on the nearer support.\n\n**Worked example:** a 5 m beam on two trestles weighs an example 1.5 kN. An 8 kN chain block hangs 2 m from the left. About the left trestle, the block gives 8 × 2 = 16 kN m. The beam's weight sits at 2.5 m and gives 1.5 × 2.5 = 3.75 kN m. That is 19.75 kN m in all. So the right trestle carries 19.75 ÷ 5 = 3.95 kN. The total load is 9.5 kN. So the left carries 9.5 − 3.95 = 5.55 kN. Check about the right trestle: 5.55 × 5 = 27.75 kN m, and 8 × 3 + 1.5 × 2.5 = 27.75 kN m.\n\n**Common mistakes**\n- Using the length of a slanted bar instead of the distance at right angles to the force's line.\n- Leaving out the beam's own weight, or putting a uniform beam's weight anywhere but its middle.\n- Giving the bigger share to the far support because more beam sits on its side.\n- Forgetting the force check at the end. The reactions must add up to the total load."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+    {
+      "n": 1,
+      "title": "Statics: Moment of Force — Engineering Statics (Baker)",
+      "url": "https://engineeringstatics.org/moment-of-force.html",
+      "quote": "But notice that a force may be slid along its line-of-action without changing the moment, because neither the magnitude of the force nor the moment arm changes."
+    },
+    {
+      "n": 2,
+      "title": "Moments - Forces and movement - KS3 Physics - BBC Bitesize — BBC Bitesize",
+      "url": "https://www.bbc.co.uk/bitesize/articles/z96g3j6",
+      "quote": "The principle of moments states that for an object to be balanced the total clockwise moment must be equal to the total anti-clockwise moment."
+    },
+    {
+      "n": 3,
+      "title": "9.2 The Second Condition for Equilibrium - College Physics 2e | OpenStax — OpenStax",
+      "url": "https://openstax.org/books/college-physics-2e/pages/9-2-the-second-condition-for-equilibrium",
+      "quote": "The second condition for equilibrium holds for any choice of pivot point"
+    }
+  ]
+}

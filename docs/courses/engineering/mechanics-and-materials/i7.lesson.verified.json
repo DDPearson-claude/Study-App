@@ -1,0 +1,521 @@
+{
+  "iid": "i7",
+  "title": "Shafts, couplings, belts and gears",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the pump shaft's speed fall and torque rise by one ratio, while the teeth share one speed at the mesh and the power passes through, when you add teeth to the wheel.",
+    "title": "The gear pair",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Screen",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [
+      {
+        "id": "outSpeed",
+        "label": "Pump shaft speed",
+        "unit": "rev/min",
+        "decimals": 0
+      },
+      {
+        "id": "outTorque",
+        "label": "Pump shaft torque",
+        "unit": "N m",
+        "decimals": 0
+      },
+      {
+        "id": "powerOut",
+        "label": "Power out",
+        "unit": "kW",
+        "decimals": 2
+      }
+    ],
+    "whatAmILookingAt": "The picture runs over thirteen small screens. The main picture is a gear pair. An 11 kW motor turns at 1450 rev/min, which is 151.8 rad/s. On its shaft is a small gear, the pinion. It meshes with a bigger gear, the wheel, on the pump's shaft. Every tooth is the same size. Each tooth adds 4 mm of diameter. So the 20-tooth pinion is 80 mm across and the 100-tooth wheel is 400 mm across. A hollow ring on each gear's rim is its drag handle. Dragging it in or out changes the tooth count. Its size changes with it. The pinion runs from 12 to 40 teeth and opens at 20. The wheel runs from 12 to 120 teeth and opens at 100. An efficiency slider runs from 80% to 100% in 1% steps and opens at an example 95%. Each shaft carries a speed arrow and a torque arrow, drawn to scale. A dot sits where the teeth meet. Its label gives the speed of both gears' teeth there. At the opening settings that is 6.1 m/s. It is the pinion's 151.8 rad/s × its 0.04 m radius. It is also the wheel's 30.4 rad/s × its 0.2 m radius. A power bar runs from the motor, through the mesh, to the pump. It starts at 11 kW. It comes out smaller by the loss, which is shaded at the mesh. Its end is labelled with the share of the power that gets out. Here is the rule the picture works out. The wheel turns slower than the pinion by the gear ratio. That ratio is the wheel's teeth ÷ the pinion's teeth. The motor's torque is 11,000 W ÷ 151.8 rad/s = 72.4 N m. The pump shaft's torque is the motor's torque × the ratio × the efficiency. The power out is the power in × the efficiency. At the opening settings the ratio is 100 ÷ 20 = 5. The pump shaft turns at 1450 ÷ 5 = 290 rev/min. It carries 72.4 × 5 × 0.95 = 344 N m. The power out is 10.45 kW, so 550 W turns to heat. At 100% efficiency the pump shaft carries 362 N m and the power out is the full 11 kW. Give both gears equal teeth, and the speed and torque pass through unchanged, less the loss. With the wheel smaller than the pinion, the pump shaft speeds up and its torque falls. The two gears turn opposite ways, as their arrows show. Readouts give the pump shaft's speed in rev/min, its torque in N m and the power out in kW. On a narrow phone the three readouts wrap onto two lines. The gears turn 50 times slower than real. The readouts give real speeds. A Second pair switch adds a compound train. A second 20-tooth pinion on the wheel's shaft drives a 60-tooth wheel. The pump moves onto that last shaft. Its ratio is 3, so the whole train's ratio is 5 × 3 = 15. The pump shaft then turns at 96.7 rev/min. Each pair loses its own share. At 95% each, the train passes about 90%, which is 9.93 kW. The pump shaft then carries 981 N m. Two meshes turn the last shaft the same way as the motor. A Belt switch swaps the first gear pair for two pulleys and a belt. The pulleys keep the gears' diameters: 80 mm and 400 mm at the opening settings. The rim drags then set the pulley diameters, at 4 mm for each step. A dot on the belt moves at 6.1 m/s, the speed of both pulley rims. The belt is an open one, so both pulleys turn the same way. Screen 1 shows the opening gear pair turning. It recalls a 5 : 1 reduction as a ratio of speeds: 1450 rev/min in, 290 rev/min out. The mesh dot shows why. Each pinion tooth that passes the mesh pushes one wheel tooth past. So the pinion turns five times for one turn of the wheel. Screen 2 has a 15-tooth pinion at 1450 rev/min driving a 45-tooth wheel. It asks the wheel's speed. The answer is 483 rev/min, from 1450 ÷ 3. The wrong pick 4350 rev/min multiplies by the ratio. The wrong pick 1450 rev/min treats the gears as keeping the speed. Screen 3 shows the push at the mesh at 100% efficiency. The motor's 72.4 N m acts on the pinion's 0.04 m radius. So it pushes the tooth with 72.4 ÷ 0.04 = 1810 N. The wheel's tooth takes the same 1810 N. But that tooth sits 0.2 m from its centre. So the wheel's torque is 1810 × 0.2 = 362 N m. Screen 4 puts 20 N m on the pinion of the same 15 and 45-tooth pair, with no loss. It asks the wheel's torque. The answer is 60 N m. The wrong pick 6.7 N m divides the torque by the ratio. The wrong pick 20 N m passes the torque through unchanged. Screen 5 shows the power bar and the efficiency slider. At 100% the bar passes 11 kW straight through. At 95% it loses 550 W at the mesh. The pump shaft's torque drops from 362 N m to 344 N m. Screen 6 puts 15 kW into a 4 : 1 gearbox of 96% efficiency. It asks the power reaching the output shaft. The answer is 14.4 kW. The wrong pick 60 kW multiplies the power by the ratio. The wrong pick 15 kW leaves out the loss. Screen 7 turns on Second pair. The ratios multiply to 15. The pump shaft turns at 96.7 rev/min with 981 N m. Screen 8 has a compound train of a 4 : 1 pair then a 6 : 1 pair, driven at 1440 rev/min. It asks the output speed. The answer is 60 rev/min, from a ratio of 24. The wrong pick 144 rev/min adds the ratios to 10. The wrong pick 360 rev/min counts only the first pair. Screen 9 turns on Belt. The belt dot keeps pace with both pulley rims. The same ratio of 5 holds. Screen 10 has a 100 mm motor pulley at 1450 rev/min driving a 250 mm fan pulley by belt. It asks the fan's speed. The answer is 580 rev/min, from 1450 × 100 ÷ 250. The wrong pick 3625 rev/min turns the ratio upside down. The wrong pick 1450 rev/min treats a belt as keeping the speed. Screen 11 is a still drawing. It shows a coupling joining a motor shaft to a pump shaft, three ways. In the first the two centre lines lie in one straight line. In the second they meet at an angle, which is angular misalignment. In the third they are parallel but offset, which is parallel misalignment. The angle and the offset are drawn exaggerated. The words say what a coupling does, and that misalignment barely changes the motor's efficiency but brings wear and heat. Screens 12 and 13 mix it all. Screen 12 has a 4 kW motor at 960 rev/min driving a winch drum through a loss-free 4 : 1 gearbox. It asks the torque on the drum shaft. The answer is 159 N m. The drum turns at 240 rev/min, which is 25.13 rad/s. So its torque is 4000 ÷ 25.13 = 159 N m. The wrong pick 39.8 N m is the motor's own torque, passed through unchanged. The wrong pick 16.7 N m comes from 4000 ÷ 240, with the speed left in rev/min. Screen 13 has a pump whose coupling and bearings run hot after a refit. A check finds the two shafts parallel, but one sits 0.5 mm higher. It asks what is wrong. The right pick is parallel misalignment, because the centre lines must be one line. One wrong pick says nothing is wrong, as if parallel shafts were aligned. The other is angular misalignment. Some screens show an idea and the rest ask you to try it. Each puzzle offers three answers. A wrong pick is drawn, so you can see where it goes wrong.",
+    "ignores": "The teeth are drawn as simple blocks that touch at one point, on the circle where the gears meet. Real teeth are curved so they roll and slide smoothly. Often two pairs share the load at once. The efficiency is a setting, not worked out from the friction. A real gearbox's loss depends on its type, its load, its speed and its oil. The belt is drawn with no slip. A real flat or V-belt creeps a little under load. So its driven pulley runs slightly slower than the ratio says. The belt's tension and its side pull on the bearings are not shown. The shafts are drawn rigid. A real shaft twists a little under torque. How thick it must be is a calculation not shown here. The gears turn 50 times slower than real. The misalignment drawing exaggerates the angle and the offset.",
+    "numbers": [
+      {
+        "label": "Screen, 1 to 13 (the stepper)",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Motor's power, kW",
+        "value": 11,
+        "kind": "assumed"
+      },
+      {
+        "label": "Motor's power, W",
+        "value": 11000,
+        "kind": "assumed"
+      },
+      {
+        "label": "Motor's speed, rev/min",
+        "value": 1450,
+        "kind": "assumed"
+      },
+      {
+        "label": "Motor's speed, rad/s",
+        "value": 151.8,
+        "kind": "computed"
+      },
+      {
+        "label": "Motor's torque, N m",
+        "value": 72.4,
+        "kind": "computed"
+      },
+      {
+        "label": "Pitch diameter per tooth, mm",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Pinion teeth drag's lowest value",
+        "value": 12,
+        "kind": "control"
+      },
+      {
+        "label": "Pinion teeth drag's highest value",
+        "value": 40,
+        "kind": "control"
+      },
+      {
+        "label": "Pinion teeth drag's opening value",
+        "value": 20,
+        "kind": "control"
+      },
+      {
+        "label": "Wheel teeth drag's lowest value",
+        "value": 12,
+        "kind": "control"
+      },
+      {
+        "label": "Wheel teeth drag's highest value",
+        "value": 120,
+        "kind": "control"
+      },
+      {
+        "label": "Wheel teeth drag's opening value",
+        "value": 100,
+        "kind": "control"
+      },
+      {
+        "label": "Teeth drags' step",
+        "value": 1,
+        "kind": "control"
+      },
+      {
+        "label": "Efficiency slider's lowest value, %",
+        "value": 80,
+        "kind": "control"
+      },
+      {
+        "label": "Efficiency slider's highest value, %",
+        "value": 100,
+        "kind": "control"
+      },
+      {
+        "label": "Efficiency slider's step, %",
+        "value": 1,
+        "kind": "control"
+      },
+      {
+        "label": "Efficiency slider's opening value, %",
+        "value": 95,
+        "kind": "control"
+      },
+      {
+        "label": "Pinion's diameter at opening, mm",
+        "value": 80,
+        "kind": "computed"
+      },
+      {
+        "label": "Wheel's diameter at opening, mm",
+        "value": 400,
+        "kind": "computed"
+      },
+      {
+        "label": "Pinion's radius at opening, m",
+        "value": 0.04,
+        "kind": "computed"
+      },
+      {
+        "label": "Wheel's radius at opening, m",
+        "value": 0.2,
+        "kind": "computed"
+      },
+      {
+        "label": "Gear ratio at opening",
+        "value": 5,
+        "kind": "computed"
+      },
+      {
+        "label": "Pump shaft speed at opening, rev/min",
+        "value": 290,
+        "kind": "computed"
+      },
+      {
+        "label": "Pump shaft speed at opening, rad/s",
+        "value": 30.4,
+        "kind": "computed"
+      },
+      {
+        "label": "Speed of the teeth at the mesh, m/s",
+        "value": 6.1,
+        "kind": "computed"
+      },
+      {
+        "label": "Push at the mesh, N",
+        "value": 1810,
+        "kind": "computed"
+      },
+      {
+        "label": "Pump shaft torque at 100% efficiency, N m",
+        "value": 362,
+        "kind": "computed"
+      },
+      {
+        "label": "Pump shaft torque at 95% efficiency, N m",
+        "value": 344,
+        "kind": "computed"
+      },
+      {
+        "label": "Power out at 95%, kW",
+        "value": 10.45,
+        "kind": "computed"
+      },
+      {
+        "label": "Power lost at 95%, W",
+        "value": 550,
+        "kind": "computed"
+      },
+      {
+        "label": "Picture slowed by",
+        "value": 50,
+        "kind": "assumed"
+      },
+      {
+        "label": "Second pinion's teeth",
+        "value": 20,
+        "kind": "assumed"
+      },
+      {
+        "label": "Second wheel's teeth",
+        "value": 60,
+        "kind": "assumed"
+      },
+      {
+        "label": "Second pair's ratio",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Compound train's ratio",
+        "value": 15,
+        "kind": "computed"
+      },
+      {
+        "label": "Compound pump shaft speed, rev/min",
+        "value": 96.7,
+        "kind": "computed"
+      },
+      {
+        "label": "Compound train's efficiency at 95% each, %",
+        "value": 90,
+        "kind": "computed"
+      },
+      {
+        "label": "Compound power out, kW",
+        "value": 9.93,
+        "kind": "computed"
+      },
+      {
+        "label": "Compound pump shaft torque, N m",
+        "value": 981,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 2 pinion teeth",
+        "value": 15,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 2 wheel teeth",
+        "value": 45,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 2 ratio",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 2 wheel speed, rev/min",
+        "value": 483,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 2 wrong pick: ratio multiplied, rev/min",
+        "value": 4350,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 4 pinion torque, N m",
+        "value": 20,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 4 wheel torque, N m",
+        "value": 60,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 4 wrong pick: divided, N m",
+        "value": 6.7,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 6 power in, kW",
+        "value": 15,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 6 gearbox ratio",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 6 efficiency, %",
+        "value": 96,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 6 power out, kW",
+        "value": 14.4,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 6 wrong pick: power multiplied, kW",
+        "value": 60,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 8 first pair's ratio",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 8 second pair's ratio",
+        "value": 6,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 8 motor speed, rev/min",
+        "value": 1440,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 8 overall ratio",
+        "value": 24,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 8 output speed, rev/min",
+        "value": 60,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 8 wrong pick: ratios added",
+        "value": 10,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 8 wrong pick: ratios added, rev/min",
+        "value": 144,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 8 wrong pick: first pair only, rev/min",
+        "value": 360,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 10 motor pulley, mm",
+        "value": 100,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 10 fan pulley, mm",
+        "value": 250,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 10 fan speed, rev/min",
+        "value": 580,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 10 wrong pick: upside down, rev/min",
+        "value": 3625,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 12 motor power, kW",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 12 motor power, W",
+        "value": 4000,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 12 motor speed, rev/min",
+        "value": 960,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 12 gearbox ratio",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 12 drum speed, rev/min",
+        "value": 240,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 12 drum speed, rad/s",
+        "value": 25.13,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 12 drum torque, N m",
+        "value": 159,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 12 wrong pick: motor's torque, N m",
+        "value": 39.8,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 12 wrong pick: rev/min left in, N m",
+        "value": 16.7,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 13 offset, mm",
+        "value": 0.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example: motor power, kW",
+        "value": 7.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example: motor power, W",
+        "value": 7500,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example: motor speed, rev/min",
+        "value": 960,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example: motor speed, rad/s",
+        "value": 100.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example: pinion teeth",
+        "value": 18,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example: wheel teeth",
+        "value": 36,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example: ratio",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example: efficiency, %",
+        "value": 97,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example: output speed, rev/min",
+        "value": 480,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example: motor torque, N m",
+        "value": 74.6,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example: output torque, N m",
+        "value": 144.7,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example: power out, kW",
+        "value": 7.28,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "A gear pair or a belt trades speed for torque. The slow shaft turns slower and pushes harder, by the same ratio. The power passes through almost unchanged, less a small loss to friction. A 5 : 1 reduction turns a motor's 1450 rev/min into 290 rev/min at the pump.\n\nTwo gears mesh only if their teeth are the same size. The teeth sit evenly round each rim. So a gear's tooth count goes with the distance round its rim. That means it goes with its diameter. Where they meet, each tooth that passes on the pinion pushes one tooth past on the wheel. So the teeth of both gears move at the same speed at the mesh. The motor's 20-tooth pinion must turn five times to pass all 100 teeth of the wheel. So the wheel turns five times slower: 1450 rev/min in, 290 rev/min out. The [[gear ratio]] is the input speed ÷ the output speed.[^1] For one pair it is the driven gear's teeth ÷ the driving gear's teeth. Here that is 100 ÷ 20 = 5. A belt works the same way. If it does not slip, it moves at the speed of both pulley rims. So a belt's ratio is the driven pulley's diameter ÷ the driving pulley's diameter. A plain loop of belt, called an open belt, turns both pulleys the same way. Two gears meshing on their outsides turn opposite ways.\n\nThe torque rises by the same ratio. The reason lies at the mesh. In the gear pair drawn here, the pinion's teeth sit 0.04 m from its centre. The motor's 72.4 N m pushes them with 72.4 ÷ 0.04 = 1810 N. The pinion's tooth pushes the wheel's tooth with that 1810 N. By Newton's third law, the wheel's tooth pushes back just as hard. That is the load the motor feels. The wheel's tooth sits 0.2 m from its centre, five times as far out. So, before any loss, the wheel's torque is 1810 × 0.2 = 362 N m. That is five times the motor's. Power is torque × angular speed, with the speed in radians per second.[^2] Five times the torque at a fifth of the speed is the same power. So a gearbox cannot make power. Friction turns a little of it into heat. So the power out is smaller than the power in. At an example efficiency of 95%, 11 kW in gives 10.45 kW out. The pump shaft then gets 344 N m. Two pairs in a row make a [[compound gear train]]. Its ratios multiply. A 5 : 1 pair then a 3 : 1 pair give 15 : 1. Each pair loses its own share of the power too.\n\nThat is why the slow shaft is usually the thicker one. It carries almost five times the torque for the same power. Its coupling must carry that torque too. A coupling joins the ends of two shafts so one drives the other. Take one between a motor and a pump. Its two shafts' centre lines must lie in one straight line, within a small tolerance. Shafts that meet at an angle, or sit parallel but offset, have [[misalignment]]. It barely changes the motor's efficiency.[^4] Instead it causes vibration, noise and heat. It also wears out bearings, couplings and shafts early.[^3] The gear pair here is a simplified one, with rigid teeth and shafts. **A gear pair divides the speed by its ratio and multiplies the torque by it, while the power passes through less a small loss.**"
+  },
+  "analogy": {
+    "text": "Think of a step-down transformer. A 5 : 1 transformer divides the voltage by 5 and multiplies the current by 5. Volts × amps stay the same, less a small loss in the core and windings. A 5 : 1 gear pair divides the speed by 5 and multiplies the torque by 5. Torque × speed stays the same. The low-voltage side needs the thicker cable, because it carries the bigger current. The slow shaft needs to be thicker, because it carries the bigger torque.",
+    "breaks": "A transformer works only on alternating current. A gear pair passes steady turning, which is more like direct current. A transformer also has no moving parts. A gear pair's teeth push and slide, and that is where its loss comes from."
+  },
+  "practice": {
+    "text": "- Safe way first: isolate the motor and secure any hanging load. Wait until every shaft has stopped before you take off a guard or touch a coupling, belt or gear. A belt or a gear mesh draws in fingers and clothing.\n- Count the teeth, or measure the pulley diameters.\n- Gear ratio = driven teeth ÷ driving teeth, or driven pulley diameter ÷ driving pulley diameter.\n- Output speed = input speed ÷ the ratio.\n- Input torque = power ÷ angular speed, with the speed in rad/s: rev/min × 2π ÷ 60.\n- Output torque = input torque × the ratio × the efficiency.\n- Power out = power in × the efficiency.\n- For a compound train, multiply the ratios of each pair.\n- Check that a coupling's two shafts lie in one straight line, with any angle and offset kept within tolerance.\n\n**Rules of thumb:** the slow shaft carries the big torque, so it and its coupling are the strong ones. A gearbox passes power on. It never adds to it.\n\n**Worked example:** a 7.5 kW motor at 960 rev/min drives a hoist through an 18-tooth pinion and a 36-tooth wheel. Take an example efficiency of 97%. The ratio is 36 ÷ 18 = 2. So the output turns at 960 ÷ 2 = 480 rev/min. 960 rev/min is 100.5 rad/s. So the motor's torque is 7500 ÷ 100.5 = 74.6 N m. The output torque is 74.6 × 2 × 0.97 = 144.7 N m. The power out is 7.5 × 0.97 = 7.28 kW.\n\n**Common mistakes**\n- Turning the ratio upside down. The bigger gear or pulley turns slower.\n- Thinking a gearbox makes power because its torque goes up. The speed goes down by the same ratio.\n- Leaving the speed in rev/min when working out torque from power.\n- Adding the ratios of a compound train. They multiply.\n- Taking parallel shafts as aligned. Their centre lines must be one line."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+    {
+      "n": 1,
+      "title": "12.4: Belt- and Gear-Driven Systems - Engineering LibreTexts — LibreTexts",
+      "url": "https://eng.libretexts.org/Bookshelves/Mechanical_Engineering/Mechanics_Map_(Moore_2nd_Edition)/12:_Rigid_Body_Kinematics/12.04:_Belt-_and_Gear-Driven_Systems",
+      "quote": "For any gear train, the gear ratio is defined as the angular speed of the input divided by the angular speed of the output."
+    },
+    {
+      "n": 2,
+      "title": "Motor Calculations.PDF — Michigan Technological University",
+      "url": "https://pages.mtu.edu/~wjendres/ProductRealization1Course/DC_Motor_Calculations.pdf",
+      "quote": "In calculating rotational power, it is necessary to convert the velocity to units of rad/sec."
+    },
+    {
+      "n": 3,
+      "title": "The Importance of Motor Shaft Alignment — US Department of Energy",
+      "url": "https://www.energy.gov/sites/prod/files/2014/04/f15/importance_motor_shaft_motor_systemts4.pdf",
+      "quote": "Misalignment produces excessive vibration, noise, coupling, and bearing temperature increases, and premature bearing, coupling, or shaft failure."
+    },
+    {
+      "n": 4,
+      "title": "The Importance of Motor Shaft Alignment — US Department of Energy",
+      "url": "https://www.energy.gov/sites/prod/files/2014/04/f15/importance_motor_shaft_motor_systemts4.pdf",
+      "quote": "While misalignment has no measurable effect on motor efficiency, correct shaft alignment ensures the smooth, efficient transmission of power from the motor to the driven equipment."
+    }
+  ]
+}

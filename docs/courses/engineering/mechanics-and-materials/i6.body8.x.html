@@ -1,0 +1,1110 @@
+<!-- kind: quantity -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 34rem; margin-inline: auto; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .count { margin-top: 10px; }
+  .task { font-size: 1.15rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.06rem; font-weight: 400; line-height: 1.6; }
+  .fig { display: block; width: 100%; max-width: 26rem; margin-inline: auto; touch-action: pan-y; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .live { align-items: center; }
+  .live .k-btn { flex: 1 1 auto; white-space: nowrap; }
+  .picks .k-btn { flex: 1 1 6rem; min-height: 48px; white-space: nowrap; font-size: 1.05rem; }
+  .picks.long { flex-direction: column; gap: 8px; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; white-space: normal; line-height: 1.35; padding-top: 8px; padding-bottom: 8px; }
+  .picks .k-btn[aria-pressed="true"] { border-color: var(--k-accent2); box-shadow: inset 0 0 0 2px var(--k-accent2); font-weight: 700; }
+  #outs { display: grid; grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr)); gap: 10px; }
+  .fb { font-weight: 700; min-height: 1.5em; }
+  .fb.right { color: var(--k-good); }
+  .why, .done { line-height: 1.6; }
+  .done .row { margin-top: 14px; }
+  .replay { justify-content: center; }
+  .replay .k-btn { flex: 0 0 auto; }
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }
+  /* The rig: the motor's end face, the hub, the arms and their masses. */
+  .fig .face { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.8; }
+  .fig .motor { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.8; }
+  .fig .shaft { fill: var(--k-sunk); stroke: var(--k-ink); stroke-width: 1.6; }
+  .fig .arm { stroke: var(--k-ink); stroke-width: 3.2; stroke-linecap: round; }
+  .fig .mass { fill: var(--k-fill1); stroke: var(--k-accent2); stroke-width: 2; }
+  .fig .hub { fill: var(--k-strong); }
+  .fig .ghost { fill: none; stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 4 3; }
+  .fig .orbit { fill: none; stroke: var(--k-muted); stroke-width: 1.4; stroke-dasharray: 5 5; }
+  .fig .dim { fill: none; stroke: var(--k-muted); stroke-width: 1.3; }
+  .fig .ext { stroke: var(--k-muted); stroke-width: 1; stroke-dasharray: 2 3; }
+  .fig .leader { stroke: var(--k-muted); stroke-width: 1; }
+  .fig .handle { fill: var(--k-accent2); }
+  .fig .track { stroke: var(--k-strong); stroke-width: 4; stroke-linecap: round; }
+  .fig .tick { fill: none; stroke: var(--k-strong); stroke-width: 1.4; }
+  .fig .knob { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .fig .ebox { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.2; }
+  .fig .ebar { fill: var(--k-accent); }
+  .fig .gap { fill: var(--k-fill2); }
+  .fig .brk { fill: none; stroke: var(--k-muted); stroke-width: 1.5; }
+  /* Graphs. */
+  .fig .axis { stroke: var(--k-strong); stroke-width: 1.4; }
+  .fig .grid { stroke: var(--k-line); stroke-width: 1; stroke-dasharray: 3 4; }
+  .fig .ref { stroke: var(--k-muted); stroke-width: 1.4; stroke-dasharray: 6 4; }
+  .fig .drop { stroke: var(--k-muted); stroke-width: 1.2; stroke-dasharray: 3 3; }
+  .fig .l1 { fill: none; stroke: var(--k-accent2); stroke-width: 2.8; stroke-linecap: round; stroke-linejoin: round; }
+  .fig .l2 { fill: none; stroke: var(--k-accent); stroke-width: 2.8; stroke-linecap: round; stroke-linejoin: round; }
+  .fig .lbad { fill: none; stroke: var(--k-warn); stroke-width: 2.6; stroke-linecap: round; }
+  .fig .tri { fill: none; stroke: var(--k-amber-line); stroke-width: 2.4; }
+  .fig .netbar { stroke: var(--k-amber-line); stroke-width: 3; }
+  .fig .dot1 { fill: var(--k-accent2); }
+  .fig .dot2 { fill: var(--k-accent); }
+  .fig .dotbad { fill: var(--k-warn); }
+  .fig .mk { stroke: var(--k-accent2); stroke-width: 2.4; }
+  .fig .mkbad { stroke: var(--k-warn); stroke-width: 2.4; }
+  .fig .ring { fill: none; stroke: var(--k-accent2); stroke-width: 2.4; }
+  .fig .ringbad { fill: none; stroke: var(--k-warn); stroke-width: 2.4; }
+  /* Arrows: the torque and the push navy, a load teal, a mistake red. */
+  .fig .ar { stroke-width: 2.6; }
+  .fig .arc { fill: none; stroke-width: 2.4; }
+  .fig .ar.nv, .fig .arc.nv { stroke: var(--k-accent2); }
+  .fig .ah.nv { fill: var(--k-accent2); }
+  .fig .ar.t, .fig .arc.t { stroke: var(--k-accent); }
+  .fig .ah.t { fill: var(--k-accent); }
+  .fig .ar.wr, .fig .arc.wr { stroke: var(--k-warn); }
+  .fig .ah.wr { fill: var(--k-warn); }
+  /* Words on the pictures. */
+  .fig .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .fig .lab.sm { font-size: 12px; font-weight: 500; }
+  .fig .lab.m { fill: var(--k-muted); }
+  .fig .lab.n { fill: var(--k-accent2); }
+  .fig .lab.t { fill: var(--k-accent); }
+  .fig .lab.w { fill: var(--k-warn); }
+  .fig .lab.big { font-size: 15px; font-weight: 700; }
+  .fig .lab.wk { font-size: 13px; font-weight: 600; }
+  .fig .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }
+  .fig .grip:active { cursor: grabbing; }
+  .fig .grip:focus { outline: none; }
+  .fig .grip:focus-visible { stroke: var(--k-accent); stroke-width: 2; }
+</style>
+
+<p class="lead" id="lead">A motor spins a shaft with two arms. Each arm carries a 25 kg mass 0.2 m out.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task say" id="task"></p>
+    <svg class="fig" id="scene" viewBox="0 0 340 300" width="100%" role="img" aria-label=""><g id="art"></g><g id="ui"><rect id="gR" class="grip" x="0" y="0" width="0" height="0" role="slider" aria-label="How far out the masses sit" tabindex="-1" style="display:none"></rect><rect id="gT" class="grip" x="0" y="0" width="0" height="0" role="slider" aria-label="Net torque" tabindex="-1" style="display:none"></rect></g></svg>
+    <div class="row live" id="live"></div>
+    <div class="row replay" id="replay"></div>
+    <p class="say" id="say"></p>
+    <div class="k-readouts" id="outs"></div>
+    <div class="row picks say" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb say" id="fb" aria-live="polite"></p>
+    <div class="note why say" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+<div id="c-hide" hidden></div>
+
+<p class="caption" id="cap">The masses, torques and the motor and pump curves are examples. Time runs four times faster than real. The drawn spin is slowed so you can follow it.</p>
+
+<script>
+  // ---------- the rules ----------
+  const M = 25, R0 = 0.2, T0 = 50, N_RUN = 1450, TS = 4, TAU = 2 * Math.PI, DEG = Math.PI / 180;
+  const SRC = {
+    moment: 'https://www.bbc.co.uk/bitesize/articles/z96g3j6',
+    rads: 'https://pages.mtu.edu/~wjendres/ProductRealization1Course/DC_Motor_Calculations.pdf',
+    fly: 'https://www.explainthatstuff.com/flywheels.html',
+  };
+  const radOf = (n) => n * TAU / 60;                              // rev/min -> rad/s
+  const rpmOf = (w) => w * 60 / TAU;                              // rad/s -> rev/min
+  const W_RUN = radOf(N_RUN);                                     // 1450 rev/min is 151.8 rad/s
+  const inertiaOf = (r, m) => 2 * (m == null ? M : m) * r * r;    // kg m²: two masses m, each r out
+  const alphaOf = (Tq, I) => Tq / I;                              // rad/s gained each second: net torque ÷ I
+  const runUpOf = (I, Tq, w) => (w == null ? W_RUN : w) / alphaOf(Tq, I);
+  const energyOf = (I, w) => 0.5 * I * w * w;                     // J, ½ × I × ω²
+  const pushOf = (Tq, r) => Tq / r;                               // N, the arm's push on a mass r out
+  const powerOf = (Tq, w) => Tq * w;                              // W, torque × ω in rad/s
+  // The motor and pump sketches: a cage motor's curve by its slip, and a pump load rising with speed².
+  const PEAK = 276, SPK = 0.25, NSYNC = 1500, P11 = 11000;
+  const motorT = (n) => { const s = (NSYNC - n) / NSYNC; return s <= 0 ? 0 : 2 * PEAK / (s / SPK + SPK / s); };
+  const PUMP_K = P11 / W_RUN / (N_RUN * N_RUN);                   // the pump takes 11 kW at 1450 rev/min
+  const pumpT = (n) => PUMP_K * n * n;
+  const netT = (n) => motorT(n) - pumpT(n);
+  // Where the curves meet, 99% of that, and the seconds per kg m² to reach it.
+  const NS = (() => { let lo = 1300, hi = 1499.9; for (let k = 0; k < 60; k++) { const m = (lo + hi) / 2; if (netT(m) > 0) lo = m; else hi = m; } return (lo + hi) / 2; })();
+  const N99 = 0.99 * NS;
+  const G = (() => { const n = 20000, w1 = radOf(N99); let s = 0; for (let i = 0; i < n; i++) s += (w1 / n) / netT(rpmOf((i + 0.5) / n * w1)); return s; })();
+  // The motor and pump run-up on 1 kg m², stepped once: on I kg m² the same speeds come I times later.
+  const DT1 = 0.002, TMAX1 = 8;
+  const TAB = (() => {
+    const n = Math.round(TMAX1 / DT1), w = new Float64Array(n + 1), th = new Float64Array(n + 1), f = (v) => netT(rpmOf(v));
+    for (let i = 1; i <= n; i++) {
+      const v = w[i - 1], k1 = f(v), k2 = f(v + DT1 * k1 / 2), k3 = f(v + DT1 * k2 / 2), k4 = f(v + DT1 * k3);
+      w[i] = v + DT1 * (k1 + 2 * k2 + 2 * k3 + k4) / 6;
+      th[i] = th[i - 1] + DT1 * (w[i - 1] + w[i]) / 2;
+    }
+    return { w, th };
+  })();
+  function look(a, tau) { const x = Math.min(Math.max(tau / DT1, 0), a.length - 1), i = Math.min(a.length - 2, Math.floor(x)); return a[i] + (a[i + 1] - a[i]) * (x - i); }
+  const pumpW = (t, I) => look(TAB.w, t / I);
+  const pumpTh = (t, I) => I * look(TAB.th, t / I);
+
+  // Numbers as the lesson writes them: fixed decimals, commas from 10,000 up.
+  function fx(v, dp) {
+    const k = Math.pow(10, dp), r = Math.round(Math.abs(v) * k + 1e-7) / k;
+    const parts = r.toFixed(dp).split('.');
+    let a = parts[0];
+    if (a.length > 4) a = a.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return (v < 0 && r > 0 ? '−' : '') + a + (parts[1] ? '.' + parts[1] : '');
+  }
+  const nf = (v, dp) => { const s = fx(v, dp == null ? 2 : dp); return s.indexOf('.') < 0 ? s : s.replace(/0+$/, '').replace(/\.$/, ''); };
+
+  // Every number the words show, worked out from the rules.
+  const N = (() => {
+    const I2 = inertiaOf(0.2), I4 = inertiaOf(0.4), I13 = inertiaOf(0.3, 10), T72 = fx(P11 / W_RUN, 1);
+    return {
+      W: fx(W_RUN, 1), I2: nf(I2, 2), I4: nf(I4, 2), a2: nf(alphaOf(T0, I2), 2), t2: fx(runUpOf(I2, T0), 1), t4: fx(runUpOf(I4, T0), 1),
+      E2: fx(energyOf(I2, W_RUN) / 1000, 1), E4: fx(energyOf(I4, W_RUN) / 1000, 1), T72, n99: nf(Math.round(N99), 0), NS: fx(NS, 0), P11: nf(P11, 0),
+      q4: nf(I4, 2), q4d: nf(2 * I2, 2), q4r: nf(2 * M * 0.4, 2), q4each: nf(M * 0.4 * 0.4, 2),
+      q6: fx(runUpOf(0.5, 40), 1), q6x: fx(W_RUN / (40 * 0.5), 1), q6r: fx(N_RUN / alphaOf(40, 0.5), 1), q6a: nf(alphaOf(40, 0.5), 2), q6xa: nf(40 * 0.5, 2),
+      q8w: fx(radOf(960), 1), q8: fx(powerOf(40, radOf(960)) / 1000, 2), q8W: nf(powerOf(40, radOf(960)), 0), q8x: fx(40 * 960 / 1000, 1), q8xW: nf(40 * 960, 0), q8s: nf(40 * 960 / 60, 0),
+      q10e: fx(energyOf(2, radOf(725)) / 1000, 2), q10: fx(energyOf(2, radOf(1450)) / 1000, 1), q10x: fx(2 * energyOf(2, radOf(725)) / 1000, 1),
+      q12p: fx(pumpT(1125), 1), q12n: fx(PEAK - pumpT(1125), 1), q12e: fx(pumpT(1500), 1),
+      q13I: nf(I13, 2), q13a: fx(alphaOf(30, I13), 1), q13w: fx(radOf(600), 1), q13: fx(runUpOf(I13, 30, radOf(600)), 1),
+      q13r: fx(600 / alphaOf(30, I13), 1), q13xI: nf(2 * 10 * 0.3, 2), q13xa: nf(30 / (2 * 10 * 0.3), 2), q13x: fx(radOf(600) / alphaOf(30, 2 * 10 * 0.3), 1),
+      q14x: fx(2 * Number(T72), 1),
+    };
+  })();
+  // A SHOW screen's words for reading, where its last sentence asks for a move.
+  const readAs = (t, end) => t.replace(/ (Drag|Press|Switch)[^.]*\.$/, '') + ' ' + end;
+
+  // ---------- the lesson: SHOW screens demonstrate, DO screens are puzzles ----------
+  // rig: the spin-up rig's mode; outs: its readouts; btns: its buttons; drag: what Dan can drag;
+  // set: the screen's own settings. A puzzle: opts, want, hints; qw its givens, ow each answer's working.
+  const T1 = `The *net torque* is the motor's torque less what the load and friction take. Here it is a steady ${nf(T0, 0)} N m. Watch the speed line. It is straight. The speed gains the same ${N.a2} rad/s every second, so it reaches ${N.W} rad/s in ${N.t2} s. A steady net torque gives a steady rise in speed, not a steady speed. Drag the masses or the torque handle, then press Start.`;
+  const T3 = `Why does a shaft with its mass further out spin up more slowly? Picture a shaft with just one arm. The arm pushes its mass round its circle with a force of the torque ÷ r. Here the mass slides from 0.2 m out to 0.4 m. The push halves. The mass must also go twice as fast round its bigger circle for the same shaft speed. So the radius counts twice. Each mass adds its mass × r² to the shaft's *moment of inertia*, I.`;
+  const T5 = `Two rigs get the same ${nf(T0, 0)} N m. On the left the masses sit 0.2 m out, so I is ${N.I2} kg m². On the right they sit 0.4 m out, so I is ${N.I4} kg m², four times as much. Both start from rest together. Both speed lines are straight. The right one climbs a quarter as steeply. So its run-up takes four times as long, ${N.t4} s against ${N.t2} s. Drag the right rig's masses to try other radii.`;
+  const T7 = `Power works the same way as for a winch. Picture a shaft with just one arm. The arm pushes its mass with the torque ÷ r. In one radian of turn, the mass moves r metres along its circle. So each radian, the torque does (T ÷ r) × r = T joules of work. The radius cancels out. The shaft turns ω radians each second. So the *power* is T × ω watts, with ω in rad/s. An 11 kW motor at ${N.W} rad/s gives ${N.P11} ÷ ${N.W} = ${N.T72} N m.`;
+  const T9 = `A spinning shaft stores energy. Each mass moves round its circle at ω × r. Its energy of motion is half its mass × that speed squared. Add both masses and the rig stores ½ × I × ω². The speed line is straight. The *stored energy* climbs as a curve, slowly at first and steeply at the end. That is because it goes with the speed squared. At ${N.W} rad/s the rig holds ${N.E2} kJ. Drag the masses out to store more at the same speed.`;
+  const T11 = `A real motor's torque changes with its speed. A pump needs more torque the faster it turns. The *net torque* is the gap between their curves. It widens at first, as the motor nears its peak. Then it closes fast near full speed. So the speed line climbs faster and faster at first, then bends over. It levels off where the curves meet, near ${N.NS} rev/min. There the motor's torque just matches the pump's. Switch Motor and pump off to compare a steady torque.`;
+  const SH = ['It rises by the same amount every second', 'It holds one steady speed, set by the torque', 'It rises fast, then levels off'];
+  const MEET = ['Where the motor and pump curves meet', 'Where the motor\'s torque peaks', 'At 1500 rev/min, where the motor\'s torque is zero'];
+  const kgm = (s) => s + ' kg m²';
+  const STEPS = [
+    { show: true, rig: 'run', name: 'Spin it up', outs: ['inertia', 'runUp'], btns: ['start'], drag: ['r', 'T'], text: T1,
+      read: readAs(T1, `The graph shows a straight speed line up to ${N.W} rad/s.`) },
+    { kind: 'pick', pic: 'shapeQ', name: 'Steady torque',
+      task: `A steady net torque of ${nf(T0, 0)} N m spins the rig up from rest. What does its speed do?`,
+      opts: SH, order: [1, 0, 2], want: SH[0],
+      hints: { [SH[1]]: 'Not quite. A steady speed needs zero net torque. While a net torque acts, the speed keeps changing.',
+        [SH[2]]: 'Not quite. The net torque stays the same at every speed. So the speed gains the same amount each second.' },
+      why: `The speed rises by the net torque ÷ I each second. Here that is ${nf(T0, 0)} ÷ ${N.I2} = ${N.a2} rad/s every second. It keeps rising like this for as long as the torque acts. A real drive levels off only because its load takes more torque as it speeds up.`,
+      qw: [`${nf(T0, 0)} N m net on ${kgm(N.I2)}, from rest`],
+      ow: { [SH[0]]: [`${nf(T0, 0)} ÷ ${N.I2} = ${N.a2} rad/s gained each second`, `The same ${N.a2} rad/s every second`], [SH[1]]: ['A steady speed needs 0 N m net'], [SH[2]]: ['Levelling off needs the net torque to shrink'] } },
+    { show: true, pic: 'push', name: 'Mass further out', text: T3 },
+    { kind: 'pick', pic: 'inertiaQ', name: 'Moment of inertia',
+      task: 'Each 25 kg mass on the rig slides from 0.2 m out to 0.4 m. What is the rig\'s moment of inertia now?',
+      opts: [kgm(N.q4d), kgm(N.q4), kgm(N.q4r)], want: kgm(N.q4),
+      hints: { [kgm(N.q4d)]: 'Not quite. That doubles I with the radius. The radius is squared, so twice the radius gives four times I.',
+        [kgm(N.q4r)]: 'Not quite. That uses 0.4, not 0.4². Each mass adds its mass × r².' },
+      why: `Each mass adds its mass × r² = 25 × 0.4² = ${kgm(N.q4each)}. Two masses make ${kgm(N.q4)}. That is four times the ${kgm(N.I2)} at 0.2 m, because the radius doubled and is squared.`,
+      qw: ['Two 25 kg masses, each 0.4 m out'],
+      ow: { [kgm(N.q4d)]: [`2 × ${kgm(N.I2)} = ${N.q4d}: doubled, not squared`], [kgm(N.q4)]: [`Each: 25 × 0.4² = ${kgm(N.q4each)}`, `Both: 2 × ${N.q4each} = ${kgm(N.q4)}`],
+        [kgm(N.q4r)]: [`2 × 25 × 0.4 = ${N.q4r}: r not squared`] } },
+    { show: true, rig: 'two', name: 'Two rigs', set: { r: 0.4 }, outs: [], btns: ['start'], drag: ['r'], text: T5,
+      read: readAs(T5, 'Twice the radius means four times the run-up.') },
+    { kind: 'pick', pic: 'runQ', name: 'Run-up time',
+      task: 'A rotor has I = 0.5 kg m². A steady net torque of 40 N m spins it up from rest. How long does it take to reach 1450 rev/min?',
+      opts: [`${N.q6} s`, `${N.q6x} s`, `${N.q6r} s`], want: `${N.q6} s`,
+      tv: { [`${N.q6} s`]: runUpOf(0.5, 40), [`${N.q6x} s`]: W_RUN / (40 * 0.5), [`${N.q6r} s`]: N_RUN / alphaOf(40, 0.5) },
+      hints: { [`${N.q6r} s`]: 'Not quite. That uses 1450 rev/min as it stands. Change it to rad/s first.',
+        [`${N.q6x} s`]: 'Not quite. That multiplies the torque by I. The speed rises by the torque ÷ I each second.' },
+      why: `Each second the speed rises by 40 ÷ 0.5 = ${N.q6a} rad/s. 1450 rev/min is 1450 × 2π ÷ 60 = ${N.W} rad/s. So the run-up takes ${N.W} ÷ ${N.q6a} = ${N.q6} s.`,
+      qw: [],
+      ow: { [`${N.q6} s`]: [`40 ÷ 0.5 = ${N.q6a} rad/s each second`, `${N.W} ÷ ${N.q6a} = ${N.q6} s`], [`${N.q6x} s`]: [`40 × 0.5 = ${N.q6xa}: times I, not ÷ I`, `${N.W} ÷ ${N.q6xa} = ${N.q6x} s`],
+        [`${N.q6r} s`]: [`1450 ÷ ${N.q6a} = ${N.q6r}: still in rev/min`] } },
+    { show: true, pic: 'work', name: 'Torque and power', text: T7 },
+    { kind: 'pick', pic: 'powerQ', name: 'Shaft power',
+      task: 'A shaft carries 40 N m at 960 rev/min. What power does it carry?',
+      opts: [`${N.q8s} W`, `${N.q8} kW`, `${N.q8x} kW`], want: `${N.q8} kW`,
+      kv: { [`${N.q8s} W`]: 40 * 960 / 60 / 1000, [`${N.q8} kW`]: powerOf(40, radOf(960)) / 1000, [`${N.q8x} kW`]: 40 * 960 / 1000 },
+      hints: { [`${N.q8x} kW`]: 'Not quite. That uses 960 rev/min as it stands. Change it to rad/s first.',
+        [`${N.q8s} W`]: 'Not quite. That uses turns each second. Each turn is 2π radians, so multiply by 2π too.' },
+      why: `960 rev/min is 960 × 2π ÷ 60 = ${N.q8w} rad/s. Power is the torque × the speed in rad/s. That is 40 × ${N.q8w} = ${N.q8W} W, or ${N.q8} kW.`,
+      qw: [],
+      ow: { [`${N.q8s} W`]: [`40 × 960 ÷ 60 = ${N.q8s}: rev/s, not rad/s`], [`${N.q8} kW`]: [`960 × 2π ÷ 60 = ${N.q8w} rad/s`, `40 × ${N.q8w} = ${N.q8W} W = ${N.q8} kW`],
+        [`${N.q8x} kW`]: [`40 × 960 = ${N.q8xW}: rev/min, not rad/s`] } },
+    { show: true, rig: 'energy', name: 'Stored energy', outs: ['inertia', 'runUp', 'energy'], btns: ['start'], drag: ['r'], text: T9,
+      read: readAs(T9, 'Masses further out store more energy at the same speed.') },
+    { kind: 'pick', pic: 'energyQ', name: 'Twice the speed',
+      task: `The rig stores ${N.q10e} kJ at 725 rev/min. How much does it store at 1450 rev/min?`,
+      opts: [`${N.q10e} kJ`, `${N.q10x} kJ`, `${N.q10} kJ`], want: `${N.q10} kJ`,
+      hints: { [`${N.q10x} kJ`]: 'Not quite. That doubles the energy with the speed. The energy goes with the speed squared.',
+        [`${N.q10e} kJ`]: 'Not quite. The masses are the same, but the speed has doubled. A faster shaft stores more.' },
+      why: `The energy goes with the speed squared. 1450 rev/min is twice 725 rev/min. So the rig stores 2² = 4 times as much, ${N.q10} kJ.`,
+      qw: [],
+      ow: { [`${N.q10e} kJ`]: ['The same? The speed has doubled'], [`${N.q10x} kJ`]: [`2 × ${N.q10e} = ${N.q10x} kJ: speed not squared`],
+        [`${N.q10} kJ`]: ['1450 ÷ 725 = 2, and 2² = 4', `4 times the energy: ${N.q10} kJ`] } },
+    { show: true, rig: 'pump', name: 'Motor and pump', set: { pump: true }, outs: ['inertia', 'runUp'], btns: ['start', 'pump'], drag: ['r', 'T'], text: T11,
+      read: readAs(T11, 'With a steady torque instead, the speed line would stay straight.') },
+    { kind: 'pick', pic: 'meetQ', name: 'Where it settles',
+      task: 'A motor drives a pump from rest. Where does the shaft\'s speed stop rising?',
+      opts: MEET, order: [1, 0, 2], want: MEET[0],
+      hints: { [MEET[1]]: 'Not quite. At the peak the gap is near its widest, so the speed is still rising fast.',
+        [MEET[2]]: 'Not quite. Before 1500 rev/min the pump already needs more than the motor gives. The speed stops sooner.' },
+      why: `The speed keeps rising while there is any net torque. The net torque is the gap between the curves. It shrinks to nothing where they meet, near ${N.NS} rev/min. There the speed holds steady.`,
+      qw: [],
+      ow: { [MEET[0]]: [`At ${N.NS} rev/min: motor ${N.T72} N m, pump ${N.T72} N m`, 'No net torque, so the speed holds'],
+        [MEET[1]]: [`At 1125 rev/min: ${PEAK} − ${N.q12p} = ${N.q12n} N m net`], [MEET[2]]: [`At 1500 rev/min: 0 − ${N.q12e} = −${N.q12e} N m net`] } },
+    { kind: 'pick', pic: 'mixQ', name: 'A smaller rig',
+      task: 'A rig has two 10 kg masses 0.3 m out. A steady net torque of 30 N m spins it up from rest. How long does it take to reach 600 rev/min?',
+      opts: [`${N.q13} s`, `${N.q13x} s`, `${N.q13r} s`], want: `${N.q13} s`,
+      tv: { [`${N.q13} s`]: runUpOf(inertiaOf(0.3, 10), 30, radOf(600)), [`${N.q13x} s`]: radOf(600) / alphaOf(30, 6), [`${N.q13r} s`]: 600 / alphaOf(30, inertiaOf(0.3, 10)) },
+      hints: { [`${N.q13r} s`]: 'Not quite. That uses 600 rev/min as it stands. Change it to rad/s first.',
+        [`${N.q13x} s`]: 'Not quite. That uses 0.3, not 0.3². Each mass adds its mass × r².' },
+      why: `I = 2 × 10 × 0.3² = ${kgm(N.q13I)}. So the speed rises 30 ÷ ${N.q13I} = ${N.q13a} rad/s each second. 600 rev/min is ${N.q13w} rad/s. So the run-up takes ${N.q13w} ÷ ${N.q13a} = ${N.q13} s.`,
+      qw: [],
+      ow: { [`${N.q13} s`]: [`I = 2 × 10 × 0.3² = ${kgm(N.q13I)}`, `30 ÷ ${N.q13I} = ${N.q13a} rad/s each second`, `${N.q13w} ÷ ${N.q13a} = ${N.q13} s`],
+        [`${N.q13x} s`]: [`I = 2 × 10 × 0.3 = ${N.q13xI}: r not squared`, `${N.q13w} ÷ ${N.q13xa} = ${N.q13x} s`], [`${N.q13r} s`]: [`600 ÷ ${N.q13a} = ${N.q13r}: still in rev/min`] } },
+    { kind: 'pick', pic: 'steadyQ', name: 'Steady running',
+      task: `A pump shaft runs at a steady 1450 rev/min. Its motor gives ${N.T72} N m. What is the net torque on the shaft?`,
+      opts: ['0 N m', `${N.T72} N m`, `${N.q14x} N m`], order: [1, 0, 2], want: '0 N m',
+      hints: { [`${N.T72} N m`]: 'Not quite. That is the motor\'s torque alone. The pump takes its share first.',
+        [`${N.q14x} N m`]: 'Not quite. That adds the two. The pump\'s torque acts against the motor\'s, so take it away.' },
+      why: `The speed is steady, so it is not rising. So the net torque must be zero. The pump takes all ${N.T72} N m that the motor gives: ${N.T72} − ${N.T72} = 0 N m.`,
+      qw: [],
+      ow: { '0 N m': ['A steady speed is not rising, so 0 net', `${N.T72} − ${N.T72} = 0 N m`], [`${N.T72} N m`]: [`${N.T72} N m is the motor's torque alone`],
+        [`${N.q14x} N m`]: [`${N.T72} + ${N.T72} = ${N.q14x}: added, not taken away`] } },
+  ];
+  const FINISH = 'A steady net torque raises a shaft\'s speed steadily, by the torque ÷ I each second. I grows with the mass and with the square of how far out it sits. Twice the speed stores four times the energy.';
+  const ANS = 1.6;
+  const optsOf = (d) => (d.order ? d.order.map((k) => d.opts[k]) : d.opts);
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  const calm = () => REDUCE || testing();
+  const el = (id) => document.getElementById(id);
+  const iOf = (k, v) => STEPS.findIndex((d) => d[k] === v);
+  const I_RUN = iOf('rig', 'run'), I_TWO = iOf('rig', 'two'), I_EN = iOf('rig', 'energy'), I_PUMP = iOf('rig', 'pump'), I_P8 = iOf('pic', 'powerQ');
+
+  // ---------- state ----------
+  const blank = () => ({ pick: null, res: null, why: false });
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, lastPump = false;
+  let T = Infinity, END = 0, MOT = null, INSTANT = false;   // seconds since the screen opened or the motion began; the motion
+  let REC = { wk: [] };
+  let latest = 0;
+  const BASE = { r: R0, T: T0, spd: N_RUN, pump: false };
+  const setupOf = (i) => Object.assign({}, BASE, STEPS[i].set || {});
+
+  // ---------- words with amber key terms (built with K.el, never innerHTML) ----------
+  function write(node, s) {
+    node.textContent = '';
+    const re = /\*([^*]+)\*/g;
+    let from = 0, m;
+    while ((m = re.exec(s))) {
+      if (m.index > from) node.appendChild(document.createTextNode(s.slice(from, m.index)));
+      node.appendChild(K.el('span', { class: 'term' }, m[1]));
+      from = m.index + m[0].length;
+    }
+    if (from < s.length) node.appendChild(document.createTextNode(s.slice(from)));
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => K.clamp(Math.round(+stepper.get()) || 0, 0, STEPS.length - 1);
+  // Set by dragging the masses and the torque handle, and by the run; kept out of sight.
+  const CTL = {
+    r: K.control({ id: 'r', label: 'How far out the masses sit', min: 0.1, max: 0.4, step: 0.05, value: R0, unit: 'm', into: '#c-hide' }),
+    T: K.control({ id: 'T', label: 'Net torque', min: 20, max: 100, step: 10, value: T0, unit: 'N m', into: '#c-hide' }),
+    spd: K.control({ id: 'spd', label: 'Shaft speed', min: 0, max: 1500, step: 0.1, value: N_RUN, unit: 'rev/min', into: '#c-hide' }),
+  };
+  const startBtn = K.button({ label: 'Start', into: '#live', press: () => runNow() });
+  CTL.pump = K.toggle({ id: 'pump', label: 'Motor and pump', value: false, hint: 'Swaps the steady torque for a motor curve and a pump load', into: '#live' });
+  const same = (a, b) => (typeof a === 'boolean' || typeof b === 'boolean' ? !!a === !!b : Math.abs(+a - +b) < 1e-9);
+  function setQuiet(id, v) { if (!same(CTL[id].get(), v)) CTL[id].set(v, true); }
+  function setAll(q) { Object.keys(BASE).forEach((id) => setQuiet(id, q[id])); }
+
+  const RID = ['inertia', 'runUp', 'energy'];
+  const RO = [
+    K.readout({ id: 'inertia', label: 'Moment of inertia', unit: 'kg m²', decimals: 2, fmt: (v) => nf(v, 2) + ' kg m²', into: '#outs' }),
+    K.readout({ id: 'runUp', label: 'Run-up time', unit: 's', decimals: 1, into: '#outs' }),
+    K.readout({ id: 'energy', label: 'Energy stored', unit: 'kJ', decimals: 1, into: '#outs' }),
+  ];
+
+  // The settings a screen uses: the torque handle only where it is shown, the pump only on its own screen.
+  const stepOf = (p) => K.clamp(Math.round(+p.step) || 0, 0, STEPS.length - 1);
+  function rigState(p, d) {
+    const r = K.clamp(Math.round(+p.r * 20) / 20, 0.1, 0.4), pump = d.rig === 'pump' && !!p.pump;
+    const handle = d.rig === 'run' || (d.rig === 'pump' && !pump);
+    return { r, I: inertiaOf(r), T: handle ? K.clamp(Math.round(+p.T / 10) * 10, 20, 100) : T0, pump };
+  }
+  // The pure model: where the masses sit, the net torque and the shaft's speed -> I, the run-up time and the energy stored.
+  K.model((p) => {
+    const d = STEPS[stepOf(p)];
+    if (!d.rig) return { inertia: 0, runUp: 0, energy: 0 };
+    const s = rigState(p, d), n = K.clamp(+p.spd, 0, s.pump ? NS : N_RUN);
+    return { inertia: s.I, runUp: s.pump ? s.I * G : runUpOf(s.I, s.T), energy: energyOf(s.I, radOf(n)) / 1000 };
+  });
+
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;
+    st.pick = optsOf(d)[k]; st.res = null; T = Infinity; anim.pause();
+  } }));
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished || st.res === 'right') return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = st.pick === d.want ? 'right' : 'wrong';
+    MOT = null; INSTANT = false; play(ANS);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const d = STEPS[at()];
+    if (finished || (d.pic !== 'push' && d.pic !== 'work')) return;
+    const plan = demoPlan(d, K.params());
+    MOT = plan.mot; INSTANT = false; play(plan.end);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true; anim.pause(); T = Infinity; settle();
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // ---------- the runs: a steady torque, or the motor against the pump ----------
+  const AXES = [1, 2, 4, 8, 16, 24, 32, 48, 64, 80];
+  const niceAxis = (v) => AXES.find((a) => a >= v - 1e-9) || 80;
+  const K0 = 7.85 / (W_RUN * TS);   // the drawn spin: about 1.25 turns a second at full speed
+  function finishRun(u) {
+    const thE = u.th(u.tEnd), turns = Math.max(1, Math.round(K0 * thE / Math.PI));
+    u.kv = turns * Math.PI / thE;     // so the arms come to rest level when the run ends
+    return u;
+  }
+  function runOf(I, Tq, pump) {
+    if (pump) {
+      const t99 = I * G, tEnd = niceAxis(1.6 * t99), w = (t) => pumpW(Math.max(0, t), I), nEnd = rpmOf(w(tEnd));
+      return finishRun({ pump: true, I, T: null, t99, tEnd, axis: tEnd, w, th: (t) => pumpTh(K.clamp(t, 0, tEnd), I),
+        tAtRpm: (n) => {
+          if (n >= nEnd - 0.06) return tEnd;
+          const wn = radOf(Math.max(0, n));
+          let lo = 0, hi = tEnd;
+          for (let k = 0; k < 40; k++) { const m = (lo + hi) / 2; if (w(m) < wn) lo = m; else hi = m; }
+          return (lo + hi) / 2;
+        } });
+    }
+    const a = alphaOf(Tq, I), tEnd = W_RUN / a;
+    return finishRun({ pump: false, I, T: Tq, a, t99: tEnd, tEnd, axis: niceAxis(tEnd * 1.08), w: (t) => Math.min(a * Math.max(0, t), W_RUN),
+      th: (t) => 0.5 * a * Math.pow(K.clamp(t, 0, tEnd), 2), tAtRpm: (n) => (n >= N_RUN - 1e-9 ? tEnd : Math.min(tEnd, radOf(Math.max(0, n)) / a)) });
+  }
+  function runsOf(d, p) {
+    const s = rigState(p, d);
+    if (d.rig === 'two') return [runOf(inertiaOf(R0), T0, false), runOf(s.I, T0, false)];
+    return [runOf(s.I, s.T, s.pump)];
+  }
+  function runPlan(d, p, at0) {
+    const runs = runsOf(d, p), dur = Math.max.apply(null, runs.map((u) => u.tEnd)) / TS;
+    return { mot: { kind: 'run', at: at0, dur, runs }, end: at0 + dur + (runs[0].pump ? 0.5 : d.rig === 'two' ? 0.5 : 0.9) };
+  }
+  // Where a run has got to: each rig's model seconds, the shaft's speed now, and the parts due as it passes a time.
+  function sceneOf(d, p) {
+    const live = T !== Infinity && !!MOT && MOT.kind === 'run';
+    const runs = live ? MOT.runs : runsOf(d, p), main = runs[runs.length - 1];
+    let tms;
+    if (live) tms = runs.map((u) => K.clamp((T - MOT.at) * TS, 0, u.tEnd));
+    else {
+      const tm = main.tAtRpm(+p.spd), full = tm >= main.tEnd - 1e-9;
+      tms = runs.map((u) => (full ? u.tEnd : Math.min(u.tEnd, tm)));
+    }
+    const tm = tms[tms.length - 1], wNow = main.w(tm);
+    const past = (k, tr, delay) => (live ? arr(MOT.at + tr / TS + (delay || 0), 0.4) : tms[k] >= tr - 1e-6 ? 1 : 0);
+    return { live, runs, main, tms, tm, wNow, nNow: rpmOf(wNow), axis: Math.max.apply(null, runs.map((u) => u.axis)), past };
+  }
+
+  // ---------- motion: each screen's demonstration, Start, and an answer's drawing ----------
+  function demoPlan(d, p) {
+    if (d.rig) return runPlan(d, p, d.rig === 'two' ? 0.3 : 0.5);
+    if (d.pic === 'push') return { mot: { kind: 'slide', at: 0.6, dur: 2 }, end: 3.0 };
+    if (d.pic === 'work') return { mot: { kind: 'turn', at: 0.6, dur: 1.8 }, end: 4.6 };
+    return { mot: null, end: 0 };
+  }
+  function runNow() {
+    const d = STEPS[at()];
+    if (finished || !d.rig) return;
+    if (anim.playing()) anim.pause();
+    setQuiet('spd', 0);
+    const plan = runPlan(d, K.params(), 0.1);
+    MOT = plan.mot; INSTANT = true; play(plan.end);
+  }
+  function play(end) {
+    if (calm()) { T = Infinity; anim.pause(); settle(); return; }
+    T = 0; END = end; anim.play();
+  }
+  // The hidden speed follows the run, so the energy readout does too.
+  function sync() {
+    if (!MOT || MOT.kind !== 'run') return;
+    const main = MOT.runs[MOT.runs.length - 1], tm = K.clamp((T - MOT.at) * TS, 0, main.tEnd);
+    setQuiet('spd', Math.round(rpmOf(main.w(tm)) * 10) / 10);
+  }
+  function settle() {
+    if (MOT && MOT.kind === 'run') {
+      const main = MOT.runs[MOT.runs.length - 1];
+      setQuiet('spd', main.pump ? Math.round(rpmOf(main.w(main.tEnd)) * 10) / 10 : N_RUN);
+    }
+    MOT = null; INSTANT = false;
+  }
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished || T === Infinity) return false;
+    T += dt;
+    if (T >= END) { T = Infinity; settle(); K.refresh(); return false; }
+    sync(); K.refresh();
+    return true;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; settle(); K.refresh(); } });
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter'); void box.offsetWidth; box.classList.add('enter');
+  }
+  function enterStep(i) {
+    lastStep = i; enter('stepbox');
+    anim.pause(); T = Infinity; MOT = null; INSTANT = false;
+    const d = STEPS[i], q = setupOf(i);
+    setAll(q); lastPump = !!q.pump;
+    if (d.show && !calm()) {
+      const plan = demoPlan(d, K.params());
+      if (plan.mot && plan.mot.kind === 'run') setQuiet('spd', 0);
+      MOT = plan.mot; T = 0; END = plan.end; anim.play();
+    }
+  }
+
+  // ---------- drawing helpers ----------
+  const svg = el('scene'), art = el('art'), gR = el('gR'), gT = el('gT');
+  let into = null;
+  const add = (n) => (into || art).appendChild(n);
+  const r2 = (v) => Math.round(v * 100) / 100;
+  function sv(tag, a) { const o = {}; Object.keys(a).forEach((k) => { o[k] = typeof a[k] === 'number' ? r2(a[k]) : a[k]; }); return add(K.svg(tag, o)); }
+  const rect = (cls, x, y, w, h, rx) => sv('rect', { class: cls, x, y, width: Math.max(0, w), height: Math.max(0, h), rx: rx || 0 });
+  const line = (cls, x1, y1, x2, y2) => sv('line', { class: cls, x1, y1, x2, y2 });
+  const path = (cls, d) => sv('path', { class: cls, d });
+  const circ = (cls, cx, cy, r) => sv('circle', { class: cls, cx, cy, r });
+  function text(x, y, s, cls, anchor) {
+    const t = sv('text', { class: 'lab' + (cls ? ' ' + cls : ''), x, y, 'text-anchor': anchor || 'middle' });
+    t.textContent = s;
+    return t;
+  }
+  const P = (x, y) => r2(x) + ' ' + r2(y);
+  function arrow(x1, y1, x2, y2, c, hl) {
+    const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+    if (L < 2) return;
+    const ux = dx / L, uy = dy / L, h = Math.min(hl || 9, L * 0.6), w = h * 0.55, bx = x2 - ux * h, by = y2 - uy * h;
+    line('ar ' + c, x1, y1, bx + ux * 0.5, by + uy * 0.5);
+    path('ah ' + c, 'M' + P(x2, y2) + 'L' + P(bx - uy * w, by + ux * w) + 'L' + P(bx + uy * w, by - ux * w) + 'Z');
+  }
+  // An anticlockwise arc arrow round (cx, cy) from a0 to a1 degrees, counted anticlockwise from the right.
+  function arcCCW(cx, cy, r, a0, a1, c) {
+    const pt = (a) => [cx + r * Math.cos(a * DEG), cy - r * Math.sin(a * DEG)];
+    const hl = 9, hw = 5, aEnd = a1 - (hl - 1) / r / DEG, s = pt(a0), e = pt(aEnd), hd = pt(a1);
+    path('arc ' + c, 'M' + P(s[0], s[1]) + 'A' + r + ' ' + r + ' 0 ' + (aEnd - a0 > 180 ? 1 : 0) + ' 0 ' + P(e[0], e[1]));
+    const ux = -Math.sin(a1 * DEG), uy = -Math.cos(a1 * DEG), bx = hd[0] - ux * hl, by = hd[1] - uy * hl;
+    path('ah ' + c, 'M' + P(hd[0], hd[1]) + 'L' + P(bx - uy * hw, by + ux * hw) + 'L' + P(bx + uy * hw, by - ux * hw) + 'Z');
+  }
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g;
+    try { draw(); } finally { into = keep; }
+  }
+  // Arrivals: a part due at t0 seconds (noted for the timing check).
+  function arr(t0, d) { d = d == null ? 0.5 : d; if (t0 + d > latest) latest = t0 + d; return K.arrive(T, t0, d); }
+  const vis = (t) => (t == null || INSTANT ? 1 : arr(t));
+  function keyMass(m) { circ('mass', 14, 12, 6); text(25, 16, nf(m, 0) + ' kg mass', 'sm', 'start'); }
+
+  // Axes for a graph: o = {X0?, X1?, top, bot, ax, ymax, yt, xticks?, xu?, title?, titleX?}.
+  function axes(o) {
+    const X0 = o.X0 || 40, X1 = o.X1 || 322, xt = (t) => X0 + t / o.ax * (X1 - X0), yv = (w) => o.bot - w / o.ymax * (o.bot - o.top);
+    text(o.titleX || 8, o.top - 14, o.title || 'Angular speed ω (rad/s)', 'sm m', 'start');
+    o.yt.forEach((v) => { line('grid', X0, yv(v), X1, yv(v)); text(X0 - 6, yv(v) + 4, String(v), 'sm m', 'end'); });
+    text(X0 - 6, o.bot + 4, '0', 'sm m', 'end');
+    line('axis', X0, o.top - 6, X0, o.bot); line('axis', X0, o.bot, X1, o.bot);
+    const xs = o.xticks || [0, 1, 2, 3, 4].map((k) => o.ax * k / 4), xu = o.xu == null ? ' s' : o.xu;
+    xs.forEach((v, k) => {
+      const last = k === xs.length - 1, x = xt(v);
+      line('tick', x, o.bot, x, o.bot + 4);
+      if (!o.ends || k === 0 || last) text(x, o.bot + 17, nf(v, 2) + (last ? xu : ''), 'sm m', last ? 'end' : k === 0 ? 'start' : 'middle');
+    });
+    return { X0, X1, xt, yv };
+  }
+
+  // ---------- the rig, seen end on: the motor's face, the hub, two arms and their masses ----------
+  const GEO = { run: { cx: 104, cy: 100, RS: 210 }, pump: { cx: 76, cy: 84, RS: 150 }, twoL: { cx: 84, cy: 84, RS: 150 }, twoR: { cx: 256, cy: 84, RS: 150 } };
+  function rigDraw(g, o) {
+    const cx = g.cx, cy = g.cy, RS = g.RS, s = Math.round(Math.max(24, 0.2 * RS)), mr = Math.max(7, 0.045 * RS), R = o.r * RS;
+    const c = Math.cos(o.phi || 0), sn = Math.sin(o.phi || 0);
+    rect('face', cx - s / 2, cy - s / 2, s, s, 5);
+    if (o.T != null) arcCCW(cx, cy, s / 2 + 9, -35, -35 + 50 + 2.2 * o.T, 'nv');   // the net torque, its sweep growing with it
+    [1, -1].forEach((k) => line('arm', cx, cy, cx + k * R * c, cy - k * R * sn));
+    [1, -1].forEach((k) => circ('mass', cx + k * R * c, cy - k * R * sn, mr));
+    circ('hub', cx, cy, Math.max(4, 0.028 * RS));
+    if (o.grip && o.rest) [1, -1].forEach((k) => { const x = cx + k * (R + mr + 3); path('handle', 'M' + P(x, cy - 6) + 'L' + P(x + k * 8, cy) + 'L' + P(x, cy + 6) + 'Z'); });
+    const yd = cy + 0.4 * RS + mr + 10;
+    path('dim', 'M' + P(cx, yd - 4) + 'V' + r2(yd + 4) + 'M' + P(cx, yd) + 'H' + r2(cx + R) + 'M' + P(cx + R, yd - 4) + 'V' + r2(yd + 4));
+    text(cx + R / 2, yd + 16, 'r = ' + nf(o.r, 2) + ' m', 'sm', 'middle');
+    let yb = yd + 16;
+    if (o.sub) { text(cx + R / 2, yb + 16, o.sub, 'sm', 'middle'); yb += 16; }
+    if (o.motorLab) { text(8, cy + 0.4 * RS + 2, 'motor', 'sm m', 'start'); line('leader', 42, cy + 0.4 * RS - 4, cx - s / 2, cy + s / 2); }
+    const span = 0.4 * RS + mr + 12, x0 = Math.max(0, cx - span), x1 = Math.min(340, cx + span);
+    return { y: yb, grip: { x: x0, y: cy - 24, w: x1 - x0, h: 48, cx, RS } };
+  }
+  // The torque handle: a track beside the rig.
+  const tyOf = (v) => 172 - (v - 20) / 80 * 128;
+  function torqueTrack(Tq) {
+    const X = 258;
+    text(282, 24, 'net torque', 'sm t', 'middle');
+    line('track', X, tyOf(20), X, tyOf(100));
+    for (let v = 20; v <= 100; v += 10) line('tick', X - 7, tyOf(v), X + 7, tyOf(v));
+    text(X - 12, tyOf(100) + 4, '100', 'sm m', 'end'); text(X - 12, tyOf(20) + 4, '20', 'sm m', 'end');
+    circ('knob', X, tyOf(Tq), 9);
+    text(X + 14, tyOf(Tq) + 5, nf(Tq, 0) + ' N m', 'n big', 'start');
+    return { x: 218, y: 30, w: 120, h: 160 };
+  }
+  // The energy stored, as a bar on a fixed 0 to 100 kJ scale.
+  function energyBar(kJ) {
+    const X = 254, W = 24, yOf = (v) => 172 - v / 100 * 128;
+    text(282, 24, 'energy stored', 'sm t', 'middle');
+    rect('ebox', X, yOf(100), W, 128, 3);
+    if (kJ > 0.05) rect('ebar', X + 3, yOf(kJ), W - 6, yOf(0) - yOf(kJ), 2);
+    [0, 50, 100].forEach((v) => { line('tick', X + W, yOf(v), X + W + 5, yOf(v)); text(X + W + 9, yOf(v) + 4, nf(v, 0) + (v === 100 ? ' kJ' : ''), 'sm m', 'start'); });
+  }
+  // The motor's curve and the pump's, with the gap between them shaded: the net torque.
+  function curves(g) {
+    const ns = K.linspace(0, NS, 60), all = K.linspace(0, 1500, 121);
+    path('gap', 'M' + ns.map((n) => P(g.xt(n), g.yv(motorT(n)))).join('L') + 'L' + ns.slice().reverse().map((n) => P(g.xt(n), g.yv(pumpT(n)))).join('L') + 'Z');
+    path('l1', 'M' + all.map((n) => P(g.xt(n), g.yv(motorT(n)))).join('L'));
+    path('l2', 'M' + all.map((n) => P(g.xt(n), g.yv(pumpT(n)))).join('L'));
+    text(g.xt(450), g.yv(60), 'net torque', 'sm', 'middle');
+  }
+  function torqueGraph(nNow) {
+    const top = 28, bot = 136, g = axes({ X0: 198, X1: 330, top, bot, ax: 1500, ymax: 300, yt: [100, 200, 300], xticks: [0, 500, 1000, 1500], xu: '', ends: true, title: 'Torque (N m)', titleX: 168 });
+    text(264, bot + 31, 'speed (rev/min)', 'sm m', 'middle');
+    curves(g);
+    if (nNow != null) {
+      const x = g.xt(nNow);
+      if (netT(nNow) > 1) line('netbar', x, g.yv(motorT(nNow)), x, g.yv(pumpT(nNow)));
+      circ('dot1', x, g.yv(motorT(nNow)), 4.5); circ('dot2', x, g.yv(pumpT(nNow)), 4.5);
+    }
+    line('l1', 168, bot + 43, 184, bot + 43); text(188, bot + 47, 'motor', 'sm', 'start');
+    line('l2', 236, bot + 43, 252, bot + 43); text(256, bot + 47, 'pump', 'sm', 'start');
+    return bot + 54;
+  }
+  // The speed against time: one line for each rig, the run-up marked along the time axis.
+  function speedGraph(y0, d, sc) {
+    const top = y0 + 26, bot = y0 + 110, g = axes({ top, bot, ax: sc.axis, ymax: 160, yt: [50, 100], ends: true }), two = sc.runs.length > 1;
+    line('ref', g.X0, g.yv(W_RUN), g.X1, g.yv(W_RUN));
+    text(g.X1, g.yv(W_RUN) - 5, N.W + ' rad/s = 1450 rev/min', 'sm m', 'end');
+    sc.runs.forEach((u, k) => {
+      const tm = sc.tms[k], cls = two && k === 1 ? 'l2' : 'l1', w = u.w(tm);
+      if (tm > 1e-9) {
+        if (u.pump) path(cls, 'M' + K.linspace(0, tm, 61).map((t) => P(g.xt(t), g.yv(u.w(t)))).join('L'));
+        else path(cls, 'M' + P(g.X0, bot) + 'L' + P(g.xt(tm), g.yv(w)));
+      }
+      circ(cls === 'l2' ? 'dot2' : 'dot1', g.xt(tm), g.yv(w), 4.5);
+    });
+    if (two) {
+      const rR = sc.runs[1].I;
+      line('l1', 196, y0 + 8, 212, y0 + 8); text(216, y0 + 12, nf(R0, 2) + ' m', 'sm n', 'start');
+      line('l2', 258, y0 + 8, 274, y0 + 8); text(278, y0 + 12, nf(Math.sqrt(rR / (2 * M)), 2) + ' m', 'sm t', 'start');
+    }
+    const u0 = sc.runs[0];
+    if (!two && !u0.pump && d.rig !== 'energy') part(sc.past(0, u0.tEnd, 0.3), 0, () => {
+      // the slope: the same rise every second
+      const ta = 0.3 * u0.tEnd, tb = ta + sc.axis / 8;
+      path('tri', 'M' + P(g.xt(ta), g.yv(u0.w(ta))) + 'H' + r2(g.xt(tb)) + 'V' + r2(g.yv(u0.w(tb))));
+      text(g.xt(tb) + 6, g.yv(u0.w(ta)) + 4, '+' + nf(u0.a, 2) + ' rad/s each second', 'sm', 'start');
+    });
+    let yb = bot + 26;
+    sc.runs.forEach((u, k) => {
+      const tr = u.t99;
+      part(sc.past(k, tr), 0, () => {
+        path('brk', 'M' + P(g.X0, yb - 5) + 'V' + r2(yb) + 'H' + r2(g.xt(tr)) + 'V' + r2(yb - 5));
+        text((g.X0 + g.xt(tr)) / 2, yb + 14, two ? fx(tr, 1) + ' s' : 'run-up', two ? (k ? 'sm t' : 'sm n') : 'sm', 'middle');
+      });
+      yb += 26;
+    });
+    return yb - 4;
+  }
+  // The energy stored against the same time axis: a curve, as it goes with the speed squared.
+  function energyGraph(y0, sc) {
+    const u = sc.runs[0], tm = sc.tms[0], Ef = energyOf(u.I, W_RUN) / 1000;
+    const ym = [10, 25, 50, 75, 100].find((v) => v >= Ef * 1.04) || 100;
+    const yt = { 10: [5, 10], 25: [10, 20], 50: [25, 50], 75: [25, 50, 75], 100: [50, 100] }[ym];
+    const top = y0 + 26, bot = y0 + 100, g = axes({ top, bot, ax: sc.axis, ymax: ym, yt, title: 'Energy stored (kJ)', ends: true }), Et = (t) => energyOf(u.I, u.w(t)) / 1000;
+    if (tm > 1e-9) path('l2', 'M' + K.linspace(0, tm, 41).map((t) => P(g.xt(t), g.yv(Et(t)))).join('L'));
+    circ('dot2', g.xt(tm), g.yv(Et(tm)), 4.5);
+    return bot + 24;
+  }
+  function rigScreen(d, p) {
+    const sc = sceneOf(d, p), s = rigState(p, d), drag = d.drag || [], rest = !sc.live;
+    const phiOf = (k) => (sc.live ? sc.runs[k].kv * sc.runs[k].th(sc.tms[k]) : 0);
+    const grips = {};
+    let y0;
+    keyMass(M);
+    if (d.rig === 'two') {
+      const L = rigDraw(GEO.twoL, { r: R0, phi: phiOf(0), T: T0, motorLab: true });
+      const Rr = rigDraw(GEO.twoR, { r: s.r, phi: phiOf(1), T: T0, grip: true, rest });
+      grips.r = Rr.grip; y0 = Math.max(L.y, Rr.y) + 8;
+    } else if (s.pump) {
+      const g = rigDraw(GEO.pump, { r: s.r, phi: phiOf(0), T: null, grip: true, rest, motorLab: true });
+      const ty = torqueGraph(sc.nNow);
+      grips.r = g.grip; y0 = Math.max(g.y, ty) + 6;
+    } else {
+      const g = rigDraw(GEO.run, { r: s.r, phi: phiOf(0), T: s.T, grip: drag.indexOf('r') >= 0, rest, motorLab: true });
+      if (drag.indexOf('r') >= 0) grips.r = g.grip;
+      if (d.rig === 'energy') energyBar(energyOf(s.I, sc.wNow) / 1000);
+      else if (drag.indexOf('T') >= 0) grips.T = torqueTrack(s.T);
+      y0 = g.y + 8;
+    }
+    let y = speedGraph(y0, d, sc);
+    if (d.rig === 'energy') y = energyGraph(y + 4, sc);
+    const said = d.rig === 'two'
+      ? 'Two rigs side by side under the same 50 newton metres: masses 0.2 metres out on the left, ' + nf(s.r, 2) + ' metres out on the right, with their speed lines against time.'
+      : 'A motor spins a shaft with two 25 kilogram masses ' + nf(s.r, 2) + ' metres out' + (s.pump ? ', driving a pump, with the motor and pump torque curves' : ' under a steady ' + nf(s.T, 0) + ' newton metre net torque') +
+        ', and a graph of its speed against time' + (d.rig === 'energy' ? ' and of the energy it stores.' : '.');
+    return { h: y + 4, said, grips, sc };
+  }
+
+  // ---------- the other demonstrations: one mass's push, and the work each radian ----------
+  function slideR() {
+    const live = T !== Infinity && MOT && MOT.kind === 'slide', u = live ? K.clamp((T - MOT.at) / MOT.dur, 0, 1) : 1;
+    return R0 + (0.4 - R0) * K.ease(u);
+  }
+  function pushShow() {
+    const r = slideR(), rd = Math.round(r * 100) / 100, cx = 130, cy = 150, RS = 300, R = r * RS, F = pushOf(T0, rd), L = pushOf(T0, r) * 0.24;
+    keyMass(M);
+    circ('orbit', cx, cy, R);
+    text(cx, cy - R - 7, 'its circle', 'sm m', 'middle');
+    rect('face', cx - 12, cy - 12, 24, 24, 4);
+    arcCCW(cx, cy, 20, 0, 160, 'nv');
+    text(cx, 118, 'T = ' + nf(T0, 0) + ' N m', 'n sm', 'middle');
+    line('arm', cx, cy, cx + R, cy);
+    circ('hub', cx, cy, 4);
+    circ('mass', cx + R, cy, 10);
+    arrow(cx + R, cy - 10, cx + R, cy - 10 - L, 'nv', 9);
+    text(cx + R + 8, cy - 10 - L / 2 + 4, 'push ' + nf(F, 0) + ' N', 'n', 'start');
+    const yd = cy + 0.4 * RS + 20;
+    line('ext', cx, cy + 14, cx, yd + 5); line('ext', cx + R, cy + 12, cx + R, yd + 5);
+    path('dim', 'M' + P(cx, yd) + 'H' + r2(cx + R));
+    text(cx + R / 2, yd + 17, 'r = ' + nf(rd, 2) + ' m', 'sm', 'middle');
+    return { h: yd + 26, said: 'One 25 kilogram mass on an arm ' + nf(rd, 2) + ' metres out, pushed round its circle with ' + nf(F, 0) + ' newtons by a 50 newton metre torque.' };
+  }
+  function workShow() {
+    const live = T !== Infinity && MOT && MOT.kind === 'turn', u = live ? K.clamp((T - MOT.at) / MOT.dur, 0, 1) : 1;
+    const cx = 100, cy = 160, R = 90, phi = K.ease(u), F = pushOf(T0, R0), L = F * 0.2, ta = live ? MOT.at + MOT.dur + 0.1 : null;
+    keyMass(M);
+    line('ext', cx, cy, cx + R + 14, cy);   // where the arm started
+    if (phi > 1e-3) path('tri', 'M' + P(cx + R, cy) + 'A' + R + ' ' + R + ' 0 0 0 ' + P(cx + R * Math.cos(phi), cy - R * Math.sin(phi)));
+    rect('face', cx - 12, cy - 12, 24, 24, 4);
+    arcCCW(cx, cy, 20, 100, 260, 'nv');
+    text(cx - 28, cy + 4, 'T = ' + nf(T0, 0) + ' N m', 'n sm', 'end');
+    const mx = cx + R * Math.cos(phi), my = cy - R * Math.sin(phi), ux = -Math.sin(phi), uy = -Math.cos(phi);
+    line('arm', cx, cy, mx, my); circ('hub', cx, cy, 4); circ('mass', mx, my, 10);
+    const tx = mx + ux * (11 + L), ty = my + uy * (11 + L);
+    arrow(mx + ux * 11, my + uy * 11, tx, ty, 'nv', 9);
+    text(tx - 4, ty - 4, 'push ' + nf(F, 0) + ' N', 'n', 'end');
+    text(cx + R / 2 + 10, cy + 18, 'r = ' + nf(R0, 2) + ' m', 'sm', 'middle');
+    part(vis(ta), 0, () => { text(152, 135, '1 radian', 'sm', 'middle'); text(186, 118, nf(R0, 2) + ' m along the circle', 'sm', 'start'); });
+    part(vis(ta == null ? null : ta + 0.4), 4, () => text(8, 214, 'Work each radian: ' + nf(F, 0) + ' N × ' + nf(R0, 2) + ' m = ' + nf(F * R0, 0) + ' J', 'wk', 'start'));
+    part(vis(ta == null ? null : ta + 1.0), 4, () => text(8, 238, 'ω radians each second: power = T × ω', 'wk', 'start'));
+    part(vis(ta == null ? null : ta + 1.6), 4, () => text(8, 262, N.P11 + ' W ÷ ' + N.W + ' rad/s = ' + N.T72 + ' N m', 'wk', 'start'));
+    return { h: 272, said: 'An arm 0.2 metres long turning through one radian, its mass pushed 0.2 metres along its circle with 250 newtons.' };
+  }
+
+  // ---------- the puzzles' pictures ----------
+  const ansOf = (st) => ({ right: st.res === 'right', wrong: st.res === 'wrong' && st.pick != null, pick: st.pick, v: (t) => arr(t, 0.5) });
+  // The givens under a puzzle's picture, then the chosen answer's working once checked: red when wrong.
+  function working(y0, d, st, a) {
+    const q = d.qw || [], nMax = q.length + Math.max.apply(null, d.opts.map((o) => [].concat(d.ow[o]).length));
+    q.forEach((s, k) => { text(8, y0 + 18 + 24 * k, s, 'wk', 'start'); REC.wk.push({ s, ans: false, bad: false }); });
+    if (a.right || a.wrong) {
+      [].concat(d.ow[a.pick]).forEach((s, k) => part(a.v(0.15 + 0.3 * k), 4, () => {
+        text(8, y0 + 18 + 24 * (q.length + k), s, 'wk ' + (a.wrong ? 'w' : 'n'), 'start');
+        REC.wk.push({ s, ans: true, bad: a.wrong });
+      }));
+    }
+    return y0 + 18 + 24 * (nMax - 1) + 12;
+  }
+  const PICS = {
+    shapeQ(d, st) {
+      const a = ansOf(st), top = 34, bot = 140, g = axes({ top, bot, ax: 8, ymax: 160, yt: [50, 100] }), u = runOf(inertiaOf(R0), T0, false);
+      text(g.X1 - 4, bot - 8, nf(T0, 0) + ' N m net, steady', 'sm m', 'end');
+      if (a.right) part(a.v(0.1), 0, () => {
+        for (let k = 0; k < 6; k++) path('tri', 'M' + P(g.xt(k), g.yv(u.w(k))) + 'H' + r2(g.xt(k + 1)) + 'V' + r2(g.yv(u.w(k + 1))));
+        path('l1', 'M' + P(g.X0, bot) + 'L' + P(g.xt(u.tEnd), g.yv(W_RUN)));
+        circ('dot1', g.xt(u.tEnd), g.yv(W_RUN), 4.5);
+        text(g.X0 + 6, top + 8, '+' + N.a2 + ' rad/s each second', 'sm', 'start');
+      });
+      if (a.wrong && a.pick === SH[1]) part(a.v(0.1), 0, () => { path('lbad', 'M' + P(g.X0, g.yv(70)) + 'H' + r2(g.X1)); text(g.X0 + 6, g.yv(70) - 7, 'one steady speed?', 'w sm', 'start'); });
+      if (a.wrong && a.pick === SH[2]) part(a.v(0.1), 0, () => {
+        const f = (t) => W_RUN * (1 - Math.exp(-t / 1.2));
+        path('lbad', 'M' + K.linspace(0, 8, 50).map((t) => P(g.xt(t), g.yv(f(t)))).join('L'));
+        text(g.xt(5), g.yv(f(5)) + 17, 'levels off?', 'w sm', 'start');
+      });
+      return { h: working(bot + 26, d, st, a), said: 'An empty graph of angular speed against time, for a steady net torque of 50 newton metres from rest.' };
+    },
+    inertiaQ(d, st) {
+      const a = ansOf(st), g = { cx: 150, cy: 92, RS: 210 };
+      keyMass(M);
+      [1, -1].forEach((k) => circ('ghost', g.cx + k * 0.2 * g.RS, g.cy, 9.45));
+      const R = rigDraw(g, { r: 0.4, phi: 0, T: null, motorLab: true });
+      text(g.cx + 0.2 * g.RS, g.cy - 24, 'was 0.2 m', 'sm m', 'middle');
+      return { h: working(R.y + 8, d, st, a), said: 'The rig with each 25 kilogram mass moved from 0.2 metres out to 0.4 metres out.' };
+    },
+    runQ(d, st) {
+      const a = ansOf(st), top = 34, bot = 140, g = axes({ top, bot, ax: 20, ymax: 160, yt: [50, 100] });
+      line('ref', g.X0, g.yv(W_RUN), g.X1, g.yv(W_RUN)); text(g.X1, g.yv(W_RUN) - 5, N.W + ' rad/s = 1450 rev/min', 'sm m', 'end');
+      text(g.X1 - 4, bot - 8, 'I = 0.5 kg m², 40 N m net', 'sm m', 'end');
+      if (a.right || a.wrong) part(a.v(0.1), 0, () => {
+        const t = d.tv[a.pick], x = g.xt(t), y = g.yv(W_RUN);
+        path(a.right ? 'l1' : 'lbad', 'M' + P(g.X0, bot) + 'L' + P(x, y)); circ(a.right ? 'dot1' : 'dotbad', x, y, 4.5);
+        line('drop', x, y + 6, x, bot - 1); text(x, bot + 31, a.pick, a.right ? 'n sm' : 'w sm', 'middle');
+      });
+      return { h: working(bot + 40, d, st, a), said: 'A graph of angular speed against time up to 20 seconds, with the 1450 revolutions a minute line marked.' };
+    },
+    powerQ(d, st) {
+      const a = ansOf(st), ay = 128, sx = (kW) => 40 + kW / 40 * 280;
+      rect('motor', 14, 26, 64, 48, 4); text(46, 55, 'motor', 'sm', 'middle');
+      rect('shaft', 78, 43, 230, 14, 3);
+      path('arc nv', 'M150 30A12 20 0 0 1 150 70'); path('ah nv', 'M141 70L150 65L150 75Z');
+      text(168, 34, '40 N m', 'n', 'start'); text(250, 34, '960 rev/min', 'sm m', 'start');
+      line('axis', 40, ay, 320, ay);
+      [0, 10, 20, 30, 40].forEach((v, k) => { line('tick', sx(v), ay - 4, sx(v), ay + 4); text(sx(v), ay + 18, nf(v, 0) + (k === 4 ? ' kW' : ''), 'sm m', k === 4 ? 'end' : 'middle'); });
+      text(180, ay + 36, 'power', 'sm m', 'middle');
+      if (a.right || a.wrong) part(a.v(0.1), 0, () => {
+        const x = sx(d.kv[a.pick]);
+        line(a.right ? 'mk' : 'mkbad', x, ay - 14, x, ay); circ(a.right ? 'dot1' : 'dotbad', x, ay, 5);
+        text(K.clamp(x, 34, 296), ay - 20, a.pick, (a.right ? 'n' : 'w') + ' sm', 'middle');
+      });
+      return { h: working(ay + 44, d, st, a), said: 'A motor turning a shaft with 40 newton metres at 960 revolutions a minute, above a power scale from 0 to 40 kilowatts.' };
+    },
+    energyQ(d, st) {
+      const a = ansOf(st), top = 34, bot = 140, g = axes({ top, bot, ax: 1500, ymax: 25, yt: [10, 20], xticks: [0, 500, 1000, 1500], xu: ' rev/min', title: 'Energy stored (kJ)' });
+      const E = (n) => energyOf(2, radOf(n)) / 1000, curve = (n0, n1, cls) => path(cls, 'M' + K.linspace(n0, n1, 40).map((n) => P(g.xt(n), g.yv(E(n)))).join('L'));
+      const x7 = g.xt(725), y7 = g.yv(E(725)), x14 = g.xt(1450);
+      line('drop', x14, top, x14, bot - 1); text(x14, bot + 31, '1450', 'sm m', 'middle');
+      line('drop', x7, y7 + 6, x7, bot - 1); text(x7, bot + 31, '725', 'sm m', 'middle');
+      curve(0, 725, 'l1'); circ('dot1', x7, y7, 4.5); text(x7 - 6, y7 - 8, N.q10e + ' kJ', 'n sm', 'end');
+      if (a.right) part(a.v(0.1), 0, () => { curve(725, 1450, 'l1'); circ('dot1', x14, g.yv(E(1450)), 4.5); text(x14 - 8, g.yv(E(1450)) - 2, N.q10 + ' kJ', 'n sm', 'end'); });
+      if (a.wrong && a.pick === N.q10x + ' kJ') part(a.v(0.1), 0, () => {
+        const y = g.yv(2 * E(725));
+        path('lbad', 'M' + P(g.X0, bot) + 'L' + P(x14, y)); circ('dotbad', x14, y, 4.5); text(x14 - 8, y - 6, N.q10x + ' kJ', 'w sm', 'end');
+      });
+      if (a.wrong && a.pick === N.q10e + ' kJ') part(a.v(0.1), 0, () => { path('lbad', 'M' + P(x7, y7) + 'H' + r2(x14)); circ('dotbad', x14, y7, 4.5); text(x14 - 8, y7 + 16, N.q10e + ' kJ', 'w sm', 'end'); });
+      return { h: working(bot + 40, d, st, a), said: 'A graph of the rig\'s stored energy against speed, drawn up to 5.76 kilojoules at 725 revolutions a minute.' };
+    },
+    meetQ(d, st) {
+      const a = ansOf(st), top = 40, bot = 156, g = axes({ top, bot, ax: 1500, ymax: 300, yt: [100, 200, 300], xticks: [0, 500, 1000, 1500], xu: ' rev/min', title: 'Torque (N m)' });
+      curves(g);
+      line('l1', 200, top - 18, 216, top - 18); text(220, top - 14, 'motor', 'sm', 'start');
+      line('l2', 262, top - 18, 278, top - 18); text(282, top - 14, 'pump', 'sm', 'start');
+      if (a.right || a.wrong) part(a.v(0.1), 0, () => {
+        if (a.pick === MEET[0]) circ('ring', g.xt(NS), g.yv(motorT(NS)), 7);
+        else { const n = a.pick === MEET[1] ? 1125 : 1500; line('lbad', g.xt(n), g.yv(motorT(n)), g.xt(n), g.yv(pumpT(n))); circ('ringbad', g.xt(n), g.yv(motorT(n)), 6); }
+      });
+      return { h: working(bot + 30, d, st, a), said: 'A motor\'s torque curve and a pump\'s against speed, with the gap between them shaded as the net torque.' };
+    },
+    mixQ(d, st) {
+      const a = ansOf(st), gR = { cx: 84, cy: 84, RS: 150 };
+      keyMass(10);
+      const R = rigDraw(gR, { r: 0.3, phi: 0, T: 30, motorLab: true });
+      text(gR.cx, 50, '30 N m net', 'n sm', 'middle');
+      const y0 = R.y + 6, top = y0 + 26, bot = y0 + 110, g = axes({ top, bot, ax: 40, ymax: 80, yt: [20, 40] }), wT = radOf(600);
+      line('ref', g.X0, g.yv(wT), g.X1, g.yv(wT)); text(g.X1, g.yv(wT) - 5, '600 rev/min', 'sm m', 'end');
+      if (a.right || a.wrong) part(a.v(0.1), 0, () => {
+        const t = d.tv[a.pick], x = g.xt(t), y = g.yv(wT);
+        path(a.right ? 'l1' : 'lbad', 'M' + P(g.X0, bot) + 'L' + P(x, y)); circ(a.right ? 'dot1' : 'dotbad', x, y, 4.5);
+        line('drop', x, y + 6, x, bot - 1); text(x, bot + 31, a.pick, a.right ? 'n sm' : 'w sm', 'middle');
+      });
+      return { h: working(bot + 40, d, st, a), said: 'A rig with two 10 kilogram masses 0.3 metres out under 30 newton metres, above a graph of speed against time with 600 revolutions a minute marked.' };
+    },
+    steadyQ(d, st) {
+      const a = ansOf(st), pc = a.wrong ? 'wr' : 't';
+      rect('motor', 14, 46, 64, 48, 4); text(46, 75, 'motor', 'sm', 'middle');
+      rect('shaft', 78, 63, 184, 14, 3);
+      rect('motor', 262, 46, 64, 48, 4); text(294, 75, 'pump', 'sm', 'middle');
+      path('arc nv', 'M120 50A12 20 0 0 1 120 90'); path('ah nv', 'M111 90L120 85L120 95Z');
+      text(130, 40, 'motor ' + N.T72 + ' N m', 'n', 'end');
+      path('arc ' + pc, 'M220 90A12 20 0 0 0 220 50'); path('ah ' + pc, 'M211 50L220 45L220 55Z');
+      const lab = a.right ? 'pump ' + N.T72 + ' N m' : a.wrong ? (a.pick === N.T72 + ' N m' ? 'left out?' : 'added?') : 'pump\'s load';
+      text(236, 40, lab, a.wrong ? 'w sm' : 't sm', 'start');
+      text(170, 116, 'steady 1450 rev/min', 'sm m', 'middle');
+      return { h: working(128, d, st, a), said: 'A motor driving a pump through a shaft at a steady 1450 revolutions a minute, the motor\'s torque one way and the pump\'s load the other.' };
+    },
+  };
+
+  // ---------- one screen's picture ----------
+  let GRIP = {};
+  function placeGrips(d, g) {
+    GRIP = g || {};
+    [[gR, 'r'], [gT, 'T']].forEach(([node, k]) => {
+      const on = !!GRIP[k] && !finished;
+      node.style.display = on ? '' : 'none';
+      node.setAttribute('tabindex', on ? '0' : '-1');
+      if (!on) return;
+      const r = GRIP[k];
+      node.setAttribute('x', r2(r.x)); node.setAttribute('y', r2(r.y)); node.setAttribute('width', r2(r.w)); node.setAttribute('height', r2(Math.max(44, r.h)));
+      const v = +CTL[k].get();
+      node.setAttribute('aria-valuemin', k === 'r' ? '0.1' : '20'); node.setAttribute('aria-valuemax', k === 'r' ? '0.4' : '100');
+      node.setAttribute('aria-valuenow', String(v)); node.setAttribute('aria-valuetext', k === 'r' ? nf(v, 2) + ' m' : nf(v, 0) + ' N m');
+    });
+  }
+  function render(i, p) {
+    const d = STEPS[i], st = S[i];
+    art.textContent = ''; into = null;
+    REC = { wk: [] };
+    const out = d.rig ? rigScreen(d, p) : d.pic === 'push' ? pushShow() : d.pic === 'work' ? workShow() : PICS[d.pic](d, st);
+    svg.setAttribute('viewBox', '0 0 340 ' + Math.ceil(out.h));
+    svg.setAttribute('aria-label', out.said);
+    placeGrips(d, out.grips);
+    REC.sc = out.sc || null;
+    return REC;
+  }
+
+  // ---------- dragging the masses and the torque handle ----------
+  let held = null;
+  function svgPt(ev) { const m = svg.getScreenCTM(); if (!m) return null; return new DOMPoint(ev.clientX, ev.clientY).matrixTransform(m.inverse()); }
+  const canDrag = (k) => { const d = STEPS[at()]; return !finished && (d.drag || []).indexOf(k) >= 0 && !!GRIP[k]; };
+  function grab() {
+    if (anim.playing()) anim.pause();
+    if (T !== Infinity) { T = Infinity; settle(); }
+    K.reveal();
+  }
+  function setR(v) { setQuiet('r', K.clamp(Math.round(v * 20) / 20, 0.1, 0.4)); K.refresh(); }
+  function setT(v) { setQuiet('T', K.clamp(Math.round(v / 10) * 10, 20, 100)); K.refresh(); }
+  const rAt = (q) => Math.abs(q.x - GRIP.r.cx) / GRIP.r.RS;
+  const tAt = (q) => 20 + (172 - q.y) / 128 * 80;
+  [[gR, 'r'], [gT, 'T']].forEach(([node, k]) => {
+    node.addEventListener('pointerdown', (ev) => {
+      if (!canDrag(k)) return;
+      const q = svgPt(ev);
+      if (!q) return;
+      const g = GRIP[k];
+      held = { id: ev.pointerId, kind: k, g };
+      try { node.setPointerCapture(ev.pointerId); } catch (er) { /* the drag still follows while the pointer stays on the grip */ }
+      ev.preventDefault(); grab();
+      if (k === 'r') setR(Math.abs(q.x - g.cx) / g.RS); else setT(tAt(q));
+    });
+    node.addEventListener('pointermove', (ev) => {
+      if (!held || held.id !== ev.pointerId) return;
+      const q = svgPt(ev);
+      if (!q) return;
+      ev.preventDefault();
+      if (held.kind === 'r') setR(Math.abs(q.x - held.g.cx) / held.g.RS); else setT(tAt(q));
+    });
+    const letGo = (ev) => { if (held && held.id === ev.pointerId) held = null; };
+    node.addEventListener('pointerup', letGo);
+    node.addEventListener('pointercancel', letGo);
+    node.addEventListener('lostpointercapture', () => { held = null; });
+    node.addEventListener('keydown', (ev) => {
+      const by = { ArrowRight: 1, ArrowUp: 1, ArrowLeft: -1, ArrowDown: -1 }[ev.key];
+      if (by == null || !canDrag(k)) return;
+      ev.preventDefault(); grab();
+      if (k === 'r') setR(+CTL.r.get() + 0.05 * by); else setT(+CTL.T.get() + 10 * by);
+    });
+  });
+
+  // ---------- the words under the picture ----------
+  function sayFor(d, p, sc) {
+    if (d.pic === 'push') {
+      const r = Math.round(slideR() * 100) / 100;
+      let s = 'The arm pushes the mass round its circle with ' + nf(T0, 0) + ' ÷ ' + nf(r, 2) + ' = ' + nf(pushOf(T0, r), 0) + ' N.';
+      if (Math.abs(r - 0.4) < 1e-9) s += ' That is half the push at 0.2 m. The mass must also go twice as fast round its circle for the same shaft speed.';
+      return s;
+    }
+    if (d.pic === 'work') {
+      const F = pushOf(T0, R0);
+      return 'In one radian the ' + nf(F, 0) + ' N push moves the mass ' + nf(R0, 2) + ' m along its circle. So the torque does ' + nf(F, 0) + ' × ' + nf(R0, 2) + ' = ' + nf(F * R0, 0) + ' J of work each radian.';
+    }
+    const u = sc.main, tm = sc.tm, w = sc.wNow;
+    if (d.rig === 'two') {
+      const L = sc.runs[0], q = u.I / L.I, qw = Math.abs(q - 0.25) < 1e-9 ? 'a quarter' : Math.abs(q - 4) < 1e-9 ? 'four times' : nf(q, 2) + ' times';
+      if (Math.abs(q - 1) < 1e-9) return 'Both rigs have their masses 0.2 m out, so they run up together in ' + N.t2 + ' s.';
+      if (sc.live && tm < u.tEnd - 1e-9) return 'Both shafts start from rest together. The left one gains ' + nf(L.a, 2) + ' rad/s every second, the right one ' + nf(u.a, 2) + ' rad/s.';
+      return 'On the right the masses sit ' + nf(Math.sqrt(u.I / (2 * M)), 2) + ' m out, so I is ' + kgm(nf(u.I, 2)) + ', ' + (q < 1 ? qw + ' of' : qw) + ' the left rig\'s ' + kgm(N.I2) +
+        '. The same ' + nf(T0, 0) + ' N m takes ' + qw + ' as long: ' + fx(u.tEnd, 1) + ' s against ' + N.t2 + ' s.';
+    }
+    if (tm <= 1e-9) return d.rig === 'energy' ? 'The shaft is at rest, so it stores no energy yet.' : u.pump ? 'At rest the motor gives ' + fx(motorT(0), 0) + ' N m and the pump takes none. All of it speeds the shaft up.' : 'The shaft is at rest. A steady ' + nf(u.T, 0) + ' N m net torque will speed it up.';
+    if (u.pump) {
+      const n = sc.nNow;
+      if (n < N99) { const a = Math.round(motorT(n)), b = Math.round(pumpT(n)); return 'At ' + fx(n, 0) + ' rev/min the motor gives ' + a + ' N m and the pump takes ' + b + ' N m. The ' + (a - b) + ' N m left over speeds the shaft up.'; }
+      return 'The gap closes where the curves meet, near ' + N.NS + ' rev/min. The run-up to ' + N.n99 + ' rev/min takes ' + fx(u.t99, 1) + ' s.';
+    }
+    const done = tm >= u.tEnd - 1e-9;
+    if (d.rig === 'energy') {
+      const E = fx(energyOf(u.I, w) / 1000, 1);
+      if (!done) return 'At ' + fx(w, 1) + ' rad/s the rig stores ' + E + ' kJ.';
+      return 'At ' + N.W + ' rad/s the rig stores ' + E + ' kJ.' + (Math.abs(u.I - 2) < 1e-9 ? ' At half that speed it would hold a quarter as much, ' + N.q10e + ' kJ.' : ' With the masses 0.2 m out it would hold ' + N.E2 + ' kJ at the same speed.');
+    }
+    const t1 = Math.floor(tm * 10 + 1e-9) / 10;   // the time as shown, and the speed worked from it
+    if (!done) return 'After ' + fx(t1, 1) + ' s the shaft turns at ' + fx(u.a * t1, 1) + ' rad/s. It gains ' + nf(u.a, 2) + ' rad/s every second.';
+    return 'A steady ' + nf(u.T, 0) + ' N m on ' + kgm(nf(u.I, 2)) + ' adds ' + nf(u.a, 2) + ' rad/s every second. So the shaft reaches ' + N.W + ' rad/s in ' + fx(u.tEnd, 1) + ' s.';
+  }
+  function layout(i, d, st, p, sc) {
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('lead').hidden = finished || i !== 0;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task say' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    const b = d.btns || [];
+    el('live').hidden = finished || !b.length;
+    startBtn.el.hidden = b.indexOf('start') < 0; CTL.pump.el.hidden = b.indexOf('pump') < 0;
+    const outs = d.outs || [];
+    el('outs').hidden = !outs.length;
+    RO.forEach((r, k) => { r.el.hidden = outs.indexOf(RID[k]) < 0; });
+    const talk = !!d.rig || d.pic === 'push' || d.pic === 'work';
+    el('say').hidden = !talk;
+    el('say').textContent = talk ? sayFor(d, p, sc) : '';
+    const opts = d.show ? [] : optsOf(d);
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 12));
+    pickBtns.forEach((bt, k) => {
+      bt.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      bt.setLabel(opts[k]);
+      bt.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    el('acts').hidden = !!d.show;
+    el('replay').hidden = finished || (d.pic !== 'push' && d.pic !== 'work') || REDUCE;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb say' + (right ? ' right' : '');
+    fb.textContent = d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? (d.hints[st.pick] || '') : st.res === 'empty' ? 'Pick an answer first.' : '';
+    const why = el('why');
+    why.hidden = !!d.show || !st.why;
+    if (!d.show) write(why, d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  }
+
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (i !== lastStep) { enterStep(i); K.refresh(); return; }
+    // a motion that was stopped (the page hidden, a test) shows finished
+    if (T !== Infinity && !anim.playing()) { T = Infinity; settle(); K.refresh(); return; }
+    // the Motor and pump switch starts a fresh run
+    if (d.rig === 'pump' && !!p.pump !== lastPump) { lastPump = !!p.pump; runNow(); K.refresh(); return; }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const rec = render(i, p);
+    layout(i, d, st, p, rec.sc);
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const answer = (i, o) => ({ pick: o, res: o === STEPS[i].want ? 'right' : 'wrong', why: false });
+  const near = (a, b, tol) => K.near(a, b, tol);
+  const RS_ALL = [0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4], TQ_ALL = [20, 30, 40, 50, 60, 70, 80, 90, 100];
+  const words = (s) => String(s).split(/\s+/).filter((w) => /[A-Za-z0-9]/.test(w)).length;
+  // A screen drawn in a given state, finished; returns what it drew.
+  function drawn(i, st, over) {
+    const keep = { S: S[i], T, MOT, INSTANT };
+    S[i] = st; T = Infinity; MOT = null; INSTANT = false;
+    try { return render(i, Object.assign({ step: i }, setupOf(i), over || {})); }
+    finally { S[i] = keep.S; T = keep.T; MOT = keep.MOT; INSTANT = keep.INSTANT; render(at(), K.params()); }
+  }
+
+  K.check('A moment is the turning effect of a force: the arm pushes each mass with the torque ÷ r, and that push acting r out gives back the same torque at every radius', () =>
+    RS_ALL.every((r) => TQ_ALL.every((Tq) => near(pushOf(Tq, r) * r, Tq, 1e-9))), { source: SRC.moment });
+  K.check('Rotational power needs the speed converted to rad/s: 40 N m at 960 rev/min is 40 × 100.5 = 4.02 kW, where 40 × 960 would give 38.4 kW', () =>
+    near(powerOf(40, radOf(960)), 4021.24, 0.01) && STEPS[I_P8].want === '4.02 kW' && N.q8x === '38.4' && N.q8w === '100.5', { source: SRC.rads });
+  K.check('A flywheel stores more energy with a higher moment of inertia, from more mass or mass further from its centre: at full speed every step out stores more', () => {
+    const E = RS_ALL.map((r) => K.at({ step: I_EN, r }).energy);
+    return E.every((e, k) => k === 0 || e > E[k - 1]) && energyOf(inertiaOf(0.3, 30), W_RUN) > energyOf(inertiaOf(0.3, 25), W_RUN);
+  }, { source: SRC.fly });
+  K.check('The opening rig: I = 2 × 25 × 0.2² = 2 kg m², 50 N m adds 25 rad/s each second, and 1450 rev/min (151.8 rad/s) comes in 6.1 s with 23.1 kJ stored; at 0.1 m I is 0.5 kg m²', () => {
+    const o = K.at({ step: I_RUN });
+    return near(o.inertia, 2, 1e-12) && near(alphaOf(50, o.inertia), 25, 1e-12) && near(W_RUN, 151.8436, 1e-4) && near(o.runUp, 6.0737, 1e-4) && near(o.energy, 23.0565, 1e-4) &&
+      N.W === '151.8' && N.t2 === '6.1' && N.E2 === '23.1' && near(K.at({ step: I_RUN, r: 0.1 }).inertia, 0.5, 1e-12);
+  });
+  K.check('Twice the radius, four times the run-up: at every torque, masses 0.4 m out take 4 times as long as at 0.2 m (24.3 s against 6.1 s at 50 N m) and store 4 times the energy (92.2 kJ)', () =>
+    TQ_ALL.every((Tq) => near(K.at({ step: I_RUN, r: 0.4, T: Tq }).runUp / K.at({ step: I_RUN, r: 0.2, T: Tq }).runUp, 4, 1e-9)) &&
+    near(K.at({ step: I_RUN, r: 0.4 }).energy / K.at({ step: I_RUN }).energy, 4, 1e-9) && N.t4 === '24.3' && N.E4 === '92.2' &&
+    near(K.at({ step: I_TWO, r: 0.4 }).runUp, 24.295, 1e-3));
+  K.check('A steady net torque draws a straight speed line, the same rise every second, and the energy at half speed is a quarter of the energy at full speed', () => {
+    const u = runOf(2, 50, false);
+    return near(u.w(2) - u.w(1), 25, 1e-9) && near(u.w(5) - u.w(4), 25, 1e-9) &&
+      near(K.at({ step: I_EN, spd: 725 }).energy * 4, K.at({ step: I_EN, spd: 1450 }).energy, 1e-9) && N.q10e === '5.76' && N.q10 === '23.1';
+  });
+  K.check('The motor sketch gives 130 N m at rest, peaks at 276 N m at 1125 rev/min and falls to 0 at 1500 rev/min; the pump takes 72.4 N m at 1450 rev/min, and they meet near 1450 rev/min', () =>
+    Math.round(motorT(0)) === 130 && near(motorT(1125), 276, 1e-9) && motorT(1124) < 276 && motorT(1126) < 276 && motorT(1500) === 0 &&
+    fx(pumpT(1450), 1) === '72.4' && pumpT(0) === 0 && N.NS === '1450' && near(netT(NS), 0, 1e-6) && netT(NS - 1) > 0 && netT(NS + 1) < 0);
+  K.check('Motor and pump: the speed rises all the way but never passes where the curves meet, and the run-up to 1435 rev/min, 99% of it, takes 1.9 s on 2 kg m²', () => {
+    const o = K.at({ step: I_PUMP, pump: true });
+    for (let k = 1; k < TAB.w.length; k++) if (!(TAB.w[k] >= TAB.w[k - 1]) || TAB.w[k] > radOf(NS)) return false;
+    return N.n99 === '1435' && near(o.runUp, 2 * G, 1e-12) && fx(o.runUp, 1) === '1.9' && near(o.runUp, 1.869, 0.002) && near(pumpW(o.runUp, 2), radOf(N99), 0.02);
+  });
+  K.check('Every puzzle answer is worked from its rule: 8 kg m², 1.9 s, 4.02 kW, 23.1 kJ, 3.8 s and 0 N m, with the wrong picks 4, 20, 18.1, 7.6, 640 W, 38.4, 11.5, 36.0, 12.6 and 144.8', () => {
+    const w = (n) => STEPS[iOf('pic', n)].want;
+    return w('inertiaQ') === '8 kg m²' && w('runQ') === '1.9 s' && w('powerQ') === '4.02 kW' && w('energyQ') === '23.1 kJ' && w('mixQ') === '3.8 s' && w('steadyQ') === '0 N m' &&
+      N.q4d === '4' && N.q4r === '20' && N.q6r === '18.1' && N.q6x === '7.6' && N.q8s === '640' && N.q10x === '11.5' && N.q13r === '36.0' && N.q13x === '12.6' && N.q14x === '144.8' &&
+      N.q13I === '1.8' && N.q13a === '16.7' && N.q13w === '62.8' && N.T72 === '72.4';
+  });
+  K.check('Each puzzle offers three answers and accepts only its right one; every wrong answer has its own hint and its working drawn in red, and nothing is marked before Check', () =>
+    DO.every((i) => {
+      const d = STEPS[i];
+      if (d.opts.length !== 3 || d.opts.indexOf(d.want) < 0) return false;
+      if (drawn(i, blank()).wk.some((x) => x.ans)) return false;
+      if (!drawn(i, answer(i, d.want)).wk.some((x) => x.ans && !x.bad)) return false;
+      return d.opts.filter((o) => o !== d.want).every((o) => !!d.hints[o] && drawn(i, answer(i, o)).wk.some((x) => x.ans && x.bad));
+    }));
+  K.check('Every run plays time four times faster than real, every demonstration ends within 7 s of its screen opening, and every answer is drawn within 2.5 s of Check', () => {
+    const keep = { T, MOT, INSTANT };
+    try {
+      return TS === 4 && STEPS.every((d, i) => {
+        if (d.show) {
+          const p = Object.assign({ step: i }, setupOf(i)), plan = demoPlan(d, p);
+          if (plan.mot && plan.mot.kind === 'run' && !near(plan.mot.dur * TS, Math.max.apply(null, plan.mot.runs.map((u) => u.tEnd)), 1e-9)) return false;
+          T = Infinity; MOT = null; INSTANT = false; latest = 0;
+          render(i, p);
+          return plan.end <= 7 && latest <= plan.end;
+        }
+        return d.opts.every((o) => {
+          const keepS = S[i];
+          T = Infinity; MOT = null; latest = 0; S[i] = answer(i, o);
+          try { render(i, Object.assign({ step: i }, setupOf(i))); } finally { S[i] = keepS; }
+          return latest <= 2.5 && ANS <= 2.5;
+        });
+      });
+    } finally { T = keep.T; MOT = keep.MOT; INSTANT = keep.INSTANT; render(at(), K.params()); }
+  });
+  K.check('Every screen that shows an idea says it in 90 words or fewer', () => STEPS.every((d) => !d.show || (words(d.text) <= 90 && (!d.read || words(d.read) <= 90))));
+
+  K.ready();
+</script>

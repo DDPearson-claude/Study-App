@@ -1,0 +1,320 @@
+{
+  "iid": "i1",
+  "title": "Forces in balance",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is each leg's tension arrow grow, with its vertical part held at half the load and its sideways part growing, when you spread the sling's legs.",
+    "title": "The sling and its hook",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Screen",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [
+      {
+        "id": "legTension",
+        "label": "Each leg's tension",
+        "unit": "kN",
+        "decimals": 2
+      },
+      {
+        "id": "angleFactor",
+        "label": "Load angle factor",
+        "unit": "",
+        "decimals": 3
+      },
+      {
+        "id": "angleFromHorizontal",
+        "label": "Leg angle from horizontal",
+        "unit": "°",
+        "decimals": 0
+      }
+    ],
+    "whatAmILookingAt": "The picture runs over thirteen small screens. The main picture is a load hanging from a two-leg sling on a crane hook. The load is an example 1000 kg. It weighs 9.81 kN, drawn as a fixed arrow pointing down. Each leg's tension is an arrow along the leg, drawn to scale. The right leg's vertical and sideways parts are dashed beside it. The left leg's parts are their mirror image. θ is marked at the hook, between a horizontal line and the right leg. Beside it sits the hook's free-body diagram. The crane wire's pull up and the two leg pulls lie nose to tail in a triangle. A slider sets the angle between the legs, from 60° to 150°. As the legs spread, the hook drops, just as it would on a shorter sling. Each leg's angle from the horizontal is θ. It is 90° less half the angle between the legs. Readouts give each leg's tension in kN and the load angle factor, 1 ÷ sin θ. A leg's vertical part is its tension times sin θ. Only that part holds the load up. So each leg's tension is half the weight times that factor. Past 120° between the legs, the tension arrows turn red. Each leg then carries more than the whole load. The two sideways parts are equal and opposite, so they cancel. A second, small picture is a crate on a deck. As its push arrow grows, a friction arrow grows to match it. Friction can match it up to a limit, μ times how hard the deck presses on the crate. Here the crate presses with an example 600 N and μ is an example 0.5, so the limit is 300 N. Past that, the crate slides. Screen 1 asks what single pull balances two 3 kN pulls, 120° apart, on a ring. Beside it, a crane hook holds a load on two legs 120° apart, the same three pulls upside down. Screen 2 shows the hook's free-body diagram at 60° between the legs. Screen 3 asks which forces act on the load. Screen 4 shows each leg's vertical and sideways parts, with the angle slider. At 60° between the legs, each leg pulls 5.66 kN. Screen 5 asks what each leg pulls at 120°. Screen 6 shows the load angle factor. It also shows the triangle at 120°, with three equal sides. Screen 7 asks for each leg's pull on a 2000 kg motor with legs at 45° from the horizontal. Screen 8 shows a leg that can safely take an example 8 kN. It is fine at 90° and overloaded at 120°, yet it is no weaker. Readouts give each leg's tension and the load angle factor. Screen 9 asks why that leg is overloaded. Screen 10 shows the crate held still by friction against a 200 N push. Screen 11 asks for the friction on that crate when it stays put under a 150 N push. Screens 12 and 13 mix it all: a chart's 60° from the horizontal, then the crane wire's pull at 120°. Some screens show an idea and the rest ask you to try it. Each puzzle offers three answers. A wrong pick is drawn, so you can see where it goes wrong.",
+    "ignores": "The legs and hook are drawn weightless, and the legs do not stretch. The load hangs still, with its weight centred between the picks. So both legs share it equally. A load whose centre of gravity sits off-centre loads one leg more than the other. A load that is snatched up or swinging can pull harder than its weight. The deck is level. On a sloping deck, friction also holds back part of the crate's weight. Once the crate slides, the picture keeps its friction at the limit. A real sliding crate usually needs a little less push to keep it going than to start it.",
+    "numbers": [
+      {
+        "label": "Screen, 1 to 13 (the stepper)",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Example load mass, kg",
+        "value": 1000,
+        "kind": "assumed"
+      },
+      {
+        "label": "Weight per kilogram, g, N/kg",
+        "value": 9.81,
+        "kind": "constant"
+      },
+      {
+        "label": "The example load's weight, kN",
+        "value": 9.81,
+        "kind": "computed"
+      },
+      {
+        "label": "Half the load, each leg's vertical share, kN",
+        "value": 4.905,
+        "kind": "computed"
+      },
+      {
+        "label": "Angle slider's lowest angle between legs, degrees",
+        "value": 60,
+        "kind": "control"
+      },
+      {
+        "label": "Angle slider's highest angle between legs, degrees",
+        "value": 150,
+        "kind": "control"
+      },
+      {
+        "label": "Angle slider's opening angle between legs, degrees",
+        "value": 60,
+        "kind": "control"
+      },
+      {
+        "label": "Each leg at 60° between legs, kN",
+        "value": 5.66,
+        "kind": "computed"
+      },
+      {
+        "label": "Each leg at 90° between legs, kN",
+        "value": 6.94,
+        "kind": "computed"
+      },
+      {
+        "label": "Each leg at 120° between legs, kN",
+        "value": 9.81,
+        "kind": "computed"
+      },
+      {
+        "label": "Each leg at 150° between legs, kN",
+        "value": 18.95,
+        "kind": "computed"
+      },
+      {
+        "label": "sin 60°, the vertical share of a leg at 60° from horizontal",
+        "value": 0.866,
+        "kind": "computed"
+      },
+      {
+        "label": "sin 30°, the vertical share of a leg at 30° from horizontal",
+        "value": 0.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Each leg's sideways part at 120° between legs, kN",
+        "value": 8.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Load angle factor at 90° from horizontal",
+        "value": 1,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "Load angle factor at 60° from horizontal",
+        "value": 1.155,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "Load angle factor at 45° from horizontal",
+        "value": 1.414,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "Load angle factor at 30° from horizontal",
+        "value": 2,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "Leg angle from horizontal that is extremely hazardous, degrees",
+        "value": 30,
+        "kind": "constant",
+        "source": 2
+      },
+      {
+        "label": "Each example ring pull in screen 1, kN",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Angle between the ring pulls in screen 1, degrees",
+        "value": 120,
+        "kind": "assumed"
+      },
+      {
+        "label": "Wrong pick: the two ring pulls' sizes added, kN",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "Wrong pick: the ring pulls 60° apart, kN",
+        "value": 5.2,
+        "kind": "computed"
+      },
+      {
+        "label": "Example motor mass in screen 7, kg",
+        "value": 2000,
+        "kind": "assumed"
+      },
+      {
+        "label": "That motor's weight, kN",
+        "value": 19.62,
+        "kind": "computed"
+      },
+      {
+        "label": "Each leg at 45° from horizontal on that motor, kN",
+        "value": 13.87,
+        "kind": "computed"
+      },
+      {
+        "label": "Wrong pick: the whole motor times the factor, kN",
+        "value": 27.75,
+        "kind": "computed"
+      },
+      {
+        "label": "Example safe load for one leg in screen 8, kN",
+        "value": 8,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example force the deck presses on the crate with, its weight, N",
+        "value": 600,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example coefficient of friction, μ",
+        "value": 0.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Most friction the deck can give, μN, N",
+        "value": 300,
+        "kind": "computed"
+      },
+      {
+        "label": "Example push on the crate in screen 10, N",
+        "value": 200,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example push on the crate in screen 11, N",
+        "value": 150,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example pump mass in the worked example, kg",
+        "value": 500,
+        "kind": "assumed"
+      },
+      {
+        "label": "That pump's weight, N",
+        "value": 4905,
+        "kind": "computed"
+      },
+      {
+        "label": "Half that pump's weight, N",
+        "value": 2452.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Each leg on that pump at 90° between legs, kN",
+        "value": 3.47,
+        "kind": "computed"
+      },
+      {
+        "label": "Each leg on that pump at 90° between legs, N",
+        "value": 3468,
+        "kind": "computed"
+      },
+      {
+        "label": "Extra leg load at 60° from horizontal, %",
+        "value": 15,
+        "kind": "computed"
+      },
+      {
+        "label": "Extra leg load at 45° from horizontal, %",
+        "value": 40,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "Anything that stays still has forces on it that add to nothing. Any leftover force would start it moving.[^3] So you can find a force you cannot see. Pick one part, draw every force on it, and make them balance. That drawing is a [[free-body diagram]]. Every force on it comes from a giver. The giver either touches the part or acts from a distance, as the Earth does on its weight. Take the crane hook. The crane wire pulls it up, and each sling leg pulls it down along its own line. The hook stays still, so those three pulls laid nose to tail close a triangle.\n\nNow the sling. Each leg pulls along its own line, but only its vertical part holds the load up.[^4] With the load's weight centred between them, the two legs share it equally. So each vertical part is half the load's weight. The two legs lean the same amount in opposite directions. So their sideways parts are equal and opposite, and cancel. They lift nothing. As the legs spread, each leg leans further over. The same pull then has a smaller vertical part. So the pull must grow to keep its half of the load up. Call the leg's angle from the horizontal θ. Each leg's tension is then half the weight divided by sin θ. Take an example 1000 kg load, which weighs 9.81 kN. With 60° between the legs, θ is 60° and sin 60° is 0.866. Half the load is 4.905 kN. So each leg pulls 4.905 ÷ 0.866 = 5.66 kN. With 120° between the legs, θ is 30° and sin 30° is 0.5. Each leg now pulls 9.81 kN, the whole load. Of that pull, 8.50 kN is sideways. This is the ring pulled three ways again. Two equal pulls 120° apart balance one pull the same size.\n\nThe number 1 ÷ sin θ is the [[load angle factor]]. It is 1.155 at 60°, 1.414 at 45° and 2.000 at 30° from the horizontal.[^1] Each leg carries half the load times that factor. The leg is no weaker at a wide angle.[^5] Its strength stays the same while its load grows. So the angle alone can overload a sling. Say one leg can safely take 8 kN, as an example. At 60° between the legs it carries 5.66 kN and is fine. At 120° the same leg carries 9.81 kN and is overloaded. Friction is a force with a giver too. Push a crate along a level deck, and the deck grips its base. That grip holds it back along the deck. While the crate stays still, the grip matches your push exactly. It can do so only up to a limit, F = μN. N is how hard the deck presses on the crate. μ is the [[coefficient of friction]], set by the two surfaces. Once the crate slides, the grip drops a little, so it is easier to keep it going.[^6] Oil lowers μ, so both grips drop.[^7]\n\nSizing a pump's slow shaft starts the same way. Free it, then find what loads it. **Each leg holds up its share with its vertical part only. So the load in the legs of a sling increases as the angle between the legs increases.**[^8]"
+  },
+  "analogy": {
+    "text": "Think of a catenary wire: a wire strung between two buildings to carry a cable. Pull it tighter so it sags less. The tension at each end then climbs steeply, though the cable weighs the same. With level ends, each end holds up half the weight with its vertical part. A nearly flat wire has very little vertical part.",
+    "breaks": "A catenary's weight is spread along its length, so it hangs in a curve. Its angle changes from the ends to the middle. A sling's legs are straight, with the load at one point. So each leg's angle is the same all along it."
+  },
+  "practice": {
+    "text": "- Before the lift, check the angle between the legs. Keep each leg well above 30° from the horizontal.[^2]\n- Free one part. Draw it on its own.\n- Draw every force on it, and name the giver of each one.\n- Make them balance. The across parts add to nothing, and so do the up parts.\n- For a two-leg sling, find each leg's angle from the horizontal, θ. Check which angle a chart uses before you read it.\n- With the load's weight centred between the picks, each leg's tension is half the load times the load angle factor. That factor is 1 ÷ sin θ. Off centre, one leg takes more.\n- Compare that tension with what one leg can safely take.\n\n**Rule of thumb:** 60° from the horizontal adds about 15% to each leg's share. 45° adds about 40%. At 30°, each leg carries the whole load.\n\n**Worked example:** take an example 500 kg pump on a two-leg sling, with 90° between the legs. Its weight is 500 × 9.81 = 4905 N. So each leg's share is 2452.5 N. Each leg is at 45° from the horizontal, so the factor is 1.414. Each leg pulls 2452.5 × 1.414 = 3468 N, about 3.47 kN.\n\n**Common mistakes**\n- Halving the load and stopping there. Half is right only for legs hanging straight down.\n- Thinking a wide angle weakens the leg. Its strength is the same. Its load is bigger.\n- Reading an angle from the vertical as one from the horizontal. At 60° from the vertical, each leg carries the whole load, not 15% more than half.\n- Adding both leg tensions to get the hook's load. The sideways parts cancel, so the crane wire carries just the load.\n- Leaving friction off the diagram, or giving it its biggest value. On a still crate on a level deck, it only matches the push."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+    {
+      "n": 1,
+      "title": "Rigging, Load Calculations, and Sling Angle | Free Guide 2026 | OpenExamPrep — OpenExamPrep",
+      "url": "https://open-exam-prep.com/study-guides/bcsp-asp/mathematical-calculations-safety-math-noise-rigging-flow-and-radiation/rigging-load-calculations-and-sling-angle-effects",
+      "quote": "Load Angle Factors (1.000 at 90, 1.155 at 60, 1.414 at 45, 2.000 at 30 degrees) let you scale leg tension quickly."
+    },
+    {
+      "n": 2,
+      "title": "ihsa.ca — Industrial Health & Safety Association",
+      "url": "https://www.ihsa.ca/PDFs/Products/Id/DS033.pdf",
+      "quote": "Sling angles approaching 30° are extremely hazardous and must be avoided at all costs."
+    },
+    {
+      "n": 3,
+      "title": "5.2 Newton's First Law - University Physics Volume 1 | OpenStax — OpenStax",
+      "url": "https://openstax.org/books/university-physics-volume-1/pages/5-2-newtons-first-law",
+      "quote": "A body at rest remains at rest or, if in motion, remains in motion at constant velocity unless acted on by a net external force."
+    },
+    {
+      "n": 4,
+      "title": "Two-Leg Tension and Angle Reference — Free Study Guide 2026 | OpenExamPrep — OpenExamPrep",
+      "url": "https://open-exam-prep.com/study-guides/nccco-rigger-level-2/balanced-forces/two-leg-tension",
+      "quote": "Let the total supported load be W and each leg’s tension be T. Let θ be the angle between the sling and a horizontal reference through the picks. The vertical component of each tension is T sin θ."
+    },
+    {
+      "n": 5,
+      "title": "Hoisting & Rigging Fundamentals — US Department of Energy",
+      "url": "https://www.energy.gov/sites/prod/files/2014/01/f6/HoistingRigging_Fundamentals.pdf",
+      "quote": "Actually, there is no change in the tensile strength of the sling leg."
+    },
+    {
+      "n": 6,
+      "title": "6.2 Friction - University Physics Volume 1 | OpenStax — OpenStax",
+      "url": "https://openstax.org/books/university-physics-volume-1/pages/6-2-friction",
+      "quote": "Once in motion, it is easier to keep it in motion than it was to get it started, indicating that the kinetic frictional force is less than the static frictional force."
+    },
+    {
+      "n": 7,
+      "title": "6.2 Friction - University Physics Volume 1 | OpenStax — OpenStax",
+      "url": "https://openstax.org/books/university-physics-volume-1/pages/6-2-friction",
+      "quote": "If the floor is lubricated, both coefficients are considerably less than they would be without lubrication."
+    },
+    {
+      "n": 8,
+      "title": "Safe lifting by machine - HSE — HSE",
+      "url": "https://www.hse.gov.uk/work-equipment-machinery/lift-equipment.htm",
+      "quote": "Remember that the load in the legs of a sling increases as the angle between the legs increases"
+    }
+  ]
+}

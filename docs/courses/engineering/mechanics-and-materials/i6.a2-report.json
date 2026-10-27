@@ -1,0 +1,207 @@
+{
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "A moment is the turning effect of a force: the arm pushes each mass with the torque ÷ r, and that push acting r out gives back the same torque at every radius",
+        "ok": true,
+        "source": "https://www.bbc.co.uk/bitesize/articles/z96g3j6"
+      },
+      {
+        "label": "Rotational power needs the speed converted to rad/s: 40 N m at 960 rev/min is 40 × 100.5 = 4.02 kW, where 40 × 960 would give 38.4 kW",
+        "ok": true,
+        "source": "https://pages.mtu.edu/~wjendres/ProductRealization1Course/DC_Motor_Calculations.pdf"
+      },
+      {
+        "label": "A flywheel stores more energy with a higher moment of inertia, from more mass or mass further from its centre: at full speed every step out stores more",
+        "ok": true,
+        "source": "https://www.explainthatstuff.com/flywheels.html"
+      },
+      {
+        "label": "The opening rig: I = 2 × 25 × 0.2² = 2 kg m², 50 N m adds 25 rad/s each second, and 1450 rev/min (151.8 rad/s) comes in 6.1 s with 23.1 kJ stored; at 0.1 m I is 0.5 kg m²",
+        "ok": true
+      },
+      {
+        "label": "Twice the radius, four times the run-up: at every torque, masses 0.4 m out take 4 times as long as at 0.2 m (24.3 s against 6.1 s at 50 N m) and store 4 times the energy (92.2 kJ)",
+        "ok": true
+      },
+      {
+        "label": "A steady net torque draws a straight speed line, the same rise every second, and the energy at half speed is a quarter of the energy at full speed",
+        "ok": true
+      },
+      {
+        "label": "The motor sketch gives 130 N m at rest, peaks at 276 N m at 1125 rev/min and falls to 0 at 1500 rev/min; the pump takes 72.4 N m at 1450 rev/min, and they meet near 1450 rev/min",
+        "ok": true
+      },
+      {
+        "label": "Motor and pump: the speed rises all the way but never passes where the curves meet, and the run-up to 1435 rev/min, 99% of it, takes 1.9 s on 2 kg m²",
+        "ok": true
+      },
+      {
+        "label": "Every puzzle answer is worked from its rule: 8 kg m², 1.9 s, 4.02 kW, 23.1 kJ, 3.8 s and 0 N m, with the wrong picks 4, 20, 18.1, 7.6, 640 W, 38.4, 11.5, 36.0, 12.6 and 144.8",
+        "ok": true
+      },
+      {
+        "label": "Each puzzle offers three answers and accepts only its right one; every wrong answer has its own hint and its working drawn in red, and nothing is marked before Check",
+        "ok": true
+      },
+      {
+        "label": "Every run plays time four times faster than real, every demonstration ends within 7 s of its screen opening, and every answer is drawn within 2.5 s of Check",
+        "ok": true
+      },
+      {
+        "label": "Every screen that shows an idea says it in 90 words or fewer",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "r",
+      "T",
+      "spd",
+      "pump"
+    ],
+    "readouts": [
+      "inertia",
+      "runUp",
+      "energy"
+    ],
+    "outputs": [
+      "inertia",
+      "runUp",
+      "energy"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Screen",
+        "min": 0,
+        "max": 13,
+        "step": 1,
+        "steps": [
+          "Spin it up",
+          "Steady torque",
+          "Mass further out",
+          "Moment of inertia",
+          "Two rigs",
+          "Run-up time",
+          "Torque and power",
+          "Shaft power",
+          "Stored energy",
+          "Twice the speed",
+          "Motor and pump",
+          "Where it settles",
+          "A smaller rig",
+          "Steady running"
+        ],
+        "value": 0
+      },
+      {
+        "id": "r",
+        "kind": "control",
+        "label": "How far out the masses sit",
+        "min": 0.1,
+        "max": 0.4,
+        "step": 0.05,
+        "log": false,
+        "value": 0.2,
+        "shown": false
+      },
+      {
+        "id": "T",
+        "kind": "control",
+        "label": "Net torque",
+        "min": 20,
+        "max": 100,
+        "step": 10,
+        "log": false,
+        "value": 50,
+        "shown": false
+      },
+      {
+        "id": "spd",
+        "kind": "control",
+        "label": "Shaft speed",
+        "min": 0,
+        "max": 1500,
+        "step": 0.1,
+        "log": false,
+        "value": 0,
+        "shown": false
+      },
+      {
+        "id": "pump",
+        "kind": "toggle",
+        "label": "Motor and pump",
+        "options": [
+          false,
+          true
+        ],
+        "value": false,
+        "shown": false
+      }
+    ],
+    "actions": [
+      "Start",
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Play again",
+      "Back",
+      "Continue",
+      "Start again",
+      "Demonstration"
+    ],
+    "answers": [],
+    "written": [],
+    "ready": true,
+    "warnings": [
+      "SVG labels \"1000\" and \"1500\" are only 2 px apart on one row, so they read as one: leave at least 4 px between them, or label only what differs (at step = step 11, and 1 more setting)"
+    ],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ]
+  },
+  "moved": [
+    "step = 10 (the first step that shows a control)",
+    "r = 0.32500000000000007",
+    "T = 80",
+    "spd = 1125",
+    "pump = false"
+  ],
+  "shots": [
+    "/home/user/Study-App/build/engineering/mechanics-and-materials/i6.a2-360-light.png",
+    "/home/user/Study-App/build/engineering/mechanics-and-materials/i6.a2-360-light-moved.png",
+    "/home/user/Study-App/build/engineering/mechanics-and-materials/i6.a2-360-light-end.png",
+    "/home/user/Study-App/build/engineering/mechanics-and-materials/i6.a2-360-dark.png",
+    "/home/user/Study-App/build/engineering/mechanics-and-materials/i6.a2-360-dark-moved.png",
+    "/home/user/Study-App/build/engineering/mechanics-and-materials/i6.a2-360-dark-end.png",
+    "/home/user/Study-App/build/engineering/mechanics-and-materials/i6.a2-1280-light.png",
+    "/home/user/Study-App/build/engineering/mechanics-and-materials/i6.a2-1280-light-moved.png",
+    "/home/user/Study-App/build/engineering/mechanics-and-materials/i6.a2-1280-light-end.png",
+    "/home/user/Study-App/build/engineering/mechanics-and-materials/i6.a2-1280-dark.png",
+    "/home/user/Study-App/build/engineering/mechanics-and-materials/i6.a2-1280-dark-moved.png",
+    "/home/user/Study-App/build/engineering/mechanics-and-materials/i6.a2-1280-dark-end.png"
+  ]
+}

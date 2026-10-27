@@ -1,0 +1,767 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-27T06:50:32.899Z",
+ "startedAt": "2026-10-27T06:50:32.899Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i7",
+  "title": "Shafts, couplings, belts and gears",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the pump shaft's speed fall and torque rise by one ratio, while the teeth share one speed at the mesh and the power passes through, when you add teeth to the wheel.",
+   "title": "The gear pair",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Screen",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [
+    {
+     "id": "outSpeed",
+     "label": "Pump shaft speed",
+     "unit": "rev/min",
+     "decimals": 0
+    },
+    {
+     "id": "outTorque",
+     "label": "Pump shaft torque",
+     "unit": "N m",
+     "decimals": 0
+    },
+    {
+     "id": "powerOut",
+     "label": "Power out",
+     "unit": "kW",
+     "decimals": 2
+    }
+   ],
+   "whatAmILookingAt": "The picture runs over thirteen small screens. The main picture is a gear pair. An 11 kW motor turns at 1450 rev/min, which is 151.8 rad/s. On its shaft is a small gear, the pinion. It meshes with a bigger gear, the wheel, on the pump's shaft. Every tooth is the same size. Each tooth adds 4 mm of diameter. So the 20-tooth pinion is 80 mm across and the 100-tooth wheel is 400 mm across. A hollow ring on each gear's rim is its drag handle. Dragging it in or out changes the tooth count. Its size changes with it. The pinion runs from 12 to 40 teeth and opens at 20. The wheel runs from 12 to 120 teeth and opens at 100. An efficiency slider runs from 80% to 100% in 1% steps and opens at an example 95%. Each shaft carries a speed arrow and a torque arrow, drawn to scale. A dot sits where the teeth meet. Its label gives the speed of both gears' teeth there. At the opening settings that is 6.1 m/s. It is the pinion's 151.8 rad/s × its 0.04 m radius. It is also the wheel's 30.4 rad/s × its 0.2 m radius. A power bar runs from the motor, through the mesh, to the pump. It starts at 11 kW. It comes out smaller by the loss, which is shaded at the mesh. Its end is labelled with the share of the power that gets out. Here is the rule the picture works out. The wheel turns slower than the pinion by the gear ratio. That ratio is the wheel's teeth ÷ the pinion's teeth. The motor's torque is 11,000 W ÷ 151.8 rad/s = 72.4 N m. The pump shaft's torque is the motor's torque × the ratio × the efficiency. The power out is the power in × the efficiency. At the opening settings the ratio is 100 ÷ 20 = 5. The pump shaft turns at 1450 ÷ 5 = 290 rev/min. It carries 72.4 × 5 × 0.95 = 344 N m. The power out is 10.45 kW, so 550 W turns to heat. At 100% efficiency the pump shaft carries 362 N m and the power out is the full 11 kW. Give both gears equal teeth, and the speed and torque pass through unchanged, less the loss. With the wheel smaller than the pinion, the pump shaft speeds up and its torque falls. The two gears turn opposite ways, as their arrows show. Readouts give the pump shaft's speed in rev/min, its torque in N m and the power out in kW. On a narrow phone the three readouts wrap onto two lines. The gears turn 50 times slower than real. The readouts give real speeds. A Second pair switch adds a compound train. A second 20-tooth pinion on the wheel's shaft drives a 60-tooth wheel. The pump moves onto that last shaft. Its ratio is 3, so the whole train's ratio is 5 × 3 = 15. The pump shaft then turns at 96.7 rev/min. Each pair loses its own share. At 95% each, the train passes about 90%, which is 9.93 kW. The pump shaft then carries 981 N m. Two meshes turn the last shaft the same way as the motor. A Belt switch swaps the first gear pair for two pulleys and a belt. The pulleys keep the gears' diameters: 80 mm and 400 mm at the opening settings. The rim drags then set the pulley diameters, at 4 mm for each step. A dot on the belt moves at 6.1 m/s, the speed of both pulley rims. The belt is an open one, so both pulleys turn the same way. Screen 1 shows the opening gear pair turning. It recalls a 5 : 1 reduction as a ratio of speeds: 1450 rev/min in, 290 rev/min out. The mesh dot shows why. Each pinion tooth that passes the mesh pushes one wheel tooth past. So the pinion turns five times for one turn of the wheel. Screen 2 has a 15-tooth pinion at 1450 rev/min driving a 45-tooth wheel. It asks the wheel's speed. The answer is 483 rev/min, from 1450 ÷ 3. The wrong pick 4350 rev/min multiplies by the ratio. The wrong pick 1450 rev/min treats the gears as keeping the speed. Screen 3 shows the push at the mesh at 100% efficiency. The motor's 72.4 N m acts on the pinion's 0.04 m radius. So it pushes the tooth with 72.4 ÷ 0.04 = 1810 N. The wheel's tooth takes the same 1810 N. But that tooth sits 0.2 m from its centre. So the wheel's torque is 1810 × 0.2 = 362 N m. Screen 4 puts 20 N m on the pinion of the same 15 and 45-tooth pair, with no loss. It asks the wheel's torque. The answer is 60 N m. The wrong pick 6.7 N m divides the torque by the ratio. The wrong pick 20 N m passes the torque through unchanged. Screen 5 shows the power bar and the efficiency slider. At 100% the bar passes 11 kW straight through. At 95% it loses 550 W at the mesh. The pump shaft's torque drops from 362 N m to 344 N m. Screen 6 puts 15 kW into a 4 : 1 gearbox of 96% efficiency. It asks the power reaching the output shaft. The answer is 14.4 kW. The wrong pick 60 kW multiplies the power by the ratio. The wrong pick 15 kW leaves out the loss. Screen 7 turns on Second pair. The ratios multiply to 15. The pump shaft turns at 96.7 rev/min with 981 N m. Screen 8 has a compound train of a 4 : 1 pair then a 6 : 1 pair, driven at 1440 rev/min. It asks the output speed. The answer is 60 rev/min, from a ratio of 24. The wrong pick 144 rev/min adds the ratios to 10. The wrong pick 360 rev/min counts only the first pair. Screen 9 turns on Belt. The belt dot keeps pace with both pulley rims. The same ratio of 5 holds. Screen 10 has a 100 mm motor pulley at 1450 rev/min driving a 250 mm fan pulley by belt. It asks the fan's speed. The answer is 580 rev/min, from 1450 × 100 ÷ 250. The wrong pick 3625 rev/min turns the ratio upside down. The wrong pick 1450 rev/min treats a belt as keeping the speed. Screen 11 is a still drawing. It shows a coupling joining a motor shaft to a pump shaft, three ways. In the first the two centre lines lie in one straight line. In the second they meet at an angle, which is angular misalignment. In the third they are parallel but offset, which is parallel misalignment. The angle and the offset are drawn exaggerated. The words say what a coupling does, and that misalignment barely changes the motor's efficiency but brings wear and heat. Screens 12 and 13 mix it all. Screen 12 has a 4 kW motor at 960 rev/min driving a winch drum through a loss-free 4 : 1 gearbox. It asks the torque on the drum shaft. The answer is 159 N m. The drum turns at 240 rev/min, which is 25.13 rad/s. So its torque is 4000 ÷ 25.13 = 159 N m. The wrong pick 39.8 N m is the motor's own torque, passed through unchanged. The wrong pick 16.7 N m comes from 4000 ÷ 240, with the speed left in rev/min. Screen 13 has a pump whose coupling and bearings run hot after a refit. A check finds the two shafts parallel, but one sits 0.5 mm higher. It asks what is wrong. The right pick is parallel misalignment, because the centre lines must be one line. One wrong pick says nothing is wrong, as if parallel shafts were aligned. The other is angular misalignment. Some screens show an idea and the rest ask you to try it. Each puzzle offers three answers. A wrong pick is drawn, so you can see where it goes wrong.",
+   "ignores": "The teeth are drawn as simple blocks that touch at one point, on the circle where the gears meet. Real teeth are curved so they roll and slide smoothly. Often two pairs share the load at once. The efficiency is a setting, not worked out from the friction. A real gearbox's loss depends on its type, its load, its speed and its oil. The belt is drawn with no slip. A real flat or V-belt creeps a little under load. So its driven pulley runs slightly slower than the ratio says. The belt's tension and its side pull on the bearings are not shown. The shafts are drawn rigid. A real shaft twists a little under torque. How thick it must be is a calculation not shown here. The gears turn 50 times slower than real. The misalignment drawing exaggerates the angle and the offset.",
+   "numbers": [
+    {
+     "label": "Screen, 1 to 13 (the stepper)",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Motor's power, kW",
+     "value": 11,
+     "kind": "assumed"
+    },
+    {
+     "label": "Motor's power, W",
+     "value": 11000,
+     "kind": "assumed"
+    },
+    {
+     "label": "Motor's speed, rev/min",
+     "value": 1450,
+     "kind": "assumed"
+    },
+    {
+     "label": "Motor's speed, rad/s",
+     "value": 151.8,
+     "kind": "computed"
+    },
+    {
+     "label": "Motor's torque, N m",
+     "value": 72.4,
+     "kind": "computed"
+    },
+    {
+     "label": "Pitch diameter per tooth, mm",
+     "value": 4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Pinion teeth drag's lowest value",
+     "value": 12,
+     "kind": "control"
+    },
+    {
+     "label": "Pinion teeth drag's highest value",
+     "value": 40,
+     "kind": "control"
+    },
+    {
+     "label": "Pinion teeth drag's opening value",
+     "value": 20,
+     "kind": "control"
+    },
+    {
+     "label": "Wheel teeth drag's lowest value",
+     "value": 12,
+     "kind": "control"
+    },
+    {
+     "label": "Wheel teeth drag's highest value",
+     "value": 120,
+     "kind": "control"
+    },
+    {
+     "label": "Wheel teeth drag's opening value",
+     "value": 100,
+     "kind": "control"
+    },
+    {
+     "label": "Teeth drags' step",
+     "value": 1,
+     "kind": "control"
+    },
+    {
+     "label": "Efficiency slider's lowest value, %",
+     "value": 80,
+     "kind": "control"
+    },
+    {
+     "label": "Efficiency slider's highest value, %",
+     "value": 100,
+     "kind": "control"
+    },
+    {
+     "label": "Efficiency slider's step, %",
+     "value": 1,
+     "kind": "control"
+    },
+    {
+     "label": "Efficiency slider's opening value, %",
+     "value": 95,
+     "kind": "control"
+    },
+    {
+     "label": "Pinion's diameter at opening, mm",
+     "value": 80,
+     "kind": "computed"
+    },
+    {
+     "label": "Wheel's diameter at opening, mm",
+     "value": 400,
+     "kind": "computed"
+    },
+    {
+     "label": "Pinion's radius at opening, m",
+     "value": 0.04,
+     "kind": "computed"
+    },
+    {
+     "label": "Wheel's radius at opening, m",
+     "value": 0.2,
+     "kind": "computed"
+    },
+    {
+     "label": "Gear ratio at opening",
+     "value": 5,
+     "kind": "computed"
+    },
+    {
+     "label": "Pump shaft speed at opening, rev/min",
+     "value": 290,
+     "kind": "computed"
+    },
+    {
+     "label": "Pump shaft speed at opening, rad/s",
+     "value": 30.4,
+     "kind": "computed"
+    },
+    {
+     "label": "Speed of the teeth at the mesh, m/s",
+     "value": 6.1,
+     "kind": "computed"
+    },
+    {
+     "label": "Push at the mesh, N",
+     "value": 1810,
+     "kind": "computed"
+    },
+    {
+     "label": "Pump shaft torque at 100% efficiency, N m",
+     "value": 362,
+     "kind": "computed"
+    },
+    {
+     "label": "Pump shaft torque at 95% efficiency, N m",
+     "value": 344,
+     "kind": "computed"
+    },
+    {
+     "label": "Power out at 95%, kW",
+     "value": 10.45,
+     "kind": "computed"
+    },
+    {
+     "label": "Power lost at 95%, W",
+     "value": 550,
+     "kind": "computed"
+    },
+    {
+     "label": "Picture slowed by",
+     "value": 50,
+     "kind": "assumed"
+    },
+    {
+     "label": "Second pinion's teeth",
+     "value": 20,
+     "kind": "assumed"
+    },
+    {
+     "label": "Second wheel's teeth",
+     "value": 60,
+     "kind": "assumed"
+    },
+    {
+     "label": "Second pair's ratio",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Compound train's ratio",
+     "value": 15,
+     "kind": "computed"
+    },
+    {
+     "label": "Compound pump shaft speed, rev/min",
+     "value": 96.7,
+     "kind": "computed"
+    },
+    {
+     "label": "Compound train's efficiency at 95% each, %",
+     "value": 90,
+     "kind": "computed"
+    },
+    {
+     "label": "Compound power out, kW",
+     "value": 9.93,
+     "kind": "computed"
+    },
+    {
+     "label": "Compound pump shaft torque, N m",
+     "value": 981,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 2 pinion teeth",
+     "value": 15,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 2 wheel teeth",
+     "value": 45,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 2 ratio",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 2 wheel speed, rev/min",
+     "value": 483,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 2 wrong pick: ratio multiplied, rev/min",
+     "value": 4350,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 4 pinion torque, N m",
+     "value": 20,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 4 wheel torque, N m",
+     "value": 60,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 4 wrong pick: divided, N m",
+     "value": 6.7,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 6 power in, kW",
+     "value": 15,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 6 gearbox ratio",
+     "value": 4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 6 efficiency, %",
+     "value": 96,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 6 power out, kW",
+     "value": 14.4,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 6 wrong pick: power multiplied, kW",
+     "value": 60,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 8 first pair's ratio",
+     "value": 4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 8 second pair's ratio",
+     "value": 6,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 8 motor speed, rev/min",
+     "value": 1440,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 8 overall ratio",
+     "value": 24,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 8 output speed, rev/min",
+     "value": 60,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 8 wrong pick: ratios added",
+     "value": 10,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 8 wrong pick: ratios added, rev/min",
+     "value": 144,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 8 wrong pick: first pair only, rev/min",
+     "value": 360,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 10 motor pulley, mm",
+     "value": 100,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 10 fan pulley, mm",
+     "value": 250,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 10 fan speed, rev/min",
+     "value": 580,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 10 wrong pick: upside down, rev/min",
+     "value": 3625,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 12 motor power, kW",
+     "value": 4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 12 motor power, W",
+     "value": 4000,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 12 motor speed, rev/min",
+     "value": 960,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 12 gearbox ratio",
+     "value": 4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 12 drum speed, rev/min",
+     "value": 240,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 12 drum speed, rad/s",
+     "value": 25.13,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 12 drum torque, N m",
+     "value": 159,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 12 wrong pick: motor's torque, N m",
+     "value": 39.8,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 12 wrong pick: rev/min left in, N m",
+     "value": 16.7,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 13 offset, mm",
+     "value": 0.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example: motor power, kW",
+     "value": 7.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example: motor power, W",
+     "value": 7500,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example: motor speed, rev/min",
+     "value": 960,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example: motor speed, rad/s",
+     "value": 100.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example: pinion teeth",
+     "value": 18,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example: wheel teeth",
+     "value": 36,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example: ratio",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example: efficiency, %",
+     "value": 97,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example: output speed, rev/min",
+     "value": 480,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example: motor torque, N m",
+     "value": 74.6,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example: output torque, N m",
+     "value": 144.7,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example: power out, kW",
+     "value": 7.28,
+     "kind": "computed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "A gear pair or a belt trades speed for torque. The slow shaft turns slower and pushes harder, by the same ratio. The power passes through almost unchanged, less a small loss to friction. A 5 : 1 reduction turns a motor's 1450 rev/min into 290 rev/min at the pump.\n\nTwo gears mesh only if their teeth are the same size. The teeth sit evenly round each rim. So a gear's tooth count goes with the distance round its rim. That means it goes with its diameter. Where they meet, each tooth that passes on the pinion pushes one tooth past on the wheel. So the teeth of both gears move at the same speed at the mesh. The motor's 20-tooth pinion must turn five times to pass all 100 teeth of the wheel. So the wheel turns five times slower: 1450 rev/min in, 290 rev/min out. The [[gear ratio]] is the input speed ÷ the output speed.[^1] For one pair it is the driven gear's teeth ÷ the driving gear's teeth. Here that is 100 ÷ 20 = 5. A belt works the same way. If it does not slip, it moves at the speed of both pulley rims. So a belt's ratio is the driven pulley's diameter ÷ the driving pulley's diameter. A plain loop of belt, called an open belt, turns both pulleys the same way. Two gears meshing on their outsides turn opposite ways.\n\nThe torque rises by the same ratio. The reason lies at the mesh. In the gear pair drawn here, the pinion's teeth sit 0.04 m from its centre. The motor's 72.4 N m pushes them with 72.4 ÷ 0.04 = 1810 N. The pinion's tooth pushes the wheel's tooth with that 1810 N. By Newton's third law, the wheel's tooth pushes back just as hard. That is the load the motor feels. The wheel's tooth sits 0.2 m from its centre, five times as far out. So, before any loss, the wheel's torque is 1810 × 0.2 = 362 N m. That is five times the motor's. Power is torque × angular speed, with the speed in radians per second.[^2] Five times the torque at a fifth of the speed is the same power. So a gearbox cannot make power. Friction turns a little of it into heat. So the power out is smaller than the power in. At an example efficiency of 95%, 11 kW in gives 10.45 kW out. The pump shaft then gets 344 N m. Two pairs in a row make a [[compound gear train]]. Its ratios multiply. A 5 : 1 pair then a 3 : 1 pair give 15 : 1. Each pair loses its own share of the power too.\n\nThat is why the slow shaft is usually the thicker one. It carries almost five times the torque for the same power. Its coupling must carry that torque too. A coupling joins the ends of two shafts so one drives the other. Take one between a motor and a pump. Its two shafts' centre lines must lie in one straight line, within a small tolerance. Shafts that meet at an angle, or sit parallel but offset, have [[misalignment]]. It barely changes the motor's efficiency.[^4] Instead it causes vibration, noise and heat. It also wears out bearings, couplings and shafts early.[^3] The gear pair here is a simplified one, with rigid teeth and shafts. **A gear pair divides the speed by its ratio and multiplies the torque by it, while the power passes through less a small loss.**"
+  },
+  "analogy": {
+   "text": "Think of a step-down transformer. A 5 : 1 transformer divides the voltage by 5 and multiplies the current by 5. Volts × amps stay the same, less a small loss in the core and windings. A 5 : 1 gear pair divides the speed by 5 and multiplies the torque by 5. Torque × speed stays the same. The low-voltage side needs the thicker cable, because it carries the bigger current. The slow shaft needs to be thicker, because it carries the bigger torque.",
+   "breaks": "A transformer works only on alternating current. A gear pair passes steady turning, which is more like direct current. A transformer also has no moving parts. A gear pair's teeth push and slide, and that is where its loss comes from."
+  },
+  "practice": {
+   "text": "- Safe way first: isolate the motor and secure any hanging load. Wait until every shaft has stopped before you take off a guard or touch a coupling, belt or gear. A belt or a gear mesh draws in fingers and clothing.\n- Count the teeth, or measure the pulley diameters.\n- Gear ratio = driven teeth ÷ driving teeth, or driven pulley diameter ÷ driving pulley diameter.\n- Output speed = input speed ÷ the ratio.\n- Input torque = power ÷ angular speed, with the speed in rad/s: rev/min × 2π ÷ 60.\n- Output torque = input torque × the ratio × the efficiency.\n- Power out = power in × the efficiency.\n- For a compound train, multiply the ratios of each pair.\n- Check that a coupling's two shafts lie in one straight line, with any angle and offset kept within tolerance.\n\n**Rules of thumb:** the slow shaft carries the big torque, so it and its coupling are the strong ones. A gearbox passes power on. It never adds to it.\n\n**Worked example:** a 7.5 kW motor at 960 rev/min drives a hoist through an 18-tooth pinion and a 36-tooth wheel. Take an example efficiency of 97%. The ratio is 36 ÷ 18 = 2. So the output turns at 960 ÷ 2 = 480 rev/min. 960 rev/min is 100.5 rad/s. So the motor's torque is 7500 ÷ 100.5 = 74.6 N m. The output torque is 74.6 × 2 × 0.97 = 144.7 N m. The power out is 7.5 × 0.97 = 7.28 kW.\n\n**Common mistakes**\n- Turning the ratio upside down. The bigger gear or pulley turns slower.\n- Thinking a gearbox makes power because its torque goes up. The speed goes down by the same ratio.\n- Leaving the speed in rev/min when working out torque from power.\n- Adding the ratios of a compound train. They multiply.\n- Taking parallel shafts as aligned. Their centre lines must be one line."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "12.4: Belt- and Gear-Driven Systems - Engineering LibreTexts — LibreTexts",
+    "url": "https://eng.libretexts.org/Bookshelves/Mechanical_Engineering/Mechanics_Map_(Moore_2nd_Edition)/12:_Rigid_Body_Kinematics/12.04:_Belt-_and_Gear-Driven_Systems",
+    "quote": "For any gear train, the gear ratio is defined as the angular speed of the input divided by the angular speed of the output."
+   },
+   {
+    "n": 2,
+    "title": "Motor Calculations.PDF — Michigan Technological University",
+    "url": "https://pages.mtu.edu/~wjendres/ProductRealization1Course/DC_Motor_Calculations.pdf",
+    "quote": "In calculating rotational power, it is necessary to convert the velocity to units of rad/sec."
+   },
+   {
+    "n": 3,
+    "title": "The Importance of Motor Shaft Alignment — US Department of Energy",
+    "url": "https://www.energy.gov/sites/prod/files/2014/04/f15/importance_motor_shaft_motor_systemts4.pdf",
+    "quote": "Misalignment produces excessive vibration, noise, coupling, and bearing temperature increases, and premature bearing, coupling, or shaft failure."
+   },
+   {
+    "n": 4,
+    "title": "The Importance of Motor Shaft Alignment — US Department of Energy",
+    "url": "https://www.energy.gov/sites/prod/files/2014/04/f15/importance_motor_shaft_motor_systemts4.pdf",
+    "quote": "While misalignment has no measurable effect on motor efficiency, correct shaft alignment ensures the smooth, efficient transmission of power from the motor to the driven equipment."
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: mechanism -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .lead, .caption { max-width: 34rem; margin-inline: auto; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .count { margin-top: 10px; }\n  .task { font-size: 1.15rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.06rem; font-weight: 400; line-height: 1.6; }\n  .fig { display: block; width: 100%; max-width: 26rem; margin-inline: auto; touch-action: pan-y; }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; }\n  .live { align-items: center; }\n  .picks .k-btn { flex: 1 1 6rem; min-height: 48px; white-space: nowrap; font-size: 1.05rem; }\n  .picks.long { flex-direction: column; gap: 8px; }\n  .picks.long .k-btn { flex: 0 0 auto; width: 100%; white-space: normal; line-height: 1.35; padding-top: 8px; padding-bottom: 8px; }\n  .picks .k-btn[aria-pressed=\"true\"] { border-color: var(--k-accent2); box-shadow: inset 0 0 0 2px var(--k-accent2); font-weight: 700; }\n  #outs { display: grid; grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr)); gap: 10px; }\n  .fb { font-weight: 700; min-height: 1.5em; }\n  .fb.right { color: var(--k-good); }\n  .why, .done { line-height: 1.6; }\n  .done .row { margin-top: 14px; }\n  .replay { justify-content: center; }\n  .replay .k-btn { flex: 0 0 auto; }\n  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }\n  /* Gears, pulleys and the belt. */\n  .fig .gear { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.1; stroke-linejoin: round; }\n  .fig .gear2 { fill: var(--k-sunk); stroke: var(--k-ink); stroke-width: 1.1; stroke-linejoin: round; }\n  .fig .mark { fill: var(--k-accent2); }\n  .fig .hub { fill: var(--k-strong); }\n  .fig .pulley { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.4; }\n  .fig .spoke { stroke: var(--k-muted); stroke-width: 2.2; stroke-linecap: round; }\n  .fig .belt { fill: none; stroke: var(--k-strong); stroke-width: 4; stroke-linejoin: round; }\n  .fig .meshdot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 1.5; }\n  .fig .knob { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 3; }\n  .fig .knob2 { fill: none; stroke: var(--k-accent2); stroke-width: 1; stroke-opacity: .55; }\n  /* The power bar. */\n  .fig .band { fill: var(--k-fill1); stroke: var(--k-accent2); stroke-width: 1.3; stroke-linejoin: round; }\n  .fig .bandbad { fill: var(--k-warn); fill-opacity: .22; stroke: var(--k-warn); stroke-width: 1.3; }\n  .fig .heat { fill: var(--k-fill2); stroke: var(--k-amber-line); stroke-width: 1.2; stroke-linejoin: round; }\n  /* Shafts, boxes and couplings. */\n  .fig .box { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.4; }\n  .fig .shaftR { fill: var(--k-sunk); stroke: var(--k-ink); stroke-width: 1.2; }\n  .fig .flange { fill: var(--k-sunk); stroke: var(--k-ink); stroke-width: 1.4; }\n  .fig .drum { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.6; }\n  .fig .rope { stroke: var(--k-ink); stroke-width: 2; }\n  .fig .cl { fill: none; stroke: var(--k-muted); stroke-width: 1.3; stroke-dasharray: 9 3 2 3; }\n  .fig .dim, .fig .brk { fill: none; stroke: var(--k-muted); stroke-width: 1.3; }\n  .fig .axis { stroke: var(--k-strong); stroke-width: 1.4; }\n  .fig .tick { stroke: var(--k-strong); stroke-width: 1.4; }\n  .fig .ring { fill: none; stroke: var(--k-accent2); stroke-width: 2.4; }\n  .fig .ringbad { fill: none; stroke: var(--k-warn); stroke-width: 2.4; }\n  /* Arrows: speed teal, torque and push navy, a mistake red. */\n  .fig .ar { stroke-width: 2.6; }\n  .fig .arc { fill: none; stroke-width: 2.4; stroke-linecap: round; }\n  .fig .ar.nv, .fig .arc.nv { stroke: var(--k-accent2); }\n  .fig .ah.nv { fill: var(--k-accent2); }\n  .fig .ar.t, .fig .arc.t { stroke: var(--k-accent); }\n  .fig .ah.t { fill: var(--k-accent); }\n  .fig .ar.wr, .fig .arc.wr { stroke: var(--k-warn); }\n  .fig .ah.wr { fill: var(--k-warn); }\n  /* Words on the pictures. */\n  .fig .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }\n  .fig .lab.sm { font-size: 12px; font-weight: 500; }\n  .fig .lab.b { font-weight: 700; }\n  .fig .lab.m { fill: var(--k-muted); }\n  .fig .lab.n { fill: var(--k-accent2); }\n  .fig .lab.t { fill: var(--k-accent); }\n  .fig .lab.w { fill: var(--k-warn); }\n  .fig .lab.wk { font-size: 13px; font-weight: 600; }\n  .fig .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }\n  .fig .grip:active { cursor: grabbing; }\n  .fig .grip:focus { outline: none; }\n  .fig .grip:focus-visible { stroke: var(--k-accent); stroke-width: 2; }\n</style>\n\n<p class=\"lead\" id=\"lead\">An example 11 kW motor turns at 1450 rev/min. Its small gear drives a bigger gear on a pump's shaft.</p>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count\" id=\"count\"></p>\n    <p class=\"task say\" id=\"task\"></p>\n    <svg class=\"fig\" id=\"scene\" viewBox=\"0 0 340 340\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"art\"></g><g id=\"ui\"><rect id=\"gP\" class=\"grip\" x=\"0\" y=\"0\" width=\"0\" height=\"0\" role=\"slider\" aria-label=\"Teeth on the motor's pinion\" tabindex=\"-1\" style=\"display:none\"></rect><rect id=\"gW\" class=\"grip\" x=\"0\" y=\"0\" width=\"0\" height=\"0\" role=\"slider\" aria-label=\"Teeth on the pump's wheel\" tabindex=\"-1\" style=\"display:none\"></rect></g></svg>\n    <div class=\"k-controls\" id=\"effbox\"></div>\n    <div class=\"row live\" id=\"live\"></div>\n    <div class=\"row replay\" id=\"replay\"></div>\n    <p class=\"say\" id=\"say\"></p>\n    <div class=\"k-readouts\" id=\"outs\"></div>\n    <div class=\"row picks say\" id=\"picks\"></div>\n    <div class=\"row acts\" id=\"acts\"></div>\n    <p class=\"fb say\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why say\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p><strong id=\"finish\"></strong></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n<div id=\"c-hide\" hidden></div>\n\n<p class=\"caption\" id=\"cap\">The motor is an example. The gears turn 50 times slower than real, but the readouts give real speeds.</p>\n\n<script>\n  // ---------- the rules ----------\n  const TAU = 2 * Math.PI, DEG = Math.PI / 180;\n  const P_IN = 11000, N_IN = 1450, MM = 4, SLOW = 50, Z2P = 20, Z2W = 60, PSI = 45 * DEG;\n  const SRC = {\n    ratio: 'https://eng.libretexts.org/Bookshelves/Mechanical_Engineering/Mechanics_Map_(Moore_2nd_Edition)/12:_Rigid_Body_Kinematics/12.04:_Belt-_and_Gear-Driven_Systems',\n    rads: 'https://pages.mtu.edu/~wjendres/ProductRealization1Course/DC_Motor_Calculations.pdf',\n    align: 'https://www.energy.gov/sites/prod/files/2014/04/f15/importance_motor_shaft_motor_systemts4.pdf',\n  };\n  const radOf = (n) => n * TAU / 60;                 // rev/min -> rad/s\n  const W_IN = radOf(N_IN);                          // the motor: 1450 rev/min is 151.8 rad/s\n  const T_IN = P_IN / W_IN;                          // 11,000 W ÷ 151.8 rad/s = 72.4 N m\n  const ratioOf = (zIn, zOut) => zOut / zIn;         // the driven gear's teeth ÷ the driving gear's\n  // The train: the speed divides by the ratio, the torque multiplies by it and by the efficiency,\n  // and the power out is the power in × the efficiency (each pair losing its own share).\n  function train(zp, zw, eff, pair2) {\n    const ratio = ratioOf(zp, zw) * (pair2 ? ratioOf(Z2P, Z2W) : 1), e = Math.pow(eff, pair2 ? 2 : 1);\n    return { ratio, e, n: N_IN / ratio, T: T_IN * ratio * e, P: P_IN * e / 1000, loss: P_IN * (1 - e) };\n  }\n  const rimV = (zp) => W_IN * zp * MM / 2000;        // m/s at the mesh: the motor's ω × the pinion's radius\n  // A driven gear's angle when its driver is at thA, meshing in direction psi from the driver:\n  // the teeth sit in each other's gaps and their pitch circles roll without slipping.\n  const drivenAt = (thA, zA, zB, psi) => psi + Math.PI + Math.PI / zB - (zA / zB) * (thA - psi);\n\n  // Numbers as the lesson writes them: fixed decimals, commas from 10,000 up.\n  function fx(v, dp) {\n    const k = Math.pow(10, dp), r = Math.round(Math.abs(v) * k + 1e-7) / k;\n    const parts = r.toFixed(dp).split('.');\n    let a = parts[0];\n    if (a.length > 4) a = a.replace(/\\B(?=(\\d{3})+(?!\\d))/g, ',');\n    return (v < 0 && r > 0 ? '−' : '') + a + (parts[1] ? '.' + parts[1] : '');\n  }\n  const nf = (v, dp) => { const s = fx(v, dp == null ? 2 : dp); return s.indexOf('.') < 0 ? s : s.replace(/0+$/, '').replace(/\\.$/, ''); };\n  const spdTxt = (n) => fx(n, n < 99.95 ? 1 : 0);    // the pump shaft's speed, as its readout shows it\n\n  // Every number the words show, worked out from the rules.\n  const OPEN = train(20, 100, 0.95, false), COMP = train(20, 100, 0.95, true);\n  const N = {\n    W: fx(W_IN, 1), T: fx(T_IN, 1), v: fx(rimV(20), 1), F: fx(+fx(T_IN, 1) / 0.04, 0), T100: fx(T_IN * 5, 0),\n    T95: fx(OPEN.T, 0), P95: fx(OPEN.P, 2), L95: fx(OPEN.loss, 0), n5: fx(N_IN / 5, 0),\n    nC: fx(COMP.n, 1), PC: fx(COMP.P, 2), TC: fx(COMP.T, 0),\n    q2: fx(N_IN / 3, 0), q2x: fx(N_IN * 3, 0),\n    q4: fx(20 * 3, 0), q4x: fx(20 / 3, 1),\n    q6: fx(15 * 0.96, 1), q6x: fx(15 * 4, 0),\n    q8: fx(1440 / (4 * 6), 0), q8x: fx(1440 / (4 + 6), 0), q8f: fx(1440 / 4, 0),\n    q10: fx(1450 * 100 / 250, 0), q10x: fx(1450 * 250 / 100, 0),\n    q12n: fx(960 / 4, 0), q12w: fx(radOf(240), 2), q12: fx(4000 / radOf(240), 0), q12mw: fx(radOf(960), 1), q12m: fx(4000 / radOf(960), 1), q12r: fx(4000 / 240, 1),\n  };\n  // A SHOW screen's words for reading, where its last sentence asks for a move.\n  const readAs = (t, end) => t.replace(/ (Drag|Slide|Switch)[^.]*\\.$/, '') + ' ' + end;\n\n  // ---------- the lesson: SHOW screens demonstrate, DO screens are puzzles ----------\n  const T1 = `The bigger gear turns slower, by the ratio of the teeth. At the small dot where the teeth meet, each tooth on the 20-tooth *pinion* pushes one tooth on the 100-tooth *wheel* past. So both gears' teeth move at the same speed there. The pinion turns five times to pass all 100 teeth. The *gear ratio* is the driven gear's teeth ÷ the driving gear's: 100 ÷ 20 = 5. Drag the ring on either rim to change its teeth.`;\n  const T3 = `The torque rises by the same ratio of 5. The reason lies at the mesh. The pinion's teeth sit 0.04 m from its centre. So the motor's ${N.T} N m pushes them with ${N.T} ÷ 0.04 = ${N.F} N. That push acts on the wheel's tooth. The wheel's tooth pushes back just as hard. But the wheel's tooth sits 0.2 m from its centre, five times as far out. So the wheel's torque is ${N.F} × 0.2 = ${N.T100} N m. Here nothing is lost to friction.`;\n  const T5 = `Power is torque × angular speed, with the speed in rad/s. Five times the torque at a fifth of the speed is the same power. So a gearbox cannot make power. Friction turns a little of it into heat. At 100% efficiency the full 11 kW passes through. At an example 95%, ${N.L95} W is lost at the mesh. The pump gets ${N.P95} kW. With 20 and 100 teeth, its torque drops from ${N.T100} N m to ${N.T95} N m. Slide the efficiency to try others.`;\n  const T7 = `Two pairs in a row make a *compound gear train*. A second 20-tooth pinion sits on the wheel's shaft. It drives a 60-tooth wheel, a ratio of 3. The pump moves onto that last shaft. The ratios multiply: 5 × 3 = 15. So the pump shaft turns at 1450 ÷ 15 = ${N.nC} rev/min. Each pair loses its own share of the power. At 95% each, 0.95 × 0.95 = 0.90. So about 90% gets through. The pump shaft carries ${N.TC} N m. Switch Second pair off to compare.`;\n  const T9 = `A *belt* works the same way. If it does not slip, it moves at the speed of both pulley rims. So a belt's ratio is the driven pulley's diameter ÷ the driving pulley's diameter. Here that is 400 ÷ 80 = 5, the same as the gears. A plain loop of belt, called an open belt, turns both pulleys the same way. Two gears meshing on their outsides turn opposite ways. Switch Belt off to compare.`;\n  const T11 = `A *coupling* joins the ends of two shafts so one drives the other. The two shafts' centre lines must lie in one straight line, within a small tolerance. Shafts that meet at an angle, or sit parallel but offset, have *misalignment*. It barely changes the motor's efficiency. The harm is wear and heat. It brings vibration, noise and hot bearings. It wears out bearings, couplings and shafts early.`;\n  const rpm = (s) => s + ' rev/min', nm = (s) => s + ' N m', kw = (s) => s + ' kW';\n  const AL = ['Parallel misalignment', 'Nothing: the shafts are parallel', 'Angular misalignment'];\n  const STEPS = [\n    { show: true, rig: 'pair', name: 'The gear pair', text: T1,\n      read: readAs(T1, 'More teeth on the wheel make the pump shaft turn slower and push harder.') },\n    { kind: 'pick', pic: 'ratioQ', name: 'Wheel speed',\n      task: 'A 15-tooth pinion turns at 1450 rev/min. It drives a 45-tooth wheel. How fast does the wheel turn?',\n      opts: [rpm(N.q2), rpm(N.q2x), rpm('1450')], order: [1, 0, 2], want: rpm(N.q2),\n      nv: { [rpm(N.q2)]: N_IN / 3, [rpm(N.q2x)]: N_IN * 3, [rpm('1450')]: N_IN },\n      hints: { [rpm(N.q2x)]: 'Not quite. That multiplies by the ratio. The bigger gear turns slower, so divide.',\n        [rpm('1450')]: 'Not quite. The pinion must turn three times to pass all 45 teeth. So the wheel turns slower.' },\n      why: `The ratio is 45 ÷ 15 = 3. The pinion must turn three times to pass all 45 of the wheel's teeth. So the wheel turns at 1450 ÷ 3 = ${N.q2} rev/min.`,\n      qw: [],\n      ow: { [rpm(N.q2)]: ['45 ÷ 15 = 3', `1450 ÷ 3 = ${N.q2} rev/min`], [rpm(N.q2x)]: [`1450 × 3 = ${N.q2x}: times the ratio, not ÷`],\n        [rpm('1450')]: ['1450: as if the gears kept the speed'] } },\n    { show: true, pic: 'push', name: 'The push at the mesh', text: T3 },\n    { kind: 'pick', pic: 'torqueQ', name: 'Wheel torque',\n      task: 'The same 15 and 45-tooth pair has 20 N m on its pinion. Nothing is lost to friction. What torque does the wheel\\'s shaft carry?',\n      opts: [nm(N.q4), nm(N.q4x), nm('20')], order: [1, 2, 0], want: nm(N.q4),\n      tv: { [nm(N.q4)]: 60, [nm(N.q4x)]: 20 / 3, [nm('20')]: 20 },\n      hints: { [nm(N.q4x)]: 'Not quite. That divides the torque by the ratio. The wheel turns slower and pushes harder.',\n        [nm('20')]: 'Not quite. The wheel\\'s teeth sit three times as far out. The same push there gives three times the torque.' },\n      why: `The ratio is 45 ÷ 15 = 3. The wheel's teeth sit three times as far from its centre as the pinion's. The same push at the mesh gives three times the torque: 20 × 3 = ${N.q4} N m.`,\n      qw: [],\n      ow: { [nm(N.q4)]: ['45 ÷ 15 = 3', `20 × 3 = ${N.q4} N m`], [nm(N.q4x)]: [`20 ÷ 3 = ${N.q4x}: divided, not ×`], [nm('20')]: ['20 N m: passed through unchanged'] } },\n    { show: true, rig: 'power', name: 'Power passes through', set: { eff: 100 }, still: { eff: 95 }, text: T5,\n      read: readAs(T5, 'A lower efficiency turns more of the power into heat.') },\n    { kind: 'pick', pic: 'powerQ', name: 'Power out',\n      task: '15 kW goes into a 4 : 1 gearbox. Its efficiency is 96%. How much power reaches the output shaft?',\n      opts: [kw(N.q6), kw(N.q6x), kw('15')], order: [1, 0, 2], want: kw(N.q6),\n      kv: { [kw(N.q6)]: 15 * 0.96, [kw(N.q6x)]: 60, [kw('15')]: 15 },\n      hints: { [kw(N.q6x)]: 'Not quite. That multiplies the power by the ratio. A gearbox cannot make power.',\n        [kw('15')]: 'Not quite. Friction turns a little of the power into heat. Take off the loss.' },\n      why: `A gearbox trades speed for torque, but it cannot make power. The power out is the power in × the efficiency: 15 × 0.96 = ${N.q6} kW. The rest turns to heat.`,\n      qw: [],\n      ow: { [kw(N.q6)]: [`15 × 0.96 = ${N.q6} kW`], [kw(N.q6x)]: [`15 × 4 = ${N.q6x} kW: power is not multiplied`], [kw('15')]: ['15 kW: the loss left out'] } },\n    { show: true, rig: 'pair2', name: 'A second pair', set: { pair2: true }, text: T7,\n      read: readAs(T7, 'With one pair only, the ratio is 5.') },\n    { kind: 'pick', pic: 'compoundQ', name: 'Two pairs',\n      task: 'A motor at 1440 rev/min drives a 4 : 1 pair, then a 6 : 1 pair. How fast does the output shaft turn?',\n      opts: [rpm(N.q8), rpm(N.q8x), rpm(N.q8f)], order: [1, 0, 2], want: rpm(N.q8),\n      hints: { [rpm(N.q8x)]: 'Not quite. That adds the ratios. In a compound train they multiply.',\n        [rpm(N.q8f)]: 'Not quite. That counts only the first pair. The second pair slows it six times more.' },\n      why: `The ratios multiply: 4 × 6 = 24. So the output turns at 1440 ÷ 24 = ${N.q8} rev/min. Pair by pair, 1440 ÷ 4 = ${N.q8f}, then ${N.q8f} ÷ 6 = ${N.q8}.`,\n      qw: [],\n      ow: { [rpm(N.q8)]: ['4 × 6 = 24', `1440 ÷ 24 = ${N.q8} rev/min`], [rpm(N.q8x)]: ['4 + 6 = 10: added, not multiplied', `1440 ÷ 10 = ${N.q8x} rev/min`],\n        [rpm(N.q8f)]: [`1440 ÷ 4 = ${N.q8f}: the second pair left out`] } },\n    { show: true, rig: 'belt', name: 'A belt', set: { belt: true }, text: T9,\n      read: readAs(T9, 'Gears give the same ratio, but turn the pump shaft the other way.') },\n    { kind: 'pick', pic: 'beltQ', name: 'Belt speed',\n      task: 'A 100 mm motor pulley turns at 1450 rev/min. A belt drives a 250 mm fan pulley. How fast does the fan turn?',\n      opts: [rpm(N.q10), rpm(N.q10x), rpm('1450')], order: [1, 0, 2], want: rpm(N.q10),\n      nv: { [rpm(N.q10)]: 580, [rpm(N.q10x)]: 3625, [rpm('1450')]: 1450 },\n      hints: { [rpm(N.q10x)]: 'Not quite. That turns the ratio upside down. The bigger pulley turns slower.',\n        [rpm('1450')]: 'Not quite. The belt moves at both rims\\' speed. The bigger pulley needs more belt for each turn, so it turns slower.' },\n      why: `The belt moves at the speed of both pulley rims. The ratio is 250 ÷ 100 = 2.5. So the fan turns at 1450 ÷ 2.5 = ${N.q10} rev/min.`,\n      qw: [],\n      ow: { [rpm(N.q10)]: ['250 ÷ 100 = 2.5', `1450 ÷ 2.5 = ${N.q10} rev/min`], [rpm(N.q10x)]: [`1450 × 250 ÷ 100 = ${N.q10x}: upside down`],\n        [rpm('1450')]: ['1450: as if the belt kept the speed'] } },\n    { show: true, pic: 'align', name: 'Lining up shafts', text: T11 },\n    { kind: 'pick', pic: 'drumQ', name: 'Winch drum',\n      task: 'A 4 kW motor at 960 rev/min drives a winch drum through a 4 : 1 gearbox. Nothing is lost to friction. What torque does the drum shaft carry?',\n      opts: [nm(N.q12), nm(N.q12m), nm(N.q12r)], order: [1, 0, 2], want: nm(N.q12),\n      tv: { [nm(N.q12)]: 4000 / radOf(240), [nm(N.q12m)]: 4000 / radOf(960), [nm(N.q12r)]: 4000 / 240 },\n      hints: { [nm(N.q12m)]: 'Not quite. That is the motor\\'s own torque. The gearbox multiplies it by 4.',\n        [nm(N.q12r)]: 'Not quite. That leaves the speed in rev/min. Change it to rad/s first.' },\n      why: `The drum turns at 960 ÷ 4 = ${N.q12n} rev/min. That is ${N.q12n} × 2π ÷ 60 = ${N.q12w} rad/s. Torque is power ÷ angular speed. So the drum carries 4000 ÷ ${N.q12w} = ${N.q12} N m.`,\n      qw: [],\n      ow: { [nm(N.q12)]: [`960 ÷ 4 = ${N.q12n} rev/min = ${N.q12w} rad/s`, `4000 ÷ ${N.q12w} = ${N.q12} N m`],\n        [nm(N.q12m)]: [`960 rev/min = ${N.q12mw} rad/s`, `4000 ÷ ${N.q12mw} = ${N.q12m}: the motor's own`], [nm(N.q12r)]: [`4000 ÷ ${N.q12n} = ${N.q12r}: still in rev/min`] } },\n    { kind: 'pick', pic: 'alignQ', name: 'A hot coupling',\n      task: 'A pump\\'s coupling and bearings run hot after a refit. A check finds the two shafts parallel, but one sits 0.5 mm higher. What is wrong?',\n      opts: AL, order: [1, 0, 2], want: AL[0],\n      hints: { [AL[1]]: 'Not quite. Parallel is not enough. The two centre lines must be one line.',\n        [AL[2]]: 'Not quite. Angular misalignment is shafts meeting at an angle. These are parallel but offset.' },\n      why: 'The centre lines must lie in one straight line. Here they are parallel but 0.5 mm apart. That is parallel misalignment. It brings vibration, noise and heat, and wears out bearings and couplings early.',\n      qw: [],\n      ow: { [AL[0]]: ['Parallel, but 0.5 mm apart', 'Two centre lines, not one'], [AL[1]]: ['Parallel, yet still two lines'], [AL[2]]: ['No angle: the lines are parallel'] } },\n  ];\n  const FINISH = 'A gear pair divides the speed by its ratio and multiplies the torque by it. The power passes through, less a small loss. So the slow shaft carries the big torque, and it is usually the thicker one. Ratios in a row multiply. A coupling\\'s shafts must lie in one straight line.';\n  const ANS = 1.6;\n  const optsOf = (d) => (d.order ? d.order.map((k) => d.opts[k]) : d.opts);\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n  const calm = () => REDUCE || testing();\n  const el = (id) => document.getElementById(id);\n  const iOf = (k, v) => STEPS.findIndex((d) => d[k] === v);\n  const I_PAIR = iOf('rig', 'pair'), I_POW = iOf('rig', 'power'), I_P2 = iOf('rig', 'pair2'), I_BELT = iOf('rig', 'belt'), I_AQ = iOf('pic', 'alignQ');\n\n  // ---------- state ----------\n  const blank = () => ({ pick: null, res: null, why: false });\n  let S = STEPS.map(() => blank());\n  let finished = false, lastStep = -1, lastDone = false, lastTog = false, effSet = 95;\n  let T = Infinity, END = 0, MOT = null;   // seconds since a demonstration began; what it moves\n  let PH = 0;                              // the motor shaft's drawn angle (it turns clockwise)\n  const WD = W_IN / SLOW;                  // drawn rad/s: 50 times slower than real\n  let REC = { wk: [] };\n  let latest = 0;\n  const BASE = { zp: 20, zw: 100, eff: 95, pair2: false, belt: false };\n  const setupOf = (i) => Object.assign({}, BASE, STEPS[i].set || {});\n\n  // ---------- words with amber key terms (built with K.el, never innerHTML) ----------\n  function write(node, s) {\n    node.textContent = '';\n    const re = /\\*([^*]+)\\*/g;\n    let from = 0, m;\n    while ((m = re.exec(s))) {\n      if (m.index > from) node.appendChild(document.createTextNode(s.slice(from, m.index)));\n      node.appendChild(K.el('span', { class: 'term' }, m[1]));\n      from = m.index + m[0].length;\n    }\n    if (from < s.length) node.appendChild(document.createTextNode(s.slice(from)));\n  }\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const at = () => K.clamp(Math.round(+stepper.get()) || 0, 0, STEPS.length - 1);\n  // The tooth counts are set by dragging the gears' rims; their sliders stay out of sight.\n  const CTL = {\n    zp: K.control({ id: 'zp', label: 'Teeth on the pinion', min: 12, max: 40, step: 1, value: 20, into: '#c-hide' }),\n    zw: K.control({ id: 'zw', label: 'Teeth on the wheel', min: 12, max: 120, step: 1, value: 100, into: '#c-hide' }),\n    eff: K.control({ id: 'eff', label: 'Efficiency', min: 80, max: 100, step: 1, value: 95, fmt: (v) => fx(v, 0) + '%', snap: [95, 100], into: '#effbox' }),\n  };\n  CTL.pair2 = K.toggle({ id: 'pair2', label: 'Second pair', value: false, hint: 'Adds a 20-tooth pinion on the wheel\\'s shaft, driving a 60-tooth wheel', into: '#live' });\n  CTL.belt = K.toggle({ id: 'belt', label: 'Belt', value: false, hint: 'Swaps the first gear pair for two pulleys and a belt', into: '#live' });\n  const same = (a, b) => (typeof a === 'boolean' || typeof b === 'boolean' ? !!a === !!b : Math.abs(+a - +b) < 1e-9);\n  function setQuiet(id, v) { if (!same(CTL[id].get(), v)) CTL[id].set(v, true); }\n  function setAll(q) { Object.keys(BASE).forEach((id) => setQuiet(id, q[id])); }\n\n  K.readout({ id: 'outSpeed', label: 'Pump shaft speed', unit: 'rev/min', decimals: 0, fmt: (v) => spdTxt(v) + ' rev/min', into: '#outs' });\n  K.readout({ id: 'outTorque', label: 'Pump shaft torque', unit: 'N m', decimals: 0, fmt: (v) => fx(v, 0) + ' N m', into: '#outs' });\n  K.readout({ id: 'powerOut', label: 'Power out', unit: 'kW', decimals: 2, fmt: (v) => fx(v, 2) + ' kW', into: '#outs' });\n\n  // The settings a screen uses: the switches only on their own screens.\n  const stepOf = (p) => K.clamp(Math.round(+p.step) || 0, 0, STEPS.length - 1);\n  function rigOf(d, p) {\n    const zp = K.clamp(Math.round(+p.zp) || 20, 12, 40), zw = K.clamp(Math.round(+p.zw) || 100, 12, 120);\n    const effP = K.clamp(Math.round(+p.eff) || 95, 80, 100);\n    const pair2 = d.rig === 'pair2' && !!p.pair2, belt = d.rig === 'belt' && !!p.belt;\n    return Object.assign({ zp, zw, effP, pair2, belt }, train(zp, zw, effP / 100, pair2));\n  }\n  // The pure model: tooth counts, efficiency and the switches -> the pump shaft's speed and torque, and the power out.\n  K.model((p) => { const s = rigOf(STEPS[stepOf(p)], p); return { outSpeed: s.n, outTorque: s.T, powerOut: s.P }; });\n\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;\n    st.pick = optsOf(d)[k]; st.res = null; T = Infinity; MOT = null;\n  } }));\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (d.show || finished || st.res === 'right') return;\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = st.pick === d.want ? 'right' : 'wrong';\n    MOT = null; play(ANS);\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    if (STEPS[at()].show || finished) return;\n    const st = S[at()]; st.why = !st.why;\n  } });\n  const replays = (d) => d.rig === 'power' || d.pic === 'push' || d.pic === 'align';\n  K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {\n    const d = STEPS[at()];\n    if (finished || !replays(d)) return;\n    const plan = demoPlan(d);\n    if (plan.mot && plan.mot.kind === 'eff') { effSet = plan.mot.from; setQuiet('eff', plan.mot.from); }\n    MOT = plan.mot; play(plan.end);\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true; anim.pause(); T = Infinity; settle();\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);\n  } });\n\n  // ---------- motion: the gears turning, each screen's demonstration, an answer's drawing ----------\n  function demoPlan(d) {\n    if (d.rig === 'power') return { mot: { kind: 'eff', at: 0.8, dur: 2.0, from: 100, to: 95 }, end: 3.2 };\n    if (d.rig === 'pair2' || d.rig === 'belt') return { mot: { kind: 'swap' }, end: 1.0 };\n    if (d.pic === 'push') return { mot: { kind: 'show' }, end: 3.0 };\n    if (d.pic === 'align') return { mot: { kind: 'show' }, end: 2.4 };\n    return { mot: null, end: 0 };\n  }\n  const spinning = () => !finished && !!STEPS[at()].rig && !calm();\n  function play(end) {\n    if (calm()) { T = Infinity; settle(); return; }\n    T = 0; END = end; anim.play();\n  }\n  // The efficiency glide moves the slider, so the readouts follow it.\n  function sync() {\n    if (!MOT || MOT.kind !== 'eff') return;\n    const f = K.clamp((T - MOT.at) / MOT.dur, 0, 1), v = Math.round(MOT.from + (MOT.to - MOT.from) * K.ease(f));\n    if (v !== effSet) { effSet = v; setQuiet('eff', v); }\n  }\n  function settle() {\n    if (MOT && MOT.kind === 'eff') { effSet = MOT.to; setQuiet('eff', MOT.to); }\n    MOT = null;\n  }\n  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {\n    if (finished) return false;\n    dt = Math.min(dt, 0.1);\n    const spin = spinning();\n    if (spin) PH += WD * dt;\n    if (T !== Infinity) {\n      T += dt;\n      if (T >= END) { T = Infinity; settle(); } else sync();\n      K.refresh();\n      return true;\n    }\n    if (spin) render(at(), K.params());\n    return spin;\n  } });\n  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; settle(); K.refresh(); } });\n  function enter(id) {\n    if (REDUCE) return;\n    const box = el(id);\n    box.classList.remove('enter'); void box.offsetWidth; box.classList.add('enter');\n  }\n  function enterStep(i) {\n    lastStep = i; enter('stepbox');\n    anim.pause(); T = Infinity; MOT = null;\n    const d = STEPS[i], q = setupOf(i);\n    setAll(q); effSet = q.eff; lastTog = d.rig === 'pair2' ? !!q.pair2 : d.rig === 'belt' ? !!q.belt : false;\n    if (d.show) {\n      const plan = demoPlan(d);\n      if (calm()) { MOT = plan.mot; settle(); }\n      else if (plan.end > 0) { MOT = plan.mot; T = 0; END = plan.end; }\n    }\n    if (!calm() && (T !== Infinity || !!d.rig)) anim.play();\n  }\n\n  // ---------- drawing helpers ----------\n  const svg = el('scene'), art = el('art'), gP = el('gP'), gW = el('gW');\n  let into = null;\n  const add = (n) => (into || art).appendChild(n);\n  const r2 = (v) => Math.round(v * 100) / 100;\n  function sv(tag, a) { const o = {}; Object.keys(a).forEach((k) => { o[k] = typeof a[k] === 'number' ? r2(a[k]) : a[k]; }); return add(K.svg(tag, o)); }\n  const rect = (cls, x, y, w, h, rx) => sv('rect', { class: cls, x, y, width: Math.max(0, w), height: Math.max(0, h), rx: rx || 0 });\n  const line = (cls, x1, y1, x2, y2) => sv('line', { class: cls, x1, y1, x2, y2 });\n  const path = (cls, d) => sv('path', { class: cls, d });\n  const circ = (cls, cx, cy, r) => sv('circle', { class: cls, cx, cy, r });\n  function text(x, y, s, cls, anchor) {\n    const t = sv('text', { class: 'lab' + (cls ? ' ' + cls : ''), x, y, 'text-anchor': anchor || 'middle' });\n    t.textContent = s;\n    return t;\n  }\n  const P = (x, y) => r2(x) + ' ' + r2(y);\n  const pt = (cx, cy, r, a) => P(cx + r * Math.cos(a), cy + r * Math.sin(a));\n  function arrow(x1, y1, x2, y2, c, hl) {\n    const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);\n    if (L < 2) return;\n    const ux = dx / L, uy = dy / L, h = Math.min(hl || 9, L * 0.6), w = h * 0.55, bx = x2 - ux * h, by = y2 - uy * h;\n    line('ar ' + c, x1, y1, bx + ux * 0.5, by + uy * 0.5);\n    path('ah ' + c, 'M' + P(x2, y2) + 'L' + P(bx - uy * w, by + ux * w) + 'L' + P(bx + uy * w, by - ux * w) + 'Z');\n  }\n  // A curved arrow round (cx, cy), centred on direction mid (degrees, clockwise from the right),\n  // sweeping sw degrees; dir +1 turns clockwise, −1 anticlockwise. Its sweep is drawn to scale,\n  // with a least length that still shows its head.\n  function arcArrow(cx, cy, R, mid, sw, dir, c) {\n    const hl = 8, hw = 4.5, minSw = (hl + 4) / R / DEG;\n    sw = Math.min(330, Math.max(sw, minSw));\n    const a0 = (mid - dir * sw / 2) * DEG, a1 = (mid + dir * sw / 2) * DEG, aB = a1 - dir * hl / R;\n    const q = (a, rr) => [cx + rr * Math.cos(a), cy + rr * Math.sin(a)];\n    const p0 = q(a0, R), pB = q(aB, R), tip = q(a1, R), b1 = q(aB, R + hw), b2 = q(aB, R - hw);\n    const big = Math.abs(aB - a0) > Math.PI ? 1 : 0;\n    const e1 = path('arc ' + c, 'M' + P(p0[0], p0[1]) + 'A' + r2(R) + ' ' + r2(R) + ' 0 ' + big + ' ' + (dir > 0 ? 1 : 0) + ' ' + P(pB[0], pB[1]));\n    const e2 = path('ah ' + c, 'M' + P(tip[0], tip[1]) + 'L' + P(b1[0], b1[1]) + 'L' + P(b2[0], b2[1]) + 'Z');\n    return { els: [e1, e2], tip, ang: a1, cx, cy, R };\n  }\n  function part(a, rise, draw) {\n    if (a <= 0) return;\n    const g = add(K.svg('g'));\n    K.fade(g, a, rise);\n    const keep = into; into = g;\n    try { draw(); } finally { into = keep; }\n  }\n  // Arrivals: a part due at t0 seconds (noted for the timing check).\n  function arr(t0, d) { d = d == null ? 0.5 : d; if (t0 + d > latest) latest = t0 + d; return K.arrive(T, t0, d); }\n  const vis = (t) => (t == null ? 1 : arr(t));\n\n  // A gear: z block teeth round a pitch circle of radius r, turned to th; tooth 0 marked so the turning shows.\n  function gear(cx, cy, z, r, th, cls, td) {\n    const p = TAU / z, h = 0.25 * p, rr = r - td, rt = r + td;\n    let dd = '';\n    for (let k = 0; k < z; k++) {\n      const c = th + k * p;\n      dd += (k ? 'L' : 'M') + pt(cx, cy, rr, c - h) + 'L' + pt(cx, cy, rt, c - 0.75 * h) + 'L' + pt(cx, cy, rt, c + 0.75 * h) + 'L' + pt(cx, cy, rr, c + h);\n    }\n    path(cls || 'gear', dd + 'Z');\n    path('mark', 'M' + pt(cx, cy, rr - 0.6, th - h) + 'L' + pt(cx, cy, rt, th - 0.75 * h) + 'L' + pt(cx, cy, rt, th + 0.75 * h) + 'L' + pt(cx, cy, rr - 0.6, th + h) + 'Z');\n    circ('hub', cx, cy, Math.min(4.5, r * 0.3));\n  }\n  // A pulley: a rim, three spokes and a mark on the rim, turned to th.\n  function pulley(cx, cy, r, th) {\n    circ('pulley', cx, cy, r);\n    for (let k = 0; k < 3; k++) { const a = th + k * TAU / 3; if (r > 12) line('spoke', cx + 6 * Math.cos(a), cy + 6 * Math.sin(a), cx + (r - 5) * Math.cos(a), cy + (r - 5) * Math.sin(a)); }\n    circ('mark', cx + (r - 3.5) * Math.cos(th), cy + (r - 3.5) * Math.sin(th), 2.6);\n    circ('hub', cx, cy, 4.5);\n  }\n  // An open belt round two pulleys on one level: its path, and where a point u along it sits.\n  function beltPath(c1, r1, c2, r2_) {\n    const D = c2[0] - c1[0], ux = -(r2_ - r1) / D, uy = Math.sqrt(Math.max(0, 1 - ux * ux));\n    const aT = Math.atan2(-uy, ux), aB = Math.atan2(uy, ux);\n    const T1 = [c1[0] + r1 * ux, c1[1] - r1 * uy], T2 = [c2[0] + r2_ * ux, c2[1] - r2_ * uy];\n    const B1 = [c1[0] + r1 * ux, c1[1] + r1 * uy], B2 = [c2[0] + r2_ * ux, c2[1] + r2_ * uy];\n    const s2 = aB - aT, s1 = TAU - s2, L1 = Math.hypot(T2[0] - T1[0], T2[1] - T1[1]), A2 = r2_ * s2, A1 = r1 * s1, L = 2 * L1 + A1 + A2;\n    const d = 'M' + P(T1[0], T1[1]) + 'L' + P(T2[0], T2[1]) + 'A' + r2(r2_) + ' ' + r2(r2_) + ' 0 ' + (s2 > Math.PI ? 1 : 0) + ' 1 ' + P(B2[0], B2[1]) +\n      'L' + P(B1[0], B1[1]) + 'A' + r2(r1) + ' ' + r2(r1) + ' 0 ' + (s1 > Math.PI ? 1 : 0) + ' 1 ' + P(T1[0], T1[1]) + 'Z';\n    const mix = (a, b, f) => [a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f];\n    const where = (u) => {\n      u = ((u % L) + L) % L;\n      if (u < L1) return mix(T1, T2, u / L1);\n      u -= L1;\n      if (u < A2) { const a = aT + u / r2_; return [c2[0] + r2_ * Math.cos(a), c2[1] + r2_ * Math.sin(a)]; }\n      u -= A2;\n      if (u < L1) return mix(B2, B1, u / L1);\n      u -= L1;\n      const a = aB + u / r1; return [c1[0] + r1 * Math.cos(a), c1[1] + r1 * Math.sin(a)];\n    };\n    return { d, where, B1, B2 };\n  }\n\n  // ---------- the main picture: the motor's pinion, the pump's wheel and the power bar ----------\n  const CY = 134, CXP = 54, TD = 2.3, YB = CY + 150, HB = 30, H_RIG = YB + HB + 28;\n  const SPD = 120 / N_IN, TRQ = 24 / T_IN;   // degrees of arrow per rev/min and per N m, the same on every shaft\n  function geoOf(s) {\n    if (s.belt) {\n      const k = Math.min(1, 252 / (s.zp + 2 * s.zw)), rp = k * s.zp, rw = k * s.zw;\n      return { k, rp, rw, cxp: CXP, cxw: CXP + rp + 26 + rw, M: null };\n    }\n    return { k: 1, rp: s.zp, rw: s.zw, cxp: CXP, M: CXP + s.zp, cxw: CXP + s.zp + s.zw };\n  }\n  // The arrows on a shaft: inside a big gear, outside a small one, centred on the side away from its mate.\n  function shaftArcs(cx, cy, r, mid, dir, n, Tq, room) {\n    const inside = r >= 44, Rs = inside ? 0.46 * r : r + room, Rt = inside ? 0.72 * r : r + room + 10;\n    return [arcArrow(cx, cy, Rs, mid, n * SPD, dir, 't'), arcArrow(cx, cy, Rt, mid, Tq * TRQ, dir, 'nv')];\n  }\n  // Words for a shaft: inside a big gear (left of its hub, inside its teeth), below a smaller one.\n  function shaftWords(cx, cy, r, lines, off, below) {\n    if (r >= 64) lines.forEach((s, k) => text(cx - off, cy - 2 + 15 * k, s, 'sm' + (k ? '' : ' b'), 'end'));\n    else lines.forEach((s, k) => text(cx - 4, cy + r + below + 15 * k, s, 'sm' + (k ? '' : ' b'), 'start'));\n  }\n  // The power bar: 11 kW in at the left, thinner past each loss, to the pump shaft.\n  function powerBar(losses, xEnd, effP, oneLoss) {\n    const x0 = 8, Y = YB, xh = xEnd - 10;\n    let h = HB;\n    const bot = [[x0, Y + h]], peels = [];\n    losses.forEach((L) => { const h2 = h * L.e; bot.push([L.x, Y + h], [L.x + 6, Y + h2]); if (h2 < h - 1e-9) peels.push({ x: L.x, h1: h, h2 }); h = h2; });\n    bot.push([xh, Y + h]);\n    path('band', 'M' + P(x0, Y) + 'L' + P(xh, Y) + 'L' + P(xh, Y - 4) + 'L' + P(xEnd + 2, Y + h / 2) + 'L' + P(xh, Y + h + 4) +\n      bot.reverse().map((q) => 'L' + P(q[0], q[1])).join('') + 'Z');\n    peels.forEach((q) => {\n      const w = Math.max(q.h1 - q.h2, 2.5), y1 = Y + q.h1, y2 = Y + HB + 14;\n      path('heat', 'M' + P(q.x - w / 2, y1 - 0.5) + 'L' + P(q.x + w / 2, y1 - 0.5) + 'L' + P(q.x + 10 + w / 2, y2) + 'L' + P(q.x + 10 - w / 2, y2) + 'Z');\n      text(q.x + 16 + w / 2, Y + HB + 20, oneLoss ? 'heat ' + fx(P_IN * (1 - effP / 100), 0) + ' W' : 'heat', 'sm', 'start');\n    });\n    text(x0, Y - 7, '11 kW in', 'sm', 'start');\n    text(xEnd + 7, Y + h / 2 - 2, fx(100 * h / HB, 0) + '%', 'sm', 'start');\n    text(xEnd + 7, Y + h / 2 + 12, 'out', 'sm m', 'start');\n  }\n  function rigScreen(d, p) {\n    const s = rigOf(d, p), g = geoOf(s), swap = d.rig === 'pair2' || d.rig === 'belt' ? vis(0.05) : 1;\n    const thW = s.belt ? PH * (g.rp + 2) / (g.rw + 2) : drivenAt(PH, s.zp, s.zw, 0);\n    const C2 = [g.cxw + (Z2P + Z2W) * Math.cos(PSI), CY + (Z2P + Z2W) * Math.sin(PSI)];\n    // the power bar, under everything\n    const losses = s.belt ? [{ x: (g.cxp + g.cxw) / 2, e: s.effP / 100 }] : s.pair2 ? [{ x: g.M, e: s.effP / 100 }, { x: g.cxw + Z2P * Math.cos(PSI), e: s.effP / 100 }] : [{ x: g.M, e: s.effP / 100 }];\n    powerBar(losses, s.pair2 ? C2[0] : g.cxw, s.effP, !s.pair2);\n    // the key to the shafts' curved arrows, above the bar\n    arcArrow(210, YB - 12, 7, 270, 250, 1, 't'); text(224, YB - 7, 'speed', 'sm t', 'start');\n    arcArrow(280, YB - 12, 7, 270, 250, 1, 'nv'); text(294, YB - 7, 'torque', 'sm n', 'start');\n    // the motor's words, above its gear\n    const yb = CY - (Math.max(g.rp, 20) + 30);\n    text(6, yb - 45, 'motor', 'sm b', 'start');\n    text(6, yb - 30, s.belt ? (MM * s.zp) + ' mm pulley' : s.zp + ' teeth', 'sm', 'start');\n    text(6, yb - 15, '1450 rev/min', 'sm t', 'start');\n    text(6, yb, N.T + ' N m', 'sm n', 'start');\n    let pump;\n    const drive = () => {\n      if (s.belt) {\n        const b = beltPath([g.cxp, CY], g.rp + 2, [g.cxw, CY], g.rw + 2);\n        pulley(g.cxp, CY, g.rp, PH); pulley(g.cxw, CY, g.rw, thW);\n        path('belt', b.d);\n        const q = b.where((g.rp + 2) * PH);\n        circ('meshdot', q[0], q[1], 4.5);\n        const mx = (b.B1[0] + b.B2[0]) / 2, my = (b.B1[1] + b.B2[1]) / 2;\n        text(mx - 6, my + 24, 'belt', 'sm', 'end'); text(mx - 6, my + 38, fx(rimV(s.zp), 1) + ' m/s', 'sm', 'end');\n        pump = { cx: g.cxw, cy: CY, r: g.rw, mid: 0, dir: 1, room: 10, words: ['pump', (MM * s.zw) + ' mm'] };\n      } else {\n        gear(g.cxp, CY, s.zp, g.rp, PH, 'gear', TD);\n        gear(g.cxw, CY, s.zw, g.rw, thW, 'gear', TD);\n        circ('meshdot', g.M, CY, 3.6);\n        line('dim', g.M, CY + 6, g.M, CY + g.rp + 11);\n        text(g.M + 2, CY + g.rp + 24, 'teeth meet', 'sm', 'end'); text(g.M + 2, CY + g.rp + 38, 'at ' + fx(rimV(s.zp), 1) + ' m/s', 'sm', 'end');\n        pump = { cx: g.cxw, cy: CY, r: g.rw, mid: 0, dir: -1, room: 7, words: ['pump', s.zw + ' teeth'] };\n      }\n    };\n    if (d.rig === 'belt') part(swap, 0, drive); else drive();\n    // the motor's arrows: speed and torque, the same on every screen\n    arcArrow(g.cxp, CY, g.rp + (s.belt ? 10 : 7), 225, N_IN * SPD, 1, 't');\n    arcArrow(g.cxp, CY, g.rp + (s.belt ? 20 : 17), 225, T_IN * TRQ, 1, 'nv');\n    const pumpArrows = (q) => {\n      if (q.top) text(q.cx, q.cy - 9, q.words[0], 'sm b', 'middle'); else shaftWords(q.cx, q.cy, q.r, q.words, q.off || 9, q.room + 18);\n      shaftArcs(q.cx, q.cy, q.r, q.mid, q.dir, s.n, s.T, q.room);\n    };\n    if (s.pair2) {\n      part(swap, 0, () => {\n        const th2 = drivenAt(thW, Z2P, Z2W, PSI);\n        gear(C2[0], C2[1], Z2W, Z2W, th2, 'gear2', TD);\n        gear(g.cxw, CY, Z2P, Z2P, thW, 'gear2', TD);\n        text(g.cxw, g.rw >= 56 ? CY - 33 : CY - Math.max(g.rw, 23) - 12, s.zw + ' teeth', 'sm', 'middle');\n        pumpArrows({ cx: C2[0], cy: C2[1], r: Z2W, mid: PSI / DEG, dir: 1, room: 7, words: ['pump'], top: true });\n      });\n    } else if (pump) {\n      if (d.rig === 'belt') part(swap, 0, () => pumpArrows(pump)); else pumpArrows(pump);\n    }\n    // the rim handles\n    const grips = {};\n    if (!finished) {\n      const kp = { x: g.cxp + (g.rp + (s.belt ? 5 : 1)) * Math.cos(120 * DEG), y: CY + (g.rp + (s.belt ? 5 : 1)) * Math.sin(120 * DEG) };\n      const kw_ = { x: g.cxw, y: CY + g.rw + (s.belt ? 5 : 1) };\n      [kp, kw_].forEach((q) => { circ('knob', q.x, q.y, 7); circ('knob2', q.x, q.y, 11); });\n      grips.zp = { x: kp.x - 22, y: kp.y - 22, w: 44, h: 44, belt: s.belt, k: g.k, zp: s.zp, zw: s.zw };\n      grips.zw = { x: kw_.x - 22, y: kw_.y - 22, w: 44, h: 44, belt: s.belt, k: g.k, zp: s.zp, zw: s.zw };\n    }\n    const said = (s.belt ? 'A belt runs from an ' + MM * s.zp + ' millimetre motor pulley to a ' + MM * s.zw + ' millimetre pump pulley.'\n      : 'A ' + s.zp + '-tooth pinion on the motor drives a ' + s.zw + '-tooth wheel on the pump shaft' + (s.pair2 ? ', then a second pair of 20 and 60 teeth.' : '.')) +\n      ' Curved arrows show each shaft\\'s speed and torque, and a bar below shows the power passing through.';\n    return { h: H_RIG, said, grips };\n  }\n\n  // ---------- the push at the mesh ----------\n  function dimH(x1, x2, y) { path('dim', 'M' + P(x1, y - 4) + 'V' + r2(y + 4) + 'M' + P(x1, y) + 'H' + r2(x2) + 'M' + P(x2, y - 4) + 'V' + r2(y + 4)); }\n  function pushShow() {\n    const rp = 20, rw = 100, cxp = CXP, M = cxp + rp, cxw = M + rw;\n    gear(cxp, CY, 20, rp, 0, 'gear', TD); gear(cxw, CY, 100, rw, drivenAt(0, 20, 100, 0), 'gear', TD);\n    text(6, CY - 86, 'motor', 'sm b', 'start'); text(6, CY - 71, N.T + ' N m', 'sm n', 'start');\n    arcArrow(cxp, CY, rp + 9, 150, T_IN * TRQ, 1, 'nv');\n    circ('meshdot', M, CY, 3.6);\n    part(vis(0.4), 4, () => {\n      dimH(cxp, M, CY + rp + 10); text(M, CY + rp + 27, '0.04 m', 'sm', 'end');\n      dimH(M, cxw, CY + rw + 10); text((M + cxw) / 2, CY + rw + 27, '0.2 m', 'sm', 'middle');\n    });\n    part(vis(1.0), 4, () => { arrow(M + 5, CY + 3, M + 5, CY + 44, 'nv'); text(M + 13, CY + 24, 'push', 'sm n', 'start'); text(M + 13, CY + 39, N.F + ' N', 'sm n', 'start'); });\n    part(vis(1.6), 4, () => { arrow(M - 5, CY - 3, M - 5, CY - 44, 'nv'); text(M - 12, CY - 44, 'push back', 'sm n', 'end'); text(M - 12, CY - 29, N.F + ' N', 'sm n', 'end'); });\n    part(vis(2.2), 4, () => { const A = arcArrow(cxw, CY, 64, 0, T_IN * 5 * TRQ, -1, 'nv'); text(A.tip[0] - 8, A.tip[1] + 22, N.T100 + ' N m', 'sm n', 'end'); });\n    return { h: CY + rw + 38, said: 'At the mesh the pinion\\'s tooth pushes the wheel\\'s tooth with ' + N.F + ' newtons, and is pushed back as hard. The pinion\\'s radius is 0.04 metres and the wheel\\'s 0.2 metres.' };\n  }\n\n  // ---------- couplings: in line, at an angle, offset ----------\n  function centreKey(y) { line('cl', 8, y, 44, y); text(50, y + 4, 'centre line of each shaft', 'sm m', 'start'); }\n  function couplingRow(yc, kind, amt) {\n    rect('box', 8, yc - 20, 64, 40, 5);\n    rect('shaftR', 72, yc - 5, 84, 10, 2);\n    rect('flange', 156, yc - 16, 7, 32, 2);\n    const tf = kind === 'angle' ? 'rotate(' + (-amt) + ' 164 ' + yc + ')' : kind === 'offset' ? 'translate(0 ' + (-amt) + ')' : null;\n    const g = add(K.svg('g', tf ? { transform: tf } : {}));\n    const keep = into; into = g;\n    try {\n      rect('flange', 165, yc - 16, 7, 32, 2);\n      rect('shaftR', 172, yc - 5, 80, 10, 2);\n      rect('box', 252, yc - 20, 48, 40, 5);\n      line('cl', 150, yc, 334, yc);\n    } finally { into = keep; }\n    line('cl', 4, yc, 334, yc);\n  }\n  function alignShow() {\n    centreKey(14);\n    [['In line', 'line', 0], ['Angular misalignment', 'angle', 8], ['Parallel misalignment', 'offset', 10]].forEach((r, k) => part(vis(0.3 + 0.6 * k), 4, () => {\n      const yc = 70 + 92 * k;\n      text(8, yc - 28, r[0], 'b', 'start');\n      couplingRow(yc, r[1], r[2]);\n      if (k === 0) { text(40, yc + 36, 'motor', 'sm m', 'middle'); text(276, yc + 36, 'pump', 'sm m', 'middle'); }\n    }));\n    return { h: 70 + 92 * 2 + 40, said: 'Three couplings joining a motor shaft to a pump shaft: in line, meeting at an angle, and parallel but offset. The angle and offset are exaggerated.' };\n  }\n\n  // ---------- the puzzles' pictures ----------\n  const ansOf = (st) => ({ right: st.res === 'right', wrong: st.res === 'wrong' && st.pick != null, pick: st.pick, v: (t) => arr(t, 0.5) });\n  // The givens under a puzzle's picture, then the chosen answer's working once checked: red when wrong.\n  function working(y0, d, st, a) {\n    const q = d.qw || [], nMax = q.length + Math.max.apply(null, d.opts.map((o) => [].concat(d.ow[o]).length));\n    q.forEach((s, k) => { text(8, y0 + 18 + 24 * k, s, 'wk', 'start'); REC.wk.push({ s, ans: false, bad: false }); });\n    if (a.right || a.wrong) {\n      [].concat(d.ow[a.pick]).forEach((s, k) => part(a.v(0.15 + 0.3 * k), 4, () => {\n        text(8, y0 + 18 + 24 * (q.length + k), s, 'wk ' + (a.wrong ? 'w' : 'n'), 'start');\n        REC.wk.push({ s, ans: true, bad: a.wrong });\n      }));\n    }\n    return y0 + 18 + 24 * (nMax - 1) + 12;\n  }\n  // The 15 and 45-tooth pair of the first two puzzles, drawn larger.\n  function smallPair() {\n    const cy = 98, cxp = 62, rp = 24, rw = 72, M = cxp + rp, cxw = M + rw;\n    gear(cxp, cy, 15, rp, 0, 'gear', 3.6); gear(cxw, cy, 45, rw, drivenAt(0, 15, 45, 0), 'gear', 3.6);\n    text(cxw - 9, cy + 4, '45 teeth', 'sm', 'end');\n    return { cy, cxp, rp, rw, M, cxw, bot: cy + rw + 4 };\n  }\n  const PICS = {\n    ratioQ(d, st) {\n      const a = ansOf(st), q = smallPair(), x = q.cxw + q.rw + 8;\n      text(6, 20, '15 teeth', 'sm', 'start'); text(6, 35, '1450 rev/min', 'sm t', 'start');\n      arcArrow(q.cxp, q.cy, q.rp + 8, 225, N_IN * SPD, 1, 't');\n      if (!(a.right || a.wrong)) text(x, q.cy + 4, '? rev/min', 'm', 'start');\n      else part(a.v(0.1), 0, () => { arcArrow(q.cxw, q.cy, 40, 0, d.nv[a.pick] * SPD, -1, a.right ? 't' : 'wr'); text(x, q.cy + 4, a.pick, a.right ? 't' : 'w', 'start'); });\n      return { h: working(q.bot + 8, d, st, a), said: 'A 15-tooth pinion turning at 1450 revolutions a minute drives a 45-tooth wheel, whose speed is asked.' };\n    },\n    torqueQ(d, st) {\n      const a = ansOf(st), q = smallPair(), x = q.cxw + q.rw + 8, TQ = 2;   // 2 degrees of arrow per N m\n      text(6, 20, '15 teeth', 'sm', 'start'); text(6, 35, '20 N m', 'sm n', 'start');\n      arcArrow(q.cxp, q.cy, q.rp + 9, 225, 20 * TQ, 1, 'nv');\n      if (!(a.right || a.wrong)) text(x, q.cy + 4, '? N m', 'm', 'start');\n      else part(a.v(0.1), 0, () => { arcArrow(q.cxw, q.cy, 46, 0, d.tv[a.pick] * TQ, -1, a.right ? 'nv' : 'wr'); text(x, q.cy + 4, a.pick, a.right ? 'n' : 'w', 'start'); });\n      return { h: working(q.bot + 8, d, st, a), said: 'A 15-tooth pinion with 20 newton metres on it drives a 45-tooth wheel, whose torque is asked.' };\n    },\n    powerQ(d, st) {\n      const a = ansOf(st), sx = (v) => 40 + v / 80 * 240, ay = 168;\n      rect('shaftR', 8, 49, 112, 12, 3); rect('box', 120, 26, 100, 58, 6); rect('shaftR', 220, 49, 112, 12, 3);\n      text(170, 52, '4 : 1', '', 'middle'); text(170, 70, '96%', 'sm', 'middle');\n      text(64, 40, 'in', 'sm m', 'middle'); text(276, 40, 'out', 'sm m', 'middle');\n      line('axis', 40, ay, 280, ay);\n      [0, 20, 40, 60, 80].forEach((v, k) => { line('tick', sx(v), ay, sx(v), ay + 5); text(sx(v), ay + 19, nf(v, 0) + (k === 4 ? ' kW' : ''), 'sm m', k === 4 ? 'end' : 'middle'); });\n      text(8, 117, 'in', 'sm', 'start'); rect('band', 40, 104, sx(15) - 40, 16, 2); text(sx(15) + 6, 117, '15 kW', 'sm n', 'start');\n      text(8, 148, 'out', 'sm', 'start');\n      if (!(a.right || a.wrong)) text(46, 148, '?', 'm', 'start');\n      else part(a.v(0.1), 0, () => {\n        const x1 = sx(d.kv[a.pick]);\n        if (a.right) { rect('band', 40, 135, x1 - 40, 16, 2); rect('heat', x1, 135, sx(15) - x1, 16, 0); }\n        else rect('bandbad', 40, 135, x1 - 40, 16, 2);\n        text(Math.max(x1, sx(15)) + 6, 148, a.pick, a.right ? 'sm n' : 'sm w', 'start');\n      });\n      return { h: working(ay + 26, d, st, a), said: 'A 4 to 1 gearbox of 96 percent efficiency with 15 kilowatts going in, above a power scale.' };\n    },\n    compoundQ(d, st) {\n      const a = ansOf(st), y = 74;\n      rect('shaftR', 8, y - 5, 90, 10, 2); rect('box', 98, y - 26, 52, 52, 6); rect('shaftR', 150, y - 5, 48, 10, 2);\n      rect('box', 198, y - 26, 52, 52, 6); rect('shaftR', 250, y - 5, 82, 10, 2);\n      text(124, y + 5, '4 : 1', '', 'middle'); text(224, y + 5, '6 : 1', '', 'middle');\n      text(52, y - 30, '1440', 'sm t', 'middle'); text(52, y - 16, 'rev/min', 'sm t', 'middle');\n      text(52, y + 26, 'motor', 'sm m', 'middle'); text(291, y + 26, 'output', 'sm m', 'middle');\n      if (!(a.right || a.wrong)) text(291, y - 16, '?', 't', 'middle');\n      else part(a.v(0.1), 0, () => {\n        const c = a.right ? 'sm t' : 'sm w';\n        if (a.right) { text(174, y - 30, N.q8f, 'sm t', 'middle'); text(174, y - 16, 'rev/min', 'sm t', 'middle'); }\n        text(291, y - 30, a.pick.replace(' rev/min', ''), c, 'middle'); text(291, y - 16, 'rev/min', c, 'middle');\n        if (a.pick === rpm(N.q8f)) circ('ringbad', 224, y, 34);\n      });\n      return { h: working(y + 36, d, st, a), said: 'A motor at 1440 revolutions a minute drives a 4 to 1 pair, then a 6 to 1 pair, to an output shaft whose speed is asked.' };\n    },\n    beltQ(d, st) {\n      const a = ansOf(st), cy = 100, c1 = [70, cy], r1 = 25, c2 = [232, cy], rB = 62.5;\n      pulley(c1[0], cy, r1, -Math.PI / 2); pulley(c2[0], cy, rB, -Math.PI / 2);\n      path('belt', beltPath(c1, r1 + 2, c2, rB + 2).d);\n      arcArrow(c1[0], cy, r1 + 11, 225, N_IN * SPD, 1, 't');\n      text(6, 20, '100 mm', 'sm', 'start'); text(6, 35, '1450 rev/min', 'sm t', 'start');\n      text(c2[0], cy + 26, 'fan', 'sm b', 'middle'); text(c2[0], cy + 41, '250 mm', 'sm', 'middle');\n      const yl = cy + rB + 24;\n      if (!(a.right || a.wrong)) text(c2[0], yl, '? rev/min', 'm', 'middle');\n      else part(a.v(0.1), 0, () => { arcArrow(c2[0], cy, 42, 0, d.nv[a.pick] * SPD, 1, a.right ? 't' : 'wr'); text(c2[0], yl, a.pick, a.right ? 't' : 'w', 'middle'); });\n      return { h: working(yl + 8, d, st, a), said: 'A 100 millimetre motor pulley at 1450 revolutions a minute drives a 250 millimetre fan pulley by belt; the fan speed is asked.' };\n    },\n    drumQ(d, st) {\n      const a = ansOf(st), y = 92, TQ = 120 / 159;   // degrees of arrow per N m\n      text(6, 22, '4 kW', 'sm', 'start'); text(6, 37, '960 rev/min', 'sm t', 'start');\n      rect('box', 8, y - 26, 64, 52, 6); text(40, y + 5, 'motor', 'sm', 'middle');\n      rect('shaftR', 72, y - 5, 48, 10, 2);\n      rect('box', 120, y - 30, 72, 60, 6); text(156, y - 4, 'gearbox', 'sm', 'middle'); text(156, y + 14, '4 : 1', '', 'middle');\n      rect('shaftR', 192, y - 5, 44, 10, 2);\n      circ('drum', 272, y, 36); circ('hub', 272, y, 5);\n      line('rope', 308, y, 308, y + 64); rect('box', 295, y + 64, 26, 22, 3);\n      text(266, y + 54, 'drum', 'sm m', 'middle');\n      const yl = y - 46;\n      if (!(a.right || a.wrong)) text(272, yl, '? N m', 'm', 'middle');\n      else part(a.v(0.1), 0, () => { arcArrow(272, y, 24, 270, d.tv[a.pick] * TQ, -1, a.right ? 'nv' : 'wr'); text(272, yl, a.pick, a.right ? 'n' : 'w', 'middle'); });\n      return { h: working(y + 92, d, st, a), said: 'A 4 kilowatt motor at 960 revolutions a minute drives a winch drum through a 4 to 1 gearbox; the drum\\'s torque is asked.' };\n    },\n    alignQ(d, st) {\n      const a = ansOf(st), yc = 74;\n      centreKey(14);\n      couplingRow(yc, 'offset', 10);\n      text(40, yc + 36, 'motor', 'sm m', 'middle'); text(276, yc - 40, 'pump', 'sm m', 'middle');\n      path('brk', 'M318 ' + (yc - 10) + 'H326M322 ' + (yc - 10) + 'V' + yc + 'M318 ' + yc + 'H326');\n      text(336, yc + 24, '0.5 mm', 'sm', 'end');\n      if (a.right || a.wrong) part(a.v(0.1), 0, () => circ(a.right ? 'ring' : 'ringbad', 322, yc - 5, 13));\n      return { h: working(yc + 44, d, st, a), said: 'A motor shaft and a pump shaft joined by a coupling, parallel but with the pump shaft 0.5 millimetres higher, drawn exaggerated.' };\n    },\n  };\n\n  // ---------- one screen's picture ----------\n  let GRIP = {};\n  function placeGrips(g) {\n    GRIP = g || {};\n    [[gP, 'zp'], [gW, 'zw']].forEach(([node, k]) => {\n      const on = !!GRIP[k] && !finished;\n      node.style.display = on ? '' : 'none';\n      node.setAttribute('tabindex', on ? '0' : '-1');\n      if (!on) return;\n      const r = GRIP[k];\n      node.setAttribute('x', r2(r.x)); node.setAttribute('y', r2(r.y)); node.setAttribute('width', r2(r.w)); node.setAttribute('height', r2(r.h));\n      node.setAttribute('aria-valuemin', '12'); node.setAttribute('aria-valuemax', k === 'zp' ? '40' : '120');\n      node.setAttribute('aria-valuenow', String(+CTL[k].get())); node.setAttribute('aria-valuetext', (+CTL[k].get()) + ' teeth');\n    });\n  }\n  function render(i, p) {\n    const d = STEPS[i], st = S[i];\n    art.textContent = ''; into = null;\n    REC = { wk: [] };\n    const out = d.rig ? rigScreen(d, p) : d.pic === 'push' ? pushShow() : d.pic === 'align' ? alignShow() : PICS[d.pic](d, st);\n    svg.setAttribute('viewBox', '0 0 340 ' + Math.ceil(out.h));\n    svg.setAttribute('aria-label', out.said);\n    placeGrips(out.grips);\n    return REC;\n  }\n\n  // ---------- dragging the rims ----------\n  let held = null;\n  function svgPt(ev) { const m = svg.getScreenCTM(); if (!m) return null; return new DOMPoint(ev.clientX, ev.clientY).matrixTransform(m.inverse()); }\n  const canDrag = (k) => !finished && !!STEPS[at()].rig && !!GRIP[k];\n  function grab() {\n    if (T !== Infinity) { T = Infinity; settle(); }\n    K.reveal();\n  }\n  function setZ(k, z) { setQuiet(k, K.clamp(Math.round(z), 12, k === 'zp' ? 40 : 120)); K.refresh(); }\n  // From the pointer to a tooth count: the pinion by its distance from the motor's shaft, the wheel by\n  // how far below the shafts its rim sits. A belt drawing shrinks to fit when both pulleys are big.\n  function teethAt(k, q, g) {\n    if (k === 'zp') {\n      const r = Math.hypot(q.x - CXP, q.y - CY) - (g.belt ? 5 : 1);\n      if (!g.belt || r + 2 * g.zw <= 252) return r;\n      return 2 * g.zw * r / Math.max(1, 252 - r);\n    }\n    const r = q.y - CY - (g.belt ? 5 : 1);\n    if (!g.belt || g.zp + 2 * r <= 252) return r;\n    return 252 - 2 * r <= 0 ? 120 : r * g.zp / (252 - 2 * r);\n  }\n  [[gP, 'zp'], [gW, 'zw']].forEach(([node, k]) => {\n    node.addEventListener('pointerdown', (ev) => {\n      if (!canDrag(k)) return;\n      const q = svgPt(ev);\n      if (!q) return;\n      held = { id: ev.pointerId, k };\n      try { node.setPointerCapture(ev.pointerId); } catch (er) { /* the drag still follows while the pointer stays on the grip */ }\n      ev.preventDefault(); grab();\n    });\n    node.addEventListener('pointermove', (ev) => {\n      if (!held || held.id !== ev.pointerId || !GRIP[k]) return;\n      const q = svgPt(ev);\n      if (!q) return;\n      ev.preventDefault();\n      setZ(k, teethAt(k, q, GRIP[k]));\n    });\n    const letGo = (ev) => { if (held && held.id === ev.pointerId) held = null; };\n    node.addEventListener('pointerup', letGo);\n    node.addEventListener('pointercancel', letGo);\n    node.addEventListener('lostpointercapture', () => { held = null; });\n    node.addEventListener('keydown', (ev) => {\n      const by = { ArrowRight: 1, ArrowUp: 1, ArrowLeft: -1, ArrowDown: -1 }[ev.key];\n      if (by == null || !canDrag(k)) return;\n      ev.preventDefault(); grab();\n      setZ(k, +CTL[k].get() + by);\n    });\n  });\n\n  // ---------- the words under the picture ----------\n  function sayFor(d, p) {\n    if (d.pic === 'push') return 'That push back is the load the motor feels.';\n    const s = rigOf(d, p), R = nf(s.zw / s.zp, 2), n = spdTxt(s.n), Tq = fx(s.T, 0);\n    // the line under the picture waits for a move: at the opening settings the words above say it all\n    const o = rigOf(d, Object.assign({}, setupOf(STEPS.indexOf(d)), d.still || {}));\n    if (T !== Infinity || ['zp', 'zw', 'effP', 'pair2', 'belt'].every((k) => o[k] === s[k])) return '';\n    if (d.rig === 'power') {\n      if (s.effP === 100) return 'At 100% the whole 11 kW reaches the pump. In a real gearbox, friction always turns a little of it into heat.';\n      return s.effP + '% of the 11 kW reaches the pump: ' + fx(s.P, 2) + ' kW. The other ' + fx(s.loss, 0) + ' W turns to heat at the mesh.';\n    }\n    if (d.rig === 'pair2') {\n      if (!s.pair2) return 'One pair alone gives a ratio of ' + R + '. Switch Second pair on to slow the pump shaft three times more.';\n      return 'The ratios multiply: ' + R + ' × 3 = ' + nf(s.ratio, 2) + '. The pump shaft turns at ' + n + ' rev/min, the same way as the motor. It carries ' + Tq + ' N m.';\n    }\n    if (d.rig === 'belt') {\n      if (!s.belt) return 'Gears give the same ratio of ' + R + '. But they turn the pump shaft the opposite way to the motor.';\n      const how = s.zw > s.zp ? R + ' times slower than' : s.zw < s.zp ? 'faster than' : 'at the same speed as';\n      return 'The belt moves at ' + fx(rimV(s.zp), 1) + ' m/s, as fast as both pulley rims. So the ' + MM * s.zw + ' mm pulley turns ' + how + ' the ' + MM * s.zp + ' mm one, the same way round.';\n    }\n    if (s.zw === s.zp) return 'Both gears have ' + s.zp + ' teeth, so the pump shaft turns at the motor\\'s 1450 rev/min. It carries the motor\\'s ' + N.T + ' N m, less the loss: ' + Tq + ' N m.';\n    if (s.zw < s.zp) return 'The wheel has fewer teeth than the pinion. So the pump shaft speeds up to ' + n + ' rev/min, and its torque falls to ' + Tq + ' N m.';\n    return 'The pinion turns ' + R + ' times for each turn of the wheel. So the pump shaft turns at ' + n + ' rev/min. It carries ' + Tq + ' N m, ' + R + ' times the motor\\'s torque less the loss.';\n  }\n  function layout(i, d, st, p) {\n    const right = st.res === 'right';\n    el('stepbox').hidden = finished;\n    el('lead').hidden = finished || i !== 0;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;\n    const task = el('task');\n    task.className = 'task say' + (d.show ? ' show' : '');\n    write(task, d.show ? d.text : d.task);\n    el('effbox').hidden = finished || d.rig !== 'power';\n    const togs = d.rig === 'pair2' || d.rig === 'belt';\n    el('live').hidden = finished || !togs;\n    CTL.pair2.el.hidden = d.rig !== 'pair2'; CTL.belt.el.hidden = d.rig !== 'belt';\n    el('outs').hidden = !d.rig;\n    const talk = !!d.rig || d.pic === 'push';\n    const sayTxt = talk ? sayFor(d, p) : '';\n    el('say').hidden = !sayTxt;\n    el('say').textContent = sayTxt;\n    const opts = d.show ? [] : optsOf(d);\n    el('picks').hidden = !opts.length;\n    el('picks').classList.toggle('long', opts.some((o) => o.length > 12));\n    pickBtns.forEach((bt, k) => {\n      bt.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      bt.setLabel(opts[k]);\n      bt.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n    el('acts').hidden = !!d.show;\n    el('replay').hidden = finished || !replays(d) || REDUCE;\n    checkBtn.el.hidden = right;\n    const fb = el('fb');\n    fb.hidden = !!d.show;\n    fb.className = 'fb say' + (right ? ' right' : '');\n    fb.textContent = d.show ? '' : right ? 'That\\'s it.' : st.res === 'wrong' ? (d.hints[st.pick] || '') : st.res === 'empty' ? 'Pick an answer first.' : '';\n    const why = el('why');\n    why.hidden = !!d.show || !st.why;\n    if (!d.show) write(why, d.why);\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !right);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  }\n\n  write(el('finish'), FINISH);\n  K.update((p) => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (i !== lastStep) { enterStep(i); K.refresh(); return; }\n    // a demonstration that was stopped (the page hidden, a test) shows finished\n    if (T !== Infinity && !anim.playing()) { T = Infinity; settle(); K.refresh(); return; }\n    // the efficiency slider moved by hand during the glide: the hand wins\n    if (MOT && MOT.kind === 'eff' && Math.round(+p.eff) !== effSet) { T = Infinity; MOT = null; effSet = Math.round(+p.eff); }\n    // a switch flipped: the new parts arrive\n    if (d.rig === 'pair2' || d.rig === 'belt') {\n      const on = !!p[d.rig];\n      if (on !== lastTog) { lastTog = on; if (!calm()) { MOT = { kind: 'swap' }; T = 0; END = 1.0; anim.play(); } }\n    }\n    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }\n    render(i, p);\n    layout(i, d, st, p);\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);\n  const answer = (i, o) => ({ pick: o, res: o === STEPS[i].want ? 'right' : 'wrong', why: false });\n  const near = (a, b, tol) => K.near(a, b, tol);\n  const words = (s) => String(s).split(/\\s+/).filter((w) => /[A-Za-z0-9]/.test(w)).length;\n  // A screen drawn in a given state, finished; returns what it drew.\n  function drawn(i, st, over) {\n    const keep = { S: S[i], T, MOT };\n    S[i] = st; T = Infinity; MOT = null;\n    try { return render(i, Object.assign({ step: i }, setupOf(i), over || {})); }\n    finally { S[i] = keep.S; T = keep.T; MOT = keep.MOT; render(at(), K.params()); }\n  }\n\n  K.check('The gear ratio is the input\\'s angular speed ÷ the output\\'s: 1450 ÷ 290 = 5 for the opening pair, and 1450 ÷ 96.7 = 15 with the second pair', () => {\n    const o = K.at({ step: I_PAIR }), c = K.at({ step: I_P2, pair2: true });\n    return near(o.outSpeed, 290, 1e-9) && near(N_IN / o.outSpeed, 5, 1e-12) && near(N_IN / c.outSpeed, 15, 1e-12) && spdTxt(c.outSpeed) === '96.7';\n  }, { source: SRC.ratio });\n  K.check('A belt that does not slip moves at the speed of both pulley rims: 6.1 m/s round the 80 mm pulley at 151.8 rad/s and round the 400 mm pulley at 30.4 rad/s', () => {\n    const o = K.at({ step: I_BELT, belt: true }), w = radOf(o.outSpeed);\n    return near(W_IN * 0.04, w * 0.2, 1e-9) && fx(w, 1) === '30.4' && N.v === '6.1' && N.W === '151.8' &&\n      [[12, 120], [40, 12], [25, 60]].every(([zp, zw]) => near(W_IN * zp * MM / 2000, radOf(K.at({ step: I_BELT, belt: true, zp, zw }).outSpeed) * zw * MM / 2000, 1e-9));\n  }, { source: SRC.ratio });\n  K.check('Rotational power needs the speed in rad/s: 11 kW at 151.8 rad/s is 72.4 N m, and the drum\\'s 4000 W at 25.13 rad/s is 159 N m, where 4000 ÷ 240 would give 16.7', () =>\n    N.T === '72.4' && N.q12w === '25.13' && N.q12 === '159' && N.q12r === '16.7' && near(T_IN * W_IN, 11000, 1e-9), { source: SRC.rads });\n  K.check('Speed reduced, torque increased, and the power out smaller than the power in: torque × speed out is the power out at every tooth count, and below 100% it is under 11 kW', () => {\n    const Z = [[12, 12], [12, 120], [20, 100], [40, 12], [33, 47]];\n    return Z.every(([zp, zw]) => {\n      const o = K.at({ step: I_PAIR, zp, zw, eff: 100 }), q = K.at({ step: I_PAIR, zp, zw, eff: 90 });\n      return near(o.outTorque * radOf(o.outSpeed), 11000, 1e-6) && near(q.outTorque * radOf(q.outSpeed), q.powerOut * 1000, 1e-6) &&\n        (zp === zw ? near(o.outTorque, T_IN, 1e-9) : (o.outSpeed < N_IN) === (o.outTorque > T_IN)) && q.powerOut < 11;\n    });\n  });\n  K.check('The opening pair: 5 : 1 gives 290 rev/min and, at 95%, 344 N m and 10.45 kW with 550 W lost; the teeth meet at 6.1 m/s and push with 1810 N, giving 362 N m with no loss', () => {\n    const o = K.at({ step: I_PAIR }), full = K.at({ step: I_POW, eff: 100 });\n    return fx(o.outSpeed, 0) === '290' && fx(o.outTorque, 0) === '344' && fx(o.powerOut, 2) === '10.45' && N.L95 === '550' &&\n      N.F === '1810' && fx(full.outTorque, 0) === '362' && fx(full.powerOut, 2) === '11.00';\n  });\n  K.check('Two pairs: 5 × 3 = 15 gives 96.7 rev/min, 9.93 kW (about 90%) and 981 N m at 95% each, and the last shaft turns the same way as the motor', () => {\n    const c = K.at({ step: I_P2, pair2: true }), th = (t) => drivenAt(drivenAt(t, 20, 100, 0), Z2P, Z2W, PSI);\n    return spdTxt(c.outSpeed) === '96.7' && fx(c.powerOut, 2) === '9.93' && fx(c.outTorque, 0) === '981' && fx(COMP.e * 100, 0) === '90' &&\n      drivenAt(1, 20, 100, 0) < drivenAt(0, 20, 100, 0) && th(1) > th(0);\n  });\n  K.check('Equal teeth pass the speed and torque through less the loss; a wheel smaller than the pinion speeds the pump shaft up and cuts its torque', () => {\n    const e = K.at({ step: I_PAIR, zp: 30, zw: 30 }), u = K.at({ step: I_PAIR, zp: 40, zw: 20 });\n    return near(e.outSpeed, N_IN, 1e-9) && near(e.outTorque, T_IN * 0.95, 1e-9) && near(u.outSpeed, 2900, 1e-9) && u.outTorque < T_IN;\n  });\n  K.check('Both gears\\' teeth move at the same speed at the mesh: the drawn wheel turns by the pinion\\'s teeth ÷ its own, at every tooth count', () =>\n    [[12, 120], [20, 100], [40, 12], [17, 63]].every(([zp, zw]) => near((drivenAt(0, zp, zw, 0) - drivenAt(1, zp, zw, 0)) * zw, zp, 1e-9) &&\n      near(rimV(zp), radOf(train(zp, zw, 1, false).n) * zw * MM / 2000, 1e-9)));\n  K.check('Every puzzle answer is worked from its rule: 483 rev/min, 60 N m, 14.4 kW, 60 rev/min, 580 rev/min and 159 N m, with the wrong picks 4350, 6.7, 60 kW, 144, 360, 3625, 39.8 and 16.7', () => {\n    const w = (n) => STEPS[iOf('pic', n)].want;\n    return w('ratioQ') === '483 rev/min' && w('torqueQ') === '60 N m' && w('powerQ') === '14.4 kW' && w('compoundQ') === '60 rev/min' && w('beltQ') === '580 rev/min' && w('drumQ') === '159 N m' &&\n      N.q2x === '4350' && N.q4x === '6.7' && N.q6x === '60' && N.q8x === '144' && N.q8f === '360' && N.q10x === '3625' && N.q12m === '39.8' && N.q12r === '16.7' && N.q12mw === '100.5';\n  });\n  K.check('Misalignment brings heat to couplings and bearings: the hot pump with parallel shafts 0.5 mm apart has parallel misalignment', () => STEPS[I_AQ].want === AL[0] && STEPS[I_AQ].opts.length === 3, { source: SRC.align });\n  K.check('Each puzzle offers three answers and accepts only its right one; every wrong answer has its own hint and its working drawn in red, and nothing is marked before Check', () =>\n    DO.every((i) => {\n      const d = STEPS[i];\n      if (d.opts.length !== 3 || d.opts.indexOf(d.want) < 0) return false;\n      if (drawn(i, blank()).wk.some((x) => x.ans)) return false;\n      if (!drawn(i, answer(i, d.want)).wk.some((x) => x.ans && !x.bad)) return false;\n      return d.opts.filter((o) => o !== d.want).every((o) => !!d.hints[o] && drawn(i, answer(i, o)).wk.some((x) => x.ans && x.bad));\n    }));\n  K.check('Every demonstration ends within 4 s of its screen opening, and every answer is drawn within 2.5 s of Check', () => {\n    const keep = { T, MOT };\n    try {\n      return STEPS.every((d, i) => {\n        if (d.show) {\n          const plan = demoPlan(d);\n          T = Infinity; MOT = null; latest = 0;\n          render(i, Object.assign({ step: i }, setupOf(i)));\n          return plan.end <= 4 && latest <= Math.max(plan.end, 1);\n        }\n        return d.opts.every((o) => {\n          const keepS = S[i];\n          T = Infinity; MOT = null; latest = 0; S[i] = answer(i, o);\n          try { render(i, Object.assign({ step: i }, setupOf(i))); } finally { S[i] = keepS; }\n          return latest <= 2.5 && ANS <= 2.5;\n        });\n      });\n    } finally { T = keep.T; MOT = keep.MOT; render(at(), K.params()); }\n  });\n  K.check('Every screen that shows an idea says it in 90 words or fewer', () => STEPS.every((d) => !d.show || (words(d.text) <= 90 && (!d.read || words(d.read) <= 90))));\n\n  K.ready();\n</script>",
+  "title": "The gear pair",
+  "brief": "The one thing you should see is the pump shaft's speed fall and torque rise by one ratio, while the teeth share one speed at the mesh and the power passes through, when you add teeth to the wheel.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "The gear ratio is the input's angular speed ÷ the output's: 1450 ÷ 290 = 5 for the opening pair, and 1450 ÷ 96.7 = 15 with the second pair",
+     "ok": true,
+     "source": "https://eng.libretexts.org/Bookshelves/Mechanical_Engineering/Mechanics_Map_(Moore_2nd_Edition)/12:_Rigid_Body_Kinematics/12.04:_Belt-_and_Gear-Driven_Systems"
+    },
+    {
+     "label": "A belt that does not slip moves at the speed of both pulley rims: 6.1 m/s round the 80 mm pulley at 151.8 rad/s and round the 400 mm pulley at 30.4 rad/s",
+     "ok": true,
+     "source": "https://eng.libretexts.org/Bookshelves/Mechanical_Engineering/Mechanics_Map_(Moore_2nd_Edition)/12:_Rigid_Body_Kinematics/12.04:_Belt-_and_Gear-Driven_Systems"
+    },
+    {
+     "label": "Rotational power needs the speed in rad/s: 11 kW at 151.8 rad/s is 72.4 N m, and the drum's 4000 W at 25.13 rad/s is 159 N m, where 4000 ÷ 240 would give 16.7",
+     "ok": true,
+     "source": "https://pages.mtu.edu/~wjendres/ProductRealization1Course/DC_Motor_Calculations.pdf"
+    },
+    {
+     "label": "Speed reduced, torque increased, and the power out smaller than the power in: torque × speed out is the power out at every tooth count, and below 100% it is under 11 kW",
+     "ok": true
+    },
+    {
+     "label": "The opening pair: 5 : 1 gives 290 rev/min and, at 95%, 344 N m and 10.45 kW with 550 W lost; the teeth meet at 6.1 m/s and push with 1810 N, giving 362 N m with no loss",
+     "ok": true
+    },
+    {
+     "label": "Two pairs: 5 × 3 = 15 gives 96.7 rev/min, 9.93 kW (about 90%) and 981 N m at 95% each, and the last shaft turns the same way as the motor",
+     "ok": true
+    },
+    {
+     "label": "Equal teeth pass the speed and torque through less the loss; a wheel smaller than the pinion speeds the pump shaft up and cuts its torque",
+     "ok": true
+    },
+    {
+     "label": "Both gears' teeth move at the same speed at the mesh: the drawn wheel turns by the pinion's teeth ÷ its own, at every tooth count",
+     "ok": true
+    },
+    {
+     "label": "Every puzzle answer is worked from its rule: 483 rev/min, 60 N m, 14.4 kW, 60 rev/min, 580 rev/min and 159 N m, with the wrong picks 4350, 6.7, 60 kW, 144, 360, 3625, 39.8 and 16.7",
+     "ok": true
+    },
+    {
+     "label": "Misalignment brings heat to couplings and bearings: the hot pump with parallel shafts 0.5 mm apart has parallel misalignment",
+     "ok": true,
+     "source": "https://www.energy.gov/sites/prod/files/2014/04/f15/importance_motor_shaft_motor_systemts4.pdf"
+    },
+    {
+     "label": "Each puzzle offers three answers and accepts only its right one; every wrong answer has its own hint and its working drawn in red, and nothing is marked before Check",
+     "ok": true
+    },
+    {
+     "label": "Every demonstration ends within 4 s of its screen opening, and every answer is drawn within 2.5 s of Check",
+     "ok": true
+    },
+    {
+     "label": "Every screen that shows an idea says it in 90 words or fewer",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step",
+    "zp",
+    "zw",
+    "eff",
+    "pair2",
+    "belt"
+   ],
+   "readouts": [
+    "outSpeed",
+    "outTorque",
+    "powerOut"
+   ],
+   "outputs": [
+    "outSpeed",
+    "outTorque",
+    "powerOut"
+   ],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Screen",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "steps": [
+      "The gear pair",
+      "Wheel speed",
+      "The push at the mesh",
+      "Wheel torque",
+      "Power passes through",
+      "Power out",
+      "A second pair",
+      "Two pairs",
+      "A belt",
+      "Belt speed",
+      "Lining up shafts",
+      "Winch drum",
+      "A hot coupling"
+     ],
+     "value": 0
+    },
+    {
+     "id": "zp",
+     "kind": "control",
+     "label": "Teeth on the pinion",
+     "min": 12,
+     "max": 40,
+     "step": 1,
+     "log": false,
+     "value": 20,
+     "shown": false
+    },
+    {
+     "id": "zw",
+     "kind": "control",
+     "label": "Teeth on the wheel",
+     "min": 12,
+     "max": 120,
+     "step": 1,
+     "log": false,
+     "value": 100,
+     "shown": false
+    },
+    {
+     "id": "eff",
+     "kind": "control",
+     "label": "Efficiency",
+     "min": 80,
+     "max": 100,
+     "step": 1,
+     "log": false,
+     "value": 95,
+     "shown": false,
+     "snap": [
+      95,
+      100
+     ]
+    },
+    {
+     "id": "pair2",
+     "kind": "toggle",
+     "label": "Second pair",
+     "options": [
+      false,
+      true
+     ],
+     "value": false,
+     "shown": false
+    },
+    {
+     "id": "belt",
+     "kind": "toggle",
+     "label": "Belt",
+     "options": [
+      false,
+      true
+     ],
+     "value": false,
+     "shown": false
+    }
+   ],
+   "actions": [
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Check",
+    "Why?",
+    "Play again",
+    "Back",
+    "Continue",
+    "Start again",
+    "Demonstration"
+   ],
+   "answers": [],
+   "written": [],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 2
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-27T06:50:32.899Z",
+  "applied": [
+   {
+    "path": "explain.text",
+    "problem": "The 362 N m wheel torque is stated as fact though it is the loss-free value, and the same text later gives 344 N m; and \"a coupling needs its centre lines in one straight line\" is absolute, while universal couplings work at an angle and real alignment is to a tolerance."
+   },
+   {
+    "path": "practice.text",
+    "problem": "Waiting for shafts to stop is not enough on a hoist like the worked example: a hanging load can drive the gears with the motor isolated. And \"no angle and no offset\" is unachievable as written; shafts are aligned to within a tolerance."
+   },
+   {
+    "path": "interactive.ignores",
+    "problem": "\"A real belt creeps\" is too general: toothed (synchronous) belts do not creep; creep belongs to flat and V-belts."
+   }
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}
