@@ -1,0 +1,92 @@
+{
+ "scores": {
+  "lands": 4,
+  "why": 4,
+  "cause": 4,
+  "trade": 5,
+  "honest": 4,
+  "pleasure": 4
+ },
+ "findings": [
+  {
+   "severity": "fix",
+   "where": "explain and practice (footnote markers)",
+   "what": "The explain and practice carry 17 footnote markers (9 and 8) against the rule of a few a lesson, many on plain explanation such as 'These tie the supply to earth.[^6]' and 'Then the system behaves like an earthed one.[^11]'; keep them on the looked-up values only (the 50 V touch limit, the 1,200 V measurement, the 173% rating, the disconnect-the-filter instruction) and let the rest stand as plain words."
+  },
+  {
+   "severity": "fix",
+   "where": "Screen 9 text and practice bullet 3",
+   "what": "'and less in wet places' / 'Wet places use lower limits' is not in any quote in the research (grep finds nothing on wet locations or 25 V), so either add a sourced quote for the lower wet-location limit or drop the clause."
+  },
+  {
+   "severity": "fix",
+   "where": "Screen 9, Touch card readout tiles (paintTch)",
+   "what": "The tiles read 440 V and 440 mA from the first frame while the picture is still showing the healthy capacitive path and a 190 V bar for about 1.4 s, because the read uses the target state (touchOf(s.fault, s.touch)) instead of the animated one; for that moment the healthy touch is labelled 440 mA, the very wrong answer screen 10 tests, so drive the tiles from the animated state as the drive card does."
+  },
+  {
+   "severity": "fix",
+   "where": "Screen 5 text and the caption",
+   "what": "The Some losses setting (the ring passes by half the jump) and its results (3.5 times, levelling near 4 times) are made-up illustrative values, but neither the screen nor the caption says so, although the brief required the damping values to be labelled illustrative; add them to the caption's example values or say 'say the ring passes by half the jump'."
+  },
+  {
+   "severity": "polish",
+   "where": "Screen 1 text",
+   "what": "The arc 'strikes at L1's peak' and then 'goes out there' because the current is zero 'when the voltage peaks', so the reader cannot tell whether it burns at all or for how long; one sentence saying it goes out almost at once, because it struck at a peak where the charging current is already zero, would close the gap."
+  },
+  {
+   "severity": "polish",
+   "where": "Screen 3 text, then screen 4",
+   "what": "Screen 3 jumps from 'rings past by as much again' to 'L1 peaks at 4 times normal' without the held 1,077 V step, and by stating 4 times (and the tiles showing 1,436 V) it gives away screen 4's answer; end screen 3 at 'the star point is left held at 1,077 V, three times normal' and let screen 4 ask for L1's peak."
+  },
+  {
+   "severity": "polish",
+   "where": "Screen 3 text",
+   "what": "The screen leads with the working ('L1 still swings 359 V either side...') and puts the point, that each restrike pushes the peak higher, in the last sentence; lead with the point."
+  },
+  {
+   "severity": "polish",
+   "where": "Arc ladder plot, the restrike ring",
+   "what": "The ring is drawn as a half-cosine over 0.08 of a cycle, about 9 px wide at 360 px, so it reads as a jump and the overshoot that screen 3 names ('rings past by as much again') cannot be seen; mark the level the star point rings about (+359 V) or widen the slowed ring."
+  },
+  {
+   "severity": "polish",
+   "where": "Screen 2, right answer",
+   "what": "The answer says the star point 'stays near 359 V' while the dashed line on the picture sits at -359 V, below the hull; say '359 V from the hull' so the choice matches the picture."
+  },
+  {
+   "severity": "polish",
+   "where": "Screen 5 text",
+   "what": "'Ships' cables lose far more at these frequencies' has nothing to compare against (far more than what?), and the 480 V measurement comes after the at-sea argument it should come before; say 'than land systems' and put the measured 1,200 V before the 'people still argue' sentence."
+  },
+  {
+   "severity": "polish",
+   "where": "Screen 7 text",
+   "what": "'disconnect each filter and its varistor' brings in a varistor that the screen and picture never show; say 'the varistor from each line to earth' or leave it to the practice bullet."
+  },
+  {
+   "severity": "polish",
+   "where": "Screen 11 hints and why",
+   "what": "Both hints restate the right answer almost word for word, so the puzzle is answered by any wrong pick; and the why's 'On the Losses picker, light losses let the ladder climb' points to a control hidden on this screen and makes no sense in the read-through, so say 'With light losses the ladder climbs; heavy losses stop it'."
+  },
+  {
+   "severity": "polish",
+   "where": "Drive on IT card, choosing Monitor: Plain DC on screen 7",
+   "what": "The SVG's viewBox jumps from 294 to 324 the instant the DC tag starts to fade in, so the controls and tiles below jump down about 30 px; keep the row reserved or ease the height."
+  },
+  {
+   "severity": "polish",
+   "where": "Drive on IT card, EMC standard tag",
+   "what": "The words 'EMC standard' touch the tag's left and right borders at both 360 px and 1280 px; widen the tag or shorten to 'EMC met' / 'EMC not met'."
+  },
+  {
+   "severity": "polish",
+   "where": "Brief scope versus lesson",
+   "what": "The brief's scope for this lesson names overvoltage limiters (EIG, Cahier 178: a limiter between neutral and earth whose short-circuit the monitor reports as a fault), but the lesson never mentions one; add a line or say why it is left out, and if added, say it guards against an HV-to-LV breakdown rather than presenting it as the cure for the restrike ladder."
+  },
+  {
+   "severity": "polish",
+   "where": "Practice, High voltage note",
+   "what": "'Ships' HV systems are usually earthed through a resistor' says 'usually', which the cited quote does not; say 'often' or 'many'."
+  }
+ ]
+}

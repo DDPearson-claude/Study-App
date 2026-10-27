@@ -1,0 +1,602 @@
+<!-- kind: mechanism -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .caption { max-width: 32rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.15rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.05rem; font-weight: 400; line-height: 1.6; }
+  .scene { display: block; width: 100%; max-width: 32rem; margin-inline: auto; }
+  .scene .c1 { stroke: var(--k-cat1); } .scene .c2 { stroke: var(--k-cat2); } .scene .c3 { stroke: var(--k-cat3); } .scene .ci { stroke: var(--k-ink); }
+  .scene .f1 { fill: var(--k-cat1); } .scene .f2 { fill: var(--k-cat2); } .scene .f3 { fill: var(--k-cat3); } .scene .fi { fill: var(--k-ink); } .scene .fw { fill: var(--k-warn); }
+  .scene .bus { stroke-width: 3; stroke-linecap: round; }
+  .scene .ln { stroke-width: 2; fill: none; }
+  .scene .pe { stroke: var(--k-ink); stroke-width: 1.6; fill: none; }
+  .scene .card { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .brk { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .frame { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 2.5; }
+  .scene .wind { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.5; }
+  .scene .hull { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.2; }
+  .scene .bond { stroke: var(--k-ink); stroke-width: 2; }
+  .scene .fault { fill: var(--k-warn); stroke: var(--k-bg); stroke-width: 1.5; }
+  .scene .glow { stroke: var(--k-warn); stroke-opacity: 0.3; stroke-width: 9; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .flow { stroke: var(--k-warn); stroke-width: 1.8; fill: none; stroke-dasharray: 3 7; stroke-linecap: round; }
+  .scene .lamp { fill: var(--k-fill2); stroke: var(--k-amber-line); stroke-width: 1.5; }
+  .scene .ray { stroke: var(--k-amber-line); stroke-width: 1.5; stroke-linecap: round; }
+  .scene .track { fill: var(--k-sunk); stroke: var(--k-line); stroke-width: 1; }
+  .scene .fillbar { fill: var(--k-accent2); }
+  .scene .mark { stroke: var(--k-ink); stroke-width: 2; }
+  .scene .mark.hot { stroke: var(--k-warn); stroke-width: 2.5; }
+  .scene .leader, .scene .brace { stroke: var(--k-muted); stroke-width: 1.3; fill: none; }
+  .scene .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .lab.n { font-weight: 400; }
+  .scene .lab.m { font-weight: 400; fill: var(--k-muted); }
+  .scene .lab.s { font-size: 12px; }
+  .scene .lab.hot { font-weight: 700; fill: var(--k-warn); }
+  #ctls > * + * { margin-top: 10px; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; min-height: 44px; }
+  #prow { align-items: flex-end; }
+  #pctl { flex: 1 1 11rem; min-width: 0; }
+  #prow .k-btn { flex: 1 1 9rem; }
+  #zctl > * + * { margin-top: 8px; }
+  /* Three readout tiles: as many to a row as fit, two on a phone. */
+  #outs { display: grid; grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr)); gap: 10px; }
+  /* The answers are sentences: one to a row, wrapping inside the button. */
+  .picks { display: flex; flex-direction: column; gap: 8px; }
+  .picks .k-btn { width: 100%; min-height: 48px; white-space: normal; text-align: left; justify-content: flex-start; line-height: 1.4; padding: 10px 14px; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; }
+  .fb.right { color: var(--k-good); }
+  .why, .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }
+</style>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 358" width="100%" role="img" aria-label=""><g id="art"></g></svg>
+    <div id="ctls">
+      <div class="row" id="prow"><div id="pctl"></div></div>
+      <div id="zctl"></div>
+    </div>
+    <div id="outs"></div>
+    <div class="picks" id="picks"></div>
+    <div class="row" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row" id="nav"></div>
+</div>
+
+<p class="caption">Example values: a 440 V board, and breakers that trip instantly at 400 A.</p>
+
+<script>
+  // ---------- the rule ----------
+  // 440 V between lines, so each line is 440 ÷ 1.732 = 254 V from the star point. A solid first fault puts
+  // the hull at L1. A second fault joins the chosen phase to the hull, so the voltage round the loop is the
+  // voltage between that phase and L1: 0 V for L1, 440 V for L2 or L3. The current runs through feeder 1's
+  // loop (Z1) and feeder 2's loop (Z2), one after the other: current = voltage ÷ (Z1 + Z2).
+  const VLINE = 440, ROOT3 = 1.732, TRIP = 400, FULL = 1100;
+  const VPH = Math.round(VLINE / ROOT3);
+  const PH = ['L1', 'L2', 'L3'];
+  const tenths = (z) => Math.round(z * 10);
+  const loopV = (ph) => (ph === 'L1' ? 0 : VLINE);
+  // Worked in tenths of an ohm, so 3.2 Ω gives exactly 137.5 A, which shows as 138 A.
+  const loopI = (ph, z1, z2) => loopV(ph) * 10 / (tenths(z1) + tenths(z2));
+  const tripsAt = (I) => I >= TRIP - 1e-9;
+  const fz = (z) => K.fmt(z, { decimals: 1 }) + ' Ω';
+  const sumText = (z1, z2) => fz((tenths(z1) + tenths(z2)) / 10);
+  const ampText = (I) => K.fmt(Math.round(I), { decimals: 0 }) + ' A';
+
+  // ---------- the lesson: SHOW screens demonstrate, DO screens are puzzles ----------
+  // A picture: drop (a second fault is in), ph (its phase, on feeder 2), z1 and z2 (the two loops), zl1 and
+  // zl2 (each loop labelled on the picture) and q (the voltage and current wait for the answer).
+  const P = (o) => Object.assign({ drop: false, ph: 'L2', z1: 0.4, z2: 0.4, zl1: false, zl2: false, q: false }, o || {});
+  const strip = (s) => s.replace(/\[\^\d+\]/g, '');
+  const BOTH = { zl1: true, zl2: true };
+  const STEPS = [
+    { show: true, name: 'One fault already there', pic: P(),
+      text: `Here is a 440 V insulated board with two feeders. A first fault already joins feeder 1's L1 to the hull. The alarm is lit. Nothing has tripped and both motors run. As in the shifting triangle, the hull has moved to L1. So L2 and L3 now sit 440 V from the hull, on every circuit. Only their insulation holds them off it.` },
+    { kind: 'pick', name: 'An earth fault, earthed', before: P(), after: P({ zl1: true }),
+      task: `On an earthed 254 V supply, a circuit's Zs is 0.4 Ω. What current flows in a solid earth fault?`,
+      opts: ['635 A', 'About 102 A', '1,100 A'], want: '635 A',
+      hints: { 'About 102 A': `That is 254 × 0.4. The current is the voltage divided by the impedance.`,
+        '1,100 A': `That uses 440 V. On an earthed supply, the 254 V from line to earth drives an earth fault.` },
+      why: `Still there. I = U0 ÷ Zs = 254 ÷ 0.4 = 635 A. The same rule sizes a second fault.` },
+    { show: true, name: 'The same phase', pic: P({ drop: true, ph: 'L1' }), ctl: true, demo: P({ ph: 'L1' }),
+      text: `Drop a second fault on feeder 2, on the same phase, L1. Both faults now join L1 to the hull. But the hull already sits at L1's voltage. So the new fault has no voltage across it, and no loop is driven. The readouts show 0 V and 0 A. Nothing trips, and the alarm stays lit.`,
+      read: `With feeder 1's L1 already faulted, a second fault on feeder 2's L1 has no voltage across it. Nothing flows and nothing trips.` },
+    { kind: 'pick', name: 'Which trips nothing?', before: P(), after: P({ drop: true, ph: 'L1' }),
+      task: `Feeder 1's L1 is already faulted to the hull. Which second fault on feeder 2 trips nothing?`,
+      opts: ['One on L1', 'One on L2', 'One on L3'], want: 'One on L1',
+      hints: { 'One on L2': `L2 now sits 440 V from the hull. A fault there puts 440 V round a loop.`,
+        'One on L3': `L3 now sits 440 V from the hull. A fault there puts 440 V round a loop.` },
+      why: `The hull already sits at L1. A second join from L1 to the hull has no voltage across it, so it drives no loop.[^1] It still needs finding and clearing.` },
+    { show: true, name: 'A different phase', pic: P({ drop: true, ph: 'L2' }), ctl: true, demo: P({ ph: 'L2' }),
+      text: `Now pick L2 and drop the fault. L2 is joined to the hull, and the hull sits at L1. So the hull bridges L1 and L2, with 440 V between them. A red loop lights. It runs out along feeder 2's L2 and through its fault onto the frame. It returns by the protective conductors and the hull to feeder 1's fault, then along feeder 1's L1. It is a short between phases, through the hull.[^1]`,
+      read: `With feeder 1's L1 faulted, a second fault on feeder 2's L2 puts 440 V round a loop through both feeders and the hull.` },
+    { kind: 'pick', name: 'The voltage round the loop', before: P({ drop: true, ph: 'L2', q: true }), after: P({ drop: true, ph: 'L2' }),
+      task: `Feeder 1's L1 and feeder 2's L2 are both faulted to the hull. What voltage drives the loop?`,
+      opts: ['440 V, the line voltage', '254 V, as in an earth fault', '880 V, 440 V for each fault'], want: '440 V, the line voltage',
+      hints: { '254 V, as in an earth fault': `254 V drives an earth fault on an earthed supply. Here the loop joins L1 to L2.`,
+        '880 V, 440 V for each fault': `Both faults sit in one loop. One voltage drives it, the one between L1 and L2.` },
+      why: `The hull sits at L1, and the second fault joins L2 to it. So the loop sees the voltage between L1 and L2. That is the line voltage, 440 V.` },
+    { show: true, name: 'Two loops end to end', pic: P(Object.assign({ drop: true, ph: 'L2' }, BOTH)), ctl: true, demo: P({ drop: true, ph: 'L2' }),
+      text: `The current runs through both circuits, one after the other. Feeder 2's loop is its L2 out and its protective conductor back. Feeder 1's is its L1 and its protective conductor. So the loop impedance is Z1 + Z2. When the circuits match, that is double one circuit's.[^2] With 0.4 Ω each, 440 ÷ 0.8 = 550 A. Say each breaker trips instantly at 400 A. Both carry the 550 A, past each trip mark.` },
+    { kind: 'pick', name: 'Loops of 0.4 and 0.6 Ω', before: P(Object.assign({ z2: 0.6 }, BOTH)), after: P(Object.assign({ drop: true, ph: 'L3', z2: 0.6 }, BOTH)),
+      task: `Feeder 1's loop is 0.4 Ω and feeder 2's is 0.6 Ω. A second fault strikes feeder 2's L3. What current flows?`,
+      opts: ['440 A', '1,100 A', '254 A'], want: '440 A',
+      hints: { '1,100 A': `That uses feeder 1's loop alone. The current runs round both loops.`,
+        '254 A': `That uses 254 V. The 440 V between L1 and L3 drives this loop.` },
+      why: `The loop runs through both circuits, so it is 0.4 + 0.6 = 1.0 Ω. The current is 440 ÷ 1.0 = 440 A.` },
+    { show: true, name: 'A long run', pic: P(Object.assign({ drop: true, ph: 'L2', z2: 1 }, BOTH)), ctl: true, follow: true,
+      demo: P(Object.assign({ drop: true, ph: 'L2' }, BOTH)),
+      text: `Now drag feeder 2's loop up to 1.0 Ω, as on a long run. The loop is now 1.4 Ω, so 440 ÷ 1.4 = 314 A. That is below the 400 A instant trip. So the short lasts until a slower trip acts. It heats the cables while it runs. The two circuits with the highest loops give the smallest current. Check that pair.`,
+      read: `With feeder 2's loop at 1.0 Ω, the loop is 1.4 Ω and the current is 314 A. That is below the 400 A instant trip.` },
+    { kind: 'pick', name: 'A week with the alarm on', before: P(), after: P({ drop: true, ph: 'L3' }),
+      task: `The alarm has shown a first fault on L1 for a week. Nothing has tripped and every motor runs. What is the risk now?`,
+      opts: ['One failure on L2 or L3, anywhere, makes a short through the hull', 'Little, as the first fault passes only a small current', 'None until the first fault itself gets worse'],
+      want: 'One failure on L2 or L3, anywhere, makes a short through the hull',
+      hints: { 'Little, as the first fault passes only a small current': `Its current is small. The danger is the 440 V that L2 and L3 now hold to the hull.`,
+        'None until the first fault itself gets worse': `The first fault can stay just as it is. A second fault elsewhere makes the short.` },
+      why: `L2 and L3 have held line voltage to the hull all week, on every circuit. One insulation failure on either joins them to L1 through the hull. So a first fault should be cleared with the shortest practicable delay.[^3]` },
+    { kind: 'pick', name: 'Earthed against insulated', before: P(BOTH), after: P(Object.assign({ drop: true, ph: 'L2' }, BOTH)),
+      task: `Two circuits each have a 0.4 Ω loop. On an earthed 254 V supply, one of them passes 635 A in an earth fault. On the insulated 440 V board, what does a second fault through both pass?`,
+      opts: ['550 A, a little less', '1,100 A, as 440 V drives it', '1,270 A, twice as much'], want: '550 A, a little less',
+      hints: { '1,100 A, as 440 V drives it': `440 V is right. But the loop runs through both circuits, so it is 0.8 Ω.`,
+        '1,270 A, twice as much': `The voltage rises 1.73 times, not 2 times. And the loop impedance doubles.` },
+      why: `440 ÷ 0.8 = 550 A. The voltage is 1.73 times higher, but the loop impedance is doubled.[^2] So the current is about 0.87 times the earthed figure.` },
+    { kind: 'pick', name: 'Which motors can stop?', before: P(BOTH), after: P(Object.assign({ drop: true, ph: 'L3' }, BOTH)),
+      task: `Both loops are 0.4 Ω, and each breaker trips instantly at 400 A. A second fault strikes feeder 2's L3. Which motors can stop?`,
+      opts: ['Either or both, as both breakers carry 550 A', 'Only motor 2, as its fault is the new one', 'Only motor 1, as its fault came first'],
+      want: 'Either or both, as both breakers carry 550 A',
+      hints: { 'Only motor 2, as its fault is the new one': `Follow the red loop. It runs through feeder 1's breaker too.`,
+        'Only motor 1, as its fault came first': `Follow the red loop. It runs through feeder 2's breaker too.` },
+      why: `One current runs round the whole loop, so both breakers carry 550 A. Whichever opens first clears the short, and both may open. So a second fault can stop two circuits, including the one with the first fault.` },
+  ];
+  STEPS.forEach((d) => { if (d.show) d.still = () => setPic(d.pic); else d.read = d.task; });
+  const FINISH = 'A second fault on another phase shorts two phases through the hull. Line voltage drives it round both circuits\' loops.';
+  const PICK = 'Choose an answer first.';
+  const EIG = 'https://www.electrical-installation.org/enwiki/IT_system_-_Fault_protection';
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- what the picture shows: a view, and motion from one view to another ----------
+  function viewOf(c) {
+    const k = PH.indexOf(c.ph);
+    const v = { f: [0, 0, 0], lit: 0, route: k > 0 ? k : 1, z1: c.z1, z2: c.z2, zl1: c.zl1 ? 1 : 0, zl2: c.zl2 ? 1 : 0, q: !!c.q };
+    if (c.drop) v.f[k] = 1;
+    if (c.drop && k > 0 && !c.q) v.lit = 1;
+    return v;
+  }
+  // In order: what goes away fades out, the loops change, the new fault drops in, the loop lights, then the
+  // labels come in. A move Dan makes with a slider or the picker is squeezed into 0.3 s; the current then
+  // runs round its loop for a moment and stops.
+  function motion(a, b, slow) {
+    const w = {};
+    let t = 0;
+    const reroute = a.lit > 1e-3 && b.lit > 1e-3 && a.route !== b.route;
+    const litOut = b.lit < a.lit - 1e-3 || reroute;
+    const goes = litOut || [0, 1, 2].some((j) => b.f[j] < a.f[j] - 1e-3) || ['zl1', 'zl2'].some((p) => b[p] < a[p] - 1e-3);
+    if (goes) { w.out = [0, 0.5]; t = 0.5; }
+    const dz = Math.max(Math.abs(a.z1 - b.z1), Math.abs(a.z2 - b.z2));
+    if (dz > 1e-6) { const d = K.clamp(dz * 3.4, 0.8, 2); w.z = [t, t + d]; t += d; }
+    if ([0, 1, 2].some((j) => b.f[j] > a.f[j] + 1e-3)) { w.fin = [t, t + 0.9]; t += 0.9; }
+    const litFrom = litOut ? 0 : a.lit;
+    if (b.lit > litFrom + 1e-3) { const s0 = w.fin ? w.fin[1] - 0.3 : t; w.lit = [s0, s0 + 1]; t = s0 + 1; }
+    ['zl1', 'zl2'].forEach((p) => { if (b[p] > a[p] + 1e-3) { w[p] = [t, t + 0.6]; t += 0.6; } });
+    let geo = t;
+    if (!slow && geo > 0.3) { const s = 0.3 / geo; Object.keys(w).forEach((k) => { w[k] = [w[k][0] * s, w[k][1] * s]; }); geo = 0.3; }
+    const flow = b.lit > 0.5 ? 1.5 : 0;
+    return { a, b, w, geo, end: Math.max(geo + flow, 0.05), litFrom, litOut };
+  }
+  function viewAt(m, t) {
+    if (t >= m.geo) return m.b;
+    const a = m.a, b = m.b, w = m.w;
+    const ph = (win) => (win ? K.ease(K.clamp((t - win[0]) / Math.max(1e-6, win[1] - win[0]), 0, 1)) : 1);
+    const po = ph(w.out), pin = ph(w.fin), pz = ph(w.z);
+    const v = { f: [0, 1, 2].map((j) => K.lerp(a.f[j], b.f[j], b.f[j] < a.f[j] ? po : pin)), z1: K.lerp(a.z1, b.z1, pz), z2: K.lerp(a.z2, b.z2, pz) };
+    ['zl1', 'zl2'].forEach((p) => { v[p] = K.lerp(a[p], b[p], b[p] < a[p] ? po : ph(w[p])); });
+    const lighting = !!w.lit && t >= w.lit[0];
+    v.lit = lighting ? K.lerp(m.litFrom, b.lit, ph(w.lit)) : m.litOut ? K.lerp(a.lit, 0, po) : a.lit;
+    v.route = m.litOut && !lighting ? a.route : b.route;
+    v.q = b.q || (a.q && v.lit < 0.5);
+    return v;
+  }
+
+  // ---------- the drawing (viewBox 340 × 358): the board on top, two feeders down to two motors, the hull ----------
+  const XS = 56, YB = [30, 44, 58], YPE = 72;
+  const X1 = [112, 122, 132], X2 = [192, 202, 212];
+  const FR = [{ x: 100, cx: 122, bond: 130, pe: 148, xs: X1 }, { x: 180, cx: 202, bond: 210, pe: 228, xs: X2 }];
+  const YF = 232, YFB = 276, YH = 292, CY = 256, RW = 13;
+  const BX = [6, 240], BW = 90, LX = 240, LY = 14;
+  const n2 = (x) => +x.toFixed(2);
+  const svg = document.getElementById('scene'), art = document.getElementById('art');
+  const el = (id) => document.getElementById(id);
+  function put(parent, tag, attrs, text) { const n = K.svg(tag, attrs); if (text != null) n.textContent = text; parent.appendChild(n); return n; }
+  const group = (a) => put(art, 'g', a == null || a >= 1 ? {} : { opacity: Math.max(0, a).toFixed(3) });
+  const lab = (g, x, y, text, cls, anchor) => put(g, 'text', { x: n2(x), y: n2(y), class: 'lab' + (cls ? ' ' + cls : ''), 'text-anchor': anchor || 'start' }, text);
+  // The loop on phase r (1 for L2, 2 for L3): out of the supply on that phase and down feeder 2; back by the
+  // protective conductors and, beside them, by the hull; across the first fault and back along feeder 1's L1;
+  // and round through the supply. Each piece is drawn the way the current runs.
+  function loopPath(r) {
+    return `M${XS} ${YB[r]}H${X2[r]}V${YF}` +
+      `M${FR[1].pe} ${YF}V${YPE}H${FR[0].pe}V${YF}` +
+      `M${FR[1].bond} ${YFB}V${YH}H${FR[0].bond}V${YFB}` +
+      `M${X1[0]} ${YF}V${YB[0]}H${XS}` +
+      `M${XS} ${YB[0]}V${YB[r]}`;
+  }
+  const FRAMES = FR.map((F) => `M${F.x} ${YF}h60v${YFB - YF}h-60z`).join('');
+  function chev(g, x, y, dir) {
+    const d = dir === 'd' ? `M${x - 4} ${y - 3}L${x + 4} ${y - 3}L${x} ${y + 4}Z` : dir === 'u' ? `M${x - 4} ${y + 3}L${x + 4} ${y + 3}L${x} ${y - 4}Z` : `M${x + 3} ${y - 4}L${x + 3} ${y + 4}L${x - 4} ${y}Z`;
+    put(g, 'path', { class: 'fw', d });
+  }
+  let dash = 0;
+
+  function scene(v) {
+    art.textContent = '';
+    let sf = -1;
+    v.f.forEach((a, j) => { if (a >= 0.5 && (sf < 0 || a > v.f[sf])) sf = j; });
+    const I = v.lit * loopI(PH[v.route], v.z1, v.z2);
+    const hot = tripsAt(I);
+    const g = group();
+    // The supply, and the board with its three bars and its earth bar.
+    put(g, 'rect', { class: 'card', x: 4, y: 20, width: 52, height: 58, rx: 6 });
+    lab(g, 30, 44, 'Supply', '', 'middle');
+    lab(g, 30, 62, VLINE + ' V', 'n', 'middle');
+    put(g, 'rect', { class: 'card', x: 62, y: 2, width: 274, height: 78, rx: 6 });
+    lab(g, 68, 18, '440 V board');
+    [[-1, 0], [1, 0], [-0.7, -0.7], [0.7, -0.7], [0, -1]].forEach((u) => put(g, 'line', { class: 'ray', x1: n2(LX + u[0] * 8), y1: n2(LY + u[1] * 8), x2: n2(LX + u[0] * 11), y2: n2(LY + u[1] * 11) }));
+    put(g, 'circle', { class: 'lamp', cx: LX, cy: LY, r: 5.5 });
+    lab(g, LX + 14, 18, 'Earth alarm', 'n');
+    [0, 1, 2].forEach((k) => {
+      put(g, 'line', { class: 'bus c' + (k + 1), x1: XS, y1: YB[k], x2: 304, y2: YB[k] });
+      lab(g, 310, YB[k] + 4.5, PH[k]);
+    });
+    put(g, 'line', { class: 'bus ci', x1: 140, y1: YPE, x2: 304, y2: YPE });
+    lab(g, 310, YPE + 4.5, 'PE');
+    // The feeders: L1, L2 and L3 through a breaker, and the protective conductor, down to each motor.
+    FR.forEach((F) => {
+      F.xs.forEach((x, k) => {
+        put(g, 'line', { class: 'ln c' + (k + 1), x1: x, y1: YB[k], x2: x, y2: YF });
+        put(g, 'circle', { class: 'f' + (k + 1), cx: x, cy: YB[k], r: 2.4 });
+      });
+      put(g, 'line', { class: 'pe', x1: F.pe, y1: YPE, x2: F.pe, y2: YF });
+      put(g, 'circle', { class: 'fi', cx: F.pe, cy: YPE, r: 2.4 });
+      put(g, 'rect', { class: 'brk', x: F.xs[0] - 8, y: 94, width: F.xs[2] - F.xs[0] + 16, height: 16, rx: 3 });
+      put(g, 'rect', { class: 'frame', x: F.x, y: YF, width: 60, height: YFB - YF, rx: 4 });
+      F.xs.forEach((x, k) => {
+        const dy = Math.sqrt(RW * RW - (x - F.cx) * (x - F.cx));
+        put(g, 'line', { class: 'ln c' + (k + 1), x1: x, y1: YF, x2: x, y2: n2(CY - dy) });
+      });
+      put(g, 'circle', { class: 'wind', cx: F.cx, cy: CY, r: RW });
+      lab(g, F.cx, CY + 4.5, 'M', '', 'middle');
+      put(g, 'line', { class: 'bond', x1: F.bond, y1: YFB, x2: F.bond, y2: YH });
+    });
+    put(g, 'rect', { class: 'hull', x: 4, y: YH, width: 332, height: 24, rx: 3 });
+    lab(g, 170, YH + 17, 'Hull, which is earth', 'n', 'middle');
+    // The second fault's loop, lit, with the current running round it.
+    if (v.lit > 1e-3) {
+      put(group(v.lit), 'path', { class: 'glow', d: loopPath(v.route) + FRAMES });
+      const gf = group(v.lit);
+      put(gf, 'path', { class: 'flow', d: loopPath(v.route), 'stroke-dashoffset': n2(-dash) });
+      chev(gf, X2[v.route], 176, 'd'); chev(gf, X1[0], 176, 'u'); chev(gf, 170, YPE, 'l'); chev(gf, 170, YH, 'l');
+    }
+    // The faults and the bonds.
+    const gd = group();
+    FR.forEach((F) => {
+      put(gd, 'circle', { class: 'fi', cx: F.pe, cy: YF, r: 3 });
+      put(gd, 'circle', { class: 'fi', cx: F.bond, cy: YFB, r: 2.5 });
+      put(gd, 'circle', { class: 'fi', cx: F.bond, cy: YH, r: 2.5 });
+    });
+    put(gd, 'circle', { class: 'fault', cx: X1[0], cy: YF, r: 4.5 });
+    v.f.forEach((a, j) => { if (a > 1e-3) put(group(a), 'circle', { class: 'fault', cx: X2[j], cy: n2(YF - 18 * (1 - a)), r: 4.5 }); });
+    // Names.
+    const gn = group();
+    lab(gn, 98, 170, 'Feeder 1', '', 'end');
+    lab(gn, 242, 170, 'Feeder 2');
+    lab(gn, 96, 222, 'First fault', 'n', 'end');
+    put(gn, 'line', { class: 'leader', x1: 98, y1: 219, x2: 108, y2: 229 });
+    lab(gn, 94, 260, 'Motor 1', '', 'end');
+    lab(gn, 246, 260, 'Motor 2');
+    if (v.zl1 > 1e-3) {
+      const gz = group(v.zl1);
+      put(gz, 'path', { class: 'brace', d: 'M106 152H102V212H106' });
+      lab(gz, 98, 190, 'Z1 = ' + fz(tenths(v.z1) / 10), 'n', 'end');
+    }
+    if (v.zl2 > 1e-3) {
+      const gz = group(v.zl2);
+      put(gz, 'path', { class: 'brace', d: 'M234 152H238V212H234' });
+      lab(gz, 242, 190, 'Z2 = ' + fz(tenths(v.z2) / 10), 'n');
+    }
+    // Beside each breaker, a bar of the current through it, with a mark at its instant trip.
+    const bars = [];
+    BX.forEach((x0, n) => {
+      const gb = group();
+      lab(gb, x0, 96, 'Breaker ' + (n + 1));
+      put(gb, 'rect', { class: 'track', x: x0, y: 102, width: BW, height: 12, rx: 3 });
+      const w = n2(BW * Math.min(I, FULL) / FULL);
+      bars.push(w);
+      if (w > 0.5) put(gb, 'rect', { class: 'fillbar', x: x0, y: 102, width: w, height: 12, rx: n2(Math.min(3, w / 2)) });
+      const xm = n2(x0 + BW * TRIP / FULL);
+      put(gb, 'line', { class: 'mark' + (hot ? ' hot' : ''), x1: xm, y1: 100, x2: xm, y2: 117 });
+      lab(gb, xm, 130, TRIP + ' A', 'n s', 'middle');
+      if (!v.q) lab(gb, x0, 146, hot ? 'Trips instantly' : 'No instant trip', hot ? 'hot' : 'm');
+    });
+    // A key for what is drawn.
+    const gk = group();
+    put(gk, 'circle', { class: 'fault', cx: 10, cy: 330, r: 4.5 });
+    lab(gk, 20, 334.5, 'Fault', 'n');
+    put(gk, 'line', { class: 'glow', x1: 74, y1: 330, x2: 92, y2: 330 });
+    put(gk, 'line', { class: 'flow', x1: 74, y1: 330, x2: 92, y2: 330 });
+    lab(gk, 102, 334.5, 'Second-fault current', 'n');
+    put(gk, 'line', { class: 'pe', x1: 4, y1: 348, x2: 18, y2: 348 });
+    lab(gk, 24, 352.5, 'PE: protective conductor', 'n');
+
+    const what = sf < 0 ? 'There is no second fault. '
+      : sf === 0 ? 'A second fault joins feeder 2\'s L1 to motor 2\'s frame, the same phase as the first, and no loop is driven. '
+        : 'A second fault joins feeder 2\'s ' + PH[sf] + ' to motor 2\'s frame. ' + (v.lit > 0.5 ? 'A loop is lit: out along feeder 2\'s ' + PH[sf] + ', back by the protective conductors and the hull, across the first fault and along feeder 1\'s L1. ' : '');
+    return {
+      v, sf, I, hot, bars,
+      texts: Array.from(art.querySelectorAll('text')).map((t) => t.textContent),
+      read: {
+        volt: v.q ? '?' : sf > 0 && v.lit > 0.02 ? VLINE + ' V' : '0 V',
+        zloop: sf < 0 ? 'No loop' : sumText(v.z1, v.z2),
+        amps: v.q ? '?' : ampText(I),
+      },
+      aria: 'A 440 V board feeds motor 1 and motor 2 through breaker 1 and breaker 2. Each feeder carries L1, L2, L3 and a protective conductor bonded to its motor\'s frame, and both frames are bonded to the hull. A first fault joins feeder 1\'s L1 to motor 1\'s frame, and the earth alarm is lit. ' + what +
+        (v.q ? '' : hot ? 'Both breakers carry a current past their instant trip.' : 'Neither breaker reaches its instant trip.'),
+    };
+  }
+
+  // ---------- state ----------
+  function blank() { return { pick: null, res: null, why: false }; }
+  let S2 = STEPS.map(() => blank());
+  let cur = P(STEPS[0].pic), T = Infinity, fx = {}, REC = null;
+  let finished = false, lastStep = -1, lastDone = false, last = { ph: 'L2', z1: 0.4, z2: 0.4 }, gestureAt = -Infinity;
+  const animating = () => !!fx.a && T < fx.end;
+  const viewNow = () => (fx.a && T < fx.geo ? viewAt(fx, T) : viewOf(cur));
+
+  function paint() {
+    const v = viewNow();
+    REC = scene(v);
+    outs.volt.set(REC.read.volt); outs.zloop.set(REC.read.zloop); outs.amps.set(REC.read.amps);
+    svg.setAttribute('aria-label', REC.aria);
+    // On the long-run screen the slider follows the loop as it grows, a tenth of an ohm at a time.
+    if (fx.slider && fx.a && live()) {
+      const z1 = tenths(v.z1) / 10, z2 = tenths(v.z2) / 10;
+      if (z1 !== z1Ctl.get()) { z1Ctl.set(z1, true); last.z1 = z1Ctl.get(); }
+      if (z2 !== z2Ctl.get()) { z2Ctl.set(z2, true); last.z2 = z2Ctl.get(); }
+    }
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => stepper.get();
+  const live = () => !finished && !!STEPS[at()].show && !!STEPS[at()].ctl;
+  const phCtl = K.choice({ id: 'ph', label: 'Second fault on', options: PH, value: 'L2', into: '#pctl' });
+  const dropBtn = K.button({ label: 'Drop second fault', secondary: true, into: '#prow', press: () => {
+    if (!live()) return;
+    retarget({ drop: !cur.drop }, true);
+  } });
+  const z1Ctl = K.control({ id: 'z1', label: 'Feeder 1 loop', min: 0.2, max: 1.6, step: 0.1, value: 0.4, fmt: fz, snap: [0.4, 0.6, 1], into: '#zctl' });
+  const z2Ctl = K.control({ id: 'z2', label: 'Feeder 2 loop', min: 0.2, max: 1.6, step: 0.1, value: 0.4, fmt: fz, snap: [0.4, 0.6, 1], into: '#zctl' });
+  ['pointerdown', 'keydown'].forEach((e) => phCtl.el.addEventListener(e, () => { gestureAt = performance.now(); }, true));
+  const outs = {
+    volt: K.readout({ id: 'volt', label: 'Voltage round the loop', into: '#outs' }),
+    zloop: K.readout({ id: 'zloop', label: 'Loop impedance', into: '#outs' }),
+    amps: K.readout({ id: 'amps', label: 'Second-fault current', into: '#outs' }),
+  };
+  function syncCtls() {
+    phCtl.set(cur.ph, true); z1Ctl.set(cur.z1, true); z2Ctl.set(cur.z2, true);
+    last = { ph: phCtl.get(), z1: z1Ctl.get(), z2: z2Ctl.get() };
+  }
+
+  // One animation plays the motion; with reduced motion (and while the self-test looks) it opens finished.
+  // The current's dashes run at a speed that follows the current.
+  const anim = K.anim({ button: false, label: 'The second fault', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    if (T > 0) dash += dt * 22 * Math.max(0.2, (REC ? REC.I : 0) / 550);
+    paint();
+    return T < (fx.end || 0);
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function start(f, delay) {
+    fx = f || {};
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); return; }
+    T = -(delay || 0); anim.play();
+  }
+  // Move the picture on from wherever it is now.
+  function retarget(ch, slow) {
+    const now = viewNow();
+    cur = Object.assign({}, cur, ch);
+    start(motion(now, viewOf(cur), slow), 0);
+  }
+  function setPic(p) { cur = P(p); anim.pause(); T = Infinity; fx = {}; syncCtls(); K.refresh(); }
+
+  // Three answers; Check marks the one chosen, and a right one plays what it says.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S2[i];
+    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S2[i];
+    if (finished || d.show || st.res === 'right') return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = st.pick === d.want ? 'right' : 'wrong';
+    if (st.res !== 'right') return;
+    const now = viewNow();
+    cur = P(d.after);
+    syncCtls();
+    start(motion(now, viewOf(cur), true), 0);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (finished || STEPS[at()].show) return;
+    const st = S2[at()]; st.why = !st.why;
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S2[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true; anim.pause();
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S2 = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  el('finish').textContent = FINISH;
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S2[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      anim.pause(); T = Infinity; fx = {};
+      cur = P(d.show ? d.pic : st.res === 'right' ? d.after : d.before);
+      syncCtls();
+      // A demonstration screen plays once on opening, after its fade-in.
+      if (d.show && d.demo) { start(motion(viewOf(d.demo), viewOf(cur), true), 0.4); fx.slider = !!d.follow; }
+    } else if (p.ph !== last.ph || p.z1 !== last.z1 || p.z2 !== last.z2) {
+      if (live()) {
+        const slow = p.ph !== last.ph && performance.now() - gestureAt < 1000;
+        gestureAt = -Infinity;
+        last = { ph: p.ph, z1: p.z1, z2: p.z2 };
+        retarget({ ph: p.ph, z1: p.z1, z2: p.z2 }, slow);
+      } else syncCtls();   // off the screens that show them, the controls keep the picture's setting
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    task.textContent = strip(d.show ? d.text : d.task);
+    el('ctls').hidden = !d.show || !d.ctl;
+    dropBtn.setLabel(cur.drop ? 'Clear' : 'Drop second fault');
+
+    const opts = d.show ? [] : d.opts;
+    el('picks').hidden = !opts.length;
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    const fb = el('fb');
+    fb.hidden = !!d.show || !st.res;
+    fb.className = 'fb' + (right ? ' right' : '');
+    fb.textContent = d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? (d.hints[st.pick] || 'Not quite.') : st.res === 'empty' ? PICK : '';
+    const why = el('why');
+    why.hidden = !!d.show || !st.why;
+    why.textContent = d.show ? '' : strip(d.why);
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+    paint();
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  function drawn(c) {
+    const keep = [cur, T, fx];
+    cur = P(c); T = Infinity; fx = {};
+    try { paint(); return REC; } finally { cur = keep[0]; T = keep[1]; fx = keep[2]; paint(); }
+  }
+  const ZS = K.linspace(0.2, 1.6, 15).map((z) => Math.round(z * 10) / 10);
+  const Iv = (v) => v.lit * loopI(PH[v.route], v.z1, v.z2);
+  const count = (r, s) => r.texts.filter((t) => t === s).length;
+
+  K.check('Twelve screens: five that show and seven puzzles, alternating to the ninth and ending on three mixed puzzles', () =>
+    STEPS.length === 12 && STEPS.filter((d) => d.show).length === 5 && STEPS.slice(0, 9).every((d, i) => !!d.show === (i % 2 === 0)) && STEPS.slice(9).every((d) => !d.show));
+  K.check('Each line sits 440 ÷ 1.732 = 254 V from the star point. Earthed, 254 ÷ 0.4 = 635 A, while 254 × 0.4 is about 102 and 440 ÷ 0.4 is 1,100', () =>
+    VPH === 254 && Math.round(VPH / 0.4) === 635 && Math.round(VPH * 0.4) === 102 && Math.round(VLINE / 0.4) === 1100);
+  K.check('The second fault makes a short-circuit between phases through the PE conductors and the hull, unless it is on the same conductor as the first fault', () =>
+    ZS.every((a) => ZS.every((b) => loopI('L1', a, b) === 0 && loopI('L2', a, b) > 0 && loopI('L3', a, b) > 0)) &&
+    drawn(P({ drop: true, ph: 'L1' })).v.lit === 0 && drawn(P({ drop: true, ph: 'L2' })).v.lit === 1 && drawn(P({ drop: true, ph: 'L3' })).v.lit === 1, { source: EIG });
+  K.check('It is conventional to double the loop impedance of a circuit: with matched feeders, Z1 + Z2 is twice one circuit\'s loop at every setting', () =>
+    ZS.every((z) => drawn(P({ drop: true, z1: z, z2: z })).read.zloop === fz(2 * z)), { source: EIG });
+  K.check('Both loops 0.4 Ω, second fault on L2 or L3: 440 V round a 0.8 Ω loop drives 550 A, past both 400 A trips', () =>
+    ['L2', 'L3'].every((ph) => {
+      const r = drawn(P({ drop: true, ph }));
+      return r.read.volt === '440 V' && r.read.zloop === '0.8 Ω' && r.read.amps === '550 A' && r.hot && count(r, 'Trips instantly') === 2;
+    }));
+  K.check('Second fault on L1: 0 V and 0 A at every loop setting; no loop is drawn and nothing trips', () => {
+    const r = drawn(STEPS[3].after);
+    return ZS.every((z) => loopI('L1', 0.4, z) === 0) && r.read.volt === '0 V' && r.read.amps === '0 A' && r.read.zloop === '0.8 Ω' && r.v.lit === 0 && !r.hot && count(r, 'No instant trip') === 2;
+  });
+  K.check('Loops of 0.4 and 0.6 Ω make 1.0 Ω and 440 A, past the trip; 0.4 and 1.0 Ω make 1.4 Ω and 314 A, with no instant trip', () => {
+    const a = drawn(STEPS[7].after), b = drawn(STEPS[8].pic);
+    return a.read.zloop === '1.0 Ω' && a.read.amps === '440 A' && a.hot && b.read.zloop === '1.4 Ω' && b.read.amps === '314 A' && !b.hot && count(b, 'No instant trip') === 2;
+  });
+  K.check('At the ends of the sliders: 0.2 Ω each gives 1,100 A, and 1.6 Ω each gives 3.2 Ω and 138 A', () => {
+    const lo = drawn(P({ drop: true, ph: 'L3', z1: 0.2, z2: 0.2 })).read, hi = drawn(P({ drop: true, ph: 'L2', z1: 1.6, z2: 1.6 })).read;
+    return lo.amps === '1,100 A' && lo.zloop === '0.4 Ω' && hi.zloop === '3.2 Ω' && hi.amps === '138 A';
+  });
+  K.check('The current falls as either loop grows, and both breakers carry the same current', () => {
+    for (let k = 1; k < ZS.length; k++) if (!(loopI('L2', ZS[k], 0.4) < loopI('L2', ZS[k - 1], 0.4) && loopI('L3', 0.4, ZS[k]) < loopI('L3', 0.4, ZS[k - 1]))) return false;
+    const r = drawn(P({ drop: true, ph: 'L2', z2: 0.9 }));
+    return r.bars.length === 2 && r.bars[0] === r.bars[1] && r.bars[0] > 0;
+  });
+  K.check('Earthed, one 0.4 Ω circuit passes 635 A; insulated, the second fault through two passes 550 A: 1.73 times the voltage over twice the loop, about 0.87 times', () =>
+    K.near(VLINE / VPH, 1.73, 0.005) && Math.round(loopI('L2', 0.4, 0.4)) === 550 && Math.round(100 * 550 / 635) === 87);
+  K.check('A worked example: loops of 0.25 Ω and 0.35 Ω make 0.6 Ω and pass 733 A', () =>
+    K.near(0.25 + 0.35, 0.6, 1e-12) && Math.round(VLINE / (0.25 + 0.35)) === 733);
+  K.check('Before an answer, no puzzle\'s picture shows its result', () => {
+    const b = (i) => drawn(STEPS[i].before), a = (i) => drawn(STEPS[i].after);
+    return b(1).texts.indexOf('Z1 = 0.4 Ω') < 0 && a(1).texts.indexOf('Z1 = 0.4 Ω') >= 0 &&
+      b(3).sf === -1 && a(3).sf === 0 &&
+      b(5).read.volt === '?' && b(5).read.amps === '?' && b(5).v.lit === 0 && count(b(5), 'No instant trip') === 0 && a(5).read.volt === '440 V' &&
+      [7, 9, 10, 11].every((i) => b(i).sf === -1 && b(i).read.amps === '0 A' && !b(i).hot) &&
+      a(7).read.amps === '440 A' && a(9).read.amps === '550 A' && a(10).read.amps === '550 A' && a(11).hot;
+  });
+  K.check('Dropping the fault on L2 lights the loop within 3 s, and part way through it is still lighting', () => {
+    const m = motion(viewOf(STEPS[4].demo), viewOf(P(STEPS[4].pic)), true), mid = viewAt(m, (m.w.lit[0] + m.w.lit[1]) / 2);
+    return m.geo <= 3 && mid.lit > 0.05 && mid.lit < 0.95 && viewAt(m, m.geo).lit === 1;
+  });
+  K.check('Screen 9 grows feeder 2\'s loop from 0.4 to 1.0 Ω: the current falls from 550 A to 314 A and drops below the trip on the way', () => {
+    const m = motion(viewOf(STEPS[8].demo), viewOf(P(STEPS[8].pic)), true);
+    const ts = K.linspace(m.w.z[0], m.w.z[1] - 1e-6, 21).map((t) => Iv(viewAt(m, t)));
+    let down = true;
+    for (let k = 1; k < ts.length; k++) if (ts[k] > ts[k - 1] + 1e-9) down = false;
+    return Math.round(ts[0]) === 550 && Math.round(Iv(viewAt(m, m.geo))) === 314 && down && tripsAt(ts[0]) && !tripsAt(Iv(viewAt(m, m.geo))) && m.geo <= 3;
+  });
+  K.check('A slider or phase move settles within 0.35 s, so the picture and the numbers keep up with it', () =>
+    motion(viewOf(P({ drop: true })), viewOf(P({ drop: true, ph: 'L3', z1: 1.2 })), false).geo <= 0.35 &&
+    motion(viewOf(P({ drop: true, ph: 'L1' })), viewOf(P({ drop: true, ph: 'L2', z2: 1.6 })), false).geo <= 0.35);
+
+  K.ready();
+</script>

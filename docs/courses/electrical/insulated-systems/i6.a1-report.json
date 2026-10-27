@@ -1,0 +1,290 @@
+{
+  "report": {
+    "ok": false,
+    "errors": [],
+    "overflow": false,
+    "clipped": [
+      "SVG text \"Negative pole\" has a line through it (<line.lead>): move the label off the line (K.labels with avoid: [that line]) or stop the line short of it (at the opening state, and 78 more settings)",
+      "SVG text \"Negative pole\" has a line through it (<path.trace>): move the label off the line (K.labels with avoid: [that line]) or stop the line short of it (at step = step 9, and 1 more setting)"
+    ],
+    "checks": [
+      {
+        "label": "Twelve screens: five that show and seven puzzles, alternating to the ninth and ending on three mixed puzzles",
+        "ok": true
+      },
+      {
+        "label": "Healthy, the equal 100 kΩ arms put each pole at 110 V, half the bus, with the bridge dark; the monitor reads the two arms alone, 50 kΩ",
+        "ok": true
+      },
+      {
+        "label": "A negative leak of 500, 100, 20 and 5 kΩ, then Solid, leaves it at 100.0, 73.3, 31.4, 10.0 and 0 V; the positive reads 120.0, 146.7, 188.6, 210.0 and 220 V; the monitor 45.5, 33.3, 14.3, 4.5 and 0 kΩ",
+        "ok": true
+      },
+      {
+        "label": "A balanced bridge of equal resistors drives its lamp once it becomes imbalanced: dark with equal halves or a 500 kΩ leak (20 V apart), lit from a 100 kΩ leak down",
+        "ok": true,
+        "source": "https://www.vertiv.com/48df2a/globalassets/documents/battcon-static-assets/2008/ground-detection-circuits-for-stationary-applications-in-plain-down-to-earth-language.pdf"
+      },
+      {
+        "label": "The two pole-to-hull readings add to 220 V at every setting of both leaks and the meter, short of both poles solid",
+        "ok": false,
+        "error": "returned false"
+      },
+      {
+        "label": "The bus with lower ground resistance has a lower voltage to ground: at every setting, the pole whose side has less resistance reads lower",
+        "ok": true,
+        "source": "https://patents.google.com/patent/US9753069B2/en"
+      },
+      {
+        "label": "A bus whose resistance to ground falls to 51 kΩ, against 500 kΩ on the other, reads 100/(500+51)×51 = 9.26 V to ground, and the other 90.7 V",
+        "ok": true,
+        "source": "https://patents.google.com/patent/US9753069B2/en"
+      },
+      {
+        "label": "Equal falls hide from the bridge: both poles at 20 kΩ read 110 V each, while the monitor reads 8.3 kΩ, below its 100 × 220 = 22 kΩ alarm line",
+        "ok": true
+      },
+      {
+        "label": "To give an indication, a detector ends up adding the fault it is trying to detect: every real meter pulls a healthy pole below 110 V",
+        "ok": true,
+        "source": "https://www.vertiv.com/48df2a/globalassets/documents/battcon-static-assets/2008/ground-detection-circuits-for-stationary-applications-in-plain-down-to-earth-language.pdf"
+      },
+      {
+        "label": "On a healthy board, a 100 kΩ meter reads 73.3 V on either pole (the pair adds to 146.7 V), a 20 kΩ meter 31.4 V, and a 10 MΩ meter 109.5 V",
+        "ok": true
+      },
+      {
+        "label": "Full voltage on one measurement and zero on the other means a direct short on the side that measures zero",
+        "ok": true,
+        "source": "https://www.vertiv.com/48df2a/globalassets/documents/battcon-static-assets/2008/ground-detection-circuits-for-stationary-applications-in-plain-down-to-earth-language.pdf"
+      },
+      {
+        "label": "Persons are safe while the touch voltage stays under 120 V DC; a solid fault on the negative leaves the positive 220 V from the hull, above it",
+        "ok": true,
+        "source": "https://fournais-bender.dk/storage/TechnAspects-IT-systems.pdf"
+      },
+      {
+        "label": "Both poles solid shorts the bus through the hull, and the page says so with no number",
+        "ok": true
+      },
+      {
+        "label": "Worked numbers: 24 V on equal arms is 12 V a pole; 100 ∥ 20 = 16.7 kΩ; two detectors give 50 kΩ a side, 14.3 kΩ with the leak and 48.9 V; 2.2 mA into a solid fault; 62.9 and 15.7 V",
+        "ok": true
+      },
+      {
+        "label": "The explanation's 24 V board with 10 kΩ arms: a 2.5 kΩ leak on the positive makes its side 2 kΩ, so it reads 4 V and the negative 20 V",
+        "ok": true
+      },
+      {
+        "label": "Screen 3: as the negative falls through 500, 100 and 20 kΩ, its voltage only ever falls, ending at 31.4 V within 5 s",
+        "ok": true
+      },
+      {
+        "label": "Screen 7: while both poles fall together, each stays at 110 V all the way, and the monitor ends below its alarm line",
+        "ok": true
+      },
+      {
+        "label": "Every demonstration settles within 5 s, and a move Dan makes changes the picture in 0.3 s",
+        "ok": true
+      },
+      {
+        "label": "Before an answer, no puzzle's picture shows its result",
+        "ok": true
+      },
+      {
+        "label": "The right answer sits first, second or third across the puzzles, never in one place throughout",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "pos",
+      "neg",
+      "meterOn",
+      "monitor",
+      "meterR"
+    ],
+    "readouts": [
+      "vp",
+      "vn",
+      "vm",
+      "mr"
+    ],
+    "outputs": [],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Screen",
+        "min": 0,
+        "max": 11,
+        "step": 1,
+        "steps": [
+          "Two poles",
+          "A 24 V board",
+          "A leak on the negative",
+          "Which pole leaks?",
+          "A solid fault",
+          "Without a detector",
+          "Damp on both poles",
+          "After a wash-down",
+          "Your meter is a path",
+          "Two readings of 31.4 V",
+          "Two detectors",
+          "Current into the fault"
+        ],
+        "value": 0
+      },
+      {
+        "id": "pos",
+        "kind": "choice",
+        "label": "Positive insulation",
+        "options": [
+          "Open",
+          "500 kΩ",
+          "100 kΩ",
+          "20 kΩ",
+          "5 kΩ",
+          "Solid"
+        ],
+        "labels": [
+          "Open",
+          "500 kΩ",
+          "100 kΩ",
+          "20 kΩ",
+          "5 kΩ",
+          "Solid"
+        ],
+        "value": "Open",
+        "index": 0,
+        "shown": false
+      },
+      {
+        "id": "neg",
+        "kind": "choice",
+        "label": "Negative insulation",
+        "options": [
+          "Open",
+          "500 kΩ",
+          "100 kΩ",
+          "20 kΩ",
+          "5 kΩ",
+          "Solid"
+        ],
+        "labels": [
+          "Open",
+          "500 kΩ",
+          "100 kΩ",
+          "20 kΩ",
+          "5 kΩ",
+          "Solid"
+        ],
+        "value": "Open",
+        "index": 0,
+        "shown": false
+      },
+      {
+        "id": "meterOn",
+        "kind": "choice",
+        "label": "Meter on",
+        "options": [
+          "Positive",
+          "Negative"
+        ],
+        "labels": [
+          "Positive",
+          "Negative"
+        ],
+        "value": "Positive",
+        "index": 0,
+        "shown": false
+      },
+      {
+        "id": "monitor",
+        "kind": "toggle",
+        "label": "Insulation monitor",
+        "options": [
+          false,
+          true
+        ],
+        "value": false,
+        "shown": false
+      },
+      {
+        "id": "meterR",
+        "kind": "choice",
+        "label": "Meter resistance",
+        "options": [
+          "Ideal",
+          "10 MΩ",
+          "100 kΩ",
+          "20 kΩ"
+        ],
+        "labels": [
+          "Ideal",
+          "10 MΩ",
+          "100 kΩ",
+          "20 kΩ"
+        ],
+        "value": "Ideal",
+        "index": 0,
+        "shown": false
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Back",
+      "Continue",
+      "Start again",
+      "The two poles"
+    ],
+    "answers": [],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": false
+      },
+      {
+        "width": 720,
+        "ok": false
+      },
+      {
+        "width": 1040,
+        "ok": false
+      }
+    ]
+  },
+  "moved": [
+    "step = 2 (the first step that shows a control)",
+    "pos = \"500 kΩ\"",
+    "neg = \"500 kΩ\"",
+    "meterOn = \"Negative\"",
+    "monitor = true",
+    "meterR = \"10 MΩ\""
+  ],
+  "shots": [
+    "/home/user/Study-App/build/electrical/insulated-systems/i6.a1-360-light.png",
+    "/home/user/Study-App/build/electrical/insulated-systems/i6.a1-360-light-moved.png",
+    "/home/user/Study-App/build/electrical/insulated-systems/i6.a1-360-light-end.png",
+    "/home/user/Study-App/build/electrical/insulated-systems/i6.a1-360-dark.png",
+    "/home/user/Study-App/build/electrical/insulated-systems/i6.a1-360-dark-moved.png",
+    "/home/user/Study-App/build/electrical/insulated-systems/i6.a1-360-dark-end.png",
+    "/home/user/Study-App/build/electrical/insulated-systems/i6.a1-1280-light.png",
+    "/home/user/Study-App/build/electrical/insulated-systems/i6.a1-1280-light-moved.png",
+    "/home/user/Study-App/build/electrical/insulated-systems/i6.a1-1280-light-end.png",
+    "/home/user/Study-App/build/electrical/insulated-systems/i6.a1-1280-dark.png",
+    "/home/user/Study-App/build/electrical/insulated-systems/i6.a1-1280-dark-moved.png",
+    "/home/user/Study-App/build/electrical/insulated-systems/i6.a1-1280-dark-end.png"
+  ]
+}

@@ -1,0 +1,308 @@
+{
+  "iid": "i8",
+  "title": "Arcing faults, drives and safe working",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is L1's peaks to earth climbing from 2 to 4 times normal as each strike holds the star point further out, when you tap Strike on No losses but not on Heavy losses.",
+    "title": "The restrike ladder",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Screen",
+        "min": 0,
+        "max": 11,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "Twelve small screens share one picture. Back and Continue move between them. Five show an idea, and seven ask you to try it.\n\nA picker called View sits above the picture. It offers three cards: Arc ladder, Drive on IT and Touch. Its buttons wrap on a phone.\n\nArc ladder. A sketch shows L1 of a 440 V, 60 Hz insulated supply. One capacitor to the hull stands for the whole system's capacitance. An arc gap sits at a chafed cable. A plot shows L1's voltage to the hull against time, slowed down. A dashed line shows the star point's voltage. Thin guide lines mark ±359 V, L1's normal peak. More guide lines mark ±622 V, labelled Solid fault. The vertical scale runs to ±2,400 V. Under it sit two buttons, Strike and Reset. A picker called Losses offers No losses, Some losses and Heavy losses. Its buttons wrap on a phone. Each tap of Strike waits for L1's next peak, then flashes the gap. After three strikes, Strike greys out until Reset. Three readout tiles show Star point held at, in volts; L1's highest peak, in volts; and Times normal peak. The tiles wrap on a phone.\n\nDrive on IT. A 440 V insulated board feeds a cable and ten drives. The cable has 1 µF a line. Each drive's EMC filter is three small capacitors to the hull, 0.1 µF a line. A switch called Filters sets them In or Out. With Filters Out, the capacitors are drawn unhooked. A tag then turns red: EMC not met. An insulation monitor's dial sits on the board. A picker called Monitor offers Plain DC and Made for drives. Two readout tiles show First-fault current, in milliamps, and Settling time, against the cable alone. The tiles wrap on a phone.\n\nTouch. Lines L1 to L3 run above the hull. A person stands on the hull with one hand on a line. A picker called Fault on L1 offers None and Solid. A picker called Touching offers L1 and L2. A bar shows the voltage across the person. A tick at 50 V is marked Safe touch. Two readout tiles show Across you, in volts, and Through a 1,000 Ω body, in milliamps. The tiles wrap on a phone.\n\nThe rule for the ladder. Each line's normal voltage to earth is 440 ÷ 1.732 = 254 V. Its peak is 254 × 1.414 = 359 V, called 1 times. L1's voltage to the hull is the star point's held voltage plus L1's swing of 359 V either side. The first strike burns until a current zero at L1's peak. It leaves the star point held 1 times out, opposite L1's swing. Each later strike comes at L1's peak, P times out. The star point jumps P across, then rings past by a share of that jump. The share is all of it with No losses, half with Some and none with Heavy. The arc goes out at the top of the ring. So the new held voltage is (1 + ring share) × P minus the old one. L1's next peak is that plus 1.\n\nWith No losses, the star point is held at 1, 3 and 5 times: 359, 1,077 and 1,795 V. L1 peaks at 2, 4 and 6 times: 718, 1,436 and 2,154 V. With Some losses, the star point is held at 1, 2 and 2.5 times: 359, 718 and 898 V. L1 peaks at 2, 3 and 3.5 times: 718, 1,077 and 1,257 V, heading towards 4 times. With Heavy losses, the star point is held at 1 times, and every peak is 2 times, 718 V. The ring is a quick swing of the dashed line past the ±359 V guide, slowed and enlarged.\n\nThe rule for the drives. A solid first fault passes 3 × ω × C × 254 V. Here ω = 2π × 60 = 377, and C is the capacitance a line. That gives 287 mA for each µF a line. The cable's 1 µF gives 287 mA. Filters In add 10 × 0.1 = 1 µF. That makes 2 µF and 575 mA. Settling time grows in step with the capacitance: ×1 Out, ×2 In. With Monitor on Plain DC, the needle shakes. A tag reads: DC from the drive can upset this reading. No value is shown. With Made for drives, the needle is steady.\n\nThe rule for touch. On a healthy supply, each line sits 254 V from the hull. The body current returns through all three lines' capacitance in parallel. That is 3 µF, or 884 Ω at 60 Hz. So the current is 254 ÷ √(1,000² + 884²) = 190 mA. With a solid fault on L1, the hull sits at L1. Touching L1 gives 0 V and 0 mA. Touching L2 gives 440 V. The fault is a solid path back, so the current is 440 ÷ 1,000 = 440 mA.\n\nThe picture opens with View on Arc ladder, Losses on No losses, and no strikes. The trace swings 359 V either side of a dashed line at 0 V.\n\nScreen 1, show. View Arc ladder, No losses, Strike tapped once. The words: \"An arcing fault strikes, goes out and strikes again. Say a chafed L1 cable arcs to the hull at L1's peak. While it burns, the arc acts as a solid fault. The arc carries the system's charging current. That current leads the voltage by 90°, so it is zero when the voltage peaks. The arc struck at a peak, so it goes out almost at once. That leaves the star point a full peak, 359 V, from the hull. The charge has no quick way off, so it stays there.\" Read: \"The arc struck once at L1's peak and went out almost at once, at a current zero. The dashed line shows the star point held 359 V from the hull.\" Still: one strike, run on one cycle.\n\nScreen 2, try it. \"The arc has just gone out at a current zero. What does the star point's voltage to the hull do now?\" Three choices, in this order: \"It falls back to 0 V, as the fault has gone\"; \"It stays 359 V from the hull, held by the charge on the capacitance\"; \"It swings at 60 Hz about the hull, as before the fault\". Right, the second. Hint for the first: \"Something must carry the charge away. With the arc out, there is no quick path.\" Hint for the third: \"The capacitance now holds a charge. The arc that put it there has gone.\" Why: \"The arc went out as the capacitance reached its peak. The charge has no quick way off, only slow leakage. So the star point stays 359 V from the hull. L1 swings about it.\" The picture stays on one strike. Read: the question.\n\nScreen 3, show. View Arc ladder, No losses, Strike tapped again at the next peak. The words: \"Each restrike leaves the star point further out. Half a cycle on, L1 is 718 V from the hull, twice its normal peak. Then the gap restrikes. To pull L1 to the hull, the star point must jump 718 V. The jump is sudden, so the capacitance and the supply's inductance ring like a struck bell. With no losses, the star point rings past by as much again. The arc goes out at the top of the ring. That leaves the star point held at 1,077 V, three times normal.\" Read: \"With no losses, the second strike lands when L1 is 718 V from the hull. The star point rings past and is held at 1,077 V.\" Still: No losses, two strikes, run on until the arc goes out.\n\nScreen 4, try it. \"There are no losses. After the second strike, the star point is held at 1,077 V. That is three times the normal peak of 359 V. How high does L1 peak half a cycle later?\" Three choices, in this order: \"1,077 V, the voltage the star point holds\"; \"1,436 V, the held voltage plus L1's own swing\"; \"718 V, twice the normal peak\". Right, the second. Hint for the first: \"L1 swings 359 V either side of the star point. Add that swing.\" Hint for the third: \"That was the first rung. The star point is now three times as far out.\" Why: \"L1's far peak is 1,077 + 359 = 1,436 V, 4 times normal. With no losses, the climb goes on until a weak part fails. A starter coil or a motor winding often goes first.\" A right Check strikes a third time. L1 peaks at 2,154 V, and Strike greys out. Read: the question.\n\nScreen 5, show. View Arc ladder, Some losses, three strikes. The words: \"Losses damp the ring. The insulation loses a little energy each time it charges. The ring charges it thousands of times a second. Say Some losses let the star point ring past by half the jump. Then the peaks go 2, 3, then 3.5 times normal, and level off. Faults on 480 V systems have reached 1,200 V to earth.[^1] Ships' cables lose far more at these frequencies than land systems do. So people still argue whether the climb happens at sea at all.\" Read: \"With Some losses and three strikes, L1 peaks at 718 V, 1,077 V, then 1,257 V. The climb is levelling off.\" Still: Some losses, three strikes.\n\nScreen 6, try it. \"Heavy losses damp the ring completely. The star point never rings past. The arc restrikes at every peak. How high does L1 get?\" Three choices, in this order: \"359 V, its normal peak, as the losses stop any rise\"; \"718 V, twice its normal peak, and no higher\"; \"It still climbs, only more slowly\". Right, the second. Hint for the first: \"The first strike still leaves the star point held 359 V out. L1 swings past it.\" Hint for the third: \"With no overshoot, each restrike lands the star point 359 V out on the other side.\" Why: \"The first strike holds the star point 359 V out, so L1 reaches 718 V. Each restrike only flips it to 359 V on the other side. 718 V is a little above the 622 V peak that a solid fault puts on the healthy lines.\" A right Check sets Heavy losses and strikes three times. Every peak is 718 V. Read: the question.\n\nScreen 7, show. View Drive on IT, Made for drives, Filters from In to Out. The words: \"A drive's EMC filter has capacitors from each line to the hull. On an insulated supply, they tie the system to earth. Ten drives at 0.1 µF a line add 1 µF a line to the cable's 1 µF. That doubles the capacitance. A solid first fault passes 575 mA, not 287 mA. The monitor takes twice as long to settle. So on an insulated supply you disconnect each filter.[^3] In return, the drive may no longer meet its EMC standard.\" Read: \"With the filters in, a solid first fault passes 575 mA. The monitor settles twice as slowly. With them out, the fault passes 287 mA, and the EMC tag is red.\" Still: Drive on IT, Filters Out, Made for drives.\n\nScreen 8, try it. \"A new drive's filter is out, as it should be on an insulated supply. Yet the monitor's reading jumps about whenever the drive runs. What do you check first?\" Three choices, in this order: \"Put the filter back in to steady the reading\"; \"That the monitor is made for supplies that feed drives\"; \"Nothing, as a monitor cannot see through a drive\". Right, the second. Hint for the first: \"The filter ties the supply to the hull. That is why it came out.\" Hint for the third: \"The monitor reads everything joined to the supply, including the drive's DC side.\" Why: \"A drive's rectifier joins its DC side to the supply. DC leaking from there distorts a plain monitor's reading. So use a monitor made for non-linear loads.\" The picture shows Drive on IT, with Filters Out and Monitor on Plain DC. The needle shakes. A right Check sets Made for drives. Read: the question.\n\nScreen 9, show. View Touch, Fault on L1 Solid, Touching L2. The words: \"A floating supply is not safe to touch. A monitor in alarm means a line may already be joined to the hull. Then the system behaves like an earthed one. Here a solid fault holds the hull at L1. Stand on the hull and touch L2, and you hold the full 440 V. That drives about 440 mA through a 1,000 Ω body. Only a touch voltage below 50 V AC is counted safe.[^2]\" Read: \"With a solid fault on L1, a person on the hull touching L2 holds 440 V. About 440 mA flows through a 1,000 Ω body.\" Still: Touch, Fault on L1 Solid, Touching L2.\n\nScreen 10, try it, the first of three mixed puzzles. \"The monitor reads 2 MΩ, with no alarm. The cables have 1 µF a line. You stand on the hull and touch L1. What flows through a 1,000 Ω body?\" Three choices, in this order: \"Next to nothing, as no fault completes the circuit\"; \"About 190 mA, back through the cables' capacitance\"; \"About 440 mA, with the full line voltage across you\". Right, the second. Hint for the first: \"Every cable is a capacitor to the hull you stand on. That is a path for AC.\" Hint for the third: \"With no fault, L1 sits only 254 V from the hull. The capacitance also limits the current.\" Why: \"The monitor reads resistance with DC or a very slow AC, so the capacitance barely shows. But the capacitance passes AC and closes the loop through you. About 190 mA flows. A healthy reading is no reason to touch.\" A right Check sets Touch, Fault None, Touching L1. Read: the question.\n\nScreen 11, try it. \"One side says an arcing fault can pump an insulated supply's voltage up. The other says this is not a problem on ships. What does each case rest on?\" Three choices, in this order: \"The first on voltages measured on 480 V systems, the second on ships' heavier losses\"; \"The first on theory alone, the second on measurements at sea\"; \"Both on the same measurements, read differently\". Right, the first. Hint for the second: \"Ask which side has readings from real systems, and where those systems were.\" Hint for the third: \"Ask what each side points to. Is it really the same evidence?\" Why: \"Engineers measured 1,200 V or more on 480 V systems.[^1] The marine case is that ships' heavy losses damp the ring. With light losses the ladder climbs. Heavy losses stop it. People still argue where a real ship sits.\" A right Check shows Arc ladder with three strikes, first on No losses, then on Heavy losses. Read: the question.\n\nScreen 12, try it. \"You disconnect a drive's EMC filter so it suits an insulated supply. What have you given up?\" Three choices, in this order: \"Nothing, as the filter matters only on earthed supplies\"; \"Its full EMC performance, so more switching noise can reach nearby equipment\"; \"The drive's protection against earth faults\". Right, the second. Hint for the first: \"The filter keeps the drive's high-frequency noise in, on any supply.\" Hint for the third: \"The filter is there for interference, not for earth-fault protection.\" Why: \"Without the filter, the drive may no longer meet its EMC standard. In return, the supply stays floating, with less capacitance to the hull.\" A right Check sets Drive on IT with Filters Out. The EMC tag turns red. Read: the question.\n\nEvery figure here is an example value, a published figure, or worked from the rules above.",
+    "ignores": "The ladder treats the whole system's capacitance as one capacitor. It treats the supply as a steady 60 Hz source. It strikes the arc exactly at each peak. It takes the first strike to burn until a current zero, with no ring. Real arcs are less regular, and fuller models of the arc give different figures. The ring is drawn slowed and enlarged. A real one runs at kilohertz and is over in well under a millisecond. The held charge is drawn steady between strikes. In fact, leakage slowly drains it. The ladder leaves out L2 and L3, though they move with the star point too. On the drive card, each filter is drawn as capacitors alone, without its varistor or resistors. The settling time follows the capacitance alone. On the touch card, the body is a fixed 1,000 Ω. The card leaves out footwear, gloves and contact resistance.",
+    "numbers": [
+      {
+        "label": "Screen, 1 to 12 (the stepper)",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Number of screens",
+        "value": 12,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example line voltage of the supply, in volts",
+        "value": 440,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example supply frequency, in hertz",
+        "value": 60,
+        "kind": "assumed"
+      },
+      {
+        "label": "Square root of 3, to three decimal places",
+        "value": 1.732,
+        "kind": "constant"
+      },
+      {
+        "label": "Square root of 2, to three decimal places",
+        "value": 1.414,
+        "kind": "constant"
+      },
+      {
+        "label": "Each line's normal voltage to earth, 440 ÷ 1.732, in volts",
+        "value": 254,
+        "kind": "computed"
+      },
+      {
+        "label": "Each line's normal peak to earth, 254 × 1.414, in volts",
+        "value": 359,
+        "kind": "computed"
+      },
+      {
+        "label": "Line voltage peak, a solid fault's healthy lines, in volts",
+        "value": 622,
+        "kind": "computed"
+      },
+      {
+        "label": "Angle by which a capacitor's current leads its voltage, in degrees",
+        "value": 90,
+        "kind": "constant",
+        "source": 6
+      },
+      {
+        "label": "Ring share with No, Some and Heavy losses, in per cent",
+        "value": "100, 50, 0",
+        "kind": "assumed"
+      },
+      {
+        "label": "Most strikes before Reset",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Vertical scale of the plot, in volts",
+        "value": 2400,
+        "kind": "assumed"
+      },
+      {
+        "label": "No losses: star point held, times normal peak",
+        "value": "1, 3, 5",
+        "kind": "computed"
+      },
+      {
+        "label": "No losses: star point held, in volts",
+        "value": "359, 1,077, 1,795",
+        "kind": "computed"
+      },
+      {
+        "label": "No losses: L1's peaks, times normal peak",
+        "value": "2, 4, 6",
+        "kind": "computed"
+      },
+      {
+        "label": "No losses: L1's peaks, in volts",
+        "value": "718, 1,436, 2,154",
+        "kind": "computed"
+      },
+      {
+        "label": "Some losses: star point held, times normal peak",
+        "value": "1, 2, 2.5",
+        "kind": "computed"
+      },
+      {
+        "label": "Some losses: star point held, in volts",
+        "value": "359, 718, 898",
+        "kind": "computed"
+      },
+      {
+        "label": "Some losses: L1's peaks, times normal peak",
+        "value": "2, 3, 3.5",
+        "kind": "computed"
+      },
+      {
+        "label": "Some losses: L1's peaks, in volts",
+        "value": "718, 1,077, 1,257",
+        "kind": "computed"
+      },
+      {
+        "label": "Some losses: the level the peaks approach, times normal",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Heavy losses: star point held, then every peak, in volts",
+        "value": "359, 718",
+        "kind": "computed",
+        "source": 8
+      },
+      {
+        "label": "Twice the normal peak, in times",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Measured line-to-earth voltage in arcing cases, in volts",
+        "value": 1200,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "Supply in those documented cases, in volts",
+        "value": 480,
+        "kind": "constant",
+        "source": 7
+      },
+      {
+        "label": "ω, 2π × 60, in radians per second",
+        "value": 377,
+        "kind": "computed"
+      },
+      {
+        "label": "Example cable capacitance, in µF a line",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example filter capacitance per drive, in µF a line",
+        "value": 0.1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example number of drives",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Capacitance with the filters in, in µF a line",
+        "value": 2,
+        "kind": "computed",
+        "source": 9
+      },
+      {
+        "label": "First-fault current, cable alone, in milliamps",
+        "value": 287,
+        "kind": "computed"
+      },
+      {
+        "label": "First-fault current, filters in, in milliamps",
+        "value": 575,
+        "kind": "computed"
+      },
+      {
+        "label": "Settling time with filters in, against the cable alone",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Example body resistance, in ohms",
+        "value": 1000,
+        "kind": "assumed"
+      },
+      {
+        "label": "Three lines of 1 µF in parallel, in µF",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Reactance of 3 µF at 60 Hz, in ohms",
+        "value": 884,
+        "kind": "computed"
+      },
+      {
+        "label": "Body current, healthy, touching L1, in milliamps",
+        "value": 190,
+        "kind": "computed"
+      },
+      {
+        "label": "Body current, solid fault on L1, touching L2, in milliamps",
+        "value": 440,
+        "kind": "computed"
+      },
+      {
+        "label": "Safe touch voltage, AC, below, in volts",
+        "value": 50,
+        "kind": "constant",
+        "source": 2
+      },
+      {
+        "label": "Screen 10: monitor reads, in megohms",
+        "value": 2,
+        "kind": "assumed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "On an insulated supply, an earth fault that arcs can be worse than a solid one. Each time the arc goes out, it leaves charge on the system's capacitance. The next swing starts from that charge, so the voltage to earth can climb in steps. Losses in the cables damp the climb. People still argue how far it goes on ships.\n\nPicture a chafed L1 cable arcing to the hull. While it burns, the arc acts as a solid fault. The arc carries the system's charging current. That current leads the voltage by 90°, so it passes through zero at a voltage peak. The arc goes out there, at the current zero. That leaves the shifted star point a full peak from the hull. The charge has no quick way off, so the star point stays held there. On a 440 V supply, each line's normal peak to earth is 254 × 1.414 = 359 V.\n\nL1 keeps swinging 359 V either side of the held star point. Half a cycle later it is 718 V from the hull, twice its normal peak. Then the gap restrikes. To pull L1 to the hull, the star point must jump 718 V. The jump is sudden, so the capacitance and the supply's inductance ring like a struck bell. With no losses, the ring carries the star point past by as much again, to 1,077 V. The arc goes out at the top of the ring. That leaves the star point held there. L1 then peaks at 1,077 + 359 = 1,436 V, four times normal. Without losses, the climb goes on until a weak part fails.\n\nLosses shrink the ring. The insulation loses a little energy each time it charges. The ring charges it thousands of times a second. Say half the ring is left. Then the peaks go 2, 3, then 3.5 times normal and level off. With the ring fully damped, L1 stops at twice normal. Motors have failed across whole 480 V systems during the hunt for a fault. Engineers measured 1,200 V or more to earth in those cases.[^1] Ships have higher losses. Marine engineers argue that these damp the ring so heavily that the climb is not a problem at sea. No one has settled where a real ship sits in that range. The ladder is a simplified model. It has one capacitance and an arc that restrikes exactly at each peak.\n\nTwo more dangers come with every insulated supply. First, a drive's EMC filter puts capacitors from each line to the hull. These tie the supply to earth. Like any capacitance, they raise the first-fault current and slow the monitor. So you disconnect the filter. The drive may then no longer meet its EMC standard. Second, a floating supply is not safe to touch. With a solid first fault on one line, the system behaves like an earthed one. A solid fault on L1 leaves L2 and L3 sitting 440 V from the hull. So when nothing trips, the danger is the voltage to earth. An arc may pump it up. A touch or a second fault turns it into current. **A restriking arc can leave charge on an insulated system's capacitance. Unless losses damp the ring, that charge lifts the voltage to earth step by step.**"
+  },
+  "analogy": {
+    "text": "Think of the reservoir capacitor behind a rectifier diode. It charges to the peak. The diode stops it giving the charge back. The arc acts like that diode. It conducts, then goes out at a current zero, just as the capacitance reaches its peak. So the capacitance is left holding the peak. The supply keeps swinging on top of it. That is how the voltage to earth reaches twice the normal peak.",
+    "breaks": "A diode conducts the same way round every cycle, so the charge never builds past the peak. An arc restrikes whichever way the gap breaks down. Each sudden restrike rings. That ring is what can push the held charge beyond the peak, rung by rung. A reservoir also feeds a load that drains it. Here only slow leakage drains the charge."
+  },
+  "practice": {
+    "text": "- Safety first. Treat an insulated supply as live and able to kill. An alarm can mean one line is already joined to the hull. Then the system behaves like an earthed one.\n- Work dead wherever possible. Isolate, lock off and prove dead before you touch a conductor.\n- A touch voltage counts as safe only below 50 V AC.[^2] Each line of a healthy 440 V insulated supply sits about 254 V from the hull.\n- Clear an earth fault that comes and goes as soon as you can. If it is arcing, each restrike may lift the voltage to earth.\n- Check that a drive suits an insulated supply before you connect it. Disconnect its EMC filter and ground-to-phase varistor where its manual says to.[^3]\n- Once the filter is out, expect the drive may miss its EMC standard.\n- Use an insulation monitor made for supplies with non-linear loads such as drives.\n- Expect the monitor to settle more slowly as drives and cable add capacitance.\n\n**Rule of thumb:** An insulated supply is floating, not dead. Its voltage to earth is what hurts you. An arc can raise it.\n\n**Worked example:** On a 440 V supply, each line's normal peak to earth is 254 × 1.414 = 359 V. A solid first fault lifts the healthy lines to 440 V, a peak of 622 V. Equipment on an insulated system must be rated for that.[^4] In the simple ladder model, an arc that goes out at a peak leaves the star point held 359 V away. So L1's next peak is 718 V. With no losses, the next restrike holds the star point at 1,077 V. L1 then peaks at 1,436 V. With heavy losses, L1 stays at 718 V.\n\n**High voltage:** Ships' HV systems are often earthed through a resistor. It limits a fault to a few amps. It also avoids the overvoltages a fully insulated HV system can build.\n\n**Surge limiter:** An insulated supply fed from a high-voltage transformer may have a surge limiter between its star point and earth. It guards against the transformer's windings breaking down between the high and low sides. Then the limiter shorts and holds the low side at earth.[^5] The monitor reports that short as an earth fault.\n\n**Common mistakes**\n- Thinking a floating supply is safe to touch.\n- Taking a healthy monitor reading as proof a line is safe to touch. The capacitance still carries current through you.\n- Putting a drive's EMC filter back in to steady an insulation monitor.\n- Leaving an earth fault that comes and goes because nothing tripped.\n- Treating the arcing climb as settled, either way."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+    {
+      "n": 1,
+      "title": "Characteristics of different power systems neutral grounding techniques: Fact and fiction",
+      "url": "https://www.eaton.com/content/dam/eaton/products/medium-voltage-power-distribution-control-systems/vacclad-w-pages/characteristics-power%20systems-neutral-grounding-techniques-fact-fiction-ap083005en.pdf",
+      "quote": "Measured line-to- ground voltages of 1200 V or higher in these instances are not that uncommon."
+    },
+    {
+      "n": 2,
+      "title": "Technical aspects IT systems",
+      "url": "https://fournais-bender.dk/storage/TechnAspects-IT-systems.pdf",
+      "quote": "the electrical safety of persons is guaranteed if the touch voltage is < 50 V (AC) or < 120 V (DC)."
+    },
+    {
+      "n": 3,
+      "title": "ACS880 frames R1 to R11 EMC filter and ground-to-phase varistor disconnecting instructions",
+      "url": "https://library.e.abb.com/public/b698871f67f14bfe80fcd5da604b4d7b/EN_ACS880_frames%20R1-R11%20EMC%20disconn%20INSTR_L.pdf?x-sign=U9P%2FmBYvtRoLmjB%2BXG2j7bY6HQLq8R4UIFm7NB7Nvq9bwlHi0VfRWIwBS1h3fHIO",
+      "quote": "check the compatibility of the drive with IT (ungrounded), corner-grounded delta, midpoint-grounded delta and TT systems • disconnect EMC filter and ground-to-phase varistor."
+    },
+    {
+      "n": 4,
+      "title": "Low-voltage high resistance grounding systems basics",
+      "url": "https://www.eaton.com/content/dam/eaton/products/low-voltage-power-distribution-controls-systems/hrg/files/lv-hrg-systems-basics-ap019004en.pdf",
+      "quote": "The equipment rating has to be rated at 173% of their line-to-neutral voltages."
+    },
+    {
+      "n": 5,
+      "title": "The IT earthing system (unearthed neutral) in LV",
+      "url": "https://download.se.com/files?amp&p_Doc_Ref=ECT178",
+      "quote": "immediately earths the LV network, preventing it from rising to MV potential."
+    },
+    {
+      "n": 6,
+      "title": "Transient overvoltages on ungrounded systems from intermittent ground faults",
+      "url": "https://www.eaton.com/content/dam/eaton/markets/healthcare/knowledge-center/white-paper/transient-overvoltages-on-ungrounded-systems-from-intermittent-ground-faults.pdf",
+      "quote": "The arc, by definition, must extinguish at the next current zero, since there will be zero current flowing at that point. Note that since this current leads the voltage by 90 degrees, the voltage across the phase-to-ground capacitor is at a maximum when the arc extinguishes."
+    },
+    {
+      "n": 7,
+      "title": "Characteristics of different power systems neutral grounding techniques: Fact and fiction",
+      "url": "https://www.eaton.com/content/dam/eaton/products/medium-voltage-power-distribution-control-systems/vacclad-w-pages/characteristics-power%20systems-neutral-grounding-techniques-fact-fiction-ap083005en.pdf",
+      "quote": "There have been many documented cases within industry where multiple equipment failures (e.g., motors) over an entire 480 V system have occurred while trying to find and locate a ground fault."
+    },
+    {
+      "n": 8,
+      "title": "library.imarest.org",
+      "url": "https://library.imarest.org/record/2202/files/2229.pdf",
+      "quote": "Such overvoltages are not a problem on marine systems, however, because of their higher losses and consequent heavy damping."
+    },
+    {
+      "n": 9,
+      "title": "EN / ACS380 hardware manual",
+      "url": "https://library.e.abb.com/public/2a86caefc9a646d6ba6be02a51401d7c/EN_ACS380_HW_H.pdf?x-sign=uVI95WUGnnSLwIKdHN0mtCica4cmiO2sqwtZQFRUbE3KUcBDVJ7Anb9IZ0mfA4b6",
+      "quote": "The supply network becomes connected to ground potential through the internal EMC filter capacitors"
+    }
+  ]
+}

@@ -1,0 +1,297 @@
+{
+  "iid": "i7",
+  "title": "Finding the fault",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is every feeder's clamp reading current at 60 Hz, but only F6's clamp showing the pulse, when you switch the clamp from 60 Hz to the slow injected pulse.",
+    "title": "The hunt",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Screen",
+        "min": 0,
+        "max": 11,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "Twelve small screens share one picture, with Back and Continue. Five show an idea and seven ask you to try it. Each puzzle's read is its question.\n\nThe picture shows a 440 V, 60 Hz insulated switchboard. A bus bar runs across the top. The hull is a thick bar along the foot. An insulation monitor joins the two. A red alarm line marks 44 kΩ, and a lamp lights red below it. Eight feeder tiles, F1 to F8, sit in two rows of four. Each shows its breaker, open or closed, and its clamp reading. F1 is drawn as a long cable run, with a break mark, labelled 2 µF a line. The other seven are short, labelled 0.05 µF a line. F6 feeds a sub-board with four circuits: Fan, Pump, Heater and Lighting. A small pump symbol shows whether the pump is running. A red spark marks the fault, inside the pump's motor. A key at top right names each mark. An open sub-board shows a clamp reading on its incoming supply and on each circuit. In Test dead, the pump circuit is drawn isolated, with a padlock. An insulation tester joins its three linked cores to the hull.\n\nThe controls sit under the picture. Idea screens add a Replay button and a line inviting a tap. A picker called Tool offers Open feeders, Clamp at 60 Hz, Inject and clamp, and Test dead. On a phone they wrap two by two. In Open feeders, tapping a tile opens or closes its breaker. In the clamp tools, tapping a tile rings it, and tapping F6 opens its sub-board. A switch called Pump running starts or stops the pump. In Test dead, a picker called Test across offers Whole circuit, Cable only and Motor only. It fades in where Pump running was.\n\nReadout tiles sit under the picture and wrap on a phone. Monitor reads in kilohms. Tester reads in megohms, in Test dead.\n\nThe rule it computes. Each feeder's healthy insulation is 3 MΩ. The monitor reads every connected path to the hull in parallel. With n feeders connected and the fault off the system, it reads 3,000 ÷ n kΩ. The fault is solid, so while it is connected the monitor reads 0 kΩ. On screen 2 it is a 20 kΩ leak instead: 19.1 kΩ with all closed, 19.2 kΩ with F3 open. The fault is connected only while F6's breaker is closed and the pump runs. When the pump stops, its contactor lifts the motor off the system. Then the monitor sees F6's cable alone, at 3 MΩ.\n\nA clamp round a feeder's three cores reads the current that leaves them for the hull. Load current cancels in it. With the fault off the system, the charging currents cancel too, so every clamp reads 0 mA. With the solid fault connected, the hull sits at L1's voltage. Each healthy feeder then passes three times its healthy charging current. On a healthy system, one line passes ω × C × 254 V. Here ω = 2π × 60 = 377. That is 96 mA for each microfarad a line. So at 60 Hz a healthy feeder's clamp reads 287 mA for each microfarad a line. F1, with 2 µF a line, reads 575 mA. Each short feeder, with 0.05 µF, reads 14.4 mA. The faulty feeder carries all that current home through the fault. The current through its own capacitance goes out and back inside its clamp, so it cancels. So F6 reads the other seven added together: 575 + 6 × 14.4 = 661 mA. That is 86 mA more than F1. In Clamp at 60 Hz, a dashed line traces this current up each healthy feeder, along the bus bar and down through the fault.\n\nIn Inject and clamp, the locator sends an example pulse of 10 mA. Its clamp reads only the pulse. The fault is solid, so the pulse puts next to no voltage across the cables' capacitance. It flows through the fault and the hull only. So the clamp reads 10 mA on F6, on the sub-board's incoming supply and on Pump. It reads 0 mA everywhere else. With the fault off the system, the pulse finds no path, and every clamp reads 0 mA.\n\nIn Test dead, the tester applies 500 V DC. Whole circuit and Motor only read 0.00 MΩ, because the winding is solid to the frame. Cable only reads over 200 MΩ, an example value.\n\nThe opening setting has every breaker closed, the pump running and the tool on Open feeders. The monitor reads 0 kΩ and its lamp is red. Opening F6 gives 3,000 ÷ 7 = 429 kΩ. With the pump stopped and every breaker closed, it reads 3,000 ÷ 8 = 375 kΩ.\n\nScreen 1, show. From the opening setting, F3 opens and closes, then F6 opens. The words: \"The monitor cannot say which feeder holds the fault. It reads all eight feeders in parallel. The solid fault has almost no resistance. The dial reads 0 kΩ, below its 44 kΩ line. So you open feeders one at a time, with permission and essential services covered.[^1] Open a healthy feeder and the fault stays connected, so the dial stays at 0 kΩ. Open F6 and the fault goes with it. The dial jumps to 429 kΩ: the other seven feeders' 3 MΩ in parallel.\" Read: \"The monitor reads 0 kΩ, below its 44 kΩ alarm line. With a healthy feeder open, it still reads 0 kΩ. With F6 open, it reads 429 kΩ.\" Still: tool Open feeders, F6 open, the pump running.\n\nScreen 2, try it. \"Say the fault were 20 kΩ instead of solid. The monitor reads 19.1 kΩ. You open F3 and it reads 19.2 kΩ. What does that tell you?\" Three choices, in this order: \"F3 holds the fault, as the reading rose\"; \"F3 is healthy. Only its own 3 MΩ left the total\"; \"The fault is shared between F3 and F6\". Right, the second. Hint for the first: \"Opening the faulty feeder would lift the dial to hundreds of kilohms. A rise of 0.1 kΩ is too small.\" Hint for the third: \"One fault on one feeder sets the reading. F3 took off only its own healthy insulation.\" Why: \"The 20 kΩ fault is by far the lowest path, so it sets the total. Taking off one healthy 3 MΩ path barely changes it. Look for a jump, not a nudge.\" The picture shows the 20 kΩ fault: 19.1 kΩ, lamp lit. A right Check opens F3: 19.2 kΩ.\n\nScreen 3, show. F3 opened at the moment the pump stops, then F3 closed again. The words: \"F6 feeds a fresh-water pump on a pressure switch. The fault is in the pump's motor. Open F3 just as the pump stops. The dial jumps to 429 kΩ, and F3 looks guilty. But the pump's contactor has lifted the faulty motor off the system. Close F3 and the dial reads 375 kΩ, with all eight feeders healthy. When the pump restarts, the alarm returns. The fault vanished with its load.[^2]\" Read: \"F3 opens just as F6's pump stops. The dial reads 429 kΩ, though F3 is healthy. The faulty motor is off the system while its contactor is open.\" Still: tool Open feeders, F3 open, the pump stopped.\n\nScreen 4, try it. \"You open F5 and the dial recovers to 429 kΩ. You close F5 again, and the dial reads 375 kΩ. What should you suspect?\" Three choices, in this order: \"F5 holds the fault\"; \"A faulty load switched off as you opened F5\"; \"The fault has cleared for good\". Right, the second. Hint for the first: \"If F5 held the fault, closing it would bring the alarm back.\" Hint for the third: \"The dial recovered at the very moment you opened F5. Look for something that stopped then.\" Why: \"If F5 held the fault, closing it should have brought the alarm back. It did not. So a load left the system at that moment. A pump stopping on its pressure switch is one example. Note what was running, and wait for the alarm to return.\" A right Check stops the pump with all breakers closed, and the dial reads 375 kΩ.\n\nScreen 5, show. The tool on Clamp at 60 Hz, all breakers closed, the pump running. The words: \"Now hunt without switching anything off. A leakage clamp goes round all three cores of a feeder, like an RCD's toroid. Load current goes out and back through it and cancels. The clamp reads only current that returns through the hull. With the hull moved to L1, each clamp's charging currents no longer cancel. F1, a long run with 2 µF a line, reads 575 mA. The short feeders read 14.4 mA each. F6 carries all their current home through its fault, and reads 661 mA.\" Read: \"At 60 Hz, every feeder's clamp reads current. The long feeder F1 reads 575 mA, and each short feeder reads 14.4 mA. The faulty feeder F6 reads 661 mA.\" Still: tool Clamp at 60 Hz, all closed, the pump running.\n\nScreen 6, try it. \"You clamp F1 first, at 60 Hz. It reads 575 mA, far more than the short feeders you have tried. Is F1 the faulty one?\" Three choices, in this order: \"Yes, the biggest reading so far is the fault\"; \"Not proven. A long healthy feeder passes that much\"; \"No, a faulty feeder's clamp reads 0 mA\". Right, the second. Hint for the first: \"Once the hull shifts, every feeder's capacitance passes current. A long feeder has a lot of capacitance.\" Hint for the third: \"The faulty feeder carries the other feeders' charging current home. So its clamp reads plenty.\" Why: \"At 60 Hz a clamp reads charging current as well as fault current. F6 reads only 86 mA more than F1. A real clamp also picks up a little from load current and unequal cables. A partial fault shrinks every reading too. So a short faulty feeder is hard to tell from a long healthy one by size alone.[^3]\" A right Check sets the tool to Clamp at 60 Hz and rings F1's tile.\n\nScreen 7, show. The tool on Inject and clamp, all breakers closed, the pump running. The words: \"A fault locator removes that doubt. It joins the live cores to the hull for a moment, through a current limit. Say it sends 10 mA. The pulse flows out on the cores, through the fault, and back through the hull to the locator.[^4] Its clamp reads only the pulse, not the 60 Hz charging current. The pulse is slow, so the cables' capacitance passes next to none of it. F6's clamp shows 10 mA. The other seven show 0 mA.\" Read: \"With a 10 mA pulse injected, only F6's clamp shows it. The locator's clamp reads the pulse alone, so the other seven show 0 mA.\" Still: tool Inject and clamp, all closed, the pump running.\n\nScreen 8, try it. \"The pulse shows on F6. F6 feeds a sub-board with four circuits: Fan, Pump, Heater and Lighting. What will the clamps on those four circuits show?\" Three choices, in this order: \"10 mA on one circuit, nothing on the rest\"; \"2.5 mA on each of the four\"; \"10 mA on all four\". Right, the first. Hint for the second: \"The pulse has one way home, through the fault. It does not split itself among the healthy circuits.\" Hint for the third: \"A healthy circuit gives the slow pulse next to no path to the hull.\" Why: \"Nearly all the pulse follows the fault's path. At the sub-board, the incoming clamp and the Pump circuit's clamp show 10 mA. The other three show nothing. So the fault lies on the pump circuit.\" A right Check opens F6's sub-board, with 10 mA on its incoming supply and on Pump.\n\nScreen 9, show. The tool on Test dead, the pump circuit isolated, Test across set to Whole circuit, then Cable only, then Motor only. The words: \"The pulse has led you to the pump circuit. Now test it dead. Isolate it, lock it off and prove it dead. Disconnect anything the test could damage or skew.[^5] Here that is the pump's electronic starter. Test at 500 V DC, all three cores joined, to earth. It reads 0.00 MΩ. Split at the motor's terminal box. The cable reads over 200 MΩ. The motor reads 0.00 MΩ, so the fault is in its winding.\" Read: \"The isolated pump circuit reads 0.00 MΩ to earth at 500 V DC. Split at the terminal box, the cable reads over 200 MΩ. The motor reads 0.00 MΩ.\" Still: tool Test dead, Test across on Motor only.\n\nScreen 10, try it, the first of three mixed puzzles. \"The monitor reads 375 kΩ, well above its 44 kΩ alarm line. F6's pump is stopped, its contactor open. Does the monitor prove the pump's insulation healthy?\" Three choices, in this order: \"Yes, the monitor reads the whole system\"; \"No. It cannot see a load that is switched off\"; \"Yes, if the earth lamps are equal too\". Right, the second. Hint for the first: \"A load whose contactor is open is off the system. The monitor's voltage never reaches it.\" Hint for the third: \"Earth lamps watch only the live system too.\" Why: \"A monitor reads only what is connected. A switched-off load is out of its reach.[^6] To prove the pump, test it dead, or run it and watch the monitor.\" The picture returns to the board with the pump stopped, the dial at 375 kΩ.\n\nScreen 11, try it. \"Put the steps for the pump circuit's dead test in order.\" A sorter of five steps. Right order: \"Isolate the circuit and lock it off\"; \"Prove it dead\"; \"Disconnect the electronics and any monitor on it\"; \"Test at 500 V DC, cores joined, to earth\"; \"Split at the terminal box and test each part\". Hint when wrong: \"Nothing is touched until the circuit is proven dead. Electronics come off before any test voltage.\" Why: \"Isolation and proof come first, for your safety. The electronics come off next, so the test voltage cannot damage them or skew the reading. Then test the whole circuit, and split it to find which part holds the fault.\" A sorter shows the five steps shuffled, in this order: Test at 500 V DC; Prove it dead; Split at the terminal box; Isolate and lock off; Disconnect the electronics. A right Check sets the tool to Test dead.\n\nScreen 12, try it. \"Suppose the solid fault were on F1, the long feeder, instead of F6. What would F1's clamp read at 60 Hz?\" Three choices, in this order: \"575 mA, as before\"; \"101 mA, the other seven feeders' charging current\"; \"0 mA, as its own capacitance is shorted\". Right, the second. Hint for the first: \"A faulty feeder's clamp reads the other feeders' current, coming home through its fault.\" Hint for the third: \"Its own capacitance no longer counts. The other seven feeders' current still comes home through it.\" Why: \"The faulty feeder carries every other feeder's charging current home. Seven short feeders of 0.05 µF a line make 0.35 µF. That passes 0.35 × 287 = 101 mA. So faulty F1 reads less than healthy F1 did. A feeder's reading at 60 Hz depends on the rest of the board, not on whether it is faulty.\" A right Check moves the fault to F1 with the tool on Clamp at 60 Hz. F1 reads 101 mA and each short feeder 14.4 mA.",
+    "ignores": "The fault is drawn solid. Each feeder's insulation is drawn as a fixed 3 MΩ. Real faults are often partial, and damp moves every value. The clamps are ideal. A real clamp also picks up a little from load current and from small imbalances in the cables. So a healthy feeder rarely reads exactly 0 mA. The pulse is drawn as a steady 10 mA. A real locator switches it on and off. Each feeder's capacitance is drawn as one lump, and drive filters are left out. The permit to work and the pump's starter wiring are not drawn.",
+    "numbers": [
+      {
+        "label": "Screen, 1 to 12 (the stepper)",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Number of screens",
+        "value": 12,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example line voltage of the supply, in volts",
+        "value": 440,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example supply frequency, in hertz",
+        "value": 60,
+        "kind": "assumed"
+      },
+      {
+        "label": "Square root of 3, to three decimal places",
+        "value": 1.732,
+        "kind": "constant"
+      },
+      {
+        "label": "Voltage of each line to the star point, 440 ÷ 1.732, in volts",
+        "value": 254,
+        "kind": "computed"
+      },
+      {
+        "label": "ω, 2π × 60, in radians per second",
+        "value": 377,
+        "kind": "computed"
+      },
+      {
+        "label": "Number of feeders on the board",
+        "value": 8,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example insulation of each healthy feeder, in megohms",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example monitor alarm level, in ohms per volt",
+        "value": 100,
+        "kind": "assumed"
+      },
+      {
+        "label": "Monitor alarm line, 100 × 440, in kilohms",
+        "value": 44,
+        "kind": "computed"
+      },
+      {
+        "label": "Monitor reads, solid fault connected, in kilohms",
+        "value": 0,
+        "kind": "computed"
+      },
+      {
+        "label": "Monitor reads, seven healthy feeders, 3,000 ÷ 7, in kilohms",
+        "value": 429,
+        "kind": "computed"
+      },
+      {
+        "label": "Monitor reads, eight healthy feeders, 3,000 ÷ 8, in kilohms",
+        "value": 375,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 2: example partial fault, in kilohms",
+        "value": 20,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 2: monitor reads, all closed, in kilohms",
+        "value": 19.1,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 2: monitor reads, F3 open, in kilohms",
+        "value": 19.2,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 2: rise when F3 opens, in kilohms",
+        "value": 0.1,
+        "kind": "computed"
+      },
+      {
+        "label": "Example capacitance of F1, in µF a line",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example capacitance of each short feeder, in µF a line",
+        "value": 0.05,
+        "kind": "assumed"
+      },
+      {
+        "label": "Healthy charging current for 1 µF a line, in milliamps",
+        "value": 96,
+        "kind": "computed"
+      },
+      {
+        "label": "Healthy feeder's clamp, fault connected, per µF a line, in mA",
+        "value": 287,
+        "kind": "computed"
+      },
+      {
+        "label": "F1's clamp at 60 Hz, in milliamps",
+        "value": 575,
+        "kind": "computed"
+      },
+      {
+        "label": "Each short feeder's clamp at 60 Hz, in milliamps",
+        "value": 14.4,
+        "kind": "computed"
+      },
+      {
+        "label": "F6's clamp at 60 Hz, 575 + 6 × 14.4, in milliamps",
+        "value": 661,
+        "kind": "computed"
+      },
+      {
+        "label": "F6's reading above F1's, in milliamps",
+        "value": 86,
+        "kind": "computed"
+      },
+      {
+        "label": "Example locator pulse, in milliamps",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Circuits on F6's sub-board",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Wrong answer on screen 8: 10 ÷ 4, in milliamps",
+        "value": 2.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Least DC test voltage for a ship's switchboard, in volts",
+        "value": 500,
+        "kind": "constant",
+        "source": 7
+      },
+      {
+        "label": "Tester reads, winding solid to frame, in megohms",
+        "value": 0,
+        "kind": "computed"
+      },
+      {
+        "label": "Example healthy cable reading, in megohms",
+        "value": 200,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 12: seven short feeders, 7 × 0.05, in µF a line",
+        "value": 0.35,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 12: faulty F1's clamp, 0.35 × 287, in milliamps",
+        "value": 101,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example: feeders on the board",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example: each healthy feeder, in megohms",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example: fault, in kilohms",
+        "value": 15,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example: four healthy feeders together, in kilohms",
+        "value": 250,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example: monitor reads, all closed, in kilohms",
+        "value": 14.2,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example: three healthy feeders together, in kilohms",
+        "value": 333,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example: monitor reads, a healthy feeder open, in kilohms",
+        "value": 14.4,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "An insulation monitor tells you there is an earth fault, but not where. It reads every feeder at once, in parallel. So you find the fault live, while the system runs. Then you isolate the circuit it leads you to and test that circuit dead.\n\nThe first way is to open feeders one at a time until the reading recovers. Get permission first, and cover essential services. Opening a healthy feeder leaves the fault connected, so the reading barely moves. Opening the faulty feeder takes the fault off the system, so the reading jumps. The trap is a load that switches itself. A pump on a pressure switch can stop just as you open the wrong feeder. Its contactor lifts the faulty motor off the system. The reading recovers for the wrong reason. So close the feeder again. If it holds the fault, the alarm comes back once the monitor has measured again.\n\nThe second way keeps everything running. A leakage clamp goes round all three cores of a feeder, like the toroid in an RCD. Load current goes out and back through it, so it cancels. The clamp reads only current that leaves the cores for the hull. At 60 Hz, that includes charging current. Once a fault shifts the hull to one line, every healthy feeder passes three times its healthy charging current. The faulty feeder carries all of it home through the fault. In an ideal system that makes it read the most. But a long healthy feeder can read nearly as much. Real clamps also pick up a little from load current and unequal cables. A partial fault shrinks every reading. So a short faulty feeder is hard to pick out.\n\nA fault locator removes that doubt. It joins the live cores to the hull for a moment, through a current limit. Its pulse flows out on the cores, through the fault, and back through the hull. The pulse is slow, so the cables' capacitance barely disturbs it. So the pulse shows on the clamps along the fault's path. Elsewhere it shows next to nothing. Follow it from the feeder to the sub-board, then to the circuit. **Find an earth fault live, by opening feeders or by following a slow injected pulse with a clamp. Then isolate that circuit and test it dead.**"
+  },
+  "analogy": {
+    "text": "You know the RCD that trips now and then. You switch MCBs off one at a time until it holds. Then it trips again with that MCB still off. The culprit was the immersion heater. Its thermostat had opened as you worked. Its leak was only there while the element was switched in. Opening feeders on an insulated board has the same trap. A load that stops on its own takes its fault with it.",
+    "breaks": "On your RCD board, the fault trips the supply. So you hunt with the power off and wait for the next trip. An insulated board runs on with its fault. So you can watch the monitor live and follow a pulse with a clamp. Ashore, the fault current usually comes home through the protective conductor. Here it comes home through every other feeder's capacitance. So at 60 Hz, every clamp reads something."
+  },
+  "practice": {
+    "text": "- Safety first. The supply stays live while you hunt. With a solid fault, the healthy lines sit at line voltage to the hull. Treat every core as live until you have proved it dead.\n- Note the monitor's reading and the time. Note which loads start and stop on their own. Pumps on pressure switches and heaters on thermostats are typical.\n- Look first where faults often start. Water gets into junction boxes and deck lights. Cables get damaged. Insulation breaks down in motors and heaters.\n- Before opening any feeder, get permission and cover its essential services. Open one feeder at a time and note the reading.\n- If the reading jumps, close that feeder again. The alarm should come back once the monitor has measured again. If it does not, suspect a load that switched off at that moment.\n- With a locator, clamp each feeder in turn. Put all its cores inside the clamp and its earth conductor outside. Follow the feeder that shows the pulse to its sub-board, then to the circuit.\n- On a DC board the hunt is the same. Shed loads one at a time. Put both poles inside the clamp. Inject the locator's current on one side only.\n- Isolate that circuit, lock it off and prove it dead.\n- Disconnect electronics, drives and any insulation monitor wired to that part.[^8]\n- Test at 500 V DC or more from all cores, joined, to earth.[^7] Then test core to core with the load disconnected. Then split at a terminal box and test each part.\n\n**Rule of thumb:** A recovered reading is a clue, not a verdict. It must recover when you open the feeder, and return when you close it.\n\n**Worked example:** Say a board has five feeders, each 1 MΩ when healthy. One of them has a 15 kΩ fault. The four healthy feeders together make 1,000 ÷ 4 = 250 kΩ. With the fault in parallel, the monitor reads 250 × 15 ÷ 265 = 14.2 kΩ. Open a healthy feeder and three remain, 333 kΩ together. The monitor reads 333 × 15 ÷ 348 = 14.4 kΩ, a nudge. Open the faulty feeder and it reads 250 kΩ, a jump. Close it again and it drops back to 14.2 kΩ. That feeder holds the fault.\n\n**Common mistakes**\n- Blaming the feeder that was open when the reading recovered, without closing it again.\n- Taking the biggest 60 Hz clamp reading as proof of the fault.\n- Putting the feeder's earth conductor inside the clamp, so the returning current cancels.\n- Reading a healthy monitor as proof that a switched-off load is healthy.\n- Testing with the electronics or a monitor still connected."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+    {
+      "n": 1,
+      "title": "Ship Earthing Systems: Insulated Networks, Bonding and Earth-Fault Monitoring",
+      "url": "https://marineinsight360.com/blogs/ship-earthing-systems-protect-ships",
+      "quote": "To find a fault, engineers isolate circuits one at a time, with permission and with essential services covered, until the reading recovers."
+    },
+    {
+      "n": 2,
+      "title": "Electrical Safety Solutions for Harbours and Vessels",
+      "url": "https://www.benderinc.com/fileadmin/content/BenderGroup/Documents/Article/en/Harbours_and_Vessels_6.12.20_compressed.pdf",
+      "quote": "In practice, it is more difficult because not all systems can be switched off on sea and the fault could disappear because the faulty load is already switched off."
+    },
+    {
+      "n": 3,
+      "title": "The IT earthing system (unearthed neutral) in LV",
+      "url": "https://download.se.com/files?amp&p_Doc_Ref=ECT178",
+      "quote": "It is not reliable for networks with a large number of feeders some of which are highly capacitive (how can the earth current of a short faulty feeder be distinguished from that of a long capacitive feeder?)."
+    },
+    {
+      "n": 4,
+      "title": "Insulation fault location: The concept",
+      "url": "https://www.bender.de/en/know-how/technology/it-system/insulation-fault-location-the-concept",
+      "quote": "The test current pulse flows from the insulation fault test device via the live conductors, the insulation fault Rf and the earth wire (PE conductor) and back to the insulation fault test device."
+    },
+    {
+      "n": 5,
+      "title": "cdn.standards.iteh.ai",
+      "url": "https://cdn.standards.iteh.ai/samples/21340/5b6773dd9a0c417e97501490c483a487/IEC-60364-6-2016.pdf",
+      "quote": "Where surge protective devices (SPDs) or other equipment are likely to influence the verification test, or be damaged, such equipment shall be disconnected before carrying out the insulation resistance test."
+    },
+    {
+      "n": 6,
+      "title": "Electrical Safety Solutions for Harbours and Vessels",
+      "url": "https://www.benderinc.com/fileadmin/content/BenderGroup/Documents/Article/en/Harbours_and_Vessels_6.12.20_compressed.pdf",
+      "quote": "Insulation faults in deenergised loads cannot be measured with the insu- lation monitoring device of the feeding system."
+    },
+    {
+      "n": 7,
+      "title": "(I-1-3) Electrical Installations",
+      "url": "http://www.iqytechnicalcollege.com/gl_i-1-3_e.pdf",
+      "quote": "The insulation re- sistance measurement is to be performed at a DC voltage of at least 500 V."
+    },
+    {
+      "n": 8,
+      "title": "Insulation monitoring relay CM-IWM.10",
+      "url": "https://library.e.abb.com/public/4ae6abdae2ed49ea8df9e28255272da3/2CDC112243D0201_D_CM-IWM.11_data_sheet.pdf",
+      "quote": "Before checking insulation and voltage, disconnect the monitoring device from the power source!"
+    }
+  ]
+}

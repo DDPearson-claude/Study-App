@@ -1,0 +1,400 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Insulated systems and earth faults
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i3 "Earthed through capacitance" — Cables and windings are capacitors to earth, so a first fault passes three times one phase's healthy charging current, growing with the system's size. [quantity]
+Later ideas in the course (every claim must stay true after Dan has learned each of them):
+- i4 The second fault — A second earth fault on a different phase makes a phase-to-phase short through the hull, driven by line voltage round both circuits' loops.
+- i5 Watching the insulation live — An insulation monitor injects a small DC or slow signal to read the system's total resistance to earth; guidance disagrees on where to alarm.
+- i6 Insulated DC: reading the two poles — On an insulated DC board the two pole-to-earth voltages share the bus voltage, and the pole with the lower insulation resistance reads lower.
+- i7 Finding the fault — An earth fault is found live by opening circuits or injecting a slow pulse and clamping each feeder, then the circuit is tested dead.
+- i8 Arcing faults, drives and safe working — Experts disagree whether arcing faults can ratchet an insulated supply's voltage up, and drive filters and touching a floating supply bring their own dangers.
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] Characteristics of different power systems neutral grounding techniques: Fact and fiction — https://www.eaton.com/content/dam/eaton/products/medium-voltage-power-distribution-control-systems/vacclad-w-pages/characteristics-power%20systems-neutral-grounding-techniques-fact-fiction-ap083005en.pdf
+    "although called ungrounded, this type of system is in reality coupled to ground through the distributed capacitance of its phase windings and conductors."
+[R2] Characteristics of different power systems neutral grounding techniques: Fact and fiction — https://www.eaton.com/content/dam/eaton/products/medium-voltage-power-distribution-control-systems/vacclad-w-pages/characteristics-power%20systems-neutral-grounding-techniques-fact-fiction-ap083005en.pdf
+    "there is no direct ground path back to the neutral point of the source in Figure 3b , the current must return through the distributed capacitance (insulation system) of the two unfaulted phases. As indicated, only 1.04 A will flow."
+[R3] Transient overvoltages on ungrounded systems from intermittent ground faults — https://www.eaton.com/content/dam/eaton/markets/healthcare/knowledge-center/white-paper/transient-overvoltages-on-ungrounded-systems-from-intermittent-ground-faults.pdf
+    "A capacitance of approximately 10µF on a 277 V system, then, will result in approximately 1 ampere of continuous (charging) current through that capacitance."
+[R4] Technical aspects IT systems — https://fournais-bender.dk/storage/TechnAspects-IT-systems.pdf
+    "The limits of an IT system are largely determined by its expansion. The larger the system, the smaller the impedance between active conductors and earth."
+[R5] Earthing Your Questions Answered — https://electrical.theiet.org/media/1698/earthing-your-questions-answered.pdf
+    "T = Earth (from the French word Terre) N = Neutral S = Separate C = Combined I = Isolated"
+[R6] Wiring Matters - your insight into BS 7671 — https://electrical.theiet.org/media/1469/railway-systems_tm-granger.pdf
+    "The third type of earthing arrangement, and the particular focus of this article, is the 'IT' type, in which the source transformer is isolated from earth, whilst all exposed conductive parts of the installation are connected to earth electrodes."
+[R7] Characteristics of TT, TN and IT systems - Electrical Installation Guide — https://www.electrical-installation.org/enwiki/Characteristics_of_TT,_TN_and_IT_systems
+    "## TN system * Technique for the protection of persons: + Interconnection and earthing of exposed conductive parts and the neutral are mandatory + Interruption for the first fault using overcurrent protection (circuit-breakers or fuses)"
+[R8] IT system - Fault protection - Electrical Installation Guide — https://www.electrical-installation.org/enwiki/IT_system_-_Fault_protection
+    "In IT system, the first fault to earth should not cause any disconnection. The earth-fault current which flows under a first-fault condition is measured in mA."
+[R9] library.imarest.org — https://library.imarest.org/record/2202/files/2229.pdf
+    "two-wire unearthed distribution systems were introduced to prevent the immediate loss of an essential service resulting from an earth fault."
+[R10] IT system - Principle - Electrical Installation Guide — https://www.electrical-installation.org/enwiki/IT_system_-_Principle
+    "The installation is isolated from earth, or the neutral point of its power-supply source is connected to earth through a high impedance (commonly 1500 Ω or more)"
+[R11] IT system - Fault protection - Electrical Installation Guide — https://www.electrical-installation.org/enwiki/IT_system_-_Fault_protection
+    "The voltages of the healthy phases have (because of the fault) increased to √3 times the normal phase voltage"
+[R12] Low-voltage high resistance grounding systems basics — https://www.eaton.com/content/dam/eaton/products/low-voltage-power-distribution-controls-systems/hrg/files/lv-hrg-systems-basics-ap019004en.pdf
+    "The equipment rating has to be rated at 173% of their line-to-neutral voltages."
+Notes (claims, and the sources that support them):
+- A system called ungrounded is in reality coupled to ground through the distributed capacitance of its phase windings and conductors. [R1]
+- With no direct path back to the source's neutral, Eaton's 480 V example returns the first-fault current through the distributed capacitance of the two unfaulted phases, and only 1.04 A flows. [R2]
+- Eaton gives about 1 A of continuous charging current for roughly 10 microfarads on a 277 V system. [R3]
+- In an IT system the larger the system, the smaller the impedance between the active conductors and earth. [R4]
+- In the earthing letters, T stands for earth (from the French Terre), N for neutral and I for isolated. [R5]  (from an idea this one builds on)
+- In an IT system the source transformer is isolated from earth while the installation's exposed conductive parts are connected to earth electrodes. [R6]  (from an idea this one builds on)
+- In a TN system the first earth fault is interrupted by the circuit's overcurrent protection, a breaker or fuse. [R7]  (from an idea this one builds on)
+- In an IT system the first earth fault should not cause any disconnection, and the earth-fault current is measured in milliamps. [R8]  (from an idea this one builds on)
+- Two-wire unearthed distribution was introduced to prevent the immediate loss of an essential service resulting from an earth fault. [R9]  (from an idea this one builds on)
+- An IT supply's star point may instead be connected to earth through a high impedance, commonly 1500 ohms or more, which still counts as IT. [R10]  (from an idea this one builds on)
+- On an IT system with a first earth fault, the healthy phases rise to root three times the normal phase voltage. [R11]  (from an idea this one builds on)
+- In an IT system the first earth fault passes only milliamps and causes no disconnection. [R8]  (from an idea this one builds on)
+- Equipment on an insulated system is rated at 173% of the phase voltage, the line voltage, so its insulation can hold a first earth fault. [R12]  (from an idea this one builds on)
+- In an IT system the supply is isolated from earth, and the first earth fault should not cause any disconnection. [R6][R8]  (whole topic)
+- Marine insulated systems exist to prevent the immediate loss of an essential service from an earth fault. [R9]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i3",
+ "title": "Earthed through capacitance",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the two healthy lines' charging currents, 60° apart, adding head to tail into three times one line's healthy current, when you switch the fault onto L1.",
+  "title": "The cable that is a capacitor",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Screen",
+    "min": 0,
+    "max": 11,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [],
+  "whatAmILookingAt": "Twelve small screens on one picture, with Back and Continue. Five show an idea and seven ask you to try it. No marks and no timers.\n\nThe picture. A switchboard on the left feeds a load on the right through a three-line feeder, L1 on top, then L2, then L3. Under the feeder runs a thick bar, the hull, which is earth. All along the run, small capacitors join each line to the hull, in three rows. Each one stands for a stretch of cable, because the copper and the hull are two plates with the insulation between them. A small drive card sits by the load, with its own capacitors to the hull, drawn only when its switch is on. Beside the feeder is a phasor panel. It draws each line's current into the hull as an arrow, in milliamps, to one scale.\n\nThe controls, under the picture, in a row that wraps on a phone: a mode picker of three buttons, Healthy, Fault on L1 and Person on L1; a slider, Cable length, from 0.5 to 16 km in steps of 0.5 km; a switch, Ten drives' filters; and a button, 480 V check. In Fault on L1 a solid link joins L1 to the hull. In Person on L1 a figure stands on the hull with one hand on L1, and there is no fault.\n\nThe readouts, in tiles that wrap onto more rows on a phone: Capacitance a line, in µF; Charging current a line, healthy, in mA; and Current to earth, in mA, which is the fault current or the body current. Below them, a small plot of Current to earth against cable length, with a dot at the present setting.\n\nThe rule it computes. Say a 440 V, 60 Hz supply, so each line sits 440 ÷ 1.732 = 254 V from earth when healthy. Say each line has 0.25 µF to the hull for every kilometre of cable, and each drive's filter adds 0.1 µF a line. So C, the capacitance a line, is 0.25 × length, plus 1 µF when the ten drives are switched in. A capacitor on AC passes ω × C × V, where ω = 2π × 60 = 377 and V is the voltage across it. Healthy, each line passes ω × C × 254 V, its charging current, and the three arrows sit 120° apart, so they close into a triangle and add to zero. With the fault on L1, the hull moves to L1, as in the shifting triangle. L1's capacitors have 0 V across them and its arrow shrinks to nothing. L2's and L3's capacitors hold 440 V, so each arrow grows 1.73 times. The two arrows swing to 60° apart, slide head to tail, and a third arrow from tail to head shows their sum, the fault current: 3 × ω × C × 254 V. In Person on L1, the body is an example 1,000 Ω, and all the capacitance together acts in series with it: Current to earth = 254 V ÷ the size of (1,000 Ω in series with the reactance of 3 × C). The plot is a straight line through zero in Fault on L1 and a curve that levels off in Person on L1. The 480 V check sets a 480 V supply, 277 V a line, with 3.3 µF a line, a reactance of 800 Ω.\n\nAt the opening setting, 4 km and no drives: C = 1 µF, each line 96 mA healthy, 166 mA each from L2 and L3 with the fault on, fault current 287 mA, body current 190 mA. At 8 km, or 4 km with the drives: C = 2 µF, 192 mA healthy, fault current 575 mA. At 0.5 km: body current 36 mA. At 16 km with the drives: C = 5 µF, 479 mA healthy, fault current 1.44 A.\n\nScreen 1, show. Healthy, 4 km, drives off, the phasor panel hidden. The words: \"Every conductor near the hull is a capacitor. The copper is one plate and the hull is the other, with the insulation between. So a feeder has small capacitors from each line to the hull all along its run. Windings and drive filters add more. An insulated supply has no tie to earth. Yet it is joined to the hull through all this capacitance.[^1]\" Still: Healthy, 4 km.\n\nScreen 2, try it. \"Each line has 1 µF to the hull. What is that capacitance's reactance at 60 Hz?\" Three choices, in this order: \"About 2,650 Ω\"; \"About 377 Ω\"; \"Infinite, as a capacitor blocks current\". Right, the first. Hint for the second: \"377 is ω, 2π × 60. The reactance is 1 divided by ω × C.\" Hint for the third: \"That holds for steady DC. On AC the plates charge and discharge every half cycle, so current flows in the wires either side.\" Why: \"Still there. X_C = 1 ÷ (2π × 60 × 0.000001) = 2,650 Ω. With 254 V across it, about 96 mA flows.\" A right Check labels one row of capacitors 2,650 Ω. Read: \"Each line has 1 µF to the hull. What is that capacitance's reactance at 60 Hz?\"\n\nScreen 3, show. Healthy, 4 km, the phasor panel shown. The words: \"Each line charges and discharges its capacitors 60 times a second. That current in the line is its charging current. With 1 µF a line on 440 V, each line passes 96 mA. The panel draws the three as arrows, 120° apart like their voltages. Laid head to tail, they close into a triangle. So they cancel in the hull. Each line's current comes back through the other two lines' capacitance, with no tie to the star point.\" Still: Healthy, 4 km.\n\nScreen 4, try it. \"With no fault, each line pushes 96 mA into the hull. What do the three add up to?\" Three choices, in this order: \"Zero, in this balanced picture\"; \"287 mA, three times 96 mA\"; \"96 mA, the same as one line\". Right, the first. Hint for the second: \"They are 120° apart, so they do not add as plain numbers. Lay them head to tail.\" Hint for the third: \"Lay all three arrows head to tail. Where does the last one end?\" Why: \"Three equal arrows 120° apart close into a triangle, so they add to zero. It is a balanced load's neutral again. A real system is a little unbalanced, so a little is left over.\" A right Check slides the three arrows head to tail. Read: \"With no fault, each line pushes 96 mA into the hull. What do the three add up to?\"\n\nScreen 5, show. Fault on L1, 4 km. The words: \"Now L1 faults solidly to the hull. The hull moves to L1, so L1's capacitors have no voltage across them and pass nothing. L2's and L3's capacitors now hold 440 V instead of 254 V. So each passes 1.73 times as much, 166 mA. Both are measured from L1's corner of the triangle, so they sit 60° apart. Head to tail they add to 287 mA, three times one line's healthy current.\" Read: \"With a solid fault on L1, L1's capacitors pass nothing. L2 and L3 each pass 166 mA, 60° apart. Head to tail they add to 287 mA.\" Still: Fault on L1, 4 km.\n\nScreen 6, try it. \"With L1 faulted solidly, what carries the fault current back round to the supply?\" Three choices, in this order: \"The capacitance of L2 and L3 to the hull\"; \"Nothing carries it, as a capacitor blocks current\"; \"A tie from the hull to the star point\". Right, the first. Hint for the second: \"On AC a capacitor passes current as its plates charge and discharge. 440 V across 1 µF at 60 Hz passes 166 mA.\" Hint for the third: \"There is no tie. That is what makes the supply insulated.\" Why: \"The current leaves the supply on L2 and L3 and crosses their capacitance into the hull. It runs along the hull to the fault and back through it into L1.[^2] The windings close the loop.\" A right Check lights the loop. Read: \"With L1 faulted solidly, what carries the fault current back round to the supply?\"\n\nScreen 7, show. Fault on L1, the slider moving from 4 km to 8 km. The words: \"Two arrows 60° apart add to 1.73 times one of them. Each was 1.73 times the healthy current, so the sum is 3 times it. The rule is fault current = 3 × ω × C × V_phase. Capacitance grows with the system, since every metre of cable and every filter adds some in parallel. Drag the cable from 4 km to 8 km. C doubles to 2 µF and the fault current doubles to 575 mA.\" Read: \"At 8 km of cable, C is 2 µF a line and the fault current is 575 mA, twice the 4 km figure. The plot is a straight line through zero.\" Still: Fault on L1, 8 km.\n\nScreen 8, try it. \"A system's first fault passes 287 mA. New feeders double its cable, so its capacitance doubles. What does a first fault pass now?\" Three choices, in this order: \"About 575 mA\"; \"287 mA, as the voltage is the same\"; \"About 1.15 A, four times as much\". Right, the first. Hint for the second: \"The voltage is the same, but C has doubled. The current is ω × C × V.\" Hint for the third: \"The current goes up in step with C, not with its square.\" Why: \"The fault current is 3 × ω × C × V_phase. Only C has changed, and it has doubled. So the current doubles, to about 575 mA. The larger the system, the lower its impedance to earth.[^3]\" A right Check drags the cable to 8 km. Read: \"A system's first fault passes 287 mA. New feeders double its cable, so its capacitance doubles. What does a first fault pass now?\"\n\nScreen 9, show. Person on L1, 4 km. The words: \"Take the fault away. Instead a person stands on the hull and touches L1. Say the body is 1,000 Ω. The person becomes the fault, and the cables' capacitance closes the loop. With 1 µF a line, about 190 mA flows through the body. That is over six times the 30 mA a socket RCD is rated to trip at. Even with 0.5 km of cable it is about 36 mA. An insulated supply is not a safe one to touch.\" Read: \"A person on the hull touches L1 of a healthy system with 1 µF a line. About 190 mA flows through the body, back through the cables' capacitance.\" Still: Person on L1, 4 km.\n\nScreen 10, try it, the first of three mixed puzzles. \"You stand on the hull and touch L1 of a healthy insulated 440 V system. It has 1 µF a line to the hull. What happens?\" Three choices, in this order: \"Current flows through you and back through the cables' capacitance\"; \"Nothing, as there is no other end of the circuit\"; \"Nothing, until a second fault gives it a path\". Right, the first. Hint for the second: \"The other end is there. Every cable is a capacitor to the hull you stand on.\" Hint for the third: \"The path is already there, in the capacitance of every cable.\" Why: \"The cables' capacitance joins every line to the hull. You complete a loop through it, as a fault would. With a 1,000 Ω body, about 190 mA flows.\" A right Check switches to Person on L1. Read: \"You stand on the hull and touch L1 of a healthy insulated 440 V system. It has 1 µF a line to the hull. What happens?\"\n\nScreen 11, try it. \"A 440 V, 60 Hz insulated system has 5 µF a line. Healthy, each line passes 479 mA. What does a solid first fault pass?\" Three choices, in this order: \"About 1.44 A\"; \"About 830 mA\"; \"479 mA, the same as one line\". Right, the first. Hint for the second: \"That is one healthy line at 440 V. Two of them add, 60° apart.\" Hint for the third: \"The fault lifts L2 and L3 to 440 V, so their currents grow, and two of them add.\" Why: \"The fault current is three times one line's healthy charging current. 3 × 479 mA = 1.44 A. A big system's first fault passes amps, not milliamps.\" A right Check sets 16 km with the drives on and the fault on L1. Read: \"A 440 V, 60 Hz insulated system has 5 µF a line. Healthy, each line passes 479 mA. What does a solid first fault pass?\"\n\nScreen 12, try it. \"A 480 V, 60 Hz insulated system has 277 V a phase. Each line's capacitance to the hull has a reactance of 800 Ω. What does a solid first fault pass?\" Three choices, in this order: \"About 1.04 A\"; \"About 0.35 A\"; \"About 0.60 A\". Right, the first. Hint for the second: \"That is one line's healthy current, 277 ÷ 800. The fault passes three times as much.\" Hint for the third: \"That is one healthy line at 480 V. Two of them add, 60° apart.\" Why: \"One line's healthy current is 277 ÷ 800 = 0.35 A. Three times that is 1.04 A.[^2]\" A right Check presses 480 V check, with the fault on L1. Read: \"A 480 V, 60 Hz insulated system has 277 V a phase. Each line's capacitance to the hull has a reactance of 800 Ω. What does a solid first fault pass?\"\n\nEvery figure on these screens is an example value or worked from the rule above.",
+  "ignores": "The picture lumps each line's capacitance into a few capacitors, though it is spread along every metre of cable and every winding. It gives all three lines the same capacitance and draws the fault as a solid join. It leaves out insulation resistance, which lets a little more current through. The 0.25 µF a kilometre and 0.1 µF a drive are example values, and real cables and filters vary widely. A body is not a fixed 1,000 Ω. The currents are r.m.s. values of alternating currents, so the arrows really turn sixty times a second.",
+  "numbers": [
+   {
+    "label": "Screen, 1 to 12 (the stepper)",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Number of screens",
+    "value": 12,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example line voltage of the supply, in volts",
+    "value": 440,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example supply frequency, in hertz",
+    "value": 60,
+    "kind": "assumed"
+   },
+   {
+    "label": "Square root of 3, to three decimal places",
+    "value": 1.732,
+    "kind": "constant"
+   },
+   {
+    "label": "Voltage of each line to earth when healthy, 440 ÷ 1.732, in volts",
+    "value": 254,
+    "kind": "computed"
+   },
+   {
+    "label": "ω, 2π × 60, in radians per second",
+    "value": 377,
+    "kind": "computed"
+   },
+   {
+    "label": "Angle between the three healthy charging currents, in degrees",
+    "value": 120,
+    "kind": "constant"
+   },
+   {
+    "label": "Angle between the two healthy lines' currents in a fault, in degrees",
+    "value": 60,
+    "kind": "computed"
+   },
+   {
+    "label": "Example cable capacitance a line, in µF per kilometre",
+    "value": 0.25,
+    "kind": "assumed"
+   },
+   {
+    "label": "Cable length slider, opening value, in kilometres",
+    "value": 4,
+    "kind": "control"
+   },
+   {
+    "label": "Cable length slider range, in kilometres",
+    "value": "0.5 to 16, steps of 0.5",
+    "kind": "control"
+   },
+   {
+    "label": "Example filter capacitance per drive, in µF a line",
+    "value": 0.1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example number of drives switched in",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "Capacitance a line at 4 km, no drives, in µF",
+    "value": 1,
+    "kind": "computed"
+   },
+   {
+    "label": "Reactance of 1 µF at 60 Hz, in ohms",
+    "value": 2650,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong answer on screen 2: ω, in ohms",
+    "value": 377,
+    "kind": "computed"
+   },
+   {
+    "label": "Healthy charging current a line at 1 µF, in milliamps",
+    "value": 96,
+    "kind": "computed"
+   },
+   {
+    "label": "Each healthy line's current with L1 faulted, 1 µF, in milliamps",
+    "value": 166,
+    "kind": "computed"
+   },
+   {
+    "label": "Rise in each healthy line's voltage and current, 440 ÷ 254",
+    "value": 1.73,
+    "kind": "computed"
+   },
+   {
+    "label": "Fault current at 1 µF a line, in milliamps",
+    "value": 287,
+    "kind": "computed"
+   },
+   {
+    "label": "Fault current over one line's healthy current",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Capacitance a line at 8 km, or 4 km with drives, in µF",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Healthy charging current a line at 2 µF, in milliamps",
+    "value": 192,
+    "kind": "computed"
+   },
+   {
+    "label": "Fault current at 2 µF a line, in milliamps",
+    "value": 575,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong answer on screen 8, four times 287 mA, in amps",
+    "value": 1.15,
+    "kind": "computed"
+   },
+   {
+    "label": "Example body resistance, in ohms",
+    "value": 1000,
+    "kind": "assumed"
+   },
+   {
+    "label": "Body current at 1 µF a line, in milliamps",
+    "value": 190,
+    "kind": "computed"
+   },
+   {
+    "label": "Body current at 0.5 km, in milliamps",
+    "value": 36,
+    "kind": "computed"
+   },
+   {
+    "label": "Usual socket RCD rated tripping current, in milliamps",
+    "value": 30,
+    "kind": "constant"
+   },
+   {
+    "label": "Capacitance a line at 16 km with drives, in µF",
+    "value": 5,
+    "kind": "computed"
+   },
+   {
+    "label": "Healthy charging current a line at 5 µF, in milliamps",
+    "value": 479,
+    "kind": "computed"
+   },
+   {
+    "label": "One healthy line at 440 V, 5 µF, in milliamps",
+    "value": 830,
+    "kind": "computed"
+   },
+   {
+    "label": "Fault current at 5 µF a line, in amps",
+    "value": 1.44,
+    "kind": "computed"
+   },
+   {
+    "label": "480 V check: line voltage, in volts",
+    "value": 480,
+    "kind": "assumed"
+   },
+   {
+    "label": "480 V check: voltage a phase, 480 ÷ 1.732, in volts",
+    "value": 277,
+    "kind": "computed"
+   },
+   {
+    "label": "480 V check: reactance a line, in ohms",
+    "value": 800,
+    "kind": "assumed"
+   },
+   {
+    "label": "480 V check: capacitance a line, 1 ÷ (377 × 800), in µF",
+    "value": 3.3,
+    "kind": "computed"
+   },
+   {
+    "label": "480 V check: healthy current a line, 277 ÷ 800, in amps",
+    "value": 0.35,
+    "kind": "computed"
+   },
+   {
+    "label": "480 V check: one healthy line at 480 V, 480 ÷ 800, in amps",
+    "value": 0.6,
+    "kind": "computed"
+   },
+   {
+    "label": "480 V check: fault current, in amps",
+    "value": 1.04,
+    "kind": "computed",
+    "source": 2
+   },
+   {
+    "label": "Capacitance carrying about 1 A at 277 V, in µF",
+    "value": 10,
+    "kind": "constant",
+    "source": 4
+   },
+   {
+    "label": "Charging current through about 10 µF at 277 V, in amps",
+    "value": 1,
+    "kind": "constant",
+    "source": 4
+   },
+   {
+    "label": "Worked example: fault current added per µF a line on 440 V, in amps",
+    "value": 0.29,
+    "kind": "computed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "An insulated supply has no tie to earth, but it is still joined to it. Every cable and winding is a capacitor to the hull. So the whole system is joined to earth through its capacitance.[^1] A first earth fault drives current round through that capacitance, three times what one line passes when healthy. The bigger the system, the bigger that current.\n\nTake one line of a feeder. Its copper and the hull are two plates, with the insulation between them. On AC the plates charge and discharge 60 times a second. So a current flows in the line, even though no charge crosses the insulation. That is the line's [[charging current]]. A capacitor passes ω × C × V. Here ω = 2π × 60 = 377, C is the capacitance and V the voltage across it. Say each line has 1 µF to the hull on a 440 V supply. Healthy, each line sits 254 V from earth, so it passes 377 × 0.000001 × 254 = 96 mA. The three currents sit 120° apart, like their voltages. Laid head to tail they close into a triangle. So they cancel in the hull, as a balanced load's neutral current does.\n\nNow L1 faults solidly to the hull. The hull moves to L1, as in the shifting triangle. L1's capacitance now has no voltage across it and passes nothing. L2 and L3 each sit 440 V from the hull, 1.73 times their healthy voltage. So each passes 1.73 × 96 = 166 mA. Both voltages are measured from L1's corner of the triangle, so they sit 60° apart, and so do their currents. Two equal arrows 60° apart add to 1.73 times one of them. So the sum is 1.73 × 1.73 = 3 times the healthy current, 287 mA. There is no tie for it to go home by. It leaves the supply on L2 and L3 and crosses their capacitance into the hull. Then it returns through the fault into L1.[^2]\n\nC grows with the system. Every length of cable and every drive's filter adds capacitance in parallel, so the values add. The larger the system, the lower its impedance to earth.[^3] Double the cable and the fault current doubles. A small system passes milliamps. A 480 V system with 800 Ω of reactance a line passes 1.04 A.[^2] The same capacitance closes the loop through a person who touches one line. So an insulated supply is not safe to touch. This is a simplified model. It gives every line the same capacitance and ignores insulation resistance, which adds a little more current. **A first earth fault on an insulated supply passes three times one line's healthy charging current, 3 × ω × C × V_phase, so it grows with the system.**"
+ },
+ "analogy": {
+  "text": "Put enough computers on one 30 mA RCD and it can trip with no fault anywhere. Each one's mains filter has small capacitors to earth, and their leakage currents add. An insulated system's cables, windings and drive filters add up the same way, so a big system has a lot of capacitance to the hull.",
+  "breaks": "On that RCD circuit the leakage returns to an earthed star point all the time. On an insulated supply the three healthy currents cancel, and the sum, three times one line's, only appears when a fault or a person gives it a way through."
+ },
+ "practice": {
+  "text": "- Safety first: an insulated supply can drive a dangerous current through you with no fault on it at all. The cables' capacitance closes the loop. Isolate and prove dead as on any job.\n- To estimate a first fault's current, find the phase voltage: the line voltage ÷ 1.732.\n- Add up the capacitance a line to earth: cables, windings and drive filters, all in parallel.\n- Work out one line's healthy charging current: 2π × the frequency × C × V_phase.\n- Multiply by 3 for the first-fault current.\n- Expect it to grow as feeders and drives are added.\n\n**Rules of thumb:** On 440 V at 60 Hz, each microfarad a line adds about 0.29 A to the first-fault current. About 10 µF on a 277 V phase carries about 1 A of charging current.[^4]\n\n**Worked example:** A 440 V, 60 Hz insulated system has 4 km of cable at 0.25 µF a kilometre a line. That is 1 µF a line. Ten drives add 0.1 µF a line each, another 1 µF. So C is 2 µF a line. One line's healthy charging current is 377 × 0.000002 × 254 = 192 mA. A solid first fault passes 3 × 192 = 575 mA.\n\n**Common mistakes**\n- Thinking no current can flow with no return path. The capacitance is the return path.\n- Treating a capacitor as a barrier. It blocks steady DC, but passes AC.\n- Assuming a first fault always passes only milliamps. It grows with the system, to amps on a big one.\n- Multiplying by 1.73 instead of 3. That is one healthy line at line voltage. Two of them add."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "simplified",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "sources": [
+  {
+   "n": 1,
+   "title": "Characteristics of different power systems neutral grounding techniques: Fact and fiction",
+   "url": "https://www.eaton.com/content/dam/eaton/products/medium-voltage-power-distribution-control-systems/vacclad-w-pages/characteristics-power%20systems-neutral-grounding-techniques-fact-fiction-ap083005en.pdf",
+   "quote": "although called ungrounded, this type of system is in reality coupled to ground through the distributed capacitance of its phase windings and conductors."
+  },
+  {
+   "n": 2,
+   "title": "Characteristics of different power systems neutral grounding techniques: Fact and fiction",
+   "url": "https://www.eaton.com/content/dam/eaton/products/medium-voltage-power-distribution-control-systems/vacclad-w-pages/characteristics-power%20systems-neutral-grounding-techniques-fact-fiction-ap083005en.pdf",
+   "quote": "there is no direct ground path back to the neutral point of the source in Figure 3b , the current must return through the distributed capacitance (insulation system) of the two unfaulted phases. As indicated, only 1.04 A will flow."
+  },
+  {
+   "n": 3,
+   "title": "Technical aspects IT systems",
+   "url": "https://fournais-bender.dk/storage/TechnAspects-IT-systems.pdf",
+   "quote": "The limits of an IT system are largely determined by its expansion. The larger the system, the smaller the impedance between active conductors and earth."
+  },
+  {
+   "n": 4,
+   "title": "Transient overvoltages on ungrounded systems from intermittent ground faults",
+   "url": "https://www.eaton.com/content/dam/eaton/markets/healthcare/knowledge-center/white-paper/transient-overvoltages-on-ungrounded-systems-from-intermittent-ground-faults.pdf",
+   "quote": "A capacitance of approximately 10µF on a 277 V system, then, will result in approximately 1 ampere of continuous (charging) current through that capacitance."
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }

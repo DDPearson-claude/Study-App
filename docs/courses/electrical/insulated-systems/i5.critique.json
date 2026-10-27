@@ -1,0 +1,32 @@
+{
+  "draft": "i5.lesson.draft1.txt",
+  "validator": "draft 1 passes with no problems, soft points or warnings",
+  "research": "The research for i5 held only the injection principle, the classification-society requirement, three alarm levels and the first-fault delay. Nine quotes already checked for the brief (notes 4.5: GL's 50 ohms per volt, Bender's three-lightbulb blind spot, the parallel total, Cahier 178's earth lamps, one monitor per system, settling with capacitance, humidity, the 20% first setting) were appended to research.reply.txt as sources 33 to 41 and research.json regenerated with sources.mjs (kept 41, dropped 0; sources 1 to 32 and every other idea's notes unchanged).",
+  "keep": [
+    "The idea is named up front: the monitor pushes DC between the system and the hull and reads the resistance of everything connected; where to alarm is disputed.",
+    "The picture is the brief's Lamps and the monitor: three earth lamps following the shifting triangle's rule, Damp everywhere keeping them equal while the dial falls, a dial reading all six feeders in parallel against an alarm line picked as 50, 100 or 500 ohms per volt (22, 44, 220 kΩ on 440 V), settling slowed by capacitance.",
+    "Every figure recomputed: 440 ÷ 1.732 = 254 V; 3,000 ÷ 6 = 500 kΩ; 120 ÷ 6 = 20 kΩ; 500 ∥ 30 = 28.3 kΩ; 500 ∥ 150 = 115 kΩ; 500 ∥ 500 = 250 kΩ; 500 ∥ 1 = 0.998 kΩ; 1 ÷ (2π × 60 × 3 µF) = 884 Ω; lamps at 1 kΩ on L1 = 190, 256, 420 V (matches lesson 2); at 30 kΩ = 254, 248, 261 V; worked example 1 ÷ 0.027 = 37 kΩ; 50 ÷ 0.1 = 500.",
+    "Each brief misconception has a DO screen with its own hints: equal lamps mean healthy (4), one ohms-per-volt rule (10, with the 28.3 kΩ reading the brief asked for), two monitors on one system (11). Plus settling and capacitance (12) and the parallel total (8).",
+    "Twelve screens: SHOW 1, 3, 5, 7, 9 (about 75 to 88 words each) alternate with DO 2, 4, 6, 8, ending on three mixed puzzles 10 to 12. The recall opener (HV Subsea Cable Testing lesson 5, VLF at 0.1 Hz) sits on screen 6, straight after the screen that needs it, and says Still there.",
+    "Footnotes only on values and rules he would look up (the three alarm levels, the injection principle, the requirement, the blind spot, one monitor, the first-fault delay); no source named in a sentence beyond the kind of document, which the disagreement needs."
+  ],
+  "faults": [
+    { "fault": "explanation skipping the causal step", "found": true, "where": "explain paragraph 3 and screen 7: the lamps barely moving for a 30 kΩ fault is put down to the capacitance 'holding' the hull, without the step that the 30 kΩ fault is weak beside the capacitance's 884 Ω to the hull." },
+    { "fault": "false absolutes", "found": true, "where": "screen 12's hint 'Resistance changes where the dial settles, not how long it takes' is false of a real monitor, whose time constant also depends on the resistance. Screen 11's hint 'It trips nothing' is broader than needed. Screen 1's 'nothing on the board shows it' contradicts the lamps and monitor on that very board." },
+    { "fault": "brief shows effect not cause", "found": false, "note": "the brief names the cause (every phase's insulation falling equally) and both effects (equal lamps, falling dial)." },
+    { "fault": "checks test recall", "found": false, "note": "taught mode, no checks; DO screens apply the rules to new numbers and cases." },
+    { "fault": "thin or decorative research", "found": false, "note": "after the top-up every claim the lesson rests on has a quote." },
+    { "fault": "unreadable labels", "found": false, "note": "pickers and five readout tiles wrap on a phone; no label is a shade." },
+    { "fault": "talks about the idea instead of teaching it", "found": false }
+  ],
+  "plain_writing": [
+    "'Alarm levels are set in ohms per volt, multiplied by the operating voltage' reads as if the setting itself were multiplied. Say: set in ohms per volt; multiply by the operating voltage to get ohms (explain and screen 9).",
+    "Screen 5: '1 µF a phase looks like 884 Ω to the hull, all three together' is clumsy. Say 'three phases of 1 µF look like 884 Ω'.",
+    "'This is a simplified model: it treats…' is a colon chain. Split.",
+    "The bold takeaway leaves out the disagreement, half of what he should come away with. Rewrite as one sentence carrying both.",
+    "The contested view from the white paper adds 'a level that warns much earlier', which is not in its quote. Cut it.",
+    "Practice: 'Which one is taught with generators and paralleling' reads oddly. Say where the choice belongs in plain words."
+  ],
+  "shape": "Matches the recommended shape: idea up front, rule in words (parallel total; ohms per volt × volts), a worked example with real numbers (explain 500 and 28.3 kΩ against 22, 44, 220 kΩ; practice 37 kΩ), the misconception shown failing (Damp everywhere), a trade analogy (the insulation tester left on the live board) with where it breaks, practice with steps, a rule of thumb, a worked example and mistakes, a sayable recap.",
+  "verdict": "Rewrite as draft 2: add the 30 kΩ against 884 Ω step, fix the three absolutes, the ohms-per-volt wording, the takeaway and the view text."
+}

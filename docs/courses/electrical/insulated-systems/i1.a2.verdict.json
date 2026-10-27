@@ -1,0 +1,147 @@
+{
+  "ok": true,
+  "reachChecked": true,
+  "problems": [],
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "Twelve screens: five that show and seven puzzles, alternating to the ninth and ending on three mixed puzzles",
+        "ok": true
+      },
+      {
+        "label": "Each winding of the 440 V supply has 440 ÷ 1.732 = 254 V across it",
+        "ok": true
+      },
+      {
+        "label": "The fault current is 254 V over the loop: 508 A on TN (0.5 Ω), 2.3 A on TT (10 + 100 = 110 Ω), 2.5 mA on IT (100 kΩ) and 0.17 A through 1,500 Ω, as the readout shows them",
+        "ok": true
+      },
+      {
+        "label": "What happens: the breaker trips on TN, the RCD on TT, and on IT and through 1,500 Ω the supply runs on with the alarm lit",
+        "ok": true
+      },
+      {
+        "label": "Screen 6: electrodes of 20 Ω and 200 Ω make a 220 Ω loop, so 254 ÷ 220 = 1.15 A, shown as 1.2 A, and the RCD trips",
+        "ok": true
+      },
+      {
+        "label": "The more the loop resists, the less current flows: most on TN, then TT, then High impedance, least on IT",
+        "ok": true
+      },
+      {
+        "label": "Every lit loop is closed: it leaves the star point up L1's winding and comes back to the star point",
+        "ok": true
+      },
+      {
+        "label": "The trip or the alarm shows within 3 s of the fault going on",
+        "ok": true
+      },
+      {
+        "label": "Before an answer, no puzzle's picture shows its result: no fault is on, no loop is lit, and the switch is not yet where a right answer sets it",
+        "ok": true
+      },
+      {
+        "label": "T stands for earth, from the French word terre, and I for isolated: the TN and TT drawings tie the star point to earth, and the IT drawing does not",
+        "ok": true,
+        "source": "https://electrical.theiet.org/media/1698/earthing-your-questions-answered.pdf"
+      },
+      {
+        "label": "In a TN system the first fault is interrupted by overcurrent protection, a circuit-breaker: here the breaker trips",
+        "ok": true,
+        "source": "https://www.electrical-installation.org/enwiki/Characteristics_of_TT,_TN_and_IT_systems"
+      },
+      {
+        "label": "In an IT system the source is isolated from earth while the exposed conductive parts are connected to earth: the IT drawing joins the star point to nothing and still bonds the frame to the hull",
+        "ok": true,
+        "source": "https://electrical.theiet.org/media/1469/railway-systems_tm-granger.pdf"
+      },
+      {
+        "label": "In an IT system the first fault to earth causes no disconnection, and the current that flows is measured in mA",
+        "ok": true,
+        "source": "https://www.electrical-installation.org/enwiki/IT_system_-_Fault_protection"
+      },
+      {
+        "label": "Unearthed distribution prevents the immediate loss of an essential service from an earth fault: on IT the motor runs on",
+        "ok": true,
+        "source": "https://library.imarest.org/record/2202/files/2229.pdf"
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step"
+    ],
+    "readouts": [
+      "amps",
+      "supply"
+    ],
+    "outputs": [],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Screen",
+        "min": 0,
+        "max": 11,
+        "step": 1,
+        "steps": [
+          "Two letters",
+          "Reading IT",
+          "TN: the loop closes",
+          "Why TN trips",
+          "TT: two electrodes",
+          "A TT fault",
+          "IT: no way home",
+          "A floating star point",
+          "High impedance",
+          "Why insulate?",
+          "Which system?",
+          "TN-S"
+        ],
+        "value": 0
+      }
+    ],
+    "actions": [
+      "TN",
+      "TT",
+      "IT",
+      "High impedance",
+      "Fault on L1",
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Back",
+      "Continue",
+      "Start again",
+      "The fault current"
+    ],
+    "answers": [],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ],
+    "foreign": [],
+    "unreachable": []
+  }
+}

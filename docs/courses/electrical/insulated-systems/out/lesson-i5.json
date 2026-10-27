@@ -1,0 +1,580 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-27T17:07:55.171Z",
+ "startedAt": "2026-10-27T17:07:55.171Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i5",
+  "title": "Watching the insulation live",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the monitor's dial falling below its alarm line while the three earth lamps stay equal. That happens when you switch on Damp everywhere and every phase's insulation falls equally.",
+   "title": "Lamps and the monitor",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Screen",
+     "min": 0,
+     "max": 11,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [],
+   "whatAmILookingAt": "Twelve small screens on one picture, with Back and Continue. Five show an idea and seven ask you to try it. No marks and no timers.\n\nThe picture. A 440 V insulated switchboard sits at the top with three bars, L1, L2 and L3. Six feeders leave it, numbered 1 to 6. Under them runs a thick bar, the hull, which is earth. On the left, three earth lamps each join one bar to the hull. Their common lead runs through a Test button, drawn held down. Each lamp's brightness follows its phase's voltage to earth. On the right, an insulation monitor joins the system to the hull. A thin arrow traces its small DC current. The current goes out into the system, through every leak to the hull, and back to the monitor. Its dial reads in kilohms. The scale squeezes the high values together. A red alarm line runs across it, labelled with its level in kilohms. While the dial creeps, the word measuring shows under the monitor's alarm lamp. A capacitor symbol from the bars to the hull stands for the cables' capacitance.\n\nThe controls sit under the picture, in rows that wrap on a phone. A phase picker has three buttons: L1, L2 and L3. A picker, Fault on feeder 3, offers Open, 500 kΩ, 150 kΩ, 30 kΩ, 1 kΩ and Solid. A switch is labelled Damp everywhere. A picker, Alarm level, offers 50 Ω/V, 100 Ω/V and 500 Ω/V. A slider, Capacitance a phase, runs from 1 to 10 µF in steps of 1 µF.\n\nThe readouts sit in tiles that wrap onto more rows on a phone. L1 lamp, L2 lamp and L3 lamp read in volts. Monitor reads and Alarm level read in kilohms.\n\nThe rule it computes. Say the supply is 440 V between lines at 60 Hz. Each line is then 440 ÷ 1.732 = 254 V from the star point. Each feeder's insulation to the hull is an example 3 MΩ. With Damp everywhere on, it is 120 kΩ. These leaks are the same on all three phases. The six feeders are in parallel. Together they make R_sym = 3,000 ÷ 6 = 500 kΩ. When damp, they make 120 ÷ 6 = 20 kΩ. The fault, R_F, joins the chosen phase of feeder 3 to the hull. The monitor's DC sees every resistive path in parallel. Once the capacitance has charged, no DC passes through it. So Monitor reads = 1 ÷ (1 ÷ R_sym + 1 ÷ R_F). With the fault open, it reads R_sym. With a solid fault, it reads 0. Alarm level = the chosen ohms per volt × 440 V. When Monitor reads falls below it, the alarm line and the monitor's lamp turn red.\n\nThe lamps follow the shifting triangle's rule, with the leaks added. The hull sits a distance E from the star point, towards the faulted phase. E = 254 ÷ |1 + R_F ÷ R_sym + j × 3 × 2π × 60 × C × R_F|. Here C is the capacitance a phase. Each lamp's voltage is the distance from the hull to its phase's tip. With no fault, damp or dry, E is 0 and each lamp reads 254 V. With a solid fault, E is 254 V. The faulted phase's lamp reads 0 V and goes out. The other two read 440 V and glow brighter. In between, the capacitance holds the hull near the star point. At 60 Hz, three phases of 1 µF each look like 1 ÷ (2π × 60 × 3 µF) = 884 Ω to the hull. That is far less than a 30 kΩ fault.\n\nThe dial's settling. When a setting changes, the dial creeps to its new reading. The monitor's DC must first charge the capacitance. The creep is a sketch. Its time constant is in proportion to the capacitance, and it settles in five time constants. So 5 µF a phase settles five times as slowly as 1 µF. Its seconds are not a real monitor's.\n\nThe opening setting has no fault and Damp everywhere off. The alarm level is 100 Ω/V and the capacitance is 1 µF a phase. The lamps read 254 V each, the monitor reads 500 kΩ and the alarm level is 44 kΩ. The three alarm levels on 440 V are 50 × 440 = 22 kΩ, 100 × 440 = 44 kΩ and 500 × 440 = 220 kΩ. Damp everywhere with no fault reads 20 kΩ, below all three, with the lamps still at 254 V. Dry, a 500 kΩ fault reads 250 kΩ. A 150 kΩ fault reads 115 kΩ, and a 30 kΩ fault reads 28.3 kΩ. A 1 kΩ fault reads 0.998 kΩ, and a solid one reads 0. At 1 µF a phase, a 30 kΩ fault on L1 leaves its lamp at about 254 V. The others read about 248 V and 261 V. A 1 kΩ fault on L1 gives about 190, 256 and 420 V.\n\nScreen 1, show. No fault, dry. The words: \"A first fault trips nothing, so no breaker tells you it is there. Yet it leaves the healthy phases one failure from a short through the hull. So ship rules require every insulated system to watch its insulation and alarm when it runs low.[^1] Three earth lamps each join one phase to the hull. They light only while you hold their Test button. On a healthy board, each sees 254 V, so all three glow the same. Beside them, an insulation monitor's dial reads 500 kΩ.\" Still: no fault, dry.\n\nScreen 2, try it. \"A solid fault joins L2 to the hull. What voltage does L1's lamp now see?\" Three choices, in this order: \"254 V, so it looks the same\"; \"440 V, so it glows brighter\"; \"0 V, so it goes out\". Right, the second. Hint for the first: \"The hull has moved to L2. L1 is now a whole line voltage from it.\" Hint for the third: \"Only the lamp across the fault goes out, and that is L2's.\" Why: \"Each lamp shows its phase's voltage to earth. The hull now sits at L2, as in the shifting triangle. So L1 and L3 read the line voltage, 440 V, and glow brighter. The fault short-circuits L2's lamp, so it goes out.\" A right Check drops a solid fault on L2. Read: \"A solid fault joins L2 to the hull. What voltage does L1's lamp now see?\"\n\nScreen 3, show. Damp everywhere switched on, no fault. The words: \"Damp everywhere is now on. Every feeder's insulation falls to 120 kΩ, equally on all three phases. Three equal leaks balance, like a balanced star load. So the hull stays at the star point. Each lamp still sees 254 V, and all three stay equal. But the monitor's dial falls from 500 kΩ to 20 kΩ. Lamps only show an unbalance between the phases. A fall that is the same on every phase is invisible to them.\" Read: \"With every feeder's insulation down to 120 kΩ on all three phases, the lamps stay equal at 254 V. The monitor's dial falls from 500 kΩ to 20 kΩ.\" Still: Damp everywhere on, no fault.\n\nScreen 4, try it. \"After a wash-down, all three earth lamps glow equally. Is the insulation healthy?\" Three choices, in this order: \"Yes, as any fault would dim one lamp\"; \"Yes, as long as no lamp has gone out\"; \"Not necessarily, as an equal leak on every phase leaves them equal\". Right, the third. Hint for the first: \"A leak on one phase dims one lamp. An equal leak on all three dims none.\" Hint for the second: \"The lamps compare the phases. They cannot see all three falling together.\" Why: \"Equal leaks on all three phases balance. The hull stays at the star point, and each lamp keeps 254 V. Only the monitor's reading shows the fall.\" A right Check switches on Damp everywhere. Read: \"After a wash-down, all three earth lamps glow equally. Is the insulation healthy?\"\n\nScreen 5, show. No fault. Damp everywhere goes on at 1 µF a phase, and the dial settles quickly. Then the Capacitance a phase slider moves to 5 µF and Damp everywhere goes off, and the dial settles five times as slowly. The words: \"The monitor is like your insulation tester, left on the live board. It pushes a small DC voltage between the system and the hull, then measures the current that comes back. Why DC? The cables' capacitance passes AC. At 60 Hz, three phases of 1 µF look like 884 Ω to the hull. That would hide a 30 kΩ fault. At DC the capacitance charges, then passes nothing. Charging takes time, so the more capacitance, the slower the dial settles. Watch Damp everywhere go on at 1 µF, then off at 5 µF.\" Read: \"The monitor pushes a small DC voltage between the system and the hull. The capacitance must charge first, so at 5 µF a phase the dial settles five times as slowly as at 1 µF.\" Still: capacitance 5 µF a phase, dial settled at 500 kΩ.\n\nScreen 6, try it. \"A VLF test set runs a cable at 0.1 Hz instead of 50 Hz. At the same voltage, how does the cable's charging current compare?\" Three choices, in this order: \"500 times smaller\"; \"500 times larger\"; \"The same, as the cable is the same\". Right, the first. Hint for the second: \"X_C = 1 ÷ (2πfC). A lower frequency gives a larger reactance, so less current.\" Hint for the third: \"The capacitance is the same, but its reactance depends on the frequency.\" Why: \"The charging current is proportional to the frequency, and 50 ÷ 0.1 = 500. The monitor takes the same idea all the way to DC. Once charged, the capacitance passes no current at all.\" The dial opens settled at 500 kΩ. A right Check restarts the monitor, and the dial creeps back up as the capacitance charges. Read: \"A VLF test set runs a cable at 0.1 Hz instead of 50 Hz. At the same voltage, how does the cable's charging current compare?\"\n\nScreen 7, show. A 30 kΩ fault on feeder 3's L1, dry, 1 µF a phase. The words: \"The monitor's current returns through every leak, on every feeder and every phase. They are all in parallel, so the dial reads their total. Six feeders at 3 MΩ each make 500 kΩ. Add a 30 kΩ fault on feeder 3's L1. In parallel, 500 kΩ and 30 kΩ give 28.3 kΩ. The lamps barely move. The capacitance on all three phases holds the hull near the star point. A weak fault only nudges it sideways. So L2's lamp dims, not L1's. The dim lamp can point to the wrong phase.\" Read: \"Six feeders at 3 MΩ each read 500 kΩ together. With a 30 kΩ fault on feeder 3's L1, the dial reads 28.3 kΩ, while L1's lamp still reads about 254 V.\" Still: 30 kΩ fault on L1, dry, 1 µF.\n\nScreen 8, try it. \"Six feeders read 3 MΩ each, 500 kΩ together. Feeder 3 develops a 150 kΩ fault. What does the dial read?\" Three choices, in this order: \"650 kΩ\"; \"150 kΩ\"; \"About 115 kΩ\". Right, the third. Hint for the first: \"That adds them as if in series. Paths in parallel give less than the lowest one.\" Hint for the second: \"The healthy feeders still leak in parallel with the fault, so the total is lower still.\" Why: \"In parallel, 500 × 150 ÷ (500 + 150) = 115 kΩ. The total is always below the lowest single path.\" A right Check sets the fault to 150 kΩ. Read: \"Six feeders read 3 MΩ each, 500 kΩ together. Feeder 3 develops a 150 kΩ fault. What does the dial read?\"\n\nScreen 9, show. A 150 kΩ fault, dry, the Alarm level picker stepping through 50, 100 and 500 Ω/V. The words: \"Alarm levels are often set in ohms per volt, so they scale with the supply. Multiply by the operating voltage to get ohms. Ship rules set a minimum: the alarm must sound by 50 Ω/V.[^2] Boards are often set higher. A common setting is 100 Ω/V.[^3] An early warning sits at 500 Ω/V.[^4] On 440 V those are 22 kΩ, 44 kΩ and 220 kΩ. A 115 kΩ reading alarms only at 500 Ω/V. A higher level warns sooner. But a big or damp system may sit below it without any single fault.\" Read: \"On 440 V the three alarm levels are 22 kΩ, 44 kΩ and 220 kΩ. A 115 kΩ reading alarms only at 500 Ω/V.\" Still: 150 kΩ fault, alarm level 500 Ω/V.\n\nScreen 10, try it, the first of three mixed puzzles. \"The 440 V board's dial reads 28.3 kΩ. Which alarm levels sound?\" Three choices, in this order: \"All three\"; \"100 and 500 Ω/V, but not 50 Ω/V\"; \"Only 500 Ω/V\". Right, the second. Hint for the first: \"50 Ω/V on 440 V is 22 kΩ. The reading is above it.\" Hint for the third: \"100 Ω/V on 440 V is 44 kΩ. The reading is below it.\" Why: \"An alarm sounds when the reading falls below its level. 28.3 kΩ is below 44 kΩ and 220 kΩ, but above 22 kΩ. So the same fault alarms at one setting and not at another.\" A right Check sets a 30 kΩ fault and steps the alarm level through all three. Read: \"The 440 V board's dial reads 28.3 kΩ. Which alarm levels sound?\"\n\nScreen 11, try it. \"Two boards are coupled into one system, and each still has its own monitor running. What goes wrong?\" Three choices, in this order: \"Each monitor reads the other as a leak, so the readings are wrong\"; \"Nothing, as two monitors are safer than one\"; \"The monitors' current trips the coupling breaker\". Right, the first. Hint for the second: \"Each monitor is itself a path from the system to the hull.\" Hint for the third: \"A monitor's current is far too small to trip a breaker.\" Why: \"Each monitor joins the system to the hull through its own measuring circuit. To the other monitor, that is one more leak. Their two DC voltages also mix. So run only one monitor on a connected system.[^5]\" Read: \"Two boards are coupled into one system, and each still has its own monitor running. What goes wrong?\"\n\nScreen 12, try it. \"Ten drives with filters are added to the board. Now the dial takes longer to settle after every change. Why?\" Three choices, in this order: \"Their filters lower the insulation resistance\"; \"Their filters add capacitance to the hull, which the DC must charge\"; \"The monitor counts each drive as a feeder to read\". Right, the second. Hint for the first: \"Lower resistance would change the reading. If anything, it would make the dial settle faster.\" Hint for the third: \"The dial reads all paths together in one measurement, however many there are.\" Why: \"Each filter is a capacitor to the hull, just like the cables' own capacitance. The monitor's DC must charge all of it before the current steadies. More capacitance means a longer wait.\" A right Check steps the capacitance from 1 to 2 µF a phase. Read: \"Ten drives with filters are added to the board. Now the dial takes longer to settle after every change. Why?\"\n\nEvery figure on these screens is an example value, a published alarm level, or worked from the rule above.",
+   "ignores": "The picture draws the lamps lit, as if their Test button is held down, and treats them as voltmeters. Real earth lamps are a low path to the hull, low enough to pull the monitor below every alarm level. That is why they are switched in only to test, and why the monitor's reading here leaves them out. It gives every feeder the same insulation on all three phases. Damp everywhere uses one example value. Real leaks are uneven. The fault always sits on feeder 3. The dial's settling is a sketch that scales with the capacitance alone. A real monitor's time also depends on its own internal resistance and on the leaks. The monitor's reading leaves out its own path to the hull. The voltages are r.m.s. values.",
+   "numbers": [
+    {
+     "label": "Screen, 1 to 12 (the stepper)",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Number of screens",
+     "value": 12,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example line voltage of the supply, in volts",
+     "value": 440,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example supply frequency, in hertz",
+     "value": 60,
+     "kind": "assumed"
+    },
+    {
+     "label": "Square root of 3, to three decimal places",
+     "value": 1.732,
+     "kind": "constant"
+    },
+    {
+     "label": "Voltage of each line to the star point, 440 ÷ 1.732, in volts",
+     "value": 254,
+     "kind": "computed"
+    },
+    {
+     "label": "Number of feeders on the board",
+     "value": 6,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example insulation of each feeder, dry, in megohms",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Six feeders in parallel, dry, in kilohms",
+     "value": 500,
+     "kind": "computed"
+    },
+    {
+     "label": "Example insulation of each feeder, damp, in kilohms",
+     "value": 120,
+     "kind": "assumed"
+    },
+    {
+     "label": "Six feeders in parallel, damp, in kilohms",
+     "value": 20,
+     "kind": "computed"
+    },
+    {
+     "label": "Fault picker settings, in kilohms",
+     "value": "Open, 500, 150, 30, 1, Solid",
+     "kind": "control"
+    },
+    {
+     "label": "Capacitance a phase, opening value, in microfarads",
+     "value": 1,
+     "kind": "control"
+    },
+    {
+     "label": "Capacitance slider range, in microfarads",
+     "value": "1 to 10, steps of 1",
+     "kind": "control"
+    },
+    {
+     "label": "Ship classification rule's alarm level, in ohms per volt",
+     "value": 50,
+     "kind": "constant",
+     "source": 2
+    },
+    {
+     "label": "Maker's guide's advised alarm level, in ohms per volt",
+     "value": 100,
+     "kind": "constant",
+     "source": 3
+    },
+    {
+     "label": "Maker's white paper's typical level, in ohms per volt",
+     "value": 500,
+     "kind": "constant",
+     "source": 4
+    },
+    {
+     "label": "Alarm level at 50 Ω/V on 440 V, in kilohms",
+     "value": 22,
+     "kind": "computed"
+    },
+    {
+     "label": "Alarm level at 100 Ω/V on 440 V, in kilohms",
+     "value": 44,
+     "kind": "computed"
+    },
+    {
+     "label": "Alarm level at 500 Ω/V on 440 V, in kilohms",
+     "value": 220,
+     "kind": "computed"
+    },
+    {
+     "label": "Monitor reads, 500 kΩ fault, in kilohms",
+     "value": 250,
+     "kind": "computed"
+    },
+    {
+     "label": "Monitor reads, 150 kΩ fault, in kilohms",
+     "value": 115,
+     "kind": "computed"
+    },
+    {
+     "label": "Monitor reads, 30 kΩ fault, in kilohms",
+     "value": 28.3,
+     "kind": "computed"
+    },
+    {
+     "label": "Monitor reads, 1 kΩ fault, in kilohms",
+     "value": 0.998,
+     "kind": "computed"
+    },
+    {
+     "label": "Wrong answer on screen 8: 500 + 150, in kilohms",
+     "value": 650,
+     "kind": "computed"
+    },
+    {
+     "label": "Three phases of 1 µF at 60 Hz, to the hull, in ohms",
+     "value": 884,
+     "kind": "computed"
+    },
+    {
+     "label": "Lamp on the faulted phase, solid fault, in volts",
+     "value": 0,
+     "kind": "computed"
+    },
+    {
+     "label": "Lamps on the healthy phases, solid fault, in volts",
+     "value": 440,
+     "kind": "computed"
+    },
+    {
+     "label": "L1 lamp, 30 kΩ fault on L1, 1 µF, in volts",
+     "value": 254,
+     "kind": "computed"
+    },
+    {
+     "label": "L2 and L3 lamps, 30 kΩ fault on L1, in volts",
+     "value": "248 and 261",
+     "kind": "computed"
+    },
+    {
+     "label": "Lamps, 1 kΩ fault on L1, 1 µF, in volts",
+     "value": "190, 256 and 420",
+     "kind": "computed"
+    },
+    {
+     "label": "Settling, 5 µF against 1 µF a phase, times as slow",
+     "value": 5,
+     "kind": "computed"
+    },
+    {
+     "label": "Recall: VLF test frequency, in hertz",
+     "value": 0.1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Recall: supply frequency compared, in hertz",
+     "value": 50,
+     "kind": "assumed"
+    },
+    {
+     "label": "Recall: charging current ratio, 50 ÷ 0.1",
+     "value": 500,
+     "kind": "computed"
+    },
+    {
+     "label": "Drives with filters added on screen 12",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Capacitance a phase after the drives on screen 12, in microfarads",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example: feeders, in kilohms",
+     "value": "2,000, 2,000, 1,000 and 40",
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example: monitor reads, in kilohms",
+     "value": 37,
+     "kind": "computed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "An [[insulation monitor]] watches an insulated system's insulation while it runs. It pushes a small DC voltage, or a very slow AC one, between the system and the hull. From the current that comes back, it finds the resistance to the hull of everything connected, all at once. Ship rules set the lowest level at which it must alarm, and many boards are set above that.\n\nThe older way to watch is three [[earth lamps]], each joining one phase to the hull. Each lamp shows its phase's voltage to earth. The lamps are a path to the hull themselves, so they are switched in only while you test.[^6] On a healthy 440 V supply, all three see 254 V and glow the same. A solid fault on L1 moves the hull to L1, as in the shifting triangle. L1's lamp goes out. L2's and L3's lamps see 440 V and glow brighter. But lamps only compare the phases. Suppose damp lowers the insulation equally on all three. Three equal leaks balance, as a balanced star load does. So the hull stays at the star point. Each lamp still sees 254 V, and all three stay equal. Lamps cannot see a fall that is the same on every phase.\n\nThe monitor measures resistance instead, like your insulation tester left connected. It uses DC, or very slow AC, because the cables' capacitance passes mains-frequency AC. At 60 Hz, three phases of 1 µF look like 884 Ω to the hull. That would swamp a 30 kΩ fault. At DC the capacitance charges and then passes nothing, so only the leakage resistance is left. Every leak, on every feeder and phase, is a path in parallel. So the monitor reads their total. Say six feeders read 3 MΩ each. Together that is 3,000 ÷ 6 = 500 kΩ. A 30 kΩ fault on one feeder brings the total to 500 × 30 ÷ 530 = 28.3 kΩ. The reading sits below even the lowest path. The lamps barely move for that fault. Beside the capacitance's 884 Ω, a 30 kΩ fault is weak, so the hull stays near the star point. The capacitance still has to charge first. So the more capacitance there is, the slower the reading settles.\n\nAlarm levels are often set in [[ohms per volt]]. Multiply by the operating voltage to get ohms. Ship rules set a minimum: the alarm must sound by 50 Ω/V.[^2] Boards are often set higher. A common setting is 100 Ω/V.[^3] An early warning sits at 500 Ω/V.[^4] On 440 V those are 22 kΩ, 44 kΩ and 220 kΩ. So the 28.3 kΩ reading alarms at 100 and 500 Ω/V, but not at 50 Ω/V. A higher level warns sooner. But a large or damp system can sit below it without any single fault. This is a simplified model. It treats the lamps as voltmeters and gives every phase the same leak. **A monitor reads the whole system's resistance to the hull with DC or a very slow signal. Its alarm must sound by the rules' minimum, and is often set higher to warn sooner.**"
+  },
+  "analogy": {
+   "text": "An insulation monitor is your insulation resistance tester, left on the live board for good. Like the tester, it drives DC between the conductors and earth and reads the resistance. Like the tester on a long cable, it must wait for the capacitance to charge before the reading settles.",
+   "breaks": "Your tester checks a dead circuit at a high test voltage, one circuit at a time. The monitor uses a small voltage on a live system and reads every connected circuit at once, in parallel. So on its own it tells you the system is low, but not which circuit is to blame."
+  },
+  "practice": {
+   "text": "- Safety first: an insulation alarm can mean a first fault is already there. Treat it as urgent. Find and clear it with the shortest practicable delay.[^7]\n- Read the monitor, not just the lamps. Equal lamps can hide an equal leak on every phase.\n- Turn the alarm level into ohms: ohms per volt × the operating voltage.\n- Compare the dial with that figure. A reading below it is an alarm.\n- On a large system, give the dial time to settle before you read it.\n- A slow fall across the whole board after a shutdown or a wash-down often points to damp. A sudden drop more often points to one new fault.\n- Run one monitor on each connected system.[^5] When two boards are coupled, switch one monitor off. Which one to switch off is a question for generators and paralleling.\n\n**Rule of thumb:** The total is always below the lowest single path. So one bad feeder drags the whole reading down.\n\n**Worked example:** A 440 V board has four feeders reading 2 MΩ, 2 MΩ, 1 MΩ and 40 kΩ to the hull. Combine them in parallel, in kilohms: 1 ÷ (1/2,000 + 1/2,000 + 1/1,000 + 1/40) = 37 kΩ. A 100 Ω/V alarm is 44 kΩ, so it sounds. A 50 Ω/V alarm is 22 kΩ, so it stays quiet.\n\n**Common mistakes**\n- Taking equal lamps as healthy insulation.\n- Adding the feeders' resistances. They are in parallel, so the total is lower than any one of them.\n- Reading the dial before it has settled.\n- Running two monitors on one connected system.\n- Treating one ohms-per-volt figure as the rule. Use the level set by your system's rules and by its monitor's maker."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "Electrical Safety Solutions for Harbours and Vessels",
+    "url": "https://www.benderinc.com/fileadmin/content/BenderGroup/Documents/Article/en/Harbours_and_Vessels_6.12.20_compressed.pdf",
+    "quote": "the classification societies require for each isolated system (unearthed IT system) an insulation monitoring device (IMD) for continuous monitoring and alarming in the event of abnormally low levels."
+   },
+   {
+    "n": 2,
+    "title": "(I-1-3) Electrical Installations",
+    "url": "http://www.iqytechnicalcollege.com/gl_i-1-3_e.pdf",
+    "quote": "Devices for insulation monitoring of ships mains shall continuously monitor the insulation resistance of the network, and shall release an alarm should the insulation resistance of the system fall below 50 ohms per volt of the operating voltage."
+   },
+   {
+    "n": 3,
+    "title": "Technical aspects IT systems",
+    "url": "https://fournais-bender.dk/storage/TechnAspects-IT-systems.pdf",
+    "quote": "The response value of the insulation monitoring device should be set to approx. 100 Ω/V."
+   },
+   {
+    "n": 4,
+    "title": "White Paper",
+    "url": "https://info.bender-group.com/hubfs/Documents/US/White%20Papers/Insulation%20monitoring%20on%20common%20grounding%20methods.pdf?hsLang=en-us",
+    "quote": "A typical critical insulation value is 500 ohms/volt."
+   },
+   {
+    "n": 5,
+    "title": "Insulation monitoring device",
+    "url": "https://www.benderinc.com/fileadmin/content/Products/m/e/iso415R_D00539_M_XXEN.pdf",
+    "quote": "Do not connect insulation monitoring devices in parallel"
+   },
+   {
+    "n": 6,
+    "title": "Earth Fault Indicator Circuit in Ships",
+    "url": "https://marineengineeringonline.com/earth-fault-indicators-circuit-in-ships",
+    "quote": "To check the ship’s feeder system’s insulation resistance to earth, put “EARTH LAMP” switch (ELS) to TEST (this earths the neutral of the star connected primaries of lamp transformers)."
+   },
+   {
+    "n": 7,
+    "title": "cdn.standards.iteh.ai",
+    "url": "https://cdn.standards.iteh.ai/samples/22593/faab23b5c332418984d5b3c627cbd1b0/IEC-60364-4-41-2005-AMD1-2017.pdf",
+    "quote": "It is recommended that a first fault be eliminated with the shortest practicable delay."
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: quantity -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .caption { max-width: 32rem; margin-inline: auto; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.15rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.05rem; font-weight: 400; line-height: 1.6; }\n  .scene { display: block; width: 100%; max-width: 32rem; margin-inline: auto; }\n  .scene .c1 { stroke: var(--k-cat1); } .scene .c2 { stroke: var(--k-cat2); } .scene .c3 { stroke: var(--k-cat3); }\n  .scene .f1 { fill: var(--k-cat1); } .scene .f2 { fill: var(--k-cat2); } .scene .f3 { fill: var(--k-cat3); } .scene .fi { fill: var(--k-ink); }\n  .scene .bus { stroke-width: 3; stroke-linecap: round; }\n  .scene .core { stroke-width: 1.6; fill: none; stroke-linejoin: round; }\n  .scene .lead { stroke: var(--k-ink); stroke-width: 1.5; fill: none; }\n  .scene .card { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }\n  .scene .sheath { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.2; }\n  .scene .res { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.4; }\n  .scene .wet { fill: var(--k-accent); stroke: none; }\n  .scene .fres { fill: var(--k-panel); stroke: var(--k-warn); stroke-width: 2; }\n  .scene .flead { stroke: var(--k-warn); stroke-width: 2; fill: none; stroke-linejoin: round; }\n  .scene .flink { stroke: var(--k-warn); stroke-width: 3; fill: none; stroke-linejoin: round; }\n  .scene .plate { stroke: var(--k-ink); stroke-width: 2.5; stroke-linecap: round; }\n  .scene .hull { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.2; }\n  .scene .trace { stroke: var(--k-accent); stroke-width: 1.8; fill: none; stroke-dasharray: 3 5; stroke-linecap: round; stroke-linejoin: round; }\n  .scene .chev { fill: var(--k-accent); }\n  .scene .halo { fill: var(--k-fill2); }\n  .scene .ray { stroke: var(--k-amber-line); stroke-width: 1.5; stroke-linecap: round; }\n  .scene .lamp { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }\n  .scene .lamp.on { fill: var(--k-fill2); stroke: var(--k-amber-line); }\n  .scene .alamp { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }\n  .scene .alamp.hot { fill: var(--k-warn); stroke: var(--k-warn); }\n  .scene .scale { stroke: var(--k-ink); stroke-width: 1.5; }\n  .scene .tick { stroke: var(--k-ink); stroke-width: 1.2; }\n  .scene .alarm { stroke: var(--k-amber-line); stroke-width: 2.5; stroke-dasharray: 4 3; }\n  .scene .alarm.hot { stroke: var(--k-warn); stroke-dasharray: none; }\n  .scene .needle { fill: var(--k-accent2); }\n  .scene .nline { stroke: var(--k-accent2); stroke-width: 2; }\n  .scene .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }\n  .scene .lab.n { font-weight: 400; }\n  .scene .lab.s { font-size: 12px; }\n  .scene .lab.hot { font-weight: 700; fill: var(--k-warn); }\n  #ctls > * + * { margin-top: 10px; }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; min-height: 44px; }\n  #prow > div { flex: 1 1 9rem; min-width: 0; }\n  /* Six fault settings: as many to a row as fit, never a split word. */\n  #fctl .k-seg.stack { grid-template-columns: repeat(auto-fit, minmax(5.5rem, 1fr)); }\n  #fctl .k-seg.stack button { text-align: center; padding-inline: 6px; }\n  /* Five readout tiles: as many to a row as fit, two on a phone. */\n  #outs { display: grid; grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr)); gap: 10px; }\n  #outs .k-readout-value { font-size: 1.25rem; }\n  /* The answers are sentences: one to a row, wrapping inside the button. */\n  .picks { display: flex; flex-direction: column; gap: 8px; }\n  .picks .k-btn { width: 100%; min-height: 48px; white-space: normal; text-align: left; justify-content: flex-start; line-height: 1.4; padding: 10px 14px; }\n  .picks .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  .fb { font-weight: 700; min-height: 1.5em; }\n  .fb.right { color: var(--k-good); }\n  .why, .done { line-height: 1.6; }\n  .done strong { color: var(--k-accent2); }\n  .done .row { margin-top: 14px; }\n  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }\n</style>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <svg class=\"scene\" id=\"scene\" viewBox=\"0 0 340 358\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"art\"></g></svg>\n    <div id=\"ctls\">\n      <div class=\"row\" id=\"prow\"><div id=\"phctl\"></div><div id=\"dctl\"></div></div>\n      <div id=\"fctl\"></div>\n      <div id=\"actl\"></div>\n      <div id=\"cctl\"></div>\n    </div>\n    <div id=\"outs\"></div>\n    <div class=\"picks\" id=\"picks\"></div>\n    <div class=\"row\" id=\"acts\"></div>\n    <p class=\"fb\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p><strong id=\"finish\"></strong></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\">Example values: a 440 V, 60 Hz board and six feeders of 3 MΩ each, with a sketched settling time.</p>\n\n<script>\n  // ---------- the rule ----------\n  // 440 V between lines at 60 Hz, so each line is 440 ÷ 1.732 = 254 V from the star point. Each of six feeders\n  // leaks to the hull through its insulation, 3 MΩ dry or 120 kΩ damp, the same on all three phases, so together\n  // they make R_sym = 500 kΩ or 20 kΩ. A fault R_F joins one phase of feeder 3 to the hull.\n  // The monitor's DC sees every resistive path in parallel: reading = 1 ÷ (1 ÷ R_sym + 1 ÷ R_F).\n  // The lamps: the hull sits at E = V_f ÷ (1 + R_F ÷ R_sym + j × 3ωC × R_F) from the star point, and each lamp\n  // reads the distance from the hull to its phase's tip. Alarm level = ohms per volt × 440 V.\n  const VLINE = 440, ROOT3 = 1.732, HZ = 60, W = 2 * Math.PI * HZ;\n  const VPH = VLINE / ROOT3;\n  const NF = 6, RDRY = 3000, RDAMP = 120;            // kΩ for each feeder\n  const FAULTS = { 'Open': Infinity, '500 kΩ': 500, '150 kΩ': 150, '30 kΩ': 30, '1 kΩ': 1, 'Solid': 0 };\n  const FOPTS = Object.keys(FAULTS);\n  const ALARMS = [50, 100, 500];\n  const PH = ['L1', 'L2', 'L3'];\n  const RM = 50;          // the dial's middle, in kΩ: position = R ÷ (R + 50), so the high values squeeze together\n  const TAU1 = 0.11;      // the sketch's time constant for each µF a phase, in seconds; it settles in five of them\n  const rsym = (damp) => (damp ? RDAMP : RDRY) / NF;\n  function reading(S) {\n    const rs = rsym(S.damp), rf = FAULTS[S.fault];\n    if (rf === 0) return 0;\n    if (!isFinite(rf)) return rs;\n    return 1 / (1 / rs + 1 / rf);\n  }\n  const alarmK = (S) => S.alarm * VLINE / 1000;\n  const pos = (r) => (isFinite(r) ? r / (r + RM) : 1);\n  const phasor = (k) => ({ re: VPH * Math.cos(-2 * Math.PI * k / 3), im: VPH * Math.sin(-2 * Math.PI * k / 3) });\n  function hull(S) {\n    const rf = FAULTS[S.fault];\n    if (!isFinite(rf)) return { re: 0, im: 0 };\n    const v = phasor(PH.indexOf(S.ph));\n    if (rf === 0) return v;\n    const R = rf * 1000, Rs = rsym(S.damp) * 1000, C = S.C * 1e-6;\n    const a = 1 + R / Rs, b = 3 * W * C * R, d = a * a + b * b;\n    return { re: (v.re * a + v.im * b) / d, im: (v.im * a - v.re * b) / d };\n  }\n  const lampsOf = (H) => PH.map((_, k) => { const v = phasor(k); return Math.hypot(v.re - H.re, v.im - H.im); });\n  // The share of the monitor's current that goes through the fault.\n  function faultFrac(S) {\n    const rf = FAULTS[S.fault];\n    if (!isFinite(rf)) return 0;\n    if (rf === 0) return 1;\n    return (1 / rf) / (1 / rf + 1 / rsym(S.damp));\n  }\n  const fmtK = (v) => (v === 0 ? '0' : String(Number(v.toPrecision(3))));\n  const fmtV = (v) => K.fmt(v, { decimals: 0 }) + ' V';\n\n  // ---------- the lesson: SHOW screens demonstrate, DO screens are puzzles ----------\n  // A setting: the fault's phase and size, Damp everywhere, the alarm level (Ω/V), the capacitance a phase (µF),\n  // and charge (the capacitance not yet charged, so the dial has not begun to settle).\n  const P = (o) => Object.assign({ ph: 'L1', fault: 'Open', damp: false, alarm: 100, C: 1, charge: false }, o || {});\n  const strip = (s) => s.replace(/\\[\\^\\d+\\]/g, '');\n  const STEPS = [\n    { show: true, name: 'Two watchers', pic: P(),\n      text: `A first fault trips nothing, so no breaker tells you it is there. Yet it leaves the healthy phases one failure from a short through the hull. So ship rules require every insulated system to watch its insulation and alarm when it runs low.[^1] Three earth lamps each join one phase to the hull. They light only while you hold their Test button. On a healthy board, each sees 254 V, so all three glow the same. Beside them, an insulation monitor's dial reads 500 kΩ.` },\n    { kind: 'pick', name: 'A solid fault on L2', before: P(), after: P({ fault: 'Solid', ph: 'L2' }),\n      task: `A solid fault joins L2 to the hull. What voltage does L1's lamp now see?`,\n      opts: ['254 V, so it looks the same', '440 V, so it glows brighter', '0 V, so it goes out'], want: '440 V, so it glows brighter',\n      hints: { '254 V, so it looks the same': `The hull has moved to L2. L1 is now a whole line voltage from it.`,\n        '0 V, so it goes out': `Only the lamp across the fault goes out, and that is L2's.` },\n      why: `Each lamp shows its phase's voltage to earth. The hull now sits at L2, as in the shifting triangle. So L1 and L3 read the line voltage, 440 V, and glow brighter. The fault short-circuits L2's lamp, so it goes out.` },\n    { show: true, name: 'Damp everywhere', pic: P({ damp: true }), ctl: true,\n      demo: { from: P(), keys: [{ S: P({ damp: true }), at: 0.4, dur: 0.9 }] },\n      text: `Damp everywhere is now on. Every feeder's insulation falls to 120 kΩ, equally on all three phases. Three equal leaks balance, like a balanced star load. So the hull stays at the star point. Each lamp still sees 254 V, and all three stay equal. But the monitor's dial falls from 500 kΩ to 20 kΩ. Lamps only show an unbalance between the phases. A fall that is the same on every phase is invisible to them.`,\n      read: `With every feeder's insulation down to 120 kΩ on all three phases, the lamps stay equal at 254 V. The monitor's dial falls from 500 kΩ to 20 kΩ.` },\n    { kind: 'pick', name: 'After a wash-down', before: P(), after: P({ damp: true }),\n      task: `After a wash-down, all three earth lamps glow equally. Is the insulation healthy?`,\n      opts: ['Yes, as any fault would dim one lamp', 'Yes, as long as no lamp has gone out', 'Not necessarily, as an equal leak on every phase leaves them equal'],\n      want: 'Not necessarily, as an equal leak on every phase leaves them equal',\n      hints: { 'Yes, as any fault would dim one lamp': `A leak on one phase dims one lamp. An equal leak on all three dims none.`,\n        'Yes, as long as no lamp has gone out': `The lamps compare the phases. They cannot see all three falling together.` },\n      why: `Equal leaks on all three phases balance. The hull stays at the star point, and each lamp keeps 254 V. Only the monitor's reading shows the fall.` },\n    { show: true, name: 'Why DC?', pic: P({ C: 5 }), ctl: true,\n      demo: { from: P(), keys: [{ S: P({ damp: true }), at: 0.3, dur: 0.4 }, { S: P({ damp: true, C: 5 }), at: 1.0, dur: 0.35 }, { S: P({ C: 5 }), at: 1.4, dur: 0.4 }] },\n      text: `The monitor is like your insulation tester, left on the live board. It pushes a small DC voltage between the system and the hull, then measures the current that comes back. Why DC? The cables' capacitance passes AC. At 60 Hz, three phases of 1 µF look like 884 Ω to the hull. That would hide a 30 kΩ fault. At DC the capacitance charges, then passes nothing. Charging takes time, so the more capacitance, the slower the dial settles. Watch Damp everywhere go on at 1 µF, then off at 5 µF.`,\n      read: `The monitor pushes a small DC voltage between the system and the hull. The capacitance must charge first, so at 5 µF a phase the dial settles five times as slowly as at 1 µF.` },\n    { kind: 'pick', name: 'A VLF test', before: P({ C: 5 }), after: P({ C: 5 }),\n      from: P({ C: 5, charge: true }), play: [{ S: P({ C: 5 }), at: 0.2, dur: 0.3 }],\n      task: `A VLF test set runs a cable at 0.1 Hz instead of 50 Hz. At the same voltage, how does the cable's charging current compare?`,\n      opts: ['500 times smaller', '500 times larger', 'The same, as the cable is the same'], want: '500 times smaller',\n      hints: { '500 times larger': `X_C = 1 ÷ (2πfC). A lower frequency gives a larger reactance, so less current.`,\n        'The same, as the cable is the same': `The capacitance is the same, but its reactance depends on the frequency.` },\n      why: `The charging current is proportional to the frequency, and 50 ÷ 0.1 = 500. The monitor takes the same idea all the way to DC. Once charged, the capacitance passes no current at all.` },\n    { show: true, name: 'Every leak in parallel', pic: P({ fault: '30 kΩ' }), ctl: true,\n      demo: { from: P(), keys: [{ S: P({ fault: '30 kΩ' }), at: 0.4, dur: 0.9 }] },\n      text: `The monitor's current returns through every leak, on every feeder and every phase. They are all in parallel, so the dial reads their total. Six feeders at 3 MΩ each make 500 kΩ. Add a 30 kΩ fault on feeder 3's L1. In parallel, 500 kΩ and 30 kΩ give 28.3 kΩ. The lamps barely move. The capacitance on all three phases holds the hull near the star point. A weak fault only nudges it sideways. So L2's lamp dims, not L1's. The dim lamp can point to the wrong phase.`,\n      read: `Six feeders at 3 MΩ each read 500 kΩ together. With a 30 kΩ fault on feeder 3's L1, the dial reads 28.3 kΩ, while L1's lamp still reads about 254 V.` },\n    { kind: 'pick', name: 'A 150 kΩ fault', before: P(), after: P({ fault: '150 kΩ' }),\n      task: `Six feeders read 3 MΩ each, 500 kΩ together. Feeder 3 develops a 150 kΩ fault. What does the dial read?`,\n      opts: ['650 kΩ', '150 kΩ', 'About 115 kΩ'], want: 'About 115 kΩ',\n      hints: { '650 kΩ': `That adds them as if in series. Paths in parallel give less than the lowest one.`,\n        '150 kΩ': `The healthy feeders still leak in parallel with the fault, so the total is lower still.` },\n      why: `In parallel, 500 × 150 ÷ (500 + 150) = 115 kΩ. The total is always below the lowest single path.` },\n    { show: true, name: 'Where to alarm', pic: P({ fault: '150 kΩ', alarm: 500 }), ctl: true,\n      demo: { from: P({ fault: '150 kΩ', alarm: 50 }), keys: [{ S: P({ fault: '150 kΩ', alarm: 100 }), at: 0.6, dur: 0.6 }, { S: P({ fault: '150 kΩ', alarm: 500 }), at: 1.8, dur: 0.8 }] },\n      text: `Alarm levels are often set in ohms per volt, so they scale with the supply. Multiply by the operating voltage to get ohms. Ship rules set a minimum: the alarm must sound by 50 Ω/V.[^2] Boards are often set higher. A common setting is 100 Ω/V.[^3] An early warning sits at 500 Ω/V.[^4] On 440 V those are 22 kΩ, 44 kΩ and 220 kΩ. A 115 kΩ reading alarms only at 500 Ω/V. A higher level warns sooner. But a big or damp system may sit below it without any single fault.`,\n      read: `On 440 V the three alarm levels are 22 kΩ, 44 kΩ and 220 kΩ. A 115 kΩ reading alarms only at 500 Ω/V.` },\n    { kind: 'pick', name: 'Which alarms sound?', before: P(), after: P({ fault: '30 kΩ', alarm: 500 }),\n      play: [{ S: P({ fault: '30 kΩ', alarm: 50 }), at: 0, dur: 0.9 }, { S: P({ fault: '30 kΩ', alarm: 100 }), at: 1.8, dur: 0.6 }, { S: P({ fault: '30 kΩ', alarm: 500 }), at: 3.0, dur: 0.8 }],\n      task: `The 440 V board's dial reads 28.3 kΩ. Which alarm levels sound?`,\n      opts: ['All three', '100 and 500 Ω/V, but not 50 Ω/V', 'Only 500 Ω/V'], want: '100 and 500 Ω/V, but not 50 Ω/V',\n      hints: { 'All three': `50 Ω/V on 440 V is 22 kΩ. The reading is above it.`,\n        'Only 500 Ω/V': `100 Ω/V on 440 V is 44 kΩ. The reading is below it.` },\n      why: `An alarm sounds when the reading falls below its level. 28.3 kΩ is below 44 kΩ and 220 kΩ, but above 22 kΩ. So the same fault alarms at one setting and not at another.` },\n    { kind: 'pick', name: 'Two monitors', before: P(), after: P(),\n      task: `Two boards are coupled into one system, and each still has its own monitor running. What goes wrong?`,\n      opts: ['Each monitor reads the other as a leak, so the readings are wrong', 'Nothing, as two monitors are safer than one', 'The monitors\\' current trips the coupling breaker'],\n      want: 'Each monitor reads the other as a leak, so the readings are wrong',\n      hints: { 'Nothing, as two monitors are safer than one': `Each monitor is itself a path from the system to the hull.`,\n        'The monitors\\' current trips the coupling breaker': `A monitor's current is far too small to trip a breaker.` },\n      why: `Each monitor joins the system to the hull through its own measuring circuit. To the other monitor, that is one more leak. Their two DC voltages also mix. So run only one monitor on a connected system.[^5]` },\n    { kind: 'pick', name: 'Drives with filters', before: P(), after: P({ C: 2 }),\n      play: [{ S: P({ C: 2 }), at: 0, dur: 1.2 }],\n      task: `Ten drives with filters are added to the board. Now the dial takes longer to settle after every change. Why?`,\n      opts: ['Their filters lower the insulation resistance', 'Their filters add capacitance to the hull, which the DC must charge', 'The monitor counts each drive as a feeder to read'],\n      want: 'Their filters add capacitance to the hull, which the DC must charge',\n      hints: { 'Their filters lower the insulation resistance': `Lower resistance would change the reading. If anything, it would make the dial settle faster.`,\n        'The monitor counts each drive as a feeder to read': `The dial reads all paths together in one measurement, however many there are.` },\n      why: `Each filter is a capacitor to the hull, just like the cables' own capacitance. The monitor's DC must charge all of it before the current steadies. More capacitance means a longer wait.` },\n  ];\n  STEPS.forEach((d) => { if (d.show) d.still = () => setPic(d.pic); else d.read = d.task; });\n  const FINISH = 'A monitor reads the whole system\\'s resistance to the hull with DC or a very slow signal. Its alarm must sound by the rules\\' minimum, and is often set higher to warn sooner.';\n  const PICK = 'Choose an answer first.';\n  const SRC = {\n    gl: 'http://www.iqytechnicalcollege.com/gl_i-1-3_e.pdf',\n    maker: 'https://fournais-bender.dk/storage/TechnAspects-IT-systems.pdf',\n    white: 'https://info.bender-group.com/hubfs/Documents/US/White%20Papers/Insulation%20monitoring%20on%20common%20grounding%20methods.pdf?hsLang=en-us',\n  };\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n\n  // ---------- what the picture shows: a view, and motion from one view to another ----------\n  function geomOf(S) {\n    const rf = FAULTS[S.fault];\n    return { H: hull(S), leak: S.damp ? 1 : 0, fv: isFinite(rf) ? 1 : 0, fph: PH.indexOf(S.ph), fkind: rf === 0 ? 's' : 'r', fname: S.fault,\n      ap: pos(alarmK(S)), alarm: S.alarm, C: S.C, frac: faultFrac(S) };\n  }\n  function faultAt(a, b, u) {\n    const same = a.fv > 0 && b.fv > 0 && a.fph === b.fph && a.fkind === b.fkind;\n    if (same) return { fv: K.lerp(a.fv, b.fv, u), fph: b.fph, fkind: b.fkind, fname: u < 0.5 ? a.fname : b.fname };\n    if (!(a.fv > 0)) return { fv: b.fv * u, fph: b.fph, fkind: b.fkind, fname: b.fname };\n    if (!(b.fv > 0)) return { fv: a.fv * (1 - u), fph: a.fph, fkind: a.fkind, fname: a.fname };\n    return u < 0.5 ? { fv: a.fv * (1 - 2 * u), fph: a.fph, fkind: a.fkind, fname: a.fname } : { fv: b.fv * (2 * u - 1), fph: b.fph, fkind: b.fkind, fname: b.fname };\n  }\n  function lerpG(a, b, u) {\n    const f = faultAt(a, b, u);\n    return { H: { re: K.lerp(a.H.re, b.H.re, u), im: K.lerp(a.H.im, b.H.im, u) }, leak: K.lerp(a.leak, b.leak, u), ap: K.lerp(a.ap, b.ap, u),\n      alarm: u < 0.5 ? a.alarm : b.alarm, C: K.lerp(a.C, b.C, u), frac: K.lerp(a.frac, b.frac, u), fv: f.fv, fph: f.fph, fkind: f.fkind, fname: f.fname };\n  }\n  // A settled picture: the dial at its reading (or, before the capacitance has charged, at its bottom stop).\n  function still(S) {\n    const r = reading(S);\n    return { S, g: geomOf(S), D: S.charge ? 0 : pos(r), settled: !S.charge, alarmOn: !S.charge && r < alarmK(S), rem: S.charge ? 1 : 0 };\n  }\n  const H_STEP = 1 / 120, TAIL = 0.8;\n  function geomAt(m, t) {\n    let g = m.v0.g;\n    for (const k of m.ks) { if (t < k.at) break; g = lerpG(k.g0, k.g1, K.ease(K.clamp((t - k.at) / Math.max(1e-6, k.dur), 0, 1))); }\n    return g;\n  }\n  function settingsAt(m, t) {\n    let S = m.v0.S;\n    for (const k of m.ks) { if (t < k.at) break; S = k.S; }\n    return S;\n  }\n  // Keys change the settings one after another; the picture tweens to each. The dial creeps to each new reading\n  // with a time constant in proportion to the capacitance and settles in five of them. While it creeps the monitor\n  // shows no reading, and its alarm lamp keeps the state it had.\n  function motion(v0, keys) {\n    const ks = keys.map((k) => Object.assign({}, k)).sort((a, b) => a.at - b.at);\n    let gp = v0.g;\n    ks.forEach((k) => { k.g0 = gp; k.g1 = geomOf(k.S); gp = k.g1; });\n    const m = { v0, ks };\n    const geoEnd = ks.reduce((e, k) => Math.max(e, k.at + k.dur), 0);\n    const tg = (S) => (S.charge ? 0 : pos(reading(S)));\n    let D = v0.D, target = v0.D, until = -1, held = v0.alarmOn, s = 0, ki = 0, charge = !!v0.S.charge;\n    const samp = [];\n    for (let j = 0; j < 4000; j++) {\n      const t = j * H_STEP;\n      while (ki < ks.length && ks[ki].at <= t + 1e-9) {\n        const k = ks[ki++], nt = tg(k.S);\n        if (!(t < until) && !charge) held = D < geomAt(m, t).ap - 1e-9;\n        charge = !!k.S.charge;\n        if (Math.abs(nt - D) > 1e-4 || t < until) {\n          target = nt; s = 0;\n          until = t + 5 * TAU1 * Math.max(k.g0.C, k.g1.C);\n        } else { target = nt; D = nt; }\n      }\n      const creeping = t < until;\n      samp.push({ D, rem: creeping ? Math.exp(-s) : charge ? 1 : 0, settled: !creeping && !charge, held });\n      if (ki >= ks.length && t > Math.max(geoEnd, until) + 1e-9) break;\n      if (creeping) {\n        const tau = TAU1 * geomAt(m, t).C;\n        D += (target - D) * (1 - Math.exp(-H_STEP / tau));\n        s += H_STEP / tau;\n        if (t + H_STEP >= until) D = target;\n      }\n    }\n    m.samp = samp; m.until = until; m.geo = geoEnd; m.end = Math.max(geoEnd, until) + TAIL;\n    return m;\n  }\n  function viewAt(m, t) {\n    const smp = m.samp[Math.min(m.samp.length - 1, Math.max(0, Math.round(t / H_STEP)))];\n    const g = geomAt(m, t), S = settingsAt(m, t);\n    return { S, g, D: smp.D, settled: smp.settled, alarmOn: smp.settled ? smp.D < g.ap - 1e-9 : smp.held, rem: smp.rem };\n  }\n\n  // ---------- the drawing (viewBox 340 × 358): the board on top, lamps left, six feeders, the monitor right, the hull ----------\n  const YB = [30, 44, 58], YT = 64;\n  const LX = [20, 52, 84], LY = 100, LR = 10;\n  const CXP = 108, PCY = 196;\n  const FX = [136, 158, 180, 202, 224, 246], YS0 = 76, YS1 = 150, YR0 = 168, YR1 = 196;\n  const XF = 191, YF = 132, YFR = 200;\n  const YH = 272;\n  const MX0 = 262, MX1 = 336, MY0 = 76, MY1 = 262, MCX = 282, MEX = 299;\n  const SX = 294, ST = 146, SB = 242;\n  const KY = 314;\n  const yOf = (p) => SB - (SB - ST) * p;\n  const n2 = (x) => +(+x).toFixed(2);\n  const svg = document.getElementById('scene'), art = document.getElementById('art');\n  const el = (id) => document.getElementById(id);\n  function put(parent, tag, attrs, text) { const n = K.svg(tag, attrs); if (text != null) n.textContent = text; parent.appendChild(n); return n; }\n  const group = (a) => put(art, 'g', a == null || a >= 1 ? {} : { opacity: Math.max(0, a).toFixed(3) });\n  const lab = (g, x, y, text, cls, anchor) => put(g, 'text', { x: n2(x), y: n2(y), class: 'lab' + (cls ? ' ' + cls : ''), 'text-anchor': anchor || 'start' }, text);\n  function chev(g, x, y, dir) {\n    const d = dir === 'd' ? `M${x - 4} ${y - 3}L${x + 4} ${y - 3}L${x} ${y + 4}Z` : dir === 'r' ? `M${x - 3} ${y - 4}L${x - 3} ${y + 4}L${x + 4} ${y}Z` : `M${x + 3} ${y - 4}L${x + 3} ${y + 4}L${x - 4} ${y}Z`;\n    put(g, 'path', { class: 'chev', d });\n  }\n  // Three cores from the three bars, gathered into one cable at (x, y1).\n  function cores(g, x, dx, y1) {\n    [-dx, 0, dx].forEach((o, k) => {\n      put(g, 'path', { class: 'core c' + (k + 1), d: `M${x + o} ${YB[k]}V66L${x} ${y1}` });\n      put(g, 'circle', { class: 'f' + (k + 1), cx: x + o, cy: YB[k], r: 2.2 });\n    });\n  }\n  let dash = 0;\n\n  function scene(v) {\n    art.textContent = '';\n    const g = v.g, V = lampsOf(g.H), S = v.S;\n    const G = group();\n    // The board and its three bars.\n    put(G, 'rect', { class: 'card', x: 4, y: 2, width: 332, height: 66, rx: 6 });\n    lab(G, 10, 18, '440 V insulated board');\n    YB.forEach((y, k) => { put(G, 'line', { class: 'bus c' + (k + 1), x1: 10, y1: y, x2: 304, y2: y }); lab(G, 310, y + 4.5, PH[k]); });\n    // The earth lamps: each from one bar, through its lamp, to the hull.\n    LX.forEach((x, k) => {\n      put(G, 'line', { class: 'core c' + (k + 1), x1: x, y1: YB[k], x2: x, y2: LY - LR });\n      put(G, 'circle', { class: 'f' + (k + 1), cx: x, cy: YB[k], r: 2.4 });\n      put(G, 'line', { class: 'lead', x1: x, y1: LY + LR, x2: x, y2: 128 });\n    });\n    put(G, 'line', { class: 'lead', x1: LX[0], y1: 128, x2: LX[2], y2: 128 });\n    // Their common lead to the hull runs through a Test button, drawn held down: the lamps are a path to the hull while it is pressed.\n    put(G, 'line', { class: 'lead', x1: LX[0], y1: 128, x2: LX[0], y2: 226 });\n    put(G, 'line', { class: 'lead', x1: LX[0], y1: 238, x2: LX[0], y2: YH });\n    put(G, 'line', { class: 'plate', x1: LX[0] + 3, y1: 224, x2: LX[0] + 3, y2: 240 });\n    put(G, 'line', { class: 'lead', x1: LX[0] + 3, y1: 232, x2: LX[0] + 11, y2: 232 });\n    put(G, 'line', { class: 'plate', x1: LX[0] + 11, y1: 227, x2: LX[0] + 11, y2: 237 });\n    [226, 238].forEach((y) => put(G, 'circle', { class: 'lamp', cx: LX[0], cy: y, r: 2 }));\n    lab(G, LX[0] + 15, 236, 'Test, held', 's n');\n    lab(G, 30, 150, 'Earth', 'n');\n    lab(G, 30, 164, 'lamps', 'n');\n    // The cables' capacitance, from the bars to the hull: its plates widen with the capacitance.\n    const hw = 6 + 0.9 * g.C;\n    cores(G, CXP, 6, 78);\n    put(G, 'line', { class: 'lead', x1: CXP, y1: 78, x2: CXP, y2: PCY });\n    put(G, 'line', { class: 'plate', x1: n2(CXP - hw), y1: PCY, x2: n2(CXP + hw), y2: PCY });\n    put(G, 'line', { class: 'plate', x1: n2(CXP - hw), y1: PCY + 7, x2: n2(CXP + hw), y2: PCY + 7 });\n    put(G, 'line', { class: 'lead', x1: CXP, y1: PCY + 7, x2: CXP, y2: YH });\n    lab(G, CXP - hw - 5, PCY + 2, Math.round(g.C) + ' µF', 'n', 'end');\n    lab(G, CXP - hw - 5, PCY + 16, 'a phase', 'n', 'end');\n    // Six feeders: three cores into each cable, then its insulation to the hull.\n    FX.forEach((x, n) => {\n      cores(G, x, 5, YS0);\n      put(G, 'rect', { class: 'sheath', x: x - 4, y: YS0, width: 8, height: YS1 - YS0, rx: 3 });\n      lab(G, x + 7, 92, String(n + 1), 's');\n      put(G, 'line', { class: 'lead', x1: x, y1: YS1, x2: x, y2: YR0 });\n      put(G, 'rect', { class: 'res', x: x - 3.5, y: YR0, width: 7, height: YR1 - YR0 });\n      if (g.leak > 0.01) put(G, 'rect', { class: 'wet', x: x - 3.5, y: YR0, width: 7, height: YR1 - YR0, 'fill-opacity': n2(0.55 * g.leak) });\n      put(G, 'line', { class: 'lead', x1: x, y1: YR1, x2: x, y2: YH });\n    });\n    // The fault: from one phase of feeder 3 to the hull.\n    if (g.fv > 0.01) {\n      const gf = group(g.fv), xs = FX[2] + 4;\n      if (g.fkind === 's') put(gf, 'path', { class: 'flink', d: `M${xs} ${YF}H${XF}V${YH}` });\n      else {\n        put(gf, 'path', { class: 'flead', d: `M${xs} ${YF}H${XF}V${YFR}M${XF} ${YFR + 28}V${YH}` });\n        put(gf, 'rect', { class: 'fres', x: XF - 3, y: YFR, width: 6, height: 28 });\n      }\n      put(gf, 'circle', { class: 'f' + (g.fph + 1), cx: xs, cy: YF, r: 3.2 });\n    }\n    // The insulation monitor: joined to the bars above and the hull below. Its dial squeezes the high values.\n    cores(G, MCX, 10, MY0);\n    put(G, 'rect', { class: 'card', x: MX0, y: MY0, width: MX1 - MX0, height: MY1 - MY0, rx: 6 });\n    lab(G, MEX, 92, 'Insulation', 's', 'middle');\n    lab(G, MEX, 106, 'monitor', 's', 'middle');\n    put(G, 'circle', { class: 'alamp' + (v.alarmOn ? ' hot' : ''), cx: 272, cy: 122, r: 5 });\n    lab(G, 281, 126.5, 'Alarm', 's' + (v.alarmOn ? ' hot' : ' n'));\n    // While the dial creeps, the monitor is still measuring, so its alarm lamp has not changed yet.\n    if (!v.settled) lab(G, 268, 140, 'measuring', 's n');\n    put(G, 'line', { class: 'scale', x1: SX, y1: ST, x2: SX, y2: SB });\n    put(G, 'line', { class: 'tick', x1: SX - 4, y1: ST, x2: SX + 4, y2: ST });\n    [0, 20, 50, 100, 500].forEach((r) => {\n      const y = n2(yOf(pos(r)));\n      put(G, 'line', { class: 'tick', x1: SX - 4, y1: y, x2: SX, y2: y });\n      lab(G, SX - 6, y + 4, String(r), 's n', 'end');\n    });\n    lab(G, SX - 6, SB + 17, 'kΩ', 's n', 'end');\n    const ya = n2(yOf(g.ap));\n    put(G, 'line', { class: 'alarm' + (v.alarmOn ? ' hot' : ''), x1: SX - 4, y1: ya, x2: SX + 16, y2: ya });\n    lab(G, SX + 18, ya + 4, fmtK(g.alarm * VLINE / 1000), 's' + (v.alarmOn ? ' hot' : ' n'));\n    const yd = n2(yOf(v.D));\n    put(G, 'line', { class: 'nline', x1: SX - 4, y1: yd, x2: SX + 2, y2: yd });\n    put(G, 'path', { class: 'needle', d: `M${SX + 2} ${yd}L${SX + 14} ${n2(yd - 5)}L${SX + 14} ${n2(yd + 5)}Z` });\n    put(G, 'line', { class: 'lead', x1: MEX, y1: MY1, x2: MEX, y2: YH });\n    // The hull, which is earth.\n    put(G, 'rect', { class: 'hull', x: 4, y: YH, width: 332, height: 24, rx: 3 });\n    lab(G, 200, YH + 18, 'Hull, which is earth', 'n', 'middle');\n    [LX[0], CXP, MEX].concat(FX, g.fv > 0.01 ? [XF] : []).forEach((x) => put(G, 'circle', { class: 'fi', cx: x, cy: YH, r: 2.2 }));\n    // The monitor's small DC current: out into the system, down through every leak, back along the hull.\n    const tr = group(), off = n2(-dash);\n    const trace = (d, op, w) => put(tr, 'path', Object.assign({ class: 'trace', d, 'stroke-dashoffset': off }, op < 1 ? { opacity: n2(op) } : {}, w ? { 'stroke-width': n2(w) } : {}));\n    const leakOp = 0.3 + 0.7 * (1 - g.frac);\n    trace(`M${MCX} ${MY0}V${YT}H${FX[0]}`, 1);\n    FX.forEach((x) => trace(`M${x} ${YT}V${YH}`, leakOp));\n    trace(`M${FX[0]} ${YH + 4}H${MEX}V${MY1}`, 1);\n    if (g.fv > 0.01) trace(`M${FX[2]} ${YF}H${XF}V${YH}`, g.fv, 1.8 + 1.4 * g.frac);\n    // While the dial creeps, part of the current is still charging the capacitance.\n    if (v.rem > 0.01) trace(`M${FX[0]} ${YT}H${CXP}V${PCY}M${CXP} ${PCY + 7}V${YH + 4}H${FX[0]}`, v.rem);\n    chev(tr, 213, YT, 'l'); chev(tr, FX[0], 238, 'd'); chev(tr, 275, YH + 4, 'r');\n    // The lamps glow with their phase's voltage to earth.\n    const GL = group();\n    LX.forEach((x, k) => {\n      const b = K.clamp(V[k] / VLINE, 0, 1.05);\n      if (b > 0.02) {\n        put(GL, 'circle', { class: 'halo', cx: x, cy: LY, r: n2(LR + 4 * b), 'fill-opacity': n2(0.55 * b) });\n        for (let r = 0; r < 8; r++) {\n          const a = r * Math.PI / 4 + Math.PI / 8, c = Math.cos(a), s = Math.sin(a);\n          put(GL, 'line', { class: 'ray', x1: n2(x + c * (LR + 2)), y1: n2(LY + s * (LR + 2)), x2: n2(x + c * (LR + 2 + 3.5 * b)), y2: n2(LY + s * (LR + 2 + 3.5 * b)) });\n        }\n      }\n      put(GL, 'circle', { class: 'lamp' + (b > 0.02 ? ' on' : ''), cx: x, cy: LY, r: LR });\n      lab(GL, x, LY + 4.5, PH[k], 's', 'middle');\n    });\n    // A key for what is drawn.\n    const gk = group();\n    put(gk, 'rect', { class: 'res', x: 6, y: KY - 8, width: 16, height: 7 });\n    if (g.leak > 0.01) put(gk, 'rect', { class: 'wet', x: 6, y: KY - 8, width: 16, height: 7, 'fill-opacity': n2(0.55 * g.leak) });\n    lab(gk, 28, KY, g.leak >= 0.5 ? 'Insulation, each feeder, damp: 120 kΩ' : 'Insulation, each feeder: 3 MΩ', 'n');\n    const fy = KY + 18;\n    if (g.fv > 0.01) {\n      if (g.fkind === 's') put(gk, 'line', { class: 'flink', x1: 6, y1: fy - 4.5, x2: 22, y2: fy - 4.5 });\n      else put(gk, 'rect', { class: 'fres', x: 6, y: fy - 8, width: 16, height: 7 });\n      const t = lab(gk, 28, fy, '', 'n');\n      put(t, 'tspan', {}, (g.fkind === 's' ? 'Solid fault on feeder 3\\'s ' : 'Fault on feeder 3\\'s '));\n      put(t, 'tspan', { class: 'f' + (g.fph + 1), 'font-weight': 700 }, PH[g.fph]);\n      if (g.fkind !== 's') put(t, 'tspan', {}, ': ' + g.fname);\n    } else lab(gk, 28, fy, 'No fault on feeder 3', 'n');\n    const ty = KY + 36;\n    put(gk, 'line', { class: 'trace', x1: 6, y1: ty - 4.5, x2: 22, y2: ty - 4.5 });\n    lab(gk, 28, ty, 'Monitor\\'s DC current', 'n');\n    put(gk, 'line', { class: 'alarm' + (v.alarmOn ? ' hot' : ''), x1: 186, y1: ty - 4.5, x2: 202, y2: ty - 4.5 });\n    lab(gk, 208, ty, 'Alarm level', 'n');\n\n    const lo = Math.min.apply(null, V), hi = Math.max.apply(null, V), out = V.findIndex((x) => x < 5);\n    const lamps = hi - lo < 3 ? 'all three earth lamps glow equally' : out >= 0 ? PH[out] + '\\'s lamp is out and the other two glow brighter'\n      : PH[V.indexOf(lo)] + '\\'s lamp is the dimmest and ' + PH[V.indexOf(hi)] + '\\'s the brightest';\n    const what = g.fv > 0.5 ? (g.fkind === 's' ? 'A solid fault joins feeder 3\\'s ' + PH[g.fph] + ' to the hull. ' : 'A fault joins feeder 3\\'s ' + PH[g.fph] + ' to the hull. ') : '';\n    return {\n      v, V, D: v.D, alarmOn: v.alarmOn, settled: v.settled,\n      texts: Array.from(art.querySelectorAll('text')).map((t) => t.textContent),\n      read: { l1: fmtV(V[0]), l2: fmtV(V[1]), l3: fmtV(V[2]), mon: v.settled ? fmtK(reading(S)) + ' kΩ' : 'Settling', alv: fmtK(g.alarm * VLINE / 1000) + ' kΩ' },\n      aria: 'A 440 V insulated board with bars L1, L2 and L3 feeds six feeders. Each feeder leaks to the hull through its insulation' +\n        (g.leak >= 0.5 ? ', lowered equally on every phase by damp. ' : '. ') + what +\n        'Three earth lamps, their Test button held, join the bars to the hull, and ' + lamps + '. The cables\\' capacitance joins the bars to the hull too. ' +\n        'An insulation monitor sends a small DC current out through every leak and back along the hull. ' +\n        (!v.settled ? 'Its needle is still creeping while the capacitance charges.' : v.alarmOn ? 'Its needle sits below the alarm line, and its alarm lamp is lit.' : 'Its needle sits above the alarm line, and its alarm lamp is off.'),\n    };\n  }\n\n  // ---------- state ----------\n  function blank() { return { pick: null, res: null, why: false }; }\n  let S2 = STEPS.map(() => blank());\n  let cur = P(STEPS[0].pic), T = Infinity, fx = {}, REC = null;\n  let finished = false, lastStep = -1, lastDone = false, last = {};\n  const viewNow = () => (fx.ks && T < fx.end ? viewAt(fx, Math.max(0, T)) : still(cur));\n\n  function paint() {\n    const v = viewNow();\n    REC = scene(v);\n    Object.keys(outs).forEach((k) => outs[k].set(REC.read[k]));\n    svg.setAttribute('aria-label', REC.aria);\n    // On a demonstration the controls follow the settings as they change.\n    if (fx.demo && fx.ks && T < fx.end && live()) {\n      const S = v.S;\n      phCtl.set(S.ph, true); fCtl.set(S.fault, true); dCtl.set(S.damp, true); aCtl.set(S.alarm, true); cCtl.set(Math.round(v.g.C), true);\n      last = ctlNow();\n    }\n  }\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const at = () => stepper.get();\n  const live = () => !finished && !!STEPS[at()].show && !!STEPS[at()].ctl;\n  const phCtl = K.choice({ id: 'ph', label: 'Fault on phase', options: PH, value: 'L1', into: '#phctl' });\n  const dCtl = K.toggle({ id: 'damp', label: 'Damp everywhere', value: false, into: '#dctl' });\n  const fCtl = K.choice({ id: 'fault', label: 'Fault on feeder 3', options: FOPTS, value: 'Open', into: '#fctl' });\n  const aCtl = K.choice({ id: 'alarm', label: 'Alarm level', options: ALARMS.map((a) => ({ value: a, label: a + ' Ω/V' })), value: 100, into: '#actl' });\n  const cCtl = K.control({ id: 'C', label: 'Capacitance a phase', min: 1, max: 10, step: 1, value: 1, fmt: (x) => K.fmt(x, { decimals: 0 }) + ' µF', snap: [1, 5, 10], into: '#cctl' });\n  const outs = {\n    l1: K.readout({ id: 'l1', label: 'L1 lamp', into: '#outs' }),\n    l2: K.readout({ id: 'l2', label: 'L2 lamp', into: '#outs' }),\n    l3: K.readout({ id: 'l3', label: 'L3 lamp', into: '#outs' }),\n    mon: K.readout({ id: 'mon', label: 'Monitor reads', into: '#outs' }),\n    alv: K.readout({ id: 'alv', label: 'Alarm level', into: '#outs' }),\n  };\n  const ctlNow = () => ({ ph: phCtl.get(), fault: fCtl.get(), damp: !!dCtl.get(), alarm: +aCtl.get(), C: +cCtl.get() });\n  function syncCtls() {\n    phCtl.set(cur.ph, true); fCtl.set(cur.fault, true); dCtl.set(cur.damp, true); aCtl.set(cur.alarm, true); cCtl.set(cur.C, true);\n    last = ctlNow();\n  }\n  const movedFrom = (p) => p.ph !== last.ph || p.fault !== last.fault || !!p.damp !== last.damp || +p.alarm !== last.alarm || +p.C !== last.C;\n\n  // One animation plays the motion; with reduced motion (and while the self-test looks) it opens finished.\n  // The current's dashes run faster as the monitor's reading falls, and stop soon after the dial settles.\n  const anim = K.anim({ button: false, label: 'The monitor', step: (dt) => {\n    if (finished) return false;\n    T += dt;\n    dash += dt * (8 + 30 * (1 - (REC ? REC.D : 0.9)));\n    paint();\n    return T < (fx.end || 0);\n  } });\n  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });\n  function start(f) {\n    fx = f || {};\n    if (REDUCE || testing()) { T = Infinity; anim.pause(); return; }\n    T = 0; anim.play();\n  }\n  // A move Dan makes: the picture changes in 0.3 s, and the dial then creeps at the rule's pace.\n  function retarget(S) {\n    const now = viewNow();\n    cur = S;\n    start(motion(now, [{ S, at: 0, dur: 0.3 }]));\n  }\n  function setPic(p) { cur = P(p); anim.pause(); T = Infinity; fx = {}; syncCtls(); K.refresh(); }\n\n  // Three answers; Check marks the one chosen, and a right one plays what it says.\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S2[i];\n    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;\n    st.pick = d.opts[k]; st.res = null;\n  } }));\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S2[i];\n    if (finished || d.show || st.res === 'right') return;\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = st.pick === d.want ? 'right' : 'wrong';\n    if (st.res !== 'right') return;\n    const now = viewNow();\n    cur = P(d.after);\n    syncCtls();\n    start(motion(d.from ? still(P(d.from)) : now, d.play || [{ S: P(d.after), at: 0, dur: 0.9 }]));\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    if (finished || STEPS[at()].show) return;\n    const st = S2[at()]; st.why = !st.why;\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && S2[i].res !== 'right')) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true; anim.pause();\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S2 = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);\n  } });\n\n  function enter(id) {\n    if (REDUCE) return;\n    const box = el(id);\n    box.classList.remove('enter');\n    void box.offsetWidth;\n    box.classList.add('enter');\n  }\n\n  el('finish').textContent = FINISH;\n  K.update((p) => {\n    const i = Math.round(p.step), d = STEPS[i], st = S2[i];\n    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished\n    if (i !== lastStep) {\n      lastStep = i; enter('stepbox');\n      anim.pause(); T = Infinity; fx = {};\n      cur = P(d.show ? d.pic : st.res === 'right' ? d.after : d.before);\n      syncCtls();\n      // A demonstration screen plays once on opening.\n      if (d.show && d.demo) { start(motion(still(P(d.demo.from)), d.demo.keys)); fx.demo = true; }\n    } else if (movedFrom(p)) {\n      if (live()) {\n        last = { ph: p.ph, fault: p.fault, damp: !!p.damp, alarm: +p.alarm, C: +p.C };\n        retarget(P(last));\n      } else syncCtls();   // off the screens that show them, the controls keep the picture's setting\n    }\n    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }\n    const right = st.res === 'right';\n    el('stepbox').hidden = finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    task.textContent = strip(d.show ? d.text : d.task);\n    el('ctls').hidden = !d.show || !d.ctl;\n\n    const opts = d.show ? [] : d.opts;\n    el('picks').hidden = !opts.length;\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(opts[k]);\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n    el('acts').hidden = !!d.show;\n    checkBtn.el.hidden = right;\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n    const fb = el('fb');\n    fb.hidden = !!d.show || !st.res;\n    fb.className = 'fb' + (right ? ' right' : '');\n    fb.textContent = d.show ? '' : right ? 'That\\'s it.' : st.res === 'wrong' ? (d.hints[st.pick] || 'Not quite.') : st.res === 'empty' ? PICK : '';\n    const why = el('why');\n    why.hidden = !!d.show || !st.why;\n    why.textContent = d.show ? '' : strip(d.why);\n\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !right);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;\n    paint();\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  function drawn(c) {\n    const keep = [cur, T, fx];\n    cur = P(c); T = Infinity; fx = {};\n    try { paint(); return REC; } finally { cur = keep[0]; T = keep[1]; fx = keep[2]; paint(); }\n  }\n  const has = (r, s) => r.texts.indexOf(s) >= 0;\n  const lampsRead = (r) => [r.read.l1, r.read.l2, r.read.l3].join(', ');\n\n  K.check('Twelve screens: five that show and seven puzzles, alternating to the ninth and ending on three mixed puzzles', () =>\n    STEPS.length === 12 && STEPS.filter((d) => d.show).length === 5 && STEPS.slice(0, 9).every((d, i) => !!d.show === (i % 2 === 0)) && STEPS.slice(9).every((d) => !d.show));\n  K.check('Each line sits 440 ÷ 1.732 = 254 V from the star point; six feeders of 3 MΩ make 500 kΩ, and of 120 kΩ make 20 kΩ', () =>\n    Math.round(VPH) === 254 && rsym(false) === 500 && rsym(true) === 20);\n  K.check('Dry, the dial reads 500, 250, 115, 28.3, 0.998 and 0 kΩ with no fault and with a 500, 150, 30 or 1 kΩ or a solid fault', () =>\n    FOPTS.map((f) => drawn(P({ fault: f })).read.mon).join('|') === ['500 kΩ', '250 kΩ', '115 kΩ', '28.3 kΩ', '0.998 kΩ', '0 kΩ'].join('|'));\n  K.check('Lamps cannot see an equal fall on every phase: with Damp everywhere and no fault, all three lamps read 254 V while the dial reads 20 kΩ, below all three alarm levels', () => {\n    const r = drawn(P({ damp: true }));\n    return lampsRead(r) === '254 V, 254 V, 254 V' && r.read.mon === '20 kΩ' && ALARMS.every((a) => drawn(P({ damp: true, alarm: a })).alarmOn);\n  });\n  K.check('A solid fault puts out its own phase\\'s lamp and lifts the other two to 440 V, on every phase, damp or dry', () =>\n    PH.every((ph, k) => [false, true].every((damp) => {\n      const r = drawn(P({ fault: 'Solid', ph, damp }));\n      return [r.read.l1, r.read.l2, r.read.l3].every((s, j) => s === (j === k ? '0 V' : '440 V'));\n    })));\n  K.check('At 1 µF a phase, a 30 kΩ fault on L1 gives lamps of 254, 248 and 261 V; a 1 kΩ fault gives 190, 256 and 420 V', () =>\n    lampsRead(drawn(P({ fault: '30 kΩ' }))) === '254 V, 248 V, 261 V' && lampsRead(drawn(P({ fault: '1 kΩ' }))) === '190 V, 256 V, 420 V');\n  K.check('Three phases of 1 µF at 60 Hz look like 1 ÷ (2π × 60 × 3 µF) = 884 Ω to the hull, far less than a 30 kΩ fault', () =>\n    Math.round(1 / (W * 3e-6)) === 884);\n  K.check('At DC the capacitance drops out: the settled reading is 28.3 kΩ for a 30 kΩ fault at every capacitance from 1 to 10 µF', () =>\n    K.linspace(1, 10, 10).every((C) => drawn(P({ fault: '30 kΩ', C })).read.mon === '28.3 kΩ'));\n  K.check('Ships\\' mains alarm should the insulation resistance fall below 50 ohms per volt of the operating voltage: 22 kΩ on 440 V, so 1 kΩ alarms and 30 kΩ does not', () =>\n    drawn(P({ alarm: 50 })).read.alv === '22 kΩ' && drawn(P({ alarm: 50, fault: '1 kΩ' })).alarmOn && !drawn(P({ alarm: 50, fault: '30 kΩ' })).alarmOn, { source: SRC.gl });\n  K.check('The response value should be set to approx. 100 Ω/V: 44 kΩ on 440 V', () => drawn(P({ alarm: 100 })).read.alv === '44 kΩ', { source: SRC.maker });\n  K.check('A typical critical insulation value is 500 ohms/volt: 220 kΩ on 440 V', () => drawn(P({ alarm: 500 })).read.alv === '220 kΩ', { source: SRC.white });\n  K.check('A 28.3 kΩ reading alarms at 100 and 500 Ω/V but not at 50 Ω/V; a 115 kΩ reading alarms only at 500 Ω/V', () =>\n    ALARMS.map((a) => drawn(P({ fault: '30 kΩ', alarm: a })).alarmOn).join() === 'false,true,true' &&\n    ALARMS.map((a) => drawn(P({ fault: '150 kΩ', alarm: a })).alarmOn).join() === 'false,false,true');\n  K.check('Paths in parallel read below the lowest one: every fault, damp or dry, reads below both the fault and the feeders together', () =>\n    FOPTS.filter((f) => FAULTS[f] > 0 && isFinite(FAULTS[f])).every((f) => [false, true].every((damp) => reading(P({ fault: f, damp })) < Math.min(FAULTS[f], rsym(damp)))));\n  K.check('Worked numbers: 500 + 150 = 650 kΩ; 50 ÷ 0.1 = 500; feeders of 2,000, 2,000, 1,000 and 40 kΩ read 37 kΩ together', () =>\n    500 + 150 === 650 && Math.round(50 / 0.1) === 500 && Math.round(1 / (1 / 2000 + 1 / 2000 + 1 / 1000 + 1 / 40)) === 37);\n  K.check('The dial settles in five time constants, in proportion to the capacitance: 5 µF a phase takes five times as long as 1 µF', () => {\n    const m1 = motion(still(P()), [{ S: P({ damp: true }), at: 0, dur: 0.3 }]), m5 = motion(still(P({ C: 5 })), [{ S: P({ damp: true, C: 5 }), at: 0, dur: 0.3 }]);\n    return K.near(m1.until, 5 * TAU1, 1e-9) && K.near(m5.until / m1.until, 5, 1e-9) && viewAt(m5, m5.end).settled && !viewAt(m5, m5.until / 2).settled;\n  });\n  K.check('Switching on Damp everywhere: the lamps stay equal at 254 V all the way, while the dial falls below its alarm line within 3 s', () => {\n    const d = STEPS[2].demo, m = motion(still(P(d.from)), d.keys);\n    let equal = true, below = Infinity;\n    for (let t = 0; t <= m.end + 1e-9; t += 0.05) {\n      const v = viewAt(m, t);\n      if (lampsOf(v.g.H).some((x) => Math.abs(x - VPH) > 0.5)) equal = false;\n      if (below === Infinity && v.D < v.g.ap) below = t;\n    }\n    const fin = viewAt(m, m.end);\n    return equal && below <= 3 && fin.settled && fin.alarmOn && fmtK(reading(fin.S)) === '20';\n  });\n  K.check('Screen 5 settles the dial once at 1 µF, then five times as slowly at 5 µF, and everything settles within 5 s', () => {\n    const d = STEPS[4].demo, m = motion(still(P(d.from)), d.keys), fin = viewAt(m, m.end), mid = viewAt(m, 0.95);\n    return m.end <= 5 && mid.settled && fmtK(reading(mid.S)) === '20' && fin.settled && fmtK(reading(fin.S)) === '500' && K.near(fin.g.C, 5, 1e-9) && !viewAt(m, 3).settled;\n  });\n  K.check('A move Dan makes changes the picture in 0.3 s, and at 1 µF the dial settles within 0.6 s', () => {\n    const m = motion(still(P()), [{ S: P({ fault: '30 kΩ', ph: 'L3' }), at: 0, dur: 0.3 }]);\n    return m.geo <= 0.3 && m.until <= 0.6 && fmtK(reading(viewAt(m, m.end).S)) === '28.3';\n  });\n  K.check('Before an answer, no puzzle\\'s picture shows its result', () => {\n    const b = (i) => drawn(STEPS[i].before), a = (i) => drawn(STEPS[i].after);\n    return lampsRead(b(1)) === '254 V, 254 V, 254 V' && lampsRead(a(1)) === '440 V, 0 V, 440 V' &&\n      b(3).read.mon === '500 kΩ' && a(3).read.mon === '20 kΩ' && lampsRead(a(3)) === '254 V, 254 V, 254 V' &&\n      b(5).read.mon === '500 kΩ' && drawn(STEPS[5].from).read.mon === 'Settling' && a(5).read.mon === '500 kΩ' &&\n      b(7).read.mon === '500 kΩ' && a(7).read.mon === '115 kΩ' &&\n      b(9).read.mon === '500 kΩ' && !b(9).alarmOn && a(9).read.mon === '28.3 kΩ' && a(9).alarmOn &&\n      has(b(11), '1 µF') && has(a(11), '2 µF');\n  });\n  K.check('The right answer sits first, second or third across the puzzles, never in one place throughout', () =>\n    new Set(STEPS.filter((d) => !d.show).map((d) => d.opts.indexOf(d.want))).size === 3 && STEPS.filter((d) => !d.show).every((d) => d.opts.indexOf(d.want) >= 0));\n\n  K.ready();\n</script>",
+  "title": "Lamps and the monitor",
+  "brief": "The one thing you should see is the monitor's dial falling below its alarm line while the three earth lamps stay equal. That happens when you switch on Damp everywhere and every phase's insulation falls equally.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "Twelve screens: five that show and seven puzzles, alternating to the ninth and ending on three mixed puzzles",
+     "ok": true
+    },
+    {
+     "label": "Each line sits 440 ÷ 1.732 = 254 V from the star point; six feeders of 3 MΩ make 500 kΩ, and of 120 kΩ make 20 kΩ",
+     "ok": true
+    },
+    {
+     "label": "Dry, the dial reads 500, 250, 115, 28.3, 0.998 and 0 kΩ with no fault and with a 500, 150, 30 or 1 kΩ or a solid fault",
+     "ok": true
+    },
+    {
+     "label": "Lamps cannot see an equal fall on every phase: with Damp everywhere and no fault, all three lamps read 254 V while the dial reads 20 kΩ, below all three alarm levels",
+     "ok": true
+    },
+    {
+     "label": "A solid fault puts out its own phase's lamp and lifts the other two to 440 V, on every phase, damp or dry",
+     "ok": true
+    },
+    {
+     "label": "At 1 µF a phase, a 30 kΩ fault on L1 gives lamps of 254, 248 and 261 V; a 1 kΩ fault gives 190, 256 and 420 V",
+     "ok": true
+    },
+    {
+     "label": "Three phases of 1 µF at 60 Hz look like 1 ÷ (2π × 60 × 3 µF) = 884 Ω to the hull, far less than a 30 kΩ fault",
+     "ok": true
+    },
+    {
+     "label": "At DC the capacitance drops out: the settled reading is 28.3 kΩ for a 30 kΩ fault at every capacitance from 1 to 10 µF",
+     "ok": true
+    },
+    {
+     "label": "Ships' mains alarm should the insulation resistance fall below 50 ohms per volt of the operating voltage: 22 kΩ on 440 V, so 1 kΩ alarms and 30 kΩ does not",
+     "ok": true,
+     "source": "http://www.iqytechnicalcollege.com/gl_i-1-3_e.pdf"
+    },
+    {
+     "label": "The response value should be set to approx. 100 Ω/V: 44 kΩ on 440 V",
+     "ok": true,
+     "source": "https://fournais-bender.dk/storage/TechnAspects-IT-systems.pdf"
+    },
+    {
+     "label": "A typical critical insulation value is 500 ohms/volt: 220 kΩ on 440 V",
+     "ok": true,
+     "source": "https://info.bender-group.com/hubfs/Documents/US/White%20Papers/Insulation%20monitoring%20on%20common%20grounding%20methods.pdf?hsLang=en-us"
+    },
+    {
+     "label": "A 28.3 kΩ reading alarms at 100 and 500 Ω/V but not at 50 Ω/V; a 115 kΩ reading alarms only at 500 Ω/V",
+     "ok": true
+    },
+    {
+     "label": "Paths in parallel read below the lowest one: every fault, damp or dry, reads below both the fault and the feeders together",
+     "ok": true
+    },
+    {
+     "label": "Worked numbers: 500 + 150 = 650 kΩ; 50 ÷ 0.1 = 500; feeders of 2,000, 2,000, 1,000 and 40 kΩ read 37 kΩ together",
+     "ok": true
+    },
+    {
+     "label": "The dial settles in five time constants, in proportion to the capacitance: 5 µF a phase takes five times as long as 1 µF",
+     "ok": true
+    },
+    {
+     "label": "Switching on Damp everywhere: the lamps stay equal at 254 V all the way, while the dial falls below its alarm line within 3 s",
+     "ok": true
+    },
+    {
+     "label": "Screen 5 settles the dial once at 1 µF, then five times as slowly at 5 µF, and everything settles within 5 s",
+     "ok": true
+    },
+    {
+     "label": "A move Dan makes changes the picture in 0.3 s, and at 1 µF the dial settles within 0.6 s",
+     "ok": true
+    },
+    {
+     "label": "Before an answer, no puzzle's picture shows its result",
+     "ok": true
+    },
+    {
+     "label": "The right answer sits first, second or third across the puzzles, never in one place throughout",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step",
+    "ph",
+    "damp",
+    "fault",
+    "alarm",
+    "C"
+   ],
+   "readouts": [
+    "l1",
+    "l2",
+    "l3",
+    "mon",
+    "alv"
+   ],
+   "outputs": [],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Screen",
+     "min": 0,
+     "max": 11,
+     "step": 1,
+     "steps": [
+      "Two watchers",
+      "A solid fault on L2",
+      "Damp everywhere",
+      "After a wash-down",
+      "Why DC?",
+      "A VLF test",
+      "Every leak in parallel",
+      "A 150 kΩ fault",
+      "Where to alarm",
+      "Which alarms sound?",
+      "Two monitors",
+      "Drives with filters"
+     ],
+     "value": 0
+    },
+    {
+     "id": "ph",
+     "kind": "choice",
+     "label": "Fault on phase",
+     "options": [
+      "L1",
+      "L2",
+      "L3"
+     ],
+     "labels": [
+      "L1",
+      "L2",
+      "L3"
+     ],
+     "value": "L1",
+     "index": 0,
+     "shown": false
+    },
+    {
+     "id": "damp",
+     "kind": "toggle",
+     "label": "Damp everywhere",
+     "options": [
+      false,
+      true
+     ],
+     "value": false,
+     "shown": false
+    },
+    {
+     "id": "fault",
+     "kind": "choice",
+     "label": "Fault on feeder 3",
+     "options": [
+      "Open",
+      "500 kΩ",
+      "150 kΩ",
+      "30 kΩ",
+      "1 kΩ",
+      "Solid"
+     ],
+     "labels": [
+      "Open",
+      "500 kΩ",
+      "150 kΩ",
+      "30 kΩ",
+      "1 kΩ",
+      "Solid"
+     ],
+     "value": "Open",
+     "index": 0,
+     "shown": false
+    },
+    {
+     "id": "alarm",
+     "kind": "choice",
+     "label": "Alarm level",
+     "options": [
+      50,
+      100,
+      500
+     ],
+     "labels": [
+      "50 Ω/V",
+      "100 Ω/V",
+      "500 Ω/V"
+     ],
+     "value": 100,
+     "index": 1,
+     "shown": false
+    },
+    {
+     "id": "C",
+     "kind": "control",
+     "label": "Capacitance a phase",
+     "min": 1,
+     "max": 10,
+     "step": 1,
+     "log": false,
+     "value": 1,
+     "shown": false,
+     "snap": [
+      1,
+      5,
+      10
+     ]
+    }
+   ],
+   "actions": [
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Check",
+    "Why?",
+    "Back",
+    "Continue",
+    "Start again",
+    "The monitor"
+   ],
+   "answers": [],
+   "written": [],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 1
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-27T17:07:55.171Z",
+  "applied": [
+   {
+    "path": "explain.text",
+    "problem": "Three overreaches: 'It uses DC' contradicts its own 'or a very slow AC' and [^3]; 'the lowest path sets the reading' fails (500 kΩ fault on 500 kΩ reads 250); 'are set in ohms per volt' ignores absolute and percentage settings in the research."
+   },
+   {
+    "path": "interactive.whatAmILookingAt",
+    "problem": "Screen 7's 'the lowest path sets the reading' fails across the fault picker (500 kΩ reads 250 kΩ); screen 9's 'are set in ohms per volt' is too absolute; screen 6's 500-times answer holds only at the same test voltage, which VLF sets usually exceed."
+   },
+   {
+    "path": "analogy.breaks",
+    "problem": "A plain monitor cannot say which circuit is at fault, but i7 adds a pulse injector with feeder clamps that does; 'on its own' keeps the sentence true after i7."
+   }
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}

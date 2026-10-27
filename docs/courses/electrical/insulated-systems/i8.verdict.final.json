@@ -1,0 +1,264 @@
+{
+  "ok": true,
+  "reachChecked": true,
+  "problems": [],
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "Twelve screens: five that show and seven puzzles, alternating to the ninth and ending on three mixed puzzles",
+        "ok": true
+      },
+      {
+        "label": "Each line sits 440 ÷ 1.732 = 254 V from earth, with a peak of 254 × 1.414 = 359 V; a solid fault puts 440 × 1.414 = 622 V peaks on the healthy lines",
+        "ok": true
+      },
+      {
+        "label": "No losses: three strikes hold the star point at 359, 1,077 and 1,795 V, and L1 then peaks at 718, 1,436 and 2,154 V, 2, 4 and 6 times normal",
+        "ok": true
+      },
+      {
+        "label": "Some losses: held at 359, 718 and 898 V; L1 peaks at 718, 1,077 and 1,257 V; more strikes level off towards 4 times",
+        "ok": true
+      },
+      {
+        "label": "Higher losses and heavy damping keep the overvoltage from building: on Heavy losses the star point stays 359 V out and every peak is 718 V, twice normal",
+        "ok": true,
+        "source": "https://library.imarest.org/record/2202/files/2229.pdf"
+      },
+      {
+        "label": "180° after the restrike, with no losses, L1's voltage to the hull has risen to 4 times its normal peak",
+        "ok": true,
+        "source": "https://www.eaton.com/content/dam/eaton/markets/healthcare/knowledge-center/white-paper/transient-overvoltages-on-ungrounded-systems-from-intermittent-ground-faults.pdf"
+      },
+      {
+        "label": "The arc goes out at the next current zero: the current leads the voltage by 90°, so at each strike the current is zero and the capacitance's voltage is at its peak",
+        "ok": true,
+        "source": "https://www.eaton.com/content/dam/eaton/markets/healthcare/knowledge-center/white-paper/transient-overvoltages-on-ungrounded-systems-from-intermittent-ground-faults.pdf"
+      },
+      {
+        "label": "With the arc out, nothing charges or discharges the capacitance, so the star point stays at the voltage it had when the arc went out",
+        "ok": true,
+        "source": "https://www.eaton.com/content/dam/eaton/markets/healthcare/knowledge-center/white-paper/transient-overvoltages-on-ungrounded-systems-from-intermittent-ground-faults.pdf"
+      },
+      {
+        "label": "Ten filters at 0.1 µF add 1 µF a line: 3 × 377 × 1 µF × 254 V = 287 mA becomes 575 mA at 2 µF, and the monitor settles twice as slowly",
+        "ok": true
+      },
+      {
+        "label": "The supply is joined to the hull through the drive's internal EMC filter capacitors: with the filters in, the capacitance to the hull doubles",
+        "ok": true,
+        "source": "https://library.e.abb.com/public/2a86caefc9a646d6ba6be02a51401d7c/EN_ACS380_HW_H.pdf?x-sign=uVI95WUGnnSLwIKdHN0mtCica4cmiO2sqwtZQFRUbE3KUcBDVJ7Anb9IZ0mfA4b6"
+      },
+      {
+        "label": "Healthy, touching L1: 3 µF at 60 Hz is 884 Ω, so 254 ÷ √(1,000² + 884²) = 190 mA flows, with 190 V across the body",
+        "ok": true
+      },
+      {
+        "label": "A solid fault on L1: touching L1 gives 0 V and 0 mA; touching L2 gives 440 V and 440 ÷ 1,000 = 440 mA",
+        "ok": true
+      },
+      {
+        "label": "A touch voltage under 50 V AC keeps persons safe: the Safe touch tick sits at 50 V, and both touches that drive a current here are above it",
+        "ok": true,
+        "source": "https://fournais-bender.dk/storage/TechnAspects-IT-systems.pdf"
+      },
+      {
+        "label": "Before an answer, no puzzle shows its result",
+        "ok": true
+      },
+      {
+        "label": "A strike draws its rung in about 3 s, the three-strike puzzle finishes within 5 s, and a Losses, Filters or Fault move lands within 0.35 s",
+        "ok": true
+      },
+      {
+        "label": "Three strikes at most: after the third, Strike greys out until Reset",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "view",
+      "losses",
+      "filters",
+      "monitor",
+      "fault",
+      "touching"
+    ],
+    "readouts": [
+      "held",
+      "peak",
+      "times",
+      "ifault",
+      "settle",
+      "across",
+      "body"
+    ],
+    "outputs": [],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Screen",
+        "min": 0,
+        "max": 11,
+        "step": 1,
+        "steps": [
+          "The arc goes out at a peak",
+          "Once the arc is out",
+          "The gap restrikes",
+          "The next peak",
+          "Losses damp the ring",
+          "Heavy losses",
+          "Filters on an insulated supply",
+          "A reading that jumps",
+          "Touching a floating supply",
+          "A healthy reading",
+          "Two sides of the argument",
+          "What the filter gave"
+        ],
+        "value": 0
+      },
+      {
+        "id": "view",
+        "kind": "choice",
+        "label": "View",
+        "options": [
+          "Arc ladder",
+          "Drive on IT",
+          "Touch"
+        ],
+        "labels": [
+          "Arc ladder",
+          "Drive on IT",
+          "Touch"
+        ],
+        "value": "Arc ladder",
+        "index": 0,
+        "shown": true
+      },
+      {
+        "id": "losses",
+        "kind": "choice",
+        "label": "Losses",
+        "options": [
+          "No losses",
+          "Some losses",
+          "Heavy losses"
+        ],
+        "labels": [
+          "No losses",
+          "Some losses",
+          "Heavy losses"
+        ],
+        "value": "No losses",
+        "index": 0,
+        "shown": true
+      },
+      {
+        "id": "filters",
+        "kind": "choice",
+        "label": "Filters",
+        "options": [
+          "In",
+          "Out"
+        ],
+        "labels": [
+          "In",
+          "Out"
+        ],
+        "value": "In",
+        "index": 0,
+        "shown": false
+      },
+      {
+        "id": "monitor",
+        "kind": "choice",
+        "label": "Monitor",
+        "options": [
+          "Plain DC",
+          "Made for drives"
+        ],
+        "labels": [
+          "Plain DC",
+          "Made for drives"
+        ],
+        "value": "Made for drives",
+        "index": 1,
+        "shown": false
+      },
+      {
+        "id": "fault",
+        "kind": "choice",
+        "label": "Fault on L1",
+        "options": [
+          "None",
+          "Solid"
+        ],
+        "labels": [
+          "None",
+          "Solid"
+        ],
+        "value": "None",
+        "index": 0,
+        "shown": false
+      },
+      {
+        "id": "touching",
+        "kind": "choice",
+        "label": "Touching",
+        "options": [
+          "L1",
+          "L2"
+        ],
+        "labels": [
+          "L1",
+          "L2"
+        ],
+        "value": "L1",
+        "index": 0,
+        "shown": false
+      }
+    ],
+    "actions": [
+      "Strike",
+      "Reset",
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Back",
+      "Continue",
+      "Start again",
+      "The picture"
+    ],
+    "answers": [],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ],
+    "foreign": [],
+    "unreachable": []
+  }
+}

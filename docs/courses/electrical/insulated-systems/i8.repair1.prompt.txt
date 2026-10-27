@@ -1,0 +1,379 @@
+TASK: repair-interactive
+
+The interactive below, written for Dan's learning app, failed its automatic checks. Fix every problem listed and return the complete corrected body. Keep what already works.
+
+## The idea
+Topic: Insulated systems and earth faults
+Idea: Arcing faults, drives and safe working (Experts disagree whether arcing faults can ratchet an insulated supply's voltage up, and drive filters and touching a floating supply bring their own dangers.)
+Kind: mechanism
+Dan knows a little about this topic. Show an equation on the page only if every symbol in it is labelled on the picture; otherwise say the rule in words.
+
+## What the interactive must show
+Brief: The one thing you should see is L1's peaks to earth climbing from 2 to 4 times normal as each strike holds the star point further out, when you tap Strike on No losses but not on Heavy losses.
+Title (the app shows it above the frame, so do not repeat it): The restrike ladder
+The rule (the app shows it just above the frame, under "What you're looking at"): Twelve small screens share one picture. Back and Continue move between them. Five show an idea, and seven ask you to try it.
+
+A picker called View sits above the picture. It offers three cards: Arc ladder, Drive on IT and Touch. Its buttons wrap on a phone.
+
+Arc ladder. A sketch shows L1 of a 440 V, 60 Hz insulated supply. One capacitor to the hull stands for the whole system's capacitance. An arc gap sits at a chafed cable. A plot shows L1's voltage to the hull against time, slowed down. A dashed line shows the star point's voltage. Thin guide lines mark ±359 V, L1's normal peak. More guide lines mark ±622 V, labelled Solid fault. The vertical scale runs to ±2,400 V. Under it sit two buttons, Strike and Reset. A picker called Losses offers No losses, Some losses and Heavy losses. Its buttons wrap on a phone. Each tap of Strike waits for L1's next peak, then flashes the gap. After three strikes, Strike greys out until Reset. Three readout tiles show Star point held at, in volts; L1's highest peak, in volts; and Times normal peak. The tiles wrap on a phone.
+
+Drive on IT. A 440 V insulated board feeds a cable and ten drives. The cable has 1 µF a line. Each drive's EMC filter is three small capacitors to the hull, 0.1 µF a line. A switch called Filters sets them In or Out. With Filters Out, the capacitors are drawn unhooked. A tag then turns red: EMC standard not met. An insulation monitor's dial sits on the board. A picker called Monitor offers Plain DC and Made for drives. Two readout tiles show First-fault current, in milliamps, and Settling time, against the cable alone. The tiles wrap on a phone.
+
+Touch. Lines L1 to L3 run above the hull. A person stands on the hull with one hand on a line. A picker called Fault on L1 offers None and Solid. A picker called Touching offers L1 and L2. A bar shows the voltage across the person. A tick at 50 V is marked Safe touch. Two readout tiles show Across you, in volts, and Through a 1,000 Ω body, in milliamps. The tiles wrap on a phone.
+
+The rule for the ladder. Each line's normal voltage to earth is 440 ÷ 1.732 = 254 V. Its peak is 254 × 1.414 = 359 V, called 1 times. L1's voltage to the hull is the star point's held voltage plus L1's swing of 359 V either side. The first strike burns until a current zero at L1's peak. It leaves the star point held 1 times out, opposite L1's swing. Each later strike comes at L1's peak, P times out. The star point jumps P across, then rings past by a share of that jump. The share is all of it with No losses, half with Some and none with Heavy. The arc goes out at the top of the ring. So the new held voltage is (1 + ring share) × P minus the old one. L1's next peak is that plus 1.
+
+With No losses, the star point is held at 1, 3 and 5 times: 359, 1,077 and 1,795 V. L1 peaks at 2, 4 and 6 times: 718, 1,436 and 2,154 V. With Some losses, the star point is held at 1, 2 and 2.5 times: 359, 718 and 898 V. L1 peaks at 2, 3 and 3.5 times: 718, 1,077 and 1,257 V, heading towards 4 times. With Heavy losses, the star point is held at 1 times, and every peak is 2 times, 718 V. The ring is a short wiggle on the dashed line, slowed and enlarged.
+
+The rule for the drives. A solid first fault passes 3 × ω × C × 254 V. Here ω = 2π × 60 = 377, and C is the capacitance a line. That gives 287 mA for each µF a line. The cable's 1 µF gives 287 mA. Filters In add 10 × 0.1 = 1 µF. That makes 2 µF and 575 mA. Settling time grows in step with the capacitance: ×1 Out, ×2 In. With Monitor on Plain DC, the needle shakes. A tag reads: DC from the drive can upset this reading. No value is shown. With Made for drives, the needle is steady.
+
+The rule for touch. On a healthy supply, each line sits 254 V from the hull. The body current returns through all three lines' capacitance in parallel. That is 3 µF, or 884 Ω at 60 Hz. So the current is 254 ÷ √(1,000² + 884²) = 190 mA. With a solid fault on L1, the hull sits at L1. Touching L1 gives 0 V and 0 mA. Touching L2 gives 440 V. The fault is a solid path back, so the current is 440 ÷ 1,000 = 440 mA.
+
+The picture opens with View on Arc ladder, Losses on No losses, and no strikes. The trace swings 359 V either side of a dashed line at 0 V.
+
+Screen 1, show. View Arc ladder, No losses, Strike tapped once. The words: "An arcing fault strikes, goes out and strikes again. Say a chafed L1 cable arcs to the hull at L1's peak. While the arc burns, it acts as a solid fault, so the triangle shifts. The arc carries the system's charging current. That current leads the voltage by 90°, so it is zero when the voltage peaks. The arc goes out there.[^1] That leaves the star point a full peak, 359 V, from the hull. The charge has no quick way off, so it stays held there." Read: "The arc struck once at L1's peak and went out at a current zero. The dashed line shows the star point held 359 V from the hull." Still: one strike, run on one cycle.
+
+Screen 2, try it. "The arc has just gone out at a current zero. What does the star point's voltage to the hull do now?" Three choices, in this order: "It falls back to 0 V, as the fault has gone"; "It stays near 359 V, held by the charge on the capacitance"; "It swings at 60 Hz about the hull, as before the fault". Right, the second. Hint for the first: "Something must carry the charge away. With the arc out, there is no quick path." Hint for the third: "The capacitance now holds a charge. The arc that put it there has gone." Why: "The arc went out as the capacitance reached its peak. The charge has no quick way off, only slow leakage. So the star point stays near 359 V. L1 swings about it." The picture stays on one strike. Read: the question.
+
+Screen 3, show. View Arc ladder, No losses, Strike tapped again at the next peak. The words: "L1 still swings 359 V either side of the star point. Half a cycle on, L1 is 718 V from the hull, twice its normal peak. Then the gap restrikes. To pull L1 to the hull, the star point must jump 718 V. The jump is sudden, so the capacitance and the supply's inductance ring like a struck bell. With no losses, the star point rings past by as much again. The arc goes out at the top of the ring. Then L1 peaks at 4 times normal.[^2]" Read: "With no losses and two strikes, L1 peaks at 718 V, then 1,436 V. The star point is held at 359 V, then 1,077 V." Still: No losses, two strikes, run on to the next peak.
+
+Screen 4, try it. "There are no losses. After the second strike, the star point is held at 1,077 V. That is three times the normal peak of 359 V. How high does L1 peak half a cycle later?" Three choices, in this order: "1,077 V, the voltage the star point holds"; "1,436 V, the held voltage plus L1's own swing"; "718 V, twice the normal peak". Right, the second. Hint for the first: "L1 swings 359 V either side of the star point. Add that swing." Hint for the third: "That was the first rung. The star point is now three times as far out." Why: "L1's far peak is 1,077 + 359 = 1,436 V, 4 times normal. With no losses, the climb goes on until a weak part fails. A starter coil or a motor winding often goes first.[^3]" A right Check strikes a third time. L1 peaks at 2,154 V, and Strike greys out. Read: the question.
+
+Screen 5, show. View Arc ladder, Some losses, three strikes. The words: "Losses damp the ring. The insulation loses a little energy each time it charges. The ring charges it thousands of times a second. With Some losses, the star point rings past by half the jump. The peaks go 2, 3, then 3.5 times normal, and level off. Ships' cables lose far more at these frequencies.[^4] So people still argue whether the climb happens at sea at all. Faults on 480 V systems have reached 1,200 V to earth.[^5]" Read: "With Some losses and three strikes, L1 peaks at 718 V, 1,077 V, then 1,257 V. The climb is levelling off." Still: Some losses, three strikes.
+
+Screen 6, try it. "Heavy losses damp the ring completely. The star point never rings past. The arc restrikes at every peak. How high does L1 get?" Three choices, in this order: "359 V, its normal peak, as the losses stop any rise"; "718 V, twice its normal peak, and no higher"; "It still climbs, only more slowly". Right, the second. Hint for the first: "The first strike still leaves the star point held 359 V out. L1 swings past it." Hint for the third: "With no overshoot, each restrike lands the star point 359 V out on the other side." Why: "The first strike holds the star point 359 V out, so L1 reaches 718 V. Each restrike only flips it to 359 V on the other side. 718 V is a little above the 622 V peak that a solid fault puts on the healthy lines." A right Check sets Heavy losses and strikes three times. Every peak is 718 V. Read: the question.
+
+Screen 7, show. View Drive on IT, Made for drives, Filters from In to Out. The words: "A drive's EMC filter has capacitors from each line to the hull. On an insulated supply, they tie the system to earth.[^6] Ten drives at 0.1 µF a line add 1 µF a line to the cable's 1 µF. That doubles the capacitance. A solid first fault passes 575 mA, not 287 mA. The monitor takes twice as long to settle. So on an insulated supply you disconnect each filter and its varistor.[^7] In return, the drive may no longer meet its EMC standard.[^8]" Read: "With the filters in, a solid first fault passes 575 mA. The monitor settles twice as slowly. With them out, the fault passes 287 mA, and the EMC tag is red." Still: Drive on IT, Filters Out, Made for drives.
+
+Screen 8, try it. "A new drive's filter is out, as it should be on an insulated supply. Yet the monitor's reading jumps about whenever the drive runs. What do you check first?" Three choices, in this order: "Put the filter back in to steady the reading"; "That the monitor is made for supplies that feed drives"; "Nothing, as a monitor cannot see through a drive". Right, the second. Hint for the first: "The filter ties the supply to the hull. That is why it came out." Hint for the third: "The monitor reads everything joined to the supply, including the drive's DC side." Why: "A drive's rectifier joins its DC side to the supply. DC leaking from there distorts a plain monitor's reading.[^9] So use a monitor made for non-linear loads.[^10]" The picture shows Drive on IT, with Filters Out and Monitor on Plain DC. The needle shakes. A right Check sets Made for drives. Read: the question.
+
+Screen 9, show. View Touch, Fault on L1 Solid, Touching L2. The words: "A floating supply is not safe to touch. A monitor in alarm means a line may already be joined to the hull. Then the system behaves like an earthed one.[^11] Here a solid fault holds the hull at L1. Stand on the hull and touch L2, and you hold the full 440 V. That drives about 440 mA through a 1,000 Ω body. Only a touch voltage below 50 V AC is counted safe, and less in wet places.[^12]" Read: "With a solid fault on L1, a person on the hull touching L2 holds 440 V. About 440 mA flows through a 1,000 Ω body." Still: Touch, Fault on L1 Solid, Touching L2.
+
+Screen 10, try it, the first of three mixed puzzles. "The monitor reads 2 MΩ, with no alarm. The cables have 1 µF a line. You stand on the hull and touch L1. What flows through a 1,000 Ω body?" Three choices, in this order: "Next to nothing, as no fault completes the circuit"; "About 190 mA, back through the cables' capacitance"; "About 440 mA, with the full line voltage across you". Right, the second. Hint for the first: "Every cable is a capacitor to the hull you stand on. That is a path for AC." Hint for the third: "With no fault, L1 sits only 254 V from the hull. The capacitance also limits the current." Why: "The monitor reads resistance with DC or a very slow AC, so the capacitance barely shows. But the capacitance passes AC and closes the loop through you. About 190 mA flows. A healthy reading is no reason to touch." A right Check sets Touch, Fault None, Touching L1. Read: the question.
+
+Screen 11, try it. "One side says an arcing fault can pump an insulated supply's voltage up. The other says this is not a problem on ships. What does each case rest on?" Three choices, in this order: "The first on voltages measured on 480 V systems, the second on ships' heavier losses"; "The first on theory alone, the second on measurements at sea"; "Both on the same measurements, read differently". Right, the first. Hint for the second: "The 1,200 V readings were measured. The marine case rests on how hard ships damp the ring." Hint for the third: "One side measured voltages on 480 V systems. The other worked out how hard marine losses damp the ring." Why: "Engineers measured 1,200 V or more on 480 V systems.[^5] The marine case is that ships' heavy losses damp the ring.[^13] On the Losses picker, light losses let the ladder climb. Heavy losses stop it. People still argue where a real ship sits." A right Check shows Arc ladder with three strikes, first on No losses, then on Heavy losses. Read: the question.
+
+Screen 12, try it. "You disconnect a drive's EMC filter so it suits an insulated supply. What have you given up?" Three choices, in this order: "Nothing, as the filter matters only on earthed supplies"; "Its full EMC performance, so more switching noise can reach nearby equipment"; "The drive's protection against earth faults". Right, the second. Hint for the first: "The filter keeps the drive's high-frequency noise in, on any supply." Hint for the third: "The filter is there for interference, not for earth-fault protection." Why: "Without the filter, the drive may no longer meet its EMC standard.[^8] In return, the supply stays floating, with less capacitance to the hull." A right Check sets Drive on IT with Filters Out. The EMC tag turns red. Read: the question.
+
+Every figure here is an example value, a published figure, or worked from the rules above.
+What the model leaves out (the app shows this in its own panel; do not repeat it on the page): The ladder treats the whole system's capacitance as one capacitor. It treats the supply as a steady 60 Hz source. It strikes the arc exactly at each peak. It takes the first strike to burn until a current zero, with no ring. Real arcs are less regular, and fuller models of the arc give different figures. The ring is drawn slowed and enlarged. A real one runs at kilohertz and is over in well under a millisecond. The held charge is drawn steady between strikes. In fact, leakage slowly drains it. The ladder leaves out L2 and L3, though they move with the star point too. On the drive card, each filter is drawn as capacitors alone, without its varistor or resistors. The settling time follows the capacitance alone. On the touch card, the body is a fixed 1,000 Ω. The card leaves out footwear, gloves and contact resistance.
+Controls (use these ids, ranges and opening values exactly; when the prediction or a check names a setting of a slider, add it to that slider's snap):
+- id "step": Screen, from 0 to 11 in steps of 1, opening at 0
+Outputs: none. No rule computes a number here, so show no readouts beyond plain counts of what is on screen ("4 of 7 at war"): the picture, its labels and the .say line do the teaching.
+Numbers it may show (control = Dan sets it; computed = from the rule; constant = a fixed real value; assumed = an example value, said once as an example in the lead line or a caption, then drawn as a plain value; date = a historical date or fact):
+- Screen, 1 to 12 (the stepper): 0 (control)
+- Number of screens: 12 (assumed)
+- Example line voltage of the supply, in volts: 440 (assumed)
+- Example supply frequency, in hertz: 60 (assumed)
+- Square root of 3, to three decimal places: 1.732 (constant)
+- Square root of 2, to three decimal places: 1.414 (constant)
+- Each line's normal voltage to earth, 440 ÷ 1.732, in volts: 254 (computed)
+- Each line's normal peak to earth, 254 × 1.414, in volts: 359 (computed)
+- Line voltage peak, a solid fault's healthy lines, in volts: 622 (computed)
+- Angle by which a capacitor's current leads its voltage, in degrees: 90 (constant, source [1])
+- Ring share with No, Some and Heavy losses, in per cent: 100, 50, 0 (assumed)
+- Most strikes before Reset: 3 (assumed)
+- Vertical scale of the plot, in volts: 2400 (assumed)
+- No losses: star point held, times normal peak: 1, 3, 5 (computed)
+- No losses: star point held, in volts: 359, 1,077, 1,795 (computed)
+- No losses: L1's peaks, times normal peak: 2, 4, 6 (computed)
+- No losses: L1's peaks, in volts: 718, 1,436, 2,154 (computed)
+- Some losses: star point held, times normal peak: 1, 2, 2.5 (computed)
+- Some losses: star point held, in volts: 359, 718, 898 (computed)
+- Some losses: L1's peaks, times normal peak: 2, 3, 3.5 (computed)
+- Some losses: L1's peaks, in volts: 718, 1,077, 1,257 (computed)
+- Some losses: the level the peaks approach, times normal: 4 (computed)
+- Heavy losses: star point held, then every peak, in volts: 359, 718 (computed)
+- Twice the normal peak, in times: 2 (computed)
+- Measured line-to-earth voltage in arcing cases, in volts: 1200 (constant, source [5])
+- Supply in those documented cases, in volts: 480 (constant, source [14])
+- ω, 2π × 60, in radians per second: 377 (computed)
+- Example cable capacitance, in µF a line: 1 (assumed)
+- Example filter capacitance per drive, in µF a line: 0.1 (assumed)
+- Example number of drives: 10 (assumed)
+- Capacitance with the filters in, in µF a line: 2 (computed)
+- First-fault current, cable alone, in milliamps: 287 (computed)
+- First-fault current, filters in, in milliamps: 575 (computed)
+- Settling time with filters in, against the cable alone: 2 (computed)
+- Example body resistance, in ohms: 1000 (assumed)
+- Three lines of 1 µF in parallel, in µF: 3 (computed)
+- Reactance of 3 µF at 60 Hz, in ohms: 884 (computed)
+- Body current, healthy, touching L1, in milliamps: 190 (computed)
+- Body current, solid fault on L1, touching L2, in milliamps: 440 (computed)
+- Safe touch voltage, AC, below, in volts: 50 (constant, source [12])
+- Screen 10: monitor reads, in megohms: 2 (assumed)
+
+## What the checks found (at 340, 720 and 1040 px wide)
+- Text cut off: SVG text "−2,400" runs outside its drawing (left by 3px) (at the opening state, and 53 more settings) [at 340 px wide]
+- Text cut off: SVG text "−2,400" runs outside its drawing (left by 4px) (at the opening state, and 53 more settings) [at 720 and 1040 px wide]
+- Advice: The check "Higher losses and heavy damping keep the overvoltage from building: on Heavy losses the star point stays 359 V out and …" cites [4], but none of its numbers is in that source's quote: give a source only to a check that restates the quote; a result of your own rule takes none.
+- Advice: The check "180° after the restrike, with no losses, L1's voltage to the hull has risen to 4 times its normal peak" cites [1], but none of its numbers is in that source's quote: give a source only to a check that restates the quote; a result of your own rule takes none.
+
+## How to fix the usual problems
+- A thrown error (also from a K.button press or a K.anim step): go to the body line it names; check element ids, variable names and the kit call signatures.
+- NaN or Infinity: guard the maths at the ends of every control's range (division by zero, log of 0, square root of a negative), or start the range where the rule makes sense.
+- A model output that is a list or object: K.model returns single numbers or short strings; keep lists in your own variables.
+- Too wide at 340 px: let rows wrap (flex-wrap), use width:100% and max-width:100%, give SVG a viewBox with width 100%, no fixed widths over 300 px, shorter labels.
+- Text cut off: shorten it or let it wrap, or give it room (a wider box, a bigger viewBox); never cut it off or hide the overflow. SVG labels printed over each other, even by a letter or two: move one, or place them with K.labels. A plot's axis title too long for a phone: shorten it (about 30 characters). A word split across two lines (often at Text size XL): size its grid columns or tiles in rem, not px (minmax(6rem, 1fr)), so they reflow to fewer, wider columns; or use a shorter word.
+- SVG text too small on a phone: font-size 13-16 in a drawing about 340 wide. A line or arrowhead through a label: place the label with K.labels and pass that line in avoid, or stop the line short of it. More labels than room (K.labels says avoid cannot be honoured): label fewer things, or move the names into a key under the drawing or a list beside it.
+- A readout's value printed elsewhere (a label, an aria-label or a plot label that follows it): while Dan answers a check the app hides only the readout and the .say line, so show the number in the readout alone and name the thing elsewhere.
+- Text hard to read (contrast) or a colour name: ink, muted, accent2, accent, warn or good (on-accent2 on navy), as var(--k-…) or K.color set in K.update, so it follows the theme.
+- A blank hole before Dan moves: hide only the answer (a line, a mark, a sentence), never a whole figure.
+- The first control far below the main figure (phone layout): put the visual and its controls together with K.stage(visual, controls), secondary figures below.
+- K.sound: frequencies 20 to 20,000 Hz (200 to 2,000 for anything Dan must hear on a phone), dur above 0 and at most 10 s, gain 0 to 1, a listed type; play it from a K.button press.
+- Navigation, links out, connections or frames: everything stays on this page (no <a href> or forms, no location changes, no WebSocket, XMLHttpRequest or iframes); name sources in words.
+- A failing check: work the expected value out again by hand. Fix whichever is wrong, the model or the check. Never delete a correct check or change its expected answer to pass. A tolerance that was unrealistically tight (a millionth, where square roots or small steps meet rounding) may be widened to a sensible one (a thousandth of the size).
+- Slow updates: sample curves less densely and do not rebuild large parts of the page on every change.
+- Missing ids: use exactly the ids listed; an output must be a key of the object K.model returns.
+- An unlisted web address: delete it, and the {source} that held it.
+- A target out of reach: make the model follow the lesson's rule with the lesson's ranges and opening values, so moving that one control brings the output to the target.
+
+## Sources
+The only web addresses this page may contain, each only as a K.check {source} on a check whose label restates what that source's quote says (a result of your rule, or a fact about your drawing, takes no source; the caption names a source in words). The app rejects any other:
+[1] Transient overvoltages on ungrounded systems from intermittent ground faults (https://www.eaton.com/content/dam/eaton/markets/healthcare/knowledge-center/white-paper/transient-overvoltages-on-ungrounded-systems-from-intermittent-ground-faults.pdf): "The arc, by definition, must extinguish at the next current zero, since there will be zero current flowing at that point. Note that since this current leads the voltage by 90 degrees, the voltage across the phase-to-ground capacitor is at …"
+[2] Transient overvoltages on ungrounded systems from intermittent ground faults (https://www.eaton.com/content/dam/eaton/markets/healthcare/knowledge-center/white-paper/transient-overvoltages-on-ungrounded-systems-from-intermittent-ground-faults.pdf): "180 degrees later at position the phase-to-ground voltage has now risen to a value 4 times the initial phase-to-ground voltage."
+[3] Transient overvoltages on ungrounded systems from intermittent ground faults (https://www.eaton.com/content/dam/eaton/markets/healthcare/knowledge-center/white-paper/transient-overvoltages-on-ungrounded-systems-from-intermittent-ground-faults.pdf): "until some device fails, typically a lower BIL (Basic Impulse Level) device such as a control power transformer, a motor starter coil, a motor winding or a dry-type transformer. At that point, the failure is permanently shorting that phase…"
+[4] library.imarest.org (https://library.imarest.org/record/2202/files/2229.pdf): "When marine systems are considered, dielectric losses are much higher, particularly at the typical natural frequencies of several kilohertz, and the peak overvoltages are further reduced."
+[5] Characteristics of different power systems neutral grounding techniques: Fact and fiction (https://www.eaton.com/content/dam/eaton/products/medium-voltage-power-distribution-control-systems/vacclad-w-pages/characteristics-power%20systems-neutral-grounding-techniques-fact-fiction-ap083005en.pdf): "Measured line-to- ground voltages of 1200 V or higher in these instances are not that uncommon."
+[6] EN / ACS380 hardware manual (https://library.e.abb.com/public/2a86caefc9a646d6ba6be02a51401d7c/EN_ACS380_HW_H.pdf?x-sign=uVI95WUGnnSLwIKdHN0mtCica4cmiO2sqwtZQFRUbE3KUcBDVJ7Anb9IZ0mfA4b6): "The supply network becomes connected to ground potential through the internal EMC filter capacitors"
+[7] ACS880 frames R1 to R11 EMC filter and ground-to-phase varistor disconnecting instructions (https://library.e.abb.com/public/b698871f67f14bfe80fcd5da604b4d7b/EN_ACS880_frames%20R1-R11%20EMC%20disconn%20INSTR_L.pdf?x-sign=U9P%2FmBYvtRoLmjB%2BXG2j7bY6HQLq8R4UIFm7NB7Nvq9bwlHi0VfRWIwBS1h3fHIO): "check the compatibility of the drive with IT (ungrounded), corner-grounded delta, midpoint-grounded delta and TT systems • disconnect EMC filter and ground-to-phase varistor."
+[8] How to operate an Altivar Process Drive with an IT or Corner Grounded System | Schneider Electric Australia (https://www.se.com/au/en/faqs/FA318569): "In this configuration the product does not meet the EMC requirements according to the standard IEC 61800-3"
+[9] Insulation monitoring: The concept (https://www.bender-uk.com/know-how/technology/it-system/insulation-monitoring): "If it is used in AC, 3(N)AC systems containing galvanically connected DC components, these DC currents will distort the measurement result."
+[10] How to operate an Altivar Process Drive with an IT or Corner Grounded System | Schneider Electric Australia (https://www.se.com/au/en/faqs/FA318569): "Use a permanent insulation monitoring device compatible with nonlinear loads"
+[11] EVPRO+ Myth Buster: One-Hand Rule and HV Safety Standards | MOTOR (https://www.motor.com/2026/05/evpro-myth-buster-one-hand-rule-and-hv-safety-standards/): "an IT (i.e., not grounded to earth) system with a latent first fault behaves exactly like a grounded system."
+[12] Technical aspects IT systems (https://fournais-bender.dk/storage/TechnAspects-IT-systems.pdf): "the electrical safety of persons is guaranteed if the touch voltage is < 50 V (AC) or < 120 V (DC)."
+[13] library.imarest.org (https://library.imarest.org/record/2202/files/2229.pdf): "Such overvoltages are not a problem on marine systems, however, because of their higher losses and consequent heavy damping."
+[14] Characteristics of different power systems neutral grounding techniques: Fact and fiction (https://www.eaton.com/content/dam/eaton/products/medium-voltage-power-distribution-control-systems/vacclad-w-pages/characteristics-power%20systems-neutral-grounding-techniques-fact-fiction-ap083005en.pdf): "There have been many documented cases within industry where multiple equipment failures (e.g., motors) over an entire 480 V system have occurred while trying to find and locate a ground fault."
+[15] Transient overvoltages on ungrounded systems from intermittent ground faults (https://www.eaton.com/content/dam/eaton/markets/healthcare/knowledge-center/white-paper/transient-overvoltages-on-ungrounded-systems-from-intermittent-ground-faults.pdf): "Because the arc has extinguished, there is now no longer a current to charge or discharge this capacitor and as a result, the phase to ground (i.e. capacitor) voltage remains at whatever value it was prior to the arc interruption."
+[16] Electrical test equipment for use on low voltage electrical systems - HSE (https://www.hse.gov.uk/pubns/books/gs38.htm): "Wherever possible, all work on electrical systems should be carried out with the system dead."
+[17] Low-voltage high resistance grounding systems basics (https://www.eaton.com/content/dam/eaton/products/low-voltage-power-distribution-controls-systems/hrg/files/lv-hrg-systems-basics-ap019004en.pdf): "The equipment rating has to be rated at 173% of their line-to-neutral voltages."
+[18] Ship Earthing Systems: Insulated Networks, Bonding and Earth-Fault Monitoring (https://marineinsight360.com/blogs/ship-earthing-systems-protect-ships): "A high-resistance earth limits the fault current to a few amperes, so a first earth fault can still be alarmed rather than tripped, while avoiding the dangerous overvoltages that can build up in a fully insulated HV system."
+
+## Rules for this page
+- There is no guess to protect: show everything from the start (no k-after-move), curves and results included.
+- The lead line says what is drawn, plainly ("Water from a 5 m drop hits the blades of a wheel"), not what to do: the app gives the action above the frame. Example values are said once there ("an example stream: a 5 m drop, 20 kg of water each second"), then the drawing labels them plainly ("5 m"), never "for example" on the drawing.
+- Every label and arrow sits on, or starts from, the thing it is about: a force arrow starts on the part it pushes; a speed arrow on the part that moves. Anything the rule says turns or flows does so (K.anim), at a speed that follows its control.
+- The .say sentence must make sense on its own to someone who has just read the explanation: what is happening on screen now, cause then effect, in everyday words; no term, threshold or comparison the page or the explanation has not named; a number as part of its whole ("353 W of the stream's 981 W is carried off by the water"). Bad: "The buckets move slower than half the jet speed, so the water still leaves going backwards, taking 353 W away with it." Good: "The buckets are moving slowly, so the water bounces off them still moving fast, and carries 353 W of its 981 W away downstream."
+- A key for the main drawing sits inside the drawing; show each quantity once (a bar, a readout or a curve, not all three); every number drawn that is worked out (a speed from a drop) is explained in "What you're looking at", or is left off.
+- Draw the cause the explanation gives, not only its effect, and let Dan cause it (a drag, a push, a switch); include the setting where the effect does not happen.
+- Mark the brief's one quantity on the picture itself, with a label saying what it is and its value (a bracket between the two heights reading "2.4 m"); an output with a readout is marked without its number, which the readout alone shows (the app hides it while Dan answers a check).
+- A shaded band states something true of the axis it spans: inputs across x, outputs across y. To show many inputs giving nearly the same output, shade the narrow output band (regions {y0, y1}).
+- Draw every comparison the explanation makes the same way, in the same place, on the axis where the effect happens. A time period is a bracket or thin band along the time axis, not a tall block.
+- Give each reference line its own look and a label beside it; every styled line is in the key or labelled on the drawing.
+- Draw only what the brief, the rule or the explanation names, with the same names. An extra figure says on itself how to read it: what its line stands for and which way is which.
+- Show only the numbers listed above or computed from the rule, each written the way the explanation writes it (the same rounding).
+- Any example cases you choose are fair and representative, never picked to exaggerate the effect.
+- Money, health and law: show how it works, never advice, and never a guaranteed outcome.
+
+## The house kit (complete API reference)
+You write the BODY of one page: HTML, an optional `<style>`, then one inline `<script>` ending
+with `K.ready()`. It runs in a sandboxed iframe on Dan's phone (about 340 px wide, touch) and
+laptop, with the global `K` and the kit's stylesheet. No network or storage: no web
+addresses, `fetch`, `localStorage`, `alert` or `prompt`.
+
+### Page shape that works
+1. `<p class="lead">`: one line saying what is drawn (the app adds title and action).
+2. The main visual with its controls right under it: `K.stage('#scene', '#controls')` keeps the
+   pair on one phone screen. A choice that re-sorts the picture may sit above it.
+3. `<p class="say">`: one sentence that changes with the state and says why. Then
+   `<div class="k-readouts">` for numbers the drawing does not label.
+4. Secondary figures and anything that grows go below.
+5. `<p class="caption">`: one short sentence, at most 20 words: where the numbers come from ("A
+   sketch, not measured data") or the rule in the explanation's words. No new claim, no law or
+   term the explanation does not teach. The app shows what the model leaves out.
+
+### Keep the answer hidden until Dan moves
+Dan predicts before he plays: open on a setting the question is not about, and hide whatever
+gives the answer away until his first move:
+- class `k-after-move` on any element (a mark, an arrow, a sentence): hidden, its space kept.
+  Hide the answer, not the controls or a whole figure (a blank hole fails the test).
+- `K.readout({..., afterMove: true})` shows "?" until then; plot series and marks take `afterMove: true` too.
+- `K.moved` is true from then on: in `K.update`, write `K.moved ? answer : question`.
+- `K.afterMove(fn)` runs `fn` once at that moment; `K.reveal()` marks it from your handlers.
+
+### The pipeline
+Controls register themselves; their values form `params` = `{id: value}`.
+```
+K.model(fn)        fn(params) -> outputs {name: number | string}. Pure: no DOM, no lists or objects.
+K.update(fn)       fn(params, outputs): draw everything here. More than one is allowed.
+K.at(over)         -> outputs of the model at those params (others take each control's starting value)
+K.check(label, fn, {source?})   fn() must return exactly true
+K.ready()          call once, last: draws the opening state and runs the checks
+K.complete()       at the lesson's end
+K.params()  K.outputs()  K.refresh()   (refresh reruns the pipeline after you change your own state)
+```
+A readout whose id is an output key updates itself.
+
+### Controls
+Every control takes `into` (a selector or element). Ids are unique; use the lesson's ids exactly.
+```
+K.control({id, label, min, max, step, value, unit?, prefix?, fmt?, log?, snap?, hint?, into}) -> {el, get(), set(v)}
+K.choice({id, label, options: [value | {value, label}], value, hint?, into}) -> {el, get, set}
+K.toggle({id, label, value: false, hint?, into}) -> {el, get, set}
+K.stepper({id, steps: [title | {title, text}], value: 0, compact?, label?, into}) -> {el, get, set, setSteps(list)}
+K.button({label, press, secondary?, into}) -> {el, press(), setLabel(text)}
+K.drag(el, {control, toValue(x, y)}) -> {el}
+```
+`control` is a big slider with − / + buttons. Keep `unit` short; `fmt(v)` returns the whole text;
+`log: true` spans decades; `snap: [values]` lands a drag exactly on a setting the prediction or a
+check names. `choice`: 2-8 short named options; `value` is an option's value or its 0-based
+index. `stepper` walks a process with Back / Next (`compact: true` when your diagram shows the
+content). `button` is an action (Send it in): use it, not plain buttons. `drag` lets Dan move
+the thing itself: `toValue` maps the pointer (viewBox units; px from `el`'s top-left for HTML)
+to the control's value; the first touch counts as his move.
+
+### Outputs
+```
+K.readout({id, label, unit?, prefix?, decimals?, fmt?, big?, hint?, afterMove?, into}) -> {el, set(v), get(), text()}
+```
+One rounding everywhere a number appears: `decimals` matching the lesson text, and the `.say`
+sentence built with `K.fmt(v, {decimals})` or `readout.text()`. Labels under 30 characters.
+While Dan answers a lesson check, the app hides that output's readout and the `.say` lines:
+never repeat a readout's value elsewhere (a label, an aria-label).
+```
+K.plot(target, opts) -> {draw(opts), x(v), y(v), invert(px, py), el, canvas}
+```
+- `x`, `y`: `{min, max, label, log?, prefix?, unit?, fmt?, ticks?}`. Leave out `y.min`/`y.max` to fit the data.
+- `series`: `[{fn: x => y | points: [[x, y], ...], label?, color?, dash?, width?, fill?, dots?, gaps?, afterMove?}]`
+- `shade`: `[{between: [a, b], label?, color?, x0?, x1?}]`: fills between two series (by label), a
+  series and a constant, or two functions.
+- `marks`: `[{x, y, label?, color?, guides?, afterMove?}]`: a dot with a label pill; `guides` adds dashed lines to the axes.
+- `regions`: `[{x0, x1, label?} | {y0, y1, label?}]` (a band); `lines`: `[{x | y, label?}]` (a dashed line).
+- `label`: the text alternative; `height`; `after(ctx, plot)` draws extras using `plot.x()`, `plot.y()`.
+
+`draw(opts)` redraws with `opts` over the creation options: call it in `K.update`. Values must be
+finite (`gaps: true` only where a gap is real). Series are navy, then teal; `color: 'muted',
+dash: true` for a baseline.
+```
+K.bars(target, {max?, unit?, prefix?, decimals?, fmt?}) -> {draw(items)}      items: [{label, value, color?}], values >= 0
+K.anim({step(dt, t), reset?, label?, autoplay?, button?, into}) -> {el, play, pause, toggle, reset, playing()}
+```
+`anim` adds a Play button (text `label`); `reset` adds Reset. When a switch, button or drag
+already starts the motion, pass `button: false` and call `play()` from that control: one control
+per action. In `step` advance your state (`dt` in seconds) and redraw; return `false` to stop. To
+drive a slider, keep the exact value yourself (the slider moves in whole steps).
+
+### Sound
+```
+K.sound.tone(hz, {dur?, type?, gain?})   K.sound.chord([hz, ...], {dur?, stagger?})   K.sound.stop()   K.sound.mute(on)
+K.sound.hold(hz, {type?, gain?, max?}) -> {set({hz?, gain?}), stop(), playing()}
+```
+`dur` in seconds (at most 10). Sound plays only from a `K.button` press, never `K.update`; show
+what is sounding. `hold` keeps a tone going while `set()` follows a slider. Phones can't play
+below about 150 Hz: use 200 to 2,000 Hz.
+
+### Drawings and helpers
+```
+K.el(tag, attrs?, ...children)    attrs: class, style, on: {click: fn}, text, html, dataset, any attribute
+K.svg(tag, attrs?, ...children)   the same in the SVG namespace
+K.labels(group, [{x, y, text, anchor?, size?, class?, color?}], {avoid?}) -> [<text>]
+K.stage(visual, controls, {max?, beside?}) -> {el}
+K.fmt(v, {decimals?, sig?, prefix?, unit?, percent?, sign?, compact?}) -> '1,234.5', '−3', '2.5 × 10⁶'
+K.near(a, b, tol)   K.clamp(v, lo, hi)   K.lerp(a, b, t)   K.linspace(a, b, n)   K.color(role, alpha?)
+K.ease(p)   K.arrive(T, t0, dur?)   K.fade(el, a, rise?)
+```
+Give an `<svg>` a viewBox about 340 wide, `width="100%"`, `role="img"` and an `aria-label` that
+follows the state. Text 13-16 units, never under 12 (a phone shows 340 units at about 0.9x). A
+row of N labels gets about 300/N units each; label only what differs. Every label sits on, or
+points to, something drawn. `K.labels` places labels (13 units unless `size`) clear of other
+text, the edges and the lines or shapes in `avoid`: use it for labels that move or appear later.
+Put an angle's label inside its wedge, beyond the arc, hidden while the wedge is too narrow.
+`K.stage` fits the pair in `max` px (600) on a phone; `beside: false` keeps it stacked.
+
+Draw the mechanism as it physically works. If the explanation gives a reason (X because Y), draw
+Y so Dan can watch it; parts that fit are drawn fitting (teeth in teeth), never two identical
+icons joined by a line; whatever the rule says happens (slides, grips, multiplies) happens on screen.
+
+### Colour
+Colour carries meaning. Use these roles as `var(--k-…)` or `K.color('fill2')` (`K.color('accent2',
+0.3)` is see-through); a colour name fails the test.
+- Lines and text: `ink`, `muted` (secondary, comparisons), `accent2` (navy: the main thing,
+  controls), `accent` (teal: small labels, a second series), `warn` (red: warnings and mistakes
+  only), `good` (green: "done" only), `amber-line` (amber lines that must stand out).
+- Fills: `bg` (page), `panel`, `sunk`, `amber` (note box), `hl` (key-term highlighter), `fill1`
+  (area of the main thing), `fill2` (highlighted area, amber), `fill3` (area of a second thing).
+- `cat1`-`cat4` (blue, orange, magenta, aqua): telling equal things apart, never meaning; with a
+  key or labels; cat1 and cat2 first. A thing with a familiar colour (water, fire) never gets
+  another thing's colour: use the nearest role and label it. What is still there stays solid:
+  mark a state such as unused with a label, not by fading it, and key any dashed style.
+- Also `--k-line`, `--k-strong` (borders), `--k-on-accent2` (text on navy), `--k-font`, `--k-r` (radius).
+
+Never describe colours by lightness or hue in words Dan reads ("the dark square"): dark mode
+changes them.
+
+Classes: `muted`, `small`, `k-label` (small teal caps), `term` (key term), `note` (amber box),
+`warn-note`, `panel`, `row`, `grid2`, `big`, `k-btn` (`secondary`), and a legend:
+`<div class="key"><span><i class="swatch" style="background:var(--k-accent2)"></i>Your push</span>
+<span><i class="swatch line dash" style="color:var(--k-muted)"></i>The limit</span></div>`.
+
+### Rules for a great interactive
+- One idea. The answer to Dan's prediction shows within about 3 seconds of his first move (add
+  a K.check that it does). Include something Dan causes and a case that surprises. One or two
+  controls, three at most.
+- Phone first: nothing wider than 340 px, no fixed widths over 300 px, rows wrap, no hover-only
+  information, tap targets at least 44 px. Size tiles and grid columns in rem (`minmax(6rem,
+  1fr)`): text grows a quarter at Text size XL, and no word may split across two lines.
+- Every number shown is a control, computed by the rule shown, a constant from the lesson, an
+  example value named once in the lead, or a date from the lesson. Never invent data, rates or chances.
+- The `.say` sentence describes what is on screen now, plainly and warmly, and reads right at the
+  extremes ("none of the 100"). Never claim Dan did something ("When you slid it to 20"):
+  describe the state, or write conditionally ("Push it past 20 and…").
+- 3-5 `K.check` known answers worked out by hand: an edge case, a shape fact (rises, halves,
+  always last), and one answer from outside your formula. `source` may ONLY be a URL from the
+  lesson's own sources, and only on a check whose label restates what that source's quote says;
+  a result of your rule, or a fact about your drawing, takes none. Compare numbers with
+  `K.near(a, b, tol)`: tolerance about a millionth of the size, a thousandth where rounding meets roots.
+- `K.anim` for motion, never timers: soft, unhurried, nothing popping in. Parts arrive about 0.6
+  s apart by `K.fade(el, K.arrive(T, t0))`; travel and growth use `K.ease`; a demonstration takes
+  3-5 s. No `vh` units, `position: fixed` or `height: 100%`.
+- Ideas without numbers (mechanism, process, structure, history, concept): prefer a timeline
+  slider, a named choice, a sorter or a drag; use `K.stepper` only when every step changes the
+  drawing. Checks assert order and structure facts.
+- A timeline runs forward: a slider rising left to right, its `fmt` showing the date (−500 as
+  "500 BC"), or a stepper of named events in order. A lesson's calendar-year control keeps its
+  range, its `fmt` showing the year; years after the first date are for new controls. Each dated
+  event appears as he reaches its date.
+
+### The self-test
+Before Dan sees it, the app loads your body 340, 720 and 1040 px wide, runs every check, moves
+every control, button, animation and drag, reveals the after-move parts, and looks again at Text
+size XL and in the other theme. It fails on an exception, NaN or undefined on the page, an update
+over 150 ms, sideways overflow, text cut off or over other text, SVG text under 11 px on a phone,
+a line or arrowhead through a label, text under 3:1 contrast with what is behind it, a colour
+name, a blank hole until a move, or no `K.ready()`.
+
+### Example
+```html
+<p class="lead">Lengthen the string and watch each swing take longer.</p>
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+<p class="caption">Small swings only; g = 9.81 m/s² is gravity at the Earth's surface.</p>
+<script>
+  const g = 9.81;
+  const period = (L) => 2 * Math.PI * Math.sqrt(L / g);
+  K.control({ id: 'L', label: 'String length', min: 0.1, max: 3, step: 0.05, value: 1, unit: 'm', snap: [2], into: '#controls' });
+  K.stage('#plot', '#controls');
+  K.readout({ id: 'T', label: 'One full swing takes', unit: 's', decimals: 2, into: '#outs' });
+  const plot = K.plot('#plot', { x: { min: 0, max: 3, label: 'Length (m)' }, y: { min: 0, max: 4, label: 'Period (s)' } });
+  K.model((p) => ({ T: period(p.L) }));
+  K.update((p, o) => {
+    plot.draw({ series: [{ fn: period }], marks: [{ x: p.L, y: o.T, guides: true }] });
+    document.getElementById('say').textContent = !K.moved ? 'Make the string four times longer: how much longer is each swing?'
+      : 'A ' + K.fmt(p.L, { decimals: 2 }) + ' m string swings there and back every ' + K.fmt(o.T, { decimals: 2 }) + ' s. Four times the length only doubles that.';
+  });
+  K.check('No length, no swing time', () => K.near(period(0), 0));
+  K.check('A seconds pendulum (2 s per swing) is 0.994 m long', () => K.near(period(0.994), 2, 0.002),
+    { source: 'https://en.wikipedia.org/wiki/Seconds_pendulum' });
+  K.check('Four times the length doubles the period', () => K.near(K.at({ L: 2 }).T / K.at({ L: 0.5 }).T, 2, 1e-9));
+  K.ready();
+</script>
+```
+
+
+## The body that failed
+The body you just wrote (/home/user/Study-App/build/electrical/insulated-systems/i8.body1.x.html). You already have it; it is not repeated here. Return the complete corrected body.
+
+## Output
+Return ONLY the complete corrected body: HTML elements, an optional <style>, then one inline <script> that ends with K.ready(). No <html>, <head> or <body> tags, no markdown fences, no commentary before or after. Keep it under 40 KB.

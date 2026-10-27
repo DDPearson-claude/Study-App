@@ -1,0 +1,702 @@
+<!-- kind: quantity -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .caption { max-width: 32rem; margin-inline: auto; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.15rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.05rem; font-weight: 400; line-height: 1.6; }
+  .scene { display: block; width: 100%; max-width: 32rem; margin-inline: auto; }
+  .scene .pb { stroke: var(--k-cat1); stroke-width: 3; stroke-linecap: round; }
+  .scene .nb { stroke: var(--k-cat2); stroke-width: 3; stroke-linecap: round; }
+  .scene .fi { fill: var(--k-ink); }
+  .scene .lead { stroke: var(--k-ink); stroke-width: 1.5; fill: none; stroke-linejoin: round; }
+  .scene .card { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .res { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.5; }
+  .scene .leak { fill: var(--k-panel); stroke: var(--k-warn); stroke-width: 2; }
+  .scene .solid { stroke: var(--k-warn); stroke-width: 3; fill: none; stroke-linecap: round; }
+  .scene .cap { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.3; }
+  .scene .plate { stroke: var(--k-ink); stroke-width: 2.5; stroke-linecap: round; }
+  .scene .hull { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.2; }
+  .scene .colbox { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.2; }
+  .scene .segp { fill: var(--k-cat1); }
+  .scene .segn { fill: var(--k-cat2); }
+  .scene .tap { stroke: var(--k-ink); stroke-width: 2.5; stroke-linecap: round; }
+  .scene .trace { stroke: var(--k-accent); stroke-width: 1.8; fill: none; stroke-dasharray: 3 5; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .chev { fill: var(--k-accent); }
+  .scene .blamp { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .blamp.hot { fill: var(--k-warn); stroke: var(--k-warn); }
+  .scene .scale { stroke: var(--k-ink); stroke-width: 1.5; }
+  .scene .tick { stroke: var(--k-ink); stroke-width: 1.2; }
+  .scene .alarm { stroke: var(--k-warn); stroke-width: 2; stroke-dasharray: 4 3; }
+  .scene .alarm.hot { stroke-dasharray: none; stroke-width: 2.5; }
+  .scene .needle { fill: var(--k-accent2); }
+  .scene .nline { stroke: var(--k-accent2); stroke-width: 2; }
+  .scene .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .lab.t { font-weight: 700; }
+  .scene .lab.n { font-weight: 400; }
+  .scene .lab.s { font-size: 12px; }
+  .scene .lab.hot { font-weight: 700; fill: var(--k-warn); }
+  #ctls > * + * { margin-top: 10px; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; min-height: 44px; }
+  #mrow > div { flex: 1 1 9rem; min-width: 0; }
+  /* Six insulation settings and four meters: as many to a row as fit, never a split word. */
+  #pctl .k-seg.stack, #nctl .k-seg.stack, #rctl .k-seg.stack { grid-template-columns: repeat(auto-fit, minmax(5.5rem, 1fr)); }
+  #pctl .k-seg.stack button, #nctl .k-seg.stack button, #rctl .k-seg.stack button { text-align: center; padding-inline: 6px; }
+  /* Four readout tiles: as many to a row as fit, two on a phone. */
+  #outs { display: grid; grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr)); gap: 10px; }
+  #outs .k-readout-value { font-size: 1.25rem; }
+  /* The answers are sentences: one to a row, wrapping inside the button. */
+  .picks { display: flex; flex-direction: column; gap: 8px; }
+  .picks .k-btn { width: 100%; min-height: 48px; white-space: normal; text-align: left; justify-content: flex-start; line-height: 1.4; padding: 10px 14px; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; }
+  .fb.right { color: var(--k-good); }
+  .why, .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }
+</style>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 362" width="100%" role="img" aria-label=""><g id="art"></g></svg>
+    <div id="ctls">
+      <div id="pctl"></div>
+      <div id="nctl"></div>
+      <div class="row" id="mrow"><div id="octl"></div><div id="tctl"></div></div>
+      <div id="rctl"></div>
+    </div>
+    <div id="outs"></div>
+    <div class="picks" id="picks"></div>
+    <div class="row" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row" id="nav"></div>
+</div>
+
+<p class="caption">Example values: 100 kΩ arms, a bridge alarm past 40 V apart, and a monitor alarm at 100 Ω/V.</p>
+
+<script>
+  // ---------- the rule ----------
+  // Current can leave a pole for the hull only through that pole's paths, and must come back through the other
+  // pole's paths. So the two sides are in series across the bus: a potential divider with the hull at the tap.
+  // Each side is all its paths in parallel (its detector arm, its insulation leak and, when it sits there, the meter).
+  // Positive to hull = 220 × R_P ÷ (R_P + R_N); Negative to hull = 220 − Positive to hull.
+  // The injecting monitor reads every path to the hull in parallel: 1 ÷ (2 ÷ 100 + 1 ÷ R+ + 1 ÷ R− + 1 ÷ R_m).
+  const BUS = 220, ARM = 100;                                  // volts; kΩ for each detector arm
+  const LEAKS = { 'Open': Infinity, '500 kΩ': 500, '100 kΩ': 100, '20 kΩ': 20, '5 kΩ': 5, 'Solid': 0 };
+  const LOPTS = Object.keys(LEAKS);
+  const METERS = { 'Ideal': Infinity, '10 MΩ': 10000, '100 kΩ': 100, '20 kΩ': 20 };
+  const MOPTS = Object.keys(METERS);
+  const GAP = 40;                       // the bridge lamp lights when the poles differ by more than this (an example)
+  const OHM_PER_V = 100;                // the monitor's example alarm level
+  const ALARM = OHM_PER_V * BUS / 1000; // 22 kΩ
+  const MAXK = 50;                      // the dial's top: the two arms alone
+
+  // Paths in parallel, in kΩ: Infinity (Open, an Ideal meter) adds no path; 0 (Solid) shorts the side.
+  function par(list) {
+    let g = 0;
+    for (const r of list) { if (r === 0) return 0; if (isFinite(r)) g += 1 / r; }
+    return g > 0 ? 1 / g : Infinity;
+  }
+  // The divider: a pole's voltage to the hull is the bus × its side's resistance ÷ both sides added.
+  function divider(bus, pathsP, pathsN) {
+    const RP = par(pathsP), RN = par(pathsN);
+    if (RP === 0 && RN === 0) return { RP, RN, short: true, vp: NaN, vn: NaN, I: Infinity };
+    const vp = RN === 0 ? bus : RP === 0 ? 0 : bus * RP / (RP + RN);   // the end cases exactly
+    return { RP, RN, short: false, vp, vn: bus - vp, I: bus / (RP + RN) };
+  }
+  // A setting on the board, with one detector (or more, joined in parallel).
+  function solve(S, nDet) {
+    const n = nDet == null ? 1 : nDet, arms = Array(n).fill(ARM), rm = METERS[S.meterR];
+    const pP = arms.concat([LEAKS[S.pos]]), pN = arms.concat([LEAKS[S.neg]]);
+    (S.meterOn === 'Positive' ? pP : pN).push(rm);
+    const d = divider(BUS, pP, pN);
+    d.mon = par(arms.concat(arms, [LEAKS[S.pos], LEAKS[S.neg], rm]));
+    d.meter = S.meterOn === 'Positive' ? d.vp : d.vn;
+    d.bridge = !d.short && Math.abs(d.vp - d.vn) > GAP;
+    d.alarm = !!S.monitor && d.mon < ALARM;
+    return d;
+  }
+  // Each path's share of the current that runs round the divider.
+  function branches(S) {
+    const r = solve(S);
+    const list = [
+      { side: 'N', x: 74, R: ARM, kind: 'arm' }, { side: 'N', x: 130, R: LEAKS[S.neg], kind: 'leak' },
+      { side: 'P', x: 188, R: ARM, kind: 'arm' }, { side: 'P', x: 244, R: LEAKS[S.pos], kind: 'leak' },
+      { side: S.meterOn === 'Positive' ? 'P' : 'N', x: 159, R: METERS[S.meterR], kind: 'meter' },
+    ];
+    list.forEach((b) => {
+      const Rs = b.side === 'P' ? r.RP : r.RN;
+      b.f = Rs === 0 ? (b.R === 0 ? 1 : 0) : (isFinite(b.R) ? Rs / b.R : 0);
+    });
+    return list;
+  }
+  // Volts: the balanced and the end cases are whole (110, 0, 220 V); the rest to one decimal, as the lesson writes them.
+  const whole = (v) => [0, BUS / 2, BUS].some((x) => Math.abs(v - x) < 1e-9);
+  const fmtV = (v) => (whole(v) ? String(Math.round(v)) : v.toFixed(1)) + ' V';
+  const fmtK = (v) => (v === 0 ? '0' : String(Number(v.toFixed(1))));
+
+  // ---------- the lesson: SHOW screens demonstrate, DO screens are puzzles ----------
+  const P = (o) => Object.assign({ pos: 'Open', neg: 'Open', meterOn: 'Positive', meterR: 'Ideal', monitor: false }, o || {});
+  const strip = (s) => s.replace(/\[\^\d+\]/g, '');
+  const STEPS = [
+    { show: true, name: 'Two poles', pic: P(),
+      text: `Many DC boards are insulated, with neither pole tied to earth. On a ship, the automation and most other systems use a 24 V DC control voltage.[^1] This 220 V board has a balanced bridge to watch it. Two equal 100 kΩ arms join the poles to the hull, one arm each. The bridge alarms when the poles drift apart. A voltmeter switches between the poles, reading each one to the hull. Each pole reads 110 V, half the bus. The equal arms split the voltage evenly.`,
+      read: `A 220 V insulated DC board has a balanced bridge. Two equal 100 kΩ arms join its poles to the hull. Each pole reads 110 V to the hull, half the bus.` },
+    { kind: 'pick', name: 'A 24 V board', before: P(), after: P(),
+      task: `A 24 V DC control board has the same kind of detector, with two equal arms. Its insulation is healthy. What does each pole read to the hull?`,
+      opts: ['12 V each', '24 V each', '0 V, as nothing is tied to the hull'], want: '12 V each',
+      hints: { '24 V each': `The two readings share the bus between them. Together they make 24 V, not 48 V.`,
+        '0 V, as nothing is tied to the hull': `The detector's arms join each pole to the hull. So the hull sits between the poles.` },
+      why: `Equal arms split the bus evenly. Each pole sits 12 V from the hull. The two pole-to-hull voltages always add up to the bus voltage.` },
+    { show: true, name: 'A leak on the negative', pic: P({ neg: '20 kΩ' }), ctl: true,
+      demo: { from: P(), keys: [{ S: P({ neg: '500 kΩ' }), at: 0.4, dur: 0.6 }, { S: P({ neg: '100 kΩ' }), at: 1.4, dur: 0.6 }, { S: P({ neg: '20 kΩ' }), at: 2.4, dur: 0.7 }] },
+      text: `Now the negative's insulation falls to 20 kΩ. The pole with less resistance to the hull takes less of the voltage.[^2] Current can leave a pole for the hull only through that pole's paths. It must come back through the other pole's paths. So the two sides are in series, a potential divider with the hull at the tap. On the negative's side, 100 kΩ and 20 kΩ in parallel make 16.7 kΩ. It reads 220 × 16.7 ÷ 116.7 = 31.4 V. The positive reads the other 188.6 V.`,
+      read: `With the negative's insulation down to 20 kΩ, its side is 16.7 kΩ. The negative reads 31.4 V to the hull and the positive reads 188.6 V.` },
+    { kind: 'pick', name: 'Which pole leaks?', before: P(), after: P({ neg: '20 kΩ' }),
+      task: `On a 220 V board, the meter reads 189 V on the positive and 31 V on the negative. Which pole has the leak?`,
+      opts: ['The positive, as it reads high', 'The negative, as it reads low', 'Neither, as the readings add to 220 V'], want: 'The negative, as it reads low',
+      hints: { 'The positive, as it reads high': `A leak lowers its own pole's resistance to the hull, so its share of the voltage falls.`,
+        'Neither, as the readings add to 220 V': `The readings always add to the bus. The split between them tells you which pole leaks.` },
+      why: `The pole with less resistance to the hull takes less of the voltage. The leak drags the negative towards the hull, so the positive climbs. It works like the shifting triangle, with two poles instead of three phases.` },
+    { show: true, name: 'A solid fault', pic: P({ neg: 'Solid' }), ctl: true,
+      demo: { from: P({ neg: '20 kΩ' }), keys: [{ S: P({ neg: '5 kΩ' }), at: 0.5, dur: 0.7 }, { S: P({ neg: 'Solid' }), at: 1.7, dur: 0.7 }] },
+      text: `Make the negative's fault solid. The negative now reads 0 V, and the positive reads the full 220 V. The board still runs, just as after a first fault on AC. But the hull is now joined to the negative. So a second fault on the positive would short the bus through the hull. A hand on the positive bar and the hull could put 220 V across you. That is well above the 120 V DC safe touch voltage.[^3]`,
+      read: `With a solid fault on the negative, the negative reads 0 V. The positive reads the full 220 V. A second fault on the positive would short the bus through the hull.` },
+    { kind: 'pick', name: 'Without a detector', before: P({ neg: 'Solid' }), after: P({ neg: 'Solid' }),
+      task: `A 100 V board has no detector. Its positive leaks 500 kΩ to the hull, and its negative has fallen to 51 kΩ. What does the negative read?`,
+      opts: ['About 51 V', 'About 90.7 V', 'About 9.26 V'], want: 'About 9.26 V',
+      hints: { 'About 51 V': `The voltage splits in proportion to the resistances. Work out 100 × 51 ÷ (500 + 51).`,
+        'About 90.7 V': `That is the positive's share. The pole with less resistance takes less.` },
+      why: `With no detector, the two leaks alone make the divider. The negative takes 100 × 51 ÷ (500 + 51) = 9.26 V.[^4] The positive reads the other 90.7 V.` },
+    { show: true, name: 'Damp on both poles', pic: P({ pos: '20 kΩ', neg: '20 kΩ', monitor: true }), ctl: true,
+      demo: { from: P(), keys: [{ S: P({ monitor: true }), at: 0.3, dur: 0.6 }, { S: P({ pos: '500 kΩ', neg: '500 kΩ', monitor: true }), at: 1.2, dur: 0.6 },
+        { S: P({ pos: '100 kΩ', neg: '100 kΩ', monitor: true }), at: 2.1, dur: 0.6 }, { S: P({ pos: '20 kΩ', neg: '20 kΩ', monitor: true }), at: 3.0, dur: 0.7 }] },
+      text: `Damp can lower both poles' insulation together. Set both to 20 kΩ. Each side becomes 16.7 kΩ. The sides are still equal, so each pole still reads 110 V. The bridge sees no imbalance and stays quiet. An injecting monitor tells a different story. It reads every path to the hull in parallel, including the detector's arms. Together they come to 8.3 kΩ, below its alarm line of 22 kΩ. Equal halves mean balanced, not healthy.`,
+      read: `With both poles leaking 20 kΩ to the hull, each still reads 110 V. The bridge stays quiet. An injecting monitor reads 8.3 kΩ, below its 22 kΩ alarm line.` },
+    { kind: 'pick', name: 'After a wash-down', before: P(), after: P({ pos: '20 kΩ', neg: '20 kΩ', monitor: true }),
+      task: `Both poles of a 220 V board read 110 V after a wash-down. Which instrument would show whether the insulation has fallen?`,
+      opts: ['An injecting insulation monitor', 'The bridge\'s alarm', 'The voltmeter, switched pole to pole'], want: 'An injecting insulation monitor',
+      hints: { 'The bridge\'s alarm': `The bridge compares the two halves, and they are still equal.`,
+        'The voltmeter, switched pole to pole': `Equal readings show balance. They say nothing about how low both sides are.` },
+      why: `The bridge and the voltmeter both compare the poles. An equal fall on both leaves the halves equal. The monitor pushes its own voltage to the hull and reads the total resistance. So it sees the fall.` },
+    { show: true, name: 'Your meter is a path', pic: P({ meterR: '100 kΩ', meterOn: 'Positive' }), stillPic: P({ meterR: '100 kΩ', meterOn: 'Negative' }), ctl: true,
+      demo: { from: P(), keys: [{ S: P({ meterOn: 'Negative' }), at: 0.3, dur: 0.6 }, { S: P({ meterOn: 'Negative', meterR: '100 kΩ' }), at: 1.2, dur: 0.7 },
+        { S: P({ meterOn: 'Positive', meterR: '100 kΩ' }), at: 2.5, dur: 0.8 }] },
+      text: `Your meter is a path to the hull too. On the negative, it sits in parallel with that arm. Say your meter is 100 kΩ. The negative's side becomes 50 kΩ, so it reads 73.3 V, not 110 V. On the positive, the meter pulls that pole to 73.3 V instead. The two readings add to 146.7 V, not 220 V. To show a leak, a detector must add a path to the hull itself.[^5] Every meter adds one too. A 10 MΩ meter barely moves the reading, to 109.5 V.`,
+      read: `A 100 kΩ meter on the negative turns that side into 50 kΩ. The negative then reads 73.3 V, not 110 V. Moved to the positive, the meter reads 73.3 V there too. So the two readings add to only 146.7 V.` },
+    { kind: 'pick', name: 'Two readings of 31.4 V', before: P(), after: P({ meterR: '20 kΩ', meterOn: 'Negative' }),
+      task: `A healthy 220 V board has 100 kΩ arms. An old meter reads 31.4 V on the negative, then 31.4 V on the positive. What is going on?`,
+      opts: ['Both poles have leaked to 20 kΩ', 'The meter itself is a low path to the hull', 'The bus has fallen to 62.9 V'], want: 'The meter itself is a low path to the hull',
+      hints: { 'Both poles have leaked to 20 kΩ': `Equal leaks on both poles leave each pole at half the bus, 110 V.`,
+        'The bus has fallen to 62.9 V': `You took each reading alone, and each time the meter dragged its own pole down.` },
+      why: `When two readings do not add to the bus voltage, suspect the meter. A 20 kΩ meter turns a 100 kΩ arm into 16.7 kΩ. That side takes 31.4 V. Use a high-resistance meter, and check that the pair adds up.` },
+    { kind: 'pick', name: 'Two detectors', before: P({ neg: '20 kΩ' }), after: P({ neg: '20 kΩ' }),
+      task: `Two panels are joined into one 220 V system. Each has its own 100 kΩ detector. The negative leaks 20 kΩ to the hull. What does the negative read?`,
+      opts: ['48.9 V', '31.4 V, as with one detector', '15.7 V'], want: '48.9 V',
+      hints: { '31.4 V, as with one detector': `Both detectors now sit on the same two poles. Their arms add in parallel.`,
+        '15.7 V': `More detector arms make the leak a smaller share of its side, not a bigger one.` },
+      why: `Each side now has two 100 kΩ arms in parallel, 50 kΩ. The negative's side is 50 kΩ and 20 kΩ in parallel, 14.3 kΩ. It reads 220 × 14.3 ÷ 64.3 = 48.9 V. Every extra detector makes the same leak look smaller.` },
+    { kind: 'pick', name: 'Current into the fault', before: P(), after: P({ neg: 'Solid' }),
+      task: `On an insulated AC system, a first fault passes a steady current through the cables' capacitance. Now a 220 V DC board's negative has a solid fault to the hull. What flows into the fault?`,
+      opts: ['A steady current through the capacitance, as on AC', 'A brief charging current, then only what the positive\'s paths let through', 'Nothing at all, as the board is insulated'],
+      want: 'A brief charging current, then only what the positive\'s paths let through',
+      hints: { 'A steady current through the capacitance, as on AC': `DC charges a capacitor once. After that, almost no current flows through it.`,
+        'Nothing at all, as the board is insulated': `The positive's detector arm is still a path to the hull.` },
+      why: `The capacitance takes a brief charge when the fault strikes. Once charged, that path carries almost no current.[^6] After that, current runs from the positive through its 100 kΩ arm, then through the hull into the fault. That is 220 ÷ 100,000 = 2.2 mA.` },
+  ];
+  STEPS.forEach((d) => { if (d.show) d.still = () => setPic(d.stillPic || d.pic); else d.read = d.task; });
+  const FINISH = 'On an insulated DC board, the two poles share the bus voltage. The pole with less resistance to the hull reads lower, and only a monitor sees an equal fall on both.';
+  const PICK = 'Choose an answer first.';
+  const SRC = {
+    patent: 'https://patents.google.com/patent/US9753069B2/en',
+    vertiv: 'https://www.vertiv.com/48df2a/globalassets/documents/battcon-static-assets/2008/ground-detection-circuits-for-stationary-applications-in-plain-down-to-earth-language.pdf',
+    touch: 'https://fournais-bender.dk/storage/TechnAspects-IT-systems.pdf',
+  };
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- what the picture shows: a view, and motion from one view to another ----------
+  function geomOf(S) {
+    const r = solve(S);
+    return { S, vp: r.short ? BUS / 2 : r.vp, short: r.short, monR: r.mon, monA: S.monitor ? 1 : 0,
+      blade: S.meterOn === 'Positive' ? 1 : 0, I: r.short ? 60 : r.I };
+  }
+  // A view between two settings: numbers glide, a changed part fades out and back in as its new self.
+  function lerpG(a, b, u) {
+    const jump = a.short || b.short;
+    return {
+      S: u < 0.5 ? a.S : b.S, prev: a.S, next: b.S, u,
+      vp: jump ? (u < 0.5 ? a.vp : b.vp) : K.lerp(a.vp, b.vp, u),
+      short: u < 0.5 ? a.short : b.short,
+      monR: a.monA > 0 && b.monA > 0 ? K.lerp(a.monR, b.monR, u) : (b.monA > 0 ? b.monR : a.monR),
+      monA: K.lerp(a.monA, b.monA, u),
+      blade: K.lerp(a.blade, b.blade, u),
+      I: K.lerp(a.I, b.I, u),
+    };
+  }
+  const still = (S) => { const g = geomOf(S); return lerpG(g, g, 1); };
+  const TAIL = 0.6;
+  function motion(v0, keys) {
+    const ks = keys.map((k) => Object.assign({}, k)).sort((a, b) => a.at - b.at);
+    let gp = v0;
+    ks.forEach((k) => { k.g0 = gp; k.g1 = geomOf(k.S); gp = k.g1; });
+    const geo = ks.reduce((e, k) => Math.max(e, k.at + k.dur), 0);
+    return { v0, ks, geo, end: geo + TAIL };
+  }
+  function geomAt(m, t) {
+    let g = m.v0;
+    for (const k of m.ks) { if (t < k.at) break; g = lerpG(k.g0, k.g1, K.ease(K.clamp((t - k.at) / Math.max(1e-6, k.dur), 0, 1))); }
+    return g;
+  }
+
+  // ---------- the drawing (viewBox 340 × 362) ----------
+  const XB = 30, YP = 40, YN = 84, MXP = 10;
+  const XNA = 74, XNL = 130, XPA = 188, XPL = 244;
+  const XM = 159, XCN = 150, XCP = 168, YC = 108, YPV = 132, YMC = 200, RMC = 12;
+  const YA0 = 116, YA1 = 156, YL0 = 176, YL1 = 216, YG0 = 186, YG1 = 206;
+  const YH = 262, HH = 28, YT = YH + 4;
+  const MX0 = 4, MX1 = 58, MY0 = 106, MY1 = 238, MXN = 50, MXC = 31;
+  const SX = 40, ST = 150, SB = 212;
+  const CX0 = 258, CX1 = 280, CT = 40, CB = 240;
+  const KY0 = 308, KY1 = 330, KY2 = 350;
+  const yOf = (r) => SB - (SB - ST) * K.clamp(r, 0, MAXK) / MAXK;
+  const n2 = (x) => +(+x).toFixed(2);
+  const svg = document.getElementById('scene'), art = document.getElementById('art');
+  const el = (id) => document.getElementById(id);
+  function put(parent, tag, attrs, text) { const n = K.svg(tag, attrs); if (text != null) n.textContent = text; parent.appendChild(n); return n; }
+  const group = (a) => put(art, 'g', a == null || a >= 1 ? {} : { opacity: Math.max(0, a).toFixed(3) });
+  const lab = (g, x, y, text, cls, anchor) => put(g, 'text', { x: n2(x), y: n2(y), class: 'lab' + (cls ? ' ' + cls : ''), 'text-anchor': anchor || 'start' }, text);
+  const line = (g, x1, y1, x2, y2, cls) => put(g, 'line', { class: cls || 'lead', x1: n2(x1), y1: n2(y1), x2: n2(x2), y2: n2(y2) });
+  const dot = (g, x, y) => put(g, 'circle', { class: 'fi', cx: x, cy: y, r: 2.2 });
+  function chev(g, x, y, dir, op) {
+    const d = dir === 'd' ? `M${x - 4} ${y - 3}L${x + 4} ${y - 3}L${x} ${y + 4}Z` : dir === 'u' ? `M${x - 4} ${y + 3}L${x + 4} ${y + 3}L${x} ${y - 4}Z`
+      : dir === 'r' ? `M${x - 3} ${y - 4}L${x - 3} ${y + 4}L${x + 4} ${y}Z` : `M${x + 3} ${y - 4}L${x + 3} ${y + 4}L${x - 4} ${y}Z`;
+    put(g, 'path', Object.assign({ class: 'chev', d }, op < 1 ? { opacity: n2(op) } : {}));
+  }
+  let dash = 0;
+
+  // One pole's insulation leak: drawn broken at Open, a resistor with its value, or a plain wire at Solid.
+  function leak(G, v, x, y0, key) {
+    line(G, x, y0, x, YL0);
+    line(G, x, YL1, x, YH);
+    const a = v.prev[key], b = v.next[key], changing = a !== b;
+    const state = changing && v.u < 0.5 ? a : b;
+    const g = group(changing ? Math.abs(2 * v.u - 1) : 1), r = LEAKS[state];
+    if (r === Infinity) {
+      line(g, x, YL0, x, YG0); line(g, x, YG1, x, YL1);
+      put(g, 'circle', { class: 'cap', cx: x, cy: YG0, r: 2.2 }); put(g, 'circle', { class: 'cap', cx: x, cy: YG1, r: 2.2 });
+    } else if (r === 0) line(g, x, YL0, x, YL1, 'solid');
+    else put(g, 'rect', { class: 'leak', x: x - 5, y: YL0, width: 10, height: YL1 - YL0 });
+    lab(g, x - 9, 200, state, 's', 'end');
+  }
+
+  function scene(v) {
+    art.textContent = '';
+    const S = v.S, r = solve(S), G = group();
+    lab(G, 6, 16, '220 V insulated DC board', 't');
+    // The two poles, fed by the battery.
+    line(G, MXP, YP, XPL, YP, 'pb');
+    line(G, XB, YN, XCN, YN, 'nb');
+    lab(G, 82, 32, 'Positive pole', 's n');
+    lab(G, 82, 76, 'Negative pole', 's n');
+    line(G, XB, YP, XB, 50);
+    [[50, 10], [56, 6], [62, 10], [68, 6]].forEach((p) => line(G, XB - p[1], p[0], XB + p[1], p[0], 'plate'));
+    line(G, XB, 68, XB, YN);
+    lab(G, 45, 63, '220 V', 's n');
+    // The hull, which is earth.
+    put(G, 'rect', { class: 'hull', x: 4, y: YH, width: 332, height: HH, rx: 3 });
+    lab(G, 200, YH + 21, 'Hull, which is earth', 'n', 'middle');
+    // The detector: two equal arms, one from each pole to the hull.
+    [[XNA, YN], [XPA, YP]].forEach((p) => {
+      line(G, p[0], p[1], p[0], YA0);
+      put(G, 'rect', { class: 'res', x: p[0] - 5, y: YA0, width: 10, height: YA1 - YA0 });
+      line(G, p[0], YA1, p[0], YH);
+      lab(G, p[0] + 9, 140, '100 kΩ', 's');
+    });
+    // Each pole's insulation leak.
+    leak(G, v, XNL, YN, 'neg');
+    leak(G, v, XPL, YP, 'pos');
+    // The voltmeter, switched between the poles, and its lead to the hull.
+    line(G, XCN, YN, XCN, YC - 2.5);
+    line(G, XCP, YP, XCP, YC - 2.5);
+    put(G, 'circle', { class: 'cap', cx: XCN, cy: YC, r: 2.5 }); put(G, 'circle', { class: 'cap', cx: XCP, cy: YC, r: 2.5 });
+    line(G, XM, YPV, K.lerp(XCN, XCP, v.blade), YC);
+    put(G, 'circle', { class: 'fi', cx: XM, cy: YPV, r: 2.5 });
+    line(G, XM, YPV, XM, YMC - RMC);
+    put(G, 'circle', { class: 'res', cx: XM, cy: YMC, r: RMC });
+    lab(G, XM, YMC + 4.5, 'V', '', 'middle');
+    line(G, XM, YMC + RMC, XM, YH);
+    // The injecting insulation monitor: joined to both poles, and to the hull through its switch.
+    line(G, MXP, YP, MXP, MY0);
+    line(G, MXN, YN, MXN, MY0);
+    put(G, 'rect', { class: 'card', x: MX0, y: MY0, width: MX1 - MX0, height: MY1 - MY0, rx: 5 });
+    lab(G, MXC, 121, 'Monitor', 's', 'middle');
+    const alarmOn = v.monA > 0.5 && v.monR < ALARM;
+    if (v.monA > 0.5) {
+      put(G, 'circle', { class: 'blamp' + (alarmOn ? ' hot' : ''), cx: 14, cy: 135, r: 4.5 });
+      lab(G, 22, 139.5, 'Alarm', 's' + (alarmOn ? ' hot' : ' n'));
+    } else lab(G, MXC, 139.5, 'Off', 's n', 'middle');
+    line(G, SX, ST, SX, SB, 'scale');
+    [0, MAXK].forEach((k) => { const y = yOf(k); line(G, SX - 4, y, SX, y, 'tick'); lab(G, SX - 6, y + 4, String(k), 's n', 'end'); });
+    const ya = yOf(ALARM);
+    line(G, SX - 4, ya, SX + 14, ya, 'alarm' + (alarmOn ? ' hot' : ''));
+    lab(G, SX - 6, ya + 4, fmtK(ALARM), 's hot', 'end');
+    lab(G, MXC, 230, 'kΩ', 's n', 'middle');
+    if (v.monA > 0.01) {
+      const gn = group(v.monA), yd = yOf(v.monR);
+      line(gn, SX - 4, yd, SX + 2, yd, 'nline');
+      put(gn, 'path', { class: 'needle', d: `M${SX + 2} ${n2(yd)}L${SX + 12} ${n2(yd - 5)}L${SX + 12} ${n2(yd + 5)}Z` });
+    }
+    line(G, MXC, MY1, MXC, 244);
+    line(G, MXC, 256, MXC, YH);
+    put(G, 'circle', { class: 'cap', cx: MXC, cy: 244, r: 2 });
+    line(G, MXC, 256, K.lerp(MXC + 9, MXC, v.monA), K.lerp(247, 244, v.monA));
+    put(G, 'circle', { class: 'fi', cx: MXC, cy: 256, r: 2 });
+    // Junctions.
+    [[XB, YP], [XB, YN], [MXN, YN], [XNA, YN], [XNL, YN], [XPA, YP], [XPL, YP], [XCP, YP]].forEach((p) => dot(G, p[0], p[1]));
+    [MXC, XNA, XNL, XM, XPA, XPL].forEach((x) => dot(G, x, YH));
+
+    // The current round the divider: out of the positive, down its paths, along the hull, up the negative's paths.
+    const tr = group(), off = n2(-dash), on = branches(S).filter((b) => b.f > 0.02);
+    const tp = (d, f) => put(tr, 'path', Object.assign({ class: 'trace', d, 'stroke-dashoffset': off }, f < 0.999 ? { opacity: n2(0.35 + 0.65 * f) } : {}));
+    const PB = on.filter((b) => b.side === 'P'), NB = on.filter((b) => b.side === 'N');
+    if (PB.length && NB.length) {
+      const xP = Math.max.apply(null, PB.map((b) => (b.kind === 'meter' ? XCP : b.x)));
+      const xN = Math.max.apply(null, NB.map((b) => (b.kind === 'meter' ? XCN : b.x)));
+      const xR = Math.max.apply(null, PB.map((b) => b.x)), xL = Math.min.apply(null, NB.map((b) => b.x));
+      tp(`M${XB} ${YN}V${YP}`, 1); tp(`M${XB} ${YP}H${xP}`, 1); tp(`M${xR} ${YT}H${xL}`, 1); tp(`M${xN} ${YN}H${XB}`, 1);
+      chev(tr, XB, 78, 'u', 1); chev(tr, 60, YP, 'r', 1); chev(tr, 172, YT, 'l', 1); chev(tr, 40, YN, 'l', 1);
+      PB.forEach((b) => {
+        const op = 0.35 + 0.65 * b.f;
+        if (b.kind === 'meter') { tp(`M${XCP} ${YP}V${YC}L${XM} ${YPV}V${YMC - RMC}M${XM} ${YMC + RMC}V${YT}`, b.f); chev(tr, XM, 240, 'd', op); }
+        else { tp(`M${b.x} ${YP}V${YT}`, b.f); chev(tr, b.x, 100, 'd', op); }
+      });
+      NB.forEach((b) => {
+        const op = 0.35 + 0.65 * b.f;
+        if (b.kind === 'meter') { tp(`M${XM} ${YT}V${YMC + RMC}M${XM} ${YMC - RMC}V${YPV}L${XCN} ${YC}V${YN}`, b.f); chev(tr, XM, 240, 'u', op); }
+        else { tp(`M${b.x} ${YT}V${YN}`, b.f); chev(tr, b.x, 100, 'u', op); }
+      });
+    }
+
+    // Each pole's voltage to the hull, stacked: together they fill the bus.
+    const GC = group();
+    lab(GC, (CX0 + CX1) / 2, 32, '220 V', 'n', 'middle');
+    put(GC, 'rect', { class: 'colbox', x: CX0, y: CT, width: CX1 - CX0, height: CB - CT });
+    if (!v.short) {
+      const yT = CT + (CB - CT) * K.clamp(v.vp, 0, BUS) / BUS, h1 = yT - CT, h2 = CB - yT;
+      if (h1 > 0.05) put(GC, 'rect', { class: 'segp', x: CX0, y: CT, width: CX1 - CX0, height: n2(h1) });
+      if (h2 > 0.05) put(GC, 'rect', { class: 'segn', x: CX0, y: n2(yT), width: CX1 - CX0, height: n2(h2) });
+      line(GC, CX0 - 4, yT, CX1 + 4, yT, 'tap');
+      let y1 = (CT + yT) / 2 + 4.5, y2 = (yT + CB) / 2 + 4.5;
+      if (y2 - y1 < 16) { const m = (y1 + y2) / 2; y1 = m - 8; y2 = m + 8; }
+      if (y1 < CT + 10) { y1 = CT + 10; y2 = Math.max(y2, y1 + 16); }
+      if (y2 > CB + 6) { y2 = CB + 6; y1 = Math.min(y1, y2 - 16); }
+      const a1 = K.clamp(h1 / 6, 0, 1), a2 = K.clamp(h2 / 6, 0, 1);
+      if (a1 > 0.01) lab(group(a1), 288, y1, '+ to hull', 's n');
+      if (a2 > 0.01) lab(group(a2), 288, y2, '− to hull', 's n');
+    } else lab(GC, 288, 144, 'Shorted', 's hot');
+
+    // The bridge's lamp, the meter's resistance, and a key for what is drawn.
+    const lit = !v.short && Math.abs(2 * v.vp - BUS) > GAP;
+    const GK = group();
+    put(GK, 'circle', { class: 'blamp' + (lit ? ' hot' : ''), cx: 14, cy: KY0 - 4.5, r: 6 });
+    lab(GK, 26, KY0, 'Bridge alarm', 's' + (lit ? ' hot' : ' n'));
+    put(GK, 'circle', { class: 'res', cx: 182, cy: KY0 - 4.5, r: 6 });
+    lab(GK, 194, KY0, 'Meter: ' + S.meterR, 's n');
+    put(GK, 'rect', { class: 'res', x: 6, y: KY1 - 8, width: 16, height: 7 });
+    lab(GK, 28, KY1, 'Detector arm', 's n');
+    put(GK, 'rect', { class: 'leak', x: 176, y: KY1 - 8, width: 16, height: 7 });
+    lab(GK, 198, KY1, 'Insulation leak', 's n');
+    line(GK, 6, KY2 - 4.5, 22, KY2 - 4.5, 'trace');
+    lab(GK, 28, KY2, 'Current\'s path', 's n');
+    line(GK, 176, KY2 - 4.5, 192, KY2 - 4.5, 'alarm');
+    lab(GK, 198, KY2, 'Monitor alarm level', 's n');
+
+    const say = (k) => (S[k] === 'Open' ? 'has no leak' : S[k] === 'Solid' ? 'is solidly joined to the hull' : 'leaks ' + S[k] + ' to the hull');
+    const rel = v.short ? 'Both poles are joined to the hull, so the bus is shorted through it.'
+      : r.vp > r.vn + 0.05 ? 'The positive sits further from the hull than the negative.'
+      : r.vp < r.vn - 0.05 ? 'The negative sits further from the hull than the positive.' : 'Each pole sits half the bus from the hull.';
+    return {
+      v, bridge: lit, alarm: alarmOn,
+      texts: Array.from(art.querySelectorAll('text')).map((t) => t.textContent),
+      read: r.short ? { vp: 'Shorted', vn: 'Shorted', vm: 'Shorted', mr: S.monitor ? fmtK(r.mon) + ' kΩ' : 'Off' }
+        : { vp: fmtV(r.vp), vn: fmtV(r.vn), vm: fmtV(r.meter), mr: S.monitor ? fmtK(r.mon) + ' kΩ' : 'Off' },
+      aria: 'A 220 V insulated DC board. Two equal 100 kΩ detector arms join its positive and negative poles to the hull. The positive ' + say('pos') +
+        ', and the negative ' + say('neg') + '. A voltmeter, ' + (S.meterR === 'Ideal' ? 'ideal' : S.meterR) + ', joins the ' + S.meterOn.toLowerCase() + ' to the hull. ' +
+        rel + ' The bridge alarm is ' + (lit ? 'lit' : 'dark') + '. ' +
+        (S.monitor ? 'The insulation monitor\'s needle sits ' + (alarmOn ? 'below its alarm line, and its alarm is lit.' : 'above its alarm line.') : 'The insulation monitor is switched off.'),
+    };
+  }
+
+  // ---------- state ----------
+  function blank() { return { pick: null, res: null, why: false }; }
+  let S2 = STEPS.map(() => blank());
+  let cur = P(STEPS[0].pic), T = Infinity, fx = {}, REC = null;
+  let finished = false, lastStep = -1, lastDone = false, last = {};
+  const viewNow = () => (fx.ks && T < fx.end ? geomAt(fx, Math.max(0, T)) : still(cur));
+
+  function paint() {
+    const v = viewNow();
+    REC = scene(v);
+    Object.keys(outs).forEach((k) => outs[k].set(REC.read[k]));
+    svg.setAttribute('aria-label', REC.aria);
+    // On a demonstration the controls follow the settings as they change.
+    if (fx.demo && fx.ks && T < fx.end && live()) {
+      const S = v.S;
+      posCtl.set(S.pos, true); negCtl.set(S.neg, true); onCtl.set(S.meterOn, true); rCtl.set(S.meterR, true); monCtl.set(S.monitor, true);
+      last = ctlNow();
+    }
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => stepper.get();
+  const live = () => !finished && !!STEPS[at()].show && !!STEPS[at()].ctl;
+  const posCtl = K.choice({ id: 'pos', label: 'Positive insulation', options: LOPTS, value: 'Open', into: '#pctl' });
+  const negCtl = K.choice({ id: 'neg', label: 'Negative insulation', options: LOPTS, value: 'Open', into: '#nctl' });
+  const onCtl = K.choice({ id: 'meterOn', label: 'Meter on', options: ['Positive', 'Negative'], value: 'Positive', into: '#octl' });
+  const monCtl = K.toggle({ id: 'monitor', label: 'Insulation monitor', value: false, into: '#tctl' });
+  const rCtl = K.choice({ id: 'meterR', label: 'Meter resistance', options: MOPTS, value: 'Ideal', into: '#rctl' });
+  const outs = {
+    vp: K.readout({ id: 'vp', label: 'Positive to hull', into: '#outs' }),
+    vn: K.readout({ id: 'vn', label: 'Negative to hull', into: '#outs' }),
+    vm: K.readout({ id: 'vm', label: 'Meter reads', into: '#outs' }),
+    mr: K.readout({ id: 'mr', label: 'Monitor reads', into: '#outs' }),
+  };
+  const ctlNow = () => ({ pos: posCtl.get(), neg: negCtl.get(), meterOn: onCtl.get(), meterR: rCtl.get(), monitor: !!monCtl.get() });
+  function syncCtls() {
+    posCtl.set(cur.pos, true); negCtl.set(cur.neg, true); onCtl.set(cur.meterOn, true); rCtl.set(cur.meterR, true); monCtl.set(cur.monitor, true);
+    last = ctlNow();
+  }
+  const movedFrom = (p) => p.pos !== last.pos || p.neg !== last.neg || p.meterOn !== last.meterOn || p.meterR !== last.meterR || !!p.monitor !== last.monitor;
+
+  // One animation plays the motion; with reduced motion (and while the self-test looks) it opens finished.
+  // The current's dashes run faster as more current flows, and stop soon after the picture settles.
+  const anim = K.anim({ button: false, label: 'The two poles', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    const v = viewNow();
+    dash += dt * (6 + 5 * Math.min(v.I, 10));
+    paint();
+    return T < (fx.end || 0);
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function start(f) {
+    fx = f || {};
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); return; }
+    T = 0; anim.play();
+  }
+  // A move Dan makes: the picture changes in 0.3 s.
+  function retarget(S) {
+    const now = viewNow();
+    cur = S;
+    start(motion(now, [{ S, at: 0, dur: 0.3 }]));
+  }
+  function setPic(p) { cur = P(p); anim.pause(); T = Infinity; fx = {}; syncCtls(); K.refresh(); }
+
+  // Three answers; Check marks the one chosen, and a right one plays what it says.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S2[i];
+    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S2[i];
+    if (finished || d.show || st.res === 'right') return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = st.pick === d.want ? 'right' : 'wrong';
+    if (st.res !== 'right') return;
+    const now = viewNow();
+    cur = P(d.after);
+    syncCtls();
+    start(motion(now, [{ S: P(d.after), at: 0, dur: 0.9 }]));
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (finished || STEPS[at()].show) return;
+    const st = S2[at()]; st.why = !st.why;
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S2[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true; anim.pause();
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S2 = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  el('finish').textContent = FINISH;
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S2[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      anim.pause(); T = Infinity; fx = {};
+      cur = P(d.show ? d.pic : st.res === 'right' ? d.after : d.before);
+      syncCtls();
+      // A demonstration screen plays once on opening.
+      if (d.show && d.demo) { start(motion(still(P(d.demo.from)), d.demo.keys)); fx.demo = true; }
+    } else if (movedFrom(p)) {
+      if (live()) {
+        last = { pos: p.pos, neg: p.neg, meterOn: p.meterOn, meterR: p.meterR, monitor: !!p.monitor };
+        retarget(P(last));
+      } else syncCtls();   // off the screens that show them, the controls keep the picture's setting
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    task.textContent = strip(d.show ? d.text : d.task);
+    el('ctls').hidden = !d.show || !d.ctl;
+
+    const opts = d.show ? [] : d.opts;
+    el('picks').hidden = !opts.length;
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    const fb = el('fb');
+    fb.hidden = !!d.show || !st.res;
+    fb.className = 'fb' + (right ? ' right' : '');
+    fb.textContent = d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? (d.hints[st.pick] || 'Not quite.') : st.res === 'empty' ? PICK : '';
+    const why = el('why');
+    why.hidden = !!d.show || !st.why;
+    why.textContent = d.show ? '' : strip(d.why);
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+    paint();
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  function drawn(c) {
+    const keep = [cur, T, fx];
+    cur = P(c); T = Infinity; fx = {};
+    try { paint(); return REC; } finally { cur = keep[0]; T = keep[1]; fx = keep[2]; paint(); }
+  }
+  const ALL = [];
+  LOPTS.forEach((pos) => LOPTS.forEach((neg) => MOPTS.forEach((meterR) => ['Positive', 'Negative'].forEach((meterOn) => ALL.push(P({ pos, neg, meterR, meterOn }))))));
+  const NEG = ['500 kΩ', '100 kΩ', '20 kΩ', '5 kΩ', 'Solid'];
+
+  K.check('Twelve screens: five that show and seven puzzles, alternating to the ninth and ending on three mixed puzzles', () =>
+    STEPS.length === 12 && STEPS.filter((d) => d.show).length === 5 && STEPS.slice(0, 9).every((d, i) => !!d.show === (i % 2 === 0)) && STEPS.slice(9).every((d) => !d.show));
+  K.check('Healthy, the equal 100 kΩ arms put each pole at 110 V, half the bus, with the bridge dark; the monitor reads the two arms alone, 50 kΩ', () => {
+    const d = drawn(P({ monitor: true }));
+    return d.read.vp === '110 V' && d.read.vn === '110 V' && d.read.mr === '50 kΩ' && !d.bridge && !d.alarm;
+  });
+  K.check('A negative leak of 500, 100, 20 and 5 kΩ, then Solid, leaves it at 100.0, 73.3, 31.4, 10.0 and 0 V; the positive reads 120.0, 146.7, 188.6, 210.0 and 220 V; the monitor 45.5, 33.3, 14.3, 4.5 and 0 kΩ', () => {
+    const L = NEG.map((neg) => drawn(P({ neg, monitor: true })).read);
+    return L.map((x) => x.vn).join('|') === '100.0 V|73.3 V|31.4 V|10.0 V|0 V' && L.map((x) => x.vp).join('|') === '120.0 V|146.7 V|188.6 V|210.0 V|220 V' &&
+      L.map((x) => x.mr).join('|') === '45.5 kΩ|33.3 kΩ|14.3 kΩ|4.5 kΩ|0 kΩ';
+  });
+  K.check('A balanced bridge of equal resistors drives its lamp once it becomes imbalanced: dark with equal halves or a 500 kΩ leak (20 V apart), lit from a 100 kΩ leak down', () =>
+    !drawn(P()).bridge && !drawn(P({ pos: '20 kΩ', neg: '20 kΩ' })).bridge && !drawn(P({ neg: '500 kΩ' })).bridge &&
+    ['100 kΩ', '20 kΩ', '5 kΩ', 'Solid'].every((neg) => drawn(P({ neg })).bridge), { source: SRC.vertiv });
+  K.check('The two pole-to-hull readings add to 220 V at every setting of both leaks and the meter, short of both poles solid', () =>
+    ALL.every((S) => { const r = solve(S); return r.short ? (S.pos === 'Solid' && S.neg === 'Solid') : K.near(r.vp + r.vn, BUS, 1e-9) && r.vp >= 0 && r.vn >= 0; }));
+  K.check('The bus with lower ground resistance has a lower voltage to ground: at every setting, the pole whose side has less resistance reads lower', () =>
+    ALL.every((S) => { const r = solve(S); return r.short || (r.RP < r.RN - 1e-9 ? r.vp < r.vn : r.RP > r.RN + 1e-9 ? r.vp > r.vn : K.near(r.vp, r.vn, 1e-9)); }), { source: SRC.patent });
+  K.check('A bus whose resistance to ground falls to 51 kΩ, against 500 kΩ on the other, reads 100/(500+51)×51 = 9.26 V to ground, and the other 90.7 V', () => {
+    const r = divider(100, [500], [51]);
+    return K.near(r.vn, 9.2559, 1e-4) && r.vp.toFixed(1) === '90.7';
+  }, { source: SRC.patent });
+  K.check('Equal falls hide from the bridge: both poles at 20 kΩ read 110 V each, while the monitor reads 8.3 kΩ, below its 100 × 220 = 22 kΩ alarm line', () => {
+    const d = drawn(P({ pos: '20 kΩ', neg: '20 kΩ', monitor: true }));
+    return ALARM === 22 && d.read.vp === '110 V' && d.read.vn === '110 V' && d.read.mr === '8.3 kΩ' && !d.bridge && d.alarm;
+  });
+  K.check('To give an indication, a detector ends up adding the fault it is trying to detect: every real meter pulls a healthy pole below 110 V', () =>
+    MOPTS.filter((m) => m !== 'Ideal').every((meterR) => ['Positive', 'Negative'].every((meterOn) => solve(P({ meterR, meterOn })).meter < 110 - 0.1)) &&
+    solve(P({ meterOn: 'Negative' })).meter === 110, { source: SRC.vertiv });
+  K.check('On a healthy board, a 100 kΩ meter reads 73.3 V on either pole (the pair adds to 146.7 V), a 20 kΩ meter 31.4 V, and a 10 MΩ meter 109.5 V', () => {
+    const m = (meterR, meterOn) => drawn(P({ meterR, meterOn })).read.vm;
+    return m('100 kΩ', 'Negative') === '73.3 V' && m('100 kΩ', 'Positive') === '73.3 V' && (2 * solve(P({ meterR: '100 kΩ' })).meter).toFixed(1) === '146.7' &&
+      m('20 kΩ', 'Negative') === '31.4 V' && m('10 MΩ', 'Negative') === '109.5 V' && drawn(P({ meterR: '100 kΩ', meterOn: 'Negative' })).read.vp === '146.7 V';
+  });
+  K.check('Full voltage on one measurement and zero on the other means a direct short on the side that measures zero', () => {
+    const a = drawn(P({ neg: 'Solid' })).read, b = drawn(P({ pos: 'Solid' })).read;
+    return a.vn === '0 V' && a.vp === '220 V' && b.vp === '0 V' && b.vn === '220 V';
+  }, { source: SRC.vertiv });
+  K.check('Persons are safe while the touch voltage stays under 120 V DC; a solid fault on the negative leaves the positive 220 V from the hull, above it', () =>
+    solve(P({ neg: 'Solid' })).vp > 120 && solve(P()).vp < 120, { source: SRC.touch });
+  K.check('Both poles solid shorts the bus through the hull, and the page says so with no number', () => {
+    const d = drawn(P({ pos: 'Solid', neg: 'Solid' }));
+    return d.read.vp === 'Shorted' && d.texts.indexOf('Shorted') >= 0;
+  });
+  K.check('Worked numbers: 24 V on equal arms is 12 V a pole; 100 ∥ 20 = 16.7 kΩ; two detectors give 50 kΩ a side, 14.3 kΩ with the leak and 48.9 V; 2.2 mA into a solid fault; 62.9 and 15.7 V', () => {
+    const two = solve(P({ neg: '20 kΩ' }), 2), one = solve(P({ meterR: '20 kΩ', meterOn: 'Negative' }));
+    return divider(24, [ARM], [ARM]).vp === 12 && par([100, 20]).toFixed(1) === '16.7' && par([ARM, ARM]) === 50 && two.RN.toFixed(1) === '14.3' &&
+      two.vn.toFixed(1) === '48.9' && K.near(solve(P({ neg: 'Solid' })).I, 2.2, 1e-9) && (2 * one.meter).toFixed(1) === '62.9' && (one.meter / 2).toFixed(1) === '15.7';
+  });
+  K.check('The explanation\'s 24 V board with 10 kΩ arms: a 2.5 kΩ leak on the positive makes its side 2 kΩ, so it reads 4 V and the negative 20 V', () => {
+    const r = divider(24, [10, 2.5], [10]);
+    return K.near(r.RP, 2, 1e-9) && K.near(r.vp, 4, 1e-9) && K.near(r.vn, 20, 1e-9);
+  });
+  K.check('Screen 3: as the negative falls through 500, 100 and 20 kΩ, its voltage only ever falls, ending at 31.4 V within 5 s', () => {
+    const d = STEPS[2].demo, m = motion(still(P(d.from)), d.keys);
+    let prev = Infinity, ok = true;
+    for (let t = 0; t <= m.end + 1e-9; t += 0.02) { const vn = BUS - geomAt(m, t).vp; if (vn > prev + 1e-9) ok = false; prev = vn; }
+    return ok && m.end <= 5 && fmtV(BUS - geomAt(m, m.end).vp) === '31.4 V';
+  });
+  K.check('Screen 7: while both poles fall together, each stays at 110 V all the way, and the monitor ends below its alarm line', () => {
+    const d = STEPS[6].demo, m = motion(still(P(d.from)), d.keys);
+    let flat = true;
+    for (let t = 0; t <= m.end + 1e-9; t += 0.02) if (!K.near(geomAt(m, t).vp, 110, 1e-9)) flat = false;
+    const fin = geomAt(m, m.end);
+    return flat && m.end <= 5 && fin.monA === 1 && fin.monR < ALARM;
+  });
+  K.check('Every demonstration settles within 5 s, and a move Dan makes changes the picture in 0.3 s', () =>
+    STEPS.filter((d) => d.demo).every((d) => motion(still(P(d.demo.from)), d.demo.keys).end <= 5) &&
+    motion(still(P()), [{ S: P({ neg: 'Solid' }), at: 0, dur: 0.3 }]).geo <= 0.3);
+  K.check('Before an answer, no puzzle\'s picture shows its result', () => {
+    const b = (i) => drawn(STEPS[i].before), a = (i) => drawn(STEPS[i].after);
+    return b(3).read.vn === '110 V' && a(3).read.vn === '31.4 V' && a(3).read.vp === '188.6 V' &&
+      b(7).read.mr === 'Off' && a(7).read.mr === '8.3 kΩ' && a(7).read.vn === '110 V' && a(7).alarm &&
+      b(9).read.vm === '110 V' && a(9).read.vm === '31.4 V' &&
+      b(11).read.vn === '110 V' && a(11).read.vn === '0 V' && a(11).read.vp === '220 V';
+  });
+  K.check('The right answer sits first, second or third across the puzzles, never in one place throughout', () =>
+    new Set(STEPS.filter((d) => !d.show).map((d) => d.opts.indexOf(d.want))).size === 3 && STEPS.filter((d) => !d.show).every((d) => d.opts.indexOf(d.want) >= 0));
+
+  K.ready();
+</script>

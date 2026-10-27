@@ -1,0 +1,183 @@
+{
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "Twelve screens: five that show and seven puzzles, alternating to the ninth and ending on three mixed puzzles",
+        "ok": true
+      },
+      {
+        "label": "Each arrow is 440 ÷ 1.732 = 254 V long, and the drawn triangle's sides come out at 1.732 × 254 = 440 V",
+        "ok": true
+      },
+      {
+        "label": "No fault: the earth dot sits at the star point, so each line reads 254 V to earth and the star point 0 V",
+        "ok": true
+      },
+      {
+        "label": "A solid fault on L1: L1 reads 0 V, L2 and L3 440 V, the star point 254 V, and the motor across L1 and L2 still 440 V",
+        "ok": true
+      },
+      {
+        "label": "1 kΩ on L1: the dot sits 168 V from the star point, and L1, L2 and L3 read 190, 256 and 420 V",
+        "ok": true
+      },
+      {
+        "label": "On the way to solid on L1, L3 peaks near 330 Ω at about 463 V, about 5% over 440 V, and reads 440 V when solid",
+        "ok": true
+      },
+      {
+        "label": "Above about 1 kΩ on L1, L2 reads lowest: 10 kΩ reads L1 253 V and L2 236 V, 3 kΩ reads 244 V and 211 V, yet no healthy line ever drops below about 209 V",
+        "ok": true
+      },
+      {
+        "label": "Equipment is rated at 173% of the phase voltage: 440 V is 173% of 254 V, and screen 7's bar reaches the 440 V rating with a solid fault on L1",
+        "ok": true,
+        "source": "https://www.eaton.com/content/dam/eaton/products/low-voltage-power-distribution-controls-systems/hrg/files/lv-hrg-systems-basics-ap019004en.pdf"
+      },
+      {
+        "label": "Screen 10: a 300 Ω fault on L2 reads L1 463 V, L2 82 V and L3 382 V",
+        "ok": true
+      },
+      {
+        "label": "The dot keeps to a half-circle: at every resistance it sits half an arrow from the middle of the faulted arrow, and it moves steadily from the star point to the tip as the resistance falls",
+        "ok": true
+      },
+      {
+        "label": "The animated dot follows the rule: the arrow ÷ (1 + j3ωCR) lands where its angle on the half-circle puts it, at every stop on every line",
+        "ok": true
+      },
+      {
+        "label": "The star and the triangle never move: every fault draws the tips in the same place, and the motor reads 440 V on every setting",
+        "ok": true
+      },
+      {
+        "label": "With a solid fault the healthy phases' voltages to earth increase to √3 times the normal phase voltage",
+        "ok": true,
+        "source": "https://www.electrical-installation.org/enwiki/IT_system_-_Fault_protection"
+      },
+      {
+        "label": "The first fault to earth causes no disconnection, and its current is measured in mA: the motor still gets 440 V, and the solid fault through the cables' capacitance passes less than an amp",
+        "ok": true,
+        "source": "https://www.electrical-installation.org/enwiki/IT_system_-_Fault_protection"
+      },
+      {
+        "label": "The dot reaches L1's tip within 3 s of starting to move, and is still on its way part through",
+        "ok": true
+      },
+      {
+        "label": "A slider move settles within 0.35 s, so the dot and the readouts match the slider: Open to Solid on L1 reads 440 V on L2 by then",
+        "ok": true
+      },
+      {
+        "label": "Before an answer, no puzzle's picture shows its result: the sides are unlabelled, the fault is not on, or the star point's reading waits",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "fault"
+    ],
+    "readouts": [
+      "v1",
+      "v2",
+      "v3",
+      "vs",
+      "vm"
+    ],
+    "outputs": [],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Screen",
+        "min": 0,
+        "max": 11,
+        "step": 1,
+        "steps": [
+          "The star of windings",
+          "Between two lines",
+          "The hull as a dot",
+          "Before the fault",
+          "The triangle shifts",
+          "The star point",
+          "The motor runs on",
+          "What has changed",
+          "A fault part way",
+          "Reading the voltmeters",
+          "A 400 V supply",
+          "The first fault"
+        ],
+        "value": 0
+      },
+      {
+        "id": "fault",
+        "kind": "control",
+        "label": "Fault resistance",
+        "min": 0,
+        "max": 6,
+        "step": 1,
+        "log": false,
+        "value": 0,
+        "shown": false
+      }
+    ],
+    "actions": [
+      "L1",
+      "L2",
+      "L3",
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Back",
+      "Continue",
+      "Start again",
+      "The earth dot"
+    ],
+    "answers": [],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ]
+  },
+  "moved": [
+    "step = 4 (the first step that shows a control)",
+    "fault = 4.5"
+  ],
+  "shots": [
+    "/home/user/Study-App/build/electrical/insulated-systems/i2.a16-360-light.png",
+    "/home/user/Study-App/build/electrical/insulated-systems/i2.a16-360-light-moved.png",
+    "/home/user/Study-App/build/electrical/insulated-systems/i2.a16-360-light-end.png",
+    "/home/user/Study-App/build/electrical/insulated-systems/i2.a16-360-dark.png",
+    "/home/user/Study-App/build/electrical/insulated-systems/i2.a16-360-dark-moved.png",
+    "/home/user/Study-App/build/electrical/insulated-systems/i2.a16-360-dark-end.png",
+    "/home/user/Study-App/build/electrical/insulated-systems/i2.a16-1280-light.png",
+    "/home/user/Study-App/build/electrical/insulated-systems/i2.a16-1280-light-moved.png",
+    "/home/user/Study-App/build/electrical/insulated-systems/i2.a16-1280-light-end.png",
+    "/home/user/Study-App/build/electrical/insulated-systems/i2.a16-1280-dark.png",
+    "/home/user/Study-App/build/electrical/insulated-systems/i2.a16-1280-dark-moved.png",
+    "/home/user/Study-App/build/electrical/insulated-systems/i2.a16-1280-dark-end.png"
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "draft": "i4.lesson.draft1.txt",
+  "validator": "draft 1 passes with no problems, soft points or warnings",
+  "keep": [
+    "The idea is named up front: a second earth fault on a different phase is a short between phases through the hull, driven by line voltage round both circuits' loops; on the same phase it drives next to nothing.",
+    "The picture is the brief's two faults through the hull: a 440 V board, two feeders, the hull, lesson 2's first fault on feeder 1's L1 with its alarm lit, a phase picker and Drop second fault, two loop sliders, 440 ÷ (Z1 + Z2) against each breaker's instant trip.",
+    "Both sides of the rule can be seen: same phase gives 0 V and no loop, a different phase gives the red loop.",
+    "Every figure recomputed: 254 ÷ 0.4 = 635 A, 440 ÷ 0.8 = 550 A, 440 ÷ 1.0 = 440 A, 440 ÷ 1.4 = 314 A, 440 ÷ 0.4 = 1,100 A, 440 ÷ 3.2 = 138 A, 550 ÷ 635 = 0.87, 440 ÷ 0.6 = 733 A.",
+    "Each brief misconception has a DO screen with its own hint: same-phase second fault (4), a first fault can wait (10), one circuit's loop instead of two (8, 11), plus phase voltage for line voltage (6, 8) and only the new fault's breaker tripping (12).",
+    "Twelve screens: SHOW 1, 3, 5, 7, 9 alternate with DO 2, 4, 6, 8, ending on three mixed puzzles 10 to 12. SHOW screens 57 to 72 words. Recall opener on screen 2 (Design and verification lesson 6's Zs) says Still there.",
+    "Three footnotes, each on a rule he would look up, at most one a sentence; no source named in a sentence; BS 7671's regulation and the Cahier availability model are left out, as they are not in this lesson's research."
+  ],
+  "faults": [
+    { "fault": "explanation skipping the causal step", "found": true, "where": "explain paragraph 2 and screen 5 send the current 'into the hull' and along it, while paragraph 3 makes the loop impedance the two circuits' protective-conductor loops. The step that joins them is missing: the return runs through the protective conductors and the hull together, so the cable loops set the impedance." },
+    { "fault": "false absolutes", "found": true, "where": "practice: 'Nothing trips until the second one' reads as a law. Say a first fault is not meant to trip anything. Screen 9 and practice: 'the two longest circuits' give the smallest current is only true by loop impedance; say the two highest loop impedances." },
+    { "fault": "brief shows effect not cause", "found": false, "note": "the brief names the loop through both feeders and the hull and its 440 ÷ (Z1 + Z2), and the same-phase case where no loop forms." },
+    { "fault": "checks test recall", "found": false, "note": "taught mode, no checks; DO screens apply the rule to new numbers and cases." },
+    { "fault": "thin or decorative research", "found": false },
+    { "fault": "unreadable labels", "found": false },
+    { "fault": "talks about the idea instead of teaching it", "found": false }
+  ],
+  "plain_writing": [
+    "explain: 'Where the two circuits match, that is double one circuit's loop impedance, the usual way to check it' is 24 words with a trailing clause. Split it.",
+    "practice: the rule of thumb is one 28-word sentence. Split it.",
+    "The bold takeaway is 25 words. Tighten it.",
+    "analogy: 'Lay a second red clamp on it too' needs a second red lead named."
+  ],
+  "shape": "Matches the recommended shape: idea up front, rule in words (440 ÷ (Z1 + Z2)), worked example with real numbers (explain 550 A and 314 A; practice 733 A), misconceptions failing on DO screens, a trade analogy (a battery's leads on a steel bench) with where it breaks, practice with steps, a rule of thumb, a worked example and mistakes, a sayable recap.",
+  "verdict": "Rewrite as draft 2: add the return path through the protective conductors, soften the two absolutes, split the long sentences."
+}

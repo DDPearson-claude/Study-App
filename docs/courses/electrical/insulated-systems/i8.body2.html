@@ -1,0 +1,881 @@
+<!-- kind: mechanism -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .caption { max-width: 32rem; margin-inline: auto; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.15rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.05rem; font-weight: 400; line-height: 1.6; }
+  .scene { display: block; width: 100%; max-width: 32rem; margin-inline: auto; }
+  .scene.enter { animation: card-in .35s ease-out both; }
+  @keyframes card-in { from { opacity: 0; } to { opacity: 1; } }
+  .scene .card { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .ghostcard { fill: var(--k-panel); stroke: var(--k-muted); stroke-width: 1.2; }
+  .scene .hull { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.2; }
+  .scene .wire { stroke: var(--k-ink); stroke-width: 1.8; fill: none; stroke-linecap: round; }
+  .scene .l1 { stroke: var(--k-accent2); stroke-width: 2.5; stroke-linecap: round; }
+  .scene .bus { stroke-width: 2.5; stroke-linecap: round; }
+  .scene .c1 { stroke: var(--k-cat1); } .scene .c2 { stroke: var(--k-cat2); } .scene .c3 { stroke: var(--k-cat3); }
+  .scene .plate { stroke: var(--k-ink); stroke-width: 3; }
+  .scene .dot { fill: var(--k-ink); }
+  .scene .pivot { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.4; }
+  .scene .spark { stroke: var(--k-warn); stroke-width: 2.2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .flare { fill: var(--k-fill2); }
+  .scene .frame { fill: none; stroke: var(--k-line); stroke-width: 1; }
+  .scene .zero { stroke: var(--k-strong); stroke-width: 1; }
+  .scene .gpk { stroke: var(--k-muted); stroke-width: 1; }
+  .scene .gsf { stroke: var(--k-muted); stroke-width: 2; stroke-dasharray: 0.5 4; stroke-linecap: round; }
+  .scene .trace { stroke: var(--k-accent2); stroke-width: 2.2; fill: none; stroke-linejoin: round; }
+  .scene .star { stroke: var(--k-accent); stroke-width: 2; fill: none; stroke-dasharray: 6 4; }
+  .scene .head { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 1.5; }
+  .scene .peak { fill: none; stroke: var(--k-amber-line); stroke-width: 2.5; }
+  .scene .dial { fill: none; stroke: var(--k-strong); stroke-width: 2; }
+  .scene .tick { stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .mark { stroke: var(--k-ink); stroke-width: 2; }
+  .scene .needle { stroke: var(--k-ink); stroke-width: 2.5; stroke-linecap: round; }
+  .scene .needle.blur { stroke: var(--k-muted); stroke-width: 2; }
+  .scene .tag { fill: var(--k-panel); stroke: var(--k-line); stroke-width: 1.5; }
+  .scene .tag.bad { stroke: var(--k-warn); }
+  .scene .fault { stroke: var(--k-warn); stroke-width: 3; stroke-linecap: round; }
+  .scene .fdot { fill: var(--k-warn); }
+  .scene .glow { stroke: var(--k-warn); stroke-opacity: .35; stroke-width: 8; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .person { stroke: var(--k-ink); stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .face { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 2.5; }
+  .scene .track { fill: var(--k-sunk); stroke: var(--k-line); stroke-width: 1; }
+  .scene .barfill { fill: var(--k-accent2); }
+  .scene .barfill.hot { fill: var(--k-warn); }
+  .scene .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .lab.n { font-weight: 400; }
+  .scene .lab.m { font-weight: 400; fill: var(--k-muted); }
+  .scene .lab.w { font-weight: 700; fill: var(--k-warn); }
+  .scene .lab.tw { font-weight: 700; fill: var(--k-warn); }
+  .scene .lab.tn { font-weight: 400; fill: var(--k-warn); }
+  #ctls > * + *, .cbox > * + * { margin-top: 10px; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; min-height: 44px; }
+  /* Readout tiles: as many to a row as fit, so a phone wraps them and no word splits. */
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr)); gap: 10px; }
+  /* The answers are sentences: one to a row, wrapping inside the button. */
+  .picks { display: flex; flex-direction: column; gap: 8px; }
+  .picks .k-btn { width: 100%; min-height: 48px; white-space: normal; text-align: left; justify-content: flex-start; line-height: 1.4; padding: 10px 14px; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; }
+  .fb.right { color: var(--k-good); }
+  .why, .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing .scene.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter, .scene.enter { animation: none; } }
+</style>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <div id="viewctl"></div>
+    <svg class="scene" id="arc" viewBox="0 0 340 416" width="100%" role="img" aria-label=""><g id="arcS"></g><g id="arcD"></g></svg>
+    <svg class="scene" id="drv" viewBox="0 0 340 294" width="100%" role="img" aria-label="" hidden><g id="drvS"></g><g id="drvD"></g></svg>
+    <svg class="scene" id="tch" viewBox="0 0 340 328" width="100%" role="img" aria-label="" hidden><g id="tchS"></g><g id="tchD"></g></svg>
+    <div id="ctls">
+      <div class="cbox" id="arcctl"><div class="row" id="strikes"></div><div id="lossctl"></div></div>
+      <div class="cbox" id="drvctl"></div>
+      <div class="cbox" id="tchctl"></div>
+    </div>
+    <div class="tiles" id="arcouts"></div>
+    <div class="tiles" id="drvouts"></div>
+    <div class="tiles" id="tchouts"></div>
+    <div class="picks" id="picks"></div>
+    <div class="row" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row" id="nav"></div>
+</div>
+
+<p class="caption">Example values: 440 V at 60 Hz, 1 µF a line of cable, ten drives, a 1,000 Ω body.</p>
+
+<script>
+  // ---------- the rules ----------
+  // The ladder. Each line sits 440 ÷ 1.732 = 254 V from earth, with a peak of 254 × 1.414 = 359 V ("1 times").
+  // L1's voltage to the hull is the star point's held voltage plus L1's own swing of 359 V either side.
+  // The first strike lands at L1's peak and leaves the star point held 1 times out, opposite L1's swing.
+  // Each later strike lands at L1's next peak, P times out: the star point jumps P across and rings past
+  // by a share of that jump (all of it with No losses, half with Some, none with Heavy). The arc goes out
+  // at the top of the ring, so the new held voltage is (1 + share) × P minus the old one.
+  const VLINE = 440, ROOT3 = 1.732, ROOT2 = 1.414, HZ = 60;
+  const VPH = Math.round(VLINE / ROOT3);            // 254 V
+  const PK = Math.round(VPH * ROOT2);               // 359 V, the normal peak
+  const SOLID = Math.round(VLINE * ROOT2);          // 622 V, the line voltage's peak: a solid fault's healthy lines
+  const OMEGA = 2 * Math.PI * HZ;                   // 377 rad/s
+  const VIEWS = ['Arc ladder', 'Drive on IT', 'Touch'];
+  const KEY = { 'Arc ladder': 'arc', 'Drive on IT': 'drv', 'Touch': 'tch' };
+  const LOSSES = ['No losses', 'Some losses', 'Heavy losses'];
+  const SHARE = { 'No losses': 1, 'Some losses': 0.5, 'Heavy losses': 0 };
+  const MAXN = 3, END = 2.5, RD = 0.08;             // most strikes; the plot's length in cycles; the ring, drawn slowed over 0.08 of a cycle
+  const TS = [0.25, 0.75, 1.25];                    // L1's peaks, where strikes 1, 2 and 3 land
+  const e1 = (t) => Math.sin(2 * Math.PI * t);      // L1's own swing about the star point, in normal peaks
+  // The star point's held voltage after each strike, in normal peaks (signed: it alternates sides).
+  function rungs(r, count) {
+    const h = [0];
+    for (let k = 1; k <= count; k++) { const tg = k % 2 ? -1 : 1; h.push(tg + (k === 1 ? 0 : r) * (tg - h[k - 1])); }
+    return h;
+  }
+  // The star point at time t (cycles): steady, then at each strike a quick swing (the ring) to its new held value.
+  function starAt(t, n, h) {
+    let k = 0;
+    while (k < n && TS[k] <= t + 1e-12) k++;
+    if (!k) return 0;
+    const s = (t - TS[k - 1]) / RD;
+    return s >= 1 ? h[k] : h[k - 1] + (h[k] - h[k - 1]) * (1 - Math.cos(Math.PI * Math.max(0, s))) / 2;
+  }
+  // What has happened by time tp: the star point's held voltage and L1's highest peak, in normal peaks.
+  function arcNumbers(n, r, tp) {
+    const h = rungs(r, MAXN);
+    let held = 0, best = 0, at = null;
+    for (let k = 1; k <= n; k++) if (TS[k - 1] + RD <= tp + 1e-9) held = Math.abs(h[k]);
+    const see = (t) => {
+      if (t > tp + 1e-9 || t > END + 1e-9) return;
+      const u = starAt(t, n, h) + e1(t);
+      if (Math.abs(u) > best + 1e-6) { best = Math.abs(u); at = [t, u]; }
+    };
+    see(0.25);
+    for (let k = 1; k <= n; k++) see(TS[k - 1]);
+    if (n) see(TS[n - 1] + 0.5);
+    return { held, best, at };
+  }
+  const canStrike = (s) => s.n < MAXN;
+  // The drives. A solid first fault passes 3 × ω × C × 254 V, with C the capacitance a line.
+  const CCABLE = 1, CFILT = 0.1, NDRV = 10, TAU = 0.3;
+  const capOf = (f) => CCABLE + (f === 'In' ? NDRV * CFILT : 0);
+  const faultmA = (c) => 3 * OMEGA * c * 1e-6 * VPH * 1000;
+  // Touch. Healthy, the body current returns through all three lines' capacitance in parallel (3 µF).
+  // With a solid fault on L1 the hull sits at L1: touching L1 gives nothing, touching L2 gives 440 V.
+  const BODY = 1000, SAFE = 50;
+  const XC3 = 1 / (OMEGA * 3 * CCABLE * 1e-6);      // 884 Ω
+  function touchOf(fault, line) {
+    if (fault === 'Solid') return line === 'L1' ? { v: 0, i: 0 } : { v: VLINE, i: VLINE / BODY * 1000 };
+    const i = VPH / Math.hypot(BODY, XC3);
+    return { v: i * BODY, i: i * 1000 };
+  }
+  const fV = (v) => K.fmt(Math.round(v), { decimals: 0 }) + ' V';
+  const fmA = (v) => K.fmt(Math.round(v), { decimals: 0 }) + ' mA';
+  const fmtTimes = (u) => { const v = Math.round(u * 10) / 10; return K.fmt(v, { decimals: Number.isInteger(v) ? 0 : 1 }); };
+
+  // ---------- the lesson: SHOW screens demonstrate, DO screens are puzzles ----------
+  const DEF = { view: VIEWS[0], arc: { loss: LOSSES[0], n: 0, tp: END, qh: false, qp: false }, drv: { filters: 'In', monitor: 'Made for drives', q: false }, tch: { fault: 'None', touch: 'L1', q: false } };
+  const clone = (c) => JSON.parse(JSON.stringify(c));
+  const make = (view, key) => (o) => { const c = clone(DEF); c.view = view; Object.assign(c[key], o || {}); return c; };
+  const A = make(VIEWS[0], 'arc'), D = make(VIEWS[1], 'drv'), Tc = make(VIEWS[2], 'tch');
+  const OUT1 = TS[0] + RD + 0.05, OUT2 = TS[1] + RD + 0.05;   // just after the arc has gone out
+  const strip = (s) => s.replace(/\[\^\d+\]/g, '');
+  const STEPS = [
+    { show: true, name: 'The arc goes out at a peak', pic: A({ n: 1 }), demo: A({ n: 0 }),
+      text: `An arcing fault strikes, goes out and strikes again. Say a chafed L1 cable arcs to the hull at L1's peak. While the arc burns, it acts as a solid fault, so the triangle shifts. The arc carries the system's charging current. That current leads the voltage by 90°, so it is zero when the voltage peaks. The arc goes out there.[^1] That leaves the star point a full peak, 359 V, from the hull. The charge has no quick way off, so it stays held there.`,
+      read: `The arc struck once at L1's peak and went out at a current zero. The dashed line shows the star point held 359 V from the hull.` },
+    { kind: 'pick', name: 'Once the arc is out', before: A({ n: 1, tp: OUT1, qh: true, qp: true }), after: A({ n: 1 }),
+      task: `The arc has just gone out at a current zero. What does the star point's voltage to the hull do now?`,
+      opts: ['It falls back to 0 V, as the fault has gone', 'It stays near 359 V, held by the charge on the capacitance', 'It swings at 60 Hz about the hull, as before the fault'],
+      want: 'It stays near 359 V, held by the charge on the capacitance',
+      hints: { 'It falls back to 0 V, as the fault has gone': `Something must carry the charge away. With the arc out, there is no quick path.`,
+        'It swings at 60 Hz about the hull, as before the fault': `The capacitance now holds a charge. The arc that put it there has gone.` },
+      why: `The arc went out as the capacitance reached its peak. The charge has no quick way off, only slow leakage. So the star point stays near 359 V. L1 swings about it.` },
+    { show: true, name: 'The gap restrikes', pic: A({ n: 2 }), demo: A({ n: 1 }),
+      text: `L1 still swings 359 V either side of the star point. Half a cycle on, L1 is 718 V from the hull, twice its normal peak. Then the gap restrikes. To pull L1 to the hull, the star point must jump 718 V. The jump is sudden, so the capacitance and the supply's inductance ring like a struck bell. With no losses, the star point rings past by as much again. The arc goes out at the top of the ring. Then L1 peaks at 4 times normal.[^2]`,
+      read: `With no losses and two strikes, L1 peaks at 718 V, then 1,436 V. The star point is held at 359 V, then 1,077 V.` },
+    { kind: 'pick', name: 'The next peak', before: A({ n: 2, tp: OUT2, qp: true }), after: A({ n: 3 }),
+      task: `There are no losses. After the second strike, the star point is held at 1,077 V. That is three times the normal peak of 359 V. How high does L1 peak half a cycle later?`,
+      opts: ['1,077 V, the voltage the star point holds', '1,436 V, the held voltage plus L1\'s own swing', '718 V, twice the normal peak'],
+      want: '1,436 V, the held voltage plus L1\'s own swing',
+      hints: { '1,077 V, the voltage the star point holds': `L1 swings 359 V either side of the star point. Add that swing.`,
+        '718 V, twice the normal peak': `That was the first rung. The star point is now three times as far out.` },
+      why: `L1's far peak is 1,077 + 359 = 1,436 V, 4 times normal. With no losses, the climb goes on until a weak part fails. A starter coil or a motor winding often goes first.[^3]` },
+    { show: true, name: 'Losses damp the ring', pic: A({ n: 3, loss: LOSSES[1] }), demo: A({ n: 0, loss: LOSSES[1] }),
+      text: `Losses damp the ring. The insulation loses a little energy each time it charges. The ring charges it thousands of times a second. With Some losses, the star point rings past by half the jump. The peaks go 2, 3, then 3.5 times normal, and level off. Ships' cables lose far more at these frequencies.[^4] So people still argue whether the climb happens at sea at all. Faults on 480 V systems have reached 1,200 V to earth.[^5]`,
+      read: `With Some losses and three strikes, L1 peaks at 718 V, 1,077 V, then 1,257 V. The climb is levelling off.` },
+    { kind: 'pick', name: 'Heavy losses', before: A({ n: 0, loss: LOSSES[2] }), after: A({ n: 3, loss: LOSSES[2] }),
+      task: `Heavy losses damp the ring completely. The star point never rings past. The arc restrikes at every peak. How high does L1 get?`,
+      opts: ['359 V, its normal peak, as the losses stop any rise', '718 V, twice its normal peak, and no higher', 'It still climbs, only more slowly'],
+      want: '718 V, twice its normal peak, and no higher',
+      hints: { '359 V, its normal peak, as the losses stop any rise': `The first strike still leaves the star point held 359 V out. L1 swings past it.`,
+        'It still climbs, only more slowly': `With no overshoot, each restrike lands the star point 359 V out on the other side.` },
+      why: `The first strike holds the star point 359 V out, so L1 reaches 718 V. Each restrike only flips it to 359 V on the other side. 718 V is a little above the 622 V peak that a solid fault puts on the healthy lines.` },
+    { show: true, name: 'Filters on an insulated supply', pic: D({ filters: 'Out' }), demo: D({ filters: 'In' }),
+      text: `A drive's EMC filter has capacitors from each line to the hull. On an insulated supply, they tie the system to earth.[^6] Ten drives at 0.1 µF a line add 1 µF a line to the cable's 1 µF. That doubles the capacitance. A solid first fault passes 575 mA, not 287 mA. The monitor takes twice as long to settle. So on an insulated supply you disconnect each filter and its varistor.[^7] In return, the drive may no longer meet its EMC standard.[^8]`,
+      read: `With the filters in, a solid first fault passes 575 mA. The monitor settles twice as slowly. With them out, the fault passes 287 mA, and the EMC tag is red.` },
+    { kind: 'pick', name: 'A reading that jumps', before: D({ filters: 'Out', monitor: 'Plain DC', q: true }), after: D({ filters: 'Out', monitor: 'Made for drives' }),
+      task: `A new drive's filter is out, as it should be on an insulated supply. Yet the monitor's reading jumps about whenever the drive runs. What do you check first?`,
+      opts: ['Put the filter back in to steady the reading', 'That the monitor is made for supplies that feed drives', 'Nothing, as a monitor cannot see through a drive'],
+      want: 'That the monitor is made for supplies that feed drives',
+      hints: { 'Put the filter back in to steady the reading': `The filter ties the supply to the hull. That is why it came out.`,
+        'Nothing, as a monitor cannot see through a drive': `The monitor reads everything joined to the supply, including the drive's DC side.` },
+      why: `A drive's rectifier joins its DC side to the supply. DC leaking from there distorts a plain monitor's reading.[^9] So use a monitor made for non-linear loads.[^10]` },
+    { show: true, name: 'Touching a floating supply', pic: Tc({ fault: 'Solid', touch: 'L2' }), demo: Tc({ fault: 'None', touch: 'L2' }),
+      text: `A floating supply is not safe to touch. A monitor in alarm means a line may already be joined to the hull. Then the system behaves like an earthed one.[^11] Here a solid fault holds the hull at L1. Stand on the hull and touch L2, and you hold the full 440 V. That drives about 440 mA through a 1,000 Ω body. Only a touch voltage below 50 V AC is counted safe, and less in wet places.[^12]`,
+      read: `With a solid fault on L1, a person on the hull touching L2 holds 440 V. About 440 mA flows through a 1,000 Ω body.` },
+    { kind: 'pick', name: 'A healthy reading', before: Tc({ fault: 'None', touch: 'L1', q: true }), after: Tc({ fault: 'None', touch: 'L1' }),
+      task: `The monitor reads 2 MΩ, with no alarm. The cables have 1 µF a line. You stand on the hull and touch L1. What flows through a 1,000 Ω body?`,
+      opts: ['Next to nothing, as no fault completes the circuit', 'About 190 mA, back through the cables\' capacitance', 'About 440 mA, with the full line voltage across you'],
+      want: 'About 190 mA, back through the cables\' capacitance',
+      hints: { 'Next to nothing, as no fault completes the circuit': `Every cable is a capacitor to the hull you stand on. That is a path for AC.`,
+        'About 440 mA, with the full line voltage across you': `With no fault, L1 sits only 254 V from the hull. The capacitance also limits the current.` },
+      why: `The monitor reads resistance with DC or a very slow AC, so the capacitance barely shows. But the capacitance passes AC and closes the loop through you. About 190 mA flows. A healthy reading is no reason to touch.` },
+    { kind: 'pick', name: 'Two sides of the argument', before: A({ n: 0 }), after: [A({ n: 3 }), A({ n: 3, loss: LOSSES[2] })],
+      task: `One side says an arcing fault can pump an insulated supply's voltage up. The other says this is not a problem on ships. What does each case rest on?`,
+      opts: ['The first on voltages measured on 480 V systems, the second on ships\' heavier losses', 'The first on theory alone, the second on measurements at sea', 'Both on the same measurements, read differently'],
+      want: 'The first on voltages measured on 480 V systems, the second on ships\' heavier losses',
+      hints: { 'The first on theory alone, the second on measurements at sea': `The 1,200 V readings were measured. The marine case rests on how hard ships damp the ring.`,
+        'Both on the same measurements, read differently': `One side measured voltages on 480 V systems. The other worked out how hard marine losses damp the ring.` },
+      why: `Engineers measured 1,200 V or more on 480 V systems.[^5] The marine case is that ships' heavy losses damp the ring.[^13] On the Losses picker, light losses let the ladder climb. Heavy losses stop it. People still argue where a real ship sits.` },
+    { kind: 'pick', name: 'What the filter gave', before: D({ filters: 'In' }), after: D({ filters: 'Out' }),
+      task: `You disconnect a drive's EMC filter so it suits an insulated supply. What have you given up?`,
+      opts: ['Nothing, as the filter matters only on earthed supplies', 'Its full EMC performance, so more switching noise can reach nearby equipment', 'The drive\'s protection against earth faults'],
+      want: 'Its full EMC performance, so more switching noise can reach nearby equipment',
+      hints: { 'Nothing, as the filter matters only on earthed supplies': `The filter keeps the drive's high-frequency noise in, on any supply.`,
+        'The drive\'s protection against earth faults': `The filter is there for interference, not for earth-fault protection.` },
+      why: `Without the filter, the drive may no longer meet its EMC standard.[^8] In return, the supply stays floating, with less capacitance to the hull.` },
+  ];
+  const finalOf = (d) => { const a = [].concat(d.after); return a[a.length - 1]; };
+  STEPS.forEach((d) => { if (d.show) d.still = () => setPic(d.pic); else d.read = d.task; });
+  const FINISH = 'Each restrike can leave the star point further out, unless losses damp the ring. Drive filters and a floating supply bring dangers of their own.';
+  const PICK = 'Choose an answer first.';
+  const EATON_T = 'https://www.eaton.com/content/dam/eaton/markets/healthcare/knowledge-center/white-paper/transient-overvoltages-on-ungrounded-systems-from-intermittent-ground-faults.pdf';
+  const IMAREST = 'https://library.imarest.org/record/2202/files/2229.pdf';
+  const ABB380 = 'https://library.e.abb.com/public/2a86caefc9a646d6ba6be02a51401d7c/EN_ACS380_HW_H.pdf?x-sign=uVI95WUGnnSLwIKdHN0mtCica4cmiO2sqwtZQFRUbE3KUcBDVJ7Anb9IZ0mfA4b6';
+  const BENDER_TA = 'https://fournais-bender.dk/storage/TechnAspects-IT-systems.pdf';
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- drawing helpers ----------
+  const el = (id) => document.getElementById(id);
+  function put(parent, tag, attrs, text) { const n = K.svg(tag, attrs); if (text != null) n.textContent = text; parent.appendChild(n); return n; }
+  const lab = (g, x, y, text, cls, anchor) => put(g, 'text', { x, y, class: 'lab' + (cls ? ' ' + cls : ''), 'text-anchor': anchor || 'start' }, text);
+  const n1 = (v) => +v.toFixed(1);
+  const showEl = (node, on) => { if (on) node.removeAttribute('hidden'); else node.setAttribute('hidden', ''); };
+  const svgs = { arc: el('arc'), drv: el('drv'), tch: el('tch') };
+  const tiles = { arc: el('arcouts'), drv: el('drvouts'), tch: el('tchouts') };
+  const ctlBoxes = { arc: el('arcctl'), drv: el('drvctl'), tch: el('tchctl') };
+  const sparkPath = (x, y, s) => `M${n1(x - 3 * s)} ${n1(y - 8 * s)}L${n1(x + 2 * s)} ${n1(y - 2 * s)}L${n1(x - 2 * s)} ${n1(y + 1.5 * s)}L${n1(x + 3 * s)} ${n1(y + 8 * s)}`;
+
+  // ---------- card 1: the restrike ladder (viewBox 340 × 416) ----------
+  // A sketch of L1, the system capacitance and the arc gap over the hull; under it, L1's voltage to the hull.
+  const PL = 54, PR = 334, PT = 128, PB = 328, Y0 = 228, SC = 100 / 2400;
+  const X = (t) => PL + (t / END) * (PR - PL);
+  const Yu = (u) => Y0 - u * PK * SC;
+  const GRID = (() => {
+    const g = [];
+    for (let i = 0; i <= 500; i++) g.push(i * END / 500);
+    TS.forEach((t0) => { for (let j = 1; j <= 16; j++) g.push(t0 + RD * j / 16); });
+    return Array.from(new Set(g.map((v) => Math.round(v * 1e6) / 1e6))).sort((a, b) => a - b);
+  })();
+  const SER = {};
+  function series(n, r) {
+    const key = n + '|' + r;
+    if (!SER[key]) {
+      const h = rungs(r, MAXN), L = new Float64Array(GRID.length), N = new Float64Array(GRID.length);
+      GRID.forEach((t, i) => { N[i] = starAt(t, n, h); L[i] = N[i] + e1(t); });
+      SER[key] = { L, N, h };
+    }
+    return SER[key];
+  }
+  function pathOf(get, t0, t1, tail) {
+    let d = '';
+    const add = (t, u) => { d += (d ? 'L' : 'M') + n1(X(t)) + ' ' + n1(Yu(u)); };
+    if (tail && t0 > 0) add(t0, tail(t0));
+    for (let i = 0; i < GRID.length; i++) {
+      const t = GRID[i];
+      if (t0 > 0 && t <= t0 + 1e-9) continue;
+      if (t > t1 + 1e-9) break;
+      add(t, get(i));
+    }
+    if (tail && t1 < END - 1e-9) add(t1, tail(t1));
+    return d || 'M0 0';
+  }
+  let lossLab, countLab, gapSpark, gapFlare;
+  (function buildArc() {
+    const s = el('arcS');
+    put(s, 'rect', { class: 'card', x: 4, y: 6, width: 96, height: 62, rx: 6 });
+    lab(s, 52, 26, 'Insulated', '', 'middle');
+    lab(s, 52, 42, 'supply', '', 'middle');
+    lab(s, 52, 59, VLINE + ' V, ' + HZ + ' Hz', 'n', 'middle');
+    put(s, 'line', { class: 'l1', x1: 100, y1: 24, x2: 334, y2: 24 });
+    lab(s, 106, 16, 'L1');
+    // One capacitor stands for the whole system's capacitance to the hull.
+    put(s, 'line', { class: 'wire', x1: 124, y1: 24, x2: 124, y2: 44 });
+    put(s, 'line', { class: 'plate', x1: 112, y1: 44, x2: 136, y2: 44 });
+    put(s, 'line', { class: 'plate', x1: 112, y1: 51, x2: 136, y2: 51 });
+    put(s, 'line', { class: 'wire', x1: 124, y1: 51, x2: 124, y2: 84 });
+    put(s, 'circle', { class: 'dot', cx: 124, cy: 24, r: 2.6 });
+    lab(s, 142, 42, 'System');
+    lab(s, 142, 57, 'capacitance');
+    lossLab = lab(s, 142, 74, '', 'm');
+    // The arc gap: a chafed end of L1 over a point on the hull.
+    put(s, 'line', { class: 'wire', x1: 236, y1: 24, x2: 236, y2: 46 });
+    put(s, 'path', { class: 'wire', d: 'M236 46L231 52M236 46V53M236 46L241 52' });
+    put(s, 'line', { class: 'wire', x1: 236, y1: 84, x2: 236, y2: 66 });
+    put(s, 'path', { class: 'dot', d: 'M232 67L240 67L236 61Z' });
+    put(s, 'circle', { class: 'dot', cx: 236, cy: 24, r: 2.6 });
+    gapFlare = put(s, 'circle', { class: 'flare', cx: 236, cy: 57, r: 9, opacity: 0 });
+    gapSpark = put(s, 'path', { class: 'spark', d: sparkPath(236, 57, 0.6), opacity: 0 });
+    lab(s, 248, 42, 'Arc gap at a');
+    lab(s, 248, 57, 'chafed cable');
+    countLab = lab(s, 248, 74, '', 'm');
+    put(s, 'rect', { class: 'hull', x: 4, y: 84, width: 332, height: 20, rx: 3 });
+    lab(s, 170, 98.5, 'Hull, which is earth', 'n', 'middle');
+    // The plot.
+    lab(s, PR, 119, 'Voltage to the hull', 'n', 'end');
+    put(s, 'rect', { class: 'frame', x: PL, y: PT, width: PR - PL, height: PB - PT });
+    [[1, 'gpk'], [-1, 'gpk'], [SOLID / PK, 'gsf'], [-SOLID / PK, 'gsf']].forEach((q) => put(s, 'line', { class: q[1], x1: PL, x2: PR, y1: n1(Yu(q[0])), y2: n1(Yu(q[0])) }));
+    put(s, 'line', { class: 'zero', x1: PL, x2: PR, y1: Y0, y2: Y0 });
+    lab(s, 50, PT + 4.5, '2,400', 'n', 'end');
+    lab(s, 50, Y0 + 4.5, '0', 'n', 'end');
+    lab(s, 50, PB + 4.5, '−2,400', 'n', 'end');
+    lab(s, (PL + PR) / 2, PB + 18, 'Time, slowed down', 'n', 'middle');
+    // The key, inside the drawing.
+    const KY = [PB + 40, PB + 60, PB + 80];
+    const sw = (x, y, cls) => put(s, 'line', { class: cls, x1: x, y1: y - 4.5, x2: x + 18, y2: y - 4.5 });
+    sw(4, KY[0], 'trace'); lab(s, 28, KY[0], 'L1 to hull', 'n');
+    sw(176, KY[0], 'star'); lab(s, 200, KY[0], 'Star point', 'n');
+    sw(4, KY[1], 'gpk'); lab(s, 28, KY[1], 'Normal peak, ±' + K.fmt(PK, { decimals: 0 }) + ' V', 'n');
+    sw(176, KY[1], 'gsf'); lab(s, 200, KY[1], 'Solid fault, ±' + K.fmt(SOLID, { decimals: 0 }) + ' V', 'n');
+    put(s, 'path', { class: 'spark', d: sparkPath(13, KY[2] - 4.5, 0.75) }); lab(s, 28, KY[2], 'Strike', 'n');
+    put(s, 'circle', { class: 'peak', cx: 185, cy: KY[2] - 4.5, r: 5.5 }); lab(s, 200, KY[2], 'Highest peak', 'n');
+  })();
+
+  function arcVisOf(s) { return { n: s.n, r: SHARE[s.loss], loss: s.loss, tp: s.tp, head: s.tp < END - 1e-9 ? s.tp : null, ghost: null, mor: null, flash: 0, qh: s.qh, qp: s.qp }; }
+  // A strike draws the new trace on from where it lands; a change of losses (or Reset) reshapes the trace.
+  function arcSeg(a, b, slow) {
+    if (a.loss === b.loss && b.n >= a.n) {
+      const t0 = a.tp < END - 1e-9 ? a.tp : (b.n > a.n ? TS[a.n] : END);
+      if (t0 < b.tp - 1e-9) {
+        const ghost = a.tp > t0 + 1e-9, wait = ghost ? 0.45 : 0.2;
+        const dur = Math.max(0.8, (b.tp - t0) * 1.05);
+        return { kind: 'draw', a, b, t0, wait, dur, ghost, end: wait + dur + 0.1 };
+      }
+    }
+    return { kind: 'morph', a, b, end: slow ? 1.4 : 0.3 };
+  }
+  function arcVisAt(m, t) {
+    const b = m.b;
+    if (m.kind === 'morph') {
+      const p = K.ease(K.clamp(t / m.end, 0, 1));
+      return Object.assign(arcVisOf(b), { head: null, mor: { n0: m.a.n, r0: SHARE[m.a.loss], p } });
+    }
+    const pw = K.clamp(t / m.wait, 0, 1), p = K.clamp((t - m.wait) / m.dur, 0, 1);
+    const tp = m.t0 + (b.tp - m.t0) * p;
+    let flash = 0;
+    for (let k = m.a.n + 1; k <= b.n; k++) {
+      const tk = TS[k - 1];
+      if (tk < m.t0 - 1e-9 || tk > b.tp + 1e-9) continue;
+      const x = (t - (m.wait + (tk - m.t0) / (b.tp - m.t0) * m.dur)) / 0.5;
+      if (x >= 0 && x <= 1) flash = Math.max(flash, x < 0.15 ? x / 0.15 : 1 - (x - 0.15) / 0.85);
+    }
+    const head = p >= 1 ? null : p > 0 ? tp : m.t0 - 0.2 * (1 - K.ease(pw));
+    return Object.assign(arcVisOf(b), { tp, head, flash, ghost: m.ghost ? { n: m.a.n, from: m.t0, a: 1 - K.ease(pw) } : null });
+  }
+  function paintArc(v) {
+    const g = el('arcD');
+    g.textContent = '';
+    const S = series(v.n, v.r), h = S.h;
+    const tL = (t) => starAt(t, v.n, h) + e1(t), tN = (t) => starAt(t, v.n, h);
+    if (v.ghost && v.ghost.a > 0.01) {
+      const G = series(v.ghost.n, v.r), gn = v.ghost.n;
+      const gg = put(g, 'g', { opacity: v.ghost.a.toFixed(3) });
+      put(gg, 'path', { class: 'star', d: pathOf((i) => G.N[i], v.ghost.from, END, (t) => starAt(t, gn, G.h)) });
+      put(gg, 'path', { class: 'trace', d: pathOf((i) => G.L[i], v.ghost.from, END, (t) => starAt(t, gn, G.h) + e1(t)) });
+    }
+    let dL, dN;
+    if (v.mor) {
+      const S0 = series(v.mor.n0, v.mor.r0), p = v.mor.p;
+      dN = pathOf((i) => K.lerp(S0.N[i], S.N[i], p), 0, END);
+      dL = pathOf((i) => K.lerp(S0.L[i], S.L[i], p), 0, END);
+    } else {
+      dN = pathOf((i) => S.N[i], 0, v.tp, tN);
+      dL = pathOf((i) => S.L[i], 0, v.tp, tL);
+    }
+    put(g, 'path', { class: 'star', d: dN });
+    put(g, 'path', { class: 'trace', d: dL });
+    // Each strike, where L1 meets the hull.
+    const nS = v.mor ? Math.max(v.n, v.mor.n0) : v.n;
+    for (let k = 1; k <= nS; k++) {
+      if (!v.mor && TS[k - 1] > v.tp - 1e-6) continue;
+      const a = !v.mor || (k <= v.n && k <= v.mor.n0) ? 1 : k <= v.n ? v.mor.p : 1 - v.mor.p;
+      if (a > 0.01) put(g, 'path', { class: 'spark', d: sparkPath(X(TS[k - 1]), Y0, 0.75), opacity: a.toFixed(3) });
+    }
+    const nb = arcNumbers(v.n, v.r, v.mor ? END : v.tp);
+    if (nb.at) put(g, 'circle', { class: 'peak', cx: n1(X(nb.at[0])), cy: n1(Yu(nb.at[1])), r: 5.5, opacity: (v.mor ? v.mor.p : 1).toFixed(3) });
+    if (v.head != null) put(g, 'circle', { class: 'head', cx: n1(X(v.head)), cy: n1(Yu(tL(v.head))), r: 4.5 });
+    gapSpark.setAttribute('opacity', v.flash.toFixed(3));
+    gapFlare.setAttribute('opacity', (0.8 * v.flash).toFixed(3));
+    lossLab.textContent = v.loss;
+    const struck = v.mor ? v.n : TS.filter((t, k) => k < v.n && t < v.tp - 1e-6).length;
+    countLab.textContent = struck ? struck + (struck === 1 ? ' strike' : ' strikes') : 'Not struck';
+    const read = { held: v.qh ? '?' : fV(nb.held * PK), peak: v.qp ? '?' : fV(nb.best * PK), times: v.qp ? '?' : fmtTimes(nb.best) };
+    R.held.set(read.held); R.peak.set(read.peak); R.times.set(read.times);
+    const climb = v.r > 0.75 ? 'each restrike leaves the star point further out, and L1\'s peaks climb' : v.r > 0.25 ? 'each restrike leaves the star point a little further out, and L1\'s peaks climb, then level off' : 'each restrike only flips the star point to the other side, and L1\'s peaks stay the same';
+    svgs.arc.setAttribute('aria-label', 'A sketch of L1 on a 440 V, 60 Hz insulated supply, with the system capacitance and an arc gap at a chafed cable, both to the hull. Below, a plot of L1\'s voltage to the hull against time, slowed down, with the star point\'s voltage dashed. ' + v.loss + '. ' +
+      (struck ? (struck === 1 ? 'One strike: the arc went out at a peak and left the star point held away from the hull, so L1 swings about it. ' : struck + ' strikes: ' + climb + '. ') : 'No strikes yet: L1 swings evenly about the star point, which sits at the hull\'s voltage.'));
+    return { read, tp: v.mor ? END : v.tp, struck, n: v.n };
+  }
+
+  // ---------- card 2: a drive's EMC filter on the insulated supply (viewBox 340 × 350) ----------
+  const LY = [32, 48, 64], CXC = [140, 156, 172], DX = [208, 224, 240];
+  let monLab;
+  (function buildDrv() {
+    const s = el('drvS');
+    put(s, 'rect', { class: 'card', x: 4, y: 20, width: 84, height: 70, rx: 6 });
+    lab(s, 46, 42, VLINE + ' V', '', 'middle');
+    lab(s, 46, 58, 'insulated', 'n', 'middle');
+    lab(s, 46, 74, 'board', 'n', 'middle');
+    LY.forEach((y, k) => { put(s, 'line', { class: 'bus c' + (k + 1), x1: 88, y1: y, x2: 316, y2: y }); lab(s, 320, y + 4.5, 'L' + (k + 1)); });
+    lab(s, 156, 16, 'Cable, ' + CCABLE + ' µF a line', 'n', 'middle');
+    // The insulation monitor sits on the board, joined to the lines and to the hull.
+    put(s, 'line', { class: 'wire', x1: 104, y1: 32, x2: 104, y2: 118 });
+    LY.forEach((y) => put(s, 'circle', { class: 'dot', cx: 104, cy: y, r: 2.6 }));
+    put(s, 'rect', { class: 'card', x: 4, y: 118, width: 120, height: 130, rx: 6 });
+    lab(s, 64, 137, 'Insulation', '', 'middle');
+    lab(s, 64, 153, 'monitor', '', 'middle');
+    put(s, 'path', { class: 'dial', d: 'M28 206A36 36 0 0 1 100 206' });
+    [180, 135, 90, 45, 0].forEach((a) => { const c = Math.cos(a * Math.PI / 180), sn = Math.sin(a * Math.PI / 180); put(s, 'line', { class: 'tick', x1: n1(64 + 30 * c), y1: n1(206 - 30 * sn), x2: n1(64 + 36 * c), y2: n1(206 - 36 * sn) }); });
+    monLab = lab(s, 64, 236, '', 'n', 'middle');
+    put(s, 'line', { class: 'wire', x1: 64, y1: 248, x2: 64, y2: 268 });
+    // The cable's capacitance: one capacitor from each line to the hull.
+    CXC.forEach((x, k) => {
+      put(s, 'line', { class: 'wire', x1: x, y1: LY[k], x2: x, y2: 190 });
+      put(s, 'line', { class: 'plate', x1: x - 7, y1: 190, x2: x + 7, y2: 190 });
+      put(s, 'line', { class: 'plate', x1: x - 7, y1: 197, x2: x + 7, y2: 197 });
+      put(s, 'line', { class: 'wire', x1: x, y1: 197, x2: x, y2: 268 });
+      put(s, 'circle', { class: 'dot', cx: x, cy: LY[k], r: 2.6 });
+    });
+    // One drive drawn in full, with nine more behind it; its EMC filter is three capacitors to the hull.
+    put(s, 'rect', { class: 'ghostcard', x: 212, y: 80, width: 84, height: 48, rx: 5 });
+    put(s, 'rect', { class: 'ghostcard', x: 204, y: 86, width: 84, height: 48, rx: 5 });
+    DX.forEach((x, k) => { put(s, 'line', { class: 'wire', x1: x, y1: LY[k], x2: x, y2: 92 }); put(s, 'circle', { class: 'dot', cx: x, cy: LY[k], r: 2.6 }); });
+    put(s, 'rect', { class: 'card', x: 196, y: 92, width: 84, height: 48, rx: 5 });
+    lab(s, 238, 112, 'Drive', '', 'middle');
+    lab(s, 238, 130, 'one of ten', 'n', 'middle');
+    DX.forEach((x) => {
+      put(s, 'line', { class: 'wire', x1: x, y1: 140, x2: x, y2: 158 });
+      put(s, 'line', { class: 'wire', x1: x, y1: 172, x2: x, y2: 190 });
+      put(s, 'line', { class: 'plate', x1: x - 6, y1: 190, x2: x + 6, y2: 190 });
+      put(s, 'line', { class: 'plate', x1: x - 6, y1: 197, x2: x + 6, y2: 197 });
+      put(s, 'line', { class: 'wire', x1: x, y1: 197, x2: x, y2: 268 });
+    });
+    lab(s, 252, 186, 'EMC filter');
+    lab(s, 252, 202, CFILT + ' µF a line', 'n');
+    put(s, 'rect', { class: 'hull', x: 4, y: 268, width: 332, height: 20, rx: 3 });
+    lab(s, 170, 282.5, 'Hull, which is earth', 'n', 'middle');
+  })();
+  function drvVisOf(s) { const l = s.filters === 'In' ? 1 : 0; return { link: l, emc: 1 - l, dc: s.monitor === 'Plain DC' && !s.q ? 1 : 0, fan: s.monitor === 'Plain DC' ? 1 : 0, needle: 40 }; }
+  // Filters swing the links; a monitor made for drives dips and then settles, slower with more capacitance;
+  // a plain DC monitor's needle shakes.
+  const SHAKE = 2.2;
+  function drvSeg(a, b, slow) {
+    const la = a.filters === 'In' ? 1 : 0, lb = b.filters === 'In' ? 1 : 0;
+    const dl = la !== lb ? (slow ? 0.9 : 0.3) : 0;
+    const changed = la !== lb || a.monitor !== b.monitor;
+    const creep = b.monitor === 'Made for drives' && changed;
+    const shake = b.monitor === 'Plain DC' && (changed || slow);
+    const fall = Math.max(dl, 0.35), tau = TAU * capOf(b.filters);
+    const end = Math.max(dl + 0.5, 0.5, creep ? fall + 5 * tau : 0, shake ? SHAKE : 0);
+    return { kind: 'drv', a, b, la, lb, dl, creep, shake, fall, tau, end };
+  }
+  const fadeTo = (a, b, t, d0) => (b > a ? K.lerp(a, b, K.ease(K.clamp((t - d0) / 0.45, 0, 1))) : b < a ? K.lerp(a, b, K.ease(K.clamp(t / 0.3, 0, 1))) : b);
+  function drvVisAt(m, t) {
+    const A0 = drvVisOf(m.a), v = drvVisOf(m.b);
+    v.link = m.dl ? K.lerp(m.la, m.lb, K.ease(K.clamp(t / m.dl, 0, 1))) : m.lb;
+    v.emc = fadeTo(A0.emc, v.emc, t, m.dl);
+    v.dc = fadeTo(A0.dc, v.dc, t, 0);
+    v.fan = fadeTo(A0.fan, v.fan, t, 0);
+    if (m.creep) v.needle = t < m.fall ? K.lerp(40, 140, K.ease(t / m.fall)) : 40 + 100 * Math.exp(-(t - m.fall) / m.tau);
+    else if (m.shake) { const env = K.clamp((SHAKE - t) / 0.5, 0, 1) * K.clamp(t / 0.2, 0, 1); v.needle = 40 + env * (12 * Math.sin(19 * t) + 7 * Math.sin(31 * t + 1)); }
+    return v;
+  }
+  function paintDrv(v, s) {
+    const g = el('drvD');
+    g.textContent = '';
+    // The filter links: hooked in, or swung open.
+    DX.forEach((x) => {
+      put(g, 'line', { class: 'wire', x1: x, y1: 172, x2: n1(K.lerp(x + 10, x, v.link)), y2: n1(K.lerp(161, 158, v.link)) });
+      put(g, 'circle', { class: 'pivot', cx: x, cy: 158, r: 2 });
+      put(g, 'circle', { class: 'pivot', cx: x, cy: 172, r: 2 });
+    });
+    const tip = (a, r) => [n1(64 + r * Math.cos(a * Math.PI / 180)), n1(206 - r * Math.sin(a * Math.PI / 180))];
+    if (v.fan > 0.01) [26, 54].forEach((a) => { const p = tip(a, 28); put(g, 'line', { class: 'needle blur', x1: 64, y1: 206, x2: p[0], y2: p[1], opacity: (0.6 * v.fan).toFixed(3) }); });
+    const p = tip(v.needle, 30);
+    put(g, 'line', { class: 'needle', x1: 64, y1: 206, x2: p[0], y2: p[1] });
+    put(g, 'circle', { class: 'dot', cx: 64, cy: 206, r: 4 });
+    monLab.textContent = s.monitor;
+    const tag = (a, y, w, bad, text) => {
+      if (a < 0.01) return;
+      const gg = put(g, 'g', { opacity: a.toFixed(3) });
+      put(gg, 'rect', { class: 'tag' + (bad ? ' bad' : ''), x: 4, y, width: w, height: 22, rx: 4 });
+      lab(gg, 12, y + 15.5, text, bad ? 'w' : 'n');
+    };
+    // The EMC tag sits by the drive's filter; it turns red with the filters out.
+    const emcTag = (a, bad) => {
+      if (a < 0.01) return;
+      const gg = put(g, 'g', { opacity: a.toFixed(3) });
+      put(gg, 'rect', { class: 'tag' + (bad ? ' bad' : ''), x: 248, y: 214, width: 90, height: 44, rx: 4 });
+      lab(gg, 293, 232, 'EMC standard', bad ? 'tn' : 'n', 'middle');
+      lab(gg, 293, 249, bad ? 'not met' : 'met', bad ? 'tw' : 'n', 'middle');
+    };
+    emcTag(1 - v.emc, false);
+    emcTag(v.emc, true);
+    tag(v.dc, 296, 324, true, 'DC from the drive can upset this reading');
+    // The drawing grows a row for the DC tag only while it shows.
+    svgs.drv.setAttribute('viewBox', '0 0 340 ' + (v.dc > 0.01 || (s.monitor === 'Plain DC' && !s.q) ? 324 : 294));
+    const C = v.link >= 0.5 ? capOf('In') : capOf('Out');
+    const read = { ifault: fmA(faultmA(C)), settle: '× ' + K.fmt(C / CCABLE, { decimals: 0 }) };
+    R.ifault.set(read.ifault); R.settle.set(read.settle);
+    svgs.drv.setAttribute('aria-label', 'A 440 V insulated board feeds a cable, with 1 µF a line to the hull, and ten drives. Each drive\'s EMC filter is three 0.1 µF capacitors to the hull, ' + (v.link >= 0.5 ? 'hooked in.' : 'unhooked.') +
+      ' An insulation monitor with a dial joins the board to the hull. It is ' + (s.monitor === 'Plain DC' ? 'a plain DC monitor, and its needle shakes.' : 'made for drives, and its needle is steady.'));
+    return { read, emc: v.emc, dc: v.dc, fan: v.fan, link: v.link };
+  }
+
+  // ---------- card 3: touching the supply (viewBox 340 × 328) ----------
+  const TY = [22, 42, 62], CXT = [118, 132, 146], TICKX = n1(20 + 300 * SAFE / VLINE);
+  (function buildTch() {
+    const s = el('tchS');
+    put(s, 'rect', { class: 'card', x: 4, y: 10, width: 80, height: 70, rx: 6 });
+    lab(s, 44, 32, 'Insulated', '', 'middle');
+    lab(s, 44, 48, 'supply', '', 'middle');
+    lab(s, 44, 66, VLINE + ' V', 'n', 'middle');
+    TY.forEach((y, k) => { put(s, 'line', { class: 'bus c' + (k + 1), x1: 84, y1: y, x2: 316, y2: y }); lab(s, 320, y + 4.5, 'L' + (k + 1)); });
+    CXT.forEach((x, k) => {
+      put(s, 'line', { class: 'wire', x1: x, y1: TY[k], x2: x, y2: 150 });
+      put(s, 'line', { class: 'plate', x1: x - 6, y1: 150, x2: x + 6, y2: 150 });
+      put(s, 'line', { class: 'plate', x1: x - 6, y1: 157, x2: x + 6, y2: 157 });
+      put(s, 'line', { class: 'wire', x1: x, y1: 157, x2: x, y2: 238 });
+      put(s, 'circle', { class: 'dot', cx: x, cy: TY[k], r: 2.6 });
+    });
+    lab(s, 104, 152, 'Cables', 'n', 'end');
+    lab(s, 104, 168, CCABLE + ' µF a line', 'n', 'end');
+    // A person stands on the hull, one hand up on a line.
+    put(s, 'path', { class: 'person', d: 'M260 236L268 204L276 236M268 204V168M268 178L292 124M268 178L256 198' });
+    put(s, 'circle', { class: 'face', cx: 268, cy: 158, r: 10 });
+    put(s, 'circle', { class: 'dot', cx: 292, cy: 121, r: 3.5 });
+    lab(s, 250, 162, 'You', '', 'end');
+    put(s, 'rect', { class: 'hull', x: 4, y: 238, width: 332, height: 20, rx: 3 });
+    lab(s, 170, 252.5, 'Hull, which is earth', 'n', 'middle');
+    // The bar: the voltage across the person, with the safe-touch tick.
+    lab(s, 20, 280, 'Voltage across you');
+    put(s, 'line', { class: 'glow', x1: 200, y1: 275.5, x2: 218, y2: 275.5 });
+    lab(s, 224, 280, 'Body current', 'n');
+    put(s, 'rect', { class: 'track', x: 20, y: 288, width: 300, height: 14, rx: 4 });
+    lab(s, 48, 322, 'Safe touch, ' + SAFE + ' V', 'n');
+    lab(s, 320, 322, VLINE + ' V', 'n', 'end');
+  })();
+  function glowOf(s) {
+    if (touchOf(s.fault, s.touch).i < 1e-9) return null;
+    const k = s.touch === 'L1' ? 0 : 1, body = `M292 ${TY[k]}V118L268 178V236`;
+    return s.fault === 'Solid' ? body + 'H196V22' : body + 'H' + CXT[0] + CXT.map((x, j) => `M${x} 236V${TY[j]}`).join('');
+  }
+  function tchVisOf(s) { const gp = s.q ? null : glowOf(s); return { f: s.fault === 'Solid' ? 1 : 0, stubs: [s.touch === 'L1' ? 1 : 0, s.touch === 'L2' ? 1 : 0], glows: gp ? [[gp, 1]] : [], V: s.q ? 0 : touchOf(s.fault, s.touch).v }; }
+  function tchSeg(a, b, slow) { const d = slow ? 0.9 : 0.3; return { kind: 'tch', a, b, d, end: 2 * d + (slow ? 0.4 : 0) }; }
+  function tchVisAt(m, t) {
+    const A0 = tchVisOf(m.a), v = tchVisOf(m.b);
+    const p1 = K.ease(K.clamp(t / m.d, 0, 1)), p2 = K.ease(K.clamp((t - m.d) / m.d, 0, 1));
+    const f = v.f;
+    v.f = K.lerp(A0.f, f, p1);
+    v.stubs = [0, 1].map((k) => (A0.stubs[k] === v.stubs[k] ? v.stubs[k] : v.stubs[k] ? p1 : 1 - p1));
+    const ga = A0.glows[0], gb = v.glows[0];
+    v.glows = ga && gb && ga[0] === gb[0] ? [gb] : [].concat(ga ? [[ga[0], 1 - p1]] : [], gb ? [[gb[0], p2]] : []);
+    v.V = K.lerp(A0.V, v.V, p2);
+    return v;
+  }
+  function paintTch(v, s) {
+    const g = el('tchD');
+    g.textContent = '';
+    v.glows.forEach((q) => { if (q[1] > 0.01) put(g, 'path', { class: 'glow', d: q[0], opacity: q[1].toFixed(3) }); });
+    if (v.f > 0.01) {
+      put(g, 'line', { class: 'fault', x1: 196, y1: 22, x2: 196, y2: n1(22 + 216 * v.f) });
+      put(g, 'circle', { class: 'fdot', cx: 196, cy: 22, r: 3.5 });
+      const fl = lab(g, 204, 224, 'Fault', 'w');
+      fl.setAttribute('opacity', K.clamp((v.f - 0.5) * 2, 0, 1).toFixed(3));
+    }
+    [0, 1].forEach((k) => {
+      if (v.stubs[k] < 0.01) return;
+      const gg = put(g, 'g', { opacity: v.stubs[k].toFixed(3) });
+      put(gg, 'line', { class: 'wire', x1: 292, y1: TY[k], x2: 292, y2: 118 });
+      put(gg, 'circle', { class: 'dot', cx: 292, cy: TY[k], r: 2.6 });
+    });
+    const w = 300 * K.clamp(v.V / VLINE, 0, 1);
+    if (w > 0.5) put(g, 'rect', { class: 'barfill' + (v.V > SAFE ? ' hot' : ''), x: 20, y: 288, width: n1(w), height: 14, rx: 3 });
+    put(g, 'line', { class: 'mark', x1: TICKX, y1: 284, x2: TICKX, y2: 306 });
+    const o = touchOf(s.fault, s.touch);
+    const read = { across: s.q ? '?' : fV(o.v), body: s.q ? '?' : fmA(o.i) };
+    R.across.set(read.across); R.body.set(read.body);
+    const lit = v.glows.filter((q) => q[1] > 0.5).length;
+    svgs.tch.setAttribute('aria-label', 'Lines L1, L2 and L3 run above the hull, each with 1 µF of cable capacitance to it. A person stands on the hull with one hand on ' + s.touch + '. ' +
+      (s.fault === 'Solid' ? 'A solid fault joins L1 to the hull. ' : 'There is no fault. ') +
+      (s.q ? '' : lit ? (s.fault === 'Solid' ? 'Current runs through the person, along the hull and up the fault to L1.' : 'Current runs through the person and back up through the cables\' capacitance.') : 'No current runs through the person.'));
+    return { read, glow: lit, V: v.V };
+  }
+
+  // ---------- state and motion ----------
+  const VIS = { arc: { of: arcVisOf, at: arcVisAt }, drv: { of: drvVisOf, at: drvVisAt }, tch: { of: tchVisOf, at: tchVisAt } };
+  const PAINT = { arc: paintArc, drv: paintDrv, tch: paintTch };
+  const seg = (key, a, b, slow) => (key === 'arc' ? arcSeg : key === 'drv' ? drvSeg : tchSeg)(a, b, slow);
+  function blank() { return { pick: null, res: null, why: false }; }
+  let ST = STEPS.map(() => blank());
+  let cur = clone(STEPS[0].pic), fx = null, T = Infinity, REC = null;
+  let finished = false, lastStep = -1, lastDone = false, last = {};
+  function visNow(key) {
+    if (fx && fx.key === key && T < fx.total) {
+      let t = Math.max(0, T);
+      for (const m of fx.segs) { if (t < m.end) return VIS[key].at(m, t); t -= m.end; }
+    }
+    return VIS[key].of(cur[key]);
+  }
+  function paint() {
+    const key = KEY[cur.view];
+    ['arc', 'drv', 'tch'].forEach((k) => { showEl(svgs[k], k === key); showEl(tiles[k], k === key); });
+    REC = PAINT[key](visNow(key), cur[key]);
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => stepper.get();
+  const live = () => !finished && !!STEPS[at()].show;
+  const viewCtl = K.choice({ id: 'view', label: 'View', options: VIEWS, value: VIEWS[0], into: '#viewctl' });
+  const strikeBtn = K.button({ label: 'Strike', into: '#strikes', press: () => {
+    if (!live() || cur.view !== VIEWS[0] || !canStrike(cur.arc)) return;
+    retarget('arc', { n: cur.arc.n + 1, tp: END, qh: false, qp: false }, true);
+  } });
+  K.button({ label: 'Reset', secondary: true, into: '#strikes', press: () => {
+    if (!live() || cur.view !== VIEWS[0] || !cur.arc.n) return;
+    retarget('arc', { n: 0, tp: END }, false);
+  } });
+  const lossCtl = K.choice({ id: 'losses', label: 'Losses', options: LOSSES, value: LOSSES[0], into: '#lossctl' });
+  const filCtl = K.choice({ id: 'filters', label: 'Filters', options: ['In', 'Out'], value: 'In', into: '#drvctl' });
+  const monCtl = K.choice({ id: 'monitor', label: 'Monitor', options: ['Plain DC', 'Made for drives'], value: 'Made for drives', into: '#drvctl' });
+  const fltCtl = K.choice({ id: 'fault', label: 'Fault on L1', options: ['None', 'Solid'], value: 'None', into: '#tchctl' });
+  const touCtl = K.choice({ id: 'touching', label: 'Touching', options: ['L1', 'L2'], value: 'L1', into: '#tchctl' });
+  const R = {
+    held: K.readout({ id: 'held', label: 'Star point held at', into: '#arcouts' }),
+    peak: K.readout({ id: 'peak', label: 'L1\'s highest peak', into: '#arcouts' }),
+    times: K.readout({ id: 'times', label: 'Times normal peak', into: '#arcouts' }),
+    ifault: K.readout({ id: 'ifault', label: 'First-fault current', into: '#drvouts' }),
+    settle: K.readout({ id: 'settle', label: 'Settling vs cable alone', into: '#drvouts' }),
+    across: K.readout({ id: 'across', label: 'Across you', into: '#tchouts' }),
+    body: K.readout({ id: 'body', label: 'Through a 1,000 Ω body', into: '#tchouts' }),
+  };
+  const snap = () => ({ view: viewCtl.get(), losses: lossCtl.get(), filters: filCtl.get(), monitor: monCtl.get(), fault: fltCtl.get(), touching: touCtl.get() });
+  function syncCtls() {
+    viewCtl.set(cur.view, true); lossCtl.set(cur.arc.loss, true); filCtl.set(cur.drv.filters, true);
+    monCtl.set(cur.drv.monitor, true); fltCtl.set(cur.tch.fault, true); touCtl.set(cur.tch.touch, true);
+    last = snap();
+  }
+
+  // One animation plays the motion; with reduced motion (and while the self-test looks) it opens finished.
+  const anim = K.anim({ button: false, label: 'The picture', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return !!fx && T < fx.total;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function start(key, segs, delay) {
+    fx = { key, segs, total: segs.reduce((s, m) => s + m.end, 0) };
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); return; }
+    T = -(delay || 0); anim.play();
+  }
+  // Move one card on from its settled state.
+  function retarget(key, ch, slow) {
+    const a = clone(cur[key]), b = Object.assign(clone(a), ch);
+    cur[key] = b;
+    anim.pause(); T = Infinity; fx = null;
+    start(key, [seg(key, a, b, slow)], 0);
+  }
+  function setPic(p) { cur = clone(p); anim.pause(); T = Infinity; fx = null; syncCtls(); K.refresh(); }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = typeof id === 'string' ? el(id) : id;
+    box.classList.remove('enter');
+    void box.getBoundingClientRect();
+    box.classList.add('enter');
+  }
+
+  // Three answers; Check marks the one chosen, and a right one plays what it says.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = ST[i];
+    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+  K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = ST[i];
+    if (finished || d.show || st.res === 'right') return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = st.pick === d.want ? 'right' : 'wrong';
+    if (st.res !== 'right') return;
+    const afters = [].concat(d.after), key = KEY[afters[0].view], segs = [];
+    let a = cur[key];
+    afters.forEach((pp) => { segs.push(seg(key, a, pp[key], true)); a = pp[key]; });
+    anim.pause(); T = Infinity; fx = null;
+    cur = clone(afters[afters.length - 1]);
+    syncCtls();
+    start(key, segs, 0.2);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (finished || STEPS[at()].show) return;
+    const st = ST[at()]; st.why = !st.why;
+  } });
+  const checkBtn = el('acts').querySelector('.k-btn:not(.secondary)');
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && ST[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true; anim.pause();
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    ST = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  el('finish').textContent = FINISH;
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = ST[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      anim.pause(); T = Infinity; fx = null;
+      cur = clone(d.show ? d.pic : st.res === 'right' ? finalOf(d) : d.before);
+      syncCtls();
+      // A demonstration screen plays once on opening, after its fade-in. A plain DC monitor's needle shakes.
+      if (d.show && d.demo) { const k = KEY[d.pic.view]; start(k, [seg(k, d.demo[k], d.pic[k], true)], 0.5); }
+      else if (!d.show && st.res !== 'right' && cur.view === VIEWS[1] && cur.drv.monitor === 'Plain DC') start('drv', [seg('drv', cur.drv, cur.drv, true)], 0.4);
+    } else {
+      const now = { view: p.view, losses: p.losses, filters: p.filters, monitor: p.monitor, fault: p.fault, touching: p.touching };
+      const diff = Object.keys(now).filter((k) => now[k] !== last[k]);
+      if (diff.length) {
+        if (live()) {
+          last = now;
+          if (diff.indexOf('view') >= 0) { cur.view = p.view; anim.pause(); T = Infinity; fx = null; enter(svgs[KEY[p.view]]); }
+          if (diff.indexOf('losses') >= 0) retarget('arc', { loss: p.losses }, false);
+          if (diff.indexOf('filters') >= 0 || diff.indexOf('monitor') >= 0) retarget('drv', { filters: p.filters, monitor: p.monitor }, false);
+          if (diff.indexOf('fault') >= 0 || diff.indexOf('touching') >= 0) retarget('tch', { fault: p.fault, touch: p.touching }, false);
+        } else syncCtls();   // off the screens that show them, the controls keep the picture's setting
+      }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    task.textContent = strip(d.show ? d.text : d.task);
+    el('viewctl').hidden = !d.show;
+    el('ctls').hidden = !d.show;
+    const key = KEY[cur.view];
+    ['arc', 'drv', 'tch'].forEach((k) => { ctlBoxes[k].hidden = k !== key; });
+    strikeBtn.el.disabled = !canStrike(cur.arc);
+
+    const opts = d.show ? [] : d.opts;
+    el('picks').hidden = !opts.length;
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    el('acts').hidden = !!d.show;
+    if (checkBtn) checkBtn.hidden = right;
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    const fb = el('fb');
+    fb.hidden = !!d.show || !st.res;
+    fb.className = 'fb' + (right ? ' right' : '');
+    fb.textContent = d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? (d.hints[st.pick] || 'Not quite.') : st.res === 'empty' ? PICK : '';
+    const why = el('why');
+    why.hidden = !!d.show || !st.why;
+    why.textContent = d.show ? '' : strip(d.why);
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+    paint();
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  function drawn(pc) {
+    const keep = [cur, T, fx];
+    cur = clone(pc); T = Infinity; fx = null;
+    try { paint(); return REC; } finally { cur = keep[0]; T = keep[1]; fx = keep[2]; paint(); }
+  }
+  K.check('Twelve screens: five that show and seven puzzles, alternating to the ninth and ending on three mixed puzzles', () =>
+    STEPS.length === 12 && STEPS.filter((d) => d.show).length === 5 && STEPS.slice(0, 9).every((d, i) => !!d.show === (i % 2 === 0)) && STEPS.slice(9).every((d) => !d.show));
+  K.check('Each line sits 440 ÷ 1.732 = 254 V from earth, with a peak of 254 × 1.414 = 359 V; a solid fault puts 440 × 1.414 = 622 V peaks on the healthy lines', () =>
+    VPH === 254 && PK === 359 && SOLID === 622);
+  K.check('No losses: three strikes hold the star point at 359, 1,077 and 1,795 V, and L1 then peaks at 718, 1,436 and 2,154 V, 2, 4 and 6 times normal', () =>
+    [1, 2, 3].every((n) => { const r = drawn(A({ n })).read; return r.held === fV([359, 1077, 1795][n - 1]) && r.peak === fV([718, 1436, 2154][n - 1]) && r.times === fmtTimes([2, 4, 6][n - 1]); }));
+  K.check('Some losses: held at 359, 718 and 898 V; L1 peaks at 718, 1,077 and 1,257 V; more strikes level off towards 4 times', () => {
+    const ok = [1, 2, 3].every((n) => { const r = drawn(A({ n, loss: LOSSES[1] })).read; return r.held === fV([359, 718, 898][n - 1]) && r.peak === fV([718, 1077, 1257][n - 1]) && r.times === fmtTimes([2, 3, 3.5][n - 1]); });
+    const h = rungs(0.5, 40);
+    return ok && K.near(Math.abs(h[40]) + 1, 4, 1e-6);
+  });
+  K.check('Higher losses and heavy damping keep the overvoltage from building: on Heavy losses the star point stays 359 V out and every peak is 718 V, twice normal', () =>
+    [1, 2, 3].every((n) => { const r = drawn(A({ n, loss: LOSSES[2] })).read; return r.held === fV(359) && r.peak === fV(718) && r.times === fmtTimes(2); }), { source: IMAREST });
+  K.check('180° after the restrike, with no losses, L1\'s voltage to the hull has risen to 4 times its normal peak', () => {
+    const h = rungs(1, MAXN), t = TS[1] + 0.5;
+    return K.near(Math.abs(starAt(t, 2, h) + e1(t)), 4, 1e-9);
+  }, { source: EATON_T });
+  K.check('The arc goes out at the next current zero: the current leads the voltage by 90°, so at each strike the current is zero and the capacitance\'s voltage is at its peak', () =>
+    TS.every((t) => K.near(Math.cos(2 * Math.PI * t), 0, 1e-12) && K.near(Math.abs(e1(t)), 1, 1e-12)), { source: EATON_T });
+  K.check('With the arc out, nothing charges or discharges the capacitance, so the star point stays at the voltage it had when the arc went out', () =>
+    [0, 0.5, 1].every((r) => { const h = rungs(r, MAXN); return [1, 2, 3].every((n) => GRID.filter((t) => t > TS[n - 1] + RD).every((t) => starAt(t, n, h) === h[n])); }), { source: EATON_T });
+  K.check('Ten filters at 0.1 µF add 1 µF a line: 3 × 377 × 1 µF × 254 V = 287 mA becomes 575 mA at 2 µF, and the monitor settles twice as slowly', () => {
+    const a = drawn(D({ filters: 'Out' })), b = drawn(D({ filters: 'In' }));
+    return K.near(OMEGA, 377, 0.01) && a.read.ifault === '287 mA' && b.read.ifault === '575 mA' && a.read.settle === '× 1' && b.read.settle === '× 2' && a.emc === 1 && b.emc === 0;
+  });
+  K.check('The supply is joined to the hull through the drive\'s internal EMC filter capacitors: with the filters in, the capacitance to the hull doubles', () =>
+    K.near(capOf('In'), 2 * capOf('Out'), 1e-12) && drawn(D({ filters: 'In' })).link === 1 && drawn(D({ filters: 'Out' })).link === 0, { source: ABB380 });
+  K.check('Healthy, touching L1: 3 µF at 60 Hz is 884 Ω, so 254 ÷ √(1,000² + 884²) = 190 mA flows, with 190 V across the body', () => {
+    const r = drawn(Tc({ touch: 'L1' }));
+    return Math.round(XC3) === 884 && r.read.body === '190 mA' && r.read.across === '190 V' && r.glow === 1;
+  });
+  K.check('A solid fault on L1: touching L1 gives 0 V and 0 mA; touching L2 gives 440 V and 440 ÷ 1,000 = 440 mA', () => {
+    const a = drawn(Tc({ fault: 'Solid', touch: 'L1' })), b = drawn(Tc({ fault: 'Solid', touch: 'L2' }));
+    return a.read.across === '0 V' && a.read.body === '0 mA' && a.glow === 0 && b.read.across === '440 V' && b.read.body === '440 mA' && b.glow === 1;
+  });
+  K.check('A touch voltage under 50 V AC keeps persons safe: the Safe touch tick sits at 50 V, and both touches that drive a current here are above it', () =>
+    SAFE === 50 && touchOf('None', 'L1').v > SAFE && touchOf('Solid', 'L2').v > SAFE && touchOf('Solid', 'L1').v < SAFE, { source: BENDER_TA });
+  K.check('Before an answer, no puzzle shows its result', () => {
+    const b = (i) => drawn(STEPS[i].before), a = (i) => drawn(finalOf(STEPS[i]));
+    const s2 = b(1), s4 = b(3);
+    return s2.read.held === '?' && s2.read.peak === '?' && s2.tp < TS[0] + 0.5 && a(1).read.held === fV(359) &&
+      s4.read.peak === '?' && s4.read.held === fV(1077) && s4.tp < TS[1] + 0.5 && a(3).read.peak === fV(2154) &&
+      b(5).struck === 0 && a(5).read.peak === fV(718) &&
+      b(7).dc === 0 && b(7).fan === 1 && a(7).fan === 0 &&
+      b(9).read.across === '?' && b(9).glow === 0 && a(9).read.body === '190 mA' &&
+      b(10).struck === 0 && a(10).struck === 3 && a(10).read.peak === fV(718) &&
+      b(11).emc === 0 && a(11).emc === 1;
+  });
+  K.check('A strike draws its rung in about 3 s, the three-strike puzzle finishes within 5 s, and a Losses, Filters or Fault move lands within 0.35 s', () => {
+    const one = seg('arc', A({ n: 0 }).arc, A({ n: 1 }).arc, true).end;
+    const s11 = seg('arc', A({}).arc, A({ n: 3 }).arc, true).end + seg('arc', A({ n: 3 }).arc, A({ n: 3, loss: LOSSES[2] }).arc, true).end;
+    const lm = seg('arc', A({ n: 3 }).arc, A({ n: 3, loss: LOSSES[1] }).arc, false).end;
+    const dm = seg('drv', D({}).drv, D({ filters: 'Out' }).drv, false).dl;
+    const tm = seg('tch', Tc({}).tch, Tc({ fault: 'Solid' }).tch, false).d;
+    const m = seg('arc', A({ n: 1 }).arc, A({ n: 2 }).arc, true), mid = arcVisAt(m, m.wait + m.dur / 2);
+    return one <= 3.5 && s11 <= 5 && lm <= 0.35 && dm <= 0.35 && tm <= 0.35 && mid.tp > TS[1] && mid.tp < END;
+  });
+  K.check('Three strikes at most: after the third, Strike greys out until Reset', () =>
+    canStrike(A({ n: 0 }).arc) && canStrike(A({ n: 2 }).arc) && !canStrike(A({ n: 3 }).arc));
+
+  K.ready();
+</script>

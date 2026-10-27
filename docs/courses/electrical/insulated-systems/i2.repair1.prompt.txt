@@ -1,0 +1,334 @@
+TASK: repair-interactive
+
+The interactive below, written for Dan's learning app, failed its automatic checks. Fix every problem listed and return the complete corrected body. Keep what already works.
+
+## The idea
+Topic: Insulated systems and earth faults
+Idea: The first earth fault: the triangle shifts (On an insulated three-phase supply, a solid earth fault on one phase pulls that phase to earth and lifts the other two to line voltage to earth.)
+Kind: quantity
+Dan knows a little about this topic. Show an equation on the page only if every symbol in it is labelled on the picture; otherwise say the rule in words.
+
+## What the interactive must show
+Brief: The one thing you should see is the earth dot sliding to L1's tip as you drag the fault on L1 from open to solid. The triangle keeps its size, and L2 and L3 rise to 440 V to earth.
+Title (the app shows it above the frame, so do not repeat it): The shifting triangle
+The rule (the app shows it just above the frame, under "What you're looking at"): Twelve small screens on one picture, with Back and Continue. Five show an idea and seven ask you to try it. No marks and no timers.
+
+The picture. The supply's three windings drawn as a star of arrows, as in three-phase work. Each arrow runs from the star point to a line: L1 points straight up, L2 down to the right and L3 down to the left, 120° apart, with L2 120° behind L1. Say it is a 440 V supply, so each arrow is 440 ÷ 1.732 = 254 V long. A faint triangle joins the three tips. Its sides are the voltages between lines, 440 V each. Every length on the picture is a voltage, to one scale. The hull, which is earth, is a dot labelled "Earth (hull)". A dashed voltmeter lead runs from the dot to each tip, and its length is that line's voltage to earth. A small motor card beside the triangle is joined to L1 and L2.
+
+The controls, under the picture: a fault picker of three buttons, L1, L2 and L3, and a slider, Fault resistance, with stops Open, 10 kΩ, 3 kΩ, 1 kΩ, 300 Ω, 100 Ω and Solid. Dragging it moves the dot smoothly. The star and the triangle never move or change size.
+
+The readouts, in tiles that wrap onto more rows on a phone: L1 to earth, L2 to earth, L3 to earth, Star point to earth, all in volts, and Motor, L1 to L2, which reads 440 V on every setting.
+
+The rule it computes. Each line leaks to the hull through its cable's capacitance, say 1 µF a line at 60 Hz, the same on all three. With no fault the three equal leaks hold the earth dot at the star point. A fault of resistance R from one line to the hull pulls the dot towards that line's tip. Measured from the star point, the dot sits at that line's arrow divided by the complex number 1 + j3ωCR, where ω is 2π × 60 and C is 1 µF. As R falls from Open to Solid, the dot traces a half-circle from the star point to the faulted tip. Each line's voltage to earth is the length from the dot to its tip. Solid on L1: L1 0 V, L2 and L3 440 V, star point 254 V. At 1 kΩ on L1: the dot 168 V from the star point, L1 190 V, L2 256 V, L3 420 V. Near 330 Ω on L1, L3 peaks near 463 V, about 5% over 440 V, then settles at 440 V when the fault is solid.
+
+Screen 1, show. The star, the triangle and no earth dot yet. The words: "This star of arrows is the supply's three windings, drawn as in three-phase work. Each arrow runs from the star point to a line, L1, L2 or L3. Its length is that winding's voltage, 254 V. The faint triangle joins the line ends. Its sides are the voltages between lines. The loads take their supply across them. Every length in this picture is a voltage." Still: no fault, earth dot hidden.
+
+Screen 2, try it. "Each winding gives 254 V. What does a voltmeter read between two lines, such as L1 and L2?" Three choices, in this order: "440 V"; "508 V"; "254 V". Right, the first. Hint for the second: "The arrows are 120° apart, so they do not add end to end. The side is 1.732 times one arrow, not twice." Hint for the third: "That is one winding, from the star point to a line. Between two lines you cross two windings at an angle." Why: "Still there. The line voltage is 1.732 times the phase voltage, so 254 × 1.732 = 440 V. That is each side of the triangle." A right Check labels each side 440 V. Read: "Each winding gives 254 V. What does a voltmeter read between two lines, such as L1 and L2?"
+
+Screen 3, show. The earth dot appears at the star point, with a voltmeter lead to each tip. The words: "Now add the hull as a dot. The hull is earth. A voltmeter from each line to the dot reads that line's voltage to earth. With no fault the dot sits at the star point, so each line reads 254 V. No wire ties the hull to the star point. Each line leaks to the hull a little through its cable's capacitance. The three leaks are equal, so they hold the hull at the middle of the star." Still: no fault.
+
+Screen 4, try it. "L1 faults solidly to the hull. Before you try it, what will the voltmeters on L2 and L3 read?" Three choices, in this order: "440 V each"; "254 V each, as before"; "0 V each, as the supply collapses". Right, the first. Hint for the second: "The fault joins L1 to the hull. So each healthy line's voltage to earth is now its voltage to L1." Hint for the third: "The windings still give their voltages. The fault joins one line to earth, not the lines to each other." Why: "The fault puts the hull at L1's potential. L2 is still 440 V from L1, so it reads 440 V to earth. So does L3." A right Check drags the fault on L1 to Solid. Read: "L1 faults solidly to the hull. What will the voltmeters on L2 and L3 read?"
+
+Screen 5, show. The fault picker on L1, the slider on Open. The words: "Drag the fault on L1 from Open to Solid. The dot slides along a curve to L1's tip. L1 now reads 0 V to earth, because the fault joins it to the hull. L2 and L3 read 440 V. Those are the triangle's sides, and they have not changed. The triangle does not collapse. It shifts, so L1's corner sits on earth. Each healthy line now sits at √3 times its normal voltage to earth.[^1]" Read: "With a solid fault on L1, the dot sits on L1's tip. L1 reads 0 V to earth, and L2 and L3 read 440 V. The triangle has kept its size and shifted." Still: fault on L1, Solid.
+
+Screen 6, try it. "With L1 solid to the hull, what does a voltmeter read from the star point to earth?" Three choices, in this order: "254 V"; "0 V"; "440 V". Right, the first. Hint for the second: "The star point is joined to nothing. It is one winding away from L1, and L1 is now at earth." Hint for the third: "440 V is a line's distance from L1. The star point is one arrow from L1, not one side." Why: "The star point is the inner end of L1's winding. L1 is at earth, so the star point sits one winding, 254 V, from earth." A right Check draws a voltmeter lead from the dot to the star point, reading 254 V. Read: "With L1 solid to the hull, what does a voltmeter read from the star point to earth?"
+
+Screen 7, show. Fault on L1, Solid, the motor card lit. The words: "The motor takes its supply from the lines only. So it sees only the triangle's sides. Those have not changed. It still gets 440 V and runs on. Nothing needs to disconnect. The fault current is small, often measured in milliamps.[^2] What has changed is the voltage to earth. The insulation on L2 and L3 now holds 440 V instead of 254 V. That is 1.73 times as much, for as long as the fault stays on." Read: "With a solid fault on L1, the motor across L1 and L2 still gets 440 V and runs on. The insulation on L2 and L3 now holds 440 V to earth instead of 254 V." Still: fault on L1, Solid.
+
+Screen 8, try it. "A solid first fault on L1 draws only a small current. What has it changed that matters?" Three choices, in this order: "L2 and L3 now sit at 440 V to earth, so their insulation is stressed harder"; "Nothing much, since so little current flows"; "The motors now get 1.73 times their normal voltage". Right, the first. Hint for the second: "Look at the voltmeters, not the current. The voltage to earth has risen with almost no current." Hint for the third: "The motors are fed across the lines. The triangle has kept its size." Why: "A tiny current can still move the earth a long way. The hull now sits at L1, so L2 and L3 are 440 V from it. Their insulation holds that until someone clears the fault." Read: "A solid first fault on L1 draws only a small current. What has it changed that matters?"
+
+Screen 9, show. Fault on L1, the slider on 1 kΩ. The words: "Not every fault is a solid join. Set the fault on L1 to 1 kΩ. Here the dot stops part way along its curve, 168 V from the star point. L1 reads 190 V, L2 256 V and L3 420 V. Drag on to Solid and the dot follows the curve to L1's tip. On the way, L3 passes 440 V by about 5%, near 463 V. The cables' capacitance sets how far a given resistance moves the dot. The triangle keeps its size throughout." Read: "With a 1 kΩ fault on L1, the dot sits part way along its curve, 168 V from the star point. L1 reads 190 V, L2 256 V and L3 420 V." Still: fault on L1, 1 kΩ.
+
+Screen 10, try it, the first of three mixed puzzles. "An insulated 440 V board's voltmeters read L1 463 V, L2 82 V and L3 382 V. What is happening?" Three choices, in this order: "An earth fault on L2 that is not quite solid"; "A solid earth fault on L2"; "The supply voltage has risen to 463 V". Right, the first. Hint for the second: "A solid fault reads 0 V on its line and exactly 440 V on the other two." Hint for the third: "The voltages between lines have not changed. The earth has moved. Part way to solid, one line passes 440 V." Why: "L2 sits most of the way to earth, so the fault is on L2. It reads 82 V, not 0 V, so the fault has some resistance. Part way along the curve, one healthy line passes 440 V. Here it is L1." A right Check sets the fault on L2 to 300 Ω. Read: "An insulated 440 V board's voltmeters read L1 463 V, L2 82 V and L3 382 V. What is happening?"
+
+Screen 11, try it. "An insulated 400 V supply has 231 V a phase. L3 faults solidly to earth. What do the three lines read to earth?" Three choices, in this order: "L1 400 V, L2 400 V, L3 0 V"; "L1 231 V, L2 231 V, L3 0 V"; "All three 0 V, as the fault shorts the supply". Right, the first. Hint for the second: "The hull now sits at L3. The others read their distance from L3, which is the line voltage." Hint for the third: "The fault joins one line to earth, not the lines to each other. The triangle keeps its size." Why: "The hull takes L3's potential, so L3 reads 0 V. L1 and L2 are a full line voltage from L3, so each reads 400 V. That is 231 × 1.732, √3 times the phase voltage." A right Check shows the same shift on the 440 V picture, with the fault on L3 at Solid. Read: "An insulated 400 V supply has 231 V a phase. L3 faults solidly to earth. What do the three lines read to earth?"
+
+Screen 12, try it. "An insulated 440 V board gets its first solid earth fault, on L1. What do you expect?" Three choices, in this order: "Nothing trips, the motors run on, and L2 and L3 read 440 V to earth"; "L1's breaker trips, as it would on a TN supply"; "The motors slow down, as the line voltages fall". Right, the first. Hint for the second: "An insulated supply gives the fault no deliberate way home, so only a small current flows. That trips nothing." Hint for the third: "The line voltages are the triangle's sides, and those keep their size." Why: "The hull moves to L1, so L1 reads 0 V and the others 440 V. The motors see only the line voltages, which do not change. The fault passes only a small current, so nothing trips. The board runs on. Its insulation takes the extra stress until someone finds the fault." A right Check sets the fault on L1 to Solid. Read: "An insulated 440 V board gets its first solid earth fault, on L1. What do you expect?"
+
+Every figure on these screens is an example value or worked from the rule above.
+What the model leaves out (the app shows this in its own panel; do not repeat it on the page): The picture draws a perfectly balanced supply, with the same example capacitance from each line to the hull. Real systems are never quite balanced, so a healthy system's three readings differ a little. The curve's shape changes if the leaks are unequal or partly through the insulation's resistance. The fault is drawn as a steady resistance. A real one can arc or change. The small currents through the leaks and the fault are left off the readouts. The arrows stand for alternating voltages, so the whole picture turns sixty times a second. Each reading is an r.m.s. value.
+Controls (use these ids, ranges and opening values exactly; when the prediction or a check names a setting of a slider, add it to that slider's snap):
+- id "step": Screen, from 0 to 11 in steps of 1, opening at 0
+Outputs: none. No rule computes a number here, so show no readouts beyond plain counts of what is on screen ("4 of 7 at war"): the picture, its labels and the .say line do the teaching.
+Numbers it may show (control = Dan sets it; computed = from the rule; constant = a fixed real value; assumed = an example value, said once as an example in the lead line or a caption, then drawn as a plain value; date = a historical date or fact):
+- Screen, 1 to 12 (the stepper): 0 (control)
+- Number of screens: 12 (assumed)
+- Example line voltage of the supply, in volts: 440 (assumed)
+- Square root of 3, to three decimal places: 1.732 (constant)
+- Voltage across each winding, 440 ÷ 1.732, in volts: 254 (computed)
+- Angle between the windings, in degrees: 120 (constant)
+- Wrong answer on screen 2, 254 + 254, in volts: 508 (computed)
+- Example capacitance from each line to the hull, in microfarads: 1 (assumed)
+- Example supply frequency, in hertz: 60 (assumed)
+- Fault resistance slider stops, in ohms: Open, 10,000, 3,000, 1,000, 300, 100, Solid (control)
+- Solid fault: faulted line to earth, in volts: 0 (computed)
+- Solid fault: each healthy line to earth, in volts: 440 (computed)
+- Solid fault: star point to earth, in volts: 254 (computed)
+- Rise in each healthy line's voltage to earth, 440 ÷ 254: 1.73 (computed)
+- Example partial fault on L1, in kilohms: 1 (assumed)
+- At 1 kΩ on L1: star point to earth, in volts: 168 (computed)
+- At 1 kΩ on L1: L1, L2 and L3 to earth, in volts: 190, 256, 420 (computed)
+- Fault resistance where L3 peaks, fault on L1, in ohms: 330 (computed)
+- Highest healthy-line reading on the way to solid, in volts: 463 (computed)
+- That peak over 440 V, in per cent: 5 (computed)
+- Screen 10 example fault on L2, in ohms: 300 (assumed)
+- At 300 Ω on L2: L1, L2 and L3 to earth, in volts: 463, 82, 382 (computed)
+- Screen 11 example line voltage, in volts: 400 (assumed)
+- Screen 11 phase voltage, 400 ÷ 1.732, in volts: 231 (computed)
+
+## What the checks found (at 340, 720 and 1040 px wide)
+- Error: The opening picture is almost empty: screen 1 grows its arrows from nothing after a delay, so the opening state shows a tiny star with no triangle, labels or motor; screen 1 must open on the finished picture.
+- Error: The moved picture's readouts (248, 217, 305 and 53 V) do not match the slider's 100 Ω: a slider move tweens the dot over up to 2.5 s, so the picture is caught mid-way; a move Dan makes should settle within about 0.4 s, keeping the slower motion for the screens' own demonstrations and a right Check.
+
+## How to fix the usual problems
+- A thrown error (also from a K.button press or a K.anim step): go to the body line it names; check element ids, variable names and the kit call signatures.
+- NaN or Infinity: guard the maths at the ends of every control's range (division by zero, log of 0, square root of a negative), or start the range where the rule makes sense.
+- A model output that is a list or object: K.model returns single numbers or short strings; keep lists in your own variables.
+- Too wide at 340 px: let rows wrap (flex-wrap), use width:100% and max-width:100%, give SVG a viewBox with width 100%, no fixed widths over 300 px, shorter labels.
+- Text cut off: shorten it or let it wrap, or give it room (a wider box, a bigger viewBox); never cut it off or hide the overflow. SVG labels printed over each other, even by a letter or two: move one, or place them with K.labels. A plot's axis title too long for a phone: shorten it (about 30 characters). A word split across two lines (often at Text size XL): size its grid columns or tiles in rem, not px (minmax(6rem, 1fr)), so they reflow to fewer, wider columns; or use a shorter word.
+- SVG text too small on a phone: font-size 13-16 in a drawing about 340 wide. A line or arrowhead through a label: place the label with K.labels and pass that line in avoid, or stop the line short of it. More labels than room (K.labels says avoid cannot be honoured): label fewer things, or move the names into a key under the drawing or a list beside it.
+- A readout's value printed elsewhere (a label, an aria-label or a plot label that follows it): while Dan answers a check the app hides only the readout and the .say line, so show the number in the readout alone and name the thing elsewhere.
+- Text hard to read (contrast) or a colour name: ink, muted, accent2, accent, warn or good (on-accent2 on navy), as var(--k-…) or K.color set in K.update, so it follows the theme.
+- A blank hole before Dan moves: hide only the answer (a line, a mark, a sentence), never a whole figure.
+- The first control far below the main figure (phone layout): put the visual and its controls together with K.stage(visual, controls), secondary figures below.
+- K.sound: frequencies 20 to 20,000 Hz (200 to 2,000 for anything Dan must hear on a phone), dur above 0 and at most 10 s, gain 0 to 1, a listed type; play it from a K.button press.
+- Navigation, links out, connections or frames: everything stays on this page (no <a href> or forms, no location changes, no WebSocket, XMLHttpRequest or iframes); name sources in words.
+- A failing check: work the expected value out again by hand. Fix whichever is wrong, the model or the check. Never delete a correct check or change its expected answer to pass. A tolerance that was unrealistically tight (a millionth, where square roots or small steps meet rounding) may be widened to a sensible one (a thousandth of the size).
+- Slow updates: sample curves less densely and do not rebuild large parts of the page on every change.
+- Missing ids: use exactly the ids listed; an output must be a key of the object K.model returns.
+- An unlisted web address: delete it, and the {source} that held it.
+- A target out of reach: make the model follow the lesson's rule with the lesson's ranges and opening values, so moving that one control brings the output to the target.
+
+## Sources
+The only web addresses this page may contain, each only as a K.check {source} on a check whose label restates what that source's quote says (a result of your rule, or a fact about your drawing, takes no source; the caption names a source in words). The app rejects any other:
+[1] IT system - Fault protection - Electrical Installation Guide (https://www.electrical-installation.org/enwiki/IT_system_-_Fault_protection): "The voltages of the healthy phases have (because of the fault) increased to √3 times the normal phase voltage"
+[2] IT system - Fault protection - Electrical Installation Guide (https://www.electrical-installation.org/enwiki/IT_system_-_Fault_protection): "In IT system, the first fault to earth should not cause any disconnection. The earth-fault current which flows under a first-fault condition is measured in mA."
+
+## Rules for this page
+- There is no guess to protect: show everything from the start (no k-after-move), curves and results included.
+- The lead line says what is drawn, plainly ("Water from a 5 m drop hits the blades of a wheel"), not what to do: the app gives the action above the frame. Example values are said once there ("an example stream: a 5 m drop, 20 kg of water each second"), then the drawing labels them plainly ("5 m"), never "for example" on the drawing.
+- Every label and arrow sits on, or starts from, the thing it is about: a force arrow starts on the part it pushes; a speed arrow on the part that moves. Anything the rule says turns or flows does so (K.anim), at a speed that follows its control.
+- The .say sentence must make sense on its own to someone who has just read the explanation: what is happening on screen now, cause then effect, in everyday words; no term, threshold or comparison the page or the explanation has not named; a number as part of its whole ("353 W of the stream's 981 W is carried off by the water"). Bad: "The buckets move slower than half the jet speed, so the water still leaves going backwards, taking 353 W away with it." Good: "The buckets are moving slowly, so the water bounces off them still moving fast, and carries 353 W of its 981 W away downstream."
+- A key for the main drawing sits inside the drawing; show each quantity once (a bar, a readout or a curve, not all three); every number drawn that is worked out (a speed from a drop) is explained in "What you're looking at", or is left off.
+- Draw the cause the explanation gives, not only its effect, and let Dan cause it (a drag, a push, a switch); include the setting where the effect does not happen.
+- Mark the brief's one quantity on the picture itself, with a label saying what it is and its value (a bracket between the two heights reading "2.4 m"); an output with a readout is marked without its number, which the readout alone shows (the app hides it while Dan answers a check).
+- A shaded band states something true of the axis it spans: inputs across x, outputs across y. To show many inputs giving nearly the same output, shade the narrow output band (regions {y0, y1}).
+- Draw every comparison the explanation makes the same way, in the same place, on the axis where the effect happens. A time period is a bracket or thin band along the time axis, not a tall block.
+- Give each reference line its own look and a label beside it; every styled line is in the key or labelled on the drawing.
+- Draw only what the brief, the rule or the explanation names, with the same names. An extra figure says on itself how to read it: what its line stands for and which way is which.
+- Show only the numbers listed above or computed from the rule, each written the way the explanation writes it (the same rounding).
+- Any example cases you choose are fair and representative, never picked to exaggerate the effect.
+- Money, health and law: show how it works, never advice, and never a guaranteed outcome.
+
+## The house kit (complete API reference)
+You write the BODY of one page: HTML, an optional `<style>`, then one inline `<script>` ending
+with `K.ready()`. It runs in a sandboxed iframe on Dan's phone (about 340 px wide, touch) and
+laptop, with the global `K` and the kit's stylesheet. No network or storage: no web
+addresses, `fetch`, `localStorage`, `alert` or `prompt`.
+
+### Page shape that works
+1. `<p class="lead">`: one line saying what is drawn (the app adds title and action).
+2. The main visual with its controls right under it: `K.stage('#scene', '#controls')` keeps the
+   pair on one phone screen. A choice that re-sorts the picture may sit above it.
+3. `<p class="say">`: one sentence that changes with the state and says why. Then
+   `<div class="k-readouts">` for numbers the drawing does not label.
+4. Secondary figures and anything that grows go below.
+5. `<p class="caption">`: one short sentence, at most 20 words: where the numbers come from ("A
+   sketch, not measured data") or the rule in the explanation's words. No new claim, no law or
+   term the explanation does not teach. The app shows what the model leaves out.
+
+### Keep the answer hidden until Dan moves
+Dan predicts before he plays: open on a setting the question is not about, and hide whatever
+gives the answer away until his first move:
+- class `k-after-move` on any element (a mark, an arrow, a sentence): hidden, its space kept.
+  Hide the answer, not the controls or a whole figure (a blank hole fails the test).
+- `K.readout({..., afterMove: true})` shows "?" until then; plot series and marks take `afterMove: true` too.
+- `K.moved` is true from then on: in `K.update`, write `K.moved ? answer : question`.
+- `K.afterMove(fn)` runs `fn` once at that moment; `K.reveal()` marks it from your handlers.
+
+### The pipeline
+Controls register themselves; their values form `params` = `{id: value}`.
+```
+K.model(fn)        fn(params) -> outputs {name: number | string}. Pure: no DOM, no lists or objects.
+K.update(fn)       fn(params, outputs): draw everything here. More than one is allowed.
+K.at(over)         -> outputs of the model at those params (others take each control's starting value)
+K.check(label, fn, {source?})   fn() must return exactly true
+K.ready()          call once, last: draws the opening state and runs the checks
+K.complete()       at the lesson's end
+K.params()  K.outputs()  K.refresh()   (refresh reruns the pipeline after you change your own state)
+```
+A readout whose id is an output key updates itself.
+
+### Controls
+Every control takes `into` (a selector or element). Ids are unique; use the lesson's ids exactly.
+```
+K.control({id, label, min, max, step, value, unit?, prefix?, fmt?, log?, snap?, hint?, into}) -> {el, get(), set(v)}
+K.choice({id, label, options: [value | {value, label}], value, hint?, into}) -> {el, get, set}
+K.toggle({id, label, value: false, hint?, into}) -> {el, get, set}
+K.stepper({id, steps: [title | {title, text}], value: 0, compact?, label?, into}) -> {el, get, set, setSteps(list)}
+K.button({label, press, secondary?, into}) -> {el, press(), setLabel(text)}
+K.drag(el, {control, toValue(x, y)}) -> {el}
+```
+`control` is a big slider with − / + buttons. Keep `unit` short; `fmt(v)` returns the whole text;
+`log: true` spans decades; `snap: [values]` lands a drag exactly on a setting the prediction or a
+check names. `choice`: 2-8 short named options; `value` is an option's value or its 0-based
+index. `stepper` walks a process with Back / Next (`compact: true` when your diagram shows the
+content). `button` is an action (Send it in): use it, not plain buttons. `drag` lets Dan move
+the thing itself: `toValue` maps the pointer (viewBox units; px from `el`'s top-left for HTML)
+to the control's value; the first touch counts as his move.
+
+### Outputs
+```
+K.readout({id, label, unit?, prefix?, decimals?, fmt?, big?, hint?, afterMove?, into}) -> {el, set(v), get(), text()}
+```
+One rounding everywhere a number appears: `decimals` matching the lesson text, and the `.say`
+sentence built with `K.fmt(v, {decimals})` or `readout.text()`. Labels under 30 characters.
+While Dan answers a lesson check, the app hides that output's readout and the `.say` lines:
+never repeat a readout's value elsewhere (a label, an aria-label).
+```
+K.plot(target, opts) -> {draw(opts), x(v), y(v), invert(px, py), el, canvas}
+```
+- `x`, `y`: `{min, max, label, log?, prefix?, unit?, fmt?, ticks?}`. Leave out `y.min`/`y.max` to fit the data.
+- `series`: `[{fn: x => y | points: [[x, y], ...], label?, color?, dash?, width?, fill?, dots?, gaps?, afterMove?}]`
+- `shade`: `[{between: [a, b], label?, color?, x0?, x1?}]`: fills between two series (by label), a
+  series and a constant, or two functions.
+- `marks`: `[{x, y, label?, color?, guides?, afterMove?}]`: a dot with a label pill; `guides` adds dashed lines to the axes.
+- `regions`: `[{x0, x1, label?} | {y0, y1, label?}]` (a band); `lines`: `[{x | y, label?}]` (a dashed line).
+- `label`: the text alternative; `height`; `after(ctx, plot)` draws extras using `plot.x()`, `plot.y()`.
+
+`draw(opts)` redraws with `opts` over the creation options: call it in `K.update`. Values must be
+finite (`gaps: true` only where a gap is real). Series are navy, then teal; `color: 'muted',
+dash: true` for a baseline.
+```
+K.bars(target, {max?, unit?, prefix?, decimals?, fmt?}) -> {draw(items)}      items: [{label, value, color?}], values >= 0
+K.anim({step(dt, t), reset?, label?, autoplay?, button?, into}) -> {el, play, pause, toggle, reset, playing()}
+```
+`anim` adds a Play button (text `label`); `reset` adds Reset. When a switch, button or drag
+already starts the motion, pass `button: false` and call `play()` from that control: one control
+per action. In `step` advance your state (`dt` in seconds) and redraw; return `false` to stop. To
+drive a slider, keep the exact value yourself (the slider moves in whole steps).
+
+### Sound
+```
+K.sound.tone(hz, {dur?, type?, gain?})   K.sound.chord([hz, ...], {dur?, stagger?})   K.sound.stop()   K.sound.mute(on)
+K.sound.hold(hz, {type?, gain?, max?}) -> {set({hz?, gain?}), stop(), playing()}
+```
+`dur` in seconds (at most 10). Sound plays only from a `K.button` press, never `K.update`; show
+what is sounding. `hold` keeps a tone going while `set()` follows a slider. Phones can't play
+below about 150 Hz: use 200 to 2,000 Hz.
+
+### Drawings and helpers
+```
+K.el(tag, attrs?, ...children)    attrs: class, style, on: {click: fn}, text, html, dataset, any attribute
+K.svg(tag, attrs?, ...children)   the same in the SVG namespace
+K.labels(group, [{x, y, text, anchor?, size?, class?, color?}], {avoid?}) -> [<text>]
+K.stage(visual, controls, {max?, beside?}) -> {el}
+K.fmt(v, {decimals?, sig?, prefix?, unit?, percent?, sign?, compact?}) -> '1,234.5', '−3', '2.5 × 10⁶'
+K.near(a, b, tol)   K.clamp(v, lo, hi)   K.lerp(a, b, t)   K.linspace(a, b, n)   K.color(role, alpha?)
+K.ease(p)   K.arrive(T, t0, dur?)   K.fade(el, a, rise?)
+```
+Give an `<svg>` a viewBox about 340 wide, `width="100%"`, `role="img"` and an `aria-label` that
+follows the state. Text 13-16 units, never under 12 (a phone shows 340 units at about 0.9x). A
+row of N labels gets about 300/N units each; label only what differs. Every label sits on, or
+points to, something drawn. `K.labels` places labels (13 units unless `size`) clear of other
+text, the edges and the lines or shapes in `avoid`: use it for labels that move or appear later.
+Put an angle's label inside its wedge, beyond the arc, hidden while the wedge is too narrow.
+`K.stage` fits the pair in `max` px (600) on a phone; `beside: false` keeps it stacked.
+
+Draw the mechanism as it physically works. If the explanation gives a reason (X because Y), draw
+Y so Dan can watch it; parts that fit are drawn fitting (teeth in teeth), never two identical
+icons joined by a line; whatever the rule says happens (slides, grips, multiplies) happens on screen.
+
+### Colour
+Colour carries meaning. Use these roles as `var(--k-…)` or `K.color('fill2')` (`K.color('accent2',
+0.3)` is see-through); a colour name fails the test.
+- Lines and text: `ink`, `muted` (secondary, comparisons), `accent2` (navy: the main thing,
+  controls), `accent` (teal: small labels, a second series), `warn` (red: warnings and mistakes
+  only), `good` (green: "done" only), `amber-line` (amber lines that must stand out).
+- Fills: `bg` (page), `panel`, `sunk`, `amber` (note box), `hl` (key-term highlighter), `fill1`
+  (area of the main thing), `fill2` (highlighted area, amber), `fill3` (area of a second thing).
+- `cat1`-`cat4` (blue, orange, magenta, aqua): telling equal things apart, never meaning; with a
+  key or labels; cat1 and cat2 first. A thing with a familiar colour (water, fire) never gets
+  another thing's colour: use the nearest role and label it. What is still there stays solid:
+  mark a state such as unused with a label, not by fading it, and key any dashed style.
+- Also `--k-line`, `--k-strong` (borders), `--k-on-accent2` (text on navy), `--k-font`, `--k-r` (radius).
+
+Never describe colours by lightness or hue in words Dan reads ("the dark square"): dark mode
+changes them.
+
+Classes: `muted`, `small`, `k-label` (small teal caps), `term` (key term), `note` (amber box),
+`warn-note`, `panel`, `row`, `grid2`, `big`, `k-btn` (`secondary`), and a legend:
+`<div class="key"><span><i class="swatch" style="background:var(--k-accent2)"></i>Your push</span>
+<span><i class="swatch line dash" style="color:var(--k-muted)"></i>The limit</span></div>`.
+
+### Rules for a great interactive
+- One idea. The answer to Dan's prediction shows within about 3 seconds of his first move (add
+  a K.check that it does). Include something Dan causes and a case that surprises. One or two
+  controls, three at most.
+- Phone first: nothing wider than 340 px, no fixed widths over 300 px, rows wrap, no hover-only
+  information, tap targets at least 44 px. Size tiles and grid columns in rem (`minmax(6rem,
+  1fr)`): text grows a quarter at Text size XL, and no word may split across two lines.
+- Every number shown is a control, computed by the rule shown, a constant from the lesson, an
+  example value named once in the lead, or a date from the lesson. Never invent data, rates or chances.
+- The `.say` sentence describes what is on screen now, plainly and warmly, and reads right at the
+  extremes ("none of the 100"). Never claim Dan did something ("When you slid it to 20"):
+  describe the state, or write conditionally ("Push it past 20 and…").
+- 3-5 `K.check` known answers worked out by hand: an edge case, a shape fact (rises, halves,
+  always last), and one answer from outside your formula. `source` may ONLY be a URL from the
+  lesson's own sources, and only on a check whose label restates what that source's quote says;
+  a result of your rule, or a fact about your drawing, takes none. Compare numbers with
+  `K.near(a, b, tol)`: tolerance about a millionth of the size, a thousandth where rounding meets roots.
+- `K.anim` for motion, never timers: soft, unhurried, nothing popping in. Parts arrive about 0.6
+  s apart by `K.fade(el, K.arrive(T, t0))`; travel and growth use `K.ease`; a demonstration takes
+  3-5 s. No `vh` units, `position: fixed` or `height: 100%`.
+- Ideas without numbers (mechanism, process, structure, history, concept): prefer a timeline
+  slider, a named choice, a sorter or a drag; use `K.stepper` only when every step changes the
+  drawing. Checks assert order and structure facts.
+- A timeline runs forward: a slider rising left to right, its `fmt` showing the date (−500 as
+  "500 BC"), or a stepper of named events in order. A lesson's calendar-year control keeps its
+  range, its `fmt` showing the year; years after the first date are for new controls. Each dated
+  event appears as he reaches its date.
+
+### The self-test
+Before Dan sees it, the app loads your body 340, 720 and 1040 px wide, runs every check, moves
+every control, button, animation and drag, reveals the after-move parts, and looks again at Text
+size XL and in the other theme. It fails on an exception, NaN or undefined on the page, an update
+over 150 ms, sideways overflow, text cut off or over other text, SVG text under 11 px on a phone,
+a line or arrowhead through a label, text under 3:1 contrast with what is behind it, a colour
+name, a blank hole until a move, or no `K.ready()`.
+
+### Example
+```html
+<p class="lead">Lengthen the string and watch each swing take longer.</p>
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+<p class="caption">Small swings only; g = 9.81 m/s² is gravity at the Earth's surface.</p>
+<script>
+  const g = 9.81;
+  const period = (L) => 2 * Math.PI * Math.sqrt(L / g);
+  K.control({ id: 'L', label: 'String length', min: 0.1, max: 3, step: 0.05, value: 1, unit: 'm', snap: [2], into: '#controls' });
+  K.stage('#plot', '#controls');
+  K.readout({ id: 'T', label: 'One full swing takes', unit: 's', decimals: 2, into: '#outs' });
+  const plot = K.plot('#plot', { x: { min: 0, max: 3, label: 'Length (m)' }, y: { min: 0, max: 4, label: 'Period (s)' } });
+  K.model((p) => ({ T: period(p.L) }));
+  K.update((p, o) => {
+    plot.draw({ series: [{ fn: period }], marks: [{ x: p.L, y: o.T, guides: true }] });
+    document.getElementById('say').textContent = !K.moved ? 'Make the string four times longer: how much longer is each swing?'
+      : 'A ' + K.fmt(p.L, { decimals: 2 }) + ' m string swings there and back every ' + K.fmt(o.T, { decimals: 2 }) + ' s. Four times the length only doubles that.';
+  });
+  K.check('No length, no swing time', () => K.near(period(0), 0));
+  K.check('A seconds pendulum (2 s per swing) is 0.994 m long', () => K.near(period(0.994), 2, 0.002),
+    { source: 'https://en.wikipedia.org/wiki/Seconds_pendulum' });
+  K.check('Four times the length doubles the period', () => K.near(K.at({ L: 2 }).T / K.at({ L: 0.5 }).T, 2, 1e-9));
+  K.ready();
+</script>
+```
+
+
+## The body that failed
+The body you just wrote (/home/user/Study-App/build/electrical/insulated-systems/i2.body1.x.html). You already have it; it is not repeated here. Return the complete corrected body.
+
+## Output
+Return ONLY the complete corrected body: HTML elements, an optional <style>, then one inline <script> that ends with K.ready(). No <html>, <head> or <body> tags, no markdown fences, no commentary before or after. Keep it under 40 KB.

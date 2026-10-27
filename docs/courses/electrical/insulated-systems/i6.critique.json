@@ -1,0 +1,29 @@
+{
+  "draft": "i6.lesson.draft1.txt",
+  "validator": "draft 1 has one hard problem: the 24 V ship control voltage is listed with source 17 in numbers, but no sentence cites [^17].",
+  "research": "The research for i6 held only three notes (equal halves, the lower-resistance rule, the second-fault short). Fifteen quotes already checked for the brief (notes 4.6, 4.8, 7.2: Vertiv's lamps, switched voltmeter, balanced bridge, adding the fault, direct and partial shorts, detectors in parallel, the electrocution warning; the patent's ungrounded DC, 9.26 V case and stray capacitance; Bender's symmetrical DC faults, 120 V DC touch limit and 24 V DC ship control) were appended to research.reply.txt as sources 43 to 57 and run through sources.mjs (56 kept, 0 dropped). Source 42, added to research.json earlier outside the reply and absent from the tool files, was carried over unchanged so i5 keeps its footnote; no other source or idea changed.",
+  "keep": [
+    "The idea is named up front: neither pole is tied to the hull, the two pole-to-hull voltages share the bus, and the pole with the lower resistance to the hull reads lower.",
+    "The causal step is in words: current leaves one pole only through its paths and returns only through the other's, so the two sides are in series, a potential divider with the hull at the tap, and the same current gives each side a voltage in proportion to its resistance.",
+    "The picture is the brief's two poles: a 220 V board, two 100 kΩ detector arms, an insulation picker per pole, stacked bars that always fill 220 V, a bridge lamp, a meter picker that adds the meter as a path, and an injecting monitor that reads every path in parallel.",
+    "Every figure recomputed: 100 ∥ 20 = 16.7 kΩ, 220 × 16.7 ÷ 116.7 = 31.4 V and 188.6 V; leaks 500, 100, 5 kΩ give 100.0, 73.3, 10.0 V; monitor 50, 45.5, 33.3, 14.3, 4.5, 8.3 kΩ; 100 × 51 ÷ 551 = 9.26 V (the patent's own case) and 90.7 V; 100 kΩ meter 73.3 V, 10 MΩ meter 109.5 V, 20 kΩ meter 31.4 V; two detectors 50 ∥ 20 = 14.3 kΩ, 48.9 V; 220 ÷ 100 kΩ = 2.2 mA; worked example 10 × 4 ÷ 20 = 2 kΩ, leak 1 ÷ (0.5 − 0.1) = 2.5 kΩ.",
+    "Each brief misconception has its DO screen: the high pole blamed (4), equal halves taken as healthy (8), the meter as an earth path (10), voltage treated like current, two readings that must add to the bus (2, 10). Lesson 3's capacitance on DC (12) and lesson 4's second fault (5) are recalled where they apply.",
+    "Twelve screens: SHOW 1, 3, 5, 7, 9 (72 to 89 words) alternate with DO 2, 4, 6, 8, ending on three mixed puzzles 10 to 12. Each SHOW has a read sentence with no instruction to act."
+  ],
+  "faults": [
+    { "fault": "explanation skipping the causal step", "found": true, "where": "screen 7 and screen 8 use 'the bridge', but no screen names the detector a bridge or says what makes it alarm. Screen 5's '220 V across it' does not say the voltage comes from the hull being joined to the negative." },
+    { "fault": "false absolutes", "found": true, "where": "screen 1's 'DC power systems are normally insulated' is far wider than its source, whose subject is ungrounded DC supply systems; many DC systems have an earthed pole. Screen 1's 'Most of a ship's control systems run this way' claims they are insulated, which the 24 V source does not say. Screen 12's 'then passes nothing' and its hint 'no more current flows' are a model's zero." },
+    { "fault": "brief shows effect not cause", "found": false, "note": "the brief names the cause (the negative's insulation lowered) and the effect (its voltage falls, the positive's rises, together 220 V)." },
+    { "fault": "checks test recall", "found": false, "note": "taught mode, no checks; each DO applies the divider to a new board, meter or detector." },
+    { "fault": "thin or decorative research", "found": false, "note": "after the top-up every claim the lesson rests on has a quote; the footnotes sit on the rule, the 9.26 V case, the touch limit and the readings he would look up." },
+    { "fault": "unreadable labels", "found": false, "note": "pickers and four readout tiles wrap on a phone; nothing is named by its shade." },
+    { "fault": "talks about the idea instead of teaching it", "found": false }
+  ],
+  "plain_writing": [
+    "Practice: 'Above 120 V DC, it is past the usual safe touch voltage' has an unclear 'it'. Say which pole and which bus.",
+    "Screen 5: 'A hand on the positive bar would have 220 V across it to the hull' reads as the hand having the voltage. Say it could put 220 V across you.",
+    "Explain: the lamp version stops half way. Add the solid-fault half, which is the picture's own Solid setting."
+  ],
+  "shape": "Matches the recommended shape: idea up front, the rule in words (each pole takes the bus × its side ÷ both sides), worked examples with real numbers (9.26 V, 31.4 V), the misconception shown failing (a symmetrical leak keeps the halves equal while the monitor alarms), an analogy (a potentiometer's wiper) with where it breaks, practice with steps, a rule of thumb, a worked example worked backwards to the leak and the mistakes, and a sayable recap.",
+  "verdict": "Rewrite as draft 2: cite the 24 V figure, narrow screen 1's two claims, name the bridge on screen 1, give screen 5 its cause, soften the capacitor's zero, fix the practice 'it' and finish the lamp sentence."
+}

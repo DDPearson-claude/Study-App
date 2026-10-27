@@ -1,0 +1,383 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-27T17:07:55.171Z",
+ "startedAt": "2026-10-27T17:07:55.171Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i1",
+  "title": "Where the star point goes: TN, TT and IT",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the fault loop close through an earthed star point and trip, or find no way home to a floating one and run on, when you tap a fault onto the motor frame.",
+   "title": "The star point switch",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Screen",
+     "min": 0,
+     "max": 11,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [],
+   "whatAmILookingAt": "Twelve small screens share one picture, with Back and Continue. Six show an idea and six ask you to try it. There are no marks and no timers.\n\nThe picture. On the left is a three-phase source, drawn as a star. Its three windings, L1, L2 and L3, meet at the star point. Say it is a 440 V supply, so each winding has 440 ÷ 1.732 = 254 V across it. Three lines run from the windings' free ends to a motor on the right. On the way they pass a breaker and an RCD. The motor's frame is bonded to the hull. The hull is a thick bar along the bottom, labelled \"Hull (earth)\". On TT it is labelled \"Earth\", since TT is a shore arrangement. A switch at the star point has four positions, each a button: TN, TT, IT and High impedance. On a phone the four buttons wrap onto two rows. TN draws a protective conductor from the frame straight back to the star point. TT draws the star point to an earth electrode at the source. It draws the frame to a second electrode of its own, with ground between them. IT draws the star point floating, joined to nothing. High impedance draws the star point to the hull through a resistor labelled 1,500 Ω. A thin dashed line runs from each line to the hull, labelled \"Insulation, 100 kΩ in all\". A button, Fault on L1, draws a short from L1 to the motor frame. Press it and the fault current's loop lights up and runs round. It goes from L1's winding, through the fault, the frame and the hull. It returns to the star point by whatever path the switch gives. Its thickness grows with the current.\n\nThe readouts are two tiles that wrap on a phone. Fault current shows in A or mA, as it needs. Supply reads Running, Tripped by breaker, Tripped by RCD or Running, alarm on. An alarm lamp by the source lights on IT and High impedance.\n\nThe rule it computes. Current only flows round a complete loop back to its source. In this simplified model, the fault current is the winding's 254 V divided by the loop's resistance. TN: an example 0.5 Ω of metal gives 254 ÷ 0.5 = 508 A, and the breaker trips. TT: two example electrodes, 10 Ω and 100 Ω, give 254 ÷ 110 = 2.3 A. That is far below the breaker's example 32 A rating. It is far above the example 30 mA RCD, so the RCD trips. IT: there is no conductor back to the star point. The only way home is through the system's insulation, 100 kΩ, so 254 ÷ 100,000 gives about 2.5 mA. Nothing trips, and the alarm lights. High impedance: 254 ÷ 1,500 gives about 0.17 A. Nothing trips, and the alarm lights.\n\nScreen 1, show. The picture with the switch on TN and no fault. The words: \"Three windings meet at the star point. Each winding of this 440 V supply gives 254 V. The motor's frame is bonded to the hull. The switch sets what the star point is tied to. Tap TN, TT, IT and High impedance to move it. Two letters name it. The first is the star point: T for earth, from the French terre, or I for isolated.[^1] The second is how the frames reach earth. N, for neutral, means a conductor back to the star point. T means an electrode of their own.\" Read: \"Three windings meet at the star point. Each winding of this 440 V supply gives 254 V. The motor's frame is bonded to the hull. Two letters name what the star point is tied to. The first is the star point: T for earth, from the French terre, or I for isolated. The second is how the frames reach earth. N, for neutral, means a conductor back to the star point. T means an electrode of their own.\" Still: the switch on TN, no fault.\n\nScreen 2, try it. \"A supply is marked IT. What do its two letters tell you? The drawing shows TN for now.\" Three choices, in this order: \"The star point is tied to earth. The frames are isolated.\"; \"The star point is isolated from earth. The frames go to earth.\"; \"The star point and the frames are both tied to the hull.\" Right, the second. Hint for the second: \"The first letter is the star point, and I means isolated.\" Hint for the third: \"Only the frames are. The I says the star point is joined to nothing.\" Why: \"Read the letters in order. The first is the star point: I, isolated. The second is the frames: T, to earth. On a ship that earth is the hull.\" A right Check sets the switch to IT. Read: \"A supply is marked IT. What do its two letters tell you? The drawing shows TN for now.\"\n\nScreen 3, show. The switch on TN, with Fault on L1 to press. The words: \"On TN a fault from L1 to the frame goes on by itself. Tap Fault on L1 to run it again. Its current runs out of L1 and through the fault into the frame. It comes back along the protective conductor to the star point, then up L1's winding. Say that metal loop is 0.5 Ω. Then 254 ÷ 0.5 = 508 A flows, and the breaker trips at once.[^2] Earthing does not drain the fault away. It closes the loop, so the current is big enough to trip.\" Read: \"On TN the fault current runs out of L1 and into the frame. It comes back along the protective conductor to the star point and up L1's winding. Say that metal loop is 0.5 Ω, so 254 ÷ 0.5 = 508 A. The breaker trips at once.\" Still: TN, fault on.\n\nScreen 4, try it. \"Why does the breaker trip on TN?\" Three choices, in this order: \"The earth wire carries the extra electricity away into the hull.\"; \"Earthing works like double insulation and cuts the supply.\"; \"The protective conductor gives the current a low-resistance way back to the star point.\" Right, the third. Hint for the second: \"Current goes round a loop back to its source. The earth wire is the loop's way home, not a drain.\" Hint for the third: \"Double insulation keeps a fault off metal you can touch. Earthing lets a fault on metal draw enough current to trip.\" Why: \"Current only flows round a complete loop. The protective conductor closes it back to the star point through metal. That loop is a fraction of an ohm. So 254 V drives hundreds of amps, and the breaker trips at once.\" A right Check lights the TN loop again. Read: \"Why does the breaker trip on TN?\"\n\nScreen 5, show. The switch on TT. The words: \"On TT the same fault goes on by itself. Tap Fault on L1 to run it again. The star point and the frame each go to an earth electrode of their own. So the loop runs through the ground between them. Say the two electrodes are 10 Ω and 100 Ω. Then 254 ÷ 110 = 2.3 A flows. A 32 A breaker will not notice that. A 30 mA RCD sees current going out that does not come back, and trips. TT belongs ashore, in a building with its own earth rod.\" Read: \"On TT the loop runs through the ground between two electrodes, 110 Ω in all. 2.3 A flows. That is too little for the breaker, so the RCD trips.\" Still: TT, fault on.\n\nScreen 6, try it. \"A TT supply has electrodes of 20 Ω and 200 Ω, the same 254 V winding, a 32 A breaker and a 30 mA RCD. A phase faults to a frame. About what current flows, and what trips?\" Three choices, in this order: \"About 508 A, and the breaker trips\"; \"About 1.2 A, and the RCD trips\"; \"About 1.2 A, and the breaker trips\". Right, the second. Hint for the second: \"The loop now runs through two electrodes and the ground, 220 Ω, not a fraction of an ohm.\" Hint for the third: \"1.2 A is far below a 32 A breaker's rating. It is far above an RCD's 30 mA.\" Why: \"The loop is 20 + 200 = 220 Ω, so 254 ÷ 220 = 1.15 A, about 1.2 A. A breaker needs many times its rating to trip at once. An RCD trips on 30 mA that does not come back.\" Read: \"A TT supply has electrodes of 20 Ω and 200 Ω, the same 254 V winding, a 32 A breaker and a 30 mA RCD. About what current flows at a fault to frame, and what trips?\"\n\nScreen 7, show. The switch on IT. The words: \"On IT the fault goes on by itself too. Tap Fault on L1 to run it again. The star point floats, isolated from earth. The frame stays bonded to the hull.[^3] The fault reaches the hull and finds no conductor back to the star point. Its only way home is back through the other lines' insulation. Say the whole system's insulation measures 100 kΩ to earth. Then 254 ÷ 100,000 gives about 2.5 mA. Nothing trips, and the motor runs on. An alarm lights, so someone knows the fault is there.\" Read: \"On IT the fault reaches the hull but finds no conductor back to the floating star point. About 2.5 mA leaks home through the insulation. The motor runs on and the alarm lights.\" Still: IT, fault on.\n\nScreen 8, try it. \"Same motor, same fault on L1, but the star point is floating. What happens?\" Three choices, in this order: \"A few milliamps flow, the motor runs on and an alarm lights.\"; \"A large current flows and the breaker trips, as on TN.\"; \"No current flows at all, so the fault can be left.\" Right, the first. Hint for the second: \"No conductor joins the hull to a floating star point. The loop runs only through the insulation.\" Hint for the third: \"A small current still leaks home through the insulation. The fault also stays on the system until someone clears it.\" Why: \"The fault reaches the hull, but the star point is not tied to it. The only loop runs through 100 kΩ of insulation, so 254 V drives about 2.5 mA. That trips nothing.\" A right Check lights the IT loop. Read: \"Same motor, same fault on L1, but the star point is floating. What happens?\"\n\nScreen 9, show. The switch on High impedance. The words: \"On High impedance the fault goes on by itself too. Tap Fault on L1 to run it again. The star point goes to earth through a high impedance, say 1,500 Ω. Then 254 ÷ 1,500 gives about 0.17 A. That is far too little to trip. So the supply runs on and alarms. This counts as a form of IT.[^4]\" Read: \"With the star point tied to the hull through 1,500 Ω, the fault passes about 0.17 A. Nothing trips, and the alarm lights, as on IT.\" Still: High impedance, fault on.\n\nScreen 10, try it, the first of three mixed puzzles. \"Why would a ship's supply be insulated?\" Three choices, in this order: \"Because an insulated supply cannot give you a shock\"; \"Because the hull cannot be used as an earth\"; \"So an earth fault does not take out an essential service at once\". Right, the third. Hint for the second: \"That is not the reason, and never assume it. Prove a conductor dead as on any job.\" Hint for the third: \"The frames are bonded to the hull. Only the star point is left floating.\" Why: \"An insulated supply runs on through its first earth fault. So the steering, the pumps and the lights stay on while the fault is found.\" Read: \"Why would a ship's supply be insulated?\"\n\nScreen 11, try it. \"A supply's first earth fault draws about 2 A, and an RCD trips. What is its star point tied to? The drawing shows TN for now.\" Three choices, in this order: \"Nothing: it floats, IT\"; \"Earth, through its own electrode: TT\"; \"Earth, through a protective conductor: TN\". Right, the second. Hint for the second: \"A floating star point gives no deliberate way home, so the current is small and nothing trips.\" Hint for the third: \"A metal loop back to the star point gives hundreds of amps, and the breaker trips.\" Why: \"A trip means the star point is tied to earth. A few amps, not hundreds, means the loop runs through the ground between two electrodes. That is TT.\" A right Check sets the switch to TT. Read: \"A supply's first earth fault draws about 2 A, and an RCD trips. What is its star point tied to? The drawing shows TN for now.\"\n\nScreen 12, try it. \"A board's drawing says TN-S. The S means its protective conductor is separate from the neutral. What happens at its first earth fault to a frame?\" Three choices, in this order: \"A large current flows and the breaker trips\"; \"A small current flows and the supply runs on\"; \"A few amps flow through the ground, and the RCD trips\". Right, the first. Hint for the second: \"That is IT. Here the first letter is T, so the star point is tied to earth.\" Hint for the third: \"That is TT. The N says the frames go back to the star point through metal, not the ground.\" Why: \"T first: the star point is tied to earth. N second: the frames go back to it through a protective conductor. In TN-S that conductor is separate from the neutral. So the loop is all metal, and the breaker trips.\" The picture opens on TN with no fault, and a right Check puts the fault on. Read: \"A board's drawing says TN-S. The S means its protective conductor is separate from the neutral. What happens at its first earth fault to a frame?\"\n\nEvery figure on these screens is an example value or worked from the rule above.",
+   "ignores": "The picture draws the fault as a solid join. It draws the system's leak to earth as one 100 kΩ resistor. A real system also leaks through the capacitance of its cables and windings. So on a large system the first fault passes more than milliamps. The picture does not show what the fault does to the voltages of the other two lines. The loop resistances, the electrodes and the high impedance are example values. The breaker and RCD are drawn tripping at once, though each takes a short time. On TN, TT and High impedance the insulation path is there too. It changes nothing the readouts show.",
+   "numbers": [
+    {
+     "label": "Screen, 1 to 12 (the stepper)",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Number of screens",
+     "value": 12,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example line voltage of the supply, in volts",
+     "value": 440,
+     "kind": "assumed"
+    },
+    {
+     "label": "Square root of 3, to three decimal places",
+     "value": 1.732,
+     "kind": "constant"
+    },
+    {
+     "label": "Voltage across each winding, 440 ÷ 1.732, in volts",
+     "value": 254,
+     "kind": "computed"
+    },
+    {
+     "label": "Example TN loop resistance, in ohms",
+     "value": 0.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "TN fault current, 254 ÷ 0.5, in amps",
+     "value": 508,
+     "kind": "computed"
+    },
+    {
+     "label": "Example TT source electrode, in ohms",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example TT frame electrode, in ohms",
+     "value": 100,
+     "kind": "assumed"
+    },
+    {
+     "label": "TT loop, 10 + 100, in ohms",
+     "value": 110,
+     "kind": "computed"
+    },
+    {
+     "label": "TT fault current, 254 ÷ 110, in amps",
+     "value": 2.3,
+     "kind": "computed"
+    },
+    {
+     "label": "Example breaker rating, in amps",
+     "value": 32,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example RCD rating, in milliamps",
+     "value": 30,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example insulation of the whole system to earth, in kilohms",
+     "value": 100,
+     "kind": "assumed"
+    },
+    {
+     "label": "IT fault current, 254 ÷ 100,000, in milliamps",
+     "value": 2.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Example high impedance, in ohms",
+     "value": 1500,
+     "kind": "assumed"
+    },
+    {
+     "label": "High-impedance fault current, 254 ÷ 1,500, in amps",
+     "value": 0.17,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 6 example electrodes, in ohms",
+     "value": "20 and 200",
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 6 loop, 20 + 200, in ohms",
+     "value": 220,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 6 fault current, 254 ÷ 220, in amps",
+     "value": 1.15,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 6 fault current rounded, in amps",
+     "value": 1.2,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 11 example fault current, in amps",
+     "value": 2,
+     "kind": "assumed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "What a supply's star point is tied to decides what an earth fault does. The star point is where a three-phase supply's windings meet. Tie it solidly to earth and a fault to a frame has a way home. Enough current flows to trip the supply. Leave it floating and you have an [[insulated system]]. Now the fault has no deliberate way home. Only a small current flows, nothing trips and the supply runs on. Two letters name the choice. The first says what the star point does: T for earth, from the French terre, or I for isolated.[^1] The second says how the frames reach earth. N, for neutral, means a conductor back to the supply's star point. T means an electrode of their own.\n\nCurrent only flows round a complete loop, out of its source and back in. Picture a 440 V supply, say, so each winding has 440 ÷ 1.732 = 254 V across it. Line L1 touches a motor frame, and the frame is bonded to the hull. To flow, the current must get from the hull back to the star point. That is the far end of L1's winding. On TN a protective conductor runs straight there, all metal. Say that loop is 0.5 Ω. Then 254 ÷ 0.5 = 508 A flows, and the breaker trips at once.[^2] Earthing does not drain the fault away. It closes the loop, so the current is big enough to trip. On TT the loop runs through the ground between two electrodes, say 10 Ω and 100 Ω. Now 254 ÷ 110 = 2.3 A flows. That is too little for a 32 A breaker, so an RCD does the tripping.\n\nOn IT the star point is isolated from earth, while the frames are still connected to earth. The fault reaches the hull and finds no conductor back to the star point. Its only way home is back through the insulation of the other lines. Say the whole system's insulation measures 100 kΩ to earth. In this simple model the current is the winding's 254 V over that insulation. So 254 ÷ 100,000 gives about 2.5 mA. A [[first fault]] on an IT supply should cause no disconnection, and its current is measured in milliamps.[^5] The motor runs on, and an alarm tells someone the fault is there. A star point tied to earth through a high impedance, say 1,500 Ω, ends the same way. Here 254 ÷ 1,500 gives about 0.17 A, far too little to trip. This also counts as a form of IT.[^4] At sea, running on is the whole point. That is why unearthed two-wire distribution was brought in at sea. It stops an earth fault taking out an essential service at once.[^6] This picture is a simplified model. A real system also leaks to earth through the capacitance of its cables. So a large one passes more than milliamps.\n\nThis is why the same fault on a ship's insulated 440 V supply disconnects nothing. Its star point has no deliberate way to earth. **The first letter says what the star point is tied to. Tie it solidly to earth and the first earth fault drives enough current home to trip. Leave it isolated and the fault finds no deliberate way home. Nothing disconnects, and the supply runs on.**"
+  },
+  "analogy": {
+   "text": "A shaver socket's isolating transformer works the same way. Its output is not tied to earth. So a fault from one output wire to earthed metal finds no deliberate way home, and next to nothing flows. Tie one side of that output to earth, and the same fault becomes a short that trips its protection.",
+   "breaks": "A shaver socket feeds one small load over a short lead, so it leaks very little to earth. A ship's system has long cable runs and many machines. It leaks far more, so its first fault passes more current. Neither one is safe to touch on both output wires at once."
+  },
+  "practice": {
+   "text": "- Safety first: the letters never tell you a conductor is dead. Isolate and prove dead as on any job.\n- Find the star point, on the drawing or at the generator or transformer. Is it tied to earth, tied through a high impedance or left floating?\n- Read the first letter. T means tied to earth. I means isolated, or tied only through a high impedance.[^4]\n- Read the second letter. N means the frames go back to the star point through a protective conductor. T means they have an electrode of their own.\n- Trace the loop a fault to a frame would take. What is in it: metal, the ground between two electrodes, or only insulation?\n- Divide the voltage across one winding by that loop's resistance. That gives a rough current. It tells you whether a breaker, an RCD or nothing will act.\n\n**Rules of thumb:** Hundreds of amps means a metal loop, TN, and the breaker trips. A few amps means the ground is in the loop, TT, and the RCD trips. If the current is too small to trip anything and the supply runs on, it is an insulated supply.\n\n**Worked example:** A 440 V supply has 254 V across each winding. On TN with a 0.5 Ω loop, a fault to a frame drives 254 ÷ 0.5 = 508 A. The breaker trips at once. Now float the star point, with the whole system's insulation at 100 kΩ to earth. Ignore cable capacitance. The same fault now drives 254 ÷ 100,000, about 2.5 mA. Nothing trips, and the motor runs on.\n\n**Common mistakes**\n- Reading the first letter as the frames. It is the star point.\n- Thinking the earth conductor drains a fault away. It closes the loop back to the star point.\n- Expecting a breaker to clear a TT fault. A few amps needs an RCD.\n- Taking an insulated supply's quiet first fault as harmless. It stays on the system until someone finds it and clears it."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "Earthing Your Questions Answered",
+    "url": "https://electrical.theiet.org/media/1698/earthing-your-questions-answered.pdf",
+    "quote": "T = Earth (from the French word Terre) N = Neutral S = Separate C = Combined I = Isolated"
+   },
+   {
+    "n": 2,
+    "title": "Characteristics of TT, TN and IT systems - Electrical Installation Guide",
+    "url": "https://www.electrical-installation.org/enwiki/Characteristics_of_TT,_TN_and_IT_systems",
+    "quote": "## TN system * Technique for the protection of persons: + Interconnection and earthing of exposed conductive parts and the neutral are mandatory + Interruption for the first fault using overcurrent protection (circuit-breakers or fuses)"
+   },
+   {
+    "n": 3,
+    "title": "Wiring Matters - your insight into BS 7671",
+    "url": "https://electrical.theiet.org/media/1469/railway-systems_tm-granger.pdf",
+    "quote": "The third type of earthing arrangement, and the particular focus of this article, is the 'IT' type, in which the source transformer is isolated from earth, whilst all exposed conductive parts of the installation are connected to earth electrodes."
+   },
+   {
+    "n": 4,
+    "title": "IT system - Principle - Electrical Installation Guide",
+    "url": "https://www.electrical-installation.org/enwiki/IT_system_-_Principle",
+    "quote": "The installation is isolated from earth, or the neutral point of its power-supply source is connected to earth through a high impedance (commonly 1500 Ω or more)"
+   },
+   {
+    "n": 5,
+    "title": "IT system - Fault protection - Electrical Installation Guide",
+    "url": "https://www.electrical-installation.org/enwiki/IT_system_-_Fault_protection",
+    "quote": "In IT system, the first fault to earth should not cause any disconnection. The earth-fault current which flows under a first-fault condition is measured in mA."
+   },
+   {
+    "n": 6,
+    "title": "library.imarest.org",
+    "url": "https://library.imarest.org/record/2202/files/2229.pdf",
+    "quote": "two-wire unearthed distribution systems were introduced to prevent the immediate loss of an essential service resulting from an earth fault."
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: mechanism -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .lead, .caption { max-width: 32rem; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.15rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.05rem; font-weight: 400; line-height: 1.6; }\n  .scene { display: block; width: 100%; max-width: 32rem; margin-inline: auto; }\n  .scene .wire { stroke: var(--k-ink); stroke-width: 2; fill: none; stroke-linejoin: round; }\n  .scene .ins { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 4 3; fill: none; }\n  .scene .insbox { stroke: var(--k-muted); stroke-width: 1.5; fill: var(--k-bg); }\n  .scene .res { stroke: var(--k-ink); stroke-width: 2; fill: var(--k-bg); }\n  .scene .dev { stroke: var(--k-muted); stroke-width: 1.5; fill: none; }\n  .scene .dot { fill: var(--k-ink); }\n  .scene .open { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 2; }\n  .scene .frame { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 2; }\n  .scene .motor { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 2; }\n  .scene .hull { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.5; }\n  .scene .bolt { stroke: var(--k-warn); stroke-width: 2.5; fill: none; stroke-linejoin: round; }\n  .scene .glow { stroke: var(--k-amber-line); fill: none; stroke-opacity: .35; stroke-linejoin: round; stroke-linecap: round; }\n  .scene .flow { stroke: var(--k-amber-line); fill: none; stroke-linejoin: round; }\n  .scene .lamp { stroke: var(--k-muted); stroke-width: 2; fill: var(--k-panel); }\n  .scene .lit { fill: var(--k-amber-line); }\n  .scene .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }\n  .scene .lab.m { fill: var(--k-muted); }\n  .scene .lab.w { fill: var(--k-warn); }\n  .scene .mm { font: 700 16px var(--k-font); fill: var(--k-ink); }\n  /* The star point switch: four buttons, two to a row on a phone. */\n  .sw { display: grid; grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr)); gap: 8px; }\n  .sw .k-btn { min-height: 44px; width: 100%; }\n  .sw .k-btn[aria-pressed=\"true\"], .picks .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; min-height: 44px; }\n  #outs { display: flex; flex-wrap: wrap; gap: 10px; }\n  #outs .k-readout { flex: 1 1 8rem; }\n  /* The answers are sentences: one to a row, wrapping inside the button. */\n  .picks { display: flex; flex-direction: column; gap: 8px; }\n  .picks .k-btn { width: 100%; min-height: 48px; white-space: normal; text-align: left; justify-content: flex-start; line-height: 1.4; padding: 10px 14px; }\n  .fb { font-weight: 700; min-height: 1.5em; }\n  .fb.right { color: var(--k-good); }\n  .why { line-height: 1.6; }\n  .done { line-height: 1.6; }\n  .done strong { color: var(--k-accent2); }\n  .done .row { margin-top: 14px; }\n  /* Each new screen settles in softly. */\n  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }\n</style>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <svg class=\"scene\" id=\"scene\" viewBox=\"0 0 340 300\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"art\"></g></svg>\n    <div class=\"sw\" id=\"sw\"></div>\n    <div class=\"row\" id=\"faultrow\"></div>\n    <div id=\"outs\"></div>\n    <div class=\"picks\" id=\"picks\"></div>\n    <div class=\"row\" id=\"acts\"></div>\n    <p class=\"fb\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p><strong id=\"finish\"></strong></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\">Example values throughout. Current only flows round a complete loop back to the star point.</p>\n\n<script>\n  // ---------- the rule ----------\n  // Each winding has 440 ÷ 1.732 = 254 V across it. A fault from L1 to the frame drives a current\n  // of 254 V over its loop's resistance, and what the star point is tied to sets that loop.\n  const VLINE = 440, ROOT3 = 1.732, VPH = VLINE / ROOT3;\n  const R_TN = 0.5, R_TT = [10, 100], R_INS = 100000, R_HZ = 1500;   // example values, ohms\n  const BREAKER = 32, RCD = 0.03;                                     // example ratings: 32 A, 30 mA\n  const NAME = { TN: 'TN', TT: 'TT', IT: 'IT', HZ: 'High impedance' };\n  const ohms = (sys, el) => (sys === 'TN' ? R_TN : sys === 'TT' ? el[0] + el[1] : sys === 'IT' ? R_INS : R_HZ);\n  const amps = (sys, el) => VPH / ohms(sys, el || R_TT);\n  // The breaker trips above its rating; the RCD (fitted on TT) on 30 mA that does not come back.\n  // A star point that is not tied solidly to earth runs on, and its alarm lights.\n  function outcome(sys, el) {\n    const i = amps(sys, el);\n    if (i > BREAKER) return 'breaker';\n    if (sys === 'TT' && i >= RCD) return 'rcd';\n    return sys === 'IT' || sys === 'HZ' ? 'alarm' : 'running';\n  }\n  const SUPPLY = { breaker: 'Tripped by breaker', rcd: 'Tripped by RCD', alarm: 'Running, alarm on', running: 'Running' };\n  function ampsText(a) {\n    if (a >= 10) return K.fmt(a, { decimals: 0 }) + ' A';\n    if (a >= 1) return K.fmt(a, { decimals: 1 }) + ' A';\n    if (a >= 0.1) return K.fmt(a, { decimals: 2 }) + ' A';\n    return K.fmt(a * 1000, { decimals: 1 }) + ' mA';\n  }\n  const ohmText = (v) => K.fmt(v, { decimals: 0 }) + ' Ω';\n  // The motion after the fault goes on: the fault at once, the loop by 1.2 s, the trip or the alarm from 2 s.\n  const LOOP = 0.6, AMPS_AT = 0.9, TRIP = 2.0, END = 3.4;\n\n  // ---------- the lesson: SHOW screens demonstrate, DO screens are puzzles ----------\n  // pic: the picture a SHOW screen opens on (ctl: 'switch' or 'both' for the switch and the fault);\n  // before / after: a puzzle's picture before and after a right answer (sets: the answer moves the switch).\n  const strip = (s) => s.replace(/\\[\\^\\d+\\]/g, '');\n  const STEPS = [\n    { show: true, name: 'Two letters', pic: { sys: 'TN', fault: false }, ctl: 'switch',\n      text: strip('Three windings meet at the star point. Each winding of this 440 V supply gives 254 V. The motor\\'s frame is bonded to the hull. The switch sets what the star point is tied to. Tap TN, TT, IT and High impedance to move it. Two letters name it. The first is the star point: T for earth, from the French terre, or I for isolated.[^1] The second is how the frames reach earth. N, for neutral, means a conductor back to the star point. T means an electrode of their own.'),\n      read: 'Three windings meet at the star point. Each winding of this 440 V supply gives 254 V. The motor\\'s frame is bonded to the hull. Two letters name what the star point is tied to. The first is the star point: T for earth, from the French terre, or I for isolated. The second is how the frames reach earth. N, for neutral, means a conductor back to the star point. T means an electrode of their own.',\n      still: () => setPic({ sys: 'TN', fault: false }) },\n    { kind: 'pick', name: 'Reading IT', before: { sys: 'TN', fault: false }, after: { sys: 'IT', fault: false }, sets: true,\n      task: 'A supply is marked IT. What do its two letters tell you? The drawing shows TN for now.',\n      read: 'A supply is marked IT. What do its two letters tell you? The drawing shows TN for now.',\n      opts: ['The star point is tied to earth. The frames are isolated.', 'The star point is isolated from earth. The frames go to earth.', 'The star point and the frames are both tied to the hull.'],\n      want: 'The star point is isolated from earth. The frames go to earth.',\n      hints: { 'The star point is tied to earth. The frames are isolated.': 'The first letter is the star point, and I means isolated.',\n        'The star point and the frames are both tied to the hull.': 'Only the frames are. The I says the star point is joined to nothing.' },\n      why: 'Read the letters in order. The first is the star point: I, isolated. The second is the frames: T, to earth. On a ship that earth is the hull.' },\n    { show: true, name: 'TN: the loop closes', pic: { sys: 'TN', fault: false }, ctl: 'both', demo: true,\n      text: strip('On TN a fault from L1 to the frame goes on by itself. Tap Fault on L1 to run it again. Its current runs out of L1 and through the fault into the frame. It comes back along the protective conductor to the star point, then up L1\\'s winding. Say that metal loop is 0.5 Ω. Then 254 ÷ 0.5 = 508 A flows, and the breaker trips at once.[^2] Earthing does not drain the fault away. It closes the loop, so the current is big enough to trip.'),\n      read: 'On TN the fault current runs out of L1 and into the frame. It comes back along the protective conductor to the star point and up L1\\'s winding. Say that metal loop is 0.5 Ω, so 254 ÷ 0.5 = 508 A. The breaker trips at once.',\n      still: () => setPic({ sys: 'TN', fault: true }) },\n    { kind: 'pick', name: 'Why TN trips', before: { sys: 'TN', fault: false }, after: { sys: 'TN', fault: true },\n      task: 'Why does the breaker trip on TN?', read: 'Why does the breaker trip on TN?',\n      opts: ['The earth wire carries the extra electricity away into the hull.', 'Earthing works like double insulation and cuts the supply.', 'The protective conductor gives the current a low-resistance way back to the star point.'],\n      want: 'The protective conductor gives the current a low-resistance way back to the star point.',\n      hints: { 'The earth wire carries the extra electricity away into the hull.': 'Current goes round a loop back to its source. The earth wire is the loop\\'s way home, not a drain.',\n        'Earthing works like double insulation and cuts the supply.': 'Double insulation keeps a fault off metal you can touch. Earthing lets a fault on metal draw enough current to trip.' },\n      why: 'Current only flows round a complete loop. The protective conductor closes it back to the star point through metal. That loop is a fraction of an ohm. So 254 V drives hundreds of amps, and the breaker trips at once.' },\n    { show: true, name: 'TT: two electrodes', pic: { sys: 'TT', fault: false }, ctl: 'both', demo: true,\n      text: 'On TT the same fault goes on by itself. Tap Fault on L1 to run it again. The star point and the frame each go to an earth electrode of their own. So the loop runs through the ground between them. Say the two electrodes are 10 Ω and 100 Ω. Then 254 ÷ 110 = 2.3 A flows. A 32 A breaker will not notice that. A 30 mA RCD sees current going out that does not come back, and trips. TT belongs ashore, in a building with its own earth rod.',\n      read: 'On TT the loop runs through the ground between two electrodes, 110 Ω in all. 2.3 A flows. That is too little for the breaker, so the RCD trips.',\n      still: () => setPic({ sys: 'TT', fault: true }) },\n    { kind: 'pick', name: 'A TT fault', before: { sys: 'TT', fault: false, el: [20, 200] }, after: { sys: 'TT', fault: true, el: [20, 200] },\n      task: 'A TT supply has electrodes of 20 Ω and 200 Ω, the same 254 V winding, a 32 A breaker and a 30 mA RCD. A phase faults to a frame. About what current flows, and what trips?',\n      read: 'A TT supply has electrodes of 20 Ω and 200 Ω, the same 254 V winding, a 32 A breaker and a 30 mA RCD. About what current flows at a fault to frame, and what trips?',\n      opts: ['About 508 A, and the breaker trips', 'About 1.2 A, and the RCD trips', 'About 1.2 A, and the breaker trips'],\n      want: 'About 1.2 A, and the RCD trips',\n      hints: { 'About 508 A, and the breaker trips': 'The loop now runs through two electrodes and the ground, 220 Ω, not a fraction of an ohm.',\n        'About 1.2 A, and the breaker trips': '1.2 A is far below a 32 A breaker\\'s rating. It is far above an RCD\\'s 30 mA.' },\n      why: 'The loop is 20 + 200 = 220 Ω, so 254 ÷ 220 = 1.15 A, about 1.2 A. A breaker needs many times its rating to trip at once. An RCD trips on 30 mA that does not come back.' },\n    { show: true, name: 'IT: no way home', pic: { sys: 'IT', fault: false }, ctl: 'both', demo: true,\n      text: strip('On IT the fault goes on by itself too. Tap Fault on L1 to run it again. The star point floats, isolated from earth. The frame stays bonded to the hull.[^3] The fault reaches the hull and finds no conductor back to the star point. Its only way home is back through the other lines\\' insulation. Say the whole system\\'s insulation measures 100 kΩ to earth. Then 254 ÷ 100,000 gives about 2.5 mA. Nothing trips, and the motor runs on. An alarm lights, so someone knows the fault is there.'),\n      read: 'On IT the fault reaches the hull but finds no conductor back to the floating star point. About 2.5 mA leaks home through the insulation. The motor runs on and the alarm lights.',\n      still: () => setPic({ sys: 'IT', fault: true }) },\n    { kind: 'pick', name: 'A floating star point', before: { sys: 'IT', fault: false }, after: { sys: 'IT', fault: true },\n      task: 'Same motor, same fault on L1, but the star point is floating. What happens?',\n      read: 'Same motor, same fault on L1, but the star point is floating. What happens?',\n      opts: ['A few milliamps flow, the motor runs on and an alarm lights.', 'A large current flows and the breaker trips, as on TN.', 'No current flows at all, so the fault can be left.'],\n      want: 'A few milliamps flow, the motor runs on and an alarm lights.',\n      hints: { 'A large current flows and the breaker trips, as on TN.': 'No conductor joins the hull to a floating star point. The loop runs only through the insulation.',\n        'No current flows at all, so the fault can be left.': 'A small current still leaks home through the insulation. The fault also stays on the system until someone clears it.' },\n      why: 'The fault reaches the hull, but the star point is not tied to it. The only loop runs through 100 kΩ of insulation, so 254 V drives about 2.5 mA. That trips nothing.' },\n    { show: true, name: 'High impedance', pic: { sys: 'HZ', fault: false }, ctl: 'both', demo: true,\n      text: strip('On High impedance the fault goes on by itself too. Tap Fault on L1 to run it again. The star point goes to earth through a high impedance, say 1,500 Ω. Then 254 ÷ 1,500 gives about 0.17 A. That is far too little to trip. So the supply runs on and alarms. This counts as a form of IT.[^4]'),\n      read: 'With the star point tied to the hull through 1,500 Ω, the fault passes about 0.17 A. Nothing trips, and the alarm lights, as on IT.',\n      still: () => setPic({ sys: 'HZ', fault: true }) },\n    { kind: 'pick', name: 'Why insulate?', before: { sys: 'IT', fault: false }, after: { sys: 'IT', fault: true },\n      task: 'Why would a ship\\'s supply be insulated?', read: 'Why would a ship\\'s supply be insulated?',\n      opts: ['Because an insulated supply cannot give you a shock', 'Because the hull cannot be used as an earth', 'So an earth fault does not take out an essential service at once'],\n      want: 'So an earth fault does not take out an essential service at once',\n      hints: { 'Because an insulated supply cannot give you a shock': 'That is not the reason, and never assume it. Prove a conductor dead as on any job.',\n        'Because the hull cannot be used as an earth': 'The frames are bonded to the hull. Only the star point is left floating.' },\n      why: 'An insulated supply runs on through its first earth fault. So the steering, the pumps and the lights stay on while the fault is found.' },\n    { kind: 'pick', name: 'Which system?', before: { sys: 'TN', fault: false }, after: { sys: 'TT', fault: true }, sets: true,\n      task: 'A supply\\'s first earth fault draws about 2 A, and an RCD trips. What is its star point tied to? The drawing shows TN for now.',\n      read: 'A supply\\'s first earth fault draws about 2 A, and an RCD trips. What is its star point tied to? The drawing shows TN for now.',\n      opts: ['Nothing: it floats, IT', 'Earth, through its own electrode: TT', 'Earth, through a protective conductor: TN'],\n      want: 'Earth, through its own electrode: TT',\n      hints: { 'Nothing: it floats, IT': 'A floating star point gives no deliberate way home, so the current is small and nothing trips.',\n        'Earth, through a protective conductor: TN': 'A metal loop back to the star point gives hundreds of amps, and the breaker trips.' },\n      why: 'A trip means the star point is tied to earth. A few amps, not hundreds, means the loop runs through the ground between two electrodes. That is TT.' },\n    { kind: 'pick', name: 'TN-S', before: { sys: 'TN', fault: false }, after: { sys: 'TN', fault: true },\n      task: 'A board\\'s drawing says TN-S. The S means its protective conductor is separate from the neutral. What happens at its first earth fault to a frame?',\n      read: 'A board\\'s drawing says TN-S. The S means its protective conductor is separate from the neutral. What happens at its first earth fault to a frame?',\n      opts: ['A large current flows and the breaker trips', 'A small current flows and the supply runs on', 'A few amps flow through the ground, and the RCD trips'],\n      want: 'A large current flows and the breaker trips',\n      hints: { 'A small current flows and the supply runs on': 'That is IT. Here the first letter is T, so the star point is tied to earth.',\n        'A few amps flow through the ground, and the RCD trips': 'That is TT. The N says the frames go back to the star point through metal, not the ground.' },\n      why: 'T first: the star point is tied to earth. N second: the frames go back to it through a protective conductor. In TN-S that conductor is separate from the neutral. So the loop is all metal, and the breaker trips.' },\n  ];\n  const FINISH = 'What a supply\\'s star point is tied to decides what an earth fault does.';\n  const PICK = 'Choose an answer first.';\n  // The lesson's own sources, each on a check that restates its quote.\n  const IET_LETTERS = 'https://electrical.theiet.org/media/1698/earthing-your-questions-answered.pdf';\n  const EIG_TN = 'https://www.electrical-installation.org/enwiki/Characteristics_of_TT,_TN_and_IT_systems';\n  const IET_IT = 'https://electrical.theiet.org/media/1469/railway-systems_tm-granger.pdf';\n  const IMAREST = 'https://library.imarest.org/record/2202/files/2229.pdf';\n  const EIG_IT = 'https://www.electrical-installation.org/enwiki/IT_system_-_Fault_protection';\n  const EIG_HZ = 'https://www.electrical-installation.org/enwiki/IT_system_-_Principle';\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n\n  // ---------- the drawing's geometry (viewBox 340 × 300) ----------\n  const S0 = [62, 128], T1 = [29.09, 147], T2 = [62, 90], T3 = [94.91, 147];   // star point and the windings' free ends\n  const Y1 = 40, Y2 = 58, Y3 = 76;                  // the three lines\n  const XD = [290, 274, 258];                        // where L1, L2 and L3 drop into the motor\n  const MC = [274, 140], MR = 22;                    // the motor\n  const FR = { x: 226, y: 104, w: 90, h: 84 };       // its frame\n  const FY = 112, XB = 316, FB = FR.y + FR.h;        // the fault's height, the bond, the frame's bottom\n  const BRK = [114, 121, 135], RC = [160, 167, 181]; // breaker and RCD: box left, blade pivot, contact\n  const XI = [196, 209, 222], YJ = 96;               // insulation: one dashed line from each line, joined\n  const HULL = 262, HY = 268, XPE = 240, YPE = 244;\n  const into = (x) => MC[1] - Math.sqrt(MR * MR - (x - MC[0]) * (x - MC[0]));\n  // The fault current's loops: out of the star point up L1's winding, along L1, through the fault\n  // and the frame, then home by whatever the switch gives. IT goes home through the insulation and\n  // splits back along L2 and L3 to their windings.\n  const OUT = [S0, T1, [10, 147], [10, Y1], [XD[0], Y1], [XD[0], FY], [XB, FY], [XB, FB]];\n  const BACK = {\n    TN: [[XB, FB], [XPE, FB], [XPE, YPE], [62, YPE], S0],\n    TT: [[XB, FB], [XB, HY], [62, HY], S0],\n    HZ: [[XB, FB], [XB, HY], [62, HY], S0],\n    IT: [[XB, FB], [XB, HY], [XI[1], HY], [XI[1], YJ]],\n  };\n  const IT_BRANCH = [\n    [[XI[1], YJ], [XI[1], Y2], [62, Y2], T2, S0],\n    [[XI[1], YJ], [XI[2], YJ], [XI[2], Y3], [104, Y3], [104, 147], T3, S0],\n  ];\n  const loopsOf = (sys) => [OUT.concat(BACK[sys].slice(1))].concat(sys === 'IT' ? IT_BRANCH : []);\n  const dOf = (pts) => 'M' + pts.map((p) => p[0].toFixed(2) + ' ' + p[1].toFixed(2)).join('L');\n  const lenOf = (pts) => pts.slice(1).reduce((s, p, k) => s + Math.hypot(p[0] - pts[k][0], p[1] - pts[k][1]), 0);\n  // A winding: a straight lead, four turns, a straight lead.\n  function coil(a, b) {\n    const L = Math.hypot(b[0] - a[0], b[1] - a[1]), ux = (b[0] - a[0]) / L, uy = (b[1] - a[1]) / L, lead = 7, h = (L - 2 * lead) / 4, r = (h / 2).toFixed(2);\n    let x = a[0] + ux * lead, y = a[1] + uy * lead, d = 'M' + a[0] + ' ' + a[1] + 'L' + x.toFixed(2) + ' ' + y.toFixed(2);\n    for (let k = 0; k < 4; k++) { x += ux * h; y += uy * h; d += 'A' + r + ' ' + r + ' 0 0 1 ' + x.toFixed(2) + ' ' + y.toFixed(2); }\n    return d + 'L' + b[0] + ' ' + b[1];\n  }\n\n  // ---------- state ----------\n  // cur: the picture (sys, fault, el = the TT electrodes); T: seconds into the motion (Infinity = settled);\n  // fx: what the motion brings in (sys: the new earthing fades in as the old one, from, fades out; bolt: the fault strikes).\n  function blank() { return { pick: null, res: null, why: false }; }\n  const pic = (p) => ({ sys: p.sys, fault: !!p.fault, el: (p.el || R_TT).slice() });\n  let S = STEPS.map(() => blank());\n  let cur = pic(STEPS[0].pic), T = Infinity, fx = {};\n  let finished = false, lastStep = -1, lastDone = false, REC = null;\n\n  const svg = document.getElementById('scene'), art = document.getElementById('art');\n  const el = (id) => document.getElementById(id);\n  function put(parent, tag, attrs, text) { const n = K.svg(tag, attrs); if (text != null) n.textContent = text; parent.appendChild(n); return n; }\n  const group = (a) => put(art, 'g', a == null ? {} : { opacity: Math.max(0, Math.min(1, a)).toFixed(3) });\n  const lab = (g, x, y, text, cls, anchor) => put(g, 'text', { x, y, class: 'lab' + (cls ? ' ' + cls : ''), 'text-anchor': anchor || 'start' }, text);\n\n  // ---------- drawing: the picture for state c at t seconds into its motion ----------\n  function scene(c, t, f) {\n    art.textContent = '';\n    const A = (t0, d) => K.arrive(t, t0, d);\n    const oc = outcome(c.sys, c.el), trip = oc === 'breaker' || oc === 'rcd', I = amps(c.sys, c.el);\n    const eA = f.sys ? A(0, 0.6) : 1;                                    // the earthing the switch draws\n    const prev = f.sys && f.from && f.from !== c.sys && eA < 1 ? f.from : null;   // the earthing it leaves, fading out\n    const bA = !c.fault ? 0 : f.bolt ? A(0, 0.5) : 1;                    // the fault itself\n    const lA = c.fault ? A(LOOP) : 0;                                    // the loop lighting up\n    const tA = c.fault ? A(TRIP, 0.5) : 0;                               // the trip, or the alarm\n    const gone = c.fault && trip ? A(TRIP) : 0;\n    const live = lA * (1 - gone), ghost = c.fault && trip ? A(TRIP + 0.3) : 0;\n    const brk = oc === 'breaker' ? tA : 0, rcdOpen = oc === 'rcd' ? tA : 0, lamp = oc === 'alarm' ? tA : 0;\n    const drop = { TN: 'solid', TT: 'electrode', IT: 'none', HZ: 'resistor' }[c.sys];\n    const rec = { drop, pe: c.sys === 'TN', rcd: c.sys === 'TT', bond: true, live, ghost, brk, rcdOpen, lamp, loops: [], texts: [] };\n\n    // The hull, and the frame behind everything on it.\n    const base = group();\n    put(base, 'rect', { class: 'hull', x: 6, y: HULL, width: 328, height: 12, rx: 2 });\n    put(base, 'rect', { class: 'frame', x: FR.x, y: FR.y, width: FR.w, height: FR.h, rx: 6 });\n\n    // The loop's glow sits under the wires; it grows with the current.\n    const w = K.clamp(2 + 1.3 * Math.log10(I / 0.001), 2, 9), speed = 10 + 7 * Math.log10(I / 0.001);\n    const loops = c.fault ? loopsOf(c.sys) : [];\n    rec.loops = loops;\n    const glow = group(live);\n    loops.forEach((pts) => put(glow, 'path', { class: 'glow', d: dOf(pts), 'stroke-width': (w + 5).toFixed(2) }));\n\n    // The supply's windings, the three lines, the breaker's and the RCD's gaps.\n    const wires = group();\n    [T1, T2, T3].forEach((p) => put(wires, 'path', { class: 'wire', d: coil(S0, p) }));\n    const tt = c.sys === 'TT';\n    put(wires, 'path', { class: 'wire', d: 'M' + T1[0] + ' ' + T1[1] + 'L10 147V' + Y1 + 'H' + BRK[1] + 'M' + BRK[2] + ' ' + Y1 + 'H' + RC[1] + 'M' + RC[2] + ' ' + Y1 + 'H' + XD[0] + 'V' + into(XD[0]).toFixed(2) });\n    put(wires, 'path', { class: 'wire', d: 'M62 ' + T2[1] + 'V' + Y2 + 'H' + BRK[1] + 'M' + BRK[2] + ' ' + Y2 + 'H' + RC[1] + 'M' + RC[2] + ' ' + Y2 + 'H' + XD[1] + 'V' + into(XD[1]).toFixed(2) });\n    put(wires, 'path', { class: 'wire', d: 'M' + T3[0] + ' ' + T3[1] + 'H104V' + Y3 + 'H' + BRK[1] + 'M' + BRK[2] + ' ' + Y3 + 'H' + RC[1] + 'M' + RC[2] + ' ' + Y3 + 'H' + XD[2] + 'V' + into(XD[2]).toFixed(2) });\n    // Where no RCD is fitted the lines run straight through its place.\n    const plain = group(tt ? 1 - eA : prev === 'TT' ? eA : 1);\n    [Y1, Y2, Y3].forEach((y) => put(plain, 'path', { class: 'wire', d: 'M' + RC[1] + ' ' + y + 'H' + RC[2] }));\n    put(wires, 'path', { class: 'wire', d: 'M' + XB + ' ' + FB + 'V' + HULL });               // the frame's bond to the hull\n    // The insulation: a thin dashed line from each line to the hull.\n    put(wires, 'path', { class: 'ins', d: 'M' + XI[0] + ' ' + Y1 + 'V' + YJ + 'M' + XI[1] + ' ' + Y2 + 'V' + YJ + 'M' + XI[2] + ' ' + Y3 + 'V' + YJ + 'M' + XI[0] + ' ' + YJ + 'H' + XI[2] + 'M' + XI[1] + ' ' + YJ + 'V104M' + XI[1] + ' 132V' + HULL });\n    put(wires, 'rect', { class: 'insbox', x: XI[1] - 5, y: 104, width: 10, height: 28 });\n    [[XI[0], Y1], [XI[1], Y2], [XI[2], Y3]].forEach((p) => put(wires, 'circle', { class: 'dot', cx: p[0], cy: p[1], r: 2.5 }));\n\n    // What the star point is tied to, and how the frame gets home (fades in when the switch moves).\n    function earthing(g, sys, elv) {\n      if (sys === 'IT') {\n        put(g, 'path', { class: 'wire', d: 'M62 128V176' });\n        put(g, 'circle', { class: 'open', cx: 62, cy: 180, r: 4 });\n        lab(g, 72, 186, 'Joined to nothing');\n        return;\n      }\n      put(g, 'path', { class: 'wire', d: 'M62 128V' + HULL });\n      if (sys === 'TN') {\n        put(g, 'path', { class: 'wire', d: 'M' + XPE + ' ' + FB + 'V' + YPE + 'H62' });\n        put(g, 'circle', { class: 'dot', cx: 62, cy: YPE, r: 3 });\n        lab(g, 150, 218, 'Protective', '', 'middle');\n        lab(g, 150, 234, 'conductor', '', 'middle');\n        return;\n      }\n      put(g, 'rect', { class: 'res', x: 56, y: 196, width: 12, height: 30, rx: 2 });\n      if (sys === 'TT') {\n        lab(g, 74, 208, 'Electrode');\n        lab(g, 74, 224, ohmText(elv[0]));\n        put(g, 'rect', { class: 'res', x: XB - 6, y: 206, width: 12, height: 30, rx: 2 });\n        lab(g, XB - 12, 218, 'Electrode', '', 'end');\n        lab(g, XB - 12, 234, ohmText(elv[1]), '', 'end');\n      } else lab(g, 74, 215, ohmText(R_HZ));\n    }\n    if (prev) earthing(group(1 - eA), prev, f.fromEl || R_TT);\n    earthing(group(eA), c.sys, c.el);\n\n    // The breaker (and on TT the RCD): a box round three blades that swing open when it trips.\n    function device(g, d, open) {\n      put(g, 'rect', { class: 'dev', x: d[0], y: 30, width: 28, height: 56, rx: 4 });\n      const th = open * 35 * Math.PI / 180;\n      [Y1, Y2, Y3].forEach((y) => {\n        put(g, 'line', { class: 'wire', x1: d[1], y1: y, x2: (d[1] + 14 * Math.cos(th)).toFixed(2), y2: (y - 14 * Math.sin(th)).toFixed(2) });\n        put(g, 'circle', { class: 'dot', cx: d[1], cy: y, r: 2.2 });\n        put(g, 'circle', { class: 'dot', cx: d[2], cy: y, r: 2.2 });\n      });\n    }\n    const dev = group();\n    device(dev, BRK, brk);\n    lab(dev, BRK[0] + 14, 12, 'Breaker', '', 'middle');\n    lab(dev, BRK[0] + 14, 26, K.fmt(BREAKER) + ' A', 'm', 'middle');\n    if (tt || prev === 'TT') {\n      const r = group(tt ? eA : 1 - eA);\n      device(r, RC, tt ? rcdOpen : 0);\n      lab(r, RC[0] + 14, 12, 'RCD', '', 'middle');\n      lab(r, RC[0] + 14, 26, K.fmt(Math.round(RCD * 1000)) + ' mA', 'm', 'middle');\n    }\n\n    // The motor in its frame, and the fault from L1 to the frame.\n    const mot = group();\n    put(mot, 'circle', { class: 'motor', cx: MC[0], cy: MC[1], r: MR });\n    put(mot, 'text', { x: MC[0], y: MC[1] + 6, class: 'mm', 'text-anchor': 'middle' }, 'M');\n    lab(mot, 268, 179, 'Motor frame', '', 'middle');\n    const bolt = group(bA);\n    put(bolt, 'path', { class: 'bolt', d: 'M' + XD[0] + ' ' + FY + 'L295 106L301 118L307 106L312 116L' + XB + ' ' + FY });\n    lab(bolt, 299, 96, 'Fault', 'w');\n\n    // The alarm lamp by the source.\n    const lmp = group();\n    put(lmp, 'circle', { class: 'lamp', cx: 38, cy: 70, r: 9 });\n    put(group(lamp * 0.3), 'circle', { class: 'lit', cx: 38, cy: 70, r: 15 });\n    put(group(lamp), 'circle', { class: 'lit', cx: 38, cy: 70, r: 8 });\n    lab(lmp, 38, 96, 'Alarm', '', 'middle');\n\n    // The current running round its loop (dashes on top of the wires), and after a trip, where it ran.\n    const flow = group(live), fT = Math.min(t, END), off = -fT * speed, mainLen = loops.length ? lenOf(loops[0]) : 0;\n    loops.forEach((pts, k) => put(flow, 'path', { class: 'flow', d: dOf(pts), 'stroke-width': Math.max(2, w * 0.5).toFixed(2), 'stroke-dasharray': '5 9', 'stroke-dashoffset': (k ? off + mainLen : off).toFixed(2) }));\n    const gh = group(ghost);\n    loops.forEach((pts) => put(gh, 'path', { class: 'flow', d: dOf(pts), 'stroke-width': 2, 'stroke-dasharray': '3 5' }));\n\n    // Labels, and a key for the loop inside the drawing.\n    const labs = group();\n    lab(labs, 12, 24, K.fmt(VLINE) + ' V supply');\n    lab(labs, 38, 128, 'L1', '', 'middle');\n    lab(labs, 70, 112, 'L2');\n    lab(labs, 82, 128, 'L3');\n    lab(labs, 74, 166, 'Star point');\n    lab(labs, 190, 115, 'Insulation,', 'm', 'end');\n    lab(labs, 190, 131, K.fmt(R_INS / 1000) + ' kΩ in all', 'm', 'end');\n    // The bar is the hull, except on TT, a shore arrangement, where it is the earth; the label cross-fades with the switch.\n    const onEarth = (tt ? eA : 0) + (prev === 'TT' ? 1 - eA : 0);\n    if (onEarth < 1) lab(group(1 - onEarth), 8, 292, 'Hull (earth)');\n    if (onEarth > 0) lab(group(onEarth), 8, 292, 'Earth');\n    const keyA = Math.max(live, ghost);\n    if (keyA > 0) {\n      const key = group(keyA), past = ghost > live;\n      put(key, 'line', past ? { class: 'flow', x1: 112, y1: 288, x2: 136, y2: 288, 'stroke-width': 2, 'stroke-dasharray': '3 5' }\n        : { class: 'flow', x1: 112, y1: 288, x2: 136, y2: 288, 'stroke-width': 5 });\n      lab(key, 142, 292, past ? 'Where the fault current ran' : 'Fault current');\n    }\n    rec.texts = Array.from(art.querySelectorAll('text')).map((n) => n.textContent);\n\n    // The readouts: the current once the loop has lit, the supply once it has tripped or alarmed.\n    rec.amps = c.fault && t >= AMPS_AT ? ampsText(I) : 'None';\n    rec.supply = c.fault && t >= TRIP ? SUPPLY[oc] : 'Running';\n    const desc = { TN: 'The star point is tied to the hull, and a protective conductor joins the motor frame back to it.',\n      TT: 'The star point goes to earth through its own electrode, and the motor frame through a second one.',\n      IT: 'The star point floats, joined to nothing, while the motor frame is bonded to the hull.',\n      HZ: 'The star point goes to the hull through a ' + ohmText(R_HZ) + ' resistor.' }[c.sys];\n    rec.aria = 'A three-phase supply drawn as a star, on ' + NAME[c.sys] + '. ' + desc + (!c.fault || t < 0 ? ' There is no fault.'\n      : ' A fault joins L1 to the motor frame, and ' + (t < TRIP ? 'the fault current runs round its loop.' : oc === 'breaker' ? 'the breaker has tripped.'\n        : oc === 'rcd' ? 'the RCD has tripped.' : 'the current leaks home through the insulation, so the alarm lamp is lit.'));\n    return rec;\n  }\n  function paint() {\n    REC = scene(cur, T, fx);\n    svg.setAttribute('aria-label', REC.aria);\n    ampsOut.set(REC.amps);\n    supplyOut.set(REC.supply);\n  }\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const at = () => stepper.get();\n  const ampsOut = K.readout({ id: 'amps', label: 'Fault current', into: '#outs' });\n  const supplyOut = K.readout({ id: 'supply', label: 'Supply', into: '#outs' });\n\n  // One animation plays the fault's motion; with reduced motion (and while the self-test looks) it opens finished.\n  const anim = K.anim({ button: false, label: 'The fault current', step: (dt) => {\n    if (finished) return false;\n    T += dt;\n    paint();\n    return T < END;\n  } });\n  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });\n  // delay: seconds before the motion starts (a screen's own demonstration waits for its fade-in).\n  function play(f, delay) {\n    fx = f || {};\n    if (REDUCE || testing()) { T = Infinity; anim.pause(); return; }\n    T = -(delay || 0); anim.play();\n  }\n  // A still for the read-through: the picture set and finished.\n  function setPic(p) { cur = pic(p); anim.pause(); T = Infinity; fx = {}; K.refresh(); }\n\n  // The star point switch and the fault, live on the screens that show them.\n  const live = () => !finished && !!STEPS[at()].show && !!STEPS[at()].ctl;\n  const swBtns = ['TN', 'TT', 'IT', 'HZ'].map((sys) => ({ sys, b: K.button({ label: NAME[sys], secondary: true, into: '#sw', press: () => {\n    if (!live() || cur.sys === sys) return;\n    const from = cur.sys, fromEl = cur.el;\n    cur.sys = sys; cur.el = R_TT.slice();\n    play({ sys: true, from, fromEl });\n  } }) }));\n  K.button({ label: 'Fault on L1', into: '#faultrow', press: () => {\n    if (!live() || STEPS[at()].ctl !== 'both') return;\n    cur.fault = true;\n    play({ bolt: true });\n  } });\n\n  // Up to three answers; Check marks the one chosen, and a right one plays what it says.\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;\n    st.pick = d.opts[k]; st.res = null;\n  } }));\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || st.res === 'right') return;\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = st.pick === d.want ? 'right' : 'wrong';\n    if (st.res !== 'right') return;\n    const was = cur;\n    cur = pic(d.after);\n    if (cur.sys !== was.sys || (cur.fault && !was.fault)) play({ sys: cur.sys !== was.sys, from: was.sys, fromEl: was.el, bolt: cur.fault && !was.fault });\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    if (finished || STEPS[at()].show) return;\n    const st = S[at()]; st.why = !st.why;\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true; anim.pause();\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);\n  } });\n\n  function enter(id) {\n    if (REDUCE) return;\n    const box = el(id);\n    box.classList.remove('enter');\n    void box.offsetWidth;\n    box.classList.add('enter');\n  }\n\n  el('finish').textContent = FINISH;\n  K.update((p) => {\n    const i = Math.round(p.step), d = STEPS[i], st = S[i];\n    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished\n    if (i !== lastStep) {\n      lastStep = i; enter('stepbox');\n      anim.pause(); T = Infinity; fx = {};\n      cur = pic(d.show ? d.pic : st.res === 'right' ? d.after : d.before);\n      // A demonstration screen strikes its fault once on opening; Fault on L1 strikes it again.\n      if (d.show && d.demo) { cur.fault = true; play({ bolt: true }, 0.4); }\n    }\n    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }\n    const right = st.res === 'right';\n    el('stepbox').hidden = finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    task.textContent = d.show ? d.text : d.task;\n    paint();\n\n    el('sw').hidden = !d.show || !d.ctl;\n    swBtns.forEach((s) => s.b.el.setAttribute('aria-pressed', cur.sys === s.sys ? 'true' : 'false'));\n    el('faultrow').hidden = !d.show || d.ctl !== 'both';\n\n    const opts = d.show ? [] : d.opts;\n    el('picks').hidden = !opts.length;\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(opts[k]);\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n    el('acts').hidden = !!d.show;\n    checkBtn.el.hidden = right;\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n    const fb = el('fb');\n    fb.hidden = !!d.show || !st.res;\n    fb.className = 'fb' + (right ? ' right' : '');\n    fb.textContent = d.show ? '' : right ? 'That\\'s it.' : st.res === 'wrong' ? (d.hints[st.pick] || 'Not quite.') : st.res === 'empty' ? PICK : '';\n    const why = el('why');\n    why.hidden = !!d.show || !st.why;\n    why.textContent = d.show ? '' : d.why;\n\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !right);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);\n  function drawn(c, t, f) {\n    const keep = [cur, T, fx];\n    cur = pic(c); T = t == null ? Infinity : t; fx = f || {};\n    try { paint(); return REC; } finally { cur = keep[0]; T = keep[1]; fx = keep[2]; paint(); }\n  }\n  const fault = (sys, el) => ({ sys, fault: true, el });\n\n  K.check('Twelve screens: five that show and seven puzzles, alternating to the ninth and ending on three mixed puzzles', () =>\n    STEPS.length === 12 && STEPS.filter((d) => d.show).length === 5 && STEPS.slice(0, 9).every((d, i) => !!d.show === (i % 2 === 0)) && STEPS.slice(9).every((d) => !d.show));\n  K.check('Each winding of the 440 V supply has 440 ÷ 1.732 = 254 V across it', () => K.near(VPH, 254.0416, 1e-3) && Math.round(VPH) === 254);\n  K.check('The fault current is 254 V over the loop: 508 A on TN (0.5 Ω), 2.3 A on TT (10 + 100 = 110 Ω), 2.5 mA on IT (100 kΩ) and 0.17 A through 1,500 Ω, as the readout shows them', () =>\n    drawn(fault('TN')).amps === '508 A' && drawn(fault('TT')).amps === '2.3 A' && drawn(fault('IT')).amps === '2.5 mA' && drawn(fault('HZ')).amps === '0.17 A' &&\n    K.near(amps('TN'), 508.08, 0.01) && K.near(amps('TT'), 2.3095, 1e-3) && K.near(amps('IT') * 1000, 2.5404, 1e-3) && K.near(amps('HZ'), 0.16936, 1e-4));\n  K.check('What happens: the breaker trips on TN, the RCD on TT, and on IT and through 1,500 Ω the supply runs on with the alarm lit', () =>\n    drawn(fault('TN')).supply === 'Tripped by breaker' && drawn(fault('TT')).supply === 'Tripped by RCD' &&\n    drawn(fault('IT')).supply === 'Running, alarm on' && drawn(fault('HZ')).supply === 'Running, alarm on' &&\n    drawn(fault('IT')).lamp === 1 && drawn(fault('TN')).lamp === 0 && drawn(fault('TN')).brk === 1 && drawn(fault('TT')).rcdOpen === 1 && drawn(fault('TT')).brk === 0);\n  K.check('Screen 6: electrodes of 20 Ω and 200 Ω make a 220 Ω loop, so 254 ÷ 220 = 1.15 A, shown as 1.2 A, and the RCD trips', () => {\n    const d = STEPS[5], r = drawn(d.after);\n    return ohms('TT', [20, 200]) === 220 && K.near(amps('TT', [20, 200]), 1.1547, 1e-3) && r.amps === '1.2 A' && r.supply === 'Tripped by RCD' &&\n      r.texts.indexOf('20 Ω') >= 0 && r.texts.indexOf('200 Ω') >= 0;\n  });\n  K.check('The more the loop resists, the less current flows: most on TN, then TT, then High impedance, least on IT', () =>\n    amps('TN') > amps('TT') && amps('TT') > amps('HZ') && amps('HZ') > amps('IT'));\n  K.check('Every lit loop is closed: it leaves the star point up L1\\'s winding and comes back to the star point', () =>\n    ['TN', 'TT', 'IT', 'HZ'].every((sys) => {\n      const ls = drawn(fault(sys)).loops, m = ls[0], end = (p) => p[0] === S0[0] && p[1] === S0[1];\n      if (!(m[0] === S0 && m[1] === T1)) return false;\n      if (sys !== 'IT') return ls.length === 1 && end(m[m.length - 1]);\n      const j = m[m.length - 1];\n      return ls.length === 3 && ls.slice(1).every((b) => b[0][0] === j[0] && b[0][1] === j[1] && end(b[b.length - 1]));\n    }));\n  K.check('The trip or the alarm shows within 3 s of the fault going on', () =>\n    TRIP + 0.6 <= 3 && drawn(fault('TN'), 2.6, { bolt: true }).brk === 1 && drawn(fault('TT'), 2.6, { bolt: true }).rcdOpen === 1 &&\n    drawn(fault('IT'), 2.6, { bolt: true }).lamp === 1 && drawn(fault('TN'), 1.0, { bolt: true }).brk === 0);\n  K.check('Before an answer, no puzzle\\'s picture shows its result: no fault is on, no loop is lit, and the switch is not yet where a right answer sets it', () =>\n    DO.every((i) => {\n      const d = STEPS[i], r = drawn(d.before);\n      return !d.before.fault && r.live === 0 && r.loops.length === 0 && r.amps === 'None' && (!d.sets || d.before.sys !== d.after.sys);\n    }));\n  K.check('T stands for earth, from the French word terre, and I for isolated: the TN and TT drawings tie the star point to earth, and the IT drawing does not', () =>\n    drawn({ sys: 'TN' }).drop === 'solid' && drawn({ sys: 'TT' }).drop === 'electrode' && drawn({ sys: 'IT' }).drop === 'none', { source: IET_LETTERS });\n  K.check('In a TN system the first fault is interrupted by overcurrent protection, a circuit-breaker: here the breaker trips', () =>\n    outcome('TN') === 'breaker', { source: EIG_TN });\n  K.check('In an IT system the source is isolated from earth while the exposed conductive parts are connected to earth: the IT drawing joins the star point to nothing and still bonds the frame to the hull', () => {\n    const r = drawn({ sys: 'IT' });\n    return r.drop === 'none' && r.bond === true && r.pe === false;\n  }, { source: IET_IT });\n  K.check('In an IT system the first fault to earth causes no disconnection, and the current that flows is measured in mA', () =>\n    outcome('IT') === 'alarm' && /mA$/.test(ampsText(amps('IT'))), { source: EIG_IT });\n  K.check('Unearthed distribution prevents the immediate loss of an essential service from an earth fault: on IT the motor runs on', () =>\n    drawn(fault('IT')).supply === 'Running, alarm on', { source: IMAREST });\n\n  K.check('An IT supply\\'s star point may instead go to earth through a high impedance, commonly 1500 Ω or more: the High impedance drawing ties it through 1,500 Ω, and like IT the supply runs on with the alarm lit', () =>\n    R_HZ >= 1500 && drawn({ sys: 'HZ' }).drop === 'resistor' && outcome('HZ') === 'alarm', { source: EIG_HZ });\n\n  K.ready();\n</script>",
+  "title": "The star point switch",
+  "brief": "The one thing you should see is the fault loop close through an earthed star point and trip, or find no way home to a floating one and run on, when you tap a fault onto the motor frame.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "Twelve screens: five that show and seven puzzles, alternating to the ninth and ending on three mixed puzzles",
+     "ok": true
+    },
+    {
+     "label": "Each winding of the 440 V supply has 440 ÷ 1.732 = 254 V across it",
+     "ok": true
+    },
+    {
+     "label": "The fault current is 254 V over the loop: 508 A on TN (0.5 Ω), 2.3 A on TT (10 + 100 = 110 Ω), 2.5 mA on IT (100 kΩ) and 0.17 A through 1,500 Ω, as the readout shows them",
+     "ok": true
+    },
+    {
+     "label": "What happens: the breaker trips on TN, the RCD on TT, and on IT and through 1,500 Ω the supply runs on with the alarm lit",
+     "ok": true
+    },
+    {
+     "label": "Screen 6: electrodes of 20 Ω and 200 Ω make a 220 Ω loop, so 254 ÷ 220 = 1.15 A, shown as 1.2 A, and the RCD trips",
+     "ok": true
+    },
+    {
+     "label": "The more the loop resists, the less current flows: most on TN, then TT, then High impedance, least on IT",
+     "ok": true
+    },
+    {
+     "label": "Every lit loop is closed: it leaves the star point up L1's winding and comes back to the star point",
+     "ok": true
+    },
+    {
+     "label": "The trip or the alarm shows within 3 s of the fault going on",
+     "ok": true
+    },
+    {
+     "label": "Before an answer, no puzzle's picture shows its result: no fault is on, no loop is lit, and the switch is not yet where a right answer sets it",
+     "ok": true
+    },
+    {
+     "label": "T stands for earth, from the French word terre, and I for isolated: the TN and TT drawings tie the star point to earth, and the IT drawing does not",
+     "ok": true,
+     "source": "https://electrical.theiet.org/media/1698/earthing-your-questions-answered.pdf"
+    },
+    {
+     "label": "In a TN system the first fault is interrupted by overcurrent protection, a circuit-breaker: here the breaker trips",
+     "ok": true,
+     "source": "https://www.electrical-installation.org/enwiki/Characteristics_of_TT,_TN_and_IT_systems"
+    },
+    {
+     "label": "In an IT system the source is isolated from earth while the exposed conductive parts are connected to earth: the IT drawing joins the star point to nothing and still bonds the frame to the hull",
+     "ok": true,
+     "source": "https://electrical.theiet.org/media/1469/railway-systems_tm-granger.pdf"
+    },
+    {
+     "label": "In an IT system the first fault to earth causes no disconnection, and the current that flows is measured in mA",
+     "ok": true,
+     "source": "https://www.electrical-installation.org/enwiki/IT_system_-_Fault_protection"
+    },
+    {
+     "label": "Unearthed distribution prevents the immediate loss of an essential service from an earth fault: on IT the motor runs on",
+     "ok": true,
+     "source": "https://library.imarest.org/record/2202/files/2229.pdf"
+    },
+    {
+     "label": "An IT supply's star point may instead go to earth through a high impedance, commonly 1500 Ω or more: the High impedance drawing ties it through 1,500 Ω, and like IT the supply runs on with the alarm lit",
+     "ok": true,
+     "source": "https://www.electrical-installation.org/enwiki/IT_system_-_Principle"
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step"
+   ],
+   "readouts": [
+    "amps",
+    "supply"
+   ],
+   "outputs": [],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Screen",
+     "min": 0,
+     "max": 11,
+     "step": 1,
+     "steps": [
+      "Two letters",
+      "Reading IT",
+      "TN: the loop closes",
+      "Why TN trips",
+      "TT: two electrodes",
+      "A TT fault",
+      "IT: no way home",
+      "A floating star point",
+      "High impedance",
+      "Why insulate?",
+      "Which system?",
+      "TN-S"
+     ],
+     "value": 0
+    }
+   ],
+   "actions": [
+    "TN",
+    "TT",
+    "IT",
+    "High impedance",
+    "Fault on L1",
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Check",
+    "Why?",
+    "Back",
+    "Continue",
+    "Start again",
+    "The fault current"
+   ],
+   "answers": [],
+   "written": [],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 2
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-27T17:07:55.171Z",
+  "applied": [
+   {
+    "path": "explain.text",
+    "problem": "\"Tie it to earth… a large current flows\" and the bold \"no way home\" overclaim: TT passes a few amps, a high-impedance-earthed point trips nothing, and a floating system leaks home through capacitance (i3); the [^4] quote is about two-wire systems."
+   },
+   {
+    "path": "practice.text",
+    "problem": "Step 2 offers a high-impedance star point but step 3 gives it no letter (it counts as I, as the explanation says); the loop-division step and the worked IT figure read as real-world results though a real system also leaks through cable capacitance (i3)."
+   },
+   {
+    "path": "analogy.text",
+    "problem": "\"blows the fuse\" is an unsourced detail (shaver supply units are often protected by a thermal cut-out), and \"finds no way home\" is absolute though the breaks admit a small leak to earth."
+   },
+   {
+    "path": "interactive.whatAmILookingAt",
+    "problem": "Screen 11's \"Amps mean the star point is tied to earth\" and \"tiny, not amps\" become false after i3: a large insulated system's first fault can pass amps through capacitance; Screen 9 drops the [^4] quote's \"two-wire\" qualifier."
+   }
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}

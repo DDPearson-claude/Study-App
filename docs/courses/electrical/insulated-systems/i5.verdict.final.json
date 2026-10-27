@@ -1,0 +1,259 @@
+{
+  "ok": true,
+  "reachChecked": true,
+  "problems": [],
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "Twelve screens: five that show and seven puzzles, alternating to the ninth and ending on three mixed puzzles",
+        "ok": true
+      },
+      {
+        "label": "Each line sits 440 ÷ 1.732 = 254 V from the star point; six feeders of 3 MΩ make 500 kΩ, and of 120 kΩ make 20 kΩ",
+        "ok": true
+      },
+      {
+        "label": "Dry, the dial reads 500, 250, 115, 28.3, 0.998 and 0 kΩ with no fault and with a 500, 150, 30 or 1 kΩ or a solid fault",
+        "ok": true
+      },
+      {
+        "label": "Lamps cannot see an equal fall on every phase: with Damp everywhere and no fault, all three lamps read 254 V while the dial reads 20 kΩ, below all three alarm levels",
+        "ok": true
+      },
+      {
+        "label": "A solid fault puts out its own phase's lamp and lifts the other two to 440 V, on every phase, damp or dry",
+        "ok": true
+      },
+      {
+        "label": "At 1 µF a phase, a 30 kΩ fault on L1 gives lamps of 254, 248 and 261 V; a 1 kΩ fault gives 190, 256 and 420 V",
+        "ok": true
+      },
+      {
+        "label": "Three phases of 1 µF at 60 Hz look like 1 ÷ (2π × 60 × 3 µF) = 884 Ω to the hull, far less than a 30 kΩ fault",
+        "ok": true
+      },
+      {
+        "label": "At DC the capacitance drops out: the settled reading is 28.3 kΩ for a 30 kΩ fault at every capacitance from 1 to 10 µF",
+        "ok": true
+      },
+      {
+        "label": "Ships' mains alarm should the insulation resistance fall below 50 ohms per volt of the operating voltage: 22 kΩ on 440 V, so 1 kΩ alarms and 30 kΩ does not",
+        "ok": true,
+        "source": "http://www.iqytechnicalcollege.com/gl_i-1-3_e.pdf"
+      },
+      {
+        "label": "The response value should be set to approx. 100 Ω/V: 44 kΩ on 440 V",
+        "ok": true,
+        "source": "https://fournais-bender.dk/storage/TechnAspects-IT-systems.pdf"
+      },
+      {
+        "label": "A typical critical insulation value is 500 ohms/volt: 220 kΩ on 440 V",
+        "ok": true,
+        "source": "https://info.bender-group.com/hubfs/Documents/US/White%20Papers/Insulation%20monitoring%20on%20common%20grounding%20methods.pdf?hsLang=en-us"
+      },
+      {
+        "label": "A 28.3 kΩ reading alarms at 100 and 500 Ω/V but not at 50 Ω/V; a 115 kΩ reading alarms only at 500 Ω/V",
+        "ok": true
+      },
+      {
+        "label": "Paths in parallel read below the lowest one: every fault, damp or dry, reads below both the fault and the feeders together",
+        "ok": true
+      },
+      {
+        "label": "Worked numbers: 500 + 150 = 650 kΩ; 50 ÷ 0.1 = 500; feeders of 2,000, 2,000, 1,000 and 40 kΩ read 37 kΩ together",
+        "ok": true
+      },
+      {
+        "label": "The dial settles in five time constants, in proportion to the capacitance: 5 µF a phase takes five times as long as 1 µF",
+        "ok": true
+      },
+      {
+        "label": "Switching on Damp everywhere: the lamps stay equal at 254 V all the way, while the dial falls below its alarm line within 3 s",
+        "ok": true
+      },
+      {
+        "label": "Screen 5 settles the dial once at 1 µF, then five times as slowly at 5 µF, and everything settles within 5 s",
+        "ok": true
+      },
+      {
+        "label": "A move Dan makes changes the picture in 0.3 s, and at 1 µF the dial settles within 0.6 s",
+        "ok": true
+      },
+      {
+        "label": "Before an answer, no puzzle's picture shows its result",
+        "ok": true
+      },
+      {
+        "label": "The right answer sits first, second or third across the puzzles, never in one place throughout",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "ph",
+      "damp",
+      "fault",
+      "alarm",
+      "C"
+    ],
+    "readouts": [
+      "l1",
+      "l2",
+      "l3",
+      "mon",
+      "alv"
+    ],
+    "outputs": [],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Screen",
+        "min": 0,
+        "max": 11,
+        "step": 1,
+        "steps": [
+          "Two watchers",
+          "A solid fault on L2",
+          "Damp everywhere",
+          "After a wash-down",
+          "Why DC?",
+          "A VLF test",
+          "Every leak in parallel",
+          "A 150 kΩ fault",
+          "Where to alarm",
+          "Which alarms sound?",
+          "Two monitors",
+          "Drives with filters"
+        ],
+        "value": 0
+      },
+      {
+        "id": "ph",
+        "kind": "choice",
+        "label": "Fault on phase",
+        "options": [
+          "L1",
+          "L2",
+          "L3"
+        ],
+        "labels": [
+          "L1",
+          "L2",
+          "L3"
+        ],
+        "value": "L1",
+        "index": 0,
+        "shown": false
+      },
+      {
+        "id": "damp",
+        "kind": "toggle",
+        "label": "Damp everywhere",
+        "options": [
+          false,
+          true
+        ],
+        "value": false,
+        "shown": false
+      },
+      {
+        "id": "fault",
+        "kind": "choice",
+        "label": "Fault on feeder 3",
+        "options": [
+          "Open",
+          "500 kΩ",
+          "150 kΩ",
+          "30 kΩ",
+          "1 kΩ",
+          "Solid"
+        ],
+        "labels": [
+          "Open",
+          "500 kΩ",
+          "150 kΩ",
+          "30 kΩ",
+          "1 kΩ",
+          "Solid"
+        ],
+        "value": "Open",
+        "index": 0,
+        "shown": false
+      },
+      {
+        "id": "alarm",
+        "kind": "choice",
+        "label": "Alarm level",
+        "options": [
+          50,
+          100,
+          500
+        ],
+        "labels": [
+          "50 Ω/V",
+          "100 Ω/V",
+          "500 Ω/V"
+        ],
+        "value": 100,
+        "index": 1,
+        "shown": false
+      },
+      {
+        "id": "C",
+        "kind": "control",
+        "label": "Capacitance a phase",
+        "min": 1,
+        "max": 10,
+        "step": 1,
+        "log": false,
+        "value": 1,
+        "shown": false,
+        "snap": [
+          1,
+          5,
+          10
+        ]
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Back",
+      "Continue",
+      "Start again",
+      "The monitor"
+    ],
+    "answers": [],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ],
+    "foreign": [],
+    "unreachable": []
+  }
+}

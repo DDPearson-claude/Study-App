@@ -1,0 +1,448 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Insulated systems and earth faults
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i5 "Watching the insulation live" — An insulation monitor injects a small DC or slow signal to read the system's total resistance to earth; guidance disagrees on where to alarm. [quantity]
+Later ideas in the course (every claim must stay true after Dan has learned each of them):
+- i6 Insulated DC: reading the two poles — On an insulated DC board the two pole-to-earth voltages share the bus voltage, and the pole with the lower insulation resistance reads lower.
+- i7 Finding the fault — An earth fault is found live by opening circuits or injecting a slow pulse and clamping each feeder, then the circuit is tested dead.
+- i8 Arcing faults, drives and safe working — Experts disagree whether arcing faults can ratchet an insulated supply's voltage up, and drive filters and touching a floating supply bring their own dangers.
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] IT system - Practical aspects - Electrical Installation Guide — https://www.electrical-installation.org/enwiki/IT_system_-_Practical_aspects
+    "A generator of very low frequency a.c. current, or of d.c. current, (to reduce the effects of cable capacitance to negligible levels) applies a voltage between the neutral point of the supply transformer and earth."
+[R2] Electrical Safety Solutions for Harbours and Vessels — https://www.benderinc.com/fileadmin/content/BenderGroup/Documents/Article/en/Harbours_and_Vessels_6.12.20_compressed.pdf
+    "the classification societies require for each isolated system (unearthed IT system) an insulation monitoring device (IMD) for continuous monitoring and alarming in the event of abnormally low levels."
+[R3] Technical aspects IT systems — https://fournais-bender.dk/storage/TechnAspects-IT-systems.pdf
+    "The response value of the insulation monitoring device should be set to approx. 100 Ω/V."
+[R4] White Paper — https://info.bender-group.com/hubfs/Documents/US/White%20Papers/Insulation%20monitoring%20on%20common%20grounding%20methods.pdf?hsLang=en-us
+    "A typical critical insulation value is 500 ohms/volt."
+[R5] The IT earthing system (unearthed neutral) in LV — https://download.se.com/files?amp&p_Doc_Ref=ECT178
+    "it is thus reasonable, without taking risks, to set the lower alarm threshold at a value of between 500 Ω and 1,000 Ω"
+[R6] cdn.standards.iteh.ai — https://cdn.standards.iteh.ai/samples/22593/faab23b5c332418984d5b3c627cbd1b0/IEC-60364-4-41-2005-AMD1-2017.pdf
+    "It is recommended that a first fault be eliminated with the shortest practicable delay."
+[R7] (I-1-3) Electrical Installations — http://www.iqytechnicalcollege.com/gl_i-1-3_e.pdf
+    "Devices for insulation monitoring of ships mains shall continuously monitor the insulation resistance of the network, and shall release an alarm should the insulation resistance of the system fall below 50 ohms per volt of the operating voltage."
+[R8] Ground-fault Monitoring — https://www.benderinc.com/know-how/technology/ungrounded-system/ground-fault-monitoring
+    "In the past, passive methods such as the “three lightbulb” method had been used, but these techniques cannot detect symmetrical failures"
+[R9] Technical aspects IT systems — https://fournais-bender.dk/storage/TechnAspects-IT-systems.pdf
+    "This total resistance is calculated by adding together the resistive leakage of all outgoing lines connected in parallel to earth."
+[R10] The IT earthing system (unearthed neutral) in LV — https://download.se.com/files?amp&p_Doc_Ref=ECT178
+    "These devices used 3 lamps connected between the phases and the earth (see fig. 9 ). On a sound network, the three lamps form a balanced three-phase load, all lit and with the same brilliance."
+[R11] The IT earthing system (unearthed neutral) in LV — https://download.se.com/files?amp&p_Doc_Ref=ECT178
+    "When an insulation fault occurs, one of the three lamps is short-circuited by the fault impedance."
+[R12] Insulation monitoring device — https://www.benderinc.com/fileadmin/content/Products/m/e/iso415R_D00539_M_XXEN.pdf
+    "Do not connect insulation monitoring devices in parallel"
+[R13] Electrical Safety Solutions for Harbours and Vessels — https://www.benderinc.com/fileadmin/content/BenderGroup/Documents/Article/en/Harbours_and_Vessels_6.12.20_compressed.pdf
+    "The larger the system in terms of leakage capacitance, the longer the measuring time."
+[R14] IT system - Practical aspects - Electrical Installation Guide — https://www.electrical-installation.org/enwiki/IT_system_-_Practical_aspects
+    "humidity can reduce the general level of insulation resistance."
+[R15] IT system - Practical aspects - Electrical Installation Guide — https://www.electrical-installation.org/enwiki/IT_system_-_Practical_aspects
+    "Certain national standards recommend a first setting at 20% below the insulation level of the new installation."
+[R16] IT system - Fault protection - Electrical Installation Guide — https://www.electrical-installation.org/enwiki/IT_system_-_Fault_protection
+    "The voltages of the healthy phases have (because of the fault) increased to √3 times the normal phase voltage"
+[R17] IT system - Fault protection - Electrical Installation Guide — https://www.electrical-installation.org/enwiki/IT_system_-_Fault_protection
+    "In IT system, the first fault to earth should not cause any disconnection. The earth-fault current which flows under a first-fault condition is measured in mA."
+[R18] Low-voltage high resistance grounding systems basics — https://www.eaton.com/content/dam/eaton/products/low-voltage-power-distribution-controls-systems/hrg/files/lv-hrg-systems-basics-ap019004en.pdf
+    "The equipment rating has to be rated at 173% of their line-to-neutral voltages."
+[R19] Characteristics of different power systems neutral grounding techniques: Fact and fiction — https://www.eaton.com/content/dam/eaton/products/medium-voltage-power-distribution-control-systems/vacclad-w-pages/characteristics-power%20systems-neutral-grounding-techniques-fact-fiction-ap083005en.pdf
+    "although called ungrounded, this type of system is in reality coupled to ground through the distributed capacitance of its phase windings and conductors."
+[R20] Characteristics of different power systems neutral grounding techniques: Fact and fiction — https://www.eaton.com/content/dam/eaton/products/medium-voltage-power-distribution-control-systems/vacclad-w-pages/characteristics-power%20systems-neutral-grounding-techniques-fact-fiction-ap083005en.pdf
+    "there is no direct ground path back to the neutral point of the source in Figure 3b , the current must return through the distributed capacitance (insulation system) of the two unfaulted phases. As indicated, only 1.04 A will flow."
+[R21] Transient overvoltages on ungrounded systems from intermittent ground faults — https://www.eaton.com/content/dam/eaton/markets/healthcare/knowledge-center/white-paper/transient-overvoltages-on-ungrounded-systems-from-intermittent-ground-faults.pdf
+    "A capacitance of approximately 10µF on a 277 V system, then, will result in approximately 1 ampere of continuous (charging) current through that capacitance."
+[R22] Technical aspects IT systems — https://fournais-bender.dk/storage/TechnAspects-IT-systems.pdf
+    "The limits of an IT system are largely determined by its expansion. The larger the system, the smaller the impedance between active conductors and earth."
+[R23] IT system - Fault protection - Electrical Installation Guide — https://www.electrical-installation.org/enwiki/IT_system_-_Fault_protection
+    "The second fault results in a short-circuit between active conductors (phases or neutral) through the earth and/or through PE bonding conductors (unless occurring on the same conductor as the first fault)."
+[R24] IT system - Fault protection - Electrical Installation Guide — https://www.electrical-installation.org/enwiki/IT_system_-_Fault_protection
+    "it is conventional to double the loop impedance of a circuit"
+[R25] Wiring Matters - your insight into BS 7671 — https://electrical.theiet.org/media/1469/railway-systems_tm-granger.pdf
+    "should a second fault occur on the opposite phase to the first fault there is potential for significant current to flow and, consequently, BS 7671 has requirements for protection against electric shock similar to TN systems; these conditions are covered in Regulation 411.6.4 of BS 7671."
+[R26] Wiring Matters - your insight into BS 7671 — https://electrical.theiet.org/media/1469/railway-systems_tm-granger.pdf
+    "The third type of earthing arrangement, and the particular focus of this article, is the 'IT' type, in which the source transformer is isolated from earth, whilst all exposed conductive parts of the installation are connected to earth electrodes."
+[R27] library.imarest.org — https://library.imarest.org/record/2202/files/2229.pdf
+    "two-wire unearthed distribution systems were introduced to prevent the immediate loss of an essential service resulting from an earth fault."
+Notes (claims, and the sources that support them):
+- An insulation monitor injects a very low frequency a.c. or a d.c. current, applying a voltage between the supply transformer's neutral point and earth to read the installation's insulation resistance to earth. [R1]
+- Bender says classification societies require an insulation monitoring device on each isolated system, to monitor continuously and alarm at abnormally low levels. [R2]
+- Guidance disagrees on the alarm level: Bender's booklet sets about 100 ohms per volt, its white paper calls 500 ohms per volt typical, and Schneider suggests 500 to 1,000 ohms. [R3][R4][R5]  [CONTESTED: Bender's booklet says set the alarm at about 100 ohms per volt, a Bender white paper calls 500 ohms per volt a typical critical value, and Schneider's Cahier 178 suggests an absolute 500 to 1,000 ohms.]
+- The IEC 60364-4-41 text recommends that a first fault be eliminated with the shortest practicable delay. [R6]
+- Germanischer Lloyd rules: an insulation monitor on ships mains alarms below 50 ohms per volt of the operating voltage. [R7]
+- Bender: passive methods such as the three-lightbulb method cannot detect symmetrical failures. [R8]
+- An insulation monitor reads the total resistance, adding the resistive leakage of all outgoing lines in parallel to earth. [R9]
+- Earth lamps: three lamps between the phases and earth form a balanced load on a sound network, all lit with the same brilliance. [R10]
+- At an insulation fault, one of the three earth lamps is short-circuited by the fault impedance. [R11]
+- Insulation monitoring devices are not to be connected in parallel: one per connected system. [R12]
+- The larger the system in terms of leakage capacitance, the longer an insulation monitor takes to measure. [R13]
+- Humidity can lower the general level of insulation resistance without a single fault. [R14]
+- Some national standards recommend a first alarm setting 20% below the insulation level of the new installation. [R15]
+- On an IT system with a first earth fault, the healthy phases rise to root three times the normal phase voltage. [R16]  (from an idea this one builds on)
+- In an IT system the first earth fault passes only milliamps and causes no disconnection. [R17]  (from an idea this one builds on)
+- Equipment on an insulated system is rated at 173% of the phase voltage, the line voltage, so its insulation can hold a first earth fault. [R18]  (from an idea this one builds on)
+- A system called ungrounded is in reality coupled to ground through the distributed capacitance of its phase windings and conductors. [R19]  (from an idea this one builds on)
+- With no direct path back to the source's neutral, Eaton's 480 V example returns the first-fault current through the distributed capacitance of the two unfaulted phases, and only 1.04 A flows. [R20]  (from an idea this one builds on)
+- Eaton gives about 1 A of continuous charging current for roughly 10 microfarads on a 277 V system. [R21]  (from an idea this one builds on)
+- In an IT system the larger the system, the smaller the impedance between the active conductors and earth. [R22]  (from an idea this one builds on)
+- A second earth fault on a different live conductor is a short circuit between active conductors through earth and the protective bonding conductors. [R23]  (from an idea this one builds on)
+- The Electrical Installation Guide says it is conventional to double the loop impedance of a circuit when working out a second fault. [R24]  (from an idea this one builds on)
+- The IEC 60364-4-41 text recommends that a first fault be eliminated with the shortest practicable delay. [R6]  (from an idea this one builds on)
+- BS 7671 sets requirements for a second fault on an IT system, similar to TN systems, in Regulation 411.6.4. [R25]  (from an idea this one builds on)
+- In an IT system the supply is isolated from earth, and the first earth fault should not cause any disconnection. [R26][R17]  (whole topic)
+- Marine insulated systems exist to prevent the immediate loss of an essential service from an earth fault. [R27]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i5",
+ "title": "Watching the insulation live",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the monitor's dial falling below its alarm line while the three earth lamps stay equal, when you switch on Damp everywhere and every phase's insulation falls equally.",
+  "title": "Lamps and the monitor",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Screen",
+    "min": 0,
+    "max": 11,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [],
+  "whatAmILookingAt": "Twelve small screens on one picture, with Back and Continue. Five show an idea and seven ask you to try it. No marks and no timers.\n\nThe picture. A 440 V insulated switchboard sits at the top with three bars, L1, L2 and L3. Six feeders leave it, numbered 1 to 6. Under them runs a thick bar, the hull, which is earth. On the left, three earth lamps each join one bar to the hull. Each lamp's brightness follows its phase's voltage to earth. On the right, an insulation monitor joins the system to the hull. A thin arrow shows its small DC current going out into the system, through every leak to the hull, and back to the monitor. Its dial reads in kilohms, on a scale that squeezes the high values together, with a red alarm line across it. A capacitor symbol from the bars to the hull stands for the cables' capacitance.\n\nThe controls, under the picture, in rows that wrap on a phone: a phase picker of three buttons, L1, L2 and L3; a picker, Fault on feeder 3, with Open, 500 kΩ, 150 kΩ, 30 kΩ, 1 kΩ and Solid; a switch, Damp everywhere; a picker, Alarm level, with 50 Ω/V, 100 Ω/V and 500 Ω/V; and a slider, Capacitance a phase, from 1 to 10 µF in steps of 1 µF.\n\nThe readouts, in tiles that wrap onto more rows on a phone: L1 lamp, L2 lamp and L3 lamp, in volts; Monitor reads, in kilohms; and Alarm level, in kilohms.\n\nThe rule it computes. Say the supply is 440 V between lines at 60 Hz, so each line is 440 ÷ 1.732 = 254 V from the star point. Each feeder's insulation to the hull is 3 MΩ, an example value, or 120 kΩ with Damp everywhere on. These leaks are the same on all three phases. The six feeders are in parallel, so together they make R_sym = 3,000 ÷ 6 = 500 kΩ, or 120 ÷ 6 = 20 kΩ when damp. The fault, R_F, joins the chosen phase of feeder 3 to the hull. The monitor's DC sees every resistive path in parallel and, once the capacitance has charged, none through it. So Monitor reads = 1 ÷ (1 ÷ R_sym + 1 ÷ R_F). With the fault open it reads R_sym, and with it solid it reads 0. Alarm level = the chosen ohms per volt × 440 V. When Monitor reads falls below it, the alarm line and the monitor's lamp turn red.\n\nThe lamps follow the shifting triangle's rule, with the leaks added. The hull sits a distance E from the star point, towards the faulted phase: E = 254 ÷ |1 + R_F ÷ R_sym + j × 3 × 2π × 60 × C × R_F|, where C is the capacitance a phase. Each lamp's voltage is the distance from the hull to its phase's tip. With no fault, damp or dry, E is 0 and each lamp reads 254 V. With a solid fault, E is 254 V. The faulted phase's lamp reads 0 V and goes out, and the other two read 440 V and glow brighter. In between, the capacitance holds the hull near the star point. At 60 Hz, three phases of 1 µF each look like 1 ÷ (2π × 60 × 3 µF) = 884 Ω to the hull, far less than a 30 kΩ fault.\n\nThe dial's settling. When a setting changes, the dial creeps to its new reading, because the monitor's DC must first charge the capacitance. The creep is a sketch, drawn with a time constant in proportion to the capacitance and five time constants to settle. So 5 µF a phase settles five times as slowly as 1 µF. Its seconds are not a real monitor's.\n\nAt the opening setting there is no fault, Damp everywhere is off, the alarm level is 100 Ω/V and the capacitance is 1 µF a phase. The lamps read 254 V each, the monitor reads 500 kΩ and the alarm level is 44 kΩ. The three alarm levels on 440 V are 50 × 440 = 22 kΩ, 100 × 440 = 44 kΩ and 500 × 440 = 220 kΩ. Damp everywhere with no fault reads 20 kΩ, below all three, with the lamps still at 254 V. Dry, a fault of 500 kΩ reads 250 kΩ; 150 kΩ reads 115 kΩ; 30 kΩ reads 28.3 kΩ; 1 kΩ reads 0.998 kΩ; solid reads 0. At 1 µF a phase, a 30 kΩ fault on L1 leaves its lamp at about 254 V, and the others at about 248 V and 261 V. A 1 kΩ fault on L1 gives about 190, 256 and 420 V.\n\nScreen 1, show. No fault, dry. The words: \"A first fault trips nothing, so no breaker tells you it is there. Yet it leaves the healthy phases one failure from a short through the hull. So ship rules require every insulated system to watch its insulation and alarm when it runs low.[^1] This board has two watchers. Three earth lamps each join one phase to the hull. Healthy, each sees 254 V, so all three glow the same. Beside them, an insulation monitor's dial reads 500 kΩ.\" Still: no fault, dry.\n\nScreen 2, try it. \"A solid fault joins L2 to the hull. What voltage does L1's lamp now see?\" Three choices, in this order: \"440 V, so it glows brighter\"; \"254 V, so it looks the same\"; \"0 V, so it goes out\". Right, the first. Hint for the second: \"The hull has moved to L2. L1 is now a whole line voltage from it.\" Hint for the third: \"Only the lamp across the fault goes out, and that is L2's.\" Why: \"Each lamp shows its phase's voltage to earth. The hull now sits at L2, as in the shifting triangle. So L1 and L3 read the line voltage, 440 V, and glow brighter. L2's lamp is short-circuited by the fault and goes out.\" A right Check drops a solid fault on L2. Read: \"A solid fault joins L2 to the hull. What voltage does L1's lamp now see?\"\n\nScreen 3, show. Damp everywhere switched on, no fault. The words: \"Now switch on Damp everywhere. Every feeder's insulation falls to 120 kΩ, equally on all three phases. Three equal leaks balance, like a balanced star load, so the hull stays at the star point. Each lamp still sees 254 V, and all three stay equal. But the monitor's dial falls from 500 kΩ to 20 kΩ. Lamps only show an unbalance between the phases. A fall that is the same on every phase is invisible to them.[^2]\" Read: \"With every feeder's insulation down to 120 kΩ on all three phases, the lamps stay equal at 254 V while the monitor's dial falls from 500 kΩ to 20 kΩ.\" Still: Damp everywhere on, no fault.\n\nScreen 4, try it. \"After a wash-down, all three earth lamps glow equally. Is the insulation healthy?\" Three choices, in this order: \"Not necessarily, as an equal leak on every phase leaves them equal\"; \"Yes, as any fault would dim one lamp\"; \"Yes, as long as no lamp has gone out\". Right, the first. Hint for the second: \"A leak on one phase dims one lamp. An equal leak on all three dims none.\" Hint for the third: \"The lamps compare the phases. They cannot see all three falling together.\" Why: \"Equal leaks on all three phases balance. The hull stays at the star point, and each lamp keeps 254 V. Only the monitor's reading shows the fall.\" A right Check switches on Damp everywhere. Read: \"After a wash-down, all three earth lamps glow equally. Is the insulation healthy?\"\n\nScreen 5, show. Dry, no fault, the Capacitance a phase slider moving from 1 to 5 µF while the dial settles. The words: \"The monitor is like your insulation tester, left on the live board. It pushes a small DC voltage between the system and the hull, and measures the current back.[^3] Why DC? The cables' capacitance passes AC. At 60 Hz, three phases of 1 µF look like 884 Ω to the hull. That would hide a 30 kΩ fault. At DC the capacitance charges, then passes nothing. Charging takes time, so the more capacitance, the slower the dial settles.\" Read: \"The monitor pushes a small DC voltage between the system and the hull. The capacitance must charge first, so at 5 µF a phase the dial settles five times as slowly as at 1 µF.\" Still: capacitance 5 µF a phase, dial settled at 500 kΩ.\n\nScreen 6, try it. \"A VLF test set runs a cable at 0.1 Hz instead of 50 Hz. How does the cable's charging current compare?\" Three choices, in this order: \"500 times smaller\"; \"500 times larger\"; \"The same, as the cable is the same\". Right, the first. Hint for the second: \"X_C = 1 ÷ (2πfC). A lower frequency gives a larger reactance, so less current.\" Hint for the third: \"The capacitance is the same, but its reactance depends on the frequency.\" Why: \"Still there. The charging current is proportional to the frequency, and 50 ÷ 0.1 = 500. The monitor takes the same idea all the way to DC. Once charged, the capacitance passes no current at all.\" A right Check lets the dial settle. Read: \"A VLF test set runs a cable at 0.1 Hz instead of 50 Hz. How does the cable's charging current compare?\"\n\nScreen 7, show. A 30 kΩ fault on feeder 3's L1, dry, 1 µF a phase. The words: \"The monitor's current returns through every leak at once, on every feeder and every phase. They are all in parallel, so the dial reads their total. Six feeders at 3 MΩ each make 500 kΩ. Add a 30 kΩ fault on feeder 3's L1. In parallel, 500 kΩ and 30 kΩ give 28.3 kΩ. The lowest path sets the reading. The lamps barely move. The fault is weak beside the capacitance's 884 Ω, so the hull stays near the star point. L1's lamp still reads about 254 V.\" Read: \"Six feeders at 3 MΩ each read 500 kΩ together. With a 30 kΩ fault on feeder 3's L1, the dial reads 28.3 kΩ, while L1's lamp still reads about 254 V.\" Still: 30 kΩ fault on L1, dry, 1 µF.\n\nScreen 8, try it. \"Six feeders read 3 MΩ each, 500 kΩ together. Feeder 3 develops a 150 kΩ fault. What does the dial read?\" Three choices, in this order: \"About 115 kΩ\"; \"650 kΩ\"; \"150 kΩ\". Right, the first. Hint for the second: \"That adds them as if in series. Paths in parallel give less than the lowest one.\" Hint for the third: \"The healthy feeders still leak in parallel with the fault, so the total is lower still.\" Why: \"In parallel, 500 × 150 ÷ (500 + 150) = 115 kΩ. The total is always below the lowest single path.\" A right Check sets the fault to 150 kΩ. Read: \"Six feeders read 3 MΩ each, 500 kΩ together. Feeder 3 develops a 150 kΩ fault. What does the dial read?\"\n\nScreen 9, show. A 150 kΩ fault, dry, the Alarm level picker stepping through 50, 100 and 500 Ω/V. The words: \"Alarm levels are set in ohms per volt, so they scale with the supply. Multiply by the operating voltage to get ohms. Guidance disagrees on the figure. A ship classification rule alarms below 50 Ω/V.[^4] A maker's guide advises about 100 Ω/V.[^5] A maker's white paper calls 500 Ω/V typical.[^6] On 440 V those are 22 kΩ, 44 kΩ and 220 kΩ. A 115 kΩ reading alarms only at 500 Ω/V. A higher level warns sooner. But a big or damp system may sit below it with no single fault.\" Read: \"On 440 V the three alarm levels are 22 kΩ, 44 kΩ and 220 kΩ. A 115 kΩ reading alarms only at 500 Ω/V.\" Still: 150 kΩ fault, alarm level 500 Ω/V.\n\nScreen 10, try it, the first of three mixed puzzles. \"The 440 V board's dial reads 28.3 kΩ. Which alarm levels sound?\" Three choices, in this order: \"100 and 500 Ω/V, but not 50 Ω/V\"; \"All three\"; \"Only 500 Ω/V\". Right, the first. Hint for the second: \"50 Ω/V on 440 V is 22 kΩ. The reading is above it.\" Hint for the third: \"100 Ω/V on 440 V is 44 kΩ. The reading is below it.\" Why: \"An alarm sounds when the reading falls below its level. 28.3 kΩ is below 44 kΩ and 220 kΩ, but above 22 kΩ. So the same fault alarms at one setting and not at another.\" A right Check sets a 30 kΩ fault and steps the alarm level through all three. Read: \"The 440 V board's dial reads 28.3 kΩ. Which alarm levels sound?\"\n\nScreen 11, try it. \"Two boards are coupled into one system, and each still has its own monitor running. What goes wrong?\" Three choices, in this order: \"Each monitor reads the other as a leak, so the readings are wrong\"; \"Nothing, as two monitors are safer than one\"; \"The monitors' current trips the coupling breaker\". Right, the first. Hint for the second: \"Each monitor is itself a path from the system to the hull.\" Hint for the third: \"A monitor's current is far too small to trip a breaker.\" Why: \"Each monitor joins the system to the hull through its own measuring circuit. To the other monitor, that is one more leak, and their two DC voltages mix. So run only one monitor on a connected system.[^7]\" Read: \"Two boards are coupled into one system, and each still has its own monitor running. What goes wrong?\"\n\nScreen 12, try it. \"Ten drives with filters are added to the board. After a change, the dial now takes longer to settle. Why?\" Three choices, in this order: \"Their filters add capacitance to the hull, which the DC must charge\"; \"Their filters lower the insulation resistance\"; \"The monitor counts each drive as a feeder to read\". Right, the first. Hint for the second: \"A filter is a capacitor to the hull, and capacitance is what the DC must charge.\" Hint for the third: \"The dial reads all paths together in one measurement, however many there are.\" Why: \"Each filter is a capacitor to the hull, as in Earthed through capacitance. The monitor's DC must charge all of it before the current steadies. More capacitance means a longer wait.\" A right Check drags the capacitance up to 10 µF a phase. Read: \"Ten drives with filters are added to the board. After a change, the dial now takes longer to settle. Why?\"\n\nEvery figure on these screens is an example value, a published alarm level, or worked from the rule above.",
+  "ignores": "The picture draws the lamps as voltmeters. Real earth lamps draw current, so they are themselves a path to the hull and pull the voltages a little. It gives every feeder the same insulation on all three phases, and Damp everywhere one example value. Real leaks are uneven. The fault always sits on feeder 3. The dial's settling is a sketch in proportion to the capacitance alone. A real monitor's time also depends on its own internal resistance and on the leaks. The monitor's own path to the hull is left out of its reading. The voltages are r.m.s. values.",
+  "numbers": [
+   {
+    "label": "Screen, 1 to 12 (the stepper)",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Number of screens",
+    "value": 12,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example line voltage of the supply, in volts",
+    "value": 440,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example supply frequency, in hertz",
+    "value": 60,
+    "kind": "assumed"
+   },
+   {
+    "label": "Square root of 3, to three decimal places",
+    "value": 1.732,
+    "kind": "constant"
+   },
+   {
+    "label": "Voltage of each line to the star point, 440 ÷ 1.732, in volts",
+    "value": 254,
+    "kind": "computed"
+   },
+   {
+    "label": "Number of feeders on the board",
+    "value": 6,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example insulation of each feeder, dry, in megohms",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Six feeders in parallel, dry, in kilohms",
+    "value": 500,
+    "kind": "computed"
+   },
+   {
+    "label": "Example insulation of each feeder, damp, in kilohms",
+    "value": 120,
+    "kind": "assumed"
+   },
+   {
+    "label": "Six feeders in parallel, damp, in kilohms",
+    "value": 20,
+    "kind": "computed"
+   },
+   {
+    "label": "Fault picker settings, in kilohms",
+    "value": "Open, 500, 150, 30, 1, Solid",
+    "kind": "control"
+   },
+   {
+    "label": "Capacitance a phase, opening value, in microfarads",
+    "value": 1,
+    "kind": "control"
+   },
+   {
+    "label": "Capacitance slider range, in microfarads",
+    "value": "1 to 10, steps of 1",
+    "kind": "control"
+   },
+   {
+    "label": "Ship classification rule's alarm level, in ohms per volt",
+    "value": 50,
+    "kind": "constant",
+    "source": 4
+   },
+   {
+    "label": "Maker's guide's advised alarm level, in ohms per volt",
+    "value": 100,
+    "kind": "constant",
+    "source": 5
+   },
+   {
+    "label": "Maker's white paper's typical level, in ohms per volt",
+    "value": 500,
+    "kind": "constant",
+    "source": 6
+   },
+   {
+    "label": "Alarm level at 50 Ω/V on 440 V, in kilohms",
+    "value": 22,
+    "kind": "computed"
+   },
+   {
+    "label": "Alarm level at 100 Ω/V on 440 V, in kilohms",
+    "value": 44,
+    "kind": "computed"
+   },
+   {
+    "label": "Alarm level at 500 Ω/V on 440 V, in kilohms",
+    "value": 220,
+    "kind": "computed"
+   },
+   {
+    "label": "Monitor reads, 500 kΩ fault, in kilohms",
+    "value": 250,
+    "kind": "computed"
+   },
+   {
+    "label": "Monitor reads, 150 kΩ fault, in kilohms",
+    "value": 115,
+    "kind": "computed"
+   },
+   {
+    "label": "Monitor reads, 30 kΩ fault, in kilohms",
+    "value": 28.3,
+    "kind": "computed"
+   },
+   {
+    "label": "Monitor reads, 1 kΩ fault, in kilohms",
+    "value": 0.998,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong answer on screen 8: 500 + 150, in kilohms",
+    "value": 650,
+    "kind": "computed"
+   },
+   {
+    "label": "Three phases of 1 µF at 60 Hz, to the hull, in ohms",
+    "value": 884,
+    "kind": "computed"
+   },
+   {
+    "label": "Lamp on the faulted phase, solid fault, in volts",
+    "value": 0,
+    "kind": "computed"
+   },
+   {
+    "label": "Lamps on the healthy phases, solid fault, in volts",
+    "value": 440,
+    "kind": "computed"
+   },
+   {
+    "label": "L1 lamp, 30 kΩ fault on L1, 1 µF, in volts",
+    "value": 254,
+    "kind": "computed"
+   },
+   {
+    "label": "L2 and L3 lamps, 30 kΩ fault on L1, in volts",
+    "value": "248 and 261",
+    "kind": "computed"
+   },
+   {
+    "label": "Lamps, 1 kΩ fault on L1, 1 µF, in volts",
+    "value": "190, 256 and 420",
+    "kind": "computed"
+   },
+   {
+    "label": "Settling, 5 µF against 1 µF a phase, times as slow",
+    "value": 5,
+    "kind": "computed"
+   },
+   {
+    "label": "Recall: VLF test frequency, in hertz",
+    "value": 0.1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Recall: supply frequency compared, in hertz",
+    "value": 50,
+    "kind": "assumed"
+   },
+   {
+    "label": "Recall: charging current ratio, 50 ÷ 0.1",
+    "value": 500,
+    "kind": "computed"
+   },
+   {
+    "label": "Drives with filters added on screen 12",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "Worked example: feeders, in kilohms",
+    "value": "2,000, 2,000, 1,000 and 40",
+    "kind": "assumed"
+   },
+   {
+    "label": "Worked example: monitor reads, in kilohms",
+    "value": 37,
+    "kind": "computed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "An [[insulation monitor]] watches an insulated system's insulation while it runs. It pushes a small DC voltage, or a very slow AC one, between the system and the hull.[^3] The current that comes back gives the resistance to the hull of everything connected, all at once. Where to set its alarm is a question on which published guidance disagrees.\n\nThe older way to watch is three [[earth lamps]], each joining one phase to the hull. Each lamp shows its phase's voltage to earth. On a healthy 440 V supply, all three see 254 V and glow the same. A solid fault on L1 moves the hull to L1, as in the shifting triangle. L1's lamp goes out, and L2's and L3's see 440 V and glow brighter. But lamps only compare the phases. Suppose damp lowers the insulation equally on all three. Three equal leaks balance, as a balanced star load does, so the hull stays at the star point. Each lamp still sees 254 V, and all three stay equal. Lamps cannot see a fall that is the same on every phase.[^2]\n\nThe monitor measures resistance instead, like your insulation tester left connected. It uses DC because the cables' capacitance passes AC. At 60 Hz, three phases of 1 µF look like 884 Ω to the hull. That would swamp a 30 kΩ fault. At DC the capacitance charges and then passes nothing, so only the leakage resistance is left. Every leak, on every feeder and phase, is a path in parallel, so the monitor reads their total. Say six feeders read 3 MΩ each. Together that is 3,000 ÷ 6 = 500 kΩ. A 30 kΩ fault on one feeder brings the total to 500 × 30 ÷ 530 = 28.3 kΩ. The lowest path sets the reading. The lamps barely move for that fault. Beside the capacitance's 884 Ω, a 30 kΩ fault is weak, so the hull stays near the star point. The capacitance still has to charge first, so the more of it, the slower the reading settles.\n\nAlarm levels are set in [[ohms per volt]]. Multiply by the operating voltage to get ohms. A ship classification rule alarms below 50 Ω/V.[^4] A maker's guide advises about 100 Ω/V.[^5] A maker's white paper calls 500 Ω/V typical.[^6] On 440 V those are 22 kΩ, 44 kΩ and 220 kΩ. So the 28.3 kΩ reading alarms at 100 and 500 Ω/V, but not at 50 Ω/V. A higher level warns sooner, but a large or damp system can sit below it with no single fault. This is a simplified model. It treats the lamps as voltmeters and gives every phase the same leak. **A monitor reads the whole system's resistance to the hull with DC, and guidance disagrees on where it should alarm.**"
+ },
+ "analogy": {
+  "text": "An insulation monitor is your insulation resistance tester, left on the live board for good. Like the tester, it drives DC between the conductors and earth and reads the resistance. Like the tester on a long cable, it must wait for the capacitance to charge before the reading settles.",
+  "breaks": "Your tester checks a dead circuit at a high test voltage, one circuit at a time. The monitor uses a small voltage on a live system and reads every connected circuit at once, in parallel. So it tells you the system is low, but not which circuit is to blame."
+ },
+ "practice": {
+  "text": "- Safety first: an insulation alarm can mean a first fault is already there. Treat it as urgent, and find and clear it with the shortest practicable delay.[^8]\n- Read the monitor, not just the lamps. Equal lamps can hide an equal leak on every phase.\n- Turn the alarm level into ohms: ohms per volt × the operating voltage.\n- Compare the dial with that figure. A reading below it is an alarm.\n- On a large system, give the dial time to settle before you read it.\n- A slow fall across the whole board after a shutdown or a wash-down often points to damp. A sudden drop more often points to one new fault.\n- Run one monitor on each connected system.[^7] When two boards are coupled, one monitor is switched off. Choosing which belongs with generators and paralleling.\n\n**Rule of thumb:** The total is always below the lowest single path. So one bad feeder drags the whole reading down.\n\n**Worked example:** A 440 V board has four feeders reading 2 MΩ, 2 MΩ, 1 MΩ and 40 kΩ to the hull. Combine them in parallel, in kilohms: 1 ÷ (1/2,000 + 1/2,000 + 1/1,000 + 1/40) = 37 kΩ. A 100 Ω/V alarm is 44 kΩ, so it sounds. A 50 Ω/V alarm is 22 kΩ, so it stays quiet.\n\n**Common mistakes**\n- Taking equal lamps as healthy insulation.\n- Adding the feeders' resistances. They are in parallel, so the total is lower than any one of them.\n- Reading the dial before it has settled.\n- Running two monitors on one connected system.\n- Treating one ohms-per-volt figure as the rule. Use the level your system's rules and its monitor's maker set."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "contested",
+ "contested": {
+  "views": [
+   {
+    "label": "Germanischer Lloyd's ship rules",
+    "text": "A ship's insulation monitor must alarm when the system's insulation resistance falls below 50 ohms per volt of the operating voltage: 22 kΩ on 440 V."
+   },
+   {
+    "label": "Bender's IT-systems booklet",
+    "text": "Set the monitor's response value to about 100 ohms per volt: 44 kΩ on 440 V."
+   },
+   {
+    "label": "A Bender white paper",
+    "text": "A typical critical insulation value is 500 ohms per volt: 220 kΩ on 440 V."
+   }
+  ]
+ },
+ "mode": "read",
+ "format": "steps",
+ "sources": [
+  {
+   "n": 1,
+   "title": "Electrical Safety Solutions for Harbours and Vessels",
+   "url": "https://www.benderinc.com/fileadmin/content/BenderGroup/Documents/Article/en/Harbours_and_Vessels_6.12.20_compressed.pdf",
+   "quote": "the classification societies require for each isolated system (unearthed IT system) an insulation monitoring device (IMD) for continuous monitoring and alarming in the event of abnormally low levels."
+  },
+  {
+   "n": 2,
+   "title": "Ground-fault Monitoring",
+   "url": "https://www.benderinc.com/know-how/technology/ungrounded-system/ground-fault-monitoring",
+   "quote": "In the past, passive methods such as the “three lightbulb” method had been used, but these techniques cannot detect symmetrical failures"
+  },
+  {
+   "n": 3,
+   "title": "IT system - Practical aspects - Electrical Installation Guide",
+   "url": "https://www.electrical-installation.org/enwiki/IT_system_-_Practical_aspects",
+   "quote": "A generator of very low frequency a.c. current, or of d.c. current, (to reduce the effects of cable capacitance to negligible levels) applies a voltage between the neutral point of the supply transformer and earth."
+  },
+  {
+   "n": 4,
+   "title": "(I-1-3) Electrical Installations",
+   "url": "http://www.iqytechnicalcollege.com/gl_i-1-3_e.pdf",
+   "quote": "Devices for insulation monitoring of ships mains shall continuously monitor the insulation resistance of the network, and shall release an alarm should the insulation resistance of the system fall below 50 ohms per volt of the operating voltage."
+  },
+  {
+   "n": 5,
+   "title": "Technical aspects IT systems",
+   "url": "https://fournais-bender.dk/storage/TechnAspects-IT-systems.pdf",
+   "quote": "The response value of the insulation monitoring device should be set to approx. 100 Ω/V."
+  },
+  {
+   "n": 6,
+   "title": "White Paper",
+   "url": "https://info.bender-group.com/hubfs/Documents/US/White%20Papers/Insulation%20monitoring%20on%20common%20grounding%20methods.pdf?hsLang=en-us",
+   "quote": "A typical critical insulation value is 500 ohms/volt."
+  },
+  {
+   "n": 7,
+   "title": "Insulation monitoring device",
+   "url": "https://www.benderinc.com/fileadmin/content/Products/m/e/iso415R_D00539_M_XXEN.pdf",
+   "quote": "Do not connect insulation monitoring devices in parallel"
+  },
+  {
+   "n": 8,
+   "title": "cdn.standards.iteh.ai",
+   "url": "https://cdn.standards.iteh.ai/samples/22593/faab23b5c332418984d5b3c627cbd1b0/IEC-60364-4-41-2005-AMD1-2017.pdf",
+   "quote": "It is recommended that a first fault be eliminated with the shortest practicable delay."
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }

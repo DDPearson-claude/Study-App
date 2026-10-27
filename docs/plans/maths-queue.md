@@ -42,13 +42,14 @@ engineering science." It is a new shelf, Engineering science (docs/shelves-engin
 built side by side, each about 8 lessons and 8 to 10M tokens:
 
 1. Engineering science: Heat and fluids and Mechanics and materials (both live 27 Oct, about 9 to 10M tokens each)
-2. Insulated systems and earth faults (Dan, 27 Oct: "Create them all"; Supply systems folder)
+2. Insulated systems and earth faults (Dan, 27 Oct: "Create them all"; Supply systems folder; live 27 Oct, about
+   9.7M tokens, topic insulated-systems-and-earth-faults-al99a)
 3. Batteries: cells, charging, hydrogen (Supply systems folder; live 27 Oct, about 9.8M tokens, topic batteries-ui8aw)
 4. Generators and paralleling (Power and machines folder)
 5. Transformers and magnetism (Electrical principles folder)
-Built in two pairs: 2 with 3, then 5 with 4 (Transformers owns the magnetism Generators uses). Waiting
-on the Parallel Search connector, which disconnected on 27 Oct; the machine's own web access is
-blocked by the environment's network policy.
+Built in two pairs: 2 with 3, then 5 with 4 (Transformers owns the magnetism Generators uses). The first
+pair is live. PAUSED (Dan, 27 Oct: "Once these two are done, pause"): do not start Transformers or
+Generators until he says. Their settings are ready in tools/course/args/.
 Lower: Control and instrumentation with digital logic; Distribution and protection at sea.
 
 Hidden on 27 Oct (Dan: "Hide everyday maths, computer science and any other folders we aren't immediately
@@ -72,3 +73,13 @@ the web directly). For each course:
 4. Write out/manifest.json's docs to the db in batches under about 900 KB (topic doc last), set the course's
    tid in docs/shelves-electrical.json and the live shelves/electrical doc (if_version pinned).
 5. python3 tools/course/tocopy.py <slug> i1,...,i8 --shelf electrical; commit; push to both branches.
+
+### Lessons from the first pair (27 Oct): check these after every build
+- guide.mjs reads a lesson's answers from a global named `S` (the step states) and sets each `still`
+  key with the app's control setter. A body that names a drawing helper `S`, or a `still` that names
+  a non-control (an animation fraction), gives a guide with no example pictures or a crash. Keep
+  only control ids in `still` (the step's end state already sets the rest).
+- A fix stage that appends a source to research.json must give it the next unused n: a duplicate n
+  made assemble drop a lesson ("not one of the supplied research sources").
+- A lesson whose fix round ran out of attempts can be finished by hand, then the run resumed with
+  args.fixedByHand: ["iN"].

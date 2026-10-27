@@ -1,0 +1,227 @@
+{
+  "report": {
+    "ok": false,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "Twelve screens: five that show and seven puzzles, alternating to the ninth and ending on three mixed puzzles",
+        "ok": true
+      },
+      {
+        "label": "Healthy, each line sits 440 ÷ 1.732 = 254 V from earth, and ω = 2π × 60 = 377",
+        "ok": true
+      },
+      {
+        "label": "4 km gives 1 µF a line: its reactance at 60 Hz is about 2,650 Ω, so 254 V drives 96 mA, and screen 2's answer labels L1's row 2,650 Ω",
+        "ok": true
+      },
+      {
+        "label": "Healthy, the three charging currents sit 120° apart and add to zero at every length, with or without the drives",
+        "ok": true
+      },
+      {
+        "label": "A solid fault on L1 at 4 km: L1 passes nothing, L2 and L3 pass 166 mA each, 60° apart, and their sum is 287 mA, three times 96 mA",
+        "ok": true
+      },
+      {
+        "label": "Twice the capacitance, twice the current: 8 km, or 4 km with the drives, is 2 µF a line, 192 mA healthy and 575 mA to a fault",
+        "ok": true
+      },
+      {
+        "label": "In a fault, current to earth is a straight line in cable length, through zero with the drives off",
+        "ok": true
+      },
+      {
+        "label": "16 km with the drives is 5 µF a line: 479 mA healthy and 1.44 A to a fault",
+        "ok": true
+      },
+      {
+        "label": "A person on L1 carries about 190 mA at 4 km and 36 mA at 0.5 km; the curve rises and levels off below 254 V ÷ 1,000 Ω",
+        "ok": true
+      },
+      {
+        "label": "With no direct ground path back to the neutral, the current returns through the capacitance of the two unfaulted phases, and only 1.04 A flows (480 V, 800 Ω a line)",
+        "ok": true,
+        "source": "https://www.eaton.com/content/dam/eaton/products/medium-voltage-power-distribution-control-systems/vacclad-w-pages/characteristics-power%20systems-neutral-grounding-techniques-fact-fiction-ap083005en.pdf"
+      },
+      {
+        "label": "A capacitance of about 10 µF on a 277 V system carries about 1 A of continuous charging current",
+        "ok": true,
+        "source": "https://www.eaton.com/content/dam/eaton/markets/healthcare/knowledge-center/white-paper/transient-overvoltages-on-ungrounded-systems-from-intermittent-ground-faults.pdf"
+      },
+      {
+        "label": "Although called ungrounded, the system is coupled to ground through the distributed capacitance of its windings and conductors: with no tie at all, a first fault still passes current at every length",
+        "ok": true,
+        "source": "https://www.eaton.com/content/dam/eaton/products/medium-voltage-power-distribution-control-systems/vacclad-w-pages/characteristics-power%20systems-neutral-grounding-techniques-fact-fiction-ap083005en.pdf"
+      },
+      {
+        "label": "The larger the system, the smaller the impedance between the conductors and earth",
+        "ok": true,
+        "source": "https://fournais-bender.dk/storage/TechnAspects-IT-systems.pdf"
+      },
+      {
+        "label": "The arrows share one scale: in a fault each healthy line's arrow is 1.73 times its healthy length, and the sum three times",
+        "ok": true
+      },
+      {
+        "label": "Before an answer, no puzzle's picture shows its result",
+        "ok": true
+      },
+      {
+        "label": "Switching the fault onto L1 swings L2's and L3's currents to 60° apart and lays them head to tail within 3 s; part way through they are still on the way",
+        "ok": true
+      },
+      {
+        "label": "The panel is shorter in a fault, where the triangle sits above its middle, than when healthy",
+        "ok": false,
+        "error": "returned false"
+      },
+      {
+        "label": "While the fault swings in, Current to earth follows the arrows: part way it is between 0 and 287 mA",
+        "ok": true
+      },
+      {
+        "label": "A slider move settles within 0.35 s, so the arrows and the numbers keep up with it",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "mode",
+      "len",
+      "drives"
+    ],
+    "readouts": [
+      "cap",
+      "heal",
+      "earth"
+    ],
+    "outputs": [],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Screen",
+        "min": 0,
+        "max": 11,
+        "step": 1,
+        "steps": [
+          "Every cable is a capacitor",
+          "Its reactance",
+          "Charging current",
+          "Adding the three",
+          "A fault on L1",
+          "The way back",
+          "It grows with the system",
+          "Ten drives",
+          "A person on L1",
+          "Small or big",
+          "A big system",
+          "The 480 V check"
+        ],
+        "value": 0
+      },
+      {
+        "id": "mode",
+        "kind": "choice",
+        "label": "Case",
+        "options": [
+          "healthy",
+          "fault",
+          "person"
+        ],
+        "labels": [
+          "Healthy",
+          "Fault on L1",
+          "Person on L1"
+        ],
+        "value": "healthy",
+        "index": 0,
+        "shown": false
+      },
+      {
+        "id": "len",
+        "kind": "control",
+        "label": "Cable length",
+        "min": 0.5,
+        "max": 16,
+        "step": 0.5,
+        "log": false,
+        "value": 4,
+        "shown": false,
+        "snap": [
+          4,
+          8,
+          16
+        ]
+      },
+      {
+        "id": "drives",
+        "kind": "toggle",
+        "label": "Ten drives' filters",
+        "options": [
+          false,
+          true
+        ],
+        "value": false,
+        "shown": false
+      }
+    ],
+    "actions": [
+      "480 V check",
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Back",
+      "Continue",
+      "Start again",
+      "The currents"
+    ],
+    "answers": [],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": false
+      },
+      {
+        "width": 720,
+        "ok": false
+      },
+      {
+        "width": 1040,
+        "ok": false
+      }
+    ]
+  },
+  "moved": [
+    "step = 2 (the first step that shows a control)",
+    "mode = \"fault\"",
+    "len = 12.125",
+    "drives = true"
+  ],
+  "shots": [
+    "/home/user/Study-App/build/electrical/insulated-systems/i3.a8-360-light.png",
+    "/home/user/Study-App/build/electrical/insulated-systems/i3.a8-360-light-moved.png",
+    "/home/user/Study-App/build/electrical/insulated-systems/i3.a8-360-light-end.png",
+    "/home/user/Study-App/build/electrical/insulated-systems/i3.a8-360-dark.png",
+    "/home/user/Study-App/build/electrical/insulated-systems/i3.a8-360-dark-moved.png",
+    "/home/user/Study-App/build/electrical/insulated-systems/i3.a8-360-dark-end.png",
+    "/home/user/Study-App/build/electrical/insulated-systems/i3.a8-1280-light.png",
+    "/home/user/Study-App/build/electrical/insulated-systems/i3.a8-1280-light-moved.png",
+    "/home/user/Study-App/build/electrical/insulated-systems/i3.a8-1280-light-end.png",
+    "/home/user/Study-App/build/electrical/insulated-systems/i3.a8-1280-dark.png",
+    "/home/user/Study-App/build/electrical/insulated-systems/i3.a8-1280-dark-moved.png",
+    "/home/user/Study-App/build/electrical/insulated-systems/i3.a8-1280-dark-end.png"
+  ]
+}

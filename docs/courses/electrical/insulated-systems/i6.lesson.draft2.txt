@@ -1,0 +1,336 @@
+{
+  "iid": "i6",
+  "title": "Insulated DC: reading the two poles",
+  "format": "steps",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the negative's voltage to the hull falling and the positive's rising, always adding to 220 V, when you lower the negative's insulation resistance.",
+    "title": "The two poles",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Screen",
+        "min": 0,
+        "max": 11,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "Twelve small screens on one picture, with Back and Continue. Five show an idea and seven ask you to try it. No marks and no timers.\n\nThe picture. A 220 V DC board. A battery symbol on the left feeds two bars, the positive pole on top and the negative pole below. Under them runs a thick bar, the hull, which is earth. Two equal detector resistors, 100 kΩ each, join each pole to the hull. Beside each, a second resistor stands for that pole's insulation leak, labelled with its value. Open draws it broken, and Solid draws it as a plain wire. A voltmeter joins the chosen pole to the hull. On the right, two stacked bars show each pole's voltage to the hull. Together they always fill the 220 V height. A bridge lamp lights red when the two voltages are more than 40 V apart. When ticked, an insulation monitor joins the bus to the hull, with a dial in kilohms and a red alarm line.\n\nThe controls sit under the picture, in rows that wrap on a phone. Two pickers, Positive insulation and Negative insulation, each offer Open, 500 kΩ, 100 kΩ, 20 kΩ, 5 kΩ and Solid. A picker, Meter on, has two buttons, Positive and Negative. A picker, Meter resistance, offers Ideal, 10 MΩ, 100 kΩ and 20 kΩ. A tick box is labelled Insulation monitor.\n\nThe readouts sit in tiles that wrap onto more rows on a phone. Positive to hull, Negative to hull and Meter reads are in volts. Monitor reads is in kilohms.\n\nThe rule it computes. Current can leave a pole for the hull only through that pole's paths, and must return through the other pole's paths. So the two sides are in series across the bus, a potential divider with the hull at the tap. Each side's resistance, R_P for the positive and R_N for the negative, is its pathways in parallel. In kilohms, R_P = 1 ÷ (1 ÷ 100 + 1 ÷ R+), where R+ is the positive's insulation. Add 1 ÷ R_m inside the brackets when the meter, of resistance R_m, sits on that pole. R_N is worked out the same way. Positive to hull = 220 × R_P ÷ (R_P + R_N). Negative to hull = 220 − Positive to hull. So the two always add to 220 V. Open adds no path, Solid makes its side 0 and an Ideal meter adds no path. Meter reads shows the voltage of the pole it sits on. The monitor pushes its own small voltage between the bus and the hull, and reads every path in parallel. Monitor reads = 1 ÷ (2 ÷ 100 + 1 ÷ R+ + 1 ÷ R− + 1 ÷ R_m), with no term for an Open leak or an Ideal meter. Its alarm line is set at an example 100 Ω/V, so 100 × 220 = 22 kΩ. Below it, the monitor's lamp turns red.\n\nThe opening setting has both poles Open, the meter Ideal on the positive and the monitor off. Each pole reads 110 V and the bridge lamp is dark. The monitor, ticked, reads the two arms alone, 50 kΩ. With the positive Open and one leak on the negative, the negative reads: 500 kΩ, 100.0 V; 100 kΩ, 73.3 V; 20 kΩ, 31.4 V; 5 kΩ, 10.0 V; Solid, 0 V. The positive reads the rest: 120.0, 146.7, 188.6, 210.0 and 220 V. The bridge lamp stays dark at 500 kΩ, 20 V apart, and lights from 100 kΩ down. The monitor reads 45.5, 33.3, 14.3 and 4.5 kΩ, then 0. With both poles at 20 kΩ, each reads 110 V and the monitor reads 8.3 kΩ. With both poles Open, a 100 kΩ meter on either pole reads 73.3 V, a 20 kΩ meter 31.4 V and a 10 MΩ meter 109.5 V.\n\nScreen 1, show. The opening setting. Both poles healthy, insulation Open, no meter loading, monitor off. The words: \"Many DC boards are insulated, with neither pole tied to earth. On a ship, the automation and most other systems use a 24 V DC control voltage.[^17] This 220 V board has a balanced bridge to watch it. Two equal 100 kΩ arms join each pole to the hull. The bridge alarms when the poles drift apart. A voltmeter switches between each pole and the hull. Each pole reads 110 V, half the bus. The equal arms split the voltage evenly.\" Read: \"A 220 V insulated DC board has a balanced bridge, two equal 100 kΩ arms from each pole to the hull. Each pole reads 110 V to the hull, half the bus.\" Still: healthy, both poles Open, meter Ideal on the positive.\n\nScreen 2, try it. \"A 24 V DC control board has the same kind of detector, with two equal arms. Its insulation is healthy. What does each pole read to the hull?\" Three choices, in this order: \"12 V each\"; \"24 V each\"; \"0 V, as nothing is tied to the hull\". Right, the first. Hint for the second: \"The two readings share the bus between them. Together they make 24 V, not 48 V.\" Hint for the third: \"The detector's arms join each pole to the hull, so the hull sits between the poles.\" Why: \"Equal arms split the bus evenly, so each pole sits 12 V from the hull. At every moment, the two pole-to-hull voltages add up to the bus voltage.\" The picture stays on the healthy 220 V board. Read: \"A 24 V DC control board has the same kind of detector, with two equal arms. Its insulation is healthy. What does each pole read to the hull?\"\n\nScreen 3, show. Negative insulation set to 20 kΩ, positive Open. The words: \"Now the negative's insulation falls to 20 kΩ. Current can leave a pole for the hull only through that pole's paths. It must come back through the other pole's paths. So the two sides are in series, a potential divider with the hull at the tap. The pole with less resistance to the hull takes less of the voltage.[^2] The negative's side is 100 kΩ and 20 kΩ in parallel, 16.7 kΩ. It reads 220 × 16.7 ÷ 116.7 = 31.4 V. The positive reads the other 188.6 V.\" Read: \"With the negative's insulation down to 20 kΩ, its side is 16.7 kΩ. The negative reads 31.4 V to the hull and the positive reads 188.6 V.\" Still: negative 20 kΩ, positive Open.\n\nScreen 4, try it. \"On a 220 V board, the meter reads 189 V on the positive and 31 V on the negative. Which pole has the leak?\" Three choices, in this order: \"The positive, as it reads high\"; \"The negative, as it reads low\"; \"Neither, as the readings add to 220 V\". Right, the second. Hint for the first: \"A leak lowers its own pole's resistance to the hull, so its share of the voltage falls.\" Hint for the third: \"The readings always add to the bus. It is the split between them that tells you.\" Why: \"The pole with less resistance to the hull takes less of the voltage. The leak drags the negative towards the hull, so the positive climbs. It is the shifting triangle again, with two poles instead of three phases.\" A right Check sets the negative's insulation to 20 kΩ. Read: \"On a 220 V board, the meter reads 189 V on the positive and 31 V on the negative. Which pole has the leak?\"\n\nScreen 5, show. A solid fault on the negative, positive Open. The words: \"Make the negative's fault solid. The negative reads 0 V and the positive the full 220 V. The board still runs, as with a first fault on AC. But the hull is now joined to the negative. So a second fault on the positive would short the bus through the hull. A hand on the positive bar and the hull could put 220 V across you. That is well above the 120 V DC treated as a safe touch voltage.[^16]\" Read: \"With a solid fault on the negative, the negative reads 0 V and the positive the full 220 V. A second fault on the positive would short the bus through the hull.\" Still: negative Solid, positive Open.\n\nScreen 6, try it. \"A 100 V board has no detector. Its positive leaks 500 kΩ to the hull, and its negative has fallen to 51 kΩ. What does the negative read?\" Three choices, in this order: \"About 51 V\"; \"About 90.7 V\"; \"About 9.26 V\". Right, the third. Hint for the first: \"The voltage splits in proportion to the resistances. Work out 100 × 51 ÷ (500 + 51).\" Hint for the second: \"That is the positive's share. The pole with less resistance takes less.\" Why: \"With no detector, the two leaks alone make the divider. The negative takes 100 × 51 ÷ (500 + 51) = 9.26 V.[^11] The positive reads the other 90.7 V.\" The picture stays as it was. Read: \"A 100 V board has no detector. Its positive leaks 500 kΩ to the hull, and its negative has fallen to 51 kΩ. What does the negative read?\"\n\nScreen 7, show. Both poles set to 20 kΩ, the Insulation monitor box ticked. The words: \"Damp can lower both poles together. Set both to 20 kΩ. Each side is 16.7 kΩ, still equal, so each pole still reads 110 V. The bridge sees no imbalance and stays quiet. An injecting monitor tells a different story. It reads every path to the hull in parallel, the detector's arms included. Together they come to 8.3 kΩ, below its alarm line of 22 kΩ. Equal halves mean balanced, not healthy.\" Read: \"With both poles leaking 20 kΩ to the hull, each still reads 110 V and the bridge stays quiet. An injecting monitor reads 8.3 kΩ, below its 22 kΩ alarm line.\" Still: both poles 20 kΩ, monitor ticked.\n\nScreen 8, try it. \"Both poles of a 220 V board read 110 V after a wash-down. Which instrument would show whether the insulation has fallen?\" Three choices, in this order: \"An injecting insulation monitor\"; \"The bridge's alarm\"; \"The voltmeter, switched pole to pole\". Right, the first. Hint for the second: \"The bridge compares the two halves, and they are still equal.\" Hint for the third: \"Equal readings show balance. They say nothing about how low both sides are.\" Why: \"The bridge and the voltmeter both compare the poles. An equal fall on both leaves the halves equal. The monitor pushes its own voltage to the hull and reads the total resistance, so it sees the fall.\" A right Check sets both poles to 20 kΩ and ticks the monitor. Read: \"Both poles of a 220 V board read 110 V after a wash-down. Which instrument would show whether the insulation has fallen?\"\n\nScreen 9, show. Both poles Open. The Meter resistance picker set to 100 kΩ, the meter on the negative, then moved to the positive. The words: \"Your meter is a path to the hull too. On the negative, it sits in parallel with that arm. Say your meter is 100 kΩ. The negative's side becomes 50 kΩ, so it reads 73.3 V, not 110 V. On the positive, the meter pulls that pole to 73.3 V instead. The two readings add to 146.7 V, not 220 V. A detector shows a leak by adding a path to the hull itself.[^7] So does every meter. A 10 MΩ meter barely moves the reading, to 109.5 V.\" Read: \"A 100 kΩ meter on the negative turns that side into 50 kΩ, so it reads 73.3 V, not 110 V. On the positive it reads 73.3 V too, so the two readings add to only 146.7 V.\" Still: both poles Open, meter 100 kΩ on the negative.\n\nScreen 10, try it, the first of three mixed puzzles. \"A healthy 220 V board has 100 kΩ arms. An old meter reads 31.4 V on the negative, then 31.4 V on the positive. What is going on?\" Three choices, in this order: \"Both poles have leaked to 20 kΩ\"; \"The meter itself is a low path to the hull\"; \"The bus has fallen to 62.9 V\". Right, the second. Hint for the first: \"Equal leaks on both poles leave each pole at half the bus, 110 V.\" Hint for the third: \"Each reading was taken alone, with the meter dragging its own pole down.\" Why: \"Two readings that do not add to the bus voltage point at the meter. A 20 kΩ meter turns a 100 kΩ arm into 16.7 kΩ, which takes 31.4 V. Use a high-resistance meter, and check that the pair adds up.\" A right Check sets the meter to 20 kΩ on the negative. Read: \"A healthy 220 V board has 100 kΩ arms. An old meter reads 31.4 V on the negative, then 31.4 V on the positive. What is going on?\"\n\nScreen 11, try it. \"Two panels, each with its own 100 kΩ detector, are joined into one 220 V system. The negative leaks 20 kΩ to the hull. What does the negative read?\" Three choices, in this order: \"48.9 V\"; \"31.4 V, as with one detector\"; \"15.7 V\". Right, the first. Hint for the second: \"Both detectors now sit on the same two poles. Their arms add in parallel.\" Hint for the third: \"More detector arms make the leak a smaller share of its side, not a bigger one.\" Why: \"Each side now has two 100 kΩ arms in parallel, 50 kΩ. The negative's side is 50 kΩ and 20 kΩ in parallel, 14.3 kΩ. It reads 220 × 14.3 ÷ 64.3 = 48.9 V. Every extra detector makes the same leak look smaller.\" The picture stays on one detector, with the negative at 20 kΩ. Read: \"Two panels, each with its own 100 kΩ detector, are joined into one 220 V system. The negative leaks 20 kΩ to the hull. What does the negative read?\"\n\nScreen 12, try it. \"A first fault on an insulated AC system passes a steady current through the cables' capacitance. A 220 V DC board's negative is solidly faulted to the hull. What flows into the fault?\" Three choices, in this order: \"A steady current through the capacitance, as on AC\"; \"A brief charging current, then only what the positive's paths let through\"; \"Nothing at all, as the board is insulated\". Right, the second. Hint for the first: \"DC charges a capacitor once. After that, almost no current flows through it.\" Hint for the third: \"The positive's detector arm is still a path to the hull.\" Why: \"The capacitance takes a brief charge when the fault strikes. Once charged, its path closes.[^18] After that, current runs from the positive, through its 100 kΩ arm and the hull, into the fault. That is 220 ÷ 100,000 = 2.2 mA.\" A right Check sets a solid fault on the negative. Read: \"A first fault on an insulated AC system passes a steady current through the cables' capacitance. A 220 V DC board's negative is solidly faulted to the hull. What flows into the fault?\"\n\nEvery figure on these screens is an example value, a published figure, or worked from the rule above.",
+    "ignores": "The leaks are drawn as fixed resistors. Real insulation changes with damp, heat and voltage. Open means no leak at all, which real insulation never quite reaches. The battery holds exactly 220 V. The cables' and filters' capacitance to the hull is left out, so every reading changes at once, where a real one settles. The monitor's own path to the hull is left out of the voltages. The bridge's 40 V alarm point and the meters' resistances are example values. The battery's cells and charging are left out.",
+    "numbers": [
+      {
+        "label": "Screen, 1 to 12 (the stepper)",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Number of screens",
+        "value": 12,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example bus voltage of the DC board, in volts",
+        "value": 220,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example detector resistor on each pole, in kilohms",
+        "value": 100,
+        "kind": "assumed"
+      },
+      {
+        "label": "Each pole to hull, healthy, in volts",
+        "value": 110,
+        "kind": "computed"
+      },
+      {
+        "label": "Insulation picker settings, in kilohms",
+        "value": "Open, 500, 100, 20, 5, Solid",
+        "kind": "control"
+      },
+      {
+        "label": "Meter resistance picker settings",
+        "value": "Ideal, 10 MΩ, 100 kΩ, 20 kΩ",
+        "kind": "control"
+      },
+      {
+        "label": "Bridge lamp lights above this difference, in volts",
+        "value": 40,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example monitor alarm level, in ohms per volt",
+        "value": 100,
+        "kind": "assumed"
+      },
+      {
+        "label": "Monitor alarm line, 100 × 220, in kilohms",
+        "value": 22,
+        "kind": "computed"
+      },
+      {
+        "label": "Monitor reads, two arms alone, in kilohms",
+        "value": 50,
+        "kind": "computed"
+      },
+      {
+        "label": "Negative's side, 100 and 20 kΩ in parallel, in kilohms",
+        "value": 16.7,
+        "kind": "computed"
+      },
+      {
+        "label": "Negative to hull, leak 500, 100, 20, 5 kΩ, in volts",
+        "value": "100.0, 73.3, 31.4, 10.0",
+        "kind": "computed"
+      },
+      {
+        "label": "Positive to hull for those leaks, in volts",
+        "value": "120.0, 146.7, 188.6, 210.0",
+        "kind": "computed"
+      },
+      {
+        "label": "Bridge difference, 500 kΩ leak, in volts",
+        "value": 20,
+        "kind": "computed"
+      },
+      {
+        "label": "Monitor reads for those leaks, in kilohms",
+        "value": "45.5, 33.3, 14.3, 4.5",
+        "kind": "computed"
+      },
+      {
+        "label": "Solid fault: faulted pole and other pole, in volts",
+        "value": "0 and 220",
+        "kind": "computed"
+      },
+      {
+        "label": "Monitor reads, both poles at 20 kΩ, in kilohms",
+        "value": 8.3,
+        "kind": "computed"
+      },
+      {
+        "label": "Recall check: 24 V board, each pole healthy, in volts",
+        "value": 12,
+        "kind": "computed"
+      },
+      {
+        "label": "Ship control voltage, in volts DC",
+        "value": 24,
+        "kind": "constant",
+        "source": 17
+      },
+      {
+        "label": "Safe touch voltage limit, in volts DC",
+        "value": 120,
+        "kind": "constant",
+        "source": 16
+      },
+      {
+        "label": "Worked case bus voltage, in volts",
+        "value": 100,
+        "kind": "constant",
+        "source": 11
+      },
+      {
+        "label": "Worked case: other pole's leak, in kilohms",
+        "value": 500,
+        "kind": "constant",
+        "source": 11
+      },
+      {
+        "label": "Worked case: falling pole's leak, in kilohms",
+        "value": 51,
+        "kind": "constant",
+        "source": 11
+      },
+      {
+        "label": "Worked case: falling pole to hull, in volts",
+        "value": 9.26,
+        "kind": "constant",
+        "source": 11
+      },
+      {
+        "label": "Worked case: other pole to hull, in volts",
+        "value": 90.7,
+        "kind": "computed"
+      },
+      {
+        "label": "Meter of 100 kΩ: side becomes, in kilohms",
+        "value": 50,
+        "kind": "computed"
+      },
+      {
+        "label": "Meter of 100 kΩ: pole reads, in volts",
+        "value": 73.3,
+        "kind": "computed"
+      },
+      {
+        "label": "Two 73.3 V readings added, in volts",
+        "value": 146.7,
+        "kind": "computed"
+      },
+      {
+        "label": "Meter of 10 MΩ: pole reads, in volts",
+        "value": 109.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Meter of 20 kΩ: pole reads, in volts",
+        "value": 31.4,
+        "kind": "computed"
+      },
+      {
+        "label": "Wrong answer on screen 10: 31.4 + 31.4, in volts",
+        "value": 62.9,
+        "kind": "computed"
+      },
+      {
+        "label": "Two detectors: each side, in kilohms",
+        "value": 50,
+        "kind": "computed"
+      },
+      {
+        "label": "Two detectors, 20 kΩ leak: negative's side, in kilohms",
+        "value": 14.3,
+        "kind": "computed"
+      },
+      {
+        "label": "Two detectors, 20 kΩ leak: negative reads, in volts",
+        "value": 48.9,
+        "kind": "computed"
+      },
+      {
+        "label": "Wrong answer on screen 11: half of 31.4, in volts",
+        "value": 15.7,
+        "kind": "computed"
+      },
+      {
+        "label": "Steady fault current, 220 V through 100 kΩ, in milliamps",
+        "value": 2.2,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example: control board voltage, in volts",
+        "value": 24,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example: detector arm, in kilohms",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example: readings, positive and negative, in volts",
+        "value": "4 and 20",
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example: positive's side, in kilohms",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example: positive's leak, in kilohms",
+        "value": 2.5,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "On an insulated DC board, neither pole is tied to the hull. Each pole still has a voltage to the hull, and the two share the bus voltage between them. The pole with the lower resistance to the hull reads lower.[^2]\n\nHere is why. Current can leave the positive for the hull only through the positive's paths, its insulation and any detector. With no deliberate earth, it can get back to the negative only through the negative's paths. So the two sides are in series across the bus, a potential divider with the hull at the tap. The same small current flows through both, so each side's voltage is in proportion to its resistance. A pole's voltage to the hull is the bus voltage × its side's resistance ÷ both sides added. Take a 100 V board with no detector, its positive leaking 500 kΩ and its negative fallen to 51 kΩ. The negative reads 100 × 51 ÷ 551 = 9.26 V, and the positive reads 90.7 V.[^11] A leak pulls its own pole towards the hull, and the healthy pole climbs. It is the shifting triangle with two poles. A solid fault puts its pole at 0 V and the other at the full bus voltage.\n\nA detector makes the split easy to read. A [[balanced bridge]] joins each pole to the hull through equal resistors, and alarms when the two halves differ.[^6] The older version is two lamps, one from each pole, that glow at half voltage on a healthy bus. Short the negative to the hull, and the positive's lamp glows at full brightness.[^4] On a 220 V board with 100 kΩ arms, each healthy pole reads 110 V. Let the negative leak 20 kΩ. Its side becomes 100 kΩ and 20 kΩ in parallel, 16.7 kΩ. It reads 220 × 16.7 ÷ 116.7 = 31.4 V, and the positive reads 188.6 V. But equal leaks on both poles are common on DC boards.[^13] Such a [[symmetrical fault]] leaves the halves equal and the bridge quiet. An injecting monitor, reading the total resistance to the hull, still sees it. And every detector or meter is itself a path to the hull,[^7] so each one you add moves the readings.\n\nThis is a simplified model. It treats every leak as a fixed resistor and leaves out the cables' capacitance, which makes real readings settle rather than jump. **On an insulated DC board the two pole-to-hull voltages add up to the bus voltage, and the pole with the lower resistance to the hull reads lower.**[^2]"
+  },
+  "analogy": {
+    "text": "Picture the bus as a potentiometer's track, with the hull as its wiper. The wiper sits where the two sides' resistances put it. With equal arms, it sits in the middle, at half the bus from each end. A leak on the negative lowers the resistance between the wiper and the negative end. So the wiper slides towards the negative end, and the negative's voltage to the hull falls.",
+    "breaks": "A potentiometer's track has a fixed total, so turning it trades one side for the other. A leak lowers one side alone, so the total falls too. And real leaks are not fixed resistors. Damp and heat move them, and the cables' capacitance slows every change."
+  },
+  "practice": {
+    "text": "- Safety first: a floating DC bus is still joined to the hull, through its detector and its leaks. Treat each pole as live to the hull.[^15]\n- Measure each pole to the hull with a high-resistance meter. Then measure pole to pole.\n- Add the two pole readings. They should come to the bus voltage. If they fall well short, your meter is loading the poles.\n- Equal halves mean balanced. That rules out a one-sided leak, but not an equal leak on both poles. If the board has an injecting monitor, read it too.\n- One pole low means that pole is leaking to the hull. The lower it reads, the lower its resistance.\n- Zero on one pole and the full bus on the other means a solid fault on the pole reading zero.[^8] A slight difference points to a partial one.[^9]\n- With one pole at zero, the other sits at the full bus voltage to the hull. A second fault on it would short the bus through the hull.[^3] On a bus above 120 V DC, that pole is past the safe touch voltage.[^16]\n\n**Rule of thumb:** The low pole is the leaky pole. The two readings add to the bus voltage.\n\n**Worked example:** A 24 V control board has 10 kΩ detector arms, an example value. The positive reads 4 V to the hull and the negative reads 20 V. They add to 24 V, so the meter is not loading them. The positive reads low, so it is leaking. Each side's resistance is in proportion to its voltage, so the positive's side is 10 × 4 ÷ 20 = 2 kΩ. That is the 10 kΩ arm in parallel with the leak. So the leak is 1 ÷ (1/2 − 1/10) = 2.5 kΩ.\n\n**Common mistakes**\n- Blaming the pole that reads high.\n- Taking equal halves as healthy insulation.\n- Forgetting that your meter is a path to the hull.\n- Treating a floating bus as dead to the hull.\n- Reading two joined panels' detectors as one. Their arms add in parallel, so the same leak looks smaller."
+  },
+  "say": null,
+  "checks": [],
+  "sources": [
+    {
+      "n": 2,
+      "title": "US9753069B2 - Insulation resistance detection method and circuit for ungrounded DC power supply system - Google Patents",
+      "url": "https://patents.google.com/patent/US9753069B2/en",
+      "quote": "The bus with lower ground resistance has a lower voltage to ground; the bus with a higher ground resistance has a higher voltage to ground."
+    },
+    {
+      "n": 3,
+      "title": "GROUND DETECTION CIRCUITS FOR STATIONARY APPLICATIONS (IN PLAIN DOWN TO EARTH LANGUAGE)",
+      "url": "https://www.vertiv.com/48df2a/globalassets/documents/battcon-static-assets/2008/ground-detection-circuits-for-stationary-applications-in-plain-down-to-earth-language.pdf",
+      "quote": "If one of the DC bus connections gets connected to the building ground, this sets the stage for a short if the other pole gets shorted to ground as well."
+    },
+    {
+      "n": 4,
+      "title": "GROUND DETECTION CIRCUITS FOR STATIONARY APPLICATIONS (IN PLAIN DOWN TO EARTH LANGUAGE)",
+      "url": "https://www.vertiv.com/48df2a/globalassets/documents/battcon-static-assets/2008/ground-detection-circuits-for-stationary-applications-in-plain-down-to-earth-language.pdf",
+      "quote": "The figure below shows the simplest visual indicator, where the lamps both glow with half voltage when no other ground connection is made. When the negative is shorted to the ground terminal, the opposite lamp glows to full brightness."
+    },
+    {
+      "n": 6,
+      "title": "GROUND DETECTION CIRCUITS FOR STATIONARY APPLICATIONS (IN PLAIN DOWN TO EARTH LANGUAGE)",
+      "url": "https://www.vertiv.com/48df2a/globalassets/documents/battcon-static-assets/2008/ground-detection-circuits-for-stationary-applications-in-plain-down-to-earth-language.pdf",
+      "quote": "This design provides a balanced bridge with equal resistor elements, which is fed into an instrumentation amplifier or comparator circuit. Once the bridge becomes imbalanced, the detection can activate a relay driver or drive a lamp."
+    },
+    {
+      "n": 7,
+      "title": "GROUND DETECTION CIRCUITS FOR STATIONARY APPLICATIONS (IN PLAIN DOWN TO EARTH LANGUAGE)",
+      "url": "https://www.vertiv.com/48df2a/globalassets/documents/battcon-static-assets/2008/ground-detection-circuits-for-stationary-applications-in-plain-down-to-earth-language.pdf",
+      "quote": "In fact, in order to provide an indication, we end up adding the fault that we are trying to detect."
+    },
+    {
+      "n": 8,
+      "title": "GROUND DETECTION CIRCUITS FOR STATIONARY APPLICATIONS (IN PLAIN DOWN TO EARTH LANGUAGE)",
+      "url": "https://www.vertiv.com/48df2a/globalassets/documents/battcon-static-assets/2008/ground-detection-circuits-for-stationary-applications-in-plain-down-to-earth-language.pdf",
+      "quote": "If there is full voltage with one measurement and zero volts with the other, then there is a direct short to the bus on the side that measures zero."
+    },
+    {
+      "n": 9,
+      "title": "GROUND DETECTION CIRCUITS FOR STATIONARY APPLICATIONS (IN PLAIN DOWN TO EARTH LANGUAGE)",
+      "url": "https://www.vertiv.com/48df2a/globalassets/documents/battcon-static-assets/2008/ground-detection-circuits-for-stationary-applications-in-plain-down-to-earth-language.pdf",
+      "quote": "If there is a slight difference between the first two measurements, then there is a partial short to building ground."
+    },
+    {
+      "n": 11,
+      "title": "US9753069B2 - Insulation resistance detection method and circuit for ungrounded DC power supply system - Google Patents",
+      "url": "https://patents.google.com/patent/US9753069B2/en",
+      "quote": "When the insulation resistance of the bus to ground gradually decreases to 51 kΩ, its voltage to ground also decreases slowly to 9.26 V (100/(500+51)×51=9.26 V)."
+    },
+    {
+      "n": 13,
+      "title": "Insulation monitoring: The concept",
+      "url": "https://www.bender-uk.com/know-how/technology/it-system/insulation-monitoring",
+      "quote": "Symmetrical insulation faults are common in DC voltage systems and control circuits."
+    },
+    {
+      "n": 15,
+      "title": "GROUND DETECTION CIRCUITS FOR STATIONARY APPLICATIONS (IN PLAIN DOWN TO EARTH LANGUAGE)",
+      "url": "https://www.vertiv.com/48df2a/globalassets/documents/battcon-static-assets/2008/ground-detection-circuits-for-stationary-applications-in-plain-down-to-earth-language.pdf",
+      "quote": "Personnel who assume that the floating DC bus is not connected to ground can be electrocuted while working on the DC bus"
+    },
+    {
+      "n": 16,
+      "title": "Technical aspects IT systems",
+      "url": "https://fournais-bender.dk/storage/TechnAspects-IT-systems.pdf",
+      "quote": "the electrical safety of persons is guaranteed if the touch voltage is < 50 V (AC) or < 120 V (DC)."
+    },
+    {
+      "n": 17,
+      "title": "Electrical Safety Solutions for Harbours and Vessels",
+      "url": "https://www.benderinc.com/fileadmin/content/BenderGroup/Documents/Article/en/Harbours_and_Vessels_6.12.20_compressed.pdf",
+      "quote": "The ship automation system and most other systems on board have an internal control voltage of DC 24 V."
+    },
+    {
+      "n": 18,
+      "title": "US9753069B2 - Insulation resistance detection method and circuit for ungrounded DC power supply system - Google Patents",
+      "url": "https://patents.google.com/patent/US9753069B2/en",
+      "quote": "Notably, the paths for leakage current are closed when the charges of the capacitors reach steady state."
+    }
+  ],
+  "confidence": "simplified",
+  "contested": null
+}

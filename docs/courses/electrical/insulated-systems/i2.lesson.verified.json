@@ -1,0 +1,206 @@
+{
+  "iid": "i2",
+  "title": "The first earth fault: the triangle shifts",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the earth dot sliding to L1's tip as you drag the fault on L1 from open to solid. The triangle keeps its size, and L2 and L3 rise to 440 V to earth.",
+    "title": "The shifting triangle",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Screen",
+        "min": 0,
+        "max": 11,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "Twelve small screens on one picture, with Back and Continue. Five show an idea and seven ask you to try it. No marks and no timers.\n\nThe picture. The supply's three windings drawn as a phasor star, a star of arrows. Each arrow runs from the star point to a line: L1 points straight up, L2 down to the right and L3 down to the left, 120° apart, with L2 120° behind L1. Say it is a 440 V supply, so each arrow is 440 ÷ 1.732 = 254 V long. A faint triangle joins the three tips. Its sides are the voltages between lines, 440 V each. Every length on the picture is a voltage, to one scale. The hull, which is earth, is a dot labelled \"Earth (hull)\". A dashed voltmeter lead runs from the dot to each tip, and its length is that line's voltage to earth. A small motor card beside the triangle is joined to L1 and L2.\n\nThe controls, under the picture: a fault picker of three buttons, L1, L2 and L3, and a slider, Fault resistance, with stops Open, 10 kΩ, 3 kΩ, 1 kΩ, 300 Ω, 100 Ω and Solid. Dragging it moves the dot smoothly. The star and the triangle never move or change size.\n\nThe readouts, in tiles that wrap onto more rows on a phone: L1 to earth, L2 to earth, L3 to earth, Star point to earth, all in volts, and Motor, L1–L2, which reads 440 V on every setting.\n\nThe rule it computes. Each line leaks to the hull through its cable's capacitance, say 1 µF a line at 60 Hz, the same on all three. With no fault the three equal leaks hold the earth dot at the star point. A fault of resistance R from one line to the hull pulls the dot towards that line's tip. Measured from the star point, the dot sits at that line's arrow divided by the complex number 1 + j3ωCR, where ω is 2π × 60 and C is 1 µF. As R falls from Open to Solid, the dot traces a half-circle from the star point to the faulted tip. Each line's voltage to earth is the length from the dot to its tip. Solid on L1: L1 0 V, L2 and L3 440 V, star point 254 V. At 1 kΩ on L1: the dot 168 V from the star point, L1 190 V, L2 256 V, L3 420 V. Near 330 Ω on L1, L3 peaks near 463 V, about 5% over 440 V, then settles at 440 V when the fault is solid.\n\nScreen 1, show. The star grows in from the star point, then the triangle appears. No earth dot yet, so the drawing stops below the triangle. The words: \"This picture draws the supply's three windings as a phasor star. Each arrow runs from the star point to a line, L1, L2 or L3. Its length is that winding's voltage, 254 V. The faint triangle joins the line ends. Its sides are the voltages between lines. The loads take their supply across them. Every length in this picture is a voltage.\" Still: no fault, earth dot hidden.\n\nScreen 2, try it. \"Each winding gives 254 V. What does a voltmeter read between two lines, such as L1 and L2?\" Three choices, in this order: \"440 V\"; \"508 V\"; \"254 V\". Right, the first. Hint for the second: \"The arrows are 120° apart, so they do not add end to end. The side is 1.732 times one arrow, not twice.\" Hint for the third: \"That is one winding, from the star point to a line. Between two lines you cross two windings at an angle.\" Why: \"The line voltage is 1.732 times the phase voltage, so 254 × 1.732 = 440 V. That is each side of the triangle.\" A right Check labels each side 440 V. Read: \"Each winding gives 254 V. What does a voltmeter read between two lines, such as L1 and L2?\"\n\nScreen 3, show. The earth dot appears at the star point, with a voltmeter lead to each tip. The words: \"Now add the hull as a dot. The hull is earth. A voltmeter from each line to the dot reads that line's voltage to earth. With no fault the dot sits at the star point, so each line reads 254 V. No wire ties the hull to the star point. Each line leaks to the hull a little through its cable's capacitance. The three leaks are equal, so they hold the hull at the middle of the star.\" Still: no fault.\n\nScreen 4, try it. \"L1 faults solidly to the hull. Before you try it, what will the voltmeters on L2 and L3 read?\" Three choices, in this order: \"440 V each\"; \"254 V each, as before\"; \"0 V each, as the supply collapses\". Right, the first. Hint for the second: \"The fault joins L1 to the hull. So each healthy line's voltage to earth is now its voltage to L1.\" Hint for the third: \"The windings still give their voltages. The fault joins one line to earth, not the lines to each other.\" Why: \"The fault puts the hull at L1's potential. L2 is still 440 V from L1, so it reads 440 V to earth. So does L3.\" A right Check drags the fault on L1 to Solid. Read: \"L1 faults solidly to the hull. What will the voltmeters on L2 and L3 read?\"\n\nScreen 5, show. The fault picker on L1, the slider on Open. The words: \"Watch the fault go from Open to Solid, then drag it back and try it. The dot slides along a curve to L1's tip. L1 now reads 0 V to earth, because the fault joins it to the hull. L2 and L3 read 440 V. Those are the triangle's sides, and they have not changed. The triangle does not collapse. It shifts, so L1's corner sits on earth. Each healthy line now sits at √3 times its normal voltage to earth.[^1]\" Read: \"With a solid fault on L1, the dot sits on L1's tip. L1 reads 0 V to earth, and L2 and L3 read 440 V. The triangle has kept its size and shifted.\" Still: fault on L1, Solid.\n\nScreen 6, try it. \"With L1 solid to the hull, what does a voltmeter read from the star point to earth?\" Three choices, in this order: \"254 V\"; \"0 V\"; \"440 V\". Right, the first. Hint for the second: \"The star point is joined to nothing. It is one winding away from L1, and L1 is now at earth.\" Hint for the third: \"440 V is a line's distance from L1. The star point is one arrow from L1, not one side.\" Why: \"The star point is the inner end of L1's winding. L1 is at earth, so the star point sits one winding, 254 V, from earth.\" A right Check draws a voltmeter lead from the dot to the star point, reading 254 V. Read: \"With L1 solid to the hull, what does a voltmeter read from the star point to earth?\"\n\nScreen 7, show. Fault on L1, Solid, the motor card lit. Under the key, a bar shows L2's voltage to earth against a tick at 440 V marked \"Rated 440 V\", on a scale to 480 V. The words: \"The motor is fed across the lines, so it sees only the triangle's sides. It still gets 440 V and runs on. Nothing needs to disconnect. The fault current is small, often measured in milliamps.[^2] What has changed is the voltage to earth. The insulation on L2 and L3 now holds 440 V instead of 254 V. That is 1.73 times as much. So an insulated system's equipment is rated for the line voltage to earth, 173% of the phase voltage.[^3] The bar shows L2 against that rating.\" Read: \"With a solid fault on L1, the motor across L1 and L2 still gets 440 V and runs on. The insulation on L2 and L3 now holds 440 V to earth instead of 254 V. Equipment on an insulated system is rated for that.\" Still: fault on L1, Solid.\n\nScreen 8, try it. \"A solid first fault on L1 draws only a small current. What has it changed that matters?\" Three choices, in this order: \"L2 and L3 now sit at 440 V to earth, so their insulation is stressed harder\"; \"Nothing much, since so little current flows\"; \"The motors now get 1.73 times their normal voltage\". Right, the first. Hint for the second: \"Look at the voltmeters, not the current. The voltage to earth has risen with almost no current.\" Hint for the third: \"The motors are fed across the lines. The triangle has kept its size.\" Why: \"A tiny current can still move the earth a long way. The hull now sits at L1, so L2 and L3 are 440 V from it. Their insulation holds that until someone clears the fault.\" Read: \"A solid first fault on L1 draws only a small current. What has it changed that matters?\"\n\nScreen 9, show. Fault on L1, the slider on 1 kΩ. The words: \"Not every fault is a solid join. At 1 kΩ on L1 the dot stops part way along its curve. L1 reads 190 V, L2 256 V and L3 420 V. At 10 kΩ and 3 kΩ, L2 reads lowest, though the fault is on L1. But on 440 V no healthy line drops below about 209 V, so a reading far lower marks the fault. Drag on to Solid and the dot reaches L1's tip. On the way, L3 passes 440 V by about 5%, near 463 V.\" Read: \"With a 1 kΩ fault on L1, the dot sits part way along its curve, 168 V from the star point. L1 reads 190 V, L2 256 V and L3 420 V. At higher resistance L2 can read lowest, but on 440 V no healthy line drops below about 209 V.\" Still: fault on L1, 1 kΩ.\n\nScreen 10, try it, the first of three mixed puzzles. \"An insulated 440 V board's voltmeters read L1 463 V, L2 82 V and L3 382 V. What is happening?\" Three choices, in this order: \"An earth fault on L2 that is not quite solid\"; \"A solid earth fault on L2\"; \"The supply voltage has risen to 463 V\". Right, the first. Hint for the second: \"A solid fault reads 0 V on its line and exactly 440 V on the other two.\" Hint for the third: \"The voltages between lines have not changed. The earth has moved. Part way to solid, one line passes 440 V.\" Why: \"L2 reads far lowest, at 82 V, so the fault is on L2. On 440 V no healthy line drops below about 209 V. L2 is not at 0 V, so the fault has some resistance. Part way along the curve, one healthy line passes 440 V. Here it is L1.\" A right Check sets the fault on L2 to 300 Ω. Read: \"An insulated 440 V board's voltmeters read L1 463 V, L2 82 V and L3 382 V. What is happening?\"\n\nScreen 11, try it. \"An insulated 400 V supply has 231 V a phase. L3 faults solidly to earth. What do the three lines read to earth?\" Three choices, in this order: \"L1 400 V, L2 400 V, L3 0 V\"; \"L1 231 V, L2 231 V, L3 0 V\"; \"All three 0 V, as the fault shorts the supply\". Right, the first. Hint for the second: \"The hull now sits at L3. The others read their distance from L3, which is the line voltage.\" Hint for the third: \"The fault joins one line to earth, not the lines to each other. The triangle keeps its size.\" Why: \"The hull takes L3's potential, so L3 reads 0 V. L1 and L2 are a full line voltage from L3, so each reads 400 V. That is 231 × 1.732, √3 times the phase voltage. The picture stays on its 440 V supply, so its healthy lines read 440 V, not 400 V.\" A right Check shows the same shift on the 440 V picture, with the fault on L3 at Solid. Read: \"An insulated 400 V supply has 231 V a phase. L3 faults solidly to earth. What do the three lines read to earth?\"\n\nScreen 12, try it. \"An insulated 440 V board gets its first solid earth fault, on L1. What do you expect?\" Three choices, in this order: \"Nothing trips, the motors run on, and L2 and L3 read 440 V to earth\"; \"L1's breaker trips, as it would on a TN supply\"; \"The motors slow down, as the line voltages fall\". Right, the first. Hint for the second: \"An insulated supply gives the fault no deliberate way home, so only a small current flows. That trips nothing.\" Hint for the third: \"The line voltages are the triangle's sides, and those keep their size.\" Why: \"The hull moves to L1, so L1 reads 0 V and the others 440 V. The motors see only the line voltages, which do not change. The fault passes only a small current, so nothing trips. The board runs on. Its insulation takes the extra stress until someone finds the fault.\" A right Check sets the fault on L1 to Solid. Read: \"An insulated 440 V board gets its first solid earth fault, on L1. What do you expect?\"\n\nEvery figure on these screens is an example value or worked from the rule above.",
+    "ignores": "The picture draws a perfectly balanced supply, with the same example capacitance from each line to the hull. Real systems are never quite balanced, so a healthy system's three readings differ a little. The curve's shape changes if the leaks are unequal or partly through the insulation's resistance. The fault is drawn as a steady resistance. A real one can arc or change. The small currents through the leaks and the fault are left off the readouts. The arrows stand for alternating voltages, so the whole picture turns sixty times a second. Each reading is an r.m.s. value.",
+    "numbers": [
+      {
+        "label": "Screen, 1 to 12 (the stepper)",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Number of screens",
+        "value": 12,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example line voltage of the supply, in volts",
+        "value": 440,
+        "kind": "assumed"
+      },
+      {
+        "label": "Square root of 3, to three decimal places",
+        "value": 1.732,
+        "kind": "constant"
+      },
+      {
+        "label": "Voltage across each winding, 440 ÷ 1.732, in volts",
+        "value": 254,
+        "kind": "computed"
+      },
+      {
+        "label": "Angle between the windings, in degrees",
+        "value": 120,
+        "kind": "constant"
+      },
+      {
+        "label": "Wrong answer on screen 2, 254 + 254, in volts",
+        "value": 508,
+        "kind": "computed"
+      },
+      {
+        "label": "Example capacitance from each line to the hull, in microfarads",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example supply frequency, in hertz",
+        "value": 60,
+        "kind": "assumed"
+      },
+      {
+        "label": "Fault resistance slider stops, in ohms",
+        "value": "Open, 10,000, 3,000, 1,000, 300, 100, Solid",
+        "kind": "control"
+      },
+      {
+        "label": "Solid fault: faulted line to earth, in volts",
+        "value": 0,
+        "kind": "computed"
+      },
+      {
+        "label": "Solid fault: each healthy line to earth, in volts",
+        "value": 440,
+        "kind": "computed"
+      },
+      {
+        "label": "Solid fault: star point to earth, in volts",
+        "value": 254,
+        "kind": "computed"
+      },
+      {
+        "label": "Rise in each healthy line's voltage to earth, 440 ÷ 254",
+        "value": 1.73,
+        "kind": "computed"
+      },
+      {
+        "label": "Example partial fault on L1, in kilohms",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "At 1 kΩ on L1: star point to earth, in volts",
+        "value": 168,
+        "kind": "computed"
+      },
+      {
+        "label": "At 1 kΩ on L1: L1, L2 and L3 to earth, in volts",
+        "value": "190, 256, 420",
+        "kind": "computed"
+      },
+      {
+        "label": "At 10 kΩ on L1: L1 and L2 to earth, in volts",
+        "value": "253, 236",
+        "kind": "computed"
+      },
+      {
+        "label": "At 3 kΩ on L1: L1 and L2 to earth, in volts",
+        "value": "244, 211",
+        "kind": "computed"
+      },
+      {
+        "label": "Lowest a healthy line reads at any fault resistance, on 440 V, in volts",
+        "value": 209,
+        "kind": "computed"
+      },
+      {
+        "label": "Fault resistance where L3 peaks, fault on L1, in ohms",
+        "value": 330,
+        "kind": "computed"
+      },
+      {
+        "label": "Highest healthy-line reading on the way to solid, in volts",
+        "value": 463,
+        "kind": "computed"
+      },
+      {
+        "label": "That peak over 440 V, in per cent",
+        "value": 5,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 10 example fault on L2, in ohms",
+        "value": 300,
+        "kind": "assumed"
+      },
+      {
+        "label": "At 300 Ω on L2: L1, L2 and L3 to earth, in volts",
+        "value": "463, 82, 382",
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 11 example line voltage, in volts",
+        "value": 400,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 11 phase voltage, 400 ÷ 1.732, in volts",
+        "value": 231,
+        "kind": "computed"
+      },
+      {
+        "label": "Equipment rating on an insulated system, as a share of the phase voltage, 1.732 × 100, in per cent",
+        "value": 173,
+        "kind": "computed"
+      },
+      {
+        "label": "Full scale of the insulation bar on screen 7, in volts",
+        "value": 480,
+        "kind": "assumed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "On an insulated supply, a solid earth fault does not collapse the voltages. It moves the earth. The faulted line drops to earth, and the other two rise to the full line voltage to earth. The voltages between the lines do not change.\n\nPicture the supply's windings as a star of three arrows, from the star point to each line. Say it is a 440 V supply, so each winding gives 440 ÷ 1.732 = 254 V. A triangle joins the line ends. Its sides are the voltages between lines, 440 V each. With no fault, no wire ties the hull to the supply. Each line leaks a little to the hull through its cable's capacitance. The three leaks are equal. So the hull sits at the star point's potential, and each line reads 254 V to earth.\n\nNow L1 faults solidly to the hull. The fault joins them, so the hull takes L1's potential. L1 now reads 0 V to earth. The windings have not changed, so L2 and L3 are still 440 V from L1. The hull now sits at L1, so each reads 440 V to earth. That is √3 times its normal voltage to earth.[^1] The star point is now a whole winding, 254 V, from earth. The triangle has not collapsed. It has shifted, so one corner sits on earth. A motor fed from the three lines sees only the triangle's sides, so it runs on. Nothing needs to disconnect. The fault current is small, often measured in milliamps.[^2] The real change is the stress on the insulation of L2 and L3. It now holds 440 V instead of 254 V. That is 1.73 times as much, for as long as the fault stays. So an insulated system's equipment is rated for the line voltage to earth, 173% of the phase voltage.[^3]\n\nA fault with some resistance moves the earth only part way. In a simplified model, the earth point follows a half-circle from the star point to the faulted line's tip. The cables' capacitance sets how far along it a given resistance moves the earth. Take an example of 1 µF a line at 60 Hz, with a 1 kΩ fault on L1. The lines read 190 V, 256 V and 420 V. On the way to solid, one healthy line passes 440 V by about 5%. Real systems are not perfectly balanced, so even healthy readings differ a little. **A solid earth fault on an insulated supply moves the earth to the faulted line. That line reads 0 V. The other two rise to the line voltage to earth.[^1] The voltages between lines do not change.**"
+  },
+  "analogy": {
+    "text": "Three bolts on a flange sit at the corners of a triangle. Measure each one from a centre punch mark and all three read the same. Move the mark onto one bolt. That bolt now reads zero, and the other two read the full side of the triangle. Not one bolt has moved.",
+    "breaks": "A mark costs nothing to move. Here the move is real. The healthy lines' insulation takes the higher voltage. The voltages also alternate, so the whole picture turns once a cycle. That is sixty times a second on a 60 Hz supply. And a fault with resistance moves the earth along a curve, not straight to the corner."
+  },
+  "practice": {
+    "text": "- Safety first: an insulated supply with a first fault can hold a line at 440 V to the hull. Never treat a line as low to earth because the supply is insulated. Isolate and prove dead as on any job.\n- Read each line's voltage to earth, where the board shows it.\n- All three close to the phase voltage, 254 V on 440 V: no solid fault.\n- One near 0 V and two near the line voltage: a solid fault on the low line.\n- Readings part way, none near 0 V: a fault with some resistance, or an imbalance. Do not assume the lowest line is the faulted one. With a high-resistance fault, the line after it in phase order can read lowest. Find it properly before acting.\n- Check the board's line-to-line reading if in doubt. An earth fault leaves it unchanged.\n\n**Rules of thumb:** On a solid fault, the healthy lines read the line voltage to earth: 440 V on a 440 V supply, 400 V on a 400 V one. An earth fault on an insulated supply leaves the voltages between lines as they were.\n\n**Worked example:** A 440 V insulated supply gives 440 ÷ 1.732 = 254 V a phase. L2 faults solidly to the hull. L2 now reads 0 V to earth. L1 and L3 read 440 V each, and the star point reads 254 V. The motors still get 440 V across their lines. The insulation on L1 and L3 holds 1.73 times its normal voltage until the fault is cleared.\n\n**Common mistakes**\n- Expecting the first earth fault to trip something. Only a small current flows, often milliamps.\n- Expecting the voltages to collapse. The triangle keeps its size and shifts.\n- Judging the danger by the current. A tiny current can move the earth a long way.\n- Taking a reading a little over 440 V as a supply fault. A fault with some resistance can lift one line a little past the line voltage."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+    {
+      "n": 1,
+      "title": "IT system - Fault protection - Electrical Installation Guide",
+      "url": "https://www.electrical-installation.org/enwiki/IT_system_-_Fault_protection",
+      "quote": "The voltages of the healthy phases have (because of the fault) increased to √3 times the normal phase voltage"
+    },
+    {
+      "n": 2,
+      "title": "IT system - Fault protection - Electrical Installation Guide",
+      "url": "https://www.electrical-installation.org/enwiki/IT_system_-_Fault_protection",
+      "quote": "In IT system, the first fault to earth should not cause any disconnection. The earth-fault current which flows under a first-fault condition is measured in mA."
+    },
+    {
+      "n": 3,
+      "title": "Low-voltage high resistance grounding systems basics",
+      "url": "https://www.eaton.com/content/dam/eaton/products/low-voltage-power-distribution-controls-systems/hrg/files/lv-hrg-systems-basics-ap019004en.pdf",
+      "quote": "The equipment rating has to be rated at 173% of their line-to-neutral voltages."
+    }
+  ]
+}

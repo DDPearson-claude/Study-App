@@ -1,0 +1,543 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-27T17:07:55.171Z",
+ "startedAt": "2026-10-27T17:07:55.171Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i3",
+  "title": "Earthed through capacitance",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the two healthy lines' charging currents swinging to 60° apart and adding head to tail to three times one line's healthy current when you switch the fault onto L1.",
+   "title": "The cable that is a capacitor",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Screen",
+     "min": 0,
+     "max": 11,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [],
+   "whatAmILookingAt": "Twelve small screens on one picture, with Back and Continue. Five show an idea and seven ask you to try it. No marks and no timers.\n\nThe picture. A switchboard on the left feeds a load on the right through a three-line feeder. L1 is on top, then L2, then L3. A thick bar under the feeder is the hull, which is earth. All along the run, small capacitors join each line to the hull, in three rows. Each one stands for a stretch of cable, because the copper and the hull are two plates with the insulation between them. A small drive card sits by the load. It has its own capacitors to the hull, drawn only when its switch is on. Beside the feeder is a phasor panel. It draws each line's current into the hull as an arrow, in milliamps, to one scale.\n\nThe controls sit under the picture, in a row that wraps on a phone. A mode picker has three buttons: Healthy, Fault on L1 and Person on L1. A slider, Cable length, runs from 0.5 to 16 km in steps of 0.5 km. Then come a switch, Ten drives' filters, and a button, 480 V check. In Fault on L1 a solid link joins L1 to the hull. In Person on L1 a figure stands on the hull with one hand on L1, and there is no fault.\n\nThe readouts sit in tiles that wrap onto more rows on a phone. They show from screen 3 on. While the arrows swing, Current to earth follows them. Capacitance a line is in µF. Charging current a line, healthy, is in mA. Current to earth is in mA, and it shows the fault current or the body current. Below them, a small plot of Current to earth against cable length, with a dot at the present setting.\n\nThe rule it computes. Take a 440 V, 60 Hz supply. When healthy, each line sits 440 ÷ 1.732 = 254 V from earth. Say each line has 0.25 µF to the hull for every kilometre of cable, and each drive's filter adds 0.1 µF a line. So C, the capacitance a line, is 0.25 × length. Switching in the ten drives adds 1 µF. A capacitor on AC passes ω × C × V. Here ω = 2π × 60 = 377, and V is the voltage across it. Healthy, each line passes ω × C × 254 V. That is its charging current. The three arrows sit 120° apart, so they close into a triangle and add to zero. With the fault on L1, the hull moves to L1, as in the shifting triangle. L1's capacitors have 0 V across them and its arrow shrinks to nothing. L2's and L3's capacitors hold 440 V, so each arrow grows 1.73 times. The two arrows swing to 60° apart and slide head to tail. A third arrow, from tail to head, shows their sum. That sum is the fault current: 3 × ω × C × 254 V. In Person on L1, the body is an example 1,000 Ω. All the capacitance together acts in series with it: Current to earth = 254 V ÷ the size of (1,000 Ω in series with the reactance of 3 × C). In Fault on L1 the plot is a straight line, through zero with the drives off. In Person on L1 it is a curve that levels off. The 480 V check sets a 480 V supply, 277 V a line. It gives 3.3 µF a line, a reactance of 800 Ω.\n\nThe opening setting is 4 km with no drives. There C = 1 µF, and each line passes 96 mA healthy. With the fault on, L2 and L3 pass 166 mA each and the fault current is 287 mA. The body current is 190 mA. At 8 km, or 4 km with the drives: C = 2 µF, 192 mA healthy, fault current 575 mA. At 0.5 km: body current 36 mA. At 16 km with the drives: C = 5 µF, 479 mA healthy, fault current 1.44 A.\n\nScreen 1, show. Healthy, 4 km, drives off, the phasor panel and readouts hidden. The words: \"Every conductor near the hull is a capacitor. The copper is one plate and the hull is the other, with the insulation between. So a feeder has small capacitors from each line to the hull all along its run. Windings and drive filters add more. An insulated supply has no tie to earth. Yet it is joined to the hull through all this capacitance.[^1]\" Still: Healthy, 4 km.\n\nScreen 2, try it. \"Each line has 1 µF to the hull. What is that capacitance's reactance at 60 Hz?\" Three choices, in this order: \"About 377 Ω\"; \"About 2,650 Ω\"; \"Infinite, as a capacitor blocks current\". Right, the second. Hint for the second: \"377 is ω, 2π × 60. The reactance is 1 divided by ω × C.\" Hint for the third: \"That holds for steady DC. On AC the plates charge and discharge every half cycle, so current flows in the wires either side.\" Why: \"A capacitor's reactance is 1 ÷ (2π × f × C). Here that is 1 ÷ (2π × 60 × 0.000001) = 2,650 Ω. With 254 V across it, about 96 mA flows.\" A right Check labels one row of capacitors 2,650 Ω. Read: \"Each line has 1 µF to the hull. What is that capacitance's reactance at 60 Hz?\"\n\nScreen 3, show. Healthy, 4 km, the phasor panel shown. The words: \"Each line charges its capacitors one way, then the other, 60 times a second. That flow in the line is its charging current. With 1 µF a line on 440 V, each line passes 96 mA. The panel draws the three as arrows, 120° apart like their voltages. Laid head to tail, they close into a triangle. So they cancel in the hull. Each line's current comes back through the other two lines' capacitance. There is no tie to the star point.\" Still: Healthy, 4 km.\n\nScreen 4, try it. \"With no fault, each line pushes 96 mA into the hull. What do the three add up to?\" Three choices, in this order: \"287 mA, three times 96 mA\"; \"96 mA, the same as one line\"; \"Zero, in this balanced picture\". Right, the third. Hint for the second: \"They are 120° apart, so they do not add as plain numbers. Lay them head to tail.\" Hint for the third: \"Lay all three arrows head to tail. Where does the last one end?\" Why: \"Three equal arrows 120° apart close into a triangle, so they add to zero. It works like a balanced load's neutral. A real system is a little unbalanced, so a little is left over.\" A right Check slides the three arrows head to tail. Read: \"With no fault, each line pushes 96 mA into the hull. What do the three add up to?\"\n\nScreen 5, show. Fault on L1, 4 km. The words: \"Now L1 faults solidly to the hull. The hull moves to L1, so L1's capacitors have no voltage across them and pass nothing. L2's and L3's capacitors now hold 440 V instead of 254 V. So each passes 1.73 times as much, 166 mA. Both are measured from L1's corner of the triangle, so they sit 60° apart. Head to tail they add to 287 mA, three times one line's healthy current.\" Read: \"With a solid fault on L1, L1's capacitors pass nothing. L2 and L3 each pass 166 mA, 60° apart. Head to tail they add to 287 mA.\" Still: Fault on L1, 4 km.\n\nScreen 6, try it. \"With L1 faulted solidly, what carries the fault current back round to the supply?\" Three choices, in this order: \"The capacitance of L2 and L3 to the hull\"; \"Nothing carries it, as a capacitor blocks current\"; \"A tie from the hull to the star point\". Right, the first. Hint for the second: \"On AC a capacitor passes current as its plates charge and discharge. 440 V across 1 µF at 60 Hz passes 166 mA.\" Hint for the third: \"There is no tie. That is what makes the supply insulated.\" Why: \"The current leaves the supply on L2 and L3 and crosses their capacitance into the hull. It runs along the hull to the fault and back through it into L1.[^2] The windings close the loop.\" A right Check lights the loop. Read: \"With L1 faulted solidly, what carries the fault current back round to the supply?\"\n\nScreen 7, show. Fault on L1, the slider moving from 4 km to 8 km. The words: \"Two arrows 60° apart add to 1.73 times one of them. The same geometry makes 440 V 1.73 times 254 V. Each arrow was 1.73 times the healthy current, so the sum is 3 times it. The rule is fault current = 3 × ω × C × V_phase. Capacitance grows with the system. Every metre of cable and every filter adds some in parallel. Watch the cable go from 4 km to 8 km. C doubles to 2 µF and the fault current doubles to 575 mA.\" Read: \"At 8 km of cable, C is 2 µF a line and the fault current is 575 mA, twice the 4 km figure. The plot is a straight line through zero.\" Still: Fault on L1, 8 km.\n\nScreen 8, try it. \"A 440 V system has 1 µF a line, and a first fault passes 287 mA. Ten drives are added, each with 0.1 µF a line in its filter. What does a first fault pass now?\" Three choices, in this order: \"287 mA, as the cable is the same\"; \"About 1.15 A, four times as much\"; \"About 575 mA\". Right, the third. Hint for the first: \"The filters are capacitors to the hull too, in parallel with the cable. Ten of them add 1 µF a line.\" Hint for the second: \"C has doubled. The current goes up in step with C, not with its square.\" Why: \"Capacitors in parallel add, so ten filters add 1 µF a line. C doubles to 2 µF, so the fault current doubles to about 575 mA. The larger the system, the lower its impedance to earth.[^3]\" A right Check switches the drives' filters in. Read: \"A 440 V system has 1 µF a line, and a first fault passes 287 mA. Ten drives are added, each with 0.1 µF a line in its filter. What does a first fault pass now?\"\n\nScreen 9, show. Person on L1, 4 km. The words: \"Take the fault away. A person stands on the hull and touches L1. Say the body is 1,000 Ω. The person becomes the fault, and the cables' capacitance closes the loop. With 1 µF a line, about 190 mA flows through the body. The body's resistance holds it below a solid fault's 287 mA. That is still over six times the 30 mA a socket RCD is rated to trip at. Even with 0.5 km of cable it is about 36 mA. An insulated supply is not safe to touch.\" Read: \"A person on the hull touches L1 of a healthy system with 1 µF a line. About 190 mA flows through the body, back through the cables' capacitance.\" Still: Person on L1, 4 km.\n\nScreen 10, try it, the first of three mixed puzzles. \"You stand on the hull and touch L1, first on a small insulated system, then on a big one. Both are 440 V and healthy. Which passes more current through you?\" Three choices, in this order: \"The same on both, as the voltage is the same\"; \"The big one, as its capacitance to the hull is larger\"; \"Neither passes any, as there is no other end of the circuit\". Right, the second. Hint for the first: \"The current comes back through the cables' capacitance. More capacitance means less reactance in the loop.\" Hint for the third: \"The other end is there. Every cable is a capacitor to the hull you stand on.\" Why: \"The cables' capacitance closes the loop through you, as it would for a fault. A big system has more of it, so less reactance in the loop. With 0.5 km of cable about 36 mA flows. With 4 km it is about 190 mA.\" A right Check switches to Person on L1, at 4 km. Read: \"You stand on the hull and touch L1, first on a small insulated system, then on a big one. Both are 440 V and healthy. Which passes more current through you?\"\n\nScreen 11, try it. \"A 440 V, 60 Hz insulated system has 5 µF a line. Healthy, each line passes 479 mA. What does a solid first fault pass?\" Three choices, in this order: \"About 1.44 A\"; \"About 830 mA\"; \"479 mA, the same as one line\". Right, the first. Hint for the second: \"That is one healthy line at 440 V. Two of them add, 60° apart.\" Hint for the third: \"The fault lifts L2 and L3 to 440 V, so their currents grow. Then two of them add.\" Why: \"The fault current is three times one line's healthy charging current. 3 × 479 mA = 1.44 A. A big system's first fault passes amps, not milliamps.\" A right Check sets 16 km with the drives on and the fault on L1. Read: \"A 440 V, 60 Hz insulated system has 5 µF a line. Healthy, each line passes 479 mA. What does a solid first fault pass?\"\n\nScreen 12, try it. \"A 480 V, 60 Hz insulated system has 277 V a phase. Each line's capacitance to the hull has a reactance of 800 Ω. What does a solid first fault pass?\" Three choices, in this order: \"About 0.35 A\"; \"About 1.04 A\"; \"About 0.60 A\". Right, the second. Hint for the first: \"That is one line's healthy current, 277 ÷ 800. The fault passes three times as much.\" Hint for the third: \"That is one healthy line at 480 V. Two of them add, 60° apart.\" Why: \"One line's healthy current is 277 ÷ 800 = 0.35 A. Three times that is 1.04 A.[^2]\" A right Check presses 480 V check, with the fault on L1. The caption under the picture then gives the 480 V values. Read: \"A 480 V, 60 Hz insulated system has 277 V a phase. Each line's capacitance to the hull has a reactance of 800 Ω. What does a solid first fault pass?\"\n\nEvery figure on these screens is an example value or worked from the rule above.",
+   "ignores": "The picture lumps each line's capacitance into a few capacitors. Really it is spread along every metre of cable and every winding. It gives all three lines the same capacitance and draws the fault as a solid join. It leaves out insulation resistance, which lets a little more current through. The 0.25 µF a kilometre and 0.1 µF a drive are example values, and real cables and filters vary widely. A body is not a fixed 1,000 Ω. The currents are r.m.s. values of alternating currents, so the arrows really turn sixty times a second.",
+   "numbers": [
+    {
+     "label": "Screen, 1 to 12 (the stepper)",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Number of screens",
+     "value": 12,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example line voltage of the supply, in volts",
+     "value": 440,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example supply frequency, in hertz",
+     "value": 60,
+     "kind": "assumed"
+    },
+    {
+     "label": "Square root of 3, to three decimal places",
+     "value": 1.732,
+     "kind": "constant"
+    },
+    {
+     "label": "Voltage of each line to earth when healthy, 440 ÷ 1.732, in volts",
+     "value": 254,
+     "kind": "computed"
+    },
+    {
+     "label": "ω, 2π × 60, in radians per second",
+     "value": 377,
+     "kind": "computed"
+    },
+    {
+     "label": "Angle between the three healthy charging currents, in degrees",
+     "value": 120,
+     "kind": "constant"
+    },
+    {
+     "label": "Angle between the two healthy lines' currents in a fault, in degrees",
+     "value": 60,
+     "kind": "computed"
+    },
+    {
+     "label": "Example cable capacitance a line, in µF per kilometre",
+     "value": 0.25,
+     "kind": "assumed"
+    },
+    {
+     "label": "Cable length slider, opening value, in kilometres",
+     "value": 4,
+     "kind": "control"
+    },
+    {
+     "label": "Cable length slider range, in kilometres",
+     "value": "0.5 to 16, steps of 0.5",
+     "kind": "control"
+    },
+    {
+     "label": "Example filter capacitance per drive, in µF a line",
+     "value": 0.1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example number of drives switched in",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Capacitance a line at 4 km, no drives, in µF",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Reactance of 1 µF at 60 Hz, in ohms",
+     "value": 2650,
+     "kind": "computed"
+    },
+    {
+     "label": "Wrong answer on screen 2: ω, in ohms",
+     "value": 377,
+     "kind": "computed"
+    },
+    {
+     "label": "Healthy charging current a line at 1 µF, in milliamps",
+     "value": 96,
+     "kind": "computed"
+    },
+    {
+     "label": "Each healthy line's current with L1 faulted, 1 µF, in milliamps",
+     "value": 166,
+     "kind": "computed"
+    },
+    {
+     "label": "Rise in each healthy line's voltage and current, 440 ÷ 254",
+     "value": 1.73,
+     "kind": "computed"
+    },
+    {
+     "label": "Fault current at 1 µF a line, in milliamps",
+     "value": 287,
+     "kind": "computed"
+    },
+    {
+     "label": "Fault current over one line's healthy current",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Capacitance a line at 8 km, or 4 km with drives, in µF",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Healthy charging current a line at 2 µF, in milliamps",
+     "value": 192,
+     "kind": "computed"
+    },
+    {
+     "label": "Fault current at 2 µF a line, in milliamps",
+     "value": 575,
+     "kind": "computed"
+    },
+    {
+     "label": "Wrong answer on screen 8, four times 287 mA, in amps",
+     "value": 1.15,
+     "kind": "computed"
+    },
+    {
+     "label": "Example body resistance, in ohms",
+     "value": 1000,
+     "kind": "assumed"
+    },
+    {
+     "label": "Body current at 1 µF a line, in milliamps",
+     "value": 190,
+     "kind": "computed"
+    },
+    {
+     "label": "Body current at 0.5 km, in milliamps",
+     "value": 36,
+     "kind": "computed"
+    },
+    {
+     "label": "Usual socket RCD rated tripping current, in milliamps",
+     "value": 30,
+     "kind": "constant"
+    },
+    {
+     "label": "Capacitance a line at 16 km with drives, in µF",
+     "value": 5,
+     "kind": "computed"
+    },
+    {
+     "label": "Healthy charging current a line at 5 µF, in milliamps",
+     "value": 479,
+     "kind": "computed"
+    },
+    {
+     "label": "One healthy line at 440 V, 5 µF, in milliamps",
+     "value": 830,
+     "kind": "computed"
+    },
+    {
+     "label": "Fault current at 5 µF a line, in amps",
+     "value": 1.44,
+     "kind": "computed"
+    },
+    {
+     "label": "480 V check: line voltage, in volts",
+     "value": 480,
+     "kind": "assumed"
+    },
+    {
+     "label": "480 V check: voltage a phase, 480 ÷ 1.732, in volts",
+     "value": 277,
+     "kind": "computed"
+    },
+    {
+     "label": "480 V check: reactance a line, in ohms",
+     "value": 800,
+     "kind": "assumed"
+    },
+    {
+     "label": "480 V check: capacitance a line, 1 ÷ (377 × 800), in µF",
+     "value": 3.3,
+     "kind": "computed"
+    },
+    {
+     "label": "480 V check: healthy current a line, 277 ÷ 800, in amps",
+     "value": 0.35,
+     "kind": "computed"
+    },
+    {
+     "label": "480 V check: one healthy line at 480 V, 480 ÷ 800, in amps",
+     "value": 0.6,
+     "kind": "computed"
+    },
+    {
+     "label": "480 V check: fault current, in amps",
+     "value": 1.04,
+     "kind": "computed",
+     "source": 2
+    },
+    {
+     "label": "Capacitance carrying about 1 A at 277 V, in µF",
+     "value": 10,
+     "kind": "constant",
+     "source": 4
+    },
+    {
+     "label": "Charging current through about 10 µF at 277 V, in amps",
+     "value": 1,
+     "kind": "constant",
+     "source": 4
+    },
+    {
+     "label": "Worked example: fault current added per µF a line on 440 V, in amps",
+     "value": 0.29,
+     "kind": "computed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "An insulated supply has no tie to earth, but it is still joined to it. Every cable and winding is a capacitor to the hull. So the whole system is joined to earth through its capacitance.[^1] A solid first earth fault drives current round through that capacitance. It is three times what one line passes when healthy. The bigger the system, the bigger that current.\n\nTake one line of a feeder. Its copper and the hull are two plates, with the insulation between them. On a 60 Hz supply the plates charge one way, then the other, 60 times a second. So a current flows in the line, even though no charge crosses the insulation. That is the line's [[charging current]]. A capacitor passes ω × C × V. Here ω = 2π × 60 = 377, C is the capacitance and V the voltage across it. Say each line has 1 µF to the hull on a 440 V supply. Healthy, each line sits 254 V from earth, so it passes 377 × 0.000001 × 254 = 96 mA. The three currents sit 120° apart, like their voltages. Laid head to tail they close into a triangle. So they cancel in the hull, as a balanced load's neutral current does.\n\nNow L1 faults solidly to the hull. The hull moves to L1, as in the shifting triangle. L1's capacitance now has no voltage across it and passes nothing. L2 and L3 each sit 440 V from the hull, 1.73 times their healthy voltage. So each passes 1.73 × 96 = 166 mA. Both voltages are measured from L1's corner of the triangle, so they sit 60° apart. So do their currents. Two equal arrows 60° apart add to 1.73 times one of them. So the sum is 1.73 × 1.73 = 3 times the healthy current, about 287 mA. There is no tie for it to go home by. It leaves the supply on L2 and L3 and crosses their capacitance into the hull. Then it returns through the fault into L1.[^2]\n\nC grows with the system. Every length of cable and every drive's filter adds capacitance in parallel, so the values add. The larger the system, the lower its impedance to earth.[^3] Double the capacitance and the fault current doubles. A small system passes milliamps. A 480 V system with 800 Ω of reactance a line passes 1.04 A.[^2] The same capacitance closes the loop through a person who touches one line. So an insulated supply is not safe to touch. This is a simplified model. It gives every line the same capacitance. It also ignores insulation resistance, which adds a little more current. A fault through some resistance passes less. **A solid first earth fault on an insulated supply passes three times one line's healthy charging current: 3 × ω × C × V_phase. So it grows with the system.**"
+  },
+  "analogy": {
+   "text": "Put enough computers on one 30 mA RCD and it can trip with no fault anywhere. Each one's mains filter has small capacitors to earth, and their leakage currents add. An insulated system's cables, windings and drive filters add up the same way. So a big system has a lot of capacitance to the hull.",
+   "breaks": "On that RCD circuit the leakage returns to an earthed star point all the time. On an insulated supply the three healthy currents largely cancel. Their sum, up to three times one line's, only appears when a fault or a person gives it a way through."
+  },
+  "practice": {
+   "text": "- Safety first: an insulated supply can drive a dangerous current through you with no fault on it at all. The cables' capacitance closes the loop. Isolate and prove dead as on any job.\n- To estimate a first fault's current, find the phase voltage: the line voltage ÷ 1.732.\n- Add up the capacitance a line to earth: cables, windings and drive filters, all in parallel.\n- Work out one line's healthy charging current: 2π × the frequency × C × V_phase.\n- Multiply by 3 for a solid first fault's current. A fault through some resistance passes less.\n- Expect it to grow as feeders and drives are added.\n\n**Rules of thumb:** On 440 V at 60 Hz, each microfarad a line adds about 0.29 A to the first-fault current. About 10 µF on a 277 V phase carries about 1 A of charging current.[^4]\n\n**Worked example:** A 440 V, 60 Hz insulated system has 4 km of cable at 0.25 µF a kilometre a line. That is 1 µF a line. Ten drives add 0.1 µF a line each, another 1 µF. So C is 2 µF a line. One line's healthy charging current is 377 × 0.000002 × 254 = 192 mA. A solid first fault passes three times that, about 575 mA.\n\n**Common mistakes**\n- Thinking no current can flow with no return path. The capacitance is the return path.\n- Treating a capacitor as a barrier. It blocks steady DC but passes AC.\n- Assuming a first fault always passes only milliamps. It grows with the system, to amps on a big one.\n- Multiplying by 1.73 instead of 3. That is one healthy line at line voltage. Two of them add."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "Characteristics of different power systems neutral grounding techniques: Fact and fiction",
+    "url": "https://www.eaton.com/content/dam/eaton/products/medium-voltage-power-distribution-control-systems/vacclad-w-pages/characteristics-power%20systems-neutral-grounding-techniques-fact-fiction-ap083005en.pdf",
+    "quote": "although called ungrounded, this type of system is in reality coupled to ground through the distributed capacitance of its phase windings and conductors."
+   },
+   {
+    "n": 2,
+    "title": "Characteristics of different power systems neutral grounding techniques: Fact and fiction",
+    "url": "https://www.eaton.com/content/dam/eaton/products/medium-voltage-power-distribution-control-systems/vacclad-w-pages/characteristics-power%20systems-neutral-grounding-techniques-fact-fiction-ap083005en.pdf",
+    "quote": "there is no direct ground path back to the neutral point of the source in Figure 3b , the current must return through the distributed capacitance (insulation system) of the two unfaulted phases. As indicated, only 1.04 A will flow."
+   },
+   {
+    "n": 3,
+    "title": "Technical aspects IT systems",
+    "url": "https://fournais-bender.dk/storage/TechnAspects-IT-systems.pdf",
+    "quote": "The limits of an IT system are largely determined by its expansion. The larger the system, the smaller the impedance between active conductors and earth."
+   },
+   {
+    "n": 4,
+    "title": "Transient overvoltages on ungrounded systems from intermittent ground faults",
+    "url": "https://www.eaton.com/content/dam/eaton/markets/healthcare/knowledge-center/white-paper/transient-overvoltages-on-ungrounded-systems-from-intermittent-ground-faults.pdf",
+    "quote": "A capacitance of approximately 10µF on a 277 V system, then, will result in approximately 1 ampere of continuous (charging) current through that capacitance."
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: quantity -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .caption { max-width: 32rem; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.15rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.05rem; font-weight: 400; line-height: 1.6; }\n  .scene { display: block; width: 100%; max-width: 32rem; margin-inline: auto; }\n  .scene .c1 { stroke: var(--k-cat1); } .scene .c2 { stroke: var(--k-cat2); } .scene .c3 { stroke: var(--k-cat3); } .scene .ci { stroke: var(--k-ink); }\n  .scene .f1 { fill: var(--k-cat1); } .scene .f2 { fill: var(--k-cat2); } .scene .f3 { fill: var(--k-cat3); } .scene .fi { fill: var(--k-ink); } .scene .fw { fill: var(--k-warn); }\n  .scene .ln { stroke-width: 2.2; fill: none; }\n  .scene .lead { stroke-width: 1.3; fill: none; }\n  .scene .plate { stroke-width: 2.2; fill: none; }\n  .scene .arw { fill: none; }\n  .scene .hull { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.2; }\n  .scene .card { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }\n  .scene .wire { stroke: var(--k-ink); stroke-width: 1.5; fill: none; }\n  .scene .kcap { stroke: var(--k-ink); stroke-width: 1.6; fill: none; }\n  .scene .link { stroke: var(--k-warn); stroke-width: 3.5; stroke-linecap: round; fill: none; }\n  .scene .fig { stroke: var(--k-ink); stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }\n  .scene .headc { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 2; }\n  .scene .term { fill: var(--k-bg); stroke: var(--k-cat1); stroke-width: 2; }\n  .scene .glow { stroke: var(--k-fill2); stroke-width: 9; fill: none; stroke-linecap: round; stroke-linejoin: round; }\n  .scene .flow { stroke: var(--k-ink); stroke-width: 1.6; fill: none; stroke-dasharray: 2 7; stroke-linecap: round; }\n  .scene .leader, .scene .arc { stroke: var(--k-muted); stroke-width: 1.3; fill: none; }\n  .scene .ext { stroke: var(--k-muted); stroke-width: 1.3; stroke-dasharray: 3 3; fill: none; }\n  .scene .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }\n  .scene .lab.n { font-weight: 400; }\n  .scene .lab.m { font-weight: 400; fill: var(--k-muted); }\n  #ctls > * + * { margin-top: 10px; }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; min-height: 44px; }\n  /* Three readout tiles: as many to a row as fit, two on a phone. */\n  #outs { display: grid; grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr)); gap: 10px; }\n  /* The answers are sentences: one to a row, wrapping inside the button. */\n  .picks { display: flex; flex-direction: column; gap: 8px; }\n  .picks .k-btn { width: 100%; min-height: 48px; white-space: normal; text-align: left; justify-content: flex-start; line-height: 1.4; padding: 10px 14px; }\n  .picks .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  .fb { font-weight: 700; min-height: 1.5em; }\n  .fb.right { color: var(--k-good); }\n  .why, .done { line-height: 1.6; }\n  .done strong { color: var(--k-accent2); }\n  .done .row { margin-top: 14px; }\n  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }\n</style>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <svg class=\"scene\" id=\"scene\" viewBox=\"0 0 340 352\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"art\"></g></svg>\n    <div id=\"ctls\">\n      <div id=\"mctl\"></div>\n      <div id=\"lctl\"></div>\n      <p class=\"small\" id=\"vnote\" hidden>480 V supply: 277 V a line, and 800 Ω from each line to the hull.</p>\n      <div class=\"row\" id=\"vrow\"></div>\n    </div>\n    <div id=\"outs\"></div>\n    <div id=\"plotbox\"><div id=\"plot\"></div></div>\n    <div class=\"picks\" id=\"picks\"></div>\n    <div class=\"row\" id=\"acts\"></div>\n    <p class=\"fb\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p><strong id=\"finish\"></strong></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\" id=\"capt\">Example values: 440 V at 60 Hz, with 0.25 µF per km and 0.1 µF per drive on each line.</p>\n\n<script>\n  // ---------- the rule ----------\n  // Each line's voltage is an arrow 440 ÷ 1.732 = 254 V long (L1 up, L2 and L3 120° behind). Each line has\n  // C to the hull: 0.25 µF a kilometre, plus 0.1 µF for each of ten drives. The hull sits at H: the star\n  // point when healthy, L1 with a solid fault, L1 ÷ (1 + j3ωCR) through a 1,000 Ω body. Each line passes\n  // jωC × (its voltage − H) into the hull; their sum comes back through the fault or the body.\n  const VLINE = 440, ROOT3 = 1.732, HZ = 60, OMEGA = 2 * Math.PI * HZ;\n  const PER_KM = 0.25e-6, PER_DRIVE = 0.1e-6, DRIVES = 10, BODY = 1000;\n  const V_CHECK = 480, X_CHECK = 800;\n  const ANG = [90, -30, 210];\n  const LN = ['L1', 'L2', 'L3'];\n  const rad = (d) => d * Math.PI / 180;\n  const cdiv = (a, b) => { const d = b[0] * b[0] + b[1] * b[1]; return [(a[0] * b[0] + a[1] * b[1]) / d, (a[1] * b[0] - a[0] * b[1]) / d]; };\n  function sys(c) {\n    const vline = c.v480 ? V_CHECK : VLINE, vph = vline / Math.sqrt(3);\n    const C = c.v480 ? 1 / (OMEGA * X_CHECK) : PER_KM * c.len + (c.drives ? DRIVES * PER_DRIVE : 0);\n    const V = ANG.map((d) => [vph * Math.cos(rad(d)), vph * Math.sin(rad(d))]);\n    let H = [0, 0];\n    if (c.mode === 'fault') H = V[0];\n    else if (c.mode === 'person') H = cdiv(V[0], [1, 3 * OMEGA * C * BODY]);\n    const wc = OMEGA * C;\n    const I = V.map((v) => [-wc * (v[1] - H[1]), wc * (v[0] - H[0])]);\n    const sum = [I[0][0] + I[1][0] + I[2][0], I[0][1] + I[1][1] + I[2][1]];\n    return { vline, vph, C, H, I, sum, Ih: wc * vph, X: 1 / wc, earth: Math.hypot(sum[0], sum[1]) };\n  }\n  const r3 = (x) => { const p = Math.pow(10, Math.floor(Math.log10(x)) - 2); return Math.round(x / p) * p; };\n  function amps(x, inA) {\n    if (x < 5e-4) return inA ? '0 A' : '0 mA';\n    return inA || x >= 0.9995 ? K.fmt(x, { decimals: 2 }) + ' A' : Math.round(x * 1000) + ' mA';\n  }\n  function reads(c) {\n    const s = sys(c);\n    return { cap: K.fmt(s.C * 1e6, { sig: 2 }) + ' µF', heal: amps(s.Ih, c.v480), earth: c.q ? '?' : amps(s.earth, c.v480) };\n  }\n\n  // ---------- the lesson: SHOW screens demonstrate, DO screens are puzzles ----------\n  // A picture: the case (healthy, fault or person on L1), the cable length, the drives, the 480 V check, and\n  // panel (the arrows drawn), chain (healthy arrows laid head to tail), rowLab (L1's row labelled with its\n  // reactance), loop (the current's path lit) and q (Current to earth waits for the answer).\n  const P = (o) => Object.assign({ mode: 'healthy', len: 4, drives: false, v480: false, panel: true, chain: false, rowLab: false, loop: false, q: false }, o || {});\n  const strip = (s) => s.replace(/\\[\\^\\d+\\]/g, '');\n  const STEPS = [\n    { show: true, name: 'Every cable is a capacitor', pic: P({ panel: false }),\n      text: `Every conductor near the hull is a capacitor. The copper is one plate and the hull is the other, with the insulation between. So a feeder has small capacitors from each line to the hull all along its run. Windings and drive filters add more. An insulated supply has no tie to earth. Yet it is joined to the hull through all this capacitance.[^1]` },\n    { kind: 'pick', name: 'Its reactance', before: P({ panel: false }), after: P({ panel: false, rowLab: true }),\n      task: `Each line has 1 µF to the hull. What is that capacitance's reactance at 60 Hz?`,\n      opts: ['About 377 Ω', 'About 2,650 Ω', 'Infinite, as a capacitor blocks current'], want: 'About 2,650 Ω',\n      hints: { 'About 377 Ω': `377 is ω, 2π × 60. The reactance is 1 divided by ω × C.`,\n        'Infinite, as a capacitor blocks current': `That holds for steady DC. On AC the plates charge and discharge every half cycle, so current flows in the wires either side.` },\n      why: `A capacitor's reactance is 1 ÷ (2π × f × C). Here that is 1 ÷ (2π × 60 × 0.000001) = 2,650 Ω. With 254 V across it, about 96 mA flows.` },\n    { show: true, name: 'Charging current', pic: P(), ctl: true, demo: P({ panel: false }),\n      text: `Each line charges its capacitors one way, then the other, 60 times a second. That flow in the line is its charging current. With 1 µF a line on 440 V, each line passes 96 mA. The panel draws the three as arrows, 120° apart like their voltages. Laid head to tail, they close into a triangle. So they cancel in the hull. Each line's current comes back through the other two lines' capacitance. There is no tie to the star point.` },\n    { kind: 'pick', name: 'Adding the three', before: P({ q: true }), after: P({ chain: true }),\n      task: `With no fault, each line pushes 96 mA into the hull. What do the three add up to?`,\n      opts: ['287 mA, three times 96 mA', '96 mA, the same as one line', 'Zero, in this balanced picture'], want: 'Zero, in this balanced picture',\n      hints: { '287 mA, three times 96 mA': `They are 120° apart, so they do not add as plain numbers. Lay them head to tail.`,\n        '96 mA, the same as one line': `Lay all three arrows head to tail. Where does the last one end?` },\n      why: `Three equal arrows 120° apart close into a triangle, so they add to zero. It works like a balanced load's neutral. A real system is a little unbalanced, so a little is left over.` },\n    { show: true, name: 'A fault on L1', pic: P({ mode: 'fault' }), ctl: true, demo: P(),\n      text: `Now L1 faults solidly to the hull. The hull moves to L1, so L1's capacitors have no voltage across them and pass nothing. L2's and L3's capacitors now hold 440 V instead of 254 V. So each passes 1.73 times as much, 166 mA. Both are measured from L1's corner of the triangle, so they sit 60° apart. Head to tail they add to 287 mA, three times one line's healthy current.`,\n      read: `With a solid fault on L1, L1's capacitors pass nothing. L2 and L3 each pass 166 mA, 60° apart. Head to tail they add to 287 mA.` },\n    { kind: 'pick', name: 'The way back', before: P({ mode: 'fault' }), after: P({ mode: 'fault', loop: true }),\n      task: `With L1 faulted solidly, what carries the fault current back round to the supply?`,\n      opts: ['The capacitance of L2 and L3 to the hull', 'Nothing carries it, as a capacitor blocks current', 'A tie from the hull to the star point'], want: 'The capacitance of L2 and L3 to the hull',\n      hints: { 'Nothing carries it, as a capacitor blocks current': `On AC a capacitor passes current as its plates charge and discharge. 440 V across 1 µF at 60 Hz passes 166 mA.`,\n        'A tie from the hull to the star point': `There is no tie. That is what makes the supply insulated.` },\n      why: `The current leaves the supply on L2 and L3 and crosses their capacitance into the hull. It runs along the hull to the fault and back through it into L1.[^2] The windings close the loop.` },\n    { show: true, name: 'It grows with the system', pic: P({ mode: 'fault', len: 8 }), ctl: true, demo: P({ mode: 'fault' }), follow: true,\n      text: `Two arrows 60° apart add to 1.73 times one of them. The same geometry makes 440 V 1.73 times 254 V. Each arrow was 1.73 times the healthy current, so the sum is 3 times it. The rule is fault current = 3 × ω × C × V_phase. Capacitance grows with the system. Every metre of cable and every filter adds some in parallel. Watch the cable go from 4 km to 8 km. C doubles to 2 µF and the fault current doubles to 575 mA.`,\n      read: `At 8 km of cable, C is 2 µF a line and the fault current is 575 mA, twice the 4 km figure. The plot is a straight line through zero.` },\n    { kind: 'pick', name: 'Ten drives', before: P({ mode: 'fault' }), after: P({ mode: 'fault', drives: true }),\n      task: `A 440 V system has 1 µF a line, and a first fault passes 287 mA. Ten drives are added, each with 0.1 µF a line in its filter. What does a first fault pass now?`,\n      opts: ['287 mA, as the cable is the same', 'About 1.15 A, four times as much', 'About 575 mA'], want: 'About 575 mA',\n      hints: { '287 mA, as the cable is the same': `The filters are capacitors to the hull too, in parallel with the cable. Ten of them add 1 µF a line.`,\n        'About 1.15 A, four times as much': `C has doubled. The current goes up in step with C, not with its square.` },\n      why: `Capacitors in parallel add, so ten filters add 1 µF a line. C doubles to 2 µF, so the fault current doubles to about 575 mA. The larger the system, the lower its impedance to earth.[^3]` },\n    { show: true, name: 'A person on L1', pic: P({ mode: 'person', loop: true }), ctl: true, demo: P(),\n      text: `Take the fault away. A person stands on the hull and touches L1. Say the body is 1,000 Ω. The person becomes the fault, and the cables' capacitance closes the loop. With 1 µF a line, about 190 mA flows through the body. The body's resistance holds it below a solid fault's 287 mA. That is still over six times the 30 mA a socket RCD is rated to trip at. Even with 0.5 km of cable it is about 36 mA. An insulated supply is not safe to touch.`,\n      read: `A person on the hull touches L1 of a healthy system with 1 µF a line. About 190 mA flows through the body, back through the cables' capacitance.` },\n    { kind: 'pick', name: 'Small or big', before: P({ q: true }), after: P({ mode: 'person', loop: true }),\n      task: `You stand on the hull and touch L1, first on a small insulated system, then on a big one. Both are 440 V and healthy. Which passes more current through you?`,\n      opts: ['The same on both, as the voltage is the same', 'The big one, as its capacitance to the hull is larger', 'Neither passes any, as there is no other end of the circuit'],\n      want: 'The big one, as its capacitance to the hull is larger',\n      hints: { 'The same on both, as the voltage is the same': `The current comes back through the cables' capacitance. More capacitance means less reactance in the loop.`,\n        'Neither passes any, as there is no other end of the circuit': `The other end is there. Every cable is a capacitor to the hull you stand on.` },\n      why: `The cables' capacitance closes the loop through you, as it would for a fault. A big system has more of it, so less reactance in the loop. With 0.5 km of cable about 36 mA flows. With 4 km it is about 190 mA.` },\n    { kind: 'pick', name: 'A big system', before: P({ len: 16, drives: true, q: true }), after: P({ mode: 'fault', len: 16, drives: true }),\n      task: `A 440 V, 60 Hz insulated system has 5 µF a line. Healthy, each line passes 479 mA. What does a solid first fault pass?`,\n      opts: ['About 1.44 A', 'About 830 mA', '479 mA, the same as one line'], want: 'About 1.44 A',\n      hints: { 'About 830 mA': `That is one healthy line at 440 V. Two of them add, 60° apart.`,\n        '479 mA, the same as one line': `The fault lifts L2 and L3 to 440 V, so their currents grow. Then two of them add.` },\n      why: `The fault current is three times one line's healthy charging current. 3 × 479 mA = 1.44 A. A big system's first fault passes amps, not milliamps.` },\n    { kind: 'pick', name: 'The 480 V check', before: P({ v480: true, q: true }), after: P({ mode: 'fault', v480: true }),\n      task: `A 480 V, 60 Hz insulated system has 277 V a phase. Each line's capacitance to the hull has a reactance of 800 Ω. What does a solid first fault pass?`,\n      opts: ['About 0.35 A', 'About 1.04 A', 'About 0.60 A'], want: 'About 1.04 A',\n      hints: { 'About 0.35 A': `That is one line's healthy current, 277 ÷ 800. The fault passes three times as much.`,\n        'About 0.60 A': `That is one healthy line at 480 V. Two of them add, 60° apart.` },\n      why: `One line's healthy current is 277 ÷ 800 = 0.35 A. Three times that is 1.04 A.[^2]` },\n  ];\n  STEPS.forEach((d) => { if (d.show) d.still = () => setPic(d.pic); else d.read = d.task; });\n  const FINISH = 'Every cable is a capacitor to the hull. A solid first fault passes three times one line\\'s healthy charging current.';\n  const PICK = 'Choose an answer first.';\n  const EATON = 'https://www.eaton.com/content/dam/eaton/products/medium-voltage-power-distribution-control-systems/vacclad-w-pages/characteristics-power%20systems-neutral-grounding-techniques-fact-fiction-ap083005en.pdf';\n  const BENDER = 'https://fournais-bender.dk/storage/TechnAspects-IT-systems.pdf';\n  const EATON4 = 'https://www.eaton.com/content/dam/eaton/markets/healthcare/knowledge-center/white-paper/transient-overvoltages-on-ungrounded-systems-from-intermittent-ground-faults.pdf';\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n\n  // ---------- what the picture shows: a view, and motion from one view to another ----------\n  // The arrows share one scale: 58 units for 192 mA (2 µF on 440 V); a bigger system is drawn smaller to fit.\n  const AMAX = 58, K0 = AMAX / (OMEGA * 2e-6 * VLINE / Math.sqrt(3));\n  const nGroups = (len) => K.clamp(Math.round(len / 2), 1, 8);\n  function viewOf(c) {\n    const s = sys(c), k = Math.min(K0, AMAX / s.Ih), healthy = c.mode === 'healthy';\n    return {\n      mode: c.mode, len: c.len, v480: c.v480, vline: s.vline,\n      f: nGroups(c.v480 ? s.C / PER_KM : c.len),\n      vec: s.I.map((z) => [Math.hypot(z[0], z[1]) * k, Math.atan2(z[1], z[0]) * 180 / Math.PI]),\n      ch: healthy && !c.chain ? 0 : 1,\n      sumA: healthy ? 0 : 1, angA: c.mode === 'person' ? 0 : 1, zeroA: healthy && c.chain ? 1 : 0,\n      loopA: c.loop && !healthy ? 1 : 0, rowA: c.rowLab || c.v480 ? 1 : 0, rowText: K.fmt(r3(s.X)) + ' Ω',\n      linkA: c.mode === 'fault' ? 1 : 0, personA: c.mode === 'person' ? 1 : 0, drvA: c.drives && !c.v480 ? 1 : 0,\n      panelA: c.panel ? 1 : 0, shrunk: s.Ih * K0 > AMAX + 1e-9,\n      sumName: c.mode === 'person' ? 'Body current' : 'Fault current',\n    };\n  }\n  const PFADES = ['sumA', 'angA', 'zeroA', 'loopA'];   // these start again when the case changes\n  const XFADES = ['linkA', 'personA', 'drvA'];\n  const angGap = (a1, a2) => ((a2 - a1 + 540) % 360) - 180;\n  function lerpPolar(q, r, p) {\n    let a1 = q[1], a2 = r[1];\n    if (q[0] < 1e-6) a1 = a2; else if (r[0] < 1e-6) a2 = a1;\n    return [K.lerp(q[0], r[0], p), a1 + angGap(a1, a2) * p];\n  }\n  // A change of case: slide the arrows back to the middle, swing them, lay them head to tail, then show the sum.\n  function motion(a0, b, slow) {\n    let a = a0;\n    const f = { b };\n    if (Math.abs(a.panelA - b.panelA) > 1e-3) f.P = [0, 0.6];\n    if (a.panelA < 1e-3 && b.panelA > 0) a = Object.assign({}, a, { vec: b.vec.map((q) => [0, q[1]]), ch: b.ch, sumA: 0, angA: 0, zeroA: 0, mode: b.mode, sumName: b.sumName });\n    f.a = a;\n    const modeCh = a.mode !== b.mode;\n    f.mid = { rowA: Math.min(a.rowA, b.rowA) };\n    PFADES.forEach((p) => { f.mid[p] = modeCh ? 0 : Math.min(a[p], b[p]); });\n    let t = 0;\n    if (modeCh && a.ch > 1e-3) { f.U = [0, 0.5]; t = 0.5; }\n    const vecCh = a.vec.some((q, k) => Math.abs(q[0] - b.vec[k][0]) > 0.05 || (q[0] > 0.05 && b.vec[k][0] > 0.05 && Math.abs(angGap(q[1], b.vec[k][1])) > 0.05));\n    const xCh = XFADES.some((p) => Math.abs(a[p] - b[p]) > 1e-3) || Math.abs(a.f - b.f) > 1e-3 || Math.abs(a.len - b.len) > 1e-3;\n    if (vecCh || xCh) { const d = modeCh || f.P ? 1.2 : 1.6; f.M = [t, t + d]; t += d; }\n    if (Math.abs((f.U ? 0 : a.ch) - b.ch) > 1e-3) { f.C = [t, t + 0.8]; t += 0.8; }\n    if (PFADES.concat(['rowA']).some((p) => b[p] > f.mid[p] + 1e-3)) { f.F = [t, t + 0.5]; t += 0.5; }\n    f.O = f.U || [0, 0.5];\n    f.X = f.M ? [f.M[0], f.M[0] + Math.min(0.6, f.M[1] - f.M[0])] : [0, 0.5];\n    f.end = Math.max(t, 0.6);\n    if (slow && b.loopA > a.loopA) f.end += 1.5;   // the current runs round its path a little longer\n    if (!slow) {\n      const s = Math.min(1, 0.3 / f.end);\n      ['P', 'U', 'M', 'C', 'F', 'O', 'X'].forEach((w) => { if (f[w]) f[w] = [f[w][0] * s, f[w][1] * s]; });\n      f.end *= s;\n    }\n    return f;\n  }\n  function viewAt(f, t) {\n    if (t >= f.end) return f.b;\n    const a = f.a, b = f.b, v = Object.assign({}, b);\n    const ph = (w) => (w ? K.ease(K.clamp((t - w[0]) / Math.max(1e-6, w[1] - w[0]), 0, 1)) : 1);\n    const pM = ph(f.M), inF = !!f.F && t >= f.F[0];\n    v.vec = a.vec.map((q, k) => lerpPolar(q, b.vec[k], pM));\n    v.f = K.lerp(a.f, b.f, pM);\n    v.len = K.lerp(a.len, b.len, pM);\n    v.ch = f.U && t < f.U[1] ? K.lerp(a.ch, 0, ph(f.U)) : K.lerp(f.U ? 0 : a.ch, b.ch, ph(f.C));\n    PFADES.concat(['rowA']).forEach((p) => { v[p] = inF ? K.lerp(f.mid[p], b[p], ph(f.F)) : K.lerp(a[p], f.mid[p], ph(f.O)); });\n    XFADES.forEach((p) => { v[p] = K.lerp(a[p], b[p], ph(f.X)); });\n    v.panelA = K.lerp(a.panelA, b.panelA, ph(f.P));\n    if (!inF) { v.sumName = a.sumName; v.loopMode = a.mode; }\n    if (b.rowA < a.rowA) v.rowText = a.rowText;\n    return v;\n  }\n\n  // ---------- the drawing (viewBox 340 wide): feeder and hull on top, the panel of arrows below ----------\n  const YL = [30, 48, 66], YROW = [92, 106, 120], YH = 140;\n  const XA = 58, XB = 284, XG0 = 78, XG1 = 246, XLINK = 266, XSTUB = 272, XDRV = [298, 310, 322];\n  const O = [95, 268];\n  const n2 = (x) => +x.toFixed(2);\n  const svg = document.getElementById('scene'), art = document.getElementById('art');\n  const el = (id) => document.getElementById(id);\n  function put(parent, tag, attrs, text) { const n = K.svg(tag, attrs); if (text != null) n.textContent = text; parent.appendChild(n); return n; }\n  const group = (a) => put(art, 'g', a == null || a >= 1 ? {} : { opacity: Math.max(0, a).toFixed(3) });\n  const lab = (g, x, y, text, cls, anchor) => put(g, 'text', { x: n2(x), y: n2(y), class: 'lab' + (cls ? ' ' + cls : ''), 'text-anchor': anchor || 'start' }, text);\n  // The capacitor groups along the run; while their number changes, the newest fades in at the far end.\n  function groupXs(f) {\n    const n = Math.max(1, Math.ceil(f - 1e-6)), out = [];\n    for (let i = 0; i < n; i++) out.push({ x: Math.min(XG0 + (XG1 - XG0) * (i + 0.5) / f, XG1 - 10.5), a: i < Math.floor(f + 1e-6) ? 1 : f - Math.floor(f) });\n    return out;\n  }\n  function cap(g, x, y0, yr, k) {\n    put(g, 'path', { class: 'lead c' + (k + 1), d: `M${n2(x)} ${y0}V${yr - 3}M${n2(x)} ${yr + 3}V${YH}` });\n    put(g, 'path', { class: 'plate c' + (k + 1), d: `M${n2(x - 3.5)} ${yr - 3}H${n2(x + 3.5)}M${n2(x - 3.5)} ${yr + 3}H${n2(x + 3.5)}` });\n  }\n  function arrowTo(g, p0, p1, k, w) {\n    const dx = p1[0] - p0[0], dy = p1[1] - p0[1], L = Math.hypot(dx, dy);\n    if (L < 1) return [];\n    const h = Math.min(9, L * 0.45), ux = dx / L, uy = dy / L, bx = p1[0] - ux * h, by = p1[1] - uy * h, hw = h * 0.5;\n    return [put(g, 'line', { class: 'arw c' + k, x1: n2(p0[0]), y1: n2(p0[1]), x2: n2(bx + ux), y2: n2(by + uy), 'stroke-width': w }),\n      put(g, 'path', { class: 'f' + k, d: `M${n2(p1[0])} ${n2(p1[1])}L${n2(bx - uy * hw)} ${n2(by + ux * hw)}L${n2(bx + uy * hw)} ${n2(by - ux * hw)}Z` })];\n  }\n  // The current's path: out along L2 and L3, through their capacitors into the hull, along the hull to the\n  // fault (or the person's feet), up into L1 and back along L1 to the supply.\n  function loopPath(mode, gx, drv) {\n    if (mode === 'healthy') return '';\n    const up = mode === 'fault' ? XLINK : 262;\n    let d = '';\n    [1, 2].forEach((k) => {\n      const off = (k - 1) * 7;\n      d += `M${XA} ${YL[k]}H${drv ? XB : n2(gx[gx.length - 1].x + off)}`;\n      gx.forEach((q) => { d += `M${n2(q.x + off)} ${YL[k]}V${YH - 2}`; });\n      if (drv) d += `M${XDRV[k]} 102V${YH - 2}`;\n    });\n    d += `M${n2(gx[0].x)} ${YH - 2}H${up}` + (drv ? `M${XDRV[2]} ${YH - 2}H${up}` : '');\n    d += mode === 'fault' ? `M${XLINK} ${YH - 2}V${YL[0]}H${XA}` : `M262 ${YH - 2}V110L271 88M${XSTUB} 86V${YL[0]}H${XA}`;\n    return d;\n  }\n  let dash = 0;\n\n  function scene(v) {\n    art.textContent = '';\n    svg.setAttribute('viewBox', '0 0 340 ' + (cur.panel ? n2(sceneH(v)) : 184));\n    const gx = groupXs(v.f), drv = v.drvA > 0.5, loopD = v.loopA > 1e-3 ? loopPath(v.loopMode || v.mode, gx, drv) : '';\n    if (loopD) put(group(v.loopA), 'path', { class: 'glow', d: loopD });\n    // The hull, the supply, the load and the drives' card.\n    const gh = group();\n    put(gh, 'rect', { class: 'hull', x: 4, y: YH, width: 332, height: 16, rx: 3 });\n    lab(gh, 170, YH + 12.5, 'Hull, which is earth', 'n', 'middle');\n    put(gh, 'rect', { class: 'card', x: 4, y: 16, width: 54, height: 60, rx: 6 });\n    lab(gh, 31, 34, 'Supply', '', 'middle');\n    lab(gh, 31, 52, K.fmt(v.vline) + ' V', 'n', 'middle');\n    lab(gh, 31, 70, HZ + ' Hz', 'n', 'middle');\n    put(gh, 'rect', { class: 'card', x: XB, y: 16, width: 52, height: 60, rx: 6 });\n    lab(gh, XB + 26, 50, 'Load', '', 'middle');\n    put(gh, 'path', { class: 'wire', d: 'M310 76V84' });\n    put(gh, 'rect', { class: 'card', x: 286, y: 84, width: 48, height: 18, rx: 4 });\n    lab(gh, 310, 97.5, 'Drives', 'n', 'middle');\n    if (v.drvA > 1e-3) { const gd = group(v.drvA); XDRV.forEach((x, k) => cap(gd, x, 102, 118, k)); }\n    // Each line's capacitors to the hull, three rows of them, then the lines over their tops.\n    gx.forEach((q) => { const g = group(q.a); [0, 1, 2].forEach((k) => cap(g, q.x + (k - 1) * 7, YL[k], YROW[k], k)); });\n    const gl = group();\n    [0, 1, 2].forEach((k) => {\n      put(gl, 'line', { class: 'ln c' + (k + 1), x1: XA, y1: YL[k], x2: XB, y2: YL[k] });\n      lab(gl, 62, YL[k] - 3, LN[k]);\n    });\n    gx.forEach((q) => { const g = group(q.a); [0, 1, 2].forEach((k) => put(g, 'circle', { class: 'f' + (k + 1), cx: n2(q.x + (k - 1) * 7), cy: YL[k], r: 1.8 })); });\n    if (v.linkA > 1e-3) {\n      const gf = group(v.linkA);\n      put(gf, 'line', { class: 'link', x1: XLINK, y1: YL[0], x2: XLINK, y2: YH });\n      put(gf, 'circle', { class: 'fw', cx: XLINK, cy: YL[0], r: 3 });\n    }\n    if (v.personA > 1e-3) {\n      const gp = group(v.personA);\n      put(gp, 'line', { class: 'ln c1', x1: XSTUB, y1: YL[0], x2: XSTUB, y2: 84 });\n      put(gp, 'circle', { class: 'f1', cx: XSTUB, cy: YL[0], r: 2.4 });\n      put(gp, 'circle', { class: 'term', cx: XSTUB, cy: 86, r: 2.6 });\n      put(gp, 'path', { class: 'fig', d: 'M262 106V122L256 140M262 122L268 140M262 110L271 88M262 110L254 121' });\n      put(gp, 'circle', { class: 'headc', cx: 262, cy: 100.5, r: 5.5 });\n    }\n    if (v.rowA > 1e-3) {\n      const gr = group(v.rowA);\n      put(gr, 'line', { class: 'leader', x1: 73, y1: YROW[0], x2: n2(gx[0].x - 12), y2: YROW[0] });\n      lab(gr, 70, YROW[0] + 4.5, v.rowText, '', 'end');\n    }\n    if (!v.v480) lab(group(), 171, 13, K.fmt(Math.round(v.len * 2) / 2) + ' km of cable', 'n', 'middle');\n    if (loopD) put(group(v.loopA), 'path', { class: 'flow', d: loopD, 'stroke-dashoffset': n2(-dash) });\n    // A key for what is drawn.\n    const gk = group();\n    put(gk, 'path', { class: 'kcap', d: 'M10 160V165M5.5 165H14.5M5.5 171H14.5M10 171V176' });\n    lab(gk, 20, 172.5, 'Cable capacitance', 'n');\n    if (v.linkA > 1e-3) { const g = group(v.linkA); put(g, 'line', { class: 'link', x1: 146, y1: 168, x2: 162, y2: 168 }); lab(g, 167, 172.5, 'Fault', 'n'); }\n    if (v.loopA > 1e-3) { const g = group(v.loopA); put(g, 'line', { class: 'glow', x1: 212, y1: 168, x2: 228, y2: 168 }); lab(g, 233, 172.5, 'Current\\'s path', 'n'); }\n    const rec = { v, angle: null };\n    if (cur.panel && v.panelA > 1e-3) drawPanel(v, rec);\n    rec.texts = Array.from(art.querySelectorAll('text')).map((n) => n.textContent);\n    const what = v.mode === 'fault' ? 'A solid fault joins L1 to the hull. ' : v.mode === 'person' ? 'A person standing on the hull touches L1. ' : 'Nothing touches the lines. ';\n    let pan = '';\n    if (cur.panel) {\n      pan = v.mode === 'healthy' ? (v.ch > 0.5 ? 'A panel lays the three lines\\' charging currents head to tail: they close into a triangle and add to zero.' : 'A panel draws the three lines\\' charging currents as arrows 120° apart.')\n        : v.mode === 'fault' ? 'A panel shows L1\\'s current gone, and L2\\'s and L3\\'s currents 60° apart, laid head to tail. Their sum is the fault current.'\n          : 'A panel lays the three currents head to tail. Their sum is the current through the body.';\n    }\n    rec.aria = 'A supply feeds a load through three lines, L1, L2 and L3, over the hull, which is earth. Small capacitors join each line to the hull along the run' + (v.drvA > 0.5 ? ', and the drives add their own' : '') + '. ' + what + (v.loopA > 0.5 ? 'The current\\'s path is lit. ' : '') + pan;\n    return rec;\n  }\n\n  // How far below the panel's middle the arrows reach. Each case gets the height its arrows need at any length,\n  // so in a fault, where the triangle sits above the middle, the controls come up the page. While the case\n  // changes the height eases from one to the other and never cuts off an arrow on the way.\n  function lowest(v) {\n    const c = v.vec.map((q) => [q[0] * Math.cos(rad(q[1])), q[0] * Math.sin(rad(q[1]))]);\n    const tails = [[(c[1][0] + c[2][0]) * v.ch, (c[1][1] + c[2][1]) * v.ch], [0, 0], [c[1][0] * v.ch, c[1][1] * v.ch]];\n    let lo = 0;\n    [0, 1, 2].forEach((k) => { lo = Math.max(lo, -tails[k][1], -(tails[k][1] + c[k][1])); });\n    if (v.sumA > 1e-3) lo = Math.max(lo, -(c[0][1] + c[1][1] + c[2][1]));\n    return lo;\n  }\n  const PAD = 33, HM = {};\n  ['healthy', 'fault', 'person'].forEach((mode) => {\n    HM[mode] = 0;\n    K.linspace(0.5, 16, 32).forEach((len) => [false, true].forEach((drives) => [false, true].forEach((x) => {\n      const v = viewOf(P({ mode, len, drives, v480: x && mode !== 'person', chain: x }));\n      HM[mode] = Math.max(HM[mode], O[1] + lowest(v) + PAD);\n    })));\n  });\n  function sceneH(v) {\n    if (!animating() || fx.a.mode === fx.b.mode) return HM[cur.mode];\n    return Math.max(O[1] + lowest(v) + PAD, K.lerp(HM[fx.a.mode], HM[fx.b.mode], K.ease(K.clamp(T / fx.end, 0, 1))));\n  }\n\n  // The panel: each line's current into the hull as an arrow from one point, or laid head to tail (L2, L3, L1).\n  function drawPanel(v, rec) {\n    const g = group(v.panelA);\n    lab(g, 6, 196, 'Currents into the hull');\n    if (v.shrunk) lab(g, 334, 196, 'Drawn smaller to fit', 'm', 'end');\n    const cart = v.vec.map((q) => [q[0] * Math.cos(rad(q[1])), q[0] * Math.sin(rad(q[1]))]);\n    const at = (p) => [O[0] + p[0], O[1] - p[1]];\n    const add = (p, q) => [p[0] + q[0], p[1] + q[1]], mul = (p, s) => [p[0] * s, p[1] * s];\n    const tails = [mul(add(cart[1], cart[2]), v.ch), [0, 0], mul(cart[1], v.ch)];\n    const avoid = [put(g, 'circle', { class: 'fi', cx: O[0], cy: O[1], r: 2.5 })];\n    const anchor = (x) => (x > 0.3 ? 'start' : x < -0.3 ? 'end' : 'middle');\n    const items = [];\n    [1, 2, 0].forEach((k) => {\n      const t0 = tails[k], t1 = add(t0, cart[k]), m = v.vec[k][0];\n      avoid.push(...arrowTo(g, at(t0), at(t1), k + 1, 2.6));\n      if (m < 14) return;\n      const u = [cart[k][0] / m, cart[k][1] / m], nrm = [-u[1], u[0]];\n      const base = add(mul(t1, 1 - v.ch), mul(add(t0, mul(cart[k], 0.5)), v.ch)), off = add(mul(u, 13 * (1 - v.ch)), mul(nrm, 13 * v.ch));\n      const q = at(add(base, off));\n      items.push({ x: n2(q[0]), y: n2(q[1] + 4.5), text: LN[k], class: 'lab', anchor: anchor(off[0] / 13) });\n    });\n    const sum = add(add(cart[0], cart[1]), cart[2]), sm = Math.hypot(sum[0], sum[1]);\n    let sumItem = null;\n    if (v.sumA > 1e-3 && sm >= 1) {\n      avoid.push(...arrowTo(group(v.sumA * v.panelA), at([0, 0]), at(sum), 'i', 3.4));\n      if (sm >= 14) {\n        const u = [sum[0] / sm, sum[1] / sm], nrm = [u[1], -u[0]], q = at(add(mul(sum, 0.5), mul(nrm, 14)));\n        sumItem = { x: n2(q[0]), y: n2(q[1] + 4.5), text: v.sumName, class: 'lab', anchor: anchor(nrm[0]) };\n      }\n    }\n    // The angle between L2's and L3's arrows, where they meet.\n    if (v.angA > 1e-3 && v.vec[1][0] >= 14 && v.vec[2][0] >= 14) {\n      const ga = group(v.angA * v.panelA), J = tails[2], a2 = v.vec[1][1], a3 = v.vec[2][1];\n      let d = ((a2 - a3) % 360 + 360) % 360, from = a3;\n      if (d > 180) { from = a2; d = 360 - d; }\n      const Pt = (ang, r) => at(add(J, [r * Math.cos(rad(ang)), r * Math.sin(rad(ang))]));\n      if (v.ch > 0.02) { const e0 = at(J), e1 = Pt(a2, 34 * v.ch); avoid.push(put(ga, 'line', { class: 'ext', x1: n2(e0[0]), y1: n2(e0[1]), x2: n2(e1[0]), y2: n2(e1[1]) })); }\n      const s0 = Pt(from, 12), s1 = Pt(from + d, 12), bis = from + d / 2, lp = Pt(bis, 19);\n      avoid.push(put(ga, 'path', { class: 'arc', d: `M${n2(s0[0])} ${n2(s0[1])}A12 12 0 0 0 ${n2(s1[0])} ${n2(s1[1])}` }));\n      rec.angle = Math.round(d);\n      lab(ga, lp[0], lp[1] + 4.5, rec.angle + '°', '', anchor(Math.cos(rad(bis))));\n    }\n    if (v.zeroA > 1e-3) lab(group(v.zeroA * v.panelA), O[0] - 8, O[1] + 4.5, 'Adds to zero', '', 'end');\n    K.labels(group(v.panelA), items, { avoid });\n    if (sumItem) K.labels(group(v.panelA * v.sumA), [sumItem], { avoid });\n  }\n\n  // ---------- state ----------\n  function blank() { return { pick: null, res: null, why: false }; }\n  let S2 = STEPS.map(() => blank());\n  let cur = P(STEPS[0].pic), T = Infinity, fx = {}, REC = null, plotOn = false, plotKey = '';\n  let finished = false, lastStep = -1, lastDone = false, last = { mode: 'healthy', len: 4, drives: false }, gestureAt = -Infinity;\n  const animating = () => !!fx.a && T < fx.end;\n  const viewNow = () => (animating() ? viewAt(fx, T) : viewOf(cur));\n\n  function plotAt(c) {\n    if (!plotOn) { plotKey = ''; return; }\n    const key = [c.mode, c.drives, c.len].join('|');\n    if (key === plotKey) return;\n    plotKey = key;\n    const fn = (x) => 1000 * sys({ mode: c.mode, len: x, drives: c.drives, v480: false }).earth;\n    plot.draw({ y: { min: 0, max: c.mode === 'fault' ? 1500 : 300, label: 'Current to earth (mA)' }, series: [{ fn, label: 'Current to earth' }], marks: [{ x: c.len, y: fn(c.len) }] });\n  }\n  function paint() {\n    const v = viewNow();\n    REC = scene(v);\n    // While the cable's length moves, the numbers follow it, half a kilometre at a time.\n    const shown = animating() && !cur.v480 ? Object.assign({}, cur, { len: Math.round(v.len * 2) / 2 }) : cur;\n    REC.read = reads(shown);\n    // While the case changes, Current to earth follows the arrows' sum, as the numbers follow the slider.\n    if (animating() && fx.a.mode !== fx.b.mode && !cur.q) {\n      const c = v.vec.map((q) => [q[0] * Math.cos(rad(q[1])), q[0] * Math.sin(rad(q[1]))]);\n      REC.read.earth = amps(Math.hypot(c[0][0] + c[1][0] + c[2][0], c[0][1] + c[1][1] + c[2][1]) / Math.min(K0, AMAX / sys(cur).Ih), cur.v480);\n    }\n    outs.cap.set(REC.read.cap); outs.heal.set(REC.read.heal); outs.earth.set(REC.read.earth);\n    svg.setAttribute('aria-label', REC.aria);\n    if (fx.slider && live() && shown.len !== lenCtl.get()) { lenCtl.set(shown.len, true); last.len = lenCtl.get(); }\n    plotAt(shown);\n  }\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const at = () => stepper.get();\n  const live = () => !finished && !!STEPS[at()].show && !!STEPS[at()].ctl;\n  const modeCtl = K.choice({ id: 'mode', label: 'Case', options: [{ value: 'healthy', label: 'Healthy' }, { value: 'fault', label: 'Fault on L1' }, { value: 'person', label: 'Person on L1' }], value: 'healthy', into: '#mctl' });\n  const lenCtl = K.control({ id: 'len', label: 'Cable length', min: 0.5, max: 16, step: 0.5, value: 4, unit: 'km', snap: [4, 8, 16], into: '#lctl' });\n  const drvCtl = K.toggle({ id: 'drives', label: 'Ten drives\\' filters', value: false, into: '#lctl' });\n  ['pointerdown', 'keydown'].forEach((e) => modeCtl.el.addEventListener(e, () => { gestureAt = performance.now(); }, true));\n  const outs = {\n    cap: K.readout({ id: 'cap', label: 'Capacitance a line', into: '#outs' }),\n    heal: K.readout({ id: 'heal', label: 'Healthy charging, a line', into: '#outs' }),\n    earth: K.readout({ id: 'earth', label: 'Current to earth', into: '#outs' }),\n  };\n  const plot = K.plot('#plot', { x: { min: 0, max: 16, label: 'Cable length (km)' }, y: { min: 0, max: 300, label: 'Current to earth (mA)' }, height: 170, label: 'Current to earth against cable length, with a dot at the present length' });\n  function syncCtls() {\n    modeCtl.set(cur.mode, true); lenCtl.set(cur.len, true); drvCtl.set(cur.drives, true);\n    last = { mode: modeCtl.get(), len: lenCtl.get(), drives: drvCtl.get() };\n  }\n\n  // One animation plays the motion; with reduced motion (and while the self-test looks) it opens finished.\n  const anim = K.anim({ button: false, label: 'The currents', step: (dt) => {\n    if (finished) return false;\n    T += dt;\n    if (T > 0) dash += dt * 18;\n    paint();\n    return T < (fx.end || 0);\n  } });\n  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });\n  function start(f, delay) {\n    fx = f || {};\n    if (REDUCE || testing()) { T = Infinity; anim.pause(); return; }\n    T = -(delay || 0); anim.play();\n  }\n  // Move the picture on from wherever it is now. A switch of case Dan taps plays slowly, so he can watch the\n  // arrows swing; the slider, the switch and any other change settle within 0.3 s, keeping up with his finger.\n  function retarget(ch, slow) {\n    const now = viewNow();\n    cur = Object.assign({}, cur, ch);\n    start(motion(now, viewOf(cur), slow), 0);\n  }\n  function setPic(p) { cur = P(p); anim.pause(); T = Infinity; fx = {}; syncCtls(); K.refresh(); }\n\n  const vBtn = K.button({ label: '480 V check', secondary: true, into: '#vrow', press: () => {\n    if (!live()) return;\n    retarget({ v480: !cur.v480 }, true);\n  } });\n  // Three answers; Check marks the one chosen, and a right one plays what it says.\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S2[i];\n    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;\n    st.pick = d.opts[k]; st.res = null;\n  } }));\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S2[i];\n    if (finished || d.show || st.res === 'right') return;\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = st.pick === d.want ? 'right' : 'wrong';\n    if (st.res !== 'right') return;\n    const now = viewNow();\n    cur = P(d.after);\n    syncCtls();\n    start(motion(now, viewOf(cur), true), 0);\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    if (finished || STEPS[at()].show) return;\n    const st = S2[at()]; st.why = !st.why;\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && S2[i].res !== 'right')) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true; anim.pause();\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S2 = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);\n  } });\n\n  function enter(id) {\n    if (REDUCE) return;\n    const box = el(id);\n    box.classList.remove('enter');\n    void box.offsetWidth;\n    box.classList.add('enter');\n  }\n\n  el('finish').textContent = FINISH;\n  K.update((p) => {\n    const i = Math.round(p.step), d = STEPS[i], st = S2[i];\n    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished\n    if (i !== lastStep) {\n      lastStep = i; enter('stepbox');\n      anim.pause(); T = Infinity; fx = {};\n      cur = P(d.show ? d.pic : st.res === 'right' ? d.after : d.before);\n      syncCtls();\n      // A demonstration screen plays once on opening, after its fade-in.\n      if (d.show && d.demo) { start(motion(viewOf(d.demo), viewOf(cur), true), 0.4); fx.slider = !!d.follow; }\n    } else if (p.mode !== last.mode || p.len !== last.len || p.drives !== last.drives) {\n      if (live()) {\n        const ch = { mode: p.mode, len: p.len, drives: p.drives };\n        if (p.len !== last.len || p.drives !== last.drives) ch.v480 = false;\n        const slow = p.mode !== last.mode && performance.now() - gestureAt < 1000;\n        gestureAt = -Infinity;\n        last = { mode: p.mode, len: p.len, drives: p.drives };\n        retarget(ch, slow);\n      } else syncCtls();   // off the screens that show them, the controls keep the picture's setting\n    }\n    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }\n    const right = st.res === 'right';\n    el('stepbox').hidden = finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    task.textContent = strip(d.show ? d.text : d.task);\n\n    el('ctls').hidden = !d.show || !d.ctl;\n    el('lctl').hidden = !!cur.v480;\n    el('vnote').hidden = !cur.v480;\n    el('outs').hidden = !cur.panel;   // the readouts wait until charging current has been met\n    el('capt').textContent = cur.v480 ? 'Example values: 480 V at 60 Hz, with 800 Ω from each line to the hull.' : 'Example values: 440 V at 60 Hz, with 0.25 µF per km and 0.1 µF per drive on each line.';\n    vBtn.setLabel(cur.v480 ? 'Back to 440 V' : '480 V check');\n    // The plot shows on the screens that demonstrate, and on a puzzle once it is answered.\n    plotOn = cur.panel && !cur.v480 && (!!d.show || right) && !finished;\n    el('plotbox').hidden = !plotOn;\n\n    const opts = d.show ? [] : d.opts;\n    el('picks').hidden = !opts.length;\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(opts[k]);\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n    el('acts').hidden = !!d.show;\n    checkBtn.el.hidden = right;\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n    const fb = el('fb');\n    fb.hidden = !!d.show || !st.res;\n    fb.className = 'fb' + (right ? ' right' : '');\n    fb.textContent = d.show ? '' : right ? 'That\\'s it.' : st.res === 'wrong' ? (d.hints[st.pick] || 'Not quite.') : st.res === 'empty' ? PICK : '';\n    const why = el('why');\n    why.hidden = !!d.show || !st.why;\n    why.textContent = d.show ? '' : strip(d.why);\n\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !right);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;\n    paint();\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  function drawn(c) {\n    const keep = [cur, T, fx];\n    cur = P(c); T = Infinity; fx = {};\n    try { paint(); return REC; } finally { cur = keep[0]; T = keep[1]; fx = keep[2]; paint(); }\n  }\n  const mA = (A) => Math.round(A * 1000);\n  const mag = (z) => Math.hypot(z[0], z[1]);\n  const apart = (p, q) => { let d = Math.abs(Math.atan2(p[1], p[0]) - Math.atan2(q[1], q[0])) * 180 / Math.PI; d %= 360; return d > 180 ? 360 - d : d; };\n  const s4 = (o) => sys(Object.assign({ mode: 'healthy', len: 4, drives: false, v480: false }, o));\n  const LENS = K.linspace(0.5, 16, 32);\n\n  K.check('Twelve screens: five that show and seven puzzles, alternating to the ninth and ending on three mixed puzzles', () =>\n    STEPS.length === 12 && STEPS.filter((d) => d.show).length === 5 && STEPS.slice(0, 9).every((d, i) => !!d.show === (i % 2 === 0)) && STEPS.slice(9).every((d) => !d.show));\n  K.check('Healthy, each line sits 440 ÷ 1.732 = 254 V from earth, and ω = 2π × 60 = 377', () =>\n    Math.round(VLINE / ROOT3) === 254 && Math.round(s4({}).vph) === 254 && Math.round(OMEGA) === 377);\n  K.check('4 km gives 1 µF a line: its reactance at 60 Hz is about 2,650 Ω, so 254 V drives 96 mA, and screen 2\\'s answer labels L1\\'s row 2,650 Ω', () => {\n    const s = s4({}), r = drawn(STEPS[1].after);\n    return K.near(s.C, 1e-6, 1e-15) && r3(s.X) === 2650 && mA(s.Ih) === 96 && r.v.rowText === '2,650 Ω' && r.read.cap === '1 µF' && r.read.heal === '96 mA';\n  });\n  K.check('Healthy, the three charging currents sit 120° apart and add to zero at every length, with or without the drives', () =>\n    LENS.every((len) => [false, true].every((drives) => {\n      const s = sys({ mode: 'healthy', len, drives, v480: false });\n      return s.earth < 1e-9 * s.Ih && K.near(apart(s.I[0], s.I[1]), 120, 1e-9) && K.near(apart(s.I[1], s.I[2]), 120, 1e-9);\n    })) && drawn(P()).angle === 120);\n  K.check('A solid fault on L1 at 4 km: L1 passes nothing, L2 and L3 pass 166 mA each, 60° apart, and their sum is 287 mA, three times 96 mA', () => {\n    const s = s4({ mode: 'fault' }), r = drawn(P({ mode: 'fault' }));\n    return mag(s.I[0]) < 1e-12 && mA(mag(s.I[1])) === 166 && mA(mag(s.I[2])) === 166 && K.near(apart(s.I[1], s.I[2]), 60, 1e-9) &&\n      mA(s.earth) === 287 && K.near(s.earth / s.Ih, 3, 1e-9) && r.read.earth === '287 mA' && r.angle === 60 && r.texts.indexOf('Fault current') >= 0;\n  });\n  K.check('Twice the capacitance, twice the current: 8 km, or 4 km with the drives, is 2 µF a line, 192 mA healthy and 575 mA to a fault', () =>\n    [P({ mode: 'fault', len: 8 }), P({ mode: 'fault', drives: true })].every((c) => { const r = drawn(c).read; return r.cap === '2 µF' && r.heal === '192 mA' && r.earth === '575 mA'; }));\n  K.check('In a fault, current to earth is a straight line in cable length, through zero with the drives off', () => {\n    const f = (len, drives) => sys({ mode: 'fault', len, drives, v480: false }).earth;\n    return f(0, false) === 0 && K.near(f(8, false), 2 * f(4, false), 1e-12) && K.near(f(12, false) - f(8, false), f(8, false) - f(4, false), 1e-12) &&\n      K.near(f(4, true) - f(0, true), f(4, false), 1e-12);\n  });\n  K.check('16 km with the drives is 5 µF a line: 479 mA healthy and 1.44 A to a fault', () => {\n    const r = drawn(STEPS[10].after).read;\n    return r.cap === '5 µF' && r.heal === '479 mA' && r.earth === '1.44 A';\n  });\n  K.check('A person on L1 carries about 190 mA at 4 km and 36 mA at 0.5 km; the curve rises and levels off below 254 V ÷ 1,000 Ω', () => {\n    const b = (len) => sys({ mode: 'person', len, drives: false, v480: false }).earth;\n    let up = true;\n    for (let k = 1; k < LENS.length; k++) if (!(b(LENS[k]) > b(LENS[k - 1]))) up = false;\n    return mA(b(4)) === 190 && mA(b(0.5)) === 36 && up && b(16) < 0.254 && (b(2) - b(1)) > 3 * (b(16) - b(15)) && drawn(STEPS[8].pic).read.earth === '190 mA';\n  });\n  K.check('With no direct ground path back to the neutral, the current returns through the capacitance of the two unfaulted phases, and only 1.04 A flows (480 V, 800 Ω a line)', () => {\n    const s = sys(P({ mode: 'fault', v480: true })), r = drawn(STEPS[11].after).read;\n    return Math.round(V_CHECK / ROOT3) === 277 && K.fmt(s.C * 1e6, { sig: 2 }) === '3.3' && mag(s.I[0]) < 1e-12 && r.heal === '0.35 A' && r.earth === '1.04 A';\n  }, { source: EATON });\n  K.check('A capacitance of about 10 µF on a 277 V system carries about 1 A of continuous charging current', () =>\n    K.near(OMEGA * 10e-6 * V_CHECK / Math.sqrt(3), 1, 0.05), { source: EATON4 });\n  K.check('Although called ungrounded, the system is coupled to ground through the distributed capacitance of its windings and conductors: with no tie at all, a first fault still passes current at every length', () =>\n    LENS.every((len) => sys({ mode: 'fault', len, drives: false, v480: false }).earth > 0) && mag(s4({}).H) === 0, { source: EATON });\n  K.check('The larger the system, the smaller the impedance between the conductors and earth', () => {\n    const z = (len, drives) => sys({ mode: 'healthy', len, drives, v480: false }).X / 3;\n    for (let k = 1; k < LENS.length; k++) if (!(z(LENS[k], false) < z(LENS[k - 1], false))) return false;\n    return z(4, true) < z(4, false);\n  }, { source: BENDER });\n  K.check('The arrows share one scale: in a fault each healthy line\\'s arrow is 1.73 times its healthy length, and the sum three times', () => {\n    const h = viewOf(P()), f = viewOf(P({ mode: 'fault' })), c = f.vec.map((q) => [q[0] * Math.cos(rad(q[1])), q[0] * Math.sin(rad(q[1]))]);\n    return K.near(f.vec[1][0] / h.vec[1][0], Math.sqrt(3), 1e-9) && K.near(mag([c[0][0] + c[1][0] + c[2][0], c[0][1] + c[1][1] + c[2][1]]) / h.vec[0][0], 3, 1e-9);\n  });\n  K.check('Before an answer, no puzzle\\'s picture shows its result', () => {\n    const b = (i) => drawn(STEPS[i].before), a = (i) => drawn(STEPS[i].after);\n    return b(1).v.rowA === 0 && a(1).v.rowA === 1 && b(3).read.earth === '?' && b(3).v.ch === 0 && a(3).v.ch === 1 && a(3).read.earth === '0 mA' &&\n      a(3).texts.indexOf('Adds to zero') >= 0 && b(5).v.loopA === 0 && a(5).v.loopA === 1 && b(7).read.earth === '287 mA' && a(7).read.earth === '575 mA' &&\n      b(9).read.earth === '?' && b(9).v.personA === 0 && a(9).read.earth === '190 mA' && [10, 11].every((i) => b(i).read.earth === '?' && b(i).v.sumA === 0 && b(i).v.linkA === 0);\n  });\n  K.check('Switching the fault onto L1 swings L2\\'s and L3\\'s currents to 60° apart and lays them head to tail within 3 s; part way through they are still on the way', () => {\n    const f = motion(viewOf(P()), viewOf(P({ mode: 'fault' })), true), mid = viewAt(f, (f.M[0] + f.M[1]) / 2);\n    const g = motion(viewOf(P({ chain: true })), viewOf(P({ mode: 'fault' })), true);\n    const deg = (q) => Math.abs(angGap(q.vec[1][1], q.vec[2][1]));\n    return f.end <= 3 && g.end <= 3 && deg(mid) > 61 && deg(mid) < 119 && mid.ch === 0 && K.near(deg(viewAt(f, f.end)), 60, 1e-9) && viewAt(f, f.end).ch === 1;\n  });\n  K.check('The panel is shorter in a fault, where the triangle sits above its middle, than when healthy', () =>\n    HM.fault < HM.healthy - 30 && HM.healthy <= 352);\n  K.check('While the fault swings in, Current to earth follows the arrows: part way it is between 0 and 287 mA', () => {\n    const f = motion(viewOf(P()), viewOf(P({ mode: 'fault' })), true), mid = viewAt(f, (f.M[0] + f.M[1]) / 2);\n    const c = mid.vec.map((q) => [q[0] * Math.cos(rad(q[1])), q[0] * Math.sin(rad(q[1]))]);\n    const e = Math.hypot(c[0][0] + c[1][0] + c[2][0], c[0][1] + c[1][1] + c[2][1]) / K0;\n    return e > 0.01 && e < 0.28;\n  });\n  K.check('A slider move settles within 0.35 s, so the arrows and the numbers keep up with it', () =>\n    motion(viewOf(P({ mode: 'fault' })), viewOf(P({ mode: 'fault', len: 8 })), false).end <= 0.35 &&\n    motion(viewOf(P()), viewOf(P({ mode: 'person', len: 12, drives: true })), false).end <= 0.35);\n\n  K.ready();\n</script>",
+  "title": "The cable that is a capacitor",
+  "brief": "The one thing you should see is the two healthy lines' charging currents swinging to 60° apart and adding head to tail to three times one line's healthy current when you switch the fault onto L1.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "Twelve screens: five that show and seven puzzles, alternating to the ninth and ending on three mixed puzzles",
+     "ok": true
+    },
+    {
+     "label": "Healthy, each line sits 440 ÷ 1.732 = 254 V from earth, and ω = 2π × 60 = 377",
+     "ok": true
+    },
+    {
+     "label": "4 km gives 1 µF a line: its reactance at 60 Hz is about 2,650 Ω, so 254 V drives 96 mA, and screen 2's answer labels L1's row 2,650 Ω",
+     "ok": true
+    },
+    {
+     "label": "Healthy, the three charging currents sit 120° apart and add to zero at every length, with or without the drives",
+     "ok": true
+    },
+    {
+     "label": "A solid fault on L1 at 4 km: L1 passes nothing, L2 and L3 pass 166 mA each, 60° apart, and their sum is 287 mA, three times 96 mA",
+     "ok": true
+    },
+    {
+     "label": "Twice the capacitance, twice the current: 8 km, or 4 km with the drives, is 2 µF a line, 192 mA healthy and 575 mA to a fault",
+     "ok": true
+    },
+    {
+     "label": "In a fault, current to earth is a straight line in cable length, through zero with the drives off",
+     "ok": true
+    },
+    {
+     "label": "16 km with the drives is 5 µF a line: 479 mA healthy and 1.44 A to a fault",
+     "ok": true
+    },
+    {
+     "label": "A person on L1 carries about 190 mA at 4 km and 36 mA at 0.5 km; the curve rises and levels off below 254 V ÷ 1,000 Ω",
+     "ok": true
+    },
+    {
+     "label": "With no direct ground path back to the neutral, the current returns through the capacitance of the two unfaulted phases, and only 1.04 A flows (480 V, 800 Ω a line)",
+     "ok": true,
+     "source": "https://www.eaton.com/content/dam/eaton/products/medium-voltage-power-distribution-control-systems/vacclad-w-pages/characteristics-power%20systems-neutral-grounding-techniques-fact-fiction-ap083005en.pdf"
+    },
+    {
+     "label": "A capacitance of about 10 µF on a 277 V system carries about 1 A of continuous charging current",
+     "ok": true,
+     "source": "https://www.eaton.com/content/dam/eaton/markets/healthcare/knowledge-center/white-paper/transient-overvoltages-on-ungrounded-systems-from-intermittent-ground-faults.pdf"
+    },
+    {
+     "label": "Although called ungrounded, the system is coupled to ground through the distributed capacitance of its windings and conductors: with no tie at all, a first fault still passes current at every length",
+     "ok": true,
+     "source": "https://www.eaton.com/content/dam/eaton/products/medium-voltage-power-distribution-control-systems/vacclad-w-pages/characteristics-power%20systems-neutral-grounding-techniques-fact-fiction-ap083005en.pdf"
+    },
+    {
+     "label": "The larger the system, the smaller the impedance between the conductors and earth",
+     "ok": true,
+     "source": "https://fournais-bender.dk/storage/TechnAspects-IT-systems.pdf"
+    },
+    {
+     "label": "The arrows share one scale: in a fault each healthy line's arrow is 1.73 times its healthy length, and the sum three times",
+     "ok": true
+    },
+    {
+     "label": "Before an answer, no puzzle's picture shows its result",
+     "ok": true
+    },
+    {
+     "label": "Switching the fault onto L1 swings L2's and L3's currents to 60° apart and lays them head to tail within 3 s; part way through they are still on the way",
+     "ok": true
+    },
+    {
+     "label": "The panel is shorter in a fault, where the triangle sits above its middle, than when healthy",
+     "ok": true
+    },
+    {
+     "label": "While the fault swings in, Current to earth follows the arrows: part way it is between 0 and 287 mA",
+     "ok": true
+    },
+    {
+     "label": "A slider move settles within 0.35 s, so the arrows and the numbers keep up with it",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step",
+    "mode",
+    "len",
+    "drives"
+   ],
+   "readouts": [
+    "cap",
+    "heal",
+    "earth"
+   ],
+   "outputs": [],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Screen",
+     "min": 0,
+     "max": 11,
+     "step": 1,
+     "steps": [
+      "Every cable is a capacitor",
+      "Its reactance",
+      "Charging current",
+      "Adding the three",
+      "A fault on L1",
+      "The way back",
+      "It grows with the system",
+      "Ten drives",
+      "A person on L1",
+      "Small or big",
+      "A big system",
+      "The 480 V check"
+     ],
+     "value": 0
+    },
+    {
+     "id": "mode",
+     "kind": "choice",
+     "label": "Case",
+     "options": [
+      "healthy",
+      "fault",
+      "person"
+     ],
+     "labels": [
+      "Healthy",
+      "Fault on L1",
+      "Person on L1"
+     ],
+     "value": "healthy",
+     "index": 0,
+     "shown": false
+    },
+    {
+     "id": "len",
+     "kind": "control",
+     "label": "Cable length",
+     "min": 0.5,
+     "max": 16,
+     "step": 0.5,
+     "log": false,
+     "value": 4,
+     "shown": false,
+     "snap": [
+      4,
+      8,
+      16
+     ]
+    },
+    {
+     "id": "drives",
+     "kind": "toggle",
+     "label": "Ten drives' filters",
+     "options": [
+      false,
+      true
+     ],
+     "value": false,
+     "shown": false
+    }
+   ],
+   "actions": [
+    "480 V check",
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Check",
+    "Why?",
+    "Back",
+    "Continue",
+    "Start again",
+    "The currents"
+   ],
+   "answers": [],
+   "written": [],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 1
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-27T17:07:55.171Z",
+  "applied": [
+   {
+    "path": "explain.text",
+    "problem": "\"Three times one line's healthy current\" is stated of every first fault but holds for a solid fault (a fault with resistance passes less); \"charge and discharge 60 times a second\" is said of all AC; doubling the cable doubles C only if cable is all of it; 3 × 96 is 288, so 287 is \"about\"."
+   },
+   {
+    "path": "practice.text",
+    "problem": "The worked example writes 3 × 192 = 575, but 3 × 192 is 576 (575 comes from the unrounded 191.5 mA); \"multiply by 3\" gives a solid fault's current, and a fault through some resistance passes less. Other figures checked: 0.29 A per µF, 1 µF + 1 µF = 2 µF, 192 mA, 10 µF at 277 V gives about 1.04 A."
+   },
+   {
+    "path": "interactive.whatAmILookingAt",
+    "problem": "\"The plot is a straight line through zero in Fault on L1\" fails with the drives on, which add a fixed 1 µF so the line is offset. All screen figures recomputed and correct (2,650 Ω, 96/166/287 mA, 575 mA, 1.44 A, 830 mA, 190 and 36 mA body currents, 0.35/0.60/1.04 A, 800 Ω per Eaton)."
+   },
+   {
+    "path": "analogy.breaks",
+    "problem": "\"The three healthy currents cancel\" is exact only for perfectly equal capacitance; a real system is a little unbalanced, as screen 4 says, so a little is left over."
+   }
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}

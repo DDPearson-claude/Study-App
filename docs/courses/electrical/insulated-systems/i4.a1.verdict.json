@@ -1,0 +1,198 @@
+{
+  "ok": true,
+  "reachChecked": true,
+  "problems": [],
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "Twelve screens: five that show and seven puzzles, alternating to the ninth and ending on three mixed puzzles",
+        "ok": true
+      },
+      {
+        "label": "Each line sits 440 ÷ 1.732 = 254 V from the star point. Earthed, 254 ÷ 0.4 = 635 A, while 254 × 0.4 is about 102 and 440 ÷ 0.4 is 1,100",
+        "ok": true
+      },
+      {
+        "label": "The second fault makes a short-circuit between phases through the PE conductors and the hull, unless it is on the same conductor as the first fault",
+        "ok": true,
+        "source": "https://www.electrical-installation.org/enwiki/IT_system_-_Fault_protection"
+      },
+      {
+        "label": "It is conventional to double the loop impedance of a circuit: with matched feeders, Z1 + Z2 is twice one circuit's loop at every setting",
+        "ok": true,
+        "source": "https://www.electrical-installation.org/enwiki/IT_system_-_Fault_protection"
+      },
+      {
+        "label": "Both loops 0.4 Ω, second fault on L2 or L3: 440 V round a 0.8 Ω loop drives 550 A, past both 400 A trips",
+        "ok": true
+      },
+      {
+        "label": "Second fault on L1: 0 V and 0 A at every loop setting; no loop is drawn and nothing trips",
+        "ok": true
+      },
+      {
+        "label": "Loops of 0.4 and 0.6 Ω make 1.0 Ω and 440 A, past the trip; 0.4 and 1.0 Ω make 1.4 Ω and 314 A, with no instant trip",
+        "ok": true
+      },
+      {
+        "label": "At the ends of the sliders: 0.2 Ω each gives 1,100 A, and 1.6 Ω each gives 3.2 Ω and 138 A",
+        "ok": true
+      },
+      {
+        "label": "The current falls as either loop grows, and both breakers carry the same current",
+        "ok": true
+      },
+      {
+        "label": "Earthed, one 0.4 Ω circuit passes 635 A; insulated, the second fault through two passes 550 A: 1.73 times the voltage over twice the loop, about 0.87 times",
+        "ok": true
+      },
+      {
+        "label": "A worked example: loops of 0.25 Ω and 0.35 Ω make 0.6 Ω and pass 733 A",
+        "ok": true
+      },
+      {
+        "label": "Before an answer, no puzzle's picture shows its result",
+        "ok": true
+      },
+      {
+        "label": "Dropping the fault on L2 lights the loop within 3 s, and part way through it is still lighting",
+        "ok": true
+      },
+      {
+        "label": "Screen 9 grows feeder 2's loop from 0.4 to 1.0 Ω: the current falls from 550 A to 314 A and drops below the trip on the way",
+        "ok": true
+      },
+      {
+        "label": "A slider or phase move settles within 0.35 s, so the picture and the numbers keep up with it",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "ph",
+      "z1",
+      "z2"
+    ],
+    "readouts": [
+      "volt",
+      "zloop",
+      "amps"
+    ],
+    "outputs": [],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Screen",
+        "min": 0,
+        "max": 11,
+        "step": 1,
+        "steps": [
+          "One fault already there",
+          "An earth fault, earthed",
+          "The same phase",
+          "Which trips nothing?",
+          "A different phase",
+          "The voltage round the loop",
+          "Two loops end to end",
+          "Loops of 0.4 and 0.6 Ω",
+          "A long run",
+          "A week with the alarm on",
+          "Earthed against insulated",
+          "Which motors can stop?"
+        ],
+        "value": 0
+      },
+      {
+        "id": "ph",
+        "kind": "choice",
+        "label": "Second fault on",
+        "options": [
+          "L1",
+          "L2",
+          "L3"
+        ],
+        "labels": [
+          "L1",
+          "L2",
+          "L3"
+        ],
+        "value": "L2",
+        "index": 1,
+        "shown": false
+      },
+      {
+        "id": "z1",
+        "kind": "control",
+        "label": "Feeder 1 loop",
+        "min": 0.2,
+        "max": 1.6,
+        "step": 0.1,
+        "log": false,
+        "value": 0.4,
+        "shown": false,
+        "snap": [
+          0.4,
+          0.6,
+          1
+        ]
+      },
+      {
+        "id": "z2",
+        "kind": "control",
+        "label": "Feeder 2 loop",
+        "min": 0.2,
+        "max": 1.6,
+        "step": 0.1,
+        "log": false,
+        "value": 0.4,
+        "shown": false,
+        "snap": [
+          0.4,
+          0.6,
+          1
+        ]
+      }
+    ],
+    "actions": [
+      "Drop second fault",
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Back",
+      "Continue",
+      "Start again",
+      "The second fault"
+    ],
+    "answers": [],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ],
+    "foreign": [],
+    "unreachable": []
+  }
+}

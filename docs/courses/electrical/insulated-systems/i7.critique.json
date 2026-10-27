@@ -1,0 +1,28 @@
+{
+  "draft": "i7.lesson.draft1.txt",
+  "validator": "draft 1 has no hard problems. One soft problem: whatAmILookingAt is 14,077 characters, over the 12,000 guide.",
+  "research": "The research for i7 held four notes (the clamp-on probe, the pulse path, sectionalising with essential services covered, insulation measurement dead). Thirteen quotes already checked for the brief (notes 4.7, 3.5, 4.5: Cahier 178's 'not reliable' clamp and low-frequency tracking; Bender's vanishing fault, dead loads unseen by the monitor, test current seen by every CT on the path and limited to a maximum, the 1 to 25 mA portable set, monitoring and measurement easily mixed up; EIG's toroidal CT; IEC 60364-6's disconnection before an IR test; ABB's 'disconnect the monitoring device'; GL's 500 V DC switchboard test; Marine Insight's common causes) were appended to research.reply.txt as sources 58 to 70 and run through sources.mjs (69 kept, 0 dropped). The new sources (renumbered 57 to 69) and the i7 notes were merged into research.json; the hand-carried source 42 and i5's note on it were kept unchanged, as for i6.",
+  "keep": [
+    "The idea is named up front: the monitor says there is a fault but not where, so you find it live and then test the circuit dead.",
+    "The causal steps are in words: opening a healthy feeder leaves the fault connected; a contactor lifts a stopped load off the system; a clamp round all three cores cancels load current like an RCD's toroid; at 60 Hz each healthy feeder passes three times its healthy charging current and the faulty one carries the rest home; a slow pulse barely passes capacitance, so only the fault's path shows it.",
+    "Every figure recomputed: 3,000 ÷ 8 = 375 kΩ, 3,000 ÷ 7 = 429 kΩ, 100 × 440 = 44 kΩ; 377 × 1 µF × 254 V = 96 mA, × 3 = 287 mA per µF; 2 × 287.3 = 575 mA, 0.05 × 287.3 = 14.4 mA, 575 + 6 × 14.4 = 661 mA, 86 mA apart; faulty F1 0.35 × 287.3 = 101 mA; screen 2: 428.6 ∥ 20 = 19.1 kΩ, 500 ∥ 20 = 19.2 kΩ; worked example 250 ∥ 15 = 14.2 kΩ, 333 ∥ 15 = 14.4 kΩ.",
+    "The physics is kept honest: in the ideal model the faulty feeder's 60 Hz reading is the sum of the others, so it is still the largest. The lesson does not claim a healthy feeder reads more. It shows the margin is slim (86 mA in 661) and that a faulty long feeder reads less than it did healthy (screen 12), which is Cahier's point in his own terms.",
+    "Each brief misconception has its DO screen: the biggest 60 Hz reading taken as the fault (6, 12), the recovered reading taken as a verdict (2, 4), monitoring mistaken for measurement (10), testing with the electronics in (11, a sorter).",
+    "Twelve screens: SHOW 1, 3, 5, 7, 9 (73 to 81 words) alternate with DO 2, 4, 6, 8, ending on three mixed puzzles 10 to 12. Each SHOW has a read sentence with no instruction to act. Feeder tiles sit two rows of four and the tool picker wraps two by two at 360 px."
+  ],
+  "faults": [
+    { "fault": "explanation skipping the causal step", "found": true, "where": "screen 5 says every feeder's capacitance 'now' passes current without saying the fault has shifted the hull to L1. Screen 1 gives 0 kΩ without saying a solid fault is a 0 Ω path in parallel." },
+    { "fault": "false absolutes", "found": true, "where": "explain's 'only clamps on the fault's path show it' states the model's zero as fact. Practice's 'If it does not, a load switched off at that moment' rules out a fault that comes and goes on its own. Practice's 'the healthy lines sit at line voltage' is true only of a solid fault." },
+    { "fault": "brief shows effect not cause", "found": false, "note": "the brief names the cause (switching from a 60 Hz clamp to the slow injected pulse) and the effect (every feeder reads at 60 Hz, only F6 shows the pulse)." },
+    { "fault": "checks test recall", "found": false, "note": "taught mode, no checks. Each DO applies the rule to a new reading: a nudge against a jump, a reading that recovers and stays, a big 60 Hz reading, the pulse at the sub-board, a dead load, the step order, a fault moved to the long feeder." },
+    { "fault": "thin or decorative research", "found": false, "note": "after the top-up each claim the lesson rests on has a quote. The footnotes sit on the method, the vanishing fault, the clamp's unreliability, the pulse path, the slow signal, dead loads, disconnection and the 500 V test." },
+    { "fault": "unreadable labels", "found": false, "note": "rows of eight tiles and four tools wrap; nothing is named by its shade." },
+    { "fault": "talks about the idea instead of teaching it", "found": false }
+  ],
+  "plain_writing": [
+    "Screen 9 says 'prove it dead' twice in two sentences. Make the first 'Now test it dead'.",
+    "whatAmILookingAt repeats the readings in the rule and again in the opening setting. Cut the repeats to bring it under 12,000 characters."
+  ],
+  "shape": "Matches the recommended shape: idea up front, the rule in words (open feeders and watch for a jump; a clamp reads only current returning through the hull; the pulse follows the fault's path only), worked examples with real numbers (429 kΩ, 575 and 661 mA, the 14.2 to 14.4 kΩ nudge), the misconceptions shown failing (the vanishing fault, the long feeder's big reading, the monitor blind to a dead load), an analogy from his trade (an RCD hunt foiled by an immersion thermostat) with where it breaks, practice with steps, a rule of thumb, a worked example and the mistakes, and a sayable recap.",
+  "verdict": "Rewrite as draft 2: give screens 1 and 5 their causes, soften the pulse's 'only' and the two practice absolutes, fix screen 9's repeat, and trim whatAmILookingAt under 12,000 characters."
+}

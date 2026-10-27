@@ -1,0 +1,604 @@
+<!-- kind: quantity -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .caption { max-width: 32rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.15rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.05rem; font-weight: 400; line-height: 1.6; }
+  .scene { display: block; width: 100%; max-width: 32rem; margin-inline: auto; }
+  .scene .arm { stroke: var(--k-accent2); stroke-width: 2.5; fill: none; }
+  .scene .ahp { fill: var(--k-accent2); }
+  .scene .tri { stroke: var(--k-muted); stroke-width: 1.5; fill: none; stroke-linejoin: round; }
+  .scene .lead { stroke: var(--k-accent); stroke-width: 2; stroke-dasharray: 5 4; fill: none; }
+  .scene .path { stroke: var(--k-muted); stroke-width: 1.8; stroke-dasharray: 1.5 4.5; stroke-linecap: round; fill: none; }
+  .scene .wire { stroke: var(--k-ink); stroke-width: 1.5; fill: none; }
+  .scene .card { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .card.lit { fill: var(--k-fill2); }
+  .scene .edot { fill: var(--k-ink); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .sdot { fill: var(--k-ink); }
+  .scene .track { fill: none; stroke: var(--k-muted); stroke-width: 1.2; }
+  .scene .bar { fill: var(--k-accent); }
+  .scene .tick { stroke: var(--k-ink); stroke-width: 2; }
+  .scene .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .lab.b { font-size: 14px; font-weight: 700; }
+  .scene .lab.n { font-weight: 400; }
+  /* The fault picker: three buttons that wrap on a narrow phone. */
+  #ctls > * + * { margin-top: 10px; }
+  .picker { display: grid; grid-template-columns: repeat(auto-fit, minmax(4.5rem, 1fr)); gap: 8px; }
+  .picker .k-btn { min-height: 44px; width: 100%; }
+  .picker .k-btn[aria-pressed="true"], .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; min-height: 44px; }
+  /* Five readout tiles: as many to a row as fit, two on a phone. */
+  #outs { display: grid; grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr)); gap: 10px; }
+  /* The answers are sentences: one to a row, wrapping inside the button. */
+  .picks { display: flex; flex-direction: column; gap: 8px; }
+  .picks .k-btn { width: 100%; min-height: 48px; white-space: normal; text-align: left; justify-content: flex-start; line-height: 1.4; padding: 10px 14px; }
+  .fb { font-weight: 700; min-height: 1.5em; }
+  .fb.right { color: var(--k-good); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly. */
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }
+</style>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 300" width="100%" role="img" aria-label="">
+      <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto"><path class="ahp" d="M0 0L10 5L0 10z"/></marker></defs>
+      <g id="art"></g>
+    </svg>
+    <div id="ctls">
+      <p class="k-label">Fault on</p>
+      <div class="picker" id="picker"></div>
+      <div id="rctl"></div>
+    </div>
+    <div id="outs"></div>
+    <div class="picks" id="picks"></div>
+    <div class="row" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row" id="nav"></div>
+</div>
+
+<p class="caption">Example values: a 440 V supply, with 1 µF from each line to the hull at 60 Hz.</p>
+
+<script>
+  // ---------- the rule ----------
+  // Each winding is an arrow 440 ÷ 1.732 = 254 V long. Each line leaks to the hull through its cable's
+  // capacitance (1 µF at 60 Hz, the same on all three). A fault of resistance R from one line to the hull
+  // puts the earth dot, measured from the star point, at that line's arrow ÷ (1 + j3ωCR).
+  const VLINE = 440, ROOT3 = 1.732, VPH = VLINE / Math.sqrt(3);
+  const CAP = 1e-6, HZ = 60, OMEGA = 2 * Math.PI * HZ;
+  const STOPS = [Infinity, 10000, 3000, 1000, 300, 100, 0];
+  const STOP_TEXT = ['Open', '10 kΩ', '3 kΩ', '1 kΩ', '300 Ω', '100 Ω', 'Solid'];
+  const LINES = ['L1', 'L2', 'L3'];
+  const ANG = { L1: 90, L2: -30, L3: 210 };   // L1 up, L2 120° behind it, L3 120° behind L2
+  const rad = (d) => d * Math.PI / 180;
+  const arrow = (ph) => [VPH * Math.cos(rad(ANG[ph])), VPH * Math.sin(rad(ANG[ph]))];
+  function earthOf(ph, R) {
+    if (R === Infinity) return [0, 0];
+    const x = 3 * OMEGA * CAP * R, v = arrow(ph), d = 1 + x * x;
+    return [(v[0] + v[1] * x) / d, (v[1] - v[0] * x) / d];
+  }
+  // The same point by its angle along the half-circle, th = atan(3ωCR): π/2 when open (the star point), 0 when solid (the tip).
+  const thOf = (R) => (R === Infinity ? Math.PI / 2 : Math.atan(3 * OMEGA * CAP * R));
+  function earthAt(ph, th) { const m = VPH * Math.cos(th), a = rad(ANG[ph]) - th; return [m * Math.cos(a), m * Math.sin(a)]; }
+  const dist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1]);
+  // Each line's voltage to earth is the length from the dot to its tip.
+  function volts(E) {
+    return { L1: dist(arrow('L1'), E), L2: dist(arrow('L2'), E), L3: dist(arrow('L3'), E), star: Math.hypot(E[0], E[1]), motor: dist(arrow('L1'), arrow('L2')) };
+  }
+  const vText = (v) => K.fmt(v, { decimals: 0 }) + ' V';
+  const nearestStop = (th) => STOPS.reduce((best, R, k) => (Math.abs(thOf(R) - th) < Math.abs(thOf(STOPS[best]) - th) ? k : best), 0);
+
+  // ---------- the lesson: SHOW screens demonstrate, DO screens are puzzles ----------
+  // A picture: dot (the earth dot and its voltmeter leads), sides (the 440 V labels, shown while no path is drawn),
+  // path (the dot's half-circle for the faulted line), ph and ri (the faulted line and the fault's stop),
+  // starLead (a voltmeter from the dot to the star point), starQ (its readout waits), lit (the motor card).
+  const P = (o) => Object.assign({ dot: true, sides: true, path: false, ph: 'L1', ri: 0, starLead: false, starQ: false, lit: false }, o || {});
+  const strip = (s) => s.replace(/\[\^\d+\]/g, '');
+  const STEPS = [
+    { show: true, name: 'The star of windings', pic: P({ dot: false, sides: false }), demo: () => ({ grow: true, end: 2.4 }),
+      text: `This picture draws the supply's three windings as a phasor star. Each arrow runs from the star point to a line, L1, L2 or L3. Its length is that winding's voltage, 254 V. The faint triangle joins the line ends. Its sides are the voltages between lines. The loads take their supply across them. Every length in this picture is a voltage.`,
+      still: () => setPic(STEPS[0].pic) },
+    { kind: 'pick', name: 'Between two lines', before: P({ dot: false, sides: false }), after: P({ dot: false, sides: true }),
+      task: `Each winding gives 254 V. What does a voltmeter read between two lines, such as L1 and L2?`,
+      read: `Each winding gives 254 V. What does a voltmeter read between two lines, such as L1 and L2?`,
+      opts: ['440 V', '508 V', '254 V'], want: '440 V',
+      hints: { '508 V': `The arrows are 120° apart, so they do not add end to end. The side is 1.732 times one arrow, not twice.`,
+        '254 V': `That is one winding, from the star point to a line. Between two lines you cross two windings at an angle.` },
+      why: `The line voltage is 1.732 times the phase voltage, so 254 × 1.732 = 440 V. That is each side of the triangle.` },
+    { show: true, name: 'The hull as a dot', pic: P(), demo: () => ({ dotIn: true, end: 1.3 }),
+      text: `Now add the hull as a dot. The hull is earth. A voltmeter from each line to the dot reads that line's voltage to earth. With no fault the dot sits at the star point, so each line reads 254 V. No wire ties the hull to the star point. Each line leaks to the hull a little through its cable's capacitance. The three leaks are equal, so they hold the hull at the middle of the star.`,
+      still: () => setPic(STEPS[2].pic) },
+    { kind: 'pick', name: 'Before the fault', before: P(), after: P({ path: true, ri: 6 }),
+      task: `L1 faults solidly to the hull. Before you try it, what will the voltmeters on L2 and L3 read?`,
+      read: `L1 faults solidly to the hull. What will the voltmeters on L2 and L3 read?`,
+      opts: ['440 V each', '254 V each, as before', '0 V each, as the supply collapses'], want: '440 V each',
+      hints: { '254 V each, as before': `The fault joins L1 to the hull. So each healthy line's voltage to earth is now its voltage to L1.`,
+        '0 V each, as the supply collapses': `The windings still give their voltages. The fault joins one line to earth, not the lines to each other.` },
+      why: `The fault puts the hull at L1's potential. L2 is still 440 V from L1, so it reads 440 V to earth. So does L3.` },
+    { show: true, name: 'The triangle shifts', pic: P({ path: true, ri: 6 }), ctl: true, demo: () => demoTo(STEPS[4].pic),
+      text: strip(`Watch the fault go from Open to Solid, then drag it back and try it. The dot slides along a curve to L1's tip. L1 now reads 0 V to earth, because the fault joins it to the hull. L2 and L3 read 440 V. Those are the triangle's sides, and they have not changed. The triangle does not collapse. It shifts, so L1's corner sits on earth. Each healthy line now sits at √3 times its normal voltage to earth.[^1]`),
+      read: `With a solid fault on L1, the dot sits on L1's tip. L1 reads 0 V to earth, and L2 and L3 read 440 V. The triangle has kept its size and shifted.`,
+      still: () => setPic(STEPS[4].pic) },
+    { kind: 'pick', name: 'The star point', before: P({ path: true, ri: 6, starQ: true }), after: P({ path: true, ri: 6, starLead: true }),
+      task: `With L1 solid to the hull, what does a voltmeter read from the star point to earth?`,
+      read: `With L1 solid to the hull, what does a voltmeter read from the star point to earth?`,
+      opts: ['254 V', '0 V', '440 V'], want: '254 V',
+      hints: { '0 V': `The star point is joined to nothing. It is one winding away from L1, and L1 is now at earth.`,
+        '440 V': `440 V is a line's distance from L1. The star point is one arrow from L1, not one side.` },
+      why: `The star point is the inner end of L1's winding. L1 is at earth, so the star point sits one winding, 254 V, from earth.` },
+    { show: true, name: 'The motor runs on', pic: P({ path: true, ri: 6, lit: true }), ctl: true, demo: () => demoTo(STEPS[6].pic),
+      text: strip(`The motor is fed across the lines, so it sees only the triangle's sides. It still gets 440 V and runs on. Nothing needs to disconnect. The fault current is small, often measured in milliamps.[^2] What has changed is the voltage to earth. The insulation on L2 and L3 now holds 440 V instead of 254 V. That is 1.73 times as much. So an insulated system's equipment is rated for the line voltage to earth, 173% of the phase voltage.[^3] The bar shows L2's voltage to earth against that rating.`),
+      read: `With a solid fault on L1, the motor across L1 and L2 still gets 440 V and runs on. The insulation on L2 and L3 now holds 440 V to earth instead of 254 V. Equipment on an insulated system is rated for that.`,
+      still: () => setPic(STEPS[6].pic) },
+    { kind: 'pick', name: 'What has changed', before: P({ path: true, ri: 6 }), after: P({ path: true, ri: 6 }),
+      task: `A solid first fault on L1 draws only a small current. What has it changed that matters?`,
+      read: `A solid first fault on L1 draws only a small current. What has it changed that matters?`,
+      opts: ['L2 and L3 now sit at 440 V to earth, so their insulation is stressed harder', 'Nothing much, since so little current flows', 'The motors now get 1.73 times their normal voltage'],
+      want: 'L2 and L3 now sit at 440 V to earth, so their insulation is stressed harder',
+      hints: { 'Nothing much, since so little current flows': `Look at the voltmeters, not the current. The voltage to earth has risen with almost no current.`,
+        'The motors now get 1.73 times their normal voltage': `The motors are fed across the lines. The triangle has kept its size.` },
+      why: `A tiny current can still move the earth a long way. The hull now sits at L1, so L2 and L3 are 440 V from it. Their insulation holds that until someone clears the fault.` },
+    { show: true, name: 'A fault part way', pic: P({ path: true, ri: 3 }), ctl: true, demo: () => demoTo(STEPS[8].pic),
+      text: `Not every fault is a solid join. At 1 kΩ on L1 the dot stops part way along its curve. L1 reads 190 V, L2 256 V and L3 420 V. At 10 kΩ and 3 kΩ, L2 reads lowest, though the fault is on L1. But on 440 V no healthy line drops below about 209 V, so a reading far lower marks the fault. Drag on to Solid and the dot follows the curve to L1's tip. On the way, L3 passes 440 V by about 5%, near 463 V.`,
+      read: `With a 1 kΩ fault on L1, the dot sits part way along its curve, 168 V from the star point. L1 reads 190 V, L2 256 V and L3 420 V. At higher resistance L2 can read lowest, but on 440 V no healthy line drops below about 209 V.`,
+      still: () => setPic(STEPS[8].pic) },
+    { kind: 'pick', name: 'Reading the voltmeters', before: P(), after: P({ path: true, ph: 'L2', ri: 4 }),
+      task: `An insulated 440 V board's voltmeters read L1 463 V, L2 82 V and L3 382 V. What is happening?`,
+      read: `An insulated 440 V board's voltmeters read L1 463 V, L2 82 V and L3 382 V. What is happening?`,
+      opts: ['An earth fault on L2 that is not quite solid', 'A solid earth fault on L2', 'The supply voltage has risen to 463 V'],
+      want: 'An earth fault on L2 that is not quite solid',
+      hints: { 'A solid earth fault on L2': `A solid fault reads 0 V on its line and exactly 440 V on the other two.`,
+        'The supply voltage has risen to 463 V': `The voltages between lines have not changed. The earth has moved. Part way to solid, one line passes 440 V.` },
+      why: `L2 reads far lowest, at 82 V, so the fault is on L2. On 440 V no healthy line drops below about 209 V. L2 is not at 0 V, so the fault has some resistance. Part way along the curve, one healthy line passes 440 V. Here it is L1.` },
+    { kind: 'pick', name: 'A 400 V supply', before: P(), after: P({ path: true, ph: 'L3', ri: 6 }),
+      task: `An insulated 400 V supply has 231 V a phase. L3 faults solidly to earth. What do the three lines read to earth?`,
+      read: `An insulated 400 V supply has 231 V a phase. L3 faults solidly to earth. What do the three lines read to earth?`,
+      opts: ['L1 400 V, L2 400 V, L3 0 V', 'L1 231 V, L2 231 V, L3 0 V', 'All three 0 V, as the fault shorts the supply'],
+      want: 'L1 400 V, L2 400 V, L3 0 V',
+      hints: { 'L1 231 V, L2 231 V, L3 0 V': `The hull now sits at L3. The others read their distance from L3, which is the line voltage.`,
+        'All three 0 V, as the fault shorts the supply': `The fault joins one line to earth, not the lines to each other. The triangle keeps its size.` },
+      why: `The hull takes L3's potential, so L3 reads 0 V. L1 and L2 are a full line voltage from L3, so each reads 400 V. That is 231 × 1.732, √3 times the phase voltage. The picture stays on its 440 V supply, so its healthy lines read 440 V, not 400 V.` },
+    { kind: 'pick', name: 'The first fault', before: P(), after: P({ path: true, ri: 6 }),
+      task: `An insulated 440 V board gets its first solid earth fault, on L1. What do you expect?`,
+      read: `An insulated 440 V board gets its first solid earth fault, on L1. What do you expect?`,
+      opts: ['Nothing trips, the motors run on, and L2 and L3 read 440 V to earth', 'L1\'s breaker trips, as it would on a TN supply', 'The motors slow down, as the line voltages fall'],
+      want: 'Nothing trips, the motors run on, and L2 and L3 read 440 V to earth',
+      hints: { 'L1\'s breaker trips, as it would on a TN supply': `An insulated supply gives the fault no deliberate way home, so only a small current flows. That trips nothing.`,
+        'The motors slow down, as the line voltages fall': `The line voltages are the triangle's sides, and those keep their size.` },
+      why: `The hull moves to L1, so L1 reads 0 V and the others 440 V. The motors see only the line voltages, which do not change. The fault passes only a small current, so nothing trips. The board runs on. Its insulation takes the extra stress until someone finds the fault.` },
+  ];
+  const FINISH = 'On an insulated supply, a solid earth fault does not collapse the voltages. It moves the earth.';
+  const PICK = 'Choose an answer first.';
+  const EIG = 'https://www.electrical-installation.org/enwiki/IT_system_-_Fault_protection';
+  const EATON = 'https://www.eaton.com/content/dam/eaton/products/low-voltage-power-distribution-controls-systems/hrg/files/lv-hrg-systems-basics-ap019004en.pdf';
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- the drawing's geometry (viewBox 340 × 300, half a pixel to the volt) ----------
+  const SC = 0.5, CX = 150, CY = 150;
+  const S = (p) => [CX + SC * p[0], CY - SC * p[1]];
+  const TIP = {}; LINES.forEach((l) => { TIP[l] = S(arrow(l)); });
+  const CARD = { x: 232, y: 6, w: 102, h: 44 };
+  function arcD(ph) {
+    let d = '';
+    for (let k = 0; k <= 48; k++) { const p = S(earthAt(ph, Math.PI / 2 * (1 - k / 48))); d += (k ? 'L' : 'M') + p[0].toFixed(2) + ' ' + p[1].toFixed(2); }
+    return d;
+  }
+
+  // ---------- motion: the dot travels along the half-circles, through the star point when the line changes ----------
+  const travel = (a, b) => (a.ph === b.ph ? Math.abs(a.th - b.th) : (Math.PI / 2 - a.th) + (Math.PI / 2 - b.th));
+  function along(a, b, s) {
+    if (a.ph === b.ph) return { ph: a.ph, th: a.th + Math.sign(b.th - a.th) * s };
+    const up = Math.PI / 2 - a.th;
+    return s <= up ? { ph: a.ph, th: a.th + s } : { ph: b.ph, th: Math.PI / 2 - (s - up) };
+  }
+  const target = (c) => ({ ph: c.ph, th: thOf(STOPS[c.ri]) });
+  function posOf(c, t, f) {
+    const to = target(c);
+    if (!f.from || t === Infinity) return to;
+    const u = K.ease(K.clamp((t - f.moveAt) / f.dur, 0, 1));
+    return along(f.from, to, u * travel(f.from, to));
+  }
+  // What changes between picture a and picture b, starting with the dot at `from`.
+  function motion(a, b, from) {
+    const f = { sidesWere: a.sides && !a.path };
+    if (b.dot && !a.dot) f.dotIn = true;
+    if (b.sides && !b.path && !f.sidesWere) f.sidesIn = true;
+    if (b.path && !a.path) f.pathIn = true;
+    if (b.path && (!a.path || a.ph !== b.ph)) f.arcIn = true;
+    if (a.path && b.path && a.ph !== b.ph) f.oldPh = a.ph;
+    if (b.starLead && !a.starLead) f.leadIn = true;
+    if (b.lit && !a.lit) f.litIn = true;
+    const L = travel(from, target(b));
+    if (L > 1e-9) {
+      f.from = from;
+      f.moveAt = f.pathIn ? 0.5 : 0;
+      f.dur = 0.3 + 2.2 * Math.min(1, L / (Math.PI / 2));
+    }
+    f.end = Math.max(0.7, f.from ? f.moveAt + f.dur : 0);
+    return f;
+  }
+  // A demonstration: the dot starts at the star point (the fault open) and the slider follows it to the screen's setting.
+  function demoTo(pic) {
+    const f = motion(Object.assign({}, pic, { ri: 0, lit: false }), pic, { ph: pic.ph, th: Math.PI / 2 });
+    f.slider = true;
+    return f;
+  }
+
+  // ---------- state ----------
+  function blank() { return { pick: null, res: null, why: false }; }
+  let S2 = STEPS.map(() => blank());
+  let cur = P(STEPS[0].pic), T = Infinity, fx = {};
+  let finished = false, lastStep = -1, lastDone = false, lastSlider = 0, REC = null;
+
+  const svg = document.getElementById('scene'), art = document.getElementById('art');
+  const el = (id) => document.getElementById(id);
+  function put(parent, tag, attrs, text) { const n = K.svg(tag, attrs); if (text != null) n.textContent = text; parent.appendChild(n); return n; }
+  const group = (a) => put(art, 'g', a == null || a >= 1 ? {} : { opacity: Math.max(0, a).toFixed(3) });
+  const lab = (g, x, y, text, cls, anchor) => put(g, 'text', { x: +x.toFixed(2), y: +y.toFixed(2), class: 'lab' + (cls ? ' ' + cls : ''), 'text-anchor': anchor || 'start' }, text);
+
+  // ---------- drawing: the picture for state c at t seconds into motion f ----------
+  function scene(c, t, f) {
+    art.textContent = '';
+    svg.setAttribute('viewBox', '0 0 340 ' + (!c.dot ? 250 : c.lit ? 334 : 300));
+    const A = (t0, d) => K.arrive(t, t0, d);
+    const pos = posOf(c, t, f), E = earthAt(pos.ph, pos.th), v = volts(E), D = S(E);
+    const grow = f.grow ? 0.05 + 0.95 * K.ease(K.clamp(t / 1.2, 0, 1)) : 1;
+    const triA = f.grow ? A(1.0) : 1, labA = f.grow ? A(0.8) : 1, cardA = f.grow ? A(1.4) : 1;
+    const arcA = c.path ? (f.arcIn ? A(0, 0.5) : 1) : 0;
+    const oldA = f.oldPh ? 1 - A(0, 0.5) : 0;
+    // With no path drawn, the arrows' 254 V and the sides' 440 V are labelled; they fade as a path comes in.
+    const quiet = !c.path ? (f.grow ? A(1.6) : 1) : f.pathIn ? 1 - A(0, 0.5) : 0;
+    const sidesA = !c.path ? (c.sides ? (f.sidesIn ? A(0, 0.6) : f.grow ? A(1.6) : 1) : 0) : f.pathIn && f.sidesWere ? 1 - A(0, 0.5) : 0;
+    const dotA = c.dot ? (f.dotIn ? A(0, 0.6) : 1) : 0;
+    const leadsA = c.dot ? (f.dotIn ? A(0.6) : 1) : 0;
+    const starLeadA = c.starLead ? (f.leadIn ? A(0, 0.6) : 1) : 0;
+    const litA = c.lit ? (f.litIn ? A(0, 0.6) : 1) : 0;
+    const rec = { pos, v, D, arcA, sidesA, quiet, dotA, starLeadA, litA, tips: TIP };
+
+    // The triangle joining the line ends: its sides are the voltages between lines.
+    let tri = null;
+    if (triA > 0) tri = put(group(triA), 'polygon', { class: 'tri', points: LINES.map((l) => TIP[l][0].toFixed(2) + ',' + TIP[l][1].toFixed(2)).join(' ') });
+    // The earth dot's half-circle for the faulted line (and the one it leaves, fading).
+    const avoid = [];
+    if (oldA > 0) avoid.push(put(group(oldA), 'path', { class: 'path', d: arcD(f.oldPh) }));
+    if (arcA > 0) avoid.push(put(group(arcA), 'path', { class: 'path', d: arcD(c.ph) }));
+    if (tri) avoid.push(tri);
+
+    // The motor card, joined to L1 and L2.
+    if (cardA > 0) {
+      const gm = group(cardA);
+      avoid.push(put(gm, 'path', { class: 'wire', d: 'M' + TIP.L1[0] + ' ' + TIP.L1[1].toFixed(2) + 'V' + (CARD.y + 7) + 'H' + CARD.x + 'M' + TIP.L2[0].toFixed(2) + ' ' + TIP.L2[1].toFixed(2) + 'V' + (CARD.y + CARD.h) }));
+      put(gm, 'rect', { class: 'card', x: CARD.x, y: CARD.y, width: CARD.w, height: CARD.h, rx: 6 });
+      if (litA > 0) put(gm, 'rect', { class: 'card lit', x: CARD.x, y: CARD.y, width: CARD.w, height: CARD.h, rx: 6, opacity: litA.toFixed(3) });
+      lab(gm, CARD.x + CARD.w / 2, CARD.y + 19, 'Motor', 'b', 'middle');
+      lab(gm, CARD.x + CARD.w / 2, CARD.y + 37, 'Running', 'n', 'middle');
+    }
+
+    // The windings: an arrow from the star point to each line.
+    const ga = group();
+    LINES.forEach((l) => {
+      const a = arrow(l), p = S([a[0] * grow, a[1] * grow]);
+      put(ga, 'line', { class: 'arm', x1: CX, y1: CY, x2: p[0].toFixed(2), y2: p[1].toFixed(2), 'marker-end': 'url(#ah)' });
+    });
+    put(ga, 'circle', { class: 'sdot', cx: CX, cy: CY, r: 3 });
+    avoid.push(ga);
+
+    // The voltmeter leads from the earth dot to each tip, then the dot itself.
+    if (leadsA > 0) {
+      const gl = group(leadsA);
+      LINES.forEach((l) => { if (dist(D, TIP[l]) > 0.5) put(gl, 'line', { class: 'lead', x1: D[0].toFixed(2), y1: D[1].toFixed(2), x2: TIP[l][0].toFixed(2), y2: TIP[l][1].toFixed(2) }); });
+      avoid.push(gl);
+    }
+    if (starLeadA > 0 && dist(D, [CX, CY]) > 0.5) avoid.push(put(group(starLeadA), 'line', { class: 'lead', x1: D[0].toFixed(2), y1: D[1].toFixed(2), x2: CX, y2: CY }));
+    if (dotA > 0) avoid.push(put(group(dotA), 'circle', { class: 'edot', cx: D[0].toFixed(2), cy: D[1].toFixed(2), r: 6 }));
+
+    // Labels: the lines by their tips, the arrows' 254 V and the sides' 440 V while no path is drawn.
+    if (labA > 0) {
+      const gt = group(labA);
+      lab(gt, TIP.L1[0] - 9, TIP.L1[1] + 5, 'L1', '', 'end');
+      lab(gt, TIP.L2[0] + 4, TIP.L2[1] + 19, 'L2', '', 'middle');
+      lab(gt, TIP.L3[0] - 4, TIP.L3[1] + 19, 'L3', '', 'middle');
+    }
+    if (quiet > 0) lab(group(quiet), CX - 7, CY - 30, K.fmt(Math.round(VPH)) + ' V', '', 'end');
+    if (sidesA > 0) {
+      const gs = group(sidesA), side = K.fmt(Math.round(v.motor)) + ' V';
+      lab(gs, (TIP.L1[0] + TIP.L2[0]) / 2 + 22.5, (TIP.L1[1] + TIP.L2[1]) / 2 - 8.5, side, '', 'middle');
+      lab(gs, (TIP.L1[0] + TIP.L3[0]) / 2 - 22.5, (TIP.L1[1] + TIP.L3[1]) / 2 - 8.5, side, '', 'middle');
+      lab(gs, CX, TIP.L2[1] + 24.5, side, '', 'middle');
+    }
+
+    // A key inside the drawing, for what is drawn.
+    if (dotA > 0) {
+      const gk = group(dotA);
+      put(gk, 'circle', { class: 'edot', cx: 14, cy: 267, r: 5 });
+      lab(gk, 24, 272, 'Earth (hull)');
+      put(gk, 'line', { class: 'lead', x1: 126, y1: 267, x2: 150, y2: 267 });
+      lab(gk, 156, 272, 'Voltmeter to earth');
+    }
+    const keyPath = Math.max(arcA, oldA);
+    if (keyPath > 0) {
+      const gp = group(keyPath);
+      put(gp, 'line', { class: 'path', x1: 9, y1: 287, x2: 31, y2: 287 });
+      lab(gp, 37, 292, 'Earth dot\'s path');
+    }
+    // Screen 7's insulation bar: L2's voltage to earth against the 440 V rating, on a scale to 480 V.
+    if (litA > 0) {
+      const gb = group(litA), x0 = 120, bw = 210, k = bw / 480, by = 310, rx = x0 + k * VLINE;
+      lab(gb, 9, by + 10, 'L2 to earth');
+      put(gb, 'rect', { class: 'track', x: x0, y: by, width: bw, height: 12, rx: 2 });
+      put(gb, 'rect', { class: 'bar', x: x0, y: by, width: +(k * Math.min(v.L2, 480)).toFixed(2), height: 12, rx: 2 });
+      put(gb, 'line', { class: 'tick', x1: +rx.toFixed(2), y1: by - 4, x2: +rx.toFixed(2), y2: by + 16 });
+      lab(gb, rx, by - 8, 'Rated 440 V', 'n', 'end');
+      rec.bar = v.L2;
+    }
+    // The star point's label, kept clear of whichever path and leads are drawn.
+    const gsp = group(labA);
+    K.labels(gsp, [{ x: CX, y: CY + 32, text: 'Star point', class: 'lab' }], { avoid });
+    rec.texts = Array.from(art.querySelectorAll('text')).map((n) => n.textContent);
+
+    rec.read = { L1: vText(v.L1), L2: vText(v.L2), L3: vText(v.L3), star: c.starQ ? '?' : vText(v.star), motor: vText(v.motor) };
+    let where;
+    if (!c.dot) where = 'The hull is not drawn yet.';
+    else if (pos.th > Math.PI / 2 - 1e-6) where = 'The earth dot, the hull, sits at the star point, so each line is one arrow from earth.';
+    else if (pos.th < 1e-6) where = 'A solid fault on ' + pos.ph + ' has moved the earth dot onto ' + pos.ph + '\'s tip. The triangle has kept its size.';
+    else where = 'A fault on ' + pos.ph + ' has moved the earth dot part way along its half-circle towards ' + pos.ph + '\'s tip. The triangle has kept its size.';
+    rec.aria = 'The supply\'s three windings drawn as a star of arrows, L1, L2 and L3, inside a faint triangle whose sides are the voltages between lines. A motor is joined to L1 and L2. ' + where + (c.lit ? ' A bar shows L2\'s voltage to earth, ' + vText(v.L2) + ', against an insulation rating of 440 V.' : '');
+    return rec;
+  }
+  function paint() {
+    REC = scene(cur, T, fx);
+    svg.setAttribute('aria-label', REC.aria);
+    LINES.concat(['star', 'motor']).forEach((k) => outs[k].set(REC.read[k]));
+    // In a demonstration the slider follows the dot through its stops.
+    if (fx.slider && live()) { const k = nearestStop(REC.pos.th); if (k !== faultCtl.get()) faultCtl.set(k, true); lastSlider = faultCtl.get(); }
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => stepper.get();
+  const live = () => !finished && !!STEPS[at()].show && !!STEPS[at()].ctl;
+  const faultCtl = K.control({ id: 'fault', label: 'Fault resistance', min: 0, max: 6, step: 1, value: 0, fmt: (v) => STOP_TEXT[Math.round(v)], into: '#rctl' });
+  function setSlider(v) { faultCtl.set(v, true); lastSlider = faultCtl.get(); }
+  const outs = {
+    L1: K.readout({ id: 'v1', label: 'L1 to earth', into: '#outs' }),
+    L2: K.readout({ id: 'v2', label: 'L2 to earth', into: '#outs' }),
+    L3: K.readout({ id: 'v3', label: 'L3 to earth', into: '#outs' }),
+    star: K.readout({ id: 'vs', label: 'Star point to earth', into: '#outs' }),
+    motor: K.readout({ id: 'vm', label: 'Motor, L1–L2', into: '#outs' }),
+  };
+
+  // One animation plays the motion; with reduced motion (and while the self-test looks) it opens finished.
+  const anim = K.anim({ button: false, label: 'The earth dot', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < (fx.end || 0);
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function start(f, delay) {
+    fx = f || {};
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); return; }
+    T = -(delay || 0); anim.play();
+  }
+  // A move Dan makes (the slider or a line button) settles within 0.35 s, so the dot and the readouts
+  // keep up with his finger; the screens' own demonstrations and a right Check keep the slower motion.
+  function userMotion(a, b, from) {
+    const f = motion(a, b, from);
+    if (f.from) { f.dur = 0.1 + 0.25 * Math.min(1, travel(from, target(b)) / (Math.PI / 2)); f.end = Math.max(0.6, f.moveAt + f.dur); }
+    return f;
+  }
+  // Move the picture on from where the dot is now.
+  function retarget(ch) {
+    const now = posOf(cur, T, fx), was = cur;
+    cur = Object.assign({}, cur, ch);
+    start(userMotion(was, cur, now), 0);
+  }
+  // A still for the read-through: the picture set and finished.
+  function setPic(p) { cur = P(p); anim.pause(); T = Infinity; fx = {}; setSlider(cur.ri); K.refresh(); }
+
+  const lineBtns = LINES.map((l) => ({ l, b: K.button({ label: l, secondary: true, into: '#picker', press: () => {
+    if (!live() || cur.ph === l) return;
+    retarget({ ph: l });
+  } }) }));
+
+  // Three answers; Check marks the one chosen, and a right one plays what it says.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S2[i];
+    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S2[i];
+    if (finished || d.show || st.res === 'right') return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = st.pick === d.want ? 'right' : 'wrong';
+    if (st.res !== 'right') return;
+    const was = cur, now = posOf(cur, T, fx);
+    cur = P(d.after);
+    setSlider(cur.ri);
+    start(motion(was, cur, now), 0);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (finished || STEPS[at()].show) return;
+    const st = S2[at()]; st.why = !st.why;
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S2[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true; anim.pause();
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S2 = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  el('finish').textContent = FINISH;
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S2[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      anim.pause(); T = Infinity; fx = {};
+      cur = P(d.show ? d.pic : st.res === 'right' ? d.after : d.before);
+      setSlider(cur.ri);
+      // A demonstration screen plays once on opening, after its fade-in.
+      if (d.show && d.demo) start(d.demo(), 0.4);
+    } else if (p.fault !== lastSlider) {
+      // Dan moved the slider: the dot slides there. Off the screens that show it, the slider keeps the picture's setting.
+      if (live()) { lastSlider = p.fault; retarget({ ri: p.fault }); } else setSlider(cur.ri);
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    task.textContent = d.show ? d.text : d.task;
+    paint();
+
+    el('ctls').hidden = !d.show || !d.ctl;
+    lineBtns.forEach((x) => x.b.el.setAttribute('aria-pressed', cur.ph === x.l ? 'true' : 'false'));
+    el('outs').hidden = !cur.dot;
+
+    const opts = d.show ? [] : d.opts;
+    el('picks').hidden = !opts.length;
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    const fb = el('fb');
+    fb.hidden = !!d.show || !st.res;
+    fb.className = 'fb' + (right ? ' right' : '');
+    fb.textContent = d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? (d.hints[st.pick] || 'Not quite.') : st.res === 'empty' ? PICK : '';
+    const why = el('why');
+    why.hidden = !!d.show || !st.why;
+    why.textContent = d.show ? '' : d.why;
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  function drawn(c, t, f) {
+    const keep = [cur, T, fx];
+    cur = P(c); T = t == null ? Infinity : t; fx = f || {};
+    try { paint(); return REC; } finally { cur = keep[0]; T = keep[1]; fx = keep[2]; paint(); }
+  }
+  const fault = (ph, ri) => drawn({ path: true, ph, ri });
+  const reads = (r, a) => r.read.L1 === a[0] && r.read.L2 === a[1] && r.read.L3 === a[2];
+
+  K.check('Twelve screens: five that show and seven puzzles, alternating to the ninth and ending on three mixed puzzles', () =>
+    STEPS.length === 12 && STEPS.filter((d) => d.show).length === 5 && STEPS.slice(0, 9).every((d, i) => !!d.show === (i % 2 === 0)) && STEPS.slice(9).every((d) => !d.show));
+  K.check('Each arrow is 440 ÷ 1.732 = 254 V long, and the drawn triangle\'s sides come out at 1.732 × 254 = 440 V', () => {
+    const side = (a, b) => dist(TIP[a], TIP[b]) / SC;
+    return Math.round(VLINE / ROOT3) === 254 && LINES.every((l) => K.near(dist(TIP[l], [CX, CY]) / SC, 254.034, 1e-3)) &&
+      K.near(side('L1', 'L2'), 440, 1e-6) && K.near(side('L2', 'L3'), 440, 1e-6) && K.near(side('L3', 'L1'), 440, 1e-6) && Math.round(254 * ROOT3) === 440;
+  });
+  K.check('No fault: the earth dot sits at the star point, so each line reads 254 V to earth and the star point 0 V', () => {
+    const r = drawn({});
+    return reads(r, ['254 V', '254 V', '254 V']) && r.read.star === '0 V' && dist(r.D, [CX, CY]) < 1e-6;
+  });
+  K.check('A solid fault on L1: L1 reads 0 V, L2 and L3 440 V, the star point 254 V, and the motor across L1 and L2 still 440 V', () => {
+    const r = fault('L1', 6);
+    return reads(r, ['0 V', '440 V', '440 V']) && r.read.star === '254 V' && r.read.motor === '440 V' && dist(r.D, TIP.L1) < 1e-6;
+  });
+  K.check('1 kΩ on L1: the dot sits 168 V from the star point, and L1, L2 and L3 read 190, 256 and 420 V', () => {
+    const r = fault('L1', 3);
+    return r.read.star === '168 V' && reads(r, ['190 V', '256 V', '420 V']);
+  });
+  K.check('On the way to solid on L1, L3 peaks near 330 Ω at about 463 V, about 5% over 440 V, and reads 440 V when solid', () => {
+    let best = 0, bestR = 0;
+    for (let k = 0; k <= 4000; k++) { const R = Math.pow(10, k / 1000), v3 = volts(earthOf('L1', R)).L3; if (v3 > best) { best = v3; bestR = R; } }
+    return Math.abs(bestR - 330) < 5 && Math.round(best) === 463 && Math.round(100 * (best / VLINE - 1)) === 5 && fault('L1', 6).read.L3 === '440 V';
+  });
+  K.check('Above about 1 kΩ on L1, L2 reads lowest: 10 kΩ reads L1 253 V and L2 236 V, 3 kΩ reads 244 V and 211 V, yet no healthy line ever drops below about 209 V', () => {
+    let low = Infinity;
+    for (let k = 0; k <= 6000; k++) { const v = volts(earthOf('L1', Math.pow(10, k / 1000))); low = Math.min(low, v.L2, v.L3); }
+    const a = fault('L1', 1).read, b = fault('L1', 2).read;
+    return a.L1 === '253 V' && a.L2 === '236 V' && b.L1 === '244 V' && b.L2 === '211 V' && Math.round(low) === 209;
+  });
+  K.check('Equipment is rated at 173% of the phase voltage: 440 V is 173% of 254 V, and screen 7\'s bar reaches the 440 V rating with a solid fault on L1', () =>
+    Math.round(100 * VLINE / VPH) === 173 && K.near(drawn(STEPS[6].pic).bar, VLINE, 1e-6), { source: EATON });
+  K.check('Screen 10: a 300 Ω fault on L2 reads L1 463 V, L2 82 V and L3 382 V', () => reads(fault('L2', 4), ['463 V', '82 V', '382 V']));
+  K.check('The dot keeps to a half-circle: at every resistance it sits half an arrow from the middle of the faulted arrow, and it moves steadily from the star point to the tip as the resistance falls', () =>
+    LINES.every((ph) => {
+      const mid = arrow(ph).map((x) => x / 2);
+      let last = -1;
+      for (let k = 0; k <= 60; k++) {
+        const R = k === 60 ? 0 : Math.pow(10, 6 - k / 10), e = earthOf(ph, R), toTip = dist(e, arrow(ph));
+        if (!K.near(dist(e, mid), VPH / 2, 1e-6)) return false;
+        const along2 = VPH - toTip;
+        if (along2 < last - 1e-9) return false;
+        last = along2;
+      }
+      return true;
+    }));
+  K.check('The animated dot follows the rule: the arrow ÷ (1 + j3ωCR) lands where its angle on the half-circle puts it, at every stop on every line', () =>
+    LINES.every((ph) => STOPS.every((R) => dist(earthOf(ph, R), earthAt(ph, thOf(R))) < 1e-9)));
+  K.check('The star and the triangle never move: every fault draws the tips in the same place, and the motor reads 440 V on every setting', () =>
+    LINES.every((ph) => [0, 1, 2, 3, 4, 5, 6].every((ri) => { const r = fault(ph, ri); return r.tips === TIP && r.read.motor === '440 V'; })) &&
+    LINES.every((l) => dist(TIP[l], S(arrow(l))) < 1e-9));
+  K.check('With a solid fault the healthy phases\' voltages to earth increase to √3 times the normal phase voltage', () =>
+    LINES.every((f) => { const v = volts(earthOf(f, 0)); return LINES.filter((l) => l !== f).every((l) => K.near(v[l] / VPH, Math.sqrt(3), 1e-9)); }), { source: EIG });
+  K.check('The first fault to earth causes no disconnection, and its current is measured in mA: the motor still gets 440 V, and the solid fault through the cables\' capacitance passes less than an amp', () =>
+    3 * OMEGA * CAP * VPH < 1 && fault('L1', 6).read.motor === '440 V', { source: EIG });
+  K.check('The dot reaches L1\'s tip within 3 s of starting to move, and is still on its way part through', () => {
+    const b = P({ path: true, ri: 6 }), f = motion(P(), b, { ph: 'L1', th: Math.PI / 2 }), endT = f.moveAt + f.dur;
+    return endT <= 3 && fault('L1', 6) && drawn(b, endT, f).read.L2 === '440 V' && drawn(b, f.moveAt + 0.3 * f.dur, f).read.L2 !== '440 V';
+  });
+  K.check('A slider move settles within 0.35 s, so the dot and the readouts match the slider: Open to Solid on L1 reads 440 V on L2 by then', () => {
+    const b = P({ path: true, ri: 6 }), f = userMotion(P({ path: true }), b, { ph: 'L1', th: Math.PI / 2 });
+    return f.moveAt + f.dur <= 0.35 && drawn(b, 0.35, f).read.L2 === '440 V' && drawn(b, 0.05, f).read.L2 !== '440 V';
+  });
+  K.check('Before an answer, no puzzle\'s picture shows its result: the sides are unlabelled, the fault is not on, or the star point\'s reading waits', () => {
+    const b = (i) => drawn(STEPS[i].before), a = (i) => drawn(STEPS[i].after);
+    return b(1).sidesA === 0 && a(1).sidesA === 1 && reads(b(3), ['254 V', '254 V', '254 V']) && reads(a(3), ['0 V', '440 V', '440 V']) &&
+      b(5).read.star === '?' && b(5).starLeadA === 0 && a(5).read.star === '254 V' && a(5).starLeadA === 1 &&
+      [9, 10, 11].every((i) => reads(b(i), ['254 V', '254 V', '254 V']) && b(i).arcA === 0);
+  });
+
+  K.ready();
+</script>

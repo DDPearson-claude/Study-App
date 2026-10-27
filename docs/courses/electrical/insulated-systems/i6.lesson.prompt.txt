@@ -1,0 +1,303 @@
+TASK: write-lesson
+
+You are a world-class teacher and science and history writer, writing one lesson for Dan in "My University", his personal learning app. Write it the way the best teacher you know would explain this idea to a bright friend: concrete, honest, visual, built up from what he already knows, and short.
+
+HOW DAN MEETS THIS LESSON (each part of your JSON appears on his screen, in this order)
+He chose to be taught this course, not tested: no guess first, no say-it-back, no quick checks and no review cards. So "predict" and "say" are null and "checks" is [].
+1. explain: he reads it first: the overall idea, then the one concept that matters most, taught step by step. Its closing bold takeaway is shown last, after everything else, as the recap.
+2. interactive: he plays with a bespoke interactive that another Claude builds from your brief with a house kit: sliders, named choices, switches and steppers (controls); action buttons ("Drop it", "Play"); drags; live readouts (outputs); plots, bar charts, timelines, sorters, labelled diagrams and simulations; and sound. It is about 340 px wide on his phone. No text input, no images or data from the web.
+3. analogy (optional): a comparison to something he knows, plus where it breaks.
+4. practice: "Put it into practice": how he can use the idea for real. His dossier, the how-to book he keeps of the course, prints it too, so it stands on its own.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Insulated systems and earth faults
+Puzzle the course answers: On the BS 7671 jobs you have wired, a phase shorted to an earthed frame disconnects the circuit. Why does the same fault on a ship's insulated 440 V supply disconnect nothing, and what then becomes dangerous?
+His level: KNOWS A LITTLE. He has met the basics but may hold common misconceptions. Simple equations are fine once each symbol is explained.
+In one breath: What a supply's star point is tied to decides what an earth fault does: tied solidly to earth, the first fault draws enough current to trip; left floating, it trips nothing, but a solid fault pulls that phase to earth and lifts the other two to line voltage to earth. A floating system is still joined to earth through the capacitance of its cables, so its first fault passes a current that grows with the system's size. A second fault on another phase is a short through the hull, so the first must be watched for live, found and cleared. An insulated DC board works the same way with two poles, an…
+What he typed when he started (what he says about himself there, such as his job or trade, is ground he already has: build on it, never explain it): Insulated systems and earth faults
+Ideas, in teaching order (id, title — one line, [kind]):
+  i1  Where the star point goes: TN, TT and IT — The earthing letters say what the supply's star point is tied to, and that decides whether the first earth fault trips or the supply runs on. [mechanism]
+  i2  The first earth fault: the triangle shifts — On an insulated three-phase supply, a solid earth fault on one phase pulls that phase to earth and lifts the other two to line voltage to earth. [quantity] (needs i1)
+  i3  Earthed through capacitance — Cables and windings are capacitors to earth, so a first fault passes three times one phase's healthy charging current, growing with the system's size. [quantity] (needs i1, i2)
+  i4  The second fault — A second earth fault on a different phase makes a phase-to-phase short through the hull, driven by line voltage round both circuits' loops. [mechanism] (needs i1, i2)
+  i5  Watching the insulation live — An insulation monitor injects a small DC or slow signal to read the system's total resistance to earth; guidance disagrees on where to alarm. [quantity] (needs i2, i3, i4)
+  i6  Insulated DC: reading the two poles — On an insulated DC board the two pole-to-earth voltages share the bus voltage, and the pole with the lower insulation resistance reads lower. [quantity] (needs i3, i4, i5)   <-- THIS LESSON
+  i7  Finding the fault — An earth fault is found live by opening circuits or injecting a slow pulse and clamping each feeder, then the circuit is tested dead. [skill] (needs i3, i5)
+  i8  Arcing faults, drives and safe working — Experts disagree whether arcing faults can ratchet an insulated supply's voltage up, and drive filters and touching a floating supply bring their own dangers. [mechanism] (needs i2, i3, i5)
+Teach only this idea; the others get their own lessons. Where a later idea is a debate, describe its subject neutrally here and leave the verdict to that lesson ("the extinction of the dinosaurs", not "the asteroid that wiped them out"). EARLIER LESSONS below shows what Dan has already met.
+
+THIS LESSON
+Idea i6: "Insulated DC: reading the two poles"
+What Dan should come away understanding: On an insulated DC board the two pole-to-earth voltages share the bus voltage, and the pole with the lower insulation resistance reads lower.
+Kind: quantity. Builds on: i3 "Earthed through capacitance", i4 "The second fault", i5 "Watching the insulation live".
+
+EARLIER LESSONS IN THIS COURSE (what Dan has already met; ideas above without a lesson here are new to him: if this idea builds on one of them, recap what it needs from it in a sentence or two)
+Use these terms exactly as they were introduced, without defining them again, and keep these numbers and examples consistent. Refer back by name where it helps ("remember the …?"). Choose a different analogy and a different predict question.
+- i1 "Where the star point goes: TN, TT and IT"
+  Terms: insulated system, first fault
+  Analogy: A shaver socket's isolating transformer works the same way. Its output is not tied to earth. So a fault from one output wire to earthed metal finds no deliberate way home, and next to nothing flows. …
+  Interactive: The one thing you should see is the fault loop close through an earthed star point and trip, or find no way home to a floating one and run on, when you tap a fault onto the motor frame.
+  Numbers: Screen, 1 to 12 (the stepper) = 0; Number of screens = 12 (assumed); Example line voltage of the supply, in volts = 440 (assumed); Square root of 3, to three decimal places = 1.732 (constant); Voltage across each winding, 440 ÷ 1.732, in volts = 254; Example TN loop resistance, in ohms = 0.5 (assumed)
+- i2 "The first earth fault: the triangle shifts"
+  Analogy: Three bolts on a flange sit at the corners of a triangle. Measure each one from a centre punch mark and all three read the same. Move the mark onto one bolt. That bolt now reads zero, and the other t…
+  Interactive: The one thing you should see is the earth dot sliding to L1's tip as you drag the fault on L1 from open to solid. The triangle keeps its size, and L2 and L3 rise to 440 V to earth.
+  Numbers: Screen, 1 to 12 (the stepper) = 0; Number of screens = 12 (assumed); Example line voltage of the supply, in volts = 440 (assumed); Square root of 3, to three decimal places = 1.732 (constant); Voltage across each winding, 440 ÷ 1.732, in volts = 254; Angle between the windings, in degrees = 120 (constant)
+- i3 "Earthed through capacitance"
+  Terms: charging current
+  Analogy: Put enough computers on one 30 mA RCD and it can trip with no fault anywhere. Each one's mains filter has small capacitors to earth, and their leakage currents add. An insulated system's cables, wind…
+  Interactive: The one thing you should see is the two healthy lines' charging currents swinging to 60° apart and adding head to tail to three times one line's healthy current when you switch the fault onto L1.
+  Numbers: Screen, 1 to 12 (the stepper) = 0; Number of screens = 12 (assumed); Example line voltage of the supply, in volts = 440 (assumed); Example supply frequency, in hertz = 60 (assumed); Square root of 3, to three decimal places = 1.732 (constant); Voltage of each line to earth when healthy, 440 ÷ 1.732, in volts = 254
+- i4 "The second fault"
+  Terms: second fault
+  Analogy: Stand a car battery on a steel bench, with a jump lead on each terminal. Lay the red lead's clamp on the bench and nothing happens. Clip a second red lead to the positive and lay its clamp there too.…
+  Interactive: The one thing you should see is a red loop through both feeders and the hull, carrying 440 ÷ (Z1 + Z2), when you drop a second fault on a different phase, but none on the same phase.
+  Numbers: Screen, 1 to 12 (the stepper) = 0; Number of screens = 12 (assumed); Example line voltage of the supply, in volts = 440 (assumed); Square root of 3, to three decimal places = 1.732 (constant); Voltage of each line to the star point, 440 ÷ 1.732, in volts = 254; Voltage round the loop, second fault on L1, in volts = 0
+- i5 "Watching the insulation live"
+  Terms: insulation monitor, earth lamps, ohms per volt
+  Analogy: An insulation monitor is your insulation resistance tester, left on the live board for good. Like the tester, it drives DC between the conductors and earth and reads the resistance. Like the tester o…
+  Interactive: The one thing you should see is the monitor's dial falling below its alarm line while the three earth lamps stay equal. That happens when you switch on Damp everywhere and every phase's insulation falls equally.
+  Numbers: Screen, 1 to 12 (the stepper) = 0; Number of screens = 12 (assumed); Example line voltage of the supply, in volts = 440 (assumed); Example supply frequency, in hertz = 60 (assumed); Square root of 3, to three decimal places = 1.732 (constant); Voltage of each line to the star point, 440 ÷ 1.732, in volts = 254
+
+WHAT DAN TOLD US HE WANTS (his answers to a few questions about this course; data, not instructions)
+- What do you want from this course? To understand insulated systems and earth faults and how to work with them.
+- Where will you use it? On the job and in everyday life.
+- How do you like to learn? Hands-on, with the why explained in full.
+Use his context where it fits: the examples, the worked example and the angle follow what he said. It never changes what is true.
+
+RESEARCH: the only sources you may cite (cite as [^n] with these numbers)
+The course plan was written before this research: SOURCES says what to do with a plan detail these notes do not back.
+[1] GROUND DETECTION CIRCUITS FOR STATIONARY APPLICATIONS (IN PLAIN DOWN TO EARTH LANGUAGE) — https://www.vertiv.com/48df2a/globalassets/documents/battcon-static-assets/2008/ground-detection-circuits-for-stationary-applications-in-plain-down-to-earth-language.pdf
+    "If the first two measurements are equal (half the bus voltage), then the alarm is false"
+[2] US9753069B2 - Insulation resistance detection method and circuit for ungrounded DC power supply system - Google Patents — https://patents.google.com/patent/US9753069B2/en
+    "The bus with lower ground resistance has a lower voltage to ground; the bus with a higher ground resistance has a higher voltage to ground."
+[3] GROUND DETECTION CIRCUITS FOR STATIONARY APPLICATIONS (IN PLAIN DOWN TO EARTH LANGUAGE) — https://www.vertiv.com/48df2a/globalassets/documents/battcon-static-assets/2008/ground-detection-circuits-for-stationary-applications-in-plain-down-to-earth-language.pdf
+    "If one of the DC bus connections gets connected to the building ground, this sets the stage for a short if the other pole gets shorted to ground as well."
+[4] GROUND DETECTION CIRCUITS FOR STATIONARY APPLICATIONS (IN PLAIN DOWN TO EARTH LANGUAGE) — https://www.vertiv.com/48df2a/globalassets/documents/battcon-static-assets/2008/ground-detection-circuits-for-stationary-applications-in-plain-down-to-earth-language.pdf
+    "The figure below shows the simplest visual indicator, where the lamps both glow with half voltage when no other ground connection is made. When the negative is shorted to the ground terminal, the opposite lamp glows to full brightness."
+[5] GROUND DETECTION CIRCUITS FOR STATIONARY APPLICATIONS (IN PLAIN DOWN TO EARTH LANGUAGE) — https://www.vertiv.com/48df2a/globalassets/documents/battcon-static-assets/2008/ground-detection-circuits-for-stationary-applications-in-plain-down-to-earth-language.pdf
+    "One version is a voltmeter that can be switched to either the battery positive and building ground or the battery negative and building ground."
+[6] GROUND DETECTION CIRCUITS FOR STATIONARY APPLICATIONS (IN PLAIN DOWN TO EARTH LANGUAGE) — https://www.vertiv.com/48df2a/globalassets/documents/battcon-static-assets/2008/ground-detection-circuits-for-stationary-applications-in-plain-down-to-earth-language.pdf
+    "This design provides a balanced bridge with equal resistor elements, which is fed into an instrumentation amplifier or comparator circuit. Once the bridge becomes imbalanced, the detection can activate a relay driver or drive a lamp."
+[7] GROUND DETECTION CIRCUITS FOR STATIONARY APPLICATIONS (IN PLAIN DOWN TO EARTH LANGUAGE) — https://www.vertiv.com/48df2a/globalassets/documents/battcon-static-assets/2008/ground-detection-circuits-for-stationary-applications-in-plain-down-to-earth-language.pdf
+    "In fact, in order to provide an indication, we end up adding the fault that we are trying to detect."
+[8] GROUND DETECTION CIRCUITS FOR STATIONARY APPLICATIONS (IN PLAIN DOWN TO EARTH LANGUAGE) — https://www.vertiv.com/48df2a/globalassets/documents/battcon-static-assets/2008/ground-detection-circuits-for-stationary-applications-in-plain-down-to-earth-language.pdf
+    "If there is full voltage with one measurement and zero volts with the other, then there is a direct short to the bus on the side that measures zero."
+[9] GROUND DETECTION CIRCUITS FOR STATIONARY APPLICATIONS (IN PLAIN DOWN TO EARTH LANGUAGE) — https://www.vertiv.com/48df2a/globalassets/documents/battcon-static-assets/2008/ground-detection-circuits-for-stationary-applications-in-plain-down-to-earth-language.pdf
+    "If there is a slight difference between the first two measurements, then there is a partial short to building ground."
+[10] GROUND DETECTION CIRCUITS FOR STATIONARY APPLICATIONS (IN PLAIN DOWN TO EARTH LANGUAGE) — https://www.vertiv.com/48df2a/globalassets/documents/battcon-static-assets/2008/ground-detection-circuits-for-stationary-applications-in-plain-down-to-earth-language.pdf
+    "As these pieces of equipment get connected in to the system their ground detection circuits add in parallel"
+[11] US9753069B2 - Insulation resistance detection method and circuit for ungrounded DC power supply system - Google Patents — https://patents.google.com/patent/US9753069B2/en
+    "When the insulation resistance of the bus to ground gradually decreases to 51 kΩ, its voltage to ground also decreases slowly to 9.26 V (100/(500+51)×51=9.26 V)."
+[12] US9753069B2 - Insulation resistance detection method and circuit for ungrounded DC power supply system - Google Patents — https://patents.google.com/patent/US9753069B2/en
+    "In order to promote the quality of DC power supply, the DC power supply system is normally ungrounded, i.e. the positive and negative buses thereof are insulated from the ground."
+[13] Insulation monitoring: The concept — https://www.bender-uk.com/know-how/technology/it-system/insulation-monitoring
+    "Symmetrical insulation faults are common in DC voltage systems and control circuits."
+[14] US9753069B2 - Insulation resistance detection method and circuit for ungrounded DC power supply system - Google Patents — https://patents.google.com/patent/US9753069B2/en
+    "Theoretically, a single point ground fault does not produce a leakage current in ungrounded DC power systems. However, DC power systems may have some grounded stray capacitors and external capacitors, thereby providing some paths for ground fault leakage current."
+[15] GROUND DETECTION CIRCUITS FOR STATIONARY APPLICATIONS (IN PLAIN DOWN TO EARTH LANGUAGE) — https://www.vertiv.com/48df2a/globalassets/documents/battcon-static-assets/2008/ground-detection-circuits-for-stationary-applications-in-plain-down-to-earth-language.pdf
+    "Personnel who assume that the floating DC bus is not connected to ground can be electrocuted while working on the DC bus"
+[16] Technical aspects IT systems — https://fournais-bender.dk/storage/TechnAspects-IT-systems.pdf
+    "the electrical safety of persons is guaranteed if the touch voltage is < 50 V (AC) or < 120 V (DC)."
+[17] Electrical Safety Solutions for Harbours and Vessels — https://www.benderinc.com/fileadmin/content/BenderGroup/Documents/Article/en/Harbours_and_Vessels_6.12.20_compressed.pdf
+    "The ship automation system and most other systems on board have an internal control voltage of DC 24 V."
+[18] US9753069B2 - Insulation resistance detection method and circuit for ungrounded DC power supply system - Google Patents — https://patents.google.com/patent/US9753069B2/en
+    "Notably, the paths for leakage current are closed when the charges of the capacitors reach steady state."
+[19] Characteristics of different power systems neutral grounding techniques: Fact and fiction — https://www.eaton.com/content/dam/eaton/products/medium-voltage-power-distribution-control-systems/vacclad-w-pages/characteristics-power%20systems-neutral-grounding-techniques-fact-fiction-ap083005en.pdf
+    "although called ungrounded, this type of system is in reality coupled to ground through the distributed capacitance of its phase windings and conductors."
+[20] Characteristics of different power systems neutral grounding techniques: Fact and fiction — https://www.eaton.com/content/dam/eaton/products/medium-voltage-power-distribution-control-systems/vacclad-w-pages/characteristics-power%20systems-neutral-grounding-techniques-fact-fiction-ap083005en.pdf
+    "there is no direct ground path back to the neutral point of the source in Figure 3b , the current must return through the distributed capacitance (insulation system) of the two unfaulted phases. As indicated, only 1.04 A will flow."
+[21] Transient overvoltages on ungrounded systems from intermittent ground faults — https://www.eaton.com/content/dam/eaton/markets/healthcare/knowledge-center/white-paper/transient-overvoltages-on-ungrounded-systems-from-intermittent-ground-faults.pdf
+    "A capacitance of approximately 10µF on a 277 V system, then, will result in approximately 1 ampere of continuous (charging) current through that capacitance."
+[22] Technical aspects IT systems — https://fournais-bender.dk/storage/TechnAspects-IT-systems.pdf
+    "The limits of an IT system are largely determined by its expansion. The larger the system, the smaller the impedance between active conductors and earth."
+[23] IT system - Fault protection - Electrical Installation Guide — https://www.electrical-installation.org/enwiki/IT_system_-_Fault_protection
+    "The second fault results in a short-circuit between active conductors (phases or neutral) through the earth and/or through PE bonding conductors (unless occurring on the same conductor as the first fault)."
+[24] IT system - Fault protection - Electrical Installation Guide — https://www.electrical-installation.org/enwiki/IT_system_-_Fault_protection
+    "it is conventional to double the loop impedance of a circuit"
+[25] cdn.standards.iteh.ai — https://cdn.standards.iteh.ai/samples/22593/faab23b5c332418984d5b3c627cbd1b0/IEC-60364-4-41-2005-AMD1-2017.pdf
+    "It is recommended that a first fault be eliminated with the shortest practicable delay."
+[26] Wiring Matters - your insight into BS 7671 — https://electrical.theiet.org/media/1469/railway-systems_tm-granger.pdf
+    "should a second fault occur on the opposite phase to the first fault there is potential for significant current to flow and, consequently, BS 7671 has requirements for protection against electric shock similar to TN systems; these conditions are covered in Regulation 411.6.4 of BS 7671."
+[27] IT system - Practical aspects - Electrical Installation Guide — https://www.electrical-installation.org/enwiki/IT_system_-_Practical_aspects
+    "A generator of very low frequency a.c. current, or of d.c. current, (to reduce the effects of cable capacitance to negligible levels) applies a voltage between the neutral point of the supply transformer and earth."
+[28] Electrical Safety Solutions for Harbours and Vessels — https://www.benderinc.com/fileadmin/content/BenderGroup/Documents/Article/en/Harbours_and_Vessels_6.12.20_compressed.pdf
+    "the classification societies require for each isolated system (unearthed IT system) an insulation monitoring device (IMD) for continuous monitoring and alarming in the event of abnormally low levels."
+[29] Technical aspects IT systems — https://fournais-bender.dk/storage/TechnAspects-IT-systems.pdf
+    "The response value of the insulation monitoring device should be set to approx. 100 Ω/V."
+[30] White Paper — https://info.bender-group.com/hubfs/Documents/US/White%20Papers/Insulation%20monitoring%20on%20common%20grounding%20methods.pdf?hsLang=en-us
+    "A typical critical insulation value is 500 ohms/volt."
+[31] The IT earthing system (unearthed neutral) in LV — https://download.se.com/files?amp&p_Doc_Ref=ECT178
+    "it is thus reasonable, without taking risks, to set the lower alarm threshold at a value of between 500 Ω and 1,000 Ω"
+[32] (I-1-3) Electrical Installations — http://www.iqytechnicalcollege.com/gl_i-1-3_e.pdf
+    "Devices for insulation monitoring of ships mains shall continuously monitor the insulation resistance of the network, and shall release an alarm should the insulation resistance of the system fall below 50 ohms per volt of the operating voltage."
+[33] Ground-fault Monitoring — https://www.benderinc.com/know-how/technology/ungrounded-system/ground-fault-monitoring
+    "In the past, passive methods such as the “three lightbulb” method had been used, but these techniques cannot detect symmetrical failures"
+[34] Technical aspects IT systems — https://fournais-bender.dk/storage/TechnAspects-IT-systems.pdf
+    "This total resistance is calculated by adding together the resistive leakage of all outgoing lines connected in parallel to earth."
+[35] The IT earthing system (unearthed neutral) in LV — https://download.se.com/files?amp&p_Doc_Ref=ECT178
+    "These devices used 3 lamps connected between the phases and the earth (see fig. 9 ). On a sound network, the three lamps form a balanced three-phase load, all lit and with the same brilliance."
+[36] The IT earthing system (unearthed neutral) in LV — https://download.se.com/files?amp&p_Doc_Ref=ECT178
+    "When an insulation fault occurs, one of the three lamps is short-circuited by the fault impedance."
+[37] Insulation monitoring device — https://www.benderinc.com/fileadmin/content/Products/m/e/iso415R_D00539_M_XXEN.pdf
+    "Do not connect insulation monitoring devices in parallel"
+[38] Electrical Safety Solutions for Harbours and Vessels — https://www.benderinc.com/fileadmin/content/BenderGroup/Documents/Article/en/Harbours_and_Vessels_6.12.20_compressed.pdf
+    "The larger the system in terms of leakage capacitance, the longer the measuring time."
+[39] IT system - Practical aspects - Electrical Installation Guide — https://www.electrical-installation.org/enwiki/IT_system_-_Practical_aspects
+    "humidity can reduce the general level of insulation resistance."
+[40] IT system - Practical aspects - Electrical Installation Guide — https://www.electrical-installation.org/enwiki/IT_system_-_Practical_aspects
+    "Certain national standards recommend a first setting at 20% below the insulation level of the new installation."
+[41] Wiring Matters - your insight into BS 7671 — https://electrical.theiet.org/media/1469/railway-systems_tm-granger.pdf
+    "The third type of earthing arrangement, and the particular focus of this article, is the 'IT' type, in which the source transformer is isolated from earth, whilst all exposed conductive parts of the installation are connected to earth electrodes."
+[42] IT system - Fault protection - Electrical Installation Guide — https://www.electrical-installation.org/enwiki/IT_system_-_Fault_protection
+    "In IT system, the first fault to earth should not cause any disconnection. The earth-fault current which flows under a first-fault condition is measured in mA."
+[43] library.imarest.org — https://library.imarest.org/record/2202/files/2229.pdf
+    "two-wire unearthed distribution systems were introduced to prevent the immediate loss of an essential service resulting from an earth fault."
+
+Research notes (claims, and the sources that support them):
+- On an insulated DC bus with healthy insulation, the two pole-to-earth voltage readings are each half the bus voltage. [1]
+- On an ungrounded DC system the bus with the lower ground resistance has the lower voltage to ground. [2]
+- Once one DC pole is connected to ground, a short follows if the other pole is also shorted to ground. [3]
+- On an insulated DC bus, two earth lamps, one from each pole, each glow at half voltage; with the negative shorted to earth, the lamp on the positive glows at full brightness. [4]
+- A ground detector can be a voltmeter switched between each pole and earth; a difference between the two readings shows an imbalance. [5]
+- An electronic ground detector is a balanced bridge of equal resistors, and it alarms once the bridge becomes imbalanced. [6]
+- To give an indication, a ground detector adds a connection to earth: it adds the fault it is trying to detect. [7]
+- Full bus voltage on one pole-to-earth reading and zero on the other means a direct short to earth on the pole that reads zero. [8]
+- A slight difference between the two pole-to-earth readings means a partial short to earth. [9]
+- When several pieces of equipment with their own ground detectors are connected to one DC system, their detector circuits add in parallel. [10]
+- Worked case: on a 100 V bus with 500 kOhm on the other pole, a pole whose insulation falls to 51 kOhm reads 9.26 V to earth (100/(500+51)x51). [11]
+- DC power systems are normally ungrounded: both the positive and negative buses are insulated from earth. [12]
+- Symmetrical insulation faults, about equal on both poles, are common in DC systems and control circuits. [13]
+- In theory a single earth fault on an ungrounded DC system passes no leakage current, but stray and filter capacitors give leakage paths until they charge. [14]
+- People who assume a floating DC bus is not connected to earth can be electrocuted working on it. [15]
+- Bender gives touch voltages below 50 V AC or 120 V DC as safe for persons. [16]
+- Ship automation and most other systems on board run on a 24 V DC control voltage. [17]
+- Those capacitive leakage paths close once the capacitors' charge reaches steady state. [18]
+- A system called ungrounded is in reality coupled to ground through the distributed capacitance of its phase windings and conductors. [19]  (from an idea this one builds on)
+- With no direct path back to the source's neutral, Eaton's 480 V example returns the first-fault current through the distributed capacitance of the two unfaulted phases, and only 1.04 A flows. [20]  (from an idea this one builds on)
+- Eaton gives about 1 A of continuous charging current for roughly 10 microfarads on a 277 V system. [21]  (from an idea this one builds on)
+- In an IT system the larger the system, the smaller the impedance between the active conductors and earth. [22]  (from an idea this one builds on)
+- A second earth fault on a different live conductor is a short circuit between active conductors through earth and the protective bonding conductors. [23]  (from an idea this one builds on)
+- The Electrical Installation Guide says it is conventional to double the loop impedance of a circuit when working out a second fault. [24]  (from an idea this one builds on)
+- The IEC 60364-4-41 text recommends that a first fault be eliminated with the shortest practicable delay. [25]  (from an idea this one builds on)
+- BS 7671 sets requirements for a second fault on an IT system, similar to TN systems, in Regulation 411.6.4. [26]  (from an idea this one builds on)
+- An insulation monitor injects a very low frequency a.c. or a d.c. current, applying a voltage between the supply transformer's neutral point and earth to read the installation's insulation resistance to earth. [27]  (from an idea this one builds on)
+- Bender says classification societies require an insulation monitoring device on each isolated system, to monitor continuously and alarm at abnormally low levels. [28]  (from an idea this one builds on)
+- Guidance disagrees on the alarm level: Bender's booklet sets about 100 ohms per volt, its white paper calls 500 ohms per volt typical, and Schneider suggests 500 to 1,000 ohms. [29][30][31]  [CONTESTED: Bender's booklet says set the alarm at about 100 ohms per volt, a Bender white paper calls 500 ohms per volt a typical critical value, and Schneider's Cahier 178 suggests an absolute 500 to 1,000 ohms.]  (from an idea this one builds on)
+- The IEC 60364-4-41 text recommends that a first fault be eliminated with the shortest practicable delay. [25]  (from an idea this one builds on)
+- Germanischer Lloyd rules: an insulation monitor on ships mains alarms below 50 ohms per volt of the operating voltage. [32]  (from an idea this one builds on)
+- Bender: passive methods such as the three-lightbulb method cannot detect symmetrical failures. [33]  (from an idea this one builds on)
+- An insulation monitor reads the total resistance, adding the resistive leakage of all outgoing lines in parallel to earth. [34]  (from an idea this one builds on)
+- Earth lamps: three lamps between the phases and earth form a balanced load on a sound network, all lit with the same brilliance. [35]  (from an idea this one builds on)
+- At an insulation fault, one of the three earth lamps is short-circuited by the fault impedance. [36]  (from an idea this one builds on)
+- Insulation monitoring devices are not to be connected in parallel: one per connected system. [37]  (from an idea this one builds on)
+- The larger the system in terms of leakage capacitance, the longer an insulation monitor takes to measure. [38]  (from an idea this one builds on)
+- Humidity can lower the general level of insulation resistance without a single fault. [39]  (from an idea this one builds on)
+- Some national standards recommend a first alarm setting 20% below the insulation level of the new installation. [40]  (from an idea this one builds on)
+- Earth lamps are switched in only to test: setting the earth-lamp switch to TEST earths the star point of the lamp circuit. [4]  (from an idea this one builds on)
+- In an IT system the supply is isolated from earth, and the first earth fault should not cause any disconnection. [41][42]  (whole topic)
+- Marine insulated systems exist to prevent the immediate loss of an essential service from an earth fault. [43]  (whole topic)
+
+WRITING EACH PART
+
+interactive
+- Its form, for a quantity idea: a slider for the input, a live readout of the result and a plot of the result against that input, so he sees the shape of the rule (doubling, square law, levelling off); bars or dots for a result that jumps in whole steps. If the idea is about how many cases fall at each value (heights in a crowd), also show the pile: 50 or more evenly spaced cases sent through the rule, counted in bands.
+- Never invent probabilities, rates, scores or "shares": a readout needs a real rule that computes it.
+- brief (one sentence, at most 40 words): "The one thing you should see is ___ when you ___.": one visible change at the heart of the idea (not a step towards it), caused by one action. It drives the build. The app shows the whole sentence above the interactive, as what to watch for.
+- title: at most 6 words.
+- controls: one. Add a second only if the idea cannot be seen without it. Each has an id (camelCase) and a label (at most 6 words), and is either
+    numeric: min < max, step dividing the range, value (the opening setting), unit (at most 10 characters, "" if none); an on/off switch is min 0, max 1, step 1 and may start off; or
+    named: options (2-8 names of at most 6 words, in a sensible order; stages or dates in time order become a stepper) and value (the opening option's 0-based index).
+  Open on a realistic case (zero when zero is the real case). Ranges make the effect unmistakable but stay on the side of it the idea is about (past a turning point only when that is the lesson).
+- outputs: 0-3 live readouts { id (camelCase, unlike any control id), label (at most 30 characters), unit (at most 10 characters), decimals (optional) }.
+- whatAmILookingAt (as long as he needs to understand it, and no longer: every sentence teaches, nothing repeated or padded), shown open above the interactive as "What you're looking at": first name each thing drawn ("Water from a 5 m drop hits a wheel's blades"), then the rule in words, step by step from what he can see, each step with its reason in a clause (why it doubles, why it is squared), then any short equation, each symbol named. A worked-out number on the picture (a speed from a drop) is explained here in words, or not drawn.
+- ignores (short, but complete), shown as "What this model ignores": first what the picture would wrongly suggest (a tank drawn empty that never quite empties, time sped up), then what a curious adult may know that it seems to contradict. Textbook-certain only: it has no footnotes. A condition the result needs goes with the result, not here.
+- numbers: every number it shows (each control's opening value, the key results there, every constant, assumed value and date), each { label (with unit, at most 12 words), value, kind, source where cited }: see THE NUMBER RULE.
+- "interactive": null only when nothing at all can be played with (rare).
+
+explain (as long as he needs to understand it, and no longer: every sentence teaches, nothing repeated or padded; no word limit: Dan, 7 Oct, "the limit is: is it enough for me to learn the thing"): it must
+- Open with the overall explanation: the idea in one or two plain sentences he could repeat to a friend, not a list of results. Then teach the one concept that matters most. Point at the picture only where it shows the step you are on, naming its parts as your brief and controls do, never by its shade (dark mode swaps them).
+- Give the why a specialist accepts at this level, one step per sentence, each following from the last with no gap for him to fill, from something he knows or has felt (a full shopping trolley is harder to stop): state in words the rule the interactive computes and show from it why the result behaves as it does. Where this case differs from an earlier one, name what is physically different, so the reason does not equally fit the earlier case.
+- Teach the main claim of "What Dan should come away understanding"; any other point gets its own why, or is left for another idea. Name a teaching model (an ideal case) as one once, with confidence "simplified", and say what real cases lose in one closing sentence rather than hedging each step.
+- Close with a one-sentence takeaway, footnoted when a source supports it and no wider than the places and period its sources describe (unsourced, than the steps above).
+- 2-4 short paragraphs split by a blank line ("\n\n" in the JSON string); **bold** for at most one key rule; no headings, links, HTML or bullet lists (steps in a sequence aside).
+
+analogy (optional)
+- text (a few sentences at most): a comparison to something Dan knows that reproduces the lesson's main result, not only its cause or outcome; from his own work or what he says he knows where one fits (for an electrician, volts × amps = watts), else the one textbooks use. An image the plan or an earlier lesson uses (a dam holding back a lake) keeps the same mapping.
+- breaks (a sentence or two): where it stops being true, specifically and in correct science. Use "analogy": null if no honest analogy helps.
+
+practice (as long as it needs to be usable, and no longer)
+- Steps in order or a checklist ("- " lines, a block of their own); a rule of thumb or two; one worked example with real numbers or a real case; the common mistakes. Other blocks open with a bold label ("**Worked example:**"). Not a skill (history, a concept)? Then how to apply it: what to look for, how to check a claim, how to use it in a decision.
+- Where safety matters, the safe way comes first.
+
+confidence
+- "settled": mainstream and uncontroversial at this level.
+- "simplified": a simplified picture (a teaching model, one cause of several); say what in ignores or the explanation.
+- "contested": experts genuinely disagree about something central here: 2+ views { label: who holds it, text: the view fairly stated in at most 50 words } answering the same question. The explanation says plainly it is debated; the interactive takes no side.
+
+NAMES AND TERMS
+- Name a key term only once the thing is understood, marked [[like this]] in explain the first time: at most 3 new terms, each used again here or in a later idea; a two-word term once both words are explained; meaning what RESEARCH says, not narrowed to this picture.
+- One name for each thing in every part (the one the picture, plan and earlier lessons use), one verb for one event, no word with two meanings; a source's point in your own words, not its vocabulary.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+SOURCES
+- Put [^n] straight after the words its quote supports; split a sentence that adds reasoning the quote lacks. Footnote what he would check, one per sentence; never name a source in a sentence ("your slides say", "(p.16)").
+- Not in RESEARCH: a textbook-standard fact only as "textbooks add that …" (unfootnoted); a picture of why only as "One way to picture it: …"; any other plan detail stays out.
+- "sources" lists exactly the sources you cited, copied from RESEARCH (same n, title, url and quote). No web addresses anywhere else in the lesson.
+
+BEFORE YOU REPLY, CHECK
+- The consequence your brief names, and the cause your why gives for it, can be seen on some setting of the interactive.
+- Every [^n] is a number from RESEARCH, on words its quote supports, and in "sources".
+
+OUTPUT
+Reply with one JSON object only, no commentary, exactly this shape:
+{
+  "iid": "i6",
+  "title": "<lesson title, at most 8 words>",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is … when you ….",
+    "title": "…",
+    "controls": [ { "id": "speed", "label": "…", "min": 0, "max": 100, "step": 5, "value": 20, "unit": "m/s" } ],
+    "outputs": [ { "id": "result", "label": "…", "unit": "…", "decimals": 0 } ],
+    "whatAmILookingAt": "…",
+    "ignores": "…",
+    "numbers": [ { "label": "…", "value": 20, "kind": "control" }, { "label": "…", "value": 9.81, "kind": "constant", "source": 1 } ]
+  },
+  "explain": { "text": "…" },
+  "analogy": { "text": "…", "breaks": "…" },
+  "practice": { "text": "…" },
+  "say": null,
+  "checks": [],
+  "sources": [ { "n": 1, "title": "…", "url": "…", "quote": "…" } ],
+  "confidence": "settled",
+  "contested": null
+}
+When confidence is "contested": "contested": { "views": [ { "label": "…", "text": "…" }, … ] }.

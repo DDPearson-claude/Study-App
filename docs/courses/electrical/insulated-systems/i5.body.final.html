@@ -1,0 +1,717 @@
+<!-- kind: quantity -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .caption { max-width: 32rem; margin-inline: auto; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.15rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.05rem; font-weight: 400; line-height: 1.6; }
+  .scene { display: block; width: 100%; max-width: 32rem; margin-inline: auto; }
+  .scene .c1 { stroke: var(--k-cat1); } .scene .c2 { stroke: var(--k-cat2); } .scene .c3 { stroke: var(--k-cat3); }
+  .scene .f1 { fill: var(--k-cat1); } .scene .f2 { fill: var(--k-cat2); } .scene .f3 { fill: var(--k-cat3); } .scene .fi { fill: var(--k-ink); }
+  .scene .bus { stroke-width: 3; stroke-linecap: round; }
+  .scene .core { stroke-width: 1.6; fill: none; stroke-linejoin: round; }
+  .scene .lead { stroke: var(--k-ink); stroke-width: 1.5; fill: none; }
+  .scene .card { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .sheath { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.2; }
+  .scene .res { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.4; }
+  .scene .wet { fill: var(--k-accent); stroke: none; }
+  .scene .fres { fill: var(--k-panel); stroke: var(--k-warn); stroke-width: 2; }
+  .scene .flead { stroke: var(--k-warn); stroke-width: 2; fill: none; stroke-linejoin: round; }
+  .scene .flink { stroke: var(--k-warn); stroke-width: 3; fill: none; stroke-linejoin: round; }
+  .scene .plate { stroke: var(--k-ink); stroke-width: 2.5; stroke-linecap: round; }
+  .scene .hull { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.2; }
+  .scene .trace { stroke: var(--k-accent); stroke-width: 1.8; fill: none; stroke-dasharray: 3 5; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .chev { fill: var(--k-accent); }
+  .scene .halo { fill: var(--k-fill2); }
+  .scene .ray { stroke: var(--k-amber-line); stroke-width: 1.5; stroke-linecap: round; }
+  .scene .lamp { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .lamp.on { fill: var(--k-fill2); stroke: var(--k-amber-line); }
+  .scene .alamp { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .alamp.hot { fill: var(--k-warn); stroke: var(--k-warn); }
+  .scene .scale { stroke: var(--k-ink); stroke-width: 1.5; }
+  .scene .tick { stroke: var(--k-ink); stroke-width: 1.2; }
+  .scene .alarm { stroke: var(--k-amber-line); stroke-width: 2.5; stroke-dasharray: 4 3; }
+  .scene .alarm.hot { stroke: var(--k-warn); stroke-dasharray: none; }
+  .scene .needle { fill: var(--k-accent2); }
+  .scene .nline { stroke: var(--k-accent2); stroke-width: 2; }
+  .scene .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .lab.n { font-weight: 400; }
+  .scene .lab.s { font-size: 12px; }
+  .scene .lab.hot { font-weight: 700; fill: var(--k-warn); }
+  #ctls > * + * { margin-top: 10px; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; min-height: 44px; }
+  #prow > div { flex: 1 1 9rem; min-width: 0; }
+  /* Six fault settings: as many to a row as fit, never a split word. */
+  #fctl .k-seg.stack { grid-template-columns: repeat(auto-fit, minmax(5.5rem, 1fr)); }
+  #fctl .k-seg.stack button { text-align: center; padding-inline: 6px; }
+  /* Five readout tiles: as many to a row as fit, two on a phone. */
+  #outs { display: grid; grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr)); gap: 10px; }
+  #outs .k-readout-value { font-size: 1.25rem; }
+  /* The answers are sentences: one to a row, wrapping inside the button. */
+  .picks { display: flex; flex-direction: column; gap: 8px; }
+  .picks .k-btn { width: 100%; min-height: 48px; white-space: normal; text-align: left; justify-content: flex-start; line-height: 1.4; padding: 10px 14px; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; }
+  .fb.right { color: var(--k-good); }
+  .why, .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }
+</style>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 358" width="100%" role="img" aria-label=""><g id="art"></g></svg>
+    <div id="ctls">
+      <div class="row" id="prow"><div id="phctl"></div><div id="dctl"></div></div>
+      <div id="fctl"></div>
+      <div id="actl"></div>
+      <div id="cctl"></div>
+    </div>
+    <div id="outs"></div>
+    <div class="picks" id="picks"></div>
+    <div class="row" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row" id="nav"></div>
+</div>
+
+<p class="caption">Example values: a 440 V, 60 Hz board and six feeders of 3 MΩ each, with a sketched settling time.</p>
+
+<script>
+  // ---------- the rule ----------
+  // 440 V between lines at 60 Hz, so each line is 440 ÷ 1.732 = 254 V from the star point. Each of six feeders
+  // leaks to the hull through its insulation, 3 MΩ dry or 120 kΩ damp, the same on all three phases, so together
+  // they make R_sym = 500 kΩ or 20 kΩ. A fault R_F joins one phase of feeder 3 to the hull.
+  // The monitor's DC sees every resistive path in parallel: reading = 1 ÷ (1 ÷ R_sym + 1 ÷ R_F).
+  // The lamps: the hull sits at E = V_f ÷ (1 + R_F ÷ R_sym + j × 3ωC × R_F) from the star point, and each lamp
+  // reads the distance from the hull to its phase's tip. Alarm level = ohms per volt × 440 V.
+  const VLINE = 440, ROOT3 = 1.732, HZ = 60, W = 2 * Math.PI * HZ;
+  const VPH = VLINE / ROOT3;
+  const NF = 6, RDRY = 3000, RDAMP = 120;            // kΩ for each feeder
+  const FAULTS = { 'Open': Infinity, '500 kΩ': 500, '150 kΩ': 150, '30 kΩ': 30, '1 kΩ': 1, 'Solid': 0 };
+  const FOPTS = Object.keys(FAULTS);
+  const ALARMS = [50, 100, 500];
+  const PH = ['L1', 'L2', 'L3'];
+  const RM = 50;          // the dial's middle, in kΩ: position = R ÷ (R + 50), so the high values squeeze together
+  const TAU1 = 0.11;      // the sketch's time constant for each µF a phase, in seconds; it settles in five of them
+  const rsym = (damp) => (damp ? RDAMP : RDRY) / NF;
+  function reading(S) {
+    const rs = rsym(S.damp), rf = FAULTS[S.fault];
+    if (rf === 0) return 0;
+    if (!isFinite(rf)) return rs;
+    return 1 / (1 / rs + 1 / rf);
+  }
+  const alarmK = (S) => S.alarm * VLINE / 1000;
+  const pos = (r) => (isFinite(r) ? r / (r + RM) : 1);
+  const phasor = (k) => ({ re: VPH * Math.cos(-2 * Math.PI * k / 3), im: VPH * Math.sin(-2 * Math.PI * k / 3) });
+  function hull(S) {
+    const rf = FAULTS[S.fault];
+    if (!isFinite(rf)) return { re: 0, im: 0 };
+    const v = phasor(PH.indexOf(S.ph));
+    if (rf === 0) return v;
+    const R = rf * 1000, Rs = rsym(S.damp) * 1000, C = S.C * 1e-6;
+    const a = 1 + R / Rs, b = 3 * W * C * R, d = a * a + b * b;
+    return { re: (v.re * a + v.im * b) / d, im: (v.im * a - v.re * b) / d };
+  }
+  const lampsOf = (H) => PH.map((_, k) => { const v = phasor(k); return Math.hypot(v.re - H.re, v.im - H.im); });
+  // The share of the monitor's current that goes through the fault.
+  function faultFrac(S) {
+    const rf = FAULTS[S.fault];
+    if (!isFinite(rf)) return 0;
+    if (rf === 0) return 1;
+    return (1 / rf) / (1 / rf + 1 / rsym(S.damp));
+  }
+  const fmtK = (v) => (v === 0 ? '0' : String(Number(v.toPrecision(3))));
+  const fmtV = (v) => K.fmt(v, { decimals: 0 }) + ' V';
+
+  // ---------- the lesson: SHOW screens demonstrate, DO screens are puzzles ----------
+  // A setting: the fault's phase and size, Damp everywhere, the alarm level (Ω/V), the capacitance a phase (µF),
+  // and charge (the capacitance not yet charged, so the dial has not begun to settle).
+  const P = (o) => Object.assign({ ph: 'L1', fault: 'Open', damp: false, alarm: 100, C: 1, charge: false }, o || {});
+  const strip = (s) => s.replace(/\[\^\d+\]/g, '');
+  const STEPS = [
+    { show: true, name: 'Two watchers', pic: P(),
+      text: `A first fault trips nothing, so no breaker tells you it is there. Yet it leaves the healthy phases one failure from a short through the hull. So ship rules require every insulated system to watch its insulation and alarm when it runs low.[^1] Three earth lamps each join one phase to the hull. They light only while you hold their Test button. On a healthy board, each sees 254 V, so all three glow the same. Beside them, an insulation monitor's dial reads 500 kΩ.` },
+    { kind: 'pick', name: 'A solid fault on L2', before: P(), after: P({ fault: 'Solid', ph: 'L2' }),
+      task: `A solid fault joins L2 to the hull. What voltage does L1's lamp now see?`,
+      opts: ['254 V, so it looks the same', '440 V, so it glows brighter', '0 V, so it goes out'], want: '440 V, so it glows brighter',
+      hints: { '254 V, so it looks the same': `The hull has moved to L2. L1 is now a whole line voltage from it.`,
+        '0 V, so it goes out': `Only the lamp across the fault goes out, and that is L2's.` },
+      why: `Each lamp shows its phase's voltage to earth. The hull now sits at L2, as in the shifting triangle. So L1 and L3 read the line voltage, 440 V, and glow brighter. The fault short-circuits L2's lamp, so it goes out.` },
+    { show: true, name: 'Damp everywhere', pic: P({ damp: true }), ctl: true,
+      demo: { from: P(), keys: [{ S: P({ damp: true }), at: 0.4, dur: 0.9 }] },
+      text: `Damp everywhere is now on. Every feeder's insulation falls to 120 kΩ, equally on all three phases. Three equal leaks balance, like a balanced star load. So the hull stays at the star point. Each lamp still sees 254 V, and all three stay equal. But the monitor's dial falls from 500 kΩ to 20 kΩ. Lamps only show an unbalance between the phases. A fall that is the same on every phase is invisible to them.`,
+      read: `With every feeder's insulation down to 120 kΩ on all three phases, the lamps stay equal at 254 V. The monitor's dial falls from 500 kΩ to 20 kΩ.` },
+    { kind: 'pick', name: 'After a wash-down', before: P(), after: P({ damp: true }),
+      task: `After a wash-down, all three earth lamps glow equally. Is the insulation healthy?`,
+      opts: ['Yes, as any fault would dim one lamp', 'Yes, as long as no lamp has gone out', 'Not necessarily, as an equal leak on every phase leaves them equal'],
+      want: 'Not necessarily, as an equal leak on every phase leaves them equal',
+      hints: { 'Yes, as any fault would dim one lamp': `A leak on one phase dims one lamp. An equal leak on all three dims none.`,
+        'Yes, as long as no lamp has gone out': `The lamps compare the phases. They cannot see all three falling together.` },
+      why: `Equal leaks on all three phases balance. The hull stays at the star point, and each lamp keeps 254 V. Only the monitor's reading shows the fall.` },
+    { show: true, name: 'Why DC?', pic: P({ C: 5 }), ctl: true,
+      demo: { from: P(), keys: [{ S: P({ damp: true }), at: 0.3, dur: 0.4 }, { S: P({ damp: true, C: 5 }), at: 1.0, dur: 0.35 }, { S: P({ C: 5 }), at: 1.4, dur: 0.4 }] },
+      text: `The monitor is like your insulation tester, left on the live board. It pushes a small DC voltage between the system and the hull, then measures the current that comes back. Why DC? The cables' capacitance passes AC. At 60 Hz, three phases of 1 µF look like 884 Ω to the hull. That would hide a 30 kΩ fault. At DC the capacitance charges, then passes nothing. Charging takes time, so the more capacitance, the slower the dial settles. Watch Damp everywhere go on at 1 µF, then off at 5 µF.`,
+      read: `The monitor pushes a small DC voltage between the system and the hull. The capacitance must charge first, so at 5 µF a phase the dial settles five times as slowly as at 1 µF.` },
+    { kind: 'pick', name: 'A VLF test', before: P({ C: 5 }), after: P({ C: 5 }),
+      from: P({ C: 5, charge: true }), play: [{ S: P({ C: 5 }), at: 0.2, dur: 0.3 }],
+      task: `A VLF test set runs a cable at 0.1 Hz instead of 50 Hz. At the same voltage, how does the cable's charging current compare?`,
+      opts: ['500 times smaller', '500 times larger', 'The same, as the cable is the same'], want: '500 times smaller',
+      hints: { '500 times larger': `X_C = 1 ÷ (2πfC). A lower frequency gives a larger reactance, so less current.`,
+        'The same, as the cable is the same': `The capacitance is the same, but its reactance depends on the frequency.` },
+      why: `The charging current is proportional to the frequency, and 50 ÷ 0.1 = 500. The monitor takes the same idea all the way to DC. Once charged, the capacitance passes no current at all.` },
+    { show: true, name: 'Every leak in parallel', pic: P({ fault: '30 kΩ' }), ctl: true,
+      demo: { from: P(), keys: [{ S: P({ fault: '30 kΩ' }), at: 0.4, dur: 0.9 }] },
+      text: `The monitor's current returns through every leak, on every feeder and every phase. They are all in parallel, so the dial reads their total. Six feeders at 3 MΩ each make 500 kΩ. Add a 30 kΩ fault on feeder 3's L1. In parallel, 500 kΩ and 30 kΩ give 28.3 kΩ. The lamps barely move. The capacitance on all three phases holds the hull near the star point. A weak fault only nudges it sideways. So L2's lamp dims, not L1's. The dim lamp can point to the wrong phase.`,
+      read: `Six feeders at 3 MΩ each read 500 kΩ together. With a 30 kΩ fault on feeder 3's L1, the dial reads 28.3 kΩ, while L1's lamp still reads about 254 V.` },
+    { kind: 'pick', name: 'A 150 kΩ fault', before: P(), after: P({ fault: '150 kΩ' }),
+      task: `Six feeders read 3 MΩ each, 500 kΩ together. Feeder 3 develops a 150 kΩ fault. What does the dial read?`,
+      opts: ['650 kΩ', '150 kΩ', 'About 115 kΩ'], want: 'About 115 kΩ',
+      hints: { '650 kΩ': `That adds them as if in series. Paths in parallel give less than the lowest one.`,
+        '150 kΩ': `The healthy feeders still leak in parallel with the fault, so the total is lower still.` },
+      why: `In parallel, 500 × 150 ÷ (500 + 150) = 115 kΩ. The total is always below the lowest single path.` },
+    { show: true, name: 'Where to alarm', pic: P({ fault: '150 kΩ', alarm: 500 }), ctl: true,
+      demo: { from: P({ fault: '150 kΩ', alarm: 50 }), keys: [{ S: P({ fault: '150 kΩ', alarm: 100 }), at: 0.6, dur: 0.6 }, { S: P({ fault: '150 kΩ', alarm: 500 }), at: 1.8, dur: 0.8 }] },
+      text: `Alarm levels are often set in ohms per volt, so they scale with the supply. Multiply by the operating voltage to get ohms. Ship rules set a minimum: the alarm must sound by 50 Ω/V.[^2] Boards are often set higher. A common setting is 100 Ω/V.[^3] An early warning sits at 500 Ω/V.[^4] On 440 V those are 22 kΩ, 44 kΩ and 220 kΩ. A 115 kΩ reading alarms only at 500 Ω/V. A higher level warns sooner. But a big or damp system may sit below it without any single fault.`,
+      read: `On 440 V the three alarm levels are 22 kΩ, 44 kΩ and 220 kΩ. A 115 kΩ reading alarms only at 500 Ω/V.` },
+    { kind: 'pick', name: 'Which alarms sound?', before: P(), after: P({ fault: '30 kΩ', alarm: 500 }),
+      play: [{ S: P({ fault: '30 kΩ', alarm: 50 }), at: 0, dur: 0.9 }, { S: P({ fault: '30 kΩ', alarm: 100 }), at: 1.8, dur: 0.6 }, { S: P({ fault: '30 kΩ', alarm: 500 }), at: 3.0, dur: 0.8 }],
+      task: `The 440 V board's dial reads 28.3 kΩ. Which alarm levels sound?`,
+      opts: ['All three', '100 and 500 Ω/V, but not 50 Ω/V', 'Only 500 Ω/V'], want: '100 and 500 Ω/V, but not 50 Ω/V',
+      hints: { 'All three': `50 Ω/V on 440 V is 22 kΩ. The reading is above it.`,
+        'Only 500 Ω/V': `100 Ω/V on 440 V is 44 kΩ. The reading is below it.` },
+      why: `An alarm sounds when the reading falls below its level. 28.3 kΩ is below 44 kΩ and 220 kΩ, but above 22 kΩ. So the same fault alarms at one setting and not at another.` },
+    { kind: 'pick', name: 'Two monitors', before: P(), after: P(),
+      task: `Two boards are coupled into one system, and each still has its own monitor running. What goes wrong?`,
+      opts: ['Each monitor reads the other as a leak, so the readings are wrong', 'Nothing, as two monitors are safer than one', 'The monitors\' current trips the coupling breaker'],
+      want: 'Each monitor reads the other as a leak, so the readings are wrong',
+      hints: { 'Nothing, as two monitors are safer than one': `Each monitor is itself a path from the system to the hull.`,
+        'The monitors\' current trips the coupling breaker': `A monitor's current is far too small to trip a breaker.` },
+      why: `Each monitor joins the system to the hull through its own measuring circuit. To the other monitor, that is one more leak. Their two DC voltages also mix. So run only one monitor on a connected system.[^5]` },
+    { kind: 'pick', name: 'Drives with filters', before: P(), after: P({ C: 2 }),
+      play: [{ S: P({ C: 2 }), at: 0, dur: 1.2 }],
+      task: `Ten drives with filters are added to the board. Now the dial takes longer to settle after every change. Why?`,
+      opts: ['Their filters lower the insulation resistance', 'Their filters add capacitance to the hull, which the DC must charge', 'The monitor counts each drive as a feeder to read'],
+      want: 'Their filters add capacitance to the hull, which the DC must charge',
+      hints: { 'Their filters lower the insulation resistance': `Lower resistance would change the reading. If anything, it would make the dial settle faster.`,
+        'The monitor counts each drive as a feeder to read': `The dial reads all paths together in one measurement, however many there are.` },
+      why: `Each filter is a capacitor to the hull, just like the cables' own capacitance. The monitor's DC must charge all of it before the current steadies. More capacitance means a longer wait.` },
+  ];
+  STEPS.forEach((d) => { if (d.show) d.still = () => setPic(d.pic); else d.read = d.task; });
+  const FINISH = 'A monitor reads the whole system\'s resistance to the hull with DC or a very slow signal. Its alarm must sound by the rules\' minimum, and is often set higher to warn sooner.';
+  const PICK = 'Choose an answer first.';
+  const SRC = {
+    gl: 'http://www.iqytechnicalcollege.com/gl_i-1-3_e.pdf',
+    maker: 'https://fournais-bender.dk/storage/TechnAspects-IT-systems.pdf',
+    white: 'https://info.bender-group.com/hubfs/Documents/US/White%20Papers/Insulation%20monitoring%20on%20common%20grounding%20methods.pdf?hsLang=en-us',
+  };
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- what the picture shows: a view, and motion from one view to another ----------
+  function geomOf(S) {
+    const rf = FAULTS[S.fault];
+    return { H: hull(S), leak: S.damp ? 1 : 0, fv: isFinite(rf) ? 1 : 0, fph: PH.indexOf(S.ph), fkind: rf === 0 ? 's' : 'r', fname: S.fault,
+      ap: pos(alarmK(S)), alarm: S.alarm, C: S.C, frac: faultFrac(S) };
+  }
+  function faultAt(a, b, u) {
+    const same = a.fv > 0 && b.fv > 0 && a.fph === b.fph && a.fkind === b.fkind;
+    if (same) return { fv: K.lerp(a.fv, b.fv, u), fph: b.fph, fkind: b.fkind, fname: u < 0.5 ? a.fname : b.fname };
+    if (!(a.fv > 0)) return { fv: b.fv * u, fph: b.fph, fkind: b.fkind, fname: b.fname };
+    if (!(b.fv > 0)) return { fv: a.fv * (1 - u), fph: a.fph, fkind: a.fkind, fname: a.fname };
+    return u < 0.5 ? { fv: a.fv * (1 - 2 * u), fph: a.fph, fkind: a.fkind, fname: a.fname } : { fv: b.fv * (2 * u - 1), fph: b.fph, fkind: b.fkind, fname: b.fname };
+  }
+  function lerpG(a, b, u) {
+    const f = faultAt(a, b, u);
+    return { H: { re: K.lerp(a.H.re, b.H.re, u), im: K.lerp(a.H.im, b.H.im, u) }, leak: K.lerp(a.leak, b.leak, u), ap: K.lerp(a.ap, b.ap, u),
+      alarm: u < 0.5 ? a.alarm : b.alarm, C: K.lerp(a.C, b.C, u), frac: K.lerp(a.frac, b.frac, u), fv: f.fv, fph: f.fph, fkind: f.fkind, fname: f.fname };
+  }
+  // A settled picture: the dial at its reading (or, before the capacitance has charged, at its bottom stop).
+  function still(S) {
+    const r = reading(S);
+    return { S, g: geomOf(S), D: S.charge ? 0 : pos(r), settled: !S.charge, alarmOn: !S.charge && r < alarmK(S), rem: S.charge ? 1 : 0 };
+  }
+  const H_STEP = 1 / 120, TAIL = 0.8;
+  function geomAt(m, t) {
+    let g = m.v0.g;
+    for (const k of m.ks) { if (t < k.at) break; g = lerpG(k.g0, k.g1, K.ease(K.clamp((t - k.at) / Math.max(1e-6, k.dur), 0, 1))); }
+    return g;
+  }
+  function settingsAt(m, t) {
+    let S = m.v0.S;
+    for (const k of m.ks) { if (t < k.at) break; S = k.S; }
+    return S;
+  }
+  // Keys change the settings one after another; the picture tweens to each. The dial creeps to each new reading
+  // with a time constant in proportion to the capacitance and settles in five of them. While it creeps the monitor
+  // shows no reading, and its alarm lamp keeps the state it had.
+  function motion(v0, keys) {
+    const ks = keys.map((k) => Object.assign({}, k)).sort((a, b) => a.at - b.at);
+    let gp = v0.g;
+    ks.forEach((k) => { k.g0 = gp; k.g1 = geomOf(k.S); gp = k.g1; });
+    const m = { v0, ks };
+    const geoEnd = ks.reduce((e, k) => Math.max(e, k.at + k.dur), 0);
+    const tg = (S) => (S.charge ? 0 : pos(reading(S)));
+    let D = v0.D, target = v0.D, until = -1, held = v0.alarmOn, s = 0, ki = 0, charge = !!v0.S.charge;
+    const samp = [];
+    for (let j = 0; j < 4000; j++) {
+      const t = j * H_STEP;
+      while (ki < ks.length && ks[ki].at <= t + 1e-9) {
+        const k = ks[ki++], nt = tg(k.S);
+        if (!(t < until) && !charge) held = D < geomAt(m, t).ap - 1e-9;
+        charge = !!k.S.charge;
+        if (Math.abs(nt - D) > 1e-4 || t < until) {
+          target = nt; s = 0;
+          until = t + 5 * TAU1 * Math.max(k.g0.C, k.g1.C);
+        } else { target = nt; D = nt; }
+      }
+      const creeping = t < until;
+      samp.push({ D, rem: creeping ? Math.exp(-s) : charge ? 1 : 0, settled: !creeping && !charge, held });
+      if (ki >= ks.length && t > Math.max(geoEnd, until) + 1e-9) break;
+      if (creeping) {
+        const tau = TAU1 * geomAt(m, t).C;
+        D += (target - D) * (1 - Math.exp(-H_STEP / tau));
+        s += H_STEP / tau;
+        if (t + H_STEP >= until) D = target;
+      }
+    }
+    m.samp = samp; m.until = until; m.geo = geoEnd; m.end = Math.max(geoEnd, until) + TAIL;
+    return m;
+  }
+  function viewAt(m, t) {
+    const smp = m.samp[Math.min(m.samp.length - 1, Math.max(0, Math.round(t / H_STEP)))];
+    const g = geomAt(m, t), S = settingsAt(m, t);
+    return { S, g, D: smp.D, settled: smp.settled, alarmOn: smp.settled ? smp.D < g.ap - 1e-9 : smp.held, rem: smp.rem };
+  }
+
+  // ---------- the drawing (viewBox 340 × 358): the board on top, lamps left, six feeders, the monitor right, the hull ----------
+  const YB = [30, 44, 58], YT = 64;
+  const LX = [20, 52, 84], LY = 100, LR = 10;
+  const CXP = 108, PCY = 196;
+  const FX = [136, 158, 180, 202, 224, 246], YS0 = 76, YS1 = 150, YR0 = 168, YR1 = 196;
+  const XF = 191, YF = 132, YFR = 200;
+  const YH = 272;
+  const MX0 = 262, MX1 = 336, MY0 = 76, MY1 = 262, MCX = 282, MEX = 299;
+  const SX = 294, ST = 146, SB = 242;
+  const KY = 314;
+  const yOf = (p) => SB - (SB - ST) * p;
+  const n2 = (x) => +(+x).toFixed(2);
+  const svg = document.getElementById('scene'), art = document.getElementById('art');
+  const el = (id) => document.getElementById(id);
+  function put(parent, tag, attrs, text) { const n = K.svg(tag, attrs); if (text != null) n.textContent = text; parent.appendChild(n); return n; }
+  const group = (a) => put(art, 'g', a == null || a >= 1 ? {} : { opacity: Math.max(0, a).toFixed(3) });
+  const lab = (g, x, y, text, cls, anchor) => put(g, 'text', { x: n2(x), y: n2(y), class: 'lab' + (cls ? ' ' + cls : ''), 'text-anchor': anchor || 'start' }, text);
+  function chev(g, x, y, dir) {
+    const d = dir === 'd' ? `M${x - 4} ${y - 3}L${x + 4} ${y - 3}L${x} ${y + 4}Z` : dir === 'r' ? `M${x - 3} ${y - 4}L${x - 3} ${y + 4}L${x + 4} ${y}Z` : `M${x + 3} ${y - 4}L${x + 3} ${y + 4}L${x - 4} ${y}Z`;
+    put(g, 'path', { class: 'chev', d });
+  }
+  // Three cores from the three bars, gathered into one cable at (x, y1).
+  function cores(g, x, dx, y1) {
+    [-dx, 0, dx].forEach((o, k) => {
+      put(g, 'path', { class: 'core c' + (k + 1), d: `M${x + o} ${YB[k]}V66L${x} ${y1}` });
+      put(g, 'circle', { class: 'f' + (k + 1), cx: x + o, cy: YB[k], r: 2.2 });
+    });
+  }
+  let dash = 0;
+
+  function scene(v) {
+    art.textContent = '';
+    const g = v.g, V = lampsOf(g.H), S = v.S;
+    const G = group();
+    // The board and its three bars.
+    put(G, 'rect', { class: 'card', x: 4, y: 2, width: 332, height: 66, rx: 6 });
+    lab(G, 10, 18, '440 V insulated board');
+    YB.forEach((y, k) => { put(G, 'line', { class: 'bus c' + (k + 1), x1: 10, y1: y, x2: 304, y2: y }); lab(G, 310, y + 4.5, PH[k]); });
+    // The earth lamps: each from one bar, through its lamp, to the hull.
+    LX.forEach((x, k) => {
+      put(G, 'line', { class: 'core c' + (k + 1), x1: x, y1: YB[k], x2: x, y2: LY - LR });
+      put(G, 'circle', { class: 'f' + (k + 1), cx: x, cy: YB[k], r: 2.4 });
+      put(G, 'line', { class: 'lead', x1: x, y1: LY + LR, x2: x, y2: 128 });
+    });
+    put(G, 'line', { class: 'lead', x1: LX[0], y1: 128, x2: LX[2], y2: 128 });
+    // Their common lead to the hull runs through a Test button, drawn held down: the lamps are a path to the hull while it is pressed.
+    put(G, 'line', { class: 'lead', x1: LX[0], y1: 128, x2: LX[0], y2: 226 });
+    put(G, 'line', { class: 'lead', x1: LX[0], y1: 238, x2: LX[0], y2: YH });
+    put(G, 'line', { class: 'plate', x1: LX[0] + 3, y1: 224, x2: LX[0] + 3, y2: 240 });
+    put(G, 'line', { class: 'lead', x1: LX[0] + 3, y1: 232, x2: LX[0] + 11, y2: 232 });
+    put(G, 'line', { class: 'plate', x1: LX[0] + 11, y1: 227, x2: LX[0] + 11, y2: 237 });
+    [226, 238].forEach((y) => put(G, 'circle', { class: 'lamp', cx: LX[0], cy: y, r: 2 }));
+    lab(G, LX[0] + 15, 236, 'Test, held', 's n');
+    lab(G, 30, 150, 'Earth', 'n');
+    lab(G, 30, 164, 'lamps', 'n');
+    // The cables' capacitance, from the bars to the hull: its plates widen with the capacitance.
+    const hw = 6 + 0.9 * g.C;
+    cores(G, CXP, 6, 78);
+    put(G, 'line', { class: 'lead', x1: CXP, y1: 78, x2: CXP, y2: PCY });
+    put(G, 'line', { class: 'plate', x1: n2(CXP - hw), y1: PCY, x2: n2(CXP + hw), y2: PCY });
+    put(G, 'line', { class: 'plate', x1: n2(CXP - hw), y1: PCY + 7, x2: n2(CXP + hw), y2: PCY + 7 });
+    put(G, 'line', { class: 'lead', x1: CXP, y1: PCY + 7, x2: CXP, y2: YH });
+    lab(G, CXP - hw - 5, PCY + 2, Math.round(g.C) + ' µF', 'n', 'end');
+    lab(G, CXP - hw - 5, PCY + 16, 'a phase', 'n', 'end');
+    // Six feeders: three cores into each cable, then its insulation to the hull.
+    FX.forEach((x, n) => {
+      cores(G, x, 5, YS0);
+      put(G, 'rect', { class: 'sheath', x: x - 4, y: YS0, width: 8, height: YS1 - YS0, rx: 3 });
+      lab(G, x + 7, 92, String(n + 1), 's');
+      put(G, 'line', { class: 'lead', x1: x, y1: YS1, x2: x, y2: YR0 });
+      put(G, 'rect', { class: 'res', x: x - 3.5, y: YR0, width: 7, height: YR1 - YR0 });
+      if (g.leak > 0.01) put(G, 'rect', { class: 'wet', x: x - 3.5, y: YR0, width: 7, height: YR1 - YR0, 'fill-opacity': n2(0.55 * g.leak) });
+      put(G, 'line', { class: 'lead', x1: x, y1: YR1, x2: x, y2: YH });
+    });
+    // The fault: from one phase of feeder 3 to the hull.
+    if (g.fv > 0.01) {
+      const gf = group(g.fv), xs = FX[2] + 4;
+      if (g.fkind === 's') put(gf, 'path', { class: 'flink', d: `M${xs} ${YF}H${XF}V${YH}` });
+      else {
+        put(gf, 'path', { class: 'flead', d: `M${xs} ${YF}H${XF}V${YFR}M${XF} ${YFR + 28}V${YH}` });
+        put(gf, 'rect', { class: 'fres', x: XF - 3, y: YFR, width: 6, height: 28 });
+      }
+      put(gf, 'circle', { class: 'f' + (g.fph + 1), cx: xs, cy: YF, r: 3.2 });
+    }
+    // The insulation monitor: joined to the bars above and the hull below. Its dial squeezes the high values.
+    cores(G, MCX, 10, MY0);
+    put(G, 'rect', { class: 'card', x: MX0, y: MY0, width: MX1 - MX0, height: MY1 - MY0, rx: 6 });
+    lab(G, MEX, 92, 'Insulation', 's', 'middle');
+    lab(G, MEX, 106, 'monitor', 's', 'middle');
+    put(G, 'circle', { class: 'alamp' + (v.alarmOn ? ' hot' : ''), cx: 272, cy: 122, r: 5 });
+    lab(G, 281, 126.5, 'Alarm', 's' + (v.alarmOn ? ' hot' : ' n'));
+    // While the dial creeps, the monitor is still measuring, so its alarm lamp has not changed yet.
+    if (!v.settled) lab(G, 268, 140, 'measuring', 's n');
+    put(G, 'line', { class: 'scale', x1: SX, y1: ST, x2: SX, y2: SB });
+    put(G, 'line', { class: 'tick', x1: SX - 4, y1: ST, x2: SX + 4, y2: ST });
+    [0, 20, 50, 100, 500].forEach((r) => {
+      const y = n2(yOf(pos(r)));
+      put(G, 'line', { class: 'tick', x1: SX - 4, y1: y, x2: SX, y2: y });
+      lab(G, SX - 6, y + 4, String(r), 's n', 'end');
+    });
+    lab(G, SX - 6, SB + 17, 'kΩ', 's n', 'end');
+    const ya = n2(yOf(g.ap));
+    put(G, 'line', { class: 'alarm' + (v.alarmOn ? ' hot' : ''), x1: SX - 4, y1: ya, x2: SX + 16, y2: ya });
+    lab(G, SX + 18, ya + 4, fmtK(g.alarm * VLINE / 1000), 's' + (v.alarmOn ? ' hot' : ' n'));
+    const yd = n2(yOf(v.D));
+    put(G, 'line', { class: 'nline', x1: SX - 4, y1: yd, x2: SX + 2, y2: yd });
+    put(G, 'path', { class: 'needle', d: `M${SX + 2} ${yd}L${SX + 14} ${n2(yd - 5)}L${SX + 14} ${n2(yd + 5)}Z` });
+    put(G, 'line', { class: 'lead', x1: MEX, y1: MY1, x2: MEX, y2: YH });
+    // The hull, which is earth.
+    put(G, 'rect', { class: 'hull', x: 4, y: YH, width: 332, height: 24, rx: 3 });
+    lab(G, 200, YH + 18, 'Hull, which is earth', 'n', 'middle');
+    [LX[0], CXP, MEX].concat(FX, g.fv > 0.01 ? [XF] : []).forEach((x) => put(G, 'circle', { class: 'fi', cx: x, cy: YH, r: 2.2 }));
+    // The monitor's small DC current: out into the system, down through every leak, back along the hull.
+    const tr = group(), off = n2(-dash);
+    const trace = (d, op, w) => put(tr, 'path', Object.assign({ class: 'trace', d, 'stroke-dashoffset': off }, op < 1 ? { opacity: n2(op) } : {}, w ? { 'stroke-width': n2(w) } : {}));
+    const leakOp = 0.3 + 0.7 * (1 - g.frac);
+    trace(`M${MCX} ${MY0}V${YT}H${FX[0]}`, 1);
+    FX.forEach((x) => trace(`M${x} ${YT}V${YH}`, leakOp));
+    trace(`M${FX[0]} ${YH + 4}H${MEX}V${MY1}`, 1);
+    if (g.fv > 0.01) trace(`M${FX[2]} ${YF}H${XF}V${YH}`, g.fv, 1.8 + 1.4 * g.frac);
+    // While the dial creeps, part of the current is still charging the capacitance.
+    if (v.rem > 0.01) trace(`M${FX[0]} ${YT}H${CXP}V${PCY}M${CXP} ${PCY + 7}V${YH + 4}H${FX[0]}`, v.rem);
+    chev(tr, 213, YT, 'l'); chev(tr, FX[0], 238, 'd'); chev(tr, 275, YH + 4, 'r');
+    // The lamps glow with their phase's voltage to earth.
+    const GL = group();
+    LX.forEach((x, k) => {
+      const b = K.clamp(V[k] / VLINE, 0, 1.05);
+      if (b > 0.02) {
+        put(GL, 'circle', { class: 'halo', cx: x, cy: LY, r: n2(LR + 4 * b), 'fill-opacity': n2(0.55 * b) });
+        for (let r = 0; r < 8; r++) {
+          const a = r * Math.PI / 4 + Math.PI / 8, c = Math.cos(a), s = Math.sin(a);
+          put(GL, 'line', { class: 'ray', x1: n2(x + c * (LR + 2)), y1: n2(LY + s * (LR + 2)), x2: n2(x + c * (LR + 2 + 3.5 * b)), y2: n2(LY + s * (LR + 2 + 3.5 * b)) });
+        }
+      }
+      put(GL, 'circle', { class: 'lamp' + (b > 0.02 ? ' on' : ''), cx: x, cy: LY, r: LR });
+      lab(GL, x, LY + 4.5, PH[k], 's', 'middle');
+    });
+    // A key for what is drawn.
+    const gk = group();
+    put(gk, 'rect', { class: 'res', x: 6, y: KY - 8, width: 16, height: 7 });
+    if (g.leak > 0.01) put(gk, 'rect', { class: 'wet', x: 6, y: KY - 8, width: 16, height: 7, 'fill-opacity': n2(0.55 * g.leak) });
+    lab(gk, 28, KY, g.leak >= 0.5 ? 'Insulation, each feeder, damp: 120 kΩ' : 'Insulation, each feeder: 3 MΩ', 'n');
+    const fy = KY + 18;
+    if (g.fv > 0.01) {
+      if (g.fkind === 's') put(gk, 'line', { class: 'flink', x1: 6, y1: fy - 4.5, x2: 22, y2: fy - 4.5 });
+      else put(gk, 'rect', { class: 'fres', x: 6, y: fy - 8, width: 16, height: 7 });
+      const t = lab(gk, 28, fy, '', 'n');
+      put(t, 'tspan', {}, (g.fkind === 's' ? 'Solid fault on feeder 3\'s ' : 'Fault on feeder 3\'s '));
+      put(t, 'tspan', { class: 'f' + (g.fph + 1), 'font-weight': 700 }, PH[g.fph]);
+      if (g.fkind !== 's') put(t, 'tspan', {}, ': ' + g.fname);
+    } else lab(gk, 28, fy, 'No fault on feeder 3', 'n');
+    const ty = KY + 36;
+    put(gk, 'line', { class: 'trace', x1: 6, y1: ty - 4.5, x2: 22, y2: ty - 4.5 });
+    lab(gk, 28, ty, 'Monitor\'s DC current', 'n');
+    put(gk, 'line', { class: 'alarm' + (v.alarmOn ? ' hot' : ''), x1: 186, y1: ty - 4.5, x2: 202, y2: ty - 4.5 });
+    lab(gk, 208, ty, 'Alarm level', 'n');
+
+    const lo = Math.min.apply(null, V), hi = Math.max.apply(null, V), out = V.findIndex((x) => x < 5);
+    const lamps = hi - lo < 3 ? 'all three earth lamps glow equally' : out >= 0 ? PH[out] + '\'s lamp is out and the other two glow brighter'
+      : PH[V.indexOf(lo)] + '\'s lamp is the dimmest and ' + PH[V.indexOf(hi)] + '\'s the brightest';
+    const what = g.fv > 0.5 ? (g.fkind === 's' ? 'A solid fault joins feeder 3\'s ' + PH[g.fph] + ' to the hull. ' : 'A fault joins feeder 3\'s ' + PH[g.fph] + ' to the hull. ') : '';
+    return {
+      v, V, D: v.D, alarmOn: v.alarmOn, settled: v.settled,
+      texts: Array.from(art.querySelectorAll('text')).map((t) => t.textContent),
+      read: { l1: fmtV(V[0]), l2: fmtV(V[1]), l3: fmtV(V[2]), mon: v.settled ? fmtK(reading(S)) + ' kΩ' : 'Settling', alv: fmtK(g.alarm * VLINE / 1000) + ' kΩ' },
+      aria: 'A 440 V insulated board with bars L1, L2 and L3 feeds six feeders. Each feeder leaks to the hull through its insulation' +
+        (g.leak >= 0.5 ? ', lowered equally on every phase by damp. ' : '. ') + what +
+        'Three earth lamps, their Test button held, join the bars to the hull, and ' + lamps + '. The cables\' capacitance joins the bars to the hull too. ' +
+        'An insulation monitor sends a small DC current out through every leak and back along the hull. ' +
+        (!v.settled ? 'Its needle is still creeping while the capacitance charges.' : v.alarmOn ? 'Its needle sits below the alarm line, and its alarm lamp is lit.' : 'Its needle sits above the alarm line, and its alarm lamp is off.'),
+    };
+  }
+
+  // ---------- state ----------
+  function blank() { return { pick: null, res: null, why: false }; }
+  let S2 = STEPS.map(() => blank());
+  let cur = P(STEPS[0].pic), T = Infinity, fx = {}, REC = null;
+  let finished = false, lastStep = -1, lastDone = false, last = {};
+  const viewNow = () => (fx.ks && T < fx.end ? viewAt(fx, Math.max(0, T)) : still(cur));
+
+  function paint() {
+    const v = viewNow();
+    REC = scene(v);
+    Object.keys(outs).forEach((k) => outs[k].set(REC.read[k]));
+    svg.setAttribute('aria-label', REC.aria);
+    // On a demonstration the controls follow the settings as they change.
+    if (fx.demo && fx.ks && T < fx.end && live()) {
+      const S = v.S;
+      phCtl.set(S.ph, true); fCtl.set(S.fault, true); dCtl.set(S.damp, true); aCtl.set(S.alarm, true); cCtl.set(Math.round(v.g.C), true);
+      last = ctlNow();
+    }
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => stepper.get();
+  const live = () => !finished && !!STEPS[at()].show && !!STEPS[at()].ctl;
+  const phCtl = K.choice({ id: 'ph', label: 'Fault on phase', options: PH, value: 'L1', into: '#phctl' });
+  const dCtl = K.toggle({ id: 'damp', label: 'Damp everywhere', value: false, into: '#dctl' });
+  const fCtl = K.choice({ id: 'fault', label: 'Fault on feeder 3', options: FOPTS, value: 'Open', into: '#fctl' });
+  const aCtl = K.choice({ id: 'alarm', label: 'Alarm level', options: ALARMS.map((a) => ({ value: a, label: a + ' Ω/V' })), value: 100, into: '#actl' });
+  const cCtl = K.control({ id: 'C', label: 'Capacitance a phase', min: 1, max: 10, step: 1, value: 1, fmt: (x) => K.fmt(x, { decimals: 0 }) + ' µF', snap: [1, 5, 10], into: '#cctl' });
+  const outs = {
+    l1: K.readout({ id: 'l1', label: 'L1 lamp', into: '#outs' }),
+    l2: K.readout({ id: 'l2', label: 'L2 lamp', into: '#outs' }),
+    l3: K.readout({ id: 'l3', label: 'L3 lamp', into: '#outs' }),
+    mon: K.readout({ id: 'mon', label: 'Monitor reads', into: '#outs' }),
+    alv: K.readout({ id: 'alv', label: 'Alarm level', into: '#outs' }),
+  };
+  const ctlNow = () => ({ ph: phCtl.get(), fault: fCtl.get(), damp: !!dCtl.get(), alarm: +aCtl.get(), C: +cCtl.get() });
+  function syncCtls() {
+    phCtl.set(cur.ph, true); fCtl.set(cur.fault, true); dCtl.set(cur.damp, true); aCtl.set(cur.alarm, true); cCtl.set(cur.C, true);
+    last = ctlNow();
+  }
+  const movedFrom = (p) => p.ph !== last.ph || p.fault !== last.fault || !!p.damp !== last.damp || +p.alarm !== last.alarm || +p.C !== last.C;
+
+  // One animation plays the motion; with reduced motion (and while the self-test looks) it opens finished.
+  // The current's dashes run faster as the monitor's reading falls, and stop soon after the dial settles.
+  const anim = K.anim({ button: false, label: 'The monitor', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    dash += dt * (8 + 30 * (1 - (REC ? REC.D : 0.9)));
+    paint();
+    return T < (fx.end || 0);
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function start(f) {
+    fx = f || {};
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); return; }
+    T = 0; anim.play();
+  }
+  // A move Dan makes: the picture changes in 0.3 s, and the dial then creeps at the rule's pace.
+  function retarget(S) {
+    const now = viewNow();
+    cur = S;
+    start(motion(now, [{ S, at: 0, dur: 0.3 }]));
+  }
+  function setPic(p) { cur = P(p); anim.pause(); T = Infinity; fx = {}; syncCtls(); K.refresh(); }
+
+  // Three answers; Check marks the one chosen, and a right one plays what it says.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S2[i];
+    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S2[i];
+    if (finished || d.show || st.res === 'right') return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = st.pick === d.want ? 'right' : 'wrong';
+    if (st.res !== 'right') return;
+    const now = viewNow();
+    cur = P(d.after);
+    syncCtls();
+    start(motion(d.from ? still(P(d.from)) : now, d.play || [{ S: P(d.after), at: 0, dur: 0.9 }]));
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (finished || STEPS[at()].show) return;
+    const st = S2[at()]; st.why = !st.why;
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S2[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true; anim.pause();
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S2 = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  el('finish').textContent = FINISH;
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S2[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      anim.pause(); T = Infinity; fx = {};
+      cur = P(d.show ? d.pic : st.res === 'right' ? d.after : d.before);
+      syncCtls();
+      // A demonstration screen plays once on opening.
+      if (d.show && d.demo) { start(motion(still(P(d.demo.from)), d.demo.keys)); fx.demo = true; }
+    } else if (movedFrom(p)) {
+      if (live()) {
+        last = { ph: p.ph, fault: p.fault, damp: !!p.damp, alarm: +p.alarm, C: +p.C };
+        retarget(P(last));
+      } else syncCtls();   // off the screens that show them, the controls keep the picture's setting
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    task.textContent = strip(d.show ? d.text : d.task);
+    el('ctls').hidden = !d.show || !d.ctl;
+
+    const opts = d.show ? [] : d.opts;
+    el('picks').hidden = !opts.length;
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    const fb = el('fb');
+    fb.hidden = !!d.show || !st.res;
+    fb.className = 'fb' + (right ? ' right' : '');
+    fb.textContent = d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? (d.hints[st.pick] || 'Not quite.') : st.res === 'empty' ? PICK : '';
+    const why = el('why');
+    why.hidden = !!d.show || !st.why;
+    why.textContent = d.show ? '' : strip(d.why);
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+    paint();
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  function drawn(c) {
+    const keep = [cur, T, fx];
+    cur = P(c); T = Infinity; fx = {};
+    try { paint(); return REC; } finally { cur = keep[0]; T = keep[1]; fx = keep[2]; paint(); }
+  }
+  const has = (r, s) => r.texts.indexOf(s) >= 0;
+  const lampsRead = (r) => [r.read.l1, r.read.l2, r.read.l3].join(', ');
+
+  K.check('Twelve screens: five that show and seven puzzles, alternating to the ninth and ending on three mixed puzzles', () =>
+    STEPS.length === 12 && STEPS.filter((d) => d.show).length === 5 && STEPS.slice(0, 9).every((d, i) => !!d.show === (i % 2 === 0)) && STEPS.slice(9).every((d) => !d.show));
+  K.check('Each line sits 440 ÷ 1.732 = 254 V from the star point; six feeders of 3 MΩ make 500 kΩ, and of 120 kΩ make 20 kΩ', () =>
+    Math.round(VPH) === 254 && rsym(false) === 500 && rsym(true) === 20);
+  K.check('Dry, the dial reads 500, 250, 115, 28.3, 0.998 and 0 kΩ with no fault and with a 500, 150, 30 or 1 kΩ or a solid fault', () =>
+    FOPTS.map((f) => drawn(P({ fault: f })).read.mon).join('|') === ['500 kΩ', '250 kΩ', '115 kΩ', '28.3 kΩ', '0.998 kΩ', '0 kΩ'].join('|'));
+  K.check('Lamps cannot see an equal fall on every phase: with Damp everywhere and no fault, all three lamps read 254 V while the dial reads 20 kΩ, below all three alarm levels', () => {
+    const r = drawn(P({ damp: true }));
+    return lampsRead(r) === '254 V, 254 V, 254 V' && r.read.mon === '20 kΩ' && ALARMS.every((a) => drawn(P({ damp: true, alarm: a })).alarmOn);
+  });
+  K.check('A solid fault puts out its own phase\'s lamp and lifts the other two to 440 V, on every phase, damp or dry', () =>
+    PH.every((ph, k) => [false, true].every((damp) => {
+      const r = drawn(P({ fault: 'Solid', ph, damp }));
+      return [r.read.l1, r.read.l2, r.read.l3].every((s, j) => s === (j === k ? '0 V' : '440 V'));
+    })));
+  K.check('At 1 µF a phase, a 30 kΩ fault on L1 gives lamps of 254, 248 and 261 V; a 1 kΩ fault gives 190, 256 and 420 V', () =>
+    lampsRead(drawn(P({ fault: '30 kΩ' }))) === '254 V, 248 V, 261 V' && lampsRead(drawn(P({ fault: '1 kΩ' }))) === '190 V, 256 V, 420 V');
+  K.check('Three phases of 1 µF at 60 Hz look like 1 ÷ (2π × 60 × 3 µF) = 884 Ω to the hull, far less than a 30 kΩ fault', () =>
+    Math.round(1 / (W * 3e-6)) === 884);
+  K.check('At DC the capacitance drops out: the settled reading is 28.3 kΩ for a 30 kΩ fault at every capacitance from 1 to 10 µF', () =>
+    K.linspace(1, 10, 10).every((C) => drawn(P({ fault: '30 kΩ', C })).read.mon === '28.3 kΩ'));
+  K.check('Ships\' mains alarm should the insulation resistance fall below 50 ohms per volt of the operating voltage: 22 kΩ on 440 V, so 1 kΩ alarms and 30 kΩ does not', () =>
+    drawn(P({ alarm: 50 })).read.alv === '22 kΩ' && drawn(P({ alarm: 50, fault: '1 kΩ' })).alarmOn && !drawn(P({ alarm: 50, fault: '30 kΩ' })).alarmOn, { source: SRC.gl });
+  K.check('The response value should be set to approx. 100 Ω/V: 44 kΩ on 440 V', () => drawn(P({ alarm: 100 })).read.alv === '44 kΩ', { source: SRC.maker });
+  K.check('A typical critical insulation value is 500 ohms/volt: 220 kΩ on 440 V', () => drawn(P({ alarm: 500 })).read.alv === '220 kΩ', { source: SRC.white });
+  K.check('A 28.3 kΩ reading alarms at 100 and 500 Ω/V but not at 50 Ω/V; a 115 kΩ reading alarms only at 500 Ω/V', () =>
+    ALARMS.map((a) => drawn(P({ fault: '30 kΩ', alarm: a })).alarmOn).join() === 'false,true,true' &&
+    ALARMS.map((a) => drawn(P({ fault: '150 kΩ', alarm: a })).alarmOn).join() === 'false,false,true');
+  K.check('Paths in parallel read below the lowest one: every fault, damp or dry, reads below both the fault and the feeders together', () =>
+    FOPTS.filter((f) => FAULTS[f] > 0 && isFinite(FAULTS[f])).every((f) => [false, true].every((damp) => reading(P({ fault: f, damp })) < Math.min(FAULTS[f], rsym(damp)))));
+  K.check('Worked numbers: 500 + 150 = 650 kΩ; 50 ÷ 0.1 = 500; feeders of 2,000, 2,000, 1,000 and 40 kΩ read 37 kΩ together', () =>
+    500 + 150 === 650 && Math.round(50 / 0.1) === 500 && Math.round(1 / (1 / 2000 + 1 / 2000 + 1 / 1000 + 1 / 40)) === 37);
+  K.check('The dial settles in five time constants, in proportion to the capacitance: 5 µF a phase takes five times as long as 1 µF', () => {
+    const m1 = motion(still(P()), [{ S: P({ damp: true }), at: 0, dur: 0.3 }]), m5 = motion(still(P({ C: 5 })), [{ S: P({ damp: true, C: 5 }), at: 0, dur: 0.3 }]);
+    return K.near(m1.until, 5 * TAU1, 1e-9) && K.near(m5.until / m1.until, 5, 1e-9) && viewAt(m5, m5.end).settled && !viewAt(m5, m5.until / 2).settled;
+  });
+  K.check('Switching on Damp everywhere: the lamps stay equal at 254 V all the way, while the dial falls below its alarm line within 3 s', () => {
+    const d = STEPS[2].demo, m = motion(still(P(d.from)), d.keys);
+    let equal = true, below = Infinity;
+    for (let t = 0; t <= m.end + 1e-9; t += 0.05) {
+      const v = viewAt(m, t);
+      if (lampsOf(v.g.H).some((x) => Math.abs(x - VPH) > 0.5)) equal = false;
+      if (below === Infinity && v.D < v.g.ap) below = t;
+    }
+    const fin = viewAt(m, m.end);
+    return equal && below <= 3 && fin.settled && fin.alarmOn && fmtK(reading(fin.S)) === '20';
+  });
+  K.check('Screen 5 settles the dial once at 1 µF, then five times as slowly at 5 µF, and everything settles within 5 s', () => {
+    const d = STEPS[4].demo, m = motion(still(P(d.from)), d.keys), fin = viewAt(m, m.end), mid = viewAt(m, 0.95);
+    return m.end <= 5 && mid.settled && fmtK(reading(mid.S)) === '20' && fin.settled && fmtK(reading(fin.S)) === '500' && K.near(fin.g.C, 5, 1e-9) && !viewAt(m, 3).settled;
+  });
+  K.check('A move Dan makes changes the picture in 0.3 s, and at 1 µF the dial settles within 0.6 s', () => {
+    const m = motion(still(P()), [{ S: P({ fault: '30 kΩ', ph: 'L3' }), at: 0, dur: 0.3 }]);
+    return m.geo <= 0.3 && m.until <= 0.6 && fmtK(reading(viewAt(m, m.end).S)) === '28.3';
+  });
+  K.check('Before an answer, no puzzle\'s picture shows its result', () => {
+    const b = (i) => drawn(STEPS[i].before), a = (i) => drawn(STEPS[i].after);
+    return lampsRead(b(1)) === '254 V, 254 V, 254 V' && lampsRead(a(1)) === '440 V, 0 V, 440 V' &&
+      b(3).read.mon === '500 kΩ' && a(3).read.mon === '20 kΩ' && lampsRead(a(3)) === '254 V, 254 V, 254 V' &&
+      b(5).read.mon === '500 kΩ' && drawn(STEPS[5].from).read.mon === 'Settling' && a(5).read.mon === '500 kΩ' &&
+      b(7).read.mon === '500 kΩ' && a(7).read.mon === '115 kΩ' &&
+      b(9).read.mon === '500 kΩ' && !b(9).alarmOn && a(9).read.mon === '28.3 kΩ' && a(9).alarmOn &&
+      has(b(11), '1 µF') && has(a(11), '2 µF');
+  });
+  K.check('The right answer sits first, second or third across the puzzles, never in one place throughout', () =>
+    new Set(STEPS.filter((d) => !d.show).map((d) => d.opts.indexOf(d.want))).size === 3 && STEPS.filter((d) => !d.show).every((d) => d.opts.indexOf(d.want) >= 0));
+
+  K.ready();
+</script>

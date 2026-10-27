@@ -1,0 +1,463 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-27T17:07:55.171Z",
+ "startedAt": "2026-10-27T17:07:55.171Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i4",
+  "title": "The second fault",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is a red loop through both feeders and the hull, carrying 440 ÷ (Z1 + Z2), when you drop a second fault on a different phase, but none on the same phase.",
+   "title": "Two faults through the hull",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Screen",
+     "min": 0,
+     "max": 11,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [],
+   "whatAmILookingAt": "Twelve small screens share one picture, with Back and Continue. Five show an idea and seven ask you to try it. There are no marks and no timers.\n\nThe picture. A switchboard sits at the top with three bars, L1, L2 and L3. Two feeders leave it, each through its own breaker. Feeder 1 runs down to motor 1 on the left, and feeder 2 to motor 2 on the right. Each feeder carries L1, L2 and L3 and a protective conductor bonded to its motor's frame. Under both motors runs a thick bar, the hull, which is earth, and both frames are bonded to it. A first fault already joins feeder 1's L1 to motor 1's frame, and an alarm lamp on the board is lit. So the hull's label says it is now at L1. Beside each breaker a bar fills with the current through it, with a mark at its instant trip. A short leader joins each bar's name to its breaker.\n\nThe controls sit under the picture, in a row that wraps on a phone. A phase picker has three buttons: L1, L2 and L3. A button, Drop second fault, reads Clear once pressed. Two sliders, Feeder 1 loop and Feeder 2 loop, each run from 0.2 to 1.6 Ω in steps of 0.1 Ω. The second fault always lands on feeder 2, joining the chosen phase to motor 2's frame.\n\nThe readouts sit in tiles that wrap onto more rows on a phone. They show Voltage round the loop in volts, Loop impedance in ohms, and Second-fault current in amps.\n\nThe rule it computes. Say the supply is 440 V between lines. Then each line is 440 ÷ 1.732 = 254 V from the star point. With the first fault solid, the hull sits at L1's voltage, as in the shifting triangle. The second fault joins the chosen phase to the hull. So the voltage round the loop is the voltage between that phase and L1. That is 0 V for L1, and 440 V for L2 or L3. Z1 is feeder 1's loop, its L1 conductor out and its protective conductor back. Z2 is feeder 2's loop, the chosen phase out and its protective conductor back. The current runs through both, one after the other, so Loop impedance = Z1 + Z2. Second-fault current = Voltage round the loop ÷ (Z1 + Z2). When it is not zero, the loop is drawn as a red band with dashes running round it. The readouts show the settled current as soon as the loop lights. It runs from the board along feeder 2's chosen phase, through the second fault onto motor 2's frame. It comes back by the protective conductors and the hull to motor 1's frame. Then it crosses the first fault and runs back along feeder 1's L1 to the board. Both breakers carry the same current. Say each breaker trips instantly at 400 A or more, an example setting. Past 400 A a breaker's mark turns red and reads Trips instantly. Below it, the mark reads No instant trip.\n\nAt the opening setting there is no second fault, and both loops are 0.4 Ω. With the second fault on L1, the readouts show 0 V and 0 A. On L2 or L3 with both loops at 0.4 Ω, they show 440 V, 0.8 Ω and 550 A, past both trips. Loops of 0.4 Ω and 0.6 Ω give 1.0 Ω and 440 A. Loops of 0.4 Ω and 1.0 Ω give 1.4 Ω and 314 A, with no instant trip. At the low end of the sliders, 0.2 Ω each gives 1,100 A. At the high end, 1.6 Ω each gives 3.2 Ω and 138 A.\n\nScreen 1, show. No second fault, both loops 0.4 Ω. The words: \"Here is a 440 V insulated board with two feeders. A first fault already joins feeder 1's L1 to the hull. The alarm is lit. Nothing has tripped and both motors run. As in the shifting triangle, the hull has moved to L1. So L2 and L3 now sit 440 V from the hull, on every circuit. Only their insulation holds them off it.\" Still: no second fault, both loops 0.4 Ω.\n\nScreen 2, try it. \"Leave this board for a moment. On an earthed 254 V supply, a circuit's Zs is 0.4 Ω. What current flows in a solid earth fault?\" Three choices, in this order: \"635 A\"; \"About 102 A\"; \"1,100 A\". Right, the first. Hint for the second: \"That is 254 × 0.4. The current is the voltage divided by the impedance.\" Hint for the third: \"That uses 440 V. On an earthed supply, the 254 V from line to earth drives an earth fault.\" Why: \"I = U0 ÷ Zs = 254 ÷ 0.4 = 635 A, on that earthed supply. Feeder 1 on this insulated board has the same 0.4 Ω loop. The same rule will size its second fault.\" A right Check labels feeder 1's loop 0.4 Ω. Read: \"Leave this board for a moment. On an earthed 254 V supply, a circuit's Zs is 0.4 Ω. What current flows in a solid earth fault?\"\n\nScreen 3, show. The second fault dropped on L1. The words: \"Drop a second fault on feeder 2, on the same phase, L1. Both faults now join L1 to the hull. But the hull already sits at L1's voltage. So the new fault has no voltage across it. The loop is there, 0.8 Ω, but nothing drives it. With L1 chosen, the readouts show 0 V and 0 A. Nothing trips, and the alarm stays lit.\" Read: \"With feeder 1's L1 already faulted, a second fault on feeder 2's L1 has no voltage across it. Nothing flows and nothing trips.\" Still: second fault on L1.\n\nScreen 4, try it. \"Feeder 1's L1 is already faulted to the hull. Which second fault on feeder 2 trips nothing?\" Three choices, in this order: \"One on L1\"; \"One on L2\"; \"One on L3\". Right, the first. Hint for the second: \"L2 now sits 440 V from the hull. A fault there puts 440 V round a loop.\" Hint for the third: \"L3 now sits 440 V from the hull. A fault there puts 440 V round a loop.\" Why: \"The hull already sits at L1. A second join from L1 to the hull has no voltage across it, so it drives no loop.[^1] It still needs finding and clearing.\" A right Check drops the second fault on L1. Read: \"Feeder 1's L1 is already faulted to the hull. Which second fault on feeder 2 trips nothing?\"\n\nScreen 5, show. The second fault on L2, both loops 0.4 Ω. The words: \"Now pick L2 and drop the fault. L2 is joined to the hull, and the hull sits at L1. So the hull bridges L1 and L2, with 440 V between them. A red loop lights. It runs out along feeder 2's L2 and through its fault onto the frame. It returns by the protective conductors and the hull to feeder 1's fault, then along feeder 1's L1. It is a short between phases, through the hull.[^1]\" Read: \"With feeder 1's L1 faulted, a second fault on feeder 2's L2 puts 440 V round a loop. The loop runs through both feeders and the hull. It is a short between phases, through the hull.\" Still: second fault on L2, both loops 0.4 Ω.\n\nScreen 6, try it. \"Feeder 1's L1 and feeder 2's L2 are both faulted to the hull. What voltage drives the loop?\" Three choices, in this order: \"440 V, the line voltage\"; \"254 V, as in an earth fault\"; \"880 V, 440 V for each fault\". Right, the first. Hint for the second: \"254 V drives an earth fault on an earthed supply. Here the loop joins L1 to L2.\" Hint for the third: \"Both faults sit in one loop. One voltage drives it, the one between L1 and L2.\" Why: \"The hull sits at L1, and the second fault joins L2 to it. So the loop sees the voltage between L1 and L2. That is the line voltage, 440 V.\" A right Check lights the Voltage round the loop tile at 440 V. Read: \"Feeder 1's L1 and feeder 2's L2 are both faulted to the hull. What voltage drives the loop?\"\n\nScreen 7, show. The second fault on L2, both loops 0.4 Ω. The words: \"The current runs through both circuits, one after the other. Feeder 2's loop is its L2 out and its protective conductor back. Feeder 1's is its L1 and its protective conductor. So the loop impedance is Z1 + Z2. When the circuits match, that is double one circuit's loop impedance.[^2] With 0.4 Ω each, 440 ÷ 0.8 = 550 A. Say each breaker trips instantly at 400 A. Both carry the 550 A, past each trip mark.\" Still: second fault on L2, both loops 0.4 Ω.\n\nScreen 8, try it. \"Feeder 1's loop is 0.4 Ω and feeder 2's is 0.6 Ω. A second fault strikes feeder 2's L3. What current flows?\" Three choices, in this order: \"440 A\"; \"1,100 A\"; \"254 A\". Right, the first. Hint for the second: \"That uses feeder 1's loop alone. The current runs round both loops.\" Hint for the third: \"That uses 254 V. The 440 V between L1 and L3 drives this loop.\" Why: \"The loop runs through both circuits, so it is 0.4 + 0.6 = 1.0 Ω. The current is 440 ÷ 1.0 = 440 A.\" A right Check sets feeder 2's loop to 0.6 Ω and drops the second fault on L3. Read: \"Feeder 1's loop is 0.4 Ω and feeder 2's is 0.6 Ω. A second fault strikes feeder 2's L3. What current flows?\"\n\nScreen 9, show. The second fault on L2, the Feeder 2 loop slider moving from 0.4 to 1.0 Ω. The words: \"Now drag feeder 2's loop up to 1.0 Ω, as on a long run. The loop is now 1.4 Ω, so 440 ÷ 1.4 = 314 A. That is below the 400 A instant trip. So the short lasts until a slower trip acts. It heats the cables while it runs. The two circuits with the highest loops give the smallest current. A design check uses that pair.\" Read: \"With feeder 2's loop at 1.0 Ω, the loop is 1.4 Ω and the current is 314 A. That is below the 400 A instant trip, so the short lasts until a slower trip acts. It heats the cables while it runs. A design check uses the pair of circuits with the highest loops.\" Still: second fault on L2, feeder 2's loop 1.0 Ω.\n\nScreen 10, try it, the first of three mixed puzzles. \"The alarm has shown a first fault on L1 for a week. Nothing has tripped and every motor runs. What is the risk now?\" Three choices, in this order: \"One failure on L2 or L3, anywhere, makes a short through the hull\"; \"Little, as the first fault passes only a small current\"; \"None until the first fault itself gets worse\". Right, the first. Hint for the second: \"Its current is small. The danger is the 440 V that L2 and L3 now hold to the hull.\" Hint for the third: \"The first fault can stay just as it is. A second fault elsewhere makes the short.\" Why: \"L2 and L3 have held line voltage to the hull all week, on every circuit. One insulation failure on either joins it to L1 through the hull. So a first fault should be cleared with the shortest practicable delay.[^3]\" A right Check drops the second fault on L3. Read: \"The alarm has shown a first fault on L1 for a week. Nothing has tripped and every motor runs. What is the risk now?\"\n\nScreen 11, try it. \"Two circuits each have a 0.4 Ω loop. On an earthed 254 V supply, one of them passes 635 A in an earth fault. On the insulated 440 V board, what does a second fault through both pass?\" Three choices, in this order: \"550 A, a little less\"; \"1,100 A, as 440 V drives it\"; \"1,270 A, twice as much\". Right, the first. Hint for the second: \"440 V is right. But the loop runs through both circuits, so it is 0.8 Ω.\" Hint for the third: \"The voltage rises 1.73 times, not 2 times. And the loop impedance doubles.\" Why: \"440 ÷ 0.8 = 550 A. The voltage is 1.73 times higher, but the loop impedance is doubled.[^2] So the current is about 0.87 times the earthed figure.\" A right Check sets both loops to 0.4 Ω with the second fault on L2. Read: \"Two circuits each have a 0.4 Ω loop. On an earthed 254 V supply, one of them passes 635 A in an earth fault. On the insulated 440 V board, what does a second fault through both pass?\"\n\nScreen 12, try it. \"Both loops are 0.4 Ω, and each breaker trips instantly at 400 A. A second fault strikes feeder 2's L3. Which motors can stop?\" Three choices, in this order: \"Either or both, as both breakers carry 550 A\"; \"Only motor 2, as its fault is the new one\"; \"Only motor 1, as its fault came first\". Right, the first. Hint for the second: \"Follow the red loop. It runs through feeder 1's breaker too.\" Hint for the third: \"Follow the red loop. It runs through feeder 2's breaker too.\" Why: \"One current runs round the whole loop, so both breakers carry 550 A. Whichever opens first clears the short, and both may open. So a second fault can stop two circuits, including the one with the first fault.\" A right Check drops the second fault on L3 and turns both trip marks red. Read: \"Both loops are 0.4 Ω, and each breaker trips instantly at 400 A. A second fault strikes feeder 2's L3. Which motors can stop?\"\n\nEvery figure on these screens is an example value or worked from the rule above.",
+   "ignores": "The picture draws both faults as solid joins. Real faults often have some resistance, which lowers the current. It leaves the hull out of the sum. The hull runs in parallel with the protective conductors, so it can only raise the real current above the readout. It leaves out the supply's own impedance and the first fault's small charging current through the cables' capacitance. With both faults on L1 it shows 0 A. In fact a little load current can share between the two joins. Each breaker is reduced to one instant-trip setting, 400 A, an example. A real breaker trips along a curve of time against current. The voltages and currents are r.m.s. values.",
+   "numbers": [
+    {
+     "label": "Screen, 1 to 12 (the stepper)",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Number of screens",
+     "value": 12,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example line voltage of the supply, in volts",
+     "value": 440,
+     "kind": "assumed"
+    },
+    {
+     "label": "Square root of 3, to three decimal places",
+     "value": 1.732,
+     "kind": "constant"
+    },
+    {
+     "label": "Voltage of each line to the star point, 440 ÷ 1.732, in volts",
+     "value": 254,
+     "kind": "computed"
+    },
+    {
+     "label": "Voltage round the loop, second fault on L1, in volts",
+     "value": 0,
+     "kind": "computed"
+    },
+    {
+     "label": "Second-fault current, second fault on L1, in amps",
+     "value": 0,
+     "kind": "computed"
+    },
+    {
+     "label": "Loop slider opening value, each feeder, in ohms",
+     "value": 0.4,
+     "kind": "control"
+    },
+    {
+     "label": "Loop slider range, in ohms",
+     "value": "0.2 to 1.6, steps of 0.1",
+     "kind": "control"
+    },
+    {
+     "label": "Example instant trip of each breaker, in amps",
+     "value": 400,
+     "kind": "assumed"
+    },
+    {
+     "label": "Recall: earth fault on earthed 254 V, Zs 0.4 Ω, in amps",
+     "value": 635,
+     "kind": "computed"
+    },
+    {
+     "label": "Wrong answer on screen 2: 254 × 0.4, in amps",
+     "value": 102,
+     "kind": "computed"
+    },
+    {
+     "label": "440 ÷ 0.4, in amps",
+     "value": 1100,
+     "kind": "computed"
+    },
+    {
+     "label": "Loop impedance, both loops 0.4 Ω, in ohms",
+     "value": 0.8,
+     "kind": "computed"
+    },
+    {
+     "label": "Second-fault current, both loops 0.4 Ω, in amps",
+     "value": 550,
+     "kind": "computed"
+    },
+    {
+     "label": "Wrong answer on screen 6: twice 440 V, in volts",
+     "value": 880,
+     "kind": "computed"
+    },
+    {
+     "label": "Feeder 2 loop on screen 8, in ohms",
+     "value": 0.6,
+     "kind": "control"
+    },
+    {
+     "label": "Loop impedance, 0.4 and 0.6 Ω, in ohms",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Second-fault current, 0.4 and 0.6 Ω, in amps",
+     "value": 440,
+     "kind": "computed"
+    },
+    {
+     "label": "Feeder 2 loop on screen 9, a long run, in ohms",
+     "value": 1,
+     "kind": "control"
+    },
+    {
+     "label": "Loop impedance, 0.4 and 1.0 Ω, in ohms",
+     "value": 1.4,
+     "kind": "computed"
+    },
+    {
+     "label": "Second-fault current, 0.4 and 1.0 Ω, in amps",
+     "value": 314,
+     "kind": "computed"
+    },
+    {
+     "label": "Second-fault current, both loops 0.2 Ω, in amps",
+     "value": 1100,
+     "kind": "computed"
+    },
+    {
+     "label": "Loop impedance, both loops 1.6 Ω, in ohms",
+     "value": 3.2,
+     "kind": "computed"
+    },
+    {
+     "label": "Second-fault current, both loops 1.6 Ω, in amps",
+     "value": 138,
+     "kind": "computed"
+    },
+    {
+     "label": "Wrong answer on screen 11: twice 635 A, in amps",
+     "value": 1270,
+     "kind": "computed"
+    },
+    {
+     "label": "Rise in driving voltage, 440 ÷ 254",
+     "value": 1.73,
+     "kind": "computed"
+    },
+    {
+     "label": "Second-fault current over earthed earth-fault current, 550 ÷ 635",
+     "value": 0.87,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example: feeder A loop, in ohms",
+     "value": 0.25,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example: feeder B loop, in ohms",
+     "value": 0.35,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example: loop impedance, in ohms",
+     "value": 0.6,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example: second-fault current, in amps",
+     "value": 733,
+     "kind": "computed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "A first earth fault on an insulated supply should trip nothing. A [[second fault]] on a different phase is meant to. It joins two phases through the hull, so it is a short between phases.[^1] The line voltage drives it round both circuits' loops, one after the other. A second fault on the same phase as the first drives next to nothing.\n\nStart with a solid first fault on L1 of feeder 1. As in the shifting triangle, the hull moves to L1. L2 and L3 now sit 440 V from the hull, on every circuit. Now a second fault joins L2 of feeder 2 to the hull. The hull already sits at L1, so it now bridges L1 and L2. That puts the full 440 V across a loop. The current leaves the board on feeder 2's L2 and crosses the fault onto motor 2's frame. It returns by the protective conductors and the hull to feeder 1's fault. Then it runs back to the board on feeder 1's L1. If the second fault lands on L1 instead, both faults join L1 to the hull. The hull is already at L1, so almost no voltage drives a loop. Nothing trips.\n\nEach circuit's loop is its phase conductor out and its protective conductor back. Call them Z1 and Z2. The hull runs in parallel with the protective conductors, so it can only lower the loop. Counting only the cable loops errs on the safe side for the trip check. The second fault's current runs through both, so the loop impedance is Z1 + Z2. The current is 440 ÷ (Z1 + Z2). Where the two circuits match, that is double one circuit's loop impedance. Doubling it is the usual way to check a second fault.[^2] Say each loop is 0.4 Ω. The current is 440 ÷ 0.8 = 550 A. On an earthed 254 V supply, the same circuit would pass 254 ÷ 0.4 = 635 A. The voltage is 1.73 times higher, but the impedance is doubled. So the current is a little smaller. A long feeder cuts it further. With loops of 0.4 Ω and 1.0 Ω it is 314 A. A breaker set to trip instantly at 400 A will not trip instantly. Both breakers carry the same current. Either or both may trip, so two circuits can stop.\n\nSo a first fault cannot safely be left. While it stays, L2 and L3 hold line voltage to the hull on every circuit. One insulation failure on either makes the short. A first fault should be cleared with the shortest practicable delay.[^3] This is a simplified model. It treats the faults as solid and counts only the cable loops. Real faults often have some resistance and pass less. **A second fault on another phase shorts two phases through the hull. Line voltage drives it round both circuits' loops.**"
+  },
+  "analogy": {
+   "text": "Picture a car battery on a steel bench, with a jump lead on each terminal. Lay the red lead's clamp on the bench and nothing happens. Clip a second red lead to the positive and lay its clamp there too. Still nothing. Lay the black clamp on the bench and the bench shorts the battery, through the red and black leads. Only picture it. A real short like this can weld, burn and burst the battery.",
+   "breaks": "A battery on a bench is truly floating. An AC insulated supply is joined to the hull through its cables' capacitance. So its first fault already passes a small current. Thick jump leads let the battery's short run huge. A ship's cable loops can hold a second fault's current below a breaker's instant trip."
+  },
+  "practice": {
+   "text": "- Safety first: treat a first-fault alarm as urgent. Find and clear it with the shortest practicable delay.[^3]\n- Until it is cleared, the two healthy phases on every circuit hold line voltage to the hull. One insulation failure on either makes a short through the hull.\n- To check that a second fault will clear, take two circuits' loop impedances. Each is the phase conductor out and the protective conductor back.\n- Add them.\n- Divide the line voltage by the sum. If the board also runs out a neutral, use the phase voltage. A fault on the neutral gives the smallest current.\n- Compare the current with each breaker's instant trip.\n- BS 7671 sets the second-fault rule in Regulation 411.6.4. Look it up there for a real check.[^4]\n- Check the two circuits with the highest loop impedances together. They give the smallest current.\n- A second fault on the same phase as the first usually trips nothing. Find it anyway. It stays when the first is cleared.\n\n**Rule of thumb:** Take two matching circuits. A second fault passes about 0.87 times one circuit's earth-fault current on an earthed supply. That compares an insulated board with no neutral against an earthed board of the same line voltage.\n\n**Worked example:** Two feeders on a 440 V three-wire insulated board have loops of 0.25 Ω and 0.35 Ω. Together that is 0.6 Ω. A second fault through both passes 440 ÷ 0.6 = 733 A. Each breaker trips instantly at 400 A, so the short clears at once.\n\n**Common mistakes**\n- Using one circuit's loop impedance. The current runs round both.\n- Using the phase voltage on a three-wire board. The line voltage drives the loop.\n- Expecting only the new fault's breaker to trip. Both breakers carry the current.\n- Leaving a first fault because nothing tripped. A first fault is not meant to trip anything. The second one is the short."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "IT system - Fault protection - Electrical Installation Guide",
+    "url": "https://www.electrical-installation.org/enwiki/IT_system_-_Fault_protection",
+    "quote": "The second fault results in a short-circuit between active conductors (phases or neutral) through the earth and/or through PE bonding conductors (unless occurring on the same conductor as the first fault)."
+   },
+   {
+    "n": 2,
+    "title": "IT system - Fault protection - Electrical Installation Guide",
+    "url": "https://www.electrical-installation.org/enwiki/IT_system_-_Fault_protection",
+    "quote": "it is conventional to double the loop impedance of a circuit"
+   },
+   {
+    "n": 3,
+    "title": "IEC 60364-4-41:2005+AMD1:2017, Protection against electric shock",
+    "url": "https://cdn.standards.iteh.ai/samples/22593/faab23b5c332418984d5b3c627cbd1b0/IEC-60364-4-41-2005-AMD1-2017.pdf",
+    "quote": "It is recommended that a first fault be eliminated with the shortest practicable delay."
+   },
+   {
+    "n": 4,
+    "title": "Wiring Matters - your insight into BS 7671",
+    "url": "https://electrical.theiet.org/media/1469/railway-systems_tm-granger.pdf",
+    "quote": "should a second fault occur on the opposite phase to the first fault there is potential for significant current to flow and, consequently, BS 7671 has requirements for protection against electric shock similar to TN systems; these conditions are covered in Regulation 411.6.4 of BS 7671."
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: mechanism -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .caption { max-width: 32rem; margin-inline: auto; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.15rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.05rem; font-weight: 400; line-height: 1.6; }\n  .scene { display: block; width: 100%; max-width: 32rem; margin-inline: auto; }\n  .scene .c1 { stroke: var(--k-cat1); } .scene .c2 { stroke: var(--k-cat2); } .scene .c3 { stroke: var(--k-cat3); } .scene .ci { stroke: var(--k-ink); }\n  .scene .f1 { fill: var(--k-cat1); } .scene .f2 { fill: var(--k-cat2); } .scene .f3 { fill: var(--k-cat3); } .scene .fi { fill: var(--k-ink); } .scene .fw { fill: var(--k-warn); }\n  .scene .bus { stroke-width: 3; stroke-linecap: round; }\n  .scene .ln { stroke-width: 2; fill: none; }\n  .scene .pe { stroke: var(--k-ink); stroke-width: 1.6; fill: none; }\n  .scene .card { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }\n  .scene .brk { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }\n  .scene .frame { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 2.5; }\n  .scene .wind { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.5; }\n  .scene .hull { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.2; }\n  .scene .bond { stroke: var(--k-ink); stroke-width: 2; }\n  .scene .fault { fill: var(--k-warn); stroke: var(--k-bg); stroke-width: 1.5; }\n  .scene .glow { stroke: var(--k-warn); stroke-opacity: 0.4; stroke-width: 9; fill: none; stroke-linecap: round; stroke-linejoin: round; }\n  .scene .flow { stroke: var(--k-ink); stroke-width: 1.8; fill: none; stroke-dasharray: 3 7; stroke-linecap: round; }\n  .scene .lamp { fill: var(--k-fill2); stroke: var(--k-amber-line); stroke-width: 1.5; }\n  .scene .ray { stroke: var(--k-amber-line); stroke-width: 1.5; stroke-linecap: round; }\n  .scene .track { fill: var(--k-sunk); stroke: var(--k-line); stroke-width: 1; }\n  .scene .fillbar { fill: var(--k-accent2); }\n  .scene .mark { stroke: var(--k-ink); stroke-width: 2; }\n  .scene .mark.hot { stroke: var(--k-warn); stroke-width: 2.5; }\n  .scene .leader, .scene .brace { stroke: var(--k-muted); stroke-width: 1.3; fill: none; }\n  .scene .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }\n  .scene .lab.n { font-weight: 400; }\n  .scene .lab.m { font-weight: 400; fill: var(--k-muted); }\n  .scene .lab.s { font-size: 12px; }\n  .scene .lab.hot { font-weight: 700; fill: var(--k-warn); }\n  #ctls > * + * { margin-top: 10px; }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; min-height: 44px; }\n  #prow { align-items: flex-end; }\n  #pctl { flex: 1 1 11rem; min-width: 0; }\n  #prow .k-btn { flex: 1 1 9rem; }\n  #zctl > * + * { margin-top: 8px; }\n  /* Three readout tiles: as many to a row as fit, two on a phone. */\n  #outs { display: grid; grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr)); gap: 10px; }\n  /* The answers are sentences: one to a row, wrapping inside the button. */\n  .picks { display: flex; flex-direction: column; gap: 8px; }\n  .picks .k-btn { width: 100%; min-height: 48px; white-space: normal; text-align: left; justify-content: flex-start; line-height: 1.4; padding: 10px 14px; }\n  .picks .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  .fb { font-weight: 700; min-height: 1.5em; }\n  .fb.right { color: var(--k-good); }\n  .why, .done { line-height: 1.6; }\n  .done strong { color: var(--k-accent2); }\n  .done .row { margin-top: 14px; }\n  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }\n</style>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <svg class=\"scene\" id=\"scene\" viewBox=\"0 0 340 358\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"art\"></g></svg>\n    <div id=\"ctls\">\n      <div class=\"row\" id=\"prow\"><div id=\"pctl\"></div></div>\n      <div id=\"zctl\"></div>\n    </div>\n    <div id=\"outs\"></div>\n    <div class=\"picks\" id=\"picks\"></div>\n    <div class=\"row\" id=\"acts\"></div>\n    <p class=\"fb\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p><strong id=\"finish\"></strong></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\">Example values: a 440 V board, and breakers that trip instantly at 400 A.</p>\n\n<script>\n  // ---------- the rule ----------\n  // 440 V between lines, so each line is 440 ÷ 1.732 = 254 V from the star point. A solid first fault puts\n  // the hull at L1. A second fault joins the chosen phase to the hull, so the voltage round the loop is the\n  // voltage between that phase and L1: 0 V for L1, 440 V for L2 or L3. The current runs through feeder 1's\n  // loop (Z1) and feeder 2's loop (Z2), one after the other: current = voltage ÷ (Z1 + Z2).\n  const VLINE = 440, ROOT3 = 1.732, TRIP = 400, FULL = 1100;\n  const VPH = Math.round(VLINE / ROOT3);\n  const PH = ['L1', 'L2', 'L3'];\n  const tenths = (z) => Math.round(z * 10);\n  const loopV = (ph) => (ph === 'L1' ? 0 : VLINE);\n  // Worked in tenths of an ohm, so 3.2 Ω gives exactly 137.5 A, which shows as 138 A.\n  const loopI = (ph, z1, z2) => loopV(ph) * 10 / (tenths(z1) + tenths(z2));\n  const tripsAt = (I) => I >= TRIP - 1e-9;\n  const fz = (z) => K.fmt(z, { decimals: 1 }) + ' Ω';\n  const sumText = (z1, z2) => fz((tenths(z1) + tenths(z2)) / 10);\n  const ampText = (I) => K.fmt(Math.round(I), { decimals: 0 }) + ' A';\n\n  // ---------- the lesson: SHOW screens demonstrate, DO screens are puzzles ----------\n  // A picture: drop (a second fault is in), ph (its phase, on feeder 2), z1 and z2 (the two loops), zl1 and\n  // zl2 (each loop labelled on the picture) and q (the voltage and current wait for the answer).\n  const P = (o) => Object.assign({ drop: false, ph: 'L2', z1: 0.4, z2: 0.4, zl1: false, zl2: false, q: false }, o || {});\n  const strip = (s) => s.replace(/\\[\\^\\d+\\]/g, '');\n  const BOTH = { zl1: true, zl2: true };\n  const STEPS = [\n    { show: true, name: 'One fault already there', pic: P(),\n      text: `Here is a 440 V insulated board with two feeders. A first fault already joins feeder 1's L1 to the hull. The alarm is lit. Nothing has tripped and both motors run. As in the shifting triangle, the hull has moved to L1. So L2 and L3 now sit 440 V from the hull, on every circuit. Only their insulation holds them off it.` },\n    { kind: 'pick', name: 'An earth fault, earthed', before: P(), after: P({ zl1: true }),\n      task: `Leave this board for a moment. On an earthed 254 V supply, a circuit's Zs is 0.4 Ω. What current flows in a solid earth fault?`,\n      opts: ['635 A', 'About 102 A', '1,100 A'], want: '635 A',\n      hints: { 'About 102 A': `That is 254 × 0.4. The current is the voltage divided by the impedance.`,\n        '1,100 A': `That uses 440 V. On an earthed supply, the 254 V from line to earth drives an earth fault.` },\n      why: `I = U0 ÷ Zs = 254 ÷ 0.4 = 635 A, on that earthed supply. Feeder 1 on this insulated board has the same 0.4 Ω loop. The same rule will size its second fault.` },\n    { show: true, name: 'The same phase', pic: P({ drop: true, ph: 'L1' }), ctl: true, demo: P({ ph: 'L1' }),\n      text: `Drop a second fault on feeder 2, on the same phase, L1. Both faults now join L1 to the hull. But the hull already sits at L1's voltage. So the new fault has no voltage across it. The loop is there, 0.8 Ω, but nothing drives it. With L1 chosen, the readouts show 0 V and 0 A. Nothing trips, and the alarm stays lit.`,\n      read: `With feeder 1's L1 already faulted, a second fault on feeder 2's L1 has no voltage across it. Nothing flows and nothing trips.` },\n    { kind: 'pick', name: 'Which trips nothing?', before: P(), after: P({ drop: true, ph: 'L1' }),\n      task: `Feeder 1's L1 is already faulted to the hull. Which second fault on feeder 2 trips nothing?`,\n      opts: ['One on L1', 'One on L2', 'One on L3'], want: 'One on L1',\n      hints: { 'One on L2': `L2 now sits 440 V from the hull. A fault there puts 440 V round a loop.`,\n        'One on L3': `L3 now sits 440 V from the hull. A fault there puts 440 V round a loop.` },\n      why: `The hull already sits at L1. A second join from L1 to the hull has no voltage across it, so it drives no loop.[^1] It still needs finding and clearing.` },\n    { show: true, name: 'A different phase', pic: P({ drop: true, ph: 'L2' }), ctl: true, demo: P({ ph: 'L2' }),\n      text: `Now pick L2 and drop the fault. L2 is joined to the hull, and the hull sits at L1. So the hull bridges L1 and L2, with 440 V between them. A red loop lights. It runs out along feeder 2's L2 and through its fault onto the frame. It returns by the protective conductors and the hull to feeder 1's fault, then along feeder 1's L1. It is a short between phases, through the hull.[^1]`,\n      read: `With feeder 1's L1 faulted, a second fault on feeder 2's L2 puts 440 V round a loop. The loop runs through both feeders and the hull. It is a short between phases, through the hull.` },\n    { kind: 'pick', name: 'The voltage round the loop', before: P({ drop: true, ph: 'L2', q: true }), after: P({ drop: true, ph: 'L2' }),\n      task: `Feeder 1's L1 and feeder 2's L2 are both faulted to the hull. What voltage drives the loop?`,\n      opts: ['440 V, the line voltage', '254 V, as in an earth fault', '880 V, 440 V for each fault'], want: '440 V, the line voltage',\n      hints: { '254 V, as in an earth fault': `254 V drives an earth fault on an earthed supply. Here the loop joins L1 to L2.`,\n        '880 V, 440 V for each fault': `Both faults sit in one loop. One voltage drives it, the one between L1 and L2.` },\n      why: `The hull sits at L1, and the second fault joins L2 to it. So the loop sees the voltage between L1 and L2. That is the line voltage, 440 V.` },\n    { show: true, name: 'Two loops end to end', pic: P(Object.assign({ drop: true, ph: 'L2' }, BOTH)), ctl: true, demo: P({ drop: true, ph: 'L2' }),\n      text: `The current runs through both circuits, one after the other. Feeder 2's loop is its L2 out and its protective conductor back. Feeder 1's is its L1 and its protective conductor. So the loop impedance is Z1 + Z2. When the circuits match, that is double one circuit's loop impedance.[^2] With 0.4 Ω each, 440 ÷ 0.8 = 550 A. Say each breaker trips instantly at 400 A. Both carry the 550 A, past each trip mark.` },\n    { kind: 'pick', name: 'Loops of 0.4 and 0.6 Ω', before: P(Object.assign({ z2: 0.6 }, BOTH)), after: P(Object.assign({ drop: true, ph: 'L3', z2: 0.6 }, BOTH)),\n      task: `Feeder 1's loop is 0.4 Ω and feeder 2's is 0.6 Ω. A second fault strikes feeder 2's L3. What current flows?`,\n      opts: ['440 A', '1,100 A', '254 A'], want: '440 A',\n      hints: { '1,100 A': `That uses feeder 1's loop alone. The current runs round both loops.`,\n        '254 A': `That uses 254 V. The 440 V between L1 and L3 drives this loop.` },\n      why: `The loop runs through both circuits, so it is 0.4 + 0.6 = 1.0 Ω. The current is 440 ÷ 1.0 = 440 A.` },\n    { show: true, name: 'A long run', pic: P(Object.assign({ drop: true, ph: 'L2', z2: 1 }, BOTH)), ctl: true, follow: true,\n      demo: P(Object.assign({ drop: true, ph: 'L2' }, BOTH)),\n      text: `Now drag feeder 2's loop up to 1.0 Ω, as on a long run. The loop is now 1.4 Ω, so 440 ÷ 1.4 = 314 A. That is below the 400 A instant trip. So the short lasts until a slower trip acts. It heats the cables while it runs. The two circuits with the highest loops give the smallest current. A design check uses that pair.`,\n      read: `With feeder 2's loop at 1.0 Ω, the loop is 1.4 Ω and the current is 314 A. That is below the 400 A instant trip, so the short lasts until a slower trip acts. It heats the cables while it runs. A design check uses the pair of circuits with the highest loops.` },\n    { kind: 'pick', name: 'A week with the alarm on', before: P(), after: P({ drop: true, ph: 'L3' }),\n      task: `The alarm has shown a first fault on L1 for a week. Nothing has tripped and every motor runs. What is the risk now?`,\n      opts: ['One failure on L2 or L3, anywhere, makes a short through the hull', 'Little, as the first fault passes only a small current', 'None until the first fault itself gets worse'],\n      want: 'One failure on L2 or L3, anywhere, makes a short through the hull',\n      hints: { 'Little, as the first fault passes only a small current': `Its current is small. The danger is the 440 V that L2 and L3 now hold to the hull.`,\n        'None until the first fault itself gets worse': `The first fault can stay just as it is. A second fault elsewhere makes the short.` },\n      why: `L2 and L3 have held line voltage to the hull all week, on every circuit. One insulation failure on either joins it to L1 through the hull. So a first fault should be cleared with the shortest practicable delay.[^3]` },\n    { kind: 'pick', name: 'Earthed against insulated', before: P(BOTH), after: P(Object.assign({ drop: true, ph: 'L2' }, BOTH)),\n      task: `Two circuits each have a 0.4 Ω loop. On an earthed 254 V supply, one of them passes 635 A in an earth fault. On the insulated 440 V board, what does a second fault through both pass?`,\n      opts: ['550 A, a little less', '1,100 A, as 440 V drives it', '1,270 A, twice as much'], want: '550 A, a little less',\n      hints: { '1,100 A, as 440 V drives it': `440 V is right. But the loop runs through both circuits, so it is 0.8 Ω.`,\n        '1,270 A, twice as much': `The voltage rises 1.73 times, not 2 times. And the loop impedance doubles.` },\n      why: `440 ÷ 0.8 = 550 A. The voltage is 1.73 times higher, but the loop impedance is doubled.[^2] So the current is about 0.87 times the earthed figure.` },\n    { kind: 'pick', name: 'Which motors can stop?', before: P(BOTH), after: P(Object.assign({ drop: true, ph: 'L3' }, BOTH)),\n      task: `Both loops are 0.4 Ω, and each breaker trips instantly at 400 A. A second fault strikes feeder 2's L3. Which motors can stop?`,\n      opts: ['Either or both, as both breakers carry 550 A', 'Only motor 2, as its fault is the new one', 'Only motor 1, as its fault came first'],\n      want: 'Either or both, as both breakers carry 550 A',\n      hints: { 'Only motor 2, as its fault is the new one': `Follow the red loop. It runs through feeder 1's breaker too.`,\n        'Only motor 1, as its fault came first': `Follow the red loop. It runs through feeder 2's breaker too.` },\n      why: `One current runs round the whole loop, so both breakers carry 550 A. Whichever opens first clears the short, and both may open. So a second fault can stop two circuits, including the one with the first fault.` },\n  ];\n  STEPS.forEach((d) => { if (d.show) d.still = () => setPic(d.pic); else d.read = d.task; });\n  const FINISH = 'A second fault on another phase shorts two phases through the hull. Line voltage drives it round both circuits\\' loops.';\n  const PICK = 'Choose an answer first.';\n  const EIG = 'https://www.electrical-installation.org/enwiki/IT_system_-_Fault_protection';\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n\n  // ---------- what the picture shows: a view, and motion from one view to another ----------\n  function viewOf(c) {\n    const k = PH.indexOf(c.ph);\n    const v = { f: [0, 0, 0], lit: 0, route: k > 0 ? k : 1, z1: c.z1, z2: c.z2, zl1: c.zl1 ? 1 : 0, zl2: c.zl2 ? 1 : 0, q: !!c.q };\n    if (c.drop) v.f[k] = 1;\n    if (c.drop && k > 0 && !c.q) v.lit = 1;\n    return v;\n  }\n  // In order: what goes away fades out, the loops change, the new fault drops in, the loop lights, then the\n  // labels come in. A move Dan makes with a slider or the picker is squeezed into 0.3 s; the current then\n  // runs round its loop for a moment and stops.\n  function motion(a, b, slow) {\n    const w = {};\n    let t = 0;\n    const reroute = a.lit > 1e-3 && b.lit > 1e-3 && a.route !== b.route;\n    const litOut = b.lit < a.lit - 1e-3 || reroute;\n    const goes = litOut || [0, 1, 2].some((j) => b.f[j] < a.f[j] - 1e-3) || ['zl1', 'zl2'].some((p) => b[p] < a[p] - 1e-3);\n    if (goes) { w.out = [0, 0.5]; t = 0.5; }\n    const dz = Math.max(Math.abs(a.z1 - b.z1), Math.abs(a.z2 - b.z2));\n    if (dz > 1e-6) { const d = K.clamp(dz * 3.4, 0.8, 2); w.z = [t, t + d]; t += d; }\n    if ([0, 1, 2].some((j) => b.f[j] > a.f[j] + 1e-3)) { w.fin = [t, t + 0.9]; t += 0.9; }\n    const litFrom = litOut ? 0 : a.lit;\n    if (b.lit > litFrom + 1e-3) { const s0 = w.fin ? w.fin[1] - 0.3 : t; w.lit = [s0, s0 + 1]; t = s0 + 1; }\n    ['zl1', 'zl2'].forEach((p) => { if (b[p] > a[p] + 1e-3) { w[p] = [t, t + 0.6]; t += 0.6; } });\n    let geo = t;\n    if (!slow && geo > 0.3) { const s = 0.3 / geo; Object.keys(w).forEach((k) => { w[k] = [w[k][0] * s, w[k][1] * s]; }); geo = 0.3; }\n    const flow = b.lit > 0.5 ? 1.5 : 0;\n    return { a, b, w, geo, end: Math.max(geo + flow, 0.05), litFrom, litOut };\n  }\n  function viewAt(m, t) {\n    if (t >= m.geo) return m.b;\n    const a = m.a, b = m.b, w = m.w;\n    const ph = (win) => (win ? K.ease(K.clamp((t - win[0]) / Math.max(1e-6, win[1] - win[0]), 0, 1)) : 1);\n    const po = ph(w.out), pin = ph(w.fin), pz = ph(w.z);\n    const v = { f: [0, 1, 2].map((j) => K.lerp(a.f[j], b.f[j], b.f[j] < a.f[j] ? po : pin)), z1: K.lerp(a.z1, b.z1, pz), z2: K.lerp(a.z2, b.z2, pz) };\n    ['zl1', 'zl2'].forEach((p) => { v[p] = K.lerp(a[p], b[p], b[p] < a[p] ? po : ph(w[p])); });\n    const lighting = !!w.lit && t >= w.lit[0];\n    v.lit = lighting ? K.lerp(m.litFrom, b.lit, ph(w.lit)) : m.litOut ? K.lerp(a.lit, 0, po) : a.lit;\n    v.route = m.litOut && !lighting ? a.route : b.route;\n    v.q = b.q || (a.q && v.lit < 0.5);\n    return v;\n  }\n\n  // ---------- the drawing (viewBox 340 × 358): the board on top, two feeders down to two motors, the hull ----------\n  const XS = 56, YB = [30, 44, 58], YPE = 72;\n  const X1 = [112, 122, 132], X2 = [192, 202, 212];\n  const FR = [{ x: 100, cx: 122, bond: 130, pe: 148, xs: X1 }, { x: 180, cx: 202, bond: 210, pe: 228, xs: X2 }];\n  const YF = 232, YFB = 276, YH = 292, CY = 256, RW = 13;\n  const BX = [6, 240], BW = 90, LX = 240, LY = 14;\n  const n2 = (x) => +x.toFixed(2);\n  const svg = document.getElementById('scene'), art = document.getElementById('art');\n  const el = (id) => document.getElementById(id);\n  function put(parent, tag, attrs, text) { const n = K.svg(tag, attrs); if (text != null) n.textContent = text; parent.appendChild(n); return n; }\n  const group = (a) => put(art, 'g', a == null || a >= 1 ? {} : { opacity: Math.max(0, a).toFixed(3) });\n  const lab = (g, x, y, text, cls, anchor) => put(g, 'text', { x: n2(x), y: n2(y), class: 'lab' + (cls ? ' ' + cls : ''), 'text-anchor': anchor || 'start' }, text);\n  // The loop on phase r (1 for L2, 2 for L3): out of the supply on that phase and down feeder 2; back by the\n  // protective conductors and, beside them, by the hull; across the first fault and back along feeder 1's L1;\n  // and round through the supply. Each piece is drawn the way the current runs.\n  function loopPath(r) {\n    return `M${XS} ${YB[r]}H${X2[r]}V${YF}` +\n      `M${FR[1].pe} ${YF}V${YPE}H${FR[0].pe}V${YF}` +\n      `M${FR[1].bond} ${YFB}V${YH}H${FR[0].bond}V${YFB}` +\n      `M${X1[0]} ${YF}V${YB[0]}H${XS}` +\n      `M${XS} ${YB[0]}V${YB[r]}`;\n  }\n  const FRAMES = FR.map((F) => `M${F.x} ${YF}h60v${YFB - YF}h-60z`).join('');\n  function chev(g, x, y, dir) {\n    const d = dir === 'd' ? `M${x - 4} ${y - 3}L${x + 4} ${y - 3}L${x} ${y + 4}Z` : dir === 'u' ? `M${x - 4} ${y + 3}L${x + 4} ${y + 3}L${x} ${y - 4}Z` : `M${x + 3} ${y - 4}L${x + 3} ${y + 4}L${x - 4} ${y}Z`;\n    put(g, 'path', { class: 'fw', d });\n  }\n  let dash = 0;\n\n  function scene(v) {\n    art.textContent = '';\n    let sf = -1;\n    v.f.forEach((a, j) => { if (a >= 0.5 && (sf < 0 || a > v.f[sf])) sf = j; });\n    // The current shows its settled value as soon as the loop lights: it does not build up.\n    const on = v.lit > 0.02;\n    const I = on ? loopI(PH[v.route], v.z1, v.z2) : 0;\n    const hot = tripsAt(I);\n    const g = group();\n    // The supply, and the board with its three bars and its earth bar.\n    put(g, 'rect', { class: 'card', x: 4, y: 20, width: 52, height: 58, rx: 6 });\n    lab(g, 28, 44, 'Supply', 's', 'middle');\n    lab(g, 30, 62, VLINE + ' V', 'n', 'middle');\n    put(g, 'rect', { class: 'card', x: 62, y: 2, width: 274, height: 78, rx: 6 });\n    lab(g, 68, 18, '440 V board');\n    [[-1, 0], [1, 0], [-0.7, -0.7], [0.7, -0.7], [0, -1]].forEach((u) => put(g, 'line', { class: 'ray', x1: n2(LX + u[0] * 8), y1: n2(LY + u[1] * 8), x2: n2(LX + u[0] * 11), y2: n2(LY + u[1] * 11) }));\n    put(g, 'circle', { class: 'lamp', cx: LX, cy: LY, r: 5.5 });\n    lab(g, LX + 14, 18, 'Earth alarm', 'n');\n    [0, 1, 2].forEach((k) => {\n      put(g, 'line', { class: 'bus c' + (k + 1), x1: XS, y1: YB[k], x2: 304, y2: YB[k] });\n      lab(g, 310, YB[k] + 4.5, PH[k]);\n    });\n    put(g, 'line', { class: 'bus ci', x1: 140, y1: YPE, x2: 304, y2: YPE });\n    lab(g, 310, YPE + 4.5, 'PE');\n    // The feeders: L1, L2 and L3 through a breaker, and the protective conductor, down to each motor.\n    FR.forEach((F) => {\n      F.xs.forEach((x, k) => {\n        put(g, 'line', { class: 'ln c' + (k + 1), x1: x, y1: YB[k], x2: x, y2: YF });\n        put(g, 'circle', { class: 'f' + (k + 1), cx: x, cy: YB[k], r: 2.4 });\n      });\n      put(g, 'line', { class: 'pe', x1: F.pe, y1: YPE, x2: F.pe, y2: YF });\n      put(g, 'circle', { class: 'fi', cx: F.pe, cy: YPE, r: 2.4 });\n      put(g, 'rect', { class: 'brk', x: F.xs[0] - 8, y: 94, width: F.xs[2] - F.xs[0] + 16, height: 16, rx: 3 });\n      put(g, 'rect', { class: 'frame', x: F.x, y: YF, width: 60, height: YFB - YF, rx: 4 });\n      F.xs.forEach((x, k) => {\n        const dy = Math.sqrt(RW * RW - (x - F.cx) * (x - F.cx));\n        put(g, 'line', { class: 'ln c' + (k + 1), x1: x, y1: YF, x2: x, y2: n2(CY - dy) });\n      });\n      put(g, 'circle', { class: 'wind', cx: F.cx, cy: CY, r: RW });\n      lab(g, F.cx, CY + 4.5, 'M', '', 'middle');\n      put(g, 'line', { class: 'bond', x1: F.bond, y1: YFB, x2: F.bond, y2: YH });\n    });\n    put(g, 'rect', { class: 'hull', x: 4, y: YH, width: 332, height: 24, rx: 3 });\n    // The first fault has put the hull at L1's voltage.\n    put(lab(g, 170, YH + 17, 'Hull, which is earth, now at ', 'n', 'middle'), 'tspan', { class: 'f1', 'font-weight': 700 }, 'L1');\n    // The second fault's loop, lit, with the current running round it.\n    if (v.lit > 1e-3) {\n      put(group(v.lit), 'path', { class: 'glow', d: loopPath(v.route) + FRAMES });\n      const gf = group(v.lit);\n      put(gf, 'path', { class: 'flow', d: loopPath(v.route), 'stroke-dashoffset': n2(-dash) });\n      chev(gf, X2[v.route], 176, 'd'); chev(gf, X1[0], 176, 'u'); chev(gf, 170, YPE, 'l'); chev(gf, 170, YH, 'l');\n    }\n    // The faults and the bonds.\n    const gd = group();\n    FR.forEach((F) => {\n      put(gd, 'circle', { class: 'fi', cx: F.pe, cy: YF, r: 3 });\n      put(gd, 'circle', { class: 'fi', cx: F.bond, cy: YFB, r: 2.5 });\n      put(gd, 'circle', { class: 'fi', cx: F.bond, cy: YH, r: 2.5 });\n    });\n    put(gd, 'circle', { class: 'fault', cx: X1[0], cy: YF, r: 4.5 });\n    v.f.forEach((a, j) => { if (a > 1e-3) put(group(a), 'circle', { class: 'fault', cx: X2[j], cy: n2(YF - 18 * (1 - a)), r: 4.5 }); });\n    // Names.\n    const gn = group();\n    lab(gn, 98, 170, 'Feeder 1', '', 'end');\n    lab(gn, 242, 170, 'Feeder 2');\n    lab(gn, 96, 222, 'First fault', 'n', 'end');\n    put(gn, 'line', { class: 'leader', x1: 98, y1: 219, x2: 108, y2: 229 });\n    lab(gn, 94, 260, 'Motor 1', '', 'end');\n    lab(gn, 246, 260, 'Motor 2');\n    if (v.zl1 > 1e-3) {\n      const gz = group(v.zl1);\n      put(gz, 'path', { class: 'brace', d: 'M106 152H102V212H106' });\n      lab(gz, 98, 190, 'Z1 = ' + fz(tenths(v.z1) / 10), 'n', 'end');\n    }\n    if (v.zl2 > 1e-3) {\n      const gz = group(v.zl2);\n      put(gz, 'path', { class: 'brace', d: 'M234 152H238V212H234' });\n      lab(gz, 242, 190, 'Z2 = ' + fz(tenths(v.z2) / 10), 'n');\n    }\n    // Beside each breaker, a bar of the current through it, with a mark at its instant trip.\n    const bars = [];\n    BX.forEach((x0, n) => {\n      const gb = group();\n      lab(gb, x0, 96, 'Breaker ' + (n + 1));\n      // A leader from the name to the breaker's box on its feeder.\n      put(gb, 'line', n === 0 ? { class: 'leader', x1: 72, y1: 92, x2: 103, y2: 100 } : { class: 'leader', x1: 236, y1: 92, x2: 221, y2: 100 });\n      put(gb, 'rect', { class: 'track', x: x0, y: 102, width: BW, height: 12, rx: 3 });\n      const w = n2(BW * Math.min(I, FULL) / FULL);\n      bars.push(w);\n      if (w > 0.5) put(gb, 'rect', { class: 'fillbar', x: x0, y: 102, width: w, height: 12, rx: n2(Math.min(3, w / 2)) });\n      const xm = n2(x0 + BW * TRIP / FULL);\n      put(gb, 'line', { class: 'mark' + (hot ? ' hot' : ''), x1: xm, y1: 100, x2: xm, y2: 117 });\n      lab(gb, xm, 130, TRIP + ' A', 'n s', 'middle');\n      if (!v.q) lab(gb, x0, 146, hot ? 'Trips instantly' : 'No instant trip', hot ? 'hot' : 'm');\n    });\n    // A key for what is drawn.\n    const gk = group();\n    put(gk, 'circle', { class: 'fault', cx: 10, cy: 330, r: 4.5 });\n    lab(gk, 20, 334.5, 'Fault', 'n');\n    put(gk, 'line', { class: 'glow', x1: 74, y1: 330, x2: 92, y2: 330 });\n    put(gk, 'line', { class: 'flow', x1: 74, y1: 330, x2: 92, y2: 330 });\n    lab(gk, 102, 334.5, 'Second-fault current', 'n');\n    put(gk, 'line', { class: 'pe', x1: 4, y1: 348, x2: 18, y2: 348 });\n    lab(gk, 24, 352.5, 'PE: protective conductor', 'n');\n\n    const what = sf < 0 ? 'There is no second fault. '\n      : sf === 0 ? 'A second fault joins feeder 2\\'s L1 to motor 2\\'s frame, the same phase as the first, and no loop is driven. '\n        : 'A second fault joins feeder 2\\'s ' + PH[sf] + ' to motor 2\\'s frame. ' + (v.lit > 0.5 ? 'A loop is lit: out along feeder 2\\'s ' + PH[sf] + ', back by the protective conductors and the hull, across the first fault and along feeder 1\\'s L1. ' : '');\n    return {\n      v, sf, I, hot, bars,\n      texts: Array.from(art.querySelectorAll('text')).map((t) => t.textContent),\n      read: {\n        volt: v.q ? '?' : sf > 0 && on ? VLINE + ' V' : '0 V',\n        zloop: sf < 0 ? 'No loop' : sumText(v.z1, v.z2),\n        amps: v.q ? '?' : ampText(I),\n      },\n      aria: 'A 440 V board feeds motor 1 and motor 2 through breaker 1 and breaker 2. Each feeder carries L1, L2, L3 and a protective conductor bonded to its motor\\'s frame, and both frames are bonded to the hull. A first fault joins feeder 1\\'s L1 to motor 1\\'s frame, so the hull now sits at L1\\'s voltage, and the earth alarm is lit. ' + what +\n        (v.q ? '' : hot ? 'Both breakers carry a current past their instant trip.' : 'Neither breaker reaches its instant trip.'),\n    };\n  }\n\n  // ---------- state ----------\n  function blank() { return { pick: null, res: null, why: false }; }\n  let S2 = STEPS.map(() => blank());\n  let cur = P(STEPS[0].pic), T = Infinity, fx = {}, REC = null;\n  let finished = false, lastStep = -1, lastDone = false, last = { ph: 'L2', z1: 0.4, z2: 0.4 }, gestureAt = -Infinity;\n  const animating = () => !!fx.a && T < fx.end;\n  const viewNow = () => (fx.a && T < fx.geo ? viewAt(fx, T) : viewOf(cur));\n\n  function paint() {\n    const v = viewNow();\n    REC = scene(v);\n    outs.volt.set(REC.read.volt); outs.zloop.set(REC.read.zloop); outs.amps.set(REC.read.amps);\n    svg.setAttribute('aria-label', REC.aria);\n    // On the long-run screen the slider follows the loop as it grows, a tenth of an ohm at a time.\n    if (fx.slider && fx.a && live()) {\n      const z1 = tenths(v.z1) / 10, z2 = tenths(v.z2) / 10;\n      if (z1 !== z1Ctl.get()) { z1Ctl.set(z1, true); last.z1 = z1Ctl.get(); }\n      if (z2 !== z2Ctl.get()) { z2Ctl.set(z2, true); last.z2 = z2Ctl.get(); }\n    }\n  }\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const at = () => stepper.get();\n  const live = () => !finished && !!STEPS[at()].show && !!STEPS[at()].ctl;\n  const phCtl = K.choice({ id: 'ph', label: 'Second fault on', options: PH, value: 'L2', into: '#pctl' });\n  const dropBtn = K.button({ label: 'Drop second fault', secondary: true, into: '#prow', press: () => {\n    if (!live()) return;\n    retarget({ drop: !cur.drop }, true);\n  } });\n  const z1Ctl = K.control({ id: 'z1', label: 'Feeder 1 loop', min: 0.2, max: 1.6, step: 0.1, value: 0.4, fmt: fz, snap: [0.4, 0.6, 1], into: '#zctl' });\n  const z2Ctl = K.control({ id: 'z2', label: 'Feeder 2 loop', min: 0.2, max: 1.6, step: 0.1, value: 0.4, fmt: fz, snap: [0.4, 0.6, 1], into: '#zctl' });\n  ['pointerdown', 'keydown'].forEach((e) => phCtl.el.addEventListener(e, () => { gestureAt = performance.now(); }, true));\n  const outs = {\n    volt: K.readout({ id: 'volt', label: 'Voltage round the loop', into: '#outs' }),\n    zloop: K.readout({ id: 'zloop', label: 'Loop impedance', into: '#outs' }),\n    amps: K.readout({ id: 'amps', label: 'Second-fault current', into: '#outs' }),\n  };\n  function syncCtls() {\n    phCtl.set(cur.ph, true); z1Ctl.set(cur.z1, true); z2Ctl.set(cur.z2, true);\n    last = { ph: phCtl.get(), z1: z1Ctl.get(), z2: z2Ctl.get() };\n  }\n\n  // One animation plays the motion; with reduced motion (and while the self-test looks) it opens finished.\n  // The current's dashes run at a speed that follows the current.\n  const anim = K.anim({ button: false, label: 'The second fault', step: (dt) => {\n    if (finished) return false;\n    T += dt;\n    if (T > 0) dash += dt * 22 * Math.max(0.2, (REC ? REC.I : 0) / 550);\n    paint();\n    return T < (fx.end || 0);\n  } });\n  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });\n  function start(f, delay) {\n    fx = f || {};\n    if (REDUCE || testing()) { T = Infinity; anim.pause(); return; }\n    T = -(delay || 0); anim.play();\n  }\n  // Move the picture on from wherever it is now.\n  function retarget(ch, slow) {\n    const now = viewNow();\n    cur = Object.assign({}, cur, ch);\n    start(motion(now, viewOf(cur), slow), 0);\n  }\n  function setPic(p) { cur = P(p); anim.pause(); T = Infinity; fx = {}; syncCtls(); K.refresh(); }\n\n  // Three answers; Check marks the one chosen, and a right one plays what it says.\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S2[i];\n    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;\n    st.pick = d.opts[k]; st.res = null;\n  } }));\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S2[i];\n    if (finished || d.show || st.res === 'right') return;\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = st.pick === d.want ? 'right' : 'wrong';\n    if (st.res !== 'right') return;\n    const now = viewNow();\n    cur = P(d.after);\n    syncCtls();\n    start(motion(now, viewOf(cur), true), 0);\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    if (finished || STEPS[at()].show) return;\n    const st = S2[at()]; st.why = !st.why;\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && S2[i].res !== 'right')) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true; anim.pause();\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S2 = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);\n  } });\n\n  function enter(id) {\n    if (REDUCE) return;\n    const box = el(id);\n    box.classList.remove('enter');\n    void box.offsetWidth;\n    box.classList.add('enter');\n  }\n\n  el('finish').textContent = FINISH;\n  K.update((p) => {\n    const i = Math.round(p.step), d = STEPS[i], st = S2[i];\n    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished\n    if (i !== lastStep) {\n      lastStep = i; enter('stepbox');\n      anim.pause(); T = Infinity; fx = {};\n      cur = P(d.show ? d.pic : st.res === 'right' ? d.after : d.before);\n      syncCtls();\n      // A demonstration screen plays once on opening, after its fade-in.\n      if (d.show && d.demo) { start(motion(viewOf(d.demo), viewOf(cur), true), 0.4); fx.slider = !!d.follow; }\n    } else if (p.ph !== last.ph || p.z1 !== last.z1 || p.z2 !== last.z2) {\n      if (live()) {\n        const slow = p.ph !== last.ph && performance.now() - gestureAt < 1000;\n        gestureAt = -Infinity;\n        last = { ph: p.ph, z1: p.z1, z2: p.z2 };\n        retarget({ ph: p.ph, z1: p.z1, z2: p.z2 }, slow);\n      } else syncCtls();   // off the screens that show them, the controls keep the picture's setting\n    }\n    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }\n    const right = st.res === 'right';\n    el('stepbox').hidden = finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    task.textContent = strip(d.show ? d.text : d.task);\n    el('ctls').hidden = !d.show || !d.ctl;\n    dropBtn.setLabel(cur.drop ? 'Clear' : 'Drop second fault');\n\n    const opts = d.show ? [] : d.opts;\n    el('picks').hidden = !opts.length;\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(opts[k]);\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n    el('acts').hidden = !!d.show;\n    checkBtn.el.hidden = right;\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n    const fb = el('fb');\n    fb.hidden = !!d.show || !st.res;\n    fb.className = 'fb' + (right ? ' right' : '');\n    fb.textContent = d.show ? '' : right ? 'That\\'s it.' : st.res === 'wrong' ? (d.hints[st.pick] || 'Not quite.') : st.res === 'empty' ? PICK : '';\n    const why = el('why');\n    why.hidden = !!d.show || !st.why;\n    why.textContent = d.show ? '' : strip(d.why);\n\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !right);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;\n    paint();\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  function drawn(c) {\n    const keep = [cur, T, fx];\n    cur = P(c); T = Infinity; fx = {};\n    try { paint(); return REC; } finally { cur = keep[0]; T = keep[1]; fx = keep[2]; paint(); }\n  }\n  const ZS = K.linspace(0.2, 1.6, 15).map((z) => Math.round(z * 10) / 10);\n  const Iv = (v) => v.lit * loopI(PH[v.route], v.z1, v.z2);\n  const count = (r, s) => r.texts.filter((t) => t === s).length;\n\n  K.check('Twelve screens: five that show and seven puzzles, alternating to the ninth and ending on three mixed puzzles', () =>\n    STEPS.length === 12 && STEPS.filter((d) => d.show).length === 5 && STEPS.slice(0, 9).every((d, i) => !!d.show === (i % 2 === 0)) && STEPS.slice(9).every((d) => !d.show));\n  K.check('Each line sits 440 ÷ 1.732 = 254 V from the star point. Earthed, 254 ÷ 0.4 = 635 A, while 254 × 0.4 is about 102 and 440 ÷ 0.4 is 1,100', () =>\n    VPH === 254 && Math.round(VPH / 0.4) === 635 && Math.round(VPH * 0.4) === 102 && Math.round(VLINE / 0.4) === 1100);\n  K.check('The second fault makes a short-circuit between phases through the PE conductors and the hull, unless it is on the same conductor as the first fault', () =>\n    ZS.every((a) => ZS.every((b) => loopI('L1', a, b) === 0 && loopI('L2', a, b) > 0 && loopI('L3', a, b) > 0)) &&\n    drawn(P({ drop: true, ph: 'L1' })).v.lit === 0 && drawn(P({ drop: true, ph: 'L2' })).v.lit === 1 && drawn(P({ drop: true, ph: 'L3' })).v.lit === 1, { source: EIG });\n  K.check('It is conventional to double the loop impedance of a circuit: with matched feeders, Z1 + Z2 is twice one circuit\\'s loop at every setting', () =>\n    ZS.every((z) => drawn(P({ drop: true, z1: z, z2: z })).read.zloop === fz(2 * z)), { source: EIG });\n  K.check('Both loops 0.4 Ω, second fault on L2 or L3: 440 V round a 0.8 Ω loop drives 550 A, past both 400 A trips', () =>\n    ['L2', 'L3'].every((ph) => {\n      const r = drawn(P({ drop: true, ph }));\n      return r.read.volt === '440 V' && r.read.zloop === '0.8 Ω' && r.read.amps === '550 A' && r.hot && count(r, 'Trips instantly') === 2;\n    }));\n  K.check('Second fault on L1: 0 V and 0 A at every loop setting; no loop is drawn and nothing trips', () => {\n    const r = drawn(STEPS[3].after);\n    return ZS.every((z) => loopI('L1', 0.4, z) === 0) && r.read.volt === '0 V' && r.read.amps === '0 A' && r.read.zloop === '0.8 Ω' && r.v.lit === 0 && !r.hot && count(r, 'No instant trip') === 2;\n  });\n  K.check('Loops of 0.4 and 0.6 Ω make 1.0 Ω and 440 A, past the trip; 0.4 and 1.0 Ω make 1.4 Ω and 314 A, with no instant trip', () => {\n    const a = drawn(STEPS[7].after), b = drawn(STEPS[8].pic);\n    return a.read.zloop === '1.0 Ω' && a.read.amps === '440 A' && a.hot && b.read.zloop === '1.4 Ω' && b.read.amps === '314 A' && !b.hot && count(b, 'No instant trip') === 2;\n  });\n  K.check('At the ends of the sliders: 0.2 Ω each gives 1,100 A, and 1.6 Ω each gives 3.2 Ω and 138 A', () => {\n    const lo = drawn(P({ drop: true, ph: 'L3', z1: 0.2, z2: 0.2 })).read, hi = drawn(P({ drop: true, ph: 'L2', z1: 1.6, z2: 1.6 })).read;\n    return lo.amps === '1,100 A' && lo.zloop === '0.4 Ω' && hi.zloop === '3.2 Ω' && hi.amps === '138 A';\n  });\n  K.check('The current falls as either loop grows, and both breakers carry the same current', () => {\n    for (let k = 1; k < ZS.length; k++) if (!(loopI('L2', ZS[k], 0.4) < loopI('L2', ZS[k - 1], 0.4) && loopI('L3', 0.4, ZS[k]) < loopI('L3', 0.4, ZS[k - 1]))) return false;\n    const r = drawn(P({ drop: true, ph: 'L2', z2: 0.9 }));\n    return r.bars.length === 2 && r.bars[0] === r.bars[1] && r.bars[0] > 0;\n  });\n  K.check('Earthed, one 0.4 Ω circuit passes 635 A; insulated, the second fault through two passes 550 A: 1.73 times the voltage over twice the loop, about 0.87 times', () =>\n    K.near(VLINE / VPH, 1.73, 0.005) && Math.round(loopI('L2', 0.4, 0.4)) === 550 && Math.round(100 * 550 / 635) === 87);\n  K.check('A worked example: loops of 0.25 Ω and 0.35 Ω make 0.6 Ω and pass 733 A', () =>\n    K.near(0.25 + 0.35, 0.6, 1e-12) && Math.round(VLINE / (0.25 + 0.35)) === 733);\n  K.check('Before an answer, no puzzle\\'s picture shows its result', () => {\n    const b = (i) => drawn(STEPS[i].before), a = (i) => drawn(STEPS[i].after);\n    return b(1).texts.indexOf('Z1 = 0.4 Ω') < 0 && a(1).texts.indexOf('Z1 = 0.4 Ω') >= 0 &&\n      b(3).sf === -1 && a(3).sf === 0 &&\n      b(5).read.volt === '?' && b(5).read.amps === '?' && b(5).v.lit === 0 && count(b(5), 'No instant trip') === 0 && a(5).read.volt === '440 V' &&\n      [7, 9, 10, 11].every((i) => b(i).sf === -1 && b(i).read.amps === '0 A' && !b(i).hot) &&\n      a(7).read.amps === '440 A' && a(9).read.amps === '550 A' && a(10).read.amps === '550 A' && a(11).hot;\n  });\n  K.check('Dropping the fault on L2 lights the loop within 3 s, and part way through it is still lighting', () => {\n    const m = motion(viewOf(STEPS[4].demo), viewOf(P(STEPS[4].pic)), true), mid = viewAt(m, (m.w.lit[0] + m.w.lit[1]) / 2);\n    return m.geo <= 3 && mid.lit > 0.05 && mid.lit < 0.95 && viewAt(m, m.geo).lit === 1;\n  });\n  K.check('Screen 9 grows feeder 2\\'s loop from 0.4 to 1.0 Ω: the current falls from 550 A to 314 A and drops below the trip on the way', () => {\n    const m = motion(viewOf(STEPS[8].demo), viewOf(P(STEPS[8].pic)), true);\n    const ts = K.linspace(m.w.z[0], m.w.z[1] - 1e-6, 21).map((t) => Iv(viewAt(m, t)));\n    let down = true;\n    for (let k = 1; k < ts.length; k++) if (ts[k] > ts[k - 1] + 1e-9) down = false;\n    return Math.round(ts[0]) === 550 && Math.round(Iv(viewAt(m, m.geo))) === 314 && down && tripsAt(ts[0]) && !tripsAt(Iv(viewAt(m, m.geo))) && m.geo <= 3;\n  });\n  K.check('A slider or phase move settles within 0.35 s, so the picture and the numbers keep up with it', () =>\n    motion(viewOf(P({ drop: true })), viewOf(P({ drop: true, ph: 'L3', z1: 1.2 })), false).geo <= 0.35 &&\n    motion(viewOf(P({ drop: true, ph: 'L1' })), viewOf(P({ drop: true, ph: 'L2', z2: 1.6 })), false).geo <= 0.35);\n\n  K.ready();\n</script>",
+  "title": "Two faults through the hull",
+  "brief": "The one thing you should see is a red loop through both feeders and the hull, carrying 440 ÷ (Z1 + Z2), when you drop a second fault on a different phase, but none on the same phase.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "Twelve screens: five that show and seven puzzles, alternating to the ninth and ending on three mixed puzzles",
+     "ok": true
+    },
+    {
+     "label": "Each line sits 440 ÷ 1.732 = 254 V from the star point. Earthed, 254 ÷ 0.4 = 635 A, while 254 × 0.4 is about 102 and 440 ÷ 0.4 is 1,100",
+     "ok": true
+    },
+    {
+     "label": "The second fault makes a short-circuit between phases through the PE conductors and the hull, unless it is on the same conductor as the first fault",
+     "ok": true,
+     "source": "https://www.electrical-installation.org/enwiki/IT_system_-_Fault_protection"
+    },
+    {
+     "label": "It is conventional to double the loop impedance of a circuit: with matched feeders, Z1 + Z2 is twice one circuit's loop at every setting",
+     "ok": true,
+     "source": "https://www.electrical-installation.org/enwiki/IT_system_-_Fault_protection"
+    },
+    {
+     "label": "Both loops 0.4 Ω, second fault on L2 or L3: 440 V round a 0.8 Ω loop drives 550 A, past both 400 A trips",
+     "ok": true
+    },
+    {
+     "label": "Second fault on L1: 0 V and 0 A at every loop setting; no loop is drawn and nothing trips",
+     "ok": true
+    },
+    {
+     "label": "Loops of 0.4 and 0.6 Ω make 1.0 Ω and 440 A, past the trip; 0.4 and 1.0 Ω make 1.4 Ω and 314 A, with no instant trip",
+     "ok": true
+    },
+    {
+     "label": "At the ends of the sliders: 0.2 Ω each gives 1,100 A, and 1.6 Ω each gives 3.2 Ω and 138 A",
+     "ok": true
+    },
+    {
+     "label": "The current falls as either loop grows, and both breakers carry the same current",
+     "ok": true
+    },
+    {
+     "label": "Earthed, one 0.4 Ω circuit passes 635 A; insulated, the second fault through two passes 550 A: 1.73 times the voltage over twice the loop, about 0.87 times",
+     "ok": true
+    },
+    {
+     "label": "A worked example: loops of 0.25 Ω and 0.35 Ω make 0.6 Ω and pass 733 A",
+     "ok": true
+    },
+    {
+     "label": "Before an answer, no puzzle's picture shows its result",
+     "ok": true
+    },
+    {
+     "label": "Dropping the fault on L2 lights the loop within 3 s, and part way through it is still lighting",
+     "ok": true
+    },
+    {
+     "label": "Screen 9 grows feeder 2's loop from 0.4 to 1.0 Ω: the current falls from 550 A to 314 A and drops below the trip on the way",
+     "ok": true
+    },
+    {
+     "label": "A slider or phase move settles within 0.35 s, so the picture and the numbers keep up with it",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step",
+    "ph",
+    "z1",
+    "z2"
+   ],
+   "readouts": [
+    "volt",
+    "zloop",
+    "amps"
+   ],
+   "outputs": [],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Screen",
+     "min": 0,
+     "max": 11,
+     "step": 1,
+     "steps": [
+      "One fault already there",
+      "An earth fault, earthed",
+      "The same phase",
+      "Which trips nothing?",
+      "A different phase",
+      "The voltage round the loop",
+      "Two loops end to end",
+      "Loops of 0.4 and 0.6 Ω",
+      "A long run",
+      "A week with the alarm on",
+      "Earthed against insulated",
+      "Which motors can stop?"
+     ],
+     "value": 0
+    },
+    {
+     "id": "ph",
+     "kind": "choice",
+     "label": "Second fault on",
+     "options": [
+      "L1",
+      "L2",
+      "L3"
+     ],
+     "labels": [
+      "L1",
+      "L2",
+      "L3"
+     ],
+     "value": "L2",
+     "index": 1,
+     "shown": false
+    },
+    {
+     "id": "z1",
+     "kind": "control",
+     "label": "Feeder 1 loop",
+     "min": 0.2,
+     "max": 1.6,
+     "step": 0.1,
+     "log": false,
+     "value": 0.4,
+     "shown": false,
+     "snap": [
+      0.4,
+      0.6,
+      1
+     ]
+    },
+    {
+     "id": "z2",
+     "kind": "control",
+     "label": "Feeder 2 loop",
+     "min": 0.2,
+     "max": 1.6,
+     "step": 0.1,
+     "log": false,
+     "value": 0.4,
+     "shown": false,
+     "snap": [
+      0.4,
+      0.6,
+      1
+     ]
+    }
+   ],
+   "actions": [
+    "Drop second fault",
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Check",
+    "Why?",
+    "Back",
+    "Continue",
+    "Start again",
+    "The second fault"
+   ],
+   "answers": [],
+   "written": [],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 1
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-27T17:07:55.171Z",
+  "applied": [
+   {
+    "path": "practice.text",
+    "problem": "The voltage rule holds only with no neutral run out: the Electrical Installation Guide (same page as source 1) says a four-wire IT board must use the phase-to-neutral voltage, so 'use line voltage' and 'using phase voltage is a mistake' are too general for Dan's dossier."
+   },
+   {
+    "path": "analogy.text",
+    "problem": "The analogy is written as steps to do; shorting a real car battery with jump leads is dangerous (hundreds of amps, arcing, possible battery burst), so it should be framed as a picture with a plain warning."
+   },
+   {
+    "path": "explain.text",
+    "problem": "Two absolutes stated of the real world: a first fault is designed not to trip (source says 'should not'), and a same-phase second fault has almost, not exactly, no voltage across it, as the lesson's own ignores panel admits load current can share."
+   }
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}

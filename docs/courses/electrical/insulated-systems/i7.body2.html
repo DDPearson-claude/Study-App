@@ -1,0 +1,853 @@
+<!-- kind: skill -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .caption { max-width: 32rem; margin-inline: auto; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.15rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.05rem; font-weight: 400; line-height: 1.6; }
+  .scene { display: block; width: 100%; max-width: 32rem; margin-inline: auto; }
+  .scene .card { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.4; }
+  .scene .rung { fill: none; stroke: var(--k-accent2); stroke-width: 3; }
+  .scene .box2 { fill: var(--k-sunk); stroke: var(--k-line); stroke-width: 1.2; }
+  .scene .bus { stroke: var(--k-ink); stroke-width: 4; stroke-linecap: round; }
+  .scene .bus2 { stroke: var(--k-ink); stroke-width: 3; stroke-linecap: round; }
+  .scene .w { stroke: var(--k-ink); stroke-width: 1.6; fill: none; stroke-linejoin: round; }
+  .scene .feed { stroke: var(--k-muted); stroke-width: 1.3; fill: none; }
+  .scene .lead { stroke: var(--k-muted); stroke-width: 1.4; fill: none; }
+  .scene .bond { stroke: var(--k-ink); stroke-width: 1.6; fill: none; }
+  .scene .dot { fill: var(--k-ink); }
+  .scene .blade { stroke: var(--k-ink); stroke-width: 2.2; stroke-linecap: round; }
+  .scene .ring { fill: none; stroke: var(--k-accent2); stroke-width: 2.2; }
+  .scene .hull { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.2; }
+  .scene .spark { fill: var(--k-warn); stroke: var(--k-bg); stroke-width: 1; }
+  .scene .dial { fill: none; stroke: var(--k-muted); stroke-width: 2; }
+  .scene .zone { fill: none; stroke: var(--k-warn); stroke-width: 4; }
+  .scene .alarm { stroke: var(--k-warn); stroke-width: 2; }
+  .scene .needle { stroke: var(--k-ink); stroke-width: 2.2; stroke-linecap: round; }
+  .scene .lamp { fill: var(--k-panel); stroke: var(--k-muted); stroke-width: 1.5; }
+  .scene .lamp.on { fill: var(--k-warn); stroke: var(--k-warn); }
+  .scene .ray { stroke: var(--k-warn); stroke-width: 1.5; stroke-linecap: round; }
+  .scene .motor { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.5; }
+  .scene .imp { stroke: var(--k-ink); stroke-width: 1.6; stroke-linecap: round; fill: none; }
+  .scene .glow { fill: none; stroke: var(--k-fill2); stroke-width: 8; stroke-linejoin: round; stroke-linecap: round; }
+  .scene .pulse { fill: none; stroke: var(--k-amber-line); stroke-width: 2.2; stroke-dasharray: 5 6; stroke-linejoin: round; }
+  .scene .wave { fill: none; stroke: var(--k-amber-line); stroke-width: 2; }
+  .scene .band { fill: var(--k-fill2); }
+  .scene .link { stroke: var(--k-accent2); stroke-width: 3; stroke-linecap: round; }
+  .scene .tlead { fill: none; stroke: var(--k-accent2); stroke-width: 1.8; }
+  .scene .tbox { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.3; }
+  .scene .lock { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.5; }
+  .scene .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .lab.big { font-size: 15px; font-weight: 700; }
+  .scene .lab.n { font-weight: 400; }
+  .scene .lab.m { font-weight: 400; fill: var(--k-muted); }
+  .scene .lab.s { font-size: 12px; }
+  .scene .hit { fill: var(--k-bg); fill-opacity: 0; stroke: none; pointer-events: none; }
+  .scene.tappable .hit { pointer-events: all; cursor: pointer; }
+  .scene .hit:focus { outline: none; }
+  .scene .hit:focus-visible { stroke: var(--k-accent2); stroke-width: 3; }
+  #ctls > * + * { margin-top: 10px; }
+  /* The pickers wrap two to a row on a phone, four on a laptop. */
+  #ctls .k-seg, #ctls .k-seg.stack { display: grid; grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr)); }
+  #ctls .k-seg.stack button { text-align: center; padding-left: 12px; }
+  #outs { display: grid; grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr)); gap: 10px; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; min-height: 44px; }
+  /* The answers are sentences: one to a row, wrapping inside the button. */
+  .picks { display: flex; flex-direction: column; gap: 8px; }
+  .picks .k-btn { width: 100%; min-height: 48px; white-space: normal; text-align: left; justify-content: flex-start; line-height: 1.4; padding: 10px 14px; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  /* The sorter: five cards, dragged into order (or two tapped to swap). */
+  .sorter { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+  .sorter li { position: relative; display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 8px 12px; border-radius: var(--k-r); background: var(--k-panel); border: 1.5px solid var(--k-strong); line-height: 1.4; touch-action: none; user-select: none; -webkit-user-select: none; cursor: grab; }
+  .sorter li .n { flex: none; width: 1.9rem; height: 1.9rem; border-radius: 50%; background: var(--k-sunk); display: grid; place-items: center; font-weight: 700; }
+  .sorter li .tx { flex: 1 1 auto; min-width: 0; }
+  .sorter li .grip { flex: none; color: var(--k-muted); font-size: 1.1rem; }
+  .sorter li.sel { border-color: var(--k-accent2); box-shadow: 0 0 0 2px var(--k-accent2); }
+  .sorter li.drag { z-index: 2; border-color: var(--k-accent2); box-shadow: 0 0 0 3px var(--k-accent2); cursor: grabbing; }
+  .sorter li:focus-visible { outline: 3px solid var(--k-accent2); outline-offset: 2px; }
+  .sorter.locked li { cursor: default; touch-action: auto; }
+  .sorter.locked li .grip { visibility: hidden; }
+  .fb { font-weight: 700; min-height: 1.5em; }
+  .fb.right { color: var(--k-good); }
+  .why, .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }
+</style>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 434" width="100%" role="img" aria-label=""><g id="art"></g><g id="hits"></g></svg>
+    <div id="ctls">
+      <div id="toolctl"></div>
+      <div id="pumpctl"></div>
+      <div id="acrossctl"></div>
+    </div>
+    <div id="outs"></div>
+    <p class="small muted" id="sorthint" hidden>Drag a step up or down, or tap two steps to swap them.</p>
+    <ol class="sorter" id="sorter" hidden></ol>
+    <div class="picks" id="picks"></div>
+    <div class="row" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row" id="nav"></div>
+</div>
+
+<p class="caption">Example values: a 440 V, 60 Hz board, 3 MΩ a feeder and a 10 mA pulse.</p>
+
+<script>
+  // ---------- the rule ----------
+  // A 440 V, 60 Hz insulated board with eight feeders. Each healthy feeder's insulation is 3 MΩ; the
+  // monitor reads every connected path to the hull in parallel: 3,000 ÷ n kΩ for n feeders, 0 kΩ while the
+  // solid fault is connected. The fault is in F6's pump motor, connected only while F6 is closed and the
+  // pump runs (its contactor lifts the motor off when it stops). With the fault connected the hull sits at
+  // L1, so a healthy feeder's clamp reads three times one line's healthy charging current, ω × C × 254 V;
+  // the faulty feeder's clamp reads all the others added together. The injected pulse flows only through
+  // the fault: 10 mA on the faulty feeder's path, 0 mA elsewhere.
+  const VL = 440, R3 = 1.732, VPH = VL / R3, W = 2 * Math.PI * 60;
+  const IH = W * 1e-6 * VPH * 1000;      // mA a line for each µF, healthy: about 96
+  const PER = 3 * IH;                    // a healthy feeder's clamp for each µF a line, fault connected: about 287
+  const CAP = [2, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05];
+  const RF = 3000, ALARM = 100 * VL / 1000, PULSE = 10, TEST_V = 500, CABLE_OK = 200, F6 = 5;
+  const effPump = (s) => s.pump && s.tool !== 'dead';
+  const faultOn = (s) => (s.fault === 6 ? !s.op[F6] && effPump(s) : !s.op[0]);
+  const nClosed = (s) => s.op.filter((o) => !o).length;
+  const monitorK = (s) => (faultOn(s) ? 0 : nClosed(s) ? RF / nClosed(s) : Infinity);
+  function clampMA(s, i, mode) {
+    if (s.op[i]) return 0;
+    const on = faultOn(s), F = s.fault - 1;
+    if (mode === 'inject') return on && i === F ? PULSE : 0;
+    if (!on) return 0;
+    if (i !== F) return PER * CAP[i];
+    let sum = 0;
+    for (let j = 0; j < 8; j++) if (j !== F && !s.op[j]) sum += PER * CAP[j];
+    return sum;
+  }
+  // The sub-board's clamps: 0 its incoming supply, then Fan, Pump, Heater, Lighting. The fault's current
+  // comes home through the incoming supply and the Pump circuit only.
+  const subMA = (s, k, mode) => (s.fault === 6 && (k === 0 || k === 2) ? clampMA(s, F6, mode) : 0);
+  const fmtMA = (v) => {
+    if (v === 0) return '0 mA';
+    const r = v < 20 ? Math.round(v * 10) / 10 : Math.round(v);
+    return K.fmt(r, { decimals: r % 1 ? 1 : 0 }) + ' mA';
+  };
+  const fmtK = (v) => (v === Infinity ? 'Off scale' : K.fmt(Math.round(v), { decimals: 0 }) + ' kΩ');
+  const testerText = (x) => (x === 'cable' ? 'Over ' + CABLE_OK + ' MΩ' : K.fmt(0, { decimals: 2 }) + ' MΩ');
+  const dialF = (v) => (v === Infinity ? 1 : v / (v + 30));
+
+  // A state: tool, op (breakers open), pump, fault (6 or 1), ring (a rung tile), sub (F6's sub-board open), across.
+  function P(o) {
+    o = o || {};
+    const list = o.open || [];
+    const s = { tool: o.tool || 'open', op: [], pump: o.pump !== false, fault: o.fault || 6, ring: o.ring == null ? -1 : o.ring, sub: !!o.sub, across: o.across || 'whole' };
+    for (let i = 0; i < 8; i++) s.op.push(list.indexOf(i + 1) >= 0);
+    return s;
+  }
+  const clone = (s) => Object.assign({}, s, { op: s.op.slice() });
+  function apply(s, ch) {
+    const n = clone(s);
+    Object.keys(ch).forEach((k) => {
+      if (k === 'open') for (let i = 0; i < 8; i++) n.op[i] = ch.open.indexOf(i + 1) >= 0;
+      else if (k === 'op') n.op = ch.op.slice();
+      else n[k] = ch[k];
+    });
+    return n;
+  }
+
+  // ---------- the lesson: SHOW screens demonstrate, DO screens are puzzles ----------
+  const strip = (s) => s.replace(/\[\^\d+\]/g, '');
+  const ORDER = ['Isolate the circuit and lock it off', 'Prove it dead', 'Disconnect the electronics and any monitor on it', 'Test at 500 V DC, cores joined, to earth', 'Split at the terminal box and test each part'];
+  const SHUF = [3, 1, 4, 0, 2];
+  const sortRight = (o) => o.join() === '0,1,2,3,4';
+  const STEPS = [
+    { show: true, name: 'Open one at a time', from: P(), acts: [[0.4, { open: [3] }], [1.4, { open: [] }], [2.2, { open: [6] }]],
+      text: `The monitor cannot say which feeder holds the fault. It reads all eight feeders in parallel. The solid fault is a path of almost no resistance, so the dial reads 0 kΩ, below its 44 kΩ line. So you open feeders one at a time, with permission and with essential services covered.[^1] Open a healthy feeder and the fault stays connected, so the dial stays at 0 kΩ. Open F6 and the fault goes with it. The dial jumps to 429 kΩ: the other seven feeders' 3 MΩ in parallel.`,
+      read: `The monitor reads 0 kΩ, below its 44 kΩ alarm line. With a healthy feeder open, it still reads 0 kΩ. With F6 open, it reads 429 kΩ.` },
+    { name: 'A jump, not a nudge', before: P(), after: P(),
+      task: `Say the fault were 20 kΩ instead of solid. The monitor reads 19.1 kΩ. You open F3 and it reads 19.2 kΩ. What does that tell you?`,
+      opts: ['F3 holds the fault, as the reading rose', 'F3 is healthy. Only its own 3 MΩ left the total', 'The fault is shared between F3 and F6'], want: 'F3 is healthy. Only its own 3 MΩ left the total',
+      hints: { 'F3 holds the fault, as the reading rose': `Opening the faulty feeder would lift the dial to hundreds of kilohms. A rise of 0.1 kΩ is too small.`,
+        'The fault is shared between F3 and F6': `One fault on one feeder sets the reading. F3 took off only its own healthy insulation.` },
+      why: `The 20 kΩ fault is by far the lowest path, so it sets the total. Taking off one healthy 3 MΩ path barely changes it. Look for a jump, not a nudge.` },
+    { show: true, name: 'The fault that vanished', from: P(), acts: [[0.5, { open: [3], pump: false }], [2.2, { open: [] }]], stillPic: P({ open: [3], pump: false }),
+      text: `F6 feeds a fresh-water pump on a pressure switch. The fault is in the pump's motor. Open F3 just as the pump stops. The dial jumps to 429 kΩ, and F3 looks guilty. But the pump's contactor has lifted the faulty motor off the system. The monitor can no longer reach it. Close F3 and the dial reads 375 kΩ, with all eight feeders healthy. When the pump restarts, the alarm returns. The fault vanished with its load.[^2]`,
+      read: `F3 opens just as F6's pump stops. The dial reads 429 kΩ, though F3 is healthy. The faulty motor is off the system while its contactor is open.` },
+    { name: 'Recovered, then healthy', before: P(), after: P({ pump: false }),
+      task: `You open F5 and the dial recovers to 429 kΩ. You close F5 again, and the dial reads 375 kΩ. What should you suspect?`,
+      opts: ['F5 holds the fault', 'A faulty load switched off as you opened F5', 'The fault has cleared for good'], want: 'A faulty load switched off as you opened F5',
+      hints: { 'F5 holds the fault': `If F5 held the fault, closing it would bring the alarm back.`,
+        'The fault has cleared for good': `The dial recovered at the very moment you opened F5. Look for something that stopped then.` },
+      why: `If F5 held the fault, closing it should have brought the alarm back. It did not. So a load left the system at that moment. A pump stopping on its pressure switch is one example. Note what was running, and wait for the alarm to return.` },
+    { show: true, name: 'A clamp on every feeder', from: P(), acts: [[0.4, { tool: 'clamp' }]],
+      text: `Now hunt without switching anything off. A leakage clamp goes round all three cores of a feeder, like an RCD's toroid. Load current goes out and back through it and cancels. The clamp reads only current that returns through the hull. The fault has moved the hull to L1, so every feeder's capacitance passes charging current. F1, a long run with 2 µF a line, reads 575 mA. The short feeders read 14.4 mA each. F6 carries all their charging current home through its fault, so it reads 661 mA.`,
+      read: `At 60 Hz, every feeder's clamp reads current. The long feeder F1 reads 575 mA, and each short feeder reads 14.4 mA. The faulty feeder F6 reads 661 mA.` },
+    { name: 'The biggest reading', before: P(), after: P({ tool: 'clamp', ring: 0 }),
+      task: `You clamp F1 first, at 60 Hz. It reads 575 mA, far more than the short feeders you have tried. Is F1 the faulty one?`,
+      opts: ['Yes, the biggest reading so far is the fault', 'Not proven. A long healthy feeder passes that much', 'No, a faulty feeder\'s clamp reads 0 mA'], want: 'Not proven. A long healthy feeder passes that much',
+      hints: { 'Yes, the biggest reading so far is the fault': `Once the hull shifts, every feeder's capacitance passes current. A long feeder has a lot of capacitance.`,
+        'No, a faulty feeder\'s clamp reads 0 mA': `The faulty feeder carries the other feeders' charging current home. So its clamp reads plenty.` },
+      why: `At 60 Hz a clamp reads charging current as well as fault current. F6 reads only 86 mA more than F1. A short faulty feeder is hard to tell from a long healthy one by size alone.[^3]` },
+    { show: true, name: 'The slow pulse', from: P({ tool: 'clamp' }), acts: [[0.4, { tool: 'inject' }]],
+      text: `A fault locator removes that doubt. It joins the live cores to the hull for a moment, through a current limit. Say it sends 10 mA. The pulse flows out on the cores, through the fault, and back through the hull to the locator.[^4] The pulse is slow, so the cables' capacitance barely passes it. Only the clamps on the fault's path see it. F6's clamp shows 10 mA. The other seven show nothing.`,
+      read: `With a 10 mA pulse injected, only F6's clamp shows it. The other seven feeders' clamps show 0 mA.` },
+    { name: 'Down to the circuit', before: P({ tool: 'inject', ring: 5 }), after: P({ tool: 'inject', ring: 5, sub: true }),
+      task: `The pulse shows on F6. F6 feeds a sub-board with four circuits: Fan, Pump, Heater and Lighting. What will the clamps on those four circuits show?`,
+      opts: ['10 mA on one circuit, nothing on the rest', '2.5 mA on each of the four', '10 mA on all four'], want: '10 mA on one circuit, nothing on the rest',
+      hints: { '2.5 mA on each of the four': `The pulse has one way home, through the fault. It does not split itself among the healthy circuits.`,
+        '10 mA on all four': `A healthy circuit gives the slow pulse no path to the hull.` },
+      why: `The pulse flows only where the fault is. At the sub-board, the incoming clamp and the Pump circuit's clamp show 10 mA. The other three show nothing. So the fault lies on the pump circuit.` },
+    { show: true, name: 'Test it dead', from: P({ tool: 'inject', ring: 5, sub: true }), acts: [[0.4, { tool: 'dead', across: 'whole' }], [1.8, { across: 'cable' }], [3.0, { across: 'motor' }]],
+      text: `The pulse has led you to the pump circuit. Now test it dead. Isolate it, lock it off and prove it dead. Disconnect anything the test could damage or skew.[^5] Here that is the pump's electronic starter. Test at 500 V DC, all three cores joined, to earth. It reads 0.00 MΩ. Split at the motor's terminal box. The cable reads over 200 MΩ. The motor reads 0.00 MΩ, so the fault is in its winding.`,
+      read: `The isolated pump circuit reads 0.00 MΩ to earth at 500 V DC. Split at the terminal box, the cable reads over 200 MΩ. The motor reads 0.00 MΩ.` },
+    { name: 'What the monitor cannot see', before: P({ pump: false }), after: P({ pump: false }),
+      task: `The monitor reads 2 MΩ, well above its alarm line. The fire pump is switched off at its starter. Does the monitor prove the fire pump's insulation healthy?`,
+      opts: ['Yes, the monitor reads the whole system', 'No. It cannot see a load that is switched off', 'Yes, if the earth lamps are equal too'], want: 'No. It cannot see a load that is switched off',
+      hints: { 'Yes, the monitor reads the whole system': `A load whose contactor is open is off the system. The monitor's voltage never reaches it.`,
+        'Yes, if the earth lamps are equal too': `Earth lamps watch only the live system too.` },
+      why: `A monitor reads only what is connected. A switched-off load is out of its reach.[^6] To prove the fire pump, test it dead, or run it and watch the monitor.` },
+    { kind: 'order', name: 'The dead test in order', before: P({ tool: 'inject', ring: 5, sub: true }), after: P({ tool: 'dead', across: 'whole' }),
+      task: `Put the steps for the pump circuit's dead test in order.`,
+      want: ORDER.map((t, k) => (k + 1) + '. ' + t + '.').join(' '),
+      hint: `Nothing is touched until the circuit is proven dead. Electronics come off before any test voltage.`,
+      why: `Isolation and proof come first, for your safety. The electronics come off next, so the test voltage cannot damage them or skew the reading. Then test the whole circuit, and split it to find which part holds the fault.` },
+    { name: 'A fault on the long feeder', before: P({ tool: 'clamp' }), after: P({ tool: 'clamp', fault: 1, ring: 0 }),
+      task: `Suppose the solid fault were on F1, the long feeder, instead of F6. What would F1's clamp read at 60 Hz?`,
+      opts: ['575 mA, as before', '101 mA, the other seven feeders\' charging current', '0 mA, as its own capacitance is shorted'], want: '101 mA, the other seven feeders\' charging current',
+      hints: { '575 mA, as before': `A faulty feeder's clamp reads the other feeders' current, coming home through its fault.`,
+        '0 mA, as its own capacitance is shorted': `Its own capacitance no longer counts. The other seven feeders' current still comes home through it.` },
+      why: `The faulty feeder carries every other feeder's charging current home. Seven short feeders of 0.05 µF a line make 0.35 µF. That passes 0.35 × 287 = 101 mA. So faulty F1 reads less than healthy F1 did. Size alone does not find the fault.` },
+  ];
+  const runAll = (d) => d.acts.reduce((s, a) => apply(s, a[1]), d.from);
+  STEPS.forEach((d, i) => {
+    if (d.show) { const s = d.stillPic || runAll(d); d.still = () => setPic(s); return; }
+    d.read = d.task;
+    d.still = d.kind === 'order' ? () => { S[i].order = [0, 1, 2, 3, 4]; S[i].res = 'right'; sel = -1; setPic(d.after); } : () => setPic(d.after);
+  });
+  const FINISH = 'Find the fault live, by opening feeders or by following the slow pulse. Then isolate that circuit and test it dead.';
+  const PICK = 'Choose an answer first.';
+  const SRC1 = 'https://marineinsight360.com/blogs/ship-earthing-systems-protect-ships';
+  const SRC2 = 'https://www.benderinc.com/fileadmin/content/BenderGroup/Documents/Article/en/Harbours_and_Vessels_6.12.20_compressed.pdf';
+  const SRC3 = 'https://download.se.com/files?amp&p_Doc_Ref=ECT178';
+  const SRC4 = 'https://www.bender.de/en/know-how/technology/it-system/insulation-fault-location-the-concept';
+  const SRC7 = 'http://www.iqytechnicalcollege.com/gl_i-1-3_e.pdf';
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- what the picture shows, and how it moves there ----------
+  // Every part eases toward its target; a word or number that changes fades out, then the new one fades in.
+  const HALF = 0.25;
+  const TAU = { needle: 0.25, dead: 0.22, bandL: 0.15, bandR: 0.15, spin: 0.4 };
+  function tgtOf(s) {
+    const clampT = s.tool === 'clamp' || s.tool === 'inject';
+    const t = { needle: dialF(monitorK(s)), lamp: monitorK(s) < ALARM ? 1 : 0, cont: effPump(s) ? 1 : 0, spin: effPump(s) ? 1 : 0,
+      ring: clampT ? 1 : 0, sub: clampT && s.sub && s.fault === 6 ? 1 : 0, dead: s.tool === 'dead' ? 1 : 0,
+      pulse: s.tool === 'inject' && s.fault === 6 && faultOn(s) ? 1 : 0, loc: s.tool === 'inject' ? 1 : 0,
+      lead: s.across === 'motor' ? 1 : 0, split: s.across === 'whole' ? 0 : 1, linkA: s.across === 'motor' ? 0 : 1,
+      bandL: s.across === 'motor' ? 247 : 124, bandR: s.across === 'cable' ? 235 : 302,
+      spark6: s.fault === 6 ? 1 : 0, spark1: s.fault === 1 ? 1 : 0 };
+    for (let i = 0; i < 8; i++) { t['bl' + i] = s.op[i] ? 1 : 0; t['rg' + i] = clampT && s.ring === i ? 1 : 0; }
+    return t;
+  }
+  function textsOf(s) {
+    const t = {}, mode = s.tool === 'inject' ? 'inject' : 'clamp', clampT = s.tool === 'clamp' || s.tool === 'inject';
+    for (let i = 0; i < 8; i++) t['t' + i] = clampT ? fmtMA(clampMA(s, i, mode)) : s.op[i] ? 'Open' : 'Closed';
+    for (let k = 0; k < 5; k++) t['s' + k] = fmtMA(subMA(s, k, mode));
+    t.pst = effPump(s) ? 'Running' : 'Stopped';
+    t.hull = faultOn(s) ? 'Hull, now at L1\'s voltage' : 'Hull';
+    t.m1 = s.tool === 'inject' ? 'Monitor and' : 'Insulation';
+    t.m2 = s.tool === 'inject' ? 'fault locator' : 'monitor';
+    return t;
+  }
+  const mkD = () => ({ v: {}, tgt: {}, txt: {} });
+  function setT(X, s, stag) {
+    X.tgt = tgtOf(s);
+    const t = textsOf(s);
+    Object.keys(t).forEach((k) => {
+      const old = X.txt[k];
+      if (old && old.now === t[k]) return;
+      const delay = !stag ? 0 : /^t\d$/.test(k) ? 0.18 * +k[1] : /^s\d$/.test(k) ? 0.3 : 0;
+      X.txt[k] = { prev: old ? old.now : '', now: t[k], t: -delay };
+    });
+  }
+  function snapD(X) {
+    X.v = Object.assign({}, X.tgt);
+    Object.keys(X.txt).forEach((k) => { X.txt[k].t = 2 * HALF; X.txt[k].prev = ''; });
+  }
+  function stepD(X, dt) {
+    let moving = false;
+    Object.keys(X.tgt).forEach((k) => {
+      const g = X.tgt[k], v = X.v[k];
+      if (v === g) return;
+      let nv = v + (g - v) * (1 - Math.exp(-dt / (TAU[k] || 0.12)));
+      if (Math.abs(g - nv) < (k === 'bandL' || k === 'bandR' ? 0.05 : 0.002)) nv = g;
+      X.v[k] = nv;
+      if (nv !== g) moving = true;
+    });
+    Object.keys(X.txt).forEach((k) => { if (X.txt[k].t < 2 * HALF) { X.txt[k].t += dt; moving = true; } });
+    return moving;
+  }
+
+  // ---------- the drawing (viewBox 340 × 434) ----------
+  // The monitor and a key on top, the bus bar, eight feeder tiles in two rows of four, F6's sub-board
+  // (or, in Test dead, the isolated pump circuit) below them, and the hull along the foot.
+  const TX = [14, 94, 174, 254], TY = [100, 188], TW = 76, TH = 78, BUS = 90, HULL = 412;
+  const SCX = [44, 146, 226, 286], SNAME = ['Fan', 'Pump', 'Heater', 'Lighting'];
+  const DX = 52, DY = 58, DR = 28;
+  const PULSE_D = 'M150 78V90H92V184H105V310H146V372H124V421H5V30H10';
+  const dialA = (f) => Math.PI * (1 - f);
+  const dp = (r, a) => [DX + r * Math.cos(a), DY - r * Math.sin(a)];
+  const n2 = (x) => +x.toFixed(2);
+  const pt = (p) => n2(p[0]) + ' ' + n2(p[1]);
+  const el = (id) => document.getElementById(id);
+  const svg = el('scene'), art = el('art'), hits = el('hits');
+  function put(parent, tag, attrs, text) { const n = K.svg(tag, attrs); if (text != null) n.textContent = text; parent.appendChild(n); return n; }
+  const sub = (parent, a) => put(parent, 'g', a >= 0.999 ? {} : { opacity: n2(Math.max(0, a)) });
+  const lab = (g, x, y, text, cls, anchor) => put(g, 'text', { x: n2(x), y: n2(y), class: 'lab' + (cls ? ' ' + cls : ''), 'text-anchor': anchor || 'start' }, text);
+  function slot(g, k, x, y, cls, anchor) {
+    const s = D.txt[k];
+    if (!s) return;
+    const ap = s.t <= 0 ? 1 : K.clamp(1 - s.t / HALF, 0, 1), an = K.clamp((s.t - HALF) / HALF, 0, 1);
+    if (s.prev && ap > 0.01) lab(sub(g, ap), x, y, s.prev, cls, anchor);
+    if (s.now && an > 0.01) lab(sub(g, an), x, y, s.now, cls, anchor);
+  }
+  function spark(g, x, y, r) {
+    let d = '';
+    for (let k = 0; k < 16; k++) { const a = k * Math.PI / 8 - Math.PI / 2, q = k % 2 ? r * 0.45 : r; d += (k ? 'L' : 'M') + n2(x + q * Math.cos(a)) + ' ' + n2(y + q * Math.sin(a)); }
+    put(g, 'path', { class: 'spark', d: d + 'Z' });
+  }
+  // A breaker drawn upright: the blade pivots on its lower contact and swings 35° clear when open.
+  function brk(g, x, yT, yB, o) {
+    const a = o * 0.61, L = yB - yT;
+    put(g, 'line', { class: 'blade', x1: x, y1: yB, x2: n2(x + L * Math.sin(a)), y2: n2(yB - L * Math.cos(a)) });
+    put(g, 'circle', { class: 'dot', cx: x, cy: yT, r: 2.2 });
+    put(g, 'circle', { class: 'dot', cx: x, cy: yB, r: 2.2 });
+  }
+  function hsw(g, xL, xR, y, o) {
+    const a = o * 0.52, L = xR - xL;
+    put(g, 'line', { class: 'blade', x1: xL, y1: y, x2: n2(xL + L * Math.cos(a)), y2: n2(y - L * Math.sin(a)) });
+    put(g, 'circle', { class: 'dot', cx: xL, cy: y, r: 2.2 });
+    put(g, 'circle', { class: 'dot', cx: xR, cy: y, r: 2.2 });
+  }
+  function impeller(g, x, y, r, a) {
+    put(g, 'circle', { class: 'motor', cx: x, cy: y, r });
+    let d = '';
+    for (let k = 0; k < 3; k++) {
+      const b = a + k * 2.0944, p1 = [x + 2 * Math.cos(b), y + 2 * Math.sin(b)], c = [x + (r - 4) * Math.cos(b - 0.1), y + (r - 4) * Math.sin(b - 0.1)], p2 = [x + (r - 3) * Math.cos(b + 0.6), y + (r - 3) * Math.sin(b + 0.6)];
+      d += 'M' + pt(p1) + 'Q' + pt(c) + ' ' + pt(p2);
+    }
+    put(g, 'path', { class: 'imp', d });
+    put(g, 'circle', { class: 'dot', cx: x, cy: y, r: 1.8 });
+  }
+  let ang = 0, dash = 0;
+
+  function scene() {
+    const v = D.v, deadIn = K.clamp(2 * v.dead - 1, 0, 1), subIn = K.clamp(1 - 2 * v.dead, 0, 1);
+    art.textContent = '';
+    const g = put(art, 'g', {});
+    // The hull, along the foot.
+    put(g, 'rect', { class: 'hull', x: 2, y: HULL, width: 336, height: 18, rx: 3 });
+    slot(g, 'hull', 240, HULL + 13, 's', 'middle');
+    // The monitor joins the bus bar and the hull.
+    put(g, 'path', { class: 'lead', d: 'M150 78V' + BUS + 'M10 30H5V' + HULL });
+    put(g, 'rect', { class: 'card', x: 10, y: 4, width: 186, height: 74, rx: 6 });
+    const aA = dialA(dialF(ALARM));
+    put(g, 'path', { class: 'dial', d: 'M' + pt(dp(DR, Math.PI)) + 'A' + DR + ' ' + DR + ' 0 0 1 ' + pt(dp(DR, 0)) });
+    put(g, 'path', { class: 'zone', d: 'M' + pt(dp(DR, Math.PI)) + 'A' + DR + ' ' + DR + ' 0 0 1 ' + pt(dp(DR, aA)) });
+    const a1 = dp(DR - 7, aA), a2 = dp(DR + 4, aA), al = dp(DR + 12, aA);
+    put(g, 'line', { class: 'alarm', x1: n2(a1[0]), y1: n2(a1[1]), x2: n2(a2[0]), y2: n2(a2[1]) });
+    lab(g, al[0], al[1] + 1, K.fmt(ALARM) + ' kΩ', 'n s', 'middle');
+    lab(g, DX - DR, DY + 13, '0', 'n s', 'middle');
+    lab(g, DX + DR, DY + 13, '∞', 'n s', 'middle');
+    const tip = dp(DR - 5, dialA(v.needle));
+    put(g, 'line', { class: 'needle', x1: DX, y1: DY, x2: n2(tip[0]), y2: n2(tip[1]) });
+    put(g, 'circle', { class: 'dot', cx: DX, cy: DY, r: 3 });
+    slot(g, 'm1', 104, 24);
+    slot(g, 'm2', 104, 39);
+    put(g, 'circle', { class: 'lamp', cx: 112, cy: 58, r: 6 });
+    if (v.lamp > 0.01) {
+      const gl = sub(g, v.lamp);
+      put(gl, 'circle', { class: 'lamp on', cx: 112, cy: 58, r: 6 });
+      [[-1, 0], [1, 0], [-0.7, -0.7], [0.7, -0.7], [0, -1]].forEach((u) => put(gl, 'line', { class: 'ray', x1: n2(112 + u[0] * 9), y1: n2(58 + u[1] * 9), x2: n2(112 + u[0] * 12), y2: n2(58 + u[1] * 12) }));
+    }
+    lab(g, 127, 62, 'Alarm', 'n');
+    if (v.loc > 0.01) put(sub(g, v.loc), 'path', { class: 'wave', d: 'M168 64V54H174V64H180V54H186V64H192' });
+    // The key.
+    spark(g, 212, 12, 5);
+    lab(g, 224, 16, 'Fault', 'n');
+    put(g, 'line', { class: 'w', x1: 212, y1: 21, x2: 212, y2: 35 });
+    put(g, 'ellipse', { class: 'ring', cx: 212, cy: 28, rx: 8, ry: 3.2 });
+    lab(g, 224, 32, 'Leakage clamp', 'n');
+    brk(g, 212, 38, 50, 0);
+    lab(g, 220, 48, 'Closed', 'n');
+    brk(g, 266, 38, 50, 1);
+    lab(g, 276, 48, 'Open', 'n');
+    const pk = Math.min(v.loc, subIn);
+    if (pk > 0.01) { const gk = sub(g, pk); put(gk, 'path', { class: 'glow', d: 'M204 60H220' }); put(gk, 'path', { class: 'pulse', d: 'M204 60H220' }); lab(gk, 226, 64, 'Pulse path', 'n'); }
+    if (deadIn > 0.01) { const gk = sub(g, deadIn); put(gk, 'rect', { class: 'band', x: 204, y: 54, width: 16, height: 12, rx: 2 }); lab(gk, 226, 64, 'Under test', 'n'); }
+    // The bus bar.
+    put(g, 'line', { class: 'bus', x1: 8, y1: BUS, x2: 334, y2: BUS });
+    lab(g, 334, BUS - 6, 'Bus bar, ' + VL + ' V, 60 Hz', 'n s', 'end');
+    // The eight feeders, each fed from the bus bar through its breaker, with its clamp round its cores.
+    for (let i = 0; i < 8; i++) {
+      const c = i % 4, r = i >> 2, x0 = TX[c], y0 = TY[r], cx = x0 + 11;
+      put(g, 'path', { class: 'feed', d: r === 0 ? 'M' + cx + ' ' + BUS + 'V' + y0 : 'M' + (x0 - 2) + ' ' + BUS + 'V184H' + cx + 'V' + y0 });
+      put(g, 'rect', { class: 'card', x: x0, y: y0, width: TW, height: TH, rx: 6 });
+      put(g, 'path', { class: 'w', d: 'M' + cx + ' ' + y0 + 'V' + (y0 + 8) });
+      brk(g, cx, y0 + 8, y0 + 22, v['bl' + i]);
+      let d;
+      if (i === 0) {
+        // F1: a long run, drawn coiled.
+        d = 'M' + cx + ' ' + (y0 + 22) + 'V' + (y0 + 40);
+        for (let k = 1; k <= 8; k++) d += 'L' + (cx + (k % 2 ? 5 : -5)) + ' ' + (y0 + 40 + k * 3.5);
+        d += 'L' + cx + ' ' + (y0 + 72);
+      } else if (i === F6) d = 'M' + cx + ' ' + (y0 + 22) + 'V' + (y0 + TH);
+      else d = 'M' + cx + ' ' + (y0 + 22) + 'V' + (y0 + 52) + 'M' + (cx - 4) + ' ' + (y0 + 48) + 'L' + cx + ' ' + (y0 + 53) + 'L' + (cx + 4) + ' ' + (y0 + 48);
+      put(g, 'path', { class: 'w', d });
+      if (v.ring > 0.01) put(sub(g, v.ring), 'ellipse', { class: 'ring', cx, cy: y0 + 34, rx: 8, ry: 3.2 });
+      lab(g, x0 + 22, y0 + 19, 'F' + (i + 1), 'big');
+      lab(g, x0 + 22, y0 + 36, K.fmt(CAP[i], { decimals: CAP[i] < 1 ? 2 : 0 }) + ' µF', 'm s');
+      lab(g, x0 + 22, y0 + 50, 'a line', 'm s');
+      slot(g, 't' + i, x0 + 22, y0 + 70);
+      if (i === 0 && v.spark1 > 0.01) spark(sub(g, v.spark1), cx, y0 + 58, 5);
+      if (v['rg' + i] > 0.01) put(sub(g, v['rg' + i]), 'rect', { class: 'rung', x: x0, y: y0, width: TW, height: TH, rx: 6 });
+    }
+    // F6 runs on down to its sub-board.
+    put(g, 'path', { class: 'w', d: 'M105 266V276' });
+    put(g, 'rect', { class: 'box2', x: 8, y: 276, width: 326, height: 126, rx: 6 });
+    if (subIn > 0.01) {
+      const gs = sub(g, subIn);
+      put(gs, 'path', { class: 'w', d: 'M105 276V310' });
+      lab(gs, 324, 294, 'F6 sub-board', '', 'end');
+      put(gs, 'line', { class: 'bus2', x1: 36, y1: 310, x2: 294, y2: 310 });
+      put(gs, 'path', { class: 'w', d: 'M44 310V362' });
+      put(gs, 'circle', { class: 'motor', cx: 44, cy: 372, r: 10 });
+      lab(gs, 44, 376.5, 'M', 's', 'middle');
+      // The pump: its contactor, its motor (the fault inside it) and the motor's frame bonded to the hull.
+      put(gs, 'path', { class: 'w', d: 'M146 310V318M146 332V361' });
+      brk(gs, 146, 318, 332, 1 - v.cont);
+      lab(gs, 138, 329, 'Contactor', 'm s', 'end');
+      impeller(gs, 146, 372, 11, ang);
+      if (v.spark6 > 0.01) spark(sub(gs, v.spark6), 151, 377, 4.5);
+      slot(gs, 'pst', 161, 376, 'm s');
+      put(gs, 'path', { class: 'bond', d: 'M135 372H124V' + HULL });
+      put(gs, 'path', { class: 'w', d: 'M226 310V365' });
+      put(gs, 'rect', { class: 'motor', x: 215, y: 365, width: 22, height: 14, rx: 2 });
+      put(gs, 'path', { class: 'w', d: 'M218 372L221 368L224 376L227 368L230 376L233 372' });
+      put(gs, 'path', { class: 'w', d: 'M286 310V363' });
+      put(gs, 'circle', { class: 'motor', cx: 286, cy: 372, r: 9 });
+      put(gs, 'path', { class: 'w', d: 'M279.6 365.6L292.4 378.4M292.4 365.6L279.6 378.4' });
+      SNAME.forEach((nm, k) => lab(gs, SCX[k], 396, nm, 'n', 'middle'));
+      if (v.sub > 0.01) {
+        const gc = sub(gs, v.sub);
+        put(gc, 'ellipse', { class: 'ring', cx: 105, cy: 290, rx: 8, ry: 3.2 });
+        slot(gc, 's0', 117, 294);
+        SCX.forEach((x, k) => { put(gc, 'ellipse', { class: 'ring', cx: x, cy: 346, rx: 8, ry: 3.2 }); slot(gc, 's' + (k + 1), x + 12, 350); });
+      }
+    }
+    if (deadIn > 0.01) {
+      // The pump circuit, isolated and locked off, its starter disconnected, the tester on the part under test.
+      const gd = sub(g, deadIn);
+      lab(gd, 324, 294, 'Pump circuit, isolated', '', 'end');
+      lab(gd, 12, 294, 'Locked off', 'm s');
+      put(gd, 'rect', { class: 'band', x: n2(v.bandL), y: 316, width: n2(Math.max(0, v.bandR - v.bandL)), height: 30, rx: 4 });
+      put(gd, 'path', { class: 'w', d: 'M10 330H24M44 330H52M112 330H117' });
+      hsw(gd, 24, 44, 330, 1);
+      put(gd, 'path', { class: 'w', d: 'M31 305V301A3 3 0 0 1 37 301V305' });
+      put(gd, 'rect', { class: 'lock', x: 29, y: 305, width: 10, height: 8, rx: 1.5 });
+      put(gd, 'rect', { class: 'tbox', x: 62, y: 314, width: 50, height: 32, rx: 4 });
+      lab(gd, 87, 334, 'Starter', 'n s', 'middle');
+      lab(gd, 87, 362, 'Disconnected', 'm s', 'middle');
+      put(gd, 'rect', { class: 'tbox', x: 229, y: 318, width: 24, height: 24, rx: 3 });
+      [324, 330, 336].forEach((y) => put(gd, 'line', { class: 'w', x1: 124, y1: y, x2: 235, y2: y }));
+      lab(gd, 177, 310, 'Cable', 'n s', 'middle');
+      lab(gd, 241, 310, 'Terminal box', 'n s', 'middle');
+      [324, 330, 336].forEach((y) => { put(gd, 'circle', { class: 'dot', cx: 235, cy: y, r: 1.8 }); put(gd, 'circle', { class: 'dot', cx: 247, cy: y, r: 1.8 }); });
+      if (v.split < 0.99) { const gl = sub(gd, 1 - v.split); [324, 330, 336].forEach((y) => put(gl, 'line', { class: 'w', x1: 235, y1: y, x2: 247, y2: y })); }
+      put(gd, 'path', { class: 'w', d: 'M247 324L268 326M247 330H268M247 336L268 334' });
+      impeller(gd, 284, 330, 16, ang);
+      if (v.spark6 > 0.01) spark(sub(gd, v.spark6), 291, 337, 5);
+      lab(gd, 284, 362, 'Motor', 'n s', 'middle');
+      put(gd, 'path', { class: 'bond', d: 'M300 330H316V' + HULL });
+      if (v.linkA > 0.01) put(sub(gd, v.linkA), 'line', { class: 'link', x1: 124, y1: 321, x2: 124, y2: 339 });
+      if (v.linkA < 0.99) put(sub(gd, 1 - v.linkA), 'line', { class: 'link', x1: 247, y1: 321, x2: 247, y2: 339 });
+      const lx = K.lerp(124, 247, v.lead);
+      put(gd, 'path', { class: 'tlead', d: 'M140 372C140 354 ' + n2(lx) + ' 358 ' + n2(lx) + ' 339M190 394V' + HULL });
+      put(gd, 'rect', { class: 'card', x: 100, y: 372, width: 112, height: 22, rx: 4 });
+      lab(gd, 156, 387, 'Tester, ' + TEST_V + ' V DC', 'n s', 'middle');
+    }
+    // The injected pulse: out on the cores, through the fault, home through the hull to the locator.
+    if (v.pulse > 0.01) {
+      const gp = sub(g, v.pulse);
+      put(gp, 'path', { class: 'glow', d: PULSE_D });
+      put(gp, 'path', { class: 'pulse', d: PULSE_D, 'stroke-dashoffset': n2(dash) });
+    }
+    return {
+      texts: Array.from(art.querySelectorAll('text')).map((t) => t.textContent),
+      tiles: [0, 1, 2, 3, 4, 5, 6, 7].map((i) => D.txt['t' + i].now),
+      subs: [0, 1, 2, 3, 4].map((k) => D.txt['s' + k].now),
+      subShown: v.sub * subIn > 0.5, dead: deadIn > 0.5, pulse: v.pulse, spark1: v.spark1, spark6: v.spark6, lamp: v.lamp > 0.5,
+      mon: fmtK(monitorK(cur)), tester: cur.tool === 'dead' ? testerText(cur.across) : 'Off',
+    };
+  }
+  function ariaOf(s) {
+    const below = monitorK(s) < ALARM;
+    const open = s.op.map((o, i) => (o ? 'F' + (i + 1) : '')).filter(Boolean);
+    let a = 'A 440 V, 60 Hz insulated switchboard: a bus bar, eight feeders F1 to F8 and the hull, joined by an insulation monitor whose needle sits ' +
+      (below ? 'below its 44 kΩ alarm line, with the alarm lamp lit. ' : 'above its 44 kΩ alarm line. ');
+    a += open.length ? 'Open: ' + open.join(', ') + '. ' : 'Every breaker is closed. ';
+    a += s.fault === 6 ? 'The fault is in the pump motor on F6\'s sub-board, and the pump is ' + (effPump(s) ? 'running. ' : 'stopped, its contactor open. ') : 'The fault is on F1\'s long cable. ';
+    if (s.tool === 'clamp' || s.tool === 'inject') {
+      const mode = s.tool === 'inject' ? 'inject' : 'clamp';
+      a += (mode === 'inject' ? 'With the pulse injected, the clamps read ' : 'At 60 Hz the clamps read ') + s.op.map((o, i) => 'F' + (i + 1) + ' ' + fmtMA(clampMA(s, i, mode))).join(', ') + '.';
+      if (s.sub && s.fault === 6) a += ' On F6\'s sub-board: incoming ' + fmtMA(subMA(s, 0, mode)) + ', ' + SNAME.map((nm, k) => nm + ' ' + fmtMA(subMA(s, k + 1, mode))).join(', ') + '.';
+    }
+    if (s.tool === 'dead') a += 'The pump circuit is isolated and locked off, its starter disconnected, with the tester across the ' + (s.across === 'whole' ? 'whole circuit.' : s.across === 'cable' ? 'cable only.' : 'motor only.');
+    return a;
+  }
+
+  // ---------- state ----------
+  function blank() { return { pick: null, res: null, why: false, order: SHUF.slice() }; }
+  let S = STEPS.map(() => blank());
+  let cur = P(), D = mkD(), TL = { acts: [], i: 0 }, T = 0, lastChange = 0, REC = null;
+  let finished = false, lastStep = -1, lastDone = false, sel = -1, drag = null;
+  setT(D, cur, false); snapD(D);
+
+  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => stepper.get();
+  const live = () => !finished && !!STEPS[at()].show;
+  const toolCtl = K.choice({ id: 'tool', label: 'Tool', options: [{ value: 'open', label: 'Open feeders' }, { value: 'clamp', label: 'Clamp at 60 Hz' }, { value: 'inject', label: 'Inject and clamp' }, { value: 'dead', label: 'Test dead' }], value: 'open', into: '#toolctl' });
+  const pumpCtl = K.toggle({ id: 'pump', label: 'Pump running', value: true, into: '#pumpctl' });
+  const acrossCtl = K.choice({ id: 'across', label: 'Test across', options: [{ value: 'whole', label: 'Whole circuit' }, { value: 'cable', label: 'Cable only' }, { value: 'motor', label: 'Motor only' }], value: 'whole', into: '#acrossctl' });
+  const mon = K.readout({ id: 'mon', label: 'Monitor', into: '#outs' });
+  const tst = K.readout({ id: 'tst', label: 'Tester', into: '#outs' });
+  function syncCtls() {
+    toolCtl.set(cur.tool, true); pumpCtl.set(cur.pump, true); acrossCtl.set(cur.across, true);
+    el('pumpctl').hidden = cur.tool === 'dead';
+    el('acrossctl').hidden = cur.tool !== 'dead';
+  }
+
+  function paint() {
+    REC = scene();
+    mon.set(REC.mon);
+    tst.set(REC.tester);
+    svg.setAttribute('aria-label', ariaOf(cur));
+    svg.classList.toggle('tappable', live() && cur.tool !== 'dead');
+  }
+
+  // One animation plays the timeline of a demonstration and eases every part; with reduced motion (and
+  // while the self-test looks) everything lands at once.
+  const anim = K.anim({ button: false, label: 'The hunt', step: (dt) => {
+    if (finished) return false;
+    dt = Math.min(dt, 0.1);
+    T += dt;
+    while (TL.i < TL.acts.length && T >= TL.acts[TL.i][0]) applyAct(TL.acts[TL.i++][1]);
+    const moving = T < 0 || stepD(D, dt);
+    if (D.v.spin > 0.005) ang += dt * 5 * D.v.spin;
+    if (D.v.pulse > 0.005) dash -= dt * 26;
+    paint();
+    const flowing = (D.v.spin > 0.005 || D.v.pulse > 0.005) && T - lastChange < 2;
+    return moving || TL.i < TL.acts.length || flowing;
+  } });
+  function applyAct(ch) {
+    const was = cur.tool;
+    cur = apply(cur, ch);
+    setT(D, cur, cur.tool !== was);
+    lastChange = T;
+    syncCtls();
+  }
+  function finishNow() {
+    while (TL.i < TL.acts.length) applyAct(TL.acts[TL.i++][1]);
+    snapD(D); anim.pause(); paint();
+  }
+  function go(t0) {
+    T = t0; lastChange = Math.max(0, t0);
+    if (REDUCE || testing()) { finishNow(); return; }
+    anim.play();
+  }
+  // Move the picture on from wherever it is now.
+  function moveTo(s) {
+    const was = cur.tool;
+    cur = clone(s); TL = { acts: [], i: 0 };
+    setT(D, cur, cur.tool !== was);
+    syncCtls();
+    go(0);
+  }
+  const retarget = (ch) => moveTo(apply(cur, ch));
+  function setState(s) { cur = clone(s); TL = { acts: [], i: 0 }; setT(D, cur, false); snapD(D); anim.pause(); syncCtls(); paint(); }
+  function setPic(s) { setState(s); K.refresh(); }
+  function startDemo(d) {
+    cur = clone(d.from); TL = { acts: d.acts, i: 0 };
+    setT(D, cur, false); snapD(D); syncCtls();
+    go(-0.4);
+  }
+
+  // Tapping a tile: in Open feeders it opens or closes the breaker; with a clamp it rings the tile, and F6 opens its sub-board.
+  function tap(i) {
+    if (!live()) return;
+    if (cur.tool === 'open') { const op = cur.op.slice(); op[i] = !op[i]; retarget({ op }); }
+    else if (cur.tool === 'clamp' || cur.tool === 'inject') { const ch = { ring: i }; if (i === F6 && cur.fault === 6) ch.sub = true; retarget(ch); }
+  }
+  for (let i = 0; i < 8; i++) {
+    const r = K.svg('rect', { class: 'hit', x: TX[i % 4], y: TY[i >> 2], width: TW, height: TH, rx: 6, tabindex: '0', role: 'button', 'aria-label': 'F' + (i + 1) });
+    r.addEventListener('click', () => tap(i));
+    r.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); tap(i); } });
+    hits.appendChild(r);
+  }
+
+  // ---------- the sorter ----------
+  const sorter = el('sorter');
+  const sortLive = () => !finished && STEPS[at()].kind === 'order' && S[at()].res !== 'right';
+  const midY = (x) => { const b = x.getBoundingClientRect(); return b.top + b.height / 2; };
+  function renumber() { Array.from(sorter.children).forEach((li, p) => { li.querySelector('.n').textContent = String(p + 1); }); }
+  const items = ORDER.map((t, k) => {
+    const li = K.el('li', { tabindex: '0', dataset: { k: String(k) } }, K.el('span', { class: 'n' }), K.el('span', { class: 'tx' }, t), K.el('span', { class: 'grip', 'aria-hidden': 'true' }, '↕'));
+    li.addEventListener('pointerdown', (e) => {
+      if (!sortLive() || (e.pointerType === 'mouse' && e.button !== 0)) return;
+      drag = { k, li, y0: e.clientY, grab: e.clientY - li.getBoundingClientRect().top, moved: false };
+      try { li.setPointerCapture(e.pointerId); } catch (err) { /* capture is a nicety */ }
+    });
+    li.addEventListener('pointermove', (e) => {
+      if (!drag || drag.li !== li) return;
+      if (!drag.moved) { if (Math.abs(e.clientY - drag.y0) < 6) return; drag.moved = true; li.classList.add('drag'); sel = -1; }
+      e.preventDefault();
+      for (let n = 0; n < 5; n++) {
+        const pv = li.previousElementSibling, nx = li.nextElementSibling;
+        if (pv && e.clientY < midY(pv)) sorter.insertBefore(pv, li.nextSibling);
+        else if (nx && e.clientY > midY(nx)) sorter.insertBefore(nx, li);
+        else break;
+      }
+      li.style.transform = '';
+      const top = li.getBoundingClientRect().top;
+      li.style.transform = 'translateY(' + (e.clientY - drag.grab - top).toFixed(1) + 'px)';
+      renumber();
+    });
+    const end = (e) => {
+      if (!drag || drag.li !== li) return;
+      const d0 = drag;
+      drag = null;
+      li.style.transform = '';
+      li.classList.remove('drag');
+      const st = S[at()];
+      if (d0.moved) st.order = Array.from(sorter.children).map((x) => +x.dataset.k);
+      else if (e.type === 'pointerup') {
+        if (sel < 0) sel = k;
+        else if (sel === k) sel = -1;
+        else { const a = st.order.indexOf(sel), b = st.order.indexOf(k); st.order[a] = k; st.order[b] = sel; sel = -1; }
+      }
+      st.res = null;
+      K.refresh();
+    };
+    li.addEventListener('pointerup', end);
+    li.addEventListener('pointercancel', end);
+    li.addEventListener('keydown', (e) => {
+      const dir = e.key === 'ArrowUp' ? -1 : e.key === 'ArrowDown' ? 1 : 0;
+      if (!dir || !sortLive()) return;
+      e.preventDefault();
+      const st = S[at()], a = st.order.indexOf(k), b = a + dir;
+      if (b < 0 || b > 4) return;
+      st.order[a] = st.order[b]; st.order[b] = k; st.res = null;
+      K.refresh();
+      li.focus();
+    });
+    return li;
+  });
+  function drawSorter(st) {
+    const locked = st.res === 'right';
+    sorter.classList.toggle('locked', locked);
+    if (drag) return;
+    if (Array.from(sorter.children).map((x) => x.dataset.k).join() !== st.order.join()) st.order.forEach((k) => sorter.appendChild(items[k]));
+    st.order.forEach((k, p) => {
+      const li = items[k];
+      li.querySelector('.n').textContent = String(p + 1);
+      li.classList.toggle('sel', sel === k && !locked);
+      li.setAttribute('aria-label', 'Step ' + (p + 1) + ': ' + ORDER[k]);
+    });
+  }
+
+  // ---------- answers and navigation ----------
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || st.res === 'right') return;
+    if (d.kind === 'order') st.res = sortRight(st.order) ? 'right' : 'wrong';
+    else if (st.pick == null) { st.res = 'empty'; return; }
+    else st.res = st.pick === d.want ? 'right' : 'wrong';
+    if (st.res !== 'right') return;
+    sel = -1;
+    moveTo(d.after);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (finished || STEPS[at()].show) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true; anim.pause();
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; sel = -1; stepper.set(0, true);
+  } });
+
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  el('finish').textContent = FINISH;
+  K.update((p) => {
+    if (!anim.playing()) finishNow();   // motion that was stopped (the page hidden, a test) shows finished
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (i !== lastStep) {
+      lastStep = i; sel = -1; enter('stepbox');
+      if (d.show) startDemo(d);
+      else setState(st.res === 'right' ? d.after : d.before);
+    } else if (p.tool !== cur.tool || p.pump !== cur.pump || p.across !== cur.across) {
+      if (live()) retarget({ tool: p.tool, pump: p.pump, across: p.across });
+      else syncCtls();   // off the screens that show them, the controls keep the picture's setting
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right', order = d.kind === 'order';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    task.textContent = strip(d.show ? d.text : d.task);
+    el('ctls').hidden = !d.show;
+    const opts = d.show || order ? [] : d.opts;
+    el('picks').hidden = !opts.length;
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    el('sorter').hidden = !order;
+    el('sorthint').hidden = !order || right;
+    if (order) drawSorter(st);
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    const fb = el('fb');
+    fb.hidden = !!d.show || !st.res;
+    fb.className = 'fb' + (right ? ' right' : '');
+    fb.textContent = d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? (order ? d.hint : d.hints[st.pick] || 'Not quite.') : st.res === 'empty' ? PICK : '';
+    const why = el('why');
+    why.hidden = !!d.show || !st.why;
+    why.textContent = d.show ? '' : strip(d.why);
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+    paint();
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  function drawn(s) {
+    const keep = [cur, D, TL, T];
+    cur = clone(s); D = mkD(); setT(D, cur, false); snapD(D); TL = { acts: [], i: 0 };
+    try { paint(); return REC; } finally { cur = keep[0]; D = keep[1]; TL = keep[2]; T = keep[3]; paint(); }
+  }
+  // A demonstration run on its own clock: the time from its screen opening until every part has settled.
+  function demoTime(d) {
+    const X = mkD();
+    let s = clone(d.from), t = -0.4, k = 0, last = 0;
+    setT(X, s, false); snapD(X);
+    for (let n = 0; n < 600; n++) {
+      t += 1 / 60;
+      while (k < d.acts.length && t >= d.acts[k][0]) { const was = s.tool; s = apply(s, d.acts[k][1]); setT(X, s, s.tool !== was); k++; }
+      const moving = t < 0 || stepD(X, 1 / 60);
+      if (moving || k < d.acts.length) last = t; else break;
+    }
+    return last + 0.4;
+  }
+
+  K.check('Twelve screens: five that show and seven puzzles, alternating to the ninth and ending on three mixed puzzles', () =>
+    STEPS.length === 12 && STEPS.filter((d) => d.show).length === 5 && STEPS.slice(0, 9).every((d, i) => !!d.show === (i % 2 === 0)) && STEPS.slice(9).every((d) => !d.show));
+  K.check('Isolating circuits one at a time until the reading recovers: with any healthy feeder open the monitor still reads 0 kΩ; with F6 open it recovers to 3,000 ÷ 7 = 429 kΩ, above the 100 × 440 = 44 kΩ alarm line', () => {
+    const all = drawn(P()), f6 = drawn(P({ open: [6] }));
+    return ALARM === 44 && all.mon === '0 kΩ' && all.lamp && [1, 2, 3, 4, 5, 7, 8].every((n) => drawn(P({ open: [n] })).mon === '0 kΩ') && f6.mon === '429 kΩ' && !f6.lamp;
+  }, { source: SRC1 });
+  K.check('The fault can disappear because the faulty load is switched off: with the pump stopped the monitor reads 3,000 ÷ 8 = 375 kΩ, and 429 kΩ with healthy F3 open, its lamp out', () => {
+    const a = drawn(P({ pump: false })), b = drawn(P({ pump: false, open: [3] })), c = drawn(P());
+    return a.mon === '375 kΩ' && !a.lamp && b.mon === '429 kΩ' && !b.lamp && c.mon === '0 kΩ' && c.lamp;
+  }, { source: SRC2 });
+  K.check('At 60 Hz: 440 ÷ 1.732 = 254 V and ω = 377 give 96 mA a line for each µF, 287 mA once the hull shifts; F1 reads 575 mA, each short feeder 14.4 mA, F6 661 mA', () => {
+    const r = drawn(P({ tool: 'clamp' }));
+    return Math.round(VPH) === 254 && Math.round(W) === 377 && Math.round(IH) === 96 && Math.round(PER) === 287 &&
+      r.tiles[0] === '575 mA' && r.tiles[F6] === '661 mA' && [1, 2, 3, 4, 6, 7].every((i) => r.tiles[i] === '14.4 mA');
+  });
+  K.check('The earth current of a short faulty feeder is hard to tell from that of a long capacitive feeder: faulty F6 reads only 86 mA more than healthy F1', () => {
+    const s = P({ tool: 'clamp' }), a = clampMA(s, F6, 'clamp'), b = clampMA(s, 0, 'clamp');
+    return a > b && Math.round(a - b) === 86 && Math.round(a) === 661 && Math.round(b) === 575;
+  }, { source: SRC3 });
+  K.check('The test pulse flows via the live conductors, the fault and earth back to the device: F6, the sub-board incoming and Pump read 10 mA, every other clamp 0 mA', () => {
+    const r = drawn(P({ tool: 'inject', sub: true, ring: 5 }));
+    return r.tiles.every((t, i) => t === (i === F6 ? '10 mA' : '0 mA')) && r.subShown && r.subs.join() === ['10 mA', '0 mA', '10 mA', '0 mA', '0 mA'].join() && r.pulse === 1;
+  }, { source: SRC4 });
+  K.check('With the fault off the system (the pump stopped, or F6 open), every clamp reads 0 mA at 60 Hz and with the pulse, and no pulse path is drawn', () =>
+    [P({ tool: 'clamp', pump: false }), P({ tool: 'inject', pump: false, sub: true }), P({ tool: 'clamp', open: [6] }), P({ tool: 'inject', open: [6] })]
+      .every((s) => { const r = drawn(s); return r.tiles.every((t) => t === '0 mA') && r.subs.every((t) => t === '0 mA') && r.pulse === 0; }));
+  K.check('With the solid fault on F1 instead, F1 reads the other seven feeders\' 7 × 0.05 = 0.35 µF a line × 287 = 101 mA, and each short feeder 14.4 mA', () => {
+    const r = drawn(STEPS[11].after);
+    return K.near(7 * 0.05, 0.35, 1e-12) && r.tiles[0] === '101 mA' && r.tiles.slice(1).every((t) => t === '14.4 mA') && r.spark1 === 1 && r.spark6 === 0 && r.mon === '0 kΩ';
+  });
+  K.check('Insulation resistance is measured at a DC voltage of at least 500 V: at 500 V the whole circuit and the motor read 0.00 MΩ, the cable over 200 MΩ, with the pump circuit off the system', () => {
+    const t = (x) => drawn(P({ tool: 'dead', across: x }));
+    return TEST_V >= 500 && t('whole').tester === '0.00 MΩ' && t('motor').tester === '0.00 MΩ' && t('cable').tester === 'Over 200 MΩ' && t('whole').dead && t('whole').mon === '375 kΩ';
+  }, { source: SRC7 });
+  K.check('Partial faults, from paths in parallel: 20 kΩ beside seven 3 MΩ feeders reads 19.1 kΩ, 19.2 kΩ with F3 open; 15 kΩ beside four 1 MΩ feeders (250 kΩ) reads 14.2 kΩ, beside three (333 kΩ) 14.4 kΩ', () => {
+    const par = (list) => 1 / list.reduce((a, x) => a + 1 / x, 0), r1 = (x) => Math.round(x * 10) / 10;
+    return r1(par([20].concat(Array(7).fill(3000)))) === 19.1 && r1(par([20].concat(Array(6).fill(3000)))) === 19.2 &&
+      Math.round(1000 / 4) === 250 && Math.round(1000 / 3) === 333 && r1(par([15, 250])) === 14.2 && r1(par([15, 1000 / 3])) === 14.4;
+  });
+  K.check('Before an answer, no puzzle\'s picture shows its result', () => {
+    const b = (i) => drawn(STEPS[i].before), a = (i) => drawn(STEPS[i].after);
+    return b(3).mon === '0 kΩ' && a(3).mon === '375 kΩ' &&
+      b(5).tiles.every((t) => !/mA/.test(t)) && a(5).tiles[0] === '575 mA' &&
+      !b(7).subShown && a(7).subShown && !b(10).dead && a(10).dead &&
+      b(11).tiles[0] === '575 mA' && a(11).tiles[0] === '101 mA';
+  });
+  K.check('The dead-test sorter takes only the right order: isolate, prove dead, disconnect the electronics, test, then split', () =>
+    sortRight([0, 1, 2, 3, 4]) && !sortRight(SHUF) && !sortRight([1, 0, 2, 3, 4]) && !sortRight([0, 1, 3, 2, 4]) && new Set(SHUF).size === 5);
+  K.check('Each demonstration settles within 5 s of its screen opening, and opening F6 lifts the needle past the alarm line within 1 s', () => {
+    const okDemo = STEPS.every((d) => !d.show || demoTime(d) <= 5);
+    const X = mkD();
+    setT(X, P(), false); snapD(X); setT(X, P({ open: [6] }), false);
+    let t = 0;
+    while (t < 1 && X.v.needle <= dialF(ALARM)) { stepD(X, 1 / 60); t += 1 / 60; }
+    return okDemo && X.v.needle > dialF(ALARM) && t < 1;
+  });
+
+  K.ready();
+</script>

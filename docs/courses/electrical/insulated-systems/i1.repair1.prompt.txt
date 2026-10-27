@@ -1,0 +1,333 @@
+TASK: repair-interactive
+
+The interactive below, written for Dan's learning app, failed its automatic checks. Fix every problem listed and return the complete corrected body. Keep what already works.
+
+## The idea
+Topic: Insulated systems and earth faults
+Idea: Where the star point goes: TN, TT and IT (The earthing letters say what the supply's star point is tied to, and that decides whether the first earth fault trips or the supply runs on.)
+Kind: mechanism
+Dan knows a little about this topic. Show an equation on the page only if every symbol in it is labelled on the picture; otherwise say the rule in words.
+
+## What the interactive must show
+Brief: The one thing you should see is the fault loop close through an earthed star point and trip, or find no way home to a floating one and run on, when you tap a fault onto the motor frame.
+Title (the app shows it above the frame, so do not repeat it): The star point switch
+The rule (the app shows it just above the frame, under "What you're looking at"): Twelve small screens share one picture, with Back and Continue. Six show an idea and six ask you to try it. There are no marks and no timers.
+
+The picture. On the left is a three-phase source, drawn as a star. Its three windings, L1, L2 and L3, meet at the star point. Say it is a 440 V supply, so each winding has 440 ÷ 1.732 = 254 V across it. Three lines run from the windings' free ends to a motor on the right. On the way they pass a breaker and an RCD. The motor's frame is bonded to the hull. The hull is a thick bar along the bottom, labelled "Hull (earth)". A switch at the star point has four positions, each a button: TN, TT, IT and High impedance. On a phone the four buttons wrap onto two rows. TN draws a protective conductor from the frame straight back to the star point. TT draws the star point to an earth electrode at the source. It draws the frame to a second electrode of its own, with ground between them. IT draws the star point floating, joined to nothing. High impedance draws the star point to the hull through a resistor labelled 1,500 Ω. A thin dashed line runs from each line to the hull, labelled "Insulation, 100 kΩ in all". A button, Fault on L1, draws a short from L1 to the motor frame. Press it and the fault current's loop lights up and runs round. It goes from L1's winding, through the fault, the frame and the hull. It returns to the star point by whatever path the switch gives. Its thickness grows with the current.
+
+The readouts are two tiles that wrap on a phone. Fault current shows in A or mA, as it needs. Supply reads Running, Tripped by breaker, Tripped by RCD or Running, alarm on. An alarm lamp by the source lights on IT and High impedance.
+
+The rule it computes. Current only flows round a complete loop back to its source. In this simplified model, the fault current is the winding's 254 V divided by the loop's resistance. TN: an example 0.5 Ω of metal gives 254 ÷ 0.5 = 508 A, and the breaker trips. TT: two example electrodes, 10 Ω and 100 Ω, give 254 ÷ 110 = 2.3 A. That is far below the breaker's example 32 A rating. It is far above the example 30 mA RCD, so the RCD trips. IT: there is no conductor back to the star point. The only way home is through the system's insulation, 100 kΩ, so 254 ÷ 100,000 gives about 2.5 mA. Nothing trips, and the alarm lights. High impedance: 254 ÷ 1,500 gives about 0.17 A. Nothing trips, and the alarm lights.
+
+Screen 1, show. The picture with the switch on TN and no fault. The words: "Three windings meet at the star point. Say it is a 440 V supply, so each winding gives 254 V. The motor's frame is bonded to the hull, which is earth. The switch sets what the star point is tied to. Two letters name that choice. The first letter is the star point: T for earth, from the French terre, or I for isolated.[^1] The second is how the frames reach earth: N through a conductor back to the star point, or T through an electrode of their own." Still: the switch on TN, no fault.
+
+Screen 2, try it. "A supply is marked IT. What do its two letters tell you?" Three choices, in this order: "The star point is isolated from earth. The frames go to earth."; "The star point is tied to earth. The frames are isolated."; "The star point and the frames are both tied to the hull." Right, the first. Hint for the second: "The first letter is the star point, and I means isolated." Hint for the third: "Only the frames are. The I says the star point is joined to nothing." Why: "Read the letters in order. The first is the star point: I, isolated. The second is the frames: T, to earth. On a ship that earth is the hull." A right Check sets the switch to IT. Read: "A supply is marked IT. What do its two letters tell you?"
+
+Screen 3, show. The switch on TN, with Fault on L1 to press. The words: "With the star point on TN, tap Fault on L1. The current's loop lights up. It runs out of L1 and through the fault into the frame. It comes back along the protective conductor to the star point, then up L1's winding. Say that metal loop is 0.5 Ω. Then 254 ÷ 0.5 = 508 A flows, and the breaker trips at once.[^2] Earthing does not drain the fault away. It closes the loop, so the current is big enough to trip." Read: "On TN the fault current runs out of L1 and into the frame. It comes back along the protective conductor to the star point and up L1's winding. 508 A flows, and the breaker trips." Still: TN, fault on.
+
+Screen 4, try it. "Why does the breaker trip on TN?" Three choices, in this order: "The protective conductor gives the current a low-resistance way back to the star point."; "The earth wire carries the extra electricity away into the hull."; "Earthing works like double insulation and cuts the supply." Right, the first. Hint for the second: "Current goes round a loop back to its source. The earth wire is the loop's way home, not a drain." Hint for the third: "Double insulation keeps a fault off metal you can touch. Earthing lets a fault on metal draw enough current to trip." Why: "Current only flows round a complete loop. The protective conductor closes it back to the star point through metal. That loop is a fraction of an ohm. So 254 V drives hundreds of amps, and the breaker trips at once." A right Check lights the TN loop again. Read: "Why does the breaker trip on TN?"
+
+Screen 5, show. The switch on TT. The words: "Switch to TT and tap the fault again. The star point now goes to an earth electrode at the source. The frame goes to an electrode of its own. So the loop runs through the ground between them. Say the two electrodes are 10 Ω and 100 Ω. Then 254 ÷ 110 = 2.3 A flows. A 32 A breaker will not notice that. A 30 mA RCD sees current going out that does not come back, and trips. Both ends are earthed, so the fault has a way home." Read: "On TT the loop runs through the ground between two electrodes, 110 Ω in all. 2.3 A flows. That is too little for the breaker, so the RCD trips." Still: TT, fault on.
+
+Screen 6, try it. "A TT supply has electrodes of 20 Ω and 200 Ω, the same 254 V winding, a 32 A breaker and a 30 mA RCD. A phase faults to a frame. About what current flows, and what trips?" Three choices, in this order: "About 1.2 A, and the RCD trips"; "About 508 A, and the breaker trips"; "About 1.2 A, and the breaker trips". Right, the first. Hint for the second: "The loop now runs through two electrodes and the ground, 220 Ω, not a fraction of an ohm." Hint for the third: "1.2 A is far below a 32 A breaker's rating. It is far above an RCD's 30 mA." Why: "The loop is 20 + 200 = 220 Ω, so 254 ÷ 220 = 1.15 A, about 1.2 A. A breaker needs many times its rating to trip at once. An RCD trips on 30 mA that does not come back." Read: "A TT supply has electrodes of 20 Ω and 200 Ω, the same 254 V winding, a 32 A breaker and a 30 mA RCD. About what current flows at a fault to frame, and what trips?"
+
+Screen 7, show. The switch on IT. The words: "Switch to IT and tap the fault. The star point now floats, isolated from earth. The frame stays bonded to the hull.[^3] The fault reaches the hull and finds no conductor back to the star point. Its only way home is back through the other lines' insulation. Say the whole system's insulation measures 100 kΩ to earth. Then 254 ÷ 100,000 gives about 2.5 mA. Nothing trips, and the motor runs on. An alarm lamp lights, so someone knows the fault is there." Read: "On IT the fault reaches the hull but finds no conductor back to the floating star point. About 2.5 mA leaks home through the insulation. The motor runs on and the alarm lights." Still: IT, fault on.
+
+Screen 8, try it. "Same motor, same fault on L1, but the star point is floating. What happens?" Three choices, in this order: "A few milliamps flow, the motor runs on and an alarm lights."; "A large current flows and the breaker trips, as on TN."; "No current flows at all, so the fault can be left." Right, the first. Hint for the second: "No conductor joins the hull to a floating star point. The loop runs only through the insulation." Hint for the third: "A small current still leaks home through the insulation. The fault also stays on the system until someone clears it." Why: "The fault reaches the hull, but the star point is not tied to it. The only loop runs through 100 kΩ of insulation, so 254 V drives about 2.5 mA. That trips nothing." A right Check lights the IT loop. Read: "Same motor, same fault on L1, but the star point is floating. What happens?"
+
+Screen 9, show. The switch on High impedance. The words: "Why want a supply that does not trip? At sea, a trip can stop a pump the ship needs. That is why unearthed two-wire distribution was brought in at sea. It stops an earth fault taking out an essential service at once.[^4] Now set High impedance and tap the fault. The star point goes to earth through a high impedance, say 1,500 Ω. Then 254 ÷ 1,500 gives about 0.17 A. That is far too little to trip. So the supply runs on and alarms, like IT." Read: "With the star point tied to the hull through 1,500 Ω, the fault passes about 0.17 A. Nothing trips, and the alarm lights, as on IT." Still: High impedance, fault on.
+
+Screen 10, try it, the first of three mixed puzzles. "Why would a ship's supply be insulated?" Three choices, in this order: "So an earth fault does not take out an essential service at once"; "Because an insulated supply cannot give you a shock"; "Because the hull cannot be used as an earth". Right, the first. Hint for the second: "That is not the reason, and never assume it. Prove a conductor dead as on any job." Hint for the third: "The frames are bonded to the hull. Only the star point is left floating." Why: "An insulated supply runs on through its first earth fault. So the steering, the pumps and the lights stay on while the fault is found." Read: "Why would a ship's supply be insulated?"
+
+Screen 11, try it. "A supply's first earth fault draws about 2 A, and an RCD trips. What is its star point tied to?" Three choices, in this order: "Earth, through its own electrode: TT"; "Nothing: it floats, IT"; "Earth, through a protective conductor: TN". Right, the first. Hint for the second: "A floating star point gives no deliberate way home, so the current is small and nothing trips." Hint for the third: "A metal loop back to the star point gives hundreds of amps, and the breaker trips." Why: "A trip means the star point is tied to earth. A few amps, not hundreds, means the loop runs through the ground between two electrodes. That is TT." A right Check sets the switch to TT. Read: "A supply's first earth fault draws about 2 A, and an RCD trips. What is its star point tied to?"
+
+Screen 12, try it. "A board's drawing says TN-S. What happens at its first earth fault to a frame?" Three choices, in this order: "A large current flows and the breaker trips"; "A small current flows and the supply runs on"; "A few amps flow through the ground, and the RCD trips". Right, the first. Hint for the second: "That is IT. Here the first letter is T, so the star point is tied to earth." Hint for the third: "That is TT. The N says the frames go back to the star point through metal, not the ground." Why: "T first: the star point is tied to earth. N second: the frames go back to it through a protective conductor. In TN-S that conductor is separate from the neutral. So the loop is all metal, and the breaker trips." A right Check sets the switch to TN. Read: "A board's drawing says TN-S. What happens at its first earth fault to a frame?"
+
+Every figure on these screens is an example value or worked from the rule above.
+What the model leaves out (the app shows this in its own panel; do not repeat it on the page): The picture draws the fault as a solid join. It draws the system's leak to earth as one 100 kΩ resistor. A real system also leaks through the capacitance of its cables and windings. So on a large system the first fault passes more than milliamps. The picture does not show what the fault does to the voltages of the other two lines. The loop resistances, the electrodes and the high impedance are example values. The breaker and RCD are drawn tripping at once, though each takes a short time. On TN, TT and High impedance the insulation path is there too. It changes nothing the readouts show.
+Controls (use these ids, ranges and opening values exactly; when the prediction or a check names a setting of a slider, add it to that slider's snap):
+- id "step": Screen, from 0 to 11 in steps of 1, opening at 0
+Outputs: none. No rule computes a number here, so show no readouts beyond plain counts of what is on screen ("4 of 7 at war"): the picture, its labels and the .say line do the teaching.
+Numbers it may show (control = Dan sets it; computed = from the rule; constant = a fixed real value; assumed = an example value, said once as an example in the lead line or a caption, then drawn as a plain value; date = a historical date or fact):
+- Screen, 1 to 12 (the stepper): 0 (control)
+- Number of screens: 12 (assumed)
+- Example line voltage of the supply, in volts: 440 (assumed)
+- Square root of 3, to three decimal places: 1.732 (constant)
+- Voltage across each winding, 440 ÷ 1.732, in volts: 254 (computed)
+- Example TN loop resistance, in ohms: 0.5 (assumed)
+- TN fault current, 254 ÷ 0.5, in amps: 508 (computed)
+- Example TT source electrode, in ohms: 10 (assumed)
+- Example TT frame electrode, in ohms: 100 (assumed)
+- TT loop, 10 + 100, in ohms: 110 (computed)
+- TT fault current, 254 ÷ 110, in amps: 2.3 (computed)
+- Example breaker rating, in amps: 32 (assumed)
+- Example RCD rating, in milliamps: 30 (assumed)
+- Example insulation of the whole system to earth, in kilohms: 100 (assumed)
+- IT fault current, 254 ÷ 100,000, in milliamps: 2.5 (computed)
+- Example high impedance, in ohms: 1500 (assumed)
+- High-impedance fault current, 254 ÷ 1,500, in amps: 0.17 (computed)
+- Screen 6 example electrodes, in ohms: 20 and 200 (assumed)
+- Screen 6 loop, 20 + 200, in ohms: 220 (computed)
+- Screen 6 fault current, 254 ÷ 220, in amps: 1.15 (computed)
+- Screen 6 fault current rounded, in amps: 1.2 (computed)
+- Screen 11 example fault current, in amps: 2 (assumed)
+
+## What the checks found (at 340, 720 and 1040 px wide)
+- Check failed: "Twelve screens, six that show and six puzzles, alternating" (returned false)
+- Advice: SVG labels "Breaker" and "RCD" are only 3 px apart on one row, so they read as one: leave at least 4 px between them, or label only what differs (at step = step 5, and 6 more settings) [at 340 px wide]
+
+## How to fix the usual problems
+- A thrown error (also from a K.button press or a K.anim step): go to the body line it names; check element ids, variable names and the kit call signatures.
+- NaN or Infinity: guard the maths at the ends of every control's range (division by zero, log of 0, square root of a negative), or start the range where the rule makes sense.
+- A model output that is a list or object: K.model returns single numbers or short strings; keep lists in your own variables.
+- Too wide at 340 px: let rows wrap (flex-wrap), use width:100% and max-width:100%, give SVG a viewBox with width 100%, no fixed widths over 300 px, shorter labels.
+- Text cut off: shorten it or let it wrap, or give it room (a wider box, a bigger viewBox); never cut it off or hide the overflow. SVG labels printed over each other, even by a letter or two: move one, or place them with K.labels. A plot's axis title too long for a phone: shorten it (about 30 characters). A word split across two lines (often at Text size XL): size its grid columns or tiles in rem, not px (minmax(6rem, 1fr)), so they reflow to fewer, wider columns; or use a shorter word.
+- SVG text too small on a phone: font-size 13-16 in a drawing about 340 wide. A line or arrowhead through a label: place the label with K.labels and pass that line in avoid, or stop the line short of it. More labels than room (K.labels says avoid cannot be honoured): label fewer things, or move the names into a key under the drawing or a list beside it.
+- A readout's value printed elsewhere (a label, an aria-label or a plot label that follows it): while Dan answers a check the app hides only the readout and the .say line, so show the number in the readout alone and name the thing elsewhere.
+- Text hard to read (contrast) or a colour name: ink, muted, accent2, accent, warn or good (on-accent2 on navy), as var(--k-…) or K.color set in K.update, so it follows the theme.
+- A blank hole before Dan moves: hide only the answer (a line, a mark, a sentence), never a whole figure.
+- The first control far below the main figure (phone layout): put the visual and its controls together with K.stage(visual, controls), secondary figures below.
+- K.sound: frequencies 20 to 20,000 Hz (200 to 2,000 for anything Dan must hear on a phone), dur above 0 and at most 10 s, gain 0 to 1, a listed type; play it from a K.button press.
+- Navigation, links out, connections or frames: everything stays on this page (no <a href> or forms, no location changes, no WebSocket, XMLHttpRequest or iframes); name sources in words.
+- A failing check: work the expected value out again by hand. Fix whichever is wrong, the model or the check. Never delete a correct check or change its expected answer to pass. A tolerance that was unrealistically tight (a millionth, where square roots or small steps meet rounding) may be widened to a sensible one (a thousandth of the size).
+- Slow updates: sample curves less densely and do not rebuild large parts of the page on every change.
+- Missing ids: use exactly the ids listed; an output must be a key of the object K.model returns.
+- An unlisted web address: delete it, and the {source} that held it.
+- A target out of reach: make the model follow the lesson's rule with the lesson's ranges and opening values, so moving that one control brings the output to the target.
+
+## Sources
+The only web addresses this page may contain, each only as a K.check {source} on a check whose label restates what that source's quote says (a result of your rule, or a fact about your drawing, takes no source; the caption names a source in words). The app rejects any other:
+[1] Earthing Your Questions Answered (https://electrical.theiet.org/media/1698/earthing-your-questions-answered.pdf): "T = Earth (from the French word Terre) N = Neutral S = Separate C = Combined I = Isolated"
+[2] Characteristics of TT, TN and IT systems - Electrical Installation Guide (https://www.electrical-installation.org/enwiki/Characteristics_of_TT,_TN_and_IT_systems): "## TN system * Technique for the protection of persons: + Interconnection and earthing of exposed conductive parts and the neutral are mandatory + Interruption for the first fault using overcurrent protection (circuit-breakers or fuses)"
+[3] Wiring Matters - your insight into BS 7671 (https://electrical.theiet.org/media/1469/railway-systems_tm-granger.pdf): "The third type of earthing arrangement, and the particular focus of this article, is the 'IT' type, in which the source transformer is isolated from earth, whilst all exposed conductive parts of the installation are connected to earth elec…"
+[4] library.imarest.org (https://library.imarest.org/record/2202/files/2229.pdf): "two-wire unearthed distribution systems were introduced to prevent the immediate loss of an essential service resulting from an earth fault."
+[5] IT system - Fault protection - Electrical Installation Guide (https://www.electrical-installation.org/enwiki/IT_system_-_Fault_protection): "In IT system, the first fault to earth should not cause any disconnection. The earth-fault current which flows under a first-fault condition is measured in mA."
+
+## Rules for this page
+- There is no guess to protect: show everything from the start (no k-after-move), curves and results included.
+- The lead line says what is drawn, plainly ("Water from a 5 m drop hits the blades of a wheel"), not what to do: the app gives the action above the frame. Example values are said once there ("an example stream: a 5 m drop, 20 kg of water each second"), then the drawing labels them plainly ("5 m"), never "for example" on the drawing.
+- Every label and arrow sits on, or starts from, the thing it is about: a force arrow starts on the part it pushes; a speed arrow on the part that moves. Anything the rule says turns or flows does so (K.anim), at a speed that follows its control.
+- The .say sentence must make sense on its own to someone who has just read the explanation: what is happening on screen now, cause then effect, in everyday words; no term, threshold or comparison the page or the explanation has not named; a number as part of its whole ("353 W of the stream's 981 W is carried off by the water"). Bad: "The buckets move slower than half the jet speed, so the water still leaves going backwards, taking 353 W away with it." Good: "The buckets are moving slowly, so the water bounces off them still moving fast, and carries 353 W of its 981 W away downstream."
+- A key for the main drawing sits inside the drawing; show each quantity once (a bar, a readout or a curve, not all three); every number drawn that is worked out (a speed from a drop) is explained in "What you're looking at", or is left off.
+- Draw the cause the explanation gives, not only its effect, and let Dan cause it (a drag, a push, a switch); include the setting where the effect does not happen.
+- Mark the brief's one quantity on the picture itself, with a label saying what it is and its value (a bracket between the two heights reading "2.4 m"); an output with a readout is marked without its number, which the readout alone shows (the app hides it while Dan answers a check).
+- A shaded band states something true of the axis it spans: inputs across x, outputs across y. To show many inputs giving nearly the same output, shade the narrow output band (regions {y0, y1}).
+- Draw every comparison the explanation makes the same way, in the same place, on the axis where the effect happens. A time period is a bracket or thin band along the time axis, not a tall block.
+- Give each reference line its own look and a label beside it; every styled line is in the key or labelled on the drawing.
+- Draw only what the brief, the rule or the explanation names, with the same names. An extra figure says on itself how to read it: what its line stands for and which way is which.
+- Show only the numbers listed above or computed from the rule, each written the way the explanation writes it (the same rounding).
+- Any example cases you choose are fair and representative, never picked to exaggerate the effect.
+- Money, health and law: show how it works, never advice, and never a guaranteed outcome.
+
+## The house kit (complete API reference)
+You write the BODY of one page: HTML, an optional `<style>`, then one inline `<script>` ending
+with `K.ready()`. It runs in a sandboxed iframe on Dan's phone (about 340 px wide, touch) and
+laptop, with the global `K` and the kit's stylesheet. No network or storage: no web
+addresses, `fetch`, `localStorage`, `alert` or `prompt`.
+
+### Page shape that works
+1. `<p class="lead">`: one line saying what is drawn (the app adds title and action).
+2. The main visual with its controls right under it: `K.stage('#scene', '#controls')` keeps the
+   pair on one phone screen. A choice that re-sorts the picture may sit above it.
+3. `<p class="say">`: one sentence that changes with the state and says why. Then
+   `<div class="k-readouts">` for numbers the drawing does not label.
+4. Secondary figures and anything that grows go below.
+5. `<p class="caption">`: one short sentence, at most 20 words: where the numbers come from ("A
+   sketch, not measured data") or the rule in the explanation's words. No new claim, no law or
+   term the explanation does not teach. The app shows what the model leaves out.
+
+### Keep the answer hidden until Dan moves
+Dan predicts before he plays: open on a setting the question is not about, and hide whatever
+gives the answer away until his first move:
+- class `k-after-move` on any element (a mark, an arrow, a sentence): hidden, its space kept.
+  Hide the answer, not the controls or a whole figure (a blank hole fails the test).
+- `K.readout({..., afterMove: true})` shows "?" until then; plot series and marks take `afterMove: true` too.
+- `K.moved` is true from then on: in `K.update`, write `K.moved ? answer : question`.
+- `K.afterMove(fn)` runs `fn` once at that moment; `K.reveal()` marks it from your handlers.
+
+### The pipeline
+Controls register themselves; their values form `params` = `{id: value}`.
+```
+K.model(fn)        fn(params) -> outputs {name: number | string}. Pure: no DOM, no lists or objects.
+K.update(fn)       fn(params, outputs): draw everything here. More than one is allowed.
+K.at(over)         -> outputs of the model at those params (others take each control's starting value)
+K.check(label, fn, {source?})   fn() must return exactly true
+K.ready()          call once, last: draws the opening state and runs the checks
+K.complete()       at the lesson's end
+K.params()  K.outputs()  K.refresh()   (refresh reruns the pipeline after you change your own state)
+```
+A readout whose id is an output key updates itself.
+
+### Controls
+Every control takes `into` (a selector or element). Ids are unique; use the lesson's ids exactly.
+```
+K.control({id, label, min, max, step, value, unit?, prefix?, fmt?, log?, snap?, hint?, into}) -> {el, get(), set(v)}
+K.choice({id, label, options: [value | {value, label}], value, hint?, into}) -> {el, get, set}
+K.toggle({id, label, value: false, hint?, into}) -> {el, get, set}
+K.stepper({id, steps: [title | {title, text}], value: 0, compact?, label?, into}) -> {el, get, set, setSteps(list)}
+K.button({label, press, secondary?, into}) -> {el, press(), setLabel(text)}
+K.drag(el, {control, toValue(x, y)}) -> {el}
+```
+`control` is a big slider with − / + buttons. Keep `unit` short; `fmt(v)` returns the whole text;
+`log: true` spans decades; `snap: [values]` lands a drag exactly on a setting the prediction or a
+check names. `choice`: 2-8 short named options; `value` is an option's value or its 0-based
+index. `stepper` walks a process with Back / Next (`compact: true` when your diagram shows the
+content). `button` is an action (Send it in): use it, not plain buttons. `drag` lets Dan move
+the thing itself: `toValue` maps the pointer (viewBox units; px from `el`'s top-left for HTML)
+to the control's value; the first touch counts as his move.
+
+### Outputs
+```
+K.readout({id, label, unit?, prefix?, decimals?, fmt?, big?, hint?, afterMove?, into}) -> {el, set(v), get(), text()}
+```
+One rounding everywhere a number appears: `decimals` matching the lesson text, and the `.say`
+sentence built with `K.fmt(v, {decimals})` or `readout.text()`. Labels under 30 characters.
+While Dan answers a lesson check, the app hides that output's readout and the `.say` lines:
+never repeat a readout's value elsewhere (a label, an aria-label).
+```
+K.plot(target, opts) -> {draw(opts), x(v), y(v), invert(px, py), el, canvas}
+```
+- `x`, `y`: `{min, max, label, log?, prefix?, unit?, fmt?, ticks?}`. Leave out `y.min`/`y.max` to fit the data.
+- `series`: `[{fn: x => y | points: [[x, y], ...], label?, color?, dash?, width?, fill?, dots?, gaps?, afterMove?}]`
+- `shade`: `[{between: [a, b], label?, color?, x0?, x1?}]`: fills between two series (by label), a
+  series and a constant, or two functions.
+- `marks`: `[{x, y, label?, color?, guides?, afterMove?}]`: a dot with a label pill; `guides` adds dashed lines to the axes.
+- `regions`: `[{x0, x1, label?} | {y0, y1, label?}]` (a band); `lines`: `[{x | y, label?}]` (a dashed line).
+- `label`: the text alternative; `height`; `after(ctx, plot)` draws extras using `plot.x()`, `plot.y()`.
+
+`draw(opts)` redraws with `opts` over the creation options: call it in `K.update`. Values must be
+finite (`gaps: true` only where a gap is real). Series are navy, then teal; `color: 'muted',
+dash: true` for a baseline.
+```
+K.bars(target, {max?, unit?, prefix?, decimals?, fmt?}) -> {draw(items)}      items: [{label, value, color?}], values >= 0
+K.anim({step(dt, t), reset?, label?, autoplay?, button?, into}) -> {el, play, pause, toggle, reset, playing()}
+```
+`anim` adds a Play button (text `label`); `reset` adds Reset. When a switch, button or drag
+already starts the motion, pass `button: false` and call `play()` from that control: one control
+per action. In `step` advance your state (`dt` in seconds) and redraw; return `false` to stop. To
+drive a slider, keep the exact value yourself (the slider moves in whole steps).
+
+### Sound
+```
+K.sound.tone(hz, {dur?, type?, gain?})   K.sound.chord([hz, ...], {dur?, stagger?})   K.sound.stop()   K.sound.mute(on)
+K.sound.hold(hz, {type?, gain?, max?}) -> {set({hz?, gain?}), stop(), playing()}
+```
+`dur` in seconds (at most 10). Sound plays only from a `K.button` press, never `K.update`; show
+what is sounding. `hold` keeps a tone going while `set()` follows a slider. Phones can't play
+below about 150 Hz: use 200 to 2,000 Hz.
+
+### Drawings and helpers
+```
+K.el(tag, attrs?, ...children)    attrs: class, style, on: {click: fn}, text, html, dataset, any attribute
+K.svg(tag, attrs?, ...children)   the same in the SVG namespace
+K.labels(group, [{x, y, text, anchor?, size?, class?, color?}], {avoid?}) -> [<text>]
+K.stage(visual, controls, {max?, beside?}) -> {el}
+K.fmt(v, {decimals?, sig?, prefix?, unit?, percent?, sign?, compact?}) -> '1,234.5', '−3', '2.5 × 10⁶'
+K.near(a, b, tol)   K.clamp(v, lo, hi)   K.lerp(a, b, t)   K.linspace(a, b, n)   K.color(role, alpha?)
+K.ease(p)   K.arrive(T, t0, dur?)   K.fade(el, a, rise?)
+```
+Give an `<svg>` a viewBox about 340 wide, `width="100%"`, `role="img"` and an `aria-label` that
+follows the state. Text 13-16 units, never under 12 (a phone shows 340 units at about 0.9x). A
+row of N labels gets about 300/N units each; label only what differs. Every label sits on, or
+points to, something drawn. `K.labels` places labels (13 units unless `size`) clear of other
+text, the edges and the lines or shapes in `avoid`: use it for labels that move or appear later.
+Put an angle's label inside its wedge, beyond the arc, hidden while the wedge is too narrow.
+`K.stage` fits the pair in `max` px (600) on a phone; `beside: false` keeps it stacked.
+
+Draw the mechanism as it physically works. If the explanation gives a reason (X because Y), draw
+Y so Dan can watch it; parts that fit are drawn fitting (teeth in teeth), never two identical
+icons joined by a line; whatever the rule says happens (slides, grips, multiplies) happens on screen.
+
+### Colour
+Colour carries meaning. Use these roles as `var(--k-…)` or `K.color('fill2')` (`K.color('accent2',
+0.3)` is see-through); a colour name fails the test.
+- Lines and text: `ink`, `muted` (secondary, comparisons), `accent2` (navy: the main thing,
+  controls), `accent` (teal: small labels, a second series), `warn` (red: warnings and mistakes
+  only), `good` (green: "done" only), `amber-line` (amber lines that must stand out).
+- Fills: `bg` (page), `panel`, `sunk`, `amber` (note box), `hl` (key-term highlighter), `fill1`
+  (area of the main thing), `fill2` (highlighted area, amber), `fill3` (area of a second thing).
+- `cat1`-`cat4` (blue, orange, magenta, aqua): telling equal things apart, never meaning; with a
+  key or labels; cat1 and cat2 first. A thing with a familiar colour (water, fire) never gets
+  another thing's colour: use the nearest role and label it. What is still there stays solid:
+  mark a state such as unused with a label, not by fading it, and key any dashed style.
+- Also `--k-line`, `--k-strong` (borders), `--k-on-accent2` (text on navy), `--k-font`, `--k-r` (radius).
+
+Never describe colours by lightness or hue in words Dan reads ("the dark square"): dark mode
+changes them.
+
+Classes: `muted`, `small`, `k-label` (small teal caps), `term` (key term), `note` (amber box),
+`warn-note`, `panel`, `row`, `grid2`, `big`, `k-btn` (`secondary`), and a legend:
+`<div class="key"><span><i class="swatch" style="background:var(--k-accent2)"></i>Your push</span>
+<span><i class="swatch line dash" style="color:var(--k-muted)"></i>The limit</span></div>`.
+
+### Rules for a great interactive
+- One idea. The answer to Dan's prediction shows within about 3 seconds of his first move (add
+  a K.check that it does). Include something Dan causes and a case that surprises. One or two
+  controls, three at most.
+- Phone first: nothing wider than 340 px, no fixed widths over 300 px, rows wrap, no hover-only
+  information, tap targets at least 44 px. Size tiles and grid columns in rem (`minmax(6rem,
+  1fr)`): text grows a quarter at Text size XL, and no word may split across two lines.
+- Every number shown is a control, computed by the rule shown, a constant from the lesson, an
+  example value named once in the lead, or a date from the lesson. Never invent data, rates or chances.
+- The `.say` sentence describes what is on screen now, plainly and warmly, and reads right at the
+  extremes ("none of the 100"). Never claim Dan did something ("When you slid it to 20"):
+  describe the state, or write conditionally ("Push it past 20 and…").
+- 3-5 `K.check` known answers worked out by hand: an edge case, a shape fact (rises, halves,
+  always last), and one answer from outside your formula. `source` may ONLY be a URL from the
+  lesson's own sources, and only on a check whose label restates what that source's quote says;
+  a result of your rule, or a fact about your drawing, takes none. Compare numbers with
+  `K.near(a, b, tol)`: tolerance about a millionth of the size, a thousandth where rounding meets roots.
+- `K.anim` for motion, never timers: soft, unhurried, nothing popping in. Parts arrive about 0.6
+  s apart by `K.fade(el, K.arrive(T, t0))`; travel and growth use `K.ease`; a demonstration takes
+  3-5 s. No `vh` units, `position: fixed` or `height: 100%`.
+- Ideas without numbers (mechanism, process, structure, history, concept): prefer a timeline
+  slider, a named choice, a sorter or a drag; use `K.stepper` only when every step changes the
+  drawing. Checks assert order and structure facts.
+- A timeline runs forward: a slider rising left to right, its `fmt` showing the date (−500 as
+  "500 BC"), or a stepper of named events in order. A lesson's calendar-year control keeps its
+  range, its `fmt` showing the year; years after the first date are for new controls. Each dated
+  event appears as he reaches its date.
+
+### The self-test
+Before Dan sees it, the app loads your body 340, 720 and 1040 px wide, runs every check, moves
+every control, button, animation and drag, reveals the after-move parts, and looks again at Text
+size XL and in the other theme. It fails on an exception, NaN or undefined on the page, an update
+over 150 ms, sideways overflow, text cut off or over other text, SVG text under 11 px on a phone,
+a line or arrowhead through a label, text under 3:1 contrast with what is behind it, a colour
+name, a blank hole until a move, or no `K.ready()`.
+
+### Example
+```html
+<p class="lead">Lengthen the string and watch each swing take longer.</p>
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+<p class="caption">Small swings only; g = 9.81 m/s² is gravity at the Earth's surface.</p>
+<script>
+  const g = 9.81;
+  const period = (L) => 2 * Math.PI * Math.sqrt(L / g);
+  K.control({ id: 'L', label: 'String length', min: 0.1, max: 3, step: 0.05, value: 1, unit: 'm', snap: [2], into: '#controls' });
+  K.stage('#plot', '#controls');
+  K.readout({ id: 'T', label: 'One full swing takes', unit: 's', decimals: 2, into: '#outs' });
+  const plot = K.plot('#plot', { x: { min: 0, max: 3, label: 'Length (m)' }, y: { min: 0, max: 4, label: 'Period (s)' } });
+  K.model((p) => ({ T: period(p.L) }));
+  K.update((p, o) => {
+    plot.draw({ series: [{ fn: period }], marks: [{ x: p.L, y: o.T, guides: true }] });
+    document.getElementById('say').textContent = !K.moved ? 'Make the string four times longer: how much longer is each swing?'
+      : 'A ' + K.fmt(p.L, { decimals: 2 }) + ' m string swings there and back every ' + K.fmt(o.T, { decimals: 2 }) + ' s. Four times the length only doubles that.';
+  });
+  K.check('No length, no swing time', () => K.near(period(0), 0));
+  K.check('A seconds pendulum (2 s per swing) is 0.994 m long', () => K.near(period(0.994), 2, 0.002),
+    { source: 'https://en.wikipedia.org/wiki/Seconds_pendulum' });
+  K.check('Four times the length doubles the period', () => K.near(K.at({ L: 2 }).T / K.at({ L: 0.5 }).T, 2, 1e-9));
+  K.ready();
+</script>
+```
+
+
+## The body that failed
+The body you just wrote (/home/user/Study-App/build/electrical/insulated-systems/i1.body1.x.html). You already have it; it is not repeated here. Return the complete corrected body.
+
+## Output
+Return ONLY the complete corrected body: HTML elements, an optional <style>, then one inline <script> that ends with K.ready(). No <html>, <head> or <body> tags, no markdown fences, no commentary before or after. Keep it under 40 KB.

@@ -1,0 +1,610 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-27T17:07:55.171Z",
+ "startedAt": "2026-10-27T17:07:55.171Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i8",
+  "title": "Arcing faults, drives and safe working",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is L1's peaks to earth climbing from 2 to 4 times normal as each strike holds the star point further out, when you tap Strike on No losses but not on Heavy losses.",
+   "title": "The restrike ladder",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Screen",
+     "min": 0,
+     "max": 11,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [],
+   "whatAmILookingAt": "Twelve small screens share one picture. Back and Continue move between them. Five show an idea, and seven ask you to try it.\n\nA picker called View sits above the picture. It offers three cards: Arc ladder, Drive on IT and Touch. Its buttons wrap on a phone.\n\nArc ladder. A sketch shows L1 of a 440 V, 60 Hz insulated supply. One capacitor to the hull stands for the whole system's capacitance. An arc gap sits at a chafed cable. A plot shows L1's voltage to the hull against time, slowed down. A dashed line shows the star point's voltage. Thin guide lines mark ±359 V, L1's normal peak. More guide lines mark ±622 V, labelled Solid fault. The vertical scale runs to ±2,400 V. Under it sit two buttons, Strike and Reset. A picker called Losses offers No losses, Some losses and Heavy losses. Its buttons wrap on a phone. Each tap of Strike waits for L1's next peak, then flashes the gap. After three strikes, Strike greys out until Reset. Three readout tiles show Star point held at, in volts; L1's highest peak, in volts; and Times normal peak. The tiles wrap on a phone.\n\nDrive on IT. A 440 V insulated board feeds a cable and ten drives. The cable has 1 µF a line. Each drive's EMC filter is three small capacitors to the hull, 0.1 µF a line. A switch called Filters sets them In or Out. With Filters Out, the capacitors are drawn unhooked. A tag then turns red: EMC not met. An insulation monitor's dial sits on the board. A picker called Monitor offers Plain DC and Made for drives. Two readout tiles show First-fault current, in milliamps, and Settling time, against the cable alone. The tiles wrap on a phone.\n\nTouch. Lines L1 to L3 run above the hull. A person stands on the hull with one hand on a line. A picker called Fault on L1 offers None and Solid. A picker called Touching offers L1 and L2. A bar shows the voltage across the person. A tick at 50 V is marked Safe touch. Two readout tiles show Across you, in volts, and Through a 1,000 Ω body, in milliamps. The tiles wrap on a phone.\n\nThe rule for the ladder. Each line's normal voltage to earth is 440 ÷ 1.732 = 254 V. Its peak is 254 × 1.414 = 359 V, called 1 times. L1's voltage to the hull is the star point's held voltage plus L1's swing of 359 V either side. The first strike burns until a current zero at L1's peak. It leaves the star point held 1 times out, opposite L1's swing. Each later strike comes at L1's peak, P times out. The star point jumps P across, then rings past by a share of that jump. The share is all of it with No losses, half with Some and none with Heavy. The arc goes out at the top of the ring. So the new held voltage is (1 + ring share) × P minus the old one. L1's next peak is that plus 1.\n\nWith No losses, the star point is held at 1, 3 and 5 times: 359, 1,077 and 1,795 V. L1 peaks at 2, 4 and 6 times: 718, 1,436 and 2,154 V. With Some losses, the star point is held at 1, 2 and 2.5 times: 359, 718 and 898 V. L1 peaks at 2, 3 and 3.5 times: 718, 1,077 and 1,257 V, heading towards 4 times. With Heavy losses, the star point is held at 1 times, and every peak is 2 times, 718 V. The ring is a quick swing of the dashed line past the ±359 V guide, slowed and enlarged.\n\nThe rule for the drives. A solid first fault passes 3 × ω × C × 254 V. Here ω = 2π × 60 = 377, and C is the capacitance a line. That gives 287 mA for each µF a line. The cable's 1 µF gives 287 mA. Filters In add 10 × 0.1 = 1 µF. That makes 2 µF and 575 mA. Settling time grows in step with the capacitance: ×1 Out, ×2 In. With Monitor on Plain DC, the needle shakes. A tag reads: DC from the drive can upset this reading. No value is shown. With Made for drives, the needle is steady.\n\nThe rule for touch. On a healthy supply, each line sits 254 V from the hull. The body current returns through all three lines' capacitance in parallel. That is 3 µF, or 884 Ω at 60 Hz. So the current is 254 ÷ √(1,000² + 884²) = 190 mA. With a solid fault on L1, the hull sits at L1. Touching L1 gives 0 V and 0 mA. Touching L2 gives 440 V. The fault is a solid path back, so the current is 440 ÷ 1,000 = 440 mA.\n\nThe picture opens with View on Arc ladder, Losses on No losses, and no strikes. The trace swings 359 V either side of a dashed line at 0 V.\n\nScreen 1, show. View Arc ladder, No losses, Strike tapped once. The words: \"An arcing fault strikes, goes out and strikes again. Say a chafed L1 cable arcs to the hull at L1's peak. While it burns, the arc acts as a solid fault. The arc carries the system's charging current. That current leads the voltage by 90°, so it is zero when the voltage peaks. The arc struck at a peak, so it goes out almost at once. That leaves the star point a full peak, 359 V, from the hull. The charge has no quick way off, so it stays there.\" Read: \"The arc struck once at L1's peak and went out almost at once, at a current zero. The dashed line shows the star point held 359 V from the hull.\" Still: one strike, run on one cycle.\n\nScreen 2, try it. \"The arc has just gone out at a current zero. What does the star point's voltage to the hull do now?\" Three choices, in this order: \"It falls back to 0 V, as the fault has gone\"; \"It stays 359 V from the hull, held by the charge on the capacitance\"; \"It swings at 60 Hz about the hull, as before the fault\". Right, the second. Hint for the first: \"Something must carry the charge away. With the arc out, there is no quick path.\" Hint for the third: \"The capacitance now holds a charge. The arc that put it there has gone.\" Why: \"The arc went out as the capacitance reached its peak. The charge has no quick way off, only slow leakage. So the star point stays 359 V from the hull. L1 swings about it.\" The picture stays on one strike. Read: the question.\n\nScreen 3, show. View Arc ladder, No losses, Strike tapped again at the next peak. The words: \"Each restrike leaves the star point further out. Half a cycle on, L1 is 718 V from the hull, twice its normal peak. Then the gap restrikes. To pull L1 to the hull, the star point must jump 718 V. The jump is sudden, so the capacitance and the supply's inductance ring like a struck bell. With no losses, the star point rings past by as much again. The arc goes out at the top of the ring. That leaves the star point held at 1,077 V, three times normal.\" Read: \"With no losses, the second strike lands when L1 is 718 V from the hull. The star point rings past and is held at 1,077 V.\" Still: No losses, two strikes, run on until the arc goes out.\n\nScreen 4, try it. \"There are no losses. After the second strike, the star point is held at 1,077 V. That is three times the normal peak of 359 V. How high does L1 peak half a cycle later?\" Three choices, in this order: \"1,077 V, the voltage the star point holds\"; \"1,436 V, the held voltage plus L1's own swing\"; \"718 V, twice the normal peak\". Right, the second. Hint for the first: \"L1 swings 359 V either side of the star point. Add that swing.\" Hint for the third: \"That was the first rung. The star point is now three times as far out.\" Why: \"L1's far peak is 1,077 + 359 = 1,436 V, 4 times normal. With no losses, the climb goes on until a weak part fails. A starter coil or a motor winding often goes first.\" A right Check strikes a third time. L1 peaks at 2,154 V, and Strike greys out. Read: the question.\n\nScreen 5, show. View Arc ladder, Some losses, three strikes. The words: \"Losses damp the ring. The insulation loses a little energy each time it charges. The ring charges it thousands of times a second. Say Some losses let the star point ring past by half the jump. Then the peaks go 2, 3, then 3.5 times normal, and level off. Faults on 480 V systems have reached 1,200 V to earth.[^1] Ships' cables lose far more at these frequencies than land systems do. So people still argue whether the climb happens at sea at all.\" Read: \"With Some losses and three strikes, L1 peaks at 718 V, 1,077 V, then 1,257 V. The climb is levelling off.\" Still: Some losses, three strikes.\n\nScreen 6, try it. \"Heavy losses damp the ring completely. The star point never rings past. The arc restrikes at every peak. How high does L1 get?\" Three choices, in this order: \"359 V, its normal peak, as the losses stop any rise\"; \"718 V, twice its normal peak, and no higher\"; \"It still climbs, only more slowly\". Right, the second. Hint for the first: \"The first strike still leaves the star point held 359 V out. L1 swings past it.\" Hint for the third: \"With no overshoot, each restrike lands the star point 359 V out on the other side.\" Why: \"The first strike holds the star point 359 V out, so L1 reaches 718 V. Each restrike only flips it to 359 V on the other side. 718 V is a little above the 622 V peak that a solid fault puts on the healthy lines.\" A right Check sets Heavy losses and strikes three times. Every peak is 718 V. Read: the question.\n\nScreen 7, show. View Drive on IT, Made for drives, Filters from In to Out. The words: \"A drive's EMC filter has capacitors from each line to the hull. On an insulated supply, they tie the system to earth. Ten drives at 0.1 µF a line add 1 µF a line to the cable's 1 µF. That doubles the capacitance. A solid first fault passes 575 mA, not 287 mA. The monitor takes twice as long to settle. So on an insulated supply you disconnect each filter.[^3] In return, the drive may no longer meet its EMC standard.\" Read: \"With the filters in, a solid first fault passes 575 mA. The monitor settles twice as slowly. With them out, the fault passes 287 mA, and the EMC tag is red.\" Still: Drive on IT, Filters Out, Made for drives.\n\nScreen 8, try it. \"A new drive's filter is out, as it should be on an insulated supply. Yet the monitor's reading jumps about whenever the drive runs. What do you check first?\" Three choices, in this order: \"Put the filter back in to steady the reading\"; \"That the monitor is made for supplies that feed drives\"; \"Nothing, as a monitor cannot see through a drive\". Right, the second. Hint for the first: \"The filter ties the supply to the hull. That is why it came out.\" Hint for the third: \"The monitor reads everything joined to the supply, including the drive's DC side.\" Why: \"A drive's rectifier joins its DC side to the supply. DC leaking from there distorts a plain monitor's reading. So use a monitor made for non-linear loads.\" The picture shows Drive on IT, with Filters Out and Monitor on Plain DC. The needle shakes. A right Check sets Made for drives. Read: the question.\n\nScreen 9, show. View Touch, Fault on L1 Solid, Touching L2. The words: \"A floating supply is not safe to touch. A monitor in alarm means a line may already be joined to the hull. Then the system behaves like an earthed one. Here a solid fault holds the hull at L1. Stand on the hull and touch L2, and you hold the full 440 V. That drives about 440 mA through a 1,000 Ω body. Only a touch voltage below 50 V AC is counted safe.[^2]\" Read: \"With a solid fault on L1, a person on the hull touching L2 holds 440 V. About 440 mA flows through a 1,000 Ω body.\" Still: Touch, Fault on L1 Solid, Touching L2.\n\nScreen 10, try it, the first of three mixed puzzles. \"The monitor reads 2 MΩ, with no alarm. The cables have 1 µF a line. You stand on the hull and touch L1. What flows through a 1,000 Ω body?\" Three choices, in this order: \"Next to nothing, as no fault completes the circuit\"; \"About 190 mA, back through the cables' capacitance\"; \"About 440 mA, with the full line voltage across you\". Right, the second. Hint for the first: \"Every cable is a capacitor to the hull you stand on. That is a path for AC.\" Hint for the third: \"With no fault, L1 sits only 254 V from the hull. The capacitance also limits the current.\" Why: \"The monitor reads resistance with DC or a very slow AC, so the capacitance barely shows. But the capacitance passes AC and closes the loop through you. About 190 mA flows. A healthy reading is no reason to touch.\" A right Check sets Touch, Fault None, Touching L1. Read: the question.\n\nScreen 11, try it. \"One side says an arcing fault can pump an insulated supply's voltage up. The other says this is not a problem on ships. What does each case rest on?\" Three choices, in this order: \"The first on voltages measured on 480 V systems, the second on ships' heavier losses\"; \"The first on theory alone, the second on measurements at sea\"; \"Both on the same measurements, read differently\". Right, the first. Hint for the second: \"Ask which side has readings from real systems, and where those systems were.\" Hint for the third: \"Ask what each side points to. Is it really the same evidence?\" Why: \"Engineers measured 1,200 V or more on 480 V systems.[^1] The marine case is that ships' heavy losses damp the ring. With light losses the ladder climbs. Heavy losses stop it. People still argue where a real ship sits.\" A right Check shows Arc ladder with three strikes, first on No losses, then on Heavy losses. Read: the question.\n\nScreen 12, try it. \"You disconnect a drive's EMC filter so it suits an insulated supply. What have you given up?\" Three choices, in this order: \"Nothing, as the filter matters only on earthed supplies\"; \"Its full EMC performance, so more switching noise can reach nearby equipment\"; \"The drive's protection against earth faults\". Right, the second. Hint for the first: \"The filter keeps the drive's high-frequency noise in, on any supply.\" Hint for the third: \"The filter is there for interference, not for earth-fault protection.\" Why: \"Without the filter, the drive may no longer meet its EMC standard. In return, the supply stays floating, with less capacitance to the hull.\" A right Check sets Drive on IT with Filters Out. The EMC tag turns red. Read: the question.\n\nEvery figure here is an example value, a published figure, or worked from the rules above.",
+   "ignores": "The ladder treats the whole system's capacitance as one capacitor. It treats the supply as a steady 60 Hz source. It strikes the arc exactly at each peak. It takes the first strike to burn until a current zero, with no ring. Real arcs are less regular, and fuller models of the arc give different figures. The ring is drawn slowed and enlarged. A real one runs at kilohertz and is over in well under a millisecond. The held charge is drawn steady between strikes. In fact, leakage slowly drains it. The ladder leaves out L2 and L3, though they move with the star point too. On the drive card, each filter is drawn as capacitors alone, without its varistor or resistors. The settling time follows the capacitance alone. On the touch card, the body is a fixed 1,000 Ω. The card leaves out footwear, gloves and contact resistance.",
+   "numbers": [
+    {
+     "label": "Screen, 1 to 12 (the stepper)",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Number of screens",
+     "value": 12,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example line voltage of the supply, in volts",
+     "value": 440,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example supply frequency, in hertz",
+     "value": 60,
+     "kind": "assumed"
+    },
+    {
+     "label": "Square root of 3, to three decimal places",
+     "value": 1.732,
+     "kind": "constant"
+    },
+    {
+     "label": "Square root of 2, to three decimal places",
+     "value": 1.414,
+     "kind": "constant"
+    },
+    {
+     "label": "Each line's normal voltage to earth, 440 ÷ 1.732, in volts",
+     "value": 254,
+     "kind": "computed"
+    },
+    {
+     "label": "Each line's normal peak to earth, 254 × 1.414, in volts",
+     "value": 359,
+     "kind": "computed"
+    },
+    {
+     "label": "Line voltage peak, a solid fault's healthy lines, in volts",
+     "value": 622,
+     "kind": "computed"
+    },
+    {
+     "label": "Angle by which a capacitor's current leads its voltage, in degrees",
+     "value": 90,
+     "kind": "constant",
+     "source": 6
+    },
+    {
+     "label": "Ring share with No, Some and Heavy losses, in per cent",
+     "value": "100, 50, 0",
+     "kind": "assumed"
+    },
+    {
+     "label": "Most strikes before Reset",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Vertical scale of the plot, in volts",
+     "value": 2400,
+     "kind": "assumed"
+    },
+    {
+     "label": "No losses: star point held, times normal peak",
+     "value": "1, 3, 5",
+     "kind": "computed"
+    },
+    {
+     "label": "No losses: star point held, in volts",
+     "value": "359, 1,077, 1,795",
+     "kind": "computed"
+    },
+    {
+     "label": "No losses: L1's peaks, times normal peak",
+     "value": "2, 4, 6",
+     "kind": "computed"
+    },
+    {
+     "label": "No losses: L1's peaks, in volts",
+     "value": "718, 1,436, 2,154",
+     "kind": "computed"
+    },
+    {
+     "label": "Some losses: star point held, times normal peak",
+     "value": "1, 2, 2.5",
+     "kind": "computed"
+    },
+    {
+     "label": "Some losses: star point held, in volts",
+     "value": "359, 718, 898",
+     "kind": "computed"
+    },
+    {
+     "label": "Some losses: L1's peaks, times normal peak",
+     "value": "2, 3, 3.5",
+     "kind": "computed"
+    },
+    {
+     "label": "Some losses: L1's peaks, in volts",
+     "value": "718, 1,077, 1,257",
+     "kind": "computed"
+    },
+    {
+     "label": "Some losses: the level the peaks approach, times normal",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Heavy losses: star point held, then every peak, in volts",
+     "value": "359, 718",
+     "kind": "computed",
+     "source": 8
+    },
+    {
+     "label": "Twice the normal peak, in times",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Measured line-to-earth voltage in arcing cases, in volts",
+     "value": 1200,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "Supply in those documented cases, in volts",
+     "value": 480,
+     "kind": "constant",
+     "source": 7
+    },
+    {
+     "label": "ω, 2π × 60, in radians per second",
+     "value": 377,
+     "kind": "computed"
+    },
+    {
+     "label": "Example cable capacitance, in µF a line",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example filter capacitance per drive, in µF a line",
+     "value": 0.1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example number of drives",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Capacitance with the filters in, in µF a line",
+     "value": 2,
+     "kind": "computed",
+     "source": 9
+    },
+    {
+     "label": "First-fault current, cable alone, in milliamps",
+     "value": 287,
+     "kind": "computed"
+    },
+    {
+     "label": "First-fault current, filters in, in milliamps",
+     "value": 575,
+     "kind": "computed"
+    },
+    {
+     "label": "Settling time with filters in, against the cable alone",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Example body resistance, in ohms",
+     "value": 1000,
+     "kind": "assumed"
+    },
+    {
+     "label": "Three lines of 1 µF in parallel, in µF",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Reactance of 3 µF at 60 Hz, in ohms",
+     "value": 884,
+     "kind": "computed"
+    },
+    {
+     "label": "Body current, healthy, touching L1, in milliamps",
+     "value": 190,
+     "kind": "computed"
+    },
+    {
+     "label": "Body current, solid fault on L1, touching L2, in milliamps",
+     "value": 440,
+     "kind": "computed"
+    },
+    {
+     "label": "Safe touch voltage, AC, below, in volts",
+     "value": 50,
+     "kind": "constant",
+     "source": 2
+    },
+    {
+     "label": "Screen 10: monitor reads, in megohms",
+     "value": 2,
+     "kind": "assumed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "On an insulated supply, an earth fault that arcs can be worse than a solid one. Each time the arc goes out, it leaves charge on the system's capacitance. The next swing starts from that charge, so the voltage to earth can climb in steps. Losses in the cables damp the climb. People still argue how far it goes on ships.\n\nPicture a chafed L1 cable arcing to the hull. While it burns, the arc acts as a solid fault. The arc carries the system's charging current. That current leads the voltage by 90°, so it passes through zero at a voltage peak. The arc goes out there, at the current zero. That leaves the shifted star point a full peak from the hull. The charge has no quick way off, so the star point stays held there. On a 440 V supply, each line's normal peak to earth is 254 × 1.414 = 359 V.\n\nL1 keeps swinging 359 V either side of the held star point. Half a cycle later it is 718 V from the hull, twice its normal peak. Then the gap restrikes. To pull L1 to the hull, the star point must jump 718 V. The jump is sudden, so the capacitance and the supply's inductance ring like a struck bell. With no losses, the ring carries the star point past by as much again, to 1,077 V. The arc goes out at the top of the ring. That leaves the star point held there. L1 then peaks at 1,077 + 359 = 1,436 V, four times normal. Without losses, the climb goes on until a weak part fails.\n\nLosses shrink the ring. The insulation loses a little energy each time it charges. The ring charges it thousands of times a second. Say half the ring is left. Then the peaks go 2, 3, then 3.5 times normal and level off. With the ring fully damped, L1 stops at twice normal. Motors have failed across whole 480 V systems during the hunt for a fault. Engineers measured 1,200 V or more to earth in those cases.[^1] Ships have higher losses. Marine engineers argue that these damp the ring so heavily that the climb is not a problem at sea. No one has settled where a real ship sits in that range. The ladder is a simplified model. It has one capacitance and an arc that restrikes exactly at each peak.\n\nTwo more dangers come with every insulated supply. First, a drive's EMC filter puts capacitors from each line to the hull. These tie the supply to earth. Like any capacitance, they raise the first-fault current and slow the monitor. So you disconnect the filter. The drive may then no longer meet its EMC standard. Second, a floating supply is not safe to touch. With a solid first fault on one line, the system behaves like an earthed one. A solid fault on L1 leaves L2 and L3 sitting 440 V from the hull. So when nothing trips, the danger is the voltage to earth. An arc may pump it up. A touch or a second fault turns it into current. **A restriking arc can leave charge on an insulated system's capacitance. Unless losses damp the ring, that charge lifts the voltage to earth step by step.**"
+  },
+  "analogy": {
+   "text": "Think of the reservoir capacitor behind a rectifier diode. It charges to the peak. The diode stops it giving the charge back. The arc acts like that diode. It conducts, then goes out at a current zero, just as the capacitance reaches its peak. So the capacitance is left holding the peak. The supply keeps swinging on top of it. That is how the voltage to earth reaches twice the normal peak.",
+   "breaks": "A diode conducts the same way round every cycle, so the charge never builds past the peak. An arc restrikes whichever way the gap breaks down. Each sudden restrike rings. That ring is what can push the held charge beyond the peak, rung by rung. A reservoir also feeds a load that drains it. Here only slow leakage drains the charge."
+  },
+  "practice": {
+   "text": "- Safety first. Treat an insulated supply as live and able to kill. An alarm can mean one line is already joined to the hull. Then the system behaves like an earthed one.\n- Work dead wherever possible. Isolate, lock off and prove dead before you touch a conductor.\n- A touch voltage counts as safe only below 50 V AC.[^2] Each line of a healthy 440 V insulated supply sits about 254 V from the hull.\n- Clear an earth fault that comes and goes as soon as you can. If it is arcing, each restrike may lift the voltage to earth.\n- Check that a drive suits an insulated supply before you connect it. Disconnect its EMC filter and ground-to-phase varistor where its manual says to.[^3]\n- Once the filter is out, expect the drive may miss its EMC standard.\n- Use an insulation monitor made for supplies with non-linear loads such as drives.\n- Expect the monitor to settle more slowly as drives and cable add capacitance.\n\n**Rule of thumb:** An insulated supply is floating, not dead. Its voltage to earth is what hurts you. An arc can raise it.\n\n**Worked example:** On a 440 V supply, each line's normal peak to earth is 254 × 1.414 = 359 V. A solid first fault lifts the healthy lines to 440 V, a peak of 622 V. Equipment on an insulated system must be rated for that.[^4] In the simple ladder model, an arc that goes out at a peak leaves the star point held 359 V away. So L1's next peak is 718 V. With no losses, the next restrike holds the star point at 1,077 V. L1 then peaks at 1,436 V. With heavy losses, L1 stays at 718 V.\n\n**High voltage:** Ships' HV systems are often earthed through a resistor. It limits a fault to a few amps. It also avoids the overvoltages a fully insulated HV system can build.\n\n**Surge limiter:** An insulated supply fed from a high-voltage transformer may have a surge limiter between its star point and earth. It guards against the transformer's windings breaking down between the high and low sides. Then the limiter shorts and holds the low side at earth.[^5] The monitor reports that short as an earth fault.\n\n**Common mistakes**\n- Thinking a floating supply is safe to touch.\n- Taking a healthy monitor reading as proof a line is safe to touch. The capacitance still carries current through you.\n- Putting a drive's EMC filter back in to steady an insulation monitor.\n- Leaving an earth fault that comes and goes because nothing tripped.\n- Treating the arcing climb as settled, either way."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "Characteristics of different power systems neutral grounding techniques: Fact and fiction",
+    "url": "https://www.eaton.com/content/dam/eaton/products/medium-voltage-power-distribution-control-systems/vacclad-w-pages/characteristics-power%20systems-neutral-grounding-techniques-fact-fiction-ap083005en.pdf",
+    "quote": "Measured line-to- ground voltages of 1200 V or higher in these instances are not that uncommon."
+   },
+   {
+    "n": 2,
+    "title": "Technical aspects IT systems",
+    "url": "https://fournais-bender.dk/storage/TechnAspects-IT-systems.pdf",
+    "quote": "the electrical safety of persons is guaranteed if the touch voltage is < 50 V (AC) or < 120 V (DC)."
+   },
+   {
+    "n": 3,
+    "title": "ACS880 frames R1 to R11 EMC filter and ground-to-phase varistor disconnecting instructions",
+    "url": "https://library.e.abb.com/public/b698871f67f14bfe80fcd5da604b4d7b/EN_ACS880_frames%20R1-R11%20EMC%20disconn%20INSTR_L.pdf?x-sign=U9P%2FmBYvtRoLmjB%2BXG2j7bY6HQLq8R4UIFm7NB7Nvq9bwlHi0VfRWIwBS1h3fHIO",
+    "quote": "check the compatibility of the drive with IT (ungrounded), corner-grounded delta, midpoint-grounded delta and TT systems • disconnect EMC filter and ground-to-phase varistor."
+   },
+   {
+    "n": 4,
+    "title": "Low-voltage high resistance grounding systems basics",
+    "url": "https://www.eaton.com/content/dam/eaton/products/low-voltage-power-distribution-controls-systems/hrg/files/lv-hrg-systems-basics-ap019004en.pdf",
+    "quote": "The equipment rating has to be rated at 173% of their line-to-neutral voltages."
+   },
+   {
+    "n": 5,
+    "title": "The IT earthing system (unearthed neutral) in LV",
+    "url": "https://download.se.com/files?amp&p_Doc_Ref=ECT178",
+    "quote": "immediately earths the LV network, preventing it from rising to MV potential."
+   },
+   {
+    "n": 6,
+    "title": "Transient overvoltages on ungrounded systems from intermittent ground faults",
+    "url": "https://www.eaton.com/content/dam/eaton/markets/healthcare/knowledge-center/white-paper/transient-overvoltages-on-ungrounded-systems-from-intermittent-ground-faults.pdf",
+    "quote": "The arc, by definition, must extinguish at the next current zero, since there will be zero current flowing at that point. Note that since this current leads the voltage by 90 degrees, the voltage across the phase-to-ground capacitor is at a maximum when the arc extinguishes."
+   },
+   {
+    "n": 7,
+    "title": "Characteristics of different power systems neutral grounding techniques: Fact and fiction",
+    "url": "https://www.eaton.com/content/dam/eaton/products/medium-voltage-power-distribution-control-systems/vacclad-w-pages/characteristics-power%20systems-neutral-grounding-techniques-fact-fiction-ap083005en.pdf",
+    "quote": "There have been many documented cases within industry where multiple equipment failures (e.g., motors) over an entire 480 V system have occurred while trying to find and locate a ground fault."
+   },
+   {
+    "n": 8,
+    "title": "library.imarest.org",
+    "url": "https://library.imarest.org/record/2202/files/2229.pdf",
+    "quote": "Such overvoltages are not a problem on marine systems, however, because of their higher losses and consequent heavy damping."
+   },
+   {
+    "n": 9,
+    "title": "EN / ACS380 hardware manual",
+    "url": "https://library.e.abb.com/public/2a86caefc9a646d6ba6be02a51401d7c/EN_ACS380_HW_H.pdf?x-sign=uVI95WUGnnSLwIKdHN0mtCica4cmiO2sqwtZQFRUbE3KUcBDVJ7Anb9IZ0mfA4b6",
+    "quote": "The supply network becomes connected to ground potential through the internal EMC filter capacitors"
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: mechanism -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .caption { max-width: 32rem; margin-inline: auto; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.15rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.05rem; font-weight: 400; line-height: 1.6; }\n  .scene { display: block; width: 100%; max-width: 32rem; margin-inline: auto; }\n  .scene.enter { animation: card-in .35s ease-out both; }\n  @keyframes card-in { from { opacity: 0; } to { opacity: 1; } }\n  .scene .card { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }\n  .scene .ghostcard { fill: var(--k-panel); stroke: var(--k-muted); stroke-width: 1.2; }\n  .scene .hull { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.2; }\n  .scene .wire { stroke: var(--k-ink); stroke-width: 1.8; fill: none; stroke-linecap: round; }\n  .scene .l1 { stroke: var(--k-accent2); stroke-width: 2.5; stroke-linecap: round; }\n  .scene .bus { stroke-width: 2.5; stroke-linecap: round; }\n  .scene .c1 { stroke: var(--k-cat1); } .scene .c2 { stroke: var(--k-cat2); } .scene .c3 { stroke: var(--k-cat3); }\n  .scene .plate { stroke: var(--k-ink); stroke-width: 3; }\n  .scene .dot { fill: var(--k-ink); }\n  .scene .pivot { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.4; }\n  .scene .spark { stroke: var(--k-warn); stroke-width: 2.2; fill: none; stroke-linecap: round; stroke-linejoin: round; }\n  .scene .flare { fill: var(--k-fill2); }\n  .scene .frame { fill: none; stroke: var(--k-line); stroke-width: 1; }\n  .scene .zero { stroke: var(--k-strong); stroke-width: 1; }\n  .scene .gpk { stroke: var(--k-muted); stroke-width: 1; }\n  .scene .gsf { stroke: var(--k-muted); stroke-width: 2; stroke-dasharray: 0.5 4; stroke-linecap: round; }\n  .scene .trace { stroke: var(--k-accent2); stroke-width: 2.2; fill: none; stroke-linejoin: round; }\n  .scene .star { stroke: var(--k-accent); stroke-width: 2; fill: none; stroke-dasharray: 6 4; }\n  .scene .head { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 1.5; }\n  .scene .peak { fill: none; stroke: var(--k-amber-line); stroke-width: 2.5; }\n  .scene .dial { fill: none; stroke: var(--k-strong); stroke-width: 2; }\n  .scene .tick { stroke: var(--k-strong); stroke-width: 1.5; }\n  .scene .mark { stroke: var(--k-ink); stroke-width: 2; }\n  .scene .needle { stroke: var(--k-ink); stroke-width: 2.5; stroke-linecap: round; }\n  .scene .needle.blur { stroke: var(--k-muted); stroke-width: 2; }\n  .scene .tag { fill: var(--k-panel); stroke: var(--k-line); stroke-width: 1.5; }\n  .scene .tag.bad { stroke: var(--k-warn); }\n  .scene .fault { stroke: var(--k-warn); stroke-width: 3; stroke-linecap: round; }\n  .scene .fdot { fill: var(--k-warn); }\n  .scene .glow { stroke: var(--k-warn); stroke-opacity: .35; stroke-width: 8; fill: none; stroke-linecap: round; stroke-linejoin: round; }\n  .scene .person { stroke: var(--k-ink); stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round; }\n  .scene .face { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 2.5; }\n  .scene .track { fill: var(--k-sunk); stroke: var(--k-line); stroke-width: 1; }\n  .scene .barfill { fill: var(--k-accent2); }\n  .scene .barfill.hot { fill: var(--k-warn); }\n  .scene .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }\n  .scene .lab.n { font-weight: 400; }\n  .scene .lab.m { font-weight: 400; fill: var(--k-muted); }\n  .scene .lab.w { font-weight: 700; fill: var(--k-warn); }\n  .scene .lab.tw { font-weight: 700; fill: var(--k-warn); }\n  .scene .lab.tn { font-weight: 400; fill: var(--k-warn); }\n  #ctls > * + *, .cbox > * + * { margin-top: 10px; }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; min-height: 44px; }\n  /* Readout tiles: as many to a row as fit, so a phone wraps them and no word splits. */\n  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr)); gap: 10px; }\n  /* The answers are sentences: one to a row, wrapping inside the button. */\n  .picks { display: flex; flex-direction: column; gap: 8px; }\n  .picks .k-btn { width: 100%; min-height: 48px; white-space: normal; text-align: left; justify-content: flex-start; line-height: 1.4; padding: 10px 14px; }\n  .picks .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  .fb { font-weight: 700; min-height: 1.5em; }\n  .fb.right { color: var(--k-good); }\n  .why, .done { line-height: 1.6; }\n  .done strong { color: var(--k-accent2); }\n  .done .row { margin-top: 14px; }\n  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing .scene.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter, .scene.enter { animation: none; } }\n</style>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <div id=\"viewctl\"></div>\n    <svg class=\"scene\" id=\"arc\" viewBox=\"0 0 340 416\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"arcS\"></g><g id=\"arcD\"></g></svg>\n    <svg class=\"scene\" id=\"drv\" viewBox=\"0 0 340 294\" width=\"100%\" role=\"img\" aria-label=\"\" hidden><g id=\"drvS\"></g><g id=\"drvD\"></g></svg>\n    <svg class=\"scene\" id=\"tch\" viewBox=\"0 0 340 328\" width=\"100%\" role=\"img\" aria-label=\"\" hidden><g id=\"tchS\"></g><g id=\"tchD\"></g></svg>\n    <div id=\"ctls\">\n      <div class=\"cbox\" id=\"arcctl\"><div class=\"row\" id=\"strikes\"></div><div id=\"lossctl\"></div></div>\n      <div class=\"cbox\" id=\"drvctl\"></div>\n      <div class=\"cbox\" id=\"tchctl\"></div>\n    </div>\n    <div class=\"tiles\" id=\"arcouts\"></div>\n    <div class=\"tiles\" id=\"drvouts\"></div>\n    <div class=\"tiles\" id=\"tchouts\"></div>\n    <div class=\"picks\" id=\"picks\"></div>\n    <div class=\"row\" id=\"acts\"></div>\n    <p class=\"fb\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p><strong id=\"finish\"></strong></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\">Example values: 440 V at 60 Hz, a ring past by half the jump on Some losses, 1 µF a line of cable, ten drives and a 1,000 Ω body.</p>\n\n<script>\n  // ---------- the rules ----------\n  // The ladder. Each line sits 440 ÷ 1.732 = 254 V from earth, with a peak of 254 × 1.414 = 359 V (\"1 times\").\n  // L1's voltage to the hull is the star point's held voltage plus L1's own swing of 359 V either side.\n  // The first strike lands at L1's peak and leaves the star point held 1 times out, opposite L1's swing.\n  // Each later strike lands at L1's next peak, P times out: the star point jumps P across and rings past\n  // by a share of that jump (all of it with No losses, half with Some, none with Heavy). The arc goes out\n  // at the top of the ring, so the new held voltage is (1 + share) × P minus the old one.\n  const VLINE = 440, ROOT3 = 1.732, ROOT2 = 1.414, HZ = 60;\n  const VPH = Math.round(VLINE / ROOT3);            // 254 V\n  const PK = Math.round(VPH * ROOT2);               // 359 V, the normal peak\n  const SOLID = Math.round(VLINE * ROOT2);          // 622 V, the line voltage's peak: a solid fault's healthy lines\n  const OMEGA = 2 * Math.PI * HZ;                   // 377 rad/s\n  const VIEWS = ['Arc ladder', 'Drive on IT', 'Touch'];\n  const KEY = { 'Arc ladder': 'arc', 'Drive on IT': 'drv', 'Touch': 'tch' };\n  const LOSSES = ['No losses', 'Some losses', 'Heavy losses'];\n  const SHARE = { 'No losses': 1, 'Some losses': 0.5, 'Heavy losses': 0 };\n  const MAXN = 3, END = 2.5, RD = 0.2;              // most strikes; the plot's length in cycles; the ring, drawn slowed over 0.2 of a cycle so its swing past the ±359 V guide shows\n  const TS = [0.25, 0.75, 1.25];                    // L1's peaks, where strikes 1, 2 and 3 land\n  const e1 = (t) => Math.sin(2 * Math.PI * t);      // L1's own swing about the star point, in normal peaks\n  // The star point's held voltage after each strike, in normal peaks (signed: it alternates sides).\n  function rungs(r, count) {\n    const h = [0];\n    for (let k = 1; k <= count; k++) { const tg = k % 2 ? -1 : 1; h.push(tg + (k === 1 ? 0 : r) * (tg - h[k - 1])); }\n    return h;\n  }\n  // The star point at time t (cycles): steady, then at each strike a quick swing (the ring) to its new held value.\n  function starAt(t, n, h) {\n    let k = 0;\n    while (k < n && TS[k] <= t + 1e-12) k++;\n    if (!k) return 0;\n    const s = (t - TS[k - 1]) / RD;\n    return s >= 1 ? h[k] : h[k - 1] + (h[k] - h[k - 1]) * (1 - Math.cos(Math.PI * Math.max(0, s))) / 2;\n  }\n  // What has happened by time tp: the star point's held voltage and L1's highest peak, in normal peaks.\n  function arcNumbers(n, r, tp) {\n    const h = rungs(r, MAXN);\n    let held = 0, best = 0, at = null;\n    for (let k = 1; k <= n; k++) if (TS[k - 1] + RD <= tp + 1e-9) held = Math.abs(h[k]);\n    const see = (t) => {\n      if (t > tp + 1e-9 || t > END + 1e-9) return;\n      const u = starAt(t, n, h) + e1(t);\n      if (Math.abs(u) > best + 1e-6) { best = Math.abs(u); at = [t, u]; }\n    };\n    see(0.25);\n    for (let k = 1; k <= n; k++) see(TS[k - 1]);\n    if (n) see(TS[n - 1] + 0.5);\n    return { held, best, at };\n  }\n  const canStrike = (s) => s.n < MAXN;\n  // The drives. A solid first fault passes 3 × ω × C × 254 V, with C the capacitance a line.\n  const CCABLE = 1, CFILT = 0.1, NDRV = 10, TAU = 0.3;\n  const capOf = (f) => CCABLE + (f === 'In' ? NDRV * CFILT : 0);\n  const faultmA = (c) => 3 * OMEGA * c * 1e-6 * VPH * 1000;\n  // Touch. Healthy, the body current returns through all three lines' capacitance in parallel (3 µF).\n  // With a solid fault on L1 the hull sits at L1: touching L1 gives nothing, touching L2 gives 440 V.\n  const BODY = 1000, SAFE = 50;\n  const XC3 = 1 / (OMEGA * 3 * CCABLE * 1e-6);      // 884 Ω\n  function touchOf(fault, line) {\n    if (fault === 'Solid') return line === 'L1' ? { v: 0, i: 0 } : { v: VLINE, i: VLINE / BODY * 1000 };\n    const i = VPH / Math.hypot(BODY, XC3);\n    return { v: i * BODY, i: i * 1000 };\n  }\n  const fV = (v) => K.fmt(Math.round(v), { decimals: 0 }) + ' V';\n  const fmA = (v) => K.fmt(Math.round(v), { decimals: 0 }) + ' mA';\n  const fmtTimes = (u) => { const v = Math.round(u * 10) / 10; return K.fmt(v, { decimals: Number.isInteger(v) ? 0 : 1 }); };\n\n  // ---------- the lesson: SHOW screens demonstrate, DO screens are puzzles ----------\n  const DEF = { view: VIEWS[0], arc: { loss: LOSSES[0], n: 0, tp: END, qh: false, qp: false }, drv: { filters: 'In', monitor: 'Made for drives', q: false }, tch: { fault: 'None', touch: 'L1', q: false } };\n  const clone = (c) => JSON.parse(JSON.stringify(c));\n  const make = (view, key) => (o) => { const c = clone(DEF); c.view = view; Object.assign(c[key], o || {}); return c; };\n  const A = make(VIEWS[0], 'arc'), D = make(VIEWS[1], 'drv'), Tc = make(VIEWS[2], 'tch');\n  const OUT1 = TS[0] + RD + 0.05, OUT2 = TS[1] + RD + 0.05;   // just after the arc has gone out\n  const strip = (s) => s.replace(/\\[\\^\\d+\\]/g, '');\n  const STEPS = [\n    { show: true, name: 'The arc goes out at a peak', pic: A({ n: 1 }), demo: A({ n: 0 }),\n      text: `An arcing fault strikes, goes out and strikes again. Say a chafed L1 cable arcs to the hull at L1's peak. While it burns, the arc acts as a solid fault. The arc carries the system's charging current. That current leads the voltage by 90°, so it is zero when the voltage peaks. The arc struck at a peak, so it goes out almost at once. That leaves the star point a full peak, 359 V, from the hull. The charge has no quick way off, so it stays there.`,\n      read: `The arc struck once at L1's peak and went out almost at once, at a current zero. The dashed line shows the star point held 359 V from the hull.` },\n    { kind: 'pick', name: 'Once the arc is out', before: A({ n: 1, tp: OUT1, qh: true, qp: true }), after: A({ n: 1 }),\n      task: `The arc has just gone out at a current zero. What does the star point's voltage to the hull do now?`,\n      opts: ['It falls back to 0 V, as the fault has gone', 'It stays 359 V from the hull, held by the charge on the capacitance', 'It swings at 60 Hz about the hull, as before the fault'],\n      want: 'It stays 359 V from the hull, held by the charge on the capacitance',\n      hints: { 'It falls back to 0 V, as the fault has gone': `Something must carry the charge away. With the arc out, there is no quick path.`,\n        'It swings at 60 Hz about the hull, as before the fault': `The capacitance now holds a charge. The arc that put it there has gone.` },\n      why: `The arc went out as the capacitance reached its peak. The charge has no quick way off, only slow leakage. So the star point stays 359 V from the hull. L1 swings about it.` },\n    { show: true, name: 'The gap restrikes', pic: A({ n: 2, tp: OUT2 }), demo: A({ n: 1 }),\n      text: `Each restrike leaves the star point further out. Half a cycle on, L1 is 718 V from the hull, twice its normal peak. Then the gap restrikes. To pull L1 to the hull, the star point must jump 718 V. The jump is sudden, so the capacitance and the supply's inductance ring like a struck bell. With no losses, the star point rings past by as much again. The arc goes out at the top of the ring. That leaves the star point held at 1,077 V, three times normal.`,\n      read: `With no losses, the second strike lands when L1 is 718 V from the hull. The star point rings past and is held at 1,077 V.` },\n    { kind: 'pick', name: 'The next peak', before: A({ n: 2, tp: OUT2, qp: true }), after: A({ n: 3 }),\n      task: `There are no losses. After the second strike, the star point is held at 1,077 V. That is three times the normal peak of 359 V. How high does L1 peak half a cycle later?`,\n      opts: ['1,077 V, the voltage the star point holds', '1,436 V, the held voltage plus L1\\'s own swing', '718 V, twice the normal peak'],\n      want: '1,436 V, the held voltage plus L1\\'s own swing',\n      hints: { '1,077 V, the voltage the star point holds': `L1 swings 359 V either side of the star point. Add that swing.`,\n        '718 V, twice the normal peak': `That was the first rung. The star point is now three times as far out.` },\n      why: `L1's far peak is 1,077 + 359 = 1,436 V, 4 times normal. With no losses, the climb goes on until a weak part fails. A starter coil or a motor winding often goes first.` },\n    { show: true, name: 'Losses damp the ring', pic: A({ n: 3, loss: LOSSES[1] }), demo: A({ n: 0, loss: LOSSES[1] }),\n      text: `Losses damp the ring. The insulation loses a little energy each time it charges. The ring charges it thousands of times a second. Say Some losses let the star point ring past by half the jump. Then the peaks go 2, 3, then 3.5 times normal, and level off. Faults on 480 V systems have reached 1,200 V to earth.[^1] Ships' cables lose far more at these frequencies than land systems do. So people still argue whether the climb happens at sea at all.`,\n      read: `With Some losses and three strikes, L1 peaks at 718 V, 1,077 V, then 1,257 V. The climb is levelling off.` },\n    { kind: 'pick', name: 'Heavy losses', before: A({ n: 0, loss: LOSSES[2] }), after: A({ n: 3, loss: LOSSES[2] }),\n      task: `Heavy losses damp the ring completely. The star point never rings past. The arc restrikes at every peak. How high does L1 get?`,\n      opts: ['359 V, its normal peak, as the losses stop any rise', '718 V, twice its normal peak, and no higher', 'It still climbs, only more slowly'],\n      want: '718 V, twice its normal peak, and no higher',\n      hints: { '359 V, its normal peak, as the losses stop any rise': `The first strike still leaves the star point held 359 V out. L1 swings past it.`,\n        'It still climbs, only more slowly': `With no overshoot, each restrike lands the star point 359 V out on the other side.` },\n      why: `The first strike holds the star point 359 V out, so L1 reaches 718 V. Each restrike only flips it to 359 V on the other side. 718 V is a little above the 622 V peak that a solid fault puts on the healthy lines.` },\n    { show: true, name: 'Filters on an insulated supply', pic: D({ filters: 'Out' }), demo: D({ filters: 'In' }),\n      text: `A drive's EMC filter has capacitors from each line to the hull. On an insulated supply, they tie the system to earth. Ten drives at 0.1 µF a line add 1 µF a line to the cable's 1 µF. That doubles the capacitance. A solid first fault passes 575 mA, not 287 mA. The monitor takes twice as long to settle. So on an insulated supply you disconnect each filter.[^3] In return, the drive may no longer meet its EMC standard.`,\n      read: `With the filters in, a solid first fault passes 575 mA. The monitor settles twice as slowly. With them out, the fault passes 287 mA, and the EMC tag is red.` },\n    { kind: 'pick', name: 'A reading that jumps', before: D({ filters: 'Out', monitor: 'Plain DC', q: true }), after: D({ filters: 'Out', monitor: 'Made for drives' }),\n      task: `A new drive's filter is out, as it should be on an insulated supply. Yet the monitor's reading jumps about whenever the drive runs. What do you check first?`,\n      opts: ['Put the filter back in to steady the reading', 'That the monitor is made for supplies that feed drives', 'Nothing, as a monitor cannot see through a drive'],\n      want: 'That the monitor is made for supplies that feed drives',\n      hints: { 'Put the filter back in to steady the reading': `The filter ties the supply to the hull. That is why it came out.`,\n        'Nothing, as a monitor cannot see through a drive': `The monitor reads everything joined to the supply, including the drive's DC side.` },\n      why: `A drive's rectifier joins its DC side to the supply. DC leaking from there distorts a plain monitor's reading. So use a monitor made for non-linear loads.` },\n    { show: true, name: 'Touching a floating supply', pic: Tc({ fault: 'Solid', touch: 'L2' }), demo: Tc({ fault: 'None', touch: 'L2' }),\n      text: `A floating supply is not safe to touch. A monitor in alarm means a line may already be joined to the hull. Then the system behaves like an earthed one. Here a solid fault holds the hull at L1. Stand on the hull and touch L2, and you hold the full 440 V. That drives about 440 mA through a 1,000 Ω body. Only a touch voltage below 50 V AC is counted safe.[^2]`,\n      read: `With a solid fault on L1, a person on the hull touching L2 holds 440 V. About 440 mA flows through a 1,000 Ω body.` },\n    { kind: 'pick', name: 'A healthy reading', before: Tc({ fault: 'None', touch: 'L1', q: true }), after: Tc({ fault: 'None', touch: 'L1' }),\n      task: `The monitor reads 2 MΩ, with no alarm. The cables have 1 µF a line. You stand on the hull and touch L1. What flows through a 1,000 Ω body?`,\n      opts: ['Next to nothing, as no fault completes the circuit', 'About 190 mA, back through the cables\\' capacitance', 'About 440 mA, with the full line voltage across you'],\n      want: 'About 190 mA, back through the cables\\' capacitance',\n      hints: { 'Next to nothing, as no fault completes the circuit': `Every cable is a capacitor to the hull you stand on. That is a path for AC.`,\n        'About 440 mA, with the full line voltage across you': `With no fault, L1 sits only 254 V from the hull. The capacitance also limits the current.` },\n      why: `The monitor reads resistance with DC or a very slow AC, so the capacitance barely shows. But the capacitance passes AC and closes the loop through you. About 190 mA flows. A healthy reading is no reason to touch.` },\n    { kind: 'pick', name: 'Two sides of the argument', before: A({ n: 0 }), after: [A({ n: 3 }), A({ n: 3, loss: LOSSES[2] })],\n      task: `One side says an arcing fault can pump an insulated supply's voltage up. The other says this is not a problem on ships. What does each case rest on?`,\n      opts: ['The first on voltages measured on 480 V systems, the second on ships\\' heavier losses', 'The first on theory alone, the second on measurements at sea', 'Both on the same measurements, read differently'],\n      want: 'The first on voltages measured on 480 V systems, the second on ships\\' heavier losses',\n      hints: { 'The first on theory alone, the second on measurements at sea': `Ask which side has readings from real systems, and where those systems were.`,\n        'Both on the same measurements, read differently': `Ask what each side points to. Is it really the same evidence?` },\n      why: `Engineers measured 1,200 V or more on 480 V systems.[^1] The marine case is that ships' heavy losses damp the ring. With light losses the ladder climbs. Heavy losses stop it. People still argue where a real ship sits.` },\n    { kind: 'pick', name: 'What the filter gave', before: D({ filters: 'In' }), after: D({ filters: 'Out' }),\n      task: `You disconnect a drive's EMC filter so it suits an insulated supply. What have you given up?`,\n      opts: ['Nothing, as the filter matters only on earthed supplies', 'Its full EMC performance, so more switching noise can reach nearby equipment', 'The drive\\'s protection against earth faults'],\n      want: 'Its full EMC performance, so more switching noise can reach nearby equipment',\n      hints: { 'Nothing, as the filter matters only on earthed supplies': `The filter keeps the drive's high-frequency noise in, on any supply.`,\n        'The drive\\'s protection against earth faults': `The filter is there for interference, not for earth-fault protection.` },\n      why: `Without the filter, the drive may no longer meet its EMC standard. In return, the supply stays floating, with less capacitance to the hull.` },\n  ];\n  const finalOf = (d) => { const a = [].concat(d.after); return a[a.length - 1]; };\n  STEPS.forEach((d) => { if (d.show) d.still = () => setPic(d.pic); else d.read = d.task; });\n  const FINISH = 'Each restrike can leave the star point further out, unless losses damp the ring. Drive filters and a floating supply bring dangers of their own.';\n  const PICK = 'Choose an answer first.';\n  const EATON_T = 'https://www.eaton.com/content/dam/eaton/markets/healthcare/knowledge-center/white-paper/transient-overvoltages-on-ungrounded-systems-from-intermittent-ground-faults.pdf';\n  const IMAREST = 'https://library.imarest.org/record/2202/files/2229.pdf';\n  const ABB380 = 'https://library.e.abb.com/public/2a86caefc9a646d6ba6be02a51401d7c/EN_ACS380_HW_H.pdf?x-sign=uVI95WUGnnSLwIKdHN0mtCica4cmiO2sqwtZQFRUbE3KUcBDVJ7Anb9IZ0mfA4b6';\n  const BENDER_TA = 'https://fournais-bender.dk/storage/TechnAspects-IT-systems.pdf';\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n\n  // ---------- drawing helpers ----------\n  const el = (id) => document.getElementById(id);\n  function put(parent, tag, attrs, text) { const n = K.svg(tag, attrs); if (text != null) n.textContent = text; parent.appendChild(n); return n; }\n  const lab = (g, x, y, text, cls, anchor) => put(g, 'text', { x, y, class: 'lab' + (cls ? ' ' + cls : ''), 'text-anchor': anchor || 'start' }, text);\n  const n1 = (v) => +v.toFixed(1);\n  const showEl = (node, on) => { if (on) node.removeAttribute('hidden'); else node.setAttribute('hidden', ''); };\n  const svgs = { arc: el('arc'), drv: el('drv'), tch: el('tch') };\n  const tiles = { arc: el('arcouts'), drv: el('drvouts'), tch: el('tchouts') };\n  const ctlBoxes = { arc: el('arcctl'), drv: el('drvctl'), tch: el('tchctl') };\n  const sparkPath = (x, y, s) => `M${n1(x - 3 * s)} ${n1(y - 8 * s)}L${n1(x + 2 * s)} ${n1(y - 2 * s)}L${n1(x - 2 * s)} ${n1(y + 1.5 * s)}L${n1(x + 3 * s)} ${n1(y + 8 * s)}`;\n\n  // ---------- card 1: the restrike ladder (viewBox 340 × 416) ----------\n  // A sketch of L1, the system capacitance and the arc gap over the hull; under it, L1's voltage to the hull.\n  const PL = 54, PR = 334, PT = 128, PB = 328, Y0 = 228, SC = 100 / 2400;\n  const X = (t) => PL + (t / END) * (PR - PL);\n  const Yu = (u) => Y0 - u * PK * SC;\n  const GRID = (() => {\n    const g = [];\n    for (let i = 0; i <= 500; i++) g.push(i * END / 500);\n    TS.forEach((t0) => { for (let j = 1; j <= 16; j++) g.push(t0 + RD * j / 16); });\n    return Array.from(new Set(g.map((v) => Math.round(v * 1e6) / 1e6))).sort((a, b) => a - b);\n  })();\n  const SER = {};\n  function series(n, r) {\n    const key = n + '|' + r;\n    if (!SER[key]) {\n      const h = rungs(r, MAXN), L = new Float64Array(GRID.length), N = new Float64Array(GRID.length);\n      GRID.forEach((t, i) => { N[i] = starAt(t, n, h); L[i] = N[i] + e1(t); });\n      SER[key] = { L, N, h };\n    }\n    return SER[key];\n  }\n  function pathOf(get, t0, t1, tail) {\n    let d = '';\n    const add = (t, u) => { d += (d ? 'L' : 'M') + n1(X(t)) + ' ' + n1(Yu(u)); };\n    if (tail && t0 > 0) add(t0, tail(t0));\n    for (let i = 0; i < GRID.length; i++) {\n      const t = GRID[i];\n      if (t0 > 0 && t <= t0 + 1e-9) continue;\n      if (t > t1 + 1e-9) break;\n      add(t, get(i));\n    }\n    if (tail && t1 < END - 1e-9) add(t1, tail(t1));\n    return d || 'M0 0';\n  }\n  let lossLab, countLab, gapSpark, gapFlare;\n  (function buildArc() {\n    const s = el('arcS');\n    put(s, 'rect', { class: 'card', x: 4, y: 6, width: 96, height: 62, rx: 6 });\n    lab(s, 52, 26, 'Insulated', '', 'middle');\n    lab(s, 52, 42, 'supply', '', 'middle');\n    lab(s, 52, 59, VLINE + ' V, ' + HZ + ' Hz', 'n', 'middle');\n    put(s, 'line', { class: 'l1', x1: 100, y1: 24, x2: 334, y2: 24 });\n    lab(s, 106, 16, 'L1');\n    // One capacitor stands for the whole system's capacitance to the hull.\n    put(s, 'line', { class: 'wire', x1: 124, y1: 24, x2: 124, y2: 44 });\n    put(s, 'line', { class: 'plate', x1: 112, y1: 44, x2: 136, y2: 44 });\n    put(s, 'line', { class: 'plate', x1: 112, y1: 51, x2: 136, y2: 51 });\n    put(s, 'line', { class: 'wire', x1: 124, y1: 51, x2: 124, y2: 84 });\n    put(s, 'circle', { class: 'dot', cx: 124, cy: 24, r: 2.6 });\n    lab(s, 142, 42, 'System');\n    lab(s, 142, 57, 'capacitance');\n    lossLab = lab(s, 142, 74, '', 'm');\n    // The arc gap: a chafed end of L1 over a point on the hull.\n    put(s, 'line', { class: 'wire', x1: 236, y1: 24, x2: 236, y2: 46 });\n    put(s, 'path', { class: 'wire', d: 'M236 46L231 52M236 46V53M236 46L241 52' });\n    put(s, 'line', { class: 'wire', x1: 236, y1: 84, x2: 236, y2: 66 });\n    put(s, 'path', { class: 'dot', d: 'M232 67L240 67L236 61Z' });\n    put(s, 'circle', { class: 'dot', cx: 236, cy: 24, r: 2.6 });\n    gapFlare = put(s, 'circle', { class: 'flare', cx: 236, cy: 57, r: 9, opacity: 0 });\n    gapSpark = put(s, 'path', { class: 'spark', d: sparkPath(236, 57, 0.6), opacity: 0 });\n    lab(s, 248, 42, 'Arc gap at a');\n    lab(s, 248, 57, 'chafed cable');\n    countLab = lab(s, 248, 74, '', 'm');\n    put(s, 'rect', { class: 'hull', x: 4, y: 84, width: 332, height: 20, rx: 3 });\n    lab(s, 170, 98.5, 'Hull, which is earth', 'n', 'middle');\n    // The plot.\n    lab(s, PR, 119, 'Voltage to the hull', 'n', 'end');\n    put(s, 'rect', { class: 'frame', x: PL, y: PT, width: PR - PL, height: PB - PT });\n    [[1, 'gpk'], [-1, 'gpk'], [SOLID / PK, 'gsf'], [-SOLID / PK, 'gsf']].forEach((q) => put(s, 'line', { class: q[1], x1: PL, x2: PR, y1: n1(Yu(q[0])), y2: n1(Yu(q[0])) }));\n    put(s, 'line', { class: 'zero', x1: PL, x2: PR, y1: Y0, y2: Y0 });\n    lab(s, 50, PT + 4.5, '2,400', 'n', 'end');\n    lab(s, 50, Y0 + 4.5, '0', 'n', 'end');\n    lab(s, 50, PB + 4.5, '−2,400', 'n', 'end');\n    lab(s, (PL + PR) / 2, PB + 18, 'Time, slowed down', 'n', 'middle');\n    // The key, inside the drawing.\n    const KY = [PB + 40, PB + 60, PB + 80];\n    const sw = (x, y, cls) => put(s, 'line', { class: cls, x1: x, y1: y - 4.5, x2: x + 18, y2: y - 4.5 });\n    sw(4, KY[0], 'trace'); lab(s, 28, KY[0], 'L1 to hull', 'n');\n    sw(176, KY[0], 'star'); lab(s, 200, KY[0], 'Star point', 'n');\n    sw(4, KY[1], 'gpk'); lab(s, 28, KY[1], 'Normal peak, ±' + K.fmt(PK, { decimals: 0 }) + ' V', 'n');\n    sw(176, KY[1], 'gsf'); lab(s, 200, KY[1], 'Solid fault, ±' + K.fmt(SOLID, { decimals: 0 }) + ' V', 'n');\n    put(s, 'path', { class: 'spark', d: sparkPath(13, KY[2] - 4.5, 0.75) }); lab(s, 28, KY[2], 'Strike', 'n');\n    put(s, 'circle', { class: 'peak', cx: 185, cy: KY[2] - 4.5, r: 5.5 }); lab(s, 200, KY[2], 'Highest peak', 'n');\n  })();\n\n  function arcVisOf(s) { return { n: s.n, r: SHARE[s.loss], loss: s.loss, tp: s.tp, head: s.tp < END - 1e-9 ? s.tp : null, ghost: null, mor: null, flash: 0, qh: s.qh, qp: s.qp }; }\n  // A strike draws the new trace on from where it lands; a change of losses (or Reset) reshapes the trace.\n  function arcSeg(a, b, slow) {\n    if (a.loss === b.loss && b.n >= a.n) {\n      const t0 = a.tp < END - 1e-9 ? a.tp : (b.n > a.n ? TS[a.n] : END);\n      if (t0 < b.tp - 1e-9) {\n        const ghost = a.tp > t0 + 1e-9, wait = ghost ? 0.45 : 0.2;\n        const dur = Math.max(0.8, (b.tp - t0) * 1.05);\n        return { kind: 'draw', a, b, t0, wait, dur, ghost, end: wait + dur + 0.1 };\n      }\n    }\n    return { kind: 'morph', a, b, end: slow ? 1.4 : 0.3 };\n  }\n  function arcVisAt(m, t) {\n    const b = m.b;\n    if (m.kind === 'morph') {\n      const p = K.ease(K.clamp(t / m.end, 0, 1));\n      return Object.assign(arcVisOf(b), { head: null, mor: { n0: m.a.n, r0: SHARE[m.a.loss], p } });\n    }\n    const pw = K.clamp(t / m.wait, 0, 1), p = K.clamp((t - m.wait) / m.dur, 0, 1);\n    const tp = m.t0 + (b.tp - m.t0) * p;\n    let flash = 0;\n    for (let k = m.a.n + 1; k <= b.n; k++) {\n      const tk = TS[k - 1];\n      if (tk < m.t0 - 1e-9 || tk > b.tp + 1e-9) continue;\n      const x = (t - (m.wait + (tk - m.t0) / (b.tp - m.t0) * m.dur)) / 0.5;\n      if (x >= 0 && x <= 1) flash = Math.max(flash, x < 0.15 ? x / 0.15 : 1 - (x - 0.15) / 0.85);\n    }\n    const head = p >= 1 ? null : p > 0 ? tp : m.t0 - 0.2 * (1 - K.ease(pw));\n    return Object.assign(arcVisOf(b), { tp, head, flash, ghost: m.ghost ? { n: m.a.n, from: m.t0, a: 1 - K.ease(pw) } : null });\n  }\n  function paintArc(v) {\n    const g = el('arcD');\n    g.textContent = '';\n    const S = series(v.n, v.r), h = S.h;\n    const tL = (t) => starAt(t, v.n, h) + e1(t), tN = (t) => starAt(t, v.n, h);\n    if (v.ghost && v.ghost.a > 0.01) {\n      const G = series(v.ghost.n, v.r), gn = v.ghost.n;\n      const gg = put(g, 'g', { opacity: v.ghost.a.toFixed(3) });\n      put(gg, 'path', { class: 'star', d: pathOf((i) => G.N[i], v.ghost.from, END, (t) => starAt(t, gn, G.h)) });\n      put(gg, 'path', { class: 'trace', d: pathOf((i) => G.L[i], v.ghost.from, END, (t) => starAt(t, gn, G.h) + e1(t)) });\n    }\n    let dL, dN;\n    if (v.mor) {\n      const S0 = series(v.mor.n0, v.mor.r0), p = v.mor.p;\n      dN = pathOf((i) => K.lerp(S0.N[i], S.N[i], p), 0, END);\n      dL = pathOf((i) => K.lerp(S0.L[i], S.L[i], p), 0, END);\n    } else {\n      dN = pathOf((i) => S.N[i], 0, v.tp, tN);\n      dL = pathOf((i) => S.L[i], 0, v.tp, tL);\n    }\n    put(g, 'path', { class: 'star', d: dN });\n    put(g, 'path', { class: 'trace', d: dL });\n    // Each strike, where L1 meets the hull.\n    const nS = v.mor ? Math.max(v.n, v.mor.n0) : v.n;\n    for (let k = 1; k <= nS; k++) {\n      if (!v.mor && TS[k - 1] > v.tp - 1e-6) continue;\n      const a = !v.mor || (k <= v.n && k <= v.mor.n0) ? 1 : k <= v.n ? v.mor.p : 1 - v.mor.p;\n      if (a > 0.01) put(g, 'path', { class: 'spark', d: sparkPath(X(TS[k - 1]), Y0, 0.75), opacity: a.toFixed(3) });\n    }\n    const nb = arcNumbers(v.n, v.r, v.mor ? END : v.tp);\n    if (nb.at) put(g, 'circle', { class: 'peak', cx: n1(X(nb.at[0])), cy: n1(Yu(nb.at[1])), r: 5.5, opacity: (v.mor ? v.mor.p : 1).toFixed(3) });\n    if (v.head != null) put(g, 'circle', { class: 'head', cx: n1(X(v.head)), cy: n1(Yu(tL(v.head))), r: 4.5 });\n    gapSpark.setAttribute('opacity', v.flash.toFixed(3));\n    gapFlare.setAttribute('opacity', (0.8 * v.flash).toFixed(3));\n    lossLab.textContent = v.loss;\n    const struck = v.mor ? v.n : TS.filter((t, k) => k < v.n && t < v.tp - 1e-6).length;\n    countLab.textContent = struck ? struck + (struck === 1 ? ' strike' : ' strikes') : 'Not struck';\n    const read = { held: v.qh ? '?' : fV(nb.held * PK), peak: v.qp ? '?' : fV(nb.best * PK), times: v.qp ? '?' : fmtTimes(nb.best) };\n    R.held.set(read.held); R.peak.set(read.peak); R.times.set(read.times);\n    const climb = v.r > 0.75 ? 'each restrike leaves the star point further out, and L1\\'s peaks climb' : v.r > 0.25 ? 'each restrike leaves the star point a little further out, and L1\\'s peaks climb, then level off' : 'each restrike only flips the star point to the other side, and L1\\'s peaks stay the same';\n    svgs.arc.setAttribute('aria-label', 'A sketch of L1 on a 440 V, 60 Hz insulated supply, with the system capacitance and an arc gap at a chafed cable, both to the hull. Below, a plot of L1\\'s voltage to the hull against time, slowed down, with the star point\\'s voltage dashed. ' + v.loss + '. ' +\n      (struck ? (struck === 1 ? 'One strike: the arc went out at a peak and left the star point held away from the hull, so L1 swings about it. ' : struck + ' strikes: ' + climb + '. ') : 'No strikes yet: L1 swings evenly about the star point, which sits at the hull\\'s voltage.'));\n    return { read, tp: v.mor ? END : v.tp, struck, n: v.n };\n  }\n\n  // ---------- card 2: a drive's EMC filter on the insulated supply (viewBox 340 × 350) ----------\n  const LY = [32, 48, 64], CXC = [140, 156, 172], DX = [208, 224, 240];\n  let monLab;\n  (function buildDrv() {\n    const s = el('drvS');\n    put(s, 'rect', { class: 'card', x: 4, y: 20, width: 84, height: 70, rx: 6 });\n    lab(s, 46, 42, VLINE + ' V', '', 'middle');\n    lab(s, 46, 58, 'insulated', 'n', 'middle');\n    lab(s, 46, 74, 'board', 'n', 'middle');\n    LY.forEach((y, k) => { put(s, 'line', { class: 'bus c' + (k + 1), x1: 88, y1: y, x2: 316, y2: y }); lab(s, 320, y + 4.5, 'L' + (k + 1)); });\n    lab(s, 156, 16, 'Cable, ' + CCABLE + ' µF a line', 'n', 'middle');\n    // The insulation monitor sits on the board, joined to the lines and to the hull.\n    put(s, 'line', { class: 'wire', x1: 104, y1: 32, x2: 104, y2: 118 });\n    LY.forEach((y) => put(s, 'circle', { class: 'dot', cx: 104, cy: y, r: 2.6 }));\n    put(s, 'rect', { class: 'card', x: 4, y: 118, width: 120, height: 130, rx: 6 });\n    lab(s, 64, 137, 'Insulation', '', 'middle');\n    lab(s, 64, 153, 'monitor', '', 'middle');\n    put(s, 'path', { class: 'dial', d: 'M28 206A36 36 0 0 1 100 206' });\n    [180, 135, 90, 45, 0].forEach((a) => { const c = Math.cos(a * Math.PI / 180), sn = Math.sin(a * Math.PI / 180); put(s, 'line', { class: 'tick', x1: n1(64 + 30 * c), y1: n1(206 - 30 * sn), x2: n1(64 + 36 * c), y2: n1(206 - 36 * sn) }); });\n    monLab = lab(s, 64, 236, '', 'n', 'middle');\n    put(s, 'line', { class: 'wire', x1: 64, y1: 248, x2: 64, y2: 268 });\n    // The cable's capacitance: one capacitor from each line to the hull.\n    CXC.forEach((x, k) => {\n      put(s, 'line', { class: 'wire', x1: x, y1: LY[k], x2: x, y2: 190 });\n      put(s, 'line', { class: 'plate', x1: x - 7, y1: 190, x2: x + 7, y2: 190 });\n      put(s, 'line', { class: 'plate', x1: x - 7, y1: 197, x2: x + 7, y2: 197 });\n      put(s, 'line', { class: 'wire', x1: x, y1: 197, x2: x, y2: 268 });\n      put(s, 'circle', { class: 'dot', cx: x, cy: LY[k], r: 2.6 });\n    });\n    // One drive drawn in full, with nine more behind it; its EMC filter is three capacitors to the hull.\n    put(s, 'rect', { class: 'ghostcard', x: 212, y: 80, width: 84, height: 48, rx: 5 });\n    put(s, 'rect', { class: 'ghostcard', x: 204, y: 86, width: 84, height: 48, rx: 5 });\n    DX.forEach((x, k) => { put(s, 'line', { class: 'wire', x1: x, y1: LY[k], x2: x, y2: 92 }); put(s, 'circle', { class: 'dot', cx: x, cy: LY[k], r: 2.6 }); });\n    put(s, 'rect', { class: 'card', x: 196, y: 92, width: 84, height: 48, rx: 5 });\n    lab(s, 238, 112, 'Drive', '', 'middle');\n    lab(s, 238, 130, 'one of ten', 'n', 'middle');\n    DX.forEach((x) => {\n      put(s, 'line', { class: 'wire', x1: x, y1: 140, x2: x, y2: 158 });\n      put(s, 'line', { class: 'wire', x1: x, y1: 172, x2: x, y2: 190 });\n      put(s, 'line', { class: 'plate', x1: x - 6, y1: 190, x2: x + 6, y2: 190 });\n      put(s, 'line', { class: 'plate', x1: x - 6, y1: 197, x2: x + 6, y2: 197 });\n      put(s, 'line', { class: 'wire', x1: x, y1: 197, x2: x, y2: 268 });\n    });\n    lab(s, 252, 186, 'EMC filter');\n    lab(s, 252, 202, CFILT + ' µF a line', 'n');\n    put(s, 'rect', { class: 'hull', x: 4, y: 268, width: 332, height: 20, rx: 3 });\n    lab(s, 170, 282.5, 'Hull, which is earth', 'n', 'middle');\n  })();\n  function drvVisOf(s) { const l = s.filters === 'In' ? 1 : 0; return { link: l, emc: 1 - l, dc: s.monitor === 'Plain DC' && !s.q ? 1 : 0, fan: s.monitor === 'Plain DC' ? 1 : 0, needle: 40 }; }\n  // Filters swing the links; a monitor made for drives dips and then settles, slower with more capacitance;\n  // a plain DC monitor's needle shakes.\n  const SHAKE = 2.2;\n  function drvSeg(a, b, slow) {\n    const la = a.filters === 'In' ? 1 : 0, lb = b.filters === 'In' ? 1 : 0;\n    const dl = la !== lb ? (slow ? 0.9 : 0.3) : 0;\n    const changed = la !== lb || a.monitor !== b.monitor;\n    const creep = b.monitor === 'Made for drives' && changed;\n    const shake = b.monitor === 'Plain DC' && (changed || slow);\n    const fall = Math.max(dl, 0.35), tau = TAU * capOf(b.filters);\n    const end = Math.max(dl + 0.5, 0.5, creep ? fall + 5 * tau : 0, shake ? SHAKE : 0);\n    return { kind: 'drv', a, b, la, lb, dl, creep, shake, fall, tau, end };\n  }\n  const fadeTo = (a, b, t, d0) => (b > a ? K.lerp(a, b, K.ease(K.clamp((t - d0) / 0.45, 0, 1))) : b < a ? K.lerp(a, b, K.ease(K.clamp(t / 0.3, 0, 1))) : b);\n  function drvVisAt(m, t) {\n    const A0 = drvVisOf(m.a), v = drvVisOf(m.b);\n    v.link = m.dl ? K.lerp(m.la, m.lb, K.ease(K.clamp(t / m.dl, 0, 1))) : m.lb;\n    v.emc = fadeTo(A0.emc, v.emc, t, m.dl);\n    v.dc = fadeTo(A0.dc, v.dc, t, 0);\n    v.fan = fadeTo(A0.fan, v.fan, t, 0);\n    if (m.creep) v.needle = t < m.fall ? K.lerp(40, 140, K.ease(t / m.fall)) : 40 + 100 * Math.exp(-(t - m.fall) / m.tau);\n    else if (m.shake) { const env = K.clamp((SHAKE - t) / 0.5, 0, 1) * K.clamp(t / 0.2, 0, 1); v.needle = 40 + env * (12 * Math.sin(19 * t) + 7 * Math.sin(31 * t + 1)); }\n    return v;\n  }\n  function paintDrv(v, s) {\n    const g = el('drvD');\n    g.textContent = '';\n    // The filter links: hooked in, or swung open.\n    DX.forEach((x) => {\n      put(g, 'line', { class: 'wire', x1: x, y1: 172, x2: n1(K.lerp(x + 10, x, v.link)), y2: n1(K.lerp(161, 158, v.link)) });\n      put(g, 'circle', { class: 'pivot', cx: x, cy: 158, r: 2 });\n      put(g, 'circle', { class: 'pivot', cx: x, cy: 172, r: 2 });\n    });\n    const tip = (a, r) => [n1(64 + r * Math.cos(a * Math.PI / 180)), n1(206 - r * Math.sin(a * Math.PI / 180))];\n    if (v.fan > 0.01) [26, 54].forEach((a) => { const p = tip(a, 28); put(g, 'line', { class: 'needle blur', x1: 64, y1: 206, x2: p[0], y2: p[1], opacity: (0.6 * v.fan).toFixed(3) }); });\n    const p = tip(v.needle, 30);\n    put(g, 'line', { class: 'needle', x1: 64, y1: 206, x2: p[0], y2: p[1] });\n    put(g, 'circle', { class: 'dot', cx: 64, cy: 206, r: 4 });\n    monLab.textContent = s.monitor;\n    const tag = (a, y, w, bad, text) => {\n      if (a < 0.01) return;\n      const gg = put(g, 'g', { opacity: a.toFixed(3) });\n      put(gg, 'rect', { class: 'tag' + (bad ? ' bad' : ''), x: 4, y, width: w, height: 22, rx: 4 });\n      lab(gg, 12, y + 15.5, text, bad ? 'w' : 'n');\n    };\n    // The EMC tag sits by the drive's filter; it turns red with the filters out.\n    const emcTag = (a, bad) => {\n      if (a < 0.01) return;\n      const gg = put(g, 'g', { opacity: a.toFixed(3) });\n      put(gg, 'rect', { class: 'tag' + (bad ? ' bad' : ''), x: 248, y: 214, width: 90, height: 44, rx: 4 });\n      lab(gg, 293, 232, 'EMC', bad ? 'tn' : 'n', 'middle');\n      lab(gg, 293, 249, bad ? 'not met' : 'met', bad ? 'tw' : 'n', 'middle');\n    };\n    emcTag(1 - v.emc, false);\n    emcTag(v.emc, true);\n    tag(v.dc, 296, 324, true, 'DC from the drive can upset this reading');\n    // The drawing grows a row for the DC tag as it fades in, so what sits below eases down rather than jumps.\n    svgs.drv.setAttribute('viewBox', '0 0 340 ' + n1(294 + 30 * K.clamp(v.dc, 0, 1)));\n    const C = v.link >= 0.5 ? capOf('In') : capOf('Out');\n    const read = { ifault: fmA(faultmA(C)), settle: '× ' + K.fmt(C / CCABLE, { decimals: 0 }) };\n    R.ifault.set(read.ifault); R.settle.set(read.settle);\n    svgs.drv.setAttribute('aria-label', 'A 440 V insulated board feeds a cable, with 1 µF a line to the hull, and ten drives. Each drive\\'s EMC filter is three 0.1 µF capacitors to the hull, ' + (v.link >= 0.5 ? 'hooked in.' : 'unhooked.') +\n      ' An insulation monitor with a dial joins the board to the hull. It is ' + (s.monitor === 'Plain DC' ? 'a plain DC monitor, and its needle shakes.' : 'made for drives, and its needle is steady.'));\n    return { read, emc: v.emc, dc: v.dc, fan: v.fan, link: v.link };\n  }\n\n  // ---------- card 3: touching the supply (viewBox 340 × 328) ----------\n  const TY = [22, 42, 62], CXT = [118, 132, 146], TICKX = n1(20 + 300 * SAFE / VLINE);\n  (function buildTch() {\n    const s = el('tchS');\n    put(s, 'rect', { class: 'card', x: 4, y: 10, width: 80, height: 70, rx: 6 });\n    lab(s, 44, 32, 'Insulated', '', 'middle');\n    lab(s, 44, 48, 'supply', '', 'middle');\n    lab(s, 44, 66, VLINE + ' V', 'n', 'middle');\n    TY.forEach((y, k) => { put(s, 'line', { class: 'bus c' + (k + 1), x1: 84, y1: y, x2: 316, y2: y }); lab(s, 320, y + 4.5, 'L' + (k + 1)); });\n    CXT.forEach((x, k) => {\n      put(s, 'line', { class: 'wire', x1: x, y1: TY[k], x2: x, y2: 150 });\n      put(s, 'line', { class: 'plate', x1: x - 6, y1: 150, x2: x + 6, y2: 150 });\n      put(s, 'line', { class: 'plate', x1: x - 6, y1: 157, x2: x + 6, y2: 157 });\n      put(s, 'line', { class: 'wire', x1: x, y1: 157, x2: x, y2: 238 });\n      put(s, 'circle', { class: 'dot', cx: x, cy: TY[k], r: 2.6 });\n    });\n    lab(s, 104, 152, 'Cables', 'n', 'end');\n    lab(s, 104, 168, CCABLE + ' µF a line', 'n', 'end');\n    // A person stands on the hull, one hand up on a line.\n    put(s, 'path', { class: 'person', d: 'M260 236L268 204L276 236M268 204V168M268 178L292 124M268 178L256 198' });\n    put(s, 'circle', { class: 'face', cx: 268, cy: 158, r: 10 });\n    put(s, 'circle', { class: 'dot', cx: 292, cy: 121, r: 3.5 });\n    lab(s, 250, 162, 'You', '', 'end');\n    put(s, 'rect', { class: 'hull', x: 4, y: 238, width: 332, height: 20, rx: 3 });\n    lab(s, 170, 252.5, 'Hull, which is earth', 'n', 'middle');\n    // The bar: the voltage across the person, with the safe-touch tick.\n    lab(s, 20, 280, 'Voltage across you');\n    put(s, 'line', { class: 'glow', x1: 200, y1: 275.5, x2: 218, y2: 275.5 });\n    lab(s, 224, 280, 'Body current', 'n');\n    put(s, 'rect', { class: 'track', x: 20, y: 288, width: 300, height: 14, rx: 4 });\n    lab(s, 48, 322, 'Safe touch, ' + SAFE + ' V', 'n');\n    lab(s, 320, 322, VLINE + ' V', 'n', 'end');\n  })();\n  function glowOf(s) {\n    if (touchOf(s.fault, s.touch).i < 1e-9) return null;\n    const k = s.touch === 'L1' ? 0 : 1, body = `M292 ${TY[k]}V118L268 178V236`;\n    return s.fault === 'Solid' ? body + 'H196V22' : body + 'H' + CXT[0] + CXT.map((x, j) => `M${x} 236V${TY[j]}`).join('');\n  }\n  function tchVisOf(s) { const gp = s.q ? null : glowOf(s); return { f: s.fault === 'Solid' ? 1 : 0, stubs: [s.touch === 'L1' ? 1 : 0, s.touch === 'L2' ? 1 : 0], glows: gp ? [[gp, 1]] : [], V: s.q ? 0 : touchOf(s.fault, s.touch).v }; }\n  function tchSeg(a, b, slow) { const d = slow ? 0.9 : 0.3; return { kind: 'tch', a, b, d, end: 2 * d + (slow ? 0.4 : 0) }; }\n  function tchVisAt(m, t) {\n    const A0 = tchVisOf(m.a), v = tchVisOf(m.b);\n    const p1 = K.ease(K.clamp(t / m.d, 0, 1)), p2 = K.ease(K.clamp((t - m.d) / m.d, 0, 1));\n    const f = v.f;\n    v.f = K.lerp(A0.f, f, p1);\n    v.stubs = [0, 1].map((k) => (A0.stubs[k] === v.stubs[k] ? v.stubs[k] : v.stubs[k] ? p1 : 1 - p1));\n    const ga = A0.glows[0], gb = v.glows[0];\n    v.glows = ga && gb && ga[0] === gb[0] ? [gb] : [].concat(ga ? [[ga[0], 1 - p1]] : [], gb ? [[gb[0], p2]] : []);\n    v.V = K.lerp(A0.V, v.V, p2);\n    return v;\n  }\n  function paintTch(v, s) {\n    const g = el('tchD');\n    g.textContent = '';\n    v.glows.forEach((q) => { if (q[1] > 0.01) put(g, 'path', { class: 'glow', d: q[0], opacity: q[1].toFixed(3) }); });\n    if (v.f > 0.01) {\n      put(g, 'line', { class: 'fault', x1: 196, y1: 22, x2: 196, y2: n1(22 + 216 * v.f) });\n      put(g, 'circle', { class: 'fdot', cx: 196, cy: 22, r: 3.5 });\n      const fl = lab(g, 204, 224, 'Fault', 'w');\n      fl.setAttribute('opacity', K.clamp((v.f - 0.5) * 2, 0, 1).toFixed(3));\n    }\n    [0, 1].forEach((k) => {\n      if (v.stubs[k] < 0.01) return;\n      const gg = put(g, 'g', { opacity: v.stubs[k].toFixed(3) });\n      put(gg, 'line', { class: 'wire', x1: 292, y1: TY[k], x2: 292, y2: 118 });\n      put(gg, 'circle', { class: 'dot', cx: 292, cy: TY[k], r: 2.6 });\n    });\n    const w = 300 * K.clamp(v.V / VLINE, 0, 1);\n    if (w > 0.5) put(g, 'rect', { class: 'barfill' + (v.V > SAFE ? ' hot' : ''), x: 20, y: 288, width: n1(w), height: 14, rx: 3 });\n    put(g, 'line', { class: 'mark', x1: TICKX, y1: 284, x2: TICKX, y2: 306 });\n    // The tiles follow the bar as it moves, so they never run ahead of the picture.\n    const read = { across: s.q ? '?' : fV(v.V), body: s.q ? '?' : fmA(v.V / BODY * 1000) };\n    R.across.set(read.across); R.body.set(read.body);\n    const lit = v.glows.filter((q) => q[1] > 0.5).length;\n    svgs.tch.setAttribute('aria-label', 'Lines L1, L2 and L3 run above the hull, each with 1 µF of cable capacitance to it. A person stands on the hull with one hand on ' + s.touch + '. ' +\n      (s.fault === 'Solid' ? 'A solid fault joins L1 to the hull. ' : 'There is no fault. ') +\n      (s.q ? '' : lit ? (s.fault === 'Solid' ? 'Current runs through the person, along the hull and up the fault to L1.' : 'Current runs through the person and back up through the cables\\' capacitance.') : 'No current runs through the person.'));\n    return { read, glow: lit, V: v.V };\n  }\n\n  // ---------- state and motion ----------\n  const VIS = { arc: { of: arcVisOf, at: arcVisAt }, drv: { of: drvVisOf, at: drvVisAt }, tch: { of: tchVisOf, at: tchVisAt } };\n  const PAINT = { arc: paintArc, drv: paintDrv, tch: paintTch };\n  const seg = (key, a, b, slow) => (key === 'arc' ? arcSeg : key === 'drv' ? drvSeg : tchSeg)(a, b, slow);\n  function blank() { return { pick: null, res: null, why: false }; }\n  let ST = STEPS.map(() => blank());\n  let cur = clone(STEPS[0].pic), fx = null, T = Infinity, REC = null;\n  let finished = false, lastStep = -1, lastDone = false, last = {};\n  function visNow(key) {\n    if (fx && fx.key === key && T < fx.total) {\n      let t = Math.max(0, T);\n      for (const m of fx.segs) { if (t < m.end) return VIS[key].at(m, t); t -= m.end; }\n    }\n    return VIS[key].of(cur[key]);\n  }\n  function paint() {\n    const key = KEY[cur.view];\n    ['arc', 'drv', 'tch'].forEach((k) => { showEl(svgs[k], k === key); showEl(tiles[k], k === key); });\n    REC = PAINT[key](visNow(key), cur[key]);\n  }\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const at = () => stepper.get();\n  const live = () => !finished && !!STEPS[at()].show;\n  const viewCtl = K.choice({ id: 'view', label: 'View', options: VIEWS, value: VIEWS[0], into: '#viewctl' });\n  const strikeBtn = K.button({ label: 'Strike', into: '#strikes', press: () => {\n    if (!live() || cur.view !== VIEWS[0] || !canStrike(cur.arc)) return;\n    retarget('arc', { n: cur.arc.n + 1, tp: END, qh: false, qp: false }, true);\n  } });\n  K.button({ label: 'Reset', secondary: true, into: '#strikes', press: () => {\n    if (!live() || cur.view !== VIEWS[0] || !cur.arc.n) return;\n    retarget('arc', { n: 0, tp: END }, false);\n  } });\n  const lossCtl = K.choice({ id: 'losses', label: 'Losses', options: LOSSES, value: LOSSES[0], into: '#lossctl' });\n  const filCtl = K.choice({ id: 'filters', label: 'Filters', options: ['In', 'Out'], value: 'In', into: '#drvctl' });\n  const monCtl = K.choice({ id: 'monitor', label: 'Monitor', options: ['Plain DC', 'Made for drives'], value: 'Made for drives', into: '#drvctl' });\n  const fltCtl = K.choice({ id: 'fault', label: 'Fault on L1', options: ['None', 'Solid'], value: 'None', into: '#tchctl' });\n  const touCtl = K.choice({ id: 'touching', label: 'Touching', options: ['L1', 'L2'], value: 'L1', into: '#tchctl' });\n  const R = {\n    held: K.readout({ id: 'held', label: 'Star point held at', into: '#arcouts' }),\n    peak: K.readout({ id: 'peak', label: 'L1\\'s highest peak', into: '#arcouts' }),\n    times: K.readout({ id: 'times', label: 'Times normal peak', into: '#arcouts' }),\n    ifault: K.readout({ id: 'ifault', label: 'First-fault current', into: '#drvouts' }),\n    settle: K.readout({ id: 'settle', label: 'Settling vs cable alone', into: '#drvouts' }),\n    across: K.readout({ id: 'across', label: 'Across you', into: '#tchouts' }),\n    body: K.readout({ id: 'body', label: 'Through a 1,000 Ω body', into: '#tchouts' }),\n  };\n  const snap = () => ({ view: viewCtl.get(), losses: lossCtl.get(), filters: filCtl.get(), monitor: monCtl.get(), fault: fltCtl.get(), touching: touCtl.get() });\n  function syncCtls() {\n    viewCtl.set(cur.view, true); lossCtl.set(cur.arc.loss, true); filCtl.set(cur.drv.filters, true);\n    monCtl.set(cur.drv.monitor, true); fltCtl.set(cur.tch.fault, true); touCtl.set(cur.tch.touch, true);\n    last = snap();\n  }\n\n  // One animation plays the motion; with reduced motion (and while the self-test looks) it opens finished.\n  const anim = K.anim({ button: false, label: 'The picture', step: (dt) => {\n    if (finished) return false;\n    T += dt;\n    paint();\n    return !!fx && T < fx.total;\n  } });\n  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });\n  function start(key, segs, delay) {\n    fx = { key, segs, total: segs.reduce((s, m) => s + m.end, 0) };\n    if (REDUCE || testing()) { T = Infinity; anim.pause(); return; }\n    T = -(delay || 0); anim.play();\n  }\n  // Move one card on from its settled state.\n  function retarget(key, ch, slow) {\n    const a = clone(cur[key]), b = Object.assign(clone(a), ch);\n    cur[key] = b;\n    anim.pause(); T = Infinity; fx = null;\n    start(key, [seg(key, a, b, slow)], 0);\n  }\n  function setPic(p) { cur = clone(p); anim.pause(); T = Infinity; fx = null; syncCtls(); K.refresh(); }\n  function enter(id) {\n    if (REDUCE) return;\n    const box = typeof id === 'string' ? el(id) : id;\n    box.classList.remove('enter');\n    void box.getBoundingClientRect();\n    box.classList.add('enter');\n  }\n\n  // Three answers; Check marks the one chosen, and a right one plays what it says.\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = ST[i];\n    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;\n    st.pick = d.opts[k]; st.res = null;\n  } }));\n  K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = ST[i];\n    if (finished || d.show || st.res === 'right') return;\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = st.pick === d.want ? 'right' : 'wrong';\n    if (st.res !== 'right') return;\n    const afters = [].concat(d.after), key = KEY[afters[0].view], segs = [];\n    let a = cur[key];\n    afters.forEach((pp) => { segs.push(seg(key, a, pp[key], true)); a = pp[key]; });\n    anim.pause(); T = Infinity; fx = null;\n    cur = clone(afters[afters.length - 1]);\n    syncCtls();\n    start(key, segs, 0.2);\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    if (finished || STEPS[at()].show) return;\n    const st = ST[at()]; st.why = !st.why;\n  } });\n  const checkBtn = el('acts').querySelector('.k-btn:not(.secondary)');\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && ST[i].res !== 'right')) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true; anim.pause();\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    ST = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);\n  } });\n\n  el('finish').textContent = FINISH;\n  K.update((p) => {\n    const i = Math.round(p.step), d = STEPS[i], st = ST[i];\n    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished\n    if (i !== lastStep) {\n      lastStep = i; enter('stepbox');\n      anim.pause(); T = Infinity; fx = null;\n      cur = clone(d.show ? d.pic : st.res === 'right' ? finalOf(d) : d.before);\n      syncCtls();\n      // A demonstration screen plays once on opening, after its fade-in. A plain DC monitor's needle shakes.\n      if (d.show && d.demo) { const k = KEY[d.pic.view]; start(k, [seg(k, d.demo[k], d.pic[k], true)], 0.5); }\n      else if (!d.show && st.res !== 'right' && cur.view === VIEWS[1] && cur.drv.monitor === 'Plain DC') start('drv', [seg('drv', cur.drv, cur.drv, true)], 0.4);\n    } else {\n      const now = { view: p.view, losses: p.losses, filters: p.filters, monitor: p.monitor, fault: p.fault, touching: p.touching };\n      const diff = Object.keys(now).filter((k) => now[k] !== last[k]);\n      if (diff.length) {\n        if (live()) {\n          last = now;\n          if (diff.indexOf('view') >= 0) { cur.view = p.view; anim.pause(); T = Infinity; fx = null; enter(svgs[KEY[p.view]]); }\n          if (diff.indexOf('losses') >= 0) retarget('arc', { loss: p.losses }, false);\n          if (diff.indexOf('filters') >= 0 || diff.indexOf('monitor') >= 0) retarget('drv', { filters: p.filters, monitor: p.monitor }, false);\n          if (diff.indexOf('fault') >= 0 || diff.indexOf('touching') >= 0) retarget('tch', { fault: p.fault, touch: p.touching }, false);\n        } else syncCtls();   // off the screens that show them, the controls keep the picture's setting\n      }\n    }\n    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }\n    const right = st.res === 'right';\n    el('stepbox').hidden = finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    task.textContent = strip(d.show ? d.text : d.task);\n    el('viewctl').hidden = !d.show;\n    el('ctls').hidden = !d.show;\n    const key = KEY[cur.view];\n    ['arc', 'drv', 'tch'].forEach((k) => { ctlBoxes[k].hidden = k !== key; });\n    strikeBtn.el.disabled = !canStrike(cur.arc);\n\n    const opts = d.show ? [] : d.opts;\n    el('picks').hidden = !opts.length;\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(opts[k]);\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n    el('acts').hidden = !!d.show;\n    if (checkBtn) checkBtn.hidden = right;\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n    const fb = el('fb');\n    fb.hidden = !!d.show || !st.res;\n    fb.className = 'fb' + (right ? ' right' : '');\n    fb.textContent = d.show ? '' : right ? 'That\\'s it.' : st.res === 'wrong' ? (d.hints[st.pick] || 'Not quite.') : st.res === 'empty' ? PICK : '';\n    const why = el('why');\n    why.hidden = !!d.show || !st.why;\n    why.textContent = d.show ? '' : strip(d.why);\n\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !right);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;\n    paint();\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  function drawn(pc) {\n    const keep = [cur, T, fx];\n    cur = clone(pc); T = Infinity; fx = null;\n    try { paint(); return REC; } finally { cur = keep[0]; T = keep[1]; fx = keep[2]; paint(); }\n  }\n  K.check('Twelve screens: five that show and seven puzzles, alternating to the ninth and ending on three mixed puzzles', () =>\n    STEPS.length === 12 && STEPS.filter((d) => d.show).length === 5 && STEPS.slice(0, 9).every((d, i) => !!d.show === (i % 2 === 0)) && STEPS.slice(9).every((d) => !d.show));\n  K.check('Each line sits 440 ÷ 1.732 = 254 V from earth, with a peak of 254 × 1.414 = 359 V; a solid fault puts 440 × 1.414 = 622 V peaks on the healthy lines', () =>\n    VPH === 254 && PK === 359 && SOLID === 622);\n  K.check('No losses: three strikes hold the star point at 359, 1,077 and 1,795 V, and L1 then peaks at 718, 1,436 and 2,154 V, 2, 4 and 6 times normal', () =>\n    [1, 2, 3].every((n) => { const r = drawn(A({ n })).read; return r.held === fV([359, 1077, 1795][n - 1]) && r.peak === fV([718, 1436, 2154][n - 1]) && r.times === fmtTimes([2, 4, 6][n - 1]); }));\n  K.check('Some losses: held at 359, 718 and 898 V; L1 peaks at 718, 1,077 and 1,257 V; more strikes level off towards 4 times', () => {\n    const ok = [1, 2, 3].every((n) => { const r = drawn(A({ n, loss: LOSSES[1] })).read; return r.held === fV([359, 718, 898][n - 1]) && r.peak === fV([718, 1077, 1257][n - 1]) && r.times === fmtTimes([2, 3, 3.5][n - 1]); });\n    const h = rungs(0.5, 40);\n    return ok && K.near(Math.abs(h[40]) + 1, 4, 1e-6);\n  });\n  K.check('Higher losses and heavy damping keep the overvoltage from building: on Heavy losses the star point stays 359 V out and every peak is 718 V, twice normal', () =>\n    [1, 2, 3].every((n) => { const r = drawn(A({ n, loss: LOSSES[2] })).read; return r.held === fV(359) && r.peak === fV(718) && r.times === fmtTimes(2); }), { source: IMAREST });\n  K.check('180° after the restrike, with no losses, L1\\'s voltage to the hull has risen to 4 times its normal peak', () => {\n    const h = rungs(1, MAXN), t = TS[1] + 0.5;\n    return K.near(Math.abs(starAt(t, 2, h) + e1(t)), 4, 1e-9);\n  }, { source: EATON_T });\n  K.check('The arc goes out at the next current zero: the current leads the voltage by 90°, so at each strike the current is zero and the capacitance\\'s voltage is at its peak', () =>\n    TS.every((t) => K.near(Math.cos(2 * Math.PI * t), 0, 1e-12) && K.near(Math.abs(e1(t)), 1, 1e-12)), { source: EATON_T });\n  K.check('With the arc out, nothing charges or discharges the capacitance, so the star point stays at the voltage it had when the arc went out', () =>\n    [0, 0.5, 1].every((r) => { const h = rungs(r, MAXN); return [1, 2, 3].every((n) => GRID.filter((t) => t > TS[n - 1] + RD).every((t) => starAt(t, n, h) === h[n])); }), { source: EATON_T });\n  K.check('Ten filters at 0.1 µF add 1 µF a line: 3 × 377 × 1 µF × 254 V = 287 mA becomes 575 mA at 2 µF, and the monitor settles twice as slowly', () => {\n    const a = drawn(D({ filters: 'Out' })), b = drawn(D({ filters: 'In' }));\n    return K.near(OMEGA, 377, 0.01) && a.read.ifault === '287 mA' && b.read.ifault === '575 mA' && a.read.settle === '× 1' && b.read.settle === '× 2' && a.emc === 1 && b.emc === 0;\n  });\n  K.check('The supply is joined to the hull through the drive\\'s internal EMC filter capacitors: with the filters in, the capacitance to the hull doubles', () =>\n    K.near(capOf('In'), 2 * capOf('Out'), 1e-12) && drawn(D({ filters: 'In' })).link === 1 && drawn(D({ filters: 'Out' })).link === 0, { source: ABB380 });\n  K.check('Healthy, touching L1: 3 µF at 60 Hz is 884 Ω, so 254 ÷ √(1,000² + 884²) = 190 mA flows, with 190 V across the body', () => {\n    const r = drawn(Tc({ touch: 'L1' }));\n    return Math.round(XC3) === 884 && r.read.body === '190 mA' && r.read.across === '190 V' && r.glow === 1;\n  });\n  K.check('A solid fault on L1: touching L1 gives 0 V and 0 mA; touching L2 gives 440 V and 440 ÷ 1,000 = 440 mA', () => {\n    const a = drawn(Tc({ fault: 'Solid', touch: 'L1' })), b = drawn(Tc({ fault: 'Solid', touch: 'L2' }));\n    return a.read.across === '0 V' && a.read.body === '0 mA' && a.glow === 0 && b.read.across === '440 V' && b.read.body === '440 mA' && b.glow === 1;\n  });\n  K.check('A touch voltage under 50 V AC keeps persons safe: the Safe touch tick sits at 50 V, and both touches that drive a current here are above it', () =>\n    SAFE === 50 && touchOf('None', 'L1').v > SAFE && touchOf('Solid', 'L2').v > SAFE && touchOf('Solid', 'L1').v < SAFE, { source: BENDER_TA });\n  K.check('Before an answer, no puzzle shows its result', () => {\n    const b = (i) => drawn(STEPS[i].before), a = (i) => drawn(finalOf(STEPS[i]));\n    const s2 = b(1), s4 = b(3);\n    return s2.read.held === '?' && s2.read.peak === '?' && s2.tp < TS[0] + 0.5 && a(1).read.held === fV(359) &&\n      s4.read.peak === '?' && s4.read.held === fV(1077) && s4.tp < TS[1] + 0.5 && a(3).read.peak === fV(2154) &&\n      b(5).struck === 0 && a(5).read.peak === fV(718) &&\n      b(7).dc === 0 && b(7).fan === 1 && a(7).fan === 0 &&\n      b(9).read.across === '?' && b(9).glow === 0 && a(9).read.body === '190 mA' &&\n      b(10).struck === 0 && a(10).struck === 3 && a(10).read.peak === fV(718) &&\n      b(11).emc === 0 && a(11).emc === 1;\n  });\n  K.check('A strike draws its rung in about 3 s, the three-strike puzzle finishes within 5 s, and a Losses, Filters or Fault move lands within 0.35 s', () => {\n    const one = seg('arc', A({ n: 0 }).arc, A({ n: 1 }).arc, true).end;\n    const s11 = seg('arc', A({}).arc, A({ n: 3 }).arc, true).end + seg('arc', A({ n: 3 }).arc, A({ n: 3, loss: LOSSES[2] }).arc, true).end;\n    const lm = seg('arc', A({ n: 3 }).arc, A({ n: 3, loss: LOSSES[1] }).arc, false).end;\n    const dm = seg('drv', D({}).drv, D({ filters: 'Out' }).drv, false).dl;\n    const tm = seg('tch', Tc({}).tch, Tc({ fault: 'Solid' }).tch, false).d;\n    const m = seg('arc', A({ n: 1 }).arc, A({ n: 2 }).arc, true), mid = arcVisAt(m, m.wait + m.dur / 2);\n    return one <= 3.5 && s11 <= 5 && lm <= 0.35 && dm <= 0.35 && tm <= 0.35 && mid.tp > TS[1] && mid.tp < END;\n  });\n  K.check('Three strikes at most: after the third, Strike greys out until Reset', () =>\n    canStrike(A({ n: 0 }).arc) && canStrike(A({ n: 2 }).arc) && !canStrike(A({ n: 3 }).arc));\n\n  K.ready();\n</script>",
+  "title": "The restrike ladder",
+  "brief": "The one thing you should see is L1's peaks to earth climbing from 2 to 4 times normal as each strike holds the star point further out, when you tap Strike on No losses but not on Heavy losses.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "Twelve screens: five that show and seven puzzles, alternating to the ninth and ending on three mixed puzzles",
+     "ok": true
+    },
+    {
+     "label": "Each line sits 440 ÷ 1.732 = 254 V from earth, with a peak of 254 × 1.414 = 359 V; a solid fault puts 440 × 1.414 = 622 V peaks on the healthy lines",
+     "ok": true
+    },
+    {
+     "label": "No losses: three strikes hold the star point at 359, 1,077 and 1,795 V, and L1 then peaks at 718, 1,436 and 2,154 V, 2, 4 and 6 times normal",
+     "ok": true
+    },
+    {
+     "label": "Some losses: held at 359, 718 and 898 V; L1 peaks at 718, 1,077 and 1,257 V; more strikes level off towards 4 times",
+     "ok": true
+    },
+    {
+     "label": "Higher losses and heavy damping keep the overvoltage from building: on Heavy losses the star point stays 359 V out and every peak is 718 V, twice normal",
+     "ok": true,
+     "source": "https://library.imarest.org/record/2202/files/2229.pdf"
+    },
+    {
+     "label": "180° after the restrike, with no losses, L1's voltage to the hull has risen to 4 times its normal peak",
+     "ok": true,
+     "source": "https://www.eaton.com/content/dam/eaton/markets/healthcare/knowledge-center/white-paper/transient-overvoltages-on-ungrounded-systems-from-intermittent-ground-faults.pdf"
+    },
+    {
+     "label": "The arc goes out at the next current zero: the current leads the voltage by 90°, so at each strike the current is zero and the capacitance's voltage is at its peak",
+     "ok": true,
+     "source": "https://www.eaton.com/content/dam/eaton/markets/healthcare/knowledge-center/white-paper/transient-overvoltages-on-ungrounded-systems-from-intermittent-ground-faults.pdf"
+    },
+    {
+     "label": "With the arc out, nothing charges or discharges the capacitance, so the star point stays at the voltage it had when the arc went out",
+     "ok": true,
+     "source": "https://www.eaton.com/content/dam/eaton/markets/healthcare/knowledge-center/white-paper/transient-overvoltages-on-ungrounded-systems-from-intermittent-ground-faults.pdf"
+    },
+    {
+     "label": "Ten filters at 0.1 µF add 1 µF a line: 3 × 377 × 1 µF × 254 V = 287 mA becomes 575 mA at 2 µF, and the monitor settles twice as slowly",
+     "ok": true
+    },
+    {
+     "label": "The supply is joined to the hull through the drive's internal EMC filter capacitors: with the filters in, the capacitance to the hull doubles",
+     "ok": true,
+     "source": "https://library.e.abb.com/public/2a86caefc9a646d6ba6be02a51401d7c/EN_ACS380_HW_H.pdf?x-sign=uVI95WUGnnSLwIKdHN0mtCica4cmiO2sqwtZQFRUbE3KUcBDVJ7Anb9IZ0mfA4b6"
+    },
+    {
+     "label": "Healthy, touching L1: 3 µF at 60 Hz is 884 Ω, so 254 ÷ √(1,000² + 884²) = 190 mA flows, with 190 V across the body",
+     "ok": true
+    },
+    {
+     "label": "A solid fault on L1: touching L1 gives 0 V and 0 mA; touching L2 gives 440 V and 440 ÷ 1,000 = 440 mA",
+     "ok": true
+    },
+    {
+     "label": "A touch voltage under 50 V AC keeps persons safe: the Safe touch tick sits at 50 V, and both touches that drive a current here are above it",
+     "ok": true,
+     "source": "https://fournais-bender.dk/storage/TechnAspects-IT-systems.pdf"
+    },
+    {
+     "label": "Before an answer, no puzzle shows its result",
+     "ok": true
+    },
+    {
+     "label": "A strike draws its rung in about 3 s, the three-strike puzzle finishes within 5 s, and a Losses, Filters or Fault move lands within 0.35 s",
+     "ok": true
+    },
+    {
+     "label": "Three strikes at most: after the third, Strike greys out until Reset",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step",
+    "view",
+    "losses",
+    "filters",
+    "monitor",
+    "fault",
+    "touching"
+   ],
+   "readouts": [
+    "held",
+    "peak",
+    "times",
+    "ifault",
+    "settle",
+    "across",
+    "body"
+   ],
+   "outputs": [],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Screen",
+     "min": 0,
+     "max": 11,
+     "step": 1,
+     "steps": [
+      "The arc goes out at a peak",
+      "Once the arc is out",
+      "The gap restrikes",
+      "The next peak",
+      "Losses damp the ring",
+      "Heavy losses",
+      "Filters on an insulated supply",
+      "A reading that jumps",
+      "Touching a floating supply",
+      "A healthy reading",
+      "Two sides of the argument",
+      "What the filter gave"
+     ],
+     "value": 0
+    },
+    {
+     "id": "view",
+     "kind": "choice",
+     "label": "View",
+     "options": [
+      "Arc ladder",
+      "Drive on IT",
+      "Touch"
+     ],
+     "labels": [
+      "Arc ladder",
+      "Drive on IT",
+      "Touch"
+     ],
+     "value": "Arc ladder",
+     "index": 0,
+     "shown": true
+    },
+    {
+     "id": "losses",
+     "kind": "choice",
+     "label": "Losses",
+     "options": [
+      "No losses",
+      "Some losses",
+      "Heavy losses"
+     ],
+     "labels": [
+      "No losses",
+      "Some losses",
+      "Heavy losses"
+     ],
+     "value": "No losses",
+     "index": 0,
+     "shown": true
+    },
+    {
+     "id": "filters",
+     "kind": "choice",
+     "label": "Filters",
+     "options": [
+      "In",
+      "Out"
+     ],
+     "labels": [
+      "In",
+      "Out"
+     ],
+     "value": "In",
+     "index": 0,
+     "shown": false
+    },
+    {
+     "id": "monitor",
+     "kind": "choice",
+     "label": "Monitor",
+     "options": [
+      "Plain DC",
+      "Made for drives"
+     ],
+     "labels": [
+      "Plain DC",
+      "Made for drives"
+     ],
+     "value": "Made for drives",
+     "index": 1,
+     "shown": false
+    },
+    {
+     "id": "fault",
+     "kind": "choice",
+     "label": "Fault on L1",
+     "options": [
+      "None",
+      "Solid"
+     ],
+     "labels": [
+      "None",
+      "Solid"
+     ],
+     "value": "None",
+     "index": 0,
+     "shown": false
+    },
+    {
+     "id": "touching",
+     "kind": "choice",
+     "label": "Touching",
+     "options": [
+      "L1",
+      "L2"
+     ],
+     "labels": [
+      "L1",
+      "L2"
+     ],
+     "value": "L1",
+     "index": 0,
+     "shown": false
+    }
+   ],
+   "actions": [
+    "Strike",
+    "Reset",
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Check",
+    "Why?",
+    "Back",
+    "Continue",
+    "Start again",
+    "The picture"
+   ],
+   "answers": [],
+   "written": [],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 2
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-27T17:07:55.171Z",
+  "applied": [
+   {
+    "path": "practice.text",
+    "problem": "The worked example states the idealised ladder's 1,436 V and 718 V as plain fact; the 50 V touch limit is for dry conditions only (wet places use lower limits); 'is rated' overstates Eaton's 'has to be rated'; not every drive needs the filter and varistor removed."
+   },
+   {
+    "path": "explain.text",
+    "problem": "'Behaves exactly like an earthed one' is absolute for any first fault; a high-resistance first fault does not make it so. Narrow to a solid first fault, which the next sentence already describes."
+   },
+   {
+    "path": "interactive.whatAmILookingAt",
+    "problem": "Screen 9 repeats the absolute 'exactly' and the 50 V limit without the wet-conditions caveat; screen 10 says monitors read with DC, but the research says very low-frequency AC or DC, and it is not that they ignore capacitance entirely."
+   }
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}

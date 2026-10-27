@@ -1,0 +1,585 @@
+<!-- kind: mechanism -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 32rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.15rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.05rem; font-weight: 400; line-height: 1.6; }
+  .scene { display: block; width: 100%; max-width: 32rem; margin-inline: auto; }
+  .scene .wire { stroke: var(--k-ink); stroke-width: 2; fill: none; stroke-linejoin: round; }
+  .scene .ins { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 4 3; fill: none; }
+  .scene .insbox { stroke: var(--k-muted); stroke-width: 1.5; fill: var(--k-bg); }
+  .scene .res { stroke: var(--k-ink); stroke-width: 2; fill: var(--k-bg); }
+  .scene .dev { stroke: var(--k-muted); stroke-width: 1.5; fill: none; }
+  .scene .dot { fill: var(--k-ink); }
+  .scene .open { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 2; }
+  .scene .frame { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 2; }
+  .scene .motor { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 2; }
+  .scene .hull { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .bolt { stroke: var(--k-warn); stroke-width: 2.5; fill: none; stroke-linejoin: round; }
+  .scene .glow { stroke: var(--k-amber-line); fill: none; stroke-opacity: .35; stroke-linejoin: round; stroke-linecap: round; }
+  .scene .flow { stroke: var(--k-amber-line); fill: none; stroke-linejoin: round; }
+  .scene .lamp { stroke: var(--k-muted); stroke-width: 2; fill: var(--k-panel); }
+  .scene .lit { fill: var(--k-amber-line); }
+  .scene .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .lab.m { fill: var(--k-muted); }
+  .scene .lab.w { fill: var(--k-warn); }
+  .scene .mm { font: 700 16px var(--k-font); fill: var(--k-ink); }
+  /* The star point switch: four buttons, two to a row on a phone. */
+  .sw { display: grid; grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr)); gap: 8px; }
+  .sw .k-btn { min-height: 44px; width: 100%; }
+  .sw .k-btn[aria-pressed="true"], .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; min-height: 44px; }
+  #outs { display: flex; flex-wrap: wrap; gap: 10px; }
+  #outs .k-readout { flex: 1 1 8rem; }
+  /* The answers are sentences: one to a row, wrapping inside the button. */
+  .picks { display: flex; flex-direction: column; gap: 8px; }
+  .picks .k-btn { width: 100%; min-height: 48px; white-space: normal; text-align: left; justify-content: flex-start; line-height: 1.4; padding: 10px 14px; }
+  .fb { font-weight: 700; min-height: 1.5em; }
+  .fb.right { color: var(--k-good); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly. */
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }
+</style>
+
+<p class="lead">An example 440 V three-phase supply, drawn as a star, feeds a motor whose frame is bonded to the hull.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 300" width="100%" role="img" aria-label=""><g id="art"></g></svg>
+    <div class="sw" id="sw"></div>
+    <div class="row" id="faultrow"></div>
+    <div id="outs"></div>
+    <div class="picks" id="picks"></div>
+    <div class="row" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row" id="nav"></div>
+</div>
+
+<p class="caption">Example values throughout. Current only flows round a complete loop back to the star point.</p>
+
+<script>
+  // ---------- the rule ----------
+  // Each winding has 440 ÷ 1.732 = 254 V across it. A fault from L1 to the frame drives a current
+  // of 254 V over its loop's resistance, and what the star point is tied to sets that loop.
+  const VLINE = 440, ROOT3 = 1.732, VPH = VLINE / ROOT3;
+  const R_TN = 0.5, R_TT = [10, 100], R_INS = 100000, R_HZ = 1500;   // example values, ohms
+  const BREAKER = 32, RCD = 0.03;                                     // example ratings: 32 A, 30 mA
+  const NAME = { TN: 'TN', TT: 'TT', IT: 'IT', HZ: 'High impedance' };
+  const ohms = (sys, el) => (sys === 'TN' ? R_TN : sys === 'TT' ? el[0] + el[1] : sys === 'IT' ? R_INS : R_HZ);
+  const amps = (sys, el) => VPH / ohms(sys, el || R_TT);
+  // The breaker trips above its rating; the RCD (fitted on TT) on 30 mA that does not come back.
+  // A star point that is not tied solidly to earth runs on, and its alarm lights.
+  function outcome(sys, el) {
+    const i = amps(sys, el);
+    if (i > BREAKER) return 'breaker';
+    if (sys === 'TT' && i >= RCD) return 'rcd';
+    return sys === 'IT' || sys === 'HZ' ? 'alarm' : 'running';
+  }
+  const SUPPLY = { breaker: 'Tripped by breaker', rcd: 'Tripped by RCD', alarm: 'Running, alarm on', running: 'Running' };
+  function ampsText(a) {
+    if (a >= 10) return K.fmt(a, { decimals: 0 }) + ' A';
+    if (a >= 1) return K.fmt(a, { decimals: 1 }) + ' A';
+    if (a >= 0.1) return K.fmt(a, { decimals: 2 }) + ' A';
+    return K.fmt(a * 1000, { decimals: 1 }) + ' mA';
+  }
+  const ohmText = (v) => K.fmt(v, { decimals: 0 }) + ' Ω';
+  // The motion after the fault goes on: the fault at once, the loop by 1.2 s, the trip or the alarm from 2 s.
+  const LOOP = 0.6, AMPS_AT = 0.9, TRIP = 2.0, END = 3.4;
+
+  // ---------- the lesson: SHOW screens demonstrate, DO screens are puzzles ----------
+  // pic: the picture a SHOW screen opens on (ctl: 'switch' or 'both' for the switch and the fault);
+  // before / after: a puzzle's picture before and after a right answer (sets: the answer moves the switch).
+  const strip = (s) => s.replace(/\[\^\d+\]/g, '');
+  const STEPS = [
+    { show: true, name: 'Two letters', pic: { sys: 'TN', fault: false }, ctl: 'switch',
+      text: strip('Three windings meet at the star point. Say it is a 440 V supply, so each winding gives 254 V. The motor\'s frame is bonded to the hull, which is earth. The switch sets what the star point is tied to. Two letters name that choice. The first letter is the star point: T for earth, from the French terre, or I for isolated.[^1] The second is how the frames reach earth: N through a conductor back to the star point, or T through an electrode of their own.'),
+      still: () => setPic({ sys: 'TN', fault: false }) },
+    { kind: 'pick', name: 'Reading IT', before: { sys: 'TN', fault: false }, after: { sys: 'IT', fault: false }, sets: true,
+      task: 'A supply is marked IT. What do its two letters tell you?',
+      read: 'A supply is marked IT. What do its two letters tell you?',
+      opts: ['The star point is isolated from earth. The frames go to earth.', 'The star point is tied to earth. The frames are isolated.', 'The star point and the frames are both tied to the hull.'],
+      want: 'The star point is isolated from earth. The frames go to earth.',
+      hints: { 'The star point is tied to earth. The frames are isolated.': 'The first letter is the star point, and I means isolated.',
+        'The star point and the frames are both tied to the hull.': 'Only the frames are. The I says the star point is joined to nothing.' },
+      why: 'Read the letters in order. The first is the star point: I, isolated. The second is the frames: T, to earth. On a ship that earth is the hull.' },
+    { show: true, name: 'TN: the loop closes', pic: { sys: 'TN', fault: false }, ctl: 'both', demo: true,
+      text: strip('With the star point on TN, tap Fault on L1. The current\'s loop lights up. It runs out of L1 and through the fault into the frame. It comes back along the protective conductor to the star point, then up L1\'s winding. Say that metal loop is 0.5 Ω. Then 254 ÷ 0.5 = 508 A flows, and the breaker trips at once.[^2] Earthing does not drain the fault away. It closes the loop, so the current is big enough to trip.'),
+      read: 'On TN the fault current runs out of L1 and into the frame. It comes back along the protective conductor to the star point and up L1\'s winding. 508 A flows, and the breaker trips.',
+      still: () => setPic({ sys: 'TN', fault: true }) },
+    { kind: 'pick', name: 'Why TN trips', before: { sys: 'TN', fault: false }, after: { sys: 'TN', fault: true },
+      task: 'Why does the breaker trip on TN?', read: 'Why does the breaker trip on TN?',
+      opts: ['The protective conductor gives the current a low-resistance way back to the star point.', 'The earth wire carries the extra electricity away into the hull.', 'Earthing works like double insulation and cuts the supply.'],
+      want: 'The protective conductor gives the current a low-resistance way back to the star point.',
+      hints: { 'The earth wire carries the extra electricity away into the hull.': 'Current goes round a loop back to its source. The earth wire is the loop\'s way home, not a drain.',
+        'Earthing works like double insulation and cuts the supply.': 'Double insulation keeps a fault off metal you can touch. Earthing lets a fault on metal draw enough current to trip.' },
+      why: 'Current only flows round a complete loop. The protective conductor closes it back to the star point through metal. That loop is a fraction of an ohm. So 254 V drives hundreds of amps, and the breaker trips at once.' },
+    { show: true, name: 'TT: two electrodes', pic: { sys: 'TT', fault: false }, ctl: 'both', demo: true,
+      text: 'Switch to TT and tap the fault again. The star point now goes to an earth electrode at the source. The frame goes to an electrode of its own. So the loop runs through the ground between them. Say the two electrodes are 10 Ω and 100 Ω. Then 254 ÷ 110 = 2.3 A flows. A 32 A breaker will not notice that. A 30 mA RCD sees current going out that does not come back, and trips. Both ends are earthed, so the fault has a way home.',
+      read: 'On TT the loop runs through the ground between two electrodes, 110 Ω in all. 2.3 A flows. That is too little for the breaker, so the RCD trips.',
+      still: () => setPic({ sys: 'TT', fault: true }) },
+    { kind: 'pick', name: 'A TT fault', before: { sys: 'TT', fault: false, el: [20, 200] }, after: { sys: 'TT', fault: true, el: [20, 200] },
+      task: 'A TT supply has electrodes of 20 Ω and 200 Ω, the same 254 V winding, a 32 A breaker and a 30 mA RCD. A phase faults to a frame. About what current flows, and what trips?',
+      read: 'A TT supply has electrodes of 20 Ω and 200 Ω, the same 254 V winding, a 32 A breaker and a 30 mA RCD. About what current flows at a fault to frame, and what trips?',
+      opts: ['About 1.2 A, and the RCD trips', 'About 508 A, and the breaker trips', 'About 1.2 A, and the breaker trips'],
+      want: 'About 1.2 A, and the RCD trips',
+      hints: { 'About 508 A, and the breaker trips': 'The loop now runs through two electrodes and the ground, 220 Ω, not a fraction of an ohm.',
+        'About 1.2 A, and the breaker trips': '1.2 A is far below a 32 A breaker\'s rating. It is far above an RCD\'s 30 mA.' },
+      why: 'The loop is 20 + 200 = 220 Ω, so 254 ÷ 220 = 1.15 A, about 1.2 A. A breaker needs many times its rating to trip at once. An RCD trips on 30 mA that does not come back.' },
+    { show: true, name: 'IT: no way home', pic: { sys: 'IT', fault: false }, ctl: 'both', demo: true,
+      text: strip('Switch to IT and tap the fault. The star point now floats, isolated from earth. The frame stays bonded to the hull.[^3] The fault reaches the hull and finds no conductor back to the star point. Its only way home is back through the other lines\' insulation. Say the whole system\'s insulation measures 100 kΩ to earth. Then 254 ÷ 100,000 gives about 2.5 mA. Nothing trips, and the motor runs on. An alarm lamp lights, so someone knows the fault is there.'),
+      read: 'On IT the fault reaches the hull but finds no conductor back to the floating star point. About 2.5 mA leaks home through the insulation. The motor runs on and the alarm lights.',
+      still: () => setPic({ sys: 'IT', fault: true }) },
+    { kind: 'pick', name: 'A floating star point', before: { sys: 'IT', fault: false }, after: { sys: 'IT', fault: true },
+      task: 'Same motor, same fault on L1, but the star point is floating. What happens?',
+      read: 'Same motor, same fault on L1, but the star point is floating. What happens?',
+      opts: ['A few milliamps flow, the motor runs on and an alarm lights.', 'A large current flows and the breaker trips, as on TN.', 'No current flows at all, so the fault can be left.'],
+      want: 'A few milliamps flow, the motor runs on and an alarm lights.',
+      hints: { 'A large current flows and the breaker trips, as on TN.': 'No conductor joins the hull to a floating star point. The loop runs only through the insulation.',
+        'No current flows at all, so the fault can be left.': 'A small current still leaks home through the insulation. The fault also stays on the system until someone clears it.' },
+      why: 'The fault reaches the hull, but the star point is not tied to it. The only loop runs through 100 kΩ of insulation, so 254 V drives about 2.5 mA. That trips nothing.' },
+    { show: true, name: 'High impedance', pic: { sys: 'HZ', fault: false }, ctl: 'both', demo: true,
+      text: strip('Why want a supply that does not trip? At sea, a trip can stop a pump the ship needs. That is why unearthed two-wire distribution was brought in at sea. It stops an earth fault taking out an essential service at once.[^4] Now set High impedance and tap the fault. The star point goes to earth through a high impedance, say 1,500 Ω. Then 254 ÷ 1,500 gives about 0.17 A. That is far too little to trip. So the supply runs on and alarms, like IT.'),
+      read: 'With the star point tied to the hull through 1,500 Ω, the fault passes about 0.17 A. Nothing trips, and the alarm lights, as on IT.',
+      still: () => setPic({ sys: 'HZ', fault: true }) },
+    { kind: 'pick', name: 'Why insulate?', before: { sys: 'IT', fault: false }, after: { sys: 'IT', fault: true },
+      task: 'Why would a ship\'s supply be insulated?', read: 'Why would a ship\'s supply be insulated?',
+      opts: ['So an earth fault does not take out an essential service at once', 'Because an insulated supply cannot give you a shock', 'Because the hull cannot be used as an earth'],
+      want: 'So an earth fault does not take out an essential service at once',
+      hints: { 'Because an insulated supply cannot give you a shock': 'That is not the reason, and never assume it. Prove a conductor dead as on any job.',
+        'Because the hull cannot be used as an earth': 'The frames are bonded to the hull. Only the star point is left floating.' },
+      why: 'An insulated supply runs on through its first earth fault. So the steering, the pumps and the lights stay on while the fault is found.' },
+    { kind: 'pick', name: 'Which system?', before: { sys: 'IT', fault: false }, after: { sys: 'TT', fault: true }, sets: true,
+      task: 'A supply\'s first earth fault draws about 2 A, and an RCD trips. What is its star point tied to?',
+      read: 'A supply\'s first earth fault draws about 2 A, and an RCD trips. What is its star point tied to?',
+      opts: ['Earth, through its own electrode: TT', 'Nothing: it floats, IT', 'Earth, through a protective conductor: TN'],
+      want: 'Earth, through its own electrode: TT',
+      hints: { 'Nothing: it floats, IT': 'A floating star point gives no deliberate way home, so the current is small and nothing trips.',
+        'Earth, through a protective conductor: TN': 'A metal loop back to the star point gives hundreds of amps, and the breaker trips.' },
+      why: 'A trip means the star point is tied to earth. A few amps, not hundreds, means the loop runs through the ground between two electrodes. That is TT.' },
+    { kind: 'pick', name: 'TN-S', before: { sys: 'TT', fault: false }, after: { sys: 'TN', fault: true }, sets: true,
+      task: 'A board\'s drawing says TN-S. What happens at its first earth fault to a frame?',
+      read: 'A board\'s drawing says TN-S. What happens at its first earth fault to a frame?',
+      opts: ['A large current flows and the breaker trips', 'A small current flows and the supply runs on', 'A few amps flow through the ground, and the RCD trips'],
+      want: 'A large current flows and the breaker trips',
+      hints: { 'A small current flows and the supply runs on': 'That is IT. Here the first letter is T, so the star point is tied to earth.',
+        'A few amps flow through the ground, and the RCD trips': 'That is TT. The N says the frames go back to the star point through metal, not the ground.' },
+      why: 'T first: the star point is tied to earth. N second: the frames go back to it through a protective conductor. In TN-S that conductor is separate from the neutral. So the loop is all metal, and the breaker trips.' },
+  ];
+  const FINISH = 'What a supply\'s star point is tied to decides what an earth fault does.';
+  const PICK = 'Choose an answer first.';
+  // The lesson's own sources, each on a check that restates its quote.
+  const IET_LETTERS = 'https://electrical.theiet.org/media/1698/earthing-your-questions-answered.pdf';
+  const EIG_TN = 'https://www.electrical-installation.org/enwiki/Characteristics_of_TT,_TN_and_IT_systems';
+  const IET_IT = 'https://electrical.theiet.org/media/1469/railway-systems_tm-granger.pdf';
+  const IMAREST = 'https://library.imarest.org/record/2202/files/2229.pdf';
+  const EIG_IT = 'https://www.electrical-installation.org/enwiki/IT_system_-_Fault_protection';
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- the drawing's geometry (viewBox 340 × 300) ----------
+  const S0 = [62, 128], T1 = [29.09, 147], T2 = [62, 90], T3 = [94.91, 147];   // star point and the windings' free ends
+  const Y1 = 40, Y2 = 58, Y3 = 76;                  // the three lines
+  const XD = [290, 274, 258];                        // where L1, L2 and L3 drop into the motor
+  const MC = [274, 140], MR = 22;                    // the motor
+  const FR = { x: 226, y: 104, w: 90, h: 84 };       // its frame
+  const FY = 112, XB = 316, FB = FR.y + FR.h;        // the fault's height, the bond, the frame's bottom
+  const BRK = [114, 121, 135], RC = [160, 167, 181]; // breaker and RCD: box left, blade pivot, contact
+  const XI = [196, 203, 210], YJ = 96;               // insulation: one dashed line from each line, joined
+  const HULL = 262, HY = 268, XPE = 240, YPE = 244;
+  const into = (x) => MC[1] - Math.sqrt(MR * MR - (x - MC[0]) * (x - MC[0]));
+  // The fault current's loops: out of the star point up L1's winding, along L1, through the fault
+  // and the frame, then home by whatever the switch gives. IT goes home through the insulation and
+  // splits back along L2 and L3 to their windings.
+  const OUT = [S0, T1, [10, 147], [10, Y1], [XD[0], Y1], [XD[0], FY], [XB, FY], [XB, FB]];
+  const BACK = {
+    TN: [[XB, FB], [XPE, FB], [XPE, YPE], [62, YPE], S0],
+    TT: [[XB, FB], [XB, HY], [62, HY], S0],
+    HZ: [[XB, FB], [XB, HY], [62, HY], S0],
+    IT: [[XB, FB], [XB, HY], [XI[1], HY], [XI[1], YJ]],
+  };
+  const IT_BRANCH = [
+    [[XI[1], YJ], [XI[1], Y2], [62, Y2], T2, S0],
+    [[XI[1], YJ], [XI[2], YJ], [XI[2], Y3], [104, Y3], [104, 147], T3, S0],
+  ];
+  const loopsOf = (sys) => [OUT.concat(BACK[sys].slice(1))].concat(sys === 'IT' ? IT_BRANCH : []);
+  const dOf = (pts) => 'M' + pts.map((p) => p[0].toFixed(2) + ' ' + p[1].toFixed(2)).join('L');
+  const lenOf = (pts) => pts.slice(1).reduce((s, p, k) => s + Math.hypot(p[0] - pts[k][0], p[1] - pts[k][1]), 0);
+  // A winding: a straight lead, four turns, a straight lead.
+  function coil(a, b) {
+    const L = Math.hypot(b[0] - a[0], b[1] - a[1]), ux = (b[0] - a[0]) / L, uy = (b[1] - a[1]) / L, lead = 7, h = (L - 2 * lead) / 4, r = (h / 2).toFixed(2);
+    let x = a[0] + ux * lead, y = a[1] + uy * lead, d = 'M' + a[0] + ' ' + a[1] + 'L' + x.toFixed(2) + ' ' + y.toFixed(2);
+    for (let k = 0; k < 4; k++) { x += ux * h; y += uy * h; d += 'A' + r + ' ' + r + ' 0 0 1 ' + x.toFixed(2) + ' ' + y.toFixed(2); }
+    return d + 'L' + b[0] + ' ' + b[1];
+  }
+
+  // ---------- state ----------
+  // cur: the picture (sys, fault, el = the TT electrodes); T: seconds into the motion (Infinity = settled);
+  // fx: what the motion brings in (sys: the new earthing fades in; bolt: the fault strikes).
+  function blank() { return { pick: null, res: null, why: false }; }
+  const pic = (p) => ({ sys: p.sys, fault: !!p.fault, el: (p.el || R_TT).slice() });
+  let S = STEPS.map(() => blank());
+  let cur = pic(STEPS[0].pic), T = Infinity, fx = {};
+  let finished = false, lastStep = -1, lastDone = false, REC = null;
+
+  const svg = document.getElementById('scene'), art = document.getElementById('art');
+  const el = (id) => document.getElementById(id);
+  function put(parent, tag, attrs, text) { const n = K.svg(tag, attrs); if (text != null) n.textContent = text; parent.appendChild(n); return n; }
+  const group = (a) => put(art, 'g', a == null ? {} : { opacity: Math.max(0, Math.min(1, a)).toFixed(3) });
+  const lab = (g, x, y, text, cls, anchor) => put(g, 'text', { x, y, class: 'lab' + (cls ? ' ' + cls : ''), 'text-anchor': anchor || 'start' }, text);
+
+  // ---------- drawing: the picture for state c at t seconds into its motion ----------
+  function scene(c, t, f) {
+    art.textContent = '';
+    const A = (t0, d) => K.arrive(t, t0, d);
+    const oc = outcome(c.sys, c.el), trip = oc === 'breaker' || oc === 'rcd', I = amps(c.sys, c.el);
+    const eA = f.sys ? A(0, 0.6) : 1;                                    // the earthing the switch draws
+    const bA = !c.fault ? 0 : f.bolt ? A(0, 0.5) : 1;                    // the fault itself
+    const lA = c.fault ? A(LOOP) : 0;                                    // the loop lighting up
+    const tA = c.fault ? A(TRIP, 0.5) : 0;                               // the trip, or the alarm
+    const gone = c.fault && trip ? A(TRIP) : 0;
+    const live = lA * (1 - gone), ghost = c.fault && trip ? A(TRIP + 0.3) : 0;
+    const brk = oc === 'breaker' ? tA : 0, rcdOpen = oc === 'rcd' ? tA : 0, lamp = oc === 'alarm' ? tA : 0;
+    const drop = { TN: 'solid', TT: 'electrode', IT: 'none', HZ: 'resistor' }[c.sys];
+    const rec = { drop, pe: c.sys === 'TN', rcd: c.sys === 'TT', bond: true, live, ghost, brk, rcdOpen, lamp, loops: [], texts: [] };
+
+    // The hull, and the frame behind everything on it.
+    const base = group();
+    put(base, 'rect', { class: 'hull', x: 6, y: HULL, width: 328, height: 12, rx: 2 });
+    put(base, 'rect', { class: 'frame', x: FR.x, y: FR.y, width: FR.w, height: FR.h, rx: 6 });
+
+    // The loop's glow sits under the wires; it grows with the current.
+    const w = K.clamp(2 + 1.3 * Math.log10(I / 0.001), 2, 9), speed = 10 + 7 * Math.log10(I / 0.001);
+    const loops = c.fault ? loopsOf(c.sys) : [];
+    rec.loops = loops;
+    const glow = group(live);
+    loops.forEach((pts) => put(glow, 'path', { class: 'glow', d: dOf(pts), 'stroke-width': (w + 5).toFixed(2) }));
+
+    // The supply's windings, the three lines, the breaker's and the RCD's gaps.
+    const wires = group();
+    [T1, T2, T3].forEach((p) => put(wires, 'path', { class: 'wire', d: coil(S0, p) }));
+    const tt = c.sys === 'TT';
+    put(wires, 'path', { class: 'wire', d: 'M' + T1[0] + ' ' + T1[1] + 'L10 147V' + Y1 + 'H' + BRK[1] + 'M' + BRK[2] + ' ' + Y1 + 'H' + RC[1] + 'M' + RC[2] + ' ' + Y1 + 'H' + XD[0] + 'V' + into(XD[0]).toFixed(2) });
+    put(wires, 'path', { class: 'wire', d: 'M62 ' + T2[1] + 'V' + Y2 + 'H' + BRK[1] + 'M' + BRK[2] + ' ' + Y2 + 'H' + RC[1] + 'M' + RC[2] + ' ' + Y2 + 'H' + XD[1] + 'V' + into(XD[1]).toFixed(2) });
+    put(wires, 'path', { class: 'wire', d: 'M' + T3[0] + ' ' + T3[1] + 'H104V' + Y3 + 'H' + BRK[1] + 'M' + BRK[2] + ' ' + Y3 + 'H' + RC[1] + 'M' + RC[2] + ' ' + Y3 + 'H' + XD[2] + 'V' + into(XD[2]).toFixed(2) });
+    // Where no RCD is fitted the lines run straight through its place.
+    const plain = group(tt ? 1 - eA : 1);
+    [Y1, Y2, Y3].forEach((y) => put(plain, 'path', { class: 'wire', d: 'M' + RC[1] + ' ' + y + 'H' + RC[2] }));
+    put(wires, 'path', { class: 'wire', d: 'M' + XB + ' ' + FB + 'V' + HULL });               // the frame's bond to the hull
+    // The insulation: a thin dashed line from each line to the hull.
+    put(wires, 'path', { class: 'ins', d: 'M' + XI[0] + ' ' + Y1 + 'V' + YJ + 'M' + XI[1] + ' ' + Y2 + 'V' + YJ + 'M' + XI[2] + ' ' + Y3 + 'V' + YJ + 'M' + XI[0] + ' ' + YJ + 'H' + XI[2] + 'M' + XI[1] + ' ' + YJ + 'V104M' + XI[1] + ' 132V' + HULL });
+    put(wires, 'rect', { class: 'insbox', x: XI[1] - 5, y: 104, width: 10, height: 28 });
+    [[XI[0], Y1], [XI[1], Y2], [XI[2], Y3]].forEach((p) => put(wires, 'circle', { class: 'dot', cx: p[0], cy: p[1], r: 2.5 }));
+
+    // What the star point is tied to, and how the frame gets home (fades in when the switch moves).
+    const earth = group(eA);
+    if (c.sys === 'IT') {
+      put(earth, 'path', { class: 'wire', d: 'M62 128V176' });
+      put(earth, 'circle', { class: 'open', cx: 62, cy: 180, r: 4 });
+      lab(earth, 72, 186, 'Joined to nothing');
+    } else {
+      put(earth, 'path', { class: 'wire', d: 'M62 128V' + HULL });
+      if (c.sys === 'TN') {
+        put(earth, 'path', { class: 'wire', d: 'M' + XPE + ' ' + FB + 'V' + YPE + 'H62' });
+        put(earth, 'circle', { class: 'dot', cx: 62, cy: YPE, r: 3 });
+        lab(earth, 150, 218, 'Protective', '', 'middle');
+        lab(earth, 150, 234, 'conductor', '', 'middle');
+      } else {
+        put(earth, 'rect', { class: 'res', x: 56, y: 196, width: 12, height: 30, rx: 2 });
+        if (tt) {
+          lab(earth, 74, 208, 'Electrode');
+          lab(earth, 74, 224, ohmText(c.el[0]));
+          put(earth, 'rect', { class: 'res', x: XB - 6, y: 206, width: 12, height: 30, rx: 2 });
+          lab(earth, XB - 12, 218, 'Electrode', '', 'end');
+          lab(earth, XB - 12, 234, ohmText(c.el[1]), '', 'end');
+        } else lab(earth, 74, 215, ohmText(R_HZ));
+      }
+    }
+
+    // The breaker (and on TT the RCD): a box round three blades that swing open when it trips.
+    function device(g, d, open) {
+      put(g, 'rect', { class: 'dev', x: d[0], y: 30, width: 28, height: 56, rx: 4 });
+      const th = open * 35 * Math.PI / 180;
+      [Y1, Y2, Y3].forEach((y) => {
+        put(g, 'line', { class: 'wire', x1: d[1], y1: y, x2: (d[1] + 14 * Math.cos(th)).toFixed(2), y2: (y - 14 * Math.sin(th)).toFixed(2) });
+        put(g, 'circle', { class: 'dot', cx: d[1], cy: y, r: 2.2 });
+        put(g, 'circle', { class: 'dot', cx: d[2], cy: y, r: 2.2 });
+      });
+    }
+    const dev = group();
+    device(dev, BRK, brk);
+    lab(dev, BRK[0] + 14, 12, 'Breaker', '', 'middle');
+    lab(dev, BRK[0] + 14, 26, K.fmt(BREAKER) + ' A', 'm', 'middle');
+    if (tt) {
+      const r = group(eA);
+      device(r, RC, rcdOpen);
+      lab(r, RC[0] + 14, 12, 'RCD', '', 'middle');
+      lab(r, RC[0] + 14, 26, K.fmt(Math.round(RCD * 1000)) + ' mA', 'm', 'middle');
+    }
+
+    // The motor in its frame, and the fault from L1 to the frame.
+    const mot = group();
+    put(mot, 'circle', { class: 'motor', cx: MC[0], cy: MC[1], r: MR });
+    put(mot, 'text', { x: MC[0], y: MC[1] + 6, class: 'mm', 'text-anchor': 'middle' }, 'M');
+    lab(mot, 268, 179, 'Motor frame', '', 'middle');
+    const bolt = group(bA);
+    put(bolt, 'path', { class: 'bolt', d: 'M' + XD[0] + ' ' + FY + 'L295 106L301 118L307 106L312 116L' + XB + ' ' + FY });
+    lab(bolt, 299, 96, 'Fault', 'w');
+
+    // The alarm lamp by the source.
+    const lmp = group();
+    put(lmp, 'circle', { class: 'lamp', cx: 38, cy: 70, r: 9 });
+    put(group(lamp * 0.3), 'circle', { class: 'lit', cx: 38, cy: 70, r: 15 });
+    put(group(lamp), 'circle', { class: 'lit', cx: 38, cy: 70, r: 8 });
+    lab(lmp, 38, 96, 'Alarm', '', 'middle');
+
+    // The current running round its loop (dashes on top of the wires), and after a trip, where it ran.
+    const flow = group(live), fT = Math.min(t, END), off = -fT * speed, mainLen = loops.length ? lenOf(loops[0]) : 0;
+    loops.forEach((pts, k) => put(flow, 'path', { class: 'flow', d: dOf(pts), 'stroke-width': Math.max(2, w * 0.5).toFixed(2), 'stroke-dasharray': '5 9', 'stroke-dashoffset': (k ? off + mainLen : off).toFixed(2) }));
+    const gh = group(ghost);
+    loops.forEach((pts) => put(gh, 'path', { class: 'flow', d: dOf(pts), 'stroke-width': 2, 'stroke-dasharray': '3 5' }));
+
+    // Labels, and a key for the loop inside the drawing.
+    const labs = group();
+    lab(labs, 12, 24, K.fmt(VLINE) + ' V supply');
+    lab(labs, 38, 128, 'L1', '', 'middle');
+    lab(labs, 70, 112, 'L2');
+    lab(labs, 86, 128, 'L3');
+    lab(labs, 74, 166, 'Star point');
+    lab(labs, 190, 115, 'Insulation,', 'm', 'end');
+    lab(labs, 190, 131, K.fmt(R_INS / 1000) + ' kΩ in all', 'm', 'end');
+    lab(labs, 8, 292, 'Hull (earth)');
+    const keyA = Math.max(live, ghost);
+    if (keyA > 0) {
+      const key = group(keyA), past = ghost > live;
+      put(key, 'line', past ? { class: 'flow', x1: 112, y1: 288, x2: 136, y2: 288, 'stroke-width': 2, 'stroke-dasharray': '3 5' }
+        : { class: 'flow', x1: 112, y1: 288, x2: 136, y2: 288, 'stroke-width': 5 });
+      lab(key, 142, 292, past ? 'Where the fault current ran' : 'Fault current');
+    }
+    rec.texts = Array.from(art.querySelectorAll('text')).map((n) => n.textContent);
+
+    // The readouts: the current once the loop has lit, the supply once it has tripped or alarmed.
+    rec.amps = c.fault && t >= AMPS_AT ? ampsText(I) : 'None';
+    rec.supply = c.fault && t >= TRIP ? SUPPLY[oc] : 'Running';
+    const desc = { TN: 'The star point is tied to the hull, and a protective conductor joins the motor frame back to it.',
+      TT: 'The star point goes to earth through its own electrode, and the motor frame through a second one.',
+      IT: 'The star point floats, joined to nothing, while the motor frame is bonded to the hull.',
+      HZ: 'The star point goes to the hull through a ' + ohmText(R_HZ) + ' resistor.' }[c.sys];
+    rec.aria = 'A three-phase supply drawn as a star, on ' + NAME[c.sys] + '. ' + desc + (!c.fault || t < 0 ? ' There is no fault.'
+      : ' A fault joins L1 to the motor frame, and ' + (t < TRIP ? 'the fault current runs round its loop.' : oc === 'breaker' ? 'the breaker has tripped.'
+        : oc === 'rcd' ? 'the RCD has tripped.' : 'the current leaks home through the insulation, so the alarm lamp is lit.'));
+    return rec;
+  }
+  function paint() {
+    REC = scene(cur, T, fx);
+    svg.setAttribute('aria-label', REC.aria);
+    ampsOut.set(REC.amps);
+    supplyOut.set(REC.supply);
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => stepper.get();
+  const ampsOut = K.readout({ id: 'amps', label: 'Fault current', into: '#outs' });
+  const supplyOut = K.readout({ id: 'supply', label: 'Supply', into: '#outs' });
+
+  // One animation plays the fault's motion; with reduced motion (and while the self-test looks) it opens finished.
+  const anim = K.anim({ button: false, label: 'The fault current', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < END;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  // delay: seconds before the motion starts (a screen's own demonstration waits for its fade-in).
+  function play(f, delay) {
+    fx = f || {};
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); return; }
+    T = -(delay || 0); anim.play();
+  }
+  // A still for the read-through: the picture set and finished.
+  function setPic(p) { cur = pic(p); anim.pause(); T = Infinity; fx = {}; K.refresh(); }
+
+  // The star point switch and the fault, live on the screens that show them.
+  const live = () => !finished && !!STEPS[at()].show && !!STEPS[at()].ctl;
+  const swBtns = ['TN', 'TT', 'IT', 'HZ'].map((sys) => ({ sys, b: K.button({ label: NAME[sys], secondary: true, into: '#sw', press: () => {
+    if (!live() || cur.sys === sys) return;
+    cur.sys = sys; cur.el = R_TT.slice();
+    play({ sys: true });
+  } }) }));
+  K.button({ label: 'Fault on L1', into: '#faultrow', press: () => {
+    if (!live() || STEPS[at()].ctl !== 'both') return;
+    cur.fault = true;
+    play({ bolt: true });
+  } });
+
+  // Up to three answers; Check marks the one chosen, and a right one plays what it says.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || st.res === 'right') return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = st.pick === d.want ? 'right' : 'wrong';
+    if (st.res !== 'right') return;
+    const was = cur;
+    cur = pic(d.after);
+    if (cur.sys !== was.sys || (cur.fault && !was.fault)) play({ sys: cur.sys !== was.sys, bolt: cur.fault && !was.fault });
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (finished || STEPS[at()].show) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true; anim.pause();
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  el('finish').textContent = FINISH;
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      anim.pause(); T = Infinity; fx = {};
+      cur = pic(d.show ? d.pic : st.res === 'right' ? d.after : d.before);
+      // A demonstration screen strikes its fault once on opening; Fault on L1 strikes it again.
+      if (d.show && d.demo) { cur.fault = true; play({ bolt: true }, 0.4); }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    task.textContent = d.show ? d.text : d.task;
+    paint();
+
+    el('sw').hidden = !d.show || !d.ctl;
+    swBtns.forEach((s) => s.b.el.setAttribute('aria-pressed', cur.sys === s.sys ? 'true' : 'false'));
+    el('faultrow').hidden = !d.show || d.ctl !== 'both';
+
+    const opts = d.show ? [] : d.opts;
+    el('picks').hidden = !opts.length;
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    const fb = el('fb');
+    fb.hidden = !!d.show || !st.res;
+    fb.className = 'fb' + (right ? ' right' : '');
+    fb.textContent = d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? (d.hints[st.pick] || 'Not quite.') : st.res === 'empty' ? PICK : '';
+    const why = el('why');
+    why.hidden = !!d.show || !st.why;
+    why.textContent = d.show ? '' : d.why;
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  function drawn(c, t, f) {
+    const keep = [cur, T, fx];
+    cur = pic(c); T = t == null ? Infinity : t; fx = f || {};
+    try { paint(); return REC; } finally { cur = keep[0]; T = keep[1]; fx = keep[2]; paint(); }
+  }
+  const fault = (sys, el) => ({ sys, fault: true, el });
+
+  K.check('Twelve screens: five that show and seven puzzles, alternating to the ninth and ending on three mixed puzzles', () =>
+    STEPS.length === 12 && STEPS.filter((d) => d.show).length === 5 && STEPS.slice(0, 9).every((d, i) => !!d.show === (i % 2 === 0)) && STEPS.slice(9).every((d) => !d.show));
+  K.check('Each winding of the 440 V supply has 440 ÷ 1.732 = 254 V across it', () => K.near(VPH, 254.0416, 1e-3) && Math.round(VPH) === 254);
+  K.check('The fault current is 254 V over the loop: 508 A on TN (0.5 Ω), 2.3 A on TT (10 + 100 = 110 Ω), 2.5 mA on IT (100 kΩ) and 0.17 A through 1,500 Ω, as the readout shows them', () =>
+    drawn(fault('TN')).amps === '508 A' && drawn(fault('TT')).amps === '2.3 A' && drawn(fault('IT')).amps === '2.5 mA' && drawn(fault('HZ')).amps === '0.17 A' &&
+    K.near(amps('TN'), 508.08, 0.01) && K.near(amps('TT'), 2.3095, 1e-3) && K.near(amps('IT') * 1000, 2.5404, 1e-3) && K.near(amps('HZ'), 0.16936, 1e-4));
+  K.check('What happens: the breaker trips on TN, the RCD on TT, and on IT and through 1,500 Ω the supply runs on with the alarm lit', () =>
+    drawn(fault('TN')).supply === 'Tripped by breaker' && drawn(fault('TT')).supply === 'Tripped by RCD' &&
+    drawn(fault('IT')).supply === 'Running, alarm on' && drawn(fault('HZ')).supply === 'Running, alarm on' &&
+    drawn(fault('IT')).lamp === 1 && drawn(fault('TN')).lamp === 0 && drawn(fault('TN')).brk === 1 && drawn(fault('TT')).rcdOpen === 1 && drawn(fault('TT')).brk === 0);
+  K.check('Screen 6: electrodes of 20 Ω and 200 Ω make a 220 Ω loop, so 254 ÷ 220 = 1.15 A, shown as 1.2 A, and the RCD trips', () => {
+    const d = STEPS[5], r = drawn(d.after);
+    return ohms('TT', [20, 200]) === 220 && K.near(amps('TT', [20, 200]), 1.1547, 1e-3) && r.amps === '1.2 A' && r.supply === 'Tripped by RCD' &&
+      r.texts.indexOf('20 Ω') >= 0 && r.texts.indexOf('200 Ω') >= 0;
+  });
+  K.check('The more the loop resists, the less current flows: most on TN, then TT, then High impedance, least on IT', () =>
+    amps('TN') > amps('TT') && amps('TT') > amps('HZ') && amps('HZ') > amps('IT'));
+  K.check('Every lit loop is closed: it leaves the star point up L1\'s winding and comes back to the star point', () =>
+    ['TN', 'TT', 'IT', 'HZ'].every((sys) => {
+      const ls = drawn(fault(sys)).loops, m = ls[0], end = (p) => p[0] === S0[0] && p[1] === S0[1];
+      if (!(m[0] === S0 && m[1] === T1)) return false;
+      if (sys !== 'IT') return ls.length === 1 && end(m[m.length - 1]);
+      const j = m[m.length - 1];
+      return ls.length === 3 && ls.slice(1).every((b) => b[0][0] === j[0] && b[0][1] === j[1] && end(b[b.length - 1]));
+    }));
+  K.check('The trip or the alarm shows within 3 s of the fault going on', () =>
+    TRIP + 0.6 <= 3 && drawn(fault('TN'), 2.6, { bolt: true }).brk === 1 && drawn(fault('TT'), 2.6, { bolt: true }).rcdOpen === 1 &&
+    drawn(fault('IT'), 2.6, { bolt: true }).lamp === 1 && drawn(fault('TN'), 1.0, { bolt: true }).brk === 0);
+  K.check('Before an answer, no puzzle\'s picture shows its result: no fault is on, no loop is lit, and the switch is not yet where a right answer sets it', () =>
+    DO.every((i) => {
+      const d = STEPS[i], r = drawn(d.before);
+      return !d.before.fault && r.live === 0 && r.loops.length === 0 && r.amps === 'None' && (!d.sets || d.before.sys !== d.after.sys);
+    }));
+  K.check('T stands for earth, from the French word terre, and I for isolated: the TN and TT drawings tie the star point to earth, and the IT drawing does not', () =>
+    drawn({ sys: 'TN' }).drop === 'solid' && drawn({ sys: 'TT' }).drop === 'electrode' && drawn({ sys: 'IT' }).drop === 'none', { source: IET_LETTERS });
+  K.check('In a TN system the first fault is interrupted by overcurrent protection, a circuit-breaker: here the breaker trips', () =>
+    outcome('TN') === 'breaker', { source: EIG_TN });
+  K.check('In an IT system the source is isolated from earth while the exposed conductive parts are connected to earth: the IT drawing joins the star point to nothing and still bonds the frame to the hull', () => {
+    const r = drawn({ sys: 'IT' });
+    return r.drop === 'none' && r.bond === true && r.pe === false;
+  }, { source: IET_IT });
+  K.check('In an IT system the first fault to earth causes no disconnection, and the current that flows is measured in mA', () =>
+    outcome('IT') === 'alarm' && /mA$/.test(ampsText(amps('IT'))), { source: EIG_IT });
+  K.check('Unearthed distribution prevents the immediate loss of an essential service from an earth fault: on IT the motor runs on', () =>
+    drawn(fault('IT')).supply === 'Running, alarm on', { source: IMAREST });
+
+  K.ready();
+</script>
