@@ -42,11 +42,17 @@ engineering science." It is a new shelf, Engineering science (docs/shelves-engin
 built side by side, each about 8 lessons and 8 to 10M tokens:
 
 1. Engineering science: Heat and fluids and Mechanics and materials (both live 27 Oct, about 9 to 10M tokens each)
-2. Insulated systems and earth faults (not started)
-3. Batteries: cells, charging, hydrogen (not started)
-4. Generators and paralleling (not started)
-5. Transformers and magnetism (on the Electrical shelf; not started)
+2. Insulated systems and earth faults (Dan, 27 Oct: "Create them all"; Supply systems folder)
+3. Batteries: cells, charging, hydrogen (Supply systems folder)
+4. Generators and paralleling (Power and machines folder)
+5. Transformers and magnetism (Electrical principles folder)
+Built in two pairs: 2 with 3, then 5 with 4 (Transformers owns the magnetism Generators uses). Waiting
+on the Parallel Search connector, which disconnected on 27 Oct; the machine's own web access is
+blocked by the environment's network policy.
 Lower: Control and instrumentation with digital logic; Distribution and protection at sea.
 
-Items 2 to 5 wait for Dan's say. Everything is taught from public sources as general engineering, never as how
+Hidden on 27 Oct (Dan: "Hide everyday maths, computer science and any other folders we aren't immediately
+using"): the Science, Computer science and Data analysis shelves; Logical reasoning, Everyday maths and Puzzles;
+Vector calculus and the unplanned statistics courses; the unplanned Electrical courses. hidden: true in the
+shelf docs; unhiding is one write. Everything is taught from public sources as general engineering, never as how
 the Navy or a particular boat does it (CLAUDE.md).
