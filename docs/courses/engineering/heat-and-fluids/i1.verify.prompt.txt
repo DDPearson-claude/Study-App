@@ -1,0 +1,562 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Heat and fluids, from boiling water to pumps
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i1 "Temperature and heat" — The energy to warm something is its mass × specific heat × temperature rise, while melting or boiling takes in energy at a steady temperature. [quantity]
+Later ideas in the course (every claim must stay true after Dan has learned each of them):
+- i2 How heat moves — A loaded cable warms until heat out matches heat in, so its rise is losses × thermal resistance, how hard the heat's way out is.
+- i3 Gases, pressure and the air receiver — Gas sums need absolute pressure and kelvin, because a gas's pressure, volume and temperature are in proportion only when measured from true zero.
+- i4 Heat into work: the first law and engines — Heat in equals work out plus the rise in a gas's stored energy, so an engine's fuel energy splits into work, cooling and exhaust.
+- i5 Pressure in liquids, and floating — Pressure in a liquid grows with depth alone, density × g × depth, and the extra push under an object is the upthrust that floats it.
+- i6 Fluids in motion — Flow through a narrowing speeds up, and the energy for that speed comes out of the pressure, so a narrowed pipe, a venturi, measures flow.
+- i7 Pipes, head and pump power — A pipe needs head, a height of liquid, for its lift plus friction that grows with flow squared, and head times flow sets pump power.
+- i8 Where the pump settles, and its limits — A centrifugal pump settles where its curve of head against flow crosses the pipe's, so closing a valve moves it to less flow, more head.
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] Specific heat capacity - Energy and heating - AQA - GCSE Physics (Single Science) Revision - AQA - BBC Bitesize — https://www.bbc.co.uk/bitesize/guides/z2gjtv4/revision/5
+    "The amount of energy needed depends on: * the mass of the material * the substance of the material ( specific heat capacity ) * the desired temperature change"
+[R2] Specific heat capacity - Temperature changes and energy - Edexcel - GCSE Physics (Single Science) Revision - Edexcel - BBC Bitesize — https://www.bbc.co.uk/bitesize/guides/zpjpgdm/revision/4
+    "The specific heat capacity of water is 4,200 joules per kilogram per degree Celsius (J/kg°C). This means that it takes 4,200 J to raise the temperature of 1 kg of water by 1°C."
+[R3] 11.3 Phase Change and Latent Heat - Physics | OpenStax — https://openstax.org/books/physics/pages/11-3-phase-change-and-latent-heat
+    "Because this energy enters or leaves a system during a phase change without causing a temperature change in the system, it is known as latent heat"
+[R4] Constants and Formulas (321) — https://www.mtel.nesinc.com/Content/Docs/NES_Formulas_321.pdf
+    "Heat of fusion of water (Δ _Hfus_ ) 334 J/g = 80 cal/g = 6.01 kJ/mol Heat of vaporization of water (Δ _Hvap_ ) 2260 J/g = 540 cal/g"
+[R5] Properties of seawater — https://talleylab.ucsd.edu/sio210/lect_2/lecture_2.html
+    "The density of seawater is about 1025 kg/m^3 and the specific heat is about 3850 J/(kg C)."
+[R6] Properties of seawater — https://talleylab.ucsd.edu/sio210/lect_2/lecture_2.html
+    "If the pressure change is 100 decibars (100 dbar), gravity g = 9.8 m/sec^2, and density is 1025 kg/m^3, then the depth change is 99.55 meter."
+Notes (claims, and the sources that support them):
+- The energy needed to change a material's temperature depends on its mass, its specific heat capacity and the temperature change wanted. [R1]
+- For water, 4,200 J raises 1 kg by 1 °C. [R2]
+- Latent heat is energy that enters or leaves during a phase change without any temperature change, so melting or boiling happens at a steady temperature. [R3]
+- Water's heat of fusion is 334 J/g and its heat of vaporization is 2260 J/g, so boiling away a kilogram takes about 2,260 kJ. [R4]
+- Specific heat capacity is how much energy it takes to warm 1 kg by 1 degree, and water's is 4,200 J per kg per degree Celsius. [R2]  (whole topic)
+- Seawater has a density of about 1025 kg/m³ and a specific heat of about 3850 J/(kg °C); the numbers used for gravity here are g about 9.8 m/s². [R5][R6]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i1",
+ "title": "Temperature and heat",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the temperature line go flat at 0 °C and at 100 °C while energy keeps going in, when you drag the energy put into the melting ice.",
+  "title": "The heating curve",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Screen",
+    "min": 0,
+    "max": 12,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [
+   {
+    "id": "waterTemp",
+    "label": "Water's temperature",
+    "unit": "°C",
+    "decimals": 0
+   },
+   {
+    "id": "energyIn",
+    "label": "Energy put in",
+    "unit": "kJ",
+    "decimals": 0
+   },
+   {
+    "id": "heaterTime",
+    "label": "Heater time",
+    "unit": "s",
+    "decimals": 0
+   }
+  ],
+  "whatAmILookingAt": "A short lesson in thirteen small screens. The main picture is a beaker of melting ice on a heater. A slider sets the mass of ice, from 0.5 to 2 kg, and another sets the heater's power, from 1 to 3 kW. You drag the energy put in along the bottom of a graph, or press Play and the heater puts it in at its power. The graph draws the temperature, from 0 to 110 °C, against the energy as it goes. It is flat at 0 °C until 334 kJ for each kilogram have gone in, while the ice melts. Then it climbs in a straight line to 100 °C. Each kJ warms the water by 1 ÷ (mc), so for 1 kg each kJ adds about 0.24 °C, and 2 kg climb half as steeply. At 100 °C it goes flat again for 2,260 kJ for each kilogram, while the water turns to steam. The energy axis stays fixed when the mass changes, so the slope's change shows. It runs to 1,600 kJ on screens 4 to 7, wide enough to see the melt and the climb, and to 6,100 kJ from screen 8, so 2 kg boiled away, 6,028 kJ, still fits. A thermometer beside it reads in °C and in kelvin, and a bar shows where the energy has gone so far, into warming or into changing phase. Screen by screen. 1 asks a warm-up sum: 2 kg of water warms from 20 °C to 70 °C, how much energy? 420 kJ, 588 kJ or 210 kJ. A right answer says Still there. 2 shows a 0.25 kg cup at 80 °C and a 100 kg tank at 30 °C cooling to a 20 °C room, with bars of 63 kJ and 4.2 MJ. 3 asks which gives out more as both cool to 20 °C: a 2 kg kettle at 90 °C or a 50 kg tank at 25 °C. The kettle because it is hotter, the tank, or the same. 4 shows 1 kg of ice melting on the flat line at 0 °C. 5 asks what the thermometer reads after 200 kJ has gone into 1 kg of melting ice: 0 °C, near 48 °C or near 60 °C. 6 shows the climb, and the mass slider halving its slope. 7 asks how much energy takes 2 kg of water from 0 °C to 100 °C: 840 kJ, 420 kJ or 210 kJ. 8 shows the flat at 100 °C and the 3 kW heater's times. 9 asks what happens when a 3 kW heater runs 5 minutes on 1 kg of water at 100 °C: still 100 °C with about 0.4 kg boiled away, near 314 °C, or all boiled away. 10 shows the thermometer's two scales side by side. 11 asks for the rise in kelvin from 20 °C to 100 °C: 80 K, 353 K or 373 K. 12 and 13 mix it all. 12: 2 kg of seawater passes through a cooler each second and warms by 10 °C, how much heat does it carry away? 77 kW, 84 kW or 7.7 kW. 13: how much energy turns 0.5 kg of melting ice into water at 100 °C? 377 kJ, 210 kJ or 754 kJ. A wrong pick is drawn on the graph where it can be, so you see where it fails.",
+  "ignores": "All the heater's energy goes into the beaker here. A real heater warms the air and the beaker too. The ice and water are treated as one temperature, as if stirred. Time runs faster than real time when you press Play. The specific heat capacity is held at 4,200 J per kg per °C, though water's shifts a little with temperature. The ice starts at 0 °C, so the picture skips ice warming up from below freezing, and it stops when the water is all steam.",
+  "numbers": [
+   {
+    "label": "Mass slider lowest, in kg",
+    "value": 0.5,
+    "kind": "control"
+   },
+   {
+    "label": "Mass slider highest, in kg",
+    "value": 2,
+    "kind": "control"
+   },
+   {
+    "label": "Mass slider's opening setting, in kg",
+    "value": 1,
+    "kind": "control"
+   },
+   {
+    "label": "Heater power slider lowest, in kW",
+    "value": 1,
+    "kind": "control"
+   },
+   {
+    "label": "Heater power slider highest, in kW",
+    "value": 3,
+    "kind": "control"
+   },
+   {
+    "label": "Water's specific heat capacity, J per kg per °C",
+    "value": 4200,
+    "kind": "constant",
+    "source": 1
+   },
+   {
+    "label": "Energy to melt ice, kJ per kg (334 J per g)",
+    "value": 334,
+    "kind": "constant",
+    "source": 2
+   },
+   {
+    "label": "Energy to boil water away, kJ per kg (2260 J per g)",
+    "value": 2260,
+    "kind": "constant",
+    "source": 2
+   },
+   {
+    "label": "Melting point of ice, in °C",
+    "value": 0,
+    "kind": "constant"
+   },
+   {
+    "label": "Boiling point of water at normal atmospheric pressure, in °C",
+    "value": 100,
+    "kind": "constant"
+   },
+   {
+    "label": "Slope for 1 kg, 1 ÷ 4.2, in °C per kJ",
+    "value": 0.24,
+    "kind": "computed"
+   },
+   {
+    "label": "Energy to warm 1 kg from 0 °C to 100 °C, in kJ",
+    "value": 420,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 1: water warmed, in kg",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 1: start temperature, in °C",
+    "value": 20,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 1: end temperature, in °C",
+    "value": 70,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 1: 2 × 4,200 × 50, in kJ",
+    "value": 420,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 1 wrong pick, 2 × 4,200 × 70, in kJ",
+    "value": 588,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 1 wrong pick, mass left out, in kJ",
+    "value": 210,
+    "kind": "computed"
+   },
+   {
+    "label": "Cup of water, in kg",
+    "value": 0.25,
+    "kind": "assumed"
+   },
+   {
+    "label": "Cup's temperature, in °C",
+    "value": 80,
+    "kind": "assumed"
+   },
+   {
+    "label": "Room temperature, in °C",
+    "value": 20,
+    "kind": "assumed"
+   },
+   {
+    "label": "Tank of water, in kg",
+    "value": 100,
+    "kind": "assumed"
+   },
+   {
+    "label": "Tank's temperature, in °C",
+    "value": 30,
+    "kind": "assumed"
+   },
+   {
+    "label": "Cup gives out 0.25 × 4,200 × 60, in kJ",
+    "value": 63,
+    "kind": "computed"
+   },
+   {
+    "label": "Tank gives out 100 × 4,200 × 10, in MJ",
+    "value": 4.2,
+    "kind": "computed"
+   },
+   {
+    "label": "Tank's energy over the cup's, times",
+    "value": 66.7,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 3: kettle water, in kg",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 3: kettle temperature, in °C",
+    "value": 90,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 3: tank water, in kg",
+    "value": 50,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 3: tank temperature, in °C",
+    "value": 25,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 3: kettle gives out 2 × 4,200 × 70, in kJ",
+    "value": 588,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 3: tank gives out 50 × 4,200 × 5, in kJ",
+    "value": 1050,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 5: energy into 1 kg of melting ice, in kJ",
+    "value": 200,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 5 wrong pick, 200 ÷ 4.2, near, in °C",
+    "value": 48,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 5 wrong pick, 200 ÷ 334 of the way to 100, near, in °C",
+    "value": 60,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 7: water warmed from 0 °C to 100 °C, in kg",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 7: 2 × 4,200 × 100, in kJ",
+    "value": 840,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 7 wrong pick, halved, in kJ",
+    "value": 210,
+    "kind": "computed"
+   },
+   {
+    "label": "Boiling 1 kg against warming it from 0 °C, times",
+    "value": 5.4,
+    "kind": "computed"
+   },
+   {
+    "label": "Example heater power, in kW",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "1 kg from 20 °C to 100 °C at 3 kW, in s",
+    "value": 112,
+    "kind": "computed"
+   },
+   {
+    "label": "Boiling 1 kg away at 3 kW, 2,260 ÷ 3, in minutes",
+    "value": 12.6,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 9: heater runs, in minutes",
+    "value": 5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 9: energy in 5 minutes at 3 kW, in kJ",
+    "value": 900,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 9: water boiled away, 900 ÷ 2,260, about, in kg",
+    "value": 0.4,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 9 wrong pick, 100 + 900 ÷ 4.2, near, in °C",
+    "value": 314,
+    "kind": "computed"
+   },
+   {
+    "label": "Absolute zero, in °C",
+    "value": -273.15,
+    "kind": "constant"
+   },
+   {
+    "label": "0 °C in kelvin, rounded",
+    "value": 273,
+    "kind": "computed"
+   },
+   {
+    "label": "100 °C in kelvin, rounded",
+    "value": 373,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 11: rise from 20 °C to 100 °C, in K",
+    "value": 80,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 11 wrong pick, 80 + 273, in K",
+    "value": 353,
+    "kind": "computed"
+   },
+   {
+    "label": "Seawater's specific heat capacity, J per kg per °C",
+    "value": 3850,
+    "kind": "constant",
+    "source": 3
+   },
+   {
+    "label": "Screen 12: seawater through a cooler, kg each second",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 12: seawater's rise, in °C",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 12: 2 × 3,850 × 10, in kW",
+    "value": 77,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12 wrong pick, using 4,200, in kW",
+    "value": 84,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12 wrong pick, rise left out, in kW",
+    "value": 7.7,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 13: melting ice, in kg",
+    "value": 0.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 13: melt 167 kJ plus warm 210 kJ, in kJ",
+    "value": 377,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 13 wrong pick, mass left out, 334 + 420, in kJ",
+    "value": 754,
+    "kind": "computed"
+   },
+   {
+    "label": "Practice: tank of water, in kg",
+    "value": 150,
+    "kind": "assumed"
+   },
+   {
+    "label": "Practice: start temperature, in °C",
+    "value": 15,
+    "kind": "assumed"
+   },
+   {
+    "label": "Practice: end temperature, in °C",
+    "value": 60,
+    "kind": "assumed"
+   },
+   {
+    "label": "Practice: 150 × 4,200 × 45, in MJ",
+    "value": 28.35,
+    "kind": "computed"
+   },
+   {
+    "label": "Practice: at 3 kW, in s",
+    "value": 9450,
+    "kind": "computed"
+   },
+   {
+    "label": "Practice: at 3 kW, about, in hours",
+    "value": 2.6,
+    "kind": "computed"
+   },
+   {
+    "label": "Temperature axis top, in °C",
+    "value": 110,
+    "kind": "assumed"
+   },
+   {
+    "label": "Energy axis, screens 4 to 7, in kJ",
+    "value": 1600,
+    "kind": "assumed"
+   },
+   {
+    "label": "Energy axis from screen 8, in kJ",
+    "value": 6100,
+    "kind": "assumed"
+   },
+   {
+    "label": "2 kg melted, warmed and boiled away, in kJ",
+    "value": 6028,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 11 wrong pick, 100 + 273, in K",
+    "value": 373,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 13: melting 0.5 kg, 0.5 × 334, in kJ",
+    "value": 167,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 13 wrong pick, melting left out, in kJ",
+    "value": 210,
+    "kind": "computed"
+   },
+   {
+    "label": "Energy that turns 1 kg of ice at 0 °C to steam, in kJ",
+    "value": 3014,
+    "kind": "computed"
+   },
+   {
+    "label": "Power slider's opening setting, in kW",
+    "value": 3,
+    "kind": "control"
+   }
+  ]
+ },
+ "explain": {
+  "text": "Temperature tells you how hot something is. Heat is energy moving into or out of it. Textbooks add that heat moves from hotter to colder. The two are not the same thing. The energy needed to warm something depends on its mass, its material and how far its temperature must rise.[^4] The material's part is its [[specific heat capacity]], the energy to warm 1 kg by 1 °C. For water it is 4,200 J per kg per °C.[^1] Multiply the three together and you have the energy, Q = mcΔT. Take a 0.25 kg cup of water at 80 °C, cooling to a 20 °C room. It gives out 0.25 × 4,200 × 60 = 63,000 J, which is 63 kJ. A 100 kg tank at 30 °C, cooling to the same room, gives out 100 × 4,200 × 10 = 4,200,000 J. That is 4.2 MJ. The cup is hotter, but the tank gives out over 60 times as much. A flow works the same way, a second at a time. Seawater's specific heat capacity is about 3,850 J per kg per °C.[^3] Say 2 kg of seawater passes through a cooler each second and warms by 10 °C. Each second it carries away 2 × 3,850 × 10 = 77,000 J. A joule each second is a watt, so that is 77 kW.\n\nNow put 1 kg of melting ice on a heater and plot its temperature against the energy put in. For the first 334 kJ the line stays flat at 0 °C.[^2] The energy is melting the ice, not warming it. Energy that goes in or out as a material changes between solid, liquid and gas, with no change of temperature, is [[latent heat]].[^5] One way to picture it: temperature follows how fast the molecules jiggle, and melting and boiling spend the energy on loosening their hold on each other instead. So mcΔT does not apply while it melts. It would put 1 kg at about 48 °C after 200 kJ, yet the thermometer still reads 0 °C. Once the ice has melted, the line climbs. Each kJ warms 1 kg of water by 1 ÷ 4.2, about 0.24 °C. So the slope is 1 ÷ (mc), and twice the mass climbs half as steeply. Warming 1 kg from 0 °C to 100 °C takes 420 kJ. At 100 °C the line goes flat again for 2,260 kJ, while the water turns to steam.[^2] Textbooks add that water boils at 100 °C at normal atmospheric pressure, and at a different temperature under a different pressure. Boiling it away takes over five times the energy that warmed it. A 3 kW heater would warm 1 kg from 20 °C to 100 °C in 112 s. It would then take about 12.6 minutes more to boil it away.\n\nA [[kelvin]] is the same size step as a degree Celsius. Its zero is different. 0 °C is only where ice melts, a handy mark, and plenty of things are colder. Textbooks add that the kelvin scale starts at absolute zero, −273.15 °C. So ice at 0 °C is at about 273 K, and it still holds energy. A rise of 80 °C is a rise of 80 K, because the steps are the same size. This is a simplified model, and a real heater also warms the air and the beaker. Every watt a motor draws has to go somewhere as energy each second, and that bookkeeping is what the pump puzzle needs.\n\n**Warming takes mass × specific heat capacity × temperature rise,[^4] and melting or boiling takes in energy with no change of temperature,[^5] so a temperature alone does not tell you how much energy went in or will come out.**"
+ },
+ "analogy": {
+  "text": "Charge into a capacitor raises its voltage by q ÷ C, so a bigger capacitor rises less for the same charge. Energy into water raises its temperature by Q ÷ (mc), so more water rises less for the same energy. mc plays the part of capacitance, and temperature plays the part of voltage.",
+  "breaks": "A capacitor has nothing like melting or boiling. Its voltage rises with every coulomb that goes in, while water at 0 °C or 100 °C takes in energy with no rise at all. And charge is the stand-in for energy here, while a capacitor's own stored energy grows with the square of its voltage."
+ },
+ "practice": {
+  "text": "- Find the mass in kg, and the specific heat capacity of the material.\n- Find the temperature rise or fall, end minus start, not the end temperature.\n- Ask whether the material melts or boils on the way. If it does, add mass × latent heat for that change, at a steady temperature.\n- Multiply and add, then turn joules into time with time = energy ÷ power.\n\n**Rule of thumb:** Water needs 4.2 kJ to warm each kilogram by 1 °C. Boiling it away takes over five times what warming it from 0 °C to 100 °C did.\n\n**Worked example:** Say a 3 kW immersion heater warms 150 kg of water in a tank from 15 °C to 60 °C. The rise is 45 °C. The energy is 150 × 4,200 × 45 = 28,350,000 J, about 28.35 MJ. At 3 kW, that takes 28,350,000 ÷ 3,000 = 9,450 s, about 2.6 hours, with no losses.\n\n**Common mistakes**\n- Treating a hotter thing as holding more energy. The tank at 30 °C gives out far more than the cup at 80 °C.\n- Using the end temperature instead of the rise.\n- Leaving the mass out.\n- Using the specific heat capacity during melting or boiling. The temperature does not move then, so mcΔT gives nothing.\n- Adding 273 to a temperature rise. A rise of 80 °C is a rise of 80 K."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "simplified",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "sources": [
+  {
+   "n": 1,
+   "title": "Specific heat capacity - Temperature changes and energy - Edexcel - GCSE Physics (Single Science) Revision - Edexcel - BBC Bitesize",
+   "url": "https://www.bbc.co.uk/bitesize/guides/zpjpgdm/revision/4",
+   "quote": "The specific heat capacity of water is 4,200 joules per kilogram per degree Celsius (J/kg°C). This means that it takes 4,200 J to raise the temperature of 1 kg of water by 1°C."
+  },
+  {
+   "n": 2,
+   "title": "Constants and Formulas (321)",
+   "url": "https://www.mtel.nesinc.com/Content/Docs/NES_Formulas_321.pdf",
+   "quote": "Heat of fusion of water (Δ _Hfus_ ) 334 J/g = 80 cal/g = 6.01 kJ/mol Heat of vaporization of water (Δ _Hvap_ ) 2260 J/g = 540 cal/g"
+  },
+  {
+   "n": 3,
+   "title": "Properties of seawater",
+   "url": "https://talleylab.ucsd.edu/sio210/lect_2/lecture_2.html",
+   "quote": "The density of seawater is about 1025 kg/m^3 and the specific heat is about 3850 J/(kg C)."
+  },
+  {
+   "n": 4,
+   "title": "Specific heat capacity - Energy and heating - AQA - GCSE Physics (Single Science) Revision - AQA - BBC Bitesize",
+   "url": "https://www.bbc.co.uk/bitesize/guides/z2gjtv4/revision/5",
+   "quote": "The amount of energy needed depends on: * the mass of the material * the substance of the material ( specific heat capacity ) * the desired temperature change"
+  },
+  {
+   "n": 5,
+   "title": "11.3 Phase Change and Latent Heat - Physics | OpenStax",
+   "url": "https://openstax.org/books/physics/pages/11-3-phase-change-and-latent-heat",
+   "quote": "Because this energy enters or leaves a system during a phase change without causing a temperature change in the system, it is known as latent heat"
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }

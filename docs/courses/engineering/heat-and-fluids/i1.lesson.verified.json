@@ -1,0 +1,474 @@
+{
+  "iid": "i1",
+  "title": "Temperature and heat",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the temperature line going flat at 0 °C, and again at 100 °C, while energy keeps going in, when you drag the energy put into the melting ice.",
+    "title": "The heating curve",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Screen",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [
+      {
+        "id": "waterTemp",
+        "label": "Water's temperature",
+        "unit": "°C",
+        "decimals": 0
+      },
+      {
+        "id": "energyIn",
+        "label": "Energy put in",
+        "unit": "kJ",
+        "decimals": 0
+      },
+      {
+        "id": "heaterTime",
+        "label": "Heater time",
+        "unit": "s",
+        "decimals": 0
+      }
+    ],
+    "whatAmILookingAt": "A short lesson in thirteen small screens. The main picture is a beaker of melting ice on a heater. One slider sets the mass of ice, from 0.5 to 2 kg. Another sets the heater's power, from 1 to 3 kW. You drag the energy put in along the bottom of a graph. Or press Play, and the heater puts it in at its power. The graph draws the temperature, from 0 to 110 °C, against the energy as it goes. It stays flat at 0 °C while the ice melts, until 334 kJ for each kilogram have gone in. Then it climbs in a straight line to 100 °C. Each kJ warms the water by 1 ÷ (mc). For 1 kg that is about 0.24 °C, and 2 kg climb half as steeply. At 100 °C it goes flat again for 2,260 kJ for each kilogram, while the water turns to steam. The energy axis stays fixed when the mass changes, so you see the slope change. On screens 4 to 7 it runs to 1,600 kJ. That is wide enough to see the melt and the climb. From screen 8 it runs to 6,100 kJ. So 2 kg boiled away, 6,028 kJ, still fits. Beside the graph, a thermometer reads in °C and in kelvin. A bar shows where the energy has gone so far, into warming or into changing phase. Screen by screen. Screen 1 is a warm-up sum. 2 kg of water warms from 20 °C to 70 °C. How much energy? 420 kJ, 588 kJ or 210 kJ. A right answer says Still there. Screen 2 shows a 0.25 kg cup at 80 °C and a 100 kg tank at 30 °C. Both cool to a 20 °C room, with bars of 63 kJ and 4.2 MJ. Screen 3 asks which gives out more as both cool to 20 °C. It is a 2 kg kettle at 90 °C against a 50 kg tank at 25 °C. The choices are the kettle because it is hotter, the tank, or the same. Screen 4 asks what the thermometer reads after 200 kJ has gone into 1 kg of melting ice. Until Check, it reads ?. The choices are 0 °C, near 48 °C or near 60 °C. Screen 5 shows 1 kg of ice melting on the flat line at 0 °C. Its power slider changes only the heater time. Screen 6 shows the climb, and the mass slider halving its slope. Screen 7 asks how much energy takes 2 kg of water from 0 °C to 100 °C. The choices are 840 kJ, 420 kJ or 210 kJ. Screen 8 shows the flat at 100 °C and the 3 kW heater's times. Screen 9 asks what happens when a 3 kW heater runs 5 minutes on 1 kg of water at 100 °C. It could stay at 100 °C with about 0.4 kg boiled away. It could reach near 314 °C. Or it could all boil away. Screen 10 shows the thermometer's two scales side by side. Screen 11 asks for the rise in kelvin from 20 °C to 100 °C. The choices are 80 K, 353 K or 373 K. Screens 12 and 13 mix it all. In 12, 2 kg of seawater passes through a cooler each second and warms by 10 °C. How much heat does it carry away? 77 kW, 84 kW or 7.7 kW. Screen 13 asks how much energy turns 0.5 kg of melting ice into water at 100 °C. The choices are 377 kJ, 210 kJ or 754 kJ. A wrong pick is drawn on the graph where it can be, so you see where it fails.",
+    "ignores": "All the heater's energy goes into the ice and water here. A real heater warms the air and the beaker too. The ice and water are treated as one temperature, as if stirred. Time runs faster than real time when you press Play. The specific heat capacity is held at 4,200 J per kg per °C. Real water's shifts a little with temperature. The ice starts at 0 °C, so the picture skips ice warming up from below freezing. The picture stops when the water is all steam.",
+    "numbers": [
+      {
+        "label": "Mass slider lowest, in kg",
+        "value": 0.5,
+        "kind": "control"
+      },
+      {
+        "label": "Mass slider highest, in kg",
+        "value": 2,
+        "kind": "control"
+      },
+      {
+        "label": "Mass slider's opening setting, in kg",
+        "value": 1,
+        "kind": "control"
+      },
+      {
+        "label": "Heater power slider lowest, in kW",
+        "value": 1,
+        "kind": "control"
+      },
+      {
+        "label": "Heater power slider highest, in kW",
+        "value": 3,
+        "kind": "control"
+      },
+      {
+        "label": "Water's specific heat capacity, J per kg per °C",
+        "value": 4200,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "Energy to melt ice, kJ per kg (334 J per g)",
+        "value": 334,
+        "kind": "constant",
+        "source": 2
+      },
+      {
+        "label": "Energy to boil water away, kJ per kg (2260 J per g)",
+        "value": 2260,
+        "kind": "constant",
+        "source": 2
+      },
+      {
+        "label": "Melting point of ice, in °C",
+        "value": 0,
+        "kind": "constant"
+      },
+      {
+        "label": "Boiling point of water at normal atmospheric pressure, in °C",
+        "value": 100,
+        "kind": "constant"
+      },
+      {
+        "label": "Slope for 1 kg, 1 ÷ 4.2, in °C per kJ",
+        "value": 0.24,
+        "kind": "computed"
+      },
+      {
+        "label": "Energy to warm 1 kg from 0 °C to 100 °C, in kJ",
+        "value": 420,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 1: water warmed, in kg",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 1: start temperature, in °C",
+        "value": 20,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 1: end temperature, in °C",
+        "value": 70,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 1: 2 × 4,200 × 50, in kJ",
+        "value": 420,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 1 wrong pick, 2 × 4,200 × 70, in kJ",
+        "value": 588,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 1 wrong pick, mass left out, in kJ",
+        "value": 210,
+        "kind": "computed"
+      },
+      {
+        "label": "Cup of water, in kg",
+        "value": 0.25,
+        "kind": "assumed"
+      },
+      {
+        "label": "Cup's temperature, in °C",
+        "value": 80,
+        "kind": "assumed"
+      },
+      {
+        "label": "Room temperature, in °C",
+        "value": 20,
+        "kind": "assumed"
+      },
+      {
+        "label": "Tank of water, in kg",
+        "value": 100,
+        "kind": "assumed"
+      },
+      {
+        "label": "Tank's temperature, in °C",
+        "value": 30,
+        "kind": "assumed"
+      },
+      {
+        "label": "Cup gives out 0.25 × 4,200 × 60, in kJ",
+        "value": 63,
+        "kind": "computed"
+      },
+      {
+        "label": "Tank gives out 100 × 4,200 × 10, in MJ",
+        "value": 4.2,
+        "kind": "computed"
+      },
+      {
+        "label": "Tank's energy over the cup's, times",
+        "value": 66.7,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 3: kettle water, in kg",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 3: kettle temperature, in °C",
+        "value": 90,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 3: tank water, in kg",
+        "value": 50,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 3: tank temperature, in °C",
+        "value": 25,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 3: kettle gives out 2 × 4,200 × 70, in kJ",
+        "value": 588,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 3: tank gives out 50 × 4,200 × 5, in kJ",
+        "value": 1050,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 5: energy into 1 kg of melting ice, in kJ",
+        "value": 200,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 5 wrong pick, 200 ÷ 4.2, near, in °C",
+        "value": 48,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 5 wrong pick, 200 ÷ 334 of the way to 100, near, in °C",
+        "value": 60,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 7: water warmed from 0 °C to 100 °C, in kg",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 7: 2 × 4,200 × 100, in kJ",
+        "value": 840,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 7 wrong pick, halved, in kJ",
+        "value": 210,
+        "kind": "computed"
+      },
+      {
+        "label": "Boiling 1 kg against warming it from 0 °C, times",
+        "value": 5.4,
+        "kind": "computed"
+      },
+      {
+        "label": "Example heater power, in kW",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "1 kg from 20 °C to 100 °C at 3 kW, in s",
+        "value": 112,
+        "kind": "computed"
+      },
+      {
+        "label": "Boiling 1 kg away at 3 kW, 2,260 ÷ 3, in minutes",
+        "value": 12.6,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 9: heater runs, in minutes",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 9: energy in 5 minutes at 3 kW, in kJ",
+        "value": 900,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 9: water boiled away, 900 ÷ 2,260, about, in kg",
+        "value": 0.4,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 9 wrong pick, 100 + 900 ÷ 4.2, near, in °C",
+        "value": 314,
+        "kind": "computed"
+      },
+      {
+        "label": "Absolute zero, in °C",
+        "value": -273.15,
+        "kind": "constant"
+      },
+      {
+        "label": "0 °C in kelvin, rounded",
+        "value": 273,
+        "kind": "computed"
+      },
+      {
+        "label": "100 °C in kelvin, rounded",
+        "value": 373,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 11: rise from 20 °C to 100 °C, in K",
+        "value": 80,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 11 wrong pick, 80 + 273, in K",
+        "value": 353,
+        "kind": "computed"
+      },
+      {
+        "label": "Seawater's specific heat capacity, J per kg per °C",
+        "value": 3850,
+        "kind": "constant",
+        "source": 3
+      },
+      {
+        "label": "Screen 12: seawater through a cooler, kg each second",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 12: seawater's rise, in °C",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 12: 2 × 3,850 × 10, in kW",
+        "value": 77,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 12 wrong pick, using 4,200, in kW",
+        "value": 84,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 12 wrong pick, rise left out, in kW",
+        "value": 7.7,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 13: melting ice, in kg",
+        "value": 0.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 13: melt 167 kJ plus warm 210 kJ, in kJ",
+        "value": 377,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 13 wrong pick, mass left out, 334 + 420, in kJ",
+        "value": 754,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice: tank of water, in kg",
+        "value": 150,
+        "kind": "assumed"
+      },
+      {
+        "label": "Practice: start temperature, in °C",
+        "value": 15,
+        "kind": "assumed"
+      },
+      {
+        "label": "Practice: end temperature, in °C",
+        "value": 60,
+        "kind": "assumed"
+      },
+      {
+        "label": "Practice: 150 × 4,200 × 45, in MJ",
+        "value": 28.35,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice: at 3 kW, in s",
+        "value": 9450,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice: at 3 kW, about, in hours",
+        "value": 2.6,
+        "kind": "computed"
+      },
+      {
+        "label": "Temperature axis top, in °C",
+        "value": 110,
+        "kind": "assumed"
+      },
+      {
+        "label": "Energy axis, screens 4 to 7, in kJ",
+        "value": 1600,
+        "kind": "assumed"
+      },
+      {
+        "label": "Energy axis from screen 8, in kJ",
+        "value": 6100,
+        "kind": "assumed"
+      },
+      {
+        "label": "2 kg melted, warmed and boiled away, in kJ",
+        "value": 6028,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 11 wrong pick, 100 + 273, in K",
+        "value": 373,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 13: melting 0.5 kg, 0.5 × 334, in kJ",
+        "value": 167,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 13 wrong pick, melting left out, in kJ",
+        "value": 210,
+        "kind": "computed"
+      },
+      {
+        "label": "Energy that turns 1 kg of ice at 0 °C to steam, in kJ",
+        "value": 3014,
+        "kind": "computed"
+      },
+      {
+        "label": "Power slider's opening setting, in kW",
+        "value": 3,
+        "kind": "control"
+      },
+      {
+        "label": "Practice: how long the heater in fact ran, in hours",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Practice: 3 kW for 3 hours, 3,000 × 10,800, in MJ",
+        "value": 32.4,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice: thermal efficiency, 28.35 ÷ 32.4, in %",
+        "value": 87.5,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "Temperature tells you how hot something is. Heat is energy moving into or out of it. Heat flows from hotter to colder. The two are not the same thing. The energy to warm something depends on its mass, its material and how far its temperature must rise. The material's part is its [[specific heat capacity]]. That is the energy to warm 1 kg by 1 °C. For water it is 4,200 J per kg per °C.[^1] Multiply the three together and you have the energy, Q = mcΔT. Take a 0.25 kg cup of water at 80 °C. Let it cool to a 20 °C room. It gives out 0.25 × 4,200 × 60 = 63,000 J. That is 63 kJ. Now take a 100 kg tank at 30 °C, cooling to the same room. It gives out 100 × 4,200 × 10 = 4,200,000 J. That is 4.2 MJ. The cup is hotter, but the tank gives out over 60 times as much. A flow works the same way, one second at a time. Seawater's specific heat capacity is about 3,850 J per kg per °C.[^3] Say 2 kg of seawater passes through a cooler each second and warms by 10 °C. Each second it carries away 2 × 3,850 × 10 = 77,000 J. A joule each second is a watt. So the cooler sheds 77 kW.\n\nNow put 1 kg of melting ice on a heater. Plot its temperature against the energy put in. For the first 334 kJ the line stays flat at 0 °C.[^2] The energy is melting the ice, not warming it. This is called [[latent heat]]. It is energy taken in or given out as a material changes between solid, liquid and gas, with no change of temperature. Here is one way to picture it. Temperature follows how fast the molecules jiggle. Melting and boiling spend the energy on loosening their hold on each other instead. So mcΔT does not apply while the ice melts. It would put 1 kg at about 48 °C after 200 kJ. Yet the thermometer still reads 0 °C. Once the ice has melted, the line climbs. Each kJ warms 1 kg of water by 1 ÷ 4.2, about 0.24 °C. So the slope is 1 ÷ (mc). Twice the mass climbs half as steeply. Warming 1 kg from 0 °C to 100 °C takes 420 kJ. At 100 °C the line goes flat again for 2,260 kJ while the water turns to steam. Water boils at 100 °C at normal atmospheric pressure. Under a different pressure it boils at a different temperature. Boiling it away takes over five times the energy that warmed it. A 3 kW heater would warm 1 kg from 20 °C to 100 °C in 112 s. Then it would take about 12.6 minutes more to boil it away.\n\nA [[kelvin]] is the same size step as a degree Celsius. Only its zero is different. 0 °C is just where ice melts. It is a handy mark, and plenty of things are colder. The kelvin scale starts at absolute zero, −273.15 °C. So ice at 0 °C is at about 273 K, and it still holds energy. A rise of 80 °C is a rise of 80 K, because the steps are the same size. This is a simplified model. A real heater also warms the air and the beaker.\n\n**Warming takes mass × specific heat capacity × temperature rise. Melting or boiling takes in energy with no change of temperature. So a temperature alone does not tell you how much energy went in or will come out.**"
+  },
+  "analogy": {
+    "text": "Charge into a capacitor raises its voltage by q ÷ C. So a bigger capacitor rises less for the same charge. Energy into water raises its temperature by Q ÷ (mc). So more water rises less for the same energy. mc plays the part of capacitance. Temperature plays the part of voltage.",
+    "breaks": "A capacitor has nothing like melting or boiling. Its voltage rises with every coulomb that goes in. Melting ice at 0 °C or boiling water at 100 °C takes in energy with no rise at all. Also, charge is only the stand-in for energy here. A capacitor's own stored energy grows with the square of its voltage."
+  },
+  "practice": {
+    "text": "- Find the mass in kg and the material's specific heat capacity.\n- Find the temperature rise or fall. That is end minus start, not the end temperature.\n- Ask whether the material melts, boils, freezes or condenses on the way. If it does, add mass × latent heat for that change. That part happens at a steady temperature.\n- Multiply and add. Then turn joules into time with time = energy ÷ power.\n\n**Rule of thumb:** Water needs 4.2 kJ to warm each kilogram by 1 °C. Boiling it away takes over five times what warming it from 0 °C to 100 °C did.\n\n**Worked example:** Say a 3 kW immersion heater warms 150 kg of water in a tank from 15 °C to 60 °C. The rise is 45 °C. The energy is 150 × 4,200 × 45 = 28,350,000 J, about 28.35 MJ. At 3 kW that takes 28,350,000 ÷ 3,000 = 9,450 s. That is about 2.6 hours, with no losses. Say the heater in fact ran for 3 hours, putting in 32.4 MJ. The thermal efficiency is the heat taken up ÷ the energy put in. That is 28.35 ÷ 32.4, which is 87.5%.\n\n**Common mistakes**\n- Thinking a hotter thing always holds more energy. Mass counts too. Cooling to a 20 °C room, a 100 kg tank at 30 °C gives out far more than a 0.25 kg cup at 80 °C.\n- Using the end temperature instead of the rise.\n- Leaving the mass out.\n- Using the specific heat capacity during melting or boiling. The temperature does not move then, so mcΔT gives nothing.\n- Adding 273 to a temperature rise. A rise of 80 °C is a rise of 80 K."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+    {
+      "n": 1,
+      "title": "Specific heat capacity - Temperature changes and energy - Edexcel - GCSE Physics (Single Science) Revision - Edexcel - BBC Bitesize",
+      "url": "https://www.bbc.co.uk/bitesize/guides/zpjpgdm/revision/4",
+      "quote": "The specific heat capacity of water is 4,200 joules per kilogram per degree Celsius (J/kg°C). This means that it takes 4,200 J to raise the temperature of 1 kg of water by 1°C."
+    },
+    {
+      "n": 2,
+      "title": "Constants and Formulas (321)",
+      "url": "https://www.mtel.nesinc.com/Content/Docs/NES_Formulas_321.pdf",
+      "quote": "Heat of fusion of water (Δ _Hfus_ ) 334 J/g = 80 cal/g = 6.01 kJ/mol Heat of vaporization of water (Δ _Hvap_ ) 2260 J/g = 540 cal/g"
+    },
+    {
+      "n": 3,
+      "title": "Properties of seawater",
+      "url": "https://talleylab.ucsd.edu/sio210/lect_2/lecture_2.html",
+      "quote": "The density of seawater is about 1025 kg/m^3 and the specific heat is about 3850 J/(kg C)."
+    }
+  ]
+}

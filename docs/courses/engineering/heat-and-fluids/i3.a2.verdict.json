@@ -1,0 +1,232 @@
+{
+  "ok": true,
+  "reachChecked": true,
+  "problems": [],
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "Absolute pressure is gauge pressure plus atmospheric pressure, on every screen and setting",
+        "ok": true,
+        "source": "https://qualifications.pearson.com/content/dam/pdf/BTEC-Specialist-Qualifications/advanced-manufacturing-engineering-development-technical-knowledge/2016/specification/adv-man-eng-unit-spec.pdf"
+      },
+      {
+        "label": "Compressed into half its volume at a steady temperature, the gas's pressure doubles",
+        "ok": true,
+        "source": "https://faculty.fiu.edu/~mebela/chm3410_chapter1.pdf"
+      },
+      {
+        "label": "The pressure of the trapped gas is directly proportional to its absolute temperature while the volume does not change, so its line meets zero pressure at absolute zero",
+        "ok": true,
+        "source": "https://openstax.org/books/chemistry-2e/pages/9-summary"
+      },
+      {
+        "label": "A bigger receiver means less frequent motor starts: twice the receiver holds twice the air in its band and keeps the compressor off twice as long",
+        "ok": true,
+        "source": "https://www.atlascopco.com/en-us/compressors/wiki/compressed-air-articles/what-is-an-air-receiver"
+      },
+      {
+        "label": "Every number the screens print comes from the rule: 6, 1.5 and 4 bar; 4 bar absolute, 3 gauge and 2; 293 K, 313 K and 7%; about 2.1 bar against 4; 400 K and 4 L; 0.020, 0.010, 0.015, 0.222, 2.67 and 0.063; 4, 3 and about 14 bar; 7 and 9 bar absolute, 4,500, 3,500 and 1,000 L, 4 minutes, 2,000 L and 8 minutes; 8 bar, 323 K, about 8.8 and 7.8 bar against 17.5; about 22%, 25% and 78%",
+        "ok": true
+      },
+      {
+        "label": "pV ÷ T holds at 0.020 in absolute pressure and kelvin wherever the piston and heater go; in gauge it goes from 0.010 to 0.015 at 1.5 L, and in °C from 0.222 to 0.063 at 127 °C",
+        "ok": true
+      },
+      {
+        "label": "With the piston floating, 27 °C to 127 °C keeps 2 bar absolute and takes 3 L to 4 L; locked, the same warming takes 2 bar to about 2.67",
+        "ok": true
+      },
+      {
+        "label": "The readings follow the piston and the heat at once, and the receiver starts at 8 bar gauge and falls to 6 bar in 4 minutes",
+        "ok": true
+      },
+      {
+        "label": "Each puzzle offers three different answers including its right one, every wrong answer has its own hint, and before Check nothing on its picture shows the answer or a red mark",
+        "ok": true
+      },
+      {
+        "label": "A wrong pick is drawn in red where it fails: 1.5 and 4 bar off the curve; the gauge doubled or read as absolute; 4 bar counted from 0 °C and no change; the locked and both-up points; heat left out and 14 bar off the chart; all of it and one tankful; 8.8 read as gauge and 17.5 from 0 °C; 2 of 8 and what is left. A right answer draws no red",
+        "ok": true
+      },
+      {
+        "label": "A right answer draws the rule's result: 6 bar at 1 L; 4 bar absolute on the gauge; about 2.14 bar at 40 °C; 4 L at 2 bar; 4 bar at 2 L; the band's two blocks; about 8.82 bar absolute at 50 °C; 2 of 9 parts gone at 7 bar absolute",
+        "ok": true
+      },
+      {
+        "label": "Every demonstration has finished within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer's motion, right or wrong, within 2 s",
+        "ok": true
+      },
+      {
+        "label": "Every demonstration screen keeps to about 90 words",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "vol",
+      "heat",
+      "units",
+      "big",
+      "ext",
+      "clock"
+    ],
+    "readouts": [
+      "absPressure",
+      "gaugePressure",
+      "ratio",
+      "bandAir",
+      "offFor"
+    ],
+    "outputs": [
+      "absPressure",
+      "gaugePressure",
+      "ratio"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Screen",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "steps": [
+          "A warm-up sum",
+          "Two readings",
+          "Half the space",
+          "A straight line",
+          "Locked and warmed",
+          "A floating piston",
+          "Heating, floating",
+          "pV ÷ T",
+          "All three change",
+          "The air receiver",
+          "Air between starts",
+          "A warm receiver",
+          "Air gone"
+        ],
+        "value": 0
+      },
+      {
+        "id": "vol",
+        "kind": "control",
+        "label": "Piston",
+        "min": 1,
+        "max": 6,
+        "step": 0.05,
+        "log": false,
+        "value": 3,
+        "shown": false,
+        "snap": [
+          1.5
+        ]
+      },
+      {
+        "id": "heat",
+        "kind": "control",
+        "label": "Heater",
+        "min": 0,
+        "max": 150,
+        "step": 1,
+        "log": false,
+        "value": 27,
+        "shown": false,
+        "snap": [
+          127
+        ]
+      },
+      {
+        "id": "units",
+        "kind": "choice",
+        "label": "pV ÷ T in",
+        "options": [
+          "absK",
+          "gaugeK",
+          "absC"
+        ],
+        "labels": [
+          "absolute, K",
+          "gauge, K",
+          "absolute, °C"
+        ],
+        "value": "absK",
+        "index": 0,
+        "shown": false
+      },
+      {
+        "id": "big",
+        "kind": "toggle",
+        "label": "Bigger receiver, 1,000 L",
+        "options": [
+          false,
+          true
+        ],
+        "value": false,
+        "shown": false
+      },
+      {
+        "id": "ext",
+        "kind": "control",
+        "label": "Line carried on",
+        "min": 0,
+        "max": 1,
+        "step": 0.01,
+        "log": false,
+        "value": 0,
+        "shown": false
+      },
+      {
+        "id": "clock",
+        "kind": "control",
+        "label": "Minutes after cut-out",
+        "min": 0,
+        "max": 10,
+        "step": 0.01,
+        "log": false,
+        "value": 0,
+        "shown": false
+      }
+    ],
+    "actions": [
+      "Extend the line",
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Play again",
+      "Back",
+      "Continue",
+      "Start again",
+      "Demonstration"
+    ],
+    "answers": [],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ],
+    "foreign": [],
+    "unreachable": []
+  }
+}

@@ -1,0 +1,276 @@
+{
+  "ok": true,
+  "reachChecked": true,
+  "problems": [],
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "δP = (1025)(9.81)(10), about 10⁵ Pa, the pressure at the bottom of the atmosphere: 10 m down in seawater the probe reads within a percent of 100 kPa",
+        "ok": true,
+        "source": "https://www.whoi.edu/science/PO/people/tjoyce/whoi-mit_course/notes/course_notes_1b.pdf"
+      },
+      {
+        "label": "The density of seawater is about 1025 kg/m³, the density the seawater here is given",
+        "ok": true,
+        "source": "https://talleylab.ucsd.edu/sio210/lect_2/lecture_2.html"
+      },
+      {
+        "label": "Fluid pressure increases with depth because of the weight of the fluid above: in every tank the reading rises with depth and equals the weight of the column above 1 m²",
+        "ok": true
+      },
+      {
+        "label": "A body partly or completely submerged feels a buoyant force equal to the weight of the fluid it displaces: at every depth of the cube, the bottom push minus the top push equals that weight",
+        "ok": true,
+        "source": "http://physics.bu.edu/~duffy/py105/Pressure.html"
+      },
+      {
+        "label": "Width, shape and the probe's facing never change the reading: the same in all three tanks at every depth, and facing up, sideways or down; absolute adds the air's 100 kPa",
+        "ok": true
+      },
+      {
+        "label": "A 600 kg/m³ cube floats at a draught of 0.59 m in seawater and 0.60 m in fresh water, where its upthrust equals its 5.9 kN weight; at 1025 in seawater it hovers where it is let go; at 1,500 its 14.7 kN beats the 10.1 kN upthrust and it sinks to the floor",
+        "ok": true
+      },
+      {
+        "label": "Every number the screens print comes from the rule: 19.6 N; 100.6, 50.3, 150.3, 5.1 and 49.1 kPa; 19.6 kPa and 100 times; 30.2 and 15.1 kPa; 20.1, 30.2 and 10.1; 60.3, 70.4 and 30.2; 5.9 and 14.7 kN; 0.59 and 0.60 m; 4,000 kg, 0.49, 0.50 and 0.98 m; 201, 301 and 296 kPa; 9.8 and 10.1 kN",
+        "ok": true
+      },
+      {
+        "label": "Each puzzle offers three different answers including its right one, every wrong answer has its own hint, and before Check nothing on its picture shows the answer or a red mark",
+        "ok": true
+      },
+      {
+        "label": "A wrong pick is drawn in red where it fails, and a right answer draws no red",
+        "ok": true
+      },
+      {
+        "label": "A right answer draws the rule's result: 19.6 N; 50.3 kPa; 19.6 kPa on both bases; 30.2 kPa sideways; 10.1 kN at 6 m; a 0.49 m draught; 301 kPa absolute; 9.8 kN in fresh water; 3,600 N from the bigger jack",
+        "ok": true
+      },
+      {
+        "label": "Every demonstration has finished within 4.5 s of its screen opening, its first move after the 0.35 s screen fade; every answer's motion, right or wrong, within 2 s",
+        "ok": true
+      },
+      {
+        "label": "A change in pressure applied to an enclosed fluid is transmitted undiminished: 100 N on 10 cm² makes 100 kPa and lifts 2,000 N on 200 cm²; moving 20 cm against 1 cm, work in and out are both 20 J; 60 N on 5 cm² makes 120 kPa and lifts 3,600 N on 300 cm²",
+        "ok": true
+      },
+      {
+        "label": "The kilogram was first the mass of 1000 mL of water: fresh water here is 1000 kg/m³, so 1 L of it is 1 kg",
+        "ok": true,
+        "source": "https://openstax.org/books/college-physics-2e/pages/11-2-density"
+      },
+      {
+        "label": "Every demonstration screen keeps to about 90 words",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "depth",
+      "tank",
+      "face",
+      "abs",
+      "cdepth",
+      "dens",
+      "fresh",
+      "fpos"
+    ],
+    "readouts": [
+      "probeKpa",
+      "upthrust",
+      "cubeWeight"
+    ],
+    "outputs": [
+      "probeKpa",
+      "upthrust",
+      "cubeWeight"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Screen",
+        "min": 0,
+        "max": 15,
+        "step": 1,
+        "steps": [
+          "A warm-up",
+          "The weight above",
+          "Five metres down",
+          "Any shape",
+          "Two bases",
+          "Every way at once",
+          "Turned sideways",
+          "A hydraulic jack",
+          "A bigger jack",
+          "Held under",
+          "Six metres down",
+          "Sink or float",
+          "How deep it floats",
+          "A pontoon",
+          "A deep sensor",
+          "Into fresh water"
+        ],
+        "value": 0
+      },
+      {
+        "id": "depth",
+        "kind": "control",
+        "label": "Probe depth",
+        "min": 0,
+        "max": 10,
+        "step": 0.1,
+        "log": false,
+        "value": 5,
+        "shown": false,
+        "snap": [
+          3,
+          5,
+          10
+        ]
+      },
+      {
+        "id": "tank",
+        "kind": "choice",
+        "label": "Tank",
+        "options": [
+          "narrow",
+          "wide",
+          "flared"
+        ],
+        "labels": [
+          "Narrow",
+          "Wide",
+          "Flaring"
+        ],
+        "value": "wide",
+        "index": 1,
+        "shown": false
+      },
+      {
+        "id": "face",
+        "kind": "choice",
+        "label": "Probe's face",
+        "options": [
+          "up",
+          "side",
+          "down"
+        ],
+        "labels": [
+          "Up",
+          "Sideways",
+          "Down"
+        ],
+        "value": "up",
+        "index": 0,
+        "shown": false
+      },
+      {
+        "id": "abs",
+        "kind": "toggle",
+        "label": "Absolute: add the air",
+        "options": [
+          false,
+          true
+        ],
+        "value": false,
+        "shown": false
+      },
+      {
+        "id": "cdepth",
+        "kind": "control",
+        "label": "Depth of the cube's top",
+        "min": -1,
+        "max": 7,
+        "step": 0.1,
+        "log": false,
+        "value": 2,
+        "shown": false,
+        "snap": [
+          2,
+          6
+        ]
+      },
+      {
+        "id": "dens",
+        "kind": "control",
+        "label": "Cube's density",
+        "min": 200,
+        "max": 1500,
+        "step": 25,
+        "log": false,
+        "value": 600,
+        "shown": false,
+        "snap": [
+          600,
+          1000,
+          1025
+        ]
+      },
+      {
+        "id": "fresh",
+        "kind": "toggle",
+        "label": "Fresh water",
+        "options": [
+          false,
+          true
+        ],
+        "value": false,
+        "shown": false
+      },
+      {
+        "id": "fpos",
+        "kind": "control",
+        "label": "Cube position",
+        "min": -1,
+        "max": 9,
+        "step": 0.0001,
+        "log": false,
+        "value": 2,
+        "shown": false
+      }
+    ],
+    "actions": [
+      "Let go",
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Play again",
+      "Back",
+      "Continue",
+      "Start again",
+      "Demonstration"
+    ],
+    "answers": [],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ],
+    "foreign": [],
+    "unreachable": []
+  }
+}

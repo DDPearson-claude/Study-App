@@ -1,0 +1,455 @@
+{
+  "iid": "i5",
+  "title": "Pressure in liquids, and floating",
+  "format": "steps",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is pressure growing with depth alone, the same in every tank, so a block's bottom push beats its top push by the weight of liquid displaced, when you drag the probe or block down.",
+    "title": "The tank and the probe",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Screen",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [
+      {
+        "id": "probeKpa",
+        "label": "Probe reading",
+        "unit": "kPa",
+        "decimals": 1
+      },
+      {
+        "id": "upthrust",
+        "label": "Upthrust",
+        "unit": "kN",
+        "decimals": 1
+      },
+      {
+        "id": "cubeWeight",
+        "label": "Cube's weight",
+        "unit": "kN",
+        "decimals": 1
+      }
+    ],
+    "whatAmILookingAt": "A short lesson in thirteen small screens. The main picture is three tanks joined at the bottom: a narrow one, a wide one and one that flares out towards the top. They are filled to one level, 10 m deep, drawn far smaller than life. A pressure probe hangs on a line. Drag it down into any tank, from the surface to 10 m. Its gauge reads ρgh: the liquid's density × g × the probe's depth below the surface. g is 9.81 newtons for each kilogram. In seawater, at 1025 kg/m³, the probe opens at 5 m and reads 1025 × 9.81 × 5, about 50.3 kPa. At 10 m it reads about 100.6 kPa. A thin column drawn above the probe shows the liquid whose weight makes that pressure. At one depth the reading is the same in every tank, because the joined liquid settles at one level. The probe's face can turn up, sideways or down, and the reading stays the same. An absolute switch adds the atmosphere, taken as 100 kPa, so 5 m reads about 150.3 kPa absolute. A liquid switch swaps seawater for fresh water, at 1000 kg/m³, and 5 m then reads about 49.1 kPa. Then a cube 1 m on a side is lowered into the wide tank. Drag it down and it is held there on its line. Arrows on each face grow with depth. The side arrows match in pairs and cancel. Held with its top 2 m down, its top is pushed down with about 20.1 kPa and its bottom, 3 m down, up with about 30.2 kPa. On each 1 m² face that is about 20.1 kN down and about 30.2 kN up. The difference, about 10.1 kN up, is the upthrust. Beside it a second bar shows the weight of the 1 m³ of liquid the cube has pushed aside: 1025 kg × 9.81, about 10.1 kN. The two bars always match, at any depth. A density slider sets the cube's density, from 200 to 1,500 kg/m³ in steps of 25, opening at 600. Its weight is its density × 1 m³ × 9.81, about 5.9 kN at 600. Press Let go. A cube less dense than the liquid rises and floats. It settles where the part below the surface pushes aside its own weight of liquid. That depth is its draught: its density ÷ the liquid's density × 1 m. At 600 that is about 0.59 m in seawater and 0.60 m in fresh water, marked on the tank wall. At 1025 in seawater, or 1000 in fresh water, it hovers where it is let go. Denser, it sinks to the floor. At 1,500 it weighs about 14.7 kN against an upthrust of about 10.1 kN. The three readouts, probe pressure, upthrust and the cube's weight, wrap onto two rows on a phone. Screen by screen. 1 is a warm-up. A block held under fresh water pushes aside 2 L. A litre of fresh water has a mass of 1 kg. What is the upthrust? About 19.6 N, about 2 N, or it depends on what the block is made of. A right answer says Still there. 2 shows the column on a 1 m² patch. Its weight is ρ × h × 1 m² × g, pressing on 1 m², so p = ρgh. The probe goes down the wide tank, and 10 m of seawater reads about 100.6 kPa, about one atmosphere more. 3 asks what the probe's gauge reads 5 m down in seawater: about 50.3 kPa, about 150.3 kPa or about 5.1 kPa. 4 shows the probe at 5 m in each of the three tanks, reading the same. Still water presses too. 5 asks about two fresh water tanks 2 m deep, one with a 0.1 m² base and one with 10 m². What pressure is on each bottom? About 19.6 kPa on both, 100 times more on the wide one, or more on the narrow one. 6 shows the probe's face turned up, sideways and down at 3 m in seawater, reading about 30.2 kPa each way, then the absolute switch. 7 asks: a small plate 3 m down in seawater reads about 30.2 kPa facing up. Turned to face sideways, does it read about 30.2 kPa, 0 kPa or about 15.1 kPa? 8 shows the cube held under, with its arrows and the two matching bars. 9 asks: the cube is pushed down until its top is 6 m deep. Its top now feels about 60.3 kPa and its bottom about 70.4 kPa. What is the upthrust? About 10.1 kN, about 30.2 kN or about 70.4 kN. 10 shows the density slider: float, hover and sink, and the draught in seawater and fresh water. 11 asks: a box-shaped pontoon 4 m by 2 m has a mass of 4,000 kg. How deep does it sit in seawater? About 0.49 m, 0.50 m or about 0.98 m. 12 and 13 mix it all. 12: a sensor sits 20 m down in seawater. What absolute pressure does it feel? About 301 kPa, about 201 kPa or about 296 kPa. 13: a sealed float of 1 m³ is weighted to hover in seawater, so its mass is 1025 kg. Moved into fresh water, does it sink, float higher or still hover? It sinks. The 1 m³ of fresh water it pushes aside weighs about 9.8 kN, less than its own weight of about 10.1 kN. A wrong pick is drawn on the picture where it can be, so you see where it fails.",
+    "ignores": "The tanks are drawn far smaller than 10 m, and the cube is drawn to the same scale. The liquid is still, and its density is taken as the same from top to bottom. Real seawater's density varies a little with its temperature, saltiness and depth. g is taken as 9.81 everywhere, and the atmosphere as 100 kPa, though it changes with the weather. The cube floats level and upright. Whether a real floating body stays upright is a separate question, its stability, not shown here. Liquid always reaches under the cube. One sealed flat against a floor, with no liquid beneath, loses the push on its bottom. Surface tension, which lets very small, light things rest on water, is left out.",
+    "numbers": [
+      {
+        "label": "Gravity's pull, g, in N per kg",
+        "value": 9.81,
+        "kind": "constant",
+        "source": 11
+      },
+      {
+        "label": "Seawater's density, in kg/m³",
+        "value": 1025,
+        "kind": "constant",
+        "source": 3
+      },
+      {
+        "label": "Fresh water's density, in kg/m³",
+        "value": 1000,
+        "kind": "constant"
+      },
+      {
+        "label": "Atmosphere, rounded, in kPa",
+        "value": 100,
+        "kind": "constant",
+        "source": 11
+      },
+      {
+        "label": "Tanks' depth when full, in m",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Probe depth lowest, in m",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Probe depth highest, in m",
+        "value": 10,
+        "kind": "control"
+      },
+      {
+        "label": "Probe depth's opening setting, in m",
+        "value": 5,
+        "kind": "control"
+      },
+      {
+        "label": "Probe at 5 m in seawater, 1025 × 9.81 × 5, in kPa",
+        "value": 50.3,
+        "kind": "computed"
+      },
+      {
+        "label": "Probe at 10 m in seawater, in kPa",
+        "value": 100.6,
+        "kind": "computed"
+      },
+      {
+        "label": "Probe at 5 m, absolute, 50.3 + 100, in kPa",
+        "value": 150.3,
+        "kind": "computed"
+      },
+      {
+        "label": "Probe at 5 m in fresh water, in kPa",
+        "value": 49.1,
+        "kind": "computed"
+      },
+      {
+        "label": "Cube's side, in m",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Cube's face area, in m²",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "Cube's volume, in m³",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "Cube's top when held, depth in m",
+        "value": 2,
+        "kind": "control"
+      },
+      {
+        "label": "Cube's bottom when held, 2 + 1, depth in m",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Pressure on cube's top, 1025 × 9.81 × 2, in kPa",
+        "value": 20.1,
+        "kind": "computed"
+      },
+      {
+        "label": "Pressure on cube's bottom, 1025 × 9.81 × 3, in kPa",
+        "value": 30.2,
+        "kind": "computed"
+      },
+      {
+        "label": "Push down on top, 20.1 kPa × 1 m², in kN",
+        "value": 20.1,
+        "kind": "computed"
+      },
+      {
+        "label": "Push up on bottom, 30.2 kPa × 1 m², in kN",
+        "value": 30.2,
+        "kind": "computed"
+      },
+      {
+        "label": "Upthrust, 30.2 − 20.1, in kN",
+        "value": 10.1,
+        "kind": "computed"
+      },
+      {
+        "label": "Mass of seawater pushed aside, 1025 × 1, in kg",
+        "value": 1025,
+        "kind": "computed"
+      },
+      {
+        "label": "Weight of seawater pushed aside, 1025 × 9.81, in kN",
+        "value": 10.1,
+        "kind": "computed"
+      },
+      {
+        "label": "Cube density slider lowest, in kg/m³",
+        "value": 200,
+        "kind": "control"
+      },
+      {
+        "label": "Cube density slider highest, in kg/m³",
+        "value": 1500,
+        "kind": "control"
+      },
+      {
+        "label": "Cube density slider step, in kg/m³",
+        "value": 25,
+        "kind": "control"
+      },
+      {
+        "label": "Cube density's opening setting, in kg/m³",
+        "value": 600,
+        "kind": "control"
+      },
+      {
+        "label": "Cube's mass at 600 kg/m³, in kg",
+        "value": 600,
+        "kind": "computed"
+      },
+      {
+        "label": "Cube's weight at 600, 600 × 9.81, in kN",
+        "value": 5.9,
+        "kind": "computed"
+      },
+      {
+        "label": "Seawater pushed aside when floating, 600 ÷ 1025, in m³",
+        "value": 0.59,
+        "kind": "computed"
+      },
+      {
+        "label": "Draught at 600 in seawater, 600 ÷ 1025 × 1, in m",
+        "value": 0.59,
+        "kind": "computed"
+      },
+      {
+        "label": "Draught at 600 in fresh water, 600 ÷ 1000 × 1, in m",
+        "value": 0.6,
+        "kind": "computed"
+      },
+      {
+        "label": "Cube's weight at 1,500, 1500 × 9.81, in kN",
+        "value": 14.7,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 1: fresh water pushed aside, in L",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 1: mass of 1 L of fresh water, in kg",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 1: upthrust, 2 × 9.81, in N",
+        "value": 19.6,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 1 wrong pick, mass read as newtons, in N",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 3 wrong pick, g left out, 1025 × 5, in kPa",
+        "value": 5.1,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 5: tanks' depth, in m",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 5: narrow tank's base, in m²",
+        "value": 0.1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 5: wide tank's base, in m²",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 5: pressure on each bottom, 1000 × 9.81 × 2, in kPa",
+        "value": 19.6,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 5 wrong pick, bases' ratio, 10 ÷ 0.1",
+        "value": 100,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 6 and 7: depth, in m",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 7: plate's reading, 1025 × 9.81 × 3, in kPa",
+        "value": 30.2,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 7 wrong pick, nothing above a side face, in kPa",
+        "value": 0,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 7 wrong pick, half, 30.2 ÷ 2, in kPa",
+        "value": 15.1,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 9: cube's top pushed to, depth in m",
+        "value": 6,
+        "kind": "control"
+      },
+      {
+        "label": "Screen 9: pressure on top, 1025 × 9.81 × 6, in kPa",
+        "value": 60.3,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 9: pressure on bottom, 1025 × 9.81 × 7, in kPa",
+        "value": 70.4,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 9 wrong pick, 3 × 1025 × 9.81 × 1, in kN",
+        "value": 30.2,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 9 wrong pick, bottom's push only, in kN",
+        "value": 70.4,
+        "kind": "computed"
+      },
+      {
+        "label": "Pontoon length, in m",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Pontoon breadth, in m",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Pontoon base area, 4 × 2, in m²",
+        "value": 8,
+        "kind": "computed"
+      },
+      {
+        "label": "Pontoon mass, in kg",
+        "value": 4000,
+        "kind": "assumed"
+      },
+      {
+        "label": "Pontoon draught in seawater, 4,000 ÷ (1025 × 8), in m",
+        "value": 0.49,
+        "kind": "computed"
+      },
+      {
+        "label": "Pontoon draught in fresh water, 4,000 ÷ (1000 × 8), in m",
+        "value": 0.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 11 wrong pick, breadth left out, 4,000 ÷ (1025 × 4), in m",
+        "value": 0.98,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 12: sensor's depth, in m",
+        "value": 20,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 12: gauge, 1025 × 9.81 × 20, in kPa",
+        "value": 201,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 12: absolute, 201 + 100, in kPa",
+        "value": 301,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 12 wrong pick, fresh water, 196.2 + 100, in kPa",
+        "value": 296,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 13: float's volume, in m³",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 13: float's mass, 1025 × 1, in kg",
+        "value": 1025,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 13: fresh water pushed aside, 1000 × 9.81, in kN",
+        "value": 9.8,
+        "kind": "computed"
+      },
+      {
+        "label": "Seawater per metre of depth, 1025 × 9.81, about, in kPa",
+        "value": 10,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example: plate's area, in m²",
+        "value": 0.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example: plate's depth, in m",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example: push on plate, 30.2 × 0.5, in kN",
+        "value": 15.1,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "Still liquid presses on everything in it, and it presses harder the deeper you go. The reason is weight. The pressure at any depth comes from the weight of the liquid above it.[^1] Picture a column of liquid standing on a patch of 1 m², reaching up to the surface. Its height is the depth, h, so its volume is h × 1 m². Its mass is that volume times the liquid's [[density]], its mass per cubic metre.[^4] Its weight is that mass times g, 9.81 newtons for each kilogram. All that weight rests on the 1 m² patch. So the pressure there is density × g × depth, written p = ρgh, where ρ, the Greek letter rho, is the density. Textbooks add that a liquid barely squeezes, so its density is near enough the same all the way down. That is why each metre adds the same pressure. Seawater's density is about 1025 kg/m³.[^3] So 10 m of it adds 1025 × 9.81 × 10, about 100.6 kPa. That is about as much again as the whole atmosphere.[^11] A gauge reads that ρgh. Add the atmosphere's 100 kPa for the absolute pressure, as with gases.\n\nLook at what ρgh leaves out. The tank's width is not in it, and nor is its shape. Join a narrow tank, a wide one and a flaring one at the bottom, and fill them. The liquid settles at one level in all three, and at any one depth the probe reads the same in each. If one tank's bottom pressed harder, it would push liquid through the join until the levels matched. In the flaring tank, the sloping walls hold up the extra liquid's weight. At any point the pressure pushes every way at once, square to whatever surface it meets. It needs no movement either. Still water presses because it has weight.\n\nNow hold a cube 1 m on a side under seawater, its top 2 m down. The pushes on its sides match in pairs, so they cancel. Its top is pushed down by about 20.1 kPa. Its bottom is 3 m down, so it is pushed up by about 30.2 kPa. On each 1 m² face, the bottom wins by about 10.1 kN. That net push up is the [[upthrust]]. The extra pressure at the bottom is ρg × the cube's height, and it acts on the bottom's area. Height × area is the cube's volume, so the upthrust is ρg × that volume. That is the weight of the seawater the cube has pushed aside. So an object partly or wholly in a liquid feels an upthrust equal to the weight of the liquid it displaces.[^6] Push the cube deeper and both pushes grow by the same amount, so the upthrust stays the same. What the cube is made of does not change it either.\n\nWhether it floats is a contest between its weight and that upthrust. Its weight depends on its own density, and the upthrust on the liquid's. A cube less dense than the liquid rises. As it comes out of the surface it displaces less, so the upthrust falls. It settles where the upthrust equals its weight. The depth of its bottom below the surface is its [[draught]]. A 1 m cube of density 600 kg/m³ has a mass of 600 kg, so it weighs about 5.9 kN. It must push aside 600 kg of seawater, which is 600 ÷ 1025, about 0.59 m³. On its 1 m² base, that is a draught of about 0.59 m. Fresh water is less dense, about 1000 kg/m³, so the same cube sits deeper, at 0.60 m. A cube exactly as dense as the liquid hovers, and a denser one sinks. So size or weight alone does not decide it. A steel hull floats because its mass is less than the mass of water that would fill all the space its outside encloses.\n\n**In a still liquid, pressure grows with depth as ρgh, and the extra push under an object is an upthrust equal to the weight of the liquid it displaces.[^6]**"
+  },
+  "analogy": {
+    "text": "Think of cells in series in a battery. Each cell adds its own voltage, whatever its size. A big cell and a small one of the same kind give the same volts, though the big one can deliver far more charge. Each metre of liquid adds the same pressure, whatever the tank's width. The width sets the total push on the bottom, as a cell's size sets its charge, but not the pressure.",
+    "breaks": "A cell makes its voltage by chemistry, and that voltage drives current one way round a circuit. A liquid's pressure is only the weight of the liquid above, and it pushes every way at once. That sideways and upward push is what makes upthrust, and nothing in a battery pushes up on anything."
+  },
+  "practice": {
+    "text": "**Safe first:** Before you open a cover, drain plug or pipe joint below a liquid's level, drain the liquid down past it. The full ρgh of the liquid above is pushing on it. Then confirm zero pressure at an open vent or needle valve before breaking in.[^18]\n\n**Pressure at a depth**\n- Measure the depth straight down from the liquid's surface. Along a sloping pipe, only the height counts.\n- Multiply density × 9.81 × depth to get the gauge pressure, in Pa.\n- Add the atmosphere, about 100 kPa, for absolute pressure.\n- For the push on a level plate, multiply that pressure by the plate's area.\n\n**Will it float, and how deep?**\n- Find its overall density: its mass ÷ all the space its outside encloses.\n- Less dense than the liquid, it floats. Denser, it sinks.\n- For a box with straight sides and a flat bottom, draught = mass ÷ (liquid's density × length × breadth).\n\n**Rules of thumb:** Each metre of seawater adds about 10 kPa, so 10 m adds about one atmosphere.[^11] A floating thing sits a little deeper in fresh water than in seawater.\n\n**Worked example:** A box-shaped pontoon 4 m by 2 m has a mass of 4,000 kg. In seawater its draught is 4,000 ÷ (1025 × 4 × 2), about 0.49 m. In fresh water it is 4,000 ÷ (1000 × 8) = 0.50 m. A level plate of 0.5 m² sits 3 m down in seawater. The pressure there is 1025 × 9.81 × 3, about 30.2 kPa gauge. The push on it is 30.2 kPa × 0.5 m², about 15.1 kN.\n\n**Common mistakes**\n- Using the tank's width or volume. Only the depth sets the pressure.\n- Measuring the depth along a slope instead of straight down.\n- Mixing gauge and absolute. A gauge leaves out the atmosphere.\n- Forgetting g. A kilogram is a mass, and its weight is 9.81 N.\n- Using fresh water's density for seawater, or the other way round.\n- Judging floating by size or weight alone. It is the object's density against the liquid's."
+  },
+  "say": null,
+  "checks": [],
+  "sources": [
+    {
+      "n": 1,
+      "title": "Archimedes’ principle | Description & Facts | Britannica",
+      "url": "https://www.britannica.com/science/Archimedes-principle",
+      "quote": "Fluid pressure increases with depth because of the (gravitational) weight of the fluid above."
+    },
+    {
+      "n": 3,
+      "title": "Properties of seawater",
+      "url": "https://talleylab.ucsd.edu/sio210/lect_2/lecture_2.html",
+      "quote": "The density of seawater is about 1025 kg/m^3 and the specific heat is about 3850 J/(kg C)."
+    },
+    {
+      "n": 4,
+      "title": "14.1 Fluids, Density, and Pressure – General Physics Using Calculus I",
+      "url": "https://pressbooks.online.ucf.edu/phy2048tjb/chapter/14-1-fluids-density-and-pressure",
+      "quote": "Density is the mass per unit volume of a substance or object"
+    },
+    {
+      "n": 6,
+      "title": "Pressure and buoyancy",
+      "url": "http://physics.bu.edu/~duffy/py105/Pressure.html",
+      "quote": "An object that is partly or completely submerged in a fluid will experience a buoyant force equal to the weight of the fluid the object displaces."
+    },
+    {
+      "n": 11,
+      "title": "Some Physical Properties of Sea Water or, More than you ever wanted to know about the basic state variables of the ocean…",
+      "url": "https://www.whoi.edu/science/PO/people/tjoyce/whoi-mit_course/notes/course_notes_1b.pdf",
+      "quote": "δP = (1025)(9.81)(10) ~ 10 ⁵ Pa, which is the pressure at the bottom of the atmosphere."
+    },
+    {
+      "n": 18,
+      "title": "The safe isolation of plant and equipment (HSG253)",
+      "url": "https://books.hse.gov.uk/gempdf/hsg253.pdf",
+      "quote": "Check an open vent or needle valve for final confirmation of zero pressure before breaking into the system"
+    }
+  ],
+  "confidence": "settled",
+  "contested": null
+}

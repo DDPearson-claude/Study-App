@@ -1,0 +1,582 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Heat and fluids, from boiling water to pumps
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i5 "Pressure in liquids, and floating" — Pressure in a liquid grows with depth alone, density × g × depth, and the extra push under an object is the upthrust that floats it. [mechanism]
+Later ideas in the course (every claim must stay true after Dan has learned each of them):
+- i6 Fluids in motion — Flow through a narrowing speeds up, and the energy for that speed comes out of the pressure, so a narrowed pipe, a venturi, measures flow.
+- i7 Pipes, head and pump power — A pipe needs head, a height of liquid, for its lift plus friction that grows with flow squared, and head times flow sets pump power.
+- i8 Where the pump settles, and its limits — A centrifugal pump settles where its curve of head against flow crosses the pipe's, so closing a valve moves it to less flow, more head.
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] Archimedes’ principle | Description & Facts | Britannica — https://www.britannica.com/science/Archimedes-principle
+    "Fluid pressure increases with depth because of the (gravitational) weight of the fluid above."
+[R2] Properties of seawater — https://talleylab.ucsd.edu/sio210/lect_2/lecture_2.html
+    "If the pressure change is 100 decibars (100 dbar), gravity g = 9.8 m/sec^2, and density is 1025 kg/m^3, then the depth change is 99.55 meter."
+[R3] Properties of seawater — https://talleylab.ucsd.edu/sio210/lect_2/lecture_2.html
+    "The density of seawater is about 1025 kg/m^3 and the specific heat is about 3850 J/(kg C)."
+[R4] 14.1 Fluids, Density, and Pressure – General Physics Using Calculus I — https://pressbooks.online.ucf.edu/phy2048tjb/chapter/14-1-fluids-density-and-pressure
+    "Density is the mass per unit volume of a substance or object"
+[R5] Pressure and buoyancy — http://physics.bu.edu/~duffy/py105/Pressure.html
+    "The force comes from the difference in pressure exerted on the top and bottom of an object."
+[R6] Pressure and buoyancy — http://physics.bu.edu/~duffy/py105/Pressure.html
+    "An object that is partly or completely submerged in a fluid will experience a buoyant force equal to the weight of the fluid the object displaces."
+[R7] Ch. 9 Summary - Chemistry 2e | OpenStax — https://openstax.org/books/chemistry-2e/pages/9-summary
+    "The pressure of a given amount of gas is directly proportional to its absolute temperature, provided that the volume does not change"
+[R8] The gas laws pV = nRT — https://faculty.fiu.edu/~mebela/chm3410_chapter1.pdf
+    "If we compress a fixed amount of gas at constant temperature into half of its original volume, then its pressure will double."
+[R9] BTEC L3 Advanced Manufacturing Engineering Unit Specification — https://qualifications.pearson.com/content/dam/pdf/BTEC-Specialist-Qualifications/advanced-manufacturing-engineering-development-technical-knowledge/2016/specification/adv-man-eng-unit-spec.pdf
+    "absolute pressure = gauge + atmospheric pressure, force = pressure × area, actuator force = pressure × area × efficiency"
+[R10] What is an Air Receiver? - Atlas Copco USA — https://www.atlascopco.com/en-us/compressors/wiki/compressed-air-articles/what-is-an-air-receiver
+    "This will also prevent pressure fluctuation and frequent motor starts"
+[R11] Some Physical Properties of Sea Water or, More than you ever wanted to know about the basic state variables of the ocean… — https://www.whoi.edu/science/PO/people/tjoyce/whoi-mit_course/notes/course_notes_1b.pdf
+    "δP = (1025)(9.81)(10) ~ 10 ⁵ Pa, which is the pressure at the bottom of the atmosphere."
+[R12] Annex 3. Background on physical parameters used in evapotranspiration computations — https://www.fao.org/4/X0490E/x0490e0k.htm
+    "R specific gas constant == 287 [J kg \-1 K \-1 ]"
+[R13] Properties of Air - Text Version | Glenn Research Center | NASA — https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/properties-of-air-text-version
+    "Density: 1.229 kilogram per cubic meter"
+[R14] CAGI Compressed Air and Gas Handbook, chapter 2 — https://www.cagi.org/assets/documents/pdfs/handbook/CAGI-Handbook_Chap2Mar19PostedtoWebsite.pdf?updated=1659810710
+    "receiver should assure at least 2 minutes of operation of the compressor between the pressure control cut-in and cut-out pressures, with zero draw from the receiver."
+[R15] What is an Air Receiver? - Atlas Copco USA — https://www.atlascopco.com/en-us/compressors/wiki/compressed-air-articles/what-is-an-air-receiver
+    "higher pressure does not equal more flow (CFM or l/s), but just the opposite, as we raise pressure, the flow decreases"
+[R16] Compressed Air Receivers — https://www.engineeringtoolbox.com/compressed-air-receivers-d_846.html
+    "In addition the receiver serve the purpose of * collecting condensate and water in the air after the compressor"
+[R17] Compressed air safety HSG39 — https://www.hse.gov.uk/PUBNS/priced/hsg39.pdf
+    "Before any pressurised components are dismantled they should be effectively isolated from all pressure sources and completely vented to atmosphere."
+[R18] The safe isolation of plant and equipment (HSG253) — https://books.hse.gov.uk/gempdf/hsg253.pdf
+    "Check an open vent or needle valve for final confirmation of zero pressure before breaking into the system"
+[R19] Specific heat capacity - Temperature changes and energy - Edexcel - GCSE Physics (Single Science) Revision - Edexcel - BBC Bitesize — https://www.bbc.co.uk/bitesize/guides/zpjpgdm/revision/4
+    "The specific heat capacity of water is 4,200 joules per kilogram per degree Celsius (J/kg°C). This means that it takes 4,200 J to raise the temperature of 1 kg of water by 1°C."
+Notes (claims, and the sources that support them):
+- Fluid pressure increases with depth because of the weight of the fluid above. [R1]
+- With g about 9.8 m/s² and seawater at 1025 kg/m³, a pressure change of 100 dbar corresponds to a depth change of 99.55 m. [R2][R3]
+- Density is the mass per unit volume of a substance. [R4]
+- The buoyant force comes from the difference in pressure on the top and bottom of an object. [R5]
+- A submerged object feels a buoyant force equal to the weight of the fluid it displaces (Archimedes' principle). [R6]
+- For a fixed amount of gas at constant volume, pressure is proportional to absolute (kelvin) temperature. [R7]  (from an idea this one builds on)
+- At constant temperature, halving a fixed amount of gas's volume doubles its pressure. [R8]  (from an idea this one builds on)
+- Absolute pressure is gauge pressure plus atmospheric pressure. [R9]  (from an idea this one builds on)
+- A larger air receiver prevents pressure fluctuation and frequent compressor motor starts. [R10]  (from an idea this one builds on)
+- The atmosphere pushes with about 10^5 Pa, 100 kPa (the weight of 10 m of seawater); 1 bar is 100 kPa (i3, a cited constant). [R11]  (from an idea this one builds on)
+- Cited constant: the specific gas constant of air is 287 J/(kg K), for pV = mRT (i3). [R12]  (from an idea this one builds on)
+- Cited constant: air at sea level has a density of about 1.229 kg/m3, a check on pV = mRT (i3). [R13]  (from an idea this one builds on)
+- A common sizing rule (CAGI): a receiver should give at least 2 minutes of compressor running between cut-in and cut-out, with no air drawn (i3). [R14]  (from an idea this one builds on)
+- A higher receiver pressure does not give more flow: as the pressure is raised, the compressor's flow falls (i3). [R15]  (from an idea this one builds on)
+- A receiver collects condensate and water from the air after the compressor, which has to be drained (i3). [R16]  (from an idea this one builds on)
+- Before work on a compressed air system, isolate it from all pressure sources and vent it completely to atmosphere (HSE HSG39; i3). [R17]  (from an idea this one builds on)
+- A pressure gauge shows that pressure is there but does not prove it has all gone; confirm zero pressure at an open vent before breaking into a system (HSE HSG253; i3). [R18]  (from an idea this one builds on)
+- Specific heat capacity is how much energy it takes to warm 1 kg by 1 degree, and water's is 4,200 J per kg per degree Celsius. [R19]  (whole topic)
+- Seawater has a density of about 1025 kg/m³ and a specific heat of about 3850 J/(kg °C); the numbers used for gravity here are g about 9.8 m/s². [R3][R2]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i5",
+ "title": "Pressure in liquids, and floating",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is pressure growing with depth alone, the same in every tank, so a block's bottom push beats its top push by the weight of liquid displaced, when you drag the probe or block down.",
+  "title": "The tank and the probe",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Screen",
+    "min": 0,
+    "max": 12,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [
+   {
+    "id": "probeKpa",
+    "label": "Probe reading",
+    "unit": "kPa",
+    "decimals": 1
+   },
+   {
+    "id": "upthrust",
+    "label": "Upthrust",
+    "unit": "kN",
+    "decimals": 1
+   },
+   {
+    "id": "cubeWeight",
+    "label": "Cube's weight",
+    "unit": "kN",
+    "decimals": 1
+   }
+  ],
+  "whatAmILookingAt": "A short lesson in thirteen small screens. The main picture is three tanks joined at the bottom: a narrow one, a wide one and one that flares out towards the top. They are filled to one level, 10 m deep, drawn far smaller than life. A pressure probe hangs on a line. Drag it down into any tank, from the surface to 10 m. Its gauge reads ρgh: the liquid's density × g × the probe's depth below the surface. g is 9.81 newtons for each kilogram. In seawater, at 1025 kg/m³, the probe opens at 5 m and reads 1025 × 9.81 × 5, about 50.3 kPa. At 10 m it reads about 100.6 kPa. A thin column drawn above the probe shows the liquid whose weight makes that pressure. At one depth the reading is the same in every tank, because the joined liquid settles at one level. The probe's face can turn up, sideways or down, and the reading stays the same. An absolute switch adds the atmosphere, taken as 100 kPa, so 5 m reads about 150.3 kPa absolute. A liquid switch swaps seawater for fresh water, at 1000 kg/m³, and 5 m then reads about 49.1 kPa. Then a cube 1 m on a side is lowered into the wide tank. Drag it down and it is held there on its line. Arrows on each face grow with depth. The side arrows match in pairs and cancel. Held with its top 2 m down, its top is pushed down with about 20.1 kPa and its bottom, 3 m down, up with about 30.2 kPa. On each 1 m² face that is about 20.1 kN down and about 30.2 kN up. The difference, about 10.1 kN up, is the upthrust. Beside it a second bar shows the weight of the 1 m³ of liquid the cube has pushed aside: 1025 kg × 9.81, about 10.1 kN. The two bars always match, at any depth. A density slider sets the cube's density, from 200 to 1,500 kg/m³ in steps of 25, opening at 600. Its weight is its density × 1 m³ × 9.81, about 5.9 kN at 600. Press Let go. A cube less dense than the liquid rises and floats. It settles where the part below the surface pushes aside its own weight of liquid. That depth is its draught: its density ÷ the liquid's density × 1 m. At 600 that is about 0.59 m in seawater and 0.60 m in fresh water, marked on the tank wall. At 1025 in seawater, or 1000 in fresh water, it hovers where it is let go. Denser, it sinks to the floor. At 1,500 it weighs about 14.7 kN against an upthrust of about 10.1 kN. The three readouts, probe pressure, upthrust and the cube's weight, wrap onto two rows on a phone. Screen by screen. 1 is a warm-up. A block held under fresh water pushes aside 2 L. A litre of fresh water has a mass of 1 kg. What is the upthrust? About 19.6 N, about 2 N, or it depends on what the block is made of. A right answer says Still there. 2 shows the column on a 1 m² patch. Its weight is ρ × h × 1 m² × g, pressing on 1 m², so p = ρgh. The probe goes down the wide tank, and 10 m of seawater reads about 100.6 kPa, about one atmosphere more. 3 asks what the probe's gauge reads 5 m down in seawater: about 50.3 kPa, about 150.3 kPa or about 5.1 kPa. 4 shows the probe at 5 m in each of the three tanks, reading the same. Still water presses too. 5 asks about two fresh water tanks 2 m deep, one with a 0.1 m² base and one with 10 m². What pressure is on each bottom? About 19.6 kPa on both, 100 times more on the wide one, or more on the narrow one. 6 shows the probe's face turned up, sideways and down at 3 m in seawater, reading about 30.2 kPa each way, then the absolute switch. 7 asks: a small plate 3 m down in seawater reads about 30.2 kPa facing up. Turned to face sideways, does it read about 30.2 kPa, 0 kPa or about 15.1 kPa? 8 shows the cube held under, with its arrows and the two matching bars. 9 asks: the cube is pushed down until its top is 6 m deep. Its top now feels about 60.3 kPa and its bottom about 70.4 kPa. What is the upthrust? About 10.1 kN, about 30.2 kN or about 70.4 kN. 10 shows the density slider: float, hover and sink, and the draught in seawater and fresh water. 11 asks: a box-shaped pontoon 4 m by 2 m has a mass of 4,000 kg. How deep does it sit in seawater? About 0.49 m, 0.50 m or about 0.98 m. 12 and 13 mix it all. 12: a sensor sits 20 m down in seawater. What absolute pressure does it feel? About 301 kPa, about 201 kPa or about 296 kPa. 13: a sealed float of 1 m³ is weighted to hover in seawater, so its mass is 1025 kg. Moved into fresh water, does it sink, float higher or still hover? It sinks. The 1 m³ of fresh water it pushes aside weighs about 9.8 kN, less than its own weight of about 10.1 kN. A wrong pick is drawn on the picture where it can be, so you see where it fails.",
+  "ignores": "The tanks are drawn far smaller than 10 m, and the cube is drawn to the same scale. The liquid is still, and its density is taken as the same from top to bottom. Real seawater's density varies a little with its temperature, saltiness and depth. g is taken as 9.81 everywhere, and the atmosphere as 100 kPa, though it changes with the weather. The cube floats level and upright. Whether a real floating body stays upright is a separate question, its stability, not shown here. Liquid always reaches under the cube. One sealed flat against a floor, with no liquid beneath, loses the push on its bottom. Surface tension, which lets very small, light things rest on water, is left out.",
+  "numbers": [
+   {
+    "label": "Gravity's pull, g, in N per kg",
+    "value": 9.81,
+    "kind": "constant",
+    "source": 1
+   },
+   {
+    "label": "Seawater's density, in kg/m³",
+    "value": 1025,
+    "kind": "constant",
+    "source": 2
+   },
+   {
+    "label": "Fresh water's density, in kg/m³",
+    "value": 1000,
+    "kind": "constant"
+   },
+   {
+    "label": "Atmosphere, rounded, in kPa",
+    "value": 100,
+    "kind": "constant",
+    "source": 1
+   },
+   {
+    "label": "Tanks' depth when full, in m",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "Probe depth lowest, in m",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Probe depth highest, in m",
+    "value": 10,
+    "kind": "control"
+   },
+   {
+    "label": "Probe depth's opening setting, in m",
+    "value": 5,
+    "kind": "control"
+   },
+   {
+    "label": "Probe at 5 m in seawater, 1025 × 9.81 × 5, in kPa",
+    "value": 50.3,
+    "kind": "computed"
+   },
+   {
+    "label": "Probe at 10 m in seawater, in kPa",
+    "value": 100.6,
+    "kind": "computed"
+   },
+   {
+    "label": "Probe at 5 m, absolute, 50.3 + 100, in kPa",
+    "value": 150.3,
+    "kind": "computed"
+   },
+   {
+    "label": "Probe at 5 m in fresh water, in kPa",
+    "value": 49.1,
+    "kind": "computed"
+   },
+   {
+    "label": "Cube's side, in m",
+    "value": 1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Cube's face area, in m²",
+    "value": 1,
+    "kind": "computed"
+   },
+   {
+    "label": "Cube's volume, in m³",
+    "value": 1,
+    "kind": "computed"
+   },
+   {
+    "label": "Cube's top when held, depth in m",
+    "value": 2,
+    "kind": "control"
+   },
+   {
+    "label": "Cube's bottom when held, 2 + 1, depth in m",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Pressure on cube's top, 1025 × 9.81 × 2, in kPa",
+    "value": 20.1,
+    "kind": "computed"
+   },
+   {
+    "label": "Pressure on cube's bottom, 1025 × 9.81 × 3, in kPa",
+    "value": 30.2,
+    "kind": "computed"
+   },
+   {
+    "label": "Push down on top, 20.1 kPa × 1 m², in kN",
+    "value": 20.1,
+    "kind": "computed"
+   },
+   {
+    "label": "Push up on bottom, 30.2 kPa × 1 m², in kN",
+    "value": 30.2,
+    "kind": "computed"
+   },
+   {
+    "label": "Upthrust, 30.2 − 20.1, in kN",
+    "value": 10.1,
+    "kind": "computed"
+   },
+   {
+    "label": "Mass of seawater pushed aside, 1025 × 1, in kg",
+    "value": 1025,
+    "kind": "computed"
+   },
+   {
+    "label": "Weight of seawater pushed aside, 1025 × 9.81, in kN",
+    "value": 10.1,
+    "kind": "computed"
+   },
+   {
+    "label": "Cube density slider lowest, in kg/m³",
+    "value": 200,
+    "kind": "control"
+   },
+   {
+    "label": "Cube density slider highest, in kg/m³",
+    "value": 1500,
+    "kind": "control"
+   },
+   {
+    "label": "Cube density slider step, in kg/m³",
+    "value": 25,
+    "kind": "control"
+   },
+   {
+    "label": "Cube density's opening setting, in kg/m³",
+    "value": 600,
+    "kind": "control"
+   },
+   {
+    "label": "Cube's mass at 600 kg/m³, in kg",
+    "value": 600,
+    "kind": "computed"
+   },
+   {
+    "label": "Cube's weight at 600, 600 × 9.81, in kN",
+    "value": 5.9,
+    "kind": "computed"
+   },
+   {
+    "label": "Seawater pushed aside when floating, 600 ÷ 1025, in m³",
+    "value": 0.59,
+    "kind": "computed"
+   },
+   {
+    "label": "Draught at 600 in seawater, 600 ÷ 1025 × 1, in m",
+    "value": 0.59,
+    "kind": "computed"
+   },
+   {
+    "label": "Draught at 600 in fresh water, 600 ÷ 1000 × 1, in m",
+    "value": 0.6,
+    "kind": "computed"
+   },
+   {
+    "label": "Cube's weight at 1,500, 1500 × 9.81, in kN",
+    "value": 14.7,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 1: fresh water pushed aside, in L",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 1: mass of 1 L of fresh water, in kg",
+    "value": 1,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 1: upthrust, 2 × 9.81, in N",
+    "value": 19.6,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 1 wrong pick, mass read as newtons, in N",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 3 wrong pick, g left out, 1025 × 5, in kPa",
+    "value": 5.1,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 5: tanks' depth, in m",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 5: narrow tank's base, in m²",
+    "value": 0.1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 5: wide tank's base, in m²",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 5: pressure on each bottom, 1000 × 9.81 × 2, in kPa",
+    "value": 19.6,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 5 wrong pick, bases' ratio, 10 ÷ 0.1",
+    "value": 100,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 6 and 7: depth, in m",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 7: plate's reading, 1025 × 9.81 × 3, in kPa",
+    "value": 30.2,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 7 wrong pick, nothing above a side face, in kPa",
+    "value": 0,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 7 wrong pick, half, 30.2 ÷ 2, in kPa",
+    "value": 15.1,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 9: cube's top pushed to, depth in m",
+    "value": 6,
+    "kind": "control"
+   },
+   {
+    "label": "Screen 9: pressure on top, 1025 × 9.81 × 6, in kPa",
+    "value": 60.3,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 9: pressure on bottom, 1025 × 9.81 × 7, in kPa",
+    "value": 70.4,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 9 wrong pick, 3 × 1025 × 9.81 × 1, in kN",
+    "value": 30.2,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 9 wrong pick, bottom's push only, in kN",
+    "value": 70.4,
+    "kind": "computed"
+   },
+   {
+    "label": "Pontoon length, in m",
+    "value": 4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Pontoon breadth, in m",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Pontoon base area, 4 × 2, in m²",
+    "value": 8,
+    "kind": "computed"
+   },
+   {
+    "label": "Pontoon mass, in kg",
+    "value": 4000,
+    "kind": "assumed"
+   },
+   {
+    "label": "Pontoon draught in seawater, 4,000 ÷ (1025 × 8), in m",
+    "value": 0.49,
+    "kind": "computed"
+   },
+   {
+    "label": "Pontoon draught in fresh water, 4,000 ÷ (1000 × 8), in m",
+    "value": 0.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 11 wrong pick, breadth left out, 4,000 ÷ (1025 × 4), in m",
+    "value": 0.98,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12: sensor's depth, in m",
+    "value": 20,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 12: gauge, 1025 × 9.81 × 20, in kPa",
+    "value": 201,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12: absolute, 201 + 100, in kPa",
+    "value": 301,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12 wrong pick, fresh water, 196.2 + 100, in kPa",
+    "value": 296,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 13: float's volume, in m³",
+    "value": 1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 13: float's mass, 1025 × 1, in kg",
+    "value": 1025,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 13: fresh water pushed aside, 1000 × 9.81, in kN",
+    "value": 9.8,
+    "kind": "computed"
+   },
+   {
+    "label": "Seawater per metre of depth, 1025 × 9.81, about, in kPa",
+    "value": 10,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example: plate's area, in m²",
+    "value": 0.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Worked example: plate's depth, in m",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Worked example: push on plate, 30.2 × 0.5, in kN",
+    "value": 15.1,
+    "kind": "computed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "Still liquid presses on everything in it, and it presses harder the deeper you go. The reason is weight. The pressure at any depth comes from the weight of the liquid above it.[^3] Picture a column of liquid standing on a patch of 1 m², reaching up to the surface. Its height is the depth, h, so its volume is h × 1 m². Its mass is that volume times the liquid's [[density]], its mass per cubic metre.[^4] Its weight is that mass times g, 9.81 newtons for each kilogram. All that weight rests on the 1 m² patch. So the pressure there is density × g × depth, written p = ρgh, where ρ, the Greek letter rho, is the density. Textbooks add that a liquid barely squeezes, so its density is near enough the same all the way down. That is why each metre adds the same pressure. Seawater's density is about 1025 kg/m³.[^2] So 10 m of it adds 1025 × 9.81 × 10, about 100.6 kPa. That is about as much again as the whole atmosphere.[^1] A gauge reads that ρgh. Add the atmosphere's 100 kPa for the absolute pressure, as with gases.\n\nLook at what ρgh leaves out. The tank's width is not in it, and nor is its shape. Join a narrow tank, a wide one and a flaring one at the bottom, and fill them. The liquid settles at one level in all three, and at any one depth the probe reads the same in each. If one tank's bottom pressed harder, it would push liquid through the join until the levels matched. In the flaring tank, the sloping walls hold up the extra liquid's weight. At any point the pressure pushes every way at once, square to whatever surface it meets. It needs no movement either. Still water presses because it has weight.\n\nNow hold a cube 1 m on a side under seawater, its top 2 m down. The pushes on its sides match in pairs, so they cancel. Its top is pushed down by about 20.1 kPa. Its bottom is 3 m down, so it is pushed up by about 30.2 kPa. On each 1 m² face, the bottom wins by about 10.1 kN. That net push up is the [[upthrust]]. The extra pressure at the bottom is ρg × the cube's height, and it acts on the bottom's area. Height × area is the cube's volume, so the upthrust is ρg × that volume. That is the weight of the seawater the cube has pushed aside. So an object partly or wholly in a liquid feels an upthrust equal to the weight of the liquid it displaces.[^5] Push the cube deeper and both pushes grow by the same amount, so the upthrust stays the same. What the cube is made of does not change it either.\n\nWhether it floats is a contest between its weight and that upthrust. Its weight depends on its own density, and the upthrust on the liquid's. A cube less dense than the liquid rises. As it comes out of the surface it displaces less, so the upthrust falls. It settles where the upthrust equals its weight. The depth of its bottom below the surface is its [[draught]]. A 1 m cube of density 600 kg/m³ has a mass of 600 kg, so it weighs about 5.9 kN. It must push aside 600 kg of seawater, which is 600 ÷ 1025, about 0.59 m³. On its 1 m² base, that is a draught of about 0.59 m. Fresh water is less dense, about 1000 kg/m³, so the same cube sits deeper, at 0.60 m. A cube exactly as dense as the liquid hovers, and a denser one sinks. So size or weight alone does not decide it. A steel hull floats because its mass is less than the mass of water that would fill all the space its outside encloses.\n\n**In a still liquid, pressure grows with depth as ρgh, and the extra push under an object is an upthrust equal to the weight of the liquid it displaces.[^5]**"
+ },
+ "analogy": {
+  "text": "Think of cells in series in a battery. Each cell adds its own voltage, whatever its size. A big cell and a small one of the same kind give the same volts, though the big one can deliver far more charge. Each metre of liquid adds the same pressure, whatever the tank's width. The width sets the total push on the bottom, as a cell's size sets its charge, but not the pressure.",
+  "breaks": "A cell makes its voltage by chemistry, and that voltage drives current one way round a circuit. A liquid's pressure is only the weight of the liquid above, and it pushes every way at once. That sideways and upward push is what makes upthrust, and nothing in a battery pushes up on anything."
+ },
+ "practice": {
+  "text": "**Safe first:** Before you open a cover, drain plug or pipe joint below a liquid's level, drain the liquid down past it. The full ρgh of the liquid above is pushing on it. Then confirm zero pressure at an open vent or needle valve before breaking in.[^6]\n\n**Pressure at a depth**\n- Measure the depth straight down from the liquid's surface. Along a sloping pipe, only the height counts.\n- Multiply density × 9.81 × depth to get the gauge pressure, in Pa.\n- Add the atmosphere, about 100 kPa, for absolute pressure.\n- For the push on a level plate, multiply that pressure by the plate's area.\n\n**Will it float, and how deep?**\n- Find its overall density: its mass ÷ all the space its outside encloses.\n- Less dense than the liquid, it floats. Denser, it sinks.\n- For a box with straight sides and a flat bottom, draught = mass ÷ (liquid's density × length × breadth).\n\n**Rules of thumb:** Each metre of seawater adds about 10 kPa, so 10 m adds about one atmosphere.[^1] A floating thing sits a little deeper in fresh water than in seawater.\n\n**Worked example:** A box-shaped pontoon 4 m by 2 m has a mass of 4,000 kg. In seawater its draught is 4,000 ÷ (1025 × 4 × 2), about 0.49 m. In fresh water it is 4,000 ÷ (1000 × 8) = 0.50 m. A level plate of 0.5 m² sits 3 m down in seawater. The pressure there is 1025 × 9.81 × 3, about 30.2 kPa gauge. The push on it is 30.2 kPa × 0.5 m², about 15.1 kN.\n\n**Common mistakes**\n- Using the tank's width or volume. Only the depth sets the pressure.\n- Measuring the depth along a slope instead of straight down.\n- Mixing gauge and absolute. A gauge leaves out the atmosphere.\n- Forgetting g. A kilogram is a mass, and its weight is 9.81 N.\n- Using fresh water's density for seawater, or the other way round.\n- Judging floating by size or weight alone. It is the object's density against the liquid's."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "settled",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "sources": [
+  {
+   "n": 1,
+   "title": "Some Physical Properties of Sea Water or, More than you ever wanted to know about the basic state variables of the ocean…",
+   "url": "https://www.whoi.edu/science/PO/people/tjoyce/whoi-mit_course/notes/course_notes_1b.pdf",
+   "quote": "δP = (1025)(9.81)(10) ~ 10 ⁵ Pa, which is the pressure at the bottom of the atmosphere."
+  },
+  {
+   "n": 2,
+   "title": "Properties of seawater",
+   "url": "https://talleylab.ucsd.edu/sio210/lect_2/lecture_2.html",
+   "quote": "The density of seawater is about 1025 kg/m^3 and the specific heat is about 3850 J/(kg C)."
+  },
+  {
+   "n": 3,
+   "title": "Archimedes’ principle | Description & Facts | Britannica",
+   "url": "https://www.britannica.com/science/Archimedes-principle",
+   "quote": "Fluid pressure increases with depth because of the (gravitational) weight of the fluid above."
+  },
+  {
+   "n": 4,
+   "title": "14.1 Fluids, Density, and Pressure – General Physics Using Calculus I",
+   "url": "https://pressbooks.online.ucf.edu/phy2048tjb/chapter/14-1-fluids-density-and-pressure",
+   "quote": "Density is the mass per unit volume of a substance or object"
+  },
+  {
+   "n": 5,
+   "title": "Pressure and buoyancy",
+   "url": "http://physics.bu.edu/~duffy/py105/Pressure.html",
+   "quote": "An object that is partly or completely submerged in a fluid will experience a buoyant force equal to the weight of the fluid the object displaces."
+  },
+  {
+   "n": 6,
+   "title": "The safe isolation of plant and equipment (HSG253)",
+   "url": "https://books.hse.gov.uk/gempdf/hsg253.pdf",
+   "quote": "Check an open vent or needle valve for final confirmation of zero pressure before breaking into the system"
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }

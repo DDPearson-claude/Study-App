@@ -1,0 +1,202 @@
+{
+  "ok": true,
+  "reachChecked": true,
+  "problems": [],
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "The density of seawater is about 1025 kg/m³, the density the seawater here is given",
+        "ok": true,
+        "source": "https://talleylab.ucsd.edu/sio210/lect_2/lecture_2.html"
+      },
+      {
+        "label": "In an incompressible fluid, the flow rate at one point is the flow rate everywhere: area × speed in the throat equals the pipe's at every throat and flow",
+        "ok": true,
+        "source": "https://oyc.yale.edu/physics/phys-200/lecture-20"
+      },
+      {
+        "label": "When a fluid flows into a narrower channel, its speed increases: each narrower throat gives a faster speed in it",
+        "ok": true,
+        "source": "https://openstax.org/books/college-physics-2e/pages/12-2-bernoullis-equation"
+      },
+      {
+        "label": "Venturi flow meters work on the principles of the Bernoulli equation: pressure plus ½ρv² is the same in the pipe and the throat, and the flow worked back from the drop is the flow set, at every narrowed setting",
+        "ok": true,
+        "source": "https://www.dwyeromega.com/en-us/resources/venturi-meter"
+      },
+      {
+        "label": "Twice the flow gives four times the drop, at every throat",
+        "ok": true
+      },
+      {
+        "label": "At the limits, 6 L/s through a 4 cm² throat moves at 3.0 then 15.0 m/s, drops 110.7 kPa, and the throat's column still stands at 39.3 kPa; opened to 20 cm², there is no drop and the flow from the columns is a dash",
+        "ok": true
+      },
+      {
+        "label": "Every number the screens print comes from the rule: 2.0 and 8.0 m/s; 30.8, 14.9 m and 3.1 m; 119.2, 2.1, 32.8 and 152 kPa; 7.7 and 69.2; 3.0, 15.0, 110.7 and 39.3; 30.2, 3.1 and 130.2; 4.5 and 0.5 m/s; 3 m/s, 4.1 and 4.6 kPa; 219, 119 and 281 kPa; 3.1 and 0.3 m; 30,800 Pa; 19.6 cm²",
+        "ok": true
+      },
+      {
+        "label": "Each puzzle offers three different answers including its right one, every wrong answer has its own hint, and before Check nothing on its picture shows the answer or a red mark",
+        "ok": true
+      },
+      {
+        "label": "A wrong pick is drawn in red where it fails, and a right answer draws no red",
+        "ok": true
+      },
+      {
+        "label": "A right answer draws the rule's result: 30.2 kPa; the throat's column at 119.25 kPa; 4.5 m/s; 4.1 kPa lower; 2 L/s; smooth oil; 219.2 kPa absolute; 3.06 m",
+        "ok": true
+      },
+      {
+        "label": "Every demonstration has finished within 4.5 s of its screen opening, its first move after the 0.35 s screen fade; every answer's motion, right or wrong, within 2 s",
+        "ok": true
+      },
+      {
+        "label": "Every demonstration screen keeps to about 90 words",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "throat",
+      "flow",
+      "measure",
+      "regime"
+    ],
+    "readouts": [
+      "throatSpeed",
+      "pressureDrop",
+      "flowFromDrop"
+    ],
+    "outputs": [
+      "throatSpeed",
+      "pressureDrop",
+      "flowFromDrop"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Screen",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "steps": [
+          "A warm-up",
+          "What goes in comes out",
+          "Before the columns",
+          "The columns",
+          "Into a narrower pipe",
+          "Where the energy goes",
+          "How much lower?",
+          "A flow meter",
+          "Read the flow",
+          "Smooth or eddying",
+          "Which runs smooth?",
+          "Absolute in the throat",
+          "Back to metres"
+        ],
+        "value": 0
+      },
+      {
+        "id": "throat",
+        "kind": "control",
+        "label": "Throat area",
+        "min": 4,
+        "max": 20,
+        "step": 1,
+        "log": false,
+        "value": 5,
+        "shown": false,
+        "snap": [
+          5
+        ]
+      },
+      {
+        "id": "flow",
+        "kind": "control",
+        "label": "Flow",
+        "min": 0,
+        "max": 6,
+        "step": 0.5,
+        "log": false,
+        "value": 4,
+        "shown": false,
+        "snap": [
+          2,
+          4,
+          6
+        ]
+      },
+      {
+        "id": "measure",
+        "kind": "toggle",
+        "label": "Measure: hide the flow",
+        "options": [
+          false,
+          true
+        ],
+        "value": false,
+        "shown": false
+      },
+      {
+        "id": "regime",
+        "kind": "choice",
+        "label": "Flow pattern",
+        "options": [
+          "smooth",
+          "eddy"
+        ],
+        "labels": [
+          "Smooth layers",
+          "Eddies"
+        ],
+        "value": "smooth",
+        "index": 0,
+        "shown": false
+      }
+    ],
+    "actions": [
+      "A new hidden flow",
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Play again",
+      "Back",
+      "Continue",
+      "Start again",
+      "Demonstration"
+    ],
+    "answers": [],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ],
+    "foreign": [],
+    "unreachable": []
+  }
+}

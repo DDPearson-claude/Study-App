@@ -1,0 +1,985 @@
+<!-- kind: quantity -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead { max-width: 30rem; margin-inline: auto; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .scene { display: block; width: 100%; max-width: 26rem; margin-inline: auto; }
+  .scene .ax { fill: none; stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .tk { stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .tl { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .lab.m { font-weight: 400; fill: var(--k-muted); }
+  .scene .lab.t { fill: var(--k-accent); }
+  .scene .lab.w { fill: var(--k-warn); }
+  .scene .lab.n { fill: var(--k-accent2); }
+  .scene .curve { fill: none; stroke: var(--k-accent2); stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }
+  .scene .tan { fill: none; stroke: var(--k-accent2); stroke-width: 2.5; stroke-dasharray: 7 5; stroke-linecap: round; }
+  .scene .ref { fill: none; stroke: var(--k-muted); stroke-width: 2; stroke-dasharray: 6 4; }
+  .scene .bad { fill: none; stroke: var(--k-warn); stroke-width: 2.5; stroke-dasharray: 6 4; stroke-linecap: round; }
+  .scene .guide { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 4 4; }
+  .scene .zero { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 3 4; }
+  .scene .dot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .wdot { fill: var(--k-warn); }
+  .scene .ring { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 2; }
+  .scene .brk { fill: none; stroke: var(--k-muted); stroke-width: 1.5; }
+  .scene .brk.n { stroke: var(--k-accent2); stroke-width: 2; }
+  .scene .brk.w { stroke: var(--k-warn); stroke-width: 2; }
+  .scene .wall { fill: none; stroke: var(--k-strong); stroke-width: 4; stroke-linejoin: round; }
+  .scene .gas { fill: var(--k-fill1); }
+  .scene .mol { fill: var(--k-accent2); }
+  .scene .piston { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .rod { stroke: var(--k-strong); stroke-width: 4; stroke-linecap: round; }
+  .scene .pin { fill: var(--k-ink); }
+  .scene .load { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.5; }
+  .scene .heater { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .coil { fill: none; stroke: var(--k-amber-line); stroke-width: 2; stroke-linejoin: round; }
+  .scene .pipe { fill: none; stroke: var(--k-strong); stroke-width: 3; stroke-linejoin: round; }
+  .scene .arrow { fill: var(--k-strong); }
+  .scene .track { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1; }
+  .scene .atmf { fill: var(--k-fill3); }
+  .scene .col { fill: var(--k-accent2); }
+  .scene .needle { stroke: var(--k-ink); stroke-width: 2.5; stroke-linecap: round; }
+  .scene .wline { stroke: var(--k-warn); stroke-width: 3; stroke-linecap: round; }
+  .scene .bandf { fill: var(--k-fill2); }
+  .scene .region { fill: var(--k-fill2); }
+  .scene .pill { fill: var(--k-panel); stroke: var(--k-line); stroke-width: 1.5; }
+  .scene .tank { fill: var(--k-fill1); stroke: var(--k-strong); stroke-width: 2.5; }
+  .scene .comp { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .blk { fill: var(--k-fill1); stroke: var(--k-accent2); stroke-width: 1.5; }
+  .scene .blk.band { fill: var(--k-fill2); stroke: var(--k-amber-line); }
+  .scene .blk.gone { fill: none; stroke: var(--k-muted); stroke-dasharray: 4 3; }
+  .scene .blk.plain { fill: none; stroke: var(--k-muted); }
+  .scene #art * { pointer-events: none; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; }
+  /* Readouts, answers and controls wrap onto as many rows as they need at 360 px. */
+  #outs { display: grid; grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr)); gap: 10px; }
+  #outs .k-readout.drift .k-readout-value { color: var(--k-warn); }
+  .picks { display: grid; grid-template-columns: repeat(auto-fit, minmax(6.5rem, 1fr)); gap: 10px; }
+  .picks.long { grid-template-columns: 1fr; }
+  .picks .k-btn { min-height: 52px; font-size: 1.1rem; }
+  .picks.long .k-btn { min-height: 48px; font-size: 1.02rem; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why, .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }
+</style>
+
+<p class="lead">A cylinder of gas under a piston, a heater beneath it, and one gauge that reads two ways. Every figure is an example.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 340" width="100%" role="img" aria-label=""><g id="art"></g></svg>
+    <div class="k-controls" id="ctl"></div>
+    <div id="hold" hidden></div>
+    <p class="say" id="say"></p>
+    <div class="k-readouts" id="outs"></div>
+    <div class="replay" id="replay"></div>
+    <div class="picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">An ideal gas. The atmosphere is taken as 1 bar, and absolute zero as −273 °C.</p>
+
+<script>
+  // ---------- the rule: a trapped gas, counted from true zero ----------
+  // Absolute pressure = gauge + the atmosphere (1 bar). Kelvin = °C + 273. For the same trapped gas,
+  // pV ÷ T stays the same in absolute units. The cylinder's gas starts at 2 bar absolute, 3 L and
+  // 27 °C, so pV ÷ T = 2 × 3 ÷ 300 = 0.02 bar·L/K. A receiver's air, let out at 1 bar, fills its
+  // volume × its absolute pressure (Boyle's law at a steady temperature).
+  const SRC1 = 'https://qualifications.pearson.com/content/dam/pdf/BTEC-Specialist-Qualifications/advanced-manufacturing-engineering-development-technical-knowledge/2016/specification/adv-man-eng-unit-spec.pdf';
+  const SRC2 = 'https://faculty.fiu.edu/~mebela/chm3410_chapter1.pdf';
+  const SRC3 = 'https://openstax.org/books/chemistry-2e/pages/9-summary';
+  const SRC4 = 'https://www.atlascopco.com/en-us/compressors/wiki/compressed-air-articles/what-is-an-air-receiver';
+  const ATM = 1, ABS0 = 273;
+  const NR = 2 * 3 / 300;                                  // the cylinder's gas: pV ÷ T in bar·L/K
+  const VR = 500, VR2 = 1000, CUTIN = 6, CUTOUT = 8, DRAW = 250;   // example receiver, gauge settings and draw
+  const EPS = 1e-9, FADE = 0.35, ANS = 2.0;
+  const kel = (c) => c + ABS0;
+  const pOf = (V, TK) => NR * TK / V;
+  // The receiver: its air let out at 1 bar fills Vr × the absolute pressure.
+  const atOne = (Vr, pA) => Vr * pA / ATM;
+  const bandAir = (Vr) => atOne(Vr, CUTOUT + ATM) - atOne(Vr, CUTIN + ATM);
+  const offMin = (Vr) => bandAir(Vr) / DRAW;
+  const recP = (Vr, t) => CUTOUT + ATM - DRAW * K.clamp(t, 0, offMin(Vr)) / Vr * ATM;
+  function ratioOf(pA, V, Tc, units) {
+    if (units === 'gaugeK') return (pA - ATM) * V / kel(Tc);
+    if (units === 'absC') return Math.abs(Tc) < EPS ? 'no answer' : pA * V / Tc;
+    return pA * V / kel(Tc);
+  }
+
+  const fx = (v, dp) => K.fmt(v, { decimals: dp || 0 });
+  const vt = (V) => String(+(+V).toFixed(2));               // 3 -> '3', 1.5 -> '1.5'
+  // Every number the words and pictures print, worked out from the rule.
+  const N = {
+    pv0: fx(3 * 2), w6: fx(3 * 2 / 1), w15: fx(3 * 1 / 2, 1), w4: fx(3 + 1),
+    pv6: fx(2 * 3), p15: fx(pOf(1.5, 300)), g15: fx(pOf(1.5, 300) - ATM), wg2: fx(1 * 2),
+    k20: fx(kel(20)), k40: fx(kel(40)), pct7: fx(100 * (kel(40) / kel(20) - 1)),
+    p40: fx(2 * kel(40) / kel(20), 1), w40: fx(2 * 40 / 20),
+    k127: fx(kel(127)), v127: fx(3 * kel(127) / kel(27)),
+    c0: fx(NR, 3), gk0: fx((2 - ATM) * 3 / 300, 3), gk15: fx((pOf(1.5, 300) - ATM) * 1.5 / 300, 3),
+    ac0: fx(2 * 3 / 27, 3), p127: fx(pOf(3, 400), 2), ac127: fx(pOf(3, 400) * 3 / 127, 3),
+    s9: fx(1 * (6 / 2) * (400 / 300)), s9w3: fx(1 * 6 / 2), s9w14: fx(1 * 3 * 127 / 27),
+    cin: fx(CUTIN + ATM), cout: fx(CUTOUT + ATM), L45: fx(atOne(VR, CUTOUT + ATM)), L35: fx(atOne(VR, CUTIN + ATM)),
+    band: fx(bandAir(VR)), off: fx(offMin(VR)), band2: fx(bandAir(VR2)), off2: fx(offMin(VR2)),
+    r8: fx(7 + ATM), k50: fx(kel(50)), p50: fx((7 + ATM) * kel(50) / kel(20), 1), g50: fx((7 + ATM) * kel(50) / kel(20) - ATM, 1),
+    w175: fx(7 * 50 / 20, 1), gone: fx(CUTOUT - CUTIN),
+    sh22: fx(100 * 2 / 9), sh25: fx(100 * 2 / 8), sh78: fx(100 * 7 / 9),
+  };
+  const FLOAT_RIGHT = 'The pressure stays the same, and the volume grows by a third';
+  const FLOAT_P = 'The pressure rises by a third, and the volume stays the same';
+
+  // ---------- the lesson: SHOW screens demonstrate, DO screens are puzzles ----------
+  // top 'cyl': the cylinder, its heater and the two-way gauge; top 'tank': an air receiver and its
+  // compressor. chart 'pv' (pressure against volume), 'pt' (pressure against °C), 'trace' (the
+  // receiver's gauge after cut-out) or 'blocks' (its air in equal parts). A live screen (live: which
+  // controls show) opens on its own settings and runs its demonstration (mot) once. A puzzle's gas
+  // starts at gas and, once answered right, moves along its path to its end (to).
+  const STEPS = [
+    { kind: 'pick', name: 'A warm-up sum', top: 'cyl', chart: 'pv', right: 'Still there.',
+      gas: { V: 2, pA: 3, mode: 'drag', held: 'the temperature', showV: true }, path: 'iso', to: { V: 1 }, guide: 1,
+      endLab: `${N.w6} bar`,
+      opts: [`${N.w6} bar`, `${N.w15} bar`, `${N.w4} bar`], want: `${N.w6} bar`,
+      bad: { [`${N.w15} bar`]: { pv: [1, 3 * 1 / 2], lab: `${N.w15} bar` }, [`${N.w4} bar`]: { pv: [1, 3 + 1], lab: `${N.w4} bar` } },
+      task: '2 L of gas at 3 bar absolute is pushed into 1 L. Its temperature stays the same. What is its absolute pressure now?',
+      why: `With the temperature held, pressure × volume stays the same. It starts at 3 × 2 = ${N.pv0}. In 1 L that needs ${N.w6} bar absolute. Half the space gives twice the push.`,
+      hint: 'Not quite. Less room means more push, in proportion.',
+      hints: { [`${N.w15} bar`]: 'Not quite. Less room means more push, so the pressure rises.', [`${N.w4} bar`]: 'Not quite. The pressure grows in proportion, not by a fixed amount.' } },
+    { show: true, name: 'Two readings', top: 'cyl', chart: 'pv', live: { vol: true }, base: { mode: 'drag', held: 'the temperature' },
+      set: { vol: 3, heat: 27 }, dur: 3.6, mot: [{ ctl: 'vol', from: 3, to: 1.5, t0: 0.4, t1: 3.2 }], still: { vol: 1.5 },
+      text: `A gauge open to the air reads zero. Yet the air pushes on it with 1 bar. So a gauge reads how far the gas is above the atmosphere. That is *gauge pressure*. Add the air's 1 bar and you get *absolute pressure*, counted from no push at all. The heat is held. Push the piston from 3 L to 1.5 L. The absolute pressure doubles, from 2 bar to ${N.p15} bar. That is *Boyle's law*. The gauge goes from 1 bar to ${N.g15}, not 2.`,
+      read: `A gauge open to the air reads zero. Yet the air pushes on it with 1 bar. So a gauge reads how far the gas is above the atmosphere. That is *gauge pressure*. Add the air's 1 bar and you get *absolute pressure*, counted from no push at all. The heat is held. Pushed from 3 L to 1.5 L, the absolute pressure doubles, from 2 bar to ${N.p15} bar. That is *Boyle's law*. The gauge goes from 1 bar to ${N.g15}, not 2.` },
+    { kind: 'pick', name: 'Half the space', top: 'cyl', chart: 'pv',
+      gas: { V: 3, pA: 2, mode: 'drag', held: 'the temperature' }, path: 'iso', to: { V: 1.5 }, guide: 1.5, guideLab: 'half the space',
+      endLab: `${N.p15} bar absolute, ${N.g15} bar gauge`,
+      opts: [`${N.wg2} bar`, `${N.g15} bar`, `${N.p15} bar`], want: `${N.g15} bar`,
+      bad: { [`${N.wg2} bar`]: { gauge: 1 * 2, lab: 'gauge doubled' }, [`${N.p15} bar`]: { gauge: 4, lab: `${N.p15} is absolute` } },
+      task: 'A gauge reads 1 bar. The gas is squeezed into half its space, at the same temperature. What does the gauge read now?',
+      why: `A gauge reading 1 bar means the gas pushes with 2 bar absolute. Half the space doubles that to ${N.p15} bar absolute. The gauge leaves out the air's 1 bar, so it reads ${N.g15} bar.`,
+      hint: "Not quite. Add the air's 1 bar first, then double.",
+      hints: { [`${N.wg2} bar`]: 'Not quite. Only the absolute pressure doubles. Turn the gauge reading into absolute first.', [`${N.p15} bar`]: `Not quite. ${N.p15} bar is the absolute pressure. Take off the air's 1 bar for the gauge.` } },
+    { show: true, name: 'A straight line', top: 'cyl', chart: 'pt', ymax: 4, live: { heat: true, ext: true }, base: { mode: 'lock', held: 'the volume' },
+      set: { vol: 3, heat: 27 }, dur: 4.0, mot: [{ ctl: 'heat', from: 27, to: 127, t0: 0.4, t1: 1.9 }, { ctl: 'ext', from: 0, to: 1, t0: 2.0, t1: 3.8 }], still: { heat: 127, ext: 1 },
+      text: `Now the piston is locked, so the volume is held. As the gas warms, its pressure climbs in a straight line. Carried on to colder gas, the line reaches zero pressure at about −273 °C. That is *absolute zero*, where the kelvin scale starts. So K = °C + 273. With the volume held, the pressure follows kelvin, not Celsius. Warming from 20 °C to 40 °C doubles the Celsius figure. But ${N.k20} K to ${N.k40} K is only about ${N.pct7}% more.` },
+    { kind: 'pick', name: 'Locked and warmed', top: 'cyl', chart: 'pt', ymax: 5,
+      gas: { V: 3, pA: 2, Tc: 20, mode: 'lock', held: 'the volume' }, path: 'lock', to: { Tc: 40 }, guide: 40,
+      endLab: `about ${N.p40} bar`,
+      opts: [`${N.w40} bar`, '2 bar', `About ${N.p40} bar`], want: `About ${N.p40} bar`,
+      bad: { [`${N.w40} bar`]: { line: [[0, 0], [20, 2], [40, 2 * 40 / 20]], lab: `${N.w40} bar counts from 0 °C`, anchor: 'end' }, '2 bar': { line: [[20, 2], [40, 2]], lab: 'no change', anchor: 'end' } },
+      task: 'A locked cylinder holds gas at 2 bar absolute and 20 °C. It warms to 40 °C. What is its absolute pressure now?',
+      why: `In kelvin, 20 °C is ${N.k20} K and 40 °C is ${N.k40} K. That is only about ${N.pct7}% warmer. So the pressure rises about ${N.pct7}%: 2 × ${N.k40} ÷ ${N.k20}, about ${N.p40} bar absolute.`,
+      hint: 'Not quite. Turn both temperatures into kelvin first.',
+      hints: { [`${N.w40} bar`]: "Not quite. Doubling the Celsius figure doesn't double the warmth. Use kelvin.", '2 bar': 'Not quite. With the volume held, warming raises the pressure.' } },
+    { show: true, name: 'A floating piston', top: 'cyl', chart: 'pv', live: { heat: true }, base: { mode: 'float', held: 'the pressure' },
+      set: { vol: 3, heat: 27 }, dur: 3.6, mot: [{ ctl: 'heat', from: 27, to: 127, t0: 0.4, t1: 3.2 }], still: { heat: 127 },
+      text: `Now the piston floats under a steady load. The load holds the pressure at 2 bar absolute. As the gas warms from 27 °C to 127 °C, the pressure stays put. In kelvin that is 300 K to ${N.k127} K, a third more. So the gas pushes the piston up instead. Its 3 L grows to ${N.v127} L, a third more, in step with the kelvin temperature.` },
+    { kind: 'pick', name: 'Heating, floating', top: 'cyl', chart: 'pv',
+      gas: { V: 3, pA: 2, Tc: 27, mode: 'float', held: 'the pressure', showV: true }, path: 'float', to: { Tc: 127 },
+      endLab: `${N.v127} L, still 2 bar`,
+      opts: ['Both rise', FLOAT_RIGHT, FLOAT_P], want: FLOAT_RIGHT,
+      bad: { 'Both rise': { pv: [4, 2 * 4 / 3], lab: 'both up' }, [FLOAT_P]: { pv: [3, 2 * 4 / 3], lab: 'pressure up a third' } },
+      task: 'The piston floats under a steady load. The gas warms from 300 K to 400 K. What happens?',
+      why: `The load sets the pressure, so it stays at 2 bar absolute. The gas grows instead. 400 ÷ 300 is a third more, so 3 L becomes ${N.v127} L.`,
+      hint: 'Not quite. Ask what the load holds steady.',
+      hints: { 'Both rise': 'Not quite. The load holds the pressure, so only one of them can change.', [FLOAT_P]: 'Not quite. That is what a locked piston does. A floating one moves instead.' } },
+    { show: true, name: 'pV ÷ T', top: 'cyl', chart: 'pv', live: { vol: true, heat: true, units: true }, base: { mode: 'drag', held: 'the amount of gas' },
+      set: { vol: 3, heat: 27 }, dur: 4.0, mot: [{ ctl: 'vol', from: 3, to: 1.5, t0: 0.4, t1: 1.9 }, { ctl: 'heat', from: 27, to: 127, t0: 2.0, t1: 3.6 }],
+      still: { vol: 1.5, heat: 127, units: 'absK' },
+      text: `Pressure goes up with kelvin and down with volume. So for the same trapped gas, pressure × volume ÷ kelvin temperature stays the same, even when all three change. That is *pV ÷ T*. In absolute pressure and kelvin it holds at ${N.c0}, whatever you move. Switch the box to gauge pressure, or to °C, and it drifts, in red. Those count from the wrong zero.`,
+      read: `Pressure goes up with kelvin and down with volume. So for the same trapped gas, pressure × volume ÷ kelvin temperature stays the same, even when all three change. That is *pV ÷ T*. In absolute pressure and kelvin it holds at ${N.c0}, whatever changes. In gauge pressure, or in °C, it drifts, because those count from the wrong zero.` },
+    { kind: 'pick', name: 'All three change', top: 'cyl', chart: 'pv',
+      gas: { V: 6, pA: 1, Tc: 27, mode: 'drag', held: 'the amount of gas', showV: true }, path: 'both', to: { V: 2, Tc: 127 }, guide: 2,
+      endLab: `${N.s9} bar absolute`,
+      opts: [`${N.s9w3} bar`, `About ${N.s9w14} bar`, `${N.s9} bar`], want: `${N.s9} bar`,
+      bad: { [`${N.s9w3} bar`]: { pv: [2, 1 * 6 / 2], lab: 'heat left out' }, [`About ${N.s9w14} bar`]: { up: [2, 1 * 6 / 2], lab: `about ${N.s9w14} bar, off the chart` } },
+      task: 'Gas at 1 bar absolute fills 6 L at 27 °C. It is pushed into 2 L and heated to 127 °C. What is its absolute pressure now?',
+      why: `Work in absolute units. A third of the space triples the pressure: 1 × 6 ÷ 2 = ${N.s9w3} bar. Then 300 K to 400 K adds a third: ${N.s9w3} × 400 ÷ 300 = ${N.s9} bar absolute.`,
+      hint: 'Not quite. Squeeze it first, then heat it, both in absolute units.',
+      hints: { [`${N.s9w3} bar`]: 'Not quite. That is the squeeze alone. The heating raises it too.', [`About ${N.s9w14} bar`]: 'Not quite. Use kelvin, not °C: 27 °C is 300 K, and 127 °C is 400 K.' } },
+    { show: true, name: 'The air receiver', top: 'tank', chart: 'trace', live: { big: true },
+      set: {}, dur: 3.6, mot: [{ ctl: 'clock', from: 0, to: 'off', t0: 0.4, t1: 3.4 }],
+      text: `An *air receiver* stores air the compressor has made. Its compressor cuts out at 8 bar gauge and cuts in at 6. That is ${N.cout} and ${N.cin} bar absolute. Only the air in that band is used between starts. Let out at 1 bar, this 500 L receiver's air fills ${N.L45} L at cut-out and ${N.L35} L at cut-in. So the band gives ${N.band} L. At 250 L a minute, that lasts ${N.off} minutes. A receiver twice the size lasts twice as long.` },
+    { kind: 'pick', name: 'Air between starts', top: 'tank', chart: 'blocks', blocks: 'band',
+      gas: { tank: true, Vr: VR, pA: CUTOUT + ATM, held: 'the temperature', band: true, size: true },
+      opts: [`${N.band} L`, `${N.L45} L`, `${fx(VR)} L`], want: `${N.band} L`,
+      bad: { [`${N.L45} L`]: { blocks: [0, 8], lab: `${N.L45} L: all of it` }, [`${fx(VR)} L`]: { blocks: [8, 8], lab: `${fx(VR)} L: one tankful`, anchor: 'end' } },
+      task: 'A 500 L receiver runs between 6 and 8 bar gauge. How much air, let out at 1 bar, does it give from cut-out to cut-in?',
+      why: `In absolute units the band is ${N.cin} to ${N.cout} bar. At ${N.cout} bar the receiver holds ${N.L45} L of air at 1 bar. At ${N.cin} bar it holds ${N.L35} L. So ${N.band} L is used between starts.`,
+      hint: 'Not quite. Only the air between cut-out and cut-in gets used.',
+      hints: { [`${N.L45} L`]: 'Not quite. That is all its air at cut-out. The compressor cuts in long before it is empty.', [`${fx(VR)} L`]: "Not quite. That is the tank's own size. The band is 2 bar wide." } },
+    { kind: 'pick', name: 'A warm receiver', top: 'tank', chart: 'pt', ymax: 20,
+      gas: { tank: true, Vr: VR, pA: 7 + ATM, Tc: 20, held: 'the volume' }, path: 'lock', to: { Tc: 50 }, guide: 50,
+      endLab: `about ${N.p50} bar absolute`,
+      opts: [`About ${N.p50} bar`, `About ${N.g50} bar`, `${N.w175} bar`], want: `About ${N.g50} bar`,
+      bad: { [`About ${N.p50} bar`]: { gauge: (7 + ATM) * kel(50) / kel(20), lab: `${N.p50} is absolute` },
+        [`${N.w175} bar`]: { line: [[0, ATM], [20, 7 + ATM], [50, 7 * 50 / 20 + ATM]], lab: `${N.w175} bar gauge, from 0 °C`, anchor: 'end' } },
+      task: 'A receiver reads 7 bar gauge at 20 °C. The space around it warms to 50 °C. What does its gauge read now?',
+      why: `In absolute units it starts at ${N.r8} bar and ${N.k20} K, and ends at ${N.k50} K. The volume is held. So ${N.r8} × ${N.k50} ÷ ${N.k20} is about ${N.p50} bar absolute. Take off the air's 1 bar, and the gauge reads about ${N.g50} bar.`,
+      hint: 'Not quite. Turn it into absolute and kelvin, then back to gauge.',
+      hints: { [`About ${N.p50} bar`]: `Not quite. ${N.p50} bar is the absolute pressure. Take off the air's 1 bar.`, [`${N.w175} bar`]: 'Not quite. Gauge and Celsius both count from the wrong zero. Use absolute and kelvin.' } },
+    { kind: 'pick', name: 'Air gone', top: 'tank', chart: 'blocks', blocks: 'share',
+      gas: { tank: true, Vr: VR, pA: CUTOUT + ATM, held: 'the temperature', band: true }, path: 'fall', to: { pA: CUTIN + ATM },
+      opts: [`${N.sh25}%`, `About ${N.sh78}%`, `About ${N.sh22}%`], want: `About ${N.sh22}%`,
+      bad: { [`${N.sh25}%`]: { blocks: [1, 8], lab: `${N.gone} of these ${fx(CUTOUT)}: ${N.sh25}%`, anchor: 'end' }, [`About ${N.sh78}%`]: { blocks: [0, 6], lab: `${N.cin} of ${N.cout} is what is left`, below: true } },
+      task: 'A receiver falls from 8 to 6 bar gauge at a steady temperature. What share of its air has gone?',
+      why: `In absolute units it falls from ${N.cout} bar to ${N.cin} bar. The amount of air follows the absolute pressure. So ${N.gone} of its ${N.cout} parts have gone: ${N.gone} ÷ ${N.cout}, about ${N.sh22}%.`,
+      hint: 'Not quite. Work in absolute pressure. The air left follows it.',
+      hints: { [`${N.sh25}%`]: `Not quite. ${N.gone} ÷ ${fx(CUTOUT)} uses gauge readings. In absolute it falls from ${N.cout} bar to ${N.cin}.`, [`About ${N.sh78}%`]: `Not quite. ${N.cin} ÷ ${N.cout} is the share still there.` } },
+  ];
+  const FINISH = "Gas sums count from true zero. A gauge leaves out the air's 1 bar, and Celsius leaves out 273. Put them back before any ratio, then take the air off again for the gauge.";
+  const PICK = 'Pick an answer first.';
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- each step's state ----------
+  function blank() { return { pick: null, res: null, why: false }; }
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity, motionEnd = 0, MOT = null, keyNow = '';
+  const el = (id) => document.getElementById(id);
+
+  // ---------- words with amber key terms (built with K.el, never innerHTML) ----------
+  function write(node, s) {
+    node.textContent = '';
+    s = String(s || '');
+    const re = /\*([^*]+)\*/g;
+    let pos = 0, m;
+    while ((m = re.exec(s))) {
+      if (m.index > pos) node.appendChild(document.createTextNode(s.slice(pos, m.index)));
+      node.appendChild(K.el('span', { class: 'term' }, m[1]));
+      pos = m.index + m[0].length;
+    }
+    if (pos < s.length) node.appendChild(document.createTextNode(s.slice(pos)));
+    return node;
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);
+  const stepOf = (p) => K.clamp(Math.round(+p.step) || 0, 0, STEPS.length - 1);
+  const volCtl = K.control({ id: 'vol', label: 'Piston', min: 1, max: 6, step: 0.05, value: 3, unit: 'L', snap: [1.5], fmt: (v) => vt(v) + ' L', into: '#ctl' });
+  const heatCtl = K.control({ id: 'heat', label: 'Heater', min: 0, max: 150, step: 1, value: 27, unit: '°C', snap: [127], fmt: (v) => fx(v) + ' °C · ' + fx(kel(v)) + ' K', into: '#ctl' });
+  const unitsCtl = K.choice({ id: 'units', label: 'pV ÷ T in', options: [{ value: 'absK', label: 'absolute, K' }, { value: 'gaugeK', label: 'gauge, K' }, { value: 'absC', label: 'absolute, °C' }], value: 'absK', into: '#ctl' });
+  const bigCtl = K.toggle({ id: 'big', label: 'Bigger receiver, 1,000 L', value: false, into: '#ctl' });
+  // The line's extension and the receiver's clock: the Extend button and the demonstrations move them.
+  const extCtl = K.control({ id: 'ext', label: 'Line carried on', min: 0, max: 1, step: 0.01, value: 0, into: '#hold' });
+  const clockCtl = K.control({ id: 'clock', label: 'Minutes after cut-out', min: 0, max: 10, step: 0.01, value: 0, unit: 'min', into: '#hold' });
+  const CTL = { vol: volCtl, heat: heatCtl, ext: extCtl, clock: clockCtl };
+  function setCtl(id, v) { CTL[id].set(v, true); }
+  const ctlKey = (p) => [p.vol, p.heat, p.units, p.big].join('|');
+
+  // The gas on a live screen: what its mode holds, and what the controls set.
+  function liveGas(i, p) {
+    const d = STEPS[i], b = d.base, L = d.live;
+    const V = K.clamp(isFinite(+p.vol) ? +p.vol : 3, 1, 6), Tc = L.heat ? K.clamp(isFinite(+p.heat) ? +p.heat : 27, 0, 150) : 27;
+    const g = { mode: b.mode, held: b.held, Tc, showV: true };
+    if (b.mode === 'lock') { g.V = 3; g.pA = pOf(3, kel(Tc)); }
+    else if (b.mode === 'float') { g.pA = 2; g.V = NR * kel(Tc) / 2; }
+    else { g.V = V; g.pA = pOf(V, kel(Tc)); }
+    return g;
+  }
+  function tankLive(p) {
+    const Vr = p.big === true || p.big === 'true' ? VR2 : VR, off = offMin(Vr);
+    const t = K.clamp(isFinite(+p.clock) ? +p.clock : 0, 0, off);
+    return { tank: true, Vr, t, pA: recP(Vr, t), held: 'the temperature', band: true, size: true, out: true, comp: t >= off - 1e-6 ? 'compressor: on' : 'compressor: off' };
+  }
+  // A puzzle's gas, a share a (0 to 1) of the way along its path.
+  function along(d, a) {
+    const g0 = d.gas, g = Object.assign({}, g0), to = d.to || {};
+    if (d.path === 'iso') { g.V = K.lerp(g0.V, to.V, a); g.pA = g0.pA * g0.V / g.V; }
+    else if (d.path === 'lock') { g.Tc = K.lerp(g0.Tc, to.Tc, a); g.pA = g0.pA * kel(g.Tc) / kel(g0.Tc); }
+    else if (d.path === 'float') { g.Tc = K.lerp(g0.Tc, to.Tc, a); g.V = g0.V * kel(g.Tc) / kel(g0.Tc); }
+    else if (d.path === 'both') {   // squeezed first at a steady temperature, then heated at a steady volume
+      const a1 = K.clamp(2 * a, 0, 1), a2 = K.clamp(2 * a - 1, 0, 1);
+      g.V = K.lerp(g0.V, to.V, a1); g.Tc = K.lerp(g0.Tc, to.Tc, a2);
+      g.pA = g0.pA * g0.V / g.V * kel(g.Tc) / kel(g0.Tc);
+    } else if (d.path === 'fall') { g.pA = K.lerp(g0.pA, to.pA, a); }
+    return g;
+  }
+  K.model((p) => {
+    const i = stepOf(p), d = STEPS[i];
+    const g = d.live ? (d.top === 'tank' ? tankLive(p) : liveGas(i, p)) : along(d, 0);
+    const units = d.live && d.live.units ? String(p.units) : 'absK';
+    const V = d.top === 'tank' ? g.Vr : g.V, Tc = g.Tc == null ? 27 : g.Tc;
+    return { absPressure: g.pA, gaugePressure: g.pA - ATM, ratio: ratioOf(g.pA, V, Tc, units) };
+  });
+
+  const unitWord = () => (String(K.params().units) === 'absC' ? 'bar·L/°C' : 'bar·L/K');
+  const rAbs = K.readout({ id: 'absPressure', label: 'Absolute pressure', unit: 'bar', decimals: 2, into: '#outs' });
+  const rGauge = K.readout({ id: 'gaugePressure', label: 'Gauge pressure', unit: 'bar', decimals: 2, into: '#outs' });
+  const rRatio = K.readout({ id: 'ratio', label: 'pV ÷ T', decimals: 3, fmt: (v) => fx(v, 3) + ' ' + unitWord(), into: '#outs' });
+  const rBand = K.readout({ id: 'bandAir', label: 'Air in the band', unit: 'L', decimals: 0, into: '#outs' });
+  const rOff = K.readout({ id: 'offFor', label: 'Compressor off for', unit: 'min', decimals: 0, into: '#outs' });
+
+  // The Extend button carries the pressure line on, dashed, towards colder gas.
+  const extBtn = K.button({ label: 'Extend the line', secondary: true, into: '#ctl', press: () => {
+    const d = STEPS[at()];
+    if (finished || !d.live || !d.live.ext) return;
+    const e = K.clamp(+K.params().ext || 0, 0, 1);
+    if (e >= 0.99) { MOT = null; anim.pause(); T = Infinity; setCtl('ext', 0); return; }
+    startMot([{ ctl: 'ext', from: e, to: 1, t0: 0, t1: Math.max(0.3, 1.6 * (1 - e)) }]);
+  } });
+
+  // Up to three answer buttons; each step fills in its own options.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = d.opts[k]; st.res = null;
+    if (was) { anim.pause(); T = Infinity; }
+  } }));
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished || st.res === 'right') return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = st.pick === d.want ? 'right' : 'wrong';
+    play(ANS);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const i = at(), d = STEPS[i];
+    if (!d.show || finished) return;
+    onEnter(i);
+    keyNow = ctlKey(K.params());
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true; anim.pause(); T = Infinity; MOT = null;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration, each press of Extend and the motion after an answer;
+  // with reduced motion (and while the self-test looks) everything opens finished.
+  function stepMot() {
+    if (!MOT) return;
+    let done = true;
+    MOT.forEach((m) => {
+      const a = T === Infinity ? 1 : K.clamp((T - m.t0) / Math.max(1e-6, m.t1 - m.t0), 0, 1);
+      setCtl(m.ctl, K.lerp(m.from, m.to, K.ease(a)));
+      if (a < 1) done = false;
+    });
+    keyNow = ctlKey(K.params());
+    if (done) MOT = null;
+  }
+  function finishMot() { if (MOT) { T = Infinity; stepMot(); MOT = null; } }
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    if (MOT) { stepMot(); K.refresh(); } else if (STEPS[at()].live) K.refresh(); else paint();
+    return T < motionEnd || !!MOT;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; finishMot(); K.refresh(); } });
+  function play(dur) {
+    if (REDUCE || testing()) { anim.pause(); finishMot(); T = Infinity; return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function startMot(list) { MOT = list; play(Math.max.apply(null, list.map((m) => m.t1).concat([0.1]))); }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+  // A new screen: a live one takes its own settings and runs its demonstration once.
+  function onEnter(i) {
+    const d = STEPS[i];
+    MOT = null;
+    if (d.live) {
+      const b = d.set || {};
+      volCtl.set(b.vol == null ? 3 : b.vol, true); heatCtl.set(b.heat == null ? 27 : b.heat, true);
+      unitsCtl.set('absK', true); bigCtl.set(false, true); extCtl.set(0, true); clockCtl.set(0, true);
+      if (d.mot) {
+        MOT = d.mot.map((m) => Object.assign({}, m, { to: m.to === 'off' ? offMin(VR) : m.to }));
+        MOT.forEach((m) => setCtl(m.ctl, m.from));
+      }
+    }
+    if (d.show) play(d.dur); else { anim.pause(); T = Infinity; }
+  }
+
+  // ---------- drawing ----------
+  const svg = el('scene'), art = el('art');
+  let into = null, REC = null, LABS = [], AVOID = [], HH = 340;
+  const add = (n) => (into || art).appendChild(n);
+  const r2 = (v) => Math.round(v * 100) / 100;
+  const sv = (tag, a) => add(K.svg(tag, a));
+  const path = (d, cls) => sv('path', { class: cls, d });
+  function text(x, y, s, cls, anchor) {
+    s = String(s);
+    if (REC) REC.texts.push(s);
+    return add(K.svg('text', { class: cls, x: r2(x), y: r2(y), 'text-anchor': anchor || 'middle' }, s));
+  }
+  // A label placed by K.labels, clear of the other words and of the lines in AVOID.
+  function lab(x, y, s, cls, anchor, a) {
+    if (a != null && a <= 0) return;
+    LABS.push({ x: r2(x), y: r2(y), text: String(s), class: cls, anchor: anchor || 'middle', a: a == null ? 1 : a });
+    if (REC) REC.texts.push(String(s));
+  }
+  function placeLabels() {
+    if (!LABS.length) return;
+    const g = art.appendChild(K.svg('g'));
+    const ts = K.labels(g, LABS.map((l) => ({ x: l.x, y: l.y, text: l.text, class: l.class, anchor: l.anchor })), { avoid: AVOID });
+    (ts || []).forEach((t, k) => { if (LABS[k] && LABS[k].a < 1) K.fade(t, LABS[k].a, 0); });
+  }
+  // How far a part due at t0 has arrived, noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function note(t0, d) { if (t0 + d > latest) latest = t0 + d; if (t0 < earliest) earliest = t0; }
+  function arr(t0, d) { d = d == null ? K.SOFT : d; note(t0, d); return K.arrive(T, t0, d); }
+  function lin(t0, d) { note(t0, d); return T === Infinity ? 1 : K.clamp((T - t0) / d, 0, 1); }
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  // A bracket along x1..x2 at height y, its arms pointing up (towards an axis above) or down.
+  function brk(x1, x2, y, cls, up) {
+    const e = up ? y - 5 : y + 5;
+    path('M' + r2(x1) + ' ' + e + ' V' + r2(y) + ' H' + r2(x2) + ' V' + e, 'brk' + (cls ? ' ' + cls : ''));
+  }
+  // A bracket down the side of the gauge, its arms pointing back at the column.
+  function brkV(x, y1, y2, cls) { path(`M${r2(x - 5)} ${r2(y1)} H${r2(x)} V${r2(y2)} H${r2(x - 5)}`, 'brk' + (cls ? ' ' + cls : '')); }
+  // The answer picked is ringed in red on the drawing where it can be.
+  const wrongOf = (d, st) => (st.res === 'wrong' && st.pick != null && d.bad ? d.bad[st.pick] || null : null);
+
+  // ---------- the cylinder: 20 units for each litre ----------
+  const CXL = 30, CXR = 112, CB = 154, LPX = 20;
+  const MOL = [[0.08, 0.2], [0.3, 0.7], [0.55, 0.15], [0.8, 0.55], [0.15, 0.85], [0.42, 0.4], [0.68, 0.85], [0.92, 0.2],
+    [0.25, 0.05], [0.6, 0.6], [0.85, 0.95], [0.05, 0.5], [0.38, 0.95], [0.72, 0.3], [0.95, 0.7], [0.5, 0.8]];
+  function drawCyl(g) {
+    const V = K.clamp(g.V, 0.2, 6.2), top = CB - LPX * V, mid = (CXL + CXR) / 2;
+    sv('rect', { class: 'gas', x: CXL, y: r2(top), width: CXR - CXL, height: r2(CB - top) });
+    // The same molecules crowd closer as the space shrinks.
+    MOL.forEach((q) => sv('circle', { class: 'mol', cx: r2(CXL + 7 + q[0] * (CXR - CXL - 14)), cy: r2(top + 5 + q[1] * Math.max(0, CB - top - 10)), r: 2.2 }));
+    sv('rect', { class: 'piston', x: CXL, y: r2(top - 10), width: CXR - CXL, height: 10 });
+    let how = 'a piston';
+    if (g.mode === 'lock') {
+      [[18, 34], [108, 124]].forEach((x) => sv('rect', { class: 'pin', x: x[0], y: r2(top - 7), width: x[1] - x[0], height: 4, rx: 1 }));
+      lab(mid, top - 18, 'locked', 'lab m');
+      how = 'a locked piston';
+    } else if (g.mode === 'float') {
+      sv('rect', { class: 'load', x: mid - 26, y: r2(top - 30), width: 52, height: 20, rx: 3 });
+      text(mid, top - 15.5, 'load', 'lab');
+      how = 'a piston floating under a steady load';
+    } else {
+      AVOID.push(sv('line', { class: 'rod', x1: mid, y1: r2(top - 10), x2: mid, y2: r2(top - 24) }));
+      sv('rect', { class: 'piston', x: mid - 16, y: r2(top - 30), width: 32, height: 6, rx: 2 });
+    }
+    path('M28 20 V156 H114 V20', 'wall');
+    sv('rect', { class: 'heater', x: CXL, y: 162, width: CXR - CXL, height: 10, rx: 2 });
+    path('M36 167 L42 164 L48 170 L54 164 L60 170 L66 164 L72 170 L78 164 L84 170 L90 164 L96 170 L102 164 L106 167', 'coil');
+    const heat = g.Tc == null ? 'steady temperature' : `heater ${fx(g.Tc)} °C · ${fx(kel(g.Tc))} K`;
+    text(72, 190, heat, 'lab');
+    if (g.showV) lab(122, (top + CB) / 2 + 4.5, `${vt(g.V)} L`, 'lab n', 'start');
+    path('M116 148 H146 V176 H196 V161', 'pipe');
+    return `A cylinder of gas under ${how}` + (g.showV ? `, holding ${vt(g.V)} L` : '') + (g.Tc == null ? ', at a steady temperature.' : `, over a heater at ${fx(g.Tc)} °C.`);
+  }
+
+  // ---------- the receiver ----------
+  function drawTank(g) {
+    const big = g.Vr >= VR2, top = 150 - (big ? 110 : 55);
+    sv('rect', { class: 'tank', x: 40, y: top, width: 64, height: 150 - top, rx: 16 });
+    if (g.size) text(72, (top + 150) / 2 + 5, `${fx(g.Vr)} L`, 'lab');
+    if (g.Tc != null) lab(72, top - 10, `around it: ${fx(g.Tc)} °C`, 'lab m');
+    if (g.out) {
+      const y = top + 30;
+      path(`M104 ${y} H126`, 'pipe');
+      path(`M135 ${y} L125 ${y - 5} L125 ${y + 5} Z`, 'arrow');
+      text(118, y - 9, 'out', 'lab m');
+    }
+    path('M72 150 V162', 'pipe');
+    sv('rect', { class: 'comp', x: 14, y: 162, width: 116, height: 24, rx: 6 });
+    text(72, 178.5, g.comp || 'compressor', 'lab');
+    path('M104 140 H146 V176 H196 V161', 'pipe');
+    return `An air receiver${g.size ? ` of ${fx(g.Vr)} L` : ''} over its compressor` + (g.Tc != null ? `, with the air around it at ${fx(g.Tc)} °C.` : '.');
+  }
+
+  // ---------- the gauge: one column, read two ways ----------
+  const GB = 190, GW = 12, G0 = 160, GK = 10.5;
+  const gy2 = (pA) => G0 - K.clamp(pA, 0, 10) * GK;
+  function drawGauge(g, bad, a) {
+    text(GB - 9, 44, 'absolute', 'tl', 'end');
+    text(GB + GW + 9, 44, 'gauge', 'tl', 'start');
+    if (g.band) sv('rect', { class: 'bandf', x: GB - 4, y: r2(gy2(CUTOUT + ATM)), width: GW + 8, height: r2(gy2(CUTIN + ATM) - gy2(CUTOUT + ATM)) });
+    sv('rect', { class: 'track', x: GB, y: r2(gy2(10)), width: GW, height: r2(10 * GK) });
+    const pa = K.clamp(g.pA, 0, 10), air = Math.min(pa, ATM);
+    // The atmosphere's share of the push, then the gas's push above it: the gauge counts only that.
+    if (air > 0) sv('rect', { class: 'atmf', x: GB, y: r2(gy2(air)), width: GW, height: r2(air * GK) });
+    if (pa > ATM) sv('rect', { class: 'col', x: GB, y: r2(gy2(pa)), width: GW, height: r2((pa - ATM) * GK) });
+    for (let v = 0; v <= 10; v++) {
+      const y = r2(gy2(v));
+      sv('line', { class: 'tk', x1: GB - 4, y1: y, x2: GB, y2: y });
+      sv('line', { class: 'tk', x1: GB + GW, y1: y, x2: GB + GW + 4, y2: y });
+    }
+    [0, 2, 4, 6, 8, 10].forEach((v) => text(GB - 9, gy2(v) + 4.5, fx(v), 'tl', 'end'));
+    [0, 2, 4, 6, 8].forEach((v) => text(GB + GW + 9, gy2(v + ATM) + 4.5, fx(v), 'tl', 'start'));
+    AVOID.push(sv('line', { class: 'needle', x1: GB - 3, y1: r2(gy2(pa)), x2: GB + GW + 3, y2: r2(gy2(pa)) }));
+    REC.ptr = g.pA;
+    brkV(234, gy2(0), gy2(ATM), '');
+    text(240, (gy2(0) + gy2(ATM)) / 2 + 4.5, 'air, 1 bar', 'lab m', 'start');
+    if (g.band) {
+      brkV(234, gy2(CUTOUT + ATM), gy2(CUTIN + ATM), 'n');
+      text(240, gy2(CUTOUT + ATM) + 4.5, 'cut-out', 'lab n', 'start');
+      text(240, gy2(CUTIN + ATM) + 4.5, 'cut-in', 'lab n', 'start');
+    }
+    if (bad && bad.gauge != null) {
+      REC.bad++;
+      const y = gy2(bad.gauge + ATM);
+      part(a, 0, () => AVOID.push(sv('line', { class: 'wline', x1: GB - 3, y1: r2(y), x2: GB + GW + 3, y2: r2(y) })));
+      lab(238, y + 4.5, bad.lab, 'lab w', 'start', a);
+    }
+    return ` Its gauge is one column read two ways: absolute from no push at all, gauge from the air's 1 bar. It shows ${fx(g.pA, 2)} bar absolute, ${fx(g.pA - ATM, 2)} bar gauge.` + (g.band ? ' The band between cut-in and cut-out is shaded.' : '');
+  }
+  function pill(held) {
+    sv('rect', { class: 'pill', x: 140, y: 2, width: 194, height: 24, rx: 12 });
+    text(152, 18.5, 'Held: ' + held, 'lab t', 'start');
+  }
+
+  // ---------- the charts ----------
+  const CL = 48, CR = 322, PH = 104;
+  let CH = null;
+  function chartFrame(y0, title, xa, ya, rows) {
+    const top = y0 + 26, bot = top + PH;
+    const X = (v) => CL + (K.clamp(v, xa.min, xa.max) - xa.min) / (xa.max - xa.min) * (CR - CL);
+    const Y = (v) => bot - (K.clamp(v, ya.min, ya.max) - ya.min) / (ya.max - ya.min) * PH;
+    CH = { top, bot, X, Y };
+    text(8, y0 + 14, title, 'lab t', 'start');
+    AVOID.push(path(`M${CL} ${top} V${bot} H${CR}`, 'ax'));
+    ya.ticks.forEach((v) => { sv('line', { class: 'tk', x1: CL - 4, y1: r2(Y(v)), x2: CL, y2: r2(Y(v)) }); text(CL - 8, Y(v) + 4.5, fx(v), 'tl', 'end'); });
+    xa.ticks.forEach((v) => { const x = r2(X(v)); sv('line', { class: 'tk', x1: x, y1: bot, x2: x, y2: bot + 4 }); text(x, bot + 17, fx(v), 'tl'); });
+    rows = rows || [];
+    rows.forEach((r, k) => {
+      const y = bot + 26 + 15 * k;
+      brk(X(0), X(r.t), y, r.cls, true);
+      text(X(r.t) + 6, y + 4.5, r.text, 'lab ' + (r.cls || 'm'), 'start');
+    });
+    const ty = bot + 36 + 15 * rows.length;
+    text((CL + CR) / 2, ty, xa.label, 'tl');
+    return ty + 8;
+  }
+  const ptsPath = (pts) => pts.map((q, k) => (k ? 'L' : 'M') + r2(CH.X(q[0])) + ' ' + r2(CH.Y(q[1]))).join(' ');
+  function dataLine(pts, cls) { const e = path(ptsPath(pts), cls); AVOID.push(e); return e; }
+  function dot(x, y) { AVOID.push(sv('circle', { class: 'dot', cx: r2(CH.X(x)), cy: r2(CH.Y(y)), r: 6 })); REC.dot = [x, y]; }
+  function vGuide(x, s) {
+    AVOID.push(sv('line', { class: 'guide', x1: r2(CH.X(x)), y1: CH.bot, x2: r2(CH.X(x)), y2: CH.top + 16 }));
+    lab(CH.X(x), CH.top + 10, s, 'lab m');
+  }
+  // A wrong pick on a chart: a red dot, a red arrow off the top, or a red dashed line.
+  function chartBad(b, a) {
+    if (!b) return;
+    if (b.pv) {
+      REC.bad++;
+      part(a, 0, () => AVOID.push(sv('circle', { class: 'wdot', cx: r2(CH.X(b.pv[0])), cy: r2(CH.Y(b.pv[1])), r: 5 })));
+      lab(CH.X(b.pv[0]) + 10, CH.Y(b.pv[1]) - 8, b.lab, 'lab w', 'start', a);
+    }
+    if (b.up) {
+      REC.bad++;
+      const x = r2(CH.X(b.up[0])), y1 = r2(CH.Y(b.up[1])), y2 = CH.top;
+      part(a, 0, () => {
+        AVOID.push(path(`M${x} ${y1} V${y2 + 8}`, 'bad'));
+        AVOID.push(path(`M${x} ${y2} L${x - 5} ${y2 + 9} L${x + 5} ${y2 + 9} Z`, 'wdot'));
+      });
+      lab(x + 10, y2 + 12, b.lab, 'lab w', 'start', a);
+    }
+    if (b.line) {
+      REC.bad++;
+      part(a, 0, () => dataLine(b.line, 'bad'));
+      const e = b.line[b.line.length - 1];
+      lab(CH.X(e[0]) + (b.anchor === 'end' ? -10 : 10), CH.Y(e[1]) - 6, b.lab, 'lab w', b.anchor || 'start', a);
+    }
+  }
+  // The path a solved puzzle has travelled so far, drawn on the chart: x is volume or temperature.
+  function trail(d, aNow, xKey) {
+    if (aNow <= 1e-3) return;
+    const pts = K.linspace(0, aNow, 40).map((a) => { const q = along(d, a); return [q[xKey], q.pA]; });
+    dataLine(pts, 'curve');
+  }
+
+  // Pressure against volume.
+  function drawPV(y0, d, st, g, bad, a) {
+    const right = st.res === 'right';
+    const bottom = chartFrame(y0, 'Absolute pressure in bar, against volume', { min: 0, max: 6, ticks: [0, 1, 2, 3, 4, 5, 6], label: 'volume in L' }, { min: 0, max: 10, ticks: [0, 2, 4, 6, 8, 10] });
+    let said = ' Below, a chart of absolute pressure against volume follows the gas as a dot.';
+    if (d.live) {
+      if (d.base.mode === 'float') {
+        dataLine([[NR * kel(0) / 2, 2], [NR * kel(150) / 2, 2]], 'curve');
+        lab(CH.X(3.5), CH.Y(2) - 12, 'the load holds 2 bar', 'lab n');
+        said += ' The load holds it at 2 bar while it grows and shrinks.';
+      } else if (!d.live.heat) {
+        const c = g.pA * g.V;
+        dataLine(K.linspace(c / 10, 6, 60).map((v) => [v, c / v]), 'curve');
+        lab(CH.X(4.6), CH.Y(c / 4.6) - 14, `pressure × volume = ${fx(c)}`, 'lab n');
+        said += ` With the heat held, it runs along a curve where pressure × volume stays ${fx(c)}.`;
+      }
+    } else {
+      if (!right && d.guide != null) vGuide(d.guide, d.guideLab || `${vt(d.guide)} L`);
+      if (right) trail(d, K.ease(lin(0.1, 1.3)), 'V');
+    }
+    dot(g.V, g.pA);
+    if (right && d.endLab) lab(CH.X(g.V) + 10, CH.Y(g.pA) - 10, d.endLab, 'lab n', 'start', arr(1.3));
+    chartBad(bad, a);
+    return [bottom, said];
+  }
+
+  // Pressure against temperature in °C, with the line carried on to zero pressure.
+  function drawPT(y0, d, st, g, bad, a, p) {
+    const ymax = d.ymax || 4, right = st.res === 'right';
+    const ticks = ymax <= 5 ? K.linspace(0, ymax, ymax + 1) : [0, 5, 10, 15, 20];
+    const bottom = chartFrame(y0, 'Absolute pressure in bar, against temperature', { min: -300, max: 200, ticks: [-300, -200, -100, 0, 100, 200], label: 'temperature in °C' }, { min: 0, max: ymax, ticks });
+    const k = g.pA / kel(g.Tc);             // bar for each kelvin, at this held volume
+    const pAt = (c) => k * kel(c);
+    let from = 0, e = 0, ea = 1;
+    let said = ' Below, a chart of absolute pressure against temperature in °C.';
+    if (d.live) {
+      dataLine([[0, pAt(0)], [150, pAt(150)]], 'curve');
+      e = K.clamp(+p.ext || 0, 0, 1);
+      said += ' With the volume held, the gas runs along a straight line.';
+    } else {
+      from = d.gas.Tc;
+      if (!right && d.guide != null) vGuide(d.guide, `${fx(d.guide)} °C`);
+      if (right) { trail(d, K.ease(lin(0.1, 1.3)), 'Tc'); e = 1; ea = arr(0.8); }
+    }
+    if (e > 1e-3 && ea > 0) {
+      const Te = from + (-ABS0 - from) * e;
+      part(ea, 0, () => dataLine([[from, pAt(from)], [Te, pAt(Te)]], 'tan'));
+      REC.ext = Te;
+      const za = ea * K.clamp((e - 0.85) / 0.15, 0, 1);
+      if (za > 0) {
+        const x = r2(CH.X(-ABS0));
+        part(za, 0, () => {
+          AVOID.push(sv('line', { class: 'zero', x1: x, y1: CH.bot, x2: x, y2: CH.top + 18 }));
+          AVOID.push(sv('circle', { class: 'ring', cx: x, cy: r2(CH.Y(0)), r: 5 }));
+        });
+        lab(x + 8, CH.top + 12, '0 bar at −273 °C, absolute zero', 'lab n', 'start', za);
+        lab(CH.X((from - ABS0) / 2), CH.Y(pAt((from - ABS0) / 2)) - 12, 'carried on', 'lab m', 'middle', za);
+        said += ' Carried on as a dashed line, it reaches zero pressure at −273 °C, absolute zero.';
+      }
+    }
+    dot(g.Tc, g.pA);
+    if (right && d.endLab) lab(CH.X(g.Tc) - 10, CH.Y(g.pA) - 12, d.endLab, 'lab n', 'end', arr(1.3));
+    chartBad(bad, a);
+    return [bottom, said];
+  }
+
+  // The receiver's gauge after cut-out: both sizes, the band shaded across the pressure axis.
+  function drawTrace(y0, g) {
+    const sel = g.Vr, other = sel === VR ? VR2 : VR;
+    const rows = [VR, VR2].map((v) => ({ t: offMin(v), text: `${fx(offMin(v))} min`, cls: v === sel ? 'n' : '' }));
+    const bottom = chartFrame(y0, `Gauge pressure in bar, drawing ${fx(DRAW)} L a minute`, { min: 0, max: 10, ticks: [0, 2, 4, 6, 8, 10], label: 'minutes after cut-out' }, { min: 0, max: 10, ticks: [0, 2, 4, 6, 8, 10] }, rows);
+    sv('rect', { class: 'region', x: CL, y: r2(CH.Y(CUTOUT)), width: CR - CL, height: r2(CH.Y(CUTIN) - CH.Y(CUTOUT)) });
+    lab(CR - 4, CH.Y((CUTIN + CUTOUT) / 2) + 4.5, 'band', 'lab', 'end');
+    const gp = (v, t) => recP(v, t) - ATM;
+    dataLine([[0, CUTOUT], [offMin(other), CUTIN]], 'ref');
+    lab(CH.X(offMin(other)) + 6, CH.Y(CUTIN) + 16, `${fx(other)} L`, 'lab m', 'start');
+    const t = K.clamp(g.t, 0, offMin(sel));
+    if (t > EPS) dataLine([[0, CUTOUT], [t, gp(sel, t)]], 'curve');
+    dot(t, gp(sel, t));
+    lab(CH.X(t) + 8, CH.Y(gp(sel, t)) - 12, `${fx(sel)} L`, 'lab n', 'start');
+    return [bottom, ` Below, its gauge pressure after cut-out: the ${fx(sel)} L receiver falls through the band in ${fx(offMin(sel))} minutes, the ${fx(other)} L one in ${fx(offMin(other))}.`];
+  }
+
+  // The receiver's air in equal blocks.
+  const BX = 34, BW = 30, BG = 4;
+  function drawBlocks(y0, d, st, bad) {
+    const right = st.res === 'right';
+    if (!right && !bad) return [y0, ''];
+    const share = d.blocks === 'share', yb = y0 + 48, hb = 30, bw = BW - BG, bx = (k) => BX + k * BW;
+    const span = (k0, k1) => [bx(k0), bx(k1) + bw];
+    text(8, y0 + 14, share ? `Its air at ${fx(CUTOUT)} bar gauge, in ${N.cout} equal parts` : 'Its air at cut-out, let out at 1 bar', 'lab t', 'start');
+    const gone = share && right ? lin(0.5, 1.0) : 0;    // the air drawn off leaves the last parts
+    REC.blocks = { n: 9, band: 0, gone: 0 };
+    for (let k = 0; k < 9; k++) {
+      const last = k >= 7, box = { x: bx(k), y: yb, width: bw, height: hb, rx: 3 };
+      part(arr(0.05 * k, 0.5), 0, () => {
+        if (!right) { sv('rect', Object.assign({ class: 'blk plain' }, box)); return; }
+        if (!share) { sv('rect', Object.assign({ class: last ? 'blk band' : 'blk' }, box)); return; }
+        if (last) { sv('rect', Object.assign({ class: 'blk gone' }, box)); part(1 - gone, 0, () => sv('rect', Object.assign({ class: 'blk' }, box))); }
+        else sv('rect', Object.assign({ class: 'blk' }, box));
+      });
+      if (right && last) { if (share) REC.blocks.gone++; else REC.blocks.band++; }
+    }
+    const above = yb - 10, below = yb + hb + 10, la = arr(1.2);
+    let said = '';
+    if (right) {
+      part(la, 0, () => { brk(span(7, 8)[0], span(7, 8)[1], above, 'n', false); brk(span(0, 6)[0], span(0, 6)[1], below, '', true); });
+      if (share) {
+        lab(span(7, 8)[1], above - 7, `gone: ${N.gone} of ${N.cout}, about ${N.sh22}%`, 'lab n', 'end', la);
+        lab(bx(0), below + 16, `still there: ${N.cin} of ${N.cout}`, 'lab m', 'start', la);
+        said = ` Below, its air in ${N.cout} equal parts: ${N.gone} have gone, about ${N.sh22}%.`;
+      } else {
+        lab(span(7, 8)[1], above - 7, `band: ${N.band} L`, 'lab n', 'end', la);
+        lab(bx(0), below + 16, `left at cut-in: ${N.L35} L`, 'lab m', 'start', la);
+        said = ` Below, its air at cut-out in blocks of ${fx(VR)} L: the last two are the band, ${N.band} L.`;
+      }
+    }
+    if (bad && bad.blocks) {
+      REC.bad++;
+      const a = arr(0.4), sp = span(bad.blocks[0], bad.blocks[1]), y = bad.below ? below : above;
+      part(a, 0, () => brk(sp[0], sp[1], y, 'w', !!bad.below));
+      lab(bad.anchor === 'end' ? sp[1] : sp[0], bad.below ? y + 16 : y - 7, bad.lab, 'lab w', bad.anchor || 'start', a);
+    }
+    lab(8, below + 40, share ? `each part: 1 bar of the ${N.cout} bar absolute` : `each block: ${fx(VR)} L at 1 bar`, 'lab m', 'start', arr(0.5));
+    return [below + 50, said];
+  }
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i, pOver) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i], p = pOver || K.params();
+    art.textContent = '';
+    into = null; LABS = []; AVOID = [];
+    REC = { texts: [], bad: 0, dot: null, ptr: null, ext: null, blocks: null, V: null };
+    const right = st.res === 'right', bad = wrongOf(d, st), wa = bad ? arr(0.1) : 0;
+    const g = d.live ? (d.top === 'tank' ? tankLive(p) : liveGas(i, p)) : along(d, right ? K.ease(lin(0.1, 1.3)) : 0);
+    REC.V = g.V;
+    let said = d.top === 'tank' ? drawTank(g) : drawCyl(g);
+    pill(g.held);
+    said += drawGauge(g, bad, wa);
+    let out = [198, ''];
+    if (d.chart === 'pv') out = drawPV(198, d, st, g, bad, wa);
+    else if (d.chart === 'pt') out = drawPT(198, d, st, g, bad, wa, p);
+    else if (d.chart === 'trace') out = drawTrace(198, g);
+    else if (d.chart === 'blocks') out = drawBlocks(198, d, st, bad);
+    HH = Math.max(out[0], 198);
+    svg.setAttribute('viewBox', '0 0 340 ' + HH);
+    placeLabels();
+    svg.setAttribute('aria-label', said + out[1] + (bad ? ' The answer picked is drawn in red.' : ''));
+  }
+
+  // ---------- what Dan reads under a live picture ----------
+  const r0Of = (u) => ratioOf(2, 3, 27, u);
+  function drifting(i, p) {
+    const d = STEPS[i];
+    if (!d.live || !d.live.units || String(p.units) === 'absK') return false;
+    const g = liveGas(i, p), u = String(p.units), r = ratioOf(g.pA, g.V, g.Tc, u);
+    return typeof r !== 'number' || fx(r, 3) !== fx(r0Of(u), 3);
+  }
+  function sayFor(i, d, p) {
+    if (d.top === 'tank') {
+      const g = tankLive(p), off = offMin(g.Vr);
+      if (g.t <= 0.02) return `The compressor has just cut out at ${fx(CUTOUT)} bar gauge. Air now leaves at ${fx(DRAW)} L a minute.`;
+      if (g.t < off - 1e-6) return `Air leaves at ${fx(DRAW)} L a minute, so the pressure falls towards cut-in. The compressor stays off.`;
+      return `The gauge is down to ${fx(CUTIN)} bar, so the compressor cuts in. The ${fx(g.Vr)} L receiver kept it off for ${fx(off)} minutes.` +
+        (g.Vr >= VR2 ? ' That is twice as long, so the motor starts half as often.' : '');
+    }
+    const g = liveGas(i, p), A = fx(g.pA, 2), G = fx(g.pA - ATM, 2), TK = fx(kel(g.Tc));
+    if (d.live.units) {
+      const u = String(p.units), r = ratioOf(g.pA, g.V, g.Tc, u), r0 = fx(r0Of(u), 3);
+      if (u === 'absK') return `${A} bar × ${vt(g.V)} L ÷ ${TK} K = ${fx(r, 3)}, as at the start. In absolute units the box holds steady.`;
+      const why = u === 'gaugeK' ? "The gauge leaves out the air's 1 bar." : 'Celsius counts from the wrong zero.', inU = u === 'gaugeK' ? 'gauge pressure' : '°C';
+      if (typeof r !== 'number') return `At 0 °C the sum would divide by zero, so it has no answer. ${why}`;
+      if (fx(r, 3) === r0) return `In ${inU} the box reads ${r0} here, at the start. Move the piston or the heat, and it drifts.`;
+      return `In ${inU} the box reads ${fx(r, 3)}, not the ${r0} it read at the start. ${why}`;
+    }
+    if (g.mode === 'lock') return `At ${fx(g.Tc)} °C, which is ${TK} K, the gas pushes with ${A} bar absolute.` +
+      ((+p.ext || 0) >= 0.99 ? ' Carried on, the line reaches zero pressure at −273 °C, which is 0 K.' : ' Pressure ÷ kelvin stays the same all along the line.');
+    if (g.mode === 'float') return `At ${fx(g.Tc)} °C, which is ${TK} K, the gas fills ${vt(g.V)} L. The load keeps it at ${A} bar absolute, so the volume follows the kelvin temperature.`;
+    return `At ${vt(g.V)} L the gas pushes with ${A} bar in all. The gauge leaves out the air's 1 bar, so it reads ${G} bar.`;
+  }
+  function layout(i, d, st, p) {
+    const right = st.res === 'right', live = d.live || null, L = live || {};
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    el('ctl').hidden = !live;
+    volCtl.el.hidden = !L.vol;
+    heatCtl.el.hidden = !L.heat;
+    unitsCtl.el.hidden = !L.units;
+    bigCtl.el.hidden = !L.big;
+    extBtn.el.hidden = !L.ext;
+    if (L.ext) extBtn.setLabel((+p.ext || 0) >= 0.99 ? 'Hide the extension' : 'Extend the line');
+    el('say').hidden = !live;
+    el('say').textContent = live ? sayFor(i, d, p) : '';
+    el('outs').hidden = !live;
+    rAbs.el.hidden = !live; rGauge.el.hidden = !live;
+    rRatio.el.hidden = !L.units;
+    rBand.el.hidden = !L.big; rOff.el.hidden = !L.big;
+    if (L.big) { const Vr = tankLive(p).Vr; rBand.set(bandAir(Vr)); rOff.set(offMin(Vr)); }
+    rRatio.el.classList.toggle('drift', drifting(i, p));
+    el('replay').hidden = !d.show || REDUCE;
+    const opts = d.show ? [] : d.opts;
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((x) => x.length > 9));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    fb.textContent = d.show ? '' : right ? (d.right || 'That\'s it.') : st.res === 'wrong' ? ((d.hints && d.hints[st.pick]) || d.hint) : st.res === 'empty' ? PICK : '';
+    const why = el('why');
+    why.hidden = !!d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  }
+
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox'); onEnter(i);
+      if (d.live) { keyNow = ctlKey(K.params()); K.refresh(); return; }
+    }
+    if (d.live) {
+      const k = ctlKey(p);
+      if (k !== keyNow) {   // Dan moved a slider, the units or the switch: the demonstration gives way to him
+        keyNow = k;
+        if (d.live.big) {   // a new receiver size runs its fall from cut-out again
+          setCtl('clock', 0);
+          startMot([{ ctl: 'clock', from: 0, to: tankLive(p).Vr === VR2 ? offMin(VR2) : offMin(VR), t0: 0, t1: 3.0 }]);
+          K.refresh(); return;
+        }
+        if (MOT) { MOT = null; anim.pause(); T = Infinity; }
+      }
+    }
+    if (!anim.playing()) T = Infinity;
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    layout(i, d, st, p);
+    paint(i, p);
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const solved = (i) => ({ pick: STEPS[i].want, res: 'right', why: false });
+  const wrongSt = (i, o) => ({ pick: o, res: 'wrong', why: false });
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  // A step painted in the state given (finished): what it draws.
+  function drawn(i, st, pOver) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = Infinity;
+    try { paint(i, pOver ? Object.assign({}, K.params(), pOver) : null); return REC; }
+    finally { S[i] = keepS; T = keepT; paint(); }
+  }
+  const S_TWO = idx('Two readings'), S_LINE = idx('A straight line'), S_FLOAT = idx('A floating piston'), S_BOX = idx('pV ÷ T'), S_REC = idx('The air receiver');
+  const words = (s) => String(s || '').replace(/\*/g, '').split(/\s+/).filter(Boolean).length;
+
+  K.check('Absolute pressure is gauge pressure plus atmospheric pressure, on every screen and setting', () =>
+    STEPS.every((d, i) => { const o = K.at({ step: i }); return K.near(o.absPressure - o.gaugePressure, ATM, 1e-12); }) &&
+    [[1, 0], [6, 150], [2.5, 80]].every((q) => { const o = K.at({ step: S_BOX, vol: q[0], heat: q[1] }); return K.near(o.absPressure - o.gaugePressure, ATM, 1e-12); }), { source: SRC1 });
+  K.check("Compressed into half its volume at a steady temperature, the gas's pressure doubles", () =>
+    K.near(K.at({ step: S_TWO, vol: 1.5 }).absPressure / K.at({ step: S_TWO, vol: 3 }).absPressure, 2, 1e-9) &&
+    K.near(K.at({ step: S_TWO, vol: 2 }).absPressure / K.at({ step: S_TWO, vol: 4 }).absPressure, 2, 1e-9) &&
+    [1, 2.5, 6].every((v) => K.near(K.at({ step: S_TWO, vol: v }).absPressure * v, 6, 1e-9)), { source: SRC2 });
+  K.check('The pressure of the trapped gas is directly proportional to its absolute temperature while the volume does not change, so its line meets zero pressure at absolute zero', () => {
+    const pr = (h) => K.at({ step: S_LINE, heat: h }).absPressure;
+    const ok = [0, 27, 100, 150].every((h) => K.near(pr(h) / kel(h), pr(27) / kel(27), 1e-12));
+    const zero = -pr(0) / ((pr(150) - pr(0)) / 150);
+    const r = drawn(S_LINE, blank(), { heat: 127, ext: 1 });
+    return ok && K.near(zero, -ABS0, 1e-9) && r.ext != null && K.near(r.ext, -ABS0, 1e-9);
+  }, { source: SRC3 });
+  K.check('A bigger receiver means less frequent motor starts: twice the receiver holds twice the air in its band and keeps the compressor off twice as long', () =>
+    K.near(bandAir(VR2), 2 * bandAir(VR), 1e-9) && K.near(offMin(VR2), 2 * offMin(VR), 1e-9) &&
+    K.near(K.at({ step: S_REC, clock: offMin(VR2), big: true }).gaugePressure, CUTIN, 1e-9) &&
+    K.near(K.at({ step: S_REC, clock: offMin(VR), big: true }).gaugePressure, (CUTIN + CUTOUT) / 2, 1e-9), { source: SRC4 });
+  K.check('Every number the screens print comes from the rule: 6, 1.5 and 4 bar; 4 bar absolute, 3 gauge and 2; 293 K, 313 K and 7%; about 2.1 bar against 4; 400 K and 4 L; 0.020, 0.010, 0.015, 0.222, 2.67 and 0.063; 4, 3 and about 14 bar; 7 and 9 bar absolute, 4,500, 3,500 and 1,000 L, 4 minutes, 2,000 L and 8 minutes; 8 bar, 323 K, about 8.8 and 7.8 bar against 17.5; about 22%, 25% and 78%', () =>
+    N.pv0 === '6' && N.w6 === '6' && N.w15 === '1.5' && N.w4 === '4' && N.pv6 === '6' && N.p15 === '4' && N.g15 === '3' && N.wg2 === '2' &&
+    N.k20 === '293' && N.k40 === '313' && N.pct7 === '7' && N.p40 === '2.1' && N.w40 === '4' && N.k127 === '400' && N.v127 === '4' &&
+    N.c0 === '0.020' && N.gk0 === '0.010' && N.gk15 === '0.015' && N.ac0 === '0.222' && N.p127 === '2.67' && N.ac127 === '0.063' &&
+    N.s9 === '4' && N.s9w3 === '3' && N.s9w14 === '14' && N.cin === '7' && N.cout === '9' && N.L45 === '4,500' && N.L35 === '3,500' &&
+    N.band === '1,000' && N.off === '4' && N.band2 === '2,000' && N.off2 === '8' && N.r8 === '8' && N.k50 === '323' && N.p50 === '8.8' && N.g50 === '7.8' &&
+    N.w175 === '17.5' && N.gone === '2' && N.sh22 === '22' && N.sh25 === '25' && N.sh78 === '78');
+  K.check('pV ÷ T holds at 0.020 in absolute pressure and kelvin wherever the piston and heater go; in gauge it goes from 0.010 to 0.015 at 1.5 L, and in °C from 0.222 to 0.063 at 127 °C', () =>
+    [[3, 27], [1.5, 27], [1.5, 127], [6, 0], [1, 150], [2.2, 63]].every((q) => K.near(K.at({ step: S_BOX, vol: q[0], heat: q[1], units: 'absK' }).ratio, 0.02, 1e-12)) &&
+    K.near(K.at({ step: S_BOX, units: 'gaugeK' }).ratio, 0.01, 1e-12) && K.near(K.at({ step: S_BOX, vol: 1.5, units: 'gaugeK' }).ratio, 0.015, 1e-12) &&
+    K.near(K.at({ step: S_BOX, units: 'absC' }).ratio, 6 / 27, 1e-12) && K.near(K.at({ step: S_BOX, heat: 127, units: 'absC' }).ratio, (8 / 3) * 3 / 127, 1e-12) &&
+    K.at({ step: S_BOX, heat: 0, units: 'absC' }).ratio === 'no answer' && K.near(K.at({ step: S_BOX, vol: 3, heat: 127 }).absPressure, 8 / 3, 1e-12));
+  K.check('With the piston floating, 27 °C to 127 °C keeps 2 bar absolute and takes 3 L to 4 L; locked, the same warming takes 2 bar to about 2.67', () =>
+    K.near(K.at({ step: S_FLOAT, heat: 127 }).absPressure, 2, 1e-12) && K.near(drawn(S_FLOAT, blank(), { heat: 127 }).V, 4, 1e-9) &&
+    K.near(drawn(S_FLOAT, blank(), { heat: 27 }).V, 3, 1e-9) && K.near(K.at({ step: S_LINE, heat: 127 }).absPressure, 8 / 3, 1e-12));
+  K.check('The readings follow the piston and the heat at once, and the receiver starts at 8 bar gauge and falls to 6 bar in 4 minutes', () =>
+    K.at({ step: S_TWO, vol: 2 }).absPressure !== K.at({ step: S_TWO, vol: 3 }).absPressure &&
+    K.at({ step: S_LINE, heat: 60 }).absPressure !== K.at({ step: S_LINE, heat: 27 }).absPressure &&
+    K.near(K.at({ step: S_REC, clock: 0, big: false }).gaugePressure, CUTOUT, 1e-12) && K.near(K.at({ step: S_REC, clock: 4, big: false }).gaugePressure, CUTIN, 1e-12));
+  K.check('Each puzzle offers three different answers including its right one, every wrong answer has its own hint, and before Check nothing on its picture shows the answer or a red mark', () =>
+    DO.every((i) => {
+      const d = STEPS[i];
+      if (d.opts.length !== 3 || d.opts.indexOf(d.want) < 0 || new Set(d.opts).size !== 3) return false;
+      if (!d.opts.every((o) => o === d.want || (d.hints[o] && d.hints[o].length > 10))) return false;
+      const g = drawn(i, blank());
+      return !g.bad && g.texts.every((t) => t.indexOf(d.want) < 0);
+    }));
+  K.check('A wrong pick is drawn in red where it fails: 1.5 and 4 bar off the curve; the gauge doubled or read as absolute; 4 bar counted from 0 °C and no change; the locked and both-up points; heat left out and 14 bar off the chart; all of it and one tankful; 8.8 read as gauge and 17.5 from 0 °C; 2 of 8 and what is left. A right answer draws no red', () =>
+    DO.every((i) => {
+      const d = STEPS[i];
+      if (drawn(i, solved(i)).bad) return false;
+      return d.opts.filter((o) => o !== d.want).every((o) => drawn(i, wrongSt(i, o)).bad > 0);
+    }));
+  K.check("A right answer draws the rule's result: 6 bar at 1 L; 4 bar absolute on the gauge; about 2.14 bar at 40 °C; 4 L at 2 bar; 4 bar at 2 L; the band's two blocks; about 8.82 bar absolute at 50 °C; 2 of 9 parts gone at 7 bar absolute", () => {
+    const r = (name) => { const i = idx(name); return drawn(i, solved(i)); };
+    const a = r('A warm-up sum'), b = r('Half the space'), c = r('Locked and warmed'), e = r('Heating, floating'), f = r('All three change');
+    const h = r('Air between starts'), w = r('A warm receiver'), s = r('Air gone');
+    const at2 = (q, x, y) => !!q && K.near(q[0], x, 1e-9) && K.near(q[1], y, 1e-9);
+    return at2(a.dot, 1, 6) && K.near(b.ptr, 4, 1e-9) && at2(b.dot, 1.5, 4) && at2(c.dot, 40, 2 * 313 / 293) && at2(e.dot, 4, 2) && at2(f.dot, 2, 4) &&
+      !!h.blocks && h.blocks.band === 2 && at2(w.dot, 50, 8 * 323 / 293) && K.near(w.ptr, 8 * 323 / 293, 1e-9) && !!s.blocks && s.blocks.gone === 2 && K.near(s.ptr, 7, 1e-9) &&
+      c.ext != null && K.near(c.ext, -ABS0, 1e-9);
+  });
+  K.check('Every demonstration has finished within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\'s motion, right or wrong, within 2 s', () => {
+    const keepT = T;
+    const timed = (i, st, limit) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; earliest = Infinity;
+      S[i] = st;
+      try { paint(i); } finally { S[i] = keepS; }
+      return latest <= limit + 1e-9;
+    };
+    const ok = STEPS.every((d, i) => {
+      if (d.show) return d.mot.every((m) => m.t0 >= FADE && m.t1 <= d.dur) && d.dur >= 3 && d.dur <= 4.5 && timed(i, blank(), d.dur);
+      return timed(i, solved(i), ANS) && d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), ANS));
+    });
+    T = keepT; paint();
+    return ok;
+  });
+  K.check('Every demonstration screen keeps to about 90 words', () => STEPS.every((d) => !d.show || (words(d.text) <= 90 && (!d.read || words(d.read) <= 90))));
+
+  K.ready();
+</script>

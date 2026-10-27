@@ -1,0 +1,1173 @@
+<!-- kind: quantity -->
+<style>
+  [hidden] { display: none !important; }
+  .pz { max-width: 30rem; margin-inline: auto; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .stage { position: relative; max-width: 26rem; margin-inline: auto; }
+  .scene { display: block; width: 100%; }
+  .scene .wall { fill: none; stroke: var(--k-strong); stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }
+  .scene .liq { fill: var(--k-cat1); fill-opacity: .16; }
+  .scene .surf { stroke: var(--k-cat1); stroke-width: 2; }
+  .scene .pipeo { stroke: var(--k-strong); fill: none; }
+  .scene .pipei { stroke: var(--k-bg); fill: none; }
+  .scene .pipew { stroke: var(--k-cat1); stroke-opacity: .28; fill: none; }
+  .scene .dot { fill: var(--k-cat1); }
+  .scene .pump { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 2; }
+  .scene .vane { stroke: var(--k-accent2); stroke-width: 2; stroke-linecap: round; }
+  .scene .hub { fill: var(--k-accent2); }
+  .scene .motor { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .shaft { stroke: var(--k-strong); stroke-width: 3; }
+  .scene .lvl { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 5 4; }
+  .scene .brk { fill: none; stroke: var(--k-accent2); stroke-width: 1.5; }
+  .scene .bl { fill: var(--k-fill1); stroke: var(--k-accent2); stroke-width: 1; }
+  .scene .bf { fill: var(--k-fill2); stroke: var(--k-amber-line); stroke-width: 1; }
+  .scene .bx { fill: var(--k-fill3); stroke: var(--k-muted); stroke-width: 1; }
+  .scene .pw { fill: var(--k-cat1); fill-opacity: .35; stroke: var(--k-cat1); stroke-width: 1; }
+  .scene .cut { stroke: var(--k-bg); stroke-width: 1.5; }
+  .scene .ax { stroke: var(--k-strong); stroke-width: 1.2; fill: none; }
+  .scene .grid { stroke: var(--k-line); stroke-width: 1; }
+  .scene .crv { fill: none; stroke: var(--k-accent2); stroke-width: 2; stroke-linejoin: round; }
+  .scene .pt { fill: var(--k-accent2); }
+  .scene .ring { fill: none; stroke: var(--k-accent2); stroke-width: 2; }
+  .scene .gd { stroke: var(--k-accent2); stroke-width: 1.2; stroke-dasharray: 3 3; }
+  .scene .dial { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .tick { stroke: var(--k-strong); stroke-width: 1.2; }
+  .scene .ndl { stroke: var(--k-accent2); stroke-width: 2.5; stroke-linecap: round; }
+  .scene .tube { fill: none; stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .colw { fill: var(--k-cat1); fill-opacity: .35; }
+  .scene .uo { fill: none; stroke: var(--k-strong); stroke-width: 12; }
+  .scene .ui { fill: none; stroke: var(--k-bg); stroke-width: 9; }
+  .scene .ul { fill: none; stroke: var(--k-cat1); stroke-opacity: .35; stroke-width: 9; }
+  .scene .bt { fill: none; stroke: var(--k-strong); stroke-width: 4; stroke-linecap: round; }
+  .scene .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .lab.m { font-weight: 400; fill: var(--k-muted); }
+  .scene .lab.t { fill: var(--k-accent); }
+  .scene .lab.w { fill: var(--k-warn); }
+  .scene .lab.n { fill: var(--k-accent2); }
+  .scene .ar { stroke-width: 2.5; stroke-linecap: round; fill: none; }
+  .scene .ar-n { stroke: var(--k-accent2); }
+  .scene .hd-n { fill: var(--k-accent2); }
+  .scene .ar-w { stroke: var(--k-warn); stroke-dasharray: 5 4; stroke-linecap: butt; }
+  .scene .hd-w { fill: var(--k-warn); }
+  .scene .bad { fill: none; stroke: var(--k-warn); stroke-width: 2.5; stroke-dasharray: 6 4; }
+  .scene .badl { stroke: var(--k-warn); stroke-width: 2.5; stroke-dasharray: 6 4; fill: none; }
+  .scene .badd { fill: var(--k-warn); }
+  .scene #art * { pointer-events: none; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; }
+  /* Readouts and answers wrap onto as many rows as they need at 360 px. */
+  #outs { display: grid; grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr)); gap: 10px; }
+  .picks { display: grid; grid-template-columns: repeat(auto-fit, minmax(6.5rem, 1fr)); gap: 10px; }
+  .picks.long { grid-template-columns: 1fr; }
+  .picks .k-btn { min-height: 52px; font-size: 1.1rem; }
+  .picks.long .k-btn { min-height: 48px; font-size: 1.02rem; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why, .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }
+</style>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <div class="stage" id="stage">
+      <svg class="scene" id="scene" viewBox="0 0 340 252" width="100%" role="img" aria-label=""><g id="art"></g></svg>
+    </div>
+    <div class="k-controls" id="ctl"></div>
+    <p class="say" id="say"></p>
+    <div class="k-readouts" id="outs"></div>
+    <div class="replay" id="replay"></div>
+    <div class="picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+
+<script>
+  // ---------- the rule ----------
+  // Head is a height of liquid: a pressure p holds up p ÷ ρg of it. A pipe between two open tanks
+  // needs the lift (the height between the surfaces) plus the friction head, f × (L ÷ D) × v² ÷ 2g
+  // (Darcy), with v = flow ÷ the bore's area. The water gets ρgQH watts; the pump's efficiency and
+  // then the motor's divide that; the line current is the input ÷ (√3 × 440 V × 0.85).
+  const SRC_TALLEY = 'https://talleylab.ucsd.edu/sio210/lect_2/lecture_2.html';
+  const SRC_CED = 'https://www.cedengineering.com/userfiles/Centrifugal%20Pump%20Analysis%20R1.pdf';
+  const SRC_ATLAS = 'https://www.atlascopco.com/en-us/construction-equipment/resources/dewatering-pumps-guide/pump-head';
+  const SRC_DARCY = 'https://en.wikipedia.org/wiki/Darcy%E2%80%93Weisbach_equation';
+  const SRC_EMC = 'https://www.electromechcalc.com/mechanical/pump-power';
+  const SRC_PM = 'https://en.wikipedia.org/wiki/Pressure_measurement';
+  const RHO = 1025, RHOF = 1000, G = 9.81, F = 0.02, EP = 0.7, EM = 0.9, VL = 440, PF = 0.85, R3 = Math.sqrt(3);
+  const LIFT0 = 10, LEN0 = 70, BORE0 = 65, Q0 = 10, BORES = [50, 65, 80, 100];
+  const FADE = 0.35, ANS = 2.0;
+  const areaOf = (mm) => Math.PI * Math.pow(mm / 2000, 2);                    // m², from the bore in mm
+  const speedOf = (q, mm) => (q / 1000) / areaOf(mm);                            // m/s, from the flow in L/s
+  const darcy = (len, mm, v) => F * (len / (mm / 1000)) * v * v / (2 * G);      // friction head, m
+  const fricOf = (q, len, mm) => darcy(len, mm, speedOf(q, mm));
+  const headOf = (lift, q, len, mm) => lift + fricOf(q, len, mm);
+  const hydW = (q, H) => RHO * G * (q / 1000) * H;                               // W: ρgQH
+  const shaftW = (w) => w / EP;
+  const inputW = (w) => w / EP / EM;
+  const ampsOf = (w) => inputW(w) / (R3 * VL * PF);
+  const colM = (pa, rho) => pa / ((rho || RHO) * G);                             // m of liquid a pressure holds up
+  const rd = (v, dp) => { const f = Math.pow(10, dp || 0); return Math.round(v * f + (v >= 0 ? 1e-7 : -1e-7)) / f; };
+  const fx = (v, dp) => K.fmt(rd(v, dp || 0), { decimals: dp || 0 });
+  const fq = (v) => K.fmt(v, { decimals: Math.abs(v - Math.round(v)) < 1e-9 ? 0 : Math.abs(v * 2 - Math.round(v * 2)) < 1e-9 ? 1 : 2 });
+  const DS = String(RHO), GS = String(G);
+  // Every number the words and pictures print, worked out from the rule.
+  const H0 = headOf(LIFT0, Q0, LEN0, BORE0), WO = hydW(Q0, H0);
+  const W12 = hydW(12, headOf(LIFT0, 12, LEN0, BORE0)), DX = darcy(50, 50, 2), WM = hydW(5, 15);
+  const N = {
+    c100: fx(colM(100000), 1), h2: fx(colM(200000), 1), h2f: fx(colM(200000, RHOF), 1), h2g: fx(200000 / RHO),
+    v0: fx(speedOf(Q0, BORE0), 1), a65: fx(areaOf(BORE0), 5),
+    f5: fx(fricOf(5, LEN0, BORE0), 1), f10: fx(fricOf(Q0, LEN0, BORE0), 1), H0: fx(H0, 1),
+    d50: fx(DX, 1), d150: fx(3 * DX, 1), d150w: fx(9 * DX, 1),
+    t26: fx(10 + 4 * 4), t18: fx(10 + 2 * 4), t56: fx(4 * (10 + 4)),
+    P0: fx(WO / 1000, 2), S0: fx(shaftW(WO) / 1000, 2), I0: fx(inputW(WO) / 1000, 2), A0: fx(ampsOf(WO), 1),
+    H12: fx(headOf(LIFT0, 12, LEN0, BORE0), 1), A12: fx(ampsOf(W12), 1),
+    s10: fx(2.01 / EP, 2), s10w: fx(2.01 * EP, 2),
+    mW: fx(WM), mS: fx(WM / 0.75 / 1000, 2), mSw: fx(WM * 0.75 / 1000, 2), mSf: fx(hydW(5, 12) / 0.75 / 1000, 2),
+    vh: fx(4 / (2 * G), 3), ld: fx(0.05 / 0.05 * 1000),
+    b100: fx(fricOf(Q0, LEN0, 100), 2), b50: fx(fricOf(Q0, LEN0, 50), 1), b32: fx(fricOf(Q0, LEN0, 50) / fricOf(Q0, LEN0, 100)),
+  };
+  const O = {
+    h199: `About ${N.h2} m`, h204: `About ${N.h2f} m`, h195: `About ${N.h2g} m`,
+    dbl: 'It doubles', four: 'It grows four times', same: 'It stays the same',
+    l122: `About ${N.d150} m`, l367: `About ${N.d150w} m`, l41: `About ${N.d50} m`,
+    t26: `${N.t26} m`, t18: `${N.t18} m`, t56: `${N.t56} m`,
+    s287: `About ${N.s10} kW`, s141: `About ${N.s10w} kW`, s201: `About ${N.P0} kW`,
+    m101: `About ${N.mS} kW`, m057: `About ${N.mSw} kW`, m080: `About ${N.mSf} kW`,
+    x32: `About ${N.b32} times`, x4: 'About 4 times', x16: 'About 16 times',
+  };
+
+  // ---------- the lesson: SHOW screens demonstrate, DO screens are puzzles ----------
+  // A live screen (live: which controls show) opens on its own settings (set) and runs its
+  // demonstration (mot: timed keys for a control) once. fix: settings held for that screen.
+  const STEPS = [
+    { show: true, name: 'Pressure as a height', top: 'gauge', dur: 4.0,
+      text: `A column of seawater h metres tall presses ρgh on its base. So any pressure reads as a height. This gauge reads 100 kPa. That holds up 100,000 ÷ (${DS} × ${GS}), about ${N.c100} m of seawater. That height is *head*. The open tube is a simple *manometer*. A pump's head is the height it can raise the liquid. Head is also energy. Lifting 1 N through 1 m takes 1 J. So each metre of head gives 1 J to every newton of liquid.` },
+    { show: true, name: 'Two gauges', top: 'meters', dur: 3.6,
+      text: 'A *U-tube manometer* is a bent tube, part-filled with liquid. One leg joins the pipe. The other is open to the air. Pressure pushes the liquid down one leg and up the other. The gap between the levels is the pressure, as a head of that liquid. A *Bourdon gauge* hides a flattened tube, bent into a C. Pressure makes it straighten a little. Its tip turns the needle. Both read gauge pressure, the pressure above the air around them.' },
+    { kind: 'pick', name: 'Gauges to head', top: 'gauges',
+      opts: [O.h199, O.h204, O.h195], want: O.h199,
+      bad: { [O.h204]: { lab: `${N.h2f} m uses fresh water's 1000 kg/m³` }, [O.h195]: { lab: `${N.h2g} m leaves out g` } },
+      task: "A pump moves seawater. Its outlet gauge reads 200 kPa more than its inlet gauge. What head is that?",
+      why: `Head is the pressure ÷ ρg. 200 kPa is 200,000 Pa. So the head is 200,000 ÷ (${DS} × ${GS}), about ${N.h2} m of seawater. Fresh water is lighter, so the same pressure would hold up a little more of it.`,
+      hint: 'Not quite. Divide the pressure by ρg.',
+      hints: { [O.h204]: `Not quite. That uses fresh water's density. Seawater is ${DS} kg/m³.`, [O.h195]: 'Not quite. That leaves out g. Divide by ρ × g, not ρ alone.' } },
+    { show: true, name: 'The lift', top: 'sys', below: 'lift', live: { lift: true }, fix: { flow: 0 },
+      set: { lift: 10, flow: 0 }, dur: 3.6, mot: [{ ctl: 'lift', keys: [[0.5, 10], [1.8, 16], [3.3, 10]] }],
+      text: "A pump will lift seawater from the low tank to the high one. Nothing flows yet. The *lift* is the height between the two water surfaces. The bar below stands for it, in metres of seawater. While the tanks' levels hold, the lift is the same at any flow, even none. Drag the lift and watch the bar follow.",
+      read: "A pump will lift seawater from the low tank to the high one. Nothing flows yet. The *lift* is the height between the two water surfaces. The bar below stands for it, in metres of seawater. While the tanks' levels hold, the lift is the same at any flow, even none. The bar is as tall as the gap between the surfaces." },
+    { kind: 'pick', name: 'Before the friction bar', top: 'predict',
+      opts: [O.dbl, O.four, O.same], want: O.four,
+      bad: { [O.dbl]: { lab: 'twice: friction in step with the flow' }, [O.same]: { lab: 'the same: but faster water loses more' } },
+      task: 'Seawater runs through a pipe at 5 L/s. Then the flow through the same pipe doubles. What happens to the friction head?',
+      why: 'Twice the flow through the same pipe means twice the speed. The energy each cubic metre of water carries grows with the speed squared. Eddies turn a share of it into heat. So twice the speed loses four times as much.',
+      hint: 'Not quite. Think about the speed, and how its energy grows.',
+      hints: { [O.dbl]: 'Not quite. That would be friction in step with the flow. It grows with the speed squared.', [O.same]: 'Not quite. Faster water churns more, so it loses more.' } },
+    { show: true, name: 'Friction on top', top: 'sys', below: 'pair', speed: true, live: { flow: true }, outs: ['totalHead'],
+      set: { flow: 0 }, dur: 3.8, mot: [{ ctl: 'flow', keys: [[0.5, 0], [1.6, 5], [2.4, 5], [3.6, 10]] }],
+      text: `Now the water flows. The upper bar is the *friction head*, the energy lost on the way. In eddying flow it grows with the speed squared. So twice the flow gives four times the friction. At 5 L/s it is about ${N.f5} m. At 10 L/s it is about ${N.f10} m. The lift bar never moves. The left stack is the same pipe at half the flow. Drag the flow.`,
+      read: `Now the water flows. The upper bar is the *friction head*, the energy lost on the way. In eddying flow it grows with the speed squared. At 5 L/s it is about ${N.f5} m. At 10 L/s it is about ${N.f10} m. The lift bar never moves. The left stack is the same pipe at half the flow. The flow ends at 10 L/s, four times the friction of 5 L/s.` },
+    { show: true, name: "Darcy's rule", top: 'darcy', dur: 3.4,
+      text: `*Darcy's rule* gives the friction head: f × (L ÷ D) × v² ÷ 2g. L is the pipe's length and D its bore, both in metres. v is the water's speed. f is the *friction factor*, set mostly by how rough the pipe is. Here it is held at 0.02. A real f shifts a little with speed. Take 50 m of 50 mm pipe at 2 m/s. L ÷ D is ${N.ld}. So the loss is 0.02 × ${N.ld} × 2² ÷ 19.62, about ${N.d50} m.` },
+    { kind: 'pick', name: 'A longer pipe', top: 'longer',
+      opts: [O.l367, O.l122, O.l41], want: O.l122,
+      bad: { [O.l367]: { lab: `${N.d150w} m squares the length too` }, [O.l41]: { lab: `${N.d50} m: more pipe loses more` } },
+      task: `50 m of 50 mm pipe loses about ${N.d50} m of head at 2 m/s. How much does 150 m of the same pipe lose at the same speed?`,
+      why: `The friction grows in step with the length, and with the speed squared. Here only the length changes. Three times the pipe at the same speed loses three times as much, about ${N.d150} m.`,
+      hint: 'Not quite. Only the speed is squared.',
+      hints: { [O.l367]: 'Not quite. That squares the length too. Only the speed is squared.', [O.l41]: 'Not quite. Every metre of pipe loses its own share, so more pipe loses more.' } },
+    { show: true, name: 'The system curve', top: 'sys', below: 'curve', live: { flow: true, lift: true, length: true, bore: true }, outs: ['totalHead'],
+      set: { flow: 0 }, dur: 4.4, mot: [{ ctl: 'flow', keys: [[0.5, 0], [4.2, 12]] }],
+      text: 'Add the lift and the friction at every flow, and you get the *system curve*. Each flow drops a dot at the head it needs. The curve starts at the lift and bends upward as the flow squared. Mostly lift gives a flat curve. Mostly friction gives a steep one. Try a 20 m lift with 10 m of pipe. Then try no lift with 150 m of 50 mm pipe.',
+      read: 'Add the lift and the friction at every flow, and you get the *system curve*. Each flow drops a dot at the head it needs. The curve starts at the lift and bends upward as the flow squared. Mostly lift gives a flat curve. Mostly friction gives a steep one. Here the dots run from 0 to 12 L/s.' },
+    { kind: 'pick', name: 'Twice the flow', top: 'twice',
+      opts: [O.t18, O.t26, O.t56], want: O.t26,
+      bad: { [O.t18]: { lab: `${N.t18} m doubles the friction` }, [O.t56]: { lab: `${N.t56} m makes the lift four times too` } },
+      task: 'A system has a lift of 10 m and loses 4 m to friction at 5 L/s. What head does it need at 10 L/s?',
+      why: `The lift stays 10 m at any flow. Twice the flow gives four times the friction, so 4 × 4 = 16 m. Add them, and 10 + 16 = ${N.t26} m.`,
+      hint: 'Not quite. The lift stays put. Only the friction grows.',
+      hints: { [O.t18]: 'Not quite. That doubles the friction. It grows four times.', [O.t56]: 'Not quite. That makes the lift four times too. The lift never changes with the flow.' } },
+    { show: true, name: 'Head to power', top: 'chain', dur: 3.4,
+      text: `Each second the pump moves Q cubic metres of water. They weigh ρgQ newtons. It raises each newton through H metres of head. So the water gets ρgQH watts, the *hydraulic power*. 10 L/s is 0.01 m³/s. With ${N.H0} m of head, that is about ${N.P0} kW. The pump wastes some, so at 70% its shaft must give about ${N.S0} kW. The motor wastes some too. At 90% it draws about ${N.I0} kW. Each efficiency divides.` },
+    { kind: 'pick', name: "The shaft's power", top: 'shaft',
+      opts: [O.s287, O.s141, O.s201], want: O.s287,
+      bad: { [O.s141]: { lab: `${N.s10w} kW is less than the water gets` }, [O.s201]: { lab: `${N.P0} kW leaves out the pump's losses` } },
+      task: `The hydraulic power is ${N.P0} kW and the pump's efficiency is 70%. What power must the shaft give?`,
+      why: `The pump wastes some of what its shaft gives it. So the shaft must give more than the water gets. Divide by the efficiency: ${N.P0} ÷ 0.7 is about ${N.s10} kW.`,
+      hint: 'Not quite. The shaft must give more than the water gets.',
+      hints: { [O.s141]: 'Not quite. That multiplies by 0.7. The shaft must give more than the water gets, so divide.', [O.s201]: "Not quite. That leaves out the pump's losses." } },
+    { show: true, name: 'The ammeter', top: 'chain', amps: true, live: { flow: true }, outs: ['totalHead', 'hydraulicPower', 'motorCurrent'],
+      set: { flow: 10 }, dur: 3.6, mot: [{ ctl: 'flow', keys: [[0.6, 10], [3.2, 12]] }],
+      text: `The motor runs on 440 V three-phase, at a power factor of 0.85. Its line current is its input ÷ (√3 × 440 × 0.85). At 10 L/s the ammeter reads about ${N.A0} A. At 12 L/s it reads about ${N.A12} A. Both the flow and the head have grown, so the power grows faster than the flow. Drag the flow and watch the needle.`,
+      read: `The motor runs on 440 V three-phase, at a power factor of 0.85. Its line current is its input ÷ (√3 × 440 × 0.85). At 10 L/s the ammeter reads about ${N.A0} A. At 12 L/s it reads about ${N.A12} A. Both the flow and the head have grown, so the power grows faster than the flow. The needle follows the flow.` },
+    { kind: 'pick', name: 'A new pump', top: 'mixed',
+      opts: [O.m057, O.m080, O.m101], want: O.m101,
+      bad: { [O.m057]: { lab: `${N.mSw} kW is less than the water gets` }, [O.m080]: { lab: `${N.mSf} kW counts the lift alone` } },
+      task: "A pump sends 5 L/s of seawater up a lift of 12 m. The pipe loses 3 m to friction, and the pump's efficiency is 75%. What power must the shaft give?",
+      why: `The head is the lift plus the friction, 12 + 3 = 15 m. 5 L/s is 0.005 m³/s. So the water gets ${DS} × ${GS} × 0.005 × 15, about ${N.mW} W. The shaft must give more: ${N.mW} ÷ 0.75 is about ${N.mS} kW.`,
+      hint: 'Not quite. Add the friction to the lift, then divide by the efficiency.',
+      hints: { [O.m057]: 'Not quite. That multiplies by 0.75. Divide by the efficiency.', [O.m080]: 'Not quite. That leaves out the 3 m of friction. The head is the lift plus the friction.' } },
+    { kind: 'pick', name: 'Half the bore', top: 'bore',
+      opts: [O.x4, O.x16, O.x32], want: O.x32,
+      bad: { [O.x4]: { lab: '4 times counts only the faster speed' }, [O.x16]: { lab: '16 times leaves out length ÷ bore' } },
+      task: 'The same flow runs through the same length of pipe. A 100 mm bore is swapped for a 50 mm one. How many times the friction head does that give?',
+      why: `Half the bore has a quarter of the area. So the same flow goes four times as fast, and that squared is 16. The length ÷ the bore also doubles. So the friction grows 2 × 16 = ${N.b32} times. At 10 L/s through 70 m, about ${N.b100} m becomes about ${N.b50} m.`,
+      hint: 'Not quite. Find the change in speed, square it, then think about length ÷ bore.',
+      hints: { [O.x4]: 'Not quite. That counts only the faster speed. Friction grows with the speed squared.', [O.x16]: 'Not quite. That is the speed squared alone. Length ÷ bore doubles too.' } },
+  ];
+  const FINISH = "A pipe needs head for its lift plus friction that grows with the flow squared. That head × the flow sets the pump's power and its motor's current.";
+  const PICK = 'Pick an answer first.';
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- each step's state ----------
+  function blank() { return { pick: null, res: null, why: false }; }
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity, motionEnd = 0, MOT = null, keyNow = '';
+  let W = 0, ROT = 0, CLK = 0, HH = 252, taskKey = '', CHECKING = false;
+  const EX = {};                   // exact values while a demonstration drives a slider (the slider moves in steps)
+  const VIS = new Map();           // the system curve's dots: flow × 2 -> when it was dropped
+  const VK = { last: null };
+  const YM = { cur: 25, tgt: 25 };
+  const el = (id) => document.getElementById(id);
+
+  // ---------- words with amber key terms (built with K.el, never innerHTML) ----------
+  // A number and its unit never part at a line end.
+  const nb = (s) => String(s || '').replace(/(\d) (m\/s|L\/s|kg\/m³|m³\/s|m³|m²|mm|kPa|kW|kg|Pa|N|J|W|V|A|L|m)(?![A-Za-z²³\/])/g, '$1 $2');
+  function write(node, s) {
+    node.textContent = '';
+    s = nb(s);
+    const re = /\*([^*]+)\*/g;
+    let pos = 0, m;
+    while ((m = re.exec(s))) {
+      if (m.index > pos) node.appendChild(document.createTextNode(s.slice(pos, m.index)));
+      node.appendChild(K.el('span', { class: 'term' }, m[1]));
+      pos = m.index + m[0].length;
+    }
+    if (pos < s.length) node.appendChild(document.createTextNode(s.slice(pos)));
+    return node;
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);
+  const stepOf = (p) => K.clamp(Math.round(+p.step) || 0, 0, STEPS.length - 1);
+  const liftCtl = K.control({ id: 'lift', label: 'Lift', min: 0, max: 20, step: 1, value: LIFT0, unit: 'm', fmt: (v) => fx(v) + ' m', snap: [10], into: '#ctl' });
+  const lenCtl = K.control({ id: 'length', label: "Pipe's length", min: 10, max: 150, step: 10, value: LEN0, unit: 'm', fmt: (v) => fx(v) + ' m', snap: [70], into: '#ctl' });
+  const boreCtl = K.choice({ id: 'bore', label: 'Bore', options: BORES.map((b) => ({ value: b, label: b + ' mm' })), value: BORE0, into: '#ctl' });
+  const flowCtl = K.control({ id: 'flow', label: 'Flow', min: 0, max: 12, step: 0.5, value: Q0, unit: 'L/s', fmt: (v) => fx(v, 1) + ' L/s', snap: [5, 10, 12], into: '#ctl' });
+  const CTL = { lift: liftCtl, length: lenCtl, bore: boreCtl, flow: flowCtl };
+  function setCtl(id, v) { if (typeof v === 'number') EX[id] = v; CTL[id].set(v, true); }
+  const ctlKey = (p) => [p.lift, p.length, p.bore, p.flow].join('|');
+
+  const num = (v, d0) => (isFinite(+v) && v !== '' && v != null ? +v : d0);
+  const pv = (p, id) => (MOT && EX[id] != null ? EX[id] : p[id]);
+  const liftOf = (p) => K.clamp(Math.round(num(p.lift, LIFT0)), 0, 20);
+  const lenOf = (p) => K.clamp(Math.round(num(p.length, LEN0) / 10) * 10, 10, 150);
+  const boreOf = (p) => { const b = Math.round(num(p.bore, BORE0)); return BORES.indexOf(b) >= 0 ? b : BORE0; };
+  const flowOf = (p) => K.clamp(num(p.flow, Q0), 0, 12);
+  const liftDraw = (p) => K.clamp(num(pv(p, 'lift'), LIFT0), 0, 20);
+  const flowDraw = (p) => K.clamp(num(pv(p, 'flow'), Q0), 0, 12);
+  // The settings a screen runs on: its live controls, else its held values, else the opening ones.
+  function setOf(d, p, draw) {
+    const L = d.live || {}, base = Object.assign({ lift: LIFT0, length: LEN0, bore: BORE0, flow: Q0 }, d.fix || {});
+    return {
+      lift: L.lift ? (draw ? liftDraw(p) : liftOf(p)) : base.lift,
+      len: L.length ? lenOf(p) : base.length,
+      bore: L.bore ? boreOf(p) : base.bore,
+      q: L.flow ? (draw ? flowDraw(p) : flowOf(p)) : base.flow,
+    };
+  }
+  K.model((p) => {
+    const s = setOf(STEPS[stepOf(p)], p, false), H = headOf(s.lift, s.q, s.len, s.bore), w = hydW(s.q, H);
+    return { totalHead: H, hydraulicPower: w / 1000, motorCurrent: ampsOf(w) };
+  });
+
+  const rHead = K.readout({ id: 'totalHead', label: 'Head needed', unit: 'm', decimals: 1, into: '#outs' });
+  const rPow = K.readout({ id: 'hydraulicPower', label: 'Hydraulic power', unit: 'kW', decimals: 2, into: '#outs' });
+  const rAmp = K.readout({ id: 'motorCurrent', label: 'Motor current', unit: 'A', decimals: 1, into: '#outs' });
+
+  // Up to three answer buttons; each step fills in its own options.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = d.opts[k]; st.res = null;
+    if (was) { anim.pause(); T = Infinity; }
+  } }));
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished || st.res === 'right') return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = st.pick === d.want ? 'right' : 'wrong';
+    play(ANS);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const i = at(), d = STEPS[i];
+    if (!d.show || finished) return;
+    onEnter(i);
+    keyNow = ctlKey(K.params());
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true; anim.pause(); T = Infinity; MOT = null;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // ---------- drawing helpers ----------
+  const svg = el('scene'), art = el('art');
+  let into = null, REC = null;
+  const add = (n) => (into || art).appendChild(n);
+  const rn = (v) => Math.round(v * 100) / 100;
+  const sv = (tag, a) => add(K.svg(tag, a));
+  const path = (d, cls) => sv('path', { class: cls, d });
+  function rect(x, y, w, h, cls) { if (w > 0.3 && h > 0.3) sv('rect', { class: cls, x: rn(x), y: rn(y), width: rn(w), height: rn(h) }); }
+  const line = (x1, y1, x2, y2, cls) => sv('line', { class: cls, x1: rn(x1), y1: rn(y1), x2: rn(x2), y2: rn(y2) });
+  function circle(cx, cy, r, cls) { if (r > 0.2) sv('circle', { class: cls, cx: rn(cx), cy: rn(cy), r: rn(r) }); }
+  const text = (x, y, s, cls, anchor) => add(K.svg('text', { class: cls, x: rn(x), y: rn(y), 'text-anchor': anchor || 'middle' }, String(s)));
+  // How far a part due at t0 has arrived, noting the timetable for the timing check.
+  let latest = 0;
+  function arr(t0, d) { d = d == null ? K.SOFT : d; if (t0 + d > latest) latest = t0 + d; return K.arrive(T, t0, d); }
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, Math.min(1, a), rise);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  function ftext(a, x, y, s, cls, anchor) { if (a > 0) part(a, 0, () => text(x, y, s, cls, anchor)); }
+  // A straight arrow from (x1, y1) to its tip at (x2, y2): a line and a filled head.
+  function arrow(x1, y1, x2, y2, k) {
+    const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+    if (L < 6) return;
+    const ux = dx / L, uy = dy / L, hl = Math.min(8, L * 0.55), hw = hl * 0.5;
+    const bx = x2 - ux * hl, by = y2 - uy * hl;
+    line(x1, y1, bx + ux * 0.5, by + uy * 0.5, 'ar ar-' + k);
+    path(`M${rn(x2)} ${rn(y2)} L${rn(bx - uy * hw)} ${rn(by + ux * hw)} L${rn(bx + uy * hw)} ${rn(by - ux * hw)} Z`, 'hd hd-' + k);
+  }
+  const wrongOf = (d, st) => (st.res === 'wrong' && st.pick != null && d.bad ? d.bad[st.pick] || null : null);
+  const key = (s, y) => text(8, y || 16, s, 'lab m', 'start');
+  // A pipe seen from the side: its wall, its bore and the water in it.
+  function pipe(x1, y1, x2, y2, w) {
+    line(x1, y1, x2, y2, 'pipeo').setAttribute('stroke-width', rn(w + 3));
+    line(x1, y1, x2, y2, 'pipei').setAttribute('stroke-width', rn(w));
+    line(x1, y1, x2, y2, 'pipew').setAttribute('stroke-width', rn(w));
+  }
+  // Dots ride along the pipe's middle; W is how far the water has moved, in drawing units.
+  function pipeDots(x1, y1, x2, y2, r) {
+    const L = Math.hypot(x2 - x1, y2 - y1), ux = (x2 - x1) / L, uy = (y2 - y1) / L, SP = 14;
+    const ph = ((W % SP) + SP) % SP;
+    for (let t = ph + 4; t < L - 4; t += SP) circle(x1 + ux * t, y1 + uy * t, r, 'dot');
+  }
+  function vanes(cx, cy, r, ang) {
+    for (let k = 0; k < 3; k++) { const a = ang + k * 2 * Math.PI / 3; line(cx, cy, cx + (r - 4) * Math.cos(a), cy + (r - 4) * Math.sin(a), 'vane'); }
+    circle(cx, cy, 2.5, 'hub');
+  }
+  // A dial reading frac of its scale: the needle sweeps from left (none) to right (full).
+  function gauge(cx, cy, r, frac) {
+    circle(cx, cy, r, 'dial');
+    for (let k = 0; k <= 4; k++) { const a = Math.PI * (1 - k / 4); line(cx + (r - 4) * Math.cos(a), cy - (r - 4) * Math.sin(a), cx + r * Math.cos(a), cy - r * Math.sin(a), 'tick'); }
+    const a = Math.PI * (1 - K.clamp(frac, 0, 1));
+    line(cx, cy, cx + (r - 3) * Math.cos(a), cy - (r - 3) * Math.sin(a), 'ndl');
+    circle(cx, cy, 2.5, 'hub');
+  }
+  // A bar cut into n equal slices, so equal shares can be counted.
+  function cuts(x, y, w, h, n) { if (h < 3 * n) return; for (let k = 1; k < n; k++) line(x + 1, y + h * k / n, x + w - 1, y + h * k / n, 'cut'); }
+
+  // ---------- the pump, the pipe and the two tanks ----------
+  const YL = 132, SC = 4;   // the low tank's surface, and drawing units per metre of lift
+  const TK = { lx0: 36, lx1: 100, rim: 118, bot: 172, hx0: 252, hx1: 322 };
+  const PU = { x: 126, y: 158, r: 13 }, PO = { x: 136, y: 149 };
+  function sysPicture(s, d) {
+    const yH = YL - SC * s.lift, w = 4 + 10 * s.bore / 100, end = { x: TK.hx0, y: yH + 24 };
+    key(s.q > 0 ? 'dots: the seawater, moving at its speed' : 'dots: the seawater, standing still');
+    key(`pipe: ${s.len} m long, ${s.bore} mm bore` + (d.speed ? ` · ${fx(speedOf(s.q, s.bore), 1)} m/s` : ''), 32);
+    // The lift: the height between the two water surfaces.
+    line(18, yH, TK.hx0, yH, 'lvl');
+    line(18, YL, TK.lx0, YL, 'lvl');
+    path(`M30 ${rn(yH)} H24 V${YL} H30`, 'brk');
+    text(34, s.lift >= 9 ? yH + 17 : Math.min(yH - 6, 110), `lift ${fx(s.lift)} m`, 'lab n', 'start');
+    // The low tank.
+    rect(TK.lx0, YL, TK.lx1 - TK.lx0, TK.bot - YL, 'liq');
+    line(TK.lx0, YL, TK.lx1, YL, 'surf');
+    path(`M${TK.lx0} ${TK.rim} V${TK.bot} H${TK.lx1} V${TK.rim}`, 'wall');
+    // The suction pipe, the straight pipe up to the high tank and the water riding in it.
+    pipe(TK.lx1, PU.y, PU.x - PU.r + 1, PU.y, w);
+    pipe(PO.x, PO.y, end.x, end.y, w);
+    pipeDots(PO.x, PO.y, end.x, end.y, Math.min(2.2, w / 3.2));
+    // The high tank, drawn after the pipe so its wall covers the pipe's end.
+    rect(TK.hx0, yH, TK.hx1 - TK.hx0, 34, 'liq');
+    line(TK.hx0, yH, TK.hx1, yH, 'surf');
+    path(`M${TK.hx0} ${rn(yH - 14)} V${rn(yH + 34)} H${TK.hx1} V${rn(yH - 14)}`, 'wall');
+    // The pump, turning as fast as the flow, and its motor.
+    line(PU.x, PU.y + PU.r, PU.x, 178, 'shaft');
+    circle(PU.x, PU.y, PU.r, 'pump');
+    vanes(PU.x, PU.y, PU.r, ROT);
+    rect(112, 178, 28, 22, 'motor');
+    text(148, 176, 'pump', 'lab m', 'start');
+    text(148, 196, 'motor', 'lab m', 'start');
+    return 'A pump lifts seawater from a low tank to a high one through a straight pipe. A bracket marks the lift between the two water surfaces.' +
+      (s.q > 0 ? ' Dots ride along the pipe at the water\'s speed.' : ' Nothing flows yet.');
+  }
+
+  // The head axis shared by the bars and the curve below the pump.
+  const B = { Y0: 356, HT: 112, ax: 40 };
+  const tickStep = (ym) => (ym <= 25 ? 5 : ym <= 50 ? 10 : ym <= 75 ? 15 : ym <= 100 ? 20 : 30);
+  function headAxis(ym, stp, gridTo) {
+    const k = B.HT / ym;
+    for (let v = 0; v <= ym + 1e-9; v += stp) {
+      const y = B.Y0 - k * v;
+      if (gridTo && v > 0) line(B.ax, y, gridTo, y, 'grid');
+      line(B.ax - 4, y, B.ax, y, 'tick');
+      text(B.ax - 7, y + 4.5, fx(v), 'lab m', 'end');
+    }
+    line(B.ax, B.Y0, B.ax, B.Y0 - B.HT, 'ax');
+    text(8, B.Y0 - B.HT - 12, 'head (m)', 'lab m', 'start');
+    return k;
+  }
+  // With nothing flowing: one bar, the lift.
+  function belowLift(s) {
+    const k = headAxis(25, 5), x0 = 50, bw = 40, yT = B.Y0 - k * s.lift;
+    line(B.ax, B.Y0, x0 + bw + 10, B.Y0, 'ax');
+    rect(x0, yT, bw, B.Y0 - yT, 'bl');
+    text(x0 + bw + 10, B.Y0 - k * s.lift / 2 + 4.5, 'lift', 'lab', 'start');
+    text(x0 + bw + 10, yT - 12, 'no flow, so no friction', 'lab m', 'start');
+    return ' Below, one bar stands for the lift, in metres of seawater. With no flow there is no friction on top.';
+  }
+  // Friction on top of the lift, at this flow and at half of it.
+  function belowPair(s) {
+    const k = headAxis(25, 5), w = 36, xa = 50, xb = 140, f = fricOf(s.q, s.len, s.bore), fh = fricOf(s.q / 2, s.len, s.bore);
+    const yl = B.Y0 - k * s.lift;
+    line(B.ax, B.Y0, xb + w + 10, B.Y0, 'ax');
+    [xa, xb].forEach((x) => rect(x, yl, w, B.Y0 - yl, 'bl'));
+    rect(xa, yl - k * fh, w, k * fh, 'bf');
+    rect(xb, yl - k * f, w, k * f, 'bf');
+    cuts(xb, yl - k * f, w, k * f, 4);
+    if (k * fh > 0.5) line(xa + w, yl - k * fh, xb, yl - k * fh, 'gd');
+    if (s.q > 0) text(xa + w / 2, yl - k * fh - 7, `${fx(fh, 1)} m`, 'lab', 'middle');
+    text(xa + w / 2, B.Y0 + 16, `half: ${fq(s.q / 2)} L/s`, 'lab m');
+    text(xb + w / 2, B.Y0 + 16, `${fq(s.q)} L/s`, 'lab');
+    text(xb + w + 8, B.Y0 - k * s.lift / 2 + 4.5, 'lift', 'lab', 'start');
+    if (s.q > 0) {
+      const y1 = Math.min(yl - k * f / 2 - 2, yl - 20);
+      text(xb + w + 8, y1, `friction ${fx(f, 1)} m`, 'lab n', 'start');
+      text(xb + w + 8, y1 + 15, '4 × the left one', 'lab m', 'start');
+    } else text(xb + w + 8, yl - 8, 'no flow, no friction', 'lab m', 'start');
+    return ' Below, two stacks of bars, the lift with the friction on top: on the left at half the flow, on the right at this flow. The right one\'s friction is cut into four pieces, each as tall as the left one\'s.';
+  }
+  // The system curve: a stack beside a graph of head against flow, one dot for each flow set.
+  const GX0 = 104, GX1 = 326, GXS = (GX1 - GX0) / 12;
+  const niceUp = (m) => [25, 50, 75, 100, 150].find((v) => m <= v + 1e-9) || 150;
+  function track(q) {
+    const kq = K.clamp(Math.floor(q * 2 + 1e-6), 0, 24);
+    const from = VK.last == null ? kq : VK.last;
+    for (let j = Math.min(from, kq); j <= Math.max(from, kq); j++) if (!VIS.has(j)) VIS.set(j, CLK);
+    VK.last = kq;
+  }
+  const quiet = () => REDUCE || testing() || !anim.playing();
+  function curveTarget(s) {
+    let m = headOf(s.lift, s.q, s.len, s.bore);
+    VIS.forEach((b, j) => { m = Math.max(m, headOf(s.lift, j / 2, s.len, s.bore)); });
+    return niceUp(m);
+  }
+  function belowCurve(s, live) {
+    if (live && !CHECKING) track(s.q);
+    YM.tgt = curveTarget(s);
+    if (quiet()) YM.cur = YM.tgt;
+    const ym = YM.cur, k = headAxis(ym, tickStep(YM.tgt), GX1), Y = (h) => B.Y0 - k * h, X = (q) => GX0 + GXS * q;
+    const f = fricOf(s.q, s.len, s.bore), H = s.lift + f, xs = 50, w = 34;
+    // The stack: lift, and friction on top.
+    rect(xs, Y(s.lift), w, B.Y0 - Y(s.lift), 'bl');
+    rect(xs, Y(H), w, Y(s.lift) - Y(H), 'bf');
+    // The graph's axes and flow scale.
+    line(B.ax, B.Y0, GX1, B.Y0, 'ax');
+    line(GX0, B.Y0, GX0, B.Y0 - B.HT, 'ax');
+    [0, 3, 6, 9, 12].forEach((v) => { line(X(v), B.Y0, X(v), B.Y0 + 4, 'tick'); text(X(v), B.Y0 + 17, String(v), 'lab m'); });
+    // The lift as a dashed line across the graph.
+    line(GX0, Y(s.lift), GX1, Y(s.lift), 'lvl');
+    if (B.Y0 - Y(s.lift) >= 20) text(GX1 - 2, Y(s.lift) + 15, 'lift', 'lab m', 'end');
+    else text(GX0 + 6, Y(s.lift) - 6, 'lift', 'lab m', 'start');
+    // The curve through every flow set so far, and a dot at each.
+    let qmax = -1;
+    VIS.forEach((b, j) => { qmax = Math.max(qmax, j / 2); });
+    if (qmax > 0) {
+      const pts = [];
+      for (let q = 0; q <= qmax + 1e-9; q += 0.25) pts.push(rn(X(q)) + ' ' + rn(Y(headOf(s.lift, q, s.len, s.bore))));
+      path('M' + pts.join(' L'), 'crv');
+    }
+    VIS.forEach((b, j) => {
+      const g = quiet() ? 1 : K.ease(K.clamp((CLK - b) / 0.35, 0, 1));
+      circle(X(j / 2), Y(headOf(s.lift, j / 2, s.len, s.bore)), 3.5 * g, 'pt');
+    });
+    if (qmax >= 5) {
+      const ye = Y(headOf(s.lift, qmax, s.len, s.bore));
+      const b5 = VIS.has(10) ? VIS.get(10) : -Infinity;
+      ftext(quiet() ? 1 : K.ease(K.clamp((CLK - b5) / K.SOFT, 0, 1)), X(qmax) - 8, ye - 12, 'system curve', 'lab n', 'end');
+    }
+    // This flow: a ring on the curve, level with the top of the stack.
+    line(xs + w, Y(H), X(s.q) - 6, Y(H), 'gd');
+    circle(X(s.q), Y(H), 6, 'ring');
+    // The key and the flow axis's name.
+    const yk = B.Y0 + 36;
+    rect(8, yk - 10, 12, 12, 'bl'); text(26, yk, 'lift', 'lab m', 'start');
+    rect(64, yk - 10, 12, 12, 'bf'); text(82, yk, 'friction', 'lab m', 'start');
+    text(GX1, yk, 'flow (L/s)', 'lab m', 'end');
+    return ' Below, a stack of lift and friction beside a graph of head against flow. Its dots trace the system curve, which starts at the lift and bends upward.';
+  }
+  function drawSys(d, st, bad, wa, p) {
+    const s = setOf(d, p, true);
+    let said = sysPicture(s, d);
+    if (d.below === 'lift') said += belowLift(s);
+    else if (d.below === 'pair') said += belowPair(s);
+    else said += belowCurve(s, !!d.live);
+    return said;
+  }
+
+  // ---------- the chain from the water to the ammeter ----------
+  const KW = 0.045;   // drawing units per watt
+  function drawChain(d, st, bad, wa, p) {
+    const live = !!d.live, q = live ? flowDraw(p) : Q0;
+    const H = headOf(LIFT0, q, LEN0, BORE0), w = hydW(q, H), sw = shaftW(w), iw = inputW(w), X0 = 70;
+    key(`ρ = ${DS} kg/m³ · g = ${GS} N/kg`);
+    key('Q: the flow, in m³/s · H: the head needed', 32);
+    const a1 = live ? 1 : arr(0.5), t1 = live ? 1 : arr(1.0), a2 = live ? 1 : arr(1.4), t2 = live ? 1 : arr(1.9), a3 = live ? 1 : arr(2.3);
+    part(a1, 0, () => {
+      text(62, 60, 'water', 'lab', 'end');
+      rect(X0, 48, KW * w, 16, 'pw');
+      text(X0 + KW * w + 6, 60, live ? 'ρgQH' : `ρgQH = ${N.P0} kW`, 'lab n', 'start');
+    });
+    part(t1, 0, () => text(X0, 88, '÷ 0.7: the pump wastes some', 'lab t', 'start'));
+    part(a2, 0, () => {
+      text(62, 110, 'shaft', 'lab', 'end');
+      rect(X0, 98, KW * w, 16, 'pw'); rect(X0 + KW * w, 98, KW * (sw - w), 16, 'bx');
+      if (!live) text(X0 + KW * sw + 6, 110, `${N.S0} kW`, 'lab n', 'start');
+    });
+    part(t2, 0, () => text(X0, 138, '÷ 0.9: the motor wastes some too', 'lab t', 'start'));
+    part(a3, 0, () => {
+      text(62, 160, 'motor', 'lab', 'end');
+      rect(X0, 148, KW * w, 16, 'pw'); rect(X0 + KW * w, 148, KW * (sw - w), 16, 'bx'); rect(X0 + KW * sw, 148, KW * (iw - sw), 16, 'bx');
+      if (!live) text(X0 + KW * iw + 6, 160, `${N.I0} kW`, 'lab n', 'start');
+    });
+    rect(8, 180, 12, 12, 'pw'); text(26, 190, 'reaches the water', 'lab m', 'start');
+    rect(158, 180, 12, 12, 'bx'); text(176, 190, 'lost as heat', 'lab m', 'start');
+    let said = 'A chain of three bars, each as long as its power: what the water gets, what the pump\'s shaft gives, and what the motor draws. Each is longer than the one before, by what is lost as heat.';
+    if (d.amps) {
+      const I = ampsOf(w), cx = 120, cy = 292, r = 42;
+      text(X0, 218, '÷ (√3 × 440 V × 0.85)', 'lab t', 'start');
+      path(`M${cx - r} ${cy} A${r} ${r} 0 0 1 ${cx + r} ${cy} Z`, 'dial');
+      for (let a = 0; a <= 10; a++) {
+        const th = Math.PI * (1 - a / 10), r1 = a % 5 === 0 ? r - 10 : r - 6;
+        line(cx + r1 * Math.cos(th), cy - r1 * Math.sin(th), cx + r * Math.cos(th), cy - r * Math.sin(th), 'tick');
+      }
+      text(cx - r - 6, cy + 4.5, '0', 'lab m', 'end');
+      text(cx, cy - r - 8, '5', 'lab m');
+      text(cx + r + 6, cy + 4.5, '10', 'lab m', 'start');
+      const th = Math.PI * (1 - K.clamp(I, 0, 10) / 10);
+      line(cx, cy, cx + 0.82 * r * Math.cos(th), cy - 0.82 * r * Math.sin(th), 'ndl');
+      circle(cx, cy, 4, 'hub');
+      text(cx + r + 30, cy - 16, 'the ammeter:', 'lab', 'start');
+      text(cx + r + 30, cy, 'line current, A', 'lab m', 'start');
+      said += ' Below, an ammeter reads the line current, from 0 to 10 A.';
+    }
+    return said;
+  }
+
+  // ---------- the demonstration: a pressure read as a height ----------
+  function drawGauge(d) {
+    key(`seawater: ρ = ${DS} kg/m³ · g = ${GS} N/kg`);
+    const rise = arr(0.5, 2.4), p = 100000 * rise, h = colM(p), TOP = 150, U = 12;
+    // A closed tank of seawater, a gauge on its top, and an open tube rising from it.
+    rect(20, TOP, 110, 70, 'liq');
+    path(`M104 ${TOP} H20 V220 H130 V${TOP} H116`, 'wall');
+    line(46, 140, 46, TOP, 'shaft');
+    gauge(46, 124, 16, rise / 2);
+    path(`M104 ${TOP} V24 M116 24 V${TOP}`, 'tube');
+    if (h > 0.01) { rect(104.75, TOP - U * h, 10.5, U * h, 'colw'); line(104.75, TOP - U * h, 115.25, TOP - U * h, 'surf'); }
+    const hf = colM(100000), ab = arr(2.9);
+    part(ab, 0, () => {
+      path(`M122 ${TOP} H127 V${rn(TOP - U * hf)} H122`, 'brk');
+      text(133, TOP - U * hf / 2 + 4.5, `h = ${N.c100} m`, 'lab n', 'start');
+    });
+    ftext(ab, 46, 98, '100 kPa', 'lab n');
+    ftext(ab, 122, 34, 'open tube: a manometer', 'lab m', 'start');
+    ftext(arr(3.2), 170, 242, `100,000 ÷ (${DS} × ${GS}) = about ${N.c100} m`, 'lab n');
+    return `A closed tank of seawater with a gauge on top reading 100 kPa. An open tube rises from the tank, and the seawater in it stands about ${N.c100} m above the gauge. The open tube is a simple manometer.`;
+  }
+
+  // ---------- the demonstration: two gauges, one pressure ----------
+  function drawMeters(d) {
+    key('the same pressure, read two ways');
+    const a = K.ease(K.clamp(arr(0.5, 2.4), 0, 1)), gap = 28 * a;
+    // A U-tube: one leg joins the pipe, the other is open to the air.
+    text(14, 40, 'pipe', 'lab m', 'start');
+    pipe(14, 52, 120, 52, 10);
+    const U = 'M46 52 V200 A20 20 0 0 0 86 200 V96';
+    path(U, 'uo'); path(U, 'ui');
+    const yl = 150 + gap, yr = 150 - gap;
+    path(`M46 ${rn(yl)} V200 A20 20 0 0 0 86 200 V${rn(yr)}`, 'ul');
+    line(41.5, yl, 50.5, yl, 'surf'); line(81.5, yr, 90.5, yr, 'surf');
+    text(96, 92, 'open to the air', 'lab m', 'start');
+    const ag = arr(2.9);
+    part(ag, 0, () => {
+      line(52, yl, 100, yl, 'lvl');
+      path(`M100 ${rn(yr)} H106 V${rn(yl)} H100`, 'brk');
+      text(110, (yl + yr) / 2 + 4.5, 'gap = head', 'lab n', 'start');
+    });
+    text(66, 244, 'U-tube manometer', 'lab');
+    // A Bourdon gauge: its dial, and the C-shaped tube inside that straightens as the pressure rises.
+    gauge(262, 84, 36, 0.08 + 0.7 * a);
+    text(262, 140, 'the tube inside', 'lab m');
+    const R0 = 22, Rn = R0 * (1 + 0.3 * a), th0 = 100 * Math.PI / 180, span = 1.5 * Math.PI / (1 + 0.3 * a);
+    const fx0 = 262 + R0 * Math.cos(th0), fy0 = 180 + R0 * Math.sin(th0);
+    const cx = fx0 - Rn * Math.cos(th0), cy = fy0 - Rn * Math.sin(th0), pts = [];
+    for (let k = 0; k <= 40; k++) { const t = th0 + span * k / 40; pts.push(rn(cx + Rn * Math.cos(t)) + ' ' + rn(cy + Rn * Math.sin(t))); }
+    path('M' + pts.join(' L'), 'bt');
+    const tx = cx + Rn * Math.cos(th0 + span), ty = cy + Rn * Math.sin(th0 + span);
+    circle(tx, ty, 3.5, 'hub');
+    line(tx, ty, 262, 120, 'gd');
+    line(fx0, fy0, fx0, 226, 'shaft');
+    text(262, 244, 'Bourdon gauge', 'lab');
+    REC.gap = 2 * gap; REC.tip = Rn / R0;
+    return 'Two gauges on the same rising pressure. On the left, a U-tube manometer: one leg joins a pipe, the other is open to the air, and the liquid falls in one leg and rises in the other. The gap between the levels is the head. On the right, a Bourdon gauge: as the pressure rises, the C-shaped tube inside straightens a little and its tip turns the needle.';
+  }
+
+  // ---------- the demonstration: Darcy's rule, a factor at a time ----------
+  function drawDarcy(d) {
+    key(`f = 0.02 · g = ${GS} N/kg`);
+    text(20, 46, '50 m of 50 mm pipe, water at 2 m/s', 'lab m', 'start'); pipe(20, 58, 20 + 50 * 1.6, 58, 8);
+    text(20, 86, 'friction head = f × (L ÷ D) × v² ÷ 2g', 'lab n', 'start');
+    ftext(arr(0.5), 20, 112, "f = 0.02, for the pipe's roughness", 'lab', 'start');
+    ftext(arr(1.1), 20, 136, `L ÷ D = 50 ÷ 0.05 = ${N.ld}`, 'lab', 'start');
+    ftext(arr(1.7), 20, 160, `v² ÷ 2g = 2² ÷ 19.62 = ${N.vh}`, 'lab', 'start');
+    const ar = arr(2.4), Y0 = 214, k = 10;
+    ftext(ar, 20, 192, `0.02 × ${N.ld} × ${N.vh} = about ${N.d50} m`, 'lab n', 'start');
+    line(256, Y0, 322, Y0, 'ax');
+    part(ar, 0, () => rect(272, Y0 - k * DX, 36, k * DX, 'bf'));
+    ftext(ar, 290, Y0 - k * DX - 7, `${N.d50} m`, 'lab n');
+    text(290, Y0 + 17, 'friction head', 'lab m');
+    REC.res = 0.02 * (50 / 0.05) * 4 / (2 * G);
+    return `A 50 m length of 50 mm pipe with water at 2 m/s. Below it, Darcy's rule is worked a factor at a time: f is 0.02, L ÷ D is ${N.ld}, and v² ÷ 2g is ${N.vh}. Their product is about ${N.d50} m, drawn as a bar of friction head.`;
+  }
+
+  // ---------- the puzzles' pictures ----------
+  const show = (ra, wa) => 1 - Math.max(ra, wa);
+  // Gauges on either side of a pump, and a column for the head they read.
+  function drawGauges(d, st, bad, wa) {
+    key(`seawater: ρ = ${DS} kg/m³ · g = ${GS} N/kg`);
+    pipe(10, 150, 230, 150, 10);
+    circle(110, 150, 17, 'pump'); vanes(110, 150, 17, 0.6);
+    line(50, 119, 50, 145, 'shaft'); line(170, 119, 170, 145, 'shaft');
+    gauge(50, 104, 15, 0.25); gauge(170, 104, 15, 0.75);
+    text(50, 80, 'inlet', 'lab m'); text(170, 80, 'outlet: 200 kPa more', 'lab');
+    const Yb = 220, U = 7;
+    path(`M284 46 V${Yb} H296 V46`, 'tube');
+    [0, 10, 20].forEach((v) => { line(278, Yb - U * v, 284, Yb - U * v, 'tick'); text(274, Yb - U * v + 4.5, v === 20 ? '20 m' : String(v), 'lab m', 'end'); });
+    const right = st.res === 'right', ra = right ? arr(0.1) : 0;
+    ftext(show(ra, wa), 276, 36, 'head: ?', 'lab n', 'end');
+    if (right) {
+      REC.ans = true; REC.res = colM(200000);
+      const y = Yb - U * REC.res;
+      part(ra, 0, () => { rect(284.75, y, 10.5, Yb - y, 'colw'); line(284.75, y, 295.25, y, 'surf'); });
+      ftext(ra, 276, 36, `head: ${N.h2} m`, 'lab n', 'end');
+      ftext(arr(0.5), 170, 244, `200,000 ÷ (${DS} × ${GS}) = about ${N.h2} m`, 'lab n');
+    }
+    if (bad) {
+      REC.bad++;
+      part(wa, 0, () => { if (bad === d.bad[O.h204]) line(281, Yb - U * colM(200000, RHOF), 299, Yb - U * colM(200000, RHOF), 'badl'); else arrow(314, 200, 314, 24, 'w'); });
+      ftext(wa, 170, 244, bad.lab, 'lab w');
+    }
+    return 'A pump in a pipe, with a gauge before it and after it. The outlet gauge reads 200 kPa more. Beside it, an empty tube for the head that difference stands for.' + (right ? ` It is about ${N.h2} m of seawater.` : '');
+  }
+  // Two stacks for the same pipe: friction at 5 L/s, and a question at 10 L/s.
+  function drawPredict(d, st, bad, wa) {
+    key('stacks: head, in metres of seawater');
+    key('the same pipe and lift, at two flows', 32);
+    const Y0 = 214, k = 6, w = 64, xa = 66, xb = 186, f5 = fricOf(5, LEN0, BORE0), f10 = fricOf(10, LEN0, BORE0), top = Y0 - k * 10;
+    line(40, Y0, 300, Y0, 'ax');
+    [xa, xb].forEach((x) => { rect(x, top, w, k * 10, 'bl'); text(x + w / 2, Y0 - 25, 'lift 10 m', 'lab'); });
+    text(xa + w / 2, Y0 + 16, '5 L/s', 'lab'); text(xb + w / 2, Y0 + 16, '10 L/s', 'lab');
+    rect(xa, top - k * f5, w, k * f5, 'bf');
+    text(xa + w / 2, top - k * f5 - 6, `friction ${N.f5} m`, 'lab');
+    const right = st.res === 'right', ra = right ? arr(0.1) : 0;
+    ftext(show(ra, wa), xb + w / 2, top - 8, 'friction: ?', 'lab n');
+    if (right) {
+      REC.ans = true; REC.res = f10 / f5;
+      part(ra, 0, () => { rect(xb, top - k * f10, w, k * f10, 'bf'); cuts(xb, top - k * f10, w, k * f10, 4); });
+      ftext(arr(0.5), xb + w / 2, top - k * f10 - 6, `friction ${N.f10} m`, 'lab n');
+      ftext(arr(0.9), 170, 248, 'twice the flow, four times the friction', 'lab n');
+    }
+    if (bad) {
+      REC.bad++;
+      const h = bad === d.bad[O.dbl] ? 2 * f5 : f5;
+      part(wa, 0, () => rect(xb, top - k * h, w, k * h, 'bad'));
+      ftext(wa, 170, 248, bad.lab, 'lab w');
+    }
+    return 'Two stacks of bars for the same pipe and the same 10 m lift. At 5 L/s the friction on top is about ' + N.f5 + ' m. At 10 L/s the friction is the question.' + (right ? ` It is about ${N.f10} m, four times as much.` : '');
+  }
+  // Two lengths of the same pipe, drawn to scale, and the head each loses.
+  function drawLonger(d, st, bad, wa) {
+    key('loss: friction head, in metres of seawater');
+    const PX = 1.6, Y0 = 214, k = 2.5, w = 50, xa = 60, xb = 190;
+    text(20, 46, '50 m of 50 mm pipe, water at 2 m/s', 'lab m', 'start'); pipe(20, 58, 20 + 50 * PX, 58, 8);
+    text(20, 88, '150 m of the same pipe, at 2 m/s', 'lab m', 'start'); pipe(20, 100, 20 + 150 * PX, 100, 8);
+    line(40, Y0, 280, Y0, 'ax');
+    rect(xa, Y0 - k * DX, w, k * DX, 'bf');
+    text(xa + w / 2, Y0 - k * DX - 6, `${N.d50} m`, 'lab');
+    text(xa + w / 2, Y0 + 16, '50 m', 'lab m'); text(xb + w / 2, Y0 + 16, '150 m', 'lab m');
+    const right = st.res === 'right', ra = right ? arr(0.1) : 0;
+    ftext(show(ra, wa), xb + w / 2, Y0 - 8, 'loss: ?', 'lab n');
+    if (right) {
+      REC.ans = true; REC.res = darcy(150, 50, 2);
+      part(ra, 0, () => { rect(xb, Y0 - k * REC.res, w, k * REC.res, 'bf'); cuts(xb, Y0 - k * REC.res, w, k * REC.res, 3); });
+      ftext(arr(0.5), xb + w / 2, Y0 - k * REC.res - 6, `${N.d150} m`, 'lab n');
+      ftext(arr(0.9), 170, 248, 'three times the pipe, three times the loss', 'lab n');
+    }
+    if (bad) {
+      REC.bad++;
+      const h = bad === d.bad[O.l367] ? 9 * DX : DX;
+      part(wa, 0, () => rect(xb, Y0 - k * h, w, k * h, 'bad'));
+      ftext(wa, 170, 248, bad.lab, 'lab w');
+    }
+    return `Two pipes of the same 50 mm bore with water at 2 m/s, one 50 m long and one three times as long. Below, the 50 m pipe loses ${N.d50} m of head. The longer pipe's loss is the question.` + (right ? ` It is about ${N.d150} m.` : '');
+  }
+  // Head against flow: the lift at no flow, 14 m at 5 L/s, and a question at 10 L/s.
+  function drawTwice(d, st, bad, wa) {
+    key('dots: the head needed at each flow');
+    const GA = 60, GB = 320, Y0 = 216, kx = (GB - GA) / 12, ky = 2.5, X = (q) => GA + kx * q, Y = (h) => Y0 - ky * h;
+    line(GA, Y0, GB, Y0, 'ax'); line(GA, Y0, GA, Y(60), 'ax');
+    [0, 20, 40, 60].forEach((v) => { line(GA - 4, Y(v), GA, Y(v), 'tick'); text(GA - 7, Y(v) + 4.5, String(v), 'lab m', 'end'); });
+    [0, 5, 10].forEach((v) => { line(X(v), Y0, X(v), Y0 + 4, 'tick'); text(X(v), Y0 + 17, String(v), 'lab m'); });
+    text(8, 50, 'head (m)', 'lab m', 'start');
+    text(GB, Y0 + 34, 'flow (L/s)', 'lab m', 'end');
+    circle(X(0), Y(10), 4, 'pt'); text(X(0) + 8, Y(10) + 18, 'lift 10 m', 'lab', 'start');
+    circle(X(5), Y(14), 4, 'pt'); text(X(5), Y(14) - 10, '14 m', 'lab');
+    const right = st.res === 'right', ra = right ? arr(0.1) : 0;
+    ftext(show(ra, wa), X(10), Y0 - 10, 'head: ?', 'lab n');
+    if (right) {
+      REC.ans = true; REC.res = 10 + 4 * Math.pow(10 / 5, 2);
+      part(ra, 0, () => {
+        const pts = [];
+        for (let q = 0; q <= 12 + 1e-9; q += 0.25) pts.push(rn(X(q)) + ' ' + rn(Y(10 + 4 * Math.pow(q / 5, 2))));
+        path('M' + pts.join(' L'), 'crv');
+        circle(X(10), Y(REC.res), 4, 'pt');
+      });
+      ftext(arr(0.5), X(10) - 10, Y(REC.res) + 4.5, `${N.t26} m`, 'lab n', 'end');
+      ftext(arr(0.9), 170, 268, `10 + 4 × 4 = ${N.t26} m`, 'lab n');
+    }
+    if (bad) {
+      REC.bad++;
+      part(wa, 0, () => {
+        if (bad === d.bad[O.t18]) { line(X(0), Y(10), X(10), Y(18), 'badl'); circle(X(10), Y(18), 4.5, 'badd'); }
+        else circle(X(10), Y(56), 4.5, 'badd');
+      });
+      ftext(wa, 170, 268, bad.lab, 'lab w');
+    }
+    return 'A graph of head against flow. A dot marks the 10 m lift at no flow, and another marks 14 m at 5 L/s. The head at 10 L/s is the question.' + (right ? ` It is ${N.t26} m, on a curve that bends upward.` : '');
+  }
+  // Power bars: what the water gets, and what the shaft must give.
+  function drawShaft(d, st, bad, wa) {
+    key('power in kW, as the length of each bar');
+    const X0 = 70, k = 80, wW = 2.01;
+    text(62, 58, 'water', 'lab', 'end');
+    rect(X0, 46, k * wW, 16, 'pw');
+    text(X0 + k * wW + 6, 58, `${N.P0} kW`, 'lab', 'start');
+    text(X0, 90, 'the pump: 70% efficient', 'lab t', 'start');
+    text(62, 126, 'shaft', 'lab', 'end');
+    const right = st.res === 'right', ra = right ? arr(0.1) : 0;
+    ftext(show(ra, wa), X0 + 6, 126, '?', 'lab n', 'start');
+    if (right) {
+      REC.ans = true; REC.res = wW / EP;
+      part(ra, 0, () => { rect(X0, 114, k * wW, 16, 'pw'); rect(X0 + k * wW, 114, k * (REC.res - wW), 16, 'bx'); });
+      ftext(arr(0.5), X0 + k * REC.res, 150, `${N.s10} kW`, 'lab n', 'end');
+      ftext(arr(0.9), 170, 200, `${N.P0} ÷ 0.7 = about ${N.s10} kW`, 'lab n');
+    }
+    if (bad) {
+      REC.bad++;
+      part(wa, 0, () => rect(X0, 114, k * (bad === d.bad[O.s141] ? wW * EP : wW), 16, 'bad'));
+      ftext(wa, 170, 200, bad.lab, 'lab w');
+    }
+    rect(8, 166, 12, 12, 'pw'); text(26, 176, 'reaches the water', 'lab m', 'start');
+    rect(158, 166, 12, 12, 'bx'); text(176, 176, 'lost in the pump', 'lab m', 'start');
+    return `Two power bars. The water gets ${N.P0} kW from a pump that is 70% efficient. The power the shaft must give is the question.` + (right ? ` It is about ${N.s10} kW, the extra lost as heat in the pump.` : '');
+  }
+  // A new pump: the head stack, then the water's power and the shaft's.
+  function drawMixed(d, st, bad, wa) {
+    key('5 L/s of seawater · the pump is 75% efficient');
+    const Y0 = 196, k = 6, x0 = 30, w = 48, X0 = 186, kp = 0.11;
+    rect(x0, Y0 - k * 12, w, k * 12, 'bl'); rect(x0, Y0 - k * 15, w, k * 3, 'bf');
+    text(x0 + w + 8, Y0 - k * 6 + 4.5, 'lift 12 m', 'lab', 'start');
+    text(x0 + w + 8, Y0 - k * 13.5 + 4.5, 'friction 3 m', 'lab', 'start');
+    text(x0 + w / 2, Y0 + 16, 'head', 'lab m');
+    const right = st.res === 'right', ra = right ? arr(0.1) : 0, rb = right ? arr(0.6) : 0;
+    ftext(1 - ra, X0, 70, 'water: ?', 'lab', 'start');
+    ftext(show(rb, wa), X0, 124, 'shaft: ?', 'lab', 'start');
+    if (right) {
+      REC.ans = true; REC.res = WM / 0.75;
+      part(ra, 0, () => rect(X0, 76, kp * WM, 16, 'pw'));
+      ftext(ra, X0, 70, `water: ${N.mW} W`, 'lab n', 'start');
+      part(rb, 0, () => { rect(X0, 130, kp * WM, 16, 'pw'); rect(X0 + kp * WM, 130, kp * (REC.res - WM), 16, 'bx'); });
+      ftext(rb, X0, 124, `shaft: ${N.mS} kW`, 'lab n', 'start');
+      ftext(arr(0.9), 170, 222, `${DS} × ${GS} × 0.005 × 15 = about ${N.mW} W`, 'lab n');
+      ftext(arr(1.2), 170, 240, `${N.mW} ÷ 0.75 = about ${N.mS} kW`, 'lab n');
+    }
+    if (bad) {
+      REC.bad++;
+      part(wa, 0, () => { if (bad === d.bad[O.m057]) rect(X0, 130, kp * WM * 0.75, 16, 'bad'); else rect(x0 - 4, Y0 - k * 12 - 4, w + 8, k * 12 + 8, 'bad'); });
+      ftext(wa, 170, 232, bad.lab, 'lab w');
+    }
+    return 'A stack of head: a 12 m lift with 3 m of friction on top. The pump sends 5 L/s and is 75% efficient. The power the water gets and the power the shaft must give are the questions.' + (right ? ` The water gets about ${N.mW} W, and the shaft must give about ${N.mS} kW.` : '');
+  }
+  // Two bores, drawn to scale, and the friction each loses at the same flow and length.
+  function drawBore(d, st, bad, wa) {
+    key('10 L/s through 70 m of pipe, two bores');
+    const Y0 = 236, k = 2.4, w = 44, f1 = fricOf(Q0, LEN0, 100);
+    circle(80, 62, 30, 'liq'); circle(80, 62, 30, 'tube');
+    circle(240, 62, 15, 'liq'); circle(240, 62, 15, 'tube');
+    text(80, 112, '100 mm', 'lab'); text(240, 112, '50 mm', 'lab');
+    line(40, Y0, 300, Y0, 'ax');
+    rect(58, Y0 - k * f1, w, k * f1, 'bf');
+    text(80, Y0 - k * f1 - 7, `friction ${N.b100} m`, 'lab');
+    const right = st.res === 'right', ra = right ? arr(0.1) : 0;
+    ftext(show(ra, wa), 240, Y0 - 8, 'friction: ?', 'lab n');
+    if (right) {
+      REC.ans = true; REC.res = fricOf(Q0, LEN0, 50) / f1;
+      part(ra, 0, () => rect(218, Y0 - k * f1 * REC.res, w, k * f1 * REC.res, 'bf'));
+      ftext(arr(0.5), 240, Y0 - k * f1 * REC.res - 7, `${N.b50} m`, 'lab n');
+      ftext(arr(0.5), 240, 36, 'speed: 4 ×', 'lab n');
+      ftext(arr(0.9), 170, 256, `4² × 2 = ${N.b32} times the friction`, 'lab n');
+    }
+    if (bad) {
+      REC.bad++;
+      const m = bad === d.bad[O.x4] ? 4 : 16;
+      part(wa, 0, () => rect(218, Y0 - k * f1 * m, w, k * f1 * m, 'bad'));
+      ftext(wa, 170, 256, bad.lab, 'lab w');
+    }
+    return `Two pipe bores drawn to scale, 100 mm and 50 mm, each carrying 10 L/s through 70 m. The wide one loses ${N.b100} m to friction. The narrow one's loss is the question.` + (right ? ` It is about ${N.b50} m, ${N.b32} times as much.` : '');
+  }
+
+  const DRAW = { gauge: drawGauge, meters: drawMeters, darcy: drawDarcy, gauges: drawGauges, sys: drawSys, predict: drawPredict, longer: drawLonger, twice: drawTwice, chain: drawChain, shaft: drawShaft, mixed: drawMixed, bore: drawBore };
+  const HEIGHT = { gauge: 252, meters: 254, darcy: 236, gauges: 252, predict: 256, longer: 256, twice: 276, chain: 200, amps: 318, shaft: 210, mixed: 250, bore: 264, lift: 372, pair: 380, curve: 400 };
+  const heightOf = (d) => (d.top === 'sys' ? HEIGHT[d.below] : d.amps ? HEIGHT.amps : HEIGHT[d.top]);
+  // The scene for a step (the animation calls this every frame).
+  function paint(i, pOver) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i], p = pOver || K.params();
+    art.textContent = '';
+    into = null;
+    REC = { bad: 0, ans: false, res: null };
+    const bad = wrongOf(d, st), wa = bad ? arr(0.1) : 0;
+    HH = heightOf(d);
+    const said = DRAW[d.top](d, st, bad, wa, p);
+    svg.setAttribute('viewBox', '0 0 340 ' + HH);
+    svg.setAttribute('aria-label', said + (bad ? ' The answer picked is drawn in red.' : ''));
+  }
+
+  // ---------- motion: one animation plays each demonstration, the flowing water and an answer ----------
+  function valAt(m) {
+    const ks = m.keys, last = ks[ks.length - 1];
+    if (T === Infinity || T >= last[0]) return last[1];
+    if (T <= ks[0][0]) return ks[0][1];
+    for (let j = 1; j < ks.length; j++) {
+      if (T < ks[j][0]) {
+        const a = (T - ks[j - 1][0]) / Math.max(1e-6, ks[j][0] - ks[j - 1][0]);
+        return K.lerp(ks[j - 1][1], ks[j][1], K.ease(a));
+      }
+    }
+    return last[1];
+  }
+  function stepMot() {
+    if (!MOT) return;
+    let done = true;
+    MOT.forEach((m) => {
+      setCtl(m.ctl, valAt(m));
+      if (T !== Infinity && T < m.keys[m.keys.length - 1][0]) done = false;
+    });
+    keyNow = ctlKey(K.params());
+    if (done) { MOT = null; Object.keys(EX).forEach((k) => delete EX[k]); }
+  }
+  function finishMot() { if (MOT) { T = Infinity; stepMot(); MOT = null; } }
+  const curQ = () => { const d = STEPS[at()]; return d.top === 'sys' ? setOf(d, K.params(), true).q : 0; };
+  const flowOn = () => !REDUCE && !testing() && !finished && STEPS[at()].top === 'sys' && curQ() > 0;
+  const yMoving = () => STEPS[at()].below === 'curve' && Math.abs(YM.cur - YM.tgt) > 0.05;
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt; CLK += dt;
+    const d = STEPS[at()];
+    if (flowOn()) {
+      const s = setOf(d, K.params(), true);
+      W += 10 * speedOf(s.q, s.bore) * dt;
+      ROT += 0.5 * s.q * dt;
+    }
+    if (d.below === 'curve' && YM.cur !== YM.tgt) {
+      YM.cur += (YM.tgt - YM.cur) * Math.min(1, dt * 5);
+      if (Math.abs(YM.cur - YM.tgt) <= 0.05) YM.cur = YM.tgt;
+    }
+    if (MOT) { stepMot(); K.refresh(); } else paint();
+    return T < motionEnd || !!MOT || flowOn() || yMoving();
+  } });
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && !anim.playing() && (T !== Infinity || MOT)) { T = Infinity; finishMot(); K.refresh(); }
+  });
+  function play(dur) {
+    if (REDUCE || testing()) { anim.pause(); finishMot(); T = Infinity; return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+  // A new screen: a live one takes its own settings and runs its demonstration once.
+  function onEnter(i) {
+    const d = STEPS[i];
+    MOT = null; W = 0; ROT = 0;
+    Object.keys(EX).forEach((k) => delete EX[k]);
+    if (d.live) {
+      const b = Object.assign({ lift: LIFT0, length: LEN0, bore: BORE0, flow: Q0 }, d.set || {});
+      Object.keys(b).forEach((k) => setCtl(k, b[k]));
+      if (d.mot) { MOT = d.mot.map((m) => Object.assign({}, m)); MOT.forEach((m) => setCtl(m.ctl, m.keys[0][1])); }
+    }
+    if (d.below === 'curve') {
+      VIS.clear();
+      VK.last = Math.floor(flowOf(K.params()) * 2 + 1e-6);
+      YM.cur = YM.tgt = 25;
+    }
+    if (d.show) play(d.dur); else { anim.pause(); T = Infinity; }
+  }
+
+  // ---------- what Dan reads under a live picture ----------
+  function sayFor(d, p, o) {
+    const s = setOf(d, p, false), q = s.q, fs = fx(fricOf(q, s.len, s.bore), 1);
+    if (d.below === 'lift') return s.lift === 0 ? 'Both surfaces stand level. With nothing flowing, the pump needs no head at all.'
+      : `The high surface stands ${s.lift} m above the low one. The pump needs that much head before any water moves.`;
+    if (d.below === 'pair') return q === 0 ? 'With nothing flowing, there is no friction. The pump needs only the lift.'
+      : `At ${fq(q)} L/s friction takes ${fs} m, four times as much as at half that flow.`;
+    if (d.below === 'curve') return q === 0 ? `With nothing flowing, the curve starts at the lift, ${s.lift} m.`
+      : `At ${fq(q)} L/s this pipe needs ${K.fmt(o.totalHead, { decimals: 1 })} m: ${s.lift} m of lift and ${fs} m of friction.`;
+    if (d.amps) return q === 0 ? 'With nothing flowing, the water gets no power, so this chain shows no current.'
+      : `At ${fq(q)} L/s the motor draws ${K.fmt(o.motorCurrent, { decimals: 1 })} A in each line.`;
+    return '';
+  }
+  function layout(i, d, st, p, o) {
+    const right = st.res === 'right', L = d.live || {}, outs = d.outs || [];
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    const tk = i + '|' + finished;
+    if (tk !== taskKey) { taskKey = tk; task.className = 'task' + (d.show ? ' show' : ''); write(task, d.show ? d.text : d.task); }
+    el('ctl').hidden = !d.live;
+    liftCtl.el.hidden = !L.lift; lenCtl.el.hidden = !L.length; boreCtl.el.hidden = !L.bore; flowCtl.el.hidden = !L.flow;
+    el('say').hidden = !d.live;
+    el('say').textContent = d.live ? nb(sayFor(d, p, o)) : '';
+    el('outs').hidden = !outs.length;
+    rHead.el.hidden = outs.indexOf('totalHead') < 0; rPow.el.hidden = outs.indexOf('hydraulicPower') < 0; rAmp.el.hidden = outs.indexOf('motorCurrent') < 0;
+    el('replay').hidden = !d.show || REDUCE;
+    const opts = d.show ? [] : d.opts;
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((x) => x.length > 9));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    fb.textContent = nb(d.show ? '' : right ? (d.right || "That's it.") : st.res === 'wrong' ? ((d.hints && d.hints[st.pick]) || d.hint) : st.res === 'empty' ? PICK : '');
+    const why = el('why');
+    why.hidden = !!d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  }
+
+  write(el('finish'), FINISH);
+  K.update((p, o) => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (i !== lastStep) {
+      lastStep = i; taskKey = ''; enter('stepbox'); onEnter(i);
+      if (d.live) { keyNow = ctlKey(K.params()); K.refresh(); return; }
+    }
+    if (d.live) {
+      const k = ctlKey(p);
+      if (k !== keyNow) {   // Dan moved something: the demonstration gives way to him
+        keyNow = k;
+        if (MOT) { MOT = null; T = Infinity; Object.keys(EX).forEach((q) => delete EX[q]); }
+      }
+    }
+    if (!anim.playing()) T = Infinity;
+    if (finished !== lastDone) { lastDone = finished; taskKey = ''; enter(finished ? 'done' : 'stepbox'); }
+    layout(i, d, st, p, o);
+    paint(i, p);
+    if (!anim.playing() && (flowOn() || yMoving())) anim.play();
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const solved = (i) => ({ pick: STEPS[i].want, res: 'right', why: false });
+  const wrongSt = (i, o) => ({ pick: o, res: 'wrong', why: false });
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  function drawn(i, st) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = Infinity; CHECKING = true;
+    try { paint(i); return REC; }
+    finally { S[i] = keepS; T = keepT; paint(); CHECKING = false; }
+  }
+  const S_LIFT = idx('The lift'), S_FRIC = idx('Friction on top'), S_CURVE = idx('The system curve'), S_AMP = idx('The ammeter');
+  const words = (s) => String(s || '').replace(/\*/g, '').split(/\s+/).filter(Boolean).length;
+  const FLOWS = K.linspace(0, 12, 25), LENS = [10, 40, 70, 100, 150];
+
+  K.check('The density of seawater is about 1025 kg/m³: every head and power here uses it', () =>
+    RHO === 1025 && K.near(K.at({ step: S_AMP, flow: 10 }).hydraulicPower, 1025 * 9.81 * 0.01 * headOf(10, 10, 70, 65) / 1000, 1e-9) &&
+    K.near(colM(100000), 100000 / (1025 * 9.81), 1e-12), { source: SRC_TALLEY });
+  K.check('Head is the height a pump can raise the liquid, in metres: with nothing flowing, the head needed is the lift itself, at every lift', () => {
+    for (let l = 0; l <= 20; l++) if (!K.near(K.at({ step: S_LIFT, lift: l }).totalHead, l, 1e-12)) return false;
+    return true;
+  }, { source: SRC_ATLAS });
+  K.check('Friction loss depends on the length and size of the pipework: a longer pipe or a smaller bore always loses more at the same flow', () =>
+    FLOWS.filter((q) => q > 0).every((q) => {
+      for (let j = 1; j < LENS.length; j++) if (!(fricOf(q, LENS[j], 65) > fricOf(q, LENS[j - 1], 65))) return false;
+      for (let j = 1; j < BORES.length; j++) if (!(fricOf(q, 70, BORES[j]) < fricOf(q, 70, BORES[j - 1]))) return false;
+      const o = K.at({ step: S_CURVE, flow: q, lift: 0, length: 150, bore: 50 }), o2 = K.at({ step: S_CURVE, flow: q, lift: 0, length: 70, bore: 65 });
+      return o.totalHead > o2.totalHead;
+    }), { source: SRC_ATLAS });
+  K.check('In turbulent flow the resistance is proportional to the square of the mean flow velocity: twice the flow gives four times the friction head, in every bore and length', () =>
+    [1, 2, 3, 5, 6].every((q) => BORES.every((b) => LENS.every((len) => K.near(fricOf(2 * q, len, b), 4 * fricOf(q, len, b), 1e-9 * Math.max(1, fricOf(2 * q, len, b)))))) &&
+    K.near(K.at({ step: S_FRIC, flow: 10 }).totalHead - 10, 4 * (K.at({ step: S_FRIC, flow: 5 }).totalHead - 10), 1e-9), { source: SRC_DARCY });
+  K.check('In SI units the Power in kW = Q × H × Sg ÷ (367.46 × Effy): 36 m³/h against 20 m of seawater at 70% gives about 2.87 kW, as ρgQH ÷ 0.7 does here', () => {
+    const ced = 36 * 20 * (RHO / RHOF) / (367.46 * 0.7), ours = shaftW(hydW(10, 20)) / 1000;
+    return K.near(ced, 2.87, 0.005) && K.near(ours, 2.87, 0.005) && K.near(ced, ours, 0.01);
+  }, { source: SRC_CED });
+  K.check("The motor's input, drawn from the supply, is higher again than the shaft power, by the motor's own efficiency, at every flow", () =>
+    FLOWS.every((q) => {
+      const o = K.at({ step: S_AMP, flow: q }), w = o.hydraulicPower * 1000, inp = o.motorCurrent * R3 * VL * PF;
+      return K.near(inp, shaftW(w) / EM, 1e-6 * Math.max(1, inp)) && (q === 0 || inp > shaftW(w));
+    }), { source: SRC_EMC });
+  K.check('At the opening, 10 L/s through 70 m of 65 mm pipe moves at 3.0 m/s, loses 10.0 m, needs 20.0 m, and takes 2.01, 2.87 and 3.19 kW and 4.9 A; at 12 L/s, 24.4 m and 7.2 A', () => {
+    const o = K.at({ step: S_AMP, flow: 10 }), o12 = K.at({ step: S_AMP, flow: 12 });
+    return K.near(speedOf(10, 65), 3.0136, 1e-3) && K.near(o.totalHead, 19.970, 0.001) && K.near(o.hydraulicPower, 2.008, 0.001) &&
+      K.near(o.motorCurrent, 4.920, 0.001) && K.near(o12.totalHead, 24.356, 0.001) && K.near(o12.motorCurrent, 7.201, 0.001) &&
+      N.v0 === '3.0' && N.a65 === '0.00332' && N.f10 === '10.0' && N.H0 === '20.0' && N.P0 === '2.01' && N.S0 === '2.87' && N.I0 === '3.19' &&
+      N.A0 === '4.9' && N.H12 === '24.4' && N.A12 === '7.2';
+  });
+  K.check('Every number the puzzles print comes from the rule: 9.9, 19.9, 20.4 and 195 m; 2.5 m; 4.1, 12.2 and 36.7 m; 26, 18 and 56 m; 2.87 and 1.41 kW; 754 W, 1.01, 0.57 and 0.80 kW; 1.16 m, 37.0 m and 32 times', () =>
+    N.c100 === '9.9' && N.h2 === '19.9' && N.h2f === '20.4' && N.h2g === '195' && N.f5 === '2.5' && N.d50 === '4.1' && N.d150 === '12.2' && N.d150w === '36.7' &&
+    N.t26 === '26' && N.t18 === '18' && N.t56 === '56' && N.s10 === '2.87' && N.s10w === '1.41' &&
+    N.mW === '754' && N.mS === '1.01' && N.mSw === '0.57' && N.mSf === '0.80' && N.b100 === '1.16' && N.b50 === '37.0' && N.b32 === '32');
+  K.check("Darcy's rule worked by hand: 50 m of 50 mm pipe at 2 m/s with f = 0.02 has L ÷ D = 1000 and v² ÷ 2g = 0.204, and loses about 4.1 m, as the model's rule gives", () => {
+    const i = idx("Darcy's rule"), r = drawn(i, blank()).res;
+    return N.ld === '1000' && N.vh === '0.204' && N.d50 === '4.1' && K.near(r, darcy(50, 50, 2), 1e-9) && K.near(r, 4.0775, 0.0001);
+  }, { source: SRC_DARCY });
+  K.check('The difference in liquid levels represents the applied pressure: in the U-tube the gap grows from nothing as the pressure rises, while the Bourdon tube straightens', () => {
+    const i = idx('Two gauges'), keepT = T;
+    const g = (t) => { T = t; CHECKING = true; try { paint(i); return { gap: REC.gap, tip: REC.tip }; } finally { CHECKING = false; } };
+    const a = g(0), b = g(1.7), c = g(Infinity);
+    T = keepT; paint();
+    return a.gap === 0 && b.gap > 0 && c.gap > b.gap && K.near(c.gap, 56, 1e-9) && a.tip === 1 && c.tip > b.tip && b.tip > 1;
+  }, { source: SRC_PM });
+  K.check('Half the bore at the same flow and length gives 32 times the friction, at every flow and length', () =>
+    FLOWS.filter((q) => q > 0).every((q) => LENS.every((len) => K.near(fricOf(q, len, 50) / fricOf(q, len, 100), 32, 1e-9))));
+  K.check('With no flow there is no friction, no power and no current; with no lift and no flow the head is 0; the head never falls as the flow grows', () => {
+    const o = K.at({ step: S_AMP, flow: 0 }), c = K.at({ step: S_CURVE, flow: 0, lift: 0 });
+    for (let j = 1; j < FLOWS.length; j++) if (!(K.at({ step: S_CURVE, flow: FLOWS[j] }).totalHead > K.at({ step: S_CURVE, flow: FLOWS[j - 1] }).totalHead)) return false;
+    return o.hydraulicPower === 0 && o.motorCurrent === 0 && K.near(o.totalHead, 10, 1e-12) && c.totalHead === 0;
+  });
+  K.check('Each puzzle offers three different answers including its right one, every wrong answer has its own hint, and before Check nothing on its picture shows the answer or a red mark', () =>
+    DO.every((i) => {
+      const d = STEPS[i];
+      if (d.opts.length !== 3 || d.opts.indexOf(d.want) < 0 || new Set(d.opts).size !== 3) return false;
+      if (!d.opts.every((o) => o === d.want || (d.hints[o] && d.hints[o].length > 10 && d.bad[o]))) return false;
+      const g = drawn(i, blank());
+      return !g.bad && !g.ans;
+    }));
+  K.check('A wrong pick is drawn in red where it fails, and a right answer draws no red', () =>
+    DO.every((i) => {
+      const d = STEPS[i];
+      if (drawn(i, solved(i)).bad) return false;
+      return d.opts.filter((o) => o !== d.want).every((o) => drawn(i, wrongSt(i, o)).bad > 0);
+    }));
+  K.check("A right answer draws the rule's result: 19.89 m; four times the friction; 12.23 m; 26 m; 2.871 kW; 1005.5 W; 32 times", () => {
+    const r = (name) => { const i = idx(name); return drawn(i, solved(i)).res; };
+    return K.near(r('Gauges to head'), 19.890, 0.001) && K.near(r('Before the friction bar'), 4, 1e-9) && K.near(r('A longer pipe'), 12.232, 0.001) &&
+      K.near(r('Twice the flow'), 26, 1e-12) && K.near(r("The shaft's power"), 2.8714, 0.0001) && K.near(r('A new pump'), 1005.525, 0.001) &&
+      K.near(r('Half the bore'), 32, 1e-9);
+  });
+  K.check('Every demonstration has finished within 4.5 s of its screen opening, its first move after the 0.35 s screen fade; every answer\'s motion, right or wrong, within 2 s', () => {
+    const keepT = T;
+    const timed = (i, st, limit) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; CHECKING = true;
+      S[i] = st;
+      try { paint(i); } finally { S[i] = keepS; CHECKING = false; }
+      return latest <= limit + 1e-9;
+    };
+    const ok = STEPS.every((d, i) => {
+      if (d.show) return (d.mot || []).every((m) => m.keys.every((k) => k[0] >= FADE && k[0] <= d.dur)) && d.dur >= 3 && d.dur <= 4.5 && timed(i, blank(), d.dur);
+      return timed(i, solved(i), ANS) && d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), ANS));
+    });
+    T = keepT; paint();
+    return ok;
+  });
+  // The paragraph and the live line under the picture together, at every setting the screen allows.
+  K.check('Every demonstration screen, with the live line under it, keeps to about 90 words', () => STEPS.every((d, i) => {
+    if (!d.show) return true;
+    let most = 0;
+    if (d.live) {
+      const L = d.live;
+      (L.lift ? [0, 1, 5, 10, 16, 20] : [LIFT0]).forEach((lift) => (L.length ? [10, 70, 150] : [LEN0]).forEach((len) => (L.bore ? BORES : [BORE0]).forEach((bore) => (L.flow ? FLOWS : [Q0]).forEach((flow) => {
+        const p = { step: i, lift, length: len, bore, flow };
+        most = Math.max(most, words(sayFor(d, p, K.at(p))));
+      }))));
+    }
+    return words(d.text) + most <= 90 && (!d.read || words(d.read) + most <= 90);
+  }));
+
+  K.ready();
+</script>

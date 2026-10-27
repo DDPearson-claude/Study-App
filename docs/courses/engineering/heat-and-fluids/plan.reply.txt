@@ -1,0 +1,19 @@
+{
+  "title": "Heat and fluids, from boiling water to pumps",
+  "hook": "Partly close the discharge valve on a running centrifugal pump, and its motor usually draws less current, not more. Why does choking the flow make the motor's job easier?",
+  "oneBreath": "Heat is energy on the move from hotter to colder, and temperature is only one of the places it can go: it can melt or boil things instead, or push a piston, though never all of it into work. Liquids press harder the deeper you go, which is why things float, and a flowing liquid trades pressure for speed. A pump has to supply the lift and the pipe's friction, and it settles where what it gives matches what the pipe needs.",
+  "ideas": [
+    { "id": "i1", "title": "Temperature and heat", "oneLine": "The energy to warm something is its mass × specific heat × temperature rise, while melting or boiling takes in energy at a steady temperature.", "deps": [], "kind": "quantity" },
+    { "id": "i2", "title": "How heat moves", "oneLine": "A loaded cable warms until heat out matches heat in, so its rise is losses × thermal resistance, how hard the heat's way out is.", "deps": ["i1"], "kind": "mechanism" },
+    { "id": "i3", "title": "Gases, pressure and the air receiver", "oneLine": "Gas sums need absolute pressure and kelvin, because a gas's pressure, volume and temperature are in proportion only when measured from true zero.", "deps": ["i1"], "kind": "quantity" },
+    { "id": "i4", "title": "Heat into work: the first law and engines", "oneLine": "Heat in equals work out plus the rise in a gas's stored energy, so an engine's fuel energy splits into work, cooling and exhaust.", "deps": ["i1", "i3"], "kind": "quantity" },
+    { "id": "i5", "title": "Pressure in liquids, and floating", "oneLine": "Pressure in a liquid grows with depth alone, density × g × depth, and the extra push under an object is the upthrust that floats it.", "deps": ["i3"], "kind": "mechanism" },
+    { "id": "i6", "title": "Fluids in motion", "oneLine": "Flow through a narrowing speeds up, and the energy for that speed comes out of the pressure, so a narrowed pipe, a venturi, measures flow.", "deps": ["i5"], "kind": "quantity" },
+    { "id": "i7", "title": "Pipes, head and pump power", "oneLine": "A pipe needs head, a height of liquid, for its lift plus friction that grows with flow squared, and head times flow sets pump power.", "deps": ["i5", "i6"], "kind": "quantity" },
+    { "id": "i8", "title": "Where the pump settles, and its limits", "oneLine": "A centrifugal pump settles where its curve of head against flow crosses the pipe's, so closing a valve moves it to less flow, more head.", "deps": ["i1", "i3", "i7"], "kind": "mechanism" }
+  ],
+  "calibration": [
+    { "id": "c1", "iid": "i1", "q": "Which takes more energy: warming a kilogram of water from freezing to boiling, or then boiling that kilogram away completely?", "options": ["Warming it from freezing to boiling", "About the same for each", "Boiling it away, by far"], "answer": 2, "why": "Boiling it away takes about 2,260 kJ, over five times the 420 kJ that warms it from 0 °C to 100 °C. The temperature sits at 100 °C all the while, so it looks as if little is happening, but most of the energy goes in then." },
+    { "id": "c2", "iid": "i2", "q": "A steel handrail and a wooden one sit side by side in a cold, unheated room all night. In the morning, which is colder?", "options": ["The steel one", "Both are the same temperature", "The wooden one, because wood keeps the cold in"], "answer": 1, "why": "Left together all night, both settle at the room's temperature. Steel only feels colder because it carries heat out of your hand much faster than wood does. What you feel is how fast heat leaves you, not how cold the rail is." }
+  ]
+}

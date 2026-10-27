@@ -1,0 +1,1163 @@
+<!-- kind: mechanism -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 30rem; margin-inline: auto; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .stage { position: relative; max-width: 26rem; margin-inline: auto; }
+  .scene { display: block; width: 100%; }
+  .scene .wall { fill: none; stroke: var(--k-strong); stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }
+  .scene .liq { fill: var(--k-cat1); fill-opacity: .16; }
+  .scene .surf { stroke: var(--k-cat1); stroke-width: 2; }
+  .scene .tk { stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .tl { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .lab.m { font-weight: 400; fill: var(--k-muted); }
+  .scene .lab.t { fill: var(--k-accent); }
+  .scene .lab.w { fill: var(--k-warn); }
+  .scene .lab.n { fill: var(--k-accent2); }
+  .scene .cable { stroke: var(--k-muted); stroke-width: 1.5; }
+  .scene .probe { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.5; }
+  .scene .face { stroke: var(--k-accent2); stroke-width: 4; stroke-linecap: round; }
+  .scene .col { fill: var(--k-fill2); }
+  .scene .brk { fill: none; stroke: var(--k-accent2); stroke-width: 1.5; }
+  .scene .lvl { stroke: var(--k-accent2); stroke-width: 1.5; stroke-dasharray: 5 4; }
+  .scene .ar { stroke-width: 2.5; stroke-linecap: round; fill: none; }
+  .scene .ar-n { stroke: var(--k-accent2); }
+  .scene .hd-n { fill: var(--k-accent2); }
+  .scene .ar-m { stroke: var(--k-muted); stroke-width: 2; }
+  .scene .hd-m { fill: var(--k-muted); }
+  .scene .ar-t { stroke: var(--k-accent); stroke-width: 2; }
+  .scene .hd-t { fill: var(--k-accent); }
+  .scene .ar-w { stroke: var(--k-warn); stroke-dasharray: 5 4; stroke-linecap: butt; }
+  .scene .hd-w { fill: var(--k-warn); }
+  .scene .cube { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.5; }
+  .scene .ghost { fill: none; stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 5 4; }
+  .scene .frame { fill: var(--k-bg); stroke: var(--k-line); stroke-width: 1.5; }
+  .scene .zoom { stroke: var(--k-muted); stroke-width: 1; stroke-dasharray: 3 3; }
+  .scene .bpush { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1; }
+  .scene .bup { fill: var(--k-fill2); stroke: var(--k-amber-line); stroke-width: 1.5; }
+  .scene .bdisp { fill: var(--k-cat1); fill-opacity: .3; stroke: var(--k-cat1); stroke-width: 1.5; }
+  .scene .bwt { fill: var(--k-accent2); }
+  .scene .bair { fill: var(--k-fill3); stroke: var(--k-accent); stroke-width: 1.5; }
+  .scene .bad { fill: none; stroke: var(--k-warn); stroke-width: 2.5; stroke-dasharray: 6 4; }
+  .scene .hull { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.5; stroke-linejoin: round; }
+  .scene .hull2 { fill: var(--k-sunk); stroke: var(--k-ink); stroke-width: 1.5; stroke-linejoin: round; }
+  .scene #art * { pointer-events: none; }
+  /* The handles Dan drags: a ring round the probe, and one round the cube in the tank. */
+  .knob { position: absolute; width: 32px; height: 32px; margin: -16px 0 0 -16px; box-sizing: border-box; border-radius: 50%;
+    background: transparent; border: 2.5px solid var(--k-accent2); cursor: grab; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; }
+  /* Readouts, answers and controls wrap onto as many rows as they need at 360 px. */
+  #outs { display: grid; grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr)); gap: 10px; }
+  .picks { display: grid; grid-template-columns: repeat(auto-fit, minmax(6.5rem, 1fr)); gap: 10px; }
+  .picks.long { grid-template-columns: 1fr; }
+  .picks .k-btn { min-height: 52px; font-size: 1.1rem; }
+  .picks.long .k-btn { min-height: 48px; font-size: 1.02rem; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why, .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }
+</style>
+
+<p class="lead">Every picture here shows still liquid, drawn far smaller than life.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <div class="stage" id="stage">
+      <svg class="scene" id="scene" viewBox="0 0 340 306" width="100%" role="img" aria-label=""><g id="art"></g></svg>
+      <div class="knob" id="kp" hidden></div>
+      <div class="knob" id="kc" hidden></div>
+    </div>
+    <div class="k-controls" id="ctl"></div>
+    <p class="say" id="say"></p>
+    <div class="k-readouts" id="outs"></div>
+    <div class="replay" id="replay"></div>
+    <div class="picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+<div id="hid" hidden></div>
+
+<p class="caption" id="cap"></p>
+
+<script>
+  // ---------- the rule ----------
+  // In a still liquid the gauge pressure at depth h is ρgh: the weight of the column above a
+  // 1 m² patch. Absolute pressure adds the air on the surface. A 1 m cube feels ρg × its depth
+  // on each face; the bottom's push minus the top's is the upthrust, ρg × the volume under the
+  // surface, which is the weight of the liquid pushed aside. Let go, it floats where that equals
+  // its own weight (draught = its density ÷ the liquid's × 1 m), hovers if as dense, or sinks.
+  const SRC_WHOI = 'https://www.whoi.edu/science/PO/people/tjoyce/whoi-mit_course/notes/course_notes_1b.pdf';
+  const SRC_TALLEY = 'https://talleylab.ucsd.edu/sio210/lect_2/lecture_2.html';
+  const SRC_BU = 'http://physics.bu.edu/~duffy/py105/Pressure.html';
+  const SRC_WATER = 'https://openstax.org/books/college-physics-2e/pages/11-2-density';
+  const G = 9.81, RS = 1025, RF = 1000, ATM = 100, DEEP = 10, SIDE = 1;
+  const EPS = 1e-9, FADE = 0.35, ANS = 2.0;
+  const pk = (rho, h) => rho * G * Math.max(0, h) / 1000;          // kPa at depth h (m)
+  const sub = (top) => K.clamp(top + SIDE, 0, SIDE);                // m³ of the 1 m cube under the surface
+  const upK = (rho, top) => rho * G * sub(top) / 1000;              // upthrust, kN
+  const wtK = (dens) => dens * G / 1000;                            // a 1 m³ cube's weight, kN
+  const draught = (dens, rho) => dens / rho * SIDE;                 // m, for a cube that floats
+  // Where a released cube's top settles: floating at its draught, hovering where it is, or on the floor.
+  function eqTop(dens, rho, from) {
+    if (Math.abs(dens - rho) < 1e-6) return from;
+    return dens < rho ? draught(dens, rho) - SIDE : DEEP - SIDE;
+  }
+  const fx = (v, dp) => K.fmt(v, { decimals: dp || 0 });
+  const jackP = (f, cm2) => f / (cm2 * 1e-4) / 1000;                // kPa from a force (N) on an area (cm²)
+  const DS = String(RS), DF = String(RF), GS = String(G);
+  // Every number the words and pictures print, worked out from the rule.
+  const N = {
+    w1: fx(2 * G, 1), p10: fx(pk(RS, 10), 1), p5: fx(pk(RS, 5), 1), p5a: fx(pk(RS, 5) + ATM, 1),
+    p5g: fx(RS * 5 / 1000, 1), p5f: fx(pk(RF, 5), 1), p2f: fx(pk(RF, 2), 1), ratio: fx(10 / 0.1),
+    p3: fx(pk(RS, 3), 1), p3h: fx(pk(RS, 3) / 2, 1), t2: fx(pk(RS, 2), 1), b3: fx(pk(RS, 3), 1), up: fx(upK(RS, 2), 1),
+    t6: fx(pk(RS, 6), 1), b7: fx(pk(RS, 7), 1), up3: fx(3 * upK(RS, 2), 1),
+    w600: fx(wtK(600), 1), w1500: fx(wtK(1500), 1), d6s: fx(draught(600, RS), 2), d6f: fx(draught(600, RF), 2),
+    pm: fx(4000), pd: fx(4000 / (RS * 4 * 2), 2), pdf: fx(4000 / (RF * 4 * 2), 2), pdb: fx(4000 / (RS * 4), 2),
+    s20: fx(pk(RS, 20)), s20a: fx(pk(RS, 20) + ATM), s20f: fx(pk(RF, 20) + ATM),
+    flF: fx(wtK(RF), 1), flS: fx(wtK(RS), 1), atm: fx(ATM),
+    // The jack: pressure = force ÷ area, passed on through the oil (areas in cm², 1 cm² = 0.0001 m²).
+    jp: fx(jackP(100, 10)), jL: fx(jackP(100, 10) * 200 / 10), jWi: fx(100 * 0.2), jWo: fx(jackP(100, 10) * 200 / 10 * 0.01),
+    jp2: fx(jackP(60, 5)), jR: fx(jackP(60, 5) * 300 / 10), jB: fx(60 * 5 / 300), jT: fx(300 / 5),
+  };
+  const O = {
+    a2: 'About 2 N', a19: `About ${N.w1} N`, dep: 'It depends on what the block is made of',
+    k150: `About ${N.p5a} kPa`, k5: `About ${N.p5g} kPa`, k50: `About ${N.p5} kPa`,
+    both: `About ${N.p2f} kPa on both`, hund: `${N.ratio} times more on the wide one`, narr: 'More on the narrow one',
+    h15: `About ${N.p3h} kPa`, h30: `About ${N.p3} kPa`, h0: '0 kPa',
+    u30: `About ${N.up3} kN`, u70: `About ${N.b7} kN`, u10: `About ${N.up} kN`,
+    d49: `About ${N.pd} m`, d98: `About ${N.pdb} m`, d50: `About ${N.pdf} m`,
+    j60: '60 N', jR: `${N.jR} N`, j1: `${N.jB} N`,
+    s201: `About ${N.s20} kPa`, s301: `About ${N.s20a} kPa`, s296: `About ${N.s20f} kPa`,
+    fHi: 'It floats higher', fHov: 'It still hovers', fSink: 'It sinks',
+  };
+  const EQS = eqTop(600, RS, 2), EQF = eqTop(600, RF, 2);
+
+  // ---------- the lesson: SHOW screens demonstrate, DO screens are puzzles ----------
+  // A live screen (live: which controls show) opens on its own settings (set) and runs its
+  // demonstration (mot: timed keys for its controls) once.
+  const STEPS = [
+    { kind: 'pick', name: 'A warm-up', top: 'warm', right: 'Still there.',
+      opts: [O.a2, O.a19, O.dep], want: O.a19,
+      bad: { [O.a2]: { lab: '2 N: kilograms read as newtons' }, [O.dep]: { lab: 'any block pushing aside 2 L feels the same' } },
+      task: 'A block held under fresh water pushes aside 2 L of it. A litre of fresh water has a mass of 1 kg. What is the upthrust on the block?',
+      why: `The upthrust is the weight of the water the block pushes aside. 2 L of fresh water has a mass of 2 kg. Its weight is 2 × ${GS}, about ${N.w1} N. What the block is made of does not come into it.`,
+      hint: 'Not quite. Find the weight of the water it pushes aside.',
+      hints: { [O.a2]: `Not quite. 2 kg is a mass. Each kilogram weighs ${GS} N.`, [O.dep]: 'Not quite. The upthrust is the weight of the water pushed aside, whatever the block is made of.' } },
+    { show: true, name: 'The weight above', top: 'tanks', live: { depth: true, fresh: true }, outs: ['probeKpa'], col: true, hlab: true,
+      set: { depth: 0 }, dur: 3.8, mot: [{ ctl: 'depth', keys: [[0.5, 0], [3.5, 10]] }],
+      text: `Pressure in a liquid comes from the weight of the liquid above. Picture a column of seawater h deep, standing on a patch of 1 m². ρ is the *density*, the mass in each cubic metre. The column weighs ρ × h × 1 m² × g. That weight rests on 1 m², so the pressure is *p = ρgh*. At 10 m the probe reads about ${N.p10} kPa, about one atmosphere more. Fresh water is a little less dense, so each metre adds a little less.` },
+    { kind: 'pick', name: 'Five metres down', top: 'tanks', fig: 'p5',
+      opts: [O.k150, O.k5, O.k50], want: O.k50,
+      bad: { [O.k150]: { lab: `${N.p5a} kPa adds the air: that is absolute` }, [O.k5]: { lab: `${N.p5g} kPa leaves out g, ${GS} N for each kg` } },
+      task: "What does the probe's gauge read 5 m down in seawater?",
+      why: `A gauge reads ρgh. That is ${DS} × ${GS} × 5 pascals, about ${N.p5} kPa. It leaves out the air pressing on the surface.`,
+      hint: 'Not quite. Multiply the density, g and the depth.',
+      hints: { [O.k150]: 'Not quite. That adds the air. A gauge leaves the air out.', [O.k5]: `Not quite. ${DS} × 5 is a mass. Multiply by g, ${GS}, for its weight.` } },
+    { show: true, name: 'Any shape', top: 'tanks', live: { depth: true, tank: true }, outs: ['probeKpa'], col: true, level: true, names: true,
+      set: { depth: 5, tank: 'narrow' }, dur: 3.4, mot: [{ ctl: 'tank', step: true, keys: [[0.5, 'narrow'], [1.6, 'wide'], [2.8, 'flared']] }],
+      still: { tank: 'flared', depth: 5 },
+      text: 'The three tanks are joined at the bottom. So the liquid settles at one level in all three. At any one depth, the probe reads the same in each. Width and shape are not in ρgh. If one bottom pressed harder, it would push liquid through the join until the levels matched. In the flaring tank, the sloping walls hold up the extra liquid. Still water presses too. It needs no flow, only weight. Pick a tank, then drag the probe down.',
+      read: 'The three tanks are joined at the bottom. So the liquid settles at one level in all three. At any one depth, the probe reads the same in each. Width and shape are not in ρgh. If one bottom pressed harder, it would push liquid through the join until the levels matched. In the flaring tank, the sloping walls hold up the extra liquid. Still water presses too. It needs no flow, only weight.' },
+    { kind: 'pick', name: 'Two bases', top: 'bases',
+      opts: [O.both, O.hund, O.narr], want: O.both,
+      bad: { [O.hund]: { lab: `${N.ratio} times the push, on ${N.ratio} times the area` }, [O.narr]: { lab: 'the narrow tank is no deeper: both are 2 m' } },
+      task: 'Two tanks of fresh water are each 2 m deep. One has a base of 0.1 m², the other 10 m². What pressure is on each bottom?',
+      why: `Only the depth sets the pressure. Both bottoms are 2 m down in fresh water. So each feels ${DF} × ${GS} × 2 pascals, about ${N.p2f} kPa. The wide base carries ${N.ratio} times the push, spread over ${N.ratio} times the area.`,
+      hint: 'Not quite. Only the depth sets the pressure.',
+      hints: { [O.hund]: `Not quite. The wide base carries ${N.ratio} times the push, but over ${N.ratio} times the area.`, [O.narr]: 'Not quite. Both are 2 m deep, and only the depth sets the pressure.' } },
+    { show: true, name: 'Every way at once', top: 'tanks', live: { face: true, abs: true }, outs: ['probeKpa'], arrows: true,
+      set: { depth: 3, face: 'up' }, dur: 4.0,
+      mot: [{ ctl: 'face', step: true, keys: [[0.5, 'up'], [1.4, 'side'], [2.3, 'down']] }, { ctl: 'abs', step: true, keys: [[0.5, false], [3.2, true]] }],
+      text: `At any point in a still liquid, pressure pushes every way at once. It pushes square to whatever surface it meets. So 3 m down, the probe reads about ${N.p3} kPa facing up, sideways or down. Its gauge counts only what the liquid adds. As with the air receiver, absolute pressure adds the air pressing on the surface, about ${N.atm} kPa.` },
+    { kind: 'pick', name: 'Turned sideways', top: 'tanks', fig: 'side',
+      opts: [O.h15, O.h30, O.h0], want: O.h30,
+      bad: { [O.h15]: { lab: `${N.p3h} kPa: half. Pressure is not shared out` }, [O.h0]: { lab: '0 kPa: the liquid beside it presses too' } },
+      task: `A small plate sits 3 m down in seawater. Facing up, it reads about ${N.p3} kPa. Turned to face sideways, what does it read?`,
+      why: `Pressure at a point pushes every way at once. The plate is still 3 m down. So it reads about ${N.p3} kPa whichever way it faces.`,
+      hint: 'Not quite. Pressure pushes every way at once.',
+      hints: { [O.h15]: 'Not quite. Pressure is not shared out between directions. It pushes fully every way.', [O.h0]: 'Not quite. The liquid beside the plate presses on it too.' } },
+    { show: true, name: 'A hydraulic jack', top: 'jack', dur: 3.8,
+      text: `A jack shuts oil inside two joined cylinders. Push on one piston, and the oil's pressure rises by the same amount everywhere. That is *Pascal's principle*. 100 N on 10 cm² makes ${N.jp} kPa. That ${N.jp} kPa acts on the big 200 cm² piston, so it lifts ${N.jL} N. But the small piston moves 20 times as far. Pushing it 20 cm lifts the load 1 cm. Work in is 100 N × 0.2 m, or ${N.jWi} J. Work out is ${N.jL} N × 0.01 m, also ${N.jWo} J.` },
+    { kind: 'pick', name: 'A bigger jack', top: 'jack', fig: 'jack2',
+      opts: [O.j60, O.jR, O.j1], want: O.jR,
+      bad: { [O.j60]: { lab: '60 N: the oil passes on the pressure, not the force' }, [O.j1]: { lab: '1 N: the areas are upside down' } },
+      task: "A jack's small piston is 5 cm² and its big one 300 cm². You push the small one with 60 N. What load can the big one lift?",
+      why: `The pressure is 60 N ÷ 0.0005 m², which is ${N.jp2} kPa. The oil passes it on to the big piston. So that piston lifts ${N.jp2} kPa × 0.03 m², or ${N.jR} N. The small piston must move ${N.jT} times as far as the load rises.`,
+      hint: "Not quite. Find the pressure, then multiply by the big piston's area.",
+      hints: { [O.j60]: 'Not quite. The oil passes on the pressure, not the force. Find the pressure first.', [O.j1]: 'Not quite. The big piston has the bigger area, so it gets the bigger force.' } },
+    { show: true, name: 'Held under', top: 'cube', live: { cdepth: true }, outs: ['upthrust'],
+      set: { cdepth: -1 }, dur: 3.6, mot: [{ ctl: 'cdepth', keys: [[0.5, -1], [3.2, 2]] }], still: { cdepth: 2 },
+      text: `A 1 m cube is held with its top 2 m down. Its side pushes cancel in pairs. Its top is pushed down with about ${N.t2} kPa. Its bottom, 1 m deeper, is pushed up with about ${N.b3} kPa. On 1 m² faces, the bottom wins by about ${N.up} kN. That is the *upthrust*. The extra pressure is ρg × 1 m, acting on 1 m². So the upthrust is ρg × 1 m³. That is the weight of 1 m³ of seawater, ${DS} kg, about ${N.flS} kN.` },
+    { kind: 'pick', name: 'Six metres down', top: 'cube', fig: 'six',
+      opts: [O.u30, O.u70, O.u10], want: O.u10,
+      bad: { [O.u30]: { lab: `${N.up3} kN: the upthrust does not grow with depth` }, [O.u70]: { lab: `${N.b7} kN leaves out the top's push down` } },
+      task: `The cube is pushed down until its top is 6 m deep. Its top now feels about ${N.t6} kPa, and its bottom about ${N.b7} kPa. What is the upthrust?`,
+      why: `On the 1 m² faces, the bottom is pushed up with about ${N.b7} kN. The top is pushed down with about ${N.t6} kN. The difference is about ${N.up} kN. Deeper down, both pushes grew by the same amount. So the upthrust is still the weight of 1 m³ of seawater.`,
+      hint: "Not quite. Take the top's push off the bottom's.",
+      hints: { [O.u30]: 'Not quite. Deeper down, both pushes grow alike, so their difference does not.', [O.u70]: 'Not quite. The top is pushed down too. Take its push off.' } },
+    { show: true, name: 'Sink or float', top: 'cube', float: true, live: { dens: true, letgo: true }, outs: ['upthrust', 'cubeWeight'],
+      set: { dens: 1500, fpos: 2 }, dur: 3.4, mot: [{ ctl: 'rel', step: true, keys: [[0.4, false], [0.6, true]] }, { ctl: 'fpos', keys: [[0.6, 2], [3.0, 9]] }],
+      text: `Let go, and its weight meets the upthrust. Its weight depends on its own density. The upthrust depends on the liquid's. Denser than the liquid, it sinks. At 1,500 kg/m³ it weighs about ${N.w1500} kN against ${N.up} kN of upthrust. As dense as the liquid, it hovers. Less dense, it rises. A steel hull floats because its mass ÷ all the space its outside encloses is less than the water's density. *Relative density* is a density ÷ fresh water's. Seawater's is about ${fx(RS / RF, 3)}. Slide the density, then let go.`,
+      read: `Let go, and its weight meets the upthrust. Its weight depends on its own density. The upthrust depends on the liquid's. Denser than the liquid, it sinks. At 1,500 kg/m³ it weighs about ${N.w1500} kN against ${N.up} kN of upthrust. As dense as the liquid, it hovers. Less dense, it rises. A steel hull floats because its mass ÷ all the space its outside encloses is less than the water's density. *Relative density* is a density ÷ fresh water's. Seawater's is about ${fx(RS / RF, 3)}.` },
+    { show: true, name: 'How deep it floats', top: 'cube', float: true, live: { dens: true, fresh: true, letgo: true }, outs: ['upthrust', 'cubeWeight'],
+      set: { dens: 600, fpos: 2 }, dur: 4.0,
+      mot: [{ ctl: 'rel', step: true, keys: [[0.4, false], [0.5, true]] }, { ctl: 'fpos', keys: [[0.5, 2], [2.4, EQS], [2.9, EQS], [3.7, EQF]] }, { ctl: 'fresh', step: true, keys: [[0.4, false], [2.8, true]] }],
+      text: `A cube less dense than the liquid rises. As it comes out of the surface, it pushes aside less, so the upthrust falls. It settles where the two match. The depth of its bottom is then its *draught*. Take a 600 kg cube. It must push aside 600 kg of seawater. That is 600 ÷ ${DS}, about ${N.d6s} m³. On its 1 m² base, that is ${N.d6s} m deep. Fresh water is less dense, so it sits deeper, at ${N.d6f} m.` },
+    { kind: 'pick', name: 'A pontoon', top: 'pontoon',
+      opts: [O.d49, O.d98, O.d50], want: O.d49,
+      bad: { [O.d98]: { at: 4000 / (RS * 4), lab: `${N.pdb} m: the breadth is left out` }, [O.d50]: { at: 4000 / (RF * 8), lab: `${N.pdf} m is its draught in fresh water` } },
+      task: `A box-shaped pontoon 4 m by 2 m has a mass of ${N.pm} kg. How deep does it sit in seawater?`,
+      why: `It sinks until it pushes aside its own mass of seawater, ${N.pm} kg. Its base is 4 × 2 = 8 m². So its draught is ${N.pm} ÷ (${DS} × 8), about ${N.pd} m. In fresh water it would sit at ${N.pdf} m.`,
+      hint: 'Not quite. Divide its mass by the density times its base area.',
+      hints: { [O.d98]: 'Not quite. Use the whole base, length × breadth.', [O.d50]: 'Not quite. That is fresh water. Seawater is denser, so it sits a little higher.' } },
+    { kind: 'pick', name: 'A deep sensor', top: 'sensor',
+      opts: [O.s201, O.s301, O.s296], want: O.s301,
+      bad: { [O.s201]: { lab: `${N.s20} kPa is the gauge: the air is left out` }, [O.s296]: { lab: `${N.s20f} kPa uses fresh water, ${DF} kg/m³` } },
+      task: 'A sensor sits 20 m down in seawater. What absolute pressure does it feel?',
+      why: `The seawater adds ${DS} × ${GS} × 20 pascals, about ${N.s20} kPa. That is what a gauge reads. The absolute pressure adds the air's ${N.atm} kPa, so about ${N.s20a} kPa.`,
+      hint: 'Not quite. Work out ρgh, then add the air.',
+      hints: { [O.s201]: 'Not quite. That is the gauge pressure. Add the air.', [O.s296]: `Not quite. That uses fresh water. Seawater is ${DS} kg/m³.` } },
+    { kind: 'pick', name: 'Into fresh water', top: 'float',
+      opts: [O.fHi, O.fHov, O.fSink], want: O.fSink,
+      bad: { [O.fHi]: { lab: 'fresh water holds it up less, not more' }, [O.fHov]: { lab: `fresh water gives only ${N.flF} kN of upthrust` } },
+      task: `A sealed float of 1 m³ is weighted to hover in seawater, so its mass is ${DS} kg. Moved into fresh water, what does it do?`,
+      why: `In fresh water, 1 m³ pushed aside weighs ${DF} × ${GS} newtons, about ${N.flF} kN. The float weighs ${DS} × ${GS} newtons, about ${N.flS} kN. Its weight wins, so it sinks.`,
+      hint: 'Not quite. Compare its weight with the upthrust in fresh water.',
+      hints: { [O.fHi]: 'Not quite. Fresh water is less dense than seawater, so it holds things up less.', [O.fHov]: 'Not quite. Compare its weight with the weight of 1 m³ of fresh water.' } },
+  ];
+  const FINISH = 'Pressure in a still liquid grows with depth alone, as ρgh. The bottom\'s extra push is the upthrust, the weight of the liquid pushed aside.';
+  const PICK = 'Pick an answer first.';
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- each step's state ----------
+  function blank() { return { pick: null, res: null, why: false }; }
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity, motionEnd = 0, MOT = null, keyNow = '', rel = false;
+  const EX = {};          // exact values while a demonstration drives a slider (the slider itself moves in steps)
+  const FD = { air: 0 };  // how far the air's arrows have faded in
+  const el = (id) => document.getElementById(id);
+
+  // ---------- words with amber key terms (built with K.el, never innerHTML) ----------
+  // A number and its unit never part at a line end.
+  const nb = (s) => String(s || '').replace(/(\d) (m²|m³|cm²|cm|m|kPa|kN|N|kg\/m³|kg|L|J|Pa)(?![A-Za-z])/g, '$1\u00a0$2').replace(/p = ρgh/g, 'p\u00a0=\u00a0ρgh');
+  function write(node, s) {
+    node.textContent = '';
+    s = nb(s);
+    const re = /\*([^*]+)\*/g;
+    let pos = 0, m;
+    while ((m = re.exec(s))) {
+      if (m.index > pos) node.appendChild(document.createTextNode(s.slice(pos, m.index)));
+      node.appendChild(K.el('span', { class: 'term' }, m[1]));
+      pos = m.index + m[0].length;
+    }
+    if (pos < s.length) node.appendChild(document.createTextNode(s.slice(pos)));
+    return node;
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);
+  const stepOf = (p) => K.clamp(Math.round(+p.step) || 0, 0, STEPS.length - 1);
+  const depthCtl = K.control({ id: 'depth', label: 'Probe depth', min: 0, max: 10, step: 0.1, value: 5, unit: 'm', fmt: (v) => fx(v, 1) + ' m', snap: [3, 5, 10], into: '#ctl' });
+  const tankCtl = K.choice({ id: 'tank', label: 'Tank', options: [{ value: 'narrow', label: 'Narrow' }, { value: 'wide', label: 'Wide' }, { value: 'flared', label: 'Flaring' }], value: 'wide', into: '#ctl' });
+  const faceCtl = K.choice({ id: 'face', label: "Probe's face", options: [{ value: 'up', label: 'Up' }, { value: 'side', label: 'Sideways' }, { value: 'down', label: 'Down' }], value: 'up', into: '#ctl' });
+  const absCtl = K.toggle({ id: 'abs', label: 'Absolute: add the air', value: false, into: '#ctl' });
+  const cdCtl = K.control({ id: 'cdepth', label: "Depth of the cube's top", min: -1, max: 7, step: 0.1, value: 2, unit: 'm',
+    fmt: (v) => (v < -0.04 ? fx(-v, 1) + ' m above' : fx(Math.abs(v), 1) + ' m'), snap: [2, 6], into: '#ctl' });
+  const densCtl = K.control({ id: 'dens', label: "Cube's density", min: 200, max: 1500, step: 25, value: 600, unit: 'kg/m³', fmt: (v) => fx(v) + ' kg/m³', snap: [600, 1000, 1025], into: '#ctl' });
+  const freshCtl = K.toggle({ id: 'fresh', label: 'Fresh water', value: false, into: '#ctl' });
+  const goBtn = K.button({ label: 'Let go', secondary: true, into: '#ctl', press: () => {
+    const d = STEPS[at()];
+    if (!d.float || finished) return;
+    MOT = null; anim.pause(); T = Infinity;
+    rel = !rel;
+    settle(rel ? null : 2);
+  } });
+  // The released cube's position, driven by its own motion (not a control Dan moves).
+  const fposCtl = K.control({ id: 'fpos', label: 'Cube position', min: -1, max: 9, step: 0.0001, value: 2, unit: 'm', into: '#hid' });
+  const CTL = { depth: depthCtl, tank: tankCtl, face: faceCtl, abs: absCtl, fresh: freshCtl, cdepth: cdCtl, dens: densCtl, fpos: fposCtl,
+    rel: { set: (v) => { rel = !!v; } } };
+  function setCtl(id, v) { if (typeof v === 'number') EX[id] = v; CTL[id].set(v, true); }
+  const ctlKey = (p) => [p.depth, p.tank, p.face, p.abs, p.fresh, p.cdepth, p.dens].join('|');
+
+  const num = (v, d0) => (isFinite(+v) && v !== '' && v != null ? +v : d0);
+  const isOn = (v) => v === true || v === 'true';
+  const pv = (p, id) => (MOT && EX[id] != null ? EX[id] : p[id]);
+  const depthOf = (p) => K.clamp(num(pv(p, 'depth'), 5), 0, 10);
+  const cdOf = (p) => K.clamp(num(pv(p, 'cdepth'), 2), -1, 7);
+  const fposOf = (p) => K.clamp(num(pv(p, 'fpos'), 2), -1, 9);
+  const densOf = (p) => K.clamp(num(p.dens, 600), 200, 1500);
+  const tankOf = (p) => (['narrow', 'wide', 'flared'].indexOf(p.tank) >= 0 ? p.tank : 'wide');
+  const faceOf = (p) => (['up', 'side', 'down'].indexOf(p.face) >= 0 ? p.face : 'up');
+  const rhoOf = (d, p) => (d.live && d.live.fresh && isOn(p.fresh) ? RF : RS);
+
+  // Screens without live controls report the opening settings.
+  const OPEN = () => ({ probeKpa: pk(RS, 5), upthrust: upK(RS, 2), cubeWeight: wtK(600) });
+  K.model((p) => {
+    const d = STEPS[stepOf(p)], o = OPEN();
+    if (!d.live) return o;
+    const L = d.live, rho = rhoOf(d, p);
+    if (d.top === 'tanks') o.probeKpa = pk(rho, L.depth ? K.clamp(num(p.depth, 5), 0, 10) : d.set.depth) + (L.abs && isOn(p.abs) ? ATM : 0);
+    else {
+      o.upthrust = upK(rho, d.float ? K.clamp(num(p.fpos, 2), -1, 9) : K.clamp(num(p.cdepth, 2), -1, 7));
+      o.cubeWeight = wtK(d.float ? densOf(p) : 600);
+    }
+    return o;
+  });
+
+  const rProbe = K.readout({ id: 'probeKpa', label: 'Probe reading', unit: 'kPa', decimals: 1, into: '#outs' });
+  const rUp = K.readout({ id: 'upthrust', label: 'Upthrust', unit: 'kN', decimals: 1, into: '#outs' });
+  const rWt = K.readout({ id: 'cubeWeight', label: "Cube's weight", unit: 'kN', decimals: 1, into: '#outs' });
+
+  // Up to three answer buttons; each step fills in its own options.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = d.opts[k]; st.res = null;
+    if (was) { anim.pause(); T = Infinity; }
+  } }));
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished || st.res === 'right') return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = st.pick === d.want ? 'right' : 'wrong';
+    play(ANS);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const i = at(), d = STEPS[i];
+    if (!d.show || finished) return;
+    onEnter(i);
+    keyNow = ctlKey(K.params());
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true; anim.pause(); T = Infinity; MOT = null;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // ---------- motion: one animation plays each demonstration, the cube's settling and an answer ----------
+  function valAt(m) {
+    const ks = m.keys, last = ks[ks.length - 1];
+    if (T === Infinity || T >= last[0]) return last[1];
+    if (T <= ks[0][0]) return ks[0][1];
+    for (let j = 1; j < ks.length; j++) {
+      if (T < ks[j][0]) {
+        if (m.step) return ks[j - 1][1];
+        const a = (T - ks[j - 1][0]) / Math.max(1e-6, ks[j][0] - ks[j - 1][0]);
+        return K.lerp(ks[j - 1][1], ks[j][1], K.ease(a));
+      }
+    }
+    return last[1];
+  }
+  function stepMot() {
+    if (!MOT) return;
+    let done = true;
+    MOT.forEach((m) => {
+      setCtl(m.ctl, valAt(m));
+      if (T !== Infinity && T < m.keys[m.keys.length - 1][0]) done = false;
+    });
+    keyNow = ctlKey(K.params());
+    if (done) { MOT = null; Object.keys(EX).forEach((k) => delete EX[k]); }
+  }
+  function finishMot() { if (MOT) { T = Infinity; stepMot(); MOT = null; } }
+  function airTarget() { const d = STEPS[at()]; return d.live && d.live.abs && isOn(K.params().abs) ? 1 : 0; }
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    const tgt = airTarget();
+    if (FD.air !== tgt) FD.air = tgt > FD.air ? Math.min(tgt, FD.air + dt / 0.6) : Math.max(tgt, FD.air - dt / 0.6);
+    if (MOT) { stepMot(); K.refresh(); } else if (STEPS[at()].live) K.refresh(); else paint();
+    return T < motionEnd || !!MOT || FD.air !== airTarget();
+  } });
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && !anim.playing() && (T !== Infinity || MOT)) { T = Infinity; finishMot(); FD.air = airTarget(); K.refresh(); }
+  });
+  function play(dur) {
+    if (REDUCE || testing()) { anim.pause(); finishMot(); T = Infinity; FD.air = airTarget(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  // The released cube finds its level (or goes back to 2 m on its line); true when it got there at once.
+  function settle(to) {
+    const p = K.params(), cur = K.clamp(num(p.fpos, 2), -1, 9), rho = isOn(p.fresh) ? RF : RS;
+    const target = to != null ? to : eqTop(densOf(p), rho, cur);
+    if (Math.abs(target - cur) < 1e-6) return false;
+    const dur = K.clamp(0.5 + 0.35 * Math.abs(target - cur), 0.6, 3);
+    MOT = [{ ctl: 'fpos', keys: [[0, cur], [dur, target]] }];
+    EX.fpos = cur;
+    if (REDUCE || testing()) { anim.pause(); finishMot(); T = Infinity; return true; }
+    motionEnd = dur; T = 0; anim.play();
+    return false;
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+  // A new screen: a live one takes its own settings and runs its demonstration once.
+  function onEnter(i) {
+    const d = STEPS[i];
+    MOT = null; rel = false;
+    Object.keys(EX).forEach((k) => delete EX[k]);
+    if (d.live) {
+      const b = Object.assign({ depth: 5, tank: 'wide', face: 'up', abs: false, fresh: false, cdepth: 2, dens: 600, fpos: 2 }, d.set || {});
+      Object.keys(b).forEach((k) => setCtl(k, b[k]));
+      FD.air = b.abs ? 1 : 0;
+      if (d.mot) { MOT = d.mot.map((m) => Object.assign({}, m)); MOT.forEach((m) => setCtl(m.ctl, m.keys[0][1])); }
+    }
+    if (d.show) play(d.dur); else { anim.pause(); T = Infinity; }
+  }
+
+  // ---------- drawing helpers ----------
+  const svg = el('scene'), art = el('art'), kP = el('kp'), kC = el('kc');
+  let into = null, REC = null, HH = 306;
+  const add = (n) => (into || art).appendChild(n);
+  const r2 = (v) => Math.round(v * 100) / 100;
+  const sv = (tag, a) => add(K.svg(tag, a));
+  const path = (d, cls) => sv('path', { class: cls, d });
+  function rect(x, y, w, h, cls) { if (w > 0.3 && h > 0.3) sv('rect', { class: cls, x: r2(x), y: r2(y), width: r2(w), height: r2(h) }); }
+  function text(x, y, s, cls, anchor) {
+    s = String(s);
+    if (REC) REC.texts.push(s);
+    return add(K.svg('text', { class: cls, x: r2(x), y: r2(y), 'text-anchor': anchor || 'middle' }, s));
+  }
+  // How far a part due at t0 has arrived, noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function note(t0, d) { if (t0 + d > latest) latest = t0 + d; if (t0 < earliest) earliest = t0; }
+  function arr(t0, d) { d = d == null ? K.SOFT : d; note(t0, d); return K.arrive(T, t0, d); }
+  function lin(t0, d) { note(t0, d); return T === Infinity ? 1 : K.clamp((T - t0) / d, 0, 1); }
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, Math.min(1, a), rise);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  function ftext(a, x, y, s, cls, anchor) { if (a > 0) part(a, 0, () => text(x, y, s, cls, anchor)); }
+  // A straight arrow from (x1, y1) to its tip at (x2, y2): a line and a filled head.
+  function arrow(x1, y1, x2, y2, k) {
+    const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+    if (L < 6) return;
+    const ux = dx / L, uy = dy / L, hl = Math.min(8, L * 0.55), hw = hl * 0.5;
+    const bx = x2 - ux * hl, by = y2 - uy * hl;
+    sv('line', { class: 'ar ar-' + k, x1: r2(x1), y1: r2(y1), x2: r2(bx + ux * 0.5), y2: r2(by + uy * 0.5) });
+    path(`M${r2(x2)} ${r2(y2)} L${r2(bx - uy * hw)} ${r2(by + ux * hw)} L${r2(bx + uy * hw)} ${r2(by - ux * hw)} Z`, 'hd hd-' + k);
+  }
+  const wrongOf = (d, st) => (st.res === 'wrong' && st.pick != null && d.bad ? d.bad[st.pick] || null : null);
+  const liqName = (rho) => (rho === RF ? 'fresh water' : 'seawater');
+  const keyLine = (rho) => `${liqName(rho)}: ρ = ${rho === RF ? DF : DS} kg/m³ · g = ${GS} N/kg`;
+  function placeKnob(k, show, x, y) {
+    k.hidden = !show;
+    if (!show) return;
+    k.style.left = r2(x / 340 * 100) + '%';
+    k.style.top = r2(y / HH * 100) + '%';
+  }
+
+  // ---------- the three joined tanks ----------
+  const SURF = 70, UPM = 19, FLOOR = 260;
+  const TX = { narrow: 49, wide: 140, flared: 283 };
+  const TNAME = { narrow: 'narrow', wide: 'wide', flared: 'flaring' };
+  const yAt = (h) => SURF + h * UPM;
+  function span(t, y) {
+    if (t === 'narrow') return [40, 58];
+    if (t === 'wide') return [84, 240];
+    const k = (FLOOR - y) * 20 / 190;
+    return [274 - k, 292 + k];
+  }
+  function tanks(rho) {
+    text(8, 16, keyLine(rho), 'lab m', 'start');
+    path('M40 70 H58 V260 H84 V70 H240 V260 H274 L254 70 H312 L292 260 V274 H40 Z', 'liq');
+    [[40, 58], [84, 240], [254, 312]].forEach((s) => sv('line', { class: 'surf', x1: s[0], y1: SURF, x2: s[1], y2: SURF }));
+    path('M40 46 V274 H292 V260 L312 70 L314.53 46', 'wall');
+    path('M58 46 V260 H84 V46', 'wall');
+    path('M240 46 V260 H274 L254 70 L251.47 46', 'wall');
+    [0, 5, 10].forEach((m) => { const y = yAt(m); sv('line', { class: 'tk', x1: 32, y1: y, x2: 37, y2: y }); text(30, y + 4.5, m + ' m', 'tl', 'end'); });
+  }
+  function air(a, k, lab) {
+    if (a <= 0) return;
+    part(a, 0, () => {
+      [49, 110, 190, 270, 296].forEach((x) => arrow(x, 50, x, 68, k));
+      if (lab) text(44, 36, `the air adds ${N.atm} kPa on every surface`, 'lab t', 'start');
+    });
+  }
+  function probe(x, y, face) {
+    sv('line', { class: 'cable', x1: x, y1: 40, x2: x, y2: r2(y - 7) });
+    sv('circle', { class: 'probe', cx: x, cy: r2(y), r: 7 });
+    const f = face === 'up' ? [x - 6, y - 8, x + 6, y - 8] : face === 'down' ? [x - 6, y + 8, x + 6, y + 8] : [x + 8, y - 6, x + 8, y + 6];
+    sv('line', { class: 'face', x1: r2(f[0]), y1: r2(f[1]), x2: r2(f[2]), y2: r2(f[3]) });
+  }
+  const column = (x, y, cls) => rect(x - 6, SURF, 12, y - 8 - SURF, cls || 'col');
+  function hBracket(x, y, lab) {
+    if (y - SURF < 8) return;
+    path(`M${x - 5} ${SURF} H${x} V${r2(y)} H${x - 5}`, 'brk');
+    if (lab && y - SURF >= 19) text(x + 6, r2((SURF + y) / 2 + 4.5), lab, 'lab n', 'start');
+  }
+  const DIRS = { up: [0, -1], ne: [0.7071, -0.7071], side: [1, 0], se: [0.7071, 0.7071], down: [0, 1], sw: [-0.7071, 0.7071], left: [-1, 0], nw: [-0.7071, -0.7071] };
+  // The liquid's push all round the probe (its cable comes down from above).
+  function ghostArrows(x, y, skip) {
+    Object.keys(DIRS).forEach((k) => { if (k === 'up' || k === skip) return; const u = DIRS[k]; arrow(x + u[0] * 25, y + u[1] * 25, x + u[0] * 11, y + u[1] * 11, 'm'); });
+  }
+  // The push on the probe's face: two arrows square to it.
+  function faceArrows(x, y, face, len, k) {
+    const u = DIRS[face], n = [-u[1], u[0]];
+    [-6, 6].forEach((o) => {
+      const tx = x + u[0] * 10 + n[0] * o, ty = y + u[1] * 10 + n[1] * o;
+      arrow(tx + u[0] * len, ty + u[1] * len, tx, ty, k);
+    });
+  }
+  // In a demonstration, the probe fades from its last tank or facing to the next over 0.3 s.
+  function trans(d, ctl) {
+    if (!MOT || T === Infinity || !d.mot) return null;
+    const m = d.mot.find((q) => q.ctl === ctl);
+    if (!m) return null;
+    for (let j = m.keys.length - 1; j > 0; j--) {
+      const k = m.keys[j];
+      if (T >= k[0]) { const a = (T - k[0]) / 0.3; return a < 1 && m.keys[j - 1][1] !== k[1] ? { prev: m.keys[j - 1][1], a: K.clamp(a, 0, 1) } : null; }
+    }
+    return null;
+  }
+  function drawTankStep(d, st, bad, wa, p) {
+    const right = st.res === 'right', ra = right ? arr(0.1) : 0;
+    const rho = rhoOf(d, p);
+    tanks(rho);
+    if (d.live) {
+      const L = d.live, h = L.depth ? depthOf(p) : d.set.depth, t = L.tank ? tankOf(p) : 'wide', face = L.face ? faceOf(p) : 'up';
+      const x = TX[t], y = yAt(h);
+      if (d.level) ['narrow', 'wide', 'flared'].forEach((k) => { const s = span(k, y); sv('line', { class: 'lvl', x1: r2(s[0] + 2), y1: r2(y), x2: r2(s[1] - 2), y2: r2(y) }); });
+      const at1 = (tt, ff) => { const xx = TX[tt]; if (d.col) column(xx, y); if (d.arrows) { ghostArrows(xx, y, ff); faceArrows(xx, y, ff, 20, 'n'); } probe(xx, y, ff); };
+      const tr = L.tank ? trans(d, 'tank') : L.face ? trans(d, 'face') : null;
+      if (tr) { part(1 - tr.a, 0, () => at1(L.tank ? tr.prev : t, L.face ? tr.prev : face)); part(tr.a, 0, () => at1(t, face)); }
+      else at1(t, face);
+      if (d.hlab) {
+        hBracket(x + 14, y, 'h = ' + fx(h, 1) + ' m');
+        if (h >= 0.6) text(x - 23, r2(y + 4.5), 'p', 'lab n', 'end');
+        text(x + 5, 62, 'weight above', 'lab m', 'start');
+      }
+      if (d.arrows) {
+        hBracket(x + 40, y, fx(h) + ' m');
+        air(FD.air, 't', true);
+        text(170, 296, "arrows: the liquid's push, every way at once", 'lab m');
+      }
+      if (d.names) {
+        ['narrow', 'wide', 'flared'].forEach((k) => text(k === 'wide' ? 162 : TX[k], 292, TNAME[k], k === t ? 'lab n' : 'lab m'));
+        text(170, 312, 'dashed: one depth in all three tanks', 'lab m');
+      }
+      placeKnob(kP, !!L.depth, x, y);
+      if (L.face) return `Three tanks of seawater joined at the bottom. A probe hangs 3 m down the wide tank, facing ${face === 'side' ? 'sideways' : face}, with arrows showing the liquid pushing on it from every side.` + (isOn(p.abs) ? ' Arrows above the surfaces show the air pressing down too.' : '');
+      if (L.tank) return `Three tanks, narrow, wide and flaring, joined at the bottom and filled to one level. A probe hangs ${fx(h, 1)} m down the ${TNAME[t]} tank under a shaded column of seawater. A dashed line marks that depth in all three.`;
+      return `Three tanks of ${liqName(rho)} joined at the bottom. A probe hangs ${fx(h, 1)} m down the wide tank, under a shaded column of the liquid above it, with its depth h bracketed.`;
+    }
+    if (d.fig === 'p5') {
+      const x = TX.wide, y = yAt(5);
+      if (bad && bad === d.bad[O.k5]) { REC.bad++; part(wa, 0, () => rect(x - 9, SURF + 1, 18, y - 9 - SURF, 'bad')); }
+      column(x, y);
+      probe(x, y, 'up');
+      hBracket(x + 14, y, 'h = 5 m');
+      ftext(1 - ra, x - 23, y + 4.5, 'p = ?', 'lab n', 'end');
+      ftext(ra, x - 23, y + 4.5, 'p', 'lab n', 'end');
+      if (right) { REC.ans = true; REC.res = pk(RS, 5); ftext(arr(0.5), 170, 296, `${DS} × ${GS} × 5 = about ${N.p5} kPa`, 'lab n'); }
+      if (bad) {
+        if (bad === d.bad[O.k150]) { REC.bad++; air(wa, 'w', false); }
+        ftext(wa, 170, 296, bad.lab, 'lab w');
+      }
+      return 'Three tanks of seawater joined at the bottom. A probe hangs 5 m down the wide tank under a shaded column of seawater, its reading p left as a question.' + (right ? ` It reads ${N.p5} kPa.` : '');
+    }
+    // fig 'side': the plate 3 m down, turned to face sideways
+    const x = TX.wide, y = yAt(3);
+    probe(x, y, 'side');
+    hBracket(x + 40, y, '3 m');
+    ftext(1 - Math.max(ra, wa), x + 16, y + 4.5, '?', 'lab n', 'start');
+    if (right) {
+      REC.ans = true; REC.res = pk(RS, 3);
+      part(ra, 0, () => { ghostArrows(x, y, 'side'); faceArrows(x, y, 'side', 20, 'n'); });
+      ftext(arr(0.5), 170, 296, `sideways: about ${N.p3} kPa, the same every way`, 'lab n');
+    }
+    if (bad) {
+      REC.bad++;
+      part(wa, 0, () => {
+        if (bad === d.bad[O.h0]) sv('circle', { class: 'bad', cx: x + 4, cy: y, r: 14 });
+        else faceArrows(x, y, 'side', 10, 'w');
+      });
+      ftext(wa, 170, 296, bad.lab, 'lab w');
+    }
+    return `Three tanks of seawater. A small plate on a probe sits 3 m down the wide tank, turned to face sideways.` + (right ? ` Arrows show the liquid pushing on it from every side, ${N.p3} kPa on its face.` : ' Its reading is left as a question.');
+  }
+
+  // ---------- two tanks of fresh water with different bases ----------
+  function drawBases(d, st, bad, wa) {
+    const right = st.res === 'right', ra = right ? arr(0.1) : 0;
+    text(8, 16, keyLine(RF), 'lab m', 'start');
+    rect(46, 50, 18, 100, 'liq'); rect(120, 50, 180, 100, 'liq');
+    sv('line', { class: 'surf', x1: 46, y1: 50, x2: 64, y2: 50 }); sv('line', { class: 'surf', x1: 120, y1: 50, x2: 300, y2: 50 });
+    path('M46 36 V150 H64 V36', 'wall'); path('M120 36 V150 H300 V36', 'wall');
+    path('M41 50 H36 V150 H41', 'brk'); text(31, 104.5, '2 m', 'lab n', 'end');
+    path('M115 50 H110 V150 H115', 'brk'); text(105, 104.5, '2 m', 'lab n', 'end');
+    text(55, 172, 'base 0.1 m²', 'lab'); text(210, 172, 'base 10 m²', 'lab');
+    ftext(1 - Math.max(ra, wa), 55, 192, '?', 'lab n'); ftext(1 - Math.max(ra, wa), 210, 192, '?', 'lab n');
+    if (right) {
+      REC.ans = true; REC.res = pk(RF, 2);
+      part(ra, 0, () => { [55, 140, 175, 210, 245, 280].forEach((x) => arrow(x, 116, x, 148, 'n')); });
+      ftext(arr(0.4), 55, 192, `${N.p2f} kPa`, 'lab n'); ftext(arr(0.4), 210, 192, `${N.p2f} kPa`, 'lab n');
+      ftext(arr(0.8), 170, 214, 'the same: only the depth counts', 'lab n');
+    }
+    if (bad) {
+      REC.bad++;
+      part(wa, 0, () => {
+        if (bad === d.bad[O.narr]) arrow(55, 62, 55, 148, 'w');
+        else sv('line', { class: 'bad', x1: 121, y1: 146, x2: 299, y2: 146 });
+      });
+      ftext(wa, 170, 214, bad.lab, 'lab w');
+    }
+    return 'Two tanks of fresh water, each 2 m deep: a narrow one on a 0.1 m² base and a wide one on a 10 m² base.' + (right ? ` Equal arrows press on both bottoms, ${N.p2f} kPa each.` : ' The pressure on each bottom is left as a question.');
+  }
+
+  // ---------- the cube: the wide tank to scale, and a close-up of its faces ----------
+  const SURF2 = 60, UPM2 = 20, TL = 44, TR = 116, CXS = 80;
+  const FX0 = 140, FX1 = 336, FY0 = 40, FY1 = 262;
+  const CX0 = 190, CX1 = 270, CY0 = 120, CY1 = 200, CXM = 230, ZM = 80, AS = 0.6, SB = 3, SBF = 15;
+  function cubeTank(rho, top, held) {
+    text(8, 16, keyLine(rho), 'lab m', 'start');
+    rect(TL, SURF2, TR - TL, 200, 'liq');
+    sv('line', { class: 'surf', x1: TL, y1: SURF2, x2: TR, y2: SURF2 });
+    path(`M${TL} 44 V260 H${TR} V44`, 'wall');
+    [0, 5, 10].forEach((m) => { const y = SURF2 + m * UPM2; sv('line', { class: 'tk', x1: 34, y1: y, x2: 39, y2: y }); text(32, y + 4.5, m + ' m', 'tl', 'end'); });
+    const y0 = SURF2 + top * UPM2;
+    if (held) sv('line', { class: 'cable', x1: CXS - 6.5, y1: 26, x2: CXS - 6.5, y2: r2(y0) });
+    rect(CXS - 10, y0, 20, 20, 'cube');
+    sv('line', { class: 'zoom', x1: CXS + 10, y1: r2(y0), x2: FX0, y2: FY0 });
+    sv('line', { class: 'zoom', x1: CXS + 10, y1: r2(y0 + 20), x2: FX0, y2: FY1 });
+    rect(FX0, FY0, FX1 - FX0, FY1 - FY0, 'frame');
+    const ys = CY0 - top * ZM, yl = Math.max(FY0 + 1, ys);
+    if (ys < FY1 - 1) rect(FX0 + 1, yl, FX1 - FX0 - 2, FY1 - 1 - yl, 'liq');
+    if (ys > FY0 + 1 && ys < FY1 - 1) sv('line', { class: 'surf', x1: FX0 + 1, y1: r2(ys), x2: FX1 - 1, y2: r2(ys) });
+    if (held) sv('line', { class: 'cable', x1: CX0 + 14, y1: FY0 + 1, x2: CX0 + 14, y2: CY0 });
+    rect(CX0, CY0, CX1 - CX0, CY1 - CY0, 'cube');
+    text(CXM, 164.5, '1 m cube', 'lab');
+    text(FX0 + 6, FY1 - 8, 'close-up', 'lab', 'start');
+    return ys;
+  }
+  // Pressure arrows on the faces, their length growing with depth (the sides in muted pairs).
+  function zoomArrows(top, rho) {
+    const L = (z) => (z > 0 ? AS * pk(rho, z) : 0), lt = L(top), lb = L(top + 1);
+    if (lt >= 8) arrow(CXM, CY0 - lt, CXM, CY0 - 1, 'n');
+    if (lb >= 8) arrow(CXM, CY1 + lb, CXM, CY1 + 1, 'n');
+    let sides = false;
+    [0.2, 0.5, 0.8].forEach((f) => {
+      const l = L(top + f);
+      if (l < 8) return;
+      const y = CY0 + f * ZM;
+      arrow(CX0 - l, y, CX0 - 1, y, 'm'); arrow(CX1 + l, y, CX1 + 1, y, 'm');
+      sides = true;
+    });
+    if (lt >= 8) text(CXM + 8, CY0 - 8, fx(pk(rho, top), 1) + ' kPa', 'lab', 'start');
+    if (lb >= 8) text(CXM + 8, CY1 + 18, fx(pk(rho, top + 1), 1) + ' kPa', 'lab', 'start');
+    if (sides) text(FX1 - 6, FY1 - 8, 'sides cancel', 'lab m', 'end');
+  }
+  // The pushes on the top and bottom as bars; the bottom's extra push is shaded amber.
+  function pushBars(top, rho, diff, disp) {
+    const Fd = top > 0 ? pk(rho, top) : 0, Fu = pk(rho, top + 1), W = upK(rho, top);
+    text(8, 290, `push down on the top: ${fx(Fd, 1)} kN`, 'lab', 'start');
+    rect(8, 296, Fd * SB, 12, 'bpush');
+    text(8, 326, `push up on the bottom: ${fx(Fu, 1)} kN`, 'lab', 'start');
+    rect(8, 332, Fu * SB, 12, 'bpush');
+    if (diff > 0) part(diff, 0, () => rect(8 + Fd * SB, 332, (Fu - Fd) * SB, 12, 'bup'));
+    if (disp > 0) part(disp, 0, () => { text(8, 362, `weight of the ${liqName(rho)} pushed aside`, 'lab', 'start'); rect(8 + Fd * SB, 368, W * SB, 12, 'bdisp'); });
+    return { Fd, Fu, W };
+  }
+  function upKey(a, lab) {
+    part(a, 0, () => { rect(8, 389, 14, 12, 'bup'); text(28, 399.5, lab, 'lab', 'start'); });
+  }
+  function floatStatus(p) {
+    const rho = isOn(p.fresh) ? RF : RS, dens = densOf(p), t = fposOf(p);
+    const m = MOT && MOT.find((q) => q.ctl === 'fpos');
+    let target = t;
+    if (m && T !== Infinity) { const nk = m.keys.find((k) => k[0] > T); target = nk ? nk[1] : t; }
+    const moving = Math.abs(target - t) > 1e-4;
+    return { rho, dens, t, moving, target, floating: rel && !moving && dens < rho - EPS };
+  }
+  function drawCubeStep(d, st, bad, wa, p) {
+    const right = st.res === 'right', ra = right ? arr(0.1) : 0;
+    if (d.float) {
+      const f = floatStatus(p);
+      const ys = cubeTank(f.rho, f.t, !rel);
+      if (f.floating) {
+        path(`M${CX1 + 3} ${r2(ys)} H${CX1 + 8} V${CY1} H${CX1 + 3}`, 'brk');
+        text(CX1 + 13, r2((ys + CY1) / 2 + 4.5), 'draught', 'lab m', 'start');
+      }
+      text(8, 290, 'upthrust', 'lab', 'start');
+      rect(8, 296, upK(f.rho, f.t) * SBF, 12, 'bup');
+      text(8, 326, "the cube's weight", 'lab', 'start');
+      rect(8, 332, wtK(f.dens) * SBF, 12, 'bwt');
+      let status;
+      if (!rel) status = f.moving ? 'being lifted back on its line' : 'held on its line at 2 m';
+      else if (f.moving) status = f.target < f.t ? 'rising' : f.target >= 0 ? 'sinking' : 'settling lower';
+      else if (Math.abs(f.dens - f.rho) < EPS) status = 'hovering where it was let go';
+      else if (f.dens > f.rho) status = 'resting on the floor';
+      else status = `floating, draught ${fx(draught(f.dens, f.rho), 2)} m`;
+      text(8, 364, status, 'lab n', 'start');
+      return `The wide tank of ${liqName(f.rho)}, to scale, with a 1 m cube, ${status}, and a close-up of the cube. Bars compare the upthrust with the cube's weight.`;
+    }
+    if (d.live) {
+      const top = cdOf(p);
+      cubeTank(RS, top, true);
+      zoomArrows(top, RS);
+      pushBars(top, RS, 1, 1);
+      upKey(1, 'the extra push up: the upthrust');
+      placeKnob(kC, true, CXS, SURF2 + top * UPM2 + 10);
+      return `The wide tank of seawater, to scale, with a 1 m cube held on a line, its top ${top < 0 ? fx(-top, 1) + ' m above' : fx(top, 1) + ' m below'} the surface, and a close-up with arrows for the pushes on its faces. Bars compare the push down on the top, the push up on the bottom, and the weight of the seawater pushed aside.`;
+    }
+    // fig 'six': the cube's top 6 m down
+    cubeTank(RS, 6, true);
+    zoomArrows(6, RS);
+    const b = pushBars(6, RS, ra, ra);
+    ftext(1 - Math.max(ra, wa), 8, 399.5, 'upthrust: ?', 'lab n', 'start');
+    if (right) { REC.ans = true; REC.res = b.Fu - b.Fd; upKey(arr(0.5), `upthrust: ${N.b7} − ${N.t6} = about ${N.up} kN`); }
+    if (bad) {
+      REC.bad++;
+      part(wa, 0, () => {
+        if (bad === d.bad[O.u30]) rect(8 + b.Fd * SB, 332, 3 * b.W * SB, 12, 'bad');
+        else rect(8, 332, b.Fu * SB, 12, 'bad');
+      });
+      ftext(wa, 8, 399.5, bad.lab, 'lab w', 'start');
+    }
+    return `The wide tank of seawater with a 1 m cube held with its top 6 m down, and a close-up with arrows for the pushes on its faces: ${N.t6} kPa on the top and ${N.b7} kPa on the bottom. Bars show the push down and the push up.` + (right ? ` The bottom's extra push, ${N.up} kN, matches the weight of the seawater pushed aside.` : ' The upthrust is left as a question.');
+  }
+
+  // ---------- a pontoon in seawater ----------
+  function drawPontoon(d, st, bad, wa) {
+    const right = st.res === 'right', dd = right ? 4000 / (RS * 8) * K.ease(lin(0.1, 1.2)) : 0;
+    const WL = 150, S = 50, X0 = 70, X1 = 270, OX = 35, OY = -35, yb = WL + dd * S, yt = yb - 60;
+    text(8, 16, `seawater: ρ = ${DS} kg/m³`, 'lab m', 'start');
+    path(`M${X0} ${r2(yt)} L${X0 + OX} ${r2(yt + OY)} L${X1 + OX} ${r2(yt + OY)} L${X1} ${r2(yt)} Z`, 'hull2');
+    path(`M${X1} ${r2(yt)} L${X1 + OX} ${r2(yt + OY)} L${X1 + OX} ${r2(yb + OY)} L${X1} ${r2(yb)} Z`, 'hull2');
+    rect(X0, yt, X1 - X0, 60, 'hull');
+    text(187, r2(yt - 46), `4 m long · 2 m wide · ${N.pm} kg`, 'lab');
+    rect(8, WL, 324, 82, 'liq');
+    sv('line', { class: 'surf', x1: 8, y1: WL, x2: 332, y2: WL });
+    if (right) {
+      REC.ans = true; REC.res = 4000 / (RS * 8);
+      if (yb - WL > 1) path(`M${X0 - 5} ${WL} H${X0 - 10} V${r2(yb)} H${X0 - 5}`, 'brk');
+      ftext(arr(1.0), X0 - 15, r2((WL + yb) / 2 + 4.5), `${N.pd} m`, 'lab n', 'end');
+      ftext(arr(0.6), 170, 250, `${N.pm} ÷ (${DS} × 4 × 2) = about ${N.pd} m`, 'lab n');
+    } else ftext(1 - wa, X0 - 15, WL + 16, '?', 'lab n', 'end');
+    if (bad) {
+      REC.bad++;
+      part(wa, 0, () => sv('line', { class: 'bad', x1: X0 + 2, y1: r2(yb - bad.at * S), x2: X1 - 2, y2: r2(yb - bad.at * S) }));
+      ftext(wa, 170, 250, bad.lab, 'lab w');
+    }
+    return `A box-shaped pontoon, 4 m long, 2 m wide and ${N.pm} kg, on seawater.` + (right ? ` It sits ${N.pd} m deep.` : ' How deep it sits is left as a question.');
+  }
+
+  // ---------- a sensor 20 m down ----------
+  function drawSensor(d, st, bad, wa) {
+    const right = st.res === 'right', KS = 0.6, BASE = 252;
+    text(8, 16, keyLine(RS), 'lab m', 'start');
+    text(8, 36, `air: ${N.atm} kPa`, 'lab t', 'start');
+    [30, 100].forEach((x) => arrow(x, 44, x, 58, 't'));
+    rect(8, 60, 112, 192, 'liq');
+    sv('line', { class: 'surf', x1: 8, y1: 60, x2: 120, y2: 60 });
+    sv('line', { class: 'cable', x1: 64, y1: 62, x2: 64, y2: 234 });
+    rect(56, 52, 16, 10, 'hull');
+    sv('circle', { class: 'probe', cx: 64, cy: 240, r: 6 });
+    path('M79 60 H84 V240 H79', 'brk');
+    text(90, 154.5, '20 m', 'lab n', 'start');
+    sv('line', { class: 'tk', x1: 146, y1: BASE, x2: 194, y2: BASE });
+    text(170, 270, 'at the sensor', 'lab m');
+    ftext(1 - Math.max(arr(0.1) * (right ? 1 : 0), wa), 170, 244, '?', 'lab n');
+    const hs = KS * pk(RS, 20), ha = KS * ATM;
+    if (right) {
+      REC.ans = true; REC.res = pk(RS, 20) + ATM;
+      const g1 = K.ease(lin(0.1, 0.7)), g2 = K.ease(lin(0.8, 0.5));
+      rect(150, BASE - hs * g1, 40, hs * g1, 'bdisp');
+      if (g2 > 0) rect(150, BASE - hs - ha * g2, 40, ha * g2, 'bair');
+      ftext(arr(0.5), 198, BASE - hs / 2 + 4.5, `seawater: ${N.s20} kPa`, 'lab', 'start');
+      ftext(arr(1.0), 198, BASE - hs - ha / 2 + 4.5, `air: ${N.atm} kPa`, 'lab', 'start');
+      ftext(arr(1.3), 198, BASE - hs - ha - 4, `${N.s20a} kPa absolute`, 'lab n', 'start');
+    }
+    if (bad) {
+      REC.bad++;
+      const h = bad === d.bad[O.s201] ? hs : KS * (pk(RF, 20) + ATM);
+      part(wa, 0, () => rect(150, BASE - h, 40, h, 'bad'));
+      ftext(wa, 170, 290, bad.lab, 'lab w');
+    }
+    return `The sea, with a sensor on a line 20 m below a float, and the air pressing on the surface at ${N.atm} kPa.` + (right ? ` A stacked bar adds ${N.s20} kPa of seawater and ${N.atm} kPa of air: ${N.s20a} kPa absolute.` : ' The absolute pressure at the sensor is left as a question.');
+  }
+
+  // ---------- a sealed float, moved from seawater into fresh water ----------
+  function drawFloatPick(d, st, bad, wa) {
+    const right = st.res === 'right';
+    rect(24, 50, 126, 140, 'liq'); rect(190, 50, 126, 140, 'liq');
+    sv('line', { class: 'surf', x1: 24, y1: 50, x2: 150, y2: 50 }); sv('line', { class: 'surf', x1: 190, y1: 50, x2: 316, y2: 50 });
+    path('M24 36 V190 H150 V36', 'wall'); path('M190 36 V190 H316 V36', 'wall');
+    text(87, 208, 'seawater', 'lab'); text(87, 224, `${DS} kg/m³`, 'lab m');
+    text(253, 208, 'fresh water', 'lab'); text(253, 224, `${DF} kg/m³`, 'lab m');
+    rect(69, 102, 36, 36, 'cube'); text(87, 124.5, '1 m³', 'lab'); text(87, 94, 'hovers', 'lab n');
+    if (right) {
+      const s = K.ease(lin(0.1, 1.2)), fy = 102 + 52 * s;
+      REC.ans = true; REC.res = wtK(RF);
+      rect(235, fy, 36, 36, 'cube'); text(253, r2(fy + 22.5), '1 m³', 'lab');
+      ftext(arr(1.0), 253, r2(fy - 8), 'sinks', 'lab n');
+    } else if (!bad) { rect(235, 102, 36, 36, 'ghost'); text(253, 124.5, '?', 'lab n'); }
+    text(8, 252, `the float's weight: ${N.flS} kN`, 'lab', 'start');
+    rect(8, 258, wtK(RS) * SBF, 12, 'bwt');
+    text(8, 288, `upthrust in seawater: ${N.flS} kN`, 'lab', 'start');
+    rect(8, 294, upK(RS, 0) * SBF, 12, 'bup');
+    const ra = right ? arr(0.3) : 0;
+    ftext(1 - ra, 8, 324, 'upthrust in fresh water: ?', 'lab', 'start');
+    ftext(ra, 8, 324, `upthrust in fresh water: ${N.flF} kN`, 'lab', 'start');
+    if (right) {
+      rect(8, 330, wtK(RF) * SBF * K.ease(lin(0.3, 0.8)), 12, 'bup');
+      ftext(arr(1.0), 170, 362, `${N.flF} kN of upthrust cannot hold up ${N.flS} kN`, 'lab n');
+    }
+    if (bad) {
+      REC.bad++;
+      part(wa, 0, () => rect(235, bad === d.bad[O.fHi] ? 36 : 102, 36, 36, 'bad'));
+      ftext(wa, 170, 362, bad.lab, 'lab w');
+    }
+    return `Two tanks: a sealed 1 m³ float hovers in seawater, and the same float goes into fresh water. Bars compare its ${N.flS} kN weight with the upthrust in each.` + (right ? ' In fresh water it sinks.' : '');
+  }
+
+  // ---------- a hydraulic jack: two joined cylinders of oil, each under a piston ----------
+  function drawJack(d, st, bad, wa) {
+    const show = !d.fig, right = st.res === 'right', ra = right ? arr(0.1) : 0;
+    const J = show ? { f: 100, a: 10, A: 200 } : { f: 60, a: 5, A: 300 };
+    const P = jackP(J.f, J.a), LOAD = P * J.A / 10;
+    const ws = 6 * Math.sqrt(J.a), wb = 6 * Math.sqrt(J.A), XS = 66, XB = 236, TOP = 70, BOT = 226, PB = 242;
+    const xs0 = XS - ws / 2, xs1 = XS + ws / 2, xb0 = XB - wb / 2, xb1 = XB + wb / 2;
+    const s = show ? K.ease(lin(1.4, 1.8)) : 0, ys = 116 + 80 * s, yb = 150 - 4 * s;
+    text(8, 16, 'a jack: oil shut in two joined cylinders', 'lab m', 'start');
+    path(`M${r2(xs0)} ${r2(ys + 10)} V${PB} H${r2(xb1)} V${r2(yb + 10)} H${r2(xb0)} V${BOT} H${r2(xs1)} V${r2(ys + 10)} Z`, 'liq');
+    path(`M${r2(xs0)} ${TOP} V${PB} H${r2(xb1)} V${TOP}`, 'wall');
+    path(`M${r2(xs1)} ${TOP} V${BOT} H${r2(xb0)} V${TOP}`, 'wall');
+    rect(xs0 + 1.5, ys, ws - 3, 10, 'hull');
+    rect(xb0 + 1.5, yb, wb - 3, 10, 'hull');
+    rect(xb0 + 6, yb - 44, wb - 12, 44, 'hull2');
+    const fa = show ? arr(0.5) : 1;
+    part(fa, 0, () => { arrow(XS, ys - 44, XS, ys - 2, 'n'); text(xs0 - 6, r2(ys - 20), J.f + ' N', 'lab n', 'end'); });
+    text(XS, 262, J.a + ' cm²', 'lab'); text(XB, 262, J.A + ' cm²', 'lab');
+    if (show) {
+      text(XB, r2(yb - 17.5), fx(LOAD) + ' N', 'lab');
+      part(arr(1.0), 0, () => { [-0.3, 0, 0.3].forEach((f) => arrow(XB + f * wb, yb + 40, XB + f * wb, yb + 12, 'n')); text(XB, 214, fx(P) + ' kPa', 'lab n'); });
+      ftext(arr(0.8), 170, 286, `${J.f} N ÷ 0.001 m² = ${fx(P)} kPa`, 'lab n');
+      ftext(arr(1.1), 170, 306, `${fx(P)} kPa × 0.02 m² = ${fx(LOAD)} N`, 'lab n');
+      const ba = arr(3.0);
+      part(ba, 0, () => {
+        path(`M${r2(xs1 + 3)} 116 H${r2(xs1 + 8)} V${r2(ys)} H${r2(xs1 + 3)}`, 'brk');
+        text(xs1 + 12, r2((116 + ys) / 2 + 4.5), '20 cm', 'lab n', 'start');
+        text(xb0 - 6, r2(yb - 22), 'rises 1 cm', 'lab n', 'end');
+      });
+      ftext(arr(3.2), 170, 326, `work in: ${J.f} N × 0.2 m = ${N.jWi} J`, 'lab');
+      ftext(arr(3.2), 170, 346, `work out: ${fx(LOAD)} N × 0.01 m = ${N.jWo} J`, 'lab');
+      return `A hydraulic jack: two cylinders of oil joined at the bottom. ${J.f} N pushes down on a 10 cm² piston, making ${fx(P)} kPa all through the oil. That pressure lifts a ${fx(LOAD)} N load on a 200 cm² piston. The small piston moves down 20 cm while the load rises 1 cm.`;
+    }
+    ftext(1 - Math.max(ra, wa), XB, r2(yb - 17.5), 'load ?', 'lab n');
+    ftext(ra, XB, r2(yb - 17.5), fx(LOAD) + ' N', 'lab n');
+    if (right) {
+      REC.ans = true; REC.res = LOAD;
+      ftext(arr(0.4), 170, 286, `${J.f} N ÷ 0.0005 m² = ${fx(P)} kPa`, 'lab n');
+      ftext(arr(0.8), 170, 306, `${fx(P)} kPa × 0.03 m² = ${fx(LOAD)} N`, 'lab n');
+    }
+    if (bad) {
+      REC.bad++;
+      part(wa, 0, () => rect(xb0 + 3, yb - 47, wb - 6, 50, 'bad'));
+      ftext(wa, 170, 286, bad.lab, 'lab w');
+    }
+    return `A hydraulic jack: ${J.f} N pushes down on a 5 cm² piston. A load sits on a 300 cm² piston.` + (right ? ` It lifts ${fx(LOAD)} N.` : ' The load it can lift is left as a question.');
+  }
+
+  // ---------- the warm-up: a block under fresh water ----------
+  function drawWarm(d, st, bad, wa) {
+    const right = st.res === 'right', ra = right ? arr(0.1) : 0;
+    text(8, 16, `fresh water: ${DF} kg/m³`, 'lab m', 'start');
+    rect(24, 56, 152, 140, 'liq');
+    sv('line', { class: 'surf', x1: 24, y1: 56, x2: 176, y2: 56 });
+    path('M24 40 V196 H176 V40', 'wall');
+    sv('line', { class: 'cable', x1: 100, y1: 28, x2: 100, y2: 100 });
+    rect(70, 100, 60, 36, 'cube'); text(100, 122.5, 'block', 'lab');
+    arrow(100, 182, 100, 137, 'n');
+    text(92, 170, 'upthrust', 'lab n', 'end');
+    ftext(1 - Math.max(ra, wa), 108, 170, '?', 'lab n', 'start');
+    ftext(ra, 108, 170, `${N.w1} N`, 'lab n', 'start');
+    text(250, 80, '2 L pushed aside', 'lab');
+    rect(230, 92, 40, 40, 'bdisp'); rect(230, 132, 40, 40, 'bdisp');
+    text(250, 116.5, '1 L', 'lab'); text(250, 156.5, '1 L', 'lab');
+    text(276, 116.5, '1 kg', 'lab m', 'start'); text(276, 156.5, '1 kg', 'lab m', 'start');
+    if (right) { REC.ans = true; REC.res = 2 * G; ftext(arr(0.6), 170, 218, `its weight: 2 kg × ${GS} = ${N.w1} N`, 'lab n'); }
+    if (bad) {
+      REC.bad++;
+      part(wa, 0, () => { if (bad === d.bad[O.a2]) arrow(120, 148, 120, 137, 'w'); else rect(65, 95, 70, 46, 'bad'); });
+      ftext(wa, 170, 218, bad.lab, 'lab w');
+    }
+    return 'A block held on a line under fresh water, with the upthrust drawn as an arrow pushing up on its bottom. Beside it, the 2 L of water it pushes aside, as two 1 L blocks of 1 kg each.' + (right ? ` The upthrust is ${N.w1} N.` : ' The upthrust is left as a question.');
+  }
+
+  const DRAW = { warm: drawWarm, jack: drawJack, tanks: drawTankStep, bases: drawBases, cube: drawCubeStep, pontoon: drawPontoon, sensor: drawSensor, float: drawFloatPick };
+  const heightOf = (d) => (d.top === 'warm' ? 230 : d.top === 'jack' ? (d.fig ? 316 : 356) : d.top === 'tanks' ? (d.names ? 322 : 306) : d.top === 'bases' ? 226 : d.top === 'cube' ? (d.float ? 374 : 408) : d.top === 'pontoon' ? 262 : d.top === 'sensor' ? 302 : 374);
+  // The scene for a step (the animation calls this every frame).
+  function paint(i, pOver) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i], p = pOver || K.params();
+    art.textContent = '';
+    into = null;
+    REC = { texts: [], bad: 0, ans: false, res: null };
+    const bad = wrongOf(d, st), wa = bad ? arr(0.1) : 0;
+    HH = heightOf(d);
+    placeKnob(kP, false); placeKnob(kC, false);
+    const said = DRAW[d.top](d, st, bad, wa, p);
+    svg.setAttribute('viewBox', '0 0 340 ' + HH);
+    svg.setAttribute('aria-label', said + (bad ? ' The answer picked is drawn in red.' : ''));
+  }
+  // Dragging the ring moves the probe, or the cube, up and down.
+  function vyOf(knob, y) {
+    const kr = knob.getBoundingClientRect(), sr = svg.getBoundingClientRect();
+    if (!sr.height) return null;
+    return (kr.top + y - sr.top) / sr.height * HH;
+  }
+  K.drag(kP, { control: 'depth', toValue: (x, y) => {
+    const vy = vyOf(kP, y);
+    return vy == null || !isFinite(vy) ? depthOf(K.params()) : K.clamp(Math.round((vy - SURF) / UPM * 10) / 10, 0, 10);
+  } });
+  K.drag(kC, { control: 'cdepth', toValue: (x, y) => {
+    const vy = vyOf(kC, y);
+    return vy == null || !isFinite(vy) ? cdOf(K.params()) : K.clamp(Math.round(((vy - SURF2) / UPM2 - 0.5) * 10) / 10, -1, 7);
+  } });
+
+  // ---------- what Dan reads under a live picture ----------
+  function sayFor(d, p) {
+    const L = d.live;
+    if (d.top === 'tanks') {
+      const rho = rhoOf(d, p), liq = liqName(rho), h = L.depth ? depthOf(p) : d.set.depth;
+      const P = fx(pk(rho, h) + (L.abs && isOn(p.abs) ? ATM : 0), 1);
+      if (L.face) {
+        const f = { up: 'up', side: 'sideways', down: 'down' }[faceOf(p)];
+        return isOn(p.abs) ? `Facing ${f}, 3 m down, the probe reads ${P} kPa absolute: the seawater's push plus the air's ${N.atm} kPa. It reads the same whichever way it faces.`
+          : `Facing ${f}, 3 m down, the probe's gauge reads ${P} kPa, the seawater's push alone. It reads the same whichever way it faces.`;
+      }
+      if (h < 0.05) return L.tank ? 'At the surface the probe reads nothing, in all three tanks.' : `At the surface there is no ${liq} above the probe, so its gauge reads nothing.`;
+      if (L.tank) return `In the ${TNAME[tankOf(p)]} tank, ${fx(h, 1)} m down, the probe reads ${P} kPa. At that depth it reads the same in the other two.`;
+      return `${fx(h, 1)} m of ${liq} stands above the probe. Its weight presses on the probe with ${P} kPa` + (h > 9.95 && rho === RS ? ', about as much again as the air.' : '.');
+    }
+    if (!d.float) {
+      const t = cdOf(p), U = fx(upK(RS, t), 1);
+      if (t <= -0.95) return 'The cube sits on the surface. It pushes no seawater aside, so there is no upthrust.';
+      if (t < -0.05) return `Only ${fx(sub(t), 1)} m of the cube is under. It pushes aside ${fx(sub(t), 1)} m³ of seawater, so the upthrust is ${U} kN.`;
+      if (t < 0.05) return `The top is at the surface, so only the bottom is pushed: ${U} kN up, the weight of 1 m³ of seawater.`;
+      return `The top is ${fx(t, 1)} m down and the bottom ${fx(t + 1, 1)} m. The bottom's push beats the top's by ${U} kN, the weight of 1 m³ of seawater.`;
+    }
+    const f = floatStatus(p), liq = liqName(f.rho), U = fx(upK(f.rho, f.t), 1), W = fx(wtK(f.dens), 1);
+    if (!rel) {
+      if (f.moving) return 'The cube is lifted back to 2 m on its line.';
+      const v = f.dens < f.rho - EPS ? 'it would rise' : f.dens > f.rho + EPS ? 'it would sink' : 'it would stay put';
+      return `Held at 2 m, the cube weighs ${W} kN against an upthrust of ${U} kN. Let go, and ${v}.`;
+    }
+    if (f.moving) return f.target < f.t ? `Less dense than the ${liq}, the cube rises.` : f.target >= 0 ? `Denser than the ${liq}, the cube sinks.` : `In the ${liq}, the cube settles a little lower.`;
+    if (Math.abs(f.dens - f.rho) < EPS) return `As dense as the ${liq}, it hovers where it was let go. Its weight and the upthrust match.`;
+    if (f.dens > f.rho) return `Its ${W} kN weight beats the ${U} kN upthrust, so it has sunk to the floor.`;
+    const dd = fx(draught(f.dens, f.rho), 2);
+    return `It floats with a draught of ${dd} m. There, the ${dd} m³ under the surface pushes aside its own weight of ${liq}.`;
+  }
+  function layout(i, d, st, p) {
+    const right = st.res === 'right', L = d.live || {}, outs = d.outs || [];
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    el('ctl').hidden = !d.live;
+    depthCtl.el.hidden = !L.depth; tankCtl.el.hidden = !L.tank; faceCtl.el.hidden = !L.face; absCtl.el.hidden = !L.abs;
+    cdCtl.el.hidden = !L.cdepth; densCtl.el.hidden = !L.dens; freshCtl.el.hidden = !L.fresh; goBtn.el.hidden = !L.letgo;
+    goBtn.setLabel(rel ? 'Hold it at 2 m' : 'Let go');
+    el('say').hidden = !d.live;
+    el('say').textContent = d.live ? nb(sayFor(d, p)) : '';
+    el('outs').hidden = !outs.length;
+    rProbe.el.hidden = outs.indexOf('probeKpa') < 0; rUp.el.hidden = outs.indexOf('upthrust') < 0; rWt.el.hidden = outs.indexOf('cubeWeight') < 0;
+    const cap = d.top === 'warm' ? '' : d.top === 'jack' ? 'Pressure is force ÷ area. Oil shut in passes it on everywhere.'
+      : ['cube', 'pontoon', 'float'].indexOf(d.top) >= 0 ? 'Upthrust is the weight of the liquid pushed aside.'
+      : `Gauge pressure is density × g × depth. Absolute adds the air, taken as ${N.atm} kPa.`;
+    el('cap').textContent = cap;
+    el('cap').hidden = finished || !cap;
+    el('replay').hidden = !d.show || REDUCE;
+    const opts = d.show ? [] : d.opts;
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((x) => x.length > 9));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    fb.textContent = nb(d.show ? '' : right ? (d.right || "That's it.") : st.res === 'wrong' ? ((d.hints && d.hints[st.pick]) || d.hint) : st.res === 'empty' ? PICK : '');
+    const why = el('why');
+    why.hidden = !!d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  }
+
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox'); onEnter(i);
+      if (d.live) { keyNow = ctlKey(K.params()); K.refresh(); return; }
+    }
+    if (d.live) {
+      const k = ctlKey(p);
+      if (k !== keyNow) {   // Dan moved something: the demonstration gives way to him
+        keyNow = k;
+        if (MOT) { MOT = null; anim.pause(); T = Infinity; Object.keys(EX).forEach((q) => delete EX[q]); }
+        if (d.float && rel && settle()) { K.refresh(); return; }
+      }
+      const tgt = d.live.abs && isOn(p.abs) ? 1 : 0;
+      if (FD.air !== tgt) { if (REDUCE || testing()) FD.air = tgt; else if (!anim.playing()) anim.play(); }
+    }
+    if (!anim.playing()) T = Infinity;
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    layout(i, d, st, p);
+    paint(i, p);
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const solved = (i) => ({ pick: STEPS[i].want, res: 'right', why: false });
+  const wrongSt = (i, o) => ({ pick: o, res: 'wrong', why: false });
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  // A step painted in the state given (finished): what it draws.
+  function drawn(i, st, pOver) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = Infinity;
+    try { paint(i, pOver ? Object.assign({}, K.params(), pOver) : null); return REC; }
+    finally { S[i] = keepS; T = keepT; paint(); }
+  }
+  const S_W = idx('The weight above'), S_A = idx('Any shape'), S_E = idx('Every way at once'), S_H = idx('Held under'), S_F = idx('How deep it floats');
+  const words = (s) => String(s || '').replace(/\*/g, '').split(/\s+/).filter(Boolean).length;
+
+  K.check('δP = (1025)(9.81)(10), about 10⁵ Pa, the pressure at the bottom of the atmosphere: 10 m down in seawater the probe reads within a percent of 100 kPa', () => {
+    const v = K.at({ step: S_W, depth: 10 }).probeKpa;
+    return K.near(v, 1025 * 9.81 * 10 / 1000, 1e-9) && Math.abs(v - ATM) / ATM < 0.01;
+  }, { source: SRC_WHOI });
+  K.check('The density of seawater is about 1025 kg/m³, the density the seawater here is given', () =>
+    RS === 1025 && K.near(K.at({ step: S_W, depth: 1 }).probeKpa, 1025 * 9.81 / 1000, 1e-9), { source: SRC_TALLEY });
+  K.check('Fluid pressure increases with depth because of the weight of the fluid above: in every tank the reading rises with depth and equals the weight of the column above 1 m²', () =>
+    ['narrow', 'wide', 'flared'].every((t) => {
+      let last = -1;
+      return K.linspace(0, 10, 21).every((h) => {
+        const v = K.at({ step: S_A, tank: t, depth: h }).probeKpa, ok = v > last && K.near(v, RS * h * 1 * G / 1000, 1e-9);
+        last = v; return ok;
+      });
+    }));
+  K.check('A body partly or completely submerged feels a buoyant force equal to the weight of the fluid it displaces: at every depth of the cube, the bottom push minus the top push equals that weight', () =>
+    [RS, RF].every((rho) => K.linspace(-1, 7, 33).every((t) => K.near(pk(rho, t + 1) - (t > 0 ? pk(rho, t) : 0), rho * G * sub(t) / 1000, 1e-9))) &&
+    K.linspace(-1, 7, 17).every((t) => K.near(K.at({ step: S_H, cdepth: t }).upthrust, pk(RS, t + 1) - (t > 0 ? pk(RS, t) : 0), 1e-9)), { source: SRC_BU });
+  K.check("Width, shape and the probe's facing never change the reading: the same in all three tanks at every depth, and facing up, sideways or down; absolute adds the air's 100 kPa", () => {
+    const same = K.linspace(0, 10, 11).every((h) => { const a = K.at({ step: S_A, tank: 'narrow', depth: h }).probeKpa; return ['wide', 'flared'].every((t) => K.near(K.at({ step: S_A, tank: t, depth: h }).probeKpa, a, 1e-12)); });
+    const faces = ['up', 'side', 'down'].map((f) => K.at({ step: S_E, face: f }).probeKpa);
+    return same && faces.every((v) => K.near(v, pk(RS, 3), 1e-9)) && K.near(K.at({ step: S_E, abs: true, face: 'side' }).probeKpa, pk(RS, 3) + ATM, 1e-9);
+  });
+  K.check('A 600 kg/m³ cube floats at a draught of 0.59 m in seawater and 0.60 m in fresh water, where its upthrust equals its 5.9 kN weight; at 1025 in seawater it hovers where it is let go; at 1,500 its 14.7 kN beats the 10.1 kN upthrust and it sinks to the floor', () => {
+    const a = K.at({ step: S_F, dens: 600, fpos: EQS }), b = K.at({ step: S_F, dens: 600, fresh: true, fpos: EQF }), c = K.at({ step: S_F, dens: 1500, fpos: 2 });
+    return K.near(EQS + 1, 600 / 1025, 1e-12) && K.near(EQF + 1, 0.6, 1e-12) && K.near(a.upthrust, a.cubeWeight, 1e-9) && K.near(b.upthrust, b.cubeWeight, 1e-9) &&
+      eqTop(1025, RS, 3.3) === 3.3 && eqTop(1000, RF, 4) === 4 && eqTop(1500, RS, 2) === 9 && eqTop(1500, RF, 2) === 9 &&
+      K.near(c.cubeWeight, 14.715, 1e-9) && K.near(c.upthrust, 10.05525, 1e-9);
+  });
+  K.check('Every number the screens print comes from the rule: 19.6 N; 100.6, 50.3, 150.3, 5.1 and 49.1 kPa; 19.6 kPa and 100 times; 30.2 and 15.1 kPa; 20.1, 30.2 and 10.1; 60.3, 70.4 and 30.2; 5.9 and 14.7 kN; 0.59 and 0.60 m; 4,000 kg, 0.49, 0.50 and 0.98 m; 201, 301 and 296 kPa; 9.8 and 10.1 kN', () =>
+    N.w1 === '19.6' && N.p10 === '100.6' && N.p5 === '50.3' && N.p5a === '150.3' && N.p5g === '5.1' && N.p5f === '49.1' && N.p2f === '19.6' && N.ratio === '100' &&
+    N.p3 === '30.2' && N.p3h === '15.1' && N.t2 === '20.1' && N.b3 === '30.2' && N.up === '10.1' && N.t6 === '60.3' && N.b7 === '70.4' && N.up3 === '30.2' &&
+    N.w600 === '5.9' && N.w1500 === '14.7' && N.d6s === '0.59' && N.d6f === '0.60' && N.pm === '4,000' && N.pd === '0.49' && N.pdf === '0.50' && N.pdb === '0.98' &&
+    N.s20 === '201' && N.s20a === '301' && N.s20f === '296' && N.flF === '9.8' && N.flS === '10.1' && N.atm === '100');
+  K.check('Each puzzle offers three different answers including its right one, every wrong answer has its own hint, and before Check nothing on its picture shows the answer or a red mark', () =>
+    DO.every((i) => {
+      const d = STEPS[i];
+      if (d.opts.length !== 3 || d.opts.indexOf(d.want) < 0 || new Set(d.opts).size !== 3) return false;
+      if (!d.opts.every((o) => o === d.want || (d.hints[o] && d.hints[o].length > 10 && d.bad[o]))) return false;
+      const g = drawn(i, blank());
+      return !g.bad && !g.ans;
+    }));
+  K.check('A wrong pick is drawn in red where it fails, and a right answer draws no red', () =>
+    DO.every((i) => {
+      const d = STEPS[i];
+      if (drawn(i, solved(i)).bad) return false;
+      return d.opts.filter((o) => o !== d.want).every((o) => drawn(i, wrongSt(i, o)).bad > 0);
+    }));
+  K.check("A right answer draws the rule's result: 19.6 N; 50.3 kPa; 19.6 kPa on both bases; 30.2 kPa sideways; 10.1 kN at 6 m; a 0.49 m draught; 301 kPa absolute; 9.8 kN in fresh water; 3,600 N from the bigger jack", () => {
+    const r = (name) => { const i = idx(name); return drawn(i, solved(i)); };
+    return K.near(r('A warm-up').res, 19.62, 1e-9) && K.near(r('Five metres down').res, 50.27625, 1e-9) && K.near(r('Two bases').res, 19.62, 1e-9) &&
+      K.near(r('Turned sideways').res, 30.16575, 1e-9) && K.near(r('Six metres down').res, 10.05525, 1e-9) && K.near(r('A pontoon').res, 4000 / 8200, 1e-12) &&
+      K.near(r('A deep sensor').res, 301.105, 1e-9) && K.near(r('Into fresh water').res, 9.81, 1e-9) && K.near(r('A bigger jack').res, 3600, 1e-9);
+  });
+  K.check('Every demonstration has finished within 4.5 s of its screen opening, its first move after the 0.35 s screen fade; every answer\'s motion, right or wrong, within 2 s', () => {
+    const keepT = T;
+    const timed = (i, st, limit) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; earliest = Infinity;
+      S[i] = st;
+      try { paint(i); } finally { S[i] = keepS; }
+      return latest <= limit + 1e-9;
+    };
+    const ok = STEPS.every((d, i) => {
+      if (d.show) return (d.mot || []).every((m) => m.keys.every((k) => k[0] >= FADE && k[0] <= d.dur)) && d.dur >= 3 && d.dur <= 4.5 && timed(i, blank(), d.dur);
+      return timed(i, solved(i), ANS) && d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), ANS));
+    });
+    T = keepT; paint();
+    return ok;
+  });
+  K.check('A change in pressure applied to an enclosed fluid is transmitted undiminished: 100 N on 10 cm² makes 100 kPa and lifts 2,000 N on 200 cm²; moving 20 cm against 1 cm, work in and out are both 20 J; 60 N on 5 cm² makes 120 kPa and lifts 3,600 N on 300 cm²', () =>
+    K.near(jackP(100, 10), 100, 1e-9) && K.near(jackP(100, 10) * 200 / 10, 2000, 1e-9) && K.near(100 * 0.2, jackP(100, 10) * 200 / 10 * 0.01, 1e-9) && 200 / 10 === 20 &&
+    K.near(jackP(60, 5), 120, 1e-9) && K.near(jackP(60, 5) * 300 / 10, 3600, 1e-9) && N.jp === '100' && N.jL === '2,000' && N.jWi === '20' && N.jWo === '20' && N.jR === '3,600' && N.jB === '1' && N.jT === '60');
+  K.check('The kilogram was first the mass of 1000 mL of water: fresh water here is 1000 kg/m³, so 1 L of it is 1 kg', () => RF === 1000 && K.near(RF / 1000, 1, 1e-12), { source: SRC_WATER });
+  K.check('Every demonstration screen keeps to about 90 words', () => STEPS.every((d) => !d.show || (words(d.text) <= 90 && (!d.read || words(d.read) <= 90))));
+
+  K.ready();
+</script>

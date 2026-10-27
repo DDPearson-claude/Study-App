@@ -1,0 +1,1173 @@
+<!-- kind: mechanism -->
+<style>
+  [hidden] { display: none !important; }
+  .pz { max-width: 54rem; margin-inline: auto; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  #prog, #nav, #done, #stepbox > *:not(.pics) { max-width: 34rem; margin-left: auto; margin-right: auto; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  /* The pump and its graph: side by side on a laptop, the graph below the pump on a phone. */
+  .pics { display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-start; gap: 10px 22px; }
+  .pics .scene { flex: 1 1 19rem; max-width: 25rem; min-width: 0; display: block; }
+  .scene .wall { fill: none; stroke: var(--k-strong); stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }
+  .scene .liq { fill: var(--k-cat1); fill-opacity: .16; }
+  .scene .surf { stroke: var(--k-cat1); stroke-width: 2; }
+  .scene .pipeo { stroke: var(--k-strong); fill: none; stroke-linejoin: round; }
+  .scene .pipei { stroke: var(--k-bg); fill: none; stroke-linejoin: round; }
+  .scene .pipew { stroke: var(--k-cat1); stroke-opacity: .28; fill: none; stroke-linejoin: round; }
+  .scene .dot { fill: var(--k-cat1); }
+  .scene .pump { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 2; }
+  .scene .vane { stroke: var(--k-accent2); stroke-width: 2; stroke-linecap: round; }
+  .scene .eye { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 1.2; }
+  .scene .hub { fill: var(--k-accent2); }
+  .scene .gear { fill: var(--k-sunk); stroke: var(--k-accent2); stroke-width: 1.5; }
+  .scene .tooth { stroke: var(--k-accent2); stroke-width: 3; stroke-linecap: round; }
+  .scene .motor { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .shaft { stroke: var(--k-strong); stroke-width: 3; }
+  .scene .valve { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; stroke-linejoin: round; }
+  .scene .gate { fill: var(--k-strong); }
+  .scene .stem { stroke: var(--k-strong); stroke-width: 2; stroke-linecap: round; }
+  .scene .lvl { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 5 4; }
+  .scene .brk { fill: none; stroke: var(--k-accent2); stroke-width: 1.5; }
+  .scene .dial { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .tick { stroke: var(--k-strong); stroke-width: 1.2; }
+  .scene .ndl { stroke: var(--k-accent2); stroke-width: 2.5; stroke-linecap: round; }
+  .scene .ndlw { stroke: var(--k-warn); stroke-width: 2.5; stroke-linecap: round; }
+  .scene .bub { fill: var(--k-bg); stroke: var(--k-warn); stroke-width: 1.3; }
+  .scene .ax { stroke: var(--k-strong); stroke-width: 1.2; fill: none; }
+  .scene .grid { stroke: var(--k-line); stroke-width: 1; }
+  .scene .pc { fill: none; stroke: var(--k-accent2); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+  .scene .sc { fill: none; stroke: var(--k-accent); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+  .scene .ghost { fill: none; stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 5 4; }
+  .scene .hump { fill: var(--k-fill1); stroke: var(--k-accent2); stroke-width: 1.5; stroke-linejoin: round; }
+  .scene .pt { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 1.5; }
+  .scene .pts { fill: var(--k-accent); stroke: var(--k-bg); stroke-width: 1.5; }
+  .scene .ptg { fill: var(--k-muted); stroke: var(--k-bg); stroke-width: 1.5; }
+  .scene .gd { stroke: var(--k-accent2); stroke-width: 1.2; stroke-dasharray: 3 3; }
+  .scene .nba { fill: var(--k-fill1); stroke: var(--k-accent2); stroke-width: 1.5; }
+  .scene .nbr { fill: var(--k-fill3); stroke: var(--k-muted); stroke-width: 1.5; }
+  .scene .nbw { fill: var(--k-warn); fill-opacity: .18; stroke: var(--k-warn); stroke-width: 2; }
+  .scene .pw { fill: var(--k-cat1); fill-opacity: .35; stroke: var(--k-cat1); stroke-width: 1; }
+  .scene .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .lab.m { font-weight: 400; fill: var(--k-muted); }
+  .scene .lab.n { fill: var(--k-accent2); }
+  .scene .lab.t { fill: var(--k-accent); }
+  .scene .lab.w { fill: var(--k-warn); }
+  .scene .ar { stroke-width: 2.5; stroke-linecap: round; fill: none; }
+  .scene .ar-n { stroke: var(--k-accent2); }
+  .scene .hd-n { fill: var(--k-accent2); }
+  .scene .ar-w { stroke: var(--k-warn); stroke-dasharray: 5 4; stroke-linecap: butt; }
+  .scene .hd-w { fill: var(--k-warn); }
+  .scene .bad { fill: none; stroke: var(--k-warn); stroke-width: 2.5; stroke-dasharray: 6 4; }
+  .scene .badl { stroke: var(--k-warn); stroke-width: 2.5; stroke-dasharray: 6 4; fill: none; }
+  .scene .badd { fill: var(--k-warn); }
+  .scene .badv { fill: var(--k-panel); stroke: var(--k-warn); stroke-width: 2; stroke-linejoin: round; }
+  .scene g * { pointer-events: none; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; }
+  /* Readouts and answers wrap onto as many rows as they need at 360 px. */
+  #outs { display: grid; grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr)); gap: 10px; }
+  .picks { display: grid; grid-template-columns: repeat(auto-fit, minmax(6.5rem, 1fr)); gap: 10px; }
+  .picks.long { grid-template-columns: 1fr; }
+  .picks .k-btn { min-height: 52px; font-size: 1.1rem; }
+  .picks.long .k-btn { min-height: 48px; font-size: 1.02rem; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why, .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and pictures fade in and rise 4 px. */
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }
+</style>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <div class="pics" id="pics">
+      <svg class="scene" id="sp" viewBox="0 0 340 186" width="100%" role="img" aria-label=""><g id="artP"></g></svg>
+      <svg class="scene" id="sg" viewBox="0 0 340 266" width="100%" role="img" aria-label=""><g id="artG"></g></svg>
+    </div>
+    <div class="k-controls" id="ctl"></div>
+    <p class="say" id="say"></p>
+    <div class="k-readouts" id="outs"></div>
+    <div class="replay" id="replay"></div>
+    <div class="picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<script>
+  // ---------- the rule ----------
+  // A centrifugal pump gives 30s² − 0.04q² metres of head at speed fraction s (q in L/s). The pipe
+  // needs the 10 m lift plus 0.06q² of friction, times the valve's stop. The pump settles where
+  // the two are equal. The water takes ρgQH; the shaft's power is a sketch, s³ × (3.0 + 0.1q ÷ s)
+  // kW. NPSH available is the atmosphere's 9.9 m + the tank's level − 0.005q² − 0.3 m; NPSH
+  // required is 2s² + 0.015q². A positive displacement pump gives 10s L/s less 0.01 L/s for each
+  // metre of head, at 80% efficiency.
+  const SRC_TALLEY = 'https://talleylab.ucsd.edu/sio210/lect_2/lecture_2.html';
+  const SRC_WHOI = 'https://www.whoi.edu/science/PO/people/tjoyce/whoi-mit_course/notes/course_notes_1b.pdf';
+  const SRC_SHUT = 'https://www.streampumps.com/pump-knowledge/start-centrifugal-pump-discharge-valve-closed.html';
+  const SRC_FIU = 'https://web.eng.fiu.edu/arleon/courses/Fluid_Mechanics/Lectures/Pumps_unfilled.pdf';
+  const SRC_NPSH = 'https://www.grundfos.com/content/dam/global/page-assets/learn/ecademy/pdfs/master-36-module-4-About-pump-curves.pdf';
+  const SRC_PIM = 'https://www.pumpindustry.com.au/controlling-the-rate-of-flow-in-centrifugal-pumping-systems-and-impacts-on-efficiency';
+  const RHO = 1025, G = 9.81, PATM = 100000, LIFT = 10, HS = 30, AP = 0.04, AS = 0.06;
+  const P0 = 3.0, P1 = 0.1, SUCK = 0.005, VAP = 0.3, NR0 = 2, NRK = 0.015, PDQ = 10, SLIP = 0.01, PDE = 0.8;
+  const ATM = PATM / (RHO * G);
+  const INV = [1, 0.5, 0.25, 0.1, 0];                        // 1 ÷ each valve stop's friction multiplier
+  const VNAME = ['open', 'friction ×2', 'friction ×4', 'friction ×10', 'shut'];
+  const VSHORT = ['open', '×2', '×4', '×10', 'shut'];
+  const CLOSED = [0, 0.45, 0.65, 0.82, 1];                   // how far the valve's gate is drawn across the bore
+  const LN = [0, Math.log(2), Math.log(4), Math.log(10)];
+  const FADE = 0.35, ANS = 2.0;
+  const DS = String(RHO), GS = String(G);
+  const clean = (v) => Math.round(v * 1e9) / 1e9;
+  // 1 ÷ the friction multiplier at a valve position from 0 (open) to 4 (shut). Between two stops
+  // (only while a demonstration drags the valve) it eases in even ratios; from ×10 to shut it falls to 0.
+  function invOf(v) {
+    v = K.clamp(+v || 0, 0, 4);
+    if (Number.isInteger(v)) return INV[v];
+    if (v > 3) return 0.1 * (4 - v);
+    const k = Math.floor(v), f = v - k;
+    return Math.exp(-(LN[k] + (LN[k + 1] - LN[k]) * f));
+  }
+  function closureOf(v) {
+    v = K.clamp(+v || 0, 0, 4);
+    const k = Math.min(3, Math.floor(v));
+    return K.lerp(CLOSED[k], CLOSED[k + 1], v - k);
+  }
+  const pumpH = (q, s) => HS * s * s - AP * q * q;
+  const sysH = (q, inv, lift) => lift + AS * q * q / inv;
+  function opC(inv, s, lift) {
+    const A = HS * s * s - lift;
+    if (inv <= 0 || A <= 0) return { q: 0, H: HS * s * s, flows: false };
+    const q2 = A * inv / (AP * inv + AS);
+    return { q: Math.sqrt(q2), H: HS * s * s - AP * q2, flows: true };
+  }
+  // q = 10s − 0.01H with H = lift + 0.06q² ÷ inv: the root of a quadratic, written so it stays exact.
+  function opPD(inv, s, lift) {
+    if (inv <= 0) return null;
+    const a = SLIP * AS / inv, c = PDQ * s - SLIP * lift, q = 2 * c / (1 + Math.sqrt(1 + 4 * a * c));
+    return { q, H: lift + AS * q * q / inv };
+  }
+  const shaftC = (q, s) => P0 * s * s * s + P1 * s * s * q;   // kW
+  const hydKW = (q, H) => RHO * G * (q / 1000) * H / 1000;     // kW: ρgQH
+  function effC(q, s) { const H = pumpH(q, s); return q > 0 && H > 0 ? hydKW(q, H) / shaftC(q, s) : 0; }
+  const npA = (level, q) => ATM + level - SUCK * q * q - VAP;
+  const npR = (q, s) => NR0 * s * s + NRK * q * q;
+  function opOf(st) {
+    const inv = invOf(st.v), lift = st.lift == null ? LIFT : st.lift, s = st.s == null ? 1 : st.s;
+    if (st.pd) {
+      const o = opPD(inv, s, lift);
+      if (!o) return { q: 0, H: 0, P: 0, shut: true, flows: false, inv: 0, s };
+      return { q: o.q, H: o.H, P: hydKW(o.q, o.H) / PDE, shut: false, flows: true, inv, s };
+    }
+    const o = opC(inv, s, lift);
+    return { q: o.q, H: o.H, P: shaftC(o.q, s), shut: false, flows: o.flows, inv, s };
+  }
+  const cavOf = (st, o) => !st.pd && !o.shut && npA(st.level, o.q) < npR(o.q, o.s);
+  const rd = (v, dp) => { const f = Math.pow(10, dp || 0); return Math.round(v * f + (v >= 0 ? 1e-7 : -1e-7)) / f; };
+  const fx = (v, dp) => K.fmt(rd(v, dp || 0), { decimals: dp || 0 });
+  const lvText = (l) => (l > 0 ? '+' : l < 0 ? '−' : '') + Math.abs(l) + ' m';
+
+  // Every number the words and pictures print, worked out from the rule.
+  const OP = [0, 1, 2, 3, 4].map((v) => opOf({ v, s: 1 }));
+  const S80 = opOf({ v: 0, s: 0.8 }), PD0 = opOf({ v: 0, s: 1, pd: true }), PD3 = opOf({ v: 3, s: 1, pd: true });
+  const HI = opOf({ v: 0, s: 1, lift: 16 });
+  const W0 = hydKW(OP[0].q, OP[0].H), W1 = hydKW(OP[1].q, OP[1].H);
+  let QPK = 0, EPK = 0;
+  for (let j = 0; j <= 2000; j++) { const e = effC(j / 100, 1); if (e > EPK) { EPK = e; QPK = j / 100; } }
+  const N = {
+    atm: fx(ATM, 1), q: OP.map((o) => fx(o.q, 1)), H: OP.map((o) => fx(o.H, 1)), P: OP.map((o) => fx(o.P, 2)),
+    e: OP.map((o) => fx(100 * effC(o.q, 1))), qpk: fx(QPK), epk: fx(100 * EPK),
+    w0: fx(W0, 2), w1: fx(W1, 2), w1r: fx(W1, 1), w1h: fx(W0 * OP[1].H / OP[0].H, 1), w0r: fx(W0, 1),
+    t80: fx(pumpH(0, 0.8), 1), q80: fx(S80.q, 1), H80: fx(S80.H, 1), P80: fx(S80.P, 2),
+    t55: fx(pumpH(0, 0.55), 1), q55w: fx(0.55 * OP[0].q, 1),
+    na2: fx(npA(2, OP[0].q), 1), na4: fx(npA(-4, OP[0].q), 1), na3: fx(npA(-3, OP[0].q), 1), nr: fx(npR(OP[0].q, 1), 1), fr: fx(SUCK * OP[0].q * OP[0].q, 1),
+    pq0: fx(PD0.q, 1), pH0: fx(PD0.H, 1), pP0: fx(PD0.P, 2), pq3: fx(PD3.q, 1), pH3: fx(PD3.H, 1), pP3: fx(PD3.P, 2),
+    hq: fx(HI.q, 1), hH: fx(HI.H, 1), hw: fx(Math.sqrt((HS - 16) / AP), 1),
+  };
+  const O = {
+    rise: `It rises towards ${N.q[0]} L/s`, stay: 'It stays at 10 L/s', fall: 'It falls',
+    gUp: 'Less flow, gauge higher', gDown: 'Less flow, gauge lower', gSame: 'Same flow, gauge higher',
+    w28: `About ${N.w1r} kW`, w36: `About ${N.w1h} kW`, w31: `About ${N.w0r} kW`,
+    none: 'None', s78: `About ${N.q55w} L/s`, s141: `About ${N.q[0]} L/s at less head`,
+    raise: "Raise the suction tank's level", throttle: 'Throttle a valve in the suction pipe', faster: 'Run the pump faster',
+    pdSame: `It barely changes, to about ${N.pq3} L/s`, pdFall: `It falls to about ${N.q[3]} L/s`, pdStop: 'It stops',
+    choke: 'Something on the discharge side is choking it', opened: 'A discharge valve has been opened further', fast: 'The pump is running faster',
+    hRight: `About ${N.hq} L/s at ${N.hH} m`, hSame: `About ${N.q[0]} L/s, as before`, hNoF: `About ${N.hw} L/s`,
+  };
+
+  // ---------- the lesson: SHOW screens demonstrate, DO screens are puzzles ----------
+  // A live screen (live: which controls show) opens on its own settings (set) and runs its
+  // demonstration (mot: timed keys for a control) once. pump: the pump picture shows too.
+  const STEPS = [
+    { show: true, name: 'Where the curves cross', pump: true, draw: 'intro', dur: 4.4,
+      text: `A pump gives its most head at no flow, and less as the flow grows. The pipe needs its 10 m lift, plus friction that grows with the flow squared. That is its *system curve*. Where the pump's curve meets the pipe's, the pump gives just what the pipe needs. That crossing is the *operating point*, about ${N.q[0]} L/s at ${N.H[0]} m.` },
+    { kind: 'pick', name: 'Spare head', draw: 'spare',
+      opts: [O.stay, O.rise, O.fall], want: O.rise,
+      bad: { [O.stay]: { lab: 'but 10 m of head is spare' }, [O.fall]: { lab: 'but the spare head pushes it on' } },
+      task: 'For a moment, the flow is 10 L/s. There the pump gives 30 − 4 = 26 m. The pipe needs only 10 + 6 = 16 m. What does the flow do next?',
+      why: `The spare 10 m is an unbalanced push, so it speeds up the water in the pipe. The flow climbs until the two heads match, at about ${N.q[0]} L/s. Past the crossing, the pipe needs more than the pump gives, and the water slows. Either way, the flow comes back to the crossing.`,
+      hint: 'Not quite. Spare head is an unbalanced push on the water.',
+      hints: { [O.stay]: 'Not quite. The pump gives 10 m more than the pipe needs. Spare head is an unbalanced push on the water.', [O.fall]: 'Not quite. The pump gives more than the pipe needs, so the push is forwards.' } },
+    { show: true, name: 'Closing the valve', pump: true, draw: 'live', say: 'valve', live: { valve: true }, outs: ['flow', 'head'],
+      set: { valve: 0 }, dur: 3.2, mot: [{ ctl: 'valve', keys: [[0.5, 0], [2.6, 1]] }],
+      text: `A valve adds friction to the pipe. Each stop multiplies that friction, so the system curve bends up more steeply. The pump's curve stays put, so the crossing can only slide along it. At friction ×2 the pump settles at about ${N.q[1]} L/s and ${N.H[1]} m. Less water flows, at more head. Drag the valve through its stops.`,
+      read: `A valve adds friction to the pipe. Each stop multiplies that friction, so the system curve bends up more steeply. The pump's curve stays put, so the crossing can only slide along it. At friction ×2 the pump settles at about ${N.q[1]} L/s and ${N.H[1]} m. Less water flows, at more head. The picture shows the valve at friction ×2.` },
+    { kind: 'pick', name: 'The outlet gauge', pump: true, draw: 'gauge',
+      opts: [O.gDown, O.gSame, O.gUp], want: O.gUp,
+      bad: { [O.gDown]: { lab: "a lower gauge is off the pump's curve" }, [O.gSame]: { lab: "the same flow is off the pump's curve" } },
+      task: 'The outlet gauge sits between the pump and the valve. You close the valve a little. What happens to the flow and the gauge?',
+      why: "The valve steepens the system curve. The crossing slides up the pump's curve, to less flow and more head. The gauge sits before the valve, so it reads the pump's head, and that rises.",
+      hint: "Not quite. The dot can only move along the pump's curve.",
+      hints: { [O.gDown]: "Not quite. The dot can only move along the pump's curve. Up it, less flow means more head.", [O.gSame]: "Not quite. The dot can only move along the pump's curve. A steeper system curve meets it at less flow." } },
+    { show: true, name: 'Power as the valve closes', pump: true, draw: 'live', say: 'power', eff: true, live: { valve: true }, outs: ['flow', 'head', 'shaftPower'],
+      set: { valve: 0 }, dur: 4.2, mot: [{ ctl: 'valve', keys: [[0.5, 0], [1.3, 1], [2.1, 2], [2.9, 3], [3.7, 4]] }],
+      text: `The head rises a little while the flow falls a lot, so the pump does less work. The hump below is the pump's *efficiency*, the water's power ÷ the shaft's power. It peaks near ${N.qpk} L/s, at about ${N.epk}%. At a shut valve the shaft's power is near its least, and the motor's current falls with it. Drag the valve from open to shut.`,
+      read: `The head rises a little while the flow falls a lot, so the pump does less work. The hump below is the pump's *efficiency*, the water's power ÷ the shaft's power. It peaks near ${N.qpk} L/s, at about ${N.epk}%. At a shut valve the shaft's power is near its least, and the motor's current falls with it. The picture shows the valve shut.` },
+    { kind: 'pick', name: "The water's power", draw: 'power',
+      opts: [O.w28, O.w36, O.w31], want: O.w28,
+      bad: { [O.w36]: { lab: `${N.w1h} kW scales by the head alone` }, [O.w31]: { lab: `${N.w0r} kW expects no change` } },
+      task: `At friction ×2, the pump gives about ${N.q[1]} L/s of seawater at 25 m. What power does the water take?`,
+      why: `The water takes ρgQH, with Q in m³/s. ${N.q[1]} L/s is 0.0112 m³/s. So ${DS} × ${GS} × 0.0112 × 25 is about ${N.w1r} kW. That is less than the ${N.w0} kW with the valve open. The flow fell by about a fifth, but the head rose by only about a seventh.`,
+      hint: 'Not quite. Q goes in m³/s.',
+      hints: { [O.w36]: `Not quite. That scales ${N.w0} kW by the head alone. The flow fell too, and by more.`, [O.w31]: 'Not quite. That expects no change. The flow fell by more than the head rose.' } },
+    { show: true, name: 'Slowing the pump', pump: true, draw: 'live', say: 'speed', eff: true, ghost: true, live: { speed: true }, outs: ['flow', 'head', 'shaftPower'],
+      set: { speed: 100 }, dur: 3.6, mot: [{ ctl: 'speed', keys: [[0.5, 100], [3.2, 80]] }],
+      text: `A slower pump has a lower curve. The *pump laws* say the flow goes with the speed, the head with the speed squared and the power with the speed cubed. At 80% the top falls to 30 × 0.8² = ${N.t80} m. Slowing the pump cuts the flow without burning head in a valve. The valve ×4 dot shows full speed, throttled instead. Drag the speed.`,
+      read: `A slower pump has a lower curve. The *pump laws* say the flow goes with the speed, the head with the speed squared and the power with the speed cubed. At 80% the top falls to 30 × 0.8² = ${N.t80} m. Slowing the pump cuts the flow without burning head in a valve. The valve ×4 dot shows full speed, throttled instead. It is shown at 80%.` },
+    { kind: 'pick', name: 'Too slow', draw: 'slow',
+      opts: [O.s78, O.none, O.s141], want: O.none,
+      bad: { [O.s78]: { lab: 'but the two curves never cross' }, [O.s141]: { lab: 'far below what the pipe needs' } },
+      task: `The pump is slowed to 55%. Its most head is now 30 × 0.55², about ${N.t55} m. The lift is 10 m. What flow does it give?`,
+      why: `Even at no flow, the pump gives only ${N.t55} m. The pipe needs 10 m before any water moves. So its whole curve sits under the system curve, and nothing flows. With a lift, the flow falls faster than the speed.`,
+      hint: 'Not quite. Compare its most head with the lift.',
+      hints: { [O.s78]: 'Not quite. That takes the flow in step with the speed. Compare its most head with the lift.', [O.s141]: 'Not quite. A slower pump cannot keep the same flow. Compare its most head with the lift.' } },
+    { show: true, name: 'Suction and cavitation', pump: true, draw: 'live', top: 'npsh', say: 'suction', live: { level: true },
+      set: { level: 2 }, dur: 3.8, mot: [{ ctl: 'level', keys: [[0.5, 2], [3.4, -4]] }],
+      text: "Cool water boils when its pressure falls low enough. The pressure is lowest at the impeller's eye. The *net positive suction head* required, or NPSH required, is the least absolute pressure the pump needs there. NPSH available is what the suction offers. It must be more. Drag the tank level down.",
+      read: "Cool water boils when its pressure falls low enough. The pressure is lowest at the impeller's eye. The *net positive suction head* required, or NPSH required, is the least absolute pressure the pump needs there. NPSH available is what the suction offers. It must be more. The picture shows the tank at −4 m, where the pump cavitates." },
+    { kind: 'pick', name: 'Stopping the cavitation', pump: true, draw: 'cav',
+      opts: [O.throttle, O.faster, O.raise], want: O.raise,
+      bad: { [O.throttle]: { lab: 'a suction valve takes more off' }, [O.faster]: { lab: 'a faster pump needs even more' } },
+      task: 'The tank is at −4 m, with the valve open, and the pump cavitates. Which one stops it?',
+      why: `Raising the tank adds its height to what the suction offers. At −3 m, about ${N.na3} m is available, above the ${N.nr} m required. A suction valve's friction comes off what is available. A faster pump needs more.`,
+      hint: "Not quite. Which one adds pressure at the pump's inlet?",
+      hints: { [O.throttle]: "Not quite. A suction valve's friction comes off what is available. Which one adds pressure at the inlet?", [O.faster]: 'Not quite. A faster pump needs more. Which one adds pressure at the inlet?' } },
+    { show: true, name: 'A positive displacement pump', pump: true, draw: 'live', say: 'pd', live: { valve: true, pd: true }, outs: ['flow', 'head', 'shaftPower'],
+      set: { valve: 0, pd: true }, dur: 3.8, mot: [{ ctl: 'valve', keys: [[0.5, 0], [3.4, 3]] }],
+      text: 'A *positive displacement pump* traps a set volume each turn and pushes it on. So its speed sets its flow. A little slips back past it, more as the head climbs. So its curve stands nearly upright. From open to friction ×10, its flow barely moves, while its head and power climb steeply. Drag the valve, or switch back.',
+      read: 'A *positive displacement pump* traps a set volume each turn and pushes it on. So its speed sets its flow. A little slips back past it, more as the head climbs. So its curve stands nearly upright. From open to friction ×10, its flow barely moves, while its head and power climb steeply. The picture shows this pump at friction ×10.' },
+    { kind: 'pick', name: 'Choking it', draw: 'pd',
+      opts: [O.pdSame, O.pdFall, O.pdStop], want: O.pdSame,
+      bad: { [O.pdFall]: { lab: `${N.q[3]} L/s was the centrifugal pump` }, [O.pdStop]: { lab: 'only a shut valve would stop it' } },
+      task: "You close the positive displacement pump's valve from open to friction ×10. What does its flow do?",
+      why: `It pushes a set volume every turn, so its flow barely changes. Its head climbs to about ${N.pH3} m instead. So its shaft power and its motor's current rise. That is the opposite of the centrifugal pump.`,
+      hint: 'Not quite. It pushes a set volume every turn.',
+      hints: { [O.pdFall]: 'Not quite. That was the centrifugal pump. This one pushes a set volume every turn.', [O.pdStop]: 'Not quite. Only a shut valve would stop it, and then something gives. It pushes a set volume every turn.' } },
+    { kind: 'pick', name: 'Reading the gauges', draw: 'diag',
+      opts: [O.opened, O.choke, O.fast], want: O.choke,
+      bad: { [O.opened]: { lab: 'more flow, so the gauge would fall' }, [O.fast]: { lab: 'more flow, so more current' } },
+      task: "A centrifugal cooling pump's outlet gauge reads higher than usual. Its ammeter and its flow read lower. What is most likely?",
+      why: "Higher head with less flow means the dot has moved up the pump's curve. A steeper system curve does that. So something on the discharge side is choking the flow, such as a valve left partly shut or a fouled cooler. Less flow on this pump means less current too.",
+      hint: "Not quite. Which change moves the dot up the pump's curve?",
+      hints: { [O.opened]: "Not quite. Opening a valve moves the dot down the pump's curve, to more flow and less head.", [O.fast]: 'Not quite. A faster pump gives more flow, and its current rises.' } },
+    { kind: 'pick', name: 'A higher tank', draw: 'high',
+      opts: [O.hSame, O.hNoF, O.hRight], want: O.hRight,
+      bad: { [O.hSame]: { lab: "that was the old lift's crossing" }, [O.hNoF]: { lab: `${N.hw} L/s leaves out the friction` } },
+      task: 'The high tank is raised 6 m, so the lift is 16 m on the same pipe. Where does the pump settle?',
+      why: `Set the two heads equal. 30 − 0.04q² = 16 + 0.06q², so 0.1q² = 14 and q² = 140. That gives about ${N.hq} L/s, at 30 − 0.04 × 140 = ${N.hH} m.`,
+      hint: "Not quite. Set the pump's head equal to the new lift plus the friction.",
+      hints: { [O.hSame]: 'Not quite. A higher lift raises the whole system curve, so the crossing moves.', [O.hNoF]: "Not quite. That leaves out the pipe's friction. Set 30 − 0.04q² equal to 16 + 0.06q²." } },
+  ];
+  const FINISH = 'A centrifugal pump settles where its curve crosses the system curve, so closing a valve moves it to less flow and more head. Keep NPSH available above NPSH required.';
+  const PICK = 'Pick an answer first.';
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- each step's state ----------
+  function blank() { return { pick: null, res: null, why: false }; }
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity, motionEnd = 0, MOT = null, keyNow = '';
+  let W = 0, ROT = 0.4, BUB = 0.3, LASTQ = 0, LASTS = 1, taskKey = '', CHECKING = false;
+  const EX = {};                   // exact values while a demonstration drives a slider (the slider moves in steps)
+  const el = (id) => document.getElementById(id);
+
+  // ---------- words with amber key terms (built with K.el, never innerHTML) ----------
+  // A number and its unit never part at a line end.
+  const nb = (s) => String(s || '').replace(/(\d) (m\/s|L\/s|kg\/m³|m³\/s|m³|kPa|kW|kg|Pa|N|J|W|V|A|L|m)(?![A-Za-z²³\/])/g, '$1 $2');
+  function write(node, s) {
+    node.textContent = '';
+    s = nb(s);
+    const re = /\*([^*]+)\*/g;
+    let pos = 0, m;
+    while ((m = re.exec(s))) {
+      if (m.index > pos) node.appendChild(document.createTextNode(s.slice(pos, m.index)));
+      node.appendChild(K.el('span', { class: 'term' }, m[1]));
+      pos = m.index + m[0].length;
+    }
+    if (pos < s.length) node.appendChild(document.createTextNode(s.slice(pos)));
+    return node;
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);
+  const stepOf = (p) => K.clamp(Math.round(+p.step) || 0, 0, STEPS.length - 1);
+  const valveCtl = K.control({ id: 'valve', label: 'Valve', min: 0, max: 4, step: 1, value: 0, fmt: (v) => VNAME[K.clamp(Math.round(v), 0, 4)], snap: [1, 3], into: '#ctl' });
+  const speedCtl = K.control({ id: 'speed', label: 'Pump speed', min: 50, max: 100, step: 5, value: 100, unit: '%', fmt: (v) => fx(v) + '%', snap: [55, 80], into: '#ctl' });
+  const levelCtl = K.control({ id: 'level', label: 'Suction tank level', min: -6, max: 4, step: 1, value: 2, unit: 'm', fmt: (v) => lvText(Math.round(v)), snap: [-4, -3], into: '#ctl' });
+  const pdCtl = K.toggle({ id: 'pd', label: 'Positive displacement pump', value: false, into: '#ctl' });
+  const CTL = { valve: valveCtl, speed: speedCtl, level: levelCtl, pd: pdCtl };
+  function setCtl(id, v) { if (typeof v === 'number') EX[id] = v; CTL[id].set(v, true); }
+  const ctlKey = (p) => [p.valve, p.speed, p.level, p.pd].join('|');
+
+  const num = (v, d0) => (isFinite(+v) && v !== '' && v != null && typeof v !== 'boolean' ? +v : d0);
+  const pv = (p, id) => (MOT && EX[id] != null ? EX[id] : p[id]);
+  const valveOf = (p) => K.clamp(Math.round(num(p.valve, 0)), 0, 4);
+  const speedOf = (p) => K.clamp(Math.round(num(p.speed, 100) / 5) * 5, 50, 100);
+  const levelOf = (p) => K.clamp(Math.round(num(p.level, 2)), -6, 4);
+  const pdOf = (p) => p.pd === true || p.pd === 'true' || p.pd === 1 || p.pd === 'on';
+  const valveDraw = (p) => K.clamp(num(pv(p, 'valve'), 0), 0, 4);
+  const speedDraw = (p) => K.clamp(num(pv(p, 'speed'), 100), 50, 100);
+  const levelDraw = (p) => K.clamp(num(pv(p, 'level'), 2), -6, 4);
+  // The settings a screen runs on: its live controls, else its held values, else the opening ones.
+  function stateOf(d, p, draw) {
+    const L = d.live || {}, b = Object.assign({ valve: 0, speed: 100, level: 2, pd: false }, d.fix || {});
+    return {
+      v: L.valve ? (draw ? valveDraw(p) : valveOf(p)) : b.valve,
+      s: (L.speed ? (draw ? speedDraw(p) : speedOf(p)) : b.speed) / 100,
+      level: L.level ? (draw ? levelDraw(p) : levelOf(p)) : b.level,
+      pd: L.pd ? pdOf(p) : b.pd,
+    };
+  }
+  K.model((p) => {
+    const o = opOf(stateOf(STEPS[stepOf(p)], p, false));
+    if (o.shut) return { flow: 0, head: 'climbing', shaftPower: 'climbing' };
+    return { flow: clean(o.q), head: clean(o.H), shaftPower: clean(o.P) };
+  });
+
+  const rFlow = K.readout({ id: 'flow', label: 'Flow', unit: 'L/s', decimals: 1, into: '#outs' });
+  const rHead = K.readout({ id: 'head', label: 'Head', unit: 'm', decimals: 1, into: '#outs' });
+  const rPow = K.readout({ id: 'shaftPower', label: 'Shaft power', unit: 'kW', decimals: 2, into: '#outs' });
+
+  // Up to three answer buttons; each step fills in its own options.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = d.opts[k]; st.res = null;
+    if (was) { anim.pause(); T = Infinity; }
+  } }));
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished || st.res === 'right') return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = st.pick === d.want ? 'right' : 'wrong';
+    play(ANS);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const i = at(), d = STEPS[i];
+    if (!d.show || finished) return;
+    onEnter(i);
+    keyNow = ctlKey(K.params());
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true; anim.pause(); T = Infinity; MOT = null;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // ---------- drawing helpers ----------
+  const svgP = el('sp'), svgG = el('sg'), artP = el('artP'), artG = el('artG');
+  let into = null, base = artG, REC = null;
+  const add = (n) => (into || base).appendChild(n);
+  const rn = (v) => Math.round(v * 100) / 100;
+  const sv = (tag, a) => add(K.svg(tag, a));
+  const path = (d, cls) => sv('path', { class: cls, d });
+  function rect(x, y, w, h, cls) { if (w > 0.3 && h > 0.3) sv('rect', { class: cls, x: rn(x), y: rn(y), width: rn(w), height: rn(h) }); }
+  const line = (x1, y1, x2, y2, cls) => sv('line', { class: cls, x1: rn(x1), y1: rn(y1), x2: rn(x2), y2: rn(y2) });
+  function circle(cx, cy, r, cls) { if (r > 0.2) sv('circle', { class: cls, cx: rn(cx), cy: rn(cy), r: rn(r) }); }
+  const text = (x, y, s, cls, anchor) => add(K.svg('text', { class: cls, x: rn(x), y: rn(y), 'text-anchor': anchor || 'middle' }, nb(String(s))));
+  // How far a part due at t0 has arrived, noting the timetable for the timing check.
+  let latest = 0;
+  function arr(t0, d) { d = d == null ? K.SOFT : d; if (t0 + d > latest) latest = t0 + d; return K.arrive(T, t0, d); }
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, Math.min(1, a), rise);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  function ftext(a, x, y, s, cls, anchor) { if (a > 0) part(a, 0, () => text(x, y, s, cls, anchor)); }
+  // A straight arrow from (x1, y1) to its tip at (x2, y2): a line and a filled head.
+  function arrow(x1, y1, x2, y2, k) {
+    const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+    if (L < 6) return;
+    const ux = dx / L, uy = dy / L, hl = Math.min(8, L * 0.55), hw = hl * 0.5;
+    const bx = x2 - ux * hl, by = y2 - uy * hl;
+    line(x1, y1, bx + ux * 0.5, by + uy * 0.5, 'ar ar-' + k);
+    path(`M${rn(x2)} ${rn(y2)} L${rn(bx - uy * hw)} ${rn(by + ux * hw)} L${rn(bx + uy * hw)} ${rn(by - ux * hw)} Z`, 'hd hd-' + k);
+  }
+  const wrongOf = (d, st) => (st.res === 'wrong' && st.pick != null && d.bad ? d.bad[st.pick] || null : null);
+  const show = (ra, wa) => 1 - Math.max(ra, wa);
+
+  // ---------- the pump, its pipes and its two tanks ----------
+  const LU = 5;   // drawing units per metre of level
+  function polyPipe(pts, w) {
+    const d = 'M' + pts.map((p) => p[0] + ' ' + p[1]).join(' L');
+    path(d, 'pipeo').setAttribute('stroke-width', w + 3);
+    path(d, 'pipei').setAttribute('stroke-width', w);
+    path(d, 'pipew').setAttribute('stroke-width', w);
+  }
+  // Dots ride along a pipe's middle; off is how far the water has moved, in drawing units.
+  function polyDots(pts, off) {
+    const SP = 14, Ls = [];
+    for (let i = 1; i < pts.length; i++) Ls.push(Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
+    const tot = Ls.reduce((a, b) => a + b, 0), ph = ((off % SP) + SP) % SP;
+    for (let t = ph + 3; t < tot - 3; t += SP) {
+      let k = 0, u = t;
+      while (k < Ls.length - 1 && u > Ls[k]) { u -= Ls[k]; k++; }
+      const f = u / Ls[k];
+      circle(pts[k][0] + (pts[k + 1][0] - pts[k][0]) * f, pts[k][1] + (pts[k + 1][1] - pts[k][1]) * f, 2, 'dot');
+    }
+  }
+  function gauge(cx, cy, r, frac, pegged) {
+    circle(cx, cy, r, 'dial');
+    for (let k = 0; k <= 4; k++) { const a = Math.PI * (1 - k / 4); line(cx + (r - 3.5) * Math.cos(a), cy - (r - 3.5) * Math.sin(a), cx + r * Math.cos(a), cy - r * Math.sin(a), 'tick'); }
+    const a = Math.PI * (1 - K.clamp(frac, 0, 1));
+    line(cx, cy, cx + (r - 2.5) * Math.cos(a), cy - (r - 2.5) * Math.sin(a), pegged ? 'ndlw' : 'ndl');
+    circle(cx, cy, 2, 'hub');
+  }
+  function vanes(cx, cy, ang) {
+    for (let k = 0; k < 6; k++) { const a = ang + k * Math.PI / 3; line(cx + 4.5 * Math.cos(a), cy + 4.5 * Math.sin(a), cx + 11 * Math.cos(a + 0.35), cy + 11 * Math.sin(a + 0.35), 'vane'); }
+  }
+  // A gear: its body and eight teeth; two of them turn opposite ways, their teeth meshing.
+  function gear(cx, cy, ang) {
+    circle(cx, cy, 5.5, 'gear');
+    for (let k = 0; k < 8; k++) { const a = ang + k * Math.PI / 4; line(cx + 5 * Math.cos(a), cy + 5 * Math.sin(a), cx + 8.3 * Math.cos(a), cy + 8.3 * Math.sin(a), 'tooth'); }
+  }
+  // ds: v (valve position), s (speed), level, levelR (as the slider names it), pd, q, H, shut, cav, showLevel.
+  function drawPump(ds) {
+    base = artP; LASTQ = ds.q; LASTS = ds.s;
+    const ys = 128 - LU * ds.level, yh = ys - LU * LIFT, gmax = ds.pd ? 70 : 35, vr = K.clamp(Math.round(ds.v), 0, 4);
+    const lr = ds.levelR == null ? Math.round(ds.level) : ds.levelR;
+    // The pump's centre line, the two water surfaces and the lift between them.
+    if (ds.showLevel) line(8, 128, 116, 128, 'lvl');
+    line(84, ys, 252, ys, 'lvl'); line(252, yh, 264, yh, 'lvl');
+    path(`M246 ${rn(yh)} H252 V${rn(ys)} H246`, 'brk');
+    text(242, (ys + yh) / 2 + 4.5, 'lift 10 m', 'lab n', 'end');
+    // The suction tank and the high tank: they move together, so the lift stays 10 m.
+    rect(14, ys, 70, 176 - ys, 'liq'); line(14, ys, 84, ys, 'surf'); path('M14 96 V176 H84 V96', 'wall');
+    rect(264, yh, 62, 30, 'liq'); line(264, yh, 326, yh, 'surf'); path(`M264 ${rn(yh - 12)} V${rn(yh + 30)} H326 V${rn(yh - 12)}`, 'wall');
+    // The pipes, with the seawater riding in them at the flow.
+    const suc = [[48, 170], [48, 128], [116, 128]], dis = [[130, 114], [130, 26], [294, 26], [294, rn(yh - 4)]];
+    polyPipe(suc, 7); polyPipe(dis, 7);
+    polyDots(suc, W); polyDots(dis, W);
+    if (ds.showLevel) {
+      if (Math.abs(ys - 128) > 1) path(`M12 128 H8 V${rn(ys)} H12`, 'brk');
+      text(49, 90, 'level ' + lvText(lr), 'lab n');
+    }
+    // The valve: its gate drops across the bore as it closes.
+    const vx = 196;
+    path(`M${vx - 12} 17 L${vx} 26 L${vx - 12} 35 Z M${vx + 12} 17 L${vx} 26 L${vx + 12} 35 Z`, 'valve');
+    line(vx, 17, vx, 7, 'stem'); line(vx - 8, 7, vx + 8, 7, 'stem');
+    rect(vx - 2.5, 20, 5, 12 * closureOf(ds.v), 'gate');
+    text(vx, 52, 'valve ' + VSHORT[vr], 'lab', 'middle');
+    // The outlet gauge, between the pump and the valve: it reads the pump's head.
+    line(130, 64, 118, 64, 'shaft');
+    gauge(106, 64, 11, ds.shut ? 1 : K.clamp(ds.H / gmax, 0, 1), !!ds.shut);
+    text(90, 68, 'outlet gauge', 'lab m', 'end');
+    // The pump and its motor.
+    if (ds.pd) {
+      sv('rect', { class: 'pump', x: 116, y: 110, width: 28, height: 36, rx: 6 });
+      gear(130, 120.5, ROT); gear(130, 135.5, -ROT + Math.PI / 8);
+    } else {
+      circle(130, 128, 14, 'pump'); vanes(130, 128, ROT); circle(130, 128, 3.2, 'eye');
+    }
+    line(144, 128, 152, 128, 'shaft'); rect(152, 118, 26, 20, 'motor');
+    text(130, 162, 'pump', 'lab m'); text(165, 111, 'motor', 'lab m');
+    // Cavitation: bubbles form at the impeller's eye and collapse as they move out.
+    if (ds.cav) {
+      let n = 0;
+      for (let k = 0; k < 7; k++) {
+        const ph = (BUB + k / 7) % 1, a = k * 0.9 + 0.4, r = 3.5 + 8.5 * ph, br = 2.4 * (1 - ph * ph);
+        if (br > 0.3) { circle(130 + r * Math.cos(a), 128 + r * Math.sin(a), br, 'bub'); n++; }
+      }
+      if (REC) REC.bub = n;
+      text(130, 180, 'cavitation', 'lab w');
+    }
+    return 'A ' + (ds.pd ? 'positive displacement pump' : 'centrifugal pump') + ' draws seawater from a suction tank and sends it up past an outlet gauge and a valve, ' + VNAME[vr] +
+      ', to a high tank. The lift between the two water surfaces is 10 m.' +
+      (ds.showLevel ? ` The suction tank's surface is ${Math.abs(lr)} m ${lr >= 0 ? 'above' : 'below'} the pump's centre line.` : '') +
+      (ds.cav ? " Bubbles form at the impeller's eye and collapse further in." : '');
+  }
+
+  // ---------- the graph of head against flow, and the efficiency hump below it ----------
+  const GX0 = 46, GX1 = 326, KX = 14, GY0 = 224, GY1 = 64, EY0 = 314, EY1 = 270;
+  let YMAX = 35;
+  const X = (q) => GX0 + KX * q;
+  const Y = (h) => GY0 - (GY0 - GY1) * h / YMAX;
+  const EYv = (e) => EY0 - (EY0 - EY1) * e / 0.8;
+  function axes(ymax, eff) {
+    YMAX = ymax;
+    const stp = ymax > 40 ? 20 : 10;
+    for (let v = 0; v <= ymax + 1e-9; v += stp) {
+      const y = Y(v);
+      if (v > 0) line(GX0, y, GX1, y, 'grid');
+      line(GX0 - 4, y, GX0, y, 'tick');
+      text(GX0 - 7, y + 4.5, String(v), 'lab m', 'end');
+    }
+    line(GX0, GY0, GX1, GY0, 'ax'); line(GX0, GY0, GX0, GY1, 'ax');
+    text(8, 52, 'head (m)', 'lab m', 'start');
+    [0, 5, 10, 15, 20].forEach((v) => { line(X(v), GY0, X(v), GY0 + 4, 'tick'); text(X(v), GY0 + 17, String(v), 'lab m'); });
+    text(GX1, GY0 + 34, 'flow (L/s)', 'lab m', 'end');
+    if (eff) {
+      text(8, GY0 + 34, 'efficiency (%)', 'lab m', 'start');
+      [0, 40, 80].forEach((e) => {
+        const y = EYv(e / 100);
+        if (e) line(GX0, y, GX1, y, 'grid');
+        line(GX0 - 4, y, GX0, y, 'tick'); text(GX0 - 7, y + 4.5, String(e), 'lab m', 'end');
+      });
+      line(GX0, EY0, GX1, EY0, 'ax'); line(GX0, EY0, GX0, EY1, 'ax');
+    }
+  }
+  // A key row: a swatch for each line or dot, and its name.
+  function keyRow(y, items) {
+    let x = 8;
+    items.forEach((it) => {
+      if (it.c === 'dot') circle(x + 7, y - 4.5, 4.5, 'pt');
+      else if (it.c === 'dotg') circle(x + 7, y - 4.5, 4.5, 'ptg');
+      else line(x, y - 4.5, x + 14, y - 4.5, it.c);
+      text(x + 19, y, it.s, 'lab m', 'start');
+      x += 19 + 7 * it.s.length + 14;
+    });
+  }
+  // A curve of head against flow, drawn only where it lies on the graph.
+  function curve(fn, q0, q1, cls) {
+    const segs = [];
+    let cur = null, prev = null;
+    const n = Math.max(1, Math.ceil((q1 - q0) / 0.1));
+    for (let j = 0; j <= n; j++) {
+      const q = q0 + (q1 - q0) * j / n, h = fn(q), inR = isFinite(h) && h >= 0 && h <= YMAX;
+      if (inR) {
+        if (!cur) {
+          cur = [];
+          if (prev && isFinite(prev[1])) { const lim = prev[1] > YMAX ? YMAX : 0, f = (lim - prev[1]) / (h - prev[1]); cur.push([prev[0] + f * (q - prev[0]), lim]); }
+          segs.push(cur);
+        }
+        cur.push([q, h]);
+      } else if (cur) {
+        if (isFinite(h)) { const lim = h > YMAX ? YMAX : 0, pp = cur[cur.length - 1], f = (lim - pp[1]) / (h - pp[1]); cur.push([pp[0] + f * (q - pp[0]), lim]); }
+        cur = null;
+      }
+      prev = [q, h];
+    }
+    const d = segs.filter((s) => s.length > 1).map((s) => 'M' + s.map((pp) => rn(X(pp[0])) + ' ' + rn(Y(pp[1]))).join(' L')).join(' ');
+    return d ? path(d, cls) : null;
+  }
+  const pumpFn = (s) => (q) => pumpH(q, s);
+  const sysFn = (inv, lift) => (q) => sysH(q, inv, lift == null ? LIFT : lift);
+  // The positive displacement pump's curve: q = 10s − 0.01H, a nearly upright line.
+  function pdLine(s, cls) { line(X(PDQ * s), Y(0), X(PDQ * s - SLIP * YMAX), Y(YMAX), cls || 'pc'); }
+  function liftLine(lift, atRight) {
+    line(GX0, Y(lift), GX1, Y(lift), 'lvl');
+    if (atRight) text(GX1 - 2, Y(lift) + 15, `lift ${lift} m`, 'lab m', 'end');
+    else text(GX0 + 4, Y(lift) + 15, `lift ${lift} m`, 'lab m', 'start');
+  }
+  function opDot(q, H, cls) {
+    if (q > 0.05) { line(X(q), Y(H), X(q), GY0, 'gd'); line(GX0, Y(H), X(q), Y(H), 'gd'); }
+    circle(X(q), Y(H), 5.5, cls || 'pt');
+  }
+  // The efficiency hump at speed s, on the same flow scale, with a marker at this flow.
+  function effStrip(s, q) {
+    const qm = Math.min(20, Math.sqrt(HS * s * s / AP)), pts = [];
+    for (let x = 0; x <= qm + 1e-9; x += 0.25) pts.push(rn(X(x)) + ' ' + rn(EYv(effC(x, s))));
+    path(`M${X(0)} ${EY0} L${pts.join(' L')} L${rn(X(qm))} ${EY0} Z`, 'hump');
+    const e = effC(q, s), x = X(q), y = EYv(e);
+    if (q > 0.05) line(x, EY1 - 6, x, y, 'gd');
+    circle(x, y, 4.5, 'pt');
+    const lab = fx(100 * e) + '%';
+    if (q >= 3) text(x - 9, y - 7, lab, 'lab n', 'end'); else text(x + 9, y - 12, lab, 'lab n', 'start');
+    return e;
+  }
+  const KEY = [{ c: 'pc', s: "pump's curve" }, { c: 'sc', s: 'system curve' }];
+
+  // ---------- the NPSH panel: what the suction offers, and what the pump needs ----------
+  function npshPanel(lv, lvR, q, s, ex) {
+    base = artG; ex = ex || {};
+    const k = 10, Y0 = 196, a = npA(lv, q), r = npR(q, s), cav = a < r, aR = npA(lvR, q);
+    text(8, 14, 'NPSH, in metres of seawater', 'lab m', 'start');
+    for (let v = 0; v <= 15; v += 5) {
+      if (v) line(46, Y0 - k * v, 300, Y0 - k * v, 'grid');
+      line(42, Y0 - k * v, 46, Y0 - k * v, 'tick'); text(39, Y0 - k * v + 4.5, String(v), 'lab m', 'end');
+    }
+    line(46, Y0, 300, Y0, 'ax'); line(46, Y0, 46, Y0 - 150, 'ax');
+    const ta = Y0 - k * Math.max(0, a), tr = Y0 - k * r;
+    rect(80, ta, 60, Y0 - ta, cav ? 'nbw' : 'nba');
+    rect(200, tr, 60, Y0 - tr, cav ? 'nbw' : 'nbr');
+    text(110, ta - 7, fx(aR, 1) + ' m', cav ? 'lab w' : 'lab n');
+    text(230, tr - 7, fx(r, 1) + ' m', cav ? 'lab w' : 'lab');
+    text(110, Y0 + 17, 'available', 'lab'); text(230, Y0 + 17, 'required', 'lab');
+    const sg = lvR >= 0 ? '+ ' + lvR : '− ' + Math.abs(lvR);
+    text(170, 236, `${N.atm} ${sg} − ${fx(SUCK * q * q, 1)} − 0.3 = ${fx(aR, 1)} m`, 'lab n');
+    text(170, 254, 'atmosphere + level − friction − boiling', 'lab m');
+    if (ex.thr > 0) part(ex.thr, 0, () => arrow(152, ta + 2, 152, ta + 34, 'w'));
+    if (ex.fst > 0) part(ex.fst, 0, () => arrow(272, tr - 2, 272, tr - 34, 'w'));
+    return `Two bars in metres of seawater: NPSH available, about ${fx(aR, 1)} m, and NPSH required, about ${fx(r, 1)} m.` +
+      (cav ? ' Available is below required, so both are marked as a warning.' : ' Available is above required.');
+  }
+
+  // ---------- the screens' pictures ----------
+  // The opening demonstration: the dot slides down the pump's curve as the system curve draws in from the lift.
+  function gIntro() {
+    base = artG;
+    axes(35, false);
+    keyRow(14, KEY); keyRow(32, [{ c: 'dot', s: 'operating point' }]);
+    liftLine(LIFT);
+    const a1 = arr(0.4), tq = arr(0.9, 2.4), aRest = arr(3.3, 0.6), ag = arr(3.7);
+    const q = OP[0].q * tq, H = pumpH(q, 1);
+    part(a1, 0, () => curve(pumpFn(1), 0, 20, 'pc'));
+    if (q > 0.15) curve(sysFn(1), 0, q + (20 - q) * aRest, 'sc');
+    part(ag, 0, () => {
+      line(X(q), Y(H), X(q), GY0, 'gd'); line(GX0, Y(H), X(q), Y(H), 'gd');
+      text(X(q) + 5, GY0 - 7, `${N.q[0]} L/s`, 'lab n', 'start');
+      text(GX0 + 4, Y(H) + 16, `${N.H[0]} m`, 'lab n', 'start');
+    });
+    part(a1, 0, () => circle(X(q), Y(H), 5.5, 'pt'));
+    REC.res = q;
+    const ap = drawPump({ v: 0, s: 1, level: 2, pd: false, q, H, shut: false, cav: false });
+    return { ap, hg: 266, ag: `A graph of head against flow. The pump's curve falls from 30 m at no flow. The system curve rises from the 10 m lift. They cross at the operating point, about ${N.q[0]} L/s and ${N.H[0]} m.` };
+  }
+  // A live screen: the pump picture and its graph (or its NPSH panel) follow the controls.
+  function gLive(d, st, bad, wa, p) {
+    const ds = stateOf(d, p, true), o = opOf(ds), lvR = d.live && d.live.level ? levelOf(p) : ds.level;
+    const ap = drawPump({ v: ds.v, s: ds.s, level: ds.level, levelR: lvR, pd: ds.pd, q: o.q, H: o.H, shut: o.shut, cav: cavOf(ds, o), showLevel: !!(d.live && d.live.level) });
+    base = artG;
+    if (d.top === 'npsh') return { ap, hg: 262, ag: npshPanel(ds.level, lvR, o.q, ds.s) };
+    const eff = !!d.eff;
+    axes(ds.pd ? 70 : 35, eff);
+    keyRow(14, KEY);
+    if (d.ghost) curve(pumpFn(1), 0, 20, 'ghost');
+    liftLine(LIFT);
+    if (ds.pd) pdLine(ds.s); else curve(pumpFn(ds.s), 0, 20, 'pc');
+    if (o.inv > 0) curve(sysFn(o.inv), 0, 20, 'sc');
+    let said = 'A graph of head against flow, with the ' + (ds.pd ? "positive displacement pump's nearly upright curve" : "pump's curve") + ' and the system curve' + (o.inv > 0 ? '' : ' left out, as the valve is shut') + '.';
+    if (o.shut) {
+      text(262, 110, 'shut, so the', 'lab w'); text(262, 128, 'pressure climbs until', 'lab w'); text(262, 146, 'something gives', 'lab w');
+      said += ' With the valve shut, its pressure would climb until something gives.';
+    } else {
+      keyRow(32, [{ c: 'dot', s: 'operating point' }].concat(d.ghost ? [{ c: 'ghost', s: 'full speed' }, { c: 'dotg', s: 'valve ×4' }] : []));
+      if (d.ghost) circle(X(OP[2].q), Y(OP[2].H), 5, 'ptg');
+      opDot(o.q, o.H);
+      said += o.q > 0.05 ? ' A dot marks where they cross, the operating point, with dashed guides to the axes.' : ' No water flows, so the dot sits on the head axis.';
+      if (d.ghost) said += ' A second dot marks full speed with the valve at friction ×4.';
+      if (eff) { effStrip(ds.s, o.q); said += ' Below, the efficiency hump on the same flow scale, with a marker at this flow.'; }
+    }
+    return { ap, hg: eff ? 324 : 266, ag: said };
+  }
+  // Spare head at 10 L/s: the pump gives 26 m, the pipe needs 16 m.
+  function gSpare(d, st, bad, wa) {
+    base = artG;
+    axes(35, false); keyRow(14, KEY); liftLine(LIFT);
+    curve(pumpFn(1), 0, 20, 'pc'); curve(sysFn(1), 0, 20, 'sc');
+    const right = st.res === 'right', k = right ? arr(0.1, 1.4) : 0;
+    const q = 10 + (OP[0].q - 10) * k, hp = pumpH(q, 1), hs = sysH(q, 1, LIFT);
+    line(X(q), GY0, X(q), Y(hp), 'gd');
+    if (hp - hs > 0.6) path(`M${rn(X(q) - 8)} ${rn(Y(hp))} H${rn(X(q) - 12)} V${rn(Y(hs))} H${rn(X(q) - 8)}`, 'brk');
+    circle(X(q), Y(hs), 5, 'pts'); circle(X(q), Y(hp), 5, 'pt');
+    const before = show(right ? arr(0.1) : 0, 0);
+    ftext(before, X(10) - 16, (Y(26) + Y(16)) / 2 + 4.5, 'spare 10 m', 'lab n', 'end');
+    ftext(before, X(10) + 8, Y(26) - 8, '26 m', 'lab', 'start');
+    ftext(before, X(10) + 8, Y(16) + 18, '16 m', 'lab', 'start');
+    if (right) { REC.ans = true; REC.res = q; ftext(arr(0.9), 170, 32, `the flow climbs to ${N.q[0]} L/s`, 'lab n'); }
+    if (bad) {
+      REC.bad++;
+      part(wa, 0, () => { if (bad === d.bad[O.stay]) circle(X(10), GY0, 9, 'bad'); else arrow(X(10) - 4, GY0 - 12, X(6), GY0 - 12, 'w'); });
+      ftext(wa, 170, 32, bad.lab, 'lab w');
+    }
+    return { hg: 266, ag: 'A graph of head against flow, with the pump\'s curve and the system curve. At 10 L/s the pump gives 26 m and the pipe needs 16 m: 10 m are spare.' + (right ? ` The flow climbs to the crossing, about ${N.q[0]} L/s.` : '') };
+  }
+  // The outlet gauge as the valve closes a little.
+  function gGauge(d, st, bad, wa) {
+    const right = st.res === 'right', k = right ? arr(0.1, 1.4) : 0, o = opOf({ v: k, s: 1 });
+    const ap = drawPump({ v: k, s: 1, level: 2, pd: false, q: o.q, H: o.H, shut: false, cav: false });
+    base = artG;
+    axes(35, false); keyRow(14, KEY); liftLine(LIFT);
+    curve(pumpFn(1), 0, 20, 'pc'); curve(sysFn(1), 0, 20, 'sc');
+    if (right) {
+      REC.ans = true; REC.res = o.q;
+      part(arr(0.1), 0, () => curve(sysFn(0.5), 0, 20, 'sc'));
+      ftext(arr(0.5), X(Math.sqrt(25 / 0.12)) + 6, GY1 + 12, 'valve ×2', 'lab t', 'start');
+      circle(X(OP[0].q), Y(OP[0].H), 4.5, 'ptg');
+      ftext(arr(0.9), 170, 32, 'less flow, more head, so the gauge rises', 'lab n');
+    }
+    opDot(o.q, o.H);
+    if (bad) {
+      REC.bad++;
+      part(wa, 0, () => { if (bad === d.bad[O.gDown]) circle(X(OP[1].q), Y(19), 5.5, 'badd'); else circle(X(OP[0].q), Y(OP[1].H), 5.5, 'badd'); });
+      ftext(wa, 170, 32, bad.lab, 'lab w');
+    }
+    return { ap, hg: 266, ag: 'A graph of head against flow: the pump\'s curve, the system curve with the valve open, and a dot where they cross.' + (right ? ` The valve at friction ×2 steepens the system curve, and the dot slides up the pump's curve to about ${N.q[1]} L/s and ${N.H[1]} m.` : '') };
+  }
+  // The water's power, open and at friction ×2.
+  function gPower(d, st, bad, wa) {
+    base = artG;
+    const k = 62, X0 = 12, right = st.res === 'right', ra = right ? arr(0.1) : 0;
+    text(8, 24, `valve open: ${N.q[0]} L/s at 22 m`, 'lab', 'start');
+    rect(X0, 34, k * W0, 18, 'pw'); text(X0 + k * W0 + 6, 48, `${N.w0} kW`, 'lab n', 'start');
+    text(8, 88, `friction ×2: ${N.q[1]} L/s at 25 m`, 'lab', 'start');
+    ftext(show(ra, wa), X0 + 8, 112, '?', 'lab n', 'start');
+    if (right) {
+      REC.ans = true; REC.res = W1;
+      part(ra, 0, () => rect(X0, 98, k * W1, 18, 'pw'));
+      ftext(arr(0.5), X0 + k * W1 + 6, 112, `${N.w1} kW`, 'lab n', 'start');
+      ftext(arr(0.9), 170, 150, `${DS} × ${GS} × 0.0112 × 25 = about ${N.w1r} kW`, 'lab n');
+    }
+    if (bad) {
+      REC.bad++;
+      const v = bad === d.bad[O.w36] ? W0 * OP[1].H / OP[0].H : W0;
+      part(wa, 0, () => rect(X0, 98, k * v, 18, 'bad'));
+      ftext(wa, 170, 150, bad.lab, 'lab w');
+    }
+    rect(8, 172, 12, 12, 'pw'); text(26, 182, "the water's power, ρgQH", 'lab m', 'start');
+    return { hg: 196, ag: `Two power bars. With the valve open, ${N.q[0]} L/s at 22 m, the water takes ${N.w0} kW. At friction ×2, ${N.q[1]} L/s at 25 m, its power is the question.` + (right ? ` It is about ${N.w1} kW.` : '') };
+  }
+  // The pump slowed to 55%: its most head against the 10 m lift.
+  function gSlow(d, st, bad, wa) {
+    base = artG;
+    axes(35, false);
+    const right = st.res === 'right', show55 = right || !!bad, a55 = right ? arr(0.1) : wa;
+    keyRow(14, [{ c: 'ghost', s: 'full speed' }, { c: 'sc', s: 'system curve' }].concat(show55 ? [{ c: 'pc', s: '55%' }] : []));
+    liftLine(LIFT, true);
+    curve(pumpFn(1), 0, 20, 'ghost'); curve(sysFn(1), 0, 20, 'sc');
+    if (show55) part(a55, 0, () => curve(pumpFn(0.55), 0, 20, 'pc'));
+    circle(X(0), Y(pumpH(0, 0.55)), 4.5, 'pt');
+    text(X(0) + 8, Y(pumpH(0, 0.55)) + 20, `55%: ${N.t55} m`, 'lab n', 'start');
+    if (right) { REC.ans = true; REC.res = opOf({ v: 0, s: 0.55 }).q; ftext(arr(0.6), 170, 32, 'no crossing, so no flow', 'lab n'); }
+    if (bad) {
+      REC.bad++;
+      part(wa, 0, () => {
+        if (bad === d.bad[O.s78]) circle(X(0.55 * OP[0].q), Y(sysH(0.55 * OP[0].q, 1, LIFT)), 5.5, 'badd');
+        else circle(X(OP[0].q), Y(Math.max(0, pumpH(OP[0].q, 0.55))), 5.5, 'badd');
+      });
+      ftext(wa, 170, 32, bad.lab, 'lab w');
+    }
+    return { hg: 266, ag: `A graph of head against flow: the full-speed pump curve, the system curve from the 10 m lift, and a dot on the head axis at ${N.t55} m, the 55% pump's most head.` + (show55 ? ' The 55% curve lies wholly under the system curve: they never cross.' : '') };
+  }
+  // Cavitation at −4 m, and what stops it.
+  function gCav(d, st, bad, wa) {
+    const right = st.res === 'right', k = right ? arr(0.1, 1.4) : 0, lv = -4 + k, q = OP[0].q;
+    const thr = !!bad && bad === d.bad[O.throttle], fst = !!bad && bad === d.bad[O.faster];
+    const cav = npA(lv, q) < npR(q, 1);
+    const ap = drawPump({ v: 0, s: 1, level: lv, levelR: Math.round(lv), pd: false, q, H: OP[0].H, shut: false, cav, showLevel: true });
+    if (thr) part(wa, 0, () => path('M88 120 L100 128 L88 136 Z M112 120 L100 128 L112 136 Z', 'badv'));
+    const ag = npshPanel(lv, Math.round(lv), q, 1, { thr: thr ? wa : 0, fst: fst ? wa : 0 });
+    if (right) { REC.ans = true; REC.res = npA(lv, q); ftext(arr(0.9), 170, 32, `at −3 m, ${N.na3} m beats ${N.nr} m`, 'lab n'); }
+    if (bad) { REC.bad++; ftext(wa, 170, 32, bad.lab, 'lab w'); }
+    return { ap, hg: 262, ag };
+  }
+  // The positive displacement pump against a closing valve.
+  function gPD(d, st, bad, wa) {
+    base = artG;
+    axes(70, false); keyRow(14, KEY); liftLine(LIFT);
+    pdLine(1); curve(sysFn(1), 0, 20, 'sc');
+    const right = st.res === 'right', k = right ? arr(0.1, 1.4) : 0, o = opOf({ v: 3 * k, s: 1, pd: true });
+    if (right) {
+      REC.ans = true; REC.res = o.q;
+      part(arr(0.1), 0, () => curve(sysFn(0.1), 0, 20, 'sc'));
+      ftext(arr(0.5), X(Math.sqrt(35 / 0.6)) - 6, Y(45) + 4.5, 'valve ×10', 'lab t', 'end');
+      ftext(arr(0.9), 170, 32, 'flow barely changes, head climbs', 'lab n');
+    }
+    opDot(o.q, o.H);
+    if (bad) {
+      REC.bad++;
+      part(wa, 0, () => { if (bad === d.bad[O.pdFall]) circle(X(OP[3].q), Y(OP[3].H), 5.5, 'badd'); else circle(X(0), GY0, 9, 'bad'); });
+      ftext(wa, 170, 32, bad.lab, 'lab w');
+    }
+    return { hg: 266, ag: `A graph of head against flow up to 70 m: the positive displacement pump's nearly upright curve, the system curve with the valve open, and a dot at ${N.pq0} L/s and ${N.pH0} m.` + (right ? ` At friction ×10 the dot climbs to ${N.pq3} L/s and ${N.pH3} m.` : '') };
+  }
+  // A cooling pump's gauges: which change moved the dot?
+  function gDiag(d, st, bad, wa) {
+    base = artG;
+    axes(35, false); keyRow(14, KEY); liftLine(LIFT);
+    curve(pumpFn(1), 0, 20, 'pc'); curve(sysFn(1), 0, 20, 'sc');
+    const right = st.res === 'right', ra = right ? arr(0.1) : 0, k = right ? arr(0.1, 1.4) : 0;
+    ftext(show(ra, wa), 170, 32, 'gauge higher, ammeter lower, flow lower', 'lab m');
+    const fast = !!bad && bad === d.bad[O.fast];
+    circle(X(OP[0].q), Y(OP[0].H), 5, 'ptg');
+    text(X(OP[0].q) - 16, Y(OP[0].H) + 4.5, 'usual', 'lab m', 'end');
+    if (right) {
+      REC.ans = true;
+      const o = opOf({ v: 2 * k, s: 1 });
+      REC.res = o.q;
+      part(ra, 0, () => curve(sysFn(0.25), 0, 20, 'sc'));
+      opDot(o.q, o.H);
+      ftext(arr(0.9), X(OP[2].q) - 10, Y(OP[2].H) - 12, 'now', 'lab n', 'end');
+      ftext(arr(0.9), 170, 32, "choked, so up the pump's curve", 'lab n');
+    }
+    if (bad) {
+      REC.bad++;
+      part(wa, 0, () => {
+        if (fast) { curve(pumpFn(1.1), 0, 20, 'badl'); const f = opC(1, 1.1, LIFT); circle(X(f.q), Y(f.H), 5.5, 'badd'); }
+        else { const f = opC(2, 1, LIFT); circle(X(f.q), Y(f.H), 5.5, 'badd'); }
+      });
+      ftext(wa, 170, 32, bad.lab, 'lab w');
+    }
+    return { hg: 266, ag: 'A graph of head against flow: the pump\'s curve, the usual system curve and the usual operating point.' + (right ? ' A steeper system curve moves the dot up the pump\'s curve, to less flow and more head.' : '') };
+  }
+  // The high tank raised 6 m: a 16 m lift on the same pipe.
+  function gHigh(d, st, bad, wa) {
+    base = artG;
+    axes(35, false);
+    const right = st.res === 'right', ra = right ? arr(0.1) : 0;
+    keyRow(14, [{ c: 'pc', s: "pump's curve" }, { c: 'ghost', s: 'old system curve' }].concat(right ? [{ c: 'sc', s: 'new' }] : []));
+    liftLine(LIFT); liftLine(16);
+    curve(pumpFn(1), 0, 20, 'pc'); curve(sysFn(1, LIFT), 0, 20, 'ghost');
+    if (right) {
+      REC.ans = true; REC.res = HI.q;
+      part(ra, 0, () => { curve(sysFn(1, 16), 0, 20, 'sc'); opDot(HI.q, HI.H); });
+      ftext(arr(0.9), 170, 32, `it settles at about ${N.hq} L/s and ${N.hH} m`, 'lab n');
+    }
+    if (bad) {
+      REC.bad++;
+      part(wa, 0, () => { if (bad === d.bad[O.hSame]) circle(X(OP[0].q), Y(OP[0].H), 5.5, 'badd'); else circle(X(Math.sqrt((HS - 16) / AP)), Y(16), 5.5, 'badd'); });
+      ftext(wa, 170, 32, bad.lab, 'lab w');
+    }
+    return { hg: 266, ag: 'A graph of head against flow: the pump\'s curve, the old system curve from the 10 m lift, and a dashed line at the new 16 m lift.' + (right ? ` The new system curve crosses the pump's at about ${N.hq} L/s and ${N.hH} m.` : '') };
+  }
+
+  const DRAW = { intro: gIntro, live: gLive, spare: gSpare, gauge: gGauge, power: gPower, slow: gSlow, cav: gCav, pd: gPD, diag: gDiag, high: gHigh };
+  // The pictures for a step (the animation calls this every frame).
+  function paint(i, pOver) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i], p = pOver || K.params();
+    artP.textContent = ''; artG.textContent = '';
+    into = null; base = artG;
+    REC = { bad: 0, ans: false, res: null, bub: 0 };
+    const bad = wrongOf(d, st), wa = bad ? arr(0.1) : 0;
+    const r = DRAW[d.draw](d, st, bad, wa, p);
+    base = artG;
+    svgG.setAttribute('viewBox', '0 0 340 ' + r.hg);
+    svgG.setAttribute('aria-label', r.ag + (bad ? ' The answer picked is drawn as a dashed warning mark.' : ''));
+    if (r.ap) svgP.setAttribute('aria-label', r.ap);
+  }
+
+  // ---------- motion: one animation plays each demonstration, the flowing water and an answer ----------
+  function valAt(m) {
+    const ks = m.keys, last = ks[ks.length - 1];
+    if (T === Infinity || T >= last[0]) return last[1];
+    if (T <= ks[0][0]) return ks[0][1];
+    for (let j = 1; j < ks.length; j++) {
+      if (T < ks[j][0]) {
+        const a = (T - ks[j - 1][0]) / Math.max(1e-6, ks[j][0] - ks[j - 1][0]);
+        return K.lerp(ks[j - 1][1], ks[j][1], K.ease(a));
+      }
+    }
+    return last[1];
+  }
+  function stepMot() {
+    if (!MOT) return;
+    let done = true;
+    MOT.forEach((m) => {
+      setCtl(m.ctl, valAt(m));
+      if (T !== Infinity && T < m.keys[m.keys.length - 1][0]) done = false;
+    });
+    keyNow = ctlKey(K.params());
+    if (done) { MOT = null; Object.keys(EX).forEach((k) => delete EX[k]); }
+  }
+  function finishMot() { if (MOT) { T = Infinity; stepMot(); MOT = null; } }
+  const flowOn = () => !REDUCE && !testing() && !finished && !!STEPS[at()].pump;
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    if (flowOn()) {
+      W += 4 * LASTQ * dt;
+      ROT += 6 * LASTS * dt;
+      BUB = (BUB + 0.9 * dt) % 1;
+    }
+    if (MOT) { stepMot(); K.refresh(); } else paint();
+    return T < motionEnd || !!MOT || flowOn();
+  } });
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && !anim.playing() && (T !== Infinity || MOT)) { T = Infinity; finishMot(); K.refresh(); }
+  });
+  function play(dur) {
+    if (REDUCE || testing()) { anim.pause(); finishMot(); T = Infinity; return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+  // A new screen: a live one takes its own settings and runs its demonstration once.
+  function onEnter(i) {
+    const d = STEPS[i];
+    MOT = null; W = 0;
+    Object.keys(EX).forEach((k) => delete EX[k]);
+    if (d.live) {
+      const b = Object.assign({ valve: 0, speed: 100, level: 2, pd: false }, d.set || {});
+      Object.keys(b).forEach((k) => setCtl(k, b[k]));
+      if (d.mot) { MOT = d.mot.map((m) => Object.assign({}, m)); MOT.forEach((m) => setCtl(m.ctl, m.keys[0][1])); }
+    }
+    if (d.show) play(d.dur); else { anim.pause(); T = Infinity; }
+  }
+
+  // ---------- what Dan reads under a live picture ----------
+  function sayFor(d, p) {
+    const ds = stateOf(d, p, false), o = opOf(ds), q = fx(o.q, 1), H = fx(o.H, 1), P = fx(o.P, 2), nm = VNAME[ds.v];
+    if (d.say === 'valve') {
+      if (ds.v === 0) return `With the valve open, the pump settles at ${q} L/s and ${H} m.`;
+      if (ds.v === 4) return `With the valve shut, no water flows. The pump gives its most head, ${H} m.`;
+      return `At ${nm} the system curve is steeper. The pump settles at ${q} L/s and ${H} m.`;
+    }
+    if (d.say === 'power') {
+      const e = fx(100 * effC(o.q, ds.s));
+      if (ds.v === 0) return `Open, the shaft takes ${P} kW, and the pump runs at ${e}% efficiency.`;
+      if (ds.v === 4) return `Shut, no water flows, yet the shaft still takes ${P} kW. Nearly all of it warms the trapped water.`;
+      return `At ${nm} the shaft takes ${P} kW, at ${e}% efficiency.`;
+    }
+    if (d.say === 'speed') {
+      const sp = Math.round(ds.s * 100);
+      if (!o.flows) return `At ${sp}% its most head, ${fx(pumpH(0, ds.s), 1)} m, is under the 10 m lift. No water flows.`;
+      if (sp === 100) return `At full speed it settles at ${q} L/s and ${H} m, for ${P} kW.`;
+      return `At ${sp}% it settles at ${q} L/s and ${H} m, for ${P} kW. Throttled, ${N.q[2]} L/s takes ${N.P[2]} kW.`;
+    }
+    if (d.say === 'suction') {
+      const a = fx(npA(ds.level, o.q), 1), r = fx(npR(o.q, ds.s), 1), lv = lvText(ds.level);
+      if (cavOf(ds, o)) return `At ${lv}, only ${a} m is available, under the ${r} m required. The water boils at the eye, and the bubbles collapse further in. That is cavitation.`;
+      return `At ${lv}, ${a} m is available and ${r} m is required, so the water stays liquid.`;
+    }
+    if (d.say === 'pd') {
+      if (!ds.pd) return ds.v === 4 ? 'The centrifugal pump against a shut valve gives no flow, at its most head.' : `The centrifugal pump at ${nm} settles at ${q} L/s and ${H} m.`;
+      if (o.shut) return 'Shut, the water has nowhere to go. Its pressure would climb until something gives.';
+      if (ds.v === 0) return `Open, it gives ${q} L/s at ${H} m, for ${P} kW.`;
+      return `At ${nm} it still gives ${q} L/s, now at ${H} m, for ${P} kW. Its motor works harder.`;
+    }
+    return '';
+  }
+  function layout(i, d, st, p) {
+    const right = st.res === 'right', L = d.live || {}, outs = d.outs || [];
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    const tk = i + '|' + finished;
+    if (tk !== taskKey) { taskKey = tk; task.className = 'task' + (d.show ? ' show' : ''); write(task, d.show ? d.text : d.task); }
+    svgP.toggleAttribute('hidden', !d.pump);
+    el('ctl').hidden = !d.live;
+    valveCtl.el.hidden = !L.valve; speedCtl.el.hidden = !L.speed; levelCtl.el.hidden = !L.level; pdCtl.el.hidden = !L.pd;
+    el('say').hidden = !d.live;
+    el('say').textContent = d.live ? nb(sayFor(d, p)) : '';
+    el('outs').hidden = !outs.length;
+    rFlow.el.hidden = outs.indexOf('flow') < 0; rHead.el.hidden = outs.indexOf('head') < 0; rPow.el.hidden = outs.indexOf('shaftPower') < 0;
+    el('replay').hidden = !d.show || REDUCE;
+    const opts = d.show ? [] : d.opts;
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((x) => x.length > 9));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    fb.textContent = nb(d.show ? '' : right ? (d.right || "That's it.") : st.res === 'wrong' ? ((d.hints && d.hints[st.pick]) || d.hint) : st.res === 'empty' ? PICK : '');
+    const why = el('why');
+    why.hidden = !!d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  }
+
+  write(el('finish'), FINISH);
+  K.update((p, o) => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (i !== lastStep) {
+      lastStep = i; taskKey = ''; enter('stepbox'); onEnter(i);
+      if (d.live) { keyNow = ctlKey(K.params()); K.refresh(); return; }
+    }
+    if (d.live) {
+      const k = ctlKey(p);
+      if (k !== keyNow) {   // Dan moved something: the demonstration gives way to him
+        keyNow = k;
+        if (MOT) { MOT = null; T = Infinity; Object.keys(EX).forEach((q) => delete EX[q]); }
+      }
+    }
+    if (!anim.playing()) T = Infinity;
+    if (finished !== lastDone) { lastDone = finished; taskKey = ''; enter(finished ? 'done' : 'stepbox'); }
+    layout(i, d, st, p);
+    paint(i, p);
+    if (!anim.playing() && flowOn()) anim.play();
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const solved = (i) => ({ pick: STEPS[i].want, res: 'right', why: false });
+  const wrongSt = (i, o) => ({ pick: o, res: 'wrong', why: false });
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  function drawn(i, st) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = Infinity; CHECKING = true;
+    try { paint(i); return REC; }
+    finally { S[i] = keepS; T = keepT; paint(); CHECKING = false; }
+  }
+  const S_VALVE = idx('Closing the valve'), S_POWER = idx('Power as the valve closes'), S_SPEED = idx('Slowing the pump');
+  const S_SUCT = idx('Suction and cavitation'), S_PD = idx('A positive displacement pump');
+  const words = (s) => String(s || '').replace(/\*/g, '').split(/\s+/).filter(Boolean).length;
+
+  K.check('The density of seawater is about 1025 kg/m³: the water takes ρgQH = 1025 × 9.81 × 0.0141 × 22, about 3.13 kW, with the valve open', () =>
+    RHO === 1025 && K.near(W0, 1025 * 9.81 * (Math.sqrt(200) / 1000) * 22 / 1000, 1e-9) && N.w0 === '3.13', { source: SRC_TALLEY });
+  K.check('The pressure at the bottom of the atmosphere is about (1025)(9.81)(10) Pa, about 10⁵ Pa: so 100 kPa holds up about 9.9 m of seawater', () =>
+    Math.abs(1025 * 9.81 * 10 - 1e5) < 1000 && K.near(ATM * RHO * G, 1e5, 1e-6) && N.atm === '9.9', { source: SRC_WHOI });
+  K.check('The intersection of both curves is the operating point: at every valve stop and speed that flows, the pump gives exactly the head the pipe needs', () => {
+    for (let v = 0; v <= 3; v++) for (let sp = 60; sp <= 100; sp += 5) {
+      const s = sp / 100, o = opOf({ v, s });
+      if (!(o.q > 0) || !K.near(pumpH(o.q, s), o.H, 1e-9) || !K.near(sysH(o.q, INV[v], LIFT), o.H, 1e-9)) return false;
+    }
+    const m = K.at({ step: S_VALVE, valve: 1 });
+    return K.near(m.flow, Math.sqrt(125), 1e-6) && K.near(m.head, 25, 1e-6);
+  }, { source: SRC_FIU });
+  K.check('Closing a discharge valve changes the system resistance curve: each stop is steeper at every flow, so the flow falls and the head rises', () => {
+    for (let v = 0; v < 3; v++) for (let q = 1; q <= 20; q++) if (!(sysH(q, INV[v + 1], LIFT) > sysH(q, INV[v], LIFT))) return false;
+    for (let v = 0; v < 4; v++) {
+      const a = K.at({ step: S_VALVE, valve: v }), b = K.at({ step: S_VALVE, valve: v + 1 });
+      if (!(b.flow < a.flow && b.head > a.head)) return false;
+    }
+    return true;
+  }, { source: SRC_PIM });
+  K.check('At the no-flow condition, a shut valve, the pump builds its most head, and the power needed is at or near its least', () => {
+    const s = K.at({ step: S_POWER, valve: 4 });
+    if (s.flow !== 0 || !K.near(s.head, HS, 1e-9)) return false;
+    for (let v = 0; v < 4; v++) { const o = K.at({ step: S_POWER, valve: v }); if (!(o.head < s.head && o.shaftPower > s.shaftPower)) return false; }
+    return true;
+  }, { source: SRC_SHUT });
+  K.check("As the flow rate increases, the motor's amperage rises: opening the valve stop by stop raises the flow and the shaft power together", () => {
+    for (let v = 4; v > 0; v--) {
+      const a = K.at({ step: S_POWER, valve: v }), b = K.at({ step: S_POWER, valve: v - 1 });
+      if (!(b.flow > a.flow && b.shaftPower > a.shaftPower)) return false;
+    }
+    return true;
+  }, { source: SRC_SHUT });
+  K.check('The NPSH value is the minimum absolute pressure at the suction to avoid cavitation: the pump cavitates exactly when NPSH available falls below NPSH required', () => {
+    for (let lv = -6; lv <= 4; lv++) {
+      const st = { v: 0, s: 1, level: lv, pd: false }, o = opOf(st);
+      if (cavOf(st, o) !== (npA(lv, o.q) < npR(o.q, 1))) return false;
+    }
+    const c = (lv) => cavOf({ v: 0, s: 1, level: lv, pd: false }, OP[0]);
+    return !c(2) && !c(-3) && c(-4) && c(-6);
+  }, { source: SRC_NPSH });
+  K.check('Every number the valve screens print comes from the rule: 14.1, 11.2, 8.5 and 5.6 L/s at 22.0, 25.0, 27.1 and 28.8 m, and 30.0 m shut; 4.41, 4.12, 3.85, 3.56 and 3.00 kW; 71, 68, 60 and 45%', () =>
+    N.q.slice(0, 4).join('|') === '14.1|11.2|8.5|5.6' && N.H.join('|') === '22.0|25.0|27.1|28.8|30.0' && N.P.join('|') === '4.41|4.12|3.85|3.56|3.00' &&
+    N.e.slice(0, 4).join('|') === '71|68|60|45' && OP[4].q === 0 && N.qpk === '14' && N.epk === '71');
+  K.check("The power and puzzle figures: 3.13 and 2.81 kW, with 2.8, 3.6 and 3.1 offered; 19.2 m, 9.6 L/s, 15.5 m and 2.15 kW at 80%; 9.1 m and no flow at 55%, 7.8 offered; 11.8 L/s at 24.4 m, or 18.7 without friction", () =>
+    N.w0 === '3.13' && N.w1 === '2.81' && N.w1r === '2.8' && N.w1h === '3.6' && N.w0r === '3.1' && N.t80 === '19.2' && N.q80 === '9.6' && N.H80 === '15.5' && N.P80 === '2.15' &&
+    N.t55 === '9.1' && N.q55w === '7.8' && K.at({ step: S_SPEED, speed: 55 }).flow === 0 && K.at({ step: S_SPEED, speed: 60 }).flow > 0 &&
+    N.hq === '11.8' && N.hH === '24.4' && N.hw === '18.7' && K.near(K.at({ step: S_SPEED, speed: 80 }).shaftPower, S80.P, 1e-6));
+  K.check('Suction: NPSH available is about 10.6 m at +2 m, 5.6 m at −3 m and 4.6 m at −4 m, against 5.0 m required at 14.1 L/s, with 1.0 m of suction friction', () =>
+    N.na2 === '10.6' && N.na3 === '5.6' && N.na4 === '4.6' && N.nr === '5.0' && N.fr === '1.0');
+  K.check('The positive displacement pump gives 9.8 L/s at 15.8 m for 1.96 kW open, and 9.4 L/s at 62.7 m for 7.39 kW at friction ×10: its flow falls by under a twentieth while its head nearly quadruples', () => {
+    const a = K.at({ step: S_PD, pd: true, valve: 0 }), b = K.at({ step: S_PD, pd: true, valve: 3 }), s = K.at({ step: S_PD, pd: true, valve: 4 });
+    return N.pq0 === '9.8' && N.pH0 === '15.8' && N.pP0 === '1.96' && N.pq3 === '9.4' && N.pH3 === '62.7' && N.pP3 === '7.39' &&
+      K.near(a.flow, PD0.q, 1e-6) && K.near(b.head, PD3.H, 1e-6) && (a.flow - b.flow) / a.flow < 0.05 && b.head / a.head > 3.9 && b.head / a.head < 4 &&
+      K.near(b.flow, PDQ - SLIP * b.head, 1e-6) && b.shaftPower > a.shaftPower && s.flow === 0 && typeof s.head === 'string';
+  });
+  K.check('The efficiency hump peaks near 14 L/s at about 71%; by the pump laws, at 80% speed its peak is the same height at 80% of the flow', () => {
+    let q8 = 0, e8 = 0;
+    for (let j = 0; j <= 2000; j++) { const e = effC(j / 100, 0.8); if (e > e8) { e8 = e; q8 = j / 100; } }
+    return K.near(QPK, 13.83, 0.011) && K.near(EPK, 0.709, 0.001) && K.near(e8, EPK, 1e-4) && K.near(q8 / QPK, 0.8, 0.002);
+  });
+  K.check('Each puzzle offers three different answers including its right one, every wrong answer has its own hint, and before Check nothing on its picture shows the answer or a warning mark', () =>
+    DO.every((i) => {
+      const d = STEPS[i];
+      if (d.opts.length !== 3 || d.opts.indexOf(d.want) < 0 || new Set(d.opts).size !== 3) return false;
+      if (!d.opts.every((o) => o === d.want || (d.hints[o] && d.hints[o].length > 10 && d.bad[o]))) return false;
+      const g = drawn(i, blank());
+      return !g.bad && !g.ans;
+    }));
+  K.check('A wrong pick is drawn as a warning where it fails, and a right answer draws none', () =>
+    DO.every((i) => {
+      const d = STEPS[i];
+      if (drawn(i, solved(i)).bad) return false;
+      return d.opts.filter((o) => o !== d.want).every((o) => drawn(i, wrongSt(i, o)).bad > 0);
+    }));
+  K.check("A right answer draws the rule's result: the flow climbs to 14.14 L/s; 11.18 L/s; 2.811 kW; no flow; 5.645 m available with no bubbles; 9.373 L/s; 8.452 L/s; 11.83 L/s", () => {
+    const r = (name) => { const i = idx(name); return drawn(i, solved(i)); };
+    const cavBlank = drawn(idx('Stopping the cavitation'), blank()), cavRight = r('Stopping the cavitation');
+    return K.near(r('Spare head').res, 14.1421, 1e-4) && K.near(r('The outlet gauge').res, 11.1803, 1e-4) && K.near(r("The water's power").res, 2.8106, 1e-4) &&
+      r('Too slow').res === 0 && K.near(cavRight.res, 5.645, 0.001) && cavRight.bub === 0 && cavBlank.bub > 0 &&
+      K.near(r('Choking it').res, 9.3729, 1e-4) && K.near(r('Reading the gauges').res, 8.4515, 1e-4) && K.near(r('A higher tank').res, 11.8322, 1e-4);
+  });
+  K.check('Every demonstration has finished within 4.5 s of its screen opening, its first move after the 0.35 s screen fade; every answer\'s motion, right or wrong, within 2 s', () => {
+    const keepT = T;
+    const timed = (i, st, limit) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; CHECKING = true;
+      S[i] = st;
+      try { paint(i); } finally { S[i] = keepS; CHECKING = false; }
+      return latest <= limit + 1e-9;
+    };
+    const ok = STEPS.every((d, i) => {
+      if (d.show) return (d.mot || []).every((m) => m.keys.every((k) => k[0] >= FADE && k[0] <= d.dur)) && d.dur >= 3 && d.dur <= 4.5 && timed(i, blank(), d.dur);
+      return timed(i, solved(i), ANS) && d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), ANS));
+    });
+    T = keepT; paint();
+    return ok;
+  });
+  // The paragraph and the live line under the picture together, at every setting the screen allows.
+  K.check('Every demonstration screen, with the live line under it, keeps to about 90 words', () => STEPS.every((d, i) => {
+    if (!d.show) return true;
+    let most = 0;
+    if (d.live) {
+      const L = d.live;
+      (L.valve ? [0, 1, 2, 3, 4] : [0]).forEach((valve) => (L.speed ? K.linspace(50, 100, 11) : [100]).forEach((speed) => (L.level ? K.linspace(-6, 4, 11) : [2]).forEach((level) => (L.pd ? [false, true] : [false]).forEach((pd) => {
+        most = Math.max(most, words(sayFor(d, { step: i, valve, speed, level, pd })));
+      }))));
+    }
+    return words(d.text) + most <= 90 && (!d.read || words(d.read) + most <= 90);
+  }));
+
+  K.ready();
+</script>

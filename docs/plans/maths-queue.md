@@ -41,7 +41,7 @@ Asked "Have we built everything we need?", Dan was given this list, most useful 
 engineering science." It is a new shelf, Engineering science (docs/shelves-engineering.json), with two courses
 built side by side, each about 8 lessons and 8 to 10M tokens:
 
-1. Engineering science: Mechanics and materials, and Heat and fluids (building, started 26 Oct)
+1. Engineering science: Heat and fluids (live 27 Oct, about 9 to 10M tokens); Mechanics and materials (building)
 2. Insulated systems and earth faults (not started)
 3. Batteries: cells, charging, hydrogen (not started)
 4. Generators and paralleling (not started)

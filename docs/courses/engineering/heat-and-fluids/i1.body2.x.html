@@ -1,0 +1,860 @@
+<!-- kind: quantity -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .scene { display: block; width: 100%; max-width: 26rem; margin-inline: auto; touch-action: pan-y; }
+  .scene .ax { fill: none; stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .tk { stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .tl { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .lab.m { font-weight: 400; fill: var(--k-muted); }
+  .scene .lab.t { fill: var(--k-accent); }
+  .scene .lab.w { fill: var(--k-warn); }
+  .scene .rd { font: 700 15px var(--k-font); fill: var(--k-ink); }
+  .scene .wk { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  .scene .wk.w { fill: var(--k-warn); }
+  .scene .curve { fill: none; stroke: var(--k-accent2); stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }
+  .scene .ref { fill: none; stroke: var(--k-muted); stroke-width: 2; stroke-dasharray: 6 4; }
+  .scene .bad { fill: none; stroke: var(--k-warn); stroke-width: 2.5; stroke-dasharray: 6 4; stroke-linecap: round; }
+  .scene .badf { fill: var(--k-warn); }
+  .scene .dot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .guide { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 4 4; }
+  .scene .brk { fill: none; stroke: var(--k-muted); stroke-width: 1.5; }
+  .scene .brk.n { stroke: var(--k-accent2); stroke-width: 2; }
+  .scene .brk.w { stroke: var(--k-warn); stroke-width: 2; }
+  .scene .glass { fill: none; stroke: var(--k-ink); stroke-width: 2; stroke-linejoin: round; }
+  .scene .water { fill: var(--k-fill1); }
+  .scene .ice { fill: var(--k-panel); stroke: var(--k-accent); stroke-width: 1.5; }
+  .scene .steam { fill: none; stroke: var(--k-muted); stroke-width: 2; stroke-linecap: round; }
+  .scene .plate { fill: var(--k-amber); stroke: var(--k-amber-line); stroke-width: 2; }
+  .scene .tube { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.5; }
+  .scene .col { fill: var(--k-accent2); }
+  .scene .track { fill: var(--k-sunk); }
+  .scene .sw1 { fill: var(--k-fill1); stroke: var(--k-accent2); stroke-width: 1.5; }
+  .scene .sw3 { fill: var(--k-fill3); stroke: var(--k-accent); stroke-width: 1.5; }
+  .scene .barf { fill: var(--k-accent2); }
+  .scene .onbar { font: 700 14px var(--k-font); fill: var(--k-on-accent2); }
+  .scene .box { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.5; }
+  .scene .pipe { fill: var(--k-fill1); stroke: var(--k-accent2); stroke-width: 1.5; }
+  .scene .flow { fill: none; stroke: var(--k-accent2); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .heat { fill: none; stroke: var(--k-amber-line); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .ring { fill: none; stroke: var(--k-warn); stroke-width: 2; }
+  .scene #art * { pointer-events: none; }
+  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: ew-resize; touch-action: none; }
+  .scene .grip:focus { outline: none; }
+  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 2; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; }
+  /* The answers wrap onto as many rows as they need; long ones stack one to a row. */
+  .picks { display: grid; grid-template-columns: repeat(auto-fit, minmax(6.5rem, 1fr)); gap: 10px; }
+  .picks.long { grid-template-columns: 1fr; }
+  .picks .k-btn { min-height: 52px; font-size: 1.1rem; }
+  .picks.long .k-btn { min-height: 48px; font-size: 1.02rem; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why, .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }
+</style>
+
+<p class="lead">A beaker of melting ice on a heater, with a graph of its temperature against the energy put in. Every mass, power and puzzle value is an example.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 340" width="100%" role="img" aria-label=""><g id="art"></g><g id="ui"><rect class="grip" id="grip" x="0" y="0" width="0" height="0" tabindex="-1" role="slider" aria-label="Energy put in" aria-orientation="horizontal"/></g></svg>
+    <div class="k-controls" id="ctl"></div>
+    <div id="hold" hidden></div>
+    <p class="say" id="say"></p>
+    <div class="k-readouts" id="outs"></div>
+    <div class="replay" id="replay"></div>
+    <div class="picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Warming takes mass × specific heat capacity × rise. Melting and boiling take in energy at a steady temperature.</p>
+
+<script>
+  // ---------- the rule: energy in -> temperature, for ice that starts at 0 °C ----------
+  // Melting takes LF kJ per kg at 0 °C, warming takes C kJ per kg per °C, and boiling takes LV kJ per
+  // kg at 100 °C. The picture stops when the water is all steam.
+  const C = 4.2, LF = 334, LV = 2260, CSEA = 3.85;
+  const BBC1 = 'https://www.bbc.co.uk/bitesize/guides/zpjpgdm/revision/4';
+  const NES = 'https://www.mtel.nesinc.com/Content/Docs/NES_Formulas_321.pdf';
+  const SEA = 'https://talleylab.ucsd.edu/sio210/lect_2/lecture_2.html';
+  const BBC2 = 'https://www.bbc.co.uk/bitesize/guides/z2gjtv4/revision/5';
+  const OPENSTAX = 'https://openstax.org/books/physics/pages/11-3-phase-change-and-latent-heat';
+  const SPEED = 120;        // Heat runs 120 s of heater time each second
+  const EPS = 1e-6, FADE = 0.35, ANS = 2.0;
+  const meltE = (m) => m * LF, warmE = (m) => m * C * 100, boilE = (m) => m * LV;
+  const totalE = (m) => meltE(m) + warmE(m) + boilE(m);
+  // Where m kg stands after E kJ: its temperature, how much is ice, water and steam, and how the
+  // energy split between warming and changing phase.
+  function phaseAt(m, E) {
+    const a = meltE(m), b = a + warmE(m), z = totalE(m);
+    E = K.clamp(+E || 0, 0, z);
+    if (E < a - EPS) return { T: 0, ice: m * (1 - E / a), water: m * E / a, steam: 0, warm: 0, phase: E, stage: E <= EPS ? 'none' : 'melt' };
+    if (E <= a + EPS) return { T: 0, ice: 0, water: m, steam: 0, warm: 0, phase: E, stage: 'melted' };
+    if (E < b - EPS) return { T: (E - a) / (m * C), ice: 0, water: m, steam: 0, warm: E - a, phase: a, stage: 'warm' };
+    if (E <= b + EPS) return { T: 100, ice: 0, water: m, steam: 0, warm: E - a, phase: a, stage: 'hot' };
+    const s = Math.min(m, (E - b) / LV);
+    return { T: 100, ice: 0, water: Math.max(0, m - s), steam: s, warm: b - a, phase: a + (E - b), stage: E < z - EPS ? 'boil' : 'gone' };
+  }
+  function curvePts(m, E1) {
+    const a = meltE(m), b = a + warmE(m), e = K.clamp(E1, 0, totalE(m)), pts = [[0, 0], [Math.min(e, a), 0]];
+    if (e > a) pts.push([Math.min(e, b), (Math.min(e, b) - a) / (m * C)]);
+    if (e > b) pts.push([e, 100]);
+    return pts;
+  }
+  const fx = (v, dp) => K.fmt(v, { decimals: dp || 0 });
+  const mfmt = (m) => K.fmt(m, { sig: 2 });
+  const kOf = (t) => fx(Math.round(t) + 273);   // a reading in kelvin, rounded as 0 °C is about 273 K
+
+  // Every number the words and pictures print, worked out from the rule.
+  const N = {
+    c: fx(C * 1000), lf: fx(LF), lv: fx(LV), cs: fx(CSEA * 1000), c1: fx(C, 1), slope: fx(1 / C, 2),
+    rise1: fx(70 - 20), q1: fx(2 * C * (70 - 20)), q1a: fx(2 * C * 70), q1b: fx(C * (70 - 20)),
+    q1J: fx(2 * C * 1000 * (70 - 20)), q1aJ: fx(2 * C * 1000 * 70), q1bJ: fx(C * 1000 * (70 - 20)),
+    cupDrop: fx(80 - 20), tankDrop: fx(30 - 20), cup: fx(0.25 * C * (80 - 20)), cupJ: fx(0.25 * C * 1000 * (80 - 20)),
+    tankJ: fx(100 * C * 1000 * (30 - 20)), tankMJ: fx(100 * C * (30 - 20) / 1000, 1), tankKJ: fx(100 * C * (30 - 20)),
+    ketDrop: fx(90 - 20), t2Drop: fx(25 - 20), kettle: fx(2 * C * (90 - 20)), kettleJ: fx(2 * C * 1000 * (90 - 20)),
+    tank2: fx(50 * C * (25 - 20)), tank2J: fx(50 * C * 1000 * (25 - 20)),
+    p48: fx(200 / C), p60: fx(200 / LF * 100),
+    w2: fx(warmE(2)), w1: fx(warmE(1)), wh: fx(warmE(1) / 2),
+    t112: fx((100 - 20) * C / 3), boilMin: fx(LV / 3 / 60, 1),
+    e5: fx(3 * 5 * 60), kg5: fx(3 * 5 * 60 / LV, 1), t314: fx(100 + 3 * 5 * 60 / C),
+    r80: fx(100 - 20), k353: fx(100 - 20 + 273), k373: fx(100 + 273), k293: fx(20 + 273), k273: fx(273),
+    sea: fx(2 * CSEA * 10), seaJ: fx(2 * CSEA * 1000 * 10), sea84: fx(2 * C * 10), sea84J: fx(2 * C * 1000 * 10),
+    sea77: fx(2 * CSEA, 1), sea77J: fx(2 * CSEA * 1000),
+    m05: fx(meltE(0.5)), w05: fx(warmE(0.5)), i05: fx(meltE(0.5) + warmE(0.5)), i1: fx(meltE(1) + warmE(1)),
+  };
+  const map = (pairs) => Object.fromEntries(pairs);
+  const B1 = meltE(1) + warmE(1), M2 = meltE(2);
+
+  // ---------- the lesson: SHOW screens demonstrate, DO screens are puzzles ----------
+  // pic 'curve': the beaker, the energy bar, the graph and the thermometer. A live screen (live:
+  // which sliders show) is moved by Dan; its demonstration runs the energy from 0 to target between
+  // e0 and e1 seconds. A puzzle's graph starts at E0 and a right answer carries it to E1.
+  // pic 'sum', 'flow': a worked sum under the picture (ow: each answer's working).
+  // pic 'cool': bars of heat given out. pic 'scale': Celsius and kelvin side by side.
+  const STEPS = [
+    { kind: 'pick', name: 'Still there?', pic: 'sum', right: 'Still there.', slip: `${N.q1a} kJ`,
+      rule: `energy = mass × ${N.c} × rise`,
+      opts: [`${N.q1a} kJ`, `${N.q1b} kJ`, `${N.q1} kJ`], want: `${N.q1} kJ`,
+      ow: map([[`${N.q1} kJ`, [`2 × ${N.c} × ${N.rise1} = ${N.q1J} J`, `= ${N.q1} kJ`]], [`${N.q1a} kJ`, [`2 × ${N.c} × 70 = ${N.q1aJ} J`, `= ${N.q1a} kJ`]],
+        [`${N.q1b} kJ`, [`${N.c} × ${N.rise1} = ${N.q1bJ} J`, `= ${N.q1b} kJ`]]]),
+      task: `A quick one to start. 2 kg of water warms from 20 °C to 70 °C. Water's *specific heat capacity* is ${N.c} J per kg per °C. How much energy goes in?`,
+      why: `Specific heat capacity is the energy to warm 1 kg by 1 °C. So energy = mass × specific heat capacity × rise. The rise is 70 − 20 = ${N.rise1} °C. So 2 × ${N.c} × ${N.rise1} = ${N.q1J} J, which is ${N.q1} kJ.`,
+      hint: `Not quite. Multiply mass × ${N.c} × rise.`,
+      hints: map([[`${N.q1a} kJ`, `Not quite. Use the rise, 70 − 20 = ${N.rise1} °C, not the end temperature.`], [`${N.q1b} kJ`, 'Not quite. That warms 1 kg. Multiply by the 2 kg too.']]) },
+    { show: true, name: 'Hotter is not more', pic: 'cool', dur: 3.6, room: 20,
+      rows: [{ label: 'Cup, 0.25 kg at 80 °C', val: `${N.cup} kJ`, kj: 0.25 * C * (80 - 20) }, { label: 'Tank, 100 kg at 30 °C', val: `${N.tankMJ} MJ`, kj: 100 * C * (30 - 20), big: true }],
+      text: `Temperature tells you how hot something is. Heat is energy moving into or out of it. The two are not the same thing. A 0.25 kg cup of water at 80 °C cools to a 20 °C room. It gives out 0.25 × ${N.c} × ${N.cupDrop} = ${N.cupJ} J, or ${N.cup} kJ. A 100 kg tank at 30 °C cools to the same room. It gives out 100 × ${N.c} × ${N.tankDrop} = ${N.tankJ} J, or ${N.tankMJ} MJ. The cup is hotter, but the tank gives out over 60 times as much.` },
+    { kind: 'pick', name: 'Kettle or tank', pic: 'cool', room: 20,
+      rows: [{ label: 'Kettle, 2 kg at 90 °C', val: `${N.kettle} kJ`, kj: 2 * C * (90 - 20) }, { label: 'Tank, 50 kg at 25 °C', val: `${N.tank2} kJ`, kj: 50 * C * (25 - 20), big: true }],
+      opts: ['The kettle, it is hotter', 'The tank', 'The same'], want: 'The tank', redless: ['The kettle, it is hotter', 'The same'],
+      task: 'A 2 kg kettle of water is at 90 °C. A 50 kg tank of water is at 25 °C. Both cool to a 20 °C room. Which gives out more heat?',
+      why: `The kettle drops ${N.ketDrop} °C. It gives out 2 × ${N.c} × ${N.ketDrop} = ${N.kettleJ} J, or ${N.kettle} kJ. The tank drops only ${N.t2Drop} °C, but it holds 50 kg. It gives out 50 × ${N.c} × ${N.t2Drop} = ${N.tank2J} J, or ${N.tank2} kJ. The cooler tank gives out more.`,
+      hint: `Not quite. Work out mass × ${N.c} × drop for each one.`,
+      hints: { 'The kettle, it is hotter': `Not quite. Hotter does not mean more. Work out mass × ${N.c} × drop for each one.`, 'The same': `Not quite. Work out mass × ${N.c} × drop for each one.` } },
+    { show: true, name: 'Melting', pic: 'curve', live: { mass: false, power: true }, m: 1, P: 3, ax: 1600, target: meltE(1), e0: 0.4, e1: 3.4, dur: 4.0,
+      text: `Now put 1 kg of melting ice on a heater. The graph plots its temperature against the energy put in. For the first ${N.lf} kJ the line stays flat at 0 °C. The energy melts the ice instead of warming it. This is called *latent heat*. It is energy taken in or given out as a material changes between solid, liquid and gas, with no change of temperature. Drag along the graph, or press Heat.`,
+      read: `Now put 1 kg of melting ice on a heater. The graph plots its temperature against the energy put in. For the first ${N.lf} kJ the line stays flat at 0 °C. The energy melts the ice instead of warming it. This is called *latent heat*. It is energy taken in or given out as a material changes between solid, liquid and gas, with no change of temperature. The bar counts it as changing phase.` },
+    { kind: 'pick', name: '200 kJ into ice', pic: 'curve', m: 1, ax: 1600, E0: 0, E1: 200, guide: 200, known0: false,
+      endLab: [200, 0, 'still melting', -8],
+      opts: [`near ${N.p48} °C`, '0 °C', `near ${N.p60} °C`], want: '0 °C',
+      bad: map([[`near ${N.p48} °C`, [{ line: [[0, 0], [200, 200 / C]] }, { dot: [200, 200 / C] }, { lab: [200, 200 / C, `${N.p48} °C`, 4.5] }]],
+        [`near ${N.p60} °C`, [{ line: [[0, 0], [LF, 100]] }, { dot: [200, 200 / LF * 100] }, { lab: [200, 200 / LF * 100, `${N.p60} °C`, 4.5] }]]]),
+      task: '1 kg of ice sits at 0 °C, melting. 200 kJ goes in. What does the thermometer read?',
+      why: `Melting 1 kg takes ${N.lf} kJ. 200 kJ is not enough to melt it all. So the ice is still melting, and the thermometer stays at 0 °C. Temperature follows how fast the molecules jiggle. Melting spends the energy on loosening their hold on each other instead.`,
+      hint: 'Not quite. Ask whether the ice has all melted yet.',
+      hints: map([[`near ${N.p48} °C`, `Not quite. 200 ÷ ${N.c1} is about ${N.p48}, but that rule is for warming. This ice is still melting.`],
+        [`near ${N.p60} °C`, 'Not quite. The energy does not spread over the climb. Melting comes first, at a steady temperature.']]) },
+    { show: true, name: 'The climb', pic: 'curve', live: { mass: true, power: true }, m: 1, P: 3, ax: 1600, target: B1, e0: 0.4, e1: 3.4, dur: 4.2, ref: true,
+      text: `Once the ice has melted, the line climbs. Each kJ warms 1 kg of water by 1 ÷ ${N.c1}, about ${N.slope} °C. Warming 1 kg from 0 °C to 100 °C takes ${N.w1} kJ. The dashed lines show 1 kg and 2 kg. Twice the water shares each kJ, so 2 kg climbs half as steeply. Set the mass and watch the slope change.`,
+      read: `Once the ice has melted, the line climbs. Each kJ warms 1 kg of water by 1 ÷ ${N.c1}, about ${N.slope} °C. Warming 1 kg from 0 °C to 100 °C takes ${N.w1} kJ. The dashed lines show 1 kg and 2 kg. Twice the water shares each kJ, so 2 kg climbs half as steeply. A smaller mass climbs more steeply.` },
+    { kind: 'pick', name: '2 kg to 100 °C', pic: 'curve', m: 2, ax: 1600, E0: M2, E1: M2 + warmE(2), known0: true,
+      endBrk: [M2, M2 + warmE(2), `${N.w2} kJ`],
+      opts: [`${N.w2} kJ`, `${N.w1} kJ`, `${N.wh} kJ`], want: `${N.w2} kJ`,
+      bad: map([[`${N.w1} kJ`, [{ line: [[M2, 0], [M2 + warmE(1), 100]] }, { dot: [M2 + warmE(1), 100] }, { lab: [M2 + warmE(1), 100, `${N.w1} kJ`, 4.5] }]],
+        [`${N.wh} kJ`, [{ line: [[M2, 0], [M2 + warmE(1) / 2, 100]] }, { dot: [M2 + warmE(1) / 2, 100] }, { lab: [M2 + warmE(1) / 2, 100, `${N.wh} kJ`, 4.5] }]]]),
+      task: 'Now 2 kg of water starts at 0 °C. How much energy takes it to 100 °C?',
+      why: `Each kg needs ${N.c1} kJ for each °C. So 2 × ${N.c1} × 100 = ${N.w2} kJ. Twice the mass takes twice the energy, so its line climbs half as steeply.`,
+      hint: `Not quite. Multiply mass × ${N.c1} kJ × rise.`,
+      hints: map([[`${N.w1} kJ`, `Not quite. ${N.w1} kJ warms 1 kg. Here there are 2 kg.`], [`${N.wh} kJ`, 'Not quite. Twice the mass takes twice the energy, not half.']]) },
+    { show: true, name: 'Boiling', pic: 'curve', live: { mass: true, power: true }, m: 1, P: 3, ax: 6100, target: totalE(1), e0: 0.4, e1: 3.6, dur: 4.2, boil: true,
+      text: `At 100 °C the line goes flat again for ${N.lv} kJ while the water turns to steam. That is over five times the ${N.w1} kJ that warmed it from 0 °C. A 3 kW heater warms 1 kg from 20 °C to 100 °C in ${N.t112} s. Then it takes about ${N.boilMin} minutes more to boil it away. Water boils at 100 °C at normal atmospheric pressure. Under a different pressure it boils at a different temperature.` },
+    { kind: 'pick', name: 'Five minutes at 100 °C', pic: 'curve', m: 1, ax: 6100, heater: '3 kW heater', E0: B1, E1: B1 + 3 * 5 * 60, known0: true,
+      span: [B1, B1 + 3 * 5 * 60, '5 min at 3 kW'],
+      endLab: [B1 + 3 * 5 * 60, 100, `${N.kg5} kg boiled away`, -8],
+      opts: [`It reaches near ${N.t314} °C`, 'It all boils away', `It stays at 100 °C, and about ${N.kg5} kg boils away`], want: `It stays at 100 °C, and about ${N.kg5} kg boils away`,
+      bad: map([[`It reaches near ${N.t314} °C`, [{ line: [[B1, 100], [B1 + 10 * C, 110]] }, { head: B1 + 10 * C }, { lab: [B1, 100, `on to ${N.t314} °C`, -8.5] }]],
+        ['It all boils away', [{ brk: [B1, totalE(1), 260, `all 1 kg needs ${N.lv} kJ`] }]]]),
+      task: 'A 3 kW heater runs for 5 minutes on 1 kg of water already at 100 °C. What happens?',
+      why: `5 minutes is 300 s. 3 kW for 300 s puts in ${N.e5} kJ. Boiling takes ${N.lv} kJ for each kg. So ${N.e5} ÷ ${N.lv} is about ${N.kg5} kg boiled away. The rest is still water at 100 °C.`,
+      hint: 'Not quite. Work out the energy first: power × time.',
+      hints: map([[`It reaches near ${N.t314} °C`, 'Not quite. At 100 °C the energy turns water to steam. It does not warm it any further.'],
+        ['It all boils away', `Not quite. 5 minutes at 3 kW is ${N.e5} kJ. Boiling 1 kg away takes ${N.lv} kJ.`]]) },
+    { show: true, name: 'Two scales', pic: 'scale', dur: 3.2,
+      text: `A *kelvin* is the same size step as a degree Celsius. Only its zero is different. 0 °C is just where ice melts, and plenty of things are colder. The kelvin scale starts at absolute zero, −273.15 °C. So ice at 0 °C is at about ${N.k273} K, and it still holds energy. A rise of 100 °C is a rise of 100 K, because the steps are the same size.` },
+    { kind: 'pick', name: 'A rise in kelvin', pic: 'scale',
+      opts: [`${N.r80} K`, `${N.k353} K`, `${N.k373} K`], want: `${N.r80} K`,
+      ring: map([[`${N.k353} K`, [80, `${N.k353} K is a temperature, 80 °C`]], [`${N.k373} K`, [100, `${N.k373} K is where it ends`]]]),
+      task: 'Water warms from 20 °C to 100 °C. What is its rise in kelvin?',
+      why: `The steps are the same size, so a rise of ${N.r80} °C is a rise of ${N.r80} K. In kelvin it goes from ${N.k293} K to ${N.k373} K, which is ${N.r80} K.`,
+      hint: 'Not quite. A rise is end minus start.',
+      hints: map([[`${N.k353} K`, 'Not quite. Adding 273 turns a temperature into kelvin. A rise needs no 273.'], [`${N.k373} K`, `Not quite. ${N.k373} K is where it ends. The rise is end minus start.`]]) },
+    { kind: 'pick', name: 'A seawater cooler', pic: 'flow',
+      rule: `heat each second = kg × ${N.cs} × rise`,
+      opts: [`${N.sea84} kW`, `${N.sea} kW`, `${N.sea77} kW`], want: `${N.sea} kW`,
+      ow: map([[`${N.sea} kW`, [`2 × ${N.cs} × 10 = ${N.seaJ} J each second`, `= ${N.sea} kW`]], [`${N.sea84} kW`, [`2 × ${N.c} × 10 = ${N.sea84J} J each second`, `= ${N.sea84} kW`]],
+        [`${N.sea77} kW`, [`2 × ${N.cs} = ${N.sea77J} J each second`, `= ${N.sea77} kW`]]]),
+      task: `2 kg of seawater passes through a cooler each second and warms by 10 °C. Seawater takes about ${N.cs} J per kg per °C. How much heat does it carry away?`,
+      why: `Each second it carries 2 × ${N.cs} × 10 = ${N.seaJ} J. A joule each second is a watt. So it carries away ${N.sea} kW.`,
+      hint: `Not quite. Multiply kg each second × ${N.cs} × rise.`,
+      hints: map([[`${N.sea84} kW`, `Not quite. That uses fresh water's ${N.c}. Seawater's is ${N.cs}.`], [`${N.sea77} kW`, 'Not quite. Multiply by the 10 °C rise too.']]) },
+    { kind: 'pick', name: 'Ice to 100 °C', pic: 'curve', m: 0.5, ax: 1600, E0: 0, E1: meltE(0.5) + warmE(0.5), known0: true,
+      endLab: [meltE(0.5) + warmE(0.5), 100, `${N.i05} kJ`, 4.5],
+      opts: [`${N.w05} kJ`, `${N.i1} kJ`, `${N.i05} kJ`], want: `${N.i05} kJ`,
+      bad: map([[`${N.w05} kJ`, [{ line: [[0, 0], [warmE(0.5), 100]] }, { dot: [warmE(0.5), 100] }, { lab: [warmE(0.5), 100, `${N.w05} kJ`, 4.5] }]],
+        [`${N.i1} kJ`, [{ line: curvePts(1, B1) }, { dot: [B1, 100] }, { lab: [B1, 100, `${N.i1} kJ`, 4.5] }]]]),
+      task: '0.5 kg of ice sits at 0 °C, melting. How much energy turns it into water at 100 °C?',
+      why: `Melting 0.5 kg takes 0.5 × ${N.lf} = ${N.m05} kJ. Warming it from 0 °C to 100 °C takes 0.5 × ${N.c1} × 100 = ${N.w05} kJ. Together that is ${N.i05} kJ.`,
+      hint: 'Not quite. Melt it first, then warm it.',
+      hints: map([[`${N.w05} kJ`, 'Not quite. That warms the water but leaves out melting the ice first.'], [`${N.i1} kJ`, 'Not quite. That is for 1 kg. Here there is 0.5 kg.']]) },
+  ];
+  const FINISH = 'Warming takes mass × specific heat capacity × temperature rise. Melting or boiling takes in energy with no change of temperature. So a temperature alone does not tell you how much energy went in or will come out.';
+  const PICK = 'Pick an answer first.';
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- each step's state ----------
+  function blank() { return { pick: null, res: null, why: false }; }
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity, motionEnd = 0;
+  let demoSet = 0, heatE = 0, heatDone = false, REC = null, AX = 1600;
+  const el = (id) => document.getElementById(id);
+
+  // ---------- words with amber key terms (built with K.el, never innerHTML) ----------
+  function write(node, s) {
+    node.textContent = '';
+    s = String(s || '');
+    const re = /\*([^*]+)\*/g;
+    let pos = 0, m;
+    while ((m = re.exec(s))) {
+      if (m.index > pos) node.appendChild(document.createTextNode(s.slice(pos, m.index)));
+      node.appendChild(K.el('span', { class: 'term' }, m[1]));
+      pos = m.index + m[0].length;
+    }
+    if (pos < s.length) node.appendChild(document.createTextNode(s.slice(pos)));
+    return node;
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);
+  const massCtl = K.control({ id: 'mass', label: 'Mass', min: 0.5, max: 2, step: 0.1, value: 1, unit: 'kg', snap: [1, 2], into: '#ctl' });
+  const powerCtl = K.control({ id: 'power', label: 'Heater power', min: 1, max: 3, step: 0.5, value: 3, unit: 'kW', into: '#ctl' });
+  // The energy put in: Dan drags it along the graph, or Heat puts it in at the heater's power.
+  const energyCtl = K.control({ id: 'energy', label: 'Energy put in', min: 0, max: 6100, step: 1, value: 0, unit: 'kJ', into: '#hold' });
+  K.readout({ id: 'energyIn', label: 'Energy put in', unit: 'kJ', decimals: 0, into: '#outs' });
+  K.readout({ id: 'heaterTime', label: 'Heater time', unit: 's', decimals: 0, into: '#outs' });
+
+  // A screen's settings: its own mass and power unless its slider shows.
+  function cfgOf(i, p) {
+    const d = STEPS[i], L = d.live || {};
+    return { m: L.mass ? K.clamp(+p.mass || 1, 0.5, 2) : (d.m || 1), P: L.power ? K.clamp(+p.power || 3, 1, 3) : (d.P || 3), ax: d.ax || 1600 };
+  }
+  K.model((p) => {
+    const i = K.clamp(Math.round(+p.step) || 0, 0, STEPS.length - 1), g = cfgOf(i, p);
+    const E = K.clamp(+p.energy || 0, 0, Math.min(g.ax, totalE(g.m)));
+    return { waterTemp: phaseAt(g.m, E).T, energyIn: E, heaterTime: E / g.P };
+  });
+
+  // The heater: each second of Play puts in power × SPEED kJ, until the graph's end or all is steam.
+  const heat = K.anim({ label: 'Heat', into: '#ctl', reset: () => { heatE = 0; heatDone = false; energyCtl.set(0, true); K.refresh(); }, step: (dt) => {
+    const i = at(), d = STEPS[i];
+    if (finished || !d.live) return false;
+    if (anim.playing()) { anim.pause(); T = Infinity; }
+    const p = K.params(), g = cfgOf(i, p), lim = Math.min(g.ax, totalE(g.m));
+    if (heatDone && Math.abs(p.energy - lim) < 1) heatE = 0;
+    else if (Math.abs(heatE - p.energy) >= 1) heatE = K.clamp(p.energy, 0, lim);
+    heatDone = false;
+    heatE = Math.min(lim, heatE + g.P * SPEED * dt);
+    energyCtl.set(heatE, true);
+    K.refresh();
+    if (heatE >= lim - 1e-9) { heatDone = true; return false; }
+    return true;
+  } });
+
+  // Up to three answer buttons; each step fills in its own options.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = d.opts[k]; st.res = null;
+    if (was) { anim.pause(); T = Infinity; }
+  } }));
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished || st.res === 'right') return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = st.pick === d.want ? 'right' : 'wrong';
+    play(ANS);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const d = STEPS[at()];
+    if (!d.show || d.live || finished) return;
+    play(d.dur);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true; heat.pause(); anim.pause(); T = Infinity;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration and the motion after an answer; with reduced motion
+  // (and while the self-test looks) everything opens finished.
+  const demoE = (d, t) => d.target * K.clamp((t - d.e0) / (d.e1 - d.e0), 0, 1);
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    const d = STEPS[at()];
+    if (d.live) { demoSet = Math.round(demoE(d, T)); energyCtl.set(demoSet, true); K.refresh(); }
+    else paint();
+    return T < motionEnd;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; K.refresh(); } });
+  function play(dur) {
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+  // A new screen: a live one takes its own mass and power and runs its energy in from 0.
+  function onEnter(i) {
+    const d = STEPS[i];
+    heat.pause(); heatDone = false;
+    if (d.live) { massCtl.set(d.m, true); powerCtl.set(d.P, true); }
+    if (d.show) play(d.dur); else { anim.pause(); T = Infinity; }
+    if (d.live) { demoSet = T === Infinity ? Math.round(d.target) : 0; energyCtl.set(demoSet, true); heatE = demoSet; }
+  }
+  function stopMotion() { if (anim.playing()) { anim.pause(); T = Infinity; } heat.pause(); }
+
+  // ---------- drawing ----------
+  const svg = el('scene'), art = el('art'), grip = el('grip');
+  let into = null;
+  const add = (n) => (into || art).appendChild(n);
+  const r2 = (v) => Math.round(v * 100) / 100;
+  const sv = (tag, a) => add(K.svg(tag, a));
+  const path = (d, cls) => sv('path', { class: cls, d });
+  function text(x, y, s, cls, anchor) {
+    s = String(s);
+    if (REC) REC.texts.push(s);
+    return add(K.svg('text', { class: cls, x: r2(x), y: r2(y), 'text-anchor': anchor || 'middle' }, s));
+  }
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function arr(t0, d) {
+    d = d == null ? K.SOFT : d;
+    if (t0 + d > latest) latest = t0 + d;
+    if (t0 < earliest) earliest = t0;
+    return K.arrive(T, t0, d);
+  }
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  function brk(x1, x2, y, cls, up) {
+    const e = up ? y - 5 : y + 5;
+    path('M' + r2(x1) + ' ' + e + ' V' + y + ' H' + r2(x2) + ' V' + e, 'brk' + (cls ? ' ' + cls : ''));
+  }
+
+  // The beaker on its heater: water from the bottom, ice cubes floating in the top rows, steam above.
+  const BX0 = 26, BX1 = 94, BY0 = 12, BYB = 84;
+  function drawBeaker(m, ph, o) {
+    o = o || {};
+    const hc = 28 * m, floor = BYB - 1, wh = hc * ph.water / m, top = floor - hc, labs = [];
+    if (wh > 0.3) {
+      sv('rect', { class: 'water', x: BX0 + 1.5, y: r2(floor - wh), width: BX1 - BX0 - 3, height: r2(wh) });
+      labs.push({ y: floor - wh / 2, s: o.water || 'water' });
+    }
+    if (ph.ice > 1e-9) {
+      const rows = Math.max(1, Math.round(hc / 15)), pitch = hc / rows, size = Math.min(13, pitch - 1.5);
+      const n = rows * 4 * ph.ice / m, full = Math.floor(n + 1e-9), rest = n - full, count = full + (rest > 0.02 ? 1 : 0);
+      for (let k = 0; k < count; k++) {
+        const s = k < full ? size : size * Math.sqrt(rest), cx = BX0 + 10 + (k % 4) * 16, cy = top + pitch * (Math.floor(k / 4) + 0.5);
+        sv('rect', { class: 'ice', x: r2(cx - s / 2), y: r2(cy - s / 2), width: r2(s), height: r2(s), rx: 2 });
+      }
+      labs.push({ y: top + pitch * Math.ceil(count / 4) / 2, s: 'ice' });
+    }
+    if (ph.steam > 1e-9) {
+      const surf = floor - hc * (ph.water + ph.ice) / m;
+      [40, 60, 80].forEach((x, k) => {
+        let y = surf - 4 - (k % 2) * 4, d = 'M' + x + ' ' + r2(y), segs = 0;
+        while (y - 12 >= 1) { d += ' c -5 -4 5 -8 0 -12'; y -= 12; segs++; }
+        if (segs) path(d, 'steam');
+      });
+      labs.push({ y: 10, s: 'steam' });
+    }
+    path(`M${BX0} ${BY0} V${BYB - 5} Q${BX0} ${BYB} ${BX0 + 5} ${BYB} H${BX1 - 5} Q${BX1} ${BYB} ${BX1} ${BYB - 5} V${BY0}`, 'glass');
+    sv('rect', { class: 'plate', x: 18, y: 89, width: 84, height: 8, rx: 3 });
+    text(60, 111, o.heater || 'heater', 'lab m');
+    // Names beside the beaker, kept 15 apart.
+    labs.sort((a, b) => a.y - b.y);
+    let prev = -Infinity;
+    labs.forEach((l) => { l.y = Math.max(l.y + 4.5, prev + 15, 14); prev = l.y; });
+    for (let k = labs.length - 1, lim = 88; k >= 0; k--) { labs[k].y = Math.min(labs[k].y, lim); lim = labs[k].y - 15; }
+    labs.forEach((l) => text(BX1 + 5, l.y, l.s, 'lab m', 'start'));
+  }
+
+  // The bar: where the energy put in has gone so far, on the graph's energy scale.
+  function drawBar(ph) {
+    const X = 140, W = 190, f = W / AX, pw = ph.phase * f, ww = ph.warm * f;
+    text(X, 20, 'Where the energy went', 'lab t', 'start');
+    sv('rect', { class: 'track', x: X, y: 28, width: W, height: 16, rx: 4 });
+    if (pw > 0.3) sv('rect', { class: 'sw3', x: X, y: 28, width: r2(pw), height: 16, rx: 2 });
+    if (ww > 0.3) sv('rect', { class: 'sw1', x: r2(X + pw), y: 28, width: r2(ww), height: 16, rx: 2 });
+    sv('rect', { class: 'sw3', x: X, y: 54, width: 14, height: 14, rx: 2 });
+    text(X + 20, 66, `Changing phase ${fx(ph.phase)} kJ`, 'lab', 'start');
+    sv('rect', { class: 'sw1', x: X, y: 76, width: 14, height: 14, rx: 2 });
+    text(X + 20, 88, `Warming ${fx(ph.warm)} kJ`, 'lab', 'start');
+    REC.bar = { warm: ph.warm, phase: ph.phase };
+  }
+
+  // The graph: temperature 0 to 110 °C up, energy put in along.
+  const GX0 = 46, GX1 = 262, GYT = 136, GYB = 296, TTOP = 110, TX = 279;
+  const gx = (E) => GX0 + E / AX * (GX1 - GX0), gy = (t) => GYB - t / TTOP * (GYB - GYT);
+  const pd = (pts) => pts.map((q, k) => (k ? 'L' : 'M') + r2(gx(q[0])) + ' ' + r2(gy(q[1]))).join(' ');
+  function drawAxes() {
+    path(`M${GX0} ${GYT} V${GYB} H${GX1}`, 'ax');
+    [0, 50, 100].forEach((t) => { sv('line', { class: 'tk', x1: GX0 - 4, y1: r2(gy(t)), x2: GX0, y2: r2(gy(t)) }); text(GX0 - 10, gy(t) + 4.5, fx(t), 'tl', 'end'); });
+    text(GX0 - 10, GYT - 6, '°C', 'tl', 'end');
+    const ticks = AX > 2000 ? [0, 2000, 4000, 6000] : [0, 500, 1000, 1500];
+    ticks.forEach((e, k) => {
+      const x = r2(gx(e));
+      sv('line', { class: 'tk', x1: x, y1: GYB, x2: x, y2: GYB + 4 });
+      text(x, GYB + 17, fx(e), 'tl', k === 0 ? 'start' : k === ticks.length - 1 && AX > 2000 ? 'end' : 'middle');
+    });
+    text((GX0 + GX1) / 2, GYB + 36, 'Energy put in (kJ)', 'tl');
+  }
+  // The thermometer beside the graph, its column level with the graph's temperature scale.
+  function drawThermo(t, known) {
+    sv('rect', { class: 'tube', x: TX - 5, y: GYT - 6, width: 10, height: GYB - GYT + 12, rx: 5 });
+    sv('circle', { class: 'col', cx: TX, cy: GYB + 11, r: 8.5 });
+    if (known) sv('rect', { class: 'col', x: TX - 2.5, y: r2(gy(t)), width: 5, height: r2(GYB + 6 - gy(t)) });
+    [0, 100].forEach((c) => { sv('line', { class: 'tk', x1: TX + 5, y1: r2(gy(c)), x2: TX + 10, y2: r2(gy(c)) }); text(TX + 13, gy(c) + 4.5, fx(c + 273) + ' K', 'tl', 'start'); });
+    const s = known ? `${fx(t)} °C · ${kOf(t)} K` : 'reads ?';
+    text(338, 114, s, 'rd', 'end');
+    REC.reading = s;
+  }
+  function dot(E, t) { sv('circle', { class: 'dot', cx: r2(gx(E)), cy: r2(gy(t)), r: 6 }); REC.dot = [E, t]; }
+  // A wrong answer, drawn in red where the graph can show it.
+  function drawBad(list) {
+    list.forEach((b) => {
+      REC.bad++;
+      if (b.line) path(pd(b.line), 'bad');
+      if (b.dot) { sv('circle', { class: 'badf', cx: r2(gx(b.dot[0])), cy: r2(gy(b.dot[1])), r: 5 }); REC.badDots.push(b.dot); }
+      if (b.head != null) { const x = r2(gx(b.head)); path(`M${x} ${GYT - 12} L${x - 5} ${GYT - 2} L${x + 5} ${GYT - 2} Z`, 'badf'); }
+      if (b.lab) text(gx(b.lab[0]) + 8, gy(b.lab[1]) + b.lab[3], b.lab[2], 'lab w', 'start');
+      if (b.brk) { brk(gx(b.brk[0]), gx(b.brk[1]), b.brk[2], 'w', false); text(gx(b.brk[0]) + 2, b.brk[2] - 5, b.brk[3], 'lab w', 'start'); }
+    });
+  }
+  function stageWords(ph) {
+    return { none: 'No energy has gone in yet, and the ice sits at 0 °C.', melt: 'The line runs flat at 0 °C while the ice melts.',
+      melted: 'The ice has all melted, and the water is still at 0 °C.', warm: `The line climbs as the water warms, now at ${fx(ph.T)} °C.`,
+      hot: 'The water has just reached 100 °C.', boil: 'The line runs flat at 100 °C while the water boils away.', gone: 'All the water has boiled away.' }[ph.stage];
+  }
+
+  // A live screen: Dan's mass, power and energy.
+  function paintLive(i, d, p) {
+    const g = cfgOf(i, p), m = g.m;
+    AX = g.ax;
+    const E = K.clamp(+p.energy || 0, 0, Math.min(AX, totalE(m))), ph = phaseAt(m, E), b = meltE(m) + warmE(m), fe = AX * 0.04;
+    drawBeaker(m, ph); drawBar(ph); drawAxes();
+    if (d.ref) part(arr(3.5), 0, () => [1, 2].forEach((rm) => {
+      const rb = meltE(rm) + warmE(rm);
+      path(pd(curvePts(rm, rb)), 'ref');
+      text(gx(rb), gy(100) - 8, mfmt(rm) + ' kg', 'lab m');
+    }));
+    if (E > 0) path(pd(curvePts(m, E)), 'curve');
+    if (d.boil) part(K.clamp((E - b) / fe, 0, 1), 0, () => {
+      brk(gx(b), gx(totalE(m)), r2(gy(100) - 9), 'n', false);
+      text(gx(b), gy(100) - 15, `${fx(boilE(m) / g.P / 60, 1)} min to boil away`, 'lab', 'start');
+    });
+    dot(E, ph.T);
+    drawThermo(ph.T, true);
+    return `A beaker of ${mfmt(m)} kg of ice and water on a heater, with a graph of its temperature against the energy put in. ${stageWords(ph)}`;
+  }
+  // A puzzle on the graph: its starting point, and after Check the answer or the slip in red.
+  function paintCurveDo(d, st) {
+    AX = d.ax;
+    const m = d.m, right = st.res === 'right', wrong = st.res === 'wrong' && st.pick != null;
+    const E = right ? K.lerp(d.E0, d.E1, K.ease(arr(0.1, 1.3))) : d.E0, ph = phaseAt(m, E);
+    drawBeaker(m, ph, { heater: d.heater });
+    drawBar(ph); drawAxes();
+    if (d.guide != null) { const x = r2(gx(d.guide)); sv('line', { class: 'guide', x1: x, y1: GYB, x2: x, y2: GYT }); text(x, GYT - 8, fx(d.guide) + ' kJ', 'lab m'); }
+    if (d.span) { brk(gx(d.span[0]), gx(d.span[1]), 284, '', false); text(gx(d.span[0]) + 2, 279, d.span[2], 'lab m', 'start'); }
+    if (E > 0) path(pd(curvePts(m, E)), 'curve');
+    dot(E, ph.T);
+    if (right && d.endBrk) part(arr(1.2), 0, () => { brk(gx(d.endBrk[0]), gx(d.endBrk[1]), 284, 'n', false); text(gx(d.endBrk[1]) - 2, 279, d.endBrk[2], 'lab', 'end'); });
+    if (right && d.endLab) part(arr(1.3), 0, () => text(gx(d.endLab[0]) + 8, gy(d.endLab[1]) + d.endLab[3], d.endLab[2], 'lab', 'start'));
+    if (wrong && d.bad && d.bad[st.pick]) part(arr(0.1), 0, () => drawBad(d.bad[st.pick]));
+    drawThermo(ph.T, d.known0 || right);
+    return `A beaker of ${mfmt(m)} kg on a heater, with a graph of its temperature against the energy put in. ${stageWords(ph)}` + (wrong ? ' The answer picked is drawn as a dashed line.' : '');
+  }
+  // The working under a sum: the rule until an answer is checked, then that answer's working.
+  function drawWork(d, st, y0) {
+    if (st.res !== 'right' && st.res !== 'wrong') { text(170, y0, d.rule, 'lab m'); return 'Under it: ' + d.rule + '.'; }
+    const right = st.res === 'right', lines = d.ow[st.pick];
+    if (!right) REC.bad++;
+    lines.forEach((s, k) => part(arr(0.3 + 0.3 * k), 4, () => text(170, y0 + 22 * k, s, right ? 'wk' : 'wk w')));
+    return ' ' + lines.join(' ') + '.';
+  }
+  function paintSum(d, st) {
+    const right = st.res === 'right', wrong = st.res === 'wrong' && st.pick != null, X = 230, ty = (t) => 160 - t * 1.3;
+    drawBeaker(2, { ice: 0, water: 2, steam: 0 }, { water: '2 kg water' });
+    sv('rect', { class: 'tube', x: X - 5, y: 24, width: 10, height: 142, rx: 5 });
+    sv('circle', { class: 'col', cx: X, cy: 170, r: 8.5 });
+    sv('rect', { class: 'col', x: X - 2.5, y: r2(ty(70)), width: 5, height: r2(166 - ty(70)) });
+    [[20, 'start 20 °C'], [70, 'end 70 °C']].forEach((q) => { sv('line', { class: 'tk', x1: X + 5, y1: r2(ty(q[0])), x2: X + 11, y2: r2(ty(q[0])) }); text(X + 15, ty(q[0]) + 4.5, q[1], 'lab', 'start'); });
+    if (right) part(arr(0.1), 0, () => {
+      path(`M${X - 7} ${r2(ty(70))} H${X - 13} V${r2(ty(20))} H${X - 7}`, 'brk n');
+      text(X - 17, (ty(20) + ty(70)) / 2 + 4.5, `rise ${N.rise1} °C`, 'lab', 'end');
+    });
+    if (wrong && st.pick === d.slip) part(arr(0.1), 0, () => {
+      REC.bad++;
+      path(`M${X - 7} ${r2(ty(70))} H${X - 13} V${r2(ty(0))} H${X - 7}`, 'brk w');
+      text(X - 17, (ty(0) + ty(70)) / 2 + 4.5, '0 to 70 °C', 'lab w', 'end');
+    });
+    return 'A beaker of 2 kg of water on a heater, and a thermometer marked at the start, 20 °C, and the end, 70 °C.' + (right ? ` A bracket marks the rise, ${N.rise1} °C.` : '') + drawWork(d, st, 206);
+  }
+  // Two containers and the heat each gives out cooling to the room, as bars on one scale.
+  function drawPot(big, y) {
+    if (big) { sv('rect', { class: 'water', x: 9.5, y: y + 10, width: 35, height: 31 }); path(`M8 ${y + 4} V${y + 42} H46 V${y + 4}`, 'glass'); }
+    else { sv('rect', { class: 'water', x: 19.5, y: y + 24, width: 19, height: 17 }); path(`M18 ${y + 16} V${y + 42} H40 V${y + 16}`, 'glass'); }
+  }
+  function paintCool(d, st) {
+    const show = !!d.show, right = st.res === 'right', W = 270, max = Math.max.apply(null, d.rows.map((r) => r.kj));
+    part(show ? arr(0.4) : 1, 0, () => text(8, 16, `Heat given out, cooling to a ${d.room} °C room`, 'lab t', 'start'));
+    const said = [];
+    d.rows.forEach((r, k) => {
+      const y = 30 + 66 * k, full = W * r.kj / max;
+      part(show ? arr(0.6 + 0.6 * k) : 1, 4, () => {
+        drawPot(!!r.big, y);
+        text(56, y + 14, r.label, 'lab', 'start');
+        sv('rect', { class: 'track', x: 56, y: y + 22, width: W, height: 18, rx: 4 });
+      });
+      const grow = show ? K.ease(arr(1.0 + 1.0 * k, 0.9)) : right ? K.ease(arr(0.1 + 0.2 * k, 1.0)) : 0;
+      if (grow > 0) sv('rect', { class: 'barf', x: 56, y: y + 22, width: r2(Math.max(1.5, full * grow)), height: 18, rx: 3 });
+      if (show || right) REC.bars.push(full);
+      part(show ? arr(1.9 + 1.0 * k) : right ? arr(1.2) : 0, 0, () => (full > 120 ? text(56 + full - 6, y + 36, r.val, 'onbar', 'end') : text(56 + full + 6, y + 36, r.val, 'lab', 'start')));
+      said.push(r.label + (show || right ? ': ' + r.val : ''));
+    });
+    return `Heat given out, cooling to a ${d.room} °C room. ` + said.join('. ') + '.';
+  }
+  // Celsius and kelvin: the whole kelvin scale from absolute zero, then the two side by side.
+  const ka = (k) => 20 + k * 300 / 383.15, kb = (c) => 30 + (c + 20) * 290 / 130;
+  function paintScale(d, st) {
+    const show = !!d.show, right = st.res === 'right', wrong = st.res === 'wrong' && st.pick != null;
+    part(show ? arr(0.4) : 1, 4, () => {
+      sv('line', { class: 'ax', x1: 20, y1: 40, x2: 320, y2: 40 });
+      [[0, 'absolute zero, −273.15 °C', '0 K', 'start'], [273.15, '0 °C', fx(273) + ' K', 'middle'], [373.15, '100 °C', fx(373) + ' K', 'middle']].forEach((q) => {
+        const x = r2(ka(q[0]));
+        sv('line', { class: 'tk', x1: x, y1: 34, x2: x, y2: 46 });
+        text(x, 28, q[1], 'lab m', q[3]); text(x, 62, q[2], 'lab m', q[3]);
+      });
+    });
+    part(show ? arr(1.0) : 1, 4, () => {
+      sv('line', { class: 'ax', x1: 30, y1: 120, x2: 320, y2: 120 });
+      for (let c = -20; c <= 100; c += 20) { const x = r2(kb(c)); sv('line', { class: 'tk', x1: x, y1: 114, x2: x, y2: 126 }); text(x, 108, fx(c), 'tl'); text(x, 142, fx(c + 273), 'tl'); }
+      text(336, 108, '°C', 'tl', 'end'); text(336, 142, 'K', 'tl', 'end');
+    });
+    let said = 'The kelvin scale starts at absolute zero, −273.15 °C. Below it, degrees Celsius above and kelvin below, with steps the same size.';
+    if (show) {
+      part(arr(1.6), 4, () => {
+        [0, 100].forEach((c) => sv('circle', { class: 'dot', cx: r2(kb(c)), cy: 120, r: 5 }));
+        text(kb(0), 90, 'ice melts', 'lab'); text(kb(100), 90, 'water boils', 'lab');
+      });
+      part(arr(2.4), 0, () => { brk(kb(0), kb(100), 154, 'n', true); text((kb(0) + kb(100)) / 2, 176, 'a rise of 100 °C is a rise of 100 K', 'lab'); });
+      said += ' Ice melts at 0 °C, 273 K, and water boils at 100 °C, 373 K.';
+    } else {
+      [20, 100].forEach((c) => sv('circle', { class: 'dot', cx: r2(kb(c)), cy: 120, r: 5 }));
+      text(kb(20), 90, 'start', 'lab'); text(kb(100), 90, 'end', 'lab');
+      said += ' Marked: the start, 20 °C, and the end, 100 °C.';
+      if (right) part(arr(0.1), 0, () => { brk(kb(20), kb(100), 154, 'n', true); text((kb(20) + kb(100)) / 2, 176, `a rise of ${N.r80} °C is a rise of ${N.r80} K`, 'lab'); });
+      if (wrong && d.ring[st.pick]) part(arr(0.1), 0, () => {
+        const q = d.ring[st.pick], x = kb(q[0]);
+        REC.bad++;
+        sv('rect', { class: 'ring', x: r2(x - 18), y: 126, width: 36, height: 23, rx: 6 });
+        text(K.clamp(x, 120, 230), 176, q[1], 'lab w');
+      });
+    }
+    return said;
+  }
+  // Seawater through a cooler: a pipe, the heat going in, and the working.
+  function paintFlow(d, st) {
+    sv('rect', { class: 'box', x: 130, y: 52, width: 80, height: 96, rx: 6 });
+    text(170, 140, 'cooler', 'lab m');
+    text(170, 44, 'heat', 'lab');
+    [150, 170, 190].forEach((x) => path(`M${x} 62 V84 M${x - 5} 78 L${x} 85 L${x + 5} 78`, 'heat'));
+    sv('rect', { class: 'pipe', x: 8, y: 92, width: 324, height: 20, rx: 3 });
+    [36, 66, 274, 304].forEach((x) => path(`M${x - 4} 96 L${x + 3} 102 L${x - 4} 108`, 'flow'));
+    text(8, 84, 'seawater in', 'lab', 'start'); text(8, 130, '2 kg each second', 'lab', 'start');
+    text(332, 84, 'out', 'lab', 'end'); text(332, 130, '10 °C warmer', 'lab', 'end');
+    return 'Seawater flows through a pipe in a cooler, 2 kg each second, and takes in heat, leaving 10 °C warmer.' + drawWork(d, st, 182);
+  }
+
+  // The grip over the graph: drag the energy along it (or use the arrow keys).
+  function placeGrip(d, i, p) {
+    const on = !!d.live && !finished;
+    grip.style.display = on ? '' : 'none';
+    grip.setAttribute('tabindex', on ? '0' : '-1');
+    if (!on) return;
+    grip.setAttribute('x', GX0 - 10); grip.setAttribute('y', GYT - 4);
+    grip.setAttribute('width', GX1 - GX0 + 18); grip.setAttribute('height', GYB - GYT + 22);
+    const g = cfgOf(i, p), lim = Math.min(g.ax, totalE(g.m)), E = Math.round(K.clamp(+p.energy || 0, 0, lim));
+    grip.setAttribute('aria-valuemin', 0); grip.setAttribute('aria-valuemax', Math.round(lim)); grip.setAttribute('aria-valuenow', E);
+    grip.setAttribute('aria-valuetext', E + ' kilojoules');
+  }
+  K.drag(grip, { control: 'energy', toValue: (x) => Math.round(K.clamp((x - GX0) / (GX1 - GX0), 0, 1) * (STEPS[at()].ax || 1600)) });
+  grip.addEventListener('pointerdown', stopMotion);
+  grip.addEventListener('keydown', (e) => {
+    const i = at(), d = STEPS[i];
+    if (!d.live || finished) return;
+    const by = { ArrowUp: 1, ArrowRight: 1, ArrowDown: -1, ArrowLeft: -1 }[e.key];
+    if (by == null && e.key !== 'Home' && e.key !== 'End') return;
+    e.preventDefault(); stopMotion();
+    const g = cfgOf(i, K.params()), lim = Math.min(g.ax, totalE(g.m)), now = K.clamp(energyCtl.get(), 0, lim);
+    energyCtl.set(Math.round(e.key === 'Home' ? 0 : e.key === 'End' ? lim : K.clamp(now + by * g.ax / 100, 0, lim)));
+    K.reveal();
+  });
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i, pOver) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i], p = pOver || K.params();
+    art.textContent = '';
+    into = null;
+    REC = { texts: [], bad: 0, badDots: [], dot: null, reading: null, bar: null, bars: [] };
+    let H = 340, said = '';
+    if (d.pic === 'curve') said = d.live ? paintLive(i, d, p) : paintCurveDo(d, st);
+    else if (d.pic === 'sum') { H = 240; said = paintSum(d, st); }
+    else if (d.pic === 'cool') { H = 148; said = paintCool(d, st); }
+    else if (d.pic === 'scale') { H = 186; said = paintScale(d, st); }
+    else if (d.pic === 'flow') { H = 216; said = paintFlow(d, st); }
+    svg.setAttribute('viewBox', '0 0 340 ' + H);
+    svg.setAttribute('aria-label', said);
+    placeGrip(d, i, p);
+  }
+
+  // ---------- what Dan reads under a live picture ----------
+  function sayFor(g, E) {
+    const m = g.m, ph = phaseAt(m, E), mk = mfmt(m) + ' kg';
+    switch (ph.stage) {
+      case 'none': return `No energy has gone in yet. The ${mk} of ice sits at 0 °C.`;
+      case 'melt': return ph.ice >= 0.05 ? `The energy is melting the ice, not warming it. About ${fx(ph.ice, 1)} kg is still ice, so the thermometer stays at 0 °C.` : 'Almost all the ice has melted, and the thermometer still reads 0 °C.';
+      case 'melted': return `All ${mk} of ice has just melted. That took ${fx(meltE(m))} kJ, and the water is still at 0 °C.`;
+      case 'warm': return `The ice has all melted, so the energy now warms the water. Each kJ adds ${fx(1 / (m * C), 2)} °C to ${mk}, and it has reached ${fx(ph.T)} °C.`;
+      case 'hot': return `The water has just reached 100 °C. Warming ${mk} from 0 °C took ${fx(warmE(m))} kJ.`;
+      case 'boil': return ph.steam >= 0.05 ? `The water is boiling at 100 °C. The energy turns it to steam, and about ${fx(ph.steam, 1)} kg of the ${mk} has gone.` : 'The water has started to boil at 100 °C. The energy now turns it to steam.';
+      default: return `All ${mk} has boiled away. Turning it from ice to steam took ${fx(totalE(m))} kJ.`;
+    }
+  }
+  function layout(i, d, st, p, o) {
+    const right = st.res === 'right', live = !!d.live;
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    el('ctl').hidden = !live;
+    massCtl.el.hidden = !(live && d.live.mass);
+    powerCtl.el.hidden = !(live && d.live.power);
+    el('say').hidden = !live; el('outs').hidden = !live;
+    el('say').textContent = live ? sayFor(cfgOf(i, p), o.energyIn) : '';
+    el('replay').hidden = !d.show || live || REDUCE;
+    const opts = d.show ? [] : d.opts;
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((x) => x.length > 9));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    fb.textContent = d.show ? '' : right ? (d.right || 'That\'s it.') : st.res === 'wrong' ? ((d.hints && d.hints[st.pick]) || d.hint) : st.res === 'empty' ? PICK : '';
+    const why = el('why');
+    why.hidden = !!d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  }
+
+  write(el('finish'), FINISH);
+  K.update((p, o) => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox'); onEnter(i);
+      if (d.live) { K.refresh(); return; }
+    }
+    if (!anim.playing()) T = Infinity;
+    else if (d.live && Math.abs((+p.energy || 0) - demoSet) > 0.5) { anim.pause(); T = Infinity; }   // Dan took over
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    layout(i, d, st, p, o);
+    paint(i, p);
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const solved = (i) => ({ pick: STEPS[i].want, res: 'right', why: false });
+  const wrongSt = (i, o) => ({ pick: o, res: 'wrong', why: false });
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  // A step painted in the state given (finished): what it draws.
+  function drawn(i, st, pOver) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = Infinity;
+    try { paint(i, pOver ? Object.assign({}, K.params(), pOver) : null); return REC; }
+    finally { S[i] = keepS; T = keepT; paint(); }
+  }
+
+  K.check(`It takes ${N.c} J to raise the temperature of 1 kg of water by 1 °C: once 1 kg of ice has melted, 4.2 kJ more lifts it to 1 °C and 42 kJ more to 10 °C`, () => {
+    const s = idx('The climb');
+    return K.near(K.at({ step: s, mass: 1, energy: LF + C }).waterTemp, 1, 1e-9) && K.near(K.at({ step: s, mass: 1, energy: LF + 42 }).waterTemp, 10, 1e-9);
+  }, { source: BBC1 });
+  K.check(`Heat of fusion of water is 334 J/g and heat of vaporization 2260 J/g: 1 kg stays at 0 °C until ${N.lf} kJ is in, and at 100 °C from ${N.i1} kJ until all of it has boiled away at ${fx(totalE(1))} kJ`, () => {
+    const s = idx('Boiling'), o = (e, m) => K.at({ step: s, mass: m || 1, energy: e });
+    return o(0).waterTemp === 0 && o(333).waterTemp === 0 && o(LF).waterTemp === 0 && o(LF + 1).waterTemp > 0 && K.near(o(B1).waterTemp, 100, 1e-9) &&
+      o(2000).waterTemp === 100 && o(3013).waterTemp === 100 && K.near(o(6100).energyIn, 3014, 1e-9) && K.near(o(6100, 2).energyIn, 6028, 1e-9);
+  }, { source: NES });
+  K.check('Energy that enters during a phase change causes no temperature change, which is why it is known as latent heat: at every mass, energy put in along either flat line leaves the temperature where it was, and energy put in on the climb raises it', () =>
+    [0.5, 0.8, 1, 1.5, 2].every((m) => {
+      const s = idx('Boiling'), t = (e) => K.at({ step: s, mass: m, energy: e }).waterTemp, a = meltE(m), b = a + warmE(m);
+      return t(a * 0.25) === 0 && t(a * 0.75) === 0 && t(b + 10) === 100 && t(b + boilE(m) * 0.9) === 100 && t(a + 10) < t(a + 20) && t(a + 20) < t(b - 10);
+    }), { source: OPENSTAX });
+  K.check('The energy needed depends on the mass, the specific heat capacity and the temperature change: twice the mass needs twice the energy for the same rise, so its line climbs half as steeply', () => {
+    const s = idx('The climb'), rise = (m, e) => K.at({ step: s, mass: m, energy: meltE(m) + e }).waterTemp;
+    return K.near(rise(2, 84), rise(1, 42), 1e-9) && K.near(rise(1, 84) / rise(2, 84), 2, 1e-9) && K.near(warmE(2), 2 * warmE(1), 1e-9);
+  }, { source: BBC2 });
+  K.check(`Seawater's specific heat is about 3850 J/(kg C): 2 kg each second warming 10 °C carries ${N.seaJ} J each second, which is ${N.sea} kW`, () =>
+    K.near(2 * CSEA * 1000 * 10, 77000, 1e-6) && N.sea === '77' && STEPS[idx('A seawater cooler')].want === `${N.sea} kW`, { source: SEA });
+  K.check('The heater time is the energy put in over the heater\'s power: 334 kJ at 3 kW takes about 111 s, and at 1 kW it takes 334 s', () => {
+    const s = idx('Melting'), a = K.at({ step: s, power: 3, energy: LF }), b = K.at({ step: s, power: 1, energy: LF });
+    return fx(a.heaterTime) === '111' && K.near(b.heaterTime, 334, 1e-9) && K.near(a.energyIn, LF, 1e-9);
+  });
+  K.check('Every number the screens print comes from the rule: 420, 588 and 210 kJ; 63 kJ and 4.2 MJ, over 60 times as much; 588 and 1,050 kJ; 48 and 60 °C; 840, 420 and 210 kJ; over five times; 112 s and 12.6 minutes; 900 kJ, about 0.4 kg and 314 °C; 80, 353 and 373 K; 77, 84 and 7.7 kW; 167, 210, 377 and 754 kJ', () =>
+    N.q1 === '420' && N.q1a === '588' && N.q1b === '210' && N.cup === '63' && N.tankMJ === '4.2' && (100 * 10) / (0.25 * 60) > 60 &&
+    N.kettle === '588' && N.tank2 === '1,050' && N.p48 === '48' && N.p60 === '60' && N.w2 === '840' && N.w1 === '420' && N.wh === '210' &&
+    LV / warmE(1) > 5 && LV / warmE(1) < 6 && N.t112 === '112' && N.boilMin === '12.6' && N.e5 === '900' && N.kg5 === '0.4' && N.t314 === '314' &&
+    N.r80 === '80' && N.k353 === '353' && N.k373 === '373' && N.sea === '77' && N.sea84 === '84' && N.sea77 === '7.7' &&
+    N.m05 === '167' && N.w05 === '210' && N.i05 === '377' && N.i1 === '754');
+  K.check('Each puzzle offers three different answers including its right one, every wrong answer has its own hint, and before Check nothing on its picture shows the answer or a red mark', () =>
+    DO.every((i) => {
+      const d = STEPS[i];
+      if (d.opts.length !== 3 || d.opts.indexOf(d.want) < 0 || new Set(d.opts).size !== 3) return false;
+      if (!d.opts.every((o) => o === d.want || (d.hints[o] && d.hints[o].length > 10))) return false;
+      const g = drawn(i, blank());
+      return !g.bad && g.texts.every((t) => t.indexOf(d.want) < 0);
+    }));
+  K.check('A wrong pick is drawn in red where it can be: 48 °C and 60 °C off the flat line, climbs that stop at 420 kJ and 210 kJ, a climb on to 314 °C, a bracket for boiling it all away, the slips 588 kJ and 210 kJ, and 353 K and 373 K ringed; a right answer draws no red', () => {
+    const each = DO.every((i) => {
+      const d = STEPS[i];
+      if (drawn(i, solved(i)).bad) return false;
+      return d.opts.filter((o) => o !== d.want).every((o) => (d.redless && d.redless.indexOf(o) >= 0) || drawn(i, wrongSt(i, o)).bad > 0);
+    });
+    const s = idx('200 kJ into ice'), d = STEPS[s], a = drawn(s, wrongSt(s, d.opts[0])).badDots[0], b = drawn(s, wrongSt(s, d.opts[2])).badDots[0];
+    return each && K.near(a[1], 200 / C, 1e-9) && K.near(b[1], 200 / LF * 100, 1e-9) && fx(a[1]) === N.p48 && fx(b[1]) === N.p60;
+  });
+  K.check(`A right answer draws the rule's result: 1 kg after 200 kJ still at 0 °C; 2 kg at 100 °C after ${N.w2} kJ more; 1 kg still at 100 °C after ${N.e5} kJ more, with ${N.kg5} kg boiled away; 0.5 kg at 100 °C after ${N.i05} kJ`, () => {
+    const want = [['200 kJ into ice', 200, 0], ['2 kg to 100 °C', M2 + warmE(2), 100], ['Five minutes at 100 °C', B1 + 900, 100], ['Ice to 100 °C', meltE(0.5) + warmE(0.5), 100]];
+    return want.every((w) => { const s = idx(w[0]), r = drawn(s, solved(s)); return r.dot && K.near(r.dot[0], w[1], 1e-6) && K.near(r.dot[1], w[2], 1e-6); }) &&
+      K.near(phaseAt(1, B1 + 900).steam, 900 / LV, 1e-12) && fx(900 / LV, 1) === N.kg5;
+  });
+  K.check('The graph draws itself from the rule: the curve ends at the dot, it stays at 0 °C while any ice is left, the thermometer reads the same temperature in °C and in K (°C + 273), and the bar\'s two parts add up to the energy put in', () =>
+    [['Melting', 1, 200], ['The climb', 1, 500], ['The climb', 2, 1000], ['The climb', 0.5, 1600], ['Boiling', 1, 2000], ['Boiling', 2, 6100]].every((q) => {
+      const s = idx(q[0]), pv = { mass: q[1], power: 3, energy: q[2] }, r = drawn(s, blank(), pv), o = K.at(Object.assign({ step: s }, pv));
+      const ph = phaseAt(cfgOf(s, pv).m, o.energyIn);
+      return r.dot && K.near(r.dot[0], o.energyIn, 1e-9) && K.near(r.dot[1], o.waterTemp, 1e-9) && r.reading === `${fx(o.waterTemp)} °C · ${kOf(o.waterTemp)} K` &&
+        K.near(r.bar.warm + r.bar.phase, o.energyIn, 1e-6) && (ph.ice > 1e-9 ? o.waterTemp === 0 : true);
+    }));
+  K.check(`The cup's and the tank's bars share one scale: ${N.cup} kJ against ${N.tankKJ} kJ, so the tank's bar is over 60 times as long`, () => {
+    const s = idx('Hotter is not more'), r = drawn(s, blank());
+    return r.bars.length === 2 && K.near(r.bars[0] / r.bars[1], 63 / 4200, 1e-9) && r.bars[1] / r.bars[0] > 60;
+  });
+  K.check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\'s motion, right or wrong, within 2 s', () => {
+    const keepT = T;
+    const timed = (i, st, limit) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; earliest = Infinity;
+      S[i] = st;
+      try { paint(i); } finally { S[i] = keepS; }
+      return latest <= limit + 1e-9;
+    };
+    const ok = STEPS.every((d, i) => {
+      if (d.show) {
+        const r = timed(i, blank(), d.dur), first = d.live ? d.e0 : earliest;
+        return r && d.dur <= 4.5 && d.dur >= 3 && first >= FADE && (!d.live || d.e1 <= d.dur);
+      }
+      return timed(i, solved(i), ANS) && d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), ANS));
+    });
+    T = keepT; paint();
+    return ok;
+  });
+
+  K.ready();
+</script>

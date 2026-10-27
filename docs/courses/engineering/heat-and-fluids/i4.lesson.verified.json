@@ -1,0 +1,442 @@
+{
+  "iid": "i4",
+  "title": "Heat into work: the first law and engines",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the work stopping at a Carnot line set by the two temperatures, while the cooling and exhaust take the rest and all three still add back to the fuel, when you drag the work wider.",
+    "title": "The engine's energy split",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Screen",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [
+      {
+        "id": "workOut",
+        "label": "Work out",
+        "unit": "kW",
+        "decimals": 0
+      },
+      {
+        "id": "rejected",
+        "label": "Cooling plus exhaust",
+        "unit": "kW",
+        "decimals": 0
+      },
+      {
+        "id": "ceiling",
+        "label": "Carnot limit",
+        "unit": "%",
+        "decimals": 1
+      }
+    ],
+    "whatAmILookingAt": "A short lesson in thirteen small screens. The first pictures show a cylinder of gas under a piston, as a still drawing. Heat goes in at the bottom and the piston moves. A small pressure–volume chart shades the area under the gas's line. That area is the work the gas does. The main picture is an engine's energy split. A band of fuel energy, 1,000 kW, flows into an engine. It leaves as three flows: work out, cooling water and exhaust. The cooling and exhaust labels show their kW, and the work's kW is its readout. Two borders set their widths. One sits between work and cooling, the other between cooling and exhaust. The exhaust takes whatever is left, so the three always add back to 1,000 kW. That is the first law. Work opens at 35%, 350 kW. Cooling opens at 30%, 300 kW, and exhaust at 35%, 350 kW. A shaded block, labelled as the typical work border, marks where the work's border lands in a typical engine, 30 to 40% of the fuel. There, cooling plus exhaust carry 60 to 70%. Two sliders set the temperatures. The hot side runs from 500 to 1,500 K and opens at 800 K. The cold side runs from 270 to 350 K and opens at 300 K. A Carnot line crosses the work flow at 1 − T cold ÷ T hot of the fuel. At 800 K and 300 K that is 1 − 300 ÷ 800 = 62.5%, 625 kW. Work dragged past the line stops there, in red. If the line drops below the work, it pushes the work down too. The difference goes to the exhaust. The limit is a ratio of temperatures, so the sliders are in kelvin, counted from true zero. A generator skin relabels the work as electrical output. It relabels the cooling flow as what the cooler must carry. The three readouts wrap onto two rows on a phone. Screen by screen. Screen 1 shows the cylinder taking in 500 J of heat. Meanwhile the gas, at a steady 200 kPa, pushes the piston out by 1 L, 0.001 m³. That is 200,000 Pa × 0.001 m³ = 200 J of work. The internal energy rises 500 − 200 = 300 J. Screen 2 asks a question. Its chart shows the pressure falling as the gas pushes out. A gas takes in 400 J of heat and does 400 J of work. How much does its internal energy change? The choices are 0 J, 800 J or 400 J. Screen 3 shows the piston locked. 500 J goes in, no work is done, and the internal energy rises 500 J. Then the piston is pushed in, and work done on the gas counts as minus. Screen 4 asks another. Its chart shows the pressure climbing as the gas is squeezed. 300 J of work pushes the piston in, and the gas gives out 100 J of heat. What is the change? Up 200 J, down 400 J or down 200 J. Screen 5 shows a loop on the pressure–volume chart. The gas pushes out while hot. Then it is cooled. Then it is squeezed back while cool, at a lower pressure. So the squeeze takes less work than the push gave. The gas comes back to its start. So the work over the loop is the heat taken in minus the heat given out. The loop's area is that work. Heat-in labels mark the left and top of the loop, and heat-out labels the right and bottom. Squeezed hot, the gas would push back as hard and take back all the work, so no loop can skip the cooling. Screen 6 comes before the main picture. Fuel brings 1,000 kW, the work is 350 kW and the cooling water carries 300 kW. What does the exhaust carry? 350 kW, 650 kW or 700 kW. Screen 7 shows the energy split and the shaded block. Screen 8 asks how much work is left in this picture, if cooling and exhaust carry 60 to 70% of 1,000 kW. The choices are 300 to 400 kW, 600 to 700 kW, or 1,000 kW with the heat on top. Screen 9 shows the Carnot line. It sits at 62.5% at 800 K and 300 K, and at 75% when the hot side is 1,200 K. Screen 10 asks about a maker's claim. The maker claims 75% of its fuel energy as work, from an engine with a hot side at 727 °C and a cold side at 27 °C. Is that possible? One choice: no, the limit is 70%. Another: yes, the limit is about 96%. The last: yes, if its friction is low enough. Screen 11 shows the generator skin. It shows 350 kW of electrical output and a cooler carrying 300 kW. Screens 12 and 13 mix it all. In screen 12, a generator set gives 400 kW of electrical output, which is 40% of its fuel energy. Its cooling carries 30% of the fuel. What must the cooler carry? 300 kW, 120 kW or 600 kW. In screen 13, seawater warming 10 °C must carry that 300 kW away. What flow does that need? About 7.8 kg/s, about 78 kg/s or 30 kg/s.",
+    "ignores": "The picture shows the engine as three flows. A real engine also sheds some heat from its hot casing into the room. The Carnot line assumes the engine takes in all its heat at the hot temperature and gives it all out at the cold one. A real diesel's gas passes through many temperatures each turn. Which two fit it is debated, so the sliders leave the choice to you. The generator skin counts all the engine's work as electrical output. A real alternator turns a little of it into heat of its own. The flows are steady averages over many turns of the engine. The cylinder's gas is ideal, and its piston has no friction.",
+    "numbers": [
+      {
+        "label": "Fuel energy flowing in, in kW",
+        "value": 1000,
+        "kind": "assumed"
+      },
+      {
+        "label": "Work share's opening setting, in %",
+        "value": 35,
+        "kind": "control"
+      },
+      {
+        "label": "Cooling share's opening setting, in %",
+        "value": 30,
+        "kind": "control"
+      },
+      {
+        "label": "Exhaust share at the start, 100 − 35 − 30, in %",
+        "value": 35,
+        "kind": "computed"
+      },
+      {
+        "label": "Work at the start, in kW",
+        "value": 350,
+        "kind": "computed"
+      },
+      {
+        "label": "Cooling at the start, in kW",
+        "value": 300,
+        "kind": "computed"
+      },
+      {
+        "label": "Exhaust at the start, in kW",
+        "value": 350,
+        "kind": "computed"
+      },
+      {
+        "label": "Cooling plus exhaust at the start, in kW",
+        "value": 650,
+        "kind": "computed"
+      },
+      {
+        "label": "Typical cooling plus exhaust, lowest, in %",
+        "value": 60,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "Typical cooling plus exhaust, highest, in %",
+        "value": 70,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "Typical work border, lowest, 100 − 70, in %",
+        "value": 30,
+        "kind": "computed"
+      },
+      {
+        "label": "Typical work border, highest, 100 − 60, in %",
+        "value": 40,
+        "kind": "computed"
+      },
+      {
+        "label": "Hot side slider lowest, in K",
+        "value": 500,
+        "kind": "control"
+      },
+      {
+        "label": "Hot side slider highest, in K",
+        "value": 1500,
+        "kind": "control"
+      },
+      {
+        "label": "Hot side slider's opening setting, in K",
+        "value": 800,
+        "kind": "control"
+      },
+      {
+        "label": "Cold side slider lowest, in K",
+        "value": 270,
+        "kind": "control"
+      },
+      {
+        "label": "Cold side slider highest, in K",
+        "value": 350,
+        "kind": "control"
+      },
+      {
+        "label": "Cold side slider's opening setting, in K",
+        "value": 300,
+        "kind": "control"
+      },
+      {
+        "label": "Carnot limit at the start, 1 − 300 ÷ 800, in %",
+        "value": 62.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Carnot limit at the start, in kW",
+        "value": 625,
+        "kind": "computed"
+      },
+      {
+        "label": "Hot side raised to, in K",
+        "value": 1200,
+        "kind": "control"
+      },
+      {
+        "label": "Carnot limit at 1,200 K, 1 − 300 ÷ 1,200, in %",
+        "value": 75,
+        "kind": "computed"
+      },
+      {
+        "label": "Added to °C to give kelvin, rounded",
+        "value": 273,
+        "kind": "constant"
+      },
+      {
+        "label": "Carnot sum done in °C, 1 − 27 ÷ 527, about, in %",
+        "value": 95,
+        "kind": "computed"
+      },
+      {
+        "label": "Cylinder: heat in, in J",
+        "value": 500,
+        "kind": "assumed"
+      },
+      {
+        "label": "Cylinder: steady pressure, in kPa",
+        "value": 200,
+        "kind": "assumed"
+      },
+      {
+        "label": "Cylinder: steady pressure, 200 kPa in Pa",
+        "value": 200000,
+        "kind": "computed"
+      },
+      {
+        "label": "Cylinder: piston moves out, in L",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Cylinder: 1 L in m³",
+        "value": 0.001,
+        "kind": "computed"
+      },
+      {
+        "label": "Cylinder: work, 200,000 Pa × 0.001 m³, in J",
+        "value": 200,
+        "kind": "computed"
+      },
+      {
+        "label": "Cylinder: internal energy rise, 500 − 200, in J",
+        "value": 300,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 2: heat in and work out, each, in J",
+        "value": 400,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 2: change, 400 − 400, in J",
+        "value": 0,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 2 wrong pick, 400 + 400, in J",
+        "value": 800,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 4: work done on the gas, in J",
+        "value": 300,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 4: heat given out, in J",
+        "value": 100,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 4: change, −100 − (−300), in J",
+        "value": 200,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 4 wrong pick, −100 − 300, in J",
+        "value": -400,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 4 wrong pick, 100 − 300, in J",
+        "value": -200,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 6 wrong pick, 1,000 − 350, in kW",
+        "value": 650,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 6 wrong pick, 1,000 − 300, in kW",
+        "value": 700,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 8: work left, lowest, 1,000 − 700, in kW",
+        "value": 300,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 8: work left, highest, 1,000 − 600, in kW",
+        "value": 400,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 10: maker's claim, in %",
+        "value": 75,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 10: hot side, in °C",
+        "value": 727,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 10: cold side, in °C",
+        "value": 27,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 10: hot side, 727 + 273, in K",
+        "value": 1000,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 10: cold side, 27 + 273, in K",
+        "value": 300,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 10: limit, 1 − 300 ÷ 1,000, in %",
+        "value": 70,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 10 wrong pick, 1 − 27 ÷ 727, about, in %",
+        "value": 96,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 12: electrical output, in kW",
+        "value": 400,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 12: share of fuel turned to output, in %",
+        "value": 40,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 12: cooling's share of fuel, in %",
+        "value": 30,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 12: fuel, 400 ÷ 0.4, in kW",
+        "value": 1000,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 12: cooler, 30% of 1,000, in kW",
+        "value": 300,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 12 wrong pick, 30% of 400, in kW",
+        "value": 120,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 12 wrong pick, 1,000 − 400, in kW",
+        "value": 600,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 13: seawater's warming, in °C",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Seawater's specific heat, in J per kg per °C",
+        "value": 3850,
+        "kind": "constant",
+        "source": 5
+      },
+      {
+        "label": "Screen 13: flow, 300,000 ÷ (3,850 × 10), about, in kg/s",
+        "value": 7.8,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 13 wrong pick, 300 ÷ 10, in kg/s",
+        "value": 30,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 13 wrong pick, 300,000 ÷ 3,850, about, in kg/s",
+        "value": 78,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 12: efficiency as a decimal",
+        "value": 0.4,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example: seawater per kg, 3,850 × 10, in J",
+        "value": 38500,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example: rejected, 1,000 − 400, in kW",
+        "value": 600,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example: cooler, in W",
+        "value": 300000,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "An engine turns heat into work, but only ever part of it. Energy is never made or destroyed on the way. So every kilowatt of fuel leaves as work or as heat carried away. Start with a gas in a cylinder under a piston. Heat the gas, and it can push the piston out. That push is work. What the gas does not spend as work, it keeps inside itself. That stored energy is its [[internal energy]]. The [[first law of thermodynamics]] says the rise in internal energy is the heat put in minus the work the gas does.[^2] Put 500 J of heat in while the gas does 200 J of work. Its internal energy rises by 300 J.\n\nWork is the push times how far the piston moves. On a pressure–volume chart, it is the area under the gas's line. Say the gas holds a steady 200 kPa and moves the piston out by 1 L, which is 0.001 m³. The work is 200,000 Pa × 0.001 m³ = 200 J. A pascal is a newton on each square metre. So pascals times cubic metres are newton-metres, which are joules. Count heat into the gas as plus. Count work done by the gas as plus too. Lock the piston, and no work is done. Then all the heat stays in the gas. Push the piston in, and the work is done on the gas. That work counts as minus. Taking off a minus adds to the internal energy.\n\nAn engine runs its gas round a loop, back to where it started. So its internal energy comes back too. Over each loop, the work out is the heat taken in minus the heat given out. That work is the loop's area on the chart. No engine running in a loop can turn all its heat into work.[^3] Here is one way to picture why. To go round again, the gas must be squeezed back. Squeeze it while it is still hot, and it pushes back as hard as it pushed out. The squeeze then takes back all the work. Cool it first, and it pushes back less. Now the squeeze costs less than the push gave. That cooling is heat given out to somewhere colder.\n\nA diesel squeezes only air, until it is hot enough to light the fuel sprayed in. That is compression ignition, with no spark. With no fuel in the squeeze, nothing can light early. So a diesel can run a higher compression ratio.[^6] Diesels run on four strokes or on two. A diesel swaps its gas every turn, but the same balance holds. In steady running nothing builds up inside it. So the energy in each second equals the energy out. The fuel's energy leaves mainly three ways. They are work at the shaft, heat in the cooling water and heat in the exhaust. A little more leaves as heat from the hot casing. People often call the cooling and exhaust heat a loss, but nothing is lost. It is heat rejected, carried away, and you can follow every kilowatt. In a typical reciprocating engine, the cooling and exhaust carry 60 to 70% of the fuel's energy.[^1] Large marine two-stroke diesels reject only about half. So they turn about half into work, well above the typical 30 to 40%.[^4] Say the fuel brings 1,000 kW and the shaft gives 350 kW. Then 650 kW is rejected. If the cooling water carries 300 kW, the exhaust carries the other 350 kW. On a generator set, that 350 kW of work is the electrical output. The cooler carries 300 kW, nearly as much. So size a cooler on the heat the engine rejects, not on the set's rating.\n\nHow big could the work be? No engine that takes in heat at a hot temperature and gives it out at a cold one can beat the [[Carnot limit]], 1 − T cold ÷ T hot. Take a hot side at 800 K and a cold side at 300 K. The limit is 1 − 300 ÷ 800 = 62.5%. It is a ratio of temperatures, and a ratio needs a true zero, just as the gas laws do. So both temperatures go in kelvin. Done in Celsius, the same sum gives about 95%, which is nonsense. Only the two temperatures move the limit. A hotter hot side or a colder cold side raises it. Less friction or a bigger engine cannot. How the limit applies to a real diesel is debated. A diesel burns its fuel inside the cylinder. So it is not quite the engine the limit describes. Some engineers say the limit does not bind a diesel at all. Others take the flame and the surroundings as the two temperatures, and still treat the limit as a cap. The answer turns on which two temperatures you choose.\n\n**Every kilowatt of fuel leaves an engine as work or heat, mostly in the cooling and exhaust. An engine running in a loop cannot turn all its heat into work.**"
+  },
+  "analogy": {
+    "text": "Think of a motor's power balance. The supply feeds in electrical power. The shaft gives out mechanical power. The rest leaves as heat, mostly in the windings and the core. Add the shaft power to the heat, and you always get the input. An engine's fuel, work, cooling and exhaust balance the same way.",
+    "breaks": "Nothing in physics stops a motor getting ever closer to turning all its input into work. Its losses are a matter of design. A heat engine is different. Its two temperatures cap it before any design starts. So some heat must always leave it."
+  },
+  "practice": {
+    "text": "**An energy balance on an engine or a generator set**\n- Start from the fuel energy, in kW.\n- Take off the work. On a generator set, that is the electrical output.\n- Split the rest between the cooling and the exhaust.\n- Check the flows add back to the fuel.\n- Check the work's share sits under the Carnot limit. Put both temperatures in kelvin.\n\n**Rules of thumb:** In a typical reciprocating engine, cooling and exhaust carry 60 to 70% of the fuel energy.[^1] Size a cooler on the heat the engine rejects to its cooling water. Never size it on the set's rating.\n\n**Worked example:** A generator set gives 400 kW of electrical output. Its efficiency, from fuel to electrical output, is 40%. So the fuel brings 400 ÷ 0.4 = 1,000 kW. That leaves 600 kW rejected. Say the cooling takes 30% of the fuel, which is 300 kW. Each kilogram of seawater that warms 10 °C carries 3,850 × 10 = 38,500 J. The cooler must shed 300 kW, which is 300,000 J each second. So it needs 300,000 ÷ 38,500, about 7.8 kg/s of seawater.\n\n**Common mistakes**\n- Getting the sign of work wrong. Work done by the gas is taken off the heat. Work done on it is added.\n- Treating heat rejected as gone. It all goes somewhere. The cooler has to carry its share.\n- Putting Celsius into the Carnot limit. Use kelvin.\n- Thinking better engineering lifts the Carnot limit. Only the temperatures move it.\n- Multiplying by the efficiency to find the fuel. Divide the output by it instead."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "contested",
+  "contested": {
+    "views": [
+      {
+        "label": "Some engine engineers",
+        "text": "A diesel burns its fuel inside the cylinder and swaps its gas every cycle, so it is not a Carnot engine. The Carnot limit is not its real limit, and treating it as one is a mistake."
+      },
+      {
+        "label": "Others, including marine engine researchers",
+        "text": "Choose a hot side and a cold side for the engine, such as the flame and the surroundings, and the Carnot limit still caps it. Marine engine researchers judge the best large two-stroke diesels against Carnot's limits."
+      }
+    ]
+  },
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+    {
+      "n": 1,
+      "title": "Catalog of CHP Technologies, Section 2. Technology Characterization – Reciprocating Internal Combustion Engines",
+      "url": "https://www.epa.gov/sites/default/files/2015-07/documents/catalog_of_chp_technologies_section_2._technology_characterization_-_reciprocating_internal_combustion_engines.pdf",
+      "quote": "energy contained in the exhaust gas and cooling systems, which generally represents 60 to 70 percent of the inlet fuel energy."
+    },
+    {
+      "n": 2,
+      "title": "First Law of Thermodynamics",
+      "url": "https://www.grc.nasa.gov/www/k-12/VirtualAero/BottleRocket/airplane/thermo1.html",
+      "quote": "The first law of thermodynamics defines the internal energy (E) as equal to the difference of the heat transfer (Q) into a system and the work (W) done by the system."
+    },
+    {
+      "n": 3,
+      "title": "Introduction to the Second Law of Thermodynamics: Heat Engines and Their Efficiency – Introductory Physics for the Health and Life Sciences I",
+      "url": "https://openbooks.lib.msu.edu/collegephysics1/chapter/introduction-to-the-second-law-of-thermodynamics-heat-engines-and-their-efficiency-2/",
+      "quote": "It is impossible to convert all heat from a reservoir into work in a cyclical process that returns the system to its original state."
+    },
+    {
+      "n": 4,
+      "title": "Performance analysis of a novel marine engine waste heat recovery system for combined power and cooling generation - ScienceDirect",
+      "url": "https://www.sciencedirect.com/science/article/pii/S1359431125031965",
+      "quote": "Because about half of the fuel energy is lost as waste heat"
+    },
+    {
+      "n": 5,
+      "title": "Properties of seawater",
+      "url": "https://talleylab.ucsd.edu/sio210/lect_2/lecture_2.html",
+      "quote": "The density of seawater is about 1025 kg/m^3 and the specific heat is about 3850 J/(kg C)."
+    },
+    {
+      "n": 6,
+      "title": "3.6 Diesel Cycle",
+      "url": "https://web.mit.edu/16.unified/www/FALL/thermodynamics/notes/node27.html",
+      "quote": "This cycle can operate with a higher compression ratio than the Otto cycle because only air is compressed and there is no risk of auto-ignition of the fuel."
+    }
+  ]
+}

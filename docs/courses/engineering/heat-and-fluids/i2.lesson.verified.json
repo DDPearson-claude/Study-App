@@ -1,0 +1,446 @@
+{
+  "iid": "i2",
+  "title": "How heat moves",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the copper's temperature levelling off where the heat leaving matches the losses, and settling higher with the extra wrap on, when you switch the current on.",
+    "title": "Heat in, heat out",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Screen",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [
+      {
+        "id": "losses",
+        "label": "Losses in each metre",
+        "unit": "W/m",
+        "decimals": 0
+      },
+      {
+        "id": "copperTemp",
+        "label": "Copper's temperature",
+        "unit": "°C",
+        "decimals": 0
+      },
+      {
+        "id": "tau",
+        "label": "Time constant",
+        "unit": "min",
+        "decimals": 0
+      }
+    ],
+    "whatAmILookingAt": "This short lesson runs over thirteen small screens. The main picture is a cable cut across. It has a copper core, a ring of insulation, an optional outer ring for an extra wrap, then the room's air. The current makes I²R losses, the heat made in the copper. That heat leaves as ink arrows running outward through each layer to the room. Heat runs from hotter to colder, and more arrows mean more heat flowing. A slider sets the current, from 0 to 60 A. It opens at 50 A. The example cable has 8 mΩ in each metre. So 50 A makes losses of 0.008 × 50² = 20 W in each metre. A switch adds the extra wrap. A slider sets the room, from 10 to 40 °C, opening at 30 °C. Another switch turns a fan on. Switch on starts the current and runs the clock. Switch off stops it. Each layer has a thermal resistance. That is the degrees of rise for each watt flowing out of each metre. The example figures are insulation 0.5, still air 1.5, the wrap 2, and the air with the fan on 0.5 K·m/W. Layers in a row add. The copper's steady rise above the room is the losses × the total. So the rise is 20 × 2 = 40 °C, and in a 30 °C room the copper settles at 70 °C. Under the cable, a temperature profile steps down from the copper to the room. Each layer's drop is marked. Its share is the losses × that layer's resistance. That makes 10 °C across the insulation and 30 °C into the air. Beside it, a time trace draws the copper's temperature from 0 to 100 minutes. Its axis runs from 0 to 160 °C. Each second, the losses less the heat leaving go into warming the cable. Its heat capacity is an example 300 J per °C for each metre. The heat leaving is the rise ÷ the total resistance. So the trace climbs fast at first. It slows as the heat leaving catches up. This is the curve you know from Newton's law of cooling. Its time constant τ is marked on the trace. τ is thermal resistance × heat capacity: 2 × 300 = 600 s, 10 minutes. A dashed line marks a 70 °C limit. That is the figure you know for a general-purpose PVC-insulated conductor. A run that crosses it turns red. With the current switched off, the trace falls back to the room along the same kind of curve. Two skins swap the cable for something else. One is a motor's winding in its frame. The other is a transistor on a heat sink. Screen by screen. Screen 1 shows a steel rail and a wooden rail in a 20 °C room. A thermometer on each reads 20 °C, and a hand rests on each. Arrows run from the hand into the rail, faster into the steel. Screen 2 asks which rail is colder after a night in the same 20 °C room. The choices are the steel, the wood, or neither, both at 20 °C. Screen 3 shows the cable at 50 A making losses of 20 W in each metre. Arrows leave it. Screen 4 asks for a prediction before switch-on: what does the copper do after switch-on? Does it keep warming as long as the current flows? Does it warm and then level off? Or does it warm until the insulation is full of heat? Screen 5 switches the current on. The trace levels off at 70 °C, and the profile shows the 10 °C and 30 °C drops. Heat conducts out through the insulation, then leaves the surface by convection and radiation. Screen 6 asks where the copper settles with the extra wrap on, at 50 A in a 30 °C room. The choices are 110 °C, 70 °C but later, or 80 °C. Screen 7 shows how long it takes. τ is marked at 10 minutes, and the copper is at 55 °C after one τ. It has all but settled by about five, 50 minutes. Screen 8 asks where a cable with twice the heat capacity settles, with the same losses and the same resistances. The choices are 70 °C taking twice as long, lower at about 50 °C, or 70 °C in the same time. Screen 9 shows carrying less. With the wrap, 35 A holds the copper at 70 °C. With the fan on, 50 A brings the copper down to 50 °C. You can try the fan or warm the room. Screen 10 asks for the most current the cable can carry without the wrap in a 40 °C room, keeping to 70 °C. The choices are about 43 A, about 38 A, or 50 A. Screen 11 shows the skins: a motor cut across, with the room's air around its finned frame, and a transistor on a heat sink. Arrows carry the heat outward. Beside each, a list names the layers the heat leaves through, ending in rise = losses × total. Screens 12 and 13 mix it all. Screen 12: a transistor's losses are 10 W. Its path to the air through a heat sink is 3 °C per W, in a 25 °C room. How hot does it run? 55 °C, 30 °C or about 28 °C. Screen 13: the cable's losses are 20 W in each metre. It needs 300 J to warm each metre 1 °C. How fast does it warm just after switch-on? About 4 °C a minute, about 15 °C a second, or the full 40 °C at once. Where it can, a wrong pick is drawn on the trace or the profile, so you see where it fails.",
+    "ignores": "The copper is drawn as one temperature, since copper passes heat far more easily than its insulation. Each layer's drop is drawn as a straight slope. In a round layer it is not quite straight. The copper's resistance is held at 8 mΩ per metre. Real copper's resistance rises as it warms, so a real cable's losses grow a little as it heats. Convection and radiation from the surface are lumped into one fixed air resistance. Both really shed heat a little more easily as the surface gets hotter. The wrap's own heat capacity is left out. Once playing, the clock runs much faster than real time. Every resistance, heat capacity and current here is an example figure, not a rating from any table.",
+    "numbers": [
+      {
+        "label": "Current slider lowest, in A",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Current slider highest, in A",
+        "value": 60,
+        "kind": "control"
+      },
+      {
+        "label": "Current slider's opening setting, in A",
+        "value": 50,
+        "kind": "control"
+      },
+      {
+        "label": "Room slider lowest, in °C",
+        "value": 10,
+        "kind": "control"
+      },
+      {
+        "label": "Room slider highest, in °C",
+        "value": 40,
+        "kind": "control"
+      },
+      {
+        "label": "Room slider's opening setting, in °C",
+        "value": 30,
+        "kind": "control"
+      },
+      {
+        "label": "Example cable's resistance, in mΩ per metre",
+        "value": 8,
+        "kind": "assumed"
+      },
+      {
+        "label": "Losses at 50 A, 0.008 × 50², in W per metre",
+        "value": 20,
+        "kind": "computed"
+      },
+      {
+        "label": "Insulation's thermal resistance, in K·m/W",
+        "value": 0.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Still air's thermal resistance, in K·m/W",
+        "value": 1.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Total, insulation plus still air, in K·m/W",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Extra wrap's thermal resistance, in K·m/W",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Total with the wrap, in K·m/W",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Air's thermal resistance with the fan on, in K·m/W",
+        "value": 0.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Total with the fan on, in K·m/W",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "Steady rise at 50 A, 20 × 2, in °C",
+        "value": 40,
+        "kind": "computed"
+      },
+      {
+        "label": "Copper's steady temperature in a 30 °C room, in °C",
+        "value": 70,
+        "kind": "computed"
+      },
+      {
+        "label": "Drop across the insulation, 20 × 0.5, in °C",
+        "value": 10,
+        "kind": "computed"
+      },
+      {
+        "label": "Drop into the air, 20 × 1.5, in °C",
+        "value": 30,
+        "kind": "computed"
+      },
+      {
+        "label": "Conductor limit for PVC-insulated cable, in °C",
+        "value": 70,
+        "kind": "constant"
+      },
+      {
+        "label": "Heat leaving at a 20 °C rise, 20 ÷ 2, in W per metre",
+        "value": 10,
+        "kind": "computed"
+      },
+      {
+        "label": "Example heat capacity, in J per °C per metre",
+        "value": 300,
+        "kind": "assumed"
+      },
+      {
+        "label": "Time constant, 2 × 300, in s",
+        "value": 600,
+        "kind": "computed"
+      },
+      {
+        "label": "Time constant, in minutes",
+        "value": 10,
+        "kind": "computed"
+      },
+      {
+        "label": "Share of the rise made in one time constant, in %",
+        "value": 63,
+        "kind": "computed"
+      },
+      {
+        "label": "Copper after one time constant, 30 + 0.63 × 40, about, in °C",
+        "value": 55,
+        "kind": "computed"
+      },
+      {
+        "label": "Time constants to all but settle",
+        "value": 5,
+        "kind": "constant"
+      },
+      {
+        "label": "Five time constants, in minutes",
+        "value": 50,
+        "kind": "computed"
+      },
+      {
+        "label": "Time axis, in minutes",
+        "value": 100,
+        "kind": "assumed"
+      },
+      {
+        "label": "Temperature axis top, in °C",
+        "value": 160,
+        "kind": "assumed"
+      },
+      {
+        "label": "Rails' room temperature, in °C",
+        "value": 20,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 6: rise with the wrap, 20 × 4, in °C",
+        "value": 80,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 6: copper with the wrap, 30 + 80, in °C",
+        "value": 110,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 6: drop across the wrap, 20 × 2, in °C",
+        "value": 40,
+        "kind": "computed"
+      },
+      {
+        "label": "Time constant with the wrap, 4 × 300, in minutes",
+        "value": 20,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 8: doubled heat capacity, in J per °C per metre",
+        "value": 600,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 8: time constant, 2 × 600, in minutes",
+        "value": 20,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 8 wrong pick, rise halved, 30 + 20, in °C",
+        "value": 50,
+        "kind": "computed"
+      },
+      {
+        "label": "Losses allowed with the wrap, 40 ÷ 4, in W per metre",
+        "value": 10,
+        "kind": "computed"
+      },
+      {
+        "label": "Current factor with the wrap, √(10 ÷ 20)",
+        "value": 0.707,
+        "kind": "computed"
+      },
+      {
+        "label": "Current with the wrap, 50 × 0.707, about, in A",
+        "value": 35,
+        "kind": "computed"
+      },
+      {
+        "label": "Hot room, in °C",
+        "value": 40,
+        "kind": "assumed"
+      },
+      {
+        "label": "Headroom in a 40 °C room, 70 − 40, in °C",
+        "value": 30,
+        "kind": "computed"
+      },
+      {
+        "label": "Losses allowed in a 40 °C room, 30 ÷ 2, in W per metre",
+        "value": 15,
+        "kind": "computed"
+      },
+      {
+        "label": "Current factor in a 40 °C room, √(15 ÷ 20)",
+        "value": 0.866,
+        "kind": "computed"
+      },
+      {
+        "label": "Current in a 40 °C room, 50 × 0.866, about, in A",
+        "value": 43,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 10 wrong pick, 50 × 30 ÷ 40, about, in A",
+        "value": 38,
+        "kind": "computed"
+      },
+      {
+        "label": "Rise at 50 A with the fan on, 20 × 1, in °C",
+        "value": 20,
+        "kind": "computed"
+      },
+      {
+        "label": "Copper at 50 A with the fan on, 30 + 20, in °C",
+        "value": 50,
+        "kind": "computed"
+      },
+      {
+        "label": "Time constant with the fan on, 1 × 300, in minutes",
+        "value": 5,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 12: transistor's losses, in W",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 12: path to the air, in °C per W",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 12: room, in °C",
+        "value": 25,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 12: 25 + 10 × 3, in °C",
+        "value": 55,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 12 wrong pick, room left out, 10 × 3, in °C",
+        "value": 30,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 12 wrong pick, 25 + 10 ÷ 3, about, in °C",
+        "value": 28,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 13: warming at switch-on, 20 ÷ 300, in °C per second",
+        "value": 0.067,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 13: warming at switch-on, about, in °C per minute",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 13 wrong pick, 300 ÷ 20, in °C per second",
+        "value": 15,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice: losses, in W per metre",
+        "value": 12,
+        "kind": "assumed"
+      },
+      {
+        "label": "Practice: total thermal resistance, in K·m/W",
+        "value": 2.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Practice: room, in °C",
+        "value": 25,
+        "kind": "assumed"
+      },
+      {
+        "label": "Practice: rise, 12 × 2.5, in °C",
+        "value": 30,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice: conductor, 25 + 30, in °C",
+        "value": 55,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice: headroom to 70 °C, in °C",
+        "value": 45,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice: heat allowed, 45 ÷ 2.5, in W per metre",
+        "value": 18,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice: current factor, √(18 ÷ 12)",
+        "value": 1.22,
+        "kind": "computed"
+      },
+      {
+        "label": "Rule of thumb: more current, in %",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Rule of thumb: 1.1², more rise, about, in %",
+        "value": 21,
+        "kind": "computed"
+      },
+      {
+        "label": "Motor time constant, typical shortest, in hours",
+        "value": 0.5,
+        "kind": "constant"
+      },
+      {
+        "label": "Motor time constant, typical longest, in hours",
+        "value": 5,
+        "kind": "constant"
+      },
+      {
+        "label": "Hot-room current factor, √(30 ÷ 40), for any cable rated at 30 °C with a 70 °C limit",
+        "value": 0.866,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "Left to itself, heat moves from hotter to colder. You have felt it. Touch a steel rail and a wooden one in the same room, and the steel feels colder. Yet both sit at room temperature. Heat simply leaves your fingers faster into the metal. Metal passes heat far more easily than wood. Nothing called cold flows into your hand. What you feel is how fast heat leaves your skin, not just the rail's temperature. So how fast heat moves is one question. How much heat it takes to warm something, its mc, is another.\n\nA loaded cable makes heat in its copper. That heat has to get out through the insulation into the air. Say the cable has 8 mΩ in each metre and carries 50 A. Its I²R losses are 0.008 × 50² = 20 W in each metre. Heat moves in three ways. Conduction carries it through solids, like the copper and its insulation. Convection carries it away in moving air or water. Radiation carries it as infrared, which needs no air at all. From a cable's surface, heat leaves by convection and radiation together. At switch-on the copper is at room temperature, so no heat leaves yet. All 20 W goes into warming it. As it warms, the gap to the room grows, and more heat flows out. So the warming slows. At some temperature the heat leaving matches the losses,[^1] and the copper stops rising. How hard the way out is has a number: its [[thermal resistance]]. For the air around a cable, it is the surface's rise above the room divided by the losses in each metre.[^2] Its unit is K·m/W, degrees of rise for each watt leaving each metre. A thicker layer or a poorer conductor has more thermal resistance. A bigger surface has less. So the heat leaving is the rise ÷ the thermal resistance. Once settled, the heat leaving equals the losses. So the steady rise is losses × thermal resistance. Layers in a row add, like resistors in series. Say the insulation is 0.5 and the air 1.5, so 2 K·m/W in all. The rise is 20 × 2 = 40 °C. In a 30 °C room the copper settles at 70 °C. The air is the harder layer, so it takes 30 °C of that drop.\n\nWrap the cable in 2 K·m/W more and the rise doubles to 80 °C. Packing thermal insulation round a cable does not just slow the warming. It raises where the copper settles. To hold 70 °C, the losses must halve. Losses go with current squared, so the current falls to 0.707 of 50 A. That is about 35 A. Without the wrap, a 40 °C room leaves only 30 °C of headroom. So the current falls to about 43 A. That factor, √(30 ÷ 40), depends only on the temperatures. So it holds for any cable rated in a 30 °C room with a 70 °C limit. These are the reasons behind Ca for a hot room and Ci for thermal insulation. A fan works the other way. Moving air carries heat away faster, so it lowers the air's thermal resistance.\n\nHow long it takes is a separate question. The copper climbs like a capacitor charging through a resistor. The cable's [[heat capacity]] is the energy each metre needs to warm by 1 °C. It is the cable's mc. Say 300 J per °C. Thermal resistance × heat capacity gives the time constant: 2 × 300 = 600 s, or 10 minutes. The units show why it is a time. Multiply °C per W by J per °C and you get J per W, which is seconds. After one time constant the copper has made 63% of its rise. So it is at about 55 °C. By about five time constants, 50 minutes, it has all but settled. Double the heat capacity and it settles at the same 70 °C, twice as slowly. Thermal resistance sets where it settles, and the time too. Heat capacity sets only the time. A motor works the same way. Its time constant is typically half an hour to five hours.[^3] Stopped, a self-cooled motor's fan stops too. Its way out gets harder, so it cools more slowly. A motor protection relay's thermal model comes from this same equation.[^4] This is a simplified model. A real cable's losses and air resistance shift a little as it warms.\n\n**A loaded cable warms until the heat leaving matches the losses. Its steady rise is losses × the thermal resistance of the way out. Its heat capacity sets only how long it takes to get there.**"
+  },
+  "analogy": {
+    "text": "Think of it as a circuit. The losses are a current source. The copper's rise is a voltage. The thermal resistance is a resistor, and the heat capacity is a capacitor across it. Switch the source on and the voltage climbs along the charging curve to I × R. Its time constant is RC. Layers in a row add like resistors in series. The biggest share of the rise sits across the biggest resistance. In the same way, the biggest share of the voltage sits across the biggest resistor in a chain.",
+    "breaks": "In a real cable the parts drift. Copper's resistance rises as it warms, so the source grows. Convection and radiation shed heat more easily as the surface warms, so the resistor falls. The heat capacity is also spread through the layers, not held in one capacitor. So the warming curve is only close to a single RC curve."
+  },
+  "practice": {
+    "text": "For a real installation the rating tables and their correction factors come first. This sum explains them. It does not replace them.\n\n- Find the losses: I²R per metre for a cable, or the total heat made in a motor or a transistor.\n- Add the thermal resistances along the way out, layer by layer.\n- Multiply: the steady rise is losses × total thermal resistance.\n- Add the room's temperature and compare the result with the limit.\n- For how long, multiply thermal resistance by heat capacity. That gives the time constant. It has all but settled after about five.\n\n**Rules of thumb:** Double the thermal resistance and you double the rise. The rise goes with current squared. So 10% more current gives about 21% more rise.\n\n**Worked example:** Say a cable's losses are 12 W in each metre. Its way out, from copper to a 25 °C room, is 2.5 K·m/W. The rise is 12 × 2.5 = 30 °C, so the copper runs at 55 °C. A 70 °C limit allows a rise of 70 − 25 = 45 °C. That allows 45 ÷ 2.5 = 18 W in each metre. So the current could rise by √(18 ÷ 12), about 1.22 times.\n\n**Common mistakes**\n- Thinking cold flows in. Heat flows out of the warmer thing.\n- Thinking thermal insulation round a cable only slows the warming. It raises where the copper settles.\n- Forgetting to add the room's temperature to the rise.\n- Scaling the current in step with the headroom. Losses go with current squared, so the current goes with the square root.\n- Thinking more heat capacity makes a cable settle cooler. With the same losses and way out, it only slows it down."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+    {
+      "n": 1,
+      "title": "IEC 60287 Current Capacity of Cables - An Introduction",
+      "url": "https://myelectrical.com/notes/entryid/207/iec-60287-current-capacity-of-cables-an-introduction",
+      "quote": "At some temperature the rate at which heat is being dissipated to the environment will be the same as the rate at which it is generated"
+    },
+    {
+      "n": 2,
+      "title": "Electric cables — Calculation of the current rating —",
+      "url": "https://webstore.ansi.org/preview-pages/BSI/preview_30131317.pdf",
+      "quote": "Thermal resistance of surrounding medium (ratio of cable surface temperature rise above ambient to the losses per unit length)"
+    },
+    {
+      "n": 3,
+      "title": "24_1_Electrical_motors_Estimating_the_temperature_rise",
+      "url": "https://www.wittfan.de/files/pdf/Know-how%20Center/Anleitung%20und%20Fallbeispiele/07_Elektrische%20Motoren%20-%20Temperaturerh%C3%B6hung_EN.pdf",
+      "quote": "The motor heating constant is typically between 0.5 and 5 hours."
+    },
+    {
+      "n": 4,
+      "title": "Thermal Models in Power System Protection",
+      "url": "https://selinc.com/api/download/3678",
+      "quote": "The thermal model and its relation to an I ²t time-current characteristic is derived from the differential equation for temperature rise caused by current in a conductor"
+    }
+  ]
+}

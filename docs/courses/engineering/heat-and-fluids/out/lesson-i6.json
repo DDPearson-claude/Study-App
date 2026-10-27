@@ -1,0 +1,732 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-27T05:56:25.421Z",
+ "startedAt": "2026-10-27T05:56:25.421Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i6",
+  "title": "Fluids in motion",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the water speeding up in the throat, the throat's column dropping, and the column after it standing back up, when you drag the throat narrower.",
+   "title": "The venturi",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Screen",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [
+    {
+     "id": "throatSpeed",
+     "label": "Speed in the throat",
+     "unit": "m/s",
+     "decimals": 1
+    },
+    {
+     "id": "pressureDrop",
+     "label": "Drop, pipe to throat",
+     "unit": "kPa",
+     "decimals": 1
+    },
+    {
+     "id": "flowFromDrop",
+     "label": "Flow, from the columns",
+     "unit": "L/s",
+     "decimals": 1
+    }
+   ],
+   "whatAmILookingAt": "This is a short lesson in thirteen small screens. The main picture is a level pipe full of seawater, seen from the side. It narrows to a throat in the middle. The pipe's bore is 20 cm². That is about the inside of a 50 mm pipe, since π × 2.5² is about 19.6 cm². Dots ride along with the water. A throat slider sets the throat's area. It runs from 4 to 20 cm² in steps of 1, and starts at 5. A flow slider sets the flow. It runs from 0 to 6 L/s in steps of 0.5, and starts at 4. Under each section a label shows area × speed. The flow is the same at every section. So the speed at a section is the flow ÷ its area. In the pipe, that is 0.004 m³/s ÷ 0.002 m², or 2.0 m/s. In the throat, it is 0.004 ÷ 0.0005, or 8.0 m/s. Both labels multiply out to 4.0 L/s. The dots are evenly spaced in the pipe. They stretch apart in the throat, because each one covers more ground each second there. One slug of water is picked out. An arrow on each end shows the pressure pushing on it. Going into the throat, the arrow behind it is longer than the one in front. That difference speeds it up. Leaving the throat, the arrows swap and it slows. Three thin columns stand on the pipe. One is before the throat, one is on it and one is after it. Each stands as high as the pressure under it can hold up, by ρgh. The pressure before the throat is held at 150 kPa gauge. So that column would stand about 14.9 m. It is drawn far shorter. The throat's pressure is lower by ½ρ(v₂² − v₁²). Seawater is taken at 1025 kg/m³. At the starting settings, that is ½ × 1025 × (8² − 2²), about 30.8 kPa. So the throat's column stands about 3.1 m lower. The column after the throat stands level with the first again, because the water slows back to 2.0 m/s. Three readouts wrap onto two rows on a phone. They show the throat's speed, the pressure drop from pipe to throat, and the flow worked back from that drop. To work it back, the drop gives the pipe's speed, v₁ = √(2 × drop ÷ (ρ × ((A₁ ÷ A₂)² − 1))). The flow is then A₁ × v₁. With the throat opened to the full 20 cm², there is no drop and nothing to measure. So that readout shows a dash. A small plot beside the pipe shows the drop against the flow. It rises as the flow squared. A dot marks the flow you have set. At the limits, 6 L/s through a 4 cm² throat, the speeds are 3.0 and 15.0 m/s. The drop is about 110.7 kPa. The throat's column still stands, at about 39.3 kPa. A measure switch hides the flow slider and the flow readout. Then you find the flow from the columns. A switch picks thick oil creeping or thin seawater moving fast. It swaps the dots for streamlines. The oil glides in smooth layers. The fast seawater churns in eddies. A Reynolds number scale below lights up to match. The words \"the change comes somewhere between about 2000 and 4000, or higher\" are written on it. Screen by screen. Screen 1 is a warm-up. Seawater runs at 2 m/s through a pipe of 20 cm². How many litres pass each second? 40 L/s, 4 L/s or 0.004 L/s. The 20 cm² is 0.002 m², so 0.002 × 2 = 0.004 m³ each second, which is 4 L/s. A right answer says \"Still there.\" Screen 2 shows the dots streaming through. Both area × speed labels read 4.0 L/s. As the throat slider narrows the throat, the labels stay equal. Screen 3 asks for a prediction before the columns appear. The water speeds up from 2 to 8 m/s in the throat. How will the throat's column stand? The throat's column stands lowest. Or it stands tallest, because the water is squeezed there. Or all three stand level. Screen 4 shows the columns, with the picked-out slug and its two arrows. The throat's column stands lower, and the one after stands back up. Screen 5 asks a question. Water flows at 1.5 m/s in a pipe of 12 cm² and enters a section of 4 cm². How fast does it go there? 4.5 m/s, 0.5 m/s or 1.5 m/s. Screen 6 shows the energy at each section as a stacked bar of pressure plus ½ρv². Each adds to about 152 kPa. In the pipe it is 150 + 2.1. In the throat it is about 119.2 + 32.8. Screen 7 asks another. Seawater flows at 1 m/s in a pipe of 15 cm² into a throat of 5 cm². How much does the pressure change? About 4.1 kPa lower, about 4.6 kPa lower, or about 4.1 kPa higher. Screen 8 shows the flow slider and the plot. At 2 L/s the drop is about 7.7 kPa, a quarter of 30.8. At 6 L/s it is about 69.2 kPa. Screen 9 is the measure switch. The flow is hidden, and the throat is at 5 cm². The columns differ by about 7.7 kPa. What is the flow? 2 L/s, 1 L/s or 4 L/s. Screen 10 shows the switch, first thick oil in smooth layers, then fast seawater in eddies. Screen 11 asks which flow is most likely to run in smooth layers. Is it thick, cold oil creeping through a small pipe? Seawater at 2 m/s in a 50 mm pipe? Or the same seawater at the same speed in a 150 mm pipe? A right answer draws smooth layers in the oil only, the most likely of the three to run smooth. Screens 12 and 13 bring it all together. In screen 12, seawater flows at 3 L/s through a pipe of 15 cm², into a throat of 6 cm². How big is the drop? About 12.8 kPa, about 10.8 kPa or about 4.6 kPa. The speeds are 0.003 ÷ 0.0015 = 2 m/s and 0.003 ÷ 0.0006 = 5 m/s. So the drop is ½ × 1025 × (5² − 2²), about 10.8 kPa. Screen 13 gives a drop of 30.8 kPa in seawater. How much lower does the throat's column stand? About 3.1 m, about 0.3 m or about 30.8 m. Where it can be, a wrong pick is drawn on the picture. That way you see where it fails.",
+   "ignores": "The pipe is level, so height plays no part. The water is taken as frictionless. So the column after the throat stands fully back up. A real venturi gets most of the drop back, not all of it. The rest is lost to friction. The speed is drawn the same across the pipe. Real water moves faster in the middle than at the walls. The seawater is taken as not squeezing at all. It has one density throughout. The columns are drawn far shorter than life. The pressure before the throat is held at 150 kPa whatever the flow. In a real system, the pump and the pipe set it. The smooth and eddying pictures are sketches, not a simulation. If a throat's pressure fell low enough, the water would boil there. Nothing in this picture's range comes near that.",
+   "numbers": [
+    {
+     "label": "Pipe's bore area, in cm²",
+     "value": 20,
+     "kind": "assumed"
+    },
+    {
+     "label": "Pipe's bore area, in m²",
+     "value": 0.002,
+     "kind": "computed"
+    },
+    {
+     "label": "A 50 mm pipe's bore, in mm",
+     "value": 50,
+     "kind": "assumed"
+    },
+    {
+     "label": "A 50 mm bore's area, π × 2.5², in cm²",
+     "value": 19.6,
+     "kind": "computed"
+    },
+    {
+     "label": "Throat slider lowest, in cm²",
+     "value": 4,
+     "kind": "control"
+    },
+    {
+     "label": "Throat slider highest, in cm²",
+     "value": 20,
+     "kind": "control"
+    },
+    {
+     "label": "Throat slider step, in cm²",
+     "value": 1,
+     "kind": "control"
+    },
+    {
+     "label": "Throat's opening setting, in cm²",
+     "value": 5,
+     "kind": "control"
+    },
+    {
+     "label": "Throat's opening area, in m²",
+     "value": 0.0005,
+     "kind": "computed"
+    },
+    {
+     "label": "Flow slider lowest, in L/s",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Flow slider highest, in L/s",
+     "value": 6,
+     "kind": "control"
+    },
+    {
+     "label": "Flow slider step, in L/s",
+     "value": 0.5,
+     "kind": "control"
+    },
+    {
+     "label": "Flow's opening setting, in L/s",
+     "value": 4,
+     "kind": "control"
+    },
+    {
+     "label": "Opening flow, in m³/s",
+     "value": 0.004,
+     "kind": "computed"
+    },
+    {
+     "label": "Speed in the pipe at the opening, in m/s",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Speed in the throat at the opening, in m/s",
+     "value": 8,
+     "kind": "computed"
+    },
+    {
+     "label": "Throat's area as a share of the pipe's",
+     "value": 0.25,
+     "kind": "computed"
+    },
+    {
+     "label": "Speed-up in the throat, 20 ÷ 5",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Seawater's density, in kg/m³",
+     "value": 1025,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "Gravity's pull, g, in N per kg",
+     "value": 9.81,
+     "kind": "constant"
+    },
+    {
+     "label": "8² − 2², in m²/s²",
+     "value": 60,
+     "kind": "computed"
+    },
+    {
+     "label": "Drop at the opening, ½ × 1025 × 60, in kPa",
+     "value": 30.8,
+     "kind": "computed"
+    },
+    {
+     "label": "Pressure before the throat, gauge, in kPa",
+     "value": 150,
+     "kind": "assumed"
+    },
+    {
+     "label": "Column before the throat, 150 kPa ÷ (1025 × 9.81), in m",
+     "value": 14.9,
+     "kind": "computed"
+    },
+    {
+     "label": "Throat's column lower by, 30.8 kPa ÷ (1025 × 9.81), in m",
+     "value": 3.1,
+     "kind": "computed"
+    },
+    {
+     "label": "Throat's pressure at the opening, 150 − 30.8, in kPa",
+     "value": 119.2,
+     "kind": "computed"
+    },
+    {
+     "label": "Speed energy in the pipe, ½ × 1025 × 2², in kPa",
+     "value": 2.1,
+     "kind": "computed"
+    },
+    {
+     "label": "Speed energy in the throat, ½ × 1025 × 8², in kPa",
+     "value": 32.8,
+     "kind": "computed"
+    },
+    {
+     "label": "Pressure plus speed energy, each section, in kPa",
+     "value": 152,
+     "kind": "computed"
+    },
+    {
+     "label": "Drop at 2 L/s, ½ × 1025 × (4² − 1²), in kPa",
+     "value": 7.7,
+     "kind": "computed"
+    },
+    {
+     "label": "Flow at a quarter of the drop, in L/s",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Drop at 6 L/s, ½ × 1025 × (12² − 3²), in kPa",
+     "value": 69.2,
+     "kind": "computed"
+    },
+    {
+     "label": "Speed in the pipe at 6 L/s, in m/s",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Speed in a 4 cm² throat at 6 L/s, in m/s",
+     "value": 15,
+     "kind": "computed"
+    },
+    {
+     "label": "Drop at 6 L/s through 4 cm², in kPa",
+     "value": 110.7,
+     "kind": "computed"
+    },
+    {
+     "label": "Throat's pressure then, 150 − 110.7, in kPa",
+     "value": 39.3,
+     "kind": "computed"
+    },
+    {
+     "label": "Twice the flow gives this many times the drop",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Smooth flow below, Reynolds number, about",
+     "value": 2000,
+     "kind": "constant"
+    },
+    {
+     "label": "Eddying flow above, Reynolds number, about",
+     "value": 4000,
+     "kind": "constant"
+    },
+    {
+     "label": "Some put the upper edge as high as, Reynolds number",
+     "value": 10000,
+     "kind": "constant",
+     "source": 5
+    },
+    {
+     "label": "Energy to push 1 m³ in against 1 Pa, in J",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 1: pipe's area, 20 cm², in m²",
+     "value": 0.002,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 1: speed, in m/s",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 1: flow, 0.002 × 2, in m³/s",
+     "value": 0.004,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 1: flow, in L/s",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 1 wrong pick, area left in cm², 20 × 2, in L/s",
+     "value": 40,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 1 wrong pick, m³/s read as L/s",
+     "value": 0.004,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 5: pipe's area, in cm²",
+     "value": 12,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 5: speed in the pipe, in m/s",
+     "value": 1.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 5: narrow section's area, in cm²",
+     "value": 4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 5: speed there, 1.5 × 12 ÷ 4, in m/s",
+     "value": 4.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 5 wrong pick, ratio upside down, 1.5 × 4 ÷ 12, in m/s",
+     "value": 0.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 7: pipe's area, in cm²",
+     "value": 15,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 7: speed in the pipe, in m/s",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 7: throat's area, in cm²",
+     "value": 5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 7: speed in the throat, 1 × 15 ÷ 5, in m/s",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 7: drop, ½ × 1025 × (3² − 1²), in kPa",
+     "value": 4.1,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 7 wrong pick, pipe's speed left out, ½ × 1025 × 3², in kPa",
+     "value": 4.6,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 9: hidden flow, in L/s",
+     "value": 2,
+     "kind": "control"
+    },
+    {
+     "label": "Screen 9 wrong pick, flow in step with the drop, in L/s",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 11: small seawater pipe's bore, in mm",
+     "value": 50,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 11: large seawater pipe's bore, in mm",
+     "value": 150,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 12: flow, in L/s",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 12: pipe's area, in cm²",
+     "value": 15,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 12: throat's area, in cm²",
+     "value": 6,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 12: speed in the pipe, 0.003 ÷ 0.0015, in m/s",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 12: speed in the throat, 0.003 ÷ 0.0006, in m/s",
+     "value": 5,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 12: drop, ½ × 1025 × (5² − 2²), in kPa",
+     "value": 10.8,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 12 wrong pick, pipe's speed left out, ½ × 1025 × 5², in kPa",
+     "value": 12.8,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 12 wrong pick, speeds subtracted first, ½ × 1025 × (5 − 2)², in kPa",
+     "value": 4.6,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 13 wrong pick, a tenth of the drop's height, in m",
+     "value": 0.3,
+     "kind": "computed"
+    },
+    {
+     "label": "Seawater per metre of column, 1025 × 9.81, about, in kPa",
+     "value": 10,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example: drop, in Pa",
+     "value": 7700,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example: area ratio squared less one, 4² − 1",
+     "value": 15,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example: area ratio squared, 4²",
+     "value": 16,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example: speed in the pipe, √(2 × 7,700 ÷ (1025 × 15)), in m/s",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "1 cm² in m²",
+     "value": 0.0001,
+     "kind": "constant"
+    },
+    {
+     "label": "Litres in 1 m³",
+     "value": 1000,
+     "kind": "constant"
+    }
+   ]
+  },
+  "explain": {
+   "text": "Water speeds up where a pipe narrows. While it is there, its pressure drops. Both follow from two things you already trust. What goes in must come out. And energy is not made from nothing. Measure that drop, and the narrowing becomes a flow meter.\n\nStart with what goes in. Water barely squeezes. So in a full pipe, every litre that enters pushes a litre out further along. The flow, in litres a second, is the same at every section.[^2] The flow through a section is its area × the water's average speed. Each second, a slug of water as long as that speed slides through that area. Take a pipe of 20 cm², which is 0.002 m², carrying water at 2 m/s. It passes 0.002 × 2 = 0.004 m³ each second. That is 4 L/s. Narrow it to a throat of 5 cm², a quarter of the area. The same 4 L/s must pass. So the water there moves four times as fast, at 8 m/s. That is [[continuity]]. Area × speed stays the same along the pipe. So A₁v₁ = A₂v₂.\n\nSpeeding up needs a push. Along a level pipe, the push comes from the pressure of the water around it. So going into the throat, each bit of water must have higher pressure behind it than in front. That means the pressure falls as the speed rises. As water flows into a narrower part, its speed and its kinetic energy go up.[^3] That energy comes out of the pressure. Pressure is itself energy per cubic metre. Pushing 1 m³ of water in against 1 Pa takes 1 J. Moving water also carries ½ρv² of kinetic energy in each cubic metre. Here ρ is its density and v its speed. Along a level pipe with no friction, the two add to the same total. So p + ½ρv² stays constant. That is [[Bernoulli's principle]]. A pipe that climbs adds a third share, the ρgh you met with pressure in liquids. So the throat's pressure is lower by ½ρ(v₂² − v₁²). Seawater is 1025 kg/m³.[^1] So here the drop is ½ × 1025 × (8² − 2²) = ½ × 1025 × 60, about 30.8 kPa. After the throat, the pipe widens. The water slows back to 2 m/s, and the pressure comes back. This is a teaching model with no friction. Real water has some. So a real venturi gets most of its drop back after the throat, not all of it. Many people expect the opposite, that faster water means higher pressure. A hose's jet hits hard because it is fast. Out in the air, the pressure inside the jet is only the air's.\n\nTurn that round and you have a flow meter. The drop grows with the speed squared. The speed is in step with the flow. So twice the flow gives four times the drop. Measure the drop between the pipe and the throat, and you can work back to the speed, then the flow. A pipe narrowed smoothly and tapped for this is a [[venturi]].[^4] An orifice plate, a flat plate with a hole in it, measures flow the same way. A Pitot tube is another meter. It measures the water's speed.[^6] A sharp-edged orifice comes with a correction factor, its discharge coefficient.[^7] Through our pipe, 4 L/s gives a drop of about 30.8 kPa. Half the flow, 2 L/s, gives a quarter of that, about 7.7 kPa. The flow itself can glide in smooth layers or churn in eddies. Which you get depends on the speed, the bore and how thick the liquid is. Engineers roll these into one figure, the Reynolds number. Below about 2000, flow is smooth. Above about 4000, it usually eddies. Neither edge is fixed. Some put the upper one as high as 10 000. In between, a flow can go either way. Faster, wider and thinner flows are more likely to eddy.\n\n**Through a narrowing, the same flow must go faster. The energy for that speed comes out of the pressure. So a venturi's pressure drop measures the flow.**"
+  },
+  "analogy": {
+   "text": "Think of one current through a cable with a thinner length spliced into it. The same amps pass every section of the cable, just as the same litres a second pass every section of the pipe. In the thin length, the current is crowded into less copper. So its current density, in amps per mm², goes up. The water's speed does the same in the throat. A voltmeter across the thin length reads a drop there. The columns show a drop at the throat in the same way.",
+   "breaks": "A cable's drop across its thin length is lost as heat. The voltage never comes back further along. A venturi's drop is mostly not lost. It went into speed. It comes back as pressure when the pipe widens and the water slows. Only the friction part is lost, as in the cable. And a cable's volt drop is in step with the current, I × R. A venturi's drop goes with the flow squared."
+  },
+  "practice": {
+   "text": "**Safe first:** A flow meter's pressure tappings and their small pipes are part of the pressure system. Before you break into them, isolate and vent them, as for any pipe under pressure.\n\n**Reading flow from a venturi**\n- Find the pipe's area and the throat's area, in m². 1 cm² is 0.0001 m².\n- Read the drop in pressure from pipe to throat, in Pa. A differential pressure gauge reads it directly.\n- Work out the area ratio, pipe ÷ throat, and square it.\n- Speed in the pipe: v₁ = √(2 × drop ÷ (ρ × (ratio² − 1))).\n- Flow = the pipe's area × v₁, in m³/s. Multiply by 1000 for L/s.\n- A real meter comes with its maker's correction factor. Multiply the flow by it.\n\n**Rules of thumb:** The flow goes with the square root of the drop. Twice the flow gives four times the drop. So a meter reads poorly at low flow, because the drop there is tiny. In seawater, each 10 kPa of drop is about 1 m of column. An orifice plate is a flat plate with a hole in it. It works the same way.\n\n**Worked example:** Seawater at 1025 kg/m³ runs through a pipe of 20 cm² with a throat of 5 cm². The gauge reads a drop of 7,700 Pa. The area ratio is 4. Squared, that is 16, and less 1 it is 15. So v₁ = √(2 × 7,700 ÷ (1025 × 15)), about 1.0 m/s. Flow = 0.002 × 1.0 = 0.002 m³/s. That is 2 L/s.\n\n**Common mistakes**\n- Expecting the pressure to rise where the pipe narrows. It falls, because the water is speeding up.\n- Leaving out the pipe's own speed. The drop is ½ρ(v₂² − v₁²), not ½ρv₂².\n- Subtracting the speeds before you square them.\n- Treating the drop as in step with the flow. It goes with the flow squared.\n- Mixing cm² and m².\n- Expecting all of the drop to come back after the throat. A real meter loses a little to friction."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "Properties of seawater",
+    "url": "https://talleylab.ucsd.edu/sio210/lect_2/lecture_2.html",
+    "quote": "The density of seawater is about 1025 kg/m^3 and the specific heat is about 3850 J/(kg C)."
+   },
+   {
+    "n": 2,
+    "title": "PHYS 200 - Lecture 20 - Fluid Dynamics and Statics and Bernoulli's Equation | Open Yale Courses",
+    "url": "https://oyc.yale.edu/physics/phys-200/lecture-20",
+    "quote": "So, in an incompressible fluid, if I tell you the flow rate at one point, I've told you the flow rate everywhere."
+   },
+   {
+    "n": 3,
+    "title": "12.2 Bernoulli’s Equation - College Physics 2e | OpenStax",
+    "url": "https://openstax.org/books/college-physics-2e/pages/12-2-bernoullis-equation",
+    "quote": "When a fluid flows into a narrower channel, its speed increases. That means its kinetic energy also increases."
+   },
+   {
+    "n": 4,
+    "title": "An Introduction to Venturi Flow Meters, Flow Nozzles, and Segmental Wedge Elements",
+    "url": "https://www.dwyeromega.com/en-us/resources/venturi-meter",
+    "quote": "Venturi flow meters, like all other types of differential pressure flow meters, function on the principles of the Bernoulli equation"
+   },
+   {
+    "n": 5,
+    "title": "CHAPTER 3. FLUID FLOW",
+    "url": "https://handbook.ashrae.org/(S(sriqhilv3nrnvqccyiw1imm0))/Handbooks/F17/SI/F17_Ch03/f17_ch03_si.aspx",
+    "quote": "A transition region from laminar to turbulent flow occurs when 2000 < Re < 10 000"
+   },
+   {
+    "n": 6,
+    "title": "Curtin Courses Online Handbook 2004 - ChE 221 Fluid Mechanics",
+    "url": "https://archive.handbook.curtin.edu.au/july2004/units/30/302246.html",
+    "quote": "Measurement of pressure and flow speed (Pitot/Pitot-static tubes, venturi meter, orifice plate)"
+   },
+   {
+    "n": 7,
+    "title": "Applied Mechanics Written Examination Syllabus - GOV.UK",
+    "url": "https://www.gov.uk/government/publications/second-engineer-written-examination-syllabuses/applied-mechanics-written-examination-syllabus",
+    "quote": "Explains the concepts of: C v , C c and C d for a sharp edge orifice."
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: quantity -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .lead, .caption { max-width: 30rem; margin-inline: auto; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }\n  .stage { position: relative; max-width: 26rem; margin-inline: auto; }\n  .scene { display: block; width: 100%; }\n  .scene .wall { fill: none; stroke: var(--k-strong); stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }\n  .scene .liq { fill: var(--k-cat1); fill-opacity: .14; }\n  .scene .oil { fill: var(--k-fill3); }\n  .scene .dot { fill: var(--k-cat1); }\n  .scene .sl { fill: none; stroke: var(--k-cat1); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }\n  .scene .sl.o { stroke: var(--k-muted); }\n  .scene .tube { fill: none; stroke: var(--k-strong); stroke-width: 1.5; }\n  .scene .colw { fill: var(--k-cat1); fill-opacity: .35; }\n  .scene .surf { stroke: var(--k-cat1); stroke-width: 2; }\n  .scene .slug { fill: var(--k-fill2); stroke: var(--k-amber-line); stroke-width: 1.5; stroke-linejoin: round; }\n  .scene .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }\n  .scene .lab.m { font-weight: 400; fill: var(--k-muted); }\n  .scene .lab.t { fill: var(--k-accent); }\n  .scene .lab.w { fill: var(--k-warn); }\n  .scene .lab.n { fill: var(--k-accent2); }\n  .scene .brk { fill: none; stroke: var(--k-accent2); stroke-width: 1.5; }\n  .scene .lvl { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 5 4; }\n  .scene .sec { stroke: var(--k-muted); stroke-width: 1.5; }\n  .scene .pt { fill: var(--k-accent2); }\n  .scene .ar { stroke-width: 2.5; stroke-linecap: round; fill: none; }\n  .scene .ar-n { stroke: var(--k-accent2); }\n  .scene .hd-n { fill: var(--k-accent2); }\n  .scene .ar-w { stroke: var(--k-warn); stroke-dasharray: 5 4; stroke-linecap: butt; }\n  .scene .hd-w { fill: var(--k-warn); }\n  .scene .bad { fill: none; stroke: var(--k-warn); stroke-width: 2.5; stroke-dasharray: 6 4; }\n  .scene .badl { stroke: var(--k-warn); stroke-width: 2.5; stroke-dasharray: 6 4; }\n  .scene .bp { fill: var(--k-fill1); stroke: var(--k-accent2); stroke-width: 1; }\n  .scene .bk { fill: var(--k-fill2); stroke: var(--k-amber-line); stroke-width: 1; }\n  .scene .tot { stroke: var(--k-accent2); stroke-width: 1.5; stroke-dasharray: 5 4; }\n  .scene .seg { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1; }\n  .scene .seg.mid { fill: var(--k-sunk); }\n  .scene .seg.on { fill: var(--k-fill1); stroke: var(--k-accent2); stroke-width: 2; }\n  .scene #art * { pointer-events: none; }\n  /* The handle Dan drags: a ring on the throat's wall. */\n  .knob { position: absolute; width: 32px; height: 32px; margin: -16px 0 0 -16px; box-sizing: border-box; border-radius: 50%;\n    background: transparent; border: 2.5px solid var(--k-accent2); cursor: grab; }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; }\n  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }\n  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; }\n  /* Readouts, answers and controls wrap onto as many rows as they need at 360 px. */\n  #outs { display: grid; grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr)); gap: 10px; }\n  .picks { display: grid; grid-template-columns: repeat(auto-fit, minmax(6.5rem, 1fr)); gap: 10px; }\n  .picks.long { grid-template-columns: 1fr; }\n  .picks .k-btn { min-height: 52px; font-size: 1.1rem; }\n  .picks.long .k-btn { min-height: 48px; font-size: 1.02rem; }\n  .picks .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  .plotbox { max-width: 26rem; margin-inline: auto; }\n  .fb { font-weight: 700; min-height: 1.5em; }\n  .fb.right { color: var(--k-good); }\n  .fb.wrong { color: var(--k-ink); }\n  .why, .done { line-height: 1.6; }\n  .done strong { color: var(--k-accent2); }\n  .done .row { margin-top: 14px; }\n  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */\n  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }\n</style>\n\n<p class=\"lead\">Each pipe here is level and drawn far smaller than life.</p>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <div class=\"stage\" id=\"stage\">\n      <svg class=\"scene\" id=\"scene\" viewBox=\"0 0 340 240\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"art\"></g></svg>\n      <div class=\"knob\" id=\"kt\" hidden></div>\n    </div>\n    <div class=\"k-controls\" id=\"ctl\"></div>\n    <p class=\"say\" id=\"say\"></p>\n    <div class=\"k-readouts\" id=\"outs\"></div>\n    <div class=\"plotbox\" id=\"plotbox\">\n      <span class=\"k-label\">The drop against the flow, for this throat</span>\n      <div id=\"plot\"></div>\n    </div>\n    <div class=\"replay\" id=\"replay\"></div>\n    <div class=\"picks\" id=\"picks\"></div>\n    <div class=\"row acts\" id=\"acts\"></div>\n    <p class=\"fb\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p><strong id=\"finish\"></strong></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\" id=\"cap\"></p>\n\n<script>\n  // ---------- the rule ----------\n  // Continuity: the flow (L/s) is the same at every section, so speed = flow ÷ area.\n  // Bernoulli, level and frictionless: p + ½ρv² is the same everywhere, so the throat's pressure\n  // is lower by ½ρ(v₂² − v₁²). A column stands h = p ÷ ρg. Worked back: v₁ = √(2 × drop ÷\n  // (ρ × ((A₁ ÷ A₂)² − 1))) and the flow is A₁ × v₁.\n  const SRC_TALLEY = 'https://talleylab.ucsd.edu/sio210/lect_2/lecture_2.html';\n  const SRC_YALE = 'https://oyc.yale.edu/physics/phys-200/lecture-20';\n  const SRC_OSX = 'https://openstax.org/books/college-physics-2e/pages/12-2-bernoullis-equation';\n  const SRC_VEN = 'https://www.dwyeromega.com/en-us/resources/venturi-meter';\n  const RHO = 1025, G = 9.81, A1 = 20, P1 = 150, ATM = 100, QO = 4, AO = 5;\n  const FADE = 0.35, ANS = 2.0;\n  const vAt = (q, a) => 10 * q / a;                                  // m/s from L/s through cm²\n  const keK = (v) => 0.5 * RHO * v * v / 1000;                       // kPa of speed energy, ½ρv²\n  const dropK = (q, a2, a1) => keK(vAt(q, a2)) - keK(vAt(q, a1 || A1));   // kPa, pipe to throat\n  const backFlow = (dk, a2, a1) => { a1 = a1 || A1; const r = a1 / a2; return a1 * Math.sqrt(2 * dk * 1000 / (RHO * (r * r - 1))) / 10; };\n  const colM = (kpa) => kpa * 1000 / (RHO * G);                     // m of seawater a pressure holds up\n  const rd = (v, dp) => { const f = Math.pow(10, dp || 0); return Math.round(v * f + (v >= 0 ? 1e-7 : -1e-7)) / f; };\n  const fx = (v, dp) => K.fmt(rd(v, dp || 0), { decimals: dp || 0 });\n  const pShown = (q, a2) => P1 - rd(dropK(q, a2), 1);               // the throat's pressure, as 150 − the drop shown\n  const DS = String(RHO), GS = String(G);\n  // Every number the words and pictures print, worked out from the rule.\n  const N = {\n    q0: fx(QO), q: fx(QO, 1), v10: fx(vAt(QO, A1)), v1: fx(vAt(QO, A1), 1), v20: fx(vAt(QO, AO)), v2: fx(vAt(QO, AO), 1),\n    d4: fx(dropK(QO, AO), 1), c1: fx(colM(P1), 1), cd: fx(colM(dropK(QO, AO)), 1), p2: fx(pShown(QO, AO), 1),\n    k1: fx(keK(vAt(QO, A1)), 1), k2: fx(keK(vAt(QO, AO)), 1), tot: fx(P1 + keK(vAt(QO, A1))),\n    d2: fx(dropK(2, AO), 1), d6: fx(dropK(6, AO), 1),\n    v6a: fx(vAt(6, A1), 1), v6b: fx(vAt(6, 4), 1), d64: fx(dropK(6, 4), 1), p64: fx(pShown(6, 4), 1),\n    f40: fx(A1 * 2), f0004: fx(A1 * 2 / 10000, 3),\n    s5: fx(1.5 * 12 / 4, 1), s5w: fx(1.5 * 4 / 12, 1),\n    s7v: fx(vAt(1.5, 5)), s7d: fx(dropK(1.5, 5, 15), 1), s7w: fx(keK(vAt(1.5, 5)), 1),\n    f6: fx(dropK(3, 6, 15), 1), f6w: fx(keK(vAt(3, 6)), 1), f6s: fx(keK(vAt(3, 6) - vAt(3, 15)), 1),\n    s13: fx(colM(rd(dropK(QO, AO), 1)), 1), s13w: fx(colM(rd(dropK(QO, AO), 1)) / 10, 1), pa: fx(rd(dropK(QO, AO), 1) * 1000),\n    bore: fx(Math.PI * 2.5 * 2.5, 1), atm: fx(ATM), per10: fx(colM(10)),\n  };\n  const O = {\n    f40: `${N.f40} L/s`, f4: `${N.q0} L/s`, f0004: `${N.f0004} L/s`,\n    lvl: 'All three stand level', tall: \"The throat's stands tallest\", low: \"The throat's stands lowest\",\n    v45: `${N.s5} m/s`, v05: `${N.s5w} m/s`, v15: '1.5 m/s',\n    d46: `About ${N.s7w} kPa lower`, d41: `About ${N.s7d} kPa lower`, d41h: `About ${N.s7d} kPa higher`,\n    q2: '2 L/s', q1: '1 L/s', q4: '4 L/s',\n    r50: 'Seawater at 2 m/s in a 50 mm pipe', r150: 'Seawater at 2 m/s in a 150 mm pipe', oil: 'Thick, cold oil creeping through a small pipe',\n    t108: `About ${N.f6} kPa`, t128: `About ${N.f6w} kPa`, t46: `About ${N.f6s} kPa`,\n    h31: `About ${N.s13} m`, h03: `About ${N.s13w} m`, h308: `About ${N.d4} m`,\n  };\n\n  // ---------- the lesson: SHOW screens demonstrate, DO screens are puzzles ----------\n  // A live screen (live: which controls show) opens on its own settings (set) and runs its\n  // demonstration (mot: timed keys for its controls) once.\n  const STEPS = [\n    { kind: 'pick', name: 'A warm-up', top: 'warm', right: 'Still there.',\n      opts: [O.f40, O.f4, O.f0004], want: O.f4,\n      bad: { [O.f40]: { lab: `${N.f40} L/s keeps the area in cm²` }, [O.f0004]: { lab: `${N.f0004} is in m³/s, not L/s` } },\n      task: 'Seawater runs at 2 m/s through a pipe of 20 cm². How many litres pass each second?',\n      why: `Flow is area × speed. 20 cm² is 0.002 m². So 0.002 × 2 = ${N.f0004} m³ pass each second. A cubic metre is 1000 litres, so that is ${N.q0} L/s.`,\n      hint: 'Not quite. Turn the area into m², then multiply by the speed.',\n      hints: { [O.f40]: 'Not quite. That multiplies cm² by m/s. Turn 20 cm² into 0.002 m² first.', [O.f0004]: `Not quite. ${N.f0004} is in m³ a second. Each m³ is 1000 litres.` } },\n    { show: true, name: 'What goes in comes out', top: 'pipe', cy: 112, lab: true, live: { throat: true },\n      set: { throat: 20 }, dur: 3.6, mot: [{ ctl: 'throat', keys: [[0.5, 20], [3.2, 5]] }],\n      text: `You just found the *flow* in this pipe, ${N.q0} L/s. Water barely squeezes, so the flow is the same at every section. Flow is area × the water's average speed. A throat of 5 cm² is a quarter of the pipe's area. So the same ${N.q0} L/s must move four times as fast there, at ${N.v20} m/s. That is *continuity*. Drag the throat narrower and watch the dots.`,\n      read: `You just found the *flow* in this pipe, ${N.q0} L/s. Water barely squeezes, so the flow is the same at every section. Flow is area × the water's average speed. A throat of 5 cm² is a quarter of the pipe's area. So the same ${N.q0} L/s must move four times as fast there, at ${N.v20} m/s. That is *continuity*. In the throat the dots stretch apart.` },\n    { kind: 'pick', name: 'Before the columns', top: 'pipe', fig: 'predict',\n      opts: [O.lvl, O.tall, O.low], want: O.low,\n      bad: { [O.lvl]: { lab: 'level: then nothing would push it faster' }, [O.tall]: { lab: 'tallest: that would push the water back' } },\n      task: 'Three thin columns will stand on this pipe. One is before the throat, one is on it and one is after it. The water speeds up from 2 to 8 m/s in the throat. How will the throat\\'s column stand?',\n      why: 'Speeding up needs a push. Going into the throat, the pressure behind each bit of water must beat the pressure in front. So the pressure is lowest where the water is fastest. After the throat the water slows, and its pressure comes back.',\n      hint: 'Not quite. Ask what pushes the water faster as it enters the throat.',\n      hints: { [O.lvl]: 'Not quite. Something must push the water faster into the throat. Only a difference in pressure can.', [O.tall]: 'Not quite. Squeezed water is moving faster, and that speed is paid for out of the pressure.' } },\n    { show: true, name: 'The columns', top: 'pipe', cy: 160, cols: true, slug: true, live: { throat: true }, outs: ['throatSpeed', 'pressureDrop'],\n      set: { throat: 20 }, dur: 3.6, mot: [{ ctl: 'throat', keys: [[0.5, 20], [3.2, 5]] }],\n      text: \"Speeding up needs a push. Here only the pressure can give it. Going into the throat, the arrow behind the slug beats the one in front. So the pressure falls as the speed rises. Each column stands as high as its pressure holds it, so the throat's stands lower. After the throat the water slows, and its column stands back up. A real venturi gets most of the drop back, not all. Drag the throat narrower.\",\n      read: \"Speeding up needs a push. Here only the pressure can give it. Going into the throat, the arrow behind the slug beats the one in front. So the pressure falls as the speed rises. Each column stands as high as its pressure holds it, so the throat's stands lower. After the throat the water slows, and its column stands back up. A real venturi gets most of the drop back, not all.\" },\n    { kind: 'pick', name: 'Into a narrower pipe', top: 'two',\n      opts: [O.v45, O.v05, O.v15], want: O.v45,\n      bad: { [O.v05]: { lab: `${N.s5w} m/s turns the ratio upside down` }, [O.v15]: { lab: '1.5 m/s: only a third would get through' } },\n      task: 'Water flows at 1.5 m/s in a pipe of 12 cm². It enters a section of 4 cm². How fast does it go there?',\n      why: `The same flow passes both sections, so area × speed is the same. 12 × 1.5 must equal 4 × v. So v = 1.5 × 12 ÷ 4 = ${N.s5} m/s. A third of the area means three times the speed.`,\n      hint: 'Not quite. Area × speed is the same in both.',\n      hints: { [O.v05]: 'Not quite. That turns the ratio upside down. Narrower means faster.', [O.v15]: 'Not quite. At the same speed, less water would get through each second.' } },\n    { show: true, name: 'Where the energy goes', top: 'pipe', cy: 66, bars: true, live: { throat: true }, outs: ['throatSpeed'],\n      set: { throat: 5 }, dur: 3.0,\n      text: `Pressure is itself energy in each cubic metre. Pushing 1 m³ of water in against 1 Pa takes 1 J. Moving water also carries *½ρv²* of kinetic energy in each cubic metre. With no friction, the two add to the same total along a level pipe. That is *Bernoulli's principle*. Before the throat, ${P1} + ${N.k1} makes about ${N.tot} kPa. In the throat, about ${N.p2} + ${N.k2} makes the same.` },\n    { kind: 'pick', name: 'How much lower?', top: 'cols2',\n      opts: [O.d46, O.d41, O.d41h], want: O.d41,\n      bad: { [O.d46]: { lab: `${N.s7w} kPa leaves out the 1 m/s it had` }, [O.d41h]: { lab: 'higher: then nothing would push it faster' } },\n      task: 'Seawater flows at 1 m/s in a pipe of 15 cm², into a throat of 5 cm². How much does the pressure change?',\n      why: `The throat is a third of the area, so the water goes three times as fast, at ${N.s7v} m/s. The drop is ½ρ times the change in the speed squared. That is ½ × ${DS} × (3² − 1²) pascals, about ${N.s7d} kPa. The pressure falls, because the water speeds up.`,\n      hint: \"Not quite. Find the throat's speed, then use both speeds.\",\n      hints: { [O.d46]: \"Not quite. That leaves out the pipe's own speed. Use 3² − 1², not 3².\", [O.d41h]: 'Not quite. The water speeds up, so the pressure falls.' } },\n    { show: true, name: 'A flow meter', top: 'pipe', cy: 160, cols: true, plot: true, live: { throat: true, flow: true, measure: true }, outs: ['throatSpeed', 'pressureDrop', 'flowFromDrop'],\n      set: { throat: 5, flow: 4, measure: false }, dur: 4.0, mot: [{ ctl: 'flow', keys: [[0.5, 4], [1.8, 2], [2.4, 2], [3.8, 6]] }],\n      text: `The drop grows with the speed squared. The speed is in step with the flow. So twice the flow gives four times the drop. At 2 L/s the drop is about ${N.d2} kPa, a quarter of ${N.d4}. Turn that round, and the drop gives the flow. A pipe narrowed smoothly and tapped like this is a *venturi*. Switch on Measure to hide the flow, then find it from the columns.`,\n      read: `The drop grows with the speed squared. The speed is in step with the flow. So twice the flow gives four times the drop. At 2 L/s the drop is about ${N.d2} kPa, a quarter of ${N.d4}. Turn that round, and the drop gives the flow. A pipe narrowed smoothly and tapped like this is a *venturi*. With the flow hidden, the drop alone gives it back.` },\n    { kind: 'pick', name: 'Read the flow', top: 'pipe', fig: 'measure',\n      opts: [O.q2, O.q1, O.q4], want: O.q2,\n      bad: { [O.q1]: { lab: '1 L/s treats the drop as in step with flow' }, [O.q4]: { lab: `4 L/s would drop ${N.d4} kPa, four times this` } },\n      task: `The flow is hidden, and the throat is 5 cm². The columns differ by about ${N.d2} kPa. What is the flow?`,\n      why: `At 4 L/s this throat drops ${N.d4} kPa. ${N.d2} kPa is a quarter of that. The drop goes with the flow squared, so a quarter of the drop means half the flow. That is 2 L/s. An *orifice plate*, a flat plate with a hole in it, measures flow the same way. A sharp-edged one comes with a correction factor, its *discharge coefficient*. A *Pitot tube* is another meter. It measures the water's speed.`,\n      hint: 'Not quite. The drop goes with the flow squared.',\n      hints: { [O.q1]: 'Not quite. That treats the drop as in step with the flow. A quarter of the drop is half the flow.', [O.q4]: `Not quite. 4 L/s gives ${N.d4} kPa, four times this drop.` } },\n    { show: true, name: 'Smooth or eddying', top: 'pipe', cy: 80, stream: true, live: { regime: true },\n      set: { regime: 'smooth' }, dur: 3.4, mot: [{ ctl: 'regime', step: true, keys: [[0.4, 'smooth'], [2.2, 'eddy']] }],\n      text: \"Flow can glide in smooth layers or churn in eddies. Which you get depends on the speed, the bore and how thick the liquid is. Engineers roll these into one figure, the *Reynolds number*. Below about 2000, flow is smooth. Above about 4000, it usually eddies. Neither edge is fixed. Some put the upper one as high as 10 000. In between, a flow can go either way. Faster, wider and thinner flows are more likely to eddy.\" },\n    { kind: 'pick', name: 'Which runs smooth?', top: 'three',\n      opts: [O.r50, O.r150, O.oil], want: O.oil,\n      bad: { [O.r50]: { lab: 'thinner, faster seawater: more likely to eddy' }, [O.r150]: { lab: 'a wider bore makes eddies more likely' } },\n      task: 'Which flow is most likely to run in smooth layers?',\n      why: 'Smooth layers need a low Reynolds number. That means slow flow, a small bore and a thick liquid. The thick, cold oil has all three. Seawater at 2 m/s is thinner and faster, so it is more likely to eddy. A wider pipe makes eddies more likely still.',\n      hint: 'Not quite. Smooth layers need slow flow, a small bore and a thick liquid.',\n      hints: { [O.r50]: 'Not quite. Seawater at 2 m/s is thinner and faster than the oil. That makes eddies more likely.', [O.r150]: 'Not quite. A wider bore makes eddies more likely, not less.' } },\n    { kind: 'pick', name: 'Flow to drop', top: 'fresh',\n      opts: [O.t128, O.t108, O.t46], want: O.t108,\n      bad: { [O.t128]: { lab: `${N.f6w} kPa leaves out the 2 m/s in the pipe` }, [O.t46]: { lab: `${N.f6s} kPa squares 5 − 2: square each first` } },\n      task: 'Seawater flows at 3 L/s through a pipe of 15 cm², into a throat of 6 cm². How big is the drop from pipe to throat?',\n      why: `First the speeds. 3 L/s is 0.003 m³/s. In the pipe, 0.003 ÷ 0.0015 = 2 m/s. In the throat, 0.003 ÷ 0.0006 = 5 m/s. The drop is ½ × ${DS} × (5² − 2²) pascals, about ${N.f6} kPa.`,\n      hint: 'Not quite. Find both speeds from the flow, then use both.',\n      hints: { [O.t128]: \"Not quite. That leaves out the pipe's own speed. Use 5² − 2², not 5².\", [O.t46]: 'Not quite. That subtracts the speeds first. Square each speed, then subtract.' } },\n    { kind: 'pick', name: 'Back to metres', top: 'pipe', fig: 'height',\n      opts: [O.h31, O.h03, O.h308], want: O.h31,\n      bad: { [O.h03]: { lab: `${N.s13w} m is a tenth of the height` }, [O.h308]: { lab: `${N.d4} m reads kilopascals as metres` } },\n      task: `The drop to a throat is ${N.d4} kPa, in seawater. How much lower does the throat's column stand?`,\n      why: `A column h tall stands on a pressure of ρgh. So h is the drop ÷ ρg. That is ${N.pa} Pa ÷ (${DS} × ${GS}), about ${N.s13} m. In seawater, each 10 kPa is about ${N.per10} m of column.`,\n      hint: 'Not quite. Divide the drop by ρg.',\n      hints: { [O.h03]: `Not quite. That is ten times too small. Each 10 kPa is about ${N.per10} m of seawater.`, [O.h308]: 'Not quite. That reads kilopascals as metres. Divide by ρg.' } },\n  ];\n  const FINISH = \"Through a narrowing, the same flow must go faster. The energy for that speed comes out of the pressure. So a venturi's pressure drop measures the flow.\";\n  const PICK = 'Pick an answer first.';\n  const CAP = {\n    f: 'Flow is area × speed. With the area in m², it comes out in m³ a second.',\n    w: 'A column of liquid h tall stands on a gauge pressure of ρgh.',\n    c: 'Area × speed stays the same along the pipe, so where it narrows the water goes faster.',\n    p: 'The pressure falls where the water speeds up.',\n    b: 'With no friction, pressure + ½ρv² stays the same along a level pipe.',\n    m: 'The drop goes with the flow squared. Twice the flow gives four times the drop.',\n    r: 'Below a Reynolds number of about 2000, flow is smooth. Above a few thousand, it eddies. In between, it can go either way.',\n  };\n  const CAPS = ['f', 'c', 'c', 'p', 'c', 'b', 'b', 'm', 'm', 'r', 'r', 'b', 'w'];\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n\n  // ---------- each step's state ----------\n  function blank() { return { pick: null, res: null, why: false }; }\n  let S = STEPS.map(() => blank());\n  let finished = false, lastStep = -1, lastDone = false, T = Infinity, motionEnd = 0, MOT = null, keyNow = '';\n  let W = 0, TT = 0, CYnow = 160, HH = 240, hidIdx = 0, plotKey = '', taskKey = '';\n  const EX = {};          // exact values while a demonstration drives a slider (the slider itself moves in steps)\n  const FD = { ed: 0 };   // how far the eddying picture has faded in\n  const el = (id) => document.getElementById(id);\n\n  // ---------- words with amber key terms (built with K.el, never innerHTML) ----------\n  // A number and its unit never part at a line end.\n  const nb = (s) => String(s || '').replace(/(\\d) (m\\/s|L\\/s|kg\\/m³|m²|m³|cm²|mm|kPa|kg|Pa|N|J|L|m)(?![A-Za-z²³\\/])/g, '$1 $2');\n  function write(node, s) {\n    node.textContent = '';\n    s = nb(s);\n    const re = /\\*([^*]+)\\*/g;\n    let pos = 0, m;\n    while ((m = re.exec(s))) {\n      if (m.index > pos) node.appendChild(document.createTextNode(s.slice(pos, m.index)));\n      node.appendChild(K.el('span', { class: 'term' }, m[1]));\n      pos = m.index + m[0].length;\n    }\n    if (pos < s.length) node.appendChild(document.createTextNode(s.slice(pos)));\n    return node;\n  }\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);\n  const stepOf = (p) => K.clamp(Math.round(+p.step) || 0, 0, STEPS.length - 1);\n  const throatCtl = K.control({ id: 'throat', label: 'Throat area', min: 4, max: 20, step: 1, value: 5, unit: 'cm²', fmt: (v) => fx(v) + ' cm²', snap: [5], into: '#ctl' });\n  const flowCtl = K.control({ id: 'flow', label: 'Flow', min: 0, max: 6, step: 0.5, value: 4, unit: 'L/s', fmt: (v) => fx(v, 1) + ' L/s', snap: [2, 4, 6], into: '#ctl' });\n  const measCtl = K.toggle({ id: 'measure', label: 'Measure: hide the flow', value: false, into: '#ctl' });\n  const HIDDEN = [2.5, 5, 1.5, 3.5, 6, 2, 4.5, 1];\n  const newBtn = K.button({ label: 'A new hidden flow', secondary: true, into: '#ctl', press: () => {\n    const d = STEPS[at()];\n    if (!d.live || !d.live.measure || !isOn(K.params().measure) || finished) return;\n    const now = flowOf(K.params());\n    let v = HIDDEN[hidIdx % HIDDEN.length];\n    if (v === now) { hidIdx++; v = HIDDEN[hidIdx % HIDDEN.length]; }\n    hidIdx++;\n    setCtl('flow', v);\n  } });\n  const regCtl = K.choice({ id: 'regime', label: 'Liquid and speed', options: [{ value: 'smooth', label: 'Thick oil, creeping' }, { value: 'eddy', label: 'Thin seawater, fast' }], value: 'smooth', into: '#ctl' });\n  const CTL = { throat: throatCtl, flow: flowCtl, measure: measCtl, regime: regCtl };\n  function setCtl(id, v) { if (typeof v === 'number') EX[id] = v; CTL[id].set(v, true); }\n  const ctlKey = (p) => [p.throat, p.flow, p.measure, p.regime].join('|');\n\n  const num = (v, d0) => (isFinite(+v) && v !== '' && v != null ? +v : d0);\n  const isOn = (v) => v === true || v === 'true';\n  const pv = (p, id) => (MOT && EX[id] != null ? EX[id] : p[id]);\n  const throatOf = (p) => K.clamp(Math.round(num(p.throat, AO)), 4, 20);\n  const flowOf = (p) => K.clamp(num(p.flow, QO), 0, 6);\n  const throatDraw = (p) => K.clamp(num(pv(p, 'throat'), AO), 4, 20);\n  const flowDraw = (p) => K.clamp(num(pv(p, 'flow'), QO), 0, 6);\n  const eddyOn = (p) => p.regime === 'eddy';\n\n  // Screens without live controls report the opening settings: 4 L/s through a 5 cm² throat.\n  // The drop is rounded as the words round it, so 30.75 kPa reads 30.8 everywhere.\n  const OPEN = () => ({ throatSpeed: vAt(QO, AO), pressureDrop: rd(dropK(QO, AO), 1), flowFromDrop: QO });\n  K.model((p) => {\n    const d = STEPS[stepOf(p)];\n    if (!d.live) return OPEN();\n    const a2 = d.live.throat ? throatOf(p) : AO, q = d.live.flow ? flowOf(p) : QO, dk = dropK(q, a2);\n    return { throatSpeed: vAt(q, a2), pressureDrop: rd(dk, 1), flowFromDrop: a2 >= A1 ? '—' : backFlow(dk, a2) };\n  });\n\n  const rSpeed = K.readout({ id: 'throatSpeed', label: 'Speed in the throat', unit: 'm/s', decimals: 1, into: '#outs' });\n  const rDrop = K.readout({ id: 'pressureDrop', label: 'Drop, pipe to throat', unit: 'kPa', decimals: 1, into: '#outs' });\n  const rFlow = K.readout({ id: 'flowFromDrop', label: 'Flow, from the columns', unit: 'L/s', decimals: 1, into: '#outs' });\n  const plot = K.plot('#plot', {\n    x: { min: 0, max: 6, label: 'Flow (L/s)' }, y: { min: 0, max: 120, label: 'Drop, pipe to throat (kPa)' }, height: 190,\n    label: 'The drop rises as the flow squared. Twice the flow gives four times the drop.',\n  });\n\n  // Up to three answer buttons; each step fills in its own options.\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;\n    const was = st.res === 'wrong';\n    st.pick = d.opts[k]; st.res = null;\n    if (was) { anim.pause(); T = Infinity; }\n  } }));\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (d.show || finished || st.res === 'right') return;\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = st.pick === d.want ? 'right' : 'wrong';\n    play(ANS);\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    if (STEPS[at()].show || finished) return;\n    const st = S[at()]; st.why = !st.why;\n  } });\n  K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {\n    const i = at(), d = STEPS[i];\n    if (!d.show || finished) return;\n    onEnter(i);\n    keyNow = ctlKey(K.params());\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true; anim.pause(); T = Infinity; MOT = null;\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);\n  } });\n\n  // ---------- the pipe: a 20 cm² bore narrowing to a throat and widening again ----------\n  // Drawn radius goes with √area (a round pipe seen from the side). Volume along the pipe\n  // (cm² × drawing units) places the dots: each slice of dots holds the same volume, so where the\n  // area is small the slices stand further apart and travel faster.\n  const XS = { x0: 8, xa: 95, xb: 135, xc: 215, xd: 275, x1: 332 };\n  const XT = 175, C1 = 55, C2 = 175, C3 = 305;\n  const R0 = 28, DV = 240, SLUG = 2 * DV, AS = 0.3, SC = 0.8;\n  const ROWS = [-0.72, -0.24, 0.24, 0.72], SROWS = [-0.8, -0.4, 0, 0.4, 0.8];\n  const GEO = {};\n  let geoN = 0;\n  function geo(a1, a2) {\n    const key = a1 + '|' + Math.round(a2 * 1000);\n    if (GEO[key]) return GEO[key];\n    if (++geoN > 80) { Object.keys(GEO).forEach((k) => delete GEO[k]); geoN = 1; }\n    const ra = R0 * Math.sqrt(a1 / A1), rb = ra * Math.sqrt(a2 / a1);\n    const R = (x) => (x <= XS.xa ? ra : x < XS.xb ? K.lerp(ra, rb, (x - XS.xa) / (XS.xb - XS.xa)) : x <= XS.xc ? rb : x < XS.xd ? K.lerp(rb, ra, (x - XS.xc) / (XS.xd - XS.xc)) : ra);\n    const Ar = (x) => a1 * Math.pow(R(x) / ra, 2);\n    const cv = [0];\n    for (let x = XS.x0 + 1; x <= XS.x1; x++) cv.push(cv[cv.length - 1] + (Ar(x - 1) + Ar(x)) / 2);\n    const Vtot = cv[cv.length - 1];\n    const X = (V) => {\n      if (V <= 0) return XS.x0;\n      if (V >= Vtot) return XS.x1;\n      let lo = 0, hi = cv.length - 1;\n      while (hi - lo > 1) { const m = (lo + hi) >> 1; if (cv[m] <= V) lo = m; else hi = m; }\n      return XS.x0 + lo + (V - cv[lo]) / Math.max(1e-9, cv[hi] - cv[lo]);\n    };\n    const Vx = (x) => { const i = K.clamp(Math.floor(x - XS.x0), 0, cv.length - 2); return cv[i] + (cv[i + 1] - cv[i]) * (x - XS.x0 - i); };\n    return (GEO[key] = { a1, a2, ra, rb, R, Ar, X, Vx, Vtot });\n  }\n  // Where the dots stand when nothing moves: the picked-out slug straddles the narrowing cone.\n  const W0 = geo(A1, AO).Vx(XS.xa + 2);\n  const pAt = (g, x, q) => P1 - (keK(vAt(q, g.Ar(x))) - keK(vAt(q, g.a1)));\n\n  // ---------- drawing helpers ----------\n  const svg = el('scene'), art = el('art'), kT = el('kt');\n  let into = null, REC = null;\n  const add = (n) => (into || art).appendChild(n);\n  const rn = (v) => Math.round(v * 100) / 100;\n  const sv = (tag, a) => add(K.svg(tag, a));\n  const path = (d, cls) => sv('path', { class: cls, d });\n  function rect(x, y, w, h, cls) { if (w > 0.3 && h > 0.3) sv('rect', { class: cls, x: rn(x), y: rn(y), width: rn(w), height: rn(h) }); }\n  const line = (x1, y1, x2, y2, cls) => sv('line', { class: cls, x1: rn(x1), y1: rn(y1), x2: rn(x2), y2: rn(y2) });\n  const text = (x, y, s, cls, anchor) => add(K.svg('text', { class: cls, x: rn(x), y: rn(y), 'text-anchor': anchor || 'middle' }, String(s)));\n  // How far a part due at t0 has arrived, noting the timetable for the timing check.\n  let latest = 0;\n  function arr(t0, d) { d = d == null ? K.SOFT : d; if (t0 + d > latest) latest = t0 + d; return K.arrive(T, t0, d); }\n  function part(a, rise, draw) {\n    if (a <= 0) return;\n    const g = add(K.svg('g'));\n    K.fade(g, Math.min(1, a), rise);\n    const keep = into; into = g; draw(); into = keep;\n  }\n  function ftext(a, x, y, s, cls, anchor) { if (a > 0) part(a, 0, () => text(x, y, s, cls, anchor)); }\n  // A straight arrow from (x1, y1) to its tip at (x2, y2): a line and a filled head.\n  function arrow(x1, y1, x2, y2, k) {\n    const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);\n    if (L < 6) return;\n    const ux = dx / L, uy = dy / L, hl = Math.min(8, L * 0.55), hw = hl * 0.5;\n    const bx = x2 - ux * hl, by = y2 - uy * hl;\n    line(x1, y1, bx + ux * 0.5, by + uy * 0.5, 'ar ar-' + k);\n    path(`M${rn(x2)} ${rn(y2)} L${rn(bx - uy * hw)} ${rn(by + ux * hw)} L${rn(bx + uy * hw)} ${rn(by - ux * hw)} Z`, 'hd hd-' + k);\n  }\n  const wrongOf = (d, st) => (st.res === 'wrong' && st.pick != null && d.bad ? d.bad[st.pick] || null : null);\n  function placeKnob(k, show, x, y) {\n    k.hidden = !show;\n    if (!show) return;\n    k.style.left = rn(x / 340 * 100) + '%';\n    k.style.top = rn(y / HH * 100) + '%';\n  }\n  const key = (s) => text(12, 16, s, 'lab m', 'start');\n\n  // The pipe's water and walls.\n  function water(g, CY, cls) {\n    const pts = [XS.x0, XS.xa, XS.xb, XS.xc, XS.xd, XS.x1];\n    const top = pts.map((x) => rn(x) + ' ' + rn(CY - g.R(x))), bot = pts.slice().reverse().map((x) => rn(x) + ' ' + rn(CY + g.R(x)));\n    path('M' + top.join(' L') + ' L' + bot.join(' L') + ' Z', cls || 'liq');\n  }\n  function walls(g, CY) {\n    const pts = [XS.x0, XS.xa, XS.xb, XS.xc, XS.xd, XS.x1];\n    path('M' + pts.map((x) => rn(x) + ' ' + rn(CY - g.R(x))).join(' L'), 'wall');\n    path('M' + pts.map((x) => rn(x) + ' ' + rn(CY + g.R(x))).join(' L'), 'wall');\n  }\n  // The eddying picture's wobble: a sketch, not a simulation.\n  const wob = (f, x, j) => K.clamp(f + 0.16 * Math.sin(0.09 * x - 2.6 * TT + 1.9 * j) + 0.07 * Math.sin(0.23 * x + 1.7 * TT + 0.7 * j), -0.9, 0.9);\n  function dots(g, CY, rows, wf) {\n    const ph = ((W % DV) + DV) % DV;\n    for (let V = ph; V < g.Vtot; V += DV) {\n      const x = g.X(V), r = g.R(x);\n      rows.forEach((f, j) => sv('circle', { class: 'dot', cx: rn(x), cy: rn(CY + (wf ? wf(f, x, j) : f) * r), r: 2.2 }));\n    }\n  }\n  function slugSpan(g) {\n    const Lc = DV * Math.ceil(g.Vtot / DV + 2), Vs = ((W % Lc) + Lc) % Lc;\n    if (Vs + SLUG > g.Vtot) return null;\n    // It fades in as it enters and out as it leaves, so it never pops up whole or clips its arrows.\n    const a = K.clamp(Math.min(Vs, g.Vtot - SLUG - Vs) / 900, 0, 1);\n    return { xb: g.X(Vs), xf: g.X(Vs + SLUG), a };\n  }\n  function slugShape(g, CY, s) {\n    const top = [], bot = [];\n    for (let k = 0; k <= 12; k++) {\n      const x = K.lerp(s.xb, s.xf, k / 12), r = g.R(x) - 1.5;\n      top.push(rn(x) + ' ' + rn(CY - r)); bot.unshift(rn(x) + ' ' + rn(CY + r));\n    }\n    path('M' + top.join(' L') + ' L' + bot.join(' L') + ' Z', 'slug');\n  }\n  // The pressure pushing on each end of the slug: arrow length goes with the pressure there.\n  function slugArrows(g, CY, s, q) {\n    arrow(s.xb - AS * pAt(g, s.xb, q), CY, s.xb, CY, 'n');\n    arrow(s.xf + AS * pAt(g, s.xf, q), CY, s.xf, CY, 'n');\n  }\n  // A thin column on the pipe: an open glass tube, filled to the level its pressure holds up.\n  function tube(g, CY, x) {\n    const w = CY - g.R(x), t = CY - 128;\n    path(`M${x - 5} ${rn(w)} V${t} M${x + 5} ${t} V${rn(w)}`, 'tube');\n  }\n  function fill(g, CY, x, lv, a) {\n    const w = CY - g.R(x);\n    if (a <= 0 || lv >= w) return;\n    part(a, 0, () => { rect(x - 4.25, lv, 8.5, w - lv, 'colw'); line(x - 4.25, lv, x + 4.25, lv, 'surf'); });\n  }\n  const lvAt = (CY, kpa) => CY - SC * kpa;\n  function bracket(x, y1, y2, cls) { path(`M${rn(x - 5)} ${rn(y1)} H${rn(x)} V${rn(y2)} H${rn(x - 5)}`, cls || 'brk'); }\n  // The three columns at a flow and throat, with the first column's level dashed across.\n  function columns(g, CY, q, a2, lab) {\n    const pT = P1 - dropK(q, a2), y1 = lvAt(CY, P1), y2 = lvAt(CY, pT);\n    [C1, C2, C3].forEach((x) => tube(g, CY, x));\n    fill(g, CY, C1, y1, 1); fill(g, CY, C2, y2, 1); fill(g, CY, C3, y1, 1);\n    line(60, y1, 300, y1, 'lvl');\n    if (lab !== '') text(64, y1 + 16, lab || `${P1} kPa`, 'lab m', 'start');\n    return { y1, y2 };\n  }\n  function dropMark(y1, y2, s) {\n    if (y2 - y1 < 2) return;\n    bracket(190, y1, y2);\n    if (y2 - y1 >= 16) text(196, (y1 + y2) / 2 + 4.5, s, 'lab n', 'start');\n    else text(196, y1 - 6, s, 'lab n', 'start');\n  }\n\n  // ---------- the live pipe screens ----------\n  function drawPipe(d, st, bad, wa, p) {\n    if (d.fig) return FIG[d.fig](d, st, bad, wa, p);\n    const L = d.live || {}, CY = d.cy;\n    const a2 = L.throat ? throatDraw(p) : AO, q = L.flow ? flowDraw(p) : QO, meas = !!L.measure && isOn(p.measure);\n    const g = geo(A1, a2);\n    CYnow = CY;\n    key(d.bars ? `seawater: ρ = ${DS} kg/m³ · v = its speed` : d.stream ? 'lines: the paths the liquid takes' : 'dots: the seawater, flowing left to right');\n    water(g, CY);\n    const s = d.slug ? slugSpan(g) : null;\n    if (s) part(s.a, 0, () => slugShape(g, CY, s));\n    if (d.stream) streams(g, CY, p);\n    else dots(g, CY, ROWS, null);\n    walls(g, CY);\n    let said = '';\n    if (d.lab) {\n      const aL = L.throat ? throatOf(p) : AO, v1 = vAt(QO, A1), v2 = vAt(QO, aL);\n      const lines = (x, a, v) => [`${fx(a)} cm²`, `× ${K.fmt(v, { decimals: 1 })} m/s`, `= ${fx(a * v / 10, 1)} L/s`].forEach((t, k) => text(x, CY - 72 + 16 * k, t, 'lab'));\n      lines(52, A1, v1); lines(XT, aL, v2);\n      line(XS.x0 + 2, CY - 32, XS.xa, CY - 32, 'sec'); line(XS.xb, CY - 32, XS.xc, CY - 32, 'sec');\n      said = `A level pipe of seawater, 20 cm² across, narrowing to a ${fx(aL)} cm² throat. Dots ride along with the water and stand further apart in the throat. Above each section, area × speed works out to the same flow.`;\n    }\n    if (d.cols) {\n      const c = columns(g, CY, q, a2);\n      dropMark(c.y1, c.y2, 'drop');\n      const keys = d.slug ? ['arrows: the pressure on the picked-out slug', \"dashed: the first column's level\"] : [\"dashed: the first column's level\"];\n      keys.forEach((t, k) => text(12, CY + 58 + 16 * k, t, 'lab m', 'start'));\n      said = `A level pipe of seawater narrowing to a throat, with three thin columns standing on it: before the throat, on it and after it. The throat's column stands ${a2 >= A1 - 1e-9 || q === 0 ? 'level with the others' : 'lower, and the one after stands back up level with the first'}.` +\n        (d.slug ? ' A picked-out slug of water has an arrow on each end for the pressure pushing on it.' : '') + (meas ? ' The flow is hidden.' : '');\n    }\n    if (s) part(s.a, 0, () => slugArrows(g, CY, s, q));\n    if (d.bars) said = bars(g, CY, q, a2);\n    if (d.stream) said = band(CY, p);\n    placeKnob(kT, !!L.throat, XT, CY + g.R(XT));\n    if (d.plot) drawPlot(a2, q, meas);\n    return said;\n  }\n\n  // Energy in each cubic metre, as stacked bars: pressure, then ½ρv².\n  function bars(g, CY, q, a2) {\n    const Y0 = 140, BS = 1.5, X0 = 20;\n    const v1 = vAt(q, A1), v2 = vAt(q, a2), pT = P1 - rd(dropK(q, a2), 1);\n    const rows = [['before', P1, keK(v1)], ['throat', pT, keK(v2)], ['after', P1, keK(v1)]];\n    rows.forEach((r, k) => part(arr(0.4 + 0.6 * k), 0, () => {\n      const y = Y0 + 40 * k;\n      text(X0, y, `${r[0]}: ${fx(r[1], r[1] === P1 ? 0 : 1)} + ${fx(r[2], 1)} kPa`, 'lab m', 'start');\n      rect(X0, y + 8, BS * r[1], 16, 'bp');\n      rect(X0 + BS * r[1], y + 8, BS * r[2], 16, 'bk');\n    }));\n    const xt = X0 + BS * (P1 + keK(v1));\n    part(arr(2.2), 0, () => {\n      line(xt, Y0 + 4, xt, Y0 + 106, 'tot');\n      text(xt, Y0 + 122, `total: about ${fx(P1 + keK(v1))} kPa`, 'lab n');\n    });\n    rect(X0, Y0 + 136, 12, 12, 'bp'); text(X0 + 18, Y0 + 146, 'pressure', 'lab m', 'start');\n    rect(X0 + 110, Y0 + 136, 12, 12, 'bk'); text(X0 + 128, Y0 + 146, '½ρv², speed energy', 'lab m', 'start');\n    return `A level pipe of seawater narrowing to a ${fx(throatOf(K.params()))} cm² throat. Below it, three stacked bars show the energy in each cubic metre before, in and after the throat: pressure plus speed energy. All three reach the same total.`;\n  }\n\n  // The cause drives the pattern: thick oil creeping runs in smooth layers, thin seawater moving fast\n  // eddies. The Reynolds number's bands below light up to match.\n  function streams(g, CY, p) {\n    const a = FD.ed;\n    if (a < 1) part(1 - a, 0, () => water(g, CY, 'oil'));\n    if (a < 1) part(1 - a, 0, () => {\n      SROWS.forEach((f) => { const pts = []; for (let x = XS.x0; x <= XS.x1; x += 6) pts.push(rn(x) + ' ' + rn(CY + f * g.R(x))); path('M' + pts.join(' L'), 'sl'); });\n      dots(g, CY, SROWS, null);\n    });\n    if (a > 0) part(a, 0, () => {\n      SROWS.forEach((f, j) => { const pts = []; for (let x = XS.x0; x <= XS.x1; x += 4) pts.push(rn(x) + ' ' + rn(CY + wob(f, x, j) * g.R(x))); path('M' + pts.join(' L'), 'sl'); });\n      dots(g, CY, SROWS, wob);\n      const step = 600, ph = ((W % step) + step) % step;\n      let k = 0;\n      for (let V = ph + 150; V < g.Vtot - 60; V += step, k++) {\n        const x = g.X(V), R = g.R(x), rr = Math.max(3.5, 0.24 * R), y = CY + (k % 2 ? 0.42 : -0.42) * R;\n        curl(x, y, rr, TT * 3 + k * 1.3);\n      }\n    });\n  }\n  function curl(x, y, rr, th) {\n    const th2 = th + 4.6;\n    path(`M${rn(x + rr * Math.cos(th))} ${rn(y + rr * Math.sin(th))} A${rn(rr)} ${rn(rr)} 0 1 1 ${rn(x + rr * Math.cos(th2))} ${rn(y + rr * Math.sin(th2))}`, 'sl');\n  }\n  function band(CY, p) {\n    const Y = CY + 60, on = FD.ed < 0.5 ? 0 : 2;\n    text(20, Y, 'Reynolds number', 'lab m', 'start');\n    ['smooth', 'either way', 'eddies'].forEach((t, k) => text(70 + 100 * k, Y + 18, t, k === 1 ? 'lab m' : 'lab'));\n    [0, 1, 2].forEach((k) => rect(20 + 100 * k, Y + 24, 100, 16, 'seg' + (k === 1 ? ' mid' : '') + (k === on ? ' on' : '')));\n    text(120, Y + 56, '2000', 'lab m'); text(220, Y + 56, '4000', 'lab m');\n    text(170, Y + 76, 'the change comes somewhere', 'lab n'); text(170, Y + 92, 'between about 2000 and 4000, or higher', 'lab n');\n    const sc = ' Below, a Reynolds number scale: smooth below about 2000, eddies above about 4000 or higher, and either way between.';\n    return FD.ed < 0.5 ? 'The pipe with thick oil creeping through, drawn as smooth lines: each layer glides past the next.' + sc\n      : 'The pipe with thin seawater moving fast, drawn as churning, wavy lines and swirls: it eddies.' + sc;\n  }\n  function drawPlot(a2, q, meas) {\n    const k = [rn(a2), rn(q), meas].join('|');\n    if (k === plotKey) return;\n    plotKey = k;\n    const dk = dropK(q, a2);\n    plot.draw({\n      series: [{ fn: (x) => dropK(x, a2), label: 'Drop at this throat' }],\n      marks: meas ? [] : [{ x: q, y: dk, guides: true }],\n      lines: meas ? [{ y: dk, label: 'measured drop' }] : [],\n    });\n  }\n\n  // ---------- the puzzles' pictures ----------\n  function base(CY, a2, q0) {\n    const g = geo(A1, a2);\n    water(g, CY); dots(g, CY, ROWS, null); walls(g, CY);\n    return g;\n  }\n  const FIG = {\n    predict(d, st, bad, wa) {\n      const CY = 160, g = (key('dots: the seawater, flowing left to right'), base(CY, AO));\n      [C1, C2, C3].forEach((x) => tube(g, CY, x));\n      text(52, 210, `${N.v10} m/s`, 'lab n'); text(XT, 210, `${N.v20} m/s`, 'lab n');\n      const right = st.res === 'right';\n      if (right) {\n        REC.ans = true; REC.res = P1 - dropK(QO, AO);\n        const y1 = lvAt(CY, P1), y2 = lvAt(CY, REC.res);\n        fill(g, CY, C1, y1, arr(0.1)); fill(g, CY, C2, y2, arr(0.6)); fill(g, CY, C3, y1, arr(1.1));\n        ftext(arr(1.4), 170, 234, 'fastest water, lowest pressure', 'lab n');\n      }\n      if (bad) {\n        REC.bad++;\n        part(wa, 0, () => { if (bad === d.bad[O.lvl]) line(45, lvAt(CY, P1), 315, lvAt(CY, P1), 'badl'); else rect(167, CY - 124, 16, 124 - g.R(C2), 'bad'); });\n        ftext(wa, 170, 234, bad.lab, 'lab w');\n      }\n      return 'A level pipe of seawater narrowing to a throat, with three empty glass tubes standing on it: before the throat, on it and after it. The water moves at 2 m/s in the pipe and 8 m/s in the throat.' + (right ? \" The tubes fill: the throat's column stands lowest, and the one after stands back up.\" : '');\n    },\n    measure(d, st, bad, wa) {\n      const CY = 160, q = 2, g = (key('dots: the seawater; its flow is hidden'), base(CY, AO));\n      const c = columns(g, CY, q, AO);\n      bracket(190, c.y1, c.y2);\n      text(196, c.y1 - 6, `${N.d2} kPa`, 'lab n', 'start');\n      const right = st.res === 'right', ra = right ? arr(0.1) : 0;\n      ftext(1 - ra, 52, 210, 'flow: ? L/s', 'lab n');\n      if (right) { REC.ans = true; REC.res = backFlow(dropK(q, AO), AO); ftext(ra, 52, 210, `flow: ${fx(REC.res, 1)} L/s`, 'lab n'); ftext(arr(0.5), 170, 234, `a quarter of ${N.d4} kPa: half of 4 L/s`, 'lab n'); }\n      if (bad) {\n        REC.bad++;\n        part(wa, 0, () => { if (bad === d.bad[O.q4]) line(165, lvAt(CY, P1 - dropK(QO, AO)), 185, lvAt(CY, P1 - dropK(QO, AO)), 'badl'); else rect(6, 192, 92, 26, 'bad'); });\n        ftext(wa, 170, 234, bad.lab, 'lab w');\n      }\n      return `A level pipe of seawater with a 5 cm² throat and three columns. The throat's column stands ${N.d2} kPa below the first, and the flow is the question.` + (right ? ' The flow is 2 L/s.' : '');\n    },\n    height(d, st, bad, wa) {\n      const CY = 160, g = (key(`seawater: ρ = ${DS} kg/m³ · g = ${GS} N/kg`), base(CY, AO));\n      const c = columns(g, CY, QO, AO, '');\n      bracket(190, c.y1, c.y2);\n      text(XT, 210, `drop to the throat: ${N.d4} kPa`, 'lab n');\n      const right = st.res === 'right', ra = right ? arr(0.1) : 0;\n      ftext(1 - ra, 196, (c.y1 + c.y2) / 2 + 4.5, 'h = ?', 'lab n', 'start');\n      if (right) { REC.ans = true; REC.res = colM(rd(dropK(QO, AO), 1)); ftext(ra, 196, (c.y1 + c.y2) / 2 + 4.5, `h = ${N.s13} m`, 'lab n', 'start'); ftext(arr(0.5), 170, 234, `${N.pa} Pa ÷ (${DS} × ${GS}) = about ${N.s13} m`, 'lab n'); }\n      if (bad) {\n        REC.bad++;\n        part(wa, 0, () => { if (bad === d.bad[O.h03]) line(164, c.y1 + (c.y2 - c.y1) / 10, 186, c.y1 + (c.y2 - c.y1) / 10, 'badl'); else arrow(250, c.y2, 250, 22, 'w'); });\n        ftext(wa, 170, 234, bad.lab, 'lab w');\n      }\n      return `A level pipe of seawater with a throat and three columns. The throat's column stands lower by a drop of ${N.d4} kPa, and how many metres lower is the question.` + (right ? ` It is about ${N.s13} m.` : '');\n    },\n  };\n  // The warm-up: seawater at 2 m/s through a 20 cm² pipe. The shaded length is the water that passes in 1 s.\n  function drawWarm(d, st, bad, wa) {\n    const CY = 96, R = 22, X0 = 60, X1 = 220;\n    key('shaded: the seawater that passes in 1 s');\n    rect(20, CY - R, 300, 2 * R, 'liq');\n    rect(X0, CY - R + 1.5, X1 - X0, 2 * R - 3, 'slug');\n    path(`M20 ${CY - R} H320`, 'wall'); path(`M20 ${CY + R} H320`, 'wall');\n    line(X0, CY - R, X0, CY + R, 'sec');\n    path(`M${X0} ${CY - R - 6} V${CY - R - 14} H${X1} V${CY - R - 6}`, 'brk');\n    text((X0 + X1) / 2, CY - R - 20, '2 m: what passes in 1 s', 'lab n');\n    arrow(238, CY, 296, CY, 'n');\n    text(267, CY + R + 20, '2 m/s', 'lab n');\n    text(X0, CY + R + 20, '20 cm²', 'lab');\n    const right = st.res === 'right', ra = right ? arr(0.1) : 0;\n    ftext(1 - ra, 170, 162, 'flow: ? L/s', 'lab n');\n    if (right) { REC.ans = true; REC.res = A1 * 2 / 10; ftext(ra, 170, 162, `flow: ${N.q0} L/s`, 'lab n'); ftext(arr(0.5), 170, 188, `0.002 m² × 2 m/s = ${N.f0004} m³/s`, 'lab n'); }\n    if (bad) {\n      REC.bad++;\n      part(wa, 0, () => { if (bad === d.bad[O.f40]) rect(X0 - 32, CY + R + 4, 64, 22, 'bad'); else rect(110, 146, 120, 22, 'bad'); });\n      ftext(wa, 170, 188, bad.lab, 'lab w');\n    }\n    return 'A level pipe of seawater, 20 cm² across, moving at 2 m/s. A shaded length of 2 m is the water that passes one point each second. The flow in litres a second is the question.' + (right ? ` It is ${N.q0} L/s.` : '');\n  }\n  // A 12 cm² pipe narrowing to 4 cm², with the water's speed as arrows.\n  function drawTwo(d, st, bad, wa) {\n    const CY = 110, ra1 = 26, rb1 = 26 * Math.sqrt(4 / 12), U = 14;\n    key(\"arrows: the water's speed\");\n    const pts = [[20, ra1], [140, ra1], [175, rb1], [320, rb1]];\n    path('M' + pts.map((q) => q[0] + ' ' + rn(CY - q[1])).join(' L') + ' L' + pts.slice().reverse().map((q) => q[0] + ' ' + rn(CY + q[1])).join(' L') + ' Z', 'liq');\n    path('M' + pts.map((q) => q[0] + ' ' + rn(CY - q[1])).join(' L'), 'wall');\n    path('M' + pts.map((q) => q[0] + ' ' + rn(CY + q[1])).join(' L'), 'wall');\n    text(80, CY - ra1 - 10, '12 cm²', 'lab'); text(248, CY - rb1 - 10, '4 cm²', 'lab');\n    arrow(62, CY, 62 + U * 1.5, CY, 'n');\n    text(80, CY + ra1 + 20, '1.5 m/s', 'lab n');\n    const right = st.res === 'right', ra = right ? arr(0.1) : 0;\n    ftext(1 - ra, 248, CY + rb1 + 20, 'v = ?', 'lab n');\n    if (right) {\n      REC.ans = true; REC.res = 1.5 * 12 / 4;\n      part(ra, 0, () => arrow(215, CY, 215 + U * REC.res, CY, 'n'));\n      ftext(ra, 248, CY + rb1 + 20, `v = ${N.s5} m/s`, 'lab n');\n      ftext(arr(0.5), 170, 180, `1.5 × 12 ÷ 4 = ${N.s5} m/s`, 'lab n');\n    }\n    if (bad) {\n      REC.bad++;\n      part(wa, 0, () => arrow(215, CY, 215 + U * (bad === d.bad[O.v05] ? 1.5 * 4 / 12 : 1.5), CY, 'w'));\n      ftext(wa, 170, 180, bad.lab, 'lab w');\n    }\n    return 'A pipe of 12 cm² narrowing to 4 cm². An arrow shows the water at 1.5 m/s in the wide part; its speed v in the narrow part is the question.' + (right ? ` It is ${N.s5} m/s.` : '');\n  }\n  // A 15 cm² pipe into a 5 cm² throat, with a column on each: how much lower does the throat's stand?\n  function drawCols2(d, st, bad, wa) {\n    const CY = 160, g = geo(15, 5), LV = 70, U = 6;\n    key('dots: the seawater, flowing left to right');\n    water(g, CY); dots(g, CY, ROWS, null); walls(g, CY);\n    tube(g, CY, C1); tube(g, CY, C2);\n    fill(g, CY, C1, LV, 1);\n    line(60, LV, 200, LV, 'lvl');\n    text(52, 206, '15 cm², 1 m/s', 'lab');\n    const right = st.res === 'right', ra = right ? arr(0.1) : 0;\n    ftext(1 - ra, XT, 206, '5 cm²', 'lab');\n    ftext(1 - ra, 188, 112, 'p = ?', 'lab n', 'start');\n    if (right) {\n      REC.ans = true; REC.res = dropK(1.5, 5, 15);\n      const y2 = LV + U * REC.res;\n      fill(g, CY, C2, y2, ra);\n      ftext(ra, XT, 206, `5 cm², ${N.s7v} m/s`, 'lab');\n      part(arr(0.5), 0, () => { bracket(190, LV, y2); text(196, (LV + y2) / 2 + 4.5, `${N.s7d} kPa`, 'lab n', 'start'); });\n      ftext(arr(0.9), 170, 232, `½ × ${DS} × (3² − 1²) = about ${N.s7d} kPa lower`, 'lab n');\n    }\n    if (bad) {\n      REC.bad++;\n      const yb = bad === d.bad[O.d46] ? LV + U * keK(vAt(1.5, 5)) : LV - U * dropK(1.5, 5, 15);\n      part(wa, 0, () => line(164, yb, 186, yb, 'badl'));\n      ftext(wa, 170, 232, bad.lab, 'lab w');\n    }\n    return 'A pipe of 15 cm² with seawater at 1 m/s narrowing to a 5 cm² throat. A column stands on the pipe; the throat has an empty tube, and its pressure is the question.' + (right ? ` The throat's column stands ${N.s7d} kPa lower.` : '');\n  }\n  // Fresh numbers: 3 L/s through a 15 cm² pipe into a 6 cm² throat. How big is the drop?\n  function drawFresh(d, st, bad, wa) {\n    const CY = 160, g = geo(15, 6), LV = 70, U = 5;\n    key('dots: the seawater, 3 L/s, left to right');\n    water(g, CY); dots(g, CY, ROWS, null); walls(g, CY);\n    tube(g, CY, C1); tube(g, CY, C2);\n    fill(g, CY, C1, LV, 1);\n    line(60, LV, 200, LV, 'lvl');\n    const right = st.res === 'right', ra = right ? arr(0.1) : 0;\n    ftext(1 - ra, 52, 206, '15 cm²', 'lab'); ftext(1 - ra, XT, 206, '6 cm²', 'lab');\n    ftext(1 - ra, 188, 112, 'drop = ?', 'lab n', 'start');\n    if (right) {\n      REC.ans = true; REC.res = dropK(3, 6, 15);\n      const y2 = LV + U * REC.res;\n      fill(g, CY, C2, y2, ra);\n      ftext(ra, 52, 206, '15 cm², 2 m/s', 'lab'); ftext(ra, XT, 206, '6 cm², 5 m/s', 'lab');\n      part(arr(0.5), 0, () => { bracket(190, LV, y2); text(196, (LV + y2) / 2 + 4.5, `${N.f6} kPa`, 'lab n', 'start'); });\n      ftext(arr(0.9), 170, 232, `½ × ${DS} × (5² − 2²) = about ${N.f6} kPa`, 'lab n');\n    }\n    if (bad) {\n      REC.bad++;\n      const yb = LV + U * (bad === d.bad[O.t128] ? keK(vAt(3, 6)) : keK(vAt(3, 6) - vAt(3, 15)));\n      part(wa, 0, () => line(164, yb, 186, yb, 'badl'));\n      ftext(wa, 170, 232, bad.lab, 'lab w');\n    }\n    return 'A pipe of 15 cm² carrying 3 L/s of seawater, narrowing to a 6 cm² throat. A column stands on the pipe; the throat has an empty tube, and the drop to it is the question.' + (right ? ` The throat's column stands ${N.f6} kPa lower.` : '');\n  }\n  // Three flows: which runs in smooth layers?\n  function drawThree(d, st, bad, wa) {\n    const rows = [{ o: O.r50, lab: 'seawater, 2 m/s, 50 mm bore', y: 32, h: 16 }, { o: O.r150, lab: 'seawater, 2 m/s, 150 mm bore', y: 86, h: 48 }, { o: O.oil, lab: 'thick, cold oil, creeping, small pipe', y: 172, h: 16, oil: true }];\n    const right = st.res === 'right', ra = right ? arr(0.1) : 0;\n    rows.forEach((r) => {\n      text(20, r.y - 10, r.lab, 'lab m', 'start');\n      rect(20, r.y, 300, r.h, r.oil ? 'oil' : 'liq');\n      path(`M20 ${r.y} H320`, 'wall'); path(`M20 ${r.y + r.h} H320`, 'wall');\n    });\n    if (right) {\n      REC.ans = true; REC.res = 1;\n      // Only a comparison is drawn: the oil, slowest, thickest and narrowest, in smooth layers.\n      const r = rows[2], yc = r.y + r.h / 2, hh = r.h / 2;\n      part(ra, 0, () => [-0.5, 0, 0.5].forEach((f) => path(`M26 ${rn(yc + hh * f)} H314`, 'sl o')));\n      ftext(arr(0.5), 170, 222, 'the oil is the most likely to run smooth', 'lab n');\n    }\n    if (bad) {\n      REC.bad++;\n      const r = rows.find((x) => x.o === st.pick) || rows[0];\n      part(wa, 0, () => rect(12, r.y - 27, 316, r.h + 33, 'bad'));\n      ftext(wa, 170, 222, bad.lab, 'lab w');\n    }\n    return 'Three pipes: seawater at 2 m/s in a 50 mm bore, the same in a 150 mm bore, and thick, cold oil creeping through a small pipe.' + (right ? ' The oil is the most likely of the three to run in smooth layers.' : '');\n  }\n\n  const DRAW = { warm: drawWarm, pipe: drawPipe, two: drawTwo, cols2: drawCols2, fresh: drawFresh, three: drawThree };\n  const heightOf = (d) => (d.top === 'warm' ? 204 : d.top === 'two' ? 192 : d.top === 'three' ? 234 : d.top === 'cols2' || d.top === 'fresh' ? 244 : d.fig ? 244 : d.lab ? 166 : d.bars ? 298 : d.stream ? 242 : d.slug ? 242 : 226);\n  // The scene for a step (the animation calls this every frame).\n  function paint(i, pOver) {\n    if (i == null) i = at();\n    const d = STEPS[i], st = S[i], p = pOver || K.params();\n    art.textContent = '';\n    into = null;\n    REC = { bad: 0, ans: false, res: null };\n    const bad = wrongOf(d, st), wa = bad ? arr(0.1) : 0;\n    HH = heightOf(d);\n    placeKnob(kT, false);\n    const said = DRAW[d.top](d, st, bad, wa, p);\n    svg.setAttribute('viewBox', '0 0 340 ' + HH);\n    svg.setAttribute('aria-label', said + (bad ? ' The answer picked is drawn in red.' : ''));\n  }\n  // Dragging the ring on the throat's wall opens or narrows it.\n  function vyOf(knob, y) {\n    const kr = knob.getBoundingClientRect(), sr = svg.getBoundingClientRect();\n    if (!sr.height) return null;\n    return (kr.top + y - sr.top) / sr.height * HH;\n  }\n  K.drag(kT, { control: 'throat', toValue: (x, y) => {\n    const vy = vyOf(kT, y);\n    if (vy == null || !isFinite(vy)) return throatOf(K.params());\n    const r = K.clamp(vy - CYnow, R0 * Math.sqrt(4 / A1), R0);\n    return K.clamp(Math.round(A1 * Math.pow(r / R0, 2)), 4, 20);\n  } });\n\n  // ---------- motion: one animation plays each demonstration, the flowing water and an answer ----------\n  function valAt(m) {\n    const ks = m.keys, last = ks[ks.length - 1];\n    if (T === Infinity || T >= last[0]) return last[1];\n    if (T <= ks[0][0]) return ks[0][1];\n    for (let j = 1; j < ks.length; j++) {\n      if (T < ks[j][0]) {\n        if (m.step) return ks[j - 1][1];\n        const a = (T - ks[j - 1][0]) / Math.max(1e-6, ks[j][0] - ks[j - 1][0]);\n        return K.lerp(ks[j - 1][1], ks[j][1], K.ease(a));\n      }\n    }\n    return last[1];\n  }\n  function stepMot() {\n    if (!MOT) return;\n    let done = true;\n    MOT.forEach((m) => {\n      setCtl(m.ctl, valAt(m));\n      if (T !== Infinity && T < m.keys[m.keys.length - 1][0]) done = false;\n    });\n    keyNow = ctlKey(K.params());\n    if (done) { MOT = null; Object.keys(EX).forEach((k) => delete EX[k]); }\n  }\n  function finishMot() { if (MOT) { T = Infinity; stepMot(); MOT = null; } }\n  const edTarget = () => { const d = STEPS[at()]; return d.stream && eddyOn(K.params()) ? 1 : 0; };\n  const curQ = () => { const d = STEPS[at()]; return d.live && d.live.flow ? flowDraw(K.params()) : QO; };\n  const flowOn = () => !REDUCE && !testing() && !finished && !!STEPS[at()].live && curQ() > 0;\n  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {\n    if (finished) return false;\n    T += dt;\n    if (flowOn()) { W += 100 * curQ() * dt; TT += dt; }\n    const tgt = edTarget();\n    if (FD.ed !== tgt) FD.ed = tgt > FD.ed ? Math.min(tgt, FD.ed + dt / 0.6) : Math.max(tgt, FD.ed - dt / 0.6);\n    if (MOT) { stepMot(); K.refresh(); } else paint();\n    return T < motionEnd || !!MOT || flowOn() || FD.ed !== edTarget();\n  } });\n  document.addEventListener('visibilitychange', () => {\n    if (!document.hidden && !anim.playing() && (T !== Infinity || MOT)) { T = Infinity; finishMot(); FD.ed = edTarget(); K.refresh(); }\n  });\n  function play(dur) {\n    if (REDUCE || testing()) { anim.pause(); finishMot(); T = Infinity; FD.ed = edTarget(); return; }\n    motionEnd = dur; T = 0; anim.play();\n  }\n  function enter(id) {\n    if (REDUCE) return;\n    const box = el(id);\n    box.classList.remove('enter');\n    void box.offsetWidth;\n    box.classList.add('enter');\n  }\n  // A new screen: a live one takes its own settings and runs its demonstration once.\n  function onEnter(i) {\n    const d = STEPS[i];\n    MOT = null; W = W0; TT = 0;\n    Object.keys(EX).forEach((k) => delete EX[k]);\n    if (d.live) {\n      const b = Object.assign({ throat: AO, flow: QO, measure: false, regime: 'smooth' }, d.set || {});\n      Object.keys(b).forEach((k) => setCtl(k, b[k]));\n      FD.ed = b.regime === 'eddy' ? 1 : 0;\n      if (d.mot) { MOT = d.mot.map((m) => Object.assign({}, m)); MOT.forEach((m) => setCtl(m.ctl, m.keys[0][1])); }\n    }\n    if (d.show) play(d.dur); else { anim.pause(); T = Infinity; }\n  }\n\n  // ---------- what Dan reads under a live picture ----------\n  function sayFor(d, p, o) {\n    const L = d.live, a = L.throat ? throatOf(p) : AO, q = L.flow ? flowOf(p) : QO;\n    const V2 = K.fmt(o.throatSpeed, { decimals: 1 }), DK = K.fmt(o.pressureDrop, { decimals: 1 });\n    if (d.lab) {\n      if (a >= A1) return `With no narrowing, the water moves at ${N.v1} m/s the whole way.`;\n      const k = A1 / a, kt = Math.abs(k - Math.round(k)) < 1e-9 ? String(Math.round(k)) : 'about ' + fx(k, 1);\n      return `The throat is ${a} cm², so the water there moves ${kt} times as fast, at ${V2} m/s.`;\n    }\n    if (d.slug) {\n      if (a >= A1) return 'With no narrowing, all three columns stand level.';\n      return `The throat's column stands ${DK} kPa lower, about ${fx(colM(o.pressureDrop), 1)} m of seawater.`;\n    }\n    if (d.bars) {\n      if (a >= A1) return `With no narrowing, each section holds ${P1} + ${N.k1} kPa.`;\n      return `In the throat, the pressure is ${fx(P1 - o.pressureDrop, 1)} kPa and the speed energy ${fx(keK(o.throatSpeed), 1)} kPa.`;\n    }\n    if (d.plot) {\n      if (a >= A1) return 'With no narrowing there is no drop to read.';\n      if (isOn(p.measure)) return `The flow is hidden. The columns differ by ${DK} kPa.`;\n      if (q === 0) return 'With no flow, all three columns stand level.';\n      return `${fx(q, 1)} L/s drops the pressure by ${DK} kPa.`;\n    }\n    return eddyOn(p) ? 'Thin, fast seawater churns in eddies.' : 'Thick oil creeps through in smooth layers.';\n  }\n  function layout(i, d, st, p, o) {\n    const right = st.res === 'right', L = d.live || {}, meas = !!L.measure && isOn(p.measure);\n    let outs = d.outs || [];\n    if (meas) outs = outs.filter((k) => k === 'pressureDrop');\n    el('stepbox').hidden = finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;\n    const task = el('task');\n    const tk = i + '|' + finished;\n    if (tk !== taskKey) { taskKey = tk; task.className = 'task' + (d.show ? ' show' : ''); write(task, d.show ? d.text : d.task); }\n    el('ctl').hidden = !d.live;\n    throatCtl.el.hidden = !L.throat; flowCtl.el.hidden = !L.flow || meas; measCtl.el.hidden = !L.measure;\n    newBtn.el.hidden = !meas; regCtl.el.hidden = !L.regime;\n    el('say').hidden = !d.live;\n    el('say').textContent = d.live ? nb(sayFor(d, p, o)) : '';\n    el('outs').hidden = !outs.length;\n    rSpeed.el.hidden = outs.indexOf('throatSpeed') < 0; rDrop.el.hidden = outs.indexOf('pressureDrop') < 0; rFlow.el.hidden = outs.indexOf('flowFromDrop') < 0;\n    el('plotbox').hidden = !d.plot;\n    const cap = CAP[CAPS[i]] || '';\n    el('cap').textContent = cap;\n    el('cap').hidden = finished || !cap;\n    el('replay').hidden = !d.show || REDUCE;\n    const opts = d.show ? [] : d.opts;\n    el('picks').hidden = !opts.length;\n    el('picks').classList.toggle('long', opts.some((x) => x.length > 9));\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(opts[k]);\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n    el('acts').hidden = !!d.show;\n    checkBtn.el.hidden = right;\n    const fb = el('fb');\n    fb.hidden = !!d.show;\n    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');\n    fb.textContent = nb(d.show ? '' : right ? (d.right || \"That's it.\") : st.res === 'wrong' ? ((d.hints && d.hints[st.pick]) || d.hint) : st.res === 'empty' ? PICK : '');\n    const why = el('why');\n    why.hidden = !!d.show || !st.why;\n    write(why, d.show ? '' : d.why);\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !right);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  }\n\n  write(el('finish'), FINISH);\n  K.update((p, o) => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (i !== lastStep) {\n      lastStep = i; taskKey = ''; enter('stepbox'); onEnter(i);\n      if (d.live) { keyNow = ctlKey(K.params()); K.refresh(); return; }\n    }\n    if (d.live) {\n      const k = ctlKey(p);\n      if (k !== keyNow) {   // Dan moved something: the demonstration gives way to him\n        keyNow = k;\n        if (MOT) { MOT = null; T = Infinity; Object.keys(EX).forEach((q) => delete EX[q]); }\n      }\n      const tgt = edTarget();\n      if (FD.ed !== tgt && (REDUCE || testing())) FD.ed = tgt;\n    }\n    if (!anim.playing()) T = Infinity;\n    if (finished !== lastDone) { lastDone = finished; taskKey = ''; enter(finished ? 'done' : 'stepbox'); }\n    layout(i, d, st, p, o);\n    paint(i, p);\n    if (!anim.playing() && (flowOn() || FD.ed !== edTarget())) anim.play();\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);\n  const solved = (i) => ({ pick: STEPS[i].want, res: 'right', why: false });\n  const wrongSt = (i, o) => ({ pick: o, res: 'wrong', why: false });\n  const idx = (name) => STEPS.findIndex((d) => d.name === name);\n  function drawn(i, st) {\n    const keepS = S[i], keepT = T;\n    S[i] = st; T = Infinity;\n    try { paint(i); return REC; }\n    finally { S[i] = keepS; T = keepT; paint(); }\n  }\n  const S_LAB = idx('What goes in comes out'), S_COL = idx('The columns'), S_BAR = idx('Where the energy goes'), S_MET = idx('A flow meter');\n  const words = (s) => String(s || '').replace(/\\*/g, '').split(/\\s+/).filter(Boolean).length;\n  const AREAS = K.linspace(4, 20, 17), FLOWS = K.linspace(0, 6, 13);\n\n  K.check('The density of seawater is about 1025 kg/m³, the density the seawater here is given', () =>\n    RHO === 1025 && K.near(K.at({ step: S_COL, throat: 5 }).pressureDrop, rd(0.5 * 1025 * (64 - 4) / 1000, 1), 1e-9) && K.at({ step: S_COL, throat: 5 }).pressureDrop === 30.8, { source: SRC_TALLEY });\n  K.check('In an incompressible fluid, the flow rate at one point is the flow rate everywhere: area × speed in the throat equals the pipe\\'s at every throat and flow', () =>\n    AREAS.every((a) => FLOWS.every((q) => K.near(a * K.at({ step: S_MET, throat: a, flow: q }).throatSpeed, A1 * vAt(q, A1), 1e-9))), { source: SRC_YALE });\n  K.check('When a fluid flows into a narrower channel, its speed increases: each narrower throat gives a faster speed in it', () => {\n    for (let a = 20; a > 4; a--) if (!(K.at({ step: S_COL, throat: a - 1 }).throatSpeed > K.at({ step: S_COL, throat: a }).throatSpeed)) return false;\n    return true;\n  }, { source: SRC_OSX });\n  K.check('Venturi flow meters work on the principles of the Bernoulli equation: pressure plus ½ρv² is the same in the pipe and the throat, and the flow worked back from the drop is the flow set, at every narrowed setting', () =>\n    AREAS.filter((a) => a < 20).every((a) => FLOWS.every((q) => {\n      const o = K.at({ step: S_MET, throat: a, flow: q });\n      return K.near(o.pressureDrop, rd(dropK(q, a), 1), 1e-9) && K.near(P1 - dropK(q, a) + keK(o.throatSpeed), P1 + keK(vAt(q, A1)), 1e-9) && K.near(o.flowFromDrop, q, 1e-9);\n    })), { source: SRC_VEN });\n  K.check('Twice the flow gives four times the drop, at every throat', () =>\n    AREAS.every((a) => [1, 1.5, 2, 3].every((q) => K.near(dropK(2 * q, a), 4 * dropK(q, a), 1e-9) && K.near(K.at({ step: S_MET, throat: a, flow: q }).pressureDrop, rd(dropK(q, a), 1), 1e-9))));\n  K.check('At the limits, 6 L/s through a 4 cm² throat moves at 3.0 then 15.0 m/s, drops 110.7 kPa, and the throat\\'s column still stands at 39.3 kPa; opened to 20 cm², there is no drop and the flow from the columns is a dash', () => {\n    const o = K.at({ step: S_MET, throat: 4, flow: 6 }), f = K.at({ step: S_MET, throat: 20, flow: 4 });\n    return K.near(o.throatSpeed, 15, 1e-9) && K.near(vAt(6, A1), 3, 1e-12) && K.near(o.pressureDrop, 110.7, 1e-9) && P1 - o.pressureDrop > 0 &&\n      K.near(P1 - o.pressureDrop, 39.3, 1e-9) && f.pressureDrop === 0 && f.flowFromDrop === '—';\n  });\n  K.check('Every number the screens print comes from the rule: 2.0 and 8.0 m/s; 30.8, 14.9 m and 3.1 m; 119.2, 2.1, 32.8 and 152 kPa; 7.7 and 69.2; 3.0, 15.0, 110.7 and 39.3; 4, 40 and 0.004 L/s; 4.5 and 0.5 m/s; 3 m/s, 4.1 and 4.6 kPa; 10.8, 12.8 and 4.6 kPa; 3.1 and 0.3 m; 30,800 Pa; 19.6 cm²', () =>\n    N.v1 === '2.0' && N.v2 === '8.0' && N.q === '4.0' && N.d4 === '30.8' && N.c1 === '14.9' && N.cd === '3.1' && N.p2 === '119.2' && N.k1 === '2.1' && N.k2 === '32.8' && N.tot === '152' &&\n    N.d2 === '7.7' && N.d6 === '69.2' && N.v6a === '3.0' && N.v6b === '15.0' && N.d64 === '110.7' && N.p64 === '39.3' &&\n    N.q0 === '4' && N.f40 === '40' && N.f0004 === '0.004' && N.s5 === '4.5' && N.s5w === '0.5' && N.s7v === '3' && N.s7d === '4.1' && N.s7w === '4.6' &&\n    N.f6 === '10.8' && N.f6w === '12.8' && N.f6s === '4.6' && N.s13 === '3.1' && N.s13w === '0.3' && N.pa === '30,800' && N.bore === '19.6' && N.per10 === '1');\n  K.check('Each puzzle offers three different answers including its right one, every wrong answer has its own hint, and before Check nothing on its picture shows the answer or a red mark', () =>\n    DO.every((i) => {\n      const d = STEPS[i];\n      if (d.opts.length !== 3 || d.opts.indexOf(d.want) < 0 || new Set(d.opts).size !== 3) return false;\n      if (!d.opts.every((o) => o === d.want || (d.hints[o] && d.hints[o].length > 10 && d.bad[o]))) return false;\n      const g = drawn(i, blank());\n      return !g.bad && !g.ans;\n    }));\n  K.check('A wrong pick is drawn in red where it fails, and a right answer draws no red', () =>\n    DO.every((i) => {\n      const d = STEPS[i];\n      if (drawn(i, solved(i)).bad) return false;\n      return d.opts.filter((o) => o !== d.want).every((o) => drawn(i, wrongSt(i, o)).bad > 0);\n    }));\n  K.check(\"A right answer draws the rule's result: 4 L/s; the throat's column at 119.25 kPa; 4.5 m/s; 4.1 kPa lower; 2 L/s; smooth oil; 10.76 kPa; 3.06 m\", () => {\n    const r = (name) => { const i = idx(name); return drawn(i, solved(i)).res; };\n    return K.near(r('A warm-up'), 4, 1e-9) && K.near(r('Before the columns'), 119.25, 1e-9) && K.near(r('Into a narrower pipe'), 4.5, 1e-12) &&\n      K.near(r('How much lower?'), 4.1, 1e-9) && K.near(r('Read the flow'), 2, 1e-9) && r('Which runs smooth?') === 1 &&\n      K.near(r('Flow to drop'), 10.7625, 1e-9) && K.near(r('Back to metres'), 30800 / (1025 * 9.81), 1e-9);\n  });\n  K.check('Every demonstration has finished within 4.5 s of its screen opening, its first move after the 0.35 s screen fade; every answer\\'s motion, right or wrong, within 2 s', () => {\n    const keepT = T;\n    const timed = (i, st, limit) => {\n      const keepS = S[i];\n      T = Infinity; latest = 0;\n      S[i] = st;\n      try { paint(i); } finally { S[i] = keepS; }\n      return latest <= limit + 1e-9;\n    };\n    const ok = STEPS.every((d, i) => {\n      if (d.show) return (d.mot || []).every((m) => m.keys.every((k) => k[0] >= FADE && k[0] <= d.dur)) && d.dur >= 3 && d.dur <= 4.5 && timed(i, blank(), d.dur);\n      return timed(i, solved(i), ANS) && d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), ANS));\n    });\n    T = keepT; paint();\n    return ok;\n  });\n  // The paragraph and the live line under the picture together, at every setting the screen allows.\n  K.check('Every demonstration screen, with the live line under it, keeps to about 90 words', () => STEPS.every((d, i) => {\n    if (!d.show) return true;\n    let most = 0;\n    AREAS.forEach((a) => FLOWS.forEach((q) => [false, true].forEach((m) => ['smooth', 'eddy'].forEach((r) => {\n      const p = { step: i, throat: a, flow: q, measure: m, regime: r };\n      most = Math.max(most, words(sayFor(d, p, K.at(p))));\n    }))));\n    return words(d.text) + most <= 90 && (!d.read || words(d.read) + most <= 90);\n  }));\n\n  K.ready();\n</script>",
+  "title": "The venturi",
+  "brief": "The one thing you should see is the water speeding up in the throat, the throat's column dropping, and the column after it standing back up, when you drag the throat narrower.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "The density of seawater is about 1025 kg/m³, the density the seawater here is given",
+     "ok": true,
+     "source": "https://talleylab.ucsd.edu/sio210/lect_2/lecture_2.html"
+    },
+    {
+     "label": "In an incompressible fluid, the flow rate at one point is the flow rate everywhere: area × speed in the throat equals the pipe's at every throat and flow",
+     "ok": true,
+     "source": "https://oyc.yale.edu/physics/phys-200/lecture-20"
+    },
+    {
+     "label": "When a fluid flows into a narrower channel, its speed increases: each narrower throat gives a faster speed in it",
+     "ok": true,
+     "source": "https://openstax.org/books/college-physics-2e/pages/12-2-bernoullis-equation"
+    },
+    {
+     "label": "Venturi flow meters work on the principles of the Bernoulli equation: pressure plus ½ρv² is the same in the pipe and the throat, and the flow worked back from the drop is the flow set, at every narrowed setting",
+     "ok": true,
+     "source": "https://www.dwyeromega.com/en-us/resources/venturi-meter"
+    },
+    {
+     "label": "Twice the flow gives four times the drop, at every throat",
+     "ok": true
+    },
+    {
+     "label": "At the limits, 6 L/s through a 4 cm² throat moves at 3.0 then 15.0 m/s, drops 110.7 kPa, and the throat's column still stands at 39.3 kPa; opened to 20 cm², there is no drop and the flow from the columns is a dash",
+     "ok": true
+    },
+    {
+     "label": "Every number the screens print comes from the rule: 2.0 and 8.0 m/s; 30.8, 14.9 m and 3.1 m; 119.2, 2.1, 32.8 and 152 kPa; 7.7 and 69.2; 3.0, 15.0, 110.7 and 39.3; 4, 40 and 0.004 L/s; 4.5 and 0.5 m/s; 3 m/s, 4.1 and 4.6 kPa; 10.8, 12.8 and 4.6 kPa; 3.1 and 0.3 m; 30,800 Pa; 19.6 cm²",
+     "ok": true
+    },
+    {
+     "label": "Each puzzle offers three different answers including its right one, every wrong answer has its own hint, and before Check nothing on its picture shows the answer or a red mark",
+     "ok": true
+    },
+    {
+     "label": "A wrong pick is drawn in red where it fails, and a right answer draws no red",
+     "ok": true
+    },
+    {
+     "label": "A right answer draws the rule's result: 4 L/s; the throat's column at 119.25 kPa; 4.5 m/s; 4.1 kPa lower; 2 L/s; smooth oil; 10.76 kPa; 3.06 m",
+     "ok": true
+    },
+    {
+     "label": "Every demonstration has finished within 4.5 s of its screen opening, its first move after the 0.35 s screen fade; every answer's motion, right or wrong, within 2 s",
+     "ok": true
+    },
+    {
+     "label": "Every demonstration screen, with the live line under it, keeps to about 90 words",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step",
+    "throat",
+    "flow",
+    "measure",
+    "regime"
+   ],
+   "readouts": [
+    "throatSpeed",
+    "pressureDrop",
+    "flowFromDrop"
+   ],
+   "outputs": [
+    "throatSpeed",
+    "pressureDrop",
+    "flowFromDrop"
+   ],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Screen",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "steps": [
+      "A warm-up",
+      "What goes in comes out",
+      "Before the columns",
+      "The columns",
+      "Into a narrower pipe",
+      "Where the energy goes",
+      "How much lower?",
+      "A flow meter",
+      "Read the flow",
+      "Smooth or eddying",
+      "Which runs smooth?",
+      "Flow to drop",
+      "Back to metres"
+     ],
+     "value": 0
+    },
+    {
+     "id": "throat",
+     "kind": "control",
+     "label": "Throat area",
+     "min": 4,
+     "max": 20,
+     "step": 1,
+     "log": false,
+     "value": 5,
+     "shown": false,
+     "snap": [
+      5
+     ]
+    },
+    {
+     "id": "flow",
+     "kind": "control",
+     "label": "Flow",
+     "min": 0,
+     "max": 6,
+     "step": 0.5,
+     "log": false,
+     "value": 4,
+     "shown": false,
+     "snap": [
+      2,
+      4,
+      6
+     ]
+    },
+    {
+     "id": "measure",
+     "kind": "toggle",
+     "label": "Measure: hide the flow",
+     "options": [
+      false,
+      true
+     ],
+     "value": false,
+     "shown": false
+    },
+    {
+     "id": "regime",
+     "kind": "choice",
+     "label": "Liquid and speed",
+     "options": [
+      "smooth",
+      "eddy"
+     ],
+     "labels": [
+      "Thick oil, creeping",
+      "Thin seawater, fast"
+     ],
+     "value": "smooth",
+     "index": 0,
+     "shown": false
+    }
+   ],
+   "actions": [
+    "A new hidden flow",
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Check",
+    "Why?",
+    "Play again",
+    "Back",
+    "Continue",
+    "Start again",
+    "Demonstration"
+   ],
+   "answers": [],
+   "written": [],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 1
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-27T05:56:25.421Z",
+  "applied": [
+   {
+    "path": "explain.text",
+    "problem": "\"Flow is area × the water's speed\" holds only for one speed across the bore; real water runs faster in the middle than at the walls, so the rule is area × average speed, which is what Dan will need in i7's pipes."
+   },
+   {
+    "path": "practice.text",
+    "problem": "The reading steps give the ideal, frictionless flow; a real venturi reads a little high by that formula and its maker's correction factor, just under 1, must be applied, so the job method is more certain than the explanation allows."
+   }
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}

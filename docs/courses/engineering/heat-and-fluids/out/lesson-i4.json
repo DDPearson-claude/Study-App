@@ -1,0 +1,698 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-27T05:56:25.421Z",
+ "startedAt": "2026-10-27T05:56:25.421Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i4",
+  "title": "Heat into work: the first law and engines",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the work stopping at a Carnot line set by the two temperatures, while the cooling and exhaust take the rest and all three still add back to the fuel, when you drag the work wider.",
+   "title": "The engine's energy split",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Screen",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [
+    {
+     "id": "workOut",
+     "label": "Work out",
+     "unit": "kW",
+     "decimals": 0
+    },
+    {
+     "id": "rejected",
+     "label": "Cooling plus exhaust",
+     "unit": "kW",
+     "decimals": 0
+    },
+    {
+     "id": "ceiling",
+     "label": "Carnot limit",
+     "unit": "%",
+     "decimals": 1
+    }
+   ],
+   "whatAmILookingAt": "A short lesson in thirteen small screens. The first pictures show a cylinder of gas under a piston, as a still drawing. Heat goes in at the bottom and the piston moves. A small pressure–volume chart shades the area under the gas's line. That area is the work the gas does. The main picture is an engine's energy split. A band of fuel energy, 1,000 kW, flows into an engine. It leaves as three flows: work out, cooling water and exhaust. The cooling and exhaust labels show their kW, and the work's kW is its readout. Two borders set their widths. One sits between work and cooling, the other between cooling and exhaust. The exhaust takes whatever is left, so the three always add back to 1,000 kW. That is the first law. Work opens at 35%, 350 kW. Cooling opens at 30%, 300 kW, and exhaust at 35%, 350 kW. A shaded block, labelled as the typical work border, marks where the work's border lands in a typical engine, 30 to 40% of the fuel. There, cooling plus exhaust carry 60 to 70%. Two sliders set the temperatures. The hot side runs from 500 to 1,500 K and opens at 800 K. The cold side runs from 270 to 350 K and opens at 300 K. A Carnot line crosses the work flow at 1 − T cold ÷ T hot of the fuel. At 800 K and 300 K that is 1 − 300 ÷ 800 = 62.5%, 625 kW. Work dragged past the line stops there, in red. If the line drops below the work, it pushes the work down too. The difference goes to the exhaust. The limit is a ratio of temperatures, so the sliders are in kelvin, counted from true zero. A generator skin relabels the work as electrical output. It relabels the cooling flow as what the cooler must carry. The three readouts wrap onto two rows on a phone. Screen by screen. Screen 1 shows the cylinder taking in 500 J of heat. Meanwhile the gas, at a steady 200 kPa, pushes the piston out by 1 L, 0.001 m³. That is 200,000 Pa × 0.001 m³ = 200 J of work. The internal energy rises 500 − 200 = 300 J. Screen 2 asks a question. Its chart shows the pressure falling as the gas pushes out. A gas takes in 400 J of heat and does 400 J of work. How much does its internal energy change? The choices are 0 J, 800 J or 400 J. Screen 3 shows the piston locked. 500 J goes in, no work is done, and the internal energy rises 500 J. Then the piston is pushed in, and work done on the gas counts as minus. Screen 4 asks another. Its chart shows the pressure climbing as the gas is squeezed. 300 J of work pushes the piston in, and the gas gives out 100 J of heat. What is the change? Up 200 J, down 400 J or down 200 J. Screen 5 shows a loop on the pressure–volume chart. The gas pushes out while hot. Then it is cooled. Then it is squeezed back while cool, at a lower pressure. So the squeeze takes less work than the push gave. The gas comes back to its start. So the work over the loop is the heat taken in minus the heat given out. The loop's area is that work. Heat-in labels mark the left and top of the loop, and heat-out labels the right and bottom. Squeezed hot, the gas would push back as hard and take back all the work, so no loop can skip the cooling. Screen 6 comes before the main picture. Fuel brings 1,000 kW, the work is 350 kW and the cooling water carries 300 kW. What does the exhaust carry? 350 kW, 650 kW or 700 kW. Screen 7 shows the energy split and the shaded block. Screen 8 asks how much work is left in this picture, if cooling and exhaust carry 60 to 70% of 1,000 kW. The choices are 300 to 400 kW, 600 to 700 kW, or 1,000 kW with the heat on top. Screen 9 shows the Carnot line. It sits at 62.5% at 800 K and 300 K, and at 75% when the hot side is 1,200 K. Screen 10 asks about a maker's claim. The maker claims 75% of its fuel energy as work, from an engine with a hot side at 727 °C and a cold side at 27 °C. Is that possible? One choice: no, the limit is 70%. Another: yes, the limit is about 96%. The last: yes, if its friction is low enough. Screen 11 shows the generator skin. It shows 350 kW of electrical output and a cooler carrying 300 kW. Screens 12 and 13 mix it all. In screen 12, a generator set gives 400 kW of electrical output, which is 40% of its fuel energy. Its cooling carries 30% of the fuel. What must the cooler carry? 300 kW, 120 kW or 600 kW. In screen 13, seawater warming 10 °C must carry that 300 kW away. What flow does that need? About 7.8 kg/s, about 78 kg/s or 30 kg/s.",
+   "ignores": "The picture shows the engine as three flows. A real engine also sheds some heat from its hot casing into the room. The Carnot line assumes the engine takes in all its heat at the hot temperature and gives it all out at the cold one. A real diesel's gas passes through many temperatures each turn. Which two fit it is debated, so the sliders leave the choice to you. The generator skin counts all the engine's work as electrical output. A real alternator turns a little of it into heat of its own. The flows are steady averages over many turns of the engine. The cylinder's gas is ideal, and its piston has no friction.",
+   "numbers": [
+    {
+     "label": "Fuel energy flowing in, in kW",
+     "value": 1000,
+     "kind": "assumed"
+    },
+    {
+     "label": "Work share's opening setting, in %",
+     "value": 35,
+     "kind": "control"
+    },
+    {
+     "label": "Cooling share's opening setting, in %",
+     "value": 30,
+     "kind": "control"
+    },
+    {
+     "label": "Exhaust share at the start, 100 − 35 − 30, in %",
+     "value": 35,
+     "kind": "computed"
+    },
+    {
+     "label": "Work at the start, in kW",
+     "value": 350,
+     "kind": "computed"
+    },
+    {
+     "label": "Cooling at the start, in kW",
+     "value": 300,
+     "kind": "computed"
+    },
+    {
+     "label": "Exhaust at the start, in kW",
+     "value": 350,
+     "kind": "computed"
+    },
+    {
+     "label": "Cooling plus exhaust at the start, in kW",
+     "value": 650,
+     "kind": "computed"
+    },
+    {
+     "label": "Typical cooling plus exhaust, lowest, in %",
+     "value": 60,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "Typical cooling plus exhaust, highest, in %",
+     "value": 70,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "Typical work border, lowest, 100 − 70, in %",
+     "value": 30,
+     "kind": "computed"
+    },
+    {
+     "label": "Typical work border, highest, 100 − 60, in %",
+     "value": 40,
+     "kind": "computed"
+    },
+    {
+     "label": "Hot side slider lowest, in K",
+     "value": 500,
+     "kind": "control"
+    },
+    {
+     "label": "Hot side slider highest, in K",
+     "value": 1500,
+     "kind": "control"
+    },
+    {
+     "label": "Hot side slider's opening setting, in K",
+     "value": 800,
+     "kind": "control"
+    },
+    {
+     "label": "Cold side slider lowest, in K",
+     "value": 270,
+     "kind": "control"
+    },
+    {
+     "label": "Cold side slider highest, in K",
+     "value": 350,
+     "kind": "control"
+    },
+    {
+     "label": "Cold side slider's opening setting, in K",
+     "value": 300,
+     "kind": "control"
+    },
+    {
+     "label": "Carnot limit at the start, 1 − 300 ÷ 800, in %",
+     "value": 62.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Carnot limit at the start, in kW",
+     "value": 625,
+     "kind": "computed"
+    },
+    {
+     "label": "Hot side raised to, in K",
+     "value": 1200,
+     "kind": "control"
+    },
+    {
+     "label": "Carnot limit at 1,200 K, 1 − 300 ÷ 1,200, in %",
+     "value": 75,
+     "kind": "computed"
+    },
+    {
+     "label": "Added to °C to give kelvin, rounded",
+     "value": 273,
+     "kind": "constant"
+    },
+    {
+     "label": "Carnot sum done in °C, 1 − 27 ÷ 527, about, in %",
+     "value": 95,
+     "kind": "computed"
+    },
+    {
+     "label": "Cylinder: heat in, in J",
+     "value": 500,
+     "kind": "assumed"
+    },
+    {
+     "label": "Cylinder: steady pressure, in kPa",
+     "value": 200,
+     "kind": "assumed"
+    },
+    {
+     "label": "Cylinder: steady pressure, 200 kPa in Pa",
+     "value": 200000,
+     "kind": "computed"
+    },
+    {
+     "label": "Cylinder: piston moves out, in L",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Cylinder: 1 L in m³",
+     "value": 0.001,
+     "kind": "computed"
+    },
+    {
+     "label": "Cylinder: work, 200,000 Pa × 0.001 m³, in J",
+     "value": 200,
+     "kind": "computed"
+    },
+    {
+     "label": "Cylinder: internal energy rise, 500 − 200, in J",
+     "value": 300,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 2: heat in and work out, each, in J",
+     "value": 400,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 2: change, 400 − 400, in J",
+     "value": 0,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 2 wrong pick, 400 + 400, in J",
+     "value": 800,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 4: work done on the gas, in J",
+     "value": 300,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 4: heat given out, in J",
+     "value": 100,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 4: change, −100 − (−300), in J",
+     "value": 200,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 4 wrong pick, −100 − 300, in J",
+     "value": -400,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 4 wrong pick, 100 − 300, in J",
+     "value": -200,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 6 wrong pick, 1,000 − 350, in kW",
+     "value": 650,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 6 wrong pick, 1,000 − 300, in kW",
+     "value": 700,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 8: work left, lowest, 1,000 − 700, in kW",
+     "value": 300,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 8: work left, highest, 1,000 − 600, in kW",
+     "value": 400,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 10: maker's claim, in %",
+     "value": 75,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 10: hot side, in °C",
+     "value": 727,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 10: cold side, in °C",
+     "value": 27,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 10: hot side, 727 + 273, in K",
+     "value": 1000,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 10: cold side, 27 + 273, in K",
+     "value": 300,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 10: limit, 1 − 300 ÷ 1,000, in %",
+     "value": 70,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 10 wrong pick, 1 − 27 ÷ 727, about, in %",
+     "value": 96,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 12: electrical output, in kW",
+     "value": 400,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 12: share of fuel turned to output, in %",
+     "value": 40,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 12: cooling's share of fuel, in %",
+     "value": 30,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 12: fuel, 400 ÷ 0.4, in kW",
+     "value": 1000,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 12: cooler, 30% of 1,000, in kW",
+     "value": 300,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 12 wrong pick, 30% of 400, in kW",
+     "value": 120,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 12 wrong pick, 1,000 − 400, in kW",
+     "value": 600,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 13: seawater's warming, in °C",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Seawater's specific heat, in J per kg per °C",
+     "value": 3850,
+     "kind": "constant",
+     "source": 5
+    },
+    {
+     "label": "Screen 13: flow, 300,000 ÷ (3,850 × 10), about, in kg/s",
+     "value": 7.8,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 13 wrong pick, 300 ÷ 10, in kg/s",
+     "value": 30,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 13 wrong pick, 300,000 ÷ 3,850, about, in kg/s",
+     "value": 78,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 12: efficiency as a decimal",
+     "value": 0.4,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example: seawater per kg, 3,850 × 10, in J",
+     "value": 38500,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example: rejected, 1,000 − 400, in kW",
+     "value": 600,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example: cooler, in W",
+     "value": 300000,
+     "kind": "computed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "An engine turns heat into work, but only ever part of it. Energy is never made or destroyed on the way. So every kilowatt of fuel leaves as work or as heat carried away. Start with a gas in a cylinder under a piston. Heat the gas, and it can push the piston out. That push is work. What the gas does not spend as work, it keeps inside itself. That stored energy is its [[internal energy]]. The [[first law of thermodynamics]] says the rise in internal energy is the heat put in minus the work the gas does.[^2] Put 500 J of heat in while the gas does 200 J of work. Its internal energy rises by 300 J.\n\nWork is the push times how far the piston moves. On a pressure–volume chart, it is the area under the gas's line. Say the gas holds a steady 200 kPa and moves the piston out by 1 L, which is 0.001 m³. The work is 200,000 Pa × 0.001 m³ = 200 J. A pascal is a newton on each square metre. So pascals times cubic metres are newton-metres, which are joules. Count heat into the gas as plus. Count work done by the gas as plus too. Lock the piston, and no work is done. Then all the heat stays in the gas. Push the piston in, and the work is done on the gas. That work counts as minus. Taking off a minus adds to the internal energy.\n\nAn engine runs its gas round a loop, back to where it started. So its internal energy comes back too. Over each loop, the work out is the heat taken in minus the heat given out. That work is the loop's area on the chart. No engine running in a loop can turn all its heat into work.[^3] Here is one way to picture why. To go round again, the gas must be squeezed back. Squeeze it while it is still hot, and it pushes back as hard as it pushed out. The squeeze then takes back all the work. Cool it first, and it pushes back less. Now the squeeze costs less than the push gave. That cooling is heat given out to somewhere colder.\n\nA diesel squeezes only air, until it is hot enough to light the fuel sprayed in. That is compression ignition, with no spark. With no fuel in the squeeze, nothing can light early. So a diesel can run a higher compression ratio.[^6] Diesels run on four strokes or on two. A diesel swaps its gas every turn, but the same balance holds. In steady running nothing builds up inside it. So the energy in each second equals the energy out. The fuel's energy leaves mainly three ways. They are work at the shaft, heat in the cooling water and heat in the exhaust. A little more leaves as heat from the hot casing. People often call the cooling and exhaust heat a loss, but nothing is lost. It is heat rejected, carried away, and you can follow every kilowatt. In a typical reciprocating engine, the cooling and exhaust carry 60 to 70% of the fuel's energy.[^1] Large marine two-stroke diesels reject only about half. So they turn about half into work, well above the typical 30 to 40%.[^4] Say the fuel brings 1,000 kW and the shaft gives 350 kW. Then 650 kW is rejected. If the cooling water carries 300 kW, the exhaust carries the other 350 kW. On a generator set, that 350 kW of work is the electrical output. The cooler carries 300 kW, nearly as much. So size a cooler on the heat the engine rejects, not on the set's rating.\n\nHow big could the work be? No engine that takes in heat at a hot temperature and gives it out at a cold one can beat the [[Carnot limit]], 1 − T cold ÷ T hot. Take a hot side at 800 K and a cold side at 300 K. The limit is 1 − 300 ÷ 800 = 62.5%. It is a ratio of temperatures, and a ratio needs a true zero, just as the gas laws do. So both temperatures go in kelvin. Done in Celsius, the same sum gives about 95%, which is nonsense. Only the two temperatures move the limit. A hotter hot side or a colder cold side raises it. Less friction or a bigger engine cannot. How the limit applies to a real diesel is debated. A diesel burns its fuel inside the cylinder. So it is not quite the engine the limit describes. Some engineers say the limit does not bind a diesel at all. Others take the flame and the surroundings as the two temperatures, and still treat the limit as a cap. The answer turns on which two temperatures you choose.\n\n**Every kilowatt of fuel leaves an engine as work or heat, mostly in the cooling and exhaust. An engine running in a loop cannot turn all its heat into work.**"
+  },
+  "analogy": {
+   "text": "Think of a motor's power balance. The supply feeds in electrical power. The shaft gives out mechanical power. The rest leaves as heat, mostly in the windings and the core. Add the shaft power to the heat, and you always get the input. An engine's fuel, work, cooling and exhaust balance the same way.",
+   "breaks": "Nothing in physics stops a motor getting ever closer to turning all its input into work. Its losses are a matter of design. A heat engine is different. Its two temperatures cap it before any design starts. So some heat must always leave it."
+  },
+  "practice": {
+   "text": "**An energy balance on an engine or a generator set**\n- Start from the fuel energy, in kW.\n- Take off the work. On a generator set, that is the electrical output.\n- Split the rest between the cooling and the exhaust.\n- Check the flows add back to the fuel.\n- Check the work's share sits under the Carnot limit. Put both temperatures in kelvin.\n\n**Rules of thumb:** In a typical reciprocating engine, cooling and exhaust carry 60 to 70% of the fuel energy.[^1] Size a cooler on the heat the engine rejects to its cooling water. Never size it on the set's rating.\n\n**Worked example:** A generator set gives 400 kW of electrical output. Its efficiency, from fuel to electrical output, is 40%. So the fuel brings 400 ÷ 0.4 = 1,000 kW. That leaves 600 kW rejected. Say the cooling takes 30% of the fuel, which is 300 kW. Each kilogram of seawater that warms 10 °C carries 3,850 × 10 = 38,500 J. The cooler must shed 300 kW, which is 300,000 J each second. So it needs 300,000 ÷ 38,500, about 7.8 kg/s of seawater.\n\n**Common mistakes**\n- Getting the sign of work wrong. Work done by the gas is taken off the heat. Work done on it is added.\n- Treating heat rejected as gone. It all goes somewhere. The cooler has to carry its share.\n- Putting Celsius into the Carnot limit. Use kelvin.\n- Thinking better engineering lifts the Carnot limit. Only the temperatures move it.\n- Multiplying by the efficiency to find the fuel. Divide the output by it instead."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "contested",
+  "contested": {
+   "views": [
+    {
+     "label": "Some engine engineers",
+     "text": "A diesel burns its fuel inside the cylinder and swaps its gas every cycle, so it is not a Carnot engine. The Carnot limit is not its real limit, and treating it as one is a mistake."
+    },
+    {
+     "label": "Others, including marine engine researchers",
+     "text": "Choose a hot side and a cold side for the engine, such as the flame and the surroundings, and the Carnot limit still caps it. Marine engine researchers judge the best large two-stroke diesels against Carnot's limits."
+    }
+   ]
+  },
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "Catalog of CHP Technologies, Section 2. Technology Characterization – Reciprocating Internal Combustion Engines",
+    "url": "https://www.epa.gov/sites/default/files/2015-07/documents/catalog_of_chp_technologies_section_2._technology_characterization_-_reciprocating_internal_combustion_engines.pdf",
+    "quote": "energy contained in the exhaust gas and cooling systems, which generally represents 60 to 70 percent of the inlet fuel energy."
+   },
+   {
+    "n": 2,
+    "title": "First Law of Thermodynamics",
+    "url": "https://www.grc.nasa.gov/www/k-12/VirtualAero/BottleRocket/airplane/thermo1.html",
+    "quote": "The first law of thermodynamics defines the internal energy (E) as equal to the difference of the heat transfer (Q) into a system and the work (W) done by the system."
+   },
+   {
+    "n": 3,
+    "title": "Introduction to the Second Law of Thermodynamics: Heat Engines and Their Efficiency – Introductory Physics for the Health and Life Sciences I",
+    "url": "https://openbooks.lib.msu.edu/collegephysics1/chapter/introduction-to-the-second-law-of-thermodynamics-heat-engines-and-their-efficiency-2/",
+    "quote": "It is impossible to convert all heat from a reservoir into work in a cyclical process that returns the system to its original state."
+   },
+   {
+    "n": 4,
+    "title": "Performance analysis of a novel marine engine waste heat recovery system for combined power and cooling generation - ScienceDirect",
+    "url": "https://www.sciencedirect.com/science/article/pii/S1359431125031965",
+    "quote": "Because about half of the fuel energy is lost as waste heat"
+   },
+   {
+    "n": 5,
+    "title": "Properties of seawater",
+    "url": "https://talleylab.ucsd.edu/sio210/lect_2/lecture_2.html",
+    "quote": "The density of seawater is about 1025 kg/m^3 and the specific heat is about 3850 J/(kg C)."
+   },
+   {
+    "n": 6,
+    "title": "3.6 Diesel Cycle",
+    "url": "https://web.mit.edu/16.unified/www/FALL/thermodynamics/notes/node27.html",
+    "quote": "This cycle can operate with a higher compression ratio than the Otto cycle because only air is compressed and there is no risk of auto-ignition of the fuel."
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: quantity -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .lead, .caption { max-width: 30rem; margin-inline: auto; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }\n  .stage { position: relative; max-width: 26rem; margin-inline: auto; }\n  .scene { display: block; width: 100%; }\n  .scene .ax { fill: none; stroke: var(--k-strong); stroke-width: 1.5; }\n  .scene .tk { stroke: var(--k-strong); stroke-width: 1.5; }\n  .scene .tl { font: 400 13px var(--k-font); fill: var(--k-muted); }\n  .scene .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }\n  .scene .lab.m { font-weight: 400; fill: var(--k-muted); }\n  .scene .lab.t { fill: var(--k-accent); }\n  .scene .lab.w { fill: var(--k-warn); }\n  .scene .lab.n { fill: var(--k-accent2); }\n  .scene .curve { fill: none; stroke: var(--k-accent2); stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }\n  .scene .bad { fill: none; stroke: var(--k-warn); stroke-width: 2.5; stroke-dasharray: 6 4; stroke-linecap: round; }\n  .scene .dot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }\n  .scene .ring { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 2; }\n  .scene .brk { fill: none; stroke: var(--k-muted); stroke-width: 1.5; }\n  .scene .brk.n { stroke: var(--k-accent2); stroke-width: 2; }\n  .scene .wall { fill: none; stroke: var(--k-strong); stroke-width: 4; stroke-linejoin: round; }\n  .scene .gas { fill: var(--k-fill1); }\n  .scene .piston { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.5; }\n  .scene .rod { stroke: var(--k-strong); stroke-width: 4; stroke-linecap: round; }\n  .scene .pin { fill: var(--k-ink); }\n  .scene .heater { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.5; }\n  .scene .coil { fill: none; stroke: var(--k-amber-line); stroke-width: 2; stroke-linejoin: round; }\n  .scene .hchev { fill: none; stroke: var(--k-amber-line); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }\n  .scene .harr { stroke: var(--k-amber-line); stroke-width: 2.5; stroke-linecap: round; }\n  .scene .hhead { fill: var(--k-amber-line); }\n  .scene .warr { stroke: var(--k-accent2); stroke-width: 2.5; stroke-linecap: round; }\n  .scene .ahead { fill: var(--k-accent2); }\n  .scene .area { fill: var(--k-fill1); }\n  .scene .area2 { fill: var(--k-fill3); }\n  .scene .loopf { fill: var(--k-fill2); }\n  .scene .lq { fill: var(--k-fill2); stroke: var(--k-amber-line); stroke-width: 1.5; }\n  .scene .lw { fill: var(--k-accent2); }\n  .scene .lu { fill: var(--k-fill3); stroke: var(--k-accent); stroke-width: 1.5; }\n  .scene .lext { fill: none; stroke: var(--k-accent); stroke-width: 1.5; stroke-dasharray: 5 4; }\n  .scene .ff { fill: var(--k-fill3); }\n  .scene .eng { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }\n  .scene .fw { fill: var(--k-accent2); }\n  .scene .fc { fill: var(--k-cat1); }\n  .scene .fe { fill: var(--k-cat2); }\n  .scene .fh { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.5; }\n  .scene .frange { fill: var(--k-fill2); }\n  .scene .fq { fill: none; stroke: var(--k-strong); stroke-width: 1.5; stroke-dasharray: 5 4; }\n  .scene .fclaim { fill: none; stroke: var(--k-accent2); stroke-width: 2; stroke-dasharray: 6 4; }\n  .scene .sep { stroke: var(--k-bg); stroke-width: 2.5; }\n  .scene .cline { stroke: var(--k-amber-line); stroke-width: 2.5; stroke-dasharray: 7 5; }\n  .scene .wline { stroke: var(--k-warn); stroke-width: 3; stroke-linecap: round; }\n  .scene .wline2 { stroke: var(--k-warn); stroke-width: 2.5; stroke-dasharray: 6 4; }\n  .scene .leader { stroke: var(--k-muted); stroke-width: 1; }\n  .scene .bandf { fill: var(--k-fill2); }\n  .scene .blk { fill: var(--k-fill1); stroke: var(--k-accent2); stroke-width: 1.5; }\n  .scene .sea { stroke: var(--k-accent); stroke-width: 4; stroke-linecap: round; }\n  .scene .seah { fill: var(--k-accent); }\n  .scene .div { stroke: var(--k-accent2); stroke-width: 2; }\n  .scene .divw { stroke: var(--k-warn); stroke-width: 2; stroke-dasharray: 4 3; }\n  .scene #art * { pointer-events: none; }\n  /* The two borders' handles: Dan drags these along the flows. */\n  .knob { position: absolute; width: 26px; height: 26px; margin: -13px 0 0 -13px; box-sizing: border-box; border-radius: 50%;\n    background: var(--k-panel); border: 2.5px solid var(--k-accent2); }\n  .knob::after { content: \"\"; position: absolute; left: 50%; top: 5px; bottom: 5px; margin-left: -1px; border-left: 2px solid var(--k-accent2); }\n  .knob.stop { border-color: var(--k-warn); }\n  .knob.stop::after { border-left-color: var(--k-warn); }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; }\n  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }\n  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; }\n  /* Readouts, answers and controls wrap onto as many rows as they need at 360 px. */\n  #outs { display: grid; grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr)); gap: 10px; }\n  .picks { display: grid; grid-template-columns: repeat(auto-fit, minmax(6.5rem, 1fr)); gap: 10px; }\n  .picks.long { grid-template-columns: 1fr; }\n  .picks .k-btn { min-height: 52px; font-size: 1.1rem; }\n  .picks.long .k-btn { min-height: 48px; font-size: 1.02rem; }\n  .picks .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  .fb { font-weight: 700; min-height: 1.5em; }\n  .fb.right { color: var(--k-good); }\n  .fb.wrong { color: var(--k-ink); }\n  .why, .done { line-height: 1.6; }\n  .done strong { color: var(--k-accent2); }\n  .done .row { margin-top: 14px; }\n  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */\n  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }\n</style>\n\n<p class=\"lead\">A gas under a piston, then an engine's fuel energy, 1,000 kW, split three ways. Every figure is an example.</p>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <div class=\"stage\" id=\"stage\">\n      <svg class=\"scene\" id=\"scene\" viewBox=\"0 0 340 344\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"art\"></g></svg>\n      <div class=\"knob\" id=\"k1\" hidden></div>\n      <div class=\"knob\" id=\"k2\" hidden></div>\n    </div>\n    <div class=\"k-controls\" id=\"ctl\"></div>\n    <p class=\"say\" id=\"say\"></p>\n    <div class=\"k-readouts\" id=\"outs\"></div>\n    <div class=\"replay\" id=\"replay\"></div>\n    <div class=\"picks\" id=\"picks\"></div>\n    <div class=\"row acts\" id=\"acts\"></div>\n    <p class=\"fb\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p><strong id=\"finish\"></strong></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\" id=\"cap\" hidden></p>\n\n<script>\n  // ---------- the rule ----------\n  // First law, for a gas: rise in internal energy = heat into the gas − work done by the gas.\n  // For an engine in steady running: fuel energy = work + cooling + exhaust. The work's share can\n  // never pass the Carnot limit, 1 − T cold ÷ T hot (both in kelvin). In the picture the work\n  // stops at that line, the cooling keeps its share while there is room, and the exhaust takes\n  // whatever is left, so the three always add back to the fuel.\n  const SRC_EPA = 'https://www.epa.gov/sites/default/files/2015-07/documents/catalog_of_chp_technologies_section_2._technology_characterization_-_reciprocating_internal_combustion_engines.pdf';\n  const SRC_NASA = 'https://www.grc.nasa.gov/www/k-12/VirtualAero/BottleRocket/airplane/thermo1.html';\n  const SRC_MSU = 'https://openbooks.lib.msu.edu/collegephysics1/chapter/introduction-to-the-second-law-of-thermodynamics-heat-engines-and-their-efficiency-2/';\n  const FUEL = 1000, ABS0 = 273, LOW = 60, HIGH = 70;          // example fuel (kW); typical cooling + exhaust, % of fuel\n  const W0 = 35, C0 = 30, HOT0 = 800, COLD0 = 300;              // opening settings\n  const CP_SEA = 3850, RISE = 10;                               // J per kg per °C; the seawater's warming in °C\n  const EPS = 1e-9, FADE = 0.35, ANS = 2.0;\n  const carnot = (hot, cold) => 100 * (1 - cold / hot);\n  const rise = (Q, W) => Q - W;\n  function split(set, cool, ceil) {\n    const w = K.clamp(ceil == null ? set : Math.min(set, ceil), 0, 100);\n    const c = K.clamp(Math.min(cool, 100 - w), 0, 100);\n    return { w, c, e: Math.max(0, 100 - w - c), blocked: ceil != null && set > ceil + 1e-9 };\n  }\n  const fx = (v, dp) => K.fmt(v, { decimals: dp || 0 });\n  // Every number the words and pictures print, worked out from the rule.\n  const N = {\n    q1: fx(500), p1: fx(200), pa: fx(200 * 1000), dv: fx(1), m3: fx(0.001, 3), w1: fx(200 * 1000 * 0.001), u1: fx(rise(500, 200)),\n    q2: fx(400), u2: fx(rise(400, 400)), u2a: fx(400 + 400), u2b: fx(400),\n    q3: fx(500), u3: fx(rise(500, 0)),\n    w4: fx(300), q4: fx(100), qm4: fx(-100), wm4: fx(-300), u4: fx(rise(-100, -300)), u4a: fx(-rise(-100, 300)), u4b: fx(-rise(100, 300)),\n    fuel: fx(FUEL), w6: fx(FUEL * W0 / 100), c6: fx(FUEL * C0 / 100), e6: fx(FUEL - FUEL * W0 / 100 - FUEL * C0 / 100), r6: fx(FUEL - FUEL * W0 / 100), x6: fx(FUEL - FUEL * C0 / 100),\n    lo8: fx(FUEL * (100 - HIGH) / 100), hi8: fx(FUEL * (100 - LOW) / 100), hl8: fx(FUEL * LOW / 100), hh8: fx(FUEL * HIGH / 100),\n    h9: fx(HOT0), k9: fx(COLD0), c9: fx(carnot(HOT0, COLD0), 1), h9b: fx(1200), c9b: fx(carnot(1200, COLD0)),\n    t10h: fx(727), t10c: fx(27), h10: fx(727 + ABS0), k10: fx(27 + ABS0), c10: fx(carnot(727 + ABS0, 27 + ABS0)), c10w: fx(carnot(727, 27)), claim: fx(75),\n    o12: fx(400), s12: fx(40), cs12: fx(30), d12: fx(0.4, 1), e12: fx(400 / 0.4), c12: fx(0.3 * 400 / 0.4), c12a: fx(0.3 * 400), c12b: fx(400 / 0.4 - 400),\n    cps: fx(CP_SEA), rise: fx(RISE), kg: fx(CP_SEA * RISE), J13: fx(0.3 * 400 / 0.4 * 1000),\n    f13: fx(300000 / (CP_SEA * RISE), 1), f13a: fx(300000 / CP_SEA), f13b: fx(300 / RISE),\n  };\n  const CLAIM = 75;\n  const NO70 = `No, the limit is ${N.c10}%`;\n  const FRICTION = 'Yes, if its friction is low enough';\n  const YES96 = `Yes, the limit is about ${N.c10w}%`;\n  const WITH_HEAT = `${N.fuel} kW, with the heat on top`;\n\n  // ---------- the lesson: SHOW screens demonstrate, DO screens are puzzles ----------\n  // top 'cyl': a gas under a piston, its pressure–volume chart and its energy account (ledger);\n  // 'loop': the pressure–volume loop; 'split': the engine's fuel energy split three ways;\n  // 'cooler': the cooling flow leaving in seawater. A live screen (live: which controls show)\n  // opens on its own settings and runs its demonstration (mot) once.\n  const SAY7 = `Fuel brings ${N.fuel} kW. It leaves as *work* at the shaft, heat in the *cooling water* and heat in the *exhaust*.`;\n  const REST7 = `The exhaust takes whatever is left, so the three always add back to ${N.fuel} kW. That is the first law. The shaded block is where the work's border sits when cooling plus exhaust is a typical ${LOW} to ${HIGH}%.`;\n  const SAY9 = `No engine working between a hot side and a cold side can beat the *Carnot limit*, 1 − T cold ÷ T hot, in kelvin. At ${N.h9} K and ${N.k9} K, that is 1 − ${N.k9} ÷ ${N.h9} = ${N.c9}%.`;\n  const REST9 = `Only the temperatures move the line. How far it binds a real diesel is debated.`;\n  const STEPS = [\n    { show: true, name: 'Heat and work', top: 'cyl', cyl: 'out1', dur: 3.6,\n      text: `Heated, a gas can push its piston out. That push is *work*. What it does not spend as work, it keeps inside as *internal energy*. Here ${N.q1} J of heat goes in. At a steady ${N.p1} kPa, the gas pushes the piston out ${N.dv} L, which is ${N.m3} m³. The work is ${N.pa} Pa × ${N.m3} m³ = ${N.w1} J, the shaded area. The *first law of thermodynamics* says the rise in internal energy is heat in minus work: ${N.q1} − ${N.w1} = ${N.u1} J.` },\n    { kind: 'pick', name: 'All of it as work', top: 'cyl', cyl: 'out2',\n      opts: [`${N.u2a} J`, `${N.u2} J`, `${N.u2b} J`], want: `${N.u2} J`,\n      bad: { [`${N.u2a} J`]: { v: 400 + 400, lab: `${N.u2a} J: the work added, not taken off` }, [`${N.u2b} J`]: { v: 400, lab: `${N.u2b} J: the work left out` } },\n      task: `A gas takes in ${N.q2} J of heat and does ${N.q2} J of work. How much does its internal energy change?`,\n      why: `The rise in internal energy is the heat in minus the work done: ${N.q2} − ${N.q2} = ${N.u2} J. Every joule that came in left again as work.`,\n      hint: 'Not quite. Heat in, minus the work the gas does.',\n      hints: { [`${N.u2a} J`]: 'Not quite. Work done by the gas is taken off the heat, not added.', [`${N.u2b} J`]: 'Not quite. Take the work off the heat that came in.' } },\n    { show: true, name: 'Locked, then pushed', top: 'cyl', cyl: 'lock', dur: 4.2,\n      text: `Count heat into the gas as plus, and work done by the gas as plus too. Here the piston is locked, and ${N.q3} J goes in. The gas cannot move it, so it does no work, and the chart has no area. All ${N.q3} J stays, so the internal energy rises ${N.u3} J. Then the piston is pushed in. That work is done on the gas, so it counts as minus. Taking off a minus adds, so the internal energy rises further.` },\n    { kind: 'pick', name: 'Pushed in', top: 'cyl', cyl: 'in4',\n      opts: [`Down ${N.u4a} J`, `Down ${N.u4b} J`, `Up ${N.u4} J`], want: `Up ${N.u4} J`,\n      bad: { [`Down ${N.u4a} J`]: { v: rise(-100, 300), lab: `Down ${N.u4a} J: the work's sign is flipped` }, [`Down ${N.u4b} J`]: { v: rise(100, 300), lab: `Down ${N.u4b} J: the heat's sign is flipped` } },\n      task: `${N.w4} J of work pushes the piston in, and the gas gives out ${N.q4} J of heat. What happens to its internal energy?`,\n      why: `Heat given out counts as minus, so the heat in is ${N.qm4} J. Work done on the gas counts as minus too, so the work is ${N.wm4} J. The rise is ${N.qm4} − (${N.wm4}) = ${N.u4} J. The push put in more than the heat took out.`,\n      hint: 'Not quite. Write both with their signs, then take the work off the heat.',\n      hints: { [`Down ${N.u4a} J`]: 'Not quite. Work done on the gas counts as minus, and taking off a minus adds.', [`Down ${N.u4b} J`]: 'Not quite. Heat given out counts as minus. Only heat coming in is plus.' } },\n    { show: true, name: 'Round a loop', top: 'loop', dur: 4.2,\n      text: \"An engine runs its gas round a loop. It pushes out while hot. Then it is cooled. Then it is squeezed back while cool, at a lower pressure. So the squeeze takes less work than the push gave. Its internal energy ends where it started. So over each loop, the work out is the heat taken in minus the heat given out. That work is the loop's area. Squeezed hot, the gas would push back as hard, taking back all the work. So no loop can skip the cooling.\" },\n    { kind: 'pick', name: 'The exhaust', top: 'split', fig: 'exh', fix: { w: W0, c: C0 },\n      opts: [`${N.e6} kW`, `${N.r6} kW`, `${N.x6} kW`], want: `${N.e6} kW`,\n      bad: { [`${N.r6} kW`]: { t: 'brk', from: W0, to: 100, lab: `${N.r6} kW: cooling and exhaust together`, anchor: 'end' },\n        [`${N.x6} kW`]: { t: 'box', from: 0, to: W0, lab: `${N.x6} kW still counts the work`, anchor: 'start' } },\n      task: `Fuel brings ${N.fuel} kW. The work is ${N.w6} kW, and the cooling water carries ${N.c6} kW. What does the exhaust carry?`,\n      why: `Every kilowatt of fuel leaves somewhere. ${N.fuel} − ${N.w6} − ${N.c6} = ${N.e6} kW leaves in the exhaust. People call the cooling and exhaust heat a loss, but nothing is lost. It is *heat rejected*, carried away, so the three add back to ${N.fuel} kW.`,\n      hint: 'Not quite. Take the work and the cooling off the fuel.',\n      hints: { [`${N.r6} kW`]: `Not quite. ${N.r6} kW is the cooling and the exhaust together. Take off the cooling too.`, [`${N.x6} kW`]: 'Not quite. Take off the work as well as the cooling.' } },\n    { show: true, name: 'The energy split', top: 'split', live: { work: true, cool: true }, band: true, outs: ['workOut', 'rejected'],\n      set: {}, dur: 3.7, mot: [{ ctl: 'work', from: W0, to: 40, t0: 0.5, t1: 1.9 }, { ctl: 'cool', from: C0, to: 35, t0: 2.1, t1: 3.5 }], still: { work: 40, cool: 35 },\n      text: `${SAY7} Drag a border. ${REST7}`, read: `${SAY7} ${REST7}` },\n    { kind: 'pick', name: 'Typical work', top: 'split', fig: 'typ', band: true,\n      opts: [`${N.hl8} to ${N.hh8} kW`, `${N.lo8} to ${N.hi8} kW`, WITH_HEAT], want: `${N.lo8} to ${N.hi8} kW`,\n      bad: { [`${N.hl8} to ${N.hh8} kW`]: { t: 'box', from: 0, to: 65, lab: `${N.hl8} to ${N.hh8} kW is the heat, not the work`, anchor: 'start' },\n        [WITH_HEAT]: { t: 'box', from: 0, to: 100, lab: `more out than the ${N.fuel} kW in`, anchor: 'start' } },\n      task: `In a typical engine, cooling and exhaust carry ${LOW} to ${HIGH}% of the fuel. With ${N.fuel} kW of fuel, how much is left as work?`,\n      why: `${LOW} to ${HIGH}% of ${N.fuel} kW is ${N.hl8} to ${N.hh8} kW of heat. The work is the rest. That is ${N.fuel} − ${N.hh8} = ${N.lo8} kW, up to ${N.fuel} − ${N.hl8} = ${N.hi8} kW.`,\n      hint: 'Not quite. The heat comes out of the fuel. The work is what is left.',\n      hints: { [`${N.hl8} to ${N.hh8} kW`]: 'Not quite. That is the heat carried away. The work is what is left.', [WITH_HEAT]: `Not quite. Energy is never made. The heat comes out of the same ${N.fuel} kW.` } },\n    { show: true, name: 'The Carnot line', top: 'split', live: { work: true, hot: true, cold: true }, carnot: true, band: true, outs: ['workOut', 'rejected', 'ceiling'],\n      set: { cool: 20 }, dur: 4.0, mot: [{ ctl: 'work', from: W0, to: 70, t0: 0.5, t1: 2.0 }, { ctl: 'hot', from: HOT0, to: 1200, t0: 2.2, t1: 3.8 }],\n      still: { work: 70, cool: 20, hot: HOT0 },\n      text: `${SAY9} Drag the work past the line, and it stops there, in red. ${REST9}`, read: `${SAY9} Work pushed past the line stops there, in red. ${REST9}` },\n    { kind: 'pick', name: \"A maker's claim\", top: 'split', fig: 'claim',\n      opts: [NO70, FRICTION, YES96], want: NO70,\n      bad: { [YES96]: { t: 'line', at: carnot(727, 27), lab: `about ${N.c10w}%: worked in °C`, anchor: 'end' },\n        [FRICTION]: { t: 'box', from: 0, to: CLAIM, lab: 'less friction cannot move the limit', anchor: 'start' } },\n      task: `A maker claims ${N.claim}% of its fuel energy as work. The engine's hot side is at ${N.t10h} °C and its cold side at ${N.t10c} °C. Is that possible?`,\n      why: `Put both temperatures in kelvin. ${N.t10h} + 273 = ${N.h10} K, and ${N.t10c} + 273 = ${N.k10} K. The limit is 1 − ${N.k10} ÷ ${N.h10} = ${N.c10}%. A claim of ${N.claim}% passes it, so it cannot be right.`,\n      hint: 'Not quite. Work out the limit in kelvin first.',\n      hints: { [YES96]: 'Not quite. The limit is a ratio of temperatures, so use kelvin, counted from true zero.', [FRICTION]: 'Not quite. Less friction cannot lift the limit. Only the two temperatures move it.' } },\n    { show: true, name: 'A generator set', top: 'split', live: { gen: true, work: true, cool: true }, carnot: true, band: true, outs: ['workOut', 'rejected'],\n      set: {}, dur: 3.0, mot: [{ ctl: 'gen', from: 0, to: 1, t0: 0.6, t1: 0.7 }], still: { gen: true },\n      text: `On a *generator set*, the engine's work drives an alternator. So the work becomes the *electrical output*, ${N.w6} kW here. The cooling water still carries ${N.c6} kW, nearly as much. All of that leaves through the cooler. So size a cooler on the heat the engine rejects to its cooling water. Never size it on the set's rating.` },\n    { kind: 'pick', name: 'Sizing the cooler', top: 'split', fig: 'gen', gen: true, fix: { w: 40, c: 30 },\n      opts: [`${N.c12a} kW`, `${N.c12b} kW`, `${N.c12} kW`], want: `${N.c12} kW`,\n      bad: { [`${N.c12a} kW`]: { t: 'box', from: 40, to: 40 + 0.3 * 40, lab: `${N.c12a} kW: ${N.cs12}% of the output, not the fuel`, anchor: 'start' },\n        [`${N.c12b} kW`]: { t: 'brk', from: 40, to: 100, lab: `${N.c12b} kW: all the heat rejected`, anchor: 'end' } },\n      task: `A generator set gives ${N.o12} kW of electrical output. Its output is ${N.s12}% of its fuel energy. Its cooling carries ${N.cs12}% of the fuel. What must the cooler carry?`,\n      why: `Find the fuel first. Divide the output by the efficiency: ${N.o12} ÷ ${N.d12} = ${N.e12} kW. The cooling takes ${N.cs12}% of that, so the cooler must carry ${N.c12} kW. That is nearly as much as the output.`,\n      hint: 'Not quite. Find the fuel first, then take its share.',\n      hints: { [`${N.c12a} kW`]: `Not quite. ${N.cs12}% is a share of the fuel, not the output. Find the fuel first.`, [`${N.c12b} kW`]: \"Not quite. That is all the heat rejected. The cooler carries only the cooling's share.\" } },\n    { kind: 'pick', name: 'Seawater flow', top: 'cooler',\n      opts: [`About ${N.f13a} kg/s`, `About ${N.f13} kg/s`, `${N.f13b} kg/s`], want: `About ${N.f13} kg/s`,\n      bad: { [`About ${N.f13a} kg/s`]: { each: CP_SEA, ticks: true, lab: `${N.f13a}: ${N.cps} J warms a kilogram only 1 °C` }, [`${N.f13b} kg/s`]: { each: 300000 / 30, ticks: true, lab: `${N.f13b}: ${N.c12} ÷ ${N.rise}, with no ${N.cps} J in it` } },\n      task: `Seawater must carry that ${N.c12} kW away, warming by ${N.rise} °C. Each kilogram takes ${N.cps} J for each °C it warms. What flow does that need?`,\n      why: `Each kilogram warming ${N.rise} °C carries ${N.cps} × ${N.rise} = ${N.kg} J. The cooler must shed ${N.c12} kW, which is ${N.J13} J each second. So ${N.J13} ÷ ${N.kg} is about ${N.f13} kg of seawater each second.`,\n      hint: 'Not quite. Work out the joules one kilogram carries first.',\n      hints: { [`About ${N.f13a} kg/s`]: `Not quite. ${N.cps} J warms a kilogram by only 1 °C. Here each kilogram warms ${N.rise} °C.`, [`${N.f13b} kg/s`]: `Not quite. Each kilogram carries ${N.cps} J for every °C, so work in joules.` } },\n  ];\n  const FINISH = 'Every kilowatt of fuel leaves an engine as work or as heat carried away, and they always add back. Only the two temperatures, in kelvin, set how much can ever be work.';\n  const PICK = 'Pick an answer first.';\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n\n  // ---------- each step's state ----------\n  function blank() { return { pick: null, res: null, why: false }; }\n  let S = STEPS.map(() => blank());\n  let finished = false, lastStep = -1, lastDone = false, T = Infinity, motionEnd = 0, MOT = null, keyNow = '';\n  const el = (id) => document.getElementById(id);\n\n  // ---------- words with amber key terms (built with K.el, never innerHTML) ----------\n  function write(node, s) {\n    node.textContent = '';\n    s = String(s || '');\n    const re = /\\*([^*]+)\\*/g;\n    let pos = 0, m;\n    while ((m = re.exec(s))) {\n      if (m.index > pos) node.appendChild(document.createTextNode(s.slice(pos, m.index)));\n      node.appendChild(K.el('span', { class: 'term' }, m[1]));\n      pos = m.index + m[0].length;\n    }\n    if (pos < s.length) node.appendChild(document.createTextNode(s.slice(pos)));\n    return node;\n  }\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);\n  const stepOf = (p) => K.clamp(Math.round(+p.step) || 0, 0, STEPS.length - 1);\n  const pct = (v) => K.fmt(v, { decimals: Number.isInteger(+v) ? 0 : 1 }) + '%';\n  const kelv = (v) => fx(v) + ' K · ' + fx(v - ABS0) + ' °C';\n  const workCtl = K.control({ id: 'work', label: \"Work's share\", hint: 'Its share of the fuel', min: 10, max: 90, step: 0.5, value: W0, unit: '%', fmt: pct, snap: [40, 70], into: '#ctl' });\n  const coolCtl = K.control({ id: 'cool', label: \"Cooling's share\", hint: 'Its share of the fuel', min: 5, max: 60, step: 0.5, value: C0, unit: '%', fmt: pct, snap: [35], into: '#ctl' });\n  const hotCtl = K.control({ id: 'hot', label: 'Hot side, T hot', min: 500, max: 1500, step: 10, value: HOT0, unit: 'K', fmt: kelv, snap: [1200], into: '#ctl' });\n  const coldCtl = K.control({ id: 'cold', label: 'Cold side, T cold', min: 270, max: 350, step: 1, value: COLD0, unit: 'K', fmt: kelv, into: '#ctl' });\n  const genCtl = K.toggle({ id: 'gen', label: 'Generator set', value: false, into: '#ctl' });\n  const CTL = { work: workCtl, cool: coolCtl, hot: hotCtl, cold: coldCtl, gen: { set: (v, q) => genCtl.set(v >= 0.5, q) } };\n  function setCtl(id, v) { CTL[id].set(v, true); }\n  const ctlKey = (p) => [p.work, p.cool, p.hot, p.cold, p.gen].join('|');\n\n  const num = (v, d0) => (isFinite(+v) && v !== '' && v != null ? +v : d0);\n  const isOn = (v) => v === true || v === 'true';\n  // The split on a live screen, from the controls that screen shows.\n  function liveSplit(d, p) {\n    const L = d.live || {};\n    const hot = L.hot ? K.clamp(num(p.hot, HOT0), 500, 1500) : HOT0, cold = L.cold ? K.clamp(num(p.cold, COLD0), 270, 350) : COLD0;\n    const ceil = carnot(hot, cold), set = K.clamp(num(p.work, W0), 0, 100), cool = K.clamp(num(p.cool, C0), 0, 100);\n    const sp = split(set, cool, d.carnot ? ceil : null);\n    return Object.assign(sp, { ceil, set, hot, cold, gen: L.gen ? isOn(p.gen) : !!d.gen });\n  }\n  // Screens without live controls report the opening split.\n  const OPEN = () => ({ workOut: FUEL * W0 / 100, rejected: FUEL * (100 - W0) / 100, ceiling: carnot(HOT0, COLD0) });\n  K.model((p) => {\n    const d = STEPS[stepOf(p)];\n    if (!d.live) return OPEN();\n    const sp = liveSplit(d, p);\n    return { workOut: FUEL * sp.w / 100, rejected: FUEL * (100 - sp.w) / 100, ceiling: sp.ceil };\n  });\n\n  const rWork = K.readout({ id: 'workOut', label: 'Work out', unit: 'kW', decimals: 0, into: '#outs' });\n  const rRej = K.readout({ id: 'rejected', label: 'Cooling plus exhaust', unit: 'kW', decimals: 0, into: '#outs' });\n  const rCeil = K.readout({ id: 'ceiling', label: 'Carnot limit', unit: '%', decimals: 1, into: '#outs' });\n\n  // Up to three answer buttons; each step fills in its own options.\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;\n    const was = st.res === 'wrong';\n    st.pick = d.opts[k]; st.res = null;\n    if (was) { anim.pause(); T = Infinity; }\n  } }));\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (d.show || finished || st.res === 'right') return;\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = st.pick === d.want ? 'right' : 'wrong';\n    play(ANS);\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    if (STEPS[at()].show || finished) return;\n    const st = S[at()]; st.why = !st.why;\n  } });\n  K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {\n    const i = at(), d = STEPS[i];\n    if (!d.show || finished) return;\n    onEnter(i);\n    keyNow = ctlKey(K.params());\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true; anim.pause(); T = Infinity; MOT = null;\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);\n  } });\n\n  // One animation plays each demonstration and the motion after an answer; with reduced motion\n  // (and while the self-test looks) everything opens finished.\n  function stepMot() {\n    if (!MOT) return;\n    let done = true;\n    MOT.forEach((m) => {\n      const a = T === Infinity ? 1 : K.clamp((T - m.t0) / Math.max(1e-6, m.t1 - m.t0), 0, 1);\n      setCtl(m.ctl, K.lerp(m.from, m.to, K.ease(a)));\n      if (a < 1) done = false;\n    });\n    keyNow = ctlKey(K.params());\n    if (done) MOT = null;\n  }\n  function finishMot() { if (MOT) { T = Infinity; stepMot(); MOT = null; } }\n  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {\n    if (finished) return false;\n    T += dt;\n    if (MOT) { stepMot(); K.refresh(); } else if (STEPS[at()].live) K.refresh(); else paint();\n    return T < motionEnd || !!MOT;\n  } });\n  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; finishMot(); K.refresh(); } });\n  function play(dur) {\n    if (REDUCE || testing()) { anim.pause(); finishMot(); T = Infinity; return; }\n    motionEnd = dur; T = 0; anim.play();\n  }\n  function enter(id) {\n    if (REDUCE) return;\n    const box = el(id);\n    box.classList.remove('enter');\n    void box.offsetWidth;\n    box.classList.add('enter');\n  }\n  // A new screen: a live one takes its own settings and runs its demonstration once.\n  function onEnter(i) {\n    const d = STEPS[i];\n    MOT = null;\n    if (d.live) {\n      const b = Object.assign({ work: W0, cool: C0, hot: HOT0, cold: COLD0, gen: false }, d.set || {});\n      workCtl.set(b.work, true); coolCtl.set(b.cool, true); hotCtl.set(b.hot, true); coldCtl.set(b.cold, true); genCtl.set(!!b.gen, true);\n      if (d.mot) { MOT = d.mot.map((m) => Object.assign({}, m)); MOT.forEach((m) => setCtl(m.ctl, m.from)); }\n    }\n    if (d.show) play(d.dur); else { anim.pause(); T = Infinity; }\n  }\n\n  // ---------- drawing ----------\n  const svg = el('scene'), art = el('art'), k1 = el('k1'), k2 = el('k2');\n  let into = null, REC = null, HH = 344;\n  const add = (n) => (into || art).appendChild(n);\n  const r2 = (v) => Math.round(v * 100) / 100;\n  const sv = (tag, a) => add(K.svg(tag, a));\n  const path = (d, cls) => sv('path', { class: cls, d });\n  function text(x, y, s, cls, anchor) {\n    s = String(s);\n    if (REC) REC.texts.push(s);\n    return add(K.svg('text', { class: cls, x: r2(x), y: r2(y), 'text-anchor': anchor || 'middle' }, s));\n  }\n  // How far a part due at t0 has arrived, noting the timetable for the timing check.\n  let latest = 0, earliest = Infinity;\n  function note(t0, d) { if (t0 + d > latest) latest = t0 + d; if (t0 < earliest) earliest = t0; }\n  function arr(t0, d) { d = d == null ? K.SOFT : d; note(t0, d); return K.arrive(T, t0, d); }\n  function lin(t0, d) { note(t0, d); return T === Infinity ? 1 : K.clamp((T - t0) / d, 0, 1); }\n  function part(a, rise, draw) {\n    if (a <= 0) return;\n    const g = add(K.svg('g'));\n    K.fade(g, Math.min(1, a), rise);\n    const keep = into; into = g; draw(); into = keep;\n  }\n  function ftext(a, x, y, s, cls, anchor) { if (a > 0) part(a, 0, () => text(x, y, s, cls, anchor)); }\n  // A bracket along x1..x2 at height y, its arms pointing up (towards what it measures) or down.\n  function brk(x1, x2, y, cls, up) {\n    const e = up ? y - 5 : y + 5;\n    path('M' + r2(x1) + ' ' + e + ' V' + r2(y) + ' H' + r2(x2) + ' V' + e, 'brk' + (cls ? ' ' + cls : ''));\n  }\n  const wrongOf = (d, st) => (st.res === 'wrong' && st.pick != null && d.bad ? d.bad[st.pick] || null : null);\n\n  // ---------- the cylinder ----------\n  const CXL = 30, CXR = 112, CB = 154, MID = 71;\n  const COIL = 'M36 167 L42 164 L48 170 L54 164 L60 170 L66 164 L72 170 L78 164 L84 170 L90 164 L96 170 L102 164 L106 167';\n  function drawCyl(o) {\n    const top = o.top;\n    sv('rect', { class: 'gas', x: CXL, y: r2(top), width: CXR - CXL, height: r2(CB - top) });\n    sv('rect', { class: 'piston', x: CXL, y: r2(top - 10), width: CXR - CXL, height: 10 });\n    sv('line', { class: 'rod', x1: MID, y1: r2(top - 10), x2: MID, y2: r2(top - 26) });\n    sv('rect', { class: 'piston', x: MID - 16, y: r2(top - 32), width: 32, height: 6, rx: 2 });\n    if (o.pins > 0) part(o.pins, 0, () => [[18, 34], [108, 124]].forEach((x) => sv('rect', { class: 'pin', x: x[0], y: r2(top - 7), width: x[1] - x[0], height: 4, rx: 1 })));\n    path('M28 26 V156 H114 V26', 'wall');\n    sv('rect', { class: 'heater', x: CXL, y: 162, width: CXR - CXL, height: 10, rx: 2 });\n    if (o.heat === 'in') path(COIL, 'coil');\n    if (o.heat && o.heatA > 0) part(o.heatA, 0, () => {\n      [46, 71, 96].forEach((x) => (o.heat === 'in'\n        ? path(`M${x - 6} ${CB - 6} L${x} ${CB - 13} L${x + 6} ${CB - 6}`, 'hchev')\n        : path(`M${x - 6} 177 L${x} 184 L${x + 6} 177`, 'hchev')));\n      text(MID, o.heat === 'in' ? 190 : 202, o.heatLab, 'lab');\n    });\n    if (o.work && o.workA > 0) part(o.workA, 0, () => {\n      const x = 99, y0 = top - 12, y1 = top - 38;\n      if (o.work === 'out') {\n        sv('line', { class: 'warr', x1: x, y1: r2(y0), x2: x, y2: r2(y1 + 8) });\n        path(`M${x} ${r2(y1)} L${x - 5} ${r2(y1 + 9)} L${x + 5} ${r2(y1 + 9)} Z`, 'ahead');\n      } else {\n        sv('line', { class: 'warr', x1: x, y1: r2(y1), x2: x, y2: r2(y0 - 8) });\n        path(`M${x} ${r2(y0)} L${x - 5} ${r2(y0 - 9)} L${x + 5} ${r2(y0 - 9)} Z`, 'ahead');\n      }\n    });\n  }\n  function chartAxes() {\n    path('M176 30 V150 H330', 'ax');\n    text(184, 22, 'pressure', 'tl', 'start');\n    text(330, 144, 'volume', 'tl', 'end');\n  }\n  // The energy account: each row's bar runs right of its zero tick for plus, left for minus.\n  const LEDGER = { out1: { zx: 40, s: 0.5 }, out2: { zx: 40, s: 0.32 }, lock: { zx: 90, s: 0.36 }, in4: { zx: 196, s: 0.38 } };\n  const rowY = (k) => 222 + 36 * k;\n  function ledger(g, rows) {\n    rows.forEach((r, k) => {\n      if (r.a <= 0) return;\n      const ty = rowY(k), by = ty + 6;\n      part(r.a, 0, () => {\n        text(8, ty, r.name, 'lab m', 'start');\n        sv('line', { class: 'tk', x1: g.zx, y1: by - 1, x2: g.zx, y2: by + 15 });\n        const v = r.v * (r.grow == null ? 1 : r.grow);\n        if (Math.abs(v) * g.s > 0.5) sv('rect', { class: r.cls, x: r2(Math.min(g.zx, g.zx + v * g.s)), y: by, width: r2(Math.abs(v) * g.s), height: 14 });\n        (r.vals || []).forEach((q) => ftext(q.a, 332, ty, q.s, 'lab', 'end'));\n        if (r.extra) r.extra(by);\n      });\n    });\n  }\n  // A wrong answer's rise, drawn in red on the last row.\n  function ledgerBad(g, b, a) {\n    REC.bad++;\n    const by = rowY(2) + 6;\n    part(a, 0, () => {\n      sv('rect', { class: 'bad', x: r2(Math.min(g.zx, g.zx + b.v * g.s)), y: by, width: r2(Math.abs(b.v) * g.s), height: 14 });\n      text(8, 334, b.lab, 'lab w', 'start');\n    });\n  }\n  function drawCylStep(d, st, bad, wa) {\n    const right = st.res === 'right', g = LEDGER[d.cyl], ra = right ? arr(0.1) : 0, grow = right ? K.ease(lin(0.1, 1.0)) : 0;\n    chartAxes();\n    let said = '';\n    if (d.cyl === 'out1') {\n      const a1 = arr(0.4), a2 = arr(1.0), m = K.ease(lin(1.0, 1.6)), af = arr(2.4), a3 = arr(2.8), u = K.ease(lin(2.8, 0.6));\n      drawCyl({ top: 110 - 40 * m, heat: 'in', heatA: a1, heatLab: `heat in: ${N.q1} J`, work: 'out', workA: a2 });\n      ftext(a2, 8, 16, `work by the gas: ${N.w1} J`, 'lab n', 'start');\n      part(af, 0, () => { path('M115 70 H120 V110 H115', 'brk n'); text(126, 94.5, `${N.dv} L`, 'lab n', 'start'); });\n      const xm = 200 + 80 * m;\n      if (m > 0.002) { sv('rect', { class: 'area', x: 200, y: 70, width: r2(xm - 200), height: 80 }); path(`M200 70 H${r2(xm)}`, 'curve'); }\n      sv('circle', { class: 'dot', cx: r2(xm), cy: 70, r: 6 });\n      ftext(a1, 240, 60, `${N.p1} kPa`, 'lab');\n      part(af, 0, () => {\n        text(240, 104, 'work', 'lab'); text(240, 121, `${N.w1} J`, 'lab');\n        brk(200, 280, 158, 'n', true); text(240, 174, `${N.dv} L = ${N.m3} m³`, 'lab n');\n      });\n      ledger(g, [\n        { name: 'heat into the gas', v: 500, cls: 'lq', a: a1, vals: [{ s: `${N.q1} J`, a: 1 }] },\n        { name: 'work done by the gas', v: 200, grow: m, cls: 'lw', a: a2, vals: [{ s: `${N.w1} J`, a: af }] },\n        { name: 'rise in internal energy', v: 300, grow: u, cls: 'lu', a: a3, vals: [{ s: `${N.u1} J`, a: 1 }] },\n      ]);\n      said = `A cylinder of gas over a heater. ${N.q1} J of heat goes in, and the gas pushes its piston out ${N.dv} L at a steady ${N.p1} kPa. On the chart, the shaded area under the gas's line is the work, ${N.w1} J. Below, its energy account: heat in ${N.q1} J, work ${N.w1} J, and a rise in internal energy of ${N.u1} J.`;\n    } else if (d.cyl === 'out2') {\n      drawCyl({ top: 70, heat: 'in', heatA: 1, heatLab: `heat in: ${N.q2} J`, work: 'out', workA: 1 });\n      text(8, 16, `work by the gas: ${N.q2} J`, 'lab n', 'start');\n      // Heat in equal to the work out leaves the gas no hotter, so its pressure falls as it expands.\n      sv('path', { class: 'area', d: 'M200 150 V56 C222 82 248 96 280 102 V150 Z' });\n      path('M200 56 C222 82 248 96 280 102', 'curve');\n      sv('circle', { class: 'dot', cx: 280, cy: 102, r: 6 });\n      text(240, 122, 'work', 'lab'); text(240, 139, `${N.q2} J`, 'lab');\n      ledger(g, [\n        { name: 'heat into the gas', v: 400, cls: 'lq', a: 1, vals: [{ s: `${N.q2} J`, a: 1 }] },\n        { name: 'work done by the gas', v: 400, cls: 'lw', a: 1, vals: [{ s: `${N.q2} J`, a: 1 }] },\n        { name: 'rise in internal energy', v: 0, cls: 'lu', a: 1, vals: [{ s: '?', a: 1 - ra }, { s: `${N.u2} J`, a: ra }],\n          extra: (by) => { if (ra > 0) part(ra, 0, () => sv('circle', { class: 'ring', cx: g.zx, cy: by + 7, r: 5 })); } },\n      ]);\n      if (right) { REC.ans = true; REC.res = rise(400, 400); ftext(arr(0.6), 8, 334, 'no change: all of it left as work', 'lab n', 'start'); }\n      if (bad) ledgerBad(g, bad, wa);\n      said = `A cylinder of gas takes in ${N.q2} J of heat and pushes its piston out, doing ${N.q2} J of work, shaded on the chart under a line whose pressure falls as the gas expands. Below, its energy account, with the rise in internal energy ` + (right ? `drawn: ${N.u2} J.` : 'left as a question.');\n    } else if (d.cyl === 'lock') {\n      const a1 = arr(0.4), up = K.ease(lin(0.6, 1.0)), aw = arr(1.0), an = arr(1.4), au = arr(1.6), ug = K.ease(lin(1.6, 0.6));\n      const p2 = arr(2.4), m2 = K.ease(lin(2.6, 1.0)), aw2 = arr(3.0), au2 = arr(3.4);\n      drawCyl({ top: 90 + 20 * m2, pins: 1 - p2, heat: 'in', heatA: a1, heatLab: `heat in: ${N.q3} J`, work: 'in', workA: p2 });\n      ftext(a1 * (1 - p2), 8, 16, 'locked: it cannot move', 'lab n', 'start');\n      ftext(p2, 8, 16, 'pushed in: work on it', 'lab n', 'start');\n      const yTop = 120 - 50 * up;\n      if (up > 0.002) path(`M240 120 V${r2(yTop)}`, 'curve');\n      if (m2 > 0.002) {\n        const xL = 240 - 40 * m2, yL = 70 - 12 * m2;\n        sv('path', { class: 'area2', d: `M240 70 L${r2(xL)} ${r2(yL)} V150 H240 Z` });\n        path(`M240 70 L${r2(xL)} ${r2(yL)}`, 'curve');\n      }\n      const px = m2 > 0.002 ? 240 - 40 * m2 : 240, py = m2 > 0.002 ? 70 - 12 * m2 : yTop;\n      sv('circle', { class: 'dot', cx: r2(px), cy: r2(py), r: 6 });\n      ftext(an, 252, 92, 'no area,', 'lab', 'start'); ftext(an, 252, 108, 'no work', 'lab', 'start');\n      ftext(aw2, 180, 44, 'work on the gas', 'lab n', 'start');\n      ledger(g, [\n        { name: 'heat into the gas', v: 500, cls: 'lq', a: a1, vals: [{ s: `${N.q3} J`, a: 1 }] },\n        { name: 'work done by the gas', v: 0, cls: 'lw', a: aw, vals: [{ s: '0 J', a: 1 - aw2 }, { s: 'minus', a: aw2 }],\n          extra: (by) => { if (aw2 > 0) part(aw2, 0, () => {\n            sv('line', { class: 'warr', x1: g.zx - 2, y1: by + 7, x2: g.zx - 36, y2: by + 7 });\n            path(`M${g.zx - 44} ${by + 7} L${g.zx - 35} ${by + 2} L${g.zx - 35} ${by + 12} Z`, 'ahead');\n            text(g.zx + 8, by + 12, 'done on the gas', 'lab n', 'start');\n          }); } },\n        { name: 'rise in internal energy', v: 500, grow: ug, cls: 'lu', a: au, vals: [{ s: `${N.u3} J`, a: 1 - au2 }, { s: `over ${N.u3} J`, a: au2 }],\n          extra: (by) => { if (au2 > 0) part(au2, 0, () => sv('rect', { class: 'lext', x: r2(g.zx + 500 * g.s), y: by, width: 36, height: 14 })); } },\n      ]);\n      said = `A cylinder of gas with its piston locked takes in ${N.q3} J of heat. Its pressure rises straight up the chart, with no area under it, so no work is done, and the internal energy rises ${N.q3} J. Then the piston is pushed in. That work is done on the gas, counted as minus, and the internal energy rises further.`;\n    } else {\n      drawCyl({ top: 110, heat: 'out', heatA: 1, heatLab: `heat out: ${N.q4} J`, work: 'in', workA: 1 });\n      text(8, 16, `work on the gas: ${N.w4} J`, 'lab n', 'start');\n      // More work put in than heat taken out warms the gas, so its pressure climbs as it is squeezed.\n      sv('path', { class: 'area2', d: 'M200 150 V66 L208 72 C230 88 254 100 280 106 V150 Z' });\n      path('M280 106 C254 100 230 88 208 72', 'curve');\n      path('M200 66 L211 68 L205 76 Z', 'ahead');\n      text(240, 122, 'on the gas', 'lab'); text(240, 139, `${N.w4} J`, 'lab');\n      ledger(g, [\n        { name: 'heat into the gas', v: -100, cls: 'lq', a: 1, vals: [{ s: `${N.qm4} J`, a: 1 }] },\n        { name: 'work done by the gas', v: -300, cls: 'lw', a: 1, vals: [{ s: `${N.wm4} J`, a: 1 }] },\n        { name: 'rise in internal energy', v: 200, grow, cls: 'lu', a: 1, vals: [{ s: '?', a: 1 - ra }, { s: `${N.u4} J`, a: ra }] },\n      ]);\n      if (right) { REC.ans = true; REC.res = rise(-100, -300); ftext(arr(0.8), 8, 334, 'the push put in more than the heat took out', 'lab n', 'start'); }\n      if (bad) ledgerBad(g, bad, wa);\n      said = `A cylinder of gas, its piston pushed in with ${N.w4} J of work, gives out ${N.q4} J of heat. On the chart its pressure climbs as it is squeezed. Below, its energy account with signs: heat in ${N.qm4} J, work by the gas ${N.wm4} J, and the rise in internal energy ` + (right ? `drawn: ${N.u4} J.` : 'left as a question.');\n    }\n    return [344, said];\n  }\n\n  // ---------- the pressure–volume loop ----------\n  function drawLoop() {\n    const A = [110, 64], B = [250, 64], C = [250, 136], D = [110, 136], AX = 196;\n    path('M40 30 V196 H324', 'ax');\n    text(40, 22, 'pressure', 'tl', 'start');\n    text(324, 190, 'volume', 'tl', 'end');\n    const s1 = K.ease(lin(0.4, 0.9)), s2 = K.ease(lin(1.4, 0.5)), s3 = K.ease(lin(2.0, 0.9)), s4 = K.ease(lin(2.9, 0.4)), fin = arr(3.4);\n    if (s1 > 0.002) sv('rect', { class: 'area', x: 110, y: 64, width: r2(140 * s1), height: AX - 64 });\n    if (s3 > 0.002) sv('rect', { class: 'area2', x: r2(250 - 140 * s3), y: 136, width: r2(140 * s3), height: AX - 136 });\n    if (fin > 0) part(fin, 0, () => sv('rect', { class: 'loopf', x: 110, y: 64, width: 140, height: 72 }));\n    const L2 = (p, q, a) => [p[0] + (q[0] - p[0]) * a, p[1] + (q[1] - p[1]) * a];\n    const pts = [A, L2(A, B, s1)];\n    if (s2 > 0) pts.push(L2(B, C, s2));\n    if (s3 > 0) pts.push(L2(C, D, s3));\n    if (s4 > 0) pts.push(L2(D, A, s4));\n    path(pts.map((q, k) => (k ? 'L' : 'M') + r2(q[0]) + ' ' + r2(q[1])).join(' '), 'curve');\n    const now = pts[pts.length - 1];\n    sv('circle', { class: 'dot', cx: r2(now[0]), cy: r2(now[1]), r: 6 });\n    ftext(arr(0.4), 180, 54, 'push out, hot: heat in', 'lab');\n    ftext(arr(0.6) * (1 - fin), 180, 104, 'work out', 'lab');\n    part(arr(1.4), 0, () => {\n      text(262, 96, 'cooled:', 'lab', 'start'); text(262, 112, 'heat out', 'lab', 'start');\n      sv('line', { class: 'harr', x1: 256, y1: 124, x2: 298, y2: 124 });\n      path('M306 124 L297 119 L297 129 Z', 'hhead');\n    });\n    ftext(arr(2.2), 180, 162, 'squeezed back, cool: heat out', 'lab');\n    part(arr(2.9), 0, () => {\n      text(102, 96, 'heated:', 'lab', 'end'); text(102, 112, 'heat in', 'lab', 'end');\n      sv('line', { class: 'harr', x1: 56, y1: 124, x2: 96, y2: 124 });\n      path('M104 124 L95 119 L95 129 Z', 'hhead');\n    });\n    part(fin, 0, () => {\n      text(180, 96, \"the loop's area:\", 'lab'); text(180, 114, 'work over the loop', 'lab');\n      text(180, 180, 'takes back this much', 'lab m');\n    });\n    return [210, \"A pressure–volume chart. The gas takes in heat as it pushes out hot and as it is heated, and gives heat out as it is cooled and as it is squeezed back cool, at a lower pressure. The shaded loop is the work over each loop. The area below it is what the squeeze takes back.\"];\n  }\n\n  // ---------- the engine's energy split ----------\n  const X0 = 30, XW = 280, XR = X0 + XW;\n  const xp = (s) => r2(X0 + XW * K.clamp(s, 0, 100) / 100);\n  const FB0 = 20, FB1 = 50, EN0 = 50, EN1 = 94, FY0 = 94, FY1 = 166, KY = 130, NAMEY = 204;\n  const tipOf = (x1, x2) => FY1 + Math.min(12, Math.max(0, (x2 - x1) / 2));\n  function flow(x1, x2, cls) {\n    if (x2 - x1 < 0.6) return;\n    const m = (x1 + x2) / 2;\n    path(`M${r2(x1)} ${FY0} H${r2(x2)} V${FY1} L${r2(m)} ${r2(tipOf(x1, x2))} L${r2(x1)} ${FY1} Z`, cls);\n  }\n  function seps(xs) { xs.forEach((x) => { if (x > X0 + 0.5 && x < XR - 0.5) sv('line', { class: 'sep', x1: x, y1: FY0, x2: x, y2: FY1 }); }); }\n  const estW = (s, cls) => String(s).length * (/\\bm\\b/.test(cls) ? 6.9 : 7.4);\n  // The flows' names and values in a row below them, kept in order and apart, with a leader\n  // from each flow's tip when its label had to move. A row may hold two words that crossfade.\n  function flowLabels(items) {\n    const L = 6, R = 334, G = 12;\n    items.forEach((it) => {\n      it.cx = (it.x1 + it.x2) / 2;\n      it.w = Math.max.apply(null, it.rows.reduce((m, row) => m.concat(row.filter((v) => v.a > 0).map((v) => estW(v.s, v.cls))), [0]));\n      it.l = it.cx - it.w / 2;\n    });\n    let edge = L;\n    items.forEach((it) => { it.l = Math.max(it.l, edge); edge = it.l + it.w + G; });\n    edge = R;\n    for (let k = items.length - 1; k >= 0; k--) { const it = items[k]; it.l = Math.min(it.l, edge - it.w); edge = it.l - G; }\n    items.forEach((it) => {\n      const lx = it.l + it.w / 2, a = Math.max.apply(null, it.rows.reduce((m, row) => m.concat(row.map((v) => v.a)), [0]));\n      if (Math.abs(lx - it.cx) > 4 && a > 0) part(a, 0, () => sv('line', { class: 'leader', x1: r2(it.cx), y1: r2(tipOf(it.x1, it.x2) + 3), x2: r2(lx), y2: NAMEY - 14 }));\n      it.rows.forEach((row, j) => row.forEach((v) => ftext(v.a, lx, NAMEY + 16 * j, v.s, v.cls)));\n    });\n  }\n  const V = (s, cls, a) => ({ s, cls: cls || 'lab', a: a == null ? 1 : a });\n  const kW = (share, fuel) => `${fx((fuel || FUEL) * share / 100)} kW`;\n  // The shaded block sits where the work's border lands when cooling plus exhaust is 60 to 70%\n  // of the fuel, so it is labelled as the typical work border; the bracket spans cooling plus exhaust.\n  function drawBand(xl) {\n    sv('rect', { class: 'bandf', x: xp(100 - HIGH), y: 228, width: r2(xp(100 - LOW) - xp(100 - HIGH)), height: 14 });\n    path(`M${r2(xl)} 230 V237 H${XR} V230`, 'brk n');\n    text(X0, 258, 'typical work border', 'lab m', 'start');\n    text(XR, 258, 'cooling + exhaust', 'lab n', 'end');\n    REC.band = [LOW, HIGH];\n  }\n  function carnotLine(c, a, lab, inFlows) {\n    const x = xp(c);\n    REC.line = c;\n    part(a, 0, () => {\n      sv('line', { class: 'cline', x1: x, y1: inFlows ? FY0 : EN0 + 6, x2: x, y2: 184 });\n      const y = inFlows ? FY0 + 22 : EN0 + 19, w = estW(lab, 'lab');\n      if (!inFlows && x + 6 + w <= XR + 4) text(x + 6, y, lab, 'lab', 'start');\n      else text(x - 6, y, lab, 'lab', 'end');\n    });\n  }\n  function splitBad(b, a, by, ly) {\n    REC.bad++;\n    part(a, 0, () => {\n      if (b.t === 'brk') path(`M${xp(b.from)} ${by - 6} V${by} H${xp(b.to)} V${by - 6}`, 'bad');\n      else if (b.t === 'box') sv('rect', { class: 'bad', x: r2(xp(b.from) + 1.5), y: FY0 + 3, width: r2(xp(b.to) - xp(b.from) - 3), height: FY1 - FY0 - 6 });\n      else if (b.t === 'line') sv('line', { class: 'wline2', x1: xp(b.at), y1: FY0, x2: xp(b.at), y2: 184 });\n      text(b.anchor === 'end' ? XR : X0, ly, b.lab, 'lab w', b.anchor === 'end' ? 'end' : 'start');\n    });\n  }\n  function drawSplitStep(d, st, bad, wa, p) {\n    const right = st.res === 'right', ra = right ? arr(0.1) : 0;\n    let said = 'Fuel energy flows down into an engine and leaves as three flows: work out, cooling water and exhaust, which add back to the fuel.';\n    let H = d.band ? 296 : 262, by = d.band ? 270 : 236, ly = d.band ? 286 : 252;\n    sv('rect', { class: 'ff', x: X0, y: FB0, width: XW, height: FB1 - FB0 });\n    const engine = (ga) => {\n      sv('rect', { class: 'eng', x: X0 - 6, y: EN0, width: XW + 12, height: EN1 - EN0, rx: 8 });\n      ftext(1 - ga, X0 + 4, EN0 + 19, 'engine', 'lab', 'start');\n      ftext(ga, X0 + 4, EN0 + 19, 'generator set', 'lab', 'start');\n    };\n    if (d.live) {\n      const sp = liveSplit(d, p), w = sp.w, c = sp.c, e = sp.e;\n      const ga = d.live.gen ? (sp.gen ? arr(0.75) : 0) : 0;\n      REC.flows = [w, c, e]; REC.blocked = sp.blocked;\n      text(X0 + 8, FB0 + 20, `fuel in: ${N.fuel} kW`, 'lab', 'start');\n      engine(ga);\n      flow(X0, xp(w), 'fw'); flow(xp(w), xp(w + c), 'fc'); flow(xp(w + c), XR, 'fe');\n      seps([xp(w), xp(w + c)]);\n      if (d.carnot) {\n        carnotLine(sp.ceil, 1, 'Carnot limit', false);\n        if (sp.blocked) {\n          const x = xp(sp.ceil);\n          sv('line', { class: 'wline', x1: x, y1: FY0 - 4, x2: x, y2: FY1 + 4 });\n          const ww = estW('work stops here', 'lab');\n          if (x - 6 - ww >= X0) text(x - 6, EN0 + 36, 'work stops here', 'lab w', 'end');\n          else text(x + 6, EN0 + 36, 'work stops here', 'lab w', 'start');\n        }\n      }\n      flowLabels([\n        { x1: X0, x2: xp(w), rows: [[V('work out', 'lab m', 1 - ga), V('electrical output', 'lab m', ga)]] },   // its kW is the Work out readout\n        { x1: xp(w), x2: xp(w + c), rows: [[V('cooling water', 'lab m', 1 - ga), V('cooler must carry', 'lab m', ga)], [V(kW(c))]] },\n        { x1: xp(w + c), x2: XR, rows: [[V('exhaust', 'lab m')], [V(kW(e))]] },\n      ]);\n      drawBand(xp(w));\n      H = 268;\n      placeKnobs(true, w, c, sp.blocked);\n      if (d.carnot) said += ' A dashed Carnot line crosses the work flow, and the work cannot pass it.' + (sp.blocked ? ' The work is pressed against the line, in red.' : '');\n      said += ` A shaded block below marks where the work's border sits in a typical engine, with cooling plus exhaust at ${LOW} to ${HIGH}%.`;\n      if (d.live.gen && sp.gen) said += ' As a generator set, the work is labelled electrical output, and the cooling flow is what the cooler must carry.';\n      return [H, said];\n    }\n    placeKnobs(false);\n    if (d.fig === 'exh') {\n      const w = d.fix.w, c = d.fix.c, e = 100 - w - c;\n      REC.flows = [w, c, e];\n      text(X0 + 8, FB0 + 20, `fuel in: ${N.fuel} kW`, 'lab', 'start');\n      engine(0);\n      flow(X0, xp(w), 'fw'); flow(xp(w), xp(w + c), 'fc');\n      if (ra < 1) part(1 - ra, 0, () => flow(xp(w + c), XR, 'fq'));\n      if (ra > 0) part(ra, 0, () => flow(xp(w + c), XR, 'fe'));\n      seps([xp(w), xp(w + c)]);\n      flowLabels([\n        { x1: X0, x2: xp(w), rows: [[V('work out', 'lab m')], [V(kW(w))]] },\n        { x1: xp(w), x2: xp(w + c), rows: [[V('cooling water', 'lab m')], [V(kW(c))]] },\n        { x1: xp(w + c), x2: XR, rows: [[V('exhaust', 'lab m')], [V('?', 'lab', 1 - ra), V(kW(e), 'lab', ra)]] },\n      ]);\n      if (right) { REC.ans = true; REC.res = FUEL * e / 100; }\n      said += ` The work carries ${kW(w)} and the cooling water ${kW(c)}.` + (right ? ` The exhaust carries ${kW(e)}.` : ' The exhaust is left as a question.');\n    } else if (d.fig === 'typ') {\n      text(X0 + 8, FB0 + 20, `fuel in: ${N.fuel} kW`, 'lab', 'start');\n      engine(0);\n      if (ra < 1) part(1 - ra, 0, () => flow(X0, XR, 'fq'));\n      if (ra > 0) part(ra, 0, () => {\n        flow(X0, xp(100 - HIGH), 'fw'); flow(xp(100 - HIGH), xp(100 - LOW), 'frange'); flow(xp(100 - LOW), XR, 'fh');\n        seps([xp(100 - HIGH), xp(100 - LOW)]);\n      });\n      flowLabels([{ x1: X0, x2: XR, rows: [[V('work, cooling and exhaust', 'lab m', 1 - ra)], [V('?', 'lab', 1 - ra)]] }]);\n      if (ra > 0) flowLabels([\n        { x1: X0, x2: xp(100 - (HIGH + LOW) / 2), rows: [[V('work', 'lab m', ra)], [V(`${N.lo8} to ${N.hi8} kW`, 'lab', ra)]] },\n        { x1: xp(100 - LOW), x2: XR, rows: [[V('cooling + exhaust', 'lab m', ra)], [V(`${N.hl8} to ${N.hh8} kW`, 'lab', ra)]] },\n      ]);\n      drawBand(xp(100 - (HIGH + LOW) / 2));\n      if (right) { REC.ans = true; REC.res = [FUEL * (100 - HIGH) / 100, FUEL * (100 - LOW) / 100]; }\n      said += ` A shaded block marks where the work's border sits in a typical engine, with cooling plus exhaust at ${LOW} to ${HIGH}% of the fuel.` + (right ? ` The work is what is left, ${N.lo8} to ${N.hi8} kW.` : ' The work is left as a question.');\n    } else if (d.fig === 'claim') {\n      text(X0 + 8, FB0 + 20, `fuel in: ${N.fuel} kW`, 'lab', 'start');\n      engine(0);\n      ftext(1 - ra, X0 + 4, EN0 + 36, `hot side ${N.t10h} °C · cold side ${N.t10c} °C`, 'lab m', 'start');\n      ftext(ra, X0 + 4, EN0 + 36, `hot side ${N.h10} K · cold side ${N.k10} K`, 'lab m', 'start');\n      flow(X0, xp(CLAIM), 'fclaim'); flow(xp(CLAIM), XR, 'fq');\n      flowLabels([\n        { x1: X0, x2: xp(CLAIM), rows: [[V('claimed work', 'lab m')], [V(`${N.claim}%`)]] },\n        { x1: xp(CLAIM), x2: XR, rows: [[V('the rest', 'lab m')], [V('heat')]] },\n      ]);\n      if (right) {\n        const c = carnot(727 + ABS0, 27 + ABS0);\n        carnotLine(c, ra, `Carnot limit, ${N.c10}%`, true);\n        part(arr(0.7), 0, () => { brk(xp(c), xp(CLAIM), 236, 'n', true); text((xp(c) + xp(CLAIM)) / 2, 252, 'past the limit', 'lab n'); });\n        REC.ans = true; REC.res = c;\n      }\n      said += ` A maker claims ${N.claim}% of the fuel as work, drawn dashed, with a hot side at ${N.t10h} °C and a cold side at ${N.t10c} °C.` + (right ? ` In kelvin the Carnot line sits at ${N.c10}%, short of the claim.` : '');\n    } else {\n      const w = d.fix.w, c = d.fix.c, e = 100 - w - c, fuel = 400 / 0.4;\n      REC.flows = [w, c, e];\n      ftext(1 - ra, X0 + 8, FB0 + 20, 'fuel in: ?', 'lab', 'start');\n      ftext(ra, X0 + 8, FB0 + 20, `fuel in: ${N.o12} ÷ ${N.d12} = ${N.e12} kW`, 'lab', 'start');\n      engine(1);\n      flow(X0, xp(w), 'fw'); flow(xp(w), xp(w + c), 'fc'); flow(xp(w + c), XR, 'fe');\n      seps([xp(w), xp(w + c)]);\n      flowLabels([\n        { x1: X0, x2: xp(w), rows: [[V('electrical output', 'lab m')], [V(`${N.o12} kW, ${N.s12}%`)]] },\n        { x1: xp(w), x2: xp(w + c), rows: [[V('cooler must carry', 'lab m')], [V(`${N.cs12}% of the fuel`, 'lab', 1 - ra), V(`${N.c12} kW`, 'lab', ra)]] },\n        { x1: xp(w + c), x2: XR, rows: [[V('exhaust', 'lab m')]] },\n      ]);\n      if (right) { REC.ans = true; REC.res = fuel * c / 100; }\n      said = `A generator set's fuel energy flows down and leaves as electrical output, ${N.o12} kW or ${N.s12}% of the fuel, the cooling flow, ${N.cs12}% of the fuel, and the exhaust.` + (right ? ` The fuel is ${N.e12} kW, so the cooler must carry ${N.c12} kW.` : ' The fuel and the cooler are left as questions.');\n    }\n    if (bad) splitBad(bad, wa, by, ly);\n    return [H, said];\n  }\n\n  // ---------- the cooler and its seawater ----------\n  function drawCoolerStep(d, st, bad, wa) {\n    const right = st.res === 'right', per = XW / 300000;\n    text(X0, 16, `cooling water from the engine: ${N.c12} kW`, 'lab t', 'start');\n    sv('rect', { class: 'fc', x: X0, y: 24, width: XW, height: 26 });\n    sv('rect', { class: 'eng', x: X0 - 6, y: 50, width: XW + 12, height: 48, rx: 8 });\n    text(X0 + 4, 70, 'cooler', 'lab', 'start');\n    sv('line', { class: 'sea', x1: 8, y1: 86, x2: 322, y2: 86 });\n    path('M332 86 L321 80 L321 92 Z', 'seah');\n    text(8, 116, 'seawater in', 'lab m', 'start');\n    text(332, 116, `out, ${N.rise} °C warmer`, 'lab m', 'end');\n    text(X0, 146, `${N.J13} J each second`, 'lab', 'start');\n    sv('rect', { class: 'blk', x: X0, y: 154, width: XW, height: 30 });\n    if (!right && !bad) text(170, 174, 'how many kilograms?', 'lab m');\n    if (right) {\n      const step = CP_SEA * RISE * per;\n      REC.ans = true; REC.res = 300000 / (CP_SEA * RISE); REC.divs = 0;\n      part(arr(0.15), 0, () => sv('rect', { class: 'frange', x: X0, y: 154, width: r2(step), height: 30 }));\n      for (let k = 1; k * step < XW - 0.5; k++) {\n        const x = X0 + k * step;\n        part(arr(0.1 + 0.08 * k, 0.4), 0, () => sv('line', { class: 'div', x1: r2(x), y1: 154, x2: r2(x), y2: 184 }));\n        REC.divs = k;\n      }\n      part(arr(0.8), 0, () => {\n        brk(X0, X0 + step, 192, 'n', true); text(X0, 210, `1 kg: ${N.cps} × ${N.rise} = ${N.kg} J`, 'lab n', 'start');\n        brk(X0, XR, 222, '', true); text(170, 240, `${N.J13} ÷ ${N.kg}: about ${N.f13} kg each second`, 'lab n');\n      });\n    }\n    if (bad) {\n      REC.bad++;\n      const step = bad.each * per;\n      part(wa, 0, () => {\n        for (let k = 1; k * step < XW - 0.5; k++) {\n          const x = r2(X0 + k * step);\n          sv('line', { class: 'divw', x1: x, y1: bad.ticks ? 172 : 154, x2: x, y2: 184 });\n        }\n        text(X0, 210, bad.lab, 'lab w', 'start');\n      });\n    }\n    return [252, `The engine's cooling water carries ${N.c12} kW into a cooler. Seawater runs through it and leaves ${N.rise} °C warmer. Below, the ${N.J13} J it must take each second, as a bar` +\n      (right ? ` cut into kilograms of ${N.kg} J each: about ${N.f13} of them.` : '.')];\n  }\n\n  // The borders' handles sit on the borders of the live split.\n  function placeKnobs(show, w, c, blocked) {\n    k1.hidden = !show; k2.hidden = !show;\n    if (!show) return;\n    const pos = (x) => ({ left: r2(x / 340 * 100) + '%', top: r2(KY / HH * 100) + '%' });\n    Object.assign(k1.style, pos(xp(w)));\n    Object.assign(k2.style, pos(xp(w + c)));\n    k1.classList.toggle('stop', !!blocked);\n  }\n  // A pointer on a handle, as a share of the fuel.\n  function shareAt(knob, x) {\n    const kr = knob.getBoundingClientRect(), sr = svg.getBoundingClientRect();\n    if (!sr.width) return null;\n    const vx = (kr.left + x - sr.left) / sr.width * 340;\n    return (vx - X0) / XW * 100;\n  }\n  K.drag(k1, { control: 'work', toValue: (x) => { const v = shareAt(k1, x); return v == null || !isFinite(v) ? num(K.params().work, W0) : K.clamp(Math.round(v * 2) / 2, 10, 90); } });\n  K.drag(k2, { control: 'cool', toValue: (x) => {\n    const v = shareAt(k2, x), d = STEPS[at()];\n    if (v == null || !isFinite(v)) return num(K.params().cool, C0);\n    const w = d.live ? liveSplit(d, K.params()).w : W0;\n    return K.clamp(Math.round((v - w) * 2) / 2, 5, 60);\n  } });\n\n  // The scene for a step (the animation calls this every frame).\n  function paint(i, pOver) {\n    if (i == null) i = at();\n    const d = STEPS[i], st = S[i], p = pOver || K.params();\n    art.textContent = '';\n    into = null;\n    REC = { texts: [], bad: 0, ans: false, res: null, flows: null, band: null, line: null, blocked: false, divs: null };\n    const bad = wrongOf(d, st), wa = bad ? arr(0.1) : 0;\n    HH = d.top === 'cyl' ? 344 : d.top === 'loop' ? 210 : d.top === 'cooler' ? 252 : d.live ? 268 : d.band ? 296 : 262;\n    let out;\n    if (d.top === 'cyl') { placeKnobs(false); out = drawCylStep(d, st, bad, wa); }\n    else if (d.top === 'loop') { placeKnobs(false); out = drawLoop(); }\n    else if (d.top === 'cooler') { placeKnobs(false); out = drawCoolerStep(d, st, bad, wa); }\n    else out = drawSplitStep(d, st, bad, wa, p);\n    svg.setAttribute('viewBox', '0 0 340 ' + HH);\n    svg.setAttribute('aria-label', out[1] + (bad ? ' The answer picked is drawn in red.' : ''));\n  }\n\n  // ---------- what Dan reads under a live picture ----------\n  function sayFor(i, d, p) {\n    const sp = liveSplit(d, p), W = fx(FUEL * sp.w / 100), C = fx(FUEL * sp.c / 100), E = fx(FUEL * sp.e / 100), rej = 100 - sp.w;\n    if (d.live.hot) {\n      const L = fx(sp.ceil, 1);\n      if (sp.blocked) return `The work stops at the Carnot limit, ${L}% of the fuel. Only a hotter hot side or a colder cold side would let it grow.`;\n      return `At ${fx(sp.hot)} K and ${fx(sp.cold)} K, the Carnot limit is ${L}% of the fuel. The work, ${W} kW, sits below it.`;\n    }\n    if (d.live.gen) {\n      const stop = sp.blocked ? 'The work stops at the Carnot limit. ' : '';\n      if (!sp.gen) return stop + `As an engine, its ${W} kW of work turns a shaft. On a generator set, that work drives an alternator.`;\n      return stop + `The set gives ${W} kW of electrical output, and its cooler must carry ${C} kW. Size the cooler on that ${C} kW, not on the output.`;\n    }\n    const band = rej > HIGH + EPS ? ' That is more heat than a typical engine rejects.' : rej < LOW - EPS ? ' That is less heat than a typical engine rejects.' : ' Cooling plus exhaust sits in the typical range.';\n    if (sp.e < EPS) return `Work and cooling take all of the fuel's ${N.fuel} kW, so the exhaust carries nothing.` + band;\n    return `${W} kW of work, ${C} kW of cooling and ${E} kW of exhaust add back to the fuel's ${N.fuel} kW.` + band;\n  }\n  function layout(i, d, st, p) {\n    const right = st.res === 'right', L = d.live || {}, outs = d.outs || [];\n    el('stepbox').hidden = finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    write(task, d.show ? d.text : d.task);\n    el('ctl').hidden = !d.live;\n    workCtl.el.hidden = !L.work; coolCtl.el.hidden = !L.cool; hotCtl.el.hidden = !L.hot; coldCtl.el.hidden = !L.cold; genCtl.el.hidden = !L.gen;\n    el('say').hidden = !d.live;\n    el('say').textContent = d.live ? sayFor(i, d, p) : '';\n    el('outs').hidden = !outs.length;\n    rWork.el.hidden = outs.indexOf('workOut') < 0; rRej.el.hidden = outs.indexOf('rejected') < 0; rCeil.el.hidden = outs.indexOf('ceiling') < 0;\n    const cap = [];\n    if (d.band) cap.push('The shaded block is typical of reciprocating engines.');\n    if (d.carnot || d.fig === 'claim') cap.push('The Carnot line is an ideal limit.');\n    el('cap').textContent = cap.join(' ');\n    el('cap').hidden = finished || !cap.length;\n    el('replay').hidden = !d.show || REDUCE;\n    const opts = d.show ? [] : d.opts;\n    el('picks').hidden = !opts.length;\n    el('picks').classList.toggle('long', opts.some((x) => x.length > 9));\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(opts[k]);\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n    el('acts').hidden = !!d.show;\n    checkBtn.el.hidden = right;\n    const fb = el('fb');\n    fb.hidden = !!d.show;\n    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');\n    fb.textContent = d.show ? '' : right ? (d.right || \"That's it.\") : st.res === 'wrong' ? ((d.hints && d.hints[st.pick]) || d.hint) : st.res === 'empty' ? PICK : '';\n    const why = el('why');\n    why.hidden = !!d.show || !st.why;\n    write(why, d.show ? '' : d.why);\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !right);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  }\n\n  write(el('finish'), FINISH);\n  K.update((p) => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (i !== lastStep) {\n      lastStep = i; enter('stepbox'); onEnter(i);\n      if (d.live) { keyNow = ctlKey(K.params()); K.refresh(); return; }\n    }\n    if (d.live) {\n      const k = ctlKey(p);\n      if (k !== keyNow) {   // Dan moved a border, a temperature or the switch: the demonstration gives way to him\n        keyNow = k;\n        if (MOT) { MOT = null; anim.pause(); T = Infinity; }\n      }\n      // A border pushed into the cooling squeezes it: the slider follows, so it reads what is drawn.\n      const sq = liveSplit(d, p);\n      if (num(p.cool, C0) > sq.c + 1e-6) { coolCtl.set(sq.c, true); keyNow = ctlKey(K.params()); }\n    }\n    if (!anim.playing()) T = Infinity;\n    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }\n    layout(i, d, st, p);\n    paint(i, p);\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);\n  const solved = (i) => ({ pick: STEPS[i].want, res: 'right', why: false });\n  const wrongSt = (i, o) => ({ pick: o, res: 'wrong', why: false });\n  const idx = (name) => STEPS.findIndex((d) => d.name === name);\n  // A step painted in the state given (finished): what it draws.\n  function drawn(i, st, pOver) {\n    const keepS = S[i], keepT = T;\n    S[i] = st; T = Infinity;\n    try { paint(i, pOver ? Object.assign({}, K.params(), pOver) : null); return REC; }\n    finally { S[i] = keepS; T = keepT; paint(); }\n  }\n  const S_SPLIT = idx('The energy split'), S_CAR = idx('The Carnot line'), S_GEN = idx('A generator set');\n  const LIVE = [S_SPLIT, S_CAR, S_GEN];\n  const words = (s) => String(s || '').replace(/\\*/g, '').split(/\\s+/).filter(Boolean).length;\n\n  K.check('The first law: the change in internal energy equals the heat transfer into the gas minus the work done by the gas', () => {\n    const a = idx('All of it as work'), b = idx('Pushed in');\n    return rise(500, 200) === 300 && rise(400, 400) === 0 && rise(-100, -300) === 200 && rise(500, 0) === 500 &&\n      drawn(a, solved(a)).res === 0 && drawn(b, solved(b)).res === 200;\n  }, { source: SRC_NASA });\n  K.check('Energy in the exhaust gas and cooling systems generally represents 60 to 70 percent of the inlet fuel energy, and the shaded range spans 60 to 70 percent of the fuel', () => {\n    const r = drawn(S_SPLIT, blank());\n    return !!r.band && r.band[0] === 60 && r.band[1] === 70 && K.near(xp(100 - LOW) - xp(100 - HIGH), XW * 0.1, 1e-6);\n  }, { source: SRC_EPA });\n  K.check('It is impossible to convert all heat into work in a cyclical process: at every setting the Carnot limit stays below all of the fuel, the work never passes it, and some heat always leaves', () =>\n    [500, 800, 1200, 1500].every((h) => [270, 300, 350].every((c) => [10, 50, 90].every((w) => {\n      const o = K.at({ step: S_CAR, hot: h, cold: c, work: w });\n      return o.ceiling < 100 && o.workOut <= FUEL * o.ceiling / 100 + 1e-9 && o.rejected > 0;\n    }))), { source: SRC_MSU });\n  K.check('Work, cooling and exhaust always add back to the 1,000 kW of fuel, at every setting of the borders and temperatures, on every live screen', () =>\n    LIVE.every((i) => [[10, 5, 500, 350], [35, 30, 800, 300], [90, 60, 1500, 270], [60, 40, 600, 340], [45, 55, 1000, 300]].every((q) => {\n      const pp = { work: q[0], cool: q[1], hot: q[2], cold: q[3] };\n      const o = K.at(Object.assign({ step: i }, pp)), r = drawn(i, blank(), pp);\n      return K.near(o.workOut + o.rejected, FUEL, 1e-9) && !!r.flows && K.near(r.flows[0] + r.flows[1] + r.flows[2], 100, 1e-9) &&\n        r.flows.every((v) => v >= -1e-12) && K.near(FUEL * r.flows[0] / 100, o.workOut, 1e-9);\n    })));\n  K.check('The Carnot limit, 1 − T cold ÷ T hot in kelvin: 62.5% (625 kW) at 800 K and 300 K, 75% at 1,200 K, 70% at 1,000 K; worked in °C, 727 and 27 would wrongly give about 96%', () =>\n    K.near(K.at({ step: S_CAR }).ceiling, 62.5, 1e-9) && K.near(K.at({ step: S_CAR, hot: 1200 }).ceiling, 75, 1e-9) &&\n    K.near(carnot(1000, 300), 70, 1e-9) && K.near(carnot(727, 27), 96.286, 0.001) && K.near(FUEL * carnot(HOT0, COLD0) / 100, 625, 1e-9));\n  K.check('Work dragged past the line stops there, at 625 kW; a line dropped below the work takes the work down with it and the difference goes to the exhaust; the borders never move the line; the first-law screen has no line', () => {\n    const a = K.at({ step: S_CAR, work: 80 }), b = drawn(S_CAR, blank(), { work: 80, cool: 30, hot: 800, cold: 300 });\n    const c = K.at({ step: S_CAR, hot: 500, cold: 350 }), e = drawn(S_CAR, blank(), { work: 35, cool: 30, hot: 500, cold: 350 });\n    const same = [[10, 5], [50, 30], [90, 60]].every((q) => K.near(K.at({ step: S_CAR, work: q[0], cool: q[1] }).ceiling, 62.5, 1e-9));\n    return K.near(a.workOut, 625, 1e-9) && b.blocked && K.near(b.line, 62.5, 1e-9) && K.near(c.workOut, 300, 1e-9) && !!e.flows && K.near(e.flows[2], 40, 1e-9) &&\n      !drawn(S_CAR, blank(), { work: 35, cool: 30, hot: 800, cold: 300 }).blocked && same &&\n      K.near(K.at({ step: S_SPLIT, work: 80 }).workOut, 800, 1e-9) && drawn(S_SPLIT, blank()).line == null;\n  });\n  K.check('Every number the screens print comes from the rule: 200,000 Pa, 200 J, 300 J and 0.001 m³; 0, 800 and 400 J; up 200 J, down 400 and 200 J; 350, 650 and 700 kW; 300 to 400 and 600 to 700 kW; 62.5%, 1,200 K and 75%; 1,000 K, 300 K, 70% and about 96%; 1,000 kW, 300, 120 and 600 kW; 38,500 J, 300,000 J and about 7.8, 78 and 30 kg/s', () =>\n    N.q1 === '500' && N.p1 === '200' && N.pa === '200,000' && N.dv === '1' && N.m3 === '0.001' && N.w1 === '200' && N.u1 === '300' &&\n    N.q2 === '400' && N.u2 === '0' && N.u2a === '800' && N.u2b === '400' && N.q3 === '500' && N.u3 === '500' &&\n    N.w4 === '300' && N.q4 === '100' && N.qm4 === '−100' && N.wm4 === '−300' && N.u4 === '200' && N.u4a === '400' && N.u4b === '200' &&\n    N.fuel === '1,000' && N.w6 === '350' && N.c6 === '300' && N.e6 === '350' && N.r6 === '650' && N.x6 === '700' &&\n    N.lo8 === '300' && N.hi8 === '400' && N.hl8 === '600' && N.hh8 === '700' &&\n    N.h9 === '800' && N.k9 === '300' && N.c9 === '62.5' && N.h9b === '1,200' && N.c9b === '75' &&\n    N.t10h === '727' && N.t10c === '27' && N.h10 === '1,000' && N.k10 === '300' && N.c10 === '70' && N.c10w === '96' && N.claim === '75' &&\n    N.o12 === '400' && N.s12 === '40' && N.cs12 === '30' && N.d12 === '0.4' && N.e12 === '1,000' && N.c12 === '300' && N.c12a === '120' && N.c12b === '600' &&\n    N.cps === '3,850' && N.rise === '10' && N.kg === '38,500' && N.J13 === '300,000' && N.f13 === '7.8' && N.f13a === '78' && N.f13b === '30');\n  K.check('Each puzzle offers three different answers including its right one, every wrong answer has its own hint, and before Check nothing on its picture shows the answer or a red mark', () =>\n    DO.every((i) => {\n      const d = STEPS[i];\n      if (d.opts.length !== 3 || d.opts.indexOf(d.want) < 0 || new Set(d.opts).size !== 3) return false;\n      if (!d.opts.every((o) => o === d.want || (d.hints[o] && d.hints[o].length > 10 && d.bad[o]))) return false;\n      const g = drawn(i, blank());\n      return !g.bad && !g.ans;\n    }));\n  K.check('A wrong pick is drawn in red where it fails, and a right answer draws no red', () =>\n    DO.every((i) => {\n      const d = STEPS[i];\n      if (drawn(i, solved(i)).bad) return false;\n      return d.opts.filter((o) => o !== d.want).every((o) => drawn(i, wrongSt(i, o)).bad > 0);\n    }));\n  K.check(\"A right answer draws the rule's result: no change; up 200 J; 350 kW of exhaust; 300 to 400 kW of work; the Carnot line at 70%; 300 kW for the cooler; about 7.8 kg of seawater each second, 7 whole kilograms marked\", () => {\n    const r = (name) => { const i = idx(name); return drawn(i, solved(i)); };\n    const a = r('All of it as work'), b = r('Pushed in'), c = r('The exhaust'), e = r('Typical work'), f = r(\"A maker's claim\"), g = r('Sizing the cooler'), h = r('Seawater flow');\n    return a.res === 0 && b.res === 200 && K.near(c.res, 350, 1e-9) && !!e.res && e.res[0] === 300 && e.res[1] === 400 &&\n      K.near(f.res, 70, 1e-9) && K.near(g.res, 300, 1e-9) && K.near(h.res, 300000 / 38500, 1e-9) && h.divs === 7 && f.ans && g.ans && h.ans;\n  });\n  K.check('Every demonstration has finished within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\\'s motion, right or wrong, within 2 s', () => {\n    const keepT = T;\n    const timed = (i, st, limit, from) => {\n      const keepS = S[i];\n      T = Infinity; latest = 0; earliest = Infinity;\n      S[i] = st;\n      try { paint(i); } finally { S[i] = keepS; }\n      return latest <= limit + 1e-9 && (from == null || earliest >= from - 1e-9);\n    };\n    const ok = STEPS.every((d, i) => {\n      if (d.show) return (d.mot || []).every((m) => m.t0 >= FADE && m.t1 <= d.dur) && d.dur >= 3 && d.dur <= 4.5 && timed(i, blank(), d.dur, d.live ? null : FADE);\n      return timed(i, solved(i), ANS) && d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), ANS));\n    });\n    T = keepT; paint();\n    return ok;\n  });\n  K.check('Every demonstration screen keeps to about 90 words', () => STEPS.every((d) => !d.show || (words(d.text) <= 90 && (!d.read || words(d.read) <= 90))));\n\n  K.ready();\n</script>",
+  "title": "The engine's energy split",
+  "brief": "The one thing you should see is the work stopping at a Carnot line set by the two temperatures, while the cooling and exhaust take the rest and all three still add back to the fuel, when you drag the work wider.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "The first law: the change in internal energy equals the heat transfer into the gas minus the work done by the gas",
+     "ok": true,
+     "source": "https://www.grc.nasa.gov/www/k-12/VirtualAero/BottleRocket/airplane/thermo1.html"
+    },
+    {
+     "label": "Energy in the exhaust gas and cooling systems generally represents 60 to 70 percent of the inlet fuel energy, and the shaded range spans 60 to 70 percent of the fuel",
+     "ok": true,
+     "source": "https://www.epa.gov/sites/default/files/2015-07/documents/catalog_of_chp_technologies_section_2._technology_characterization_-_reciprocating_internal_combustion_engines.pdf"
+    },
+    {
+     "label": "It is impossible to convert all heat into work in a cyclical process: at every setting the Carnot limit stays below all of the fuel, the work never passes it, and some heat always leaves",
+     "ok": true,
+     "source": "https://openbooks.lib.msu.edu/collegephysics1/chapter/introduction-to-the-second-law-of-thermodynamics-heat-engines-and-their-efficiency-2/"
+    },
+    {
+     "label": "Work, cooling and exhaust always add back to the 1,000 kW of fuel, at every setting of the borders and temperatures, on every live screen",
+     "ok": true
+    },
+    {
+     "label": "The Carnot limit, 1 − T cold ÷ T hot in kelvin: 62.5% (625 kW) at 800 K and 300 K, 75% at 1,200 K, 70% at 1,000 K; worked in °C, 727 and 27 would wrongly give about 96%",
+     "ok": true
+    },
+    {
+     "label": "Work dragged past the line stops there, at 625 kW; a line dropped below the work takes the work down with it and the difference goes to the exhaust; the borders never move the line; the first-law screen has no line",
+     "ok": true
+    },
+    {
+     "label": "Every number the screens print comes from the rule: 200,000 Pa, 200 J, 300 J and 0.001 m³; 0, 800 and 400 J; up 200 J, down 400 and 200 J; 350, 650 and 700 kW; 300 to 400 and 600 to 700 kW; 62.5%, 1,200 K and 75%; 1,000 K, 300 K, 70% and about 96%; 1,000 kW, 300, 120 and 600 kW; 38,500 J, 300,000 J and about 7.8, 78 and 30 kg/s",
+     "ok": true
+    },
+    {
+     "label": "Each puzzle offers three different answers including its right one, every wrong answer has its own hint, and before Check nothing on its picture shows the answer or a red mark",
+     "ok": true
+    },
+    {
+     "label": "A wrong pick is drawn in red where it fails, and a right answer draws no red",
+     "ok": true
+    },
+    {
+     "label": "A right answer draws the rule's result: no change; up 200 J; 350 kW of exhaust; 300 to 400 kW of work; the Carnot line at 70%; 300 kW for the cooler; about 7.8 kg of seawater each second, 7 whole kilograms marked",
+     "ok": true
+    },
+    {
+     "label": "Every demonstration has finished within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer's motion, right or wrong, within 2 s",
+     "ok": true
+    },
+    {
+     "label": "Every demonstration screen keeps to about 90 words",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step",
+    "work",
+    "cool",
+    "hot",
+    "cold",
+    "gen"
+   ],
+   "readouts": [
+    "workOut",
+    "rejected",
+    "ceiling"
+   ],
+   "outputs": [
+    "workOut",
+    "rejected",
+    "ceiling"
+   ],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Screen",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "steps": [
+      "Heat and work",
+      "All of it as work",
+      "Locked, then pushed",
+      "Pushed in",
+      "Round a loop",
+      "The exhaust",
+      "The energy split",
+      "Typical work",
+      "The Carnot line",
+      "A maker's claim",
+      "A generator set",
+      "Sizing the cooler",
+      "Seawater flow"
+     ],
+     "value": 0
+    },
+    {
+     "id": "work",
+     "kind": "control",
+     "label": "Work's share",
+     "min": 10,
+     "max": 90,
+     "step": 0.5,
+     "log": false,
+     "value": 35,
+     "shown": false,
+     "snap": [
+      40,
+      70
+     ]
+    },
+    {
+     "id": "cool",
+     "kind": "control",
+     "label": "Cooling's share",
+     "min": 5,
+     "max": 60,
+     "step": 0.5,
+     "log": false,
+     "value": 30,
+     "shown": false,
+     "snap": [
+      35
+     ]
+    },
+    {
+     "id": "hot",
+     "kind": "control",
+     "label": "Hot side, T hot",
+     "min": 500,
+     "max": 1500,
+     "step": 10,
+     "log": false,
+     "value": 800,
+     "shown": false,
+     "snap": [
+      1200
+     ]
+    },
+    {
+     "id": "cold",
+     "kind": "control",
+     "label": "Cold side, T cold",
+     "min": 270,
+     "max": 350,
+     "step": 1,
+     "log": false,
+     "value": 300,
+     "shown": false
+    },
+    {
+     "id": "gen",
+     "kind": "toggle",
+     "label": "Generator set",
+     "options": [
+      false,
+      true
+     ],
+     "value": false,
+     "shown": false
+    }
+   ],
+   "actions": [
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Check",
+    "Why?",
+    "Play again",
+    "Back",
+    "Continue",
+    "Start again",
+    "Demonstration"
+   ],
+   "answers": [],
+   "written": [],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 2
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-27T05:56:25.421Z",
+  "applied": [
+   {
+    "path": "explain.text",
+    "problem": "It says fuel energy leaves only three ways and the bold line says every kilowatt leaves as work, cooling or exhaust; real engines also shed heat from the hot casing, and the [^3] quote is about heat into work, not all the fuel."
+   },
+   {
+    "path": "analogy.text",
+    "problem": "A motor's losses are not all in the windings and core: friction and windage in the bearings and air are heat too, which Dan as an electrician will know; 'mostly' keeps it true."
+   },
+   {
+    "path": "contested.views[1].text",
+    "problem": "The marine paper calls large two-strokes at their efficiency close to Carnot's limits, which does not fit a flame-to-surroundings limit; the view should not pin the flame choice on marine researchers."
+   }
+  ],
+  "notes": [
+   {
+    "path": "interactive.numbers",
+    "problem": "Seawater's 3,850 J per kg per °C and water's 4,200 are marked constant with no lesson source; both are in the research (R21, R6) but the frozen sources list does not carry them, so the worked example's key figure is uncited."
+   },
+   {
+    "path": "interactive.numbers",
+    "problem": "3,850 J per kg per °C is the lecture's 'about' figure; common seawater tables give nearer 3,990 at 35 salinity, which would make the cooler flow about 7.5 kg/s. The 7.8 kg/s answer errs on more flow, so it is safe, but a later rebuild could cite a table value."
+   }
+  ]
+ },
+ "error": null,
+ "flags": {}
+}

@@ -1,0 +1,217 @@
+{
+  "ok": false,
+  "reachChecked": true,
+  "problems": [
+    "Text cut off: SVG text \"air outside, fan on the shaft\" runs outside its drawing (right by 18px) (at step = step 11, and 1 more setting) [at 340 px wide]",
+    "Text cut off: SVG text \"air outside, fan on the shaft\" runs outside its drawing (right by 24px) (at step = step 11, and 1 more setting) [at 720 and 1040 px wide]",
+    "Unlisted web address \"https://www.aps.org/learning-resources/getting-warmer-colder\": only the addresses under Sources may appear. Remove it, and the {source} that holds it."
+  ],
+  "report": {
+    "ok": false,
+    "errors": [],
+    "overflow": false,
+    "clipped": [
+      "SVG text \"air outside, fan on the shaft\" runs outside its drawing (right by 18px) (at step = step 11, and 1 more setting) [at 340 px wide]",
+      "SVG text \"air outside, fan on the shaft\" runs outside its drawing (right by 24px) (at step = step 11, and 1 more setting) [at 720 and 1040 px wide]"
+    ],
+    "checks": [
+      {
+        "label": "The metal feels colder because heat leaves the fingers faster: more heat arrows run from the hand into the steel than into the wood, while both thermometers read the room's temperature",
+        "ok": true,
+        "source": "https://www.aps.org/learning-resources/getting-warmer-colder"
+      },
+      {
+        "label": "At some temperature the heat leaving matches the heat being made, so the copper stops rising; at switch-on none leaves yet",
+        "ok": true,
+        "source": "https://myelectrical.com/notes/entryid/207/iec-60287-current-capacity-of-cables-an-introduction"
+      },
+      {
+        "label": "The thermal resistance of the air is the surface's rise above the room divided by the losses in each metre, once the cable has settled",
+        "ok": true,
+        "source": "https://webstore.ansi.org/preview-pages/BSI/preview_30131317.pdf"
+      },
+      {
+        "label": "Every number the screens print comes from the rule: 20 W, 2 K·m/W, a 40 °C rise to 70 °C, 10 °C and 30 °C; 600 s, 10 min, 63%, 55 °C and 50 min; 4 K·m/W, 80 °C, 110 °C and 40 °C across the wrap; 1,200 s and 20 min; 0.707 and about 35 A; 30 °C, 15 W, 0.866 and about 43 A against 38 A and 80 °C; 50 °C with a fan; 55, 30 and 28 °C with 3.3 °C; 0.067 °C a second, about 4 °C a minute, against 15",
+        "ok": true
+      },
+      {
+        "label": "Losses go with current squared (25 A makes a quarter of 50 A's 20 W); doubling the thermal resistance doubles the rise; doubling the heat capacity leaves where it settles alone and doubles the time constant",
+        "ok": true
+      },
+      {
+        "label": "The trace follows the rule: its last point is the dot and the temperature the model returns, it never falls while the current is on, it cools back towards the room after switch-off, and it is drawn red only above 70 °C",
+        "ok": true
+      },
+      {
+        "label": "Each puzzle offers three different answers including its right one, every wrong answer has its own hint, and before Check nothing on its picture shows the answer or a red mark",
+        "ok": true
+      },
+      {
+        "label": "A wrong pick is drawn in red where it can be: a climb that never stops, 70 °C but later, 80 °C, settling at 50 °C, the same time, 38 A and 50 A runs, the room left out, 10 ÷ 3, 15 °C a second and all at once; a right answer draws no wrong pick",
+        "ok": true
+      },
+      {
+        "label": "A right answer draws the rule's result: the run levels off at 70 °C; with the wrap it heads for 110 °C and turns red past the limit; twice the heat capacity also reaches 70 °C, with τ = 20 min; 43 A in a 40 °C room settles at 70 °C; the transistor at 55 °C; the first climb at 4 °C a minute",
+        "ok": true
+      },
+      {
+        "label": "After Switch on, the copper is within 1 °C of where it settles within 3 s of the press, and its demonstration reaches that point within 3.6 s of the screen opening",
+        "ok": true
+      },
+      {
+        "label": "Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer's motion, right or wrong, within 2 s",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "current",
+      "room",
+      "wrap",
+      "fan",
+      "clock",
+      "off"
+    ],
+    "readouts": [],
+    "outputs": [
+      "losses",
+      "copperTemp",
+      "tau"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Screen",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "steps": [
+          "Steel and wood",
+          "Which is colder?",
+          "Heat made in the copper",
+          "What happens next?",
+          "Switch on",
+          "With the extra wrap",
+          "How long it takes",
+          "Twice the heat capacity",
+          "Carrying less",
+          "A hot room",
+          "A motor and a heat sink",
+          "A transistor",
+          "Just after switch-on"
+        ],
+        "value": 0
+      },
+      {
+        "id": "current",
+        "kind": "control",
+        "label": "Current",
+        "min": 0,
+        "max": 60,
+        "step": 1,
+        "log": false,
+        "value": 50,
+        "shown": false,
+        "snap": [
+          35.3553390593,
+          43.3012701892
+        ]
+      },
+      {
+        "id": "room",
+        "kind": "control",
+        "label": "Room",
+        "min": 10,
+        "max": 40,
+        "step": 1,
+        "log": false,
+        "value": 30,
+        "shown": false
+      },
+      {
+        "id": "wrap",
+        "kind": "toggle",
+        "label": "Extra wrap",
+        "options": [
+          false,
+          true
+        ],
+        "value": false,
+        "shown": false
+      },
+      {
+        "id": "fan",
+        "kind": "toggle",
+        "label": "Fan",
+        "options": [
+          false,
+          true
+        ],
+        "value": false,
+        "shown": false
+      },
+      {
+        "id": "clock",
+        "kind": "control",
+        "label": "Minutes after switch-on",
+        "min": 0,
+        "max": 100,
+        "step": 0.01,
+        "log": false,
+        "value": 100,
+        "shown": false
+      },
+      {
+        "id": "off",
+        "kind": "control",
+        "label": "Switched off at",
+        "min": 0,
+        "max": 100,
+        "step": 0.01,
+        "log": false,
+        "value": 100,
+        "shown": false
+      }
+    ],
+    "actions": [
+      "Switch on",
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Play again",
+      "Back",
+      "Continue",
+      "Start again",
+      "Demonstration"
+    ],
+    "answers": [],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": false
+      },
+      {
+        "width": 720,
+        "ok": false
+      },
+      {
+        "width": 1040,
+        "ok": false
+      }
+    ],
+    "foreign": [
+      "https://www.aps.org/learning-resources/getting-warmer-colder"
+    ],
+    "unreachable": []
+  }
+}

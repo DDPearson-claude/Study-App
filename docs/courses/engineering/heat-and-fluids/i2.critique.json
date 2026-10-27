@@ -1,0 +1,33 @@
+{
+  "draft": "i2.lesson.draft1.txt",
+  "keep": [
+    "The idea is named up front in plain words: heat moves from hotter to colder, the copper warms until heat leaving matches heat made, and the rise is the heat made times how hard the way out is.",
+    "The picture is the brief's: a cable cross-section with I²R made in the copper, ink arrows hot to cold through each layer, a temperature profile with each layer's drop, a time trace along Newton's curve with τ and a 70 °C line, and the motor and heat-sink skins.",
+    "Every number is a control, an assumed example figure or computed from a shown rule: 20 W/m at 50 A, 2 K·m/W, a 40 °C rise to 70 °C, 110 °C with the wrap, 35 A and 43 A, τ = 600 s.",
+    "Each misconception the brief names has a puzzle with its own wrong pick: temperature as how it feels (screen 2's rails), cold that flows (the rails' arrows), rate against amount twice (screen 6's '70 °C but later' and screen 8's 'lower, about 50 °C'), and current scaled in step with headroom (screen 10's 38 A).",
+    "The analogy is from his trade (a current source into R and C), reproduces the main result (steady V = I × R, τ = RC, series layers) and breaks honestly where the parts drift with temperature.",
+    "Footnotes sit on words their quotes support: [^1] the balance, [^2] the definition for the surrounding medium, [^3] the rail. The validator reports no problems."
+  ],
+  "fix": [
+    "Causal step skipped: 'the rise is losses × thermal resistance' is stated but not derived. Say it: in the steady state the heat leaving is the losses, and the heat leaving is the rise ÷ the thermal resistance, so the rise is losses × thermal resistance.",
+    "Causal step skipped: why heat leaves the fingers faster into steel. Add, as a textbook fact, that metal passes heat far more easily than wood, so it is the rate, set by the material, that you feel.",
+    "Causal step skipped: why τ is resistance × heat capacity. One line on its units: °C per W times J per °C is J per W, which is seconds.",
+    "False absolute by omission: 'Thermal resistance sets where it settles. Heat capacity only sets how long' reads as if resistance had no say in the time. Say resistance sets where it settles and the time too, and heat capacity sets only the time.",
+    "Two names for one thing: 'heat made' in the text, 'losses' in the idea's own line and the [^2] quote. Use 'losses' throughout, introduced once as the I²R heat made in the copper.",
+    "Paragraph 3 carries five things (the cable's losses, settling, thermal resistance, the wrap and the hot room). Split it: settling and thermal resistance in one, carrying less in the next, and fold the rail into the opening paragraph.",
+    "The misconception 'insulation only slows the warming' is caught by a puzzle but not shown failing in explain. Say it plainly where the wrap doubles the rise.",
+    "Convection in air is a named misconception, and the fan never appears in explain. Add one sentence: a fan lowers the air's resistance, because moving air carries heat away faster.",
+    "Dan's own trade link is left vague. Name Ca and Ci as the factors the hot room and the insulation explain, and call the 70 °C line the limit he knows for a PVC-insulated conductor.",
+    "The brief names two actions (switch on and add a wrap). Make it one: press Play to switch on, the copper levelling off, higher with the wrap on."
+  ],
+  "shape": {
+    "ideaInOneLine": "yes",
+    "ruleInWords": "yes, but not derived (fix 1)",
+    "workedExampleWithRealNumbers": "yes (50 A, 20 W/m, 2 K·m/W, 40 °C rise, 70 °C; the wrap and the hot room)",
+    "misconceptionShownFailing": "partly: cold flowing yes, insulation-only-slows only in a puzzle (fix 7)",
+    "analogyWithBreak": "yes",
+    "practiceStepsRuleExampleMistakes": "yes, safe way first",
+    "recapToSayBack": "yes"
+  },
+  "verdict": "rewrite"
+}

@@ -1,0 +1,213 @@
+{
+  "ok": false,
+  "reachChecked": true,
+  "problems": [
+    "While sweeping the controls: output \"workOut\" has a readout, and the text \"350 kW\" (<text.lab>) prints its value too: while Dan answers a check on it, the app hides only the readout and the .say line, so this gives the answer away. Show that value in its readout alone (no label or aria-label repeating it)"
+  ],
+  "report": {
+    "ok": false,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "The first law: the change in internal energy equals the heat transfer into the gas minus the work done by the gas",
+        "ok": true,
+        "source": "https://www.grc.nasa.gov/www/k-12/VirtualAero/BottleRocket/airplane/thermo1.html"
+      },
+      {
+        "label": "Energy in the exhaust gas and cooling systems generally represents 60 to 70 percent of the inlet fuel energy, and the shaded range spans 60 to 70 percent of the fuel",
+        "ok": true,
+        "source": "https://www.epa.gov/sites/default/files/2015-07/documents/catalog_of_chp_technologies_section_2._technology_characterization_-_reciprocating_internal_combustion_engines.pdf"
+      },
+      {
+        "label": "It is impossible to convert all heat into work in a cyclical process: at every setting the Carnot limit stays below all of the fuel, the work never passes it, and some heat always leaves",
+        "ok": true,
+        "source": "https://openbooks.lib.msu.edu/collegephysics1/chapter/introduction-to-the-second-law-of-thermodynamics-heat-engines-and-their-efficiency-2/"
+      },
+      {
+        "label": "Work, cooling and exhaust always add back to the 1,000 kW of fuel, at every setting of the borders and temperatures, on every live screen",
+        "ok": true
+      },
+      {
+        "label": "The Carnot limit, 1 − T cold ÷ T hot in kelvin: 62.5% (625 kW) at 800 K and 300 K, 75% at 1,200 K, 70% at 1,000 K; worked in °C, 727 and 27 would wrongly give about 96%",
+        "ok": true
+      },
+      {
+        "label": "Work dragged past the line stops there, at 625 kW; a line dropped below the work takes the work down with it and the difference goes to the exhaust; the borders never move the line; the first-law screen has no line",
+        "ok": true
+      },
+      {
+        "label": "Every number the screens print comes from the rule: 200,000 Pa, 200 J, 300 J and 0.001 m³; 0, 800 and 400 J; up 200 J, down 400 and 200 J; 350, 650 and 700 kW; 300 to 400 and 600 to 700 kW; 62.5%, 1,200 K and 75%; 1,000 K, 300 K, 70% and about 96%; 1,000 kW, 300, 120 and 600 kW; 38,500 J, 300,000 J and about 7.8, 78 and 30 kg/s",
+        "ok": true
+      },
+      {
+        "label": "Each puzzle offers three different answers including its right one, every wrong answer has its own hint, and before Check nothing on its picture shows the answer or a red mark",
+        "ok": true
+      },
+      {
+        "label": "A wrong pick is drawn in red where it fails, and a right answer draws no red",
+        "ok": true
+      },
+      {
+        "label": "A right answer draws the rule's result: no change; up 200 J; 350 kW of exhaust; 300 to 400 kW of work; the Carnot line at 70%; 300 kW for the cooler; about 7.8 kg of seawater each second, 7 whole kilograms marked",
+        "ok": true
+      },
+      {
+        "label": "Every demonstration has finished within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer's motion, right or wrong, within 2 s",
+        "ok": true
+      },
+      {
+        "label": "Every demonstration screen keeps to about 90 words",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": false,
+      "problems": [
+        "output \"workOut\" has a readout, and the text \"350 kW\" (<text.lab>) prints its value too: while Dan answers a check on it, the app hides only the readout and the .say line, so this gives the answer away. Show that value in its readout alone (no label or aria-label repeating it)"
+      ]
+    },
+    "controls": [
+      "step",
+      "work",
+      "cool",
+      "hot",
+      "cold",
+      "gen"
+    ],
+    "readouts": [
+      "workOut",
+      "rejected",
+      "ceiling"
+    ],
+    "outputs": [
+      "workOut",
+      "rejected",
+      "ceiling"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Screen",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "steps": [
+          "Heat and work",
+          "All of it as work",
+          "Locked, then pushed",
+          "Pushed in",
+          "Round a loop",
+          "The exhaust",
+          "The energy split",
+          "Typical work",
+          "The Carnot line",
+          "A maker's claim",
+          "A generator set",
+          "Sizing the cooler",
+          "Seawater flow"
+        ],
+        "value": 0
+      },
+      {
+        "id": "work",
+        "kind": "control",
+        "label": "Work's share",
+        "min": 10,
+        "max": 90,
+        "step": 0.5,
+        "log": false,
+        "value": 35,
+        "shown": false,
+        "snap": [
+          40,
+          70
+        ]
+      },
+      {
+        "id": "cool",
+        "kind": "control",
+        "label": "Cooling's share",
+        "min": 5,
+        "max": 60,
+        "step": 0.5,
+        "log": false,
+        "value": 30,
+        "shown": false,
+        "snap": [
+          35
+        ]
+      },
+      {
+        "id": "hot",
+        "kind": "control",
+        "label": "Hot side, T hot",
+        "min": 500,
+        "max": 1500,
+        "step": 10,
+        "log": false,
+        "value": 800,
+        "shown": false,
+        "snap": [
+          1200
+        ]
+      },
+      {
+        "id": "cold",
+        "kind": "control",
+        "label": "Cold side, T cold",
+        "min": 270,
+        "max": 350,
+        "step": 1,
+        "log": false,
+        "value": 300,
+        "shown": false
+      },
+      {
+        "id": "gen",
+        "kind": "toggle",
+        "label": "Generator set",
+        "options": [
+          false,
+          true
+        ],
+        "value": false,
+        "shown": false
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Play again",
+      "Back",
+      "Continue",
+      "Start again",
+      "Demonstration"
+    ],
+    "answers": [],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": false
+      },
+      {
+        "width": 720,
+        "ok": false
+      },
+      {
+        "width": 1040,
+        "ok": false
+      }
+    ],
+    "foreign": [],
+    "unreachable": []
+  }
+}

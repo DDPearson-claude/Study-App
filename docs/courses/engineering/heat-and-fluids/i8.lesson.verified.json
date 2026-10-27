@@ -1,0 +1,643 @@
+{
+  "iid": "i8",
+  "title": "Where the pump settles, and its limits",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the operating point sliding up the pump's curve to less flow and more head, as the system curve steepens, when you drag the valve closed.",
+    "title": "Where the curves meet",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Screen",
+        "min": 0,
+        "max": 13,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [
+      {
+        "id": "flow",
+        "label": "Flow",
+        "unit": "L/s",
+        "decimals": 1
+      },
+      {
+        "id": "head",
+        "label": "Head",
+        "unit": "m",
+        "decimals": 1
+      },
+      {
+        "id": "shaftPower",
+        "label": "Shaft power",
+        "unit": "kW",
+        "decimals": 2
+      }
+    ],
+    "whatAmILookingAt": "There are fourteen small screens. The main picture has two parts. On the left, a pump draws seawater from a suction tank. It sends it through a pipe and a valve up to a high tank. The lift between the two water surfaces is 10 m. The dashed line for the suction level stops short of the pump. On the right is a graph of head against flow. Head runs up the side, in metres, and flow along the bottom, in L/s. On a phone, the graph sits below the pump.\n\nThe pump's curve is a sketch of the usual shape, not a real pump's. At full speed it gives 30 m at no flow. Its head falls as 30 − 0.04q², with q the flow in L/s. The system curve is the 10 m lift plus 0.06q² of friction with the valve open. A dot marks where the two curves cross. That is the operating point. Dashed lines run from it down to its flow and across to its head. The dot comes from setting the two heads equal. At the start, 30 − 0.04q² = 10 + 0.06q². So 0.1q² = 20 and q² = 200. That gives about 14.1 L/s, at 30 − 0.04 × 200 = 22.0 m.\n\nA valve slider has five stops: open, friction ×2, friction ×4, friction ×10 and shut. Each stop multiplies the pipe's 0.06, so the system curve bends up more steeply. At friction ×2 the sum is 0.04 + 0.12 = 0.16. So q² = 20 ÷ 0.16 = 125, about 11.2 L/s at 25.0 m. Friction ×4 gives about 8.5 L/s at 27.1 m. Friction ×10 gives about 5.6 L/s at 28.8 m. Shut gives no flow, and the dot sits at the top of the pump's curve, 30 m. The valve starts open.\n\nA speed slider runs from 50% to 100% in steps of 5, starting at 100%. The pump laws say the flow goes with the speed, the head with the speed squared, and the power with the speed cubed. So at a speed fraction s, the pump's curve is 30s² − 0.04q². When 30s² is no more than the 10 m lift, the whole pump curve sits below the system curve. Then no water flows.\n\nBelow the graph, on the same flow scale, is the efficiency hump. The power the water takes is the hydraulic power, ρ × g × Q × H. Here ρ is seawater's density, 1025 kg/m³, and g is 9.81. Q is the flow in m³/s, and H is the head. At the start that is 1025 × 9.81 × 0.0141 × 22, about 3.13 kW. The shaft power is a sketch. At full speed it is 3.0 kW plus 0.1 kW for each L/s. At speed s it is s³ × (3.0 + 0.1q ÷ s) kW. At the start that is about 4.41 kW. The efficiency is the hydraulic power ÷ the shaft power. Its hump peaks near 14 L/s at about 71%. A marker shows the efficiency at the operating flow.\n\nA suction panel holds a tank level slider. It runs from −6 m to +4 m in steps of 1, starting at +2 m. The level is the height of the tank's surface above the pump's centre line, so minus means below the pump. The high tank moves with it. So the lift stays 10 m, and only the suction changes. Two bars stand side by side, in metres. NPSH available starts with the atmosphere, 100 kPa, which holds up about 9.9 m of seawater. Add the level. Take off the suction pipe's friction of 0.005q². Take off 0.3 m for the water's boiling pressure. NPSH required is a sketch, 2s² + 0.015q². At the start, available is 9.9 + 2 − 1.0 − 0.3, about 10.6 m. Required is about 5.0 m. When available falls below required, both bars turn red. Bubbles form at the impeller's eye and collapse further in.\n\nA switch swaps the centrifugal pump for a positive displacement pump. Its flow is 10s L/s, less a slip of 0.01 L/s for each metre of head. So its curve stands nearly upright. Its shaft power is the hydraulic power ÷ 0.8, which is its efficiency here. At the shut stop no crossing is drawn. A red warning says its pressure would climb until something gives.\n\nThree readouts show the flow, the head and the shaft power. On a phone they wrap onto two rows.\n\nScreen by screen. Screen 1 shows the pump's curve alone. The dot slides down it from 30 m at no flow. Then the system curve draws in from 10 m. The dot stops at the crossing, about 14.1 L/s and 22.0 m. Its words: a centrifugal pump gives its most head at no flow, and less as the flow grows. This example pump gives 30 − 0.04q² metres, with q in L/s. The pipe needs 10 + 0.06q² metres. Where the two meet, the pump gives just what the pipe needs. Setting them equal gives 0.1q² = 20, so q² = 200.\n\nScreen 2 asks a question. For a moment the flow is 10 L/s. There the pump gives 30 − 4 = 26 m, and the pipe needs 10 + 6 = 16 m. What does the flow do next? It rises towards 14.1 L/s, it stays at 10 L/s, or it falls. The hint: spare head is an unbalanced push on the water. The why: the spare 10 m speeds up the water in the pipe. So the flow climbs until the two heads match.\n\nScreen 3 shows the valve. Dragging the valve slider from open to friction ×2 bends the system curve up more steeply. The dot slides up the pump's curve to about 11.2 L/s and 25.0 m. Read without the slider, the screen shows that finished picture at friction ×2.\n\nScreen 4 asks a question. The outlet gauge sits between the pump and the valve. You close the valve a little. What happens to the flow and the gauge? Less flow and a higher gauge, less flow and a lower gauge, or the same flow and a higher gauge. The hint: the dot can only move along the pump's curve. The why: the gauge reads the suction pressure plus what the pump adds, so it rises with the pump's head.\n\nScreen 5 steps the valve from open to shut. The shaft power reads about 4.41, 4.12, 3.85, 3.56 and 3.0 kW. The efficiency marker drops from about 71% to 68%, 60% and 45%. Its words: the head rises a little while the flow falls a lot, so the pump does less work. Pumps are chosen to run near the efficiency peak, like this one with the valve open. At a shut valve its power is near its least, and the motor's current falls with it. Read without moving, the screen shows the shut valve and 3.0 kW.\n\nScreen 6 asks a question. At friction ×2, the pump gives about 11.2 L/s of seawater at 25 m. What power does the water take? About 2.8 kW, about 3.6 kW or about 3.1 kW. The hint: Q goes in m³/s. Scaling 3.13 kW by the head alone gives the wrong 3.6 kW. Expecting no change gives 3.1 kW.\n\nScreen 7 shows the speed. With the valve open, the speed slider is dragged to 80%. The pump's curve sinks, and its top falls to 30 × 0.8² = 19.2 m. The crossing moves to about 9.6 L/s and 15.5 m. The shaft power falls to about 2.15 kW. For comparison, a faint dot shows the same pump at full speed, throttled instead to friction ×4: about 8.5 L/s for about 3.85 kW. Its words: slowing the pump cuts the flow without burning head in a valve. Read without the slider, the screen shows the 80% picture.\n\nScreen 8 asks a question. The pump is slowed to 55%. Its most head is now 30 × 0.55², about 9.1 m, and the lift is 10 m. What flow does it give? None, about 7.8 L/s, or about 14.1 L/s at less head. The hint: compare its most head with the lift. Picking 7.8 L/s draws the slowed pump's curve under the system curve, with no crossing.\n\nScreen 9 shows the suction. The tank level slider is dragged from +2 m down to −4 m. NPSH available falls from about 10.6 m to about 4.6 m. That is under the 5.0 m required. The bars turn red, and bubbles form and collapse at the impeller. Its words: water boils at 100 °C at normal pressure, and cooler at lower pressure. NPSH required is the least absolute pressure the pump needs at its inlet. The pressure falls further on the way into the impeller's eye. The suction must offer more. Both tanks move together, so only the suction changes. Read without the slider, the screen shows the tank at −4 m and the red bars.\n\nScreen 10 asks a question. At −4 m with the valve open, the pump cavitates. Which one stops it? Raise the suction tank's level, throttle a valve in the suction pipe, or run the pump faster. The hint: which one adds pressure at the pump's inlet? The why: cavitation rattles and can pit the impeller, so it is worth stopping. At −3 m, available is about 5.6 m, above the 5.0 m required. A suction valve's friction comes off what is available. A faster pump needs more.\n\nScreen 11 flips the switch to the positive displacement pump. The valve is dragged from open to friction ×10. Its flow moves only from about 9.8 to 9.4 L/s. Its head climbs from about 15.8 to 62.7 m. Its shaft power rises from about 1.96 to 7.39 kW. Its words: it traps a set volume each turn and pushes it on, so its speed sets its flow. Read without the controls, the screen shows this pump at friction ×10.\n\nScreens 12 to 14 mix the ideas. Screen 12: a centrifugal pump runs on against a shut valve. Its shaft puts 3.0 kW into the 5 kg of seawater trapped in its casing, and 3850 J warms 1 kg of seawater by 1 °C. How fast does the water warm? Not at all, as nothing flows; about 600 °C a second; or about 0.16 °C a second. The hint: use Q = mcΔT, one second at a time. The 600 pick leaves out the specific heat. A graph of the warming against time climbs to near 9 °C after a minute. The why adds that warmer water boils at a higher pressure. So NPSH available falls, and the pump heads for cavitation.\n\nScreen 13: a centrifugal fire pump's outlet gauge reads higher than usual. Its ammeter and its flow read lower. What is most likely? Something on the discharge side is choking it, such as a valve on the fire main left partly shut. A discharge valve has been opened further. Or the pump is running faster. The hint: which change moves the dot up the pump's curve?\n\nScreen 14: the high tank is raised 6 m, so the lift is 16 m on the same pipe. Where does the pump settle? About 11.8 L/s at 24.4 m, about 14.1 L/s as before, or about 18.7 L/s. The working: 30 − 0.04q² = 16 + 0.06q², so 0.1q² = 14 and q² = 140. The 18.7 L/s pick leaves out the pipe's friction. Where it can be, a wrong pick is drawn on the picture, so you see where it fails.",
+    "ignores": "The pump's head curve, its shaft power and its NPSH required are sketches of the usual shapes, not a real pump's. A real pump's curves come from its maker's tests. The flow is drawn settling at once. A real flow takes a moment, as the water in the pipe speeds up or slows. The tanks' levels are held still as the water moves. The level slider moves both tanks together. A suction tank that falls on its own also adds to the lift. That cuts the flow and the NPSH required. The pump laws are close for modest speed changes, and less so for large ones. The 0.3 m for the water's boiling pressure is held fixed, though it rises as the water warms. Cavitation is drawn as on or off. In a real pump it creeps in as the margin shrinks. That is why a margin is kept. The positive displacement pump's slip and efficiency are held fixed. Bends and fittings are rolled into the pipe's friction.",
+    "numbers": [
+      {
+        "label": "Screens in the lesson",
+        "value": 14,
+        "kind": "assumed"
+      },
+      {
+        "label": "Readouts",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Readout rows on a phone",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Gravity's pull, g, in N per kg",
+        "value": 9.81,
+        "kind": "constant"
+      },
+      {
+        "label": "Seawater's density, in kg/m³",
+        "value": 1025,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "Seawater's specific heat, in J per kg per °C",
+        "value": 3850,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "Atmosphere, rounded, in kPa",
+        "value": 100,
+        "kind": "constant",
+        "source": 2
+      },
+      {
+        "label": "Atmosphere as seawater head, 100,000 ÷ (1025 × 9.81), in m",
+        "value": 9.9,
+        "kind": "computed"
+      },
+      {
+        "label": "Lift between the two water surfaces, in m",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Pump's head at no flow, full speed, in m",
+        "value": 30,
+        "kind": "assumed"
+      },
+      {
+        "label": "Pump curve's fall, m per (L/s)², sketched",
+        "value": 0.04,
+        "kind": "assumed"
+      },
+      {
+        "label": "Pipe's friction with the valve open, m per (L/s)²",
+        "value": 0.06,
+        "kind": "assumed"
+      },
+      {
+        "label": "Sum of the two, 0.04 + 0.06",
+        "value": 0.1,
+        "kind": "computed"
+      },
+      {
+        "label": "Head to share, 30 − 10, in m",
+        "value": 20,
+        "kind": "computed"
+      },
+      {
+        "label": "Flow squared at the crossing, 20 ÷ 0.1",
+        "value": 200,
+        "kind": "computed"
+      },
+      {
+        "label": "Open valve: flow, √200, in L/s",
+        "value": 14.1,
+        "kind": "computed"
+      },
+      {
+        "label": "Open valve: flow, in m³/s",
+        "value": 0.0141,
+        "kind": "computed"
+      },
+      {
+        "label": "Open valve: head, 30 − 0.04 × 200, in m",
+        "value": 22,
+        "kind": "computed"
+      },
+      {
+        "label": "Valve stop: friction ×2",
+        "value": 2,
+        "kind": "control"
+      },
+      {
+        "label": "Valve stop: friction ×4",
+        "value": 4,
+        "kind": "control"
+      },
+      {
+        "label": "Valve stop: friction ×10",
+        "value": 10,
+        "kind": "control"
+      },
+      {
+        "label": "Valve stops",
+        "value": 5,
+        "kind": "control"
+      },
+      {
+        "label": "Friction ×2: friction term, 0.06 × 2",
+        "value": 0.12,
+        "kind": "computed"
+      },
+      {
+        "label": "Friction ×2: flow squared, 20 ÷ 0.16",
+        "value": 125,
+        "kind": "computed"
+      },
+      {
+        "label": "Friction ×2: sum, 0.04 + 0.12",
+        "value": 0.16,
+        "kind": "computed"
+      },
+      {
+        "label": "Friction ×2: flow, in L/s",
+        "value": 11.2,
+        "kind": "computed"
+      },
+      {
+        "label": "Friction ×2: head, in m",
+        "value": 25,
+        "kind": "computed"
+      },
+      {
+        "label": "Friction ×4: flow, in L/s",
+        "value": 8.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Friction ×4: head, in m",
+        "value": 27.1,
+        "kind": "computed"
+      },
+      {
+        "label": "Friction ×10: flow, in L/s",
+        "value": 5.6,
+        "kind": "computed"
+      },
+      {
+        "label": "Friction ×10: head, in m",
+        "value": 28.8,
+        "kind": "computed"
+      },
+      {
+        "label": "Hydraulic power, open valve, in kW",
+        "value": 3.13,
+        "kind": "computed"
+      },
+      {
+        "label": "Hydraulic power, friction ×2, in kW",
+        "value": 2.81,
+        "kind": "computed"
+      },
+      {
+        "label": "Shaft power sketch at no flow, full speed, in kW",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Shaft power sketch's rise, kW per L/s",
+        "value": 0.1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Shaft power at no flow, in W",
+        "value": 3000,
+        "kind": "computed"
+      },
+      {
+        "label": "Shaft power, open valve, in kW",
+        "value": 4.41,
+        "kind": "computed"
+      },
+      {
+        "label": "Shaft power, friction ×2, in kW",
+        "value": 4.12,
+        "kind": "computed"
+      },
+      {
+        "label": "Shaft power, friction ×4, in kW",
+        "value": 3.85,
+        "kind": "computed"
+      },
+      {
+        "label": "Shaft power, friction ×10, in kW",
+        "value": 3.56,
+        "kind": "computed"
+      },
+      {
+        "label": "Efficiency, open valve, in %",
+        "value": 71,
+        "kind": "computed"
+      },
+      {
+        "label": "Efficiency, friction ×2, in %",
+        "value": 68,
+        "kind": "computed"
+      },
+      {
+        "label": "Efficiency, friction ×4, in %",
+        "value": 60,
+        "kind": "computed"
+      },
+      {
+        "label": "Efficiency, friction ×10, in %",
+        "value": 45,
+        "kind": "computed"
+      },
+      {
+        "label": "Efficiency hump's peak flow, near, in L/s",
+        "value": 14,
+        "kind": "computed"
+      },
+      {
+        "label": "Speed slider lowest, in %",
+        "value": 50,
+        "kind": "control"
+      },
+      {
+        "label": "Speed slider highest, in %",
+        "value": 100,
+        "kind": "control"
+      },
+      {
+        "label": "Speed slider step, in %",
+        "value": 5,
+        "kind": "control"
+      },
+      {
+        "label": "Speed set on screen 7, in %",
+        "value": 80,
+        "kind": "control"
+      },
+      {
+        "label": "Pump law: power of the speed for head",
+        "value": 2,
+        "kind": "constant"
+      },
+      {
+        "label": "Pump law: power of the speed for power",
+        "value": 3,
+        "kind": "constant"
+      },
+      {
+        "label": "80% speed: most head, 30 × 0.8², in m",
+        "value": 19.2,
+        "kind": "computed"
+      },
+      {
+        "label": "80% speed, as a fraction",
+        "value": 0.8,
+        "kind": "computed"
+      },
+      {
+        "label": "80% speed: flow, in L/s",
+        "value": 9.6,
+        "kind": "computed"
+      },
+      {
+        "label": "80% speed: head, in m",
+        "value": 15.5,
+        "kind": "computed"
+      },
+      {
+        "label": "80% speed: shaft power, in kW",
+        "value": 2.15,
+        "kind": "computed"
+      },
+      {
+        "label": "Speed set on screen 8, in %",
+        "value": 55,
+        "kind": "control"
+      },
+      {
+        "label": "55% speed, as a fraction",
+        "value": 0.55,
+        "kind": "computed"
+      },
+      {
+        "label": "55% speed: most head, 30 × 0.55², in m",
+        "value": 9.1,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 8 wrong pick, 55% of 14.1, in L/s",
+        "value": 7.8,
+        "kind": "computed"
+      },
+      {
+        "label": "Tank level slider lowest, in m",
+        "value": -6,
+        "kind": "control"
+      },
+      {
+        "label": "Tank level slider highest, in m",
+        "value": 4,
+        "kind": "control"
+      },
+      {
+        "label": "Tank level slider step, in m",
+        "value": 1,
+        "kind": "control"
+      },
+      {
+        "label": "Tank level's opening setting, in m",
+        "value": 2,
+        "kind": "control"
+      },
+      {
+        "label": "Tank level on screen 9, in m",
+        "value": -4,
+        "kind": "control"
+      },
+      {
+        "label": "Tank level in screen 10's answer, in m",
+        "value": -3,
+        "kind": "control"
+      },
+      {
+        "label": "Suction friction, m per (L/s)², sketched",
+        "value": 0.005,
+        "kind": "assumed"
+      },
+      {
+        "label": "Suction friction at 14.1 L/s, in m",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "Allowance for the water's boiling pressure, in m",
+        "value": 0.3,
+        "kind": "assumed"
+      },
+      {
+        "label": "NPSH required at no flow, full speed, in m",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "NPSH required's rise, m per (L/s)², sketched",
+        "value": 0.015,
+        "kind": "assumed"
+      },
+      {
+        "label": "NPSH required at 14.1 L/s, in m",
+        "value": 5,
+        "kind": "computed"
+      },
+      {
+        "label": "NPSH available at +2 m, open valve, in m",
+        "value": 10.6,
+        "kind": "computed"
+      },
+      {
+        "label": "NPSH available at −4 m, open valve, in m",
+        "value": 4.6,
+        "kind": "computed"
+      },
+      {
+        "label": "NPSH available at −3 m, open valve, in m",
+        "value": 5.6,
+        "kind": "computed"
+      },
+      {
+        "label": "Positive displacement pump's flow at full speed, no head, in L/s",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Its slip, L/s for each metre of head",
+        "value": 0.01,
+        "kind": "assumed"
+      },
+      {
+        "label": "Its efficiency, as a fraction",
+        "value": 0.8,
+        "kind": "assumed"
+      },
+      {
+        "label": "Positive displacement, open valve: flow, in L/s",
+        "value": 9.8,
+        "kind": "computed"
+      },
+      {
+        "label": "Positive displacement, open valve: head, in m",
+        "value": 15.8,
+        "kind": "computed"
+      },
+      {
+        "label": "Positive displacement, open valve: shaft power, in kW",
+        "value": 1.96,
+        "kind": "computed"
+      },
+      {
+        "label": "Positive displacement, friction ×10: flow, in L/s",
+        "value": 9.4,
+        "kind": "computed"
+      },
+      {
+        "label": "Positive displacement, friction ×10: head, in m",
+        "value": 62.7,
+        "kind": "computed"
+      },
+      {
+        "label": "Positive displacement, friction ×10: shaft power, in kW",
+        "value": 7.39,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 2 flow for a moment, in L/s",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 2 pump's head at 10 L/s, 30 − 4, in m",
+        "value": 26,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 2 pipe's need at 10 L/s, 10 + 6, in m",
+        "value": 16,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 2 friction at 10 L/s, 0.06 × 100, in m",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 2 pump's fall at 10 L/s, 0.04 × 100, in m",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 2 spare head, 26 − 16, in m",
+        "value": 10,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 6 wrong pick, 3.13 × 25 ÷ 22, in kW",
+        "value": 3.6,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 6 wrong pick, unchanged, in kW",
+        "value": 3.1,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 6 right pick, rounded, in kW",
+        "value": 2.8,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 14 tank raised by, in m",
+        "value": 6,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 14 lift, in m",
+        "value": 16,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 14 head to share, 30 − 16, in m",
+        "value": 14,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 14 flow squared, 14 ÷ 0.1",
+        "value": 140,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 14 flow, √140, in L/s",
+        "value": 11.8,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 14 head, 30 − 0.04 × 140, in m",
+        "value": 24.4,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 14 wrong pick, friction left out, √(14 ÷ 0.04), in L/s",
+        "value": 18.7,
+        "kind": "computed"
+      },
+      {
+        "label": "Water trapped in the casing, say, in kg",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Warming of trapped water, 3,000 ÷ (5 × 3850), in °C per second",
+        "value": 0.16,
+        "kind": "computed"
+      },
+      {
+        "label": "Warming of trapped water, in °C per minute, near",
+        "value": 9,
+        "kind": "computed"
+      },
+      {
+        "label": "Seconds in a minute",
+        "value": 60,
+        "kind": "constant"
+      },
+      {
+        "label": "Screen 12 wrong pick, specific heat left out, 3,000 ÷ 5, in °C a second",
+        "value": 600,
+        "kind": "computed"
+      },
+      {
+        "label": "Water's boiling point at normal pressure, in °C",
+        "value": 100,
+        "kind": "constant"
+      }
+    ]
+  },
+  "explain": {
+    "text": "A centrifugal pump doesn't choose its own flow. It settles at the one flow where the head it gives equals the head the pipe needs. On a graph of head against flow, that is where the pump's curve crosses the system curve. Close a valve, and the crossing slides to less flow and more head.\n\nStart with the pump alone, at a steady speed. Its impeller flings the water outward and gives it head. With the outlet shut, no water flows and the head is at its highest. As the flow grows, the head falls away. The blades' shape and the losses inside the pump take more of the head as more water passes. Take a pump that gives 30 m at no flow. Its head falls as 30 − 0.04q², where q is the flow in L/s. Now lay a system curve over it: a lift of 10 m plus friction of 0.06q². Where the two meet, the pump gives exactly what the pipe needs. That is the [[operating point]].[^3] Set the two equal: 30 − 0.04q² = 10 + 0.06q². That gives 0.1q² = 20, so q² = 200. The pump runs at about 14.1 L/s and 22 m. It is the same sum as finding where two lines cross, with curves in place of lines. Why does it stay there? At 10 L/s the pump would give 26 m, but the pipe needs only 16 m. The spare 10 m is an unbalanced push, so the water in the pipe speeds up. Past the crossing, the pipe needs more than the pump gives, so the water slows. Either way, the flow comes back to the crossing.\n\nThe crossing has limits. Cool water boils if its pressure falls low enough. The pressure is lowest where the water enters the impeller. If the water boils there, vapour bubbles form. They collapse as the pressure rises further in. That is [[cavitation]]. It rattles and can pit the impeller. Each pump needs a least absolute pressure at its suction to avoid it. That is its [[net positive suction head]] required, or NPSH for short.[^4] What the suction offers starts with the atmosphere's push on the tank. Add the tank's height above the pump. Take off the suction pipe's friction and the water's boiling pressure. What is left must stay above what the pump needs. This is a simplified model. Its curves are sketches, not a real pump's.\n\nPartly closing the discharge valve adds friction. So the system curve bends up more steeply. Double the friction, and the crossing slides up the pump's curve to about 11.2 L/s and 25 m. The outlet gauge reads higher, yet less water flows. The power the water takes is ρgQH. It falls from about 3.13 kW to about 2.81 kW. The flow fell by about a fifth, but the head rose by only about a seventh. The pump's curve flattens near its top, so the head cannot climb far to make up. At a shut valve, the power the motor needs is at or near its least.[^5] As the valve opens and the flow rises, the motor's current rises too. Many expect a choked centrifugal pump to work harder. Most do less. Choking the flow eases the motor. The pump moves much less water for only a little more head.\n\n**A centrifugal pump settles where its curve crosses the system curve, so closing a valve moves it to less flow and more head.**"
+  },
+  "analogy": {
+    "text": "Think of a charger feeding a battery through long leads. The charger's output voltage sags as it gives more current. In the same way, the pump's head falls as it gives more flow. The battery and the leads need the battery's voltage plus the drop in the leads. In the same way, the pipe needs its lift plus its friction. The current settles where the two voltages match. Add resistance in the leads, and the current falls while the charger's output voltage rises. The charger then draws less from its own supply, since that draw goes with the current it gives. The throttled pump's motor draws less in the same way.",
+    "breaks": "A charger's sag is a straight line, set by its internal resistance. A pump's head falls with the flow squared, and pipe friction grows the same way. A charger with no load draws very little. A pump at a shut valve still turns its impeller in the water. So it draws a good share of its full power. Nothing in the circuit matches cavitation."
+  },
+  "practice": {
+    "text": "**Safe first:** Don't start or run a positive displacement pump against a shut discharge valve. Its pressure climbs until something gives. That is why it is normally fitted with a relief valve ahead of its discharge valve.[^6] Most centrifugal pumps can start against a shut discharge valve. There the power is at or near its least.[^5] But don't leave one running shut. Nearly all its shaft power goes into the trapped water. Say 3.0 kW goes into 5 kg of seawater in the casing. That warms it by 3,000 ÷ (5 × 3850), about 0.16 °C a second. That is near 9 °C a minute, before any heat escapes. Water boils at 100 °C at normal pressure, and cooler at lower pressure.[^7] So the warmer the water, the higher the pressure it boils at, and the nearer the pump comes to cavitation.\n\n**Finding where a pump will run**\n- Get the pump's curve of head against flow at its running speed.\n- Work out the system curve: the lift, plus friction that grows with the flow squared.\n- Find where they cross. The pump runs at that flow and head.\n- Check the efficiency there. A pump is chosen to run near the top of its efficiency hump.\n- Check that NPSH available beats NPSH required at that flow, with a margin to spare.\n\n**Rules of thumb:** Close the discharge valve, and the flow falls while the outlet gauge rises. On most centrifugal pumps, the motor's current falls too. Throttle on the discharge side, not the suction. A suction valve's friction comes straight off the NPSH available. Keep a margin, because cavitation rattles and can pit the impeller.[^8] Slowing the pump cuts the flow without burning head in a valve. The flow goes with the speed, and the head with the speed squared. The power goes with the speed cubed. These are the pump laws. With a lift, the flow falls faster than the speed. Below the speed where its most head matches the lift, it gives no flow at all.\n\n**Worked example:** A pump gives 30 − 0.04q² metres, with q in L/s. The pipe needs 10 + 0.06q². Set them equal: 0.1q² = 20. So q is about 14.1 L/s, and the head is 22 m. The water takes 1025 × 9.81 × 0.0141 × 22, about 3.13 kW. Now close the valve until the friction doubles, to 0.12q². Then 0.16q² = 20, so q² = 125. The pump settles at about 11.2 L/s and 25 m. The water now takes about 2.81 kW.\n\n**Reading the gauges:** If the outlet gauge rises while the flow and current fall, something on the discharge side is usually choking the flow. Look for a valve left partly shut or a fouled cooler. If the outlet gauge falls while the flow and current rise, the discharge side has usually got easier. Look for a valve opened or a leak.\n\n**Common mistakes**\n- Expecting a centrifugal pump to give its rated flow whatever the pipe. It gives the flow at the crossing.\n- Thinking a closing valve loads a centrifugal pump's motor harder. On most, the current falls.\n- Expecting a closing valve to cut a positive displacement pump's flow. Its flow barely changes, and its pressure climbs.\n- Treating the flow as going with the speed when there is a lift.\n- Fighting cavitation with more speed or a throttled suction. Both eat the margin. Raise the suction level or cut the flow instead."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+    {
+      "n": 1,
+      "title": "Properties of seawater",
+      "url": "https://talleylab.ucsd.edu/sio210/lect_2/lecture_2.html",
+      "quote": "The density of seawater is about 1025 kg/m^3 and the specific heat is about 3850 J/(kg C)."
+    },
+    {
+      "n": 2,
+      "title": "Some Physical Properties of Sea Water or, More than you ever wanted to know about the basic state variables of the ocean…",
+      "url": "https://www.whoi.edu/science/PO/people/tjoyce/whoi-mit_course/notes/course_notes_1b.pdf",
+      "quote": "δP = (1025)(9.81)(10) ~ 10 ⁵ Pa, which is the pressure at the bottom of the atmosphere."
+    },
+    {
+      "n": 3,
+      "title": "Hydraulic_Pumps",
+      "url": "https://web.eng.fiu.edu/arleon/courses/Fluid_Mechanics/Lectures/Pumps_unfilled.pdf",
+      "quote": "The intersection of both curves represents the operating point for the system"
+    },
+    {
+      "n": 4,
+      "title": "ABOUT PUMP CURVES",
+      "url": "https://www.grundfos.com/content/dam/global/page-assets/learn/ecademy/pdfs/master-36-module-4-About-pump-curves.pdf",
+      "quote": "The NPSH-value of a pump is the minimum absolute pressure that must be present at the suction side of the pump to avoid cavitation."
+    },
+    {
+      "n": 5,
+      "title": "Why Start a Centrifugal Pump with the Discharge Valve Closed?",
+      "url": "https://www.streampumps.com/pump-knowledge/start-centrifugal-pump-discharge-valve-closed.html",
+      "quote": "At this no-flow condition, the pump builds maximum pressure (head), but the power required by the motor is at or near its minimum."
+    },
+    {
+      "n": 6,
+      "title": "Positive Displacement Pump Protection",
+      "url": "https://www.engineersedge.com/pumps/positive_disp_pump_prot.htm",
+      "quote": "Positive displacement pumps are normally fitted with relief valves on the upstream side of their discharge valves to protect the pump and its discharge piping from over pressurization."
+    },
+    {
+      "n": 7,
+      "title": "When does water boil? | Britannica",
+      "url": "https://www.britannica.com/question/When-does-water-boil",
+      "quote": "At sea level, atmospheric pressure is high, and water boils at 100 °C (212 °F); at higher altitudes it is lower, so water boils at a lower temperature."
+    },
+    {
+      "n": 8,
+      "title": "Examples of Cavitation and Cavitation Damage",
+      "url": "https://www.me.psu.edu/cimbala/me320web_Fall_2012/pdf/Cavitation_photographs.pdf",
+      "quote": "Cavitation is usually undesirable because of the noise and the damage that it does to blade surfaces (pitting, etc.)."
+    }
+  ]
+}

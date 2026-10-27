@@ -1,0 +1,1056 @@
+<!-- kind: quantity -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 30rem; margin-inline: auto; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .stage { position: relative; max-width: 26rem; margin-inline: auto; }
+  .scene { display: block; width: 100%; }
+  .scene .ax { fill: none; stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .tk { stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .tl { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .lab.m { font-weight: 400; fill: var(--k-muted); }
+  .scene .lab.t { fill: var(--k-accent); }
+  .scene .lab.w { fill: var(--k-warn); }
+  .scene .lab.n { fill: var(--k-accent2); }
+  .scene .curve { fill: none; stroke: var(--k-accent2); stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }
+  .scene .bad { fill: none; stroke: var(--k-warn); stroke-width: 2.5; stroke-dasharray: 6 4; stroke-linecap: round; }
+  .scene .dot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .ring { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 2; }
+  .scene .brk { fill: none; stroke: var(--k-muted); stroke-width: 1.5; }
+  .scene .brk.n { stroke: var(--k-accent2); stroke-width: 2; }
+  .scene .wall { fill: none; stroke: var(--k-strong); stroke-width: 4; stroke-linejoin: round; }
+  .scene .gas { fill: var(--k-fill1); }
+  .scene .piston { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .rod { stroke: var(--k-strong); stroke-width: 4; stroke-linecap: round; }
+  .scene .pin { fill: var(--k-ink); }
+  .scene .heater { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .coil { fill: none; stroke: var(--k-amber-line); stroke-width: 2; stroke-linejoin: round; }
+  .scene .hchev { fill: none; stroke: var(--k-amber-line); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .harr { stroke: var(--k-amber-line); stroke-width: 2.5; stroke-linecap: round; }
+  .scene .hhead { fill: var(--k-amber-line); }
+  .scene .warr { stroke: var(--k-accent2); stroke-width: 2.5; stroke-linecap: round; }
+  .scene .ahead { fill: var(--k-accent2); }
+  .scene .area { fill: var(--k-fill1); }
+  .scene .area2 { fill: var(--k-fill3); }
+  .scene .loopf { fill: var(--k-fill2); }
+  .scene .lq { fill: var(--k-fill2); stroke: var(--k-amber-line); stroke-width: 1.5; }
+  .scene .lw { fill: var(--k-accent2); }
+  .scene .lu { fill: var(--k-fill3); stroke: var(--k-accent); stroke-width: 1.5; }
+  .scene .lext { fill: none; stroke: var(--k-accent); stroke-width: 1.5; stroke-dasharray: 5 4; }
+  .scene .ff { fill: var(--k-fill3); }
+  .scene .eng { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .fw { fill: var(--k-accent2); }
+  .scene .fc { fill: var(--k-cat1); }
+  .scene .fe { fill: var(--k-cat2); }
+  .scene .fh { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .frange { fill: var(--k-fill2); }
+  .scene .fq { fill: none; stroke: var(--k-strong); stroke-width: 1.5; stroke-dasharray: 5 4; }
+  .scene .fclaim { fill: none; stroke: var(--k-accent2); stroke-width: 2; stroke-dasharray: 6 4; }
+  .scene .sep { stroke: var(--k-bg); stroke-width: 2.5; }
+  .scene .cline { stroke: var(--k-amber-line); stroke-width: 2.5; stroke-dasharray: 7 5; }
+  .scene .wline { stroke: var(--k-warn); stroke-width: 3; stroke-linecap: round; }
+  .scene .wline2 { stroke: var(--k-warn); stroke-width: 2.5; stroke-dasharray: 6 4; }
+  .scene .leader { stroke: var(--k-muted); stroke-width: 1; }
+  .scene .bandf { fill: var(--k-fill2); }
+  .scene .blk { fill: var(--k-fill1); stroke: var(--k-accent2); stroke-width: 1.5; }
+  .scene .sea { stroke: var(--k-accent); stroke-width: 4; stroke-linecap: round; }
+  .scene .seah { fill: var(--k-accent); }
+  .scene .div { stroke: var(--k-accent2); stroke-width: 2; }
+  .scene .divw { stroke: var(--k-warn); stroke-width: 2; stroke-dasharray: 4 3; }
+  .scene #art * { pointer-events: none; }
+  /* The two borders' handles: Dan drags these along the flows. */
+  .knob { position: absolute; width: 26px; height: 26px; margin: -13px 0 0 -13px; box-sizing: border-box; border-radius: 50%;
+    background: var(--k-panel); border: 2.5px solid var(--k-accent2); }
+  .knob::after { content: ""; position: absolute; left: 50%; top: 5px; bottom: 5px; margin-left: -1px; border-left: 2px solid var(--k-accent2); }
+  .knob.stop { border-color: var(--k-warn); }
+  .knob.stop::after { border-left-color: var(--k-warn); }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; }
+  /* Readouts, answers and controls wrap onto as many rows as they need at 360 px. */
+  #outs { display: grid; grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr)); gap: 10px; }
+  .picks { display: grid; grid-template-columns: repeat(auto-fit, minmax(6.5rem, 1fr)); gap: 10px; }
+  .picks.long { grid-template-columns: 1fr; }
+  .picks .k-btn { min-height: 52px; font-size: 1.1rem; }
+  .picks.long .k-btn { min-height: 48px; font-size: 1.02rem; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why, .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }
+</style>
+
+<p class="lead">A gas under a piston, then an engine's fuel energy, 1,000 kW, split three ways. Every figure is an example.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <div class="stage" id="stage">
+      <svg class="scene" id="scene" viewBox="0 0 340 344" width="100%" role="img" aria-label=""><g id="art"></g></svg>
+      <div class="knob" id="k1" hidden></div>
+      <div class="knob" id="k2" hidden></div>
+    </div>
+    <div class="k-controls" id="ctl"></div>
+    <p class="say" id="say"></p>
+    <div class="k-readouts" id="outs"></div>
+    <div class="replay" id="replay"></div>
+    <div class="picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption" id="cap" hidden></p>
+
+<script>
+  // ---------- the rule ----------
+  // First law, for a gas: rise in internal energy = heat into the gas − work done by the gas.
+  // For an engine in steady running: fuel energy = work + cooling + exhaust. The work's share can
+  // never pass the Carnot limit, 1 − T cold ÷ T hot (both in kelvin). In the picture the work
+  // stops at that line, the cooling keeps its share while there is room, and the exhaust takes
+  // whatever is left, so the three always add back to the fuel.
+  const SRC_EPA = 'https://www.epa.gov/sites/default/files/2015-07/documents/catalog_of_chp_technologies_section_2._technology_characterization_-_reciprocating_internal_combustion_engines.pdf';
+  const SRC_NASA = 'https://www.grc.nasa.gov/www/k-12/VirtualAero/BottleRocket/airplane/thermo1.html';
+  const SRC_MSU = 'https://openbooks.lib.msu.edu/collegephysics1/chapter/introduction-to-the-second-law-of-thermodynamics-heat-engines-and-their-efficiency-2/';
+  const FUEL = 1000, ABS0 = 273, LOW = 60, HIGH = 70;          // example fuel (kW); typical cooling + exhaust, % of fuel
+  const W0 = 35, C0 = 30, HOT0 = 800, COLD0 = 300;              // opening settings
+  const CP_SEA = 3850, RISE = 10;                               // J per kg per °C; the seawater's warming in °C
+  const EPS = 1e-9, FADE = 0.35, ANS = 2.0;
+  const carnot = (hot, cold) => 100 * (1 - cold / hot);
+  const rise = (Q, W) => Q - W;
+  function split(set, cool, ceil) {
+    const w = K.clamp(ceil == null ? set : Math.min(set, ceil), 0, 100);
+    const c = K.clamp(Math.min(cool, 100 - w), 0, 100);
+    return { w, c, e: Math.max(0, 100 - w - c), blocked: ceil != null && set > ceil + 1e-9 };
+  }
+  const fx = (v, dp) => K.fmt(v, { decimals: dp || 0 });
+  // Every number the words and pictures print, worked out from the rule.
+  const N = {
+    q1: fx(500), p1: fx(200), pa: fx(200 * 1000), dv: fx(1), m3: fx(0.001, 3), w1: fx(200 * 1000 * 0.001), u1: fx(rise(500, 200)),
+    q2: fx(400), u2: fx(rise(400, 400)), u2a: fx(400 + 400), u2b: fx(400),
+    q3: fx(500), u3: fx(rise(500, 0)),
+    w4: fx(300), q4: fx(100), qm4: fx(-100), wm4: fx(-300), u4: fx(rise(-100, -300)), u4a: fx(-rise(-100, 300)), u4b: fx(-rise(100, 300)),
+    fuel: fx(FUEL), w6: fx(FUEL * W0 / 100), c6: fx(FUEL * C0 / 100), e6: fx(FUEL - FUEL * W0 / 100 - FUEL * C0 / 100), r6: fx(FUEL - FUEL * W0 / 100), x6: fx(FUEL - FUEL * C0 / 100),
+    lo8: fx(FUEL * (100 - HIGH) / 100), hi8: fx(FUEL * (100 - LOW) / 100), hl8: fx(FUEL * LOW / 100), hh8: fx(FUEL * HIGH / 100),
+    h9: fx(HOT0), k9: fx(COLD0), c9: fx(carnot(HOT0, COLD0), 1), h9b: fx(1200), c9b: fx(carnot(1200, COLD0)),
+    t10h: fx(727), t10c: fx(27), h10: fx(727 + ABS0), k10: fx(27 + ABS0), c10: fx(carnot(727 + ABS0, 27 + ABS0)), c10w: fx(carnot(727, 27)), claim: fx(75),
+    o12: fx(400), s12: fx(40), cs12: fx(30), d12: fx(0.4, 1), e12: fx(400 / 0.4), c12: fx(0.3 * 400 / 0.4), c12a: fx(0.3 * 400), c12b: fx(400 / 0.4 - 400),
+    cps: fx(CP_SEA), rise: fx(RISE), kg: fx(CP_SEA * RISE), J13: fx(0.3 * 400 / 0.4 * 1000),
+    f13: fx(300000 / (CP_SEA * RISE), 1), f13a: fx(300000 / CP_SEA), f13b: fx(300 / RISE),
+  };
+  const CLAIM = 75;
+  const NO70 = `No, the limit is ${N.c10}%`;
+  const FRICTION = 'Yes, if its friction is low enough';
+  const YES96 = `Yes, the limit is about ${N.c10w}%`;
+  const WITH_HEAT = `${N.fuel} kW, with the heat on top`;
+
+  // ---------- the lesson: SHOW screens demonstrate, DO screens are puzzles ----------
+  // top 'cyl': a gas under a piston, its pressure–volume chart and its energy account (ledger);
+  // 'loop': the pressure–volume loop; 'split': the engine's fuel energy split three ways;
+  // 'cooler': the cooling flow leaving in seawater. A live screen (live: which controls show)
+  // opens on its own settings and runs its demonstration (mot) once.
+  const SAY7 = `Fuel brings ${N.fuel} kW. It leaves as *work* at the shaft, heat in the *cooling water* and heat in the *exhaust*.`;
+  const REST7 = `The exhaust takes whatever is left, so the three always add back to ${N.fuel} kW. That is the first law. The shaded block is where the work's border sits when cooling plus exhaust is a typical ${LOW} to ${HIGH}%.`;
+  const SAY9 = `No engine working between a hot side and a cold side can beat the *Carnot limit*, 1 − T cold ÷ T hot, in kelvin. At ${N.h9} K and ${N.k9} K, that is 1 − ${N.k9} ÷ ${N.h9} = ${N.c9}%.`;
+  const REST9 = `Only the temperatures move the line. How far it binds a real diesel is debated.`;
+  const STEPS = [
+    { show: true, name: 'Heat and work', top: 'cyl', cyl: 'out1', dur: 3.6,
+      text: `Heated, a gas can push its piston out. That push is *work*. What it does not spend as work, it keeps inside as *internal energy*. Here ${N.q1} J of heat goes in. At a steady ${N.p1} kPa, the gas pushes the piston out ${N.dv} L, which is ${N.m3} m³. The work is ${N.pa} Pa × ${N.m3} m³ = ${N.w1} J, the shaded area. The *first law of thermodynamics* says the rise in internal energy is heat in minus work: ${N.q1} − ${N.w1} = ${N.u1} J.` },
+    { kind: 'pick', name: 'All of it as work', top: 'cyl', cyl: 'out2',
+      opts: [`${N.u2a} J`, `${N.u2} J`, `${N.u2b} J`], want: `${N.u2} J`,
+      bad: { [`${N.u2a} J`]: { v: 400 + 400, lab: `${N.u2a} J: the work added, not taken off` }, [`${N.u2b} J`]: { v: 400, lab: `${N.u2b} J: the work left out` } },
+      task: `A gas takes in ${N.q2} J of heat and does ${N.q2} J of work. How much does its internal energy change?`,
+      why: `The rise in internal energy is the heat in minus the work done: ${N.q2} − ${N.q2} = ${N.u2} J. Every joule that came in left again as work.`,
+      hint: 'Not quite. Heat in, minus the work the gas does.',
+      hints: { [`${N.u2a} J`]: 'Not quite. Work done by the gas is taken off the heat, not added.', [`${N.u2b} J`]: 'Not quite. Take the work off the heat that came in.' } },
+    { show: true, name: 'Locked, then pushed', top: 'cyl', cyl: 'lock', dur: 4.2,
+      text: `Count heat into the gas as plus, and work done by the gas as plus too. Here the piston is locked, and ${N.q3} J goes in. The gas cannot move it, so it does no work, and the chart has no area. All ${N.q3} J stays, so the internal energy rises ${N.u3} J. Then the piston is pushed in. That work is done on the gas, so it counts as minus. Taking off a minus adds, so the internal energy rises further.` },
+    { kind: 'pick', name: 'Pushed in', top: 'cyl', cyl: 'in4',
+      opts: [`Down ${N.u4a} J`, `Down ${N.u4b} J`, `Up ${N.u4} J`], want: `Up ${N.u4} J`,
+      bad: { [`Down ${N.u4a} J`]: { v: rise(-100, 300), lab: `Down ${N.u4a} J: the work's sign is flipped` }, [`Down ${N.u4b} J`]: { v: rise(100, 300), lab: `Down ${N.u4b} J: the heat's sign is flipped` } },
+      task: `${N.w4} J of work pushes the piston in, and the gas gives out ${N.q4} J of heat. What happens to its internal energy?`,
+      why: `Heat given out counts as minus, so the heat in is ${N.qm4} J. Work done on the gas counts as minus too, so the work is ${N.wm4} J. The rise is ${N.qm4} − (${N.wm4}) = ${N.u4} J. The push put in more than the heat took out.`,
+      hint: 'Not quite. Write both with their signs, then take the work off the heat.',
+      hints: { [`Down ${N.u4a} J`]: 'Not quite. Work done on the gas counts as minus, and taking off a minus adds.', [`Down ${N.u4b} J`]: 'Not quite. Heat given out counts as minus. Only heat coming in is plus.' } },
+    { show: true, name: 'Round a loop', top: 'loop', dur: 4.2,
+      text: "An engine runs its gas round a loop. It pushes out while hot. Then it is cooled. Then it is squeezed back while cool, at a lower pressure. So the squeeze takes less work than the push gave. Its internal energy ends where it started. So over each loop, the work out is the heat taken in minus the heat given out. That work is the loop's area. Squeezed hot, the gas would push back as hard, taking back all the work. So no loop can skip the cooling." },
+    { kind: 'pick', name: 'The exhaust', top: 'split', fig: 'exh', fix: { w: W0, c: C0 },
+      opts: [`${N.e6} kW`, `${N.r6} kW`, `${N.x6} kW`], want: `${N.e6} kW`,
+      bad: { [`${N.r6} kW`]: { t: 'brk', from: W0, to: 100, lab: `${N.r6} kW: cooling and exhaust together`, anchor: 'end' },
+        [`${N.x6} kW`]: { t: 'box', from: 0, to: W0, lab: `${N.x6} kW still counts the work`, anchor: 'start' } },
+      task: `Fuel brings ${N.fuel} kW. The work is ${N.w6} kW, and the cooling water carries ${N.c6} kW. What does the exhaust carry?`,
+      why: `Every kilowatt of fuel leaves somewhere. ${N.fuel} − ${N.w6} − ${N.c6} = ${N.e6} kW leaves in the exhaust. People call the cooling and exhaust heat a loss, but nothing is lost. It is *heat rejected*, carried away, so the three add back to ${N.fuel} kW.`,
+      hint: 'Not quite. Take the work and the cooling off the fuel.',
+      hints: { [`${N.r6} kW`]: `Not quite. ${N.r6} kW is the cooling and the exhaust together. Take off the cooling too.`, [`${N.x6} kW`]: 'Not quite. Take off the work as well as the cooling.' } },
+    { show: true, name: 'The energy split', top: 'split', live: { work: true, cool: true }, band: true, outs: ['workOut', 'rejected'],
+      set: {}, dur: 3.7, mot: [{ ctl: 'work', from: W0, to: 40, t0: 0.5, t1: 1.9 }, { ctl: 'cool', from: C0, to: 35, t0: 2.1, t1: 3.5 }], still: { work: 40, cool: 35 },
+      text: `${SAY7} Drag a border. ${REST7}`, read: `${SAY7} ${REST7}` },
+    { kind: 'pick', name: 'Typical work', top: 'split', fig: 'typ', band: true,
+      opts: [`${N.hl8} to ${N.hh8} kW`, `${N.lo8} to ${N.hi8} kW`, WITH_HEAT], want: `${N.lo8} to ${N.hi8} kW`,
+      bad: { [`${N.hl8} to ${N.hh8} kW`]: { t: 'box', from: 0, to: 65, lab: `${N.hl8} to ${N.hh8} kW is the heat, not the work`, anchor: 'start' },
+        [WITH_HEAT]: { t: 'box', from: 0, to: 100, lab: `more out than the ${N.fuel} kW in`, anchor: 'start' } },
+      task: `In a typical engine, cooling and exhaust carry ${LOW} to ${HIGH}% of the fuel. With ${N.fuel} kW of fuel, how much is left as work?`,
+      why: `${LOW} to ${HIGH}% of ${N.fuel} kW is ${N.hl8} to ${N.hh8} kW of heat. The work is the rest. That is ${N.fuel} − ${N.hh8} = ${N.lo8} kW, up to ${N.fuel} − ${N.hl8} = ${N.hi8} kW.`,
+      hint: 'Not quite. The heat comes out of the fuel. The work is what is left.',
+      hints: { [`${N.hl8} to ${N.hh8} kW`]: 'Not quite. That is the heat carried away. The work is what is left.', [WITH_HEAT]: `Not quite. Energy is never made. The heat comes out of the same ${N.fuel} kW.` } },
+    { show: true, name: 'The Carnot line', top: 'split', live: { work: true, hot: true, cold: true }, carnot: true, band: true, outs: ['workOut', 'rejected', 'ceiling'],
+      set: { cool: 20 }, dur: 4.0, mot: [{ ctl: 'work', from: W0, to: 70, t0: 0.5, t1: 2.0 }, { ctl: 'hot', from: HOT0, to: 1200, t0: 2.2, t1: 3.8 }],
+      still: { work: 70, cool: 20, hot: HOT0 },
+      text: `${SAY9} Drag the work past the line, and it stops there, in red. ${REST9}`, read: `${SAY9} Work pushed past the line stops there, in red. ${REST9}` },
+    { kind: 'pick', name: "A maker's claim", top: 'split', fig: 'claim',
+      opts: [NO70, FRICTION, YES96], want: NO70,
+      bad: { [YES96]: { t: 'line', at: carnot(727, 27), lab: `about ${N.c10w}%: worked in °C`, anchor: 'end' },
+        [FRICTION]: { t: 'box', from: 0, to: CLAIM, lab: 'less friction cannot move the limit', anchor: 'start' } },
+      task: `A maker claims ${N.claim}% of its fuel energy as work. The engine's hot side is at ${N.t10h} °C and its cold side at ${N.t10c} °C. Is that possible?`,
+      why: `Put both temperatures in kelvin. ${N.t10h} + 273 = ${N.h10} K, and ${N.t10c} + 273 = ${N.k10} K. The limit is 1 − ${N.k10} ÷ ${N.h10} = ${N.c10}%. A claim of ${N.claim}% passes it, so it cannot be right.`,
+      hint: 'Not quite. Work out the limit in kelvin first.',
+      hints: { [YES96]: 'Not quite. The limit is a ratio of temperatures, so use kelvin, counted from true zero.', [FRICTION]: 'Not quite. Less friction cannot lift the limit. Only the two temperatures move it.' } },
+    { show: true, name: 'A generator set', top: 'split', live: { gen: true, work: true, cool: true }, carnot: true, band: true, outs: ['workOut', 'rejected'],
+      set: {}, dur: 3.0, mot: [{ ctl: 'gen', from: 0, to: 1, t0: 0.6, t1: 0.7 }], still: { gen: true },
+      text: `On a *generator set*, the engine's work drives an alternator. So the work becomes the *electrical output*, ${N.w6} kW here. The cooling water still carries ${N.c6} kW, nearly as much. All of that leaves through the cooler. So size a cooler on the heat the engine rejects to its cooling water. Never size it on the set's rating.` },
+    { kind: 'pick', name: 'Sizing the cooler', top: 'split', fig: 'gen', gen: true, fix: { w: 40, c: 30 },
+      opts: [`${N.c12a} kW`, `${N.c12b} kW`, `${N.c12} kW`], want: `${N.c12} kW`,
+      bad: { [`${N.c12a} kW`]: { t: 'box', from: 40, to: 40 + 0.3 * 40, lab: `${N.c12a} kW: ${N.cs12}% of the output, not the fuel`, anchor: 'start' },
+        [`${N.c12b} kW`]: { t: 'brk', from: 40, to: 100, lab: `${N.c12b} kW: all the heat rejected`, anchor: 'end' } },
+      task: `A generator set gives ${N.o12} kW of electrical output. Its output is ${N.s12}% of its fuel energy. Its cooling carries ${N.cs12}% of the fuel. What must the cooler carry?`,
+      why: `Find the fuel first. Divide the output by the efficiency: ${N.o12} ÷ ${N.d12} = ${N.e12} kW. The cooling takes ${N.cs12}% of that, so the cooler must carry ${N.c12} kW. That is nearly as much as the output.`,
+      hint: 'Not quite. Find the fuel first, then take its share.',
+      hints: { [`${N.c12a} kW`]: `Not quite. ${N.cs12}% is a share of the fuel, not the output. Find the fuel first.`, [`${N.c12b} kW`]: "Not quite. That is all the heat rejected. The cooler carries only the cooling's share." } },
+    { kind: 'pick', name: 'Seawater flow', top: 'cooler',
+      opts: [`About ${N.f13a} kg/s`, `About ${N.f13} kg/s`, `${N.f13b} kg/s`], want: `About ${N.f13} kg/s`,
+      bad: { [`About ${N.f13a} kg/s`]: { each: CP_SEA, ticks: true, lab: `${N.f13a}: ${N.cps} J warms a kilogram only 1 °C` }, [`${N.f13b} kg/s`]: { each: 300000 / 30, ticks: true, lab: `${N.f13b}: ${N.c12} ÷ ${N.rise}, with no ${N.cps} J in it` } },
+      task: `Seawater must carry that ${N.c12} kW away, warming by ${N.rise} °C. Each kilogram takes ${N.cps} J for each °C it warms. What flow does that need?`,
+      why: `Each kilogram warming ${N.rise} °C carries ${N.cps} × ${N.rise} = ${N.kg} J. The cooler must shed ${N.c12} kW, which is ${N.J13} J each second. So ${N.J13} ÷ ${N.kg} is about ${N.f13} kg of seawater each second.`,
+      hint: 'Not quite. Work out the joules one kilogram carries first.',
+      hints: { [`About ${N.f13a} kg/s`]: `Not quite. ${N.cps} J warms a kilogram by only 1 °C. Here each kilogram warms ${N.rise} °C.`, [`${N.f13b} kg/s`]: `Not quite. Each kilogram carries ${N.cps} J for every °C, so work in joules.` } },
+  ];
+  const FINISH = 'Every kilowatt of fuel leaves an engine as work or as heat carried away, and they always add back. Only the two temperatures, in kelvin, set how much can ever be work.';
+  const PICK = 'Pick an answer first.';
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- each step's state ----------
+  function blank() { return { pick: null, res: null, why: false }; }
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity, motionEnd = 0, MOT = null, keyNow = '';
+  const el = (id) => document.getElementById(id);
+
+  // ---------- words with amber key terms (built with K.el, never innerHTML) ----------
+  function write(node, s) {
+    node.textContent = '';
+    s = String(s || '');
+    const re = /\*([^*]+)\*/g;
+    let pos = 0, m;
+    while ((m = re.exec(s))) {
+      if (m.index > pos) node.appendChild(document.createTextNode(s.slice(pos, m.index)));
+      node.appendChild(K.el('span', { class: 'term' }, m[1]));
+      pos = m.index + m[0].length;
+    }
+    if (pos < s.length) node.appendChild(document.createTextNode(s.slice(pos)));
+    return node;
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);
+  const stepOf = (p) => K.clamp(Math.round(+p.step) || 0, 0, STEPS.length - 1);
+  const pct = (v) => K.fmt(v, { decimals: Number.isInteger(+v) ? 0 : 1 }) + '%';
+  const kelv = (v) => fx(v) + ' K · ' + fx(v - ABS0) + ' °C';
+  const workCtl = K.control({ id: 'work', label: "Work's share", hint: 'Its share of the fuel', min: 10, max: 90, step: 0.5, value: W0, unit: '%', fmt: pct, snap: [40, 70], into: '#ctl' });
+  const coolCtl = K.control({ id: 'cool', label: "Cooling's share", hint: 'Its share of the fuel', min: 5, max: 60, step: 0.5, value: C0, unit: '%', fmt: pct, snap: [35], into: '#ctl' });
+  const hotCtl = K.control({ id: 'hot', label: 'Hot side, T hot', min: 500, max: 1500, step: 10, value: HOT0, unit: 'K', fmt: kelv, snap: [1200], into: '#ctl' });
+  const coldCtl = K.control({ id: 'cold', label: 'Cold side, T cold', min: 270, max: 350, step: 1, value: COLD0, unit: 'K', fmt: kelv, into: '#ctl' });
+  const genCtl = K.toggle({ id: 'gen', label: 'Generator set', value: false, into: '#ctl' });
+  const CTL = { work: workCtl, cool: coolCtl, hot: hotCtl, cold: coldCtl, gen: { set: (v, q) => genCtl.set(v >= 0.5, q) } };
+  function setCtl(id, v) { CTL[id].set(v, true); }
+  const ctlKey = (p) => [p.work, p.cool, p.hot, p.cold, p.gen].join('|');
+
+  const num = (v, d0) => (isFinite(+v) && v !== '' && v != null ? +v : d0);
+  const isOn = (v) => v === true || v === 'true';
+  // The split on a live screen, from the controls that screen shows.
+  function liveSplit(d, p) {
+    const L = d.live || {};
+    const hot = L.hot ? K.clamp(num(p.hot, HOT0), 500, 1500) : HOT0, cold = L.cold ? K.clamp(num(p.cold, COLD0), 270, 350) : COLD0;
+    const ceil = carnot(hot, cold), set = K.clamp(num(p.work, W0), 0, 100), cool = K.clamp(num(p.cool, C0), 0, 100);
+    const sp = split(set, cool, d.carnot ? ceil : null);
+    return Object.assign(sp, { ceil, set, hot, cold, gen: L.gen ? isOn(p.gen) : !!d.gen });
+  }
+  // Screens without live controls report the opening split.
+  const OPEN = () => ({ workOut: FUEL * W0 / 100, rejected: FUEL * (100 - W0) / 100, ceiling: carnot(HOT0, COLD0) });
+  K.model((p) => {
+    const d = STEPS[stepOf(p)];
+    if (!d.live) return OPEN();
+    const sp = liveSplit(d, p);
+    return { workOut: FUEL * sp.w / 100, rejected: FUEL * (100 - sp.w) / 100, ceiling: sp.ceil };
+  });
+
+  const rWork = K.readout({ id: 'workOut', label: 'Work out', unit: 'kW', decimals: 0, into: '#outs' });
+  const rRej = K.readout({ id: 'rejected', label: 'Cooling plus exhaust', unit: 'kW', decimals: 0, into: '#outs' });
+  const rCeil = K.readout({ id: 'ceiling', label: 'Carnot limit', unit: '%', decimals: 1, into: '#outs' });
+
+  // Up to three answer buttons; each step fills in its own options.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = d.opts[k]; st.res = null;
+    if (was) { anim.pause(); T = Infinity; }
+  } }));
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished || st.res === 'right') return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = st.pick === d.want ? 'right' : 'wrong';
+    play(ANS);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const i = at(), d = STEPS[i];
+    if (!d.show || finished) return;
+    onEnter(i);
+    keyNow = ctlKey(K.params());
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true; anim.pause(); T = Infinity; MOT = null;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration and the motion after an answer; with reduced motion
+  // (and while the self-test looks) everything opens finished.
+  function stepMot() {
+    if (!MOT) return;
+    let done = true;
+    MOT.forEach((m) => {
+      const a = T === Infinity ? 1 : K.clamp((T - m.t0) / Math.max(1e-6, m.t1 - m.t0), 0, 1);
+      setCtl(m.ctl, K.lerp(m.from, m.to, K.ease(a)));
+      if (a < 1) done = false;
+    });
+    keyNow = ctlKey(K.params());
+    if (done) MOT = null;
+  }
+  function finishMot() { if (MOT) { T = Infinity; stepMot(); MOT = null; } }
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    if (MOT) { stepMot(); K.refresh(); } else if (STEPS[at()].live) K.refresh(); else paint();
+    return T < motionEnd || !!MOT;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; finishMot(); K.refresh(); } });
+  function play(dur) {
+    if (REDUCE || testing()) { anim.pause(); finishMot(); T = Infinity; return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+  // A new screen: a live one takes its own settings and runs its demonstration once.
+  function onEnter(i) {
+    const d = STEPS[i];
+    MOT = null;
+    if (d.live) {
+      const b = Object.assign({ work: W0, cool: C0, hot: HOT0, cold: COLD0, gen: false }, d.set || {});
+      workCtl.set(b.work, true); coolCtl.set(b.cool, true); hotCtl.set(b.hot, true); coldCtl.set(b.cold, true); genCtl.set(!!b.gen, true);
+      if (d.mot) { MOT = d.mot.map((m) => Object.assign({}, m)); MOT.forEach((m) => setCtl(m.ctl, m.from)); }
+    }
+    if (d.show) play(d.dur); else { anim.pause(); T = Infinity; }
+  }
+
+  // ---------- drawing ----------
+  const svg = el('scene'), art = el('art'), k1 = el('k1'), k2 = el('k2');
+  let into = null, REC = null, HH = 344;
+  const add = (n) => (into || art).appendChild(n);
+  const r2 = (v) => Math.round(v * 100) / 100;
+  const sv = (tag, a) => add(K.svg(tag, a));
+  const path = (d, cls) => sv('path', { class: cls, d });
+  function text(x, y, s, cls, anchor) {
+    s = String(s);
+    if (REC) REC.texts.push(s);
+    return add(K.svg('text', { class: cls, x: r2(x), y: r2(y), 'text-anchor': anchor || 'middle' }, s));
+  }
+  // How far a part due at t0 has arrived, noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function note(t0, d) { if (t0 + d > latest) latest = t0 + d; if (t0 < earliest) earliest = t0; }
+  function arr(t0, d) { d = d == null ? K.SOFT : d; note(t0, d); return K.arrive(T, t0, d); }
+  function lin(t0, d) { note(t0, d); return T === Infinity ? 1 : K.clamp((T - t0) / d, 0, 1); }
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, Math.min(1, a), rise);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  function ftext(a, x, y, s, cls, anchor) { if (a > 0) part(a, 0, () => text(x, y, s, cls, anchor)); }
+  // A bracket along x1..x2 at height y, its arms pointing up (towards what it measures) or down.
+  function brk(x1, x2, y, cls, up) {
+    const e = up ? y - 5 : y + 5;
+    path('M' + r2(x1) + ' ' + e + ' V' + r2(y) + ' H' + r2(x2) + ' V' + e, 'brk' + (cls ? ' ' + cls : ''));
+  }
+  const wrongOf = (d, st) => (st.res === 'wrong' && st.pick != null && d.bad ? d.bad[st.pick] || null : null);
+
+  // ---------- the cylinder ----------
+  const CXL = 30, CXR = 112, CB = 154, MID = 71;
+  const COIL = 'M36 167 L42 164 L48 170 L54 164 L60 170 L66 164 L72 170 L78 164 L84 170 L90 164 L96 170 L102 164 L106 167';
+  function drawCyl(o) {
+    const top = o.top;
+    sv('rect', { class: 'gas', x: CXL, y: r2(top), width: CXR - CXL, height: r2(CB - top) });
+    sv('rect', { class: 'piston', x: CXL, y: r2(top - 10), width: CXR - CXL, height: 10 });
+    sv('line', { class: 'rod', x1: MID, y1: r2(top - 10), x2: MID, y2: r2(top - 26) });
+    sv('rect', { class: 'piston', x: MID - 16, y: r2(top - 32), width: 32, height: 6, rx: 2 });
+    if (o.pins > 0) part(o.pins, 0, () => [[18, 34], [108, 124]].forEach((x) => sv('rect', { class: 'pin', x: x[0], y: r2(top - 7), width: x[1] - x[0], height: 4, rx: 1 })));
+    path('M28 26 V156 H114 V26', 'wall');
+    sv('rect', { class: 'heater', x: CXL, y: 162, width: CXR - CXL, height: 10, rx: 2 });
+    if (o.heat === 'in') path(COIL, 'coil');
+    if (o.heat && o.heatA > 0) part(o.heatA, 0, () => {
+      [46, 71, 96].forEach((x) => (o.heat === 'in'
+        ? path(`M${x - 6} ${CB - 6} L${x} ${CB - 13} L${x + 6} ${CB - 6}`, 'hchev')
+        : path(`M${x - 6} 177 L${x} 184 L${x + 6} 177`, 'hchev')));
+      text(MID, o.heat === 'in' ? 190 : 202, o.heatLab, 'lab');
+    });
+    if (o.work && o.workA > 0) part(o.workA, 0, () => {
+      const x = 99, y0 = top - 12, y1 = top - 38;
+      if (o.work === 'out') {
+        sv('line', { class: 'warr', x1: x, y1: r2(y0), x2: x, y2: r2(y1 + 8) });
+        path(`M${x} ${r2(y1)} L${x - 5} ${r2(y1 + 9)} L${x + 5} ${r2(y1 + 9)} Z`, 'ahead');
+      } else {
+        sv('line', { class: 'warr', x1: x, y1: r2(y1), x2: x, y2: r2(y0 - 8) });
+        path(`M${x} ${r2(y0)} L${x - 5} ${r2(y0 - 9)} L${x + 5} ${r2(y0 - 9)} Z`, 'ahead');
+      }
+    });
+  }
+  function chartAxes() {
+    path('M176 30 V150 H330', 'ax');
+    text(184, 22, 'pressure', 'tl', 'start');
+    text(330, 144, 'volume', 'tl', 'end');
+  }
+  // The energy account: each row's bar runs right of its zero tick for plus, left for minus.
+  const LEDGER = { out1: { zx: 40, s: 0.5 }, out2: { zx: 40, s: 0.32 }, lock: { zx: 90, s: 0.36 }, in4: { zx: 196, s: 0.38 } };
+  const rowY = (k) => 222 + 36 * k;
+  function ledger(g, rows) {
+    rows.forEach((r, k) => {
+      if (r.a <= 0) return;
+      const ty = rowY(k), by = ty + 6;
+      part(r.a, 0, () => {
+        text(8, ty, r.name, 'lab m', 'start');
+        sv('line', { class: 'tk', x1: g.zx, y1: by - 1, x2: g.zx, y2: by + 15 });
+        const v = r.v * (r.grow == null ? 1 : r.grow);
+        if (Math.abs(v) * g.s > 0.5) sv('rect', { class: r.cls, x: r2(Math.min(g.zx, g.zx + v * g.s)), y: by, width: r2(Math.abs(v) * g.s), height: 14 });
+        (r.vals || []).forEach((q) => ftext(q.a, 332, ty, q.s, 'lab', 'end'));
+        if (r.extra) r.extra(by);
+      });
+    });
+  }
+  // A wrong answer's rise, drawn in red on the last row.
+  function ledgerBad(g, b, a) {
+    REC.bad++;
+    const by = rowY(2) + 6;
+    part(a, 0, () => {
+      sv('rect', { class: 'bad', x: r2(Math.min(g.zx, g.zx + b.v * g.s)), y: by, width: r2(Math.abs(b.v) * g.s), height: 14 });
+      text(8, 334, b.lab, 'lab w', 'start');
+    });
+  }
+  function drawCylStep(d, st, bad, wa) {
+    const right = st.res === 'right', g = LEDGER[d.cyl], ra = right ? arr(0.1) : 0, grow = right ? K.ease(lin(0.1, 1.0)) : 0;
+    chartAxes();
+    let said = '';
+    if (d.cyl === 'out1') {
+      const a1 = arr(0.4), a2 = arr(1.0), m = K.ease(lin(1.0, 1.6)), af = arr(2.4), a3 = arr(2.8), u = K.ease(lin(2.8, 0.6));
+      drawCyl({ top: 110 - 40 * m, heat: 'in', heatA: a1, heatLab: `heat in: ${N.q1} J`, work: 'out', workA: a2 });
+      ftext(a2, 8, 16, `work by the gas: ${N.w1} J`, 'lab n', 'start');
+      part(af, 0, () => { path('M115 70 H120 V110 H115', 'brk n'); text(126, 94.5, `${N.dv} L`, 'lab n', 'start'); });
+      const xm = 200 + 80 * m;
+      if (m > 0.002) { sv('rect', { class: 'area', x: 200, y: 70, width: r2(xm - 200), height: 80 }); path(`M200 70 H${r2(xm)}`, 'curve'); }
+      sv('circle', { class: 'dot', cx: r2(xm), cy: 70, r: 6 });
+      ftext(a1, 240, 60, `${N.p1} kPa`, 'lab');
+      part(af, 0, () => {
+        text(240, 104, 'work', 'lab'); text(240, 121, `${N.w1} J`, 'lab');
+        brk(200, 280, 158, 'n', true); text(240, 174, `${N.dv} L = ${N.m3} m³`, 'lab n');
+      });
+      ledger(g, [
+        { name: 'heat into the gas', v: 500, cls: 'lq', a: a1, vals: [{ s: `${N.q1} J`, a: 1 }] },
+        { name: 'work done by the gas', v: 200, grow: m, cls: 'lw', a: a2, vals: [{ s: `${N.w1} J`, a: af }] },
+        { name: 'rise in internal energy', v: 300, grow: u, cls: 'lu', a: a3, vals: [{ s: `${N.u1} J`, a: 1 }] },
+      ]);
+      said = `A cylinder of gas over a heater. ${N.q1} J of heat goes in, and the gas pushes its piston out ${N.dv} L at a steady ${N.p1} kPa. On the chart, the shaded area under the gas's line is the work, ${N.w1} J. Below, its energy account: heat in ${N.q1} J, work ${N.w1} J, and a rise in internal energy of ${N.u1} J.`;
+    } else if (d.cyl === 'out2') {
+      drawCyl({ top: 70, heat: 'in', heatA: 1, heatLab: `heat in: ${N.q2} J`, work: 'out', workA: 1 });
+      text(8, 16, `work by the gas: ${N.q2} J`, 'lab n', 'start');
+      // Heat in equal to the work out leaves the gas no hotter, so its pressure falls as it expands.
+      sv('path', { class: 'area', d: 'M200 150 V56 C222 82 248 96 280 102 V150 Z' });
+      path('M200 56 C222 82 248 96 280 102', 'curve');
+      sv('circle', { class: 'dot', cx: 280, cy: 102, r: 6 });
+      text(240, 122, 'work', 'lab'); text(240, 139, `${N.q2} J`, 'lab');
+      ledger(g, [
+        { name: 'heat into the gas', v: 400, cls: 'lq', a: 1, vals: [{ s: `${N.q2} J`, a: 1 }] },
+        { name: 'work done by the gas', v: 400, cls: 'lw', a: 1, vals: [{ s: `${N.q2} J`, a: 1 }] },
+        { name: 'rise in internal energy', v: 0, cls: 'lu', a: 1, vals: [{ s: '?', a: 1 - ra }, { s: `${N.u2} J`, a: ra }],
+          extra: (by) => { if (ra > 0) part(ra, 0, () => sv('circle', { class: 'ring', cx: g.zx, cy: by + 7, r: 5 })); } },
+      ]);
+      if (right) { REC.ans = true; REC.res = rise(400, 400); ftext(arr(0.6), 8, 334, 'no change: all of it left as work', 'lab n', 'start'); }
+      if (bad) ledgerBad(g, bad, wa);
+      said = `A cylinder of gas takes in ${N.q2} J of heat and pushes its piston out, doing ${N.q2} J of work, shaded on the chart under a line whose pressure falls as the gas expands. Below, its energy account, with the rise in internal energy ` + (right ? `drawn: ${N.u2} J.` : 'left as a question.');
+    } else if (d.cyl === 'lock') {
+      const a1 = arr(0.4), up = K.ease(lin(0.6, 1.0)), aw = arr(1.0), an = arr(1.4), au = arr(1.6), ug = K.ease(lin(1.6, 0.6));
+      const p2 = arr(2.4), m2 = K.ease(lin(2.6, 1.0)), aw2 = arr(3.0), au2 = arr(3.4);
+      drawCyl({ top: 90 + 20 * m2, pins: 1 - p2, heat: 'in', heatA: a1, heatLab: `heat in: ${N.q3} J`, work: 'in', workA: p2 });
+      ftext(a1 * (1 - p2), 8, 16, 'locked: it cannot move', 'lab n', 'start');
+      ftext(p2, 8, 16, 'pushed in: work on it', 'lab n', 'start');
+      const yTop = 120 - 50 * up;
+      if (up > 0.002) path(`M240 120 V${r2(yTop)}`, 'curve');
+      if (m2 > 0.002) {
+        const xL = 240 - 40 * m2, yL = 70 - 12 * m2;
+        sv('path', { class: 'area2', d: `M240 70 L${r2(xL)} ${r2(yL)} V150 H240 Z` });
+        path(`M240 70 L${r2(xL)} ${r2(yL)}`, 'curve');
+      }
+      const px = m2 > 0.002 ? 240 - 40 * m2 : 240, py = m2 > 0.002 ? 70 - 12 * m2 : yTop;
+      sv('circle', { class: 'dot', cx: r2(px), cy: r2(py), r: 6 });
+      ftext(an, 252, 92, 'no area,', 'lab', 'start'); ftext(an, 252, 108, 'no work', 'lab', 'start');
+      ftext(aw2, 180, 44, 'work on the gas', 'lab n', 'start');
+      ledger(g, [
+        { name: 'heat into the gas', v: 500, cls: 'lq', a: a1, vals: [{ s: `${N.q3} J`, a: 1 }] },
+        { name: 'work done by the gas', v: 0, cls: 'lw', a: aw, vals: [{ s: '0 J', a: 1 - aw2 }, { s: 'minus', a: aw2 }],
+          extra: (by) => { if (aw2 > 0) part(aw2, 0, () => {
+            sv('line', { class: 'warr', x1: g.zx - 2, y1: by + 7, x2: g.zx - 36, y2: by + 7 });
+            path(`M${g.zx - 44} ${by + 7} L${g.zx - 35} ${by + 2} L${g.zx - 35} ${by + 12} Z`, 'ahead');
+            text(g.zx + 8, by + 12, 'done on the gas', 'lab n', 'start');
+          }); } },
+        { name: 'rise in internal energy', v: 500, grow: ug, cls: 'lu', a: au, vals: [{ s: `${N.u3} J`, a: 1 - au2 }, { s: `over ${N.u3} J`, a: au2 }],
+          extra: (by) => { if (au2 > 0) part(au2, 0, () => sv('rect', { class: 'lext', x: r2(g.zx + 500 * g.s), y: by, width: 36, height: 14 })); } },
+      ]);
+      said = `A cylinder of gas with its piston locked takes in ${N.q3} J of heat. Its pressure rises straight up the chart, with no area under it, so no work is done, and the internal energy rises ${N.q3} J. Then the piston is pushed in. That work is done on the gas, counted as minus, and the internal energy rises further.`;
+    } else {
+      drawCyl({ top: 110, heat: 'out', heatA: 1, heatLab: `heat out: ${N.q4} J`, work: 'in', workA: 1 });
+      text(8, 16, `work on the gas: ${N.w4} J`, 'lab n', 'start');
+      // More work put in than heat taken out warms the gas, so its pressure climbs as it is squeezed.
+      sv('path', { class: 'area2', d: 'M200 150 V66 L208 72 C230 88 254 100 280 106 V150 Z' });
+      path('M280 106 C254 100 230 88 208 72', 'curve');
+      path('M200 66 L211 68 L205 76 Z', 'ahead');
+      text(240, 122, 'on the gas', 'lab'); text(240, 139, `${N.w4} J`, 'lab');
+      ledger(g, [
+        { name: 'heat into the gas', v: -100, cls: 'lq', a: 1, vals: [{ s: `${N.qm4} J`, a: 1 }] },
+        { name: 'work done by the gas', v: -300, cls: 'lw', a: 1, vals: [{ s: `${N.wm4} J`, a: 1 }] },
+        { name: 'rise in internal energy', v: 200, grow, cls: 'lu', a: 1, vals: [{ s: '?', a: 1 - ra }, { s: `${N.u4} J`, a: ra }] },
+      ]);
+      if (right) { REC.ans = true; REC.res = rise(-100, -300); ftext(arr(0.8), 8, 334, 'the push put in more than the heat took out', 'lab n', 'start'); }
+      if (bad) ledgerBad(g, bad, wa);
+      said = `A cylinder of gas, its piston pushed in with ${N.w4} J of work, gives out ${N.q4} J of heat. On the chart its pressure climbs as it is squeezed. Below, its energy account with signs: heat in ${N.qm4} J, work by the gas ${N.wm4} J, and the rise in internal energy ` + (right ? `drawn: ${N.u4} J.` : 'left as a question.');
+    }
+    return [344, said];
+  }
+
+  // ---------- the pressure–volume loop ----------
+  function drawLoop() {
+    const A = [110, 64], B = [250, 64], C = [250, 136], D = [110, 136], AX = 196;
+    path('M40 30 V196 H324', 'ax');
+    text(40, 22, 'pressure', 'tl', 'start');
+    text(324, 190, 'volume', 'tl', 'end');
+    const s1 = K.ease(lin(0.4, 0.9)), s2 = K.ease(lin(1.4, 0.5)), s3 = K.ease(lin(2.0, 0.9)), s4 = K.ease(lin(2.9, 0.4)), fin = arr(3.4);
+    if (s1 > 0.002) sv('rect', { class: 'area', x: 110, y: 64, width: r2(140 * s1), height: AX - 64 });
+    if (s3 > 0.002) sv('rect', { class: 'area2', x: r2(250 - 140 * s3), y: 136, width: r2(140 * s3), height: AX - 136 });
+    if (fin > 0) part(fin, 0, () => sv('rect', { class: 'loopf', x: 110, y: 64, width: 140, height: 72 }));
+    const L2 = (p, q, a) => [p[0] + (q[0] - p[0]) * a, p[1] + (q[1] - p[1]) * a];
+    const pts = [A, L2(A, B, s1)];
+    if (s2 > 0) pts.push(L2(B, C, s2));
+    if (s3 > 0) pts.push(L2(C, D, s3));
+    if (s4 > 0) pts.push(L2(D, A, s4));
+    path(pts.map((q, k) => (k ? 'L' : 'M') + r2(q[0]) + ' ' + r2(q[1])).join(' '), 'curve');
+    const now = pts[pts.length - 1];
+    sv('circle', { class: 'dot', cx: r2(now[0]), cy: r2(now[1]), r: 6 });
+    ftext(arr(0.4), 180, 54, 'push out, hot: heat in', 'lab');
+    ftext(arr(0.6) * (1 - fin), 180, 104, 'work out', 'lab');
+    part(arr(1.4), 0, () => {
+      text(262, 96, 'cooled:', 'lab', 'start'); text(262, 112, 'heat out', 'lab', 'start');
+      sv('line', { class: 'harr', x1: 256, y1: 124, x2: 298, y2: 124 });
+      path('M306 124 L297 119 L297 129 Z', 'hhead');
+    });
+    ftext(arr(2.2), 180, 162, 'squeezed back, cool: heat out', 'lab');
+    part(arr(2.9), 0, () => {
+      text(102, 96, 'heated:', 'lab', 'end'); text(102, 112, 'heat in', 'lab', 'end');
+      sv('line', { class: 'harr', x1: 56, y1: 124, x2: 96, y2: 124 });
+      path('M104 124 L95 119 L95 129 Z', 'hhead');
+    });
+    part(fin, 0, () => {
+      text(180, 96, "the loop's area:", 'lab'); text(180, 114, 'work over the loop', 'lab');
+      text(180, 180, 'takes back this much', 'lab m');
+    });
+    return [210, "A pressure–volume chart. The gas takes in heat as it pushes out hot and as it is heated, and gives heat out as it is cooled and as it is squeezed back cool, at a lower pressure. The shaded loop is the work over each loop. The area below it is what the squeeze takes back."];
+  }
+
+  // ---------- the engine's energy split ----------
+  const X0 = 30, XW = 280, XR = X0 + XW;
+  const xp = (s) => r2(X0 + XW * K.clamp(s, 0, 100) / 100);
+  const FB0 = 20, FB1 = 50, EN0 = 50, EN1 = 94, FY0 = 94, FY1 = 166, KY = 130, NAMEY = 204;
+  const tipOf = (x1, x2) => FY1 + Math.min(12, Math.max(0, (x2 - x1) / 2));
+  function flow(x1, x2, cls) {
+    if (x2 - x1 < 0.6) return;
+    const m = (x1 + x2) / 2;
+    path(`M${r2(x1)} ${FY0} H${r2(x2)} V${FY1} L${r2(m)} ${r2(tipOf(x1, x2))} L${r2(x1)} ${FY1} Z`, cls);
+  }
+  function seps(xs) { xs.forEach((x) => { if (x > X0 + 0.5 && x < XR - 0.5) sv('line', { class: 'sep', x1: x, y1: FY0, x2: x, y2: FY1 }); }); }
+  const estW = (s, cls) => String(s).length * (/\bm\b/.test(cls) ? 6.9 : 7.4);
+  // The flows' names and values in a row below them, kept in order and apart, with a leader
+  // from each flow's tip when its label had to move. A row may hold two words that crossfade.
+  function flowLabels(items) {
+    const L = 6, R = 334, G = 12;
+    items.forEach((it) => {
+      it.cx = (it.x1 + it.x2) / 2;
+      it.w = Math.max.apply(null, it.rows.reduce((m, row) => m.concat(row.filter((v) => v.a > 0).map((v) => estW(v.s, v.cls))), [0]));
+      it.l = it.cx - it.w / 2;
+    });
+    let edge = L;
+    items.forEach((it) => { it.l = Math.max(it.l, edge); edge = it.l + it.w + G; });
+    edge = R;
+    for (let k = items.length - 1; k >= 0; k--) { const it = items[k]; it.l = Math.min(it.l, edge - it.w); edge = it.l - G; }
+    items.forEach((it) => {
+      const lx = it.l + it.w / 2, a = Math.max.apply(null, it.rows.reduce((m, row) => m.concat(row.map((v) => v.a)), [0]));
+      if (Math.abs(lx - it.cx) > 4 && a > 0) part(a, 0, () => sv('line', { class: 'leader', x1: r2(it.cx), y1: r2(tipOf(it.x1, it.x2) + 3), x2: r2(lx), y2: NAMEY - 14 }));
+      it.rows.forEach((row, j) => row.forEach((v) => ftext(v.a, lx, NAMEY + 16 * j, v.s, v.cls)));
+    });
+  }
+  const V = (s, cls, a) => ({ s, cls: cls || 'lab', a: a == null ? 1 : a });
+  const kW = (share, fuel) => `${fx((fuel || FUEL) * share / 100)} kW`;
+  // The shaded block sits where the work's border lands when cooling plus exhaust is 60 to 70%
+  // of the fuel, so it is labelled as the typical work border; the bracket spans cooling plus exhaust.
+  function drawBand(xl) {
+    sv('rect', { class: 'bandf', x: xp(100 - HIGH), y: 228, width: r2(xp(100 - LOW) - xp(100 - HIGH)), height: 14 });
+    path(`M${r2(xl)} 230 V237 H${XR} V230`, 'brk n');
+    text(X0, 258, 'typical work border', 'lab m', 'start');
+    text(XR, 258, 'cooling + exhaust', 'lab n', 'end');
+    REC.band = [LOW, HIGH];
+  }
+  function carnotLine(c, a, lab, inFlows) {
+    const x = xp(c);
+    REC.line = c;
+    part(a, 0, () => {
+      sv('line', { class: 'cline', x1: x, y1: inFlows ? FY0 : EN0 + 6, x2: x, y2: 184 });
+      const y = inFlows ? FY0 + 22 : EN0 + 19, w = estW(lab, 'lab');
+      if (!inFlows && x + 6 + w <= XR + 4) text(x + 6, y, lab, 'lab', 'start');
+      else text(x - 6, y, lab, 'lab', 'end');
+    });
+  }
+  function splitBad(b, a, by, ly) {
+    REC.bad++;
+    part(a, 0, () => {
+      if (b.t === 'brk') path(`M${xp(b.from)} ${by - 6} V${by} H${xp(b.to)} V${by - 6}`, 'bad');
+      else if (b.t === 'box') sv('rect', { class: 'bad', x: r2(xp(b.from) + 1.5), y: FY0 + 3, width: r2(xp(b.to) - xp(b.from) - 3), height: FY1 - FY0 - 6 });
+      else if (b.t === 'line') sv('line', { class: 'wline2', x1: xp(b.at), y1: FY0, x2: xp(b.at), y2: 184 });
+      text(b.anchor === 'end' ? XR : X0, ly, b.lab, 'lab w', b.anchor === 'end' ? 'end' : 'start');
+    });
+  }
+  function drawSplitStep(d, st, bad, wa, p) {
+    const right = st.res === 'right', ra = right ? arr(0.1) : 0;
+    let said = 'Fuel energy flows down into an engine and leaves as three flows: work out, cooling water and exhaust, which add back to the fuel.';
+    let H = d.band ? 296 : 262, by = d.band ? 270 : 236, ly = d.band ? 286 : 252;
+    sv('rect', { class: 'ff', x: X0, y: FB0, width: XW, height: FB1 - FB0 });
+    const engine = (ga) => {
+      sv('rect', { class: 'eng', x: X0 - 6, y: EN0, width: XW + 12, height: EN1 - EN0, rx: 8 });
+      ftext(1 - ga, X0 + 4, EN0 + 19, 'engine', 'lab', 'start');
+      ftext(ga, X0 + 4, EN0 + 19, 'generator set', 'lab', 'start');
+    };
+    if (d.live) {
+      const sp = liveSplit(d, p), w = sp.w, c = sp.c, e = sp.e;
+      const ga = d.live.gen ? (sp.gen ? arr(0.75) : 0) : 0;
+      REC.flows = [w, c, e]; REC.blocked = sp.blocked;
+      text(X0 + 8, FB0 + 20, `fuel in: ${N.fuel} kW`, 'lab', 'start');
+      engine(ga);
+      flow(X0, xp(w), 'fw'); flow(xp(w), xp(w + c), 'fc'); flow(xp(w + c), XR, 'fe');
+      seps([xp(w), xp(w + c)]);
+      if (d.carnot) {
+        carnotLine(sp.ceil, 1, 'Carnot limit', false);
+        if (sp.blocked) {
+          const x = xp(sp.ceil);
+          sv('line', { class: 'wline', x1: x, y1: FY0 - 4, x2: x, y2: FY1 + 4 });
+          const ww = estW('work stops here', 'lab');
+          if (x - 6 - ww >= X0) text(x - 6, EN0 + 36, 'work stops here', 'lab w', 'end');
+          else text(x + 6, EN0 + 36, 'work stops here', 'lab w', 'start');
+        }
+      }
+      flowLabels([
+        { x1: X0, x2: xp(w), rows: [[V('work out', 'lab m', 1 - ga), V('electrical output', 'lab m', ga)], [V(kW(w))]] },
+        { x1: xp(w), x2: xp(w + c), rows: [[V('cooling water', 'lab m', 1 - ga), V('cooler must carry', 'lab m', ga)], [V(kW(c))]] },
+        { x1: xp(w + c), x2: XR, rows: [[V('exhaust', 'lab m')], [V(kW(e))]] },
+      ]);
+      drawBand(xp(w));
+      H = 268;
+      placeKnobs(true, w, c, sp.blocked);
+      if (d.carnot) said += ' A dashed Carnot line crosses the work flow, and the work cannot pass it.' + (sp.blocked ? ' The work is pressed against the line, in red.' : '');
+      said += ` A shaded block below marks where the work's border sits in a typical engine, with cooling plus exhaust at ${LOW} to ${HIGH}%.`;
+      if (d.live.gen && sp.gen) said += ' As a generator set, the work is labelled electrical output, and the cooling flow is what the cooler must carry.';
+      return [H, said];
+    }
+    placeKnobs(false);
+    if (d.fig === 'exh') {
+      const w = d.fix.w, c = d.fix.c, e = 100 - w - c;
+      REC.flows = [w, c, e];
+      text(X0 + 8, FB0 + 20, `fuel in: ${N.fuel} kW`, 'lab', 'start');
+      engine(0);
+      flow(X0, xp(w), 'fw'); flow(xp(w), xp(w + c), 'fc');
+      if (ra < 1) part(1 - ra, 0, () => flow(xp(w + c), XR, 'fq'));
+      if (ra > 0) part(ra, 0, () => flow(xp(w + c), XR, 'fe'));
+      seps([xp(w), xp(w + c)]);
+      flowLabels([
+        { x1: X0, x2: xp(w), rows: [[V('work out', 'lab m')], [V(kW(w))]] },
+        { x1: xp(w), x2: xp(w + c), rows: [[V('cooling water', 'lab m')], [V(kW(c))]] },
+        { x1: xp(w + c), x2: XR, rows: [[V('exhaust', 'lab m')], [V('?', 'lab', 1 - ra), V(kW(e), 'lab', ra)]] },
+      ]);
+      if (right) { REC.ans = true; REC.res = FUEL * e / 100; }
+      said += ` The work carries ${kW(w)} and the cooling water ${kW(c)}.` + (right ? ` The exhaust carries ${kW(e)}.` : ' The exhaust is left as a question.');
+    } else if (d.fig === 'typ') {
+      text(X0 + 8, FB0 + 20, `fuel in: ${N.fuel} kW`, 'lab', 'start');
+      engine(0);
+      if (ra < 1) part(1 - ra, 0, () => flow(X0, XR, 'fq'));
+      if (ra > 0) part(ra, 0, () => {
+        flow(X0, xp(100 - HIGH), 'fw'); flow(xp(100 - HIGH), xp(100 - LOW), 'frange'); flow(xp(100 - LOW), XR, 'fh');
+        seps([xp(100 - HIGH), xp(100 - LOW)]);
+      });
+      flowLabels([{ x1: X0, x2: XR, rows: [[V('work, cooling and exhaust', 'lab m', 1 - ra)], [V('?', 'lab', 1 - ra)]] }]);
+      if (ra > 0) flowLabels([
+        { x1: X0, x2: xp(100 - (HIGH + LOW) / 2), rows: [[V('work', 'lab m', ra)], [V(`${N.lo8} to ${N.hi8} kW`, 'lab', ra)]] },
+        { x1: xp(100 - LOW), x2: XR, rows: [[V('cooling + exhaust', 'lab m', ra)], [V(`${N.hl8} to ${N.hh8} kW`, 'lab', ra)]] },
+      ]);
+      drawBand(xp(100 - (HIGH + LOW) / 2));
+      if (right) { REC.ans = true; REC.res = [FUEL * (100 - HIGH) / 100, FUEL * (100 - LOW) / 100]; }
+      said += ` A shaded block marks where the work's border sits in a typical engine, with cooling plus exhaust at ${LOW} to ${HIGH}% of the fuel.` + (right ? ` The work is what is left, ${N.lo8} to ${N.hi8} kW.` : ' The work is left as a question.');
+    } else if (d.fig === 'claim') {
+      text(X0 + 8, FB0 + 20, `fuel in: ${N.fuel} kW`, 'lab', 'start');
+      engine(0);
+      ftext(1 - ra, X0 + 4, EN0 + 36, `hot side ${N.t10h} °C · cold side ${N.t10c} °C`, 'lab m', 'start');
+      ftext(ra, X0 + 4, EN0 + 36, `hot side ${N.h10} K · cold side ${N.k10} K`, 'lab m', 'start');
+      flow(X0, xp(CLAIM), 'fclaim'); flow(xp(CLAIM), XR, 'fq');
+      flowLabels([
+        { x1: X0, x2: xp(CLAIM), rows: [[V('claimed work', 'lab m')], [V(`${N.claim}%`)]] },
+        { x1: xp(CLAIM), x2: XR, rows: [[V('the rest', 'lab m')], [V('heat')]] },
+      ]);
+      if (right) {
+        const c = carnot(727 + ABS0, 27 + ABS0);
+        carnotLine(c, ra, `Carnot limit, ${N.c10}%`, true);
+        part(arr(0.7), 0, () => { brk(xp(c), xp(CLAIM), 236, 'n', true); text((xp(c) + xp(CLAIM)) / 2, 252, 'past the limit', 'lab n'); });
+        REC.ans = true; REC.res = c;
+      }
+      said += ` A maker claims ${N.claim}% of the fuel as work, drawn dashed, with a hot side at ${N.t10h} °C and a cold side at ${N.t10c} °C.` + (right ? ` In kelvin the Carnot line sits at ${N.c10}%, short of the claim.` : '');
+    } else {
+      const w = d.fix.w, c = d.fix.c, e = 100 - w - c, fuel = 400 / 0.4;
+      REC.flows = [w, c, e];
+      ftext(1 - ra, X0 + 8, FB0 + 20, 'fuel in: ?', 'lab', 'start');
+      ftext(ra, X0 + 8, FB0 + 20, `fuel in: ${N.o12} ÷ ${N.d12} = ${N.e12} kW`, 'lab', 'start');
+      engine(1);
+      flow(X0, xp(w), 'fw'); flow(xp(w), xp(w + c), 'fc'); flow(xp(w + c), XR, 'fe');
+      seps([xp(w), xp(w + c)]);
+      flowLabels([
+        { x1: X0, x2: xp(w), rows: [[V('electrical output', 'lab m')], [V(`${N.o12} kW, ${N.s12}%`)]] },
+        { x1: xp(w), x2: xp(w + c), rows: [[V('cooler must carry', 'lab m')], [V(`${N.cs12}% of the fuel`, 'lab', 1 - ra), V(`${N.c12} kW`, 'lab', ra)]] },
+        { x1: xp(w + c), x2: XR, rows: [[V('exhaust', 'lab m')]] },
+      ]);
+      if (right) { REC.ans = true; REC.res = fuel * c / 100; }
+      said = `A generator set's fuel energy flows down and leaves as electrical output, ${N.o12} kW or ${N.s12}% of the fuel, the cooling flow, ${N.cs12}% of the fuel, and the exhaust.` + (right ? ` The fuel is ${N.e12} kW, so the cooler must carry ${N.c12} kW.` : ' The fuel and the cooler are left as questions.');
+    }
+    if (bad) splitBad(bad, wa, by, ly);
+    return [H, said];
+  }
+
+  // ---------- the cooler and its seawater ----------
+  function drawCoolerStep(d, st, bad, wa) {
+    const right = st.res === 'right', per = XW / 300000;
+    text(X0, 16, `cooling water from the engine: ${N.c12} kW`, 'lab t', 'start');
+    sv('rect', { class: 'fc', x: X0, y: 24, width: XW, height: 26 });
+    sv('rect', { class: 'eng', x: X0 - 6, y: 50, width: XW + 12, height: 48, rx: 8 });
+    text(X0 + 4, 70, 'cooler', 'lab', 'start');
+    sv('line', { class: 'sea', x1: 8, y1: 86, x2: 322, y2: 86 });
+    path('M332 86 L321 80 L321 92 Z', 'seah');
+    text(8, 116, 'seawater in', 'lab m', 'start');
+    text(332, 116, `out, ${N.rise} °C warmer`, 'lab m', 'end');
+    text(X0, 146, `${N.J13} J each second`, 'lab', 'start');
+    sv('rect', { class: 'blk', x: X0, y: 154, width: XW, height: 30 });
+    if (!right && !bad) text(170, 174, 'how many kilograms?', 'lab m');
+    if (right) {
+      const step = CP_SEA * RISE * per;
+      REC.ans = true; REC.res = 300000 / (CP_SEA * RISE); REC.divs = 0;
+      part(arr(0.15), 0, () => sv('rect', { class: 'frange', x: X0, y: 154, width: r2(step), height: 30 }));
+      for (let k = 1; k * step < XW - 0.5; k++) {
+        const x = X0 + k * step;
+        part(arr(0.1 + 0.08 * k, 0.4), 0, () => sv('line', { class: 'div', x1: r2(x), y1: 154, x2: r2(x), y2: 184 }));
+        REC.divs = k;
+      }
+      part(arr(0.8), 0, () => {
+        brk(X0, X0 + step, 192, 'n', true); text(X0, 210, `1 kg: ${N.cps} × ${N.rise} = ${N.kg} J`, 'lab n', 'start');
+        brk(X0, XR, 222, '', true); text(170, 240, `${N.J13} ÷ ${N.kg}: about ${N.f13} kg each second`, 'lab n');
+      });
+    }
+    if (bad) {
+      REC.bad++;
+      const step = bad.each * per;
+      part(wa, 0, () => {
+        for (let k = 1; k * step < XW - 0.5; k++) {
+          const x = r2(X0 + k * step);
+          sv('line', { class: 'divw', x1: x, y1: bad.ticks ? 172 : 154, x2: x, y2: 184 });
+        }
+        text(X0, 210, bad.lab, 'lab w', 'start');
+      });
+    }
+    return [252, `The engine's cooling water carries ${N.c12} kW into a cooler. Seawater runs through it and leaves ${N.rise} °C warmer. Below, the ${N.J13} J it must take each second, as a bar` +
+      (right ? ` cut into kilograms of ${N.kg} J each: about ${N.f13} of them.` : '.')];
+  }
+
+  // The borders' handles sit on the borders of the live split.
+  function placeKnobs(show, w, c, blocked) {
+    k1.hidden = !show; k2.hidden = !show;
+    if (!show) return;
+    const pos = (x) => ({ left: r2(x / 340 * 100) + '%', top: r2(KY / HH * 100) + '%' });
+    Object.assign(k1.style, pos(xp(w)));
+    Object.assign(k2.style, pos(xp(w + c)));
+    k1.classList.toggle('stop', !!blocked);
+  }
+  // A pointer on a handle, as a share of the fuel.
+  function shareAt(knob, x) {
+    const kr = knob.getBoundingClientRect(), sr = svg.getBoundingClientRect();
+    if (!sr.width) return null;
+    const vx = (kr.left + x - sr.left) / sr.width * 340;
+    return (vx - X0) / XW * 100;
+  }
+  K.drag(k1, { control: 'work', toValue: (x) => { const v = shareAt(k1, x); return v == null || !isFinite(v) ? num(K.params().work, W0) : K.clamp(Math.round(v * 2) / 2, 10, 90); } });
+  K.drag(k2, { control: 'cool', toValue: (x) => {
+    const v = shareAt(k2, x), d = STEPS[at()];
+    if (v == null || !isFinite(v)) return num(K.params().cool, C0);
+    const w = d.live ? liveSplit(d, K.params()).w : W0;
+    return K.clamp(Math.round((v - w) * 2) / 2, 5, 60);
+  } });
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i, pOver) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i], p = pOver || K.params();
+    art.textContent = '';
+    into = null;
+    REC = { texts: [], bad: 0, ans: false, res: null, flows: null, band: null, line: null, blocked: false, divs: null };
+    const bad = wrongOf(d, st), wa = bad ? arr(0.1) : 0;
+    HH = d.top === 'cyl' ? 344 : d.top === 'loop' ? 210 : d.top === 'cooler' ? 252 : d.live ? 268 : d.band ? 296 : 262;
+    let out;
+    if (d.top === 'cyl') { placeKnobs(false); out = drawCylStep(d, st, bad, wa); }
+    else if (d.top === 'loop') { placeKnobs(false); out = drawLoop(); }
+    else if (d.top === 'cooler') { placeKnobs(false); out = drawCoolerStep(d, st, bad, wa); }
+    else out = drawSplitStep(d, st, bad, wa, p);
+    svg.setAttribute('viewBox', '0 0 340 ' + HH);
+    svg.setAttribute('aria-label', out[1] + (bad ? ' The answer picked is drawn in red.' : ''));
+  }
+
+  // ---------- what Dan reads under a live picture ----------
+  function sayFor(i, d, p) {
+    const sp = liveSplit(d, p), W = fx(FUEL * sp.w / 100), C = fx(FUEL * sp.c / 100), E = fx(FUEL * sp.e / 100), rej = 100 - sp.w;
+    if (d.live.hot) {
+      const L = fx(sp.ceil, 1);
+      if (sp.blocked) return `The work stops at the Carnot limit, ${L}% of the fuel. Only a hotter hot side or a colder cold side would let it grow.`;
+      return `At ${fx(sp.hot)} K and ${fx(sp.cold)} K, the Carnot limit is ${L}% of the fuel. The work, ${W} kW, sits below it.`;
+    }
+    if (d.live.gen) {
+      const stop = sp.blocked ? 'The work stops at the Carnot limit. ' : '';
+      if (!sp.gen) return stop + `As an engine, its ${W} kW of work turns a shaft. On a generator set, that work drives an alternator.`;
+      return stop + `The set gives ${W} kW of electrical output, and its cooler must carry ${C} kW. Size the cooler on that ${C} kW, not on the output.`;
+    }
+    const band = rej > HIGH + EPS ? ' That is more heat than a typical engine rejects.' : rej < LOW - EPS ? ' That is less heat than a typical engine rejects.' : ' Cooling plus exhaust sits in the typical range.';
+    if (sp.e < EPS) return `Work and cooling take all of the fuel's ${N.fuel} kW, so the exhaust carries nothing.` + band;
+    return `${W} kW of work, ${C} kW of cooling and ${E} kW of exhaust add back to the fuel's ${N.fuel} kW.` + band;
+  }
+  function layout(i, d, st, p) {
+    const right = st.res === 'right', L = d.live || {}, outs = d.outs || [];
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    el('ctl').hidden = !d.live;
+    workCtl.el.hidden = !L.work; coolCtl.el.hidden = !L.cool; hotCtl.el.hidden = !L.hot; coldCtl.el.hidden = !L.cold; genCtl.el.hidden = !L.gen;
+    el('say').hidden = !d.live;
+    el('say').textContent = d.live ? sayFor(i, d, p) : '';
+    el('outs').hidden = !outs.length;
+    rWork.el.hidden = outs.indexOf('workOut') < 0; rRej.el.hidden = outs.indexOf('rejected') < 0; rCeil.el.hidden = outs.indexOf('ceiling') < 0;
+    const cap = [];
+    if (d.band) cap.push('The shaded block is typical of reciprocating engines.');
+    if (d.carnot || d.fig === 'claim') cap.push('The Carnot line is an ideal limit.');
+    el('cap').textContent = cap.join(' ');
+    el('cap').hidden = finished || !cap.length;
+    el('replay').hidden = !d.show || REDUCE;
+    const opts = d.show ? [] : d.opts;
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((x) => x.length > 9));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    fb.textContent = d.show ? '' : right ? (d.right || "That's it.") : st.res === 'wrong' ? ((d.hints && d.hints[st.pick]) || d.hint) : st.res === 'empty' ? PICK : '';
+    const why = el('why');
+    why.hidden = !!d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  }
+
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox'); onEnter(i);
+      if (d.live) { keyNow = ctlKey(K.params()); K.refresh(); return; }
+    }
+    if (d.live) {
+      const k = ctlKey(p);
+      if (k !== keyNow) {   // Dan moved a border, a temperature or the switch: the demonstration gives way to him
+        keyNow = k;
+        if (MOT) { MOT = null; anim.pause(); T = Infinity; }
+      }
+      // A border pushed into the cooling squeezes it: the slider follows, so it reads what is drawn.
+      const sq = liveSplit(d, p);
+      if (num(p.cool, C0) > sq.c + 1e-6) { coolCtl.set(sq.c, true); keyNow = ctlKey(K.params()); }
+    }
+    if (!anim.playing()) T = Infinity;
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    layout(i, d, st, p);
+    paint(i, p);
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const solved = (i) => ({ pick: STEPS[i].want, res: 'right', why: false });
+  const wrongSt = (i, o) => ({ pick: o, res: 'wrong', why: false });
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  // A step painted in the state given (finished): what it draws.
+  function drawn(i, st, pOver) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = Infinity;
+    try { paint(i, pOver ? Object.assign({}, K.params(), pOver) : null); return REC; }
+    finally { S[i] = keepS; T = keepT; paint(); }
+  }
+  const S_SPLIT = idx('The energy split'), S_CAR = idx('The Carnot line'), S_GEN = idx('A generator set');
+  const LIVE = [S_SPLIT, S_CAR, S_GEN];
+  const words = (s) => String(s || '').replace(/\*/g, '').split(/\s+/).filter(Boolean).length;
+
+  K.check('The first law: the change in internal energy equals the heat transfer into the gas minus the work done by the gas', () => {
+    const a = idx('All of it as work'), b = idx('Pushed in');
+    return rise(500, 200) === 300 && rise(400, 400) === 0 && rise(-100, -300) === 200 && rise(500, 0) === 500 &&
+      drawn(a, solved(a)).res === 0 && drawn(b, solved(b)).res === 200;
+  }, { source: SRC_NASA });
+  K.check('Energy in the exhaust gas and cooling systems generally represents 60 to 70 percent of the inlet fuel energy, and the shaded range spans 60 to 70 percent of the fuel', () => {
+    const r = drawn(S_SPLIT, blank());
+    return !!r.band && r.band[0] === 60 && r.band[1] === 70 && K.near(xp(100 - LOW) - xp(100 - HIGH), XW * 0.1, 1e-6);
+  }, { source: SRC_EPA });
+  K.check('It is impossible to convert all heat into work in a cyclical process: at every setting the Carnot limit stays below all of the fuel, the work never passes it, and some heat always leaves', () =>
+    [500, 800, 1200, 1500].every((h) => [270, 300, 350].every((c) => [10, 50, 90].every((w) => {
+      const o = K.at({ step: S_CAR, hot: h, cold: c, work: w });
+      return o.ceiling < 100 && o.workOut <= FUEL * o.ceiling / 100 + 1e-9 && o.rejected > 0;
+    }))), { source: SRC_MSU });
+  K.check('Work, cooling and exhaust always add back to the 1,000 kW of fuel, at every setting of the borders and temperatures, on every live screen', () =>
+    LIVE.every((i) => [[10, 5, 500, 350], [35, 30, 800, 300], [90, 60, 1500, 270], [60, 40, 600, 340], [45, 55, 1000, 300]].every((q) => {
+      const pp = { work: q[0], cool: q[1], hot: q[2], cold: q[3] };
+      const o = K.at(Object.assign({ step: i }, pp)), r = drawn(i, blank(), pp);
+      return K.near(o.workOut + o.rejected, FUEL, 1e-9) && !!r.flows && K.near(r.flows[0] + r.flows[1] + r.flows[2], 100, 1e-9) &&
+        r.flows.every((v) => v >= -1e-12) && K.near(FUEL * r.flows[0] / 100, o.workOut, 1e-9);
+    })));
+  K.check('The Carnot limit, 1 − T cold ÷ T hot in kelvin: 62.5% (625 kW) at 800 K and 300 K, 75% at 1,200 K, 70% at 1,000 K; worked in °C, 727 and 27 would wrongly give about 96%', () =>
+    K.near(K.at({ step: S_CAR }).ceiling, 62.5, 1e-9) && K.near(K.at({ step: S_CAR, hot: 1200 }).ceiling, 75, 1e-9) &&
+    K.near(carnot(1000, 300), 70, 1e-9) && K.near(carnot(727, 27), 96.286, 0.001) && K.near(FUEL * carnot(HOT0, COLD0) / 100, 625, 1e-9));
+  K.check('Work dragged past the line stops there, at 625 kW; a line dropped below the work takes the work down with it and the difference goes to the exhaust; the borders never move the line; the first-law screen has no line', () => {
+    const a = K.at({ step: S_CAR, work: 80 }), b = drawn(S_CAR, blank(), { work: 80, cool: 30, hot: 800, cold: 300 });
+    const c = K.at({ step: S_CAR, hot: 500, cold: 350 }), e = drawn(S_CAR, blank(), { work: 35, cool: 30, hot: 500, cold: 350 });
+    const same = [[10, 5], [50, 30], [90, 60]].every((q) => K.near(K.at({ step: S_CAR, work: q[0], cool: q[1] }).ceiling, 62.5, 1e-9));
+    return K.near(a.workOut, 625, 1e-9) && b.blocked && K.near(b.line, 62.5, 1e-9) && K.near(c.workOut, 300, 1e-9) && !!e.flows && K.near(e.flows[2], 40, 1e-9) &&
+      !drawn(S_CAR, blank(), { work: 35, cool: 30, hot: 800, cold: 300 }).blocked && same &&
+      K.near(K.at({ step: S_SPLIT, work: 80 }).workOut, 800, 1e-9) && drawn(S_SPLIT, blank()).line == null;
+  });
+  K.check('Every number the screens print comes from the rule: 200,000 Pa, 200 J, 300 J and 0.001 m³; 0, 800 and 400 J; up 200 J, down 400 and 200 J; 350, 650 and 700 kW; 300 to 400 and 600 to 700 kW; 62.5%, 1,200 K and 75%; 1,000 K, 300 K, 70% and about 96%; 1,000 kW, 300, 120 and 600 kW; 38,500 J, 300,000 J and about 7.8, 78 and 30 kg/s', () =>
+    N.q1 === '500' && N.p1 === '200' && N.pa === '200,000' && N.dv === '1' && N.m3 === '0.001' && N.w1 === '200' && N.u1 === '300' &&
+    N.q2 === '400' && N.u2 === '0' && N.u2a === '800' && N.u2b === '400' && N.q3 === '500' && N.u3 === '500' &&
+    N.w4 === '300' && N.q4 === '100' && N.qm4 === '−100' && N.wm4 === '−300' && N.u4 === '200' && N.u4a === '400' && N.u4b === '200' &&
+    N.fuel === '1,000' && N.w6 === '350' && N.c6 === '300' && N.e6 === '350' && N.r6 === '650' && N.x6 === '700' &&
+    N.lo8 === '300' && N.hi8 === '400' && N.hl8 === '600' && N.hh8 === '700' &&
+    N.h9 === '800' && N.k9 === '300' && N.c9 === '62.5' && N.h9b === '1,200' && N.c9b === '75' &&
+    N.t10h === '727' && N.t10c === '27' && N.h10 === '1,000' && N.k10 === '300' && N.c10 === '70' && N.c10w === '96' && N.claim === '75' &&
+    N.o12 === '400' && N.s12 === '40' && N.cs12 === '30' && N.d12 === '0.4' && N.e12 === '1,000' && N.c12 === '300' && N.c12a === '120' && N.c12b === '600' &&
+    N.cps === '3,850' && N.rise === '10' && N.kg === '38,500' && N.J13 === '300,000' && N.f13 === '7.8' && N.f13a === '78' && N.f13b === '30');
+  K.check('Each puzzle offers three different answers including its right one, every wrong answer has its own hint, and before Check nothing on its picture shows the answer or a red mark', () =>
+    DO.every((i) => {
+      const d = STEPS[i];
+      if (d.opts.length !== 3 || d.opts.indexOf(d.want) < 0 || new Set(d.opts).size !== 3) return false;
+      if (!d.opts.every((o) => o === d.want || (d.hints[o] && d.hints[o].length > 10 && d.bad[o]))) return false;
+      const g = drawn(i, blank());
+      return !g.bad && !g.ans;
+    }));
+  K.check('A wrong pick is drawn in red where it fails, and a right answer draws no red', () =>
+    DO.every((i) => {
+      const d = STEPS[i];
+      if (drawn(i, solved(i)).bad) return false;
+      return d.opts.filter((o) => o !== d.want).every((o) => drawn(i, wrongSt(i, o)).bad > 0);
+    }));
+  K.check("A right answer draws the rule's result: no change; up 200 J; 350 kW of exhaust; 300 to 400 kW of work; the Carnot line at 70%; 300 kW for the cooler; about 7.8 kg of seawater each second, 7 whole kilograms marked", () => {
+    const r = (name) => { const i = idx(name); return drawn(i, solved(i)); };
+    const a = r('All of it as work'), b = r('Pushed in'), c = r('The exhaust'), e = r('Typical work'), f = r("A maker's claim"), g = r('Sizing the cooler'), h = r('Seawater flow');
+    return a.res === 0 && b.res === 200 && K.near(c.res, 350, 1e-9) && !!e.res && e.res[0] === 300 && e.res[1] === 400 &&
+      K.near(f.res, 70, 1e-9) && K.near(g.res, 300, 1e-9) && K.near(h.res, 300000 / 38500, 1e-9) && h.divs === 7 && f.ans && g.ans && h.ans;
+  });
+  K.check('Every demonstration has finished within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\'s motion, right or wrong, within 2 s', () => {
+    const keepT = T;
+    const timed = (i, st, limit, from) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; earliest = Infinity;
+      S[i] = st;
+      try { paint(i); } finally { S[i] = keepS; }
+      return latest <= limit + 1e-9 && (from == null || earliest >= from - 1e-9);
+    };
+    const ok = STEPS.every((d, i) => {
+      if (d.show) return (d.mot || []).every((m) => m.t0 >= FADE && m.t1 <= d.dur) && d.dur >= 3 && d.dur <= 4.5 && timed(i, blank(), d.dur, d.live ? null : FADE);
+      return timed(i, solved(i), ANS) && d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), ANS));
+    });
+    T = keepT; paint();
+    return ok;
+  });
+  K.check('Every demonstration screen keeps to about 90 words', () => STEPS.every((d) => !d.show || (words(d.text) <= 90 && (!d.read || words(d.read) <= 90))));
+
+  K.ready();
+</script>

@@ -1,0 +1,433 @@
+TASK: repair-interactive
+
+The interactive below, written for Dan's learning app, failed its automatic checks. Fix every problem listed and return the complete corrected body. Keep what already works.
+
+## The idea
+Topic: Heat and fluids, from boiling water to pumps
+Idea: Where the pump settles, and its limits (A centrifugal pump settles where its curve of head against flow crosses the pipe's, so closing a valve moves it to less flow, more head.)
+Kind: mechanism
+Dan knows a little about this topic. Show an equation on the page only if every symbol in it is labelled on the picture; otherwise say the rule in words.
+
+## What the interactive must show
+Brief: The one thing you should see is the operating point sliding up the pump's curve to less flow and more head, as the system curve steepens, when you drag the valve closed.
+Title (the app shows it above the frame, so do not repeat it): Where the curves meet
+The rule (the app shows it just above the frame, under "What you're looking at"): There are fourteen small screens. The main picture has two parts. On the left, a pump draws seawater from a suction tank. It sends it through a pipe and a valve up to a high tank. The lift between the two water surfaces is 10 m. The dashed line for the suction level stops short of the pump. On the right is a graph of head against flow. Head runs up the side, in metres, and flow along the bottom, in L/s. On a phone, the graph sits below the pump.
+
+The pump's curve is a sketch of the usual shape, not a real pump's. At full speed it gives 30 m at no flow. Its head falls as 30 − 0.04q², with q the flow in L/s. The system curve is the 10 m lift plus 0.06q² of friction with the valve open. A dot marks where the two curves cross. That is the operating point. Dashed lines run from it down to its flow and across to its head. The dot comes from setting the two heads equal. At the start, 30 − 0.04q² = 10 + 0.06q². So 0.1q² = 20 and q² = 200. That gives about 14.1 L/s, at 30 − 0.04 × 200 = 22.0 m.
+
+A valve slider has five stops: open, friction ×2, friction ×4, friction ×10 and shut. Each stop multiplies the pipe's 0.06, so the system curve bends up more steeply. At friction ×2 the sum is 0.04 + 0.12 = 0.16. So q² = 20 ÷ 0.16 = 125, about 11.2 L/s at 25.0 m. Friction ×4 gives about 8.5 L/s at 27.1 m. Friction ×10 gives about 5.6 L/s at 28.8 m. Shut gives no flow, and the dot sits at the top of the pump's curve, 30 m. The valve starts open.
+
+A speed slider runs from 50% to 100% in steps of 5, starting at 100%. The pump laws say the flow goes with the speed, the head with the speed squared, and the power with the speed cubed. So at a speed fraction s, the pump's curve is 30s² − 0.04q². When 30s² is no more than the 10 m lift, the whole pump curve sits below the system curve. Then no water flows.
+
+Below the graph, on the same flow scale, is the efficiency hump. The power the water takes is the hydraulic power, ρ × g × Q × H. Here ρ is seawater's density, 1025 kg/m³, and g is 9.81. Q is the flow in m³/s, and H is the head. At the start that is 1025 × 9.81 × 0.0141 × 22, about 3.13 kW. The shaft power is a sketch. At full speed it is 3.0 kW plus 0.1 kW for each L/s. At speed s it is s³ × (3.0 + 0.1q ÷ s) kW. At the start that is about 4.41 kW. The efficiency is the hydraulic power ÷ the shaft power. Its hump peaks near 14 L/s at about 71%. A marker shows the efficiency at the operating flow.
+
+A suction panel holds a tank level slider. It runs from −6 m to +4 m in steps of 1, starting at +2 m. The level is the height of the tank's surface above the pump's centre line, so minus means below the pump. The high tank moves with it. So the lift stays 10 m, and only the suction changes. Two bars stand side by side, in metres. NPSH available starts with the atmosphere, 100 kPa, which holds up about 9.9 m of seawater. Add the level. Take off the suction pipe's friction of 0.005q². Take off 0.3 m for the water's boiling pressure. NPSH required is a sketch, 2s² + 0.015q². At the start, available is 9.9 + 2 − 1.0 − 0.3, about 10.6 m. Required is about 5.0 m. When available falls below required, both bars turn red. Bubbles form at the impeller's eye and collapse further in.
+
+A switch swaps the centrifugal pump for a positive displacement pump. Its flow is 10s L/s, less a slip of 0.01 L/s for each metre of head. So its curve stands nearly upright. Its shaft power is the hydraulic power ÷ 0.8, which is its efficiency here. At the shut stop no crossing is drawn. A red warning says its pressure would climb until something gives.
+
+Three readouts show the flow, the head and the shaft power. On a phone they wrap onto two rows.
+
+Screen by screen. Screen 1 shows the pump's curve alone. The dot slides down it from 30 m at no flow. Then the system curve draws in from 10 m. The dot stops at the crossing, about 14.1 L/s and 22.0 m. Its words: a centrifugal pump gives its most head at no flow, and less as the flow grows. This example pump gives 30 − 0.04q² metres, with q in L/s. The pipe needs 10 + 0.06q² metres. Where the two meet, the pump gives just what the pipe needs. Setting them equal gives 0.1q² = 20, so q² = 200.
+
+Screen 2 asks a question. For a moment the flow is 10 L/s. There the pump gives 30 − 4 = 26 m, and the pipe needs 10 + 6 = 16 m. What does the flow do next? It rises towards 14.1 L/s, it stays at 10 L/s, or it falls. The hint: spare head is an unbalanced push on the water. The why: the spare 10 m speeds up the water in the pipe. So the flow climbs until the two heads match.
+
+Screen 3 shows the valve. Dragging the valve slider from open to friction ×2 bends the system curve up more steeply. The dot slides up the pump's curve to about 11.2 L/s and 25.0 m. Read without the slider, the screen shows that finished picture at friction ×2.
+
+Screen 4 asks a question. The outlet gauge sits between the pump and the valve. You close the valve a little. What happens to the flow and the gauge? Less flow and a higher gauge, less flow and a lower gauge, or the same flow and a higher gauge. The hint: the dot can only move along the pump's curve. The why: the gauge reads the suction pressure plus what the pump adds, so it rises with the pump's head.
+
+Screen 5 steps the valve from open to shut. The shaft power reads about 4.41, 4.12, 3.85, 3.56 and 3.0 kW. The efficiency marker drops from about 71% to 68%, 60% and 45%. Its words: the head rises a little while the flow falls a lot, so the pump does less work. A pump is chosen to run near its efficiency peak, as this one does with the valve open. At a shut valve its power is near its least, and the motor's current falls with it. Read without moving, the screen shows the shut valve and 3.0 kW.
+
+Screen 6 asks a question. At friction ×2, the pump gives about 11.2 L/s of seawater at 25 m. What power does the water take? About 2.8 kW, about 3.6 kW or about 3.1 kW. The hint: Q goes in m³/s. Scaling 3.13 kW by the head alone gives the wrong 3.6 kW. Expecting no change gives 3.1 kW.
+
+Screen 7 shows the speed. With the valve open, the speed slider is dragged to 80%. The pump's curve sinks, and its top falls to 30 × 0.8² = 19.2 m. The crossing moves to about 9.6 L/s and 15.5 m. The shaft power falls to about 2.15 kW. For comparison, a faint dot shows the same pump at full speed, throttled instead to friction ×4: about 8.5 L/s for about 3.85 kW. Its words: slowing the pump cuts the flow without burning head in a valve. Read without the slider, the screen shows the 80% picture.
+
+Screen 8 asks a question. The pump is slowed to 55%. Its most head is now 30 × 0.55², about 9.1 m, and the lift is 10 m. What flow does it give? None, about 7.8 L/s, or about 14.1 L/s at less head. The hint: compare its most head with the lift. Picking 7.8 L/s draws the slowed pump's curve under the system curve, with no crossing.
+
+Screen 9 shows the suction. The tank level slider is dragged from +2 m down to −4 m. NPSH available falls from about 10.6 m to about 4.6 m. That is under the 5.0 m required. The bars turn red, and bubbles form and collapse at the impeller. Its words: water boils at 100 °C at normal pressure, and cooler at lower pressure. NPSH required is the least absolute pressure the pump needs at its inlet. The pressure falls further on the way into the impeller's eye. The suction must offer more. Both tanks move together, so only the suction changes. Read without the slider, the screen shows the tank at −4 m and the red bars.
+
+Screen 10 asks a question. At −4 m with the valve open, the pump cavitates. Which one stops it? Raise the suction tank's level, throttle a valve in the suction pipe, or run the pump faster. The hint: which one adds pressure at the pump's inlet? The why: cavitation rattles and can pit the impeller, so it is worth stopping. At −3 m, available is about 5.6 m, above the 5.0 m required. A suction valve's friction comes off what is available. A faster pump needs more.
+
+Screen 11 flips the switch to the positive displacement pump. The valve is dragged from open to friction ×10. Its flow moves only from about 9.8 to 9.4 L/s. Its head climbs from about 15.8 to 62.7 m. Its shaft power rises from about 1.96 to 7.39 kW. Its words: it traps a set volume each turn and pushes it on, so its speed sets its flow. Read without the controls, the screen shows this pump at friction ×10.
+
+Screens 12 to 14 mix the ideas. Screen 12: a centrifugal pump runs on against a shut valve. Its shaft puts 3.0 kW into the 5 kg of seawater trapped in its casing, and 3850 J warms 1 kg of seawater by 1 °C. How fast does the water warm? Not at all, as nothing flows; about 600 °C a second; or about 0.16 °C a second. The hint: use Q = mcΔT, one second at a time. The 600 pick leaves out the specific heat. A graph of the warming against time climbs to near 9 °C after a minute. The why adds that warmer water boils at a higher pressure. So NPSH available falls, and the pump heads for cavitation.
+
+Screen 13: a centrifugal fire pump's outlet gauge reads higher than usual. Its ammeter and its flow read lower. What is most likely? Something on the discharge side is choking it, such as a valve on the fire main left partly shut. A discharge valve has been opened further. Or the pump is running faster. The hint: which change moves the dot up the pump's curve?
+
+Screen 14: the high tank is raised 6 m, so the lift is 16 m on the same pipe. Where does the pump settle? About 11.8 L/s at 24.4 m, about 14.1 L/s as before, or about 18.7 L/s. The working: 30 − 0.04q² = 16 + 0.06q², so 0.1q² = 14 and q² = 140. The 18.7 L/s pick leaves out the pipe's friction. Where it can be, a wrong pick is drawn on the picture, so you see where it fails.
+What the model leaves out (the app shows this in its own panel; do not repeat it on the page): The pump's head curve, its shaft power and its NPSH required are sketches of the usual shapes, not a real pump's. A real pump's curves come from its maker's tests. The flow is drawn settling at once. A real flow takes a moment, as the water in the pipe speeds up or slows. The tanks' levels are held still as the water moves. The level slider moves both tanks together. A suction tank that falls on its own also adds to the lift. That cuts the flow and the NPSH required. The pump laws are close for modest speed changes, and less so for large ones. The 0.3 m for the water's boiling pressure is held fixed, though it rises as the water warms. Cavitation is drawn as on or off. In a real pump it creeps in as the margin shrinks. That is why a margin is kept. The positive displacement pump's slip and efficiency are held fixed. Bends and fittings are rolled into the pipe's friction.
+Controls (use these ids, ranges and opening values exactly; when the prediction or a check names a setting of a slider, add it to that slider's snap):
+- id "step": Screen, from 0 to 13 in steps of 1, opening at 0
+Outputs (return each from K.model under exactly this key, and show it once: as a K.readout with the same id and the decimals given, which is how the explanation rounds it, or as a label on the drawing when the drawing already shows it, never both. Target checks read K.model, not the tile):
+- id "flow": Flow (L/s), decimals: 1
+- id "head": Head (m), decimals: 1
+- id "shaftPower": Shaft power (kW), decimals: 2
+Numbers it may show (control = Dan sets it; computed = from the rule; constant = a fixed real value; assumed = an example value, said once as an example in the lead line or a caption, then drawn as a plain value; date = a historical date or fact):
+- Screens in the lesson: 14 (assumed)
+- Readouts: 3 (assumed)
+- Readout rows on a phone: 2 (assumed)
+- Gravity's pull, g, in N per kg: 9.81 (constant)
+- Seawater's density, in kg/m³: 1025 (constant, source [1])
+- Seawater's specific heat, in J per kg per °C: 3850 (constant, source [1])
+- Atmosphere, rounded, in kPa: 100 (constant, source [2])
+- Atmosphere as seawater head, 100,000 ÷ (1025 × 9.81), in m: 9.9 (computed)
+- Lift between the two water surfaces, in m: 10 (assumed)
+- Pump's head at no flow, full speed, in m: 30 (assumed)
+- Pump curve's fall, m per (L/s)², sketched: 0.04 (assumed)
+- Pipe's friction with the valve open, m per (L/s)²: 0.06 (assumed)
+- Sum of the two, 0.04 + 0.06: 0.1 (computed)
+- Head to share, 30 − 10, in m: 20 (computed)
+- Flow squared at the crossing, 20 ÷ 0.1: 200 (computed)
+- Open valve: flow, √200, in L/s: 14.1 (computed)
+- Open valve: flow, in m³/s: 0.0141 (computed)
+- Open valve: head, 30 − 0.04 × 200, in m: 22 (computed)
+- Valve stop: friction ×2: 2 (control)
+- Valve stop: friction ×4: 4 (control)
+- Valve stop: friction ×10: 10 (control)
+- Valve stops: 5 (control)
+- Friction ×2: friction term, 0.06 × 2: 0.12 (computed)
+- Friction ×2: flow squared, 20 ÷ 0.16: 125 (computed)
+- Friction ×2: sum, 0.04 + 0.12: 0.16 (computed)
+- Friction ×2: flow, in L/s: 11.2 (computed)
+- Friction ×2: head, in m: 25 (computed)
+- Friction ×4: flow, in L/s: 8.5 (computed)
+- Friction ×4: head, in m: 27.1 (computed)
+- Friction ×10: flow, in L/s: 5.6 (computed)
+- Friction ×10: head, in m: 28.8 (computed)
+- Hydraulic power, open valve, in kW: 3.13 (computed)
+- Hydraulic power, friction ×2, in kW: 2.81 (computed)
+- Shaft power sketch at no flow, full speed, in kW: 3 (assumed)
+- Shaft power sketch's rise, kW per L/s: 0.1 (assumed)
+- Shaft power at no flow, in W: 3000 (computed)
+- Shaft power, open valve, in kW: 4.41 (computed)
+- Shaft power, friction ×2, in kW: 4.12 (computed)
+- Shaft power, friction ×4, in kW: 3.85 (computed)
+- Shaft power, friction ×10, in kW: 3.56 (computed)
+- Efficiency, open valve, in %: 71 (computed)
+- Efficiency, friction ×2, in %: 68 (computed)
+- Efficiency, friction ×4, in %: 60 (computed)
+- Efficiency, friction ×10, in %: 45 (computed)
+- Efficiency hump's peak flow, near, in L/s: 14 (computed)
+- Speed slider lowest, in %: 50 (control)
+- Speed slider highest, in %: 100 (control)
+- Speed slider step, in %: 5 (control)
+- Speed set on screen 7, in %: 80 (control)
+- Pump law: power of the speed for head: 2 (constant)
+- Pump law: power of the speed for power: 3 (constant)
+- 80% speed: most head, 30 × 0.8², in m: 19.2 (computed)
+- 80% speed, as a fraction: 0.8 (computed)
+- 80% speed: flow, in L/s: 9.6 (computed)
+- 80% speed: head, in m: 15.5 (computed)
+- 80% speed: shaft power, in kW: 2.15 (computed)
+- Speed set on screen 8, in %: 55 (control)
+- 55% speed, as a fraction: 0.55 (computed)
+- 55% speed: most head, 30 × 0.55², in m: 9.1 (computed)
+- Screen 8 wrong pick, 55% of 14.1, in L/s: 7.8 (computed)
+- Tank level slider lowest, in m: -6 (control)
+- Tank level slider highest, in m: 4 (control)
+- Tank level slider step, in m: 1 (control)
+- Tank level's opening setting, in m: 2 (control)
+- Tank level on screen 9, in m: -4 (control)
+- Tank level in screen 10's answer, in m: -3 (control)
+- Suction friction, m per (L/s)², sketched: 0.005 (assumed)
+- Suction friction at 14.1 L/s, in m: 1 (computed)
+- Allowance for the water's boiling pressure, in m: 0.3 (assumed)
+- NPSH required at no flow, full speed, in m: 2 (assumed)
+- NPSH required's rise, m per (L/s)², sketched: 0.015 (assumed)
+- NPSH required at 14.1 L/s, in m: 5 (computed)
+- NPSH available at +2 m, open valve, in m: 10.6 (computed)
+- NPSH available at −4 m, open valve, in m: 4.6 (computed)
+- NPSH available at −3 m, open valve, in m: 5.6 (computed)
+- Positive displacement pump's flow at full speed, no head, in L/s: 10 (assumed)
+- Its slip, L/s for each metre of head: 0.01 (assumed)
+- Its efficiency, as a fraction: 0.8 (assumed)
+- Positive displacement, open valve: flow, in L/s: 9.8 (computed)
+- Positive displacement, open valve: head, in m: 15.8 (computed)
+- Positive displacement, open valve: shaft power, in kW: 1.96 (computed)
+- Positive displacement, friction ×10: flow, in L/s: 9.4 (computed)
+- Positive displacement, friction ×10: head, in m: 62.7 (computed)
+- Positive displacement, friction ×10: shaft power, in kW: 7.39 (computed)
+- Screen 2 flow for a moment, in L/s: 10 (assumed)
+- Screen 2 pump's head at 10 L/s, 30 − 4, in m: 26 (computed)
+- Screen 2 pipe's need at 10 L/s, 10 + 6, in m: 16 (computed)
+- Screen 2 friction at 10 L/s, 0.06 × 100, in m: 6 (computed)
+- Screen 2 pump's fall at 10 L/s, 0.04 × 100, in m: 4 (computed)
+- Screen 2 spare head, 26 − 16, in m: 10 (computed)
+- Screen 6 wrong pick, 3.13 × 25 ÷ 22, in kW: 3.6 (computed)
+- Screen 6 wrong pick, unchanged, in kW: 3.1 (computed)
+- Screen 6 right pick, rounded, in kW: 2.8 (computed)
+- Screen 14 tank raised by, in m: 6 (assumed)
+- Screen 14 lift, in m: 16 (computed)
+- Screen 14 head to share, 30 − 16, in m: 14 (computed)
+- Screen 14 flow squared, 14 ÷ 0.1: 140 (computed)
+- Screen 14 flow, √140, in L/s: 11.8 (computed)
+- Screen 14 head, 30 − 0.04 × 140, in m: 24.4 (computed)
+- Screen 14 wrong pick, friction left out, √(14 ÷ 0.04), in L/s: 18.7 (computed)
+- Water trapped in the casing, say, in kg: 5 (assumed)
+- Warming of trapped water, 3,000 ÷ (5 × 3850), in °C per second: 0.16 (computed)
+- Warming of trapped water, in °C per minute, near: 9 (computed)
+- Seconds in a minute: 60 (constant)
+- Screen 12 wrong pick, specific heat left out, 3,000 ÷ 5, in °C a second: 600 (computed)
+- Water's boiling point at normal pressure, in °C: 100 (constant)
+
+## What the checks found (at 340, 720 and 1040 px wide)
+- Check failed: "Every demonstration screen, with the live line under it, keeps to about 90 words" (returned false)
+- Unlisted web address "https://www.pumpindustry.com.au/controlling-the-rate-of-flow-in-centrifugal-pumping-systems-and-impacts-on-efficiency": only the addresses under Sources may appear. Remove it, and the {source} that holds it.
+
+## How to fix the usual problems
+- A thrown error (also from a K.button press or a K.anim step): go to the body line it names; check element ids, variable names and the kit call signatures.
+- NaN or Infinity: guard the maths at the ends of every control's range (division by zero, log of 0, square root of a negative), or start the range where the rule makes sense.
+- A model output that is a list or object: K.model returns single numbers or short strings; keep lists in your own variables.
+- Too wide at 340 px: let rows wrap (flex-wrap), use width:100% and max-width:100%, give SVG a viewBox with width 100%, no fixed widths over 300 px, shorter labels.
+- Text cut off: shorten it or let it wrap, or give it room (a wider box, a bigger viewBox); never cut it off or hide the overflow. SVG labels printed over each other, even by a letter or two: move one, or place them with K.labels. A plot's axis title too long for a phone: shorten it (about 30 characters). A word split across two lines (often at Text size XL): size its grid columns or tiles in rem, not px (minmax(6rem, 1fr)), so they reflow to fewer, wider columns; or use a shorter word.
+- SVG text too small on a phone: font-size 13-16 in a drawing about 340 wide. A line or arrowhead through a label: place the label with K.labels and pass that line in avoid, or stop the line short of it. More labels than room (K.labels says avoid cannot be honoured): label fewer things, or move the names into a key under the drawing or a list beside it.
+- A readout's value printed elsewhere (a label, an aria-label or a plot label that follows it): while Dan answers a check the app hides only the readout and the .say line, so show the number in the readout alone and name the thing elsewhere.
+- Text hard to read (contrast) or a colour name: ink, muted, accent2, accent, warn or good (on-accent2 on navy), as var(--k-…) or K.color set in K.update, so it follows the theme.
+- A blank hole before Dan moves: hide only the answer (a line, a mark, a sentence), never a whole figure.
+- The first control far below the main figure (phone layout): put the visual and its controls together with K.stage(visual, controls), secondary figures below.
+- K.sound: frequencies 20 to 20,000 Hz (200 to 2,000 for anything Dan must hear on a phone), dur above 0 and at most 10 s, gain 0 to 1, a listed type; play it from a K.button press.
+- Navigation, links out, connections or frames: everything stays on this page (no <a href> or forms, no location changes, no WebSocket, XMLHttpRequest or iframes); name sources in words.
+- A failing check: work the expected value out again by hand. Fix whichever is wrong, the model or the check. Never delete a correct check or change its expected answer to pass. A tolerance that was unrealistically tight (a millionth, where square roots or small steps meet rounding) may be widened to a sensible one (a thousandth of the size).
+- Slow updates: sample curves less densely and do not rebuild large parts of the page on every change.
+- Missing ids: use exactly the ids listed; an output must be a key of the object K.model returns.
+- An unlisted web address: delete it, and the {source} that held it.
+- A target out of reach: make the model follow the lesson's rule with the lesson's ranges and opening values, so moving that one control brings the output to the target.
+
+## Sources
+The only web addresses this page may contain, each only as a K.check {source} on a check whose label restates what that source's quote says (a result of your rule, or a fact about your drawing, takes no source; the caption names a source in words). The app rejects any other:
+[1] Properties of seawater (https://talleylab.ucsd.edu/sio210/lect_2/lecture_2.html): "The density of seawater is about 1025 kg/m^3 and the specific heat is about 3850 J/(kg C)."
+[2] Some Physical Properties of Sea Water or, More than you ever wanted to know about the basic state variables of the ocea… (https://www.whoi.edu/science/PO/people/tjoyce/whoi-mit_course/notes/course_notes_1b.pdf): "δP = (1025)(9.81)(10) ~ 10 ⁵ Pa, which is the pressure at the bottom of the atmosphere."
+[3] Hydraulic_Pumps (https://web.eng.fiu.edu/arleon/courses/Fluid_Mechanics/Lectures/Pumps_unfilled.pdf): "The intersection of both curves represents the operating point for the system"
+[4] ABOUT PUMP CURVES (https://www.grundfos.com/content/dam/global/page-assets/learn/ecademy/pdfs/master-36-module-4-About-pump-curves.pdf): "The NPSH-value of a pump is the minimum absolute pressure that must be present at the suction side of the pump to avoid cavitation."
+[5] Why Start a Centrifugal Pump with the Discharge Valve Closed? (https://www.streampumps.com/pump-knowledge/start-centrifugal-pump-discharge-valve-closed.html): "At this no-flow condition, the pump builds maximum pressure (head), but the power required by the motor is at or near its minimum."
+[6] Positive Displacement Pump Protection (https://www.engineersedge.com/pumps/positive_disp_pump_prot.htm): "Positive displacement pumps are normally fitted with relief valves on the upstream side of their discharge valves to protect the pump and its discharge piping from over pressurization."
+[7] When does water boil? | Britannica (https://www.britannica.com/question/When-does-water-boil): "At sea level, atmospheric pressure is high, and water boils at 100 °C (212 °F); at higher altitudes it is lower, so water boils at a lower temperature."
+[8] Examples of Cavitation and Cavitation Damage (https://www.me.psu.edu/cimbala/me320web_Fall_2012/pdf/Cavitation_photographs.pdf): "Cavitation is usually undesirable because of the noise and the damage that it does to blade surfaces (pitting, etc.)."
+
+## Rules for this page
+- There is no guess to protect: show everything from the start (no k-after-move), curves and results included.
+- The lead line says what is drawn, plainly ("Water from a 5 m drop hits the blades of a wheel"), not what to do: the app gives the action above the frame. Example values are said once there ("an example stream: a 5 m drop, 20 kg of water each second"), then the drawing labels them plainly ("5 m"), never "for example" on the drawing.
+- Every label and arrow sits on, or starts from, the thing it is about: a force arrow starts on the part it pushes; a speed arrow on the part that moves. Anything the rule says turns or flows does so (K.anim), at a speed that follows its control.
+- The .say sentence must make sense on its own to someone who has just read the explanation: what is happening on screen now, cause then effect, in everyday words; no term, threshold or comparison the page or the explanation has not named; a number as part of its whole ("353 W of the stream's 981 W is carried off by the water"). Bad: "The buckets move slower than half the jet speed, so the water still leaves going backwards, taking 353 W away with it." Good: "The buckets are moving slowly, so the water bounces off them still moving fast, and carries 353 W of its 981 W away downstream."
+- A key for the main drawing sits inside the drawing; show each quantity once (a bar, a readout or a curve, not all three); every number drawn that is worked out (a speed from a drop) is explained in "What you're looking at", or is left off.
+- Draw the cause the explanation gives, not only its effect, and let Dan cause it (a drag, a push, a switch); include the setting where the effect does not happen.
+- Mark the brief's one quantity on the picture itself, with a label saying what it is and its value (a bracket between the two heights reading "2.4 m"); an output with a readout is marked without its number, which the readout alone shows (the app hides it while Dan answers a check).
+- A shaded band states something true of the axis it spans: inputs across x, outputs across y. To show many inputs giving nearly the same output, shade the narrow output band (regions {y0, y1}).
+- Draw every comparison the explanation makes the same way, in the same place, on the axis where the effect happens. A time period is a bracket or thin band along the time axis, not a tall block.
+- Give each reference line its own look and a label beside it; every styled line is in the key or labelled on the drawing.
+- Draw only what the brief, the rule or the explanation names, with the same names. An extra figure says on itself how to read it: what its line stands for and which way is which.
+- Show only the numbers listed above or computed from the rule, each written the way the explanation writes it (the same rounding).
+- Any example cases you choose are fair and representative, never picked to exaggerate the effect.
+- Money, health and law: show how it works, never advice, and never a guaranteed outcome.
+
+## The house kit (complete API reference)
+You write the BODY of one page: HTML, an optional `<style>`, then one inline `<script>` ending
+with `K.ready()`. It runs in a sandboxed iframe on Dan's phone (about 340 px wide, touch) and
+laptop, with the global `K` and the kit's stylesheet. No network or storage: no web
+addresses, `fetch`, `localStorage`, `alert` or `prompt`.
+
+### Page shape that works
+1. `<p class="lead">`: one line saying what is drawn (the app adds title and action).
+2. The main visual with its controls right under it: `K.stage('#scene', '#controls')` keeps the
+   pair on one phone screen. A choice that re-sorts the picture may sit above it.
+3. `<p class="say">`: one sentence that changes with the state and says why. Then
+   `<div class="k-readouts">` for numbers the drawing does not label.
+4. Secondary figures and anything that grows go below.
+5. `<p class="caption">`: one short sentence, at most 20 words: where the numbers come from ("A
+   sketch, not measured data") or the rule in the explanation's words. No new claim, no law or
+   term the explanation does not teach. The app shows what the model leaves out.
+
+### Keep the answer hidden until Dan moves
+Dan predicts before he plays: open on a setting the question is not about, and hide whatever
+gives the answer away until his first move:
+- class `k-after-move` on any element (a mark, an arrow, a sentence): hidden, its space kept.
+  Hide the answer, not the controls or a whole figure (a blank hole fails the test).
+- `K.readout({..., afterMove: true})` shows "?" until then; plot series and marks take `afterMove: true` too.
+- `K.moved` is true from then on: in `K.update`, write `K.moved ? answer : question`.
+- `K.afterMove(fn)` runs `fn` once at that moment; `K.reveal()` marks it from your handlers.
+
+### The pipeline
+Controls register themselves; their values form `params` = `{id: value}`.
+```
+K.model(fn)        fn(params) -> outputs {name: number | string}. Pure: no DOM, no lists or objects.
+K.update(fn)       fn(params, outputs): draw everything here. More than one is allowed.
+K.at(over)         -> outputs of the model at those params (others take each control's starting value)
+K.check(label, fn, {source?})   fn() must return exactly true
+K.ready()          call once, last: draws the opening state and runs the checks
+K.complete()       at the lesson's end
+K.params()  K.outputs()  K.refresh()   (refresh reruns the pipeline after you change your own state)
+```
+A readout whose id is an output key updates itself.
+
+### Controls
+Every control takes `into` (a selector or element). Ids are unique; use the lesson's ids exactly.
+```
+K.control({id, label, min, max, step, value, unit?, prefix?, fmt?, log?, snap?, hint?, into}) -> {el, get(), set(v)}
+K.choice({id, label, options: [value | {value, label}], value, hint?, into}) -> {el, get, set}
+K.toggle({id, label, value: false, hint?, into}) -> {el, get, set}
+K.stepper({id, steps: [title | {title, text}], value: 0, compact?, label?, into}) -> {el, get, set, setSteps(list)}
+K.button({label, press, secondary?, into}) -> {el, press(), setLabel(text)}
+K.drag(el, {control, toValue(x, y)}) -> {el}
+```
+`control` is a big slider with − / + buttons. Keep `unit` short; `fmt(v)` returns the whole text;
+`log: true` spans decades; `snap: [values]` lands a drag exactly on a setting the prediction or a
+check names. `choice`: 2-8 short named options; `value` is an option's value or its 0-based
+index. `stepper` walks a process with Back / Next (`compact: true` when your diagram shows the
+content). `button` is an action (Send it in): use it, not plain buttons. `drag` lets Dan move
+the thing itself: `toValue` maps the pointer (viewBox units; px from `el`'s top-left for HTML)
+to the control's value; the first touch counts as his move.
+
+### Outputs
+```
+K.readout({id, label, unit?, prefix?, decimals?, fmt?, big?, hint?, afterMove?, into}) -> {el, set(v), get(), text()}
+```
+One rounding everywhere a number appears: `decimals` matching the lesson text, and the `.say`
+sentence built with `K.fmt(v, {decimals})` or `readout.text()`. Labels under 30 characters.
+While Dan answers a lesson check, the app hides that output's readout and the `.say` lines:
+never repeat a readout's value elsewhere (a label, an aria-label).
+```
+K.plot(target, opts) -> {draw(opts), x(v), y(v), invert(px, py), el, canvas}
+```
+- `x`, `y`: `{min, max, label, log?, prefix?, unit?, fmt?, ticks?}`. Leave out `y.min`/`y.max` to fit the data.
+- `series`: `[{fn: x => y | points: [[x, y], ...], label?, color?, dash?, width?, fill?, dots?, gaps?, afterMove?}]`
+- `shade`: `[{between: [a, b], label?, color?, x0?, x1?}]`: fills between two series (by label), a
+  series and a constant, or two functions.
+- `marks`: `[{x, y, label?, color?, guides?, afterMove?}]`: a dot with a label pill; `guides` adds dashed lines to the axes.
+- `regions`: `[{x0, x1, label?} | {y0, y1, label?}]` (a band); `lines`: `[{x | y, label?}]` (a dashed line).
+- `label`: the text alternative; `height`; `after(ctx, plot)` draws extras using `plot.x()`, `plot.y()`.
+
+`draw(opts)` redraws with `opts` over the creation options: call it in `K.update`. Values must be
+finite (`gaps: true` only where a gap is real). Series are navy, then teal; `color: 'muted',
+dash: true` for a baseline.
+```
+K.bars(target, {max?, unit?, prefix?, decimals?, fmt?}) -> {draw(items)}      items: [{label, value, color?}], values >= 0
+K.anim({step(dt, t), reset?, label?, autoplay?, button?, into}) -> {el, play, pause, toggle, reset, playing()}
+```
+`anim` adds a Play button (text `label`); `reset` adds Reset. When a switch, button or drag
+already starts the motion, pass `button: false` and call `play()` from that control: one control
+per action. In `step` advance your state (`dt` in seconds) and redraw; return `false` to stop. To
+drive a slider, keep the exact value yourself (the slider moves in whole steps).
+
+### Sound
+```
+K.sound.tone(hz, {dur?, type?, gain?})   K.sound.chord([hz, ...], {dur?, stagger?})   K.sound.stop()   K.sound.mute(on)
+K.sound.hold(hz, {type?, gain?, max?}) -> {set({hz?, gain?}), stop(), playing()}
+```
+`dur` in seconds (at most 10). Sound plays only from a `K.button` press, never `K.update`; show
+what is sounding. `hold` keeps a tone going while `set()` follows a slider. Phones can't play
+below about 150 Hz: use 200 to 2,000 Hz.
+
+### Drawings and helpers
+```
+K.el(tag, attrs?, ...children)    attrs: class, style, on: {click: fn}, text, html, dataset, any attribute
+K.svg(tag, attrs?, ...children)   the same in the SVG namespace
+K.labels(group, [{x, y, text, anchor?, size?, class?, color?}], {avoid?}) -> [<text>]
+K.stage(visual, controls, {max?, beside?}) -> {el}
+K.fmt(v, {decimals?, sig?, prefix?, unit?, percent?, sign?, compact?}) -> '1,234.5', '−3', '2.5 × 10⁶'
+K.near(a, b, tol)   K.clamp(v, lo, hi)   K.lerp(a, b, t)   K.linspace(a, b, n)   K.color(role, alpha?)
+K.ease(p)   K.arrive(T, t0, dur?)   K.fade(el, a, rise?)
+```
+Give an `<svg>` a viewBox about 340 wide, `width="100%"`, `role="img"` and an `aria-label` that
+follows the state. Text 13-16 units, never under 12 (a phone shows 340 units at about 0.9x). A
+row of N labels gets about 300/N units each; label only what differs. Every label sits on, or
+points to, something drawn. `K.labels` places labels (13 units unless `size`) clear of other
+text, the edges and the lines or shapes in `avoid`: use it for labels that move or appear later.
+Put an angle's label inside its wedge, beyond the arc, hidden while the wedge is too narrow.
+`K.stage` fits the pair in `max` px (600) on a phone; `beside: false` keeps it stacked.
+
+Draw the mechanism as it physically works. If the explanation gives a reason (X because Y), draw
+Y so Dan can watch it; parts that fit are drawn fitting (teeth in teeth), never two identical
+icons joined by a line; whatever the rule says happens (slides, grips, multiplies) happens on screen.
+
+### Colour
+Colour carries meaning. Use these roles as `var(--k-…)` or `K.color('fill2')` (`K.color('accent2',
+0.3)` is see-through); a colour name fails the test.
+- Lines and text: `ink`, `muted` (secondary, comparisons), `accent2` (navy: the main thing,
+  controls), `accent` (teal: small labels, a second series), `warn` (red: warnings and mistakes
+  only), `good` (green: "done" only), `amber-line` (amber lines that must stand out).
+- Fills: `bg` (page), `panel`, `sunk`, `amber` (note box), `hl` (key-term highlighter), `fill1`
+  (area of the main thing), `fill2` (highlighted area, amber), `fill3` (area of a second thing).
+- `cat1`-`cat4` (blue, orange, magenta, aqua): telling equal things apart, never meaning; with a
+  key or labels; cat1 and cat2 first. A thing with a familiar colour (water, fire) never gets
+  another thing's colour: use the nearest role and label it. What is still there stays solid:
+  mark a state such as unused with a label, not by fading it, and key any dashed style.
+- Also `--k-line`, `--k-strong` (borders), `--k-on-accent2` (text on navy), `--k-font`, `--k-r` (radius).
+
+Never describe colours by lightness or hue in words Dan reads ("the dark square"): dark mode
+changes them.
+
+Classes: `muted`, `small`, `k-label` (small teal caps), `term` (key term), `note` (amber box),
+`warn-note`, `panel`, `row`, `grid2`, `big`, `k-btn` (`secondary`), and a legend:
+`<div class="key"><span><i class="swatch" style="background:var(--k-accent2)"></i>Your push</span>
+<span><i class="swatch line dash" style="color:var(--k-muted)"></i>The limit</span></div>`.
+
+### Rules for a great interactive
+- One idea. The answer to Dan's prediction shows within about 3 seconds of his first move (add
+  a K.check that it does). Include something Dan causes and a case that surprises. One or two
+  controls, three at most.
+- Phone first: nothing wider than 340 px, no fixed widths over 300 px, rows wrap, no hover-only
+  information, tap targets at least 44 px. Size tiles and grid columns in rem (`minmax(6rem,
+  1fr)`): text grows a quarter at Text size XL, and no word may split across two lines.
+- Every number shown is a control, computed by the rule shown, a constant from the lesson, an
+  example value named once in the lead, or a date from the lesson. Never invent data, rates or chances.
+- The `.say` sentence describes what is on screen now, plainly and warmly, and reads right at the
+  extremes ("none of the 100"). Never claim Dan did something ("When you slid it to 20"):
+  describe the state, or write conditionally ("Push it past 20 and…").
+- 3-5 `K.check` known answers worked out by hand: an edge case, a shape fact (rises, halves,
+  always last), and one answer from outside your formula. `source` may ONLY be a URL from the
+  lesson's own sources, and only on a check whose label restates what that source's quote says;
+  a result of your rule, or a fact about your drawing, takes none. Compare numbers with
+  `K.near(a, b, tol)`: tolerance about a millionth of the size, a thousandth where rounding meets roots.
+- `K.anim` for motion, never timers: soft, unhurried, nothing popping in. Parts arrive about 0.6
+  s apart by `K.fade(el, K.arrive(T, t0))`; travel and growth use `K.ease`; a demonstration takes
+  3-5 s. No `vh` units, `position: fixed` or `height: 100%`.
+- Ideas without numbers (mechanism, process, structure, history, concept): prefer a timeline
+  slider, a named choice, a sorter or a drag; use `K.stepper` only when every step changes the
+  drawing. Checks assert order and structure facts.
+- A timeline runs forward: a slider rising left to right, its `fmt` showing the date (−500 as
+  "500 BC"), or a stepper of named events in order. A lesson's calendar-year control keeps its
+  range, its `fmt` showing the year; years after the first date are for new controls. Each dated
+  event appears as he reaches its date.
+
+### The self-test
+Before Dan sees it, the app loads your body 340, 720 and 1040 px wide, runs every check, moves
+every control, button, animation and drag, reveals the after-move parts, and looks again at Text
+size XL and in the other theme. It fails on an exception, NaN or undefined on the page, an update
+over 150 ms, sideways overflow, text cut off or over other text, SVG text under 11 px on a phone,
+a line or arrowhead through a label, text under 3:1 contrast with what is behind it, a colour
+name, a blank hole until a move, or no `K.ready()`.
+
+### Example
+```html
+<p class="lead">Lengthen the string and watch each swing take longer.</p>
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+<p class="caption">Small swings only; g = 9.81 m/s² is gravity at the Earth's surface.</p>
+<script>
+  const g = 9.81;
+  const period = (L) => 2 * Math.PI * Math.sqrt(L / g);
+  K.control({ id: 'L', label: 'String length', min: 0.1, max: 3, step: 0.05, value: 1, unit: 'm', snap: [2], into: '#controls' });
+  K.stage('#plot', '#controls');
+  K.readout({ id: 'T', label: 'One full swing takes', unit: 's', decimals: 2, into: '#outs' });
+  const plot = K.plot('#plot', { x: { min: 0, max: 3, label: 'Length (m)' }, y: { min: 0, max: 4, label: 'Period (s)' } });
+  K.model((p) => ({ T: period(p.L) }));
+  K.update((p, o) => {
+    plot.draw({ series: [{ fn: period }], marks: [{ x: p.L, y: o.T, guides: true }] });
+    document.getElementById('say').textContent = !K.moved ? 'Make the string four times longer: how much longer is each swing?'
+      : 'A ' + K.fmt(p.L, { decimals: 2 }) + ' m string swings there and back every ' + K.fmt(o.T, { decimals: 2 }) + ' s. Four times the length only doubles that.';
+  });
+  K.check('No length, no swing time', () => K.near(period(0), 0));
+  K.check('A seconds pendulum (2 s per swing) is 0.994 m long', () => K.near(period(0.994), 2, 0.002),
+    { source: 'https://en.wikipedia.org/wiki/Seconds_pendulum' });
+  K.check('Four times the length doubles the period', () => K.near(K.at({ L: 2 }).T / K.at({ L: 0.5 }).T, 2, 1e-9));
+  K.ready();
+</script>
+```
+
+
+## The body that failed
+The body you just wrote (/home/user/Study-App/build/engineering/heat-and-fluids/i8.body8.x.html). You already have it; it is not repeated here. Return the complete corrected body.
+
+## Output
+Return ONLY the complete corrected body: HTML elements, an optional <style>, then one inline <script> that ends with K.ready(). No <html>, <head> or <body> tags, no markdown fences, no commentary before or after. Keep it under 40 KB.

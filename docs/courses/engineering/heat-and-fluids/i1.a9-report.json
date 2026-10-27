@@ -1,0 +1,198 @@
+{
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "It takes 4,200 J to raise the temperature of 1 kg of water by 1 °C: once 1 kg of ice has melted, 4.2 kJ more lifts it to 1 °C and 42 kJ more to 10 °C",
+        "ok": true,
+        "source": "https://www.bbc.co.uk/bitesize/guides/zpjpgdm/revision/4"
+      },
+      {
+        "label": "Heat of fusion of water is 334 J/g and heat of vaporization 2260 J/g: 1 kg stays at 0 °C until 334 kJ is in, and at 100 °C from 754 kJ until all of it has boiled away at 3,014 kJ",
+        "ok": true,
+        "source": "https://www.mtel.nesinc.com/Content/Docs/NES_Formulas_321.pdf"
+      },
+      {
+        "label": "Energy that enters during a phase change causes no temperature change, which is why it is known as latent heat: at every mass, energy put in along either flat line leaves the temperature where it was, and energy put in on the climb raises it",
+        "ok": true
+      },
+      {
+        "label": "The energy needed depends on the mass, the specific heat capacity and the temperature change: twice the mass needs twice the energy for the same rise, so its line climbs half as steeply",
+        "ok": true
+      },
+      {
+        "label": "Seawater's specific heat is about 3850 J/(kg C): 2 kg each second warming 10 °C carries 77,000 J each second, which is 77 kW",
+        "ok": true,
+        "source": "https://talleylab.ucsd.edu/sio210/lect_2/lecture_2.html"
+      },
+      {
+        "label": "The heater time is the energy put in over the heater's power: 334 kJ at 3 kW takes about 111 s, and at 1 kW it takes 334 s",
+        "ok": true
+      },
+      {
+        "label": "Every number the screens print comes from the rule: 420, 588 and 210 kJ; 63 kJ and 4.2 MJ, over 60 times as much; 588 and 1,050 kJ; 48 and 60 °C; 840, 420 and 210 kJ; over five times; 112 s and 12.6 minutes; 900 kJ, about 0.4 kg and 314 °C; 80, 353 and 373 K; 77, 84 and 7.7 kW; 167, 210, 377 and 754 kJ",
+        "ok": true
+      },
+      {
+        "label": "Each puzzle offers three different answers including its right one, every wrong answer has its own hint, and before Check nothing on its picture shows the answer or a red mark",
+        "ok": true
+      },
+      {
+        "label": "A wrong pick is drawn in red where it can be: 48 °C and 60 °C off the flat line, climbs that stop at 420 kJ and 210 kJ, a climb on to 314 °C, a bracket for boiling it all away, the slips 588 kJ and 210 kJ, and 353 K and 373 K ringed; a right answer draws no red",
+        "ok": true
+      },
+      {
+        "label": "A right answer draws the rule's result: 1 kg after 200 kJ still at 0 °C; 2 kg at 100 °C after 840 kJ more; 1 kg still at 100 °C after 900 kJ more, with 0.4 kg boiled away; 0.5 kg at 100 °C after 377 kJ",
+        "ok": true
+      },
+      {
+        "label": "The graph draws itself from the rule: the curve ends at the dot, it stays at 0 °C while any ice is left, the thermometer reads the same temperature in °C and in K (°C + 273), and the bar's two parts add up to the energy put in",
+        "ok": true
+      },
+      {
+        "label": "The cup's and the tank's bars share one scale: 63 kJ against 4,200 kJ, so the tank's bar is over 60 times as long",
+        "ok": true
+      },
+      {
+        "label": "Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer's motion, right or wrong, within 2 s",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "mass",
+      "power",
+      "energy"
+    ],
+    "readouts": [
+      "energyIn",
+      "heaterTime"
+    ],
+    "outputs": [
+      "waterTemp",
+      "energyIn",
+      "heaterTime"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Screen",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "steps": [
+          "Still there?",
+          "Hotter is not more",
+          "Kettle or tank",
+          "200 kJ into ice",
+          "Melting",
+          "The climb",
+          "2 kg to 100 °C",
+          "Boiling",
+          "Five minutes at 100 °C",
+          "Two scales",
+          "A rise in kelvin",
+          "A seawater cooler",
+          "Ice to 100 °C"
+        ],
+        "value": 0
+      },
+      {
+        "id": "mass",
+        "kind": "control",
+        "label": "Mass",
+        "min": 0.5,
+        "max": 2,
+        "step": 0.1,
+        "log": false,
+        "value": 1,
+        "shown": false,
+        "snap": [
+          1,
+          2
+        ]
+      },
+      {
+        "id": "power",
+        "kind": "control",
+        "label": "Heater power",
+        "min": 1,
+        "max": 3,
+        "step": 0.5,
+        "log": false,
+        "value": 3,
+        "shown": false
+      },
+      {
+        "id": "energy",
+        "kind": "control",
+        "label": "Energy put in",
+        "min": 0,
+        "max": 6100,
+        "step": 1,
+        "log": false,
+        "value": 0,
+        "shown": false
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Play again",
+      "Back",
+      "Continue",
+      "Start again",
+      "Heat",
+      "Demonstration"
+    ],
+    "answers": [],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ]
+  },
+  "moved": [
+    "step = 4 (the first step that shows a control)",
+    "mass = 1.625",
+    "power = 2.5",
+    "energy = 4575"
+  ],
+  "shots": [
+    "/home/user/Study-App/build/engineering/heat-and-fluids/i1.a9-360-light.png",
+    "/home/user/Study-App/build/engineering/heat-and-fluids/i1.a9-360-light-moved.png",
+    "/home/user/Study-App/build/engineering/heat-and-fluids/i1.a9-360-light-end.png",
+    "/home/user/Study-App/build/engineering/heat-and-fluids/i1.a9-360-dark.png",
+    "/home/user/Study-App/build/engineering/heat-and-fluids/i1.a9-360-dark-moved.png",
+    "/home/user/Study-App/build/engineering/heat-and-fluids/i1.a9-360-dark-end.png",
+    "/home/user/Study-App/build/engineering/heat-and-fluids/i1.a9-1280-light.png",
+    "/home/user/Study-App/build/engineering/heat-and-fluids/i1.a9-1280-light-moved.png",
+    "/home/user/Study-App/build/engineering/heat-and-fluids/i1.a9-1280-light-end.png",
+    "/home/user/Study-App/build/engineering/heat-and-fluids/i1.a9-1280-dark.png",
+    "/home/user/Study-App/build/engineering/heat-and-fluids/i1.a9-1280-dark-moved.png",
+    "/home/user/Study-App/build/engineering/heat-and-fluids/i1.a9-1280-dark-end.png"
+  ]
+}

@@ -1,0 +1,917 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-27T05:56:25.421Z",
+ "startedAt": "2026-10-27T05:56:25.421Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i8",
+  "title": "Where the pump settles, and its limits",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the operating point sliding up the pump's curve to less flow and more head, as the system curve steepens, when you drag the valve closed.",
+   "title": "Where the curves meet",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Screen",
+     "min": 0,
+     "max": 13,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [
+    {
+     "id": "flow",
+     "label": "Flow",
+     "unit": "L/s",
+     "decimals": 1
+    },
+    {
+     "id": "head",
+     "label": "Head",
+     "unit": "m",
+     "decimals": 1
+    },
+    {
+     "id": "shaftPower",
+     "label": "Shaft power",
+     "unit": "kW",
+     "decimals": 2
+    }
+   ],
+   "whatAmILookingAt": "There are fourteen small screens. The main picture has two parts. On the left, a pump draws seawater from a suction tank. It sends it through a pipe and a valve up to a high tank. The lift between the two water surfaces is 10 m. The dashed line for the suction level stops short of the pump. On the right is a graph of head against flow. Head runs up the side, in metres, and flow along the bottom, in L/s. On a phone, the graph sits below the pump.\n\nThe pump's curve is a sketch of the usual shape, not a real pump's. At full speed it gives 30 m at no flow. Its head falls as 30 − 0.04q², with q the flow in L/s. The system curve is the 10 m lift plus 0.06q² of friction with the valve open. A dot marks where the two curves cross. That is the operating point. Dashed lines run from it down to its flow and across to its head. The dot comes from setting the two heads equal. At the start, 30 − 0.04q² = 10 + 0.06q². So 0.1q² = 20 and q² = 200. That gives about 14.1 L/s, at 30 − 0.04 × 200 = 22.0 m.\n\nA valve slider has five stops: open, friction ×2, friction ×4, friction ×10 and shut. Each stop multiplies the pipe's 0.06, so the system curve bends up more steeply. At friction ×2 the sum is 0.04 + 0.12 = 0.16. So q² = 20 ÷ 0.16 = 125, about 11.2 L/s at 25.0 m. Friction ×4 gives about 8.5 L/s at 27.1 m. Friction ×10 gives about 5.6 L/s at 28.8 m. Shut gives no flow, and the dot sits at the top of the pump's curve, 30 m. The valve starts open.\n\nA speed slider runs from 50% to 100% in steps of 5, starting at 100%. The pump laws say the flow goes with the speed, the head with the speed squared, and the power with the speed cubed. So at a speed fraction s, the pump's curve is 30s² − 0.04q². When 30s² is no more than the 10 m lift, the whole pump curve sits below the system curve. Then no water flows.\n\nBelow the graph, on the same flow scale, is the efficiency hump. The power the water takes is the hydraulic power, ρ × g × Q × H. Here ρ is seawater's density, 1025 kg/m³, and g is 9.81. Q is the flow in m³/s, and H is the head. At the start that is 1025 × 9.81 × 0.0141 × 22, about 3.13 kW. The shaft power is a sketch. At full speed it is 3.0 kW plus 0.1 kW for each L/s. At speed s it is s³ × (3.0 + 0.1q ÷ s) kW. At the start that is about 4.41 kW. The efficiency is the hydraulic power ÷ the shaft power. Its hump peaks near 14 L/s at about 71%. A marker shows the efficiency at the operating flow.\n\nA suction panel holds a tank level slider. It runs from −6 m to +4 m in steps of 1, starting at +2 m. The level is the height of the tank's surface above the pump's centre line, so minus means below the pump. The high tank moves with it. So the lift stays 10 m, and only the suction changes. Two bars stand side by side, in metres. NPSH available starts with the atmosphere, 100 kPa, which holds up about 9.9 m of seawater. Add the level. Take off the suction pipe's friction of 0.005q². Take off 0.3 m for the water's boiling pressure. NPSH required is a sketch, 2s² + 0.015q². At the start, available is 9.9 + 2 − 1.0 − 0.3, about 10.6 m. Required is about 5.0 m. When available falls below required, both bars turn red. Bubbles form at the impeller's eye and collapse further in.\n\nA switch swaps the centrifugal pump for a positive displacement pump. Its flow is 10s L/s, less a slip of 0.01 L/s for each metre of head. So its curve stands nearly upright. Its shaft power is the hydraulic power ÷ 0.8, which is its efficiency here. At the shut stop no crossing is drawn. A red warning says its pressure would climb until something gives.\n\nThree readouts show the flow, the head and the shaft power. On a phone they wrap onto two rows.\n\nScreen by screen. Screen 1 shows the pump's curve alone. The dot slides down it from 30 m at no flow. Then the system curve draws in from 10 m. The dot stops at the crossing, about 14.1 L/s and 22.0 m. Its words: a centrifugal pump gives its most head at no flow, and less as the flow grows. This example pump gives 30 − 0.04q² metres, with q in L/s. The pipe needs 10 + 0.06q² metres. Where the two meet, the pump gives just what the pipe needs. Setting them equal gives 0.1q² = 20, so q² = 200.\n\nScreen 2 asks a question. For a moment the flow is 10 L/s. There the pump gives 30 − 4 = 26 m, and the pipe needs 10 + 6 = 16 m. What does the flow do next? It rises towards 14.1 L/s, it stays at 10 L/s, or it falls. The hint: spare head is an unbalanced push on the water. The why: the spare 10 m speeds up the water in the pipe. So the flow climbs until the two heads match.\n\nScreen 3 shows the valve. Dragging the valve slider from open to friction ×2 bends the system curve up more steeply. The dot slides up the pump's curve to about 11.2 L/s and 25.0 m. Read without the slider, the screen shows that finished picture at friction ×2.\n\nScreen 4 asks a question. The outlet gauge sits between the pump and the valve. You close the valve a little. What happens to the flow and the gauge? Less flow and a higher gauge, less flow and a lower gauge, or the same flow and a higher gauge. The hint: the dot can only move along the pump's curve. The why: the gauge reads the suction pressure plus what the pump adds, so it rises with the pump's head.\n\nScreen 5 steps the valve from open to shut. The shaft power reads about 4.41, 4.12, 3.85, 3.56 and 3.0 kW. The efficiency marker drops from about 71% to 68%, 60% and 45%. Its words: the head rises a little while the flow falls a lot, so the pump does less work. Pumps are chosen to run near the efficiency peak, like this one with the valve open. At a shut valve its power is near its least, and the motor's current falls with it. Read without moving, the screen shows the shut valve and 3.0 kW.\n\nScreen 6 asks a question. At friction ×2, the pump gives about 11.2 L/s of seawater at 25 m. What power does the water take? About 2.8 kW, about 3.6 kW or about 3.1 kW. The hint: Q goes in m³/s. Scaling 3.13 kW by the head alone gives the wrong 3.6 kW. Expecting no change gives 3.1 kW.\n\nScreen 7 shows the speed. With the valve open, the speed slider is dragged to 80%. The pump's curve sinks, and its top falls to 30 × 0.8² = 19.2 m. The crossing moves to about 9.6 L/s and 15.5 m. The shaft power falls to about 2.15 kW. For comparison, a faint dot shows the same pump at full speed, throttled instead to friction ×4: about 8.5 L/s for about 3.85 kW. Its words: slowing the pump cuts the flow without burning head in a valve. Read without the slider, the screen shows the 80% picture.\n\nScreen 8 asks a question. The pump is slowed to 55%. Its most head is now 30 × 0.55², about 9.1 m, and the lift is 10 m. What flow does it give? None, about 7.8 L/s, or about 14.1 L/s at less head. The hint: compare its most head with the lift. Picking 7.8 L/s draws the slowed pump's curve under the system curve, with no crossing.\n\nScreen 9 shows the suction. The tank level slider is dragged from +2 m down to −4 m. NPSH available falls from about 10.6 m to about 4.6 m. That is under the 5.0 m required. The bars turn red, and bubbles form and collapse at the impeller. Its words: water boils at 100 °C at normal pressure, and cooler at lower pressure. NPSH required is the least absolute pressure the pump needs at its inlet. The pressure falls further on the way into the impeller's eye. The suction must offer more. Both tanks move together, so only the suction changes. Read without the slider, the screen shows the tank at −4 m and the red bars.\n\nScreen 10 asks a question. At −4 m with the valve open, the pump cavitates. Which one stops it? Raise the suction tank's level, throttle a valve in the suction pipe, or run the pump faster. The hint: which one adds pressure at the pump's inlet? The why: cavitation rattles and can pit the impeller, so it is worth stopping. At −3 m, available is about 5.6 m, above the 5.0 m required. A suction valve's friction comes off what is available. A faster pump needs more.\n\nScreen 11 flips the switch to the positive displacement pump. The valve is dragged from open to friction ×10. Its flow moves only from about 9.8 to 9.4 L/s. Its head climbs from about 15.8 to 62.7 m. Its shaft power rises from about 1.96 to 7.39 kW. Its words: it traps a set volume each turn and pushes it on, so its speed sets its flow. Read without the controls, the screen shows this pump at friction ×10.\n\nScreens 12 to 14 mix the ideas. Screen 12: a centrifugal pump runs on against a shut valve. Its shaft puts 3.0 kW into the 5 kg of seawater trapped in its casing, and 3850 J warms 1 kg of seawater by 1 °C. How fast does the water warm? Not at all, as nothing flows; about 600 °C a second; or about 0.16 °C a second. The hint: use Q = mcΔT, one second at a time. The 600 pick leaves out the specific heat. A graph of the warming against time climbs to near 9 °C after a minute. The why adds that warmer water boils at a higher pressure. So NPSH available falls, and the pump heads for cavitation.\n\nScreen 13: a centrifugal fire pump's outlet gauge reads higher than usual. Its ammeter and its flow read lower. What is most likely? Something on the discharge side is choking it, such as a valve on the fire main left partly shut. A discharge valve has been opened further. Or the pump is running faster. The hint: which change moves the dot up the pump's curve?\n\nScreen 14: the high tank is raised 6 m, so the lift is 16 m on the same pipe. Where does the pump settle? About 11.8 L/s at 24.4 m, about 14.1 L/s as before, or about 18.7 L/s. The working: 30 − 0.04q² = 16 + 0.06q², so 0.1q² = 14 and q² = 140. The 18.7 L/s pick leaves out the pipe's friction. Where it can be, a wrong pick is drawn on the picture, so you see where it fails.",
+   "ignores": "The pump's head curve, its shaft power and its NPSH required are sketches of the usual shapes, not a real pump's. A real pump's curves come from its maker's tests. The flow is drawn settling at once. A real flow takes a moment, as the water in the pipe speeds up or slows. The tanks' levels are held still as the water moves. The level slider moves both tanks together. A suction tank that falls on its own also adds to the lift. That cuts the flow and the NPSH required. The pump laws are close for modest speed changes, and less so for large ones. The 0.3 m for the water's boiling pressure is held fixed, though it rises as the water warms. Cavitation is drawn as on or off. In a real pump it creeps in as the margin shrinks. That is why a margin is kept. The positive displacement pump's slip and efficiency are held fixed. Bends and fittings are rolled into the pipe's friction.",
+   "numbers": [
+    {
+     "label": "Screens in the lesson",
+     "value": 14,
+     "kind": "assumed"
+    },
+    {
+     "label": "Readouts",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Readout rows on a phone",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Gravity's pull, g, in N per kg",
+     "value": 9.81,
+     "kind": "constant"
+    },
+    {
+     "label": "Seawater's density, in kg/m³",
+     "value": 1025,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "Seawater's specific heat, in J per kg per °C",
+     "value": 3850,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "Atmosphere, rounded, in kPa",
+     "value": 100,
+     "kind": "constant",
+     "source": 2
+    },
+    {
+     "label": "Atmosphere as seawater head, 100,000 ÷ (1025 × 9.81), in m",
+     "value": 9.9,
+     "kind": "computed"
+    },
+    {
+     "label": "Lift between the two water surfaces, in m",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Pump's head at no flow, full speed, in m",
+     "value": 30,
+     "kind": "assumed"
+    },
+    {
+     "label": "Pump curve's fall, m per (L/s)², sketched",
+     "value": 0.04,
+     "kind": "assumed"
+    },
+    {
+     "label": "Pipe's friction with the valve open, m per (L/s)²",
+     "value": 0.06,
+     "kind": "assumed"
+    },
+    {
+     "label": "Sum of the two, 0.04 + 0.06",
+     "value": 0.1,
+     "kind": "computed"
+    },
+    {
+     "label": "Head to share, 30 − 10, in m",
+     "value": 20,
+     "kind": "computed"
+    },
+    {
+     "label": "Flow squared at the crossing, 20 ÷ 0.1",
+     "value": 200,
+     "kind": "computed"
+    },
+    {
+     "label": "Open valve: flow, √200, in L/s",
+     "value": 14.1,
+     "kind": "computed"
+    },
+    {
+     "label": "Open valve: flow, in m³/s",
+     "value": 0.0141,
+     "kind": "computed"
+    },
+    {
+     "label": "Open valve: head, 30 − 0.04 × 200, in m",
+     "value": 22,
+     "kind": "computed"
+    },
+    {
+     "label": "Valve stop: friction ×2",
+     "value": 2,
+     "kind": "control"
+    },
+    {
+     "label": "Valve stop: friction ×4",
+     "value": 4,
+     "kind": "control"
+    },
+    {
+     "label": "Valve stop: friction ×10",
+     "value": 10,
+     "kind": "control"
+    },
+    {
+     "label": "Valve stops",
+     "value": 5,
+     "kind": "control"
+    },
+    {
+     "label": "Friction ×2: friction term, 0.06 × 2",
+     "value": 0.12,
+     "kind": "computed"
+    },
+    {
+     "label": "Friction ×2: flow squared, 20 ÷ 0.16",
+     "value": 125,
+     "kind": "computed"
+    },
+    {
+     "label": "Friction ×2: sum, 0.04 + 0.12",
+     "value": 0.16,
+     "kind": "computed"
+    },
+    {
+     "label": "Friction ×2: flow, in L/s",
+     "value": 11.2,
+     "kind": "computed"
+    },
+    {
+     "label": "Friction ×2: head, in m",
+     "value": 25,
+     "kind": "computed"
+    },
+    {
+     "label": "Friction ×4: flow, in L/s",
+     "value": 8.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Friction ×4: head, in m",
+     "value": 27.1,
+     "kind": "computed"
+    },
+    {
+     "label": "Friction ×10: flow, in L/s",
+     "value": 5.6,
+     "kind": "computed"
+    },
+    {
+     "label": "Friction ×10: head, in m",
+     "value": 28.8,
+     "kind": "computed"
+    },
+    {
+     "label": "Hydraulic power, open valve, in kW",
+     "value": 3.13,
+     "kind": "computed"
+    },
+    {
+     "label": "Hydraulic power, friction ×2, in kW",
+     "value": 2.81,
+     "kind": "computed"
+    },
+    {
+     "label": "Shaft power sketch at no flow, full speed, in kW",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Shaft power sketch's rise, kW per L/s",
+     "value": 0.1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Shaft power at no flow, in W",
+     "value": 3000,
+     "kind": "computed"
+    },
+    {
+     "label": "Shaft power, open valve, in kW",
+     "value": 4.41,
+     "kind": "computed"
+    },
+    {
+     "label": "Shaft power, friction ×2, in kW",
+     "value": 4.12,
+     "kind": "computed"
+    },
+    {
+     "label": "Shaft power, friction ×4, in kW",
+     "value": 3.85,
+     "kind": "computed"
+    },
+    {
+     "label": "Shaft power, friction ×10, in kW",
+     "value": 3.56,
+     "kind": "computed"
+    },
+    {
+     "label": "Efficiency, open valve, in %",
+     "value": 71,
+     "kind": "computed"
+    },
+    {
+     "label": "Efficiency, friction ×2, in %",
+     "value": 68,
+     "kind": "computed"
+    },
+    {
+     "label": "Efficiency, friction ×4, in %",
+     "value": 60,
+     "kind": "computed"
+    },
+    {
+     "label": "Efficiency, friction ×10, in %",
+     "value": 45,
+     "kind": "computed"
+    },
+    {
+     "label": "Efficiency hump's peak flow, near, in L/s",
+     "value": 14,
+     "kind": "computed"
+    },
+    {
+     "label": "Speed slider lowest, in %",
+     "value": 50,
+     "kind": "control"
+    },
+    {
+     "label": "Speed slider highest, in %",
+     "value": 100,
+     "kind": "control"
+    },
+    {
+     "label": "Speed slider step, in %",
+     "value": 5,
+     "kind": "control"
+    },
+    {
+     "label": "Speed set on screen 7, in %",
+     "value": 80,
+     "kind": "control"
+    },
+    {
+     "label": "Pump law: power of the speed for head",
+     "value": 2,
+     "kind": "constant"
+    },
+    {
+     "label": "Pump law: power of the speed for power",
+     "value": 3,
+     "kind": "constant"
+    },
+    {
+     "label": "80% speed: most head, 30 × 0.8², in m",
+     "value": 19.2,
+     "kind": "computed"
+    },
+    {
+     "label": "80% speed, as a fraction",
+     "value": 0.8,
+     "kind": "computed"
+    },
+    {
+     "label": "80% speed: flow, in L/s",
+     "value": 9.6,
+     "kind": "computed"
+    },
+    {
+     "label": "80% speed: head, in m",
+     "value": 15.5,
+     "kind": "computed"
+    },
+    {
+     "label": "80% speed: shaft power, in kW",
+     "value": 2.15,
+     "kind": "computed"
+    },
+    {
+     "label": "Speed set on screen 8, in %",
+     "value": 55,
+     "kind": "control"
+    },
+    {
+     "label": "55% speed, as a fraction",
+     "value": 0.55,
+     "kind": "computed"
+    },
+    {
+     "label": "55% speed: most head, 30 × 0.55², in m",
+     "value": 9.1,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 8 wrong pick, 55% of 14.1, in L/s",
+     "value": 7.8,
+     "kind": "computed"
+    },
+    {
+     "label": "Tank level slider lowest, in m",
+     "value": -6,
+     "kind": "control"
+    },
+    {
+     "label": "Tank level slider highest, in m",
+     "value": 4,
+     "kind": "control"
+    },
+    {
+     "label": "Tank level slider step, in m",
+     "value": 1,
+     "kind": "control"
+    },
+    {
+     "label": "Tank level's opening setting, in m",
+     "value": 2,
+     "kind": "control"
+    },
+    {
+     "label": "Tank level on screen 9, in m",
+     "value": -4,
+     "kind": "control"
+    },
+    {
+     "label": "Tank level in screen 10's answer, in m",
+     "value": -3,
+     "kind": "control"
+    },
+    {
+     "label": "Suction friction, m per (L/s)², sketched",
+     "value": 0.005,
+     "kind": "assumed"
+    },
+    {
+     "label": "Suction friction at 14.1 L/s, in m",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Allowance for the water's boiling pressure, in m",
+     "value": 0.3,
+     "kind": "assumed"
+    },
+    {
+     "label": "NPSH required at no flow, full speed, in m",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "NPSH required's rise, m per (L/s)², sketched",
+     "value": 0.015,
+     "kind": "assumed"
+    },
+    {
+     "label": "NPSH required at 14.1 L/s, in m",
+     "value": 5,
+     "kind": "computed"
+    },
+    {
+     "label": "NPSH available at +2 m, open valve, in m",
+     "value": 10.6,
+     "kind": "computed"
+    },
+    {
+     "label": "NPSH available at −4 m, open valve, in m",
+     "value": 4.6,
+     "kind": "computed"
+    },
+    {
+     "label": "NPSH available at −3 m, open valve, in m",
+     "value": 5.6,
+     "kind": "computed"
+    },
+    {
+     "label": "Positive displacement pump's flow at full speed, no head, in L/s",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Its slip, L/s for each metre of head",
+     "value": 0.01,
+     "kind": "assumed"
+    },
+    {
+     "label": "Its efficiency, as a fraction",
+     "value": 0.8,
+     "kind": "assumed"
+    },
+    {
+     "label": "Positive displacement, open valve: flow, in L/s",
+     "value": 9.8,
+     "kind": "computed"
+    },
+    {
+     "label": "Positive displacement, open valve: head, in m",
+     "value": 15.8,
+     "kind": "computed"
+    },
+    {
+     "label": "Positive displacement, open valve: shaft power, in kW",
+     "value": 1.96,
+     "kind": "computed"
+    },
+    {
+     "label": "Positive displacement, friction ×10: flow, in L/s",
+     "value": 9.4,
+     "kind": "computed"
+    },
+    {
+     "label": "Positive displacement, friction ×10: head, in m",
+     "value": 62.7,
+     "kind": "computed"
+    },
+    {
+     "label": "Positive displacement, friction ×10: shaft power, in kW",
+     "value": 7.39,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 2 flow for a moment, in L/s",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 2 pump's head at 10 L/s, 30 − 4, in m",
+     "value": 26,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 2 pipe's need at 10 L/s, 10 + 6, in m",
+     "value": 16,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 2 friction at 10 L/s, 0.06 × 100, in m",
+     "value": 6,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 2 pump's fall at 10 L/s, 0.04 × 100, in m",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 2 spare head, 26 − 16, in m",
+     "value": 10,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 6 wrong pick, 3.13 × 25 ÷ 22, in kW",
+     "value": 3.6,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 6 wrong pick, unchanged, in kW",
+     "value": 3.1,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 6 right pick, rounded, in kW",
+     "value": 2.8,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 14 tank raised by, in m",
+     "value": 6,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 14 lift, in m",
+     "value": 16,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 14 head to share, 30 − 16, in m",
+     "value": 14,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 14 flow squared, 14 ÷ 0.1",
+     "value": 140,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 14 flow, √140, in L/s",
+     "value": 11.8,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 14 head, 30 − 0.04 × 140, in m",
+     "value": 24.4,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 14 wrong pick, friction left out, √(14 ÷ 0.04), in L/s",
+     "value": 18.7,
+     "kind": "computed"
+    },
+    {
+     "label": "Water trapped in the casing, say, in kg",
+     "value": 5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Warming of trapped water, 3,000 ÷ (5 × 3850), in °C per second",
+     "value": 0.16,
+     "kind": "computed"
+    },
+    {
+     "label": "Warming of trapped water, in °C per minute, near",
+     "value": 9,
+     "kind": "computed"
+    },
+    {
+     "label": "Seconds in a minute",
+     "value": 60,
+     "kind": "constant"
+    },
+    {
+     "label": "Screen 12 wrong pick, specific heat left out, 3,000 ÷ 5, in °C a second",
+     "value": 600,
+     "kind": "computed"
+    },
+    {
+     "label": "Water's boiling point at normal pressure, in °C",
+     "value": 100,
+     "kind": "constant"
+    }
+   ]
+  },
+  "explain": {
+   "text": "A centrifugal pump doesn't choose its own flow. It settles at the one flow where the head it gives equals the head the pipe needs. On a graph of head against flow, that is where the pump's curve crosses the system curve. Close a valve, and the crossing slides to less flow and more head.\n\nStart with the pump alone, at a steady speed. Its impeller flings the water outward and gives it head. With the outlet shut, no water flows and the head is at its highest. As the flow grows, the head falls away. The blades' shape and the losses inside the pump take more of the head as more water passes. Take a pump that gives 30 m at no flow. Its head falls as 30 − 0.04q², where q is the flow in L/s. Now lay a system curve over it: a lift of 10 m plus friction of 0.06q². Where the two meet, the pump gives exactly what the pipe needs. That is the [[operating point]].[^3] Set the two equal: 30 − 0.04q² = 10 + 0.06q². That gives 0.1q² = 20, so q² = 200. The pump runs at about 14.1 L/s and 22 m. It is the same sum as finding where two lines cross, with curves in place of lines. Why does it stay there? At 10 L/s the pump would give 26 m, but the pipe needs only 16 m. The spare 10 m is an unbalanced push, so the water in the pipe speeds up. Past the crossing, the pipe needs more than the pump gives, so the water slows. Either way, the flow comes back to the crossing.\n\nThe crossing has limits. Cool water boils if its pressure falls low enough. The pressure is lowest where the water enters the impeller. If the water boils there, vapour bubbles form. They collapse as the pressure rises further in. That is [[cavitation]]. It rattles and can pit the impeller. Each pump needs a least absolute pressure at its suction to avoid it. That is its [[net positive suction head]] required, or NPSH for short.[^4] What the suction offers starts with the atmosphere's push on the tank. Add the tank's height above the pump. Take off the suction pipe's friction and the water's boiling pressure. What is left must stay above what the pump needs. This is a simplified model. Its curves are sketches, not a real pump's.\n\nPartly closing the discharge valve adds friction. So the system curve bends up more steeply. Double the friction, and the crossing slides up the pump's curve to about 11.2 L/s and 25 m. The outlet gauge reads higher, yet less water flows. The power the water takes is ρgQH. It falls from about 3.13 kW to about 2.81 kW. The flow fell by about a fifth, but the head rose by only about a seventh. The pump's curve flattens near its top, so the head cannot climb far to make up. At a shut valve, the power the motor needs is at or near its least.[^5] As the valve opens and the flow rises, the motor's current rises too. Many expect a choked centrifugal pump to work harder. Most do less. Choking the flow eases the motor. The pump moves much less water for only a little more head.\n\n**A centrifugal pump settles where its curve crosses the system curve, so closing a valve moves it to less flow and more head.**"
+  },
+  "analogy": {
+   "text": "Think of a charger feeding a battery through long leads. The charger's output voltage sags as it gives more current. In the same way, the pump's head falls as it gives more flow. The battery and the leads need the battery's voltage plus the drop in the leads. In the same way, the pipe needs its lift plus its friction. The current settles where the two voltages match. Add resistance in the leads, and the current falls while the charger's output voltage rises. The charger then draws less from its own supply, since that draw goes with the current it gives. The throttled pump's motor draws less in the same way.",
+   "breaks": "A charger's sag is a straight line, set by its internal resistance. A pump's head falls with the flow squared, and pipe friction grows the same way. A charger with no load draws very little. A pump at a shut valve still turns its impeller in the water. So it draws a good share of its full power. Nothing in the circuit matches cavitation."
+  },
+  "practice": {
+   "text": "**Safe first:** Don't start or run a positive displacement pump against a shut discharge valve. Its pressure climbs until something gives. That is why it is normally fitted with a relief valve ahead of its discharge valve.[^6] Most centrifugal pumps can start against a shut discharge valve. There the power is at or near its least.[^5] But don't leave one running shut. Nearly all its shaft power goes into the trapped water. Say 3.0 kW goes into 5 kg of seawater in the casing. That warms it by 3,000 ÷ (5 × 3850), about 0.16 °C a second. That is near 9 °C a minute, before any heat escapes. Water boils at 100 °C at normal pressure, and cooler at lower pressure.[^7] So the warmer the water, the higher the pressure it boils at, and the nearer the pump comes to cavitation.\n\n**Finding where a pump will run**\n- Get the pump's curve of head against flow at its running speed.\n- Work out the system curve: the lift, plus friction that grows with the flow squared.\n- Find where they cross. The pump runs at that flow and head.\n- Check the efficiency there. A pump is chosen to run near the top of its efficiency hump.\n- Check that NPSH available beats NPSH required at that flow, with a margin to spare.\n\n**Rules of thumb:** Close the discharge valve, and the flow falls while the outlet gauge rises. On most centrifugal pumps, the motor's current falls too. Throttle on the discharge side, not the suction. A suction valve's friction comes straight off the NPSH available. Keep a margin, because cavitation rattles and can pit the impeller.[^8] Slowing the pump cuts the flow without burning head in a valve. The flow goes with the speed, and the head with the speed squared. The power goes with the speed cubed. These are the pump laws. With a lift, the flow falls faster than the speed. Below the speed where its most head matches the lift, it gives no flow at all.\n\n**Worked example:** A pump gives 30 − 0.04q² metres, with q in L/s. The pipe needs 10 + 0.06q². Set them equal: 0.1q² = 20. So q is about 14.1 L/s, and the head is 22 m. The water takes 1025 × 9.81 × 0.0141 × 22, about 3.13 kW. Now close the valve until the friction doubles, to 0.12q². Then 0.16q² = 20, so q² = 125. The pump settles at about 11.2 L/s and 25 m. The water now takes about 2.81 kW.\n\n**Reading the gauges:** If the outlet gauge rises while the flow and current fall, something on the discharge side is usually choking the flow. Look for a valve left partly shut or a fouled cooler. If the outlet gauge falls while the flow and current rise, the discharge side has usually got easier. Look for a valve opened or a leak.\n\n**Common mistakes**\n- Expecting a centrifugal pump to give its rated flow whatever the pipe. It gives the flow at the crossing.\n- Thinking a closing valve loads a centrifugal pump's motor harder. On most, the current falls.\n- Expecting a closing valve to cut a positive displacement pump's flow. Its flow barely changes, and its pressure climbs.\n- Treating the flow as going with the speed when there is a lift.\n- Fighting cavitation with more speed or a throttled suction. Both eat the margin. Raise the suction level or cut the flow instead."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "Properties of seawater",
+    "url": "https://talleylab.ucsd.edu/sio210/lect_2/lecture_2.html",
+    "quote": "The density of seawater is about 1025 kg/m^3 and the specific heat is about 3850 J/(kg C)."
+   },
+   {
+    "n": 2,
+    "title": "Some Physical Properties of Sea Water or, More than you ever wanted to know about the basic state variables of the ocean…",
+    "url": "https://www.whoi.edu/science/PO/people/tjoyce/whoi-mit_course/notes/course_notes_1b.pdf",
+    "quote": "δP = (1025)(9.81)(10) ~ 10 ⁵ Pa, which is the pressure at the bottom of the atmosphere."
+   },
+   {
+    "n": 3,
+    "title": "Hydraulic_Pumps",
+    "url": "https://web.eng.fiu.edu/arleon/courses/Fluid_Mechanics/Lectures/Pumps_unfilled.pdf",
+    "quote": "The intersection of both curves represents the operating point for the system"
+   },
+   {
+    "n": 4,
+    "title": "ABOUT PUMP CURVES",
+    "url": "https://www.grundfos.com/content/dam/global/page-assets/learn/ecademy/pdfs/master-36-module-4-About-pump-curves.pdf",
+    "quote": "The NPSH-value of a pump is the minimum absolute pressure that must be present at the suction side of the pump to avoid cavitation."
+   },
+   {
+    "n": 5,
+    "title": "Why Start a Centrifugal Pump with the Discharge Valve Closed?",
+    "url": "https://www.streampumps.com/pump-knowledge/start-centrifugal-pump-discharge-valve-closed.html",
+    "quote": "At this no-flow condition, the pump builds maximum pressure (head), but the power required by the motor is at or near its minimum."
+   },
+   {
+    "n": 6,
+    "title": "Positive Displacement Pump Protection",
+    "url": "https://www.engineersedge.com/pumps/positive_disp_pump_prot.htm",
+    "quote": "Positive displacement pumps are normally fitted with relief valves on the upstream side of their discharge valves to protect the pump and its discharge piping from over pressurization."
+   },
+   {
+    "n": 7,
+    "title": "When does water boil? | Britannica",
+    "url": "https://www.britannica.com/question/When-does-water-boil",
+    "quote": "At sea level, atmospheric pressure is high, and water boils at 100 °C (212 °F); at higher altitudes it is lower, so water boils at a lower temperature."
+   },
+   {
+    "n": 8,
+    "title": "Examples of Cavitation and Cavitation Damage",
+    "url": "https://www.me.psu.edu/cimbala/me320web_Fall_2012/pdf/Cavitation_photographs.pdf",
+    "quote": "Cavitation is usually undesirable because of the noise and the damage that it does to blade surfaces (pitting, etc.)."
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: mechanism -->\n<style>\n  [hidden] { display: none !important; }\n  .pz { max-width: 54rem; margin-inline: auto; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  #prog, #nav, #done, #stepbox > *:not(.pics) { max-width: 34rem; margin-left: auto; margin-right: auto; }\n  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }\n  /* The pump and its graph: side by side on a laptop, the graph below the pump on a phone. */\n  .pics { display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-start; gap: 10px 22px; }\n  .pics .scene { flex: 1 1 19rem; max-width: 25rem; min-width: 0; display: block; }\n  .scene .wall { fill: none; stroke: var(--k-strong); stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }\n  .scene .liq { fill: var(--k-cat1); fill-opacity: .16; }\n  .scene .surf { stroke: var(--k-cat1); stroke-width: 2; }\n  .scene .pipeo { stroke: var(--k-strong); fill: none; stroke-linejoin: round; }\n  .scene .pipei { stroke: var(--k-bg); fill: none; stroke-linejoin: round; }\n  .scene .pipew { stroke: var(--k-cat1); stroke-opacity: .28; fill: none; stroke-linejoin: round; }\n  .scene .dot { fill: var(--k-cat1); }\n  .scene .pump { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 2; }\n  .scene .vane { stroke: var(--k-accent2); stroke-width: 2; stroke-linecap: round; }\n  .scene .eye { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 1.2; }\n  .scene .hub { fill: var(--k-accent2); }\n  .scene .gear { fill: var(--k-sunk); stroke: var(--k-accent2); stroke-width: 1.5; }\n  .scene .tooth { stroke: var(--k-accent2); stroke-width: 3; stroke-linecap: round; }\n  .scene .motor { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.5; }\n  .scene .shaft { stroke: var(--k-strong); stroke-width: 3; }\n  .scene .valve { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; stroke-linejoin: round; }\n  .scene .gate { fill: var(--k-strong); }\n  .scene .stem { stroke: var(--k-strong); stroke-width: 2; stroke-linecap: round; }\n  .scene .lvl { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 1.5 3.5; stroke-linecap: round; }\n  .scene .brk { fill: none; stroke: var(--k-accent2); stroke-width: 1.5; }\n  .scene .dial { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }\n  .scene .tick { stroke: var(--k-strong); stroke-width: 1.2; }\n  .scene .ndl { stroke: var(--k-accent2); stroke-width: 2.5; stroke-linecap: round; }\n  .scene .ndlw { stroke: var(--k-warn); stroke-width: 2.5; stroke-linecap: round; }\n  .scene .bub { fill: var(--k-bg); stroke: var(--k-warn); stroke-width: 1.3; }\n  .scene .ax { stroke: var(--k-strong); stroke-width: 1.2; fill: none; }\n  .scene .grid { stroke: var(--k-line); stroke-width: 1; }\n  .scene .pc { fill: none; stroke: var(--k-accent2); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }\n  .scene .sc { fill: none; stroke: var(--k-accent); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }\n  .scene .ghost { fill: none; stroke: var(--k-muted); stroke-width: 2; stroke-dasharray: 8 5; }\n  .scene .hump { fill: var(--k-fill1); stroke: var(--k-accent2); stroke-width: 1.5; stroke-linejoin: round; }\n  .scene .pt { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 1.5; }\n  .scene .pts { fill: var(--k-accent); stroke: var(--k-bg); stroke-width: 1.5; }\n  .scene .ptg { fill: var(--k-muted); stroke: var(--k-bg); stroke-width: 1.5; }\n  .scene .gd { stroke: var(--k-accent2); stroke-width: 1.2; stroke-dasharray: 3 3; }\n  .scene .nba { fill: var(--k-fill1); stroke: var(--k-accent2); stroke-width: 1.5; }\n  .scene .nbr { fill: var(--k-fill3); stroke: var(--k-muted); stroke-width: 1.5; }\n  .scene .nbw { fill: var(--k-warn); fill-opacity: .18; stroke: var(--k-warn); stroke-width: 2; }\n  .scene .pw { fill: var(--k-cat1); fill-opacity: .35; stroke: var(--k-cat1); stroke-width: 1; }\n  .scene .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }\n  .scene .lab.m { font-weight: 400; fill: var(--k-muted); }\n  .scene .lab.n { fill: var(--k-accent2); }\n  .scene .lab.t { fill: var(--k-accent); }\n  .scene .lab.w { fill: var(--k-warn); }\n  .scene .ar { stroke-width: 2.5; stroke-linecap: round; fill: none; }\n  .scene .ar-n { stroke: var(--k-accent2); }\n  .scene .hd-n { fill: var(--k-accent2); }\n  .scene .ar-w { stroke: var(--k-warn); stroke-dasharray: 5 4; stroke-linecap: butt; }\n  .scene .hd-w { fill: var(--k-warn); }\n  .scene .bad { fill: none; stroke: var(--k-warn); stroke-width: 2.5; stroke-dasharray: 6 4; }\n  .scene .badl { stroke: var(--k-warn); stroke-width: 2.5; stroke-dasharray: 6 4; fill: none; }\n  .scene .badd { fill: var(--k-warn); }\n  .scene .badv { fill: var(--k-panel); stroke: var(--k-warn); stroke-width: 2; stroke-linejoin: round; }\n  .scene g * { pointer-events: none; }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; }\n  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }\n  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; }\n  /* Readouts and answers wrap onto as many rows as they need at 360 px. */\n  #outs { display: grid; grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr)); gap: 10px; }\n  .picks { display: grid; grid-template-columns: repeat(auto-fit, minmax(6.5rem, 1fr)); gap: 10px; }\n  .picks.long { grid-template-columns: 1fr; }\n  .picks .k-btn { min-height: 52px; font-size: 1.1rem; }\n  .picks.long .k-btn { min-height: 48px; font-size: 1.02rem; }\n  .picks .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  .fb { font-weight: 700; min-height: 1.5em; }\n  .fb.right { color: var(--k-good); }\n  .fb.wrong { color: var(--k-ink); }\n  .why, .done { line-height: 1.6; }\n  .done strong { color: var(--k-accent2); }\n  .done .row { margin-top: 14px; }\n  /* Each new screen settles in softly: its words and pictures fade in and rise 4 px. */\n  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }\n</style>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <div class=\"pics\" id=\"pics\">\n      <svg class=\"scene\" id=\"sp\" viewBox=\"0 0 340 186\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"artP\"></g></svg>\n      <svg class=\"scene\" id=\"sg\" viewBox=\"0 0 340 266\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"artG\"></g></svg>\n    </div>\n    <div class=\"k-controls\" id=\"ctl\"></div>\n    <p class=\"say\" id=\"say\"></p>\n    <div class=\"k-readouts\" id=\"outs\"></div>\n    <div class=\"replay\" id=\"replay\"></div>\n    <div class=\"picks\" id=\"picks\"></div>\n    <div class=\"row acts\" id=\"acts\"></div>\n    <p class=\"fb\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p><strong id=\"finish\"></strong></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<script>\n  // ---------- the rule ----------\n  // A centrifugal pump gives 30s² − 0.04q² metres of head at speed fraction s (q in L/s). The pipe\n  // needs the 10 m lift plus 0.06q² of friction, times the valve's stop. The pump settles where\n  // the two are equal. The water takes ρgQH; the shaft's power is a sketch, s³ × (3.0 + 0.1q ÷ s)\n  // kW. NPSH available is the atmosphere's 9.9 m + the tank's level − 0.005q² − 0.3 m; NPSH\n  // required is 2s² + 0.015q². A positive displacement pump gives 10s L/s less 0.01 L/s for each\n  // metre of head, at 80% efficiency.\n  const SRC_TALLEY = 'https://talleylab.ucsd.edu/sio210/lect_2/lecture_2.html';\n  const SRC_WHOI = 'https://www.whoi.edu/science/PO/people/tjoyce/whoi-mit_course/notes/course_notes_1b.pdf';\n  const SRC_SHUT = 'https://www.streampumps.com/pump-knowledge/start-centrifugal-pump-discharge-valve-closed.html';\n  const SRC_FIU = 'https://web.eng.fiu.edu/arleon/courses/Fluid_Mechanics/Lectures/Pumps_unfilled.pdf';\n  const SRC_NPSH = 'https://www.grundfos.com/content/dam/global/page-assets/learn/ecademy/pdfs/master-36-module-4-About-pump-curves.pdf';\n  const RHO = 1025, G = 9.81, PATM = 100000, LIFT = 10, HS = 30, AP = 0.04, AS = 0.06;\n  const P0 = 3.0, P1 = 0.1, SUCK = 0.005, VAP = 0.3, NR0 = 2, NRK = 0.015, PDQ = 10, SLIP = 0.01, PDE = 0.8;\n  const ATM = PATM / (RHO * G);\n  const CP = 3850, TRAP = 5, RATE = P0 * 1000 / (TRAP * CP);   // a shut pump's 3.0 kW into 5 kg of trapped seawater: °C a second\n  const INV = [1, 0.5, 0.25, 0.1, 0];                        // 1 ÷ each valve stop's friction multiplier\n  const VNAME = ['open', 'friction ×2', 'friction ×4', 'friction ×10', 'shut'];\n  const VSHORT = ['open', '×2', '×4', '×10', 'shut'];\n  const CLOSED = [0, 0.45, 0.65, 0.82, 1];                   // how far the valve's gate is drawn across the bore\n  const LN = [0, Math.log(2), Math.log(4), Math.log(10)];\n  const FADE = 0.35, ANS = 2.0;\n  const DS = String(RHO), GS = String(G);\n  const clean = (v) => Math.round(v * 1e9) / 1e9;\n  // 1 ÷ the friction multiplier at a valve position from 0 (open) to 4 (shut). Between two stops\n  // (only while a demonstration drags the valve) it eases in even ratios; from ×10 to shut it falls to 0.\n  function invOf(v) {\n    v = K.clamp(+v || 0, 0, 4);\n    if (Number.isInteger(v)) return INV[v];\n    if (v > 3) return 0.1 * (4 - v);\n    const k = Math.floor(v), f = v - k;\n    return Math.exp(-(LN[k] + (LN[k + 1] - LN[k]) * f));\n  }\n  function closureOf(v) {\n    v = K.clamp(+v || 0, 0, 4);\n    const k = Math.min(3, Math.floor(v));\n    return K.lerp(CLOSED[k], CLOSED[k + 1], v - k);\n  }\n  const pumpH = (q, s) => HS * s * s - AP * q * q;\n  const sysH = (q, inv, lift) => lift + AS * q * q / inv;\n  function opC(inv, s, lift) {\n    const A = HS * s * s - lift;\n    if (inv <= 0 || A <= 0) return { q: 0, H: HS * s * s, flows: false };\n    const q2 = A * inv / (AP * inv + AS);\n    return { q: Math.sqrt(q2), H: HS * s * s - AP * q2, flows: true };\n  }\n  // q = 10s − 0.01H with H = lift + 0.06q² ÷ inv: the root of a quadratic, written so it stays exact.\n  function opPD(inv, s, lift) {\n    if (inv <= 0) return null;\n    const a = SLIP * AS / inv, c = PDQ * s - SLIP * lift, q = 2 * c / (1 + Math.sqrt(1 + 4 * a * c));\n    return { q, H: lift + AS * q * q / inv };\n  }\n  const shaftC = (q, s) => P0 * s * s * s + P1 * s * s * q;   // kW\n  const hydKW = (q, H) => RHO * G * (q / 1000) * H / 1000;     // kW: ρgQH\n  function effC(q, s) { const H = pumpH(q, s); return q > 0 && H > 0 ? hydKW(q, H) / shaftC(q, s) : 0; }\n  const npA = (level, q) => ATM + level - SUCK * q * q - VAP;\n  const npR = (q, s) => NR0 * s * s + NRK * q * q;\n  function opOf(st) {\n    const inv = invOf(st.v), lift = st.lift == null ? LIFT : st.lift, s = st.s == null ? 1 : st.s;\n    if (st.pd) {\n      const o = opPD(inv, s, lift);\n      if (!o) return { q: 0, H: 0, P: 0, shut: true, flows: false, inv: 0, s };\n      return { q: o.q, H: o.H, P: hydKW(o.q, o.H) / PDE, shut: false, flows: true, inv, s };\n    }\n    const o = opC(inv, s, lift);\n    return { q: o.q, H: o.H, P: shaftC(o.q, s), shut: false, flows: o.flows, inv, s };\n  }\n  const cavOf = (st, o) => !st.pd && !o.shut && npA(st.level, o.q) < npR(o.q, o.s);\n  const rd = (v, dp) => { const f = Math.pow(10, dp || 0); return Math.round(v * f + (v >= 0 ? 1e-7 : -1e-7)) / f; };\n  const fx = (v, dp) => K.fmt(rd(v, dp || 0), { decimals: dp || 0 });\n  const lvText = (l) => (l > 0 ? '+' : l < 0 ? '−' : '') + Math.abs(l) + ' m';\n\n  // Every number the words and pictures print, worked out from the rule.\n  const OP = [0, 1, 2, 3, 4].map((v) => opOf({ v, s: 1 }));\n  const S80 = opOf({ v: 0, s: 0.8 }), PD0 = opOf({ v: 0, s: 1, pd: true }), PD3 = opOf({ v: 3, s: 1, pd: true });\n  const HI = opOf({ v: 0, s: 1, lift: 16 });\n  const W0 = hydKW(OP[0].q, OP[0].H), W1 = hydKW(OP[1].q, OP[1].H);\n  let QPK = 0, EPK = 0;\n  for (let j = 0; j <= 2000; j++) { const e = effC(j / 100, 1); if (e > EPK) { EPK = e; QPK = j / 100; } }\n  const N = {\n    atm: fx(ATM, 1), q: OP.map((o) => fx(o.q, 1)), H: OP.map((o) => fx(o.H, 1)), P: OP.map((o) => fx(o.P, 2)),\n    e: OP.map((o) => fx(100 * effC(o.q, 1))), qpk: fx(QPK), epk: fx(100 * EPK),\n    w0: fx(W0, 2), w1: fx(W1, 2), w1r: fx(W1, 1), w1h: fx(W0 * OP[1].H / OP[0].H, 1), w0r: fx(W0, 1),\n    t80: fx(pumpH(0, 0.8), 1), q80: fx(S80.q, 1), H80: fx(S80.H, 1), P80: fx(S80.P, 2),\n    t55: fx(pumpH(0, 0.55), 1), q55w: fx(0.55 * OP[0].q, 1),\n    na2: fx(npA(2, OP[0].q), 1), na4: fx(npA(-4, OP[0].q), 1), na3: fx(npA(-3, OP[0].q), 1), nr: fx(npR(OP[0].q, 1), 1), fr: fx(SUCK * OP[0].q * OP[0].q, 1),\n    pq0: fx(PD0.q, 1), pH0: fx(PD0.H, 1), pP0: fx(PD0.P, 2), pq3: fx(PD3.q, 1), pH3: fx(PD3.H, 1), pP3: fx(PD3.P, 2),\n    hq: fx(HI.q, 1), hH: fx(HI.H, 1), hw: fx(Math.sqrt((HS - 16) / AP), 1),\n    wr: fx(RATE, 2), wm: fx(60 * RATE), wx: fx(P0 * 1000 / TRAP),\n  };\n  const O = {\n    rise: `It rises towards ${N.q[0]} L/s`, stay: 'It stays at 10 L/s', fall: 'It falls',\n    gUp: 'Less flow, gauge higher', gDown: 'Less flow, gauge lower', gSame: 'Same flow, gauge higher',\n    w28: `About ${N.w1r} kW`, w36: `About ${N.w1h} kW`, w31: `About ${N.w0r} kW`,\n    none: 'None', s78: `About ${N.q55w} L/s`, s141: `About ${N.q[0]} L/s at less head`,\n    raise: \"Raise the suction tank's level\", throttle: 'Throttle a valve in the suction pipe', faster: 'Run the pump faster',\n    wNone: 'Not at all, as nothing flows', wNoC: `About ${N.wx} °C a second`, wRight: `About ${N.wr} °C a second`,\n    choke: 'Something on the discharge side is choking it', opened: 'A discharge valve has been opened further', fast: 'The pump is running faster',\n    hRight: `About ${N.hq} L/s at ${N.hH} m`, hSame: `About ${N.q[0]} L/s, as before`, hNoF: `About ${N.hw} L/s`,\n  };\n\n  // ---------- the lesson: SHOW screens demonstrate, DO screens are puzzles ----------\n  // A live screen (live: which controls show) opens on its own settings (set) and runs its\n  // demonstration (mot: timed keys for a control) once. pump: the pump picture shows too.\n  const STEPS = [\n    { show: true, name: 'Where the curves cross', pump: true, draw: 'intro', dur: 4.4,\n      text: `A centrifugal pump gives its most head at no flow, and less as the flow grows. This example pump gives 30 − 0.04q² metres, with q in L/s. The pipe needs 10 + 0.06q² metres, its 10 m lift plus friction. That is its *system curve*. Where the two meet, the pump gives just what the pipe needs. That crossing is the *operating point*. Set them equal: 0.1q² = 20, so q² = 200. That is about ${N.q[0]} L/s at ${N.H[0]} m.` },\n    { kind: 'pick', name: 'Spare head', draw: 'spare',\n      opts: [O.stay, O.rise, O.fall], want: O.rise,\n      bad: { [O.stay]: { lab: 'but 10 m of head is spare' }, [O.fall]: { lab: 'but the spare head pushes it on' } },\n      task: 'For a moment, the flow is 10 L/s. There the pump gives 30 − 4 = 26 m. The pipe needs only 10 + 6 = 16 m. What does the flow do next?',\n      why: `The spare 10 m is an unbalanced push, so it speeds up the water in the pipe. The flow climbs until the two heads match, at about ${N.q[0]} L/s. Past the crossing, the pipe needs more than the pump gives, and the water slows. Either way, the flow comes back to the crossing.`,\n      hint: 'Not quite. Spare head is an unbalanced push on the water.',\n      hints: { [O.stay]: 'Not quite. The pump gives 10 m more than the pipe needs. Spare head is an unbalanced push on the water.', [O.fall]: 'Not quite. The pump gives more than the pipe needs, so the push is forwards.' } },\n    { show: true, name: 'Closing the valve', pump: true, draw: 'live', say: 'valve', live: { valve: true }, outs: ['flow', 'head'],\n      set: { valve: 0 }, dur: 3.2, mot: [{ ctl: 'valve', keys: [[0.5, 0], [2.6, 1]] }],\n      text: `A valve adds friction to the pipe. Each stop multiplies that friction, so the system curve bends up more steeply. The pump's curve stays put, so the crossing can only slide along it. Close the valve, and the pump settles at less flow and more head. Drag the valve through its stops.`,\n      read: `A valve adds friction to the pipe. Each stop multiplies that friction, so the system curve bends up more steeply. The pump's curve stays put, so the crossing can only slide along it. At friction ×2 the pump settles at about ${N.q[1]} L/s and ${N.H[1]} m. Less water flows, at more head. The picture shows the valve at friction ×2.` },\n    { kind: 'pick', name: 'The outlet gauge', pump: true, draw: 'gauge',\n      opts: [O.gDown, O.gSame, O.gUp], want: O.gUp,\n      bad: { [O.gDown]: { lab: \"a lower gauge is off the pump's curve\" }, [O.gSame]: { lab: \"the same flow is off the pump's curve\" } },\n      task: 'The outlet gauge sits between the pump and the valve. You close the valve a little. What happens to the flow and the gauge?',\n      why: \"The valve steepens the system curve. The crossing slides up the pump's curve, to less flow and more head. The gauge sits before the valve. It reads the suction pressure plus what the pump adds, so it rises with the pump's head.\",\n      hint: \"Not quite. The dot can only move along the pump's curve.\",\n      hints: { [O.gDown]: \"Not quite. The dot can only move along the pump's curve. Up it, less flow means more head.\", [O.gSame]: \"Not quite. The dot can only move along the pump's curve. A steeper system curve meets it at less flow.\" } },\n    { show: true, name: 'Power as the valve closes', pump: true, draw: 'live', say: 'power', eff: true, live: { valve: true }, outs: ['flow', 'head', 'shaftPower'],\n      set: { valve: 0 }, dur: 4.2, mot: [{ ctl: 'valve', keys: [[0.5, 0], [1.3, 1], [2.1, 2], [2.9, 3], [3.7, 4]] }],\n      text: `The head rises a little while the flow falls a lot, so the pump does less work. The hump below is its *efficiency*, the water's power ÷ the shaft's power. It peaks near ${N.qpk} L/s, at about ${N.epk}%. Pumps are chosen to run near that peak, like this one. Shut, the shaft's power is near its least, and so is the motor's current. Drag the valve from open to shut.`,\n      read: `The head rises a little while the flow falls a lot, so the pump does less work. The hump below is its *efficiency*, the water's power ÷ the shaft's power. It peaks near ${N.qpk} L/s, at about ${N.epk}%. Pumps are chosen to run near that peak, like this one. Shut, the shaft's power is near its least, and so is the motor's current. The picture shows the valve shut.` },\n    { kind: 'pick', name: \"The water's power\", draw: 'power',\n      opts: [O.w28, O.w36, O.w31], want: O.w28,\n      bad: { [O.w36]: { lab: `${N.w1h} kW scales by the head alone` }, [O.w31]: { lab: `${N.w0r} kW expects no change` } },\n      task: `At friction ×2, the pump gives about ${N.q[1]} L/s of seawater at 25 m. What power does the water take?`,\n      why: `The water takes ρgQH, with Q in m³/s. ${N.q[1]} L/s is 0.0112 m³/s. So ${DS} × ${GS} × 0.0112 × 25 is about ${N.w1r} kW. That is less than the ${N.w0} kW with the valve open. The flow fell by about a fifth, but the head rose by only about a seventh.`,\n      hint: 'Not quite. Q goes in m³/s.',\n      hints: { [O.w36]: `Not quite. That scales ${N.w0} kW by the head alone. The flow fell too, and by more.`, [O.w31]: 'Not quite. That expects no change. The flow fell by more than the head rose.' } },\n    { show: true, name: 'Slowing the pump', pump: true, draw: 'live', say: 'speed', eff: true, ghost: true, live: { speed: true }, outs: ['flow', 'head', 'shaftPower'],\n      set: { speed: 100 }, dur: 3.6, mot: [{ ctl: 'speed', keys: [[0.5, 100], [3.2, 80]] }],\n      text: `A slower pump has a lower curve. The *pump laws* say the flow goes with the speed, the head with the speed squared and the power with the speed cubed. At 80% the top falls to 30 × 0.8² = ${N.t80} m. Slowing the pump cuts the flow without burning head in a valve. The faint dot is the same pump at full speed, throttled instead. Drag the speed.`,\n      read: `A slower pump has a lower curve. The *pump laws* say the flow goes with the speed, the head with the speed squared and the power with the speed cubed. At 80% the top falls to 30 × 0.8² = ${N.t80} m. Slowing the pump cuts the flow without burning head in a valve. The faint dot is the same pump at full speed, throttled instead. It is shown at 80%.` },\n    { kind: 'pick', name: 'Too slow', draw: 'slow',\n      opts: [O.s78, O.none, O.s141], want: O.none,\n      bad: { [O.s78]: { lab: 'but the two curves never cross' }, [O.s141]: { lab: 'far below what the pipe needs' } },\n      task: `The pump is slowed to 55%. Its most head is now 30 × 0.55², about ${N.t55} m. The lift is 10 m. What flow does it give?`,\n      why: `Even at no flow, the pump gives only ${N.t55} m. The pipe needs 10 m before any water moves. So its whole curve sits under the system curve, and nothing flows. With a lift, the flow falls faster than the speed.`,\n      hint: 'Not quite. Compare its most head with the lift.',\n      hints: { [O.s78]: 'Not quite. That takes the flow in step with the speed. Compare its most head with the lift.', [O.s141]: 'Not quite. A slower pump cannot keep the same flow. Compare its most head with the lift.' } },\n    { show: true, name: 'Suction and cavitation', pump: true, draw: 'live', top: 'npsh', say: 'suction', live: { level: true },\n      set: { level: 2 }, dur: 3.8, mot: [{ ctl: 'level', keys: [[0.5, 2], [3.4, -4]] }],\n      text: \"Water boils at 100 °C at normal pressure, and cooler at lower pressure. Each pump needs a least absolute pressure at its inlet. That is its *NPSH required*, or net positive suction head. The pressure falls further on the way into the impeller's eye. What the suction offers, NPSH available, must be more. Both tanks move together, so only the suction changes. Drag the tank level down.\",\n      read: \"Water boils at 100 °C at normal pressure, and cooler at lower pressure. Each pump needs a least absolute pressure at its inlet. That is its *NPSH required*, or net positive suction head. The pressure falls further on the way into the impeller's eye. What the suction offers, NPSH available, must be more. Both tanks move together, so only the suction changes. It is shown at −4 m.\" },\n    { kind: 'pick', name: 'Stopping the cavitation', pump: true, draw: 'cav',\n      opts: [O.throttle, O.faster, O.raise], want: O.raise,\n      bad: { [O.throttle]: { lab: 'a suction valve takes more off' }, [O.faster]: { lab: 'a faster pump needs even more' } },\n      task: 'The tank is at −4 m, with the valve open, and the pump cavitates. Which one stops it?',\n      why: `Cavitation rattles and can pit the impeller, so it is worth stopping. Raising the tank adds its height to what the suction offers. At −3 m, about ${N.na3} m is available, above the ${N.nr} m required. A suction valve's friction comes off what is available. A faster pump needs more.`,\n      hint: \"Not quite. Which one adds pressure at the pump's inlet?\",\n      hints: { [O.throttle]: \"Not quite. A suction valve's friction comes off what is available. Which one adds pressure at the inlet?\", [O.faster]: 'Not quite. A faster pump needs more. Which one adds pressure at the inlet?' } },\n    { show: true, name: 'A positive displacement pump', pump: true, draw: 'live', say: 'pd', live: { valve: true, pd: true }, outs: ['flow', 'head', 'shaftPower'],\n      set: { valve: 0, pd: true }, dur: 3.8, mot: [{ ctl: 'valve', keys: [[0.5, 0], [3.4, 3]] }],\n      text: 'A *positive displacement pump* traps a set volume each turn and pushes it on. So its speed sets its flow. A little slips back past it, more as the head climbs. So its curve stands nearly upright. From open to friction ×10, its flow barely moves, while its head and power climb steeply. Drag the valve, or switch back.',\n      read: 'A *positive displacement pump* traps a set volume each turn and pushes it on. So its speed sets its flow. A little slips back past it, more as the head climbs. So its curve stands nearly upright. From open to friction ×10, its flow barely moves, while its head and power climb steeply. The picture shows this pump at friction ×10.' },\n    { kind: 'pick', name: 'Left running shut', draw: 'warm',\n      opts: [O.wNone, O.wNoC, O.wRight], want: O.wRight,\n      bad: { [O.wNone]: { lab: 'but 3.0 kW still goes in' }, [O.wNoC]: { lab: `${N.wx} leaves out the specific heat` } },\n      task: 'A centrifugal pump runs on against a shut valve. Its shaft puts 3.0 kW into the 5 kg of seawater trapped in its casing. It takes 3850 J to warm 1 kg of seawater by 1 °C. How fast does the water warm?',\n      why: `Use Q = mcΔT for each second. The warming is 3,000 ÷ (5 × 3850), about ${N.wr} °C a second. That is near ${N.wm} °C a minute. Water boils at 100 °C at normal pressure, and cooler at lower pressure. So the warmer the water, the higher the pressure it boils at. NPSH available falls, and the pump heads for cavitation.`,\n      hint: 'Not quite. Use Q = mcΔT, one second at a time.',\n      hints: { [O.wNone]: 'Not quite. No water flows, but the shaft still puts 3.0 kW in. Use Q = mcΔT, one second at a time.', [O.wNoC]: 'Not quite. That leaves out the specific heat. Divide by 5 × 3850, not by 5 alone.' } },\n    { kind: 'pick', name: 'Reading the gauges', draw: 'diag',\n      opts: [O.opened, O.choke, O.fast], want: O.choke,\n      bad: { [O.opened]: { lab: 'more flow, so the gauge would fall' }, [O.fast]: { lab: 'more flow, so more current' } },\n      task: \"A centrifugal fire pump's outlet gauge reads higher than usual. Its ammeter and its flow read lower. What is most likely?\",\n      why: \"Higher head with less flow means the dot has moved up the pump's curve. A steeper system curve does that. So something on the discharge side is choking the flow, such as a valve on the fire main left partly shut. Less flow on this pump means less current too.\",\n      hint: \"Not quite. Which change moves the dot up the pump's curve?\",\n      hints: { [O.opened]: \"Not quite. Opening a valve moves the dot down the pump's curve, to more flow and less head.\", [O.fast]: 'Not quite. A faster pump gives more flow, and its current rises.' } },\n    { kind: 'pick', name: 'A higher tank', draw: 'high',\n      opts: [O.hSame, O.hNoF, O.hRight], want: O.hRight,\n      bad: { [O.hSame]: { lab: \"that was the old lift's crossing\" }, [O.hNoF]: { lab: `${N.hw} L/s leaves out the friction` } },\n      task: 'The high tank is raised 6 m, so the lift is 16 m on the same pipe. Where does the pump settle?',\n      why: `Set the two heads equal. 30 − 0.04q² = 16 + 0.06q², so 0.1q² = 14 and q² = 140. That gives about ${N.hq} L/s, at 30 − 0.04 × 140 = ${N.hH} m.`,\n      hint: \"Not quite. Set the pump's head equal to the new lift plus the friction.\",\n      hints: { [O.hSame]: 'Not quite. A higher lift raises the whole system curve, so the crossing moves.', [O.hNoF]: \"Not quite. That leaves out the pipe's friction. Set 30 − 0.04q² equal to 16 + 0.06q².\" } },\n  ];\n  const FINISH = 'A centrifugal pump settles where its curve crosses the system curve, so closing a valve moves it to less flow and more head. Keep NPSH available above NPSH required.';\n  const PICK = 'Pick an answer first.';\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n\n  // ---------- each step's state ----------\n  function blank() { return { pick: null, res: null, why: false }; }\n  let S = STEPS.map(() => blank());\n  let finished = false, lastStep = -1, lastDone = false, T = Infinity, motionEnd = 0, MOT = null, keyNow = '';\n  let W = 0, ROT = 0.4, BUB = 0.3, LASTQ = 0, LASTS = 1, taskKey = '', CHECKING = false;\n  const EX = {};                   // exact values while a demonstration drives a slider (the slider moves in steps)\n  const el = (id) => document.getElementById(id);\n\n  // ---------- words with amber key terms (built with K.el, never innerHTML) ----------\n  // A number and its unit never part at a line end.\n  const nb = (s) => String(s || '').replace(/(\\d) (m\\/s|L\\/s|kg\\/m³|m³\\/s|m³|kPa|kW|kg|Pa|N|J|W|V|A|L|m)(?![A-Za-z²³\\/])/g, '$1\\u00a0$2');\n  function write(node, s) {\n    node.textContent = '';\n    s = nb(s);\n    const re = /\\*([^*]+)\\*/g;\n    let pos = 0, m;\n    while ((m = re.exec(s))) {\n      if (m.index > pos) node.appendChild(document.createTextNode(s.slice(pos, m.index)));\n      node.appendChild(K.el('span', { class: 'term' }, m[1]));\n      pos = m.index + m[0].length;\n    }\n    if (pos < s.length) node.appendChild(document.createTextNode(s.slice(pos)));\n    return node;\n  }\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);\n  const stepOf = (p) => K.clamp(Math.round(+p.step) || 0, 0, STEPS.length - 1);\n  const valveCtl = K.control({ id: 'valve', label: 'Valve', min: 0, max: 4, step: 1, value: 0, fmt: (v) => VNAME[K.clamp(Math.round(v), 0, 4)], snap: [1, 3], into: '#ctl' });\n  const speedCtl = K.control({ id: 'speed', label: 'Pump speed', min: 50, max: 100, step: 5, value: 100, unit: '%', fmt: (v) => fx(v) + '%', snap: [55, 80], into: '#ctl' });\n  const levelCtl = K.control({ id: 'level', label: 'Suction tank level', min: -6, max: 4, step: 1, value: 2, unit: 'm', fmt: (v) => lvText(Math.round(v)), snap: [-4, -3], into: '#ctl' });\n  const pdCtl = K.toggle({ id: 'pd', label: 'Positive displacement pump', value: false, into: '#ctl' });\n  const CTL = { valve: valveCtl, speed: speedCtl, level: levelCtl, pd: pdCtl };\n  function setCtl(id, v) { if (typeof v === 'number') EX[id] = v; CTL[id].set(v, true); }\n  const ctlKey = (p) => [p.valve, p.speed, p.level, p.pd].join('|');\n\n  const num = (v, d0) => (isFinite(+v) && v !== '' && v != null && typeof v !== 'boolean' ? +v : d0);\n  const pv = (p, id) => (MOT && EX[id] != null ? EX[id] : p[id]);\n  const valveOf = (p) => K.clamp(Math.round(num(p.valve, 0)), 0, 4);\n  const speedOf = (p) => K.clamp(Math.round(num(p.speed, 100) / 5) * 5, 50, 100);\n  const levelOf = (p) => K.clamp(Math.round(num(p.level, 2)), -6, 4);\n  const pdOf = (p) => p.pd === true || p.pd === 'true' || p.pd === 1 || p.pd === 'on';\n  const valveDraw = (p) => K.clamp(num(pv(p, 'valve'), 0), 0, 4);\n  const speedDraw = (p) => K.clamp(num(pv(p, 'speed'), 100), 50, 100);\n  const levelDraw = (p) => K.clamp(num(pv(p, 'level'), 2), -6, 4);\n  // The settings a screen runs on: its live controls, else its held values, else the opening ones.\n  function stateOf(d, p, draw) {\n    const L = d.live || {}, b = Object.assign({ valve: 0, speed: 100, level: 2, pd: false }, d.fix || {});\n    return {\n      v: L.valve ? (draw ? valveDraw(p) : valveOf(p)) : b.valve,\n      s: (L.speed ? (draw ? speedDraw(p) : speedOf(p)) : b.speed) / 100,\n      level: L.level ? (draw ? levelDraw(p) : levelOf(p)) : b.level,\n      pd: L.pd ? pdOf(p) : b.pd,\n    };\n  }\n  K.model((p) => {\n    const o = opOf(stateOf(STEPS[stepOf(p)], p, false));\n    if (o.shut) return { flow: 0, head: 'climbing', shaftPower: 'climbing' };\n    return { flow: clean(o.q), head: clean(o.H), shaftPower: clean(o.P) };\n  });\n\n  const rFlow = K.readout({ id: 'flow', label: 'Flow', unit: 'L/s', decimals: 1, into: '#outs' });\n  const rHead = K.readout({ id: 'head', label: 'Head', unit: 'm', decimals: 1, into: '#outs' });\n  const rPow = K.readout({ id: 'shaftPower', label: 'Shaft power', unit: 'kW', decimals: 2, into: '#outs' });\n\n  // Up to three answer buttons; each step fills in its own options.\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;\n    const was = st.res === 'wrong';\n    st.pick = d.opts[k]; st.res = null;\n    if (was) { anim.pause(); T = Infinity; }\n  } }));\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (d.show || finished || st.res === 'right') return;\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = st.pick === d.want ? 'right' : 'wrong';\n    play(ANS);\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    if (STEPS[at()].show || finished) return;\n    const st = S[at()]; st.why = !st.why;\n  } });\n  K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {\n    const i = at(), d = STEPS[i];\n    if (!d.show || finished) return;\n    onEnter(i);\n    keyNow = ctlKey(K.params());\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true; anim.pause(); T = Infinity; MOT = null;\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);\n  } });\n\n  // ---------- drawing helpers ----------\n  const svgP = el('sp'), svgG = el('sg'), artP = el('artP'), artG = el('artG');\n  let into = null, base = artG, REC = null;\n  const add = (n) => (into || base).appendChild(n);\n  const rn = (v) => Math.round(v * 100) / 100;\n  const sv = (tag, a) => add(K.svg(tag, a));\n  const path = (d, cls) => sv('path', { class: cls, d });\n  function rect(x, y, w, h, cls) { if (w > 0.3 && h > 0.3) sv('rect', { class: cls, x: rn(x), y: rn(y), width: rn(w), height: rn(h) }); }\n  const line = (x1, y1, x2, y2, cls) => sv('line', { class: cls, x1: rn(x1), y1: rn(y1), x2: rn(x2), y2: rn(y2) });\n  function circle(cx, cy, r, cls) { if (r > 0.2) sv('circle', { class: cls, cx: rn(cx), cy: rn(cy), r: rn(r) }); }\n  const text = (x, y, s, cls, anchor) => add(K.svg('text', { class: cls, x: rn(x), y: rn(y), 'text-anchor': anchor || 'middle' }, nb(String(s))));\n  // How far a part due at t0 has arrived, noting the timetable for the timing check.\n  let latest = 0;\n  function arr(t0, d) { d = d == null ? K.SOFT : d; if (t0 + d > latest) latest = t0 + d; return K.arrive(T, t0, d); }\n  function part(a, rise, draw) {\n    if (a <= 0) return;\n    const g = add(K.svg('g'));\n    K.fade(g, Math.min(1, a), rise);\n    const keep = into; into = g; draw(); into = keep;\n  }\n  function ftext(a, x, y, s, cls, anchor) { if (a > 0) part(a, 0, () => text(x, y, s, cls, anchor)); }\n  // A straight arrow from (x1, y1) to its tip at (x2, y2): a line and a filled head.\n  function arrow(x1, y1, x2, y2, k) {\n    const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);\n    if (L < 6) return;\n    const ux = dx / L, uy = dy / L, hl = Math.min(8, L * 0.55), hw = hl * 0.5;\n    const bx = x2 - ux * hl, by = y2 - uy * hl;\n    line(x1, y1, bx + ux * 0.5, by + uy * 0.5, 'ar ar-' + k);\n    path(`M${rn(x2)} ${rn(y2)} L${rn(bx - uy * hw)} ${rn(by + ux * hw)} L${rn(bx + uy * hw)} ${rn(by - ux * hw)} Z`, 'hd hd-' + k);\n  }\n  const wrongOf = (d, st) => (st.res === 'wrong' && st.pick != null && d.bad ? d.bad[st.pick] || null : null);\n  const show = (ra, wa) => 1 - Math.max(ra, wa);\n\n  // ---------- the pump, its pipes and its two tanks ----------\n  const LU = 5;   // drawing units per metre of level\n  function polyPipe(pts, w) {\n    const d = 'M' + pts.map((p) => p[0] + ' ' + p[1]).join(' L');\n    path(d, 'pipeo').setAttribute('stroke-width', w + 3);\n    path(d, 'pipei').setAttribute('stroke-width', w);\n    path(d, 'pipew').setAttribute('stroke-width', w);\n  }\n  // Dots ride along a pipe's middle; off is how far the water has moved, in drawing units.\n  function polyDots(pts, off) {\n    const SP = 14, Ls = [];\n    for (let i = 1; i < pts.length; i++) Ls.push(Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));\n    const tot = Ls.reduce((a, b) => a + b, 0), ph = ((off % SP) + SP) % SP;\n    for (let t = ph + 3; t < tot - 3; t += SP) {\n      let k = 0, u = t;\n      while (k < Ls.length - 1 && u > Ls[k]) { u -= Ls[k]; k++; }\n      const f = u / Ls[k];\n      circle(pts[k][0] + (pts[k + 1][0] - pts[k][0]) * f, pts[k][1] + (pts[k + 1][1] - pts[k][1]) * f, 2, 'dot');\n    }\n  }\n  function gauge(cx, cy, r, frac, pegged) {\n    circle(cx, cy, r, 'dial');\n    for (let k = 0; k <= 4; k++) { const a = Math.PI * (1 - k / 4); line(cx + (r - 3.5) * Math.cos(a), cy - (r - 3.5) * Math.sin(a), cx + r * Math.cos(a), cy - r * Math.sin(a), 'tick'); }\n    const a = Math.PI * (1 - K.clamp(frac, 0, 1));\n    line(cx, cy, cx + (r - 2.5) * Math.cos(a), cy - (r - 2.5) * Math.sin(a), pegged ? 'ndlw' : 'ndl');\n    circle(cx, cy, 2, 'hub');\n  }\n  function vanes(cx, cy, ang) {\n    for (let k = 0; k < 6; k++) { const a = ang + k * Math.PI / 3; line(cx + 4.5 * Math.cos(a), cy + 4.5 * Math.sin(a), cx + 11 * Math.cos(a + 0.35), cy + 11 * Math.sin(a + 0.35), 'vane'); }\n  }\n  // A gear: its body and eight teeth; two of them turn opposite ways, their teeth meshing.\n  function gear(cx, cy, ang) {\n    circle(cx, cy, 5.5, 'gear');\n    for (let k = 0; k < 8; k++) { const a = ang + k * Math.PI / 4; line(cx + 5 * Math.cos(a), cy + 5 * Math.sin(a), cx + 8.3 * Math.cos(a), cy + 8.3 * Math.sin(a), 'tooth'); }\n  }\n  // ds: v (valve position), s (speed), level, levelR (as the slider names it), pd, q, H, shut, cav, showLevel.\n  function drawPump(ds) {\n    base = artP; LASTQ = ds.q; LASTS = ds.s;\n    const ys = 128 - LU * ds.level, yh = ys - LU * LIFT, gmax = ds.pd ? 70 : 35, vr = K.clamp(Math.round(ds.v), 0, 4);\n    const lr = ds.levelR == null ? Math.round(ds.level) : ds.levelR;\n    // The pump's centre line, the two water surfaces and the lift between them.\n    if (ds.showLevel) line(8, 128, 116, 128, 'lvl');\n    line(84, ys, 108, ys, 'lvl'); line(186, ys, 252, ys, 'lvl'); line(252, yh, 264, yh, 'lvl');   // the suction level stops short of the pump\n    path(`M246 ${rn(yh)} H252 V${rn(ys)} H246`, 'brk');\n    text(242, (ys + yh) / 2 + 4.5, 'lift 10 m', 'lab n', 'end');\n    // The suction tank and the high tank: they move together, so the lift stays 10 m.\n    rect(14, ys, 70, 176 - ys, 'liq'); line(14, ys, 84, ys, 'surf'); path('M14 96 V176 H84 V96', 'wall');\n    rect(264, yh, 62, 30, 'liq'); line(264, yh, 326, yh, 'surf'); path(`M264 ${rn(yh - 12)} V${rn(yh + 30)} H326 V${rn(yh - 12)}`, 'wall');\n    // The pipes, with the seawater riding in them at the flow.\n    const suc = [[48, 170], [48, 128], [116, 128]], dis = [[130, 114], [130, 26], [294, 26], [294, rn(yh - 4)]];\n    polyPipe(suc, 7); polyPipe(dis, 7);\n    polyDots(suc, W); polyDots(dis, W);\n    if (ds.showLevel) {\n      if (Math.abs(ys - 128) > 1) path(`M12 128 H8 V${rn(ys)} H12`, 'brk');\n      text(49, 90, 'level ' + lvText(lr), 'lab n');\n    }\n    // The valve: its gate drops across the bore as it closes.\n    const vx = 196;\n    path(`M${vx - 12} 17 L${vx} 26 L${vx - 12} 35 Z M${vx + 12} 17 L${vx} 26 L${vx + 12} 35 Z`, 'valve');\n    line(vx, 17, vx, 7, 'stem'); line(vx - 8, 7, vx + 8, 7, 'stem');\n    rect(vx - 2.5, 20, 5, 12 * closureOf(ds.v), 'gate');\n    text(vx, 52, 'valve ' + VSHORT[vr], 'lab', 'middle');\n    // The outlet gauge, between the pump and the valve: it reads the pump's head.\n    line(130, 64, 118, 64, 'shaft');\n    gauge(106, 64, 11, ds.shut ? 1 : K.clamp(ds.H / gmax, 0, 1), !!ds.shut);\n    text(90, 68, 'outlet gauge', 'lab m', 'end');\n    // The pump and its motor.\n    if (ds.pd) {\n      sv('rect', { class: 'pump', x: 116, y: 110, width: 28, height: 36, rx: 6 });\n      gear(130, 120.5, ROT); gear(130, 135.5, -ROT + Math.PI / 8);\n    } else {\n      circle(130, 128, 14, 'pump'); vanes(130, 128, ROT); circle(130, 128, 3.2, 'eye');\n    }\n    line(144, 128, 152, 128, 'shaft'); rect(152, 118, 26, 20, 'motor');\n    text(130, 162, 'pump', 'lab m'); text(165, 111, 'motor', 'lab m');\n    // Cavitation: bubbles form at the impeller's eye and collapse as they move out.\n    if (ds.cav) {\n      let n = 0;\n      for (let k = 0; k < 7; k++) {\n        const ph = (BUB + k / 7) % 1, a = k * 0.9 + 0.4, r = 3.5 + 8.5 * ph, br = 2.4 * (1 - ph * ph);\n        if (br > 0.3) { circle(130 + r * Math.cos(a), 128 + r * Math.sin(a), br, 'bub'); n++; }\n      }\n      if (REC) REC.bub = n;\n      text(130, 180, 'cavitation', 'lab w');\n    }\n    return 'A ' + (ds.pd ? 'positive displacement pump' : 'centrifugal pump') + ' draws seawater from a suction tank and sends it up past an outlet gauge and a valve, ' + VNAME[vr] +\n      ', to a high tank. The lift between the two water surfaces is 10 m.' +\n      (ds.showLevel ? ` The suction tank's surface is ${Math.abs(lr)} m ${lr >= 0 ? 'above' : 'below'} the pump's centre line.` : '') +\n      (ds.cav ? \" Bubbles form at the impeller's eye and collapse further in.\" : '');\n  }\n\n  // ---------- the graph of head against flow, and the efficiency hump below it ----------\n  const GX0 = 46, GX1 = 326, KX = 14, GY0 = 224, GY1 = 64, EY0 = 314, EY1 = 270;\n  let YMAX = 35;\n  const X = (q) => GX0 + KX * q;\n  const Y = (h) => GY0 - (GY0 - GY1) * h / YMAX;\n  const EYv = (e) => EY0 - (EY0 - EY1) * e / 0.8;\n  function axes(ymax, eff) {\n    YMAX = ymax;\n    const stp = ymax > 40 ? 20 : 10;\n    for (let v = 0; v <= ymax + 1e-9; v += stp) {\n      const y = Y(v);\n      if (v > 0) line(GX0, y, GX1, y, 'grid');\n      line(GX0 - 4, y, GX0, y, 'tick');\n      text(GX0 - 7, y + 4.5, String(v), 'lab m', 'end');\n    }\n    line(GX0, GY0, GX1, GY0, 'ax'); line(GX0, GY0, GX0, GY1, 'ax');\n    text(8, 52, 'head (m)', 'lab m', 'start');\n    [0, 5, 10, 15, 20].forEach((v) => { line(X(v), GY0, X(v), GY0 + 4, 'tick'); text(X(v), GY0 + 17, String(v), 'lab m'); });\n    text(GX1, GY0 + 34, 'flow (L/s)', 'lab m', 'end');\n    if (eff) {\n      text(8, GY0 + 34, 'efficiency (%)', 'lab m', 'start');\n      [0, 40, 80].forEach((e) => {\n        const y = EYv(e / 100);\n        if (e) line(GX0, y, GX1, y, 'grid');\n        line(GX0 - 4, y, GX0, y, 'tick'); text(GX0 - 7, y + 4.5, String(e), 'lab m', 'end');\n      });\n      line(GX0, EY0, GX1, EY0, 'ax'); line(GX0, EY0, GX0, EY1, 'ax');\n    }\n  }\n  // A key row: a swatch for each line or dot, and its name.\n  function keyRow(y, items) {\n    let x = 8;\n    items.forEach((it) => {\n      if (it.c === 'dot') circle(x + 7, y - 4.5, 4.5, 'pt');\n      else if (it.c === 'dotg') circle(x + 7, y - 4.5, 4.5, 'ptg');\n      else line(x, y - 4.5, x + 14, y - 4.5, it.c);\n      text(x + 19, y, it.s, 'lab m', 'start');\n      x += 19 + 7 * it.s.length + 14;\n    });\n  }\n  // A curve of head against flow, drawn only where it lies on the graph.\n  function curve(fn, q0, q1, cls) {\n    const segs = [];\n    let cur = null, prev = null;\n    const n = Math.max(1, Math.ceil((q1 - q0) / 0.1));\n    for (let j = 0; j <= n; j++) {\n      const q = q0 + (q1 - q0) * j / n, h = fn(q), inR = isFinite(h) && h >= 0 && h <= YMAX;\n      if (inR) {\n        if (!cur) {\n          cur = [];\n          if (prev && isFinite(prev[1])) { const lim = prev[1] > YMAX ? YMAX : 0, f = (lim - prev[1]) / (h - prev[1]); cur.push([prev[0] + f * (q - prev[0]), lim]); }\n          segs.push(cur);\n        }\n        cur.push([q, h]);\n      } else if (cur) {\n        if (isFinite(h)) { const lim = h > YMAX ? YMAX : 0, pp = cur[cur.length - 1], f = (lim - pp[1]) / (h - pp[1]); cur.push([pp[0] + f * (q - pp[0]), lim]); }\n        cur = null;\n      }\n      prev = [q, h];\n    }\n    const d = segs.filter((s) => s.length > 1).map((s) => 'M' + s.map((pp) => rn(X(pp[0])) + ' ' + rn(Y(pp[1]))).join(' L')).join(' ');\n    return d ? path(d, cls) : null;\n  }\n  const pumpFn = (s) => (q) => pumpH(q, s);\n  const sysFn = (inv, lift) => (q) => sysH(q, inv, lift == null ? LIFT : lift);\n  // The positive displacement pump's curve: q = 10s − 0.01H, a nearly upright line.\n  function pdLine(s, cls) { line(X(PDQ * s), Y(0), X(PDQ * s - SLIP * YMAX), Y(YMAX), cls || 'pc'); }\n  function liftLine(lift, atRight) {\n    line(GX0, Y(lift), GX1, Y(lift), 'lvl');\n    if (atRight) text(GX1 - 2, Y(lift) + 15, `lift ${lift} m`, 'lab m', 'end');\n    else text(GX0 + 4, Y(lift) + 15, `lift ${lift} m`, 'lab m', 'start');\n  }\n  function opDot(q, H, cls) {\n    if (q > 0.05) { line(X(q), Y(H), X(q), GY0, 'gd'); line(GX0, Y(H), X(q), Y(H), 'gd'); }\n    circle(X(q), Y(H), 5.5, cls || 'pt');\n  }\n  // The efficiency hump at speed s, on the same flow scale, with a marker at this flow.\n  function effStrip(s, q) {\n    const qm = Math.min(20, Math.sqrt(HS * s * s / AP)), pts = [];\n    for (let x = 0; x <= qm + 1e-9; x += 0.25) pts.push(rn(X(x)) + ' ' + rn(EYv(effC(x, s))));\n    path(`M${X(0)} ${EY0} L${pts.join(' L')} L${rn(X(qm))} ${EY0} Z`, 'hump');\n    const e = effC(q, s), x = X(q), y = EYv(e);\n    if (q > 0.05) line(x, EY1 - 6, x, y, 'gd');\n    circle(x, y, 4.5, 'pt');\n    const lab = fx(100 * e) + '%';\n    if (q >= 3) text(x - 9, y - 7, lab, 'lab n', 'end'); else text(x + 9, y - 12, lab, 'lab n', 'start');\n    return e;\n  }\n  const KEY = [{ c: 'pc', s: \"pump's curve\" }, { c: 'sc', s: 'system curve' }];\n\n  // ---------- the NPSH panel: what the suction offers, and what the pump needs ----------\n  function npshPanel(lv, lvR, q, s, ex) {\n    base = artG; ex = ex || {};\n    const k = 10, Y0 = 196, a = npA(lv, q), r = npR(q, s), cav = a < r, aR = npA(lvR, q);\n    text(8, 14, 'NPSH, in metres of seawater', 'lab m', 'start');\n    for (let v = 0; v <= 15; v += 5) {\n      if (v) line(46, Y0 - k * v, 300, Y0 - k * v, 'grid');\n      line(42, Y0 - k * v, 46, Y0 - k * v, 'tick'); text(39, Y0 - k * v + 4.5, String(v), 'lab m', 'end');\n    }\n    line(46, Y0, 300, Y0, 'ax'); line(46, Y0, 46, Y0 - 150, 'ax');\n    const ta = Y0 - k * Math.max(0, a), tr = Y0 - k * r;\n    rect(80, ta, 60, Y0 - ta, cav ? 'nbw' : 'nba');\n    rect(200, tr, 60, Y0 - tr, cav ? 'nbw' : 'nbr');\n    text(110, ta - 7, fx(aR, 1) + ' m', cav ? 'lab w' : 'lab n');\n    text(230, tr - 7, fx(r, 1) + ' m', cav ? 'lab w' : 'lab');\n    text(110, Y0 + 17, 'available', 'lab'); text(230, Y0 + 17, 'required', 'lab');\n    const sg = lvR >= 0 ? '+ ' + lvR : '− ' + Math.abs(lvR);\n    text(170, 236, `${N.atm} ${sg} − ${fx(SUCK * q * q, 1)} − 0.3 = ${fx(aR, 1)} m`, 'lab n');\n    text(170, 254, 'atmosphere + level − friction − boiling', 'lab m');\n    if (ex.thr > 0) part(ex.thr, 0, () => arrow(152, ta + 2, 152, ta + 34, 'w'));\n    if (ex.fst > 0) part(ex.fst, 0, () => arrow(272, tr - 2, 272, tr - 34, 'w'));\n    return `Two bars in metres of seawater: NPSH available, about ${fx(aR, 1)} m, and NPSH required, about ${fx(r, 1)} m.` +\n      (cav ? ' Available is below required, so both are marked as a warning.' : ' Available is above required.');\n  }\n\n  // ---------- the screens' pictures ----------\n  // The opening demonstration: the dot slides down the pump's curve as the system curve draws in from the lift.\n  function gIntro() {\n    base = artG;\n    axes(35, false);\n    keyRow(14, KEY); keyRow(32, [{ c: 'dot', s: 'operating point' }]);\n    liftLine(LIFT);\n    const a1 = arr(0.4), tq = arr(0.9, 2.4), aRest = arr(3.3, 0.6), ag = arr(3.7);\n    const q = OP[0].q * tq, H = pumpH(q, 1);\n    part(a1, 0, () => curve(pumpFn(1), 0, 20, 'pc'));\n    if (q > 0.15) curve(sysFn(1), 0, q + (20 - q) * aRest, 'sc');\n    part(ag, 0, () => {\n      line(X(q), Y(H), X(q), GY0, 'gd'); line(GX0, Y(H), X(q), Y(H), 'gd');\n      text(X(q) + 5, GY0 - 7, `${N.q[0]} L/s`, 'lab n', 'start');\n      text(GX0 + 4, Y(H) + 16, `${N.H[0]} m`, 'lab n', 'start');\n    });\n    part(a1, 0, () => circle(X(q), Y(H), 5.5, 'pt'));\n    REC.res = q;\n    const ap = drawPump({ v: 0, s: 1, level: 2, pd: false, q, H, shut: false, cav: false });\n    return { ap, hg: 266, ag: `A graph of head against flow. The pump's curve falls from 30 m at no flow. The system curve rises from the 10 m lift. They cross at the operating point, about ${N.q[0]} L/s and ${N.H[0]} m.` };\n  }\n  // A live screen: the pump picture and its graph (or its NPSH panel) follow the controls.\n  function gLive(d, st, bad, wa, p) {\n    const ds = stateOf(d, p, true), o = opOf(ds), lvR = d.live && d.live.level ? levelOf(p) : ds.level;\n    const ap = drawPump({ v: ds.v, s: ds.s, level: ds.level, levelR: lvR, pd: ds.pd, q: o.q, H: o.H, shut: o.shut, cav: cavOf(ds, o), showLevel: !!(d.live && d.live.level) });\n    base = artG;\n    if (d.top === 'npsh') return { ap, hg: 262, ag: npshPanel(ds.level, lvR, o.q, ds.s) };\n    const eff = !!d.eff;\n    axes(ds.pd ? 70 : 35, eff);\n    keyRow(14, KEY);\n    if (d.ghost) curve(pumpFn(1), 0, 20, 'ghost');\n    liftLine(LIFT);\n    if (ds.pd) pdLine(ds.s); else curve(pumpFn(ds.s), 0, 20, 'pc');\n    if (o.inv > 0) curve(sysFn(o.inv), 0, 20, 'sc');\n    let said = 'A graph of head against flow, with the ' + (ds.pd ? \"positive displacement pump's nearly upright curve\" : \"pump's curve\") + ' and the system curve' + (o.inv > 0 ? '' : ' left out, as the valve is shut') + '.';\n    if (o.shut) {\n      text(262, 110, 'shut, so the', 'lab w'); text(262, 128, 'pressure climbs until', 'lab w'); text(262, 146, 'something gives', 'lab w');\n      said += ' With the valve shut, its pressure would climb until something gives.';\n    } else {\n      keyRow(32, [{ c: 'dot', s: 'operating point' }].concat(d.ghost ? [{ c: 'ghost', s: 'full speed' }, { c: 'dotg', s: 'throttled' }] : []));\n      if (d.ghost) circle(X(OP[2].q), Y(OP[2].H), 5, 'ptg');\n      opDot(o.q, o.H);\n      said += o.q > 0.05 ? ' A dot marks where they cross, the operating point, with dashed guides to the axes.' : ' No water flows, so the dot sits on the head axis.';\n      if (d.ghost) said += ' A second dot marks full speed with the valve at friction ×4.';\n      if (eff) { effStrip(ds.s, o.q); said += ' Below, the efficiency hump on the same flow scale, with a marker at this flow.'; }\n    }\n    return { ap, hg: eff ? 324 : 266, ag: said };\n  }\n  // Spare head at 10 L/s: the pump gives 26 m, the pipe needs 16 m.\n  function gSpare(d, st, bad, wa) {\n    base = artG;\n    axes(35, false); keyRow(14, KEY); liftLine(LIFT);\n    curve(pumpFn(1), 0, 20, 'pc'); curve(sysFn(1), 0, 20, 'sc');\n    const right = st.res === 'right', k = right ? arr(0.1, 1.4) : 0;\n    const q = 10 + (OP[0].q - 10) * k, hp = pumpH(q, 1), hs = sysH(q, 1, LIFT);\n    line(X(q), GY0, X(q), Y(hp), 'gd');\n    if (hp - hs > 0.6) path(`M${rn(X(q) - 8)} ${rn(Y(hp))} H${rn(X(q) - 12)} V${rn(Y(hs))} H${rn(X(q) - 8)}`, 'brk');\n    circle(X(q), Y(hs), 5, 'pts'); circle(X(q), Y(hp), 5, 'pt');\n    const before = show(right ? arr(0.1) : 0, 0);\n    ftext(before, X(10) - 16, (Y(26) + Y(16)) / 2 + 4.5, 'spare 10 m', 'lab n', 'end');\n    ftext(before, X(10) + 8, Y(26) - 8, '26 m', 'lab', 'start');\n    ftext(before, X(10) + 8, Y(16) + 18, '16 m', 'lab', 'start');\n    if (right) { REC.ans = true; REC.res = q; ftext(arr(0.9), 170, 32, `the flow climbs to ${N.q[0]} L/s`, 'lab n'); }\n    if (bad) {\n      REC.bad++;\n      part(wa, 0, () => { if (bad === d.bad[O.stay]) circle(X(10), GY0, 9, 'bad'); else arrow(X(10) - 4, GY0 - 12, X(6), GY0 - 12, 'w'); });\n      ftext(wa, 170, 32, bad.lab, 'lab w');\n    }\n    return { hg: 266, ag: 'A graph of head against flow, with the pump\\'s curve and the system curve. At 10 L/s the pump gives 26 m and the pipe needs 16 m: 10 m are spare.' + (right ? ` The flow climbs to the crossing, about ${N.q[0]} L/s.` : '') };\n  }\n  // The outlet gauge as the valve closes a little.\n  function gGauge(d, st, bad, wa) {\n    const right = st.res === 'right', k = right ? arr(0.1, 1.4) : 0, o = opOf({ v: k, s: 1 });\n    const ap = drawPump({ v: k, s: 1, level: 2, pd: false, q: o.q, H: o.H, shut: false, cav: false });\n    base = artG;\n    axes(35, false); keyRow(14, KEY); liftLine(LIFT);\n    curve(pumpFn(1), 0, 20, 'pc'); curve(sysFn(1), 0, 20, 'sc');\n    if (right) {\n      REC.ans = true; REC.res = o.q;\n      part(arr(0.1), 0, () => curve(sysFn(0.5), 0, 20, 'sc'));\n      ftext(arr(0.5), X(Math.sqrt(25 / 0.12)) + 6, GY1 + 12, 'valve ×2', 'lab t', 'start');\n      circle(X(OP[0].q), Y(OP[0].H), 4.5, 'ptg');\n      ftext(arr(0.9), 170, 32, 'less flow, more head, so the gauge rises', 'lab n');\n    }\n    opDot(o.q, o.H);\n    if (bad) {\n      REC.bad++;\n      part(wa, 0, () => { if (bad === d.bad[O.gDown]) circle(X(OP[1].q), Y(19), 5.5, 'badd'); else circle(X(OP[0].q), Y(OP[1].H), 5.5, 'badd'); });\n      ftext(wa, 170, 32, bad.lab, 'lab w');\n    }\n    return { ap, hg: 266, ag: 'A graph of head against flow: the pump\\'s curve, the system curve with the valve open, and a dot where they cross.' + (right ? ` The valve at friction ×2 steepens the system curve, and the dot slides up the pump's curve to about ${N.q[1]} L/s and ${N.H[1]} m.` : '') };\n  }\n  // The water's power, open and at friction ×2.\n  function gPower(d, st, bad, wa) {\n    base = artG;\n    const k = 62, X0 = 12, right = st.res === 'right', ra = right ? arr(0.1) : 0;\n    text(8, 24, `valve open: ${N.q[0]} L/s at 22 m`, 'lab', 'start');\n    rect(X0, 34, k * W0, 18, 'pw'); text(X0 + k * W0 + 6, 48, `${N.w0} kW`, 'lab n', 'start');\n    text(8, 88, `friction ×2: ${N.q[1]} L/s at 25 m`, 'lab', 'start');\n    ftext(show(ra, wa), X0 + 8, 112, '?', 'lab n', 'start');\n    if (right) {\n      REC.ans = true; REC.res = W1;\n      part(ra, 0, () => rect(X0, 98, k * W1, 18, 'pw'));\n      ftext(arr(0.5), X0 + k * W1 + 6, 112, `${N.w1} kW`, 'lab n', 'start');\n      ftext(arr(0.9), 170, 150, `${DS} × ${GS} × 0.0112 × 25 = about ${N.w1r} kW`, 'lab n');\n    }\n    if (bad) {\n      REC.bad++;\n      const v = bad === d.bad[O.w36] ? W0 * OP[1].H / OP[0].H : W0;\n      part(wa, 0, () => rect(X0, 98, k * v, 18, 'bad'));\n      ftext(wa, 170, 150, bad.lab, 'lab w');\n    }\n    rect(8, 172, 12, 12, 'pw'); text(26, 182, \"the water's power, ρgQH\", 'lab m', 'start');\n    return { hg: 196, ag: `Two power bars. With the valve open, ${N.q[0]} L/s at 22 m, the water takes ${N.w0} kW. At friction ×2, ${N.q[1]} L/s at 25 m, its power is the question.` + (right ? ` It is about ${N.w1} kW.` : '') };\n  }\n  // The pump slowed to 55%: its most head against the 10 m lift.\n  function gSlow(d, st, bad, wa) {\n    base = artG;\n    axes(35, false);\n    const right = st.res === 'right', show55 = right || !!bad, a55 = right ? arr(0.1) : wa;\n    keyRow(14, [{ c: 'ghost', s: 'full speed' }, { c: 'sc', s: 'system curve' }].concat(show55 ? [{ c: 'pc', s: '55%' }] : []));\n    liftLine(LIFT, true);\n    curve(pumpFn(1), 0, 20, 'ghost'); curve(sysFn(1), 0, 20, 'sc');\n    if (show55) part(a55, 0, () => curve(pumpFn(0.55), 0, 20, 'pc'));\n    circle(X(0), Y(pumpH(0, 0.55)), 4.5, 'pt');\n    text(X(0) + 8, Y(pumpH(0, 0.55)) + 20, `55%: ${N.t55} m`, 'lab n', 'start');\n    if (right) { REC.ans = true; REC.res = opOf({ v: 0, s: 0.55 }).q; ftext(arr(0.6), 170, 32, 'no crossing, so no flow', 'lab n'); }\n    if (bad) {\n      REC.bad++;\n      part(wa, 0, () => {\n        if (bad === d.bad[O.s78]) circle(X(0.55 * OP[0].q), Y(sysH(0.55 * OP[0].q, 1, LIFT)), 5.5, 'badd');\n        else circle(X(OP[0].q), Y(Math.max(0, pumpH(OP[0].q, 0.55))), 5.5, 'badd');\n      });\n      ftext(wa, 170, 32, bad.lab, 'lab w');\n    }\n    return { hg: 266, ag: `A graph of head against flow: the full-speed pump curve, the system curve from the 10 m lift, and a dot on the head axis at ${N.t55} m, the 55% pump's most head.` + (show55 ? ' The 55% curve lies wholly under the system curve: they never cross.' : '') };\n  }\n  // Cavitation at −4 m, and what stops it.\n  function gCav(d, st, bad, wa) {\n    const right = st.res === 'right', k = right ? arr(0.1, 1.4) : 0, lv = -4 + k, q = OP[0].q;\n    const thr = !!bad && bad === d.bad[O.throttle], fst = !!bad && bad === d.bad[O.faster];\n    const cav = npA(lv, q) < npR(q, 1);\n    const ap = drawPump({ v: 0, s: 1, level: lv, levelR: Math.round(lv), pd: false, q, H: OP[0].H, shut: false, cav, showLevel: true });\n    if (thr) part(wa, 0, () => path('M88 120 L100 128 L88 136 Z M112 120 L100 128 L112 136 Z', 'badv'));\n    const ag = npshPanel(lv, Math.round(lv), q, 1, { thr: thr ? wa : 0, fst: fst ? wa : 0 });\n    if (right) { REC.ans = true; REC.res = npA(lv, q); ftext(arr(0.9), 170, 32, `at −3 m, ${N.na3} m beats ${N.nr} m`, 'lab n'); }\n    if (bad) { REC.bad++; ftext(wa, 170, 32, bad.lab, 'lab w'); }\n    return { ap, hg: 262, ag };\n  }\n  // A pump left running against a shut valve: the trapped seawater's warming over a minute.\n  function gWarm(d, st, bad, wa) {\n    base = artG;\n    const TX = (t) => GX0 + (GX1 - GX0) * t / 60, TY = (r) => GY0 - (GY0 - GY1) * r / 12;\n    for (let v = 0; v <= 12; v += 4) {\n      if (v) line(GX0, TY(v), GX1, TY(v), 'grid');\n      line(GX0 - 4, TY(v), GX0, TY(v), 'tick'); text(GX0 - 7, TY(v) + 4.5, String(v), 'lab m', 'end');\n    }\n    line(GX0, GY0, GX1, GY0, 'ax'); line(GX0, GY0, GX0, GY1, 'ax');\n    text(8, 52, 'warming (°C)', 'lab m', 'start');\n    [0, 20, 40, 60].forEach((t) => { line(TX(t), GY0, TX(t), GY0 + 4, 'tick'); text(TX(t), GY0 + 17, String(t), 'lab m'); });\n    text(GX1, GY0 + 34, 'time (s)', 'lab m', 'end');\n    const right = st.res === 'right', ra = right ? arr(0.1) : 0, k = right ? arr(0.1, 1.4) : 0;\n    ftext(show(ra, wa), 170, 32, '3.0 kW into 5 kg of trapped seawater', 'lab m');\n    if (right) {\n      REC.ans = true; REC.res = RATE;\n      const t = 60 * k;\n      if (t > 0.3) line(TX(0), TY(0), TX(t), TY(RATE * t), 'pc');\n      ftext(arr(0.9), TX(60) - 4, TY(60 * RATE) - 12, `near ${N.wm} °C after a minute`, 'lab n', 'end');\n      ftext(arr(0.9), 170, 32, `about ${N.wr} °C a second`, 'lab n');\n    }\n    if (bad) {\n      REC.bad++;\n      part(wa, 0, () => { if (bad === d.bad[O.wNone]) line(TX(0), TY(0) - 3, TX(60), TY(0) - 3, 'badl'); else arrow(TX(3), TY(0) - 4, TX(3), GY1, 'w'); });\n      ftext(wa, 170, 32, bad.lab, 'lab w');\n    }\n    return { hg: 266, ag: 'A graph of how far the trapped seawater warms, in °C, against time, over one minute.' + (right ? ` It climbs at about ${N.wr} °C a second, to near ${N.wm} °C after a minute.` : '') };\n  }\n  // A cooling pump's gauges: which change moved the dot?\n  function gDiag(d, st, bad, wa) {\n    base = artG;\n    axes(35, false); keyRow(14, KEY); liftLine(LIFT);\n    curve(pumpFn(1), 0, 20, 'pc'); curve(sysFn(1), 0, 20, 'sc');\n    const right = st.res === 'right', ra = right ? arr(0.1) : 0, k = right ? arr(0.1, 1.4) : 0;\n    ftext(show(ra, wa), 170, 32, 'gauge higher, ammeter lower, flow lower', 'lab m');\n    const fast = !!bad && bad === d.bad[O.fast];\n    circle(X(OP[0].q), Y(OP[0].H), 5, 'ptg');\n    text(X(OP[0].q) - 16, Y(OP[0].H) + 4.5, 'usual', 'lab m', 'end');\n    if (right) {\n      REC.ans = true;\n      const o = opOf({ v: 2 * k, s: 1 });\n      REC.res = o.q;\n      part(ra, 0, () => curve(sysFn(0.25), 0, 20, 'sc'));\n      opDot(o.q, o.H);\n      ftext(arr(0.9), X(OP[2].q) - 10, Y(OP[2].H) - 12, 'now', 'lab n', 'end');\n      ftext(arr(0.9), 170, 32, \"choked, so up the pump's curve\", 'lab n');\n    }\n    if (bad) {\n      REC.bad++;\n      part(wa, 0, () => {\n        if (fast) { curve(pumpFn(1.1), 0, 20, 'badl'); const f = opC(1, 1.1, LIFT); circle(X(f.q), Y(f.H), 5.5, 'badd'); }\n        else { const f = opC(2, 1, LIFT); circle(X(f.q), Y(f.H), 5.5, 'badd'); }\n      });\n      ftext(wa, 170, 32, bad.lab, 'lab w');\n    }\n    return { hg: 266, ag: 'A graph of head against flow: the pump\\'s curve, the usual system curve and the usual operating point.' + (right ? ' A steeper system curve moves the dot up the pump\\'s curve, to less flow and more head.' : '') };\n  }\n  // The high tank raised 6 m: a 16 m lift on the same pipe.\n  function gHigh(d, st, bad, wa) {\n    base = artG;\n    axes(35, false);\n    const right = st.res === 'right', ra = right ? arr(0.1) : 0;\n    keyRow(14, [{ c: 'pc', s: \"pump's curve\" }, { c: 'ghost', s: 'old system curve' }].concat(right ? [{ c: 'sc', s: 'new' }] : []));\n    liftLine(LIFT); liftLine(16);\n    curve(pumpFn(1), 0, 20, 'pc'); curve(sysFn(1, LIFT), 0, 20, 'ghost');\n    if (right) {\n      REC.ans = true; REC.res = HI.q;\n      part(ra, 0, () => { curve(sysFn(1, 16), 0, 20, 'sc'); opDot(HI.q, HI.H); });\n      ftext(arr(0.9), 170, 32, `it settles at about ${N.hq} L/s and ${N.hH} m`, 'lab n');\n    }\n    if (bad) {\n      REC.bad++;\n      part(wa, 0, () => { if (bad === d.bad[O.hSame]) circle(X(OP[0].q), Y(OP[0].H), 5.5, 'badd'); else circle(X(Math.sqrt((HS - 16) / AP)), Y(16), 5.5, 'badd'); });\n      ftext(wa, 170, 32, bad.lab, 'lab w');\n    }\n    return { hg: 266, ag: 'A graph of head against flow: the pump\\'s curve, the old system curve from the 10 m lift, and a dashed line at the new 16 m lift.' + (right ? ` The new system curve crosses the pump's at about ${N.hq} L/s and ${N.hH} m.` : '') };\n  }\n\n  const DRAW = { intro: gIntro, live: gLive, spare: gSpare, gauge: gGauge, power: gPower, slow: gSlow, cav: gCav, warm: gWarm, diag: gDiag, high: gHigh };\n  // The pictures for a step (the animation calls this every frame).\n  function paint(i, pOver) {\n    if (i == null) i = at();\n    const d = STEPS[i], st = S[i], p = pOver || K.params();\n    artP.textContent = ''; artG.textContent = '';\n    into = null; base = artG;\n    REC = { bad: 0, ans: false, res: null, bub: 0 };\n    const bad = wrongOf(d, st), wa = bad ? arr(0.1) : 0;\n    const r = DRAW[d.draw](d, st, bad, wa, p);\n    base = artG;\n    svgG.setAttribute('viewBox', '0 0 340 ' + r.hg);\n    svgG.setAttribute('aria-label', r.ag + (bad ? ' The answer picked is drawn as a dashed warning mark.' : ''));\n    if (r.ap) svgP.setAttribute('aria-label', r.ap);\n  }\n\n  // ---------- motion: one animation plays each demonstration, the flowing water and an answer ----------\n  function valAt(m) {\n    const ks = m.keys, last = ks[ks.length - 1];\n    if (T === Infinity || T >= last[0]) return last[1];\n    if (T <= ks[0][0]) return ks[0][1];\n    for (let j = 1; j < ks.length; j++) {\n      if (T < ks[j][0]) {\n        const a = (T - ks[j - 1][0]) / Math.max(1e-6, ks[j][0] - ks[j - 1][0]);\n        return K.lerp(ks[j - 1][1], ks[j][1], K.ease(a));\n      }\n    }\n    return last[1];\n  }\n  function stepMot() {\n    if (!MOT) return;\n    let done = true;\n    MOT.forEach((m) => {\n      setCtl(m.ctl, valAt(m));\n      if (T !== Infinity && T < m.keys[m.keys.length - 1][0]) done = false;\n    });\n    keyNow = ctlKey(K.params());\n    if (done) { MOT = null; Object.keys(EX).forEach((k) => delete EX[k]); }\n  }\n  function finishMot() { if (MOT) { T = Infinity; stepMot(); MOT = null; } }\n  const flowOn = () => !REDUCE && !testing() && !finished && !!STEPS[at()].pump;\n  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {\n    if (finished) return false;\n    T += dt;\n    if (flowOn()) {\n      W += 4 * LASTQ * dt;\n      ROT += 6 * LASTS * dt;\n      BUB = (BUB + 0.9 * dt) % 1;\n    }\n    if (MOT) { stepMot(); K.refresh(); } else paint();\n    return T < motionEnd || !!MOT || flowOn();\n  } });\n  document.addEventListener('visibilitychange', () => {\n    if (!document.hidden && !anim.playing() && (T !== Infinity || MOT)) { T = Infinity; finishMot(); K.refresh(); }\n  });\n  function play(dur) {\n    if (REDUCE || testing()) { anim.pause(); finishMot(); T = Infinity; return; }\n    motionEnd = dur; T = 0; anim.play();\n  }\n  function enter(id) {\n    if (REDUCE) return;\n    const box = el(id);\n    box.classList.remove('enter');\n    void box.offsetWidth;\n    box.classList.add('enter');\n  }\n  // A new screen: a live one takes its own settings and runs its demonstration once.\n  function onEnter(i) {\n    const d = STEPS[i];\n    MOT = null; W = 0;\n    Object.keys(EX).forEach((k) => delete EX[k]);\n    if (d.live) {\n      const b = Object.assign({ valve: 0, speed: 100, level: 2, pd: false }, d.set || {});\n      Object.keys(b).forEach((k) => setCtl(k, b[k]));\n      if (d.mot) { MOT = d.mot.map((m) => Object.assign({}, m)); MOT.forEach((m) => setCtl(m.ctl, m.keys[0][1])); }\n    }\n    if (d.show) play(d.dur); else { anim.pause(); T = Infinity; }\n  }\n\n  // ---------- what Dan reads under a live picture ----------\n  function sayFor(d, p) {\n    const ds = stateOf(d, p, false), o = opOf(ds), q = fx(o.q, 1), H = fx(o.H, 1), P = fx(o.P, 2), nm = VNAME[ds.v];\n    if (d.say === 'valve') {\n      if (ds.v === 0) return `With the valve open, the pump settles at ${q} L/s and ${H} m.`;\n      if (ds.v === 4) return `With the valve shut, no water flows. The pump gives its most head, ${H} m.`;\n      return `At ${nm} the system curve is steeper. The pump settles at ${q} L/s and ${H} m.`;\n    }\n    if (d.say === 'power') {\n      const e = fx(100 * effC(o.q, ds.s));\n      if (ds.v === 0) return `Open, the shaft takes ${P} kW, and the pump runs at ${e}% efficiency.`;\n      if (ds.v === 4) return `Shut, no water flows, yet the shaft still takes ${P} kW. Nearly all of it warms the trapped water.`;\n      return `At ${nm} the shaft takes ${P} kW, at ${e}% efficiency.`;\n    }\n    if (d.say === 'speed') {\n      const sp = Math.round(ds.s * 100);\n      if (!o.flows) return `At ${sp}% its most head, ${fx(pumpH(0, ds.s), 1)} m, is under the 10 m lift. No water flows.`;\n      if (sp === 100) return `At full speed it settles at ${q} L/s and ${H} m, for ${P} kW.`;\n      return `At ${sp}% it settles at ${q} L/s and ${H} m, for ${P} kW. Throttled, ${N.q[2]} L/s takes ${N.P[2]} kW.`;\n    }\n    if (d.say === 'suction') {\n      const a = fx(npA(ds.level, o.q), 1), r = fx(npR(o.q, ds.s), 1), lv = lvText(ds.level);\n      if (cavOf(ds, o)) return `At ${lv}, only ${a} m is available, under the ${r} m required. The water boils at the eye. That is cavitation.`;\n      return `At ${lv}, ${a} m is available and ${r} m is required, so the water stays liquid.`;\n    }\n    if (d.say === 'pd') {\n      if (!ds.pd) return ds.v === 4 ? 'The centrifugal pump against a shut valve gives no flow, at its most head.' : `The centrifugal pump at ${nm} settles at ${q} L/s and ${H} m.`;\n      if (o.shut) return 'Shut, the water has nowhere to go. Its pressure would climb until something gives.';\n      if (ds.v === 0) return `Open, it gives ${q} L/s at ${H} m, for ${P} kW.`;\n      return `At ${nm} it still gives ${q} L/s, now at ${H} m, for ${P} kW. Its motor works harder.`;\n    }\n    return '';\n  }\n  function layout(i, d, st, p) {\n    const right = st.res === 'right', L = d.live || {}, outs = d.outs || [];\n    el('stepbox').hidden = finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;\n    const task = el('task');\n    const tk = i + '|' + finished;\n    if (tk !== taskKey) { taskKey = tk; task.className = 'task' + (d.show ? ' show' : ''); write(task, d.show ? d.text : d.task); }\n    svgP.toggleAttribute('hidden', !d.pump);\n    el('ctl').hidden = !d.live;\n    valveCtl.el.hidden = !L.valve; speedCtl.el.hidden = !L.speed; levelCtl.el.hidden = !L.level; pdCtl.el.hidden = !L.pd;\n    el('say').hidden = !d.live;\n    el('say').textContent = d.live ? nb(sayFor(d, p)) : '';\n    el('outs').hidden = !outs.length;\n    rFlow.el.hidden = outs.indexOf('flow') < 0; rHead.el.hidden = outs.indexOf('head') < 0; rPow.el.hidden = outs.indexOf('shaftPower') < 0;\n    el('replay').hidden = !d.show || REDUCE;\n    const opts = d.show ? [] : d.opts;\n    el('picks').hidden = !opts.length;\n    el('picks').classList.toggle('long', opts.some((x) => x.length > 9));\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(opts[k]);\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n    el('acts').hidden = !!d.show;\n    checkBtn.el.hidden = right;\n    const fb = el('fb');\n    fb.hidden = !!d.show;\n    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');\n    fb.textContent = nb(d.show ? '' : right ? (d.right || \"That's it.\") : st.res === 'wrong' ? ((d.hints && d.hints[st.pick]) || d.hint) : st.res === 'empty' ? PICK : '');\n    const why = el('why');\n    why.hidden = !!d.show || !st.why;\n    write(why, d.show ? '' : d.why);\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !right);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  }\n\n  write(el('finish'), FINISH);\n  K.update((p, o) => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (i !== lastStep) {\n      lastStep = i; taskKey = ''; enter('stepbox'); onEnter(i);\n      if (d.live) { keyNow = ctlKey(K.params()); K.refresh(); return; }\n    }\n    if (d.live) {\n      const k = ctlKey(p);\n      if (k !== keyNow) {   // Dan moved something: the demonstration gives way to him\n        keyNow = k;\n        if (MOT) { MOT = null; T = Infinity; Object.keys(EX).forEach((q) => delete EX[q]); }\n      }\n    }\n    if (!anim.playing()) T = Infinity;\n    if (finished !== lastDone) { lastDone = finished; taskKey = ''; enter(finished ? 'done' : 'stepbox'); }\n    layout(i, d, st, p);\n    paint(i, p);\n    if (!anim.playing() && flowOn()) anim.play();\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);\n  const solved = (i) => ({ pick: STEPS[i].want, res: 'right', why: false });\n  const wrongSt = (i, o) => ({ pick: o, res: 'wrong', why: false });\n  const idx = (name) => STEPS.findIndex((d) => d.name === name);\n  function drawn(i, st) {\n    const keepS = S[i], keepT = T;\n    S[i] = st; T = Infinity; CHECKING = true;\n    try { paint(i); return REC; }\n    finally { S[i] = keepS; T = keepT; paint(); CHECKING = false; }\n  }\n  const S_VALVE = idx('Closing the valve'), S_POWER = idx('Power as the valve closes'), S_SPEED = idx('Slowing the pump');\n  const S_SUCT = idx('Suction and cavitation'), S_PD = idx('A positive displacement pump');\n  const words = (s) => String(s || '').replace(/\\*/g, '').split(/\\s+/).filter(Boolean).length;\n\n  K.check('The density of seawater is about 1025 kg/m³: the water takes ρgQH = 1025 × 9.81 × 0.0141 × 22, about 3.13 kW, with the valve open', () =>\n    RHO === 1025 && K.near(W0, 1025 * 9.81 * (Math.sqrt(200) / 1000) * 22 / 1000, 1e-9) && N.w0 === '3.13', { source: SRC_TALLEY });\n  K.check('The specific heat of seawater is about 3850 J/(kg C): a shut pump\\'s 3.0 kW into 5 kg of trapped seawater warms it 3,000 ÷ (5 × 3850), about 0.16 °C a second, near 9 °C a minute; 600 leaves out the specific heat', () =>\n    CP === 3850 && K.near(RATE, 3000 / (5 * 3850), 1e-12) && K.near(shaftC(0, 1), 3.0, 1e-12) && N.wr === '0.16' && N.wm === '9' && N.wx === '600', { source: SRC_TALLEY });\n  K.check('Screen 1\\'s rules: 30 − 0.04q² = 10 + 0.06q² gives 0.1q² = 20, so q² = 200, about 14.1 L/s at 22.0 m', () =>\n    K.near(AP + AS, 0.1, 1e-12) && HS - LIFT === 20 && K.near(OP[0].q * OP[0].q, 200, 1e-9) && N.q[0] === '14.1' && N.H[0] === '22.0');\n  K.check('The pressure at the bottom of the atmosphere is about (1025)(9.81)(10) Pa, about 10⁵ Pa: so 100 kPa holds up about 9.9 m of seawater', () =>\n    Math.abs(1025 * 9.81 * 10 - 1e5) < 1000 && K.near(ATM * RHO * G, 1e5, 1e-6) && N.atm === '9.9', { source: SRC_WHOI });\n  K.check('The intersection of both curves is the operating point: at every valve stop and speed that flows, the pump gives exactly the head the pipe needs', () => {\n    for (let v = 0; v <= 3; v++) for (let sp = 60; sp <= 100; sp += 5) {\n      const s = sp / 100, o = opOf({ v, s });\n      if (!(o.q > 0) || !K.near(pumpH(o.q, s), o.H, 1e-9) || !K.near(sysH(o.q, INV[v], LIFT), o.H, 1e-9)) return false;\n    }\n    const m = K.at({ step: S_VALVE, valve: 1 });\n    return K.near(m.flow, Math.sqrt(125), 1e-6) && K.near(m.head, 25, 1e-6);\n  }, { source: SRC_FIU });\n  K.check('Closing a discharge valve changes the system resistance curve: each stop is steeper at every flow, so the flow falls and the head rises', () => {\n    for (let v = 0; v < 3; v++) for (let q = 1; q <= 20; q++) if (!(sysH(q, INV[v + 1], LIFT) > sysH(q, INV[v], LIFT))) return false;\n    for (let v = 0; v < 4; v++) {\n      const a = K.at({ step: S_VALVE, valve: v }), b = K.at({ step: S_VALVE, valve: v + 1 });\n      if (!(b.flow < a.flow && b.head > a.head)) return false;\n    }\n    return true;\n  });\n  K.check('At the no-flow condition, a shut valve, the pump builds its most head, and the power needed is at or near its least', () => {\n    const s = K.at({ step: S_POWER, valve: 4 });\n    if (s.flow !== 0 || !K.near(s.head, HS, 1e-9)) return false;\n    for (let v = 0; v < 4; v++) { const o = K.at({ step: S_POWER, valve: v }); if (!(o.head < s.head && o.shaftPower > s.shaftPower)) return false; }\n    return true;\n  }, { source: SRC_SHUT });\n  K.check(\"As the flow rate increases, the motor's amperage rises: opening the valve stop by stop raises the flow and the shaft power together\", () => {\n    for (let v = 4; v > 0; v--) {\n      const a = K.at({ step: S_POWER, valve: v }), b = K.at({ step: S_POWER, valve: v - 1 });\n      if (!(b.flow > a.flow && b.shaftPower > a.shaftPower)) return false;\n    }\n    return true;\n  }, { source: SRC_SHUT });\n  K.check('The NPSH value is the minimum absolute pressure at the suction to avoid cavitation: the pump cavitates exactly when NPSH available falls below NPSH required', () => {\n    for (let lv = -6; lv <= 4; lv++) {\n      const st = { v: 0, s: 1, level: lv, pd: false }, o = opOf(st);\n      if (cavOf(st, o) !== (npA(lv, o.q) < npR(o.q, 1))) return false;\n    }\n    const c = (lv) => cavOf({ v: 0, s: 1, level: lv, pd: false }, OP[0]);\n    return !c(2) && !c(-3) && c(-4) && c(-6);\n  }, { source: SRC_NPSH });\n  K.check('Every number the valve screens print comes from the rule: 14.1, 11.2, 8.5 and 5.6 L/s at 22.0, 25.0, 27.1 and 28.8 m, and 30.0 m shut; 4.41, 4.12, 3.85, 3.56 and 3.00 kW; 71, 68, 60 and 45%', () =>\n    N.q.slice(0, 4).join('|') === '14.1|11.2|8.5|5.6' && N.H.join('|') === '22.0|25.0|27.1|28.8|30.0' && N.P.join('|') === '4.41|4.12|3.85|3.56|3.00' &&\n    N.e.slice(0, 4).join('|') === '71|68|60|45' && OP[4].q === 0 && N.qpk === '14' && N.epk === '71');\n  K.check(\"The power and puzzle figures: 3.13 and 2.81 kW, with 2.8, 3.6 and 3.1 offered; 19.2 m, 9.6 L/s, 15.5 m and 2.15 kW at 80%; 9.1 m and no flow at 55%, 7.8 offered; 11.8 L/s at 24.4 m, or 18.7 without friction\", () =>\n    N.w0 === '3.13' && N.w1 === '2.81' && N.w1r === '2.8' && N.w1h === '3.6' && N.w0r === '3.1' && N.t80 === '19.2' && N.q80 === '9.6' && N.H80 === '15.5' && N.P80 === '2.15' &&\n    N.t55 === '9.1' && N.q55w === '7.8' && K.at({ step: S_SPEED, speed: 55 }).flow === 0 && K.at({ step: S_SPEED, speed: 60 }).flow > 0 &&\n    N.hq === '11.8' && N.hH === '24.4' && N.hw === '18.7' && K.near(K.at({ step: S_SPEED, speed: 80 }).shaftPower, S80.P, 1e-6));\n  K.check('Suction: NPSH available is about 10.6 m at +2 m, 5.6 m at −3 m and 4.6 m at −4 m, against 5.0 m required at 14.1 L/s, with 1.0 m of suction friction', () =>\n    N.na2 === '10.6' && N.na3 === '5.6' && N.na4 === '4.6' && N.nr === '5.0' && N.fr === '1.0');\n  K.check('The positive displacement pump gives 9.8 L/s at 15.8 m for 1.96 kW open, and 9.4 L/s at 62.7 m for 7.39 kW at friction ×10: its flow falls by under a twentieth while its head nearly quadruples', () => {\n    const a = K.at({ step: S_PD, pd: true, valve: 0 }), b = K.at({ step: S_PD, pd: true, valve: 3 }), s = K.at({ step: S_PD, pd: true, valve: 4 });\n    return N.pq0 === '9.8' && N.pH0 === '15.8' && N.pP0 === '1.96' && N.pq3 === '9.4' && N.pH3 === '62.7' && N.pP3 === '7.39' &&\n      K.near(a.flow, PD0.q, 1e-6) && K.near(b.head, PD3.H, 1e-6) && (a.flow - b.flow) / a.flow < 0.05 && b.head / a.head > 3.9 && b.head / a.head < 4 &&\n      K.near(b.flow, PDQ - SLIP * b.head, 1e-6) && b.shaftPower > a.shaftPower && s.flow === 0 && typeof s.head === 'string';\n  });\n  K.check('The efficiency hump peaks near 14 L/s at about 71%; by the pump laws, at 80% speed its peak is the same height at 80% of the flow', () => {\n    let q8 = 0, e8 = 0;\n    for (let j = 0; j <= 2000; j++) { const e = effC(j / 100, 0.8); if (e > e8) { e8 = e; q8 = j / 100; } }\n    return K.near(QPK, 13.83, 0.011) && K.near(EPK, 0.709, 0.001) && K.near(e8, EPK, 1e-4) && K.near(q8 / QPK, 0.8, 0.002);\n  });\n  K.check('Each puzzle offers three different answers including its right one, every wrong answer has its own hint, and before Check nothing on its picture shows the answer or a warning mark', () =>\n    DO.every((i) => {\n      const d = STEPS[i];\n      if (d.opts.length !== 3 || d.opts.indexOf(d.want) < 0 || new Set(d.opts).size !== 3) return false;\n      if (!d.opts.every((o) => o === d.want || (d.hints[o] && d.hints[o].length > 10 && d.bad[o]))) return false;\n      const g = drawn(i, blank());\n      return !g.bad && !g.ans;\n    }));\n  K.check('A wrong pick is drawn as a warning where it fails, and a right answer draws none', () =>\n    DO.every((i) => {\n      const d = STEPS[i];\n      if (drawn(i, solved(i)).bad) return false;\n      return d.opts.filter((o) => o !== d.want).every((o) => drawn(i, wrongSt(i, o)).bad > 0);\n    }));\n  K.check(\"A right answer draws the rule's result: the flow climbs to 14.14 L/s; 11.18 L/s; 2.811 kW; no flow; 5.645 m available with no bubbles; 0.156 °C a second; 8.452 L/s; 11.83 L/s\", () => {\n    const r = (name) => { const i = idx(name); return drawn(i, solved(i)); };\n    const cavBlank = drawn(idx('Stopping the cavitation'), blank()), cavRight = r('Stopping the cavitation');\n    return K.near(r('Spare head').res, 14.1421, 1e-4) && K.near(r('The outlet gauge').res, 11.1803, 1e-4) && K.near(r(\"The water's power\").res, 2.8106, 1e-4) &&\n      r('Too slow').res === 0 && K.near(cavRight.res, 5.645, 0.001) && cavRight.bub === 0 && cavBlank.bub > 0 &&\n      K.near(r('Left running shut').res, 3000 / (5 * 3850), 1e-9) && K.near(r('Reading the gauges').res, 8.4515, 1e-4) && K.near(r('A higher tank').res, 11.8322, 1e-4);\n  });\n  K.check('Every demonstration has finished within 4.5 s of its screen opening, its first move after the 0.35 s screen fade; every answer\\'s motion, right or wrong, within 2 s', () => {\n    const keepT = T;\n    const timed = (i, st, limit) => {\n      const keepS = S[i];\n      T = Infinity; latest = 0; CHECKING = true;\n      S[i] = st;\n      try { paint(i); } finally { S[i] = keepS; CHECKING = false; }\n      return latest <= limit + 1e-9;\n    };\n    const ok = STEPS.every((d, i) => {\n      if (d.show) return (d.mot || []).every((m) => m.keys.every((k) => k[0] >= FADE && k[0] <= d.dur)) && d.dur >= 3 && d.dur <= 4.5 && timed(i, blank(), d.dur);\n      return timed(i, solved(i), ANS) && d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), ANS));\n    });\n    T = keepT; paint();\n    return ok;\n  });\n  // The paragraph and the live line under the picture together, at every setting the screen allows.\n  K.check('Every demonstration screen, with the live line under it, keeps to about 90 words', () => STEPS.every((d, i) => {\n    if (!d.show) return true;\n    let most = 0;\n    if (d.live) {\n      const L = d.live;\n      (L.valve ? [0, 1, 2, 3, 4] : [0]).forEach((valve) => (L.speed ? K.linspace(50, 100, 11) : [100]).forEach((speed) => (L.level ? K.linspace(-6, 4, 11) : [2]).forEach((level) => (L.pd ? [false, true] : [false]).forEach((pd) => {\n        most = Math.max(most, words(sayFor(d, { step: i, valve, speed, level, pd })));\n      }))));\n    }\n    return words(d.text) + most <= 90 && (!d.read || words(d.read) + most <= 90);\n  }));\n\n  K.ready();\n</script>",
+  "title": "Where the curves meet",
+  "brief": "The one thing you should see is the operating point sliding up the pump's curve to less flow and more head, as the system curve steepens, when you drag the valve closed.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "The density of seawater is about 1025 kg/m³: the water takes ρgQH = 1025 × 9.81 × 0.0141 × 22, about 3.13 kW, with the valve open",
+     "ok": true,
+     "source": "https://talleylab.ucsd.edu/sio210/lect_2/lecture_2.html"
+    },
+    {
+     "label": "The specific heat of seawater is about 3850 J/(kg C): a shut pump's 3.0 kW into 5 kg of trapped seawater warms it 3,000 ÷ (5 × 3850), about 0.16 °C a second, near 9 °C a minute; 600 leaves out the specific heat",
+     "ok": true,
+     "source": "https://talleylab.ucsd.edu/sio210/lect_2/lecture_2.html"
+    },
+    {
+     "label": "Screen 1's rules: 30 − 0.04q² = 10 + 0.06q² gives 0.1q² = 20, so q² = 200, about 14.1 L/s at 22.0 m",
+     "ok": true
+    },
+    {
+     "label": "The pressure at the bottom of the atmosphere is about (1025)(9.81)(10) Pa, about 10⁵ Pa: so 100 kPa holds up about 9.9 m of seawater",
+     "ok": true,
+     "source": "https://www.whoi.edu/science/PO/people/tjoyce/whoi-mit_course/notes/course_notes_1b.pdf"
+    },
+    {
+     "label": "The intersection of both curves is the operating point: at every valve stop and speed that flows, the pump gives exactly the head the pipe needs",
+     "ok": true,
+     "source": "https://web.eng.fiu.edu/arleon/courses/Fluid_Mechanics/Lectures/Pumps_unfilled.pdf"
+    },
+    {
+     "label": "Closing a discharge valve changes the system resistance curve: each stop is steeper at every flow, so the flow falls and the head rises",
+     "ok": true
+    },
+    {
+     "label": "At the no-flow condition, a shut valve, the pump builds its most head, and the power needed is at or near its least",
+     "ok": true,
+     "source": "https://www.streampumps.com/pump-knowledge/start-centrifugal-pump-discharge-valve-closed.html"
+    },
+    {
+     "label": "As the flow rate increases, the motor's amperage rises: opening the valve stop by stop raises the flow and the shaft power together",
+     "ok": true,
+     "source": "https://www.streampumps.com/pump-knowledge/start-centrifugal-pump-discharge-valve-closed.html"
+    },
+    {
+     "label": "The NPSH value is the minimum absolute pressure at the suction to avoid cavitation: the pump cavitates exactly when NPSH available falls below NPSH required",
+     "ok": true,
+     "source": "https://www.grundfos.com/content/dam/global/page-assets/learn/ecademy/pdfs/master-36-module-4-About-pump-curves.pdf"
+    },
+    {
+     "label": "Every number the valve screens print comes from the rule: 14.1, 11.2, 8.5 and 5.6 L/s at 22.0, 25.0, 27.1 and 28.8 m, and 30.0 m shut; 4.41, 4.12, 3.85, 3.56 and 3.00 kW; 71, 68, 60 and 45%",
+     "ok": true
+    },
+    {
+     "label": "The power and puzzle figures: 3.13 and 2.81 kW, with 2.8, 3.6 and 3.1 offered; 19.2 m, 9.6 L/s, 15.5 m and 2.15 kW at 80%; 9.1 m and no flow at 55%, 7.8 offered; 11.8 L/s at 24.4 m, or 18.7 without friction",
+     "ok": true
+    },
+    {
+     "label": "Suction: NPSH available is about 10.6 m at +2 m, 5.6 m at −3 m and 4.6 m at −4 m, against 5.0 m required at 14.1 L/s, with 1.0 m of suction friction",
+     "ok": true
+    },
+    {
+     "label": "The positive displacement pump gives 9.8 L/s at 15.8 m for 1.96 kW open, and 9.4 L/s at 62.7 m for 7.39 kW at friction ×10: its flow falls by under a twentieth while its head nearly quadruples",
+     "ok": true
+    },
+    {
+     "label": "The efficiency hump peaks near 14 L/s at about 71%; by the pump laws, at 80% speed its peak is the same height at 80% of the flow",
+     "ok": true
+    },
+    {
+     "label": "Each puzzle offers three different answers including its right one, every wrong answer has its own hint, and before Check nothing on its picture shows the answer or a warning mark",
+     "ok": true
+    },
+    {
+     "label": "A wrong pick is drawn as a warning where it fails, and a right answer draws none",
+     "ok": true
+    },
+    {
+     "label": "A right answer draws the rule's result: the flow climbs to 14.14 L/s; 11.18 L/s; 2.811 kW; no flow; 5.645 m available with no bubbles; 0.156 °C a second; 8.452 L/s; 11.83 L/s",
+     "ok": true
+    },
+    {
+     "label": "Every demonstration has finished within 4.5 s of its screen opening, its first move after the 0.35 s screen fade; every answer's motion, right or wrong, within 2 s",
+     "ok": true
+    },
+    {
+     "label": "Every demonstration screen, with the live line under it, keeps to about 90 words",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step",
+    "valve",
+    "speed",
+    "level",
+    "pd"
+   ],
+   "readouts": [
+    "flow",
+    "head",
+    "shaftPower"
+   ],
+   "outputs": [
+    "flow",
+    "head",
+    "shaftPower"
+   ],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Screen",
+     "min": 0,
+     "max": 13,
+     "step": 1,
+     "steps": [
+      "Where the curves cross",
+      "Spare head",
+      "Closing the valve",
+      "The outlet gauge",
+      "Power as the valve closes",
+      "The water's power",
+      "Slowing the pump",
+      "Too slow",
+      "Suction and cavitation",
+      "Stopping the cavitation",
+      "A positive displacement pump",
+      "Left running shut",
+      "Reading the gauges",
+      "A higher tank"
+     ],
+     "value": 0
+    },
+    {
+     "id": "valve",
+     "kind": "control",
+     "label": "Valve",
+     "min": 0,
+     "max": 4,
+     "step": 1,
+     "log": false,
+     "value": 0,
+     "shown": false,
+     "snap": [
+      1,
+      3
+     ]
+    },
+    {
+     "id": "speed",
+     "kind": "control",
+     "label": "Pump speed",
+     "min": 50,
+     "max": 100,
+     "step": 5,
+     "log": false,
+     "value": 100,
+     "shown": false,
+     "snap": [
+      55,
+      80
+     ]
+    },
+    {
+     "id": "level",
+     "kind": "control",
+     "label": "Suction tank level",
+     "min": -6,
+     "max": 4,
+     "step": 1,
+     "log": false,
+     "value": 2,
+     "shown": false,
+     "snap": [
+      -4,
+      -3
+     ]
+    },
+    {
+     "id": "pd",
+     "kind": "toggle",
+     "label": "Positive displacement pump",
+     "options": [
+      false,
+      true
+     ],
+     "value": false,
+     "shown": false
+    }
+   ],
+   "actions": [
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Check",
+    "Why?",
+    "Play again",
+    "Back",
+    "Continue",
+    "Start again",
+    "Demonstration"
+   ],
+   "answers": [],
+   "written": [],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 2
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-27T05:56:25.421Z",
+  "applied": [
+   {
+    "path": "explain.text",
+    "problem": "\"Many expect a choked pump to work harder. It does less.\" is false for the positive displacement pump this lesson shows, and the practice says only most centrifugal pumps draw less current when throttled; narrowed to match."
+   },
+   {
+    "path": "practice.text",
+    "problem": "Starting against a shut valve at least power holds for most centrifugal pumps but not all (mixed and axial-flow ones can draw most at shut-off), and the gauge readings point to a cause rather than prove it; hedged to match the rest of the practice."
+   },
+   {
+    "path": "interactive.whatAmILookingAt",
+    "problem": "The NPSH figures at -4 m and -3 m keep the flow at 14.1 L/s, true only if the lift stays 10 m; a suction tank lowered alone would raise the lift to 16 m, cut the flow to about 11.8 L/s and end the cavitation. The model must say the lift is held."
+   },
+   {
+    "path": "interactive.ignores",
+    "problem": "\"The tanks levels are held still\" contradicts the tank level slider, and the panel should own up that holding the lift fixed while the suction level moves is a simplification."
+   }
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}

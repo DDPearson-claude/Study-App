@@ -1,0 +1,577 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Heat and fluids, from boiling water to pumps
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i3 "Gases, pressure and the air receiver" — Gas sums need absolute pressure and kelvin, because a gas's pressure, volume and temperature are in proportion only when measured from true zero. [quantity]
+Later ideas in the course (every claim must stay true after Dan has learned each of them):
+- i4 Heat into work: the first law and engines — Heat in equals work out plus the rise in a gas's stored energy, so an engine's fuel energy splits into work, cooling and exhaust.
+- i5 Pressure in liquids, and floating — Pressure in a liquid grows with depth alone, density × g × depth, and the extra push under an object is the upthrust that floats it.
+- i6 Fluids in motion — Flow through a narrowing speeds up, and the energy for that speed comes out of the pressure, so a narrowed pipe, a venturi, measures flow.
+- i7 Pipes, head and pump power — A pipe needs head, a height of liquid, for its lift plus friction that grows with flow squared, and head times flow sets pump power.
+- i8 Where the pump settles, and its limits — A centrifugal pump settles where its curve of head against flow crosses the pipe's, so closing a valve moves it to less flow, more head.
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] Ch. 9 Summary - Chemistry 2e | OpenStax — https://openstax.org/books/chemistry-2e/pages/9-summary
+    "The pressure of a given amount of gas is directly proportional to its absolute temperature, provided that the volume does not change"
+[R2] The gas laws pV = nRT — https://faculty.fiu.edu/~mebela/chm3410_chapter1.pdf
+    "If we compress a fixed amount of gas at constant temperature into half of its original volume, then its pressure will double."
+[R3] BTEC L3 Advanced Manufacturing Engineering Unit Specification — https://qualifications.pearson.com/content/dam/pdf/BTEC-Specialist-Qualifications/advanced-manufacturing-engineering-development-technical-knowledge/2016/specification/adv-man-eng-unit-spec.pdf
+    "absolute pressure = gauge + atmospheric pressure, force = pressure × area, actuator force = pressure × area × efficiency"
+[R4] What is an Air Receiver? - Atlas Copco USA — https://www.atlascopco.com/en-us/compressors/wiki/compressed-air-articles/what-is-an-air-receiver
+    "This will also prevent pressure fluctuation and frequent motor starts"
+[R5] Specific heat capacity - Energy and heating - AQA - GCSE Physics (Single Science) Revision - AQA - BBC Bitesize — https://www.bbc.co.uk/bitesize/guides/z2gjtv4/revision/5
+    "The amount of energy needed depends on: * the mass of the material * the substance of the material ( specific heat capacity ) * the desired temperature change"
+[R6] Specific heat capacity - Temperature changes and energy - Edexcel - GCSE Physics (Single Science) Revision - Edexcel - BBC Bitesize — https://www.bbc.co.uk/bitesize/guides/zpjpgdm/revision/4
+    "The specific heat capacity of water is 4,200 joules per kilogram per degree Celsius (J/kg°C). This means that it takes 4,200 J to raise the temperature of 1 kg of water by 1°C."
+[R7] 11.3 Phase Change and Latent Heat - Physics | OpenStax — https://openstax.org/books/physics/pages/11-3-phase-change-and-latent-heat
+    "Because this energy enters or leaves a system during a phase change without causing a temperature change in the system, it is known as latent heat"
+[R8] Constants and Formulas (321) — https://www.mtel.nesinc.com/Content/Docs/NES_Formulas_321.pdf
+    "Heat of fusion of water (Δ _Hfus_ ) 334 J/g = 80 cal/g = 6.01 kJ/mol Heat of vaporization of water (Δ _Hvap_ ) 2260 J/g = 540 cal/g"
+[R9] Properties of seawater — https://talleylab.ucsd.edu/sio210/lect_2/lecture_2.html
+    "The density of seawater is about 1025 kg/m^3 and the specific heat is about 3850 J/(kg C)."
+[R10] Properties of seawater — https://talleylab.ucsd.edu/sio210/lect_2/lecture_2.html
+    "If the pressure change is 100 decibars (100 dbar), gravity g = 9.8 m/sec^2, and density is 1025 kg/m^3, then the depth change is 99.55 meter."
+Notes (claims, and the sources that support them):
+- For a fixed amount of gas at constant volume, pressure is proportional to absolute (kelvin) temperature. [R1]
+- At constant temperature, halving a fixed amount of gas's volume doubles its pressure. [R2]
+- Absolute pressure is gauge pressure plus atmospheric pressure. [R3]
+- A larger air receiver prevents pressure fluctuation and frequent compressor motor starts. [R4]
+- The energy needed to change a material's temperature depends on its mass, its specific heat capacity and the temperature change wanted. [R5]  (from an idea this one builds on)
+- For water, 4,200 J raises 1 kg by 1 °C. [R6]  (from an idea this one builds on)
+- Latent heat is energy that enters or leaves during a phase change without any temperature change, so melting or boiling happens at a steady temperature. [R7]  (from an idea this one builds on)
+- Water's heat of fusion is 334 J/g and its heat of vaporization is 2260 J/g, so boiling away a kilogram takes about 2,260 kJ. [R8]  (from an idea this one builds on)
+- Specific heat capacity is how much energy it takes to warm 1 kg by 1 degree, and water's is 4,200 J per kg per degree Celsius. [R6]  (whole topic)
+- Seawater has a density of about 1025 kg/m³ and a specific heat of about 3850 J/(kg °C); the numbers used for gravity here are g about 9.8 m/s². [R9][R10]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i3",
+ "title": "Gases, pressure and the air receiver",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the pressure line running back to zero pressure at absolute zero, and pV ÷ T holding steady only in absolute units, when you drag the heat with the piston locked.",
+  "title": "The sealed cylinder",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Screen",
+    "min": 0,
+    "max": 12,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [
+   {
+    "id": "absPressure",
+    "label": "Absolute pressure",
+    "unit": "bar",
+    "decimals": 2
+   },
+   {
+    "id": "gaugePressure",
+    "label": "Gauge pressure",
+    "unit": "bar",
+    "decimals": 2
+   },
+   {
+    "id": "ratio",
+    "label": "pV ÷ T",
+    "unit": "bar·L/K",
+    "decimals": 3
+   }
+  ],
+  "whatAmILookingAt": "A short lesson in thirteen small screens. The main picture is a sealed cylinder of gas under a piston, with a heater beneath it and one gauge with two readings. Gauge pressure is how far above the atmosphere the gas is. Absolute pressure is gauge plus the atmosphere, taken as 1 bar, so it counts from no push at all. A slider drags the piston, setting the volume from 1 to 6 L, opening at 3 L. Another sets the heater's temperature, from 0 to 150 °C, opening at 27 °C, which is 300 K. The gas starts at 2 bar absolute, 1 bar gauge. The piston has three settings: dragged, locked, or floating under a steady load. Locked holds the volume. Floating holds the pressure, so warming pushes the piston up. The heat has a lock too, which holds the temperature. A tag beside the cylinder always names what is held. Two charts follow the gas as a dot. The first plots absolute pressure, 0 to 10 bar, against volume, 0 to 6 L. With the heat locked the dot runs along a curve where pressure × volume stays the same, so half the volume gives twice the pressure. The second plots absolute pressure against temperature in °C, from −300 to 200 °C. With the piston locked the dot runs along a straight line. An Extend button draws that line on, dashed, down to zero pressure at −273 °C, absolute zero. That is where kelvin are counted from: K = °C + 273. A box shows pV ÷ T, with a three-way choice of units. In absolute pressure and kelvin it reads 0.020 bar·L/K at the start, 2 × 3 ÷ 300, and stays there whatever you drag. In gauge pressure and kelvin it starts at 1 × 3 ÷ 300 = 0.010, and pushing the piston to 1.5 L sends it to 0.015, in red. In absolute pressure and °C it starts at 2 × 3 ÷ 27, about 0.222. Warming to 127 °C with the piston locked takes the gas to about 2.67 bar absolute and sends the box to about 0.063, in red. The three readouts wrap onto two rows on a phone. A receiver skin swaps the cylinder for a 500 L air receiver and its compressor. The compressor cuts in at 6 bar gauge and cuts out at 8 bar gauge, 7 and 9 bar absolute, and that band is shaded on the gauge. Let out at 1 bar, the receiver's air at 9 bar absolute would fill 500 × 9 = 4,500 L, and at 7 bar it fills 3,500 L. So the band gives 1,000 L, shown in a readout. At an example draw of 250 L a minute, the compressor stays off for 1,000 ÷ 250 = 4 minutes. A switch doubles the receiver to 1,000 L. Its band holds 2,000 L and lasts 8 minutes, so the motor starts half as often. Screen by screen. 1 is a warm-up sum. 2 L of gas at 3 bar absolute is pushed into 1 L at the same temperature. What is its pressure? 6 bar, 1.5 bar or 4 bar absolute. A right answer says Still there. 2 shows the gauge's two readings and Boyle's law on the cylinder: with the heat locked, 3 L at 2 bar absolute pushed to 1.5 L reads 4 bar absolute, 3 bar gauge. 3 asks what a gauge reading 1 bar shows after the volume is halved at the same temperature: 3 bar, 2 bar or 4 bar. 4 shows the piston locked and the heat dragged. The pressure line is straight, and Extend runs it to zero at −273 °C. 20 °C to 40 °C is 293 K to 313 K, about 7% more. 5 asks about a locked cylinder at 2 bar absolute and 20 °C, warmed to 40 °C: about 2.1 bar, 4 bar or 2 bar absolute. 6 shows the piston floating under a steady load. Warming from 27 °C to 127 °C, 300 K to 400 K, leaves the pressure at 2 bar absolute and grows 3 L to 4 L. 7 asks what heating with the piston floating does: the pressure stays the same and the volume grows by a third, the pressure rises by a third and the volume stays the same, or both rise. 8 shows the pV ÷ T box steady in absolute units and drifting in red in gauge or °C. 9 asks about gas at 1 bar absolute, 6 L and 27 °C, pushed to 2 L and heated to 127 °C: 4 bar, 3 bar or about 14 bar absolute. 10 shows the receiver skin, the band, and the bigger receiver lasting twice as long. 11, 12 and 13 mix it all. 11: the 500 L receiver runs between 6 and 8 bar gauge. How much air at atmospheric pressure does it give from cut-out to cut-in? 1,000 L, 4,500 L or 500 L. 12: a receiver at 7 bar gauge and 20 °C warms to 50 °C. What does its gauge read? About 7.8 bar, 17.5 bar or about 8.8 bar. 13: a receiver falls from 8 to 6 bar gauge at a steady temperature. What share of its air has gone? About 22%, 25% or about 78%. A wrong pick is drawn on the charts or the box where it can be, so you see where it fails.",
+  "ignores": "The gas is an ideal gas. Real gases stray from the straight line at very high pressures and near the point where they turn to liquid, so no real gas reaches zero pressure at absolute zero. The dashed line is the straight line carried on, not a measurement. The atmosphere is taken as 1 bar, though a real one is about 1.01 bar and changes with the weather and with height. A quick squeeze warms a gas, and a quick expansion against the piston cools it. Here the heater holds whatever temperature is locked, as if each move were made slowly. The piston has no friction and the cylinder never leaks. A real receiver also collects water from the air, which is drained off.",
+  "numbers": [
+   {
+    "label": "Volume slider lowest, in L",
+    "value": 1,
+    "kind": "control"
+   },
+   {
+    "label": "Volume slider highest, in L",
+    "value": 6,
+    "kind": "control"
+   },
+   {
+    "label": "Volume slider's opening setting, in L",
+    "value": 3,
+    "kind": "control"
+   },
+   {
+    "label": "Heater slider lowest, in °C",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Heater slider highest, in °C",
+    "value": 150,
+    "kind": "control"
+   },
+   {
+    "label": "Heater slider's opening setting, in °C",
+    "value": 27,
+    "kind": "control"
+   },
+   {
+    "label": "Opening temperature, 27 + 273, in K",
+    "value": 300,
+    "kind": "computed"
+   },
+   {
+    "label": "Gas charge at the start, absolute, in bar",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Gas at the start, gauge, 2 − 1, in bar",
+    "value": 1,
+    "kind": "computed"
+   },
+   {
+    "label": "Atmosphere, rounded, in bar",
+    "value": 1,
+    "kind": "constant"
+   },
+   {
+    "label": "Atmosphere, more nearly, in bar",
+    "value": 1.01,
+    "kind": "constant"
+   },
+   {
+    "label": "Absolute zero, rounded, in °C",
+    "value": -273,
+    "kind": "constant"
+   },
+   {
+    "label": "Added to °C to give kelvin, rounded",
+    "value": 273,
+    "kind": "constant"
+   },
+   {
+    "label": "pV chart pressure axis top, in bar",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "pV chart volume axis top, in L",
+    "value": 6,
+    "kind": "assumed"
+   },
+   {
+    "label": "p–T chart temperature axis lowest, in °C",
+    "value": -300,
+    "kind": "assumed"
+   },
+   {
+    "label": "p–T chart temperature axis highest, in °C",
+    "value": 200,
+    "kind": "assumed"
+   },
+   {
+    "label": "pV ÷ T at the start, 2 × 3 ÷ 300, in bar·L/K",
+    "value": 0.02,
+    "kind": "computed"
+   },
+   {
+    "label": "Gauge and kelvin box at the start, 1 × 3 ÷ 300",
+    "value": 0.01,
+    "kind": "computed"
+   },
+   {
+    "label": "Piston pushed to, in L",
+    "value": 1.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Absolute pressure at 1.5 L, 2 × 3 ÷ 1.5, in bar",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Gauge pressure at 1.5 L, 4 − 1, in bar",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Gauge and kelvin box at 1.5 L, 3 × 1.5 ÷ 300",
+    "value": 0.015,
+    "kind": "computed"
+   },
+   {
+    "label": "Absolute and °C box at the start, 2 × 3 ÷ 27, about",
+    "value": 0.222,
+    "kind": "computed"
+   },
+   {
+    "label": "Warmed to, in °C",
+    "value": 127,
+    "kind": "assumed"
+   },
+   {
+    "label": "Locked at 127 °C, 2 × 400 ÷ 300, about, in bar",
+    "value": 2.67,
+    "kind": "computed"
+   },
+   {
+    "label": "Absolute and °C box at 127 °C, 2.67 × 3 ÷ 127, about",
+    "value": 0.063,
+    "kind": "computed"
+   },
+   {
+    "label": "Receiver skin's volume, in L",
+    "value": 500,
+    "kind": "assumed"
+   },
+   {
+    "label": "Cut-in, gauge, in bar",
+    "value": 6,
+    "kind": "assumed"
+   },
+   {
+    "label": "Cut-out, gauge, in bar",
+    "value": 8,
+    "kind": "assumed"
+   },
+   {
+    "label": "Cut-in, absolute, 6 + 1, in bar",
+    "value": 7,
+    "kind": "computed"
+   },
+   {
+    "label": "Cut-out, absolute, 8 + 1, in bar",
+    "value": 9,
+    "kind": "computed"
+   },
+   {
+    "label": "Air at cut-out let out at 1 bar, 500 × 9, in L",
+    "value": 4500,
+    "kind": "computed"
+   },
+   {
+    "label": "Air at cut-in let out at 1 bar, 500 × 7, in L",
+    "value": 3500,
+    "kind": "computed"
+   },
+   {
+    "label": "Band's air, 4,500 − 3,500, in L",
+    "value": 1000,
+    "kind": "computed"
+   },
+   {
+    "label": "Band's width, gauge or absolute, in bar",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Example draw, in L per minute",
+    "value": 250,
+    "kind": "assumed"
+   },
+   {
+    "label": "Time off, 1,000 ÷ 250, in minutes",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Bigger receiver, in L",
+    "value": 1000,
+    "kind": "assumed"
+   },
+   {
+    "label": "Bigger receiver's band, 1,000 × 2 ÷ 1, in L",
+    "value": 2000,
+    "kind": "computed"
+   },
+   {
+    "label": "Bigger receiver's time off, 2,000 ÷ 250, in minutes",
+    "value": 8,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 1: start, in L",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 1: start, absolute, in bar",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 1: end, in L",
+    "value": 1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 1: 3 × 2 ÷ 1, absolute, in bar",
+    "value": 6,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 1 wrong pick, 3 × 1 ÷ 2, in bar",
+    "value": 1.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 1 wrong pick, 3 + 1, in bar",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 3: gauge reading before, in bar",
+    "value": 1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 3: absolute, 1 + 1, then doubled, in bar",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 3: gauge after, 4 − 1, in bar",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 3 wrong pick, gauge doubled, in bar",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 4: 20 + 273, in K",
+    "value": 293,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 4: 40 + 273, in K",
+    "value": 313,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 4: 313 ÷ 293, rise, about, in %",
+    "value": 7,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 5: 2 × 313 ÷ 293, about, in bar",
+    "value": 2.1,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 5 wrong pick, °C doubled, 2 × 40 ÷ 20, in bar",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 6: 127 + 273, in K",
+    "value": 400,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 6: volume, 3 × 400 ÷ 300, in L",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 9: start, absolute, in bar",
+    "value": 1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 9: start, in L",
+    "value": 6,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 9: end, in L",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 9: 1 × (6 ÷ 2) × (400 ÷ 300), in bar",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 9 wrong pick, temperature left out, in bar",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 9 wrong pick, in °C, 1 × 3 × 127 ÷ 27, about, in bar",
+    "value": 14,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12: start, gauge, in bar",
+    "value": 7,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 12: start, in °C",
+    "value": 20,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 12: end, in °C",
+    "value": 50,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 12: start, absolute, 7 + 1, in bar",
+    "value": 8,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12: 50 + 273, in K",
+    "value": 323,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12: warming, 50 − 20, in °C",
+    "value": 30,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12: absolute, 8 × 323 ÷ 293, about, in bar",
+    "value": 8.8,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12: gauge, 8.8 − 1, about, in bar",
+    "value": 7.8,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12 wrong pick, 7 × 50 ÷ 20, in bar",
+    "value": 17.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 13: share gone, 2 ÷ 9, about, in %",
+    "value": 22,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 13 wrong pick, 2 ÷ 8, in %",
+    "value": 25,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 13 wrong pick, 7 ÷ 9, about, in %",
+    "value": 78,
+    "kind": "computed"
+   },
+   {
+    "label": "Rule of thumb: room temperature, about, in K",
+    "value": 300,
+    "kind": "assumed"
+   },
+   {
+    "label": "Rule of thumb: 3 ÷ 300, in %",
+    "value": 1,
+    "kind": "computed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "A trapped gas pushes on every wall around it. Squeeze it or warm it, and that push changes by a simple rule of proportion. The catch is where you count from. The rule only works when pressure and temperature are counted from true zero. One way to picture it: the push is the gas's molecules striking the walls. Halve the space and each one strikes twice as often. Warm them and they strike harder and more often.\n\nA pressure gauge open to the air reads zero. Yet the air is pushing on it at about 1 bar. So a gauge reads how far you are above the atmosphere. That is [[gauge pressure]]. Add the atmosphere and you get [[absolute pressure]], counted from no push at all.[^1] You met Boyle's law in Proportional reasoning. Hold a gas's temperature and halve its volume, and its pressure doubles.[^2] It is the absolute pressure that doubles. A gauge reading 1 bar means the gas pushes with 2 bar in all. The gauge just leaves out the atmosphere's share. Halve the volume and the gas pushes with 4 bar absolute. So the gauge now reads 3 bar, not 2.\n\nTemperature has the same trap. Lock the piston so the volume cannot change, then warm the gas. Its pressure climbs in a straight line. Carry that line on to colder and colder gas, and it reaches zero pressure at about −273 °C. That is absolute zero, where the kelvin scale starts. So with the volume held, the pressure is in proportion to the kelvin temperature, not the Celsius one.[^3] Warm a locked cylinder from 20 °C to 40 °C. The Celsius figure doubles, but 293 K to 313 K is only about 7% more. So the pressure rises about 7%.\n\nWhat happens also depends on what is held. Let the piston float under a steady load instead, and warm the gas from 300 K to 400 K. Now the pressure stays the same, and 3 L grows to 4 L, in step with the kelvin temperature. Pressure goes up with kelvin and down with volume. So when all three change, pV ÷ T stays the same, in absolute units: p₁V₁ ÷ T₁ = p₂V₂ ÷ T₂. Take a receiver at 7 bar gauge and 20 °C that warms to 50 °C. Its volume is held. It goes from 8 bar absolute to 8 × 323 ÷ 293, about 8.8 bar absolute, so its gauge reads about 7.8 bar. Done in gauge and Celsius, the same sum says 17.5 bar. That would more than double the pressure for 30 °C of warming, which is nonsense.\n\nAn [[air receiver]] stores air the compressor has already made. The compressor cuts in at a low pressure and out at a high one. Between starts, only the air in that band gets used. Say a 500 L receiver runs between 6 and 8 bar gauge, 7 and 9 bar absolute. By Boyle's law, its air at 9 bar would fill 4,500 L at 1 bar, and at 7 bar it fills 3,500 L. So the band gives 1,000 L. Notice that the band's width is the same 2 bar in gauge or absolute. A difference does not care where you count from. A ratio does. Double the receiver and the band holds twice the air, so the motor starts less often.[^4] Each start draws the motor's starting current, which you know from Motors. This is a simplified model, an ideal gas. Real gases stray from it at very high pressures and near turning to liquid.\n\n**A gas's pressure, volume and temperature are in proportion only when counted from true zero, so add the atmosphere to a gauge reading and 273 to a Celsius one before any gas sum.**"
+ },
+ "analogy": {
+  "text": "Picture a voltmeter that takes 100 V off every reading. A 440 V supply shows 340. A 10 V drop between two points still reads 10 V, because the offset cancels in a difference. But ask it whether one voltage is twice another, and it gets it wrong. A gauge is that meter for pressure, with the atmosphere as its offset. Celsius is that meter for temperature, with 273 as its offset.",
+  "breaks": "Voltage has no true zero. Every voltage is a difference between two points, so nothing is lost by choosing your reference. Pressure and temperature do have a true zero, with nothing below it, and the gas laws are written from there. And the atmosphere is not a fixed offset. It changes with the weather and with height."
+ },
+ "practice": {
+  "text": "A receiver stores a lot of energy. Before working on one or its pipework, isolate the compressor, vent the pressure and check the gauge reads zero.\n\n- Write down what is held: the volume, the temperature or the pressure.\n- Turn every gauge pressure into absolute: add the atmosphere, about 1 bar.\n- Turn every Celsius temperature into kelvin: add 273.\n- Use p₁V₁ ÷ T₁ = p₂V₂ ÷ T₂, and cancel whatever is held.\n- Take the atmosphere off again if a gauge will show the answer.\n\n**Rules of thumb:** A difference comes out the same in gauge or absolute, and in °C or kelvin. A ratio needs absolute pressure and kelvin. Near room temperature, about 300 K, each 3 °C of warming raises a sealed vessel's absolute pressure by about 1%.\n\n**Worked example:** A receiver reads 7 bar gauge at 20 °C, and the space warms to 50 °C. In absolute units that is 8 bar and 293 K, going to 323 K. The volume is held, so the pressure goes to 8 × 323 ÷ 293, about 8.8 bar absolute. The gauge reads about 7.8 bar.\n\n**Common mistakes**\n- Putting a gauge reading into a ratio. Halving the volume at 1 bar gauge gives 3 bar gauge, not 2.\n- Putting Celsius into a ratio. 20 °C to 40 °C raises the pressure about 7%, not twice.\n- Thinking warming always raises the pressure. It does when the volume is held. With a floating piston the volume grows instead.\n- Counting all the air in a receiver as usable between starts. Only the band between cut-in and cut-out is."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "simplified",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "sources": [
+  {
+   "n": 1,
+   "title": "BTEC L3 Advanced Manufacturing Engineering Unit Specification",
+   "url": "https://qualifications.pearson.com/content/dam/pdf/BTEC-Specialist-Qualifications/advanced-manufacturing-engineering-development-technical-knowledge/2016/specification/adv-man-eng-unit-spec.pdf",
+   "quote": "absolute pressure = gauge + atmospheric pressure, force = pressure × area, actuator force = pressure × area × efficiency"
+  },
+  {
+   "n": 2,
+   "title": "The gas laws pV = nRT",
+   "url": "https://faculty.fiu.edu/~mebela/chm3410_chapter1.pdf",
+   "quote": "If we compress a fixed amount of gas at constant temperature into half of its original volume, then its pressure will double."
+  },
+  {
+   "n": 3,
+   "title": "Ch. 9 Summary - Chemistry 2e | OpenStax",
+   "url": "https://openstax.org/books/chemistry-2e/pages/9-summary",
+   "quote": "The pressure of a given amount of gas is directly proportional to its absolute temperature, provided that the volume does not change"
+  },
+  {
+   "n": 4,
+   "title": "What is an Air Receiver? - Atlas Copco USA",
+   "url": "https://www.atlascopco.com/en-us/compressors/wiki/compressed-air-articles/what-is-an-air-receiver",
+   "quote": "This will also prevent pressure fluctuation and frequent motor starts"
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }

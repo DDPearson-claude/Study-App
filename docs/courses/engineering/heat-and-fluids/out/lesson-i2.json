@@ -1,0 +1,691 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-27T05:56:25.421Z",
+ "startedAt": "2026-10-27T05:56:25.421Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i2",
+  "title": "How heat moves",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the copper's temperature levelling off where the heat leaving matches the losses, and settling higher with the extra wrap on, when you switch the current on.",
+   "title": "Heat in, heat out",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Screen",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [
+    {
+     "id": "losses",
+     "label": "Losses in each metre",
+     "unit": "W/m",
+     "decimals": 0
+    },
+    {
+     "id": "copperTemp",
+     "label": "Copper's temperature",
+     "unit": "°C",
+     "decimals": 0
+    },
+    {
+     "id": "tau",
+     "label": "Time constant",
+     "unit": "min",
+     "decimals": 0
+    }
+   ],
+   "whatAmILookingAt": "This short lesson runs over thirteen small screens. The main picture is a cable cut across. It has a copper core, a ring of insulation, an optional outer ring for an extra wrap, then the room's air. The current makes I²R losses, the heat made in the copper. That heat leaves as ink arrows running outward through each layer to the room. Heat runs from hotter to colder, and more arrows mean more heat flowing. A slider sets the current, from 0 to 60 A. It opens at 50 A. The example cable has 8 mΩ in each metre. So 50 A makes losses of 0.008 × 50² = 20 W in each metre. A switch adds the extra wrap. A slider sets the room, from 10 to 40 °C, opening at 30 °C. Another switch turns a fan on. Switch on starts the current and runs the clock. Switch off stops it. Each layer has a thermal resistance. That is the degrees of rise for each watt flowing out of each metre. The example figures are insulation 0.5, still air 1.5, the wrap 2, and the air with the fan on 0.5 K·m/W. Layers in a row add. The copper's steady rise above the room is the losses × the total. So the rise is 20 × 2 = 40 °C, and in a 30 °C room the copper settles at 70 °C. Under the cable, a temperature profile steps down from the copper to the room. Each layer's drop is marked. Its share is the losses × that layer's resistance. That makes 10 °C across the insulation and 30 °C into the air. Beside it, a time trace draws the copper's temperature from 0 to 100 minutes. Its axis runs from 0 to 160 °C. Each second, the losses less the heat leaving go into warming the cable. Its heat capacity is an example 300 J per °C for each metre. The heat leaving is the rise ÷ the total resistance. So the trace climbs fast at first. It slows as the heat leaving catches up. This is the curve you know from Newton's law of cooling. Its time constant τ is marked on the trace. τ is thermal resistance × heat capacity: 2 × 300 = 600 s, 10 minutes. A dashed line marks a 70 °C limit. That is the figure you know for a general-purpose PVC-insulated conductor. A run that crosses it turns red. With the current switched off, the trace falls back to the room along the same kind of curve. Two skins swap the cable for something else. One is a motor's winding in its frame. The other is a transistor on a heat sink. Screen by screen. Screen 1 shows a steel rail and a wooden rail in a 20 °C room. A thermometer on each reads 20 °C, and a hand rests on each. Arrows run from the hand into the rail, faster into the steel. Screen 2 asks which rail is colder after a night in the same 20 °C room. The choices are the steel, the wood, or neither, both at 20 °C. Screen 3 shows the cable at 50 A making losses of 20 W in each metre. Arrows leave it. Screen 4 asks for a prediction before switch-on: what does the copper do after switch-on? Does it keep warming as long as the current flows? Does it warm and then level off? Or does it warm until the insulation is full of heat? Screen 5 switches the current on. The trace levels off at 70 °C, and the profile shows the 10 °C and 30 °C drops. Heat conducts out through the insulation, then leaves the surface by convection and radiation. Screen 6 asks where the copper settles with the extra wrap on, at 50 A in a 30 °C room. The choices are 110 °C, 70 °C but later, or 80 °C. Screen 7 shows how long it takes. τ is marked at 10 minutes, and the copper is at 55 °C after one τ. It has all but settled by about five, 50 minutes. Screen 8 asks where a cable with twice the heat capacity settles, with the same losses and the same resistances. The choices are 70 °C taking twice as long, lower at about 50 °C, or 70 °C in the same time. Screen 9 shows carrying less. With the wrap, 35 A holds the copper at 70 °C. With the fan on, 50 A brings the copper down to 50 °C. You can try the fan or warm the room. Screen 10 asks for the most current the cable can carry without the wrap in a 40 °C room, keeping to 70 °C. The choices are about 43 A, about 38 A, or 50 A. Screen 11 shows the skins: a motor cut across, with the room's air around its finned frame, and a transistor on a heat sink. Arrows carry the heat outward. Beside each, a list names the layers the heat leaves through, ending in rise = losses × total. Screens 12 and 13 mix it all. Screen 12: a transistor's losses are 10 W. Its path to the air through a heat sink is 3 °C per W, in a 25 °C room. How hot does it run? 55 °C, 30 °C or about 28 °C. Screen 13: the cable's losses are 20 W in each metre. It needs 300 J to warm each metre 1 °C. How fast does it warm just after switch-on? About 4 °C a minute, about 15 °C a second, or the full 40 °C at once. Where it can, a wrong pick is drawn on the trace or the profile, so you see where it fails.",
+   "ignores": "The copper is drawn as one temperature, since copper passes heat far more easily than its insulation. Each layer's drop is drawn as a straight slope. In a round layer it is not quite straight. The copper's resistance is held at 8 mΩ per metre. Real copper's resistance rises as it warms, so a real cable's losses grow a little as it heats. Convection and radiation from the surface are lumped into one fixed air resistance. Both really shed heat a little more easily as the surface gets hotter. The wrap's own heat capacity is left out. Once playing, the clock runs much faster than real time. Every resistance, heat capacity and current here is an example figure, not a rating from any table.",
+   "numbers": [
+    {
+     "label": "Current slider lowest, in A",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Current slider highest, in A",
+     "value": 60,
+     "kind": "control"
+    },
+    {
+     "label": "Current slider's opening setting, in A",
+     "value": 50,
+     "kind": "control"
+    },
+    {
+     "label": "Room slider lowest, in °C",
+     "value": 10,
+     "kind": "control"
+    },
+    {
+     "label": "Room slider highest, in °C",
+     "value": 40,
+     "kind": "control"
+    },
+    {
+     "label": "Room slider's opening setting, in °C",
+     "value": 30,
+     "kind": "control"
+    },
+    {
+     "label": "Example cable's resistance, in mΩ per metre",
+     "value": 8,
+     "kind": "assumed"
+    },
+    {
+     "label": "Losses at 50 A, 0.008 × 50², in W per metre",
+     "value": 20,
+     "kind": "computed"
+    },
+    {
+     "label": "Insulation's thermal resistance, in K·m/W",
+     "value": 0.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Still air's thermal resistance, in K·m/W",
+     "value": 1.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Total, insulation plus still air, in K·m/W",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Extra wrap's thermal resistance, in K·m/W",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Total with the wrap, in K·m/W",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Air's thermal resistance with the fan on, in K·m/W",
+     "value": 0.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Total with the fan on, in K·m/W",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Steady rise at 50 A, 20 × 2, in °C",
+     "value": 40,
+     "kind": "computed"
+    },
+    {
+     "label": "Copper's steady temperature in a 30 °C room, in °C",
+     "value": 70,
+     "kind": "computed"
+    },
+    {
+     "label": "Drop across the insulation, 20 × 0.5, in °C",
+     "value": 10,
+     "kind": "computed"
+    },
+    {
+     "label": "Drop into the air, 20 × 1.5, in °C",
+     "value": 30,
+     "kind": "computed"
+    },
+    {
+     "label": "Conductor limit for PVC-insulated cable, in °C",
+     "value": 70,
+     "kind": "constant"
+    },
+    {
+     "label": "Heat leaving at a 20 °C rise, 20 ÷ 2, in W per metre",
+     "value": 10,
+     "kind": "computed"
+    },
+    {
+     "label": "Example heat capacity, in J per °C per metre",
+     "value": 300,
+     "kind": "assumed"
+    },
+    {
+     "label": "Time constant, 2 × 300, in s",
+     "value": 600,
+     "kind": "computed"
+    },
+    {
+     "label": "Time constant, in minutes",
+     "value": 10,
+     "kind": "computed"
+    },
+    {
+     "label": "Share of the rise made in one time constant, in %",
+     "value": 63,
+     "kind": "computed"
+    },
+    {
+     "label": "Copper after one time constant, 30 + 0.63 × 40, about, in °C",
+     "value": 55,
+     "kind": "computed"
+    },
+    {
+     "label": "Time constants to all but settle",
+     "value": 5,
+     "kind": "constant"
+    },
+    {
+     "label": "Five time constants, in minutes",
+     "value": 50,
+     "kind": "computed"
+    },
+    {
+     "label": "Time axis, in minutes",
+     "value": 100,
+     "kind": "assumed"
+    },
+    {
+     "label": "Temperature axis top, in °C",
+     "value": 160,
+     "kind": "assumed"
+    },
+    {
+     "label": "Rails' room temperature, in °C",
+     "value": 20,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 6: rise with the wrap, 20 × 4, in °C",
+     "value": 80,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 6: copper with the wrap, 30 + 80, in °C",
+     "value": 110,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 6: drop across the wrap, 20 × 2, in °C",
+     "value": 40,
+     "kind": "computed"
+    },
+    {
+     "label": "Time constant with the wrap, 4 × 300, in minutes",
+     "value": 20,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 8: doubled heat capacity, in J per °C per metre",
+     "value": 600,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 8: time constant, 2 × 600, in minutes",
+     "value": 20,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 8 wrong pick, rise halved, 30 + 20, in °C",
+     "value": 50,
+     "kind": "computed"
+    },
+    {
+     "label": "Losses allowed with the wrap, 40 ÷ 4, in W per metre",
+     "value": 10,
+     "kind": "computed"
+    },
+    {
+     "label": "Current factor with the wrap, √(10 ÷ 20)",
+     "value": 0.707,
+     "kind": "computed"
+    },
+    {
+     "label": "Current with the wrap, 50 × 0.707, about, in A",
+     "value": 35,
+     "kind": "computed"
+    },
+    {
+     "label": "Hot room, in °C",
+     "value": 40,
+     "kind": "assumed"
+    },
+    {
+     "label": "Headroom in a 40 °C room, 70 − 40, in °C",
+     "value": 30,
+     "kind": "computed"
+    },
+    {
+     "label": "Losses allowed in a 40 °C room, 30 ÷ 2, in W per metre",
+     "value": 15,
+     "kind": "computed"
+    },
+    {
+     "label": "Current factor in a 40 °C room, √(15 ÷ 20)",
+     "value": 0.866,
+     "kind": "computed"
+    },
+    {
+     "label": "Current in a 40 °C room, 50 × 0.866, about, in A",
+     "value": 43,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 10 wrong pick, 50 × 30 ÷ 40, about, in A",
+     "value": 38,
+     "kind": "computed"
+    },
+    {
+     "label": "Rise at 50 A with the fan on, 20 × 1, in °C",
+     "value": 20,
+     "kind": "computed"
+    },
+    {
+     "label": "Copper at 50 A with the fan on, 30 + 20, in °C",
+     "value": 50,
+     "kind": "computed"
+    },
+    {
+     "label": "Time constant with the fan on, 1 × 300, in minutes",
+     "value": 5,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 12: transistor's losses, in W",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 12: path to the air, in °C per W",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 12: room, in °C",
+     "value": 25,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 12: 25 + 10 × 3, in °C",
+     "value": 55,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 12 wrong pick, room left out, 10 × 3, in °C",
+     "value": 30,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 12 wrong pick, 25 + 10 ÷ 3, about, in °C",
+     "value": 28,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 13: warming at switch-on, 20 ÷ 300, in °C per second",
+     "value": 0.067,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 13: warming at switch-on, about, in °C per minute",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 13 wrong pick, 300 ÷ 20, in °C per second",
+     "value": 15,
+     "kind": "computed"
+    },
+    {
+     "label": "Practice: losses, in W per metre",
+     "value": 12,
+     "kind": "assumed"
+    },
+    {
+     "label": "Practice: total thermal resistance, in K·m/W",
+     "value": 2.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Practice: room, in °C",
+     "value": 25,
+     "kind": "assumed"
+    },
+    {
+     "label": "Practice: rise, 12 × 2.5, in °C",
+     "value": 30,
+     "kind": "computed"
+    },
+    {
+     "label": "Practice: conductor, 25 + 30, in °C",
+     "value": 55,
+     "kind": "computed"
+    },
+    {
+     "label": "Practice: headroom to 70 °C, in °C",
+     "value": 45,
+     "kind": "computed"
+    },
+    {
+     "label": "Practice: heat allowed, 45 ÷ 2.5, in W per metre",
+     "value": 18,
+     "kind": "computed"
+    },
+    {
+     "label": "Practice: current factor, √(18 ÷ 12)",
+     "value": 1.22,
+     "kind": "computed"
+    },
+    {
+     "label": "Rule of thumb: more current, in %",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Rule of thumb: 1.1², more rise, about, in %",
+     "value": 21,
+     "kind": "computed"
+    },
+    {
+     "label": "Motor time constant, typical shortest, in hours",
+     "value": 0.5,
+     "kind": "constant"
+    },
+    {
+     "label": "Motor time constant, typical longest, in hours",
+     "value": 5,
+     "kind": "constant"
+    },
+    {
+     "label": "Hot-room current factor, √(30 ÷ 40), for any cable rated at 30 °C with a 70 °C limit",
+     "value": 0.866,
+     "kind": "computed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "Left to itself, heat moves from hotter to colder. You have felt it. Touch a steel rail and a wooden one in the same room, and the steel feels colder. Yet both sit at room temperature. Heat simply leaves your fingers faster into the metal. Metal passes heat far more easily than wood. Nothing called cold flows into your hand. What you feel is how fast heat leaves your skin, not just the rail's temperature. So how fast heat moves is one question. How much heat it takes to warm something, its mc, is another.\n\nA loaded cable makes heat in its copper. That heat has to get out through the insulation into the air. Say the cable has 8 mΩ in each metre and carries 50 A. Its I²R losses are 0.008 × 50² = 20 W in each metre. Heat moves in three ways. Conduction carries it through solids, like the copper and its insulation. Convection carries it away in moving air or water. Radiation carries it as infrared, which needs no air at all. From a cable's surface, heat leaves by convection and radiation together. At switch-on the copper is at room temperature, so no heat leaves yet. All 20 W goes into warming it. As it warms, the gap to the room grows, and more heat flows out. So the warming slows. At some temperature the heat leaving matches the losses,[^1] and the copper stops rising. How hard the way out is has a number: its [[thermal resistance]]. For the air around a cable, it is the surface's rise above the room divided by the losses in each metre.[^2] Its unit is K·m/W, degrees of rise for each watt leaving each metre. A thicker layer or a poorer conductor has more thermal resistance. A bigger surface has less. So the heat leaving is the rise ÷ the thermal resistance. Once settled, the heat leaving equals the losses. So the steady rise is losses × thermal resistance. Layers in a row add, like resistors in series. Say the insulation is 0.5 and the air 1.5, so 2 K·m/W in all. The rise is 20 × 2 = 40 °C. In a 30 °C room the copper settles at 70 °C. The air is the harder layer, so it takes 30 °C of that drop.\n\nWrap the cable in 2 K·m/W more and the rise doubles to 80 °C. Packing thermal insulation round a cable does not just slow the warming. It raises where the copper settles. To hold 70 °C, the losses must halve. Losses go with current squared, so the current falls to 0.707 of 50 A. That is about 35 A. Without the wrap, a 40 °C room leaves only 30 °C of headroom. So the current falls to about 43 A. That factor, √(30 ÷ 40), depends only on the temperatures. So it holds for any cable rated in a 30 °C room with a 70 °C limit. These are the reasons behind Ca for a hot room and Ci for thermal insulation. A fan works the other way. Moving air carries heat away faster, so it lowers the air's thermal resistance.\n\nHow long it takes is a separate question. The copper climbs like a capacitor charging through a resistor. The cable's [[heat capacity]] is the energy each metre needs to warm by 1 °C. It is the cable's mc. Say 300 J per °C. Thermal resistance × heat capacity gives the time constant: 2 × 300 = 600 s, or 10 minutes. The units show why it is a time. Multiply °C per W by J per °C and you get J per W, which is seconds. After one time constant the copper has made 63% of its rise. So it is at about 55 °C. By about five time constants, 50 minutes, it has all but settled. Double the heat capacity and it settles at the same 70 °C, twice as slowly. Thermal resistance sets where it settles, and the time too. Heat capacity sets only the time. A motor works the same way. Its time constant is typically half an hour to five hours.[^3] Stopped, a self-cooled motor's fan stops too. Its way out gets harder, so it cools more slowly. A motor protection relay's thermal model comes from this same equation.[^4] This is a simplified model. A real cable's losses and air resistance shift a little as it warms.\n\n**A loaded cable warms until the heat leaving matches the losses. Its steady rise is losses × the thermal resistance of the way out. Its heat capacity sets only how long it takes to get there.**"
+  },
+  "analogy": {
+   "text": "Think of it as a circuit. The losses are a current source. The copper's rise is a voltage. The thermal resistance is a resistor, and the heat capacity is a capacitor across it. Switch the source on and the voltage climbs along the charging curve to I × R. Its time constant is RC. Layers in a row add like resistors in series. The biggest share of the rise sits across the biggest resistance. In the same way, the biggest share of the voltage sits across the biggest resistor in a chain.",
+   "breaks": "In a real cable the parts drift. Copper's resistance rises as it warms, so the source grows. Convection and radiation shed heat more easily as the surface warms, so the resistor falls. The heat capacity is also spread through the layers, not held in one capacitor. So the warming curve is only close to a single RC curve."
+  },
+  "practice": {
+   "text": "For a real installation the rating tables and their correction factors come first. This sum explains them. It does not replace them.\n\n- Find the losses: I²R per metre for a cable, or the total heat made in a motor or a transistor.\n- Add the thermal resistances along the way out, layer by layer.\n- Multiply: the steady rise is losses × total thermal resistance.\n- Add the room's temperature and compare the result with the limit.\n- For how long, multiply thermal resistance by heat capacity. That gives the time constant. It has all but settled after about five.\n\n**Rules of thumb:** Double the thermal resistance and you double the rise. The rise goes with current squared. So 10% more current gives about 21% more rise.\n\n**Worked example:** Say a cable's losses are 12 W in each metre. Its way out, from copper to a 25 °C room, is 2.5 K·m/W. The rise is 12 × 2.5 = 30 °C, so the copper runs at 55 °C. A 70 °C limit allows a rise of 70 − 25 = 45 °C. That allows 45 ÷ 2.5 = 18 W in each metre. So the current could rise by √(18 ÷ 12), about 1.22 times.\n\n**Common mistakes**\n- Thinking cold flows in. Heat flows out of the warmer thing.\n- Thinking thermal insulation round a cable only slows the warming. It raises where the copper settles.\n- Forgetting to add the room's temperature to the rise.\n- Scaling the current in step with the headroom. Losses go with current squared, so the current goes with the square root.\n- Thinking more heat capacity makes a cable settle cooler. With the same losses and way out, it only slows it down."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "IEC 60287 Current Capacity of Cables - An Introduction",
+    "url": "https://myelectrical.com/notes/entryid/207/iec-60287-current-capacity-of-cables-an-introduction",
+    "quote": "At some temperature the rate at which heat is being dissipated to the environment will be the same as the rate at which it is generated"
+   },
+   {
+    "n": 2,
+    "title": "Electric cables — Calculation of the current rating —",
+    "url": "https://webstore.ansi.org/preview-pages/BSI/preview_30131317.pdf",
+    "quote": "Thermal resistance of surrounding medium (ratio of cable surface temperature rise above ambient to the losses per unit length)"
+   },
+   {
+    "n": 3,
+    "title": "24_1_Electrical_motors_Estimating_the_temperature_rise",
+    "url": "https://www.wittfan.de/files/pdf/Know-how%20Center/Anleitung%20und%20Fallbeispiele/07_Elektrische%20Motoren%20-%20Temperaturerh%C3%B6hung_EN.pdf",
+    "quote": "The motor heating constant is typically between 0.5 and 5 hours."
+   },
+   {
+    "n": 4,
+    "title": "Thermal Models in Power System Protection",
+    "url": "https://selinc.com/api/download/3678",
+    "quote": "The thermal model and its relation to an I ²t time-current characteristic is derived from the differential equation for temperature rise caused by current in a conductor"
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: mechanism -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .lead { max-width: 30rem; margin-inline: auto; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }\n  .scene { display: block; width: 100%; max-width: 26rem; margin-inline: auto; }\n  .scene .ax { fill: none; stroke: var(--k-strong); stroke-width: 1.5; }\n  .scene .tk { stroke: var(--k-strong); stroke-width: 1.5; }\n  .scene .tl { font: 400 13px var(--k-font); fill: var(--k-muted); }\n  .scene .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }\n  .scene .lab.m { font-weight: 400; fill: var(--k-muted); }\n  .scene .lab.t { fill: var(--k-accent); }\n  .scene .lab.w { fill: var(--k-warn); }\n  .scene .lab.n { fill: var(--k-accent2); }\n  .scene .rd { font: 700 15px var(--k-font); fill: var(--k-ink); }\n  .scene .curve { fill: none; stroke: var(--k-accent2); stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }\n  .scene .curve2 { fill: none; stroke: var(--k-accent); stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }\n  .scene .prof { fill: none; stroke: var(--k-accent2); stroke-width: 2.5; stroke-linejoin: round; }\n  .scene .over { fill: none; stroke: var(--k-warn); stroke-width: 3.5; stroke-linejoin: round; stroke-linecap: round; }\n  .scene .ref { fill: none; stroke: var(--k-muted); stroke-width: 2; stroke-dasharray: 6 4; }\n  .scene .tan { fill: none; stroke: var(--k-accent2); stroke-width: 2; stroke-dasharray: 6 4; }\n  .scene .bad { fill: none; stroke: var(--k-warn); stroke-width: 2.5; stroke-dasharray: 6 4; stroke-linecap: round; }\n  .scene .lim { stroke: var(--k-amber-line); stroke-width: 2; stroke-dasharray: 8 5; }\n  .scene .room { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 3 4; }\n  .scene .guide { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 4 4; }\n  .scene .dot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }\n  .scene .brk { fill: none; stroke: var(--k-muted); stroke-width: 1.5; }\n  .scene .brk.n { stroke: var(--k-accent2); stroke-width: 2; }\n  .scene .brk.t { stroke: var(--k-accent); stroke-width: 2; }\n  .scene .brk.w { stroke: var(--k-warn); stroke-width: 2; }\n  .scene .cuf { fill: var(--k-fill2); stroke: var(--k-amber-line); stroke-width: 1.5; }\n  .scene .insf { fill: var(--k-fill3); stroke: var(--k-accent); stroke-width: 1.5; }\n  .scene .wrapf { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.5; }\n  .scene .airf { fill: var(--k-bg); stroke: var(--k-line); stroke-width: 1.5; }\n  .scene .iron { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.5; }\n  .scene .frame { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }\n  .scene .fin { stroke: var(--k-strong); stroke-width: 5; stroke-linecap: round; }\n  .scene .rotor { fill: var(--k-panel); stroke: var(--k-muted); stroke-width: 1.5; }\n  .scene .pkg { fill: var(--k-ink); }\n  .scene .leg { stroke: var(--k-strong); stroke-width: 2.5; stroke-linecap: round; }\n  .scene .steel { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.5; }\n  .scene .wood { fill: var(--k-fill2); stroke: var(--k-amber-line); stroke-width: 1.5; }\n  .scene .hand { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.5; }\n  .scene .tube { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.5; }\n  .scene .col { fill: var(--k-accent2); }\n  .scene .track { fill: var(--k-sunk); }\n  .scene .madef { fill: var(--k-fill2); stroke: var(--k-amber-line); stroke-width: 1.5; }\n  .scene .outf { fill: var(--k-ink); }\n  .scene .heat { fill: none; stroke: var(--k-ink); stroke-width: 2; stroke-linecap: round; }\n  .scene .heatf { fill: var(--k-ink); }\n  .scene #art * { pointer-events: none; }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; }\n  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }\n  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; }\n  /* The answers wrap onto as many rows as they need; long ones stack one to a row. */\n  .picks { display: grid; grid-template-columns: repeat(auto-fit, minmax(6.5rem, 1fr)); gap: 10px; }\n  .picks.long { grid-template-columns: 1fr; }\n  .picks .k-btn { min-height: 52px; font-size: 1.1rem; }\n  .picks.long .k-btn { min-height: 48px; font-size: 1.02rem; }\n  .picks .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  .fb { font-weight: 700; min-height: 1.5em; }\n  .fb.right { color: var(--k-good); }\n  .fb.wrong { color: var(--k-ink); }\n  .why, .done { line-height: 1.6; }\n  .done strong { color: var(--k-accent2); }\n  .done .row { margin-top: 14px; }\n  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */\n  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }\n</style>\n\n<p class=\"lead\">Every figure here is an example.</p>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <svg class=\"scene\" id=\"scene\" viewBox=\"0 0 340 340\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"art\"></g></svg>\n    <div class=\"k-controls\" id=\"ctl\"></div>\n    <div id=\"hold\" hidden></div>\n    <p class=\"say\" id=\"say\"></p>\n    <div class=\"replay\" id=\"replay\"></div>\n    <div class=\"picks\" id=\"picks\"></div>\n    <div class=\"row acts\" id=\"acts\"></div>\n    <p class=\"fb\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p><strong id=\"finish\"></strong></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<script>\n  // ---------- the rule: heat in, heat out ----------\n  // The copper makes I²R losses. Its heat leaves through layers in a row, each with a thermal\n  // resistance in K·m/W, and they add. Each second the losses less the heat leaving warm the copper,\n  // which needs CAP J for each °C in each metre. The heat leaving is the rise ÷ the total. So the\n  // copper climbs along 1 − e^(−t/τ) to losses × total above the room, with τ = total × CAP.\n  const SRC2 = 'https://myelectrical.com/notes/entryid/207/iec-60287-current-capacity-of-cables-an-introduction';\n  const SRC3 = 'https://webstore.ansi.org/preview-pages/BSI/preview_30131317.pdf';\n  const RCU = 0.008;                                         // the example cable: 8 mΩ in each metre\n  const R_INS = 0.5, R_AIR = 1.5, R_WRAP = 2, R_FAN = 0.5;   // example thermal resistances, K·m/W\n  const CAP = 300;                                           // example heat capacity, J per °C in each metre\n  const LIMIT = 70, TMAX = 100, YMAX = 160, ROOM = 30;\n  const RATE = 20;                                           // minutes on the clock for each second of a run\n  const EPS = 1e-9, FADE = 0.35, ANS = 2.0;\n  const lossOf = (I) => RCU * I * I;\n  const resOf = (wrap, fan) => R_INS + (wrap ? R_WRAP : 0) + (fan ? R_FAN : R_AIR);\n  const tauMin = (R, C) => R * C / 60;\n  function rig(o) {\n    o = o || {};\n    const I = o.I == null ? 50 : o.I, wrap = !!o.wrap, fan = !!o.fan;\n    return { I, wrap, fan, L: lossOf(I), R: resOf(wrap, fan), C: o.C || CAP, room: o.room == null ? ROOM : o.room, off: o.off == null ? TMAX : o.off };\n  }\n  // The current is on until it is switched off (an off time of TMAX means it never is).\n  const onAt = (s, t) => !(s.off < TMAX - EPS && t > s.off);\n  function tempAt(s, t) {\n    const tau = tauMin(s.R, s.C), rise = s.L * s.R;\n    const up = (u) => s.room + rise * (1 - Math.exp(-Math.max(0, u) / tau));\n    if (onAt(s, t)) return up(t);\n    return s.room + (up(s.off) - s.room) * Math.exp(-(t - s.off) / tau);\n  }\n  const leaving = (s, t) => (tempAt(s, t) - s.room) / s.R;\n  const making = (s, t) => (onAt(s, t) ? s.L : 0);\n  const settleAt = (s) => s.room + s.L * s.R;\n  // The currents that hold 70 °C: with the wrap in a 30 °C room, and without it in a 40 °C room.\n  const I_WRAP = +Math.sqrt((LIMIT - ROOM) / resOf(true, false) / RCU).toPrecision(12);\n  const I_HOT = +Math.sqrt((LIMIT - 40) / resOf(false, false) / RCU).toPrecision(12);\n  const I_38 = 50 * (LIMIT - 40) / 40;                       // the slip: current scaled with the headroom\n\n  const fx = (v, dp) => K.fmt(v, { decimals: dp || 0 });\n  const S50 = rig({}), SW = rig({ wrap: true }), SF = rig({ fan: true }), SHOT = rig({ room: 40 });\n  // Every number the words and pictures print, worked out from the rule.\n  const N = {\n    L50: fx(S50.L), R: fx(S50.R), rise: fx(S50.L * S50.R), Ts: fx(settleAt(S50)), dIns: fx(S50.L * R_INS), dAir: fx(S50.L * R_AIR),\n    tauS: fx(S50.R * CAP), tau: fx(tauMin(S50.R, CAP)), pct: fx(100 * (1 - Math.exp(-1))), T1: fx(tempAt(S50, tauMin(S50.R, CAP))), five: fx(5 * tauMin(S50.R, CAP)),\n    RW: fx(SW.R), riseW: fx(SW.L * SW.R), TW: fx(settleAt(SW)), dWrap: fx(S50.L * R_WRAP), tauW: fx(tauMin(SW.R, CAP)),\n    tauC2: fx(tauMin(S50.R, 2 * CAP)), tauC2s: fx(S50.R * 2 * CAP), low: fx(ROOM + S50.L * S50.R / 2),\n    allowW: fx((LIMIT - ROOM) / SW.R), facW: fx(Math.sqrt((LIMIT - ROOM) / SW.R / S50.L), 3), IW: fx(I_WRAP),\n    head: fx(LIMIT - 40), allowH: fx((LIMIT - 40) / S50.R), facH: fx(Math.sqrt((LIMIT - 40) / S50.R / S50.L), 3), IH: fx(I_HOT), I38: fx(I_38), T50hot: fx(settleAt(SHOT)),\n    riseF: fx(SF.L * SF.R), TF: fx(settleAt(SF)), tauF: fx(tauMin(SF.R, CAP)),\n    tr: fx(25 + 10 * 3), trRise: fx(10 * 3), tr28: fx(25 + 10 / 3), tr33: fx(10 / 3, 1),\n    w067: fx(S50.L / CAP, 3), wMin: fx(S50.L / CAP * 60), w15: fx(CAP / S50.L),\n  };\n  const ex = (u) => Math.exp(-u);\n\n  // ---------- the lesson: SHOW screens demonstrate, DO screens are puzzles ----------\n  // pic 'rails': two rails under a hand. pic 'cable': the cable cut across, the heat made and\n  // leaving, and below it (parts 'full') the temperature across the layers and (parts 'run' or\n  // 'full') the copper's temperature after switch-on. A live screen (live: which controls show)\n  // opens on its own settings (set) and runs its demonstration (mot) once. pic 'time': the trace\n  // alone. pic 'skins': a motor and a heat sink. pic 'sink': a transistor on its heat sink.\n  const STEPS = [\n    { show: true, name: 'Steel and wood', pic: 'rails', dur: 3.6,\n      text: 'Heat moves from hotter to colder by itself. A steel rail and a wooden rail sit in a 20 °C room. Both thermometers read 20 °C. A warm hand rests on each. Heat runs out of each hand into its rail. It runs much faster into the steel, because metal passes heat far more easily than wood. So the steel feels colder. Nothing called cold flows into your hand. You feel how fast heat leaves your skin.' },\n    { kind: 'pick', name: 'Which is colder?', pic: 'rails',\n      opts: ['The steel', 'The wood', 'Neither, both are at 20 °C'], want: 'Neither, both are at 20 °C', redless: ['The steel', 'The wood'],\n      task: 'Both rails spent the night in the same 20 °C room. Which one is colder?',\n      why: 'A night in one room brings everything to the room\\'s temperature. So both rails are at 20 °C. The steel only feels colder. Heat leaves your hand faster into the metal, and that is what your skin feels.',\n      hint: 'Not quite. Think about where heat would flow between them overnight.',\n      hints: { 'The steel': 'Not quite. The steel only feels colder. Heat leaves your hand faster into it.', 'The wood': 'Not quite. A night in one room brings both rails to the room\\'s temperature.' } },\n    { show: true, name: 'Heat made in the copper', pic: 'cable', parts: 'made', live: { current: true }, set: {}, dur: 3.6,\n      mot: { ctl: 'current', from: 0, to: 50, t0: 0.4, t1: 3.4 },\n      text: `Now a loaded cable, cut across. A copper core sits inside a ring of insulation, with the room's air around it. Current through the copper makes heat, its *I²R losses*. This cable has 8 mΩ in each metre. At 50 A that is 0.008 × 50² = ${N.L50} W in each metre. All that heat has to get out, through the insulation and into the air. Set the current and watch the losses change.`,\n      read: `Now a loaded cable, cut across. A copper core sits inside a ring of insulation, with the room's air around it. Current through the copper makes heat, its *I²R losses*. This cable has 8 mΩ in each metre. At 50 A that is 0.008 × 50² = ${N.L50} W in each metre. All that heat has to get out, through the insulation and into the air. Half the current makes a quarter of the losses.` },\n    { kind: 'pick', name: 'What happens next?', pic: 'cable', parts: 'run', set: {},\n      endLab: { text: `levels off at ${N.Ts} °C`, t: 70, dy: 22 },\n      opts: ['It keeps warming while the current flows', 'It warms, then levels off', 'It warms until the insulation is full of heat'], want: 'It warms, then levels off',\n      redless: ['It warms until the insulation is full of heat'],\n      bad: { 'It keeps warming while the current flows': [{ fn: (t) => ROOM + S50.L / CAP * 60 * t, lab: 'keeps on climbing', dx: 8, dy: 14, anchor: 'start' }] },\n      task: 'The current switches on at 50 A. The copper starts at the room\\'s 30 °C. What does it do next?',\n      why: `At first no heat leaves, so all ${N.L50} W warms the copper. As it warms, the gap to the room grows, and more heat flows out. So the warming slows. When the heat leaving matches the ${N.L50} W made, it stops rising. Here that is at ${N.Ts} °C.`,\n      hint: 'Not quite. Watch what happens to the heat leaving as the copper warms.',\n      hints: { 'It keeps warming while the current flows': 'Not quite. The hotter the copper gets, the faster heat leaves it.', 'It warms until the insulation is full of heat': 'Not quite. Insulation does not fill up. Heat flows on through it into the air.' } },\n    { show: true, name: 'Switch on', pic: 'cable', parts: 'full', live: { clock: true, sw: true }, set: {}, dur: 3.8,\n      mot: { ctl: 'clock', from: 0, to: 60, t0: 0.4, t1: 3.6 },\n      text: `The current switches on at 50 A. The copper warms until the heat leaving matches the losses. Heat *conducts* through the copper and its insulation. From the surface, the air carries it off by *convection*. *Radiation* carries some as infrared, which needs no air. Each layer has a *thermal resistance*: its degrees of rise for each watt leaving each metre. Insulation 0.5 and still air 1.5 make ${N.R} K·m/W. So the copper rises ${N.L50} × ${N.R} = ${N.rise} °C, to ${N.Ts} °C. Switch it off to watch it cool.`,\n      read: `The current switches on at 50 A. The copper warms until the heat leaving matches the losses. Heat *conducts* through the copper and its insulation. From the surface, the air carries it off by *convection*. *Radiation* carries some as infrared, which needs no air. Each layer has a *thermal resistance*: its degrees of rise for each watt leaving each metre. Insulation 0.5 and still air 1.5 make ${N.R} K·m/W. So the copper rises ${N.L50} × ${N.R} = ${N.rise} °C, to ${N.Ts} °C. The insulation takes ${N.dIns} °C of that drop, and the air ${N.dAir} °C. Once the current is off, the copper cools back to the room along the same kind of curve.` },\n    { kind: 'pick', name: 'With the extra wrap', pic: 'cable', parts: 'run', set: { wrap: true }, ref: {}, refLab: 'without the wrap',\n      endLab: { text: `heads for ${N.TW} °C`, t: 62, dy: -12 },\n      opts: [`${N.TW} °C`, `${N.Ts} °C, but later`, `${N.riseW} °C`], want: `${N.TW} °C`,\n      bad: {\n        [`${N.Ts} °C, but later`]: [{ fn: (t) => tempAt(rig({ C: 2 * CAP }), t), lab: `${N.Ts} °C, but later`, at: [70, tempAt(rig({ C: 2 * CAP }), 70)], dy: 22 }],\n        [`${N.riseW} °C`]: [{ fn: (t) => ROOM + (SW.L * SW.R - ROOM) * (1 - ex(t / tauMin(SW.R, CAP))), lab: `${N.riseW} °C`, at: [70, ROOM + (SW.L * SW.R - ROOM) * (1 - ex(70 / tauMin(SW.R, CAP)))], dy: -12 }],\n      },\n      task: `Now add the extra wrap. Its thermal resistance is 2 K·m/W. It is still 50 A in a 30 °C room. Where does the copper settle?`,\n      why: `The way out is now 0.5 + 2 + 1.5 = ${N.RW} K·m/W. So the rise is ${N.L50} × ${N.RW} = ${N.riseW} °C. Add the room's 30 °C, and the copper settles at ${N.TW} °C. That is well over the 70 °C limit. The wrap alone takes ${N.dWrap} °C of the drop.`,\n      hint: 'Not quite. Add up the thermal resistances, then multiply by the losses.',\n      hints: { [`${N.Ts} °C, but later`]: 'Not quite. The wrap does slow the warming. It also raises where the copper settles.', [`${N.riseW} °C`]: `Not quite. ${N.riseW} °C is the rise. Add the room's 30 °C.` } },\n    { show: true, name: 'How long it takes', pic: 'time', mode: 'tau', dur: 3.6,\n      text: `It climbs like a capacitor charging through a resistor. Each metre of this cable needs 300 J to warm by 1 °C. That is its *heat capacity*, its mc. Thermal resistance × heat capacity gives the *time constant*, τ, just as RC does. Here that is 2 × 300 = ${N.tauS} s, or ${N.tau} minutes. After one τ the copper has made ${N.pct}% of its rise, so it is near ${N.T1} °C. By about five, ${N.five} minutes, it has all but settled.` },\n    { kind: 'pick', name: 'Twice the heat capacity', pic: 'time', mode: 'cap',\n      opts: [`It settles at ${N.Ts} °C, taking twice as long`, `It settles lower, at about ${N.low} °C`, `It settles at ${N.Ts} °C in the same time`], want: `It settles at ${N.Ts} °C, taking twice as long`,\n      bad: {\n        [`It settles lower, at about ${N.low} °C`]: [{ fn: (t) => ROOM + S50.L * S50.R / 2 * (1 - ex(t / tauMin(S50.R, 2 * CAP))), lab: `settles at ${N.low} °C`, at: [70, ROOM + S50.L * S50.R / 2 * (1 - ex(70 / tauMin(S50.R, 2 * CAP)))], dy: 20 }],\n        [`It settles at ${N.Ts} °C in the same time`]: [{ fn: (t) => tempAt(S50, t), lab: 'the same time', at: [12, tempAt(S50, 12)], dy: -12 }],\n      },\n      task: 'Another cable needs 600 J to warm each metre by 1 °C. Its losses and thermal resistances are the same. What happens after switch-on?',\n      why: `The rise is still ${N.L50} × ${N.R} = ${N.rise} °C, so it settles at ${N.Ts} °C. Heat capacity only sets the time. τ is now 2 × 600 = ${N.tauC2s} s, or ${N.tauC2} minutes, twice as long.`,\n      hint: 'Not quite. Ask what sets where it settles, and what sets how long.',\n      hints: { [`It settles lower, at about ${N.low} °C`]: 'Not quite. Where it settles depends only on the losses and the way out.', [`It settles at ${N.Ts} °C in the same time`]: 'Not quite. More heat capacity takes more energy to warm, so it takes longer.' } },\n    { show: true, name: 'Carrying less', pic: 'cable', parts: 'full', live: { current: true, room: true, wrap: true, fan: true, clock: true }, settle: true,\n      set: { I: I_WRAP, wrap: true }, dur: 3.8, mot: { ctl: 'clock', from: 0, to: TMAX, t0: 0.4, t1: 3.6 },\n      text: `To keep to 70 °C, carry less current. With the extra wrap, each watt lifts the copper twice as far, so the losses must halve. Losses go with current squared, so the current falls to ${N.facW} × 50 A, about ${N.IW} A. That is the reason behind Ci. A fan works the other way. At 50 A it holds the copper at ${N.TF} °C. Try the fan, or warm the room.`,\n      read: `To keep to 70 °C, carry less current. With the extra wrap, each watt lifts the copper twice as far, so the losses must halve. Losses go with current squared, so the current falls to ${N.facW} × 50 A, about ${N.IW} A. That is the reason behind Ci. A fan works the other way. At 50 A it holds the copper at ${N.TF} °C. A fan lowers the air's thermal resistance, so the copper settles cooler. Each degree warmer in the room makes the copper a degree hotter.` },\n    { kind: 'pick', name: 'A hot room', pic: 'time', mode: 'hot',\n      opts: [`About ${N.IH} A`, `About ${N.I38} A`, '50 A'], want: `About ${N.IH} A`,\n      bad: {\n        [`About ${N.I38} A`]: [{ fn: (t) => tempAt(rig({ I: I_38, room: 40 }), t), lab: `${N.I38} A`, at: [30, tempAt(rig({ I: I_38, room: 40 }), 30)], dy: 20 }],\n        '50 A': [{ fn: (t) => tempAt(SHOT, t), lab: '50 A', at: [30, tempAt(SHOT, 30)], dy: -12 }],\n      },\n      task: `No wrap now, and the room is at 40 °C. 50 A makes ${N.L50} W in each metre. What is the most current that keeps the copper at 70 °C?`,\n      why: `The headroom is 70 − 40 = ${N.head} °C. That allows ${N.head} ÷ 2 = ${N.allowH} W in each metre. Losses go with current squared, so the current is 50 × √(${N.allowH} ÷ ${N.L50}). That is 50 × ${N.facH}, about ${N.IH} A. The factor is also √(${N.head} ÷ ${N.rise}), the new headroom over the old. It depends only on the temperatures. So it holds for any cable rated in a 30 °C room with a 70 °C limit. That is where Ca comes from.`,\n      hint: 'Not quite. Find the headroom first, then the losses it allows.',\n      hints: { [`About ${N.I38} A`]: 'Not quite. Losses go with current squared, so the current scales by a square root.', '50 A': `Not quite. In a 40 °C room, 50 A takes the copper to ${N.T50hot} °C.` } },\n    { show: true, name: 'A motor and a heat sink', pic: 'skins', dur: 3.9,\n      text: 'The same sum works for any part that makes heat. A motor\\'s winding makes it. It leaves through the insulation, the iron and the frame into the air. A fan on the shaft eases that last step. A motor\\'s time constant is from half an hour to five hours. Stopped, its fan stops too. The way out gets harder, so it cools more slowly. A protection relay runs this same curve to judge the winding\\'s heat. A transistor\\'s heat leaves through its case and a finned heat sink.' },\n    { kind: 'pick', name: 'A transistor', pic: 'sink',\n      opts: [`${N.tr} °C`, `${N.trRise} °C`, `About ${N.tr28} °C`], want: `${N.tr} °C`,\n      ring: { [`${N.trRise} °C`]: [0, 30, 'room left out'], [`About ${N.tr28} °C`]: [25, 25 + 10 / 3, `10 ÷ 3 = ${N.tr33} °C`] },\n      task: 'A transistor\\'s losses are 10 W. Its way out to the air through a heat sink is 3 °C per W. That is for the whole part, not each metre. The room is at 25 °C. How hot does it run?',\n      why: `The rise is losses × thermal resistance: 10 × 3 = ${N.trRise} °C. Add the room's 25 °C. So it runs at ${N.tr} °C.`,\n      hint: 'Not quite. Multiply the losses by the thermal resistance, then add the room.',\n      hints: { [`${N.trRise} °C`]: `Not quite. ${N.trRise} °C is the rise. Add the room's 25 °C.`, [`About ${N.tr28} °C`]: 'Not quite. Multiply the losses by the thermal resistance. Do not divide.' } },\n    { kind: 'pick', name: 'Just after switch-on', pic: 'time', mode: 'slope',\n      opts: [`About ${N.wMin} °C a minute`, `About ${N.w15} °C a second`, 'The full 40 °C at once'], want: `About ${N.wMin} °C a minute`,\n      bad: {\n        [`About ${N.w15} °C a second`]: [{ pts: [[0, ROOM], [(YMAX - ROOM) / (CAP / S50.L * 60), YMAX]], lab: `${N.w15} °C a second`, dx: 10, dy: 16, anchor: 'start' }],\n        'The full 40 °C at once': [{ pts: [[0, ROOM], [0, settleAt(S50)], [8, settleAt(S50)]], lab: 'all at once', dx: 8, dy: 18, anchor: 'start' }],\n      },\n      task: `A cable's losses are ${N.L50} W in each metre. Each metre needs 300 J to warm by 1 °C. How fast does it warm just after switch-on?`,\n      why: `At switch-on no heat leaves yet, so all ${N.L50} W goes into warming. Each °C takes 300 J. So it warms ${N.L50} ÷ 300 = ${N.w067} °C each second. That is about ${N.wMin} °C a minute.`,\n      hint: 'Not quite. Divide the watts by the joules for each °C.',\n      hints: { [`About ${N.w15} °C a second`]: `Not quite. Divide the watts by the joules for each °C: ${N.L50} ÷ 300.`, 'The full 40 °C at once': `Not quite. Warming takes energy, and the energy arrives at ${N.L50} W.` } },\n  ];\n  const FINISH = 'A loaded cable warms until the heat leaving matches the losses. Its steady rise is losses × the thermal resistance of the way out. Its heat capacity sets only how long it takes to get there.';\n  const PICK = 'Pick an answer first.';\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n\n  // ---------- each step's state ----------\n  function blank() { return { pick: null, res: null, why: false }; }\n  let S = STEPS.map(() => blank());\n  let finished = false, lastStep = -1, lastDone = false, T = Infinity, motionEnd = 0, MOT = null, keyNow = '';\n  const el = (id) => document.getElementById(id);\n\n  // ---------- words with amber key terms (built with K.el, never innerHTML) ----------\n  function write(node, s) {\n    node.textContent = '';\n    s = String(s || '');\n    const re = /\\*([^*]+)\\*/g;\n    let pos = 0, m;\n    while ((m = re.exec(s))) {\n      if (m.index > pos) node.appendChild(document.createTextNode(s.slice(pos, m.index)));\n      node.appendChild(K.el('span', { class: 'term' }, m[1]));\n      pos = m.index + m[0].length;\n    }\n    if (pos < s.length) node.appendChild(document.createTextNode(s.slice(pos)));\n    return node;\n  }\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);\n  const curCtl = K.control({ id: 'current', label: 'Current', min: 0, max: 60, step: 1, value: 50, unit: 'A', snap: [I_WRAP, I_HOT], fmt: (v) => fx(v) + ' A', into: '#ctl' });\n  const roomCtl = K.control({ id: 'room', label: 'Room', min: 10, max: 40, step: 1, value: ROOM, unit: '°C', into: '#ctl' });\n  const wrapCtl = K.toggle({ id: 'wrap', label: 'Extra wrap', value: false, into: '#ctl' });\n  const fanCtl = K.toggle({ id: 'fan', label: 'Fan', value: false, into: '#ctl' });\n  // The clock and the moment the current goes off: Switch on and Switch off move them.\n  const clockCtl = K.control({ id: 'clock', label: 'Minutes after switch-on', min: 0, max: TMAX, step: 0.01, value: TMAX, unit: 'min', into: '#hold' });\n  const offCtl = K.control({ id: 'off', label: 'Switched off at', min: 0, max: TMAX, step: 0.01, value: TMAX, unit: 'min', into: '#hold' });\n  const ctlKey = (p) => [p.current, p.room, p.wrap, p.fan].join('|');\n  function setCtl(id, v) { ({ clock: clockCtl, off: offCtl, current: curCtl })[id].set(v, true); }\n\n  // A screen's settings: its own unless its control shows.\n  function cfgOf(i, p) {\n    const d = STEPS[i], L = d.live || {}, b = d.set || {};\n    const s = rig({\n      I: L.current ? K.clamp(+p.current || 0, 0, 60) : (b.I == null ? 50 : b.I),\n      room: L.room ? K.clamp(isFinite(+p.room) ? +p.room : ROOM, 10, 40) : (b.room == null ? ROOM : b.room),\n      wrap: L.wrap ? !!p.wrap : !!b.wrap, fan: L.fan ? !!p.fan : !!b.fan, C: b.C || CAP,\n      off: L.clock && isFinite(+p.off) ? K.clamp(+p.off, 0, TMAX) : TMAX,\n    });\n    s.t = L.clock ? K.clamp(isFinite(+p.clock) ? +p.clock : TMAX, 0, TMAX) : (b.t == null ? TMAX : b.t);\n    return s;\n  }\n  K.model((p) => {\n    const i = K.clamp(Math.round(+p.step) || 0, 0, STEPS.length - 1), g = cfgOf(i, p);\n    return { losses: making(g, g.t), copperTemp: tempAt(g, g.t), tau: tauMin(g.R, g.C) };\n  });\n\n  // Switch on runs the clock from 0 to the screen's end; Switch off stops the losses and runs on to 100 min.\n  function swMode(p) {\n    const c = isFinite(+p.clock) ? +p.clock : TMAX, off = isFinite(+p.off) ? +p.off : TMAX;\n    if (off < TMAX - EPS || c >= TMAX - EPS) return 'again';\n    if (c <= EPS && !(anim.playing() && MOT)) return 'on';\n    return 'off';\n  }\n  const swBtn = K.button({ label: 'Switch on', into: '#ctl', press: () => {\n    const d = STEPS[at()];\n    if (finished || !d.live || !d.live.sw) return;\n    const p = K.params(), mode = swMode(p);\n    if (mode === 'off') {\n      const c = K.clamp(+p.clock || 0, 0, TMAX);\n      setCtl('off', c);\n      startMot({ ctl: 'clock', from: c, to: TMAX, t0: 0, t1: Math.max(0.2, (TMAX - c) / RATE) });\n    } else {\n      setCtl('off', TMAX); setCtl('clock', 0);\n      startMot({ ctl: 'clock', from: 0, to: d.mot.to, t0: 0, t1: d.mot.to / RATE });\n    }\n  } });\n\n  // Up to three answer buttons; each step fills in its own options.\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;\n    const was = st.res === 'wrong';\n    st.pick = d.opts[k]; st.res = null;\n    if (was) { anim.pause(); T = Infinity; }\n  } }));\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (d.show || finished || st.res === 'right') return;\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = st.pick === d.want ? 'right' : 'wrong';\n    play(ANS);\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    if (STEPS[at()].show || finished) return;\n    const st = S[at()]; st.why = !st.why;\n  } });\n  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {\n    const d = STEPS[at()];\n    if (!d.show || d.live || finished) return;\n    play(d.dur);\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true; anim.pause(); T = Infinity; MOT = null;\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);\n  } });\n\n  // One animation plays each demonstration, each run of the clock and the motion after an answer;\n  // with reduced motion (and while the self-test looks) everything opens finished.\n  function stepMot() {\n    const m = MOT;\n    if (!m) return;\n    const a = T === Infinity ? 1 : K.clamp((T - m.t0) / Math.max(1e-6, m.t1 - m.t0), 0, 1);\n    setCtl(m.ctl, K.lerp(m.from, m.to, a));\n    if (m.ctl === 'current') keyNow = ctlKey(K.params());\n    if (a >= 1) MOT = null;\n  }\n  function finishMot() { if (MOT) { T = Infinity; stepMot(); MOT = null; } }\n  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {\n    if (finished) return false;\n    T += dt;\n    if (MOT) { stepMot(); K.refresh(); } else if (STEPS[at()].live) K.refresh(); else paint();\n    return T < motionEnd || !!MOT;\n  } });\n  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; finishMot(); K.refresh(); } });\n  function play(dur) {\n    if (REDUCE || testing()) { anim.pause(); finishMot(); T = Infinity; return; }\n    motionEnd = dur; T = 0; anim.play();\n  }\n  function startMot(m) { MOT = m; play(Math.max(m.t1, 0.1)); }\n  function enter(id) {\n    if (REDUCE) return;\n    const box = el(id);\n    box.classList.remove('enter');\n    void box.offsetWidth;\n    box.classList.add('enter');\n  }\n  // A new screen: a live one takes its own settings and runs its demonstration once.\n  function onEnter(i) {\n    const d = STEPS[i];\n    MOT = null;\n    if (d.live) {\n      const b = d.set || {};\n      curCtl.set(b.I == null ? 50 : b.I, true); roomCtl.set(b.room == null ? ROOM : b.room, true);\n      wrapCtl.set(!!b.wrap, true); fanCtl.set(!!b.fan, true);\n      offCtl.set(TMAX, true); clockCtl.set(TMAX, true);\n      if (d.mot) { MOT = Object.assign({}, d.mot); setCtl(MOT.ctl, MOT.from); }\n    }\n    if (d.show) play(d.dur); else { anim.pause(); T = Infinity; }\n  }\n\n  // ---------- drawing ----------\n  const svg = el('scene'), art = el('art');\n  let into = null, REC = null, LABS = [], AVOID = [], HH = 340;\n  const add = (n) => (into || art).appendChild(n);\n  const r2 = (v) => Math.round(v * 100) / 100;\n  const sv = (tag, a) => add(K.svg(tag, a));\n  const path = (d, cls) => sv('path', { class: cls, d });\n  function text(x, y, s, cls, anchor) {\n    s = String(s);\n    if (REC) REC.texts.push(s);\n    return add(K.svg('text', { class: cls, x: r2(x), y: r2(y), 'text-anchor': anchor || 'middle' }, s));\n  }\n  // A label placed by K.labels, clear of the other words and of the lines in AVOID.\n  function lab(x, y, s, cls, anchor, a) {\n    if (a != null && a <= 0) return;\n    LABS.push({ x: r2(x), y: r2(y), text: String(s), class: cls, anchor: anchor || 'middle', a: a == null ? 1 : a });\n    if (REC) REC.texts.push(String(s));\n  }\n  function placeLabels() {\n    if (!LABS.length) return;\n    const g = art.appendChild(K.svg('g'));\n    const ts = K.labels(g, LABS.map((l) => ({ x: l.x, y: l.y, text: l.text, class: l.class, anchor: l.anchor })), { avoid: AVOID });\n    (ts || []).forEach((t, k) => { if (LABS[k] && LABS[k].a < 1) K.fade(t, LABS[k].a, 0); });\n  }\n  // How far a part due at t0 has arrived, noting the timetable for the timing check.\n  let latest = 0, earliest = Infinity;\n  function note(t0, d) { if (t0 + d > latest) latest = t0 + d; if (t0 < earliest) earliest = t0; }\n  function arr(t0, d) { d = d == null ? K.SOFT : d; note(t0, d); return K.arrive(T, t0, d); }\n  function lin(t0, d) { note(t0, d); return T === Infinity ? 1 : K.clamp((T - t0) / d, 0, 1); }\n  function part(a, rise, draw) {\n    if (a <= 0) return;\n    const g = add(K.svg('g'));\n    K.fade(g, a, rise);\n    const keep = into; into = g; draw(); into = keep;\n  }\n  function brk(x1, x2, y, cls, up) {\n    const e = up ? y - 5 : y + 5;\n    path('M' + r2(x1) + ' ' + e + ' V' + y + ' H' + r2(x2) + ' V' + e, 'brk' + (cls ? ' ' + cls : ''));\n  }\n  function brkV(x, y1, y2, cls) { path(`M${r2(x + 5)} ${r2(y1)} H${r2(x)} V${r2(y2)} H${r2(x + 5)}`, 'brk' + (cls ? ' ' + cls : '')); }\n  // A heat arrow from (x1, y1) to its tip at (x2, y2).\n  function heatArrow(x1, y1, x2, y2) {\n    const L = Math.hypot(x2 - x1, y2 - y1);\n    if (L < 10) return;\n    const c = (x2 - x1) / L, s = (y2 - y1) / L, bx = x2 - c * 9, by = y2 - s * 9;\n    sv('line', { class: 'heat', x1: r2(x1), y1: r2(y1), x2: r2(x2 - c * 7), y2: r2(y2 - s * 7) });\n    path(`M${r2(x2)} ${r2(y2)} L${r2(bx - s * 4.5)} ${r2(by + c * 4.5)} L${r2(bx + s * 4.5)} ${r2(by - c * 4.5)} Z`, 'heatf');\n  }\n\n  // ---------- the rails ----------\n  function paintRails(d, st) {\n    const show = !!d.show, right = st.res === 'right';\n    HH = 192;\n    part(show ? arr(0.4) : 1, 0, () => text(8, 16, 'Both in a 20 °C room', 'lab t', 'start'));\n    const rows = [{ name: 'steel rail', cls: 'steel', n: 3, words: 'heat leaves fast' }, { name: 'wooden rail', cls: 'wood', n: 1, words: 'heat leaves slowly' }];\n    REC.rails = [];\n    rows.forEach((r, k) => {\n      const y0 = 30 + 84 * k, known = show || right;\n      part(1, 0, () => {\n        sv('rect', { class: r.cls, x: 14, y: y0 + 44, width: 266, height: 20, rx: 3 });\n        text(24, y0 + 58.5, r.name, 'lab', 'start');\n        sv('rect', { class: 'tube', x: 307, y: y0 + 2, width: 10, height: 60, rx: 5 });\n        sv('circle', { class: 'col', cx: 312, cy: y0 + 66, r: 8 });\n      });\n      // The thermometer's column: 0 to 40 °C up the tube, so 20 °C is halfway.\n      const rise = show ? 1 : right ? arr(0.1 + 0.2 * k, 1.0) : 0;\n      if (rise > 0) sv('rect', { class: 'col', x: 309.5, y: r2(y0 + 62 - 28 * rise), width: 5, height: r2(28 * rise + 2) });\n      const read = known ? '20 °C' : '?';\n      part(show ? arr(0.9 + 0.3 * k) : right ? arr(0.6 + 0.2 * k) : 1, 0, () => text(298, y0 + 22, read, 'rd', 'end'));\n      let n = 0;\n      if (show) {\n        part(arr(1.2 + 0.3 * k), 4, () => {\n          sv('rect', { class: 'hand', x: 96, y: y0 + 2, width: 60, height: 20, rx: 10 });\n          text(126, y0 + 16.5, 'hand', 'lab');\n        });\n        const g = arr(1.9 + 0.4 * k, 0.9);\n        if (g > 0) part(g, 0, () => {\n          for (let j = 0; j < r.n; j++) { const x = 126 + (j - (r.n - 1) / 2) * 18; heatArrow(x, y0 + 24, x, y0 + 26 + 17 * g); }\n        });\n        n = g > 0 ? r.n : 0;\n        part(arr(2.7 + 0.3 * k), 0, () => text(170, y0 + 37, r.words, 'lab', 'start'));\n      }\n      REC.rails.push({ arrows: n, reads: read });\n    });\n    return 'A steel rail and a wooden rail in a 20 °C room, each with a thermometer' + (show ? ' reading 20 °C. A hand rests on each. Three heat arrows run from the hand into the steel, and one into the wood.' : right ? ' reading 20 °C.' : ' that reads a question mark.');\n  }\n\n  // ---------- the cable cut across ----------\n  const SCX = 72, SCY = 76, PX_CU = 18, PX_INS = 30, PX_WRAP = 42;\n  const SLOTS = [0, 8, 4, 12, 2, 10, 6, 14, 1, 9, 5, 13, 3, 11, 7, 15];\n  // One ink arrow for each 2 W leaving each metre, fading in as the heat leaving grows.\n  function drawSection(s, q) {\n    const rs = s.wrap ? PX_WRAP : PX_INS;\n    if (s.wrap) sv('circle', { class: 'wrapf', cx: SCX, cy: SCY, r: PX_WRAP });\n    sv('circle', { class: 'insf', cx: SCX, cy: SCY, r: PX_INS });\n    sv('circle', { class: 'cuf', cx: SCX, cy: SCY, r: PX_CU });\n    const n0 = Math.max(0, q) / 2, n = T === Infinity ? Math.round(n0) : n0;\n    for (let k = 0; k < SLOTS.length && k < n; k++) {\n      const a = Math.min(1, n - k);\n      if (a < 0.02) break;\n      const th = (SLOTS[k] + 0.5) * Math.PI / 8, c = Math.cos(th), sn = Math.sin(th), ra = PX_CU + 2, rb = rs + 22;\n      part(a, 0, () => heatArrow(SCX + c * ra, SCY + sn * ra, SCX + c * rb, SCY + sn * rb));\n    }\n    text(SCX, 158, s.fan ? 'air, fan on' : 'still air', 'lab m');\n    REC.arrows = n;\n  }\n  // The heat made and the heat leaving each metre, on one scale, and the key to the rings.\n  function drawFlow(s, made, out, both) {\n    const X = 156, W = 126, f = W / 30;\n    const bar = (y, v, cls, name) => {\n      text(X, y - 6, name, 'lab', 'start');\n      sv('rect', { class: 'track', x: X, y, width: W, height: 16, rx: 4 });\n      if (v * f > 0.3) sv('rect', { class: cls, x: X, y, width: r2(Math.max(1.5, v * f)), height: 16, rx: 3 });\n      text(X + W + 6, y + 12.5, `${fx(v)} W/m`, 'lab', 'start');\n    };\n    bar(20, made, 'madef', 'heat made in the copper');\n    REC.made = made; REC.out = out;\n    if (both) {\n      bar(60, out, 'outf', 'heat leaving to the room');\n      text(X, 98, status(made, out), 'lab n', 'start');\n    }\n    const keys = [['cuf', 'copper'], ['insf', 'insulation']].concat(s.wrap ? [['wrapf', 'extra wrap']] : []);\n    keys.forEach((kk, j) => { const y = 112 + 18 * j; sv('rect', { class: kk[0], x: X, y, width: 14, height: 14, rx: 2 }); text(X + 20, y + 12, kk[1], 'lab m', 'start'); });\n  }\n  const rising = (made, out) => made > EPS && out < made - 0.5;\n  function status(made, out) {\n    if (made <= EPS) return out < 0.05 ? 'no heat in or out' : 'out only: cooling';\n    return rising(made, out) ? 'in > out: warming' : 'out = in: steady';\n  }\n  // The temperature across the layers, from the copper out to the room.\n  function drawProfile(s, Tc, y0) {\n    text(8, y0 + 14, 'Temperature across the layers', 'lab t', 'start');\n    const XA = 60, XC = 104, XE = 334, yb = y0 + 82, top = y0 + 28;\n    const span = Math.max(40, Math.ceil(s.L * s.R / 40 - 1e-9) * 40), k = (yb - top) / span;\n    const py = (T) => yb - K.clamp(T - s.room, 0, span) * k;\n    const q = (Tc - s.room) / s.R;\n    const layers = [{ name: 'insulation', R: R_INS, cls: 'insf' }].concat(s.wrap ? [{ name: 'wrap', R: R_WRAP, cls: 'wrapf' }] : [],\n      [{ name: s.fan ? 'air, fan on' : 'air', R: s.fan ? R_FAN : R_AIR, cls: 'airf' }]);\n    const bw = (XE - XC) / layers.length;\n    sv('rect', { class: 'cuf', x: XA, y: yb + 4, width: XC - XA, height: 8 });\n    text((XA + XC) / 2, yb + 27, 'copper', 'lab m');\n    let T = Tc;\n    const pts = [[XA, py(T)], [XC, py(T)]], drops = [];\n    layers.forEach((Ly, j) => {\n      const x0 = XC + bw * j, dT = q * Ly.R, ya = py(T);\n      sv('rect', { class: Ly.cls, x: r2(x0), y: yb + 4, width: r2(bw), height: 8 });\n      text(x0 + bw / 2, yb + 27, Ly.name, 'lab m');\n      T -= dT;\n      pts.push([x0 + bw, py(T)]);\n      drops.push(dT);\n      if (dT >= 0.5) lab(x0 + bw / 2 + 4, (ya + py(T)) / 2 - 6, `${fx(dT)} °C`, 'lab', 'start');\n    });\n    AVOID.push(path(pts.map((p, j) => (j ? 'L' : 'M') + r2(p[0]) + ' ' + r2(p[1])).join(' '), 'prof'));\n    lab(XE, yb - 8, `room ${fx(s.room)} °C`, 'lab m', 'end');\n    REC.prof = { Tc, drops, end: T, surface: Tc - q * (R_INS + (s.wrap ? R_WRAP : 0)) };\n  }\n\n  // ---------- the time trace: 0 to 100 minutes along, 0 to 160 °C up ----------\n  const GX0 = 48, GX1 = 322, PH = 112;\n  let GYT = 0, GYB = 0;\n  const gx = (t) => GX0 + K.clamp(t, 0, TMAX) / TMAX * (GX1 - GX0);\n  const gy = (Tv) => GYB - K.clamp(Tv, 0, YMAX) / YMAX * (GYB - GYT);\n  const pd = (pts) => pts.map((q, k) => (k ? 'L' : 'M') + r2(gx(q[0])) + ' ' + r2(gy(q[1]))).join(' ');\n  // rows: brackets along the time axis ({t, text, cls, a}); returns the bottom of the block.\n  function traceFrame(y0, rows, nRows) {\n    GYT = y0 + 22; GYB = GYT + PH;\n    AVOID.push(path(`M${GX0} ${GYT} V${GYB} H${GX1}`, 'ax'));   // labels keep clear of the axes\n    [0, 40, 80, 120, 160].forEach((v) => { sv('line', { class: 'tk', x1: GX0 - 4, y1: r2(gy(v)), x2: GX0, y2: r2(gy(v)) }); text(GX0 - 8, gy(v) + 4.5, fx(v), 'tl', 'end'); });\n    text(GX0 - 8, GYT - 11, '°C', 'tl', 'end');\n    [0, 20, 40, 60, 80, 100].forEach((t) => { const x = r2(gx(t)); sv('line', { class: 'tk', x1: x, y1: GYB, x2: x, y2: GYB + 4 }); text(x, GYB + 17, fx(t), 'tl'); });\n    AVOID.push(sv('line', { class: 'lim', x1: GX0, y1: r2(gy(LIMIT)), x2: GX1, y2: r2(gy(LIMIT)) }));\n    lab(GX1 - 2, gy(LIMIT) - 6, `${LIMIT} °C limit`, 'lab m', 'end');\n    rows = rows || [];\n    REC.rows = [];\n    rows.forEach((r, k) => {\n      if (!r) return;\n      const y = GYB + 26 + 15 * k, a = r.a == null ? 1 : r.a;\n      part(a, 0, () => { brk(gx(0), gx(r.t), y, r.cls, true); text(gx(r.t) + 6, y + 4.5, r.text, 'lab' + (r.cls ? ' ' + r.cls : ''), 'start'); });\n      if (a > 0) REC.rows.push(r.t);\n    });\n    const ty = GYB + 36 + 15 * Math.max(nRows == null ? rows.length : nRows, 0);\n    text((GX0 + GX1) / 2, ty, 'minutes after switch-on', 'tl');\n    return ty + 8;\n  }\n  // Points along a run, stopping where it leaves the top of the axis.\n  function tracePts(fn, t1) {\n    const pts = [], n = Math.max(2, Math.ceil(t1 / 0.5));\n    for (let k = 0; k <= n; k++) {\n      const t = t1 * k / n, v = fn(t);\n      if (v > YMAX) {\n        if (pts.length) { const q = pts[pts.length - 1], f = (YMAX - q[1]) / (v - q[1]); pts.push([q[0] + (t - q[0]) * f, YMAX]); } else pts.push([t, YMAX]);\n        break;\n      }\n      pts.push([t, v]);\n    }\n    return pts;\n  }\n  // A run of the copper's temperature to time t1; its part above the 70 °C limit is drawn red.\n  function curve(fn, t1, cls, warnOver) {\n    if (t1 <= EPS) return null;\n    const pts = tracePts(fn, t1), e = path(pd(pts), cls);\n    AVOID.push(e);\n    if (REC) REC.curves.push({ cls, end: pts[pts.length - 1] });\n    if (!warnOver) return e;\n    const segs = [];\n    let cur = null;\n    for (let k = 0; k < pts.length; k++) {\n      const q = pts[k], above = q[1] > LIMIT + 1e-9;\n      if (k > 0) {\n        const p = pts[k - 1], pa = p[1] > LIMIT + 1e-9;\n        if (above !== pa) {\n          const f = (LIMIT - p[1]) / (q[1] - p[1]), x = [p[0] + (q[0] - p[0]) * f, LIMIT];\n          if (above) cur = [x]; else if (cur) { cur.push(x); segs.push(cur); cur = null; }\n        }\n      } else if (above) cur = [];\n      if (above && cur) cur.push(q);\n    }\n    if (cur && cur.length > 1) segs.push(cur);\n    segs.forEach((sg) => { if (sg.length > 1) { AVOID.push(path(pd(sg), 'over')); REC.over = true; } });\n    return e;\n  }\n  // A wrong answer, drawn as a red dashed run with its own label.\n  function drawBad(list, a) {\n    if (a <= 0) return;\n    list.forEach((b) => {\n      REC.bad++;\n      const pts = b.pts || tracePts(b.fn, b.t1 || TMAX);\n      part(a, 0, () => AVOID.push(path(pd(pts), 'bad')));\n      const end = b.at || pts[pts.length - 1];\n      lab(gx(end[0]) + (b.dx || 0), gy(end[1]) + (b.dy || -10), b.lab, 'lab w', b.anchor || 'middle', a);\n    });\n  }\n  function dotAt(t, v) { AVOID.push(sv('circle', { class: 'dot', cx: r2(gx(t)), cy: r2(gy(v)), r: 6 })); REC.dot = [t, v]; }\n\n  // The cable screens: the section and its heat flows, then the profile and the trace below.\n  function paintCable(i, d, st, p) {\n    const live = !!d.live, right = st.res === 'right', wrong = st.res === 'wrong' && st.pick != null;\n    const s = cfgOf(i, p);\n    const t = live ? s.t : right ? TMAX * lin(0.1, 1.3) : 0;\n    const steadyView = d.parts === 'made';\n    const made = steadyView ? s.L : making(s, t), out = steadyView ? s.L : leaving(s, t), Tc = tempAt(s, t);\n    drawSection(s, out);\n    drawFlow(s, made, out, !steadyView);\n    const ring = `A cable cut across: a copper core, its insulation${s.wrap ? ', an extra wrap' : ''} and the room's air${s.fan ? ', moved by a fan' : ''}. `;\n    if (steadyView) { HH = 164; return ring + `${fx(s.I)} A makes ${fx(s.L)} W of heat in each metre, and as much leaves through the layers.`; }\n    let y = 164;\n    if (d.parts === 'full') { drawProfile(s, Tc, y); y += 112; }\n    const tau = tauMin(s.R, s.C);\n    HH = traceFrame(y, live ? [{ t: tau, text: `τ = ${fx(tau)} min`, cls: 'n' }] : [], live ? 1 : 0);\n    if (d.ref) { const rf = rig(d.ref); curve((u) => tempAt(rf, u), TMAX, 'ref', false); lab(gx(30), gy(tempAt(rf, 30)) + 20, d.refLab, 'lab m'); }\n    if (live || right) curve((u) => tempAt(s, u), t, 'curve', true);\n    if (live && !onAt(s, t)) {\n      const x = r2(gx(s.off)), top = gy(tempAt(s, s.off));\n      AVOID.push(sv('line', { class: 'guide', x1: x, y1: GYB, x2: x, y2: r2(top) }));\n      lab(x + 6, top - 12, 'switched off', 'lab m', 'start');\n    }\n    dotAt(t, Tc);\n    if (live) lab(gx(t) + 8, gy(Tc) - 12, `copper ${fx(Tc)} °C`, 'lab n', 'start');\n    else if (!right) lab(gx(0) + 12, gy(Tc) + 4.5, 'switch-on', 'lab m', 'start');\n    if (right && d.endLab) lab(gx(d.endLab.t), gy(settleAt(s)) + d.endLab.dy, d.endLab.text, 'lab n', 'middle', arr(1.3));\n    if (wrong && d.bad && d.bad[st.pick]) drawBad(d.bad[st.pick], arr(0.1));\n    REC.end = Tc;\n    return ring + `Below, the copper's temperature after switch-on, ${fx(t)} minutes in: ${fx(Tc)} °C.` + (wrong ? ' The answer picked is drawn as a dashed line.' : '');\n  }\n\n  // The trace alone: how long it takes, twice the heat capacity, a hot room, the first minutes.\n  function paintTime(d, st) {\n    const show = !!d.show, right = st.res === 'right', wrong = st.res === 'wrong' && st.pick != null;\n    const a = rig({}), b = rig({ C: 2 * CAP }), ta = tauMin(a.R, a.C), tb = tauMin(b.R, b.C);\n    let said = 'A graph of the copper\\'s temperature against minutes after switch-on, with the 70 °C limit.';\n    if (d.mode === 'tau') {\n      const r1 = arr(2.0), r2a = arr(2.5);\n      HH = traceFrame(0, [{ t: ta, text: `τ = ${N.tau} min`, cls: 'n', a: r1 }, { t: 5 * ta, text: `5τ = ${N.five} min`, cls: '', a: r2a }], 2);\n      curve((u) => tempAt(a, u), TMAX * lin(0.5, 1.5), 'curve', true);\n      lab(gx(30), gy(tempAt(a, 30)) - 12, '300 J per °C', 'lab n', 'middle', r1);\n      part(r1, 0, () => dotAt(ta, tempAt(a, ta)));\n      lab(gx(ta) + 10, gy(tempAt(a, ta)) + 18, `${N.T1} °C after one τ`, 'lab n', 'start', r1);\n      part(r2a, 0, () => AVOID.push(sv('line', { class: 'guide', x1: r2(gx(5 * ta)), y1: GYB, x2: r2(gx(5 * ta)), y2: r2(gy(tempAt(a, 5 * ta))) })));\n      return said + ` One run for 300 J per °C, with τ = ${N.tau} minutes marked, near ${N.T1} °C after one τ, all but settled by ${N.five} minutes.`;\n    }\n    if (d.mode === 'cap') {\n      const ra = right ? arr(1.3) : 0;\n      HH = traceFrame(0, [{ t: ta, text: `τ = ${N.tau} min`, cls: 'n' }, right ? { t: tb, text: `τ = ${N.tauC2} min`, cls: 't', a: ra } : null], 2);\n      curve((u) => tempAt(a, u), TMAX, 'curve', true);\n      lab(gx(30), gy(tempAt(a, 30)) - 12, '300 J per °C', 'lab n');\n      if (right) { curve((u) => tempAt(b, u), TMAX * lin(0.1, 1.3), 'curve2', true); lab(gx(26), gy(tempAt(b, 26)) + 20, '600 J per °C', 'lab t', 'start', ra); }\n      if (wrong && d.bad[st.pick]) drawBad(d.bad[st.pick], arr(0.1));\n      return said + ' A run for 300 J per °C settles at 70 °C.' + (right ? ' A run for 600 J per °C settles there too, twice as slowly.' : '');\n    }\n    if (d.mode === 'hot') {\n      HH = traceFrame(0, [], 0);\n      AVOID.push(sv('line', { class: 'room', x1: GX0, y1: r2(gy(40)), x2: GX1, y2: r2(gy(40)) }));\n      lab(GX0 + 6, gy(40) + 18, 'room 40 °C', 'lab m', 'start');\n      const hx = gx(90);\n      brkV(hx, gy(40), gy(LIMIT), '');\n      lab(hx - 6, (gy(40) + gy(LIMIT)) / 2 + 4, `${N.head} °C headroom`, 'lab m', 'end');\n      if (right) {\n        const sh = rig({ I: I_HOT, room: 40 });\n        curve((u) => tempAt(sh, u), TMAX * lin(0.1, 1.3), 'curve', true);\n        lab(gx(30), gy(tempAt(sh, 30)) + 20, `${N.IH} A`, 'lab n', 'middle', arr(1.3));\n      }\n      if (wrong && d.bad[st.pick]) drawBad(d.bad[st.pick], arr(0.1));\n      return said + ` The room is at 40 °C, leaving ${N.head} °C of headroom below the limit.` + (right ? ` A run at ${N.IH} A settles at the limit.` : '');\n    }\n    // 'slope': the first minutes after switch-on\n    HH = traceFrame(0, [], 0);\n    if (right) {\n      curve((u) => tempAt(a, u), TMAX * lin(0.1, 1.3), 'curve', true);\n      const k = a.L / a.C * 60;   // °C a minute at switch-on\n      part(arr(0.6), 0, () => AVOID.push(path(pd([[0, ROOM], [10, ROOM + 10 * k]]), 'tan')));\n      lab(gx(10) + 6, gy(ROOM + 10 * k) + 4, `${N.wMin} °C a minute at first`, 'lab n', 'start', arr(1.2));\n      REC.tan = k;\n    }\n    dotAt(0, ROOM);\n    lab(gx(0) + 12, gy(ROOM) + 4.5, 'switch-on', 'lab m', 'start');\n    if (wrong && d.bad[st.pick]) drawBad(d.bad[st.pick], arr(0.1));\n    return said + ' The copper starts at the room\\'s 30 °C.' + (right ? ` At first it climbs ${N.wMin} °C a minute.` : '');\n  }\n\n  // ---------- a motor and a heat sink ----------\n  function drawTransistor(y0, g) {\n    for (let j = 0; j < 6; j++) sv('rect', { class: 'iron', x: 26 + 20 * j, y: y0 + 52, width: 8, height: 44, rx: 2 });\n    sv('rect', { class: 'iron', x: 20, y: y0 + 40, width: 120, height: 12, rx: 2 });\n    [62, 75, 88].forEach((x) => sv('line', { class: 'leg', x1: x, y1: y0 + 14, x2: x, y2: y0 }));\n    sv('rect', { class: 'pkg', x: 52, y: y0 + 14, width: 46, height: 26, rx: 3 });\n    if (g > 0) part(g, 0, () => [60, 80, 100].forEach((x) => heatArrow(x, y0 + 42, x, y0 + 46 + 62 * g)));\n  }\n  function chain(y0, rows, t0) {\n    part(arr(t0), 0, () => text(172, y0, 'heat leaves through', 'lab t', 'start'));\n    rows.forEach((r, k) => part(arr(t0 + 0.15 * (k + 1)), 4, () => {\n      const y = y0 + 24 + 24 * k;\n      if (r[0]) sv('rect', { class: r[0], x: 172, y: y - 11, width: 14, height: 14, rx: 2 });\n      text(r[0] ? 192 : 172, y, r[1], r[0] ? 'lab m' : 'lab n', 'start');\n      if (k < rows.length - 2) path(`M179 ${y + 5} V${y + 11} M175.5 ${y + 8} L179 ${y + 12} L182.5 ${y + 8}`, 'heat');\n    }));\n  }\n  function paintSkins() {\n    HH = 330;\n    const MX = 80, MY = 92;\n    part(arr(0.4), 0, () => text(8, 16, 'A motor, cut across', 'lab t', 'start'));\n    part(arr(0.5), 4, () => {\n      sv('circle', { class: 'airf', cx: MX, cy: MY, r: 74 });\n      for (let k = 0; k < 16; k++) { const th = k * Math.PI / 8, c = Math.cos(th), sn = Math.sin(th); sv('line', { class: 'fin', x1: r2(MX + c * 56), y1: r2(MY + sn * 56), x2: r2(MX + c * 62), y2: r2(MY + sn * 62) }); }\n      sv('circle', { class: 'frame', cx: MX, cy: MY, r: 57 });\n      sv('circle', { class: 'iron', cx: MX, cy: MY, r: 50 });\n      for (let k = 0; k < 8; k++) {\n        const th = (k + 0.5) * Math.PI / 4, x = MX + Math.cos(th) * 41, y = MY + Math.sin(th) * 41;\n        sv('circle', { class: 'insf', cx: r2(x), cy: r2(y), r: 6.5 });\n        sv('circle', { class: 'cuf', cx: r2(x), cy: r2(y), r: 3.8 });\n      }\n      sv('circle', { class: 'rotor', cx: MX, cy: MY, r: 29 });\n    });\n    const g1 = arr(1.0, 0.9);\n    if (g1 > 0) part(g1, 0, () => { for (let k = 0; k < 8; k++) { const th = (k + 0.5) * Math.PI / 4, c = Math.cos(th), sn = Math.sin(th); heatArrow(MX + c * 46, MY + sn * 46, MX + c * (48 + 24 * g1), MY + sn * (48 + 24 * g1)); } });\n    chain(36, [['cuf', 'winding'], ['insf', 'its insulation'], ['iron', 'iron and frame'], ['airf', 'air, fan on the shaft'], [null, 'rise = losses × total']], 1.1);\n    part(arr(2.0), 0, () => text(8, 186, 'A transistor on a heat sink', 'lab t', 'start'));\n    part(arr(2.1), 4, () => drawTransistor(206, 0));\n    const g2 = arr(2.6, 0.9);\n    if (g2 > 0) part(g2, 0, () => [60, 80, 100].forEach((x) => heatArrow(x, 248, x, 252 + 62 * g2)));\n    chain(206, [['pkg', 'transistor and case'], ['iron', 'heat sink'], ['airf', 'air'], [null, 'rise = losses × total']], 2.6);\n    return 'A motor cut across, with the room\\'s air around it: heat made in the winding leaves through its insulation, the iron and the finned frame into the air. A transistor on a finned heat sink: its heat leaves through its case and the heat sink into the air. In each, the rise is losses × the total thermal resistance.';\n  }\n  // A transistor on its heat sink beside a temperature scale.\n  function paintSink(d, st) {\n    HH = 200;\n    const right = st.res === 'right', wrong = st.res === 'wrong' && st.pick != null;\n    text(8, 16, 'A transistor on a heat sink', 'lab t', 'start');\n    drawTransistor(80, 1);\n    const AX = 300, ly = (v) => 186 - v * 2.4;\n    AVOID.push(path(`M${AX} ${ly(60)} V${ly(0)}`, 'ax'));\n    [0, 20, 40, 60].forEach((v) => { sv('line', { class: 'tk', x1: AX, y1: r2(ly(v)), x2: AX + 4, y2: r2(ly(v)) }); text(AX + 8, ly(v) + 4.5, fx(v), 'tl', 'start'); });\n    text(AX + 8, ly(60) - 12, '°C', 'tl', 'start');\n    AVOID.push(sv('line', { class: 'room', x1: 172, y1: r2(ly(25)), x2: AX, y2: r2(ly(25)) }));\n    lab(176, ly(25) + 18, 'room 25 °C', 'lab m', 'start');\n    if (!right) lab(AX - 8, ly(60) + 4, 'how hot?', 'lab m', 'end');\n    if (right) {\n      const a1 = arr(0.1), a2 = arr(0.3);\n      part(a1, 0, () => brkV(AX - 10, ly(25), ly(55), 'n'));\n      lab(AX - 16, (ly(25) + ly(55)) / 2 + 4, `rise ${N.trRise} °C`, 'lab n', 'end', a1);\n      part(a2, 0, () => AVOID.push(sv('circle', { class: 'dot', cx: AX, cy: r2(ly(55)), r: 6 })));\n      lab(AX - 12, ly(55) - 10, `${N.tr} °C`, 'lab n', 'end', a2);\n      REC.dot = [0, 25 + 10 * 3];\n    }\n    if (wrong && d.ring[st.pick]) {\n      const q = d.ring[st.pick], a = arr(0.1);\n      REC.bad++;\n      part(a, 0, () => brkV(AX - 10, ly(q[0]), ly(q[1]), 'w'));\n      lab(AX - 16, (ly(q[0]) + ly(q[1])) / 2 + 4, q[2], 'lab w', 'end', a);\n    }\n    return 'A transistor on a finned heat sink, and a temperature scale with the room at 25 °C.' + (right ? ` A bracket marks the rise, ${N.trRise} °C, up to ${N.tr} °C.` : '');\n  }\n\n  // The scene for a step (the animation calls this every frame).\n  function paint(i, pOver) {\n    if (i == null) i = at();\n    const d = STEPS[i], st = S[i], p = pOver || K.params();\n    art.textContent = '';\n    into = null; LABS = []; AVOID = [];\n    REC = { texts: [], bad: 0, over: false, dot: null, made: null, out: null, arrows: null, prof: null, rails: null, end: null, tan: null, curves: [], rows: [] };\n    let said = '';\n    if (d.pic === 'rails') said = paintRails(d, st);\n    else if (d.pic === 'cable') said = paintCable(i, d, st, p);\n    else if (d.pic === 'time') said = paintTime(d, st);\n    else if (d.pic === 'skins') said = paintSkins();\n    else said = paintSink(d, st);\n    svg.setAttribute('viewBox', '0 0 340 ' + HH);\n    placeLabels();\n    svg.setAttribute('aria-label', said);\n  }\n\n  // ---------- what Dan reads under a live picture ----------\n  function sayRun(s, t) {\n    const made = making(s, t), out = leaving(s, t), Tc = tempAt(s, t);\n    if (made > EPS && t <= 0.05) return `The current has just switched on. The copper is still at the room's ${fx(s.room)} °C, so no heat leaves yet, and all ${fx(s.L)} W warms it.`;\n    if (made <= EPS) return out < 0.5 ? `The current is off, and the copper has cooled back to near the room's ${fx(s.room)} °C.`\n      : `The current is off, so no heat is made. Heat still leaves, ${fx(out)} W in each metre, so the copper cools back towards the room along the same kind of curve.`;\n    if (rising(made, out)) return `${fx(made)} W is made in each metre, but only ${fx(out)} W leaves. The rest warms the copper, so it is still rising, now at ${fx(Tc)} °C.`;\n    return `${fx(out)} W leaves each metre, as much as is made, so the copper holds steady at ${fx(Tc)} °C. Switch it off to watch it cool.`;\n  }\n  function sayFor(i, d, p) {\n    const s = cfgOf(i, p);\n    if (d.parts === 'made') return s.I <= EPS ? 'No current flows, so the copper makes no heat.'\n      : `${fx(s.I)} A makes ${fx(s.L)} W of heat in each metre. Losses go with current squared, so half the current makes a quarter of the heat.`;\n    if (d.settle) {\n      const Tss = settleAt(s);\n      if (s.L <= EPS) return `No current flows, so no heat is made, and the copper stays at the room's ${fx(s.room)} °C.`;\n      return `${fx(s.I)} A makes ${fx(s.L)} W in each metre. The way out is ${fx(s.R)} K·m/W, so the copper settles ${fx(s.L * s.R)} °C above the room, at ${fx(Tss)} °C` +\n        (Tss > LIMIT + 0.5 ? ', over the 70 °C limit.' : Tss >= LIMIT - 0.5 ? ', right at the limit.' : ', under the limit.');\n    }\n    return sayRun(s, s.t);\n  }\n  function layout(i, d, st, p) {\n    const right = st.res === 'right', live = d.live || null;\n    el('stepbox').hidden = finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    write(task, d.show ? d.text : d.task);\n    el('ctl').hidden = !live;\n    curCtl.el.hidden = !(live && live.current);\n    roomCtl.el.hidden = !(live && live.room);\n    wrapCtl.el.hidden = !(live && live.wrap);\n    fanCtl.el.hidden = !(live && live.fan);\n    swBtn.el.hidden = !(live && live.sw);\n    if (live && live.sw) swBtn.setLabel({ on: 'Switch on', off: 'Switch off', again: 'Start again' }[swMode(p)]);\n    el('say').hidden = !live;\n    el('say').textContent = live ? sayFor(i, d, p) : '';\n    el('replay').hidden = !d.show || !!live || REDUCE;\n    const opts = d.show ? [] : d.opts;\n    el('picks').hidden = !opts.length;\n    el('picks').classList.toggle('long', opts.some((x) => x.length > 9));\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(opts[k]);\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n    el('acts').hidden = !!d.show;\n    checkBtn.el.hidden = right;\n    const fb = el('fb');\n    fb.hidden = !!d.show;\n    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');\n    fb.textContent = d.show ? '' : right ? (d.right || 'That\\'s it.') : st.res === 'wrong' ? ((d.hints && d.hints[st.pick]) || d.hint) : st.res === 'empty' ? PICK : '';\n    const why = el('why');\n    why.hidden = !!d.show || !st.why;\n    write(why, d.show ? '' : d.why);\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !right);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  }\n\n  write(el('finish'), FINISH);\n  K.update((p) => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (i !== lastStep) {\n      lastStep = i; enter('stepbox'); onEnter(i);\n      if (d.live) { keyNow = ctlKey(K.params()); K.refresh(); return; }\n    }\n    if (d.live) {\n      const k = ctlKey(p);\n      if (k !== keyNow) {   // Dan moved a slider or a switch: the demonstration gives way to him\n        keyNow = k;\n        if (MOT && (MOT.ctl === 'current' || d.settle)) { MOT = null; anim.pause(); T = Infinity; }\n        if (d.settle && ((+p.clock || 0) < TMAX - EPS || (+p.off || 0) < TMAX - EPS)) { setCtl('off', TMAX); setCtl('clock', TMAX); K.refresh(); return; }\n      }\n    }\n    if (!anim.playing()) T = Infinity;\n    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }\n    layout(i, d, st, p);\n    paint(i, p);\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);\n  const solved = (i) => ({ pick: STEPS[i].want, res: 'right', why: false });\n  const wrongSt = (i, o) => ({ pick: o, res: 'wrong', why: false });\n  const idx = (name) => STEPS.findIndex((d) => d.name === name);\n  // A step painted in the state given (finished): what it draws.\n  function drawn(i, st, pOver) {\n    const keepS = S[i], keepT = T;\n    S[i] = st; T = Infinity;\n    try { paint(i, pOver ? Object.assign({}, K.params(), pOver) : null); return REC; }\n    finally { S[i] = keepS; T = keepT; paint(); }\n  }\n  const SW_ON = idx('Switch on'), LESS = idx('Carrying less'), MADE = idx('Heat made in the copper');\n\n  K.check('The metal feels colder because heat leaves the fingers faster: more heat arrows run from the hand into the steel than into the wood, while both thermometers read the room\\'s temperature', () => {\n    const r = drawn(idx('Steel and wood'), blank()).rails;\n    return r.length === 2 && r[0].arrows > r[1].arrows && r[1].arrows > 0 && r[0].reads === '20 °C' && r[1].reads === '20 °C';\n  });\n  K.check('At some temperature the heat leaving matches the heat being made, so the copper stops rising; at switch-on none leaves yet', () =>\n    [{}, { wrap: true }, { fan: true }, { I: 30, room: 15 }, { I: 60, wrap: true, fan: true }].every((o) => {\n      const s = rig(o);\n      return leaving(s, 0) === 0 && K.near(leaving(s, 1e4), s.L, 1e-9 * Math.max(1, s.L)) && leaving(s, 5) < leaving(s, 20) && K.near(tempAt(s, 1e4), settleAt(s), 1e-9);\n    }) && K.near(K.at({ step: SW_ON, clock: 60, off: TMAX }).copperTemp, 70, 0.1), { source: SRC2 });\n  K.check('The thermal resistance of the air is the surface\\'s rise above the room divided by the losses in each metre, once the cable has settled', () => {\n    const a = drawn(SW_ON, blank(), { clock: TMAX, off: TMAX }).prof, sa = rig({});\n    const b = drawn(LESS, blank(), { current: 50, room: 30, wrap: false, fan: true, clock: TMAX, off: TMAX }).prof;\n    return K.near((a.surface - sa.room) / sa.L, R_AIR, 1e-3) && K.near((b.surface - 30) / lossOf(50), R_FAN, 1e-3) && K.near(a.end, sa.room, 1e-9);\n  }, { source: SRC3 });\n  K.check('Every number the screens print comes from the rule: 20 W, 2 K·m/W, a 40 °C rise to 70 °C, 10 °C and 30 °C; 600 s, 10 min, 63%, 55 °C and 50 min; 4 K·m/W, 80 °C, 110 °C and 40 °C across the wrap; 1,200 s and 20 min; 0.707 and about 35 A; 30 °C, 15 W, 0.866 and about 43 A against 38 A and 80 °C; 50 °C with a fan; 55, 30 and 28 °C with 3.3 °C; 0.067 °C a second, about 4 °C a minute, against 15', () =>\n    N.L50 === '20' && N.R === '2' && N.rise === '40' && N.Ts === '70' && N.dIns === '10' && N.dAir === '30' &&\n    N.tauS === '600' && N.tau === '10' && N.pct === '63' && N.T1 === '55' && N.five === '50' &&\n    N.RW === '4' && N.riseW === '80' && N.TW === '110' && N.dWrap === '40' && N.tauC2s === '1,200' && N.tauC2 === '20' && N.tauW === '20' && N.low === '50' &&\n    N.facW === '0.707' && N.IW === '35' && N.allowW === '10' && N.head === '30' && N.allowH === '15' && N.facH === '0.866' && N.IH === '43' && N.I38 === '38' && N.T50hot === '80' &&\n    N.TF === '50' && N.riseF === '20' && N.tauF === '5' && N.tr === '55' && N.trRise === '30' && N.tr28 === '28' && N.tr33 === '3.3' &&\n    N.w067 === '0.067' && N.wMin === '4' && N.w15 === '15');\n  K.check('Losses go with current squared (25 A makes a quarter of 50 A\\'s 20 W); doubling the thermal resistance doubles the rise; doubling the heat capacity leaves where it settles alone and doubles the time constant', () => {\n    const a = K.at({ step: MADE, current: 25 }), b = K.at({ step: MADE, current: 50 });\n    const s = rig({}), w = rig({ wrap: true }), c = rig({ C: 2 * CAP });\n    return K.near(a.losses, 5, 1e-9) && K.near(b.losses, 20, 1e-9) && K.near((settleAt(w) - w.room) / (settleAt(s) - s.room), 2, 1e-9) &&\n      K.near(settleAt(c), settleAt(s), 1e-9) && K.near(tauMin(c.R, c.C) / tauMin(s.R, s.C), 2, 1e-9) && tempAt(c, 10) < tempAt(s, 10);\n  });\n  K.check('The trace follows the rule: its last point is the dot and the temperature the model returns, it never falls while the current is on, it cools back towards the room after switch-off, and it is drawn red only above 70 °C', () =>\n    [[60, TMAX], [20, TMAX], [TMAX, 30], [80, 60], [0, TMAX]].every((q) => {\n      const r = drawn(SW_ON, blank(), { clock: q[0], off: q[1] }), o = K.at({ step: SW_ON, clock: q[0], off: q[1] }), s = rig({ off: q[1] });\n      const okEnd = r.dot && K.near(r.dot[0], q[0], 1e-9) && K.near(r.dot[1], o.copperTemp, 1e-9) && K.near(o.copperTemp, tempAt(s, q[0]), 1e-9);\n      const okLine = q[0] < EPS || K.near(r.curves[0].end[1], o.copperTemp, 1e-6);\n      return okEnd && okLine && !r.over;\n    }) && tempAt(rig({ off: 30 }), 40) < tempAt(rig({ off: 30 }), 30) && tempAt(rig({ off: 30 }), 100) > ROOM &&\n    drawn(LESS, blank(), { current: 50, wrap: true, room: 30, fan: false, clock: TMAX, off: TMAX }).over === true &&\n    K.at({ step: SW_ON, clock: 100, off: 30 }).losses === 0 && K.near(K.at({ step: SW_ON, clock: 20, off: TMAX }).losses, 20, 1e-9));\n  K.check('Each puzzle offers three different answers including its right one, every wrong answer has its own hint, and before Check nothing on its picture shows the answer or a red mark', () =>\n    DO.every((i) => {\n      const d = STEPS[i];\n      if (d.opts.length !== 3 || d.opts.indexOf(d.want) < 0 || new Set(d.opts).size !== 3) return false;\n      if (!d.opts.every((o) => o === d.want || (d.hints[o] && d.hints[o].length > 10))) return false;\n      const g = drawn(i, blank());\n      return !g.bad && !g.over && g.texts.every((t) => t.indexOf(d.want) < 0);\n    }));\n  K.check('A wrong pick is drawn in red where it can be: a climb that never stops, 70 °C but later, 80 °C, settling at 50 °C, the same time, 38 A and 50 A runs, the room left out, 10 ÷ 3, 15 °C a second and all at once; a right answer draws no wrong pick', () =>\n    DO.every((i) => {\n      const d = STEPS[i];\n      if (drawn(i, solved(i)).bad) return false;\n      return d.opts.filter((o) => o !== d.want).every((o) => (d.redless && d.redless.indexOf(o) >= 0) || drawn(i, wrongSt(i, o)).bad > 0);\n    }));\n  K.check('A right answer draws the rule\\'s result: the run levels off at 70 °C; with the wrap it heads for 110 °C and turns red past the limit; twice the heat capacity also reaches 70 °C, with τ = 20 min; 43 A in a 40 °C room settles at 70 °C; the transistor at 55 °C; the first climb at 4 °C a minute', () => {\n    const r3 = drawn(idx('What happens next?'), solved(idx('What happens next?'))), r5 = drawn(idx('With the extra wrap'), solved(idx('With the extra wrap')));\n    const r7 = drawn(idx('Twice the heat capacity'), solved(idx('Twice the heat capacity'))), r9 = drawn(idx('A hot room'), solved(idx('A hot room')));\n    const r11 = drawn(idx('A transistor'), solved(idx('A transistor'))), r12 = drawn(idx('Just after switch-on'), solved(idx('Just after switch-on')));\n    return K.near(r3.end, 70, 0.01) && !r3.over && Math.abs(r5.end - 110) < 1 && r5.over && r7.rows.indexOf(20) >= 0 && Math.abs(r7.curves[1].end[1] - 70) < 0.5 &&\n      K.near(r9.curves[0].end[1], 70, 0.01) && r11.dot[1] === 55 && K.near(r12.tan, 4, 1e-9);\n  });\n  K.check('After Switch on, the copper is within 1 °C of where it settles within 3 s of the press, and its demonstration reaches that point within 3.6 s of the screen opening', () =>\n    tempAt(S50, RATE * 2.5) > settleAt(S50) - 1 && STEPS[SW_ON].mot.to / RATE <= 3 && tempAt(S50, STEPS[SW_ON].mot.to * (3.0 - STEPS[SW_ON].mot.t0) / (STEPS[SW_ON].mot.t1 - STEPS[SW_ON].mot.t0)) > settleAt(S50) - 1);\n  K.check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\\'s motion, right or wrong, within 2 s', () => {\n    const keepT = T;\n    const timed = (i, st, limit) => {\n      const keepS = S[i];\n      T = Infinity; latest = 0; earliest = Infinity;\n      S[i] = st;\n      try { paint(i); } finally { S[i] = keepS; }\n      return latest <= limit + 1e-9;\n    };\n    const ok = STEPS.every((d, i) => {\n      if (d.show) {\n        if (d.live) return d.mot.t0 >= FADE && d.mot.t1 <= d.dur && d.dur <= 4.5 && d.dur >= 3;\n        return timed(i, blank(), d.dur) && d.dur <= 4.5 && d.dur >= 3 && earliest >= FADE;\n      }\n      return timed(i, solved(i), ANS) && d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), ANS));\n    });\n    T = keepT; paint();\n    return ok;\n  });\n\n  K.ready();\n</script>",
+  "title": "Heat in, heat out",
+  "brief": "The one thing you should see is the copper's temperature levelling off where the heat leaving matches the losses, and settling higher with the extra wrap on, when you switch the current on.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "The metal feels colder because heat leaves the fingers faster: more heat arrows run from the hand into the steel than into the wood, while both thermometers read the room's temperature",
+     "ok": true
+    },
+    {
+     "label": "At some temperature the heat leaving matches the heat being made, so the copper stops rising; at switch-on none leaves yet",
+     "ok": true,
+     "source": "https://myelectrical.com/notes/entryid/207/iec-60287-current-capacity-of-cables-an-introduction"
+    },
+    {
+     "label": "The thermal resistance of the air is the surface's rise above the room divided by the losses in each metre, once the cable has settled",
+     "ok": true,
+     "source": "https://webstore.ansi.org/preview-pages/BSI/preview_30131317.pdf"
+    },
+    {
+     "label": "Every number the screens print comes from the rule: 20 W, 2 K·m/W, a 40 °C rise to 70 °C, 10 °C and 30 °C; 600 s, 10 min, 63%, 55 °C and 50 min; 4 K·m/W, 80 °C, 110 °C and 40 °C across the wrap; 1,200 s and 20 min; 0.707 and about 35 A; 30 °C, 15 W, 0.866 and about 43 A against 38 A and 80 °C; 50 °C with a fan; 55, 30 and 28 °C with 3.3 °C; 0.067 °C a second, about 4 °C a minute, against 15",
+     "ok": true
+    },
+    {
+     "label": "Losses go with current squared (25 A makes a quarter of 50 A's 20 W); doubling the thermal resistance doubles the rise; doubling the heat capacity leaves where it settles alone and doubles the time constant",
+     "ok": true
+    },
+    {
+     "label": "The trace follows the rule: its last point is the dot and the temperature the model returns, it never falls while the current is on, it cools back towards the room after switch-off, and it is drawn red only above 70 °C",
+     "ok": true
+    },
+    {
+     "label": "Each puzzle offers three different answers including its right one, every wrong answer has its own hint, and before Check nothing on its picture shows the answer or a red mark",
+     "ok": true
+    },
+    {
+     "label": "A wrong pick is drawn in red where it can be: a climb that never stops, 70 °C but later, 80 °C, settling at 50 °C, the same time, 38 A and 50 A runs, the room left out, 10 ÷ 3, 15 °C a second and all at once; a right answer draws no wrong pick",
+     "ok": true
+    },
+    {
+     "label": "A right answer draws the rule's result: the run levels off at 70 °C; with the wrap it heads for 110 °C and turns red past the limit; twice the heat capacity also reaches 70 °C, with τ = 20 min; 43 A in a 40 °C room settles at 70 °C; the transistor at 55 °C; the first climb at 4 °C a minute",
+     "ok": true
+    },
+    {
+     "label": "After Switch on, the copper is within 1 °C of where it settles within 3 s of the press, and its demonstration reaches that point within 3.6 s of the screen opening",
+     "ok": true
+    },
+    {
+     "label": "Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer's motion, right or wrong, within 2 s",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step",
+    "current",
+    "room",
+    "wrap",
+    "fan",
+    "clock",
+    "off"
+   ],
+   "readouts": [],
+   "outputs": [
+    "losses",
+    "copperTemp",
+    "tau"
+   ],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Screen",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "steps": [
+      "Steel and wood",
+      "Which is colder?",
+      "Heat made in the copper",
+      "What happens next?",
+      "Switch on",
+      "With the extra wrap",
+      "How long it takes",
+      "Twice the heat capacity",
+      "Carrying less",
+      "A hot room",
+      "A motor and a heat sink",
+      "A transistor",
+      "Just after switch-on"
+     ],
+     "value": 0
+    },
+    {
+     "id": "current",
+     "kind": "control",
+     "label": "Current",
+     "min": 0,
+     "max": 60,
+     "step": 1,
+     "log": false,
+     "value": 50,
+     "shown": false,
+     "snap": [
+      35.3553390593,
+      43.3012701892
+     ]
+    },
+    {
+     "id": "room",
+     "kind": "control",
+     "label": "Room",
+     "min": 10,
+     "max": 40,
+     "step": 1,
+     "log": false,
+     "value": 30,
+     "shown": false
+    },
+    {
+     "id": "wrap",
+     "kind": "toggle",
+     "label": "Extra wrap",
+     "options": [
+      false,
+      true
+     ],
+     "value": false,
+     "shown": false
+    },
+    {
+     "id": "fan",
+     "kind": "toggle",
+     "label": "Fan",
+     "options": [
+      false,
+      true
+     ],
+     "value": false,
+     "shown": false
+    },
+    {
+     "id": "clock",
+     "kind": "control",
+     "label": "Minutes after switch-on",
+     "min": 0,
+     "max": 100,
+     "step": 0.01,
+     "log": false,
+     "value": 100,
+     "shown": false
+    },
+    {
+     "id": "off",
+     "kind": "control",
+     "label": "Switched off at",
+     "min": 0,
+     "max": 100,
+     "step": 0.01,
+     "log": false,
+     "value": 100,
+     "shown": false
+    }
+   ],
+   "actions": [
+    "Switch on",
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Check",
+    "Why?",
+    "Play again",
+    "Back",
+    "Continue",
+    "Start again",
+    "Demonstration"
+   ],
+   "answers": [],
+   "written": [],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 2
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-27T05:56:25.421Z",
+  "applied": [
+   {
+    "path": "explain.text",
+    "problem": "'Not the rail's temperature' is too absolute, since a hot rail feels hot; and 'more insulation raises where the copper settles' fails for thin insulation on small wires (critical radius), so it is narrowed to thermal insulation packed round a cable."
+   },
+   {
+    "path": "practice.text",
+    "problem": "A motor's or transistor's losses are not just I²R; '45 °C of headroom' right after 'runs at 55 °C' reads as headroom from 55 °C; and a heavier, thicker cable really does settle cooler (lower resistance), so the mistakes are narrowed."
+   },
+   {
+    "path": "interactive.whatAmILookingAt",
+    "problem": "Screen 9 reads as if 43 A holds 70 °C with the wrap in a 40 °C room; that figure is without the wrap (with it, about 31 A). The 70 °C limit belongs to general-purpose thermoplastic (PVC); 90 °C thermoplastic exists."
+   }
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}

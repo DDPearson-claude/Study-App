@@ -1,0 +1,695 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Heat and fluids, from boiling water to pumps
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i7 "Pipes, head and pump power" — A pipe needs head, a height of liquid, for its lift plus friction that grows with flow squared, and head times flow sets pump power. [quantity]
+Later ideas in the course (every claim must stay true after Dan has learned each of them):
+- i8 Where the pump settles, and its limits — A centrifugal pump settles where its curve of head against flow crosses the pipe's, so closing a valve moves it to less flow, more head.
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] Understanding pump head and total head for pump performance - Atlas Copco USA — https://www.atlascopco.com/en-us/construction-equipment/resources/dewatering-pumps-guide/pump-head
+    "Put simply, head is the height at which a pump can raise fluid up and is measured in metres or feet."
+[R2] Understanding pump head and total head for pump performance - Atlas Copco USA — https://www.atlascopco.com/en-us/construction-equipment/resources/dewatering-pumps-guide/pump-head
+    "Friction loss depends on the length and size of the pipework, bends, and gate valves, through which the fluid flows."
+[R3] Darcy–Weisbach equation - Wikipedia — https://en.wikipedia.org/wiki/Darcy%E2%80%93Weisbach_equation
+    "the flow is turbulent; the resistance to flow follows the Darcy–Weisbach equation: it is proportional to the square of the mean flow velocity."
+[R4] Centrifugal Pump Analysis — https://www.cedengineering.com/userfiles/Centrifugal%20Pump%20Analysis%20R1.pdf
+    "In SI units the Power in kW is calculated from the following equation: Power kW = Q x H x Sg / (367.46 x Effy) (4.2)"
+[R5] Pump Power Calculator (Hydraulic, Shaft & Motor Input) | ElectroMechCalc — https://www.electromechcalc.com/mechanical/pump-power
+    "the motor itself also has losses (electrical and mechanical), so the motor input power — the actual electrical power drawn from the supply — is higher again than the shaft power, by the motor's own efficiency:"
+[R6] Archimedes’ principle | Description & Facts | Britannica — https://www.britannica.com/science/Archimedes-principle
+    "Fluid pressure increases with depth because of the (gravitational) weight of the fluid above."
+[R7] Properties of seawater — https://talleylab.ucsd.edu/sio210/lect_2/lecture_2.html
+    "If the pressure change is 100 decibars (100 dbar), gravity g = 9.8 m/sec^2, and density is 1025 kg/m^3, then the depth change is 99.55 meter."
+[R8] Properties of seawater — https://talleylab.ucsd.edu/sio210/lect_2/lecture_2.html
+    "The density of seawater is about 1025 kg/m^3 and the specific heat is about 3850 J/(kg C)."
+[R9] 14.1 Fluids, Density, and Pressure – General Physics Using Calculus I — https://pressbooks.online.ucf.edu/phy2048tjb/chapter/14-1-fluids-density-and-pressure
+    "Density is the mass per unit volume of a substance or object"
+[R10] Pressure and buoyancy — http://physics.bu.edu/~duffy/py105/Pressure.html
+    "The force comes from the difference in pressure exerted on the top and bottom of an object."
+[R11] Pressure and buoyancy — http://physics.bu.edu/~duffy/py105/Pressure.html
+    "An object that is partly or completely submerged in a fluid will experience a buoyant force equal to the weight of the fluid the object displaces."
+[R12] 11.2 Density - College Physics 2e | OpenStax — https://openstax.org/books/college-physics-2e/pages/11-2-density
+    "Thus the basic mass unit, the kilogram, was first devised to be the mass of 1000 mL of water"
+[R13] 11.5 Pascal’s Principle - College Physics 2e | OpenStax — https://openstax.org/books/college-physics-2e/pages/11-5-pascals-principle
+    "A change in pressure applied to an enclosed fluid is transmitted undiminished to all portions of the fluid and to the walls of its container."
+[R14] 11.7 Archimedes’ Principle - College Physics 2e | OpenStax — https://openstax.org/books/college-physics-2e/pages/11-7-archimedes-principle
+    "Specific gravity is the ratio of the density of an object to a fluid (usually water)."
+[R15] PHYS 200 - Lecture 20 - Fluid Dynamics and Statics and Bernoulli's Equation | Open Yale Courses — https://oyc.yale.edu/physics/phys-200/lecture-20
+    "So, in an incompressible fluid, if I tell you the flow rate at one point, I've told you the flow rate everywhere."
+[R16] 12.2 Bernoulli’s Equation - College Physics 2e | OpenStax — https://openstax.org/books/college-physics-2e/pages/12-2-bernoullis-equation
+    "When a fluid flows into a narrower channel, its speed increases. That means its kinetic energy also increases."
+[R17] An Introduction to Venturi Flow Meters, Flow Nozzles, and Segmental Wedge Elements — https://www.dwyeromega.com/en-us/resources/venturi-meter
+    "Venturi flow meters, like all other types of differential pressure flow meters, function on the principles of the Bernoulli equation"
+[R18] CHAPTER 3. FLUID FLOW — https://handbook.ashrae.org/(S(sriqhilv3nrnvqccyiw1imm0))/Handbooks/F17/SI/F17_Ch03/f17_ch03_si.aspx
+    "A transition region from laminar to turbulent flow occurs when 2000 < Re < 10 000"
+[R19] Curtin Courses Online Handbook 2004 - ChE 221 Fluid Mechanics — https://archive.handbook.curtin.edu.au/july2004/units/30/302246.html
+    "Measurement of pressure and flow speed (Pitot/Pitot-static tubes, venturi meter, orifice plate)"
+[R20] Applied Mechanics Written Examination Syllabus - GOV.UK — https://www.gov.uk/government/publications/second-engineer-written-examination-syllabuses/applied-mechanics-written-examination-syllabus
+    "Explains the concepts of: C v , C c and C d for a sharp edge orifice."
+[R21] Specific heat capacity - Temperature changes and energy - Edexcel - GCSE Physics (Single Science) Revision - Edexcel - BBC Bitesize — https://www.bbc.co.uk/bitesize/guides/zpjpgdm/revision/4
+    "The specific heat capacity of water is 4,200 joules per kilogram per degree Celsius (J/kg°C). This means that it takes 4,200 J to raise the temperature of 1 kg of water by 1°C."
+Notes (claims, and the sources that support them):
+- Head is the height to which a pump can raise a liquid, measured in metres. [R1]
+- Friction loss in a system depends on the length and size of the pipework, bends and valves. [R2]
+- In turbulent pipe flow, resistance to flow is proportional to the square of the mean flow velocity. [R3]
+- Pump power in kW is flow times head times specific gravity divided by 367.46 times efficiency, with flow in m³/h and head in metres. [R4]
+- The motor's electrical input power is higher than the pump's shaft power, by the motor's own efficiency. [R5]
+- Fluid pressure increases with depth because of the weight of the fluid above. [R6]  (from an idea this one builds on)
+- With g about 9.8 m/s² and seawater at 1025 kg/m³, a pressure change of 100 dbar corresponds to a depth change of 99.55 m. [R7][R8]  (from an idea this one builds on)
+- Density is the mass per unit volume of a substance. [R9]  (from an idea this one builds on)
+- The buoyant force comes from the difference in pressure on the top and bottom of an object. [R10]  (from an idea this one builds on)
+- A submerged object feels a buoyant force equal to the weight of the fluid it displaces (Archimedes' principle). [R11]  (from an idea this one builds on)
+- Fresh water has a density of about 1000 kg/m³: the kilogram was first the mass of 1000 mL (1 L) of water. Added for i5, whose screens use fresh water at 1000 kg/m³. [R12]  (from an idea this one builds on)
+- Pascal's principle: a change in pressure applied to an enclosed fluid is passed on undiminished to every part of it and to its walls, which is how a hydraulic jack multiplies force. Added for i5's jack screens. [R13]  (from an idea this one builds on)
+- Relative density (specific gravity) is the ratio of a thing's density to water's. Added for i5, which gives seawater's as 1.025. [R14]  (from an idea this one builds on)
+- For an incompressible fluid, the flow rate is the same everywhere along the pipe, so it must speed up where the pipe narrows. [R15]  (from an idea this one builds on)
+- When a fluid flows into a narrower channel its speed and kinetic energy increase, and the energy has to come from somewhere: the pressure. [R16]  (from an idea this one builds on)
+- Venturi flow meters work on Bernoulli's principle, using the pressure difference between the pipe and its narrowing to measure flow. [R17]  (from an idea this one builds on)
+- The transition from laminar to turbulent flow is put at Reynolds numbers between about 2000 and 10 000, so its upper edge is contested. [R18]  (from an idea this one builds on)
+- Pitot tubes, venturi meters and orifice plates are used to measure pressure and flow speed. [R19]  (from an idea this one builds on)
+- A sharp-edged orifice has coefficients of velocity, contraction and discharge (Cv, Cc, Cd). [R20]  (from an idea this one builds on)
+- Specific heat capacity is how much energy it takes to warm 1 kg by 1 degree, and water's is 4,200 J per kg per degree Celsius. [R21]  (whole topic)
+- Seawater has a density of about 1025 kg/m³ and a specific heat of about 3850 J/(kg °C); the numbers used for gravity here are g about 9.8 m/s². [R8][R7]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i7",
+ "title": "Pipes, head and pump power",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the friction bar growing four times as tall each time the flow doubles, on top of a lift bar that never moves, when you drag the flow.",
+  "title": "The system curve builder",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Screen",
+    "min": 0,
+    "max": 12,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [
+   {
+    "id": "totalHead",
+    "label": "Head needed",
+    "unit": "m",
+    "decimals": 1
+   },
+   {
+    "id": "hydraulicPower",
+    "label": "Hydraulic power",
+    "unit": "kW",
+    "decimals": 2
+   },
+   {
+    "id": "motorCurrent",
+    "label": "Motor current",
+    "unit": "A",
+    "decimals": 1
+   }
+  ],
+  "whatAmILookingAt": "This is a short lesson in thirteen small screens. The main picture is a pump lifting seawater from a low tank to a high one through a pipe. The height between the two water surfaces is the lift. A lift slider sets it, from 0 to 20 m in steps of 1, starting at 10 m. A length slider sets the pipe's length, from 10 to 150 m in steps of 10, starting at 70 m. A bore stepper picks the pipe's inside diameter: 50, 65, 80 or 100 mm. It starts at 65 mm. A flow slider runs from 0 to 12 L/s in steps of 0.5, starting at 10 L/s. Dots ride along the pipe at the water's speed. The speed is the flow ÷ the bore's area, as in Fluids in motion. At the start that is 0.01 m³/s ÷ 0.00332 m², about 3.0 m/s. Beside the pump stand two stacked bars, in metres of seawater. The lower bar is the lift. It stays the same at every flow, because it depends only on the two surfaces. The upper bar is the friction head. It is worked out as f × (L ÷ D) × v² ÷ 2g. L is the pipe's length and D its bore, both in metres. v is the water's speed, and g is 9.81. f is a friction factor, held at 0.02 throughout. Because v is squared, twice the flow makes the friction bar four times as tall. At the start the friction is about 10.0 m, so the total head is about 20.0 m. A graph beside the bars has head up the side and flow along the bottom. Each flow you set drops a dot at its total head, and the dots trace the system curve. It starts at the lift when the flow is zero, then bends upward as the flow squared. The head axis stretches to fit the tallest dot. A chain runs below. Its first link is the hydraulic power, ρ × g × Q × H. ρ is seawater's density, 1025 kg/m³, Q the flow in m³/s and H the total head. At the start that is 1025 × 9.81 × 0.01 × 20.0, about 2.01 kW. The next link is the shaft power, the hydraulic power ÷ the pump's efficiency. The pump's efficiency is taken as 70%, so that is about 2.87 kW. The next is the motor's input, the shaft power ÷ the motor's efficiency. The motor's efficiency is taken as 90%, so that is about 3.19 kW. The chain ends on an ammeter. The motor runs on 440 V three-phase, with a power factor taken as 0.85. Its line current is the input ÷ (√3 × 440 × 0.85), about 4.9 A. Three readouts show the total head, the hydraulic power and the motor's current. They wrap onto two rows on a phone. Screen by screen. Screen 1 shows a gauge on a seawater tank reading 100 kPa, beside a column of seawater as tall as that pressure holds up. The column stands about 9.9 m, since 100,000 ÷ (1025 × 9.81) is about 9.9. Screen 2 asks a question. A pump's outlet gauge reads 200 kPa more than its inlet gauge, pumping seawater. What head is that? About 19.9 m, about 20.4 m or about 195 m. Screen 3 shows the pump and tanks with the flow at 0. Only the lift bar stands, at 10 m. Moving the lift slider moves the lift bar with it. Screen 4 asks for a prediction before the friction bar appears. The flow through the same pipe doubles. What happens to the friction head? It doubles, it grows four times as big, or it stays the same. Screen 5 shows the friction bar on top of the lift bar, run by the flow slider. At 5 L/s the friction is about 2.5 m. At 10 L/s it is about 10.0 m, four times as much. Screen 6 asks a question. 50 m of 50 mm pipe loses about 4.1 m at 2 m/s. How much does 150 m of the same pipe lose at the same speed? About 12.2 m, about 36.7 m or about 4.1 m. Screen 7 shows the flow sweeping from 0 to 12 L/s, dropping dots that trace the system curve. Moving the lift slider then shifts the whole curve up or down without changing its shape. A longer pipe or a smaller bore makes it bend up more steeply. Screen 8 asks a question. A system has a lift of 10 m and loses 4 m to friction at 5 L/s. What head does it need at 10 L/s? 26 m, 18 m or 56 m. Screen 9 shows the chain lighting up link by link at 10 L/s and 20.0 m: about 2.01 kW, then 2.87 kW, then 3.19 kW. Screen 10 asks a question. The hydraulic power is 2.01 kW and the pump's efficiency is 70%. What power must the shaft give? About 2.87 kW, about 1.41 kW or about 2.01 kW. Screen 11 shows the ammeter at about 4.9 A. Dragging the flow up from 10 to 12 L/s raises it to about 7.2 A, because both the flow and the head have grown. Screens 12 and 13 bring it all together. In screen 12, a pump sends 5 L/s of seawater up a lift of 12 m, and the pipe loses 3 m to friction. The pump's efficiency is 75%. What power must the shaft give? About 1.01 kW, about 0.57 kW or about 0.80 kW. The head is 12 + 3 = 15 m, so the hydraulic power is 1025 × 9.81 × 0.005 × 15, about 754 W. ÷ 0.75, that is about 1.01 kW. In screen 13, the same flow runs through the same length of pipe, but a 100 mm bore is swapped for a 50 mm one. How many times the friction head? About 32 times, 4 times or 16 times. Half the bore has a quarter of the area, so the water goes four times as fast. That squared is 16, and L ÷ D doubles, so the friction grows 32 times. On the picture, at 70 m and 10 L/s, about 1.16 m becomes about 37.0 m. Where it can be, a wrong pick is drawn on the picture, so you see where it fails.",
+  "ignores": "Here you set the flow yourself, as if the pump gave whatever flow you asked for. A real pump settles at one flow, where its own curve crosses this one. That is the next lesson. The friction factor is held at 0.02. A real one depends on the pipe's roughness and changes a little with speed, so friction grows close to the flow squared, not exactly. At very low flows water can run in smooth layers, where friction grows only in step with the speed. The model uses the eddying rule at every flow. The pipe is drawn straight. Bends, valves and fittings add more loss. The tanks' levels are held still while you pump. The small head the water still carries as it leaves the pipe's end is left out. The efficiencies and the power factor are held fixed. Real ones change with the load. The speed is drawn the same across the pipe. Real water moves faster in the middle than at the walls.",
+  "numbers": [
+   {
+    "label": "Gravity's pull, g, in N per kg",
+    "value": 9.81,
+    "kind": "constant"
+   },
+   {
+    "label": "Seawater's density, in kg/m³",
+    "value": 1025,
+    "kind": "constant",
+    "source": 1
+   },
+   {
+    "label": "Fresh water's density, in kg/m³",
+    "value": 1000,
+    "kind": "constant"
+   },
+   {
+    "label": "Seawater's relative density, 1025 ÷ 1000",
+    "value": 1.025,
+    "kind": "computed"
+   },
+   {
+    "label": "Friction factor f, held fixed",
+    "value": 0.02,
+    "kind": "assumed"
+   },
+   {
+    "label": "Lift slider lowest, in m",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Lift slider highest, in m",
+    "value": 20,
+    "kind": "control"
+   },
+   {
+    "label": "Lift slider step, in m",
+    "value": 1,
+    "kind": "control"
+   },
+   {
+    "label": "Lift's opening setting, in m",
+    "value": 10,
+    "kind": "control"
+   },
+   {
+    "label": "Length slider lowest, in m",
+    "value": 10,
+    "kind": "control"
+   },
+   {
+    "label": "Length slider highest, in m",
+    "value": 150,
+    "kind": "control"
+   },
+   {
+    "label": "Length slider step, in m",
+    "value": 10,
+    "kind": "control"
+   },
+   {
+    "label": "Length's opening setting, in m",
+    "value": 70,
+    "kind": "control"
+   },
+   {
+    "label": "Bore choice, smallest, in mm",
+    "value": 50,
+    "kind": "control"
+   },
+   {
+    "label": "Bore choice, second, in mm",
+    "value": 65,
+    "kind": "control"
+   },
+   {
+    "label": "Bore choice, third, in mm",
+    "value": 80,
+    "kind": "control"
+   },
+   {
+    "label": "Bore choice, largest, in mm",
+    "value": 100,
+    "kind": "control"
+   },
+   {
+    "label": "Flow slider lowest, in L/s",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Flow slider highest, in L/s",
+    "value": 12,
+    "kind": "control"
+   },
+   {
+    "label": "Flow slider step, in L/s",
+    "value": 0.5,
+    "kind": "control"
+   },
+   {
+    "label": "Flow's opening setting, in L/s",
+    "value": 10,
+    "kind": "control"
+   },
+   {
+    "label": "Opening flow, in m³/s",
+    "value": 0.01,
+    "kind": "computed"
+   },
+   {
+    "label": "A 65 mm bore's area, π × 0.0325², in m²",
+    "value": 0.00332,
+    "kind": "computed"
+   },
+   {
+    "label": "Speed at the opening, 0.01 ÷ 0.00332, in m/s",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Friction head at the opening, in m",
+    "value": 10,
+    "kind": "computed"
+   },
+   {
+    "label": "Total head at the opening, 10 + 10.0, in m",
+    "value": 20,
+    "kind": "computed"
+   },
+   {
+    "label": "Pump's efficiency, in %",
+    "value": 70,
+    "kind": "assumed"
+   },
+   {
+    "label": "Motor's efficiency, in %",
+    "value": 90,
+    "kind": "assumed"
+   },
+   {
+    "label": "Supply's line voltage, three-phase, in V",
+    "value": 440,
+    "kind": "assumed"
+   },
+   {
+    "label": "Motor's power factor",
+    "value": 0.85,
+    "kind": "assumed"
+   },
+   {
+    "label": "√3, rounded",
+    "value": 1.732,
+    "kind": "constant"
+   },
+   {
+    "label": "Hydraulic power at the opening, in kW",
+    "value": 2.01,
+    "kind": "computed"
+   },
+   {
+    "label": "Shaft power at the opening, 2.01 ÷ 0.7, in kW",
+    "value": 2.87,
+    "kind": "computed"
+   },
+   {
+    "label": "Motor input at the opening, 2.87 ÷ 0.9, in kW",
+    "value": 3.19,
+    "kind": "computed"
+   },
+   {
+    "label": "Motor input, rounded, in W",
+    "value": 3190,
+    "kind": "computed"
+   },
+   {
+    "label": "Motor current at the opening, in A",
+    "value": 4.9,
+    "kind": "computed"
+   },
+   {
+    "label": "Screens in the lesson",
+    "value": 13,
+    "kind": "assumed"
+   },
+   {
+    "label": "Readout rows on a phone",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Readouts",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 1 gauge reading, in kPa",
+    "value": 100,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 1 gauge reading, in Pa",
+    "value": 100000,
+    "kind": "computed"
+   },
+   {
+    "label": "Seawater column for 100 kPa, in m",
+    "value": 9.9,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 2 gauge difference, in kPa",
+    "value": 200,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 2 head in seawater, 200,000 ÷ (1025 × 9.81), in m",
+    "value": 19.9,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 2 wrong pick, fresh water's density, in m",
+    "value": 20.4,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 2 wrong pick, g left out, 200,000 ÷ 1025, in m",
+    "value": 195,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 5 lower flow, in L/s",
+    "value": 5,
+    "kind": "control"
+   },
+   {
+    "label": "Screen 5 friction at 5 L/s, in m",
+    "value": 2.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Friction grows this many times when flow doubles",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Darcy example pipe length, in m",
+    "value": 50,
+    "kind": "assumed"
+   },
+   {
+    "label": "Darcy example bore, in mm",
+    "value": 50,
+    "kind": "assumed"
+   },
+   {
+    "label": "Darcy example speed, in m/s",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Darcy example, L ÷ D, 50 ÷ 0.05",
+    "value": 1000,
+    "kind": "computed"
+   },
+   {
+    "label": "2g, 2 × 9.81, in m/s²",
+    "value": 19.62,
+    "kind": "computed"
+   },
+   {
+    "label": "Darcy example loss at 2 m/s, in m",
+    "value": 4.1,
+    "kind": "computed"
+   },
+   {
+    "label": "Darcy example faster speed, in m/s",
+    "value": 4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Darcy example loss at 4 m/s, in m",
+    "value": 16.3,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 6 longer pipe, in m",
+    "value": 150,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 6 loss over 150 m, in m",
+    "value": 12.2,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 6 wrong pick, nine times, in m",
+    "value": 36.7,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 8 lift, in m",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 8 friction at 5 L/s, in m",
+    "value": 4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 8 doubled flow, in L/s",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 8 head at 10 L/s, 10 + 4 × 4, in m",
+    "value": 26,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 8 wrong pick, friction doubled, 10 + 8, in m",
+    "value": 18,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 8 wrong pick, all four times, 14 × 4, in m",
+    "value": 56,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 10 wrong pick, 2.01 × 0.7, in kW",
+    "value": 1.41,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 11 higher flow, in L/s",
+    "value": 12,
+    "kind": "control"
+   },
+   {
+    "label": "Screen 11 motor current at 12 L/s, in A",
+    "value": 7.2,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12 flow, in L/s",
+    "value": 5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 12 flow, in m³/s",
+    "value": 0.005,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12 lift, in m",
+    "value": 12,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 12 friction, in m",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 12 total head, 12 + 3, in m",
+    "value": 15,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12 pump's efficiency, in %",
+    "value": 75,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 12 pump's efficiency, as a fraction",
+    "value": 0.75,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12 hydraulic power, in W",
+    "value": 754,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12 shaft power, 754 ÷ 0.75, in kW",
+    "value": 1.01,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12 wrong pick, 754 × 0.75, in kW",
+    "value": 0.57,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12 wrong pick, friction left out, in kW",
+    "value": 0.8,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 13 larger bore, in mm",
+    "value": 100,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 13 smaller bore, in mm",
+    "value": 50,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 13 friction grows, 4² × 2, times",
+    "value": 32,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 13 wrong pick, speed alone, times",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 13 wrong pick, speed squared alone, times",
+    "value": 16,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 13 friction in a 100 mm bore at 70 m and 10 L/s, in m",
+    "value": 1.16,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 13 friction in a 50 mm bore at 70 m and 10 L/s, in m",
+    "value": 37,
+    "kind": "computed"
+   },
+   {
+    "label": "A lead's drop when its diameter halves, times",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Lifting 1 N through 1 m, in J",
+    "value": 1,
+    "kind": "constant"
+   },
+   {
+    "label": "Flow in m³/h for 10 L/s, 0.01 × 3600",
+    "value": 36,
+    "kind": "computed"
+   },
+   {
+    "label": "Pump power constant for m³/h and metres",
+    "value": 367.46,
+    "kind": "constant",
+    "source": 2
+   },
+   {
+    "label": "Seconds in an hour",
+    "value": 3600,
+    "kind": "constant"
+   },
+   {
+    "label": "Kinetic energy per cubic metre, ½ρv², the half",
+    "value": 0.5,
+    "kind": "constant"
+   }
+  ]
+ },
+ "explain": {
+  "text": "A pump has to give the water two things. It must lift it from one surface to the other. It must also push it through the pipe against friction. Both are measured as a height of liquid, called head, and the friction part grows with the flow squared. Head × flow then sets the power the pump needs, and so the current its motor draws.\n\nStart from Pressure in liquids. A column of seawater h metres tall presses ρgh on its base. Turn that round, and any pressure reads as a height: h = p ÷ ρg. In seawater, at 1025 kg/m³,[^1] 100 kPa holds up 100,000 ÷ (1025 × 9.81), about 9.9 m. That height is [[head]]. A pump's head is the height it can raise the liquid, in metres.[^3] Head is also energy. Lifting a weight of 1 N through 1 m takes 1 J. So each metre of head is 1 J given to every newton of liquid.\n\nThe head a pipe needs has two parts. The lift is the height between the two water surfaces. While the tanks' levels hold, it is the same at any flow, even none. The friction head is the energy lost on the way. It depends on the pipe's length and size, and on its bends and valves.[^4] In eddying flow it grows with the square of the water's speed.[^5] One way to picture why: moving water carries ½ρv² of kinetic energy in every cubic metre, as in Fluids in motion. Over each stretch of pipe, the eddies turn a share of it into heat. Twice the speed carries four times the energy, so four times as much is lost. Textbooks write it as Darcy's rule: friction head = f × (L ÷ D) × v² ÷ 2g. L is the length and D the bore, both in metres. f is a friction factor, set mostly by the pipe's roughness. Say f is 0.02. Then 50 m of 50 mm pipe at 2 m/s loses 0.02 × 1000 × 2² ÷ 19.62, about 4.1 m. At 4 m/s it loses about 16.3 m. Many expect twice the speed to lose twice the head. It loses four times. Add the lift and the friction at every flow, and you get the [[system curve]]. It starts at the lift and bends upward as the flow squared. This is a simplified model. Real pipes add bends and valves, and a real f shifts a little with speed.\n\nNow the power. Each second the pump moves Q cubic metres of water, which weigh ρgQ newtons. It raises each newton through H metres of head. So the power it gives the water is ρgQH watts, the [[hydraulic power]]. Seawater at 10 L/s against 20 m of head takes 1025 × 9.81 × 0.01 × 20, about 2.01 kW. The pump wastes some of what its shaft gives it, so the shaft must give more. At 70% efficiency that is 2.01 ÷ 0.7, about 2.87 kW.[^2] The motor wastes some too, so it draws more again from the supply.[^6] At 90% that is about 3.19 kW. Each efficiency divides, because each stage takes in more than it passes on. On 440 V three-phase at a power factor of 0.85, that is about 4.9 A on the ammeter.\n\n**A pipe needs head for its lift plus friction that grows with the flow squared, and that head × the flow sets the pump's power and its motor's current.**"
+ },
+ "analogy": {
+  "text": "Think of charging a battery through long leads. The charger must first match the battery's own voltage before any current flows. That is the lift. Then it must add the drop in the leads, which grows with the current. That is the friction. The charger's power is its voltage × the current, as the pump's is head × flow. The share that matches the battery goes into storage, as the lift stores energy in the high tank. The drop in the leads is lost as heat, as friction is.",
+  "breaks": "The leads' drop grows in step with the current, by Ohm's law. Pipe friction grows with the flow squared. Size matters far more in a pipe too. Halve a lead's diameter, and its drop at the same current goes up four times. Halve a pipe's bore, and its friction at the same flow goes up about 32 times."
+ },
+ "practice": {
+  "text": "**Safe first:** Isolate and lock off a pump's motor before you work on the pump. Isolate and vent its pipework too, as for any pipe under pressure.\n\n**Working out the power a pump needs**\n- Find the lift: the height between the two water surfaces, in metres.\n- Find the speed: the flow in m³/s ÷ the bore's area in m².\n- Friction head = f × (L ÷ D) × v² ÷ 2g, with L and D both in metres. Add the loss in bends and valves where you know it.\n- Total head H = lift + friction head.\n- Hydraulic power = ρ × g × Q × H, in watts, with Q in m³/s.\n- Shaft power = hydraulic power ÷ the pump's efficiency.\n- Motor input = shaft power ÷ the motor's efficiency.\n- Line current = motor input ÷ (√3 × line voltage × power factor).\n\n**Rules of thumb:** About 10 kPa of seawater pressure is 1 m of head. Twice the flow needs about four times the friction head. At the same flow, half the bore gives about 32 times the friction. A system that is mostly lift needs much the same head at any flow. A system that is mostly friction needs far more head as the flow climbs.\n\n**Worked example:** A pump lifts seawater at 10 L/s, which is 0.01 m³/s, against 20 m of head. The hydraulic power is 1025 × 9.81 × 0.01 × 20, about 2.01 kW. With the pump at 70%, the shaft must give about 2.87 kW. With the motor at 90%, it draws about 3.19 kW. On 440 V three-phase at a power factor of 0.85, the line current is 3,190 ÷ (1.732 × 440 × 0.85), about 4.9 A. To check it, pump makers often work in m³/h: kW = Q × H × relative density ÷ (367.46 × efficiency).[^2] 10 L/s is 36 m³/h, so 36 × 20 × 1.025 ÷ (367.46 × 0.7) gives about 2.87 kW again.\n\n**Common mistakes**\n- Multiplying by an efficiency instead of dividing. The motor takes in more than the shaft gives out.\n- Treating friction as growing in step with the flow. In eddying flow it grows with the flow squared.\n- Reading a pressure as head without dividing by ρg.\n- Leaving the flow in L/s, or the bore in mm.\n- Forgetting the lift, or counting friction when nothing flows."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "simplified",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "sources": [
+  {
+   "n": 1,
+   "title": "Properties of seawater",
+   "url": "https://talleylab.ucsd.edu/sio210/lect_2/lecture_2.html",
+   "quote": "The density of seawater is about 1025 kg/m^3 and the specific heat is about 3850 J/(kg C)."
+  },
+  {
+   "n": 2,
+   "title": "Centrifugal Pump Analysis",
+   "url": "https://www.cedengineering.com/userfiles/Centrifugal%20Pump%20Analysis%20R1.pdf",
+   "quote": "In SI units the Power in kW is calculated from the following equation: Power kW = Q x H x Sg / (367.46 x Effy) (4.2)"
+  },
+  {
+   "n": 3,
+   "title": "Understanding pump head and total head for pump performance - Atlas Copco USA",
+   "url": "https://www.atlascopco.com/en-us/construction-equipment/resources/dewatering-pumps-guide/pump-head",
+   "quote": "Put simply, head is the height at which a pump can raise fluid up and is measured in metres or feet."
+  },
+  {
+   "n": 4,
+   "title": "Understanding pump head and total head for pump performance - Atlas Copco USA",
+   "url": "https://www.atlascopco.com/en-us/construction-equipment/resources/dewatering-pumps-guide/pump-head",
+   "quote": "Friction loss depends on the length and size of the pipework, bends, and gate valves, through which the fluid flows."
+  },
+  {
+   "n": 5,
+   "title": "Darcy–Weisbach equation - Wikipedia",
+   "url": "https://en.wikipedia.org/wiki/Darcy%E2%80%93Weisbach_equation",
+   "quote": "the flow is turbulent; the resistance to flow follows the Darcy–Weisbach equation: it is proportional to the square of the mean flow velocity."
+  },
+  {
+   "n": 6,
+   "title": "Pump Power Calculator (Hydraulic, Shaft & Motor Input) | ElectroMechCalc",
+   "url": "https://www.electromechcalc.com/mechanical/pump-power",
+   "quote": "the motor itself also has losses (electrical and mechanical), so the motor input power — the actual electrical power drawn from the supply — is higher again than the shaft power, by the motor's own efficiency:"
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }

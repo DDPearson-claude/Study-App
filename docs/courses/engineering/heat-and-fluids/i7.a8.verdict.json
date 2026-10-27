@@ -1,0 +1,242 @@
+{
+  "ok": false,
+  "reachChecked": true,
+  "problems": [
+    "Check failed: \"Darcy's rule worked by hand: 50 m of 50 mm pipe at 2 m/s with f = 0.02 has L ÷ D = 1000 and v² ÷ 2g = 0.204, and loses about 4.1 m, as the model's rule gives\" (returned false)",
+    "Text cut off: SVG text \"open tube: a manometer\" has a line through it (<path.brk>): move the label off the line (K.labels with avoid: [that line]) or stop the line short of it (at the opening state, and 53 more settings)",
+    "Text cut off: SVG text \"the tube inside\" has a line through it (<line.gd>): move the label off the line (K.labels with avoid: [that line]) or stop the line short of it (at step = step 2, and 2 more settings)"
+  ],
+  "report": {
+    "ok": false,
+    "errors": [],
+    "overflow": false,
+    "clipped": [
+      "SVG text \"open tube: a manometer\" has a line through it (<path.brk>): move the label off the line (K.labels with avoid: [that line]) or stop the line short of it (at the opening state, and 53 more settings)",
+      "SVG text \"the tube inside\" has a line through it (<line.gd>): move the label off the line (K.labels with avoid: [that line]) or stop the line short of it (at step = step 2, and 2 more settings)"
+    ],
+    "checks": [
+      {
+        "label": "The density of seawater is about 1025 kg/m³: every head and power here uses it",
+        "ok": true,
+        "source": "https://talleylab.ucsd.edu/sio210/lect_2/lecture_2.html"
+      },
+      {
+        "label": "Head is the height a pump can raise the liquid, in metres: with nothing flowing, the head needed is the lift itself, at every lift",
+        "ok": true,
+        "source": "https://www.atlascopco.com/en-us/construction-equipment/resources/dewatering-pumps-guide/pump-head"
+      },
+      {
+        "label": "Friction loss depends on the length and size of the pipework: a longer pipe or a smaller bore always loses more at the same flow",
+        "ok": true,
+        "source": "https://www.atlascopco.com/en-us/construction-equipment/resources/dewatering-pumps-guide/pump-head"
+      },
+      {
+        "label": "In turbulent flow the resistance is proportional to the square of the mean flow velocity: twice the flow gives four times the friction head, in every bore and length",
+        "ok": true,
+        "source": "https://en.wikipedia.org/wiki/Darcy%E2%80%93Weisbach_equation"
+      },
+      {
+        "label": "In SI units the Power in kW = Q × H × Sg ÷ (367.46 × Effy): 36 m³/h against 20 m of seawater at 70% gives about 2.87 kW, as ρgQH ÷ 0.7 does here",
+        "ok": true,
+        "source": "https://www.cedengineering.com/userfiles/Centrifugal%20Pump%20Analysis%20R1.pdf"
+      },
+      {
+        "label": "The motor's input, drawn from the supply, is higher again than the shaft power, by the motor's own efficiency, at every flow",
+        "ok": true,
+        "source": "https://www.electromechcalc.com/mechanical/pump-power"
+      },
+      {
+        "label": "At the opening, 10 L/s through 70 m of 65 mm pipe moves at 3.0 m/s, loses 10.0 m, needs 20.0 m, and takes 2.01, 2.87 and 3.19 kW and 4.9 A; at 12 L/s, 24.4 m and 7.2 A",
+        "ok": true
+      },
+      {
+        "label": "Every number the puzzles print comes from the rule: 9.9, 19.9, 20.4 and 195 m; 2.5 m; 4.1, 12.2 and 36.7 m; 26, 18 and 56 m; 2.87 and 1.41 kW; 754 W, 1.01, 0.57 and 0.80 kW; 1.16 m, 37.0 m and 32 times",
+        "ok": true
+      },
+      {
+        "label": "Darcy's rule worked by hand: 50 m of 50 mm pipe at 2 m/s with f = 0.02 has L ÷ D = 1000 and v² ÷ 2g = 0.204, and loses about 4.1 m, as the model's rule gives",
+        "ok": false,
+        "source": "https://en.wikipedia.org/wiki/Darcy%E2%80%93Weisbach_equation",
+        "error": "returned false"
+      },
+      {
+        "label": "The difference in liquid levels represents the applied pressure: in the U-tube the gap grows from nothing as the pressure rises, while the Bourdon tube straightens",
+        "ok": true,
+        "source": "https://en.wikipedia.org/wiki/Pressure_measurement"
+      },
+      {
+        "label": "Half the bore at the same flow and length gives 32 times the friction, at every flow and length",
+        "ok": true
+      },
+      {
+        "label": "With no flow there is no friction, no power and no current; with no lift and no flow the head is 0; the head never falls as the flow grows",
+        "ok": true
+      },
+      {
+        "label": "Each puzzle offers three different answers including its right one, every wrong answer has its own hint, and before Check nothing on its picture shows the answer or a red mark",
+        "ok": true
+      },
+      {
+        "label": "A wrong pick is drawn in red where it fails, and a right answer draws no red",
+        "ok": true
+      },
+      {
+        "label": "A right answer draws the rule's result: 19.89 m; four times the friction; 12.23 m; 26 m; 2.871 kW; 1005.5 W; 32 times",
+        "ok": true
+      },
+      {
+        "label": "Every demonstration has finished within 4.5 s of its screen opening, its first move after the 0.35 s screen fade; every answer's motion, right or wrong, within 2 s",
+        "ok": true
+      },
+      {
+        "label": "Every demonstration screen, with the live line under it, keeps to about 90 words",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "lift",
+      "length",
+      "bore",
+      "flow"
+    ],
+    "readouts": [
+      "totalHead",
+      "hydraulicPower",
+      "motorCurrent"
+    ],
+    "outputs": [
+      "totalHead",
+      "hydraulicPower",
+      "motorCurrent"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Screen",
+        "min": 0,
+        "max": 14,
+        "step": 1,
+        "steps": [
+          "Pressure as a height",
+          "Two gauges",
+          "Gauges to head",
+          "The lift",
+          "Before the friction bar",
+          "Friction on top",
+          "Darcy's rule",
+          "A longer pipe",
+          "The system curve",
+          "Twice the flow",
+          "Head to power",
+          "The shaft's power",
+          "The ammeter",
+          "A new pump",
+          "Half the bore"
+        ],
+        "value": 0
+      },
+      {
+        "id": "lift",
+        "kind": "control",
+        "label": "Lift",
+        "min": 0,
+        "max": 20,
+        "step": 1,
+        "log": false,
+        "value": 10,
+        "shown": false,
+        "snap": [
+          10
+        ]
+      },
+      {
+        "id": "length",
+        "kind": "control",
+        "label": "Pipe's length",
+        "min": 10,
+        "max": 150,
+        "step": 10,
+        "log": false,
+        "value": 70,
+        "shown": false,
+        "snap": [
+          70
+        ]
+      },
+      {
+        "id": "bore",
+        "kind": "choice",
+        "label": "Bore",
+        "options": [
+          50,
+          65,
+          80,
+          100
+        ],
+        "labels": [
+          "50 mm",
+          "65 mm",
+          "80 mm",
+          "100 mm"
+        ],
+        "value": 65,
+        "index": 1,
+        "shown": false
+      },
+      {
+        "id": "flow",
+        "kind": "control",
+        "label": "Flow",
+        "min": 0,
+        "max": 12,
+        "step": 0.5,
+        "log": false,
+        "value": 10,
+        "shown": false,
+        "snap": [
+          5,
+          10,
+          12
+        ]
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Play again",
+      "Back",
+      "Continue",
+      "Start again",
+      "Demonstration"
+    ],
+    "answers": [],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": false
+      },
+      {
+        "width": 720,
+        "ok": false
+      },
+      {
+        "width": 1040,
+        "ok": false
+      }
+    ],
+    "foreign": [],
+    "unreachable": []
+  }
+}
