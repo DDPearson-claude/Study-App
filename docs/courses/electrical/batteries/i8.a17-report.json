@@ -1,0 +1,217 @@
+{
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "The maker lists 1814 A short-circuit current and 6.95 mΩ for its 12 V 70 Ah block: six cells give 12.6 ÷ 0.00695 = 1813 A, within 1 A of it",
+        "ok": true,
+        "source": "https://www.enersys.com/493bb4/globalassets/documents/product-documentation/powersafe/v-tt/emea/en-v-rs-013.pdf"
+      },
+      {
+        "label": "A charged, rested lead-acid cell reads 2.1 V open circuit: six make the block's 12.6 V and twelve make 25.2 V",
+        "ok": true,
+        "source": "http://www.batteryuniversity.com/article/bu-303-confusion-with-voltages"
+      },
+      {
+        "label": "A battery's short-circuit current is estimated by dividing its open-circuit voltage by its internal resistance: with the fault at the terminals the loop is the block's 6.95 mΩ alone",
+        "ok": true,
+        "source": "https://www.vertiv.com/48dfcf/globalassets/documents/battcon-static-assets/2003/calculated-vs.-actual-short-circuit-currents-for-vrla-batteries.pdf"
+      },
+      {
+        "label": "The cable adds 1 mΩ a metre of route: 5 m gives 11.95 mΩ and 1054 A, still above 1 kA; 10 m gives 743 A, below it; the cable alone at 10 m would give 1260 A; the current falls with every half metre",
+        "ok": true
+      },
+      {
+        "label": "About 2550 A was predicted for a 480 V string from 480 V ÷ (0.160 + 0.028) Ω, against 2530 A measured: the big string shows 2553 A and 188 mΩ, wherever the fault slider sits",
+        "ok": true,
+        "source": "https://www.vertiv.com/48dfcf/globalassets/documents/battcon-static-assets/2003/calculated-vs.-actual-short-circuit-currents-for-vrla-batteries.pdf"
+      },
+      {
+        "label": "Short-circuit current exceeded 90% of nominal even at about 60% charge: the sketch keeps 92%, so 1668 A of 1813 A at 60%, falling in a straight line",
+        "ok": true,
+        "source": "https://www.vertiv.com/48dfcf/globalassets/documents/battcon-static-assets/2003/calculated-vs.-actual-short-circuit-currents-for-vrla-batteries.pdf"
+      },
+      {
+        "label": "Steady maximum current was reached within 5 to 10 ms: the sketched trace starts at 0, is full by 5 ms and stays flat to 20 ms",
+        "ok": true,
+        "source": "https://www.vertiv.com/48dfcf/globalassets/documents/battcon-static-assets/2003/calculated-vs.-actual-short-circuit-currents-for-vrla-batteries.pdf"
+      },
+      {
+        "label": "The 48 V string: 50.4 V ÷ (36 + 2.3) mΩ = 1316 A; leaving out the links gives 1400 A, and 24 × 1400 = 33600 A",
+        "ok": true
+      },
+      {
+        "label": "The 24 V emergency battery: 25.2 ÷ 0.016 = 1575 A 2 m down its cable and 25.2 ÷ 0.014 = 1800 A at its terminals, both above the 1 kA device",
+        "ok": true
+      },
+      {
+        "label": "A nickel-cadmium cell's low 1.20 V needs many cells: 20 for 24 V, against 12 lead-acid cells at 2 V",
+        "ok": true,
+        "source": "https://batteryuniversity.com/article/bu-203-nickel-based-batteries"
+      },
+      {
+        "label": "A lithium-ion cell's nominal voltage is 3.60 V: 7 in series make 25.2 V, the fewest that reach 24 V",
+        "ok": true,
+        "source": "https://batteryuniversity.com/article/bu-204-how-do-lithium-batteries-work"
+      },
+      {
+        "label": "Potassium hydroxide is not used in the reaction, so the nickel-cadmium floats ride at one height, full or part charged",
+        "ok": true,
+        "source": "https://res.cloudinary.com/iwh/image/upload/q_auto,g_center/assets/1/7/Megger_Battery_Testing_Guide.pdf"
+      },
+      {
+        "label": "Each puzzle accepts only its right answer, and nothing in its picture gives the answer before Check",
+        "ok": true
+      },
+      {
+        "label": "Fifteen screens: demonstrations and puzzles take turns, three mixed puzzles end it, and no demonstration says more than about 90 words",
+        "ok": true
+      },
+      {
+        "label": "Every demonstration settles within 4.6 s and ends where its screen says, and every answer's motion settles within 2.5 s",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "d",
+      "soc",
+      "big"
+    ],
+    "readouts": [
+      "faultCurrent",
+      "loopResistance"
+    ],
+    "outputs": [
+      "faultCurrent",
+      "loopResistance"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Screen",
+        "min": 0,
+        "max": 14,
+        "step": 1,
+        "steps": [
+          "Breaking capacity",
+          "A short at the terminals",
+          "A spanner across it",
+          "Down the cable",
+          "Ten metres down",
+          "A big string",
+          "A 48 V string",
+          "Running down",
+          "Run down to 60%",
+          "At once, and always live",
+          "A loose link",
+          "Other chemistries",
+          "Nickel-cadmium charge",
+          "Can it clear it?",
+          "A lithium-ion pack"
+        ],
+        "value": 0
+      },
+      {
+        "id": "d",
+        "kind": "control",
+        "label": "Fault distance",
+        "min": 0,
+        "max": 20,
+        "step": 0.5,
+        "log": false,
+        "value": 0,
+        "shown": false,
+        "snap": [
+          0,
+          5,
+          10
+        ]
+      },
+      {
+        "id": "soc",
+        "kind": "control",
+        "label": "Charge left",
+        "min": 60,
+        "max": 100,
+        "step": 5,
+        "log": false,
+        "value": 100,
+        "shown": false,
+        "snap": [
+          60,
+          100
+        ]
+      },
+      {
+        "id": "big",
+        "kind": "toggle",
+        "label": "Big string",
+        "options": [
+          false,
+          true
+        ],
+        "value": false,
+        "shown": false
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Play again",
+      "Back",
+      "Continue",
+      "Start again",
+      "Demonstration"
+    ],
+    "answers": [],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ]
+  },
+  "moved": [
+    "step = 3 (the first step that shows a control)",
+    "d = 15",
+    "soc = 90",
+    "big = true"
+  ],
+  "shots": [
+    "/home/user/Study-App/build/electrical/batteries/i8.a17-360-light.png",
+    "/home/user/Study-App/build/electrical/batteries/i8.a17-360-light-moved.png",
+    "/home/user/Study-App/build/electrical/batteries/i8.a17-360-light-end.png",
+    "/home/user/Study-App/build/electrical/batteries/i8.a17-360-dark.png",
+    "/home/user/Study-App/build/electrical/batteries/i8.a17-360-dark-moved.png",
+    "/home/user/Study-App/build/electrical/batteries/i8.a17-360-dark-end.png",
+    "/home/user/Study-App/build/electrical/batteries/i8.a17-1280-light.png",
+    "/home/user/Study-App/build/electrical/batteries/i8.a17-1280-light-moved.png",
+    "/home/user/Study-App/build/electrical/batteries/i8.a17-1280-light-end.png",
+    "/home/user/Study-App/build/electrical/batteries/i8.a17-1280-dark.png",
+    "/home/user/Study-App/build/electrical/batteries/i8.a17-1280-dark-moved.png",
+    "/home/user/Study-App/build/electrical/batteries/i8.a17-1280-dark-end.png"
+  ]
+}

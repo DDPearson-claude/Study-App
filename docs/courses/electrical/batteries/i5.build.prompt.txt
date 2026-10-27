@@ -1,0 +1,412 @@
+TASK: build-interactive
+
+You are building one small interactive page for "My University", Dan's personal learning app. It lets him see one idea for himself by playing with it. It runs inside a sandboxed iframe on top of the house kit described below, and the app tests it automatically before Dan sees it.
+
+## The idea
+Topic: Batteries: lead-acid cells, from plate to battery room
+Idea: Gassing, hydrogen and the air that clears it (Near full charge, current the plates no longer take splits water into hydrogen and oxygen, so a battery room's vents are sized from the charger's largest current.)
+Kind: quantity
+Dan knows a little about this topic. Show an equation on the page only if every symbol in it is labelled on the picture; otherwise say the rule in words.
+
+## What the interactive must show
+Brief: The one thing you should see is the bubbles, the hydrogen readout and the opening the rule asks for all growing in step with the charging current, when you drag the current up to the charger's fault current.
+Title (the app shows it above the frame, so do not repeat it): The battery room
+The rule (the app shows it just above the frame, under "What you're looking at"): A side view of a battery room. A battery of flooded cells sits on charge, fed by a charger. The battery is full. One cell is drawn cut open, as in lesson 1, with acid between its plates. An inlet sits low in one wall, and an outlet sits high in the other. A current slider sets the charging current, from 0 up to an example charger fault current of 20 A. Bubbles rise from both plates, and more rise as the current grows. The battery is full, so the model treats all of this current as spare. All of it splits water. A cell stepper sets 6, 12, 24 or 55 cells. A room switch picks a room people enter, where S = 10, or an enclosure nobody enters, where S = 4. An opening slider sets the room's real opening, from 100 to 4000 cm². Beside it, a dashed outline draws the opening the rule asks for, 0.3 × N × I × S cm², to the same scale. Moving arrows show air crossing the real opening at an example 0.1 m/s. The flow readout is area × speed, in litres a second. The hydrogen readout is a model that reads the rule backwards. An opening of exactly 0.3 × N × I × S holds the room at 4 ÷ S per cent. So the model takes the hydrogen as 1.2 × N × I ÷ the opening in cm², as a percentage. Halve the opening and the hydrogen doubles. The readout sits against bands at 0.4, 1 and 4 per cent, with the last one in red. A fan sits in the outlet. The model moves air at 0.1 m/s, whether a fan or a natural draught drives it. A 'Fan fails' switch stops the air. The hydrogen then climbs at a sketched rate, with time sped up. A valve-regulated switch seals each cell with a valve on top. The bubbles then stay in the cell and fade, and the hydrogen readout shows no number. Above an example 10 A the valve lifts and gas escapes. That part is also a sketch. On a phone the three readouts wrap onto a second line, and no word splits. Each show screen has under about 90 words. Each one ends on what its finished picture shows, so it reads well without the controls. Screen by screen. 0 recalls Heat and fluids lesson 6. Air crosses a 0.5 m² opening at 2 m/s. What flow passes? The choices are 1 m³/s, 2.5 m³/s or 0.25 m³/s. The right pick says 'That's it: 0.5 × 2 = 1 m³ a second.' Hint for 2.5: that adds them, but flow is area times speed. Hint for 0.25: that divides them. 1 shows a full 24-cell battery as the current rises from 0.5 to 20 A. The bubbles thicken. Near full, little sulphate is left to turn back. So the plates take less of the current. The spare current splits water into hydrogen and oxygen. Twice the spare current makes twice the gas. Every cell in the string carries the same current. So 24 cells make 24 times one cell's gas. Past the gassing voltage of 2.40 V a cell, one maker recommends limiting a 100 Ah battery to 2.5 to 5 A. It ends at 20 A, with the bubbles thick. 2 shows the bands. Hydrogen in air ignites anywhere from 4 to 75 per cent. A room people enter is held below 0.4 per cent. An enclosure is held below 1 per cent. 4 ÷ 10 = 0.4 and 4 ÷ 4 = 1. So S sets how far below 4 per cent each space is held. The room switch flips between the two. It ends on a room people enter, with the 0.4 band lit. 3 says a battery room's hydrogen reads 1 per cent, and people work in it. Is that within the limit? First choice: no, a room people enter must stay below 0.4 per cent. Second: yes, it is far below the 4 per cent where hydrogen ignites. Third: yes, 1 per cent is the limit. Hint for far below 4 per cent: 1 per cent is already a quarter of the way there, and where people work the limit is a tenth. Hint for 1 per cent: that limit is for an enclosure nobody enters. 4 shows the rule. Each opening needs 0.3 × N × I × S cm². For 24 cells at 20 A in a room people enter, that is 0.3 × 24 × 20 × 10 = 1440 cm². The dashed outline draws it. The cell stepper drops to 12, and the outline halves to 720 cm². It ends back on 24 cells and 1440 cm². 5 asks what opening the same battery needs in an enclosure. The choices are 576 cm², 3600 cm² or 1440 cm². The right pick says 'That's it: 0.3 × 24 × 20 × 4 = 576 cm².' Hint for 3600: that scales 1440 up by 10 ÷ 4, when it should scale down. An enclosure may hold more hydrogen, so it needs less air. Hint for 1440: that still uses S = 10, but an enclosure uses 4. 6 says I is the most current the charger is likely to deliver if it fails. The current moves from an example float of 0.5 A up to 20 A. The opening needed grows from 36 to 1440 cm², forty times as big. A failed charger can push its full current into a full battery. Most of that current becomes gas. It ends at 20 A. 7 says a 24-cell battery floats at 0.5 A in a room people enter. If its control failed, its charger could push 20 A. What opening do the vents need? The choices are 1440 cm², 36 cm², or none, because a full battery takes no current. Hint for 36: that is sized for float, but a failed charger pushes 20 A into a full battery. Hint for none: a full battery still takes current if the charger pushes it, and that spare current splits water. 8 shows the air. 1440 cm² is 0.144 m². At 0.1 m/s it passes 0.0144 m³ a second, or 14.4 litres. The hydrogen is the gas spread through that air. At 10 A it reads 0.2 per cent. The opening slider halves to 720 cm². The same gas now meets half the air, so the readout shows 0.4 per cent. Then the fan fails and the air stops. The gas keeps coming, so the readout climbs. It ends with the fan stopped and the readout past 1 per cent. 9 says stores now block half of the 1440 cm² opening, leaving 720 cm². The charger fails and pushes 20 A. What does the hydrogen reach? The choices are 0.8, 0.2 or 0.4 per cent. The right pick says 'That's it: the same gas in half the air, 0.4 × 2 = 0.8 per cent, twice the limit.' Hint for 0.2: less air dilutes the gas less, so the level rises. Hint for 0.4: the gas is unchanged, but the air has halved. 10 turns on the valve-regulated switch. The cells are now sealed, with a valve on top. They keep most of their gas inside and turn it back into water. So the bubbles fade. The current then rises to 20 A. Past an example 10 A, the pressure lifts the valve and gas escapes. It ends at 20 A with the valve open. 11 says sealed, valve-regulated cells replace a flooded battery. Someone suggests boarding over the vents. First choice: no, the cells make much less gas, but their valves can still let it out. Second: yes, sealed cells make no gas. Third: yes, as long as the charger stays on float. Hint for no gas: the valve is there to let gas out when the pressure builds. Hint for float: the vents are sized for a failed charger, and a failed charger does not stay on float. 12 and 13 mix the ideas. 12 says a room people enter holds 55 cells, and the charger can deliver 10 A if it fails. What opening does it need? The choices are 1650 cm², 660 cm² or 165 cm². Hint for 660: that uses S = 4, which is for an enclosure, and people enter this room. Hint for 165: that leaves out S. 13 says a battery room's fan stops during an equalise. What happens to the hydrogen? First choice: it keeps climbing towards the 4 per cent band. Second: it stays at 0.4 per cent, because the room was sized for it. Third: nothing, because an equalise makes no extra gas. Hint for stays: the sizing assumes the air keeps moving, and now nothing carries the gas out. Hint for nothing: an equalise is a deliberate overcharge, so most of its current becomes gas.
+What the model leaves out (the app shows this in its own panel; do not repeat it on the page): The battery is drawn full, so all the current is treated as spare and becomes gas. On float, part of a small current makes up for self-discharge instead. So the readout runs a little high there. The hydrogen readout is the sizing rule read backwards. It is not a measurement of gas. It spreads the gas evenly through the room at once. Real hydrogen is lighter than air and takes time to mix. The air speed is fixed at an example 0.1 m/s. A real room's draught changes with wind and temperature. It may still move some air when a fan stops. The climb after the fan stops is a sketch, with time sped up. So is the current at which a sealed cell's valve lifts.
+Controls (use these ids, ranges and opening values exactly; when the prediction or a check names a setting of a slider, add it to that slider's snap):
+- id "step": Screen, from 0 to 13 in steps of 1, opening at 0
+Outputs (return each from K.model under exactly this key, and show it once: as a K.readout with the same id and the decimals given, which is how the explanation rounds it, or as a label on the drawing when the drawing already shows it, never both. Target checks read K.model, not the tile):
+- id "hydrogen": Hydrogen in the room (%), decimals: 2
+- id "needed": Opening needed (cm²), decimals: 0
+- id "flow": Air through the opening (L/s), decimals: 1
+Numbers it may show (control = Dan sets it; computed = from the rule; constant = a fixed real value; assumed = an example value, said once as an example in the lead line or a caption, then drawn as a plain value; date = a historical date or fact):
+- Screen control lowest: 0 (control)
+- Screen control highest: 13 (control)
+- Current slider bottom, A: 0 (control)
+- Current slider top, the example fault current, A: 20 (control)
+- Example charger fault current, A: 20 (assumed)
+- Example float current, A: 0.5 (assumed)
+- Example battery capacity, Ah: 100 (assumed)
+- Cell stepper, fewest cells: 6 (control)
+- Cell stepper, 12 cells: 12 (control)
+- Cell stepper, 24 cells: 24 (control)
+- Cell stepper, most cells: 55 (control)
+- Opening slider bottom, cm²: 100 (control)
+- Opening slider top, cm²: 4000 (control)
+- Opening slider start, cm²: 1440 (control)
+- Example air speed through the opening, m/s: 0.1 (assumed)
+- Gassing voltage, V a cell: 2.4 (constant, source [1])
+- Current limit above gassing, low, A per 100 Ah: 2.5 (constant, source [1])
+- Current limit above gassing, high, A per 100 Ah: 5 (constant, source [1])
+- Hydrogen lower ignition limit, %: 4 (constant, source [2])
+- Hydrogen upper ignition limit, %: 75 (constant, source [2])
+- Limit in a room people enter, %: 0.4 (constant, source [3])
+- Limit in an enclosure nobody enters, %: 1 (constant, source [4])
+- Opening rule factor, cm² per cell per amp: 0.3 (constant, source [5])
+- Dilution factor S, room people enter: 10 (constant, source [6])
+- Dilution factor S, enclosure: 4 (constant, source [6])
+- 4 ÷ 10, %: 0.4 (computed)
+- 4 ÷ 4, %: 1 (computed)
+- Room limit as a share of 4 %: 0.1 (computed)
+- Enclosure limit as a share of 4 %: 0.25 (computed)
+- Model factor, 4 × 0.3: 1.2 (computed)
+- Recall opening, m²: 0.5 (assumed)
+- Recall air speed, m/s: 2 (assumed)
+- Recall flow, m³/s: 1 (computed)
+- Recall wrong pick, 0.5 + 2, m³/s: 2.5 (computed)
+- Recall wrong pick, 0.5 ÷ 2, m³/s: 0.25 (computed)
+- Screen 3 hydrogen reading, %: 1 (assumed)
+- 24 cells, 20 A, room people enter, cm²: 1440 (computed)
+- 12 cells, 20 A, room people enter, cm²: 720 (computed)
+- 24 cells, 20 A, enclosure, cm²: 576 (computed)
+- Screen 5 wrong pick, 1440 × 10 ÷ 4, cm²: 3600 (computed)
+- 24 cells, 0.5 A float, room people enter, cm²: 36 (computed)
+- Fault opening over float opening: 40 (computed)
+- 1440 cm² in m²: 0.144 (computed)
+- Flow through 1440 cm² at 0.1 m/s, m³/s: 0.0144 (computed)
+- Flow through 1440 cm² at 0.1 m/s, L/s: 14.4 (computed)
+- Screen 8 current, A: 10 (control)
+- Hydrogen, 24 cells, 10 A, 1440 cm², %: 0.2 (computed)
+- Hydrogen, 24 cells, 10 A, 720 cm², %: 0.4 (computed)
+- Hydrogen, 24 cells, 20 A, 1440 cm², %: 0.4 (computed)
+- Hydrogen, 24 cells, 20 A, 720 cm², %: 0.8 (computed)
+- Screen 9 wrong pick, half of 0.4, %: 0.2 (computed)
+- Example current where the sealed cell's valve lifts, A: 10 (assumed)
+- Screen 12 and worked example fault current, A: 10 (assumed)
+- 55 cells, 10 A, room people enter, cm²: 1650 (computed)
+- 55 cells, 10 A, enclosure, cm²: 660 (computed)
+- 55 cells, 10 A, S left out, cm²: 165 (computed)
+- 1650 cm² in m²: 0.165 (computed)
+- Flow through 1650 cm² at 0.1 m/s, m³/s: 0.0165 (computed)
+- Flow through 1650 cm² at 0.1 m/s, L/s: 16.5 (computed)
+
+## The explanation Dan reads after playing (use the same words for the same things)
+Near full charge, a lead-acid cell cannot store all the current you push in. The spare current splits water from the acid into hydrogen and oxygen. This is called gassing. Hydrogen burns, so a battery room needs enough air to dilute it. You size that air from the most current the charger could ever push in, not the small current it usually gives.
+
+Remember from lesson 1 that charging turns lead sulphate back into lead, lead dioxide and acid. Near full, little sulphate is left to turn back. So the plates take less of the current, and the rest works on the water instead. That is why gas comes faster as the battery nears full. Keep charging past full, and it comes freely. It is also why a vented cell's water level falls over the months. The gas grows in step with the spare current. Twice the spare current splits twice the water. Every cell in a string carries the same current. So once all the cells are full, each makes about the same gas. N cells make N times as much.
+
+Hydrogen in air ignites anywhere from 4 per cent up to 75 per cent. So a room people enter is held below 0.4 per cent, a tenth of that lower limit. An enclosure nobody enters may reach 1 per cent, a quarter of it. The inlet and the outlet each need at least 0.3 × N × I × S square centimetres. N is the number of cells, and I is the current in amps. S is the dilution factor. It is 10 for a room people enter and 4 for…
+
+## Sources
+The only web addresses this page may contain, each only as a K.check {source} on a check whose label restates what that source's quote says (a result of your rule, or a fact about your drawing, takes no source; the caption names a source in words). The app rejects any other:
+[1] Flooded Stationary Lead Acid Batteries IOM — EnerSys (https://www.enersys.com/492013/globalassets/documents/product-documentation/powersafe/opzs/amer/amer-en-iom-ps-flooded-0223.pdf): "After reaching the gassing voltage of 2.40 V/c a current limit of 2.5 to 5 A/100 Ah is recommended"
+[2] Using electric storage batteries safely INDG139 — HSE (https://www.hse.gov.uk/PUBNS/indg139.pdf): "Mixtures with air containing from 4% hydrogen (lower explosion limit – LEL) to 75% hydrogen (upper explosion limit – UEL) will readily ignite and explode."
+[3] Using electric storage batteries safely INDG139 — HSE (https://www.hse.gov.uk/PUBNS/indg139.pdf): "In charging areas that people enter (workrooms) the concentration of hydrogen should not exceed 0.4% vol/vol (10% of the LEL)."
+[4] Using electric storage batteries safely INDG139 — HSE (https://www.hse.gov.uk/PUBNS/indg139.pdf): "When charging takes place in an enclosure that people do not enter, the concentration of hydrogen should not exceed 1% vol/vol (25% of the LEL)."
+[5] Using electric storage batteries safely INDG139 — HSE (https://www.hse.gov.uk/PUBNS/indg139.pdf): "Minimum area of inlet/outlet needed = 0.3 x N x I x S cm2 Where N = number of cells in the battery(ies) I = the overcharging current (amps) S = the appropriate dilution factor;"
+[6] Using electric storage batteries safely INDG139 — HSE (https://www.hse.gov.uk/PUBNS/indg139.pdf): "S = the appropriate dilution factor; 10 for workrooms, 4 for enclosures"
+[7] Table of contents — Hoppecke (https://www.hoppecke.com/fileadmin/Redakteur/Hoppecke-Main/Products-Import/vl_manual_en.pdf): "During the charging process, electrolysis decomposes the water of the electrolyte"
+[8] Using electric storage batteries safely INDG139 — HSE (https://www.hse.gov.uk/PUBNS/indg139.pdf): "Hydrogen and oxygen are produced more quickly as the battery gets close to being fully charged. If you continue charging after the battery is fully charged, a lot of gas will be produced, greatly increasing the risk from explosion."
+[9] Using electric storage batteries safely INDG139 — HSE (https://www.hse.gov.uk/PUBNS/indg139.pdf): "the maximum current likely to be supplied by the charger during malfunction should be used so as to include a suitable safety margin."
+
+## Dan and how he learns
+- He learns best by doing: something visual he can push and watch respond. Warm, plain words, first principles; no jargon unless explained.
+- He uses an Android phone (this frame is about 340 px wide there, touch only) and a laptop (about 1000 px, where K.stage puts the controls beside the visual). Design for the phone first.
+
+## Rules for this page
+- There is no guess to protect: show everything from the start (no k-after-move), curves and results included.
+- The lead line says what is drawn, plainly ("Water from a 5 m drop hits the blades of a wheel"), not what to do: the app gives the action above the frame. Example values are said once there ("an example stream: a 5 m drop, 20 kg of water each second"), then the drawing labels them plainly ("5 m"), never "for example" on the drawing.
+- Every label and arrow sits on, or starts from, the thing it is about: a force arrow starts on the part it pushes; a speed arrow on the part that moves. Anything the rule says turns or flows does so (K.anim), at a speed that follows its control.
+- The .say sentence must make sense on its own to someone who has just read the explanation: what is happening on screen now, cause then effect, in everyday words; no term, threshold or comparison the page or the explanation has not named; a number as part of its whole ("353 W of the stream's 981 W is carried off by the water"). Bad: "The buckets move slower than half the jet speed, so the water still leaves going backwards, taking 353 W away with it." Good: "The buckets are moving slowly, so the water bounces off them still moving fast, and carries 353 W of its 981 W away downstream."
+- A key for the main drawing sits inside the drawing; show each quantity once (a bar, a readout or a curve, not all three); every number drawn that is worked out (a speed from a drop) is explained in "What you're looking at", or is left off.
+- Draw the cause the explanation gives, not only its effect, and let Dan cause it (a drag, a push, a switch); include the setting where the effect does not happen.
+- Mark the brief's one quantity on the picture itself, with a label saying what it is and its value (a bracket between the two heights reading "2.4 m"); an output with a readout is marked without its number, which the readout alone shows (the app hides it while Dan answers a check).
+- A shaded band states something true of the axis it spans: inputs across x, outputs across y. To show many inputs giving nearly the same output, shade the narrow output band (regions {y0, y1}).
+- Draw every comparison the explanation makes the same way, in the same place, on the axis where the effect happens. A time period is a bracket or thin band along the time axis, not a tall block.
+- Give each reference line its own look and a label beside it; every styled line is in the key or labelled on the drawing.
+- Draw only what the brief, the rule or the explanation names, with the same names. An extra figure says on itself how to read it: what its line stands for and which way is which.
+- Show only the numbers listed above or computed from the rule, each written the way the explanation writes it (the same rounding).
+- Any example cases you choose are fair and representative, never picked to exaggerate the effect.
+- Money, health and law: show how it works, never advice, and never a guaranteed outcome.
+
+## The house kit (complete API reference)
+You write the BODY of one page: HTML, an optional `<style>`, then one inline `<script>` ending
+with `K.ready()`. It runs in a sandboxed iframe on Dan's phone (about 340 px wide, touch) and
+laptop, with the global `K` and the kit's stylesheet. No network or storage: no web
+addresses, `fetch`, `localStorage`, `alert` or `prompt`.
+
+### Page shape that works
+1. `<p class="lead">`: one line saying what is drawn (the app adds title and action).
+2. The main visual with its controls right under it: `K.stage('#scene', '#controls')` keeps the
+   pair on one phone screen. A choice that re-sorts the picture may sit above it.
+3. `<p class="say">`: one sentence that changes with the state and says why. Then
+   `<div class="k-readouts">` for numbers the drawing does not label.
+4. Secondary figures and anything that grows go below.
+5. `<p class="caption">`: one short sentence, at most 20 words: where the numbers come from ("A
+   sketch, not measured data") or the rule in the explanation's words. No new claim, no law or
+   term the explanation does not teach. The app shows what the model leaves out.
+
+### Keep the answer hidden until Dan moves
+Dan predicts before he plays: open on a setting the question is not about, and hide whatever
+gives the answer away until his first move:
+- class `k-after-move` on any element (a mark, an arrow, a sentence): hidden, its space kept.
+  Hide the answer, not the controls or a whole figure (a blank hole fails the test).
+- `K.readout({..., afterMove: true})` shows "?" until then; plot series and marks take `afterMove: true` too.
+- `K.moved` is true from then on: in `K.update`, write `K.moved ? answer : question`.
+- `K.afterMove(fn)` runs `fn` once at that moment; `K.reveal()` marks it from your handlers.
+
+### The pipeline
+Controls register themselves; their values form `params` = `{id: value}`.
+```
+K.model(fn)        fn(params) -> outputs {name: number | string}. Pure: no DOM, no lists or objects.
+K.update(fn)       fn(params, outputs): draw everything here. More than one is allowed.
+K.at(over)         -> outputs of the model at those params (others take each control's starting value)
+K.check(label, fn, {source?})   fn() must return exactly true
+K.ready()          call once, last: draws the opening state and runs the checks
+K.complete()       at the lesson's end
+K.params()  K.outputs()  K.refresh()   (refresh reruns the pipeline after you change your own state)
+```
+A readout whose id is an output key updates itself.
+
+### Controls
+Every control takes `into` (a selector or element). Ids are unique; use the lesson's ids exactly.
+```
+K.control({id, label, min, max, step, value, unit?, prefix?, fmt?, log?, snap?, hint?, into}) -> {el, get(), set(v)}
+K.choice({id, label, options: [value | {value, label}], value, hint?, into}) -> {el, get, set}
+K.toggle({id, label, value: false, hint?, into}) -> {el, get, set}
+K.stepper({id, steps: [title | {title, text}], value: 0, compact?, label?, into}) -> {el, get, set, setSteps(list)}
+K.button({label, press, secondary?, into}) -> {el, press(), setLabel(text)}
+K.drag(el, {control, toValue(x, y)}) -> {el}
+```
+`control` is a big slider with − / + buttons. Keep `unit` short; `fmt(v)` returns the whole text;
+`log: true` spans decades; `snap: [values]` lands a drag exactly on a setting the prediction or a
+check names. `choice`: 2-8 short named options; `value` is an option's value or its 0-based
+index. `stepper` walks a process with Back / Next (`compact: true` when your diagram shows the
+content). `button` is an action (Send it in): use it, not plain buttons. `drag` lets Dan move
+the thing itself: `toValue` maps the pointer (viewBox units; px from `el`'s top-left for HTML)
+to the control's value; the first touch counts as his move.
+
+### Outputs
+```
+K.readout({id, label, unit?, prefix?, decimals?, fmt?, big?, hint?, afterMove?, into}) -> {el, set(v), get(), text()}
+```
+One rounding everywhere a number appears: `decimals` matching the lesson text, and the `.say`
+sentence built with `K.fmt(v, {decimals})` or `readout.text()`. Labels under 30 characters.
+While Dan answers a lesson check, the app hides that output's readout and the `.say` lines:
+never repeat a readout's value elsewhere (a label, an aria-label).
+```
+K.plot(target, opts) -> {draw(opts), x(v), y(v), invert(px, py), el, canvas}
+```
+- `x`, `y`: `{min, max, label, log?, prefix?, unit?, fmt?, ticks?}`. Leave out `y.min`/`y.max` to fit the data.
+- `series`: `[{fn: x => y | points: [[x, y], ...], label?, color?, dash?, width?, fill?, dots?, gaps?, afterMove?}]`
+- `shade`: `[{between: [a, b], label?, color?, x0?, x1?}]`: fills between two series (by label), a
+  series and a constant, or two functions.
+- `marks`: `[{x, y, label?, color?, guides?, afterMove?}]`: a dot with a label pill; `guides` adds dashed lines to the axes.
+- `regions`: `[{x0, x1, label?} | {y0, y1, label?}]` (a band); `lines`: `[{x | y, label?}]` (a dashed line).
+- `label`: the text alternative; `height`; `after(ctx, plot)` draws extras using `plot.x()`, `plot.y()`.
+
+`draw(opts)` redraws with `opts` over the creation options: call it in `K.update`. Values must be
+finite (`gaps: true` only where a gap is real). Series are navy, then teal; `color: 'muted',
+dash: true` for a baseline.
+```
+K.bars(target, {max?, unit?, prefix?, decimals?, fmt?}) -> {draw(items)}      items: [{label, value, color?}], values >= 0
+K.anim({step(dt, t), reset?, label?, autoplay?, button?, into}) -> {el, play, pause, toggle, reset, playing()}
+```
+`anim` adds a Play button (text `label`); `reset` adds Reset. When a switch, button or drag
+already starts the motion, pass `button: false` and call `play()` from that control: one control
+per action. In `step` advance your state (`dt` in seconds) and redraw; return `false` to stop. To
+drive a slider, keep the exact value yourself (the slider moves in whole steps).
+
+### Sound
+```
+K.sound.tone(hz, {dur?, type?, gain?})   K.sound.chord([hz, ...], {dur?, stagger?})   K.sound.stop()   K.sound.mute(on)
+K.sound.hold(hz, {type?, gain?, max?}) -> {set({hz?, gain?}), stop(), playing()}
+```
+`dur` in seconds (at most 10). Sound plays only from a `K.button` press, never `K.update`; show
+what is sounding. `hold` keeps a tone going while `set()` follows a slider. Phones can't play
+below about 150 Hz: use 200 to 2,000 Hz.
+
+### Drawings and helpers
+```
+K.el(tag, attrs?, ...children)    attrs: class, style, on: {click: fn}, text, html, dataset, any attribute
+K.svg(tag, attrs?, ...children)   the same in the SVG namespace
+K.labels(group, [{x, y, text, anchor?, size?, class?, color?}], {avoid?}) -> [<text>]
+K.stage(visual, controls, {max?, beside?}) -> {el}
+K.fmt(v, {decimals?, sig?, prefix?, unit?, percent?, sign?, compact?}) -> '1,234.5', '−3', '2.5 × 10⁶'
+K.near(a, b, tol)   K.clamp(v, lo, hi)   K.lerp(a, b, t)   K.linspace(a, b, n)   K.color(role, alpha?)
+K.ease(p)   K.arrive(T, t0, dur?)   K.fade(el, a, rise?)
+```
+Give an `<svg>` a viewBox about 340 wide, `width="100%"`, `role="img"` and an `aria-label` that
+follows the state. Text 13-16 units, never under 12 (a phone shows 340 units at about 0.9x). A
+row of N labels gets about 300/N units each; label only what differs. Every label sits on, or
+points to, something drawn. `K.labels` places labels (13 units unless `size`) clear of other
+text, the edges and the lines or shapes in `avoid`: use it for labels that move or appear later.
+Put an angle's label inside its wedge, beyond the arc, hidden while the wedge is too narrow.
+`K.stage` fits the pair in `max` px (600) on a phone; `beside: false` keeps it stacked.
+
+Draw the mechanism as it physically works. If the explanation gives a reason (X because Y), draw
+Y so Dan can watch it; parts that fit are drawn fitting (teeth in teeth), never two identical
+icons joined by a line; whatever the rule says happens (slides, grips, multiplies) happens on screen.
+
+### Colour
+Colour carries meaning. Use these roles as `var(--k-…)` or `K.color('fill2')` (`K.color('accent2',
+0.3)` is see-through); a colour name fails the test.
+- Lines and text: `ink`, `muted` (secondary, comparisons), `accent2` (navy: the main thing,
+  controls), `accent` (teal: small labels, a second series), `warn` (red: warnings and mistakes
+  only), `good` (green: "done" only), `amber-line` (amber lines that must stand out).
+- Fills: `bg` (page), `panel`, `sunk`, `amber` (note box), `hl` (key-term highlighter), `fill1`
+  (area of the main thing), `fill2` (highlighted area, amber), `fill3` (area of a second thing).
+- `cat1`-`cat4` (blue, orange, magenta, aqua): telling equal things apart, never meaning; with a
+  key or labels; cat1 and cat2 first. A thing with a familiar colour (water, fire) never gets
+  another thing's colour: use the nearest role and label it. What is still there stays solid:
+  mark a state such as unused with a label, not by fading it, and key any dashed style.
+- Also `--k-line`, `--k-strong` (borders), `--k-on-accent2` (text on navy), `--k-font`, `--k-r` (radius).
+
+Never describe colours by lightness or hue in words Dan reads ("the dark square"): dark mode
+changes them.
+
+Classes: `muted`, `small`, `k-label` (small teal caps), `term` (key term), `note` (amber box),
+`warn-note`, `panel`, `row`, `grid2`, `big`, `k-btn` (`secondary`), and a legend:
+`<div class="key"><span><i class="swatch" style="background:var(--k-accent2)"></i>Your push</span>
+<span><i class="swatch line dash" style="color:var(--k-muted)"></i>The limit</span></div>`.
+
+### Rules for a great interactive
+- One idea. The answer to Dan's prediction shows within about 3 seconds of his first move (add
+  a K.check that it does). Include something Dan causes and a case that surprises. One or two
+  controls, three at most.
+- Phone first: nothing wider than 340 px, no fixed widths over 300 px, rows wrap, no hover-only
+  information, tap targets at least 44 px. Size tiles and grid columns in rem (`minmax(6rem,
+  1fr)`): text grows a quarter at Text size XL, and no word may split across two lines.
+- Every number shown is a control, computed by the rule shown, a constant from the lesson, an
+  example value named once in the lead, or a date from the lesson. Never invent data, rates or chances.
+- The `.say` sentence describes what is on screen now, plainly and warmly, and reads right at the
+  extremes ("none of the 100"). Never claim Dan did something ("When you slid it to 20"):
+  describe the state, or write conditionally ("Push it past 20 and…").
+- 3-5 `K.check` known answers worked out by hand: an edge case, a shape fact (rises, halves,
+  always last), and one answer from outside your formula. `source` may ONLY be a URL from the
+  lesson's own sources, and only on a check whose label restates what that source's quote says;
+  a result of your rule, or a fact about your drawing, takes none. Compare numbers with
+  `K.near(a, b, tol)`: tolerance about a millionth of the size, a thousandth where rounding meets roots.
+- `K.anim` for motion, never timers: soft, unhurried, nothing popping in. Parts arrive about 0.6
+  s apart by `K.fade(el, K.arrive(T, t0))`; travel and growth use `K.ease`; a demonstration takes
+  3-5 s. No `vh` units, `position: fixed` or `height: 100%`.
+- Ideas without numbers (mechanism, process, structure, history, concept): prefer a timeline
+  slider, a named choice, a sorter or a drag; use `K.stepper` only when every step changes the
+  drawing. Checks assert order and structure facts.
+- A timeline runs forward: a slider rising left to right, its `fmt` showing the date (−500 as
+  "500 BC"), or a stepper of named events in order. A lesson's calendar-year control keeps its
+  range, its `fmt` showing the year; years after the first date are for new controls. Each dated
+  event appears as he reaches its date.
+
+### The self-test
+Before Dan sees it, the app loads your body 340, 720 and 1040 px wide, runs every check, moves
+every control, button, animation and drag, reveals the after-move parts, and looks again at Text
+size XL and in the other theme. It fails on an exception, NaN or undefined on the page, an update
+over 150 ms, sideways overflow, text cut off or over other text, SVG text under 11 px on a phone,
+a line or arrowhead through a label, text under 3:1 contrast with what is behind it, a colour
+name, a blank hole until a move, or no `K.ready()`.
+
+### Example
+```html
+<p class="lead">Lengthen the string and watch each swing take longer.</p>
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+<p class="caption">Small swings only; g = 9.81 m/s² is gravity at the Earth's surface.</p>
+<script>
+  const g = 9.81;
+  const period = (L) => 2 * Math.PI * Math.sqrt(L / g);
+  K.control({ id: 'L', label: 'String length', min: 0.1, max: 3, step: 0.05, value: 1, unit: 'm', snap: [2], into: '#controls' });
+  K.stage('#plot', '#controls');
+  K.readout({ id: 'T', label: 'One full swing takes', unit: 's', decimals: 2, into: '#outs' });
+  const plot = K.plot('#plot', { x: { min: 0, max: 3, label: 'Length (m)' }, y: { min: 0, max: 4, label: 'Period (s)' } });
+  K.model((p) => ({ T: period(p.L) }));
+  K.update((p, o) => {
+    plot.draw({ series: [{ fn: period }], marks: [{ x: p.L, y: o.T, guides: true }] });
+    document.getElementById('say').textContent = !K.moved ? 'Make the string four times longer: how much longer is each swing?'
+      : 'A ' + K.fmt(p.L, { decimals: 2 }) + ' m string swings there and back every ' + K.fmt(o.T, { decimals: 2 }) + ' s. Four times the length only doubles that.';
+  });
+  K.check('No length, no swing time', () => K.near(period(0), 0));
+  K.check('A seconds pendulum (2 s per swing) is 0.994 m long', () => K.near(period(0.994), 2, 0.002),
+    { source: 'https://en.wikipedia.org/wiki/Seconds_pendulum' });
+  K.check('Four times the length doubles the period', () => K.near(K.at({ L: 2 }).T / K.at({ L: 0.5 }).T, 2, 1e-9));
+  K.ready();
+</script>
+```
+
+
+## A finished example (kind: quantity). Match its standard and structure, not its topic. Its SOURCE line and {source} addresses belong to that example's own lesson: never copy them
+<!-- kind: quantity -->
+<style>
+  .split { display: flex; height: 26px; border-radius: 8px; overflow: hidden; background: var(--k-sunk); }
+  .split .work { background: var(--k-accent2); transition: width .2s ease; }
+  .split-key { display: flex; justify-content: space-between; gap: 12px; margin-top: 6px; font-size: .9rem; color: var(--k-muted); }
+  .nowrap { white-space: nowrap; }
+</style>
+
+<p class="lead">Squeeze the air harder before the fuel burns in it, and watch how much more of the fuel's heat turns into useful work.</p>
+
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+
+<div>
+  <span class="k-label">Of every 100 units of heat from the fuel</span>
+  <div class="split" role="img" id="split" aria-label=""><i class="work" id="work"></i></div>
+  <div class="split-key"><span>Becomes work</span><span>Leaves in the hot exhaust</span></div>
+</div>
+
+<p class="caption">The ideal Brayton cycle with γ = 1.4 for air (NASA Glenn Research Center), an upper limit for real engines.</p>
+
+<script>
+  // gamma: ratio of specific heats for air, the value NASA Glenn's Brayton page uses.
+  const GAMMA = 1.4;
+  const SOURCE = 'https://www.grc.nasa.gov/www/k-12/airplane/brayton.html';
+  const pct = (r) => 100 * (1 - Math.pow(r, -(GAMMA - 1) / GAMMA));
+
+  const r = K.control({ id: 'r', label: 'Pressure ratio', hint: 'Pressure after the compressor ÷ pressure before it', min: 1, max: 50, step: 1, value: 8, unit: ':1', into: '#controls' });
+  K.readout({ id: 'eff', label: 'Ideal efficiency', unit: '%', decimals: 1, big: true, into: '#outs' });
+
+  K.stage('#plot', '#controls');   // stacked on a phone, side by side on a laptop
+
+  const plot = K.plot('#plot', {
+    x: { min: 1, max: 50, label: 'Pressure ratio' },
+    y: { min: 0, max: 100, label: 'Ideal efficiency (%)' },
+    label: 'Ideal efficiency rises steeply at low pressure ratios, then flattens',
+  });
+
+  // The pure model: pressure ratio -> ideal efficiency in percent.
+  K.model((p) => ({ eff: pct(p.r) }));
+
+  K.update((p, o) => {
+    plot.draw({
+      series: [{ fn: pct, label: 'Ideal efficiency' }],
+      marks: [{ x: p.r, y: o.eff, guides: true }],   // its value is in the readout alone
+    });
+    document.getElementById('work').style.width = o.eff + '%';
+    document.getElementById('split').setAttribute('aria-label', 'The filled part becomes work: ' + (o.eff < 50 ? 'under' : 'over') + ' half the heat');
+
+    let s;
+    if (p.r === 1) {
+      s = 'With no squeeze at all (r = 1), the hot gas has no extra pressure to push the turbine with, so no work comes out: 0%.';
+    } else if (p.r * 2 <= 50) {
+      const more = pct(p.r * 2) - o.eff;
+      s = 'At ' + p.r + ':1 an ideal engine turns ' + o.eff.toFixed(1) + '% of the fuel\'s heat into work. Doubling the squeeze to ' +
+        p.r * 2 + ':1 would add ' + more.toFixed(1) + ' more points.';
+    } else {
+      const less = o.eff - pct(p.r / 2);
+      s = 'At ' + p.r + ':1 an ideal engine turns ' + o.eff.toFixed(1) + '% of the fuel\'s heat into work. Halving the squeeze would cost only ' +
+        less.toFixed(1) + ' points: the curve has flattened.';
+    }
+    // Until Dan moves the slider the sentence invites rather than answers his prediction.
+    document.getElementById('say').textContent = K.moved ? s : 'Does doubling the squeeze double the work you get? Move the pressure ratio and see.';
+  });
+
+  // Known answers, worked out by hand from the formula.
+  K.check('No squeeze (r = 1) gives 0% efficiency', () => K.near(K.at({ r: 1 }).eff, 0, 1e-9));
+  K.check('r = 10 gives 48.2%, from the ideal Brayton formula', () => K.near(K.at({ r: 10 }).eff, 48.205, 0.001), { source: SOURCE });
+  K.check('Efficiency rises with every step up in pressure ratio', () => {
+    for (let x = 1; x < 50; x++) if (!(K.at({ r: x + 1 }).eff > K.at({ r: x }).eff)) return false;
+    return true;
+  });
+  K.check('Diminishing returns: 1 → 2 adds 18.0 points, 20 → 40 adds only 7.6', () =>
+    K.near(K.at({ r: 2 }).eff - K.at({ r: 1 }).eff, 17.97, 0.01) && K.near(K.at({ r: 40 }).eff - K.at({ r: 20 }).eff, 7.63, 0.01));
+  K.check('Even at r = 50 the ideal stays below 100% (67.3%)', () => K.near(K.at({ r: 50 }).eff, 67.30, 0.01));
+
+  K.ready();
+</script>
+
+## Output
+Return ONLY the body: HTML elements, an optional <style>, then one inline <script> that ends with K.ready(). No <html>, <head> or <body> tags, no markdown fences, no commentary before or after. Keep it under 40 KB.

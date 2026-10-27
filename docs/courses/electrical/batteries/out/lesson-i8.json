@@ -1,0 +1,742 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-27T16:48:48.150Z",
+ "startedAt": "2026-10-27T16:48:48.150Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i8",
+  "title": "Short circuits, safety and other chemistries",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is over 1800 A at the battery's terminals, falling only as the cable adds its milliohms, when you drag the fault away from the battery.",
+   "title": "The milliohm fault",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Screen",
+     "min": 0,
+     "max": 14,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [
+    {
+     "id": "faultCurrent",
+     "label": "Fault current",
+     "unit": "A",
+     "decimals": 0
+    },
+    {
+     "id": "loopResistance",
+     "label": "Loop resistance",
+     "unit": "mΩ",
+     "decimals": 2
+    }
+   ],
+   "whatAmILookingAt": "A 12 V lead-acid block sits on the left, drawn as six cells in series in one case. Each cell is drawn as an emf behind a small resistance. A pair of cables runs from its terminals to the right, with a protective device at the battery end. The device can break 1 kA, an example value. A line on a bar marks it. The fault is a red link across the two cores, and you can drag it along the cable. A fault-distance slider runs from 0 m to 20 m in steps of 0.5 m. At its start, the fault sits across the terminals, just past the device. The block is a real product. Six cells at 2.1 V give it 12.6 V open circuit. It has 6.95 mΩ inside. The cable is an example. Each core has 0.5 mΩ a metre. A fault d metres away puts both cores in the loop, out and back. So the outside resistance is 1 mΩ for every metre. The fault current is the open-circuit voltage ÷ (the battery's resistance + the outside resistance). The 'Fault current' readout shows it in A. Its bar turns red while it is above the device's line. The 'Loop resistance' readout shows the total in mΩ. A charge-left slider runs from 100% down to 60% in steps of 5%. As the charge falls, the current falls in a straight line. At 60% charge it reaches 92% of the full-charge value. That line is a sketch. It stays above the measured 90%. A time trace under the cable draws the current from the moment of the fault to 20 ms. It is a sketch. It climbs to its full value by 5 ms and stays there. A 'Big string' switch swaps the block for a real 480 V string. Its loop adds up to 0.160 + 0.028 Ω. The fault slider then rests at 0 m. The readout shows 2553 A. A chemistry card below compares three cells: lead-acid, nickel-cadmium and lithium-ion. Each column gives the cell voltage, the cells in series for 24 V, the electrolyte, whether a hydrometer reads the charge, and its hazards. On a phone, the two readouts each sit on their own line. The card's three columns stack one under another. No word splits. Each show screen has under about 90 words. Each one ends on what its finished picture shows. So it reads well without the controls. Screen by screen. 0 asks a recall question. A protective device sits where the prospective fault current is 3 kA. It asks what its breaking capacity must be. First choice: at least 3 kA, the most it may have to break there. Second: at least its rated current. Third: at least the cable's current rating. The right pick says 'Still there: a device must break the biggest fault it can see where it sits.' Hint for rated current: that sets when it trips on overload, not what it can safely break. Hint for the cable: that is what the cable carries all day, far below a fault. 1 shows the 12 V block with a fault across its terminals. It reads 12.6 V open circuit and has 6.95 mΩ inside. Each cell is an emf behind a small resistance. Short the terminals, and that resistance alone limits the current. So the fault current is the open-circuit voltage ÷ the internal resistance: 12.6 ÷ 0.00695 = 1813 A. The maker lists 1814 A for this block. That is far above the device's 1 kA. It ends at 0 m with 1813 A showing. 2 says you lay a steel spanner across the terminals of the same 12 V block. It asks what flows. First choice: up to about 1800 A, held back only by the block's milliohms and the spanner. Second: very little, because 12 V is too low to push much current. Third: about 70 A, the block's ampere-hour rating. The right pick says 'That's it: 12.6 V across a few milliohms is well over a thousand amps.' Hint for too low: your body's resistance is high, so 12 V drives little current through you. A spanner's resistance is tiny. Hint for 70 A: ampere-hours say how long a battery lasts, not how hard it can push. Its Why adds that the spanner gets very hot very quickly, and can explode in a shower of molten metal that burns and can light hydrogen. 3 drags the fault along the cable. Both cable cores now join the loop. So the current is the voltage ÷ (the battery's resistance + the outside resistance). Each core has 0.5 mΩ a metre, so each metre adds 1 mΩ. At 5 m the loop is 6.95 + 5 = 11.95 mΩ. That gives 12.6 ÷ 0.01195 = 1054 A, still above the device's 1 kA. The battery's milliohms are fixed. Only the loop outside can add more. It ends at 5 m with 1054 A showing. 4 says a fault happens 10 m down the same cable. It asks for the fault current. The choices are 743 A, 1260 A and 1813 A. The right pick says 'That's it: 12.6 ÷ (0.00695 + 0.010) = 743 A.' Hint for 1260 A: that is 12.6 ÷ 0.010, the cable alone. The battery's 6.95 mΩ is in the loop too. Hint for 1813 A: that is the fault at the terminals, before the cable adds its 10 mΩ. 5 taps 'Big string'. The same rule works for a real 480 V string. The cells' resistance and the links between them set the most a battery can drive. This string's loop adds up to 0.160 + 0.028 Ω. 480 ÷ 0.188 = 2553 A, so the rule predicts about 2550 A. A real test on that string measured 2530 A. A shorted battery can give 100 to 1000 times its normal discharge current. It ends with the big string showing 2553 A. 6 says a 48 V string has 24 cells at 2.1 V, each with 1.5 mΩ inside. Its 23 links between cells add 0.1 mΩ each. These are example values. It asks for the fault current across its terminals. The choices are 1316 A, 1400 A and 33600 A. The right pick says 'That's it: 50.4 V ÷ (36 + 2.3) mΩ = 1316 A.' Hint for 1400 A: the links carry the fault current too, so their 2.3 mΩ belongs in the loop. Hint for 33600 A: in a string, one current flows through every cell. So the cells' resistances add. 7 drags the charge left from 100% down to 60%. The fault current barely moves. A cell's rested voltage falls only a little as its charge goes. The milliohms stay milliohms. In tests on real batteries, the current stayed above 90% of its full-charge value at about 60% charge. In this sketch, the block still drives 1668 A at 60%. The band under the bar marks the tests' over 90%. So a part-discharged battery can still give nearly its full fault. It ends at 60% charge with 1668 A showing. 8 says a UPS battery has run down to about 60% charge, and someone says a short on it now would be small. It asks whether that is right. First choice: no, its fault current is still over 90% of the full-charge value. Second: yes, it falls to about 60% of the full-charge fault. Third: yes, a part-charged battery holds too little energy for a big current. The right pick says 'That's it: the volts barely fall and the milliohms stay, so the current stays high.' Hint for 60%: the current follows the voltage, not the charge left. The voltage barely falls. Hint for too little energy: energy sets how long it could keep going, not how many amps flow at once. 9 shows the time trace. A battery has little inductance, so a short acts like a fault through a plain resistor. The current reaches its full value within 5 to 10 ms of the fault. The trace is marked as a sketch. The cells cannot be switched off either. Their exposed metal is always live. Switching off the charger and the loads stops their currents. The cells keep their voltage. It ends with the trace flat at 1813 A, with the fault at 0 m. 10 says you must remake a loose link between two cells in a live string. It asks what comes first. First choice: switch off the circuits on the battery, and keep metal tools off its top. Second: open the battery's main switch, and then the cells are dead. Third: nothing, because each link spans only one cell's 2.1 V. The right pick says 'That's it: switch off all circuits before connecting or disconnecting, and rest no metal on a battery.' Hint for the main switch: a switch stops current in the circuits, but the cells keep their voltage. Hint for one cell: your spanner can bridge more than one cell. Even one cell can drive over a thousand amps through metal. 11 shows the chemistry card. Other chemistries obey the same fault rule, but their cells differ. Lithium-ion brings a new hazard, thermal runaway: a cell's own heat speeds its reactions, and they make more heat. The card carries the facts. Lead-acid gives about 2 V a cell, so 24 V takes 12 cells, and a hydrometer reads a vented cell's charge. Nickel-cadmium gives 1.20 V, so 24 V takes 20 cells, and a hydrometer cannot read the charge. Both have very corrosive electrolytes and give off hydrogen on charge. A common lithium-ion type gives 3.60 V, so 7 cells make 25.2 V. Its electrolyte is a lithium salt in a flammable organic solvent. It ends on all three columns. 12, 13 and 14 mix the ideas. 12 says a nickel-cadmium battery needs its charge checked, and a hydrometer is to hand. It asks what the hydrometer will tell you. First choice: nothing about the charge, because the electrolyte is not used up in the reaction. Second: the charge, read the same way as lead-acid. Third: the charge, on a lower scale. The right pick says 'That's it: the alkali carries the current but is not used up, so its strength stays put.' Hint for the same way: lead-acid's acid is used up on discharge. That change is what a hydrometer reads. Hint for a lower scale: any scale needs a reading that changes with charge. This one does not. 13 says a 24 V emergency battery has 12 lead-acid cells at 2.1 V and 14 mΩ in total, links included. A fault 2 m down its cable adds 2 mΩ. The device there can break 1 kA. These are example values. It asks whether the device can clear the fault. First choice: yes, about 1.6 A, far below 1 kA. Second: no, about 1575 A, above 1 kA. Third: yes, at 60% charge, about 945 A, below 1 kA. The right pick says 'That's it: 25.2 V across 16 mΩ is 1575 A, more than the device can break.' Hint for 1.6 A: 16 mΩ is 0.016 Ω, so the current is a thousand times bigger. Hint for 945 A: at 60% charge it would still give over 90% of that, not 60%. 14 shows one 3.60 V cell against a 24 V line. It says a pack of 3.60 V lithium-ion cells is to replace that 24 V lead-acid battery. It asks how many cells in series it needs, and whether a hydrometer can check its charge. First choice: 7 cells, and no hydrometer. Second: 12 cells, checked with a hydrometer. Third: 20 cells, and no hydrometer. The right pick says 'That's it: 7 × 3.60 V = 25.2 V, and its cells are sealed.' Hint for 12 cells: that count suits lead-acid's 2 V a cell. Hint for 20 cells: that count suits nickel-cadmium's 1.20 V a cell.",
+   "ignores": "The fault is drawn as a bolted short of no resistance. A real fault often arcs. The arc adds its own resistance and voltage drop, so a real fault current is usually somewhat lower. The block's resistance is held fixed. A real cell's changes a little with charge and temperature. The charge-left line and the time trace are sketches. The charger and any running motors would add their own current to a fault. The picture leaves them out. Each cable core is the same example size at room temperature.",
+   "numbers": [
+    {
+     "label": "Screen control lowest",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Screen control highest",
+     "value": 14,
+     "kind": "control"
+    },
+    {
+     "label": "Cells in the 12 V block",
+     "value": 6,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "Charged, rested cell voltage, V",
+     "value": 2.1,
+     "kind": "constant",
+     "source": 2
+    },
+    {
+     "label": "Block open-circuit voltage, V",
+     "value": 12.6,
+     "kind": "computed"
+    },
+    {
+     "label": "Block nominal voltage, V",
+     "value": 12,
+     "kind": "constant",
+     "source": 3
+    },
+    {
+     "label": "Block internal resistance, mΩ",
+     "value": 6.95,
+     "kind": "constant",
+     "source": 3
+    },
+    {
+     "label": "Block short-circuit current the maker lists, A",
+     "value": 1814,
+     "kind": "constant",
+     "source": 3
+    },
+    {
+     "label": "Block rating, Ah",
+     "value": 70,
+     "kind": "constant",
+     "source": 3
+    },
+    {
+     "label": "Fault current at the terminals, A",
+     "value": 1813,
+     "kind": "computed"
+    },
+    {
+     "label": "Example device breaking capacity, kA",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Recall example prospective fault current, kA",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Fault slider lowest, m",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Fault slider highest, m",
+     "value": 20,
+     "kind": "control"
+    },
+    {
+     "label": "Fault slider step, m",
+     "value": 0.5,
+     "kind": "control"
+    },
+    {
+     "label": "Example cable core resistance, mΩ a metre",
+     "value": 0.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Outside resistance per metre of route, mΩ",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Fault distance on screen 3, m",
+     "value": 5,
+     "kind": "control"
+    },
+    {
+     "label": "Loop resistance at 5 m, mΩ",
+     "value": 11.95,
+     "kind": "computed"
+    },
+    {
+     "label": "Fault current at 5 m, A",
+     "value": 1054,
+     "kind": "computed"
+    },
+    {
+     "label": "Fault distance on screen 4, m",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Cable resistance at 10 m, mΩ",
+     "value": 10,
+     "kind": "computed"
+    },
+    {
+     "label": "Fault current at 10 m, A",
+     "value": 743,
+     "kind": "computed"
+    },
+    {
+     "label": "Cable alone at 10 m, wrong choice, A",
+     "value": 1260,
+     "kind": "computed"
+    },
+    {
+     "label": "Big string voltage, V",
+     "value": 480,
+     "kind": "constant",
+     "source": 4
+    },
+    {
+     "label": "Big string loop resistance, first part, Ω",
+     "value": 0.16,
+     "kind": "constant",
+     "source": 4
+    },
+    {
+     "label": "Big string loop resistance, second part, Ω",
+     "value": 0.028,
+     "kind": "constant",
+     "source": 4
+    },
+    {
+     "label": "Big string loop resistance, total, Ω",
+     "value": 0.188,
+     "kind": "computed"
+    },
+    {
+     "label": "Big string fault current, computed, A",
+     "value": 2553,
+     "kind": "computed"
+    },
+    {
+     "label": "Big string fault current, predicted, A",
+     "value": 2550,
+     "kind": "constant",
+     "source": 4
+    },
+    {
+     "label": "Big string fault current, measured, A",
+     "value": 2530,
+     "kind": "constant",
+     "source": 4
+    },
+    {
+     "label": "Short current, times normal discharge, low end",
+     "value": 100,
+     "kind": "constant",
+     "source": 5
+    },
+    {
+     "label": "Short current, times normal discharge, high end",
+     "value": 1000,
+     "kind": "constant",
+     "source": 5
+    },
+    {
+     "label": "Example 48 V string, nominal voltage, V",
+     "value": 48,
+     "kind": "assumed"
+    },
+    {
+     "label": "Cells in the example 48 V string",
+     "value": 24,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example cell resistance, mΩ",
+     "value": 1.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Links between 24 cells",
+     "value": 23,
+     "kind": "computed"
+    },
+    {
+     "label": "Example link resistance, mΩ",
+     "value": 0.1,
+     "kind": "assumed"
+    },
+    {
+     "label": "48 V string open-circuit voltage, V",
+     "value": 50.4,
+     "kind": "computed"
+    },
+    {
+     "label": "48 V string cells' resistance, mΩ",
+     "value": 36,
+     "kind": "computed"
+    },
+    {
+     "label": "48 V string links' resistance, mΩ",
+     "value": 2.3,
+     "kind": "computed"
+    },
+    {
+     "label": "48 V string fault current, A",
+     "value": 1316,
+     "kind": "computed"
+    },
+    {
+     "label": "48 V string, links left out, wrong choice, A",
+     "value": 1400,
+     "kind": "computed"
+    },
+    {
+     "label": "48 V string, 24 × 1400 A, wrong choice, A",
+     "value": 33600,
+     "kind": "computed"
+    },
+    {
+     "label": "Charge-left slider top, %",
+     "value": 100,
+     "kind": "control"
+    },
+    {
+     "label": "Charge-left slider bottom, %",
+     "value": 60,
+     "kind": "control"
+    },
+    {
+     "label": "Charge-left slider step, %",
+     "value": 5,
+     "kind": "control"
+    },
+    {
+     "label": "Measured share of full fault current kept, above, %",
+     "value": 90,
+     "kind": "constant",
+     "source": 6
+    },
+    {
+     "label": "Sketch share of full fault current at 60% charge, %",
+     "value": 92,
+     "kind": "assumed"
+    },
+    {
+     "label": "Block fault current at 60% charge, A",
+     "value": 1668,
+     "kind": "computed"
+    },
+    {
+     "label": "Time trace length, ms",
+     "value": 20,
+     "kind": "assumed"
+    },
+    {
+     "label": "Sketch time to full current, ms",
+     "value": 5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Measured time to full current, ms, low end",
+     "value": 5,
+     "kind": "constant",
+     "source": 7
+    },
+    {
+     "label": "Measured time to full current, ms, high end",
+     "value": 10,
+     "kind": "constant",
+     "source": 7
+    },
+    {
+     "label": "Lead-acid nominal cell voltage, V",
+     "value": 2,
+     "kind": "constant",
+     "source": 2
+    },
+    {
+     "label": "Lead-acid cells for 24 V",
+     "value": 12,
+     "kind": "computed"
+    },
+    {
+     "label": "Nickel-cadmium cell voltage, V",
+     "value": 1.2,
+     "kind": "constant",
+     "source": 8
+    },
+    {
+     "label": "Nickel-cadmium cells for 24 V",
+     "value": 20,
+     "kind": "computed"
+    },
+    {
+     "label": "Lithium-ion nominal cell voltage, V",
+     "value": 3.6,
+     "kind": "constant",
+     "source": 9
+    },
+    {
+     "label": "Lithium-ion cells for 24 V, rounded up",
+     "value": 7,
+     "kind": "computed"
+    },
+    {
+     "label": "Seven lithium-ion cells, V",
+     "value": 25.2,
+     "kind": "computed"
+    },
+    {
+     "label": "Example 24 V battery, cells",
+     "value": 12,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example 24 V battery open-circuit voltage, V",
+     "value": 25.2,
+     "kind": "computed"
+    },
+    {
+     "label": "Example 24 V battery resistance with links, mΩ",
+     "value": 14,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example fault distance down its cable, m",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Cable resistance for that fault, mΩ",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Loop resistance for that fault, mΩ",
+     "value": 16,
+     "kind": "computed"
+    },
+    {
+     "label": "Fault current 2 m down, A",
+     "value": 1575,
+     "kind": "computed"
+    },
+    {
+     "label": "Wrong choice, milliohms read as ohms, A",
+     "value": 1.6,
+     "kind": "computed"
+    },
+    {
+     "label": "Wrong choice, 60% of 1575 A, A",
+     "value": 945,
+     "kind": "computed"
+    },
+    {
+     "label": "Fault current at its terminals, A",
+     "value": 1800,
+     "kind": "computed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "A large battery is an emf behind a few milliohms. So almost nothing limits a short across it. It can drive thousands of amps into a fault, even part discharged. And its cells cannot be switched off. What you know about prospective fault current still holds. Only the source is new.\n\nShort the terminals and the outside resistance falls to almost nothing. The cells' own internal resistance is then all that holds the current back. So the [[short-circuit current]] is the open-circuit voltage ÷ the internal resistance. A real 12 V 70 Ah block has 6.95 mΩ inside. Its maker lists 1814 A.[^3] Check it. Six cells at 2.1 V give 12.6 V, and 12.6 ÷ 0.00695 = 1813 A. A spanner across the terminals carries that current and gets very hot very quickly.[^10] It can explode in a shower of molten metal, which burns and can light hydrogen. Move the fault down a cable, and the cable joins the loop. The current is then V ÷ (R battery + R outside). A fault 5 m down the example cable adds 5 mΩ. The current is still 1054 A. The links between the cells add to that loop, just as the cable does. The rule holds on real batteries. For one 480 V string it predicted about 2550 A, and a test measured 2530 A.\n\nTwo things make this worse than it looks. First, the current hardly falls as the battery runs down. A rested cell's voltage falls only a little as its charge goes. The milliohms stay milliohms. In tests the current stayed above 90% of its full-charge value at about 60% charge.[^6] Second, the current arrives at once. A battery has little inductance, so a short acts like a fault through a plain resistor. The current reaches its full value within 5 to 10 ms.[^7] A battery's exposed metal is live all the time. Switching off the circuits stops their currents. But no switch makes the cells dead. So a part-discharged battery is hardly safer to work on. It can still drive nearly its full fault.\n\nOther chemistries obey the same rule, but their cells differ. Lead-acid gives about 2 V a cell. Its acid is used up on discharge, so a hydrometer reads a vented cell's charge. A nickel-cadmium cell gives 1.20 V, so 24 V takes 20 cells. Its potassium hydroxide is not used up in the reaction, so a hydrometer tells you nothing about the charge.[^11] A common lithium-ion cell gives 3.60 V.[^9] So 7 cells make 25.2 V. Some types give less. Its electrolyte is a lithium salt in a flammable organic solvent.[^12] It needs a protection circuit to prevent [[thermal runaway]] if stressed. In thermal runaway, a cell's own heat speeds its reactions, and they make more heat. Finding a battery's earth faults is its own subject, in Insulated systems and earth faults. BS 7671 now has a new chapter covering stationary batteries. A real fault through an arc usually runs somewhat lower. **A large battery's few milliohms let it drive thousands of amps into a short, even part discharged, and its cells are always live.**"
+  },
+  "analogy": {
+   "text": "You know fault level at a supply transformer. Its impedance is tiny, so a fault at its terminals draws a huge current. Move the fault down a final circuit, and the cable's impedance cuts it to a fraction. A battery is that transformer. Its milliohms take the place of the transformer's impedance. The same sum gives the fault current: voltage ÷ loop impedance. And the device nearest the source faces the biggest fault.",
+   "breaks": "A transformer's impedance is mostly reactance, so its fault current takes a moment to settle. You can also isolate a transformer from upstream. A battery's impedance is almost pure resistance, so its fault arrives within milliseconds. And nothing upstream can make its cells dead."
+  },
+  "practice": {
+   "text": "Use this whenever you work on, near or downstream of a battery.\n\n**Safe way first:**\n- Treat every battery as live. Its exposed metal always carries a voltage.\n- Switch off all circuits before connecting or disconnecting a battery. That stops their currents. The cells stay live.\n- Keep metal off the battery. Don't rest tools on top of it.\n- The cells stay live, so use insulated tools. Work on one connection at a time. Cover the terminals you are not touching.\n- Protect your eyes near the electrolyte. In lead-acid and nickel-cadmium cells it is sulphuric acid or potassium hydroxide. Both can permanently damage the eyes and burn the skin.\n- If it splashes, wash with plenty of clean water and get medical help at once.\n\n**To estimate a battery's fault current:**\n- Find the open-circuit voltage: the cells × the volts a cell.\n- Add every resistance in the loop: the cells, the links between them, and the cable out and back.\n- Divide the voltage by that total. That is the battery's share of the fault.\n- Add what the charger and any running motors can give.\n- Check each protective device against the fault just past it, at full charge. Its DC breaking capacity at that voltage must be at least that current.\n\n**Rule of thumb:** a shorted battery can give 100 to 1000 times its normal discharge current. A low voltage does not mean a low fault current.\n\n**Worked example:** A 24 V emergency battery has 12 lead-acid cells at 2.1 V. It reads 25.2 V open circuit. Say its cells and links total 14 mΩ. Across its terminals, 25.2 ÷ 0.014 = 1800 A. Now put the fault 2 m down a cable. Each core has 0.5 mΩ a metre, so the cable adds 2 mΩ. Then 25.2 ÷ 0.016 = 1575 A. So a device at the battery must break at least 1800 A, plus the charger's share. These are example values. A real battery's figures come from its maker.\n\n**Common mistakes**\n- Thinking 12 V or 24 V is too low to matter. It drives little current through you. But a large battery drives over a thousand amps through a spanner.\n- Thinking a part-discharged battery is safer. In tests, a battery at about 60% charge still gave over 90% of its full fault current.\n- Switching off the loads and treating the cells as dead.\n- Leaving the links, the cable or the battery's own resistance out of the sum.\n- Reading a nickel-cadmium cell's charge with a hydrometer."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "17.5 Batteries and Fuel Cells - Chemistry 2e | OpenStax",
+    "url": "https://openstax.org/books/chemistry-2e/pages/17-5-batteries-and-fuel-cells",
+    "quote": "Each cell produces 2 V, so six cells are connected in series to produce a 12-V car battery."
+   },
+   {
+    "n": 2,
+    "title": "Battery University | BU-303: Confusion with Voltages",
+    "url": "http://www.batteryuniversity.com/article/bu-303-confusion-with-voltages",
+    "quote": "The nominal voltage of lead acid is 2 volts per cell, however when measuring the open circuit voltage, the OCV of a charged and rested battery should be 2.1V/cell."
+   },
+   {
+    "n": 3,
+    "title": "Battery Range Summary",
+    "url": "https://www.enersys.com/493bb4/globalassets/documents/product-documentation/powersafe/v-tt/emea/en-v-rs-013.pdf",
+    "quote": "12V70 12 68 70 314 164 204 224 24.9 1814 6.95 M6 F V1"
+   },
+   {
+    "n": 4,
+    "title": "CALCULATED VS. ACTUAL SHORT CIRCUIT CURRENTS FOR VRLA BATTERIES — Vertiv",
+    "url": "https://www.vertiv.com/48dfcf/globalassets/documents/battcon-static-assets/2003/calculated-vs.-actual-short-circuit-currents-for-vrla-batteries.pdf",
+    "quote": "Using the equation above, we predicted a short circuit current of 2550 amps [480V / (0.160 + 0.028)], which compares reasonably with the actual measured average steady state test result of 2530 amps"
+   },
+   {
+    "n": 5,
+    "title": "CALCULATED VS. ACTUAL SHORT CIRCUIT CURRENTS FOR VRLA BATTERIES — Vertiv",
+    "url": "https://www.vertiv.com/48dfcf/globalassets/documents/battcon-static-assets/2003/calculated-vs.-actual-short-circuit-currents-for-vrla-batteries.pdf",
+    "quote": "A “shorted” lead acid battery has the capability of delivering an extremely high current, 100 to 1000 times the typical discharge current used in most applications."
+   },
+   {
+    "n": 6,
+    "title": "CALCULATED VS. ACTUAL SHORT CIRCUIT CURRENTS FOR VRLA BATTERIES — Vertiv",
+    "url": "https://www.vertiv.com/48dfcf/globalassets/documents/battcon-static-assets/2003/calculated-vs.-actual-short-circuit-currents-for-vrla-batteries.pdf",
+    "quote": "The short circuit current stays relatively high even for low states of charge; for example, currents exceeded 90% of nominal even at ~60% state of charge."
+   },
+   {
+    "n": 7,
+    "title": "CALCULATED VS. ACTUAL SHORT CIRCUIT CURRENTS FOR VRLA BATTERIES",
+    "url": "https://www.vertiv.com/48dfcf/globalassets/documents/battcon-static-assets/2003/calculated-vs.-actual-short-circuit-currents-for-vrla-batteries.pdf",
+    "quote": "Note that steady state minimum voltage and maximum current conditions were attained within 5 to 10 milliseconds."
+   },
+   {
+    "n": 8,
+    "title": "Bu 203 Nickel Based Batteries",
+    "url": "https://batteryuniversity.com/article/bu-203-nickel-based-batteries",
+    "quote": "Low cell voltage of 1.20V requires many cells to achieve high voltage"
+   },
+   {
+    "n": 9,
+    "title": "Bu 204 How Do Lithium Batteries Work",
+    "url": "https://batteryuniversity.com/article/bu-204-how-do-lithium-batteries-work",
+    "quote": "The nominal cell voltage of 3.60V can directly power mobile phones, tablets and digital cameras"
+   },
+   {
+    "n": 10,
+    "title": "Using electric storage batteries safely INDG139",
+    "url": "https://www.hse.gov.uk/PUBNS/indg139.pdf",
+    "quote": "When this happens, a large amount of electricity flows through the metal object, making it very hot very quickly. If it explodes, the resulting shower of molten metal can cause serious burns and ignite any explosive gases present around the battery."
+   },
+   {
+    "n": 11,
+    "title": "Battery Testing Guide",
+    "url": "https://res.cloudinary.com/iwh/image/upload/q_auto,g_center/assets/1/7/Megger_Battery_Testing_Guide.pdf",
+    "quote": "since the potassium hydroxide electrolyte isn’t used in the chemical reaction, it is not necessary to measure it periodically."
+   },
+   {
+    "n": 12,
+    "title": "Bu 304A Safety Concerns With Li Ion",
+    "url": "https://batteryuniversity.com/article/bu-304a-safety-concerns-with-li-ion",
+    "quote": "The electrolyte consists of lithium salt in an organic solvent (lithium hexafluorophosphate) and is highly flammable."
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: quantity -->\n<style>\n  [hidden] { display: none !important; }\n  .nw { white-space: nowrap; }\n  .pz, .caption { max-width: 32rem; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.12rem; font-weight: 700; line-height: 1.5; }\n  .task.show { font-size: 1.05rem; font-weight: 400; line-height: 1.6; }\n  .scene { display: block; width: 100%; max-width: 26rem; margin-inline: auto; }\n  .scene text { font: 600 13px var(--k-font); fill: var(--k-ink); }\n  .scene .lbm { font-weight: 400; fill: var(--k-muted); }\n  .scene .ttl { font-weight: 700; }\n  .scene .sg { font-size: 15px; font-weight: 800; }\n  .scene .q { font-size: 16px; font-weight: 800; fill: var(--k-accent2); }\n  .scene .cv { font-weight: 800; fill: var(--k-accent2); }\n  .scene .wl { font-weight: 700; fill: var(--k-warn); }\n  .scene .wire { fill: none; stroke: var(--k-ink); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }\n  .scene .core { fill: none; stroke: var(--k-ink); stroke-width: 2.5; stroke-linecap: round; }\n  .scene .dots { fill: none; stroke: var(--k-ink); stroke-width: 2; stroke-dasharray: 2 5; stroke-linecap: round; }\n  .scene .flow { fill: none; stroke: var(--k-accent); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }\n  .scene .box { fill: var(--k-panel); stroke: var(--k-accent2); stroke-width: 2; }\n  .scene .case { fill: var(--k-panel); stroke: var(--k-accent2); stroke-width: 2; }\n  .scene .devbox { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 2; }\n  .scene .post { fill: var(--k-strong); }\n  .scene .plate { stroke: var(--k-ink); stroke-linecap: butt; }\n  .scene .gapc { fill: var(--k-panel); }\n  .scene .res { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.5; }\n  .scene .fl { stroke: var(--k-warn); stroke-width: 5; stroke-linecap: round; }\n  .scene .spn { fill: var(--k-sunk); stroke: var(--k-ink); stroke-width: 2; }\n  .scene .ring { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.5; }\n  .scene .brace { fill: none; stroke: var(--k-muted); stroke-width: 1.5; }\n  .scene .amb { fill: none; stroke: var(--k-amber-line); stroke-width: 2.5; }\n  .scene .trk { fill: var(--k-sunk); }\n  .scene .fill { fill: var(--k-accent2); }\n  .scene .fill.hot { fill: var(--k-warn); }\n  .scene .dev { stroke: var(--k-ink); stroke-width: 2.5; }\n  .scene .devd { stroke: var(--k-ink); stroke-width: 1.5; stroke-dasharray: 6 4; }\n  .scene .axis { fill: none; stroke: var(--k-muted); stroke-width: 1.5; }\n  .scene .trace { fill: none; stroke: var(--k-accent2); stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }\n  .scene .head { fill: var(--k-accent2); }\n  .scene .cell { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.5; }\n  .scene .licell { fill: var(--k-fill1); stroke: var(--k-ink); stroke-width: 1.5; }\n  .scene .lk { stroke: var(--k-strong); stroke-width: 5; stroke-linecap: round; }\n  .scene .lk.bad { stroke: var(--k-warn); }\n  .scene .lkp { fill: none; stroke: var(--k-strong); stroke-width: 4; stroke-linejoin: round; }\n  .scene .pin { fill: var(--k-strong); }\n  .scene .jar { fill: none; stroke: var(--k-ink); stroke-width: 2; stroke-linejoin: round; }\n  .scene .liq { fill: var(--k-fill1); }\n  .scene .flt { fill: var(--k-panel); stroke: var(--k-accent2); stroke-width: 2; }\n  .scene .blade { stroke: var(--k-ink); stroke-width: 3; stroke-linecap: round; }\n  .scene .dot { fill: var(--k-ink); }\n  #scenebox { touch-action: pan-y; }\n  .pz .k-readouts { display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); gap: 8px; }\n  .say { line-height: 1.55; }\n  .picks { display: grid; grid-template-columns: repeat(auto-fit, minmax(6rem, 1fr)); gap: 8px; }\n  .picks.long { grid-template-columns: 1fr; }\n  .picks .k-btn { min-height: 48px; font-size: 1rem; }\n  .picks.long .k-btn { text-align: left; }\n  .picks .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; }\n  .replay { display: flex; justify-content: flex-end; }\n  .replay .k-btn { min-height: 44px; padding-inline: 16px; font-size: .95rem; white-space: nowrap; }\n  .fb { font-weight: 700; min-height: 1.5em; }\n  .fb.right { color: var(--k-good); }\n  .why, .done { line-height: 1.6; }\n  .done strong { color: var(--k-accent2); }\n  .done .row { margin-top: 14px; }\n  .chem { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: 10px; }\n  .chem .col { background: var(--k-panel); border: 1px solid var(--k-line); border-radius: var(--k-r); padding: 10px 12px; }\n  .chem h4 { margin: 0 0 6px; font-size: 1.02rem; color: var(--k-accent2); }\n  .chem svg { display: block; width: 100%; max-width: 14rem; margin: 2px 0 8px; }\n  .chem dl { margin: 0; }\n  .chem dt { font-size: .85rem; color: var(--k-muted); }\n  .chem dd { margin: 0 0 6px; font-weight: 600; line-height: 1.4; }\n  .chem .ccell { fill: var(--k-fill1); stroke: var(--k-ink); stroke-width: 1; }\n  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }\n</style>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <div id=\"scenebox\">\n      <svg class=\"scene\" id=\"scene\" viewBox=\"0 0 340 258\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"art\"></g><rect id=\"grab\" x=\"150\" y=\"30\" width=\"188\" height=\"118\" fill=\"transparent\"></rect></svg>\n    </div>\n    <div class=\"chem\" id=\"chem\" hidden></div>\n    <div class=\"replay\" id=\"replay\"></div>\n    <div class=\"k-controls ctl\" id=\"c-d\"></div>\n    <div class=\"k-controls ctl\" id=\"c-soc\"></div>\n    <div class=\"k-controls ctl\" id=\"c-big\"></div>\n    <p class=\"say\" id=\"say\"></p>\n    <div class=\"k-readouts\" id=\"outs\"></div>\n    <div class=\"picks\" id=\"picks\"></div>\n    <div class=\"row acts\" id=\"acts\"></div>\n    <p class=\"fb\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p><strong id=\"finish\"></strong></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\">The 12 V block and the 480 V string are real. The cable, the device and the other cases are examples.</p>\n\n<script>\n  // ---------- the rule ----------\n  const RANGE = 'https://www.enersys.com/493bb4/globalassets/documents/product-documentation/powersafe/v-tt/emea/en-v-rs-013.pdf';\n  const VERTIV = 'https://www.vertiv.com/48dfcf/globalassets/documents/battcon-static-assets/2003/calculated-vs.-actual-short-circuit-currents-for-vrla-batteries.pdf';\n  const BU303 = 'http://www.batteryuniversity.com/article/bu-303-confusion-with-voltages';\n  const BU203 = 'https://batteryuniversity.com/article/bu-203-nickel-based-batteries';\n  const BU204 = 'https://batteryuniversity.com/article/bu-204-how-do-lithium-batteries-work';\n  const MEGGER = 'https://res.cloudinary.com/iwh/image/upload/q_auto,g_center/assets/1/7/Megger_Battery_Testing_Guide.pdf';\n  const NC = 6, VC = 2.1, VB = NC * VC;                  // the block: six cells at 2.1 V give 12.6 V open circuit\n  const VNOM = 12, RB = 6.95, MAKER = 1814;              // its nominal volts, its internal resistance (mΩ), the maker's short-circuit current (A)\n  const RCORE = 0.5, RPM = 2 * RCORE;                    // example cable: 0.5 mΩ a metre each core, both cores in the loop: 1 mΩ a metre of route\n  const DEV = 1000;                                      // example device: breaks 1 kA\n  const VBIG = 480, RBIG1 = 0.160, RBIG2 = 0.028, RBIG = (RBIG1 + RBIG2) * 1000;   // the real 480 V string's loop (mΩ)\n  const SOC_LO = 60, KEEP = 0.92;                        // sketch: 92% of the full-charge fault at 60% charge, in a straight line\n  const T_FULL = 5, T_END = 20;                          // sketch: full current by 5 ms, trace to 20 ms\n  const N48 = 24, R48 = 1.5, RL48 = 0.1;                 // example 48 V string: 24 cells of 1.5 mΩ, links of 0.1 mΩ\n  const V48 = N48 * VC, RC48 = N48 * R48, RLK48 = (N48 - 1) * RL48;\n  const NE = 12, VE = NE * VC, RE = 14, DE = 2;          // example 24 V emergency battery: 12 cells, 14 mΩ with links, fault 2 m down\n  const PFC = 3;                                         // recall: prospective fault current, kA\n  const VLA = 2, VNI = 1.2, VLI = 3.6, VT = 24;          // cell voltages, and the 24 V target\n  const NB = ' ';\n  const share = (soc) => 1 - (1 - KEEP) * (100 - soc) / (100 - SOC_LO);\n  const cellsFor = (v) => Math.ceil(VT / v - 1e-9);\n  const q1 = (v) => Math.round(v * 10) / 10;\n  const ez = (x) => K.ease(K.clamp(x, 0, 1));\n  const fI = (v) => String(Math.round(v));\n  const fR = (v) => v.toFixed(2);\n  const nM = (v) => { const r = Math.round(v * 2) / 2; return r % 1 ? r.toFixed(1) : String(r); };\n\n  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------\n  const W1 = 'A real 12 V block holds six cells in one case. Each cell is an emf behind a small resistance. Together they read 12.6 V open circuit, with 6.95 mΩ inside. ' +\n    'Short the terminals, and that resistance alone holds the current back. So the *short-circuit current* is the open-circuit voltage ÷ the internal resistance. ' +\n    'Here that is 12.6 ÷ 0.00695 = 1813 A. The maker lists 1814 A for this block. That is far above the device\\'s 1 kA. With the fault across the terminals, 1813 A flows.';\n  const W3 = 'With the fault further down the cable, both cores join the loop, out and back. So the current is the voltage ÷ (the battery\\'s resistance + the outside resistance). ' +\n    'The battery\\'s milliohms are fixed. Only the loop outside can add more. Each core has 0.5 mΩ a metre, so each metre adds 1 mΩ. ' +\n    'At 5 m the loop is 6.95 + 5 = 11.95 mΩ. So 12.6 ÷ 0.01195 = 1054 A flows, still above the device\\'s 1 kA.';\n  const W5 = 'The same rule works for a real 480 V string. The cells\\' resistance and the links between them set the most a battery can drive. This string\\'s loop adds up to 0.160 + 0.028 Ω. ' +\n    'So the rule predicts 480 ÷ 0.188 = 2553 A, about 2550 A. A real test on that string measured 2530 A. ' +\n    'A shorted battery can give 100 to 1000 times its normal discharge current. Here the big string drives 2553 A.';\n  const W7 = 'Let the charge fall from 100% to 60%, and the fault current barely moves. A cell\\'s rested voltage falls only a little as its charge goes. The milliohms stay milliohms. ' +\n    'In tests on real batteries, the current stayed above 90% of its full-charge value at about 60% charge. So a part-discharged battery can still give nearly its full fault. ' +\n    'In this sketch, the block still drives 1668 A at 60% charge.';\n  const W9 = 'The trace shows the current from the moment of the fault. A battery has little inductance, so a short acts like a fault through a plain resistor. ' +\n    'The current reaches its full value within 5 to 10 ms. The cells cannot be switched off either. Their exposed metal is always live. ' +\n    'Switching off the charger and the loads stops their currents. The cells keep their voltage.';\n  const W11 = 'Other chemistries obey the same fault rule, but their cells differ. Lithium-ion brings a new hazard, *thermal runaway*. ' +\n    'A cell\\'s own heat speeds its reactions, and they make more heat. The card sets all three side by side.';\n  const O0_RATED = 'At least its rated current', O0_3K = 'At least 3 kA, the most it may have to break there', O0_CABLE = 'At least the cable\\'s current rating';\n  const O2_BIG = 'Up to about 1800 A, held back only by the block\\'s milliohms and the spanner', O2_LOW = 'Very little, because 12 V is too low to push much current', O2_AH = 'About 70 A, the block\\'s ampere-hour rating';\n  const O8_60 = 'Yes: it falls to about 60% of the full-charge fault', O8_90 = 'No: its fault current is still over 90% of the full-charge value', O8_EN = 'Yes: a part-charged battery holds too little energy for a big current';\n  const O10_MAIN = 'Open the battery\\'s main switch, and then the cells are dead', O10_ONE = 'Nothing, because each link spans only one cell\\'s 2.1 V', O10_OFF = 'Switch off the circuits on the battery, and keep metal tools off its top';\n  const O12_NONE = 'Nothing about the charge, because the electrolyte is not used up in the reaction', O12_SAME = 'The charge, read the same way as lead-acid', O12_LOW = 'The charge, on a lower scale';\n  const O13_LOW = 'Yes: about 1.6 A, far below 1 kA', O13_NO = 'No: about 1575 A, above 1 kA', O13_PART = 'Yes: at 60% charge, about 945 A, below 1 kA';\n  const O14_12 = '12 cells, checked with a hydrometer', O14_20 = '20 cells, and no hydrometer', O14_7 = '7 cells, and no hydrometer';\n  const HIDE = ['faultCurrent', 'loopResistance'];\n  const fade = (u) => { X.bf = ez(u / 0.8); };\n  const STEPS = [\n    { name: 'Breaking capacity', pic: 'recall', enter: { rf: 0 }, end: { rf: 1 },\n      run: { dur: 1.6, go: (u) => { X.rf = ez(u / 0.8); } },\n      task: 'A protective device sits where the prospective fault current is 3 kA. What must its breaking capacity be?',\n      opts: [O0_RATED, O0_3K, O0_CABLE], want: O0_3K, right: 'Still there: a device must break the biggest fault it can see where it sits.',\n      hint: 'Not quite. Think about the biggest current it may have to interrupt.',\n      hints: { [O0_RATED]: 'Not quite. That sets when it trips on overload, not what it can safely break.', [O0_CABLE]: 'Not quite. That is what the cable carries all day, far below a fault.' },\n      why: 'Breaking capacity is the biggest current a device can safely interrupt. A fault just past it can draw the prospective fault current, 3 kA here. So the device must break at least 3 kA. Its rated current and the cable\\'s rating are about everyday load, far smaller.' },\n    { show: true, name: 'A short at the terminals', pic: 'fault', enter: { d: 0, on: 0 }, end: { on: 1 }, still: { d: 0 }, dur: 3.0,\n      play: (t) => { X.on = ez((t - 0.5) / 2.0); },\n      text: W1, read: W1 },\n    { name: 'A spanner across it', pic: 'fault', tool: 'spanner', enter: { d: 0, bf: 0 }, end: { bf: 1 }, hide: HIDE,\n      run: { dur: 1.6, go: fade },\n      task: 'You lay a steel spanner across the terminals of the same 12 V block. What flows?',\n      opts: [O2_BIG, O2_LOW, O2_AH], want: O2_BIG, right: 'That\\'s it: 12.6 V across a few milliohms is well over a thousand amps.',\n      hint: 'Not quite. Think about what holds the current back.',\n      hints: { [O2_LOW]: 'Not quite. Your body\\'s resistance is high, so 12 V drives little current through you. A spanner\\'s resistance is tiny.', [O2_AH]: 'Not quite. Ampere-hours say how long a battery lasts, not how hard it can push.' },\n      why: 'The spanner joins the terminals with almost no resistance. So the block\\'s own 6.95 mΩ is nearly all that holds the current back. 12.6 ÷ 0.00695 is about 1800 A. A low voltage only means a small current through a high resistance, like your body. That current makes the spanner very hot very quickly. It can explode in a shower of molten metal, which burns and can light hydrogen.' },\n    { show: true, name: 'Down the cable', pic: 'fault', ctl: ['d'], enter: { d: 0 }, end: { d: 5 }, still: { d: 5 }, dur: 4.0,\n      play: (t) => { X.d = 5 * ez((t - 0.6) / 3.0); },\n      text: W3 + ' Drag the fault, or its slider, to try it.', read: W3 },\n    { name: 'Ten metres down', pic: 'fault', enter: { d: 10, bf: 0 }, end: { bf: 1 }, hide: HIDE,\n      run: { dur: 1.6, go: fade },\n      task: 'A fault happens 10 m down the same cable. What is the fault current?',\n      opts: ['1260 A', '1813 A', '743 A'], want: '743 A', right: 'That\\'s it: 12.6 ÷ (0.00695 + 0.010) = 743 A.',\n      hint: 'Not quite. Add the battery\\'s resistance and the cable\\'s.',\n      hints: { '1260 A': 'Not quite. That is 12.6 ÷ 0.010, the cable alone. The battery\\'s 6.95 mΩ is in the loop too.', '1813 A': 'Not quite. That is the fault at the terminals, before the cable adds its 10 mΩ.' },\n      why: 'Ten metres of route puts both cores in the loop, out and back. At 0.5 mΩ a metre each, they add 10 mΩ. The loop is 6.95 + 10 = 16.95 mΩ. So the current is 12.6 ÷ 0.01695 = 743 A. That is now below the device\\'s 1 kA.' },\n    { show: true, name: 'A big string', pic: 'fault', ctl: ['big'], enter: { d: 0, big: false, mix: 0 }, end: { big: true, mix: 1 }, still: { big: true }, dur: 3.2,\n      play: (t) => { X.mix = ez((t - 1.0) / 1.2); X.big = X.mix >= 0.5; },\n      text: W5 + ' Switch the big string on and off to compare.', read: W5 },\n    { name: 'A 48 V string', pic: 's48', enter: { sf: 0 }, end: { sf: 1 },\n      run: { dur: 1.6, go: (u) => { X.sf = ez(u / 0.8); } },\n      task: 'A 48 V string has 24 cells at 2.1 V, each with 1.5 mΩ inside. Its 23 links between cells add 0.1 mΩ each. These are example values. What flows in a fault across its terminals?',\n      opts: ['1316 A', '1400 A', '33600 A'], want: '1316 A', right: 'That\\'s it: 50.4 V ÷ (36 + 2.3) mΩ = 1316 A.',\n      hint: 'Not quite. Add every resistance the one current passes.',\n      hints: { '1400 A': 'Not quite. The links carry the fault current too, so their 2.3 mΩ belongs in the loop.', '33600 A': 'Not quite. In a string, one current flows through every cell. So the cells\\' resistances add.' },\n      why: 'One current flows through every cell, so the resistances add. The cells give 24 × 1.5 = 36 mΩ. The links add 23 × 0.1 = 2.3 mΩ. The open-circuit voltage is 24 × 2.1 = 50.4 V. So the current is 50.4 ÷ 0.0383 = 1316 A.' },\n    { show: true, name: 'Running down', pic: 'fault', band: true, ctl: ['soc'], enter: { d: 0, soc: 100 }, end: { soc: 60 }, still: { soc: 60 }, dur: 4.0,\n      play: (t) => { X.soc = 100 - 40 * ez((t - 0.6) / 3.0); },\n      text: W7 + ' Drag the charge left to try it.', read: W7 },\n    { name: 'Run down to 60%', pic: 'fault', band: true, enter: { d: 0, soc: 60, bf: 0 }, end: { bf: 1 }, hide: HIDE,\n      run: { dur: 1.6, go: fade },\n      task: 'A UPS battery has run down to about 60% charge. Someone says a short on it now would be small. Are they right?',\n      opts: [O8_60, O8_90, O8_EN], want: O8_90, right: 'That\\'s it: the volts barely fall and the milliohms stay, so the current stays high.',\n      hint: 'Not quite. Think about what sets the current.',\n      hints: { [O8_60]: 'Not quite. The current follows the voltage, not the charge left. The voltage barely falls.', [O8_EN]: 'Not quite. Energy sets how long it could keep going, not how many amps flow at once.' },\n      why: 'The fault current is the voltage ÷ the loop resistance. As the charge falls, the rested voltage drops only a little. The milliohms stay milliohms. So the current hardly changes. In tests it stayed above 90% of its full-charge value at about 60% charge.' },\n    { show: true, name: 'At once, and always live', pic: 'trace', ctl: ['d'], enter: { d: 0, tm: 0 }, end: { tm: T_END }, still: { d: 0 }, dur: 4.0,\n      play: (t) => { X.tm = T_END * K.clamp((t - 0.4) / 3.4, 0, 1); },\n      text: W9 + ' Drag the fault along the cable, and the trace follows.', read: W9 },\n    { name: 'A loose link', pic: 'link', enter: { lf: 0 }, end: { lf: 1 },\n      run: { dur: 1.8, go: (u) => { X.lf = ez(u / 0.85); } },\n      task: 'You must remake a loose link between two cells in a live string. What comes first?',\n      opts: [O10_MAIN, O10_ONE, O10_OFF], want: O10_OFF, right: 'That\\'s it: switch off all circuits before connecting or disconnecting, and rest no metal on a battery.',\n      hint: 'Not quite. Think about what a switch can and cannot make dead.',\n      hints: { [O10_MAIN]: 'Not quite. A switch stops current in the circuits, but the cells keep their voltage.', [O10_ONE]: 'Not quite. Your spanner can bridge more than one cell. Even one cell can drive over a thousand amps through metal.' },\n      why: 'Switching off the circuits stops the charger\\'s and the loads\\' currents. It does not make the cells dead. Their exposed metal is always live. So keep tools off the top, where a spanner could bridge two terminals. Use insulated tools, and work on one connection at a time.' },\n    { show: true, name: 'Other chemistries', pic: 'chem', enter: { cf: 0 }, end: { cf: 3 }, dur: 3.0,\n      play: (t) => { X.cf = 3 * K.clamp((t - 0.3) / 2.1, 0, 1); },\n      text: W11, read: W11 },\n    { name: 'Nickel-cadmium charge', pic: 'hydro', enter: { hf: 0 }, end: { hf: 1 },\n      run: { dur: 1.6, go: (u) => { X.hf = ez(u / 0.8); } },\n      task: 'A nickel-cadmium battery needs its charge checked, and a hydrometer is to hand. What will the hydrometer tell you?',\n      opts: [O12_NONE, O12_SAME, O12_LOW], want: O12_NONE, right: 'That\\'s it: the alkali carries the current but is not used up, so its strength stays put.',\n      hint: 'Not quite. Think about whether the liquid changes as the cell discharges.',\n      hints: { [O12_SAME]: 'Not quite. Lead-acid\\'s acid is used up on discharge. That change is what a hydrometer reads.', [O12_LOW]: 'Not quite. Any scale needs a reading that changes with charge. This one does not.' },\n      why: 'In a lead-acid cell, the acid takes part in the reaction. Discharge uses it up, so the liquid thins and the float sinks. A nickel-cadmium cell\\'s potassium hydroxide only carries the current. Its strength stays the same at any charge. So the float reads the same, full or part charged.' },\n    { name: 'Can it clear it?', pic: 'fault', src: 'em24', enter: { d: DE, bf: 0 }, end: { bf: 1 }, hide: HIDE,\n      run: { dur: 1.6, go: fade },\n      task: 'A 24 V emergency battery has 12 lead-acid cells at 2.1 V and 14 mΩ in total, links included. A fault 2 m down its cable adds 2 mΩ. The device there can break 1 kA. These are example values. Can the device clear the fault?',\n      opts: [O13_LOW, O13_NO, O13_PART], want: O13_NO, right: 'That\\'s it: 25.2 V across 16 mΩ is 1575 A, more than the device can break.',\n      hint: 'Not quite. Work out the voltage and the whole loop first.',\n      hints: { [O13_LOW]: 'Not quite. 16 mΩ is 0.016 Ω, so the current is a thousand times bigger.', [O13_PART]: 'Not quite. At 60% charge it would still give over 90% of that, not 60%.' },\n      why: 'Twelve cells at 2.1 V give 25.2 V. The loop is the battery\\'s 14 mΩ plus the cable\\'s 2 mΩ, which makes 16 mΩ. So the current is 25.2 ÷ 0.016 = 1575 A. A device that breaks only 1 kA cannot clear it safely.' },\n    { name: 'A lithium-ion pack', pic: 'li', enter: { lc: 0 }, end: { lc: 1 },\n      run: { dur: 2.0, go: (u) => { X.lc = K.clamp(u / 0.85, 0, 1); } },\n      task: 'A pack of 3.60 V lithium-ion cells is to replace that 24 V lead-acid battery. How many cells in series does it need, and can a hydrometer check its charge?',\n      opts: [O14_12, O14_20, O14_7], want: O14_7, right: 'That\\'s it: 7 × 3.60 V = 25.2 V, and its cells are sealed.',\n      hint: 'Not quite. Divide 24 V by the volts of one cell, and round up.',\n      hints: { [O14_12]: 'Not quite. That count suits lead-acid\\'s 2 V a cell.', [O14_20]: 'Not quite. That count suits nickel-cadmium\\'s 1.20 V a cell.' },\n      why: 'Each lithium-ion cell gives 3.60 V. Six would fall short of 24 V, so it takes 7, which make 25.2 V. Its cells are sealed, so there is no liquid to draw off. A hydrometer has nothing to read.' },\n  ];\n  const I13 = STEPS.findIndex((d) => d.src === 'em24');\n  const FINISH = 'A large battery is an emf behind a few milliohms. So it drives thousands of amps into a short, even part discharged, and its cells are always live.';\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n  const quiet = () => REDUCE || testing();\n  const el = (id) => document.getElementById(id);\n\n  // The fault current: the source's open-circuit voltage ÷ (its resistance + the cable out and back).\n  function srcOf(p) { return p.step === I13 ? 'em' : p.big ? 'big' : 'block'; }\n  function loopOf(p) { const s = srcOf(p); return s === 'big' ? RBIG : (s === 'em' ? RE : RB) + RPM * p.d; }   // mΩ; the big string's fault rests at 0 m\n  function modelOf(p) {\n    const s = srcOf(p), R = loopOf(p), V = s === 'big' ? VBIG : s === 'em' ? VE : VB;\n    return { faultCurrent: V / (R / 1000) * share(p.soc), loopResistance: R };\n  }\n\n  // ---------- state ----------\n  function blank() { return { pick: null, res: null, why: false }; }\n  let S = STEPS.map(blank);\n  const BASE = { d: 0, soc: 100, big: false, mix: 0, on: 1, bf: 1, tm: T_END, rf: 1, sf: 1, lf: 1, hf: 1, lc: 1, cf: 3, ph: 0 };\n  const X = {};\n  const setX = (o) => Object.assign(X, o);\n  const copyX = () => Object.assign({}, X);\n  setX(BASE);\n  let T = Infinity, scripted = false, lastStep = -1, finished = false, lastDone = false;\n  let REC = {}, laidOut = '', drift = 0;\n  const DRIFT = 1.6;\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);\n  const CTL = {\n    d: K.control({ id: 'd', label: 'Fault distance', min: 0, max: 20, step: 0.5, value: 0, fmt: (v) => nM(v) + NB + 'm', snap: [0, 5, 10], into: '#c-d' }),\n    soc: K.control({ id: 'soc', label: 'Charge left', min: SOC_LO, max: 100, step: 5, value: 100, fmt: (v) => Math.round(v) + '%', snap: [60, 100], into: '#c-soc' }),\n    big: K.toggle({ id: 'big', label: 'Big string', value: false, into: '#c-big' }),\n  };\n  const CKEYS = ['d', 'soc', 'big'];\n  const KEYS = { d: () => Math.round(X.d * 2) / 2, soc: () => Math.round(X.soc / 5) * 5, big: () => !!X.big };\n  const pushed = {};\n  Object.keys(CTL).forEach((k) => { pushed[k] = CTL[k].get(); });\n  // The page moves the controls itself during a demonstration (silently, so it is not taken for Dan's move).\n  function push() { Object.keys(KEYS).forEach((k) => { const v = KEYS[k](); if (pushed[k] !== v) { CTL[k].set(v, true); pushed[k] = CTL[k].get(); } }); }\n  const paramsX = () => ({ step: at(), d: X.d, soc: X.soc, big: X.big });\n  const ctlOn = (d, k) => !!(d.ctl && d.ctl.indexOf(k) >= 0);\n\n  K.model(modelOf);\n\n  // A puzzle's answer stays a \"?\" in its readout until Check says it is right.\n  function hid(id) { const d = STEPS[at()]; return !!(d && !d.show && d.hide && d.hide.indexOf(id) >= 0 && S[at()].res !== 'right'); }\n  const R = {\n    faultCurrent: K.readout({ id: 'faultCurrent', label: 'Fault current', decimals: 0, fmt: (v) => (hid('faultCurrent') ? '?' : fI(v) + NB + 'A'), into: '#outs' }),\n    loopResistance: K.readout({ id: 'loopResistance', label: 'Loop resistance', decimals: 2, fmt: (v) => (hid('loopResistance') ? '?' : fR(v) + NB + 'mΩ'), into: '#outs' }),\n  };\n  function outs() { const o = modelOf(paramsX()); R.faultCurrent.set(o.faultCurrent); R.loopResistance.set(o.loopResistance); }\n\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;\n    st.pick = d.opts[k]; st.res = null;\n  } }));\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || st.res === 'right') return;\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = st.pick === d.want ? 'right' : 'wrong';\n    if (st.res !== 'right') { T = Infinity; return; }\n    if (quiet()) { T = Infinity; setX(d.end || {}); push(); }\n    else { T = 0; anim.play(); }\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    const d = STEPS[at()];\n    if (d.show || finished) return;\n    S[at()].why = !S[at()].why;\n  } });\n  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {\n    if (!STEPS[at()].show || finished) return;\n    enterStep(at());\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true; anim.pause();\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S = STEPS.map(blank); finished = false; lastStep = -1; stepper.set(0, true);\n  } });\n\n  // ---------- motion: one animation runs each demonstration, each answer's motion, and the flow after Dan's own moves ----------\n  const motionEnd = (d, st) => (d.show ? (scripted ? d.dur : 0) : st.res === 'right' ? d.run.dur : 0);\n  const approach = (v, to, s) => (Math.abs(to - v) <= s ? to : v + Math.sign(to - v) * s);\n  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {\n    if (finished) return false;\n    const i = at(), d = STEPS[i], st = S[i];\n    T += dt;\n    X.ph += dt;\n    if (scripted) { d.play(Math.min(T, d.dur)); if (T >= d.dur) scripted = false; }\n    const running = !d.show && st.res === 'right' && T < d.run.dur + dt;\n    if (running) d.run.go(Math.min(1, T / d.run.dur));\n    let busy = false;\n    if (!scripted && !running) {\n      X.mix = approach(X.mix, X.big ? 1 : 0, dt / 0.8);\n      if (drift > 0) { drift = Math.max(0, drift - dt); busy = drift > 0; }\n    }\n    push(); outs(); paint(i);\n    return busy || T < motionEnd(d, st);\n  } });\n  const pending = () => T !== Infinity || drift > 0;\n  // A motion that was stopped (the page hidden, a test) shows finished.\n  function finishNow(d, st) {\n    if (scripted) { d.play(d.dur); scripted = false; }\n    if (!d.show && st.res === 'right') setX(d.end || {});\n    X.mix = X.big ? 1 : 0;\n    drift = 0; T = Infinity; push();\n  }\n  function startDrift() {\n    if (quiet()) { finishNow(STEPS[at()], S[at()]); return; }\n    drift = DRIFT; anim.play();\n  }\n  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && pending()) { finishNow(STEPS[at()], S[at()]); outs(); paint(); } });\n  function enter(id) {\n    if (REDUCE) return;\n    const box = el(id);\n    box.classList.remove('enter'); void box.offsetWidth; box.classList.add('enter');\n  }\n  function enterStep(i) {\n    const d = STEPS[i], st = S[i];\n    anim.pause();\n    setX(BASE); setX(d.enter || {});\n    drift = 0;\n    if (!d.show && st.res === 'right') setX(d.end || {});\n    if (d.show && !quiet()) { scripted = true; T = 0; d.play(0); push(); anim.play(); }\n    else { scripted = false; T = Infinity; if (d.show) setX(d.end || {}); push(); }\n    laidOut = '';\n    enter('stepbox');\n  }\n\n  // ---------- drawing ----------\n  const svg = el('scene'), art = el('art'), grab = el('grab');\n  let into = null;\n  const r1 = (v) => Math.round(v * 10) / 10;\n  const add = (n) => (into || art).appendChild(n);\n  const S_ = (tag, a) => add(K.svg(tag, a));\n  function txt(x, y, s, cls, anchor) {\n    const a = { x: r1(x), y: r1(y), 'text-anchor': anchor || 'middle' };\n    if (cls) a.class = cls;\n    const t = K.svg('text', a); t.textContent = s; return add(t);\n  }\n  function part(a, fn) { if (a <= 0.001) return; const g = add(K.svg('g')); K.fade(g, Math.min(1, a), 0); const keep = into; into = g; fn(); into = keep; }\n  function chevrons(runs, I) {\n    let n = 0;\n    runs.forEach((r) => {\n      const vert = r.x1 === r.x2, len = vert ? Math.abs(r.y2 - r.y1) : Math.abs(r.x2 - r.x1);\n      if (len < 22) return;\n      const m = Math.max(1, Math.floor(len / 26));\n      for (let j = 0; j < m; j++) {\n        const u = ((j / m + X.ph * 0.00028 * I) % 1 + 1) % 1, f = 0.15 + 0.7 * u;\n        const x = r.x1 + (r.x2 - r.x1) * f, y = r.y1 + (r.y2 - r.y1) * f;\n        const rot = vert ? (r.y2 > r.y1 ? 90 : -90) : (r.x2 > r.x1 ? 0 : 180);\n        S_('path', { class: 'flow', d: 'M-3.5 -4.5L1.5 0L-3.5 4.5', opacity: r1(0.35 + 0.65 * Math.sin(Math.PI * u)), transform: 'translate(' + r1(x) + ' ' + r1(y) + ') rotate(' + rot + ')' });\n        n++;\n      }\n    });\n    return n;\n  }\n\n  // The battery: its cells drawn in series in one case, each an emf behind a small resistance.\n  const TY = 46, BY = 136, RY = (k) => TY + 18 * k, X0 = 160, PXM = 8.5;\n  const BX = (I) => 8 + I * 0.108;                     // the bar: 324 units for 3000 A\n  function drawCase(kind) {\n    const n = kind === 'block' ? 1 : kind === 'em' ? 2 : 3;\n    const rows = kind === 'big' ? [0, 1, 4, 5] : [0, 1, 2, 3, 4, 5];\n    txt(56, 20, kind === 'block' ? VNOM + ' V block' : kind === 'em' ? VT + ' V battery' : VBIG + ' V string', 'ttl');\n    S_('rect', { class: 'case', x: 6, y: 30, width: 100, height: 122, rx: 6 });\n    let p = '';\n    rows.forEach((k) => { p += 'M16 ' + RY(k) + 'H' + (k === 0 || k === 5 ? 106 : 96); });\n    [[0, 1], [2, 3], [4, 5]].forEach(([a, b]) => { if (rows.indexOf(a) >= 0 && rows.indexOf(b) >= 0) p += 'M16 ' + RY(a) + 'V' + RY(b); });\n    [[1, 2], [3, 4]].forEach(([a, b]) => { if (rows.indexOf(a) >= 0 && rows.indexOf(b) >= 0) p += 'M96 ' + RY(a) + 'V' + RY(b); });\n    S_('path', { class: 'wire', d: p });\n    if (kind === 'big') { S_('path', { class: 'dots', d: 'M96 ' + RY(1) + 'V' + RY(4) }); txt(52, 95, 'many cells', 'lbm'); }\n    rows.forEach((k) => {\n      const y = RY(k), seg = 80 / n;\n      for (let i = 0; i < n; i++) {\n        const sx = 16 + i * seg, p1 = sx + 0.22 * seg, p2 = p1 + 4.5;\n        S_('rect', { class: 'gapc', x: r1(p1), y: y - 2, width: 4.5, height: 4 });\n        const longAt = k % 2 === 0 ? p2 : p1, shortAt = k % 2 === 0 ? p1 : p2;\n        S_('line', { class: 'plate', x1: r1(longAt), y1: y - 7, x2: r1(longAt), y2: y + 7, 'stroke-width': 1.6 });\n        S_('line', { class: 'plate', x1: r1(shortAt), y1: y - 4, x2: r1(shortAt), y2: y + 4, 'stroke-width': 3.5 });\n        S_('rect', { class: 'res', x: r1(sx + 0.5 * seg), y: y - 3.5, width: r1(0.38 * seg), height: 7, rx: 1 });\n      }\n    });\n    let l1, l2;\n    if (kind === 'block') { const s = Math.round(X.soc / 5) * 5; l1 = s >= 100 ? VB.toFixed(1) + ' V' : 'charge left ' + s + '%'; l2 = RB + ' mΩ inside'; }\n    else if (kind === 'em') { l1 = VE.toFixed(1) + ' V'; l2 = RE + ' mΩ in all'; }\n    else { l1 = VBIG + ' V'; l2 = RBIG1.toFixed(3) + ' + ' + RBIG2.toFixed(3) + ' Ω'; }\n    txt(56, 170, l1);\n    txt(56, 186, l2, 'lbm');\n  }\n\n  function drawFault(d, st) {\n    const trace = d.pic === 'trace', spanner = d.tool === 'spanner', kind = d.src === 'em24' ? 'em' : 'block';\n    const mix = kind === 'em' ? 0 : X.mix;\n    if (mix < 0.999) part(1 - mix, () => drawCase(kind));\n    if (mix > 0.001) part(mix, () => drawCase('big'));\n    const dd = X.big ? 0 : X.d;\n    const Ib = modelOf({ step: kind === 'em' ? I13 : -1, d: dd, soc: X.soc, big: false }).faultCurrent;\n    const Ig = modelOf({ step: -1, d: 0, soc: X.soc, big: true }).faultCurrent;\n    const I = K.lerp(Ib, Ig, mix), hot = I > DEV + 1e-9;\n    const linkA = K.clamp(X.on * 2, 0, 1), resA = K.clamp(X.on * 2 - 1, 0, 1) * X.bf;\n    const xf = X0 + PXM * dd;\n    REC.I = I; REC.hot = hot; REC.q = X.bf < 0.5; REC.xf = xf; REC.flows = 0; REC.res = resA;\n    S_('rect', { class: 'post', x: 104, y: TY - 5, width: 8, height: 10 });\n    S_('rect', { class: 'post', x: 104, y: BY - 5, width: 8, height: 10 });\n    txt(116, TY - 11, '+', 'sg');\n    txt(116, BY + 21, '−', 'sg');\n    let runs;\n    if (spanner) {\n      S_('rect', { class: 'spn', x: 113, y: TY - 11, width: 16, height: BY - TY + 22, rx: 8 });\n      S_('circle', { class: 'ring', cx: 121, cy: TY, r: 4 });\n      S_('circle', { class: 'ring', cx: 121, cy: BY, r: 4 });\n      txt(138, 96, 'steel spanner', null, 'start');\n      runs = [{ x1: 121, y1: TY + 8, x2: 121, y2: BY - 8 }];\n    } else {\n      S_('path', { class: 'core', d: 'M112 ' + TY + 'H122M154 ' + TY + 'H334M112 ' + BY + 'H334' });\n      S_('rect', { class: 'devbox', x: 122, y: TY - 9, width: 32, height: 18, rx: 3 });\n      txt(138, 74, 'device', 'lbm');\n      txt(247, 160, 'cores: ' + RCORE + ' mΩ a metre', 'lbm');\n      if (linkA > 0.001) part(linkA, () => {\n        S_('line', { class: 'fl', x1: r1(xf), y1: TY, x2: r1(xf), y2: BY });\n        if (xf < 290) txt(xf + 8, 92, 'fault', 'wl', 'start'); else txt(xf - 8, 92, 'fault', 'wl', 'end');\n      });\n      // How far down the cable the fault sits.\n      const w = xf - X0;\n      S_('path', { class: 'brace', d: 'M' + X0 + ' 106V114H' + r1(Math.max(X0 + 0.5, xf)) + 'V106' });\n      if (w >= 44) txt(X0 + w / 2, 126, nM(dd) + ' m');\n      else if (xf < 290) txt(xf + 8, 126, nM(dd) + ' m', null, 'start');\n      else txt(xf - 8, 126, nM(dd) + ' m', null, 'end');\n      runs = [{ x1: 158, y1: TY, x2: xf - 5, y2: TY }, { x1: xf, y1: TY + 8, x2: xf, y2: BY - 8 }, { x1: xf - 5, y1: BY, x2: 116, y2: BY }];\n    }\n    if (resA > 0.001) part(resA, () => { REC.flows = chevrons(runs, I); });\n    if (trace) {\n      // The current against time from the moment of the fault: a sketch, full by 5 ms.\n      const xT = (t) => 40 + t * 14, yI = (v) => 300 - v * 0.038;\n      txt(40, 204, 'current after the fault', 'ttl', 'start');\n      S_('path', { class: 'axis', d: 'M40 214V300H322' });\n      S_('line', { class: 'devd', x1: 40, y1: r1(yI(DEV)), x2: 322, y2: r1(yI(DEV)) });\n      if (hot) txt(320, yI(DEV) + 15, 'device breaks 1 kA', 'lbm', 'end'); else txt(320, yI(DEV) - 5, 'device breaks 1 kA', 'lbm', 'end');\n      const tm = K.clamp(X.tm, 0, T_END), Iat = (t) => I * K.ease(K.clamp(t / T_FULL, 0, 1));\n      let p = 'M' + xT(0) + ' ' + yI(0);\n      for (let t = 0.25; t <= tm + 1e-9; t += 0.25) p += 'L' + r1(xT(t)) + ' ' + r1(yI(Iat(t)));\n      if (tm > 0.01) S_('path', { class: 'trace', d: p + 'L' + r1(xT(tm)) + ' ' + r1(yI(Iat(tm))) });\n      S_('circle', { class: 'head', cx: r1(xT(tm)), cy: r1(yI(Iat(tm))), r: 4 });\n      if (tm > T_FULL) part(K.clamp((tm - T_FULL) / 2, 0, 1), () => txt(116, hot ? yI(I) - 7 : yI(I) + 16, 'fault current', 'cv', 'start'));\n      S_('path', { class: 'amb', d: 'M40 306V310H' + xT(T_FULL) + 'V306' });\n      txt(xT(T_FULL / 2) + 18, 324, 'sketch: full by ' + T_FULL + ' ms', 'lbm');\n      txt(322, 324, T_END + ' ms', 'lbm', 'end');\n      REC.trace = Iat(tm); REC.traceFullAt5 = K.near(Iat(T_FULL), I, 1e-9) && K.near(Iat(T_END), I, 1e-9) && Iat(2.5) < I;\n    } else {\n      // The fault current as a bar against the device's breaking capacity.\n      txt(8, 206, 'fault current', null, 'start');\n      txt(BX(DEV) + 5, 206, 'device breaks 1 kA', 'lbm', 'start');\n      S_('rect', { class: 'trk', x: 8, y: 212, width: 324, height: 16, rx: 4 });\n      if (resA > 0.001) part(resA, () => S_('rect', { class: 'fill' + (hot ? ' hot' : ''), x: 8, y: 212, width: r1(Math.min(324, BX(I) - 8)), height: 16, rx: 4 }));\n      if (X.bf < 0.999) part(1 - X.bf, () => txt(170, 225, '?', 'q'));\n      S_('line', { class: 'dev', x1: r1(BX(DEV)), y1: 208, x2: r1(BX(DEV)), y2: 232 });\n      REC.band = null;\n      if (d.band && X.bf > 0.001) {\n        const full = modelOf({ step: -1, d: dd, soc: 100, big: false }).faultCurrent, a = BX(0.9 * full), b = BX(full);\n        part(X.bf, () => {\n          S_('path', { class: 'amb', d: 'M' + r1(a) + ' 234V239H' + r1(b) + 'V234' });\n          txt((a + b) / 2, 253, 'tests: over 90% of full', 'lbm');\n        });\n        REC.band = [0.9 * full, full];\n      }\n    }\n    const who = mix >= 0.5 ? 'A ' + VBIG + ' V string' : kind === 'em' ? 'A ' + VT + ' V battery' : 'A ' + VNOM + ' V block of six cells';\n    const where = spanner ? 'A steel spanner lies across its terminals.' : 'A pair of cables runs from its terminals past a device, with a fault across them ' + (dd === 0 ? 'just past the device.' : nM(dd) + ' m down.');\n    const then = resA < 0.5 ? (X.bf < 0.5 ? ' The fault current is a question mark.' : '') : trace ? ' A sketched trace shows the current rising to its full value within milliseconds and staying there.' :\n      ' The fault current bar runs ' + (hot ? 'past' : 'short of') + ' the device\\'s 1 kA line.';\n    return who + ', each cell an emf behind a small resistance. ' + where + then;\n  }\n\n  // Recall: a device where the prospective fault current is 3 kA.\n  function drawRecall() {\n    const a = X.rf;\n    S_('rect', { class: 'box', x: 8, y: 40, width: 66, height: 64, rx: 6 });\n    txt(41, 77, 'supply');\n    S_('path', { class: 'core', d: 'M74 52H128M164 52H300M300 92H74' });\n    S_('rect', { class: 'devbox', x: 128, y: 43, width: 36, height: 18, rx: 3 });\n    S_('line', { class: 'fl', x1: 300, y1: 52, x2: 300, y2: 92 });\n    txt(292, 77, 'fault', 'wl', 'end');\n    txt(146, 80, 'device', 'lbm');\n    txt(146, 120, 'prospective fault ' + PFC + ' kA');\n    if (a < 0.999) part(1 - ez(a * 2), () => txt(146, 28, 'breaking capacity ?'));\n    if (a > 0.5) part(ez((a - 0.5) * 2), () => txt(146, 28, 'must break at least ' + PFC + ' kA', 'cv'));\n    REC.cap = a >= 0.5 ? 'at least ' + PFC + ' kA' : '?';\n    return 'A supply feeds a cable through a protective device, with a fault further on. The prospective fault current at the device is ' + PFC + ' kA. ' +\n      (REC.cap === '?' ? 'Its breaking capacity is a question mark.' : 'It must break at least ' + PFC + ' kA.');\n  }\n\n  // The example 48 V string: 24 cells in series, 23 links, a fault across its terminals.\n  function drawS48() {\n    const a = X.sf, cx = (i) => 40 + 24 * i, I = V48 / ((RC48 + RLK48) / 1000);\n    txt(176, 22, N48 + ' cells, ' + R48 + ' mΩ each');\n    [44, 100].forEach((y) => {\n      for (let i = 0; i < 12; i++) S_('rect', { class: 'cell', x: cx(i), y: y - 11, width: 18, height: 22, rx: 2 });\n      for (let i = 0; i < 11; i++) S_('line', { class: 'lk', x1: cx(i) + 18, y1: y, x2: cx(i + 1), y2: y });\n    });\n    S_('path', { class: 'lkp', d: 'M322 44H332V100H322' });\n    S_('path', { class: 'wire', d: 'M40 44H20M40 100H20' });\n    S_('line', { class: 'fl', x1: 20, y1: 44, x2: 20, y2: 100 });\n    txt(28, 77, 'fault', 'wl', 'start');\n    txt(176, 132, (N48 - 1) + ' links, ' + RL48 + ' mΩ each');\n    txt(176, 152, N48 + ' × ' + VC + ' V = ' + V48.toFixed(1) + ' V', 'lbm');\n    if (a < 0.999) part(1 - ez(a * 2), () => txt(176, 178, 'fault current ? A', 'q'));\n    if (a > 0.5) part(ez((a - 0.5) * 2), () => txt(176, 178, 'fault current ' + fI(I) + ' A', 'q'));\n    REC.ans = a >= 0.5 ? fI(I) : '?';\n    return 'A 48 V string of ' + N48 + ' cells in two rows, each ' + R48 + ' mΩ, joined by ' + (N48 - 1) + ' links of ' + RL48 + ' mΩ, with a fault across its terminals. ' +\n      (REC.ans === '?' ? 'Its fault current is a question mark.' : 'Its fault current is ' + REC.ans + ' A.');\n  }\n\n  // A loose link in a live string, with the charger and loads switched in or out.\n  function drawLink() {\n    const a = X.lf, cxs = (k) => 20 + 50 * k, th = 0.7 * ez(a);\n    S_('rect', { class: 'box', x: 70, y: 8, width: 200, height: 26, rx: 6 });\n    txt(170, 26, 'charger and loads');\n    S_('path', { class: 'wire', d: 'M30 76V62M30 46V21H70M300 76V62M300 46V21H270' });\n    [[30, 1], [300, -1]].forEach(([x, s]) => {\n      S_('circle', { class: 'dot', cx: x, cy: 62, r: 2.5 });\n      S_('circle', { class: 'dot', cx: x, cy: 46, r: 2.5 });\n      S_('line', { class: 'blade', x1: x, y1: 62, x2: r1(x + s * 17 * Math.sin(th)), y2: r1(62 - 17 * Math.cos(th)) });\n    });\n    for (let k = 0; k < 6; k++) {\n      const x = cxs(k);\n      S_('rect', { class: 'cell', x, y: 66, width: 40, height: 54, rx: 4 });\n      S_('circle', { class: 'pin', cx: x + 10, cy: 82, r: 5 });\n      S_('circle', { class: 'pin', cx: x + 30, cy: 82, r: 5 });\n      if (k < 5 && k !== 2) S_('line', { class: 'lk', x1: x + 30, y1: 82, x2: cxs(k + 1) + 10, y2: 82 });\n    }\n    S_('line', { class: 'lk bad', x1: cxs(2) + 30, y1: 82, x2: cxs(3) + 8, y2: 70 });\n    txt(165, 58, 'loose link', 'wl');\n    if (a < 0.999) part(1 - ez(a * 2), () => txt(170, 146, 'a live string', 'lbm'));\n    if (a > 0.5) part(ez((a - 0.5) * 2), () => {\n      txt(46, 60, 'off', 'cv', 'start');\n      txt(284, 60, 'off', 'cv', 'end');\n      txt(170, 146, 'cells still live: no metal on top', 'wl');\n    });\n    REC.open = a >= 0.5;\n    return 'Six cells of a live string, joined by links, with one link loose. The charger and loads connect to its two ends through switches, which are ' +\n      (REC.open ? 'open. The cells are still live.' : 'closed.');\n  }\n\n  // Hydrometer floats in lead-acid and nickel-cadmium cells, full and part charged.\n  function drawHydro() {\n    const a = X.hf;\n    const jar = (x, top, hide) => {\n      S_('path', { class: 'jar', d: 'M' + x + ' 56V164H' + (x + 56) + 'V56' });\n      S_('rect', { class: 'liq', x: x + 2, y: 78, width: 52, height: 85 });\n      const cx = x + 28, flo = () => { S_('rect', { class: 'flt', x: cx - 3, y: top, width: 6, height: 36, rx: 2 }); S_('ellipse', { class: 'flt', cx, cy: top + 48, rx: 9, ry: 13 }); };\n      if (!hide) flo();\n      else {\n        if (a < 0.999) part(1 - ez(a * 2), () => txt(cx, 132, '?', 'q'));\n        if (a > 0.5) part(ez((a - 0.5) * 2), flo);\n      }\n    };\n    txt(79, 22, 'lead-acid', 'ttl');\n    txt(254, 22, 'nickel-cadmium', 'ttl');\n    jar(14, 44, false); jar(88, 60, false);\n    jar(190, 52, true); jar(262, 52, true);\n    [[42, 'full'], [116, 'part charged'], [218, 'full'], [290, 'part charged']].forEach(([x, s]) => txt(x, 184, s, 'lbm'));\n    if (a > 0.5) part(ez((a - 0.5) * 2), () => txt(254, 40, 'same reading', 'cv'));\n    REC.nicd = a >= 0.5 ? 'same' : '?';\n    return 'Hydrometer floats in four cells. In lead-acid, the float rides higher in the full cell than in the part-charged one. ' +\n      (REC.nicd === '?' ? 'The nickel-cadmium floats are question marks.' : 'In nickel-cadmium, both floats ride at the same height.');\n  }\n\n  // Lithium-ion cells in series against the 24 V needed.\n  function drawLi() {\n    const a = X.lc, n = cellsFor(VLI), x24 = 20 + 42 * (VT / VLI);\n    txt(170, 20, VT + ' V from ' + VLI.toFixed(2) + ' V cells', 'ttl');\n    S_('line', { class: 'devd', x1: r1(x24), y1: 42, x2: r1(x24), y2: 96 });\n    txt(x24, 36, VT + ' V', 'lbm');\n    let shown = 0;\n    for (let k = 0; k < n; k++) {\n      const o = k === 0 ? 1 : ez(a * 8 - k);\n      if (o >= 0.5) shown++;\n      if (o > 0.001) part(o, () => S_('rect', { class: 'licell', x: 20 + 42 * k, y: 50, width: 36, height: 36, rx: 4 }));\n    }\n    txt(38, 44, VLI.toFixed(2) + ' V', 'lbm');\n    if (a < 0.999) part(1 - ez(a * 4), () => txt(150, 74, '? cells', 'q'));\n    const la = ez(a * 8 - 7);\n    if (la > 0.001) part(la, () => {\n      S_('path', { class: 'brace', d: 'M20 100V106H' + (20 + 42 * (n - 1) + 36) + 'V100' });\n      txt(167, 124, n + ' × ' + VLI.toFixed(2) + ' V = ' + (n * VLI).toFixed(1) + ' V', 'cv');\n      txt(167, 144, 'sealed: no hydrometer', 'lbm');\n    });\n    REC.cells = shown;\n    return 'Lithium-ion cells of ' + VLI.toFixed(2) + ' V in series, against a line at ' + VT + ' V. ' +\n      (la >= 0.5 ? shown + ' cells are drawn, making ' + (n * VLI).toFixed(1) + ' V, and they are sealed.' : shown > 1 ? shown + ' cells are drawn.' : 'One cell is drawn. The number of cells needed is a question mark.');\n  }\n\n  // The chemistry card: three columns, built once.\n  const CHEM = [\n    { name: 'Lead-acid', v: VLA, volts: 'about 2 V', elec: 'sulphuric acid, used up on discharge', hyd: 'yes, in a vented cell', haz: 'very corrosive acid, and hydrogen on charge' },\n    { name: 'Nickel-cadmium', v: VNI, volts: '1.20 V', elec: 'potassium hydroxide, not used up', hyd: 'no', haz: 'very corrosive alkali, and hydrogen on charge' },\n    { name: 'Lithium-ion', v: VLI, volts: '3.60 V, some types less', elec: 'a lithium salt in a flammable organic solvent, sealed in', hyd: 'no', haz: 'thermal runaway' },\n  ];\n  const chemCols = CHEM.map((c) => {\n    const n = cellsFor(c.v), w = (216 - (n - 1) * 2) / n;\n    const strip = K.svg('svg', { viewBox: '0 0 220 30', width: '100%', role: 'img', 'aria-label': n + ' cells in series' });\n    for (let k = 0; k < n; k++) strip.appendChild(K.svg('rect', { class: 'ccell', x: r1(2 + k * (w + 2)), y: 4, width: r1(w), height: 22, rx: 2 }));\n    const made = n * c.v, forT = n + ' cells' + (Math.abs(made - VT) > 1e-9 ? ', making ' + made.toFixed(1) + ' V' : '');\n    const dl = K.el('dl', null,\n      K.el('dt', { text: 'Cell voltage' }), K.el('dd', { text: c.volts }),\n      K.el('dt', { text: 'For ' + VT + ' V in series' }), K.el('dd', { text: forT }),\n      K.el('dt', { text: 'Electrolyte' }), K.el('dd', { text: c.elec }),\n      K.el('dt', { text: 'Hydrometer reads the charge' }), K.el('dd', { text: c.hyd }),\n      K.el('dt', { text: 'Hazards' }), K.el('dd', { text: c.haz }));\n    const col = K.el('div', { class: 'col' }, K.el('h4', { text: c.name }), strip, dl);\n    el('chem').appendChild(col);\n    return col;\n  });\n  function paintChem() {\n    let shown = 0;\n    chemCols.forEach((col, k) => { const o = ez(X.cf - k); K.fade(col, o, 6); if (o >= 0.5) shown++; });\n    REC.cols = shown;\n    return '';\n  }\n\n  function sayFor(d) {\n    const o = modelOf({ step: -1, d: X.big ? 0 : X.d, soc: X.soc, big: X.big }), I = fI(o.faultCurrent), hot = o.faultCurrent > DEV + 1e-9;\n    if (d.pic === 'trace') return 'The current reaches its full ' + I + ' A within 5 to 10 ms of the fault, and then stays there.';\n    if (ctlOn(d, 'big')) return X.big ? 'The big string\\'s loop is ' + fR(o.loopResistance) + ' mΩ, so it drives ' + I + ' A, far above the device\\'s 1 kA.' :\n      'The 12 V block drives ' + I + ' A into a fault across its terminals.';\n    if (ctlOn(d, 'soc')) {\n      const s = Math.round(X.soc);\n      if (s >= 100) return 'At full charge, the block drives ' + I + ' A into the fault.';\n      return 'In this sketch, at ' + s + '% charge the block still drives ' + I + ' A. That is ' + Math.round(share(X.soc) * 100) + '% of its full-charge fault.';\n    }\n    if (Math.round(X.d * 2) === 0) return 'With the fault across the terminals, the block\\'s 6.95 mΩ alone holds the current to ' + I + ' A.';\n    return 'With the fault ' + nM(X.d) + ' m away, the loop is ' + fR(o.loopResistance) + ' mΩ. So ' + I + ' A flows, ' + (hot ? 'still above' : 'now below') + ' the device\\'s 1 kA.';\n  }\n\n  function paint(i) {\n    if (i == null) i = at();\n    const d = STEPS[i], st = S[i];\n    art.textContent = ''; into = null;\n    REC = { pic: d.pic };\n    let said = '', h = 0;\n    if (d.pic === 'fault' || d.pic === 'trace') { said = drawFault(d, st); h = d.pic === 'trace' ? 330 : 258; }\n    else if (d.pic === 'recall') { said = drawRecall(); h = 132; }\n    else if (d.pic === 's48') { said = drawS48(); h = 190; }\n    else if (d.pic === 'link') { said = drawLink(); h = 158; }\n    else if (d.pic === 'hydro') { said = drawHydro(); h = 194; }\n    else if (d.pic === 'li') { said = drawLi(); h = 154; }\n    else paintChem();\n    el('scenebox').hidden = d.pic === 'chem';\n    el('chem').hidden = d.pic !== 'chem';\n    if (h) svg.setAttribute('viewBox', '0 0 340 ' + h);\n    svg.setAttribute('aria-label', said || 'A chemistry card.');\n    grab.setAttribute('display', ctlOn(d, 'd') ? 'inline' : 'none');\n    if (d.ctl) { el('say').textContent = ''; glue(el('say'), sayFor(d)); }\n  }\n\n  // Dan drags the fault itself along the cable.\n  K.drag(grab, { control: 'd', toValue: (x) => K.clamp(Math.round((x - X0) / PXM * 2) / 2, 0, 20) });\n\n  // ---------- words: *a key term* is highlighted ----------\n  // A number stays on one line with its unit (a no-wrap span, so the words read the same).\n  const UNIT = /(\\d+(?:\\.\\d+)? (?:A|V|kA|mΩ|Ω|ms|m|Ah)(?![A-Za-z]))/;\n  function glue(node, s) { String(s).split(UNIT).forEach((seg, k) => { if (seg) node.appendChild(k % 2 ? K.el('span', { class: 'nw' }, seg) : document.createTextNode(seg)); }); return node; }\n  function write(node, s) {\n    node.textContent = '';\n    String(s).split(/\\*([^*]+)\\*/).forEach((seg, k) => { if (seg) node.appendChild(k % 2 ? K.el('span', { class: 'term' }, seg) : glue(document.createDocumentFragment(), seg)); });\n  }\n  write(el('finish'), FINISH);\n  function layout(i, d, st) {\n    const key = [i, st.res, st.pick, st.why, finished].join('|');\n    if (key === laidOut) return;\n    laidOut = key;\n    const right = st.res === 'right';\n    el('stepbox').hidden = finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    write(task, d.show ? d.text : d.task);\n    CKEYS.forEach((k) => { el('c-' + k).hidden = !ctlOn(d, k); });\n    el('say').hidden = !d.ctl;\n    const rs = d.pic === 'fault' || d.pic === 'trace' ? ['faultCurrent', 'loopResistance'] : [];\n    Object.keys(R).forEach((k) => { R[k].el.hidden = rs.indexOf(k) < 0; });\n    el('outs').hidden = !rs.length;\n    replayBtn.el.hidden = !d.show || REDUCE;\n    el('replay').hidden = replayBtn.el.hidden;\n    const opts = d.show ? [] : d.opts;\n    el('picks').hidden = !opts.length;\n    el('picks').classList.toggle('long', opts.some((o) => o.length > 12));\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(opts[k]);\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n    el('acts').hidden = !!d.show;\n    checkBtn.el.hidden = right;\n    const fb = el('fb');\n    fb.hidden = !!d.show;\n    fb.className = 'fb' + (right ? ' right' : '');\n    fb.textContent = d.show ? '' : right ? (d.right || 'That\\'s it.') : st.res === 'wrong' ? ((d.hints && d.hints[st.pick]) || d.hint) : st.res === 'empty' ? 'Choose one of the answers first.' : '';\n    const why = el('why');\n    why.hidden = d.show || !st.why;\n    write(why, d.show ? '' : d.why);\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !right);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  }\n\n  K.update((p) => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (!anim.playing() && pending()) { const j = lastStep < 0 ? i : lastStep; finishNow(STEPS[j], S[j]); }\n    if (i !== lastStep) { lastStep = i; enterStep(i); }\n    else {\n      // Only the controls this screen shows move its picture; a hidden one is set back silently.\n      const mv = {}; let any = false, bad = false;\n      Object.keys(pushed).forEach((k) => { if (p[k] !== pushed[k]) { if (ctlOn(d, k)) { mv[k] = true; any = true; } else bad = true; } });\n      Object.keys(pushed).forEach((k) => { pushed[k] = p[k]; });\n      if (any) {\n        if (scripted) { scripted = false; anim.pause(); setX(d.end || {}); }\n        T = Infinity;\n        CKEYS.forEach((k) => { if (mv[k]) X[k] = p[k]; });\n        startDrift();\n      }\n      if (bad || any) push();\n    }\n    if (finished !== lastDone) { lastDone = finished; laidOut = ''; enter(finished ? 'done' : 'stepbox'); }\n    layout(i, d, st);\n    outs();\n    paint(i);\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const idx = (name) => STEPS.findIndex((d) => d.name === name);\n  const solved = (d) => Object.assign(blank(), { pick: d.want, res: 'right' });\n  // A step painted in the state given: what it draws.\n  function drawn(i, st, x) {\n    const keep = { X: copyX(), S: S[i], T, sc: scripted };\n    S[i] = st || blank(); T = Infinity; scripted = false;\n    setX(BASE); setX(STEPS[i].enter || {}); setX(x || {});\n    try {\n      paint(i);\n      return Object.assign({}, REC, { texts: Array.from(art.querySelectorAll('text')).map((n) => n.textContent) });\n    } finally {\n      setX(keep.X); S[i] = keep.S; T = keep.T; scripted = keep.sc;\n      paint();\n    }\n  }\n  function after(fn) { const keep = copyX(); try { setX(BASE); fn(); return copyX(); } finally { setX(keep); } }\n  const iD0 = idx('Breaking capacity'), iS1 = idx('A short at the terminals'), iD2 = idx('A spanner across it'), iS3 = idx('Down the cable'), iD4 = idx('Ten metres down');\n  const iS5 = idx('A big string'), iD6 = idx('A 48 V string'), iS7 = idx('Running down'), iD8 = idx('Run down to 60%'), iS9 = idx('At once, and always live');\n  const iD10 = idx('A loose link'), iS11 = idx('Other chemistries'), iD12 = idx('Nickel-cadmium charge'), iD14 = idx('A lithium-ion pack');\n  const fin = (i) => drawn(i, solved(STEPS[i]), STEPS[i].end);\n  const M_ = (o) => K.at(Object.assign({ step: iS3, d: 0, soc: 100, big: false }, o));\n\n  K.check('The maker lists 1814 A short-circuit current and 6.95 mΩ for its 12 V 70 Ah block: six cells give 12.6 ÷ 0.00695 = 1813 A, within 1 A of it', () =>\n    K.near(VB, 12.6, 1e-9) && Math.round(M_({ d: 0 }).faultCurrent) === 1813 && Math.abs(Math.round(M_({ d: 0 }).faultCurrent) - MAKER) <= 1, { source: RANGE });\n  K.check('A charged, rested lead-acid cell reads 2.1 V open circuit: six make the block\\'s 12.6 V and twelve make 25.2 V', () =>\n    K.near(NC * 2.1, 12.6, 1e-9) && K.near(NE * 2.1, 25.2, 1e-9) && drawn(iS1, null, { on: 1 }).texts.indexOf('12.6 V') >= 0, { source: BU303 });\n  K.check('A battery\\'s short-circuit current is estimated by dividing its open-circuit voltage by its internal resistance: with the fault at the terminals the loop is the block\\'s 6.95 mΩ alone', () =>\n    K.near(M_({ d: 0 }).loopResistance, 6.95, 1e-9) && K.near(M_({ d: 0 }).faultCurrent, 12.6 / 0.00695, 1e-6), { source: VERTIV });\n  K.check('The cable adds 1 mΩ a metre of route: 5 m gives 11.95 mΩ and 1054 A, still above 1 kA; 10 m gives 743 A, below it; the cable alone at 10 m would give 1260 A; the current falls with every half metre', () => {\n    let down = true;\n    for (let x = 0.5; x <= 20; x += 0.5) down = down && M_({ d: x }).faultCurrent < M_({ d: x - 0.5 }).faultCurrent;\n    const a = drawn(iS3, null, { d: 5 }), b = fin(iD4);\n    return K.near(M_({ d: 5 }).loopResistance, 11.95, 1e-9) && Math.round(M_({ d: 5 }).faultCurrent) === 1054 && Math.round(M_({ d: 10 }).faultCurrent) === 743 &&\n      Math.round(VB / 0.010) === 1260 && down && a.hot && !b.hot && K.near(b.I, M_({ d: 10 }).faultCurrent, 1e-6) && STEPS[iD4].want === '743 A' && a.texts.indexOf('5 m') >= 0;\n  });\n  K.check('About 2550 A was predicted for a 480 V string from 480 V ÷ (0.160 + 0.028) Ω, against 2530 A measured: the big string shows 2553 A and 188 mΩ, wherever the fault slider sits', () =>\n    Math.round(M_({ big: true }).faultCurrent) === 2553 && K.near(M_({ big: true }).loopResistance, 188, 1e-9) && K.near(M_({ big: true, d: 12 }).faultCurrent, M_({ big: true }).faultCurrent, 1e-9) &&\n    Math.abs(2553 - 2550) < 5 && K.near(drawn(iS5, null, { big: true, mix: 1 }).I, M_({ big: true }).faultCurrent, 1e-6), { source: VERTIV });\n  K.check('Short-circuit current exceeded 90% of nominal even at about 60% charge: the sketch keeps 92%, so 1668 A of 1813 A at 60%, falling in a straight line', () => {\n    const f = M_({ d: 0 }).faultCurrent, a = M_({ soc: 60 }).faultCurrent, m = M_({ soc: 80 }).faultCurrent, g = drawn(iS7, null, { soc: 60 });\n    return Math.round(a) === 1668 && a > 0.9 * f && K.near(a / f, 0.92, 1e-9) && K.near(m, (a + f) / 2, 1e-6) && g.band && a > g.band[0] && a < g.band[1];\n  }, { source: VERTIV });\n  K.check('Steady maximum current was reached within 5 to 10 ms: the sketched trace starts at 0, is full by 5 ms and stays flat to 20 ms', () => {\n    const g = drawn(iS9, null, { tm: T_END }), z = drawn(iS9, null, { tm: 0 });\n    return g.traceFullAt5 && K.near(g.trace, M_({ d: 0 }).faultCurrent, 1e-6) && z.trace === 0 && T_FULL >= 5 && T_FULL <= 10;\n  }, { source: VERTIV });\n  K.check('The 48 V string: 50.4 V ÷ (36 + 2.3) mΩ = 1316 A; leaving out the links gives 1400 A, and 24 × 1400 = 33600 A', () =>\n    K.near(V48, 50.4, 1e-9) && K.near(RC48, 36, 1e-9) && K.near(RLK48, 2.3, 1e-9) && Math.round(V48 / ((RC48 + RLK48) / 1000)) === 1316 &&\n    Math.round(V48 / (RC48 / 1000)) === 1400 && N48 * 1400 === 33600 && STEPS[iD6].want === '1316 A' && fin(iD6).ans === '1316' && drawn(iD6).ans === '?');\n  K.check('The 24 V emergency battery: 25.2 ÷ 0.016 = 1575 A 2 m down its cable and 25.2 ÷ 0.014 = 1800 A at its terminals, both above the 1 kA device', () => {\n    const a = K.at({ step: I13, d: DE }), g = fin(I13);\n    return Math.round(a.faultCurrent) === 1575 && K.near(a.loopResistance, 16, 1e-9) && Math.round(K.at({ step: I13, d: 0 }).faultCurrent) === 1800 && g.hot && K.near(g.I, a.faultCurrent, 1e-6);\n  });\n  K.check('A nickel-cadmium cell\\'s low 1.20 V needs many cells: 20 for 24 V, against 12 lead-acid cells at 2 V', () =>\n    cellsFor(VNI) === 20 && cellsFor(VLA) === 12, { source: BU203 });\n  K.check('A lithium-ion cell\\'s nominal voltage is 3.60 V: 7 in series make 25.2 V, the fewest that reach 24 V', () =>\n    cellsFor(VLI) === 7 && K.near(7 * VLI, 25.2, 1e-9) && 6 * VLI < VT && STEPS[iD14].want === O14_7 && fin(iD14).cells === 7 && drawn(iD14).cells === 1, { source: BU204 });\n  K.check('Potassium hydroxide is not used in the reaction, so the nickel-cadmium floats ride at one height, full or part charged', () =>\n    fin(iD12).nicd === 'same' && drawn(iD12).nicd === '?' && STEPS[iD12].want === O12_NONE, { source: MEGGER });\n  K.check('Each puzzle accepts only its right answer, and nothing in its picture gives the answer before Check', () => {\n    const ok = STEPS.every((d) => d.show || (d.opts.length === 3 && new Set(d.opts).size === 3 && d.opts.indexOf(d.want) >= 0));\n    const faults = [iD2, iD4, iD8, I13].every((i) => { const a = drawn(i), b = fin(i); return a.q && a.flows === 0 && a.res === 0 && !b.q && b.flows > 0 && STEPS[i].hide === HIDE; });\n    return ok && faults && drawn(iD0).cap === '?' && fin(iD0).cap === 'at least 3 kA' && !drawn(iD10).open && fin(iD10).open;\n  });\n  K.check('Fifteen screens: demonstrations and puzzles take turns, three mixed puzzles end it, and no demonstration says more than about 90 words', () =>\n    STEPS.length === 15 && STEPS.every((d, k) => !!d.show === ([1, 3, 5, 7, 9, 11].indexOf(k) >= 0)) && STEPS.every((d) => !d.show || d.read.split(/\\s+/).length <= 92) && I13 === 13);\n  K.check('Every demonstration settles within 4.6 s and ends where its screen says, and every answer\\'s motion settles within 2.5 s', () => {\n    const keys = ['d', 'soc', 'big', 'mix', 'on', 'bf', 'tm', 'rf', 'sf', 'lf', 'hf', 'lc', 'cf'];\n    const same = (s, f) => keys.every((k) => (typeof s[k] === 'number' && typeof f[k] === 'number' ? K.near(s[k], f[k], 1e-9) : s[k] === f[k]));\n    return STEPS.every((d) => {\n      if (!d.show) return d.run.dur <= 2.5 && same(after(() => { setX(d.enter || {}); d.run.go(1); }), after(() => { setX(d.enter || {}); setX(d.end || {}); }));\n      return d.dur <= 4.6 && same(after(() => { setX(d.enter || {}); d.play(d.dur); }), after(() => { setX(d.enter || {}); setX(d.end || {}); }));\n    });\n  });\n\n  K.ready();\n</script>",
+  "title": "The milliohm fault",
+  "brief": "The one thing you should see is over 1800 A at the battery's terminals, falling only as the cable adds its milliohms, when you drag the fault away from the battery.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "The maker lists 1814 A short-circuit current and 6.95 mΩ for its 12 V 70 Ah block: six cells give 12.6 ÷ 0.00695 = 1813 A, within 1 A of it",
+     "ok": true,
+     "source": "https://www.enersys.com/493bb4/globalassets/documents/product-documentation/powersafe/v-tt/emea/en-v-rs-013.pdf"
+    },
+    {
+     "label": "A charged, rested lead-acid cell reads 2.1 V open circuit: six make the block's 12.6 V and twelve make 25.2 V",
+     "ok": true,
+     "source": "http://www.batteryuniversity.com/article/bu-303-confusion-with-voltages"
+    },
+    {
+     "label": "A battery's short-circuit current is estimated by dividing its open-circuit voltage by its internal resistance: with the fault at the terminals the loop is the block's 6.95 mΩ alone",
+     "ok": true,
+     "source": "https://www.vertiv.com/48dfcf/globalassets/documents/battcon-static-assets/2003/calculated-vs.-actual-short-circuit-currents-for-vrla-batteries.pdf"
+    },
+    {
+     "label": "The cable adds 1 mΩ a metre of route: 5 m gives 11.95 mΩ and 1054 A, still above 1 kA; 10 m gives 743 A, below it; the cable alone at 10 m would give 1260 A; the current falls with every half metre",
+     "ok": true
+    },
+    {
+     "label": "About 2550 A was predicted for a 480 V string from 480 V ÷ (0.160 + 0.028) Ω, against 2530 A measured: the big string shows 2553 A and 188 mΩ, wherever the fault slider sits",
+     "ok": true,
+     "source": "https://www.vertiv.com/48dfcf/globalassets/documents/battcon-static-assets/2003/calculated-vs.-actual-short-circuit-currents-for-vrla-batteries.pdf"
+    },
+    {
+     "label": "Short-circuit current exceeded 90% of nominal even at about 60% charge: the sketch keeps 92%, so 1668 A of 1813 A at 60%, falling in a straight line",
+     "ok": true,
+     "source": "https://www.vertiv.com/48dfcf/globalassets/documents/battcon-static-assets/2003/calculated-vs.-actual-short-circuit-currents-for-vrla-batteries.pdf"
+    },
+    {
+     "label": "Steady maximum current was reached within 5 to 10 ms: the sketched trace starts at 0, is full by 5 ms and stays flat to 20 ms",
+     "ok": true,
+     "source": "https://www.vertiv.com/48dfcf/globalassets/documents/battcon-static-assets/2003/calculated-vs.-actual-short-circuit-currents-for-vrla-batteries.pdf"
+    },
+    {
+     "label": "The 48 V string: 50.4 V ÷ (36 + 2.3) mΩ = 1316 A; leaving out the links gives 1400 A, and 24 × 1400 = 33600 A",
+     "ok": true
+    },
+    {
+     "label": "The 24 V emergency battery: 25.2 ÷ 0.016 = 1575 A 2 m down its cable and 25.2 ÷ 0.014 = 1800 A at its terminals, both above the 1 kA device",
+     "ok": true
+    },
+    {
+     "label": "A nickel-cadmium cell's low 1.20 V needs many cells: 20 for 24 V, against 12 lead-acid cells at 2 V",
+     "ok": true,
+     "source": "https://batteryuniversity.com/article/bu-203-nickel-based-batteries"
+    },
+    {
+     "label": "A lithium-ion cell's nominal voltage is 3.60 V: 7 in series make 25.2 V, the fewest that reach 24 V",
+     "ok": true,
+     "source": "https://batteryuniversity.com/article/bu-204-how-do-lithium-batteries-work"
+    },
+    {
+     "label": "Potassium hydroxide is not used in the reaction, so the nickel-cadmium floats ride at one height, full or part charged",
+     "ok": true,
+     "source": "https://res.cloudinary.com/iwh/image/upload/q_auto,g_center/assets/1/7/Megger_Battery_Testing_Guide.pdf"
+    },
+    {
+     "label": "Each puzzle accepts only its right answer, and nothing in its picture gives the answer before Check",
+     "ok": true
+    },
+    {
+     "label": "Fifteen screens: demonstrations and puzzles take turns, three mixed puzzles end it, and no demonstration says more than about 90 words",
+     "ok": true
+    },
+    {
+     "label": "Every demonstration settles within 4.6 s and ends where its screen says, and every answer's motion settles within 2.5 s",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step",
+    "d",
+    "soc",
+    "big"
+   ],
+   "readouts": [
+    "faultCurrent",
+    "loopResistance"
+   ],
+   "outputs": [
+    "faultCurrent",
+    "loopResistance"
+   ],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Screen",
+     "min": 0,
+     "max": 14,
+     "step": 1,
+     "steps": [
+      "Breaking capacity",
+      "A short at the terminals",
+      "A spanner across it",
+      "Down the cable",
+      "Ten metres down",
+      "A big string",
+      "A 48 V string",
+      "Running down",
+      "Run down to 60%",
+      "At once, and always live",
+      "A loose link",
+      "Other chemistries",
+      "Nickel-cadmium charge",
+      "Can it clear it?",
+      "A lithium-ion pack"
+     ],
+     "value": 0
+    },
+    {
+     "id": "d",
+     "kind": "control",
+     "label": "Fault distance",
+     "min": 0,
+     "max": 20,
+     "step": 0.5,
+     "log": false,
+     "value": 0,
+     "shown": false,
+     "snap": [
+      0,
+      5,
+      10
+     ]
+    },
+    {
+     "id": "soc",
+     "kind": "control",
+     "label": "Charge left",
+     "min": 60,
+     "max": 100,
+     "step": 5,
+     "log": false,
+     "value": 100,
+     "shown": false,
+     "snap": [
+      60,
+      100
+     ]
+    },
+    {
+     "id": "big",
+     "kind": "toggle",
+     "label": "Big string",
+     "options": [
+      false,
+      true
+     ],
+     "value": false,
+     "shown": false
+    }
+   ],
+   "actions": [
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Check",
+    "Why?",
+    "Play again",
+    "Back",
+    "Continue",
+    "Start again",
+    "Demonstration"
+   ],
+   "answers": [],
+   "written": [],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 1
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-27T16:48:48.150Z",
+  "applied": [
+   {
+    "path": "explain.text",
+    "problem": "Over-general and over-certain: 'A battery' has milliohms and drives thousands of amps only if large (bold drops 'large'); 'takes no part in the reaction' overstates the quote ('isn't used'); 3.60 V is one lithium-ion type, not all; a battery that gives out early on test is beyond the 60% data."
+   },
+   {
+    "path": "practice.text",
+    "problem": "Electrolyte line is false for lithium-ion, just taught; '60% gives over 90%' is stated as general where the source is one test series; breaking capacity should be 'at least' and DC-rated, as screen 0 and BS 7671 put it; '12 V drives over a thousand amps' holds only for a large battery; insulated tools are standard safe practice."
+   },
+   {
+    "path": "interactive.whatAmILookingAt",
+    "problem": "Screen 9 states one test's 5 to 10 ms as a general law; screens 11 and 14 treat 3.60 V as every lithium-ion cell; screen 12 says KOH 'takes no part' where the source says it is not used up; screen 2's 1800 A ignores spanner and contact resistance; screen 7's 'cannot run its load for long' goes beyond the 60% data."
+   }
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}

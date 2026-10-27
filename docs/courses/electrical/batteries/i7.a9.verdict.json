@@ -1,0 +1,226 @@
+{
+  "ok": true,
+  "reachChecked": true,
+  "problems": [],
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "The healthy example cells start from 0.46 to 0.54 mΩ, and at every quarter the 23 beside cell 17 average 0.50 mΩ with an SD of 0.02 mΩ, each within 0.005 mΩ of its baseline",
+        "ok": true
+      },
+      {
+        "label": "Cell 17 stays within 0.005 mΩ of its 0.50 mΩ baseline for ten quarters, then climbs 0.02 mΩ a quarter: 0.60 mΩ at quarter 15 and 0.78 mΩ at quarter 24",
+        "ok": true
+      },
+      {
+        "label": "At quarter 15 cell 17 has risen (0.60 − 0.50) ÷ 0.50 = 20% from its baseline, its fitted slope is 0.020 mΩ a quarter, and it sits (0.60 − 0.50) ÷ 0.02 = 5.0 SDs from the other 23",
+        "ok": true
+      },
+      {
+        "label": "The fitted slope stays near zero while cell 17 is flat and reaches 0.020 mΩ a quarter once its last four readings lie on the climb. A healthy cell never moves 2% from its own baseline or 2.5 SDs from the rest",
+        "ok": true
+      },
+      {
+        "label": "One maker finds a 20 percent increase in impedance for flooded lead-acid generally goes with 80% capacity: on cell 17 that line is 0.60 mΩ, first reached at quarter 15",
+        "ok": true,
+        "source": "https://res.cloudinary.com/iwh/image/upload/q_auto,g_center/assets/1/7/Megger_Battery_Testing_Guide.pdf"
+      },
+      {
+        "label": "Deviations of 30% to 50% from baseline are given as an example of cause for concern: on cell 17 that band runs from 0.65 to 0.75 mΩ, entered at quarter 18",
+        "ok": true,
+        "source": "https://www.vertiv.com/48dfb9/globalassets/documents/battcon-static-assets/2010/the-inspection-is-complete.-what-are-you-doing-with-the-data.pdf"
+      },
+      {
+        "label": "Most cells had less than 80 percent capacity once impedance reached 150 percent of nominal: taking the baseline as nominal, that is 0.75 mΩ on cell 17, reached at quarter 23",
+        "ok": true,
+        "source": "https://www.vertiv.com/48de51/globalassets/documents/battcon-static-assets/2002/internal-ohmic-measurements-and-their-relationship-to-battery-capacity---epris-ongoing-technology-evaluation.pdf"
+      },
+      {
+        "label": "Two IEEE standards recommend replacing a battery below 80% of its rated capacity: on a 10-hour test at 200 Ah ÷ 10 h = 20 A that line falls at 8 hours, so 7.8 hours (78%) falls short and 8.5 hours (85%) does not",
+        "ok": true,
+        "source": "https://res.cloudinary.com/iwh/image/upload/q_auto,g_center/assets/1/7/Megger_Battery_Testing_Guide.pdf"
+      },
+      {
+        "label": "The test time holds at 9.7 hours (97%) up to quarter 10, then falls 0.38 hours a quarter, and the drawn clock stops at 7.8 hours at quarter 15, short of the line",
+        "ok": true
+      },
+      {
+        "label": "Each charging history draws its own fault: crystals on the negative plate, acid sunk to the bottom, a thinning grid shedding lead, and gas leaving a drying valve-regulated cell",
+        "ok": true
+      },
+      {
+        "label": "Sulphation can be reversed if serviced in time, but corrosion is permanent: the tags say so, and all four show at the end of their screen",
+        "ok": true
+      },
+      {
+        "label": "The puzzles' arithmetic: 0.07 ÷ 0.46 is about 15%; 0.10 ÷ 0.50 is 20%, not 120% or 0.10%; 0.06 ÷ 0.02 is 3 SDs; and a string that ages together keeps cell 9 at 0.3 SD",
+        "ok": true
+      },
+      {
+        "label": "Each puzzle accepts only its right answer, and nothing in its picture gives the answer before Check",
+        "ok": true
+      },
+      {
+        "label": "Fifteen screens: puzzles and demonstrations take turns, three mixed puzzles end it, and no demonstration says more than about 90 words",
+        "ok": true
+      },
+      {
+        "label": "Every demonstration settles within 4.4 s and ends where its screen says, and every answer's motion settles within 2.5 s",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "q",
+      "cell",
+      "line",
+      "hist"
+    ],
+    "readouts": [
+      "riseFromBase",
+      "slope",
+      "sdFromMean"
+    ],
+    "outputs": [
+      "riseFromBase",
+      "slope",
+      "sdFromMean"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Screen",
+        "min": 0,
+        "max": 14,
+        "step": 1,
+        "steps": [
+          "Drift or noise",
+          "Its own baseline",
+          "Which cell to watch",
+          "The turn upward",
+          "How far it has risen",
+          "Where to draw the line",
+          "Flag or replace",
+          "The test decides",
+          "Reading the test",
+          "What the charging did",
+          "Float set low",
+          "What can still be done",
+          "All together",
+          "How unusual",
+          "Boosted for weeks"
+        ],
+        "value": 0
+      },
+      {
+        "id": "q",
+        "kind": "control",
+        "label": "Quarter",
+        "min": 0,
+        "max": 24,
+        "step": 1,
+        "log": false,
+        "value": 8,
+        "shown": false,
+        "snap": [
+          8,
+          10,
+          15,
+          18,
+          23
+        ]
+      },
+      {
+        "id": "cell",
+        "kind": "control",
+        "label": "Cell",
+        "min": 1,
+        "max": 24,
+        "step": 1,
+        "log": false,
+        "value": 17,
+        "shown": false
+      },
+      {
+        "id": "line",
+        "kind": "choice",
+        "label": "Line to draw",
+        "options": [
+          "maker",
+          "guide",
+          "study"
+        ],
+        "labels": [
+          "20% rise",
+          "30 to 50% band",
+          "150% of nominal"
+        ],
+        "value": "maker",
+        "index": 0,
+        "shown": false
+      },
+      {
+        "id": "hist",
+        "kind": "choice",
+        "label": "Charging history",
+        "options": [
+          "below",
+          "low",
+          "high",
+          "vrla"
+        ],
+        "labels": [
+          "Float below the band",
+          "Long spells at low charge",
+          "Float above the band",
+          "Valve-regulated, charged hard"
+        ],
+        "value": "below",
+        "index": 0,
+        "shown": false
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Play again",
+      "Run the capacity test",
+      "Back",
+      "Continue",
+      "Start again",
+      "Demonstration"
+    ],
+    "answers": [],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ],
+    "foreign": [],
+    "unreachable": []
+  }
+}

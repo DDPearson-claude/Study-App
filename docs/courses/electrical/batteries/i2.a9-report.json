@@ -1,0 +1,234 @@
+{
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "For each 1.67 °C above 25 °C add one point (0.001) to the observed reading: a full cell reads 1.216 at 40 °C and 1.228 at 20 °C, and both correct to 1.225",
+        "ok": true,
+        "source": "https://www.exidegroup.com/eu/sites/default/files/2017-01/Section%2093_10%202014-08%20GNB%20Flooded%20Classic%20Installation%20and%20Operation%20Manual%20Section_4.pdf"
+      },
+      {
+        "label": "A cell voltage of 2.10 V at room temperature means about 90 percent charge in stronger acid: this weaker 1.225 cell rests below 2.10 V even when full, and no screen pairs 2.10 V with 90%",
+        "ok": true,
+        "source": "https://batteryuniversity.com/article/bu-403-charging-lead-acid"
+      },
+      {
+        "label": "Adding 0.845 to the specific gravity gives the open-circuit voltage: the rested voltmeter reads 1.95 V flat, 2.06 V at 90% and 2.07 V full",
+        "ok": true,
+        "source": "https://eepowersolutions.com/resources/white-papers/the-proper-charging-of-stationary-lead-acid-batteries"
+      },
+      {
+        "label": "Rest at least four hours, and makers recommend 24: the voltmeter reads 2.20 V just off charge, falls as it rests, settles by 4 h and reads the same at 24 h, and the rested tick waits for 4 h",
+        "ok": true,
+        "source": "https://batteryuniversity.com/article/bu-903-how-to-measure-state-of-charge"
+      },
+      {
+        "label": "As the charge falls, acid binds to the plates and the specific gravity gets lower: at every step down in charge the float sits lower and fewer acid dots stay in the liquid",
+        "ok": true,
+        "source": "https://batteryuniversity.com/article/bu-903-how-to-measure-state-of-charge"
+      },
+      {
+        "label": "The float reads 1.225 full, 1.213 at 90% and 1.105 flat, and the float and the voltmeter rise together as the charge goes up",
+        "ok": true
+      },
+      {
+        "label": "High acid at the bottom makes the cell look more charged and raises its open-circuit voltage: stratified, the voltmeter reads higher than mixed at every charge, most acid dots sit low, and the hydrometer gives no reading",
+        "ok": true
+      },
+      {
+        "label": "A low level reads 10 points high and an overfilled one 10 points low: a full cell reads 1.235 low, 1.225 right and 1.215 high, and its surface sits lower when low",
+        "ok": true
+      },
+      {
+        "label": "The trust light says yes only when all four checks pass: rested, corrected, level right and mixed",
+        "ok": true
+      },
+      {
+        "label": "Each puzzle accepts only its right answer, and nothing in its picture gives the answer before Check",
+        "ok": true
+      },
+      {
+        "label": "Every demonstration settles within 4.6 s of its screen opening, and every answer's motion within 2.5 s",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "charge",
+      "temp",
+      "hours",
+      "level",
+      "strat"
+    ],
+    "readouts": [],
+    "outputs": [
+      "rawSG",
+      "corrSG",
+      "volts"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Screen",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "steps": [
+          "A warm-up",
+          "Two gauges",
+          "Running down",
+          "Warm acid",
+          "Correct it",
+          "Rest it first",
+          "Just off charge",
+          "The level",
+          "Topping up",
+          "Layers",
+          "Reads well, runs short",
+          "Cold acid",
+          "Which to trust"
+        ],
+        "value": 0
+      },
+      {
+        "id": "charge",
+        "kind": "control",
+        "label": "Charge",
+        "min": 0,
+        "max": 100,
+        "step": 1,
+        "log": false,
+        "value": 100,
+        "shown": false,
+        "snap": [
+          0,
+          50,
+          90,
+          100
+        ]
+      },
+      {
+        "id": "temp",
+        "kind": "control",
+        "label": "Acid temperature",
+        "min": 10,
+        "max": 40,
+        "step": 1,
+        "log": false,
+        "value": 25,
+        "shown": false,
+        "snap": [
+          20,
+          25,
+          35,
+          40
+        ]
+      },
+      {
+        "id": "hours",
+        "kind": "control",
+        "label": "Since charge",
+        "min": 0,
+        "max": 24,
+        "step": 0.5,
+        "log": false,
+        "value": 24,
+        "shown": false,
+        "snap": [
+          0,
+          4,
+          24
+        ]
+      },
+      {
+        "id": "level",
+        "kind": "choice",
+        "label": "Acid level",
+        "options": [
+          "low",
+          "right",
+          "high"
+        ],
+        "labels": [
+          "Low",
+          "Right",
+          "High"
+        ],
+        "value": "right",
+        "index": 1,
+        "shown": false
+      },
+      {
+        "id": "strat",
+        "kind": "toggle",
+        "label": "Stratified",
+        "options": [
+          false,
+          true
+        ],
+        "value": false,
+        "shown": false
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Play again",
+      "Back",
+      "Continue",
+      "Start again",
+      "Demonstration"
+    ],
+    "answers": [],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ]
+  },
+  "moved": [
+    "step = 1 (the first step that shows a control)",
+    "charge = 75",
+    "temp = 32.5",
+    "hours = 18",
+    "level = \"high\"",
+    "strat = true"
+  ],
+  "shots": [
+    "/home/user/Study-App/build/electrical/batteries/i2.a9-360-light.png",
+    "/home/user/Study-App/build/electrical/batteries/i2.a9-360-light-moved.png",
+    "/home/user/Study-App/build/electrical/batteries/i2.a9-360-light-end.png",
+    "/home/user/Study-App/build/electrical/batteries/i2.a9-360-dark.png",
+    "/home/user/Study-App/build/electrical/batteries/i2.a9-360-dark-moved.png",
+    "/home/user/Study-App/build/electrical/batteries/i2.a9-360-dark-end.png",
+    "/home/user/Study-App/build/electrical/batteries/i2.a9-1280-light.png",
+    "/home/user/Study-App/build/electrical/batteries/i2.a9-1280-light-moved.png",
+    "/home/user/Study-App/build/electrical/batteries/i2.a9-1280-light-end.png",
+    "/home/user/Study-App/build/electrical/batteries/i2.a9-1280-dark.png",
+    "/home/user/Study-App/build/electrical/batteries/i2.a9-1280-dark-moved.png",
+    "/home/user/Study-App/build/electrical/batteries/i2.a9-1280-dark-end.png"
+  ]
+}

@@ -1,0 +1,286 @@
+{
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "Minimum area of each inlet and outlet = 0.3 × N × I × S cm²: 24 cells at 20 A need 1440 cm² where people enter (S = 10) and 576 cm² in an enclosure (S = 4), and 12 cells need 720 cm²",
+        "ok": true,
+        "source": "https://www.hse.gov.uk/PUBNS/indg139.pdf"
+      },
+      {
+        "label": "Hydrogen ignites from 4 per cent, so a room people enter is held below 0.4 per cent (10% of 4) and an enclosure below 1 per cent (25% of 4): the gauge marks 0.4, 1 and 4, and lights the limit for the chosen room",
+        "ok": true,
+        "source": "https://www.hse.gov.uk/PUBNS/indg139.pdf"
+      },
+      {
+        "label": "An opening sized exactly by the rule holds the room at 4 ÷ S per cent: 24 cells at 20 A read 0.40 % through 1440 cm² and 1.00 % through 576 cm²",
+        "ok": true
+      },
+      {
+        "label": "Halve the opening and the hydrogen doubles: at 10 A, 0.20 % through 1440 cm² becomes 0.40 % through 720 cm², and at 20 A, 720 cm² gives 0.80 %",
+        "ok": true
+      },
+      {
+        "label": "Flow is area × speed: 1440 cm² is 0.144 m², which passes 14.4 L/s at 0.1 m/s; 1650 cm² passes 16.5 L/s; with the fan stopped, none",
+        "ok": true
+      },
+      {
+        "label": "Sized from the 0.5 A float, 24 cells need only 36 cm², forty times less than the 1440 cm² a 20 A fault needs",
+        "ok": true
+      },
+      {
+        "label": "55 cells at 10 A need 1650 cm² where people enter, 660 cm² in an enclosure, and 165 cm² with S left out",
+        "ok": true
+      },
+      {
+        "label": "The gas grows in step with the current: no bubbles at 0 A, more as the current climbs, and the opening needed doubles when the current or the cells double",
+        "ok": true
+      },
+      {
+        "label": "With the fan stopped the hydrogen keeps climbing: at 10 A through 720 cm² it rises from 0.40 % past 1 %, and during a 20 A equalise it climbs from 0.40 % towards 4 %",
+        "ok": true
+      },
+      {
+        "label": "Valve-regulated cells: their bubbles fade and the hydrogen shows no number; the valve stays shut up to 10 A and lifts above it",
+        "ok": true
+      },
+      {
+        "label": "After reaching the gassing voltage of 2.40 V a cell, a current limit of 2.5 to 5 A per 100 Ah is recommended: the screen on spare current says so",
+        "ok": true,
+        "source": "https://www.enersys.com/492013/globalassets/documents/product-documentation/powersafe/opzs/amer/amer-en-iom-ps-flooded-0223.pdf"
+      },
+      {
+        "label": "Each puzzle accepts only its right answer, and nothing in its picture gives the answer before Check",
+        "ok": true
+      },
+      {
+        "label": "After charging, leave the battery to stand for at least 20 minutes so the gas can clear: with the charger just off, gas still drifts to the outlet, and it has cleared once the 20 minutes have run",
+        "ok": true,
+        "source": "https://www.hse.gov.uk/PUBNS/indg139.pdf"
+      },
+      {
+        "label": "Fifteen screens: after the opening puzzle, demonstrations and puzzles take turns, four puzzles end it, and no demonstration says more than about 90 words",
+        "ok": true
+      },
+      {
+        "label": "Both openings are drawn to one scale: each square's area follows its cm², so the outline for 720 cm² has half the area of the one for 1440 cm²",
+        "ok": true
+      },
+      {
+        "label": "Every demonstration settles within 4.6 s and ends where its screen says, and every answer's motion settles within 2.5 s",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "current",
+      "cells",
+      "room",
+      "opening",
+      "fanFails",
+      "vrla",
+      "tstop"
+    ],
+    "readouts": [
+      "hydrogen",
+      "needed",
+      "flow"
+    ],
+    "outputs": [
+      "hydrogen",
+      "needed",
+      "flow"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Screen",
+        "min": 0,
+        "max": 14,
+        "step": 1,
+        "steps": [
+          "Area times speed",
+          "Spare current makes gas",
+          "Two limits",
+          "One per cent",
+          "The rule",
+          "An enclosure",
+          "Size for the fault",
+          "Float or fault?",
+          "Air carries it away",
+          "Blocked opening",
+          "Sealed cells",
+          "Board over the vents?",
+          "Fifty-five cells",
+          "The fan stops",
+          "Charger off"
+        ],
+        "value": 0
+      },
+      {
+        "id": "current",
+        "kind": "control",
+        "label": "Charging current",
+        "min": 0,
+        "max": 20,
+        "step": 0.1,
+        "log": false,
+        "value": 20,
+        "shown": false,
+        "snap": [
+          0.5,
+          10,
+          20
+        ]
+      },
+      {
+        "id": "cells",
+        "kind": "choice",
+        "label": "Cells in the battery",
+        "options": [
+          6,
+          12,
+          24,
+          55
+        ],
+        "labels": [
+          "6",
+          "12",
+          "24",
+          "55"
+        ],
+        "value": 24,
+        "index": 2,
+        "shown": false
+      },
+      {
+        "id": "room",
+        "kind": "choice",
+        "label": "Room type",
+        "options": [
+          10,
+          4
+        ],
+        "labels": [
+          "People enter",
+          "Enclosure"
+        ],
+        "value": 10,
+        "index": 0,
+        "shown": false
+      },
+      {
+        "id": "opening",
+        "kind": "control",
+        "label": "Real opening",
+        "min": 100,
+        "max": 4000,
+        "step": 1,
+        "log": false,
+        "value": 1440,
+        "shown": false,
+        "snap": [
+          576,
+          720,
+          1440,
+          1650
+        ]
+      },
+      {
+        "id": "fanFails",
+        "kind": "toggle",
+        "label": "Fan fails",
+        "options": [
+          false,
+          true
+        ],
+        "value": false,
+        "shown": false
+      },
+      {
+        "id": "vrla",
+        "kind": "toggle",
+        "label": "Valve-regulated cells",
+        "options": [
+          false,
+          true
+        ],
+        "value": false,
+        "shown": false
+      },
+      {
+        "id": "tstop",
+        "kind": "control",
+        "label": "Time since the fan stopped",
+        "min": 0,
+        "max": 1,
+        "step": 0.01,
+        "log": false,
+        "value": 0,
+        "shown": false
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Play again",
+      "Back",
+      "Continue",
+      "Start again",
+      "Demonstration"
+    ],
+    "answers": [],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ]
+  },
+  "moved": [
+    "step = 1 (the first step that shows a control)",
+    "current = 15",
+    "cells = 55",
+    "room = 4",
+    "opening = 3025",
+    "fanFails = true",
+    "vrla = true",
+    "tstop = 0.75"
+  ],
+  "shots": [
+    "/home/user/Study-App/build/electrical/batteries/i5.a8-360-light.png",
+    "/home/user/Study-App/build/electrical/batteries/i5.a8-360-light-moved.png",
+    "/home/user/Study-App/build/electrical/batteries/i5.a8-360-light-end.png",
+    "/home/user/Study-App/build/electrical/batteries/i5.a8-360-dark.png",
+    "/home/user/Study-App/build/electrical/batteries/i5.a8-360-dark-moved.png",
+    "/home/user/Study-App/build/electrical/batteries/i5.a8-360-dark-end.png",
+    "/home/user/Study-App/build/electrical/batteries/i5.a8-1280-light.png",
+    "/home/user/Study-App/build/electrical/batteries/i5.a8-1280-light-moved.png",
+    "/home/user/Study-App/build/electrical/batteries/i5.a8-1280-light-end.png",
+    "/home/user/Study-App/build/electrical/batteries/i5.a8-1280-dark.png",
+    "/home/user/Study-App/build/electrical/batteries/i5.a8-1280-dark-moved.png",
+    "/home/user/Study-App/build/electrical/batteries/i5.a8-1280-dark-end.png"
+  ]
+}

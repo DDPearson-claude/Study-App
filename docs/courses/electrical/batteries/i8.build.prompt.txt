@@ -1,0 +1,433 @@
+TASK: build-interactive
+
+You are building one small interactive page for "My University", Dan's personal learning app. It lets him see one idea for himself by playing with it. It runs inside a sandboxed iframe on top of the house kit described below, and the app tests it automatically before Dan sees it.
+
+## The idea
+Topic: Batteries: lead-acid cells, from plate to battery room
+Idea: Short circuits, safety and other chemistries (A large battery's few milliohms of resistance let it drive thousands of amps into a short, even part discharged, and its cells are always live.)
+Kind: quantity
+Dan knows a little about this topic. Show an equation on the page only if every symbol in it is labelled on the picture; otherwise say the rule in words.
+
+## What the interactive must show
+Brief: The one thing you should see is over 1800 A at the battery's terminals, falling only as the cable adds its milliohms, when you drag the fault away from the battery.
+Title (the app shows it above the frame, so do not repeat it): The milliohm fault
+The rule (the app shows it just above the frame, under "What you're looking at"): A 12 V lead-acid block sits on the left, drawn as six cells in series in one case. Each cell is drawn as an emf behind a small resistance. A pair of cables runs from its terminals to the right, with a protective device at the battery end. The device can break 1 kA, an example value. A line on a bar marks it. The fault is a red link across the two cores, and you can drag it along the cable. A fault-distance slider runs from 0 m to 20 m in steps of 0.5 m. At its start, the fault sits across the terminals, just past the device. The block is a real product. Six cells at 2.1 V give it 12.6 V open circuit. It has 6.95 mΩ inside. The cable is an example. Each core has 0.5 mΩ a metre. A fault d metres away puts both cores in the loop, out and back. So the outside resistance is 1 mΩ for every metre. The fault current is the open-circuit voltage ÷ (the battery's resistance + the outside resistance). The 'Fault current' readout shows it in A. Its bar turns red while it is above the device's line. The 'Loop resistance' readout shows the total in mΩ. A charge-left slider runs from 100% down to 60% in steps of 5%. As the charge falls, the current falls in a straight line. At 60% charge it reaches 92% of the full-charge value. That line is a sketch. It stays above the measured 90%. A time trace under the cable draws the current from the moment of the fault to 20 ms. It is a sketch. It climbs to its full value by 5 ms and stays there. A 'Big string' switch swaps the block for a real 480 V string. Its loop adds up to 0.160 + 0.028 Ω. The fault slider then rests at 0 m. The readout shows 2553 A. A chemistry card below compares three cells: lead-acid, nickel-cadmium and lithium-ion. Each column gives the cell voltage, the cells in series for 24 V, the electrolyte, whether a hydrometer reads the charge, and the main hazard. On a phone, the two readouts each sit on their own line. The card's three columns stack one under another. No word splits. Each show screen has under about 90 words. Each one ends on what its finished picture shows. So it reads well without the controls. Screen by screen. 0 asks a recall question. A protective device sits where the prospective fault current is 3 kA. It asks what its breaking capacity must be. First choice: at least 3 kA, the most it may have to break there. Second: at least its rated current. Third: at least the cable's current rating. The right pick says 'Still there: a device must break the biggest fault it can see where it sits.' Hint for rated current: that sets when it trips on overload, not what it can safely break. Hint for the cable: that is what the cable carries all day, far below a fault. 1 shows the 12 V block with a fault across its terminals. It reads 12.6 V open circuit and has 6.95 mΩ inside. Each cell is an emf behind a small resistance. Short the terminals, and that resistance alone limits the current. So the fault current is the open-circuit voltage ÷ the internal resistance: 12.6 ÷ 0.00695 = 1813 A. The maker lists 1814 A for this block. That is far above the device's 1 kA. It ends at 0 m with 1813 A showing. 2 says you lay a steel spanner across the terminals of the same 12 V block. It asks what flows. First choice: up to about 1800 A, held back only by the block's milliohms and the spanner. Second: very little, because 12 V is too low to push much current. Third: about 70 A, the block's ampere-hour rating. The right pick says 'That's it: 12.6 V across a few milliohms is well over a thousand amps.' Hint for too low: your body's resistance is high, so 12 V drives little current through you. A spanner's resistance is tiny. Hint for 70 A: ampere-hours say how long a battery lasts, not how hard it can push. 3 drags the fault along the cable. Both cable cores now join the loop. Resistances in series add, so the current is the voltage ÷ (the battery's resistance + the outside resistance). Each core has 0.5 mΩ a metre, so each metre adds 1 mΩ. At 5 m the loop is 6.95 + 5 = 11.95 mΩ. That gives 12.6 ÷ 0.01195 = 1054 A, still above the device's 1 kA. The battery's milliohms are fixed. Only the loop outside can add more. It ends at 5 m with 1054 A showing. 4 says a fault happens 10 m down the same cable. It asks for the fault current. The choices are 743 A, 1260 A and 1813 A. The right pick says 'That's it: 12.6 ÷ (0.00695 + 0.010) = 743 A.' Hint for 1260 A: that is 12.6 ÷ 0.010, the cable alone. The battery's 6.95 mΩ is in the loop too. Hint for 1813 A: that is the fault at the terminals, before the cable adds its 10 mΩ. 5 taps 'Big string'. The same rule works for a real 480 V string. The cells' resistance and the links between them set the most a battery can drive. This string's loop adds up to 0.160 + 0.028 Ω. 480 ÷ 0.188 = 2553 A, so the rule predicts about 2550 A. A real test on that string measured 2530 A. That is why a shorted battery can give 100 to 1000 times its normal discharge current. It ends with the big string showing 2553 A. 6 says a 48 V string has 24 cells at 2.1 V, each with 1.5 mΩ inside. Its 23 links between cells add 0.1 mΩ each. These are example values. It asks for the fault current across its terminals. The choices are 1316 A, 1400 A and 33600 A. The right pick says 'That's it: 50.4 V ÷ (36 + 2.3) mΩ = 1316 A.' Hint for 1400 A: the links carry the fault current too, so their 2.3 mΩ belongs in the loop. Hint for 33600 A: in a string, one current flows through every cell. So the cells' resistances add. 7 drags the charge left from 100% down to 60%. The fault current barely moves. A cell's rested voltage falls only a little as its charge goes. You saw that on the voltmeter in lesson 2. The milliohms stay milliohms. In tests on real batteries, the current stayed above 90% of its full-charge value at about 60% charge. In the picture, the block still drives 1668 A at 60%. So a part-discharged battery can still give nearly its full fault. It ends at 60% charge with 1668 A showing. 8 says a UPS battery has run down to about 60% charge, and someone says a short on it now would be small. It asks whether that is right. First choice: no, its fault current is still over 90% of the full-charge value. Second: yes, it falls to about 60% of the full-charge fault. Third: yes, a part-charged battery holds too little energy for a big current. The right pick says 'That's it: the volts barely fall and the milliohms stay, so the current stays high.' Hint for 60%: the current follows the voltage, not the charge left. The voltage barely falls. Hint for too little energy: energy sets how long it could keep going, not how many amps flow at once. 9 shows the time trace. A battery has little inductance, so a short acts like a fault through a plain resistor. In one test the current reached its full value within 5 to 10 ms of the fault. There is no slow build-up to react to. The cells cannot be switched off either. Their exposed metal is always live. Switching off the charger and the loads stops their currents. The cells keep their voltage. It ends with the trace flat at 1813 A, with the fault at 0 m. 10 says you must remake a loose link between two cells in a live string. It asks what comes first. First choice: switch off the circuits on the battery, and keep metal tools off its top. Second: open the battery's main switch, and then the cells are dead. Third: nothing, because each link spans only one cell's 2.1 V. The right pick says 'That's it: switch off all circuits before connecting or disconnecting, and rest no metal on a battery.' Hint for the main switch: a switch stops current in the circuits, but the cells keep their voltage. Hint for one cell: your spanner can bridge more than one cell. Even one cell can drive over a thousand amps through metal. 11 shows the chemistry card. Lead-acid gives about 2 V a cell, so 24 V takes 12 cells. Its acid is used up on discharge, so a hydrometer reads a vented cell's charge. Nickel-cadmium gives 1.20 V, so 24 V takes 20 cells. Its potassium hydroxide is not used up, so a hydrometer cannot read the charge. Both liquids are very corrosive. A common lithium-ion type gives 3.60 V, so 7 cells make 25.2 V. Some types give less. Its main hazard is thermal runaway. It ends on all three columns. 12, 13 and 14 mix the ideas. 12 says a nickel-cadmium battery needs its charge checked, and a hydrometer is to hand. It asks what the hydrometer will tell you. First choice: nothing about the charge, because the electrolyte is not used up in the reaction. Second: the charge, read the same way as lead-acid. Third: the charge, on a lower scale. The right pick says 'That's it: the alkali carries the current but is not used up, so its strength stays put.' Hint for the same way: lead-acid's acid is used up on discharge. That change is what a hydrometer reads. Hint for a lower scale: any scale needs a reading that changes with charge. This one does not. 13 says a 24 V emergency battery has 12 lead-acid cells at 2.1 V and 14 mΩ in total, links included. A fault 2 m down its cable adds 2 mΩ. The device there can break 1 kA. These are example values. It asks whether the device can clear the fault. First choice: no, 25.2 ÷ 0.016 = 1575 A, above 1 kA. Second: yes, 24 V is too low for a big fault. Third: yes, once the battery is part discharged. The right pick says 'That's it: 25.2 V across 16 mΩ is 1575 A, more than the device can break.' Hint for too low: a low voltage across milliohms still drives over a thousand amps. Hint for part discharged: at 60% charge it would still give over 90% of that. 14 says a pack of 3.60 V lithium-ion cells is to replace that 24 V lead-acid battery. It asks how many cells in series it needs, and whether a hydrometer can check its charge. First choice: 7 cells, and no hydrometer. Second: 12 cells, checked with a hydrometer. Third: 20 cells, and no hydrometer. The right pick says 'That's it: 7 × 3.60 V = 25.2 V, and its cells are sealed.' Hint for 12 cells: that count suits lead-acid's 2 V a cell. Hint for 20 cells: that count suits nickel-cadmium's 1.20 V a cell.
+What the model leaves out (the app shows this in its own panel; do not repeat it on the page): The fault is drawn as a bolted short of no resistance. A real fault often arcs. The arc adds its own resistance and voltage drop, so a real fault current is usually somewhat lower. The block's resistance is held fixed. A real cell's changes a little with charge and temperature. The charge-left line and the time trace are sketches. The charger and any running motors would add their own current to a fault. The picture leaves them out. Each cable core is the same example size at room temperature.
+Controls (use these ids, ranges and opening values exactly; when the prediction or a check names a setting of a slider, add it to that slider's snap):
+- id "step": Screen, from 0 to 14 in steps of 1, opening at 0
+Outputs (return each from K.model under exactly this key, and show it once: as a K.readout with the same id and the decimals given, which is how the explanation rounds it, or as a label on the drawing when the drawing already shows it, never both. Target checks read K.model, not the tile):
+- id "faultCurrent": Fault current (A), decimals: 0
+- id "loopResistance": Loop resistance (mΩ), decimals: 2
+Numbers it may show (control = Dan sets it; computed = from the rule; constant = a fixed real value; assumed = an example value, said once as an example in the lead line or a caption, then drawn as a plain value; date = a historical date or fact):
+- Screen control lowest: 0 (control)
+- Screen control highest: 14 (control)
+- Cells in the 12 V block: 6 (constant, source [1])
+- Charged, rested cell voltage, V: 2.1 (constant, source [2])
+- Block open-circuit voltage, V: 12.6 (computed)
+- Block nominal voltage, V: 12 (constant, source [3])
+- Block internal resistance, mΩ: 6.95 (constant, source [3])
+- Block short-circuit current the maker lists, A: 1814 (constant, source [3])
+- Block rating, Ah: 70 (constant, source [3])
+- Fault current at the terminals, A: 1813 (computed)
+- Example device breaking capacity, kA: 1 (assumed)
+- Recall example prospective fault current, kA: 3 (assumed)
+- Fault slider lowest, m: 0 (control)
+- Fault slider highest, m: 20 (control)
+- Fault slider step, m: 0.5 (control)
+- Example cable core resistance, mΩ a metre: 0.5 (assumed)
+- Outside resistance per metre of route, mΩ: 1 (computed)
+- Fault distance on screen 3, m: 5 (control)
+- Loop resistance at 5 m, mΩ: 11.95 (computed)
+- Fault current at 5 m, A: 1054 (computed)
+- Fault distance on screen 4, m: 10 (assumed)
+- Cable resistance at 10 m, mΩ: 10 (computed)
+- Fault current at 10 m, A: 743 (computed)
+- Cable alone at 10 m, wrong choice, A: 1260 (computed)
+- Big string voltage, V: 480 (constant, source [4])
+- Big string loop resistance, first part, Ω: 0.16 (constant, source [4])
+- Big string loop resistance, second part, Ω: 0.028 (constant, source [4])
+- Big string loop resistance, total, Ω: 0.188 (computed)
+- Big string fault current, computed, A: 2553 (computed)
+- Big string fault current, predicted, A: 2550 (constant, source [4])
+- Big string fault current, measured, A: 2530 (constant, source [4])
+- Short current, times normal discharge, low end: 100 (constant, source [5])
+- Short current, times normal discharge, high end: 1000 (constant, source [5])
+- Example 48 V string, nominal voltage, V: 48 (assumed)
+- Cells in the example 48 V string: 24 (assumed)
+- Example cell resistance, mΩ: 1.5 (assumed)
+- Links between 24 cells: 23 (computed)
+- Example link resistance, mΩ: 0.1 (assumed)
+- 48 V string open-circuit voltage, V: 50.4 (computed)
+- 48 V string cells' resistance, mΩ: 36 (computed)
+- 48 V string links' resistance, mΩ: 2.3 (computed)
+- 48 V string fault current, A: 1316 (computed)
+- 48 V string, links left out, wrong choice, A: 1400 (computed)
+- 48 V string, 24 × 1400 A, wrong choice, A: 33600 (computed)
+- Charge-left slider top, %: 100 (control)
+- Charge-left slider bottom, %: 60 (control)
+- Charge-left slider step, %: 5 (control)
+- Measured share of full fault current kept, above, %: 90 (constant, source [6])
+- Sketch share of full fault current at 60% charge, %: 92 (assumed)
+- Block fault current at 60% charge, A: 1668 (computed)
+- Time trace length, ms: 20 (assumed)
+- Sketch time to full current, ms: 5 (assumed)
+- Measured time to full current, ms, low end: 5 (constant, source [7])
+- Measured time to full current, ms, high end: 10 (constant, source [7])
+- Lead-acid nominal cell voltage, V: 2 (constant, source [2])
+- Lead-acid cells for 24 V: 12 (computed)
+- Nickel-cadmium cell voltage, V: 1.2 (constant, source [8])
+- Nickel-cadmium cells for 24 V: 20 (computed)
+- Lithium-ion nominal cell voltage, V: 3.6 (constant, source [9])
+- Lithium-ion cells for 24 V, rounded up: 7 (computed)
+- Seven lithium-ion cells, V: 25.2 (computed)
+- Example 24 V battery, cells: 12 (assumed)
+- Example 24 V battery open-circuit voltage, V: 25.2 (computed)
+- Example 24 V battery resistance with links, mΩ: 14 (assumed)
+- Example fault distance down its cable, m: 2 (assumed)
+- Cable resistance for that fault, mΩ: 2 (computed)
+- Loop resistance for that fault, mΩ: 16 (computed)
+- Fault current 2 m down, A: 1575 (computed)
+- Fault current at its terminals, A: 1800 (computed)
+
+## The explanation Dan reads after playing (use the same words for the same things)
+A large battery is an emf behind a few milliohms. So almost nothing limits a short across it. It can drive thousands of amps into a fault, even part discharged. And its cells cannot be switched off. What you know about prospective fault current still holds. Only the source is new.
+
+Short the terminals and the outside resistance falls to almost nothing. The cells' own internal resistance is then all that holds the current back. So the short-circuit current is the open-circuit voltage ÷ the internal resistance. A real 12 V 70 Ah block has 6.95 mΩ inside. Its maker lists 1814 A. Check it. Six cells at 2.1 V give 12.6 V, and 12.6 ÷ 0.00695 = 1813 A. Move the fault down a cable, and the cable joins the loop. The current is then V ÷ (R battery + R outside). A fault 5 m down the example cable adds 5 mΩ. The current is still 1054 A. The links between the cells add to that loop, just as the cable does. The rule holds on real batteries. For one 480 V string it predicted about 2550 A, and a test measured 2530 A.
+
+Two things make this worse than it looks. First, the current hardly falls as the battery runs down. The rested voltage falls only a little as the charge goes. You saw that on the voltmeter in lesson 2. The milliohms stay milliohms. In tests the current stayed above 90% of its full-charge value at about 60% charge. Second, the current arrives at once. A battery has little inducta…
+
+## Sources
+The only web addresses this page may contain, each only as a K.check {source} on a check whose label restates what that source's quote says (a result of your rule, or a fact about your drawing, takes no source; the caption names a source in words). The app rejects any other:
+[1] 17.5 Batteries and Fuel Cells - Chemistry 2e | OpenStax (https://openstax.org/books/chemistry-2e/pages/17-5-batteries-and-fuel-cells): "Each cell produces 2 V, so six cells are connected in series to produce a 12-V car battery."
+[2] Battery University | BU-303: Confusion with Voltages (http://www.batteryuniversity.com/article/bu-303-confusion-with-voltages): "The nominal voltage of lead acid is 2 volts per cell, however when measuring the open circuit voltage, the OCV of a charged and rested battery should be 2.1V/cell."
+[3] Battery Range Summary (https://www.enersys.com/493bb4/globalassets/documents/product-documentation/powersafe/v-tt/emea/en-v-rs-013.pdf): "12V70 12 68 70 314 164 204 224 24.9 1814 6.95 M6 F V1"
+[4] CALCULATED VS. ACTUAL SHORT CIRCUIT CURRENTS FOR VRLA BATTERIES — Vertiv (https://www.vertiv.com/48dfcf/globalassets/documents/battcon-static-assets/2003/calculated-vs.-actual-short-circuit-currents-for-vrla-batteries.pdf): "Using the equation above, we predicted a short circuit current of 2550 amps [480V / (0.160 + 0.028)], which compares reasonably with the actual measured average steady state test result of 2530 amps"
+[5] CALCULATED VS. ACTUAL SHORT CIRCUIT CURRENTS FOR VRLA BATTERIES — Vertiv (https://www.vertiv.com/48dfcf/globalassets/documents/battcon-static-assets/2003/calculated-vs.-actual-short-circuit-currents-for-vrla-batteries.pdf): "A “shorted” lead acid battery has the capability of delivering an extremely high current, 100 to 1000 times the typical discharge current used in most applications."
+[6] CALCULATED VS. ACTUAL SHORT CIRCUIT CURRENTS FOR VRLA BATTERIES — Vertiv (https://www.vertiv.com/48dfcf/globalassets/documents/battcon-static-assets/2003/calculated-vs.-actual-short-circuit-currents-for-vrla-batteries.pdf): "The short circuit current stays relatively high even for low states of charge; for example, currents exceeded 90% of nominal even at ~60% state of charge."
+[7] CALCULATED VS. ACTUAL SHORT CIRCUIT CURRENTS FOR VRLA BATTERIES (https://www.vertiv.com/48dfcf/globalassets/documents/battcon-static-assets/2003/calculated-vs.-actual-short-circuit-currents-for-vrla-batteries.pdf): "Note that steady state minimum voltage and maximum current conditions were attained within 5 to 10 milliseconds."
+[8] Bu 203 Nickel Based Batteries (https://batteryuniversity.com/article/bu-203-nickel-based-batteries): "Low cell voltage of 1.20V requires many cells to achieve high voltage"
+[9] Bu 204 How Do Lithium Batteries Work (https://batteryuniversity.com/article/bu-204-how-do-lithium-batteries-work): "The nominal cell voltage of 3.60V can directly power mobile phones, tablets and digital cameras"
+[10] CALCULATED VS. ACTUAL SHORT CIRCUIT CURRENTS FOR VRLA BATTERIES — Vertiv (https://www.vertiv.com/48dfcf/globalassets/documents/battcon-static-assets/2003/calculated-vs.-actual-short-circuit-currents-for-vrla-batteries.pdf): "A battery’s short circuit current is typically estimated by dividing its open circuit voltage by its internal resistance."
+[11] NUREG/CR-XXXX (https://www.osti.gov/servlets/purl/1188216): "Batteries contain little inductance and, as stated by one large UPS manufacturer, a shorted battery is similar to a fault through a resistor."
+[12] Flooded Stationary Lead Acid Batteries IOM — EnerSys (https://www.enersys.com/492013/globalassets/documents/product-documentation/powersafe/opzs/amer/amer-en-iom-ps-flooded-0223.pdf): "Exposed metal parts of the battery always carry a voltage and are electrically live (risk of short circuits)."
+[13] Battery Testing Guide (https://res.cloudinary.com/iwh/image/upload/q_auto,g_center/assets/1/7/Megger_Battery_Testing_Guide.pdf): "since the potassium hydroxide electrolyte isn’t used in the chemical reaction, it is not necessary to measure it periodically."
+[14] Bu 204 How Do Lithium Batteries Work (https://batteryuniversity.com/article/bu-204-how-do-lithium-batteries-work): "Requires protection circuit to prevent thermal runaway if stressed"
+[15] IET & BSI officially publish Amendment 4 (2026) to BS 7671:2018 (IET Wiring Regulations) (https://www.theiet.org/media/press-releases/press-releases-2026/press-releases-2026-april-june/15-april-2026-iet-bsi-officially-publish-amendment-4-2026-to-bs-76712018-iet-wiring-regulations): "One of the most significant developments is the introduction of a new chapter covering stationary secondary batteries"
+[16] COSHH SR18 (https://www.hse.gov.uk/pubns/guidance/sr18.pdf): "Raise the battery cover to help disperse hydrogen and switch off all electrical circuits before connecting or disconnecting batteries."
+[17] COSHH SR18 (https://www.hse.gov.uk/pubns/guidance/sr18.pdf): "Don’t rest metal objects (eg tools) on top of a battery."
+[18] Using electric storage batteries safely INDG139 (https://www.hse.gov.uk/PUBNS/indg139.pdf): "Batteries are usually filled with solutions (electrolytes) containing either sulphuric acid or potassium hydroxide."
+[19] Using electric storage batteries safely INDG139 (https://www.hse.gov.uk/PUBNS/indg139.pdf): "These very corrosive chemicals can permanently damage the eyes and produce serious chemical burns to the skin."
+[20] Flooded Stationary Lead Acid Batteries IOM (https://www.enersys.com/492013/globalassets/documents/product-documentation/powersafe/opzs/amer/amer-en-iom-ps-flooded-0223.pdf): "Electrolyte is highly corrosive. Wash all acid splash in eyes or on skin with plenty of clean water and seek immediate medical assistance."
+[21] NUREG/CR-XXXX (https://www.osti.gov/servlets/purl/1188216): "Total short-circuit current is the sum of that delivered by the battery, the charger, and motors."
+
+## Dan and how he learns
+- He learns best by doing: something visual he can push and watch respond. Warm, plain words, first principles; no jargon unless explained.
+- He uses an Android phone (this frame is about 340 px wide there, touch only) and a laptop (about 1000 px, where K.stage puts the controls beside the visual). Design for the phone first.
+
+## Rules for this page
+- There is no guess to protect: show everything from the start (no k-after-move), curves and results included.
+- The lead line says what is drawn, plainly ("Water from a 5 m drop hits the blades of a wheel"), not what to do: the app gives the action above the frame. Example values are said once there ("an example stream: a 5 m drop, 20 kg of water each second"), then the drawing labels them plainly ("5 m"), never "for example" on the drawing.
+- Every label and arrow sits on, or starts from, the thing it is about: a force arrow starts on the part it pushes; a speed arrow on the part that moves. Anything the rule says turns or flows does so (K.anim), at a speed that follows its control.
+- The .say sentence must make sense on its own to someone who has just read the explanation: what is happening on screen now, cause then effect, in everyday words; no term, threshold or comparison the page or the explanation has not named; a number as part of its whole ("353 W of the stream's 981 W is carried off by the water"). Bad: "The buckets move slower than half the jet speed, so the water still leaves going backwards, taking 353 W away with it." Good: "The buckets are moving slowly, so the water bounces off them still moving fast, and carries 353 W of its 981 W away downstream."
+- A key for the main drawing sits inside the drawing; show each quantity once (a bar, a readout or a curve, not all three); every number drawn that is worked out (a speed from a drop) is explained in "What you're looking at", or is left off.
+- Draw the cause the explanation gives, not only its effect, and let Dan cause it (a drag, a push, a switch); include the setting where the effect does not happen.
+- Mark the brief's one quantity on the picture itself, with a label saying what it is and its value (a bracket between the two heights reading "2.4 m"); an output with a readout is marked without its number, which the readout alone shows (the app hides it while Dan answers a check).
+- A shaded band states something true of the axis it spans: inputs across x, outputs across y. To show many inputs giving nearly the same output, shade the narrow output band (regions {y0, y1}).
+- Draw every comparison the explanation makes the same way, in the same place, on the axis where the effect happens. A time period is a bracket or thin band along the time axis, not a tall block.
+- Give each reference line its own look and a label beside it; every styled line is in the key or labelled on the drawing.
+- Draw only what the brief, the rule or the explanation names, with the same names. An extra figure says on itself how to read it: what its line stands for and which way is which.
+- Show only the numbers listed above or computed from the rule, each written the way the explanation writes it (the same rounding).
+- Any example cases you choose are fair and representative, never picked to exaggerate the effect.
+- Money, health and law: show how it works, never advice, and never a guaranteed outcome.
+
+## The house kit (complete API reference)
+You write the BODY of one page: HTML, an optional `<style>`, then one inline `<script>` ending
+with `K.ready()`. It runs in a sandboxed iframe on Dan's phone (about 340 px wide, touch) and
+laptop, with the global `K` and the kit's stylesheet. No network or storage: no web
+addresses, `fetch`, `localStorage`, `alert` or `prompt`.
+
+### Page shape that works
+1. `<p class="lead">`: one line saying what is drawn (the app adds title and action).
+2. The main visual with its controls right under it: `K.stage('#scene', '#controls')` keeps the
+   pair on one phone screen. A choice that re-sorts the picture may sit above it.
+3. `<p class="say">`: one sentence that changes with the state and says why. Then
+   `<div class="k-readouts">` for numbers the drawing does not label.
+4. Secondary figures and anything that grows go below.
+5. `<p class="caption">`: one short sentence, at most 20 words: where the numbers come from ("A
+   sketch, not measured data") or the rule in the explanation's words. No new claim, no law or
+   term the explanation does not teach. The app shows what the model leaves out.
+
+### Keep the answer hidden until Dan moves
+Dan predicts before he plays: open on a setting the question is not about, and hide whatever
+gives the answer away until his first move:
+- class `k-after-move` on any element (a mark, an arrow, a sentence): hidden, its space kept.
+  Hide the answer, not the controls or a whole figure (a blank hole fails the test).
+- `K.readout({..., afterMove: true})` shows "?" until then; plot series and marks take `afterMove: true` too.
+- `K.moved` is true from then on: in `K.update`, write `K.moved ? answer : question`.
+- `K.afterMove(fn)` runs `fn` once at that moment; `K.reveal()` marks it from your handlers.
+
+### The pipeline
+Controls register themselves; their values form `params` = `{id: value}`.
+```
+K.model(fn)        fn(params) -> outputs {name: number | string}. Pure: no DOM, no lists or objects.
+K.update(fn)       fn(params, outputs): draw everything here. More than one is allowed.
+K.at(over)         -> outputs of the model at those params (others take each control's starting value)
+K.check(label, fn, {source?})   fn() must return exactly true
+K.ready()          call once, last: draws the opening state and runs the checks
+K.complete()       at the lesson's end
+K.params()  K.outputs()  K.refresh()   (refresh reruns the pipeline after you change your own state)
+```
+A readout whose id is an output key updates itself.
+
+### Controls
+Every control takes `into` (a selector or element). Ids are unique; use the lesson's ids exactly.
+```
+K.control({id, label, min, max, step, value, unit?, prefix?, fmt?, log?, snap?, hint?, into}) -> {el, get(), set(v)}
+K.choice({id, label, options: [value | {value, label}], value, hint?, into}) -> {el, get, set}
+K.toggle({id, label, value: false, hint?, into}) -> {el, get, set}
+K.stepper({id, steps: [title | {title, text}], value: 0, compact?, label?, into}) -> {el, get, set, setSteps(list)}
+K.button({label, press, secondary?, into}) -> {el, press(), setLabel(text)}
+K.drag(el, {control, toValue(x, y)}) -> {el}
+```
+`control` is a big slider with − / + buttons. Keep `unit` short; `fmt(v)` returns the whole text;
+`log: true` spans decades; `snap: [values]` lands a drag exactly on a setting the prediction or a
+check names. `choice`: 2-8 short named options; `value` is an option's value or its 0-based
+index. `stepper` walks a process with Back / Next (`compact: true` when your diagram shows the
+content). `button` is an action (Send it in): use it, not plain buttons. `drag` lets Dan move
+the thing itself: `toValue` maps the pointer (viewBox units; px from `el`'s top-left for HTML)
+to the control's value; the first touch counts as his move.
+
+### Outputs
+```
+K.readout({id, label, unit?, prefix?, decimals?, fmt?, big?, hint?, afterMove?, into}) -> {el, set(v), get(), text()}
+```
+One rounding everywhere a number appears: `decimals` matching the lesson text, and the `.say`
+sentence built with `K.fmt(v, {decimals})` or `readout.text()`. Labels under 30 characters.
+While Dan answers a lesson check, the app hides that output's readout and the `.say` lines:
+never repeat a readout's value elsewhere (a label, an aria-label).
+```
+K.plot(target, opts) -> {draw(opts), x(v), y(v), invert(px, py), el, canvas}
+```
+- `x`, `y`: `{min, max, label, log?, prefix?, unit?, fmt?, ticks?}`. Leave out `y.min`/`y.max` to fit the data.
+- `series`: `[{fn: x => y | points: [[x, y], ...], label?, color?, dash?, width?, fill?, dots?, gaps?, afterMove?}]`
+- `shade`: `[{between: [a, b], label?, color?, x0?, x1?}]`: fills between two series (by label), a
+  series and a constant, or two functions.
+- `marks`: `[{x, y, label?, color?, guides?, afterMove?}]`: a dot with a label pill; `guides` adds dashed lines to the axes.
+- `regions`: `[{x0, x1, label?} | {y0, y1, label?}]` (a band); `lines`: `[{x | y, label?}]` (a dashed line).
+- `label`: the text alternative; `height`; `after(ctx, plot)` draws extras using `plot.x()`, `plot.y()`.
+
+`draw(opts)` redraws with `opts` over the creation options: call it in `K.update`. Values must be
+finite (`gaps: true` only where a gap is real). Series are navy, then teal; `color: 'muted',
+dash: true` for a baseline.
+```
+K.bars(target, {max?, unit?, prefix?, decimals?, fmt?}) -> {draw(items)}      items: [{label, value, color?}], values >= 0
+K.anim({step(dt, t), reset?, label?, autoplay?, button?, into}) -> {el, play, pause, toggle, reset, playing()}
+```
+`anim` adds a Play button (text `label`); `reset` adds Reset. When a switch, button or drag
+already starts the motion, pass `button: false` and call `play()` from that control: one control
+per action. In `step` advance your state (`dt` in seconds) and redraw; return `false` to stop. To
+drive a slider, keep the exact value yourself (the slider moves in whole steps).
+
+### Sound
+```
+K.sound.tone(hz, {dur?, type?, gain?})   K.sound.chord([hz, ...], {dur?, stagger?})   K.sound.stop()   K.sound.mute(on)
+K.sound.hold(hz, {type?, gain?, max?}) -> {set({hz?, gain?}), stop(), playing()}
+```
+`dur` in seconds (at most 10). Sound plays only from a `K.button` press, never `K.update`; show
+what is sounding. `hold` keeps a tone going while `set()` follows a slider. Phones can't play
+below about 150 Hz: use 200 to 2,000 Hz.
+
+### Drawings and helpers
+```
+K.el(tag, attrs?, ...children)    attrs: class, style, on: {click: fn}, text, html, dataset, any attribute
+K.svg(tag, attrs?, ...children)   the same in the SVG namespace
+K.labels(group, [{x, y, text, anchor?, size?, class?, color?}], {avoid?}) -> [<text>]
+K.stage(visual, controls, {max?, beside?}) -> {el}
+K.fmt(v, {decimals?, sig?, prefix?, unit?, percent?, sign?, compact?}) -> '1,234.5', '−3', '2.5 × 10⁶'
+K.near(a, b, tol)   K.clamp(v, lo, hi)   K.lerp(a, b, t)   K.linspace(a, b, n)   K.color(role, alpha?)
+K.ease(p)   K.arrive(T, t0, dur?)   K.fade(el, a, rise?)
+```
+Give an `<svg>` a viewBox about 340 wide, `width="100%"`, `role="img"` and an `aria-label` that
+follows the state. Text 13-16 units, never under 12 (a phone shows 340 units at about 0.9x). A
+row of N labels gets about 300/N units each; label only what differs. Every label sits on, or
+points to, something drawn. `K.labels` places labels (13 units unless `size`) clear of other
+text, the edges and the lines or shapes in `avoid`: use it for labels that move or appear later.
+Put an angle's label inside its wedge, beyond the arc, hidden while the wedge is too narrow.
+`K.stage` fits the pair in `max` px (600) on a phone; `beside: false` keeps it stacked.
+
+Draw the mechanism as it physically works. If the explanation gives a reason (X because Y), draw
+Y so Dan can watch it; parts that fit are drawn fitting (teeth in teeth), never two identical
+icons joined by a line; whatever the rule says happens (slides, grips, multiplies) happens on screen.
+
+### Colour
+Colour carries meaning. Use these roles as `var(--k-…)` or `K.color('fill2')` (`K.color('accent2',
+0.3)` is see-through); a colour name fails the test.
+- Lines and text: `ink`, `muted` (secondary, comparisons), `accent2` (navy: the main thing,
+  controls), `accent` (teal: small labels, a second series), `warn` (red: warnings and mistakes
+  only), `good` (green: "done" only), `amber-line` (amber lines that must stand out).
+- Fills: `bg` (page), `panel`, `sunk`, `amber` (note box), `hl` (key-term highlighter), `fill1`
+  (area of the main thing), `fill2` (highlighted area, amber), `fill3` (area of a second thing).
+- `cat1`-`cat4` (blue, orange, magenta, aqua): telling equal things apart, never meaning; with a
+  key or labels; cat1 and cat2 first. A thing with a familiar colour (water, fire) never gets
+  another thing's colour: use the nearest role and label it. What is still there stays solid:
+  mark a state such as unused with a label, not by fading it, and key any dashed style.
+- Also `--k-line`, `--k-strong` (borders), `--k-on-accent2` (text on navy), `--k-font`, `--k-r` (radius).
+
+Never describe colours by lightness or hue in words Dan reads ("the dark square"): dark mode
+changes them.
+
+Classes: `muted`, `small`, `k-label` (small teal caps), `term` (key term), `note` (amber box),
+`warn-note`, `panel`, `row`, `grid2`, `big`, `k-btn` (`secondary`), and a legend:
+`<div class="key"><span><i class="swatch" style="background:var(--k-accent2)"></i>Your push</span>
+<span><i class="swatch line dash" style="color:var(--k-muted)"></i>The limit</span></div>`.
+
+### Rules for a great interactive
+- One idea. The answer to Dan's prediction shows within about 3 seconds of his first move (add
+  a K.check that it does). Include something Dan causes and a case that surprises. One or two
+  controls, three at most.
+- Phone first: nothing wider than 340 px, no fixed widths over 300 px, rows wrap, no hover-only
+  information, tap targets at least 44 px. Size tiles and grid columns in rem (`minmax(6rem,
+  1fr)`): text grows a quarter at Text size XL, and no word may split across two lines.
+- Every number shown is a control, computed by the rule shown, a constant from the lesson, an
+  example value named once in the lead, or a date from the lesson. Never invent data, rates or chances.
+- The `.say` sentence describes what is on screen now, plainly and warmly, and reads right at the
+  extremes ("none of the 100"). Never claim Dan did something ("When you slid it to 20"):
+  describe the state, or write conditionally ("Push it past 20 and…").
+- 3-5 `K.check` known answers worked out by hand: an edge case, a shape fact (rises, halves,
+  always last), and one answer from outside your formula. `source` may ONLY be a URL from the
+  lesson's own sources, and only on a check whose label restates what that source's quote says;
+  a result of your rule, or a fact about your drawing, takes none. Compare numbers with
+  `K.near(a, b, tol)`: tolerance about a millionth of the size, a thousandth where rounding meets roots.
+- `K.anim` for motion, never timers: soft, unhurried, nothing popping in. Parts arrive about 0.6
+  s apart by `K.fade(el, K.arrive(T, t0))`; travel and growth use `K.ease`; a demonstration takes
+  3-5 s. No `vh` units, `position: fixed` or `height: 100%`.
+- Ideas without numbers (mechanism, process, structure, history, concept): prefer a timeline
+  slider, a named choice, a sorter or a drag; use `K.stepper` only when every step changes the
+  drawing. Checks assert order and structure facts.
+- A timeline runs forward: a slider rising left to right, its `fmt` showing the date (−500 as
+  "500 BC"), or a stepper of named events in order. A lesson's calendar-year control keeps its
+  range, its `fmt` showing the year; years after the first date are for new controls. Each dated
+  event appears as he reaches its date.
+
+### The self-test
+Before Dan sees it, the app loads your body 340, 720 and 1040 px wide, runs every check, moves
+every control, button, animation and drag, reveals the after-move parts, and looks again at Text
+size XL and in the other theme. It fails on an exception, NaN or undefined on the page, an update
+over 150 ms, sideways overflow, text cut off or over other text, SVG text under 11 px on a phone,
+a line or arrowhead through a label, text under 3:1 contrast with what is behind it, a colour
+name, a blank hole until a move, or no `K.ready()`.
+
+### Example
+```html
+<p class="lead">Lengthen the string and watch each swing take longer.</p>
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+<p class="caption">Small swings only; g = 9.81 m/s² is gravity at the Earth's surface.</p>
+<script>
+  const g = 9.81;
+  const period = (L) => 2 * Math.PI * Math.sqrt(L / g);
+  K.control({ id: 'L', label: 'String length', min: 0.1, max: 3, step: 0.05, value: 1, unit: 'm', snap: [2], into: '#controls' });
+  K.stage('#plot', '#controls');
+  K.readout({ id: 'T', label: 'One full swing takes', unit: 's', decimals: 2, into: '#outs' });
+  const plot = K.plot('#plot', { x: { min: 0, max: 3, label: 'Length (m)' }, y: { min: 0, max: 4, label: 'Period (s)' } });
+  K.model((p) => ({ T: period(p.L) }));
+  K.update((p, o) => {
+    plot.draw({ series: [{ fn: period }], marks: [{ x: p.L, y: o.T, guides: true }] });
+    document.getElementById('say').textContent = !K.moved ? 'Make the string four times longer: how much longer is each swing?'
+      : 'A ' + K.fmt(p.L, { decimals: 2 }) + ' m string swings there and back every ' + K.fmt(o.T, { decimals: 2 }) + ' s. Four times the length only doubles that.';
+  });
+  K.check('No length, no swing time', () => K.near(period(0), 0));
+  K.check('A seconds pendulum (2 s per swing) is 0.994 m long', () => K.near(period(0.994), 2, 0.002),
+    { source: 'https://en.wikipedia.org/wiki/Seconds_pendulum' });
+  K.check('Four times the length doubles the period', () => K.near(K.at({ L: 2 }).T / K.at({ L: 0.5 }).T, 2, 1e-9));
+  K.ready();
+</script>
+```
+
+
+## A finished example (kind: quantity). Match its standard and structure, not its topic. Its SOURCE line and {source} addresses belong to that example's own lesson: never copy them
+<!-- kind: quantity -->
+<style>
+  .split { display: flex; height: 26px; border-radius: 8px; overflow: hidden; background: var(--k-sunk); }
+  .split .work { background: var(--k-accent2); transition: width .2s ease; }
+  .split-key { display: flex; justify-content: space-between; gap: 12px; margin-top: 6px; font-size: .9rem; color: var(--k-muted); }
+  .nowrap { white-space: nowrap; }
+</style>
+
+<p class="lead">Squeeze the air harder before the fuel burns in it, and watch how much more of the fuel's heat turns into useful work.</p>
+
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+
+<div>
+  <span class="k-label">Of every 100 units of heat from the fuel</span>
+  <div class="split" role="img" id="split" aria-label=""><i class="work" id="work"></i></div>
+  <div class="split-key"><span>Becomes work</span><span>Leaves in the hot exhaust</span></div>
+</div>
+
+<p class="caption">The ideal Brayton cycle with γ = 1.4 for air (NASA Glenn Research Center), an upper limit for real engines.</p>
+
+<script>
+  // gamma: ratio of specific heats for air, the value NASA Glenn's Brayton page uses.
+  const GAMMA = 1.4;
+  const SOURCE = 'https://www.grc.nasa.gov/www/k-12/airplane/brayton.html';
+  const pct = (r) => 100 * (1 - Math.pow(r, -(GAMMA - 1) / GAMMA));
+
+  const r = K.control({ id: 'r', label: 'Pressure ratio', hint: 'Pressure after the compressor ÷ pressure before it', min: 1, max: 50, step: 1, value: 8, unit: ':1', into: '#controls' });
+  K.readout({ id: 'eff', label: 'Ideal efficiency', unit: '%', decimals: 1, big: true, into: '#outs' });
+
+  K.stage('#plot', '#controls');   // stacked on a phone, side by side on a laptop
+
+  const plot = K.plot('#plot', {
+    x: { min: 1, max: 50, label: 'Pressure ratio' },
+    y: { min: 0, max: 100, label: 'Ideal efficiency (%)' },
+    label: 'Ideal efficiency rises steeply at low pressure ratios, then flattens',
+  });
+
+  // The pure model: pressure ratio -> ideal efficiency in percent.
+  K.model((p) => ({ eff: pct(p.r) }));
+
+  K.update((p, o) => {
+    plot.draw({
+      series: [{ fn: pct, label: 'Ideal efficiency' }],
+      marks: [{ x: p.r, y: o.eff, guides: true }],   // its value is in the readout alone
+    });
+    document.getElementById('work').style.width = o.eff + '%';
+    document.getElementById('split').setAttribute('aria-label', 'The filled part becomes work: ' + (o.eff < 50 ? 'under' : 'over') + ' half the heat');
+
+    let s;
+    if (p.r === 1) {
+      s = 'With no squeeze at all (r = 1), the hot gas has no extra pressure to push the turbine with, so no work comes out: 0%.';
+    } else if (p.r * 2 <= 50) {
+      const more = pct(p.r * 2) - o.eff;
+      s = 'At ' + p.r + ':1 an ideal engine turns ' + o.eff.toFixed(1) + '% of the fuel\'s heat into work. Doubling the squeeze to ' +
+        p.r * 2 + ':1 would add ' + more.toFixed(1) + ' more points.';
+    } else {
+      const less = o.eff - pct(p.r / 2);
+      s = 'At ' + p.r + ':1 an ideal engine turns ' + o.eff.toFixed(1) + '% of the fuel\'s heat into work. Halving the squeeze would cost only ' +
+        less.toFixed(1) + ' points: the curve has flattened.';
+    }
+    // Until Dan moves the slider the sentence invites rather than answers his prediction.
+    document.getElementById('say').textContent = K.moved ? s : 'Does doubling the squeeze double the work you get? Move the pressure ratio and see.';
+  });
+
+  // Known answers, worked out by hand from the formula.
+  K.check('No squeeze (r = 1) gives 0% efficiency', () => K.near(K.at({ r: 1 }).eff, 0, 1e-9));
+  K.check('r = 10 gives 48.2%, from the ideal Brayton formula', () => K.near(K.at({ r: 10 }).eff, 48.205, 0.001), { source: SOURCE });
+  K.check('Efficiency rises with every step up in pressure ratio', () => {
+    for (let x = 1; x < 50; x++) if (!(K.at({ r: x + 1 }).eff > K.at({ r: x }).eff)) return false;
+    return true;
+  });
+  K.check('Diminishing returns: 1 → 2 adds 18.0 points, 20 → 40 adds only 7.6', () =>
+    K.near(K.at({ r: 2 }).eff - K.at({ r: 1 }).eff, 17.97, 0.01) && K.near(K.at({ r: 40 }).eff - K.at({ r: 20 }).eff, 7.63, 0.01));
+  K.check('Even at r = 50 the ideal stays below 100% (67.3%)', () => K.near(K.at({ r: 50 }).eff, 67.30, 0.01));
+
+  K.ready();
+</script>
+
+## Output
+Return ONLY the body: HTML elements, an optional <style>, then one inline <script> that ends with K.ready(). No <html>, <head> or <body> tags, no markdown fences, no commentary before or after. Keep it under 40 KB.

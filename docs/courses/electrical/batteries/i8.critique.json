@@ -1,0 +1,21 @@
+{
+  "draft": "i8.lesson.draft1.txt",
+  "keep": [
+    "The idea is named up front: a battery is an emf behind a few milliohms, so a short is limited by almost nothing, part discharged or not, and the cells cannot be switched off; only the source is new beside Design and verification's fault current.",
+    "One picture carries the lesson: a real 12 V 70 Ah block (12.6 V, 6.95 mΩ, maker's 1814 A), a cable whose fault you drag, two readouts (fault current, loop resistance), a 1 kA example device line, a charge-left slider (sketch kept above the measured 90%), a millisecond time trace, a 480 V 'Big string' preset and a three-column chemistry card.",
+    "Worked numbers from the rule: 12.6 / 0.00695 = 1813 A; 5 m gives 11.95 mΩ and 1054 A; 10 m gives 743 A; 480 / 0.188 = 2553 A against 2550 predicted and 2530 measured; the 48 V string 50.4 / 38.3 mΩ = 1316 A; 60% charge 1668 A; the 24 V battery 1800 A and 1575 A; 24 / 1.20 = 20 cells and 7 × 3.60 = 25.2 V.",
+    "Each named slip has a DO screen with a hint per wrong pick: low voltage means low hazard (2, 13), the cable alone or the terminal figure (4), connectors left out or cells added in parallel (6), a flat battery cannot fault hard (8, 13), the main switch makes the cells dead (10), a hydrometer on nickel-cadmium (12), cell counts by chemistry (14). Screen 0 is the Design and verification lesson 7 recall opener with 'Still there'.",
+    "Seventeen new sources (Vertiv's milliseconds and protection sizing, NRC/BNL's resistor-like fault and charger-plus-motors total, EnerSys's 12V70 data row and acid first aid, HSE SR18's two rules, HSE INDG139's electrolytes and their hazard, BU-203, Megger's potassium hydroxide, BU-204's 3.60 V and thermal runaway, the IET's Amendment 4 chapter) were checked with tools/eval/sources.mjs (17 ok, 0 failed) and appended to research.json as 95 to 111, with notes under ideas.i8.",
+    "Validator: ok, no problems, no soft problems."
+  ],
+  "fix": [
+    "The brief claims the current stays in the thousands of amps far above the device across the drag, but at 10 m it is 743 A and at 20 m 468 A, below the 1 kA line. Rewrite the brief: highest across the terminals, falling only as the cable adds its milliohms.",
+    "Causal step stated as an unsourced number: 'the rested voltage drops only a few per cent from full to flat'. Say it falls only a little as the charge goes, as lesson 2's voltmeter showed, and keep the milliohms staying milliohms as the second half of the why.",
+    "False absolute: 'a hydrometer reads the charge' of lead-acid. Only a vented cell can be sampled; say a vented cell's charge.",
+    "Too many footnotes for Dan's 20 Oct note: drop [^3] (the links joining the loop is Ohm's law, shown on the picture) and [^9] (breaking capacity above the fault is his own Design and verification rule).",
+    "Two ideas in one sentence with a footnote: the earth-fault pointer and BS 7671's chapter. Split them, and keep [^23]'s words: a new chapter covering stationary batteries, not 'on installing'.",
+    "Hint for screen 10 understates its own example: one cell drives over a thousand amps through metal, not hundreds.",
+    "SHOW screens 1, 3 and 11 run 96, 96 and 107 words with their closing read sentence. Cut each to about 90.",
+    "Practice step 'cover the terminals' is unsourced advice; tie it to the reason just taught: since the cells stay live."
+  ]
+}

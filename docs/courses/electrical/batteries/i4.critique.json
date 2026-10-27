@@ -1,0 +1,40 @@
+{
+  "draft": "i4.lesson.draft1.txt",
+  "keep": [
+    "The idea is named up front: the charger holds a set voltage per cell through bulk, topping and float, and the setting sits in a narrow band with harm on both sides.",
+    "One picture carries the lesson: the set-point slider with the cited bands marked (float 2.23 to 2.27, boost 2.33 to 2.40, gassing 2.40, equalise 2.50), the two direction-only meters, the cell stepper and the temperature slider.",
+    "Worked numbers from the rule: 12 × 2.25 = 27 V (recall), 24 × 2.23 = 53.52 V, 55 × 2.23 = 122.65 V, 2.25 − 0.030 = 2.22 V at 35 °C and 2.28 V at 15 °C, and the maker's own rule giving 2.215 V a cell and 121.8 V for 55 cells at 35 °C.",
+    "Each named slip has a DO screen with a hint per wrong pick: higher is better (7), boost left on (9), the temperature sign (11), and the nominal or rested voltage used as the setting (1, 5).",
+    "Every number has a kind: 100 Ah, 10 A, 2.35 V, 4 A and 51.60 V are worded as examples; the bands, 25 °C, 20 °C, 3 mV and 3 to 5 per cent are cited; the rest are computed.",
+    "The charger stays a box: its inside is left to Electronics, gas to lesson 5 and uneven cells to lesson 6.",
+    "Validator: ok, no problems."
+  ],
+  "fix": [
+    "Causal step skipped: why too high corrodes the positive grid. Say what the current a full cell cannot use does: with little sulphate left, it works on the lead grid that holds the positive plate, as one way to picture it.",
+    "Causal step skipped: why a warm cell needs a lower setting. Add, as one way to picture it, that a warm cell reacts more readily, so the same volts push more current into it.",
+    "Causal step skipped: why the setting is chosen per cell. Say each cell's band is set by its own chemistry, and series cells add their volts.",
+    "Talks about the idea instead of teaching it: 'Temperature moves the pin too' uses 'pin' with no meaning in the text. Say 'moves the band'.",
+    "The example charge setting 2.35 V a cell floats free. Say it sits inside the 2.30 to 2.45 V a cell that charge settings range over, and list both figures.",
+    "Long sentence: 'The current now falls by itself, because the cell is saturating: with less sulphate left...' runs to 25 words with a colon. Split it.",
+    "Unfinished phrase: 'Sealed cells tolerate overcharge less and have their own.' Say 'their own figures'.",
+    "Screen 12's hint for 'nothing' reads as an absolute. Say 2.15 V a cell is below the float band, so the cells are not kept full."
+  ],
+  "shape": {
+    "ideaInOneLine": "yes",
+    "ruleInWords": "yes: charger volts = volts per cell × number of cells; float sits a little above the rested 2.1 V; warmer, lower by 3 mV a cell per degree",
+    "workedExampleWithRealNumbers": "yes (24 cells: 53.52 V; 55 cells at 35 °C by the maker's rule: 121.8 V)",
+    "misconceptionShownFailing": "yes: higher is better (screen 7), boost left on (screen 9), the temperature sign (screen 11), nominal or rested voltage as the setting (screens 1 and 5)",
+    "analogyWithBreaks": "yes: tyre pressure, one figure per tyre, harm on both sides, checked cold; breaks because a tyre holds still while a charger pushes current all the time",
+    "putItIntoPractice": "yes: ventilation first, steps, rule of thumb, worked example, mistakes",
+    "recap": "yes: the bold closing sentence"
+  },
+  "sevenFaults": {
+    "causalStepSkipped": "three places, fixed above",
+    "falseAbsolutes": "one hint, fixed above; 'every cell takes the same current' holds for cells in series",
+    "briefShowsOnlyEffect": "no: the meters move because of the set point held, the cause",
+    "checksTestRecall": "no: each DO applies the rule (multiply, correct, predict); the recall opener is the brief's",
+    "thinResearch": "no: eleven sources, eight added from the course notes and checked by sources.mjs (9 of 9 ok)",
+    "unreadableLabels": "no",
+    "talksAboutIdea": "one phrase ('moves the pin'), fixed above"
+  }
+}

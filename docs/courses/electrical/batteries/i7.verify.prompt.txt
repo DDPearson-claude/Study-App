@@ -1,0 +1,792 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Batteries: lead-acid cells, from plate to battery room
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i7 "Ageing, faults and the trend that finds them" — A failing cell shows as readings drifting from its own baseline, so trend them and confirm with a capacity test; sources differ on how much drift matters. [skill]
+Later ideas in the course (every claim must stay true after Dan has learned each of them):
+- i8 Short circuits, safety and other chemistries — A large battery's few milliohms of resistance let it drive thousands of amps into a short, even part discharged, and its cells are always live.
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] Battery University | BU-804b: Sulfation and How to Prevent it — https://batteryuniversity.com/article/bu-804b-sulfation-and-how-to-prevent-it
+    "Sulfation occurs when a lead acid battery is deprived of a full charge."
+[R2] Battery Testing Guide — Megger — https://res.cloudinary.com/iwh/image/upload/q_auto,g_center/assets/1/7/Megger_Battery_Testing_Guide.pdf
+    "Capacity test is the only way to get an accurate value on the actual capacity of the battery."
+[R3] Battery Testing Guide — Megger — https://res.cloudinary.com/iwh/image/upload/q_auto,g_center/assets/1/7/Megger_Battery_Testing_Guide.pdf
+    "Both IEEE 450 and IEEE 1188 recommend replacing the battery if its capacity is below 80% of manufacturer’s"
+[R4] Battery Testing Guide — Megger — https://res.cloudinary.com/iwh/image/upload/q_auto,g_center/assets/1/7/Megger_Battery_Testing_Guide.pdf
+    "Megger has found that a 20 percent increase in impedance for flooded lead-acid generally correlates to 80% battery capacity."
+[R5] INTERNAL OHMIC MEASUREMENTS AND THEIR RELATIONSHIP TO BATTERY CAPACITY – EPRI’S ONGOING TECHNOLOGY EVALUATION — Vertiv — https://www.vertiv.com/48de51/globalassets/documents/battcon-static-assets/2002/internal-ohmic-measurements-and-their-relationship-to-battery-capacity---epris-ongoing-technology-evaluation.pdf
+    "Most cells had less than 80 percent capacity once impedance increased to 150 percent of the nominal impedance"
+[R6] TIPS AND TRICKS FOR BATTERY SERVICE TECHNICIANS — Vertiv — https://www.vertiv.com/48dfb9/globalassets/documents/battcon-static-assets/2010/the-inspection-is-complete.-what-are-you-doing-with-the-data.pdf
+    "Significant deviations in ohmic readings, 30%-50% for example from baseline should be considered cause for concern."
+[R7] TLR-RES/DE-2025-010 Valve-Regulated Lead-Acid (VRLA) Battery Technology for Backup Power Supplies in Nuclear Installations — https://www.nrc.gov/docs/ML2604/ML26041A257.pdf
+    "If the internal resistance increases by >50% from the initial value, the battery is highly likely to have lost 20% or more of the original capacity"
+[R8] BU-804a: Corrosion, Shedding and Internal Short - Battery University — https://batteryuniversity.com/article/bu-804a-corrosion-shedding-and-internal-short
+    "Applying prolonged overcharge is another contributor to grid corrosion."
+[R9] BU-905: Testing Lead Acid Batteries - Battery University — https://batteryuniversity.com/article/bu-905-testing-lead-acid-batteries
+    "Most resistance-based testers deliver state-of-health predictions that are not much better than 5 correct in 10, results that can be compared with tossing a coin."
+[R10] Battery Testing Guide — https://res.cloudinary.com/iwh/image/upload/q_auto,g_center/assets/1/7/Megger_Battery_Testing_Guide.pdf
+    "The first ten or eleven measurements seemed to be fine and then a steady upward trend is very noticeable."
+[R11] Battery University | BU-804c: Acid Stratification and Surface Charge — https://batteryuniversity.com/article/bu-804c-acid-stratification-and-surface-charge
+    "The electrolyte of a stratified battery concentrates at the bottom, starving the upper half of the cell."
+[R12] Battery University | BU-804c: Acid Stratification and Surface Charge — https://batteryuniversity.com/article/bu-804c-acid-stratification-and-surface-charge
+    "Acid stratification occurs if the battery dwells at low charge (below 80 percent), never receives a full charge and has shallow discharges."
+[R13] Battery University | BU-804b: Sulfation and How to Prevent it — https://batteryuniversity.com/article/bu-804b-sulfation-and-how-to-prevent-it
+    "During prolonged charge deprivation, however, the amorphous lead sulfate converts to a stable crystalline and deposits on the negative plates."
+[R14] BU-804a: Corrosion, Shedding and Internal Short - Battery University — https://batteryuniversity.com/article/bu-804a-corrosion-shedding-and-internal-short
+    "Corrosion occurs primarily on the grid, and it is known as a “softening and shedding” of the lead off the plates."
+[R15] Battery University | BU-201: How does the Lead Acid Battery Work? — https://www.batteryuniversity.com/article/bu-201-how-does-the-lead-acid-battery-work/
+    "While sulfation can be reversed if serviced in time, corrosion is permanent."
+[R16] Bu 201 How Does The Lead Acid Battery Work — https://batteryuniversity.com/article/bu-201-how-does-the-lead-acid-battery-work
+    "Excess charging causes gassing, venting and subsequent water depletion and dry-out."
+[R17] Battery Testing Guide — https://res.cloudinary.com/iwh/image/upload/q_auto,g_center/assets/1/7/Megger_Battery_Testing_Guide.pdf
+    "Perform a capacity test when the battery is new as part of the acceptance test."
+[R18] Battery University | BU-804c: Acid Stratification and Surface Charge — https://batteryuniversity.com/article/bu-804c-acid-stratification-and-surface-charge
+    "Applying an equalizing charge by raising the voltage of a 12-volt battery to 16 volts for 1–2 hours also helps by mixing the electrolyte through electrolysis."
+[R19] Bu 903 How To Measure State Of Charge — Battery University — https://batteryuniversity.com/article/bu-903-how-to-measure-state-of-charge
+    "As the SoC decreases through discharge, the sulfuric acid removes itself from the electrolyte and binds to the plate, forming lead sulfate. The density of the electrolyte becomes lighter and more water-like, and the specific gravity gets lower."
+[R20] Rechargeable cells: the lead–acid accumulator | Class experiment | RSC Education — Royal Society of Chemistry — https://edu.rsc.org/experiments/rechargeable-cells-the-lead-acid-accumulator/391.article
+    "Thus during charging the sulfuric acid concentration rises, and during discharge it falls."
+[R21] Bu 903 How To Measure State Of Charge — Battery University — https://batteryuniversity.com/article/bu-903-how-to-measure-state-of-charge
+    "To get accurate readings, the battery needs to rest in the open circuit state for at least four hours; battery manufacturers recommend 24 hours for lead acid."
+[R22] Bu 403 Charging Lead Acid — Battery University — https://batteryuniversity.com/article/bu-403-charging-lead-acid
+    "A cell voltage of 2.10V at room temperature reveals a charge of about 90 percent."
+[R23] Bu 903 How To Measure State Of Charge — Battery University — https://batteryuniversity.com/article/bu-903-how-to-measure-state-of-charge
+    "Surface charge further fools SoC estimations by showing an elevated voltage immediately after charge; a brief discharge before measurement counteracts the error."
+[R24] Bu 903 How To Measure State Of Charge — Battery University — https://batteryuniversity.com/article/bu-903-how-to-measure-state-of-charge
+    "The colder the temperature drops, the higher (more dense) the SG value becomes."
+[R25] 93.10 — GNB/Exide — https://www.exidegroup.com/eu/sites/default/files/2017-01/Section%2093_10%202014-08%20GNB%20Flooded%20Classic%20Installation%20and%20Operation%20Manual%20Section_4.pdf
+    "For each 3°F (1.67°C) in temperature of the electrolyte above 77°F (25°C) add one point (.001) in specific gravity to the observed hydrometer readings"
+[R26] Bu 903 How To Measure State Of Charge — Battery University — https://batteryuniversity.com/article/bu-903-how-to-measure-state-of-charge
+    "When water evaporates, the SG reading rises because of higher concentration. The battery can also be overfilled, which lowers the number."
+[R27] Battery University | BU-804c: Acid Stratification and Surface Charge — https://batteryuniversity.com/article/bu-804c-acid-stratification-and-surface-charge
+    "while the high acid concentration on the bottom makes the battery appear more charged than it is and artificially raises the open circuit voltage."
+[R28] White Paper | The Proper Charging of Stationary Lead-Acid Batteries - Eagle Eye Power Solutions — https://eepowersolutions.com/resources/white-papers/the-proper-charging-of-stationary-lead-acid-batteries
+    "The SG of the electrolyte determines the open circuit voltage (OCV) of a battery cell. If a constant of 0.845 is added to the SG that will determine the OCV."
+[R29] Bu 403 Charging Lead Acid — Battery University — https://batteryuniversity.com/article/bu-403-charging-lead-acid
+    "The lead acid battery uses the constant current constant voltage (CCCV) charge method. A regulated current raises the terminal voltage until the upper charge voltage limit is reached, at which point the current drops due to saturation."
+[R30] Bu 403 Charging Lead Acid — Battery University — https://batteryuniversity.com/article/bu-403-charging-lead-acid
+    "The correct setting of the charge voltage limit is critical and ranges from 2.30V to 2.45V per cell."
+[R31] Bu 403 Charging Lead Acid — Battery University — https://batteryuniversity.com/article/bu-403-charging-lead-acid
+    "On one hand, the battery wants to be fully charged to get maximum capacity and avoid sulfation on the negative plate; on the other hand, over-saturation by not switching to float charge causes grid corrosion on the positive plate."
+[R32] Bu 403 Charging Lead Acid — Battery University — https://batteryuniversity.com/article/bu-403-charging-lead-acid
+    "The recommended float voltage of most flooded lead acid batteries is 2.25V to 2.27V/cell. Large stationary batteries at 25°C (77°F) typically float at 2.25V/cell."
+[R33] Bu 403 Charging Lead Acid — Battery University — https://batteryuniversity.com/article/bu-403-charging-lead-acid
+    "the charge voltage should be reduced by 3mV per cell for every degree above 25°C and increased by 3mV per cell for every degree below 25°C."
+[R34] BU-404: What is Equalizing Charge? - Battery University — https://batteryuniversity.com/article/bu-404-what-is-equalizing-charge
+    "Applying a periodic equalizing charge brings all cells to similar levels by increasing the voltage to 2.50V/cell, or 10 percent higher than the recommended charge voltage."
+[R35] Bu 403 Charging Lead Acid — Battery University — https://batteryuniversity.com/article/bu-403-charging-lead-acid
+    "With the CCCV method, lead acid batteries are charged in three stages, which are [1] constant-current charge, [2] topping charge and [3] float charge."
+[R36] Bu 403 Charging Lead Acid — Battery University — https://batteryuniversity.com/article/bu-403-charging-lead-acid
+    "the topping charge continues at a lower charge current and provides saturation, and the float charge compensates for the loss caused by self-discharge."
+[R37] Bu 403 Charging Lead Acid — Battery University — https://batteryuniversity.com/article/bu-403-charging-lead-acid
+    "full charge is reached when the current decreases to 3–5 percent of the Ah rating."
+[R38] Flooded Stationary Lead Acid Batteries IOM — EnerSys — https://www.enersys.com/492013/globalassets/documents/product-documentation/powersafe/opzs/amer/amer-en-iom-ps-flooded-0223.pdf
+    "The recommended float / charge voltage is 2.23 V/cell remove per cell at 20°C (68°F) depending on the specific type (see table 5). The charger voltage amounts to Uflo per cell x no. of cells (tolerance ± 1 %)."
+[R39] Flooded Stationary Lead Acid Batteries IOM — EnerSys — https://www.enersys.com/492013/globalassets/documents/product-documentation/powersafe/opzs/amer/amer-en-iom-ps-flooded-0223.pdf
+    "To reduce the recharge time the battery may be recharged at 2.33 – 2.40 V/cell with a current limited to 4 x I10. Boost charging must be switched to float charging when the fully charged state is reached."
+[R40] Bu 403 Charging Lead Acid — Battery University — https://batteryuniversity.com/article/bu-403-charging-lead-acid
+    "Charging beyond the specified limits turns redundant energy into heat and the battery begins to gas."
+[R41] Flooded Stationary Lead Acid Batteries IOM — EnerSys — https://www.enersys.com/492013/globalassets/documents/product-documentation/powersafe/opzs/amer/amer-en-iom-ps-flooded-0223.pdf
+    "After reaching the gassing voltage of 2.40 V/c a current limit of 2.5 to 5 A/100 Ah is recommended"
+[R42] Bu 403 Charging Lead Acid — Battery University — https://batteryuniversity.com/article/bu-403-charging-lead-acid
+    "Connected in a string, all cells receive the same charge current and controlling individual cell voltages as each reaches full capacity is almost impossible."
+[R43] BU-404: What is Equalizing Charge? - Battery University — https://batteryuniversity.com/article/bu-404-what-is-equalizing-charge
+    "An equalizing charge is nothing more than a deliberate overcharge to remove sulfate crystals that build up on the plates over time."
+[R44] Flooded Stationary Lead Acid Batteries IOM — EnerSys — https://www.enersys.com/492013/globalassets/documents/product-documentation/powersafe/opzs/amer/amer-en-iom-ps-flooded-0223.pdf
+    "If the average battery temperature exceeds the recommended operating temperature range of +10°C (50°F) to +30°C (86°F), the float charge voltage shall be reduced by (Tcell - 30) x 0.003V/ cell when the temperature exceeds +30°C (86°F)"
+[R45] Bu 403 Charging Lead Acid — Battery University — https://batteryuniversity.com/article/bu-403-charging-lead-acid
+    "This is especially critical for sealed systems because they are less tolerant to overcharge than the flooded type."
+[R46] Flooded Stationary Lead Acid Batteries IOM — EnerSys — https://www.enersys.com/492013/globalassets/documents/product-documentation/powersafe/opzs/amer/amer-en-iom-ps-flooded-0223.pdf
+    "Recharge 1.2 times the discharged capacity."
+[R47] Table of contents — Hoppecke — https://www.hoppecke.com/fileadmin/Redakteur/Hoppecke-Main/Products-Import/vl_manual_en.pdf
+    "During the charging process, electrolysis decomposes the water of the electrolyte"
+[R48] Using electric storage batteries safely INDG139 — HSE — https://www.hse.gov.uk/PUBNS/indg139.pdf
+    "Hydrogen and oxygen are produced more quickly as the battery gets close to being fully charged. If you continue charging after the battery is fully charged, a lot of gas will be produced, greatly increasing the risk from explosion."
+[R49] Using electric storage batteries safely INDG139 — HSE — https://www.hse.gov.uk/PUBNS/indg139.pdf
+    "Minimum area of inlet/outlet needed = 0.3 x N x I x S cm2 Where N = number of cells in the battery(ies) I = the overcharging current (amps) S = the appropriate dilution factor;"
+[R50] Using electric storage batteries safely INDG139 — HSE — https://www.hse.gov.uk/PUBNS/indg139.pdf
+    "S = the appropriate dilution factor; 10 for workrooms, 4 for enclosures"
+[R51] Using electric storage batteries safely INDG139 — HSE — https://www.hse.gov.uk/PUBNS/indg139.pdf
+    "the maximum current likely to be supplied by the charger during malfunction should be used so as to include a suitable safety margin."
+[R52] Using electric storage batteries safely INDG139 — HSE — https://www.hse.gov.uk/PUBNS/indg139.pdf
+    "In charging areas that people enter (workrooms) the concentration of hydrogen should not exceed 0.4% vol/vol (10% of the LEL)."
+[R53] Using electric storage batteries safely INDG139 — HSE — https://www.hse.gov.uk/PUBNS/indg139.pdf
+    "When charging takes place in an enclosure that people do not enter, the concentration of hydrogen should not exceed 1% vol/vol (25% of the LEL)."
+[R54] Using electric storage batteries safely INDG139 — HSE — https://www.hse.gov.uk/PUBNS/indg139.pdf
+    "Mixtures with air containing from 4% hydrogen (lower explosion limit – LEL) to 75% hydrogen (upper explosion limit – UEL) will readily ignite and explode."
+[R55] Flooded Classic Installation and Operation Manual 93.10 — GNB — https://www.exidegroup.com/eu/sites/default/files/2017-01/Section%2093_10%202014-08%20GNB%20Flooded%20Classic%20Installation%20and%20Operation%20Manual%20Section_4.pdf
+    "All air moved by ventilation in the battery room or area should be exhausted into the outside atmosphere and should not be allowed to recirculate into other confined areas."
+[R56] Using electric storage batteries safely INDG139 — HSE — https://www.hse.gov.uk/PUBNS/indg139.pdf
+    "The ventilation air must be drawn from and discharged to a safe place. An alarm system should be installed to detect build-up of hydrogen or failure of mechanical ventilation and to isolate electrical equipment in the area."
+[R57] Using electric storage batteries safely INDG139 — HSE — https://www.hse.gov.uk/PUBNS/indg139.pdf
+    "So long as the velocity of the airflow through these ventilation openings is at least 0.1 m/s"
+[R58] Why is it important to follow safety procedures when charging batteries? — CCOHS — https://www.ccohs.ca/oshanswers/safety_haz/forklift/batteries.pdf
+    "the flammability or explosive limits are 4.1% to 72% hydrogen in air"
+[R59] Using electric storage batteries safely INDG139 — HSE — https://www.hse.gov.uk/PUBNS/indg139.pdf
+    "Leave the battery to stand for at least 20 minutes after charging to allow any flammable gases to disperse."
+[R60] Battery University | BU-803a: Cell Matching and Balancing — https://batteryuniversity.com/article/bu-803a-cell-mismatch-balancing
+    "The weak cell holds less capacity and is discharged more quickly than their strong brothers."
+[R61] Battery University | BU-803a: Cell Matching and Balancing — https://batteryuniversity.com/article/bu-803a-cell-mismatch-balancing
+    "Going empty first causes their strong brothers to overrun their feeble sibling to the point where a high load can push the weak cell into reverse polarity."
+[R62] Battery University | BU-803a: Cell Matching and Balancing — https://batteryuniversity.com/article/bu-803a-cell-mismatch-balancing
+    "On charge, the weak cell reaches full charge first, and then goes into heat-generating overcharge, while the strong brothers still accept charge and stay cool."
+[R63] Flooded Stationary Lead Acid Batteries IOM — EnerSys — https://www.enersys.com/492013/globalassets/documents/product-documentation/powersafe/opzs/amer/amer-en-iom-ps-flooded-0223.pdf
+    "Deviations of individual cell voltages of –0.05 to +0.10 V/c may be observed. However the total voltage of the battery shall be within the limits stated above."
+[R64] Flooded Stationary Lead Acid Batteries IOM — EnerSys — https://www.enersys.com/492013/globalassets/documents/product-documentation/powersafe/opzs/amer/amer-en-iom-ps-flooded-0223.pdf
+    "In the case of parallel connected strings use batteries of the same capacity, design and age only with a maximum of 4 parallel strings. The resistance of the cables in each string must be the same, e.g. same cross-section, same length."
+[R65] Bu 502 Discharging At High And Low Temperatures — Battery University — https://batteryuniversity.com/article/bu-502-discharging-at-high-and-low-temperatures
+    "Known as cell reversal, the weak cell gets stressed to the point of developing a permanent electrical short."
+[R66] Bu 403 Charging Lead Acid — Battery University — https://batteryuniversity.com/article/bu-403-charging-lead-acid
+    "Weak cells may go into overcharge while strong cells remain in a starved state. A float current that is too high for the faded cell might sulfate the strong neighbor due to undercharge."
+[R67] Battery University | BU-803a: Cell Matching and Balancing — https://batteryuniversity.com/article/bu-803a-cell-mismatch-balancing
+    "A charge may temporarily cover the deficiency, but the flaw will likely resurface again after a few hours due to the high self-discharge of the faulty cell."
+[R68] Battery University | BU-803a: Cell Matching and Balancing — https://batteryuniversity.com/article/bu-803a-cell-mismatch-balancing
+    "Cell mismatch is a common cause of failure in industrial batteries."
+[R69] Battery University | BU-803a: Cell Matching and Balancing — https://batteryuniversity.com/article/bu-803a-cell-mismatch-balancing
+    "Manufacturers of golf cars, aerial work platforms, floor scrubbers and other battery-powered vehicles recommend an equalizing charge if the voltage difference between the cells is greater than +/– 0.10V, or if the specific gravity varies more than 10 points (0.010 on the SG scale)."
+[R70] Battery University | BU-803a: Cell Matching and Balancing — https://batteryuniversity.com/article/bu-803a-cell-mismatch-balancing
+    "A difference in specific gravity of 40 points poses a performance problem and the cell is considered defective."
+[R71] Battery University | BU-303: Confusion with Voltages — http://www.batteryuniversity.com/article/bu-303-confusion-with-voltages
+    "The nominal voltage of lead acid is 2 volts per cell, however when measuring the open circuit voltage, the OCV of a charged and rested battery should be 2.1V/cell."
+[R72] 17.5 Batteries and Fuel Cells - Chemistry 2e | OpenStax — https://openstax.org/books/chemistry-2e/pages/17-5-batteries-and-fuel-cells
+    "Each cell produces 2 V, so six cells are connected in series to produce a 12-V car battery."
+Notes (claims, and the sources that support them):
+- Sulphation occurs when a lead acid battery is deprived of a full charge. [R1]
+- Capacity test is the only way to get an accurate value for the battery's actual capacity. [R2]
+- IEEE 450 and IEEE 1188 recommend replacing a battery whose capacity is below 80 per cent of the manufacturer's rating, as a test-equipment maker reports. [R3]
+- Sources give different impedance-drift thresholds linked to about 80 per cent capacity or a baseline-based warning: 20, 30 to 50, 50 and 150 per cent. [R4][R5][R6][R7]  [CONTESTED: Megger finds a 20 per cent impedance rise in flooded cells generally matches 80 per cent capacity; an EPRI study found most cells below 80 per cent at 150 per cent of nominal impedance; Battcon tips flag 30-50 per cent from baseline; an NRC report uses over 50 per cent for VRLA cells.]
+- Prolonged overcharge contributes to grid corrosion. [R8]
+- A single resistance-based reading predicts state of health little better than a coin toss, about 5 right in 10 (added for i7). [R9]
+- In one example of trended impedance, the first ten or eleven readings looked fine and then a steady upward trend showed (added for i7). [R10]
+- In a stratified cell the acid concentrates at the bottom, starving the upper half of the cell (added for i7). [R11]
+- Stratification occurs when a battery dwells at low charge, below 80 per cent, never receives a full charge and has shallow discharges (added for i7). [R12]
+- Under prolonged charge deprivation, soft lead sulphate turns into stable crystals deposited on the negative plates (added for i7). [R13]
+- Grid corrosion happens mainly on the grid, as a softening and shedding of the lead off the plates (added for i7). [R14]
+- Sulphation can be reversed if serviced in time, but corrosion is permanent (added for i7). [R15]
+- In a valve-regulated cell, excess charging causes gassing, venting, then water loss and dry-out (added for i7). [R16]
+- A capacity test on a new battery, as part of its acceptance test, gives the baseline later tests are compared with (added for i7). [R17]
+- An equalising charge helps reverse stratification by mixing the electrolyte through electrolysis (added for i7). [R18]
+- On discharge, sulphuric acid leaves the electrolyte and binds to the plate as lead sulphate, so the liquid becomes lighter and its specific gravity falls; on charge the acid concentration rises. [R19][R20]  (from an idea this one builds on)
+- For an accurate voltage reading the battery needs to rest open circuit for at least four hours; makers recommend 24 hours for lead acid. [R21]  (from an idea this one builds on)
+- A cell voltage of 2.10 V at room temperature indicates about 90 per cent charge. [R22]  (from an idea this one builds on)
+- Surface charge shows an elevated voltage straight after charging, and a brief discharge before measuring counteracts the error. [R23]  (from an idea this one builds on)
+- Colder electrolyte reads a higher specific gravity, so readings are corrected; one maker adds one point (0.001) per 3 degrees F above 77 degrees F, and subtracts below it. [R24][R25]  (from an idea this one builds on)
+- Evaporation of water raises the specific gravity reading and overfilling lowers it, so electrolyte level matters when reading it. [R26]  (from an idea this one builds on)
+- Acid concentrated at the bottom of a cell makes the battery appear more charged than it is and raises the open circuit voltage artificially. [R27]  (from an idea this one builds on)
+- A cell's open-circuit voltage is roughly its specific gravity plus 0.845 V, so a stationary cell full at 1.225 rests near 2.07 V, lower than a cell with stronger acid (added for i2's voltmeter model). [R28]  (from an idea this one builds on)
+- Lead acid uses constant-current constant-voltage charging: a regulated current raises the terminal voltage to the upper limit, then the current drops as the cell saturates. [R29]  (from an idea this one builds on)
+- The charge voltage limit is critical and ranges from 2.30 V to 2.45 V per cell. [R30]  (from an idea this one builds on)
+- Too low a limit risks sulphation on the negative plate; over-saturation by not switching to float causes grid corrosion on the positive plate. [R31]  (from an idea this one builds on)
+- The recommended float voltage of most flooded lead acid batteries is 2.25 V to 2.27 V per cell, and large stationary batteries typically float at 2.25 V per cell at 25 degrees C. [R32]  (from an idea this one builds on)
+- Charge voltage is reduced by 3 mV per cell for every degree above 25 degrees C and raised by 3 mV per cell for every degree below. [R33]  (from an idea this one builds on)
+- An equalising charge raises the voltage to 2.50 V per cell, about 10 per cent above the recommended charge voltage, to bring cells to similar levels. [R34]  (from an idea this one builds on)
+- Prolonged overcharge contributes to grid corrosion. [R8]  (from an idea this one builds on)
+- With CCCV, lead acid is charged in three stages: constant-current (bulk), topping (a falling current that saturates the cell) and float (making up self-discharge). [R35][R36]  (from an idea this one builds on)
+- Full charge is reached when the topping current falls to 3 to 5 per cent of the Ah rating. [R37]  (from an idea this one builds on)
+- EnerSys's vented stationary cells float at 2.23 V per cell at 20 degrees C, and the charger voltage is the float voltage per cell times the number of cells. [R38]  (from an idea this one builds on)
+- EnerSys allows a boost recharge at 2.33 to 2.40 V per cell with the current limited to 4 x I10, and boost must be switched back to float once the battery is fully charged. [R39]  (from an idea this one builds on)
+- Charging beyond the specified limits turns the surplus energy into heat and the battery begins to gas. [R40]  (from an idea this one builds on)
+- EnerSys calls 2.40 V per cell the gassing voltage, and recommends a current limit of 2.5 to 5 A per 100 Ah above it. [R41]  (from an idea this one builds on)
+- In a string all cells receive the same charge current, so individual cell voltages cannot be controlled one by one. [R42]  (from an idea this one builds on)
+- Sulphation occurs when a lead-acid battery is deprived of a full charge. [R1]  (from an idea this one builds on)
+- An equalising charge is a deliberate overcharge to remove sulphate crystals that build up on the plates over time. [R43]  (from an idea this one builds on)
+- EnerSys corrects its vented cells' float voltage for temperature only outside its 10 to 30 degrees C range, by 0.003 V per cell per degree beyond 30, so makers' temperature rules differ. [R44]  (from an idea this one builds on)
+- Sealed (valve-regulated) cells are less tolerant of overcharge than flooded cells. [R45]  (from an idea this one builds on)
+- EnerSys says to recharge 1.2 times the discharged capacity, so about 83 per cent of the ampere-hours put in come back (lesson i4, charge efficiency). [R46]  (from an idea this one builds on)
+- During charging, electrolysis decomposes the water of the electrolyte into hydrogen and oxygen. [R47]  (from an idea this one builds on)
+- Hydrogen and oxygen are produced more quickly near full charge, and continued charging after full charge produces a lot of gas. [R48]  (from an idea this one builds on)
+- Above the gassing voltage of 2.40 V per cell, one maker recommends limiting the charging current to 2.5 to 5 A per 100 Ah. [R41]  (from an idea this one builds on)
+- HSE gives the natural-ventilation opening area as 0.3 x N x I x S cm2, with N cells, I the overcharging current in amps, and S the dilution factor. [R49][R50]  (from an idea this one builds on)
+- HSE says to use the maximum current the charger is likely to supply during a malfunction, to include a suitable safety margin. [R51]  (from an idea this one builds on)
+- HSE design limits for hydrogen are 0.4 per cent in areas people enter and 1 per cent in enclosures people do not enter. [R52][R53]  (from an idea this one builds on)
+- Hydrogen in air ignites and explodes readily between 4 per cent (lower limit) and 75 per cent (upper limit). [R54]  (from an idea this one builds on)
+- Battery-room ventilation air should be exhausted to the outside and never recirculated into other confined areas. [R55]  (from an idea this one builds on)
+- Where mechanical ventilation is used, an alarm should detect a hydrogen build-up or a failed fan. [R56]  (from an idea this one builds on)
+- HSE's opening rule assumes air crosses each ventilation opening at 0.1 m/s or more. [R57]  (from an idea this one builds on)
+- Another safety body gives hydrogen's flammable range in air as 4.1 to 72 per cent, a little different from HSE's 4 to 75 per cent. [R58]  (from an idea this one builds on)
+- Leave a battery to stand for at least 20 minutes after charging so flammable gas can disperse. [R59]  (from an idea this one builds on)
+- Connected in a string, all cells receive the same charge current, so controlling each cell's voltage as it reaches full is almost impossible. [R42]  (from an idea this one builds on)
+- On discharge the weak cell holds less capacity and empties first, and a high load can push it into reverse polarity. [R60][R61]  (from an idea this one builds on)
+- On charge the weak cell reaches full first and goes into heat-generating overcharge while the strong cells still accept charge. [R62]  (from an idea this one builds on)
+- On float, one maker allows each vented cell to sit 0.05 V below to 0.10 V above the per-cell float voltage, while the battery's total stays within its limits, so a good total can hide a cell outside that band (added for i6's float view). [R63]  (from an idea this one builds on)
+- Parallel strings should be of the same capacity, design and age, at most four, with cables of equal resistance in each string, the same cross-section and length (added for i6's parallel card). [R64]  (from an idea this one builds on)
+- A weak cell driven into reverse under load can be stressed until it develops a permanent short. [R65]  (from an idea this one builds on)
+- On float, weak cells may overcharge while strong cells stay starved, and a float current too high for the faded cell may leave its strong neighbours undercharged and sulphating. [R66]  (from an idea this one builds on)
+- A charge may cover a weak cell for a while, but the flaw is likely to show again within hours because the faulty cell self-discharges fast. [R67]  (from an idea this one builds on)
+- Cell mismatch is a common cause of failure in industrial batteries. [R68]  (from an idea this one builds on)
+- An equalising charge is called for when cells differ by more than about 0.10 V, or by more than 10 points (0.010) of specific gravity (added for i6's practice list). [R69]  (from an idea this one builds on)
+- Cells 40 points of specific gravity apart are a performance problem, and the cell is considered defective (added for i6's practice list). [R70]  (from an idea this one builds on)
+- A lead-acid cell is nominally 2 V, and a charged, rested cell reads about 2.1 V open circuit. [R71]  (whole topic)
+- Cells connect in series to make a battery: six 2 V cells make a 12 V battery. [R72][R71]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i7",
+ "title": "Ageing, faults and the trend that finds them",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is one cell's impedance, flat on its own baseline for ten quarters, turning upward and climbing until it crosses the threshold you pick, when you drag the quarters on.",
+  "title": "The trend that finds the cell",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Screen",
+    "min": 0,
+    "max": 14,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [
+   {
+    "id": "riseFromBase",
+    "label": "Rise from own baseline",
+    "unit": "%",
+    "decimals": 0
+   },
+   {
+    "id": "slope",
+    "label": "Fitted slope, last 4 readings",
+    "unit": "mΩ/qtr",
+    "decimals": 3
+   },
+   {
+    "id": "sdFromMean",
+    "label": "SDs from the string's mean",
+    "unit": "SD",
+    "decimals": 1
+   }
+  ],
+  "whatAmILookingAt": "A vented lead-acid string of 24 cells stands in a row, each cell a small tile. Above it sits a chart of impedance in mΩ against quarters, from quarter 0 at commissioning to quarter 24, six years on. A quarters scrubber runs from 0 to 24. Each quarter adds one impedance reading to every cell. The reading at quarter 0 is each cell's baseline. The data are an example. The healthy cells start anywhere from 0.46 to 0.54 mΩ and stay flat, wobbling by up to 0.005 mΩ a quarter. Leaving cell 17 out, the other 23 cells average 0.50 mΩ with an SD of 0.02 mΩ. Cell 17 starts at 0.50 mΩ and stays flat for ten quarters. After quarter 10 it climbs 0.02 mΩ each quarter, so it reads 0.60 mΩ at quarter 15 and 0.78 mΩ at quarter 24. Tap a cell to plot its readings, with a dashed line at its own baseline. Three readouts follow the tapped cell. The rise from its own baseline is (reading − baseline) ÷ baseline × 100. The fitted slope is the least-squares line through its last 4 readings, in mΩ a quarter. Its SDs from the string's mean is (reading − mean of the other 23) ÷ their SD. A threshold picker draws one line at a time on the tapped cell's chart. 'Test-set maker, 20%' draws a line 20% above its baseline, 0.60 mΩ for cell 17. 'Service guide, 30 to 50%' draws a band from 30% to 50% above it, 0.65 to 0.75 mΩ. 'Industry study, 150%' draws a line at 150% of nominal, taking the baseline as nominal, 0.75 mΩ. Cell 17 reaches them at quarters 15, 18 and 23. A capacity-test button discharges the string at the quarter shown. The example string is rated 200 Ah at the 10-hour rate, so it runs at 20 A. A clock runs until the string reaches its end voltage. Capacity is the hours run ÷ 10 × 100, because ampere-hours are amps × hours at a fixed current. An 80% line is drawn at 8 hours. The hours are a sketch: 9.7 hours, 97%, up to quarter 10, then 0.38 hours less each quarter, so 7.8 hours, 78%, at quarter 15. A charging-history picker opens the flagged cell as a cut-away. 'Float below the band' shows hard sulphate crystals on the negative plate. 'Long spells at low charge' shows dense acid sunk to the bottom and the tops of the plates starved. 'Float above the band' shows the positive grid thinning and shedding lead. 'Valve-regulated, charged hard' shows gas venting and the mat drying out. A tag on each says what can still be done. On a phone the three readouts and the picker's options wrap onto further lines, and no word splits. Each show screen has under about 90 words. It ends on what its finished picture shows, so it reads well without the controls. Screen by screen. 0 asks a recall question. One cell's quarterly readings rise six times in a row. It asks whether that is drift or noise. First choice: drift, because a run of six one way is rare by chance. Second: noise, because readings always wobble. Third: neither, until a seventh reading is in. The right pick says 'Still there: a run of six one way points to a cause.' Hint for noise: noise goes up and down at random, so six rises in a row is unlikely. Hint for a seventh: six in a row is already the usual signal. 1 shows the string of 24 cells, each read for impedance every quarter. The first reading, at commissioning, is each cell's baseline. Cells differ from new, here from 0.46 to 0.54 mΩ. So one reading on its own says little about a cell's health. A single resistance reading predicts health little better than tossing a coin. Tap a cell to plot its readings against its own baseline. It ends at quarter 8 with cell 17 plotted, flat on its 0.50 mΩ baseline. 2 says cell A was commissioned at 0.46 mΩ and now reads 0.53 mΩ. Cell B started at 0.54 mΩ and still reads 0.54 mΩ. The string averages 0.50 mΩ. It asks which cell to watch. First choice: A, because it has risen about 15% from its own baseline. Second: B, because it reads highest. Third: neither, because both sit near the string's average. The right pick says 'That's it: A has moved 0.07 mΩ from where it started, and B has not moved.' Hint for B: B has read 0.54 mΩ since it was new, so that is how it was made. Hint for neither: the average hides a change that each cell's own baseline shows. 3 drags the quarters on. For ten quarters cell 17 stays flat, wobbling a little like the rest. Then it turns upward by 0.02 mΩ a quarter and keeps going. A steady climb one way is drift, not noise. The fitted slope through its last four readings rises from about zero to 0.020 mΩ a quarter. Its rise from its own baseline reaches 20%. It sits 5 SDs from the string's mean. It ends at quarter 15, with cell 17 reading 0.60 mΩ. 4 says a cell's baseline was 0.50 mΩ and it now reads 0.60 mΩ. It asks how far it has risen from its baseline. The choices are 20%, 120% or 0.10%. The right pick says 'That's it: 0.10 ÷ 0.50 = 0.2, a 20% rise.' Hint for 120%: that is the new reading as a share of the baseline, and the rise is only the extra. Hint for 0.10%: 0.10 is the rise in mΩ, so divide it by the baseline. 5 adds the threshold picker. How big a rise matters is argued. One test-set maker links a 20% rise in flooded cells to about 80% capacity, drawn at 0.60 mΩ. A service guide calls a 30 to 50% rise a concern, drawn as a band from 0.65 to 0.75 mΩ. An industry study found most cells below 80% capacity at 150% of nominal, drawn at 0.75 mΩ. Cell 17 reaches them at quarters 15, 18 and 23. Pick one to draw it. It ends with the 20% line drawn. 6 says a cell has risen 25% from its baseline, and its trend still climbs. It asks what to do. First choice: book a capacity test, because the rise only flags the cell. Second: replace it, because it is past 20%. Third: leave it, because it is under 30%. The right pick says 'That's it: the trend points, and the test decides.' Hint for replace: a rise in impedance says where to look, not how much capacity is gone. Hint for leave: another line already calls it a concern, and the trend is still climbing. 7 runs the capacity test. The example string is rated 200 Ah at the 10-hour rate, so it is discharged at 20 A. The clock runs until the string reaches its end voltage. At a fixed current ampere-hours are amps × hours, so capacity is the hours run ÷ 10 hours. The replacement line is 80%, at 8 hours. The weakest cell sets how long the string lasts, as in lesson 6. It ends at quarter 15, the clock stopped at 7.8 hours, 78%, short of the line. 8 says a string rated for 10 hours at 20 A reaches its end voltage after 8.5 hours. It asks what the test says. First choice: 85% of rated capacity, above the 80% line, so keep it and keep trending. Second: 85%, so replace it, because it has lost 15%. Third: too close to call, so test it again. The right pick says 'That's it: 8.5 ÷ 10 = 85%, and the line is 80%.' Hint for replace: every battery loses some capacity with age, and the line is 80%. Hint for test again: one clean full discharge is the answer, and the trend says when to test next. 9 opens the flagged cell. The trend says which cell, and the test says how much it has lost. The charging record says why. A history picker shows four faults. Kept short of full charge, soft sulphate hardens into crystals on the negative plate. Left at low charge with shallow cycles, the acid sinks and starves the tops of the plates. Floated too high for too long, the positive grid softens and sheds. A valve-regulated cell charged too hard vents its gas and dries out. It ends on sulphation. 10 says a flooded string's float was set below the maker's band for a year. It asks which fault to expect. First choice: sulphation on the negative plates. Second: corrosion of the positive grid. Third: dry-out. The right pick says 'That's it: below the band the cells never quite reach full charge, so sulphate hardens.' Hint for corrosion: that comes from too high a voltage, held too long. Hint for dry-out: that is a valve-regulated cell charged too hard, and this string floated too low. 11 tags each fault with what can still be done. Sulphation can be reversed if it is caught in time. An equalising charge mixes stratified acid by gassing. Grid corrosion is permanent. A valve-regulated cell cannot be topped up, so dry-out stays. Both cures are an equalising charge, and that is a deliberate overcharge of the whole string. So the earlier the trend finds a cell, the gentler the cure. It ends with all four tags showing. 12, 13 and 14 mix the ideas. 12 says every cell in a string has risen about 25% from its own baseline, all together. Cell 9 sits 0.3 SD from the string's mean. It asks whether the string is healthy. First choice: no, the whole string has drifted, so test its capacity. Second: yes, no cell stands out. Third: yes, 25% is under the 30% line. The right pick says 'That's it: comparing with the string finds an odd cell, and only each cell's own baseline shows them all ageing.' Hint for stands out: when every cell moves together, the mean moves with them. Hint for 30%: the lines disagree, and 25% is already past one of them. 13 says the other 23 cells average 0.50 mΩ with an SD of 0.02 mΩ, and one cell reads 0.56 mΩ. It asks how unusual that is. First choice: 3 SDs out, rare by chance, so check its own trend. Second: only 0.06 mΩ out, so it is normal. Third: 3 SDs out, so replace it. The right pick says 'That's it: 0.06 ÷ 0.02 = 3 SDs, which honest readings seldom reach.' Hint for 0.06: the spread sets the scale, and here the spread is 0.02 mΩ. Hint for replace: it may have read high since new, so its own trend and a capacity test decide. 14 says a valve-regulated string was left on boost charge for weeks, and now one cell's impedance climbs. It asks which fault fits, and whether an equalise will help. First choice: dry-out, and an equalise would make it worse. Second: sulphation, and an equalise will clear it. Third: stratification, and an equalise will mix it. The right pick says 'That's it: too much charge drove gas out of a cell that cannot be topped up.' Hint for sulphation: that follows too little charge, and this string had too much. Hint for stratification: that follows long spells at low charge, and an equalise is more overcharge for a sealed cell.",
+  "ignores": "The readings are example data, drawn so the turn is easy to see. Real cells tend to creep upward a little with age, and readings shift with temperature and with where the test leads sit. The 150% line takes each cell's baseline as its nominal value. A real nominal value comes from the maker. The capacity-test hours are a sketch that falls steadily once the climb starts. Real capacity does not follow impedance so neatly, which is why the test is needed. Each fault is drawn on its own, and a real cell often carries more than one. Time is sped up.",
+  "numbers": [
+   {
+    "label": "Screen control lowest",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Screen control highest",
+    "value": 14,
+    "kind": "control"
+   },
+   {
+    "label": "Cells in the example string",
+    "value": 24,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example flagged cell number",
+    "value": 17,
+    "kind": "assumed"
+   },
+   {
+    "label": "Other cells in the string",
+    "value": 23,
+    "kind": "computed"
+   },
+   {
+    "label": "Quarters scrubber start",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Quarters scrubber end",
+    "value": 24,
+    "kind": "control"
+   },
+   {
+    "label": "Years shown, 24 quarters",
+    "value": 6,
+    "kind": "computed"
+   },
+   {
+    "label": "Healthy baselines lowest, mΩ",
+    "value": 0.46,
+    "kind": "assumed"
+   },
+   {
+    "label": "Healthy baselines highest, mΩ",
+    "value": 0.54,
+    "kind": "assumed"
+   },
+   {
+    "label": "Healthy cells' wobble each quarter, up to, mΩ",
+    "value": 0.005,
+    "kind": "assumed"
+   },
+   {
+    "label": "Mean of the other 23 cells, mΩ",
+    "value": 0.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "SD of the other 23 cells, mΩ",
+    "value": 0.02,
+    "kind": "assumed"
+   },
+   {
+    "label": "Cell 17 baseline, mΩ",
+    "value": 0.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Quarters cell 17 stays flat",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "Cell 17 climb after quarter 10, mΩ a quarter",
+    "value": 0.02,
+    "kind": "assumed"
+   },
+   {
+    "label": "Cell 17 at quarter 15, mΩ",
+    "value": 0.6,
+    "kind": "computed"
+   },
+   {
+    "label": "Cell 17 at quarter 24, mΩ",
+    "value": 0.78,
+    "kind": "computed"
+   },
+   {
+    "label": "Readings in the fitted slope",
+    "value": 4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Cell 17 fitted slope at quarter 15, mΩ a quarter",
+    "value": 0.02,
+    "kind": "computed"
+   },
+   {
+    "label": "Cell 17 rise at quarter 15, %",
+    "value": 20,
+    "kind": "computed"
+   },
+   {
+    "label": "Cell 17 SDs from the mean at quarter 15",
+    "value": 5,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 1 end quarter",
+    "value": 8,
+    "kind": "control"
+   },
+   {
+    "label": "Screen 3 end quarter",
+    "value": 15,
+    "kind": "control"
+   },
+   {
+    "label": "Run of rises that signals drift, a common convention",
+    "value": 6,
+    "kind": "constant"
+   },
+   {
+    "label": "Screen 2 cell A baseline, mΩ",
+    "value": 0.46,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 2 cell A now, mΩ",
+    "value": 0.53,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 2 cell B, mΩ",
+    "value": 0.54,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 2 string average, mΩ",
+    "value": 0.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 2 cell A's rise, mΩ",
+    "value": 0.07,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 2 cell A's rise, about, %",
+    "value": 15,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 4 rise, mΩ",
+    "value": 0.1,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 4 rise as a fraction",
+    "value": 0.2,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 4 wrong pick, new reading as a share, %",
+    "value": 120,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 4 wrong pick, mΩ read as %",
+    "value": 0.1,
+    "kind": "computed"
+   },
+   {
+    "label": "Impedance rise one maker links to about 80% capacity, flooded, %",
+    "value": 20,
+    "kind": "constant",
+    "source": 1
+   },
+   {
+    "label": "Capacity that rise goes with, %",
+    "value": 80,
+    "kind": "constant",
+    "source": 1
+   },
+   {
+    "label": "Concern band from baseline, bottom, %",
+    "value": 30,
+    "kind": "constant",
+    "source": 2
+   },
+   {
+    "label": "Concern band from baseline, top, %",
+    "value": 50,
+    "kind": "constant",
+    "source": 2
+   },
+   {
+    "label": "Impedance as a share of nominal, most cells below 80%, %",
+    "value": 150,
+    "kind": "constant",
+    "source": 3
+   },
+   {
+    "label": "20% line for cell 17, mΩ",
+    "value": 0.6,
+    "kind": "computed"
+   },
+   {
+    "label": "30% band edge for cell 17, mΩ",
+    "value": 0.65,
+    "kind": "computed"
+   },
+   {
+    "label": "50% band edge and 150% line for cell 17, mΩ",
+    "value": 0.75,
+    "kind": "computed"
+   },
+   {
+    "label": "Quarter cell 17 reaches the 20% line",
+    "value": 15,
+    "kind": "computed"
+   },
+   {
+    "label": "Quarter cell 17 enters the 30 to 50% band",
+    "value": 18,
+    "kind": "computed"
+   },
+   {
+    "label": "Quarter cell 17 reaches 150% of nominal",
+    "value": 23,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 6 rise, %",
+    "value": 25,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example string rating, Ah",
+    "value": 200,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example test rate, hours",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example test current, A",
+    "value": 20,
+    "kind": "computed"
+   },
+   {
+    "label": "Replacement line, % of rated capacity",
+    "value": 80,
+    "kind": "constant",
+    "source": 4
+   },
+   {
+    "label": "Replacement line on the clock, hours",
+    "value": 8,
+    "kind": "computed"
+   },
+   {
+    "label": "Sketch test time up to quarter 10, hours",
+    "value": 9.7,
+    "kind": "assumed"
+   },
+   {
+    "label": "Sketch capacity up to quarter 10, %",
+    "value": 97,
+    "kind": "computed"
+   },
+   {
+    "label": "Sketch fall in test time each quarter, hours",
+    "value": 0.38,
+    "kind": "assumed"
+   },
+   {
+    "label": "Test time at quarter 15, hours",
+    "value": 7.8,
+    "kind": "computed"
+   },
+   {
+    "label": "Capacity at quarter 15, %",
+    "value": 78,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 8 test time, hours",
+    "value": 8.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 8 capacity, %",
+    "value": 85,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 8 capacity lost, %",
+    "value": 15,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12 example cell number",
+    "value": 9,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 12 SDs from the mean",
+    "value": 0.3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 13 odd cell, mΩ",
+    "value": 0.56,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 13 distance from the mean, mΩ",
+    "value": 0.06,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 13 SDs from the mean",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Analogy healthy insulation resistance, MΩ",
+    "value": 2000,
+    "kind": "assumed"
+   },
+   {
+    "label": "Analogy later insulation resistance, MΩ",
+    "value": 200,
+    "kind": "assumed"
+   },
+   {
+    "label": "Worked example baseline, mΩ",
+    "value": 0.4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Worked example first reading, mΩ",
+    "value": 0.42,
+    "kind": "assumed"
+   },
+   {
+    "label": "Worked example second reading, mΩ",
+    "value": 0.44,
+    "kind": "assumed"
+   },
+   {
+    "label": "Worked example third reading, mΩ",
+    "value": 0.46,
+    "kind": "assumed"
+   },
+   {
+    "label": "Worked example fourth reading, mΩ",
+    "value": 0.48,
+    "kind": "assumed"
+   },
+   {
+    "label": "Worked example rise, mΩ",
+    "value": 0.08,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example rise, %",
+    "value": 20,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example test time, hours",
+    "value": 7.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Worked example capacity, %",
+    "value": 75,
+    "kind": "computed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "A cell that is wearing out often shows it slowly, as its impedance creeps up from where it started. One way to picture it: each fault takes plate or acid out of the work, so the current has less to pass through. So the reading to watch is not how high a cell reads, but how far it has moved from its own first reading. Trend that, flag the cell that turns upward, then prove it with a test of its capacity. Sources agree on that habit, but not on how big a rise should worry you.\n\nCells differ from new. In the example string, healthy cells start anywhere from 0.46 to 0.54 mΩ. So one reading tells you little, and a single resistance reading predicts a cell's health little better than tossing a coin.[^5] Take each cell's first reading, at commissioning, as its [[baseline]]. Read every cell the same way at each inspection, and plot each one against its own baseline. Two tools you already have do the rest. The fitted slope says how fast a cell is drifting. Its z-score, its distance from the string's mean in SDs, says how odd it is among its neighbours. In the example, cell 17 sits flat for ten quarters, then climbs 0.02 mΩ a quarter. By quarter 15 it reads 0.60 mΩ. That is a rise of 0.10 ÷ 0.50, or 20%.\n\nHow big a rise matters is still argued between test-set makers, service guides and industry studies. One test-set maker finds a 20% rise in flooded cells generally goes with about 80% capacity.[^1] A service guide treats 30 to 50% from baseline as cause for concern.[^2] An industry study found most cells below 80% capacity once impedance reached 150% of nominal.[^3] So the line on your chart is the maker's or the plant's. Crossing it flags the cell, and a [[capacity test]] decides. You discharge the battery at a set current and time it to its end voltage. Ampere-hours are amps × hours, so the hours run ÷ the rated hours gives the capacity. Replace it when the capacity falls below 80% of its rating.[^4] In the example, 7.8 hours of a rated 10 is 78%, below the line.\n\nThe trend says which cell, and the test says how much it has lost. The charging record says why, and lesson 4's set point is often the cause. Kept short of a full charge, soft lead sulphate turns into hard crystals on the negative plates.[^6] Left at low charge with shallow cycles and no full charge, the acid stratifies, as in lesson 2.[^7] Floated too high for too long, the positive grid corrodes.[^8] It softens and sheds its lead. A valve-regulated cell charged too hard vents its gas and loses water, called [[dry-out]].[^9] Sulphation can be reversed if it is caught in time, but corrosion is permanent.[^10] The example's readings are made up for teaching, and real cells tend to creep upward a little. **Trend each cell against its own baseline, treat a steady climb as a flag, and let a capacity test against the 80% line decide.**"
+ },
+ "analogy": {
+  "text": "You already trend insulation resistance on a motor. A reading of 200 MΩ passes most tests. But if that winding read 2,000 MΩ for years, the fall is the warning. You judge the machine against its own history, then run a fuller test before you condemn it. A cell works the same way. Its own baseline matters more than one reading set against its neighbours.",
+  "breaks": "Insulation resistance falls as a winding fails, while a cell's impedance rises. And insulation resistance is itself the property that fails, while impedance only hints at what matters in a battery, its capacity, which takes a full discharge to prove."
+ },
+ "practice": {
+  "text": "Use this when you look after a standby battery or read its records.\n\n- Take a baseline when the battery is new: each cell's impedance, voltage and specific gravity, and a capacity test as part of its acceptance.[^11]\n- Read every cell the same way each time: the same test points, the same state of charge and a similar temperature.\n- Log each cell's readings by date, and plot each against its own baseline.\n- Look for a steady climb, not one high reading. Fit a line through the last few readings and note its slope.\n- Compare each cell with the string as well. A cell far from the mean needs its own trend checked.\n- Use the maker's or the plant's threshold. Published lines run from a 20% rise to 150% of nominal.\n- When a cell crosses the line, or its slope stays up, book a capacity test.\n- Replace when the tested capacity falls below 80% of rating.\n- Read the charging record for the cause, so the next cell does not age the same way.\n\n**Rule of thumb:** one reading points nowhere. A trend points at the cell, and the capacity test decides.\n\n**Worked example:** A vented cell's baseline was 0.40 mΩ. Over the last four quarters it read 0.42, 0.44, 0.46 and 0.48 mΩ. That is 0.02 mΩ a quarter, and 0.08 ÷ 0.40 is a 20% rise. The other cells sit flat. So book a capacity test now. The string, rated for 10 hours at its test current, reaches its end voltage after 7.5 hours. That is 7.5 ÷ 10, or 75%, below the 80% line, so it is due for replacement. The float record shows months above the maker's band, which points to grid corrosion.\n\n**Common mistakes**\n- Chasing the highest reading instead of the biggest rise.\n- Treating an impedance threshold as a pass or fail. It only says where to test.\n- Judging cells only against the string's mean, which misses cells ageing together.\n- Equalising again and again to cure one cell. Each one overcharges the whole string, and prolonged overcharge feeds grid corrosion.\n- Replacing a cell without asking why it aged."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "simplified",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "sources": [
+  {
+   "n": 1,
+   "title": "Battery Testing Guide — Megger",
+   "url": "https://res.cloudinary.com/iwh/image/upload/q_auto,g_center/assets/1/7/Megger_Battery_Testing_Guide.pdf",
+   "quote": "Megger has found that a 20 percent increase in impedance for flooded lead-acid generally correlates to 80% battery capacity."
+  },
+  {
+   "n": 2,
+   "title": "TIPS AND TRICKS FOR BATTERY SERVICE TECHNICIANS — Vertiv",
+   "url": "https://www.vertiv.com/48dfb9/globalassets/documents/battcon-static-assets/2010/the-inspection-is-complete.-what-are-you-doing-with-the-data.pdf",
+   "quote": "Significant deviations in ohmic readings, 30%-50% for example from baseline should be considered cause for concern."
+  },
+  {
+   "n": 3,
+   "title": "INTERNAL OHMIC MEASUREMENTS AND THEIR RELATIONSHIP TO BATTERY CAPACITY – EPRI’S ONGOING TECHNOLOGY EVALUATION — Vertiv",
+   "url": "https://www.vertiv.com/48de51/globalassets/documents/battcon-static-assets/2002/internal-ohmic-measurements-and-their-relationship-to-battery-capacity---epris-ongoing-technology-evaluation.pdf",
+   "quote": "Most cells had less than 80 percent capacity once impedance increased to 150 percent of the nominal impedance"
+  },
+  {
+   "n": 4,
+   "title": "Battery Testing Guide — Megger",
+   "url": "https://res.cloudinary.com/iwh/image/upload/q_auto,g_center/assets/1/7/Megger_Battery_Testing_Guide.pdf",
+   "quote": "Both IEEE 450 and IEEE 1188 recommend replacing the battery if its capacity is below 80% of manufacturer’s"
+  },
+  {
+   "n": 5,
+   "title": "BU-905: Testing Lead Acid Batteries - Battery University",
+   "url": "https://batteryuniversity.com/article/bu-905-testing-lead-acid-batteries",
+   "quote": "Most resistance-based testers deliver state-of-health predictions that are not much better than 5 correct in 10, results that can be compared with tossing a coin."
+  },
+  {
+   "n": 6,
+   "title": "Battery University | BU-804b: Sulfation and How to Prevent it",
+   "url": "https://batteryuniversity.com/article/bu-804b-sulfation-and-how-to-prevent-it",
+   "quote": "During prolonged charge deprivation, however, the amorphous lead sulfate converts to a stable crystalline and deposits on the negative plates."
+  },
+  {
+   "n": 7,
+   "title": "Battery University | BU-804c: Acid Stratification and Surface Charge",
+   "url": "https://batteryuniversity.com/article/bu-804c-acid-stratification-and-surface-charge",
+   "quote": "Acid stratification occurs if the battery dwells at low charge (below 80 percent), never receives a full charge and has shallow discharges."
+  },
+  {
+   "n": 8,
+   "title": "BU-804a: Corrosion, Shedding and Internal Short - Battery University",
+   "url": "https://batteryuniversity.com/article/bu-804a-corrosion-shedding-and-internal-short",
+   "quote": "Applying prolonged overcharge is another contributor to grid corrosion."
+  },
+  {
+   "n": 9,
+   "title": "Bu 201 How Does The Lead Acid Battery Work",
+   "url": "https://batteryuniversity.com/article/bu-201-how-does-the-lead-acid-battery-work",
+   "quote": "Excess charging causes gassing, venting and subsequent water depletion and dry-out."
+  },
+  {
+   "n": 10,
+   "title": "Battery University | BU-201: How does the Lead Acid Battery Work?",
+   "url": "https://www.batteryuniversity.com/article/bu-201-how-does-the-lead-acid-battery-work/",
+   "quote": "While sulfation can be reversed if serviced in time, corrosion is permanent."
+  },
+  {
+   "n": 11,
+   "title": "Battery Testing Guide",
+   "url": "https://res.cloudinary.com/iwh/image/upload/q_auto,g_center/assets/1/7/Megger_Battery_Testing_Guide.pdf",
+   "quote": "Perform a capacity test when the battery is new as part of the acceptance test."
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }

@@ -1,0 +1,797 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-27T16:48:48.150Z",
+ "startedAt": "2026-10-27T16:48:48.150Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i4",
+  "title": "Charging: the charger holds volts per cell",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is sulphate growing on the negative plate below the float band and the positive grid thinning above it, when you drag the set point in volts per cell.",
+   "title": "The set-point pin",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Screen",
+     "min": 0,
+     "max": 13,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [
+    {
+     "id": "voltsPerCell",
+     "label": "Set point, volts per cell",
+     "unit": "V",
+     "decimals": 2
+    },
+    {
+     "id": "chargerVolts",
+     "label": "Charger volts",
+     "unit": "V",
+     "decimals": 2
+    },
+    {
+     "id": "current",
+     "label": "Charging current",
+     "unit": "A",
+     "decimals": 1
+    }
+   ],
+   "whatAmILookingAt": "On the left is a charger. It is drawn as a box that holds a set voltage and limits its current. Its two leads feed a string of lead-acid cells. A cell stepper sets how many: 6, 12, 24 or 55. One cell is drawn cut open, as in lesson 1. It has a lead dioxide positive plate, a lead negative plate and acid between them. Above sits a set-point slider in volts per cell, from 2.10 to 2.60. It is marked in bands. Float runs from 2.23 to 2.27, and boost from 2.33 to 2.40. A red gassing line sits at 2.40, and equalise at 2.50. The charger's volts are the set point times the number of cells. Below runs a trace of an example 100 Ah battery charged from flat, with a time scrubber. It draws volts per cell and current together against time. In the bulk stage the charger holds the current at an example 10 A. The volts per cell climb as the cell fills. In the topping stage the charger holds the volts at an example charge setting of 2.35. Charge settings range from 2.30 to 2.45 a cell, and this one sits inside that range. The current tails off to 3 to 5 A, which is 3 to 5 per cent of 100 Ah. In the float stage the volts drop to 2.25 a cell. A small current then makes up the cell's self-discharge. The trace is a sketch. Two meters show what months at the set point do to the plates. They show the direction only. Below the float band, a sulphate layer grows on the negative plate. Above it, the positive grid thins. Past 2.40, bubbles rise from both plates and a water gauge falls. A temperature slider runs from 15 to 35 °C. It moves the float figure by 3 mV a cell for each degree away from 25 °C. Warmer moves it down, and colder moves it up. On a phone the three readouts wrap onto a second line, and no word splits. Each show screen has under about 90 words. It ends on what its finished picture shows, so it reads well without the controls. Screen by screen. 1 asks what the charger reads when a bank of 12 cells floats at 2.25 V a cell. The choices are 27 V, 25.2 V or 2.25 V. The right pick says 'That's it: 12 × 2.25 = 27.00 V.' Hint for 25.2 V: that is 12 × 2.1 V, the rested voltage. A charger must sit above it to push current in. Hint for 2.25 V: that is one cell, and cells in series add. 2 plays a charge from flat. The current holds at 10 A while the volts per cell climb. The volts reach 2.35, inside the boost band, and hold, and the current tails off. Then the volts drop to 2.25 for float, and a small current flows. It ends on float. 3 says the topping current on the 100 Ah battery has fallen from 10 A. It now holds at 4 A. The screen asks whether the battery is charged. First choice: yes, because 4 A is 4 per cent of 100 Ah. Second: no, because full means 0 A. Third: no, because the current should still be 10 A. Hint for 0 A: a full cell held at the charge setting never quite reaches 0 A, so compare 4 A with the 100 Ah. Hint for 10 A: a steady 10 A is the bulk stage. A falling current means the cell is filling. 4 steps the cell count at a float of 2.23 V a cell. Six cells need 13.38 V, 12 need 26.76 V and 24 need 53.52 V. It ends on 24 cells at 53.52 V. 5 asks what to set the charger to for 55 cells at 2.23 V a cell. The choices are 122.65 V, 115.50 V or 110.00 V. Hint for 115.50 V: that is 55 × 2.1 V, the rested voltage. Almost no current would flow in. Hint for 110.00 V: that is the nominal 2 V a cell. It is below a charged battery's own voltage, so the charger would put nothing into it. 6 moves the set point from 2.25 down to 2.15. The sulphate meter on the negative plate climbs. Then the set point moves up to 2.45. The sulphate meter stops, and the grid meter on the positive plate climbs. Bubbles rise and the water gauge falls. It ends back at 2.25, with both meters still. 7 says the float has been raised from 2.25 to 2.35 V a cell to keep the bank fuller. It asks what a year of that does. First choice: the positive grid corrodes faster and the cells run warmer. Second: more ampere-hours in store. Third: nothing, because a full cell takes no more charge. Hint for more ampere-hours: a full cell is full. The extra volts push current it cannot store. Hint for nothing: at 2.35 a full cell still takes current, so where can that current go? 8 says a boost is a spell above float that refills the cells faster, and the topping stage at 2.35 was one. It sets the set point to 2.38 after a discharge, in the boost band. The current is limited, and the scrubber reaches full sooner. At full the charger drops back to float. Then it sets 2.50 to equalise, and bubbles rise from every cell. It ends on float. 9 says Friday's discharge was recharged on boost at 2.40 V a cell. On Monday the charger is still on boost. It asks what the weekend has done. First choice: extra grid corrosion and water lost as gas. Second: extra capacity from charging past full. Third: nothing, because a full battery takes no current. Hint for extra capacity: boost is for recharging. Once the battery is full, the extra current goes to heat, gas and corrosion. Hint for nothing: held at 2.40, a full cell keeps taking current. 10 sets 24 cells and moves the temperature from 25 to 35 °C. The float falls from 2.25 to 2.22 V a cell. The charger falls from 54.00 to 53.28 V. It ends at 35 °C. 11 asks what float to set for cells at 15 °C. They float at 2.25 V a cell at 25 °C, and the setting moves 3 mV a cell for each degree away from 25 °C. The choices are 2.28 V, 2.22 V or 2.25 V. Hint for 2.22 V: that is the warm correction, and colder raises the setting. Hint for 2.25 V: the cells are 10 degrees below 25 °C, so the setting moves. 12, 13 and 14 mix the ideas. 12 says a 24-cell charger has sat at 51.60 V for a year. It asks what that has done. First choice: sulphate building on the negative plates. Second: corrosion of the positive grid. Third: nothing, because 2.15 V a cell is above the rested 2.1 V. Hint for corrosion: 51.60 ÷ 24 is 2.15 V a cell, below the float band. So the cells are undercharged. Hint for nothing: 2.15 V a cell is below the float band, so the cells are not kept full. 13 says the specific gravities of a 24-cell battery have drifted apart after months on float. It asks what the battery needs. First choice: an equalise at 2.50 V a cell, 60.00 V, then back to float. Second: the float raised to 60.00 V for good. Third: boost at 2.40 V a cell, 57.60 V, left on. Hint for float raised for good: equalise is a deliberate overcharge, safe only for a while. Hint for boost left on: boost recharges, then must go back to float. 14 draws a simple charging circuit. A DC supply feeds the battery positive to positive, through a resistor and an ammeter. The battery gave out 50 Ah. It asks how many ampere-hours the supply must put back. The choices are 60 Ah, 50 Ah or 42 Ah. Two bars show 50 Ah taken out and the ampere-hours put back. On a right answer the second bar fills to 60 Ah, and a line says about 83 per cent comes back. Hint for 50 Ah: some of the charge splits water into gas instead of filling the plates. Hint for 42 Ah: that is less than came out.",
+   "ignores": "The charge is sped up from hours to seconds. The trace is a smooth sketch. The meters show only which way sulphate and corrosion go, not how fast. Every cell is drawn the same, and they share the charger's volts equally. Real cells differ a little, and in a string that matters. The charger's insides are left out, with its ripple and its own current limit on boost. The cell is a flooded one. A sealed cell has its own, tighter figures. The float band's bottom edge, 2.23 V, is a 20 °C figure, while its top and the temperature rule work from 25 °C.",
+   "numbers": [
+    {
+     "label": "Screen control lowest",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Screen control highest",
+     "value": 13,
+     "kind": "control"
+    },
+    {
+     "label": "Set-point slider bottom, V a cell",
+     "value": 2.1,
+     "kind": "control"
+    },
+    {
+     "label": "Set-point slider top, V a cell",
+     "value": 2.6,
+     "kind": "control"
+    },
+    {
+     "label": "Float band bottom, one maker at 20 °C, V a cell",
+     "value": 2.23,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "Maker's reference temperature for 2.23 V, °C",
+     "value": 20,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "Float band top, V a cell",
+     "value": 2.27,
+     "kind": "constant",
+     "source": 2
+    },
+    {
+     "label": "Large stationary float at 25 °C, V a cell",
+     "value": 2.25,
+     "kind": "constant",
+     "source": 2
+    },
+    {
+     "label": "Reference temperature for 2.25 V float, °C",
+     "value": 25,
+     "kind": "constant",
+     "source": 2
+    },
+    {
+     "label": "Boost band bottom, V a cell",
+     "value": 2.33,
+     "kind": "constant",
+     "source": 3
+    },
+    {
+     "label": "Boost band top, V a cell",
+     "value": 2.4,
+     "kind": "constant",
+     "source": 3
+    },
+    {
+     "label": "Gassing voltage, V a cell",
+     "value": 2.4,
+     "kind": "constant",
+     "source": 4
+    },
+    {
+     "label": "Equalising voltage, V a cell",
+     "value": 2.5,
+     "kind": "constant",
+     "source": 5
+    },
+    {
+     "label": "Temperature correction, mV a cell per °C",
+     "value": 3,
+     "kind": "constant",
+     "source": 6
+    },
+    {
+     "label": "Temperature correction, V a cell per °C",
+     "value": 0.003,
+     "kind": "constant",
+     "source": 6
+    },
+    {
+     "label": "Full when topping current falls to, % of Ah, low",
+     "value": 3,
+     "kind": "constant",
+     "source": 7
+    },
+    {
+     "label": "Full when topping current falls to, % of Ah, high",
+     "value": 5,
+     "kind": "constant",
+     "source": 7
+    },
+    {
+     "label": "Example battery capacity, Ah",
+     "value": 100,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example bulk current, A",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example charge setting, V a cell",
+     "value": 2.35,
+     "kind": "assumed"
+    },
+    {
+     "label": "Charge setting range, low, V a cell",
+     "value": 2.3,
+     "kind": "constant",
+     "source": 8
+    },
+    {
+     "label": "Charge setting range, high, V a cell",
+     "value": 2.45,
+     "kind": "constant",
+     "source": 8
+    },
+    {
+     "label": "Full-charge current on 100 Ah, low, A",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Full-charge current on 100 Ah, high, A",
+     "value": 5,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 3 topping current, A",
+     "value": 4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 3 current as % of 100 Ah",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 3 wrong pick, A",
+     "value": 0,
+     "kind": "assumed"
+    },
+    {
+     "label": "Cell stepper, fewest cells",
+     "value": 6,
+     "kind": "control"
+    },
+    {
+     "label": "Cell stepper, 12 cells",
+     "value": 12,
+     "kind": "control"
+    },
+    {
+     "label": "Cell stepper, 24 cells",
+     "value": 24,
+     "kind": "control"
+    },
+    {
+     "label": "Cell stepper, most cells",
+     "value": 55,
+     "kind": "control"
+    },
+    {
+     "label": "Charged, rested cell voltage, V",
+     "value": 2.1,
+     "kind": "constant",
+     "source": 9
+    },
+    {
+     "label": "Nominal cell voltage, V",
+     "value": 2,
+     "kind": "constant",
+     "source": 9
+    },
+    {
+     "label": "Recall: 12 cells at 2.25 V, charger V",
+     "value": 27,
+     "kind": "computed"
+    },
+    {
+     "label": "Recall wrong pick: 12 × 2.1, V",
+     "value": 25.2,
+     "kind": "computed"
+    },
+    {
+     "label": "6 cells at 2.23 V, charger V",
+     "value": 13.38,
+     "kind": "computed"
+    },
+    {
+     "label": "12 cells at 2.23 V, charger V",
+     "value": 26.76,
+     "kind": "computed"
+    },
+    {
+     "label": "24 cells at 2.23 V, charger V",
+     "value": 53.52,
+     "kind": "computed"
+    },
+    {
+     "label": "55 cells at 2.23 V, charger V",
+     "value": 122.65,
+     "kind": "computed"
+    },
+    {
+     "label": "55 cells at 2.1 V, V",
+     "value": 115.5,
+     "kind": "computed"
+    },
+    {
+     "label": "55 cells at 2 V, V",
+     "value": 110,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 6 low set point, V a cell",
+     "value": 2.15,
+     "kind": "control"
+    },
+    {
+     "label": "Screen 6 high set point, V a cell",
+     "value": 2.45,
+     "kind": "control"
+    },
+    {
+     "label": "Screen 7 raised float, V a cell",
+     "value": 2.35,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 8 boost set point, V a cell",
+     "value": 2.38,
+     "kind": "control"
+    },
+    {
+     "label": "Temperature slider bottom, °C",
+     "value": 15,
+     "kind": "control"
+    },
+    {
+     "label": "Temperature slider top, °C",
+     "value": 35,
+     "kind": "control"
+    },
+    {
+     "label": "Float at 35 °C, V a cell",
+     "value": 2.22,
+     "kind": "computed"
+    },
+    {
+     "label": "Float at 15 °C, V a cell",
+     "value": 2.28,
+     "kind": "computed"
+    },
+    {
+     "label": "Correction for 10 degrees, mV a cell",
+     "value": 30,
+     "kind": "computed"
+    },
+    {
+     "label": "Correction for 10 degrees, V a cell",
+     "value": 0.03,
+     "kind": "computed"
+    },
+    {
+     "label": "Degrees from 25 °C on screens 10 and 11",
+     "value": 10,
+     "kind": "computed"
+    },
+    {
+     "label": "24 cells at 2.25 V, charger V",
+     "value": 54,
+     "kind": "computed"
+    },
+    {
+     "label": "24 cells at 2.22 V, charger V",
+     "value": 53.28,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 12 charger reading, V",
+     "value": 51.6,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 12 per cell, 51.60 ÷ 24, V",
+     "value": 2.15,
+     "kind": "computed"
+    },
+    {
+     "label": "24 cells at 2.50 V, charger V",
+     "value": 60,
+     "kind": "computed"
+    },
+    {
+     "label": "24 cells at 2.40 V, charger V",
+     "value": 57.6,
+     "kind": "computed"
+    },
+    {
+     "label": "One maker's no-correction range, low, °C",
+     "value": 10,
+     "kind": "constant",
+     "source": 10
+    },
+    {
+     "label": "One maker's no-correction range, high, °C",
+     "value": 30,
+     "kind": "constant",
+     "source": 10
+    },
+    {
+     "label": "Worked example room temperature, °C",
+     "value": 35,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example degrees above 30 °C",
+     "value": 5,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example correction, V a cell",
+     "value": 0.015,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example float, V a cell",
+     "value": 2.215,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example charger, 55 cells, V",
+     "value": 121.8,
+     "kind": "computed"
+    },
+    {
+     "label": "Cells in a 12 V block",
+     "value": 6,
+     "kind": "constant",
+     "source": 11
+    },
+    {
+     "label": "Recharge factor, Ah put back per Ah taken out",
+     "value": 1.2,
+     "kind": "constant",
+     "source": 12
+    },
+    {
+     "label": "Screen 14 Ah taken out",
+     "value": 50,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 14 Ah put back, 50 × 1.2",
+     "value": 60,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 14 wrong pick, 50 ÷ 1.2 rounded, Ah",
+     "value": 42,
+     "kind": "computed"
+    },
+    {
+     "label": "Ah that come back, 50 ÷ 60",
+     "value": 0.83,
+     "kind": "computed"
+    },
+    {
+     "label": "Ah that come back, per cent",
+     "value": 83,
+     "kind": "computed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "A charger refills a lead-acid battery by holding a set voltage on every cell. It works in three stages: bulk, topping and float. The setting per cell sits in a narrow band. Set it a little too low, and sulphate builds on the negative plate. Set it too high, and the positive grid corrodes.\n\nCharging runs lesson 1's reaction backwards. The sulphate on both plates turns back into lead and lead dioxide. The acid returns to the liquid. In the bulk stage the charger holds its current steady. The volts per cell climb as the cell fills. When they reach the charge setting, the charger holds the volts instead. That is the topping stage. Now the current falls by itself, because the cell is saturating. With less sulphate left to turn back, the same volts push less current in. A cell counts as full when the current has fallen to 3 to 5 per cent of its Ah rating.[^7] On a 100 Ah battery, that is 3 to 5 A. Then the charger drops to the [[float charge]]. A large stationary battery floats at about 2.25 V a cell at 25 °C.[^2] That is enough above its rested 2.1 V to push a small current. This small current makes up the cell's self-discharge. Holding the volts is what lets the current fall away. A fixed current would keep flowing into a full battery. A full cell cannot store that current, so it turns into heat and gas.\n\nNot all the charge comes back out. Some of it splits water into gas instead of filling the plates. So you put back about 1.2 times the ampere-hours taken out. Put the other way, about 83 per cent of the ampere-hours come back. The simplest charger is a DC supply set above the battery's voltage. Join positive to positive and negative to negative, so the supply pushes current into the battery. A resistor in series limits the current, and an ammeter in series shows it.\n\nEach cell's band comes from its own chemistry, and cells in series add their volts. So you set one cell's figure and multiply by the cells. The charger's volts are the float volts per cell times the number of cells. A typical vented cell floats at 2.23 V a cell at 20 °C. So 24 cells need 2.23 × 24 = 53.52 V. The band is narrow because both sides do harm. Held too low, the cells never quite get back to full. The sulphate left on the negative plate builds up. Held too high, current keeps flowing into a full cell. Picture it this way. With little sulphate left to convert, that current works on the lead grid that holds the positive plate together. The grid corrodes. Past 2.40 V a cell the cells also gas freely. So higher is not better. It swaps one kind of damage for another.\n\nTwo settings sit above float on purpose, for a while. A [[boost charge]] is a spell above float that refills the cells faster after a discharge. It typically runs at 2.33 to 2.40 V a cell, so the topping stage of a normal charge is usually a boost. It must go back to float once the battery is full. An [[equalising charge]] is a deliberate overcharge, typically at 2.50 V a cell.[^5] It clears built-up sulphate and brings the cells level. Temperature moves the band too. Picture it this way: a warm cell reacts more readily, so the same volts push more current in. So a warm cell needs a lower setting. A typical correction is 3 mV a cell off for each degree above 25 °C, and 3 mV a cell on for each degree below.[^6] So a 2.25 V float becomes 2.22 V at 35 °C. Some makers correct only outside 10 to 30 °C. So follow the battery's own maker. These figures are for flooded cells. Sealed cells tolerate overcharge less and have their own figures. **A charger holds a set voltage per cell, multiplied by the number of cells. That setting lives in a narrow band: too low sulphates the negative plate, and too high corrodes the positive grid.**"
+  },
+  "analogy": {
+   "text": "Think of tyre pressure. The maker gives one figure per tyre, and you set each tyre to it. Too soft, and the shoulders wear and the tyre runs hot. Too hard, and the centre wears and grip falls. Neither side is safe. So 'a bit more to be sure' does harm. You also check the pressure cold, because heat raises the reading. A charger's set point works the same way: one figure per cell, harm on both sides, corrected for temperature.",
+   "breaks": "A tyre is pumped up now and then, and holds its pressure in between. A charger's volts push a current all the time. The harm comes from that current, through the reactions at the plates. The cell's band is also far narrower: a few hundredths of a volt in about 2.25."
+  },
+  "practice": {
+   "text": "Use this to set or check a charger on a lead-acid battery.\n\n- Before a boost or an equalise, check the battery room's ventilation works. Gas climbs steeply from about 2.40 V a cell, and even a boost near full makes a little.\n- Find the maker's float figure in volts per cell, and the temperature it is quoted at.\n- Count the cells in series. A 12 V block holds six.\n- Multiply: charger volts = volts per cell × number of cells.\n- Correct for the battery's temperature by the maker's rule. Warmer means a lower setting.\n- After a discharge, expect to put back about 1.2 times the ampere-hours taken out.\n- After a boost or an equalise, check the charger has gone back to float.\n\n**Rule of thumb:** divide the charger's reading by the number of cells. On float it should land in the maker's band. For flooded cells near room temperature, that is around 2.23 to 2.27 V a cell.\n\n**Worked example:** A battery of 55 vented cells floats at 2.23 V a cell at 20 °C. Its maker leaves the setting alone from 10 to 30 °C. Above 30 °C, it takes off 0.003 V a cell for each degree over. The cells run at 35 °C, which is 5 degrees over. So the float is 2.23 − 0.015 = 2.215 V a cell. Set the charger to 2.215 × 55 = 121.8 V.\n\n**Common mistakes**\n- Setting the charger to the nominal or rested voltage times the cells.\n- Raising the float to keep the battery fuller.\n- Leaving a boost or an equalise running.\n- Getting the temperature sign backwards: warmer needs less.\n- Using one maker's figures on another maker's battery."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "Flooded Stationary Lead Acid Batteries IOM — EnerSys",
+    "url": "https://www.enersys.com/492013/globalassets/documents/product-documentation/powersafe/opzs/amer/amer-en-iom-ps-flooded-0223.pdf",
+    "quote": "The recommended float / charge voltage is 2.23 V/cell remove per cell at 20°C (68°F) depending on the specific type (see table 5). The charger voltage amounts to Uflo per cell x no. of cells (tolerance ± 1 %)."
+   },
+   {
+    "n": 2,
+    "title": "Bu 403 Charging Lead Acid — Battery University",
+    "url": "https://batteryuniversity.com/article/bu-403-charging-lead-acid",
+    "quote": "The recommended float voltage of most flooded lead acid batteries is 2.25V to 2.27V/cell. Large stationary batteries at 25°C (77°F) typically float at 2.25V/cell."
+   },
+   {
+    "n": 3,
+    "title": "Flooded Stationary Lead Acid Batteries IOM — EnerSys",
+    "url": "https://www.enersys.com/492013/globalassets/documents/product-documentation/powersafe/opzs/amer/amer-en-iom-ps-flooded-0223.pdf",
+    "quote": "To reduce the recharge time the battery may be recharged at 2.33 – 2.40 V/cell with a current limited to 4 x I10. Boost charging must be switched to float charging when the fully charged state is reached."
+   },
+   {
+    "n": 4,
+    "title": "Flooded Stationary Lead Acid Batteries IOM — EnerSys",
+    "url": "https://www.enersys.com/492013/globalassets/documents/product-documentation/powersafe/opzs/amer/amer-en-iom-ps-flooded-0223.pdf",
+    "quote": "After reaching the gassing voltage of 2.40 V/c a current limit of 2.5 to 5 A/100 Ah is recommended"
+   },
+   {
+    "n": 5,
+    "title": "BU-404: What is Equalizing Charge? - Battery University",
+    "url": "https://batteryuniversity.com/article/bu-404-what-is-equalizing-charge",
+    "quote": "Applying a periodic equalizing charge brings all cells to similar levels by increasing the voltage to 2.50V/cell, or 10 percent higher than the recommended charge voltage."
+   },
+   {
+    "n": 6,
+    "title": "Bu 403 Charging Lead Acid — Battery University",
+    "url": "https://batteryuniversity.com/article/bu-403-charging-lead-acid",
+    "quote": "the charge voltage should be reduced by 3mV per cell for every degree above 25°C and increased by 3mV per cell for every degree below 25°C."
+   },
+   {
+    "n": 7,
+    "title": "Bu 403 Charging Lead Acid — Battery University",
+    "url": "https://batteryuniversity.com/article/bu-403-charging-lead-acid",
+    "quote": "full charge is reached when the current decreases to 3–5 percent of the Ah rating."
+   },
+   {
+    "n": 8,
+    "title": "Bu 403 Charging Lead Acid — Battery University",
+    "url": "https://batteryuniversity.com/article/bu-403-charging-lead-acid",
+    "quote": "The correct setting of the charge voltage limit is critical and ranges from 2.30V to 2.45V per cell."
+   },
+   {
+    "n": 9,
+    "title": "Battery University | BU-303: Confusion with Voltages",
+    "url": "http://www.batteryuniversity.com/article/bu-303-confusion-with-voltages",
+    "quote": "The nominal voltage of lead acid is 2 volts per cell, however when measuring the open circuit voltage, the OCV of a charged and rested battery should be 2.1V/cell."
+   },
+   {
+    "n": 10,
+    "title": "Flooded Stationary Lead Acid Batteries IOM — EnerSys",
+    "url": "https://www.enersys.com/492013/globalassets/documents/product-documentation/powersafe/opzs/amer/amer-en-iom-ps-flooded-0223.pdf",
+    "quote": "If the average battery temperature exceeds the recommended operating temperature range of +10°C (50°F) to +30°C (86°F), the float charge voltage shall be reduced by (Tcell - 30) x 0.003V/ cell when the temperature exceeds +30°C (86°F)"
+   },
+   {
+    "n": 11,
+    "title": "17.5 Batteries and Fuel Cells - Chemistry 2e | OpenStax",
+    "url": "https://openstax.org/books/chemistry-2e/pages/17-5-batteries-and-fuel-cells",
+    "quote": "Some batteries are designed for single-use applications and cannot be recharged (primary cells), while others are based on conveniently reversible cell reactions that allow recharging by an external power source (secondary cells)."
+   },
+   {
+    "n": 12,
+    "title": "Flooded Stationary Lead Acid Batteries IOM — EnerSys",
+    "url": "https://www.enersys.com/492013/globalassets/documents/product-documentation/powersafe/opzs/amer/amer-en-iom-ps-flooded-0223.pdf",
+    "quote": "Recharge 1.2 times the discharged capacity."
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: process -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .lead, .caption { max-width: 32rem; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.12rem; font-weight: 700; line-height: 1.5; }\n  .task.show { font-size: 1.05rem; font-weight: 400; line-height: 1.6; }\n  .scene { display: block; width: 100%; max-width: 26rem; margin-inline: auto; }\n  .scene text { font: 600 13px var(--k-font); fill: var(--k-ink); }\n  .scene .lbm, .scene .tkl, .scene .key { font-weight: 400; fill: var(--k-muted); }\n  .scene .key { fill: var(--k-ink); }\n  .scene .cv { font-size: 18px; font-weight: 800; fill: var(--k-accent2); }\n  .scene .sub { font-weight: 400; }\n  .scene .pinv { font-size: 14px; font-weight: 700; fill: var(--k-accent2); }\n  .scene .cur { fill: var(--k-accent); }\n  .scene .gasl { font-size: 12.5px; fill: var(--k-warn); }\n  .scene .stat { font-weight: 700; }\n  .scene .dots { font-size: 16px; font-weight: 800; }\n  .scene .bandl { font-size: 12.5px; }\n  .scene .box { fill: var(--k-panel); stroke: var(--k-accent2); stroke-width: 2; }\n  .scene .wire { fill: none; stroke: var(--k-ink); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }\n  .scene .flow { fill: none; stroke: var(--k-accent); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }\n  .scene .cellS { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.5; }\n  .scene .cellS.one { stroke: var(--k-accent2); stroke-width: 2.5; }\n  .scene .brace { fill: none; stroke: var(--k-muted); stroke-width: 1.5; }\n  .scene .case { fill: none; stroke: var(--k-ink); stroke-width: 2; }\n  .scene .acid { fill: var(--k-fill3); }\n  .scene .pos { fill: color-mix(in srgb, var(--k-cat2) 45%, var(--k-bg)); }\n  .scene .grid { fill: none; stroke: var(--k-ink); stroke-linejoin: round; }\n  .scene .neg { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.5; }\n  .scene .sul { fill: var(--k-fill2); stroke: var(--k-amber-line); stroke-width: 1; }\n  .scene .bub { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.2; }\n  .scene .mtrack { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1; }\n  .scene .mfill { fill: var(--k-accent2); }\n  .scene .inF { fill: var(--k-accent); }\n  .scene .wfill { fill: var(--k-fill3); stroke: var(--k-ink); stroke-width: 1; }\n  .scene .track { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1; }\n  .scene .bandF { fill: var(--k-fill1); }\n  .scene .bandB { fill: var(--k-fill2); }\n  .scene .eqm { stroke: var(--k-ink); stroke-width: 2.5; }\n  .scene .gas { stroke: var(--k-warn); stroke-width: 2; stroke-dasharray: 4 3; }\n  .scene .pinh { fill: var(--k-accent2); }\n  .scene .pinl { stroke: var(--k-accent2); stroke-width: 3; stroke-linecap: round; }\n  .scene .ax { fill: none; stroke: var(--k-ink); stroke-width: 1.5; }\n  .scene .tk { stroke: var(--k-ink); stroke-width: 1; }\n  .scene .vline { fill: none; stroke: var(--k-accent2); stroke-width: 2.5; stroke-linejoin: round; }\n  .scene .iline { fill: none; stroke: var(--k-accent); stroke-width: 2.5; stroke-linejoin: round; }\n  .scene .ghost { fill: none; stroke: var(--k-muted); stroke-width: 2; stroke-dasharray: 6 4; }\n  .scene .dotv { fill: var(--k-accent2); }\n  .scene .doti { fill: var(--k-accent); }\n  .scene .hollow { fill: var(--k-bg); stroke: var(--k-muted); stroke-width: 2; }\n  .scene .fulld { fill: var(--k-bg); stroke: var(--k-accent); stroke-width: 2.5; }\n  .say { line-height: 1.55; }\n  .picks { display: grid; grid-template-columns: repeat(auto-fit, minmax(6rem, 1fr)); gap: 8px; }\n  .picks.long { grid-template-columns: 1fr; }\n  .picks .k-btn { min-height: 48px; font-size: 1rem; }\n  .picks.long .k-btn { text-align: left; }\n  .picks .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; }\n  .replay { display: flex; justify-content: flex-end; }\n  .replay .k-btn { min-height: 44px; padding-inline: 16px; font-size: .95rem; white-space: nowrap; }\n  .fb { font-weight: 700; min-height: 1.5em; }\n  .fb.right { color: var(--k-good); }\n  .why, .done { line-height: 1.6; }\n  .done strong { color: var(--k-accent2); }\n  .done .row { margin-top: 14px; }\n  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }\n</style>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <svg class=\"scene\" id=\"scene\" viewBox=\"0 0 340 380\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"art\"></g></svg>\n    <div class=\"replay\" id=\"replay\"></div>\n    <div class=\"k-controls ctl\" id=\"c-setpt\"></div>\n    <div class=\"k-controls ctl\" id=\"c-cells\"></div>\n    <div class=\"k-controls ctl\" id=\"c-temp\"></div>\n    <div class=\"k-controls ctl\" id=\"c-time\"></div>\n    <p class=\"say\" id=\"say\"></p>\n    <div class=\"picks\" id=\"picks\"></div>\n    <div class=\"row acts\" id=\"acts\"></div>\n    <p class=\"fb\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p><strong id=\"finish\"></strong></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\">A sketch: the trace is smoothed, and the meters show only which way the plates change, not how fast.</p>\n\n<script>\n  // ---------- the rule ----------\n  const ENER = 'https://www.enersys.com/492013/globalassets/documents/product-documentation/powersafe/opzs/amer/amer-en-iom-ps-flooded-0223.pdf';\n  const BU403 = 'https://batteryuniversity.com/article/bu-403-charging-lead-acid';\n  const BU404 = 'https://batteryuniversity.com/article/bu-404-what-is-equalizing-charge';\n  const BU303 = 'http://www.batteryuniversity.com/article/bu-303-confusion-with-voltages';\n  const FL_LO = 2.23, FL_HI = 2.27, FLOAT = 2.25, T_REF = 25;   // float band; a large stationary cell floats at 2.25 V at 25 °C\n  const BO_LO = 2.33, BO_HI = 2.40, GAS = 2.40, EQ = 2.50;      // boost band, gassing, equalise\n  const K_T = 0.003;                                            // 3 mV a cell per °C away from 25 °C\n  const REST = 2.1, NOMV = 2;                                   // a charged, rested cell; the nominal figure\n  const CAP = 100, IB = 10, I_SW = 4, I_LO = 3, I_HI = 5;       // the example 100 Ah battery, its 10 A bulk current; full at 3 to 5 A\n  const SET_EX = 2.35, BOOST_EX = 2.38;                         // the example charge setting; a boost setting\n  const AH_OUT = 50, RECH = 1.2;                                // ampere-hours taken out; put back about 1.2 times that\n  const V_MIN = 2.10, V_MAX = 2.60;\n  // The sketch: at the 10 A bulk current the cell's volts climb in a straight line as it fills, from\n  // 2.10 V flat to 2.42 V full. Topping then delivers the rest while the current falls away, and the\n  // charger drops to float as it reaches 4 A. Float's small current and equalise's limited one are\n  // drawn without a number.\n  const V0 = 2.10, M = 0.32, I_SMALL = 0.6, I_EQD = 2.5, I_TOP = 11;\n  const W = 17, EQ_T0 = 13.6, EQ_T1 = 15.0;                    // the trace window, in sped-up hours (no numbers shown)\n  const CHUNK = 0.5, MONTHS = 2.0, W_LOW = 0.4;                 // one spell of months moves a meter half way, in 2 s\n  const NB = ' ';\n  const fV = (v) => K.fmt(v, { decimals: 2 }) + NB + 'V';\n  const fA1 = (i) => K.fmt(i, { decimals: 1 }) + NB + 'A';\n  const fT = (t) => K.fmt(t, { decimals: 0 }) + NB + '°C';\n  const fAh = (q) => K.fmt(q, { decimals: 0 }) + NB + 'Ah';\n  const PIN = (v) => fV(v) + ' a cell';\n  const qS = (v) => Math.round(v * 100) / 100;\n  const q2 = (t) => Math.round(t * 100) / 100;\n  const ez = (x) => K.ease(K.clamp(x, 0, 1));\n  const vOf = (set, temp) => set + K_T * (T_REF - temp);       // the set point, corrected for temperature\n  function zoneOf(set) { return set < FL_LO - 1e-9 ? 'low' : set <= FL_HI + 1e-9 ? 'float' : 'high'; }\n  const CUR = { low: 'too little current', float: 'small current', high: 'too much current' };\n  // Which way months at a setting move each meter (direction only).\n  function rates(set, v) {\n    return { s: zoneOf(set) === 'low' ? 1 : v >= EQ - 1e-9 ? -1 : 0, g: zoneOf(set) === 'high' ? 1 : 0, w: v >= GAS - 1e-9 ? -0.6 : 0 };\n  }\n  function grow(b, set, amt) {\n    const r = rates(set, set);\n    return { sulph: K.clamp(b.sulph + r.s * amt, 0, 1), grid: K.clamp(b.grid + r.g * amt, 0, 1), water: K.clamp(b.water + r.w * amt, W_LOW, 1) };\n  }\n  const A0 = { sulph: 0, grid: 0, water: 1 };\n  // A charge from flat held at vs a cell: bulk at 10 A, then topping until the current reaches 4 A.\n  function plan(vs) {\n    const qb = K.clamp((vs - V0) / M, 0, 1), tb = qb * CAP / IB, tau = (1 - qb) * CAP / (IB - I_SW);\n    return { vs, qb, tb, tau, tf: tb + tau * Math.log(IB / I_SW) };\n  }\n  // v: volts per cell; i: where the current is drawn; cur: the current as the page states it.\n  function traceAt(cfg, t) {\n    const P = plan(cfg.set);\n    if (cfg.eq && t >= EQ_T0 && t < EQ_T1) return { v: EQ, i: I_EQD, cur: 'limited current', stage: 'equalise' };\n    if (t < P.tb) return { v: V0 + M * t * IB / CAP, i: IB, cur: IB, stage: 'bulk' };\n    if (t < P.tf) { const i = IB * Math.exp(-(t - P.tb) / P.tau); return { v: P.vs, i, cur: i, stage: 'topping' }; }\n    return { v: FLOAT, i: I_SMALL, cur: 'small current', stage: 'float' };\n  }\n  // The dashed comparison: the same charge held at the float setting the whole way.\n  function ghostAt(vs, t) {\n    const P = plan(vs);\n    if (t < P.tb) return { v: V0 + M * t * IB / CAP, i: IB };\n    return { v: vs, i: Math.max(IB * Math.exp(-(t - P.tb) / P.tau), I_SMALL) };\n  }\n  function stagesOf(cfg) {\n    const P = plan(cfg.set), out = [{ name: 'bulk', t0: 0, t1: P.tb }];\n    if (P.tf - P.tb > 0.01) out.push({ name: 'topping', t0: P.tb, t1: P.tf });\n    if (cfg.eq) out.push({ name: 'float', t0: P.tf, t1: EQ_T0 }, { name: 'equalise', t0: EQ_T0, t1: EQ_T1 }, { name: 'float', t0: EQ_T1, t1: W });\n    else out.push({ name: 'float', t0: P.tf, t1: W });\n    return out;\n  }\n  const TR1 = { set: SET_EX }, TR7 = { set: BOOST_EX, ghost: FLOAT, eq: true };\n  const P1 = plan(SET_EX), P7 = plan(BOOST_EX), PG = plan(FLOAT);\n  const T4 = Math.floor(P1.tf * 100) / 100;                   // the moment the topping current reaches 4 A\n\n  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------\n  const S1 = 'A flat 100 Ah battery charges in three stages. In *bulk* the charger holds 10 A, and the volts per cell climb. At ' + fV(SET_EX) + ' a cell, inside the boost band, it holds the volts instead. That is *topping*. ' +\n    'The current now falls by itself, because less sulphate is left to turn back. At 3 to 5 A the cell is full, and the charger drops to *float* at ' + fV(FLOAT) + ' a cell.';\n  const S3 = 'The float band belongs to one cell\\'s chemistry, and cells in series add their volts. So you set one cell\\'s figure and multiply by the cells. Here each cell floats at ' + fV(FL_LO) + '. ' +\n    'Six cells need ' + fV(6 * FL_LO) + ' and twelve need ' + fV(12 * FL_LO) + '. So 24 cells need 2.23 × 24 = ' + fV(24 * FL_LO) + '.';\n  const S5 = 'Two meters show what months at a set point do to the plates. Held at ' + fV(2.15) + ' a cell, the cells never quite get back to full. *Sulphate* builds on the negative plate. Held at ' + fV(2.45) + ', current keeps flowing into a full cell. ' +\n    'It thins the positive plate\\'s grid. Past ' + fV(GAS) + ' the cells also gas, and the water falls. So higher is not better. Back at ' + fV(FLOAT) + ', every meter stands still.';\n  const S7 = 'A *boost* is a spell above float that refills the cells faster. The topping stage at ' + fV(SET_EX) + ' was one. Here the charger boosts at ' + fV(BOOST_EX) + ' a cell. The dashed trace stays at float the whole way, and fills later. ' +\n    'At full the charger must drop back to float. An *equalise* is a deliberate overcharge at ' + fV(EQ) + ' a cell, for a while. It clears built-up sulphate and levels the cells, and every cell gasses. Then the charger returns to float.';\n  const S9 = 'Temperature moves the band too. A warm cell reacts more readily, so the same volts push more current in. So it needs a lower setting. A typical correction takes 3 mV a cell off for each degree above 25 °C. It adds 3 mV a cell for each degree below. ' +\n    'These 24 cells float at ' + fV(FLOAT) + ' a cell at 25 °C, which is ' + fV(24 * FLOAT) + '. At 35 °C that falls to ' + fV(vOf(FLOAT, 35)) + ' a cell, or ' + fV(24 * vOf(FLOAT, 35)) + '.';\n  const O_YES = 'Yes: 4 A is 4 per cent of 100 Ah', O_ZERO = 'No: full means 0 A', O_TEN = 'No: it should still be 10 A';\n  const O_GRID = 'The positive grid corrodes faster, and the cells run warmer', O_MORE = 'More ampere-hours in store', O_NONE = 'Nothing: a full cell takes no more charge';\n  const O_GAS = 'Extra grid corrosion, and water lost as gas', O_CAP = 'Extra capacity from charging past full', O_NONE2 = 'Nothing: a full battery takes no current';\n  const O_SUL = 'Sulphate building on the negative plates', O_COR = 'Corrosion of the positive grid', O_REST = 'Nothing: 2.15 V a cell is above the rested 2.1 V';\n  const O_EQ = 'An equalise at 2.50 V a cell, ' + fV(24 * EQ) + ', then back to float', O_RAISE = 'The float raised to ' + fV(24 * EQ) + ' for good', O_BOOST = 'Boost at 2.40 V a cell, ' + fV(24 * GAS) + ', left on';\n  const STEPS = [\n    { name: 'Twelve cells', pic: 'bank', enter: { cells: 12, setpt: FLOAT }, hideC: true, right: 'That\\'s it: 12 × 2.25 = ' + fV(12 * FLOAT) + '.', run: { dur: 1.0 },\n      task: 'A bank of 12 cells floats at ' + fV(FLOAT) + ' a cell. What does the charger read?',\n      opts: [fV(12 * FLOAT), fV(12 * REST), fV(FLOAT)], want: fV(12 * FLOAT),\n      hint: 'Not quite. Cells in series add their volts.',\n      hints: { [fV(12 * REST)]: 'Not quite. That is 12 × 2.1 V, the rested voltage. A charger must sit above it to push current in.', [fV(FLOAT)]: 'Not quite. That is one cell, and cells in series add.' },\n      why: 'Cells in series add their volts. So the charger holds 12 × 2.25 = ' + fV(12 * FLOAT) + '. That sits above the bank\\'s rested 12 × 2.1 = ' + fV(12 * REST) + ', so a small current flows in.' },\n    { show: true, name: 'A charge from flat', pic: 'trace', tr: TR1, ctl: ['time'], enter: { cells: 12, time: 0 }, end: { time: W }, still: { time: W }, dur: 4.4,\n      play: (t) => { X.time = q2(W * ez((t - 0.3) / 3.9)); X.ph = t; },\n      text: S1 + ' Drag the time to try it.', read: S1 },\n    { name: 'Is it full?', pic: 'trace', tr: TR1, enter: { cells: 12, time: T4 }, end: { time: q2(T4 + 1.5) }, hideBand: true,\n      run: { dur: 1.8, go: (u) => { X.time = q2(K.lerp(T4, T4 + 1.5, ez(u / 0.9))); } },\n      task: 'On this 100 Ah battery the topping current has fallen from 10 A. It now holds at 4 A. Is the battery charged?',\n      opts: [O_YES, O_ZERO, O_TEN], want: O_YES,\n      hint: 'Not quite. Compare 4 A with the battery\\'s 100 Ah.',\n      hints: { [O_ZERO]: 'Not quite. A full cell held at the charge setting never quite reaches 0 A. Compare 4 A with the 100 Ah.', [O_TEN]: 'Not quite. A steady 10 A is the bulk stage. A falling current means the cell is filling.' },\n      why: 'A cell counts as full when the topping current falls to 3 to 5 per cent of its Ah rating. On 100 Ah that is 3 to 5 A, and 4 A sits inside it. A full cell held at the charge setting still takes a little current, so it never reaches 0 A. Here the charger drops to float.' },\n    { show: true, name: 'Times the cells', pic: 'bank', ctl: ['cells'], enter: { cells: 6, setpt: FL_LO, cf: 1 }, end: { cells: 24, cf: 1 }, still: { cells: 24 }, dur: 3.0,\n      play: (t) => { const k = t < 1.1 ? 0 : t < 2.2 ? 1 : 2; X.cells = [6, 12, 24][k]; X.pc = k ? [6, 12, 24][k - 1] : 0; X.cf = k ? ez((t - [0, 1.1, 2.2][k]) / 0.45) : 1; },\n      text: S3 + ' Choose a number of cells to try it.', read: S3 },\n    { name: '55 cells', pic: 'bank', enter: { cells: 55, setpt: FL_LO }, hideC: true, run: { dur: 1.0 },\n      task: 'A battery of 55 cells floats at ' + fV(FL_LO) + ' a cell. What do you set the charger to?',\n      opts: [fV(55 * FL_LO), fV(55 * REST), fV(55 * NOMV)], want: fV(55 * FL_LO),\n      hint: 'Not quite. Multiply the float per cell by the cells.',\n      hints: { [fV(55 * REST)]: 'Not quite. That is 55 × 2.1 V, the rested voltage. Almost no current would flow in.', [fV(55 * NOMV)]: 'Not quite. That is the nominal 2 V a cell. It is below a charged battery\\'s own voltage, so the charger would put nothing in.' },\n      why: 'Multiply the float per cell by the number of cells: 2.23 × 55 = ' + fV(55 * FL_LO) + '. The rested 2.1 V a cell gives ' + fV(55 * REST) + ', which would push almost nothing in. The nominal 2 V a cell gives ' + fV(55 * NOMV) + ', below the battery\\'s own voltage.' },\n    { show: true, name: 'Too low, too high', pic: 'bank', ctl: ['setpt'], enter: { cells: 12, setpt: FLOAT }, end: { setpt: FLOAT, sulph: 0.5, grid: 0.5, water: 0.7 }, still: { setpt: FLOAT }, dur: 4.6,\n      play: (t) => {\n        let s;\n        if (t < 1.0) s = K.lerp(FLOAT, 2.15, ez((t - 0.3) / 0.7));\n        else if (t < 2.0) s = 2.15;\n        else if (t < 2.8) s = K.lerp(2.15, 2.45, ez((t - 2.0) / 0.8));\n        else if (t < 3.8) s = 2.45;\n        else s = K.lerp(2.45, FLOAT, ez((t - 3.8) / 0.7));\n        X.setpt = qS(s);\n        Object.assign(X, t < 2.8 ? grow(A0, 2.15, CHUNK * ez((t - 1.0) / 1.0)) : grow(grow(A0, 2.15, CHUNK), 2.45, CHUNK * ez((t - 2.8) / 1.0)));\n        X.ph = t;\n      },\n      text: S5 + ' Drag the set point to try it.', read: S5 },\n    { name: 'Raised float', pic: 'bank', enter: { cells: 12, setpt: FLOAT }, end: { setpt: 2.35, grid: CHUNK },\n      run: { dur: 2.4, go: (u) => { X.setpt = qS(K.lerp(FLOAT, 2.35, ez(u / 0.35))); Object.assign(X, grow(A0, 2.35, CHUNK * ez((u - 0.4) / 0.6))); } },\n      task: 'Someone raises this bank\\'s float from ' + fV(FLOAT) + ' to ' + fV(2.35) + ' a cell, to keep it fuller. What does a year of that do?',\n      opts: [O_GRID, O_MORE, O_NONE], want: O_GRID,\n      hint: 'Not quite. Think about where current goes in a full cell.',\n      hints: { [O_MORE]: 'Not quite. A full cell is full. The extra volts push current it cannot store.', [O_NONE]: 'Not quite. At 2.35 V a cell a full cell still takes current. Where can that current go?' },\n      why: 'A full cell cannot store any more charge. At 2.35 V a cell it still takes more current than self-discharge needs. That current turns to heat, and it works on the positive grid, which corrodes. So the cells run warmer and the grid thins.' },\n    { show: true, name: 'Boost, then equalise', pic: 'trace', tr: TR7, ctl: ['time'], enter: { cells: 12, time: 0 }, end: { time: W }, still: { time: W }, dur: 4.5,\n      play: (t) => { X.time = q2(W * ez((t - 0.3) / 4.0)); X.ph = t; },\n      text: S7 + ' Drag the time to try it.', read: S7 },\n    { name: 'Left on boost', pic: 'bank', enter: { cells: 12, setpt: GAS, gz: 0 }, end: { grid: CHUNK, water: 1 - 0.6 * CHUNK, gz: 1 }, hideS: true,\n      run: { dur: 2.2, go: (u) => { Object.assign(X, grow(A0, GAS, CHUNK * ez((u - 0.15) / 0.85))); X.gz = ez(u / 0.3); X.ph = u * 2.2; } },\n      task: 'Friday\\'s discharge was recharged on boost at ' + fV(GAS) + ' a cell. On Monday the charger is still on boost. What has the weekend done?',\n      opts: [O_GAS, O_CAP, O_NONE2], want: O_GAS,\n      hint: 'Not quite. Think about where current goes in a full cell.',\n      hints: { [O_CAP]: 'Not quite. Boost is for recharging. Once the battery is full, the extra current goes to heat, gas and corrosion.', [O_NONE2]: 'Not quite. Held at 2.40 V a cell, a full cell keeps taking current.' },\n      why: 'Boost is for recharging. Once the battery was full, 2.40 V a cell kept pushing current in. A full cell cannot store it. So it went to heat, to gas that carried water off, and to extra corrosion of the positive grid. Boost must go back to float at full.' },\n    { show: true, name: 'Warm cells', pic: 'bank', ctl: ['temp'], enter: { cells: 24, setpt: FLOAT, temp: T_REF, bt: T_REF }, end: { temp: 35, bt: 35 }, still: { temp: 35 }, dur: 3.6,\n      play: (t) => { X.temp = X.bt = Math.round(K.lerp(T_REF, 35, ez((t - 0.5) / 2.8))); },\n      text: S9 + ' Drag the temperature to try it.', read: S9 },\n    { name: 'A cold room', pic: 'bank', showT: true, enter: { cells: 24, setpt: FLOAT, temp: 15, bt: T_REF }, end: { bt: 15 }, hideP: true, hideC: true,\n      run: { dur: 1.6, go: (u) => { X.bt = Math.round(K.lerp(T_REF, 15, ez(u))); } },\n      task: 'These cells float at ' + fV(FLOAT) + ' a cell at 25 °C. The setting moves 3 mV a cell for each degree away from 25 °C. The cells sit at 15 °C. What float do you set?',\n      opts: [fV(vOf(FLOAT, 15)), fV(vOf(FLOAT, 35)), fV(FLOAT)], want: fV(vOf(FLOAT, 15)),\n      hint: 'Not quite. Colder needs a higher setting.',\n      hints: { [fV(vOf(FLOAT, 35))]: 'Not quite. That is the warm correction, and colder raises the setting.', [fV(FLOAT)]: 'Not quite. The cells are 10 degrees below 25 °C, so the setting moves.' },\n      why: 'Colder needs a higher setting. 15 °C is 10 degrees below 25 °C. At 3 mV a cell for each degree, that is 30 mV, or 0.03 V. So set 2.25 + 0.03 = ' + fV(vOf(FLOAT, 15)) + ' a cell.' },\n    { name: 'A year at 51.60 V', pic: 'bank', enter: { cells: 24, setpt: 2.15 }, end: { sulph: CHUNK }, hideP: true, hideS: true,\n      run: { dur: 2.2, go: (u) => { Object.assign(X, grow(A0, 2.15, CHUNK * ez((u - 0.35) / 0.65))); } },\n      task: 'A 24-cell charger has sat at ' + fV(24 * 2.15) + ' for a year. What has that done?',\n      opts: [O_SUL, O_COR, O_REST], want: O_SUL,\n      hint: 'Not quite. Divide the charger\\'s volts by the cells first.',\n      hints: { [O_COR]: 'Not quite. 51.60 ÷ 24 is 2.15 V a cell, below the float band. So the cells are undercharged.', [O_REST]: 'Not quite. 2.15 V a cell is below the float band, so the cells are not kept full.' },\n      why: 'Divide by the cells: 51.60 ÷ 24 = ' + fV(2.15) + ' a cell. That is below the float band, so the cells never quite get back to full. The sulphate left on the negative plates builds up. Being above the rested 2.1 V only means a little current flows.' },\n    { name: 'Drifted cells', pic: 'bank', enter: { cells: 24, setpt: FLOAT, sulph: 0.3 }, end: { setpt: FLOAT, sulph: 0, grid: 0.3, water: 1 - 0.6 * 0.3 },\n      run: { dur: 2.5, go: (u) => {\n        let s;\n        if (u < 0.25) s = K.lerp(FLOAT, EQ, ez(u / 0.25)); else if (u < 0.75) s = EQ; else s = K.lerp(EQ, FLOAT, ez((u - 0.75) / 0.25));\n        X.setpt = qS(s); Object.assign(X, grow({ sulph: 0.3, grid: 0, water: 1 }, EQ, 0.3 * ez((u - 0.25) / 0.45))); X.ph = u * 2.5;\n      } },\n      task: 'After months on float, the specific gravities of this 24-cell battery have drifted apart. What does it need?',\n      opts: [O_EQ, O_RAISE, O_BOOST], want: O_EQ,\n      hint: 'Not quite. The fix is a deliberate overcharge, for a while.',\n      hints: { [O_RAISE]: 'Not quite. An equalise is a deliberate overcharge, safe only for a while.', [O_BOOST]: 'Not quite. Boost recharges, then must go back to float.' },\n      why: 'An equalise is a deliberate overcharge at 2.50 V a cell, for a while. On 24 cells that is 2.50 × 24 = ' + fV(24 * EQ) + '. It clears built-up sulphate and brings the cells level. Then the charger goes back to float. Left on, it would corrode the grids and split water off as gas.' },\n    { name: 'Putting it back', pic: 'circuit', enter: { cells: 12, ah: 0 }, end: { ah: 1 },\n      run: { dur: 2.0, go: (u) => { X.ah = ez(u / 0.85); } },\n      task: 'A DC supply charges this battery, positive to positive, through a resistor and an ammeter. The battery gave out 50 Ah. About how many ampere-hours must the supply put back?',\n      opts: [fAh(AH_OUT * RECH), fAh(AH_OUT), fAh(Math.round(AH_OUT / RECH))], want: fAh(AH_OUT * RECH),\n      hint: 'Not quite. Some of the charge put in never comes back out.',\n      hints: { [fAh(AH_OUT)]: 'Not quite. Some of the charge splits water into gas instead of filling the plates.', [fAh(Math.round(AH_OUT / RECH))]: 'Not quite. That is less than came out, so the battery would end up short.' },\n      why: 'Some of the charge splits water into gas instead of filling the plates. So you put back about 1.2 times what came out: 50 × 1.2 = ' + fAh(AH_OUT * RECH) + '. Put the other way, 50 ÷ 60 is about 0.83, so about 83 per cent comes back. ' +\n        'The supply sits above the battery\\'s voltage, positive to positive, so current flows in. The resistor limits that current, and the ammeter shows it.' },\n  ];\n  const FINISH = 'A charger holds a set voltage per cell, times the number of cells. That setting lives in a narrow band. Too low sulphates the negative plate, and too high corrodes the positive grid.';\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n  const quiet = () => REDUCE || testing();\n  const el = (id) => document.getElementById(id);\n\n  // ---------- state ----------\n  function blank() { return { pick: null, res: null, why: false }; }\n  let S = STEPS.map(blank);\n  const BASE = { setpt: FLOAT, cells: 12, temp: T_REF, bt: T_REF, time: 0, sulph: 0, grid: 0, water: 1, ph: 0, mo: null, cf: 1, gz: 1, pc: 0, ah: 0 };\n  const X = {};\n  const setX = (o) => Object.assign(X, o);\n  const copyX = () => Object.assign({}, X);\n  setX(BASE);\n  let T = Infinity, scripted = false, lastStep = -1, finished = false, lastDone = false;\n  let REC = {}, laidOut = '';\n  function months(amt) {\n    const r = rates(X.setpt, vOf(X.setpt, X.temp));\n    X.sulph = K.clamp(X.sulph + r.s * amt, 0, 1); X.grid = K.clamp(X.grid + r.g * amt, 0, 1); X.water = K.clamp(X.water + r.w * amt, W_LOW, 1);\n  }\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);\n  const stepOf = (v) => STEPS[K.clamp(Math.round(v) || 0, 0, STEPS.length - 1)];\n  const CTL = {\n    setpt: K.control({ id: 'setpt', label: 'Set point', min: V_MIN, max: V_MAX, step: 0.01, value: FLOAT, fmt: (v) => K.fmt(v, { decimals: 2 }) + NB + 'V a cell',\n      snap: [2.15, FL_LO, FLOAT, 2.35, BOOST_EX, GAS, 2.45, EQ], into: '#c-setpt' }),\n    cells: K.choice({ id: 'cells', label: 'Cells in series', options: [6, 12, 24, 55].map((n) => ({ value: n, label: String(n) })), value: 12, into: '#c-cells' }),\n    temp: K.control({ id: 'temp', label: 'Battery temperature', min: 15, max: 35, step: 1, value: T_REF, unit: '°C', snap: [15, T_REF, 35], into: '#c-temp' }),\n    time: K.control({ id: 'time', label: 'Time', min: 0, max: W, step: 0.01, value: 0, into: '#c-time',\n      fmt: (v) => { const r = traceAt(STEPS[at()].tr || TR1, v); return r.stage.charAt(0).toUpperCase() + r.stage.slice(1) + ' stage'; } }),\n  };\n  const pushed = { setpt: FLOAT, cells: 12, temp: T_REF, time: 0 };\n  const KEYS = { setpt: () => qS(X.setpt), cells: () => X.cells, temp: () => Math.round(X.temp), time: () => q2(X.time) };\n  // The page moves the controls itself during a demonstration (silently, so it is not taken for Dan's move).\n  function push() { Object.keys(KEYS).forEach((k) => { const v = KEYS[k](); if (pushed[k] !== v) { CTL[k].set(v, true); pushed[k] = CTL[k].get(); } }); }\n\n  // The three outputs are drawn on the picture: the pin's volts per cell, the charger's volts, the current on the lead.\n  K.model((p) => {\n    const d = stepOf(p.step);\n    if (d.pic === 'trace') { const r = traceAt(d.tr, p.time); return { voltsPerCell: r.v, chargerVolts: r.v * p.cells, current: r.cur }; }\n    const v = vOf(p.setpt, p.temp);\n    return { voltsPerCell: v, chargerVolts: v * p.cells, current: CUR[zoneOf(p.setpt)] };\n  });\n\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;\n    st.pick = d.opts[k]; st.res = null;\n  } }));\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || st.res === 'right') return;\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = st.pick === d.want ? 'right' : 'wrong';\n    if (st.res !== 'right') { T = Infinity; return; }\n    if (quiet()) { T = Infinity; setX(d.end || {}); push(); }\n    else { T = 0; anim.play(); }\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    const d = STEPS[at()];\n    if (d.show || finished) return;\n    S[at()].why = !S[at()].why;\n  } });\n  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {\n    if (!STEPS[at()].show || finished) return;\n    enterStep(at());\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true; anim.pause();\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S = STEPS.map(blank); finished = false; lastStep = -1; stepper.set(0, true);\n  } });\n\n  // ---------- motion: one animation runs each demonstration, each answer's motion and each spell of months ----------\n  const motionEnd = (d, st) => (d.show ? (scripted ? d.dur : 0) : st.res === 'right' ? d.run.dur : 0);\n  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {\n    if (finished) return false;\n    const i = at(), d = STEPS[i], st = S[i];\n    T += dt;\n    if (scripted) { d.play(T); if (T >= d.dur) scripted = false; }\n    if (!d.show && st.res === 'right' && d.run.go) d.run.go(Math.min(1, T / d.run.dur));\n    let busy = false;\n    if (X.mo != null) {\n      const s = Math.min(dt, MONTHS - X.mo);\n      months(CHUNK * s / MONTHS); X.mo += s; X.ph += dt;\n      if (X.mo >= MONTHS - 1e-9) X.mo = null; else busy = true;\n    }\n    push();\n    paint(i);\n    return busy || T < motionEnd(d, st);\n  } });\n  function startMonths() {\n    if (quiet()) { months(CHUNK); X.mo = null; return; }\n    X.mo = 0; anim.play();\n  }\n  // A motion that was stopped (the page hidden, a test) shows finished.\n  function finishNow(d, st) {\n    if (scripted) { d.play(1e6); scripted = false; }\n    if (!d.show && st.res === 'right') setX(d.end || {});\n    if (X.mo != null) { months(CHUNK * (MONTHS - X.mo) / MONTHS); X.mo = null; }\n    T = Infinity; push();\n  }\n  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && (T !== Infinity || X.mo != null)) { finishNow(STEPS[at()], S[at()]); paint(); } });\n  function enter(id) {\n    if (REDUCE) return;\n    const box = el(id);\n    box.classList.remove('enter'); void box.offsetWidth; box.classList.add('enter');\n  }\n  function enterStep(i) {\n    const d = STEPS[i], st = S[i];\n    anim.pause();\n    setX(BASE); setX(d.enter || {});\n    if (!d.show && st.res === 'right') setX(d.end || {});\n    if (d.show && !quiet()) { scripted = true; T = 0; d.play(0); push(); anim.play(); }\n    else { scripted = false; T = Infinity; if (d.show) setX(d.end || {}); push(); }\n    laidOut = '';\n    enter('stepbox');\n  }\n\n  // ---------- drawing ----------\n  const svg = el('scene'), art = el('art');\n  let into = null;\n  const r1 = (v) => Math.round(v * 10) / 10;\n  const add = (n) => (into || art).appendChild(n);\n  const S_ = (tag, a) => add(K.svg(tag, a));\n  function txt(x, y, s, cls, anchor) {\n    const a = { x: r1(x), y: r1(y), 'text-anchor': anchor || 'middle' };\n    if (cls) a.class = cls;\n    const t = K.svg('text', a); t.textContent = s; return add(t);\n  }\n  function part(a, rise, fn) { if (a <= 0) return; const g = add(K.svg('g')); K.fade(g, Math.min(1, a), rise); const keep = into; into = g; fn(); into = keep; }\n  const arr = (t0, dur) => K.arrive(T, t0, dur == null ? K.SOFT : dur);\n  const gasA = (v) => K.clamp((v - 2.39) / 0.03, 0, 1) * X.gz;\n  const QV = '?' + NB + 'V', QP = '?' + NB + 'V a cell';\n  function nowOf(d) {\n    if (d.pic === 'trace') { const r = traceAt(d.tr, X.time); return { v: r.v, i: r.i, cur: r.cur, stage: r.stage }; }\n    const v = vOf(X.setpt, X.temp);\n    return { v, cur: CUR[zoneOf(X.setpt)], stage: null };\n  }\n  const reveal = (flag, st) => (flag ? (st.res === 'right' ? arr(0.1) : 0) : 1);\n\n  // The charger box, its two leads and the string of cells: four, a gap, and the last one when there are many.\n  function drawTop(d, st, nw) {\n    const n = X.cells, v = nw.v, trace = d.pic === 'trace';\n    const ac = reveal(d.hideC, st), ap = reveal(d.hideP, st), acur = reveal(d.hideS || d.hideP, st);\n    S_('rect', { class: 'box', x: 4, y: 20, width: 108, height: 74, rx: 8 });\n    txt(58, 38, 'charger', 'lbm');\n    const val = fV(v * n);\n    if (ac < 1) part(1 - ac, 0, () => txt(58, 63, QV, 'cv'));\n    if (ac > 0) part(ac * X.cf, 0, () => txt(58, 63, val, 'cv'));\n    const sub = trace ? (nw.stage === 'bulk' ? 'holds ' + K.fmt(IB) + NB + 'A' : 'holds volts') : n + ' × ' + (ap >= 0.5 ? K.fmt(v, { decimals: 2 }) : '?') + NB + 'V';\n    const as = trace ? 1 : ac;\n    if (as < 1) part(1 - as, 0, () => txt(58, 84, 'holds volts', 'sub'));\n    if (as > 0) part(as * X.cf, 0, () => txt(58, 84, sub, 'sub'));\n    REC.chargerText = ac >= 0.5 ? val : QV; REC.subText = as >= 0.5 ? sub : 'holds volts';\n    // Leads: out of the charger into the first cell, back from the last cell under the string.\n    S_('path', { class: 'wire', d: 'M112 52H140' });\n    S_('path', { class: 'flow', d: 'M122 47L128 52L122 57' });\n    S_('path', { class: 'wire', d: 'M310 52H318V104H58V94' });\n    S_('path', { class: 'flow', d: 'M156 99L150 104L156 109' });\n    const many = n > 6, xs = [], old = many && X.pc > 0 && X.pc <= 6 && X.cf < 1;\n    const link = (x) => S_('path', { class: 'wire', d: 'M' + (x + 20) + ' 52H' + (x + 30) });\n    for (let k = 0; k < 6; k++) {\n      const x = 140 + 30 * k;\n      if (many && k === 4) {\n        if (old) part(1 - X.cf, 0, () => { S_('rect', { class: 'cellS', x, y: 38, width: 20, height: 28, rx: 3 }); link(x - 30); link(x); });\n        part(X.cf, 0, () => txt(x + 10, 57, '…', 'dots'));\n        continue;\n      }\n      S_('rect', { class: k === 0 ? 'cellS one' : 'cellS', x, y: 38, width: 20, height: 28, rx: 3 });\n      xs.push(x);\n      if (k < 5 && !(many && k >= 3)) link(x);\n    }\n    S_('path', { class: 'brace', d: 'M140 37V32H310V37' });\n    part(X.cf, 0, () => txt(225, 27, n + ' cells in series'));\n    const ga = gasA(v);\n    REC.bubbles = 0;\n    if (ga > 0) part(ga, 0, () => xs.forEach((x, c) => [6, 14].forEach((dx, j) => {\n      const f = (X.ph * 0.8 + j * 0.5 + c * 0.13) % 1;\n      S_('circle', { class: 'bub', cx: x + dx, cy: r1(62 - f * 18), r: 2 }); REC.bubbles++;\n    })));\n    const curT = typeof nw.cur === 'number' ? fA1(nw.cur) : nw.cur;\n    if (acur < 1) part(1 - acur, 0, () => txt(226, 98, '?', 'cur'));\n    if (acur > 0) part(acur, 0, () => txt(226, 98, curT, 'cur'));\n    REC.curText = acur >= 0.5 ? curT : '?';\n    return 'A charger feeds ' + n + ' lead-acid cells in series and reads ' + (ac >= 0.5 ? val : 'a question mark') + '. The current on its lead: ' + (acur >= 0.5 ? curT : 'a question mark') + '.' +\n      (ga > 0 ? ' Bubbles rise in the cells.' : '');\n  }\n\n  // One cell cut open, with the grid meter on the left by the + plate and the sulphate and water meters on the right.\n  function meter(x, y, w, level, cls) {\n    S_('rect', { class: 'mtrack', x, y, width: w, height: 12, rx: 3 });\n    if (level > 0.005) S_('rect', { class: cls, x, y, width: r1(w * level), height: 12, rx: 3 });\n  }\n  function drawCut(d, st, nw) {\n    const v = nw.v, as = reveal(d.hideS || d.hideP, st);\n    txt(180, 122, 'one cell, cut open', 'lbm');\n    const yl = 152 + (1 - X.water) * 40;\n    S_('rect', { class: 'acid', x: 125, y: r1(yl), width: 110, height: r1(249 - yl) });\n    S_('rect', { class: 'case', x: 124, y: 132, width: 112, height: 118, rx: 6 });\n    S_('rect', { class: 'pos', x: 136, y: 156, width: 20, height: 86, rx: 2 });\n    const gw = r1(Math.max(0.8, 3.4 - 2.6 * X.grid));\n    S_('path', { class: 'grid', 'stroke-width': gw, d: 'M136 156H156V242H136ZM136 177.5H156M136 199H156M136 220.5H156M146 156V242' });\n    S_('rect', { class: 'neg', x: 204, y: 156, width: 20, height: 86, rx: 2 });\n    if (X.sulph > 0.005) {\n      const th = r1(1.5 + 8 * X.sulph);\n      S_('rect', { class: 'sul', x: r1(204 - th), y: 160, width: th, height: 78 });\n      S_('rect', { class: 'sul', x: 224, y: 160, width: th, height: 78 });\n    }\n    txt(146, 147, '+'); txt(214, 147, '−');\n    txt(180, 240, 'acid', 'lbm');\n    const ga = gasA(v);\n    if (ga > 0) part(ga, 0, () => [130, 160, 198, 230].forEach((x, c) => [0, 1, 2].forEach((k) => {\n      const f = (X.ph * 0.7 + k / 3 + c * 0.17) % 1;\n      S_('circle', { class: 'bub', cx: x, cy: r1(236 - f * (236 - yl - 8)), r: 2.2 }); REC.bubbles++;\n    })));\n    txt(146, 266, 'lead dioxide', 'lbm'); txt(214, 266, 'lead', 'lbm');\n    const rt = rates(X.setpt, v), word = (r) => (r > 0 ? 'rising' : r < 0 ? 'falling' : 'still');\n    const sw = { grid: word(rt.g), sulph: word(rt.s), water: rt.w < 0 ? 'falling' : 'still' };\n    const stat = (x, y, w) => {\n      if (as < 1) part(1 - as, 0, () => txt(x, y, '?', 'stat'));\n      if (as > 0) part(as, 0, () => txt(x, y, w, 'stat'));\n    };\n    txt(60, 146, 'grid corrosion'); txt(60, 162, 'on the + plate', 'lbm');\n    meter(14, 170, 92, X.grid, 'mfill'); stat(60, 200, sw.grid);\n    txt(289, 146, 'sulphate'); txt(289, 162, 'on the − plate', 'lbm');\n    meter(246, 170, 86, X.sulph, 'mfill'); stat(289, 200, sw.sulph);\n    txt(289, 222, 'water');\n    meter(246, 228, 86, (X.water - W_LOW) / (1 - W_LOW) * 0.9 + 0.1, 'wfill'); stat(289, 256, sw.water);\n    REC.stat = as >= 0.5 ? sw : { grid: '?', sulph: '?', water: '?' };\n    return 'One cell cut open: a lead dioxide positive plate on its lead grid, a lead negative plate, and acid between. ' +\n      (X.sulph > 0.005 ? 'Sulphate coats the negative plate. ' : '') + (X.grid > 0.005 ? 'The positive grid has thinned. ' : '') + (X.water < 0.999 ? 'The water level has fallen. ' : '') +\n      (as >= 0.5 ? 'Grid corrosion is ' + sw.grid + ', sulphate is ' + sw.sulph + ' and the water is ' + sw.water + '.' : 'The meters show question marks.');\n  }\n\n  // The set point in volts per cell, with the float band (shifted for temperature), the boost band, gassing and equalise.\n  function drawScale(y0, d, st, nw) {\n    const ap = reveal(d.hideP, st), corr = K_T * (T_REF - X.bt), sx = (v) => 20 + (v - V_MIN) * 600;\n    S_('rect', { class: 'track', x: 20, y: y0 + 28, width: 300, height: 16, rx: 3 });\n    S_('rect', { class: 'bandF', x: r1(sx(FL_LO + corr)), y: y0 + 28, width: r1((FL_HI - FL_LO) * 600), height: 16 });\n    S_('rect', { class: 'bandB', x: r1(sx(BO_LO)), y: y0 + 28, width: r1((BO_HI - BO_LO) * 600), height: 16 });\n    [2.1, 2.2, 2.3, 2.5, 2.6].forEach((v, k) => {\n      S_('line', { class: 'tk', x1: r1(sx(v)), y1: y0 + 44, x2: r1(sx(v)), y2: y0 + 49 });\n      txt(sx(v), y0 + 62, K.fmt(v, { decimals: 1 }), 'tkl', k === 0 ? 'start' : k === 4 ? 'end' : 'middle');\n    });\n    S_('line', { class: 'eqm', x1: sx(EQ), y1: y0 + 24, x2: sx(EQ), y2: y0 + 48 });\n    S_('line', { class: 'gas', x1: sx(GAS), y1: y0 + 20, x2: sx(GAS), y2: y0 + 48 });\n    txt(sx(GAS), y0 + 62, 'gassing ' + K.fmt(GAS, { decimals: 2 }), 'gasl');\n    txt(sx(FLOAT + corr), y0 + 80, 'float'); txt(sx((BO_LO + BO_HI) / 2), y0 + 80, 'boost'); txt(sx(EQ), y0 + 80, 'equalise');\n    const showT = d.showT || (d.ctl && d.ctl.indexOf('temp') >= 0);\n    txt(20, y0 + 97, showT ? 'float band set for ' + fT(X.bt) : 'set point, volts per cell', 'lbm', 'start');\n    const v = nw.v, x = K.clamp(sx(v), 20, 320);\n    if (ap < 1) part(1 - ap, 0, () => txt(170, y0 + 11, QP, 'pinv'));\n    if (ap > 0) part(ap, 0, () => {\n      S_('path', { class: 'pinh', d: 'M' + r1(x - 6) + ' ' + (y0 + 15) + 'L' + r1(x + 6) + ' ' + (y0 + 15) + 'L' + r1(x) + ' ' + (y0 + 25) + 'Z' });\n      S_('line', { class: 'pinl', x1: r1(x), y1: y0 + 24, x2: r1(x), y2: y0 + 47 });\n      txt(K.clamp(x, 54, 286), y0 + 11, PIN(v), 'pinv');\n    });\n    REC.pinText = ap >= 0.5 ? PIN(v) : QP; REC.v = v; REC.floatX = sx(FLOAT + corr);\n    return 'A set-point scale from 2.10 to 2.60 V a cell, with the float band, the boost band, a red gassing line at 2.40 and an equalise mark at 2.50. ' +\n      (ap >= 0.5 ? 'The pin stands at ' + PIN(v) + '.' : 'The pin is hidden behind a question mark.');\n  }\n\n  // Volts per cell and current against time, traced as the time runs.\n  function sample(t1, cuts) {\n    const ts = [];\n    for (let t = 0; t < t1; t += 0.1) ts.push(t);\n    cuts.forEach((c) => { if (c > 0 && c <= t1) ts.push(c - 1e-6, c); });\n    ts.push(t1);\n    return ts.sort((a, b) => a - b);\n  }\n  const pathOf = (ts, f) => 'M' + ts.map((t) => f(t).map(r1).join(' ')).join('L');\n  function drawTrace(y0, d, st, nw) {\n    const cfg = d.tr, P = plan(cfg.set), ab = reveal(d.hideBand, st), tNow = X.time;\n    const TX0 = 52, TX1 = 300, tx = (t) => TX0 + t / W * (TX1 - TX0);\n    const VY0 = y0 + 6, VY1 = y0 + 86, vy = (v) => VY1 - (v - V_MIN) / (V_MAX - V_MIN) * 80;\n    const CY0 = y0 + 102, CY1 = y0 + 182, cy = (i) => CY1 - i / I_TOP * 80;\n    S_('rect', { class: 'bandF', x: TX0, y: r1(vy(FL_HI)), width: TX1 - TX0, height: r1(vy(FL_LO) - vy(FL_HI)) });\n    txt(TX1 + 8, vy(FLOAT) + 4, 'float', 'tkl', 'start');\n    if (ab > 0) part(ab, 0, () => {\n      S_('rect', { class: 'bandB', x: TX0, y: r1(cy(I_HI)), width: TX1 - TX0, height: r1(cy(I_LO) - cy(I_HI)) });\n      txt(TX0 + 5, cy(4) + 4.5, 'full at 3 to 5 A', 'bandl', 'start');\n    });\n    REC.band = ab >= 0.5;\n    S_('path', { class: 'ax', d: 'M' + TX0 + ' ' + VY0 + 'V' + VY1 + 'H' + TX1 + 'M' + TX0 + ' ' + CY0 + 'V' + CY1 + 'H' + TX1 });\n    [2.1, 2.3, 2.5].forEach((v) => { S_('line', { class: 'tk', x1: TX0 - 4, y1: r1(vy(v)), x2: TX0, y2: r1(vy(v)) }); txt(TX0 - 7, vy(v) + 4, K.fmt(v, { decimals: 1 }), 'tkl', 'end'); });\n    [0, 5, 10].forEach((i) => { S_('line', { class: 'tk', x1: TX0 - 4, y1: r1(cy(i)), x2: TX0, y2: r1(cy(i)) }); txt(TX0 - 7, cy(i) + 4, String(i), 'tkl', 'end'); });\n    const t1 = txt(14, (VY0 + VY1) / 2, 'V a cell', 'tkl'); t1.setAttribute('transform', 'rotate(-90 14 ' + r1((VY0 + VY1) / 2) + ')');\n    const t2 = txt(14, (CY0 + CY1) / 2, 'current (A)', 'tkl'); t2.setAttribute('transform', 'rotate(-90 14 ' + r1((CY0 + CY1) / 2) + ')');\n    txt(TX1, CY1 + 46, 'time', 'tkl', 'end');\n    REC.key = 0; REC.fullGhostT = null;\n    if (cfg.ghost) {\n      const G = plan(cfg.ghost), gs = sample(W, [G.tb]);\n      S_('path', { class: 'ghost', d: pathOf(gs, (t) => [tx(t), vy(ghostAt(cfg.ghost, t).v)]) });\n      S_('path', { class: 'ghost', d: pathOf(gs, (t) => [tx(t), cy(ghostAt(cfg.ghost, t).i)]) });\n      S_('circle', { class: 'hollow', cx: r1(tx(G.tf)), cy: r1(cy(I_SW)), r: 4.5 });\n      S_('line', { class: 'vline', x1: 58, y1: VY0 + 8, x2: 74, y2: VY0 + 8 }); txt(80, VY0 + 12, 'boost at ' + fV(cfg.set), 'key', 'start');\n      S_('line', { class: 'ghost', x1: 58, y1: VY0 + 24, x2: 74, y2: VY0 + 24 }); txt(80, VY0 + 28, 'float the whole way', 'key', 'start');\n      REC.key = 2; REC.fullGhostT = G.tf;\n    }\n    const ms = sample(tNow, [P.tb, P.tf].concat(cfg.eq ? [EQ_T0, EQ_T1] : []));\n    S_('path', { class: 'vline', d: pathOf(ms, (t) => [tx(t), vy(traceAt(cfg, t).v)]) });\n    S_('path', { class: 'iline', d: pathOf(ms, (t) => [tx(t), cy(traceAt(cfg, t).i)]) });\n    REC.fullMainT = null;\n    if (tNow >= P.tf) {\n      part(K.clamp((tNow - P.tf) / 0.5, 0.01, 1), 0, () => S_('circle', { class: 'fulld', cx: r1(tx(P.tf)), cy: r1(cy(I_SW)), r: 4.5 }));\n      REC.fullMainT = P.tf;\n    }\n    S_('circle', { class: 'dotv', cx: r1(tx(tNow)), cy: r1(vy(nw.v)), r: 4.5 });\n    S_('circle', { class: 'doti', cx: r1(tx(tNow)), cy: r1(cy(nw.i)), r: 4.5 });\n    REC.stages = [];\n    stagesOf(cfg).forEach((s, k) => {\n      const a = k === 0 ? 1 : K.clamp((tNow - s.t0) / 0.5, 0, 1);\n      if (a <= 0) return;\n      part(a, 0, () => {\n        if (k > 0) S_('line', { class: 'tk', x1: r1(tx(s.t0)), y1: CY1, x2: r1(tx(s.t0)), y2: CY1 + 5 });\n        txt(tx((s.t0 + s.t1) / 2), CY1 + (k % 2 ? 31 : 16), s.name, 'tkl');\n      });\n      REC.stages.push(s.name);\n    });\n    return 'A trace of volts per cell above and current below, against time, drawn up to the ' + nw.stage + ' stage. ' +\n      (cfg.ghost ? 'A dashed trace charges at the float setting the whole way, and reaches full later. ' : '') +\n      (REC.band ? 'The current strip shades 3 to 5 A as full.' : '');\n  }\n\n  // A DC supply charges the battery through a resistor and an ammeter; two bars compare the ampere-hours out and back in.\n  function drawCircuit(d, st) {\n    const ab = reveal(true, st), BX = 100, BW = 180, sc = BW / (AH_OUT * RECH);\n    S_('rect', { class: 'box', x: 8, y: 22, width: 92, height: 96, rx: 8 });\n    txt(54, 66, 'DC', 'lbm'); txt(54, 84, 'supply', 'lbm');\n    txt(90, 36, '+'); txt(90, 112, '−');\n    S_('path', { class: 'wire', d: 'M100 40H128L134 31L146 49L158 31L170 49L182 31L188 40H214' });\n    S_('circle', { class: 'cellS', cx: 230, cy: 40, r: 16 }); txt(230, 45, 'A');\n    S_('path', { class: 'wire', d: 'M246 40H296V64' });\n    S_('rect', { class: 'cellS one', x: 266, y: 64, width: 60, height: 70, rx: 4 });\n    txt(296, 81, '+'); txt(296, 104, 'battery', 'lbm'); txt(296, 128, '−');\n    S_('path', { class: 'wire', d: 'M296 134V160H54V118' });\n    S_('path', { class: 'flow', d: 'M110 35L116 40L110 45' });\n    S_('path', { class: 'flow', d: 'M262 35L268 40L262 45' });\n    S_('path', { class: 'flow', d: 'M180 155L174 160L180 165' });\n    txt(158, 70, 'resistor', 'lbm'); txt(230, 76, 'ammeter', 'lbm');\n    S_('rect', { class: 'mtrack', x: BX, y: 190, width: BW, height: 14, rx: 3 });\n    S_('rect', { class: 'mfill', x: BX, y: 190, width: r1(AH_OUT * sc), height: 14, rx: 3 });\n    txt(BX - 8, 201, 'taken out', 'lbm', 'end'); txt(BX + BW + 6, 201, fAh(AH_OUT), null, 'start');\n    S_('rect', { class: 'mtrack', x: BX, y: 220, width: BW, height: 14, rx: 3 });\n    if (X.ah > 0.005) S_('rect', { class: 'inF', x: BX, y: 220, width: r1(BW * X.ah), height: 14, rx: 3 });\n    txt(BX - 8, 231, 'put back', 'lbm', 'end');\n    const val = fAh(Math.round(AH_OUT * RECH * X.ah));\n    if (ab < 1) part(1 - ab, 0, () => txt(BX + BW + 6, 231, '?' + NB + 'Ah', null, 'start'));\n    if (ab > 0) part(ab, 0, () => txt(BX + BW + 6, 231, val, null, 'start'));\n    if (ab > 0) part(ab * K.clamp((X.ah - 0.8) / 0.2, 0, 1), 0, () => txt(170, 262, '50 ÷ 60 ≈ 0.83: about 83 per cent comes back', 'lbm'));\n    REC.inText = ab >= 0.5 ? val : '?' + NB + 'Ah';\n    return 'A DC supply charges a battery. Its positive lead runs through a resistor and an ammeter to the battery\\'s positive terminal, and its negative lead returns from the battery\\'s negative. A bar shows 50 Ah taken out. ' +\n      (ab >= 0.5 ? 'A second bar shows ' + val + ' put back, and about 83 per cent of it comes back.' : 'The ampere-hours put back show a question mark.');\n  }\n\n  function sayFor(d) {\n    const n = X.cells;\n    if (d.ctl.indexOf('time') >= 0) {\n      const r = traceAt(d.tr, X.time);\n      if (r.stage === 'bulk') return 'Bulk: the charger holds ' + K.fmt(IB) + NB + 'A, and the cell has climbed to ' + fV(r.v) + '.';\n      if (r.stage === 'topping') return 'Topping: the charger holds ' + fV(d.tr.set) + ' a cell, and the current is down to ' + fA1(r.cur) + '.';\n      if (r.stage === 'equalise') return 'Equalise: the charger holds ' + fV(EQ) + ' a cell for a while, and every cell gasses.';\n      return 'Float: the cell is full, and a small current makes up self-discharge.';\n    }\n    if (d.ctl.indexOf('cells') >= 0) {\n      const v = vOf(X.setpt, X.temp);\n      return 'The charger holds ' + n + ' × ' + K.fmt(v, { decimals: 2 }) + ' = ' + fV(v * n) + '.';\n    }\n    if (d.ctl.indexOf('temp') >= 0) {\n      const dT = X.temp - T_REF, v = vOf(X.setpt, X.temp);\n      if (dT === 0) return 'At ' + fT(X.temp) + ' the float stays at ' + fV(v) + ' a cell.';\n      return 'At ' + fT(X.temp) + ': ' + K.fmt(X.setpt, { decimals: 2 }) + (dT > 0 ? ' − ' : ' + ') + K.fmt(Math.abs(dT) * K_T, { decimals: 3 }) + ' = ' + K.fmt(v, { decimals: 3 }) + NB + 'V a cell.';\n    }\n    const s = X.setpt, v = vOf(s, X.temp), z = zoneOf(s), lead = 'At ' + PIN(v);\n    if (z === 'low') return lead + ', below the float band, sulphate builds on the negative plate.';\n    if (z === 'float') return lead + ', inside the float band, the plates stay as they are.';\n    if (v >= EQ - 1e-9) return lead + ' the charger equalises. Sulphate clears, but the grid thins and the cells gas.';\n    if (v >= GAS - 1e-9) return lead + ', past gassing, the grid thins, the cells gas and the water falls.';\n    return lead + ', above the float band, the positive grid thins.';\n  }\n\n  function paint(i) {\n    if (i == null) i = at();\n    const d = STEPS[i], st = S[i];\n    art.textContent = ''; into = null;\n    REC = { pic: d.pic, sulph: X.sulph, grid: X.grid, water: X.water };\n    const nw = nowOf(d);\n    let said, h;\n    if (d.pic === 'circuit') { said = drawCircuit(d, st); h = 272; }\n    else {\n      said = drawTop(d, st, nw);\n      if (d.pic === 'trace') { said += ' ' + drawScale(112, d, st, nw) + ' ' + drawTrace(218, d, st, nw); h = 454; }\n      else { said += ' ' + drawCut(d, st, nw) + ' ' + drawScale(276, d, st, nw); h = 380; }\n    }\n    svg.setAttribute('viewBox', '0 0 340 ' + h);\n    svg.setAttribute('aria-label', said);\n    if (d.ctl) el('say').textContent = sayFor(d);\n  }\n\n  // ---------- words: *a key term* is highlighted ----------\n  function write(node, s) {\n    node.textContent = '';\n    String(s).split(/\\*([^*]+)\\*/).forEach((seg, k) => { if (seg) node.appendChild(k % 2 ? K.el('span', { class: 'term' }, seg) : document.createTextNode(seg)); });\n  }\n  write(el('finish'), FINISH);\n  function layout(i, d, st) {\n    const key = [i, st.res, st.pick, st.why, finished].join('|');\n    if (key === laidOut) return;\n    laidOut = key;\n    const right = st.res === 'right';\n    el('stepbox').hidden = finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    write(task, d.show ? d.text : d.task);\n    ['setpt', 'cells', 'temp', 'time'].forEach((k) => { el('c-' + k).hidden = !(d.ctl && d.ctl.indexOf(k) >= 0); });\n    el('say').hidden = !d.ctl;\n    replayBtn.el.hidden = !d.show || REDUCE;\n    el('replay').hidden = replayBtn.el.hidden;\n    const opts = d.show ? [] : d.opts;\n    el('picks').hidden = !opts.length;\n    el('picks').classList.toggle('long', opts.some((o) => o.length > 12));\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(opts[k]);\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n    el('acts').hidden = !!d.show;\n    checkBtn.el.hidden = right;\n    const fb = el('fb');\n    fb.hidden = !!d.show;\n    fb.className = 'fb' + (right ? ' right' : '');\n    fb.textContent = d.show ? '' : right ? (d.right || 'That\\'s it.') : st.res === 'wrong' ? ((d.hints && d.hints[st.pick]) || d.hint) : st.res === 'empty' ? 'Choose one of the answers first.' : '';\n    const why = el('why');\n    why.hidden = d.show || !st.why;\n    write(why, d.show ? '' : d.why);\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !right);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  }\n\n  K.update((p) => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (!anim.playing() && (T !== Infinity || X.mo != null)) finishNow(STEPS[lastStep < 0 ? i : lastStep], S[lastStep < 0 ? i : lastStep]);\n    if (i !== lastStep) { lastStep = i; enterStep(i); }\n    else {\n      // Only the controls this screen shows move its picture; a hidden one is set back silently.\n      const on = (k) => !!(d.ctl && d.ctl.indexOf(k) >= 0);\n      const mv = {}; let any = false, bad = false;\n      Object.keys(pushed).forEach((k) => { if (p[k] !== pushed[k]) { if (on(k)) { mv[k] = true; any = true; } else bad = true; } });\n      if (any) {\n        if (scripted) { scripted = false; anim.pause(); setX(d.end || {}); }\n        T = Infinity;\n        if (mv.cells) { X.cells = p.cells; X.cf = 1; }\n        if (mv.temp) { X.temp = p.temp; X.bt = p.temp; }\n        if (mv.time) X.time = p.time;\n        if (mv.setpt) { X.setpt = p.setpt; startMonths(); }\n      }\n      Object.keys(pushed).forEach((k) => { pushed[k] = p[k]; });\n      if (bad) push();\n    }\n    if (finished !== lastDone) { lastDone = finished; laidOut = ''; enter(finished ? 'done' : 'stepbox'); }\n    layout(i, d, st);\n    paint(i);\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const idx = (name) => STEPS.findIndex((d) => d.name === name);\n  const solved = (d) => Object.assign(blank(), { pick: d.want, res: 'right' });\n  // A step painted finished in the state given: what it draws.\n  function drawn(i, st, x) {\n    const keep = { X: copyX(), S: S[i], T, sc: scripted };\n    S[i] = st || blank(); T = Infinity; scripted = false;\n    setX(BASE); setX(STEPS[i].enter || {}); setX(x || {});\n    try {\n      paint(i);\n      return Object.assign({}, REC, { texts: Array.from(art.querySelectorAll('text')).map((n) => n.textContent) });\n    } finally {\n      setX(keep.X); S[i] = keep.S; T = keep.T; scripted = keep.sc;\n      paint();\n    }\n  }\n  function after(fn) { const keep = copyX(); try { setX(BASE); fn(); return copyX(); } finally { setX(keep); } }\n  const iD0 = idx('Twelve cells'), iS1 = idx('A charge from flat'), iD2 = idx('Is it full?'), iS3 = idx('Times the cells'), iD4 = idx('55 cells'), iS5 = idx('Too low, too high');\n  const iD6 = idx('Raised float'), iS7 = idx('Boost, then equalise'), iD8 = idx('Left on boost'), iS9 = idx('Warm cells'), iD10 = idx('A cold room'), iD11 = idx('A year at 51.60 V'), iD12 = idx('Drifted cells'), iD13 = idx('Putting it back');\n  const fin = (i) => drawn(i, solved(STEPS[i]), STEPS[i].end);\n\n  K.check('The charger voltage is the float volts per cell times the number of cells: at 2.23 V a cell, 6 cells need 13.38 V, 12 need 26.76 V, 24 need 53.52 V and 55 need 122.65 V', () => {\n    const want = { 6: 13.38, 12: 26.76, 24: 53.52, 55: 122.65 };\n    const ok = [6, 12, 24, 55].every((n) => fV(K.at({ step: iS3, setpt: FL_LO, cells: n, temp: T_REF }).chargerVolts) === fV(want[n]));\n    const g = drawn(iS3, null, { cells: 24, setpt: FL_LO }), h = fin(iD4);\n    return ok && g.chargerText === fV(53.52) && g.subText === '24 × 2.23' + NB + 'V' && h.chargerText === fV(122.65) && g.texts.indexOf('24 cells in series') >= 0;\n  }, { source: ENER });\n  K.check('Large stationary batteries at 25 °C typically float at 2.25 V a cell: the charge ends on float at 2.25 V a cell, and 12 cells there need 27.00 V', () => {\n    const a = K.at({ step: iS1, time: W, cells: 12 }), g = fin(iD0);\n    return a.voltsPerCell === FLOAT && fV(a.chargerVolts) === fV(27) && a.current === 'small current' && g.chargerText === fV(27) && zoneOf(FLOAT) === 'float';\n  }, { source: BU403 });\n  K.check('The charge voltage drops 3 mV a cell for every degree above 25 °C and rises 3 mV for every degree below: 2.25 V becomes 2.22 V at 35 °C and 2.28 V at 15 °C, and 24 cells go from 54.00 V to 53.28 V', () => {\n    const w = K.at({ step: iS9, setpt: FLOAT, cells: 24, temp: 25 }), h = K.at({ step: iS9, setpt: FLOAT, cells: 24, temp: 35 }), c = K.at({ step: iD10, setpt: FLOAT, cells: 24, temp: 15 });\n    const g = drawn(iS9, null, { temp: 35, bt: 35 }), f = fin(iD10), b = drawn(iS9, null, { temp: 25, bt: 25 });\n    return fV(w.chargerVolts) === fV(54) && fV(h.voltsPerCell) === fV(2.22) && fV(h.chargerVolts) === fV(53.28) && fV(c.voltsPerCell) === fV(2.28) &&\n      K.near(w.voltsPerCell - h.voltsPerCell, 0.03, 1e-9) && g.pinText === PIN(2.22) && f.pinText === PIN(2.28) && K.near(b.floatX - g.floatX, 0.03 * 600, 1e-6);\n  }, { source: BU403 });\n  K.check('Full charge is reached when the current falls to 3 to 5 per cent of the Ah rating: on 100 Ah the charger drops to float as the topping current reaches 4 A, inside the drawn 3 to 5 A band', () => {\n    const before = traceAt(TR1, P1.tf - 1e-6), aft = traceAt(TR1, P1.tf + 1e-6), g = fin(iD2), a = K.at({ step: iD2, time: T4 });\n    return K.near(before.cur, I_SW, 1e-4) && before.stage === 'topping' && aft.stage === 'float' && I_SW >= 0.03 * CAP && I_SW <= 0.05 * CAP &&\n      fA1(a.current) === fA1(4) && g.band && g.stages.indexOf('float') >= 0;\n  }, { source: BU403 });\n  K.check('To cut the recharge time a battery may be recharged at 2.33 to 2.40 V a cell, and must switch to float when full: the 2.38 V boost reaches full before a charge at the float setting, then drops to 2.25 V', () => {\n    const aft = traceAt(TR7, P7.tf + 0.01), g = drawn(iS7, null, { time: W });\n    return BOOST_EX >= BO_LO && BOOST_EX <= BO_HI && P7.tf < PG.tf && aft.stage === 'float' && aft.v === FLOAT && g.fullMainT < g.fullGhostT && g.key === 2;\n  }, { source: ENER });\n  K.check('An equalising charge raises the voltage to 2.50 V a cell: the equalise stretch holds 2.50 V a cell, and 24 cells need 60.00 V', () => {\n    const mid = (EQ_T0 + EQ_T1) / 2, r = traceAt(TR7, mid), a = K.at({ step: iD12, setpt: EQ, cells: 24 }), g = drawn(iS7, null, { time: mid });\n    return r.v === EQ && r.stage === 'equalise' && fV(a.chargerVolts) === fV(60) && g.pinText === PIN(EQ) && g.stages.indexOf('equalise') >= 0 && g.bubbles > 0;\n  }, { source: BU404 });\n  K.check('The gassing voltage is 2.40 V a cell: bubbles rise at 2.40 V a cell and above, never at the 2.38 V boost or on float', () => {\n    const a = drawn(iS5, null, { setpt: GAS }), b = drawn(iS5, null, { setpt: BOOST_EX }), c = drawn(iS5, null, { setpt: FLOAT });\n    const e = drawn(iS7, null, { time: 10 }), f = drawn(iS7, null, { time: 12 });\n    return a.bubbles > 0 && b.bubbles === 0 && c.bubbles === 0 && e.bubbles === 0 && f.bubbles === 0 && a.stat.water === 'falling' && b.stat.water === 'still';\n  }, { source: ENER });\n  K.check('A charged, rested cell reads 2.1 V and the nominal voltage is 2 V a cell: 55 cells give 115.50 V and 110.00 V, both below the 122.65 V float setting', () =>\n    fV(55 * REST) === fV(115.5) && fV(55 * NOMV) === fV(110) && fV(12 * REST) === fV(25.2) && 55 * NOMV < 55 * REST && 55 * REST < K.at({ step: iD4, setpt: FL_LO, cells: 55 }).chargerVolts, { source: BU303 });\n  K.check('Full charge avoids sulfation on the negative plate, and over-saturation causes grid corrosion on the positive plate: below the float band only the sulphate meter rises, above it only the grid meter, and inside it neither', () => {\n    const lo = drawn(iS5, null, { setpt: 2.15 }), mid = drawn(iS5, null, { setpt: FLOAT }), hi = drawn(iS5, null, { setpt: 2.45 }), e = drawn(iS5, null, STEPS[iS5].end);\n    return lo.stat.sulph === 'rising' && lo.stat.grid === 'still' && mid.stat.sulph === 'still' && mid.stat.grid === 'still' && hi.stat.grid === 'rising' && hi.stat.sulph === 'still' &&\n      e.sulph > 0 && e.grid > 0 && e.water < 1 && K.near(e.v, FLOAT, 1e-9) && K.at({ step: iS5, setpt: 2.15 }).current === 'too little current' && K.at({ step: iS5, setpt: 2.45 }).current === 'too much current';\n  }, { source: BU403 });\n  K.check('Recharge 1.2 times the discharged capacity: 50 Ah taken out needs 60 Ah put back, so about 83 per cent of the ampere-hours come back', () => {\n    const g = fin(iD13);\n    return fAh(AH_OUT * RECH) === fAh(60) && Math.round(100 * AH_OUT / (AH_OUT * RECH)) === 83 && g.inText === fAh(60) && STEPS[iD13].want === fAh(60) && fAh(Math.round(AH_OUT / RECH)) === fAh(42);\n  }, { source: ENER });\n  K.check('Bulk holds 10 A while the volts per cell climb, topping holds the charge setting while the current falls, and float holds 2.25 V with a small current', () => {\n    let ok = true, prev = null;\n    for (let t = 0; t <= W + 1e-9; t += 0.05) {\n      const r = traceAt(TR1, t);\n      if (prev && prev.stage === r.stage) {\n        if (r.stage === 'bulk') ok = ok && r.cur === IB && r.v > prev.v;\n        if (r.stage === 'topping') ok = ok && r.v === SET_EX && r.cur < prev.cur;\n      }\n      if (r.stage === 'float') ok = ok && r.v === FLOAT && r.cur === 'small current';\n      prev = r;\n    }\n    return ok && K.near(traceAt(TR1, P1.tb - 1e-9).v, SET_EX, 1e-6) && K.near(traceAt(TR1, 0).v, V0, 1e-12) && P1.tb < P1.tf && P1.tf < W;\n  });\n  K.check('51.60 V across 24 cells is 2.15 V a cell, below the float band, so a year there grows sulphate and no corrosion; boost at 2.40 V on 24 cells is 57.60 V', () => {\n    const g = fin(iD11);\n    return fV(51.6 / 24) === fV(2.15) && zoneOf(2.15) === 'low' && fV(K.at({ step: iD11, setpt: 2.15, cells: 24 }).chargerVolts) === fV(51.6) && g.sulph > 0 && g.grid === 0 &&\n      g.chargerText === fV(51.6) && fV(GAS * 24) === fV(57.6);\n  });\n  K.check('Each puzzle accepts only its right answer, and nothing in its picture gives the answer before Check', () => {\n    const ok = STEPS.every((d) => d.show || (d.opts.length === 3 && new Set(d.opts).size === 3 && d.opts.indexOf(d.want) >= 0));\n    const a0 = drawn(iD0), a1 = fin(iD0), b0 = drawn(iD2), b1 = fin(iD2), c0 = drawn(iD4), c1 = fin(iD4), e0 = drawn(iD6), e1 = fin(iD6);\n    const f0 = drawn(iD8), f1 = fin(iD8), g0 = drawn(iD10), g1 = fin(iD10), h0 = drawn(iD11), h1 = fin(iD11), j0 = drawn(iD12), j1 = fin(iD12);\n    return ok && a0.chargerText === QV && a1.chargerText === STEPS[iD0].want &&\n      !b0.band && b0.stages.indexOf('float') < 0 && b1.band && b1.stages.indexOf('float') >= 0 &&\n      c0.chargerText === QV && c1.chargerText === STEPS[iD4].want &&\n      e0.grid === 0 && e0.stat.grid === 'still' && e1.grid > 0 && e1.pinText === PIN(2.35) &&\n      f0.bubbles === 0 && f0.stat.grid === '?' && f0.curText === '?' && f1.bubbles > 0 && f1.grid > 0 && f1.water < 1 &&\n      g0.pinText === QP && g0.chargerText === QV && g1.pinText === STEPS[iD10].want + ' a cell' &&\n      h0.pinText === QP && h0.stat.sulph === '?' && h1.sulph > 0 && h1.grid === 0 &&\n      j0.sulph > 0 && j1.sulph === 0 && j1.pinText === PIN(FLOAT) && drawn(iD13).inText === '?' + NB + 'Ah' && fin(iD13).inText === STEPS[iD13].want;\n  });\n  K.check('Fourteen screens: demonstrations and puzzles take turns, then three mixed puzzles end the lesson', () =>\n    STEPS.length === 14 && STEPS.every((d, k) => (k < 11 ? !!d.show === (k % 2 === 1) : !d.show)));\n  K.check('Every demonstration settles within 4.6 s and ends where its screen says, every answer\\'s motion settles within 2.5 s, and a spell of months takes 2 s', () => {\n    const keys = ['setpt', 'cells', 'temp', 'bt', 'time', 'sulph', 'grid', 'water', 'gz', 'ah'];\n    const same = (s, f) => keys.every((k) => K.near(s[k], f[k], 1e-9));\n    return MONTHS <= 3 && STEPS.every((d) => {\n      if (!d.show) {\n        if (d.run.dur > 2.5) return false;\n        if (!d.run.go) return true;\n        return same(after(() => { setX(d.enter || {}); d.run.go(1); }), after(() => { setX(d.enter || {}); setX(d.end || {}); }));\n      }\n      return d.dur <= 4.6 && same(after(() => { setX(d.enter || {}); d.play(d.dur); }), after(() => { setX(d.enter || {}); setX(d.end || {}); }));\n    });\n  });\n\n  K.ready();\n</script>",
+  "title": "The set-point pin",
+  "brief": "The one thing you should see is sulphate growing on the negative plate below the float band and the positive grid thinning above it, when you drag the set point in volts per cell.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "The charger voltage is the float volts per cell times the number of cells: at 2.23 V a cell, 6 cells need 13.38 V, 12 need 26.76 V, 24 need 53.52 V and 55 need 122.65 V",
+     "ok": true,
+     "source": "https://www.enersys.com/492013/globalassets/documents/product-documentation/powersafe/opzs/amer/amer-en-iom-ps-flooded-0223.pdf"
+    },
+    {
+     "label": "Large stationary batteries at 25 °C typically float at 2.25 V a cell: the charge ends on float at 2.25 V a cell, and 12 cells there need 27.00 V",
+     "ok": true,
+     "source": "https://batteryuniversity.com/article/bu-403-charging-lead-acid"
+    },
+    {
+     "label": "The charge voltage drops 3 mV a cell for every degree above 25 °C and rises 3 mV for every degree below: 2.25 V becomes 2.22 V at 35 °C and 2.28 V at 15 °C, and 24 cells go from 54.00 V to 53.28 V",
+     "ok": true,
+     "source": "https://batteryuniversity.com/article/bu-403-charging-lead-acid"
+    },
+    {
+     "label": "Full charge is reached when the current falls to 3 to 5 per cent of the Ah rating: on 100 Ah the charger drops to float as the topping current reaches 4 A, inside the drawn 3 to 5 A band",
+     "ok": true,
+     "source": "https://batteryuniversity.com/article/bu-403-charging-lead-acid"
+    },
+    {
+     "label": "To cut the recharge time a battery may be recharged at 2.33 to 2.40 V a cell, and must switch to float when full: the 2.38 V boost reaches full before a charge at the float setting, then drops to 2.25 V",
+     "ok": true,
+     "source": "https://www.enersys.com/492013/globalassets/documents/product-documentation/powersafe/opzs/amer/amer-en-iom-ps-flooded-0223.pdf"
+    },
+    {
+     "label": "An equalising charge raises the voltage to 2.50 V a cell: the equalise stretch holds 2.50 V a cell, and 24 cells need 60.00 V",
+     "ok": true,
+     "source": "https://batteryuniversity.com/article/bu-404-what-is-equalizing-charge"
+    },
+    {
+     "label": "The gassing voltage is 2.40 V a cell: bubbles rise at 2.40 V a cell and above, never at the 2.38 V boost or on float",
+     "ok": true,
+     "source": "https://www.enersys.com/492013/globalassets/documents/product-documentation/powersafe/opzs/amer/amer-en-iom-ps-flooded-0223.pdf"
+    },
+    {
+     "label": "A charged, rested cell reads 2.1 V and the nominal voltage is 2 V a cell: 55 cells give 115.50 V and 110.00 V, both below the 122.65 V float setting",
+     "ok": true,
+     "source": "http://www.batteryuniversity.com/article/bu-303-confusion-with-voltages"
+    },
+    {
+     "label": "Full charge avoids sulfation on the negative plate, and over-saturation causes grid corrosion on the positive plate: below the float band only the sulphate meter rises, above it only the grid meter, and inside it neither",
+     "ok": true,
+     "source": "https://batteryuniversity.com/article/bu-403-charging-lead-acid"
+    },
+    {
+     "label": "Recharge 1.2 times the discharged capacity: 50 Ah taken out needs 60 Ah put back, so about 83 per cent of the ampere-hours come back",
+     "ok": true,
+     "source": "https://www.enersys.com/492013/globalassets/documents/product-documentation/powersafe/opzs/amer/amer-en-iom-ps-flooded-0223.pdf"
+    },
+    {
+     "label": "Bulk holds 10 A while the volts per cell climb, topping holds the charge setting while the current falls, and float holds 2.25 V with a small current",
+     "ok": true
+    },
+    {
+     "label": "51.60 V across 24 cells is 2.15 V a cell, below the float band, so a year there grows sulphate and no corrosion; boost at 2.40 V on 24 cells is 57.60 V",
+     "ok": true
+    },
+    {
+     "label": "Each puzzle accepts only its right answer, and nothing in its picture gives the answer before Check",
+     "ok": true
+    },
+    {
+     "label": "Fourteen screens: demonstrations and puzzles take turns, then three mixed puzzles end the lesson",
+     "ok": true
+    },
+    {
+     "label": "Every demonstration settles within 4.6 s and ends where its screen says, every answer's motion settles within 2.5 s, and a spell of months takes 2 s",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step",
+    "setpt",
+    "cells",
+    "temp",
+    "time"
+   ],
+   "readouts": [],
+   "outputs": [
+    "voltsPerCell",
+    "chargerVolts",
+    "current"
+   ],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Screen",
+     "min": 0,
+     "max": 13,
+     "step": 1,
+     "steps": [
+      "Twelve cells",
+      "A charge from flat",
+      "Is it full?",
+      "Times the cells",
+      "55 cells",
+      "Too low, too high",
+      "Raised float",
+      "Boost, then equalise",
+      "Left on boost",
+      "Warm cells",
+      "A cold room",
+      "A year at 51.60 V",
+      "Drifted cells",
+      "Putting it back"
+     ],
+     "value": 0
+    },
+    {
+     "id": "setpt",
+     "kind": "control",
+     "label": "Set point",
+     "min": 2.1,
+     "max": 2.6,
+     "step": 0.01,
+     "log": false,
+     "value": 2.25,
+     "shown": false,
+     "snap": [
+      2.15,
+      2.23,
+      2.25,
+      2.35,
+      2.38,
+      2.4,
+      2.45,
+      2.5
+     ]
+    },
+    {
+     "id": "cells",
+     "kind": "choice",
+     "label": "Cells in series",
+     "options": [
+      6,
+      12,
+      24,
+      55
+     ],
+     "labels": [
+      "6",
+      "12",
+      "24",
+      "55"
+     ],
+     "value": 12,
+     "index": 1,
+     "shown": false
+    },
+    {
+     "id": "temp",
+     "kind": "control",
+     "label": "Battery temperature",
+     "min": 15,
+     "max": 35,
+     "step": 1,
+     "log": false,
+     "value": 25,
+     "shown": false,
+     "snap": [
+      15,
+      25,
+      35
+     ]
+    },
+    {
+     "id": "time",
+     "kind": "control",
+     "label": "Time",
+     "min": 0,
+     "max": 17,
+     "step": 0.01,
+     "log": false,
+     "value": 0,
+     "shown": false
+    }
+   ],
+   "actions": [
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Check",
+    "Why?",
+    "Play again",
+    "Back",
+    "Continue",
+    "Start again",
+    "Demonstration"
+   ],
+   "answers": [],
+   "written": [],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 1
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-27T16:48:48.150Z",
+  "applied": [
+   {
+    "path": "practice.text",
+    "problem": "The worked example says the maker corrects only above 30 °C, but its manual also raises the float below 10 °C, and it contradicts the explanation; the rule is about cell temperature, not the room's."
+   },
+   {
+    "path": "explain.text",
+    "problem": "Single-source figures are stated as universal: 3 to 5 per cent is one rule (BU), 2.33 to 2.40 V boost is one maker's, and 2.50 V equalise is one rule (the same maker equalises at 2.33 to 2.40 V); the gassing line lacked its citation [^4]."
+   },
+   {
+    "path": "interactive.whatAmILookingAt",
+    "problem": "Screen 3's hint states the 3 to 5 per cent rule as a definition of full, and screen 5's hint says 110 V puts nothing in, which holds only for a charged battery, not a deeply discharged one."
+   },
+   {
+    "path": "analogy.breaks",
+    "problem": "A tyre does not hold its pressure for good once filled; it slowly loses some, which is why it is checked regularly, as the analogy itself says."
+   }
+  ],
+  "notes": [
+   {
+    "path": "interactive.numbers",
+    "problem": "\"Cells in a 12 V block\" (6) cites source 11, whose quote is about primary and secondary cells and does not state six cells; research R47 (six 2 V cells make 12 V) supports it but is not in the lesson's sources."
+   },
+   {
+    "path": "interactive.whatAmILookingAt",
+    "problem": "Screen 13 and the equalise mark use 2.50 V a cell (BU); the cited maker equalises its vented cells at 2.33 to 2.40 V for up to 72 hours, so the right answer's 2.50 V is one rule, not every maker's."
+   },
+   {
+    "path": "interactive.numbers",
+    "problem": "The float band mixes one maker's 2.23 V at 20 °C with BU's 2.25 to 2.27 V at 25 °C, while the temperature slider applies BU's charge-voltage coefficient about 25 °C to the float; fine as a sketch, but the references differ."
+   }
+  ]
+ },
+ "error": null,
+ "flags": {}
+}

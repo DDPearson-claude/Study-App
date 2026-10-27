@@ -1,0 +1,221 @@
+{
+  "ok": true,
+  "reachChecked": true,
+  "problems": [],
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "The charger voltage is the float volts per cell times the number of cells: at 2.23 V a cell, 6 cells need 13.38 V, 12 need 26.76 V, 24 need 53.52 V and 55 need 122.65 V",
+        "ok": true,
+        "source": "https://www.enersys.com/492013/globalassets/documents/product-documentation/powersafe/opzs/amer/amer-en-iom-ps-flooded-0223.pdf"
+      },
+      {
+        "label": "Large stationary batteries at 25 °C typically float at 2.25 V a cell: the charge ends on float at 2.25 V a cell, and 12 cells there need 27.00 V",
+        "ok": true,
+        "source": "https://batteryuniversity.com/article/bu-403-charging-lead-acid"
+      },
+      {
+        "label": "The charge voltage drops 3 mV a cell for every degree above 25 °C and rises 3 mV for every degree below: 2.25 V becomes 2.22 V at 35 °C and 2.28 V at 15 °C, and 24 cells go from 54.00 V to 53.28 V",
+        "ok": true,
+        "source": "https://batteryuniversity.com/article/bu-403-charging-lead-acid"
+      },
+      {
+        "label": "Full charge is reached when the current falls to 3 to 5 per cent of the Ah rating: on 100 Ah the charger drops to float as the topping current reaches 4 A, inside the drawn 3 to 5 A band",
+        "ok": true,
+        "source": "https://batteryuniversity.com/article/bu-403-charging-lead-acid"
+      },
+      {
+        "label": "To cut the recharge time a battery may be recharged at 2.33 to 2.40 V a cell, and must switch to float when full: the 2.38 V boost reaches full before a charge at the float setting, then drops to 2.25 V",
+        "ok": true,
+        "source": "https://www.enersys.com/492013/globalassets/documents/product-documentation/powersafe/opzs/amer/amer-en-iom-ps-flooded-0223.pdf"
+      },
+      {
+        "label": "An equalising charge raises the voltage to 2.50 V a cell: the equalise stretch holds 2.50 V a cell, and 24 cells need 60.00 V",
+        "ok": true,
+        "source": "https://batteryuniversity.com/article/bu-404-what-is-equalizing-charge"
+      },
+      {
+        "label": "The gassing voltage is 2.40 V a cell: bubbles rise at 2.40 V a cell and above, never at the 2.38 V boost or on float",
+        "ok": true,
+        "source": "https://www.enersys.com/492013/globalassets/documents/product-documentation/powersafe/opzs/amer/amer-en-iom-ps-flooded-0223.pdf"
+      },
+      {
+        "label": "A charged, rested cell reads 2.1 V and the nominal voltage is 2 V a cell: 55 cells give 115.50 V and 110.00 V, both below the 122.65 V float setting",
+        "ok": true,
+        "source": "http://www.batteryuniversity.com/article/bu-303-confusion-with-voltages"
+      },
+      {
+        "label": "Full charge avoids sulfation on the negative plate, and over-saturation causes grid corrosion on the positive plate: below the float band only the sulphate meter rises, above it only the grid meter, and inside it neither",
+        "ok": true,
+        "source": "https://batteryuniversity.com/article/bu-403-charging-lead-acid"
+      },
+      {
+        "label": "Bulk holds 10 A while the volts per cell climb, topping holds the charge setting while the current falls, and float holds 2.25 V with a small current",
+        "ok": true
+      },
+      {
+        "label": "51.60 V across 24 cells is 2.15 V a cell, below the float band, so a year there grows sulphate and no corrosion; boost at 2.40 V on 24 cells is 57.60 V",
+        "ok": true
+      },
+      {
+        "label": "Each puzzle accepts only its right answer, and nothing in its picture gives the answer before Check",
+        "ok": true
+      },
+      {
+        "label": "Thirteen screens: demonstrations and puzzles take turns, then two mixed puzzles end the lesson",
+        "ok": true
+      },
+      {
+        "label": "Every demonstration settles within 4.6 s and ends where its screen says, every answer's motion settles within 2.5 s, and a spell of months takes 2 s",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "setpt",
+      "cells",
+      "temp",
+      "time"
+    ],
+    "readouts": [],
+    "outputs": [
+      "voltsPerCell",
+      "chargerVolts",
+      "current"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Screen",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "steps": [
+          "Twelve cells",
+          "A charge from flat",
+          "Is it full?",
+          "Times the cells",
+          "55 cells",
+          "Too low, too high",
+          "Raised float",
+          "Boost, then equalise",
+          "Left on boost",
+          "Warm cells",
+          "A cold room",
+          "A year at 51.60 V",
+          "Drifted cells"
+        ],
+        "value": 0
+      },
+      {
+        "id": "setpt",
+        "kind": "control",
+        "label": "Set point",
+        "min": 2.1,
+        "max": 2.6,
+        "step": 0.01,
+        "log": false,
+        "value": 2.25,
+        "shown": false,
+        "snap": [
+          2.15,
+          2.23,
+          2.25,
+          2.35,
+          2.38,
+          2.4,
+          2.45,
+          2.5
+        ]
+      },
+      {
+        "id": "cells",
+        "kind": "choice",
+        "label": "Cells in series",
+        "options": [
+          6,
+          12,
+          24,
+          55
+        ],
+        "labels": [
+          "6",
+          "12",
+          "24",
+          "55"
+        ],
+        "value": 12,
+        "index": 1,
+        "shown": false
+      },
+      {
+        "id": "temp",
+        "kind": "control",
+        "label": "Battery temperature",
+        "min": 15,
+        "max": 35,
+        "step": 1,
+        "log": false,
+        "value": 25,
+        "shown": false,
+        "snap": [
+          15,
+          25,
+          35
+        ]
+      },
+      {
+        "id": "time",
+        "kind": "control",
+        "label": "Time",
+        "min": 0,
+        "max": 17,
+        "step": 0.01,
+        "log": false,
+        "value": 0,
+        "shown": false
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Play again",
+      "Back",
+      "Continue",
+      "Start again",
+      "Demonstration"
+    ],
+    "answers": [],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ],
+    "foreign": [],
+    "unreachable": []
+  }
+}

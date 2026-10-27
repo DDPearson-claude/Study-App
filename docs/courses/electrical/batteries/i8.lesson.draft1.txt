@@ -1,0 +1,557 @@
+{
+ "iid": "i8",
+ "title": "Short circuits, safety and other chemistries",
+ "format": "steps",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the fault current staying in the thousands of amps, far above the device's breaking capacity, when you drag the fault from the battery's terminals down its cable.",
+  "title": "The milliohm fault",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Screen",
+    "min": 0,
+    "max": 14,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [
+   {
+    "id": "faultCurrent",
+    "label": "Fault current",
+    "unit": "A",
+    "decimals": 0
+   },
+   {
+    "id": "loopResistance",
+    "label": "Loop resistance",
+    "unit": "mΩ",
+    "decimals": 2
+   }
+  ],
+  "whatAmILookingAt": "A 12 V lead-acid block sits on the left, drawn as six cells in series in one case. Each cell is drawn as an emf behind a small resistance. A pair of cables runs from its terminals to the right, with a protective device at the battery end. The device's breaking capacity is an example, 1 kA, drawn as a line on a bar. A fault, a red link across the two cores, can be dragged along the cable. A fault-distance slider runs from 0 m, across the terminals just past the device, to 20 m, in steps of 0.5 m. The block is a real maker's. It reads 12.6 V open circuit, from six cells at 2.1 V, and has 6.95 mΩ inside. The cable is an example, with cores of 0.5 mΩ a metre each. A fault d metres away puts both cores in the loop, out and back, so the outside resistance is 1 mΩ for every metre. The fault current is the open-circuit voltage ÷ (the battery's resistance + the outside resistance). The readout 'Fault current' shows it in A, and its bar turns red while it is above the device's line. The readout 'Loop resistance' shows the total in mΩ. A charge-left slider runs from 100% down to 60% in steps of 5%. It lowers the current along a straight line to 92% of the full-charge value at 60% charge. That line is a sketch, kept above the measured 90%. A time trace under the cable draws the current from the moment of the fault to 20 ms. It is a sketch that climbs to its full value by 5 ms and stays there. A 'Big string' switch swaps the block for a real 480 V string whose loop adds up to 0.160 + 0.028 Ω. The fault slider then rests at 0 m and the readout shows 2553 A. A chemistry card below compares three cells: lead-acid, nickel-cadmium and lithium-ion. Each column gives the cell voltage, the cells in series for 24 V, the electrolyte, whether a hydrometer reads the charge, and the main hazard. On a phone the two readouts sit on their own lines, the card's three columns stack one under another, and no word splits. Each show screen has under about 90 words. It ends on what its finished picture shows, so it reads well without the controls. Screen by screen. 0 asks a recall question. A protective device sits where the prospective fault current is 3 kA. It asks what its breaking capacity must be. First choice: at least 3 kA, the most it may have to break there. Second: at least its rated current. Third: at least the cable's current rating. The right pick says 'Still there: a device must break the biggest fault it can see where it sits.' Hint for rated current: that sets when it trips on overload, not what it can safely break. Hint for the cable: that is what the cable carries all day, far below a fault. 1 shows the 12 V block with a fault across its terminals. Open circuit it reads 12.6 V, six cells at 2.1 V. Inside it has 6.95 mΩ. Remember the emf behind a small resistance. Short the terminals, and that resistance is all that is left to limit the current. So the fault current is the open-circuit voltage ÷ the internal resistance: 12.6 ÷ 0.00695 = 1813 A. The maker lists 1814 A for this block. That is far above the example device's 1 kA. It ends with the fault at 0 m and 1813 A showing. 2 says you set a steel spanner down across the terminals of the same 12 V block. It asks what flows. First choice: about 1800 A, held back only by the block's milliohms and the spanner. Second: very little, because 12 V is too low to push much current. Third: about 70 A, the block's ampere-hour rating. The right pick says 'That's it: 12.6 V across a few milliohms is well over a thousand amps.' Hint for too low: 12 V drives little current through you because your body's resistance is high, and a spanner's is tiny. Hint for 70 A: ampere-hours say how long a battery lasts, not how hard it can push. 3 drags the fault along the cable. Now the cable's two cores are in the loop too, and resistances in series add. The current is the voltage ÷ (the battery's resistance + the outside resistance). Each core is 0.5 mΩ a metre, so each metre of route adds 1 mΩ. At 5 m the loop is 6.95 + 5 = 11.95 mΩ. That gives 12.6 ÷ 0.01195 = 1054 A, still above the device's 1 kA. The battery's milliohms are fixed, and only the loop outside can add more. It ends at 5 m and 1054 A. 4 says a fault happens 10 m down the same cable. It asks for the fault current. The choices are 743 A, 1260 A and 1813 A. The right pick says 'That's it: 12.6 ÷ (0.00695 + 0.010) = 743 A.' Hint for 1260 A: that is 12.6 ÷ 0.010, the cable alone, and the battery's 6.95 mΩ is in the loop too. Hint for 1813 A: that is the fault at the terminals, before the cable adds its 10 mΩ. 5 taps 'Big string'. The same rule works for a 480 V string. Its loop adds up to 0.160 + 0.028 Ω. The cells' resistance, with the links between them, sets the most a battery can drive. 480 ÷ 0.188 = 2553 A, so the prediction was about 2550 A. A real test on that string measured 2530 A. That is why a shorted battery can give 100 to 1000 times its normal discharge current. It ends with the big string showing 2553 A. 6 says a 48 V string has 24 cells at 2.1 V, each with 1.5 mΩ inside. Its 23 links between cells add 0.1 mΩ each. These are example values. It asks for the fault current across its terminals. The choices are 1316 A, 1400 A and 33600 A. The right pick says 'That's it: 50.4 V ÷ (36 + 2.3) mΩ = 1316 A.' Hint for 1400 A: the links carry the fault current too, so their 2.3 mΩ belongs in the loop. Hint for 33600 A: in a string one current flows through every cell, so the cells' resistances add. 7 drags the charge left from 100% down to 60%. The fault current barely moves. A cell's rested voltage falls only a few per cent from full to flat, as the voltmeter showed earlier. The milliohms stay milliohms. In tests on real batteries, the current stayed above 90% of its full-charge value at about 60% charge. In the picture, at 60% the block still drives 1668 A. So a battery that cannot run its load for long can still give a full-size fault. It ends at 60% and 1668 A. 8 says a UPS battery has run down to about 60% charge, and someone says a short on it now would be small. It asks whether that is right. First choice: no, its fault current is still over 90% of the full-charge value. Second: yes, it falls to about 60% of the full-charge fault. Third: yes, a part-charged battery holds too little energy for a big current. The right pick says 'That's it: the volts barely fall and the milliohms stay, so the current stays high.' Hint for 60%: the current follows the voltage, not the charge left, and the voltage barely falls. Hint for too little energy: energy sets how long it could keep going, not how many amps flow at once. 9 shows the time trace. The current reaches its full value within 5 to 10 ms of the fault. A battery has little inductance, so a short behaves like a fault through a plain resistor. There is no slow build-up to react to. And a battery's cells cannot be switched off. Its exposed metal is live all the time. Switching off the charger and the loads stops their currents, but the cells keep their voltage. It ends with the trace flat at 1813 A, with the fault at 0 m. 10 says you must remake a loose link between two cells in a live string. It asks what comes first. First choice: switch off the circuits on the battery, and keep metal tools off its top. Second: open the battery's main switch, and then the cells are dead. Third: nothing, because each link spans only one cell's 2.1 V. The right pick says 'That's it: switch off all circuits before connecting or disconnecting, and rest no metal on a battery.' Hint for the main switch: a switch stops current in the circuits, but the cells keep their voltage. Hint for one cell: your spanner can bridge more than one cell, and even one cell drives hundreds of amps through metal. 11 shows the chemistry card. Lead-acid gives about 2 V a cell, so 24 V takes 12 cells. Its sulphuric acid is used up as it discharges, so a hydrometer reads the charge. Nickel-cadmium gives 1.20 V a cell, so 24 V takes 20 cells. Its potassium hydroxide takes no part in the reaction, so a hydrometer reads nothing useful. Lithium-ion gives 3.60 V a cell, so 7 cells make 25.2 V. Its cells are sealed. Both liquids are very corrosive. Lithium-ion's main hazard is thermal runaway if it is pushed past its limits. It ends with all three columns showing. 12, 13 and 14 mix the ideas. 12 says a nickel-cadmium battery needs its charge checked, and a hydrometer is to hand. It asks what the hydrometer will tell you. First choice: nothing about the charge, because the electrolyte takes no part in the reaction. Second: the charge, read the same way as lead-acid. Third: the charge, on a lower scale. The right pick says 'That's it: the alkali carries the current but is not used up, so its strength stays put.' Hint for the same way: lead-acid's acid is used up on discharge, and that is what a hydrometer reads. Hint for a lower scale: any scale needs a reading that changes with charge, and this one does not. 13 says a 24 V emergency battery has 12 lead-acid cells at 2.1 V and 14 mΩ in total, links included. A fault 2 m down its cable adds 2 mΩ. The device there can break 1 kA. These are example values. It asks whether the device can clear the fault. First choice: no, 25.2 ÷ 0.016 = 1575 A, above 1 kA. Second: yes, 24 V is too low for a big fault. Third: yes, once the battery is part discharged. The right pick says 'That's it: 25.2 V across 16 mΩ is 1575 A, more than the device can break.' Hint for too low: a low voltage across milliohms still drives over a thousand amps. Hint for part discharged: at 60% charge it would still give over 90% of that. 14 says a lithium-ion pack is to replace that 24 V lead-acid battery. It asks how many cells in series it needs, and whether a hydrometer can check its charge. First choice: 7 cells, and no hydrometer. Second: 12 cells, checked with a hydrometer. Third: 20 cells, and no hydrometer. The right pick says 'That's it: 7 × 3.60 V = 25.2 V, and its cells are sealed.' Hint for 12 cells: that count suits lead-acid's 2 V a cell. Hint for 20 cells: that count suits nickel-cadmium's 1.20 V a cell.",
+  "ignores": "The fault is drawn as a bolted short of no resistance. A real fault often arcs, and the arc adds its own resistance and voltage drop, so a real fault current is usually somewhat lower. The block's resistance is held fixed, though a real cell's changes a little with charge and temperature. The charge-left line and the time trace are sketches. The charger and any running motors would add their own current to a fault, and the picture leaves them out. Each cable core is the same example size at room temperature.",
+  "numbers": [
+   {
+    "label": "Screen control lowest",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Screen control highest",
+    "value": 14,
+    "kind": "control"
+   },
+   {
+    "label": "Cells in the 12 V block",
+    "value": 6,
+    "kind": "constant",
+    "source": 51
+   },
+   {
+    "label": "Charged, rested cell voltage, V",
+    "value": 2.1,
+    "kind": "constant",
+    "source": 28
+   },
+   {
+    "label": "Block open-circuit voltage, V",
+    "value": 12.6,
+    "kind": "computed"
+   },
+   {
+    "label": "Block nominal voltage, V",
+    "value": 12,
+    "kind": "constant",
+    "source": 11
+   },
+   {
+    "label": "Block internal resistance, mΩ",
+    "value": 6.95,
+    "kind": "constant",
+    "source": 11
+   },
+   {
+    "label": "Block short-circuit current the maker lists, A",
+    "value": 1814,
+    "kind": "constant",
+    "source": 11
+   },
+   {
+    "label": "Block rating, Ah",
+    "value": 70,
+    "kind": "constant",
+    "source": 11
+   },
+   {
+    "label": "Fault current at the terminals, A",
+    "value": 1813,
+    "kind": "computed"
+   },
+   {
+    "label": "Example device breaking capacity, kA",
+    "value": 1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Recall example prospective fault current, kA",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Fault slider lowest, m",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Fault slider highest, m",
+    "value": 20,
+    "kind": "control"
+   },
+   {
+    "label": "Fault slider step, m",
+    "value": 0.5,
+    "kind": "control"
+   },
+   {
+    "label": "Example cable core resistance, mΩ a metre",
+    "value": 0.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Outside resistance per metre of route, mΩ",
+    "value": 1,
+    "kind": "computed"
+   },
+   {
+    "label": "Fault distance on screen 3, m",
+    "value": 5,
+    "kind": "control"
+   },
+   {
+    "label": "Loop resistance at 5 m, mΩ",
+    "value": 11.95,
+    "kind": "computed"
+   },
+   {
+    "label": "Fault current at 5 m, A",
+    "value": 1054,
+    "kind": "computed"
+   },
+   {
+    "label": "Fault distance on screen 4, m",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "Cable resistance at 10 m, mΩ",
+    "value": 10,
+    "kind": "computed"
+   },
+   {
+    "label": "Fault current at 10 m, A",
+    "value": 743,
+    "kind": "computed"
+   },
+   {
+    "label": "Cable alone at 10 m, wrong choice, A",
+    "value": 1260,
+    "kind": "computed"
+   },
+   {
+    "label": "Big string voltage, V",
+    "value": 480,
+    "kind": "constant",
+    "source": 4
+   },
+   {
+    "label": "Big string loop resistance, first part, Ω",
+    "value": 0.16,
+    "kind": "constant",
+    "source": 4
+   },
+   {
+    "label": "Big string loop resistance, second part, Ω",
+    "value": 0.028,
+    "kind": "constant",
+    "source": 4
+   },
+   {
+    "label": "Big string loop resistance, total, Ω",
+    "value": 0.188,
+    "kind": "computed"
+   },
+   {
+    "label": "Big string fault current, computed, A",
+    "value": 2553,
+    "kind": "computed"
+   },
+   {
+    "label": "Big string fault current, predicted, A",
+    "value": 2550,
+    "kind": "constant",
+    "source": 4
+   },
+   {
+    "label": "Big string fault current, measured, A",
+    "value": 2530,
+    "kind": "constant",
+    "source": 4
+   },
+   {
+    "label": "Short current, times normal discharge, low end",
+    "value": 100,
+    "kind": "constant",
+    "source": 1
+   },
+   {
+    "label": "Short current, times normal discharge, high end",
+    "value": 1000,
+    "kind": "constant",
+    "source": 1
+   },
+   {
+    "label": "Example 48 V string, nominal voltage, V",
+    "value": 48,
+    "kind": "assumed"
+   },
+   {
+    "label": "Cells in the example 48 V string",
+    "value": 24,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example cell resistance, mΩ",
+    "value": 1.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Links between 24 cells",
+    "value": 23,
+    "kind": "computed"
+   },
+   {
+    "label": "Example link resistance, mΩ",
+    "value": 0.1,
+    "kind": "assumed"
+   },
+   {
+    "label": "48 V string open-circuit voltage, V",
+    "value": 50.4,
+    "kind": "computed"
+   },
+   {
+    "label": "48 V string cells' resistance, mΩ",
+    "value": 36,
+    "kind": "computed"
+   },
+   {
+    "label": "48 V string links' resistance, mΩ",
+    "value": 2.3,
+    "kind": "computed"
+   },
+   {
+    "label": "48 V string fault current, A",
+    "value": 1316,
+    "kind": "computed"
+   },
+   {
+    "label": "48 V string, links left out, wrong choice, A",
+    "value": 1400,
+    "kind": "computed"
+   },
+   {
+    "label": "48 V string, 24 × 1400 A, wrong choice, A",
+    "value": 33600,
+    "kind": "computed"
+   },
+   {
+    "label": "Charge-left slider top, %",
+    "value": 100,
+    "kind": "control"
+   },
+   {
+    "label": "Charge-left slider bottom, %",
+    "value": 60,
+    "kind": "control"
+   },
+   {
+    "label": "Charge-left slider step, %",
+    "value": 5,
+    "kind": "control"
+   },
+   {
+    "label": "Measured share of full fault current kept, above, %",
+    "value": 90,
+    "kind": "constant",
+    "source": 5
+   },
+   {
+    "label": "Sketch share of full fault current at 60% charge, %",
+    "value": 92,
+    "kind": "assumed"
+   },
+   {
+    "label": "Block fault current at 60% charge, A",
+    "value": 1668,
+    "kind": "computed"
+   },
+   {
+    "label": "Time trace length, ms",
+    "value": 20,
+    "kind": "assumed"
+   },
+   {
+    "label": "Sketch time to full current, ms",
+    "value": 5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Measured time to full current, ms, low end",
+    "value": 5,
+    "kind": "constant",
+    "source": 7
+   },
+   {
+    "label": "Measured time to full current, ms, high end",
+    "value": 10,
+    "kind": "constant",
+    "source": 7
+   },
+   {
+    "label": "Lead-acid nominal cell voltage, V",
+    "value": 2,
+    "kind": "constant",
+    "source": 28
+   },
+   {
+    "label": "Lead-acid cells for 24 V",
+    "value": 12,
+    "kind": "computed"
+   },
+   {
+    "label": "Nickel-cadmium cell voltage, V",
+    "value": 1.2,
+    "kind": "constant",
+    "source": 17
+   },
+   {
+    "label": "Nickel-cadmium cells for 24 V",
+    "value": 20,
+    "kind": "computed"
+   },
+   {
+    "label": "Lithium-ion nominal cell voltage, V",
+    "value": 3.6,
+    "kind": "constant",
+    "source": 20
+   },
+   {
+    "label": "Lithium-ion cells for 24 V, rounded up",
+    "value": 7,
+    "kind": "computed"
+   },
+   {
+    "label": "Seven lithium-ion cells, V",
+    "value": 25.2,
+    "kind": "computed"
+   },
+   {
+    "label": "Example 24 V battery, cells",
+    "value": 12,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example 24 V battery open-circuit voltage, V",
+    "value": 25.2,
+    "kind": "computed"
+   },
+   {
+    "label": "Example 24 V battery resistance with links, mΩ",
+    "value": 14,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example fault distance down its cable, m",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Cable resistance for that fault, mΩ",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Loop resistance for that fault, mΩ",
+    "value": 16,
+    "kind": "computed"
+   },
+   {
+    "label": "Fault current 2 m down, A",
+    "value": 1575,
+    "kind": "computed"
+   },
+   {
+    "label": "Fault current at its terminals, A",
+    "value": 1800,
+    "kind": "computed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "A battery is an emf behind a few milliohms, so almost nothing limits a short across it. That lets a large battery drive thousands of amps into a fault, even part discharged, and its cells cannot be switched off. What you know about prospective fault current still holds. Only the source is new.\n\nShort the terminals and the outside resistance falls to almost nothing. The cells' own internal resistance is then all that holds the current back. So the [[short-circuit current]] is the open-circuit voltage ÷ the internal resistance.[^2] One maker's 12 V 70 Ah block has 6.95 mΩ inside and lists 1814 A.[^11] Check it: six cells at 2.1 V give 12.6 V, and 12.6 ÷ 0.00695 = 1813 A. Move the fault down a cable and the cable joins the loop, so the current is V ÷ (R battery + R outside). With 5 m of the example cable adding 5 mΩ, it is still 1054 A. The cells and the links between them set the most a battery can give.[^3] On one real 480 V string, the rule predicted about 2550 A, and a test measured 2530 A.[^4]\n\nTwo things make this worse than it looks. First, the current hardly falls as the battery runs down. The rested voltage drops only a few per cent from full to flat, and the milliohms stay milliohms. In tests the current stayed above 90% of its full-charge value at about 60% charge.[^5] Second, it arrives at once. A battery has little inductance, so a short acts like a fault through a plain resistor.[^8] In one test the current reached its full value within 5 to 10 ms.[^7] Its exposed metal is live all the time.[^6] Switching off the circuits stops their currents, but no switch makes the cells dead. So the emergency battery that gives out early on its test is no safer to work on, because it can still drive a full-size fault.\n\nOther chemistries obey the same rule, but their cells differ. Lead-acid gives about 2 V a cell, and its acid is used up on discharge, so a hydrometer reads the charge. A nickel-cadmium cell gives 1.20 V, so 24 V takes 20 cells.[^17] Its potassium hydroxide takes no part in the reaction, so a hydrometer tells you nothing about the charge.[^19] A lithium-ion cell gives 3.60 V, so 7 cells make 25.2 V.[^20] It needs a protection circuit to prevent [[thermal runaway]] if stressed.[^21] That is a cell whose own heat speeds its reactions, which make more heat. A battery's earth faults belong to Insulated systems and earth faults, and BS 7671 now has a chapter on installing stationary batteries.[^23] The figures here are a simplified model, and a real fault through an arc usually runs somewhat lower. **A battery's few milliohms let it drive thousands of amps into a short, even part discharged, and its cells are always live.**"
+ },
+ "analogy": {
+  "text": "You know fault level at a supply transformer. Its impedance is tiny, so a fault at its terminals draws a huge current. Move the fault down a final circuit, and the cable's impedance cuts it to a fraction. A battery is that transformer, with its milliohms in place of the transformer's impedance. The same sum, voltage ÷ loop impedance, gives the fault current, and the device nearest the source faces the biggest fault.",
+  "breaks": "A transformer's impedance is mostly reactance, so its fault current takes a moment to settle and you can isolate it from upstream. A battery's is almost pure resistance, so its fault arrives within milliseconds, and nothing upstream can make its cells dead."
+ },
+ "practice": {
+  "text": "Use this whenever you work on, near or downstream of a battery.\n\n**Safe way first:**\n- Treat every battery as live. Its exposed metal always carries a voltage.[^6]\n- Switch off all circuits before connecting or disconnecting a battery.[^13] That stops their currents, and the cells stay live.\n- Keep metal off the battery. Don't rest tools on top of it.[^14]\n- Work on one connection at a time, and cover the terminals you are not working on.\n- Protect your eyes near the electrolyte. Battery electrolyte is sulphuric acid or potassium hydroxide.[^15] Both can permanently damage the eyes and burn the skin.[^16]\n- If it splashes, wash with plenty of clean water and get medical help at once.[^12]\n\n**To estimate a battery's fault current:**\n- Find the open-circuit voltage: the cells × the volts a cell.\n- Add every resistance in the loop: the cells, the links between them, and the cable out and back.\n- Divide the voltage by that total. That is the battery's share of the fault.\n- Add what the charger and any running motors can give.[^10]\n- Check each protective device against the fault just past it, at full charge. Its breaking capacity must be above that current.[^9]\n\n**Rule of thumb:** a shorted battery can give 100 to 1000 times its normal discharge current.[^1] A low voltage does not mean a low fault current.\n\n**Worked example:** A 24 V emergency battery has 12 lead-acid cells at 2.1 V, so it reads 25.2 V open circuit. Say its cells and links total 14 mΩ. Across its terminals, 25.2 ÷ 0.014 = 1800 A. A fault 2 m down a cable with 0.5 mΩ a metre in each core adds 2 mΩ. Then 25.2 ÷ 0.016 = 1575 A. So a device at the battery must break more than 1800 A, plus the charger's share. These are example values, and a real battery's figures come from its maker.\n\n**Common mistakes**\n- Thinking 12 V or 24 V is too low to matter. It drives little current through you, but over a thousand amps through a spanner.\n- Thinking a part-discharged battery is safer. At about 60% charge it still gives over 90% of its full fault current.\n- Switching off the loads and treating the cells as dead.\n- Leaving the links, the cable or the battery's own resistance out of the sum.\n- Reading a nickel-cadmium cell's charge with a hydrometer."
+ },
+ "say": null,
+ "checks": [],
+ "sources": [
+  {
+   "n": 1,
+   "title": "CALCULATED VS. ACTUAL SHORT CIRCUIT CURRENTS FOR VRLA BATTERIES — Vertiv",
+   "url": "https://www.vertiv.com/48dfcf/globalassets/documents/battcon-static-assets/2003/calculated-vs.-actual-short-circuit-currents-for-vrla-batteries.pdf",
+   "quote": "A “shorted” lead acid battery has the capability of delivering an extremely high current, 100 to 1000 times the typical discharge current used in most applications."
+  },
+  {
+   "n": 2,
+   "title": "CALCULATED VS. ACTUAL SHORT CIRCUIT CURRENTS FOR VRLA BATTERIES — Vertiv",
+   "url": "https://www.vertiv.com/48dfcf/globalassets/documents/battcon-static-assets/2003/calculated-vs.-actual-short-circuit-currents-for-vrla-batteries.pdf",
+   "quote": "A battery’s short circuit current is typically estimated by dividing its open circuit voltage by its internal resistance."
+  },
+  {
+   "n": 3,
+   "title": "NUREG/CR-XXXX — OSTI",
+   "url": "https://www.osti.gov/servlets/purl/1188216",
+   "quote": "The peak short-circuit current that a battery can deliver is limited by its internal resistance including the intercell connectors."
+  },
+  {
+   "n": 4,
+   "title": "CALCULATED VS. ACTUAL SHORT CIRCUIT CURRENTS FOR VRLA BATTERIES — Vertiv",
+   "url": "https://www.vertiv.com/48dfcf/globalassets/documents/battcon-static-assets/2003/calculated-vs.-actual-short-circuit-currents-for-vrla-batteries.pdf",
+   "quote": "Using the equation above, we predicted a short circuit current of 2550 amps [480V / (0.160 + 0.028)], which compares reasonably with the actual measured average steady state test result of 2530 amps"
+  },
+  {
+   "n": 5,
+   "title": "CALCULATED VS. ACTUAL SHORT CIRCUIT CURRENTS FOR VRLA BATTERIES — Vertiv",
+   "url": "https://www.vertiv.com/48dfcf/globalassets/documents/battcon-static-assets/2003/calculated-vs.-actual-short-circuit-currents-for-vrla-batteries.pdf",
+   "quote": "The short circuit current stays relatively high even for low states of charge; for example, currents exceeded 90% of nominal even at ~60% state of charge."
+  },
+  {
+   "n": 6,
+   "title": "Flooded Stationary Lead Acid Batteries IOM — EnerSys",
+   "url": "https://www.enersys.com/492013/globalassets/documents/product-documentation/powersafe/opzs/amer/amer-en-iom-ps-flooded-0223.pdf",
+   "quote": "Exposed metal parts of the battery always carry a voltage and are electrically live (risk of short circuits)."
+  },
+  {
+   "n": 7,
+   "title": "CALCULATED VS. ACTUAL SHORT CIRCUIT CURRENTS FOR VRLA BATTERIES",
+   "url": "https://www.vertiv.com/48dfcf/globalassets/documents/battcon-static-assets/2003/calculated-vs.-actual-short-circuit-currents-for-vrla-batteries.pdf",
+   "quote": "Note that steady state minimum voltage and maximum current conditions were attained within 5 to 10 milliseconds."
+  },
+  {
+   "n": 8,
+   "title": "NUREG/CR-XXXX",
+   "url": "https://www.osti.gov/servlets/purl/1188216",
+   "quote": "Batteries contain little inductance and, as stated by one large UPS manufacturer, a shorted battery is similar to a fault through a resistor."
+  },
+  {
+   "n": 9,
+   "title": "CALCULATED VS. ACTUAL SHORT CIRCUIT CURRENTS FOR VRLA BATTERIES",
+   "url": "https://www.vertiv.com/48dfcf/globalassets/documents/battcon-static-assets/2003/calculated-vs.-actual-short-circuit-currents-for-vrla-batteries.pdf",
+   "quote": "Accurate battery system short circuit current and resistance values are required to properly size and select the proper circuit protection device."
+  },
+  {
+   "n": 10,
+   "title": "NUREG/CR-XXXX",
+   "url": "https://www.osti.gov/servlets/purl/1188216",
+   "quote": "Total short-circuit current is the sum of that delivered by the battery, the charger, and motors."
+  },
+  {
+   "n": 11,
+   "title": "Battery Range Summary",
+   "url": "https://www.enersys.com/493bb4/globalassets/documents/product-documentation/powersafe/v-tt/emea/en-v-rs-013.pdf",
+   "quote": "12V70 12 68 70 314 164 204 224 24.9 1814 6.95 M6 F V1"
+  },
+  {
+   "n": 12,
+   "title": "Flooded Stationary Lead Acid Batteries IOM",
+   "url": "https://www.enersys.com/492013/globalassets/documents/product-documentation/powersafe/opzs/amer/amer-en-iom-ps-flooded-0223.pdf",
+   "quote": "Electrolyte is highly corrosive. Wash all acid splash in eyes or on skin with plenty of clean water and seek immediate medical assistance."
+  },
+  {
+   "n": 13,
+   "title": "COSHH SR18",
+   "url": "https://www.hse.gov.uk/pubns/guidance/sr18.pdf",
+   "quote": "Raise the battery cover to help disperse hydrogen and switch off all electrical circuits before connecting or disconnecting batteries."
+  },
+  {
+   "n": 14,
+   "title": "COSHH SR18",
+   "url": "https://www.hse.gov.uk/pubns/guidance/sr18.pdf",
+   "quote": "Don’t rest metal objects (eg tools) on top of a battery."
+  },
+  {
+   "n": 15,
+   "title": "Using electric storage batteries safely INDG139",
+   "url": "https://www.hse.gov.uk/PUBNS/indg139.pdf",
+   "quote": "Batteries are usually filled with solutions (electrolytes) containing either sulphuric acid or potassium hydroxide."
+  },
+  {
+   "n": 16,
+   "title": "Using electric storage batteries safely INDG139",
+   "url": "https://www.hse.gov.uk/PUBNS/indg139.pdf",
+   "quote": "These very corrosive chemicals can permanently damage the eyes and produce serious chemical burns to the skin."
+  },
+  {
+   "n": 17,
+   "title": "Bu 203 Nickel Based Batteries",
+   "url": "https://batteryuniversity.com/article/bu-203-nickel-based-batteries",
+   "quote": "Low cell voltage of 1.20V requires many cells to achieve high voltage"
+  },
+  {
+   "n": 19,
+   "title": "Battery Testing Guide",
+   "url": "https://res.cloudinary.com/iwh/image/upload/q_auto,g_center/assets/1/7/Megger_Battery_Testing_Guide.pdf",
+   "quote": "since the potassium hydroxide electrolyte isn’t used in the chemical reaction, it is not necessary to measure it periodically."
+  },
+  {
+   "n": 20,
+   "title": "Bu 204 How Do Lithium Batteries Work",
+   "url": "https://batteryuniversity.com/article/bu-204-how-do-lithium-batteries-work",
+   "quote": "The nominal cell voltage of 3.60V can directly power mobile phones, tablets and digital cameras"
+  },
+  {
+   "n": 21,
+   "title": "Bu 204 How Do Lithium Batteries Work",
+   "url": "https://batteryuniversity.com/article/bu-204-how-do-lithium-batteries-work",
+   "quote": "Requires protection circuit to prevent thermal runaway if stressed"
+  },
+  {
+   "n": 23,
+   "title": "IET & BSI officially publish Amendment 4 (2026) to BS 7671:2018 (IET Wiring Regulations)",
+   "url": "https://www.theiet.org/media/press-releases/press-releases-2026/press-releases-2026-april-june/15-april-2026-iet-bsi-officially-publish-amendment-4-2026-to-bs-76712018-iet-wiring-regulations",
+   "quote": "One of the most significant developments is the introduction of a new chapter covering stationary secondary batteries"
+  },
+  {
+   "n": 28,
+   "title": "Battery University | BU-303: Confusion with Voltages",
+   "url": "http://www.batteryuniversity.com/article/bu-303-confusion-with-voltages",
+   "quote": "The nominal voltage of lead acid is 2 volts per cell, however when measuring the open circuit voltage, the OCV of a charged and rested battery should be 2.1V/cell."
+  },
+  {
+   "n": 51,
+   "title": "17.5 Batteries and Fuel Cells - Chemistry 2e | OpenStax",
+   "url": "https://openstax.org/books/chemistry-2e/pages/17-5-batteries-and-fuel-cells",
+   "quote": "Each cell produces 2 V, so six cells are connected in series to produce a 12-V car battery."
+  }
+ ],
+ "confidence": "simplified",
+ "contested": null
+}

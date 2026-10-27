@@ -1,0 +1,789 @@
+<!-- kind: structure -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .caption { max-width: 32rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.12rem; font-weight: 700; line-height: 1.5; }
+  .task.show { font-size: 1.05rem; font-weight: 400; line-height: 1.6; }
+  .scene { display: block; width: 100%; max-width: 26rem; margin-inline: auto; }
+  .scene text { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .lbm { font-weight: 400; fill: var(--k-muted); }
+  .scene .ttl { font-weight: 700; }
+  .scene .sg { font-size: 15px; font-weight: 800; }
+  .scene .q { font-size: 16px; font-weight: 800; fill: var(--k-accent2); }
+  .scene .cv { font-weight: 800; fill: var(--k-accent2); }
+  .scene .wl { font-weight: 700; fill: var(--k-warn); }
+  .scene .wire { fill: none; stroke: var(--k-ink); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .flow { fill: none; stroke: var(--k-accent); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .box { fill: var(--k-panel); stroke: var(--k-accent2); stroke-width: 2; }
+  .scene .post { fill: var(--k-strong); }
+  .scene .tank { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 2; }
+  .scene .tank.hollow { fill: none; }
+  .scene .tank.rev { stroke: var(--k-warn); stroke-width: 2.5; }
+  .scene .lvl { fill: var(--k-fill1); }
+  .scene .revf { fill: color-mix(in srgb, var(--k-warn) 22%, transparent); }
+  .scene .bub { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.2; }
+  .scene .brace { fill: none; stroke: var(--k-muted); stroke-width: 1.5; }
+  .scene .tick { stroke: var(--k-muted); stroke-width: 1.5; }
+  .scene .band { fill: var(--k-fill2); }
+  .scene .tgt { fill: none; stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 5 4; }
+  .scene .mk { stroke: var(--k-accent2); stroke-width: 4; stroke-linecap: round; }
+  .scene .mk.bad { stroke: var(--k-warn); }
+  .scene .cell { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.5; }
+  .scene .bus { stroke: var(--k-ink); stroke-width: 4; stroke-linecap: round; }
+  .scene .cable { fill: none; stroke: var(--k-ink); stroke-width: 2; stroke-linejoin: round; }
+  .scene .cur { fill: none; stroke: var(--k-accent2); }
+  .scene .curh { fill: var(--k-accent2); }
+  .scene .res { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 2; }
+  .scene .plate { stroke: var(--k-ink); stroke-linecap: round; }
+  .scene .blk { fill: none; stroke: var(--k-accent2); stroke-width: 2; }
+  .say { line-height: 1.55; }
+  .picks { display: grid; grid-template-columns: repeat(auto-fit, minmax(6rem, 1fr)); gap: 8px; }
+  .picks.long { grid-template-columns: 1fr; }
+  .picks .k-btn { min-height: 48px; font-size: 1rem; }
+  .picks.long .k-btn { text-align: left; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; }
+  .replay .k-btn { min-height: 44px; padding-inline: 16px; font-size: .95rem; white-space: nowrap; }
+  .fb { font-weight: 700; min-height: 1.5em; }
+  .fb.right { color: var(--k-good); }
+  .why, .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }
+</style>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 246" width="100%" role="img" aria-label=""><g id="art"></g></svg>
+    <div class="replay" id="replay"></div>
+    <div class="k-controls ctl" id="c-mode"></div>
+    <div class="k-controls ctl" id="c-hours"></div>
+    <div class="k-controls ctl" id="c-small"></div>
+    <div class="k-controls ctl" id="c-odd"></div>
+    <div class="k-controls ctl" id="c-cableA"></div>
+    <div class="k-controls ctl" id="c-cableB"></div>
+    <p class="say" id="say"></p>
+    <div class="k-readouts" id="outs"></div>
+    <div class="picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Example cells: five of 100 Ah and one of 80 Ah, at 10 A. A sketch, not measured data.</p>
+
+<script>
+  // ---------- the rule ----------
+  const BU = 'https://batteryuniversity.com/article/bu-803a-cell-mismatch-balancing';
+  const ENER = 'https://www.enersys.com/492013/globalassets/documents/product-documentation/powersafe/opzs/amer/amer-en-iom-ps-flooded-0223.pdf';
+  const I = 10, BIG = 100, N = 6;                       // example string current (A), strong cell (Ah), cells in the string
+  const VF = 2.23, DLO = 0.05, DHI = 0.10;              // one maker's float voltage a cell, and the allowed deviation below and above it
+  const BLO = VF - DLO, BHI = VF + DHI, TOTAL = N * VF; // the band, and the total the charger holds
+  const LOAD = 100, RS = 10;                            // parallel card: the load (A) and each string's resistance (mΩ)
+  const EMF = 12.6, RB = 7, IB = 100, VN = 12, AH = 100; // mixed puzzles: a block's emf, its resistance (mΩ), the load, nominal volts and Ah
+  const NB = ' ';
+  const TOP = 72, PX = 1.2, X0 = 56, PITCH = 46, TW = 36; // tank drawing: tops line up, depth 1.2 units per Ah
+  const tx = (k) => X0 + PITCH * k;
+  const q1 = (v) => Math.round(v * 10) / 10, q2 = (v) => Math.round(v * 100) / 100;
+  const ez = (x) => K.ease(K.clamp(x, 0, 1));
+  const others = (odd) => (TOTAL - odd) / 5;                         // the other five share what is left of the held total
+  const outside = (v) => v > BHI + 1e-6 || v < BLO - 1e-6;
+  const shareOf = (a, b) => LOAD * (RS + b) / (2 * RS + a + b);      // string A's share: 100 × path B ÷ (path A + path B)
+  function modelOf(p) {
+    const h = p.hours, c = p.small;
+    let through, held;
+    if (p.mode === 'flt') { through = 0; held = c; }
+    else if (p.mode === 'chg') { through = I * h; held = Math.min(c, I * h); }
+    else { through = I * Math.min(h, BIG / I); held = Math.max(0, c - I * h); }
+    return { through, smallHolds: held, shareA: shareOf(p.cableA, p.cableB) };
+  }
+  const nH = (h) => { const r = q1(h); return Math.abs(r - Math.round(r)) < 1e-9 ? String(Math.round(r)) : r.toFixed(1); };
+  const fp = (v) => K.fmt(v, { decimals: 0 });
+  const fAh = (v) => fp(v) + NB + 'Ah';       // readouts
+  const fA = (v) => fp(v) + NB + 'A';
+  const fV = (v) => v.toFixed(2) + NB + 'V';  // controls
+  const fO = (v) => Math.round(v) + NB + 'mΩ';
+  const lAh = (v) => fp(v) + ' Ah';           // labels on the drawing
+  const lV = (v) => v.toFixed(2) + ' V';
+  const lO = (v) => Math.round(v) + ' mΩ';
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  const W0 = 'Six cells in series make a *string*. Five hold 100 Ah, and one faded cell holds, say, 80 Ah. A 10 A load draws from the string. The current has only one path, so it passes through every cell. ' +
+    'Each hour, every tank gives the same 10 Ah, whatever its size. After 4 hours, each has given 40 Ah. The big tanks hold 60 Ah, and the small one holds 40 Ah.';
+  const W2 = 'At 8 hours, the small tank has given its 80 Ah and is empty. The big tanks still hold 20 Ah each, 100 Ah between them. But the string cannot reach that charge. ' +
+    'Every amp must pass through the empty cell to reach the load. So the string gives 80 Ah, not 100. The weakest cell sets what the whole string can give. Here the small tank sits empty beside five that still hold 20 Ah.';
+  const W4 = 'Keep the load on past 8 hours. The five strong cells still push 10 A through the empty one. It has nothing left to give. So the current drives it backwards, and its voltage turns round. This is *cell reversal*. ' +
+    'It can leave the cell with a permanent short. In a long string, one cell is a small part of the total. So the total can still look healthy. At 10 hours, the big tanks are empty too, and the small one is marked reversed.';
+  const W6 = 'Now the string charges from flat at 10 A. Every tank rises by the same 10 Ah an hour. After 8 hours the small tank is full. The big tanks need 20 Ah more each, so the current flows for 2 more hours. ' +
+    'The full cell cannot store it. So it turns the current into heat and gas. That is *overcharge*. At 10 hours, all six are full, and the small one is bubbling.';
+  const W8 = 'On float, the charger holds the total at 13.38 V. That is 2.23 V a cell. One maker allows each cell 0.05 V below to 0.10 V above that, so the band runs from 2.18 to 2.33 V. ' +
+    'Here the odd cell sits in overcharge at 2.38 V, above the band. The other five share what is left, 2.20 V each, slightly starved. The total still reads 13.38 V, because the charger holds it there.';
+  const W10 = 'Two strings in parallel share a 100 A load. Each string is 10 mΩ. String A\'s cable is 2 mΩ and string B\'s is 6 mΩ, so their paths are 12 and 16 mΩ. Both see the same volts, so the current splits inversely to resistance. ' +
+    'A gets 100 × 16 ÷ 28 = 57 A, and B gets 43 A. String A works harder and is run down further. With cable B down to 2 mΩ, the paths match, and each string carries 50 A.';
+  const O1_LESS = 'Less than 32 Ah, because the big cells carry the load';
+  const O5_BACK = 'The others drive current backwards through it, and it can be damaged for good', O5_REST = 'It rests at empty while the others carry on', O5_RECH = 'The others start to recharge it';
+  const O7_HEAT = 'It turns into heat and gas, overcharging the cell', O7_STOP = 'It stops while the others catch up', O7_ROUND = 'It flows round the small cell into the others';
+  const O9_NO = 'No: that cell is 0.15 V below 2.23 V, outside the band', O9_TOT = 'Yes: the total is right', O9_NOM = 'Yes: 2.08 V is above the 2 V nominal';
+  const O13_SAME = 'The same, 2400 Wh either way', O13_SER = 'Series, because the volts double', O13_PAR = 'Parallel, because the ampere-hours double';
+  const O14_FAULT = 'The cell itself is faulty, so trend it and test its capacity', O14_REP = 'The equalise was too short, so repeat it until the cell holds', O14_RAISE = 'The float is too low, so raise the charger\'s set point';
+  const STEPS = [
+    { show: true, name: 'One current', pic: 'string', ctl: ['hours'], enter: { mode: 'dis', hours: 0 }, end: { hours: 4 }, still: { hours: 4 }, dur: 4.0,
+      play: (t) => { X.hours = 4 * ez((t - 0.4) / 3.4); },
+      text: W0 + ' Drag the hours to try it.', read: W0 },
+    { name: 'The small cell\'s share', pic: 'string', enter: { mode: 'dis', hours: 0 }, end: { hours: 4 },
+      run: { dur: 2.4, go: (u) => { X.hours = 4 * ez(u / 0.9); } },
+      task: 'A 10 A load runs for 4 hours. How many ampere-hours has the 80 Ah cell given?',
+      opts: ['32 Ah', '40 Ah', O1_LESS], want: '40 Ah', right: 'That\'s it: one current, so 10 A × 4 h = 40 Ah from every cell.',
+      hint: 'Not quite. Think about how many paths the current has.',
+      hints: { '32 Ah': 'Not quite. That shares the load by size. But series gives one path, so every cell passes the same current.', [O1_LESS]: 'Not quite. It is the same current. The big cells cannot pass current that the small one does not.' },
+      why: 'Series gives the current one path, so 10 A flows through every cell. In 4 hours, each cell gives 10 × 4 = 40 Ah. Size makes no difference to what flows. It only sets how long a cell lasts.' },
+    { show: true, name: 'The small cell runs out', pic: 'string', ctl: ['hours', 'small'], enter: { mode: 'dis', hours: 4 }, end: { hours: 8 }, still: { hours: 8 }, dur: 4.0,
+      play: (t) => { X.hours = 4 + 4 * ez((t - 0.4) / 3.4); },
+      text: W2 + ' Drag the hours, or change the small cell, to try it.', read: W2 },
+    { name: 'How long it lasts', pic: 'string', enter: { mode: 'dis', hours: 0, small: 70 }, end: { hours: 7 },
+      run: { dur: 2.5, go: (u) => { X.hours = 7 * ez(u / 0.9); } },
+      task: 'A string has five 100 Ah cells and one of 70 Ah. It feeds 10 A. How long does it last?',
+      opts: ['9.5 hours', '10 hours', '7 hours'], want: '7 hours', right: 'That\'s it: the 70 Ah cell empties after 70 ÷ 10 = 7 hours.',
+      hint: 'Not quite. Think about which cell runs out first.',
+      hints: { '9.5 hours': 'Not quite. That averages the six cells. But the string stops when its smallest cell is empty.', '10 hours': 'Not quite. That is the big cells\' figure. The small one runs out first.' },
+      why: 'Every cell gives 10 Ah an hour. The 70 Ah cell is empty after 70 ÷ 10 = 7 hours. Every amp must pass through it, so the string is finished then. The big cells still hold charge, but the string cannot reach it.' },
+    { show: true, name: 'Driven backwards', pic: 'string', ctl: ['hours'], enter: { mode: 'dis', hours: 8 }, end: { hours: 10 }, still: { hours: 10 }, dur: 3.6,
+      play: (t) => { X.hours = 8 + 2 * ez((t - 0.4) / 3.0); },
+      text: W4 + ' Drag the hours to try it.', read: W4 },
+    { name: 'Past empty', pic: 'string', enter: { mode: 'dis', hours: 8 }, end: { hours: 10 },
+      run: { dur: 2.2, go: (u) => { X.hours = 8 + 2 * ez(u / 0.9); } },
+      task: 'The 80 Ah cell is empty, and the load stays on. What happens to that cell?',
+      opts: [O5_REST, O5_BACK, O5_RECH], want: O5_BACK, right: 'That\'s it: the current must pass through it, so it is driven into reverse.',
+      hint: 'Not quite. Think about where the current can go.',
+      hints: { [O5_REST]: 'Not quite. In series there is no way round it, so the current must pass through.', [O5_RECH]: 'Not quite. The current still flows the discharge way. So it pushes the empty cell further, the wrong way round.' },
+      why: 'The five strong cells still push 10 A round the string. There is no way round the empty cell, so the current passes through it. It has nothing left to give. So the current drives it backwards, and it can be left with a permanent short.' },
+    { show: true, name: 'Full first', pic: 'string', ctl: ['mode', 'hours'], enter: { mode: 'chg', hours: 0 }, end: { hours: 10 }, still: { mode: 'chg', hours: 10 }, dur: 4.6,
+      play: (t) => { X.hours = 10 * ez((t - 0.3) / 4.0); },
+      text: W6 + ' Drag the hours, or switch the mode, to try it.', read: W6 },
+    { name: 'After full', pic: 'string', enter: { mode: 'chg', hours: 8 }, end: { hours: 10 },
+      run: { dur: 2.2, go: (u) => { X.hours = 8 + 2 * ez(u / 0.9); } },
+      task: 'Charging from flat, the small cell is full after 8 hours. What does the current do in that cell for the next 2 hours?',
+      opts: [O7_STOP, O7_ROUND, O7_HEAT], want: O7_HEAT, right: 'That\'s it: the full cell still passes 10 A, and turns it into heat and gas.',
+      hint: 'Not quite. Think about whether the current has another way round.',
+      hints: { [O7_STOP]: 'Not quite. One current flows through every cell. If it stopped in one, it would stop in all.', [O7_ROUND]: 'Not quite. Series gives no way round, only through.' },
+      why: 'The big cells need 20 Ah more each, so the charger keeps 10 A flowing. That current must pass through the full cell. It can store no more. So it turns the current into heat and gas. That is overcharge.' },
+    { show: true, name: 'Float hides it', pic: 'string', ctl: ['mode', 'odd'], enter: { mode: 'flt', odd: VF }, end: { odd: 2.38 }, still: { mode: 'flt', odd: 2.38 }, dur: 3.4,
+      play: (t) => { X.odd = q2(K.lerp(VF, 2.38, ez((t - 0.6) / 2.4))); },
+      text: W8 + ' Drag the odd cell, or switch the mode, to try it.', read: W8 },
+    { name: 'Total on target', pic: 'string', enter: { mode: 'flt', odd: 2.08, bf: 0 }, end: { bf: 1 },
+      run: { dur: 1.4, go: (u) => { X.bf = ez(u / 0.7); } },
+      task: 'Six cells float at 13.38 V, right on target. One cell reads 2.08 V. Is the battery healthy?',
+      opts: [O9_TOT, O9_NO, O9_NOM], want: O9_NO, right: 'That\'s it: the total looks right, but one cell is outside the band.',
+      hint: 'Not quite. Compare the cell with its band, not the total.',
+      hints: { [O9_TOT]: 'Not quite. The charger holds the total. So the other five rise to 2.26 V to make up the shortfall.', [O9_NOM]: 'Not quite. On float each cell should sit near 2.23 V. This one sits 0.15 V low.' },
+      why: 'The charger holds the total at 13.38 V, whatever the cells do. So the other five rise to 2.26 V each to make up the shortfall. The band runs from 2.18 to 2.33 V. At 2.08 V, the odd cell is 0.15 V below 2.23 V, well outside it. Only cell-by-cell readings find it.' },
+    { show: true, name: 'Strings in parallel', pic: 'par', ctl: ['cableA', 'cableB'], enter: { cableA: 2, cableB: 6 }, end: { cableB: 2 }, still: { cableA: 2, cableB: 2 }, dur: 4.2,
+      play: (t) => { X.cableB = Math.round(K.lerp(6, 2, ez((t - 1.6) / 2.2))); },
+      text: W10 + ' Drag either cable to try it.', read: W10 },
+    { name: 'Cable share', pic: 'par', enter: { cableA: 2, cableB: 8, sf: 0 }, end: { sf: 1 }, hide: ['shareA'],
+      run: { dur: 1.6, go: (u) => { X.sf = ez(u / 0.8); } },
+      task: 'Two 10 mΩ strings share 100 A, on cables of 2 and 8 mΩ. What does string A carry?',
+      opts: ['50 A', '40 A', '60 A'], want: '60 A', right: 'That\'s it: paths of 12 and 18 mΩ, so A carries 100 × 18 ÷ 30 = 60 A.',
+      hint: 'Not quite. Work out each path, then share the current inversely.',
+      hints: { '50 A': 'Not quite. The load splits evenly only when the paths match.', '40 A': 'Not quite. That gives A the longer path\'s share. More current takes the easier path.' },
+      why: 'String A\'s path is 10 + 2 = 12 mΩ, and B\'s is 10 + 8 = 18 mΩ. Both see the same volts, so each takes current inversely to its resistance. A carries 100 × 18 ÷ 30 = 60 A, and B carries 40 A.' },
+    { name: 'Two blocks in series', pic: 'blocks', enter: { tf: 0 }, end: { tf: 1 },
+      run: { dur: 1.4, go: (u) => { X.tf = ez(u / 0.8); } },
+      task: 'Two 12 V blocks in series each have an emf of 12.6 V behind 7 mΩ. Together they feed 100 A. What do the terminals read?',
+      opts: ['23.8 V', '24.5 V', '25.2 V'], want: '23.8 V', right: 'That\'s it: 100 A across 14 mΩ loses 1.4 V, so 25.2 − 1.4 = 23.8 V.',
+      hint: 'Not quite. Add both emfs and both resistances.',
+      hints: { '24.5 V': 'Not quite. That takes off only one block\'s 0.7 V. In series the resistances add to 14 mΩ.', '25.2 V': 'Not quite. That is the emf, read with no current flowing.' },
+      why: 'In series, the emfs add to 25.2 V, and the resistances add to 14 mΩ. At 100 A, 14 mΩ loses 1.4 V. So the terminals read 25.2 − 1.4 = 23.8 V.' },
+    { name: 'Series or parallel', pic: 'energy', enter: { ef: 0 }, end: { ef: 1 },
+      run: { dur: 1.4, go: (u) => { X.ef = ez(u / 0.8); } },
+      task: 'Do two 12 V 100 Ah blocks store more energy in series or in parallel?',
+      opts: [O13_SER, O13_PAR, O13_SAME], want: O13_SAME, right: 'That\'s it: 24 V × 100 Ah and 12 V × 200 Ah both make 2400 Wh.',
+      hint: 'Not quite. Work out volts times ampere-hours both ways.',
+      hints: { [O13_SER]: 'Not quite. The ampere-hours stay at 100, so 24 × 100 = 2400 Wh.', [O13_PAR]: 'Not quite. The volts stay at 12, so 12 × 200 = 2400 Wh.' },
+      why: 'In series, the volts add to 24 V, but the ampere-hours stay at 100 Ah. In parallel, the ampere-hours add to 200 Ah, but the volts stay at 12 V. Energy is volts times ampere-hours. So both give 2400 Wh.' },
+    { name: 'Low again', pic: 'string', enter: { mode: 'flt', odd: 2.08, story: 2 }, end: { odd: 2.08, story: 2 },
+      run: { dur: 2.5, go: (u) => {
+        if (u < 0.5) { X.odd = K.lerp(2.08, VF, ez(u / 0.35)); X.story = 1; }
+        else { X.odd = K.lerp(VF, 2.08, ez((u - 0.55) / 0.4)); X.story = 2; }
+      } },
+      task: 'An equalise brings a low cell inside the band. Two days later it reads 0.15 V low again. What does that tell you?',
+      opts: [O14_FAULT, O14_REP, O14_RAISE], want: O14_FAULT, right: 'That\'s it: a charge can cover a weak cell for a while, but the fault comes back.',
+      hint: 'Not quite. Think about why the cell drifts back.',
+      hints: { [O14_REP]: 'Not quite. Every equalise overcharges the whole string. Long overcharge helps corrode the good cells\' grids.', [O14_RAISE]: 'Not quite. That pushes every cell up, and the low cell would still lag.' },
+      why: 'A charge can cover a weak cell for a while. But a faulty cell loses its charge faster than the rest, so the fault comes back within hours. The charger is not the problem. So trend that cell\'s readings, and test its capacity.' },
+  ];
+  const FINISH = 'Cells in series share one current. So the smallest cell empties first on discharge and fills first on charge, and it is the one pushed too far.';
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  const quiet = () => REDUCE || testing();
+  const el = (id) => document.getElementById(id);
+
+  // ---------- state ----------
+  function blank() { return { pick: null, res: null, why: false }; }
+  let S = STEPS.map(blank);
+  const BASE = { mode: 'dis', hours: 0, small: 80, odd: VF, cableA: 2, cableB: 6, ph: 0, bf: 1, sf: 1, tf: 1, ef: 1, story: 0 };
+  const X = {};
+  const setX = (o) => Object.assign(X, o);
+  const copyX = () => Object.assign({}, X);
+  setX(BASE);
+  let T = Infinity, scripted = false, lastStep = -1, finished = false, lastDone = false;
+  let REC = {}, laidOut = '', drift = 0;
+  const DRIFT = 1.6;
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);
+  const CTL = {
+    mode: K.choice({ id: 'mode', label: 'Mode', options: [{ value: 'dis', label: 'Discharge' }, { value: 'chg', label: 'Charge' }, { value: 'flt', label: 'Float' }], value: 'dis', into: '#c-mode' }),
+    hours: K.control({ id: 'hours', label: 'Hours', min: 0, max: 12, step: 0.1, value: 0, fmt: (h) => nH(h) + NB + 'h', snap: [4, 7, 8, 10], into: '#c-hours' }),
+    small: K.choice({ id: 'small', label: 'Small cell, Ah', options: [60, 70, 80, 90, 100].map((n) => ({ value: n, label: String(n) })), value: 80, into: '#c-small' }),
+    odd: K.control({ id: 'odd', label: 'Odd cell', min: 2.03, max: 2.43, step: 0.01, value: VF, fmt: fV, snap: [2.08, VF, 2.38], into: '#c-odd' }),
+    cableA: K.control({ id: 'cableA', label: 'Cable A', min: 1, max: 10, step: 1, value: 2, fmt: fO, snap: [2], into: '#c-cableA' }),
+    cableB: K.control({ id: 'cableB', label: 'Cable B', min: 1, max: 10, step: 1, value: 6, fmt: fO, snap: [2, 6, 8], into: '#c-cableB' }),
+  };
+  const CKEYS = ['mode', 'hours', 'small', 'odd', 'cableA', 'cableB'];
+  const KEYS = { mode: () => X.mode, hours: () => q1(X.hours), small: () => X.small, odd: () => q2(X.odd), cableA: () => Math.round(X.cableA), cableB: () => Math.round(X.cableB) };
+  const pushed = {};
+  Object.keys(CTL).forEach((k) => { pushed[k] = CTL[k].get(); });
+  // The page moves the controls itself during a demonstration (silently, so it is not taken for Dan's move).
+  function push() { Object.keys(KEYS).forEach((k) => { const v = KEYS[k](); if (pushed[k] !== v) { CTL[k].set(v, true); pushed[k] = CTL[k].get(); } }); }
+  const paramsX = () => ({ mode: X.mode, hours: X.hours, small: X.small, odd: X.odd, cableA: X.cableA, cableB: X.cableB });
+  // A screen's controls; hours and the small cell belong to Discharge and Charge, the odd cell to Float.
+  function ctlOn(d, k) {
+    if (!d.ctl || d.ctl.indexOf(k) < 0) return false;
+    if (k === 'hours' || k === 'small') return X.mode !== 'flt';
+    if (k === 'odd') return X.mode === 'flt';
+    return true;
+  }
+
+  K.model(modelOf);
+
+  // A puzzle's answer stays a "?" in its readout until Check says it is right.
+  function hid(id) { const d = STEPS[at()]; return !!(d && !d.show && d.hide && d.hide.indexOf(id) >= 0 && S[at()].res !== 'right'); }
+  const R = {
+    through: K.readout({ id: 'through', label: 'Ampere-hours through string', decimals: 0, fmt: (v) => (hid('through') ? '?' : fAh(v)), into: '#outs' }),
+    smallHolds: K.readout({ id: 'smallHolds', label: 'Small cell holds', decimals: 0, fmt: (v) => (hid('smallHolds') ? '?' : fAh(v)), into: '#outs' }),
+    shareA: K.readout({ id: 'shareA', label: 'String A\'s current', decimals: 0, fmt: (v) => (hid('shareA') ? '?' : fA(v)), into: '#outs' }),
+  };
+  function outs() { const o = modelOf(paramsX()); R.through.set(o.through); R.smallHolds.set(o.smallHolds); R.shareA.set(o.shareA); }
+
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || st.res === 'right') return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = st.pick === d.want ? 'right' : 'wrong';
+    if (st.res !== 'right') { T = Infinity; return; }
+    if (quiet()) { T = Infinity; setX(d.end || {}); push(); }
+    else { T = 0; anim.play(); }
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    const d = STEPS[at()];
+    if (d.show || finished) return;
+    S[at()].why = !S[at()].why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    if (!STEPS[at()].show || finished) return;
+    enterStep(at());
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true; anim.pause();
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(blank); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // ---------- motion: one animation runs each demonstration, each answer's motion, and the flow after Dan's own moves ----------
+  const motionEnd = (d, st) => (d.show ? (scripted ? d.dur : 0) : st.res === 'right' ? d.run.dur : 0);
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    const i = at(), d = STEPS[i], st = S[i];
+    T += dt;
+    X.ph += dt;
+    if (scripted) { d.play(Math.min(T, d.dur)); if (T >= d.dur) scripted = false; }
+    const running = !d.show && st.res === 'right' && T < d.run.dur + dt;
+    if (running) d.run.go(Math.min(1, T / d.run.dur));
+    let busy = false;
+    if (!scripted && !running && drift > 0) { drift = Math.max(0, drift - dt); busy = drift > 0; }
+    push(); outs(); paint(i);
+    return busy || T < motionEnd(d, st);
+  } });
+  const pending = () => T !== Infinity || drift > 0;
+  // A motion that was stopped (the page hidden, a test) shows finished.
+  function finishNow(d, st) {
+    if (scripted) { d.play(d.dur); scripted = false; }
+    if (!d.show && st.res === 'right') setX(d.end || {});
+    drift = 0; T = Infinity; push();
+  }
+  function startDrift() {
+    if (quiet()) { finishNow(STEPS[at()], S[at()]); return; }
+    drift = DRIFT; anim.play();
+  }
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && pending()) { finishNow(STEPS[at()], S[at()]); outs(); paint(); } });
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter'); void box.offsetWidth; box.classList.add('enter');
+  }
+  function enterStep(i) {
+    const d = STEPS[i], st = S[i];
+    anim.pause();
+    setX(BASE); setX(d.enter || {});
+    drift = 0;
+    if (!d.show && st.res === 'right') setX(d.end || {});
+    if (d.show && !quiet()) { scripted = true; T = 0; d.play(0); push(); anim.play(); }
+    else { scripted = false; T = Infinity; if (d.show) setX(d.end || {}); push(); }
+    laidOut = '';
+    enter('stepbox');
+  }
+
+  // ---------- drawing ----------
+  const svg = el('scene'), art = el('art');
+  let into = null;
+  const r1 = (v) => Math.round(v * 10) / 10;
+  const add = (n) => (into || art).appendChild(n);
+  const S_ = (tag, a) => add(K.svg(tag, a));
+  function txt(x, y, s, cls, anchor) {
+    const a = { x: r1(x), y: r1(y), 'text-anchor': anchor || 'middle' };
+    if (cls) a.class = cls;
+    const t = K.svg('text', a); t.textContent = s; return add(t);
+  }
+  function part(a, fn) { if (a <= 0.001) return; const g = add(K.svg('g')); K.fade(g, Math.min(1, a), 0); const keep = into; into = g; fn(); into = keep; }
+
+  // Discharge or charge: what each tank holds, whether current flows, and what the small cell is doing.
+  function levelsOf() {
+    const h = X.hours, c = X.small, q = I * h;
+    if (X.mode === 'chg') return { big: Math.min(BIG, q), sm: Math.min(c, q), cur: I, rev: false, gasS: q > c + 1e-9, gasB: q > BIG + 1e-9, over: q - c };
+    return { big: Math.max(0, BIG - q), sm: Math.max(0, c - q), cur: q < BIG - 1e-9 ? I : 0, rev: c < BIG && q > c + 1e-9, gasS: false, gasB: false, over: q - c };
+  }
+  const yV = (v) => TOP + 6 + (2.43 - v) * 150;   // the float view's voltage scale, 2.03 to 2.43 V a cell
+  // The straight runs of the one path the current takes, in the discharge direction: each strap from a + to the next −, then out through the load.
+  const RUNS = (() => {
+    const r = [];
+    for (let k = 0; k < 5; k++) r.push({ x1: tx(k) + 28, x2: tx(k + 1) + 8, y: 54 });
+    r.push({ x1: tx(5) + 28, x2: 255, y: 34 });
+    r.push({ x1: 123, x2: 64, y: 34 });
+    return r;
+  })();
+
+  function drawString(d, st) {
+    const flt = X.mode === 'flt', L = flt ? null : levelsOf(), c = X.small;
+    const depth = (k) => (k === 5 ? c : BIG) * PX;
+    const sb = TOP + depth(5);
+    REC.flt = flt; REC.bubbles = 0; REC.drops = [];
+    // The circuit: the load (or charger) on the wire joining the string's two ends, and the straps from each + to the next −.
+    S_('path', { class: 'wire', d: 'M64 62V34H129M249 34H314V62' });
+    for (let k = 0; k < 5; k++) S_('path', { class: 'wire', d: 'M' + (tx(k) + 28) + ' 62V54H' + (tx(k + 1) + 8) + 'V62' });
+    S_('rect', { class: 'box', x: 129, y: 20, width: 120, height: 28, rx: 7 });
+    txt(189, 39, X.mode === 'dis' ? 'load' : flt ? 'charger ' + lV(TOTAL) : 'charger');
+    if (flt) {
+      const bf = X.bf;
+      REC.bandOn = bf >= 0.5;
+      if (bf > 0.001) part(bf, () => {
+        S_('rect', { class: 'band', x: 56, y: r1(yV(BHI)), width: 266, height: r1(yV(BLO) - yV(BHI)) });
+        txt(50, yV(BHI) - 3, lV(BHI), 'lbm', 'end');
+        txt(50, yV(BLO) + 13, lV(BLO), 'lbm', 'end');
+      });
+    }
+    for (let k = 0; k < 6; k++) {
+      const x = tx(k), dp = depth(k), rev = !flt && k === 5 && L.rev;
+      S_('rect', { class: 'post', x: x + 5, y: 62, width: 6, height: 10 });
+      S_('rect', { class: 'post', x: x + 25, y: 62, width: 6, height: 10 });
+      S_('rect', { class: 'tank' + (flt ? ' hollow' : '') + (rev ? ' rev' : ''), x, y: TOP, width: TW, height: r1(dp), rx: 3 });
+      if (flt) continue;
+      const held = k === 5 ? L.sm : L.big, hh = held * PX;
+      REC.drops.push((k === 5 ? c : BIG) - held);
+      if (hh > 0.05) S_('rect', { class: 'lvl', x: x + 2, y: r1(TOP + dp - hh), width: TW - 4, height: r1(hh) });
+      if (rev) part(K.clamp(L.over / 8, 0, 1), () => S_('rect', { class: 'revf', x: x + 2, y: TOP + 2, width: TW - 4, height: r1(dp - 4) }));
+      txt(x + 8, 90, rev ? '+' : '−', 'sg' + (rev ? ' wl' : ''));
+      txt(x + 28, 90, rev ? '−' : '+', 'sg' + (rev ? ' wl' : ''));
+      // A full cell that still passes current turns it into heat and gas: bubbles.
+      const over = k === 5 ? L.over : I * X.hours - BIG;
+      if (L.cur > 0 && (k === 5 ? L.gasS : L.gasB)) part(K.clamp(over / 8, 0, 1), () => {
+        for (let j = 0; j < 4; j++) {
+          const f = (X.ph * 0.5 + j / 4 + k * 0.13) % 1;
+          S_('circle', { class: 'bub', cx: r1(x + 7 + 7.3 * j), cy: r1(TOP + dp - 6 - f * (dp - 32)), r: 2.6 });
+          REC.bubbles++;
+        }
+      });
+    }
+    if (flt) {
+      const v5 = X.odd, o5 = others(v5), bad = X.bf >= 0.5 && outside(v5);
+      S_('path', { class: 'tgt', d: 'M56 ' + r1(yV(VF)) + 'H322' });
+      txt(50, yV(VF) + 4.5, lV(VF), null, 'end');
+      for (let k = 0; k < 6; k++) {
+        const v = k === 5 ? v5 : o5;
+        S_('line', { class: 'mk' + (k === 5 && bad ? ' bad' : ''), x1: tx(k) + 5, y1: r1(yV(v)), x2: tx(k) + 31, y2: r1(yV(v)) });
+      }
+      S_('path', { class: 'brace', d: 'M56 199V203H276V199' });
+      txt(166, 220, lV(o5) + ' each');
+      S_('line', { class: 'tick', x1: 304, y1: r1(sb + 3), x2: 304, y2: 206 });
+      txt(334, 220, lV(v5), bad ? 'wl' : null, 'end');
+      if (X.bf > 0.001 && !X.story) part(X.bf, () => txt(334, 237, outside(v5) ? (v5 > VF ? 'above the band' : 'below the band') : 'in the band', outside(v5) ? 'wl' : 'lbm', 'end'));
+      if (X.story) txt(14, 14, X.story === 1 ? 'after the equalise' : 'two days later', X.story === 2 ? 'wl' : 'cv', 'start');
+      REC.total = v5 + 5 * o5; REC.othersText = o5.toFixed(2); REC.oddBad = bad;
+      return 'Six cells in series on float, each drawn as a tank with its voltage marked. The charger holds the total at ' + lV(TOTAL) + '. ' +
+        (REC.bandOn ? 'A band runs from ' + lV(BLO) + ' to ' + lV(BHI) + ' across every cell. ' : '') +
+        'Five cells read ' + lV(o5) + ' each, and the odd cell reads ' + lV(v5) + (REC.bandOn ? (outside(v5) ? ', outside the band.' : ', inside the band.') : '.');
+    }
+    // The one current, as arrows moving round its one path, at a speed that follows it.
+    const dir = X.mode === 'chg' ? -1 : 1;
+    if (L.cur > 0) {
+      RUNS.forEach((r) => {
+        const len = Math.abs(r.x2 - r.x1), n = Math.max(1, Math.floor(len / 24)), way = Math.sign(r.x2 - r.x1) * dir;
+        for (let j = 0; j < n; j++) {
+          const u = ((j / n + X.ph * 0.05 * L.cur) % 1 + 1) % 1, f = dir > 0 ? u : 1 - u;
+          const x = r.x1 + (r.x2 - r.x1) * (0.18 + 0.64 * f);
+          S_('path', { class: 'flow', d: 'M-3.5 -4.5L1.5 0L-3.5 4.5', opacity: r1(0.35 + 0.65 * Math.sin(Math.PI * u)),
+            transform: 'translate(' + r1(x) + ' ' + r.y + ') rotate(' + (way < 0 ? 180 : 0) + ')' });
+        }
+      });
+    }
+    txt(92, 26, L.cur > 0 ? fp(L.cur) + ' A' : 'no current', L.cur > 0 ? 'cv' : 'lbm');
+    // What each big tank holds, beside its level; the brace names the five.
+    const ly = TOP + (BIG - L.big) * PX;
+    S_('line', { class: 'tick', x1: 51, y1: r1(ly), x2: 56, y2: r1(ly) });
+    txt(48, ly + 4.5, lAh(L.big), null, 'end');
+    S_('path', { class: 'brace', d: 'M56 199V203H276V199' });
+    txt(166, 220, 'five ' + BIG + ' Ah cells');
+    S_('line', { class: 'tick', x1: 304, y1: r1(sb + 3), x2: 304, y2: 206 });
+    txt(334, 220, c + ' Ah cell', null, 'end');
+    let status = '', cls = 'lbm', sa = 0;
+    if (X.mode === 'dis') { status = L.rev ? 'reversed' : 'empty'; cls = L.rev ? 'wl' : 'lbm'; sa = K.clamp((L.over + 4) / 4, 0, 1); }
+    else { status = L.gasS ? 'heat and gas' : 'full'; cls = L.gasS ? 'wl' : 'lbm'; sa = K.clamp((L.over + 4) / 4, 0, 1); }
+    if (sa > 0.001) part(sa, () => txt(334, 237, status, cls, 'end'));
+    REC.big = L.big; REC.sm = L.sm; REC.rev = L.rev; REC.gasS = L.gasS && L.cur > 0; REC.gasB = L.gasB && L.cur > 0; REC.cur = L.cur;
+    REC.status = sa >= 0.5 ? status : '';
+    const smallSays = L.rev ? 'The small tank is empty and is being driven backwards, its voltage turned round.' : L.sm <= 1e-9 ? 'The small tank is empty.' :
+      REC.gasS ? 'The small tank is full and bubbling.' : L.sm >= c - 1e-9 ? 'The small tank is full.' : 'The small tank sits at the same level as the others.';
+    return 'Six cells in series, drawn as tanks with their tops in line. Five hold ' + BIG + ' Ah, and the small one ' + c + ' Ah. ' +
+      (L.cur > 0 ? 'One current of ' + L.cur + ' A flows round the string through every cell, ' + (X.mode === 'chg' ? 'charging' : 'discharging') + ' them. ' : 'No current flows. ') +
+      'Each big tank holds ' + lAh(L.big) + '. ' + smallSays;
+  }
+
+  // Two strings in parallel between two bars, each on its own cable, sharing the load.
+  function drawPar(d, st) {
+    const IA = shareOf(X.cableA, X.cableB), IBs = LOAD - IA;
+    txt(170, 18, 'Two strings share a ' + LOAD + ' A load', 'ttl');
+    S_('path', { class: 'bus', d: 'M20 50V236' });
+    S_('path', { class: 'bus', d: 'M320 50V236' });
+    S_('path', { class: 'wire', d: 'M20 236H120M220 236H320' });
+    S_('rect', { class: 'box', x: 120, y: 222, width: 100, height: 28, rx: 7 });
+    txt(170, 240.5, 'load');
+    REC.wA = 0; REC.wB = 0;
+    [['A', 76, X.cableA, IA], ['B', 164, X.cableB, IBs]].forEach(([nm, y, cab, cur]) => {
+      txt(34, y - 18, 'string ' + nm + ', ' + RS + ' mΩ', null, 'start');
+      txt(237, y - 18, 'cable ' + lO(cab));
+      S_('path', { class: 'wire', d: 'M20 ' + y + 'H184M286 ' + y + 'H320' });
+      for (let j = 0; j < 6; j++) S_('rect', { class: 'cell', x: 36 + 22 * j, y: y - 10, width: 16, height: 20, rx: 2 });
+      // The cable: one zig for each milliohm, so a longer cable is drawn longer.
+      const n = Math.max(1, Math.round(cab));
+      let p = 'M184 ' + y;
+      for (let i = 1; i < 2 * n; i++) p += 'L' + r1(184 + 102 * i / (2 * n)) + ' ' + (y + (i % 2 ? -6 : 6));
+      S_('path', { class: 'cable', d: p + 'L286 ' + y });
+      const w = 1 + cur / 10;
+      if (X.sf > 0.001) part(X.sf, () => {
+        S_('path', { class: 'cur', d: 'M40 ' + (y + 24) + 'H272', 'stroke-width': r1(w), 'stroke-dasharray': '12 6', 'stroke-dashoffset': r1(-((X.ph * cur * 0.6) % 18)) });
+        S_('path', { class: 'curh', d: 'M272 ' + r1(y + 24 - w / 2 - 4) + 'L286 ' + (y + 24) + 'L272 ' + r1(y + 24 + w / 2 + 4) + 'Z' });
+      });
+      if (X.sf >= 0.5) { if (nm === 'A') REC.wA = w; else REC.wB = w; }
+      txt(34, y + 50, 'path ' + RS + ' + ' + Math.round(cab) + ' = ' + lO(RS + Math.round(cab)), 'lbm', 'start');
+    });
+    S_('path', { class: 'cur', d: 'M24 270H52', 'stroke-width': 6, 'stroke-dasharray': '12 6' });
+    txt(60, 274.5, 'current: thicker carries more', 'lbm', 'start');
+    const a = Math.round(X.cableA), b = Math.round(X.cableB);
+    return 'Two strings of ' + RS + ' mΩ in parallel between two bars, sharing a ' + LOAD + ' A load. String A is on a ' + lO(a) + ' cable and string B on a ' + lO(b) + ' cable. ' +
+      (X.sf < 0.5 ? 'Their currents are not drawn yet.' : a === b ? 'Their current arrows are equally thick.' : 'The string on the shorter path has the thicker current arrow.');
+  }
+
+  // Two blocks in series, each an emf behind a resistance, feeding 100 A; the meter reads the terminals.
+  function drawBlocks(d, st) {
+    const tf = X.tf, v = q1(2 * EMF - IB * 2 * RB / 1000);
+    S_('path', { class: 'wire', d: 'M90 25H14V156H125M215 156H326V25H250' });
+    S_('path', { class: 'wire', d: 'M14 91H30M150 91H180M300 91H326' });
+    S_('rect', { class: 'box', x: 90, y: 11, width: 160, height: 28, rx: 7 });
+    const qa = 1 - ez(tf * 2), va = ez((tf - 0.5) * 2);
+    if (qa > 0.001) part(qa, () => txt(170, 30, 'terminals read ?'));
+    if (va > 0.001) part(va, () => txt(170, 30, 'terminals read ' + v.toFixed(1) + ' V'));
+    REC.meter = tf >= 0.5 ? v.toFixed(1) : '?';
+    [30, 180].forEach((x0) => {
+      txt(x0 + 60, 55, VN + ' V block');
+      S_('rect', { class: 'blk', x: x0, y: 61, width: 120, height: 60, rx: 6 });
+      S_('path', { class: 'wire', d: 'M' + x0 + ' 91H' + (x0 + 24) + 'M' + (x0 + 32) + ' 91H' + (x0 + 60) + 'M' + (x0 + 100) + ' 91H' + (x0 + 120) });
+      S_('line', { class: 'plate', x1: x0 + 24, y1: 77, x2: x0 + 24, y2: 105, 'stroke-width': 2.5 });
+      S_('line', { class: 'plate', x1: x0 + 32, y1: 84, x2: x0 + 32, y2: 98, 'stroke-width': 4 });
+      S_('rect', { class: 'res', x: x0 + 60, y: 85, width: 40, height: 12, rx: 2 });
+      txt(x0 + 28, 116, EMF.toFixed(1) + ' V');
+      txt(x0 + 80, 116, RB + ' mΩ');
+      if (tf > 0.001) part(ez(tf), () => txt(x0 + 80, 79, q1(IB * RB / 1000).toFixed(1) + ' V lost', 'lbm'));
+    });
+    S_('path', { class: 'wire', d: 'M14 156H125' });
+    S_('rect', { class: 'box', x: 125, y: 144, width: 90, height: 24, rx: 6 });
+    txt(170, 160.5, 'load');
+    S_('path', { class: 'flow', d: 'M109 151L104 156L109 161' });
+    txt(70, 150, IB + ' A', 'cv');
+    return 'Two ' + VN + ' V blocks in series, each an emf of ' + EMF.toFixed(1) + ' V behind ' + RB + ' mΩ, feeding a ' + IB + ' A load. A meter across the two outer terminals ' +
+      (REC.meter === '?' ? 'shows a question mark.' : 'reads ' + REC.meter + ' V, with ' + q1(IB * RB / 1000).toFixed(1) + ' V lost inside each block.');
+  }
+
+  // Two blocks joined in series, and the same two in parallel.
+  function drawEnergy(d, st) {
+    const ef = X.ef, wh = VN * 2 * AH;
+    txt(85, 18, 'in series', 'ttl');
+    txt(255, 18, 'in parallel', 'ttl');
+    [30, 84].forEach((y) => {
+      S_('rect', { class: 'blk', x: 55, y, width: 60, height: 44, rx: 5 });
+      txt(85, y + 19, VN + ' V'); txt(85, y + 36, AH + ' Ah', 'lbm');
+    });
+    S_('path', { class: 'wire', d: 'M85 74V84' });
+    [197, 261].forEach((x) => {
+      S_('rect', { class: 'blk', x, y: 52, width: 52, height: 44, rx: 5 });
+      txt(x + 26, 71, VN + ' V'); txt(x + 26, 88, AH + ' Ah', 'lbm');
+    });
+    S_('path', { class: 'wire', d: 'M223 52V40H287V52M223 96V108H287V96' });
+    txt(85, 148, (2 * VN) + ' V, ' + AH + ' Ah');
+    txt(255, 148, VN + ' V, ' + (2 * AH) + ' Ah');
+    const qa = 1 - ez(ef * 2), va = ez((ef - 0.5) * 2);
+    [85, 255].forEach((x) => {
+      if (qa > 0.001) part(qa, () => txt(x, 172, '? Wh', 'q'));
+      if (va > 0.001) part(va, () => txt(x, 172, wh + ' Wh', 'q'));
+    });
+    REC.energy = ef >= 0.5 ? String(wh) : '?';
+    return 'Two ' + VN + ' V ' + AH + ' Ah blocks joined in series give ' + (2 * VN) + ' V and ' + AH + ' Ah. The same two in parallel give ' + VN + ' V and ' + (2 * AH) + ' Ah. ' +
+      (REC.energy === '?' ? 'The energy of each is a question mark.' : 'Each holds ' + wh + ' Wh.');
+  }
+
+  function sayFor(d) {
+    if (d.pic === 'par') {
+      const a = Math.round(X.cableA), b = Math.round(X.cableB), IA = shareOf(X.cableA, X.cableB);
+      if (a === b) return 'Both paths are ' + (RS + a) + ' mΩ, so the two strings share the load equally, 50 A each.';
+      return 'String A\'s path is ' + (RS + a) + ' mΩ and string B\'s is ' + (RS + b) + ' mΩ. So A carries ' + fp(IA) + ' A of the 100 A, and B carries ' + (LOAD - Math.round(IA)) + ' A.';
+    }
+    if (X.mode === 'flt') {
+      const v = X.odd, where = outside(v) ? (v > VF ? 'above the band' : 'below the band') : 'inside the band';
+      return 'The odd cell reads ' + v.toFixed(2) + ' V, ' + where + '. The other five share what is left, ' + others(v).toFixed(2) + ' V each, so the total stays 13.38 V.';
+    }
+    const c = X.small, h = X.hours, q = I * h;
+    if (X.mode === 'chg') {
+      if (h <= 1e-9) return 'All six cells start flat, and the charger pushes 10 A through them.';
+      if (q < c - 1e-9) return 'Every cell has taken in the same ' + fp(q) + ' Ah so far.';
+      if (q > BIG + 1e-9) return 'All six are full, so all six now turn the current into heat and gas.';
+      if (c >= BIG) return 'All six are the same size, so they fill together, and none is overcharged early.';
+      if (q <= c + 1e-9) return 'The small cell is full, and each big one still needs ' + fp(BIG - q) + ' Ah.';
+      if (q < BIG - 1e-9) return 'The small cell is full, so the 10 A it still passes turns into heat and gas.';
+      return 'All six are full. The small cell has turned ' + fp(q - c) + ' Ah into heat and gas.';
+    }
+    if (h <= 1e-9) return 'All six tanks are full. The load draws 10 A through every cell.';
+    if (q < c - 1e-9) return 'One current has drawn the same ' + fp(q) + ' Ah from every cell, the small one included.';
+    if (c >= BIG) return 'All six are the same size, so they empty together, and none is driven backwards.';
+    if (q <= c + 1e-9) return 'The small cell is empty after giving its ' + c + ' Ah, while each big cell still holds ' + fp(BIG - q) + ' Ah.';
+    if (q < BIG - 1e-9) return 'The small cell is empty, and 10 A still passes through it. That drives it backwards, while each big cell holds ' + fp(BIG - q) + ' Ah.';
+    const back = nH((BIG - c) / I);
+    return 'All six are flat now, so the current stops. The small cell was driven backwards for ' + back + (back === '1' ? ' hour.' : ' hours.');
+  }
+
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i];
+    art.textContent = ''; into = null;
+    REC = { pic: d.pic };
+    let said, h;
+    if (d.pic === 'string') { said = drawString(d, st); h = 246; }
+    else if (d.pic === 'par') { said = drawPar(d, st); h = 284; }
+    else if (d.pic === 'blocks') { said = drawBlocks(d, st); h = 178; }
+    else { said = drawEnergy(d, st); h = 184; }
+    svg.setAttribute('viewBox', '0 0 340 ' + h);
+    svg.setAttribute('aria-label', said);
+    if (d.ctl) el('say').textContent = sayFor(d);
+  }
+
+  // ---------- words: *a key term* is highlighted ----------
+  function write(node, s) {
+    node.textContent = '';
+    String(s).split(/\*([^*]+)\*/).forEach((seg, k) => { if (seg) node.appendChild(k % 2 ? K.el('span', { class: 'term' }, seg) : document.createTextNode(seg)); });
+  }
+  write(el('finish'), FINISH);
+  function layout(i, d, st) {
+    const key = [i, st.res, st.pick, st.why, finished, X.mode].join('|');
+    if (key === laidOut) return;
+    laidOut = key;
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    CKEYS.forEach((k) => { el('c-' + k).hidden = !ctlOn(d, k); });
+    el('say').hidden = !d.ctl;
+    const rs = d.pic === 'par' ? ['shareA'] : d.pic === 'string' && X.mode !== 'flt' ? ['through', 'smallHolds'] : [];
+    Object.keys(R).forEach((k) => { R[k].el.hidden = rs.indexOf(k) < 0; });
+    el('outs').hidden = !rs.length;
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    const opts = d.show ? [] : d.opts;
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 12));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : '');
+    fb.textContent = d.show ? '' : right ? (d.right || 'That\'s it.') : st.res === 'wrong' ? ((d.hints && d.hints[st.pick]) || d.hint) : st.res === 'empty' ? 'Choose one of the answers first.' : '';
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  }
+
+  K.update((p) => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!anim.playing() && pending()) { const j = lastStep < 0 ? i : lastStep; finishNow(STEPS[j], S[j]); }
+    if (i !== lastStep) { lastStep = i; enterStep(i); }
+    else {
+      // Only the controls this screen shows move its picture; a hidden one is set back silently.
+      const mv = {}; let any = false, bad = false;
+      Object.keys(pushed).forEach((k) => { if (p[k] !== pushed[k]) { if (ctlOn(d, k)) { mv[k] = true; any = true; } else bad = true; } });
+      Object.keys(pushed).forEach((k) => { pushed[k] = p[k]; });
+      if (any) {
+        if (scripted) { scripted = false; anim.pause(); setX(d.end || {}); }
+        T = Infinity;
+        CKEYS.forEach((k) => { if (mv[k]) X[k] = p[k]; });
+        startDrift();
+      }
+      if (bad || any) push();
+    }
+    if (finished !== lastDone) { lastDone = finished; laidOut = ''; enter(finished ? 'done' : 'stepbox'); }
+    layout(i, d, st);
+    outs();
+    paint(i);
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  const solved = (d) => Object.assign(blank(), { pick: d.want, res: 'right' });
+  // A step painted in the state given: what it draws.
+  function drawn(i, st, x) {
+    const keep = { X: copyX(), S: S[i], T, sc: scripted };
+    S[i] = st || blank(); T = Infinity; scripted = false;
+    setX(BASE); setX(STEPS[i].enter || {}); setX(x || {});
+    try {
+      paint(i);
+      return Object.assign({}, REC, { texts: Array.from(art.querySelectorAll('text')).map((n) => n.textContent) });
+    } finally {
+      setX(keep.X); S[i] = keep.S; T = keep.T; scripted = keep.sc;
+      paint();
+    }
+  }
+  function after(fn) { const keep = copyX(); try { setX(BASE); fn(); return copyX(); } finally { setX(keep); } }
+  const iS0 = idx('One current'), iD1 = idx('The small cell\'s share'), iS2 = idx('The small cell runs out'), iD3 = idx('How long it lasts'), iS4 = idx('Driven backwards');
+  const iD5 = idx('Past empty'), iS6 = idx('Full first'), iD7 = idx('After full'), iS8 = idx('Float hides it'), iD9 = idx('Total on target');
+  const iS10 = idx('Strings in parallel'), iD11 = idx('Cable share'), iD12 = idx('Two blocks in series'), iD13 = idx('Series or parallel'), iD14 = idx('Low again');
+  const fin = (i) => drawn(i, solved(STEPS[i]), STEPS[i].end);
+  const M_ = (o) => K.at(Object.assign({ step: iS0, mode: 'dis', hours: 0, small: 80, odd: VF, cableA: 2, cableB: 6 }, o));
+
+  K.check('One current passes every cell: after 4 h at 10 A every tank has given the same 40 Ah, leaving 60 Ah in each big tank and 40 Ah in the small one', () => {
+    const a = M_({ hours: 4 }), g = drawn(iS0, null, { hours: 4 });
+    return K.near(a.through, 40, 1e-9) && K.near(a.smallHolds, 40, 1e-9) && K.near(g.big, 60, 1e-9) && K.near(g.sm, 40, 1e-9) &&
+      g.drops.length === 6 && g.drops.every((v) => K.near(v, 40, 1e-9)) && fin(iD1).drops.every((v) => K.near(v, 40, 1e-9)) && STEPS[iD1].want === '40 Ah';
+  });
+  K.check('The weak cell holds less and is emptied first: at 10 A the 80 Ah cell is empty after 8 h, while each 100 Ah cell still holds 20 Ah', () => {
+    const a = M_({ hours: 8 }), g = drawn(iS2, null, { hours: 8 });
+    return a.smallHolds === 0 && K.near(a.through, 80, 1e-9) && K.near(M_({ hours: 7.9 }).smallHolds, 1, 1e-9) && K.near(g.big, 20, 1e-9) && g.sm === 0 && !g.rev && g.status === 'empty';
+  }, { source: BU });
+  K.check('A string lasts as long as its smallest cell: a 70 Ah cell at 10 A is empty after 7 h, where the average of the six would say 9.5 h and the big cells 10 h', () =>
+    M_({ small: 70, hours: 7 }).smallHolds === 0 && M_({ small: 70, hours: 6.9 }).smallHolds > 0 && K.near((5 * BIG + 70) / 6 / I, 9.5, 1e-9) && K.near(BIG / I, 10, 1e-9) &&
+    STEPS[iD3].want === '7 hours' && fin(iD3).sm === 0 && K.near(drawn(iD3).sm, 70, 1e-9));
+  K.check('Once the weak cell is empty, the strong cells push it into reverse polarity: at 9 h and 10 h the 80 Ah cell is drawn reversed, at 8 h it is not, and six equal cells never reverse', () => {
+    const a = drawn(iS4, null, { hours: 8 }), e = drawn(iS4, null, { hours: 9 }), b = drawn(iS4, null, { hours: 10 }), c = drawn(iS4, null, { hours: 12, small: 100 });
+    return !a.rev && e.rev && e.big > 0 && e.cur === I && b.rev && b.cur === 0 && b.texts.indexOf('reversed') >= 0 && !c.rev && fin(iD5).rev && !drawn(iD5).rev;
+  }, { source: BU });
+  K.check('On charge the weak cell is full first and then goes into heat-making overcharge while the strong cells still take charge: from flat at 10 A, the 80 Ah cell is full at 8 h and gassing at 9 h, when the 100 Ah cells hold 90 Ah and do not gas', () => {
+    const a = drawn(iS6, null, { mode: 'chg', hours: 8 }), b = drawn(iS6, null, { mode: 'chg', hours: 9 }), c = drawn(iS6, null, { mode: 'chg', hours: 10 });
+    return K.near(a.sm, 80, 1e-9) && !a.gasS && b.gasS && !b.gasB && K.near(b.big, 90, 1e-9) && b.bubbles > 0 && c.gasS && !c.gasB && K.near(c.big, 100, 1e-9) &&
+      K.near(M_({ mode: 'chg', hours: 8 }).smallHolds, 80, 1e-9) && fin(iD7).gasS && !drawn(iD7).gasS;
+  }, { source: BU });
+  K.check('Float at 2.23 V a cell, and the charger voltage is the float voltage times the number of cells: 6 × 2.23 = 13.38 V, whatever the odd cell reads', () => {
+    const t = [2.03, 2.08, VF, 2.38, 2.43].map((v) => drawn(iS8, null, { mode: 'flt', odd: v }).total);
+    return K.near(TOTAL, 13.38, 1e-9) && t.every((x) => K.near(x, 13.38, 1e-9)) && drawn(iS8, null, { mode: 'flt', odd: 2.38 }).texts.indexOf('charger 13.38 V') >= 0;
+  }, { source: ENER });
+  K.check('Single cells may sit 0.05 V below to 0.10 V above the float voltage while the total stays right: the band runs from 2.18 to 2.33 V, so 2.38 V and 2.08 V fall outside it and 2.25 V inside', () => {
+    const hi = drawn(iS8, null, { mode: 'flt', odd: 2.38 }), lo = drawn(iS8, null, { mode: 'flt', odd: 2.08 }), ok = drawn(iS8, null, { mode: 'flt', odd: 2.25 });
+    return K.near(BLO, 2.18, 1e-9) && K.near(BHI, 2.33, 1e-9) && hi.oddBad && lo.oddBad && !ok.oddBad && hi.texts.indexOf('2.33 V') >= 0 && hi.texts.indexOf('2.18 V') >= 0;
+  }, { source: ENER });
+  K.check('The other five share what is left: with the odd cell at 2.38 V they read 2.20 V each, and with it at 2.08 V (0.15 V below 2.23 V) they read 2.26 V each', () => {
+    const a = drawn(iS8, null, { mode: 'flt', odd: 2.38 }), b = drawn(iS8, null, { mode: 'flt', odd: 2.08 });
+    return a.othersText === '2.20' && b.othersText === '2.26' && K.near(VF - 2.08, 0.15, 1e-9) && STEPS[iD9].want.indexOf('0.15 V') >= 0;
+  });
+  K.check('Parallel strings share the load inversely to their path resistance: cables of 2 and 6 mΩ give string A 57 A of 100 A, equal cables give 50 A, and 2 and 8 mΩ give 60 A', () => {
+    const a = M_({ cableA: 2, cableB: 6 }).shareA, b = M_({ cableA: 2, cableB: 2 }).shareA, c = M_({ cableA: 2, cableB: 8 }).shareA;
+    let up = true;
+    for (let cb = 2; cb <= 10; cb++) up = up && M_({ cableA: 2, cableB: cb }).shareA > M_({ cableA: 2, cableB: cb - 1 }).shareA;
+    const g = drawn(iS10, null, { cableA: 2, cableB: 6 }), e = drawn(iS10, null, { cableA: 2, cableB: 2 });
+    return Math.round(a) === 57 && LOAD - Math.round(a) === 43 && K.near(b, 50, 1e-9) && K.near(c, 60, 1e-9) && up && g.wA > g.wB && K.near(e.wA, e.wB, 1e-9) && STEPS[iD11].want === '60 A';
+  });
+  K.check('Two blocks in series: the emfs add to 25.2 V and the resistances to 14 mΩ, so at 100 A the terminals read 25.2 − 1.4 = 23.8 V; taking off one block\'s 0.7 V gives 24.5 V', () =>
+    K.near(2 * EMF, 25.2, 1e-9) && K.near(2 * EMF - IB * 2 * RB / 1000, 23.8, 1e-9) && K.near(2 * EMF - IB * RB / 1000, 24.5, 1e-9) &&
+    STEPS[iD12].want === '23.8 V' && fin(iD12).meter === '23.8' && drawn(iD12).meter === '?');
+  K.check('Two 12 V 100 Ah blocks hold 2400 Wh either way: 24 V × 100 Ah in series and 12 V × 200 Ah in parallel', () =>
+    2 * VN * AH === 2400 && VN * 2 * AH === 2400 && STEPS[iD13].want === O13_SAME && fin(iD13).energy === '2400' && drawn(iD13).energy === '?');
+  K.check('Each puzzle accepts only its right answer, and nothing in its picture gives the answer before Check', () => {
+    const ok = STEPS.every((d) => d.show || (d.opts.length === 3 && new Set(d.opts).size === 3 && d.opts.indexOf(d.want) >= 0));
+    const a0 = drawn(iD1), a1 = fin(iD1), b0 = drawn(iD9), b1 = fin(iD9), c0 = drawn(iD11), c1 = fin(iD11);
+    return ok && K.near(a0.sm, 80, 1e-9) && K.near(a1.sm, 40, 1e-9) && !b0.bandOn && b1.bandOn && b1.oddBad && c0.wA === 0 && c1.wA > c1.wB &&
+      STEPS[iD11].hide.indexOf('shareA') >= 0 && STEPS.every((d) => !d.hide || d.hide.every((id) => ['through', 'smallHolds', 'shareA'].indexOf(id) >= 0));
+  });
+  K.check('Fifteen screens: demonstrations and puzzles take turns, three mixed puzzles end it, and no demonstration says more than about 90 words', () =>
+    STEPS.length === 15 && STEPS.every((d, k) => !!d.show === ([0, 2, 4, 6, 8, 10].indexOf(k) >= 0)) && STEPS.every((d) => !d.show || d.read.split(/\s+/).length <= 92) &&
+    fin(iD14).texts.indexOf('two days later') >= 0);
+  K.check('Every demonstration settles within 4.6 s and ends where its screen says, and every answer\'s motion settles within 2.5 s', () => {
+    const keys = ['mode', 'hours', 'small', 'odd', 'cableA', 'cableB', 'bf', 'sf', 'tf', 'ef', 'story'];
+    const same = (s, f) => keys.every((k) => (typeof s[k] === 'number' && typeof f[k] === 'number' ? K.near(s[k], f[k], 1e-9) : s[k] === f[k]));
+    return STEPS.every((d) => {
+      if (!d.show) return d.run.dur <= 2.5 && same(after(() => { setX(d.enter || {}); d.run.go(1); }), after(() => { setX(d.enter || {}); setX(d.end || {}); }));
+      return d.dur <= 4.6 && same(after(() => { setX(d.enter || {}); d.play(d.dur); }), after(() => { setX(d.enter || {}); setX(d.end || {}); }));
+    });
+  });
+
+  K.ready();
+</script>

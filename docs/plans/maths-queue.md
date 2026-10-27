@@ -43,7 +43,7 @@ built side by side, each about 8 lessons and 8 to 10M tokens:
 
 1. Engineering science: Heat and fluids and Mechanics and materials (both live 27 Oct, about 9 to 10M tokens each)
 2. Insulated systems and earth faults (Dan, 27 Oct: "Create them all"; Supply systems folder)
-3. Batteries: cells, charging, hydrogen (Supply systems folder)
+3. Batteries: cells, charging, hydrogen (Supply systems folder; live 27 Oct, about 9.8M tokens, topic batteries-ui8aw)
 4. Generators and paralleling (Power and machines folder)
 5. Transformers and magnetism (Electrical principles folder)
 Built in two pairs: 2 with 3, then 5 with 4 (Transformers owns the magnetism Generators uses). Waiting

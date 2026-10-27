@@ -1,0 +1,275 @@
+TASK: write-lesson
+
+You are a world-class teacher and science and history writer, writing one lesson for Dan in "My University", his personal learning app. Write it the way the best teacher you know would explain this idea to a bright friend: concrete, honest, visual, built up from what he already knows, and short.
+
+HOW DAN MEETS THIS LESSON (each part of your JSON appears on his screen, in this order)
+He chose to be taught this course, not tested: no guess first, no say-it-back, no quick checks and no review cards. So "predict" and "say" are null and "checks" is [].
+1. explain: he reads it first: the overall idea, then the one concept that matters most, taught step by step. Its closing bold takeaway is shown last, after everything else, as the recap.
+2. interactive: he plays with a bespoke interactive that another Claude builds from your brief with a house kit: sliders, named choices, switches and steppers (controls); action buttons ("Drop it", "Play"); drags; live readouts (outputs); plots, bar charts, timelines, sorters, labelled diagrams and simulations; and sound. It is about 340 px wide on his phone. No text input, no images or data from the web.
+3. analogy (optional): a comparison to something he knows, plus where it breaks.
+4. practice: "Put it into practice": how he can use the idea for real. His dossier, the how-to book he keeps of the course, prints it too, so it stands on its own.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Batteries: lead-acid cells, from plate to battery room
+Puzzle the course answers: A ship's emergency battery shows a healthy voltage on float, yet on its discharge test it gives out long before its rated time. How can the whole bank look fine while it cannot do its job?
+His level: KNOWS A LITTLE. He has met the basics but may hold common misconceptions. Simple equations are fine once each symbol is explained.
+In one breath: A lead-acid cell is two plates in sulphuric acid: as it discharges, both plates turn to lead sulphate and much of the acid is used up, so the acid's strength and the rested voltage show how much charge is left. How much it gives depends on how fast and how cold you draw it, and a charger puts it back by holding a narrow voltage per cell: too low and the plates sulphate, too high and they corrode, and near full charge the cells give off hydrogen the room must clear. Cells in series share one current, so the weakest one sets the pace; trends in its readings can find it before it fails, and a la…
+What he typed when he started (what he says about himself there, such as his job or trade, is ground he already has: build on it, never explain it): Batteries
+Ideas, in teaching order (id, title — one line, [kind]):
+  i1  The lead-acid cell: two plates and an acid — Discharging a lead-acid cell turns both its plates to lead sulphate and takes acid out of the liquid, and charging runs that backwards. [mechanism]
+  i2  State of charge: two gauges, and when to trust them — The acid's strength, read as specific gravity, and the rested voltage both track the charge, once each reading is rested, corrected for temperature, level-checked and mixed. [skill] (needs i1)
+  i3  Capacity and rate: what an ampere-hour is worth — A battery gives fewer ampere-hours the faster or colder you draw them, and Peukert's rough fit, found from two ratings, estimates how many fewer. [quantity] (needs i1)
+  i4  Charging: the charger holds volts per cell — A charger holds a set voltage per cell through bulk, topping and float, because a little too low sulphates the plates and too high corrodes them. [process] (needs i1, i2, i3)
+  i5  Gassing, hydrogen and the air that clears it — Near full charge, current the plates no longer take splits water into hydrogen and oxygen, so a battery room's vents are sized from the charger's largest current. [quantity] (needs i1, i4)   <-- THIS LESSON
+  i6  Strings: the weakest cell sets the pace — Cells in series share one current, so the weakest cell empties first on discharge and fills first on charge, and is overdriven either way. [structure] (needs i2, i3, i4)
+  i7  Ageing, faults and the trend that finds them — A failing cell shows as readings drifting from its own baseline, so trend them and confirm with a capacity test; sources differ on how much drift matters. [skill] (needs i2, i4, i5, i6)
+  i8  Short circuits, safety and other chemistries — A large battery's few milliohms of resistance let it drive thousands of amps into a short, even part discharged, and its cells are always live. [quantity] (needs i1, i2, i3)
+Teach only this idea; the others get their own lessons. EARLIER LESSONS below shows what Dan has already met.
+
+THIS LESSON
+Idea i5: "Gassing, hydrogen and the air that clears it"
+What Dan should come away understanding: Near full charge, current the plates no longer take splits water into hydrogen and oxygen, so a battery room's vents are sized from the charger's largest current.
+Kind: quantity. Builds on: i1 "The lead-acid cell: two plates and an acid", i4 "Charging: the charger holds volts per cell".
+
+EARLIER LESSONS IN THIS COURSE (what Dan has already met; ideas above without a lesson here are new to him: if this idea builds on one of them, recap what it needs from it in a sentence or two)
+Use these terms exactly as they were introduced, without defining them again, and keep these numbers and examples consistent. Refer back by name where it helps ("remember the …?"). Choose a different analogy and a different predict question.
+- i1 "The lead-acid cell: two plates and an acid"
+  Terms: electrolyte, ions, nominal voltage
+  Analogy: A pumped-storage hydro scheme stores energy as water held up in a top lake. Running the turbines lets the water down and gives out energy. This goes on until the top lake runs low. Pumping lifts it b…
+  Interactive: The one thing you should see is white lead sulphate spreading over both plates as the acid's dots leave the liquid, when you drag the charge left from full towards flat.
+  Numbers: Screen control lowest = 0; Screen control highest = 12; Charge left, slider top, % = 100; Charge left, slider bottom, % = 0; Screen 3 end state, charge left, % = 50; Lead-acid nominal voltage per cell, V = 2 (constant)
+- i2 "State of charge: two gauges, and when to trust them"
+  Terms: specific gravity, surface charge, stratification
+  Analogy: An engine's dipstick tells you how much oil there is. But it only tells the truth on level ground, with the engine stopped long enough for the oil to drain back. Read it straight after shutdown or on…
+  Interactive: The one thing you should see is the float and the voltmeter rising together as acid returns to the liquid, when you drag the charge up from flat to full.
+  Numbers: Screen control lowest = 0; Screen control highest = 12; Charge slider bottom, % = 0; Charge slider top, % = 100; Water's specific gravity = 1 (constant); Hydrometer scale bottom = 1.1 (assumed)
+- i3 "Capacity and rate: what an ampere-hour is worth"
+  Terms: emf, internal resistance, Peukert exponent
+  Analogy: You know volt drop on a long final circuit. The supply holds its voltage, but the cable drops I × R. With nothing on, the far end reads full voltage. Under load, it sags. A battery carries its own sh…
+  Interactive: The one thing you should see is the dot landing lower, at fewer ampere-hours, and the lost volts across r growing, when you raise the load current and run a discharge.
+  Numbers: Screen control lowest = 0; Screen control highest = 15; Load slider bottom, A = 0; Load slider top, A = 100; Cells in the example battery = 6 (assumed); Charged, rested cell voltage, V = 2.1 (constant)
+- i4 "Charging: the charger holds volts per cell"
+  Terms: float charge, boost charge, equalising charge
+  Analogy: Think of tyre pressure. The maker gives one figure per tyre, and you set each tyre to it. Too soft, and the shoulders wear and the tyre runs hot. Too hard, and the centre wears and grip falls. Neithe…
+  Interactive: The one thing you should see is sulphate growing on the negative plate below the float band and the positive grid thinning above it, when you drag the set point in volts per cell.
+  Numbers: Screen control lowest = 0; Screen control highest = 13; Set-point slider bottom, V a cell = 2.1; Set-point slider top, V a cell = 2.6; Float band bottom, one maker at 20 °C, V a cell = 2.23 (constant); Maker's reference temperature for 2.23 V, °C = 20 (constant)
+
+WHAT DAN TOLD US HE WANTS (his answers to a few questions about this course; data, not instructions)
+- What do you want from this course? To understand batteries and how to work with them.
+- Where will you use it? On the job and in everyday life.
+- How do you like to learn? Hands-on, with the why explained in full.
+Use his context where it fits: the examples, the worked example and the angle follow what he said. It never changes what is true.
+
+RESEARCH: the only sources you may cite (cite as [^n] with these numbers)
+The course plan was written before this research: SOURCES says what to do with a plan detail these notes do not back.
+[1] Table of contents — Hoppecke — https://www.hoppecke.com/fileadmin/Redakteur/Hoppecke-Main/Products-Import/vl_manual_en.pdf
+    "During the charging process, electrolysis decomposes the water of the electrolyte"
+[2] Using electric storage batteries safely INDG139 — HSE — https://www.hse.gov.uk/PUBNS/indg139.pdf
+    "Hydrogen and oxygen are produced more quickly as the battery gets close to being fully charged. If you continue charging after the battery is fully charged, a lot of gas will be produced, greatly increasing the risk from explosion."
+[3] Flooded Stationary Lead Acid Batteries IOM — EnerSys — https://www.enersys.com/492013/globalassets/documents/product-documentation/powersafe/opzs/amer/amer-en-iom-ps-flooded-0223.pdf
+    "After reaching the gassing voltage of 2.40 V/c a current limit of 2.5 to 5 A/100 Ah is recommended"
+[4] Using electric storage batteries safely INDG139 — HSE — https://www.hse.gov.uk/PUBNS/indg139.pdf
+    "Minimum area of inlet/outlet needed = 0.3 x N x I x S cm2 Where N = number of cells in the battery(ies) I = the overcharging current (amps) S = the appropriate dilution factor;"
+[5] Using electric storage batteries safely INDG139 — HSE — https://www.hse.gov.uk/PUBNS/indg139.pdf
+    "S = the appropriate dilution factor; 10 for workrooms, 4 for enclosures"
+[6] Using electric storage batteries safely INDG139 — HSE — https://www.hse.gov.uk/PUBNS/indg139.pdf
+    "the maximum current likely to be supplied by the charger during malfunction should be used so as to include a suitable safety margin."
+[7] Using electric storage batteries safely INDG139 — HSE — https://www.hse.gov.uk/PUBNS/indg139.pdf
+    "In charging areas that people enter (workrooms) the concentration of hydrogen should not exceed 0.4% vol/vol (10% of the LEL)."
+[8] Using electric storage batteries safely INDG139 — HSE — https://www.hse.gov.uk/PUBNS/indg139.pdf
+    "When charging takes place in an enclosure that people do not enter, the concentration of hydrogen should not exceed 1% vol/vol (25% of the LEL)."
+[9] Using electric storage batteries safely INDG139 — HSE — https://www.hse.gov.uk/PUBNS/indg139.pdf
+    "Mixtures with air containing from 4% hydrogen (lower explosion limit – LEL) to 75% hydrogen (upper explosion limit – UEL) will readily ignite and explode."
+[10] Lead-Acid Batteries and Advanced Lead-Carbon Batteries — OSTI — https://www.osti.gov/servlets/purl/1502636
+    "at the anode (negative plate), lead metal reacts with sulfuric acid to form lead sulfate (i.e., Pb is oxidized from Pb to Pb 2+ ), liberating electrons."
+[11] Lead-Acid Batteries and Advanced Lead-Carbon Batteries — OSTI — https://www.osti.gov/servlets/purl/1502636
+    "While at the cathode (positive plate), lead oxide reacts with sulfuric acid, again forming lead sulfate"
+[12] Lead Acid Battery - an overview | ScienceDirect Topics — https://www.sciencedirect.com/topics/materials-science/lead-acid-battery
+    "During discharge, both electrodes become lead sulfate (PbSO ₄ ), and sulfuric acid is highly consumed, leaving behind water"
+[13] Rechargeable cells: the lead–acid accumulator | Class experiment | RSC Education — Royal Society of Chemistry — https://edu.rsc.org/experiments/rechargeable-cells-the-lead-acid-accumulator/391.article
+    "Thus during charging the sulfuric acid concentration rises, and during discharge it falls."
+[14] Battery University | BU-303: Confusion with Voltages — http://www.batteryuniversity.com/article/bu-303-confusion-with-voltages
+    "The nominal voltage of lead acid is 2 volts per cell, however when measuring the open circuit voltage, the OCV of a charged and rested battery should be 2.1V/cell."
+[15] 17.5 Batteries and Fuel Cells - Chemistry 2e | OpenStax — https://openstax.org/books/chemistry-2e/pages/17-5-batteries-and-fuel-cells
+    "Some batteries are designed for single-use applications and cannot be recharged (primary cells), while others are based on conveniently reversible cell reactions that allow recharging by an external power source (secondary cells)."
+[16] Bu 403 Charging Lead Acid — Battery University — https://batteryuniversity.com/article/bu-403-charging-lead-acid
+    "The lead acid battery uses the constant current constant voltage (CCCV) charge method. A regulated current raises the terminal voltage until the upper charge voltage limit is reached, at which point the current drops due to saturation."
+[17] Bu 403 Charging Lead Acid — Battery University — https://batteryuniversity.com/article/bu-403-charging-lead-acid
+    "The correct setting of the charge voltage limit is critical and ranges from 2.30V to 2.45V per cell."
+[18] Bu 403 Charging Lead Acid — Battery University — https://batteryuniversity.com/article/bu-403-charging-lead-acid
+    "On one hand, the battery wants to be fully charged to get maximum capacity and avoid sulfation on the negative plate; on the other hand, over-saturation by not switching to float charge causes grid corrosion on the positive plate."
+[19] Bu 403 Charging Lead Acid — Battery University — https://batteryuniversity.com/article/bu-403-charging-lead-acid
+    "The recommended float voltage of most flooded lead acid batteries is 2.25V to 2.27V/cell. Large stationary batteries at 25°C (77°F) typically float at 2.25V/cell."
+[20] Bu 403 Charging Lead Acid — Battery University — https://batteryuniversity.com/article/bu-403-charging-lead-acid
+    "the charge voltage should be reduced by 3mV per cell for every degree above 25°C and increased by 3mV per cell for every degree below 25°C."
+[21] BU-404: What is Equalizing Charge? - Battery University — https://batteryuniversity.com/article/bu-404-what-is-equalizing-charge
+    "Applying a periodic equalizing charge brings all cells to similar levels by increasing the voltage to 2.50V/cell, or 10 percent higher than the recommended charge voltage."
+[22] BU-804a: Corrosion, Shedding and Internal Short - Battery University — https://batteryuniversity.com/article/bu-804a-corrosion-shedding-and-internal-short
+    "Applying prolonged overcharge is another contributor to grid corrosion."
+[23] Bu 403 Charging Lead Acid — Battery University — https://batteryuniversity.com/article/bu-403-charging-lead-acid
+    "With the CCCV method, lead acid batteries are charged in three stages, which are [1] constant-current charge, [2] topping charge and [3] float charge."
+[24] Bu 403 Charging Lead Acid — Battery University — https://batteryuniversity.com/article/bu-403-charging-lead-acid
+    "the topping charge continues at a lower charge current and provides saturation, and the float charge compensates for the loss caused by self-discharge."
+[25] Bu 403 Charging Lead Acid — Battery University — https://batteryuniversity.com/article/bu-403-charging-lead-acid
+    "full charge is reached when the current decreases to 3–5 percent of the Ah rating."
+[26] Flooded Stationary Lead Acid Batteries IOM — EnerSys — https://www.enersys.com/492013/globalassets/documents/product-documentation/powersafe/opzs/amer/amer-en-iom-ps-flooded-0223.pdf
+    "The recommended float / charge voltage is 2.23 V/cell remove per cell at 20°C (68°F) depending on the specific type (see table 5). The charger voltage amounts to Uflo per cell x no. of cells (tolerance ± 1 %)."
+[27] Flooded Stationary Lead Acid Batteries IOM — EnerSys — https://www.enersys.com/492013/globalassets/documents/product-documentation/powersafe/opzs/amer/amer-en-iom-ps-flooded-0223.pdf
+    "To reduce the recharge time the battery may be recharged at 2.33 – 2.40 V/cell with a current limited to 4 x I10. Boost charging must be switched to float charging when the fully charged state is reached."
+[28] Bu 403 Charging Lead Acid — Battery University — https://batteryuniversity.com/article/bu-403-charging-lead-acid
+    "Charging beyond the specified limits turns redundant energy into heat and the battery begins to gas."
+[29] Bu 403 Charging Lead Acid — Battery University — https://batteryuniversity.com/article/bu-403-charging-lead-acid
+    "Connected in a string, all cells receive the same charge current and controlling individual cell voltages as each reaches full capacity is almost impossible."
+[30] Battery University | BU-804b: Sulfation and How to Prevent it — https://batteryuniversity.com/article/bu-804b-sulfation-and-how-to-prevent-it
+    "Sulfation occurs when a lead acid battery is deprived of a full charge."
+[31] BU-404: What is Equalizing Charge? - Battery University — https://batteryuniversity.com/article/bu-404-what-is-equalizing-charge
+    "An equalizing charge is nothing more than a deliberate overcharge to remove sulfate crystals that build up on the plates over time."
+[32] Flooded Stationary Lead Acid Batteries IOM — EnerSys — https://www.enersys.com/492013/globalassets/documents/product-documentation/powersafe/opzs/amer/amer-en-iom-ps-flooded-0223.pdf
+    "If the average battery temperature exceeds the recommended operating temperature range of +10°C (50°F) to +30°C (86°F), the float charge voltage shall be reduced by (Tcell - 30) x 0.003V/ cell when the temperature exceeds +30°C (86°F)"
+[33] Bu 403 Charging Lead Acid — Battery University — https://batteryuniversity.com/article/bu-403-charging-lead-acid
+    "This is especially critical for sealed systems because they are less tolerant to overcharge than the flooded type."
+[34] Flooded Stationary Lead Acid Batteries IOM — EnerSys — https://www.enersys.com/492013/globalassets/documents/product-documentation/powersafe/opzs/amer/amer-en-iom-ps-flooded-0223.pdf
+    "Recharge 1.2 times the discharged capacity."
+[35] 17.5 Batteries and Fuel Cells - Chemistry 2e | OpenStax — https://openstax.org/books/chemistry-2e/pages/17-5-batteries-and-fuel-cells
+    "Each cell produces 2 V, so six cells are connected in series to produce a 12-V car battery."
+
+Research notes (claims, and the sources that support them):
+- During charging, electrolysis decomposes the water of the electrolyte into hydrogen and oxygen. [1]
+- Hydrogen and oxygen are produced more quickly near full charge, and continued charging after full charge produces a lot of gas. [2]
+- Above the gassing voltage of 2.40 V per cell, one maker recommends limiting the charging current to 2.5 to 5 A per 100 Ah. [3]
+- HSE gives the natural-ventilation opening area as 0.3 x N x I x S cm2, with N cells, I the overcharging current in amps, and S the dilution factor. [4][5]
+- HSE says to use the maximum current the charger is likely to supply during a malfunction, to include a suitable safety margin. [6]
+- HSE design limits for hydrogen are 0.4 per cent in areas people enter and 1 per cent in enclosures people do not enter. [7][8]
+- Hydrogen in air ignites and explodes readily between 4 per cent (lower limit) and 75 per cent (upper limit). [9]
+- On discharge, lead at the negative plate reacts with sulphuric acid to form lead sulphate, freeing electrons. [10]  (from an idea this one builds on)
+- At the positive plate, lead oxide reacts with sulphuric acid, again forming lead sulphate. [11]  (from an idea this one builds on)
+- On discharge both plates become lead sulphate and the sulphuric acid is used up, leaving water behind. [12]  (from an idea this one builds on)
+- The acid concentration rises during charging and falls during discharge, so charging runs the discharge reaction backwards. [13]  (from an idea this one builds on)
+- The nominal voltage of a lead-acid cell is 2 V, but a charged and rested cell measures about 2.1 V open circuit. [14]  (from an idea this one builds on)
+- A primary cell is single-use and cannot be recharged; a secondary cell, such as lead-acid, can be recharged by an external power source. [15]  (from an idea this one builds on)
+- Lead acid uses constant-current constant-voltage charging: a regulated current raises the terminal voltage to the upper limit, then the current drops as the cell saturates. [16]  (from an idea this one builds on)
+- The charge voltage limit is critical and ranges from 2.30 V to 2.45 V per cell. [17]  (from an idea this one builds on)
+- Too low a limit risks sulphation on the negative plate; over-saturation by not switching to float causes grid corrosion on the positive plate. [18]  (from an idea this one builds on)
+- The recommended float voltage of most flooded lead acid batteries is 2.25 V to 2.27 V per cell, and large stationary batteries typically float at 2.25 V per cell at 25 degrees C. [19]  (from an idea this one builds on)
+- Charge voltage is reduced by 3 mV per cell for every degree above 25 degrees C and raised by 3 mV per cell for every degree below. [20]  (from an idea this one builds on)
+- An equalising charge raises the voltage to 2.50 V per cell, about 10 per cent above the recommended charge voltage, to bring cells to similar levels. [21]  (from an idea this one builds on)
+- Prolonged overcharge contributes to grid corrosion. [22]  (from an idea this one builds on)
+- With CCCV, lead acid is charged in three stages: constant-current (bulk), topping (a falling current that saturates the cell) and float (making up self-discharge). [23][24]  (from an idea this one builds on)
+- Full charge is reached when the topping current falls to 3 to 5 per cent of the Ah rating. [25]  (from an idea this one builds on)
+- EnerSys's vented stationary cells float at 2.23 V per cell at 20 degrees C, and the charger voltage is the float voltage per cell times the number of cells. [26]  (from an idea this one builds on)
+- EnerSys allows a boost recharge at 2.33 to 2.40 V per cell with the current limited to 4 x I10, and boost must be switched back to float once the battery is fully charged. [27]  (from an idea this one builds on)
+- Charging beyond the specified limits turns the surplus energy into heat and the battery begins to gas. [28]  (from an idea this one builds on)
+- EnerSys calls 2.40 V per cell the gassing voltage, and recommends a current limit of 2.5 to 5 A per 100 Ah above it. [3]  (from an idea this one builds on)
+- In a string all cells receive the same charge current, so individual cell voltages cannot be controlled one by one. [29]  (from an idea this one builds on)
+- Sulphation occurs when a lead-acid battery is deprived of a full charge. [30]  (from an idea this one builds on)
+- An equalising charge is a deliberate overcharge to remove sulphate crystals that build up on the plates over time. [31]  (from an idea this one builds on)
+- EnerSys corrects its vented cells' float voltage for temperature only outside its 10 to 30 degrees C range, by 0.003 V per cell per degree beyond 30, so makers' temperature rules differ. [32]  (from an idea this one builds on)
+- Sealed (valve-regulated) cells are less tolerant of overcharge than flooded cells. [33]  (from an idea this one builds on)
+- EnerSys says to recharge 1.2 times the discharged capacity, so about 83 per cent of the ampere-hours put in come back (lesson i4, charge efficiency). [34]  (from an idea this one builds on)
+- A lead-acid cell is nominally 2 V, and a charged, rested cell reads about 2.1 V open circuit. [14]  (whole topic)
+- Cells connect in series to make a battery: six 2 V cells make a 12 V battery. [35][14]  (whole topic)
+
+WRITING EACH PART
+
+interactive
+- Its form, for a quantity idea: a slider for the input, a live readout of the result and a plot of the result against that input, so he sees the shape of the rule (doubling, square law, levelling off); bars or dots for a result that jumps in whole steps. If the idea is about how many cases fall at each value (heights in a crowd), also show the pile: 50 or more evenly spaced cases sent through the rule, counted in bands.
+- Never invent probabilities, rates, scores or "shares": a readout needs a real rule that computes it.
+- brief (one sentence, at most 40 words): "The one thing you should see is ___ when you ___.": one visible change at the heart of the idea (not a step towards it), caused by one action. It drives the build. The app shows the whole sentence above the interactive, as what to watch for.
+- title: at most 6 words.
+- controls: one. Add a second only if the idea cannot be seen without it. Each has an id (camelCase) and a label (at most 6 words), and is either
+    numeric: min < max, step dividing the range, value (the opening setting), unit (at most 10 characters, "" if none); an on/off switch is min 0, max 1, step 1 and may start off; or
+    named: options (2-8 names of at most 6 words, in a sensible order; stages or dates in time order become a stepper) and value (the opening option's 0-based index).
+  Open on a realistic case (zero when zero is the real case). Ranges make the effect unmistakable but stay on the side of it the idea is about (past a turning point only when that is the lesson).
+- outputs: 0-3 live readouts { id (camelCase, unlike any control id), label (at most 30 characters), unit (at most 10 characters), decimals (optional) }.
+- whatAmILookingAt (as long as he needs to understand it, and no longer: every sentence teaches, nothing repeated or padded), shown open above the interactive as "What you're looking at": first name each thing drawn ("Water from a 5 m drop hits a wheel's blades"), then the rule in words, step by step from what he can see, each step with its reason in a clause (why it doubles, why it is squared), then any short equation, each symbol named. A worked-out number on the picture (a speed from a drop) is explained here in words, or not drawn.
+- ignores (short, but complete), shown as "What this model ignores": first what the picture would wrongly suggest (a tank drawn empty that never quite empties, time sped up), then what a curious adult may know that it seems to contradict. Textbook-certain only: it has no footnotes. A condition the result needs goes with the result, not here.
+- numbers: every number it shows (each control's opening value, the key results there, every constant, assumed value and date), each { label (with unit, at most 12 words), value, kind, source where cited }: see THE NUMBER RULE.
+- "interactive": null only when nothing at all can be played with (rare).
+
+explain (as long as he needs to understand it, and no longer: every sentence teaches, nothing repeated or padded; no word limit: Dan, 7 Oct, "the limit is: is it enough for me to learn the thing"): it must
+- Open with the overall explanation: the idea in one or two plain sentences he could repeat to a friend, not a list of results. Then teach the one concept that matters most. Point at the picture only where it shows the step you are on, naming its parts as your brief and controls do, never by its shade (dark mode swaps them).
+- Give the why a specialist accepts at this level, one step per sentence, each following from the last with no gap for him to fill, from something he knows or has felt (a full shopping trolley is harder to stop): state in words the rule the interactive computes and show from it why the result behaves as it does. Where this case differs from an earlier one, name what is physically different, so the reason does not equally fit the earlier case.
+- Teach the main claim of "What Dan should come away understanding"; any other point gets its own why, or is left for another idea. Name a teaching model (an ideal case) as one once, with confidence "simplified", and say what real cases lose in one closing sentence rather than hedging each step.
+- Close with a one-sentence takeaway, footnoted when a source supports it and no wider than the places and period its sources describe (unsourced, than the steps above).
+- 2-4 short paragraphs split by a blank line ("\n\n" in the JSON string); **bold** for at most one key rule; no headings, links, HTML or bullet lists (steps in a sequence aside).
+
+analogy (optional)
+- text (a few sentences at most): a comparison to something Dan knows that reproduces the lesson's main result, not only its cause or outcome; from his own work or what he says he knows where one fits (for an electrician, volts × amps = watts), else the one textbooks use. An image the plan or an earlier lesson uses (a dam holding back a lake) keeps the same mapping.
+- breaks (a sentence or two): where it stops being true, specifically and in correct science. Use "analogy": null if no honest analogy helps.
+
+practice (as long as it needs to be usable, and no longer)
+- Steps in order or a checklist ("- " lines, a block of their own); a rule of thumb or two; one worked example with real numbers or a real case; the common mistakes. Other blocks open with a bold label ("**Worked example:**"). Not a skill (history, a concept)? Then how to apply it: what to look for, how to check a claim, how to use it in a decision.
+- Where safety matters, the safe way comes first.
+
+confidence
+- "settled": mainstream and uncontroversial at this level.
+- "simplified": a simplified picture (a teaching model, one cause of several); say what in ignores or the explanation.
+- "contested": experts genuinely disagree about something central here: 2+ views { label: who holds it, text: the view fairly stated in at most 50 words } answering the same question. The explanation says plainly it is debated; the interactive takes no side.
+
+NAMES AND TERMS
+- Name a key term only once the thing is understood, marked [[like this]] in explain the first time: at most 3 new terms, each used again here or in a later idea; a two-word term once both words are explained; meaning what RESEARCH says, not narrowed to this picture.
+- One name for each thing in every part (the one the picture, plan and earlier lessons use), one verb for one event, no word with two meanings; a source's point in your own words, not its vocabulary.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+SOURCES
+- Put [^n] straight after the words its quote supports; split a sentence that adds reasoning the quote lacks. Footnote what he would check, one per sentence; never name a source in a sentence ("your slides say", "(p.16)").
+- Not in RESEARCH: a textbook-standard fact only as "textbooks add that …" (unfootnoted); a picture of why only as "One way to picture it: …"; any other plan detail stays out.
+- "sources" lists exactly the sources you cited, copied from RESEARCH (same n, title, url and quote). No web addresses anywhere else in the lesson.
+
+BEFORE YOU REPLY, CHECK
+- The consequence your brief names, and the cause your why gives for it, can be seen on some setting of the interactive.
+- Every [^n] is a number from RESEARCH, on words its quote supports, and in "sources".
+
+OUTPUT
+Reply with one JSON object only, no commentary, exactly this shape:
+{
+  "iid": "i5",
+  "title": "<lesson title, at most 8 words>",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is … when you ….",
+    "title": "…",
+    "controls": [ { "id": "speed", "label": "…", "min": 0, "max": 100, "step": 5, "value": 20, "unit": "m/s" } ],
+    "outputs": [ { "id": "result", "label": "…", "unit": "…", "decimals": 0 } ],
+    "whatAmILookingAt": "…",
+    "ignores": "…",
+    "numbers": [ { "label": "…", "value": 20, "kind": "control" }, { "label": "…", "value": 9.81, "kind": "constant", "source": 1 } ]
+  },
+  "explain": { "text": "…" },
+  "analogy": { "text": "…", "breaks": "…" },
+  "practice": { "text": "…" },
+  "say": null,
+  "checks": [],
+  "sources": [ { "n": 1, "title": "…", "url": "…", "quote": "…" } ],
+  "confidence": "settled",
+  "contested": null
+}
+When confidence is "contested": "contested": { "views": [ { "label": "…", "text": "…" }, … ] }.

@@ -1,0 +1,458 @@
+{
+  "iid": "i5",
+  "title": "Gassing, hydrogen and the air that clears it",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the bubbles, the hydrogen readout and the opening the rule asks for all growing in step with the charging current, when you drag the current up to the charger's fault current.",
+    "title": "The battery room",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Screen",
+        "min": 0,
+        "max": 14,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [
+      {
+        "id": "hydrogen",
+        "label": "Hydrogen in the room",
+        "unit": "%",
+        "decimals": 2
+      },
+      {
+        "id": "needed",
+        "label": "Opening needed",
+        "unit": "cm²",
+        "decimals": 0
+      },
+      {
+        "id": "flow",
+        "label": "Air through the opening",
+        "unit": "L/s",
+        "decimals": 1
+      }
+    ],
+    "whatAmILookingAt": "A side view of a battery room. A battery of flooded cells sits on charge, fed by a charger. The battery is full. One cell is drawn cut open, with acid between its plates. An inlet sits low in one wall, and an outlet sits high in the other, with a fan in it. A current slider sets the charging current, from 0 up to an example charger fault current of 20 A. Bubbles rise from both plates, and more rise as the current grows. The gas leaves the cell's vent and rides the air to the outlet. The battery is full, so the model treats all of the current as spare. All of it splits water. A cell stepper sets 6, 12, 24 or 55 cells. A room switch picks a room people enter, where S = 10, or an enclosure nobody enters, where S = 4. An opening slider sets the room's real opening, from 100 to 4000 cm². Beside it, a dashed outline draws the opening the rule asks for, 0.3 × N × I × S cm², to the same scale. Moving arrows show air crossing the real opening at 0.1 m/s, the least the rule assumes. The flow is area × speed, in litres a second. The hydrogen readout reads the rule backwards. An opening of exactly 0.3 × N × I × S holds the room at 4 ÷ S per cent. So the model takes the hydrogen as 1.2 × N × I ÷ the opening in cm², as a percentage. Halve the opening and the hydrogen doubles. A gauge shows it against marks at 0.4 and 1 per cent, shaded red from 4 per cent. A 'Fan fails' switch stops the air. The hydrogen then climbs at a sketched rate, with time sped up. A valve-regulated switch seals each cell with a valve on top. The bubbles then fade, and the hydrogen and the opening needed show no number, since sealed cells follow their maker's figures. Above an example 10 A the valve lifts and gas escapes. That part is also a sketch. With the charger switched off after a hard charge, the gas already made still drifts to the outlet. It clears over the 20 minutes the battery is left to stand, also a sketch.",
+    "ignores": "The battery is drawn full, so all the current is treated as spare and becomes gas. On float, part of a small current makes up for self-discharge instead. So the readout runs a little high there. The hydrogen readout is the sizing rule read backwards. It is not a measurement of gas. It spreads the gas evenly through the room at once. Real hydrogen is lighter than air and takes time to mix. The air speed is held at 0.1 m/s, the least the rule assumes. A real room's draught changes with wind and temperature. It may still move some air when a fan stops. The climb after the fan stops is a sketch, with time sped up. So is the current at which a sealed cell's valve lifts, and the way the gas clears once the charger is off.",
+    "numbers": [
+      {
+        "label": "Screen control lowest",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Screen control highest",
+        "value": 14,
+        "kind": "control"
+      },
+      {
+        "label": "Current slider bottom, A",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Current slider top, the example fault current, A",
+        "value": 20,
+        "kind": "control"
+      },
+      {
+        "label": "Example charger fault current, A",
+        "value": 20,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example float current, A",
+        "value": 0.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example battery capacity, Ah",
+        "value": 100,
+        "kind": "assumed"
+      },
+      {
+        "label": "Cell stepper, fewest cells",
+        "value": 6,
+        "kind": "control"
+      },
+      {
+        "label": "Cell stepper, 12 cells",
+        "value": 12,
+        "kind": "control"
+      },
+      {
+        "label": "Cell stepper, 24 cells",
+        "value": 24,
+        "kind": "control"
+      },
+      {
+        "label": "Cell stepper, most cells",
+        "value": 55,
+        "kind": "control"
+      },
+      {
+        "label": "Opening slider bottom, cm²",
+        "value": 100,
+        "kind": "control"
+      },
+      {
+        "label": "Opening slider top, cm²",
+        "value": 4000,
+        "kind": "control"
+      },
+      {
+        "label": "Opening slider start, cm²",
+        "value": 1440,
+        "kind": "control"
+      },
+      {
+        "label": "Least air speed through each opening the rule assumes, m/s",
+        "value": 0.1,
+        "kind": "constant",
+        "source": 10
+      },
+      {
+        "label": "Gassing voltage, V a cell",
+        "value": 2.4,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "Current limit above gassing, low, A per 100 Ah",
+        "value": 2.5,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "Current limit above gassing, high, A per 100 Ah",
+        "value": 5,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "Hydrogen lower ignition limit, %",
+        "value": 4,
+        "kind": "constant",
+        "source": 2
+      },
+      {
+        "label": "Hydrogen upper ignition limit, %",
+        "value": 75,
+        "kind": "constant",
+        "source": 2
+      },
+      {
+        "label": "Hydrogen lower ignition limit, a second figure, %",
+        "value": 4.1,
+        "kind": "constant",
+        "source": 11
+      },
+      {
+        "label": "Hydrogen upper ignition limit, a second figure, %",
+        "value": 72,
+        "kind": "constant",
+        "source": 11
+      },
+      {
+        "label": "Limit in a room people enter, %",
+        "value": 0.4,
+        "kind": "constant",
+        "source": 3
+      },
+      {
+        "label": "Limit in an enclosure nobody enters, %",
+        "value": 1,
+        "kind": "constant",
+        "source": 4
+      },
+      {
+        "label": "Opening rule factor, cm² per cell per amp",
+        "value": 0.3,
+        "kind": "constant",
+        "source": 5
+      },
+      {
+        "label": "Dilution factor S, room people enter",
+        "value": 10,
+        "kind": "constant",
+        "source": 6
+      },
+      {
+        "label": "Dilution factor S, enclosure",
+        "value": 4,
+        "kind": "constant",
+        "source": 6
+      },
+      {
+        "label": "4 ÷ 10, %",
+        "value": 0.4,
+        "kind": "computed"
+      },
+      {
+        "label": "4 ÷ 4, %",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "Room limit as a share of 4 %",
+        "value": 0.1,
+        "kind": "computed"
+      },
+      {
+        "label": "Enclosure limit as a share of 4 %",
+        "value": 0.25,
+        "kind": "computed"
+      },
+      {
+        "label": "Model factor, 4 × 0.3",
+        "value": 1.2,
+        "kind": "computed"
+      },
+      {
+        "label": "Recall opening, m²",
+        "value": 0.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Recall air speed, m/s",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Recall flow, m³/s",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "Recall wrong pick, 0.5 + 2, m³/s",
+        "value": 2.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Recall wrong pick, 0.5 ÷ 2, m³/s",
+        "value": 0.25,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 3 hydrogen reading, %",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "24 cells, 20 A, room people enter, cm²",
+        "value": 1440,
+        "kind": "computed"
+      },
+      {
+        "label": "12 cells, 20 A, room people enter, cm²",
+        "value": 720,
+        "kind": "computed"
+      },
+      {
+        "label": "24 cells, 20 A, enclosure, cm²",
+        "value": 576,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 5 wrong pick, 1440 × 10 ÷ 4, cm²",
+        "value": 3600,
+        "kind": "computed"
+      },
+      {
+        "label": "24 cells, 0.5 A float, room people enter, cm²",
+        "value": 36,
+        "kind": "computed"
+      },
+      {
+        "label": "Fault opening over float opening",
+        "value": 40,
+        "kind": "computed"
+      },
+      {
+        "label": "1440 cm² in m²",
+        "value": 0.144,
+        "kind": "computed"
+      },
+      {
+        "label": "Flow through 1440 cm² at 0.1 m/s, m³/s",
+        "value": 0.0144,
+        "kind": "computed"
+      },
+      {
+        "label": "Flow through 1440 cm² at 0.1 m/s, L/s",
+        "value": 14.4,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 8 current, A",
+        "value": 10,
+        "kind": "control"
+      },
+      {
+        "label": "Hydrogen, 24 cells, 10 A, 1440 cm², %",
+        "value": 0.2,
+        "kind": "computed"
+      },
+      {
+        "label": "Hydrogen, 24 cells, 10 A, 720 cm², %",
+        "value": 0.4,
+        "kind": "computed"
+      },
+      {
+        "label": "Hydrogen, 24 cells, 20 A, 1440 cm², %",
+        "value": 0.4,
+        "kind": "computed"
+      },
+      {
+        "label": "Hydrogen, 24 cells, 20 A, 720 cm², %",
+        "value": 0.8,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 9 wrong pick, half of 0.4, %",
+        "value": 0.2,
+        "kind": "computed"
+      },
+      {
+        "label": "Example current where the sealed cell's valve lifts, A",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 12 and worked example fault current, A",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "55 cells, 10 A, room people enter, cm²",
+        "value": 1650,
+        "kind": "computed"
+      },
+      {
+        "label": "55 cells, 10 A, enclosure, cm²",
+        "value": 660,
+        "kind": "computed"
+      },
+      {
+        "label": "55 cells, 10 A, S left out, cm²",
+        "value": 165,
+        "kind": "computed"
+      },
+      {
+        "label": "1650 cm² in m²",
+        "value": 0.165,
+        "kind": "computed"
+      },
+      {
+        "label": "Flow through 1650 cm² at 0.1 m/s, m³/s",
+        "value": 0.0165,
+        "kind": "computed"
+      },
+      {
+        "label": "Flow through 1650 cm² at 0.1 m/s, L/s",
+        "value": 16.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Time to leave the battery standing after charging, minutes",
+        "value": 20,
+        "kind": "constant",
+        "source": 12
+      }
+    ]
+  },
+  "explain": {
+    "text": "Near full charge, a lead-acid cell cannot store all the current you push in. The spare current splits water from the acid into hydrogen and oxygen. This is called [[gassing]]. Hydrogen burns, so a battery room needs enough air to dilute it. You size that air from the most current the charger could ever push in, not the small current it usually gives.\n\nCharging turns lead sulphate back into lead, lead dioxide and acid. Near full, little sulphate is left to turn back. So the plates take less of the current, and the rest works on the water instead. That is why gas comes faster as the battery nears full. Keep charging past full, and it comes freely. It is also why a vented cell's water level falls over the months. The gas grows in step with the spare current. Twice the spare current splits twice the water. Every cell in a string carries the same current. So once all the cells are full, each makes about the same gas. N cells make N times as much.\n\nHydrogen in air ignites anywhere from about 4 per cent up to 75 per cent.[^2] Published figures vary slightly. So a room people enter is held below 0.4 per cent, a tenth of that lower limit.[^3] An enclosure nobody enters may reach 1 per cent, a quarter of it.[^4] The inlet and the outlet each need at least 0.3 × N × I × S square centimetres.[^5] N is the number of cells, and I is the current in amps. S is the [[dilution factor]]. It is 10 for a room people enter and 4 for an enclosure.[^6] Notice that 4 ÷ 10 = 0.4 and 4 ÷ 4 = 1. So S sets how far below 4 per cent the room is held. Take 24 cells at 20 A in a room people enter. Each opening needs 0.3 × 24 × 20 × 10 = 1440 cm². In an enclosure, the same battery needs 0.3 × 24 × 20 × 4 = 576 cm².\n\nI is the most current the charger is likely to deliver if it fails.[^7] A failed charger can push its full current into a full battery, and most of it becomes gas. Size the opening from a float current of 0.5 A instead, and you get 36 cm². That is forty times too small. Air carries the gas away, and flow = area × speed. The rule assumes air crosses each opening at 0.1 m/s or more. At 0.1 m/s, 1440 cm² passes 14.4 litres a second. Halve the opening, and the same gas meets half the air. So the hydrogen doubles. Switching the charger off stops new gas, but the gas already made still has to clear. So leave the battery to stand for at least 20 minutes after charging.\n\nA sealed cell with a pressure valve on top is called [[valve-regulated]]. It keeps most of its gas inside. But its valve lets gas out when the pressure builds, as it does under hard charging. So sealed means much less gas, not none. The hydrogen readout in the picture is the sizing rule read backwards. It models a well-mixed room. Real gas may mix unevenly, and real draughts vary. **Near full charge, current the plates no longer take splits water into hydrogen and oxygen. So a battery room's vents are sized from the charger's largest fault current, not its float current.**"
+  },
+  "analogy": {
+    "text": "You size a circuit's protective conductor for the fault current, not the load current. On a normal day it carries almost nothing. It earns its size only when something goes wrong. A battery room's vents work the same way. You size them from the current a failed charger could push, not the float current they usually see.",
+    "breaks": "On a circuit, the protective device clears a fault within seconds, often in a fraction of one. A charger fault may trip nothing at all. Its current can run for hours, and the gas keeps coming. So the vents must cope for as long as the fault lasts."
+  },
+  "practice": {
+    "text": "Use this to check a battery room's air, and before you charge hard.\n\n- Before a hard charge, such as a boost or an equalise, check that the vents are clear and any fan runs. Gas comes fastest at and past full charge.\n- Count the cells in the battery. That is N.\n- Find the charger's fault current. That is the most current it could deliver if its control failed. Use it as I, never the float current.\n- Choose S: 10 for a room people enter, 4 for an enclosure nobody enters.\n- Work out 0.3 × N × I × S in square centimetres. The inlet needs that much, and so does the outlet.\n- Check that the real openings are at least that big and that nothing blocks them. The rule assumes air crosses them at 0.1 m/s or more. If a natural draught cannot manage that, fit a fan.\n- Send the exhaust air outside. Never let it recirculate into another room.[^8]\n- Where a fan does the work, fit an alarm that warns when the fan fails or hydrogen builds up.[^9]\n- After charging, leave the battery to stand for at least 20 minutes before any work that could make a spark.\n- Treat sealed cells as making less gas, not none. Follow their maker's figures.\n- Top up vented cells with water as their maker says. The water they lose is the gas that left.\n\n**Rule of thumb:** the opening grows in step with N, I and S. Double any one of them, and the opening doubles.\n\n**Worked example:** A battery room that people enter holds 55 cells. The charger can deliver 10 A if its control fails. Each opening needs 0.3 × 55 × 10 × 10 = 1650 cm², which is 0.165 m². If air crosses it at 0.1 m/s, it passes 0.0165 m³ a second. That is 16.5 litres a second.\n\n**Common mistakes**\n- Sizing the vents from the float current.\n- Using S = 4 for a room people walk into.\n- Treating 4 per cent as the working limit. That is where hydrogen starts to ignite.\n- Treating sealed cells as gas-free.\n- Letting stores block the inlet or the outlet.\n- Starting work as soon as the charger stops."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+    {
+      "n": 1,
+      "title": "Flooded Stationary Lead Acid Batteries IOM — EnerSys",
+      "url": "https://www.enersys.com/492013/globalassets/documents/product-documentation/powersafe/opzs/amer/amer-en-iom-ps-flooded-0223.pdf",
+      "quote": "After reaching the gassing voltage of 2.40 V/c a current limit of 2.5 to 5 A/100 Ah is recommended"
+    },
+    {
+      "n": 2,
+      "title": "Using electric storage batteries safely INDG139 — HSE",
+      "url": "https://www.hse.gov.uk/PUBNS/indg139.pdf",
+      "quote": "Mixtures with air containing from 4% hydrogen (lower explosion limit – LEL) to 75% hydrogen (upper explosion limit – UEL) will readily ignite and explode."
+    },
+    {
+      "n": 3,
+      "title": "Using electric storage batteries safely INDG139 — HSE",
+      "url": "https://www.hse.gov.uk/PUBNS/indg139.pdf",
+      "quote": "In charging areas that people enter (workrooms) the concentration of hydrogen should not exceed 0.4% vol/vol (10% of the LEL)."
+    },
+    {
+      "n": 4,
+      "title": "Using electric storage batteries safely INDG139 — HSE",
+      "url": "https://www.hse.gov.uk/PUBNS/indg139.pdf",
+      "quote": "When charging takes place in an enclosure that people do not enter, the concentration of hydrogen should not exceed 1% vol/vol (25% of the LEL)."
+    },
+    {
+      "n": 5,
+      "title": "Using electric storage batteries safely INDG139 — HSE",
+      "url": "https://www.hse.gov.uk/PUBNS/indg139.pdf",
+      "quote": "Minimum area of inlet/outlet needed = 0.3 x N x I x S cm2 Where N = number of cells in the battery(ies) I = the overcharging current (amps) S = the appropriate dilution factor;"
+    },
+    {
+      "n": 6,
+      "title": "Using electric storage batteries safely INDG139 — HSE",
+      "url": "https://www.hse.gov.uk/PUBNS/indg139.pdf",
+      "quote": "S = the appropriate dilution factor; 10 for workrooms, 4 for enclosures"
+    },
+    {
+      "n": 7,
+      "title": "Using electric storage batteries safely INDG139 — HSE",
+      "url": "https://www.hse.gov.uk/PUBNS/indg139.pdf",
+      "quote": "the maximum current likely to be supplied by the charger during malfunction should be used so as to include a suitable safety margin."
+    },
+    {
+      "n": 8,
+      "title": "Flooded Classic Installation and Operation Manual 93.10 — GNB",
+      "url": "https://www.exidegroup.com/eu/sites/default/files/2017-01/Section%2093_10%202014-08%20GNB%20Flooded%20Classic%20Installation%20and%20Operation%20Manual%20Section_4.pdf",
+      "quote": "All air moved by ventilation in the battery room or area should be exhausted into the outside atmosphere and should not be allowed to recirculate into other confined areas."
+    },
+    {
+      "n": 9,
+      "title": "Using electric storage batteries safely INDG139 — HSE",
+      "url": "https://www.hse.gov.uk/PUBNS/indg139.pdf",
+      "quote": "The ventilation air must be drawn from and discharged to a safe place. An alarm system should be installed to detect build-up of hydrogen or failure of mechanical ventilation and to isolate electrical equipment in the area."
+    },
+    {
+      "n": 10,
+      "title": "Using electric storage batteries safely INDG139 — HSE",
+      "url": "https://www.hse.gov.uk/PUBNS/indg139.pdf",
+      "quote": "So long as the velocity of the airflow through these ventilation openings is at least 0.1 m/s"
+    },
+    {
+      "n": 11,
+      "title": "Why is it important to follow safety procedures when charging batteries? — CCOHS",
+      "url": "https://www.ccohs.ca/oshanswers/safety_haz/forklift/batteries.pdf",
+      "quote": "the flammability or explosive limits are 4.1% to 72% hydrogen in air"
+    },
+    {
+      "n": 12,
+      "title": "Using electric storage batteries safely INDG139 — HSE",
+      "url": "https://www.hse.gov.uk/PUBNS/indg139.pdf",
+      "quote": "Leave the battery to stand for at least 20 minutes after charging to allow any flammable gases to disperse."
+    }
+  ]
+}

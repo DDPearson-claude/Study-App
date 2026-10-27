@@ -1,0 +1,789 @@
+<!-- kind: mechanism -->
+<style>
+  :root { --pbo2: color-mix(in srgb, var(--k-cat2) 40%, var(--k-ink)); --pbm: color-mix(in srgb, var(--k-muted) 55%, var(--k-bg)); --sul: var(--k-bg); }
+  :root[data-theme="dark"] { --pbo2: color-mix(in srgb, var(--k-cat2) 50%, var(--k-sunk)); --pbm: color-mix(in srgb, var(--k-muted) 50%, var(--k-sunk)); --sul: color-mix(in srgb, var(--k-ink) 90%, var(--k-bg)); }
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 32rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.12rem; font-weight: 700; line-height: 1.5; }
+  .task.show { font-size: 1.05rem; font-weight: 400; line-height: 1.6; }
+  .scene { display: block; width: 100%; max-width: 26rem; margin-inline: auto; }
+  /* The cell: its case, the liquid, the two plates and the white lead sulphate that grows on them. */
+  .scene .case { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 2; }
+  .scene .case.bad { stroke: var(--k-warn); }
+  .scene .liq { fill: var(--k-fill1); }
+  .scene .pbo2 { fill: var(--pbo2); }
+  .scene .pb { fill: var(--pbm); }
+  .scene .edge { fill: none; stroke: var(--k-ink); stroke-width: 1; }
+  .scene .sul { fill: var(--sul); }
+  .scene .sulk { fill: var(--sul); stroke: var(--k-strong); stroke-width: 1; }
+  .scene .post { fill: var(--k-strong); stroke: var(--k-ink); stroke-width: 1; }
+  .scene .acid { fill: var(--k-amber-line); }
+  .scene .elec { fill: var(--k-cat1); }
+  .scene .ionp { fill: var(--k-cat3); }
+  .scene .ionn { fill: var(--k-cat4); }
+  .scene .sign { fill: none; stroke: var(--k-bg); stroke-width: 2; stroke-linecap: round; }
+  /* The outside circuit: wires, two switches, a lamp and a charger. */
+  .scene .wire, .scene .wl { fill: none; stroke: var(--k-muted); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+  .scene .wl { stroke-width: 1.5; }
+  .scene .lever { stroke: var(--k-ink); stroke-width: 3; stroke-linecap: round; }
+  .scene .pin { fill: var(--k-ink); }
+  .scene .lamp { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 2; }
+  .scene .lamp.on { fill: var(--k-fill2); }
+  .scene .glow { fill: var(--k-fill2); opacity: .5; }
+  .scene .thin { fill: none; stroke: var(--k-ink); stroke-width: 1.5; }
+  .scene .box { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 2; }
+  .scene .chev { fill: none; stroke: var(--k-cat1); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .slip { fill: none; stroke: var(--k-warn); stroke-width: 2.5; stroke-dasharray: 6 4; }
+  .scene .xx { fill: none; stroke: var(--k-warn); stroke-width: 3; stroke-linecap: round; }
+  /* The gauge, the ladder, the meters and the ampere-hour bar. */
+  .scene .track { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1; }
+  .scene .gfill { fill: var(--k-amber-line); }
+  .scene .ref { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 5 4; }
+  .scene .brk { fill: none; stroke: var(--k-accent2); stroke-width: 2; }
+  .scene .meter { fill: var(--k-panel); stroke: var(--k-accent2); stroke-width: 2; }
+  .scene .bar { fill: var(--k-accent2); }
+  .scene text { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .lbm { font-weight: 400; fill: var(--k-muted); }
+  .scene .sg { font-size: 17px; font-weight: 700; }
+  .scene .val { font-size: 14px; font-weight: 700; fill: var(--k-accent2); }
+  .scene .mv { font-size: 15px; font-weight: 700; }
+  .scene .tbad { fill: var(--k-warn); }
+  .say { line-height: 1.55; }
+  .picks { display: grid; grid-template-columns: repeat(auto-fit, minmax(6rem, 1fr)); gap: 8px; }
+  .picks.long { grid-template-columns: 1fr; }
+  .picks .k-btn { min-height: 48px; font-size: 1rem; }
+  .picks.long .k-btn { text-align: left; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; }
+  .replay .k-btn { min-height: 44px; padding-inline: 16px; font-size: .95rem; white-space: nowrap; }
+  .fb { font-weight: 700; min-height: 1.5em; }
+  .fb.right { color: var(--k-good); }
+  .why, .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }
+</style>
+
+<p class="lead">A cut-away lead-acid cell with two plates in acid, which switches connect to a lamp or a charger. The example cell gives 100 Ah at 1× plate size.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 300" width="100%" role="img" aria-label=""><g id="art"></g></svg>
+    <div class="replay" id="replay"></div>
+    <div class="k-controls ctl" id="c-charge"></div>
+    <div class="k-controls ctl" id="c-circuit"></div>
+    <div class="k-controls ctl" id="c-size"></div>
+    <p class="say" id="say"></p>
+    <div class="picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Discharging turns both plates into lead sulphate and uses up acid. Charging runs it backwards.</p>
+
+<script>
+  // ---------- the rule ----------
+  const NOM = 2, REST = 2.1;                   // volts a cell: nominal, and charged and rested (source [1])
+  const E_PBO2 = 1.685, E_PB = -0.356;         // each plate's voltage against the same reference (table figures, 25 °C)
+  const AH1 = 100;                             // the example cell's ampere-hours at 1× plate size (assumed)
+  const COVER_FLAT = 0.8;                      // a flat cell: lead sulphate over most, not all, of each plate
+  const ACID_FLAT = 1 / 3;                     // a flat cell: a third of the acid still in the liquid (a picture, not a count)
+  const RATE = 10;                             // % of charge a second, with time running fast
+  const BU = 'http://www.batteryuniversity.com/article/bu-303-confusion-with-voltages';
+  const OSTI = 'https://www.osti.gov/servlets/purl/1502636';
+  const SD = 'https://www.sciencedirect.com/topics/materials-science/lead-acid-battery';
+  const RSC = 'https://edu.rsc.org/experiments/rechargeable-cells-the-lead-acid-accumulator/391.article';
+  const gap = () => E_PBO2 - E_PB;
+  const restOf = (n) => REST * n, nomOf = (n) => NOM * n, ahOf = (s) => AH1 * s;
+  const cover = (soc) => COVER_FLAT * (1 - soc / 100);
+  const strength = (soc) => ACID_FLAT + (1 - ACID_FLAT) * soc / 100;
+  const NB = ' ';
+  const n0 = (v) => K.fmt(v, { decimals: 0 });
+  const fV = (v, d) => K.fmt(v, { decimals: d }) + NB + 'V';
+  const sV = (v) => K.fmt(v, { decimals: 3, sign: true }) + NB + 'V';
+  const fx = (s) => K.fmt(s, { decimals: s % 1 ? 1 : 0 }) + '×';
+  const ahT = (s) => n0(ahOf(s)) + NB + 'Ah';
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // pic: 'cell' the cut-away cell (wires: its outside circuit; ions: the acid's ions, 'after' a right
+  // answer), 'ladder' the plate voltages, 'size' plate size and cells in series, 'two' and 'bank'.
+  // enter: the state a step opens in; end: a demonstration's finished state; demo: the charge
+  // [from, to, t0, t1]; close: [switch, time]; live: the switches run the charge on as time passes.
+  // run: what a right answer plays ({soc: [from, to], dur}). tl: when parts arrive, in seconds.
+  const STEPS = [
+    { show: true, name: 'A charged cell', pic: 'cell', enter: { soc: 100 }, dur: 2.2, tl: { acid: 0.5, gauge: 1.4 },
+      text: 'A lead-acid cell is two plates standing in sulphuric acid. On the left is the positive plate, made of lead dioxide. On the right is the negative plate, made of plain lead. Between them, the acid is mixed with water. Together they are the cell\'s *electrolyte*. Each dot stands for a little of the acid. A terminal on top of each plate carries the current in and out. This cell is fully charged.' },
+    { name: 'A lamp', pic: 'cell', wires: true, enter: { soc: 100, circ: 'load' }, run: { soc: [100, 55], dur: 2 },
+      task: 'The lamp switch is closed, so the cell starts to discharge. What do the two plates turn into?',
+      opts: ['Both into lead sulphate', 'The lead plate dissolves into the acid', 'Lead moves from one plate to the other'], want: 'Both into lead sulphate',
+      why: 'Each plate reacts with the acid where they meet. At the lead plate, lead and acid make lead sulphate. At the lead dioxide plate, lead dioxide and acid make lead sulphate too. Nothing travels from plate to plate. Both turn into the same substance where they stand.',
+      hint: 'Not quite. Think about what each plate makes with the acid.',
+      hints: { 'The lead plate dissolves into the acid': 'Not quite. The lead stays on its plate. It turns into lead sulphate where it stands.',
+        'Lead moves from one plate to the other': 'Not quite. Nothing travels between the plates. Each one changes where it stands.' } },
+    { show: true, name: 'Charge running down', pic: 'cell', ctl: 'charge', enter: { soc: 100 }, end: { soc: 50 }, demo: [100, 50, 0.5, 3.4], dur: 3.6,
+      text: 'As the cell discharges, both plates turn into the same white substance, *lead sulphate*. Each plate reacts with the acid where they meet. The acid is used up to make the sulphate, so acid dots leave the liquid for the plates. The gauge shows the acid getting weaker. Here the cell is at half charge, and both plates are part white. Drag the charge slider to run it down to flat, or back up.',
+      read: 'As the cell discharges, both plates turn into the same white substance, *lead sulphate*. Each plate reacts with the acid where they meet. The acid is used up to make the sulphate, so acid dots leave the liquid for the plates. The gauge shows the acid getting weaker. Here the cell is at half charge, and both plates are part white. At flat, the plates are mostly lead sulphate, and the acid is weak but not yet water.' },
+    { name: 'The acid', pic: 'cell', enter: { soc: 100 }, run: { soc: [100, 0], dur: 2.2 },
+      task: 'The cell runs from full right down to flat. What happens to the strength of its acid?',
+      opts: ['It falls towards water', 'It stays the same, as the acid is only a bath', 'It rises'], want: 'It falls towards water',
+      why: 'The acid is not just a bath for the plates. It is one of the things being used up to make lead sulphate. So its strength falls as the cell discharges. A flat cell still holds some weak acid, so it stops short of water.',
+      hint: 'Not quite. Think about what the lead sulphate is made from.',
+      hints: { 'It stays the same, as the acid is only a bath': 'Not quite. The acid is used up to make the lead sulphate, so its strength cannot stay the same.',
+        'It rises': 'Not quite. Acid leaves the liquid for the plates as the cell discharges.' } },
+    { show: true, name: 'Round the wire', pic: 'cell', wires: true, ions: true, ctl: 'circuit', live: true, enter: { soc: 100 }, end: { soc: 80, circ: 'load' }, close: ['load', 0.6], dur: 1.4,
+      text: 'With the lamp switch closed, the cell pushes a current round. At the lead plate, lead and acid form lead sulphate and set electrons free. The electrons cannot cross the acid. They run round the outside wire, through the lamp, to the lead dioxide plate. Inside the liquid, *ions* carry the current. Ions are the acid\'s charged pieces. Positive ions drift towards the lead dioxide plate. Negative ions drift towards the lead plate. With both switches open, nothing flows and nothing changes.' },
+    { name: 'Through the acid', pic: 'cell', wires: true, ions: 'after', enter: { soc: 80, circ: 'load' }, run: { dur: 2 }, slip: 'Electrons crossing the acid',
+      task: 'Electrons carry the current round the outside wire. What carries it through the acid?',
+      opts: ['Ions drifting through the acid', 'Electrons crossing the acid', 'Ions carrying electrons across'], want: 'Ions drifting through the acid',
+      why: 'Electrons cannot cross the acid. One plate gives out electrons and the other takes them in. Left alone, charge would pile up beside each plate. The acid\'s ions drift and keep it balanced, and that closes the loop. No ion carries an electron across.',
+      hint: 'Not quite. Think about what the acid is made of.',
+      hints: { 'Electrons crossing the acid': 'Not quite. No electron crosses the acid. They only run round the wire.',
+        'Ions carrying electrons across': 'Not quite. An ion never picks up electrons at one plate to carry them over. It drifts and keeps the charge balanced.' } },
+    { show: true, name: 'Charging', pic: 'cell', wires: true, ions: true, ctl: 'circuit', live: true, enter: { soc: 60 }, end: { soc: 100, circ: 'charge' }, close: ['charge', 0.6], dur: 4.6,
+      text: 'A charger runs the whole thing backwards. It pushes current in against the cell\'s own push, so it needs a higher voltage than the cell. Electrons now run into the lead plate, and the ions drift the other way. The lead sulphate turns back into lead on one plate and lead dioxide on the other. The acid locked in the sulphate returns to the liquid, so the acid gets stronger. Here the cell is fully charged again.' },
+    { name: 'What charging does', pic: 'cell', wires: true, ions: true, enter: { soc: 0, circ: 'charge' }, run: { soc: [0, 100], dur: 2.2 },
+      task: 'A charger is now across a flat cell. What does charging do?',
+      opts: ['Turns the sulphate back and strengthens the acid', 'Strengthens the acid, but the plates stay lead sulphate', 'Weakens the acid further'], want: 'Turns the sulphate back and strengthens the acid',
+      why: 'Charging runs the whole thing backwards. The lead sulphate turns back into lead dioxide on one plate and lead on the other. The acid locked in the sulphate returns to the liquid, so the acid gets stronger.',
+      hint: 'Not quite. Charging runs the discharge backwards.',
+      hints: { 'Strengthens the acid, but the plates stay lead sulphate': 'Not quite. The acid comes back out of the lead sulphate, so the sulphate must turn back too.',
+        'Weakens the acid further': 'Not quite. Charging gives back the acid that discharging used up.' } },
+    { show: true, name: 'Two plates, two voltages', pic: 'ladder', dur: 3.8, tl: { ref: 0.4, top: 0.8, bot: 1.3, gap: 1.9, work: 2.5, meter: 3.1 },
+      text: 'The cell\'s push comes from its two plates. Each plate has its own voltage against the acid, set mainly by what it is made of. Measured against the same reference, lead dioxide sits at ' + sV(E_PBO2) + ' and lead at ' + sV(E_PB) + '. The cell\'s voltage is the gap between them, ' + fV(gap(), 2) + '. That figure is for acid of a standard strength. A charged cell\'s acid is stronger, so it rests a little higher. Charged and rested, it reads about ' + fV(REST, 1) + '.' },
+    { name: 'The gap', pic: 'ladder', run: { dur: 1.4 },
+      task: 'Lead dioxide sits at ' + sV(E_PBO2) + ' and lead at ' + sV(E_PB) + '. What is the gap between them?',
+      opts: [fV(gap(), 2), fV(E_PBO2 + E_PB, 2), fV(E_PBO2, 3)], want: fV(gap(), 2),
+      why: 'Lead sits ' + fV(-E_PB, 3) + ' below the reference, and lead dioxide ' + fV(E_PBO2, 3) + ' above it. So the gap is ' + K.fmt(E_PBO2, { decimals: 3 }) + ' + ' + K.fmt(-E_PB, { decimals: 3 }) + ' = ' + fV(gap(), 2) + '. That gap is the cell\'s voltage for acid of a standard strength.',
+      hint: 'Not quite. Count from one plate down to the other.',
+      hints: { [fV(E_PBO2 + E_PB, 2)]: 'Not quite. Lead sits below the reference, so add the two: ' + K.fmt(E_PBO2, { decimals: 3 }) + ' + ' + K.fmt(-E_PB, { decimals: 3 }) + '.',
+        [fV(E_PBO2, 3)]: 'Not quite. That only reaches down to the reference. Lead sits a further ' + fV(-E_PB, 3) + ' below it.' } },
+    { show: true, name: 'Bigger plates, more cells', pic: 'size', ctl: 'size', enter: { size: 1, cells: 1 }, end: { size: 4, cells: 12 }, dur: 4.0,
+      text: 'Plate size is not in that sum. A bigger plate holds more material to turn into lead sulphate. So it gives more ampere-hours at the same volts. Here the plates are four times the size, so the example cell gives ' + ahT(4) + ' instead of ' + ahT(1) + '. Its voltmeter still reads ' + fV(restOf(1), 1) + '. For more volts, put cells in series. Twelve cells make a ' + n0(nomOf(12)) + NB + 'V battery. Charged and rested, it reads about ' + fV(restOf(12), 1) + '.' },
+    { name: 'Small and large', pic: 'two', run: { dur: 0.8 },
+      task: 'Two lead-acid cells are charged and rested. One fits in your hand, and two people lift the other. Which reads more volts?',
+      opts: ['Both about ' + fV(REST, 1), 'The big one', 'The small one'], want: 'Both about ' + fV(REST, 1),
+      why: 'The volts come from the plate materials, lead dioxide and lead in the same acid. Size is not in that sum, so both read about ' + fV(REST, 1) + '. The big cell holds more plate material, so it gives more ampere-hours.',
+      hint: 'Not quite. Think about what sets a cell\'s volts.',
+      hints: { 'The big one': 'Not quite. A bigger cell gives more ampere-hours, not more volts.', 'The small one': 'Not quite. Size does not change the volts either way.' } },
+    { name: 'A 24 V battery', pic: 'bank', run: { dur: 2.1 },
+      task: 'A ship\'s emergency battery of lead-acid cells is marked ' + n0(nomOf(12)) + NB + 'V. How many cells has it, and what does it read charged and rested?',
+      opts: [12, 24, 6].map((n) => n + ' cells, about ' + fV(restOf(n), 1)), want: '12 cells, about ' + fV(restOf(12), 1),
+      why: 'Each cell is ' + n0(NOM) + NB + 'V nominal, so ' + n0(nomOf(12)) + ' ÷ ' + n0(NOM) + ' = 12 cells in series. Charged and rested, each reads about ' + fV(REST, 1) + '. So the battery reads about 12 × ' + K.fmt(REST, { decimals: 1 }) + ' = ' + fV(restOf(12), 1) + '.',
+      hint: 'Not quite. Each cell is about 2 V nominal.',
+      hints: { ['24 cells, about ' + fV(restOf(24), 1)]: 'Not quite. That counts one cell for each volt. Each cell is ' + n0(NOM) + NB + 'V nominal.',
+        ['6 cells, about ' + fV(restOf(6), 1)]: 'Not quite. Six cells make ' + n0(nomOf(6)) + NB + 'V. This battery is marked ' + n0(nomOf(12)) + NB + 'V.' } },
+  ];
+  const FINISH = 'Discharging turns both plates into lead sulphate and uses up much of the acid. Charging runs it all backwards. The plate materials set the volts, about ' + n0(NOM) + NB + 'V a cell. How much plate there is sets the ampere-hours.';
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  const quiet = () => REDUCE || testing();
+  const el = (id) => document.getElementById(id);
+
+  // ---------- the cell's fixed parts ----------
+  function rng(seed) { let s = seed; return () => { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; }; }
+  function shuffled(n, seed) { const r = rng(seed), a = Array.from({ length: n }, (z, k) => k); for (let k = n - 1; k > 0; k--) { const j = Math.floor(r() * (k + 1)), t = a[k]; a[k] = a[j]; a[j] = t; } return a; }
+  const PT = 116, PBOT = 252, PH = (PBOT - PT) / 12;   // each plate's wet part, 12 rows of 2 patches
+  const PLATES = [{ x: 96, post: 107, cls: 'pbo2', name: 'lead dioxide', sign: '+' }, { x: 222, post: 233, cls: 'pb', name: 'lead', sign: '−' }];
+  // Each patch turns to lead sulphate once the cover passes its threshold, so it spreads over the plate.
+  const PATCH = [0, 1].flatMap((p) => shuffled(24, 7 + 11 * p).map((o, k) => ({ p, col: k % 2, row: Math.floor(k / 2), th: o / 24 })));
+  // 36 acid dots; 24 leave for the nearer plate face as the cell discharges, 12 stay (a flat cell keeps weak acid).
+  const DOTS = (() => {
+    const r = rng(3), out = [];
+    for (let row = 0; row < 6; row++) for (let c = 0; c < 5; c++) {
+      out.push({ x: 136 + 17 * c + (r() - 0.5) * 6, y: 134 + 22 * row + (r() - 0.5) * 8, tx: c < 2 || (c === 2 && row % 2) ? 122 : 218 });
+    }
+    [146, 190, 234].forEach((y) => { out.push({ x: 83, y, tx: 92 }); out.push({ x: 257, y, tx: 248 }); });
+    shuffled(out.length, 5).forEach((o, k) => { out[o].th = k < 24 ? 0.59 * k / 23 : null; });
+    return out;
+  })();
+  // Ions between the plates: s +1 positive, -1 negative. On discharge (dir 1) positive ones drift
+  // left, to the lead dioxide plate, and negative ones right, to the lead plate; charging reverses it.
+  const IONS = [[1, 142, 20], [-1, 164, 55], [1, 186, 62], [-1, 208, 12], [1, 230, 38], [-1, 252, 70]].map(([s, y, x0]) => ({ s, y, x0 }));
+  const ionX = (q, ph, dir) => 130 + ((((q.x0 - q.s * dir * ph) % 80) + 80) % 80);
+  // The electrons' paths round the outside wire: discharging, from the lead plate's terminal through
+  // the lamp to the lead dioxide plate's; charging, from the lead dioxide plate through the charger into the lead plate.
+  const LAMP = [[233, 88], [233, 76], [310, 76], [310, 54], [30, 54], [30, 76], [107, 76], [107, 88]];
+  const CHG = [[107, 88], [107, 76], [30, 76], [30, 22], [310, 22], [310, 76], [233, 76], [233, 88]];
+  const WIRE = 'M107 88V76H30V22H53M83 22H138M202 22H310V76H233V88M30 54H53M83 54H160M180 54H310';
+  const lenOf = (P) => P.slice(1).reduce((a, q, k) => a + Math.hypot(q[0] - P[k][0], q[1] - P[k][1]), 0);
+  function along(P, s) {
+    for (let k = 1; k < P.length; k++) {
+      const x0 = P[k - 1][0], y0 = P[k - 1][1], x1 = P[k][0], y1 = P[k][1], L = Math.hypot(x1 - x0, y1 - y0);
+      if (s <= L || k === P.length - 1) { const t = Math.min(1, s / L); return [x0 + (x1 - x0) * t, y0 + (y1 - y0) * t, (x1 - x0) / L, (y1 - y0) / L]; }
+      s -= L;
+    }
+  }
+
+  // ---------- state ----------
+  function blank() { return { pick: null, res: null, why: false }; }
+  let S = STEPS.map(blank);
+  const BASE = { soc: 100, circ: 'open', size: 1, cells: 1 };
+  const X = Object.assign({}, BASE);             // what is drawn: charge left, switches, plate size, cells
+  const LV = { load: 0, charge: 0 };             // each switch's lever, 0 open to 1 closed
+  let shownCells = 1, ePh = 0, iPh = 0;
+  let T = Infinity, scripted = false, lastStep = -1, finished = false, lastDone = false;
+  let latest = 0, REC = {};
+  const runEnd = (d) => (d.run && d.run.soc ? { soc: d.run.soc[1] } : {});
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);
+  const CTL = {
+    charge: K.control({ id: 'charge', label: 'Charge left', min: 0, max: 100, step: 1, value: 100, unit: '%', snap: [0, 50, 100], into: '#c-charge' }),
+    circuit: K.choice({ id: 'circuit', label: 'Switches', options: [{ value: 'open', label: 'Both open' }, { value: 'load', label: 'Lamp' }, { value: 'charge', label: 'Charger' }], value: 'open', into: '#c-circuit' }),
+    size: K.control({ id: 'size', label: 'Plate size', min: 1, max: 4, step: 0.5, value: 1, fmt: fx, snap: [4], into: '#c-size' }),
+    cells: K.choice({ id: 'cells', label: 'Cells in series', options: [1, 6, 12, 24].map((n) => ({ value: n, label: String(n) })), value: 1, into: '#c-size' }),
+  };
+  const pushed = { charge: 100, circuit: 'open', size: 1, cells: 1 };
+  const KEYS = { charge: () => Math.round(X.soc), circuit: () => X.circ, size: () => Math.round(X.size * 2) / 2, cells: () => X.cells };
+  // The page moves the controls itself during a demonstration (silently, so it is not taken for Dan's move).
+  function push() { Object.keys(KEYS).forEach((k) => { const v = KEYS[k](); if (pushed[k] !== v) { CTL[k].set(v, true); pushed[k] = CTL[k].get(); } }); }
+
+  K.model((p) => ({ restVolts: restOf(p.cells), ampHours: ahOf(p.size) }));
+
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;
+    if (st.res === 'wrong') { anim.pause(); T = Infinity; }
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || st.res === 'right') return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = st.pick === d.want ? 'right' : 'wrong';
+    if (st.res === 'right' && d.run.soc) X.soc = d.run.soc[0];
+    if (quiet()) { T = Infinity; if (st.res === 'right') Object.assign(X, runEnd(d)); push(); }
+    else { T = 0; anim.play(); }
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    const d = STEPS[at()];
+    if (d.show || finished) return;
+    S[at()].why = !S[at()].why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    if (!STEPS[at()].show || finished) return;
+    enterStep(at());
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true; anim.pause();
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(blank); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // ---------- motion: one animation runs each demonstration, each answer's motion and the live circuit ----------
+  function flowing(d, st) {
+    if (!d.wires) return false;
+    if (d.live) return (X.circ === 'load' && X.soc > 0) || (X.circ === 'charge' && X.soc < 100);
+    return !d.show && st.res === 'right' && T < d.run.dur;
+  }
+  function script(d, t) {
+    if (d.demo) X.soc = K.lerp(d.demo[0], d.demo[1], K.ease((t - d.demo[2]) / (d.demo[3] - d.demo[2])));
+    if (d.close && t >= d.close[1]) X.circ = d.close[0];
+    if (d.pic === 'size') { X.size = K.lerp(1, 4, K.ease((t - 0.5) / 1.8)); X.cells = t < 2.5 ? 1 : t < 3.1 ? 6 : 12; }
+    if (t >= d.dur) scripted = false;
+  }
+  function tween(dt) {
+    let busy = false;
+    ['load', 'charge'].forEach((k) => {
+      const g = X.circ === k ? 1 : 0;
+      if (LV[k] !== g) { LV[k] = g > LV[k] ? Math.min(g, LV[k] + dt / 0.4) : Math.max(g, LV[k] - dt / 0.4); busy = true; }
+    });
+    if (shownCells !== X.cells) { shownCells = X.cells > shownCells ? Math.min(X.cells, shownCells + 12 * dt) : Math.max(X.cells, shownCells - 30 * dt); busy = true; }
+    return busy;
+  }
+  function settle() { LV.load = X.circ === 'load' ? 1 : 0; LV.charge = X.circ === 'charge' ? 1 : 0; shownCells = X.cells; }
+  const motionEnd = (d, st) => (d.show ? (scripted ? d.dur : 0) : st.res ? d.run.dur : 0);
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    const i = at(), d = STEPS[i], st = S[i];
+    T += dt;
+    if (scripted) script(d, T);
+    if (!d.show && st.res === 'right' && d.run.soc) X.soc = K.lerp(d.run.soc[0], d.run.soc[1], K.ease(T / d.run.dur));
+    if (d.live) { if (X.circ === 'load') X.soc = Math.max(0, X.soc - RATE * dt); else if (X.circ === 'charge') X.soc = Math.min(100, X.soc + RATE * dt); }
+    const fl = flowing(d, st);
+    if (fl) { ePh += 40 * dt; iPh += 9 * dt; }
+    const busy = tween(dt);
+    push();
+    paint(i);
+    return busy || fl || T < motionEnd(d, st);
+  } });
+  // A motion that was stopped (the page hidden, a test) shows finished.
+  function finishNow(d, st) {
+    if (scripted) { script(d, 1e6); scripted = false; }
+    if (!d.show && st.res === 'right') Object.assign(X, runEnd(d));
+    T = Infinity; settle(); push();
+  }
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { finishNow(STEPS[at()], S[at()]); paint(); } });
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter'); void box.offsetWidth; box.classList.add('enter');
+  }
+  function enterStep(i) {
+    const d = STEPS[i], st = S[i];
+    anim.pause();
+    Object.assign(X, BASE, d.enter || {});
+    if (!d.show && st.res === 'right') Object.assign(X, runEnd(d));
+    ePh = 0; iPh = 0;
+    if (d.show && !quiet()) { scripted = true; T = 0; script(d, 0); settle(); push(); anim.play(); }
+    else { scripted = false; T = Infinity; if (d.show) Object.assign(X, d.end || {}); settle(); push(); }
+    enter('stepbox');
+  }
+
+  // ---------- drawing ----------
+  const svg = el('scene'), art = el('art');
+  let into = null;
+  const r1 = (v) => Math.round(v * 10) / 10;
+  const add = (n) => (into || art).appendChild(n);
+  const S_ = (tag, a) => add(K.svg(tag, a));
+  function txt(x, y, s, cls, anchor) {
+    const a = { x: r1(x), y: r1(y), 'text-anchor': anchor || 'middle' };
+    if (cls) a.class = cls;
+    const t = K.svg('text', a); t.textContent = s; return add(t);
+  }
+  function part(a, rise, fn) { if (a <= 0) return; const g = add(K.svg('g')); K.fade(g, a, rise); const keep = into; into = g; fn(); into = keep; }
+  function arr(t0, dur) { dur = dur == null ? K.SOFT : dur; if (t0 + dur > latest) latest = t0 + dur; return K.arrive(T, t0, dur); }
+  const vis = (t0) => (t0 == null ? 1 : arr(t0));
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = K.svg('text', { class: cls, x: 0, y: -50 }); t.textContent = s; svg.appendChild(t);
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return s.length * 7.2;
+  }
+  // A small cut-away cell; returns its two terminals' x.
+  function mini(x, y, w, h, bad) {
+    S_('rect', { class: 'case' + (bad ? ' bad' : ''), x: r1(x), y: r1(y), width: r1(w), height: r1(h), rx: 3 });
+    S_('rect', { class: 'liq', x: r1(x + 2), y: r1(y + h * 0.18), width: r1(w - 4), height: r1(h * 0.82 - 2), rx: 2 });
+    const pw = Math.max(3, w * 0.12), a = x + w * 0.28, b = x + w * 0.72;
+    S_('rect', { class: 'pbo2', x: r1(a - pw / 2), y: r1(y + 3), width: r1(pw), height: r1(h - 7) });
+    S_('rect', { class: 'pb', x: r1(b - pw / 2), y: r1(y + 3), width: r1(pw), height: r1(h - 7) });
+    S_('rect', { class: 'post', x: r1(a - 3), y: r1(y - 4), width: 6, height: 4 });
+    S_('rect', { class: 'post', x: r1(b - 3), y: r1(y - 4), width: 6, height: 4 });
+    return [a, b];
+  }
+  function meter(cx, y, w, s) {
+    S_('rect', { class: 'meter', x: r1(cx - w / 2), y: r1(y), width: w, height: 26, rx: 4 });
+    if (s != null) txt(cx, y + 18, s, 'mv');
+  }
+  function ionGlyph(x, y, s, sc) {
+    const r = 7 * sc, h = 3.6 * sc;
+    S_('circle', { class: s > 0 ? 'ionp' : 'ionn', cx: r1(x), cy: r1(y), r: r1(r) });
+    S_('path', { class: 'sign', d: 'M' + r1(x - h) + ' ' + r1(y) + 'H' + r1(x + h) + (s > 0 ? 'M' + r1(x) + ' ' + r1(y - h) + 'V' + r1(y + h) : '') });
+  }
+  // The key, inside the drawing, wrapping onto a second row when it must.
+  function key(items, y) {
+    let x = 12;
+    items.forEach(([kind, label]) => {
+      const w = kind === 'ion' ? 34 : 14, need = w + 6 + tw(label, 'lbm') + 16;
+      if (x + need - 16 > 330) { x = 12; y += 24; }
+      if (kind === 'sul') S_('rect', { class: 'sulk', x, y: y - 11, width: 14, height: 14, rx: 2 });
+      else if (kind === 'ion') { ionGlyph(x + 7, y - 4, 1, 1); ionGlyph(x + 25, y - 4, -1, 1); }
+      else S_('circle', { class: kind, cx: x + 7, cy: y - 4, r: 3.5 });
+      txt(x + w + 6, y + 1, label, 'lbm', 'start');
+      x += need;
+    });
+  }
+
+  function drawCell(d, st) {
+    const tl = (d.show && d.tl) || {}, soc = X.soc, cov = cover(soc), str = strength(soc), wires = !!d.wires;
+    const ionsOn = d.ions === true || (d.ions === 'after' && st.res === 'right');
+    part(vis(tl.case), 0, () => {
+      S_('rect', { class: 'case', x: 66, y: 100, width: 208, height: 170, rx: 8 });
+      S_('rect', { class: 'liq', x: 70, y: 114, width: 200, height: 152, rx: 5 });
+    });
+    PLATES.forEach((P, k) => part(vis(k ? tl.pb : tl.pbo2), 0, () => {
+      S_('rect', { class: P.cls, x: P.x, y: 104, width: 22, height: PBOT - 104, rx: 2 });
+      let area = 0;
+      PATCH.forEach((q) => {
+        if (q.p !== k) return;
+        const f = K.clamp((cov - q.th) / 0.05, 0, 1);
+        if (f <= 0) return;
+        const w = 11 * f, h = PH * f, cx = P.x + 5.5 + 11 * q.col, cy = PT + PH * (q.row + 0.5);
+        S_('rect', { class: 'sul', x: r1(cx - w / 2), y: r1(cy - h / 2), width: r1(w), height: r1(h) });
+        area += f * f;
+      });
+      REC.sul[k] = area / 24;
+      S_('rect', { class: 'edge', x: P.x, y: 104, width: 22, height: PBOT - 104, rx: 2 });
+      S_('rect', { class: 'post', x: P.post - 6, y: 88, width: 12, height: 12, rx: 2 });
+      txt(k ? 218 : 122, 100, P.sign, 'sg');                         // the sign inside, the name outside its terminal
+      txt(k ? 245 : 95, 98, P.name, null, k ? 'start' : 'end');
+    }));
+    part(vis(tl.acid), 0, () => {
+      const lf = 1 - str;
+      DOTS.forEach((q) => {
+        const p = q.th == null ? 0 : K.clamp((lf - q.th) / 0.07, 0, 1);
+        if (p >= 1) return;
+        const e = K.ease(p);
+        S_('circle', { class: 'acid', cx: r1(K.lerp(q.x, q.tx, e)), cy: r1(q.y), r: r1(3.4 * (1 - 0.7 * e)) });
+        if (p < 0.5) REC.dots++;
+      });
+    });
+    const dir = X.circ === 'charge' ? -1 : 1;
+    if (ionsOn) part(d.ions === 'after' ? arr(0.1) : 1, 0, () => {
+      REC.ionDir = dir;
+      IONS.forEach((q) => {
+        const x = ionX(q, iPh, dir), sc = K.clamp(Math.min(x - 130, 210 - x) / 8, 0, 1);
+        if (sc < 0.25) return;
+        ionGlyph(x, q.y, q.s, sc);
+        REC.ions++;
+      });
+    });
+    if (d.slip && st.res === 'wrong' && st.pick === d.slip) part(arr(0.1), 0, () => {
+      S_('path', { class: 'slip', d: 'M214 196H128' });
+      S_('path', { class: 'xx', d: 'M163 187l14 18M177 187l-14 18' });
+    });
+    if (wires) {
+      S_('path', { class: 'wire', d: WIRE });
+      [['charge', 22], ['load', 54]].forEach(([k, y]) => {
+        const a = K.ease(LV[k]);
+        S_('circle', { class: 'pin', cx: 56, cy: y, r: 3 });
+        S_('circle', { class: 'pin', cx: 80, cy: y, r: 3 });
+        S_('line', { class: 'lever', x1: 56, y1: y, x2: r1(76 + 4 * a), y2: r1(y - 12 * (1 - a)) });
+      });
+      const lit = X.circ === 'load' && X.soc > 0 ? K.ease(LV.load) : 0;
+      if (lit > 0) part(lit, 0, () => S_('circle', { class: 'glow', cx: 170, cy: 54, r: 16 }));
+      S_('circle', { class: 'lamp' + (lit >= 0.5 ? ' on' : ''), cx: 170, cy: 54, r: 10 });
+      S_('path', { class: 'thin', d: 'M163 47l14 14M177 47l-14 14' });
+      txt(170, 84, 'lamp', 'lbm');
+      S_('rect', { class: 'box', x: 138, y: 11, width: 64, height: 22, rx: 4 });
+      txt(170, 27, 'charger');
+      const P = X.circ === 'load' ? LAMP : X.circ === 'charge' ? CHG : null;
+      if (P) {
+        REC.path = X.circ;
+        part(K.ease(LV[X.circ]), 0, () => {
+          const L = lenOf(P);
+          for (let s0 = 0; s0 < L; s0 += 22) {
+            const q = along(P, (s0 + ePh) % L);
+            if ((q[1] === 54 && Math.abs(q[0] - 170) < 13) || (q[1] === 22 && q[0] > 135 && q[0] < 205)) continue;
+            S_('circle', { class: 'elec', cx: r1(q[0]), cy: r1(q[1]), r: 3.5 });
+          }
+          [0.2, 0.36, 0.64, 0.8].forEach((f) => {
+            const [x, y, ux, uy] = along(P, f * L), bx = x - 4 * ux, by = y - 4 * uy;
+            S_('path', { class: 'chev', d: 'M' + r1(bx - 5 * uy) + ' ' + r1(by + 5 * ux) + 'L' + r1(x + 3 * ux) + ' ' + r1(y + 3 * uy) + 'L' + r1(bx + 5 * uy) + ' ' + r1(by - 5 * ux) });
+          });
+        });
+      }
+    }
+    part(vis(tl.gauge), 0, () => {
+      txt(12, 290, 'acid strength', null, 'start');
+      txt(328, 290, 'charge left ' + Math.round(soc) + '%', 'val', 'end');
+      S_('rect', { class: 'track', x: 12, y: 298, width: 316, height: 14, rx: 4 });
+      S_('rect', { class: 'gfill', x: 12, y: 298, width: r1(316 * str), height: 14, rx: 4 });
+      txt(12, 330, 'water', 'lbm', 'start');
+      txt(328, 330, 'charged', 'lbm', 'end');
+      REC.gauge = str;
+    });
+    const items = [];
+    if (cov > 0.002) items.push(['sul', 'lead sulphate']);
+    items.push(['acid', 'acid']);
+    if (wires && X.circ !== 'open') items.push(['elec', 'electron']);
+    if (ionsOn) items.push(['ion', 'ions']);
+    part(vis(tl.acid), 0, () => key(items, 356));
+    const top = wires ? 2 : 80, bottom = wires ? 392 : 368;
+    const s = Math.round(soc);
+    let said = 'A cut-away lead-acid cell with ' + s + '% of its charge left, a lead dioxide plate and a lead plate in acid. ' +
+      (cov > 0.002 ? 'Lead sulphate covers part of both plates' : 'Neither plate has any lead sulphate') + ', and the acid is ' + (s >= 100 ? 'at full strength.' : s <= 0 ? 'weak, but not water.' : 'weaker than when charged.');
+    if (wires) said += X.circ === 'load' ? ' The lamp switch is closed. Electrons run round the wire from the lead plate, through the lamp, to the lead dioxide plate.'
+      : X.circ === 'charge' ? ' The charger switch is closed. Electrons run round the wire, through the charger, into the lead plate.' : ' Both switches are open, so no current flows.';
+    if (ionsOn && X.circ !== 'open') said += ' In the acid, positive ions drift towards the ' + (dir > 0 ? 'lead dioxide' : 'lead') + ' plate and negative ions the other way.';
+    return { box: [0, top, 340, bottom - top], said };
+  }
+
+  function drawLadder(d, st) {
+    const tl = (d.show && d.tl) || {}, ans = d.show || st.res === 'right';
+    const Y = (v) => 30 + (1.9 - v) * 84, yT = Y(E_PBO2), yB = Y(E_PB), y0 = Y(0), mid = (yT + yB) / 2;
+    part(vis(tl.ref), 0, () => { S_('line', { class: 'ref', x1: 96, y1: r1(y0), x2: 266, y2: r1(y0) }); txt(88, y0 + 5, 'reference', 'lbm', 'end'); });
+    [[E_PBO2, 'lead dioxide', 'pbo2', tl.top], [E_PB, 'lead', 'pb', tl.bot]].forEach(([v, name, cls, t0]) => part(vis(t0), 4, () => {
+      const y = Y(v);
+      S_('rect', { class: cls, x: 112, y: r1(y - 5), width: 80, height: 10, rx: 2 });
+      S_('rect', { class: 'edge', x: 112, y: r1(y - 5), width: 80, height: 10, rx: 2 });
+      txt(104, y + 5, name, null, 'end');
+      txt(200, y + 5, sV(v), 'val', 'start');
+    }));
+    part(vis(tl.gap), 0, () => {
+      S_('path', { class: 'brk', d: 'M270 ' + r1(yT) + 'H278V' + r1(yB) + 'H270' });
+      txt(284, mid - 6, 'gap', 'lbm', 'start');
+    });
+    if (ans) part(d.show ? vis(tl.gap) : arr(0.1), 0, () => txt(284, mid + 12, fV(gap(), 2), 'val', 'start'));
+    else txt(284, mid + 12, '?', 'val', 'start');
+    if (ans) part(d.show ? vis(tl.work) : arr(0.4), 0, () => txt(170, yB + 36, K.fmt(E_PBO2, { decimals: 3 }) + ' + ' + K.fmt(-E_PB, { decimals: 3 }) + ' = ' + fV(gap(), 2), 'mv'));
+    const my = yB + 52;
+    if (ans) part(d.show ? vis(tl.meter) : arr(0.7), 4, () => {
+      meter(170, my, 70, fV(REST, 1));
+      const t = [148 + 44 * 0.28, 148 + 44 * 0.72];
+      S_('path', { class: 'wl', d: 'M' + r1(t[0]) + ' ' + r1(my + 26) + 'V' + r1(my + 36) + 'M' + r1(t[1]) + ' ' + r1(my + 26) + 'V' + r1(my + 36) });
+      mini(148, my + 40, 44, 34);
+      txt(140, my + 62, 'charged and rested', 'lbm', 'end');
+    });
+    const said = 'A ladder of plate voltages against the same reference: lead dioxide at ' + sV(E_PBO2) + ', lead at ' + sV(E_PB) + '. ' +
+      (ans ? 'The gap between them is ' + fV(gap(), 2) + '. A voltmeter across a charged, rested cell reads ' + fV(REST, 1) + '.' : 'The gap between them is marked with a question mark.');
+    return { box: [0, 30, 340, Math.ceil(my + 84 - 30)], said };
+  }
+
+  function drawSize(d) {
+    const s = X.size, sz = Math.round(s * 2) / 2, w = 44 * Math.sqrt(s), cx = 58 - w / 2, cy = 132 - w;
+    meter(58, 4, 66, fV(restOf(1), 1));
+    const [a, b] = mini(cx, cy, w, w);
+    S_('path', { class: 'wl', d: 'M45 30V' + r1(cy - 12) + 'L' + r1(a) + ' ' + r1(cy - 4) + 'M71 30V' + r1(cy - 12) + 'L' + r1(b) + ' ' + r1(cy - 4) });
+    txt(58, 152, 'plates ' + fx(sz));
+    txt(126, 70, 'ampere-hours', 'lbm', 'start');
+    const bw = 150 * s / 4;
+    S_('rect', { class: 'bar', x: 126, y: 80, width: r1(bw), height: 16, rx: 3 });
+    txt(126 + bw + 6, 93, ahT(sz), 'val', 'start');
+    REC.bar = bw;
+    // The battery: cells in series, a second row running back for 24.
+    const N = X.cells, nn = shownCells, per = 12;
+    txt(12, 178, N === 1 ? '1 cell' : N + ' cells in series', null, 'start');
+    let full = 0;
+    for (let j = 0; j < Math.ceil(nn - 1e-9); j++) {
+      const al = K.clamp(nn - j, 0, 1), r = j < per ? 0 : 1, c = r ? per - 1 - (j - per) : j, x = 26 + c * 24, y = 196 + r * 44;
+      if (al >= 1) full++;
+      part(al, 0, () => {
+        mini(x, y, 18, 26);
+        if (!j) return;
+        if (j === per) S_('path', { class: 'wl', d: 'M' + (x + 13) + ' ' + (y - 48) + 'V' + (y - 52) + 'H318V' + (y - 8) + 'H' + (x + 13) + 'V' + (y - 4) });
+        else if (r) S_('path', { class: 'wl', d: 'M' + (x + 29) + ' ' + (y - 4) + 'V' + (y - 8) + 'H' + (x + 13) + 'V' + (y - 4) });
+        else S_('path', { class: 'wl', d: 'M' + (x - 11) + ' ' + (y - 4) + 'V' + (y - 8) + 'H' + (x + 5) + 'V' + (y - 4) });
+      });
+    }
+    REC.cells = full;
+    const nv = Math.max(1, Math.floor(nn + 1e-6));
+    txt(12, 306, 'battery reads', 'lbm', 'start');
+    meter(142, 288, 76, fV(restOf(nv), 1));
+    txt(196, 306, 'nominal ' + n0(nomOf(nv)) + NB + 'V', null, 'start');
+    const said = 'One cell with plates at ' + fx(sz) + ' gives ' + ahT(sz) + ', and its voltmeter reads ' + fV(restOf(1), 1) + '. ' +
+      (nv === 1 ? 'One cell on its own.' : nv + ' cells in series make a battery of ' + n0(nomOf(nv)) + NB + 'V nominal, reading ' + fV(restOf(nv), 1) + '.');
+    return { box: [0, 0, 340, 322], said };
+  }
+
+  function drawTwo(d, st) {
+    const a = st.res === 'right' ? arr(0.1) : 0;
+    const s = mini(60, 160, 34, 40), b = mini(186, 70, 104, 130);
+    [[77, 112, s], [238, 22, b]].forEach(([mx, my, t]) => {
+      meter(mx, my, 66, null);
+      S_('path', { class: 'wl', d: 'M' + r1(t[0]) + ' ' + (my + 26) + 'V' + (my === 112 ? 156 : 66) + 'M' + r1(t[1]) + ' ' + (my + 26) + 'V' + (my === 112 ? 156 : 66) });
+      if (a < 1) part(1 - a, 0, () => txt(mx, my + 18, '?', 'mv'));
+      if (a > 0) part(a, 0, () => txt(mx, my + 18, fV(REST, 1), 'mv'));
+    });
+    txt(77, 222, 'fits in one hand', 'lbm');
+    txt(238, 222, 'two people lift it', 'lbm');
+    return { box: [0, 14, 340, 218], said: 'A small lead-acid cell that fits in one hand and a large one that two people lift, each with a voltmeter. ' + (a > 0 ? 'Both read ' + fV(REST, 1) + '.' : 'Their readings are question marks.') };
+  }
+
+  function drawBank(d, st) {
+    const n = st.res === 'right' || st.res === 'wrong' ? parseInt(st.pick, 10) : 0, bad = st.res === 'wrong';
+    txt(170, 22, 'emergency battery, marked ' + n0(nomOf(12)) + NB + 'V');
+    S_('rect', { class: 'case', x: 14, y: 34, width: 312, height: 112, rx: 8 });
+    if (!n) txt(170, 96, 'how many cells?', 'lbm');
+    else {
+      const per = Math.min(n, 12), cw = Math.min(40, (288 - (per - 1) * 6) / per), ch = n > 12 ? 36 : 70, x0 = 170 - (per * cw + (per - 1) * 6) / 2;
+      for (let j = 0; j < n; j++) {
+        const r = Math.floor(j / 12), c = j % 12;
+        part(arr(0.1 + 0.05 * j, 0.4), 0, () => mini(x0 + c * (cw + 6), (n > 12 ? 48 : 56) + r * 48, cw, ch, bad));
+      }
+      part(arr(0.3 + 0.05 * n), 0, () => {
+        txt(12, 178, n + ' cells in series', bad ? 'tbad' : null, 'start');
+        meter(188, 160, 76, fV(restOf(n), 1));
+        txt(240, 178, 'nominal ' + n0(nomOf(n)) + NB + 'V', bad ? 'tbad' : null, 'start');
+      });
+    }
+    return { box: [0, 4, 340, 190], said: 'A ship\'s emergency battery marked ' + n0(nomOf(12)) + NB + 'V. ' + (n ? n + ' cells in series, ' + n0(nomOf(n)) + NB + 'V nominal, reading ' + fV(restOf(n), 1) + '.' : 'How many cells it holds is the question.') };
+  }
+
+  function sayFor(d) {
+    const s = Math.round(X.soc);
+    if (d.ctl === 'charge') return s >= 100 ? 'Fully charged, the cell has no lead sulphate yet, and its acid is at full strength.'
+      : s <= 0 ? 'At flat, both plates are mostly lead sulphate, and the acid is weak but not yet water.'
+      : 'With ' + s + '% of its charge left, lead sulphate covers part of both plates, and the acid is weaker.';
+    if (d.ctl === 'circuit') return X.circ === 'open' ? 'Both switches are open, so no current flows and nothing changes.'
+      : X.circ === 'load' ? (s > 0 ? 'Electrons run from the lead plate, through the lamp, to the lead dioxide plate, so the charge left falls.' : 'The cell is flat, so the lamp has gone out.')
+      : (s < 100 ? 'The charger drives electrons into the lead plate, so the charge left rises.' : 'The cell is full again, with both plates back to lead dioxide and lead.');
+    const n = X.cells, sz = Math.round(X.size * 2) / 2;
+    return 'Plates ' + fx(sz) + ' give ' + ahT(sz) + ', and ' + (n === 1 ? 'one cell reads' : n + ' cells in series read') + ' about ' + fV(restOf(n), 1) + '.';
+  }
+
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i];
+    art.textContent = ''; into = null;
+    REC = { sul: [0, 0], dots: 0, gauge: 0, path: null, ionDir: 0, ions: 0, bar: 0, cells: 0 };
+    const out = d.pic === 'cell' ? drawCell(d, st) : d.pic === 'ladder' ? drawLadder(d, st) : d.pic === 'size' ? drawSize(d) : d.pic === 'two' ? drawTwo(d, st) : drawBank(d, st);
+    svg.setAttribute('viewBox', out.box.map(r1).join(' '));
+    svg.setAttribute('aria-label', out.said);
+    if (d.ctl) el('say').textContent = sayFor(d);
+  }
+
+  // ---------- words: *a key term* is highlighted ----------
+  function write(node, s) {
+    node.textContent = '';
+    String(s).split(/\*([^*]+)\*/).forEach((seg, k) => { if (seg) node.appendChild(k % 2 ? K.el('span', { class: 'term' }, seg) : document.createTextNode(seg)); });
+  }
+  write(el('finish'), FINISH);
+  function layout(i, d, st) {
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    ['charge', 'circuit', 'size'].forEach((k) => { el('c-' + k).hidden = d.ctl !== k; });
+    el('say').hidden = !d.ctl;
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    const opts = d.show ? [] : d.opts;
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 12));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : '');
+    fb.textContent = d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? ((d.hints && d.hints[st.pick]) || d.hint) : st.res === 'empty' ? 'Choose one of the answers first.' : '';
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  }
+
+  K.update((p) => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!anim.playing() && T !== Infinity) finishNow(STEPS[lastStep < 0 ? i : lastStep], S[lastStep < 0 ? i : lastStep]);
+    if (i !== lastStep) { lastStep = i; enterStep(i); }
+    else {
+      let moved = false;
+      if (p.charge !== pushed.charge) { X.soc = p.charge; moved = true; }
+      if (p.circuit !== pushed.circuit) { X.circ = p.circuit; moved = true; }
+      if (p.size !== pushed.size) { X.size = p.size; moved = true; }
+      if (p.cells !== pushed.cells) { X.cells = p.cells; moved = true; }
+      if (moved) {
+        Object.assign(pushed, { charge: p.charge, circuit: p.circuit, size: p.size, cells: p.cells });
+        if (d.show) { scripted = false; T = Infinity; }
+        if (quiet()) settle(); else anim.play();
+      }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    layout(i, d, st);
+    paint(i);
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  const near = (a, b) => Math.abs(a - b) < 1e-9 * Math.max(1, Math.abs(a), Math.abs(b));
+  const solved = (d) => Object.assign(blank(), { pick: d.want, res: 'right' });
+  // A step painted finished in the state given: what it draws.
+  function drawn(i, st, x) {
+    const keep = { X: Object.assign({}, X), S: S[i], T, sc: scripted, n: shownCells, lv: Object.assign({}, LV), e: ePh, ip: iPh };
+    S[i] = st || blank(); T = Infinity; scripted = false;
+    Object.assign(X, BASE, STEPS[i].enter || {}, x || {});
+    settle();
+    try {
+      latest = 0;
+      paint(i);
+      return Object.assign({}, REC, { latest, texts: Array.from(art.querySelectorAll('text')).map((n) => n.textContent) });
+    } finally {
+      Object.assign(X, keep.X); S[i] = keep.S; T = keep.T; scripted = keep.sc; shownCells = keep.n; Object.assign(LV, keep.lv); ePh = keep.e; iPh = keep.ip;
+      paint();
+    }
+  }
+  const iLad = idx('Two plates, two voltages'), iSize = idx('Bigger plates, more cells');
+
+  K.check('The nominal voltage of lead-acid is 2 V per cell, and a charged and rested cell reads 2.1 V', () =>
+    NOM === 2 && near(K.at({ cells: 1 }).restVolts, 2.1) && drawn(iLad).texts.indexOf('2.1' + NB + 'V') >= 0, { source: BU });
+  K.check('The cell\'s voltage is the gap between its plates, 1.685 + 0.356 = 2.04 V, drawn on the ladder with both plate voltages; the slip 1.685 − 0.356 makes 1.33 V', () => {
+    const g = drawn(iLad).texts;
+    return near(gap(), 2.041) && fV(gap(), 2) === '2.04' + NB + 'V' && fV(E_PBO2 + E_PB, 2) === '1.33' + NB + 'V' &&
+      ['2.04' + NB + 'V', '+1.685' + NB + 'V', '−0.356' + NB + 'V'].every((t) => g.indexOf(t) >= 0);
+  });
+  K.check('In series, 6, 12 and 24 cells are 12, 24 and 48 V nominal and read 12.6, 25.2 and 50.4 V charged and rested, and the picture draws that many cells', () =>
+    [[6, 12, 12.6], [12, 24, 25.2], [24, 48, 50.4]].every(([n, nom, v]) => {
+      const g = drawn(iSize, null, { cells: n });
+      return near(nomOf(n), nom) && near(K.at({ cells: n }).restVolts, v) && g.cells === n && g.texts.indexOf(fV(v, 1)) >= 0 && g.texts.indexOf('nominal ' + nom + NB + 'V') >= 0;
+    }));
+  K.check('Plate size sets the ampere-hours, not the volts: the example cell gives 100 Ah at 1× and 400 Ah at 4×, and its voltmeter reads 2.1 V both times', () => {
+    const a = K.at({ size: 1, cells: 1 }), b = K.at({ size: 4, cells: 1 }), g1 = drawn(iSize, null, { size: 1 }), g4 = drawn(iSize, null, { size: 4 });
+    return a.ampHours === 100 && b.ampHours === 400 && a.restVolts === b.restVolts && g1.texts.indexOf('100' + NB + 'Ah') >= 0 && g4.texts.indexOf('400' + NB + 'Ah') >= 0 &&
+      g1.texts.indexOf('2.1' + NB + 'V') >= 0 && g4.texts.indexOf('2.1' + NB + 'V') >= 0 && near(g4.bar / g1.bar, 4);
+  });
+  K.check('During discharge both plates become lead sulphate and much of the acid is used up: as the charge falls, sulphate spreads over both plates and acid dots leave the liquid, though a flat cell keeps some', () => {
+    const i = idx('Charge running down'), g = [100, 75, 50, 25, 0].map((s) => drawn(i, null, { soc: s }));
+    return g[0].sul[0] === 0 && g[0].sul[1] === 0 && g.every((r, k) => !k || (r.sul[0] > g[k - 1].sul[0] && r.sul[1] > g[k - 1].sul[1] && r.dots < g[k - 1].dots)) &&
+      g[4].dots > 0 && g[4].sul[0] < 0.9 && g[4].sul[1] < 0.9 && g[2].sul[0] > 0.2 && g[2].sul[1] > 0.2;
+  }, { source: SD });
+  K.check('During charging the acid gets stronger, and during discharge it weakens: the gauge follows the charge left both ways and stays above water at flat', () => {
+    const i = idx('What charging does'), r = STEPS[i].run, g = [0, 25, 50, 75, 100].map((s) => drawn(i, null, { soc: s }).gauge);
+    return r.soc[0] === 0 && r.soc[1] === 100 && g.every((v, k) => !k || v > g[k - 1]) && g[0] > 0.25 && near(g[4], 1);
+  }, { source: RSC });
+  K.check('At the negative plate, lead reacts with the acid to form lead sulphate and frees electrons: on discharge they leave the lead plate\'s terminal and run round the wire through the lamp to the lead dioxide plate, the other way on charge, and no electron path enters the acid', () => {
+    const same = (a, b) => a[0] === b[0] && a[1] === b[1], lead = [233, 88], dioxide = [107, 88], i4 = idx('Round the wire'), i6 = idx('Charging');
+    return same(LAMP[0], lead) && same(LAMP[LAMP.length - 1], dioxide) && same(CHG[0], dioxide) && same(CHG[CHG.length - 1], lead) &&
+      LAMP.some((q) => q[1] === 54) && CHG.some((q) => q[1] === 22) && LAMP.concat(CHG).every((q) => q[1] <= 100) &&
+      drawn(i4, null, { circ: 'load' }).path === 'load' && drawn(i6, null, { circ: 'charge' }).path === 'charge' && drawn(i4, null, { circ: 'open' }).path === null;
+  }, { source: OSTI });
+  K.check('Ions carry the current in the acid: on discharge positive ions drift towards the lead dioxide plate and negative ions towards the lead plate, reversed on charge, and with both switches open nothing flows', () => {
+    const p = IONS[0], m = IONS[1], dx = (q, dir) => ionX(q, 30.5, dir) - ionX(q, 30, dir), d4 = STEPS[idx('Round the wire')];
+    const keep = Object.assign({}, X);
+    Object.assign(X, { soc: 50, circ: 'open' }); const off = flowing(d4, blank());
+    X.circ = 'load'; const on = flowing(d4, blank());
+    Object.assign(X, keep);
+    return p.s > 0 && m.s < 0 && dx(p, 1) < 0 && dx(m, 1) > 0 && dx(p, -1) > 0 && dx(m, -1) < 0 && !off && on && PLATES[0].x < 130 && PLATES[1].x > 210;
+  });
+  K.check('Each puzzle accepts only its right answer, and nothing in a puzzle\'s picture gives the answer before Check', () => {
+    const ok = STEPS.every((d) => d.show || (d.opts.length === 3 && new Set(d.opts).size === 3 && d.opts.indexOf(d.want) >= 0));
+    const a = drawn(idx('A lamp')), b = drawn(idx('Through the acid')), c = drawn(idx('The gap')), e = drawn(idx('Small and large')), f = drawn(idx('A 24 V battery'));
+    return ok && a.sul[0] === 0 && a.sul[1] === 0 && b.ions === 0 && c.texts.indexOf(fV(gap(), 2)) < 0 && c.texts.indexOf(fV(REST, 1)) < 0 &&
+      e.texts.indexOf(fV(REST, 1)) < 0 && f.texts.every((t) => t.indexOf('cells in series') < 0) && STEPS[idx('A 24 V battery')].want.indexOf(n0(nomOf(12) / NOM) + ' ') === 0;
+  });
+  K.check('Every demonstration finishes arriving within 4.6 s of its screen opening, and every answer\'s motion within 2.5 s', () =>
+    STEPS.every((d, i) => {
+      const g = drawn(i, d.show ? null : solved(d), d.show ? d.end : runEnd(d));
+      return d.show ? g.latest <= d.dur + 1e-9 && d.dur <= 4.6 && (!d.demo || d.demo[3] <= d.dur) && (!d.close || d.close[1] + 0.4 <= d.dur)
+        : g.latest <= d.run.dur + 1e-9 && d.run.dur <= 2.5;
+    }));
+
+  K.ready();
+</script>

@@ -1,0 +1,33 @@
+{
+  "draft": "i3.lesson.draft1.txt",
+  "keep": [
+    "The idea is named up front: a battery is not a fixed tank, it gives fewer ampere-hours faster or colder, and Peukert's fit through two ratings estimates how many fewer.",
+    "One model carries the lesson: the battery as an emf behind a small r, so the terminals read E − Ir, and the same lost volts explain why a fast discharge reaches its end voltage sooner.",
+    "Worked numbers from the rule: 0.70 V lost and 11.90 V at 100 A; n = log 10 ÷ log 5.6 = 1.34 from the two ratings; 25 A gives about 2 hours 20 minutes and 58 Ah, against 4 hours from the fixed-tank sum and 67 Ah from the 1.25 default.",
+    "Each named slip has a DO screen with a hint per wrong pick: emf as terminal voltage (2), the battery as a constant-current source (4), the fixed tank (6), Peukert as exact (10), no emf with nothing connected (11).",
+    "Every number has a kind: the six cells, 7 mΩ, 25 A and the 14 mΩ cold figure are worded as examples or sketches; 2.1 V, 100 Ah, 20 h, 56 Ah, 1.00, 1.25 and the 27 °C and −18 °C figures are cited; the rest are computed.",
+    "Peukert is shown as a fit: the shaded region past 28 A, the hollow dot with 'real battery: less', and the closing sentence that a real battery gives even less at very high currents.",
+    "Validator: ok, no problems."
+  ],
+  "fix": [
+    "Causal step skipped: why Peukert's rule is a straight line on log-log axes with gradient 1 − n. Add that capacity is current times time, so it goes as current to the power 1 − n, and a power law is straight on log-log axes with its power as the gradient.",
+    "Causal step skipped: why halving the load's resistance only nearly doubles the current. Give I = E ÷ (R + r): r stays in the sum.",
+    "Misconception not shown failing in numbers: 'Using 12.6 V there is the common slip' says it is a slip but not what it costs. Say it over-reads by the 0.70 V lost.",
+    "The brief's recall opener is missing: the gradient of a power law on log-log axes, with 'Still there' on the right pick. Add it as screen 1, making 13 screens, as lesson 1 has.",
+    "False absolute in the rule of thumb: 'the label's ampere-hours hold only at the label's rate' (temperature matters too, and slower gives more). Say the label's figure is for the label's rate and temperature.",
+    "Talks about the lesson: 'Both start from one picture of what a working battery is.' Cut it.",
+    "Units jump: r is given as 7 mΩ, then used as 0.007 without saying so. Give both once.",
+    "Long sentences: the log-log line sentence runs to 23 words, and '56 Ah, which is 28 A' reads awkwardly. Split both.",
+    "Ignores should say the cold scaling is the same fraction at every current, a simplification."
+  ],
+  "shape": {
+    "ideaInOneLine": "yes",
+    "ruleInWords": "yes: terminal voltage is E − Ir; current to the power n times run time stays the same",
+    "workedExampleWithRealNumbers": "yes (100 A: 11.90 V; 25 A: 58 Ah, 2 hours 20 minutes)",
+    "misconceptionShownFailing": "partly: the fixed tank fails in numbers (4 hours against 2.3), the emf slip is named without its cost (fix)",
+    "analogyWithBreak": "yes: volt drop on a long final circuit; breaks on fixed cable resistance and on the acid reaching the plates",
+    "practiceStepsRuleExampleMistakes": "yes",
+    "recapToSayBack": "yes"
+  },
+  "verdict": "rewrite"
+}

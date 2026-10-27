@@ -1,0 +1,783 @@
+<!-- kind: skill -->
+<style>
+  :root { --pbo2: color-mix(in srgb, var(--k-cat2) 40%, var(--k-ink)); --pbm: color-mix(in srgb, var(--k-muted) 55%, var(--k-bg)); --sul: var(--k-bg); --rub: color-mix(in srgb, var(--k-ink) 62%, var(--k-bg)); }
+  :root[data-theme="dark"] { --pbo2: color-mix(in srgb, var(--k-cat2) 50%, var(--k-sunk)); --pbm: color-mix(in srgb, var(--k-muted) 50%, var(--k-sunk)); --sul: color-mix(in srgb, var(--k-ink) 90%, var(--k-bg)); --rub: color-mix(in srgb, var(--k-muted) 60%, var(--k-sunk)); }
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 32rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.12rem; font-weight: 700; line-height: 1.5; }
+  .task.show { font-size: 1.05rem; font-weight: 400; line-height: 1.6; }
+  .scene { display: block; width: 100%; max-width: 26rem; margin-inline: auto; }
+  /* The cell: case, liquid, plates and the lead sulphate on them. */
+  .scene .case { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 2; }
+  .scene .liq { fill: var(--k-fill1); }
+  .scene .pbo2 { fill: var(--pbo2); }
+  .scene .pb { fill: var(--pbm); }
+  .scene .edge { fill: none; stroke: var(--k-ink); stroke-width: 1; }
+  .scene .sul { fill: var(--sul); }
+  .scene .sulk { fill: var(--sul); stroke: var(--k-strong); stroke-width: 1; }
+  .scene .post { fill: var(--k-strong); stroke: var(--k-ink); stroke-width: 1; }
+  .scene .acid { fill: var(--k-amber-line); }
+  .scene .lvl { stroke: var(--k-muted); stroke-width: 2; }
+  .scene .cover { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.5; }
+  /* The hydrometer: rubber bulb, glass barrel, the float with its scale. */
+  .scene .rubber { fill: var(--rub); }
+  .scene .glass { fill: none; stroke: var(--k-strong); stroke-width: 2; stroke-linejoin: round; }
+  .scene .stem, .scene .fbulb { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.2; }
+  .scene .weight { fill: var(--k-muted); }
+  .scene .tk { stroke: var(--k-ink); stroke-width: 1; }
+  .scene .fullm { stroke: var(--k-amber-line); stroke-width: 3; stroke-linecap: round; }
+  .scene .ptr { fill: var(--k-accent2); }
+  /* The thermometer and the voltmeter. */
+  .scene .thermo { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.2; }
+  .scene .merc { fill: var(--k-accent2); }
+  .scene .meter { fill: var(--k-panel); stroke: var(--k-accent2); stroke-width: 2; }
+  .scene .arc { fill: none; stroke: var(--k-ink); stroke-width: 1.5; }
+  .scene .needle { stroke: var(--k-accent2); stroke-width: 2.5; stroke-linecap: round; }
+  .scene .pin { fill: var(--k-ink); }
+  .scene .wire { fill: none; stroke: var(--k-muted); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+  .scene .wl { fill: none; stroke: var(--k-muted); stroke-width: 1.5; }
+  .scene .lt { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .lt.ok { fill: var(--k-good); stroke: var(--k-good); }
+  .scene .lt.no { fill: var(--k-amber-line); stroke: var(--k-amber-line); }
+  .scene text { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .lbm { font-weight: 400; fill: var(--k-muted); }
+  .scene .sg { font-size: 17px; font-weight: 700; }
+  .scene .val { font-size: 14px; font-weight: 700; fill: var(--k-accent2); }
+  .scene .mv { font-size: 15px; font-weight: 700; }
+  .scene .q { font-size: 28px; font-weight: 800; }
+  .say { line-height: 1.55; }
+  /* The four checks and the light: free to wrap on a phone. */
+  .ticks { display: grid; grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr)); gap: 8px; }
+  .tick { display: flex; align-items: center; gap: 8px; min-height: 40px; padding: 6px 10px; border-radius: var(--k-r); background: var(--k-panel); font-weight: 600; line-height: 1.25; }
+  .tick .mk { flex: none; width: 1.2em; text-align: center; font-size: 1.1rem; color: var(--k-warn); }
+  .tick.on .mk { color: var(--k-good); }
+  .light { display: flex; align-items: center; gap: 10px; margin-top: 10px; font-weight: 700; line-height: 1.4; }
+  .light .lamp { flex: none; width: 22px; height: 22px; border-radius: 50%; background: var(--k-amber-line); }
+  .light.ok .lamp { background: var(--k-good); }
+  .picks { display: grid; grid-template-columns: repeat(auto-fit, minmax(6rem, 1fr)); gap: 8px; }
+  .picks.long { grid-template-columns: 1fr; }
+  .picks .k-btn { min-height: 48px; font-size: 1rem; }
+  .picks.long .k-btn { text-align: left; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; }
+  .replay .k-btn { min-height: 44px; padding-inline: 16px; font-size: .95rem; white-space: nowrap; }
+  .fb { font-weight: 700; min-height: 1.5em; }
+  .fb.right { color: var(--k-good); }
+  .why, .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }
+</style>
+
+<p class="lead" id="lead"></p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 372" width="100%" role="img" aria-label=""><g id="art"></g></svg>
+    <div class="replay" id="replay"></div>
+    <div class="k-controls ctl" id="c-charge"></div>
+    <div class="k-controls ctl" id="c-temp"></div>
+    <div class="k-controls ctl" id="c-hours"></div>
+    <div class="k-controls ctl" id="c-level"></div>
+    <div class="k-controls ctl" id="c-strat"></div>
+    <p class="say" id="say"></p>
+    <div id="checks">
+      <div class="ticks" id="ticks"></div>
+      <p class="light" id="light"><i class="lamp"></i><span id="lightText"></span></p>
+    </div>
+    <div class="picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">A sketch with straight-line gauges, not measured data.</p>
+
+<script>
+  // ---------- the rule ----------
+  const SG_FLAT = 1.105, SG_FULL = 1.225;     // the example stationary cell's float, flat and full (assumed)
+  const SG_LO = 1.100, SG_HI = 1.250;         // the float's scale (assumed)
+  const OCV_K = 0.845;                        // rested volts = specific gravity + 0.845 (source [4])
+  const V_FLAT = SG_FLAT + OCV_K, V_FULL = SG_FULL + OCV_K;   // 1.95 V flat, 2.07 V full
+  const V_JUST = 2.20;                        // the voltmeter straight after a charge (sketch)
+  const V_90 = 2.10, SOC_90 = 90;             // 2.10 V rested is about 90% charged in stronger acid (source [1])
+  const PT = 0.001, T_REF = 25, T_PT = 1.67;  // one point per 1.67 °C from 25 °C (source [2])
+  const REST_H = 4, MAKER_H = 24;             // rest at least four hours; makers say 24 (source [3])
+  const LVL_PTS = 10, STRAT_V = 0.05;         // level and layering shifts (sketch)
+  const T_LO = 10, T_HI = 40;
+  const BU403 = 'https://batteryuniversity.com/article/bu-403-charging-lead-acid';
+  const GNB = 'https://www.exidegroup.com/eu/sites/default/files/2017-01/Section%2093_10%202014-08%20GNB%20Flooded%20Classic%20Installation%20and%20Operation%20Manual%20Section_4.pdf';
+  const BU903 = 'https://batteryuniversity.com/article/bu-903-how-to-measure-state-of-charge';
+  const BU804 = 'https://batteryuniversity.com/article/bu-804c-acid-stratification-and-surface-charge';
+  const EEPS = 'https://eepowersolutions.com/resources/white-papers/the-proper-charging-of-stationary-lead-acid-batteries';
+  const sgTrue = (soc) => SG_FLAT + (SG_FULL - SG_FLAT) * soc / 100;          // straight line, flat to full
+  const vRest = (soc) => V_FLAT + (V_FULL - V_FLAT) * soc / 100;
+  const lift = (h) => (h >= REST_H ? 0 : 0.5 * (1 + Math.cos(Math.PI * Math.max(0, h) / REST_H)));   // share of the surface charge left
+  const voltsOf = (soc, h, strat) => vRest(soc) + (V_JUST - V_FULL) * lift(h) + (strat ? STRAT_V : 0);
+  const ptsOf = (t) => (t - T_REF) / T_PT;                                     // points warm acid reads low
+  const LPOS = { low: -1, right: 0, high: 1 };
+  const corrOf = (soc, lp) => sgTrue(soc) - LVL_PTS * PT * lp;                 // low level: same acid, less water
+  const rawOf = (soc, t, lp) => corrOf(soc, lp) - ptsOf(t) * PT;
+  const checksOf = (x) => ({ rested: x.hours >= REST_H, corrected: x.corrected !== false, level: x.level === 'right', mixed: !x.strat });
+  const trusted = (c) => c.rested && c.corrected && c.level && c.mixed;
+  const cover = (soc) => 0.8 * (1 - soc / 100);                               // lead sulphate over the plates
+  const strength = (soc) => 1 / 3 + (2 / 3) * soc / 100;                      // share of the acid in the liquid
+  const NB = '\u00a0';
+  const f3 = (v) => K.fmt(v, { decimals: 3 });
+  const fV = (v) => K.fmt(v, { decimals: 2 }) + NB + 'V';
+  const fT = (t) => K.fmt(t, { decimals: 0 }) + NB + '°C';
+  const fH = (h) => (h < 1 ? Math.round(h * 60) + NB + 'min' : K.fmt(h, { decimals: h % 1 ? 1 : 0 }) + NB + 'h');
+  const pts = (dt) => Math.round(Math.abs(dt) / T_PT);
+  const ez = (x) => K.ease(K.clamp(x, 0, 1));
+  // Hours since charge for a run from h0: the first 60% of the time settles to four hours, the rest goes on to a day.
+  const restRun = (h0, u) => (u < 0.6 ? K.lerp(h0, REST_H, ez(u / 0.6)) : K.lerp(REST_H, MAKER_H, ez((u - 0.6) / 0.4)));
+  const R4 = Number(f3(rawOf(100, 35, 0))), P4 = pts(35 - T_REF);       // 1.219 at 35 °C, 6 points
+  const R11 = Number(f3(rawOf(100, 20, 0))), P11 = pts(20 - T_REF);     // 1.228 at 20 °C, 3 points
+  const LOWSG = f3(corrOf(100, -1));                                     // 1.235
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // enter: the state a step opens in; end: where its motion finishes; play(t): a demonstration's
+  // state at time t; run: what a right answer plays (go(u), u from 0 to 1). hideCorr: the corrected
+  // reading shows "?" until the answer is right; ticks: show the four checks while he answers.
+  const STEPS = [
+    { name: 'A warm-up', pic: 'float', right: 'Still there.', run: { dur: 1.2 },
+      task: 'A float rides in fresh water. You move it to seawater, which is denser. What does the float do?',
+      opts: ['It rides higher', 'It sinks lower', 'It stays at the same mark'], want: 'It rides higher',
+      hint: 'Not quite. The float sinks until the liquid it pushes aside weighs as much as it does. Denser liquid needs less pushing aside.',
+      why: 'A float sinks until the liquid it pushes aside weighs as much as the float. Seawater is denser, so a smaller volume of it weighs enough. The float needs to push aside less, so it rides higher. A hydrometer uses the same idea to weigh battery acid.' },
+    { show: true, name: 'Two gauges', checks: false, ctl: 'charge', enter: { soc: 0 }, end: { soc: 90 }, still: { charge: 90 }, dur: 3.6,
+      play: (t) => { X.soc = K.lerp(0, 90, ez((t - 0.5) / 3)); },
+      text: 'Here is the lead-acid cell again, with two gauges on it. The *hydrometer* holds a sample of its acid around a float. Its scale reads *specific gravity*, the acid\'s density divided by water\'s. Denser liquid holds a float higher. The voltmeter reads the cell\'s voltage. As the cell charges, acid leaves the plates for the liquid. So the float rises. Stronger acid makes the cell rest a little higher, so the voltmeter climbs too. At ' + SOC_90 + '% charge they read ' + f3(sgTrue(SOC_90)) + ' and ' + fV(vRest(SOC_90)) + '. Drag the charge to try it.',
+      read: 'Here is the lead-acid cell again, with two gauges on it. The *hydrometer* holds a sample of its acid around a float. Its scale reads *specific gravity*, the acid\'s density divided by water\'s. Denser liquid holds a float higher. The voltmeter reads the cell\'s voltage. As the cell charges, acid leaves the plates for the liquid. So the float rises. Stronger acid makes the cell rest a little higher, so the voltmeter climbs too. At ' + SOC_90 + '% charge they read ' + f3(sgTrue(SOC_90)) + ' and ' + fV(vRest(SOC_90)) + '.' },
+    { name: 'Running down', checks: false, enter: { soc: 100 }, end: { soc: 50 }, run: { dur: 2.2, go: (u) => { X.soc = K.lerp(100, 50, ez(u)); } },
+      task: 'The cell starts full and discharges to half. What does the float do?',
+      opts: ['It sinks lower as the acid thins', 'It rises as sulphate fills the acid', 'It stays put, as the acid is only a bath'], want: 'It sinks lower as the acid thins',
+      hint: 'Not quite. Discharge takes acid out of the liquid and into the plates. So the liquid gets lighter.',
+      why: 'Discharge locks acid into the lead sulphate on the plates. The liquid left is lighter and more like water. Lighter liquid holds the float less, so it sinks. At half charge it reads ' + f3(sgTrue(50)) + '.' },
+    { show: true, name: 'Warm acid', ctl: 'temp', enter: { soc: 100 }, end: { temp: 40 }, still: { temp: 40 }, dur: 3.2,
+      play: (t) => { X.temp = K.lerp(T_REF, 40, ez((t - 0.5) / 2.6)); },
+      text: 'Temperature moves the float too. Warm acid expands, so it is less dense and reads low. Cold acid reads high. Makers correct it to a set temperature, here ' + fT(T_REF) + '. The scale counts in *points*, and one point is ' + f3(PT) + '. One rule adds a point for every ' + K.fmt(T_PT, { decimals: 2 }) + NB + '°C above ' + fT(T_REF) + '. Below ' + fT(T_REF) + ' it takes points off the same way. At ' + fT(40) + ' this full cell reads ' + f3(rawOf(100, 40, 0)) + ', but the corrected reading holds at ' + f3(corrOf(100, 0)) + '. The checks below fill in as you go. Drag the temperature to try it.',
+      read: 'Temperature moves the float too. Warm acid expands, so it is less dense and reads low. Cold acid reads high. Makers correct it to a set temperature, here ' + fT(T_REF) + '. The scale counts in *points*, and one point is ' + f3(PT) + '. One rule adds a point for every ' + K.fmt(T_PT, { decimals: 2 }) + NB + '°C above ' + fT(T_REF) + '. Below ' + fT(T_REF) + ' it takes points off the same way. At ' + fT(40) + ' this full cell reads ' + f3(rawOf(100, 40, 0)) + ', but the corrected reading holds at ' + f3(corrOf(100, 0)) + '. The checks below fill in as you go.' },
+    { name: 'Correct it', enter: { soc: 100, temp: 35 }, hideCorr: true, ticks: true, run: { dur: 0.8 },
+      task: 'The float reads ' + f3(R4) + ' with the acid at ' + fT(35) + '. What is the corrected reading?',
+      opts: [f3(R4 + P4 * PT), f3(R4 - P4 * PT), f3(R4)], want: f3(R4 + P4 * PT),
+      hint: 'Not quite. Warm acid reads low, so the correction adds points.',
+      hints: { [f3(R4 - P4 * PT)]: 'Not quite. Warm acid reads low, so the correction adds points.',
+        [f3(R4)]: 'Not quite. ' + fT(35) + ' is ' + fT(35 - T_REF) + ' above ' + fT(T_REF) + ', so it needs correcting.' },
+      why: fT(35) + ' is ' + fT(35 - T_REF) + ' above ' + fT(T_REF) + '. So the correction is ' + (35 - T_REF) + ' ÷ ' + K.fmt(T_PT, { decimals: 2 }) + ', about ' + P4 + ' points. Warm acid reads low, so add them. ' + f3(R4) + ' + ' + f3(P4 * PT) + ' = ' + f3(R4 + P4 * PT) + ', which is full.' },
+    { show: true, name: 'Rest it first', ctl: 'hours', enter: { soc: 100, hours: 0 }, end: { hours: MAKER_H }, still: { hours: MAKER_H }, dur: 3.6,
+      play: (t) => { X.hours = restRun(0, (t - 0.5) / 3); },
+      text: 'The voltmeter can be fooled too. Straight after a charge it reads high. That is *surface charge*. One way to picture it is fresh acid left right at the plates, which takes hours to spread. This cell has just come off charge at ' + fV(voltsOf(100, 0, false)) + '. As it rests, the reading falls to ' + fV(vRest(100)) + ', its rested value. So rest a cell on open circuit for at least four hours before you trust its voltage. Makers recommend ' + MAKER_H + '. Drag the hours to try it.',
+      read: 'The voltmeter can be fooled too. Straight after a charge it reads high. That is *surface charge*. One way to picture it is fresh acid left right at the plates, which takes hours to spread. This cell has just come off charge at ' + fV(voltsOf(100, 0, false)) + '. As it rests, the reading falls to ' + fV(vRest(100)) + ', its rested value. So rest a cell on open circuit for at least four hours before you trust its voltage. Makers recommend ' + MAKER_H + '.' },
+    { name: 'Just off charge', enter: { soc: 100, hours: 1 / 6 }, end: { hours: MAKER_H }, run: { dur: 2.4, go: (u) => { X.hours = restRun(1 / 6, u); } },
+      task: 'A cell reads ' + fV(voltsOf(100, 1 / 6, false)) + ' ten minutes after a charge. What does that tell you?',
+      opts: ['Not much yet, so rest it or briefly discharge it', 'It is overcharged, so stop charging it sooner', 'It is warm, so correct it to 25 °C first'], want: 'Not much yet, so rest it or briefly discharge it',
+      hint: 'Not quite. Straight after a charge the voltage sits high for hours. That is surface charge, not extra charge.',
+      why: 'Straight after a charge, the voltage sits high for hours. That is surface charge. One way to picture it is fresh acid still at the plates, waiting to spread. So ' + fV(voltsOf(100, 1 / 6, false)) + ' says little yet. Rest the cell for at least four hours, or give it a brief discharge. Then read it.' },
+    { show: true, name: 'The level', ctl: 'level', enter: { soc: 100 }, end: { level: 'low' }, still: { level: 'low' }, dur: 2.0,
+      play: (t) => { X.level = t >= 0.6 ? 'low' : 'right'; },
+      text: 'The level matters too. Water evaporates, but the acid stays behind. So a low cell holds stronger acid, and its float reads high. An overfilled cell reads low. Here the level has fallen below its mark. The full cell\'s float now reads ' + LOWSG + ', above its full mark. Top up with distilled water, never acid, because only water has gone. Let it mix before you read again. Choose a level to try it.',
+      read: 'The level matters too. Water evaporates, but the acid stays behind. So a low cell holds stronger acid, and its float reads high. An overfilled cell reads low. Here the level has fallen below its mark. The full cell\'s float now reads ' + LOWSG + ', above its full mark. Top up with distilled water, never acid, because only water has gone. Let it mix before you read again.' },
+    { name: 'Topping up', enter: { soc: 100, level: 'low' }, end: { level: 'right' }, run: { dur: 1.6, go: () => { X.level = 'right'; } },
+      task: 'A cell\'s level has fallen by evaporation. What should you top it up with?',
+      opts: ['Distilled water', 'Acid, to keep it strong', 'Nothing, read it as it is'], want: 'Distilled water',
+      hint: 'Not quite. Only water evaporated. The acid is all still there.',
+      hints: { 'Acid, to keep it strong': 'Not quite. Only water evaporated. The acid is all still there.',
+        'Nothing, read it as it is': 'Not quite. A low level reads high. So top up, let it mix, then read.' },
+      why: 'Only water evaporates. The acid stays, so the liquid left is too strong and reads high. Distilled water brings it back to strength. Let it mix, and the float reads ' + f3(SG_FULL) + ' again.' },
+    { show: true, name: 'Layers', ctl: 'strat', enter: { soc: 90 }, end: { strat: true }, still: { strat: true }, dur: 2.4,
+      play: (t) => { X.strat = t >= 0.6; },
+      text: 'Acid can also settle into layers, with strong acid at the bottom. That is *stratification*. The lower parts of the plates then stand in strong acid, which lifts their voltage. So the voltmeter reads high, and the cell looks more charged than it is. This cell is at 90%, yet its voltmeter reads ' + fV(voltsOf(90, MAKER_H, true)) + '. The hydrometer gives no single reading, because that depends on where its sample comes from. The mixed check fails, so the light says not yet. Flip the switch to compare.',
+      read: 'Acid can also settle into layers, with strong acid at the bottom. That is *stratification*. The lower parts of the plates then stand in strong acid, which lifts their voltage. So the voltmeter reads high, and the cell looks more charged than it is. This cell is at 90%, yet its voltmeter reads ' + fV(voltsOf(90, MAKER_H, true)) + '. The hydrometer gives no single reading, because that depends on where its sample comes from. The mixed check fails, so the light says not yet.' },
+    { name: 'Reads well, runs short', cover: true, hyd: false, enter: { soc: 90, strat: true }, run: { dur: 1.2 },
+      task: 'This cell has rested a day and its level is right. Its voltmeter reads high, yet it runs out early. What makes it read high?',
+      opts: ['Strong acid at the bottom', 'Surface charge', 'A low level'], want: 'Strong acid at the bottom',
+      hint: 'Not quite. Look lower down in the acid.',
+      hints: { 'Surface charge': 'Not quite. A day\'s rest has cleared any surface charge.', 'A low level': 'Not quite. Its level is right, so look lower down in the acid.' },
+      why: 'The acid has settled into layers, with strong acid at the bottom. The lower parts of the plates stand in it, which lifts the voltage. So the cell looks more charged than it is, and it runs out early.' },
+    { name: 'Cold acid', enter: { soc: 100, temp: 20 }, hideCorr: true, ticks: true, run: { dur: 0.8 },
+      task: 'The float reads ' + f3(R11) + ' with the acid at ' + fT(20) + '. What is the corrected reading?',
+      opts: [f3(R11 - P11 * PT), f3(R11 + P11 * PT), f3(R11)], want: f3(R11 - P11 * PT),
+      hint: 'Not quite. Cold acid reads high, so below ' + fT(T_REF) + ' take points off.',
+      hints: { [f3(R11 + P11 * PT)]: 'Not quite. Cold acid reads high, so below ' + fT(T_REF) + ' take points off.',
+        [f3(R11)]: 'Not quite. ' + fT(20) + ' is ' + fT(T_REF - 20) + ' below ' + fT(T_REF) + ', so it needs correcting.' },
+      why: fT(20) + ' is ' + fT(T_REF - 20) + ' below ' + fT(T_REF) + '. So the correction is ' + (T_REF - 20) + ' ÷ ' + K.fmt(T_PT, { decimals: 2 }) + ', about ' + P11 + ' points. Cold acid reads high, so take them off. ' + f3(R11) + ' − ' + f3(P11 * PT) + ' = ' + f3(R11 - P11 * PT) + ', which is full.' },
+    { name: 'Which to trust', pic: 'three', run: { dur: 1.2 },
+      task: 'Which of these three readings can you trust?',
+      opts: [fV(vRest(SOC_90)) + ', rested a day, level right, acid mixed', fV(voltsOf(100, 1 / 6, false)) + ', ten minutes after a charge', LOWSG + ' at ' + fT(T_REF) + ', level low'],
+      want: fV(vRest(SOC_90)) + ', rested a day, level right, acid mixed',
+      hint: 'Not quite. Look for the one that passes every check.',
+      hints: { [fV(voltsOf(100, 1 / 6, false)) + ', ten minutes after a charge']: 'Not quite. It has not rested, so surface charge lifts it.',
+        [LOWSG + ' at ' + fT(T_REF) + ', level low']: 'Not quite. A low level reads high.' },
+      why: 'The first cell has rested a day, its level is right and its acid is mixed. So its ' + fV(vRest(SOC_90)) + ' can be trusted. For this cell, that is about ' + SOC_90 + '% charge. The second still carries surface charge. The third reads high because its level is low.' },
+  ];
+  const FINISH = 'A hydrometer and a voltmeter both follow the acid\'s strength, so both follow the charge. Trust a reading only when the cell has rested, the reading is corrected for temperature, the level is right and the acid is mixed.';
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  const quiet = () => REDUCE || testing();
+  const el = (id) => document.getElementById(id);
+  el('lead').textContent = 'A cut-away lead-acid cell with a hydrometer and a voltmeter: an example stationary cell, full at ' + f3(SG_FULL) + '.';
+
+  // ---------- the cell's fixed parts ----------
+  function rng(seed) { let s = seed; return () => { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; }; }
+  function shuffled(n, seed) { const r = rng(seed), a = Array.from({ length: n }, (z, k) => k); for (let k = n - 1; k > 0; k--) { const j = Math.floor(r() * (k + 1)), t = a[k]; a[k] = a[j]; a[j] = t; } return a; }
+  const YS = 170, KSC = 600, BAR_BOT = 328;       // the hydrometer's sample surface; 0.6 px a point on the stem
+  const C_BOT = 296, C_MARK = 148;                // the cell's liquid: bottom, and the level mark
+  const surfY = (lp) => (lp < 0 ? C_MARK - 22 * lp : C_MARK - 10 * lp);
+  const P_TOP = 136, P_BOT = 284, PR_TOP = 146, PH = (P_BOT - PR_TOP) / 12;
+  const PLATES = [{ x: 172, post: 182, cls: 'pbo2', sign: '+', sx: 196 }, { x: 290, post: 300, cls: 'pb', sign: '−', sx: 314 }];
+  const PATCH = [0, 1].flatMap((p) => shuffled(24, 7 + 11 * p).map((o, k) => ({ p, col: k % 2, row: Math.floor(k / 2), th: o / 24 })));
+  // 33 acid dots; 22 leave for the nearer plate as the cell discharges. "fresh" dots crowd the plates
+  // straight after a charge; "keep" dots stay up top when the acid layers.
+  const DOTS = (() => {
+    const r = rng(3), out = [];
+    for (let row = 0; row < 6; row++) for (let c = 0; c < 5; c++) {
+      out.push({ x: 204 + 18 * c + (r() - 0.5) * 5, y: 162 + 24 * row + (r() - 0.5) * 7, tx: c < 2 || (c === 2 && row % 2) ? 196 : 286, fresh: c === 1 || c === 3 });
+    }
+    [184, 224, 264].forEach((y) => out.push({ x: 320, y, tx: 314, fresh: false }));
+    shuffled(out.length, 5).forEach((o, k) => { out[o].th = k < 22 ? 0.59 * k / 21 : null; });
+    out.forEach((q, k) => { q.keep = k % 4 === 0; q.fx = q.x < 241 ? 199 : 283; });
+    return out;
+  })();
+
+  // ---------- state ----------
+  function blank() { return { pick: null, res: null, why: false }; }
+  let S = STEPS.map(blank);
+  const BASE = { soc: 100, temp: T_REF, hours: MAKER_H, level: 'right', strat: false };
+  const X = Object.assign({}, BASE);
+  let LPd = 0, SPd = 0;                          // the drawn level and layering, easing to X's
+  let T = Infinity, scripted = false, lastStep = -1, finished = false, lastDone = false;
+  let latest = 0, REC = {}, laidOut = '';
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);
+  const CTL = {
+    charge: K.control({ id: 'charge', label: 'Charge', min: 0, max: 100, step: 1, value: 100, unit: '%', snap: [0, 50, 90, 100], into: '#c-charge' }),
+    temp: K.control({ id: 'temp', label: 'Acid temperature', min: T_LO, max: T_HI, step: 1, value: T_REF, unit: '°C', snap: [20, 25, 35, 40], into: '#c-temp' }),
+    hours: K.control({ id: 'hours', label: 'Since charge', min: 0, max: MAKER_H, step: 0.5, value: MAKER_H, fmt: fH, snap: [0, REST_H, MAKER_H], into: '#c-hours' }),
+    level: K.choice({ id: 'level', label: 'Acid level', options: [{ value: 'low', label: 'Low' }, { value: 'right', label: 'Right' }, { value: 'high', label: 'High' }], value: 'right', into: '#c-level' }),
+    strat: K.toggle({ id: 'strat', label: 'Stratified', value: false, into: '#c-strat' }),
+  };
+  const pushed = { charge: 100, temp: T_REF, hours: MAKER_H, level: 'right', strat: false };
+  const KEYS = { charge: () => Math.round(X.soc), temp: () => Math.round(X.temp), hours: () => Math.round(X.hours * 2) / 2, level: () => X.level, strat: () => X.strat };
+  // The page moves the controls itself during a demonstration (silently, so it is not taken for Dan's move).
+  function push() { Object.keys(KEYS).forEach((k) => { const v = KEYS[k](); if (pushed[k] !== v) { CTL[k].set(v, true); pushed[k] = CTL[k].get(); } }); }
+
+  // The three outputs are drawn on the picture: the float's reading, the corrected reading, the voltmeter.
+  K.model((p) => {
+    const lp = LPOS[p.level] == null ? 0 : LPOS[p.level], st = !!p.strat;
+    return { rawSG: st ? '?' : rawOf(p.charge, p.temp, lp), corrSG: st ? '?' : corrOf(p.charge, lp), volts: voltsOf(p.charge, p.hours, st) };
+  });
+  const TICKS = [['rested', 'rested'], ['corrected', 'corrected'], ['level', 'level right'], ['mixed', 'mixed']];
+  const tickEls = {};
+  TICKS.forEach(([k, label]) => {
+    const mk = K.el('b', { class: 'mk', 'aria-hidden': 'true' }, '✗'), n = K.el('span', { class: 'tick' }, mk, K.el('span', {}, label));
+    tickEls[k] = { n, mk };
+    el('ticks').appendChild(n);
+  });
+
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || st.res === 'right') return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = st.pick === d.want ? 'right' : 'wrong';
+    if (st.res !== 'right') { T = Infinity; return; }
+    if (quiet()) { T = Infinity; Object.assign(X, d.end || {}); settle(); push(); }
+    else { T = 0; anim.play(); }
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    const d = STEPS[at()];
+    if (d.show || finished) return;
+    S[at()].why = !S[at()].why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    if (!STEPS[at()].show || finished) return;
+    enterStep(at());
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true; anim.pause();
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(blank); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // ---------- motion: one animation runs each demonstration and each answer's motion ----------
+  function tween(dt) {
+    let busy = false;
+    const gl = LPOS[X.level], gs = X.strat ? 1 : 0;
+    if (LPd !== gl) { LPd = gl > LPd ? Math.min(gl, LPd + dt / 1.2) : Math.max(gl, LPd - dt / 1.2); busy = true; }
+    if (SPd !== gs) { SPd = gs > SPd ? Math.min(gs, SPd + dt / 1.6) : Math.max(gs, SPd - dt / 1.6); busy = true; }
+    return busy;
+  }
+  function settle() { LPd = LPOS[X.level]; SPd = X.strat ? 1 : 0; }
+  const motionEnd = (d, st) => (d.show ? (scripted ? d.dur : 0) : st.res === 'right' ? d.run.dur : 0);
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    const i = at(), d = STEPS[i], st = S[i];
+    T += dt;
+    if (scripted) { d.play(T); if (T >= d.dur) scripted = false; }
+    if (!d.show && st.res === 'right' && d.run.go) d.run.go(Math.min(1, T / d.run.dur));
+    const busy = tween(dt);
+    push();
+    paint(i);
+    return busy || T < motionEnd(d, st);
+  } });
+  // A motion that was stopped (the page hidden, a test) shows finished.
+  function finishNow(d, st) {
+    if (scripted) { d.play(1e6); scripted = false; }
+    if (!d.show && st.res === 'right') Object.assign(X, d.end || {});
+    T = Infinity; settle(); push();
+  }
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { finishNow(STEPS[at()], S[at()]); paint(); } });
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter'); void box.offsetWidth; box.classList.add('enter');
+  }
+  function enterStep(i) {
+    const d = STEPS[i], st = S[i];
+    anim.pause();
+    Object.assign(X, BASE, d.enter || {});
+    if (!d.show && st.res === 'right') Object.assign(X, d.end || {});
+    if (d.show && !quiet()) { scripted = true; T = 0; d.play(0); settle(); push(); anim.play(); }
+    else { scripted = false; T = Infinity; if (d.show) Object.assign(X, d.end || {}); settle(); push(); }
+    laidOut = '';
+    enter('stepbox');
+  }
+
+  // ---------- drawing ----------
+  const svg = el('scene'), art = el('art');
+  let into = null;
+  const r1 = (v) => Math.round(v * 10) / 10;
+  const add = (n) => (into || art).appendChild(n);
+  const S_ = (tag, a) => add(K.svg(tag, a));
+  function txt(x, y, s, cls, anchor) {
+    const a = { x: r1(x), y: r1(y), 'text-anchor': anchor || 'middle' };
+    if (cls) a.class = cls;
+    const t = K.svg('text', a); t.textContent = s; return add(t);
+  }
+  function part(a, rise, fn) { if (a <= 0) return; const g = add(K.svg('g')); K.fade(g, a, rise); const keep = into; into = g; fn(); into = keep; }
+  function arr(t0, dur) { dur = dur == null ? K.SOFT : dur; if (t0 + dur > latest) latest = t0 + dur; return K.arrive(T, t0, dur); }
+
+  // The voltmeter: a needle over an arc and its reading in the window below.
+  function drawMeter(v) {
+    S_('path', { class: 'wire', d: 'M222 100V108H182V120M260 100V108H300V120' });
+    S_('rect', { class: 'meter', x: 196, y: 6, width: 90, height: 94, rx: 6 });
+    txt(241, 22, 'voltmeter', 'lbm');
+    const cx = 241, cy = 70, R = 34, ang = (u) => (-50 + 100 * u) * Math.PI / 180, pt = (a, r) => [cx + r * Math.sin(a), cy - r * Math.cos(a)];
+    const [ax, ay] = pt(ang(0), R), [bx, by] = pt(ang(1), R);
+    S_('path', { class: 'arc', d: 'M' + r1(ax) + ' ' + r1(ay) + 'A' + R + ' ' + R + ' 0 0 1 ' + r1(bx) + ' ' + r1(by) });
+    for (let k = 0; k <= 4; k++) {
+      const a = ang(k / 4), p = pt(a, R), q = pt(a, R - 6);
+      S_('line', { class: 'tk', x1: r1(p[0]), y1: r1(p[1]), x2: r1(q[0]), y2: r1(q[1]) });
+    }
+    const u = K.clamp((v - 1.90) / 0.40, 0, 1), n = pt(ang(u), R - 4);
+    S_('line', { class: 'needle', x1: cx, y1: cy, x2: r1(n[0]), y2: r1(n[1]) });
+    S_('circle', { class: 'pin', cx, cy, r: 4 });
+    const vt = fV(v);
+    txt(241, 93, vt, 'mv');
+    REC.needle = u; REC.voltText = vt;
+  }
+
+  // The hydrometer: the float rides in the sample; its reading is where the surface meets the stem.
+  function drawHyd(sgD, cgD, sp, hideC) {
+    S_('ellipse', { class: 'rubber', cx: 38, cy: 30, rx: 20, ry: 22 });
+    S_('rect', { class: 'rubber', x: 32, y: 46, width: 12, height: 14 });
+    const ys = K.lerp(YS, BAR_BOT, sp);
+    if (BAR_BOT - ys > 1) S_('rect', { class: 'liq', x: 10, y: r1(ys), width: 56, height: r1(BAR_BOT - ys), rx: Math.min(6, (BAR_BOT - ys) / 2) });
+    const sgc = K.clamp(sgD, 1.085, SG_HI), top = K.lerp(YS - 4 - (sgc - SG_LO) * KSC, BAR_BOT - 136, sp);
+    REC.fTop = top; REC.sg = sgD;
+    S_('rect', { class: 'stem', x: 19, y: r1(top), width: 10, height: 100, rx: 2 });
+    for (let k = 0; k <= 15; k++) {
+      const y = top + 4 + k * 0.01 * KSC;
+      S_('line', { class: 'tk', x1: 19, y1: r1(y), x2: k % 5 ? 24 : 29, y2: r1(y) });
+    }
+    S_('ellipse', { class: 'fbulb', cx: 24, cy: r1(top + 116), rx: 12, ry: 18 });
+    S_('circle', { class: 'weight', cx: 24, cy: r1(top + 124), r: 6 });
+    const yf = top + 4 + (SG_FULL - SG_LO) * KSC;
+    S_('line', { class: 'fullm', x1: 14, y1: r1(yf), x2: 34, y2: r1(yf) });
+    txt(38, yf + 4, 'full', null, 'start');
+    S_('rect', { class: 'glass', x: 8, y: 58, width: 60, height: 274, rx: 10 });
+    S_('path', { class: 'glass', d: 'M29 332L35 348H41L47 332' });
+    if (sp < 1) part(1 - sp, 0, () => S_('path', { class: 'ptr', d: 'M71 ' + YS + 'L80 ' + (YS - 6) + 'V' + (YS + 6) + 'Z' }));
+    if (sp > 0) part(sp, 0, () => txt(38, 130, '?', 'q'));
+    const rt = X.strat ? '?' : f3(sgD), ct = X.strat || hideC ? '?' : f3(cgD);
+    txt(83, 192, 'reads', 'lbm', 'start');
+    txt(83, 213, rt, 'val', 'start');
+    txt(83, 239, 'corrected', 'lbm', 'start');
+    txt(83, 259, ct, 'val', 'start');
+    REC.hyd = sp >= 1 ? 'q' : 'float'; REC.rawText = rt; REC.corrText = ct;
+    txt(38, 366, 'hydrometer', 'lbm');
+  }
+
+  function drawCell(d, st) {
+    const soc = X.soc, cov = cover(soc), lf = 1 - strength(soc), ys = surfY(LPd), sp = K.ease(SPd), fr = lift(X.hours);
+    S_('rect', { class: 'case', x: 148, y: 132, width: 186, height: 168, rx: 8 });
+    S_('rect', { class: 'liq', x: 152, y: r1(ys), width: 178, height: r1(C_BOT - ys), rx: 5 });
+    REC.surf = ys;
+    S_('line', { class: 'lvl', x1: 142, y1: C_MARK, x2: 154, y2: C_MARK });
+    S_('line', { class: 'lvl', x1: 328, y1: C_MARK, x2: 339, y2: C_MARK });
+    txt(138, C_MARK - 3, 'level mark', 'lbm', 'end');
+    PLATES.forEach((P, k) => {
+      S_('rect', { class: P.cls, x: P.x, y: P_TOP, width: 20, height: P_BOT - P_TOP, rx: 2 });
+      let area = 0;
+      PATCH.forEach((q) => {
+        if (q.p !== k) return;
+        const f = K.clamp((cov - q.th) / 0.05, 0, 1);
+        if (f <= 0) return;
+        const w = 10 * f, h = PH * f, cx = P.x + 5 + 10 * q.col, cy = PR_TOP + PH * (q.row + 0.5);
+        S_('rect', { class: 'sul', x: r1(cx - w / 2), y: r1(cy - h / 2), width: r1(w), height: r1(h) });
+        area += f * f;
+      });
+      REC.sul[k] = area / 24;
+      S_('rect', { class: 'edge', x: P.x, y: P_TOP, width: 20, height: P_BOT - P_TOP, rx: 2 });
+      S_('rect', { class: 'post', x: P.post - 6, y: 120, width: 12, height: 12, rx: 2 });
+      txt(P.sx, 129, P.sign, 'sg');
+    });
+    // The thermometer stands in the acid.
+    S_('rect', { class: 'thermo', x: 157, y: 100, width: 10, height: 176, rx: 5 });
+    const ty = 266 - (K.clamp(X.temp, T_LO, T_HI) - T_LO) / (T_HI - T_LO) * 150;
+    S_('rect', { class: 'merc', x: 160, y: r1(ty), width: 4, height: r1(280 - ty) });
+    S_('circle', { class: 'merc', cx: 162, cy: 280, r: 7 });
+    txt(162, 93, fT(X.temp));
+    // Acid dots: squeezed into less water when the level is low, layered when stratified, crowding the
+    // plates just after a charge, and leaving for the plates as the cell discharges.
+    let inLiq = 0, low = 0;
+    const mid = (ys + C_BOT) / 2;
+    DOTS.forEach((q) => {
+      const p = q.th == null ? 0 : K.clamp((lf - q.th) / 0.07, 0, 1);
+      if (p >= 1) return;
+      const x = q.fresh ? K.lerp(q.x, q.fx, fr) : q.x;
+      let y = C_BOT - (C_BOT - q.y) * (C_BOT - ys) / (C_BOT - C_MARK);
+      if (!q.keep) y = K.lerp(y, C_BOT - (C_BOT - y) * 0.42, sp);
+      const e = K.ease(p);
+      S_('circle', { class: 'acid', cx: r1(K.lerp(x, q.tx, e)), cy: r1(y), r: r1(3.4 * (1 - 0.7 * e)) });
+      if (p < 0.5) { inLiq++; if (y > mid) low++; }
+    });
+    REC.dotsIn = inLiq; REC.dotsLow = low;
+    if (d.cover) {
+      const a = st.res === 'right' ? 1 - arr(0.1, 1.0) : 1;
+      REC.cover = a > 0;
+      if (a > 0) part(a, 0, () => { S_('rect', { class: 'cover', x: 150, y: 134, width: 182, height: 164, rx: 6 }); txt(241, 226, '?', 'q'); });
+    }
+    txt(241, 318, 'charge ' + Math.round(soc) + '%', 'val');
+    txt(241, 338, fH(X.hours) + ' since charge', 'lbm');
+    S_('circle', { class: 'acid', cx: 160, cy: 356, r: 3.5 });
+    txt(168, 360, 'acid', 'lbm', 'start');
+    S_('rect', { class: 'sulk', x: 206, y: 349, width: 14, height: 14, rx: 2 });
+    txt(226, 360, 'lead sulphate', 'lbm', 'start');
+  }
+
+  function drawMain(d, st) {
+    const sp = K.ease(SPd), sgD = rawOf(X.soc, X.temp, LPd), cgD = corrOf(X.soc, LPd), v = voltsOf(X.soc, X.hours, false) + STRAT_V * sp;
+    drawMeter(v);
+    if (d.hyd === false) { ['rested a day', 'level right'].forEach((s, k) => txt(8, 200 + 24 * k, s, null, 'start')); REC.hyd = 'none'; }
+    else drawHyd(sgD, cgD, sp, corrHidden(d, st));
+    drawCell(d, st);
+    const lw = X.level === 'low' ? 'below its mark' : X.level === 'high' ? 'above its mark' : 'at its mark';
+    let said = 'A cut-away lead-acid cell at ' + Math.round(X.soc) + '% charge. Its voltmeter reads ' + REC.voltText + '.';
+    if (d.hyd !== false) said += X.strat ? ' The hydrometer has no single reading, as the acid lies in layers.' : ' Its hydrometer reads ' + REC.rawText + ', corrected ' + REC.corrText + '.';
+    said += ' The acid is at ' + fT(X.temp) + ', ' + fH(X.hours) + ' since charge, with its level ' + lw + '.';
+    if (d.cover && REC.cover) said += ' The inside of the cell is hidden.';
+    else if (d.hyd === false) said += X.strat ? ' The acid lies in layers, strong at the bottom.' : ' The acid is mixed.';
+    return { box: [0, 0, 340, 372], said };
+  }
+
+  // A small cut-away cell; returns its two terminals' x.
+  function mini(x, y, w, h, lowLvl) {
+    S_('rect', { class: 'case', x: r1(x), y: r1(y), width: r1(w), height: r1(h), rx: 3 });
+    const top = y + h * (lowLvl ? 0.4 : 0.18);
+    S_('rect', { class: 'liq', x: r1(x + 2), y: r1(top), width: r1(w - 4), height: r1(y + h - 2 - top), rx: 2 });
+    const pw = Math.max(3, w * 0.12), a = x + w * 0.28, b = x + w * 0.72;
+    S_('rect', { class: 'pbo2', x: r1(a - pw / 2), y: r1(y + 3), width: r1(pw), height: r1(h - 7) });
+    S_('rect', { class: 'pb', x: r1(b - pw / 2), y: r1(y + 3), width: r1(pw), height: r1(h - 7) });
+    S_('rect', { class: 'post', x: r1(a - 3), y: r1(y - 4), width: 6, height: 4 });
+    S_('rect', { class: 'post', x: r1(b - 3), y: r1(y - 4), width: 6, height: 4 });
+    if (lowLvl) S_('line', { class: 'lvl', x1: r1(x - 7), y1: r1(y + h * 0.18), x2: r1(x + 3), y2: r1(y + h * 0.18) });
+    return [a, b];
+  }
+  function drawThree(d, st) {
+    const a = st.res === 'right' ? arr(0.1) : 0;
+    const cols = [
+      { cx: 58, top: 'voltmeter', val: fV(vRest(SOC_90)), lines: ['rested a day', 'level right', 'acid mixed'], ok: true },
+      { cx: 170, top: 'voltmeter', val: fV(voltsOf(100, 1 / 6, false)), lines: ['10 min after', 'a charge'], ok: false },
+      { cx: 282, top: 'hydrometer', val: LOWSG, lines: ['at ' + fT(T_REF), 'level low'], ok: false, low: true },
+    ];
+    REC.lights = [];
+    cols.forEach((c) => {
+      txt(c.cx, 16, c.top, 'lbm');
+      S_('rect', { class: 'meter', x: c.cx - 38, y: 24, width: 76, height: 26, rx: 4 });
+      txt(c.cx, 42, c.val, 'mv');
+      const t = mini(c.cx - 22, 72, 44, 56, !!c.low);
+      if (!c.low) S_('path', { class: 'wl', d: 'M' + r1(c.cx - 14) + ' 50V60H' + r1(t[0]) + 'V68M' + r1(c.cx + 14) + ' 50V60H' + r1(t[1]) + 'V68' });
+      c.lines.forEach((s, k) => txt(c.cx, 150 + 16 * k, s, null));
+      if (a < 1) part(1 - a, 0, () => { S_('circle', { class: 'lt', cx: c.cx, cy: 206, r: 12 }); txt(c.cx, 211, '?', null); });
+      if (a > 0) part(a, 0, () => { S_('circle', { class: 'lt ' + (c.ok ? 'ok' : 'no'), cx: c.cx, cy: 206, r: 12 }); txt(c.cx, 236, c.ok ? 'trust it' : 'not yet', null); });
+      REC.lights.push(a > 0 ? (c.ok ? 'ok' : 'no') : '?');
+    });
+    const said = 'Three cells. The first reads ' + cols[0].val + ', rested a day, with its level right and its acid mixed. The second reads ' + cols[1].val +
+      ' ten minutes after a charge. The third\'s hydrometer reads ' + cols[2].val + ' at ' + fT(T_REF) + ' with its level low. ' +
+      (a > 0 ? 'Only the first gets the trust light.' : 'Their trust lights show question marks.');
+    return { box: [0, 0, 340, 246], said };
+  }
+
+  // The warm-up: one float in fresh water, and the same float in seawater once answered.
+  function drawFloat(d, st) {
+    const a = st.res === 'right' ? arr(0.1) : 0;
+    const flo = (cx, top) => {
+      S_('rect', { class: 'stem', x: cx - 5, y: r1(top), width: 10, height: 80, rx: 2 });
+      for (let k = 0; k <= 4; k++) S_('line', { class: 'tk', x1: cx - 5, y1: r1(top + 8 + 14 * k), x2: cx + (k % 2 ? -1 : 2), y2: r1(top + 8 + 14 * k) });
+      S_('ellipse', { class: 'fbulb', cx, cy: r1(top + 96), rx: 14, ry: 20 });
+      S_('circle', { class: 'weight', cx, cy: r1(top + 106), r: 6 });
+    };
+    [[90, 'fresh water'], [250, 'seawater']].forEach(([cx, lab]) => {
+      S_('rect', { class: 'liq', x: cx - 43, y: 70, width: 86, height: 128, rx: 6 });
+      txt(cx, 224, lab, 'lbm');
+    });
+    flo(90, 20);
+    if (a < 1) part(1 - a, 0, () => txt(250, 140, '?', 'q'));
+    if (a > 0) part(a, 0, () => flo(250, 4));
+    [90, 250].forEach((cx) => S_('rect', { class: 'glass', x: cx - 45, y: 40, width: 90, height: 160, rx: 8 }));
+    REC.floatShown = a > 0;
+    const said = 'Two jars. A float rides in fresh water on the left. ' + (a > 0 ? 'In seawater on the right, the same float rides higher.' : 'The seawater jar on the right shows a question mark.');
+    return { box: [0, 0, 340, 236], said };
+  }
+
+  function sayFor(d) {
+    if (d.ctl === 'charge') {
+      const s = Math.round(X.soc);
+      return s >= 100 ? 'Fully charged, all the acid is back in the liquid, so the float sits at its full mark and the voltmeter reads its highest.'
+        : s <= 0 ? 'At flat, much of the acid is locked in the plates, so the light liquid lets the float sink and the voltmeter reads its lowest.'
+        : 'With ' + s + '% of the charge in, the float and the voltmeter both sit ' + s + '% of the way from flat to full.';
+    }
+    if (d.ctl === 'temp') {
+      const t = Math.round(X.temp), n = pts(t - T_REF);
+      if (n === 0) return 'At about ' + fT(T_REF) + ' nothing needs correcting, so both hydrometer readings agree.';
+      return t > T_REF ? 'At ' + fT(t) + ' the warm acid has expanded and reads about ' + n + ' points low. The correction adds them back, so the corrected reading holds.'
+        : 'At ' + fT(t) + ' the cold acid has shrunk and reads about ' + n + ' points high. The correction takes them off, so the corrected reading holds.';
+    }
+    if (d.ctl === 'hours') {
+      const h = X.hours;
+      return h < REST_H ? fH(h) + ' after the charge, fresh acid still crowds the plates, so the voltmeter reads high. The cell has not rested yet.'
+        : 'After ' + fH(h) + ' on open circuit the fresh acid has spread, so the voltmeter shows its rested value.';
+    }
+    if (d.ctl === 'level') {
+      return X.level === 'low' ? 'Water has evaporated, so the same acid sits in less water. It is stronger, and the float reads ' + LVL_PTS + ' points high.'
+        : X.level === 'high' ? 'The cell is overfilled, so the acid is diluted, and the float reads ' + LVL_PTS + ' points low.'
+        : 'The level is at its mark, so the float reads true.';
+    }
+    return X.strat ? 'Strong acid has settled at the bottom. The lower plates stand in it, so the voltmeter reads high, and no single sample tells the charge.'
+      : 'The acid is mixed, so both gauges tell the same charge.';
+  }
+
+  // The corrected reading shows "?" in a correction puzzle until the answer is right.
+  const corrHidden = (d, st) => !d.show && st.res !== 'right' && !!d.hideCorr;
+  function paintChecks(d, st) {
+    const shown = !d.pic && d.checks !== false && (d.show || st.res === 'right' || !!d.ticks);
+    el('checks').hidden = !shown;
+    REC.trust = null;
+    if (!shown) return;
+    const c = checksOf({ hours: X.hours, level: X.level, strat: X.strat, corrected: !corrHidden(d, st) });
+    Object.keys(tickEls).forEach((k) => { const t = tickEls[k]; t.n.classList.toggle('on', c[k]); t.mk.textContent = c[k] ? '✓' : '✗'; });
+    const ok = trusted(c), miss = TICKS.filter(([k]) => !c[k]).map(([, l]) => l);
+    el('light').classList.toggle('ok', ok);
+    el('lightText').textContent = 'Trust this reading? ' + (ok ? 'Yes, all four checks pass.' : 'Not yet. Still to pass: ' + miss.join(', ') + '.');
+    REC.trust = ok;
+  }
+
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i];
+    art.textContent = ''; into = null;
+    REC = { floatShown: null, sul: [0, 0], dotsIn: 0, dotsLow: 0, sg: null, fTop: null, needle: null, hyd: null, cover: false, lights: null, surf: null, trust: null, rawText: null, corrText: null, voltText: null };
+    const out = d.pic === 'three' ? drawThree(d, st) : d.pic === 'float' ? drawFloat(d, st) : drawMain(d, st);
+    svg.setAttribute('viewBox', out.box.map(r1).join(' '));
+    svg.setAttribute('aria-label', out.said);
+    if (d.ctl) el('say').textContent = sayFor(d);
+    paintChecks(d, st);
+    REC.corrHidden = corrHidden(d, st);
+  }
+
+  // ---------- words: *a key term* is highlighted ----------
+  function write(node, s) {
+    node.textContent = '';
+    String(s).split(/\*([^*]+)\*/).forEach((seg, k) => { if (seg) node.appendChild(k % 2 ? K.el('span', { class: 'term' }, seg) : document.createTextNode(seg)); });
+  }
+  write(el('finish'), FINISH);
+  function layout(i, d, st) {
+    const key = [i, st.res, st.pick, st.why, finished].join('|');
+    if (key === laidOut) return;
+    laidOut = key;
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    ['charge', 'temp', 'hours', 'level', 'strat'].forEach((k) => { el('c-' + k).hidden = d.ctl !== k; });
+    el('say').hidden = !d.ctl;
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    const opts = d.show ? [] : d.opts;
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 12));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : '');
+    fb.textContent = d.show ? '' : right ? (d.right || 'That\'s it.') : st.res === 'wrong' ? ((d.hints && d.hints[st.pick]) || d.hint) : st.res === 'empty' ? 'Choose one of the answers first.' : '';
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  }
+
+  K.update((p) => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!anim.playing() && T !== Infinity) finishNow(STEPS[lastStep < 0 ? i : lastStep], S[lastStep < 0 ? i : lastStep]);
+    if (i !== lastStep) { lastStep = i; enterStep(i); }
+    else {
+      let moved = false;
+      if (p.charge !== pushed.charge) { X.soc = p.charge; moved = true; }
+      if (p.temp !== pushed.temp) { X.temp = p.temp; moved = true; }
+      if (p.hours !== pushed.hours) { X.hours = p.hours; moved = true; }
+      if (p.level !== pushed.level) { X.level = p.level; moved = true; }
+      if (p.strat !== pushed.strat) { X.strat = p.strat; moved = true; }
+      if (moved) {
+        Object.assign(pushed, { charge: p.charge, temp: p.temp, hours: p.hours, level: p.level, strat: p.strat });
+        if (d.show) { scripted = false; T = Infinity; }
+        if (quiet()) settle(); else anim.play();
+      }
+    }
+    if (finished !== lastDone) { lastDone = finished; laidOut = ''; enter(finished ? 'done' : 'stepbox'); }
+    layout(i, d, st);
+    paint(i);
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  const solved = (d) => Object.assign(blank(), { pick: d.want, res: 'right' });
+  // A step painted finished in the state given: what it draws.
+  function drawn(i, st, x) {
+    const keep = { X: Object.assign({}, X), S: S[i], T, sc: scripted, lp: LPd, sp: SPd };
+    S[i] = st || blank(); T = Infinity; scripted = false;
+    Object.assign(X, BASE, STEPS[i].enter || {}, x || {});
+    settle();
+    try {
+      latest = 0;
+      paint(i);
+      return Object.assign({}, REC, { latest, texts: Array.from(art.querySelectorAll('text')).map((n) => n.textContent) });
+    } finally {
+      Object.assign(X, keep.X); S[i] = keep.S; T = keep.T; scripted = keep.sc; LPd = keep.lp; SPd = keep.sp;
+      paint();
+    }
+  }
+  const iS0 = idx('Two gauges'), iS2 = idx('Warm acid'), iS4 = idx('Rest it first'), iS6 = idx('The level'), iS8 = idx('Layers');
+  const iW = idx('A warm-up'), iD3 = idx('Correct it'), iD9 = idx('Reads well, runs short'), iD10 = idx('Cold acid'), iD11 = idx('Which to trust');
+
+  K.check('For each 1.67 °C above 25 °C add one point (0.001) to the observed reading: a full cell reads 1.216 at 40 °C and 1.228 at 20 °C, and both correct to 1.225', () => {
+    const a = K.at({ charge: 100, temp: 40 }), b = K.at({ charge: 100, temp: 20 }), g = drawn(iS2, null, { temp: 40 });
+    let hold = true;
+    for (let t = T_LO; t <= T_HI; t++) hold = hold && K.near(K.at({ charge: 100, temp: t }).corrSG, SG_FULL, 1e-9);
+    return f3(a.rawSG) === '1.216' && f3(b.rawSG) === '1.228' && f3(a.corrSG) === '1.225' && f3(b.corrSG) === '1.225' && hold && K.near(ptsOf(T_REF + T_PT), 1, 1e-9) &&
+      g.rawText === '1.216' && g.corrText === '1.225';
+  }, { source: GNB });
+  K.check('A cell voltage of 2.10 V at room temperature means about 90 percent charge in stronger acid: this weaker 1.225 cell rests below 2.10 V even when full, and no screen pairs 2.10 V with 90%', () =>
+    K.at({ charge: SOC_90 }).volts < V_90 && K.at({ charge: 100 }).volts < V_90 && STEPS.every((d) => (d.text || d.task || '').indexOf(fV(V_90)) < 0), { source: BU403 });
+  K.check('Adding 0.845 to the specific gravity gives the open-circuit voltage: the rested voltmeter reads 1.95 V flat, 2.06 V at 90% and 2.07 V full', () => {
+    let rule = true;
+    for (let s = 0; s <= 100; s += 10) rule = rule && K.near(K.at({ charge: s }).volts, sgTrue(s) + OCV_K, 1e-9);
+    return rule && fV(K.at({ charge: 0 }).volts) === '1.95' + NB + 'V' && fV(K.at({ charge: SOC_90 }).volts) === '2.06' + NB + 'V' && fV(K.at({ charge: 100 }).volts) === '2.07' + NB + 'V' &&
+      drawn(iS0, null, { soc: SOC_90 }).voltText === '2.06' + NB + 'V';
+  }, { source: EEPS });
+  K.check('Rest at least four hours, and makers recommend 24: the voltmeter reads 2.20 V just off charge, falls as it rests, settles by 4 h and reads the same at 24 h, and the rested tick waits for 4 h', () => {
+    const v = (h) => K.at({ charge: 100, hours: h }).volts;
+    let falls = true;
+    for (let h = 0; h < REST_H; h += 0.5) falls = falls && v(h + 0.5) < v(h);
+    return fV(v(0)) === '2.20' + NB + 'V' && falls && K.near(v(REST_H), v(MAKER_H), 1e-12) && K.near(v(MAKER_H), V_FULL, 1e-12) &&
+      !checksOf({ hours: 3.5, level: 'right' }).rested && checksOf({ hours: REST_H, level: 'right' }).rested;
+  }, { source: BU903 });
+  K.check('As the charge falls, acid binds to the plates and the specific gravity gets lower: at every step down in charge the float sits lower and fewer acid dots stay in the liquid', () => {
+    const g = [100, 75, 50, 25, 0].map((s) => drawn(iS0, null, { soc: s }));
+    return g.every((r, k) => !k || (r.sg < g[k - 1].sg && r.fTop > g[k - 1].fTop && r.dotsIn < g[k - 1].dotsIn)) && g[4].dotsIn > 0;
+  }, { source: BU903 });
+  K.check('The float reads 1.225 full, 1.213 at 90% and 1.105 flat, and the float and the voltmeter rise together as the charge goes up', () => {
+    const g = [0, 25, 50, 75, 100].map((s) => drawn(iS0, null, { soc: s }));
+    return f3(K.at({ charge: 100 }).rawSG) === '1.225' && f3(K.at({ charge: 90 }).rawSG) === '1.213' && f3(K.at({ charge: 0 }).rawSG) === '1.105' &&
+      drawn(iS0, null, { soc: 90 }).rawText === '1.213' && g.every((r, k) => !k || (r.fTop < g[k - 1].fTop && r.needle > g[k - 1].needle));
+  });
+  K.check('High acid at the bottom makes the cell look more charged and raises its open-circuit voltage: stratified, the voltmeter reads higher than mixed at every charge, most acid dots sit low, and the hydrometer gives no reading', () => {
+    let up = true;
+    for (let s = 0; s <= 100; s += 10) up = up && K.at({ charge: s, strat: true }).volts > K.at({ charge: s, strat: false }).volts;
+    const m = drawn(iS8, null, { strat: false }), q = drawn(iS8, null, { strat: true });
+    return up && fV(K.at({ charge: 90, strat: true }).volts) === '2.11' + NB + 'V' && q.dotsLow > m.dotsLow && q.hyd === 'q' && m.hyd === 'float' && q.rawText === '?' && K.at({ strat: true }).rawSG === '?';
+  }, { source: BU804 });
+  K.check('A low level reads 10 points high and an overfilled one 10 points low: a full cell reads 1.235 low, 1.225 right and 1.215 high, and its surface sits lower when low', () =>
+    f3(K.at({ level: 'low' }).rawSG) === '1.235' && f3(K.at({ level: 'right' }).rawSG) === '1.225' && f3(K.at({ level: 'high' }).rawSG) === '1.215' &&
+    drawn(iS6, null, { level: 'low' }).surf > drawn(iS6, null, { level: 'right' }).surf);
+  K.check('The trust light says yes only when all four checks pass: rested, corrected, level right and mixed', () => {
+    const base = { hours: MAKER_H, level: 'right', strat: false, corrected: true };
+    const fails = [{ hours: 2 }, { level: 'low' }, { level: 'high' }, { strat: true }, { corrected: false }];
+    return trusted(checksOf(base)) && fails.every((f) => !trusted(checksOf(Object.assign({}, base, f)))) &&
+      drawn(iS4, null, { hours: 1 }).trust === false && drawn(iS4, null, { hours: MAKER_H }).trust === true;
+  });
+  K.check('Each puzzle accepts only its right answer, and nothing in its picture gives the answer before Check', () => {
+    const ok = STEPS.every((d) => d.show || (d.opts.length === 3 && new Set(d.opts).size === 3 && d.opts.indexOf(d.want) >= 0));
+    const c3 = drawn(iD3), c3r = drawn(iD3, solved(STEPS[iD3])), c10 = drawn(iD10), c9 = drawn(iD9), c9r = drawn(iD9, solved(STEPS[iD9])), t = drawn(iD11), tr = drawn(iD11, solved(STEPS[iD11]));
+    const w = drawn(iW), wr = drawn(iW, solved(STEPS[iW]));
+    return ok && w.floatShown === false && wr.floatShown === true && c3.corrHidden && c3.corrText === '?' && c3.rawText === '1.219' && !c3r.corrHidden && c3r.corrText === '1.225' && c10.corrText === '?' && c10.rawText === '1.228' &&
+      c9.cover && !c9r.cover && t.lights.every((l) => l === '?') && tr.lights.join() === 'ok,no,no' &&
+      STEPS[iD3].want === f3(SG_FULL) && STEPS[iD10].want === f3(SG_FULL) && STEPS[iD3].opts[1] === '1.213' && STEPS[iD10].opts[1] === '1.231';
+  });
+  K.check('Every demonstration settles within 4.6 s of its screen opening, and every answer\'s motion within 2.5 s', () =>
+    STEPS.every((d, i) => {
+      const g = drawn(i, d.show ? null : solved(d), d.end);
+      return d.show ? d.dur <= 4.6 && g.latest <= d.dur + 1e-9 : d.run.dur <= 2.5 && g.latest <= d.run.dur + 1e-9;
+    }) && 0.6 + 1.2 <= STEPS[iS6].dur && 0.6 + 1.6 <= STEPS[iS8].dur && 1.2 <= STEPS[idx('Topping up')].run.dur);
+
+  K.ready();
+</script>

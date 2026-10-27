@@ -1,0 +1,779 @@
+<!-- kind: quantity -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .caption { max-width: 32rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.12rem; font-weight: 700; line-height: 1.5; }
+  .task.show { font-size: 1.05rem; font-weight: 400; line-height: 1.6; }
+  .scene { display: block; width: 100%; max-width: 26rem; margin-inline: auto; }
+  .scene text { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .lbm { font-weight: 400; fill: var(--k-muted); }
+  .scene .ttl { font-weight: 700; }
+  .scene .cv, .scene .q { font-size: 16px; font-weight: 800; fill: var(--k-accent2); }
+  .scene .wl { font-weight: 700; fill: var(--k-warn); }
+  .scene .lim { font-weight: 700; fill: var(--k-accent2); }
+  .scene .dots { font-size: 16px; font-weight: 800; }
+  .scene .wall { fill: none; stroke: var(--k-ink); stroke-width: 3; stroke-linecap: round; }
+  .scene .box { fill: var(--k-panel); stroke: var(--k-accent2); stroke-width: 2; }
+  .scene .wire { fill: none; stroke: var(--k-ink); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .flow, .scene .air { fill: none; stroke: var(--k-accent); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .cellS { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.5; }
+  .scene .cellS.one { stroke: var(--k-accent2); stroke-width: 2.5; }
+  .scene .brace { fill: none; stroke: var(--k-muted); stroke-width: 1.5; }
+  .scene .case { fill: none; stroke: var(--k-ink); stroke-width: 2; }
+  .scene .cap { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.5; }
+  .scene .valve { fill: var(--k-panel); stroke: var(--k-accent2); stroke-width: 2; }
+  .scene .stem { stroke: var(--k-accent2); stroke-width: 2; }
+  .scene .acid { fill: var(--k-fill3); }
+  .scene .pos { fill: color-mix(in srgb, var(--k-cat2) 45%, var(--k-bg)); stroke: var(--k-ink); stroke-width: 1.2; }
+  .scene .neg { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .bub { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.2; }
+  .scene .gasd { fill: var(--k-muted); }
+  .scene .fanb { stroke: var(--k-ink); stroke-width: 3; stroke-linecap: round; }
+  .scene .hub { fill: var(--k-ink); }
+  .scene .fanh { fill: none; stroke: var(--k-muted); stroke-width: 1.5; }
+  .scene .track { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1; }
+  .scene .redz { fill: color-mix(in srgb, var(--k-warn) 28%, transparent); }
+  .scene .litb { fill: var(--k-fill1); }
+  .scene .hfill { fill: var(--k-accent2); }
+  .scene .limL { stroke: var(--k-muted); stroke-width: 2; }
+  .scene .limL.on { stroke: var(--k-accent2); stroke-width: 3; }
+  .scene .ign { stroke: var(--k-warn); stroke-width: 2.5; }
+  .scene .tk { stroke: var(--k-ink); stroke-width: 1; }
+  .scene .hole { fill: var(--k-sunk); stroke: var(--k-ink); stroke-width: 2; }
+  .scene .need { fill: none; stroke: var(--k-accent2); stroke-width: 2.5; stroke-dasharray: 7 4; }
+  .scene .airblk { fill: var(--k-fill3); stroke: var(--k-accent); stroke-width: 2; }
+  .say { line-height: 1.55; }
+  .picks { display: grid; grid-template-columns: repeat(auto-fit, minmax(6rem, 1fr)); gap: 8px; }
+  .picks.long { grid-template-columns: 1fr; }
+  .picks .k-btn { min-height: 48px; font-size: 1rem; }
+  .picks.long .k-btn { text-align: left; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; }
+  .replay .k-btn { min-height: 44px; padding-inline: 16px; font-size: .95rem; white-space: nowrap; }
+  .fb { font-weight: 700; min-height: 1.5em; }
+  .fb.right { color: var(--k-good); }
+  .why, .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }
+</style>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 456" width="100%" role="img" aria-label=""><g id="art"></g></svg>
+    <div class="replay" id="replay"></div>
+    <div class="k-controls ctl" id="c-current"></div>
+    <div class="k-controls ctl" id="c-cells"></div>
+    <div class="k-controls ctl" id="c-room"></div>
+    <div class="k-controls ctl" id="c-opening"></div>
+    <div class="k-controls ctl" id="c-fanFails"></div>
+    <div class="k-controls ctl" id="c-vrla"></div>
+    <div class="k-controls ctl" id="c-tstop" hidden></div>
+    <p class="say" id="say"></p>
+    <div class="k-readouts" id="outs"></div>
+    <div class="picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Examples: 100 Ah cells, a 20 A fault, 0.5 A float. Hydrogen is modelled, not measured.</p>
+
+<script>
+  // ---------- the rule ----------
+  const HSE = 'https://www.hse.gov.uk/PUBNS/indg139.pdf';
+  const ENER = 'https://www.enersys.com/492013/globalassets/documents/product-documentation/powersafe/opzs/amer/amer-en-iom-ps-flooded-0223.pdf';
+  const F = 0.3;                                   // cm² of opening for each cell and each amp
+  const S_ROOM = 10, S_ENC = 4;                    // dilution factor: a room people enter, an enclosure nobody enters
+  const LEL = 4;                                   // hydrogen ignites in air from 4 per cent (up to 75)
+  const V_AIR = 0.1;                               // the least air speed the rule assumes through each opening, m/s
+  const STAND = 20;                                // minutes to leave a battery standing after charging, so the gas can clear
+  const I_FAULT = 20, I_FLOAT = 0.5, I_VALVE = 10; // example fault and float currents; the sketched current where a sealed cell's valve lifts
+  const GAS_V = 2.4, LIM_LO = 2.5, LIM_HI = 5, CAP = 100;   // gassing voltage; the recommended current limit per 100 Ah
+  const RISE = 0.004;                              // sketch: per cent per cell-amp over the sped-up climb once the air stops
+  const A_MIN = 100, A_MAX = 4000, A0 = 1440;
+  const NB = ' ';
+  const needOf = (n, i, s) => F * n * i * s;
+  const steadyH = (n, i, a) => 4 * F * n * i / a;            // 1.2 × N × I ÷ opening: the rule read backwards
+  const flowOf = (a) => a / 1e4 * V_AIR * 1000;              // litres a second through an opening of a cm²
+  function modelOf(p) {
+    const n = p.cells, i = p.current, a = p.opening;
+    return {
+      hydrogen: p.vrla ? 'not modelled' : steadyH(n, i, a) + (p.left ? K.clamp(p.left, 0, 1) * steadyH(n, I_FAULT, a) : 0) + (p.fanFails ? RISE * n * i * K.clamp(p.tstop, 0, 1) : 0),
+      needed: p.vrla ? 'maker\'s figure' : needOf(n, i, p.room),
+      flow: p.fanFails ? 0 : flowOf(a),
+    };
+  }
+  const numI = (i) => (Math.abs(i - Math.round(i)) < 1e-9 ? String(Math.round(i)) : K.fmt(i, { decimals: 1 }));
+  const fA = (i) => numI(i) + NB + 'A';
+  const fC = (a) => String(Math.round(a)) + NB + 'cm²';     // labels and readouts
+  const fCp = (a) => String(Math.round(a)) + ' cm²';        // the screens' prose
+  const fH = (h) => K.fmt(h, { decimals: 2 }) + NB + '%';
+  const fL = (q) => K.fmt(q, { decimals: 1 }) + NB + 'L/s';
+  const fM2 = (a) => String(+(a / 1e4).toFixed(4)) + NB + 'm²';
+  const p1 = (h) => K.fmt(h, { decimals: 1 });
+  const q1 = (v) => Math.round(v * 10) / 10, q2 = (v) => Math.round(v * 100) / 100;
+  const ez = (x) => K.ease(K.clamp(x, 0, 1));
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  const W1 = 'This full battery of 24 cells, 100 Ah each, is still on charge. Near full, the plates take less of the current. The rest splits water into hydrogen and oxygen. That is *gassing*. ' +
+    'Past the gassing voltage, 2.40 V a cell, the limit is 2.5 to 5 A per 100 Ah. A failed charger pushing 20 A gives four to eight times that, and the bubbles run thick.';
+  const W2 = 'Hydrogen in air ignites from about 4 to 75 per cent. Figures vary slightly. A room people enter is held below 0.4 per cent, a tenth of 4. An enclosure nobody enters may reach 1 per cent, a quarter of 4. ' +
+    'Each limit becomes a *dilution factor*, S. A room people enter takes S = 10, since 4 ÷ 10 = 0.4. An enclosure takes S = 4, since 4 ÷ 4 = 1.';
+  const W4 = 'The inlet and the outlet each need at least 0.3 × N × I × S cm². N is the number of cells, I the current in amps, and S the dilution factor. For 24 cells at 20 A in a room people enter, that is 0.3 × 24 × 20 × 10 = ' +
+    fCp(needOf(24, I_FAULT, S_ROOM)) + '. The dashed outline draws it to scale. With 12 cells, it halves to ' + fCp(needOf(12, I_FAULT, S_ROOM)) + '.';
+  const W6 = 'I is the most current the charger is likely to deliver if it fails. On float, this battery takes an example 0.5 A. Sized for float, each opening would need just ' + fCp(needOf(24, I_FLOAT, S_ROOM)) + '. ' +
+    'But a failed charger can push its full 20 A into the full battery. Most of that current becomes gas. So the opening needed grows forty times, to ' + fCp(needOf(24, I_FAULT, S_ROOM)) + '.';
+  const W8 = 'The rule assumes air crosses each opening at 0.1 m/s or more. Flow = area × speed, so ' + fCp(A0) + ' passes ' + p1(flowOf(A0)) + ' litres a second. ' +
+    'At 10 A, the hydrogen reads ' + p1(steadyH(24, 10, A0)) + ' per cent. Halve the opening: the same gas meets half the air, so the hydrogen doubles, to ' + p1(steadyH(24, 10, 720)) + ' per cent. ' +
+    'If the room relies on a fan and it fails, the hydrogen climbs past 1 per cent.';
+  const W10 = 'A *valve-regulated* cell is sealed, with a valve on top. It keeps most of its gas inside and turns it back into water. So its bubbles fade, and the hydrogen readout shows no number. ' +
+    'A hard charge still builds pressure inside. Past an example 10 A, the pressure lifts the valve, and gas escapes. So sealed means much less gas, not none.';
+  const O0 = ['2.5 m³/s', '1 m³/s', '0.25 m³/s'];
+  const O3_NO = 'No: a room people enter must stay below 0.4 per cent', O3_FAR = 'Yes: it is far below the 4 per cent where hydrogen ignites', O3_LIM = 'Yes: 1 per cent is the limit';
+  const O7_NONE = 'None: a full battery takes no current';
+  const O9 = (h) => p1(h) + ' per cent';
+  const O11_NO = 'No: the cells make much less gas, but their valves can still let it out', O11_GAS = 'Yes: sealed cells make no gas', O11_FLOAT = 'Yes, as long as the charger stays on float';
+  const O14_NOW = 'Yes: with the charger off, no more gas is made', O14_FAN = 'Yes, as long as the fan is running', O14_WAIT = 'No: leave the battery to stand for at least 20 minutes first';
+  const O13_UP = 'It keeps climbing towards the 4 per cent band', O13_STAY = 'It stays at 0.4 per cent, because the room was sized for it', O13_NONE = 'Nothing: an equalise makes no extra gas';
+  const STEPS = [
+    { name: 'Area times speed', pic: 'duct', enter: { blk: 0 }, end: { blk: 1 }, run: { dur: 2.0, go: (u) => { X.blk = ez(u / 0.85); } },
+      task: 'Air crosses a 0.5 m² opening at 2 m/s. What flow of air passes through it?',
+      opts: O0, want: O0[1], right: 'That\'s it: 0.5 × 2 = 1 m³ a second.',
+      hint: 'Not quite. Flow is area times speed.',
+      hints: { [O0[0]]: 'Not quite. That adds them, but flow is area times speed.', [O0[2]]: 'Not quite. That divides them, but flow is area times speed.' },
+      why: 'In one second the air moves 2 m. So a block of air 0.5 m² across and 2 m long passes through. Its volume is 0.5 × 2 = 1 m³. So 1 m³ passes each second.' },
+    { show: true, name: 'Spare current makes gas', pic: 'room', ctl: ['current'], say: 'gas', enter: { current: I_FLOAT }, end: { current: I_FAULT }, still: { current: I_FAULT }, dur: 4.0,
+      play: (t) => { X.current = q1(K.lerp(I_FLOAT, I_FAULT, ez((t - 0.3) / 3.5))); },
+      text: W1 + ' Drag the current to try it.', read: W1 },
+    { show: true, name: 'Two limits', pic: 'room', ctl: ['room'], say: 'room', enter: { room: S_ENC }, end: { room: S_ROOM, lit: 1, na: null }, still: { room: S_ROOM }, dur: 2.6,
+      play: (t) => {
+        X.room = t < 1.5 ? S_ENC : S_ROOM;
+        X.lit = t < 1.1 ? 1 : t < 1.5 ? 1 - ez((t - 1.1) / 0.4) : ez((t - 1.5) / 0.6);
+        X.na = t < 1.5 || t >= 2.2 ? null : K.lerp(needOf(24, I_FAULT, S_ENC), needOf(24, I_FAULT, S_ROOM), ez((t - 1.5) / 0.7));
+      },
+      text: W2 + ' Switch the room type to try it.', read: W2 },
+    { name: 'One per cent', pic: 'room', enter: { opening: 576, lit: 0, nf: 0 }, end: { lit: 1, nf: 1 }, hide: ['needed'],
+      run: { dur: 1.4, go: (u) => { X.lit = ez(u / 0.6); X.nf = ez((u - 0.3) / 0.7); } },
+      task: 'A battery room\'s hydrogen reads 1 per cent, and people work in it. Is that within the limit?',
+      opts: [O3_FAR, O3_LIM, O3_NO], want: O3_NO, right: 'That\'s it: where people work, the limit is 0.4 per cent.',
+      hint: 'Not quite. Think about who enters this room.',
+      hints: { [O3_FAR]: 'Not quite. 1 per cent is already a quarter of the way to 4 per cent. Where people work, the limit is a tenth of it.', [O3_LIM]: 'Not quite. That limit is for an enclosure nobody enters.' },
+      why: 'People work in this room, so S = 10. Its limit is 4 ÷ 10 = 0.4 per cent, and 1 per cent is well over it. 1 per cent is already a quarter of the way to 4 per cent, where hydrogen ignites. The 1 per cent limit is only for an enclosure nobody enters.' },
+    { show: true, name: 'The rule', pic: 'room', ctl: ['cells'], say: 'cells', enter: { cells: 24 }, end: { cells: 24, na: null, cf: 1 }, still: { cells: 24 }, dur: 3.4,
+      play: (t) => {
+        const a = needOf(24, I_FAULT, S_ROOM), b = needOf(12, I_FAULT, S_ROOM);
+        X.cells = t < 1.0 || t >= 2.4 ? 24 : 12;
+        X.na = t < 1.0 ? null : t < 2.4 ? K.lerp(a, b, ez((t - 1.0) / 0.7)) : t < 3.1 ? K.lerp(b, a, ez((t - 2.4) / 0.7)) : null;
+        X.cf = t < 1.0 ? 1 : t < 2.4 ? ez((t - 1.0) / 0.4) : ez((t - 2.4) / 0.4);
+      },
+      text: W4 + ' Pick a cell count to try it.', read: W4 },
+    { name: 'An enclosure', pic: 'room', enter: { room: S_ENC, nf: 0 }, end: { nf: 1 }, hide: ['needed'],
+      run: { dur: 1.4, go: (u) => { X.nf = ez(u / 0.8); } },
+      task: 'The same 24 cells at 20 A sit in an enclosure nobody enters. What opening does each vent need?',
+      opts: [fCp(3600), fCp(1440), fCp(576)], want: fCp(needOf(24, I_FAULT, S_ENC)), right: 'That\'s it: 0.3 × 24 × 20 × 4 = ' + fCp(needOf(24, I_FAULT, S_ENC)) + '.',
+      hint: 'Not quite. An enclosure uses S = 4.',
+      hints: { [fCp(3600)]: 'Not quite. That scales 1440 up by 10 ÷ 4, when it should scale down. An enclosure may hold more hydrogen, so it needs less air.', [fCp(1440)]: 'Not quite. That still uses S = 10, but an enclosure uses 4.' },
+      why: 'An enclosure takes S = 4. So each opening needs 0.3 × 24 × 20 × 4 = ' + fCp(needOf(24, I_FAULT, S_ENC)) + '. An enclosure may hold up to 1 per cent hydrogen, more than a room people enter. So it needs less air, and a smaller opening.' },
+    { show: true, name: 'Size for the fault', pic: 'room', ctl: ['current'], say: 'size', enter: { current: I_FLOAT }, end: { current: I_FAULT }, still: { current: I_FAULT }, dur: 4.2,
+      play: (t) => { X.current = q1(K.lerp(I_FLOAT, I_FAULT, ez((t - 0.6) / 3.4))); },
+      text: W6 + ' Drag the current to try it.', read: W6 },
+    { name: 'Float or fault?', pic: 'room', enter: { current: I_FLOAT, nf: 0 }, end: { current: I_FAULT, nf: 1 }, hide: ['needed'],
+      run: { dur: 2.4, go: (u) => { X.nf = ez(u / 0.3); X.current = q1(K.lerp(I_FLOAT, I_FAULT, ez((u - 0.1) / 0.85))); } },
+      task: 'A 24-cell battery floats at 0.5 A in a room people enter. If its control failed, its charger could push 20 A. What opening do the vents need?',
+      opts: [fCp(36), fCp(1440), O7_NONE], want: fCp(needOf(24, I_FAULT, S_ROOM)), right: 'That\'s it: 0.3 × 24 × 20 × 10 = ' + fCp(needOf(24, I_FAULT, S_ROOM)) + '.',
+      hint: 'Not quite. Size from the most current the charger could push.',
+      hints: { [fCp(36)]: 'Not quite. That is sized for float, but a failed charger pushes 20 A into a full battery.', [O7_NONE]: 'Not quite. A full battery still takes current if the charger pushes it, and that spare current splits water.' },
+      why: 'Size from the fault current, not the float current. A failed charger can push 20 A into the full battery, and that spare current splits water. So each opening needs 0.3 × 24 × 20 × 10 = ' + fCp(needOf(24, I_FAULT, S_ROOM)) + '. Sized for float, 36 cm² would be forty times too small.' },
+    { show: true, name: 'Air carries it away', pic: 'room', ctl: ['opening', 'fanFails'], say: 'air', enter: { current: 10, opening: A0 }, end: { opening: 720, fanFails: true, tstop: 1, af: 0 }, still: { opening: 720, fanFails: true, tstop: 1 }, dur: 4.6,
+      play: (t) => {
+        X.opening = Math.round(K.lerp(A0, 720, ez((t - 0.9) / 0.9)));
+        X.fanFails = t >= 2.3;
+        X.af = t < 2.3 ? 1 : 1 - ez((t - 2.3) / 0.3);
+        X.tstop = q2(K.clamp((t - 2.4) / 2.0, 0, 1));
+      },
+      text: W8 + ' Drag the opening or fail the fan to try it.', read: W8 },
+    { name: 'Blocked opening', pic: 'room', enter: { current: I_FLOAT, opening: 720 }, end: { current: I_FAULT },
+      run: { dur: 2.2, go: (u) => { X.current = q1(K.lerp(I_FLOAT, I_FAULT, ez(u / 0.9))); } },
+      task: 'Stores now block half of the 1440 cm² opening, leaving 720 cm². The charger fails and pushes 20 A into the 24 cells. What does the hydrogen reach?',
+      opts: [O9(0.2), O9(0.4), O9(0.8)], want: O9(steadyH(24, I_FAULT, 720)), right: 'That\'s it: the same gas in half the air, 0.4 × 2 = 0.8 per cent, twice the limit.',
+      hint: 'Not quite. Think about how much air now dilutes the gas.',
+      hints: { [O9(0.2)]: 'Not quite. Less air dilutes the gas less, so the level rises.', [O9(0.4)]: 'Not quite. The gas is unchanged, but the air has halved.' },
+      why: 'Through the full 1440 cm², 20 A holds this room at the 0.4 per cent limit. Half the opening lets in half the air, and the same gas spreads through it. So the hydrogen doubles, to 0.8 per cent. That is twice the limit for a room people enter.' },
+    { show: true, name: 'Sealed cells', pic: 'room', ctl: ['vrla', 'current'], say: 'vrla', enter: { current: 10 }, end: { vrla: true, vf: 1, current: I_FAULT }, still: { vrla: true, current: I_FAULT }, dur: 4.3,
+      play: (t) => {
+        X.vrla = t >= 0.8;
+        X.vf = ez((t - 0.8) / 0.8);
+        X.current = q1(K.lerp(10, I_FAULT, ez((t - 2.0) / 2.0)));
+      },
+      text: W10 + ' Switch the cells, or drag the current, to try it.', read: W10 },
+    { name: 'Board over the vents?', pic: 'room', enter: { current: I_FLOAT, vrla: true, vf: 1 }, end: { current: I_FAULT },
+      run: { dur: 2.4, go: (u) => { X.current = q1(K.lerp(I_FLOAT, I_FAULT, ez(u / 0.9))); } },
+      task: 'Sealed, valve-regulated cells replace a flooded battery. Someone suggests boarding over the vents. Are they right?',
+      opts: [O11_NO, O11_GAS, O11_FLOAT], want: O11_NO, right: 'That\'s it: sealed means much less gas, not none.',
+      hint: 'Not quite. Think about what the valve is for.',
+      hints: { [O11_GAS]: 'Not quite. The valve is there to let gas out when the pressure builds.', [O11_FLOAT]: 'Not quite. The vents are sized for a failed charger, and a failed charger does not stay on float.' },
+      why: 'Sealed cells keep most of their gas and turn it back into water. But a hard charge builds pressure, and the valve lets gas out. A failed charger pushes just that kind of current. So the room still needs its vents.' },
+    { name: 'Fifty-five cells', pic: 'room', enter: { cells: 55, current: 10, nf: 0, hf: 0 }, end: { nf: 1, hf: 1 }, hide: ['needed', 'hydrogen'],
+      run: { dur: 1.4, go: (u) => { X.nf = ez(u / 0.8); X.hf = ez((u - 0.2) / 0.6); } },
+      task: 'A room people enter holds 55 cells. The charger can deliver 10 A if it fails. What opening does each vent need?',
+      opts: [fCp(165), fCp(660), fCp(1650)], want: fCp(needOf(55, 10, S_ROOM)), right: 'That\'s it: 0.3 × 55 × 10 × 10 = ' + fCp(needOf(55, 10, S_ROOM)) + '.',
+      hint: 'Not quite. Use 0.3 × N × I × S.',
+      hints: { [fCp(660)]: 'Not quite. That uses S = 4, which is for an enclosure, and people enter this room.', [fCp(165)]: 'Not quite. That leaves out S.' },
+      why: 'People enter, so S = 10. Each opening needs 0.3 × 55 × 10 × 10 = ' + fCp(needOf(55, 10, S_ROOM)) + '. That is 0.165 m². At 0.1 m/s it passes 0.0165 m³ of air a second, or 16.5 litres. ' +
+        'The 1440 cm² openings drawn here fall short, so the hydrogen sits above the 0.4 per cent limit.' },
+    { name: 'The fan stops', pic: 'room', enter: {}, end: { fanFails: true, tstop: 1, af: 0 },
+      run: { dur: 2.5, go: (u) => { X.fanFails = true; X.af = 1 - ez(u / 0.15); X.tstop = q2(K.clamp((u - 0.1) / 0.9, 0, 1)); } },
+      task: 'A battery room\'s fan stops during an equalise. What happens to the hydrogen?',
+      opts: [O13_STAY, O13_UP, O13_NONE], want: O13_UP, right: 'That\'s it: the gas keeps coming, and no air carries it out.',
+      hint: 'Not quite. Think about what carries the gas out.',
+      hints: { [O13_STAY]: 'Not quite. The sizing assumes the air keeps moving. Now nothing carries the gas out.', [O13_NONE]: 'Not quite. An equalise is a deliberate overcharge, so most of its current becomes gas.' },
+      why: 'An equalise is a deliberate overcharge, so most of its current becomes gas. The sizing assumes air keeps crossing the openings. With the fan stopped, nothing carries the gas out. So the hydrogen keeps climbing towards 4 per cent, where it ignites.' },
+    { name: 'Charger off', pic: 'room', stand: true, enter: { current: 0, left: 1, wt: 0, hf: 0 }, end: { left: 0, wt: 1, hf: 1 }, hide: ['hydrogen'],
+      run: { dur: 2.4, go: (u) => { X.hf = ez(u / 0.3); X.left = 1 - ez((u - 0.1) / 0.9); X.wt = ez((u - 0.1) / 0.9); } },
+      task: 'A hard charge has just finished, and the charger is off. Someone wants to start work by the battery that could make a spark. Can they start now?',
+      opts: [O14_NOW, O14_WAIT, O14_FAN], want: O14_WAIT, right: 'That\'s it: the gas already made needs time to clear.',
+      hint: 'Not quite. Think about the gas already in the room.',
+      hints: { [O14_NOW]: 'Not quite. No new gas is made, but the gas already made is still in the room.', [O14_FAN]: 'Not quite. The fan clears the gas, but that takes time.' },
+      why: 'Switching off stops new gas, but not the gas already made. It still has to clear from the cells and the room. So leave the battery to stand for at least 20 minutes after charging. Only then start work that could make a spark.' },
+  ];
+  const FINISH = 'Near full charge, current the plates no longer take splits water into hydrogen and oxygen. So a battery room\'s vents are sized from the charger\'s largest fault current, not its float current.';
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  const quiet = () => REDUCE || testing();
+  const el = (id) => document.getElementById(id);
+
+  // ---------- state ----------
+  function blank() { return { pick: null, res: null, why: false }; }
+  let S = STEPS.map(blank);
+  const BASE = { current: I_FAULT, cells: 24, room: S_ROOM, opening: A0, fanFails: false, vrla: false, tstop: 0, left: 0, wt: 0, ph: 0, gp: 0, fa: 0.6,
+    nf: 1, lit: 1, hf: 1, na: null, cf: 1, vf: 0, af: 1, blk: 0 };
+  const X = {};
+  const setX = (o) => Object.assign(X, o);
+  const copyX = () => Object.assign({}, X);
+  setX(BASE);
+  let T = Infinity, scripted = false, lastStep = -1, finished = false, lastDone = false;
+  let REC = {}, laidOut = '', drift = 0, climbing = false, climbT = 0;
+  const DRIFT = 1.6, CLIMB = 2.0;
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);
+  const CTL = {
+    current: K.control({ id: 'current', label: 'Charging current', min: 0, max: I_FAULT, step: 0.1, value: I_FAULT, fmt: fA, snap: [I_FLOAT, I_VALVE, I_FAULT], into: '#c-current' }),
+    cells: K.choice({ id: 'cells', label: 'Cells in the battery', options: [6, 12, 24, 55].map((n) => ({ value: n, label: String(n) })), value: 24, into: '#c-cells' }),
+    room: K.choice({ id: 'room', label: 'Room type', options: [{ value: S_ROOM, label: 'People enter' }, { value: S_ENC, label: 'Enclosure' }], value: S_ROOM, into: '#c-room' }),
+    opening: K.control({ id: 'opening', label: 'Real opening', min: A_MIN, max: A_MAX, step: 1, value: A0, fmt: fC, snap: [576, 720, A0, 1650], into: '#c-opening' }),
+    fanFails: K.toggle({ id: 'fanFails', label: 'Fan fails', value: false, into: '#c-fanFails' }),
+    vrla: K.toggle({ id: 'vrla', label: 'Valve-regulated cells', value: false, into: '#c-vrla' }),
+    tstop: K.control({ id: 'tstop', label: 'Time since the fan stopped', min: 0, max: 1, step: 0.01, value: 0, fmt: (v) => (v > 0 ? 'Sped up' : 'Not yet'), into: '#c-tstop' }),
+  };
+  const CKEYS = ['current', 'cells', 'room', 'opening', 'fanFails', 'vrla'];
+  const KEYS = { current: () => q1(X.current), cells: () => X.cells, room: () => X.room, opening: () => Math.round(X.opening), fanFails: () => !!X.fanFails, vrla: () => !!X.vrla, tstop: () => q2(X.tstop) };
+  const pushed = {};
+  Object.keys(CTL).forEach((k) => { pushed[k] = CTL[k].get(); });
+  // The page moves the controls itself during a demonstration (silently, so it is not taken for Dan's move).
+  function push() { Object.keys(KEYS).forEach((k) => { const v = KEYS[k](); if (pushed[k] !== v) { CTL[k].set(v, true); pushed[k] = CTL[k].get(); } }); }
+  const paramsX = () => ({ current: q1(X.current), cells: X.cells, room: X.room, opening: Math.round(X.opening), fanFails: !!X.fanFails, vrla: !!X.vrla, tstop: q2(X.tstop), left: q2(X.left) });
+
+  K.model(modelOf);
+
+  // A puzzle's answer stays a "?" in its readout until Check says it is right.
+  function hid(id) { const d = STEPS[at()]; return !!(d && !d.show && d.hide && d.hide.indexOf(id) >= 0 && S[at()].res !== 'right'); }
+  const R = {
+    hydrogen: K.readout({ id: 'hydrogen', label: 'Hydrogen in the room', decimals: 2, fmt: (v) => (hid('hydrogen') ? '?' : fH(v)), into: '#outs' }),
+    needed: K.readout({ id: 'needed', label: 'Opening needed', decimals: 0, fmt: (v) => (hid('needed') ? '?' : fC(v)), into: '#outs' }),
+    flow: K.readout({ id: 'flow', label: 'Air through the opening', decimals: 1, fmt: (v) => (hid('flow') ? '?' : fL(v)), into: '#outs' }),
+  };
+  function outs() { const o = modelOf(paramsX()); R.hydrogen.set(o.hydrogen); R.needed.set(o.needed); R.flow.set(o.flow); }
+
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || st.res === 'right') return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = st.pick === d.want ? 'right' : 'wrong';
+    if (st.res !== 'right') { T = Infinity; return; }
+    if (quiet()) { T = Infinity; setX(d.end || {}); push(); }
+    else { T = 0; anim.play(); }
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    const d = STEPS[at()];
+    if (d.show || finished) return;
+    S[at()].why = !S[at()].why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    if (!STEPS[at()].show || finished) return;
+    enterStep(at());
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true; anim.pause();
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(blank); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // ---------- motion: one animation runs each demonstration, each answer's motion, and what Dan's own moves set going ----------
+  const motionEnd = (d, st) => (d.show ? (scripted ? d.dur : 0) : st.res === 'right' ? d.run.dur : 0);
+  // After Dan moves something: the bubbles and the air keep going a while, the valve and the air fade, and a stopped fan's climb runs.
+  function easeOn(dt) {
+    let busy = false;
+    if (drift > 0) { drift = Math.max(0, drift - dt); busy = drift > 0; }
+    const vT = X.vrla ? 1 : 0, aT = X.fanFails ? 0 : 1;
+    if (X.vf !== vT) { X.vf = vT > X.vf ? Math.min(vT, X.vf + dt / 0.8) : Math.max(vT, X.vf - dt / 0.8); busy = true; }
+    if (X.af !== aT) { X.af = aT > X.af ? Math.min(aT, X.af + dt / 0.3) : Math.max(aT, X.af - dt / 0.3); busy = true; }
+    if (climbing) { climbT += dt; X.tstop = q2(Math.min(1, climbT / CLIMB)); if (X.tstop >= 1) climbing = false; else busy = true; }
+    return busy;
+  }
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    const i = at(), d = STEPS[i], st = S[i];
+    T += dt;
+    X.ph += dt; X.gp += dt * 0.35 * X.af; X.fa += dt * 7 * X.af;
+    if (scripted) { d.play(Math.min(T, d.dur)); if (T >= d.dur) scripted = false; }
+    const running = !d.show && st.res === 'right' && T < d.run.dur + dt;
+    if (running) d.run.go(Math.min(1, T / d.run.dur));
+    const busy = scripted || running ? false : easeOn(dt);
+    push(); outs(); paint(i);
+    return busy || T < motionEnd(d, st);
+  } });
+  const pending = () => T !== Infinity || drift > 0 || climbing || X.vf !== (X.vrla ? 1 : 0) || X.af !== (X.fanFails ? 0 : 1);
+  // A motion that was stopped (the page hidden, a test) shows finished.
+  function finishNow(d, st) {
+    if (scripted) { d.play(d.dur); scripted = false; }
+    if (!d.show && st.res === 'right') setX(d.end || {});
+    if (climbing) { X.tstop = 1; climbing = false; }
+    X.vf = X.vrla ? 1 : 0; X.af = X.fanFails ? 0 : 1; drift = 0;
+    T = Infinity; push();
+  }
+  function startDrift() {
+    if (quiet()) { finishNow(STEPS[at()], S[at()]); return; }
+    drift = DRIFT; anim.play();
+  }
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && pending()) { finishNow(STEPS[at()], S[at()]); outs(); paint(); } });
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter'); void box.offsetWidth; box.classList.add('enter');
+  }
+  function enterStep(i) {
+    const d = STEPS[i], st = S[i];
+    anim.pause();
+    setX(BASE); setX(d.enter || {});
+    drift = 0; climbing = false; climbT = 0;
+    if (!d.show && st.res === 'right') setX(d.end || {});
+    if (d.show && !quiet()) { scripted = true; T = 0; d.play(0); push(); anim.play(); }
+    else { scripted = false; T = Infinity; if (d.show) setX(d.end || {}); push(); }
+    laidOut = '';
+    enter('stepbox');
+  }
+
+  // ---------- drawing ----------
+  const svg = el('scene'), art = el('art');
+  let into = null;
+  const r1 = (v) => Math.round(v * 10) / 10;
+  const add = (n) => (into || art).appendChild(n);
+  const S_ = (tag, a) => add(K.svg(tag, a));
+  function txt(x, y, s, cls, anchor) {
+    const a = { x: r1(x), y: r1(y), 'text-anchor': anchor || 'middle' };
+    if (cls) a.class = cls;
+    const t = K.svg('text', a); t.textContent = s; return add(t);
+  }
+  function part(a, fn) { if (a <= 0.001) return; const g = add(K.svg('g')); K.fade(g, Math.min(1, a), 0); const keep = into; into = g; fn(); into = keep; }
+  const gapOf = (a) => 0.85 * Math.sqrt(a);                 // the side view's slot for an opening
+  const sideOf = (a) => 1.6 * Math.sqrt(Math.max(0, a));     // a square opening, face-on, to scale
+  const hx = (h) => 20 + 60 * K.clamp(h, 0, 5);              // the hydrogen gauge, 0 to 5 per cent
+
+  // Recall: one second of air, 2 m long, crosses an opening of 0.5 m².
+  function drawDuct(d, st) {
+    const x0 = 30 + 120 * X.blk, ok = st.res === 'right';
+    S_('path', { class: 'wall', d: 'M150 22V60M150 120V156' });
+    txt(158, 40, 'opening, 0.5' + NB + 'm²', null, 'start');
+    S_('path', { class: 'flow', d: 'M30 48H118M112 42L118 48L112 54' });
+    txt(74, 38, '2' + NB + 'm/s', 'cv');
+    S_('rect', { class: 'airblk', x: r1(x0), y: 62, width: 120, height: 56, rx: 3 });
+    const aa = ok ? ez((X.blk - 0.55) / 0.45) : 0;
+    if (aa < 0.999) part(1 - aa, () => txt(x0 + 60, 96, '?' + NB + 'm³', 'q'));
+    if (aa > 0.001) part(aa, () => txt(x0 + 60, 96, '1' + NB + 'm³', 'q'));
+    S_('path', { class: 'brace', d: 'M' + r1(x0) + ' 128V134H' + r1(x0 + 120) + 'V128' });
+    txt(x0 + 60, 152, '2' + NB + 'm in 1' + NB + 's', 'lbm');
+    REC.duct = aa >= 0.5 ? '1 m³' : '?';
+    return 'Air moves at 2 m/s towards a wall with a 0.5 m² opening. A block of air 2 m long, one second of air, ' +
+      (REC.duct === '?' ? 'waits to pass, and its volume shows a question mark.' : 'has passed through: 1 m³.');
+  }
+
+  // The battery room from the side: charger, string of cells, one cell cut open, the inlet low and the outlet high.
+  function drawRoom(d, st) {
+    const N = X.cells, I = q1(X.current), A = Math.round(X.opening), vf = X.vf, af = X.af;
+    const g = gapOf(A), inTop = 214 - g, outBot = 36 + g, fy = (36 + outBot) / 2;
+    const gI = K.clamp(I / I_FAULT, 0, 1), vo = K.clamp((I - I_VALVE) / 2, 0, 1);
+    txt(170, 16, X.room === S_ROOM ? 'A room people enter: S = 10' : 'An enclosure nobody enters: S = 4', 'ttl');
+    S_('path', { class: 'wall', d: 'M12 26H328M12 222H328M12 26V' + r1(inTop) + 'M12 214V222M328 26V36M328 ' + r1(outBot) + 'V222' });
+    // Air crosses both openings at the same speed; it stops when the fan does.
+    const rows = (a, b) => { const n = Math.max(1, Math.floor((b - a) / 14)), out = []; for (let k = 0; k < n; k++) out.push(a + (b - a) * (k + 0.5) / n); return out; };
+    const chev = (x, y) => S_('path', { class: 'air', d: 'M' + r1(x - 4) + ' ' + r1(y - 4) + 'L' + r1(x) + ' ' + r1(y) + 'L' + r1(x - 4) + ' ' + r1(y + 4) });
+    REC.air = 0;
+    if (af > 0.001) part(af, () => {
+      rows(inTop, 214).forEach((y) => [0, 1, 2].forEach((k) => { chev(8 + 36 * ((X.ph * 0.6 + k / 3) % 1), y); REC.air++; }));
+      rows(36, outBot).forEach((y) => [0, 1].forEach((k) => { chev(278 + 24 * ((X.ph * 0.6 + k / 2) % 1), y); REC.air++; }));
+    });
+    const bx = 9 * Math.cos(X.fa), by = 9 * Math.sin(X.fa);
+    S_('circle', { class: 'fanh', cx: 318, cy: r1(fy), r: 11 });
+    S_('line', { class: 'fanb', x1: r1(318 - bx), y1: r1(fy - by), x2: r1(318 + bx), y2: r1(fy + by) });
+    S_('circle', { class: 'hub', cx: 318, cy: r1(fy), r: 3 });
+    txt(18, inTop - 8, 'air in', 'lbm', 'start');
+    txt(324, outBot + 17, X.fanFails ? 'fan stopped' : 'air out', X.fanFails ? 'wl' : 'lbm', 'end');
+    REC.fanStopped = !!X.fanFails;
+    if (d.stand) txt(57, 114, X.wt > 0.02 ? 'stood ' + Math.round(STAND * X.wt) + NB + 'min' : 'charger off', 'lim');
+    // The charger and its leads, and the string of cells: four, a gap, and the last one when there are many.
+    S_('rect', { class: 'box', x: 22, y: 40, width: 70, height: 48, rx: 7 });
+    txt(57, 58, 'charger', 'lbm');
+    txt(57, 79, fA(I), 'cv');
+    REC.cur = fA(I);
+    S_('path', { class: 'wire', d: 'M92 63H106' });
+    S_('path', { class: 'flow', d: 'M96 59L100 63L96 67' });
+    const many = N > 6;
+    for (let k = 0; k < 6; k++) {
+      const x = 106 + 24 * k;
+      if (many && k === 4) { txt(x + 8, 70, '…', 'dots'); continue; }
+      S_('rect', { class: k === 0 ? 'cellS one' : 'cellS', x, y: 52, width: 16, height: 22, rx: 3 });
+      if (k < 5 && !(many && k === 3)) S_('path', { class: 'wire', d: 'M' + (x + 16) + ' 63H' + (x + 24) });
+    }
+    S_('path', { class: 'brace', d: 'M106 48V44H242V48' });
+    part(X.cf, () => txt(174, 39, N + ' cells'));
+    S_('path', { class: 'wire', d: 'M234 74V96H57V88' });   // the return lead leaves the last cell from below, clear of the outlet's label
+    S_('path', { class: 'flow', d: 'M152 92L148 96L152 100' });
+    // One cell cut open: plates in acid, bubbles from both plates, and a vent or a valve on top.
+    txt(124, 146, 'one cell,', 'lbm', 'end'); txt(124, 162, 'cut open', 'lbm', 'end');
+    S_('rect', { class: 'acid', x: 134, y: 140, width: 100, height: 78 });
+    S_('rect', { class: 'case', x: 132, y: 120, width: 104, height: 100, rx: 6 });
+    S_('rect', { class: 'pos', x: 150, y: 146, width: 16, height: 68, rx: 2 });
+    S_('rect', { class: 'neg', x: 202, y: 146, width: 16, height: 68, rx: 2 });
+    txt(158, 136, '+'); txt(210, 136, '−');
+    txt(184, 212, 'acid', 'lbm');
+    if (vf < 0.999) part(1 - vf, () => S_('rect', { class: 'cap', x: 178, y: 113, width: 12, height: 7, rx: 2 }));
+    const lift = 5 * vo;
+    if (vf > 0.001) part(vf, () => {
+      S_('line', { class: 'stem', x1: 184, y1: 120, x2: 184, y2: r1(114 - lift) });
+      S_('rect', { class: 'valve', x: 176, y: r1(109 - lift), width: 16, height: 6, rx: 2 });
+    });
+    REC.valve = vf < 0.5 ? 'vent' : vo >= 0.5 ? 'valve lifts' : 'valve shut';
+    txt(172, 116, REC.valve, 'lbm', 'end');
+    const bubA = (1 - vf) + vf * vo * 0.7;
+    REC.bubbles = 0; REC.bubA = gI > 0 ? bubA : 0;
+    if (bubA > 0.01 && gI > 0) part(bubA, () => [143, 173, 195, 225].forEach((x, c) => {
+      for (let k = 0; k < 5; k++) {
+        const a = K.clamp(5 * gI - k, 0, 1);
+        if (a <= 0.01) continue;
+        const f = (X.ph * 0.7 + k / 5 + c * 0.17) % 1;
+        S_('circle', { class: 'bub', cx: x, cy: r1(198 - f * 52), r: 2.2, opacity: Math.round(a * 100) / 100 });
+        REC.bubbles++;
+      }
+    }));
+    // Gas leaves the vent and rides the air to the outlet; with no air it hangs in the room.
+    const gasA = (1 - vf) + vf * vo, gL = Math.max(gI, K.clamp(X.left || 0, 0, 1));
+    REC.gas = 0;
+    if (gasA > 0.01 && gL > 0) part(gasA, () => {
+      for (let k = 0; k < 6; k++) {
+        const a = K.clamp(6 * gL - k, 0, 1);
+        if (a <= 0.01) continue;
+        const f = (X.gp + k / 6) % 1, u = K.clamp((f - 0.4) / 0.6, 0, 1);
+        S_('circle', { class: 'gasd', cx: r1(184 + 116 * f), cy: r1(106 + (fy - 106) * u * u * (3 - 2 * u)), r: 2.4, opacity: Math.round(a * 100) / 100 });
+        REC.gas++;
+      }
+      txt(198, 115, 'gas', 'lbm', 'start');
+    });
+    return 'A battery room seen from the side. A charger feeds ' + N + ' cells at ' + fA(I) + '. One cell is drawn cut open' + (REC.bubbles ? ', with gas bubbling from its plates' : '') + '. ' +
+      (vf >= 0.5 ? (vo >= 0.5 ? 'Its valve has lifted, and gas escapes. ' : 'Its valve is shut. ') : '') +
+      'Air comes in low on the left and leaves high on the right' + (X.fanFails ? ', but the fan has stopped and no air moves.' : '.');
+  }
+
+  // The hydrogen gauge: 0 to 5 per cent, the two limits, and where hydrogen ignites.
+  function drawGauge(y0, d, st) {
+    const o = modelOf(paramsX()), vf = X.vf, la = X.lit, lim = LEL / X.room, hf = X.hf;
+    txt(20, y0 + 12, 'hydrogen in the room, %', 'ttl', 'start');
+    txt(320, y0 + 12, 'ignites from 4', 'wl', 'end');
+    S_('rect', { class: 'track', x: 20, y: y0 + 20, width: 300, height: 16, rx: 3 });
+    S_('rect', { class: 'redz', x: hx(4), y: y0 + 20, width: 60, height: 16 });
+    if (la > 0.001) part(la, () => S_('rect', { class: 'litb', x: 20, y: y0 + 20, width: r1(hx(lim) - 20), height: 16 }));
+    const h = typeof o.hydrogen === 'number' ? o.hydrogen : 0;
+    REC.hW = 0; REC.hQ = hf < 0.5;
+    if (vf < 0.999 && hf > 0.001) part(1 - vf, () => {
+      const w = (hx(h) - 20) * hf;
+      if (w > 0.2) S_('rect', { class: 'hfill', x: 20, y: y0 + 24, width: r1(w), height: 8, rx: 2 });
+      if (h > 5 && hf > 0.99) S_('path', { class: 'hfill', d: 'M322 ' + (y0 + 22) + 'L330 ' + (y0 + 28) + 'L322 ' + (y0 + 34) + 'Z' });
+      REC.hW = w;
+    });
+    if (hf < 0.999 && vf < 0.5) part(1 - hf, () => txt(170, y0 + 33, '?', 'q'));
+    S_('line', { class: 'ign', x1: hx(4), y1: y0 + 19, x2: hx(4), y2: y0 + 39 });
+    [S_ROOM, S_ENC].forEach((s) => S_('line', { class: 'limL' + (s === X.room && la >= 0.5 && vf < 0.5 ? ' on' : ''), x1: r1(hx(LEL / s)), y1: y0 + 19, x2: r1(hx(LEL / s)), y2: y0 + 39 }));
+    [[0, '0', 'start'], [0.4, '0.4'], [1, '1'], [2, '2'], [3, '3'], [4, '4'], [5, '5', 'end']].forEach((t) => {
+      S_('line', { class: 'tk', x1: r1(hx(t[0])), y1: y0 + 36, x2: r1(hx(t[0])), y2: y0 + 41 });
+      txt(hx(t[0]), y0 + 54, t[1], 'lbm', t[2]);
+    });
+    const litText = X.room === S_ROOM ? 'held below 0.4 where people enter' : 'held below 1 in an enclosure';
+    if (la > 0.001 && vf < 0.999) part(la * (1 - vf), () => txt(20, y0 + 72, litText, 'lim', 'start'));
+    if (vf > 0.001) part(vf, () => txt(20, y0 + 72, 'sealed cells: not modelled', 'lbm', 'start'));
+    REC.litS = la >= 0.5 && vf < 0.5 ? X.room : null; REC.note = vf >= 0.5;
+    const band = h < 0.4 ? 'below 0.4' : h < 1 ? 'between 0.4 and 1' : h < 4 ? 'between 1 and 4' : 'past 4';
+    return 'A hydrogen gauge from 0 to 5 per cent, with marks at 0.4 and 1, shaded from 4, where hydrogen ignites. ' +
+      (REC.litS ? 'The limit for this ' + (X.room === S_ROOM ? 'room, 0.4,' : 'enclosure, 1,') + ' is lit. ' : '') +
+      (REC.note ? 'For sealed cells it shows no level.' : REC.hQ ? 'Its level is hidden.' : 'Its level is ' + band + '.');
+  }
+
+  // Each opening face-on, to scale: the real one solid, the one the rule asks for dashed.
+  function drawPanel(y1, d, st) {
+    const A = Math.round(X.opening), need = X.na != null ? X.na : needOf(X.cells, q1(X.current), X.room);
+    txt(20, y1 + 12, 'each opening, face-on, to scale', 'ttl', 'start');
+    const by = y1 + 120, sr = sideOf(A), sn = sideOf(need) * X.nf * (1 - K.clamp(X.vf, 0, 1));
+    S_('rect', { class: 'hole', x: 24, y: r1(by - sr), width: r1(sr), height: r1(sr) });
+    if (sn > 0.5) S_('rect', { class: 'need', x: 24, y: r1(by - sn), width: r1(sn), height: r1(sn) });
+    S_('rect', { class: 'hole', x: 150, y: y1 + 30, width: 14, height: 14 });
+    txt(172, y1 + 42, 'real opening, ' + fC(A), null, 'start');
+    S_('rect', { class: 'need', x: 150, y: y1 + 56, width: 14, height: 14 });
+    txt(172, y1 + 68, X.vf >= 0.5 ? 'sealed: maker\'s figure' : 'needed by the rule', null, 'start');
+    txt(150, y1 + 92, 'air through it', 'lbm', 'start');
+    REC.airText = X.fanFails ? 'none: the fan has stopped' : fM2(A) + ' × 0.1' + NB + 'm/s';
+    txt(150, y1 + 110, REC.airText, X.fanFails ? 'wl' : null, 'start');
+    if (!X.fanFails) txt(150, y1 + 127, '= ' + fL(flowOf(A)), null, 'start');
+    REC.realSide = sr; REC.needSide = sn < 0.5 ? 0 : sn;
+    return 'Each opening face-on, to scale: the real opening is a solid square, and the opening the rule asks for is a dashed square' +
+      (sn < 0.5 ? ', not yet drawn.' : need > A * 1.01 ? ', larger than the real one.' : need < A * 0.99 ? ', smaller than the real one.' : ', the same size.');
+  }
+
+  function sayFor(d) {
+    const N = X.cells, I = q1(X.current), Sx = X.room, o = modelOf(paramsX());
+    const rule = '0.3 × ' + N + ' × ' + numI(I) + ' × ' + Sx + ' = ' + fC(o.needed) + '.';
+    if (d.say === 'gas') return I <= 0 ? 'With no current, no water splits, and no gas rises.' : 'All ' + N + ' cells carry ' + fA(I) + ', so they make ' + N + ' times one cell\'s gas.';
+    if (d.say === 'room') return Sx === S_ROOM ? 'People enter: the 0.4 per cent limit is lit.' : 'An enclosure: the 1 per cent limit is lit.';
+    if (d.say === 'cells') return 'With ' + N + ' cells, ' + rule;
+    if (d.say === 'size') return I <= 0 ? 'With no current, the rule asks for no opening at all.' : 'At ' + fA(I) + ', ' + rule;
+    if (d.say === 'air') return X.fanFails ? 'Fan stopped: the hydrogen climbs, ' + fH(o.hydrogen) + ' so far.'
+      : fL(o.flow) + ' of air holds the hydrogen at ' + fH(o.hydrogen) + '.';
+    if (!X.vrla) return 'Flooded cells at ' + fA(I) + ': the gas bubbles up and leaves through the vent.';
+    return I > I_VALVE ? 'Sealed cells at ' + fA(I) + ': the pressure lifts the valve, and some gas escapes.' : 'Sealed cells at ' + fA(I) + ': the valve stays shut, and the cells turn their gas back into water.';
+  }
+
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i];
+    art.textContent = ''; into = null;
+    REC = { pic: d.pic };
+    let said, h;
+    if (d.pic === 'duct') { said = drawDuct(d, st); h = 164; }
+    else { said = drawRoom(d, st) + ' ' + drawGauge(232, d, st) + ' ' + drawPanel(322, d, st); h = 456; }
+    svg.setAttribute('viewBox', '0 0 340 ' + h);
+    svg.setAttribute('aria-label', said);
+    if (d.ctl) el('say').textContent = sayFor(d);
+  }
+
+  // ---------- words: *a key term* is highlighted ----------
+  function write(node, s) {
+    node.textContent = '';
+    String(s).split(/\*([^*]+)\*/).forEach((seg, k) => { if (seg) node.appendChild(k % 2 ? K.el('span', { class: 'term' }, seg) : document.createTextNode(seg)); });
+  }
+  write(el('finish'), FINISH);
+  function layout(i, d, st) {
+    const key = [i, st.res, st.pick, st.why, finished].join('|');
+    if (key === laidOut) return;
+    laidOut = key;
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    CKEYS.forEach((k) => { el('c-' + k).hidden = !(d.ctl && d.ctl.indexOf(k) >= 0); });
+    el('say').hidden = !d.ctl;
+    el('outs').hidden = d.pic === 'duct';
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    const opts = d.show ? [] : d.opts;
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 12));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : '');
+    fb.textContent = d.show ? '' : right ? (d.right || 'That\'s it.') : st.res === 'wrong' ? ((d.hints && d.hints[st.pick]) || d.hint) : st.res === 'empty' ? 'Choose one of the answers first.' : '';
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  }
+
+  K.update((p) => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!anim.playing() && pending()) { const j = lastStep < 0 ? i : lastStep; finishNow(STEPS[j], S[j]); }
+    if (i !== lastStep) { lastStep = i; enterStep(i); }
+    else {
+      // Only the controls this screen shows move its picture; a hidden one is set back silently.
+      const on = (k) => !!(d.ctl && (d.ctl.indexOf(k) >= 0 || (k === 'tstop' && d.ctl.indexOf('fanFails') >= 0)));
+      const mv = {}; let any = false, bad = false;
+      Object.keys(pushed).forEach((k) => { if (p[k] !== pushed[k]) { if (on(k)) { mv[k] = true; any = true; } else bad = true; } });
+      Object.keys(pushed).forEach((k) => { pushed[k] = p[k]; });
+      if (any) {
+        if (scripted) { scripted = false; anim.pause(); setX(d.end || {}); }
+        T = Infinity;
+        if (mv.current) X.current = p.current;
+        if (mv.cells) { X.cells = p.cells; X.na = null; X.cf = 1; }
+        if (mv.room) { X.room = p.room; X.na = null; X.lit = 1; }
+        if (mv.opening) X.opening = p.opening;
+        if (mv.vrla) X.vrla = p.vrla;
+        if (mv.fanFails) { X.fanFails = p.fanFails; X.tstop = 0; climbing = !!p.fanFails; climbT = 0; }
+        else if (mv.tstop) { X.tstop = p.tstop; climbing = false; }
+        startDrift();
+      }
+      if (bad || any) push();
+    }
+    if (finished !== lastDone) { lastDone = finished; laidOut = ''; enter(finished ? 'done' : 'stepbox'); }
+    layout(i, d, st);
+    outs();
+    paint(i);
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  const solved = (d) => Object.assign(blank(), { pick: d.want, res: 'right' });
+  // A step painted in the state given: what it draws.
+  function drawn(i, st, x) {
+    const keep = { X: copyX(), S: S[i], T, sc: scripted };
+    S[i] = st || blank(); T = Infinity; scripted = false;
+    setX(BASE); setX(STEPS[i].enter || {}); setX(x || {});
+    try {
+      paint(i);
+      return Object.assign({}, REC, { texts: Array.from(art.querySelectorAll('text')).map((n) => n.textContent) });
+    } finally {
+      setX(keep.X); S[i] = keep.S; T = keep.T; scripted = keep.sc;
+      paint();
+    }
+  }
+  function after(fn) { const keep = copyX(); try { setX(BASE); fn(); return copyX(); } finally { setX(keep); } }
+  const iD0 = idx('Area times speed'), iS1 = idx('Spare current makes gas'), iS2 = idx('Two limits'), iD3 = idx('One per cent'), iS4 = idx('The rule'), iD5 = idx('An enclosure');
+  const iS6 = idx('Size for the fault'), iD7 = idx('Float or fault?'), iS8 = idx('Air carries it away'), iD9 = idx('Blocked opening'), iS10 = idx('Sealed cells');
+  const iD11 = idx('Board over the vents?'), iD12 = idx('Fifty-five cells'), iD13 = idx('The fan stops'), iD14 = idx('Charger off');
+  const fin = (i) => drawn(i, solved(STEPS[i]), STEPS[i].end);
+  const M_ = (o) => K.at(Object.assign({ step: iS1, current: I_FAULT, cells: 24, room: S_ROOM, opening: A0, fanFails: false, vrla: false, tstop: 0 }, o));
+
+  K.check('Minimum area of each inlet and outlet = 0.3 × N × I × S cm²: 24 cells at 20 A need 1440 cm² where people enter (S = 10) and 576 cm² in an enclosure (S = 4), and 12 cells need 720 cm²', () => {
+    const a = M_({}).needed, b = M_({ room: S_ENC }).needed, c = M_({ cells: 12 }).needed;
+    const g = fin(iD5), h = drawn(iS4, null, { cells: 24 });
+    return K.near(a, 1440, 1e-6) && K.near(b, 576, 1e-6) && K.near(c, 720, 1e-6) && STEPS[iD5].want === fCp(576) && STEPS[iD7].want === fCp(1440) &&
+      K.near(g.needSide, sideOf(576), 1e-6) && K.near(h.needSide, sideOf(1440), 1e-6);
+  }, { source: HSE });
+  K.check('Hydrogen ignites from 4 per cent, so a room people enter is held below 0.4 per cent (10% of 4) and an enclosure below 1 per cent (25% of 4): the gauge marks 0.4, 1 and 4, and lights the limit for the chosen room', () => {
+    const a = drawn(iS2, null, { room: S_ROOM }), b = drawn(iS2, null, { room: S_ENC });
+    return K.near(LEL / S_ROOM, 0.4, 1e-12) && K.near(LEL / S_ENC, 1, 1e-12) && K.near(0.4 / LEL, 0.1, 1e-12) && K.near(1 / LEL, 0.25, 1e-12) &&
+      a.litS === S_ROOM && b.litS === S_ENC && ['0.4', '1', '4', 'ignites from 4'].every((s) => a.texts.indexOf(s) >= 0);
+  }, { source: HSE });
+  K.check('An opening sized exactly by the rule holds the room at 4 ÷ S per cent: 24 cells at 20 A read 0.40 % through 1440 cm² and 1.00 % through 576 cm²', () =>
+    fH(M_({}).hydrogen) === fH(0.4) && fH(M_({ opening: 576 }).hydrogen) === fH(1) &&
+    [6, 12, 24, 55].every((n) => [S_ROOM, S_ENC].every((s) => K.near(steadyH(n, I_FAULT, needOf(n, I_FAULT, s)), LEL / s, 1e-9))));
+  K.check('Halve the opening and the hydrogen doubles: at 10 A, 0.20 % through 1440 cm² becomes 0.40 % through 720 cm², and at 20 A, 720 cm² gives 0.80 %', () => {
+    const a = M_({ current: 10 }).hydrogen, b = M_({ current: 10, opening: 720 }).hydrogen, c = M_({ opening: 720 }).hydrogen;
+    return fH(a) === fH(0.2) && fH(b) === fH(0.4) && fH(c) === fH(0.8) && K.near(b / a, 2, 1e-9) && STEPS[iD9].want === O9(0.8) && K.near(fin(iD9).hW, hx(0.8) - 20, 1e-6);
+  });
+  K.check('Flow is area × speed: 1440 cm² is 0.144 m², which passes 14.4 L/s at 0.1 m/s; 1650 cm² passes 16.5 L/s; with the fan stopped, none', () =>
+    fL(M_({}).flow) === fL(14.4) && fM2(1440) === '0.144' + NB + 'm²' && fL(M_({ opening: 1650 }).flow) === fL(16.5) && M_({ fanFails: true }).flow === 0 &&
+    STEPS[iD0].want === '1 m³/s' && fin(iD0).duct === '1 m³');
+  K.check('Sized from the 0.5 A float, 24 cells need only 36 cm², forty times less than the 1440 cm² a 20 A fault needs', () => {
+    const f = M_({ current: I_FLOAT }).needed, g = M_({}).needed;
+    return fC(f) === fC(36) && K.near(g / f, 40, 1e-9) && drawn(iD7).needSide === 0 && K.near(fin(iD7).needSide, sideOf(1440), 1e-6);
+  });
+  K.check('55 cells at 10 A need 1650 cm² where people enter, 660 cm² in an enclosure, and 165 cm² with S left out', () => {
+    const a = M_({ cells: 55, current: 10 }).needed, b = M_({ cells: 55, current: 10, room: S_ENC }).needed;
+    return fC(a) === fC(1650) && fC(b) === fC(660) && fC(F * 55 * 10) === fC(165) && STEPS[iD12].want === fCp(1650) && K.near(fin(iD12).needSide, sideOf(1650), 1e-6);
+  });
+  K.check('The gas grows in step with the current: no bubbles at 0 A, more as the current climbs, and the opening needed doubles when the current or the cells double', () => {
+    const c = [0, 2.5, 5, 10, 20].map((i) => drawn(iS1, null, { current: i }));
+    let ok = c[0].bubbles === 0 && c[0].gas === 0;
+    for (let k = 1; k < c.length; k++) ok = ok && c[k].bubbles >= c[k - 1].bubbles && c[k].gas >= c[k - 1].gas;
+    return ok && c[4].bubbles > c[1].bubbles && K.near(M_({ current: 10 }).needed * 2, M_({}).needed, 1e-9) && K.near(M_({ cells: 12 }).needed * 2, M_({}).needed, 1e-9);
+  });
+  K.check('With the fan stopped the hydrogen keeps climbing: at 10 A through 720 cm² it rises from 0.40 % past 1 %, and during a 20 A equalise it climbs from 0.40 % towards 4 %', () => {
+    const s0 = M_({ current: 10, opening: 720, fanFails: true, tstop: 0 }).hydrogen, s1 = M_({ current: 10, opening: 720, fanFails: true, tstop: 1 }).hydrogen;
+    const e0 = M_({ fanFails: true, tstop: 0 }).hydrogen, e1 = M_({ fanFails: true, tstop: 1 }).hydrogen;
+    let up = true;
+    for (let k = 1; k <= 10; k++) up = up && M_({ fanFails: true, tstop: k / 10 }).hydrogen > M_({ fanFails: true, tstop: (k - 1) / 10 }).hydrogen;
+    const g = drawn(iS8, null, STEPS[iS8].end), j0 = drawn(iD13), j1 = fin(iD13);
+    return fH(s0) === fH(0.4) && s1 > 1 && fH(e0) === fH(0.4) && e1 > e0 && e1 < LEL && up && g.fanStopped && g.air === 0 && !j0.fanStopped && j1.fanStopped && j1.hW > j0.hW;
+  });
+  K.check('Valve-regulated cells: their bubbles fade and the hydrogen shows no number; the valve stays shut up to 10 A and lifts above it', () => {
+    const a = drawn(iS10, null, { vrla: true, vf: 1, current: 10 }), b = drawn(iS10, null, { vrla: true, vf: 1, current: I_FAULT }), f = drawn(iS10, null, { vrla: false, vf: 0, current: I_FAULT });
+    return M_({ vrla: true }).hydrogen === 'not modelled' && a.bubbles === 0 && a.gas === 0 && a.valve === 'valve shut' && a.note && b.valve === 'valve lifts' && b.gas > 0 &&
+      f.valve === 'vent' && f.bubA > b.bubA && b.bubA > 0 && fin(iD11).valve === 'valve lifts';
+  });
+  K.check('After reaching the gassing voltage of 2.40 V a cell, a current limit of 2.5 to 5 A per 100 Ah is recommended: the screen on spare current says so', () =>
+    STEPS[iS1].read.indexOf('2.40 V a cell') >= 0 && STEPS[iS1].read.indexOf('2.5 to 5 A per 100 Ah') >= 0 && GAS_V === 2.4 && LIM_LO === 2.5 && LIM_HI === 5 && CAP === 100, { source: ENER });
+  K.check('Each puzzle accepts only its right answer, and nothing in its picture gives the answer before Check', () => {
+    const ok = STEPS.every((d) => d.show || (d.opts.length === 3 && new Set(d.opts).size === 3 && d.opts.indexOf(d.want) >= 0));
+    const a0 = drawn(iD0), a1 = fin(iD0), b0 = drawn(iD3), b1 = fin(iD3), c0 = drawn(iD5), c1 = fin(iD5), e0 = drawn(iD7), e1 = fin(iD7);
+    const h0 = drawn(iD12), h1 = fin(iD12), k0 = drawn(iD9), k1 = fin(iD9), m0 = drawn(iD14), m1 = fin(iD14);
+    return ok && a0.duct === '?' && a1.duct === '1 m³' && b0.litS === null && b0.needSide === 0 && b1.litS === S_ROOM && b1.needSide > 0 &&
+      c0.needSide === 0 && c1.needSide > 0 && e0.needSide === 0 && e1.needSide > 0 && h0.needSide === 0 && h0.hQ && h1.needSide > 0 && !h1.hQ &&
+      k0.cur === fA(I_FLOAT) && k1.cur === fA(I_FAULT) && m0.hQ && !m1.hQ && STEPS.every((d) => !d.hide || d.hide.every((id) => ['hydrogen', 'needed', 'flow'].indexOf(id) >= 0));
+  });
+  K.check('After charging, leave the battery to stand for at least 20 minutes so the gas can clear: with the charger just off, gas still drifts to the outlet, and it has cleared once the 20 minutes have run', () => {
+    const a = drawn(iD14), b = fin(iD14);
+    return STAND === 20 && STEPS[iD14].want === O14_WAIT && O14_WAIT.indexOf('20 minutes') >= 0 && a.cur === fA(0) && a.bubbles === 0 && a.gas > 0 && b.gas === 0 &&
+      b.texts.indexOf('stood 20' + NB + 'min') >= 0 && M_({ current: 0 }).hydrogen === 0;
+  }, { source: HSE });
+  K.check('Fifteen screens: after the opening puzzle, demonstrations and puzzles take turns, four puzzles end it, and no demonstration says more than about 90 words', () =>
+    STEPS.length === 15 && STEPS.every((d, k) => !!d.show === ([1, 2, 4, 6, 8, 10].indexOf(k) >= 0)) && STEPS.every((d) => !d.show || d.read.split(/\s+/).length <= 92));
+  K.check('Both openings are drawn to one scale: each square\'s area follows its cm², so the outline for 720 cm² has half the area of the one for 1440 cm²', () => {
+    const a = drawn(iS4, null, { cells: 24 }), b = drawn(iS4, null, { cells: 12 });
+    return K.near(b.needSide * b.needSide * 2, a.needSide * a.needSide, 1e-6) && K.near(a.needSide, a.realSide, 1e-9);
+  });
+  K.check('Every demonstration settles within 4.6 s and ends where its screen says, and every answer\'s motion settles within 2.5 s', () => {
+    const keys = ['current', 'cells', 'room', 'opening', 'fanFails', 'vrla', 'tstop', 'left', 'wt', 'nf', 'lit', 'hf', 'na', 'cf', 'vf', 'af', 'blk'];
+    const same = (s, f) => keys.every((k) => (typeof s[k] === 'number' && typeof f[k] === 'number' ? K.near(s[k], f[k], 1e-9) : s[k] === f[k]));
+    return STEPS.every((d) => {
+      if (!d.show) return d.run.dur <= 2.5 && same(after(() => { setX(d.enter || {}); d.run.go(1); }), after(() => { setX(d.enter || {}); setX(d.end || {}); }));
+      return d.dur <= 4.6 && same(after(() => { setX(d.enter || {}); d.play(d.dur); }), after(() => { setX(d.enter || {}); setX(d.end || {}); }));
+    });
+  });
+
+  K.ready();
+</script>

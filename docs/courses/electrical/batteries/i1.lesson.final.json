@@ -1,0 +1,206 @@
+{
+  "iid": "i1",
+  "title": "The lead-acid cell: two plates and an acid",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is white lead sulphate spreading over both plates as the acid's dots leave the liquid, when you drag the charge left from full towards flat.",
+    "title": "The cell, plate by plate",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Screen",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [
+      {
+        "id": "restVolts",
+        "label": "Volts, charged and rested",
+        "unit": "V",
+        "decimals": 1
+      },
+      {
+        "id": "ampHours",
+        "label": "Ampere-hours, example",
+        "unit": "Ah",
+        "decimals": 0
+      }
+    ],
+    "whatAmILookingAt": "This is one cut-away cell, shown over thirteen small screens. On the left is the positive plate, lead dioxide, dark brown. On the right is the negative plate, plain lead, grey. Between them is sulphuric acid in water, drawn as acid dots among the water. A terminal sits on top of each plate. Every part is labelled. A slider sets the charge left, from 100% down to 0%. As the charge falls, white lead sulphate spreads over both plates. Acid dots leave the liquid for the plates. A strength gauge on the liquid drops towards water. At 0% the gauge stops well above water, because a flat cell still holds weak acid. A load switch closes the outside wire through a lamp. Electron dots then run round the wire, from the lead plate to the lead dioxide plate. Ion dots drift in the acid. The acid's positive ions drift towards the lead dioxide plate. Its negative ions drift towards the lead plate. No electron crosses the liquid. With both switches open, no current flows. Only a slow self-discharge goes on. A charge switch puts a charger across the cell instead, its + to the cell's +. Electrons and ions then run the other way. The white sulphate shrinks back off both plates. The acid dots return to the liquid. Beside the cell is a ladder of the two plate potentials. Lead dioxide sits at +1.685 V and lead at −0.356 V. The 2.04 V gap between them is drawn. A voltmeter reads 2.1 V for a charged, rested cell. A plate-size slider runs from 1× to 4×. It grows an ampere-hour bar, say 100 Ah at 1×. The voltmeter does not move. A stepper shows 1, 6, 12 or 24 cells in series and their voltage. Each show screen has under about 90 words. They end on what its finished picture shows, so they read well without the controls. Screen by screen. 1 shows the charged cell and names its parts. 2 connects a load, and the cell discharges. It asks you to predict what the plates turn into. The choices are both into lead sulphate, the lead plate dissolves into the acid, or lead moves from one plate to the other. 3 drags the charge down. It ends at half charge, with both plates part-white. 4 asks what happens to the acid's strength from full to flat. The choices are it falls towards water, it stays the same because the acid is only a bath, or it rises. 5 closes the load switch and shows the current. Electrons go round the wire and ions drift in the acid. 6 asks what carries the current through the acid. The choices are ions drifting, electrons crossing the acid, or ions picking up electrons at one plate and carrying them to the other. 7 shows charging, names a secondary cell and ends fully charged. 8 asks what charging does. The choices are it turns the lead sulphate back and strengthens the acid, it strengthens the acid while the plates stay lead sulphate, or it weakens the acid further. 9 shows the ladder and the voltmeter. 10 asks for the gap between +1.685 V and −0.356 V. The choices are 2.04 V, 1.33 V or 1.685 V. 11 shows the plate-size slider at 4× and the series stepper at 12 cells. 12 and 13 mix the ideas. 12 shows a small cell you can hold in one hand and a stationary cell two people lift. Both are charged and rested. Which reads more? The choices are both about 2.1 V, the big one, or the small one. 13 shows a 24 V emergency battery of lead-acid cells. How many cells does it have, and what does it read charged and rested? The choices are 12 cells and about 25.2 V, 24 cells and about 50.4 V, or 6 cells and about 12.6 V.",
+    "ignores": "The plates are drawn as flat sheets. Real plates hold their material on a lead grid. A separator keeps them apart. Neither is drawn. The dots are a picture, not a count of particles. Time runs fast here. A real discharge takes hours. A real cell left open also discharges itself, but far too slowly to see. The voltmeter shows a charged, rested cell. A real cell's rested voltage slips a little as its acid thins. Near full charge, some charging current splits water into hydrogen and oxygen. That gas is not drawn. The ladder's potentials are table figures for acid of a standard strength at 25 °C.",
+    "numbers": [
+      {
+        "label": "Screen control lowest",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Screen control highest",
+        "value": 12,
+        "kind": "control"
+      },
+      {
+        "label": "Charge left, slider top, %",
+        "value": 100,
+        "kind": "control"
+      },
+      {
+        "label": "Charge left, slider bottom, %",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Screen 3 end state, charge left, %",
+        "value": 50,
+        "kind": "control"
+      },
+      {
+        "label": "Lead-acid nominal voltage per cell, V",
+        "value": 2,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "Charged, rested cell, V",
+        "value": 2.1,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "Lead dioxide plate potential, V",
+        "value": 1.685,
+        "kind": "constant"
+      },
+      {
+        "label": "Lead plate potential, V",
+        "value": -0.356,
+        "kind": "constant"
+      },
+      {
+        "label": "Temperature of the table figures, °C",
+        "value": 25,
+        "kind": "constant"
+      },
+      {
+        "label": "Gap between the plate potentials, V",
+        "value": 2.04,
+        "kind": "computed"
+      },
+      {
+        "label": "Plate size slider lowest, times",
+        "value": 1,
+        "kind": "control"
+      },
+      {
+        "label": "Plate size slider highest, times",
+        "value": 4,
+        "kind": "control"
+      },
+      {
+        "label": "Ampere-hours at 1× plate size, example",
+        "value": 100,
+        "kind": "assumed"
+      },
+      {
+        "label": "Ampere-hours at 4× plate size",
+        "value": 400,
+        "kind": "computed"
+      },
+      {
+        "label": "Cells in series, stepper option",
+        "value": 1,
+        "kind": "control"
+      },
+      {
+        "label": "Cells in series, stepper option",
+        "value": 6,
+        "kind": "control"
+      },
+      {
+        "label": "Cells in series, stepper option",
+        "value": 12,
+        "kind": "control"
+      },
+      {
+        "label": "Cells in series, stepper option",
+        "value": 24,
+        "kind": "control"
+      },
+      {
+        "label": "Six cells nominal, V",
+        "value": 12,
+        "kind": "computed"
+      },
+      {
+        "label": "Twelve cells nominal, V",
+        "value": 24,
+        "kind": "computed"
+      },
+      {
+        "label": "Twenty-four cells nominal, V",
+        "value": 48,
+        "kind": "computed"
+      },
+      {
+        "label": "Six cells charged and rested, V",
+        "value": 12.6,
+        "kind": "computed"
+      },
+      {
+        "label": "Twelve cells charged and rested, V",
+        "value": 25.2,
+        "kind": "computed"
+      },
+      {
+        "label": "Twenty-four cells charged and rested, V",
+        "value": 50.4,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 10 wrong pick, 1.685 − 0.356, V",
+        "value": 1.33,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "A lead-acid cell is two plates standing in sulphuric acid. As it discharges, both plates turn into the same white substance, lead sulphate. Much of the acid is used up to make it. Charging runs all of that backwards. The positive plate is lead dioxide. The negative plate is plain lead. The acid and its water together are the cell's [[electrolyte]].\n\nConnect a load, and each plate reacts with the acid where they meet. At the lead plate, lead and acid form lead sulphate and set electrons free. At the lead dioxide plate, lead dioxide and acid also form lead sulphate. This plate takes electrons in. So both plates become lead sulphate. Much of the acid is used up, leaving water behind. The acid is not just a bath for the plates. It is one of the things being used up. So its strength falls as the cell discharges.[^2] The freed electrons cannot cross the acid. They run round the outside wire and through your load. They go from the lead plate to the lead dioxide plate. Conventional current, the direction you draw, runs the other way. It leaves by the positive terminal. Inside the liquid, [[ions]] carry the current. Ions are the acid's charged pieces. One plate gives out electrons and the other takes them in. Left alone, charge would pile up beside each plate. The ions drift through the acid and keep it balanced. That closes the loop. An ion does not pick up electrons at one plate and carry them to the other.\n\nA charger runs the whole thing backwards. It pushes current in against the cell's own push. So it needs a higher voltage than the cell. The lead sulphate turns back into lead on one plate and lead dioxide on the other. The acid locked in the sulphate returns to the liquid. So the acid gets stronger as the cell charges. A cell you can recharge like this is a secondary cell.[^3] A primary cell, like a torch battery, is used once and cannot be recharged. The cell's own push comes from its two plates. Each plate has its own voltage against the acid. What the plate is made of mainly sets that voltage. Both are measured against the same reference electrode. It works like a 0 V rail. Read two points against the same rail, and the rail drops out of their difference. Lead dioxide sits at +1.685 V and lead at −0.356 V. The cell's voltage is the gap between them: 1.685 + 0.356 = 2.04 V. That figure is for acid of a standard strength. A charged cell's acid is stronger. So a charged cell rests a little higher. A lead-acid cell's [[nominal voltage]] is 2 V. Charged and rested, it reads about 2.1 V.[^1]\n\nPlate size is not in that sum. A bigger plate holds more material to turn into lead sulphate. So it gives more ampere-hours at the same volts. For more volts, put cells in series. Six make 12 V, twelve make 24 V and twenty-four make 48 V. This is a simplified picture. A real cell also has separators and a grid inside each plate. It gives off gas near full charge, too. Even a flat cell keeps some weak acid and some unchanged plate material. This gives a first clue to a battery that reads well but runs out early. A healthy rested voltage tells you about the plate materials and the acid's strength. It does not tell you how much plate material can still react. **Discharging turns both plates into lead sulphate and uses up much of the acid. Charging runs it all backwards.**"
+  },
+  "analogy": {
+    "text": "A pumped-storage hydro scheme stores energy as water held up in a top lake. Running the turbines lets the water down and gives out energy. This goes on until the top lake runs low. Pumping lifts it back. The height between the lakes sets the pressure. The size of the lake sets how long it runs. In the cell, the two plate materials set the volts. How much of them there is sets the ampere-hours.",
+    "breaks": "Nothing moves from one plate to the other the way water moves between lakes. Both plates turn into the same new substance where they stand. Much of the acid is used up to make it. Charging does not carry anything back up. It unmakes the lead sulphate on both plates."
+  },
+  "practice": {
+    "text": "**Safety first:** the electrolyte is a strong acid. Wear eye protection and gloves near open cells. You cannot switch the cells off. Their terminals are live whenever they hold charge.\n\n- Read the label for the nominal voltage and the ampere-hour rating.\n- Count the cells: nominal voltage ÷ 2 V.\n- Expect about 2.1 V a cell when charged and rested. So multiply the cell count by 2.1.\n- Take the ampere-hours from the rating, not from the voltage.\n\n**Rule of thumb:** the volts come from the plate materials, about 2 V a cell. The ampere-hours come from how much plate there is.\n\n**Worked example:** Say a ship's emergency battery is marked 24 V. 24 ÷ 2 = 12 cells in series. Charged and rested, it should read about 12 × 2.1 = 25.2 V. A 48 V bank has 24 cells and reads about 50.4 V. A bigger 24 V battery has bigger cells, not more volts per cell.\n\n**Common mistakes**\n- Picturing electrons crossing the acid. They go round the wire. Ions carry the current inside.\n- Thinking ions pick up electrons at one plate and carry them to the other.\n- Treating the acid as a bath. Discharge uses much of it up, and charge gives it back.\n- Expecting a bigger cell to give more volts. It gives more ampere-hours.\n- Thinking only one plate changes. Both turn to lead sulphate."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+    {
+      "n": 1,
+      "title": "Battery University | BU-303: Confusion with Voltages",
+      "url": "http://www.batteryuniversity.com/article/bu-303-confusion-with-voltages",
+      "quote": "The nominal voltage of lead acid is 2 volts per cell, however when measuring the open circuit voltage, the OCV of a charged and rested battery should be 2.1V/cell."
+    },
+    {
+      "n": 2,
+      "title": "Rechargeable cells: the lead–acid accumulator | Class experiment | RSC Education — Royal Society of Chemistry",
+      "url": "https://edu.rsc.org/experiments/rechargeable-cells-the-lead-acid-accumulator/391.article",
+      "quote": "Thus during charging the sulfuric acid concentration rises, and during discharge it falls."
+    },
+    {
+      "n": 3,
+      "title": "17.5 Batteries and Fuel Cells - Chemistry 2e | OpenStax",
+      "url": "https://openstax.org/books/chemistry-2e/pages/17-5-batteries-and-fuel-cells",
+      "quote": "Some batteries are designed for single-use applications and cannot be recharged (primary cells), while others are based on conveniently reversible cell reactions that allow recharging by an external power source (secondary cells)."
+    }
+  ]
+}

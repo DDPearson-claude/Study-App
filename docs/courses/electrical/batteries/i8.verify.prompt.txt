@@ -1,0 +1,762 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Batteries: lead-acid cells, from plate to battery room
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i8 "Short circuits, safety and other chemistries" — A large battery's few milliohms of resistance let it drive thousands of amps into a short, even part discharged, and its cells are always live. [quantity]
+This is the last idea in the course.
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] CALCULATED VS. ACTUAL SHORT CIRCUIT CURRENTS FOR VRLA BATTERIES — Vertiv — https://www.vertiv.com/48dfcf/globalassets/documents/battcon-static-assets/2003/calculated-vs.-actual-short-circuit-currents-for-vrla-batteries.pdf
+    "A “shorted” lead acid battery has the capability of delivering an extremely high current, 100 to 1000 times the typical discharge current used in most applications."
+[R2] CALCULATED VS. ACTUAL SHORT CIRCUIT CURRENTS FOR VRLA BATTERIES — Vertiv — https://www.vertiv.com/48dfcf/globalassets/documents/battcon-static-assets/2003/calculated-vs.-actual-short-circuit-currents-for-vrla-batteries.pdf
+    "A battery’s short circuit current is typically estimated by dividing its open circuit voltage by its internal resistance."
+[R3] NUREG/CR-XXXX — OSTI — https://www.osti.gov/servlets/purl/1188216
+    "The peak short-circuit current that a battery can deliver is limited by its internal resistance including the intercell connectors."
+[R4] CALCULATED VS. ACTUAL SHORT CIRCUIT CURRENTS FOR VRLA BATTERIES — Vertiv — https://www.vertiv.com/48dfcf/globalassets/documents/battcon-static-assets/2003/calculated-vs.-actual-short-circuit-currents-for-vrla-batteries.pdf
+    "Using the equation above, we predicted a short circuit current of 2550 amps [480V / (0.160 + 0.028)], which compares reasonably with the actual measured average steady state test result of 2530 amps"
+[R5] CALCULATED VS. ACTUAL SHORT CIRCUIT CURRENTS FOR VRLA BATTERIES — Vertiv — https://www.vertiv.com/48dfcf/globalassets/documents/battcon-static-assets/2003/calculated-vs.-actual-short-circuit-currents-for-vrla-batteries.pdf
+    "The short circuit current stays relatively high even for low states of charge; for example, currents exceeded 90% of nominal even at ~60% state of charge."
+[R6] Flooded Stationary Lead Acid Batteries IOM — EnerSys — https://www.enersys.com/492013/globalassets/documents/product-documentation/powersafe/opzs/amer/amer-en-iom-ps-flooded-0223.pdf
+    "Exposed metal parts of the battery always carry a voltage and are electrically live (risk of short circuits)."
+[R7] CALCULATED VS. ACTUAL SHORT CIRCUIT CURRENTS FOR VRLA BATTERIES — https://www.vertiv.com/48dfcf/globalassets/documents/battcon-static-assets/2003/calculated-vs.-actual-short-circuit-currents-for-vrla-batteries.pdf
+    "Note that steady state minimum voltage and maximum current conditions were attained within 5 to 10 milliseconds."
+[R8] NUREG/CR-XXXX — https://www.osti.gov/servlets/purl/1188216
+    "Batteries contain little inductance and, as stated by one large UPS manufacturer, a shorted battery is similar to a fault through a resistor."
+[R9] CALCULATED VS. ACTUAL SHORT CIRCUIT CURRENTS FOR VRLA BATTERIES — https://www.vertiv.com/48dfcf/globalassets/documents/battcon-static-assets/2003/calculated-vs.-actual-short-circuit-currents-for-vrla-batteries.pdf
+    "Accurate battery system short circuit current and resistance values are required to properly size and select the proper circuit protection device."
+[R10] NUREG/CR-XXXX — https://www.osti.gov/servlets/purl/1188216
+    "Total short-circuit current is the sum of that delivered by the battery, the charger, and motors."
+[R11] Battery Range Summary — https://www.enersys.com/493bb4/globalassets/documents/product-documentation/powersafe/v-tt/emea/en-v-rs-013.pdf
+    "12V70 12 68 70 314 164 204 224 24.9 1814 6.95 M6 F V1"
+[R12] Flooded Stationary Lead Acid Batteries IOM — https://www.enersys.com/492013/globalassets/documents/product-documentation/powersafe/opzs/amer/amer-en-iom-ps-flooded-0223.pdf
+    "Electrolyte is highly corrosive. Wash all acid splash in eyes or on skin with plenty of clean water and seek immediate medical assistance."
+[R13] COSHH SR18 — https://www.hse.gov.uk/pubns/guidance/sr18.pdf
+    "Raise the battery cover to help disperse hydrogen and switch off all electrical circuits before connecting or disconnecting batteries."
+[R14] COSHH SR18 — https://www.hse.gov.uk/pubns/guidance/sr18.pdf
+    "Don’t rest metal objects (eg tools) on top of a battery."
+[R15] Using electric storage batteries safely INDG139 — https://www.hse.gov.uk/PUBNS/indg139.pdf
+    "Batteries are usually filled with solutions (electrolytes) containing either sulphuric acid or potassium hydroxide."
+[R16] Using electric storage batteries safely INDG139 — https://www.hse.gov.uk/PUBNS/indg139.pdf
+    "These very corrosive chemicals can permanently damage the eyes and produce serious chemical burns to the skin."
+[R17] Bu 203 Nickel Based Batteries — https://batteryuniversity.com/article/bu-203-nickel-based-batteries
+    "Low cell voltage of 1.20V requires many cells to achieve high voltage"
+[R18] Bu 203 Nickel Based Batteries — https://batteryuniversity.com/article/bu-203-nickel-based-batteries
+    "The standard NiCd remains one of the most rugged and forgiving batteries"
+[R19] Battery Testing Guide — https://res.cloudinary.com/iwh/image/upload/q_auto,g_center/assets/1/7/Megger_Battery_Testing_Guide.pdf
+    "since the potassium hydroxide electrolyte isn’t used in the chemical reaction, it is not necessary to measure it periodically."
+[R20] Bu 204 How Do Lithium Batteries Work — https://batteryuniversity.com/article/bu-204-how-do-lithium-batteries-work
+    "The nominal cell voltage of 3.60V can directly power mobile phones, tablets and digital cameras"
+[R21] Bu 204 How Do Lithium Batteries Work — https://batteryuniversity.com/article/bu-204-how-do-lithium-batteries-work
+    "Requires protection circuit to prevent thermal runaway if stressed"
+[R22] Bu 204 How Do Lithium Batteries Work — https://batteryuniversity.com/article/bu-204-how-do-lithium-batteries-work
+    "Although lower in specific energy than lithium-metal, Li ion is safe, provided the voltage and currents limits are being respected."
+[R23] IET & BSI officially publish Amendment 4 (2026) to BS 7671:2018 (IET Wiring Regulations) — https://www.theiet.org/media/press-releases/press-releases-2026/press-releases-2026-april-june/15-april-2026-iet-bsi-officially-publish-amendment-4-2026-to-bs-76712018-iet-wiring-regulations
+    "One of the most significant developments is the introduction of a new chapter covering stationary secondary batteries"
+[R24] Lead-Acid Batteries and Advanced Lead-Carbon Batteries — OSTI — https://www.osti.gov/servlets/purl/1502636
+    "at the anode (negative plate), lead metal reacts with sulfuric acid to form lead sulfate (i.e., Pb is oxidized from Pb to Pb 2+ ), liberating electrons."
+[R25] Lead-Acid Batteries and Advanced Lead-Carbon Batteries — OSTI — https://www.osti.gov/servlets/purl/1502636
+    "While at the cathode (positive plate), lead oxide reacts with sulfuric acid, again forming lead sulfate"
+[R26] Lead Acid Battery - an overview | ScienceDirect Topics — https://www.sciencedirect.com/topics/materials-science/lead-acid-battery
+    "During discharge, both electrodes become lead sulfate (PbSO ₄ ), and sulfuric acid is highly consumed, leaving behind water"
+[R27] Rechargeable cells: the lead–acid accumulator | Class experiment | RSC Education — Royal Society of Chemistry — https://edu.rsc.org/experiments/rechargeable-cells-the-lead-acid-accumulator/391.article
+    "Thus during charging the sulfuric acid concentration rises, and during discharge it falls."
+[R28] Battery University | BU-303: Confusion with Voltages — http://www.batteryuniversity.com/article/bu-303-confusion-with-voltages
+    "The nominal voltage of lead acid is 2 volts per cell, however when measuring the open circuit voltage, the OCV of a charged and rested battery should be 2.1V/cell."
+[R29] 17.5 Batteries and Fuel Cells - Chemistry 2e | OpenStax — https://openstax.org/books/chemistry-2e/pages/17-5-batteries-and-fuel-cells
+    "Some batteries are designed for single-use applications and cannot be recharged (primary cells), while others are based on conveniently reversible cell reactions that allow recharging by an external power source (secondary cells)."
+[R30] Bu 903 How To Measure State Of Charge — Battery University — https://batteryuniversity.com/article/bu-903-how-to-measure-state-of-charge
+    "As the SoC decreases through discharge, the sulfuric acid removes itself from the electrolyte and binds to the plate, forming lead sulfate. The density of the electrolyte becomes lighter and more water-like, and the specific gravity gets lower."
+[R31] Bu 903 How To Measure State Of Charge — Battery University — https://batteryuniversity.com/article/bu-903-how-to-measure-state-of-charge
+    "To get accurate readings, the battery needs to rest in the open circuit state for at least four hours; battery manufacturers recommend 24 hours for lead acid."
+[R32] Bu 403 Charging Lead Acid — Battery University — https://batteryuniversity.com/article/bu-403-charging-lead-acid
+    "A cell voltage of 2.10V at room temperature reveals a charge of about 90 percent."
+[R33] Bu 903 How To Measure State Of Charge — Battery University — https://batteryuniversity.com/article/bu-903-how-to-measure-state-of-charge
+    "Surface charge further fools SoC estimations by showing an elevated voltage immediately after charge; a brief discharge before measurement counteracts the error."
+[R34] Bu 903 How To Measure State Of Charge — Battery University — https://batteryuniversity.com/article/bu-903-how-to-measure-state-of-charge
+    "The colder the temperature drops, the higher (more dense) the SG value becomes."
+[R35] 93.10 — GNB/Exide — https://www.exidegroup.com/eu/sites/default/files/2017-01/Section%2093_10%202014-08%20GNB%20Flooded%20Classic%20Installation%20and%20Operation%20Manual%20Section_4.pdf
+    "For each 3°F (1.67°C) in temperature of the electrolyte above 77°F (25°C) add one point (.001) in specific gravity to the observed hydrometer readings"
+[R36] Bu 903 How To Measure State Of Charge — Battery University — https://batteryuniversity.com/article/bu-903-how-to-measure-state-of-charge
+    "When water evaporates, the SG reading rises because of higher concentration. The battery can also be overfilled, which lowers the number."
+[R37] Battery University | BU-804c: Acid Stratification and Surface Charge — https://batteryuniversity.com/article/bu-804c-acid-stratification-and-surface-charge
+    "while the high acid concentration on the bottom makes the battery appear more charged than it is and artificially raises the open circuit voltage."
+[R38] White Paper | The Proper Charging of Stationary Lead-Acid Batteries - Eagle Eye Power Solutions — https://eepowersolutions.com/resources/white-papers/the-proper-charging-of-stationary-lead-acid-batteries
+    "The SG of the electrolyte determines the open circuit voltage (OCV) of a battery cell. If a constant of 0.845 is added to the SG that will determine the OCV."
+[R39] Battery University | BU-402: What Is C-rate? — https://batteryuniversity.com/article/bu-402-what-is-c-rate
+    "When discharging a battery with a battery analyzer capable of applying different C rates, a higher C rate will produce a lower capacity reading and vice versa."
+[R40] Peukert's law - Wikipedia — https://en.wikipedia.org/wiki/Peukert%27s_law
+    "As the rate of discharge increases, the battery's available capacity decreases, approximately according to Peukert's law."
+[R41] Battery University | BU-402: What Is C-rate? — https://batteryuniversity.com/article/bu-402-what-is-c-rate
+    "To obtain a reasonably good capacity reading, manufacturers commonly rate alkaline and lead acid batteries at a very low 0.05C, or a 20-hour discharge."
+[R42] 8. Battery capacity and Peukert exponent — Victron Energy — https://www.victronenergy.com/media/pg/BMV-700/en/battery-capacity-and-peukert-exponent.html
+    "When the same 100Ah battery is discharged completely in two hours, its capacity is greatly reduced. Because of the higher rate of discharge, it may only give C2 = 56Ah."
+[R43] 8. Battery capacity and Peukert exponent — Victron Energy — https://www.victronenergy.com/media/pg/BMV-700/en/battery-capacity-and-peukert-exponent.html
+    "An ideal (theoretical) battery has a Peukert exponent of 1.00 and has a fixed capacity regardless of the size of the discharge current. The default setting in the battery monitor for the Peukert exponent is 1.25."
+[R44] 8. Battery capacity and Peukert exponent — Victron Energy — https://www.victronenergy.com/media/pg/BMV-700/en/battery-capacity-and-peukert-exponent.html
+    "To calculate the Peukert exponent you will need two rated battery capacities."
+[R45] Peukert Law (Theory) : Energy Storage Labs : Biotechnology and Biomedical Engineering : Amrita Vishwa Vidyapeetham Virtual Lab — https://vlab.amrita.edu/?brch=270&cnt=1&sim=1760&sub=3
+    "H – The discharge time in hours that the Amp Hour specification is based on. For example, if you had a 100 Amp Hour battery at a 20 hour discharge rate, H would equal 20."
+[R46] 8. Battery capacity and Peukert exponent — Victron Energy — https://www.victronenergy.com/media/pg/BMV-700/en/battery-capacity-and-peukert-exponent.html
+    "Please note that the Peukert exponent is no more than a rough approximation of reality. In case of very high currents, the battery will give even less capacity than predicted by a fixed exponent."
+[R47] Bu 502 Discharging At High And Low Temperatures — Battery University — https://batteryuniversity.com/article/bu-502-discharging-at-high-and-low-temperatures
+    "Cold temperature increases the internal resistance and lowers the capacity. A battery that provides 100 percent capacity at 27°C (80°F) will typically deliver only 50 percent at –18°C (0°F)."
+[R48] Flooded Stationary Lead Acid Batteries IOM — EnerSys — https://www.enersys.com/492013/globalassets/documents/product-documentation/powersafe/opzs/amer/amer-en-iom-ps-flooded-0223.pdf
+    "5 min < t < 59 min 1.60 V/c 1h < t < 5h 1.70 V/c 5h < t < 8h 1.75 V/c 8h < t < 24h 1.80 V/c"
+[R49] SOLAS II-1 Regulation 43, emergency source of electrical power — imorules.com — https://imorules.com/GUID-C048F800-5412-40B3-ACCD-C562D4E4F719.html
+    "carrying the emergency electrical load without recharging while maintaining the voltage of the battery throughout the discharge period within 12% above or below its nominal voltage"
+[R50] Circular of the Bureau of Standards no. 31, 3rd edition: Copper wire tables — NIST — https://nvlpubs.nist.gov/nistpubs/Legacy/circ/nbscircular31e3.pdf
+    "20° C or 68° F temperature coefficient for copper of 100 percent conductivity is 0.00393 per degree C, or 0.00218 per degree F."
+[R51] 17.5 Batteries and Fuel Cells - Chemistry 2e | OpenStax — https://openstax.org/books/chemistry-2e/pages/17-5-batteries-and-fuel-cells
+    "Each cell produces 2 V, so six cells are connected in series to produce a 12-V car battery."
+Notes (claims, and the sources that support them):
+- A shorted lead acid battery can deliver 100 to 1000 times the typical discharge current used in most applications. [R1]
+- Short circuit current is typically estimated by dividing the open circuit voltage by the internal resistance. [R2]
+- The peak short-circuit current a battery can deliver is limited by its internal resistance, including the intercell connectors. [R3]
+- One test on a 480 V battery predicted 2550 A from 480 V over 0.160 plus 0.028 ohm, close to a measured average of 2530 A. [R4]
+- Short circuit current stays relatively high at low states of charge: it exceeded 90 per cent of nominal even at about 60 per cent charge. [R5]
+- Exposed metal parts of the battery always carry a voltage and are electrically live, with a risk of short circuits. [R6]
+- A battery short reaches its steady maximum current within 5 to 10 milliseconds in one measured test. (added for i8) [R7]
+- Batteries contain little inductance, so a shorted battery behaves much like a fault through a resistor. (added for i8) [R8]
+- Accurate short-circuit current and resistance values are needed to size and select the circuit protection device. (added for i8) [R9]
+- Total DC short-circuit current is the sum of what the battery, the charger and motors deliver. (added for i8) [R10]
+- One maker's 12 V 70 Ah block lists a short-circuit current of 1814 A and an internal resistance of 6.95 milliohms (a data row). (added for i8) [R11]
+- Electrolyte is highly corrosive; wash any splash in eyes or on skin with plenty of clean water and seek immediate medical help. (added for i8) [R12]
+- Switch off all electrical circuits before connecting or disconnecting batteries. (added for i8) [R13]
+- Do not rest metal objects such as tools on top of a battery. (added for i8) [R14]
+- Battery electrolytes usually contain either sulphuric acid or potassium hydroxide. (added for i8) [R15]
+- These very corrosive electrolytes can permanently damage the eyes and cause serious chemical burns to the skin. (added for i8) [R16]
+- A nickel-cadmium cell's low voltage of 1.20 V means many cells are needed for a high voltage. (added for i8) [R17]
+- The standard nickel-cadmium cell is one of the most rugged and forgiving batteries. (added for i8) [R18]
+- Nickel-cadmium's potassium hydroxide electrolyte is not used in the chemical reaction, so measuring it does not track the charge. (added for i8) [R19]
+- A lithium-ion cell's nominal voltage is 3.60 V. (added for i8) [R20]
+- Lithium-ion needs a protection circuit to prevent thermal runaway if stressed. (added for i8) [R21]
+- Lithium-ion is safe provided its voltage and current limits are respected. (added for i8) [R22]
+- BS 7671 Amendment 4 (2026) adds a new chapter covering stationary secondary batteries. (added for i8) [R23]
+- On discharge, lead at the negative plate reacts with sulphuric acid to form lead sulphate, freeing electrons. [R24]  (from an idea this one builds on)
+- At the positive plate, lead oxide reacts with sulphuric acid, again forming lead sulphate. [R25]  (from an idea this one builds on)
+- On discharge both plates become lead sulphate and the sulphuric acid is used up, leaving water behind. [R26]  (from an idea this one builds on)
+- The acid concentration rises during charging and falls during discharge, so charging runs the discharge reaction backwards. [R27]  (from an idea this one builds on)
+- The nominal voltage of a lead-acid cell is 2 V, but a charged and rested cell measures about 2.1 V open circuit. [R28]  (from an idea this one builds on)
+- A primary cell is single-use and cannot be recharged; a secondary cell, such as lead-acid, can be recharged by an external power source. [R29]  (from an idea this one builds on)
+- On discharge, sulphuric acid leaves the electrolyte and binds to the plate as lead sulphate, so the liquid becomes lighter and its specific gravity falls; on charge the acid concentration rises. [R30][R27]  (from an idea this one builds on)
+- For an accurate voltage reading the battery needs to rest open circuit for at least four hours; makers recommend 24 hours for lead acid. [R31]  (from an idea this one builds on)
+- A cell voltage of 2.10 V at room temperature indicates about 90 per cent charge. [R32]  (from an idea this one builds on)
+- Surface charge shows an elevated voltage straight after charging, and a brief discharge before measuring counteracts the error. [R33]  (from an idea this one builds on)
+- Colder electrolyte reads a higher specific gravity, so readings are corrected; one maker adds one point (0.001) per 3 degrees F above 77 degrees F, and subtracts below it. [R34][R35]  (from an idea this one builds on)
+- Evaporation of water raises the specific gravity reading and overfilling lowers it, so electrolyte level matters when reading it. [R36]  (from an idea this one builds on)
+- Acid concentrated at the bottom of a cell makes the battery appear more charged than it is and raises the open circuit voltage artificially. [R37]  (from an idea this one builds on)
+- A cell's open-circuit voltage is roughly its specific gravity plus 0.845 V, so a stationary cell full at 1.225 rests near 2.07 V, lower than a cell with stronger acid (added for i2's voltmeter model). [R38]  (from an idea this one builds on)
+- A higher discharge rate gives a lower capacity reading, and available capacity falls with rising discharge rate approximately as Peukert's law describes. [R39][R40]  (from an idea this one builds on)
+- Lead acid batteries are commonly rated at a 20-hour discharge, and one maker note says a 100 Ah battery rated at C20 may give only 56 Ah in two hours. [R41][R42]  (from an idea this one builds on)
+- An ideal battery has a Peukert exponent of 1.00 and fixed capacity at any current; Victron's default for lead acid is 1.25, and two rated capacities give the exponent. [R43][R44]  (from an idea this one builds on)
+- In Peukert's formula H is the discharge time in hours that the amp-hour rating is based on, so 100 Ah at a 20-hour rate gives H = 20. [R45]  (from an idea this one builds on)
+- Peukert's exponent is a rough approximation: at very high currents the battery gives even less capacity than a fixed exponent predicts. [R46]  (from an idea this one builds on)
+- Cold raises internal resistance and lowers capacity: a battery giving 100 per cent at 27 degrees C typically delivers only about 50 per cent at minus 18 degrees C. [R47]  (from an idea this one builds on)
+- A discharge test ends at an end voltage that depends on how long the discharge lasts: 1.60 V a cell for 5 to 59 minutes, 1.70 V for 1 to 5 hours, 1.75 V for 5 to 8 hours and 1.80 V for 8 to 24 hours. Lesson 3's picture uses 1.75 V a cell, 10.50 V for six cells, for every run, as a simplification. [R48]  (from an idea this one builds on)
+- SOLAS: a ship's emergency accumulator battery must carry the emergency load without recharging, holding its voltage within 12 per cent of nominal through the discharge; for a 24 V battery that is 21.1 V to 26.9 V (computed). [R49]  (from an idea this one builds on)
+- Copper's resistance rises about 0.393 per cent per degree C at 20 degrees C, small beside the doubling of the example battery's internal resistance between 27 and minus 18 degrees C (lesson 3's analogy). [R50]  (from an idea this one builds on)
+- A lead-acid cell is nominally 2 V, and a charged, rested cell reads about 2.1 V open circuit. [R28]  (whole topic)
+- Cells connect in series to make a battery: six 2 V cells make a 12 V battery. [R51][R28]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i8",
+ "title": "Short circuits, safety and other chemistries",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the fault current at its highest, over 1800 A, across the battery's terminals, and falling only as the cable adds its milliohms, when you drag the fault away from the battery.",
+  "title": "The milliohm fault",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Screen",
+    "min": 0,
+    "max": 14,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [
+   {
+    "id": "faultCurrent",
+    "label": "Fault current",
+    "unit": "A",
+    "decimals": 0
+   },
+   {
+    "id": "loopResistance",
+    "label": "Loop resistance",
+    "unit": "mΩ",
+    "decimals": 2
+   }
+  ],
+  "whatAmILookingAt": "A 12 V lead-acid block sits on the left, drawn as six cells in series in one case. Each cell is drawn as an emf behind a small resistance. A pair of cables runs from its terminals to the right, with a protective device at the battery end. The device's breaking capacity is an example, 1 kA, drawn as a line on a bar. A fault, a red link across the two cores, can be dragged along the cable. A fault-distance slider runs from 0 m, across the terminals just past the device, to 20 m, in steps of 0.5 m. The block is a real maker's. It reads 12.6 V open circuit, from six cells at 2.1 V, and has 6.95 mΩ inside. The cable is an example, with cores of 0.5 mΩ a metre each. A fault d metres away puts both cores in the loop, out and back, so the outside resistance is 1 mΩ for every metre. The fault current is the open-circuit voltage ÷ (the battery's resistance + the outside resistance). The readout 'Fault current' shows it in A, and its bar turns red while it is above the device's line. The readout 'Loop resistance' shows the total in mΩ. A charge-left slider runs from 100% down to 60% in steps of 5%. It lowers the current along a straight line to 92% of the full-charge value at 60% charge. That line is a sketch, kept above the measured 90%. A time trace under the cable draws the current from the moment of the fault to 20 ms. It is a sketch that climbs to its full value by 5 ms and stays there. A 'Big string' switch swaps the block for a real 480 V string whose loop adds up to 0.160 + 0.028 Ω. The fault slider then rests at 0 m and the readout shows 2553 A. A chemistry card below compares three cells: lead-acid, nickel-cadmium and lithium-ion. Each column gives the cell voltage, the cells in series for 24 V, the electrolyte, whether a hydrometer reads the charge, and the main hazard. On a phone the two readouts sit on their own lines, the card's three columns stack one under another, and no word splits. Each show screen has under about 90 words. It ends on what its finished picture shows, so it reads well without the controls. Screen by screen. 0 asks a recall question. A protective device sits where the prospective fault current is 3 kA. It asks what its breaking capacity must be. First choice: at least 3 kA, the most it may have to break there. Second: at least its rated current. Third: at least the cable's current rating. The right pick says 'Still there: a device must break the biggest fault it can see where it sits.' Hint for rated current: that sets when it trips on overload, not what it can safely break. Hint for the cable: that is what the cable carries all day, far below a fault. 1 shows the 12 V block with a fault across its terminals. It reads 12.6 V open circuit and has 6.95 mΩ inside. Remember the emf behind a small resistance. Short the terminals, and that resistance alone limits the current. So the fault current is the open-circuit voltage ÷ the internal resistance: 12.6 ÷ 0.00695 = 1813 A. The maker lists 1814 A for this block. That is far above the device's 1 kA. It ends at 0 m with 1813 A showing. 2 says you set a steel spanner down across the terminals of the same 12 V block. It asks what flows. First choice: about 1800 A, held back only by the block's milliohms and the spanner. Second: very little, because 12 V is too low to push much current. Third: about 70 A, the block's ampere-hour rating. The right pick says 'That's it: 12.6 V across a few milliohms is well over a thousand amps.' Hint for too low: 12 V drives little current through you because your body's resistance is high, and a spanner's is tiny. Hint for 70 A: ampere-hours say how long a battery lasts, not how hard it can push. 3 drags the fault along the cable. Now both cable cores join the loop, and resistances in series add. The current is the voltage ÷ (the battery's resistance + the outside resistance). Each core is 0.5 mΩ a metre, so each metre adds 1 mΩ. At 5 m the loop is 6.95 + 5 = 11.95 mΩ. That gives 12.6 ÷ 0.01195 = 1054 A, still above the device's 1 kA. The battery's milliohms are fixed. Only the loop outside can add more. It ends at 5 m and 1054 A. 4 says a fault happens 10 m down the same cable. It asks for the fault current. The choices are 743 A, 1260 A and 1813 A. The right pick says 'That's it: 12.6 ÷ (0.00695 + 0.010) = 743 A.' Hint for 1260 A: that is 12.6 ÷ 0.010, the cable alone, and the battery's 6.95 mΩ is in the loop too. Hint for 1813 A: that is the fault at the terminals, before the cable adds its 10 mΩ. 5 taps 'Big string'. The same rule works for a 480 V string. Its loop adds up to 0.160 + 0.028 Ω. The cells' resistance, with the links between them, sets the most a battery can drive. 480 ÷ 0.188 = 2553 A, so the prediction was about 2550 A. A real test on that string measured 2530 A. That is why a shorted battery can give 100 to 1000 times its normal discharge current. It ends with the big string showing 2553 A. 6 says a 48 V string has 24 cells at 2.1 V, each with 1.5 mΩ inside. Its 23 links between cells add 0.1 mΩ each. These are example values. It asks for the fault current across its terminals. The choices are 1316 A, 1400 A and 33600 A. The right pick says 'That's it: 50.4 V ÷ (36 + 2.3) mΩ = 1316 A.' Hint for 1400 A: the links carry the fault current too, so their 2.3 mΩ belongs in the loop. Hint for 33600 A: in a string one current flows through every cell, so the cells' resistances add. 7 drags the charge left from 100% down to 60%. The fault current barely moves. A cell's rested voltage falls only a little as its charge goes, as lesson 2's voltmeter showed. The milliohms stay milliohms. In tests on real batteries, the current stayed above 90% of its full-charge value at about 60% charge. In the picture, at 60% the block still drives 1668 A. So a battery that cannot run its load for long can still give a full-size fault. It ends at 60% and 1668 A. 8 says a UPS battery has run down to about 60% charge, and someone says a short on it now would be small. It asks whether that is right. First choice: no, its fault current is still over 90% of the full-charge value. Second: yes, it falls to about 60% of the full-charge fault. Third: yes, a part-charged battery holds too little energy for a big current. The right pick says 'That's it: the volts barely fall and the milliohms stay, so the current stays high.' Hint for 60%: the current follows the voltage, not the charge left, and the voltage barely falls. Hint for too little energy: energy sets how long it could keep going, not how many amps flow at once. 9 shows the time trace. The current reaches its full value within 5 to 10 ms of the fault. A battery has little inductance, so a short behaves like a fault through a plain resistor. There is no slow build-up to react to. And a battery's cells cannot be switched off. Its exposed metal is live all the time. Switching off the charger and the loads stops their currents, but the cells keep their voltage. It ends with the trace flat at 1813 A, with the fault at 0 m. 10 says you must remake a loose link between two cells in a live string. It asks what comes first. First choice: switch off the circuits on the battery, and keep metal tools off its top. Second: open the battery's main switch, and then the cells are dead. Third: nothing, because each link spans only one cell's 2.1 V. The right pick says 'That's it: switch off all circuits before connecting or disconnecting, and rest no metal on a battery.' Hint for the main switch: a switch stops current in the circuits, but the cells keep their voltage. Hint for one cell: your spanner can bridge more than one cell, and even one cell can drive over a thousand amps through metal. 11 shows the chemistry card. Lead-acid gives about 2 V a cell, so 24 V takes 12 cells. Its acid is used up on discharge, so a hydrometer reads a vented cell's charge. Nickel-cadmium gives 1.20 V, so 24 V takes 20 cells. Its potassium hydroxide is not used up, so a hydrometer cannot read the charge. Both liquids are very corrosive. Lithium-ion gives 3.60 V, so 7 cells make 25.2 V. Its main hazard is thermal runaway. It ends with all three columns showing. 12, 13 and 14 mix the ideas. 12 says a nickel-cadmium battery needs its charge checked, and a hydrometer is to hand. It asks what the hydrometer will tell you. First choice: nothing about the charge, because the electrolyte takes no part in the reaction. Second: the charge, read the same way as lead-acid. Third: the charge, on a lower scale. The right pick says 'That's it: the alkali carries the current but is not used up, so its strength stays put.' Hint for the same way: lead-acid's acid is used up on discharge, and that is what a hydrometer reads. Hint for a lower scale: any scale needs a reading that changes with charge, and this one does not. 13 says a 24 V emergency battery has 12 lead-acid cells at 2.1 V and 14 mΩ in total, links included. A fault 2 m down its cable adds 2 mΩ. The device there can break 1 kA. These are example values. It asks whether the device can clear the fault. First choice: no, 25.2 ÷ 0.016 = 1575 A, above 1 kA. Second: yes, 24 V is too low for a big fault. Third: yes, once the battery is part discharged. The right pick says 'That's it: 25.2 V across 16 mΩ is 1575 A, more than the device can break.' Hint for too low: a low voltage across milliohms still drives over a thousand amps. Hint for part discharged: at 60% charge it would still give over 90% of that. 14 says a lithium-ion pack is to replace that 24 V lead-acid battery. It asks how many cells in series it needs, and whether a hydrometer can check its charge. First choice: 7 cells, and no hydrometer. Second: 12 cells, checked with a hydrometer. Third: 20 cells, and no hydrometer. The right pick says 'That's it: 7 × 3.60 V = 25.2 V, and its cells are sealed.' Hint for 12 cells: that count suits lead-acid's 2 V a cell. Hint for 20 cells: that count suits nickel-cadmium's 1.20 V a cell.",
+  "ignores": "The fault is drawn as a bolted short of no resistance. A real fault often arcs, and the arc adds its own resistance and voltage drop, so a real fault current is usually somewhat lower. The block's resistance is held fixed, though a real cell's changes a little with charge and temperature. The charge-left line and the time trace are sketches. The charger and any running motors would add their own current to a fault, and the picture leaves them out. Each cable core is the same example size at room temperature.",
+  "numbers": [
+   {
+    "label": "Screen control lowest",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Screen control highest",
+    "value": 14,
+    "kind": "control"
+   },
+   {
+    "label": "Cells in the 12 V block",
+    "value": 6,
+    "kind": "constant",
+    "source": 1
+   },
+   {
+    "label": "Charged, rested cell voltage, V",
+    "value": 2.1,
+    "kind": "constant",
+    "source": 2
+   },
+   {
+    "label": "Block open-circuit voltage, V",
+    "value": 12.6,
+    "kind": "computed"
+   },
+   {
+    "label": "Block nominal voltage, V",
+    "value": 12,
+    "kind": "constant",
+    "source": 3
+   },
+   {
+    "label": "Block internal resistance, mΩ",
+    "value": 6.95,
+    "kind": "constant",
+    "source": 3
+   },
+   {
+    "label": "Block short-circuit current the maker lists, A",
+    "value": 1814,
+    "kind": "constant",
+    "source": 3
+   },
+   {
+    "label": "Block rating, Ah",
+    "value": 70,
+    "kind": "constant",
+    "source": 3
+   },
+   {
+    "label": "Fault current at the terminals, A",
+    "value": 1813,
+    "kind": "computed"
+   },
+   {
+    "label": "Example device breaking capacity, kA",
+    "value": 1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Recall example prospective fault current, kA",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Fault slider lowest, m",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Fault slider highest, m",
+    "value": 20,
+    "kind": "control"
+   },
+   {
+    "label": "Fault slider step, m",
+    "value": 0.5,
+    "kind": "control"
+   },
+   {
+    "label": "Example cable core resistance, mΩ a metre",
+    "value": 0.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Outside resistance per metre of route, mΩ",
+    "value": 1,
+    "kind": "computed"
+   },
+   {
+    "label": "Fault distance on screen 3, m",
+    "value": 5,
+    "kind": "control"
+   },
+   {
+    "label": "Loop resistance at 5 m, mΩ",
+    "value": 11.95,
+    "kind": "computed"
+   },
+   {
+    "label": "Fault current at 5 m, A",
+    "value": 1054,
+    "kind": "computed"
+   },
+   {
+    "label": "Fault distance on screen 4, m",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "Cable resistance at 10 m, mΩ",
+    "value": 10,
+    "kind": "computed"
+   },
+   {
+    "label": "Fault current at 10 m, A",
+    "value": 743,
+    "kind": "computed"
+   },
+   {
+    "label": "Cable alone at 10 m, wrong choice, A",
+    "value": 1260,
+    "kind": "computed"
+   },
+   {
+    "label": "Big string voltage, V",
+    "value": 480,
+    "kind": "constant",
+    "source": 4
+   },
+   {
+    "label": "Big string loop resistance, first part, Ω",
+    "value": 0.16,
+    "kind": "constant",
+    "source": 4
+   },
+   {
+    "label": "Big string loop resistance, second part, Ω",
+    "value": 0.028,
+    "kind": "constant",
+    "source": 4
+   },
+   {
+    "label": "Big string loop resistance, total, Ω",
+    "value": 0.188,
+    "kind": "computed"
+   },
+   {
+    "label": "Big string fault current, computed, A",
+    "value": 2553,
+    "kind": "computed"
+   },
+   {
+    "label": "Big string fault current, predicted, A",
+    "value": 2550,
+    "kind": "constant",
+    "source": 4
+   },
+   {
+    "label": "Big string fault current, measured, A",
+    "value": 2530,
+    "kind": "constant",
+    "source": 4
+   },
+   {
+    "label": "Short current, times normal discharge, low end",
+    "value": 100,
+    "kind": "constant",
+    "source": 5
+   },
+   {
+    "label": "Short current, times normal discharge, high end",
+    "value": 1000,
+    "kind": "constant",
+    "source": 5
+   },
+   {
+    "label": "Example 48 V string, nominal voltage, V",
+    "value": 48,
+    "kind": "assumed"
+   },
+   {
+    "label": "Cells in the example 48 V string",
+    "value": 24,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example cell resistance, mΩ",
+    "value": 1.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Links between 24 cells",
+    "value": 23,
+    "kind": "computed"
+   },
+   {
+    "label": "Example link resistance, mΩ",
+    "value": 0.1,
+    "kind": "assumed"
+   },
+   {
+    "label": "48 V string open-circuit voltage, V",
+    "value": 50.4,
+    "kind": "computed"
+   },
+   {
+    "label": "48 V string cells' resistance, mΩ",
+    "value": 36,
+    "kind": "computed"
+   },
+   {
+    "label": "48 V string links' resistance, mΩ",
+    "value": 2.3,
+    "kind": "computed"
+   },
+   {
+    "label": "48 V string fault current, A",
+    "value": 1316,
+    "kind": "computed"
+   },
+   {
+    "label": "48 V string, links left out, wrong choice, A",
+    "value": 1400,
+    "kind": "computed"
+   },
+   {
+    "label": "48 V string, 24 × 1400 A, wrong choice, A",
+    "value": 33600,
+    "kind": "computed"
+   },
+   {
+    "label": "Charge-left slider top, %",
+    "value": 100,
+    "kind": "control"
+   },
+   {
+    "label": "Charge-left slider bottom, %",
+    "value": 60,
+    "kind": "control"
+   },
+   {
+    "label": "Charge-left slider step, %",
+    "value": 5,
+    "kind": "control"
+   },
+   {
+    "label": "Measured share of full fault current kept, above, %",
+    "value": 90,
+    "kind": "constant",
+    "source": 6
+   },
+   {
+    "label": "Sketch share of full fault current at 60% charge, %",
+    "value": 92,
+    "kind": "assumed"
+   },
+   {
+    "label": "Block fault current at 60% charge, A",
+    "value": 1668,
+    "kind": "computed"
+   },
+   {
+    "label": "Time trace length, ms",
+    "value": 20,
+    "kind": "assumed"
+   },
+   {
+    "label": "Sketch time to full current, ms",
+    "value": 5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Measured time to full current, ms, low end",
+    "value": 5,
+    "kind": "constant",
+    "source": 7
+   },
+   {
+    "label": "Measured time to full current, ms, high end",
+    "value": 10,
+    "kind": "constant",
+    "source": 7
+   },
+   {
+    "label": "Lead-acid nominal cell voltage, V",
+    "value": 2,
+    "kind": "constant",
+    "source": 2
+   },
+   {
+    "label": "Lead-acid cells for 24 V",
+    "value": 12,
+    "kind": "computed"
+   },
+   {
+    "label": "Nickel-cadmium cell voltage, V",
+    "value": 1.2,
+    "kind": "constant",
+    "source": 8
+   },
+   {
+    "label": "Nickel-cadmium cells for 24 V",
+    "value": 20,
+    "kind": "computed"
+   },
+   {
+    "label": "Lithium-ion nominal cell voltage, V",
+    "value": 3.6,
+    "kind": "constant",
+    "source": 9
+   },
+   {
+    "label": "Lithium-ion cells for 24 V, rounded up",
+    "value": 7,
+    "kind": "computed"
+   },
+   {
+    "label": "Seven lithium-ion cells, V",
+    "value": 25.2,
+    "kind": "computed"
+   },
+   {
+    "label": "Example 24 V battery, cells",
+    "value": 12,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example 24 V battery open-circuit voltage, V",
+    "value": 25.2,
+    "kind": "computed"
+   },
+   {
+    "label": "Example 24 V battery resistance with links, mΩ",
+    "value": 14,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example fault distance down its cable, m",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Cable resistance for that fault, mΩ",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Loop resistance for that fault, mΩ",
+    "value": 16,
+    "kind": "computed"
+   },
+   {
+    "label": "Fault current 2 m down, A",
+    "value": 1575,
+    "kind": "computed"
+   },
+   {
+    "label": "Fault current at its terminals, A",
+    "value": 1800,
+    "kind": "computed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "A battery is an emf behind a few milliohms, so almost nothing limits a short across it. That lets a large battery drive thousands of amps into a fault, even part discharged, and its cells cannot be switched off. What you know about prospective fault current still holds. Only the source is new.\n\nShort the terminals and the outside resistance falls to almost nothing. The cells' own internal resistance is then all that holds the current back. So the [[short-circuit current]] is the open-circuit voltage ÷ the internal resistance.[^10] One maker's 12 V 70 Ah block has 6.95 mΩ inside and lists 1814 A.[^3] Check it: six cells at 2.1 V give 12.6 V, and 12.6 ÷ 0.00695 = 1813 A. Move the fault down a cable and the cable joins the loop, so the current is V ÷ (R battery + R outside). With 5 m of the example cable adding 5 mΩ, it is still 1054 A. The links between cells and the cable add to that loop. On one real 480 V string, the rule predicted about 2550 A, and a test measured 2530 A.[^4]\n\nTwo things make this worse than it looks. First, the current hardly falls as the battery runs down. The rested voltage falls only a little as the charge goes, as lesson 2's voltmeter showed. The milliohms stay milliohms. In tests the current stayed above 90% of its full-charge value at about 60% charge.[^6] Second, it arrives at once. A battery has little inductance, so a short acts like a fault through a plain resistor.[^11] In one test the current reached its full value within 5 to 10 ms.[^7] Its exposed metal is live all the time.[^12] Switching off the circuits stops their currents, but no switch makes the cells dead. So the emergency battery that gives out early on its test is no safer to work on, because it can still drive a full-size fault.\n\nOther chemistries obey the same rule, but their cells differ. Lead-acid gives about 2 V a cell, and its acid is used up on discharge, so a hydrometer reads a vented cell's charge. A nickel-cadmium cell gives 1.20 V, so 24 V takes 20 cells.[^8] Its potassium hydroxide takes no part in the reaction, so a hydrometer tells you nothing about the charge.[^13] A lithium-ion cell gives 3.60 V, so 7 cells make 25.2 V.[^9] It needs a protection circuit to prevent [[thermal runaway]] if stressed.[^14] That is a cell whose own heat speeds its reactions, which make more heat. Finding a battery's earth faults belongs to Insulated systems and earth faults. BS 7671 now has a new chapter covering stationary batteries.[^15] The figures here are a simplified model, and a real fault through an arc usually runs somewhat lower. **A battery's few milliohms let it drive thousands of amps into a short, even part discharged, and its cells are always live.**"
+ },
+ "analogy": {
+  "text": "You know fault level at a supply transformer. Its impedance is tiny, so a fault at its terminals draws a huge current. Move the fault down a final circuit, and the cable's impedance cuts it to a fraction. A battery is that transformer, with its milliohms in place of the transformer's impedance. The same sum, voltage ÷ loop impedance, gives the fault current, and the device nearest the source faces the biggest fault.",
+  "breaks": "A transformer's impedance is mostly reactance, so its fault current takes a moment to settle and you can isolate it from upstream. A battery's is almost pure resistance, so its fault arrives within milliseconds, and nothing upstream can make its cells dead."
+ },
+ "practice": {
+  "text": "Use this whenever you work on, near or downstream of a battery.\n\n**Safe way first:**\n- Treat every battery as live. Its exposed metal always carries a voltage.[^12]\n- Switch off all circuits before connecting or disconnecting a battery.[^16] That stops their currents, and the cells stay live.\n- Keep metal off the battery. Don't rest tools on top of it.[^17]\n- Since the cells stay live, work on one connection at a time and cover the terminals you are not touching.\n- Protect your eyes near the electrolyte. Battery electrolyte is sulphuric acid or potassium hydroxide.[^18] Both can permanently damage the eyes and burn the skin.[^19]\n- If it splashes, wash with plenty of clean water and get medical help at once.[^20]\n\n**To estimate a battery's fault current:**\n- Find the open-circuit voltage: the cells × the volts a cell.\n- Add every resistance in the loop: the cells, the links between them, and the cable out and back.\n- Divide the voltage by that total. That is the battery's share of the fault.\n- Add what the charger and any running motors can give.[^21]\n- Check each protective device against the fault just past it, at full charge. Its breaking capacity must be above that current.\n\n**Rule of thumb:** a shorted battery can give 100 to 1000 times its normal discharge current.[^5] A low voltage does not mean a low fault current.\n\n**Worked example:** A 24 V emergency battery has 12 lead-acid cells at 2.1 V, so it reads 25.2 V open circuit. Say its cells and links total 14 mΩ. Across its terminals, 25.2 ÷ 0.014 = 1800 A. A fault 2 m down a cable with 0.5 mΩ a metre in each core adds 2 mΩ. Then 25.2 ÷ 0.016 = 1575 A. So a device at the battery must break more than 1800 A, plus the charger's share. These are example values, and a real battery's figures come from its maker.\n\n**Common mistakes**\n- Thinking 12 V or 24 V is too low to matter. It drives little current through you, but over a thousand amps through a spanner.\n- Thinking a part-discharged battery is safer. At about 60% charge it still gives over 90% of its full fault current.\n- Switching off the loads and treating the cells as dead.\n- Leaving the links, the cable or the battery's own resistance out of the sum.\n- Reading a nickel-cadmium cell's charge with a hydrometer."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "simplified",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "sources": [
+  {
+   "n": 1,
+   "title": "17.5 Batteries and Fuel Cells - Chemistry 2e | OpenStax",
+   "url": "https://openstax.org/books/chemistry-2e/pages/17-5-batteries-and-fuel-cells",
+   "quote": "Each cell produces 2 V, so six cells are connected in series to produce a 12-V car battery."
+  },
+  {
+   "n": 2,
+   "title": "Battery University | BU-303: Confusion with Voltages",
+   "url": "http://www.batteryuniversity.com/article/bu-303-confusion-with-voltages",
+   "quote": "The nominal voltage of lead acid is 2 volts per cell, however when measuring the open circuit voltage, the OCV of a charged and rested battery should be 2.1V/cell."
+  },
+  {
+   "n": 3,
+   "title": "Battery Range Summary",
+   "url": "https://www.enersys.com/493bb4/globalassets/documents/product-documentation/powersafe/v-tt/emea/en-v-rs-013.pdf",
+   "quote": "12V70 12 68 70 314 164 204 224 24.9 1814 6.95 M6 F V1"
+  },
+  {
+   "n": 4,
+   "title": "CALCULATED VS. ACTUAL SHORT CIRCUIT CURRENTS FOR VRLA BATTERIES — Vertiv",
+   "url": "https://www.vertiv.com/48dfcf/globalassets/documents/battcon-static-assets/2003/calculated-vs.-actual-short-circuit-currents-for-vrla-batteries.pdf",
+   "quote": "Using the equation above, we predicted a short circuit current of 2550 amps [480V / (0.160 + 0.028)], which compares reasonably with the actual measured average steady state test result of 2530 amps"
+  },
+  {
+   "n": 5,
+   "title": "CALCULATED VS. ACTUAL SHORT CIRCUIT CURRENTS FOR VRLA BATTERIES — Vertiv",
+   "url": "https://www.vertiv.com/48dfcf/globalassets/documents/battcon-static-assets/2003/calculated-vs.-actual-short-circuit-currents-for-vrla-batteries.pdf",
+   "quote": "A “shorted” lead acid battery has the capability of delivering an extremely high current, 100 to 1000 times the typical discharge current used in most applications."
+  },
+  {
+   "n": 6,
+   "title": "CALCULATED VS. ACTUAL SHORT CIRCUIT CURRENTS FOR VRLA BATTERIES — Vertiv",
+   "url": "https://www.vertiv.com/48dfcf/globalassets/documents/battcon-static-assets/2003/calculated-vs.-actual-short-circuit-currents-for-vrla-batteries.pdf",
+   "quote": "The short circuit current stays relatively high even for low states of charge; for example, currents exceeded 90% of nominal even at ~60% state of charge."
+  },
+  {
+   "n": 7,
+   "title": "CALCULATED VS. ACTUAL SHORT CIRCUIT CURRENTS FOR VRLA BATTERIES",
+   "url": "https://www.vertiv.com/48dfcf/globalassets/documents/battcon-static-assets/2003/calculated-vs.-actual-short-circuit-currents-for-vrla-batteries.pdf",
+   "quote": "Note that steady state minimum voltage and maximum current conditions were attained within 5 to 10 milliseconds."
+  },
+  {
+   "n": 8,
+   "title": "Bu 203 Nickel Based Batteries",
+   "url": "https://batteryuniversity.com/article/bu-203-nickel-based-batteries",
+   "quote": "Low cell voltage of 1.20V requires many cells to achieve high voltage"
+  },
+  {
+   "n": 9,
+   "title": "Bu 204 How Do Lithium Batteries Work",
+   "url": "https://batteryuniversity.com/article/bu-204-how-do-lithium-batteries-work",
+   "quote": "The nominal cell voltage of 3.60V can directly power mobile phones, tablets and digital cameras"
+  },
+  {
+   "n": 10,
+   "title": "CALCULATED VS. ACTUAL SHORT CIRCUIT CURRENTS FOR VRLA BATTERIES — Vertiv",
+   "url": "https://www.vertiv.com/48dfcf/globalassets/documents/battcon-static-assets/2003/calculated-vs.-actual-short-circuit-currents-for-vrla-batteries.pdf",
+   "quote": "A battery’s short circuit current is typically estimated by dividing its open circuit voltage by its internal resistance."
+  },
+  {
+   "n": 11,
+   "title": "NUREG/CR-XXXX",
+   "url": "https://www.osti.gov/servlets/purl/1188216",
+   "quote": "Batteries contain little inductance and, as stated by one large UPS manufacturer, a shorted battery is similar to a fault through a resistor."
+  },
+  {
+   "n": 12,
+   "title": "Flooded Stationary Lead Acid Batteries IOM — EnerSys",
+   "url": "https://www.enersys.com/492013/globalassets/documents/product-documentation/powersafe/opzs/amer/amer-en-iom-ps-flooded-0223.pdf",
+   "quote": "Exposed metal parts of the battery always carry a voltage and are electrically live (risk of short circuits)."
+  },
+  {
+   "n": 13,
+   "title": "Battery Testing Guide",
+   "url": "https://res.cloudinary.com/iwh/image/upload/q_auto,g_center/assets/1/7/Megger_Battery_Testing_Guide.pdf",
+   "quote": "since the potassium hydroxide electrolyte isn’t used in the chemical reaction, it is not necessary to measure it periodically."
+  },
+  {
+   "n": 14,
+   "title": "Bu 204 How Do Lithium Batteries Work",
+   "url": "https://batteryuniversity.com/article/bu-204-how-do-lithium-batteries-work",
+   "quote": "Requires protection circuit to prevent thermal runaway if stressed"
+  },
+  {
+   "n": 15,
+   "title": "IET & BSI officially publish Amendment 4 (2026) to BS 7671:2018 (IET Wiring Regulations)",
+   "url": "https://www.theiet.org/media/press-releases/press-releases-2026/press-releases-2026-april-june/15-april-2026-iet-bsi-officially-publish-amendment-4-2026-to-bs-76712018-iet-wiring-regulations",
+   "quote": "One of the most significant developments is the introduction of a new chapter covering stationary secondary batteries"
+  },
+  {
+   "n": 16,
+   "title": "COSHH SR18",
+   "url": "https://www.hse.gov.uk/pubns/guidance/sr18.pdf",
+   "quote": "Raise the battery cover to help disperse hydrogen and switch off all electrical circuits before connecting or disconnecting batteries."
+  },
+  {
+   "n": 17,
+   "title": "COSHH SR18",
+   "url": "https://www.hse.gov.uk/pubns/guidance/sr18.pdf",
+   "quote": "Don’t rest metal objects (eg tools) on top of a battery."
+  },
+  {
+   "n": 18,
+   "title": "Using electric storage batteries safely INDG139",
+   "url": "https://www.hse.gov.uk/PUBNS/indg139.pdf",
+   "quote": "Batteries are usually filled with solutions (electrolytes) containing either sulphuric acid or potassium hydroxide."
+  },
+  {
+   "n": 19,
+   "title": "Using electric storage batteries safely INDG139",
+   "url": "https://www.hse.gov.uk/PUBNS/indg139.pdf",
+   "quote": "These very corrosive chemicals can permanently damage the eyes and produce serious chemical burns to the skin."
+  },
+  {
+   "n": 20,
+   "title": "Flooded Stationary Lead Acid Batteries IOM",
+   "url": "https://www.enersys.com/492013/globalassets/documents/product-documentation/powersafe/opzs/amer/amer-en-iom-ps-flooded-0223.pdf",
+   "quote": "Electrolyte is highly corrosive. Wash all acid splash in eyes or on skin with plenty of clean water and seek immediate medical assistance."
+  },
+  {
+   "n": 21,
+   "title": "NUREG/CR-XXXX",
+   "url": "https://www.osti.gov/servlets/purl/1188216",
+   "quote": "Total short-circuit current is the sum of that delivered by the battery, the charger, and motors."
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }

@@ -1,0 +1,448 @@
+{
+  "iid": "i3",
+  "title": "Capacity and rate: what an ampere-hour is worth",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the dot landing lower, at fewer ampere-hours, and the lost volts across r growing, when you raise the load current and run a discharge.",
+    "title": "The battery behind its resistance",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Screen",
+        "min": 0,
+        "max": 15,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [
+      {
+        "id": "lostVolts",
+        "label": "Lost volts, I × r",
+        "unit": "V",
+        "decimals": 2
+      },
+      {
+        "id": "terminal",
+        "label": "Terminal voltage",
+        "unit": "V",
+        "decimals": 2
+      },
+      {
+        "id": "capacity",
+        "label": "Ampere-hours at this current",
+        "unit": "Ah",
+        "decimals": 0
+      }
+    ],
+    "whatAmILookingAt": "On the left is a 12 V lead-acid battery of six cells, drawn as one dashed box. Inside the box sits a fixed voltage, the emf E, of 12.60 V. That is six cells at about 2.1 V each. In series with it sits a small resistance r. The example uses 7 mΩ, which is 0.007 Ω. Wires run from the box to a load, labelled with its resistance. A voltmeter sits across the terminals. A load slider sets the current from 0 to 100 A. Current through r drops volts across it, I × r, shown as a red step. The terminals read what is left, E − Ir. At 0 A nothing is lost, and the voltmeter reads E. The load's label shows its resistance: the terminal voltage divided by the current. On the discharge screens a strip under the battery shows the terminal voltage. It runs from the end voltage, 10.50 V, up to E. A red stretch at its top marks the lost volts. A dot marks the terminals. Below the strip are log-log axes. Ampere-hours run from 10 to 150 up the side. Current runs from 5 to 100 A along the bottom. Two fixed dots mark the battery's ratings. One is 100 Ah at 5 A for 20 hours. The other is 56 Ah at 28 A for 2 hours. A straight line runs through both. It is Peukert's fit: current to the power n, times run time, stays the same. Through these two ratings n is 1.34. So the line's gradient is 1 − n, about −0.34. A flat dashed line at 100 Ah shows a perfect battery, n = 1.00. Past 28 A the plot is shaded and labelled 'a fixed n over-predicts here'. A Discharge button runs the battery at the slider's current. A clock and an ampere-hour counter run fast. The terminal dot slides down to the end voltage, and the voltmeter follows. A bigger current starts it lower, by its bigger lost volts, so it gets there sooner. Then a dot drops at the ampere-hours delivered. Up to 28 A the dot lands on the line. In the shaded region it lands hollow on the line. From 50 A up it carries an arrow down marked 'real battery: less'. Below 5 A the button rests, since the axes start there. A temperature slider runs from 27 °C down to −18 °C. Cold raises r along a sketched straight line, to an example 14 mΩ at −18 °C. Cold also scales the line and every dot down by the same fraction. At −18 °C that fraction is a half. On a phone the three readouts wrap onto a second line, and no word splits. Each show screen has under about 90 words. It ends on what its finished picture shows, so it reads well without the controls. Screen by screen. 1 asks what a power law, y = 3 × x^0.5, looks like on log-log axes. The choices are a straight line of gradient 0.5, a straight line of gradient 3, or a curve that bends over. The right pick says 'Still there'. Hint for gradient 3: the 3 sets where the line sits, and the power sets its slope. Hint for the curve: taking logs turns the power into a multiplier. So log y = log 3 + 0.5 log x is straight. 2 moves the load from 0 to 50 A. The lost volts grow to 0.35 V. The terminals read 12.25 V. 3 asks what the terminals read at 100 A. The choices are 11.90 V, 12.60 V or 12.25 V. Hint for 12.60 V: that is the emf, and 100 A through r loses 0.70 V. Hint for 12.25 V: that is 50 A, and twice the current loses twice the volts. 4 moves the load back to 0 A, and the voltmeter reads 12.60 V. Then it moves the load to 100 A. The load's label falls from 0.245 Ω at 50 A to 0.119 Ω. The load sets the current, not the battery. 5 sets 50 A and asks what happens when the load's resistance is halved. First choice: the current nearly doubles, and the terminal voltage dips a little. Second: the current stays at 50 A, because the battery sets it. Third: the current halves. Hint for stays: the battery holds a voltage, and the current is E ÷ (R + r). So the load's resistance sets the current. Hint for halves: less resistance lets more current through. 6 sets 5 A and presses Discharge. The clock runs 20 hours, and a dot lands at 100 Ah. Then it sets 28 A. The clock runs 2 hours, and a dot lands at 56 Ah. 7 asks how long the battery lasts at 25 A. The choices are less than 4 hours, exactly 4 hours or more than 4 hours. Hint for exactly 4: 100 ÷ 25 treats the battery as a fixed tank, but a faster draw gives fewer ampere-hours. Hint for more: faster gives fewer, not more. 8 draws the Peukert line through the two dots, labelled with n as a question mark. It sets 5ⁿ × 20 = 28ⁿ × 2, so 5.6ⁿ = 10. 9 asks what n is. The choices are log 10 ÷ log 5.6 = 1.34, 10 ÷ 5.6 = 1.79, or log 5.6 ÷ log 10 = 0.75. Hint for 1.79: n is a power, not a multiplier, so take logs. Hint for 0.75: that is upside down, so divide by log 5.6. The right answer shows n = 1.34 on the line's label. 10 says why the line is straight: capacity is current times time, so it goes as current to the power 1 − n. It draws the flat line for a perfect battery and shades the region past 28 A. 11 sets 25 A and asks what the line gives. First choice: about 58 Ah, lasting about 2 hours 20 minutes. Second: 100 Ah, lasting 4 hours. Third: 56 Ah, lasting 2 hours. Hint for 100 Ah: that reads the flat line, and this battery's line slopes down. Hint for 56 Ah: that is the 28 A rating. 25 A is a little slower, so it gives a little more. 12 sets 20 A, at 63 Ah, and moves the temperature from 27 °C to −18 °C. Say r doubles, to 14 mΩ. The lost volts grow from 0.14 V to 0.28 V, and the dot falls to 31 Ah. 13 sets 100 A, where the line gives 36 Ah in the shaded region. It asks what to expect. The choices are less than 36 Ah, 36 Ah or more than 36 Ah. Hint for 36 Ah: 100 A is far past the highest rating. Out there a real battery gives even less than a fixed n. Hint for more: past the ratings it gives less, not more. 14, 15 and 16 mix the ideas. 14 asks what a voltmeter reads across this battery with nothing connected. The choices are 12.60 V, 0 V because no current flows, or 11.90 V. Hint for 0 V: the emf comes from the plates and acid. With no current, nothing is lost across r. Hint for 11.90 V: that is at 100 A, and lost volts need current. 15 asks which runs this battery longer: 5 A at −18 °C, 28 A at 27 °C, or about the same. The cold 5 A run lasts about 10 hours, and the 28 A run 2 hours. Hint for 28 A: that is the 2-hour rating, and cold halves 20 hours only to 10. Hint for the same: work out each run. 16 is a ship's 24 V emergency battery. It must stay within 12 per cent of 24 V through its discharge, so its floor is 21.1 V. It asks which voltage must stay above the floor under load. The choices are the emf, the terminal voltage E − Ir, or the lost volts I × r. A voltage scale shows the band from 21.1 V to 26.9 V. The right answer marks the emf and, below it by the lost volts, the terminals. Hint for the emf: the load gets the terminals, and under load they read less than E. Hint for the lost volts: those are lost inside the battery, not what the load gets.",
+    "ignores": "The emf is held at 12.60 V, except during a run. A real battery's emf falls slowly as it empties. Its r rises as it gets near flat. During a run the picture sags the emf steadily until the terminals reach the end voltage. That end voltage is 1.75 V a cell, 10.50 V, for every run. A real test sets a lower end voltage for a faster run. The run time comes from Peukert's fit, not from the sag. The discharge clock runs fast. The battery follows the fit exactly up to 28 A. A real one scatters a little about it. The ratings are taken as the 27 °C figures. The rise in r and the cut in capacity with cold are sketched as straight lines between 27 °C and −18 °C. The same fraction is taken off at every current. A voltmeter draws a tiny current, too small to show.",
+    "numbers": [
+      {
+        "label": "Screen control lowest",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Screen control highest",
+        "value": 15,
+        "kind": "control"
+      },
+      {
+        "label": "Load slider bottom, A",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Load slider top, A",
+        "value": 100,
+        "kind": "control"
+      },
+      {
+        "label": "Cells in the example battery",
+        "value": 6,
+        "kind": "assumed"
+      },
+      {
+        "label": "Charged, rested cell voltage, V",
+        "value": 2.1,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "Example battery's emf, 6 × 2.1, V",
+        "value": 12.6,
+        "kind": "computed"
+      },
+      {
+        "label": "Internal resistance, example, mΩ",
+        "value": 7,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 1 load current, A",
+        "value": 50,
+        "kind": "control"
+      },
+      {
+        "label": "Lost volts at 50 A, V",
+        "value": 0.35,
+        "kind": "computed"
+      },
+      {
+        "label": "Terminal voltage at 50 A, V",
+        "value": 12.25,
+        "kind": "computed"
+      },
+      {
+        "label": "Lost volts at 100 A, V",
+        "value": 0.7,
+        "kind": "computed"
+      },
+      {
+        "label": "Terminal voltage at 100 A, V",
+        "value": 11.9,
+        "kind": "computed"
+      },
+      {
+        "label": "Load resistance at 50 A, Ω",
+        "value": 0.245,
+        "kind": "computed"
+      },
+      {
+        "label": "Load resistance at 100 A, Ω",
+        "value": 0.119,
+        "kind": "computed"
+      },
+      {
+        "label": "Rated discharge time, hours",
+        "value": 20,
+        "kind": "constant",
+        "source": 2
+      },
+      {
+        "label": "Rated rate as a fraction of capacity",
+        "value": 0.05,
+        "kind": "constant",
+        "source": 2
+      },
+      {
+        "label": "Capacity at 27 °C, per cent",
+        "value": 100,
+        "kind": "constant",
+        "source": 3
+      },
+      {
+        "label": "Capacity at −18 °C, per cent",
+        "value": 50,
+        "kind": "constant",
+        "source": 3
+      },
+      {
+        "label": "Rated capacity, Ah",
+        "value": 100,
+        "kind": "constant",
+        "source": 4
+      },
+      {
+        "label": "Current at the 20-hour rating, A",
+        "value": 5,
+        "kind": "computed"
+      },
+      {
+        "label": "Fast discharge time, hours",
+        "value": 2,
+        "kind": "constant",
+        "source": 4
+      },
+      {
+        "label": "Capacity at the 2-hour rate, Ah",
+        "value": 56,
+        "kind": "constant",
+        "source": 4
+      },
+      {
+        "label": "Current at the 2-hour rating, A",
+        "value": 28,
+        "kind": "computed"
+      },
+      {
+        "label": "Ratio of times, 20 ÷ 2",
+        "value": 10,
+        "kind": "computed"
+      },
+      {
+        "label": "Ratio of currents, 28 ÷ 5",
+        "value": 5.6,
+        "kind": "computed"
+      },
+      {
+        "label": "Peukert exponent from the two ratings",
+        "value": 1.34,
+        "kind": "computed"
+      },
+      {
+        "label": "Gradient of the log-log line, 1 − n",
+        "value": -0.34,
+        "kind": "computed"
+      },
+      {
+        "label": "Perfect battery's Peukert exponent",
+        "value": 1,
+        "kind": "constant",
+        "source": 5
+      },
+      {
+        "label": "Battery monitor's default Peukert exponent",
+        "value": 1.25,
+        "kind": "constant",
+        "source": 5
+      },
+      {
+        "label": "Example load current, A",
+        "value": 25,
+        "kind": "assumed"
+      },
+      {
+        "label": "Fixed-tank run time at 25 A, hours",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Fitted run time at 25 A, hours",
+        "value": 2.3,
+        "kind": "computed"
+      },
+      {
+        "label": "Fitted run time at 25 A, extra minutes past 2 hours",
+        "value": 20,
+        "kind": "computed"
+      },
+      {
+        "label": "Fitted capacity at 25 A, Ah",
+        "value": 58,
+        "kind": "computed"
+      },
+      {
+        "label": "Capacity at 25 A with n = 1.25, Ah",
+        "value": 67,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 9 load current, A",
+        "value": 20,
+        "kind": "control"
+      },
+      {
+        "label": "Fitted capacity at 20 A, Ah",
+        "value": 63,
+        "kind": "computed"
+      },
+      {
+        "label": "Fitted capacity at 100 A, Ah",
+        "value": 36,
+        "kind": "computed"
+      },
+      {
+        "label": "Temperature slider top, °C",
+        "value": 27,
+        "kind": "control"
+      },
+      {
+        "label": "Temperature slider bottom, °C",
+        "value": -18,
+        "kind": "control"
+      },
+      {
+        "label": "Internal resistance at −18 °C, sketch, mΩ",
+        "value": 14,
+        "kind": "assumed"
+      },
+      {
+        "label": "Lost volts at 20 A, 27 °C, V",
+        "value": 0.14,
+        "kind": "computed"
+      },
+      {
+        "label": "Lost volts at 20 A, −18 °C, V",
+        "value": 0.28,
+        "kind": "computed"
+      },
+      {
+        "label": "Capacity at 20 A, −18 °C, Ah",
+        "value": 31,
+        "kind": "computed"
+      },
+      {
+        "label": "Capacity at 5 A, −18 °C, Ah",
+        "value": 50,
+        "kind": "computed"
+      },
+      {
+        "label": "Run time at 5 A, −18 °C, hours",
+        "value": 10,
+        "kind": "computed"
+      },
+      {
+        "label": "Capacity axis bottom, Ah",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Capacity axis top, Ah",
+        "value": 150,
+        "kind": "assumed"
+      },
+      {
+        "label": "Recall power law's multiplier",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Recall power law's power",
+        "value": 0.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Internal resistance, example, Ω",
+        "value": 0.007,
+        "kind": "assumed"
+      },
+      {
+        "label": "End voltage a cell, the picture's one value, V",
+        "value": 1.75,
+        "kind": "constant",
+        "source": 6
+      },
+      {
+        "label": "End voltage, six cells, V",
+        "value": 10.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Peukert equation's ratio after dividing, 5.6ⁿ = 10",
+        "value": 10,
+        "kind": "computed"
+      },
+      {
+        "label": "log 5.6",
+        "value": 0.748,
+        "kind": "computed"
+      },
+      {
+        "label": "Wrong pick: 10 ÷ 5.6",
+        "value": 1.79,
+        "kind": "computed"
+      },
+      {
+        "label": "Wrong pick: log 5.6 ÷ log 10",
+        "value": 0.75,
+        "kind": "computed"
+      },
+      {
+        "label": "Ship's emergency battery nominal voltage, V",
+        "value": 24,
+        "kind": "assumed"
+      },
+      {
+        "label": "Allowed swing about nominal, per cent",
+        "value": 12,
+        "kind": "constant",
+        "source": 7
+      },
+      {
+        "label": "Twelve per cent of 24 V, V",
+        "value": 2.88,
+        "kind": "computed"
+      },
+      {
+        "label": "Lowest allowed voltage, 24 − 2.88, V",
+        "value": 21.1,
+        "kind": "computed"
+      },
+      {
+        "label": "Highest allowed voltage, 24 + 2.88, V",
+        "value": 26.9,
+        "kind": "computed"
+      },
+      {
+        "label": "Copper's resistance rise per degree, per cent",
+        "value": 0.393,
+        "kind": "constant",
+        "source": 8
+      },
+      {
+        "label": "Copper's rise per degree, rounded, per cent",
+        "value": 0.4,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "A battery is not a fixed tank of ampere-hours. The faster you draw them, the fewer you get. Cold cuts them again. Peukert's rule, fitted through two of the maker's ratings, estimates how many fewer.\n\nPicture the battery as a fixed voltage behind a small resistance. Both sit inside the case. The fixed voltage is the [[emf]], E. It is the push from the plates and acid. A charged, rested cell reads about 2.1 V.[^1] So a battery of six cells has an emf of about 12.6 V. The small resistance is the [[internal resistance]], r. It comes from the plates, the acid and the joints between them. Say r is 7 mΩ, which is 0.007 Ω. Current through r drops volts there, just as current drops volts along a cable. So the terminals read E − Ir. At 100 A the lost volts are 100 × 0.007 = 0.70 V. The terminals then read 11.90 V. A common slip is to read the emf there instead. That over-reads by the 0.70 V. With nothing connected, no current flows. So nothing is lost across r. A voltmeter draws almost nothing, so it reads the emf, 12.60 V. The battery does not set the current either. The load does. The current is E ÷ (R + r), where R is the load's resistance. Halve R and the current nearly doubles. It is not quite double, because r stays in the sum. The terminal voltage dips a little.\n\nMakers commonly rate a lead-acid battery's ampere-hours at a slow, 20-hour discharge.[^2] Say a battery is rated 100 Ah. It gives 5 A for 20 hours. Drain the same battery in 2 hours and it may give only 56 Ah. That is a current of 28 A. Part of the reason is the end voltage. A discharge test ends when the terminal voltage falls to a set end voltage. More current means more lost volts. So the battery reaches that voltage sooner, with charge still left in the plates. Cold makes it worse. It raises the internal resistance and lowers the capacity. A battery giving 100 per cent at 27 °C typically gives only about 50 per cent at −18 °C.[^3]\n\nPeukert's rule puts a number on the rate effect. It says the current raised to a power n, times the run time, stays the same. That n is the battery's [[Peukert exponent]]. Two ratings are enough to find it. Here 5ⁿ × 20 = 28ⁿ × 2. So 5.6ⁿ = 10, and n = log 10 ÷ log 5.6 = 1.34. A perfect battery would have n = 1.00. It would give the same capacity at any current. Capacity is current times run time. So capacity goes as current to the power 1 − n. A power law is a straight line on log-log axes, and its power is the gradient. So the rule draws a straight line through both ratings. Its gradient is 1 − n, here −0.34. Now try 25 A. Dividing 100 Ah by 25 A says 4 hours. The rule says 20 × (5 ÷ 25)^1.34 = 2.3 hours. That is about 2 hours 20 minutes, or 58 Ah. One battery monitor's default n is 1.25. That would say 67 Ah. So use the battery's own ratings where you have them. The rule is a simplified model: a fit, not a law. At very high currents a real battery gives even less than a fixed n predicts. **A battery gives fewer ampere-hours the faster or colder you draw them. Peukert's fit through two ratings estimates how many fewer.**"
+  },
+  "analogy": {
+    "text": "You know volt drop on a long final circuit. The supply holds its voltage, but the cable drops I × R. With nothing on, the far end reads full voltage. Under load, it sags. A battery carries its own short cable inside the case. Load it harder and the terminals sag further. Equipment that cuts out on low voltage then drops off sooner. Charge is still left in the battery when it does.",
+    "breaks": "A copper cable's resistance rises only about 0.4 per cent a degree. In the example, this battery's r doubles between 27 °C and −18 °C. It also rises as the battery empties. And nothing in a cable runs out."
+  },
+  "practice": {
+    "text": "Use this to work out how long a battery will carry a load.\n\n- Find the maker's rating. It gives the ampere-hours over a set number of hours, say 100 Ah at 20 hours. Its current is 100 ÷ 20 = 5 A.\n- Find a second rating at a faster rate, say 56 Ah at 2 hours. Its current is 56 ÷ 2 = 28 A.\n- Work out n: log(20 ÷ 2) ÷ log(28 ÷ 5) = 1.34.\n- Work out the run time at your current I: t = 20 × (5 ÷ I)ⁿ hours. The ampere-hours are I × t.\n- Check that your current sits between the two ratings. Past the highest, expect less than the answer gives.\n- Take the capacity down for cold. Use the maker's figures for the battery's temperature.\n- Under load, work out the terminal voltage as E − Ir, not the emf.\n\n**Rule of thumb:** the label's ampere-hours hold only at the label's rate and temperature. Faster or colder, expect fewer. Makers often write the 20-hour rate as 0.05C. That means a current of 0.05 times the ampere-hours.\n\n**Worked example:** A 100 Ah battery, rated at 20 hours, also gives 56 Ah in 2 hours. So n = 1.34. At 25 A, t = 20 × (5 ÷ 25)^1.34 = 2.3 hours. That is about 2 hours 20 minutes. It comes to 25 × 2.3, about 58 Ah. Dividing 100 by 25 would have promised 4 hours. Sizing a battery to a whole load profile is a separate method. It rests on the same idea.\n\n**Common mistakes**\n- Dividing the label's ampere-hours by a fast current.\n- Reading the emf as the voltage under load.\n- Using a monitor's default n when the battery's own ratings give another.\n- Trusting the fit far past the highest rating.\n- Expecting the warm figure from a battery in a cold space."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+    {
+      "n": 1,
+      "title": "Battery University | BU-303: Confusion with Voltages",
+      "url": "http://www.batteryuniversity.com/article/bu-303-confusion-with-voltages",
+      "quote": "The nominal voltage of lead acid is 2 volts per cell, however when measuring the open circuit voltage, the OCV of a charged and rested battery should be 2.1V/cell."
+    },
+    {
+      "n": 2,
+      "title": "Battery University | BU-402: What Is C-rate?",
+      "url": "https://batteryuniversity.com/article/bu-402-what-is-c-rate",
+      "quote": "To obtain a reasonably good capacity reading, manufacturers commonly rate alkaline and lead acid batteries at a very low 0.05C, or a 20-hour discharge."
+    },
+    {
+      "n": 3,
+      "title": "Bu 502 Discharging At High And Low Temperatures — Battery University",
+      "url": "https://batteryuniversity.com/article/bu-502-discharging-at-high-and-low-temperatures",
+      "quote": "Cold temperature increases the internal resistance and lowers the capacity. A battery that provides 100 percent capacity at 27°C (80°F) will typically deliver only 50 percent at –18°C (0°F)."
+    },
+    {
+      "n": 4,
+      "title": "8. Battery capacity and Peukert exponent — Victron Energy",
+      "url": "https://www.victronenergy.com/media/pg/BMV-700/en/battery-capacity-and-peukert-exponent.html",
+      "quote": "When the same 100Ah battery is discharged completely in two hours, its capacity is greatly reduced. Because of the higher rate of discharge, it may only give C2 = 56Ah."
+    },
+    {
+      "n": 5,
+      "title": "8. Battery capacity and Peukert exponent — Victron Energy",
+      "url": "https://www.victronenergy.com/media/pg/BMV-700/en/battery-capacity-and-peukert-exponent.html",
+      "quote": "An ideal (theoretical) battery has a Peukert exponent of 1.00 and has a fixed capacity regardless of the size of the discharge current. The default setting in the battery monitor for the Peukert exponent is 1.25."
+    },
+    {
+      "n": 6,
+      "title": "Flooded Stationary Lead Acid Batteries IOM — EnerSys",
+      "url": "https://www.enersys.com/492013/globalassets/documents/product-documentation/powersafe/opzs/amer/amer-en-iom-ps-flooded-0223.pdf",
+      "quote": "5 min < t < 59 min 1.60 V/c 1h < t < 5h 1.70 V/c 5h < t < 8h 1.75 V/c 8h < t < 24h 1.80 V/c"
+    },
+    {
+      "n": 7,
+      "title": "SOLAS II-1 Regulation 43, emergency source of electrical power — imorules.com",
+      "url": "https://imorules.com/GUID-C048F800-5412-40B3-ACCD-C562D4E4F719.html",
+      "quote": "carrying the emergency electrical load without recharging while maintaining the voltage of the battery throughout the discharge period within 12% above or below its nominal voltage"
+    },
+    {
+      "n": 8,
+      "title": "Circular of the Bureau of Standards no. 31, 3rd edition: Copper wire tables — NIST",
+      "url": "https://nvlpubs.nist.gov/nistpubs/Legacy/circ/nbscircular31e3.pdf",
+      "quote": "20° C or 68° F temperature coefficient for copper of 100 percent conductivity is 0.00393 per degree C, or 0.00218 per degree F."
+    }
+  ]
+}

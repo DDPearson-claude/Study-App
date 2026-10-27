@@ -1,0 +1,857 @@
+<!-- kind: quantity -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 32rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.12rem; font-weight: 700; line-height: 1.5; }
+  .task.show { font-size: 1.05rem; font-weight: 400; line-height: 1.6; }
+  .scene { display: block; width: 100%; max-width: 26rem; margin-inline: auto; }
+  .scene text { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .lbm { font-weight: 400; fill: var(--k-muted); }
+  .scene .tkl { font-weight: 400; fill: var(--k-muted); }
+  .scene .val { font-size: 15px; font-weight: 700; fill: var(--k-accent2); }
+  .scene .mv { font-size: 15px; font-weight: 700; }
+  .scene .lost { font-size: 14px; font-weight: 700; fill: var(--k-warn); }
+  .scene .q { font-size: 28px; font-weight: 800; }
+  /* The battery: a dashed case holding the emf and r. */
+  .scene .bat { fill: none; stroke: var(--k-strong); stroke-width: 1.5; stroke-dasharray: 6 4; }
+  .scene .wire { fill: none; stroke: var(--k-ink); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+  .scene .plate { stroke: var(--k-ink); }
+  .scene .res, .scene .post { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 2; }
+  .scene .pin { fill: var(--k-ink); }
+  .scene .meter { fill: var(--k-panel); stroke: var(--k-accent2); stroke-width: 2; }
+  .scene .lvl { fill: none; stroke: var(--k-muted); stroke-width: 2; }
+  .scene .drop { fill: none; stroke: var(--k-warn); stroke-width: 3; stroke-linecap: round; }
+  .scene .flow { fill: none; stroke: var(--k-accent2); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+  /* The log-log axes. */
+  .scene .ax { stroke: var(--k-ink); stroke-width: 1.5; }
+  .scene .tk { stroke: var(--k-ink); stroke-width: 1; }
+  .scene .fit { fill: none; stroke: var(--k-accent2); stroke-width: 2.5; stroke-linecap: round; }
+  .scene .flat { fill: none; stroke: var(--k-muted); stroke-width: 2; stroke-dasharray: 7 5; }
+  .scene .shade { fill: var(--k-fill2); }
+  .scene .dot { fill: var(--k-accent2); }
+  .scene .hollow { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 2.5; }
+  .scene .less { fill: none; stroke: var(--k-warn); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .ring { fill: none; stroke: var(--k-accent); stroke-width: 2.5; }
+  .scene .bar { fill: var(--k-accent2); }
+  .say { line-height: 1.55; }
+  .picks { display: grid; grid-template-columns: repeat(auto-fit, minmax(6rem, 1fr)); gap: 8px; }
+  .picks.long { grid-template-columns: 1fr; }
+  .picks .k-btn { min-height: 48px; font-size: 1rem; }
+  .picks.long .k-btn { text-align: left; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .dis .k-btn { flex: 0 1 auto; min-height: 48px; padding-inline: 22px; white-space: nowrap; }
+  .replay { display: flex; justify-content: flex-end; }
+  .replay .k-btn { min-height: 44px; padding-inline: 16px; font-size: .95rem; white-space: nowrap; }
+  .fb { font-weight: 700; min-height: 1.5em; }
+  .fb.right { color: var(--k-good); }
+  .why, .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }
+</style>
+
+<p class="lead" id="lead"></p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 486" width="100%" role="img" aria-label=""><g id="art"></g></svg>
+    <div class="replay" id="replay"></div>
+    <div class="k-controls ctl" id="c-load"></div>
+    <div class="k-controls ctl" id="c-temp"></div>
+    <div class="row dis" id="c-dis"></div>
+    <p class="say" id="say"></p>
+    <div class="picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">A sketch through two of the maker's ratings. The cold is drawn as straight lines between 27 °C and −18 °C, and the 14 mΩ is an example. Every run ends at one end voltage.</p>
+
+<script>
+  // ---------- the rule ----------
+  const CELLS = 6, V_CELL = 2.1;                 // a charged, rested cell reads 2.1 V (source [1])
+  const E = CELLS * V_CELL;                      // the emf, 12.6 V
+  const R_WARM = 0.007, R_COLD = 0.014;          // internal resistance: the example 7 mΩ, and a sketched 14 mΩ at −18 °C
+  const T_WARM = 27, T_COLD = -18, F_COLD = 0.5; // 100 per cent at 27 °C, 50 per cent at −18 °C (source [3])
+  const C20 = 100, H20 = 20, RATE20 = 0.05;      // 100 Ah at the 20-hour rate, 0.05C (sources [4], [2])
+  const I20 = RATE20 * C20;                      // 5 A
+  const H2 = 2, C2 = 56, I2 = C2 / H2;           // 56 Ah in 2 hours, so 28 A (source [4])
+  const N = Math.log(H20 / H2) / Math.log(I2 / I20);   // Peukert's n through the two ratings, 1.34
+  const N_PERFECT = 1, N_DEFAULT = 1.25;         // source [5]
+  const V_END = CELLS * 1.75;                    // one end voltage for every run, 1.75 V a cell (source [6]); a real test sets a lower one for a faster run
+  const FAR = 50;                                // from here a dot carries the 'real battery: less' arrow
+  const NOM = 24, BAND = 0.12;                   // a ship's 24 V emergency battery holds within 12 per cent (source [7])
+  const FLOOR = NOM * (1 - BAND), TOP = NOM * (1 + BAND), E24 = 2 * E, T24 = E24 - 50 * 2 * R_WARM;   // two of these blocks in series at 50 A, for the picture
+  const I_MIN = 5, I_MAX = 100, C_LO = 10, C_HI = 150;
+  const BU303 = 'http://www.batteryuniversity.com/article/bu-303-confusion-with-voltages';
+  const VIC = 'https://www.victronenergy.com/media/pg/BMV-700/en/battery-capacity-and-peukert-exponent.html';
+  const BU402 = 'https://batteryuniversity.com/article/bu-402-what-is-c-rate';
+  const BU502 = 'https://batteryuniversity.com/article/bu-502-discharging-at-high-and-low-temperatures';
+  const ENER = 'https://www.enersys.com/492013/globalassets/documents/product-documentation/powersafe/opzs/amer/amer-en-iom-ps-flooded-0223.pdf';
+  const SOLAS = 'https://imorules.com/GUID-C048F800-5412-40B3-ACCD-C562D4E4F719.html';
+  const rOf = (t) => R_WARM + (R_COLD - R_WARM) * (T_WARM - t) / (T_WARM - T_COLD);   // sketched straight line
+  const fOf = (t) => 1 - (1 - F_COLD) * (T_WARM - t) / (T_WARM - T_COLD);           // share of the warm capacity
+  const tOf = (i, t, n) => H20 * Math.pow(I20 / i, n == null ? N : n) * fOf(t);     // hours to flat: I^n × t stays the same
+  const cOf = (i, t, n) => i * tOf(i, t, n);                                         // ampere-hours: current × time
+  const lostOf = (i, t) => i * rOf(t);                                               // lost volts, I × r
+  const termOf = (i, t) => E - lostOf(i, t);                                         // terminals, E − Ir
+  const loadOf = (i, t) => termOf(i, t) / i;                                         // the load's resistance R
+  const iFor = (R, t) => E / (R + rOf(t));                                           // the current a load draws
+  const NB = ' ';
+  const fV = (v) => K.fmt(v, { decimals: 2 }) + NB + 'V';
+  const fE = () => fV(E);
+  const fV1 = (v) => K.fmt(v, { decimals: 1 }) + NB + 'V';
+  const nbj = (x) => x.split(' ').join(NB);                                          // a formula that never breaks across lines
+  const IRt = nbj('I × r'), EIR = nbj('E − Ir');
+  const fA = (i) => K.fmt(i, { decimals: 0 }) + NB + 'A';
+  const fAh = (c) => K.fmt(c, { decimals: 0 }) + NB + 'Ah';
+  const fOhm = (R) => K.fmt(R, { sig: 3 }) + NB + 'Ω';
+  const fmO = (r) => { const m = r * 1000; return K.fmt(m, { decimals: Math.abs(m - Math.round(m)) < 0.05 ? 0 : 1 }) + NB + 'mΩ'; };
+  const fT = (t) => K.fmt(t, { decimals: 0 }) + NB + '°C';
+  const fH = (h) => (h < 1 ? Math.round(h * 60) + NB + 'min' : K.fmt(h, { decimals: Math.abs(h - Math.round(h)) < 0.05 ? 0 : 1 }) + NB + 'h');
+  const ez = (x) => K.ease(K.clamp(x, 0, 1));
+  const RUN = 1.2, DROP = 0.4, RUN_END = RUN + DROP;   // a sped-up discharge, then its dot settles
+
+  const L50 = lostOf(50, T_WARM), V50 = termOf(50, T_WARM), L100 = lostOf(100, T_WARM), V100 = termOf(100, T_WARM);
+  const R50 = loadOf(50, T_WARM), R100 = loadOf(100, T_WARM), I_HALF = iFor(R50 / 2, T_WARM);
+  const T25 = tOf(25, T_WARM), C25 = cOf(25, T_WARM), C25D = cOf(25, T_WARM, N_DEFAULT), C100 = cOf(100, T_WARM);
+  const H25 = Math.floor(T25), M25 = Math.round((T25 - H25) * 60);
+  const nTxt = K.fmt(N, { decimals: 2 }), gTxt = K.fmt(1 - N, { decimals: 2 });
+  const has = (list, i) => list.some((v) => Math.abs(v - i) < 0.5);
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // enter: the state a step opens in; end: where its motion finishes; play(t): a demonstration's
+  // state at time t; run: what a right answer plays (go(u), u from 0 to 1). hideV: the voltmeter and
+  // the lost volts show "?" until the answer is right; hideRun: the run time and ampere-hours do.
+  const ALL = { line: 1, flat: 1, shade: 1 };
+  const runTo = (i, p, before) => {
+    X.run = p < 0 ? null : { I: i, p };
+    X.dots = before.slice();
+    if (p >= RUN_END && !has(X.dots, i)) X.dots.push(i);
+  };
+  const S1 = 'This 12 V battery is drawn as two parts in one case. The *emf*, E, is a fixed push of ' + fE() + ' from the plates and acid. In series sits a small *internal resistance*, r, of ' + fmO(R_WARM) +
+    '. Current through r drops volts there, ' + IRt + '. The line above r steps down by that much. So the terminals read ' + EIR + '. At ' + fA(50) + ' the lost volts are ' + fV(L50) + ', and the voltmeter reads ' + fV(V50) + '.';
+  const S3 = 'With nothing connected, no current flows. Nothing is lost across r, so the voltmeter reads the emf, ' + fV(E) + '. The battery does not set the current. The load does. Its label shows its resistance, R, the terminal voltage divided by the current. A ' +
+    fOhm(R50) + ' load draws ' + fA(50) + '. Less resistance lets more current through. A ' + fOhm(R100) + ' load draws ' + fA(100) + ', and the terminals sag to ' + fV(V100) + '.';
+  const S5 = 'This battery is rated at a slow, 20-hour discharge. At ' + fA(I20) + ' it runs ' + H20 + ' hours and gives ' + fAh(C20) + '. The clock and counter run fast. The run stops when the terminals fall to the end voltage, ' + fV(V_END) +
+    '. A dot drops at the ampere-hours delivered. At ' + fA(I2) + ' it lasts only ' + H2 + ' hours and gives just ' + fAh(C2) + '. Why fewer? More current loses more volts across r, ' + IRt +
+    '. So the terminals start lower and reach the end voltage sooner, with charge still in the plates.';
+  const S7A = 'Peukert\'s rule fits a straight line through the two ratings. It says the current to a power n, times the run time, stays the same. So ' + nbj('5ⁿ × 20 = 28ⁿ × 2') + '. Divide both sides by ' + nbj('5ⁿ × 2') +
+    '. That leaves ' + nbj('5.6ⁿ = 10') + ', because ' + nbj('28 ÷ 5 = 5.6') + '. Taking logs finds n.';
+  const S7B = 'Capacity is current × time. The rule makes the time go as the current to the power −n. So capacity goes as the current to the power ' + nbj('1 − n') + '. On log-log axes that is a straight line through both ratings. Its gradient is ' + nbj('1 − n') + ', about ' +
+    gTxt + '. A perfect battery has ' + nbj('n = 1.00') + ', the flat dashed line. Past ' + fA(I2) + ' the line is untested, so that part is shaded. Far past it, a real battery gives even less than the line.';
+  const S9 = 'Cold hurts twice. It raises the internal resistance, and it cuts the capacity. A battery giving 100 per cent at ' + fT(T_WARM) + ' gives only about 50 per cent at ' + fT(T_COLD) + '. Here the load draws ' + fA(20) + '. Say r doubles in the cold, to ' +
+    fmO(rOf(T_COLD)) + '. The lost volts grow from ' + fV(lostOf(20, T_WARM)) + ' to ' + fV(lostOf(20, T_COLD)) + '. The line and every dot drop to half. The ' + fA(20) + ' dot drops from ' +
+    fAh(cOf(20, T_WARM)) + ' to ' + fAh(cOf(20, T_COLD)) + '.';
+  const O0V = '0' + NB + 'V, because no current flows';
+  const O28 = fA(I2) + ' at ' + fT(T_WARM), O5C = fA(I20) + ' at ' + fT(T_COLD), O5W = fA(I20) + ' at ' + fT(T_WARM);
+  const ON1 = 'log 10 ÷ log 5.6 = ' + nTxt, ON2 = '10 ÷ 5.6 = ' + K.fmt(10 / 5.6, { decimals: 2 }), ON3 = 'log 5.6 ÷ log 10 = ' + K.fmt(Math.log10(5.6), { decimals: 2 });
+  const OSAME = 'They last about the same', OEMF = 'The emf, E', OTERM = 'The terminal voltage, ' + EIR, OLOST = 'The lost volts, ' + IRt;
+  const O100 = fAh(C20) + ', lasting 4 hours', O58 = 'About ' + fAh(C25) + ', lasting about ' + H25 + ' hours ' + M25 + ' minutes', O56 = fAh(C2) + ', lasting ' + H2 + ' hours';
+  const OSTAY = 'The current stays at ' + fA(50) + ', because the battery sets it', ODOUBLE = 'The current nearly doubles, and the terminal voltage dips a little';
+  const STEPS = [
+    { name: 'A warm-up', pic: 'pow', right: 'Still there.', run: { dur: 1.2 },
+      task: 'On log-log axes, what does the power law y = 3 × x^0.5 look like?',
+      opts: ['A straight line of gradient 0.5', 'A straight line of gradient 3', 'A curve that bends over'], want: 'A straight line of gradient 0.5',
+      hint: 'Not quite. The 3 sets where the line sits. The power sets its slope.',
+      hints: { 'A curve that bends over': 'Not quite. Taking logs turns the power into a multiplier. So log y = log 3 + 0.5 log x, which is straight.' },
+      why: 'Take logs of both sides. That gives log y = log 3 + 0.5 log x. On log-log axes that is a straight line. Its gradient is the power, 0.5. The 3 only sets where the line sits. So any power law draws a straight line on log-log axes.' },
+    { show: true, name: 'Lost volts', pic: 'circuit', ctl: ['load'], enter: { I: 0 }, end: { I: 50 }, still: { load: 50 }, dur: 3.4,
+      play: (t) => { X.I = K.lerp(0, 50, ez((t - 0.5) / 2.8)); },
+      text: S1 + ' Drag the load current to try it.', read: S1 },
+    { name: 'At 100 A', pic: 'circuit', enter: { I: 100 }, hideV: true, run: { dur: 0.8 },
+      task: 'The load now draws ' + fA(100) + '. What do the terminals read?',
+      opts: [fV(E), fV(V100), fV(V50)], want: fV(V100),
+      hint: 'Not quite. That is the emf. ' + fA(100) + ' through r loses ' + fV(L100) + '.',
+      hints: { [fV(V50)]: 'Not quite. That is at ' + fA(50) + '. Twice the current loses twice the volts.' },
+      why: 'The lost volts are I × r = 100 × ' + K.fmt(R_WARM, { decimals: 3 }) + ' = ' + fV(L100) + '. The terminals read what is left, ' + K.fmt(E, { decimals: 2 }) + ' − ' + K.fmt(L100, { decimals: 2 }) + ' = ' + fV(V100) +
+        '. Reading the emf there would over-read by ' + fV(L100) + '.' },
+    { show: true, name: 'The load sets it', pic: 'circuit', ctl: ['load'], enter: { I: 50 }, end: { I: 100 }, still: { load: 100 }, dur: 3.8,
+      play: (t) => { X.I = t < 0.4 ? 50 : t < 1.4 ? K.lerp(50, 0, ez((t - 0.4) / 1.0)) : t < 2.0 ? 0 : K.lerp(0, 100, ez((t - 2.0) / 1.6)); },
+      text: S3 + ' Drag the load current to try it.', read: S3 },
+    { name: 'Halve the load', pic: 'circuit', enter: { I: 50 }, end: { I: I_HALF },
+      run: { dur: 2.0, go: (u) => { X.I = iFor(K.lerp(R50, R50 / 2, ez(u / 0.9)), T_WARM); } },
+      task: 'The load draws ' + fA(50) + '. Its resistance is halved. What happens?',
+      opts: [OSTAY, ODOUBLE, 'The current halves'], want: ODOUBLE,
+      hint: 'Not quite. Less resistance lets more current through.',
+      hints: { [OSTAY]: 'Not quite. The battery holds a voltage, not a current. The current is E ÷ (R + r), so the load sets it.' },
+      why: 'The current is E ÷ (R + r). R falls from ' + fOhm(R50) + ' to ' + fOhm(loadOf(I_HALF, T_WARM)) + ', and r stays at ' + K.fmt(R_WARM, { decimals: 3 }) + NB + 'Ω. So the current rises from ' + fA(50) + ' to ' + fA(I_HALF) +
+        '. That is nearly double, not quite, because r stays in the sum. More current loses more volts, so the terminals dip to ' + fV(termOf(I_HALF, T_WARM)) + '.' },
+    { show: true, name: 'Two ratings', pic: 'both', ctl: ['load', 'dis'], enter: { I: I20 }, end: { I: I2, dots: [I20, I2], run: { I: I2, p: 99 } }, still: { load: I2 }, dur: 4.3,
+      play: (t) => {
+        X.dots = []; X.I = I20; X.run = null;
+        if (t >= 0.3) X.run = { I: I20, p: t - 0.3 };
+        if (t >= 0.3 + RUN_END) X.dots = [I20];
+        if (t >= 2.0) X.I = K.lerp(I20, I2, ez((t - 2.0) / 0.5));
+        if (t >= 2.6) X.run = { I: I2, p: t - 2.6 };
+        if (t >= 2.6 + RUN_END) X.dots = [I20, I2];
+      },
+      text: S5 + ' Set a current and press Discharge to try it.', read: S5 },
+    { name: 'How long at 25 A', pic: 'both', enter: { I: 25, dots: [I20, I2] }, hideRun: true, end: { run: { I: 25, p: 99 }, dots: [I20, I2, 25] },
+      run: { dur: 2.0, go: (u) => runTo(25, u * 2.0 - 0.2, [I20, I2]) },
+      task: 'This ' + fAh(C20) + ' battery carries a ' + fA(25) + ' load. How long does it last?',
+      opts: ['Less than 4 hours', 'Exactly 4 hours', 'More than 4 hours'], want: 'Less than 4 hours',
+      hint: 'Not quite. Faster gives fewer ampere-hours, not more.',
+      hints: { 'Exactly 4 hours': 'Not quite. 100 ÷ 25 treats the battery as a fixed tank. A faster draw gives fewer ampere-hours.' },
+      why: 'Dividing ' + fAh(C20) + ' by ' + fA(25) + ' says 4 hours. That treats the battery as a fixed tank. But ' + fA(25) + ' is five times the 20-hour current. A faster draw gives fewer ampere-hours, so it runs flat sooner. Here it lasts about ' +
+        K.fmt(T25, { decimals: 1 }) + ' hours.' },
+    { show: true, name: 'Peukert\'s rule', pic: 'both', ctl: ['load', 'dis'], enter: { I: I2, dots: [I20, I2], run: { I: I2, p: 99 }, nq: true }, end: { line: 1 }, still: { load: I2 }, dur: 2.4,
+      play: (t) => { X.line = ez((t - 0.4) / 1.4); },
+      text: S7A + ' Set a current and press Discharge to try it.', read: S7A },
+    { name: 'Find n', pic: 'both', enter: { I: I2, dots: [I20, I2], run: { I: I2, p: 99 }, line: 1, nq: true }, end: { nq: false },
+      run: { dur: 1.0, go: (u) => { X.nq = u < 0.2; } },
+      task: nbj('5.6ⁿ = 10') + '. What is n?',
+      opts: [ON2, ON1, ON3], want: ON1,
+      hint: 'Not quite. That is upside down. ' + nbj('n × log 5.6 = log 10') + ', so divide by log 5.6.',
+      hints: { [ON2]: 'Not quite. n is a power, not a multiplier. Take logs first.' },
+      why: 'Take logs of both sides. The power comes down as a multiplier: ' + nbj('n × log 5.6 = log 10') + '. Divide both sides by log 5.6. So n = log 10 ÷ log 5.6 = 1 ÷ 0.748 = ' + nTxt + '.' },
+    { show: true, name: 'Peukert\'s line', pic: 'both', ctl: ['load', 'dis'], enter: { I: I2, dots: [I20, I2], run: { I: I2, p: 99 }, ring: true, line: 1 }, end: ALL, still: { load: I2 }, dur: 2.4,
+      play: (t) => { X.flat = ez((t - 0.4) / 0.6); X.shade = ez((t - 1.2) / 0.6); },
+      text: S7B + ' Set a current and press Discharge to try it.', read: S7B },
+    { name: 'Read the line', pic: 'both', enter: Object.assign({ I: 25, dots: [I20, I2], ring: true }, ALL), hideRun: true, end: { run: { I: 25, p: 99 }, dots: [I20, I2, 25] },
+      run: { dur: 2.0, go: (u) => runTo(25, u * 2.0 - 0.2, [I20, I2]) },
+      task: 'The load draws ' + fA(25) + '. What does the line give?',
+      opts: [O100, O58, O56], want: O58,
+      hint: 'Not quite. That reads the flat line. This battery\'s line slopes down.',
+      hints: { [O56]: 'Not quite. That is the ' + fA(I2) + ' rating. ' + fA(25) + ' is a little slower, so it gives a little more.' },
+      why: 'The rule gives the run time as 20 × (5 ÷ 25)^' + nTxt + ' = ' + K.fmt(T25, { decimals: 1 }) + ' hours. That is about ' + H25 + ' hours ' + M25 + ' minutes. Current times time gives 25 × ' + K.fmt(T25, { decimals: 1 }) + ', about ' + fAh(C25) +
+        '. A battery monitor\'s default n of ' + K.fmt(N_DEFAULT, { decimals: 2 }) + ' would say ' + fAh(C25D) + '. So use the battery\'s own ratings where you have them.' },
+    { show: true, name: 'Cold', pic: 'both', ctl: ['temp'], enter: Object.assign({ I: 20, dots: [I20, I2, 20], run: { I: 20, p: 99 } }, ALL), end: { temp: T_COLD }, still: { temp: T_COLD }, dur: 3.4,
+      play: (t) => { X.temp = K.lerp(T_WARM, T_COLD, ez((t - 0.5) / 2.8)); },
+      text: S9 + ' Drag the temperature to try it.', read: S9 },
+    { name: 'Past the ratings', pic: 'both', enter: Object.assign({ I: 100, dots: [I20, I2], ring: true }, ALL), end: { run: { I: 100, p: 99 }, dots: [I20, I2, 100] },
+      run: { dur: 2.0, go: (u) => runTo(100, u * 2.0 - 0.2, [I20, I2]) },
+      task: 'At ' + fA(100) + ' the line gives ' + fAh(C100) + ', in the shaded part. What should you expect from a real battery?',
+      opts: ['Less than ' + fAh(C100), fAh(C100), 'More than ' + fAh(C100)], want: 'Less than ' + fAh(C100),
+      hint: 'Not quite. Past the ratings it gives less, not more.',
+      hints: { [fAh(C100)]: 'Not quite. ' + fA(100) + ' is far past the highest rating. Out there a real battery gives even less than a fixed n.' },
+      why: 'The line is only a fit through two ratings, at ' + fA(I20) + ' and ' + fA(I2) + '. ' + fA(100) + ' is far past the faster one. At very high currents a real battery gives even less than a fixed n predicts. So expect less than ' + fAh(C100) +
+        '. Trust the fit only between the ratings.' },
+    { name: 'Nothing connected', pic: 'circuit', enter: { I: 0 }, hideV: true, run: { dur: 0.8 },
+      task: 'Nothing is connected to this battery. What does a voltmeter across it read?',
+      opts: [O0V, fV(V100), fV(E)], want: fV(E),
+      hint: 'Not quite. The emf comes from the plates and acid. With no current, nothing is lost across r.',
+      hints: { [fV(V100)]: 'Not quite. That is at ' + fA(100) + '. Lost volts need current.' },
+      why: 'With nothing connected, no current flows. So nothing is lost across r. A voltmeter draws almost nothing, so it reads the emf, ' + fV(E) + '.' },
+    { name: 'Which lasts longer', pic: 'three', run: { dur: 1.2 },
+      task: 'Which runs this battery longer?',
+      opts: [O28, O5C, OSAME], want: O5C,
+      hint: 'Not quite. Work out each run. Cold halves 20 hours to 10, and ' + fA(I2) + ' lasts ' + H2 + '.',
+      hints: { [O28]: 'Not quite. ' + fA(I2) + ' is the 2-hour rating. Cold halves the 20-hour run only to 10 hours.' },
+      why: 'At ' + fA(I20) + ' and ' + fT(T_WARM) + ' the battery runs ' + H20 + ' hours. Cold halves its ampere-hours, so at ' + fT(T_COLD) + ' the same ' + fA(I20) + ' runs about ' + K.fmt(tOf(I20, T_COLD), { decimals: 0 }) +
+        ' hours. ' + O28 + ' is the 2-hour rating, ' + fAh(C2) + '. So the slow, cold run still lasts five times as long.' },
+    { name: 'A ship\'s battery', pic: 'solas', run: { dur: 1.2 },
+      task: 'A ship\'s 24 V emergency battery must stay within 12 per cent of 24 V through its discharge. That sets a floor of ' + fV1(FLOOR) + '. Under the emergency load, which voltage must stay above it?',
+      opts: [OEMF, OTERM, OLOST], want: OTERM,
+      hint: 'Not quite. The lost volts are lost inside the battery. The load gets what is left.',
+      hints: { [OEMF]: 'Not quite. The load gets the terminals. Under load they read less than E.' },
+      why: 'Twelve per cent of 24 V is ' + fV(NOM * BAND) + '. So the band runs from ' + fV1(FLOOR) + ' to ' + fV1(TOP) + '. The load gets the terminal voltage, ' + EIR + '. The emf alone leaves out the lost volts. They grow with the current and in the cold. So the terminals must hold above ' +
+        fV1(FLOOR) + ' at the full emergency load, right to the end of the discharge.' },
+  ];
+  const THREE = [{ lab: O5C, i: I20, t: T_COLD }, { lab: O28, i: I2, t: T_WARM }];
+  const FINISH = 'A battery is not a fixed tank. Its terminals read E − Ir, so they sag as the current rises. The faster you draw it, the fewer ampere-hours you get, and cold cuts them again. Peukert\'s line through two ratings estimates how many fewer, but only between those ratings.';
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  const quiet = () => REDUCE || testing();
+  const el = (id) => document.getElementById(id);
+  el('lead').textContent = 'A battery\'s ampere-hours depend on how fast you draw them. The example is a 12 V lead-acid battery, rated 100 Ah at 20 hours.';
+
+  // ---------- state ----------
+  function blank() { return { pick: null, res: null, why: false }; }
+  let S = STEPS.map(blank);
+  const BASE = { I: 0, temp: T_WARM, dots: [], run: null, line: 0, flat: 0, shade: 0, ring: false, nq: false };
+  const X = {};
+  function setX(o) {
+    Object.keys(o).forEach((k) => {
+      const v = o[k];
+      X[k] = Array.isArray(v) ? v.slice() : v && typeof v === 'object' ? Object.assign({}, v) : v;
+    });
+  }
+  const copyX = () => { const c = {}; Object.keys(X).forEach((k) => { c[k] = X[k]; }); c.dots = X.dots.slice(); c.run = X.run ? Object.assign({}, X.run) : null; return c; };
+  setX(BASE);
+  let T = Infinity, scripted = false, lastStep = -1, finished = false, lastDone = false;
+  let REC = {}, laidOut = '';
+  const running = () => !!X.run && X.run.p < RUN_END;
+  // During a run at the set current the terminals slide from E − Ir down to the end voltage.
+  function runV() {
+    const r = X.run;
+    if (!r || Math.abs(r.I - X.I) > 0.01 || X.I < I_MIN) return null;
+    const t0 = termOf(r.I, X.temp);
+    return t0 + (V_END - t0) * K.clamp(r.p / RUN, 0, 1);
+  }
+  function land(i) { if (!has(X.dots, i)) { X.dots.push(i); if (X.dots.length > 8) X.dots.shift(); } }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);
+  const CTL = {
+    load: K.control({ id: 'load', label: 'Load current', min: 0, max: I_MAX, step: 1, value: 0, unit: 'A', snap: [0, 5, 20, 25, 28, 50, 100], into: '#c-load' }),
+    temp: K.control({ id: 'temp', label: 'Temperature', min: T_COLD, max: T_WARM, step: 1, value: T_WARM, unit: '°C', snap: [T_COLD, 0, T_WARM], into: '#c-temp' }),
+  };
+  const pushed = { load: 0, temp: T_WARM };
+  const KEYS = { load: () => Math.round(X.I), temp: () => Math.round(X.temp) };
+  // The page moves the controls itself during a demonstration (silently, so it is not taken for Dan's move).
+  function push() { Object.keys(KEYS).forEach((k) => { const v = KEYS[k](); if (pushed[k] !== v) { CTL[k].set(v, true); pushed[k] = CTL[k].get(); } }); }
+
+  // The three outputs are drawn on the picture: the lost volts over r, the voltmeter, the run's ampere-hours.
+  K.model((p) => {
+    const i = p.load, t = p.temp;
+    return { lostVolts: lostOf(i, t), terminal: termOf(i, t), capacity: i >= I_MIN ? cOf(i, t) : 'off the axes' };
+  });
+
+  const disBtn = K.button({ label: 'Discharge', into: '#c-dis', press: () => {
+    const i = at(), d = STEPS[i];
+    if (finished || !d.ctl || d.ctl.indexOf('dis') < 0 || X.I < I_MIN || running()) return;
+    if (scripted) { scripted = false; setX(d.end || {}); }
+    T = Infinity;
+    X.run = { I: X.I, p: 0, manual: true };
+    if (quiet()) { X.run.p = RUN_END; land(X.I); push(); paint(); return; }
+    anim.play();
+  } });
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || st.res === 'right') return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = st.pick === d.want ? 'right' : 'wrong';
+    if (st.res !== 'right') { T = Infinity; return; }
+    if (quiet()) { T = Infinity; setX(d.end || {}); push(); }
+    else { T = 0; anim.play(); }
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    const d = STEPS[at()];
+    if (d.show || finished) return;
+    S[at()].why = !S[at()].why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    if (!STEPS[at()].show || finished) return;
+    enterStep(at());
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true; anim.pause();
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(blank); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // ---------- motion: one animation runs each demonstration, each answer's motion and each discharge ----------
+  const motionEnd = (d, st) => (d.show ? (scripted ? d.dur : 0) : st.res === 'right' ? d.run.dur : 0);
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    const i = at(), d = STEPS[i], st = S[i];
+    T += dt;
+    if (scripted) { d.play(T); if (T >= d.dur) scripted = false; }
+    if (!d.show && st.res === 'right' && d.run.go) d.run.go(Math.min(1, T / d.run.dur));
+    let busy = false;
+    if (X.run && X.run.manual && X.run.p < RUN_END) {
+      X.run.p = Math.min(RUN_END, X.run.p + dt);
+      if (X.run.p >= RUN_END) land(X.run.I); else busy = true;
+    }
+    push();
+    paint(i);
+    return busy || T < motionEnd(d, st);
+  } });
+  // A motion that was stopped (the page hidden, a test) shows finished.
+  function finishNow(d, st) {
+    if (scripted) { d.play(1e6); scripted = false; }
+    if (!d.show && st.res === 'right') setX(d.end || {});
+    if (X.run && X.run.p < RUN_END) { X.run.p = RUN_END; land(X.run.I); }
+    T = Infinity; push();
+  }
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && (T !== Infinity || running())) { finishNow(STEPS[at()], S[at()]); paint(); } });
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter'); void box.offsetWidth; box.classList.add('enter');
+  }
+  function enterStep(i) {
+    const d = STEPS[i], st = S[i];
+    anim.pause();
+    setX(BASE); setX(d.enter || {});
+    if (!d.show && st.res === 'right') setX(d.end || {});
+    if (d.show && !quiet()) { scripted = true; T = 0; d.play(0); push(); anim.play(); }
+    else { scripted = false; T = Infinity; if (d.show) setX(d.end || {}); push(); }
+    laidOut = '';
+    enter('stepbox');
+  }
+
+  // ---------- drawing ----------
+  const svg = el('scene'), art = el('art');
+  let into = null;
+  const r1 = (v) => Math.round(v * 10) / 10;
+  const add = (n) => (into || art).appendChild(n);
+  const S_ = (tag, a) => add(K.svg(tag, a));
+  function txt(x, y, s, cls, anchor) {
+    const a = { x: r1(x), y: r1(y), 'text-anchor': anchor || 'middle' };
+    if (cls) a.class = cls;
+    const t = K.svg('text', a); t.textContent = s; return add(t);
+  }
+  function part(a, rise, fn) { if (a <= 0) return; const g = add(K.svg('g')); K.fade(g, Math.min(1, a), rise); const keep = into; into = g; fn(); into = keep; }
+  const arr = (t0, dur) => K.arrive(T, t0, dur == null ? K.SOFT : dur);
+
+  // The battery as an emf E behind r, wired to a voltmeter and a load. The line above r is the volts
+  // along the inside: level at E, stepping down across r by I × r (30 units a volt).
+  const KV = 30;
+  function drawCircuit(d, st) {
+    const I = X.I, tc = X.temp, r = rOf(tc), lost = lostOf(I, tc), live = d.pic === 'both' ? runV() : null, term = live == null ? E - lost : live, emfNow = term + lost, open = I < 0.5;
+    const a = !d.hideV ? 1 : st.res === 'right' ? arr(0.1) : 0;
+    txt(8, 15, '12 V battery', 'lbm', 'start');
+    txt(178, 15, fT(tc), 'lbm', 'end');
+    S_('rect', { class: 'bat', x: 8, y: 22, width: 170, height: 154, rx: 6 });
+    S_('path', { class: 'wire', d: 'M34 116V88H96M144 88H178M34 130V164H178' });
+    S_('line', { class: 'plate', x1: 20, y1: 116, x2: 48, y2: 116, 'stroke-width': 2.5 });
+    S_('line', { class: 'plate', x1: 27, y1: 130, x2: 41, y2: 130, 'stroke-width': 6 });
+    txt(56, 136, 'emf E', null, 'start');
+    txt(56, 153, fV(emfNow), 'lbm', 'start');
+    S_('rect', { class: 'res', x: 96, y: 81, width: 48, height: 14, rx: 2 });
+    const rt = 'r = ' + fmO(r);
+    txt(120, 113, rt);
+    const yE = 54, yT = yE + KV * lost;
+    S_('path', { class: 'lvl', d: 'M34 ' + yE + 'H96M144 ' + r1(yT) + 'H178' });
+    S_('path', { class: 'drop', d: 'M96 ' + yE + 'L144 ' + r1(yT) });
+    txt(38, 48, 'E', null, 'start');
+    const lt = 'I × r = ' + fV(lost), vt = fV(term);
+    if (a < 1) part(1 - a, 0, () => txt(120, 44, 'I × r = ?', 'lost'));
+    if (a > 0) part(a, 0, () => txt(120, 44, lt, 'lost'));
+    S_('circle', { class: 'post', cx: 178, cy: 88, r: 4 });
+    S_('circle', { class: 'post', cx: 178, cy: 164, r: 4 });
+    // Out to the voltmeter and the load; with nothing connected the switch stands open.
+    S_('path', { class: 'wire', d: open ? 'M182 88H272M290 88H308V104' : 'M182 88H308V104' });
+    if (open) S_('path', { class: 'wire', d: 'M272 88L287 75' });
+    S_('path', { class: 'wire', d: 'M182 164H308V148M234 88V106M234 148V164' });
+    S_('circle', { class: 'pin', cx: 234, cy: 88, r: 3 });
+    S_('circle', { class: 'pin', cx: 234, cy: 164, r: 3 });
+    S_('rect', { class: 'res', x: 298, y: 104, width: 20, height: 44, rx: 2 });
+    S_('rect', { class: 'meter', x: 196, y: 106, width: 76, height: 42, rx: 6 });
+    txt(234, 122, 'voltmeter', 'lbm');
+    if (a < 1) part(1 - a, 0, () => txt(234, 141, '?', 'mv'));
+    if (a > 0) part(a, 0, () => txt(234, 141, vt, 'mv'));
+    const ct = 'I = ' + fA(I);
+    txt(184, 78, ct, null, 'start');
+    if (!open) S_('path', { class: 'flow', d: 'M254 82L262 88L254 94' });
+    const loadT = open ? 'off' : fOhm(loadOf(I, tc));
+    txt(336, 62, 'load R', 'lbm', 'end');
+    txt(336, 78, loadT, null, 'end');
+    REC.voltText = a >= 0.5 ? vt : '?'; REC.lostText = a >= 0.5 ? lt : 'I × r = ?'; REC.loadText = loadT; REC.curText = ct; REC.open = open; REC.yT = yT; REC.rText = rt;
+    return 'A 12 V battery drawn as an emf of ' + fV(emfNow) + ' in series with ' + rt + ', at ' + fT(tc) + '. ' +
+      (open ? 'Nothing is connected, so no current flows. ' : 'A ' + loadT + ' load draws ' + fA(I) + '. ') +
+      (a >= 0.5 ? 'The lost volts across r are ' + fV(lost) + ', and the voltmeter reads ' + vt + '.' : 'The lost volts and the voltmeter show question marks.');
+  }
+
+  // The discharge clock and the ampere-hour counter for the current set.
+  function drawPanel(d, st) {
+    const hide = !!d.hideRun && st.res !== 'right', r = X.run, I = X.I;
+    const same = !!r && Math.abs(r.I - I) < 0.01 && I >= I_MIN, over = I > I2 + 0.5;
+    let tv = '—', cv = '—';
+    if (hide) { tv = '?'; cv = '?'; }
+    else if (same) { const u = K.clamp(r.p / RUN, 0, 1); tv = fH(tOf(r.I, X.temp) * u); cv = fAh(cOf(r.I, X.temp) * u); }
+    const lab = over ? 'the fit says' : 'delivered';
+    txt(8, 192, 'run time', 'lbm', 'start'); txt(72, 192, tv, 'val', 'start');
+    txt(166, 192, lab, 'lbm', 'start'); txt(258, 192, cv, 'val', 'start');
+    REC.panelT = tv; REC.panelC = cv; REC.panelLab = lab;
+    // The terminals strip: from the end voltage up to E, the lost volts in red at its top.
+    const GX0 = 84, GX1 = 300, gx = (v) => GX0 + (v - V_END) / (E - V_END) * (GX1 - GX0);
+    const t0 = termOf(I, X.temp), live = runV(), now = live == null ? t0 : live;
+    txt(8, 218, 'terminals', 'lbm', 'start');
+    S_('line', { class: 'lvl', x1: GX0, y1: 214, x2: GX1, y2: 214 });
+    S_('line', { class: 'less', x1: GX0, y1: 205, x2: GX0, y2: 223 });
+    S_('line', { class: 'tk', x1: GX1, y1: 207, x2: GX1, y2: 221 });
+    if (E - t0 > 0.001) S_('path', { class: 'drop', d: 'M' + r1(gx(t0)) + ' 214H' + GX1 });
+    S_('circle', { class: 'dot', cx: r1(gx(now)), cy: 214, r: 5 });
+    txt(GX0, 238, 'end ' + fV(V_END), 'tkl', 'start'); txt(GX1, 238, 'E ' + fE(), 'tkl', 'end');
+    REC.gStart = t0; REC.gNow = now;
+    const gs = ' The terminals strip reads ' + fV(now) + ', above the ' + fV(V_END) + ' end voltage' + (now <= V_END + 1e-9 ? ': this run has reached it.' : '.');
+    return (hide ? 'The run time and the ampere-hours show question marks.' : tv === '—' ? 'No discharge has run at this current yet.' : 'Run time ' + tv + ', ' + lab + ' ' + cv + '.') + gs;
+  }
+
+  // Log-log axes: ampere-hours 10 to 150 up the side, current 5 to 100 A along the bottom.
+  const PX0 = 52, PX1 = 326, PYT = 252, PYB = 446;
+  const LX = Math.log10(I_MAX / I_MIN), LY = Math.log10(C_HI / C_LO);
+  const px = (i) => PX0 + Math.log10(i / I_MIN) / LX * (PX1 - PX0);
+  const py = (c) => PYB - Math.log10(c / C_LO) / LY * (PYB - PYT);
+  function dotAt(i, a, dy) {
+    const x = px(i), y = py(cOf(i, X.temp)) - (dy || 0), hollow = i > I2 + 0.5, arrow = i >= FAR - 0.5 && !dy;
+    const draw = () => {
+      S_('circle', { class: hollow ? 'hollow' : 'dot', cx: r1(x), cy: r1(y), r: 5.5 });
+      if (arrow) S_('path', { class: 'less', d: 'M' + r1(x) + ' ' + r1(y + 9) + 'V' + r1(y + 30) + 'M' + r1(x - 5) + ' ' + r1(y + 24) + 'L' + r1(x) + ' ' + r1(y + 30) + 'L' + r1(x + 5) + ' ' + r1(y + 24) });
+    };
+    if (a < 1) part(a, 0, draw); else draw();
+    return { i, x, y, hollow, arrow };
+  }
+  function drawPlot(d, st) {
+    const tc = X.temp, x28 = px(I2);
+    if (X.shade > 0) part(X.shade, 0, () => {
+      S_('rect', { class: 'shade', x: r1(x28), y: PYT, width: r1(PX1 - x28), height: PYB - PYT });
+      const cx = (x28 + PX1) / 2;
+      txt(cx, 297, 'a fixed n'); txt(cx, 311, 'over-predicts'); txt(cx, 325, 'here');
+    });
+    S_('line', { class: 'ax', x1: PX0, y1: PYB, x2: PX1, y2: PYB });
+    S_('line', { class: 'ax', x1: PX0, y1: PYT, x2: PX0, y2: PYB });
+    [5, 10, 20, 28, 50, 100].forEach((i) => { const x = r1(px(i)); S_('line', { class: 'tk', x1: x, y1: PYB, x2: x, y2: PYB + 5 }); txt(x, PYB + 17, String(i), 'tkl'); });
+    [10, 20, 50, 100, 150].forEach((c) => { const y = r1(py(c)); S_('line', { class: 'tk', x1: PX0 - 5, y1: y, x2: PX0, y2: y }); txt(PX0 - 8, y + 4, String(c), 'tkl', 'end'); });
+    txt((PX0 + PX1) / 2, PYB + 34, 'current (A)', 'tkl');
+    const ym = (PYT + PYB) / 2, yl = txt(16, ym, 'ampere-hours (Ah)', 'tkl');
+    yl.setAttribute('transform', 'rotate(-90 16 ' + ym + ')');
+    REC.flatY = null; REC.fitA = null; REC.fitB = null;
+    if (X.flat > 0) part(X.flat, 0, () => {
+      REC.flatY = py(C20);
+      S_('line', { class: 'flat', x1: PX0, y1: r1(py(C20)), x2: PX1, y2: r1(py(C20)) });
+      S_('line', { class: 'flat', x1: 58, y1: 409, x2: 76, y2: 409 });
+      txt(82, 413, 'perfect battery, n = 1.00', null, 'start');
+    });
+    if (X.line > 0) {
+      const iEnd = I_MIN * Math.pow(I_MAX / I_MIN, X.line);
+      REC.fitA = [px(I_MIN), py(cOf(I_MIN, tc))]; REC.fitB = [px(iEnd), py(cOf(iEnd, tc))];
+      S_('line', { class: 'fit', x1: r1(REC.fitA[0]), y1: r1(REC.fitA[1]), x2: r1(REC.fitB[0]), y2: r1(REC.fitB[1]) });
+      part(X.line, 0, () => { S_('line', { class: 'fit', x1: 58, y1: 392, x2: 76, y2: 392 }); txt(82, 396, 'Peukert fit, n = ' + (X.nq ? '?' : nTxt), null, 'start'); });
+    }
+    const r = X.run, here = !!r && Math.abs(r.I - X.I) < 0.01;
+    REC.ring = !!X.ring && X.line >= 1 && X.I >= I_MIN && !here;
+    if (REC.ring) S_('circle', { class: 'ring', cx: r1(px(X.I)), cy: r1(py(cOf(X.I, tc))), r: 7 });
+    REC.dots = X.dots.filter((i) => i >= I_MIN).sort((a, b) => a - b).map((i) => dotAt(i, 1));
+    REC.fly = null;
+    if (r && r.I >= I_MIN && r.p >= RUN && r.p < RUN_END && !has(X.dots, r.I)) {
+      const u = ez((r.p - RUN) / DROP);
+      REC.fly = dotAt(r.I, u, 36 * (1 - u));
+    }
+    REC.key3 = REC.dots.some((q) => q.arrow);
+    if (REC.key3) {
+      S_('path', { class: 'less', d: 'M67 418V433M62 427L67 433L72 427' });
+      txt(82, 430, 'real battery: less', null, 'start');
+    }
+    let said = 'Log-log axes of ampere-hours against current.';
+    if (X.line >= 1) said += ' The Peukert fit, n = ' + (X.nq ? 'a question mark' : nTxt) + ', slopes down through the ratings.';
+    if (X.flat >= 1) said += ' A flat dashed line at ' + fAh(C20) + ' shows a perfect battery.';
+    if (X.shade >= 1) said += ' Past ' + fA(I2) + ' the plot is shaded, where a fixed n over-predicts.';
+    if (REC.dots.length) said += ' Dots sit at ' + REC.dots.map((q) => fA(q.i)).join(', ') + '.';
+    if (REC.key3) said += ' A hollow dot far past the highest rating has an arrow down: a real battery gives less.';
+    return said;
+  }
+
+  function drawMain(d, st) {
+    const c = drawCircuit(d, st);
+    if (d.pic !== 'both') return { box: [0, 0, 340, 182], said: c };
+    const p = drawPanel(d, st), q = drawPlot(d, st);
+    return { box: [0, 0, 340, 486], said: c + ' ' + p + ' ' + q };
+  }
+
+  // The warm-up: log-log axes, and y = 3 × x^0.5 drawn once answered.
+  function drawPow(d, st) {
+    const a = st.res === 'right' ? arr(0.1, 1.0) : 0;
+    const X0 = 84, X1 = 284, Y0 = 220, Y1 = 20;
+    const gx = (v) => X0 + Math.log10(v) / 2 * (X1 - X0), gy = (v) => Y0 - Math.log10(v) / 2 * (Y0 - Y1);
+    S_('line', { class: 'ax', x1: X0, y1: Y0, x2: X1, y2: Y0 });
+    S_('line', { class: 'ax', x1: X0, y1: Y1, x2: X0, y2: Y0 });
+    [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100].forEach((v) => {
+      const big = v === 1 || v === 10 || v === 100, L = big ? 6 : 3;
+      S_('line', { class: 'tk', x1: r1(gx(v)), y1: Y0, x2: r1(gx(v)), y2: Y0 + L });
+      S_('line', { class: 'tk', x1: X0 - L, y1: r1(gy(v)), x2: X0, y2: r1(gy(v)) });
+      if (big) { txt(gx(v), Y0 + 19, String(v), 'tkl'); txt(X0 - 9, gy(v) + 4, String(v), 'tkl', 'end'); }
+    });
+    txt((X0 + X1) / 2, Y0 + 38, 'x, log scale', 'tkl');
+    const ym = (Y0 + Y1) / 2, yl = txt(40, ym, 'y, log scale', 'tkl');
+    yl.setAttribute('transform', 'rotate(-90 40 ' + ym + ')');
+    if (a < 1) part(1 - a, 0, () => txt((X0 + X1) / 2, 132, '?', 'q'));
+    if (a > 0) {
+      const xe = Math.pow(10, 2 * a);
+      S_('line', { class: 'fit', x1: r1(gx(1)), y1: r1(gy(3)), x2: r1(gx(xe)), y2: r1(gy(3 * Math.sqrt(xe))) });
+      part(K.clamp((a - 0.6) / 0.4, 0, 1), 0, () => { txt(X1, 38, 'y = 3 × x^0.5', null, 'end'); txt(X1, 56, 'gradient 0.5', 'lbm', 'end'); });
+    }
+    REC.powLine = a > 0;
+    return { box: [0, 0, 340, 266], said: 'Log-log axes from 1 to 100 on each side. ' + (a > 0 ? 'The power law y = 3 × x^0.5 draws a straight line of gradient 0.5.' : 'A question mark sits where the power law goes.') };
+  }
+
+  // The last puzzle: three runs as thin bars along one time axis, drawn once answered.
+  function drawThree(d, st) {
+    const a = st.res === 'right' ? arr(0.1, 1.0) : 0;
+    const TX0 = 20, TX1 = 296, tx = (h) => TX0 + h / H20 * (TX1 - TX0);
+    REC.bars = [];
+    THREE.forEach((c, k) => {
+      const y = 30 + 50 * k, h = tOf(c.i, c.t);
+      txt(TX0, y, c.lab, null, 'start');
+      if (a > 0) {
+        S_('rect', { class: 'bar', x: TX0, y: y + 8, width: r1(Math.max(0.5, (tx(h) - TX0) * a)), height: 10, rx: 2 });
+        part(K.clamp((a - 0.6) / 0.4, 0, 1), 0, () => txt(tx(h) + 6, y + 18, fH(h), null, 'start'));
+      }
+      if (a < 1) part(1 - a, 0, () => txt(TX0 + 2, y + 21, '?', 'mv', 'start'));
+      REC.bars.push(a > 0 ? Math.round(h) : null);
+    });
+    S_('line', { class: 'ax', x1: TX0, y1: 172, x2: TX1, y2: 172 });
+    [0, 5, 10, 15, 20].forEach((h) => { S_('line', { class: 'tk', x1: r1(tx(h)), y1: 172, x2: r1(tx(h)), y2: 177 }); txt(tx(h), 191, String(h), 'tkl'); });
+    txt((TX0 + TX1) / 2, 209, 'run time (h)', 'tkl');
+    const said = 'Two runs of this battery: ' + THREE.map((c) => c.lab).join(', ') + '. ' +
+      (a > 0 ? 'Their run times are ' + THREE.map((c) => fH(tOf(c.i, c.t))).join(', ') + '.' : 'Their run times show question marks.');
+    return { box: [0, 0, 340, 216], said };
+  }
+
+  // The ship's battery: a voltage scale with the allowed band, then the emf and the terminals below it.
+  function drawSolas(d, st) {
+    const a = st.res === 'right' ? arr(0.1, 1.0) : 0;
+    const AX = 70, vy = (v) => 200 - (v - 20) / 8 * 180;
+    S_('rect', { class: 'shade', x: AX, y: r1(vy(TOP)), width: 250, height: r1(vy(FLOOR) - vy(TOP)) });
+    S_('line', { class: 'ax', x1: AX, y1: vy(20), x2: AX, y2: vy(28) });
+    [20, 22, 24, 26, 28].forEach((v) => { S_('line', { class: 'tk', x1: AX - 5, y1: r1(vy(v)), x2: AX, y2: r1(vy(v)) }); txt(AX - 9, vy(v) + 4, String(v), 'tkl', 'end'); });
+    const yl = txt(24, vy(24), 'volts (V)', 'tkl');
+    yl.setAttribute('transform', 'rotate(-90 24 ' + vy(24) + ')');
+    S_('line', { class: 'flat', x1: AX, y1: r1(vy(FLOOR)), x2: 320, y2: r1(vy(FLOOR)) });
+    txt(316, vy(FLOOR) + 18, 'floor ' + fV1(FLOOR), null, 'end');
+    txt(316, vy(TOP) - 6, 'top ' + fV1(TOP), 'lbm', 'end');
+    if (a < 1) part(1 - a, 0, () => txt(200, vy(23.6), '?', 'q'));
+    if (a > 0) part(a, 0, () => {
+      S_('line', { class: 'lvl', x1: 110, y1: r1(vy(E24)), x2: 180, y2: r1(vy(E24)) });
+      txt(145, vy(E24) - 8, 'emf E');
+      S_('path', { class: 'drop', d: 'M180 ' + r1(vy(E24)) + 'L205 ' + r1(vy(T24)) });
+      txt(215, vy(E24) - 8, IRt, 'lost', 'start');
+      S_('line', { class: 'fit', x1: 205, y1: r1(vy(T24)), x2: 290, y2: r1(vy(T24)) });
+      txt(248, vy(T24) + 20, 'terminals, ' + EIR);
+    });
+    REC.solas = a > 0;
+    return { box: [0, 0, 340, 214], said: 'A voltage scale from 20 to 28 V. A shaded band runs from ' + fV1(FLOOR) + ' to ' + fV1(TOP) + ', with a dashed floor at ' + fV1(FLOOR) + '. ' +
+      (a > 0 ? 'The emf sits near the top. The terminals sit below it by the lost volts, ' + IRt + ', and above the floor.' : 'A question mark sits where the battery\'s voltages go.') };
+  }
+
+  function sayFor(d) {
+    const I = X.I, tc = X.temp;
+    if (d.ctl.indexOf('temp') >= 0) {
+      const pc = Math.round(100 * fOf(tc));
+      return 'At ' + fT(tc) + ', r is ' + fmO(rOf(tc)) + ', so ' + fA(I) + ' loses ' + fV(lostOf(I, tc)) + ' across it. ' +
+        (pc >= 100 ? 'The battery gives its full rated ampere-hours.' : 'The cold cuts every ampere-hour figure to ' + pc + ' per cent of its warm value, so the line and the dots sit lower.');
+    }
+    if (d.ctl.indexOf('dis') < 0) {
+      if (I < 0.5) return 'With nothing connected, no current flows. Nothing is lost across r, so the voltmeter reads the whole ' + fV(E) + '.';
+      return 'A ' + fOhm(loadOf(I, tc)) + ' load draws ' + fA(I) + '. That current loses ' + fV(lostOf(I, tc)) + ' across r, so the terminals read ' + fV(termOf(I, tc)) + ' of the ' + fE() + ' emf.';
+    }
+    if (I < I_MIN) return 'Below ' + fA(I_MIN) + ' a run lasts longer than these axes show, so Discharge rests.';
+    const r = X.run, same = !!r && Math.abs(r.I - I) < 0.01;
+    if (same && r.p < RUN_END) return 'The battery is running flat at ' + fA(I) + ', with the clock and the counter running fast. It stops when the terminals reach the ' + fV(V_END) + ' end voltage.';
+    if (same) {
+      if (I >= FAR - 0.5) return 'At ' + fA(I) + ' the fit says ' + fAh(cOf(I, tc)) + ', but this is far past the highest rating, so a real battery gives even less.';
+      if (I > I2 + 0.5) return 'At ' + fA(I) + ' the fit says ' + fAh(cOf(I, tc)) + '. This is past the highest rating, where the fit is untested.';
+      if (I < I20 + 0.5) return 'At the slow ' + fA(I) + ' rate the battery lasts ' + fH(tOf(I, tc)) + ' and gives its full ' + fAh(cOf(I, tc)) + '.';
+      return 'At ' + fA(I) + ' the battery lasts ' + fH(tOf(I, tc)) + ' and delivers ' + fAh(cOf(I, tc)) + ', fewer than the ' + fAh(C20) + ' it gives at ' + fA(I20) + '.';
+    }
+    return X.line >= 1 ? 'At ' + fA(I) + ' the line gives ' + fAh(cOf(I, tc)) + '. No discharge has run at this current yet.'
+      : 'No discharge has run at ' + fA(I) + ' yet. A run shows how many ampere-hours it gives.';
+  }
+
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i];
+    art.textContent = ''; into = null;
+    REC = { pic: d.pic };
+    const out = d.pic === 'pow' ? drawPow(d, st) : d.pic === 'three' ? drawThree(d, st) : d.pic === 'solas' ? drawSolas(d, st) : drawMain(d, st);
+    svg.setAttribute('viewBox', out.box.map(r1).join(' '));
+    svg.setAttribute('aria-label', out.said);
+    if (d.ctl) el('say').textContent = sayFor(d);
+    disBtn.el.disabled = X.I < I_MIN || running();
+  }
+
+  // ---------- words: *a key term* is highlighted ----------
+  function write(node, s) {
+    node.textContent = '';
+    String(s).split(/\*([^*]+)\*/).forEach((seg, k) => { if (seg) node.appendChild(k % 2 ? K.el('span', { class: 'term' }, seg) : document.createTextNode(seg)); });
+  }
+  write(el('finish'), FINISH);
+  function layout(i, d, st) {
+    const key = [i, st.res, st.pick, st.why, finished].join('|');
+    if (key === laidOut) return;
+    laidOut = key;
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    ['load', 'temp', 'dis'].forEach((k) => { el('c-' + k).hidden = !(d.ctl && d.ctl.indexOf(k) >= 0); });
+    el('say').hidden = !d.ctl;
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    const opts = d.show ? [] : d.opts;
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 12));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : '');
+    fb.textContent = d.show ? '' : right ? (d.right || 'That\'s it.') : st.res === 'wrong' ? ((d.hints && d.hints[st.pick]) || d.hint) : st.res === 'empty' ? 'Choose one of the answers first.' : '';
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  }
+
+  K.update((p) => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!anim.playing() && (T !== Infinity || running())) finishNow(STEPS[lastStep < 0 ? i : lastStep], S[lastStep < 0 ? i : lastStep]);
+    if (i !== lastStep) { lastStep = i; enterStep(i); }
+    else {
+      // Only the controls this screen shows move its picture; a hidden one is set back silently.
+      const on = (k) => !!(d.ctl && d.ctl.indexOf(k) >= 0);
+      const mL = p.load !== pushed.load, mT = p.temp !== pushed.temp, okL = mL && on('load'), okT = mT && on('temp');
+      if (okL || okT) {
+        if (scripted) { scripted = false; anim.pause(); setX(d.end || {}); }
+        T = Infinity;
+        if (okL) { X.I = p.load; if (running()) X.run = null; }
+        if (okT) X.temp = p.temp;
+      }
+      pushed.load = p.load; pushed.temp = p.temp;
+      if ((mL && !okL) || (mT && !okT)) push();
+    }
+    if (finished !== lastDone) { lastDone = finished; laidOut = ''; enter(finished ? 'done' : 'stepbox'); }
+    layout(i, d, st);
+    paint(i);
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  const solved = (d) => Object.assign(blank(), { pick: d.want, res: 'right' });
+  // A step painted finished in the state given: what it draws.
+  function drawn(i, st, x) {
+    const keep = { X: copyX(), S: S[i], T, sc: scripted };
+    S[i] = st || blank(); T = Infinity; scripted = false;
+    setX(BASE); setX(STEPS[i].enter || {}); setX(x || {});
+    try {
+      paint(i);
+      return Object.assign({}, REC, { texts: Array.from(art.querySelectorAll('text')).map((n) => n.textContent) });
+    } finally {
+      setX(keep.X); S[i] = keep.S; T = keep.T; scripted = keep.sc;
+      paint();
+    }
+  }
+  // The state a function leaves, from the base state, without touching the page.
+  function after(fn) { const keep = copyX(); try { setX(BASE); fn(); return copyX(); } finally { setX(keep); } }
+  const iW = idx('A warm-up'), iS1 = idx('Lost volts'), iD2 = idx('At 100 A'), iD4 = idx('Halve the load'), iS5 = idx('Two ratings'), iD6 = idx('How long at 25 A');
+  const iS7 = idx('Peukert\'s line'), iD8 = idx('Read the line'), iS9 = idx('Cold'), iD10 = idx('Past the ratings'), iD11 = idx('Nothing connected'), iD12 = idx('Which lasts longer');
+  const iDn = idx('Find n'), iD13 = idx('A ship\'s battery');
+  const fin = (i) => drawn(i, solved(STEPS[i]), STEPS[i].end);
+
+  K.check('A charged, rested cell reads 2.1 V, so six cells make an emf of 12.6 V, and with no current the voltmeter reads all of it', () => {
+    const g = fin(iD11), o = drawn(iS1, null, { I: 0 });
+    return K.near(E, 12.6, 1e-9) && K.at({ load: 0 }).lostVolts === 0 && K.near(K.at({ load: 0 }).terminal, 12.6, 1e-9) && g.voltText === fV(12.6) && o.open && o.voltText === fV(12.6);
+  }, { source: BU303 });
+  K.check('The same 100 Ah battery drained in two hours may give only 56 Ah: the rule gives 100 Ah at 5 A and 56 Ah at 28 A, and their dots land there', () => {
+    const g = drawn(iS5, null, STEPS[iS5].end);
+    return K.near(K.at({ load: 5 }).capacity, 100, 1e-9) && K.near(K.at({ load: 28 }).capacity, 56, 1e-9) && K.near(tOf(28, T_WARM), 2, 1e-12) &&
+      g.dots.length === 2 && K.near(g.dots[0].y, py(100), 1e-9) && K.near(g.dots[1].y, py(56), 1e-9) && !g.dots.some((q) => q.hollow);
+  }, { source: VIC });
+  K.check('Lead acid is rated at 0.05C, a 20-hour discharge: 0.05 × 100 Ah is 5 A, and 5 A runs 20 hours', () =>
+    K.near(RATE20 * C20, 5, 1e-12) && K.near(tOf(I20, T_WARM), 20, 1e-12) && fH(tOf(I20, T_WARM)) === '20' + NB + 'h', { source: BU402 });
+  K.check('An ideal battery has a Peukert exponent of 1.00 and the same capacity at any current, while the monitor default of 1.25 would give 67 Ah at 25 A: the perfect line is flat at 100 Ah', () => {
+    const g = drawn(iS7, null, ALL);
+    return [5, 10, 25, 50, 100].every((i) => K.near(cOf(i, T_WARM, N_PERFECT), 100, 1e-9)) && Math.round(C25D) === 67 && K.near(g.flatY, py(100), 1e-9);
+  }, { source: VIC });
+  K.check('A battery giving 100 percent at 27 °C delivers only 50 percent at −18 °C: 20 A gives 63 Ah warm and 31 Ah cold, 5 A runs 10 hours cold, and every dot falls by the same half', () => {
+    const w = drawn(iS9, null, { temp: T_WARM }), c = drawn(iS9, null, { temp: T_COLD });
+    const half = Math.log10(2) / LY * (PYB - PYT);
+    return Math.round(K.at({ load: 20, temp: T_WARM }).capacity) === 63 && Math.round(K.at({ load: 20, temp: T_COLD }).capacity) === 31 && K.near(tOf(I20, T_COLD), 10, 1e-12) &&
+      w.dots.length === 3 && w.dots.every((q, k) => K.near(c.dots[k].y - q.y, half, 1e-9)) && K.near(c.fitA[1] - w.fitA[1], half, 1e-9);
+  }, { source: BU502 });
+  K.check('In very high currents the battery gives even less than a fixed exponent predicts: a dot past the highest rating lands hollow, with an arrow down, and dots up to it land solid on the line', () => {
+    const g = fin(iD10), last = g.dots[g.dots.length - 1];
+    const m = drawn(iS7, null, Object.assign({ dots: [5, 28, 30, 100] }, ALL)), d30 = m.dots.filter((q) => q.i === 30)[0];
+    return last.i === 100 && last.hollow && last.arrow && g.key3 && g.dots.filter((q) => q.i <= I2).every((q) => !q.hollow) && g.panelLab === 'the fit says' && g.texts.indexOf('real battery: less') >= 0 &&
+      d30.hollow && !d30.arrow && m.dots.filter((q) => q.i === 100)[0].arrow;
+  }, { source: VIC });
+  K.check('Lost volts are I × r: 0.35 V at 50 A and 0.70 V at 100 A, so the terminals read 12.25 V and 11.90 V, and the load reads 0.245 Ω and 0.119 Ω', () => {
+    const a = K.at({ load: 50 }), b = K.at({ load: 100 }), g = drawn(iS1, null, { I: 50 }), h = fin(iD2), z = drawn(iS1, null, { I: 0 });
+    return fV(a.lostVolts) === fV(0.35) && fV(b.lostVolts) === fV(0.7) && fV(a.terminal) === fV(12.25) && fV(b.terminal) === fV(11.9) &&
+      fOhm(R50) === fOhm(0.245) && fOhm(R100) === fOhm(0.119) && g.voltText === fV(12.25) && g.lostText === 'I × r = ' + fV(0.35) && g.loadText === fOhm(0.245) &&
+      h.voltText === fV(11.9) && h.lostText === 'I × r = ' + fV(0.7) && K.near(g.yT - z.yT, KV * 0.35, 1e-9) && z.loadText === 'off';
+  });
+  K.check('Through the two ratings n = log 10 ÷ log 5.6 = 1.34 and the line\'s gradient is 1 − n = −0.34: at 25 A it gives 2.3 hours and 58 Ah where 100 ÷ 25 says 4, at 20 A 63 Ah and at 100 A 36 Ah', () => {
+    const g = drawn(iS7, null, ALL);
+    const slope = ((PYB - g.fitB[1]) - (PYB - g.fitA[1])) / (PYB - PYT) * LY / ((g.fitB[0] - g.fitA[0]) / (PX1 - PX0) * LX);
+    return nTxt === '1.34' && gTxt === K.fmt(-0.34, { decimals: 2 }) && K.near(slope, 1 - N, 1e-9) && K.fmt(T25, { decimals: 1 }) === '2.3' && M25 === 20 &&
+      Math.round(C25) === 58 && C20 / 25 === 4 && Math.round(cOf(20, T_WARM)) === 63 && Math.round(C100) === 36;
+  });
+  K.check('The faster the draw, the lower the dot and the bigger the lost volts: capacity falls and lost volts rise at every step up in current', () => {
+    let ok = true;
+    for (let i = I_MIN; i < I_MAX; i++) {
+      const a = K.at({ load: i }), b = K.at({ load: i + 1 });
+      ok = ok && b.capacity < a.capacity && b.lostVolts > a.lostVolts && b.terminal < a.terminal;
+    }
+    const g = drawn(iS7, null, Object.assign({ dots: [5, 10, 20, 28, 50, 100] }, ALL));
+    return ok && g.dots.length === 6 && g.dots.every((q, k) => !k || q.y > g.dots[k - 1].y);
+  });
+  K.check('Halving the 0.245 Ω load nearly doubles the current, to 97 A, and the terminals dip to 11.92 V; cold doubles r to 14 mΩ, and the lost volts at 20 A from 0.14 V to 0.28 V', () => {
+    const g = fin(iD4), c = drawn(iS9, null, { temp: T_COLD });
+    return Math.round(I_HALF) === 97 && I_HALF < 100 && fV(termOf(I_HALF, T_WARM)) === fV(11.92) && g.curText === 'I = ' + fA(97) &&
+      K.near(rOf(T_COLD), 2 * rOf(T_WARM), 1e-12) && fV(K.at({ load: 20, temp: T_COLD }).lostVolts) === fV(0.28) && fV(K.at({ load: 20 }).lostVolts) === fV(0.14) && c.rText === 'r = ' + fmO(0.014);
+  });
+  K.check('Each puzzle accepts only its right answer, and nothing in its picture gives the answer before Check', () => {
+    const ok = STEPS.every((d) => d.show || (d.opts.length === 3 && new Set(d.opts).size === 3 && d.opts.indexOf(d.want) >= 0));
+    const w0 = drawn(iW), w1 = fin(iW), a0 = drawn(iD2), a1 = fin(iD2), b0 = drawn(iD6), b1 = fin(iD6), c0 = drawn(iD8), c1 = fin(iD8);
+    const e0 = drawn(iD10), e1 = fin(iD10), f0 = drawn(iD11), f1 = fin(iD11), g0 = drawn(iD12), g1 = fin(iD12), h0 = drawn(iD4), h1 = fin(iD4);
+    const n0 = drawn(iDn), n1 = fin(iDn), s0 = drawn(iD13), s1 = fin(iD13);
+    return ok && !w0.powLine && w1.powLine && a0.voltText === '?' && a0.lostText === 'I × r = ?' && a1.voltText === STEPS[iD2].want &&
+      b0.panelT === '?' && b0.panelC === '?' && b1.panelC === fAh(C25) && b1.panelT === fH(T25) && c0.panelC === '?' && c1.panelC === fAh(C25) &&
+      !e0.dots.some((q) => q.hollow) && e1.dots.some((q) => q.hollow && q.arrow) && f0.voltText === '?' && f1.voltText === STEPS[iD11].want &&
+      g0.bars.every((b) => b === null) && g1.bars.join() === '10,2' && h0.curText === 'I = ' + fA(50) && h1.curText === 'I = ' + fA(97) &&
+      n0.texts.indexOf('Peukert fit, n = ?') >= 0 && n0.texts.indexOf('Peukert fit, n = ' + nTxt) < 0 && n1.texts.indexOf('Peukert fit, n = ' + nTxt) >= 0 && !s0.solas && s1.solas;
+  });
+  K.check('A test ends at an end voltage, 1.75 V a cell for a 5 to 8 hour run, 10.50 V for six: each run starts I × r below the emf and slides to it, so a faster run starts closer to the end', () => {
+    const a = drawn(iS5, null, { I: I20, run: { I: I20, p: 0 } }), b = drawn(iS5, null, { I: I2, run: { I: I2, p: 0 } }), c = drawn(iS5, null, STEPS[iS5].end);
+    return K.near(V_END, 10.5, 1e-9) && K.near(a.gNow, E - I20 * R_WARM, 1e-9) && K.near(b.gNow, E - I2 * R_WARM, 1e-9) && b.gNow < a.gNow &&
+      K.near(c.gNow, V_END, 1e-9) && c.voltText === fV(V_END) && c.texts.indexOf('end ' + fV(10.5)) >= 0;
+  }, { source: ENER });
+  K.check('A ship\'s emergency battery holds within 12% of its nominal voltage: for 24 V the band is 21.1 V to 26.9 V, and the terminals under load sit below the emf and above the floor', () => {
+    const g = fin(iD13);
+    return fV1(FLOOR) === fV1(21.1) && fV1(TOP) === fV1(26.9) && fV(NOM * BAND) === fV(2.88) && g.solas && g.texts.indexOf('floor ' + fV1(21.1)) >= 0 && T24 < E24 && T24 > FLOOR;
+  }, { source: SOLAS });
+  K.check('Every demonstration settles within 4.6 s of its screen opening and ends where its screen says, and every answer\'s motion settles within 2.5 s', () =>
+    STEPS.every((d) => {
+      if (!d.show) {
+        if (d.run.dur > 2.5) return false;
+        if (!d.run.go) return true;
+        const s = after(() => { setX(d.enter || {}); d.run.go(1); }), f = after(() => { setX(d.enter || {}); setX(d.end || {}); });
+        return K.near(s.I, f.I, 1e-9) && s.dots.length === f.dots.length;
+      }
+      const s = after(() => { setX(d.enter || {}); d.play(d.dur); }), f = after(() => { setX(d.enter || {}); setX(d.end || {}); });
+      return d.dur <= 4.6 && K.near(s.I, f.I, 1e-9) && K.near(s.temp, f.temp, 1e-9) && s.dots.length === f.dots.length && K.near(s.line, f.line, 1e-9) && K.near(s.flat, f.flat, 1e-9) && K.near(s.shade, f.shade, 1e-9);
+    }) && 2.6 + RUN_END <= STEPS[iS5].dur && 2.0 - 0.2 >= RUN_END);
+
+  K.ready();
+</script>

@@ -1,0 +1,465 @@
+TASK: build-interactive
+
+You are building one small interactive page for "My University", Dan's personal learning app. It lets him see one idea for himself by playing with it. It runs inside a sandboxed iframe on top of the house kit described below, and the app tests it automatically before Dan sees it.
+
+## The idea
+Topic: Batteries: lead-acid cells, from plate to battery room
+Idea: Charging: the charger holds volts per cell (A charger holds a set voltage per cell through bulk, topping and float, because a little too low sulphates the plates and too high corrodes them.)
+Kind: process
+Dan knows a little about this topic. Show an equation on the page only if every symbol in it is labelled on the picture; otherwise say the rule in words.
+
+## What the interactive must show
+Brief: The one thing you should see is sulphate growing on the negative plate below the float band and the positive grid thinning above it, when you drag the set point in volts per cell.
+Title (the app shows it above the frame, so do not repeat it): The set-point pin
+The rule (the app shows it just above the frame, under "What you're looking at"): On the left is a charger. It is drawn as a box that holds a set voltage and limits its current. Its two leads feed a string of lead-acid cells. A cell stepper sets how many: 6, 12, 24 or 55. One cell is drawn cut open, as in lesson 1. It has a lead dioxide positive plate, a lead negative plate and acid between them. Above sits a set-point slider in volts per cell, from 2.10 to 2.60. It is marked in bands. Float runs from 2.23 to 2.27, and boost from 2.33 to 2.40. A red gassing line sits at 2.40, and equalise at 2.50. The charger's volts are the set point times the number of cells. Below runs a trace of an example 100 Ah battery charged from flat, with a time scrubber. It draws volts per cell and current together against time. In the bulk stage the charger holds the current at an example 10 A. The volts per cell climb as the cell fills. In the topping stage the charger holds the volts at an example charge setting of 2.35. Charge settings range from 2.30 to 2.45 a cell, and this one sits inside that range. The current tails off to 3 to 5 A, which is 3 to 5 per cent of 100 Ah. In the float stage the volts drop to 2.25 a cell. A small current then makes up the cell's self-discharge. The trace is a sketch. Two meters show what months at the set point do to the plates. They show the direction only. Below the float band, a sulphate layer grows on the negative plate. Above it, the positive grid thins. Past 2.40, bubbles rise from both plates and a water gauge falls. A temperature slider runs from 15 to 35 °C. It moves the float figure by 3 mV a cell for each degree away from 25 °C. Warmer moves it down, and colder moves it up. On a phone the three readouts wrap onto a second line, and no word splits. Each show screen has under about 90 words. It ends on what its finished picture shows, so it reads well without the controls. Screen by screen. 1 asks what the charger reads when a bank of 12 cells floats at 2.25 V a cell. The choices are 27 V, 25.2 V or 2.25 V. The right pick says 'Still there'. Hint for 25.2 V: that is 12 × 2.1 V, the rested voltage. A charger must sit above it to push current in. Hint for 2.25 V: that is one cell, and cells in series add. 2 plays a charge from flat. The current holds at 10 A while the volts per cell climb. The volts reach 2.35 and hold, and the current tails off. Then the volts drop to 2.25 for float, and a small current flows. It ends on float. 3 says the topping current on the 100 Ah battery has fallen from 10 A. It now holds at 4 A. The screen asks whether the battery is charged. First choice: yes, because 4 A is 4 per cent of 100 Ah. Second: no, because full means 0 A. Third: no, because the current should still be 10 A. Hint for 0 A: a full cell held at the charge setting still takes a little current. So one common rule calls it full when the current falls to 3 to 5 per cent. Hint for 10 A: a steady 10 A is the bulk stage. A falling current means the cell is filling. 4 steps the cell count at a float of 2.23 V a cell. Six cells need 13.38 V, 12 need 26.76 V and 24 need 53.52 V. It ends on 24 cells at 53.52 V. 5 asks what to set the charger to for 55 cells at 2.23 V a cell. The choices are 122.65 V, 115.50 V or 110.00 V. Hint for 115.50 V: that is 55 × 2.1 V, the rested voltage. Almost no current would flow in. Hint for 110.00 V: that is the nominal 2 V a cell. It is below a charged battery's own voltage, so the charger would put nothing into it. 6 moves the set point from 2.25 down to 2.15. The sulphate meter on the negative plate climbs. Then the set point moves up to 2.45. The sulphate meter stops, and the grid meter on the positive plate climbs. Bubbles rise and the water gauge falls. It ends back at 2.25, with both meters still. 7 says the float has been raised from 2.25 to 2.35 V a cell to keep the bank fuller. It asks what a year of that does. First choice: the positive grid corrodes faster and the cells run warmer. Second: more ampere-hours in store. Third: nothing, because a full cell takes no more charge. Hint for more ampere-hours: a full cell is full. The extra volts push current it cannot store. Hint for nothing: at 2.35 a full cell still takes current. That current corrodes the grid. 8 sets the set point to 2.38 after a discharge, in the boost band. The current is limited, and the scrubber reaches full sooner. At full the charger drops back to float. Then it sets 2.50 to equalise, and bubbles rise from every cell. It ends on float. 9 says Friday's discharge was recharged on boost at 2.40 V a cell. On Monday the charger is still on boost. It asks what the weekend has done. First choice: a corroded positive grid and water lost as gas. Second: extra capacity from charging past full. Third: nothing, because a full battery takes no current. Hint for extra capacity: boost is for recharging. Once the battery is full, the extra current goes to heat, gas and corrosion. Hint for nothing: held at 2.40, a full cell keeps taking current. 10 sets 24 cells and moves the temperature from 25 to 35 °C. The float falls from 2.25 to 2.22 V a cell. The charger falls from 54.00 to 53.28 V. It ends at 35 °C. 11 asks what float to set in a battery room at 15 °C. The cell floats at 2.25 V a cell at 25 °C. The choices are 2.28 V, 2.22 V or 2.25 V. Hint for 2.22 V: that is the warm correction, and colder raises the setting. Hint for 2.25 V: 10 degrees below 25 °C is 30 mV a cell. 12 and 13 mix the ideas. 12 says a 24-cell charger has sat at 51.60 V for a year. It asks what that has done. First choice: sulphate building on the negative plates. Second: corrosion of the positive grid. Third: nothing, because 2.15 V a cell is above the rested 2.1 V. Hint for corrosion: 51.60 ÷ 24 is 2.15 V a cell, below the float band. So the cells are undercharged. Hint for nothing: 2.15 V a cell is below the float band, so the cells are not kept full. 13 says the specific gravities of a 24-cell battery have drifted apart after months on float. It asks what the battery needs. First choice: an equalise at 2.50 V a cell, 60.00 V, then back to float. Second: the float raised to 60.00 V for good. Third: boost at 2.40 V a cell, 57.60 V, left on. Hint for float raised for good: equalise is a deliberate overcharge, safe only for a while. Hint for boost left on: boost recharges, then must go back to float.
+What the model leaves out (the app shows this in its own panel; do not repeat it on the page): The charge is sped up from hours to seconds. The trace is a smooth sketch. The meters show only which way sulphate and corrosion go, not how fast. Every cell is drawn the same, and they share the charger's volts equally. Real cells differ a little, and in a string that matters. The charger's insides are left out, with its ripple and its own current limit on boost. The cell is a flooded one. A sealed cell has its own, tighter figures.
+Controls (use these ids, ranges and opening values exactly; when the prediction or a check names a setting of a slider, add it to that slider's snap):
+- id "step": Screen, from 0 to 12 in steps of 1, opening at 0
+Outputs (return each from K.model under exactly this key, and show it once: as a K.readout with the same id and the decimals given, which is how the explanation rounds it, or as a label on the drawing when the drawing already shows it, never both. Target checks read K.model, not the tile):
+- id "voltsPerCell": Set point, volts per cell (V), decimals: 2
+- id "chargerVolts": Charger volts (V), decimals: 2
+- id "current": Charging current (A), decimals: 1
+Numbers it may show (control = Dan sets it; computed = from the rule; constant = a fixed real value; assumed = an example value, said once as an example in the lead line or a caption, then drawn as a plain value; date = a historical date or fact):
+- Screen control lowest: 0 (control)
+- Screen control highest: 12 (control)
+- Set-point slider bottom, V a cell: 2.1 (control)
+- Set-point slider top, V a cell: 2.6 (control)
+- Float band bottom, one maker at 20 °C, V a cell: 2.23 (constant, source [1])
+- Maker's reference temperature for 2.23 V, °C: 20 (constant, source [1])
+- Float band top, V a cell: 2.27 (constant, source [2])
+- Large stationary float at 25 °C, V a cell: 2.25 (constant, source [2])
+- Reference temperature for 2.25 V float, °C: 25 (constant, source [2])
+- Boost band bottom, V a cell: 2.33 (constant, source [3])
+- Boost band top, V a cell: 2.4 (constant, source [3])
+- Gassing voltage, V a cell: 2.4 (constant, source [4])
+- Equalising voltage, V a cell: 2.5 (constant, source [5])
+- Temperature correction, mV a cell per °C: 3 (constant, source [6])
+- Temperature correction, V a cell per °C: 0.003 (constant, source [6])
+- Full when topping current falls to, % of Ah, low: 3 (constant, source [7])
+- Full when topping current falls to, % of Ah, high: 5 (constant, source [7])
+- Example battery capacity, Ah: 100 (assumed)
+- Example bulk current, A: 10 (assumed)
+- Example charge setting, V a cell: 2.35 (assumed)
+- Charge setting range, low, V a cell: 2.3 (constant, source [8])
+- Charge setting range, high, V a cell: 2.45 (constant, source [8])
+- Full-charge current on 100 Ah, low, A: 3 (computed)
+- Full-charge current on 100 Ah, high, A: 5 (computed)
+- Screen 3 topping current, A: 4 (assumed)
+- Screen 3 current as % of 100 Ah: 4 (computed)
+- Screen 3 wrong pick, A: 0 (assumed)
+- Cell stepper, fewest cells: 6 (control)
+- Cell stepper, 12 cells: 12 (control)
+- Cell stepper, 24 cells: 24 (control)
+- Cell stepper, most cells: 55 (control)
+- Charged, rested cell voltage, V: 2.1 (constant, source [9])
+- Nominal cell voltage, V: 2 (constant, source [9])
+- Recall: 12 cells at 2.25 V, charger V: 27 (computed)
+- Recall wrong pick: 12 × 2.1, V: 25.2 (computed)
+- 6 cells at 2.23 V, charger V: 13.38 (computed)
+- 12 cells at 2.23 V, charger V: 26.76 (computed)
+- 24 cells at 2.23 V, charger V: 53.52 (computed)
+- 55 cells at 2.23 V, charger V: 122.65 (computed)
+- 55 cells at 2.1 V, V: 115.5 (computed)
+- 55 cells at 2 V, V: 110 (computed)
+- Screen 6 low set point, V a cell: 2.15 (control)
+- Screen 6 high set point, V a cell: 2.45 (control)
+- Screen 7 raised float, V a cell: 2.35 (assumed)
+- Screen 8 boost set point, V a cell: 2.38 (control)
+- Temperature slider bottom, °C: 15 (control)
+- Temperature slider top, °C: 35 (control)
+- Float at 35 °C, V a cell: 2.22 (computed)
+- Float at 15 °C, V a cell: 2.28 (computed)
+- Correction for 10 degrees, mV a cell: 30 (computed)
+- Correction for 10 degrees, V a cell: 0.03 (computed)
+- Degrees from 25 °C on screens 10 and 11: 10 (computed)
+- 24 cells at 2.25 V, charger V: 54 (computed)
+- 24 cells at 2.22 V, charger V: 53.28 (computed)
+- Screen 12 charger reading, V: 51.6 (assumed)
+- Screen 12 per cell, 51.60 ÷ 24, V: 2.15 (computed)
+- 24 cells at 2.50 V, charger V: 60 (computed)
+- 24 cells at 2.40 V, charger V: 57.6 (computed)
+- One maker's no-correction range, low, °C: 10 (constant, source [10])
+- One maker's no-correction range, high, °C: 30 (constant, source [10])
+- Worked example room temperature, °C: 35 (assumed)
+- Worked example degrees above 30 °C: 5 (computed)
+- Worked example correction, V a cell: 0.015 (computed)
+- Worked example float, V a cell: 2.215 (computed)
+- Worked example charger, 55 cells, V: 121.8 (computed)
+- Cells in a 12 V block: 6 (constant, source [11])
+
+## The explanation Dan reads after playing (use the same words for the same things)
+A charger refills a lead-acid battery by holding a set voltage on every cell. It works in three stages: bulk, topping and float. The setting per cell sits in a narrow band. Set it a little too low, and sulphate builds on the negative plate. Set it too high, and the positive grid corrodes.
+
+Charging runs lesson 1's reaction backwards. The sulphate on both plates turns back into lead and lead dioxide. The acid returns to the liquid. In the bulk stage the charger holds its current steady. The volts per cell climb as the cell fills. When they reach the charge setting, the charger holds the volts instead. That is the topping stage. Now the current falls by itself, because the cell is saturating. With less sulphate left to turn back, the same volts push less current in. One common rule calls the cell full when the current has fallen to 3 to 5 per cent of its Ah rating. On a 100 Ah battery, that is 3 to 5 A. Then the charger drops to the float charge. A large stationary battery floats at about 2.25 V a cell at 25 °C. That is enough above its rested 2.1 V to push a small current. This small current makes up the cell's self-discharge. Holding the volts is what lets the current fall away. A fixed current would keep flowing into a full battery. A full cell cannot store that current, so it turns into heat and gas.
+
+Each cell's band comes from its own chemistry. Cells in series add their v…
+
+## Sources
+The only web addresses this page may contain, each only as a K.check {source} on a check whose label restates what that source's quote says (a result of your rule, or a fact about your drawing, takes no source; the caption names a source in words). The app rejects any other:
+[1] Flooded Stationary Lead Acid Batteries IOM — EnerSys (https://www.enersys.com/492013/globalassets/documents/product-documentation/powersafe/opzs/amer/amer-en-iom-ps-flooded-0223.pdf): "The recommended float / charge voltage is 2.23 V/cell remove per cell at 20°C (68°F) depending on the specific type (see table 5). The charger voltage amounts to Uflo per cell x no. of cells (tolerance ± 1 %)."
+[2] Bu 403 Charging Lead Acid — Battery University (https://batteryuniversity.com/article/bu-403-charging-lead-acid): "The recommended float voltage of most flooded lead acid batteries is 2.25V to 2.27V/cell. Large stationary batteries at 25°C (77°F) typically float at 2.25V/cell."
+[3] Flooded Stationary Lead Acid Batteries IOM — EnerSys (https://www.enersys.com/492013/globalassets/documents/product-documentation/powersafe/opzs/amer/amer-en-iom-ps-flooded-0223.pdf): "To reduce the recharge time the battery may be recharged at 2.33 – 2.40 V/cell with a current limited to 4 x I10. Boost charging must be switched to float charging when the fully charged state is reached."
+[4] Flooded Stationary Lead Acid Batteries IOM — EnerSys (https://www.enersys.com/492013/globalassets/documents/product-documentation/powersafe/opzs/amer/amer-en-iom-ps-flooded-0223.pdf): "After reaching the gassing voltage of 2.40 V/c a current limit of 2.5 to 5 A/100 Ah is recommended"
+[5] BU-404: What is Equalizing Charge? - Battery University (https://batteryuniversity.com/article/bu-404-what-is-equalizing-charge): "Applying a periodic equalizing charge brings all cells to similar levels by increasing the voltage to 2.50V/cell, or 10 percent higher than the recommended charge voltage."
+[6] Bu 403 Charging Lead Acid — Battery University (https://batteryuniversity.com/article/bu-403-charging-lead-acid): "the charge voltage should be reduced by 3mV per cell for every degree above 25°C and increased by 3mV per cell for every degree below 25°C."
+[7] Bu 403 Charging Lead Acid — Battery University (https://batteryuniversity.com/article/bu-403-charging-lead-acid): "full charge is reached when the current decreases to 3–5 percent of the Ah rating."
+[8] Bu 403 Charging Lead Acid — Battery University (https://batteryuniversity.com/article/bu-403-charging-lead-acid): "The correct setting of the charge voltage limit is critical and ranges from 2.30V to 2.45V per cell."
+[9] Battery University | BU-303: Confusion with Voltages (http://www.batteryuniversity.com/article/bu-303-confusion-with-voltages): "The nominal voltage of lead acid is 2 volts per cell, however when measuring the open circuit voltage, the OCV of a charged and rested battery should be 2.1V/cell."
+[10] Flooded Stationary Lead Acid Batteries IOM — EnerSys (https://www.enersys.com/492013/globalassets/documents/product-documentation/powersafe/opzs/amer/amer-en-iom-ps-flooded-0223.pdf): "If the average battery temperature exceeds the recommended operating temperature range of +10°C (50°F) to +30°C (86°F), the float charge voltage shall be reduced by (Tcell - 30) x 0.003V/ cell when the temperature exceeds +30°C (86°F)"
+[11] 17.5 Batteries and Fuel Cells - Chemistry 2e | OpenStax (https://openstax.org/books/chemistry-2e/pages/17-5-batteries-and-fuel-cells): "Some batteries are designed for single-use applications and cannot be recharged (primary cells), while others are based on conveniently reversible cell reactions that allow recharging by an external power source (secondary cells)."
+[12] Bu 403 Charging Lead Acid — Battery University (https://batteryuniversity.com/article/bu-403-charging-lead-acid): "On one hand, the battery wants to be fully charged to get maximum capacity and avoid sulfation on the negative plate; on the other hand, over-saturation by not switching to float charge causes grid corrosion on the positive plate."
+
+## Dan and how he learns
+- He learns best by doing: something visual he can push and watch respond. Warm, plain words, first principles; no jargon unless explained.
+- He uses an Android phone (this frame is about 340 px wide there, touch only) and a laptop (about 1000 px, where K.stage puts the controls beside the visual). Design for the phone first.
+
+## Rules for this page
+- There is no guess to protect: show everything from the start (no k-after-move), curves and results included.
+- The lead line says what is drawn, plainly ("Water from a 5 m drop hits the blades of a wheel"), not what to do: the app gives the action above the frame. Example values are said once there ("an example stream: a 5 m drop, 20 kg of water each second"), then the drawing labels them plainly ("5 m"), never "for example" on the drawing.
+- Every label and arrow sits on, or starts from, the thing it is about: a force arrow starts on the part it pushes; a speed arrow on the part that moves. Anything the rule says turns or flows does so (K.anim), at a speed that follows its control.
+- The .say sentence must make sense on its own to someone who has just read the explanation: what is happening on screen now, cause then effect, in everyday words; no term, threshold or comparison the page or the explanation has not named; a number as part of its whole ("353 W of the stream's 981 W is carried off by the water"). Bad: "The buckets move slower than half the jet speed, so the water still leaves going backwards, taking 353 W away with it." Good: "The buckets are moving slowly, so the water bounces off them still moving fast, and carries 353 W of its 981 W away downstream."
+- A key for the main drawing sits inside the drawing; show each quantity once (a bar, a readout or a curve, not all three); every number drawn that is worked out (a speed from a drop) is explained in "What you're looking at", or is left off.
+- Draw the cause the explanation gives, not only its effect, and let Dan cause it (a drag, a push, a switch); include the setting where the effect does not happen.
+- Mark the brief's one quantity on the picture itself, with a label saying what it is and its value (a bracket between the two heights reading "2.4 m"); an output with a readout is marked without its number, which the readout alone shows (the app hides it while Dan answers a check).
+- A shaded band states something true of the axis it spans: inputs across x, outputs across y. To show many inputs giving nearly the same output, shade the narrow output band (regions {y0, y1}).
+- Draw every comparison the explanation makes the same way, in the same place, on the axis where the effect happens. A time period is a bracket or thin band along the time axis, not a tall block.
+- Give each reference line its own look and a label beside it; every styled line is in the key or labelled on the drawing.
+- Draw only what the brief, the rule or the explanation names, with the same names. An extra figure says on itself how to read it: what its line stands for and which way is which.
+- Show only the numbers listed above or computed from the rule, each written the way the explanation writes it (the same rounding).
+- Any example cases you choose are fair and representative, never picked to exaggerate the effect.
+- Money, health and law: show how it works, never advice, and never a guaranteed outcome.
+
+## The house kit (complete API reference)
+You write the BODY of one page: HTML, an optional `<style>`, then one inline `<script>` ending
+with `K.ready()`. It runs in a sandboxed iframe on Dan's phone (about 340 px wide, touch) and
+laptop, with the global `K` and the kit's stylesheet. No network or storage: no web
+addresses, `fetch`, `localStorage`, `alert` or `prompt`.
+
+### Page shape that works
+1. `<p class="lead">`: one line saying what is drawn (the app adds title and action).
+2. The main visual with its controls right under it: `K.stage('#scene', '#controls')` keeps the
+   pair on one phone screen. A choice that re-sorts the picture may sit above it.
+3. `<p class="say">`: one sentence that changes with the state and says why. Then
+   `<div class="k-readouts">` for numbers the drawing does not label.
+4. Secondary figures and anything that grows go below.
+5. `<p class="caption">`: one short sentence, at most 20 words: where the numbers come from ("A
+   sketch, not measured data") or the rule in the explanation's words. No new claim, no law or
+   term the explanation does not teach. The app shows what the model leaves out.
+
+### Keep the answer hidden until Dan moves
+Dan predicts before he plays: open on a setting the question is not about, and hide whatever
+gives the answer away until his first move:
+- class `k-after-move` on any element (a mark, an arrow, a sentence): hidden, its space kept.
+  Hide the answer, not the controls or a whole figure (a blank hole fails the test).
+- `K.readout({..., afterMove: true})` shows "?" until then; plot series and marks take `afterMove: true` too.
+- `K.moved` is true from then on: in `K.update`, write `K.moved ? answer : question`.
+- `K.afterMove(fn)` runs `fn` once at that moment; `K.reveal()` marks it from your handlers.
+
+### The pipeline
+Controls register themselves; their values form `params` = `{id: value}`.
+```
+K.model(fn)        fn(params) -> outputs {name: number | string}. Pure: no DOM, no lists or objects.
+K.update(fn)       fn(params, outputs): draw everything here. More than one is allowed.
+K.at(over)         -> outputs of the model at those params (others take each control's starting value)
+K.check(label, fn, {source?})   fn() must return exactly true
+K.ready()          call once, last: draws the opening state and runs the checks
+K.complete()       at the lesson's end
+K.params()  K.outputs()  K.refresh()   (refresh reruns the pipeline after you change your own state)
+```
+A readout whose id is an output key updates itself.
+
+### Controls
+Every control takes `into` (a selector or element). Ids are unique; use the lesson's ids exactly.
+```
+K.control({id, label, min, max, step, value, unit?, prefix?, fmt?, log?, snap?, hint?, into}) -> {el, get(), set(v)}
+K.choice({id, label, options: [value | {value, label}], value, hint?, into}) -> {el, get, set}
+K.toggle({id, label, value: false, hint?, into}) -> {el, get, set}
+K.stepper({id, steps: [title | {title, text}], value: 0, compact?, label?, into}) -> {el, get, set, setSteps(list)}
+K.button({label, press, secondary?, into}) -> {el, press(), setLabel(text)}
+K.drag(el, {control, toValue(x, y)}) -> {el}
+```
+`control` is a big slider with − / + buttons. Keep `unit` short; `fmt(v)` returns the whole text;
+`log: true` spans decades; `snap: [values]` lands a drag exactly on a setting the prediction or a
+check names. `choice`: 2-8 short named options; `value` is an option's value or its 0-based
+index. `stepper` walks a process with Back / Next (`compact: true` when your diagram shows the
+content). `button` is an action (Send it in): use it, not plain buttons. `drag` lets Dan move
+the thing itself: `toValue` maps the pointer (viewBox units; px from `el`'s top-left for HTML)
+to the control's value; the first touch counts as his move.
+
+### Outputs
+```
+K.readout({id, label, unit?, prefix?, decimals?, fmt?, big?, hint?, afterMove?, into}) -> {el, set(v), get(), text()}
+```
+One rounding everywhere a number appears: `decimals` matching the lesson text, and the `.say`
+sentence built with `K.fmt(v, {decimals})` or `readout.text()`. Labels under 30 characters.
+While Dan answers a lesson check, the app hides that output's readout and the `.say` lines:
+never repeat a readout's value elsewhere (a label, an aria-label).
+```
+K.plot(target, opts) -> {draw(opts), x(v), y(v), invert(px, py), el, canvas}
+```
+- `x`, `y`: `{min, max, label, log?, prefix?, unit?, fmt?, ticks?}`. Leave out `y.min`/`y.max` to fit the data.
+- `series`: `[{fn: x => y | points: [[x, y], ...], label?, color?, dash?, width?, fill?, dots?, gaps?, afterMove?}]`
+- `shade`: `[{between: [a, b], label?, color?, x0?, x1?}]`: fills between two series (by label), a
+  series and a constant, or two functions.
+- `marks`: `[{x, y, label?, color?, guides?, afterMove?}]`: a dot with a label pill; `guides` adds dashed lines to the axes.
+- `regions`: `[{x0, x1, label?} | {y0, y1, label?}]` (a band); `lines`: `[{x | y, label?}]` (a dashed line).
+- `label`: the text alternative; `height`; `after(ctx, plot)` draws extras using `plot.x()`, `plot.y()`.
+
+`draw(opts)` redraws with `opts` over the creation options: call it in `K.update`. Values must be
+finite (`gaps: true` only where a gap is real). Series are navy, then teal; `color: 'muted',
+dash: true` for a baseline.
+```
+K.bars(target, {max?, unit?, prefix?, decimals?, fmt?}) -> {draw(items)}      items: [{label, value, color?}], values >= 0
+K.anim({step(dt, t), reset?, label?, autoplay?, button?, into}) -> {el, play, pause, toggle, reset, playing()}
+```
+`anim` adds a Play button (text `label`); `reset` adds Reset. When a switch, button or drag
+already starts the motion, pass `button: false` and call `play()` from that control: one control
+per action. In `step` advance your state (`dt` in seconds) and redraw; return `false` to stop. To
+drive a slider, keep the exact value yourself (the slider moves in whole steps).
+
+### Sound
+```
+K.sound.tone(hz, {dur?, type?, gain?})   K.sound.chord([hz, ...], {dur?, stagger?})   K.sound.stop()   K.sound.mute(on)
+K.sound.hold(hz, {type?, gain?, max?}) -> {set({hz?, gain?}), stop(), playing()}
+```
+`dur` in seconds (at most 10). Sound plays only from a `K.button` press, never `K.update`; show
+what is sounding. `hold` keeps a tone going while `set()` follows a slider. Phones can't play
+below about 150 Hz: use 200 to 2,000 Hz.
+
+### Drawings and helpers
+```
+K.el(tag, attrs?, ...children)    attrs: class, style, on: {click: fn}, text, html, dataset, any attribute
+K.svg(tag, attrs?, ...children)   the same in the SVG namespace
+K.labels(group, [{x, y, text, anchor?, size?, class?, color?}], {avoid?}) -> [<text>]
+K.stage(visual, controls, {max?, beside?}) -> {el}
+K.fmt(v, {decimals?, sig?, prefix?, unit?, percent?, sign?, compact?}) -> '1,234.5', '−3', '2.5 × 10⁶'
+K.near(a, b, tol)   K.clamp(v, lo, hi)   K.lerp(a, b, t)   K.linspace(a, b, n)   K.color(role, alpha?)
+K.ease(p)   K.arrive(T, t0, dur?)   K.fade(el, a, rise?)
+```
+Give an `<svg>` a viewBox about 340 wide, `width="100%"`, `role="img"` and an `aria-label` that
+follows the state. Text 13-16 units, never under 12 (a phone shows 340 units at about 0.9x). A
+row of N labels gets about 300/N units each; label only what differs. Every label sits on, or
+points to, something drawn. `K.labels` places labels (13 units unless `size`) clear of other
+text, the edges and the lines or shapes in `avoid`: use it for labels that move or appear later.
+Put an angle's label inside its wedge, beyond the arc, hidden while the wedge is too narrow.
+`K.stage` fits the pair in `max` px (600) on a phone; `beside: false` keeps it stacked.
+
+Draw the mechanism as it physically works. If the explanation gives a reason (X because Y), draw
+Y so Dan can watch it; parts that fit are drawn fitting (teeth in teeth), never two identical
+icons joined by a line; whatever the rule says happens (slides, grips, multiplies) happens on screen.
+
+### Colour
+Colour carries meaning. Use these roles as `var(--k-…)` or `K.color('fill2')` (`K.color('accent2',
+0.3)` is see-through); a colour name fails the test.
+- Lines and text: `ink`, `muted` (secondary, comparisons), `accent2` (navy: the main thing,
+  controls), `accent` (teal: small labels, a second series), `warn` (red: warnings and mistakes
+  only), `good` (green: "done" only), `amber-line` (amber lines that must stand out).
+- Fills: `bg` (page), `panel`, `sunk`, `amber` (note box), `hl` (key-term highlighter), `fill1`
+  (area of the main thing), `fill2` (highlighted area, amber), `fill3` (area of a second thing).
+- `cat1`-`cat4` (blue, orange, magenta, aqua): telling equal things apart, never meaning; with a
+  key or labels; cat1 and cat2 first. A thing with a familiar colour (water, fire) never gets
+  another thing's colour: use the nearest role and label it. What is still there stays solid:
+  mark a state such as unused with a label, not by fading it, and key any dashed style.
+- Also `--k-line`, `--k-strong` (borders), `--k-on-accent2` (text on navy), `--k-font`, `--k-r` (radius).
+
+Never describe colours by lightness or hue in words Dan reads ("the dark square"): dark mode
+changes them.
+
+Classes: `muted`, `small`, `k-label` (small teal caps), `term` (key term), `note` (amber box),
+`warn-note`, `panel`, `row`, `grid2`, `big`, `k-btn` (`secondary`), and a legend:
+`<div class="key"><span><i class="swatch" style="background:var(--k-accent2)"></i>Your push</span>
+<span><i class="swatch line dash" style="color:var(--k-muted)"></i>The limit</span></div>`.
+
+### Rules for a great interactive
+- One idea. The answer to Dan's prediction shows within about 3 seconds of his first move (add
+  a K.check that it does). Include something Dan causes and a case that surprises. One or two
+  controls, three at most.
+- Phone first: nothing wider than 340 px, no fixed widths over 300 px, rows wrap, no hover-only
+  information, tap targets at least 44 px. Size tiles and grid columns in rem (`minmax(6rem,
+  1fr)`): text grows a quarter at Text size XL, and no word may split across two lines.
+- Every number shown is a control, computed by the rule shown, a constant from the lesson, an
+  example value named once in the lead, or a date from the lesson. Never invent data, rates or chances.
+- The `.say` sentence describes what is on screen now, plainly and warmly, and reads right at the
+  extremes ("none of the 100"). Never claim Dan did something ("When you slid it to 20"):
+  describe the state, or write conditionally ("Push it past 20 and…").
+- 3-5 `K.check` known answers worked out by hand: an edge case, a shape fact (rises, halves,
+  always last), and one answer from outside your formula. `source` may ONLY be a URL from the
+  lesson's own sources, and only on a check whose label restates what that source's quote says;
+  a result of your rule, or a fact about your drawing, takes none. Compare numbers with
+  `K.near(a, b, tol)`: tolerance about a millionth of the size, a thousandth where rounding meets roots.
+- `K.anim` for motion, never timers: soft, unhurried, nothing popping in. Parts arrive about 0.6
+  s apart by `K.fade(el, K.arrive(T, t0))`; travel and growth use `K.ease`; a demonstration takes
+  3-5 s. No `vh` units, `position: fixed` or `height: 100%`.
+- Ideas without numbers (mechanism, process, structure, history, concept): prefer a timeline
+  slider, a named choice, a sorter or a drag; use `K.stepper` only when every step changes the
+  drawing. Checks assert order and structure facts.
+- A timeline runs forward: a slider rising left to right, its `fmt` showing the date (−500 as
+  "500 BC"), or a stepper of named events in order. A lesson's calendar-year control keeps its
+  range, its `fmt` showing the year; years after the first date are for new controls. Each dated
+  event appears as he reaches its date.
+
+### The self-test
+Before Dan sees it, the app loads your body 340, 720 and 1040 px wide, runs every check, moves
+every control, button, animation and drag, reveals the after-move parts, and looks again at Text
+size XL and in the other theme. It fails on an exception, NaN or undefined on the page, an update
+over 150 ms, sideways overflow, text cut off or over other text, SVG text under 11 px on a phone,
+a line or arrowhead through a label, text under 3:1 contrast with what is behind it, a colour
+name, a blank hole until a move, or no `K.ready()`.
+
+### Example
+```html
+<p class="lead">Lengthen the string and watch each swing take longer.</p>
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+<p class="caption">Small swings only; g = 9.81 m/s² is gravity at the Earth's surface.</p>
+<script>
+  const g = 9.81;
+  const period = (L) => 2 * Math.PI * Math.sqrt(L / g);
+  K.control({ id: 'L', label: 'String length', min: 0.1, max: 3, step: 0.05, value: 1, unit: 'm', snap: [2], into: '#controls' });
+  K.stage('#plot', '#controls');
+  K.readout({ id: 'T', label: 'One full swing takes', unit: 's', decimals: 2, into: '#outs' });
+  const plot = K.plot('#plot', { x: { min: 0, max: 3, label: 'Length (m)' }, y: { min: 0, max: 4, label: 'Period (s)' } });
+  K.model((p) => ({ T: period(p.L) }));
+  K.update((p, o) => {
+    plot.draw({ series: [{ fn: period }], marks: [{ x: p.L, y: o.T, guides: true }] });
+    document.getElementById('say').textContent = !K.moved ? 'Make the string four times longer: how much longer is each swing?'
+      : 'A ' + K.fmt(p.L, { decimals: 2 }) + ' m string swings there and back every ' + K.fmt(o.T, { decimals: 2 }) + ' s. Four times the length only doubles that.';
+  });
+  K.check('No length, no swing time', () => K.near(period(0), 0));
+  K.check('A seconds pendulum (2 s per swing) is 0.994 m long', () => K.near(period(0.994), 2, 0.002),
+    { source: 'https://en.wikipedia.org/wiki/Seconds_pendulum' });
+  K.check('Four times the length doubles the period', () => K.near(K.at({ L: 2 }).T / K.at({ L: 0.5 }).T, 2, 1e-9));
+  K.ready();
+</script>
+```
+
+
+## A finished example (kind: process). Match its standard and structure, not its topic. Its SOURCE line and {source} addresses belong to that example's own lesson: never copy them
+<!-- kind: process -->
+<style>
+  .flow { list-style: none; padding: 0; margin-top: 6px; }
+  .start { margin-left: 40px; }
+  .grp { position: relative; display: block; margin: 16px 0 4px 40px; }
+  .row-item { position: relative; }
+  /* The thread joining the stages runs behind the dots and through the group labels. */
+  .row-item::before, .grp::before { content: ""; position: absolute; width: 2px; background: var(--k-line); }
+  .row-item::before { left: 13px; top: 0; bottom: 0; }
+  .grp::before { left: -27px; top: -16px; bottom: -4px; }
+  .flow > li:first-child .row-item::before { top: 22px; }
+  .flow > li:last-child .row-item::before { bottom: auto; height: 22px; }
+  .stage {
+    position: relative; display: flex; align-items: center; gap: 12px; width: 100%; min-height: 44px;
+    padding: 6px 0; border: 0; background: none; text-align: left; cursor: pointer; color: var(--k-muted); font: inherit;
+  }
+  .dot {
+    flex: none; display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%;
+    border: 2px solid var(--k-strong); background: var(--k-bg); font-size: 13px; font-weight: 700; color: var(--k-muted);
+  }
+  .stage.done { color: var(--k-ink); }
+  .stage.done .dot { background: var(--k-accent2); border-color: var(--k-accent2); color: var(--k-on-accent2); }
+  .stage.now { color: var(--k-ink); font-weight: 700; }
+  .stage.now .dot { border-color: var(--k-accent2); color: var(--k-accent2); box-shadow: 0 0 0 4px color-mix(in srgb, var(--k-accent2) 16%, transparent); }
+  .stage.skip { text-decoration: line-through; opacity: .55; }
+  .loop { display: inline-flex; align-items: center; gap: 4px; font-size: .85rem; font-weight: 600; color: var(--k-accent); }
+  .loop svg { width: 16px; height: 16px; }
+  .detail { margin: 0 0 8px 40px; padding: 10px 14px; border-radius: 12px; background: var(--k-panel); }
+</style>
+
+<p class="lead">Follow a bill on its way to becoming law. Then flip the switch to see what happens when the second House changes it.</p>
+
+<div>
+  <span class="k-label start">The House where it starts</span>
+  <ol class="flow" id="flow" aria-label="Stages of a bill"></ol>
+</div>
+
+<div class="k-controls" id="controls"></div>
+
+<p class="caption">Simplified from UK Parliament's guide to the passage of a bill; timings vary.</p>
+
+<script>
+  const SOURCE = 'https://www.parliament.uk/about/how/laws/passage-bill/';
+  const LOOP = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6.5a4.5 4.5 0 0 1 8.4-2.2M13 9.5a4.5 4.5 0 0 1-8.4 2.2M11.6 1.8v2.7H8.9M4.4 14.2v-2.7h2.7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+  // Each stage in order. `group` starts a labelled section of the diagram.
+  const FIRST = [
+    { key: 'first', title: 'First reading', text: 'The bill is introduced: its title is read out and it is printed. There is no debate and no vote yet.' },
+    { key: 'second', title: 'Second reading', text: 'The first debate, about the bill\'s main ideas rather than its details. Members can vote it down here.' },
+    { key: 'committee', title: 'Committee stage', text: 'Members go through it line by line and can change the wording. Each change is called an amendment.' },
+    { key: 'report', title: 'Report stage', text: 'The whole House looks at the amended bill and can make more changes.' },
+    { key: 'third', title: 'Third reading', text: 'A last debate on the bill as a whole. In the Commons it can no longer be changed at this point; in the Lords it still can.' },
+  ];
+  const OTHER = { key: 'other', title: 'The same five stages again', group: 'The other House', text: 'The bill goes through first reading to third reading in the other House. (A bill can start in either the Commons or the Lords.)' };
+  const PING = { key: 'ping', title: 'Consideration of amendments', group: 'Back to the first House', text: 'The House where it started votes on the other House\'s changes. If they still disagree, the bill goes back and forth (nicknamed ping-pong) until both agree on every word.' };
+  const ASSENT = { key: 'assent', title: 'Royal Assent', group: 'The monarch', text: 'The monarch formally agrees, and the bill becomes an Act of Parliament: it is now law.' };
+  const ALL = FIRST.concat([OTHER, PING, ASSENT]);
+  const stepsFor = (amended) => FIRST.concat([OTHER], amended ? [PING] : [], [ASSENT]);
+
+  const step = K.stepper({ id: 'step', steps: stepsFor(true).map((s) => s.title), value: 0, compact: true, into: '#controls' });
+  const amended = K.toggle({ id: 'amended', label: 'The other House amends it', hint: 'It changes the wording, so both Houses must agree', value: true, into: '#controls' });
+
+  // Build the diagram once; each update only changes classes and text.
+  const flow = document.getElementById('flow');
+  const rows = {};
+  ALL.forEach((s) => {
+    const btn = K.el('button', { type: 'button', class: 'stage' }, K.el('span', { class: 'dot' }), K.el('span', { class: 'name' }, s.title));
+    const detail = K.el('p', { class: 'detail', hidden: true });
+    const li = K.el('li', null, s.group ? K.el('span', { class: 'k-label grp' }, s.group) : null, K.el('div', { class: 'row-item' }, btn, detail));
+    btn.addEventListener('click', () => { const i = stepsFor(amended.get()).findIndex((x) => x.key === s.key); if (i >= 0) step.set(i); });
+    flow.appendChild(li);
+    rows[s.key] = { btn, detail, dot: btn.querySelector('.dot') };
+  });
+  // The ping-pong row carries a loop badge: the stage that can repeat.
+  const badge = K.el('span', { class: 'loop', html: LOOP + 'repeats until both agree' });
+  rows.ping.btn.querySelector('.name').appendChild(K.el('br'));
+  rows.ping.btn.querySelector('.name').appendChild(badge);
+
+  // The pure model: (step index, amended?) -> where the bill is (numbers and short strings only).
+  const orderFor = (amended) => stepsFor(amended).map((s) => s.title);
+  K.model((p) => {
+    const steps = stepsFor(p.amended);
+    const i = Math.min(Math.max(0, p.step), steps.length - 1);
+    return { total: steps.length, stage: steps[i].title, key: steps[i].key };
+  });
+
+  K.update((p, o) => {
+    step.setSteps(stepsFor(p.amended).map((s) => s.title));
+    const steps = stepsFor(p.amended);
+    ALL.forEach((s) => {
+      const r = rows[s.key], i = steps.findIndex((x) => x.key === s.key), cur = steps.findIndex((x) => x.key === o.key);
+      const skipped = i < 0;
+      r.btn.className = 'stage' + (skipped ? ' skip' : i < cur ? ' done' : i === cur ? ' now' : '');
+      r.btn.disabled = skipped;
+      r.btn.setAttribute('aria-current', i === cur ? 'step' : 'false');
+      r.dot.textContent = skipped ? '' : String(i + 1);
+      r.detail.hidden = i !== cur;
+      if (i === cur) {
+        let text = s.text;
+        if (s.key === 'other') text += p.amended ? ' Here it makes changes, so the bill has to go back.' : ' It makes no changes, so the bill is ready for Royal Assent.';
+        r.detail.textContent = text;
+      }
+      if (s.key === 'ping') {
+        r.btn.querySelector('.name').firstChild.textContent = skipped ? 'Consideration of amendments: not needed' : s.title;
+        badge.hidden = skipped;
+      }
+    });
+  });
+
+  // Known answers from UK Parliament's guide.
+  K.check('Each House\'s stages run: first reading, second reading, committee, report, third reading', () =>
+    orderFor(false).slice(0, 5).join('|') === 'First reading|Second reading|Committee stage|Report stage|Third reading', { source: SOURCE });
+  K.check('With amendments there are 8 steps; without, 7 (no ping-pong)', () =>
+    K.at({ amended: true }).total === 8 && K.at({ amended: false }).total === 7);
+  K.check('Royal Assent is always the last step', () =>
+    [true, false].every((a) => K.at({ amended: a, step: 99 }).stage === 'Royal Assent' && orderFor(a).indexOf('Royal Assent') === orderFor(a).length - 1));
+  K.check('Ping-pong comes after the other House and before Royal Assent', () => {
+    const o = orderFor(true);
+    return o.indexOf('Consideration of amendments') === o.indexOf('The same five stages again') + 1 && o.indexOf('Royal Assent') === o.length - 1;
+  });
+
+  K.ready();
+</script>
+
+## Output
+Return ONLY the body: HTML elements, an optional <style>, then one inline <script> that ends with K.ready(). No <html>, <head> or <body> tags, no markdown fences, no commentary before or after. Keep it under 40 KB.

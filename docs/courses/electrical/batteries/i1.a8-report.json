@@ -1,0 +1,215 @@
+{
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "The nominal voltage of lead-acid is 2 V per cell, and a charged and rested cell reads 2.1 V",
+        "ok": true,
+        "source": "http://www.batteryuniversity.com/article/bu-303-confusion-with-voltages"
+      },
+      {
+        "label": "The cell's voltage is the gap between its plates, 1.685 + 0.356 = 2.04 V, drawn on the ladder with both plate voltages; the slip 1.685 − 0.356 makes 1.33 V",
+        "ok": true
+      },
+      {
+        "label": "In series, 6, 12 and 24 cells are 12, 24 and 48 V nominal and read 12.6, 25.2 and 50.4 V charged and rested, and the picture draws that many cells",
+        "ok": true
+      },
+      {
+        "label": "Plate size sets the ampere-hours, not the volts: the example cell gives 100 Ah at 1× and 400 Ah at 4×, and its voltmeter reads 2.1 V both times",
+        "ok": true
+      },
+      {
+        "label": "During discharge both plates become lead sulphate and much of the acid is used up: as the charge falls, sulphate spreads over both plates and acid dots leave the liquid, though a flat cell keeps some",
+        "ok": true,
+        "source": "https://www.sciencedirect.com/topics/materials-science/lead-acid-battery"
+      },
+      {
+        "label": "During charging the acid gets stronger, and during discharge it weakens: the gauge follows the charge left both ways and stays above water at flat",
+        "ok": true,
+        "source": "https://edu.rsc.org/experiments/rechargeable-cells-the-lead-acid-accumulator/391.article"
+      },
+      {
+        "label": "At the negative plate, lead reacts with the acid to form lead sulphate and frees electrons: on discharge they leave the lead plate's terminal and run round the wire through the lamp to the lead dioxide plate, the other way on charge, and no electron path enters the acid",
+        "ok": true,
+        "source": "https://www.osti.gov/servlets/purl/1502636"
+      },
+      {
+        "label": "Ions carry the current in the acid: on discharge positive ions drift towards the lead dioxide plate and negative ions towards the lead plate, reversed on charge, and with both switches open nothing flows",
+        "ok": true
+      },
+      {
+        "label": "Each puzzle accepts only its right answer, and nothing in a puzzle's picture gives the answer before Check",
+        "ok": true
+      },
+      {
+        "label": "Every demonstration finishes arriving within 4.6 s of its screen opening, and every answer's motion within 2.5 s",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "charge",
+      "circuit",
+      "size",
+      "cells"
+    ],
+    "readouts": [],
+    "outputs": [
+      "restVolts",
+      "ampHours"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Step",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "steps": [
+          "A charged cell",
+          "A lamp",
+          "Charge running down",
+          "The acid",
+          "Round the wire",
+          "Through the acid",
+          "Charging",
+          "What charging does",
+          "Two plates, two voltages",
+          "The gap",
+          "Bigger plates, more cells",
+          "Small and large",
+          "A 24 V battery"
+        ],
+        "value": 0
+      },
+      {
+        "id": "charge",
+        "kind": "control",
+        "label": "Charge left",
+        "min": 0,
+        "max": 100,
+        "step": 1,
+        "log": false,
+        "value": 100,
+        "shown": false,
+        "snap": [
+          0,
+          50,
+          100
+        ]
+      },
+      {
+        "id": "circuit",
+        "kind": "choice",
+        "label": "Switches",
+        "options": [
+          "open",
+          "load",
+          "charge"
+        ],
+        "labels": [
+          "Both open",
+          "Lamp",
+          "Charger"
+        ],
+        "value": "open",
+        "index": 0,
+        "shown": false
+      },
+      {
+        "id": "size",
+        "kind": "control",
+        "label": "Plate size",
+        "min": 1,
+        "max": 4,
+        "step": 0.5,
+        "log": false,
+        "value": 1,
+        "shown": false,
+        "snap": [
+          4
+        ]
+      },
+      {
+        "id": "cells",
+        "kind": "choice",
+        "label": "Cells in series",
+        "options": [
+          1,
+          6,
+          12,
+          24
+        ],
+        "labels": [
+          "1",
+          "6",
+          "12",
+          "24"
+        ],
+        "value": 1,
+        "index": 0,
+        "shown": false
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Play again",
+      "Back",
+      "Continue",
+      "Start again",
+      "Demonstration"
+    ],
+    "answers": [],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ]
+  },
+  "moved": [
+    "step = 2 (the first step that shows a control)",
+    "charge = 75",
+    "circuit = \"load\"",
+    "size = 3.25",
+    "cells = 6"
+  ],
+  "shots": [
+    "/home/user/Study-App/build/electrical/batteries/i1.a8-360-light.png",
+    "/home/user/Study-App/build/electrical/batteries/i1.a8-360-light-moved.png",
+    "/home/user/Study-App/build/electrical/batteries/i1.a8-360-light-end.png",
+    "/home/user/Study-App/build/electrical/batteries/i1.a8-360-dark.png",
+    "/home/user/Study-App/build/electrical/batteries/i1.a8-360-dark-moved.png",
+    "/home/user/Study-App/build/electrical/batteries/i1.a8-360-dark-end.png",
+    "/home/user/Study-App/build/electrical/batteries/i1.a8-1280-light.png",
+    "/home/user/Study-App/build/electrical/batteries/i1.a8-1280-light-moved.png",
+    "/home/user/Study-App/build/electrical/batteries/i1.a8-1280-light-end.png",
+    "/home/user/Study-App/build/electrical/batteries/i1.a8-1280-dark.png",
+    "/home/user/Study-App/build/electrical/batteries/i1.a8-1280-dark-moved.png",
+    "/home/user/Study-App/build/electrical/batteries/i1.a8-1280-dark-end.png"
+  ]
+}

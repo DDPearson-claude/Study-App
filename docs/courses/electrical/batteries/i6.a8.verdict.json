@@ -1,0 +1,266 @@
+{
+  "ok": false,
+  "reachChecked": true,
+  "problems": [
+    "While sweeping the controls: output \"shareA\" has a readout, and the text \"Two strings of 10 mΩ share a 100 A load…\" (<p#task.task>) prints its value too: while Dan answers a check on it, the app hides only the readout and the .say line, so this gives the answer away. Show that value in its readout alone (no label or aria-label repeating it)",
+    "While sweeping the controls: output \"smallHolds\" has a readout, and the text \"Six cells in series make a string. Each…\" (<p#task.task>) prints its value too: while Dan answers a check on it, the app hides only the readout and the .say line, so this gives the answer away. Show that value in its readout alone (no label or aria-label repeating it)"
+  ],
+  "report": {
+    "ok": false,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "One current passes every cell: after 4 h at 10 A every tank has given the same 40 Ah, leaving 60 Ah in each big tank and 40 Ah in the small one",
+        "ok": true
+      },
+      {
+        "label": "The weak cell holds less and is emptied first: at 10 A the 80 Ah cell is empty after 8 h, while each 100 Ah cell still holds 20 Ah",
+        "ok": true,
+        "source": "https://batteryuniversity.com/article/bu-803a-cell-mismatch-balancing"
+      },
+      {
+        "label": "A string lasts as long as its smallest cell: a 70 Ah cell at 10 A is empty after 7 h, where the average of the six would say 9.5 h and the big cells 10 h",
+        "ok": true
+      },
+      {
+        "label": "Once the weak cell is empty, the strong cells push it into reverse polarity: at 9 h and 10 h the 80 Ah cell is drawn reversed, at 8 h it is not, and six equal cells never reverse",
+        "ok": true,
+        "source": "https://batteryuniversity.com/article/bu-803a-cell-mismatch-balancing"
+      },
+      {
+        "label": "On charge the weak cell is full first and then goes into heat-making overcharge while the strong cells still take charge: from flat at 10 A, the 80 Ah cell is full at 8 h and gassing at 9 h, when the 100 Ah cells hold 90 Ah and do not gas",
+        "ok": true,
+        "source": "https://batteryuniversity.com/article/bu-803a-cell-mismatch-balancing"
+      },
+      {
+        "label": "Float at 2.23 V a cell, and the charger voltage is the float voltage times the number of cells: 6 × 2.23 = 13.38 V, whatever the odd cell reads",
+        "ok": true,
+        "source": "https://www.enersys.com/492013/globalassets/documents/product-documentation/powersafe/opzs/amer/amer-en-iom-ps-flooded-0223.pdf"
+      },
+      {
+        "label": "Single cells may sit 0.05 V below to 0.10 V above the float voltage while the total stays right: the band runs from 2.18 to 2.33 V, so 2.38 V and 2.08 V fall outside it and 2.25 V inside",
+        "ok": true,
+        "source": "https://www.enersys.com/492013/globalassets/documents/product-documentation/powersafe/opzs/amer/amer-en-iom-ps-flooded-0223.pdf"
+      },
+      {
+        "label": "The other five share what is left: with the odd cell at 2.38 V they read 2.20 V each, and with it at 2.08 V (0.15 V below 2.23 V) they read 2.26 V each",
+        "ok": true
+      },
+      {
+        "label": "Parallel strings share the load inversely to their path resistance: cables of 2 and 6 mΩ give string A 57 A of 100 A, equal cables give 50 A, and 2 and 8 mΩ give 60 A",
+        "ok": true
+      },
+      {
+        "label": "Two blocks in series: the emfs add to 25.2 V and the resistances to 14 mΩ, so at 100 A the terminals read 25.2 − 1.4 = 23.8 V; taking off one block's 0.7 V gives 24.5 V",
+        "ok": true
+      },
+      {
+        "label": "Two 12 V 100 Ah blocks hold 2400 Wh either way: 24 V × 100 Ah in series and 12 V × 200 Ah in parallel",
+        "ok": true
+      },
+      {
+        "label": "Each puzzle accepts only its right answer, and nothing in its picture gives the answer before Check",
+        "ok": true
+      },
+      {
+        "label": "Fifteen screens: demonstrations and puzzles take turns, three mixed puzzles end it, and no demonstration says more than about 90 words",
+        "ok": true
+      },
+      {
+        "label": "Every demonstration settles within 4.6 s and ends where its screen says, and every answer's motion settles within 2.5 s",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": false,
+      "problems": [
+        "output \"shareA\" has a readout, and the text \"Two strings of 10 mΩ share a 100 A load…\" (<p#task.task>) prints its value too: while Dan answers a check on it, the app hides only the readout and the .say line, so this gives the answer away. Show that value in its readout alone (no label or aria-label repeating it)",
+        "output \"smallHolds\" has a readout, and the text \"Six cells in series make a string. Each…\" (<p#task.task>) prints its value too: while Dan answers a check on it, the app hides only the readout and the .say line, so this gives the answer away. Show that value in its readout alone (no label or aria-label repeating it)"
+      ]
+    },
+    "controls": [
+      "step",
+      "mode",
+      "hours",
+      "small",
+      "odd",
+      "cableA",
+      "cableB"
+    ],
+    "readouts": [
+      "through",
+      "smallHolds",
+      "shareA"
+    ],
+    "outputs": [
+      "through",
+      "smallHolds",
+      "shareA"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Screen",
+        "min": 0,
+        "max": 14,
+        "step": 1,
+        "steps": [
+          "One current",
+          "The small cell's share",
+          "The small cell runs out",
+          "How long it lasts",
+          "Driven backwards",
+          "Past empty",
+          "Full first",
+          "After full",
+          "Float hides it",
+          "Total on target",
+          "Strings in parallel",
+          "Cable share",
+          "Two blocks in series",
+          "Series or parallel",
+          "Low again"
+        ],
+        "value": 0
+      },
+      {
+        "id": "mode",
+        "kind": "choice",
+        "label": "Mode",
+        "options": [
+          "dis",
+          "chg",
+          "flt"
+        ],
+        "labels": [
+          "Discharge",
+          "Charge",
+          "Float"
+        ],
+        "value": "dis",
+        "index": 0,
+        "shown": false
+      },
+      {
+        "id": "hours",
+        "kind": "control",
+        "label": "Hours",
+        "min": 0,
+        "max": 12,
+        "step": 0.1,
+        "log": false,
+        "value": 0,
+        "shown": true,
+        "snap": [
+          4,
+          7,
+          8,
+          10
+        ]
+      },
+      {
+        "id": "small",
+        "kind": "choice",
+        "label": "Small cell, Ah",
+        "options": [
+          60,
+          70,
+          80,
+          90,
+          100
+        ],
+        "labels": [
+          "60",
+          "70",
+          "80",
+          "90",
+          "100"
+        ],
+        "value": 80,
+        "index": 2,
+        "shown": false
+      },
+      {
+        "id": "odd",
+        "kind": "control",
+        "label": "Odd cell",
+        "min": 2.03,
+        "max": 2.43,
+        "step": 0.01,
+        "log": false,
+        "value": 2.23,
+        "shown": false,
+        "snap": [
+          2.08,
+          2.23,
+          2.38
+        ]
+      },
+      {
+        "id": "cableA",
+        "kind": "control",
+        "label": "Cable A",
+        "min": 1,
+        "max": 10,
+        "step": 1,
+        "log": false,
+        "value": 2,
+        "shown": false,
+        "snap": [
+          2
+        ]
+      },
+      {
+        "id": "cableB",
+        "kind": "control",
+        "label": "Cable B",
+        "min": 1,
+        "max": 10,
+        "step": 1,
+        "log": false,
+        "value": 6,
+        "shown": false,
+        "snap": [
+          2,
+          6,
+          8
+        ]
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Play again",
+      "Back",
+      "Continue",
+      "Start again",
+      "Demonstration"
+    ],
+    "answers": [],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": false
+      },
+      {
+        "width": 720,
+        "ok": false
+      },
+      {
+        "width": 1040,
+        "ok": false
+      }
+    ],
+    "foreign": [],
+    "unreachable": []
+  }
+}

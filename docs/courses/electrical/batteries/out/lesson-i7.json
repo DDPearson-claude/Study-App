@@ -1,0 +1,736 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-27T16:48:48.150Z",
+ "startedAt": "2026-10-27T16:48:48.150Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i7",
+  "title": "Ageing, faults and the trend that finds them",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is one cell's impedance sit flat on its own baseline for ten quarters, then turn upward and climb past the threshold you pick, when you drag the quarters on.",
+   "title": "The trend that finds the cell",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Screen",
+     "min": 0,
+     "max": 14,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [
+    {
+     "id": "riseFromBase",
+     "label": "Rise from own baseline",
+     "unit": "%",
+     "decimals": 0
+    },
+    {
+     "id": "slope",
+     "label": "Fitted slope, last 4 readings",
+     "unit": "mΩ/qtr",
+     "decimals": 3
+    },
+    {
+     "id": "sdFromMean",
+     "label": "SDs from the string's mean",
+     "unit": "SD",
+     "decimals": 1
+    }
+   ],
+   "whatAmILookingAt": "A vented lead-acid string of 24 cells stands in a row, each cell a small tile. Above it sits a chart of impedance in mΩ against quarters. It runs from quarter 0 at commissioning to quarter 24, six years on. A quarters scrubber runs from 0 to 24. Each quarter adds one impedance reading to every cell. The reading at quarter 0 is each cell's baseline. The data are an example. The healthy cells start anywhere from 0.46 to 0.54 mΩ. They stay flat, wobbling by up to 0.005 mΩ a quarter. Leaving cell 17 out, the other 23 cells average 0.50 mΩ with an SD of 0.02 mΩ. Cell 17 starts at 0.50 mΩ and stays flat for ten quarters. After quarter 10 it climbs 0.02 mΩ each quarter. So it reads 0.60 mΩ at quarter 15 and 0.78 mΩ at quarter 24. Tap a cell to plot its readings, with a dashed line at its own baseline. Three readouts follow the tapped cell. The rise from its own baseline is (reading − baseline) ÷ baseline × 100. The fitted slope is the least-squares line through its last 4 readings, in mΩ a quarter. Its SDs from the string's mean is (reading − mean of the other 23) ÷ their SD. A threshold picker draws one line at a time on the tapped cell's chart. '20% rise' draws a line 20% above its baseline, 0.60 mΩ for cell 17. '30 to 50% band' draws a band from 30% to 50% above it, 0.65 to 0.75 mΩ. '150% of nominal' draws a line at 150% of nominal, 0.75 mΩ. It takes the baseline as nominal. Cell 17 reaches them at quarters 15, 18 and 23. A capacity-test button discharges the string at the quarter shown. The example string is rated 200 Ah at the 10-hour rate, so it runs at 20 A. A clock runs until the string reaches its end voltage. Capacity is the hours run ÷ 10 × 100. That holds because ampere-hours are amps × hours at a fixed current. An 80% line is drawn at 8 hours. The hours are a sketch. They hold at 9.7 hours, 97%, up to quarter 10. Then they fall 0.38 hours each quarter, to 7.8 hours, 78%, at quarter 15. A charging-history picker opens the flagged cell as a cut-away. 'Float below the band' shows hard sulphate crystals on the negative plate. 'Long spells at low charge' shows dense acid sunk to the bottom, starving the tops of the plates. 'Float above the band' shows the positive grid thinning and shedding lead. 'Valve-regulated, charged hard' shows gas venting and the mat drying out. A tag on each says what can still be done. On a phone the three readouts and the picker's options wrap onto further lines, and no word splits. Each show screen has under about 90 words. Each ends on what its finished picture shows, so it reads well without the controls. Screen by screen. 0 asks a recall question. One cell's quarterly readings rise six times in a row. It asks whether that is drift or noise. First choice: drift, because a run of six one way is rare by chance. Second: noise, because readings always wobble. Third: neither, until a seventh reading is in. The right pick says 'Still there: a run of six one way points to a cause.' Hint for noise: noise goes up and down at random, so six rises in a row is unlikely. Hint for a seventh: six in a row is already the usual signal. 1 says to judge each cell against its own first reading, not against its neighbours. It shows the string of 24 cells. Each cell is read for impedance every quarter. Its first reading, at commissioning, is its baseline. Cells differ from new, here from 0.46 to 0.54 mΩ. So one reading on its own says little about a cell's health. Most resistance-based testers predict health little better than tossing a coin. Tap a cell to plot its readings against its own baseline. Once cell 17 climbs, another cell's say line adds that the band widens because cell 17 is climbing. It ends at quarter 8 with cell 17 plotted, flat on its 0.50 mΩ baseline. 2 says cell A was commissioned at 0.46 mΩ and now reads 0.53 mΩ. Cell B started at 0.54 mΩ and still reads 0.54 mΩ. The string averages 0.50 mΩ. It asks which cell to watch. First choice: A, because it has risen about 15% from its own baseline. Second: B, because it reads highest. Third: neither, because both sit near the string's average. The right pick says 'That's it: A has moved 0.07 mΩ from where it started. B has not moved.' Hint for B: B has read 0.54 mΩ since it was new. That is just how it was made. Hint for neither: the average hides a change. Each cell's own baseline shows it. 3 opens on its point: a steady climb one way is drift, not noise. It drags the quarters on. For ten quarters cell 17 stays flat, wobbling a little like the rest. Then it turns upward by 0.02 mΩ a quarter and keeps going. The fitted slope through its last four readings rises from about zero to 0.020 mΩ a quarter. Its rise from its own baseline reaches 20%. It sits 5 SDs from the string's mean. It ends at quarter 15, with cell 17 reading 0.60 mΩ. 4 says a cell's baseline was 0.50 mΩ and it now reads 0.60 mΩ. It asks how far it has risen from its baseline. The choices are 20%, 120% or 0.10%. The right pick says 'That's it: 0.10 ÷ 0.50 = 0.2, a 20% rise.' Hint for 120%: that is the new reading as a share of the baseline. The rise is only the extra. Hint for 0.10%: 0.10 is the rise in mΩ. Divide it by the baseline. 5 adds the threshold picker. How big a rise matters is argued. Published lines run from a 20% rise, through a 30 to 50% band, to 150% of nominal. So use your maker's or plant's. The 20% line sits at 0.60 mΩ. The band runs from 0.65 to 0.75 mΩ. The 150% line sits at 0.75 mΩ. Cell 17 reaches them at quarters 15, 18 and 23. Pick one to draw it. It ends with the 20% line drawn. 6 says a cell has risen 25% from its baseline, and its trend still climbs. It asks what to do. First choice: book a capacity test, because the rise only flags the cell. Second: replace it, because it is past 20%. Third: leave it, because it is under 30%. The right pick says 'That's it: the trend points, and the test decides.' Hint for replace: a rise in impedance says where to look, not how much capacity is gone. Hint for leave: another line already flags it. And the trend is still climbing. 7 runs the capacity test. The example string is rated 200 Ah at the 10-hour rate. So it is discharged at 20 A. The clock runs until the string reaches its end voltage. At a fixed current, ampere-hours are amps × hours. So capacity is the hours run ÷ 10 hours. The replacement line is 80%, at 8 hours. The weakest cell sets how long the string lasts, as in lesson 6. It ends at quarter 15, with the clock stopped at 7.8 hours, 78%, short of the line. 8 says a string rated for 10 hours at 20 A reaches its end voltage after 8.5 hours. It asks what the test says. First choice: 85% of rated capacity, above the 80% line, so keep it and keep trending. Second: 85%, so replace it, because it has lost 15%. Third: too close to call, so test it again. The right pick says 'That's it: 8.5 ÷ 10 = 85%, and the line is 80%.' Hint for replace: every battery loses some capacity with age. The line is 80%. Hint for test again: one clean full discharge is the answer. The trend says when to test next. 9 opens the flagged cell. The trend says which cell. The test says how much it has lost. The charging record says why. A history picker shows four faults. Keep a cell short of full charge, and soft sulphate hardens into crystals on the negative plate. Leave it at low charge with shallow cycles, and the acid sinks and starves the tops of the plates. Float it too high for too long, and the positive grid softens and sheds. Charge a valve-regulated cell too hard, and it vents its gas and dries out. It ends on sulphation. 10 says a flooded string's float was set below the maker's band for a year. It asks which fault to expect. First choice: sulphation on the negative plates. Second: corrosion of the positive grid. Third: dry-out. The right pick says 'That's it: below the band the cells never quite reach full charge. So sulphate hardens.' Hint for corrosion: that speeds up when too high a voltage is held too long. Hint for dry-out: that comes from charging a valve-regulated cell too hard. This string floated too low. 11 tags each fault with what can still be done. An equalising charge is a deliberate overcharge of the whole string. It reverses sulphation that is caught in time. Its gassing also mixes stratified acid. Grid corrosion is permanent. A valve-regulated cell cannot be topped up, so dry-out stays. So the earlier the trend finds a cell, the more can still be saved. It ends with all four tags showing. 12, 13 and 14 mix the ideas. 12 says every cell in a flooded string has risen about 25% from its own baseline, all together. Cell 9 sits 0.3 SD from the string's mean. It asks whether the string is healthy. First choice: no, the whole string has drifted, so test its capacity. Second: yes, no cell stands out. Third: yes, 25% is under the 30% line. The right pick says 'That's it: comparing with the string finds an odd cell. Only each cell's own baseline shows them all ageing.' Hint for stands out: when every cell moves together, the mean moves with them. Hint for 30%: the lines disagree. 25% is already past one of them. 13 says the other 23 cells average 0.50 mΩ with an SD of 0.02 mΩ, and one cell reads 0.56 mΩ. It asks how unusual that is. First choice: 3 SDs out, rare by chance, so check its own trend. Second: only 0.06 mΩ out, so it is normal. Third: 3 SDs out, so replace it. The right pick says 'That's it: 0.06 ÷ 0.02 = 3 SDs. Chance alone seldom gives that.' Hint for 0.06: the spread sets the scale. Here the spread is 0.02 mΩ. Hint for replace: it may have read high since new. Its own trend and a capacity test decide. 14 says a valve-regulated string was left on boost charge for weeks, and now one cell's impedance climbs. It asks which fault fits, and whether an equalise will help. First choice: dry-out, and an equalise would make it worse. Second: sulphation, and an equalise will clear it. Third: stratification, and an equalise will mix it. The right pick says 'That's it: too much charge drove gas out of a cell that cannot be topped up.' Hint for sulphation: that follows too little charge. This string had too much. Hint for stratification: that follows long spells at low charge. And an equalise is more overcharge for a sealed cell.",
+   "ignores": "The readings are example data, drawn so the turn is easy to see. Real cells tend to creep upward a little with age. Readings also shift with temperature and with where the test leads sit. The 150% line takes each cell's baseline as its nominal value. A real nominal value comes from the maker. The capacity-test hours are a sketch that falls steadily once the climb starts. Real capacity does not follow impedance so neatly. That is why the test is needed. Each fault is drawn on its own, but a real cell often carries more than one. Time is sped up.",
+   "numbers": [
+    {
+     "label": "Screen control lowest",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Screen control highest",
+     "value": 14,
+     "kind": "control"
+    },
+    {
+     "label": "Cells in the example string",
+     "value": 24,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example flagged cell number",
+     "value": 17,
+     "kind": "assumed"
+    },
+    {
+     "label": "Other cells in the string",
+     "value": 23,
+     "kind": "computed"
+    },
+    {
+     "label": "Quarters scrubber start",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Quarters scrubber end",
+     "value": 24,
+     "kind": "control"
+    },
+    {
+     "label": "Years shown, 24 quarters",
+     "value": 6,
+     "kind": "computed"
+    },
+    {
+     "label": "Healthy baselines lowest, mΩ",
+     "value": 0.46,
+     "kind": "assumed"
+    },
+    {
+     "label": "Healthy baselines highest, mΩ",
+     "value": 0.54,
+     "kind": "assumed"
+    },
+    {
+     "label": "Healthy cells' wobble each quarter, up to, mΩ",
+     "value": 0.005,
+     "kind": "assumed"
+    },
+    {
+     "label": "Mean of the other 23 cells, mΩ",
+     "value": 0.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "SD of the other 23 cells, mΩ",
+     "value": 0.02,
+     "kind": "assumed"
+    },
+    {
+     "label": "Cell 17 baseline, mΩ",
+     "value": 0.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Quarters cell 17 stays flat",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Cell 17 climb after quarter 10, mΩ a quarter",
+     "value": 0.02,
+     "kind": "assumed"
+    },
+    {
+     "label": "Cell 17 at quarter 15, mΩ",
+     "value": 0.6,
+     "kind": "computed"
+    },
+    {
+     "label": "Cell 17 at quarter 24, mΩ",
+     "value": 0.78,
+     "kind": "computed"
+    },
+    {
+     "label": "Readings in the fitted slope",
+     "value": 4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Cell 17 fitted slope at quarter 15, mΩ a quarter",
+     "value": 0.02,
+     "kind": "computed"
+    },
+    {
+     "label": "Cell 17 rise at quarter 15, %",
+     "value": 20,
+     "kind": "computed"
+    },
+    {
+     "label": "Cell 17 SDs from the mean at quarter 15",
+     "value": 5,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 1 end quarter",
+     "value": 8,
+     "kind": "control"
+    },
+    {
+     "label": "Screen 3 end quarter",
+     "value": 15,
+     "kind": "control"
+    },
+    {
+     "label": "Run of rises that signals drift, a common convention",
+     "value": 6,
+     "kind": "constant"
+    },
+    {
+     "label": "Screen 2 cell A baseline, mΩ",
+     "value": 0.46,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 2 cell A now, mΩ",
+     "value": 0.53,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 2 cell B, mΩ",
+     "value": 0.54,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 2 string average, mΩ",
+     "value": 0.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 2 cell A's rise, mΩ",
+     "value": 0.07,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 2 cell A's rise, about, %",
+     "value": 15,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 4 rise, mΩ",
+     "value": 0.1,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 4 rise as a fraction",
+     "value": 0.2,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 4 wrong pick, new reading as a share, %",
+     "value": 120,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 4 wrong pick, mΩ read as %",
+     "value": 0.1,
+     "kind": "computed"
+    },
+    {
+     "label": "Impedance rise one maker links to about 80% capacity, flooded, %",
+     "value": 20,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "Capacity that rise goes with, %",
+     "value": 80,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "Concern band from baseline, bottom, %",
+     "value": 30,
+     "kind": "constant",
+     "source": 2
+    },
+    {
+     "label": "Concern band from baseline, top, %",
+     "value": 50,
+     "kind": "constant",
+     "source": 2
+    },
+    {
+     "label": "Impedance as a share of nominal, most cells below 80%, %",
+     "value": 150,
+     "kind": "constant",
+     "source": 3
+    },
+    {
+     "label": "20% line for cell 17, mΩ",
+     "value": 0.6,
+     "kind": "computed"
+    },
+    {
+     "label": "30% band edge for cell 17, mΩ",
+     "value": 0.65,
+     "kind": "computed"
+    },
+    {
+     "label": "50% band edge and 150% line for cell 17, mΩ",
+     "value": 0.75,
+     "kind": "computed"
+    },
+    {
+     "label": "Quarter cell 17 reaches the 20% line",
+     "value": 15,
+     "kind": "computed"
+    },
+    {
+     "label": "Quarter cell 17 enters the 30 to 50% band",
+     "value": 18,
+     "kind": "computed"
+    },
+    {
+     "label": "Quarter cell 17 reaches 150% of nominal",
+     "value": 23,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 6 rise, %",
+     "value": 25,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example string rating, Ah",
+     "value": 200,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example test rate, hours",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example test current, A",
+     "value": 20,
+     "kind": "computed"
+    },
+    {
+     "label": "Replacement line, % of rated capacity",
+     "value": 80,
+     "kind": "constant",
+     "source": 4
+    },
+    {
+     "label": "Replacement line on the clock, hours",
+     "value": 8,
+     "kind": "computed"
+    },
+    {
+     "label": "Sketch test time up to quarter 10, hours",
+     "value": 9.7,
+     "kind": "assumed"
+    },
+    {
+     "label": "Sketch capacity up to quarter 10, %",
+     "value": 97,
+     "kind": "computed"
+    },
+    {
+     "label": "Sketch fall in test time each quarter, hours",
+     "value": 0.38,
+     "kind": "assumed"
+    },
+    {
+     "label": "Test time at quarter 15, hours",
+     "value": 7.8,
+     "kind": "computed"
+    },
+    {
+     "label": "Capacity at quarter 15, %",
+     "value": 78,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 8 test time, hours",
+     "value": 8.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 8 capacity, %",
+     "value": 85,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 8 capacity lost, %",
+     "value": 15,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 12 example cell number",
+     "value": 9,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 12 SDs from the mean",
+     "value": 0.3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 13 odd cell, mΩ",
+     "value": 0.56,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 13 distance from the mean, mΩ",
+     "value": 0.06,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 13 SDs from the mean",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Analogy healthy insulation resistance, MΩ",
+     "value": 2000,
+     "kind": "assumed"
+    },
+    {
+     "label": "Analogy later insulation resistance, MΩ",
+     "value": 200,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example baseline, mΩ",
+     "value": 0.4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example first reading, mΩ",
+     "value": 0.42,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example second reading, mΩ",
+     "value": 0.44,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example third reading, mΩ",
+     "value": 0.46,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example fourth reading, mΩ",
+     "value": 0.48,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example rise, mΩ",
+     "value": 0.08,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example rise, %",
+     "value": 20,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example test time, hours",
+     "value": 7.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example capacity, %",
+     "value": 75,
+     "kind": "computed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "A cell that is wearing out often shows it slowly. Its impedance creeps up from where it started. Picture each fault taking plate or acid out of the work. The current then has fewer paths, so the cell's impedance rises. So don't watch how high a cell reads. Watch how far it has moved from its own first reading. Trend that, and flag the cell that turns upward. Then prove it with a test of its capacity. That habit is agreed. How big a rise should worry you is not.\n\nCells differ from new. In the example string, healthy cells start anywhere from 0.46 to 0.54 mΩ. So one reading tells you little. Most resistance-based testers predict health little better than tossing a coin. Take each cell's first reading at commissioning as its [[baseline]]. Read every cell the same way at each inspection. Plot each one against its own baseline. Two tools you already have do the rest. The fitted slope says how fast a cell is drifting. The z-score says how odd it is among its neighbours. That is its distance from the string's mean, in SDs. In the example, cell 17 sits flat for ten quarters. Then it climbs 0.02 mΩ a quarter. By quarter 15 it reads 0.60 mΩ. That is a rise of 0.10 ÷ 0.50, or 20%.\n\nHow big a rise matters is still argued. In flooded cells, a 20% rise generally goes with about 80% capacity.[^1] Another line treats 30 to 50% above baseline as cause for concern.[^2] By a third, most cells are below 80% capacity once impedance reaches 150% of nominal.[^3] So the line on your chart is the maker's or the plant's. Crossing it flags the cell. A [[capacity test]] decides. You discharge the battery at a set current and time it to its end voltage. Ampere-hours are amps × hours. So the hours run ÷ the rated hours gives the capacity as a share of its rating. Two IEEE standards recommend replacing it when the capacity falls below 80% of its rating.[^4] In the example, 7.8 hours of a rated 10 is 78%. That is below the line.\n\nThe trend says which cell. The test says how much it has lost. The charging record says why. A float voltage set too low or too high can be the cause. Keep a cell short of a full charge for long, and soft lead sulphate turns into hard crystals on the negative plates. Leave it at low charge with shallow cycles and no full charge, and the acid stratifies. Positive grids corrode slowly with age anyway. Float them too high for too long and they corrode faster. A corroding grid softens and sheds its lead. Charge a valve-regulated cell too hard and it vents its gas and loses water. That is called [[dry-out]]. Sulphation can be reversed if it is caught in time, but corrosion is permanent. The example's readings are made up for teaching. Real cells tend to creep upward a little. **Trend each cell against its own baseline. Treat a steady climb as a flag. Let a capacity test against the 80% line decide.**"
+  },
+  "analogy": {
+   "text": "You already trend insulation resistance on a motor. A reading of 200 MΩ passes most tests. But say that winding read 2,000 MΩ for years. Then the fall is the warning. You judge the machine against its own history. Then you run a fuller test before you condemn it. A cell works the same way. Its own baseline matters more than one reading set against its neighbours.",
+   "breaks": "The direction is the opposite. Insulation resistance falls as a winding fails, but a cell's impedance rises. The meaning differs too. Insulation resistance is itself the property that fails. Impedance only hints at what matters in a battery, which is its capacity. Proving capacity takes a full discharge."
+  },
+  "practice": {
+   "text": "Use this when you look after a standby battery or read its records.\n\n- Take a baseline when the battery is new. Record each cell's impedance and voltage, and for vented cells its specific gravity. Run a capacity test as part of its acceptance.\n- Read every cell the same way each time. Use the same test points, the same state of charge and a similar temperature.\n- Log each cell's readings by date. Plot each one against its own baseline.\n- Look for a steady climb, not one high reading. Fit a line through the last few readings and note its slope.\n- Compare each cell with the string as well. If a cell sits far from the mean, check its own trend.\n- Use the maker's or the plant's threshold. Published lines run from a 20% rise to 150% of nominal.\n- Book a capacity test when a cell crosses the line, or when its slope stays up.\n- Two IEEE standards recommend replacing when tested capacity falls below 80% of rating.\n- Read the charging record for the cause. Then the next cell need not age the same way.\n\n**Rule of thumb:** one reading points nowhere. A trend points at the cell, and the capacity test decides.\n\n**Worked example:** A vented cell's baseline was 0.40 mΩ. Over the last four quarters it read 0.42, 0.44, 0.46 and 0.48 mΩ. That is a climb of 0.02 mΩ a quarter. The rise is 0.08 ÷ 0.40, or 20%. The other cells sit flat. So book a capacity test now. The string is rated for 10 hours at its test current. It reaches its end voltage after 7.5 hours. That is 7.5 ÷ 10, or 75%. It is below the 80% line, so by that line it is due for replacement. The float record shows months above the maker's band. That points to faster grid corrosion.\n\n**Common mistakes**\n- Chasing the highest reading instead of the biggest rise.\n- Treating an impedance threshold as a pass or fail. It only says where to test.\n- Judging cells only against the string's mean. That misses cells ageing together.\n- Equalising again and again to cure one cell. Each equalise overcharges the whole string. Prolonged overcharge feeds grid corrosion.\n- Replacing a cell without asking why it aged."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "Battery Testing Guide — Megger",
+    "url": "https://res.cloudinary.com/iwh/image/upload/q_auto,g_center/assets/1/7/Megger_Battery_Testing_Guide.pdf",
+    "quote": "Megger has found that a 20 percent increase in impedance for flooded lead-acid generally correlates to 80% battery capacity."
+   },
+   {
+    "n": 2,
+    "title": "TIPS AND TRICKS FOR BATTERY SERVICE TECHNICIANS — Vertiv",
+    "url": "https://www.vertiv.com/48dfb9/globalassets/documents/battcon-static-assets/2010/the-inspection-is-complete.-what-are-you-doing-with-the-data.pdf",
+    "quote": "Significant deviations in ohmic readings, 30%-50% for example from baseline should be considered cause for concern."
+   },
+   {
+    "n": 3,
+    "title": "INTERNAL OHMIC MEASUREMENTS AND THEIR RELATIONSHIP TO BATTERY CAPACITY – EPRI’S ONGOING TECHNOLOGY EVALUATION — Vertiv",
+    "url": "https://www.vertiv.com/48de51/globalassets/documents/battcon-static-assets/2002/internal-ohmic-measurements-and-their-relationship-to-battery-capacity---epris-ongoing-technology-evaluation.pdf",
+    "quote": "Most cells had less than 80 percent capacity once impedance increased to 150 percent of the nominal impedance"
+   },
+   {
+    "n": 4,
+    "title": "Battery Testing Guide — Megger",
+    "url": "https://res.cloudinary.com/iwh/image/upload/q_auto,g_center/assets/1/7/Megger_Battery_Testing_Guide.pdf",
+    "quote": "Both IEEE 450 and IEEE 1188 recommend replacing the battery if its capacity is below 80% of manufacturer’s"
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: skill -->\n<style>\n  [hidden] { display: none !important; }\n  .nw { white-space: nowrap; }\n  .pz, .caption { max-width: 32rem; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.12rem; font-weight: 700; line-height: 1.5; }\n  .task.show { font-size: 1.05rem; font-weight: 400; line-height: 1.6; }\n  .scene, .rack { display: block; width: 100%; max-width: 26rem; margin-inline: auto; }\n  #stepbox > #rackbox { margin-top: 6px; }\n  .rack { cursor: pointer; }\n  .scene text, .rack text { font: 600 13px var(--k-font); fill: var(--k-ink); }\n  .scene .lbm, .rack .lbm { font-weight: 400; fill: var(--k-muted); }\n  .scene .ttl { font-weight: 700; }\n  .scene .nm { font-size: 15px; font-weight: 800; }\n  .scene .q { font-size: 16px; font-weight: 800; fill: var(--k-accent2); }\n  .scene .cv { font-weight: 700; fill: var(--k-accent2); }\n  .scene .wl { font-weight: 700; fill: var(--k-warn); }\n  .rack .on { fill: var(--k-on-accent2); }\n  .scene .axis { fill: none; stroke: var(--k-ink); stroke-width: 1.5; }\n  .scene .tick { stroke: var(--k-muted); stroke-width: 1.5; }\n  .scene .bl { fill: none; stroke: var(--k-muted); stroke-width: 1.6; stroke-dasharray: 5 4; }\n  .scene .mean { fill: none; stroke: var(--k-muted); stroke-width: 1.8; stroke-dasharray: 1.5 3.5; stroke-linecap: round; }\n  .scene .pack { fill: color-mix(in srgb, var(--k-muted) 22%, transparent); }\n  .scene .cl { fill: none; stroke: var(--k-accent2); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }\n  .scene .dot { fill: var(--k-accent2); }\n  .scene .fit { fill: none; stroke: var(--k-accent); stroke-width: 8; stroke-linecap: round; opacity: .45; }\n  .scene .thr { fill: none; stroke: var(--k-amber-line); stroke-width: 2.2; }\n  .scene .thr.dash { stroke-dasharray: 9 5; }\n  .scene .bandf { fill: var(--k-fill2); }\n  .scene .bande { fill: none; stroke: var(--k-amber-line); stroke-width: 1.2; }\n  .scene .brk { fill: none; stroke: var(--k-ink); stroke-width: 1.5; }\n  .scene .chev { fill: none; stroke: var(--k-accent2); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }\n  .scene .box { fill: var(--k-panel); stroke: var(--k-accent2); stroke-width: 2; }\n  .scene .arr { fill: none; stroke: var(--k-ink); stroke-width: 1.6; }\n  .scene .arrh { fill: var(--k-ink); }\n  .scene .volts { fill: none; stroke: var(--k-accent2); stroke-width: 2.5; stroke-linejoin: round; }\n  .scene .endv { fill: none; stroke: var(--k-muted); stroke-width: 1.6; stroke-dasharray: 5 4; }\n  .scene .watch { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 2; }\n  .scene .hand { stroke: var(--k-accent2); stroke-width: 2.5; stroke-linecap: round; }\n  .scene .post { fill: var(--k-strong); }\n  .scene .lid { fill: var(--k-sunk); stroke: var(--k-ink); stroke-width: 1.5; }\n  .scene .jar { fill: none; stroke: var(--k-ink); stroke-width: 2; }\n  .scene .acid, .scene .mat { fill: var(--k-fill1); }\n  .scene .matb { fill: none; stroke: var(--k-muted); stroke-width: 1.2; }\n  .scene .plp { fill: var(--k-muted); }\n  .scene .pln { fill: var(--k-strong); }\n  .scene .grid { fill: none; stroke: var(--k-ink); }\n  .scene .xtal { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.2; }\n  .scene .flake { fill: var(--k-muted); }\n  .scene .bub { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.2; }\n  .scene .wire { fill: none; stroke: var(--k-ink); stroke-width: 2; }\n  .scene .lead { fill: none; stroke: var(--k-muted); stroke-width: 1.2; }\n  .scene .mini * { vector-effect: non-scaling-stroke; }\n  .rack .tile { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }\n  .rack .tile.sel { fill: var(--k-accent2); stroke: var(--k-accent2); }\n  .rack .tile.flag { stroke: var(--k-warn); stroke-width: 3; }\n  .say { line-height: 1.55; }\n  #outs .k-readout { flex-basis: 9rem; }\n  .picks { display: grid; grid-template-columns: repeat(auto-fit, minmax(6rem, 1fr)); gap: 8px; }\n  .picks.long { grid-template-columns: 1fr; }\n  .picks .k-btn { min-height: 48px; font-size: 1rem; }\n  .picks.long .k-btn { text-align: left; }\n  .picks .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; }\n  .replay { display: flex; justify-content: flex-end; }\n  .replay .k-btn { min-height: 44px; padding-inline: 16px; font-size: .95rem; white-space: nowrap; }\n  .testbtn .k-btn { width: 100%; min-height: 48px; }\n  .fb { font-weight: 700; min-height: 1.5em; }\n  .fb.right { color: var(--k-good); }\n  .why, .done { line-height: 1.6; }\n  .done strong { color: var(--k-accent2); }\n  .done .row { margin-top: 14px; }\n  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }\n</style>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <svg class=\"scene\" id=\"scene\" viewBox=\"0 0 340 238\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"art\"></g></svg>\n    <div id=\"rackbox\"><svg class=\"rack\" id=\"rack\" viewBox=\"0 0 340 126\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"rackArt\"></g></svg></div>\n    <div class=\"replay\" id=\"replay\"></div>\n    <div class=\"k-controls ctl\" id=\"c-q\"></div>\n    <div class=\"k-controls ctl\" id=\"c-line\"></div>\n    <div class=\"k-controls ctl\" id=\"c-hist\"></div>\n    <div class=\"testbtn\" id=\"c-test\"></div>\n    <div class=\"k-controls ctl\" id=\"c-cell\" hidden></div>\n    <p class=\"say\" id=\"say\"></p>\n    <div class=\"k-readouts\" id=\"outs\"></div>\n    <div class=\"picks\" id=\"picks\"></div>\n    <div class=\"row acts\" id=\"acts\"></div>\n    <p class=\"fb\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p><strong id=\"finish\"></strong></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\">The string, its readings and its test times are an example, not measured data.</p>\n\n<script>\n  // ---------- the rule ----------\n  const MEG = 'https://res.cloudinary.com/iwh/image/upload/q_auto,g_center/assets/1/7/Megger_Battery_Testing_Guide.pdf';\n  const VERT = 'https://www.vertiv.com/48dfb9/globalassets/documents/battcon-static-assets/2010/the-inspection-is-complete.-what-are-you-doing-with-the-data.pdf';\n  const EPRI = 'https://www.vertiv.com/48de51/globalassets/documents/battcon-static-assets/2002/internal-ohmic-measurements-and-their-relationship-to-battery-capacity---epris-ongoing-technology-evaluation.pdf';\n  const NC = 24, FLAG = 17, NQ = 24, FLAT = 10, CLIMB = 0.02, WOB = 0.004, MEAN = 0.5, SD = 0.02;\n  // Example baselines at commissioning (mΩ). The 23 healthy cells run from 0.46 to 0.54, averaging 0.50 with an SD of 0.02. Cell 17 starts at 0.50.\n  const B0 = [null, 0.51, 0.485, 0.52, 0.495, 0.54, 0.48, 0.50, 0.515, 0.49, 0.46, 0.525, 0.50, 0.485, 0.51, 0.47, 0.505, 0.50, 0.48, 0.53, 0.49, 0.515, 0.475, 0.52, 0.50];\n  const HEALTHY = [];\n  for (let c = 1; c <= NC; c++) if (c !== FLAG) HEALTHY.push(c);\n  const avg = (v) => v.reduce((a, b) => a + b, 0) / v.length;\n  const sdv = (v, m) => Math.sqrt(v.reduce((a, b) => a + (b - m) * (b - m), 0) / v.length);\n  // A fixed wobble for each cell and quarter, between −1 and 1 (the same every time the page loads).\n  function wob(c, q) { let h = Math.imul(c, 374761393) ^ Math.imul(q + 7, 668265263); h = Math.imul(h ^ (h >>> 13), 1274126177); h ^= h >>> 16; return ((h >>> 0) % 20001) / 10000 - 1; }\n  // RD[c][q]: cell c's impedance at quarter q; quarter 0 is its baseline. The healthy cells wobble about their baselines, set back each\n  // quarter so that together they keep a mean of 0.50 and an SD of 0.02. Cell 17 wobbles for ten quarters, then climbs 0.02 mΩ a quarter.\n  const RD = [null];\n  for (let c = 1; c <= NC; c++) RD.push([B0[c]]);\n  for (let q = 1; q <= NQ; q++) {\n    const raw = HEALTHY.map((c) => B0[c] + WOB * wob(c, q)), m = avg(raw), s = sdv(raw, m);\n    HEALTHY.forEach((c, k) => { RD[c][q] = MEAN + (raw[k] - m) * SD / s; });\n    RD[FLAG][q] = q < FLAT ? B0[FLAG] + 0.8 * WOB * wob(FLAG, q) : B0[FLAG] + CLIMB * (q - FLAT);\n  }\n  const qi = (q) => K.clamp(Math.floor((+q || 0) + 1e-9), 0, NQ);\n  const ci = (c) => K.clamp(Math.round(+c || FLAG), 1, NC);\n  // Rise from its own baseline: (reading − baseline) ÷ baseline × 100.\n  const riseOf = (c, q) => (RD[c][q] - B0[c]) / B0[c] * 100;\n  // The least-squares line through its last 4 readings, in mΩ a quarter.\n  function slopeOf(c, q) {\n    const a = Math.max(0, q - 3), n = q - a + 1;\n    if (n < 2) return 0;\n    const mx = (a + q) / 2;\n    let my = 0;\n    for (let k = a; k <= q; k++) my += RD[c][k];\n    my /= n;\n    let num = 0, den = 0;\n    for (let k = a; k <= q; k++) { num += (k - mx) * (RD[c][k] - my); den += (k - mx) * (k - mx); }\n    return num / den;\n  }\n  // SDs from the string's mean: (reading − mean of the other 23) ÷ their SD.\n  function zOf(c, q) {\n    const o = [];\n    for (let k = 1; k <= NC; k++) if (k !== c) o.push(RD[k][q]);\n    const m = avg(o);\n    return (RD[c][q] - m) / sdv(o, m);\n  }\n  function modelOf(p) { const c = ci(p.cell), q = qi(p.q); return { riseFromBase: riseOf(c, q), slope: slopeOf(c, q), sdFromMean: zOf(c, q) }; }\n  // The range of the other cells' readings, for each tapped cell and quarter.\n  const RNG = [null];\n  for (let c = 1; c <= NC; c++) {\n    const r = [];\n    for (let q = 0; q <= NQ; q++) {\n      let lo = Infinity, hi = -Infinity;\n      for (let k = 1; k <= NC; k++) if (k !== c) { lo = Math.min(lo, RD[k][q]); hi = Math.max(hi, RD[k][q]); }\n      r.push([lo, hi]);\n    }\n    RNG.push(r);\n  }\n  // The three lines, each set on the tapped cell's own baseline (the 150% line takes the baseline as nominal).\n  const LINES = {\n    maker: { name: '20% line', label: '20% line', lo: 1.2, hi: 1.2, kind: 'line' },\n    guide: { name: '30 to 50% band', label: '30 to 50% band', lo: 1.3, hi: 1.5, kind: 'band' },\n    study: { name: '150% line', label: '150% of nominal', lo: 1.5, hi: 1.5, kind: 'dash' },\n  };\n  const pastLine = (c, q, key) => RD[c][q] >= B0[c] * LINES[key].lo - 1e-9;\n  function crossAt(c, key) { for (let q = 0; q <= NQ; q++) if (pastLine(c, q, key)) return q; return null; }\n  // The capacity test: a 200 Ah string at the 10-hour rate runs at 20 A, and capacity is the hours run ÷ 10 × 100.\n  const RATED = 200, RATE_H = 10, IT = RATED / RATE_H, LINE80 = 0.8 * RATE_H, H_NEW = 9.7, H_FALL = 0.38;\n  const hoursAt = (q) => (q <= FLAT ? H_NEW : H_NEW - H_FALL * (q - FLAT));\n  const capOf = (h) => h / RATE_H * 100;\n  const NB = ' ';\n  const r1 = (v) => Math.round(v * 10) / 10, r2 = (v) => Math.round(v * 100) / 100;\n  const ez = (x) => K.ease(K.clamp(x, 0, 1));\n  const mo = (v) => K.fmt(v, { decimals: 2 }) + ' mΩ';\n  const hr = (v) => K.fmt(v, { decimals: 1 });\n  const pc = (v) => K.fmt(v, { decimals: 0 });\n  const FAULT = { below: 'sulphation', low: 'stratification', high: 'grid corrosion', vrla: 'dry-out' };\n\n  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------\n  const W1 = 'Judge each cell against its own first reading, not against its neighbours. Here is a string of 24 cells. Each cell is read for impedance every quarter. Its first reading, at commissioning, is its *baseline*. ' +\n    'Cells differ from new, here from 0.46 to 0.54 mΩ. So one reading on its own says little about a cell\\'s health. Most resistance-based testers predict health little better than tossing a coin. ' +\n    'Here cell 17 sits flat on its 0.50 mΩ baseline at quarter 8.';\n  const W3 = 'A steady climb one way is *drift*, not noise. As the quarters run on, cell 17 stays flat for ten quarters. It wobbles a little like the rest. ' +\n    'Then it turns upward by 0.02 mΩ a quarter and keeps going. The fitted slope through its last four readings rises from about zero to 0.020 mΩ a quarter. ' +\n    'By quarter 15 cell 17 reads 0.60 mΩ. That is 20% above its own baseline, and 5 SDs from the string\\'s mean.';\n  const W5 = 'How big a rise matters is argued. Published lines run from a 20% rise, through a 30 to 50% band, to 150% of nominal. So use your maker\\'s or plant\\'s. ' +\n    'Here the 20% line sits at 0.60 mΩ. The band runs from 0.65 to 0.75 mΩ. ' +\n    'Taking the baseline as nominal, the 150% line sits at 0.75 mΩ. ' +\n    'Cell 17 reaches them at quarters 15, 18 and 23. Here the 20% line is drawn.';\n  const W7 = 'A *capacity test* decides. The example string is rated 200 Ah at the 10-hour rate, so it is discharged at 20 A. The clock runs until the string reaches its end voltage. ' +\n    'At a fixed current, ampere-hours are amps × hours. So capacity is the hours run ÷ 10 hours. The replacement line is 80%, at 8 hours. ' +\n    'The weakest cell sets how long the string lasts. At quarter 15 the clock stops at 7.8 hours. That is 78%, short of the line.';\n  const W9 = 'The trend says which cell. The test says how much it has lost. The charging record says why. ' +\n    'Keep a cell short of full charge, and soft sulphate hardens into crystals on the negative plate. Leave it at low charge with shallow cycles, and the acid sinks and starves the tops of the plates. ' +\n    'Float it too high for too long, and the positive grid softens and sheds. Charge a valve-regulated cell too hard, and it vents its gas and dries out. Here the cell shows *sulphation*.';\n  const W11 = 'Each fault leaves a different job. An *equalising charge* is a deliberate overcharge of the whole string. It reverses sulphation that is caught in time. ' +\n    'Its gassing also mixes stratified acid. Grid corrosion is permanent. ' +\n    'A valve-regulated cell cannot be topped up, so dry-out stays. So the earlier the trend finds a cell, the more can still be saved. Here each fault carries its tag.';\n  const O0_N = 'Noise, because readings always wobble', O0_D = 'Drift, because a run of six one way is rare by chance', O0_7 = 'Neither, until a seventh reading is in';\n  const O2_B = 'B, because it reads highest', O2_N = 'Neither, because both sit near the string\\'s average', O2_A = 'A, because it has risen about 15% from its own baseline';\n  const O6_R = 'Replace it, because it is past 20%', O6_T = 'Book a capacity test, because the rise only flags the cell', O6_L = 'Leave it, because it is under 30%';\n  const O8_R = '85%, so replace it, because it has lost 15%', O8_A = 'Too close to call, so test it again', O8_K = '85% of rated capacity, above the 80% line, so keep it and keep trending';\n  const O10_S = 'Sulphation on the negative plates', O10_C = 'Corrosion of the positive grid', O10_D = 'Dry-out';\n  const O12_Y = 'Yes, no cell stands out', O12_N = 'No, the whole string has drifted, so test its capacity', O12_30 = 'Yes, 25% is under the 30% line';\n  const O13_N = 'Only 0.06 mΩ out, so it is normal', O13_R = '3 SDs out, so replace it', O13_C = '3 SDs out, rare by chance, so check its own trend';\n  const O14_D = 'Dry-out, and an equalise would make it worse', O14_S = 'Sulphation, and an equalise will clear it', O14_T = 'Stratification, and an equalise will mix it';\n  const RO3 = ['riseFromBase', 'slope', 'sdFromMean'];\n  const STEPS = [\n    { name: 'Drift or noise', pic: 'run6', enter: { ef: 0 }, end: { ef: 1 },\n      run: { dur: 1.9, go: (u) => { X.ef = u; } },\n      task: 'One cell\\'s quarterly readings rise six times in a row. Is that drift or noise?',\n      opts: [O0_N, O0_D, O0_7], want: O0_D, right: 'Still there: a run of six one way points to a cause.',\n      hint: 'Not quite. Think about how often chance alone gives six rises in a row.',\n      hints: { [O0_N]: 'Not quite. Noise goes up and down at random, so six rises in a row is unlikely.', [O0_7]: 'Not quite. Six in a row is already the usual signal.' },\n      why: 'Noise goes up and down at random. Each new reading is about as likely to fall as to rise. So six rises in a row seldom happens by chance. A run of six one way is the usual signal that something is pushing the readings.' },\n    { show: true, name: 'Its own baseline', pic: 'trend', rack: true, ro: RO3, ctl: ['q', 'cell'], enter: { q: 0, cell: FLAG }, end: { q: 8 }, still: { q: 8, cell: FLAG }, dur: 3.6,\n      play: (t) => { X.q = 8 * ez((t - 0.4) / 3.0); },\n      text: W1 + ' Tap a cell to plot its readings.', read: W1 },\n    { name: 'Which cell to watch', pic: 'ab', enter: { ef: 0 }, end: { ef: 1 },\n      run: { dur: 1.4, go: (u) => { X.ef = u; } },\n      task: 'Cell A was commissioned at 0.46 mΩ and now reads 0.53 mΩ. Cell B started at 0.54 mΩ and still reads 0.54 mΩ. The string averages 0.50 mΩ. Which cell should you watch?',\n      opts: [O2_B, O2_N, O2_A], want: O2_A, right: 'That\\'s it: A has moved 0.07 mΩ from where it started. B has not moved.',\n      hint: 'Not quite. Compare each cell with its own first reading.',\n      hints: { [O2_B]: 'Not quite. B has read 0.54 mΩ since it was new. That is just how it was made.', [O2_N]: 'Not quite. The average hides a change. Each cell\\'s own baseline shows it.' },\n      why: 'Judge each cell against its own first reading. A started at 0.46 mΩ and now reads 0.53 mΩ. That is 0.07 mΩ up, about 15%. B has read 0.54 mΩ since it was new. That is just how it was made. So A is the cell to watch.' },\n    { show: true, name: 'The turn upward', pic: 'trend', rack: true, ro: RO3, ctl: ['q', 'cell'], enter: { q: 8, cell: FLAG }, end: { q: 15 }, still: { q: 15, cell: FLAG }, dur: 4.2,\n      play: (t) => { X.q = 8 + 7 * ez((t - 0.4) / 3.4); },\n      text: W3 + ' Drag the quarters, or tap another cell, to try it.', read: W3 },\n    { name: 'How far it has risen', pic: 'trend', ro: ['riseFromBase'], hide: ['riseFromBase'], enter: { q: 15, cell: FLAG, rb: 0 }, end: { rb: 1 },\n      run: { dur: 1.6, go: (u) => { X.rb = ez(u / 0.8); } },\n      task: 'A cell\\'s baseline was 0.50 mΩ, and it now reads 0.60 mΩ. How far has it risen from its baseline?',\n      opts: ['20%', '120%', '0.10%'], want: '20%', right: 'That\\'s it: 0.10 ÷ 0.50 = 0.2, a 20% rise.',\n      hint: 'Not quite. Divide the rise by the baseline.',\n      hints: { '120%': 'Not quite. That is the new reading as a share of the baseline. The rise is only the extra.', '0.10%': 'Not quite. 0.10 is the rise in mΩ. Divide it by the baseline.' },\n      why: 'The rise is the reading take away the baseline, so 0.60 − 0.50 = 0.10 mΩ. Divide that by the baseline. 0.10 ÷ 0.50 = 0.2, and 0.2 is 20%.' },\n    { show: true, name: 'Where to draw the line', pic: 'trend', rack: true, lines: true, ro: RO3, ctl: ['q', 'cell', 'line'],\n      enter: { q: 15, cell: FLAG, line: 'study', line2: null, lf: 0 }, end: { q: 24, line: 'maker', line2: 'guide', lf: 1 }, still: { q: 24, cell: FLAG, line: 'maker' }, dur: 4.4,\n      play: (t) => {\n        X.q = 15 + 9 * ez((t - 0.3) / 1.9);\n        if (t < 2.4) { X.line = 'study'; X.line2 = null; X.lf = ez((t - 0.3) / 0.6); }\n        else if (t < 3.4) { X.line = 'guide'; X.line2 = 'study'; X.lf = ez((t - 2.4) / 0.6); }\n        else { X.line = 'maker'; X.line2 = 'guide'; X.lf = ez((t - 3.4) / 0.6); }\n      },\n      text: W5 + ' Pick a line, or drag the quarters, to try it.', read: W5 },\n    { name: 'Flag or replace', pic: 'decide', enter: { ef: 0 }, end: { ef: 1 },\n      run: { dur: 1.4, go: (u) => { X.ef = u; } },\n      task: 'A cell has risen 25% from its baseline, and its trend still climbs. What should you do?',\n      opts: [O6_R, O6_T, O6_L], want: O6_T, right: 'That\\'s it: the trend points, and the test decides.',\n      hint: 'Not quite. Think about what a rise in impedance can and cannot tell you.',\n      hints: { [O6_R]: 'Not quite. A rise in impedance says where to look, not how much capacity is gone.', [O6_L]: 'Not quite. Another line already flags it. And the trend is still climbing.' },\n      why: 'The lines disagree, and 25% is past one and short of another. Either way, a rise in impedance says where to look. It does not say how much capacity is gone. A capacity test measures that, so book one.' },\n    { show: true, name: 'The test decides', pic: 'test', ctl: ['q'], test: true, enter: { q: 15, cell: FLAG, th: 0, sf: 0 }, end: { th: hoursAt(15), sf: 1 }, still: { q: 15 }, dur: 3.8,\n      play: (t) => { X.th = hoursAt(15) * K.clamp((t - 0.3) / 2.6, 0, 1); X.sf = ez((t - 3.1) / 0.6); },\n      text: W7 + ' Run the test, or drag the quarter, to try it.', read: W7 },\n    { name: 'Reading the test', pic: 'test', enter: { tsc: 'given', th: 8.5, sf: 1, ef: 0 }, end: { ef: 1 },\n      run: { dur: 1.4, go: (u) => { X.ef = u; } },\n      task: 'A string rated for 10 hours at 20 A reaches its end voltage after 8.5 hours. What does the test say?',\n      opts: [O8_R, O8_A, O8_K], want: O8_K, right: 'That\\'s it: 8.5 ÷ 10 = 85%, and the line is 80%.',\n      hint: 'Not quite. Work out the hours run as a share of the 10 rated hours.',\n      hints: { [O8_R]: 'Not quite. Every battery loses some capacity with age. The line is 80%.', [O8_A]: 'Not quite. One clean full discharge is the answer. The trend says when to test next.' },\n      why: 'At a fixed current, ampere-hours are amps × hours. So the share of its rating is 8.5 ÷ 10 = 85%. Every battery loses some capacity with age. The replacement line is 80%, so this string stays. Keep trending it, and the trend says when to test next.' },\n    { show: true, name: 'What the charging did', pic: 'cell', ctl: ['hist'], enter: { hist: 'below', f: 0 }, end: { f: 1 }, still: { hist: 'below' }, dur: 3.6,\n      play: (t) => { X.f = ez((t - 0.4) / 2.8); },\n      text: W9 + ' Pick a charging history to see each fault.', read: W9 },\n    { name: 'Float set low', pic: 'cell', cap: 'Float below the band for a year', enter: { hist: 'below', f: 0 }, end: { f: 1 },\n      run: { dur: 2.4, go: (u) => { X.f = ez(u / 0.9); } },\n      task: 'A flooded string\\'s float was set below the maker\\'s band for a year. Which fault should you expect?',\n      opts: [O10_S, O10_C, O10_D], want: O10_S, right: 'That\\'s it: below the band the cells never quite reach full charge. So sulphate hardens.',\n      hint: 'Not quite. Think about what too little charge does.',\n      hints: { [O10_C]: 'Not quite. That speeds up when too high a voltage is held too long.', [O10_D]: 'Not quite. That comes from charging a valve-regulated cell too hard. This string floated too low.' },\n      why: 'On float a cell should stay fully charged. Below the band it never quite gets there. So the soft lead sulphate is never fully turned back. Over months it hardens into crystals on the negative plates.' },\n    { show: true, name: 'What can still be done', pic: 'tags', enter: { tg: 0 }, end: { tg: 3.4 }, dur: 3.4,\n      play: (t) => { X.tg = t; },\n      text: W11, read: W11 },\n    { name: 'All together', pic: 'together', enter: { ef: 0 }, end: { ef: 1 },\n      run: { dur: 1.6, go: (u) => { X.ef = u; } },\n      task: 'Every cell in a flooded string has risen about 25% from its own baseline, all together. Cell 9 sits 0.3 SD from the string\\'s mean. Is the string healthy?',\n      opts: [O12_Y, O12_N, O12_30], want: O12_N, right: 'That\\'s it: comparing with the string finds an odd cell. Only each cell\\'s own baseline shows them all ageing.',\n      hint: 'Not quite. Think about what happens to the mean when every cell moves.',\n      hints: { [O12_Y]: 'Not quite. When every cell moves together, the mean moves with them.', [O12_30]: 'Not quite. The lines disagree. 25% is already past one of them.' },\n      why: 'The z-score compares a cell with its neighbours. When every cell climbs together, the mean climbs with them. So no cell looks odd. Each cell\\'s own baseline still shows a 25% rise. That is past the 20% line, so test the string\\'s capacity.' },\n    { name: 'How unusual', pic: 'odd', enter: { ef: 0 }, end: { ef: 1 },\n      run: { dur: 1.6, go: (u) => { X.ef = u; } },\n      task: 'The other 23 cells average 0.50 mΩ with an SD of 0.02 mΩ. One cell reads 0.56 mΩ. How unusual is that?',\n      opts: [O13_N, O13_R, O13_C], want: O13_C, right: 'That\\'s it: 0.06 ÷ 0.02 = 3 SDs. Chance alone seldom gives that.',\n      hint: 'Not quite. Measure the gap in SDs.',\n      hints: { [O13_N]: 'Not quite. The spread sets the scale. Here the spread is 0.02 mΩ.', [O13_R]: 'Not quite. It may have read high since new. Its own trend and a capacity test decide.' },\n      why: 'It sits 0.56 − 0.50 = 0.06 mΩ above the mean. The SD is 0.02 mΩ, so that is 0.06 ÷ 0.02 = 3 SDs. Readings that far out are rare by chance. But it may have read high since new. So check its own trend before anything else.' },\n    { name: 'Boosted for weeks', pic: 'cell', cap: 'Valve-regulated, on boost for weeks', enter: { hist: 'vrla', f: 0 }, end: { f: 1 },\n      run: { dur: 2.4, go: (u) => { X.f = ez(u / 0.9); } },\n      task: 'A valve-regulated string was left on boost charge for weeks. Now one cell\\'s impedance climbs. Which fault fits, and will an equalise help?',\n      opts: [O14_D, O14_S, O14_T], want: O14_D, right: 'That\\'s it: too much charge drove gas out of a cell that cannot be topped up.',\n      hint: 'Not quite. Think about too much charge on a sealed cell.',\n      hints: { [O14_S]: 'Not quite. That follows too little charge. This string had too much.', [O14_T]: 'Not quite. That follows long spells at low charge. And an equalise is more overcharge for a sealed cell.' },\n      why: 'Weeks of boost charge are far too much charge. The cell gassed, and its valve let the gas out. A valve-regulated cell cannot be topped up, so that water is gone. An equalise is more overcharge, so it would dry the cell further.' },\n  ];\n  const FINISH = 'Trend each cell against its own baseline. Treat a steady climb as a flag. Let a capacity test against the 80% line decide.';\n  const HIST_SAY = {\n    below: 'This cell was kept short of full charge, so the soft sulphate on its negative plate has hardened into crystals.',\n    low: 'This cell sat at low charge with shallow cycles, so the dense acid has sunk and the tops of the plates go short.',\n    high: 'This cell floated too high for too long, so its positive grid has corroded faster, softened and shed lead.',\n    vrla: 'This valve-regulated cell was charged too hard, so it has vented its gas and its mat is drying out.',\n  };\n  const TAGS = [['below', 'Sulphation', 'Can be reversed if caught in time', 'cv'], ['low', 'Stratification', 'An equalising charge mixes the acid', 'cv'],\n    ['high', 'Grid corrosion', 'Permanent', 'wl'], ['vrla', 'Dry-out', 'Cannot be topped up, so it stays', 'wl']];\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n  const quiet = () => REDUCE || testing();\n  const el = (id) => document.getElementById(id);\n\n  // ---------- state ----------\n  function blank() { return { pick: null, res: null, why: false }; }\n  let S = STEPS.map(blank);\n  const X0 = { q: 8, cell: FLAG, line: 'maker', line2: null, lf: 1, cf: 1, hist: 'below', f: 1, th: 0, sf: 0, ef: 1, rb: 0, tg: 3.4, tsc: '', ph: 0 };\n  const X = {};\n  const setX = (o) => Object.assign(X, o);\n  const copyX = () => Object.assign({}, X);\n  setX(X0);\n  let T = Infinity, scripted = false, lastStep = -1, finished = false, lastDone = false;\n  let REC = {}, laidOut = '';\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);\n  const CTL = {\n    q: K.control({ id: 'q', label: 'Quarter', min: 0, max: NQ, step: 1, value: 8, fmt: (v) => String(Math.round(v)), snap: [8, 10, 15, 18, 23], into: '#c-q' }),\n    cell: K.control({ id: 'cell', label: 'Cell', min: 1, max: NC, step: 1, value: FLAG, fmt: (v) => 'cell ' + Math.round(v), into: '#c-cell' }),\n    line: K.choice({ id: 'line', label: 'Line to draw', options: [{ value: 'maker', label: '20% rise' }, { value: 'guide', label: '30 to 50% band' }, { value: 'study', label: '150% of nominal' }], value: 'maker', into: '#c-line' }),\n    hist: K.choice({ id: 'hist', label: 'Charging history', options: [{ value: 'below', label: 'Float below the band' }, { value: 'low', label: 'Long spells at low charge' }, { value: 'high', label: 'Float above the band' }, { value: 'vrla', label: 'Valve-regulated, charged hard' }], value: 'below', into: '#c-hist' }),\n  };\n  const SHOWN = ['q', 'line', 'hist'];\n  const KEYS = { q: () => qi(X.q), cell: () => X.cell, line: () => X.line, hist: () => X.hist };\n  const pushed = {};\n  Object.keys(CTL).forEach((k) => { pushed[k] = CTL[k].get(); });\n  // The page moves the controls itself during a demonstration (silently, so it is not taken for Dan's move).\n  function push() { Object.keys(KEYS).forEach((k) => { const v = KEYS[k](); if (pushed[k] !== v) { CTL[k].set(v, true); pushed[k] = CTL[k].get(); } }); }\n  const ctlOn = (d, k) => !!(d.ctl && d.ctl.indexOf(k) >= 0);\n\n  K.model(modelOf);\n\n  // A puzzle's answer stays a \"?\" in its readout until Check says it is right.\n  function hid(id) { const d = STEPS[at()]; return !!(d && !d.show && d.hide && d.hide.indexOf(id) >= 0 && S[at()].res !== 'right'); }\n  const R = {\n    riseFromBase: K.readout({ id: 'riseFromBase', label: 'Rise from own baseline', decimals: 0, fmt: (v) => (hid('riseFromBase') ? '?' : pc(v) + NB + '%'), into: '#outs' }),\n    slope: K.readout({ id: 'slope', label: 'Fitted slope, last 4 readings', decimals: 3, fmt: (v) => K.fmt(v, { decimals: 3 }) + NB + 'mΩ/qtr', into: '#outs' }),\n    sdFromMean: K.readout({ id: 'sdFromMean', label: 'SDs from the string\\'s mean', decimals: 1, fmt: (v) => K.fmt(v, { decimals: 1 }) + NB + 'SD', into: '#outs' }),\n  };\n  function outs() { const o = modelOf({ q: qi(X.q), cell: X.cell }); R.riseFromBase.set(o.riseFromBase); R.slope.set(o.slope); R.sdFromMean.set(o.sdFromMean); }\n\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;\n    st.pick = d.opts[k]; st.res = null;\n  } }));\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || st.res === 'right') return;\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = st.pick === d.want ? 'right' : 'wrong';\n    if (st.res !== 'right') { T = Infinity; return; }\n    if (quiet()) { T = Infinity; setX(d.end || {}); push(); }\n    else { T = 0; anim.play(); }\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    const d = STEPS[at()];\n    if (d.show || finished) return;\n    S[at()].why = !S[at()].why;\n  } });\n  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {\n    if (!STEPS[at()].show || finished) return;\n    enterStep(at());\n  } });\n  K.button({ label: 'Run the capacity test', into: '#c-test', press: () => {\n    const d = STEPS[at()];\n    if (finished || !d.show || !d.test) return;\n    if (scripted) { scripted = false; setX(d.end || {}); }\n    T = Infinity; X.th = 0; X.sf = 0;\n    startSettle(d);\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true; anim.pause();\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S = STEPS.map(blank); finished = false; lastStep = -1; stepper.set(0, true);\n  } });\n\n  // ---------- motion: one animation runs each demonstration, each answer's motion, and what follows Dan's own moves ----------\n  // After Dan moves something, the picture eases to its new state: a new cell's line fades in, a new line fades in\n  // over the old one, a fault forms, and the test clock runs at 3 hours a second.\n  function settle(dt, d) {\n    let busy = false;\n    const go = (k, sec) => { if (X[k] < 1) { X[k] = Math.min(1, X[k] + dt / sec); busy = true; } };\n    go('cf', 0.5); go('lf', 0.6);\n    if (d.pic === 'cell') go('f', 1.6);\n    if (d.pic === 'test') {\n      const H = hoursAt(qi(X.q));\n      if (X.th < H) { X.th = Math.min(H, X.th + dt * 3); busy = true; } else go('sf', 0.5);\n    }\n    return busy;\n  }\n  function settled(d) { X.cf = 1; X.lf = 1; if (d.pic === 'cell') X.f = 1; if (d.pic === 'test') { X.th = hoursAt(qi(X.q)); X.sf = 1; } }\n  const unsettled = (d) => !!d.show && (X.cf < 1 || X.lf < 1 || (d.pic === 'cell' && X.f < 1) || (d.pic === 'test' && (X.th < hoursAt(qi(X.q)) - 1e-9 || X.sf < 1)));\n  const motionEnd = (d, st) => (d.show ? (scripted ? d.dur : 0) : st.res === 'right' ? d.run.dur : 0);\n  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {\n    if (finished) return false;\n    const i = at(), d = STEPS[i], st = S[i];\n    T += dt;\n    X.ph += dt;\n    if (scripted) { d.play(Math.min(T, d.dur)); if (T >= d.dur) scripted = false; }\n    const running = !d.show && st.res === 'right' && T < d.run.dur + dt;\n    if (running) d.run.go(Math.min(1, T / d.run.dur));\n    let busy = false;\n    if (!scripted && !running && d.show) busy = settle(dt, d);\n    push(); outs(); paint(i);\n    return busy || T < motionEnd(d, st);\n  } });\n  const pending = () => T !== Infinity || unsettled(STEPS[at()]);\n  // A motion that was stopped (the page hidden, a test) shows finished.\n  function finishNow(d, st) {\n    if (scripted) { d.play(d.dur); scripted = false; }\n    if (!d.show && st.res === 'right') setX(d.end || {});\n    if (d.show) settled(d);\n    T = Infinity; push();\n  }\n  function startSettle(d) {\n    if (quiet()) { settled(d); push(); return; }\n    anim.play();\n  }\n  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && pending()) { finishNow(STEPS[at()], S[at()]); outs(); paint(); } });\n  function enter(id) {\n    if (REDUCE) return;\n    const box = el(id);\n    box.classList.remove('enter'); void box.offsetWidth; box.classList.add('enter');\n  }\n  function enterStep(i) {\n    const d = STEPS[i], st = S[i];\n    anim.pause();\n    setX(X0); setX(d.enter || {});\n    if (!d.show && st.res === 'right') setX(d.end || {});\n    if (d.show && !quiet()) { scripted = true; T = 0; d.play(0); push(); anim.play(); }\n    else { scripted = false; T = Infinity; if (d.show) setX(d.end || {}); push(); }\n    laidOut = '';\n    enter('stepbox');\n  }\n\n  // ---------- drawing ----------\n  const svg = el('scene'), art = el('art'), rack = el('rack'), rackArt = el('rackArt');\n  let into = null;\n  const add = (n) => (into || art).appendChild(n);\n  const S_ = (tag, a) => add(K.svg(tag, a));\n  function txt(x, y, s, cls, anchor) {\n    const a = { x: r1(x), y: r1(y), 'text-anchor': anchor || 'middle' };\n    if (cls) a.class = cls;\n    const t = K.svg('text', a); t.textContent = s; return add(t);\n  }\n  function rot(x, y, s) { const t = txt(0, 0, s, 'lbm'); t.setAttribute('transform', 'translate(' + x + ' ' + y + ') rotate(-90)'); return t; }\n  function part(a, fn) { if (a <= 0.001) return; const g = add(K.svg('g')); K.fade(g, Math.min(1, a), 0); const keep = into; into = g; fn(); into = keep; }\n  function arrow(x1, y1, x2, y2) {\n    const L = Math.hypot(x2 - x1, y2 - y1), ux = (x2 - x1) / L, uy = (y2 - y1) / L, bx = x2 - 9 * ux, by = y2 - 9 * uy;\n    S_('path', { class: 'arr', d: 'M' + r1(x1) + ' ' + r1(y1) + 'L' + r1(bx) + ' ' + r1(by) });\n    S_('path', { class: 'arrh', d: 'M' + r1(x2) + ' ' + r1(y2) + 'L' + r1(bx - 4.5 * uy) + ' ' + r1(by + 4.5 * ux) + 'L' + r1(bx + 4.5 * uy) + ' ' + r1(by - 4.5 * ux) + 'Z' });\n  }\n\n  // Seven quarterly readings of one cell, each above the last.\n  function drawRun6() {\n    const V = [0, 0.8, 1.9, 2.6, 3.8, 4.7, 5.6], px = (k) => 60 + 40 * k, py = (v) => 124 - 15 * v;\n    S_('path', { class: 'axis', d: 'M40 24V134H324' });\n    rot(26, 80, 'impedance');\n    txt(182, 154, 'quarters', 'lbm');\n    S_('path', { class: 'cl', d: V.map((v, k) => (k ? 'L' : 'M') + px(k) + ' ' + r1(py(v))).join('') });\n    V.forEach((v, k) => S_('circle', { class: 'dot', cx: px(k), cy: r1(py(v)), r: 4.5 }));\n    let shown = 0;\n    for (let k = 1; k <= 6; k++) {\n      const a = ez((X.ef - 0.09 * (k - 1)) / 0.3);\n      if (a >= 0.5) shown++;\n      const mx = (px(k - 1) + px(k)) / 2, my = (py(V[k - 1]) + py(V[k])) / 2 - 14;\n      part(a, () => S_('path', { class: 'chev', d: 'M-5 3L0 -3L5 3', transform: 'translate(' + r1(mx) + ' ' + r1(my) + ')' }));\n    }\n    part(ez((X.ef - 0.6) / 0.35), () => txt(52, 36, 'six rises in a row', 'cv', 'start'));\n    REC.chev = shown;\n    return 'Seven quarterly impedance readings of one cell, each higher than the one before.' + (shown === 6 ? ' Each of the six rises is marked.' : '');\n  }\n\n  // The tapped cell's readings against its own baseline, with the other cells' range behind it.\n  function drawLine(key, a, b, yI, avoid) {\n    if (a <= 0.001) return;\n    part(a, () => {\n      const L = LINES[key];\n      if (L.kind === 'band') {\n        const y1 = yI(b * L.hi), y0 = yI(b * L.lo);\n        S_('rect', { class: 'bandf', x: 58, y: r1(y1), width: 268, height: r1(y0 - y1) });\n        avoid.push(S_('path', { class: 'bande', d: 'M58 ' + r1(y1) + 'H326M58 ' + r1(y0) + 'H326' }));\n        txt(64, (y0 + y1) / 2 + 4.5, L.label, null, 'start');\n      } else {\n        const y = yI(b * L.lo);\n        avoid.push(S_('path', { class: 'thr' + (L.kind === 'dash' ? ' dash' : ''), d: 'M58 ' + r1(y) + 'H326' }));\n        txt(64, y - 6, L.label, null, 'start');\n      }\n    });\n  }\n  function drawTrend(d, st) {\n    const c = X.cell, b = B0[c], qd = K.clamp(X.q, 0, NQ), q = qi(qd), cf = K.clamp(X.cf, 0, 1);\n    const xQ = (v) => 58 + v * 268 / 24, yI = (v) => 44 + (0.84 - v) * 380;\n    REC.cell = c; REC.q = q; REC.reading = RD[c][q];\n    // key\n    S_('path', { class: 'cl', d: 'M4 10H22' }); txt(27, 14.5, 'cell ' + c, null, 'start');\n    S_('path', { class: 'bl', d: 'M150 10H168' }); txt(173, 14.5, 'its baseline', null, 'start');\n    S_('rect', { class: 'pack', x: 4, y: 21, width: 18, height: 12, rx: 2 }); txt(27, 31.5, 'other cells\\' range', null, 'start');\n    S_('path', { class: 'fit', d: 'M154 27H164' }); txt(173, 31.5, 'fitted slope', null, 'start');\n    // axes\n    S_('path', { class: 'axis', d: 'M58 40V196H326' });\n    [0.5, 0.6, 0.7, 0.8].forEach((v) => { const y = r1(yI(v)); S_('path', { class: 'tick', d: 'M53 ' + y + 'H58' }); txt(51, y + 4.5, v.toFixed(2), 'lbm', 'end'); });\n    for (let k = 0; k <= NQ; k += 4) { const x = r1(xQ(k)); S_('path', { class: 'tick', d: 'M' + x + ' 196V201' }); txt(x, 214, String(k), 'lbm'); }\n    rot(14, 118, 'impedance, mΩ');\n    txt(188, 232, 'quarters since commissioning', 'lbm');\n    // the quarters read so far (the last one partly, while the quarters run on)\n    const ts = [];\n    for (let k = 0; k <= Math.floor(qd + 1e-9); k++) ts.push(k);\n    if (qd - ts[ts.length - 1] > 1e-6) ts.push(qd);\n    const lerpAt = (fn, t) => { const k0 = Math.floor(t + 1e-9), f = t - k0; return k0 >= NQ || f < 1e-9 ? fn(k0) : K.lerp(fn(k0), fn(k0 + 1), f); };\n    const lo = (k) => RNG[c][k][0], hi = (k) => RNG[c][k][1], rd = (k) => RD[c][k];\n    if (ts.length === 1) S_('rect', { class: 'pack', x: 54, y: r1(yI(hi(0))), width: 8, height: r1(yI(lo(0)) - yI(hi(0))) });\n    else {\n      let p = '';\n      ts.forEach((t, j) => { p += (j ? 'L' : 'M') + r1(xQ(t)) + ' ' + r1(yI(lerpAt(hi, t))); });\n      ts.slice().reverse().forEach((t) => { p += 'L' + r1(xQ(t)) + ' ' + r1(yI(lerpAt(lo, t))); });\n      S_('path', { class: 'pack', d: p + 'Z' });\n    }\n    const avoid = [];\n    avoid.push(S_('path', { class: 'bl', d: 'M58 ' + r1(yI(b)) + 'H326' }));\n    // the line picked (one at a time; the last one fades out as the new one fades in)\n    REC.line = d.lines ? X.line : null;\n    if (d.lines) {\n      if (X.line2 && X.line2 !== X.line) drawLine(X.line2, 1 - X.lf, b, yI, avoid);\n      drawLine(X.line, X.lf, b, yI, avoid);\n    }\n    part(cf, () => {\n      if (q >= 1) {\n        const a0 = Math.max(0, q - 3), sl = slopeOf(c, q), mx = (a0 + q) / 2;\n        let my = 0;\n        for (let k = a0; k <= q; k++) my += rd(k);\n        my /= q - a0 + 1;\n        avoid.push(S_('path', { class: 'fit', d: 'M' + r1(xQ(a0)) + ' ' + r1(yI(my + sl * (a0 - mx))) + 'L' + r1(xQ(q)) + ' ' + r1(yI(my + sl * (q - mx))) }));\n      }\n      let p = '';\n      ts.forEach((t, j) => { p += (j ? 'L' : 'M') + r1(xQ(t)) + ' ' + r1(yI(lerpAt(rd, t))); });\n      avoid.push(S_('path', { class: 'cl', d: p + (ts.length === 1 ? 'h0.01' : '') }));\n      for (let k = 0; k <= Math.min(NQ, Math.ceil(qd)); k++) {\n        const a = K.clamp((qd - k + 0.3) / 0.3, 0, 1);\n        if (a > 0.001) S_('circle', { class: 'dot', cx: r1(xQ(k)), cy: r1(yI(rd(k))), r: 3, opacity: a < 1 ? r2(a) : null });\n      }\n      // On the puzzle, the rise from its baseline is bracketed once Check is right.\n      if (X.rb > 0.001) part(X.rb, () => {\n        const x = r1(xQ(q) + 10), y0 = r1(yI(b)), y1 = r1(yI(rd(q)));\n        S_('path', { class: 'brk', d: 'M' + (x - 5) + ' ' + y1 + 'H' + x + 'V' + y0 + 'H' + (x - 5) });\n        txt(x + 6, (y0 + y1) / 2 + 4.5, 'rise ' + K.fmt(rd(q) - b, { decimals: 2 }) + ' mΩ', null, 'start');\n      });\n      const lg = add(K.svg('g'));\n      K.labels(lg, [{ x: r1(xQ(q)), y: r1(yI(rd(q)) - 10), text: mo(rd(q)), anchor: xQ(q) > 300 ? 'end' : 'middle', class: 'cv' }], { avoid });\n    });\n    REC.rb = X.rb >= 0.5;\n    REC.texts0 = mo(rd(q));\n    let s = 'A chart of cell ' + c + '\\'s impedance against quarters since commissioning, up to quarter ' + q + ', with a dashed line at its own baseline of ' + mo(b) +\n      ' and a shaded band for the range of the other cells. It now reads ' + mo(rd(q)) + '.';\n    if (d.lines) s += ' A ' + LINES[X.line].name + ' is drawn above its baseline.';\n    return s;\n  }\n\n  // The string as 24 tiles; the plotted cell is filled, and any cell past the drawn line is outlined.\n  function drawRack(d) {\n    rackArt.textContent = '';\n    const q = qi(X.q), key = d.lines ? X.line : null, add2 = (n) => rackArt.appendChild(n), flagged = [];\n    for (let c = 1; c <= NC; c++) {\n      const col = (c - 1) % 8, row = Math.floor((c - 1) / 8), x = 12 + col * 40, y = 4 + row * 34;\n      const sel = c === X.cell, flag = !!key && pastLine(c, q, key);\n      if (flag) flagged.push(c);\n      add2(K.svg('rect', { class: 'tile' + (sel ? ' sel' : '') + (flag ? ' flag' : ''), x, y, width: 36, height: 28, rx: 5 }));\n      const t = K.svg('text', { x: x + 18, y: y + 18.5, 'text-anchor': 'middle', class: sel ? 'on' : null }); t.textContent = String(c); add2(t);\n    }\n    const t = K.svg('text', { x: 12, y: 120, 'text-anchor': 'start', class: 'lbm' }); t.textContent = '24 cells in series'; add2(t);\n    if (key) {\n      add2(K.svg('rect', { class: 'tile flag', x: 196, y: 109, width: 18, height: 13, rx: 3 }));\n      const u = K.svg('text', { x: 220, y: 120, 'text-anchor': 'start', class: 'lbm' }); u.textContent = 'past the line'; add2(u);\n    }\n    REC.flagged = flagged;\n    rack.setAttribute('aria-label', 'A string of 24 cells in three rows of eight. Cell ' + X.cell + ' is plotted.' +\n      (key ? (flagged.length ? ' Cell ' + flagged.join(', ') + ' is past the ' + LINES[key].name + '.' : ' No cell is past the ' + LINES[key].name + '.') : ''));\n  }\n\n  // Two cells, each from when it was new to now, with the string's average.\n  function drawAB() {\n    const yv = (v) => 40 + (0.56 - v) * 1250;\n    txt(90, 22, 'cell A', 'ttl'); txt(250, 22, 'cell B', 'ttl');\n    S_('path', { class: 'mean', d: 'M14 ' + yv(0.5) + 'H330' });\n    txt(330, yv(0.5) + 16, 'string average 0.50', 'lbm', 'end');\n    S_('path', { class: 'cl', d: 'M50 ' + yv(0.46) + 'L130 ' + r1(yv(0.53)) });\n    S_('circle', { class: 'dot', cx: 50, cy: yv(0.46), r: 4.5 }); S_('circle', { class: 'dot', cx: 130, cy: r1(yv(0.53)), r: 4.5 });\n    txt(50, yv(0.46) + 18, '0.46'); txt(130, yv(0.53) - 10, '0.53');\n    S_('path', { class: 'cl', d: 'M210 ' + yv(0.54) + 'H290' });\n    S_('circle', { class: 'dot', cx: 210, cy: yv(0.54), r: 4.5 }); S_('circle', { class: 'dot', cx: 290, cy: yv(0.54), r: 4.5 });\n    txt(250, yv(0.54) - 10, '0.54');\n    [[50, 'new'], [130, 'now'], [210, 'new'], [290, 'now']].forEach(([x, s]) => txt(x, 202, s, 'lbm'));\n    const a = ez(X.ef / 0.8);\n    part(a, () => {\n      S_('path', { class: 'bl', d: 'M50 ' + yv(0.46) + 'H141' });\n      S_('path', { class: 'brk', d: 'M141 ' + r1(yv(0.53)) + 'H146V' + yv(0.46) + 'H141' });\n      txt(140, yv(0.46) + 18, '+0.07 mΩ', 'cv');\n      txt(250, yv(0.54) + 22, 'not moved', 'cv');\n    });\n    REC.moved = a >= 0.5;\n    return 'Cell A rose from 0.46 mΩ when new to 0.53 mΩ now. Cell B read 0.54 mΩ when new and still does. A dotted line marks the string average of 0.50 mΩ.' +\n      (REC.moved ? ' A has moved 0.07 mΩ from its own baseline, and B has not moved.' : '');\n  }\n\n  // A cell's rise from its own baseline climbing past one line and into a band.\n  function drawDecide() {\n    const yr = (r) => 186 - r * 2.6, xk = (k) => 40 + 20 * k, RS = [0, 0, 0, 0, 5, 10, 15, 20, 25];\n    S_('rect', { class: 'bandf', x: 34, y: yr(50), width: 296, height: yr(30) - yr(50) });\n    S_('path', { class: 'bande', d: 'M34 ' + yr(50) + 'H330M34 ' + yr(30) + 'H330' });\n    txt(42, (yr(50) + yr(30)) / 2 + 4.5, '30 to 50% band', null, 'start');\n    S_('path', { class: 'thr', d: 'M34 ' + yr(20) + 'H330' });\n    txt(42, yr(20) - 6, '20% line', null, 'start');\n    S_('path', { class: 'bl', d: 'M34 ' + yr(0) + 'H330' });\n    txt(326, yr(0) - 6, 'own baseline', 'lbm', 'end');\n    S_('path', { class: 'axis', d: 'M34 34V196H330' });\n    rot(16, 115, 'rise from own baseline');\n    txt(188, 212, 'quarters', 'lbm');\n    S_('path', { class: 'cl', d: RS.map((r, k) => (k ? 'L' : 'M') + xk(k) + ' ' + r1(yr(r))).join('') });\n    RS.forEach((r, k) => S_('circle', { class: 'dot', cx: xk(k), cy: r1(yr(r)), r: 3.5 }));\n    txt(xk(8) + 8, yr(25) + 4.5, '25%, still climbing', 'cv', 'start');\n    const a = ez(X.ef / 0.8);\n    part(a, () => {\n      S_('rect', { class: 'box', x: 150, y: 20, width: 180, height: 28, rx: 7 });\n      txt(240, 38.5, 'book a capacity test', 'ttl');\n      arrow(xk(8) + 3, yr(25) - 8, 226, 52);\n    });\n    REC.box = a >= 0.5;\n    return 'One cell\\'s rise from its own baseline, flat at first, then climbing 5% a quarter to 25%. It is past the 20% line and short of the 30 to 50% band.' +\n      (REC.box ? ' An arrow leads from it to a capacity test.' : '');\n  }\n\n  // The capacity test: the string's volts fall as the clock runs, until they reach the end voltage.\n  function drawTest(d) {\n    const given = X.tsc === 'given', q = qi(X.q);\n    const H = given ? 8.5 : hoursAt(q), th = K.clamp(X.th, 0, H);\n    const xh = (h) => 40 + h * 28, yv = (s) => 58 + 34 * s + 58 * Math.pow(s, 7);\n    txt(170, 16, given ? 'String rated for 10 hours at 20 A' : RATED + ' Ah string discharged at ' + IT + ' A', 'ttl');\n    S_('path', { class: 'axis', d: 'M40 40V168H320' });\n    txt(46, 36, 'string volts', 'lbm', 'start');\n    [0, 2, 4, 6, 8, 10].forEach((h) => { S_('path', { class: 'tick', d: 'M' + xh(h) + ' 168V173' }); txt(xh(h), 186, h === 10 ? '10 h' : String(h), 'lbm'); });\n    S_('path', { class: 'endv', d: 'M40 150H320' });\n    txt(46, 163, 'end voltage', 'lbm', 'start');\n    S_('path', { class: 'thr', d: 'M' + xh(LINE80) + ' 40V168' });\n    txt(xh(LINE80), 34, '80% line', null);\n    if (th > 0.001) {\n      let p = '';\n      for (let k = 0; k <= 48; k++) { const t = th * k / 48; p += (k ? 'L' : 'M') + r1(xh(t)) + ' ' + r1(yv(t / H)); }\n      S_('path', { class: 'volts', d: p });\n    }\n    S_('circle', { class: 'dot', cx: r1(xh(th)), cy: r1(yv(th / H)), r: 4 });\n    // the clock\n    const cx = 56, cy = 216, ang = th / 12 * 2 * Math.PI;\n    S_('rect', { class: 'post', x: cx - 3, y: cy - 23, width: 6, height: 6, rx: 1 });\n    S_('circle', { class: 'watch', cx, cy, r: 16 });\n    [0, 1, 2, 3].forEach((k) => { const a = k * Math.PI / 2; S_('path', { class: 'tick', d: 'M' + r1(cx + 12 * Math.sin(a)) + ' ' + r1(cy - 12 * Math.cos(a)) + 'L' + r1(cx + 15 * Math.sin(a)) + ' ' + r1(cy - 15 * Math.cos(a)) }); });\n    S_('path', { class: 'hand', d: 'M' + cx + ' ' + cy + 'L' + r1(cx + 10 * Math.sin(ang)) + ' ' + r1(cy - 10 * Math.cos(ang)) });\n    txt(84, 212, hr(th) + ' h', 'q', 'start');\n    const pct = capOf(H), short = H < LINE80 - 1e-9;\n    const stop = given ? hr(H) + ' ÷ 10 = ' + pc(pct) + '%, above the line' : pc(pct) + '%, ' + (short ? 'short of the 80% line' : 'above the 80% line');\n    const a = given ? ez(X.ef / 0.8) : K.clamp(X.sf, 0, 1);\n    if (a < 0.999) part(1 - a, () => txt(84, 231, given ? 'stopped at its end voltage' : 'running at ' + IT + ' A', 'lbm', 'start'));\n    if (a > 0.001) part(a, () => txt(84, 231, stop, short ? 'wl' : 'cv', 'start'));\n    REC.H = H; REC.th = th; REC.stop = a >= 0.5 ? stop : '';\n    return 'A capacity test. The string\\'s voltage falls as a clock runs, until it reaches the end voltage. A line marks 8 hours, 80% of the rated 10. ' +\n      'The clock reads ' + hr(th) + ' hours' + (th >= H - 1e-9 ? ' and has stopped.' : '.') + (REC.stop ? ' ' + stop + '.' : '');\n  }\n\n  // A cell cut away: its plates, its acid (or, valve-regulated, its soaked mat), and the fault its charging made.\n  function drawJar(hist, f, ph, mini) {\n    const M = mini ? 2.6 : 1, vr = hist === 'vrla', out = { crystals: 0, flakes: 0, bubbles: 0, dry: 0, strat: 0 };\n    if (!vr) {\n      const sf = hist === 'low' ? f : 0;\n      out.strat = sf;\n      for (let k = 0; k < 8; k++) {\n        const op = K.clamp(0.55 + sf * 0.45 * (k / 7 * 2 - 1), 0.12, 1);\n        S_('rect', { class: 'acid', x: 72, y: r1(74 + k * 19.5), width: 196, height: 20, opacity: r2(op) });\n      }\n    } else {\n      for (let r = 0; r < 8; r++) for (let cc = 0; cc < 6; cc++) {\n        const th = 0.1 + r / 7 * 1.1 + ((cc * 7 + r * 3) % 6) / 6 * 0.2;\n        if (f > th) { out.dry++; continue; }\n        S_('rect', { class: 'mat', x: r1(112 + cc * 19.33), y: r1(88 + r * 15.5), width: 19.8, height: 16 });\n      }\n      S_('rect', { class: 'matb', x: 112, y: 88, width: 116, height: 124 });\n    }\n    // positive plate: paste on a lead grid, which thins and sheds when it corrodes\n    const cor = hist === 'high' ? f : 0;\n    S_('rect', { class: 'plp', x: 92, y: 86, width: 18, height: 128, rx: 1, opacity: r2(1 - 0.55 * cor) });\n    let gp = 'M98 86V214M104 86V214';\n    for (let y = 102; y < 214; y += 16) gp += 'M92 ' + y + 'H110';\n    S_('path', { class: 'grid', d: gp, 'stroke-width': r2(1.4 * (1 - 0.6 * cor)), 'stroke-dasharray': cor > 0.05 ? r1(14 - 8 * cor) + ' ' + r1(2 + 6 * cor) : null });\n    for (let j = 0; j < 12; j++) {\n      const a = ez((cor - j / 13) / 0.08);\n      if (a <= 0.001) continue;\n      if (a >= 0.5) out.flakes++;\n      part(a, () => S_('rect', { class: 'flake', x: r1(80 + ((j * 17) % 42)), y: r1(224 - (j % 3) * 3.4 - (mini ? 6 : 0)), width: 5 * M, height: 2.6 * M }));\n    }\n    // negative plate, with hard sulphate crystals when it is kept short of charge\n    S_('rect', { class: 'pln', x: 230, y: 86, width: 18, height: 128, rx: 1 });\n    if (hist === 'below') for (let j = 0; j < 16; j++) {\n      const a = ez((f - j / 20) / 0.18);\n      if (a <= 0.001) continue;\n      if (a >= 0.5) out.crystals++;\n      const s = (2.6 + 2.4 * a) * M, x = j % 2 ? 251 : 227, y = 92 + ((j * 47) % 116);\n      part(a, () => S_('path', { class: 'xtal', d: 'M' + x + ' ' + r1(y - s) + 'L' + r1(x + s) + ' ' + y + 'L' + x + ' ' + r1(y + s) + 'L' + r1(x - s) + ' ' + y + 'Z' }));\n    }\n    // the jar, lid, terminals and the vent (or valve)\n    S_('path', { class: 'wire', d: 'M100 46V86M240 46V86' });\n    S_('rect', { class: 'jar', x: 70, y: 58, width: 200, height: 172, rx: 6 });\n    S_('rect', { class: 'lid', x: 64, y: 46, width: 212, height: 12, rx: 3 });\n    S_('rect', { class: 'post', x: 92, y: 34, width: 16, height: 12, rx: 2 });\n    S_('rect', { class: 'post', x: 232, y: 34, width: 16, height: 12, rx: 2 });\n    S_('rect', { class: 'post', x: 163, y: 38, width: 14, height: 8, rx: 2 });\n    // gas from a cell charged too hard: up beside the plates, across to the valve and out\n    if (vr && f > 0.01) {\n      for (let j = 0; j < 8; j++) {\n        const u = ((ph * 0.32 + j / 8) % 1 + 1) % 1, a = Math.min(f * 1.5, 1) * Math.sin(Math.PI * u);\n        if (a < 0.05) continue;\n        const x0 = j % 2 ? 224 : 116;\n        let x, y;\n        if (u < 0.6) { x = x0; y = 205 - (u / 0.6) * 130; }\n        else if (u < 0.85) { const v = (u - 0.6) / 0.25; x = K.lerp(x0, 170, v); y = 75 - v * 33; }\n        else { const v = (u - 0.85) / 0.15; x = 170; y = 42 - v * 16; }\n        out.bubbles++;\n        S_('circle', { class: 'bub', cx: r1(x), cy: r1(y), r: 2.8 * M, opacity: r2(a) });\n      }\n    }\n    return out;\n  }\n  function drawCell(d) {\n    const f = K.clamp(X.f, 0, 1), h = X.hist;\n    txt(170, 16, d.cap || 'The flagged cell, cut away', 'ttl');\n    const o = drawJar(h, f, X.ph, false);\n    txt(84, 44, '+', 'ttl', 'end'); txt(256, 44, '−', 'ttl', 'start');\n    txt(101, 248, 'positive plate', 'lbm'); txt(239, 248, 'negative plate', 'lbm');\n    const a = ez((f - 0.35) / 0.4);\n    part(a, () => {\n      if (h === 'below') { txt(170, 143, 'hard sulphate'); txt(170, 159, 'crystals'); S_('path', { class: 'lead', d: 'M218 139H224' }); }\n      else if (h === 'low') { txt(170, 100, 'plate tops'); txt(170, 116, 'starved'); txt(170, 192, 'dense acid'); txt(170, 208, 'sunk to the bottom'); }\n      else if (h === 'high') { txt(170, 143, 'grid thins'); txt(170, 159, 'and sheds lead'); S_('path', { class: 'lead', d: 'M132 139H114' }); }\n      else { txt(170, 106, 'mat dries out'); txt(154, 30, 'gas vents', null, 'end'); }\n    });\n    Object.assign(REC, o, { hist: h, fault: a >= 0.5 ? FAULT[h] : '' });\n    const kind = h === 'vrla' ? 'A valve-regulated cell' : 'A flooded lead-acid cell';\n    const what = { below: 'Hard sulphate crystals cover the negative plate.', low: 'Dense acid has sunk to the bottom, and the tops of the plates are starved.',\n      high: 'The positive grid has thinned, and shed lead lies at the bottom.', vrla: 'Gas leaves through the valve, and the mat between the plates is drying out.' }[h];\n    return kind + ' cut away, with its positive plate on the left and its negative plate on the right. ' + (a >= 0.5 ? what : 'Its plates and acid look sound.');\n  }\n\n  // The four faults, each tagged with what can still be done.\n  function drawTags() {\n    let shown = 0;\n    TAGS.forEach((r, k) => {\n      const y0 = 6 + k * 64;\n      const g = add(K.svg('g', { class: 'mini', transform: 'translate(2 ' + y0 + ') scale(0.24)' }));\n      const keep = into; into = g; drawJar(r[0], 1, X.ph, true); into = keep;\n      txt(84, y0 + 24, r[1], 'nm', 'start');\n      const a = ez((X.tg - 0.3 - 0.7 * k) / 0.6);\n      if (a >= 0.5) shown++;\n      part(a, () => txt(84, y0 + 46, r[2], r[3], 'start'));\n    });\n    REC.tags = shown;\n    return 'Four small cut-away cells, one for each fault: sulphation, stratification, grid corrosion and dry-out.' +\n      (shown === 4 ? ' Sulphation can be reversed if caught in time, and an equalising charge mixes stratified acid. Grid corrosion is permanent, and a dried-out valve-regulated cell cannot be topped up.' : '');\n  }\n\n  // A whole string ageing together: the mean moves with every cell.\n  function drawTogether() {\n    const xQ = (q) => 58 + q * 268 / 12, yv = (v) => 44 + (0.70 - v) * 590, sc = (q) => 1 + 0.25 * K.clamp((q - 2) / 10, 0, 1);\n    const hs = HEALTHY.map((c) => B0[c]), lo0 = Math.min(...hs), hi0 = Math.max(...hs), b9 = MEAN + 0.3 * SD, qs = [];\n    for (let q = 0; q <= 12; q++) qs.push(q);\n    S_('path', { class: 'cl', d: 'M4 10H22' }); txt(27, 14.5, 'cell 9', null, 'start');\n    S_('path', { class: 'mean', d: 'M150 10H168' }); txt(173, 14.5, 'string mean', null, 'start');\n    S_('rect', { class: 'pack', x: 4, y: 21, width: 18, height: 12, rx: 2 }); txt(27, 31.5, 'other cells\\' range', null, 'start');\n    S_('path', { class: 'axis', d: 'M58 40V198H326' });\n    [0.5, 0.6, 0.7].forEach((v) => { const y = r1(yv(v)); S_('path', { class: 'tick', d: 'M53 ' + y + 'H58' }); txt(51, y + 4.5, v.toFixed(2), 'lbm', 'end'); });\n    [0, 4, 8, 12].forEach((k) => { S_('path', { class: 'tick', d: 'M' + xQ(k) + ' 198V203' }); txt(xQ(k), 216, String(k), 'lbm'); });\n    rot(14, 120, 'impedance, mΩ');\n    txt(188, 234, 'quarters', 'lbm');\n    S_('path', { class: 'pack', d: qs.map((q, j) => (j ? 'L' : 'M') + xQ(q) + ' ' + r1(yv(hi0 * sc(q)))).join('') + qs.slice().reverse().map((q) => 'L' + xQ(q) + ' ' + r1(yv(lo0 * sc(q)))).join('') + 'Z' });\n    S_('path', { class: 'mean', d: qs.map((q, j) => (j ? 'L' : 'M') + xQ(q) + ' ' + r1(yv(MEAN * sc(q)))).join('') });\n    S_('path', { class: 'cl', d: qs.map((q, j) => (j ? 'L' : 'M') + xQ(q) + ' ' + r1(yv(b9 * sc(q)))).join('') });\n    qs.forEach((q) => S_('circle', { class: 'dot', cx: xQ(q), cy: r1(yv(b9 * sc(q))), r: 2.6 }));\n    txt(326, 51, 'cell 9: 0.3 SD from the mean', null, 'end');\n    S_('path', { class: 'lead', d: 'M314 55L322 ' + r1(yv(b9 * sc(12)) - 5) });\n    const a = ez(X.ef / 0.8);\n    part(a, () => {\n      S_('path', { class: 'bl', d: 'M58 ' + r1(yv(b9)) + 'H326' });\n      txt(326, yv(b9) + 16, 'own baseline', 'lbm', 'end');\n      S_('path', { class: 'brk', d: 'M325 ' + r1(yv(b9 * sc(12))) + 'H330V' + r1(yv(b9)) + 'H325' });\n      txt(320, (yv(b9 * sc(12)) + yv(b9)) / 2 + 26, '+25%', 'cv', 'end');\n    });\n    REC.own = a >= 0.5;\n    REC.z9 = (b9 * sc(12) - MEAN * sc(12)) / (SD * sc(12));\n    return 'A string where every cell climbs together by about 25%. Cell 9 rides just above the string mean, 0.3 SD from it, inside the range of the other cells.' +\n      (REC.own ? ' A dashed line at cell 9\\'s own baseline shows it has risen 25%.' : '');\n  }\n\n  // Where one reading sits among the other 23 cells.\n  function drawOdd() {\n    const xv = (v) => 30 + (v - 0.44) * 2075, count = {};\n    S_('path', { class: 'axis', d: 'M26 112H326' });\n    [0.46, 0.5, 0.54, 0.58].forEach((v) => { S_('path', { class: 'tick', d: 'M' + r1(xv(v)) + ' 112V117' }); txt(xv(v), 130, v.toFixed(2), 'lbm'); });\n    HEALTHY.map((c) => B0[c]).sort((a, b) => a - b).forEach((v) => {\n      const k = v.toFixed(3), n = count[k] || 0; count[k] = n + 1;\n      S_('circle', { class: 'tile', cx: r1(xv(v)), cy: 104 - 9 * n, r: 4.2, style: 'fill:var(--k-muted)' });\n    });\n    S_('path', { class: 'mean', d: 'M' + r1(xv(MEAN)) + ' 44V112' });\n    txt(xv(MEAN), 38, 'mean 0.50');\n    txt(30, 66, 'other 23 cells', 'lbm', 'start');\n    S_('circle', { class: 'dot', cx: r1(xv(0.56)), cy: 104, r: 5.2 });\n    txt(xv(0.56), 90, '0.56', 'cv');\n    S_('path', { class: 'brk', d: 'M' + r1(xv(0.5)) + ' 142V150H' + r1(xv(0.52)) + 'V142' });\n    txt(xv(0.52) + 8, 150, '1 SD = 0.02 mΩ', 'lbm', 'start');\n    const a = ez(X.ef / 0.8);\n    part(a, () => {\n      S_('path', { class: 'brk', d: 'M' + r1(xv(0.5)) + ' 64V58H' + r1(xv(0.56)) + 'V64M' + r1(xv(0.52)) + ' 58V62M' + r1(xv(0.54)) + ' 58V62' });\n      txt((xv(0.5) + xv(0.56)) / 2, 51, '3 SDs', 'cv');\n    });\n    REC.sds = a >= 0.5;\n    return 'Dots for the other 23 cells, from 0.46 to 0.54 mΩ, around a mean of 0.50 mΩ. One SD is 0.02 mΩ. One cell sits apart at 0.56 mΩ.' +\n      (REC.sds ? ' A bracket shows it is 3 SDs above the mean.' : '');\n  }\n\n  function sayFor(d) {\n    if (d.pic === 'cell') return HIST_SAY[X.hist];\n    if (d.pic === 'test') {\n      const q = qi(X.q), H = hoursAt(q), th = Math.min(X.th, H);\n      if (th < H - 1e-9) return 'The string is discharging at ' + IT + ' A, and the clock has run ' + hr(th) + ' hours.';\n      return 'At quarter ' + q + ', the string runs ' + hr(H) + ' hours to its end voltage. That is ' + pc(capOf(H)) + '% of its rating, ' + (H < LINE80 - 1e-9 ? 'short of the 80% line.' : 'above the 80% line.');\n    }\n    const c = X.cell, q = qi(X.q), r = RD[c][q], b = B0[c], nq = (n) => n + (n === 1 ? ' quarter' : ' quarters');\n    if (c !== FLAG) {\n      const where = b >= 0.54 - 1e-9 ? ', the highest in the string,' : b <= 0.46 + 1e-9 ? ', the lowest in the string,' : '';\n      return 'Cell ' + c + ' started at ' + mo(b) + where + ' and still sits flat on its own baseline.' + (q > FLAT ? ' The band widens because cell 17 is climbing.' : '') + (d.lines ? ' It stays well short of the ' + LINES[X.line].name + '.' : '');\n    }\n    if (q === 0) return 'Cell 17 has just had its first reading, ' + mo(r) + '. That is its baseline.';\n    if (q <= FLAT) return 'Cell 17 has sat on its ' + mo(b) + ' baseline for ' + nq(q) + ', wobbling a little like the rest.';\n    if (!d.lines) return 'Cell 17 has climbed for ' + nq(q - FLAT) + ' and reads ' + mo(r) + '. A steady climb one way is drift, not noise.';\n    const L = LINES[X.line], qc = crossAt(c, X.line);\n    if (qc != null && qc <= q) return 'Cell 17 ' + (L.kind === 'band' ? 'entered the ' : 'crossed the ') + L.name + ' at quarter ' + qc + ', and reads ' + mo(r) + ' at quarter ' + q + '.';\n    return 'Cell 17 reads ' + mo(r) + ' at quarter ' + q + ', short of the ' + L.name + ' so far.';\n  }\n\n  const PICS = { run6: [drawRun6, 160], trend: [drawTrend, 238], ab: [drawAB, 210], decide: [drawDecide, 222], test: [drawTest, 240], cell: [drawCell, 254], tags: [drawTags, 264], together: [drawTogether, 240], odd: [drawOdd, 160] };\n  function paint(i) {\n    if (i == null) i = at();\n    const d = STEPS[i], st = S[i];\n    art.textContent = ''; into = null;\n    REC = { pic: d.pic };\n    const pic = PICS[d.pic];\n    svg.setAttribute('viewBox', '0 0 340 ' + pic[1]);\n    const said = pic[0](d, st);\n    svg.setAttribute('aria-label', said);\n    if (d.rack) drawRack(d);\n    if (d.ctl) { el('say').textContent = ''; glue(el('say'), sayFor(d)); }\n  }\n\n  // ---------- words: *a key term* is highlighted ----------\n  // A number stays on one line with its unit (a no-wrap span, so the words read the same).\n  const UNIT = /(\\d+(?:\\.\\d+)? (?:mΩ|Ah|A|SDs?|hours?|h|quarters?)(?![A-Za-z]))/;\n  function glue(node, s) { String(s).split(UNIT).forEach((seg, k) => { if (seg) node.appendChild(k % 2 ? K.el('span', { class: 'nw' }, seg) : document.createTextNode(seg)); }); return node; }\n  function write(node, s) {\n    node.textContent = '';\n    String(s).split(/\\*([^*]+)\\*/).forEach((seg, k) => { if (seg) node.appendChild(k % 2 ? K.el('span', { class: 'term' }, seg) : glue(document.createDocumentFragment(), seg)); });\n  }\n  write(el('finish'), FINISH);\n  function layout(i, d, st) {\n    const key = [i, st.res, st.pick, st.why, finished].join('|');\n    if (key === laidOut) return;\n    laidOut = key;\n    const right = st.res === 'right';\n    el('stepbox').hidden = finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    write(task, d.show ? d.text : d.task);\n    el('rackbox').hidden = !d.rack;\n    SHOWN.forEach((k) => { el('c-' + k).hidden = !ctlOn(d, k); });\n    el('c-test').hidden = !d.test;\n    el('say').hidden = !d.ctl;\n    const rs = d.ro || [];\n    Object.keys(R).forEach((k) => { R[k].el.hidden = rs.indexOf(k) < 0; });\n    el('outs').hidden = !rs.length;\n    replayBtn.el.hidden = !d.show || REDUCE;\n    el('replay').hidden = replayBtn.el.hidden;\n    const opts = d.show ? [] : d.opts;\n    el('picks').hidden = !opts.length;\n    el('picks').classList.toggle('long', opts.some((o) => o.length > 12));\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(opts[k]);\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n    el('acts').hidden = !!d.show;\n    checkBtn.el.hidden = right;\n    const fb = el('fb');\n    fb.hidden = !!d.show;\n    fb.className = 'fb' + (right ? ' right' : '');\n    fb.textContent = d.show ? '' : right ? (d.right || 'That\\'s it.') : st.res === 'wrong' ? ((d.hints && d.hints[st.pick]) || d.hint) : st.res === 'empty' ? 'Choose one of the answers first.' : '';\n    const why = el('why');\n    why.hidden = d.show || !st.why;\n    write(why, d.show ? '' : d.why);\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !right);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  }\n\n  // Tapping a tile picks that cell (a drag across the tiles moves along them).\n  K.drag(rack, { control: 'cell', toValue: (x, y) => K.clamp(Math.floor((y - 4) / 34), 0, 2) * 8 + K.clamp(Math.floor((x - 10) / 40), 0, 7) + 1 });\n\n  K.update((p) => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (!anim.playing() && pending()) { const j = lastStep < 0 ? i : lastStep; finishNow(STEPS[j], S[j]); }\n    if (i !== lastStep) { lastStep = i; enterStep(i); }\n    else {\n      // Only the controls this screen shows move its picture; a hidden one is set back silently.\n      const mv = {}; let any = false, bad = false;\n      Object.keys(pushed).forEach((k) => { if (p[k] !== pushed[k]) { if (ctlOn(d, k)) { mv[k] = true; any = true; } else bad = true; } });\n      Object.keys(pushed).forEach((k) => { pushed[k] = p[k]; });\n      if (any) {\n        if (scripted) { scripted = false; anim.pause(); setX(d.end || {}); }\n        T = Infinity;\n        if (mv.q) { X.q = qi(p.q); if (d.pic === 'test') { X.th = 0; X.sf = 0; } }\n        if (mv.cell && ci(p.cell) !== X.cell) { X.cell = ci(p.cell); X.cf = 0; }\n        if (mv.line && p.line !== X.line) { X.line2 = X.line; X.line = p.line; X.lf = 0; }\n        if (mv.hist && p.hist !== X.hist) { X.hist = p.hist; X.f = 0; }\n        startSettle(d);\n      }\n      if (bad || any) push();\n    }\n    if (finished !== lastDone) { lastDone = finished; laidOut = ''; enter(finished ? 'done' : 'stepbox'); }\n    layout(i, d, st);\n    outs();\n    paint(i);\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const idx = (name) => STEPS.findIndex((d) => d.name === name);\n  const solved = (d) => Object.assign(blank(), { pick: d.want, res: 'right' });\n  // A step painted in the state given: what it draws.\n  function drawn(i, st, x) {\n    const keep = { X: copyX(), S: S[i], T, sc: scripted };\n    S[i] = st || blank(); T = Infinity; scripted = false;\n    setX(X0); setX(STEPS[i].enter || {}); setX(x || {});\n    try {\n      paint(i);\n      return Object.assign({}, REC, { texts: Array.from(art.querySelectorAll('text')).map((n) => n.textContent) });\n    } finally {\n      setX(keep.X); S[i] = keep.S; T = keep.T; scripted = keep.sc;\n      paint();\n    }\n  }\n  function after(fn) { const keep = copyX(); try { setX(X0); fn(); return copyX(); } finally { setX(keep); } }\n  const iD0 = idx('Drift or noise'), iS1 = idx('Its own baseline'), iD2 = idx('Which cell to watch'), iS3 = idx('The turn upward'), iD4 = idx('How far it has risen');\n  const iS5 = idx('Where to draw the line'), iD6 = idx('Flag or replace'), iS7 = idx('The test decides'), iD8 = idx('Reading the test'), iS9 = idx('What the charging did');\n  const iD10 = idx('Float set low'), iS11 = idx('What can still be done'), iD12 = idx('All together'), iD13 = idx('How unusual'), iD14 = idx('Boosted for weeks');\n  const fin = (i) => drawn(i, solved(STEPS[i]), STEPS[i].end);\n  const M_ = (o) => K.at(Object.assign({ step: iS3, q: 8, cell: FLAG, line: 'maker', hist: 'below' }, o));\n\n  K.check('The healthy example cells start from 0.46 to 0.54 mΩ, and at every quarter the 23 beside cell 17 average 0.50 mΩ with an SD of 0.02 mΩ, each within 0.005 mΩ of its baseline', () => {\n    const bs = HEALTHY.map((c) => B0[c]);\n    if (Math.min(...bs) !== 0.46 || Math.max(...bs) !== 0.54) return false;\n    for (let q = 0; q <= NQ; q++) {\n      const v = HEALTHY.map((c) => RD[c][q]), m = avg(v);\n      if (!K.near(m, 0.5, 1e-9) || !K.near(sdv(v, m), 0.02, 1e-9)) return false;\n      if (HEALTHY.some((c) => Math.abs(RD[c][q] - B0[c]) > 0.005 + 1e-12)) return false;\n    }\n    return true;\n  });\n  K.check('Cell 17 stays within 0.005 mΩ of its 0.50 mΩ baseline for ten quarters, then climbs 0.02 mΩ a quarter: 0.60 mΩ at quarter 15 and 0.78 mΩ at quarter 24', () => {\n    for (let q = 0; q <= FLAT; q++) if (Math.abs(RD[FLAG][q] - 0.5) > 0.005) return false;\n    for (let q = FLAT + 1; q <= NQ; q++) if (!K.near(RD[FLAG][q] - RD[FLAG][q - 1], 0.02, 1e-12)) return false;\n    return RD[FLAG][0] === 0.5 && RD[FLAG][FLAT] === 0.5 && K.near(RD[FLAG][15], 0.6, 1e-12) && K.near(RD[FLAG][24], 0.78, 1e-12) &&\n      drawn(iS3, null, { q: 15 }).texts0 === '0.60 mΩ' && drawn(iS1, null, { q: 8 }).texts0 === '0.50 mΩ';\n  });\n  K.check('At quarter 15 cell 17 has risen (0.60 − 0.50) ÷ 0.50 = 20% from its baseline, its fitted slope is 0.020 mΩ a quarter, and it sits (0.60 − 0.50) ÷ 0.02 = 5.0 SDs from the other 23', () => {\n    const a = M_({ q: 15 });\n    return K.near(a.riseFromBase, 20, 1e-9) && K.near(a.slope, 0.02, 1e-9) && K.near(a.sdFromMean, 5, 1e-9) &&\n      K.near(M_({ q: 24 }).riseFromBase, 56, 1e-9) && K.near(M_({ q: 0 }).riseFromBase, 0, 1e-12) && M_({ q: 0 }).slope === 0;\n  });\n  K.check('The fitted slope stays near zero while cell 17 is flat and reaches 0.020 mΩ a quarter once its last four readings lie on the climb. A healthy cell never moves 2% from its own baseline or 2.5 SDs from the rest', () => {\n    for (let q = 0; q <= FLAT; q++) if (Math.abs(slopeOf(FLAG, q)) >= 0.003) return false;\n    if (!K.near(slopeOf(FLAG, 14), 0.02, 1e-9) || !(slopeOf(FLAG, 12) > 0.005 && slopeOf(FLAG, 12) < 0.02)) return false;\n    return HEALTHY.every((c) => { for (let q = 0; q <= NQ; q++) if (Math.abs(riseOf(c, q)) >= 2 || Math.abs(zOf(c, q)) >= 2.5) return false; return true; });\n  });\n  K.check('One maker finds a 20 percent increase in impedance for flooded lead-acid generally goes with 80% capacity: on cell 17 that line is 0.60 mΩ, first reached at quarter 15', () => {\n    const a = drawn(iS5, null, { q: 15, line: 'maker', line2: null, lf: 1 }), b = drawn(iS5, null, { q: 14, line: 'maker', line2: null, lf: 1 });\n    return K.near(B0[FLAG] * 1.2, 0.6, 1e-12) && crossAt(FLAG, 'maker') === 15 && a.flagged.join() === '17' && b.flagged.length === 0 && a.texts.indexOf('20% line') >= 0;\n  }, { source: MEG });\n  K.check('Deviations of 30% to 50% from baseline are given as an example of cause for concern: on cell 17 that band runs from 0.65 to 0.75 mΩ, entered at quarter 18', () =>\n    K.near(B0[FLAG] * 1.3, 0.65, 1e-12) && K.near(B0[FLAG] * 1.5, 0.75, 1e-12) && crossAt(FLAG, 'guide') === 18 &&\n    drawn(iS5, null, { q: 18, line: 'guide', line2: null, lf: 1 }).flagged.join() === '17' && drawn(iS5, null, { q: 17, line: 'guide', line2: null, lf: 1 }).flagged.length === 0, { source: VERT });\n  K.check('Most cells had less than 80 percent capacity once impedance reached 150 percent of nominal: taking the baseline as nominal, that is 0.75 mΩ on cell 17, reached at quarter 23', () =>\n    K.near(B0[FLAG] * 1.5, 0.75, 1e-12) && crossAt(FLAG, 'study') === 23 && drawn(iS5, null, { q: 23, line: 'study', line2: null, lf: 1 }).texts.indexOf('150% of nominal') >= 0, { source: EPRI });\n  K.check('Two IEEE standards recommend replacing a battery below 80% of its rated capacity: on a 10-hour test at 200 Ah ÷ 10 h = 20 A that line falls at 8 hours, so 7.8 hours (78%) falls short and 8.5 hours (85%) does not', () =>\n    K.near(LINE80, 8, 1e-12) && K.near(IT, 20, 1e-12) && K.near(hoursAt(15), 7.8, 1e-9) && pc(capOf(hoursAt(15))) === '78' && hoursAt(15) < LINE80 &&\n    K.near(capOf(8.5), 85, 1e-9) && 8.5 > LINE80, { source: MEG });\n  K.check('The test time holds at 9.7 hours (97%) up to quarter 10, then falls 0.38 hours a quarter, and the drawn clock stops at 7.8 hours at quarter 15, short of the line', () => {\n    const a = drawn(iS7, null, { q: 15, th: hoursAt(15), sf: 1 }), b = drawn(iS7, null, { q: 8, th: hoursAt(8), sf: 1 }), c = drawn(iS7, null, { q: 15, th: 3, sf: 0 });\n    return hoursAt(0) === 9.7 && hoursAt(FLAT) === 9.7 && K.near(hoursAt(11), 9.32, 1e-9) && K.near(capOf(9.7), 97, 1e-9) &&\n      a.stop === '78%, short of the 80% line' && K.near(a.th, 7.8, 1e-9) && b.stop === '97%, above the 80% line' && c.stop === '' && a.texts.indexOf('7.8 h') >= 0;\n  });\n  K.check('Each charging history draws its own fault: crystals on the negative plate, acid sunk to the bottom, a thinning grid shedding lead, and gas leaving a drying valve-regulated cell', () => {\n    const a = drawn(iS9, null, { hist: 'below', f: 1 }), b = drawn(iS9, null, { hist: 'low', f: 1 }), c = drawn(iS9, null, { hist: 'high', f: 1 }), e = drawn(iS9, null, { hist: 'vrla', f: 1 });\n    return a.crystals >= 12 && a.flakes === 0 && a.strat === 0 && b.strat === 1 && b.crystals === 0 && c.flakes >= 10 && c.crystals === 0 &&\n      e.bubbles > 0 && e.dry >= 20 && a.bubbles === 0 && drawn(iS9, null, { hist: 'below', f: 0 }).crystals === 0 && a.fault === 'sulphation' && e.fault === 'dry-out';\n  });\n  K.check('Sulphation can be reversed if serviced in time, but corrosion is permanent: the tags say so, and all four show at the end of their screen', () => {\n    const t = drawn(iS11, null, { tg: 3.4 }), s = drawn(iS11, null, { tg: 0 });\n    return t.tags === 4 && s.tags === 0 && t.texts.indexOf('Can be reversed if caught in time') >= 0 && t.texts.indexOf('Permanent') >= 0;\n  });\n  K.check('The puzzles\\' arithmetic: 0.07 ÷ 0.46 is about 15%; 0.10 ÷ 0.50 is 20%, not 120% or 0.10%; 0.06 ÷ 0.02 is 3 SDs; and a string that ages together keeps cell 9 at 0.3 SD', () =>\n    Math.round(0.07 / 0.46 * 100) === 15 && K.near(0.53 - 0.46, 0.07, 1e-12) && K.near((0.6 - 0.5) / 0.5 * 100, 20, 1e-9) && K.near(0.6 / 0.5 * 100, 120, 1e-9) &&\n    K.near((0.56 - 0.5) / 0.02, 3, 1e-9) && K.near(drawn(iD12).z9, 0.3, 1e-9) && STEPS[iD4].want === '20%');\n  K.check('Each puzzle accepts only its right answer, and nothing in its picture gives the answer before Check', () => {\n    const ok = STEPS.every((d) => d.show || (d.opts.length === 3 && new Set(d.opts).size === 3 && d.opts.indexOf(d.want) >= 0));\n    const wants = STEPS.filter((d) => !d.show).map((d) => d.opts.indexOf(d.want));\n    return ok && new Set(wants).size === 3 && drawn(iD0).chev === 0 && fin(iD0).chev === 6 && !drawn(iD2).moved && fin(iD2).moved && !drawn(iD4).rb && fin(iD4).rb &&\n      !drawn(iD6).box && fin(iD6).box && drawn(iD8).stop === '' && fin(iD8).stop.indexOf('85%') >= 0 && drawn(iD10).crystals === 0 && fin(iD10).crystals >= 12 &&\n      !drawn(iD12).own && fin(iD12).own && !drawn(iD13).sds && fin(iD13).sds && drawn(iD14).bubbles === 0 && fin(iD14).bubbles > 0 && STEPS[iD4].hide.indexOf('riseFromBase') >= 0;\n  });\n  K.check('Fifteen screens: puzzles and demonstrations take turns, three mixed puzzles end it, and no demonstration says more than about 90 words', () =>\n    STEPS.length === 15 && STEPS.every((d, k) => !!d.show === ([1, 3, 5, 7, 9, 11].indexOf(k) >= 0)) && STEPS.every((d) => !d.show || d.read.split(/\\s+/).length <= 92));\n  K.check('Every demonstration settles within 4.4 s and ends where its screen says, and every answer\\'s motion settles within 2.5 s', () => {\n    const keys = ['q', 'cell', 'line', 'line2', 'lf', 'cf', 'hist', 'f', 'th', 'sf', 'ef', 'rb', 'tg', 'tsc'];\n    const same = (s, f) => keys.every((k) => (typeof s[k] === 'number' && typeof f[k] === 'number' ? K.near(s[k], f[k], 1e-9) : s[k] === f[k]));\n    return STEPS.every((d) => {\n      if (!d.show) return d.run.dur <= 2.5 && same(after(() => { setX(d.enter || {}); d.run.go(1); }), after(() => { setX(d.enter || {}); setX(d.end || {}); }));\n      return d.dur <= 4.4 && same(after(() => { setX(d.enter || {}); d.play(d.dur); }), after(() => { setX(d.enter || {}); setX(d.end || {}); }));\n    });\n  });\n\n  K.ready();\n</script>",
+  "title": "The trend that finds the cell",
+  "brief": "The one thing you should see is one cell's impedance sit flat on its own baseline for ten quarters, then turn upward and climb past the threshold you pick, when you drag the quarters on.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "The healthy example cells start from 0.46 to 0.54 mΩ, and at every quarter the 23 beside cell 17 average 0.50 mΩ with an SD of 0.02 mΩ, each within 0.005 mΩ of its baseline",
+     "ok": true
+    },
+    {
+     "label": "Cell 17 stays within 0.005 mΩ of its 0.50 mΩ baseline for ten quarters, then climbs 0.02 mΩ a quarter: 0.60 mΩ at quarter 15 and 0.78 mΩ at quarter 24",
+     "ok": true
+    },
+    {
+     "label": "At quarter 15 cell 17 has risen (0.60 − 0.50) ÷ 0.50 = 20% from its baseline, its fitted slope is 0.020 mΩ a quarter, and it sits (0.60 − 0.50) ÷ 0.02 = 5.0 SDs from the other 23",
+     "ok": true
+    },
+    {
+     "label": "The fitted slope stays near zero while cell 17 is flat and reaches 0.020 mΩ a quarter once its last four readings lie on the climb. A healthy cell never moves 2% from its own baseline or 2.5 SDs from the rest",
+     "ok": true
+    },
+    {
+     "label": "One maker finds a 20 percent increase in impedance for flooded lead-acid generally goes with 80% capacity: on cell 17 that line is 0.60 mΩ, first reached at quarter 15",
+     "ok": true,
+     "source": "https://res.cloudinary.com/iwh/image/upload/q_auto,g_center/assets/1/7/Megger_Battery_Testing_Guide.pdf"
+    },
+    {
+     "label": "Deviations of 30% to 50% from baseline are given as an example of cause for concern: on cell 17 that band runs from 0.65 to 0.75 mΩ, entered at quarter 18",
+     "ok": true,
+     "source": "https://www.vertiv.com/48dfb9/globalassets/documents/battcon-static-assets/2010/the-inspection-is-complete.-what-are-you-doing-with-the-data.pdf"
+    },
+    {
+     "label": "Most cells had less than 80 percent capacity once impedance reached 150 percent of nominal: taking the baseline as nominal, that is 0.75 mΩ on cell 17, reached at quarter 23",
+     "ok": true,
+     "source": "https://www.vertiv.com/48de51/globalassets/documents/battcon-static-assets/2002/internal-ohmic-measurements-and-their-relationship-to-battery-capacity---epris-ongoing-technology-evaluation.pdf"
+    },
+    {
+     "label": "Two IEEE standards recommend replacing a battery below 80% of its rated capacity: on a 10-hour test at 200 Ah ÷ 10 h = 20 A that line falls at 8 hours, so 7.8 hours (78%) falls short and 8.5 hours (85%) does not",
+     "ok": true,
+     "source": "https://res.cloudinary.com/iwh/image/upload/q_auto,g_center/assets/1/7/Megger_Battery_Testing_Guide.pdf"
+    },
+    {
+     "label": "The test time holds at 9.7 hours (97%) up to quarter 10, then falls 0.38 hours a quarter, and the drawn clock stops at 7.8 hours at quarter 15, short of the line",
+     "ok": true
+    },
+    {
+     "label": "Each charging history draws its own fault: crystals on the negative plate, acid sunk to the bottom, a thinning grid shedding lead, and gas leaving a drying valve-regulated cell",
+     "ok": true
+    },
+    {
+     "label": "Sulphation can be reversed if serviced in time, but corrosion is permanent: the tags say so, and all four show at the end of their screen",
+     "ok": true
+    },
+    {
+     "label": "The puzzles' arithmetic: 0.07 ÷ 0.46 is about 15%; 0.10 ÷ 0.50 is 20%, not 120% or 0.10%; 0.06 ÷ 0.02 is 3 SDs; and a string that ages together keeps cell 9 at 0.3 SD",
+     "ok": true
+    },
+    {
+     "label": "Each puzzle accepts only its right answer, and nothing in its picture gives the answer before Check",
+     "ok": true
+    },
+    {
+     "label": "Fifteen screens: puzzles and demonstrations take turns, three mixed puzzles end it, and no demonstration says more than about 90 words",
+     "ok": true
+    },
+    {
+     "label": "Every demonstration settles within 4.4 s and ends where its screen says, and every answer's motion settles within 2.5 s",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step",
+    "q",
+    "cell",
+    "line",
+    "hist"
+   ],
+   "readouts": [
+    "riseFromBase",
+    "slope",
+    "sdFromMean"
+   ],
+   "outputs": [
+    "riseFromBase",
+    "slope",
+    "sdFromMean"
+   ],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Screen",
+     "min": 0,
+     "max": 14,
+     "step": 1,
+     "steps": [
+      "Drift or noise",
+      "Its own baseline",
+      "Which cell to watch",
+      "The turn upward",
+      "How far it has risen",
+      "Where to draw the line",
+      "Flag or replace",
+      "The test decides",
+      "Reading the test",
+      "What the charging did",
+      "Float set low",
+      "What can still be done",
+      "All together",
+      "How unusual",
+      "Boosted for weeks"
+     ],
+     "value": 0
+    },
+    {
+     "id": "q",
+     "kind": "control",
+     "label": "Quarter",
+     "min": 0,
+     "max": 24,
+     "step": 1,
+     "log": false,
+     "value": 8,
+     "shown": false,
+     "snap": [
+      8,
+      10,
+      15,
+      18,
+      23
+     ]
+    },
+    {
+     "id": "cell",
+     "kind": "control",
+     "label": "Cell",
+     "min": 1,
+     "max": 24,
+     "step": 1,
+     "log": false,
+     "value": 17,
+     "shown": false
+    },
+    {
+     "id": "line",
+     "kind": "choice",
+     "label": "Line to draw",
+     "options": [
+      "maker",
+      "guide",
+      "study"
+     ],
+     "labels": [
+      "20% rise",
+      "30 to 50% band",
+      "150% of nominal"
+     ],
+     "value": "maker",
+     "index": 0,
+     "shown": false
+    },
+    {
+     "id": "hist",
+     "kind": "choice",
+     "label": "Charging history",
+     "options": [
+      "below",
+      "low",
+      "high",
+      "vrla"
+     ],
+     "labels": [
+      "Float below the band",
+      "Long spells at low charge",
+      "Float above the band",
+      "Valve-regulated, charged hard"
+     ],
+     "value": "below",
+     "index": 0,
+     "shown": false
+    }
+   ],
+   "actions": [
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Check",
+    "Why?",
+    "Play again",
+    "Run the capacity test",
+    "Back",
+    "Continue",
+    "Start again",
+    "Demonstration"
+   ],
+   "answers": [],
+   "written": [],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 2
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-27T16:48:48.150Z",
+  "applied": [
+   {
+    "path": "explain.text",
+    "problem": "Claims go past their quotes: coin-toss drops 'most' testers; 30-50% drops 'for example'; 80% is two IEEE standards' recommendation; 'often the cause' is unsupported; sulphation needs long deprivation; grid corrosion is normal ageing that overcharge speeds up."
+   },
+   {
+    "path": "practice.text",
+    "problem": "Specific gravity can only be read on vented cells, not valve-regulated ones; the 80% replacement rule is presented as absolute when the source says two IEEE standards recommend it; and overcharge speeds grid corrosion rather than being its only cause."
+   },
+   {
+    "path": "interactive.whatAmILookingAt",
+    "problem": "Screen 1 drops the quote's 'most' testers; screen 5 drops the service guide's 'for example'; screen 6's hint says the 20% line 'calls it a concern', which the maker does not say; screen 10's hint makes high voltage the only cause of grid corrosion, which also comes with normal age."
+   }
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}

@@ -1,0 +1,304 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Batteries: lead-acid cells, from plate to battery room
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i1 "The lead-acid cell: two plates and an acid" — Discharging a lead-acid cell turns both its plates to lead sulphate and takes acid out of the liquid, and charging runs that backwards. [mechanism]
+Later ideas in the course (every claim must stay true after Dan has learned each of them):
+- i2 State of charge: two gauges, and when to trust them — The acid's strength, read as specific gravity, and the rested voltage both track the charge, once each reading is rested, corrected for temperature, level-checked and mixed.
+- i3 Capacity and rate: what an ampere-hour is worth — A battery gives fewer ampere-hours the faster or colder you draw them, and Peukert's rough fit, found from two ratings, estimates how many fewer.
+- i4 Charging: the charger holds volts per cell — A charger holds a set voltage per cell through bulk, topping and float, because a little too low sulphates the plates and too high corrodes them.
+- i5 Gassing, hydrogen and the air that clears it — Near full charge, current the plates no longer take splits water into hydrogen and oxygen, so a battery room's vents are sized from the charger's largest current.
+- i6 Strings: the weakest cell sets the pace — Cells in series share one current, so the weakest cell empties first on discharge and fills first on charge, and is overdriven either way.
+- i7 Ageing, faults and the trend that finds them — A failing cell shows as readings drifting from its own baseline, so trend them and confirm with a capacity test; sources differ on how much drift matters.
+- i8 Short circuits, safety and other chemistries — A large battery's few milliohms of resistance let it drive thousands of amps into a short, even part discharged, and its cells are always live.
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] Lead-Acid Batteries and Advanced Lead-Carbon Batteries — OSTI — https://www.osti.gov/servlets/purl/1502636
+    "at the anode (negative plate), lead metal reacts with sulfuric acid to form lead sulfate (i.e., Pb is oxidized from Pb to Pb 2+ ), liberating electrons."
+[R2] Lead-Acid Batteries and Advanced Lead-Carbon Batteries — OSTI — https://www.osti.gov/servlets/purl/1502636
+    "While at the cathode (positive plate), lead oxide reacts with sulfuric acid, again forming lead sulfate"
+[R3] Lead Acid Battery - an overview | ScienceDirect Topics — https://www.sciencedirect.com/topics/materials-science/lead-acid-battery
+    "During discharge, both electrodes become lead sulfate (PbSO ₄ ), and sulfuric acid is highly consumed, leaving behind water"
+[R4] Rechargeable cells: the lead–acid accumulator | Class experiment | RSC Education — Royal Society of Chemistry — https://edu.rsc.org/experiments/rechargeable-cells-the-lead-acid-accumulator/391.article
+    "Thus during charging the sulfuric acid concentration rises, and during discharge it falls."
+[R5] Battery University | BU-303: Confusion with Voltages — http://www.batteryuniversity.com/article/bu-303-confusion-with-voltages
+    "The nominal voltage of lead acid is 2 volts per cell, however when measuring the open circuit voltage, the OCV of a charged and rested battery should be 2.1V/cell."
+[R6] 17.5 Batteries and Fuel Cells - Chemistry 2e | OpenStax — https://openstax.org/books/chemistry-2e/pages/17-5-batteries-and-fuel-cells
+    "Each cell produces 2 V, so six cells are connected in series to produce a 12-V car battery."
+Notes (claims, and the sources that support them):
+- On discharge, lead at the negative plate reacts with sulphuric acid to form lead sulphate, freeing electrons. [R1]
+- At the positive plate, lead oxide reacts with sulphuric acid, again forming lead sulphate. [R2]
+- On discharge both plates become lead sulphate and the sulphuric acid is used up, leaving water behind. [R3]
+- The acid concentration rises during charging and falls during discharge, so charging runs the discharge reaction backwards. [R4]
+- The nominal voltage of a lead-acid cell is 2 V, but a charged and rested cell measures about 2.1 V open circuit. [R5]
+- A lead-acid cell is nominally 2 V, and a charged, rested cell reads about 2.1 V open circuit. [R5]  (whole topic)
+- Cells connect in series to make a battery: six 2 V cells make a 12 V battery. [R6][R5]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i1",
+ "title": "The lead-acid cell: two plates and an acid",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is white lead sulphate spreading over both plates while the acid's dots leave the liquid, when you drag the charge left from full towards flat.",
+  "title": "The cell, plate by plate",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Screen",
+    "min": 0,
+    "max": 12,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [
+   {
+    "id": "restVolts",
+    "label": "Volts, charged and rested",
+    "unit": "V",
+    "decimals": 1
+   },
+   {
+    "id": "ampHours",
+    "label": "Ampere-hours, example",
+    "unit": "Ah",
+    "decimals": 0
+   }
+  ],
+  "whatAmILookingAt": "A short lesson in thirteen small screens on one cut-away cell. On the left is the positive plate, lead dioxide, dark brown. On the right is the negative plate, plain lead, grey. Between them is sulphuric acid in water, drawn as acid dots among the water. A terminal sits on top of each plate, and every part is labelled. A slider sets the charge left, from 100% down to 0%. As it falls, white lead sulphate spreads over both plates, acid dots leave the liquid for the plates, and a strength gauge on the liquid drops towards water. It stops well above water at 0%, because a flat cell still holds weak acid. A load switch closes the outside wire through a lamp. Then electron dots run round the wire, from the lead plate to the lead dioxide plate, and ion dots drift in the acid. The acid's positive ions drift towards the lead dioxide plate and its negative ions towards the lead plate. No electron crosses the liquid. With the switch open and no charger, no current flows and nothing changes. A charge switch puts a charger across the cell instead. Electrons and ions then run the other way, the white sulphate shrinks back off both plates and the acid dots return to the liquid. Beside the cell is a ladder of the two plate potentials, +1.685 V for lead dioxide and −0.356 V for lead, with the 2.04 V gap drawn. A voltmeter shows a charged, rested cell, 2.1 V. A plate-size slider from 1× to 4× grows an ampere-hour bar, say 100 Ah at 1×, and the voltmeter does not move. A stepper shows 1, 6, 12 or 24 cells in series and their voltage. Each show screen's words, under about 90, end on what its finished picture shows, so they read without the controls. Screen by screen. 1 shows the cell, charged, and names its parts. 2 asks: a load is connected and the cell discharges, what do the plates turn into? Both into lead sulphate, the lead plate dissolves into the acid, or lead moves from one plate to the other. 3 shows the charge dragged down, ending at half charge with both plates part-white. 4 asks what happens to the acid's strength from full to flat: it falls towards water, it stays the same because the acid is only a bath, or it rises. 5 shows the current with the load switch closed: electrons round the wire, ions in the acid. 6 asks what carries the current through the acid: ions drifting, electrons crossing the acid, or ions picking up electrons at one plate and carrying them to the other. 7 shows charging, ending fully charged. 8 asks what charging does: turns the lead sulphate back and strengthens the acid, strengthens the acid while the plates stay lead sulphate, or weakens the acid further. 9 shows the ladder and the voltmeter. 10 asks for the gap between +1.685 V and −0.356 V: 2.04 V, 1.33 V or 1.685 V. 11 shows the plate-size slider at 4× and the series stepper at 12 cells. 12 and 13 mix it. 12: a small cell you can hold in one hand and a stationary cell two people lift, both charged and rested; which reads more? Both about 2.1 V, the big one, or the small one. 13: a 24 V emergency battery of lead-acid cells; how many cells, and what does it read charged and rested? 12 cells and about 25.2 V, 24 cells and about 50.4 V, or 6 cells and about 12.6 V.",
+  "ignores": "The plates are drawn as flat sheets. Real plates hold their material on a lead grid, and a separator keeps them apart. Neither is drawn. The dots are a picture, not a count of particles. Time runs fast, since a real discharge takes hours. A real cell left open also discharges itself, far too slowly to see here. The voltmeter shows a charged, rested cell. A real cell's rested voltage slips a little as its acid thins. Near full charge some charging current splits water into hydrogen and oxygen, and that gas is not drawn. The ladder's potentials are table figures for acid of a standard strength at 25 °C.",
+  "numbers": [
+   {
+    "label": "Screen control lowest",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Screen control highest",
+    "value": 12,
+    "kind": "control"
+   },
+   {
+    "label": "Charge left, slider top, %",
+    "value": 100,
+    "kind": "control"
+   },
+   {
+    "label": "Charge left, slider bottom, %",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Screen 3 end state, charge left, %",
+    "value": 50,
+    "kind": "control"
+   },
+   {
+    "label": "Lead-acid nominal voltage per cell, V",
+    "value": 2,
+    "kind": "constant",
+    "source": 1
+   },
+   {
+    "label": "Charged, rested cell, V",
+    "value": 2.1,
+    "kind": "constant",
+    "source": 1
+   },
+   {
+    "label": "Lead dioxide plate potential, V",
+    "value": 1.685,
+    "kind": "constant"
+   },
+   {
+    "label": "Lead plate potential, V",
+    "value": -0.356,
+    "kind": "constant"
+   },
+   {
+    "label": "Temperature of the table figures, °C",
+    "value": 25,
+    "kind": "constant"
+   },
+   {
+    "label": "Gap between the plate potentials, V",
+    "value": 2.04,
+    "kind": "computed"
+   },
+   {
+    "label": "Plate size slider lowest, times",
+    "value": 1,
+    "kind": "control"
+   },
+   {
+    "label": "Plate size slider highest, times",
+    "value": 4,
+    "kind": "control"
+   },
+   {
+    "label": "Ampere-hours at 1× plate size, example",
+    "value": 100,
+    "kind": "assumed"
+   },
+   {
+    "label": "Ampere-hours at 4× plate size",
+    "value": 400,
+    "kind": "computed"
+   },
+   {
+    "label": "Cells in series, stepper option",
+    "value": 1,
+    "kind": "control"
+   },
+   {
+    "label": "Cells in series, stepper option",
+    "value": 6,
+    "kind": "control"
+   },
+   {
+    "label": "Cells in series, stepper option",
+    "value": 12,
+    "kind": "control"
+   },
+   {
+    "label": "Cells in series, stepper option",
+    "value": 24,
+    "kind": "control"
+   },
+   {
+    "label": "Six cells nominal, V",
+    "value": 12,
+    "kind": "computed"
+   },
+   {
+    "label": "Twelve cells nominal, V",
+    "value": 24,
+    "kind": "computed"
+   },
+   {
+    "label": "Twenty-four cells nominal, V",
+    "value": 48,
+    "kind": "computed"
+   },
+   {
+    "label": "Six cells charged and rested, V",
+    "value": 12.6,
+    "kind": "computed"
+   },
+   {
+    "label": "Twelve cells charged and rested, V",
+    "value": 25.2,
+    "kind": "computed"
+   },
+   {
+    "label": "Twenty-four cells charged and rested, V",
+    "value": 50.4,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 10 wrong pick, 1.685 − 0.356, V",
+    "value": 1.33,
+    "kind": "computed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "A lead-acid cell is two plates standing in sulphuric acid. As it discharges, both plates turn into the same white substance, lead sulphate. The acid is used up in the making. Charging runs all of that backwards. The positive plate is lead dioxide, and the negative plate is plain lead. The acid, mixed with water, is the cell's [[electrolyte]].\n\nConnect a load and each plate reacts with the acid where they touch. At the lead plate, lead and acid form lead sulphate and set electrons free.[^2] At the lead dioxide plate, lead dioxide and acid also form lead sulphate, and take electrons in. So both plates end up as lead sulphate, and the acid is used up, leaving water behind.[^3] The acid is not a bath the plates sit in. It is one of the things being used, so its strength falls as the cell discharges.[^4] The freed electrons cannot cross the acid. They run round the outside wire, through your load, from the lead plate to the lead dioxide plate. Conventional current, as you draw it, runs the other way, out of the positive terminal. Inside the liquid the current is carried by [[ions]], the acid's charged pieces. One plate gives out electrons and the other takes them in, so charge would pile up beside each. The ions drift through the acid and keep it balanced, and that closes the loop. An ion does not pick up electrons at one plate and carry them to the other.\n\nA charger runs it backwards. It pushes current in against the cell's own push, so it needs a voltage above the cell's. The lead sulphate turns back into lead on one plate and lead dioxide on the other. Its acid returns to the liquid, so the acid's strength rises on charge.[^4] The cell's own push comes from its two plates. Each has its own voltage against the acid, fixed by what it is made of. Measured against the same reference, lead dioxide sits at +1.685 V and lead at −0.356 V. The cell's voltage is the gap, 1.685 + 0.356 = 2.04 V. That figure is for acid of a standard strength. A charged cell's acid is stronger, so it rests a little higher. A lead-acid cell's [[nominal voltage]] is 2 V, and charged and rested it reads about 2.1 V.[^1]\n\nPlate size is not in that sum. A bigger plate holds more material to turn into lead sulphate. So it gives more ampere-hours at the same volts. For more volts you put cells in series. Six make 12 V, twelve make 24 V and twenty-four make 48 V. This is a simplified picture. A real cell also has separators and a grid inside each plate, and it gives off gas near full charge. Here is the first clue to a battery that reads well yet runs out early. A healthy voltage tells you what the plates are made of, not how much of them can still react. **Discharging turns both plates into lead sulphate and uses up the acid, and charging runs it all backwards.**"
+ },
+ "analogy": {
+  "text": "A pumped-storage hydro scheme stores energy as water held up in a top lake. Running the turbines lets the water down and gives out energy, until the top lake runs low. Pumping lifts it back. The height between the lakes sets the pressure, and the size of the lake sets how long it runs. In the cell, the two plate materials set the volts, and how much of them there is sets the ampere-hours.",
+  "breaks": "Nothing moves from one plate to the other the way water moves between lakes. Both plates turn into the same new substance where they stand, and the acid is used up in the making. Charging does not carry anything back up. It unmakes the lead sulphate on both plates."
+ },
+ "practice": {
+  "text": "**Safety first:** the electrolyte is a strong acid, so wear eye protection and gloves near open cells. The cells themselves cannot be switched off. Their terminals are live whenever they hold charge.\n\n- Read the label for the nominal voltage and the ampere-hour rating.\n- Count the cells: nominal voltage ÷ 2 V.\n- Expect about 2.1 V a cell when charged and rested, so multiply the cell count by 2.1.\n- Take the ampere-hours from the rating, not from the voltage.\n\n**Rule of thumb:** the volts come from the plate materials, about 2 V a cell. The ampere-hours come from how much plate there is.\n\n**Worked example:** Say a ship's emergency battery is marked 24 V. 24 ÷ 2 = 12 cells in series. Charged and rested it should read about 12 × 2.1 = 25.2 V. A 48 V bank has 24 cells and reads about 50.4 V. A bigger 24 V battery has bigger cells, not more volts per cell.\n\n**Common mistakes**\n- Picturing electrons crossing the acid. They go round the wire, and ions carry the current inside.\n- Thinking ions pick up electrons at one plate and carry them to the other.\n- Treating the acid as a bath. It is used up on discharge and given back on charge.\n- Expecting a bigger cell to give more volts. It gives more ampere-hours.\n- Thinking only one plate changes. Both turn to lead sulphate."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "simplified",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "sources": [
+  {
+   "n": 1,
+   "title": "Battery University | BU-303: Confusion with Voltages",
+   "url": "http://www.batteryuniversity.com/article/bu-303-confusion-with-voltages",
+   "quote": "The nominal voltage of lead acid is 2 volts per cell, however when measuring the open circuit voltage, the OCV of a charged and rested battery should be 2.1V/cell."
+  },
+  {
+   "n": 2,
+   "title": "Lead-Acid Batteries and Advanced Lead-Carbon Batteries — OSTI",
+   "url": "https://www.osti.gov/servlets/purl/1502636",
+   "quote": "at the anode (negative plate), lead metal reacts with sulfuric acid to form lead sulfate (i.e., Pb is oxidized from Pb to Pb 2+ ), liberating electrons."
+  },
+  {
+   "n": 3,
+   "title": "Lead Acid Battery - an overview | ScienceDirect Topics",
+   "url": "https://www.sciencedirect.com/topics/materials-science/lead-acid-battery",
+   "quote": "During discharge, both electrodes become lead sulfate (PbSO ₄ ), and sulfuric acid is highly consumed, leaving behind water"
+  },
+  {
+   "n": 4,
+   "title": "Rechargeable cells: the lead–acid accumulator | Class experiment | RSC Education — Royal Society of Chemistry",
+   "url": "https://edu.rsc.org/experiments/rechargeable-cells-the-lead-acid-accumulator/391.article",
+   "quote": "Thus during charging the sulfuric acid concentration rises, and during discharge it falls."
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }

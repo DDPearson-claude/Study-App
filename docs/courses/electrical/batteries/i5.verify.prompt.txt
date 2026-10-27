@@ -1,0 +1,594 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Batteries: lead-acid cells, from plate to battery room
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i5 "Gassing, hydrogen and the air that clears it" — Near full charge, current the plates no longer take splits water into hydrogen and oxygen, so a battery room's vents are sized from the charger's largest current. [quantity]
+Later ideas in the course (every claim must stay true after Dan has learned each of them):
+- i6 Strings: the weakest cell sets the pace — Cells in series share one current, so the weakest cell empties first on discharge and fills first on charge, and is overdriven either way.
+- i7 Ageing, faults and the trend that finds them — A failing cell shows as readings drifting from its own baseline, so trend them and confirm with a capacity test; sources differ on how much drift matters.
+- i8 Short circuits, safety and other chemistries — A large battery's few milliohms of resistance let it drive thousands of amps into a short, even part discharged, and its cells are always live.
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] Table of contents — Hoppecke — https://www.hoppecke.com/fileadmin/Redakteur/Hoppecke-Main/Products-Import/vl_manual_en.pdf
+    "During the charging process, electrolysis decomposes the water of the electrolyte"
+[R2] Using electric storage batteries safely INDG139 — HSE — https://www.hse.gov.uk/PUBNS/indg139.pdf
+    "Hydrogen and oxygen are produced more quickly as the battery gets close to being fully charged. If you continue charging after the battery is fully charged, a lot of gas will be produced, greatly increasing the risk from explosion."
+[R3] Flooded Stationary Lead Acid Batteries IOM — EnerSys — https://www.enersys.com/492013/globalassets/documents/product-documentation/powersafe/opzs/amer/amer-en-iom-ps-flooded-0223.pdf
+    "After reaching the gassing voltage of 2.40 V/c a current limit of 2.5 to 5 A/100 Ah is recommended"
+[R4] Using electric storage batteries safely INDG139 — HSE — https://www.hse.gov.uk/PUBNS/indg139.pdf
+    "Minimum area of inlet/outlet needed = 0.3 x N x I x S cm2 Where N = number of cells in the battery(ies) I = the overcharging current (amps) S = the appropriate dilution factor;"
+[R5] Using electric storage batteries safely INDG139 — HSE — https://www.hse.gov.uk/PUBNS/indg139.pdf
+    "S = the appropriate dilution factor; 10 for workrooms, 4 for enclosures"
+[R6] Using electric storage batteries safely INDG139 — HSE — https://www.hse.gov.uk/PUBNS/indg139.pdf
+    "the maximum current likely to be supplied by the charger during malfunction should be used so as to include a suitable safety margin."
+[R7] Using electric storage batteries safely INDG139 — HSE — https://www.hse.gov.uk/PUBNS/indg139.pdf
+    "In charging areas that people enter (workrooms) the concentration of hydrogen should not exceed 0.4% vol/vol (10% of the LEL)."
+[R8] Using electric storage batteries safely INDG139 — HSE — https://www.hse.gov.uk/PUBNS/indg139.pdf
+    "When charging takes place in an enclosure that people do not enter, the concentration of hydrogen should not exceed 1% vol/vol (25% of the LEL)."
+[R9] Using electric storage batteries safely INDG139 — HSE — https://www.hse.gov.uk/PUBNS/indg139.pdf
+    "Mixtures with air containing from 4% hydrogen (lower explosion limit – LEL) to 75% hydrogen (upper explosion limit – UEL) will readily ignite and explode."
+[R10] Lead-Acid Batteries and Advanced Lead-Carbon Batteries — OSTI — https://www.osti.gov/servlets/purl/1502636
+    "at the anode (negative plate), lead metal reacts with sulfuric acid to form lead sulfate (i.e., Pb is oxidized from Pb to Pb 2+ ), liberating electrons."
+[R11] Lead-Acid Batteries and Advanced Lead-Carbon Batteries — OSTI — https://www.osti.gov/servlets/purl/1502636
+    "While at the cathode (positive plate), lead oxide reacts with sulfuric acid, again forming lead sulfate"
+[R12] Lead Acid Battery - an overview | ScienceDirect Topics — https://www.sciencedirect.com/topics/materials-science/lead-acid-battery
+    "During discharge, both electrodes become lead sulfate (PbSO ₄ ), and sulfuric acid is highly consumed, leaving behind water"
+[R13] Rechargeable cells: the lead–acid accumulator | Class experiment | RSC Education — Royal Society of Chemistry — https://edu.rsc.org/experiments/rechargeable-cells-the-lead-acid-accumulator/391.article
+    "Thus during charging the sulfuric acid concentration rises, and during discharge it falls."
+[R14] Battery University | BU-303: Confusion with Voltages — http://www.batteryuniversity.com/article/bu-303-confusion-with-voltages
+    "The nominal voltage of lead acid is 2 volts per cell, however when measuring the open circuit voltage, the OCV of a charged and rested battery should be 2.1V/cell."
+[R15] 17.5 Batteries and Fuel Cells - Chemistry 2e | OpenStax — https://openstax.org/books/chemistry-2e/pages/17-5-batteries-and-fuel-cells
+    "Some batteries are designed for single-use applications and cannot be recharged (primary cells), while others are based on conveniently reversible cell reactions that allow recharging by an external power source (secondary cells)."
+[R16] Bu 403 Charging Lead Acid — Battery University — https://batteryuniversity.com/article/bu-403-charging-lead-acid
+    "The lead acid battery uses the constant current constant voltage (CCCV) charge method. A regulated current raises the terminal voltage until the upper charge voltage limit is reached, at which point the current drops due to saturation."
+[R17] Bu 403 Charging Lead Acid — Battery University — https://batteryuniversity.com/article/bu-403-charging-lead-acid
+    "The correct setting of the charge voltage limit is critical and ranges from 2.30V to 2.45V per cell."
+[R18] Bu 403 Charging Lead Acid — Battery University — https://batteryuniversity.com/article/bu-403-charging-lead-acid
+    "On one hand, the battery wants to be fully charged to get maximum capacity and avoid sulfation on the negative plate; on the other hand, over-saturation by not switching to float charge causes grid corrosion on the positive plate."
+[R19] Bu 403 Charging Lead Acid — Battery University — https://batteryuniversity.com/article/bu-403-charging-lead-acid
+    "The recommended float voltage of most flooded lead acid batteries is 2.25V to 2.27V/cell. Large stationary batteries at 25°C (77°F) typically float at 2.25V/cell."
+[R20] Bu 403 Charging Lead Acid — Battery University — https://batteryuniversity.com/article/bu-403-charging-lead-acid
+    "the charge voltage should be reduced by 3mV per cell for every degree above 25°C and increased by 3mV per cell for every degree below 25°C."
+[R21] BU-404: What is Equalizing Charge? - Battery University — https://batteryuniversity.com/article/bu-404-what-is-equalizing-charge
+    "Applying a periodic equalizing charge brings all cells to similar levels by increasing the voltage to 2.50V/cell, or 10 percent higher than the recommended charge voltage."
+[R22] BU-804a: Corrosion, Shedding and Internal Short - Battery University — https://batteryuniversity.com/article/bu-804a-corrosion-shedding-and-internal-short
+    "Applying prolonged overcharge is another contributor to grid corrosion."
+[R23] Bu 403 Charging Lead Acid — Battery University — https://batteryuniversity.com/article/bu-403-charging-lead-acid
+    "With the CCCV method, lead acid batteries are charged in three stages, which are [1] constant-current charge, [2] topping charge and [3] float charge."
+[R24] Bu 403 Charging Lead Acid — Battery University — https://batteryuniversity.com/article/bu-403-charging-lead-acid
+    "the topping charge continues at a lower charge current and provides saturation, and the float charge compensates for the loss caused by self-discharge."
+[R25] Bu 403 Charging Lead Acid — Battery University — https://batteryuniversity.com/article/bu-403-charging-lead-acid
+    "full charge is reached when the current decreases to 3–5 percent of the Ah rating."
+[R26] Flooded Stationary Lead Acid Batteries IOM — EnerSys — https://www.enersys.com/492013/globalassets/documents/product-documentation/powersafe/opzs/amer/amer-en-iom-ps-flooded-0223.pdf
+    "The recommended float / charge voltage is 2.23 V/cell remove per cell at 20°C (68°F) depending on the specific type (see table 5). The charger voltage amounts to Uflo per cell x no. of cells (tolerance ± 1 %)."
+[R27] Flooded Stationary Lead Acid Batteries IOM — EnerSys — https://www.enersys.com/492013/globalassets/documents/product-documentation/powersafe/opzs/amer/amer-en-iom-ps-flooded-0223.pdf
+    "To reduce the recharge time the battery may be recharged at 2.33 – 2.40 V/cell with a current limited to 4 x I10. Boost charging must be switched to float charging when the fully charged state is reached."
+[R28] Bu 403 Charging Lead Acid — Battery University — https://batteryuniversity.com/article/bu-403-charging-lead-acid
+    "Charging beyond the specified limits turns redundant energy into heat and the battery begins to gas."
+[R29] Bu 403 Charging Lead Acid — Battery University — https://batteryuniversity.com/article/bu-403-charging-lead-acid
+    "Connected in a string, all cells receive the same charge current and controlling individual cell voltages as each reaches full capacity is almost impossible."
+[R30] Battery University | BU-804b: Sulfation and How to Prevent it — https://batteryuniversity.com/article/bu-804b-sulfation-and-how-to-prevent-it
+    "Sulfation occurs when a lead acid battery is deprived of a full charge."
+[R31] BU-404: What is Equalizing Charge? - Battery University — https://batteryuniversity.com/article/bu-404-what-is-equalizing-charge
+    "An equalizing charge is nothing more than a deliberate overcharge to remove sulfate crystals that build up on the plates over time."
+[R32] Flooded Stationary Lead Acid Batteries IOM — EnerSys — https://www.enersys.com/492013/globalassets/documents/product-documentation/powersafe/opzs/amer/amer-en-iom-ps-flooded-0223.pdf
+    "If the average battery temperature exceeds the recommended operating temperature range of +10°C (50°F) to +30°C (86°F), the float charge voltage shall be reduced by (Tcell - 30) x 0.003V/ cell when the temperature exceeds +30°C (86°F)"
+[R33] Bu 403 Charging Lead Acid — Battery University — https://batteryuniversity.com/article/bu-403-charging-lead-acid
+    "This is especially critical for sealed systems because they are less tolerant to overcharge than the flooded type."
+[R34] Flooded Stationary Lead Acid Batteries IOM — EnerSys — https://www.enersys.com/492013/globalassets/documents/product-documentation/powersafe/opzs/amer/amer-en-iom-ps-flooded-0223.pdf
+    "Recharge 1.2 times the discharged capacity."
+[R35] 17.5 Batteries and Fuel Cells - Chemistry 2e | OpenStax — https://openstax.org/books/chemistry-2e/pages/17-5-batteries-and-fuel-cells
+    "Each cell produces 2 V, so six cells are connected in series to produce a 12-V car battery."
+Notes (claims, and the sources that support them):
+- During charging, electrolysis decomposes the water of the electrolyte into hydrogen and oxygen. [R1]
+- Hydrogen and oxygen are produced more quickly near full charge, and continued charging after full charge produces a lot of gas. [R2]
+- Above the gassing voltage of 2.40 V per cell, one maker recommends limiting the charging current to 2.5 to 5 A per 100 Ah. [R3]
+- HSE gives the natural-ventilation opening area as 0.3 x N x I x S cm2, with N cells, I the overcharging current in amps, and S the dilution factor. [R4][R5]
+- HSE says to use the maximum current the charger is likely to supply during a malfunction, to include a suitable safety margin. [R6]
+- HSE design limits for hydrogen are 0.4 per cent in areas people enter and 1 per cent in enclosures people do not enter. [R7][R8]
+- Hydrogen in air ignites and explodes readily between 4 per cent (lower limit) and 75 per cent (upper limit). [R9]
+- On discharge, lead at the negative plate reacts with sulphuric acid to form lead sulphate, freeing electrons. [R10]  (from an idea this one builds on)
+- At the positive plate, lead oxide reacts with sulphuric acid, again forming lead sulphate. [R11]  (from an idea this one builds on)
+- On discharge both plates become lead sulphate and the sulphuric acid is used up, leaving water behind. [R12]  (from an idea this one builds on)
+- The acid concentration rises during charging and falls during discharge, so charging runs the discharge reaction backwards. [R13]  (from an idea this one builds on)
+- The nominal voltage of a lead-acid cell is 2 V, but a charged and rested cell measures about 2.1 V open circuit. [R14]  (from an idea this one builds on)
+- A primary cell is single-use and cannot be recharged; a secondary cell, such as lead-acid, can be recharged by an external power source. [R15]  (from an idea this one builds on)
+- Lead acid uses constant-current constant-voltage charging: a regulated current raises the terminal voltage to the upper limit, then the current drops as the cell saturates. [R16]  (from an idea this one builds on)
+- The charge voltage limit is critical and ranges from 2.30 V to 2.45 V per cell. [R17]  (from an idea this one builds on)
+- Too low a limit risks sulphation on the negative plate; over-saturation by not switching to float causes grid corrosion on the positive plate. [R18]  (from an idea this one builds on)
+- The recommended float voltage of most flooded lead acid batteries is 2.25 V to 2.27 V per cell, and large stationary batteries typically float at 2.25 V per cell at 25 degrees C. [R19]  (from an idea this one builds on)
+- Charge voltage is reduced by 3 mV per cell for every degree above 25 degrees C and raised by 3 mV per cell for every degree below. [R20]  (from an idea this one builds on)
+- An equalising charge raises the voltage to 2.50 V per cell, about 10 per cent above the recommended charge voltage, to bring cells to similar levels. [R21]  (from an idea this one builds on)
+- Prolonged overcharge contributes to grid corrosion. [R22]  (from an idea this one builds on)
+- With CCCV, lead acid is charged in three stages: constant-current (bulk), topping (a falling current that saturates the cell) and float (making up self-discharge). [R23][R24]  (from an idea this one builds on)
+- Full charge is reached when the topping current falls to 3 to 5 per cent of the Ah rating. [R25]  (from an idea this one builds on)
+- EnerSys's vented stationary cells float at 2.23 V per cell at 20 degrees C, and the charger voltage is the float voltage per cell times the number of cells. [R26]  (from an idea this one builds on)
+- EnerSys allows a boost recharge at 2.33 to 2.40 V per cell with the current limited to 4 x I10, and boost must be switched back to float once the battery is fully charged. [R27]  (from an idea this one builds on)
+- Charging beyond the specified limits turns the surplus energy into heat and the battery begins to gas. [R28]  (from an idea this one builds on)
+- EnerSys calls 2.40 V per cell the gassing voltage, and recommends a current limit of 2.5 to 5 A per 100 Ah above it. [R3]  (from an idea this one builds on)
+- In a string all cells receive the same charge current, so individual cell voltages cannot be controlled one by one. [R29]  (from an idea this one builds on)
+- Sulphation occurs when a lead-acid battery is deprived of a full charge. [R30]  (from an idea this one builds on)
+- An equalising charge is a deliberate overcharge to remove sulphate crystals that build up on the plates over time. [R31]  (from an idea this one builds on)
+- EnerSys corrects its vented cells' float voltage for temperature only outside its 10 to 30 degrees C range, by 0.003 V per cell per degree beyond 30, so makers' temperature rules differ. [R32]  (from an idea this one builds on)
+- Sealed (valve-regulated) cells are less tolerant of overcharge than flooded cells. [R33]  (from an idea this one builds on)
+- EnerSys says to recharge 1.2 times the discharged capacity, so about 83 per cent of the ampere-hours put in come back (lesson i4, charge efficiency). [R34]  (from an idea this one builds on)
+- A lead-acid cell is nominally 2 V, and a charged, rested cell reads about 2.1 V open circuit. [R14]  (whole topic)
+- Cells connect in series to make a battery: six 2 V cells make a 12 V battery. [R35][R14]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i5",
+ "title": "Gassing, hydrogen and the air that clears it",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the bubbles, the hydrogen readout and the required opening all growing in step with the charging current, when you drag the current up to the charger's fault current.",
+  "title": "The battery room",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Screen",
+    "min": 0,
+    "max": 13,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [
+   {
+    "id": "hydrogen",
+    "label": "Hydrogen in the room",
+    "unit": "%",
+    "decimals": 2
+   },
+   {
+    "id": "needed",
+    "label": "Opening needed",
+    "unit": "cm²",
+    "decimals": 0
+   },
+   {
+    "id": "flow",
+    "label": "Air through the opening",
+    "unit": "L/s",
+    "decimals": 1
+   }
+  ],
+  "whatAmILookingAt": "A side view of a battery room. A battery of flooded cells sits on charge, fed by a charger. The battery is full. One cell is drawn cut open, as in lesson 1, with acid between its plates. An inlet sits low in one wall and an outlet high in the other. A current slider sets the charging current, from 0 to the charger's fault current of an example 20 A. Bubbles rise from both plates, more of them as the current grows. Because the battery is full, the model treats all of this current as spare, splitting water. A cell stepper sets 6, 12, 24 or 55 cells. A room switch sets a room people enter, where S = 10, or an enclosure nobody enters, where S = 4. An opening slider sets the room's real opening, from 100 to 4000 cm². Beside it, a dashed outline draws the opening the rule asks for, 0.3 × N × I × S cm², to the same scale. Air crosses the real opening at an example 0.1 m/s, drawn as moving arrows. The flow readout is area × speed, in litres a second. The hydrogen readout is a model. It reads the rule backwards. An opening of exactly 0.3 × N × I × S holds the room at 4 ÷ S per cent. So the model takes the hydrogen as 1.2 × N × I ÷ the opening in cm², as a percentage. Halve the opening and it doubles. The readout sits against bands at 0.4, 1 and 4 per cent, the last in red. The outlet carries a fan. The model moves air at 0.1 m/s whether a fan or a natural draught drives it. A 'Fan fails' switch stops the air. The hydrogen then climbs at a sketched rate, with time sped up. A valve-regulated switch seals each cell with a valve on top. The bubbles then stay in the cell and fade, and the hydrogen readout shows no number. Above an example 10 A the valve lifts and gas escapes, also a sketch. On a phone the three readouts wrap onto a second line, and no word splits. Each show screen has under about 90 words. It ends on what its finished picture shows, so it reads well without the controls. Screen by screen. 0 recalls Heat and fluids lesson 6. Air crosses a 0.5 m² opening at 2 m/s. What flow passes? The choices are 1 m³/s, 2.5 m³/s or 0.25 m³/s. The right pick says 'That's it: 0.5 × 2 = 1 m³ a second.' Hint for 2.5: that adds them, and flow is area times speed. Hint for 0.25: that divides them. 1 shows a full 24-cell battery as the current rises from 0.5 to 20 A, and the bubbles thicken. Near full, little sulphate is left to turn back, so the plates take less of the current. The spare current splits water into hydrogen and oxygen. Twice the spare current makes twice the gas. Every cell in the string carries the same current, so 24 cells make 24 times one cell's gas. Past the gassing voltage, 2.40 V a cell, one maker limits a 100 Ah battery to 2.5 to 5 A. It ends at 20 A with the bubbles thick. 2 shows the bands. Hydrogen in air ignites from 4 to 75 per cent. A room people enter is held below 0.4 per cent, and an enclosure below 1 per cent. 4 ÷ 10 = 0.4 and 4 ÷ 4 = 1, so S sets how far below 4 per cent each is held. The room switch flips between the two. It ends on a room people enter, with the 0.4 band lit. 3 says a battery room's hydrogen reads 1 per cent, and people work in it. It asks whether that is within the limit. First choice: no, a room people enter must stay below 0.4 per cent. Second: yes, it is far below the 4 per cent where hydrogen ignites. Third: yes, 1 per cent is the limit. Hint for far below 4 per cent: 1 per cent is a quarter of the way there, and where people work the limit is a tenth. Hint for 1 per cent: that limit is for an enclosure nobody enters. 4 shows the rule. Each opening needs 0.3 × N × I × S cm². For 24 cells and 20 A in a room people enter, that is 0.3 × 24 × 20 × 10 = 1440 cm². The dashed outline draws it. The cell stepper drops to 12 and the outline halves to 720 cm². It ends back on 24 cells and 1440 cm². 5 asks for the opening if the same battery sits in an enclosure. The choices are 576 cm², 3600 cm² or 1440 cm². The right pick says 'That's it: 0.3 × 24 × 20 × 4 = 576 cm².' Hint for 3600: that divides by 4 instead of multiplying. An enclosure may hold more hydrogen, so it needs less air. Hint for 1440: that still uses S = 10, and an enclosure uses 4. 6 says I is the most current the charger is likely to deliver if it fails. The current drags from a float of an example 0.5 A up to 20 A. The required opening grows from 36 to 1440 cm², forty times. A failed charger can push its full current into a full battery, and most of it becomes gas. It ends at 20 A. 7 says a 24-cell battery floats at 0.5 A in a room people enter. Its charger could push 20 A if its control failed. It asks what opening the vents need. The choices are 1440 cm², 36 cm² or none, because a full battery takes no current. Hint for 36: that is sized for float, and a failed charger pushes 20 A into a full battery. Hint for none: a full battery still takes current if the charger pushes it, and that spare current splits water. 8 shows the air. At 0.1 m/s, 1440 cm², which is 0.144 m², passes 0.0144 m³ a second, or 14.4 litres. The hydrogen is the gas spread through that air. At 10 A it reads 0.2 per cent. The opening slider halves to 720 cm². The same gas now meets half the air, so it reads 0.4 per cent. Then the fan fails and the air stops. The gas keeps coming, so the readout climbs. It ends with the fan stopped and the readout past 1 per cent. 9 says stores now block half the 1440 cm² opening, leaving 720 cm². The charger fails and pushes 20 A. It asks what the hydrogen reaches. The choices are 0.8, 0.2 or 0.4 per cent. The right pick says 'That's it: the same gas in half the air, 0.4 × 2 = 0.8 per cent, twice the limit.' Hint for 0.2: less air dilutes the gas less, so the level rises. Hint for 0.4: the gas is unchanged, but the air has halved. 10 flips the valve-regulated switch. The cells are sealed, with a valve on top. They keep most of their gas inside and turn it back into water, so the bubbles fade. The current then rises to 20 A. Past an example 10 A the pressure lifts the valve and gas escapes. It ends at 20 A with the valve open. 11 says a flooded battery is replaced by sealed, valve-regulated cells, and someone suggests boarding over the vents. First choice: no, they make much less gas, but their valves can still let it out. Second: yes, sealed cells make no gas. Third: yes, as long as the charger stays on float. Hint for no gas: the valve is there to let gas out when the pressure builds. Hint for float: the vents are sized for a charger that fails, and a failed charger does not stay on float. 12 and 13 mix the ideas. 12 says a room people enter holds 55 cells, and the charger can deliver 10 A if it fails. It asks what opening is needed. The choices are 1650 cm², 660 cm² or 165 cm². Hint for 660: that uses S = 4, for an enclosure, and people enter this room. Hint for 165: that leaves out S. 13 says a battery room's fan stops during an equalise. It asks what happens to the hydrogen. First choice: it keeps climbing towards the 4 per cent band. Second: it stays at 0.4 per cent, because the room was sized for it. Third: nothing, because an equalise makes no extra gas. Hint for stays: the sizing assumes the air keeps moving, and now nothing carries the gas out. Hint for nothing: an equalise is a deliberate overcharge, so most of its current becomes gas.",
+  "ignores": "The battery is drawn full, so all the current is treated as spare and becomes gas. On float, part of a small current makes up self-discharge instead, so the readout runs a little high there. The hydrogen readout is the sizing rule read backwards, not a measurement of gas. It spreads the gas evenly through the room at once. Real hydrogen is lighter than air and takes time to mix. The air speed is fixed at an example 0.1 m/s. A real room's draught changes with wind and temperature. The climb after the fan stops, and the current at which a sealed cell's valve lifts, are sketches with time sped up.",
+  "numbers": [
+   {
+    "label": "Screen control lowest",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Screen control highest",
+    "value": 13,
+    "kind": "control"
+   },
+   {
+    "label": "Current slider bottom, A",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Current slider top, the example fault current, A",
+    "value": 20,
+    "kind": "control"
+   },
+   {
+    "label": "Example charger fault current, A",
+    "value": 20,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example float current, A",
+    "value": 0.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example battery capacity, Ah",
+    "value": 100,
+    "kind": "assumed"
+   },
+   {
+    "label": "Cell stepper, fewest cells",
+    "value": 6,
+    "kind": "control"
+   },
+   {
+    "label": "Cell stepper, 12 cells",
+    "value": 12,
+    "kind": "control"
+   },
+   {
+    "label": "Cell stepper, 24 cells",
+    "value": 24,
+    "kind": "control"
+   },
+   {
+    "label": "Cell stepper, most cells",
+    "value": 55,
+    "kind": "control"
+   },
+   {
+    "label": "Opening slider bottom, cm²",
+    "value": 100,
+    "kind": "control"
+   },
+   {
+    "label": "Opening slider top, cm²",
+    "value": 4000,
+    "kind": "control"
+   },
+   {
+    "label": "Opening slider start, cm²",
+    "value": 1440,
+    "kind": "control"
+   },
+   {
+    "label": "Example air speed through the opening, m/s",
+    "value": 0.1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Gassing voltage, V a cell",
+    "value": 2.4,
+    "kind": "constant",
+    "source": 1
+   },
+   {
+    "label": "Current limit above gassing, low, A per 100 Ah",
+    "value": 2.5,
+    "kind": "constant",
+    "source": 1
+   },
+   {
+    "label": "Current limit above gassing, high, A per 100 Ah",
+    "value": 5,
+    "kind": "constant",
+    "source": 1
+   },
+   {
+    "label": "Hydrogen lower ignition limit, %",
+    "value": 4,
+    "kind": "constant",
+    "source": 2
+   },
+   {
+    "label": "Hydrogen upper ignition limit, %",
+    "value": 75,
+    "kind": "constant",
+    "source": 2
+   },
+   {
+    "label": "Limit in a room people enter, %",
+    "value": 0.4,
+    "kind": "constant",
+    "source": 3
+   },
+   {
+    "label": "Limit in an enclosure nobody enters, %",
+    "value": 1,
+    "kind": "constant",
+    "source": 4
+   },
+   {
+    "label": "Opening rule factor, cm² per cell per amp",
+    "value": 0.3,
+    "kind": "constant",
+    "source": 5
+   },
+   {
+    "label": "Dilution factor S, room people enter",
+    "value": 10,
+    "kind": "constant",
+    "source": 6
+   },
+   {
+    "label": "Dilution factor S, enclosure",
+    "value": 4,
+    "kind": "constant",
+    "source": 6
+   },
+   {
+    "label": "4 ÷ 10, %",
+    "value": 0.4,
+    "kind": "computed"
+   },
+   {
+    "label": "4 ÷ 4, %",
+    "value": 1,
+    "kind": "computed"
+   },
+   {
+    "label": "Room limit as a share of 4 %",
+    "value": 0.1,
+    "kind": "computed"
+   },
+   {
+    "label": "Enclosure limit as a share of 4 %",
+    "value": 0.25,
+    "kind": "computed"
+   },
+   {
+    "label": "Model factor, 4 × 0.3",
+    "value": 1.2,
+    "kind": "computed"
+   },
+   {
+    "label": "Recall opening, m²",
+    "value": 0.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Recall air speed, m/s",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Recall flow, m³/s",
+    "value": 1,
+    "kind": "computed"
+   },
+   {
+    "label": "Recall wrong pick, 0.5 + 2, m³/s",
+    "value": 2.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Recall wrong pick, 0.5 ÷ 2, m³/s",
+    "value": 0.25,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 3 hydrogen reading, %",
+    "value": 1,
+    "kind": "assumed"
+   },
+   {
+    "label": "24 cells, 20 A, room people enter, cm²",
+    "value": 1440,
+    "kind": "computed"
+   },
+   {
+    "label": "12 cells, 20 A, room people enter, cm²",
+    "value": 720,
+    "kind": "computed"
+   },
+   {
+    "label": "24 cells, 20 A, enclosure, cm²",
+    "value": 576,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 5 wrong pick, 1440 × 10 ÷ 4, cm²",
+    "value": 3600,
+    "kind": "computed"
+   },
+   {
+    "label": "24 cells, 0.5 A float, room people enter, cm²",
+    "value": 36,
+    "kind": "computed"
+   },
+   {
+    "label": "Fault opening over float opening",
+    "value": 40,
+    "kind": "computed"
+   },
+   {
+    "label": "1440 cm² in m²",
+    "value": 0.144,
+    "kind": "computed"
+   },
+   {
+    "label": "Flow through 1440 cm² at 0.1 m/s, m³/s",
+    "value": 0.0144,
+    "kind": "computed"
+   },
+   {
+    "label": "Flow through 1440 cm² at 0.1 m/s, L/s",
+    "value": 14.4,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 8 current, A",
+    "value": 10,
+    "kind": "control"
+   },
+   {
+    "label": "Hydrogen, 24 cells, 10 A, 1440 cm², %",
+    "value": 0.2,
+    "kind": "computed"
+   },
+   {
+    "label": "Hydrogen, 24 cells, 10 A, 720 cm², %",
+    "value": 0.4,
+    "kind": "computed"
+   },
+   {
+    "label": "Hydrogen, 24 cells, 20 A, 1440 cm², %",
+    "value": 0.4,
+    "kind": "computed"
+   },
+   {
+    "label": "Hydrogen, 24 cells, 20 A, 720 cm², %",
+    "value": 0.8,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 9 wrong pick, half of 0.4, %",
+    "value": 0.2,
+    "kind": "computed"
+   },
+   {
+    "label": "Example current where the sealed cell's valve lifts, A",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 12 and worked example fault current, A",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "55 cells, 10 A, room people enter, cm²",
+    "value": 1650,
+    "kind": "computed"
+   },
+   {
+    "label": "55 cells, 10 A, enclosure, cm²",
+    "value": 660,
+    "kind": "computed"
+   },
+   {
+    "label": "55 cells, 10 A, S left out, cm²",
+    "value": 165,
+    "kind": "computed"
+   },
+   {
+    "label": "1650 cm² in m²",
+    "value": 0.165,
+    "kind": "computed"
+   },
+   {
+    "label": "Flow through 1650 cm² at 0.1 m/s, m³/s",
+    "value": 0.0165,
+    "kind": "computed"
+   },
+   {
+    "label": "Flow through 1650 cm² at 0.1 m/s, L/s",
+    "value": 16.5,
+    "kind": "computed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "Near full charge, a lead-acid cell cannot store all the current you push in. The spare current splits water from the acid into hydrogen and oxygen.[^7] This is called [[gassing]]. Hydrogen burns, so a battery room needs enough air to dilute it. That air is sized from the most current the charger could ever push in, not the small current it usually gives.\n\nRemember from lesson 1 that charging turns lead sulphate back into lead, lead dioxide and acid. Near full, little sulphate is left to turn back. So the plates take less of the current, and the rest works on the water instead. That is why gas comes faster as the battery nears full, and freely if charging carries on past it.[^8] It is also why a vented cell's water level falls over the months. The gas grows in step with the spare current. Twice the spare current splits twice the water. Every cell in a string carries the same current, so each cell makes the same gas. N cells make N times as much.\n\nHydrogen in air ignites anywhere from 4 per cent up to 75 per cent.[^2] So a room people enter is held below 0.4 per cent, a tenth of that lower limit.[^3] An enclosure nobody enters may reach 1 per cent, a quarter of it. The inlet and the outlet each need at least 0.3 × N × I × S square centimetres.[^5] N is the number of cells and I is the current in amps. S is the [[dilution factor]]. It is 10 for a room people enter and 4 for an enclosure. Notice that 4 ÷ 10 = 0.4 and 4 ÷ 4 = 1. So S sets how far below 4 per cent the room is held. Take 24 cells and 20 A in a room people enter. Each opening needs 0.3 × 24 × 20 × 10 = 1440 cm². As an enclosure, it needs 0.3 × 24 × 20 × 4 = 576 cm².\n\nThe I is the most current the charger is likely to deliver if it fails.[^9] A failed charger can push its full current into a full battery, and most of it becomes gas. Sized from a float current of 0.5 A, the same opening would be 36 cm², forty times too small. Air carries the gas away, and flow = area × speed. At a gentle 0.1 m/s, 1440 cm² passes 14.4 litres a second. Halve the opening and the same gas meets half the air, so the hydrogen doubles. A sealed cell with a pressure valve on top is called [[valve-regulated]]. It keeps most of its gas inside. But its valve lets gas out when the pressure builds, as it does under hard charging. So sealed means much less gas, not none. The hydrogen readout in the picture is the sizing rule read backwards, a model of a well-mixed room. Real gas may mix unevenly, and real draughts vary. **Near full charge, current the plates no longer take splits water into hydrogen and oxygen. So a battery room's vents are sized from the charger's largest fault current, not its float current.**"
+ },
+ "analogy": {
+  "text": "You size a circuit's protective conductor for the fault current, not the load current. On a normal day it carries almost nothing. It earns its size only when something goes wrong. A battery room's vents work the same way. They are sized from the current a failed charger could push, not the float current they usually see.",
+  "breaks": "A fault on a circuit is cleared by its protective device in a fraction of a second. A charger fault may trip nothing at all. Its current can run for hours and the gas keeps coming, so the vents must cope for as long as it lasts."
+ },
+ "practice": {
+  "text": "Use this to check a battery room's air, and before you charge hard.\n\n- Before a hard charge, such as a boost or an equalise, check the vents are clear and any fan runs. Gas comes fastest at and past full charge.\n- Count the cells in the battery. That is N.\n- Find the charger's fault current. That is the most current it could deliver if its control failed. Use it as I, never the float current.\n- Choose S: 10 for a room people enter, 4 for an enclosure nobody enters.\n- Work out 0.3 × N × I × S in square centimetres. The inlet needs that much, and so does the outlet.\n- Check the real openings are at least that big, and that nothing blocks them.\n- Treat sealed cells as making less gas, not none. Follow their maker's figures.\n- Top up vented cells with water as their maker says. The water lost is the gas that left.\n\n**Rule of thumb:** the opening grows in step with N, I and S. Double any one and the opening doubles.\n\n**Worked example:** A battery room people enter holds 55 cells. The charger can deliver 10 A if its control fails. Each opening needs 0.3 × 55 × 10 × 10 = 1650 cm². That is 0.165 m². If air crosses it at 0.1 m/s, it passes 0.0165 m³ a second, or 16.5 litres.\n\n**Common mistakes**\n- Sizing the vents from the float current.\n- Using S = 4 for a room people walk into.\n- Treating 4 per cent as the working limit. That is where hydrogen starts to ignite.\n- Treating sealed cells as gas-free.\n- Letting stores block the inlet or the outlet."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "simplified",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "sources": [
+  {
+   "n": 1,
+   "title": "Flooded Stationary Lead Acid Batteries IOM — EnerSys",
+   "url": "https://www.enersys.com/492013/globalassets/documents/product-documentation/powersafe/opzs/amer/amer-en-iom-ps-flooded-0223.pdf",
+   "quote": "After reaching the gassing voltage of 2.40 V/c a current limit of 2.5 to 5 A/100 Ah is recommended"
+  },
+  {
+   "n": 2,
+   "title": "Using electric storage batteries safely INDG139 — HSE",
+   "url": "https://www.hse.gov.uk/PUBNS/indg139.pdf",
+   "quote": "Mixtures with air containing from 4% hydrogen (lower explosion limit – LEL) to 75% hydrogen (upper explosion limit – UEL) will readily ignite and explode."
+  },
+  {
+   "n": 3,
+   "title": "Using electric storage batteries safely INDG139 — HSE",
+   "url": "https://www.hse.gov.uk/PUBNS/indg139.pdf",
+   "quote": "In charging areas that people enter (workrooms) the concentration of hydrogen should not exceed 0.4% vol/vol (10% of the LEL)."
+  },
+  {
+   "n": 4,
+   "title": "Using electric storage batteries safely INDG139 — HSE",
+   "url": "https://www.hse.gov.uk/PUBNS/indg139.pdf",
+   "quote": "When charging takes place in an enclosure that people do not enter, the concentration of hydrogen should not exceed 1% vol/vol (25% of the LEL)."
+  },
+  {
+   "n": 5,
+   "title": "Using electric storage batteries safely INDG139 — HSE",
+   "url": "https://www.hse.gov.uk/PUBNS/indg139.pdf",
+   "quote": "Minimum area of inlet/outlet needed = 0.3 x N x I x S cm2 Where N = number of cells in the battery(ies) I = the overcharging current (amps) S = the appropriate dilution factor;"
+  },
+  {
+   "n": 6,
+   "title": "Using electric storage batteries safely INDG139 — HSE",
+   "url": "https://www.hse.gov.uk/PUBNS/indg139.pdf",
+   "quote": "S = the appropriate dilution factor; 10 for workrooms, 4 for enclosures"
+  },
+  {
+   "n": 7,
+   "title": "Table of contents — Hoppecke",
+   "url": "https://www.hoppecke.com/fileadmin/Redakteur/Hoppecke-Main/Products-Import/vl_manual_en.pdf",
+   "quote": "During the charging process, electrolysis decomposes the water of the electrolyte"
+  },
+  {
+   "n": 8,
+   "title": "Using electric storage batteries safely INDG139 — HSE",
+   "url": "https://www.hse.gov.uk/PUBNS/indg139.pdf",
+   "quote": "Hydrogen and oxygen are produced more quickly as the battery gets close to being fully charged. If you continue charging after the battery is fully charged, a lot of gas will be produced, greatly increasing the risk from explosion."
+  },
+  {
+   "n": 9,
+   "title": "Using electric storage batteries safely INDG139 — HSE",
+   "url": "https://www.hse.gov.uk/PUBNS/indg139.pdf",
+   "quote": "the maximum current likely to be supplied by the charger during malfunction should be used so as to include a suitable safety margin."
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }

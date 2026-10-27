@@ -1,0 +1,191 @@
+{
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "A charged, rested cell reads 2.1 V, so six cells make an emf of 12.6 V, and with no current the voltmeter reads all of it",
+        "ok": true,
+        "source": "http://www.batteryuniversity.com/article/bu-303-confusion-with-voltages"
+      },
+      {
+        "label": "The same 100 Ah battery drained in two hours may give only 56 Ah: the rule gives 100 Ah at 5 A and 56 Ah at 28 A, and their dots land there",
+        "ok": true,
+        "source": "https://www.victronenergy.com/media/pg/BMV-700/en/battery-capacity-and-peukert-exponent.html"
+      },
+      {
+        "label": "Lead acid is rated at 0.05C, a 20-hour discharge: 0.05 × 100 Ah is 5 A, and 5 A runs 20 hours",
+        "ok": true,
+        "source": "https://batteryuniversity.com/article/bu-402-what-is-c-rate"
+      },
+      {
+        "label": "An ideal battery has a Peukert exponent of 1.00 and the same capacity at any current, while the monitor default of 1.25 would give 67 Ah at 25 A: the perfect line is flat at 100 Ah",
+        "ok": true,
+        "source": "https://www.victronenergy.com/media/pg/BMV-700/en/battery-capacity-and-peukert-exponent.html"
+      },
+      {
+        "label": "A battery giving 100 percent at 27 °C delivers only 50 percent at −18 °C: 20 A gives 63 Ah warm and 31 Ah cold, 5 A runs 10 hours cold, and every dot falls by the same half",
+        "ok": true,
+        "source": "https://batteryuniversity.com/article/bu-502-discharging-at-high-and-low-temperatures"
+      },
+      {
+        "label": "In very high currents the battery gives even less than a fixed exponent predicts: a dot past the highest rating lands hollow, with an arrow down, and dots up to it land solid on the line",
+        "ok": true,
+        "source": "https://www.victronenergy.com/media/pg/BMV-700/en/battery-capacity-and-peukert-exponent.html"
+      },
+      {
+        "label": "Lost volts are I × r: 0.35 V at 50 A and 0.70 V at 100 A, so the terminals read 12.25 V and 11.90 V, and the load reads 0.245 Ω and 0.119 Ω",
+        "ok": true
+      },
+      {
+        "label": "Through the two ratings n = log 10 ÷ log 5.6 = 1.34 and the line's gradient is 1 − n = −0.34: at 25 A it gives 2.3 hours and 58 Ah where 100 ÷ 25 says 4, at 20 A 63 Ah and at 100 A 36 Ah",
+        "ok": true
+      },
+      {
+        "label": "The faster the draw, the lower the dot and the bigger the lost volts: capacity falls and lost volts rise at every step up in current",
+        "ok": true
+      },
+      {
+        "label": "Halving the 0.245 Ω load nearly doubles the current, to 97 A, and the terminals dip to 11.92 V; cold doubles r to 14 mΩ, and the lost volts at 20 A from 0.14 V to 0.28 V",
+        "ok": true
+      },
+      {
+        "label": "Each puzzle accepts only its right answer, and nothing in its picture gives the answer before Check",
+        "ok": true
+      },
+      {
+        "label": "Every demonstration settles within 4.6 s of its screen opening and ends where its screen says, and every answer's motion settles within 2.5 s",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "load",
+      "temp"
+    ],
+    "readouts": [],
+    "outputs": [
+      "lostVolts",
+      "terminal",
+      "capacity"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Screen",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "steps": [
+          "A warm-up",
+          "Lost volts",
+          "At 100 A",
+          "The load sets it",
+          "Halve the load",
+          "Two ratings",
+          "How long at 25 A",
+          "Peukert's line",
+          "Read the line",
+          "Cold",
+          "Past the ratings",
+          "Nothing connected",
+          "Which lasts longest"
+        ],
+        "value": 0
+      },
+      {
+        "id": "load",
+        "kind": "control",
+        "label": "Load current",
+        "min": 0,
+        "max": 100,
+        "step": 1,
+        "log": false,
+        "value": 0,
+        "shown": false,
+        "snap": [
+          0,
+          5,
+          20,
+          25,
+          28,
+          50,
+          100
+        ]
+      },
+      {
+        "id": "temp",
+        "kind": "control",
+        "label": "Temperature",
+        "min": -18,
+        "max": 27,
+        "step": 1,
+        "log": false,
+        "value": 27,
+        "shown": false,
+        "snap": [
+          -18,
+          0,
+          27
+        ]
+      }
+    ],
+    "actions": [
+      "Discharge",
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Play again",
+      "Back",
+      "Continue",
+      "Start again",
+      "Demonstration"
+    ],
+    "answers": [],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ]
+  },
+  "moved": [
+    "step = 1 (the first step that shows a control)",
+    "load = 75",
+    "temp = 15.75"
+  ],
+  "shots": [
+    "/home/user/Study-App/build/electrical/batteries/i3.a2-360-light.png",
+    "/home/user/Study-App/build/electrical/batteries/i3.a2-360-light-moved.png",
+    "/home/user/Study-App/build/electrical/batteries/i3.a2-360-light-end.png",
+    "/home/user/Study-App/build/electrical/batteries/i3.a2-360-dark.png",
+    "/home/user/Study-App/build/electrical/batteries/i3.a2-360-dark-moved.png",
+    "/home/user/Study-App/build/electrical/batteries/i3.a2-360-dark-end.png",
+    "/home/user/Study-App/build/electrical/batteries/i3.a2-1280-light.png",
+    "/home/user/Study-App/build/electrical/batteries/i3.a2-1280-light-moved.png",
+    "/home/user/Study-App/build/electrical/batteries/i3.a2-1280-light-end.png",
+    "/home/user/Study-App/build/electrical/batteries/i3.a2-1280-dark.png",
+    "/home/user/Study-App/build/electrical/batteries/i3.a2-1280-dark-moved.png",
+    "/home/user/Study-App/build/electrical/batteries/i3.a2-1280-dark-end.png"
+  ]
+}

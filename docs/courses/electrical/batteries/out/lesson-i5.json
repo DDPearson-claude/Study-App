@@ -1,0 +1,771 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-27T16:48:48.150Z",
+ "startedAt": "2026-10-27T16:48:48.150Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i5",
+  "title": "Gassing, hydrogen and the air that clears it",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the bubbles, the hydrogen readout and the opening the rule asks for all growing in step with the charging current, when you drag the current up to the charger's fault current.",
+   "title": "The battery room",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Screen",
+     "min": 0,
+     "max": 14,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [
+    {
+     "id": "hydrogen",
+     "label": "Hydrogen in the room",
+     "unit": "%",
+     "decimals": 2
+    },
+    {
+     "id": "needed",
+     "label": "Opening needed",
+     "unit": "cm²",
+     "decimals": 0
+    },
+    {
+     "id": "flow",
+     "label": "Air through the opening",
+     "unit": "L/s",
+     "decimals": 1
+    }
+   ],
+   "whatAmILookingAt": "A side view of a battery room. A battery of flooded cells sits on charge, fed by a charger. The battery is full. One cell is drawn cut open, with acid between its plates. An inlet sits low in one wall, and an outlet sits high in the other, with a fan in it. A current slider sets the charging current, from 0 up to an example charger fault current of 20 A. Bubbles rise from both plates, and more rise as the current grows. The gas leaves the cell's vent and rides the air to the outlet. The battery is full, so the model treats all of the current as spare. All of it splits water. A cell stepper sets 6, 12, 24 or 55 cells. A room switch picks a room people enter, where S = 10, or an enclosure nobody enters, where S = 4. An opening slider sets the room's real opening, from 100 to 4000 cm². Beside it, a dashed outline draws the opening the rule asks for, 0.3 × N × I × S cm², to the same scale. Moving arrows show air crossing the real opening at 0.1 m/s, the least the rule assumes. The flow is area × speed, in litres a second. The hydrogen readout reads the rule backwards. An opening of exactly 0.3 × N × I × S holds the room at 4 ÷ S per cent. So the model takes the hydrogen as 1.2 × N × I ÷ the opening in cm², as a percentage. Halve the opening and the hydrogen doubles. A gauge shows it against marks at 0.4 and 1 per cent, shaded red from 4 per cent. A 'Fan fails' switch stops the air. The hydrogen then climbs at a sketched rate, with time sped up. A valve-regulated switch seals each cell with a valve on top. The bubbles then fade, and the hydrogen and the opening needed show no number, since sealed cells follow their maker's figures. Above an example 10 A the valve lifts and gas escapes. That part is also a sketch. With the charger switched off after a hard charge, the gas already made still drifts to the outlet. It clears over the 20 minutes the battery is left to stand, also a sketch.",
+   "ignores": "The battery is drawn full, so all the current is treated as spare and becomes gas. On float, part of a small current makes up for self-discharge instead. So the readout runs a little high there. The hydrogen readout is the sizing rule read backwards. It is not a measurement of gas. It spreads the gas evenly through the room at once. Real hydrogen is lighter than air and takes time to mix. The air speed is held at 0.1 m/s, the least the rule assumes. A real room's draught changes with wind and temperature. It may still move some air when a fan stops. The climb after the fan stops is a sketch, with time sped up. So is the current at which a sealed cell's valve lifts, and the way the gas clears once the charger is off.",
+   "numbers": [
+    {
+     "label": "Screen control lowest",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Screen control highest",
+     "value": 14,
+     "kind": "control"
+    },
+    {
+     "label": "Current slider bottom, A",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Current slider top, the example fault current, A",
+     "value": 20,
+     "kind": "control"
+    },
+    {
+     "label": "Example charger fault current, A",
+     "value": 20,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example float current, A",
+     "value": 0.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example battery capacity, Ah",
+     "value": 100,
+     "kind": "assumed"
+    },
+    {
+     "label": "Cell stepper, fewest cells",
+     "value": 6,
+     "kind": "control"
+    },
+    {
+     "label": "Cell stepper, 12 cells",
+     "value": 12,
+     "kind": "control"
+    },
+    {
+     "label": "Cell stepper, 24 cells",
+     "value": 24,
+     "kind": "control"
+    },
+    {
+     "label": "Cell stepper, most cells",
+     "value": 55,
+     "kind": "control"
+    },
+    {
+     "label": "Opening slider bottom, cm²",
+     "value": 100,
+     "kind": "control"
+    },
+    {
+     "label": "Opening slider top, cm²",
+     "value": 4000,
+     "kind": "control"
+    },
+    {
+     "label": "Opening slider start, cm²",
+     "value": 1440,
+     "kind": "control"
+    },
+    {
+     "label": "Least air speed through each opening the rule assumes, m/s",
+     "value": 0.1,
+     "kind": "constant",
+     "source": 10
+    },
+    {
+     "label": "Gassing voltage, V a cell",
+     "value": 2.4,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "Current limit above gassing, low, A per 100 Ah",
+     "value": 2.5,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "Current limit above gassing, high, A per 100 Ah",
+     "value": 5,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "Hydrogen lower ignition limit, %",
+     "value": 4,
+     "kind": "constant",
+     "source": 2
+    },
+    {
+     "label": "Hydrogen upper ignition limit, %",
+     "value": 75,
+     "kind": "constant",
+     "source": 2
+    },
+    {
+     "label": "Hydrogen lower ignition limit, a second figure, %",
+     "value": 4.1,
+     "kind": "constant",
+     "source": 11
+    },
+    {
+     "label": "Hydrogen upper ignition limit, a second figure, %",
+     "value": 72,
+     "kind": "constant",
+     "source": 11
+    },
+    {
+     "label": "Limit in a room people enter, %",
+     "value": 0.4,
+     "kind": "constant",
+     "source": 3
+    },
+    {
+     "label": "Limit in an enclosure nobody enters, %",
+     "value": 1,
+     "kind": "constant",
+     "source": 4
+    },
+    {
+     "label": "Opening rule factor, cm² per cell per amp",
+     "value": 0.3,
+     "kind": "constant",
+     "source": 5
+    },
+    {
+     "label": "Dilution factor S, room people enter",
+     "value": 10,
+     "kind": "constant",
+     "source": 6
+    },
+    {
+     "label": "Dilution factor S, enclosure",
+     "value": 4,
+     "kind": "constant",
+     "source": 6
+    },
+    {
+     "label": "4 ÷ 10, %",
+     "value": 0.4,
+     "kind": "computed"
+    },
+    {
+     "label": "4 ÷ 4, %",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Room limit as a share of 4 %",
+     "value": 0.1,
+     "kind": "computed"
+    },
+    {
+     "label": "Enclosure limit as a share of 4 %",
+     "value": 0.25,
+     "kind": "computed"
+    },
+    {
+     "label": "Model factor, 4 × 0.3",
+     "value": 1.2,
+     "kind": "computed"
+    },
+    {
+     "label": "Recall opening, m²",
+     "value": 0.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Recall air speed, m/s",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Recall flow, m³/s",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Recall wrong pick, 0.5 + 2, m³/s",
+     "value": 2.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Recall wrong pick, 0.5 ÷ 2, m³/s",
+     "value": 0.25,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 3 hydrogen reading, %",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "24 cells, 20 A, room people enter, cm²",
+     "value": 1440,
+     "kind": "computed"
+    },
+    {
+     "label": "12 cells, 20 A, room people enter, cm²",
+     "value": 720,
+     "kind": "computed"
+    },
+    {
+     "label": "24 cells, 20 A, enclosure, cm²",
+     "value": 576,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 5 wrong pick, 1440 × 10 ÷ 4, cm²",
+     "value": 3600,
+     "kind": "computed"
+    },
+    {
+     "label": "24 cells, 0.5 A float, room people enter, cm²",
+     "value": 36,
+     "kind": "computed"
+    },
+    {
+     "label": "Fault opening over float opening",
+     "value": 40,
+     "kind": "computed"
+    },
+    {
+     "label": "1440 cm² in m²",
+     "value": 0.144,
+     "kind": "computed"
+    },
+    {
+     "label": "Flow through 1440 cm² at 0.1 m/s, m³/s",
+     "value": 0.0144,
+     "kind": "computed"
+    },
+    {
+     "label": "Flow through 1440 cm² at 0.1 m/s, L/s",
+     "value": 14.4,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 8 current, A",
+     "value": 10,
+     "kind": "control"
+    },
+    {
+     "label": "Hydrogen, 24 cells, 10 A, 1440 cm², %",
+     "value": 0.2,
+     "kind": "computed"
+    },
+    {
+     "label": "Hydrogen, 24 cells, 10 A, 720 cm², %",
+     "value": 0.4,
+     "kind": "computed"
+    },
+    {
+     "label": "Hydrogen, 24 cells, 20 A, 1440 cm², %",
+     "value": 0.4,
+     "kind": "computed"
+    },
+    {
+     "label": "Hydrogen, 24 cells, 20 A, 720 cm², %",
+     "value": 0.8,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 9 wrong pick, half of 0.4, %",
+     "value": 0.2,
+     "kind": "computed"
+    },
+    {
+     "label": "Example current where the sealed cell's valve lifts, A",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 12 and worked example fault current, A",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "55 cells, 10 A, room people enter, cm²",
+     "value": 1650,
+     "kind": "computed"
+    },
+    {
+     "label": "55 cells, 10 A, enclosure, cm²",
+     "value": 660,
+     "kind": "computed"
+    },
+    {
+     "label": "55 cells, 10 A, S left out, cm²",
+     "value": 165,
+     "kind": "computed"
+    },
+    {
+     "label": "1650 cm² in m²",
+     "value": 0.165,
+     "kind": "computed"
+    },
+    {
+     "label": "Flow through 1650 cm² at 0.1 m/s, m³/s",
+     "value": 0.0165,
+     "kind": "computed"
+    },
+    {
+     "label": "Flow through 1650 cm² at 0.1 m/s, L/s",
+     "value": 16.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Time to leave the battery standing after charging, minutes",
+     "value": 20,
+     "kind": "constant",
+     "source": 12
+    }
+   ]
+  },
+  "explain": {
+   "text": "Near full charge, a lead-acid cell cannot store all the current you push in. The spare current splits water from the acid into hydrogen and oxygen. This is called [[gassing]]. Hydrogen burns, so a battery room needs enough air to dilute it. You size that air from the most current the charger could ever push in, not the small current it usually gives.\n\nCharging turns lead sulphate back into lead, lead dioxide and acid. Near full, little sulphate is left to turn back. So the plates take less of the current, and the rest works on the water instead. That is why gas comes faster as the battery nears full. Keep charging past full, and it comes freely. It is also why a vented cell's water level falls over the months. The gas grows in step with the spare current. Twice the spare current splits twice the water. Every cell in a string carries the same current. So once all the cells are full, each makes about the same gas. N cells make N times as much.\n\nHydrogen in air ignites anywhere from about 4 per cent up to 75 per cent.[^2] Published figures vary slightly. So a room people enter is held below 0.4 per cent, a tenth of that lower limit.[^3] An enclosure nobody enters may reach 1 per cent, a quarter of it.[^4] The inlet and the outlet each need at least 0.3 × N × I × S square centimetres.[^5] N is the number of cells, and I is the current in amps. S is the [[dilution factor]]. It is 10 for a room people enter and 4 for an enclosure.[^6] Notice that 4 ÷ 10 = 0.4 and 4 ÷ 4 = 1. So S sets how far below 4 per cent the room is held. Take 24 cells at 20 A in a room people enter. Each opening needs 0.3 × 24 × 20 × 10 = 1440 cm². In an enclosure, the same battery needs 0.3 × 24 × 20 × 4 = 576 cm².\n\nI is the most current the charger is likely to deliver if it fails.[^7] A failed charger can push its full current into a full battery, and most of it becomes gas. Size the opening from a float current of 0.5 A instead, and you get 36 cm². That is forty times too small. Air carries the gas away, and flow = area × speed. The rule assumes air crosses each opening at 0.1 m/s or more. At 0.1 m/s, 1440 cm² passes 14.4 litres a second. Halve the opening, and the same gas meets half the air. So the hydrogen doubles. Switching the charger off stops new gas, but the gas already made still has to clear. So leave the battery to stand for at least 20 minutes after charging.\n\nA sealed cell with a pressure valve on top is called [[valve-regulated]]. It keeps most of its gas inside. But its valve lets gas out when the pressure builds, as it does under hard charging. So sealed means much less gas, not none. The hydrogen readout in the picture is the sizing rule read backwards. It models a well-mixed room. Real gas may mix unevenly, and real draughts vary. **Near full charge, current the plates no longer take splits water into hydrogen and oxygen. So a battery room's vents are sized from the charger's largest fault current, not its float current.**"
+  },
+  "analogy": {
+   "text": "You size a circuit's protective conductor for the fault current, not the load current. On a normal day it carries almost nothing. It earns its size only when something goes wrong. A battery room's vents work the same way. You size them from the current a failed charger could push, not the float current they usually see.",
+   "breaks": "On a circuit, the protective device clears a fault within seconds, often in a fraction of one. A charger fault may trip nothing at all. Its current can run for hours, and the gas keeps coming. So the vents must cope for as long as the fault lasts."
+  },
+  "practice": {
+   "text": "Use this to check a battery room's air, and before you charge hard.\n\n- Before a hard charge, such as a boost or an equalise, check that the vents are clear and any fan runs. Gas comes fastest at and past full charge.\n- Count the cells in the battery. That is N.\n- Find the charger's fault current. That is the most current it could deliver if its control failed. Use it as I, never the float current.\n- Choose S: 10 for a room people enter, 4 for an enclosure nobody enters.\n- Work out 0.3 × N × I × S in square centimetres. The inlet needs that much, and so does the outlet.\n- Check that the real openings are at least that big and that nothing blocks them. The rule assumes air crosses them at 0.1 m/s or more. If a natural draught cannot manage that, fit a fan.\n- Send the exhaust air outside. Never let it recirculate into another room.[^8]\n- Where a fan does the work, fit an alarm that warns when the fan fails or hydrogen builds up.[^9]\n- After charging, leave the battery to stand for at least 20 minutes before any work that could make a spark.\n- Treat sealed cells as making less gas, not none. Follow their maker's figures.\n- Top up vented cells with water as their maker says. The water they lose is the gas that left.\n\n**Rule of thumb:** the opening grows in step with N, I and S. Double any one of them, and the opening doubles.\n\n**Worked example:** A battery room that people enter holds 55 cells. The charger can deliver 10 A if its control fails. Each opening needs 0.3 × 55 × 10 × 10 = 1650 cm², which is 0.165 m². If air crosses it at 0.1 m/s, it passes 0.0165 m³ a second. That is 16.5 litres a second.\n\n**Common mistakes**\n- Sizing the vents from the float current.\n- Using S = 4 for a room people walk into.\n- Treating 4 per cent as the working limit. That is where hydrogen starts to ignite.\n- Treating sealed cells as gas-free.\n- Letting stores block the inlet or the outlet.\n- Starting work as soon as the charger stops."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "Flooded Stationary Lead Acid Batteries IOM — EnerSys",
+    "url": "https://www.enersys.com/492013/globalassets/documents/product-documentation/powersafe/opzs/amer/amer-en-iom-ps-flooded-0223.pdf",
+    "quote": "After reaching the gassing voltage of 2.40 V/c a current limit of 2.5 to 5 A/100 Ah is recommended"
+   },
+   {
+    "n": 2,
+    "title": "Using electric storage batteries safely INDG139 — HSE",
+    "url": "https://www.hse.gov.uk/PUBNS/indg139.pdf",
+    "quote": "Mixtures with air containing from 4% hydrogen (lower explosion limit – LEL) to 75% hydrogen (upper explosion limit – UEL) will readily ignite and explode."
+   },
+   {
+    "n": 3,
+    "title": "Using electric storage batteries safely INDG139 — HSE",
+    "url": "https://www.hse.gov.uk/PUBNS/indg139.pdf",
+    "quote": "In charging areas that people enter (workrooms) the concentration of hydrogen should not exceed 0.4% vol/vol (10% of the LEL)."
+   },
+   {
+    "n": 4,
+    "title": "Using electric storage batteries safely INDG139 — HSE",
+    "url": "https://www.hse.gov.uk/PUBNS/indg139.pdf",
+    "quote": "When charging takes place in an enclosure that people do not enter, the concentration of hydrogen should not exceed 1% vol/vol (25% of the LEL)."
+   },
+   {
+    "n": 5,
+    "title": "Using electric storage batteries safely INDG139 — HSE",
+    "url": "https://www.hse.gov.uk/PUBNS/indg139.pdf",
+    "quote": "Minimum area of inlet/outlet needed = 0.3 x N x I x S cm2 Where N = number of cells in the battery(ies) I = the overcharging current (amps) S = the appropriate dilution factor;"
+   },
+   {
+    "n": 6,
+    "title": "Using electric storage batteries safely INDG139 — HSE",
+    "url": "https://www.hse.gov.uk/PUBNS/indg139.pdf",
+    "quote": "S = the appropriate dilution factor; 10 for workrooms, 4 for enclosures"
+   },
+   {
+    "n": 7,
+    "title": "Using electric storage batteries safely INDG139 — HSE",
+    "url": "https://www.hse.gov.uk/PUBNS/indg139.pdf",
+    "quote": "the maximum current likely to be supplied by the charger during malfunction should be used so as to include a suitable safety margin."
+   },
+   {
+    "n": 8,
+    "title": "Flooded Classic Installation and Operation Manual 93.10 — GNB",
+    "url": "https://www.exidegroup.com/eu/sites/default/files/2017-01/Section%2093_10%202014-08%20GNB%20Flooded%20Classic%20Installation%20and%20Operation%20Manual%20Section_4.pdf",
+    "quote": "All air moved by ventilation in the battery room or area should be exhausted into the outside atmosphere and should not be allowed to recirculate into other confined areas."
+   },
+   {
+    "n": 9,
+    "title": "Using electric storage batteries safely INDG139 — HSE",
+    "url": "https://www.hse.gov.uk/PUBNS/indg139.pdf",
+    "quote": "The ventilation air must be drawn from and discharged to a safe place. An alarm system should be installed to detect build-up of hydrogen or failure of mechanical ventilation and to isolate electrical equipment in the area."
+   },
+   {
+    "n": 10,
+    "title": "Using electric storage batteries safely INDG139 — HSE",
+    "url": "https://www.hse.gov.uk/PUBNS/indg139.pdf",
+    "quote": "So long as the velocity of the airflow through these ventilation openings is at least 0.1 m/s"
+   },
+   {
+    "n": 11,
+    "title": "Why is it important to follow safety procedures when charging batteries? — CCOHS",
+    "url": "https://www.ccohs.ca/oshanswers/safety_haz/forklift/batteries.pdf",
+    "quote": "the flammability or explosive limits are 4.1% to 72% hydrogen in air"
+   },
+   {
+    "n": 12,
+    "title": "Using electric storage batteries safely INDG139 — HSE",
+    "url": "https://www.hse.gov.uk/PUBNS/indg139.pdf",
+    "quote": "Leave the battery to stand for at least 20 minutes after charging to allow any flammable gases to disperse."
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: quantity -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .caption { max-width: 32rem; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.12rem; font-weight: 700; line-height: 1.5; }\n  .task.show { font-size: 1.05rem; font-weight: 400; line-height: 1.6; }\n  .scene { display: block; width: 100%; max-width: 26rem; margin-inline: auto; }\n  .scene text { font: 600 13px var(--k-font); fill: var(--k-ink); }\n  .scene .lbm { font-weight: 400; fill: var(--k-muted); }\n  .scene .ttl { font-weight: 700; }\n  .scene .cv, .scene .q { font-size: 16px; font-weight: 800; fill: var(--k-accent2); }\n  .scene .wl { font-weight: 700; fill: var(--k-warn); }\n  .scene .lim { font-weight: 700; fill: var(--k-accent2); }\n  .scene .dots { font-size: 16px; font-weight: 800; }\n  .scene .wall { fill: none; stroke: var(--k-ink); stroke-width: 3; stroke-linecap: round; }\n  .scene .box { fill: var(--k-panel); stroke: var(--k-accent2); stroke-width: 2; }\n  .scene .wire { fill: none; stroke: var(--k-ink); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }\n  .scene .flow, .scene .air { fill: none; stroke: var(--k-accent); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }\n  .scene .cellS { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.5; }\n  .scene .cellS.one { stroke: var(--k-accent2); stroke-width: 2.5; }\n  .scene .brace { fill: none; stroke: var(--k-muted); stroke-width: 1.5; }\n  .scene .case { fill: none; stroke: var(--k-ink); stroke-width: 2; }\n  .scene .cap { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.5; }\n  .scene .valve { fill: var(--k-panel); stroke: var(--k-accent2); stroke-width: 2; }\n  .scene .stem { stroke: var(--k-accent2); stroke-width: 2; }\n  .scene .acid { fill: var(--k-fill3); }\n  .scene .pos { fill: color-mix(in srgb, var(--k-cat2) 45%, var(--k-bg)); stroke: var(--k-ink); stroke-width: 1.2; }\n  .scene .neg { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.5; }\n  .scene .bub { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.2; }\n  .scene .gasd { fill: var(--k-muted); }\n  .scene .fanb { stroke: var(--k-ink); stroke-width: 3; stroke-linecap: round; }\n  .scene .hub { fill: var(--k-ink); }\n  .scene .fanh { fill: none; stroke: var(--k-muted); stroke-width: 1.5; }\n  .scene .track { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1; }\n  .scene .redz { fill: color-mix(in srgb, var(--k-warn) 28%, transparent); }\n  .scene .litb { fill: var(--k-fill1); }\n  .scene .hfill { fill: var(--k-accent2); }\n  .scene .limL { stroke: var(--k-muted); stroke-width: 2; }\n  .scene .limL.on { stroke: var(--k-accent2); stroke-width: 3; }\n  .scene .ign { stroke: var(--k-warn); stroke-width: 2.5; }\n  .scene .tk { stroke: var(--k-ink); stroke-width: 1; }\n  .scene .hole { fill: var(--k-sunk); stroke: var(--k-ink); stroke-width: 2; }\n  .scene .need { fill: none; stroke: var(--k-accent2); stroke-width: 2.5; stroke-dasharray: 7 4; }\n  .scene .airblk { fill: var(--k-fill3); stroke: var(--k-accent); stroke-width: 2; }\n  .say { line-height: 1.55; }\n  .picks { display: grid; grid-template-columns: repeat(auto-fit, minmax(6rem, 1fr)); gap: 8px; }\n  .picks.long { grid-template-columns: 1fr; }\n  .picks .k-btn { min-height: 48px; font-size: 1rem; }\n  .picks.long .k-btn { text-align: left; }\n  .picks .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; }\n  .replay { display: flex; justify-content: flex-end; }\n  .replay .k-btn { min-height: 44px; padding-inline: 16px; font-size: .95rem; white-space: nowrap; }\n  .fb { font-weight: 700; min-height: 1.5em; }\n  .fb.right { color: var(--k-good); }\n  .why, .done { line-height: 1.6; }\n  .done strong { color: var(--k-accent2); }\n  .done .row { margin-top: 14px; }\n  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }\n</style>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <svg class=\"scene\" id=\"scene\" viewBox=\"0 0 340 456\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"art\"></g></svg>\n    <div class=\"replay\" id=\"replay\"></div>\n    <div class=\"k-controls ctl\" id=\"c-current\"></div>\n    <div class=\"k-controls ctl\" id=\"c-cells\"></div>\n    <div class=\"k-controls ctl\" id=\"c-room\"></div>\n    <div class=\"k-controls ctl\" id=\"c-opening\"></div>\n    <div class=\"k-controls ctl\" id=\"c-fanFails\"></div>\n    <div class=\"k-controls ctl\" id=\"c-vrla\"></div>\n    <div class=\"k-controls ctl\" id=\"c-tstop\" hidden></div>\n    <p class=\"say\" id=\"say\"></p>\n    <div class=\"k-readouts\" id=\"outs\"></div>\n    <div class=\"picks\" id=\"picks\"></div>\n    <div class=\"row acts\" id=\"acts\"></div>\n    <p class=\"fb\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p><strong id=\"finish\"></strong></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\">Examples: 100 Ah cells, a 20 A fault, 0.5 A float. Hydrogen is modelled, not measured.</p>\n\n<script>\n  // ---------- the rule ----------\n  const HSE = 'https://www.hse.gov.uk/PUBNS/indg139.pdf';\n  const ENER = 'https://www.enersys.com/492013/globalassets/documents/product-documentation/powersafe/opzs/amer/amer-en-iom-ps-flooded-0223.pdf';\n  const F = 0.3;                                   // cm² of opening for each cell and each amp\n  const S_ROOM = 10, S_ENC = 4;                    // dilution factor: a room people enter, an enclosure nobody enters\n  const LEL = 4;                                   // hydrogen ignites in air from 4 per cent (up to 75)\n  const V_AIR = 0.1;                               // the least air speed the rule assumes through each opening, m/s\n  const STAND = 20;                                // minutes to leave a battery standing after charging, so the gas can clear\n  const I_FAULT = 20, I_FLOAT = 0.5, I_VALVE = 10; // example fault and float currents; the sketched current where a sealed cell's valve lifts\n  const GAS_V = 2.4, LIM_LO = 2.5, LIM_HI = 5, CAP = 100;   // gassing voltage; the recommended current limit per 100 Ah\n  const RISE = 0.004;                              // sketch: per cent per cell-amp over the sped-up climb once the air stops\n  const A_MIN = 100, A_MAX = 4000, A0 = 1440;\n  const NB = ' ';\n  const needOf = (n, i, s) => F * n * i * s;\n  const steadyH = (n, i, a) => 4 * F * n * i / a;            // 1.2 × N × I ÷ opening: the rule read backwards\n  const flowOf = (a) => a / 1e4 * V_AIR * 1000;              // litres a second through an opening of a cm²\n  function modelOf(p) {\n    const n = p.cells, i = p.current, a = p.opening;\n    return {\n      hydrogen: p.vrla ? 'not modelled' : steadyH(n, i, a) + (p.left ? K.clamp(p.left, 0, 1) * steadyH(n, I_FAULT, a) : 0) + (p.fanFails ? RISE * n * i * K.clamp(p.tstop, 0, 1) : 0),\n      needed: p.vrla ? 'maker\\'s figure' : needOf(n, i, p.room),\n      flow: p.fanFails ? 0 : flowOf(a),\n    };\n  }\n  const numI = (i) => (Math.abs(i - Math.round(i)) < 1e-9 ? String(Math.round(i)) : K.fmt(i, { decimals: 1 }));\n  const fA = (i) => numI(i) + NB + 'A';\n  const fC = (a) => String(Math.round(a)) + NB + 'cm²';     // labels and readouts\n  const fCp = (a) => String(Math.round(a)) + ' cm²';        // the screens' prose\n  const fH = (h) => K.fmt(h, { decimals: 2 }) + NB + '%';\n  const fL = (q) => K.fmt(q, { decimals: 1 }) + NB + 'L/s';\n  const fM2 = (a) => String(+(a / 1e4).toFixed(4)) + NB + 'm²';\n  const p1 = (h) => K.fmt(h, { decimals: 1 });\n  const q1 = (v) => Math.round(v * 10) / 10, q2 = (v) => Math.round(v * 100) / 100;\n  const ez = (x) => K.ease(K.clamp(x, 0, 1));\n\n  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------\n  const W1 = 'This full battery of 24 cells, 100 Ah each, is still on charge. Near full, the plates take less of the current. The rest splits water into hydrogen and oxygen. That is *gassing*. ' +\n    'Past the gassing voltage, 2.40 V a cell, the limit is 2.5 to 5 A per 100 Ah. A failed charger pushing 20 A gives four to eight times that, and the bubbles run thick.';\n  const W2 = 'Hydrogen in air ignites from about 4 to 75 per cent. Figures vary slightly. A room people enter is held below 0.4 per cent, a tenth of 4. An enclosure nobody enters may reach 1 per cent, a quarter of 4. ' +\n    'Each limit becomes a *dilution factor*, S. A room people enter takes S = 10, since 4 ÷ 10 = 0.4. An enclosure takes S = 4, since 4 ÷ 4 = 1.';\n  const W4 = 'The inlet and the outlet each need at least 0.3 × N × I × S cm². N is the number of cells, I the current in amps, and S the dilution factor. For 24 cells at 20 A in a room people enter, that is 0.3 × 24 × 20 × 10 = ' +\n    fCp(needOf(24, I_FAULT, S_ROOM)) + '. The dashed outline draws it to scale. With 12 cells, it halves to ' + fCp(needOf(12, I_FAULT, S_ROOM)) + '.';\n  const W6 = 'I is the most current the charger is likely to deliver if it fails. On float, this battery takes an example 0.5 A. Sized for float, each opening would need just ' + fCp(needOf(24, I_FLOAT, S_ROOM)) + '. ' +\n    'But a failed charger can push its full 20 A into the full battery. Most of that current becomes gas. So the opening needed grows forty times, to ' + fCp(needOf(24, I_FAULT, S_ROOM)) + '.';\n  const W8 = 'The rule assumes air crosses each opening at 0.1 m/s or more. Flow = area × speed, so ' + fCp(A0) + ' passes ' + p1(flowOf(A0)) + ' litres a second. ' +\n    'At 10 A, the hydrogen reads ' + p1(steadyH(24, 10, A0)) + ' per cent. Halve the opening: the same gas meets half the air, so the hydrogen doubles, to ' + p1(steadyH(24, 10, 720)) + ' per cent. ' +\n    'If the room relies on a fan and it fails, the hydrogen climbs past 1 per cent.';\n  const W10 = 'A *valve-regulated* cell is sealed, with a valve on top. It keeps most of its gas inside and turns it back into water. So its bubbles fade, and the hydrogen readout shows no number. ' +\n    'A hard charge still builds pressure inside. Past an example 10 A, the pressure lifts the valve, and gas escapes. So sealed means much less gas, not none.';\n  const O0 = ['2.5 m³/s', '1 m³/s', '0.25 m³/s'];\n  const O3_NO = 'No: a room people enter must stay below 0.4 per cent', O3_FAR = 'Yes: it is far below the 4 per cent where hydrogen ignites', O3_LIM = 'Yes: 1 per cent is the limit';\n  const O7_NONE = 'None: a full battery takes no current';\n  const O9 = (h) => p1(h) + ' per cent';\n  const O11_NO = 'No: the cells make much less gas, but their valves can still let it out', O11_GAS = 'Yes: sealed cells make no gas', O11_FLOAT = 'Yes, as long as the charger stays on float';\n  const O14_NOW = 'Yes: with the charger off, no more gas is made', O14_FAN = 'Yes, as long as the fan is running', O14_WAIT = 'No: leave the battery to stand for at least 20 minutes first';\n  const O13_UP = 'It keeps climbing towards the 4 per cent band', O13_STAY = 'It stays at 0.4 per cent, because the room was sized for it', O13_NONE = 'Nothing: an equalise makes no extra gas';\n  const STEPS = [\n    { name: 'Area times speed', pic: 'duct', enter: { blk: 0 }, end: { blk: 1 }, run: { dur: 2.0, go: (u) => { X.blk = ez(u / 0.85); } },\n      task: 'Air crosses a 0.5 m² opening at 2 m/s. What flow of air passes through it?',\n      opts: O0, want: O0[1], right: 'That\\'s it: 0.5 × 2 = 1 m³ a second.',\n      hint: 'Not quite. Flow is area times speed.',\n      hints: { [O0[0]]: 'Not quite. That adds them, but flow is area times speed.', [O0[2]]: 'Not quite. That divides them, but flow is area times speed.' },\n      why: 'In one second the air moves 2 m. So a block of air 0.5 m² across and 2 m long passes through. Its volume is 0.5 × 2 = 1 m³. So 1 m³ passes each second.' },\n    { show: true, name: 'Spare current makes gas', pic: 'room', ctl: ['current'], say: 'gas', enter: { current: I_FLOAT }, end: { current: I_FAULT }, still: { current: I_FAULT }, dur: 4.0,\n      play: (t) => { X.current = q1(K.lerp(I_FLOAT, I_FAULT, ez((t - 0.3) / 3.5))); },\n      text: W1 + ' Drag the current to try it.', read: W1 },\n    { show: true, name: 'Two limits', pic: 'room', ctl: ['room'], say: 'room', enter: { room: S_ENC }, end: { room: S_ROOM, lit: 1, na: null }, still: { room: S_ROOM }, dur: 2.6,\n      play: (t) => {\n        X.room = t < 1.5 ? S_ENC : S_ROOM;\n        X.lit = t < 1.1 ? 1 : t < 1.5 ? 1 - ez((t - 1.1) / 0.4) : ez((t - 1.5) / 0.6);\n        X.na = t < 1.5 || t >= 2.2 ? null : K.lerp(needOf(24, I_FAULT, S_ENC), needOf(24, I_FAULT, S_ROOM), ez((t - 1.5) / 0.7));\n      },\n      text: W2 + ' Switch the room type to try it.', read: W2 },\n    { name: 'One per cent', pic: 'room', enter: { opening: 576, lit: 0, nf: 0 }, end: { lit: 1, nf: 1 }, hide: ['needed'],\n      run: { dur: 1.4, go: (u) => { X.lit = ez(u / 0.6); X.nf = ez((u - 0.3) / 0.7); } },\n      task: 'A battery room\\'s hydrogen reads 1 per cent, and people work in it. Is that within the limit?',\n      opts: [O3_FAR, O3_LIM, O3_NO], want: O3_NO, right: 'That\\'s it: where people work, the limit is 0.4 per cent.',\n      hint: 'Not quite. Think about who enters this room.',\n      hints: { [O3_FAR]: 'Not quite. 1 per cent is already a quarter of the way to 4 per cent. Where people work, the limit is a tenth of it.', [O3_LIM]: 'Not quite. That limit is for an enclosure nobody enters.' },\n      why: 'People work in this room, so S = 10. Its limit is 4 ÷ 10 = 0.4 per cent, and 1 per cent is well over it. 1 per cent is already a quarter of the way to 4 per cent, where hydrogen ignites. The 1 per cent limit is only for an enclosure nobody enters.' },\n    { show: true, name: 'The rule', pic: 'room', ctl: ['cells'], say: 'cells', enter: { cells: 24 }, end: { cells: 24, na: null, cf: 1 }, still: { cells: 24 }, dur: 3.4,\n      play: (t) => {\n        const a = needOf(24, I_FAULT, S_ROOM), b = needOf(12, I_FAULT, S_ROOM);\n        X.cells = t < 1.0 || t >= 2.4 ? 24 : 12;\n        X.na = t < 1.0 ? null : t < 2.4 ? K.lerp(a, b, ez((t - 1.0) / 0.7)) : t < 3.1 ? K.lerp(b, a, ez((t - 2.4) / 0.7)) : null;\n        X.cf = t < 1.0 ? 1 : t < 2.4 ? ez((t - 1.0) / 0.4) : ez((t - 2.4) / 0.4);\n      },\n      text: W4 + ' Pick a cell count to try it.', read: W4 },\n    { name: 'An enclosure', pic: 'room', enter: { room: S_ENC, nf: 0 }, end: { nf: 1 }, hide: ['needed'],\n      run: { dur: 1.4, go: (u) => { X.nf = ez(u / 0.8); } },\n      task: 'The same 24 cells at 20 A sit in an enclosure nobody enters. What opening does each vent need?',\n      opts: [fCp(3600), fCp(1440), fCp(576)], want: fCp(needOf(24, I_FAULT, S_ENC)), right: 'That\\'s it: 0.3 × 24 × 20 × 4 = ' + fCp(needOf(24, I_FAULT, S_ENC)) + '.',\n      hint: 'Not quite. An enclosure uses S = 4.',\n      hints: { [fCp(3600)]: 'Not quite. That scales 1440 up by 10 ÷ 4, when it should scale down. An enclosure may hold more hydrogen, so it needs less air.', [fCp(1440)]: 'Not quite. That still uses S = 10, but an enclosure uses 4.' },\n      why: 'An enclosure takes S = 4. So each opening needs 0.3 × 24 × 20 × 4 = ' + fCp(needOf(24, I_FAULT, S_ENC)) + '. An enclosure may hold up to 1 per cent hydrogen, more than a room people enter. So it needs less air, and a smaller opening.' },\n    { show: true, name: 'Size for the fault', pic: 'room', ctl: ['current'], say: 'size', enter: { current: I_FLOAT }, end: { current: I_FAULT }, still: { current: I_FAULT }, dur: 4.2,\n      play: (t) => { X.current = q1(K.lerp(I_FLOAT, I_FAULT, ez((t - 0.6) / 3.4))); },\n      text: W6 + ' Drag the current to try it.', read: W6 },\n    { name: 'Float or fault?', pic: 'room', enter: { current: I_FLOAT, nf: 0 }, end: { current: I_FAULT, nf: 1 }, hide: ['needed'],\n      run: { dur: 2.4, go: (u) => { X.nf = ez(u / 0.3); X.current = q1(K.lerp(I_FLOAT, I_FAULT, ez((u - 0.1) / 0.85))); } },\n      task: 'A 24-cell battery floats at 0.5 A in a room people enter. If its control failed, its charger could push 20 A. What opening do the vents need?',\n      opts: [fCp(36), fCp(1440), O7_NONE], want: fCp(needOf(24, I_FAULT, S_ROOM)), right: 'That\\'s it: 0.3 × 24 × 20 × 10 = ' + fCp(needOf(24, I_FAULT, S_ROOM)) + '.',\n      hint: 'Not quite. Size from the most current the charger could push.',\n      hints: { [fCp(36)]: 'Not quite. That is sized for float, but a failed charger pushes 20 A into a full battery.', [O7_NONE]: 'Not quite. A full battery still takes current if the charger pushes it, and that spare current splits water.' },\n      why: 'Size from the fault current, not the float current. A failed charger can push 20 A into the full battery, and that spare current splits water. So each opening needs 0.3 × 24 × 20 × 10 = ' + fCp(needOf(24, I_FAULT, S_ROOM)) + '. Sized for float, 36 cm² would be forty times too small.' },\n    { show: true, name: 'Air carries it away', pic: 'room', ctl: ['opening', 'fanFails'], say: 'air', enter: { current: 10, opening: A0 }, end: { opening: 720, fanFails: true, tstop: 1, af: 0 }, still: { opening: 720, fanFails: true, tstop: 1 }, dur: 4.6,\n      play: (t) => {\n        X.opening = Math.round(K.lerp(A0, 720, ez((t - 0.9) / 0.9)));\n        X.fanFails = t >= 2.3;\n        X.af = t < 2.3 ? 1 : 1 - ez((t - 2.3) / 0.3);\n        X.tstop = q2(K.clamp((t - 2.4) / 2.0, 0, 1));\n      },\n      text: W8 + ' Drag the opening or fail the fan to try it.', read: W8 },\n    { name: 'Blocked opening', pic: 'room', enter: { current: I_FLOAT, opening: 720 }, end: { current: I_FAULT },\n      run: { dur: 2.2, go: (u) => { X.current = q1(K.lerp(I_FLOAT, I_FAULT, ez(u / 0.9))); } },\n      task: 'Stores now block half of the 1440 cm² opening, leaving 720 cm². The charger fails and pushes 20 A into the 24 cells. What does the hydrogen reach?',\n      opts: [O9(0.2), O9(0.4), O9(0.8)], want: O9(steadyH(24, I_FAULT, 720)), right: 'That\\'s it: the same gas in half the air, 0.4 × 2 = 0.8 per cent, twice the limit.',\n      hint: 'Not quite. Think about how much air now dilutes the gas.',\n      hints: { [O9(0.2)]: 'Not quite. Less air dilutes the gas less, so the level rises.', [O9(0.4)]: 'Not quite. The gas is unchanged, but the air has halved.' },\n      why: 'Through the full 1440 cm², 20 A holds this room at the 0.4 per cent limit. Half the opening lets in half the air, and the same gas spreads through it. So the hydrogen doubles, to 0.8 per cent. That is twice the limit for a room people enter.' },\n    { show: true, name: 'Sealed cells', pic: 'room', ctl: ['vrla', 'current'], say: 'vrla', enter: { current: 10 }, end: { vrla: true, vf: 1, current: I_FAULT }, still: { vrla: true, current: I_FAULT }, dur: 4.3,\n      play: (t) => {\n        X.vrla = t >= 0.8;\n        X.vf = ez((t - 0.8) / 0.8);\n        X.current = q1(K.lerp(10, I_FAULT, ez((t - 2.0) / 2.0)));\n      },\n      text: W10 + ' Switch the cells, or drag the current, to try it.', read: W10 },\n    { name: 'Board over the vents?', pic: 'room', enter: { current: I_FLOAT, vrla: true, vf: 1 }, end: { current: I_FAULT },\n      run: { dur: 2.4, go: (u) => { X.current = q1(K.lerp(I_FLOAT, I_FAULT, ez(u / 0.9))); } },\n      task: 'Sealed, valve-regulated cells replace a flooded battery. Someone suggests boarding over the vents. Are they right?',\n      opts: [O11_NO, O11_GAS, O11_FLOAT], want: O11_NO, right: 'That\\'s it: sealed means much less gas, not none.',\n      hint: 'Not quite. Think about what the valve is for.',\n      hints: { [O11_GAS]: 'Not quite. The valve is there to let gas out when the pressure builds.', [O11_FLOAT]: 'Not quite. The vents are sized for a failed charger, and a failed charger does not stay on float.' },\n      why: 'Sealed cells keep most of their gas and turn it back into water. But a hard charge builds pressure, and the valve lets gas out. A failed charger pushes just that kind of current. So the room still needs its vents.' },\n    { name: 'Fifty-five cells', pic: 'room', enter: { cells: 55, current: 10, nf: 0, hf: 0 }, end: { nf: 1, hf: 1 }, hide: ['needed', 'hydrogen'],\n      run: { dur: 1.4, go: (u) => { X.nf = ez(u / 0.8); X.hf = ez((u - 0.2) / 0.6); } },\n      task: 'A room people enter holds 55 cells. The charger can deliver 10 A if it fails. What opening does each vent need?',\n      opts: [fCp(165), fCp(660), fCp(1650)], want: fCp(needOf(55, 10, S_ROOM)), right: 'That\\'s it: 0.3 × 55 × 10 × 10 = ' + fCp(needOf(55, 10, S_ROOM)) + '.',\n      hint: 'Not quite. Use 0.3 × N × I × S.',\n      hints: { [fCp(660)]: 'Not quite. That uses S = 4, which is for an enclosure, and people enter this room.', [fCp(165)]: 'Not quite. That leaves out S.' },\n      why: 'People enter, so S = 10. Each opening needs 0.3 × 55 × 10 × 10 = ' + fCp(needOf(55, 10, S_ROOM)) + '. That is 0.165 m². At 0.1 m/s it passes 0.0165 m³ of air a second, or 16.5 litres. ' +\n        'The 1440 cm² openings drawn here fall short, so the hydrogen sits above the 0.4 per cent limit.' },\n    { name: 'The fan stops', pic: 'room', enter: {}, end: { fanFails: true, tstop: 1, af: 0 },\n      run: { dur: 2.5, go: (u) => { X.fanFails = true; X.af = 1 - ez(u / 0.15); X.tstop = q2(K.clamp((u - 0.1) / 0.9, 0, 1)); } },\n      task: 'A battery room\\'s fan stops during an equalise. What happens to the hydrogen?',\n      opts: [O13_STAY, O13_UP, O13_NONE], want: O13_UP, right: 'That\\'s it: the gas keeps coming, and no air carries it out.',\n      hint: 'Not quite. Think about what carries the gas out.',\n      hints: { [O13_STAY]: 'Not quite. The sizing assumes the air keeps moving. Now nothing carries the gas out.', [O13_NONE]: 'Not quite. An equalise is a deliberate overcharge, so most of its current becomes gas.' },\n      why: 'An equalise is a deliberate overcharge, so most of its current becomes gas. The sizing assumes air keeps crossing the openings. With the fan stopped, nothing carries the gas out. So the hydrogen keeps climbing towards 4 per cent, where it ignites.' },\n    { name: 'Charger off', pic: 'room', stand: true, enter: { current: 0, left: 1, wt: 0, hf: 0 }, end: { left: 0, wt: 1, hf: 1 }, hide: ['hydrogen'],\n      run: { dur: 2.4, go: (u) => { X.hf = ez(u / 0.3); X.left = 1 - ez((u - 0.1) / 0.9); X.wt = ez((u - 0.1) / 0.9); } },\n      task: 'A hard charge has just finished, and the charger is off. Someone wants to start work by the battery that could make a spark. Can they start now?',\n      opts: [O14_NOW, O14_WAIT, O14_FAN], want: O14_WAIT, right: 'That\\'s it: the gas already made needs time to clear.',\n      hint: 'Not quite. Think about the gas already in the room.',\n      hints: { [O14_NOW]: 'Not quite. No new gas is made, but the gas already made is still in the room.', [O14_FAN]: 'Not quite. The fan clears the gas, but that takes time.' },\n      why: 'Switching off stops new gas, but not the gas already made. It still has to clear from the cells and the room. So leave the battery to stand for at least 20 minutes after charging. Only then start work that could make a spark.' },\n  ];\n  const FINISH = 'Near full charge, current the plates no longer take splits water into hydrogen and oxygen. So a battery room\\'s vents are sized from the charger\\'s largest fault current, not its float current.';\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n  const quiet = () => REDUCE || testing();\n  const el = (id) => document.getElementById(id);\n\n  // ---------- state ----------\n  function blank() { return { pick: null, res: null, why: false }; }\n  let S = STEPS.map(blank);\n  const BASE = { current: I_FAULT, cells: 24, room: S_ROOM, opening: A0, fanFails: false, vrla: false, tstop: 0, left: 0, wt: 0, ph: 0, gp: 0, fa: 0.6,\n    nf: 1, lit: 1, hf: 1, na: null, cf: 1, vf: 0, af: 1, blk: 0 };\n  const X = {};\n  const setX = (o) => Object.assign(X, o);\n  const copyX = () => Object.assign({}, X);\n  setX(BASE);\n  let T = Infinity, scripted = false, lastStep = -1, finished = false, lastDone = false;\n  let REC = {}, laidOut = '', drift = 0, climbing = false, climbT = 0;\n  const DRIFT = 1.6, CLIMB = 2.0;\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);\n  const CTL = {\n    current: K.control({ id: 'current', label: 'Charging current', min: 0, max: I_FAULT, step: 0.1, value: I_FAULT, fmt: fA, snap: [I_FLOAT, I_VALVE, I_FAULT], into: '#c-current' }),\n    cells: K.choice({ id: 'cells', label: 'Cells in the battery', options: [6, 12, 24, 55].map((n) => ({ value: n, label: String(n) })), value: 24, into: '#c-cells' }),\n    room: K.choice({ id: 'room', label: 'Room type', options: [{ value: S_ROOM, label: 'People enter' }, { value: S_ENC, label: 'Enclosure' }], value: S_ROOM, into: '#c-room' }),\n    opening: K.control({ id: 'opening', label: 'Real opening', min: A_MIN, max: A_MAX, step: 1, value: A0, fmt: fC, snap: [576, 720, A0, 1650], into: '#c-opening' }),\n    fanFails: K.toggle({ id: 'fanFails', label: 'Fan fails', value: false, into: '#c-fanFails' }),\n    vrla: K.toggle({ id: 'vrla', label: 'Valve-regulated cells', value: false, into: '#c-vrla' }),\n    tstop: K.control({ id: 'tstop', label: 'Time since the fan stopped', min: 0, max: 1, step: 0.01, value: 0, fmt: (v) => (v > 0 ? 'Sped up' : 'Not yet'), into: '#c-tstop' }),\n  };\n  const CKEYS = ['current', 'cells', 'room', 'opening', 'fanFails', 'vrla'];\n  const KEYS = { current: () => q1(X.current), cells: () => X.cells, room: () => X.room, opening: () => Math.round(X.opening), fanFails: () => !!X.fanFails, vrla: () => !!X.vrla, tstop: () => q2(X.tstop) };\n  const pushed = {};\n  Object.keys(CTL).forEach((k) => { pushed[k] = CTL[k].get(); });\n  // The page moves the controls itself during a demonstration (silently, so it is not taken for Dan's move).\n  function push() { Object.keys(KEYS).forEach((k) => { const v = KEYS[k](); if (pushed[k] !== v) { CTL[k].set(v, true); pushed[k] = CTL[k].get(); } }); }\n  const paramsX = () => ({ current: q1(X.current), cells: X.cells, room: X.room, opening: Math.round(X.opening), fanFails: !!X.fanFails, vrla: !!X.vrla, tstop: q2(X.tstop), left: q2(X.left) });\n\n  K.model(modelOf);\n\n  // A puzzle's answer stays a \"?\" in its readout until Check says it is right.\n  function hid(id) { const d = STEPS[at()]; return !!(d && !d.show && d.hide && d.hide.indexOf(id) >= 0 && S[at()].res !== 'right'); }\n  const R = {\n    hydrogen: K.readout({ id: 'hydrogen', label: 'Hydrogen in the room', decimals: 2, fmt: (v) => (hid('hydrogen') ? '?' : fH(v)), into: '#outs' }),\n    needed: K.readout({ id: 'needed', label: 'Opening needed', decimals: 0, fmt: (v) => (hid('needed') ? '?' : fC(v)), into: '#outs' }),\n    flow: K.readout({ id: 'flow', label: 'Air through the opening', decimals: 1, fmt: (v) => (hid('flow') ? '?' : fL(v)), into: '#outs' }),\n  };\n  function outs() { const o = modelOf(paramsX()); R.hydrogen.set(o.hydrogen); R.needed.set(o.needed); R.flow.set(o.flow); }\n\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;\n    st.pick = d.opts[k]; st.res = null;\n  } }));\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || st.res === 'right') return;\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = st.pick === d.want ? 'right' : 'wrong';\n    if (st.res !== 'right') { T = Infinity; return; }\n    if (quiet()) { T = Infinity; setX(d.end || {}); push(); }\n    else { T = 0; anim.play(); }\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    const d = STEPS[at()];\n    if (d.show || finished) return;\n    S[at()].why = !S[at()].why;\n  } });\n  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {\n    if (!STEPS[at()].show || finished) return;\n    enterStep(at());\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true; anim.pause();\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S = STEPS.map(blank); finished = false; lastStep = -1; stepper.set(0, true);\n  } });\n\n  // ---------- motion: one animation runs each demonstration, each answer's motion, and what Dan's own moves set going ----------\n  const motionEnd = (d, st) => (d.show ? (scripted ? d.dur : 0) : st.res === 'right' ? d.run.dur : 0);\n  // After Dan moves something: the bubbles and the air keep going a while, the valve and the air fade, and a stopped fan's climb runs.\n  function easeOn(dt) {\n    let busy = false;\n    if (drift > 0) { drift = Math.max(0, drift - dt); busy = drift > 0; }\n    const vT = X.vrla ? 1 : 0, aT = X.fanFails ? 0 : 1;\n    if (X.vf !== vT) { X.vf = vT > X.vf ? Math.min(vT, X.vf + dt / 0.8) : Math.max(vT, X.vf - dt / 0.8); busy = true; }\n    if (X.af !== aT) { X.af = aT > X.af ? Math.min(aT, X.af + dt / 0.3) : Math.max(aT, X.af - dt / 0.3); busy = true; }\n    if (climbing) { climbT += dt; X.tstop = q2(Math.min(1, climbT / CLIMB)); if (X.tstop >= 1) climbing = false; else busy = true; }\n    return busy;\n  }\n  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {\n    if (finished) return false;\n    const i = at(), d = STEPS[i], st = S[i];\n    T += dt;\n    X.ph += dt; X.gp += dt * 0.35 * X.af; X.fa += dt * 7 * X.af;\n    if (scripted) { d.play(Math.min(T, d.dur)); if (T >= d.dur) scripted = false; }\n    const running = !d.show && st.res === 'right' && T < d.run.dur + dt;\n    if (running) d.run.go(Math.min(1, T / d.run.dur));\n    const busy = scripted || running ? false : easeOn(dt);\n    push(); outs(); paint(i);\n    return busy || T < motionEnd(d, st);\n  } });\n  const pending = () => T !== Infinity || drift > 0 || climbing || X.vf !== (X.vrla ? 1 : 0) || X.af !== (X.fanFails ? 0 : 1);\n  // A motion that was stopped (the page hidden, a test) shows finished.\n  function finishNow(d, st) {\n    if (scripted) { d.play(d.dur); scripted = false; }\n    if (!d.show && st.res === 'right') setX(d.end || {});\n    if (climbing) { X.tstop = 1; climbing = false; }\n    X.vf = X.vrla ? 1 : 0; X.af = X.fanFails ? 0 : 1; drift = 0;\n    T = Infinity; push();\n  }\n  function startDrift() {\n    if (quiet()) { finishNow(STEPS[at()], S[at()]); return; }\n    drift = DRIFT; anim.play();\n  }\n  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && pending()) { finishNow(STEPS[at()], S[at()]); outs(); paint(); } });\n  function enter(id) {\n    if (REDUCE) return;\n    const box = el(id);\n    box.classList.remove('enter'); void box.offsetWidth; box.classList.add('enter');\n  }\n  function enterStep(i) {\n    const d = STEPS[i], st = S[i];\n    anim.pause();\n    setX(BASE); setX(d.enter || {});\n    drift = 0; climbing = false; climbT = 0;\n    if (!d.show && st.res === 'right') setX(d.end || {});\n    if (d.show && !quiet()) { scripted = true; T = 0; d.play(0); push(); anim.play(); }\n    else { scripted = false; T = Infinity; if (d.show) setX(d.end || {}); push(); }\n    laidOut = '';\n    enter('stepbox');\n  }\n\n  // ---------- drawing ----------\n  const svg = el('scene'), art = el('art');\n  let into = null;\n  const r1 = (v) => Math.round(v * 10) / 10;\n  const add = (n) => (into || art).appendChild(n);\n  const S_ = (tag, a) => add(K.svg(tag, a));\n  function txt(x, y, s, cls, anchor) {\n    const a = { x: r1(x), y: r1(y), 'text-anchor': anchor || 'middle' };\n    if (cls) a.class = cls;\n    const t = K.svg('text', a); t.textContent = s; return add(t);\n  }\n  function part(a, fn) { if (a <= 0.001) return; const g = add(K.svg('g')); K.fade(g, Math.min(1, a), 0); const keep = into; into = g; fn(); into = keep; }\n  const gapOf = (a) => 0.85 * Math.sqrt(a);                 // the side view's slot for an opening\n  const sideOf = (a) => 1.6 * Math.sqrt(Math.max(0, a));     // a square opening, face-on, to scale\n  const hx = (h) => 20 + 60 * K.clamp(h, 0, 5);              // the hydrogen gauge, 0 to 5 per cent\n\n  // Recall: one second of air, 2 m long, crosses an opening of 0.5 m².\n  function drawDuct(d, st) {\n    const x0 = 30 + 120 * X.blk, ok = st.res === 'right';\n    S_('path', { class: 'wall', d: 'M150 22V60M150 120V156' });\n    txt(158, 40, 'opening, 0.5' + NB + 'm²', null, 'start');\n    S_('path', { class: 'flow', d: 'M30 48H118M112 42L118 48L112 54' });\n    txt(74, 38, '2' + NB + 'm/s', 'cv');\n    S_('rect', { class: 'airblk', x: r1(x0), y: 62, width: 120, height: 56, rx: 3 });\n    const aa = ok ? ez((X.blk - 0.55) / 0.45) : 0;\n    if (aa < 0.999) part(1 - aa, () => txt(x0 + 60, 96, '?' + NB + 'm³', 'q'));\n    if (aa > 0.001) part(aa, () => txt(x0 + 60, 96, '1' + NB + 'm³', 'q'));\n    S_('path', { class: 'brace', d: 'M' + r1(x0) + ' 128V134H' + r1(x0 + 120) + 'V128' });\n    txt(x0 + 60, 152, '2' + NB + 'm in 1' + NB + 's', 'lbm');\n    REC.duct = aa >= 0.5 ? '1 m³' : '?';\n    return 'Air moves at 2 m/s towards a wall with a 0.5 m² opening. A block of air 2 m long, one second of air, ' +\n      (REC.duct === '?' ? 'waits to pass, and its volume shows a question mark.' : 'has passed through: 1 m³.');\n  }\n\n  // The battery room from the side: charger, string of cells, one cell cut open, the inlet low and the outlet high.\n  function drawRoom(d, st) {\n    const N = X.cells, I = q1(X.current), A = Math.round(X.opening), vf = X.vf, af = X.af;\n    const g = gapOf(A), inTop = 214 - g, outBot = 36 + g, fy = (36 + outBot) / 2;\n    const gI = K.clamp(I / I_FAULT, 0, 1), vo = K.clamp((I - I_VALVE) / 2, 0, 1);\n    txt(170, 16, X.room === S_ROOM ? 'A room people enter: S = 10' : 'An enclosure nobody enters: S = 4', 'ttl');\n    S_('path', { class: 'wall', d: 'M12 26H328M12 222H328M12 26V' + r1(inTop) + 'M12 214V222M328 26V36M328 ' + r1(outBot) + 'V222' });\n    // Air crosses both openings at the same speed; it stops when the fan does.\n    const rows = (a, b) => { const n = Math.max(1, Math.floor((b - a) / 14)), out = []; for (let k = 0; k < n; k++) out.push(a + (b - a) * (k + 0.5) / n); return out; };\n    const chev = (x, y) => S_('path', { class: 'air', d: 'M' + r1(x - 4) + ' ' + r1(y - 4) + 'L' + r1(x) + ' ' + r1(y) + 'L' + r1(x - 4) + ' ' + r1(y + 4) });\n    REC.air = 0;\n    if (af > 0.001) part(af, () => {\n      rows(inTop, 214).forEach((y) => [0, 1, 2].forEach((k) => { chev(8 + 36 * ((X.ph * 0.6 + k / 3) % 1), y); REC.air++; }));\n      rows(36, outBot).forEach((y) => [0, 1].forEach((k) => { chev(278 + 24 * ((X.ph * 0.6 + k / 2) % 1), y); REC.air++; }));\n    });\n    const bx = 9 * Math.cos(X.fa), by = 9 * Math.sin(X.fa);\n    S_('circle', { class: 'fanh', cx: 318, cy: r1(fy), r: 11 });\n    S_('line', { class: 'fanb', x1: r1(318 - bx), y1: r1(fy - by), x2: r1(318 + bx), y2: r1(fy + by) });\n    S_('circle', { class: 'hub', cx: 318, cy: r1(fy), r: 3 });\n    txt(18, inTop - 8, 'air in', 'lbm', 'start');\n    txt(324, outBot + 17, X.fanFails ? 'fan stopped' : 'air out', X.fanFails ? 'wl' : 'lbm', 'end');\n    REC.fanStopped = !!X.fanFails;\n    if (d.stand) txt(57, 114, X.wt > 0.02 ? 'stood ' + Math.round(STAND * X.wt) + NB + 'min' : 'charger off', 'lim');\n    // The charger and its leads, and the string of cells: four, a gap, and the last one when there are many.\n    S_('rect', { class: 'box', x: 22, y: 40, width: 70, height: 48, rx: 7 });\n    txt(57, 58, 'charger', 'lbm');\n    txt(57, 79, fA(I), 'cv');\n    REC.cur = fA(I);\n    S_('path', { class: 'wire', d: 'M92 63H106' });\n    S_('path', { class: 'flow', d: 'M96 59L100 63L96 67' });\n    const many = N > 6;\n    for (let k = 0; k < 6; k++) {\n      const x = 106 + 24 * k;\n      if (many && k === 4) { txt(x + 8, 70, '…', 'dots'); continue; }\n      S_('rect', { class: k === 0 ? 'cellS one' : 'cellS', x, y: 52, width: 16, height: 22, rx: 3 });\n      if (k < 5 && !(many && k === 3)) S_('path', { class: 'wire', d: 'M' + (x + 16) + ' 63H' + (x + 24) });\n    }\n    S_('path', { class: 'brace', d: 'M106 48V44H242V48' });\n    part(X.cf, () => txt(174, 39, N + ' cells'));\n    S_('path', { class: 'wire', d: 'M234 74V96H57V88' });   // the return lead leaves the last cell from below, clear of the outlet's label\n    S_('path', { class: 'flow', d: 'M152 92L148 96L152 100' });\n    // One cell cut open: plates in acid, bubbles from both plates, and a vent or a valve on top.\n    txt(124, 146, 'one cell,', 'lbm', 'end'); txt(124, 162, 'cut open', 'lbm', 'end');\n    S_('rect', { class: 'acid', x: 134, y: 140, width: 100, height: 78 });\n    S_('rect', { class: 'case', x: 132, y: 120, width: 104, height: 100, rx: 6 });\n    S_('rect', { class: 'pos', x: 150, y: 146, width: 16, height: 68, rx: 2 });\n    S_('rect', { class: 'neg', x: 202, y: 146, width: 16, height: 68, rx: 2 });\n    txt(158, 136, '+'); txt(210, 136, '−');\n    txt(184, 212, 'acid', 'lbm');\n    if (vf < 0.999) part(1 - vf, () => S_('rect', { class: 'cap', x: 178, y: 113, width: 12, height: 7, rx: 2 }));\n    const lift = 5 * vo;\n    if (vf > 0.001) part(vf, () => {\n      S_('line', { class: 'stem', x1: 184, y1: 120, x2: 184, y2: r1(114 - lift) });\n      S_('rect', { class: 'valve', x: 176, y: r1(109 - lift), width: 16, height: 6, rx: 2 });\n    });\n    REC.valve = vf < 0.5 ? 'vent' : vo >= 0.5 ? 'valve lifts' : 'valve shut';\n    txt(172, 116, REC.valve, 'lbm', 'end');\n    const bubA = (1 - vf) + vf * vo * 0.7;\n    REC.bubbles = 0; REC.bubA = gI > 0 ? bubA : 0;\n    if (bubA > 0.01 && gI > 0) part(bubA, () => [143, 173, 195, 225].forEach((x, c) => {\n      for (let k = 0; k < 5; k++) {\n        const a = K.clamp(5 * gI - k, 0, 1);\n        if (a <= 0.01) continue;\n        const f = (X.ph * 0.7 + k / 5 + c * 0.17) % 1;\n        S_('circle', { class: 'bub', cx: x, cy: r1(198 - f * 52), r: 2.2, opacity: Math.round(a * 100) / 100 });\n        REC.bubbles++;\n      }\n    }));\n    // Gas leaves the vent and rides the air to the outlet; with no air it hangs in the room.\n    const gasA = (1 - vf) + vf * vo, gL = Math.max(gI, K.clamp(X.left || 0, 0, 1));\n    REC.gas = 0;\n    if (gasA > 0.01 && gL > 0) part(gasA, () => {\n      for (let k = 0; k < 6; k++) {\n        const a = K.clamp(6 * gL - k, 0, 1);\n        if (a <= 0.01) continue;\n        const f = (X.gp + k / 6) % 1, u = K.clamp((f - 0.4) / 0.6, 0, 1);\n        S_('circle', { class: 'gasd', cx: r1(184 + 116 * f), cy: r1(106 + (fy - 106) * u * u * (3 - 2 * u)), r: 2.4, opacity: Math.round(a * 100) / 100 });\n        REC.gas++;\n      }\n      txt(198, 115, 'gas', 'lbm', 'start');\n    });\n    return 'A battery room seen from the side. A charger feeds ' + N + ' cells at ' + fA(I) + '. One cell is drawn cut open' + (REC.bubbles ? ', with gas bubbling from its plates' : '') + '. ' +\n      (vf >= 0.5 ? (vo >= 0.5 ? 'Its valve has lifted, and gas escapes. ' : 'Its valve is shut. ') : '') +\n      'Air comes in low on the left and leaves high on the right' + (X.fanFails ? ', but the fan has stopped and no air moves.' : '.');\n  }\n\n  // The hydrogen gauge: 0 to 5 per cent, the two limits, and where hydrogen ignites.\n  function drawGauge(y0, d, st) {\n    const o = modelOf(paramsX()), vf = X.vf, la = X.lit, lim = LEL / X.room, hf = X.hf;\n    txt(20, y0 + 12, 'hydrogen in the room, %', 'ttl', 'start');\n    txt(320, y0 + 12, 'ignites from 4', 'wl', 'end');\n    S_('rect', { class: 'track', x: 20, y: y0 + 20, width: 300, height: 16, rx: 3 });\n    S_('rect', { class: 'redz', x: hx(4), y: y0 + 20, width: 60, height: 16 });\n    if (la > 0.001) part(la, () => S_('rect', { class: 'litb', x: 20, y: y0 + 20, width: r1(hx(lim) - 20), height: 16 }));\n    const h = typeof o.hydrogen === 'number' ? o.hydrogen : 0;\n    REC.hW = 0; REC.hQ = hf < 0.5;\n    if (vf < 0.999 && hf > 0.001) part(1 - vf, () => {\n      const w = (hx(h) - 20) * hf;\n      if (w > 0.2) S_('rect', { class: 'hfill', x: 20, y: y0 + 24, width: r1(w), height: 8, rx: 2 });\n      if (h > 5 && hf > 0.99) S_('path', { class: 'hfill', d: 'M322 ' + (y0 + 22) + 'L330 ' + (y0 + 28) + 'L322 ' + (y0 + 34) + 'Z' });\n      REC.hW = w;\n    });\n    if (hf < 0.999 && vf < 0.5) part(1 - hf, () => txt(170, y0 + 33, '?', 'q'));\n    S_('line', { class: 'ign', x1: hx(4), y1: y0 + 19, x2: hx(4), y2: y0 + 39 });\n    [S_ROOM, S_ENC].forEach((s) => S_('line', { class: 'limL' + (s === X.room && la >= 0.5 && vf < 0.5 ? ' on' : ''), x1: r1(hx(LEL / s)), y1: y0 + 19, x2: r1(hx(LEL / s)), y2: y0 + 39 }));\n    [[0, '0', 'start'], [0.4, '0.4'], [1, '1'], [2, '2'], [3, '3'], [4, '4'], [5, '5', 'end']].forEach((t) => {\n      S_('line', { class: 'tk', x1: r1(hx(t[0])), y1: y0 + 36, x2: r1(hx(t[0])), y2: y0 + 41 });\n      txt(hx(t[0]), y0 + 54, t[1], 'lbm', t[2]);\n    });\n    const litText = X.room === S_ROOM ? 'held below 0.4 where people enter' : 'held below 1 in an enclosure';\n    if (la > 0.001 && vf < 0.999) part(la * (1 - vf), () => txt(20, y0 + 72, litText, 'lim', 'start'));\n    if (vf > 0.001) part(vf, () => txt(20, y0 + 72, 'sealed cells: not modelled', 'lbm', 'start'));\n    REC.litS = la >= 0.5 && vf < 0.5 ? X.room : null; REC.note = vf >= 0.5;\n    const band = h < 0.4 ? 'below 0.4' : h < 1 ? 'between 0.4 and 1' : h < 4 ? 'between 1 and 4' : 'past 4';\n    return 'A hydrogen gauge from 0 to 5 per cent, with marks at 0.4 and 1, shaded from 4, where hydrogen ignites. ' +\n      (REC.litS ? 'The limit for this ' + (X.room === S_ROOM ? 'room, 0.4,' : 'enclosure, 1,') + ' is lit. ' : '') +\n      (REC.note ? 'For sealed cells it shows no level.' : REC.hQ ? 'Its level is hidden.' : 'Its level is ' + band + '.');\n  }\n\n  // Each opening face-on, to scale: the real one solid, the one the rule asks for dashed.\n  function drawPanel(y1, d, st) {\n    const A = Math.round(X.opening), need = X.na != null ? X.na : needOf(X.cells, q1(X.current), X.room);\n    txt(20, y1 + 12, 'each opening, face-on, to scale', 'ttl', 'start');\n    const by = y1 + 120, sr = sideOf(A), sn = sideOf(need) * X.nf * (1 - K.clamp(X.vf, 0, 1));\n    S_('rect', { class: 'hole', x: 24, y: r1(by - sr), width: r1(sr), height: r1(sr) });\n    if (sn > 0.5) S_('rect', { class: 'need', x: 24, y: r1(by - sn), width: r1(sn), height: r1(sn) });\n    S_('rect', { class: 'hole', x: 150, y: y1 + 30, width: 14, height: 14 });\n    txt(172, y1 + 42, 'real opening, ' + fC(A), null, 'start');\n    S_('rect', { class: 'need', x: 150, y: y1 + 56, width: 14, height: 14 });\n    txt(172, y1 + 68, X.vf >= 0.5 ? 'sealed: maker\\'s figure' : 'needed by the rule', null, 'start');\n    txt(150, y1 + 92, 'air through it', 'lbm', 'start');\n    REC.airText = X.fanFails ? 'none: the fan has stopped' : fM2(A) + ' × 0.1' + NB + 'm/s';\n    txt(150, y1 + 110, REC.airText, X.fanFails ? 'wl' : null, 'start');\n    if (!X.fanFails) txt(150, y1 + 127, '= ' + fL(flowOf(A)), null, 'start');\n    REC.realSide = sr; REC.needSide = sn < 0.5 ? 0 : sn;\n    return 'Each opening face-on, to scale: the real opening is a solid square, and the opening the rule asks for is a dashed square' +\n      (sn < 0.5 ? ', not yet drawn.' : need > A * 1.01 ? ', larger than the real one.' : need < A * 0.99 ? ', smaller than the real one.' : ', the same size.');\n  }\n\n  function sayFor(d) {\n    const N = X.cells, I = q1(X.current), Sx = X.room, o = modelOf(paramsX());\n    const rule = '0.3 × ' + N + ' × ' + numI(I) + ' × ' + Sx + ' = ' + fC(o.needed) + '.';\n    if (d.say === 'gas') return I <= 0 ? 'With no current, no water splits, and no gas rises.' : 'All ' + N + ' cells carry ' + fA(I) + ', so they make ' + N + ' times one cell\\'s gas.';\n    if (d.say === 'room') return Sx === S_ROOM ? 'People enter: the 0.4 per cent limit is lit.' : 'An enclosure: the 1 per cent limit is lit.';\n    if (d.say === 'cells') return 'With ' + N + ' cells, ' + rule;\n    if (d.say === 'size') return I <= 0 ? 'With no current, the rule asks for no opening at all.' : 'At ' + fA(I) + ', ' + rule;\n    if (d.say === 'air') return X.fanFails ? 'Fan stopped: the hydrogen climbs, ' + fH(o.hydrogen) + ' so far.'\n      : fL(o.flow) + ' of air holds the hydrogen at ' + fH(o.hydrogen) + '.';\n    if (!X.vrla) return 'Flooded cells at ' + fA(I) + ': the gas bubbles up and leaves through the vent.';\n    return I > I_VALVE ? 'Sealed cells at ' + fA(I) + ': the pressure lifts the valve, and some gas escapes.' : 'Sealed cells at ' + fA(I) + ': the valve stays shut, and the cells turn their gas back into water.';\n  }\n\n  function paint(i) {\n    if (i == null) i = at();\n    const d = STEPS[i], st = S[i];\n    art.textContent = ''; into = null;\n    REC = { pic: d.pic };\n    let said, h;\n    if (d.pic === 'duct') { said = drawDuct(d, st); h = 164; }\n    else { said = drawRoom(d, st) + ' ' + drawGauge(232, d, st) + ' ' + drawPanel(322, d, st); h = 456; }\n    svg.setAttribute('viewBox', '0 0 340 ' + h);\n    svg.setAttribute('aria-label', said);\n    if (d.ctl) el('say').textContent = sayFor(d);\n  }\n\n  // ---------- words: *a key term* is highlighted ----------\n  function write(node, s) {\n    node.textContent = '';\n    String(s).split(/\\*([^*]+)\\*/).forEach((seg, k) => { if (seg) node.appendChild(k % 2 ? K.el('span', { class: 'term' }, seg) : document.createTextNode(seg)); });\n  }\n  write(el('finish'), FINISH);\n  function layout(i, d, st) {\n    const key = [i, st.res, st.pick, st.why, finished].join('|');\n    if (key === laidOut) return;\n    laidOut = key;\n    const right = st.res === 'right';\n    el('stepbox').hidden = finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    write(task, d.show ? d.text : d.task);\n    CKEYS.forEach((k) => { el('c-' + k).hidden = !(d.ctl && d.ctl.indexOf(k) >= 0); });\n    el('say').hidden = !d.ctl;\n    el('outs').hidden = d.pic === 'duct';\n    replayBtn.el.hidden = !d.show || REDUCE;\n    el('replay').hidden = replayBtn.el.hidden;\n    const opts = d.show ? [] : d.opts;\n    el('picks').hidden = !opts.length;\n    el('picks').classList.toggle('long', opts.some((o) => o.length > 12));\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(opts[k]);\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n    el('acts').hidden = !!d.show;\n    checkBtn.el.hidden = right;\n    const fb = el('fb');\n    fb.hidden = !!d.show;\n    fb.className = 'fb' + (right ? ' right' : '');\n    fb.textContent = d.show ? '' : right ? (d.right || 'That\\'s it.') : st.res === 'wrong' ? ((d.hints && d.hints[st.pick]) || d.hint) : st.res === 'empty' ? 'Choose one of the answers first.' : '';\n    const why = el('why');\n    why.hidden = d.show || !st.why;\n    write(why, d.show ? '' : d.why);\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !right);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  }\n\n  K.update((p) => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (!anim.playing() && pending()) { const j = lastStep < 0 ? i : lastStep; finishNow(STEPS[j], S[j]); }\n    if (i !== lastStep) { lastStep = i; enterStep(i); }\n    else {\n      // Only the controls this screen shows move its picture; a hidden one is set back silently.\n      const on = (k) => !!(d.ctl && (d.ctl.indexOf(k) >= 0 || (k === 'tstop' && d.ctl.indexOf('fanFails') >= 0)));\n      const mv = {}; let any = false, bad = false;\n      Object.keys(pushed).forEach((k) => { if (p[k] !== pushed[k]) { if (on(k)) { mv[k] = true; any = true; } else bad = true; } });\n      Object.keys(pushed).forEach((k) => { pushed[k] = p[k]; });\n      if (any) {\n        if (scripted) { scripted = false; anim.pause(); setX(d.end || {}); }\n        T = Infinity;\n        if (mv.current) X.current = p.current;\n        if (mv.cells) { X.cells = p.cells; X.na = null; X.cf = 1; }\n        if (mv.room) { X.room = p.room; X.na = null; X.lit = 1; }\n        if (mv.opening) X.opening = p.opening;\n        if (mv.vrla) X.vrla = p.vrla;\n        if (mv.fanFails) { X.fanFails = p.fanFails; X.tstop = 0; climbing = !!p.fanFails; climbT = 0; }\n        else if (mv.tstop) { X.tstop = p.tstop; climbing = false; }\n        startDrift();\n      }\n      if (bad || any) push();\n    }\n    if (finished !== lastDone) { lastDone = finished; laidOut = ''; enter(finished ? 'done' : 'stepbox'); }\n    layout(i, d, st);\n    outs();\n    paint(i);\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const idx = (name) => STEPS.findIndex((d) => d.name === name);\n  const solved = (d) => Object.assign(blank(), { pick: d.want, res: 'right' });\n  // A step painted in the state given: what it draws.\n  function drawn(i, st, x) {\n    const keep = { X: copyX(), S: S[i], T, sc: scripted };\n    S[i] = st || blank(); T = Infinity; scripted = false;\n    setX(BASE); setX(STEPS[i].enter || {}); setX(x || {});\n    try {\n      paint(i);\n      return Object.assign({}, REC, { texts: Array.from(art.querySelectorAll('text')).map((n) => n.textContent) });\n    } finally {\n      setX(keep.X); S[i] = keep.S; T = keep.T; scripted = keep.sc;\n      paint();\n    }\n  }\n  function after(fn) { const keep = copyX(); try { setX(BASE); fn(); return copyX(); } finally { setX(keep); } }\n  const iD0 = idx('Area times speed'), iS1 = idx('Spare current makes gas'), iS2 = idx('Two limits'), iD3 = idx('One per cent'), iS4 = idx('The rule'), iD5 = idx('An enclosure');\n  const iS6 = idx('Size for the fault'), iD7 = idx('Float or fault?'), iS8 = idx('Air carries it away'), iD9 = idx('Blocked opening'), iS10 = idx('Sealed cells');\n  const iD11 = idx('Board over the vents?'), iD12 = idx('Fifty-five cells'), iD13 = idx('The fan stops'), iD14 = idx('Charger off');\n  const fin = (i) => drawn(i, solved(STEPS[i]), STEPS[i].end);\n  const M_ = (o) => K.at(Object.assign({ step: iS1, current: I_FAULT, cells: 24, room: S_ROOM, opening: A0, fanFails: false, vrla: false, tstop: 0 }, o));\n\n  K.check('Minimum area of each inlet and outlet = 0.3 × N × I × S cm²: 24 cells at 20 A need 1440 cm² where people enter (S = 10) and 576 cm² in an enclosure (S = 4), and 12 cells need 720 cm²', () => {\n    const a = M_({}).needed, b = M_({ room: S_ENC }).needed, c = M_({ cells: 12 }).needed;\n    const g = fin(iD5), h = drawn(iS4, null, { cells: 24 });\n    return K.near(a, 1440, 1e-6) && K.near(b, 576, 1e-6) && K.near(c, 720, 1e-6) && STEPS[iD5].want === fCp(576) && STEPS[iD7].want === fCp(1440) &&\n      K.near(g.needSide, sideOf(576), 1e-6) && K.near(h.needSide, sideOf(1440), 1e-6);\n  }, { source: HSE });\n  K.check('Hydrogen ignites from 4 per cent, so a room people enter is held below 0.4 per cent (10% of 4) and an enclosure below 1 per cent (25% of 4): the gauge marks 0.4, 1 and 4, and lights the limit for the chosen room', () => {\n    const a = drawn(iS2, null, { room: S_ROOM }), b = drawn(iS2, null, { room: S_ENC });\n    return K.near(LEL / S_ROOM, 0.4, 1e-12) && K.near(LEL / S_ENC, 1, 1e-12) && K.near(0.4 / LEL, 0.1, 1e-12) && K.near(1 / LEL, 0.25, 1e-12) &&\n      a.litS === S_ROOM && b.litS === S_ENC && ['0.4', '1', '4', 'ignites from 4'].every((s) => a.texts.indexOf(s) >= 0);\n  }, { source: HSE });\n  K.check('An opening sized exactly by the rule holds the room at 4 ÷ S per cent: 24 cells at 20 A read 0.40 % through 1440 cm² and 1.00 % through 576 cm²', () =>\n    fH(M_({}).hydrogen) === fH(0.4) && fH(M_({ opening: 576 }).hydrogen) === fH(1) &&\n    [6, 12, 24, 55].every((n) => [S_ROOM, S_ENC].every((s) => K.near(steadyH(n, I_FAULT, needOf(n, I_FAULT, s)), LEL / s, 1e-9))));\n  K.check('Halve the opening and the hydrogen doubles: at 10 A, 0.20 % through 1440 cm² becomes 0.40 % through 720 cm², and at 20 A, 720 cm² gives 0.80 %', () => {\n    const a = M_({ current: 10 }).hydrogen, b = M_({ current: 10, opening: 720 }).hydrogen, c = M_({ opening: 720 }).hydrogen;\n    return fH(a) === fH(0.2) && fH(b) === fH(0.4) && fH(c) === fH(0.8) && K.near(b / a, 2, 1e-9) && STEPS[iD9].want === O9(0.8) && K.near(fin(iD9).hW, hx(0.8) - 20, 1e-6);\n  });\n  K.check('Flow is area × speed: 1440 cm² is 0.144 m², which passes 14.4 L/s at 0.1 m/s; 1650 cm² passes 16.5 L/s; with the fan stopped, none', () =>\n    fL(M_({}).flow) === fL(14.4) && fM2(1440) === '0.144' + NB + 'm²' && fL(M_({ opening: 1650 }).flow) === fL(16.5) && M_({ fanFails: true }).flow === 0 &&\n    STEPS[iD0].want === '1 m³/s' && fin(iD0).duct === '1 m³');\n  K.check('Sized from the 0.5 A float, 24 cells need only 36 cm², forty times less than the 1440 cm² a 20 A fault needs', () => {\n    const f = M_({ current: I_FLOAT }).needed, g = M_({}).needed;\n    return fC(f) === fC(36) && K.near(g / f, 40, 1e-9) && drawn(iD7).needSide === 0 && K.near(fin(iD7).needSide, sideOf(1440), 1e-6);\n  });\n  K.check('55 cells at 10 A need 1650 cm² where people enter, 660 cm² in an enclosure, and 165 cm² with S left out', () => {\n    const a = M_({ cells: 55, current: 10 }).needed, b = M_({ cells: 55, current: 10, room: S_ENC }).needed;\n    return fC(a) === fC(1650) && fC(b) === fC(660) && fC(F * 55 * 10) === fC(165) && STEPS[iD12].want === fCp(1650) && K.near(fin(iD12).needSide, sideOf(1650), 1e-6);\n  });\n  K.check('The gas grows in step with the current: no bubbles at 0 A, more as the current climbs, and the opening needed doubles when the current or the cells double', () => {\n    const c = [0, 2.5, 5, 10, 20].map((i) => drawn(iS1, null, { current: i }));\n    let ok = c[0].bubbles === 0 && c[0].gas === 0;\n    for (let k = 1; k < c.length; k++) ok = ok && c[k].bubbles >= c[k - 1].bubbles && c[k].gas >= c[k - 1].gas;\n    return ok && c[4].bubbles > c[1].bubbles && K.near(M_({ current: 10 }).needed * 2, M_({}).needed, 1e-9) && K.near(M_({ cells: 12 }).needed * 2, M_({}).needed, 1e-9);\n  });\n  K.check('With the fan stopped the hydrogen keeps climbing: at 10 A through 720 cm² it rises from 0.40 % past 1 %, and during a 20 A equalise it climbs from 0.40 % towards 4 %', () => {\n    const s0 = M_({ current: 10, opening: 720, fanFails: true, tstop: 0 }).hydrogen, s1 = M_({ current: 10, opening: 720, fanFails: true, tstop: 1 }).hydrogen;\n    const e0 = M_({ fanFails: true, tstop: 0 }).hydrogen, e1 = M_({ fanFails: true, tstop: 1 }).hydrogen;\n    let up = true;\n    for (let k = 1; k <= 10; k++) up = up && M_({ fanFails: true, tstop: k / 10 }).hydrogen > M_({ fanFails: true, tstop: (k - 1) / 10 }).hydrogen;\n    const g = drawn(iS8, null, STEPS[iS8].end), j0 = drawn(iD13), j1 = fin(iD13);\n    return fH(s0) === fH(0.4) && s1 > 1 && fH(e0) === fH(0.4) && e1 > e0 && e1 < LEL && up && g.fanStopped && g.air === 0 && !j0.fanStopped && j1.fanStopped && j1.hW > j0.hW;\n  });\n  K.check('Valve-regulated cells: their bubbles fade and the hydrogen shows no number; the valve stays shut up to 10 A and lifts above it', () => {\n    const a = drawn(iS10, null, { vrla: true, vf: 1, current: 10 }), b = drawn(iS10, null, { vrla: true, vf: 1, current: I_FAULT }), f = drawn(iS10, null, { vrla: false, vf: 0, current: I_FAULT });\n    return M_({ vrla: true }).hydrogen === 'not modelled' && a.bubbles === 0 && a.gas === 0 && a.valve === 'valve shut' && a.note && b.valve === 'valve lifts' && b.gas > 0 &&\n      f.valve === 'vent' && f.bubA > b.bubA && b.bubA > 0 && fin(iD11).valve === 'valve lifts';\n  });\n  K.check('After reaching the gassing voltage of 2.40 V a cell, a current limit of 2.5 to 5 A per 100 Ah is recommended: the screen on spare current says so', () =>\n    STEPS[iS1].read.indexOf('2.40 V a cell') >= 0 && STEPS[iS1].read.indexOf('2.5 to 5 A per 100 Ah') >= 0 && GAS_V === 2.4 && LIM_LO === 2.5 && LIM_HI === 5 && CAP === 100, { source: ENER });\n  K.check('Each puzzle accepts only its right answer, and nothing in its picture gives the answer before Check', () => {\n    const ok = STEPS.every((d) => d.show || (d.opts.length === 3 && new Set(d.opts).size === 3 && d.opts.indexOf(d.want) >= 0));\n    const a0 = drawn(iD0), a1 = fin(iD0), b0 = drawn(iD3), b1 = fin(iD3), c0 = drawn(iD5), c1 = fin(iD5), e0 = drawn(iD7), e1 = fin(iD7);\n    const h0 = drawn(iD12), h1 = fin(iD12), k0 = drawn(iD9), k1 = fin(iD9), m0 = drawn(iD14), m1 = fin(iD14);\n    return ok && a0.duct === '?' && a1.duct === '1 m³' && b0.litS === null && b0.needSide === 0 && b1.litS === S_ROOM && b1.needSide > 0 &&\n      c0.needSide === 0 && c1.needSide > 0 && e0.needSide === 0 && e1.needSide > 0 && h0.needSide === 0 && h0.hQ && h1.needSide > 0 && !h1.hQ &&\n      k0.cur === fA(I_FLOAT) && k1.cur === fA(I_FAULT) && m0.hQ && !m1.hQ && STEPS.every((d) => !d.hide || d.hide.every((id) => ['hydrogen', 'needed', 'flow'].indexOf(id) >= 0));\n  });\n  K.check('After charging, leave the battery to stand for at least 20 minutes so the gas can clear: with the charger just off, gas still drifts to the outlet, and it has cleared once the 20 minutes have run', () => {\n    const a = drawn(iD14), b = fin(iD14);\n    return STAND === 20 && STEPS[iD14].want === O14_WAIT && O14_WAIT.indexOf('20 minutes') >= 0 && a.cur === fA(0) && a.bubbles === 0 && a.gas > 0 && b.gas === 0 &&\n      b.texts.indexOf('stood 20' + NB + 'min') >= 0 && M_({ current: 0 }).hydrogen === 0;\n  }, { source: HSE });\n  K.check('Fifteen screens: after the opening puzzle, demonstrations and puzzles take turns, four puzzles end it, and no demonstration says more than about 90 words', () =>\n    STEPS.length === 15 && STEPS.every((d, k) => !!d.show === ([1, 2, 4, 6, 8, 10].indexOf(k) >= 0)) && STEPS.every((d) => !d.show || d.read.split(/\\s+/).length <= 92));\n  K.check('Both openings are drawn to one scale: each square\\'s area follows its cm², so the outline for 720 cm² has half the area of the one for 1440 cm²', () => {\n    const a = drawn(iS4, null, { cells: 24 }), b = drawn(iS4, null, { cells: 12 });\n    return K.near(b.needSide * b.needSide * 2, a.needSide * a.needSide, 1e-6) && K.near(a.needSide, a.realSide, 1e-9);\n  });\n  K.check('Every demonstration settles within 4.6 s and ends where its screen says, and every answer\\'s motion settles within 2.5 s', () => {\n    const keys = ['current', 'cells', 'room', 'opening', 'fanFails', 'vrla', 'tstop', 'left', 'wt', 'nf', 'lit', 'hf', 'na', 'cf', 'vf', 'af', 'blk'];\n    const same = (s, f) => keys.every((k) => (typeof s[k] === 'number' && typeof f[k] === 'number' ? K.near(s[k], f[k], 1e-9) : s[k] === f[k]));\n    return STEPS.every((d) => {\n      if (!d.show) return d.run.dur <= 2.5 && same(after(() => { setX(d.enter || {}); d.run.go(1); }), after(() => { setX(d.enter || {}); setX(d.end || {}); }));\n      return d.dur <= 4.6 && same(after(() => { setX(d.enter || {}); d.play(d.dur); }), after(() => { setX(d.enter || {}); setX(d.end || {}); }));\n    });\n  });\n\n  K.ready();\n</script>",
+  "title": "The battery room",
+  "brief": "The one thing you should see is the bubbles, the hydrogen readout and the opening the rule asks for all growing in step with the charging current, when you drag the current up to the charger's fault current.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "Minimum area of each inlet and outlet = 0.3 × N × I × S cm²: 24 cells at 20 A need 1440 cm² where people enter (S = 10) and 576 cm² in an enclosure (S = 4), and 12 cells need 720 cm²",
+     "ok": true,
+     "source": "https://www.hse.gov.uk/PUBNS/indg139.pdf"
+    },
+    {
+     "label": "Hydrogen ignites from 4 per cent, so a room people enter is held below 0.4 per cent (10% of 4) and an enclosure below 1 per cent (25% of 4): the gauge marks 0.4, 1 and 4, and lights the limit for the chosen room",
+     "ok": true,
+     "source": "https://www.hse.gov.uk/PUBNS/indg139.pdf"
+    },
+    {
+     "label": "An opening sized exactly by the rule holds the room at 4 ÷ S per cent: 24 cells at 20 A read 0.40 % through 1440 cm² and 1.00 % through 576 cm²",
+     "ok": true
+    },
+    {
+     "label": "Halve the opening and the hydrogen doubles: at 10 A, 0.20 % through 1440 cm² becomes 0.40 % through 720 cm², and at 20 A, 720 cm² gives 0.80 %",
+     "ok": true
+    },
+    {
+     "label": "Flow is area × speed: 1440 cm² is 0.144 m², which passes 14.4 L/s at 0.1 m/s; 1650 cm² passes 16.5 L/s; with the fan stopped, none",
+     "ok": true
+    },
+    {
+     "label": "Sized from the 0.5 A float, 24 cells need only 36 cm², forty times less than the 1440 cm² a 20 A fault needs",
+     "ok": true
+    },
+    {
+     "label": "55 cells at 10 A need 1650 cm² where people enter, 660 cm² in an enclosure, and 165 cm² with S left out",
+     "ok": true
+    },
+    {
+     "label": "The gas grows in step with the current: no bubbles at 0 A, more as the current climbs, and the opening needed doubles when the current or the cells double",
+     "ok": true
+    },
+    {
+     "label": "With the fan stopped the hydrogen keeps climbing: at 10 A through 720 cm² it rises from 0.40 % past 1 %, and during a 20 A equalise it climbs from 0.40 % towards 4 %",
+     "ok": true
+    },
+    {
+     "label": "Valve-regulated cells: their bubbles fade and the hydrogen shows no number; the valve stays shut up to 10 A and lifts above it",
+     "ok": true
+    },
+    {
+     "label": "After reaching the gassing voltage of 2.40 V a cell, a current limit of 2.5 to 5 A per 100 Ah is recommended: the screen on spare current says so",
+     "ok": true,
+     "source": "https://www.enersys.com/492013/globalassets/documents/product-documentation/powersafe/opzs/amer/amer-en-iom-ps-flooded-0223.pdf"
+    },
+    {
+     "label": "Each puzzle accepts only its right answer, and nothing in its picture gives the answer before Check",
+     "ok": true
+    },
+    {
+     "label": "After charging, leave the battery to stand for at least 20 minutes so the gas can clear: with the charger just off, gas still drifts to the outlet, and it has cleared once the 20 minutes have run",
+     "ok": true,
+     "source": "https://www.hse.gov.uk/PUBNS/indg139.pdf"
+    },
+    {
+     "label": "Fifteen screens: after the opening puzzle, demonstrations and puzzles take turns, four puzzles end it, and no demonstration says more than about 90 words",
+     "ok": true
+    },
+    {
+     "label": "Both openings are drawn to one scale: each square's area follows its cm², so the outline for 720 cm² has half the area of the one for 1440 cm²",
+     "ok": true
+    },
+    {
+     "label": "Every demonstration settles within 4.6 s and ends where its screen says, and every answer's motion settles within 2.5 s",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step",
+    "current",
+    "cells",
+    "room",
+    "opening",
+    "fanFails",
+    "vrla",
+    "tstop"
+   ],
+   "readouts": [
+    "hydrogen",
+    "needed",
+    "flow"
+   ],
+   "outputs": [
+    "hydrogen",
+    "needed",
+    "flow"
+   ],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Screen",
+     "min": 0,
+     "max": 14,
+     "step": 1,
+     "steps": [
+      "Area times speed",
+      "Spare current makes gas",
+      "Two limits",
+      "One per cent",
+      "The rule",
+      "An enclosure",
+      "Size for the fault",
+      "Float or fault?",
+      "Air carries it away",
+      "Blocked opening",
+      "Sealed cells",
+      "Board over the vents?",
+      "Fifty-five cells",
+      "The fan stops",
+      "Charger off"
+     ],
+     "value": 0
+    },
+    {
+     "id": "current",
+     "kind": "control",
+     "label": "Charging current",
+     "min": 0,
+     "max": 20,
+     "step": 0.1,
+     "log": false,
+     "value": 20,
+     "shown": false,
+     "snap": [
+      0.5,
+      10,
+      20
+     ]
+    },
+    {
+     "id": "cells",
+     "kind": "choice",
+     "label": "Cells in the battery",
+     "options": [
+      6,
+      12,
+      24,
+      55
+     ],
+     "labels": [
+      "6",
+      "12",
+      "24",
+      "55"
+     ],
+     "value": 24,
+     "index": 2,
+     "shown": false
+    },
+    {
+     "id": "room",
+     "kind": "choice",
+     "label": "Room type",
+     "options": [
+      10,
+      4
+     ],
+     "labels": [
+      "People enter",
+      "Enclosure"
+     ],
+     "value": 10,
+     "index": 0,
+     "shown": false
+    },
+    {
+     "id": "opening",
+     "kind": "control",
+     "label": "Real opening",
+     "min": 100,
+     "max": 4000,
+     "step": 1,
+     "log": false,
+     "value": 1440,
+     "shown": false,
+     "snap": [
+      576,
+      720,
+      1440,
+      1650
+     ]
+    },
+    {
+     "id": "fanFails",
+     "kind": "toggle",
+     "label": "Fan fails",
+     "options": [
+      false,
+      true
+     ],
+     "value": false,
+     "shown": false
+    },
+    {
+     "id": "vrla",
+     "kind": "toggle",
+     "label": "Valve-regulated cells",
+     "options": [
+      false,
+      true
+     ],
+     "value": false,
+     "shown": false
+    },
+    {
+     "id": "tstop",
+     "kind": "control",
+     "label": "Time since the fan stopped",
+     "min": 0,
+     "max": 1,
+     "step": 0.01,
+     "log": false,
+     "value": 0,
+     "shown": false
+    }
+   ],
+   "actions": [
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Check",
+    "Why?",
+    "Play again",
+    "Back",
+    "Continue",
+    "Start again",
+    "Demonstration"
+   ],
+   "answers": [],
+   "written": [],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 2
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-27T16:48:48.150Z",
+  "applied": [
+   {
+    "path": "explain.text",
+    "problem": "'each cell makes the same gas' holds only once every cell is full; while charging, a cell that fills first gasses sooner (lesson i6). Also HSE's rule assumes at least 0.1 m/s through the openings, presented here as a bare example; and sources 4 and 6 back uncited words."
+   },
+   {
+    "path": "practice.text",
+    "problem": "The checklist has Dan size openings with HSE's rule but leaves out its stated condition that air crosses them at 0.1 m/s or more, with mechanical ventilation where natural draught is not enough."
+   },
+   {
+    "path": "analogy.breaks",
+    "problem": "A protective device does not always clear a fault in a fraction of a second: BS 7671 allows up to 5 s for distribution circuits and some final circuits, so the absolute is too strong."
+   },
+   {
+    "path": "interactive.whatAmILookingAt",
+    "problem": "Screen 5's hint for 3600 is wrong arithmetic: 3600 is 1440 × 10 ÷ 4, scaling up instead of down, not dividing by 4 (which gives 36). Also EnerSys 'recommends' the 2.5 to 5 A limit; 'limits' overstates it."
+   },
+   {
+    "path": "interactive.ignores",
+    "problem": "The 'Fan fails' switch stops all air, but HSE's rule is for openings a natural draught can still cross, so a real room may keep some airflow when a fan stops; the ignores panel should say so."
+   }
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}

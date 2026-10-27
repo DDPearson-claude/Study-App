@@ -1,0 +1,308 @@
+{
+  "iid": "i2",
+  "title": "State of charge: two gauges, and when to trust them",
+  "format": "steps",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the float riding higher and the voltmeter climbing together as acid returns to the liquid, when you drag the charge up from flat to full.",
+    "title": "Two gauges on one cell",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Screen",
+        "min": 0,
+        "max": 11,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [
+      {
+        "id": "rawSG",
+        "label": "Hydrometer, as read",
+        "unit": "",
+        "decimals": 3
+      },
+      {
+        "id": "corrSG",
+        "label": "Corrected to 25 °C",
+        "unit": "",
+        "decimals": 3
+      },
+      {
+        "id": "volts",
+        "label": "Voltmeter",
+        "unit": "V",
+        "decimals": 2
+      }
+    ],
+    "whatAmILookingAt": "This is the cut-away cell from the last lesson, over twelve small screens. A syringe hydrometer stands beside it: a glass barrel with a rubber bulb on top and a float inside. The float's stem carries a scale of specific gravity from 1.100 to 1.250, with a line at 1.225 marked full for this cell. A voltmeter sits across the terminals. A charge slider runs from 0% to 100%. Dragging it up returns acid dots to the liquid. The float rides higher and the voltmeter climbs. Both gauges follow sketched straight lines. The float reads 1.105 at 0% and 1.225 at 100%. The voltmeter, rested, reads 1.96 V at 0% and 2.12 V at 100%, passing 2.10 V near 90%. Four traps sit under the cell. A temperature slider runs from 10 °C to 40 °C. Warm acid expands, so the float sinks and the raw reading falls. The corrected reading adds one point, 0.001, for every 1.67 °C above 25 °C and takes one off for every 1.67 °C below. So it holds still. An hours-since-charge slider runs from 0 to 24. At 0 hours the voltmeter reads 2.20 V, high from surface charge. It settles towards its rested value over the first four hours. A level stepper has low, right and high. Low reads 10 points high and high reads 10 points low. A stratified switch layers the acid, dense dots at the bottom and few at the top. The voltmeter then reads 0.05 V high. The hydrometer shows a question mark, since what it reads depends on where its sample comes from. Four ticks sit in a row: rested, corrected, level right, mixed. A 'trust this reading?' light stays amber until all four are ticked, then turns green. The three readouts and the four ticks wrap onto a second line on a phone, and no word splits. Each show screen has under about 90 words and ends on what its finished picture shows, so it reads well without the controls. Screen by screen. 1 shows the cell, the hydrometer and the voltmeter, and drags the charge from flat up to 90%, where the float reads 1.213 and the voltmeter 2.10 V. 2 asks what the float does as the cell discharges from full to half. The choices are it sinks lower as the acid thins, it rises as sulphate fills the acid, or it stays put because the acid is only a bath. The hint for both wrong picks: discharge takes acid out of the liquid and into the plates, so the liquid gets lighter. 3 sets full charge and drags the temperature to 40 °C. The raw reading falls to 1.216 and the corrected one holds at 1.225. 4 asks for the corrected reading when the float reads 1.219 at 35 °C. The choices are 1.225, 1.213 or 1.219. Hint for 1.213: warm acid reads low, so the correction adds points. Hint for 1.219: 35 °C is 10 °C above 25 °C, so it needs correcting. 5 drags the hours since charge from 0 to 24. The voltmeter falls from 2.20 V and settles, and the rested tick comes on at four hours. 6 asks what a reading of 2.20 V ten minutes after a charge tells you. The choices are not much yet, so rest it or give it a brief discharge, that it is more than fully charged, or that it needs a temperature correction. Hint: straight after a charge the voltage sits high for hours, and that is surface charge, not extra charge. 7 steps the level to low, and the float reads 1.235 at full charge, above the full mark. 8 asks what a cell whose level fell by evaporation is topped up with. The choices are water, acid to keep it strong, or nothing, read it as it is. Hint for acid: only water evaporated, so the acid is all still there. Hint for nothing: a low level reads high, so top up, let it mix, then read. 9 turns the stratified switch on at 90%. The voltmeter reads 2.15 V, the mixed tick goes out and the light stays amber. 10 asks which check failed on a cell that rested a day, is corrected and level, reads high on the voltmeter yet runs out early. The choices are mixed, rested or level. Hint for rested: a day's rest has cleared any surface charge. Hint for level: the level is right, so look for strong acid at the bottom. 11 and 12 mix the ideas. 11 asks for the corrected reading when the float reads 1.228 at 20 °C. The choices are 1.225, 1.231 or 1.228. Hint for 1.231: cold acid reads high, so below 25 °C take points off. Hint for 1.228: 20 °C is 5 °C below 25 °C, so it needs correcting. 12 asks which of three readings you can trust. The choices are 2.10 V on a cell rested a day, level right and mixed; 2.20 V ten minutes after a charge; or 1.235 at 25 °C on a cell whose level is low. Hint for the second: it has not rested, so surface charge lifts it. Hint for the third: a low level reads high.",
+    "ignores": "The gauges follow straight lines here. Real cells curve a little, and each type and maker has its own figures. The flat reading of 1.105 is an example. Time runs fast: real surface charge takes hours to settle. The voltmeter also moves a little with temperature, which the picture leaves out. A real hydrometer reading in a layered cell depends on where its sample is drawn, so the picture does not give one. Water's specific gravity of 1.000 is at a standard temperature.",
+    "numbers": [
+      {
+        "label": "Screen control lowest",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Screen control highest",
+        "value": 11,
+        "kind": "control"
+      },
+      {
+        "label": "Charge slider bottom, %",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Charge slider top, %",
+        "value": 100,
+        "kind": "control"
+      },
+      {
+        "label": "Water's specific gravity",
+        "value": 1.0,
+        "kind": "constant"
+      },
+      {
+        "label": "Hydrometer scale bottom",
+        "value": 1.1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Hydrometer scale top",
+        "value": 1.25,
+        "kind": "assumed"
+      },
+      {
+        "label": "This cell's full-charge mark, example stationary cell",
+        "value": 1.225,
+        "kind": "assumed"
+      },
+      {
+        "label": "Float reading at 0% charge, example",
+        "value": 1.105,
+        "kind": "assumed"
+      },
+      {
+        "label": "Float reading at 90% charge, sketch",
+        "value": 1.213,
+        "kind": "computed"
+      },
+      {
+        "label": "Rested voltmeter at 0% charge, sketch, V",
+        "value": 1.96,
+        "kind": "assumed"
+      },
+      {
+        "label": "Rested voltmeter at 100% charge, sketch, V",
+        "value": 2.12,
+        "kind": "assumed"
+      },
+      {
+        "label": "Rested cell voltage at about 90% charge, V",
+        "value": 2.1,
+        "kind": "constant",
+        "source": 4
+      },
+      {
+        "label": "Charge at 2.10 V rested, %",
+        "value": 90,
+        "kind": "constant",
+        "source": 4
+      },
+      {
+        "label": "One point of specific gravity",
+        "value": 0.001,
+        "kind": "constant",
+        "source": 7
+      },
+      {
+        "label": "Reference temperature for correction, °C",
+        "value": 25,
+        "kind": "constant",
+        "source": 7
+      },
+      {
+        "label": "Temperature change per point, °C",
+        "value": 1.67,
+        "kind": "constant",
+        "source": 7
+      },
+      {
+        "label": "Temperature slider lowest, °C",
+        "value": 10,
+        "kind": "control"
+      },
+      {
+        "label": "Temperature slider highest, °C",
+        "value": 40,
+        "kind": "control"
+      },
+      {
+        "label": "Points at 40 °C, 15 ÷ 1.67",
+        "value": 9,
+        "kind": "computed"
+      },
+      {
+        "label": "Raw reading at full charge and 40 °C",
+        "value": 1.216,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 4 raw reading at 35 °C, example",
+        "value": 1.219,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 4 temperature, °C",
+        "value": 35,
+        "kind": "assumed"
+      },
+      {
+        "label": "Points at 35 °C, 10 ÷ 1.67",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 4 corrected reading",
+        "value": 1.225,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 4 wrong pick, points subtracted",
+        "value": 1.213,
+        "kind": "computed"
+      },
+      {
+        "label": "Hours since charge slider lowest",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Hours since charge slider highest",
+        "value": 24,
+        "kind": "control"
+      },
+      {
+        "label": "Rest time, at least, hours",
+        "value": 4,
+        "kind": "constant",
+        "source": 3
+      },
+      {
+        "label": "Rest time makers recommend, hours",
+        "value": 24,
+        "kind": "constant",
+        "source": 3
+      },
+      {
+        "label": "Voltmeter straight after a charge, sketch, V",
+        "value": 2.2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 6 minutes after a charge, example",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Level shift, low or high, points, sketch",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Float at full charge with a low level, sketch",
+        "value": 1.235,
+        "kind": "computed"
+      },
+      {
+        "label": "Voltmeter shift when stratified, sketch, V",
+        "value": 0.05,
+        "kind": "assumed"
+      },
+      {
+        "label": "Voltmeter at 90% when stratified, sketch, V",
+        "value": 2.15,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 11 raw reading at 20 °C, example",
+        "value": 1.228,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 11 temperature, °C",
+        "value": 20,
+        "kind": "assumed"
+      },
+      {
+        "label": "Points at 20 °C, 5 ÷ 1.67",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 11 wrong pick, points added",
+        "value": 1.231,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 12 straight-after-charge reading, example, V",
+        "value": 2.2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 4 shortfall if points are subtracted",
+        "value": 12,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "Two gauges tell you how charged a lead-acid cell is. A hydrometer weighs the acid. A voltmeter reads the rested voltage. Both follow the acid's strength, so both follow the charge. Each can be fooled, though. Trust a reading only when four things hold. The cell is rested, the reading is corrected for temperature, the level is right and the acid is mixed.\n\nDischarge takes acid out of the liquid and locks it in the plates. So the liquid gets lighter and more like water as the charge falls.[^1] Its [[specific gravity]] measures that. It is the liquid's density divided by water's, the relative density you met with floating. Water reads 1.000. A hydrometer draws some acid into a glass barrel with a float inside. The float sinks until the acid it pushes aside weighs as much as it does. In denser acid it pushes aside less, so it rides higher. It is why a ship rides higher in seawater. The scale reads in points, and one point is 0.001. Say this stationary cell's maker marks full charge at 1.225. The level matters too. Water evaporates but the acid stays, so a low cell reads high. An overfilled cell reads low. When the level falls by evaporation, top up with water, not acid. Only water has gone.\n\nTemperature moves the float as well. Warm acid expands, so it is less dense and reads low. Cold acid reads high. Makers give a correction to 25 °C. A common one adds one point for every 1.67 °C above 25 °C.[^7] Below 25 °C, take points off the same way. Say the acid is at 35 °C and the float reads 1.219. That is 10 °C above, and 10 ÷ 1.67 is about 6 points. So the corrected reading is 1.219 + 0.006 = 1.225, full. Take the points off instead and you get 1.213. That calls a full cell twelve points short.\n\nThe voltmeter reads the acid's strength another way. Stronger acid makes a cell rest a little higher, so the rested voltage rises with the charge. A cell resting at 2.10 V at room temperature is about 90 per cent charged.[^4] Straight after a charge, though, it reads high. That is [[surface charge]]. One way to picture it: charging makes fresh acid right at the plates, and it takes hours to spread. So rest the cell open circuit for at least four hours. Makers recommend 24.[^3] A brief discharge also clears it. Acid can also settle into layers, strong at the bottom. That is [[stratification]]. The lower parts of the plates then stand in strong acid, and stronger acid rests higher. So the cell looks more charged than it is, and its rested voltage is pushed up.[^9] A layered cell can read well and still run out early. The picture is a simplified model with straight-line gauges. Real cells curve, and differ by type and maker. **Each gauge tracks the charge, but trust it only when the cell is rested, corrected, level and mixed.**"
+  },
+  "analogy": {
+    "text": "An engine's dipstick tells you how much oil there is, but only on level ground, with the engine stopped long enough for the oil to drain back. Read it straight after shutdown or on a slope and it lies, though the oil has not changed. A cell's gauges are the same. The charge is what it is. The reading is only true once the cell has settled and the conditions are right.",
+    "breaks": "A dipstick measures how much oil there is. A hydrometer measures how strong the acid is, which is why the level changes its reading the other way: less water makes the same acid stronger. The dipstick also has nothing like layered acid, where one part of the liquid fools the gauge."
+  },
+  "practice": {
+    "text": "**Safety first:** the electrolyte is a strong acid, and a hydrometer drips. Wear eye protection and gloves. Keep the hydrometer upright and squeeze the bulb gently.\n\n- Note when the cell was last charged. Rest it open circuit at least four hours, 24 if you can, or give it a brief discharge.\n- Check the level. If it has fallen, top up with water and let it mix before you trust a reading.\n- Draw enough acid that the float rides free of the barrel. Read the scale at eye level.\n- Take the acid's temperature. Correct to 25 °C: add one point for every 1.67 °C above, take one off for every 1.67 °C below.\n- Compare with the maker's full-charge mark for that cell.\n- Read the rested voltage too, and log both with the date and temperature.\n\n**Rule of thumb:** warm acid reads low, so add points. Cold acid reads high, so take them off.\n\n**Worked example:** Say a stationary cell's maker marks full at 1.225. It has rested a day and its level is right. The acid is at 20 °C and the float reads 1.228. 25 − 20 = 5 °C below, and 5 ÷ 1.67 is about 3 points. Corrected: 1.228 − 0.003 = 1.225, full.\n\n**Common mistakes**\n- Reading straight after a charge. Surface charge makes the voltage look high.\n- Correcting the wrong way. Warm acid reads low, not high.\n- Topping up with acid when the level has fallen. Only water evaporated.\n- Trusting a cell whose acid has layered. It reads more charged than it is.\n- Reading before topped-up water has mixed in."
+  },
+  "say": null,
+  "checks": [],
+  "sources": [
+    {
+      "n": 1,
+      "title": "Bu 903 How To Measure State Of Charge — Battery University",
+      "url": "https://batteryuniversity.com/article/bu-903-how-to-measure-state-of-charge",
+      "quote": "As the SoC decreases through discharge, the sulfuric acid removes itself from the electrolyte and binds to the plate, forming lead sulfate. The density of the electrolyte becomes lighter and more water-like, and the specific gravity gets lower."
+    },
+    {
+      "n": 3,
+      "title": "Bu 903 How To Measure State Of Charge — Battery University",
+      "url": "https://batteryuniversity.com/article/bu-903-how-to-measure-state-of-charge",
+      "quote": "To get accurate readings, the battery needs to rest in the open circuit state for at least four hours; battery manufacturers recommend 24 hours for lead acid."
+    },
+    {
+      "n": 4,
+      "title": "Bu 403 Charging Lead Acid — Battery University",
+      "url": "https://batteryuniversity.com/article/bu-403-charging-lead-acid",
+      "quote": "A cell voltage of 2.10V at room temperature reveals a charge of about 90 percent."
+    },
+    {
+      "n": 7,
+      "title": "93.10 — GNB/Exide",
+      "url": "https://www.exidegroup.com/eu/sites/default/files/2017-01/Section%2093_10%202014-08%20GNB%20Flooded%20Classic%20Installation%20and%20Operation%20Manual%20Section_4.pdf",
+      "quote": "For each 3°F (1.67°C) in temperature of the electrolyte above 77°F (25°C) add one point (.001) in specific gravity to the observed hydrometer readings"
+    },
+    {
+      "n": 9,
+      "title": "Battery University | BU-804c: Acid Stratification and Surface Charge",
+      "url": "https://batteryuniversity.com/article/bu-804c-acid-stratification-and-surface-charge",
+      "quote": "while the high acid concentration on the bottom makes the battery appear more charged than it is and artificially raises the open circuit voltage."
+    }
+  ],
+  "confidence": "simplified",
+  "contested": null
+}

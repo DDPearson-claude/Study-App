@@ -1,0 +1,195 @@
+{
+ "id": "batteries-ui8aw",
+ "title": "Batteries: lead-acid cells, from plate to battery room",
+ "query": "Batteries",
+ "createdAt": "2026-10-27T16:48:48.150Z",
+ "updatedAt": "2026-10-27T16:48:48.150Z",
+ "plannedAt": "2026-10-27T16:48:48.150Z",
+ "status": "ready",
+ "error": null,
+ "hook": "A ship's emergency battery shows a healthy voltage on float, yet on its discharge test it gives out long before its rated time. How can the whole bank look fine while it cannot do its job?",
+ "oneBreath": "A lead-acid cell is two plates in sulphuric acid: as it discharges, both plates turn to lead sulphate and much of the acid is used up, so the acid's strength and the rested voltage show how much charge is left. How much it gives depends on how fast and how cold you draw it, and a charger puts it back by holding a narrow voltage per cell: too low and the plates sulphate, too high and they corrode, and near full charge the cells give off hydrogen the room must clear. Cells in series share one current, so the weakest one sets the pace; trends in its readings can find it before it fails, and a large battery's tiny resistance means a short can draw thousands of amps.",
+ "level": "some",
+ "hue": 218,
+ "mode": "read",
+ "intake": {
+  "questions": [
+   {
+    "id": "q1",
+    "q": "What do you want from this course?",
+    "options": [
+     "To understand batteries and how to work with them",
+     "A quick refresher of the methods",
+     "Exam practice"
+    ],
+    "multi": false,
+    "other": false
+   },
+   {
+    "id": "q2",
+    "q": "Where will you use it?",
+    "options": [
+     "On the job and in everyday life",
+     "For further study",
+     "Just curiosity"
+    ],
+    "multi": false,
+    "other": false
+   },
+   {
+    "id": "q3",
+    "q": "How do you like to learn?",
+    "options": [
+     "Hands-on, with the why explained in full",
+     "Rules and worked examples only",
+     "Lots of practice questions"
+    ],
+    "multi": false,
+    "other": false
+   }
+  ],
+  "answers": {
+   "q1": {
+    "picked": [
+     "To understand batteries and how to work with them"
+    ],
+    "other": null
+   },
+   "q2": {
+    "picked": [
+     "On the job and in everyday life"
+    ],
+    "other": null
+   },
+   "q3": {
+    "picked": [
+     "Hands-on, with the why explained in full"
+    ],
+    "other": null
+   }
+  }
+ },
+ "ideas": [
+  {
+   "id": "i1",
+   "title": "The lead-acid cell: two plates and an acid",
+   "oneLine": "Discharging a lead-acid cell turns both its plates to lead sulphate and takes acid out of the liquid, and charging runs that backwards.",
+   "deps": [],
+   "kind": "mechanism"
+  },
+  {
+   "id": "i2",
+   "title": "State of charge: two gauges, and when to trust them",
+   "oneLine": "The acid's strength, read as specific gravity, and the rested voltage both track the charge, once each reading is rested, corrected for temperature, level-checked and mixed.",
+   "deps": [
+    "i1"
+   ],
+   "kind": "skill"
+  },
+  {
+   "id": "i3",
+   "title": "Capacity and rate: what an ampere-hour is worth",
+   "oneLine": "A battery gives fewer ampere-hours the faster or colder you draw them, and Peukert's rough fit, found from two ratings, estimates how many fewer.",
+   "deps": [
+    "i1"
+   ],
+   "kind": "quantity"
+  },
+  {
+   "id": "i4",
+   "title": "Charging: the charger holds volts per cell",
+   "oneLine": "A charger holds a set voltage per cell through bulk, topping and float, because a little too low sulphates the plates and too high corrodes them.",
+   "deps": [
+    "i1",
+    "i2",
+    "i3"
+   ],
+   "kind": "process"
+  },
+  {
+   "id": "i5",
+   "title": "Gassing, hydrogen and the air that clears it",
+   "oneLine": "Near full charge, current the plates no longer take splits water into hydrogen and oxygen, so a battery room's vents are sized from the charger's largest current.",
+   "deps": [
+    "i1",
+    "i4"
+   ],
+   "kind": "quantity"
+  },
+  {
+   "id": "i6",
+   "title": "Strings: the weakest cell sets the pace",
+   "oneLine": "Cells in series share one current, so the weakest cell empties first on discharge and fills first on charge, and is overdriven either way.",
+   "deps": [
+    "i2",
+    "i3",
+    "i4"
+   ],
+   "kind": "structure"
+  },
+  {
+   "id": "i7",
+   "title": "Ageing, faults and the trend that finds them",
+   "oneLine": "A failing cell shows as readings drifting from its own baseline, so trend them and confirm with a capacity test; sources differ on how much drift matters.",
+   "deps": [
+    "i2",
+    "i4",
+    "i5",
+    "i6"
+   ],
+   "kind": "skill"
+  },
+  {
+   "id": "i8",
+   "title": "Short circuits, safety and other chemistries",
+   "oneLine": "A large battery's few milliohms of resistance let it drive thousands of amps into a short, even part discharged, and its cells are always live.",
+   "deps": [
+    "i1",
+    "i2",
+    "i3"
+   ],
+   "kind": "quantity"
+  }
+ ],
+ "calibration": [
+  {
+   "id": "c1",
+   "iid": "i1",
+   "q": "A battery is lighting a lamp. What carries the current through the liquid between its plates?",
+   "options": [
+    "Electrons, flowing through the liquid just as they do in the wire",
+    "Nothing: the current only flows in the outside wire",
+    "Charged particles of the acid, drifting between the plates"
+   ],
+   "answer": 2,
+   "why": "Charged particles of the acid carry it. Electrons run round the outside wire, but they do not travel through the liquid; inside, charged particles from the acid move between the plates, and the circuit is complete only because they do."
+  },
+  {
+   "id": "c2",
+   "iid": "i2",
+   "q": "You read a battery's voltage straight after it comes off charge, then again after it has rested a day. How does the first reading compare?",
+   "options": [
+    "Higher than the rested one",
+    "Lower than the rested one",
+    "The same: a voltmeter reads the charge directly"
+   ],
+   "answer": 0,
+   "why": "Just off charge it reads higher: a surface charge left on the plates lifts the voltage for hours, and it is not a fault. It fades as the battery rests, so the rested reading is the one that shows the true charge."
+  }
+ ],
+ "readyMade": {
+  "shelf": "electrical",
+  "course": "batteries"
+ },
+ "overviewChecked": true,
+ "guideV": 3,
+ "research": {
+  "status": "done",
+  "at": "2026-10-27T16:48:48.150Z",
+  "sources": 113,
+  "dropped": 0,
+  "error": null,
+  "reason": null,
+  "tries": 0
+ }
+}
