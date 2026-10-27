@@ -1699,6 +1699,9 @@
           // its puzzles are saved, a line says where they went.
           stepsLesson() ? (st.puzzleNote = U.h('p', { class: 'lsn-done-text lsn-puzzles', role: 'status', hidden: !st.puzzleText }, st.puzzleText || ''))
             : U.h('p', { class: 'lsn-done-text' }, U.h('span', null, boxShown ? 'This one was just for reading, so nothing comes back in review.' : 'This one was just for reading.')),
+          // A ready-made steps lesson's problem set (54-problems.js): its figures, worked on paper.
+          stepsLesson() && st.topic.readyMade && U.problems ? U.h('p', { class: 'lsn-again lsn-problems' },
+            U.h('a', { class: 'btn secondary', href: U.problems.href(tid, iid) }, 'Work the problems on paper', U.icon('arrow'))) : null,
           nx
             ? U.h('div', { class: 'lsn-next' }, eyebrow('Next'), U.h('h3', null, String(nx.title || 'The next idea')), nextStatus(nx),
               go(U.h('a', { class: 'btn lsn-main', href: topicHref + '/' + encodeURIComponent(nx.id) }, 'Next lesson', U.icon('arrow')),

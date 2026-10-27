@@ -280,7 +280,8 @@
             U.h('a', { class: 'btn secondary', href: topicHref }, 'Back to the course')))
           : U.h('div', { class: 'lsn-next' }, U.h('h3', null, 'That was the last lesson in ' + (st.topic.title || 'this course')),
             U.h('a', { class: 'btn lsn-main', href: topicHref }, 'Back to the course')),
-        U.h('p', { class: 'rd-end-alt' }, quizLink('Quiz me through it')));
+        U.h('p', { class: 'rd-end-alt' }, quizLink('Quiz me through it')),
+        U.problems ? U.h('p', { class: 'rd-end-alt' }, U.h('a', { class: 'linkish', href: U.problems.href(tid, iid) }, 'Work the problems on paper')) : null);
       endBox.replaceWith(done);
       endBox = done;
       try { done.focus({ preventScroll: true }); } catch (e) { done.focus(); }

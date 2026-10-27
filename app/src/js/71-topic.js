@@ -547,7 +547,17 @@
       if (current) return U.h('li', { class: cls }, U.h('div', { class: 'pnode-link pnode-static' }, inner));
       return U.h('li', { class: cls },
         U.h('a', { class: 'pnode-link', href: V.lessonHref(tid, idea.id, null, way), 'data-key': 'idea-' + idea.id, 'aria-label': idea.title + ', ' + kicker + ': ' + WAYS[way] }, inner),
-        U.h('p', { class: 'pnode-alt' }, wayLink(idea, other, 'linkish', 'or ' + WAYS[other].charAt(0).toLowerCase() + WAYS[other].slice(1))));
+        U.h('p', { class: 'pnode-alt' }, wayLink(idea, other, 'linkish', 'or ' + WAYS[other].charAt(0).toLowerCase() + WAYS[other].slice(1)),
+          done ? problemsLink(idea, st) : null));
+    }
+    // A finished lesson's problem set (54-problems.js): its worked examples with a figure for an
+    // answer, worked on paper and typed in; the last score beside it once he has worked them.
+    function problemsLink(idea, st) {
+      if (!U.problems) return null;
+      var pb = st.problems && Number(st.problems.of) > 0 ? st.problems : null;
+      return [U.h('span', { class: 'pnode-sep', 'aria-hidden': 'true' }, ' · '),
+        U.h('a', { class: 'linkish pnode-problems', href: U.problems.href(tid, idea.id), 'data-key': 'problems-' + idea.id },
+          pb ? 'Problems: ' + Number(pb.first) + ' of ' + Number(pb.of) + ' first time' : 'Work the problems')];
     }
     var WAYS = { quiz: 'Quiz me through it', read: 'Just read it through' };
     function wayLink(idea, way, cls, label) {

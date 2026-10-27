@@ -40,7 +40,7 @@ function load(seed = {}, { box = true } = {}) {
       globalThis.__setNow = function (t) { now = +t; };
       globalThis.Date = D;
     })();`, ctx);
-  vm.runInContext('"use strict";\n' + ['00-core.js', '40-fsrs.js', '41-cards.js', '60-today.js'].map(src).join('\n'), ctx);
+  vm.runInContext('"use strict";\n' + ['00-core.js', '40-fsrs.js', '41-cards.js', '54-problems.js', '60-today.js'].map(src).join('\n'), ctx);
   const U = ctx.U;
   // The puzzle box is off by default (U.flags.puzzleBox, 00-core.js): these tests test it, so it is
   // on unless a test turns it off (box: false).
@@ -116,6 +116,19 @@ test('cards made from a guide: typed figures, picked choices, written questions;
   assert.deepEqual(plain(U.review.puzzlesFrom('tA', 'i2', odd, null, null)), {});
 });
 
+test('a problem set (54-problems.js) is the guide\'s typed puzzles in order, whether or not the box is shown', () => {
+  for (const box of [true, false]) {
+    const { U } = load({}, { box });
+    const set = plain(U.problems.from('tA', 'i1', GUIDE, LESSON, null));
+    assert.deepEqual(set.map((c) => c.id), ['i1_x1', 'i1_x3'], 'figures only: words, named options and written questions stay out');
+    assert.ok(set.every((c) => c.spec.input === 'typed'));
+    assert.equal(U.problems.href('tA', 'i1'), '#/t/tA/i1/problems');
+  }
+  const about = { v: 2, pages: [{ kind: 'example', task: 'What does the negative read?', answer: 'About 9.26 V', why: '100 × 51 ÷ 551.', input: 'pick', options: ['About 51 V', 'About 9.26 V'] }] };
+  assert.deepEqual(plain(U_from(about)), ['typed'], 'an About figure is a problem too');
+  function U_from(g) { return load().U.problems.from('tA', 'i9', g, null, null).map((c) => c.spec.input); }
+});
+
 test('typed answers are graded to the course\'s rounding: half a unit in the last decimal shown, the unit optional', () => {
   const { U } = load();
   const g = (text, answer) => U.cards.gradeTyped(text, { answer }).state;
@@ -144,6 +157,14 @@ test('typed answers are graded to the course\'s rounding: half a unit in the las
   assert.equal(g('2.5 mohm', '2.5 MΩ'), 'unreadable');
   assert.deepEqual(plain(U.cards.figureOf('0.5 m')), { value: 0.5, decimals: 1, unit: 'm' });
   for (const notFigure of ['9⁸', '1/3', '3 1/2', '4 times the light', 'Floor B', 'Near 70.7 V', '16a²', '200 × 10⁶ N/m²']) assert.equal(U.cards.figureOf(notFigure), null, notFigure);
+  // "About" answers (Dan, 27 Oct: worked on paper and typed in): the figure, within its rounding or 1%.
+  assert.deepEqual(plain(U.cards.figureOf('About 9.26 V')), { value: 9.26, decimals: 2, unit: 'V', about: true });
+  assert.equal(g('9.26', 'About 9.26 V'), 'right');
+  assert.equal(g('9.3', 'About 9.26 V'), 'right', 'within 1% of an About answer');
+  assert.equal(g('9.4', 'About 9.26 V'), 'wrong');
+  assert.equal(g('36.6', 'About 37%'), 'right', 'half a unit or 1%, whichever is wider');
+  assert.equal(g('36', 'About 37%'), 'wrong');
+  assert.equal(g('2.5', 'roughly 2.5 kW'), 'right');
 });
 
 test('finishing by quizzing through makes the puzzles once, first in the box tomorrow; an older guide only its written questions', async () => {

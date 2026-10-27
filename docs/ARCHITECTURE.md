@@ -426,6 +426,7 @@ only its own minutes, under the study day (`U.studyDay`). Layout is not a pref (
     readRound?,                                                // v9: the round finished as a read lesson
     quizRound?, readThrough?,                                  // a guided steps lesson: the round quizzed through / read through
     puzzleRound?, puzzleV?,                                    // its puzzles were made for this round, from this guide version
+    problems?: { at, of, first, right },                       // its problem set's last score (54-problems.js): of n, right first time, right in all
     againAt?, relearn?, relearnId?, relearnAt?, relearnNote?, known? } } }
 ```
 **Two ways into a ready-made steps lesson** (53-read.js; Dan, 20 Oct). A lesson with a still guide
@@ -1633,6 +1634,20 @@ U.readThrough.answerOf(page) -> answer with its unit   U.readThrough.choicesOf(p
 V.way(progress) -> 'quiz'|'read'   V.lessonHref(tid, iid, progress, way?)   V.setWay(tid, way, progress?)   V.readThrough(progress, iid)
 U.lesson.backLink(tid)   the lesson bar's back arrow (U._from), shared with the read-through
 ```
+**Problem set** (54-problems.js; Dan, 27 Oct: "a set of problems I need to work out but I need to
+type the answer into the app to get a check"). `#/t/:tid/:iid/problems`: a ready-made steps lesson's
+worked examples whose answer is a figure (`U.review.puzzlesFrom`'s typed cards: a figure, "About"
+figures included, unless the task names its options), one at a time as puzzle cards in lesson mode
+(`U.cards.render` with `kind` "Problem k of n" and `retries: 1`: a wrong first answer is said in red
+and the field kept for one more go, then the answer, the why and the solved picture). The end gives
+"n of m right first time", lists each problem, and patches `progress.ideas[iid].problems`; nothing
+goes into the review box, which may be hidden. The course page links a finished guided lesson's
+problems ("Work the problems", then its last score); the lesson's and the read-through's finish
+screens link them too. A lesson with no figures says so, with the lesson and the course to go to.
+```
+U.problems.from(tid, iid, guide, lesson, idea) -> [card]   pure: the typed puzzle cards, in guide order
+U.problems.href(tid, iid) -> '#/t/<tid>/<iid>/problems'
+```
 The course page never reads guides (100-240 KB each) to decide: in a ready-made course every built
 steps lesson has one (assemble.mjs), so a lesson can be read through when `topic.readyMade` and it
 is built: done, before the current lesson, or the current lesson with its lesson ready (not
@@ -1682,8 +1697,10 @@ U.cards.render(card, {mode:'lesson'|'review', lesson?, ask?(text, {chip, about})
    Check), a recall card to its panel's heading
    result {correct, grade, answer, ms, auto?, verdict?, skipped?, pending?: Promise<{grade, correct, verdict}>}
 U.cards.types / interactiveOf(doc) / controlOf(doc, id) / outputOf(doc, id) / verdictGrade(gradeResult)
-U.cards.figureOf(answer) -> {value, decimals, unit} | null   U.cards.gradeTyped(text, {answer}) -> {state: 'right'|'wrong'|'empty'|'unreadable', value?, unit?}
+U.cards.figureOf(answer) -> {value, decimals, unit, about?} | null   U.cards.gradeTyped(text, {answer}) -> {state: 'right'|'wrong'|'empty'|'unreadable', value?, unit?}
    a puzzle card's typed answer (section 4, Puzzles); render's opts.page: its guide page {svg, html, alt, style}, shown with the answer
+   "About 9.26 V" (about, roughly, around, approximately, ≈) is a figure too, right within its rounding or 1%, whichever is wider
+   render's opts.kind: the eyebrow instead of the card type's; opts.retries: wrong typed answers taken back before the working shows (result.tries)
    a target card names its readout and unit from outputOf ("make Time for one swing read 3 s")
 U.review.addFromLesson(tid, iid, lesson, outcome, {round?, at?}) -> Promise<[cardId]>   outcome {checks:{id:{correct}}, say:{text, verdict}};
    round: recorded as cardsRound once saved; at: when he finished (else now)
@@ -1778,6 +1795,7 @@ topics started here are not source-checked); "Not connected." with the steps to 
 #/t/:tid/:iid/again    lesson   focus        Learn it again (while the idea is slipping); the address becomes #/t/:tid/:iid
 #/t/:tid/:iid/read     lesson   focus        53-read.js   a ready-made steps lesson read through (its guide); without a
                                              guide (or a whole lesson) it opens #/t/:tid/:iid in its place
+#/t/:tid/:iid/problems lesson   focus        54-problems.js   its worked examples with a figure, worked on paper and typed in
 #/today                today    tab today    60-today.js   the puzzle box; while it is hidden, today's study (section 4, Puzzles)
 #/review               review   focus        60-today.js   while the box is hidden it (and /more, ?topic=) opens #/ in its place
 #/review/more          review   focus        one batch beyond the daily cap

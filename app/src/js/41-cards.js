@@ -88,10 +88,10 @@
     var mode = opts.mode === 'review' ? 'review' : 'lesson';
     var spec = card.spec || {};
     var type = card.type || spec.type;
-    var el = h('section', { class: 'qc qc-' + mode + ' qc-type-' + type, 'aria-label': KIND[type] || 'Question' });
+    var el = h('section', { class: 'qc qc-' + mode + ' qc-type-' + type, 'aria-label': opts.kind || KIND[type] || 'Question' });
     var body = h('div', { class: 'qc-body' });
     var foot = h('div', { class: 'qc-foot' });
-    el.appendChild(h('p', { class: 'eyebrow qc-kind' }, KIND[type] || 'Quick check'));
+    el.appendChild(h('p', { class: 'eyebrow qc-kind' }, opts.kind || KIND[type] || 'Quick check'));
     el.appendChild(inline('h2', 'qc-q', spec.q || spec.prompt || ''));
     el.appendChild(body);
     el.appendChild(foot);
@@ -893,10 +893,14 @@
     return { value: (m[1] === '-' ? -1 : 1) * parseFloat(digits) };
   }
   // An answer as the guide prints it, when it is a figure: a number and, at most, a unit
-  // ("28.87 A", "1,000,000 mm²", "−3", "0.5 m") -> {value, decimals, unit}; anything else (a
-  // fraction, a power, words, "about 2.8") -> null. decimals: the places shown (the course's rounding).
+  // ("28.87 A", "1,000,000 mm²", "−3", "0.5 m", "About 9.26 V") -> {value, decimals, unit, about?};
+  // anything else (a fraction, a power, words) -> null. decimals: the places shown (the course's
+  // rounding); about: the answer said "About" (or roughly, around, ≈), so it was rounded loosely.
+  var ABOUT = /^(?:about|roughly|around|approximately|approx\.?|≈)\s*/i;
   function figureOf(answer) {
     var str = String(answer == null ? '' : answer).replace(/[−‒–—]/g, '-').replace(/[  ]/g, ' ').trim();
+    var about = ABOUT.test(str);
+    if (about) str = str.replace(ABOUT, '');
     var m = /^([+-]?\d[\d ,]*(?:\.\d+)?)\s*([^\s\d][^\s]*)?$/.exec(str);
     if (!m) return null;
     var num = m[1].trim(), unit = m[2] || '';
@@ -904,10 +908,12 @@
     var r = readTyped(num, '');
     if (r.value == null) return null;
     var decimals = /\.(\d+)$/.test(num) ? num.split('.')[1].length : /^[+-]?\d+,\d{1,2}$/.test(num) ? num.split(',')[1].length : 0;
-    return { value: r.value, decimals: decimals, unit: unit };
+    var f = { value: r.value, decimals: decimals, unit: unit };
+    if (about) f.about = true;
+    return f;
   }
   // -> {state: 'right'|'wrong'|'empty'|'unreadable', value?, unit?}: right within half a unit in
-  // the last decimal the answer shows (the course's rounding).
+  // the last decimal the answer shows (the course's rounding); an "About" answer also within 1%.
   function gradeTyped(text, spec) {
     var f = figureOf(spec && spec.answer);
     if (!f) return { state: 'unreadable' };
@@ -915,6 +921,7 @@
     if (r.empty) return { state: 'empty' };
     if (r.unreadable) return r.unit ? { state: 'unreadable', unit: true } : { state: 'unreadable' };
     var tol = 0.5 * Math.pow(10, -f.decimals);
+    if (f.about) tol = Math.max(tol, 0.01 * Math.abs(f.value));
     return { state: Math.abs(r.value - f.value) <= tol + 1e-9 * Math.max(1, Math.abs(f.value)) ? 'right' : 'wrong', value: r.value };
   }
   // The worked example's picture once solved (the guide's still step: an SVG as a plain image, or
@@ -943,8 +950,10 @@
     if (!figureOf(s.answer)) { unavailable(c, 'This puzzle cannot be answered here, so it is skipped.'); return; }
     typed(c);
   }
+  // opts.retries (the problem set, 54-problems.js): wrong answers he may take back before the
+  // working shows ("Not quite. Check your working and try again."); the result says how many tries.
   function typed(c) {
-    var s = c.spec, f = figureOf(s.answer), unit = f.unit;
+    var s = c.spec, f = figureOf(s.answer), unit = f.unit, tries = 0, retries = Math.max(0, Number(c.opts.retries) || 0);
     c.typed = true;
     var msg = h('p', { class: 'qc-typed-msg muted small', id: U.id('qcmsg'), 'aria-live': 'polite' });
     var input = h('input', { class: 'input qc-typed-input', type: 'text', inputmode: 'decimal', enterkeyhint: 'done', autocomplete: 'off', autocapitalize: 'off', spellcheck: 'false', maxlength: '40',
@@ -962,6 +971,14 @@
       var r = gradeTyped(input.value, s);
       if (r.state === 'empty') { msg.textContent = 'Type your answer first.'; return; }
       if (r.state === 'unreadable') { msg.textContent = r.unit ? (unit ? 'Type the number in ' + unit + '.' : 'Type just the number.') : 'Type a number, like ' + (f.value < 0 ? '−' : '') + '12.5' + (unit ? ' ' + unit : '') + '.'; return; }
+      tries++;
+      if (r.state === 'wrong' && tries <= retries) {
+        box.classList.add('is-retry');
+        msg.textContent = 'Not quite: ' + input.value.trim() + ' is not it. Check your working and try again.';
+        try { input.select(); } catch (e) { /* not focusable */ }
+        return;
+      }
+      box.classList.remove('is-retry');
       c.locked = true;
       c.answered();
       input.readOnly = true;
@@ -974,7 +991,7 @@
       parts.push(c.extra());
       feedback(c, {
         correct: correct, title: correct ? RIGHT[U.hash(c.card.id) % RIGHT.length] : 'Not quite',
-        parts: parts, grade: autoGrade(c, correct), result: { answer: said },
+        parts: parts, grade: autoGrade(c, correct), result: { answer: said, tries: tries },
         about: { picked: said, answer: String(s.answer) },
       });
     }
