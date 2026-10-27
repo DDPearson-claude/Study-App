@@ -56,3 +56,19 @@ using"): the Science, Computer science and Data analysis shelves; Logical reason
 Vector calculus and the unplanned statistics courses; the unplanned Electrical courses. hidden: true in the
 shelf docs; unhiding is one write. Everything is taught from public sources as general engineering, never as how
 the Navy or a particular boat does it (CLAUDE.md).
+
+### How a session builds them (27 Oct)
+
+The build is a Workflow script kept in the repo: tools/course/shelf-course.workflow.js, with each course's
+settings in tools/course/args/<slug>.json (insulated-systems, batteries, transformers, generators). It needs
+the Parallel Search connector (the research quotes are harvested from its results; this machine cannot reach
+the web directly). For each course:
+1. Workflow with scriptPath tools/course/shelf-course.workflow.js and args the course's JSON (run two at a
+   time: insulated-systems with batteries, then transformers with generators).
+2. When it finishes: read its journal for unfixed points and failed confirms; fix small ones by hand
+   (attempt.mjs --attempt 16 --reply ... --film none, then copy the .x.html to body.final.html).
+3. node tools/course/guide.mjs --dir build/electrical/<slug> --app tests/out/kit.html, then
+   node tools/course/assemble.mjs docs --dir build/electrical/<slug>; every example should have a picture.
+4. Write out/manifest.json's docs to the db in batches under about 900 KB (topic doc last), set the course's
+   tid in docs/shelves-electrical.json and the live shelves/electrical doc (if_version pinned).
+5. python3 tools/course/tocopy.py <slug> i1,...,i8 --shelf electrical; commit; push to both branches.
