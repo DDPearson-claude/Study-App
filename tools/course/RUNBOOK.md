@@ -210,7 +210,7 @@ the overview was checked instead of calling it Claude's unchecked overview.
 
 ## 5. Build and test each interactive
 ```
-node tools/eval/prompts.mjs build-interactive --topic $D/topic.json --idea I --lesson $D/I.lesson.verified.json > $D/I.build.prompt.txt
+node tools/eval/prompts.mjs build-interactive --topic $D/topic.json --idea I --lesson $D/I.lesson.verified.json --typed > $D/I.build.prompt.txt
 # model hat: answer it as $D/I.body1.html, then one command per attempt:
 node tools/course/attempt.mjs --dir $D --idea I --attempt N
 ```
@@ -240,7 +240,12 @@ anything popping in. Rows of three or more readouts or buttons must be free to w
 splits words like "stopped" or "satisfactory" mid-word. Two builds (subsea i3, Motors i2, 21 Oct)
 spent all three attempts on this; a brief never asks for "one row". Anything wrong is a problem for one more repair, written into a report-only
 JSON by hand (`{"ok": false, "errors": ["what is wrong, in one sentence"], "sweep": {"ok": false, "problems": []}}`)
-and turned into a prompt with `prompts.mjs repair-interactive --no-body`.
+and turned into a prompt with `prompts.mjs repair-interactive --typed --no-body`.
+
+**Typed answers** (Dan, 28 Oct: he works every puzzle on paper, then types it). `--typed` puts
+app/kit/TYPED.md in the build and repair prompts: a puzzle whose answer is a figure is a K.answer
+field, its wrong options become slips with hints; options stay for words, directions, expressions,
+orders, or where choosing is the skill. The app then asks the same figures in the lesson's problem set.
 When it passes: copy the body to `$D/I.body.final.html`, the verdict to `$D/I.verdict.final.json`,
 and write the attempt count to `$D/I.attempts.txt`. The reviewer (section 6) reads that attempt's
 pictures and contact sheets; it does not film again.

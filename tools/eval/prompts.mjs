@@ -9,6 +9,7 @@
 //   node tools/eval/prompts.mjs verify-lesson --topic topic.json --idea i2 --lesson lesson.json [--research research.json]
 //   node tools/eval/prompts.mjs build-interactive --topic topic.json --idea i2 --lesson lesson.json
 //   node tools/eval/prompts.mjs repair-interactive --topic t.json --idea i2 --lesson l.json --html body.html --report report.json
+//   (build-interactive and repair-interactive take --typed: a figure answer is a typed K.answer field, app/kit/TYPED.md)
 //   node tools/eval/prompts.mjs grade --lesson lesson.json --answer "..." [--attempt 1] [--written b1]
 //        (--written: a refresher lesson's written question lesson.written.b1, marked as the app marks it)
 //   node tools/eval/prompts.mjs verdict --lesson lesson.json --html body.html --report a1-report.json [--app tests/out/kit.html]
@@ -74,6 +75,15 @@ export function refresherKit(lesson) {
   return existsSync(f) ? '\n\n' + readFileSync(f, 'utf8').trim() + '\n' : '';
 }
 
+// --typed (every ready-made course from 28 Oct): the build and repair prompts also carry the kit's
+// typed-answer field (app/kit/TYPED.md), so a puzzle whose answer is a figure is typed, not picked.
+// A refresher lesson already has it in REFRESHER.md.
+export function typedKit(lesson) {
+  if (!process.argv.includes('--typed') || (lesson && (lesson.written || lesson.summary))) return '';
+  const f = join(app, 'kit', 'TYPED.md');
+  return existsSync(f) ? '\n\n' + readFileSync(f, 'utf8').trim() + '\n' : '';
+}
+
 // In the browser: which target checks the body can't reach (needs U.sandbox.reach from the kit host).
 async function unreachable(lesson, html, appFile) {
   const { openApp } = await import('../harness/page.mjs');
@@ -109,11 +119,11 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     case 'verify-lesson': out = U.prompts.verifyLesson(topic, idea, lessonOf(json('lesson')), { research: json('research') }); break;
     case 'build-interactive': {
       out = U.interactive.prompt(topic, idea, json('lesson'), {});
-      const extra = refresherKit(lessonOf(json('lesson'))), at = out.lastIndexOf('\n## Output');
+      const extra = refresherKit(lessonOf(json('lesson'))) + typedKit(lessonOf(json('lesson'))), at = out.lastIndexOf('\n## Output');
       if (extra) out = at >= 0 ? out.slice(0, at) + extra + out.slice(at) : out + extra;
       break;
     }
-    case 'repair-interactive': out = U.interactive.repairPrompt(topic, idea, json('lesson'), readFileSync(arg('html'), 'utf8'), json('report'), { noBody: process.argv.includes('--no-body'), bodyFile: arg('html') }); break;
+    case 'repair-interactive': out = U.interactive.repairPrompt(topic, idea, json('lesson'), readFileSync(arg('html'), 'utf8'), json('report'), { noBody: process.argv.includes('--no-body'), bodyFile: arg('html') }) + typedKit(lessonOf(json('lesson'))); break;
     case 'grade': {
       const L = lessonOf(json('lesson')), wid = arg('written');
       if (wid) {
