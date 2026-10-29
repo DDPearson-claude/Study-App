@@ -1,0 +1,229 @@
+{
+  "ok": true,
+  "reachChecked": true,
+  "problems": [],
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "Leading power factor increases the secondary terminal voltage and lagging reduces it: every leading setting gives more than unity's 110.35 V, every lagging one less",
+        "ok": true,
+        "source": "https://eepower.com/technical-articles/calculating-voltage-regulation-in-transformers"
+      },
+      {
+        "label": "With 5% impedance, full voltage drives 100 ÷ 5 = 20 times full-load current into a solid short on the secondary terminals: 1739 A",
+        "ok": true,
+        "source": "https://www.ecmweb.com/basics/article/20897056/basic-short-circuit-current-calculation"
+      },
+      {
+        "label": "Lower impedance gives better regulation and more current into a fault: from 10% down to 2%, the sag at 0.8 lagging shrinks and the fault current grows (870 A, 1739 A, 3478 A)",
+        "ok": true,
+        "source": "https://www.rexpowermagnetics.com/knowledge-hub/impedance-in-transformers-key-concepts-and-calculations"
+      },
+      {
+        "label": "At full load and 5%: 110.35 V and 4.0% at unity, 109.25 V and 5.0% at 0.8 lagging, 113.26 V and 1.5% at 0.8 leading, 115.55 V and −0.5% at 0.5 leading; the quick rule gives 4.0, 5.0, 1.4 and −0.6%",
+        "ok": true
+      },
+      {
+        "label": "The drawing and the lesson's formula agree, and the last tip sits on the 115 V circle at every setting; at full load the drops are 4.6 V and 3.45 V, 5.75 V in all",
+        "ok": true
+      },
+      {
+        "label": "The output is shortest at 0.8 lagging, where the drop lines up with it; at no load it is 115.00 V, and past 0.6 leading it passes 115 V",
+        "ok": true
+      },
+      {
+        "label": "Each typed answer and slip is worked from its rule: 10 V (14, 2), 110.35 V (106.95, 109.25, 110.4), 4.0% (4.2, 5.0), −0.5% (0.5), 3.0% (4.5, 3.3, −0.6), 4348 A (696, 2174) and −0.8% (0.8, 4.0, −2.0)",
+        "ok": true
+      },
+      {
+        "label": "Before a Check the output and regulation show ?, after it 110.35 V, 4.0% and −0.5%; a regulation a later puzzle asks for shows ? on the screens before it, and the fault bar waits for its screen",
+        "ok": true
+      },
+      {
+        "label": "Every demonstration ends 3 to 4.5 s after its screen opens, on the setting its words end on",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "load",
+      "pf",
+      "z"
+    ],
+    "readouts": [
+      "r-out",
+      "r-reg",
+      "r-quick",
+      "r-fault"
+    ],
+    "outputs": [],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Screen",
+        "min": 0,
+        "max": 13,
+        "step": 1,
+        "steps": [
+          "Two at right angles",
+          "Loading",
+          "Full load, unity",
+          "The deepest sag",
+          "Regulation at unity",
+          "Predict: leading",
+          "Leading",
+          "Above no load",
+          "A quick rule",
+          "Another transformer",
+          "Percentage impedance",
+          "A 4% unit",
+          "Leading, another unit",
+          "Choosing an impedance"
+        ],
+        "value": 0
+      },
+      {
+        "id": "load",
+        "kind": "control",
+        "label": "Load",
+        "min": 0,
+        "max": 125,
+        "step": 5,
+        "log": false,
+        "value": 100,
+        "shown": false,
+        "snap": [
+          100
+        ]
+      },
+      {
+        "id": "pf",
+        "kind": "choice",
+        "label": "Power factor",
+        "options": [
+          "0.5 lag",
+          "0.6 lag",
+          "0.8 lag",
+          "1.0",
+          "0.8 lead",
+          "0.6 lead",
+          "0.5 lead"
+        ],
+        "labels": [
+          "0.5 lag",
+          "0.6 lag",
+          "0.8 lag",
+          "1.0",
+          "0.8 lead",
+          "0.6 lead",
+          "0.5 lead"
+        ],
+        "value": "1.0",
+        "index": 3,
+        "shown": false
+      },
+      {
+        "id": "z",
+        "kind": "control",
+        "label": "Impedance",
+        "min": 2,
+        "max": 10,
+        "step": 0.5,
+        "log": false,
+        "value": 5,
+        "shown": false,
+        "snap": [
+          2.5,
+          5
+        ]
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Answer 4",
+      "Check",
+      "Why?",
+      "Play again",
+      "Back",
+      "Continue",
+      "Start again",
+      "Demonstration"
+    ],
+    "answers": [
+      {
+        "id": "a-tri",
+        "answer": 10,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-out",
+        "answer": 110.35,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-reg1",
+        "answer": 4,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-reg2",
+        "answer": -0.5,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-r9",
+        "answer": 3,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-fc",
+        "answer": 4348,
+        "accept": [
+          4350
+        ],
+        "ok": true
+      },
+      {
+        "id": "a-r12",
+        "answer": -0.8,
+        "accept": [],
+        "ok": true
+      }
+    ],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ],
+    "foreign": [],
+    "unreachable": []
+  }
+}

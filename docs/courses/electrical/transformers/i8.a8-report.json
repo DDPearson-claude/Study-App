@@ -1,0 +1,263 @@
+{
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "Transformer inrush is mostly due to the core saturating: a switch-on draws more than 0.024 times full load, drawn red, only when its flux passes the knee",
+        "ok": true,
+        "source": "https://www.idc-online.com/technical_references/pdfs/electrical_engineering/Transformer_Inrush.pdf"
+      },
+      {
+        "label": "Worked by hand: at a zero 2.0 and 12, with 0.6 left 2.6 and 21, with 0.8 left 2.8 and 24; at 60° 1.5 and 5; at a peak 1.0 and 0.02, with 0.4 left 1.4 and 3 (whole numbers past the knee)",
+        "ok": true
+      },
+      {
+        "label": "Inrush may reach instantaneous peaks of 8 to 30 times the full load current: every switch-on at a voltage zero here peaks inside that range",
+        "ok": true,
+        "source": "https://new.abb.com/docs/librariesprovider68/default-document-library/data-center-forum-2017/dryabb-data-center-forum-2017---dry_transformers_michael_gogioli.pdf"
+      },
+      {
+        "label": "The flux starts at the flux left in, peaks at 1 + flux left in + cos(switch-on point) half a cycle after the rising zero, and each later offset is half the one before",
+        "ok": true
+      },
+      {
+        "label": "Below the knee 400 × 1 = 5 × 80, so 5 A flows, needing 1.0, 4.0, 11.0 and 21.0 V: 3, 13, 37 and 70% of the 30 V knee",
+        "ok": true
+      },
+      {
+        "label": "An open secondary leaves the busbar's ampere-turns producing enough flux to drive the CT into saturation: the bar sits past the knee and the flux is past it for most of each cycle",
+        "ok": true,
+        "source": "https://www.nrc.gov/docs/ML1715/ML17156B503.pdf"
+      },
+      {
+        "label": "As long as current flows in the primary, an open CT secondary can cause high voltages: open, the drawn spikes run off the scale, while every closed burden stays inside its knee lines",
+        "ok": true,
+        "source": "https://downloads.regulations.gov/NRC-2015-0183-0002/content.pdf"
+      },
+      {
+        "label": "As much as 4000 V has been measured on large CTs with an open secondary: the label shows only when the secondary is open",
+        "ok": true,
+        "source": "https://www.se.com/us/en/faqs/FA125574"
+      },
+      {
+        "label": "An autotransformer has an electrical connection between primary and secondary, and an isolation transformer has none: the auto is drawn joined, with its red mark, at either ratio",
+        "ok": true,
+        "source": "https://www.se.com/us/en/faqs/FA123708"
+      },
+      {
+        "label": "The auto passes output ÷ input of its power straight through: 26% and 74% transformed at 115 V, 91% and 9% at 400 V, with the tap at that share of the winding",
+        "ok": true
+      },
+      {
+        "label": "Each typed answer and slip is worked from its rule: 325 A (0, 3.25), 2.6 (2, 1.6, 1.4), 4.0 V (3, 1, 0.8), 9% (91, 74, 10), 40 (5, 1000, 0.025) and 1250 A (2, 200, 12.5)",
+        "ok": true
+      },
+      {
+        "label": "Before a Check the flux peak, the volts and the share show ?, after it 2.6 and 21, 4.0 V and 13%, and 9%; the 0.6 Ω volts and the 400 V share show ? on the screens before their puzzles",
+        "ok": true
+      },
+      {
+        "label": "Every demonstration ends 3 s after its screen opens, on the state its words end on; a switch-on or a new burden draws in 2 s",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "pt",
+      "res",
+      "burden",
+      "ratio"
+    ],
+    "readouts": [
+      "r-peak",
+      "r-amp",
+      "r-volts",
+      "r-kflux"
+    ],
+    "outputs": [],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Screen",
+        "min": 0,
+        "max": 13,
+        "step": 1,
+        "steps": [
+          "An empty capacitor",
+          "Switching on at a zero",
+          "Flux left in",
+          "At a peak",
+          "A trip on closing",
+          "A current transformer",
+          "Volts for 5 A",
+          "An open secondary",
+          "Changing a meter",
+          "No isolation",
+          "Share transformed",
+          "Secondary turns",
+          "A short at the terminals",
+          "Shorting a VT"
+        ],
+        "value": 0
+      },
+      {
+        "id": "pt",
+        "kind": "control",
+        "label": "Switch-on point",
+        "min": 0,
+        "max": 90,
+        "step": 15,
+        "log": false,
+        "value": 0,
+        "shown": false
+      },
+      {
+        "id": "res",
+        "kind": "control",
+        "label": "Flux left in",
+        "min": 0,
+        "max": 0.8,
+        "step": 0.2,
+        "log": false,
+        "value": 0,
+        "shown": false
+      },
+      {
+        "id": "burden",
+        "kind": "choice",
+        "label": "Burden",
+        "options": [
+          "Shorted",
+          "0.6",
+          "2",
+          "4",
+          "Open"
+        ],
+        "labels": [
+          "Shorted",
+          "0.6 Ω",
+          "2 Ω",
+          "4 Ω",
+          "Open"
+        ],
+        "value": "Shorted",
+        "index": 0,
+        "shown": false
+      },
+      {
+        "id": "ratio",
+        "kind": "choice",
+        "label": "Auto ratio",
+        "options": [
+          "115",
+          "400"
+        ],
+        "labels": [
+          "440 V to 115 V",
+          "440 V to 400 V"
+        ],
+        "value": "115",
+        "index": 0,
+        "shown": false
+      }
+    ],
+    "actions": [
+      "Switch on",
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Answer 4",
+      "Check",
+      "Why?",
+      "Play again",
+      "Back",
+      "Continue",
+      "Start again",
+      "Demonstration"
+    ],
+    "answers": [
+      {
+        "id": "a-cap",
+        "answer": 325,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-left",
+        "answer": 2.6,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-volt",
+        "answer": 4,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-share",
+        "answer": 9,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-turns",
+        "answer": 40,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-fault",
+        "answer": 1250,
+        "accept": [],
+        "ok": true
+      }
+    ],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ]
+  },
+  "moved": [
+    "step = 3 (the first step that shows a control)",
+    "pt = 67.5",
+    "res = 0.6000000000000001",
+    "burden = \"0.6\"",
+    "ratio = \"400\""
+  ],
+  "shots": [
+    "/home/user/Study-App/build/electrical/transformers/i8.a8-360-light.png",
+    "/home/user/Study-App/build/electrical/transformers/i8.a8-360-light-moved.png",
+    "/home/user/Study-App/build/electrical/transformers/i8.a8-360-light-end.png",
+    "/home/user/Study-App/build/electrical/transformers/i8.a8-360-dark.png",
+    "/home/user/Study-App/build/electrical/transformers/i8.a8-360-dark-moved.png",
+    "/home/user/Study-App/build/electrical/transformers/i8.a8-360-dark-end.png",
+    "/home/user/Study-App/build/electrical/transformers/i8.a8-1280-light.png",
+    "/home/user/Study-App/build/electrical/transformers/i8.a8-1280-light-moved.png",
+    "/home/user/Study-App/build/electrical/transformers/i8.a8-1280-light-end.png",
+    "/home/user/Study-App/build/electrical/transformers/i8.a8-1280-dark.png",
+    "/home/user/Study-App/build/electrical/transformers/i8.a8-1280-dark-moved.png",
+    "/home/user/Study-App/build/electrical/transformers/i8.a8-1280-dark-end.png"
+  ]
+}

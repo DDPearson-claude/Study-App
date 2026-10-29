@@ -1,0 +1,362 @@
+{
+ "iid": "i4",
+ "title": "The ideal transformer: turns, volts and amps",
+ "format": "steps",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the primary's current rise to 6.01 A, cancelling the secondary's 5290 ampere-turns, while the flux stays at 1.88 mWb, when you drag the load from 10 Ω to 5 Ω.",
+  "title": "The turns ratio",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Screen",
+    "min": 0,
+    "max": 12,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [],
+  "whatAmILookingAt": "Thirteen small screens on one picture, with Back and Continue. Five show an idea and eight ask you to try it. No marks and no timers.\n\nThe picture. A square iron core, as in the last two lessons, with two windings and no wire between them. The primary, on the left, sits on a 440 V, 60 Hz supply, say. The secondary, on the right, feeds a load resistor behind an open switch. Each winding is drawn longer for more turns, with its turns in a label. Beside each winding, a tag shows one turn and its voltage tick: the volts per turn, 440 ÷ N1, the same on both windings. A voltage column beside each winding stacks those ticks, so its height is turns × volts per turn. A flux bar runs along the core.\n\nThe controls, each shown only on the screens that use it. A primary turns slider runs from 440 to 1320 in steps of 220, opening at 880. A secondary turns slider runs from 115 to 920 in steps of 115, opening at 230. A load switch opens off. A load slider runs from 2 to 20 Ω in steps of 1, opening at 5.\n\nThe rules. Volts per turn = 440 ÷ N1, so 0.5 V at 880 turns. V2 = N2 × volts per turn, so 115 V at 230 turns. The peak flux is the last lesson's Φm = 440 ÷ (4.44 × 60 × N1): 1.88 mWb at 880 turns and 1.50 mWb at 1100. Nothing on the secondary side enters it. With the switch closed, I2 = V2 ÷ R, so 23 A on 5 Ω. The primary's current cancels the secondary's ampere-turns: I1 = N2 × I2 ÷ N1, so 6.01 A. With the switch open, both currents are 0 A.\n\nThe readouts, which wrap onto two rows on a phone: Secondary volts, in V; Secondary current, in A, two decimal places; Primary current, in A, two decimal places. Under them: two current bars, primary and secondary, on one scale. Two power bars, Power in = 440 × I1 and Power out = V2 × I2, in W, always equal: 2645 W on 5 Ω. An ampere-turns line, Primary N1 × I1 and Secondary N2 × I2, in At, which balance at 5290 At each on 5 Ω; its two halves wrap onto two rows on a phone. A box, As the 440 V side sees it, showing 440 ÷ I1 in Ω, one decimal place, which equals R × (N1 ÷ N2)²: 73.2 Ω on 5 Ω, and Open with the switch open. The flux bar's readout is in mWb, two decimal places. The bars rescale when a reading would run off the end.\n\nScreen 1, try it, a recall, typed. The picture: switch open, 880 and 230 turns. \"A load has an impedance of 3 + j4 Ω. What is its size?\" A typed field in Ω, whole numbers: answer 5, want \"5 Ω\". Slips: 7, \"That adds the parts. The size is the square root of 3² + 4².\"; 25, \"That is 3² + 4². Now take its square root.\" Hint for any other answer: \"Size = √(3² + 4²).\" Why: \"√(9 + 16) = √25 = 5 Ω. Hold on to this load. It comes back at the end, seen through a transformer.\" A right Check says \"Still there.\" and carries on. Read: \"A load has an impedance of 3 + j4 Ω. What is its size?\"\n\nScreen 2, show. The secondary turns slider to drag. The words: \"One iron core carries two windings, with no wire between them. The primary has 880 turns on 440 V. The secondary has 230. The same flux threads every turn of both. So every turn gets the same voltage tick, here 440 ÷ 880 = 0.5 V. The secondary's 230 turns add up to 230 × 0.5 = 115 V. Drag the secondary's turns, and each one adds another 0.5 V. The volts follow the turns: V2 ÷ V1 = N2 ÷ N1.[^1]\" Read: \"Two windings share one core and one flux. On 440 V the primary's 880 turns give 0.5 V per turn. So the secondary's 230 turns give 115 V, and 460 turns would give 230 V.\" Still: switch open, 880 and 230 turns, both voltage columns drawn.\n\nScreen 3, try it, typed. \"A primary of 880 turns sits on 440 V. A control circuit needs 24 V. How many turns does its secondary need?\" A typed field in turns, whole numbers: answer 48, want \"48 turns\". Slips: 12, \"That multiplies 24 by 0.5. Each turn gives 0.5 V, so divide.\"; 37, \"That is 880 ÷ 24. Find the volts per turn first.\" Hint for any other answer: \"Volts per turn = 440 ÷ 880. Then divide 24 V by it.\" Why: \"440 ÷ 880 = 0.5 V per turn. 24 ÷ 0.5 = 48 turns. Check: 48 turns × 0.5 V = 24 V.\" Read: \"A primary of 880 turns sits on 440 V. A control circuit needs 24 V. How many turns does its secondary need?\"\n\nScreen 4, show. The load switch to close. The words: \"Close the load switch. A 5 Ω load on 115 V draws 23 A. The secondary's 230 turns now carry 230 × 23 = 5290 ampere-turns. They push against the change that made them. But the flux must still make 440 V in the primary, so it cannot shrink. So the primary draws extra current to cancel them: 5290 ÷ 880 = 6.01 A. The ampere-turns balance: N1 × I1 = N2 × I2. Fewer turns carry more amps.\" Read: \"With a 5 Ω load, the secondary's 230 turns carry 23 A, which is 5290 ampere-turns. The primary cancels them with 6.01 A through its 880 turns.\" Still: switch closed, 5 Ω.\n\nScreen 5, try it, typed. \"A 440 V to 115 V transformer supplies 40 A on its 115 V side. What current does its 440 V side take?\" A typed field in A, two decimal places: answer 10.45, want \"10.45 A\". Slips: 153.04, \"That steps the current down with the volts. Fewer turns carry more amps, so the 440 V side carries less.\"; 40, \"The two currents differ, by the same ratio as the volts.\" Hint for any other answer: \"I1 = I2 × 115 ÷ 440.\" Why: \"The volts step down by 440 ÷ 115 = 3.826, so the amps step up by the same. 40 ÷ 3.826 = 10.45 A. Check: 440 × 10.45 and 115 × 40 both come to 4600 W.\" Read: \"A 440 V to 115 V transformer supplies 40 A on its 115 V side. What current does its 440 V side take?\"\n\nScreen 6, show. All three sliders to drag. The words: \"Watch the two power bars. Power in is 440 V times 6.01 A. Power out is 115 V times 23 A. Both come to 2645 W. Drag the load or either winding's turns, and they stay equal. That follows from the two rules. The volts step down by the turns ratio, and the amps step up by the same ratio. So volts times amps is the same on both sides. The transformer passes power on, and ideally makes and uses none.[^2]\" Read: \"Power in, 440 V times 6.01 A, and power out, 115 V times 23 A, both come to 2645 W. They stay equal at every setting.\" Still: switch closed, 5 Ω, 880 and 230 turns.\n\nScreen 7, try it, typed. \"A 440 V to 115 V transformer feeds a 3 kW heater on its 115 V side. What current does it take from the 440 V supply?\" A typed field in A, two decimal places: answer 6.82, want \"6.82 A\". Slips: 26.09, \"That is the heater's own current, at 115 V. The 440 V side takes less.\"; 0.01, \"That uses 3 W. A kilowatt is 1000 W.\" Hint for any other answer: \"Power in equals power out. So I1 = 3000 ÷ 440.\" Why: \"Power in equals power out, 3000 W. 3000 ÷ 440 = 6.82 A. On the heater's side it is 3000 ÷ 115 = 26.09 A, and 26.09 ÷ 6.82 is the ratio, 3.83.\" Read: \"A 440 V to 115 V transformer feeds a 3 kW heater on its 115 V side. What current does it take from the 440 V supply?\"\n\nScreen 8, show. The load slider, then the primary turns slider, to drag. The words: \"Watch the flux bar as you drag the load. It stays at 1.88 mWb. The flux must still make 440 V in the primary, so it swings the same. Every ampere-turn the load adds, the primary cancels. So a heavier load does not push the core towards saturation. In this ideal picture, only the supply's voltage, its frequency or the primary's turns move the flux. Drag the primary to 1100 turns, and the flux falls to 1.50 mWb.\" Read: \"The flux stays at 1.88 mWb at every load. It moves only with the supply or the primary's turns: 1100 turns give 1.50 mWb.\" Still: switch closed, 2 Ω, 880 turns.\n\nScreen 9, try it, typed. \"With a 10 Ω load, the secondary carries 11.5 A and the flux peaks at 1.88 mWb. You change to a 5 Ω load, and the secondary current doubles to 23 A. What is the peak flux now?\" A typed field in mWb, two decimal places: answer 1.88, want \"1.88 mWb\". The flux readout shows ? until Check. Slips: 3.76, \"That doubles the flux with the load. The primary cancels the extra ampere-turns.\"; 0.94, \"That halves it. The load does not move the flux either way.\" Hint for any other answer: \"What sets the flux, the load or the supply?\" Why: \"The supply still holds 440 V at 60 Hz on 880 turns, so the flux stays at 1.88 mWb. The primary's current rises from 3.01 A to 6.01 A and cancels the extra ampere-turns.\" A right Check moves the load from 10 Ω to 5 Ω with the switch closed. Read: \"With a 10 Ω load the secondary carries 11.5 A and the flux peaks at 1.88 mWb. A 5 Ω load doubles the secondary current to 23 A. What is the peak flux now?\"\n\nScreen 10, show. The load slider to drag. The words: \"The supply sees only its own 440 V and the 6.01 A it gives. To it, the load looks like 440 ÷ 6.01 = 73.2 Ω. The box shows it. On this side the volts are 3.83 times higher and the amps 3.83 times lower. So the load looks bigger by the ratio twice over: 5 × (880 ÷ 230)² = 5 × 14.64 = 73.2 Ω. Drag the load, and the box follows at 14.64 times.\" Read: \"The 440 V side sees 440 V driving 6.01 A, which looks like 73.2 Ω. That is the 5 Ω load times (880 ÷ 230)², which is 14.64.\" Still: switch closed, 5 Ω.\n\nScreen 11, try it, typed. \"On the same 880 to 230 turn transformer, the load is 2 Ω. What resistance does the 440 V side see?\" A typed field in Ω, one decimal place: answer 29.3, want \"29.3 Ω\". The box shows ? until Check. Slips: 7.7, \"That multiplies by the ratio once. Volts and amps each change, so square it.\"; 0.1, \"That divides. Seen from the higher voltage, the load looks bigger.\" Hint for any other answer: \"Seen resistance = load × (N1 ÷ N2)².\" Why: \"(880 ÷ 230)² = 14.64, and 2 × 14.64 = 29.3 Ω. Check: 115 V on 2 Ω draws 57.5 A. The primary takes 57.5 × 230 ÷ 880 = 15.03 A, and 440 ÷ 15.03 = 29.3 Ω.\" A right Check sets the load to 2 Ω. Read: \"On the same 880 to 230 turn transformer, the load is 2 Ω. What resistance does the 440 V side see?\"\n\nScreen 12, try it, the first of two mixed puzzles. \"The load on the 115 V side is 3 + j4 Ω, the one you sized at the start. The transformer has 880 and 230 turns. What impedance does the 440 V side see?\" Four choices, in this order: \"3 + j4 Ω\"; \"11.5 + j15.3 Ω\"; \"43.9 + j58.6 Ω\"; \"73.2 + j0 Ω\". Right, the third. Hint for the first: \"The load looks different from the other side. Scale it by the ratio squared.\" Hint for the second: \"That scales it by the ratio once. It takes the ratio squared.\" Hint for the fourth: \"73.2 Ω is its size. Scaling by a plain number keeps its angle.\" Why: \"The ratio squared, 14.64, is a plain number. It scales both parts: 3 × 14.64 = 43.9 and 4 × 14.64 = 58.6. The size grows from 5 Ω to 73.2 Ω, and the angle stays. So the power factor is the same from both sides.\" Read: \"The load on the 115 V side is 3 + j4 Ω, and the transformer has 880 and 230 turns. What impedance does the 440 V side see?\"\n\nScreen 13, try it, the second mixed puzzle, typed. \"A small step-up transformer has 200 turns on 115 V and 800 turns on its secondary. The secondary feeds 2.3 A. What current does the primary take?\" A typed field in A, one decimal place: answer 9.2, want \"9.2 A\". Slips: 0.6, \"That steps the current down as the volts go up. Turn it round.\"; 2.3, \"The two currents differ, by the turns ratio.\" Hint for any other answer: \"N1 × I1 = N2 × I2.\" Why: \"800 × 2.3 = 1840 ampere-turns. The primary must cancel them: 1840 ÷ 200 = 9.2 A. Check the power: the secondary gives 115 × 800 ÷ 200 = 460 V. 460 × 2.3 and 115 × 9.2 both come to 1058 W.\" Read: \"A step-up transformer has 200 turns on 115 V and 800 turns on its secondary, which feeds 2.3 A. What current does the primary take?\"\n\nThe finish. The words: \"Every turn on one core gets the same volts, so the volts follow the turns. The primary cancels the secondary's ampere-turns, so the amps go the other way. Power in equals power out, and the flux stays where the supply holds it. Seen through the windings, a load scales by the turns ratio squared. Next: the real transformer, and where its watts go.\"\n\nEvery figure on these screens is an example value or worked from the rules above.",
+  "ignores": "The transformer is ideal. It draws no current to make its flux, so with the switch open the primary current reads 0 A. A real one draws a small magnetising current even at no load. Every line of flux is drawn through both windings. In a real core a little leaks round each winding. The windings have no resistance and the core no loss, so power in exactly equals power out and the secondary voltage holds at every load. A real transformer warms up, loses a little power, and its output sags a little under load. Under load its flux also falls a very little. The load is a pure resistance on a single-phase supply, and every current and voltage is rms. The core never saturates, and the windings are drawn far shorter than real ones.",
+  "numbers": [
+   {
+    "label": "Screen, 1 to 13 (the stepper)",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Number of screens",
+    "value": 13,
+    "kind": "assumed"
+   },
+   {
+    "label": "Supply, in volts rms",
+    "value": 440,
+    "kind": "assumed"
+   },
+   {
+    "label": "Supply frequency, in Hz",
+    "value": 60,
+    "kind": "assumed"
+   },
+   {
+    "label": "Primary turns slider, 440 to 1320 in steps of 220",
+    "value": 880,
+    "kind": "control"
+   },
+   {
+    "label": "Secondary turns slider, 115 to 920 in steps of 115",
+    "value": 230,
+    "kind": "control"
+   },
+   {
+    "label": "Load switch, off or on",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Load slider, 2 to 20 in steps of 1, in ohms",
+    "value": 5,
+    "kind": "control"
+   },
+   {
+    "label": "Volts per turn at 880 turns, 440 ÷ 880",
+    "value": 0.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Secondary volts at 230 turns",
+    "value": 115,
+    "kind": "computed"
+   },
+   {
+    "label": "Secondary volts at 460 turns",
+    "value": 230,
+    "kind": "computed"
+   },
+   {
+    "label": "Turns ratio, 880 ÷ 230",
+    "value": 3.83,
+    "kind": "computed"
+   },
+   {
+    "label": "Ratio squared, (880 ÷ 230)²",
+    "value": 14.64,
+    "kind": "computed"
+   },
+   {
+    "label": "Peak flux at 880 turns, in mWb",
+    "value": 1.88,
+    "kind": "computed"
+   },
+   {
+    "label": "Peak flux at 1100 turns, in mWb",
+    "value": 1.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Secondary current on 5 Ω, in amps",
+    "value": 23,
+    "kind": "computed"
+   },
+   {
+    "label": "Primary current on 5 Ω, in amps",
+    "value": 6.01,
+    "kind": "computed"
+   },
+   {
+    "label": "Ampere-turns each side on 5 Ω, in At",
+    "value": 5290,
+    "kind": "computed"
+   },
+   {
+    "label": "Power in and out on 5 Ω, in watts",
+    "value": 2645,
+    "kind": "computed"
+   },
+   {
+    "label": "Load as the 440 V side sees it, 5 Ω, in ohms",
+    "value": 73.2,
+    "kind": "computed"
+   },
+   {
+    "label": "Secondary current on 10 Ω, in amps",
+    "value": 11.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Primary current on 10 Ω, in amps",
+    "value": 3.01,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 1 load, 3 + j4, in ohms",
+    "value": "3 and 4",
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 1 size, in ohms",
+    "value": 5,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 1 slips, in ohms",
+    "value": "7 and 25",
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 3 control circuit, in volts",
+    "value": 24,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 3 secondary turns, 24 ÷ 0.5",
+    "value": 48,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 3 slips, in turns",
+    "value": "12 and 37",
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 5 secondary current, in amps",
+    "value": 40,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 5 primary current, 40 × 115 ÷ 440, in amps",
+    "value": 10.45,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 5 slip, 40 × 440 ÷ 115, in amps",
+    "value": 153.04,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 5 power each side, in watts",
+    "value": 4600,
+    "kind": "computed"
+   },
+   {
+    "label": "Voltage ratio, 440 ÷ 115",
+    "value": 3.826,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 7 heater, in kilowatts",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 7 primary current, 3000 ÷ 440, in amps",
+    "value": 6.82,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 7 heater current, 3000 ÷ 115, in amps",
+    "value": 26.09,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 7 slip, 3 ÷ 440, in amps",
+    "value": 0.01,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 9 slips, in mWb",
+    "value": "3.76 and 0.94",
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 11 load, in ohms",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 11 seen resistance, 2 × 14.64, in ohms",
+    "value": 29.3,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 11 slips, in ohms",
+    "value": "7.7 and 0.1",
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 11 secondary current, 115 ÷ 2, in amps",
+    "value": 57.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 11 primary current, in amps",
+    "value": 15.03,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12 load seen, real part, in ohms",
+    "value": 43.9,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12 load seen, j part, in ohms",
+    "value": 58.6,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12 ratio once, in ohms",
+    "value": "11.5 + j15.3",
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 13 turns, primary and secondary",
+    "value": "200 and 800",
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 13 primary supply, in volts",
+    "value": 115,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 13 secondary current, in amps",
+    "value": 2.3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 13 primary current, 800 × 2.3 ÷ 200, in amps",
+    "value": 9.2,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 13 ampere-turns, in At",
+    "value": 1840,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 13 secondary volts, in volts",
+    "value": 460,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 13 power each side, in watts",
+    "value": 1058,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 13 slips, in amps",
+    "value": "0.6 and 2.3",
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example rating, in kVA",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "Worked example 440 V full-load current, in amps",
+    "value": 22.7,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example 115 V full-load current, in amps",
+    "value": 87.0,
+    "kind": "computed"
+   },
+   {
+    "label": "Loss of a good real transformer, in per cent",
+    "value": 1,
+    "kind": "constant",
+    "source": 18
+   },
+   {
+    "label": "Most secondary volts at 880 primary turns",
+    "value": 460,
+    "kind": "computed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "In a transformer, both windings share one flux. So every turn gets the same voltage, and the volts follow the turns. The supply holds that flux, so a load cannot move it. Whatever ampere-turns the secondary draws, the primary cancels with its own. So the amps go the other way, and power in equals power out.\n\nEach turn gets an emf set by how fast the flux through it changes, as the last lesson showed. Picture an [[ideal transformer]]: all the flux stays in the core, so the same flux threads every turn of both windings.[^3] Then every turn gets the same volts. On 440 V, a primary of 880 turns has 0.5 V per turn. A secondary of 230 turns adds up 230 of them, which makes 115 V. So V2 ÷ V1 = N2 ÷ N1.[^1] The windings share only the flux. No wire joins them, so the secondary is a circuit of its own.\n\nNow close a 5 Ω load on the secondary. It draws 115 ÷ 5 = 23 A, so its 230 turns carry 5290 ampere-turns. By Lenz's law they push against the change that made them. On their own they would shrink the flux. But the flux must still make 440 V in the primary, to match the supply. So the primary draws extra current, just enough to cancel them: 5290 ÷ 880 = 6.01 A. This is the [[ampere-turn balance]], N1 × I1 = N2 × I2. A step-down transformer's secondary has fewer turns, so it carries more current, not less. Multiply volts by amps on each side, and both give 2645 W. The transformer passes power on, and ideally makes and uses none.[^2]\n\nThe supply sees only its 440 V and the 6.01 A it gives. So to the supply, the 5 Ω load looks like 440 ÷ 6.01 = 73.2 Ω. On this side the volts are higher by the turns ratio, and the amps lower by it. So the load looks bigger by the ratio squared: 5 × (880 ÷ 230)² = 73.2 Ω. This is the load's [[reflected impedance]]. This picture is simplified. A real transformer needs a small magnetising current, loses a little power, as little as 1% in a good one,[^18] and its output sags a little under load. **In an ideal transformer the volts follow the turns, the amps go the other way, and power in equals power out.[^2]**"
+ },
+ "analogy": {
+  "text": "Think of two meshed gears, from a gearbox you have taken apart. Where the teeth meet, each tooth pushes on the other with the same force. So each gear's torque follows its teeth, as each winding's volts follow its turns. The gear with more teeth turns slower, as the winding with more turns carries less current. Torque times speed is the same on both shafts, as volts times amps is on both windings.",
+  "breaks": "A gearbox holds a steady torque with its shafts still, but a transformer passes nothing on DC: its flux must keep changing. And metal teeth join two gears, while only the flux joins two windings, so the secondary is a separate circuit."
+ },
+ "practice": {
+  "text": "- Treat a secondary as live whenever its primary is energised. Its full voltage is there with no load at all.\n- Find the turns ratio, N1 ÷ N2. In an ideal transformer it equals V1 ÷ V2. For 440 V to 115 V it is 3.83.\n- Volts: V2 = V1 × N2 ÷ N1.\n- Amps: I1 = I2 × N2 ÷ N1. On a step-down, the secondary's current is the larger.\n- Check the power: V1 × I1 should match V2 × I2. A real transformer gives out a little less than it takes in.\n- To see a load from the primary side, multiply its impedance by (N1 ÷ N2)². To move one the other way, divide by it.\n- Size each side's cables and protection for that side's own current.\n\n**Rules of thumb:** Volts go with the turns. Amps go against them. Volts times amps stays the same. The supply sets the flux, not the load.\n\n**Worked example:** A single-phase 10 kVA transformer steps 440 V down to 115 V. Its turns ratio is 440 ÷ 115 = 3.83. At full load, the 440 V side takes 10,000 ÷ 440 = 22.7 A. The 115 V side gives 10,000 ÷ 115 = 87.0 A. Check: 87.0 ÷ 22.7 = 3.83, the turns ratio again. A 5 Ω load on the 115 V side looks like 5 × (440 ÷ 115)² = 73.2 Ω from the 440 V side.\n\n**Common mistakes**\n- Thinking a step-down transformer steps the current down too. It steps it up.\n- Expecting a heavy load to push the core towards saturation. The supply sets the flux, and the primary cancels the load's ampere-turns.\n- Scaling an impedance by the ratio once. It takes the ratio squared.\n- Turning the ratio upside down. Ask which side has the higher voltage. That side carries the smaller current and sees the bigger impedance."
+ },
+ "say": null,
+ "checks": [],
+ "sources": [
+  {
+   "n": 1,
+   "title": "15.6 Transformers - University Physics Volume 2 | OpenStax",
+   "url": "https://openstax.org/books/university-physics-volume-2/pages/15-6-transformers",
+   "quote": "which shows that the ratio of the secondary to primary voltages in a transformer equals the ratio of the number of turns in their windings."
+  },
+  {
+   "n": 2,
+   "title": "3/Chapter 16",
+   "url": "https://www.appstate.edu/~brian/tec-1023/labs/x-formers.pdf",
+   "quote": "The current ratio in a transformer is the inverse of the ratio for voltage transfor- mation. The transformer does not create power, and it is not designed to consume power."
+  },
+  {
+   "n": 3,
+   "title": "15.6 Transformers - University Physics Volume 2 | OpenStax",
+   "url": "https://openstax.org/books/university-physics-volume-2/pages/15-6-transformers",
+   "quote": "We assume the ideal case for which all magnetic field lines are confined to the core so that the same magnetic flux permeates each turn of both the primary and the secondary windings."
+  },
+  {
+   "n": 18,
+   "title": "15.6 Transformers - University Physics Volume 2 | OpenStax",
+   "url": "https://openstax.org/books/university-physics-volume-2/pages/15-6-transformers",
+   "quote": "A good transformer can have losses as low as 1% of the transmitted power, so this is not a bad assumption."
+  }
+ ],
+ "confidence": "simplified",
+ "contested": null
+}

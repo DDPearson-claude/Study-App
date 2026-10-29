@@ -1,0 +1,414 @@
+{
+  "iid": "i8",
+  "title": "Transformers on the job",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the flux overshoot the knee to twice its normal peak and the current spike red, when you switch on at a voltage zero instead of a peak.",
+    "title": "The knee on the job",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Screen",
+        "min": 0,
+        "max": 13,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "Fourteen screens on three cards, with Back and Continue. Five show an idea; nine ask you to try it.\n\nThe switch-on card. Left, a ring core with one winding and a flux bar. Right, lesson 2's B-H curve, sketched: steep, a knee at 1.2 times the normal peak flux, then nearly flat, with a dot riding it. Its Flux axis stands at zero current. Below, on one time axis: supply voltage; core flux, dashed at its normal peaks and the knee; primary current. Two sliders. Switch-on point, 0° to 90° after a rising voltage zero in steps of 15°, ends marked zero and peak, opening at 0°, with a marker on the voltage trace. Flux left in, 0 to 0.8 of the normal peak in steps of 0.2, pushing the same way as the first half-cycle, opening at 0. Switch on draws five cycles over 2 s.\n\nIts rule, with flux in times the normal peak. Offset = flux left in + cos(switch-on point). Flux = offset − cos(the wave's angle), so it starts at the flux left in. The offset holds to the first flux peak, half a cycle after the rising zero, then halves every cycle, a rate chosen for the picture. So the first flux peak = 1 + flux left in + cos(switch-on point). Current, in times full load: 0.02 × flux up to the knee, and 0.024 + 15 × (flux − 1.2) past it, either way round. Past the knee the trace, the bar and the dot turn red. Readouts, wrapping on a phone: First flux peak, × normal, one decimal; Peak current, × full load, two decimals up to the knee and whole numbers past it, since the slope past the knee is chosen for the picture. At a zero: 2.0 and 12 empty, 2.6 and 21 with 0.6 left, 2.8 and 24 with 0.8 left. At 60°, empty: 1.5 and 5. At a peak: 1.0 and 0.02 empty, 1.4 and 3 with 0.4 left.\n\nThe CT card. A busbar passes once through a ring core: a one-turn primary carrying a steady 400 A. An 80-turn secondary runs to a meter circuit. A burden picker, wrapping on a phone: Shorted, 0.6 Ω, 2 Ω, 4 Ω, Open, opening at Shorted. A flux bar with the knee marked, and two cycles of busbar current and secondary voltage.\n\nIts rule. Below the knee the ampere-turns balance, 400 × 1 = 5 × 80, so the secondary carries 5 A. Volts needed = 5 × (burden + 0.2 Ω of winding). The flux follows those volts, with the knee at 30 V. Readouts: Volts to drive 5 A, V, one decimal; Core flux, % of knee, whole numbers: 1.0 V and 3%, 4.0 V and 13%, 11.0 V and 37%, 21.0 V and 70%. Open: no secondary current, so all 400 ampere-turns drive the core. The bar slams into saturation each half-cycle and flips near each current zero. The voltage sits flat, with a tall, narrow red spike off the scale at each flip. Readouts: no limit and saturated, labelled Up to 4000 V measured on large CTs.\n\nThe isolating card: two drawings, stacked on a phone. Isolating: two windings, 440 V in, 115 V out, a gap between them. Auto: one winding across 440 V, with 115 V taken from a tap to its lower end, and a red mark where output joins input. A ratio picker, 440 V to 115 V or 440 V to 400 V, opening at 115 V. A bar splits the auto's power into Transformed and Passed straight through. Its rule: the supply current flows straight on into the load, carrying output ÷ input of the power. Transformed = 1 − output ÷ input: 74% and 26% at 115 V, 9% and 91% at 400 V.\n\nScreen 1, try it, a recall, typed. No picture. “An empty capacitor is switched straight onto a 325 V peak. The supply and wiring have 1 Ω. What current flows at the first instant?” Typed, in A, whole numbers: answer 325, want “325 A”. Slips: 0, “An empty capacitor holds 0 V, so all 325 V falls across the 1 Ω.”; 3.25, “That is through a 100 Ω precharge resistor.” Hint otherwise: “325 V ÷ 1 Ω.” Why: “325 ÷ 1 = 325 A.” A right Check says “Right, you still have it.” Read: “An empty capacitor meets a 325 V peak through 1 Ω: what current flows at the first instant?”\n\nScreen 2, show. The switch-on card, sliders hidden. The words: “A transformer can surge at switch-on too, for a different reason. The voltage sets how fast the flux changes. So the flux is the voltage's running total, and it peaks at each voltage zero. At a rising zero it sits at its lowest peak. Each half-cycle swings it to the other peak, two peaks' worth. Switch on at a zero and it starts from nothing instead. The same swing takes it to twice its normal peak. Past the knee the iron is full, so the current soars.” Read: “Switched on at a zero with an empty core, the flux climbs to 2.0 times its normal peak. The current spikes red to 12 times full load.” Still: point 0°, flux left in 0, after Switch on.\n\nScreen 3, try it, typed. The picture: the switch-on card at a zero with 0.6 left in, readouts ? until Check. “A transformer is switched on at a voltage zero. Its core still holds 0.6 of the normal peak flux. That flux pushes the same way as the first half-cycle. How high does the flux climb, in times its normal peak?” Typed, in × normal peak, one decimal: answer 2.6, want “2.6 × normal peak”. Slips: 2, “Add the 0.6 still in the core.”; 1.6, “From a zero the climb is two peaks, not one.”; 1.4, “Flux left in the same way adds to the climb.” Hint otherwise: “Flux left in + 2.” Why: “0.6 + 2 = 2.6 times the normal peak.” Read: “Switched on at a zero with 0.6 left in, how high does the flux climb?”\n\nScreen 4, show. The switch-on card with both sliders. The words: “Switch on at a voltage peak instead, and nothing overshoots. In normal running, the flux passes through zero there. So an empty core starts just where it should be. The flux swings only to its normal peak. The current stays at 0.02 times full load. So two things set the surge: the moment on the wave and the flux left in. That surge is the [[inrush current]]. Its peaks can reach 8 to 30 times full-load current.[^1] Try other moments and flux left in, then switch on again.” Read: “Switched on at a peak with an empty core, the flux swings only to its normal peak. The current stays at 0.02 times full load.” Still: point 90°, flux left in 0, after Switch on.\n\nScreen 5, try it. The picture: the switch-on card at a zero with 0.8 left in, after Switch on. “A breaker feeding a transformer trips the moment it closes. Closed again, it holds. Nothing else has changed. What most likely tripped it?” Four choices, in this order: “Inrush current at switch-on”; “A fault in the windings”; “An overload on the 115 V side”; “The core's iron loss”. Right, the first. Hint for the second: “A winding fault would trip it again.” Hint for the third: “The load has not changed.” Hint for the fourth: “Iron loss is small and steady.” Why: “The first close caught a worse moment on the wave, with flux left in the same way. Inrush can even look like an internal fault to differential protection.[^1]” Read: “A breaker trips on closing onto a transformer, then holds. What most likely tripped it?”\n\nScreen 6, show. The CT card, Shorted. The words: “A current transformer, a CT, is fed a current, not a voltage. Its primary is a busbar through its core, one turn carrying 400 A. The circuit's load sets that current. The 80-turn secondary drives 5 A round the meter. Its ampere-turns almost cancel the busbar's. The small difference makes the flux, just enough for the volts that push 5 A round. The meter circuit's resistance is the CT's [[burden]]. Its own winding has 0.2 Ω, so even shorted it needs 5 × 0.2 = 1.0 V.” Still: burden Shorted.\n\nScreen 7, try it, typed. The picture: the CT card at 0.6 Ω, readouts ? until Check. “A CT's 80-turn secondary carries 5 A. Its own winding is 0.2 Ω and the meter circuit 0.6 Ω. What voltage must the secondary make?” Typed, in V, one decimal: answer 4.0, want “4.0 V”. Slips: 3, “Add the winding's own 0.2 Ω.”; 1, “That is the winding alone. Add the meter's 0.6 Ω.”; 0.8, “That is the resistance. Multiply by the 5 A.” Hint otherwise: “5 A × (0.6 + 0.2) Ω.” Why: “5 × 0.8 = 4.0 V. That is 13% of the 30 V knee.” Read: “5 A through 0.2 Ω of winding and a 0.6 Ω meter circuit: what voltage must the secondary make?”\n\nScreen 8, show. The CT card, Open. The words: “An open secondary on load is dangerous. With the busbar still carrying 400 A, nothing cancels its 400 ampere-turns. They drive the core into saturation. Saturated, the flux sits flat and makes no voltage. Near each current zero it flips to the other side in a moment. That fast flip makes a tall, narrow spike. As much as 4000 V has been measured on large CTs.[^2] A voltage transformer, a VT, is fed a voltage instead. So a VT is safe open, and a short on it is a fault.” Read: “With the secondary open and 400 A in the busbar, the core saturates. The secondary spikes red at every flip.” Still: burden Open.\n\nScreen 9, try it. The picture: the CT card, Shorted. “A panel ammeter fed by a CT must be changed. The circuit stays on load. What do you do first?” Four choices, in this order: “Short the CT's secondary at its shorting terminals”; “Disconnect the ammeter's leads”; “Wait for a light load, then disconnect”; “Fit a fuse in the secondary”. Right, the first. Hint for the second: “That opens the secondary with current in the busbar.” Hint for the third: “While current flows, an open secondary can still make high voltages.” Hint for the fourth: “A fuse that blows opens the secondary.” Why: “The short keeps the ampere-turns balanced while the meter is out.” Read: “A CT-fed ammeter must be changed with the circuit on load. What do you do first?”\n\nScreen 10, show. The isolating card at 440 V to 115 V. The words: “An [[auto-transformer]] gives no isolation. It is one winding with a tap, so its output is joined to its input. An earth fault on either side is an earth fault on both. So it cannot make a separate insulated system. The supply's current is the power ÷ 440. It flows straight on into the load at 115 V, so it carries 115 ÷ 440 of the power, 26%. Only the other 74% is transformed and needs iron and copper. So an auto is much smaller only near a 1:1 ratio.” Still: ratio 440 V to 115 V.\n\nScreen 11, try it, typed. The picture: the isolating card at 440 V to 400 V, the bar ? until Check. “An auto-transformer steps 440 V to 400 V. What share of its power is transformed?” Typed, in %, whole numbers: answer 9, want “9%”. Slips: 91, “That is the share passed straight through.”; 74, “That is for 440 V to 115 V.”; 10, “Divide by 440, the input, not 400.” Hint otherwise: “1 − 400 ÷ 440.” Why: “400 ÷ 440 = 0.909. Then 1 − 0.909 = 0.091, so 9%. Only that 9% needs iron and copper, so this auto can be much smaller than an isolating one.” Read: “An auto-transformer steps 440 V to 400 V: what share of its power is transformed?”\n\nScreen 12, try it, the first of three mixed puzzles, typed. No picture. “A CT is marked 200/5 A. Its busbar is one turn. How many turns has its secondary?” Typed, no unit, whole numbers: answer 40, want “40”. Slips: 5, “That is its secondary current.”; 1000, “Ampere-turns balance, so divide.”; 0.025, “That divides the wrong way.” Hint otherwise: “200 × 1 = 5 × turns.” Why: “200 ÷ 5 = 40.” Read: “A 200/5 A CT on a one-turn busbar: how many secondary turns?”\n\nScreen 13, try it, the second mixed puzzle, typed. No picture. “A transformer's full-load current is 50 A. Its impedance is 4%, and its supply is stiff. What current flows into a short at its terminals?” Typed, in A, whole numbers: answer 1250, want “1250 A”. Slips: 2, “That multiplies by 4%. Divide by it instead.”; 200, “That multiplies by 4. Divide by 4%, which is × 100 ÷ 4.”; 12.5, “That divides by 4. Divide by 4%, which is × 100 ÷ 4.”. Hint otherwise: “50 A × 100 ÷ 4.” Why: “100 ÷ 4 = 25, so the short draws 25 × 50 = 1250 A.” Read: “A transformer with 50 A full-load current and 4% impedance, on a stiff supply: what current flows into a short at its terminals?”\n\nScreen 14, try it, the third mixed puzzle. No picture. “A voltage transformer, a VT, steps the system voltage down for meters. Like a power transformer's, its primary sits across that voltage. What happens if its secondary is shorted?” Three choices, in this order: “It feeds a fault current”; “Nothing, as a CT runs shorted”; “It spikes, as an open CT does”. Right, the first. Hint for the second: “A CT is fed a current. A VT is fed a voltage.” Hint for the third: “The spike needs a fixed current with nothing to cancel it.” Why: “Its voltage drives a large current through its own small impedance, like any power transformer's.” Read: “What happens if a VT's secondary is shorted?”\n\nThe finish. The words: “Saturation explains both hazards. Switch on at a bad moment, and the flux overshoots the knee, so the current surges. Open a CT on load and its core saturates, so its secondary spikes. Short a CT before you open its circuit. Never short a VT. An auto-transformer gives no isolation.”",
+    "ignores": "The B-H curve is a sketch: a knee and straight lines either side, with no hysteresis loop. The offset halves each cycle at a rate chosen for the picture. Real units fade at a rate set by their windings' resistance, and large ones take longer. The supply is stiff, so its voltage does not dip during the surge. Only one phase is drawn. Each limb of a three-phase unit meets a different moment on the wave. The CT keeps an exact ratio below its knee, ignoring its small magnetising current. Its open-circuit spikes are drawn off the scale, not computed. The auto-transformer's share ignores losses.",
+    "numbers": [
+      {
+        "label": "Screen, 1 to 14 (the stepper)",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Number of screens",
+        "value": 14,
+        "kind": "assumed"
+      },
+      {
+        "label": "Supply, in volts rms",
+        "value": 440,
+        "kind": "assumed"
+      },
+      {
+        "label": "Secondary, in volts rms",
+        "value": 115,
+        "kind": "assumed"
+      },
+      {
+        "label": "Knee, in times the normal peak flux",
+        "value": 1.2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Switch-on point slider, 0 to 90 in steps of 15, degrees",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Flux left in slider, 0 to 0.8 in steps of 0.2",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Cycles drawn after switch-on",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Time to draw them, in seconds",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Current per unit flux below the knee, times full load",
+        "value": 0.02,
+        "kind": "assumed"
+      },
+      {
+        "label": "Current rise per unit flux past the knee, times full load",
+        "value": 15,
+        "kind": "assumed"
+      },
+      {
+        "label": "Share of the offset kept each cycle",
+        "value": 0.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "First flux peak at a zero, nothing left in",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "First flux peak at a zero, 0.6 left in",
+        "value": 2.6,
+        "kind": "computed"
+      },
+      {
+        "label": "First flux peak at a zero, 0.8 left in",
+        "value": 2.8,
+        "kind": "computed"
+      },
+      {
+        "label": "First flux peak at 60°, nothing left in",
+        "value": 1.5,
+        "kind": "computed"
+      },
+      {
+        "label": "First flux peak at a peak, nothing left in",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "First flux peak at a peak, 0.4 left in",
+        "value": 1.4,
+        "kind": "computed"
+      },
+      {
+        "label": "Peak current at a zero, nothing left, times full load",
+        "value": 12,
+        "kind": "computed"
+      },
+      {
+        "label": "Peak current at a zero, 0.6 left, times full load",
+        "value": 21,
+        "kind": "computed"
+      },
+      {
+        "label": "Peak current at a zero, 0.8 left, times full load",
+        "value": 24,
+        "kind": "computed"
+      },
+      {
+        "label": "Peak current at 60°, nothing left, times full load",
+        "value": 5,
+        "kind": "computed"
+      },
+      {
+        "label": "Peak current at a peak, nothing left, times full load",
+        "value": 0.02,
+        "kind": "computed"
+      },
+      {
+        "label": "Peak current at a peak, 0.4 left, times full load",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Inrush peaks, times full-load current",
+        "value": "8 to 30",
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "CT busbar current, in amps",
+        "value": 400,
+        "kind": "assumed"
+      },
+      {
+        "label": "CT rated secondary current, in amps",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "CT busbar turns",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "CT secondary turns",
+        "value": 80,
+        "kind": "computed"
+      },
+      {
+        "label": "CT secondary winding resistance, in ohms",
+        "value": 0.2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Burden picker settings, in ohms",
+        "value": "0, 0.6, 2 and 4",
+        "kind": "assumed"
+      },
+      {
+        "label": "CT knee, in volts",
+        "value": 30,
+        "kind": "assumed"
+      },
+      {
+        "label": "Volts to drive 5 A, in volts",
+        "value": "1.0, 4.0, 11.0 and 21.0",
+        "kind": "computed"
+      },
+      {
+        "label": "Core flux, per cent of knee",
+        "value": "3, 13, 37 and 70",
+        "kind": "computed"
+      },
+      {
+        "label": "Voltage measured on large open CTs, in volts",
+        "value": 4000,
+        "kind": "constant",
+        "source": 2
+      },
+      {
+        "label": "Auto second ratio's output, in volts",
+        "value": 400,
+        "kind": "assumed"
+      },
+      {
+        "label": "Auto share transformed, 440 V to 115 V, per cent",
+        "value": 74,
+        "kind": "computed"
+      },
+      {
+        "label": "Auto share passed through, 440 V to 115 V, per cent",
+        "value": 26,
+        "kind": "computed"
+      },
+      {
+        "label": "Auto share transformed, 440 V to 400 V, per cent",
+        "value": 9,
+        "kind": "computed"
+      },
+      {
+        "label": "Auto share passed through, 440 V to 400 V, per cent",
+        "value": 91,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 1 peak voltage, in volts",
+        "value": 325,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 1 supply and wiring, in ohms",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 1 current, in amps",
+        "value": 325,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 1 precharge resistor, in ohms",
+        "value": 100,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 1 slips, in amps",
+        "value": "0 and 3.25",
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 3 slips",
+        "value": "2, 1.6 and 1.4",
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 7 slips",
+        "value": "3, 1 and 0.8",
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 11 ratio, 400 ÷ 440",
+        "value": 0.909,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 11 slips, per cent",
+        "value": "91, 74 and 10",
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 12 CT rating, in amps",
+        "value": 200,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 12 secondary turns",
+        "value": 40,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 12 slips",
+        "value": "5, 1000 and 0.025",
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 13 full-load current, in amps",
+        "value": 50,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 13 impedance, per cent",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 13 fault current, in amps",
+        "value": 1250,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 13 slips, in amps",
+        "value": "2, 200 and 12.5",
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example impedance multiplier, 100 ÷ 4",
+        "value": 25,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example rating, in kVA",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example turns ratio",
+        "value": 3.83,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example full-load current at 440 V, in amps",
+        "value": 22.7,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example full-load current at 115 V, in amps",
+        "value": 86.96,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example inrush peaks, in amps",
+        "value": "182 to 681",
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example iron loss, in watts",
+        "value": 100,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example copper loss at full load, in watts",
+        "value": 400,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example efficiency at full load, in per cent",
+        "value": 95.2,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example impedance, resistance and reactance, per cent",
+        "value": "5, 4 and 3",
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example output at 0.8 lagging, in volts",
+        "value": 109.25,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example fault current at its terminals, in amps",
+        "value": 1739,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example power an auto would transform, in kVA",
+        "value": 7.4,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "Two hazards on the job share one cause: the core saturating. Switch a transformer on at the wrong moment, and its flux overshoots the knee. It then draws a surge many times its full-load current. Open a current transformer's secondary while its primary carries current, and its core saturates every half-cycle. Tall voltage spikes then appear across the open terminals. A third point is about joins, not saturation. An auto-transformer's output is joined to its input, so it gives no isolation.\n\nStart from the rule that runs through every transformer. The supply voltage sets how fast the flux changes. So the flux is the running total of the voltage. In normal running, the flux swings between equal peaks either way. It rises while the voltage is positive and stops rising as the voltage reaches zero. So the flux peaks at each voltage zero. Now switch on at a voltage zero with an empty core. The flux should be at a peak there, but it starts from nothing. The next half-cycle of voltage still adds a full swing of two peaks' worth. So the flux climbs to twice its normal peak. Flux left in the iron from last time adds on top, if it pushes the same way. A core normally runs not far below its knee, so this takes it far past. Past the knee the iron is full and helps little more. Each extra bit of flux is then pushed through almost as if the core were air. That takes a great deal of current. That surge is the [[inrush current]]. It comes mostly from the core saturating. Its peaks can reach 8 to 30 times the full-load current.[^1] Switch on at a voltage peak with an empty core instead, and the flux starts where it should be. Nothing overshoots. So two things set the surge: the moment on the wave, and the flux left in.\n\nA current transformer, a CT, turns the rule round. A power transformer is fed from a voltage, so the voltage fixes its flux. A CT's primary is a busbar carrying whatever current the circuit's load draws. Its 80-turn secondary drives 5 A round the meter. Those ampere-turns almost cancel the busbar's 400. The core then needs only enough flux to make the few volts that push 5 A round the meter circuit. That circuit is the CT's [[burden]]. Open the secondary, and nothing cancels the busbar's ampere-turns. They drive the core into saturation. Saturated, the flux sits flat and makes no voltage. Near each current zero it flips to the other side in a moment. That fast change makes a tall, narrow spike. With current in the primary, an open secondary can make high voltages. As much as 4000 V has been measured on large CTs left open.[^2] A voltage transformer, a VT, is fed from the system voltage like a power transformer. So it runs safely open, and a short on it is a fault.\n\nAn isolating transformer's two windings are not joined. An [[auto-transformer]] is one winding with a tap, so its output is joined to its input. Its two sides are one connected system. An earth fault on either is an earth fault on both. So it cannot make a separate insulated system. The supply's current is the power ÷ 440. It flows straight on into the load at 115 V, so it carries 115 ÷ 440 of the power, 26%. Transformer action carries the other 74%. Only that share needs a transformer's iron and copper. So an auto is much smaller than an isolating one only when its ratio is near one. At 440 V to 115 V it saves only about a quarter.\n\nSo on a ship, transformers make the isolated systems. They feed distribution kept separate from the main supply. US rules for ships ask for at least two independent transformers. With the largest out of service, the rest must still carry the ship's service loads.[^3] A ship taking shore power often has a transformer on its own side, feeding its main switchboard. An ungrounded, insulated system needs a fully insulated winding.[^4] One earth fault leaves such a system running, with the healthy lines at full line voltage to earth. HV transformers also get their own protection, and a polarisation index test, a PI test, of their insulation. This picture is simplified: a sketched knee, a stiff supply, one phase, and a CT that keeps its ratio below the knee. **Core saturation explains both the surge at switch-on and an open CT's dangerous voltage, while an auto-transformer gives no isolation.**"
+  },
+  "analogy": {
+    "text": "Think of breaking the supply to a contactor coil. The coil's current wants to keep flowing. So the voltage across the opening contacts leaps until it arcs. A CT's secondary is like that coil's circuit, and the busbar holds its current up. Open it, and the voltage across the gap leaps.",
+    "breaks": "The coil kicks once from the energy it stored, then it is done. An open CT kicks twice every cycle, for as long as the busbar carries current. Its spikes come from saturated flux flipping, not from stored energy alone."
+  },
+  "practice": {
+    "text": "**Safe way first:** Treat a CT's secondary as dangerous whenever its busbar carries current. Before you remove or change a meter or relay on it, short the secondary at its shorting terminals. Remove the short only once the new device is wired in. A VT is the opposite: open is safe, and a short is a fault. When you energise a transformer, expect a surge. Make sure its protection rides through it.\n\n**Steps:**\n- Energising: inrush peaks can reach 8 to 30 times full-load current.[^1] Work out full-load current as rating ÷ voltage for single-phase, or rating ÷ (1.732 × line voltage) for three-phase. Then multiply.\n- A trip on switch-on: inrush can look like an internal fault to differential protection and trip it. Find which protection operated before you close again.\n- CT ratio: secondary turns = busbar current ÷ secondary current, for a one-turn busbar.\n- CT secondary volts = 5 A × (burden + winding resistance). Keep it well below the knee.\n- Choosing a transformer: if the output must be a separate or insulated system, use an isolating transformer. On an ungrounded system, its winding must be fully insulated.\n- Two independent transformers: size them so that, with the largest out, the rest still carry the service load.\n- Auto-transformer: transformed share = 1 − lower voltage ÷ higher voltage.\n\n**Rules of thumb:** The worst case is switching on at a voltage zero with flux left in that pushes the same way. At a voltage peak with an empty core, the flux starts where it should. A CT runs safely shorted and must not run open. A VT runs safely open and must not be shorted. An auto-transformer is much smaller than an isolating one only when its ratio is near one.\n\n**Worked example:** A 10 kVA single-phase transformer steps 440 V to 115 V for an insulated 115 V system. Its turns ratio is 440 ÷ 115 = 3.83. On the 440 V side, full-load current is 10,000 ÷ 440 = 22.7 A. On the 115 V side, it is 10,000 ÷ 115 = 86.96 A. At switch-on its inrush peaks could reach 8 × 22.7 = 182 A to 30 × 22.7 = 681 A. With 100 W of iron loss and 400 W of copper loss, it is 95.2% efficient at full load and unity power factor. Its 5% impedance is made of 4% resistance and 3% reactance. At full load and 0.8 lagging, its output sags to 109.25 V. A short at its terminals draws 1739 A. An auto-transformer would transform only 74% of the power, 7.4 kVA. But its 115 V side would be joined to the 440 V system. So it must be an isolating transformer.\n\n**Common mistakes**\n- Opening a CT's secondary to change a meter on load. Short it first.\n- Fusing a CT's secondary. A fuse that blows opens it.\n- Shorting a VT's secondary as you would a CT's. It feeds a fault.\n- Taking every trip at switch-on for a winding fault. Inrush can trip protection set too keenly.\n- Expecting a light load to make an open CT safe. While current flows in the primary, an open secondary can still make high voltages.\n- Taking an auto-transformer for an isolating one. Its output is joined to its input."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+    {
+      "n": 1,
+      "title": "ABB Dry-type Transformers",
+      "url": "https://new.abb.com/docs/librariesprovider68/default-document-library/data-center-forum-2017/dryabb-data-center-forum-2017---dry_transformers_michael_gogioli.pdf",
+      "quote": "This inrush current, which appears as an internal fault to the differential relays , may reach instantaneous peaks of 8 to 30 times the full load current."
+    },
+    {
+      "n": 2,
+      "title": "What are Current Transformer (CT) shorting blocks used for? Where can they be found? Are there any hazards of having the CT secondary open-circuited? | Schneider Electric USA",
+      "url": "https://www.se.com/us/en/faqs/FA125574",
+      "quote": "As much as 4000V on the secondary has been measured on large core CTs with an open-circuited secondary."
+    },
+    {
+      "n": 3,
+      "title": "46 CFR 111.10-9 - Ship's service supply transformers; two required.",
+      "url": "https://www.govinfo.gov/app/details/CFR-1999-title46-vol4/CFR-1999-title46-vol4-sec111-10-9",
+      "quote": "there must be at least two installed, independent power transformers. With the largest transformer out of service, the capacity of the remaining units must be sufficient to supply the ship service loads."
+    },
+    {
+      "n": 4,
+      "title": "Delta and Wye Transformer Connections",
+      "url": "https://www.maddox.com/resources/articles/delta-wye-connections",
+      "quote": "The winding insulation needs to be insulated for the type of system feeding it. Ungrounded systems require a fully insulated winding."
+    }
+  ]
+}

@@ -1,0 +1,469 @@
+TASK: build-interactive
+
+You are building one small interactive page for "My University", Dan's personal learning app. It lets him see one idea for himself by playing with it. It runs inside a sandboxed iframe on top of the house kit described below, and the app tests it automatically before Dan sees it.
+
+## The idea
+Topic: Transformers and magnetism
+Idea: The real transformer: losses, tests and efficiency (A real transformer has a fixed iron loss while energised and a copper loss growing with load squared, and two tests measure each.)
+Kind: quantity
+Dan knows a little about this topic. Show an equation on the page only if every symbol in it is labelled on the picture; otherwise say the rule in words.
+
+## What the interactive must show
+Brief: The one thing you should see is the copper-loss bar fall from 400 W to match the flat 100 W iron-loss bar, and efficiency peak, while the flux bar holds still, when you drag the load from 100% to 50%.
+Title (the app shows it above the frame, so do not repeat it): Where the watts go
+The rule (the app shows it just above the frame, under "What you're looking at"): Thirteen small screens on one picture, with Back and Continue. Five show an idea and eight ask you to try it.
+
+The picture. A 10 kVA, 440 V to 115 V transformer, say, drawn as its approximate equivalent circuit, seen from the 440 V side. On the left, a 440 V, 60 Hz supply with a wattmeter and an ammeter. Across it, the shunt branch for the core: a resistor beside a coil, labelled Core. In line after it, the series branch for the windings: 0.77 Ω of resistance and 0.58 Ω of leakage reactance, labelled Windings. Then the last lesson's ideal transformer, 880 turns to 230, with a flux bar on its core, and the load. A branch carrying current is drawn in ink, one carrying none or almost none faint. Below, two loss bars on one scale, Iron loss and Copper loss, in W. Under them, a plot of efficiency, 88% to 97%, against load, 0 to 125%: a dot on the curve, a dashed line at its 50% peak. At light load the curve drops off the bottom.
+
+The controls, each shown only where a screen uses it. A load slider, 0 to 125% in steps of 5, opening at 100. A power factor switch, 1.0 or 0.8 lagging, opening at 1.0. A test selector, On load, Open-circuit test or Short-circuit test, opening On load. Its buttons wrap onto two rows on a phone. In either test the load slider is greyed out.
+
+The rules. Full-load current at 440 V: 10,000 ÷ 440 = 22.7 A. Load fraction x = slider ÷ 100. Output = 10,000 × x × power factor, in W. Iron loss = 100 W, fixed by the flux, which the supply holds at the last lesson's 1.88 mWb. Copper loss = 400 × x², in W: it is I²R, and the current follows the load. The 0.77 Ω gives 400 W at 22.7 A. Efficiency = output ÷ (output + both losses), in %, and 0 at no load, where nothing is delivered. It peaks where the copper loss equals the iron loss, at x = √(100 ÷ 400) = 0.5, at either power factor.
+
+The tests. Open circuit: the secondary open on 440 V. Only the shunt branch carries current, say 0.5 A. Flux 1.88 mWb, wattmeter 100 W, copper loss 0.0 W. Short circuit: a link across the secondary, the supply down to 22.0 V, driving 22.7 A through the series branch's 0.97 Ω. Nearly all the current takes that branch. The core's branch, on 5% of the voltage, takes only a trickle. Wattmeter 400 W. Flux 1.88 × 22.0 ÷ 440 = 0.09 mWb. The model's iron loss goes with the voltage squared, a sketch: 100 × (22.0 ÷ 440)² = 0.25 W.
+
+The readouts, wrapping onto two rows on a phone, to one decimal place: Load, %; Output, kW; Iron loss, W; Copper loss, W; Efficiency, %. In a test: Supply voltage, V; Supply current, A; Wattmeter, W, whole watts. The flux bar reads in mWb, two decimal places.
+
+Screen 1, try it, a recall, typed. "A curve's height is y = 6x − x². Its slope is 6 − 2x. At what x does it reach its top?" Typed, no unit, whole numbers: answer 3, want "3". Slips: 6, "That is where the height is back to zero. The top is where the slope is zero."; 9, "That is the height at the top. The question asks for x." Hint otherwise: "At the top the slope is zero. Solve 6 − 2x = 0." Why: "6 − 2x = 0 gives x = 3. The height there is 18 − 9 = 9. You find the top of an efficiency curve the same way." A right Check says "Still there." and carries on. Read: "The curve y = 6x − x² has slope 6 − 2x. At what x is its top?"
+
+Screen 2, show. The load slider to drag. The words: "A real transformer is the ideal one plus two branches. The ideal one lost nothing. The shunt branch sits across the supply and stands for the core. It takes the small current that magnetises the core. It also takes the iron loss, from hysteresis and eddy currents. The series branch sits in line with the load and stands for the windings. Its resistance wastes power as heat. Its reactance stands for leakage: flux that misses the other winding. Drag the load. Only the series branch's current changes." Read: "A real transformer is the ideal one plus two branches. The shunt branch sits across the supply and stands for the core. The series branch sits in line with the load and stands for the windings. Only the series branch's current changes with the load." Still: on load, 50%.
+
+Screen 3, try it, typed. "This transformer's windings lose 400 W at full load. What do they lose at 75% load?" Typed, in W, whole numbers: answer 225, want "225 W". The copper loss readout shows ? until Check. Slips: 300, "That scales it straight with the load. The loss goes with the current squared."; 400, "That is the full-load figure. At 75% load the current is 0.75 of full." Hint otherwise: "Copper loss = 400 × (load fraction)²." Why: "0.75² = 0.5625. 400 × 0.5625 = 225 W." A right Check sets the load to 75%. Read: "This transformer's windings lose 400 W at full load. What do they lose at 75% load?"
+
+Screen 4, show. The load slider to drag. The words: "Copper loss grows with the load, but iron loss stays put. Drag the load and watch the two bars. The copper loss is I²R, so it goes with the current squared. Full load gives 400 W. Half load gives a quarter, 100 W. The iron loss stays at 100 W from no load to 125%.[^1] It depends on the flux, and the flux bar stays at 1.88 mWb. The supply's voltage holds the flux. The primary cancels the load's ampere-turns. So more load means more current, not more flux." Read: "The copper loss grows with the square of the load. It is 400 W at full load and 100 W at half. The iron loss stays at 100 W, because the supply holds the flux at 1.88 mWb." Still: on load, 100%.
+
+Screen 5, try it, typed. The picture: on load, 50%. "At half load this transformer's iron loss is 100 W. The load rises to full. What is its iron loss now?" Typed, in W, whole numbers: answer 100, want "100 W". The iron loss readout shows ? until Check. Slips: 400, "That grows it with the square, like the copper loss. But the iron loss follows the flux."; 200, "That doubles it with the load. The load does not move the flux." Hint otherwise: "What sets the flux, the load or the supply?" Why: "The supply still holds the flux at 1.88 mWb. Same flux, same iron loss: 100 W. The copper loss grows from 100 W to 400 W." A right Check moves the load to 100%. Read: "At half load this transformer's iron loss is 100 W. The load rises to full. What is its iron loss now?"
+
+Screen 6, show. The load slider and the power factor switch. The words: "Efficiency is output ÷ input. The input is the output plus both losses. At full load and unity power factor, the load takes 10,000 W. The losses are 100 + 400 = 500 W. So the efficiency is 10,000 ÷ 10,500 = 95.2%. Now switch to 0.8 power factor. The current is the same, so the losses are too. But only 8000 W comes out. So the efficiency falls to 94.1%." Read: "At full load and unity power factor, 10,000 W comes out and 500 W is lost. That is 95.2%. At 0.8 power factor, only 8000 W comes out for the same losses. That is 94.1%." Still: on load, 100%, power factor 1.0.
+
+Screen 7, try it, typed. "The same transformer runs at half load, unity power factor. What is its efficiency?" Typed, in %, one decimal place: answer 96.2, want "96.2%". The efficiency readout shows ? until Check. Slips: 90.9, "That uses the full-load copper loss. At half load it is a quarter of that, 100 W."; 94.3, "That halves the copper loss. It goes with the square, so it quarters." Hint otherwise: "Output 5000 W. Losses: 100 W iron, plus 400 × 0.5² copper." Why: "Copper loss = 400 × 0.25 = 100 W. So the losses are 200 W in all. 5000 ÷ 5200 = 96.2%. That beats the 95.2% at full load." A right Check sets the load to 50%. Read: "The same transformer runs at half load, unity power factor. What is its efficiency?"
+
+Screen 8, show. The load slider to drag. The words: "Efficiency peaks at 50% load, where both loss bars read 100 W. Drag the load and watch the dot. Why there? Call the load fraction x. For each watt delivered, the losses go as 100 ÷ x + 400x. The iron part falls as the load grows. The copper part rises. The total is lowest where its slope, 400 − 100 ÷ x², is zero. That needs 400x² = 100. So the copper loss equals the iron loss. Then x = √(100 ÷ 400) = 0.5." Read: "Efficiency peaks at 50% load, where the copper loss equals the 100 W iron loss. Peak load = √(iron loss ÷ full-load copper loss)." Still: on load, 50%.
+
+Screen 9, try it, typed. "Another transformer has 64 W of iron loss and 400 W of copper loss at full load. At what load is it most efficient?" Typed, in %, whole numbers: answer 40, want "40%". Slips: 16, "That is 64 ÷ 400. Take its square root."; 250, "That is upside down. Put the iron loss on top." Hint otherwise: "Peak load = √(iron loss ÷ full-load copper loss)." Why: "64 ÷ 400 = 0.16, and √0.16 = 0.4. So the peak is at 40%. Check: 400 × 0.4² = 64 W of copper loss, equal to the iron loss." Read: "A transformer has 64 W of iron loss and 400 W of full-load copper loss. At what load is it most efficient?"
+
+Screen 10, show. The test selector to switch. The words: "Two tests measure the two losses. The open-circuit test leaves the secondary open. The primary gets its full 440 V. The flux is full, but only a small current flows. So the wattmeter reads the iron loss, 100 W.[^2] The short-circuit test puts a link across the secondary. You raise the voltage from zero until rated current flows. Now the current is full, but the voltage is only 22.0 V. So the wattmeter reads the copper loss, 400 W.[^3]" Read: "With the secondary open at rated voltage, the wattmeter reads the iron loss, 100 W. With it shorted at rated current, on 22.0 V, it reads the copper loss, 400 W." Still: Short-circuit test.
+
+Screen 11, try it, typed. The picture: the short-circuit test, its flux readout ? until Check. "The short-circuit test drives 22.7 A with 22.0 V on the primary. At 440 V the flux peaks at 1.88 mWb. What does it peak at in this test?" Typed, in mWb, two decimal places: answer 0.09, accepting 0.094, want "0.09 mWb". Slips: 1.88, "Rated current flows, but the voltage sets the flux."; 37.6, "The voltage is 20 times lower, so the flux is too." Hint otherwise: "The flux follows the voltage. 22.0 V is 5% of 440 V." Why: "1.88 × 22.0 ÷ 440 = 0.09 mWb, 5% of normal. So the iron loss almost vanishes. The wattmeter reads the copper loss alone." Read: "At 440 V the flux peaks at 1.88 mWb. What does it peak at in the short-circuit test, on 22.0 V?"
+
+Screen 12, try it, the first of two mixed puzzles, typed. "A 10 kVA transformer's open-circuit test reads 80 W. Its short-circuit test at rated current reads 300 W. What is its efficiency at full load, unity power factor?" Typed, in %, one decimal place: answer 96.3, want "96.3%". Slips: 97.1, "That leaves out the iron loss. It is there at every load."; 99.2, "That leaves out the copper loss. At full load it is the whole 300 W." Hint otherwise: "Efficiency = 10,000 ÷ (10,000 + 80 + 300)." Why: "At full load both losses count. 80 + 300 = 380 W. 10,000 ÷ 10,380 = 96.3%." Read: "A 10 kVA transformer tests at 80 W open circuit and 300 W short circuit. What is its efficiency at full load, unity power factor?"
+
+Screen 13, try it, the second mixed puzzle. "You want to measure a transformer's iron loss. How do you set up the test?" Four choices, in this order: "Secondary shorted, rated current"; "Secondary shorted, rated voltage"; "Secondary open, rated current"; "Secondary open, rated voltage". Right, the fourth. Hint for the first: "That is the short-circuit test. Its low voltage gives little flux. So it reads the copper loss." Hint for the second: "Full voltage on a shorted secondary is a dead short. Here it would drive 20 times rated current." Hint for the third: "The iron loss follows the flux. The voltage sets the flux. So set the voltage." Why: "The iron loss needs the full flux, and rated voltage gives it. With the secondary open, only a small current flows. So the copper loss is too small to count." Read: "You want to measure a transformer's iron loss. How do you set up the test?"
+
+The finish. The words: "The supply holds the flux, so the iron loss barely moves with the load. The copper loss grows with the square of the load. Efficiency peaks where the two are equal. The open-circuit test reads the iron loss. The short-circuit test reads the copper loss. Next: the voltage the series branch drops under load."
+What the model leaves out (the app shows this in its own panel; do not repeat it on the page): The circuit is the approximate one. It puts the shunt branch right across the supply. So the flux and the iron loss stay exactly fixed under load. In a real transformer, the series branch's drop lowers the core's voltage very slightly. So both dip very slightly too. The iron loss is fixed only while the supply's voltage and frequency are. Here the open-circuit test's small current does not pass the series branch. So the copper loss reads 0.0 W. Through the 0.77 Ω it would add only 0.19 W. The windings' resistance is held fixed. Real copper's resistance rises as it warms. Loss in the tank and fittings is left out. The load is single-phase. Every current and voltage is rms. The losses are larger than a good transformer's. That makes the bars easy to see. Real open-circuit tests are usually fed from the low-voltage side. Real short-circuit tests are usually fed from the high-voltage side. Either way, they read the same losses.
+Controls (use these ids, ranges and opening values exactly; when the prediction or a check names a setting of a slider, add it to that slider's snap):
+- id "step": Screen, from 0 to 12 in steps of 1, opening at 0
+Outputs: none. No rule computes a number here, so show no readouts beyond plain counts of what is on screen ("4 of 7 at war"): the picture, its labels and the .say line do the teaching.
+Numbers it may show (control = Dan sets it; computed = from the rule; constant = a fixed real value; assumed = an example value, said once as an example in the lead line or a caption, then drawn as a plain value; date = a historical date or fact):
+- Screen, 1 to 13 (the stepper): 0 (control)
+- Number of screens: 13 (assumed)
+- Rating, in kVA: 10 (assumed)
+- Supply, in volts rms: 440 (assumed)
+- Secondary, in volts rms: 115 (assumed)
+- Supply frequency, in Hz: 60 (assumed)
+- Primary and secondary turns: 880 and 230 (assumed)
+- Iron loss at rated voltage, in watts: 100 (assumed)
+- Copper loss at full load, in watts: 400 (assumed)
+- Load slider, 0 to 125 in steps of 5, in per cent: 100 (control)
+- Power factor switch, 1.0 or 0.8 lagging: 1 (control)
+- Test selector, three choices: 0 (control)
+- Full-load current on the 440 V side, in amps: 22.7 (computed)
+- Series resistance seen from 440 V, in ohms: 0.77 (computed)
+- Leakage reactance seen from 440 V, in ohms: 0.58 (assumed)
+- Series impedance seen from 440 V, in ohms: 0.97 (computed)
+- Peak flux at 440 V, in mWb: 1.88 (computed)
+- Open-circuit test current, in amps: 0.5 (assumed)
+- Short-circuit test voltage, in volts: 22 (computed)
+- Short-circuit test voltage, per cent of rated: 5 (computed)
+- Flux in the short-circuit test, in mWb: 0.09 (computed)
+- Iron loss in the short-circuit test, in watts: 0.25 (computed)
+- Copper loss at half load, in watts: 100 (computed)
+- Copper loss at 125% load, in watts: 625 (computed)
+- Efficiency at full load, unity power factor, in per cent: 95.2 (computed)
+- Efficiency at half load, unity power factor, in per cent: 96.2 (computed)
+- Efficiency at full load, 0.8 power factor, in per cent: 94.1 (computed)
+- Efficiency at half load, 0.8 power factor, in per cent: 95.2 (computed)
+- Output at full load, 0.8 power factor, in watts: 8000 (computed)
+- Peak-efficiency load, in per cent: 50 (computed)
+- Plot's efficiency axis, in per cent: 88 to 97 (assumed)
+- Screen 1 curve, y = 6x − x²: 6 and 1 (assumed)
+- Screen 1 top, x: 3 (computed)
+- Screen 1 height at the top: 9 (computed)
+- Screen 1 slips: 6 and 9 (computed)
+- Screen 3 load, in per cent: 75 (assumed)
+- Screen 3 copper loss, 400 × 0.75², in watts: 225 (computed)
+- Screen 3 slips, in watts: 300 and 400 (computed)
+- Screen 5 slips, in watts: 400 and 200 (computed)
+- Screen 7 slips, in per cent: 90.9 and 94.3 (computed)
+- Screen 9 iron loss, in watts: 64 (assumed)
+- Screen 9 peak load, in per cent: 40 (computed)
+- Screen 9 slips, in per cent: 16 and 250 (computed)
+- Screen 11 slips, in mWb: 1.88 and 37.6 (computed)
+- Screen 12 test readings, in watts: 80 and 300 (assumed)
+- Screen 12 efficiency, in per cent: 96.3 (computed)
+- Screen 12 slips, in per cent: 97.1 and 99.2 (computed)
+- Screen 13 short-circuit current at full voltage, times rated: 20 (computed)
+- Iron loss over a day at no load, in kWh: 2.4 (computed)
+- Open-circuit current's copper loss, 0.5² × 0.77, in watts: 0.19 (computed)
+- Loss of a good real transformer, in per cent: 1 (constant, source [4])
+
+## The explanation Dan reads after playing (use the same words for the same things)
+A real transformer loses a little of the power it passes on. It loses it in two places. The core loses a fixed amount whenever the transformer is energised. The windings lose more as the load grows, with the square of the current. Two tests measure the two losses. The efficiency peaks at the load where they are equal.
+
+Start with the core. Hysteresis and eddy currents heat the iron every cycle. How much depends on the flux. The supply's voltage holds the flux. The primary cancels whatever ampere-turns the load adds. So the flux barely changes from no load to full, and nor does this iron loss. The windings are different. They are copper with resistance, so they waste I²R. Double the current and this copper loss goes up four times. So the iron loss is there whenever the transformer is energised, whatever the load. But the copper loss grows with the square of the load. Some flux also leaks round each winding without threading the other. The equivalent circuit draws all this as the ideal transformer plus two branches. A shunt branch across the supply stands for the core. A series branch of resistance and leakage reactance stands for the windings.
+
+Efficiency is output ÷ (output + losses). Take a 10 kVA transformer with 100 W of iron loss and 400 W of copper loss at full load. At full load and unity power factor, it gives 10,000 W and loses 500 W. So its efficiency is 10,000 ÷ 10,5…
+
+## Sources
+The only web addresses this page may contain, each only as a K.check {source} on a check whose label restates what that source's quote says (a result of your rule, or a fact about your drawing, takes no source; the caption names a source in words). The app rejects any other:
+[1] TRANSFORMER LOSS ENERGY SAVINGS FLEXIBILITY (https://downloads.regulations.gov/EERE-2017-BT-TP-0055-0022/attachment_3.pdf): "Transformers have both a no-load loss, that is present whenever the transformer is energized and is independent of the load level, and a load loss that is related to the transformer loading squared."
+[2] Short-circuit testing | Rohde & Schwarz (https://www.rohde-schwarz.com/ch-en/solutions/electronics-testing/power-electronics-testing/transformer-short-circuit-testing/short-circuit-testing_258719.html): "an open-circuit test measures the iron loss under no-load conditions"
+[3] Part 4 – Transformer Testing – PEG-3722 Electrotechnology (https://ecampusontario.pressbooks.pub/electrotechnology/chapter/part-4-transformer-testing): "The short-circuit test is conducted to determine the copper losses of a transformer. It involves simulating a full-load condition by short-circuiting the secondary winding."
+[4] 15.6 Transformers - University Physics Volume 2 | OpenStax (https://openstax.org/books/university-physics-volume-2/pages/15-6-transformers): "A good transformer can have losses as low as 1% of the transmitted power, so this is not a bad assumption."
+
+## Dan and how he learns
+- He learns best by doing: something visual he can push and watch respond. Warm, plain words, first principles; no jargon unless explained.
+- He uses an Android phone (this frame is about 340 px wide there, touch only) and a laptop (about 1000 px, where K.stage puts the controls beside the visual). Design for the phone first.
+
+## Rules for this page
+- There is no guess to protect: show everything from the start (no k-after-move), curves and results included.
+- The lead line says what is drawn, plainly ("Water from a 5 m drop hits the blades of a wheel"), not what to do: the app gives the action above the frame. Example values are said once there ("an example stream: a 5 m drop, 20 kg of water each second"), then the drawing labels them plainly ("5 m"), never "for example" on the drawing.
+- Every label and arrow sits on, or starts from, the thing it is about: a force arrow starts on the part it pushes; a speed arrow on the part that moves. Anything the rule says turns or flows does so (K.anim), at a speed that follows its control.
+- The .say sentence must make sense on its own to someone who has just read the explanation: what is happening on screen now, cause then effect, in everyday words; no term, threshold or comparison the page or the explanation has not named; a number as part of its whole ("353 W of the stream's 981 W is carried off by the water"). Bad: "The buckets move slower than half the jet speed, so the water still leaves going backwards, taking 353 W away with it." Good: "The buckets are moving slowly, so the water bounces off them still moving fast, and carries 353 W of its 981 W away downstream."
+- A key for the main drawing sits inside the drawing; show each quantity once (a bar, a readout or a curve, not all three); every number drawn that is worked out (a speed from a drop) is explained in "What you're looking at", or is left off.
+- Draw the cause the explanation gives, not only its effect, and let Dan cause it (a drag, a push, a switch); include the setting where the effect does not happen.
+- Mark the brief's one quantity on the picture itself, with a label saying what it is and its value (a bracket between the two heights reading "2.4 m"); an output with a readout is marked without its number, which the readout alone shows (the app hides it while Dan answers a check).
+- A shaded band states something true of the axis it spans: inputs across x, outputs across y. To show many inputs giving nearly the same output, shade the narrow output band (regions {y0, y1}).
+- Draw every comparison the explanation makes the same way, in the same place, on the axis where the effect happens. A time period is a bracket or thin band along the time axis, not a tall block.
+- Give each reference line its own look and a label beside it; every styled line is in the key or labelled on the drawing.
+- Draw only what the brief, the rule or the explanation names, with the same names. An extra figure says on itself how to read it: what its line stands for and which way is which.
+- Show only the numbers listed above or computed from the rule, each written the way the explanation writes it (the same rounding).
+- Any example cases you choose are fair and representative, never picked to exaggerate the effect.
+- Money, health and law: show how it works, never advice, and never a guaranteed outcome.
+
+## The house kit (complete API reference)
+You write the BODY of one page: HTML, an optional `<style>`, then one inline `<script>` ending
+with `K.ready()`. It runs in a sandboxed iframe on Dan's phone (about 340 px wide, touch) and
+laptop, with the global `K` and the kit's stylesheet. No network or storage: no web
+addresses, `fetch`, `localStorage`, `alert` or `prompt`.
+
+### Page shape that works
+1. `<p class="lead">`: one line saying what is drawn (the app adds title and action).
+2. The main visual with its controls right under it: `K.stage('#scene', '#controls')` keeps the
+   pair on one phone screen. A choice that re-sorts the picture may sit above it.
+3. `<p class="say">`: one sentence that changes with the state and says why. Then
+   `<div class="k-readouts">` for numbers the drawing does not label.
+4. Secondary figures and anything that grows go below.
+5. `<p class="caption">`: one short sentence, at most 20 words: where the numbers come from ("A
+   sketch, not measured data") or the rule in the explanation's words. No new claim, no law or
+   term the explanation does not teach. The app shows what the model leaves out.
+
+### Keep the answer hidden until Dan moves
+Dan predicts before he plays: open on a setting the question is not about, and hide whatever
+gives the answer away until his first move:
+- class `k-after-move` on any element (a mark, an arrow, a sentence): hidden, its space kept.
+  Hide the answer, not the controls or a whole figure (a blank hole fails the test).
+- `K.readout({..., afterMove: true})` shows "?" until then; plot series and marks take `afterMove: true` too.
+- `K.moved` is true from then on: in `K.update`, write `K.moved ? answer : question`.
+- `K.afterMove(fn)` runs `fn` once at that moment; `K.reveal()` marks it from your handlers.
+
+### The pipeline
+Controls register themselves; their values form `params` = `{id: value}`.
+```
+K.model(fn)        fn(params) -> outputs {name: number | string}. Pure: no DOM, no lists or objects.
+K.update(fn)       fn(params, outputs): draw everything here. More than one is allowed.
+K.at(over)         -> outputs of the model at those params (others take each control's starting value)
+K.check(label, fn, {source?})   fn() must return exactly true
+K.ready()          call once, last: draws the opening state and runs the checks
+K.complete()       at the lesson's end
+K.params()  K.outputs()  K.refresh()   (refresh reruns the pipeline after you change your own state)
+```
+A readout whose id is an output key updates itself.
+
+### Controls
+Every control takes `into` (a selector or element). Ids are unique; use the lesson's ids exactly.
+```
+K.control({id, label, min, max, step, value, unit?, prefix?, fmt?, log?, snap?, hint?, into}) -> {el, get(), set(v)}
+K.choice({id, label, options: [value | {value, label}], value, hint?, into}) -> {el, get, set}
+K.toggle({id, label, value: false, hint?, into}) -> {el, get, set}
+K.stepper({id, steps: [title | {title, text}], value: 0, compact?, label?, into}) -> {el, get, set, setSteps(list)}
+K.button({label, press, secondary?, into}) -> {el, press(), setLabel(text)}
+K.drag(el, {control, toValue(x, y)}) -> {el}
+```
+`control` is a big slider with − / + buttons. Keep `unit` short; `fmt(v)` returns the whole text;
+`log: true` spans decades; `snap: [values]` lands a drag exactly on a setting the prediction or a
+check names. `choice`: 2-8 short named options; `value` is an option's value or its 0-based
+index. `stepper` walks a process with Back / Next (`compact: true` when your diagram shows the
+content). `button` is an action (Send it in): use it, not plain buttons. `drag` lets Dan move
+the thing itself: `toValue` maps the pointer (viewBox units; px from `el`'s top-left for HTML)
+to the control's value; the first touch counts as his move.
+
+### Outputs
+```
+K.readout({id, label, unit?, prefix?, decimals?, fmt?, big?, hint?, afterMove?, into}) -> {el, set(v), get(), text()}
+```
+One rounding everywhere a number appears: `decimals` matching the lesson text, and the `.say`
+sentence built with `K.fmt(v, {decimals})` or `readout.text()`. Labels under 30 characters.
+While Dan answers a lesson check, the app hides that output's readout and the `.say` lines:
+never repeat a readout's value elsewhere (a label, an aria-label).
+```
+K.plot(target, opts) -> {draw(opts), x(v), y(v), invert(px, py), el, canvas}
+```
+- `x`, `y`: `{min, max, label, log?, prefix?, unit?, fmt?, ticks?}`. Leave out `y.min`/`y.max` to fit the data.
+- `series`: `[{fn: x => y | points: [[x, y], ...], label?, color?, dash?, width?, fill?, dots?, gaps?, afterMove?}]`
+- `shade`: `[{between: [a, b], label?, color?, x0?, x1?}]`: fills between two series (by label), a
+  series and a constant, or two functions.
+- `marks`: `[{x, y, label?, color?, guides?, afterMove?}]`: a dot with a label pill; `guides` adds dashed lines to the axes.
+- `regions`: `[{x0, x1, label?} | {y0, y1, label?}]` (a band); `lines`: `[{x | y, label?}]` (a dashed line).
+- `label`: the text alternative; `height`; `after(ctx, plot)` draws extras using `plot.x()`, `plot.y()`.
+
+`draw(opts)` redraws with `opts` over the creation options: call it in `K.update`. Values must be
+finite (`gaps: true` only where a gap is real). Series are navy, then teal; `color: 'muted',
+dash: true` for a baseline.
+```
+K.bars(target, {max?, unit?, prefix?, decimals?, fmt?}) -> {draw(items)}      items: [{label, value, color?}], values >= 0
+K.anim({step(dt, t), reset?, label?, autoplay?, button?, into}) -> {el, play, pause, toggle, reset, playing()}
+```
+`anim` adds a Play button (text `label`); `reset` adds Reset. When a switch, button or drag
+already starts the motion, pass `button: false` and call `play()` from that control: one control
+per action. In `step` advance your state (`dt` in seconds) and redraw; return `false` to stop. To
+drive a slider, keep the exact value yourself (the slider moves in whole steps).
+
+### Sound
+```
+K.sound.tone(hz, {dur?, type?, gain?})   K.sound.chord([hz, ...], {dur?, stagger?})   K.sound.stop()   K.sound.mute(on)
+K.sound.hold(hz, {type?, gain?, max?}) -> {set({hz?, gain?}), stop(), playing()}
+```
+`dur` in seconds (at most 10). Sound plays only from a `K.button` press, never `K.update`; show
+what is sounding. `hold` keeps a tone going while `set()` follows a slider. Phones can't play
+below about 150 Hz: use 200 to 2,000 Hz.
+
+### Drawings and helpers
+```
+K.el(tag, attrs?, ...children)    attrs: class, style, on: {click: fn}, text, html, dataset, any attribute
+K.svg(tag, attrs?, ...children)   the same in the SVG namespace
+K.labels(group, [{x, y, text, anchor?, size?, class?, color?}], {avoid?}) -> [<text>]
+K.stage(visual, controls, {max?, beside?}) -> {el}
+K.fmt(v, {decimals?, sig?, prefix?, unit?, percent?, sign?, compact?}) -> '1,234.5', '−3', '2.5 × 10⁶'
+K.near(a, b, tol)   K.clamp(v, lo, hi)   K.lerp(a, b, t)   K.linspace(a, b, n)   K.color(role, alpha?)
+K.ease(p)   K.arrive(T, t0, dur?)   K.fade(el, a, rise?)
+```
+Give an `<svg>` a viewBox about 340 wide, `width="100%"`, `role="img"` and an `aria-label` that
+follows the state. Text 13-16 units, never under 12 (a phone shows 340 units at about 0.9x). A
+row of N labels gets about 300/N units each; label only what differs. Every label sits on, or
+points to, something drawn. `K.labels` places labels (13 units unless `size`) clear of other
+text, the edges and the lines or shapes in `avoid`: use it for labels that move or appear later.
+Put an angle's label inside its wedge, beyond the arc, hidden while the wedge is too narrow.
+`K.stage` fits the pair in `max` px (600) on a phone; `beside: false` keeps it stacked.
+
+Draw the mechanism as it physically works. If the explanation gives a reason (X because Y), draw
+Y so Dan can watch it; parts that fit are drawn fitting (teeth in teeth), never two identical
+icons joined by a line; whatever the rule says happens (slides, grips, multiplies) happens on screen.
+
+### Colour
+Colour carries meaning. Use these roles as `var(--k-…)` or `K.color('fill2')` (`K.color('accent2',
+0.3)` is see-through); a colour name fails the test.
+- Lines and text: `ink`, `muted` (secondary, comparisons), `accent2` (navy: the main thing,
+  controls), `accent` (teal: small labels, a second series), `warn` (red: warnings and mistakes
+  only), `good` (green: "done" only), `amber-line` (amber lines that must stand out).
+- Fills: `bg` (page), `panel`, `sunk`, `amber` (note box), `hl` (key-term highlighter), `fill1`
+  (area of the main thing), `fill2` (highlighted area, amber), `fill3` (area of a second thing).
+- `cat1`-`cat4` (blue, orange, magenta, aqua): telling equal things apart, never meaning; with a
+  key or labels; cat1 and cat2 first. A thing with a familiar colour (water, fire) never gets
+  another thing's colour: use the nearest role and label it. What is still there stays solid:
+  mark a state such as unused with a label, not by fading it, and key any dashed style.
+- Also `--k-line`, `--k-strong` (borders), `--k-on-accent2` (text on navy), `--k-font`, `--k-r` (radius).
+
+Never describe colours by lightness or hue in words Dan reads ("the dark square"): dark mode
+changes them.
+
+Classes: `muted`, `small`, `k-label` (small teal caps), `term` (key term), `note` (amber box),
+`warn-note`, `panel`, `row`, `grid2`, `big`, `k-btn` (`secondary`), and a legend:
+`<div class="key"><span><i class="swatch" style="background:var(--k-accent2)"></i>Your push</span>
+<span><i class="swatch line dash" style="color:var(--k-muted)"></i>The limit</span></div>`.
+
+### Rules for a great interactive
+- One idea. The answer to Dan's prediction shows within about 3 seconds of his first move (add
+  a K.check that it does). Include something Dan causes and a case that surprises. One or two
+  controls, three at most.
+- Phone first: nothing wider than 340 px, no fixed widths over 300 px, rows wrap, no hover-only
+  information, tap targets at least 44 px. Size tiles and grid columns in rem (`minmax(6rem,
+  1fr)`): text grows a quarter at Text size XL, and no word may split across two lines.
+- Every number shown is a control, computed by the rule shown, a constant from the lesson, an
+  example value named once in the lead, or a date from the lesson. Never invent data, rates or chances.
+- The `.say` sentence describes what is on screen now, plainly and warmly, and reads right at the
+  extremes ("none of the 100"). Never claim Dan did something ("When you slid it to 20"):
+  describe the state, or write conditionally ("Push it past 20 and…").
+- 3-5 `K.check` known answers worked out by hand: an edge case, a shape fact (rises, halves,
+  always last), and one answer from outside your formula. `source` may ONLY be a URL from the
+  lesson's own sources, and only on a check whose label restates what that source's quote says;
+  a result of your rule, or a fact about your drawing, takes none. Compare numbers with
+  `K.near(a, b, tol)`: tolerance about a millionth of the size, a thousandth where rounding meets roots.
+- `K.anim` for motion, never timers: soft, unhurried, nothing popping in. Parts arrive about 0.6
+  s apart by `K.fade(el, K.arrive(T, t0))`; travel and growth use `K.ease`; a demonstration takes
+  3-5 s. No `vh` units, `position: fixed` or `height: 100%`.
+- Ideas without numbers (mechanism, process, structure, history, concept): prefer a timeline
+  slider, a named choice, a sorter or a drag; use `K.stepper` only when every step changes the
+  drawing. Checks assert order and structure facts.
+- A timeline runs forward: a slider rising left to right, its `fmt` showing the date (−500 as
+  "500 BC"), or a stepper of named events in order. A lesson's calendar-year control keeps its
+  range, its `fmt` showing the year; years after the first date are for new controls. Each dated
+  event appears as he reaches its date.
+
+### The self-test
+Before Dan sees it, the app loads your body 340, 720 and 1040 px wide, runs every check, moves
+every control, button, animation and drag, reveals the after-move parts, and looks again at Text
+size XL and in the other theme. It fails on an exception, NaN or undefined on the page, an update
+over 150 ms, sideways overflow, text cut off or over other text, SVG text under 11 px on a phone,
+a line or arrowhead through a label, text under 3:1 contrast with what is behind it, a colour
+name, a blank hole until a move, or no `K.ready()`.
+
+### Example
+```html
+<p class="lead">Lengthen the string and watch each swing take longer.</p>
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+<p class="caption">Small swings only; g = 9.81 m/s² is gravity at the Earth's surface.</p>
+<script>
+  const g = 9.81;
+  const period = (L) => 2 * Math.PI * Math.sqrt(L / g);
+  K.control({ id: 'L', label: 'String length', min: 0.1, max: 3, step: 0.05, value: 1, unit: 'm', snap: [2], into: '#controls' });
+  K.stage('#plot', '#controls');
+  K.readout({ id: 'T', label: 'One full swing takes', unit: 's', decimals: 2, into: '#outs' });
+  const plot = K.plot('#plot', { x: { min: 0, max: 3, label: 'Length (m)' }, y: { min: 0, max: 4, label: 'Period (s)' } });
+  K.model((p) => ({ T: period(p.L) }));
+  K.update((p, o) => {
+    plot.draw({ series: [{ fn: period }], marks: [{ x: p.L, y: o.T, guides: true }] });
+    document.getElementById('say').textContent = !K.moved ? 'Make the string four times longer: how much longer is each swing?'
+      : 'A ' + K.fmt(p.L, { decimals: 2 }) + ' m string swings there and back every ' + K.fmt(o.T, { decimals: 2 }) + ' s. Four times the length only doubles that.';
+  });
+  K.check('No length, no swing time', () => K.near(period(0), 0));
+  K.check('A seconds pendulum (2 s per swing) is 0.994 m long', () => K.near(period(0.994), 2, 0.002),
+    { source: 'https://en.wikipedia.org/wiki/Seconds_pendulum' });
+  K.check('Four times the length doubles the period', () => K.near(K.at({ L: 2 }).T / K.at({ L: 0.5 }).T, 2, 1e-9));
+  K.ready();
+</script>
+```
+
+
+## A finished example (kind: quantity). Match its standard and structure, not its topic. Its SOURCE line and {source} addresses belong to that example's own lesson: never copy them
+<!-- kind: quantity -->
+<style>
+  .split { display: flex; height: 26px; border-radius: 8px; overflow: hidden; background: var(--k-sunk); }
+  .split .work { background: var(--k-accent2); transition: width .2s ease; }
+  .split-key { display: flex; justify-content: space-between; gap: 12px; margin-top: 6px; font-size: .9rem; color: var(--k-muted); }
+  .nowrap { white-space: nowrap; }
+</style>
+
+<p class="lead">Squeeze the air harder before the fuel burns in it, and watch how much more of the fuel's heat turns into useful work.</p>
+
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+
+<div>
+  <span class="k-label">Of every 100 units of heat from the fuel</span>
+  <div class="split" role="img" id="split" aria-label=""><i class="work" id="work"></i></div>
+  <div class="split-key"><span>Becomes work</span><span>Leaves in the hot exhaust</span></div>
+</div>
+
+<p class="caption">The ideal Brayton cycle with γ = 1.4 for air (NASA Glenn Research Center), an upper limit for real engines.</p>
+
+<script>
+  // gamma: ratio of specific heats for air, the value NASA Glenn's Brayton page uses.
+  const GAMMA = 1.4;
+  const SOURCE = 'https://www.grc.nasa.gov/www/k-12/airplane/brayton.html';
+  const pct = (r) => 100 * (1 - Math.pow(r, -(GAMMA - 1) / GAMMA));
+
+  const r = K.control({ id: 'r', label: 'Pressure ratio', hint: 'Pressure after the compressor ÷ pressure before it', min: 1, max: 50, step: 1, value: 8, unit: ':1', into: '#controls' });
+  K.readout({ id: 'eff', label: 'Ideal efficiency', unit: '%', decimals: 1, big: true, into: '#outs' });
+
+  K.stage('#plot', '#controls');   // stacked on a phone, side by side on a laptop
+
+  const plot = K.plot('#plot', {
+    x: { min: 1, max: 50, label: 'Pressure ratio' },
+    y: { min: 0, max: 100, label: 'Ideal efficiency (%)' },
+    label: 'Ideal efficiency rises steeply at low pressure ratios, then flattens',
+  });
+
+  // The pure model: pressure ratio -> ideal efficiency in percent.
+  K.model((p) => ({ eff: pct(p.r) }));
+
+  K.update((p, o) => {
+    plot.draw({
+      series: [{ fn: pct, label: 'Ideal efficiency' }],
+      marks: [{ x: p.r, y: o.eff, guides: true }],   // its value is in the readout alone
+    });
+    document.getElementById('work').style.width = o.eff + '%';
+    document.getElementById('split').setAttribute('aria-label', 'The filled part becomes work: ' + (o.eff < 50 ? 'under' : 'over') + ' half the heat');
+
+    let s;
+    if (p.r === 1) {
+      s = 'With no squeeze at all (r = 1), the hot gas has no extra pressure to push the turbine with, so no work comes out: 0%.';
+    } else if (p.r * 2 <= 50) {
+      const more = pct(p.r * 2) - o.eff;
+      s = 'At ' + p.r + ':1 an ideal engine turns ' + o.eff.toFixed(1) + '% of the fuel\'s heat into work. Doubling the squeeze to ' +
+        p.r * 2 + ':1 would add ' + more.toFixed(1) + ' more points.';
+    } else {
+      const less = o.eff - pct(p.r / 2);
+      s = 'At ' + p.r + ':1 an ideal engine turns ' + o.eff.toFixed(1) + '% of the fuel\'s heat into work. Halving the squeeze would cost only ' +
+        less.toFixed(1) + ' points: the curve has flattened.';
+    }
+    // Until Dan moves the slider the sentence invites rather than answers his prediction.
+    document.getElementById('say').textContent = K.moved ? s : 'Does doubling the squeeze double the work you get? Move the pressure ratio and see.';
+  });
+
+  // Known answers, worked out by hand from the formula.
+  K.check('No squeeze (r = 1) gives 0% efficiency', () => K.near(K.at({ r: 1 }).eff, 0, 1e-9));
+  K.check('r = 10 gives 48.2%, from the ideal Brayton formula', () => K.near(K.at({ r: 10 }).eff, 48.205, 0.001), { source: SOURCE });
+  K.check('Efficiency rises with every step up in pressure ratio', () => {
+    for (let x = 1; x < 50; x++) if (!(K.at({ r: x + 1 }).eff > K.at({ r: x }).eff)) return false;
+    return true;
+  });
+  K.check('Diminishing returns: 1 → 2 adds 18.0 points, 20 → 40 adds only 7.6', () =>
+    K.near(K.at({ r: 2 }).eff - K.at({ r: 1 }).eff, 17.97, 0.01) && K.near(K.at({ r: 40 }).eff - K.at({ r: 20 }).eff, 7.63, 0.01));
+  K.check('Even at r = 50 the ideal stays below 100% (67.3%)', () => K.near(K.at({ r: 50 }).eff, 67.30, 0.01));
+
+  K.ready();
+</script>
+
+
+## Typed answers (every ready-made course from 28 Oct)
+
+Dan works each puzzle on paper, then types his answer (Dan, 27-28 Oct). So a DO puzzle whose answer
+is a figure (a number with at most a unit: "0.70 V", "24 m²", "9.26 V") is typed into a field,
+never picked from options. Options stay for answers in words, a direction, an expression
+("4i − 2j"), an order, or where choosing between named things is the skill being taught ("Which
+pole leaks?"). Never write "About" in a typed answer: give the figure to the places you want.
+
+```
+K.answer({id, label?, unit, answer, decimals?, tolerance?, accept?, slips?, into, onCheck?, onEnter?})
+    -> {el, input, check(), result, right(), missed(), reveal(), reset(), set(text)}
+K.answer.grade(text, spec) -> {state: 'right'|'wrong'|'empty'|'unreadable', value, accepted?, slip?, hint?}
+```
+
+- A decimal-keypad field with the unit beside it. `answer` is the lesson's figure, worked from the
+  rounded figures the lesson shows; it is accepted within half a unit in its last place
+  (`decimals`, default 2: give `decimals: 0` for a whole number, 1 for "0.7"). `accept: [13.32]`
+  adds the answer worked from unrounded figures. A unit typed after the number ("0.70 V") is fine.
+- The wrong options you would have offered become `slips`: `[{value: 0.07, hint: 'That is 7 mΩ
+  read as 0.7 Ω. Milli is a thousandth.'}]`, each with the hint that names the mistake.
+- Your Check button calls `a.check()` (Enter does too); never grade as he types (the app's
+  calculator can type its result into the field for him). Write the feedback from `a.result`:
+  right, "That's it." and Continue; wrong, the slip's hint (`r.hint`) or the step's one-line hint,
+  and the field kept for another go; after two wrong tries, the working (Why?) and `a.reveal()`,
+  then Continue. Continue only once `a.right()` (a revealed answer counts).
+- Give each field its own `id` (the step's name in a few letters is fine).
+- Nothing on screen gives the answer before it is checked: a readout that would show the figure
+  shows "?" until then.
+- STEPS: the typed step keeps `want`, the answer as printed with its unit ('0.70 V'). The lesson's
+  read-through, its Book chapter and its problem set (the app asks it again, typed) read it.
+- The self-test grades every field: its answer and each accepted one right (with the unit too),
+  a near miss and each slip refused, and the answer typed into the field and checked on its step.
+- A worked example of the field in use: docs/courses/electrical/design-and-verification/i2.body.final.html.
+
+## Output
+Return ONLY the body: HTML elements, an optional <style>, then one inline <script> that ends with K.ready(). No <html>, <head> or <body> tags, no markdown fences, no commentary before or after. Keep it under 40 KB.

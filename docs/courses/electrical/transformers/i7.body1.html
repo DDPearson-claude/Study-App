@@ -1,0 +1,874 @@
+<!-- kind: structure -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .caption { max-width: 32rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.08rem; font-weight: 400; line-height: 1.6; }
+  .scene { display: block; width: 100%; max-width: 26rem; margin-inline: auto; touch-action: pan-y; }
+  .scene text { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .tk { font-weight: 400; fill: var(--k-muted); }
+  .scene .hr { font-size: 12.5px; fill: var(--k-accent); }
+  .scene .side { font-size: 12.5px; font-weight: 700; letter-spacing: .06em; fill: var(--k-accent); }
+  .scene .name { font-size: 24px; font-weight: 700; }
+  .scene .iron { fill: var(--k-sunk); stroke: var(--k-line); stroke-width: 1; }
+  .scene .coil { fill: var(--k-panel); stroke-width: 1.6; }
+  .scene .coil.one { stroke-width: 3; }
+  .scene .hv { stroke: var(--k-cat1); }
+  .scene .lv { stroke: var(--k-cat2); }
+  .scene .turn { stroke-width: 1; }
+  .scene .wire { fill: none; stroke: var(--k-ink); stroke-width: 1.6; stroke-linejoin: round; }
+  .scene .rail { stroke: var(--k-ink); stroke-width: 2.2; }
+  .scene .bus { stroke: var(--k-ink); stroke-width: 3.4; stroke-linecap: round; }
+  .scene .term { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.6; }
+  .scene .dot { fill: var(--k-ink); }
+  .scene .rim { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.6; }
+  .scene .tick { stroke: var(--k-strong); stroke-width: 1.4; }
+  .scene .hand { fill: none; stroke-linecap: round; }
+  .scene .thick { stroke-width: 6; }
+  .scene .thin { stroke-width: 2.2; stroke-dasharray: 5 5; stroke-linecap: butt; }
+  .scene .thin.lv { stroke-dashoffset: 5; }
+  .scene .tc { fill: none; stroke-width: 2; }
+  .scene .blade { stroke: var(--k-ink); stroke-width: 3; stroke-linecap: round; }
+  .scene .blade.bad { stroke: var(--k-warn); }
+  .scene .ta1 { stroke: var(--k-muted); stroke-width: 3; }
+  .scene .ta1-h { fill: var(--k-muted); }
+  .scene .ta2 { stroke: var(--k-accent2); stroke-width: 3; }
+  .scene .ta2-h { fill: var(--k-accent2); }
+  .scene .gapa { stroke: var(--k-warn); stroke-width: 2.4; }
+  .scene .gapa-h { fill: var(--k-warn); }
+  .scene .gaplab.bad { fill: var(--k-warn); }
+  .scene .bar { fill: var(--k-sunk); stroke: var(--k-line); stroke-width: 1; }
+  .scene .barfill { fill: var(--k-warn); }
+  .scene .base { stroke: var(--k-line); stroke-width: 1.2; }
+  .scene .tr { fill: none; stroke-width: 2.4; stroke-linejoin: round; stroke-linecap: round; }
+  .scene .c3 { stroke: var(--k-cat3); }
+  .scene .c4 { stroke: var(--k-cat4); }
+  .scene .cs { stroke: var(--k-ink); }
+  /* T2's four groups: two rows of two on every screen. */
+  #c-g2 .k-seg { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  #c-g2 .k-seg button, #c-lv .k-seg button { white-space: nowrap; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-inline: 16px; font-size: .95rem; white-space: nowrap; }
+  .outs .k-readout { flex: 1 1 8rem !important; min-width: 0; }
+  .picks { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .picks .k-btn { min-height: 48px; font-size: 1.05rem; white-space: normal; overflow-wrap: normal; word-break: normal; hyphens: none; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .answers .k-answer { max-width: 20rem; }
+  .fb { font-weight: 700; min-height: 1.5em; }
+  .fb.right { color: var(--k-good); }
+  .why, .done { line-height: 1.6; }
+  .done .row { margin-top: 14px; }
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }
+</style>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="clock" viewBox="0 0 340 258" width="100%" role="img" aria-label=""><g id="artC"></g></svg>
+    <svg class="scene" id="par" viewBox="0 0 340 312" width="100%" role="img" aria-label=""><g id="artP"></g></svg>
+    <svg class="scene" id="pulse" viewBox="0 0 340 332" width="100%" role="img" aria-label=""><g id="artU"></g></svg>
+    <div class="replay" id="replay"></div>
+    <div class="k-controls" id="c-hv"></div>
+    <div class="k-controls" id="c-dc"></div>
+    <div class="k-controls" id="c-lv"></div>
+    <div class="k-controls" id="c-g2"></div>
+    <div class="row" id="par-acts"></div>
+    <div class="k-readouts outs" id="outs"></div>
+    <div class="picks" id="picks"></div>
+    <div class="answers" id="answers"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p id="finish"></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">An example board of 440&#160;V to 115&#160;V transformers. Every hour, angle and voltage is worked from the rule.</p>
+
+<script>
+  // ================= the rules =================
+  const strip = (s) => s.replace(/\[\^\d+\]/g, '');
+  const NB = ' ';
+  const VPH = 115 / Math.sqrt(3);                  // the LV phase voltage, 66.40 V
+  const HOUR_S = 0.25, TRIP_S = 2;                 // a hand moves an hour a quarter-second; a bad close trips after 2 s
+  const SRC1 = 'https://www.phasors.io/learn/transformer-vector-groups';
+  const SRC2 = 'https://www.ryantransformers.com/en/blog/transformer-vector-group-dyn1-vs-dyn11';
+  const SRC4 = 'https://www.sgb-smit.com/products/dry-type-transformers/cast-resin-transformers-medium-voltage';
+  const GROUPS = ['Dyn11', 'Yyn0', 'Dyn1', 'Dyn5'];
+  const m12 = (h) => ((Math.round(h) % 12) + 12) % 12;
+  // The clock rule: limb 1's HV winding sits at 1 in a star, 12 in a delta closed A–B and 2 closed A–C.
+  // The LV winding a–n sits at the same hour, or 6 on when its ends are swapped. a–b is one hour anticlockwise of a–n.
+  const hvWind = (hv, dc) => hv === 'Star' ? 1 : dc === 'A–C' ? 2 : 0;
+  function clockOf(hv, dc, lv) {
+    const hw = hvWind(hv, dc), lw = (hw + (lv === 'Swapped' ? 6 : 0)) % 12, ab = (lw + 11) % 12;
+    return { hw, lw, ab, name: (hv === 'Star' ? 'Yyn' : 'Dyn') + ab, deg: ab * 30 };
+  }
+  // The paralleling rule: each phase-a arrow sits at its group's a–n hour; the gap is the chord between the tips.
+  const hourOf = (g) => +g.replace(/^\D+/, '');
+  const anOf = (g) => (hourOf(g) + 1) % 12;
+  function apart(g1, g2) { const d = Math.abs(anOf(g1) - anOf(g2)) % 12; return Math.min(d, 12 - d); }
+  const gapOf = (g2) => 2 * VPH * Math.sin(apart('Dyn11', g2) * 30 / 2 * Math.PI / 180);
+  const circOf = (g2, z) => (gapOf(g2) / VPH) / (2 * z / 100);
+  const one = (v) => (Math.round(v * 10) / 10).toFixed(1);
+  const fV = (v) => v.toFixed(2) + NB + 'V';
+  const fX = (v) => one(v) + NB + '× rated';
+  // Two six-pulse bridges' outputs, the second fed 30° later, and their sum (each as a share of its peak).
+  const six = (a) => { let m = -Infinity; for (let k = 0; k < 6; k++) m = Math.max(m, Math.cos((a - 60 * k) * Math.PI / 180)); return m; };
+  const sixB = (a) => six(a - 30);
+  const both = (a) => six(a) + sixB(a);
+
+  // ================= the lesson: SHOW screens demonstrate, DO screens are puzzles =================
+  const ramp = (t, t0, dur, a, b) => a + (b - a) * K.clamp((t - t0) / dur, 0, 1);
+  const nbv = (s) => s.replace(/(\d) V\b/g, '$1' + NB + 'V');
+  const AHEAD = ['30° ahead', '30° behind', '11° behind', 'In step'];
+  const MATCH = ['Dyn1, 440 V to 115 V, 5%', 'Yyn0, 440 V to 115 V, 5%', 'Dyn11, 440 V to 115 V, 5%', 'Dyn11, 440 V to 110 V, 5%'].map(nbv);
+  const STEPS = [
+    { kind: 'typed', name: 'Star phase voltage', ans: 'ph', card: 'none', enter: {},
+      answer: 254, decimals: 0, unit: 'V', want: '254' + NB + 'V',
+      slips: [{ value: 762, hint: 'That multiplies by √3. Divide instead.' },
+        { value: 147, hint: 'That divides by 3. Divide by √3, which is 1.732.' },
+        { value: 440, hint: 'That is the line voltage.' }],
+      task: 'A 440 V supply is joined in star. What is the voltage from each line to the star point?',
+      hint: 'Phase voltage = line voltage ÷ √3.',
+      why: '440 ÷ 1.732 = 254 V. A star winding sees this, not 440 V.',
+      right: 'Still there.',
+      read: 'A 440 V star: what is each line\'s voltage to the star point?' },
+    { show: true, name: 'Both sides star', card: 'clock', ctl: [], ro: ['hour', 'deg'], enter: { arr: 0 }, end: { arr: 4 }, dur: 3.0,
+      demo: (t) => { X.arr = ramp(t, 0.4, 2.4, 0, 4); },
+      text: strip('Here both sides are star, so the hand sits at twelve: Yyn0. A three-phase transformer is three single-phase ones on one core. Each limb carries an HV and an LV winding. One flux threads both, so they keep exact time. The clock compares the two sides. The HV line voltage A–B is fixed at twelve. The LV line voltage a–b is the hour hand. Each hour is 30°.[^1] On each side, a line voltage runs 30° ahead of its winding\'s. The two shifts match and cancel.'),
+      read: 'With both sides in star, the hand sits at twelve: Yyn0. Each limb\'s windings share one flux. The clock fixes the HV line voltage A–B at twelve. The LV line voltage a–b is the hour hand, 30° an hour.',
+      still: () => setStill() },
+    { kind: 'typed', name: 'Hour to degrees', ans: 'deg', card: 'none', enter: {},
+      answer: 150, decimals: 0, unit: '°', want: '150°',
+      slips: [{ value: 5, hint: 'That is the hour. Each hour is 30°.' },
+        { value: 30, hint: 'That is one hour, not five.' },
+        { value: 210, hint: 'That counts anticlockwise. Hours run clockwise.' }],
+      task: 'A transformer\'s name ends in 5. How far clockwise from twelve is its LV hand?',
+      hint: 'Hour × 30°.',
+      why: '5 × 30 = 150°. Its LV line voltage sits 150° behind the HV\'s.',
+      read: 'A name ends in 5. How far clockwise from twelve is its LV hand?' },
+    { show: true, name: 'Delta on the HV side', card: 'clock', ctl: ['hv'], ro: ['hour', 'deg'], enter: {}, end: { hv: 'Delta' }, dur: 3.0,
+      demo: (t) => { X.hv = t < 1.0 ? 'Star' : 'Delta'; },
+      text: strip('Switch the HV winding to delta and the hand moves to eleven. Limb 1\'s HV winding now sits across lines A and B. So its voltage is A–B itself, at twelve. The LV winding a–n on that limb keeps time with it. But a star\'s line voltage runs 30° ahead of its winding\'s. So a–b sits one hour anticlockwise. Capitals name the HV side and small letters the LV. D is an HV delta and yn an LV star with its neutral brought out. The 11 is the hour.[^2]'),
+      read: 'With the HV in delta, the hand sits at eleven: Dyn11. Limb 1\'s HV winding carries A–B, at twelve. The LV winding a–n keeps time with it. The LV line voltage runs 30° ahead of a–n, so a–b sits one hour anticlockwise.',
+      still: () => setStill() },
+    { kind: 'typed', name: 'Turns per limb', ans: 'turns', card: 'clock', enter: { hv: 'Delta' }, ro: [],
+      answer: 6.63, decimals: 2, unit: '', want: '6.63',
+      slips: [{ value: 3.83, hint: 'That is the line ratio. Each star winding gives only 66.40 V.' },
+        { value: 2.21, hint: 'That puts the star on the HV side.' }],
+      task: 'A Dyn11 unit steps 440 V to 115 V. Each delta winding sees 440 V. Each star winding sees 115 ÷ √3. What is each limb\'s turns ratio, HV to LV?',
+      hint: 'Turns ratio = 440 ÷ (115 ÷ 1.732).',
+      why: '115 ÷ 1.732 = 66.40 V per star winding. 440 ÷ 66.40 = 6.63.',
+      read: 'A 440 V to 115 V Dyn11: what is each limb\'s turns ratio, HV to LV?' },
+    { show: true, name: 'Whole hours', card: 'clock', ctl: ['hv', 'dc', 'lv'], ro: ['hour', 'deg'], enter: { hv: 'Delta' }, end: { hv: 'Delta', dc: 'A–B', lv: 'Swapped' }, dur: 4.5,
+      demo: (t) => { X.dc = t >= 0.8 && t < 2.0 ? 'A–C' : 'A–B'; X.lv = t >= 3.0 ? 'Swapped' : 'As marked'; },
+      text: 'Star and delta joins move the hand in whole hours, 30° at a time. Close the delta the other way. Limb 1\'s HV winding now sits across A and C. Line voltage A–C sits at two o\'clock, 60° behind A–B. The LV winding keeps time with it. Its line voltage a–b runs one hour ahead, at one o\'clock: Dyn1. Now close it across A and B again. Then swap the LV winding\'s two ends. Every LV voltage flips half a turn, six hours. Eleven becomes five: Dyn5.',
+      read: 'Closed across A and C, the delta puts the hand at one: Dyn1. Swapping the LV ends of a Dyn11 flips it six hours: Dyn5.',
+      still: () => setStill() },
+    { kind: 'pick', name: 'Ahead or behind', card: 'clock', enter: { hv: 'Delta' }, ro: [],
+      opts: AHEAD, want: AHEAD[0],
+      task: 'In a Dyn11 unit, where is the LV line voltage compared with the HV\'s?',
+      hint: 'Phasors turn anticlockwise, and eleven is anticlockwise of twelve.',
+      hints: { [AHEAD[1]]: 'Phasors turn anticlockwise, and eleven is anticlockwise of twelve.',
+        [AHEAD[2]]: 'Each hour is 30°, not one degree.',
+        [AHEAD[3]]: 'That is Yyn0. The delta moves the LV one hour.' },
+      why: strip('330° clockwise lands where 30° anticlockwise does. So the LV is 30° ahead.[^3]'),
+      read: 'In a Dyn11, where is the LV line voltage compared with the HV\'s?' },
+    { show: true, name: 'Two on one board', card: 'par', ctl: ['g2'], ro: ['gap'], enter: {}, end: { g2: 'Yyn0' }, dur: 3.0,
+      demo: (t) => { X.g2 = t < 1.0 ? 'Dyn11' : 'Yyn0'; },
+      text: strip('Two units can share a board only if their outputs match. The groups must match, or closing the switch is a short.[^4] Here T1 is a Dyn11. T1 and T2 both step 440 V to 115 V, and their neutrals are joined. Each phase-a arrow is 66.40 V long. The voltage across the open switch is the gap between their tips. It is 2 × 66.40 × sin(half the angle between them). Pick Yyn0 for T2. That is one hour, 30°, so 34.37 V.'),
+      read: 'The voltage across the open switch is the gap between the two 66.40 V arrows. It is 2 × 66.40 × sin(half the angle). A Dyn11 beside a Yyn0 leaves 34.37 V.',
+      still: () => setStill() },
+    { kind: 'typed', name: 'Two hours apart', ans: 'gap', card: 'par', enter: { g2: 'Dyn1' }, hide: ['gap'], ro: ['gap'],
+      answer: 66.40, decimals: 2, unit: 'V', want: '66.40' + NB + 'V',
+      slips: [{ value: 0, hint: 'The ratios match, but eleven and one are two hours apart.' },
+        { value: 34.37, hint: 'That is one hour. From eleven to one is two hours, 60°.' },
+        { value: 115, hint: 'That is the line voltage. Use the gap rule.' }],
+      task: 'A Dyn11 and a Dyn1 both step 440 V to 115 V. Each LV phase voltage is 66.40 V. What voltage sits across each pole of the open switch?',
+      hint: '2 × 66.40 × sin 30°.',
+      why: '2 × 66.40 × 0.5 = 66.40 V. A matching ratio is not enough.',
+      read: 'A Dyn11 and a Dyn1, both 440 V to 115 V: what voltage sits across each pole of the open switch?' },
+    { show: true, name: 'Circulating current', card: 'par', ctl: ['g2'], close: true, bar: true, ro: ['gap', 'circ'], enter: { g2: 'Yyn0' },
+      end: { g2: 'Dyn5', barOn: true, closed: false }, dur: 4.5,
+      demo: (t) => {
+        X.g2 = t < 0.6 ? 'Yyn0' : 'Dyn5';
+        if (t >= 2.2 && !X.barOn) { X.closed = true; X.barOn = true; X.trip = t - 2.2; }
+      },
+      text: 'Close the switch across a gap and that voltage drives a *circulating current* round the pair. Only their two impedances and the cables hold it back. Remember percentage impedance: 5% of the voltage drives rated current. The 30° gap is 34.37 ÷ 66.40, which is 52% of the phase voltage. Through 5% + 5%, that drives 52 ÷ 10 = 5.2 times rated current with no load at all. Dyn11 against Dyn5 is half a turn apart. That gap is 200%, so 20 times rated flows: a dead short.',
+      read: 'A 30° gap is 52% of the phase voltage. Through 5% + 5%, it drives 5.2 times rated current round the pair with no load. Dyn11 against Dyn5 drives 20 times rated.',
+      still: () => setStill() },
+    { kind: 'typed', name: 'Four per cent each', ans: 'circ', card: 'par', bar: true, enter: { g2: 'Yyn0', z: 4 }, after: { barOn: true }, hide: ['circ'], ro: ['gap', 'circ'],
+      answer: 6.5, decimals: 1, unit: 'times rated', want: '6.5' + NB + '× rated',
+      slips: [{ value: 13, hint: 'That counts one unit. The current goes round both.' },
+        { value: 5.2, hint: 'That is the 5% figure.' },
+        { value: 2.1, hint: 'That multiplies by the impedance. Divide by it.' }],
+      task: 'A Dyn11 and a Yyn0 again, but each has 4% impedance. The gap is 52% of the phase voltage. How many times rated current would circulate?',
+      hint: 'Gap share ÷ (4% + 4%).',
+      why: '4% + 4% = 8%, and 52 ÷ 8 = 6.5.',
+      read: 'A Dyn11 and a Yyn0 at 4% each, with a 52% gap: how many times rated current would circulate?' },
+    { show: true, name: 'Twelve pulses', card: 'pulse', ctl: [], ro: [], enter: { pulse: 0 }, end: { pulse: 3 }, dur: 4.0,
+      demo: (t) => { X.pulse = ramp(t, 0.3, 3.6, 0, 3); },
+      text: 'Sometimes the shift is the point. It is how a twelve-pulse rectifier smooths its output. Feed one six-pulse rectifier from a Yyn0 unit. Feed another from a Dyn11 on the same supply. Each output ripples six times a cycle, one bump every 60°. Their supplies sit 30° apart, which is half a bump. So one bridge\'s peaks fall in the other\'s dips. Added, they give twelve smaller bumps a cycle.',
+      read: 'Two six-pulse rectifiers fed 30° apart put one\'s peaks in the other\'s dips: twelve smaller bumps a cycle.',
+      still: false },
+    { kind: 'typed', name: 'Swap a Dyn1', ans: 'swap', card: 'clock', enter: { hv: 'Delta', dc: 'A–C' }, after: { lv: 'Swapped' }, hide: ['hour'], ro: ['hour', 'deg'],
+      answer: 7, decimals: 0, unit: '', want: '7',
+      slips: [{ value: 5, hint: 'That is Dyn11 swapped. Start from one o\'clock.' },
+        { value: 1, hint: 'Swapping the ends flips every LV voltage half a turn.' }],
+      task: 'Take a Dyn1 unit and swap its LV winding\'s two ends. What hour does its name end in now?',
+      hint: 'Swapping adds six hours.',
+      why: '1 + 6 = 7: Dyn7.',
+      read: 'Swap a Dyn1\'s LV ends. What hour does its name end in now?' },
+    { kind: 'pick', name: 'A matching partner', card: 'none', enter: {},
+      opts: MATCH, want: MATCH[2],
+      task: 'A board has a Dyn11, 440 V to 115 V, 5% unit. Which second unit leaves no voltage across the open switch?',
+      hint: 'Two hours apart: a 66.40 V gap.',
+      hints: { [MATCH[0]]: 'Two hours apart: a 66.40 V gap.',
+        [MATCH[1]]: 'One hour apart: a 34.37 V gap.',
+        [MATCH[3]]: 'Its arrows are shorter. A difference in length is a gap too.' },
+      why: 'Only the 115 V Dyn11 matches in hour and length. So its arrow lies on the first.',
+      read: 'A 440 V to 115 V, 5% Dyn11 is on the board. Which second unit leaves no voltage across the switch?' },
+  ];
+  const FINISH = 'Star and delta joins turn a transformer\'s output in whole hours of 30°. Delta on one side and star on the other moves it one hour. Dyn11 puts the LV 30° ahead. Units may share a board only with the same ratio and group. Otherwise the gap between them drives a circulating current. Next: transformers on the job.';
+
+  // ================= state =================
+  const BASE = { hv: 'Star', dc: 'A–B', lv: 'As marked', g2: 'Dyn11', z: 5, closed: false, barOn: false, trip: 0, arr: 4, pulse: 3 };
+  const X = Object.assign({}, BASE);              // what the picture shows now
+  const D = { bar: 0, sw: 1 };                    // the drawn bar and switch, easing towards X
+  const blank = () => ({ pick: null, res: null, why: false, tries: 0, hint: '' });
+  let S = STEPS.map(blank);
+  const solved = (st) => !!st && (st.res === 'right' || st.res === 'shown');
+  let T = Infinity, motionEnd = 0, scripted = false, lastStep = -1, finished = false, lastDone = false, held = false, VIEW = 0;
+  let REC = { t: {} };
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  const quiet = () => REDUCE || testing();
+  const el = (id) => document.getElementById(id);
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  const I_GAP = idx('Two hours apart');
+  // A puzzle's figure stays "?" on screen until that puzzle is checked.
+  const hideOut = (i, key) => !finished && !!STEPS[i].hide && STEPS[i].hide.indexOf(key) >= 0 && !solved(S[i]);
+  // The Dyn1 gap a later puzzle asks for stays "?" on the screens before it.
+  const spoils = (i) => !finished && i < I_GAP && !solved(S[I_GAP]) && X.g2 === 'Dyn1';
+
+  // ================= hands that move an hour at a time, wires that cross-fade =================
+  const mk = (h) => ({ base: h, dist: 0, el: 0, tgt: h });
+  const SW = { hw: mk(1), lw: mk(1), ab: mk(0), t2: mk(0) };
+  function sv(s) {
+    if (!s.dist) return s.base;
+    const n = Math.abs(s.dist), q = s.el / HOUR_S;
+    if (q >= n) return s.base + s.dist;
+    const k = Math.floor(q), f = q - k, stp = Math.min(1, n - k);
+    return s.base + Math.sign(s.dist) * (k + stp * K.ease(Math.min(1, f / 0.7)));
+  }
+  function sto(s, h) {
+    if (s.tgt === h) return;
+    const cur = sv(s);
+    let d = (((h - cur) % 12) + 12) % 12;
+    if (d > 6 + 1e-9) d -= 12;
+    s.tgt = h; s.el = 0;
+    if (Math.abs(d) < 1e-9) { s.base = h; s.dist = 0; } else { s.base = cur; s.dist = d; }
+  }
+  function stick(s, dt) { if (!s.dist) return; s.el += dt; if (s.el / HOUR_S >= Math.abs(s.dist)) { s.base = s.tgt; s.dist = 0; s.el = 0; } }
+  function ssnap(s, h) { s.base = h; s.tgt = h; s.dist = 0; s.el = 0; }
+  const mkW = (k) => ({ cur: k, old: k, p: 1 });
+  const WS = { hv: mkW('Y'), lv: mkW('M') };
+  function wto(w, k) { if (w.cur === k) return; w.old = w.p >= 0.5 ? w.cur : w.old; w.cur = k; w.p = 0; }
+  function wsnap(w, k) { w.cur = k; w.old = k; w.p = 1; }
+  const ease1 = (v, t, dt, tau) => { const e = t - v; return Math.abs(e) <= 1e-3 * Math.max(1, Math.abs(t)) ? t : v + e * (1 - Math.exp(-dt / tau)); };
+  function targets() {
+    const c = clockOf(X.hv, X.dc, X.lv);
+    return { hw: c.hw, lw: c.lw, ab: c.ab, t2: anOf(X.g2), hvK: X.hv === 'Star' ? 'Y' : X.dc === 'A–C' ? 'DAC' : 'DAB',
+      lvK: X.lv === 'Swapped' ? 'S' : 'M', bar: X.barOn ? circOf(X.g2, X.z) : 0, sw: X.closed ? 0 : 1 };
+  }
+  const HANDS = ['hw', 'lw', 'ab', 't2'];
+  function snapD() {
+    const t = targets();
+    HANDS.forEach((k) => ssnap(SW[k], t[k]));
+    wsnap(WS.hv, t.hvK); wsnap(WS.lv, t.lvK);
+    D.bar = t.bar; D.sw = t.sw;
+  }
+  function tween(dt) {
+    const t = targets();
+    HANDS.forEach((k) => { sto(SW[k], t[k]); stick(SW[k], dt); });
+    wto(WS.hv, t.hvK); wto(WS.lv, t.lvK);
+    [WS.hv, WS.lv].forEach((w) => { if (w.p < 1) w.p = Math.min(1, w.p + dt / 0.4); });
+    D.bar = ease1(D.bar, t.bar, dt, 0.1); D.sw = ease1(D.sw, t.sw, dt, 0.08);
+  }
+  function settled() {
+    const t = targets();
+    return HANDS.every((k) => !SW[k].dist && SW[k].tgt === t[k]) && WS.hv.p === 1 && WS.lv.p === 1 &&
+      WS.hv.cur === t.hvK && WS.lv.cur === t.lvK && D.bar === t.bar && D.sw === t.sw;
+  }
+  const tripping = () => X.closed && gapOf(X.g2) > 1e-9 && STEPS[VIEW].card === 'par';
+  snapD();
+
+  // ================= text with amber key terms (built with K.el, never innerHTML) =================
+  const UNIT_GAP = /(\d) (?=(?:kVA|V|A|W|×)(?![A-Za-z]))/g;
+  function write(node, s) {
+    node.textContent = '';
+    String(s || '').replace(UNIT_GAP, '$1' + NB).split(/\*([^*]+)\*/).forEach((seg, k) => {
+      if (!seg) return;
+      node.appendChild(k % 2 ? K.el('span', { class: 'term' }, seg) : document.createTextNode(seg));
+    });
+  }
+
+  // ================= controls =================
+  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);
+  const CTL = {
+    hv: K.choice({ id: 'hv', label: 'HV winding', options: ['Star', 'Delta'], value: 'Star', into: '#c-hv' }),
+    dc: K.choice({ id: 'dc', label: 'Delta closed', options: ['A–B', 'A–C'], value: 'A–B', into: '#c-dc' }),
+    lv: K.choice({ id: 'lv', label: 'LV ends', options: ['As marked', 'Swapped'], value: 'As marked', into: '#c-lv' }),
+    g2: K.choice({ id: 'g2', label: 'T2 group', options: GROUPS, value: 'Dyn11', into: '#c-g2' }),
+  };
+  const CTL_IDS = Object.keys(CTL);
+  const pushed = {};
+  CTL_IDS.forEach((id) => { pushed[id] = CTL[id].get(); });
+  // The page moves the controls itself during a demonstration (silently, so it is not taken for Dan's move).
+  function push() {
+    CTL_IDS.forEach((id) => { if (pushed[id] !== X[id]) { CTL[id].set(X[id], true); pushed[id] = CTL[id].get(); } });
+  }
+  const shownCtl = (d, id) => !finished && !!d.ctl && d.ctl.indexOf(id) >= 0 && (id !== 'dc' || X.hv === 'Delta');
+  const closeBtn = K.button({ label: 'Close the switch', into: '#par-acts', press: () => {
+    const d = STEPS[at()];
+    if (finished || !d.close) return;
+    if (T !== Infinity) { anim.pause(); T = Infinity; scripted = false; }
+    if (X.closed && gapOf(X.g2) < 1e-9) X.closed = false;          // no gap: it simply opens again
+    else { X.closed = true; X.barOn = true; X.trip = 0; }
+    held = false;
+    K.refresh();
+  } });
+
+  const RO = {
+    hour: K.readout({ id: 'r-hour', label: 'Hour', fmt: (v) => String(v), into: '#outs' }),
+    deg: K.readout({ id: 'r-deg', label: 'Clockwise from twelve', fmt: (v) => v + '°', into: '#outs' }),
+    gap: K.readout({ id: 'r-gap', label: 'Across the switch', fmt: fV, into: '#outs' }),
+    circ: K.readout({ id: 'r-circ', label: 'Circulating if closed', fmt: fX, into: '#outs' }),
+  };
+
+  // Up to four answer buttons; each puzzle fills in its own.
+  const pickBtns = [0, 1, 2, 3].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.kind !== 'pick' || k >= d.opts.length || solved(st)) return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+  // Typed answers: a field each; Check grades it, two misses show the working.
+  const ANS = {};
+  STEPS.forEach((d, i) => {
+    if (d.kind !== 'typed') return;
+    el('answers').appendChild(K.el('div', { id: 'ans-' + d.ans }));
+    const a = K.answer({ id: 'a-' + d.ans, unit: d.unit, answer: d.answer, decimals: d.decimals, accept: d.accept, slips: d.slips, into: '#ans-' + d.ans,
+      onCheck: (r) => {
+        const st = S[i];
+        if (solved(st)) return;
+        if (r.state === 'right') st.res = 'right';
+        else if (r.state === 'wrong') {
+          st.tries += 1; st.hint = r.hint || d.hint;
+          if (st.tries >= 2) { st.res = 'shown'; st.why = true; a.reveal(); }
+          else st.res = 'wrong';
+        } else { st.res = r.state; st.hint = ''; }
+        K.refresh();
+      } });
+    ANS[d.ans] = a;
+  });
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || solved(st)) return;
+    if (d.kind === 'typed') { ANS[d.ans].check(); return; }
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = st.pick === d.want ? 'right' : 'wrong';
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    const d = STEPS[at()];
+    if (d.show || finished) return;
+    S[at()].why = !S[at()].why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    if (!STEPS[at()].show || finished) return;
+    startDemo(at());
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && !solved(S[i]))) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true; anim.pause(); T = Infinity;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(blank); finished = false; lastStep = -1;
+    Object.keys(ANS).forEach((k) => ANS[k].reset());
+    stepper.set(0, true);
+  } });
+
+  // ================= motion: one animation runs the demonstrations, the hands and the trip =================
+  const needAnim = () => !finished && (T !== Infinity || !settled() || tripping());
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    dt = Math.min(dt, 0.1);
+    const i = at(), d = STEPS[i];
+    VIEW = i;
+    if (T !== Infinity) {
+      T += dt;
+      if (scripted && d.demo) d.demo(Math.min(T, motionEnd));
+      if (T >= motionEnd) { T = Infinity; if (scripted) { scripted = false; Object.assign(X, d.end || {}); } }
+    }
+    if (tripping()) { X.trip += dt; if (X.trip >= TRIP_S) { X.closed = false; X.trip = 0; } }
+    if (REDUCE) snapD(); else tween(dt);
+    push();
+    paint(i);
+    return needAnim();
+  } });
+  function kick() {
+    if (testing()) { snapD(); return; }
+    if (REDUCE) snapD();
+    if (needAnim() && !anim.playing()) anim.play();
+  }
+  // A screen's state: its opening, or (for a demonstration) where it ends; a solved puzzle shows its answer.
+  function prep(i, showEnd) {
+    const d = STEPS[i];
+    VIEW = i;
+    Object.assign(X, BASE, d.enter || {});
+    if (d.show && showEnd) { if (d.demo) d.demo(d.dur); Object.assign(X, d.end || {}); }
+    if (!d.show && d.after && solved(S[i])) Object.assign(X, d.after);
+    snapD();
+  }
+  function startDemo(i) {
+    const d = STEPS[i];
+    anim.pause(); held = false;
+    if (d.demo && !quiet()) { prep(i, false); scripted = true; motionEnd = d.dur; T = 0; d.demo(0); snapD(); anim.play(); }
+    else { scripted = false; T = Infinity; prep(i, true); }
+    push();
+  }
+  function enterStep(i) {
+    const d = STEPS[i];
+    anim.pause(); T = Infinity; scripted = false; held = false;
+    enter('stepbox');
+    if (d.show) { startDemo(i); return; }
+    prep(i, false);
+    push();
+  }
+  // The finished picture a still shows (the read-through), with the controls where its words end.
+  function setStill() {
+    const i = at();
+    anim.pause(); T = Infinity; scripted = false; held = true;
+    prep(i, true);
+    push();
+    K.refresh();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ================= drawing helpers =================
+  let G = null;
+  const add = (node, par) => (par || G).appendChild(node);
+  const r1 = (v) => Math.round(v * 10) / 10;
+  const text = (x, y, s, cls, anchor) => add(K.svg('text', { class: cls || 'lab', x: r1(x), y: r1(y), 'text-anchor': anchor || 'start' }, s));
+  const ptsS = (pts) => pts.map((p) => r1(p[0]) + ',' + r1(p[1])).join(' ');
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r1(x1), y1: r1(y1), x2: r1(x2), y2: r1(y2) }));
+  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: r1(x), y: r1(y), width: r1(Math.max(0, w)), height: r1(Math.max(0, h)), rx: rx || 0 }));
+  const circle = (cls, cx, cy, r) => add(K.svg('circle', { class: cls, cx: r1(cx), cy: r1(cy), r }));
+  const path = (cls, d) => add(K.svg('path', { class: cls, d }));
+  const setOp = (n, o) => { if (n && o < 1) n.setAttribute('opacity', (Math.round(o * 100) / 100).toString()); return n; };
+  const nrm = (x) => { const v = ((x % 360) + 360) % 360; return Math.abs(v - 360) < 1e-9 ? 0 : v; };
+  // An arrow: its shaft stops at the base of its head, so the tip is exact.
+  function arrow(x1, y1, x2, y2, cls, head) {
+    const L = Math.hypot(x2 - x1, y2 - y1);
+    if (L < 0.6) return [];
+    const ux = (x2 - x1) / L, uy = (y2 - y1) / L, hl = Math.min(head, L * 0.6), hw = hl * 0.5;
+    const bx = x2 - ux * hl, by = y2 - uy * hl;
+    const out = [add(K.svg('polygon', { class: cls + '-h', points: ptsS([[x2, y2], [bx - uy * hw, by + ux * hw], [bx + uy * hw, by - ux * hw]]) }))];
+    if (L - hl > 0.6) out.unshift(line(cls, x1, y1, bx, by));
+    return out;
+  }
+
+  // ================= the clock card =================
+  const LX = [60, 106, 152], HVR = [16, 30, 44], LVR = [206, 220, 234], NR = 248;
+  const C0 = [268, 88], RIM = 62;
+  const cAt = (h, r) => [C0[0] + r * Math.sin(h * Math.PI / 6), C0[1] - r * Math.cos(h * Math.PI / 6)];
+  function rail(n, y) { line('rail', 22, y, 176, y); circle('term', 18, y, 3.6); text(8, y + 4.5, n, 'lab', 'middle'); }
+  function coil(cx, y0, cls, first) {
+    rect('coil ' + cls + (first ? ' one' : ''), cx - 12, y0, 24, 42, 5);
+    for (let k = 1; k < 6; k++) line('turn ' + cls, cx - 12, y0 + 7 * k, cx + 12, y0 + 7 * k);
+  }
+  function inGroup(o, fn) {
+    if (o < 0.01) return;
+    const g = add(K.svg('g', { opacity: (Math.round(o * 100) / 100).toString() })), keep = G;
+    G = g; fn(); G = keep;
+  }
+  // HV: each winding's top end goes to its own line; the bottom ends meet at a star point, or go on round the delta.
+  function hvWires(key, o) {
+    inGroup(o, () => {
+      if (key === 'Y') {
+        LX.forEach((cx) => path('wire', 'M' + (cx - 6) + ' 104V114'));
+        path('wire', 'M' + (LX[0] - 6) + ' 114H' + (LX[2] - 6));
+        circle('dot', LX[1] - 6, 114, 2.8);
+      } else {
+        const to = key === 'DAB' ? [1, 2, 0] : [2, 0, 1];
+        LX.forEach((cx, k) => { path('wire', 'M' + (cx + 6) + ' 104V110H' + (cx + 19) + 'V' + HVR[to[k]]); circle('dot', cx + 19, HVR[to[k]], 2.8); });
+      }
+    });
+  }
+  // LV: a star with n brought out. As marked, the top end goes to its line and the bottom end to n; swapped, the other way.
+  function lvWires(key, o) {
+    inGroup(o, () => {
+      LX.forEach((cx, k) => {
+        const top = key === 'M' ? LVR[k] : NR, bot = key === 'M' ? NR : LVR[k];
+        path('wire', 'M' + (cx - 6) + ' 134V128H' + (cx - 19) + 'V' + top); circle('dot', cx - 19, top, 2.8);
+        path('wire', 'M' + (cx + 6) + ' 176V' + bot); circle('dot', cx + 6, bot, 2.8);
+      });
+    });
+  }
+  function hand(h, len, cls, o) {
+    if (o < 0.01) return null;
+    const p = cAt(h, len);
+    return setOp(line('hand ' + cls, C0[0], C0[1], p[0], p[1]), o);
+  }
+  const HOURW = ['twelve', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven'];
+  function drawClock() {
+    G = el('artC'); G.textContent = '';
+    rect('iron', 50, 52, 112, 6); rect('iron', 50, 186, 112, 6);
+    LX.forEach((cx) => rect('iron', cx - 4, 52, 8, 140));
+    ['A', 'B', 'C'].forEach((n, k) => rail(n, HVR[k]));
+    ['a', 'b', 'c', 'n'].forEach((n, k) => rail(n, k < 3 ? LVR[k] : NR));
+    LX.forEach((cx, k) => { coil(cx, 62, 'hv', !k); coil(cx, 134, 'lv', !k); });
+    LX.forEach((cx, k) => { path('wire', 'M' + (cx - 6) + ' 62V' + HVR[k]); circle('dot', cx - 6, HVR[k], 2.8); });
+    if (WS.hv.p < 1 && WS.hv.old !== WS.hv.cur) hvWires(WS.hv.old, 1 - WS.hv.p);
+    hvWires(WS.hv.cur, WS.hv.p);
+    if (WS.lv.p < 1 && WS.lv.old !== WS.lv.cur) lvWires(WS.lv.old, 1 - WS.lv.p);
+    lvWires(WS.lv.cur, WS.lv.p);
+    text(4, 87, 'HV', 'side', 'start'); text(4, 159, 'LV', 'side', 'start'); text(4, 118, 'Limb 1', 'hr', 'start');
+    // The clock: small teal hours, the HV line voltage fixed at twelve, the LV line voltage as the hour hand.
+    circle('rim', C0[0], C0[1], RIM);
+    for (let h = 0; h < 12; h++) {
+      const p = cAt(h, 56), q = cAt(h, 62), t = cAt(h, 48);
+      line('tick', p[0], p[1], q[0], q[1]);
+      text(t[0], t[1] + 4.5, h ? String(h) : '12', 'hr', 'middle');
+    }
+    const op = (k) => K.clamp(X.arr - k, 0, 1);
+    const hw = sv(SW.hw), lw = sv(SW.lw), ab = sv(SW.ab);
+    hand(hw, 40, 'thin hv', op(1)); hand(lw, 40, 'thin lv', op(1));
+    hand(0, 33, 'thick hv', op(0)); hand(ab, 27, 'thick lv', op(2));
+    circle('dot', C0[0], C0[1], 4);
+    const hn = m12(ab), nm = (X.hv === 'Star' ? 'Yyn' : 'Dyn') + hn;
+    setOp(text(C0[0], 184, nm, 'name', 'middle'), op(3));
+    [['thick hv', 'Line A–B'], ['thick lv', 'Line a–b'], ['thin hv', 'Limb 1 HV'], ['thin lv', 'Limb 1 a–n']].forEach(([cls, s], k) => {
+      const y = 202 + 15 * k;
+      line('hand ' + cls, cls.indexOf('thick') >= 0 ? 200 : 196, y, cls.indexOf('thick') >= 0 ? 212 : 216, y);
+      text(222, y + 4.5, s, 'lab', 'start');
+    });
+    const joins = X.hv === 'Star' ? 'a star' : 'a delta closed ' + X.dc;
+    el('clock').setAttribute('aria-label', 'A three-limb core. Its HV windings are joined in ' + joins + '. Its LV windings are a star with n brought out, ends ' +
+      (X.lv === 'Swapped' ? 'swapped' : 'as marked') + '. On the clock the HV line voltage A–B points at twelve, limb 1\'s HV winding at ' + HOURW[m12(hw)] +
+      ', its LV winding a–n at ' + HOURW[m12(lw)] + ' and the LV line voltage a–b at ' + HOURW[hn] + '. The name is ' + nm + '.');
+    REC.name = nm; REC.hv = X.hv; REC.nOut = true;
+    REC.ang = { AB: 0, ab: nrm(ab * 30), hw: nrm(hw * 30), lw: nrm(lw * 30) };
+  }
+
+  // ================= the paralleling card =================
+  const P0 = [150, 236], PR = 52, T1X = 100, T2X = 240;
+  const pAt = (h, r) => [P0[0] + r * Math.sin(h * Math.PI / 6), P0[1] - r * Math.cos(h * Math.PI / 6)];
+  const cdist = (a, b) => { const d = Math.abs(a - b) % 12; return Math.min(d, 12 - d); };
+  function drawPar(i) {
+    const d = STEPS[i];
+    G = el('artP'); G.textContent = '';
+    line('bus', 60, 14, 280, 14); text(286, 18.5, '440' + NB + 'V', 'lab', 'start');
+    [[T1X, 'T1', 'Dyn11', 'end', T1X - 28], [T2X, 'T2', X.g2, 'start', T2X + 28]].forEach(([x, nm, grp, anc, lx]) => {
+      line('wire', x, 14, x, 28); circle('dot', x, 14, 3);
+      circle('tc hv', x, 40, 12); circle('tc lv', x, 58, 12);
+      text(lx, 36, nm, 'lab', anc); text(lx, 52, grp, 'lab', anc); text(lx, 68, 'Z = ' + X.z + '%', 'tk', anc);
+    });
+    // Phase a of each unit to the open switch; the neutrals joined below.
+    path('wire', 'M100 70V92H147'); path('wire', 'M240 70V92H193');
+    circle('term', 150, 92, 3); circle('term', 190, 92, 3);
+    const gap = gapOf(X.g2), bad = X.closed && gap > 1e-9, a = -0.56 * D.sw;
+    const blade = line('blade' + (bad ? ' bad' : ''), 150, 92, 150 + 40 * Math.cos(a), 92 + 40 * Math.sin(a));
+    if (bad) setOp(blade, 0.6 + 0.4 * Math.cos(X.trip * Math.PI * 5));
+    text(170, 112, 'Switch', 'lab', 'middle');
+    path('wire', 'M88 58H78V124H262V58H252');
+    text(84, 118, 'Neutral', 'tk', 'start');
+    // The phase-a arrows from the joined neutrals, and the gap between their tips.
+    circle('dot', P0[0], P0[1], 3.5);
+    text(P0[0] - 9, P0[1] + 4.5, 'n', 'lab', 'end');
+    text(14, 272, 'Each arrow 66.40' + NB + 'V', 'tk', 'start');
+    const h2 = sv(SW.t2), tip1 = pAt(0, PR), tip2 = pAt(h2, PR);
+    arrow(P0[0], P0[1], tip1[0], tip1[1], 'ta1', 10);
+    arrow(P0[0], P0[1], tip2[0], tip2[1], 'ta2', 10);
+    const gx = tip1[0] - tip2[0], gy = tip1[1] - tip2[1], glen = Math.hypot(gx, gy);
+    const mid = [(tip1[0] + tip2[0]) / 2, (tip1[1] + tip2[1]) / 2];
+    let nx = mid[0] - P0[0], ny = mid[1] - P0[1];
+    const nr = Math.hypot(nx, ny);
+    if (nr < 1e-6) { nx = glen ? -gy / glen : 1; ny = glen ? gx / glen : 0; } else { nx /= nr; ny /= nr; }
+    const off = Math.max(0, 10 - nr);              // keeps the gap arrow beside the two arrows when it runs through n
+    if (glen > 2) arrow(tip2[0] + nx * off, tip2[1] + ny * off, tip1[0] + nx * off, tip1[1] + ny * off, 'gapa', 9);
+    if (cdist(h2, 0) < 0.35) { const p = pAt(0, PR + 14); text(p[0], p[1] + 4.5, 'T1, T2', 'lab', 'middle'); }
+    else {
+      const p = pAt(0, PR + 14), q = pAt(h2, PR + 14);
+      text(p[0], p[1] + 4.5, 'T1', 'lab', 'middle'); text(q[0], q[1] + 4.5, 'T2', 'lab', 'middle');
+    }
+    const shown = hideOut(i, 'gap') || spoils(i) ? '?' : fV(gap);
+    const lop = K.clamp(1 - 1.5 * cdist(h2, SW.t2.tgt), 0, 1);
+    if (lop > 0.05) {
+      const out = 34 - 18 * K.clamp(1 - nr / 20, 0, 1) + off;
+      const lp = [mid[0] + nx * out, mid[1] + ny * out], anc = nx > 0.6 ? 'start' : nx < -0.6 ? 'end' : 'middle';
+      setOp(text(lp[0], lp[1] + 4.5, shown, 'gaplab' + (gap > 1e-9 ? ' bad' : ''), anc), lop);
+    }
+    // The circulating bar, 0 to 25 times rated: it jumps to its figure when the switch closes across a gap.
+    if (d.bar) {
+      rect('bar', 300, 184, 16, 108, 3);
+      const h = 108 * K.clamp(D.bar / 25, 0, 1);
+      if (h > 0.3) rect('barfill', 300, 292 - h, 16, h);
+      text(336, 160, 'Circulating', 'lab', 'end'); text(336, 174, '×' + NB + 'rated', 'tk', 'end');
+      line('tick', 295, 184, 300, 184); line('tick', 295, 292, 300, 292);
+      text(292, 188.5, '25', 'tk', 'end'); text(292, 296.5, '0', 'tk', 'end');
+    }
+    el('par').setAttribute('aria-label', 'T1, a Dyn11, and T2, a ' + X.g2 + ', both fed from a 440 V busbar, each with ' + X.z + '% impedance. Their phase-a outputs meet at a switch that is ' +
+      (X.closed ? 'closed' : 'open') + ', and their neutrals are joined. Below, from the joined neutrals, T1\'s and T2\'s phase-a arrows ' +
+      (glen > 2 ? 'point apart, with a gap arrow between their tips.' : 'lie on top of each other, so there is no gap.') +
+      (d.bar ? ' On the right, a bar for the circulating current ' + (D.bar > 0.05 ? 'is filled.' : 'is empty.') : ''));
+    REC.gapLab = shown; REC.gapLen = glen / PR * VPH; REC.bar = D.bar; REC.closed = X.closed; REC.g2 = X.g2; REC.gapBad = glen > 2;
+  }
+
+  // ================= the twelve-pulse card =================
+  function drawPulse() {
+    G = el('artU'); G.textContent = '';
+    const c = [170, 72];
+    circle('rim', c[0], c[1], 48);
+    for (let h = 0; h < 12; h++) { const s = Math.sin(h * Math.PI / 6), k = Math.cos(h * Math.PI / 6); line('tick', c[0] + 42 * s, c[1] - 42 * k, c[0] + 48 * s, c[1] - 48 * k); }
+    const hd = (h, cls) => { const s = Math.sin(h * Math.PI / 6), k = Math.cos(h * Math.PI / 6); line('hand thick ' + cls, c[0], c[1], c[0] + 36 * s, c[1] - 36 * k); };
+    hd(0, 'c3'); hd(11, 'c4'); circle('dot', c[0], c[1], 4);
+    text(170, 15, 'Yyn0', 'lab', 'middle'); text(136, 21, 'Dyn11', 'lab', 'end');
+    text(20, 140, 'Each output over one cycle, tops only', 'hr', 'start');
+    const ROWS = [{ y: 164, f: six, cls: 'c3', lab: 'Bridge fed from the Yyn0: six bumps' },
+      { y: 226, f: sixB, cls: 'c4', lab: 'Bridge fed from the Dyn11, 30° later' },
+      { y: 288, f: both, cls: 'cs', lab: 'Both added: twelve smaller bumps' }];
+    ROWS.forEach((r, k) => {
+      line('tr ' + r.cls, 20, r.y - 12, 36, r.y - 12);
+      text(42, r.y - 8, r.lab, 'lab', 'start');
+      line('base', 24, r.y + 36, 324, r.y + 36);
+      const pk = r.f === both ? both(15) : 1, upto = K.clamp(X.pulse - k, 0, 1) * 360;
+      if (upto < 1) return;
+      const pts = [];
+      for (let a = 0; a <= upto + 1e-9; a += 2) pts.push([24 + a * 300 / 360, r.y + 36 * (1 - (r.f(a) / pk - 0.8) / 0.2)]);
+      add(K.svg('polyline', { class: 'tr ' + r.cls, points: ptsS(pts) }));
+    });
+    el('pulse').setAttribute('aria-label', 'A clock with the Yyn0 unit\'s LV hand at twelve and the Dyn11 unit\'s at eleven. Below, over one cycle, the bridge fed from the Yyn0 gives six bumps, the bridge fed from the Dyn11 gives six bumps half a bump later, and their sum gives twelve smaller bumps.');
+    REC.pulse = X.pulse;
+  }
+
+  // ================= one paint =================
+  function paint(i) {
+    if (i == null) i = at();
+    REC = { t: {} };
+    const card = STEPS[i].card;
+    if (card === 'clock') drawClock();
+    else if (card === 'par') drawPar(i);
+    else if (card === 'pulse') drawPulse();
+    readouts(i);
+    const lab = X.closed && gapOf(X.g2) < 1e-9 ? 'Open the switch' : 'Close the switch';
+    if (closeBtn.el.textContent !== lab) closeBtn.setLabel(lab);
+  }
+  function readouts(i) {
+    const h = m12(sv(SW.ab)), hid = hideOut(i, 'hour');
+    RO.hour.set(hid ? '?' : h);
+    RO.deg.set(hid ? '?' : h * 30);
+    RO.gap.set(hideOut(i, 'gap') || spoils(i) ? '?' : gapOf(X.g2));
+    RO.circ.set(hideOut(i, 'circ') ? '?' : circOf(X.g2, X.z));
+    Object.keys(RO).forEach((k) => { REC.t[k] = RO[k].text(); });
+  }
+
+  // ================= the page around the picture =================
+  write(el('finish'), FINISH);
+  function layout(i) {
+    const d = STEPS[i], st = S[i], sol = solved(st);
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Screen ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    CTL_IDS.forEach((id) => { el('c-' + id).hidden = !shownCtl(d, id); });
+    ['clock', 'par', 'pulse'].forEach((c) => el(c).toggleAttribute('hidden', d.card !== c));
+    el('par-acts').hidden = finished || !d.close;
+    const ro = d.ro || [];
+    el('outs').hidden = !ro.length;
+    Object.keys(RO).forEach((k) => { RO[k].el.hidden = ro.indexOf(k) < 0; });
+    replayBtn.el.hidden = !d.show || !d.demo || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    const opts = d.kind === 'pick' ? d.opts : [];
+    el('picks').hidden = !opts.length;
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      if (b.el.textContent !== opts[k]) b.setLabel(opts[k]);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    el('answers').hidden = d.kind !== 'typed';
+    Object.keys(ANS).forEach((key) => { el('ans-' + key).hidden = d.ans !== key; });
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = sol;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (st.res === 'right' ? ' right' : '');
+    let say = '';
+    if (!d.show) {
+      if (st.res === 'right') say = d.right || 'That\'s it.';
+      else if (st.res === 'shown') say = 'Here is the working.';
+      else if (st.res === 'wrong') say = d.kind === 'typed' ? st.hint : (d.hints && d.hints[st.pick]) || d.hint;
+      else if (st.res === 'empty' && d.kind === 'pick') say = 'Pick one of the answers first.';
+    }
+    write(fb, say);
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !sol);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  }
+
+  K.update((p) => {
+    const i = at(), d = STEPS[i];
+    VIEW = i;
+    if (i !== lastStep) { lastStep = i; enterStep(i); }
+    else {
+      let moved = false;
+      CTL_IDS.forEach((id) => {
+        if (p[id] === pushed[id]) return;
+        if (shownCtl(d, id)) {
+          if (T !== Infinity) { anim.pause(); T = Infinity; scripted = false; }   // his move ends the demonstration where it stands
+          X[id] = p[id]; pushed[id] = p[id]; moved = true;
+          if (id === 'g2') { X.closed = false; X.barOn = false; X.trip = 0; }     // a new partner starts with the switch open
+        } else CTL[id].set(pushed[id], true);      // a control this screen does not use stays put
+      });
+      if (moved) { held = false; push(); }
+    }
+    if (!d.show && d.after && solved(S[i])) Object.assign(X, d.after);
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    if (quiet()) snapD();
+    layout(i);
+    paint(i);
+    kick();
+  });
+
+  // ================= known answers, worked out by hand =================
+  const near = (a, b, t) => Math.abs(a - b) <= t;
+  const solvedSt = (i) => Object.assign(blank(), STEPS[i].kind === 'pick' ? { pick: STEPS[i].want, res: 'right' } : { res: 'right' });
+  // A screen painted in the state given (finished), with optional settings: what it drew.
+  function drawn(i, st, x) {
+    const keep = { X: Object.assign({}, X), SW: JSON.stringify(SW), WS: JSON.stringify(WS), D: Object.assign({}, D), S: S[i], T, sc: scripted, held, V: VIEW };
+    S[i] = st || blank(); T = Infinity; scripted = false; held = true;
+    try {
+      prep(i, true);
+      if (x) Object.assign(X, x);
+      snapD();
+      paint(i);
+      return REC;
+    } finally {
+      Object.assign(X, keep.X); Object.assign(D, keep.D);
+      const sw = JSON.parse(keep.SW), ws = JSON.parse(keep.WS);
+      Object.keys(sw).forEach((k) => Object.assign(SW[k], sw[k]));
+      Object.keys(ws).forEach((k) => Object.assign(WS[k], ws[k]));
+      S[i] = keep.S; T = keep.T; scripted = keep.sc; held = keep.held; VIEW = keep.V; paint();
+    }
+  }
+  const iRec = idx('Star phase voltage'), iStar = idx('Both sides star'), iDeg = idx('Hour to degrees'), iDelta = idx('Delta on the HV side');
+  const iTurns = idx('Turns per limb'), iWhole = idx('Whole hours'), iAhead = idx('Ahead or behind'), iBoard = idx('Two on one board');
+  const iCirc = idx('Circulating current'), iFour = idx('Four per cent each'), iPulse = idx('Twelve pulses'), iSwap = idx('Swap a Dyn1'), iMatch = idx('A matching partner');
+
+  K.check('Twelve hours make a full turn, so one hour is 30°, and the HV line voltage A–B stays nailed to 12 whatever the joins', () =>
+    12 * 30 === 360 && ['Star', 'Delta'].every((hv) => ['A–B', 'A–C'].every((dc) => ['As marked', 'Swapped'].every((lv) => {
+      const r = drawn(iWhole, null, { hv, dc, lv }), c = clockOf(hv, dc, lv);
+      return r.ang.AB === 0 && near(r.ang.ab, c.ab * 30, 1e-9) && r.t.deg === (c.ab * 30) + '°' && r.t.hour === String(c.ab);
+    }))), { source: SRC1 });
+  K.check('Dyn11 is a delta HV winding, a star LV winding with the neutral brought out, and a phase displacement of 11 × 30 = 330 degrees', () => {
+    const r = drawn(iDelta);
+    return r.name === 'Dyn11' && r.hv === 'Delta' && r.nOut === true && r.t.hour === '11' && r.t.deg === '330°' && 11 * 30 === 330;
+  }, { source: SRC2 });
+  K.check('Eleven o\'clock is 330 degrees, the same as the LV leading the HV by 30 degrees', () => {
+    const r = drawn(iAhead), cw = nrm(r.ang.ab - r.ang.AB);
+    return near(cw, 330, 1e-9) && near(360 - cw, 30, 1e-9) && STEPS[iAhead].want === '30° ahead';
+  }, { source: SRC2 });
+  K.check('The vector groups must be equal so that the output voltages correspond: only a matching group leaves no voltage across the open switch, and any other leaves a red gap', () =>
+    GROUPS.every((g) => (gapOf(g) < 1e-9) === (g === 'Dyn11')) && drawn(iBoard, null, { g2: 'Dyn11' }).t.gap === fV(0) &&
+    !drawn(iBoard, null, { g2: 'Dyn11' }).gapBad && drawn(iBoard, null, { g2: 'Yyn0' }).gapBad && STEPS[iMatch].want === STEPS[iMatch].opts[2], { source: SRC4 });
+  K.check('Worked from the phase voltages, A–B = A–N − B–N points at twelve and A–C = A–N − C–N at two; so limb 1\'s HV winding sits at 1, 12 and 2, and the names are Yyn0, Dyn11, Dyn1, Yyn6, Dyn5 and Dyn7', () => {
+    const v = (h) => [Math.sin(h * Math.PI / 6), Math.cos(h * Math.PI / 6)];
+    const hourV = (p) => { const a = Math.atan2(p[0], p[1]) * 6 / Math.PI; return ((a % 12) + 12) % 12; };
+    const AN = v(1), BN = v(5), CN = v(9);
+    const ab = hourV([AN[0] - BN[0], AN[1] - BN[1]]), ac = hourV([AN[0] - CN[0], AN[1] - CN[1]]);
+    const W = [['Star', 'A–B', 'As marked', 'Yyn0', 30], ['Delta', 'A–B', 'As marked', 'Dyn11', 0], ['Delta', 'A–C', 'As marked', 'Dyn1', 60],
+      ['Star', 'A–B', 'Swapped', 'Yyn6', 30], ['Delta', 'A–B', 'Swapped', 'Dyn5', 0], ['Delta', 'A–C', 'Swapped', 'Dyn7', 60]];
+    return cdist(ab, 0) < 1e-9 && cdist(ac, 2) < 1e-9 && W.every(([hv, dc, lv, nm, hd]) => {
+      const r = drawn(iWhole, null, { hv, dc, lv });
+      return r.name === nm && near(r.ang.hw, hd, 1e-9) && near(r.ang.lw, nrm(hd + (lv === 'Swapped' ? 180 : 0)), 1e-9) && near(nrm(r.ang.lw - r.ang.ab), 30, 1e-9);
+    });
+  });
+  K.check('At 5% each the switch sees 0.00 V, 34.37 V, 66.40 V and 132.79 V for Dyn11, Yyn0, Dyn1 and Dyn5, driving 0.0, 5.2, 10.0 and 20.0 times rated; at 4% each Yyn0 drives 6.5; the gap arrow is the distance between the tips', () => {
+    const W = { Dyn11: ['0.00', '0.0'], Yyn0: ['34.37', '5.2'], Dyn1: ['66.40', '10.0'], Dyn5: ['132.79', '20.0'] };
+    const ok = GROUPS.every((g) => {
+      const r = drawn(iCirc, null, { g2: g });
+      return r.t.gap === W[g][0] + NB + 'V' && r.t.circ === W[g][1] + NB + '× rated' && near(r.gapLen, gapOf(g), 1e-6);
+    });
+    return ok && drawn(iFour, solvedSt(iFour)).t.circ === '6.5' + NB + '× rated' && near(VPH, 66.395, 0.001) && near(2 * VPH, 132.79, 0.005);
+  });
+  K.check('Each typed answer and slip is worked from its rule: 254 V (762, 147, 440), 150° (5, 30, 210), 6.63 (3.83, 2.21), 66.40 V (0, 34.37, 115), 6.5 (13, 5.2, 2.1) and 7 (5, 1)', () => {
+    const sl = (i, v) => STEPS[i].slips.length === v.length && STEPS[i].slips.every((s, k) => near(s.value, v[k], 1e-12));
+    const w0 = (v) => Math.round(v), w1 = (v) => Math.round(v * 10) / 10, w2 = (v) => Math.round(v * 100) / 100;
+    const work = w0(440 / 1.732) === 254 && w0(440 * 1.732) === 762 && w0(440 / 3) === 147 &&
+      5 * 30 === 150 && 7 * 30 === 210 &&
+      w2(115 / 1.732) === 66.4 && w2(440 / 66.40) === 6.63 && w2(440 / 115) === 3.83 && w2(254 / 115) === 2.21 &&
+      w2(2 * 66.40 * Math.sin(Math.PI / 6)) === 66.4 && w2(gapOf('Yyn0')) === 34.37 && w2(gapOf('Dyn1')) === 66.4 &&
+      w0(100 * gapOf('Yyn0') / VPH) === 52 && 52 / 8 === 6.5 && 52 / 4 === 13 && w1(52 * 4 / 100) === 2.1 &&
+      w1(circOf('Yyn0', 4)) === 6.5 && w1(circOf('Yyn0', 5)) === 5.2 &&
+      clockOf('Delta', 'A–C', 'Swapped').ab === 7 && clockOf('Delta', 'A–B', 'Swapped').ab === 5 && clockOf('Delta', 'A–C', 'As marked').ab === 1;
+    return work && STEPS[iRec].answer === 254 && STEPS[iDeg].answer === 150 && STEPS[iTurns].answer === 6.63 && STEPS[I_GAP].answer === 66.4 &&
+      STEPS[iFour].answer === 6.5 && STEPS[iSwap].answer === 7 &&
+      sl(iRec, [762, 147, 440]) && sl(iDeg, [5, 30, 210]) && sl(iTurns, [3.83, 2.21]) && sl(I_GAP, [0, 34.37, 115]) && sl(iFour, [13, 5.2, 2.1]) && sl(iSwap, [5, 1]);
+  });
+  K.check('Before a Check the gap, the circulating current and the swapped hour show ?, after it 66.40 V, 6.5 × rated and 7; the Dyn1 gap shows ? on the screen before its puzzle', () => {
+    const b = (i) => drawn(i, blank()), s = (i) => drawn(i, solvedSt(i));
+    const g0 = b(I_GAP), g1 = s(I_GAP), c0 = b(iFour), c1 = s(iFour), w0 = b(iSwap), w1 = s(iSwap), early = drawn(iBoard, null, { g2: 'Dyn1' });
+    return g0.t.gap === '?' && g0.gapLab === '?' && g1.t.gap === '66.40' + NB + 'V' && g1.gapLab === '66.40' + NB + 'V' &&
+      c0.t.circ === '?' && c0.bar === 0 && c1.t.circ === '6.5' + NB + '× rated' && c1.bar > 6 &&
+      w0.t.hour === '?' && w0.t.deg === '?' && w0.name === 'Dyn1' && w1.t.hour === '7' && w1.t.deg === '210°' && w1.name === 'Dyn7' &&
+      early.t.gap === '?' && early.gapLab === '?';
+  });
+  K.check('Each six-pulse output has six bumps a cycle and their sum twelve, with under a third of the ripple', () => {
+    const peaks = (f) => { let n = 0; for (let a = 0; a < 360; a += 0.5) { const v = f(a); if (v > f(a - 0.5) && v >= f(a + 0.5)) n++; } return n; };
+    const rip = (f) => { let lo = Infinity, hi = -Infinity; for (let a = 0; a < 360; a += 0.5) { lo = Math.min(lo, f(a)); hi = Math.max(hi, f(a)); } return (hi - lo) / hi; };
+    return peaks(six) === 6 && peaks(sixB) === 6 && peaks(both) === 12 && rip(both) < rip(six) / 3 && near(six(0), 1, 1e-12) && near(sixB(30), 1, 1e-12);
+  });
+  K.check('Every demonstration ends 3 to 4.5 s after its screen opens, on the state its words end on', () => {
+    const c = drawn(iCirc);
+    return STEPS.every((d) => !d.show || (d.dur >= 3 && d.dur <= 4.5)) && drawn(iStar).name === 'Yyn0' && drawn(iDelta).name === 'Dyn11' &&
+      drawn(iWhole).name === 'Dyn5' && drawn(iBoard).g2 === 'Yyn0' && c.g2 === 'Dyn5' && near(c.bar, 20, 1e-9) && c.closed === false && drawn(iPulse).pulse === 3;
+  });
+  K.ready();
+</script>

@@ -1,0 +1,41 @@
+{
+  "draft": "i3.lesson.draft1.txt",
+  "validator": "draft 1 fails one hard problem: whatAmILookingAt is 14546 characters, over the 12000 limit",
+  "keep": [
+    "The idea is named up front: only a changing flux makes a voltage, in every turn it threads, so a transformer needs AC, and on a supply the voltage fixes the flux.",
+    "The picture is the brief's Move the flux: two coils on one ring, a meter on the secondary, the primary's current dragged by hand, flux and emf traces side by side, change and induced-field arrows, an AC mode with f and N sliders and E = 4.44 f N Phi live, a Fix the voltage switch, and a DC mode whose current runs red.",
+    "One rule set computes every figure: flux = N I / 120,000 At/Wb (2.5 mWb per amp), e = N dPhi/dt on 100 turns, E = 4.44 f N Phi, Phi = 440 / (4.44 f N), I peak = Phi x 120,000 / N, I = V / R on DC. 0.5 V, 440 V, 5.5, 5.0 and 6.6 mWb, 2.20, 1.82 and 2.64 A, 48 A, 1152 W, 178 V, 60 A and 0.6 V all follow.",
+    "4.44 is derived on screen (average 4 f Phi per turn times the form factor 1.11 from AC circuits lesson 2), with 2 pi / root 2 as a check, never handed over.",
+    "All four of the brief's lesson 3 misconceptions have their own DO screen with a hint per wrong answer: the unchanging field (screen 3, typed 0 V), no current so no emf (screen 4's open meter, then screen 5), 'opposes the change' read as 'opposite direction' (screen 5, the falling flux), more primary turns more flux (screen 9, typed 5.0 mWb). DC has its show (10) and a typed puzzle (11).",
+    "Recall opener (AC circuits lesson 1: where the turning coil's emf peaks) is screen 1, with 'Still there.' It is a position, so options are right.",
+    "Typed answers for every figure (screens 3, 7, 9, 11, 12, 13), each with slips, hints and a want; options only for the position of the peak and the direction of the induced field.",
+    "Every DO Read only restates its question; every SHOW that asks for a move has a Read and a Still. The generator is deferred in one line in ignores."
+  ],
+  "fix": [
+    "Hard: whatAmILookingAt is 14546 characters. Cut the picture's description (the 4.44 worked lines repeat screen 6; the DC paragraph repeats screen 10), and tighten the Why lines.",
+    "Screen 6 runs to 95 words; bring it under 90.",
+    "False absolute in practice: 'Never connect a transformer winding to DC' is wrong for a resistance or insulation test, which put DC on a winding on purpose. Say never feed a transformer from a DC supply, and that a test set's small current is a different matter.",
+    "Inconsistency: ignores calls the voltmeter ideal with no current, while screen 4 says it takes almost no current. Say in ignores that the picture's meter takes none and a real one a tiny current.",
+    "Screen 13's slip hint 'f is below the line' is unreadable. Say that f divides, so a lower f gives more flux.",
+    "'Saturation collapses it' (practice, inductance) is stronger than the rule supports; say saturation cuts it sharply.",
+    "Thin research: only three sources reach this idea. Faraday's law and the EMF equation's derivation lean on AC circuits lessons 1 and 2 (the turning coil and the form factor), which Dan has, and on footnote 2 for the EMF equation; Lenz's direction is argued from energy in plain reasoning, not cited. No claim beyond those is made; the 60-to-50 Hz heating inference is left out, as the brief asks."
+  ],
+  "faults": {
+    "skipped causal step": "none found: why held current gives zero (steady flux, no change), why the induced field points with a falling flux, why the supply fixes the flux (small resistance, so emf nearly equals V), why lower f gives more flux (longer half cycle) and why DC current is huge (no emf, only resistance) are each stated",
+    "false absolutes": "practice's 'Never connect a transformer winding to DC' (fix above); 'saturation collapses it'",
+    "interactive shows only the effect": "none: the flux trace and the emf trace run side by side, and the change and induced-field arrows draw the cause",
+    "checks test recall": "not applicable (taught mode); DO screens all ask for reasoning or working",
+    "thin or decorative research": "three sources only; noted above, nothing beyond them claimed",
+    "unreadable labels": "screen 13 slip hint (fix above); three readouts and three mode buttons wrap at 360 px, as stated",
+    "talks about instead of teaching": "none found"
+  },
+  "shape": {
+    "idea named up front": "yes, explain's first paragraph",
+    "rule in words": "yes: the emf in each turn equals the flux's rate of change; turns add",
+    "worked example with real numbers": "yes: 440 V, 60 Hz, 300 turns, 5.5 mWb; then 50 Hz, 6.6 mWb",
+    "misconception shown failing": "yes: screens 3, 5, 9",
+    "analogy with where it breaks": "yes: mileage and speedometer, breaking on Lenz and on AC never standing still",
+    "put it into practice": "yes: steps, rules of thumb, worked example, common mistakes",
+    "recap he could say back": "yes: the bold takeaway and the finish"
+  }
+}

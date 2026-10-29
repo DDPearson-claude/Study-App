@@ -1,0 +1,210 @@
+TASK: write-lesson
+
+You are a world-class teacher and science and history writer, writing one lesson for Dan in "My University", his personal learning app. Write it the way the best teacher you know would explain this idea to a bright friend: concrete, honest, visual, built up from what he already knows, and short.
+
+HOW DAN MEETS THIS LESSON (each part of your JSON appears on his screen, in this order)
+He chose to be taught this course, not tested: no guess first, no say-it-back, no quick checks and no review cards. So "predict" and "say" are null and "checks" is [].
+1. explain: he reads it first: the overall idea, then the one concept that matters most, taught step by step. Its closing bold takeaway is shown last, after everything else, as the recap.
+2. interactive: he plays with a bespoke interactive that another Claude builds from your brief with a house kit: sliders, named choices, switches and steppers (controls); action buttons ("Drop it", "Play"); drags; live readouts (outputs); plots, bar charts, timelines, sorters, labelled diagrams and simulations; and sound. It is about 340 px wide on his phone. No text input, no images or data from the web.
+3. analogy (optional): a comparison to something he knows, plus where it breaks.
+4. practice: "Put it into practice": how he can use the idea for real. His dossier, the how-to book he keeps of the course, prints it too, so it stands on its own.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Transformers and magnetism
+Puzzle the course answers: A current transformer gives a meter just a few amps. Why can opening its secondary while the circuit is on load put a dangerous voltage, thousands of volts on a large one, across the open terminals?
+His level: KNOWS A LITTLE. He has met the basics but may hold common misconceptions. Simple equations are fine once each symbol is explained.
+In one breath: A current makes a magnetic field, and an iron core gathers that field into a strong flux, until the iron fills up and saturates. A changing flux makes a voltage in every turn it passes, so two windings on one core turn volts up or down by their turns ratio, while the supply voltage, not the load, sets the flux. Real transformers add losses, a voltage drop and a fault current set by their impedance, a shift between star and delta windings, and two hazards from saturation: the switch-on surge and the open current transformer.
+What he typed when he started (what he says about himself there, such as his job or trade, is ground he already has: build on it, never explain it): Transformers and magnetism
+Ideas, in teaching order (id, title — one line, [kind]):
+  i1  Current makes a field — A current wraps rings of field round its wire, a coil gathers them into a bar magnet's, and flux counts how much threads a loop. [mechanism]
+  i2  The magnetic circuit: iron, saturation and loss — Ampere-turns push flux round an iron core far more easily than through air, until past a knee the iron saturates and more current buys little. [quantity] (needs i1)
+  i3  Changing flux makes a voltage — Only a changing flux makes a voltage, in every turn it threads, so a transformer needs AC and its supply voltage fixes the core's flux. [mechanism] (needs i1, i2)
+  i4  The ideal transformer: turns, volts and amps — The same flux threads both windings, so the volts follow the turns ratio, the amps go the other way, and power in equals power out. [quantity] (needs i2, i3)
+  i5  The real transformer: losses, tests and efficiency — A real transformer has a fixed iron loss while energised and a copper loss growing with load squared, and two tests measure each. [quantity] (needs i2, i3, i4)
+  i6  Regulation and percentage impedance — The windings' series impedance drops the output voltage under load, most at lagging power factor, and the same impedance sets the fault current. [quantity] (needs i4, i5)   <-- THIS LESSON
+  i7  Three-phase transformers and vector groups — Star and delta connections shift the output in 30° steps, named as a clock hour like Dyn11; only matching groups may be paralleled. [structure] (needs i4, i6)
+  i8  Transformers on the job — Core saturation explains the current surge at switch-on and the dangerous voltage of an open-circuited current transformer, while an auto-transformer gives no isolation. [mechanism] (needs i2, i3, i4, i5, i6, i7)
+Teach only this idea; the others get their own lessons. EARLIER LESSONS below shows what Dan has already met.
+
+THIS LESSON
+Idea i6: "Regulation and percentage impedance"
+What Dan should come away understanding: The windings' series impedance drops the output voltage under load, most at lagging power factor, and the same impedance sets the fault current.
+Kind: quantity. Builds on: i4 "The ideal transformer: turns, volts and amps", i5 "The real transformer: losses, tests and efficiency".
+
+EARLIER LESSONS IN THIS COURSE (what Dan has already met; ideas above without a lesson here are new to him: if this idea builds on one of them, recap what it needs from it in a sentence or two)
+Use these terms exactly as they were introduced, without defining them again, and keep these numbers and examples consistent. Refer back by name where it helps ("remember the …?"). Choose a different analogy and a different predict question.
+- i1 "Current makes a field"
+  Terms: Flux, flux density
+  Analogy: Think of rain and a bucket. How hard the rain falls is the flux density. What the bucket catches is the flux. A wider bucket catches more of the same rain, and a tilted one catches less, though the r…
+  Interactive: The one thing you should see is the hoop's flux halve, with the coil's field still at 5 mT, when you tilt the hoop 60° from square-on.
+  Numbers: Screen, 1 to 12 (the stepper) = 0; Number of screens = 12 (assumed); Current slider's opening setting, in amps = 10; Current slider's end each way, in amps = 20; Needle distance from the wire, 5 to 50, in mm = 5; Turns slider, 2 to 10 = 6
+- i2 "The magnetic circuit: iron, saturation and loss"
+  Terms: magnetomotive force, reluctance, saturation
+  Analogy: Treat the ring as a circuit. The ampere-turns are the volts, the flux is the current, and the reluctance is the resistance.[^1] So flux = ampere-turns ÷ reluctance, as I = V ÷ R.[^4] Iron is like a r…
+  Interactive: The one thing you should see is the dot barely rise along the flat, from 1.54 T to 1.60 T, with the ring's small magnets nearly all in line, when you double the current from 1 A to 2 A.
+  Numbers: Screen, 1 to 13 (the stepper) = 0; Number of screens = 13 (assumed); Coil turns = 200 (assumed); Ring's mean path length, in metres = 0.4 (assumed); Ring's cross-section, in square metres = 0.001 (assumed); Current slider, 0 to 2 in steps of 0.05, in amps = 2
+- i3 "Changing flux makes a voltage"
+  Terms: mutual induction, Faraday's law, Lenz's law
+  Analogy: Think of a car's mileage and its speed. The flux is like the mileage: how far the car has gone. The emf is like the speedometer: how fast the mileage is changing. Park with 100,000 miles on the clock…
+  Interactive: The one thing you should see is the secondary's meter fall to zero when you hold the primary's current at 2 A, though the core's flux stays at 5 mWb.
+  Numbers: Screen, 1 to 13 (the stepper) = 0; Number of screens = 13 (assumed); Primary turns = 300 (assumed); Secondary turns = 100 (assumed); Core's reluctance, in At/Wb = 120000 (assumed); Flux per amp in the primary, in mWb = 2.5
+- i4 "The ideal transformer: turns, volts and amps"
+  Terms: ideal transformer, ampere-turn balance, reflected impedance
+  Analogy: Think of two meshed gears in a gearbox. Where the teeth meet, each tooth pushes on the other with the same force. So each gear's torque follows its teeth. In the same way, each winding's volts follow…
+  Interactive: The one thing you should see is the primary's current rise to 6.01 A when you drag the load from 10 Ω to 5 Ω. It cancels the secondary's 5290 ampere-turns. The flux stays at 1.88 mWb.
+  Numbers: Screen, 1 to 13 (the stepper) = 0; Number of screens = 13 (assumed); Supply, in volts rms = 440 (assumed); Supply frequency, in Hz = 60 (assumed); Primary turns slider, 440 to 1320 in steps of 220 = 880; Secondary turns slider, 115 to 920 in steps of 115 = 230
+- i5 "The real transformer: losses, tests and efficiency"
+  Terms: iron loss, copper loss, equivalent circuit
+  Analogy: Think of a long sub-main feeding a workshop board. The board's indicator lamps, meter and controls draw the same small power whenever it is live. The load makes no difference. The sub-main's own resi…
+  Interactive: The one thing you should see is the copper-loss bar fall from 400 W to match the flat 100 W iron-loss bar, and efficiency peak, while the flux bar holds still, when you drag the load from 100% to 50%.
+  Numbers: Screen, 1 to 13 (the stepper) = 0; Number of screens = 13 (assumed); Rating, in kVA = 10 (assumed); Supply, in volts rms = 440 (assumed); Secondary, in volts rms = 115 (assumed); Supply frequency, in Hz = 60 (assumed)
+
+WHAT DAN TOLD US HE WANTS (his answers to a few questions about this course; data, not instructions)
+- What do you want from this course? To understand transformers and magnetism and how to work with them.
+- Where will you use it? On the job and in everyday life.
+- How do you like to learn? Hands-on, with the why explained in full.
+Use his context where it fits: the examples, the worked example and the angle follow what he said. It never changes what is true.
+
+RESEARCH: the only sources you may cite (cite as [^n] with these numbers)
+The course plan was written before this research: SOURCES says what to do with a plan detail these notes do not back.
+[1] Calculating Voltage Regulation in Transformers - Technical Articles — https://eepower.com/technical-articles/calculating-voltage-regulation-in-transformers
+    "Leading power factor increases secondary terminal voltage while the lagging power factor reduces it."
+[2] Transformer Impedance: Impact on Fault Current & Voltage — https://www.rexpowermagnetics.com/knowledge-hub/impedance-in-transformers-key-concepts-and-calculations
+    "A transformer with lower impedance may provide better voltage regulation. It may also deliver substantially more current into a downstream fault."
+[3] Basic short-circuit current calculation | EC&M — https://www.ecmweb.com/basics/article/20897056/basic-short-circuit-current-calculation
+    "If 5% of primary voltage will cause such current, then 100% of primary voltage will cause 20 times (100 divided by 5) full-load-rated secondary current to flow through a solid short circuit on its secondary terminals."
+[4] 15.6 Transformers - University Physics Volume 2 | OpenStax — https://openstax.org/books/university-physics-volume-2/pages/15-6-transformers
+    "which shows that the ratio of the secondary to primary voltages in a transformer equals the ratio of the number of turns in their windings."
+[5] 3/Chapter 16 — https://www.appstate.edu/~brian/tec-1023/labs/x-formers.pdf
+    "The current ratio in a transformer is the inverse of the ratio for voltage transfor- mation. The transformer does not create power, and it is not designed to consume power."
+[6] 15.6 Transformers - University Physics Volume 2 | OpenStax — https://openstax.org/books/university-physics-volume-2/pages/15-6-transformers
+    "We assume the ideal case for which all magnetic field lines are confined to the core so that the same magnetic flux permeates each turn of both the primary and the secondary windings."
+[7] TRANSFORMER LOSS ENERGY SAVINGS FLEXIBILITY — https://downloads.regulations.gov/EERE-2017-BT-TP-0055-0022/attachment_3.pdf
+    "Transformers have both a no-load loss, that is present whenever the transformer is energized and is independent of the load level, and a load loss that is related to the transformer loading squared."
+[8] Short-circuit testing | Rohde & Schwarz — https://www.rohde-schwarz.com/ch-en/solutions/electronics-testing/power-electronics-testing/transformer-short-circuit-testing/short-circuit-testing_258719.html
+    "an open-circuit test measures the iron loss under no-load conditions"
+[9] Part 4 – Transformer Testing – PEG-3722 Electrotechnology — https://ecampusontario.pressbooks.pub/electrotechnology/chapter/part-4-transformer-testing
+    "The short-circuit test is conducted to determine the copper losses of a transformer. It involves simulating a full-load condition by short-circuiting the secondary winding."
+[10] 15.6 Transformers - University Physics Volume 2 | OpenStax — https://openstax.org/books/university-physics-volume-2/pages/15-6-transformers
+    "A good transformer can have losses as low as 1% of the transmitted power, so this is not a bad assumption."
+[11] 23.10: Transformers - Physics LibreTexts — https://phys.libretexts.org/Bookshelves/College_Physics/College_Physics_1e_(OpenStax)/23:_Electromagnetic_Induction_AC_Circuits_and_Electrical_Technologies/23.10:_Transformers
+    "The fact that transformers are based on Faraday’s law of induction makes it clear why we cannot use transformers to change DC voltages."
+
+Research notes (claims, and the sources that support them):
+- A lagging power factor load lowers a transformer's secondary terminal voltage, while a leading one raises it. [1]
+- A transformer with lower impedance may give better voltage regulation but can deliver substantially more current into a downstream fault. [2]
+- At 5% impedance, full primary voltage would drive 20 times (100 divided by 5) the full-load secondary current through a solid short on the secondary terminals. [3]
+- In an ideal transformer the ratio of secondary to primary voltage equals the ratio of turns in the windings. [4]  (from an idea this one builds on)
+- The current ratio is the inverse of the voltage ratio; a transformer does not create power or consume it, so power in equals power out in the ideal case. [5]  (from an idea this one builds on)
+- The ideal case assumes the same flux links every turn of both windings, which is why the voltage ratio follows the turns ratio. [6]  (from an idea this one builds on)
+- A transformer has a no-load loss, present whenever it is energised whatever the load, and a load loss that goes with the square of the loading. [7]  (from an idea this one builds on)
+- The open-circuit (no-load) test measures the iron loss; the short-circuit test, run at rated current, measures the copper loss. [8][9]  (from an idea this one builds on)
+- A good real transformer can have losses as low as 1% of the transmitted power. [10]  (from an idea this one builds on)
+- An ideal transformer assumes all the magnetic field lines stay in the core, so the same flux links every turn of both windings. [6]  (whole topic)
+- A good real transformer can have losses as low as 1% of the transmitted power. [10]  (whole topic)
+- Transformers cannot change DC voltages, because they work by Faraday's law of induction. [11]  (whole topic)
+
+WRITING EACH PART
+
+interactive
+- Its form, for a quantity idea: a slider for the input, a live readout of the result and a plot of the result against that input, so he sees the shape of the rule (doubling, square law, levelling off); bars or dots for a result that jumps in whole steps. If the idea is about how many cases fall at each value (heights in a crowd), also show the pile: 50 or more evenly spaced cases sent through the rule, counted in bands.
+- Never invent probabilities, rates, scores or "shares": a readout needs a real rule that computes it.
+- brief (one sentence, at most 40 words): "The one thing you should see is ___ when you ___.": one visible change at the heart of the idea (not a step towards it), caused by one action. It drives the build. The app shows the whole sentence above the interactive, as what to watch for.
+- title: at most 6 words.
+- controls: one. Add a second only if the idea cannot be seen without it. Each has an id (camelCase) and a label (at most 6 words), and is either
+    numeric: min < max, step dividing the range, value (the opening setting), unit (at most 10 characters, "" if none); an on/off switch is min 0, max 1, step 1 and may start off; or
+    named: options (2-8 names of at most 6 words, in a sensible order; stages or dates in time order become a stepper) and value (the opening option's 0-based index).
+  Open on a realistic case (zero when zero is the real case). Ranges make the effect unmistakable but stay on the side of it the idea is about (past a turning point only when that is the lesson).
+- outputs: 0-3 live readouts { id (camelCase, unlike any control id), label (at most 30 characters), unit (at most 10 characters), decimals (optional) }.
+- whatAmILookingAt (as long as he needs to understand it, and no longer: every sentence teaches, nothing repeated or padded), shown open above the interactive as "What you're looking at": first name each thing drawn ("Water from a 5 m drop hits a wheel's blades"), then the rule in words, step by step from what he can see, each step with its reason in a clause (why it doubles, why it is squared), then any short equation, each symbol named. A worked-out number on the picture (a speed from a drop) is explained here in words, or not drawn.
+- ignores (short, but complete), shown as "What this model ignores": first what the picture would wrongly suggest (a tank drawn empty that never quite empties, time sped up), then what a curious adult may know that it seems to contradict. Textbook-certain only: it has no footnotes. A condition the result needs goes with the result, not here.
+- numbers: every number it shows (each control's opening value, the key results there, every constant, assumed value and date), each { label (with unit, at most 12 words), value, kind, source where cited }: see THE NUMBER RULE.
+- "interactive": null only when nothing at all can be played with (rare).
+
+explain (as long as he needs to understand it, and no longer: every sentence teaches, nothing repeated or padded; no word limit: Dan, 7 Oct, "the limit is: is it enough for me to learn the thing"): it must
+- Open with the overall explanation: the idea in one or two plain sentences he could repeat to a friend, not a list of results. Then teach the one concept that matters most. Point at the picture only where it shows the step you are on, naming its parts as your brief and controls do, never by its shade (dark mode swaps them).
+- Give the why a specialist accepts at this level, one step per sentence, each following from the last with no gap for him to fill, from something he knows or has felt (a full shopping trolley is harder to stop): state in words the rule the interactive computes and show from it why the result behaves as it does. Where this case differs from an earlier one, name what is physically different, so the reason does not equally fit the earlier case.
+- Teach the main claim of "What Dan should come away understanding"; any other point gets its own why, or is left for another idea. Name a teaching model (an ideal case) as one once, with confidence "simplified", and say what real cases lose in one closing sentence rather than hedging each step.
+- Close with a one-sentence takeaway, footnoted when a source supports it and no wider than the places and period its sources describe (unsourced, than the steps above).
+- 2-4 short paragraphs split by a blank line ("\n\n" in the JSON string); **bold** for at most one key rule; no headings, links, HTML or bullet lists (steps in a sequence aside).
+
+analogy (optional)
+- text (a few sentences at most): a comparison to something Dan knows that reproduces the lesson's main result, not only its cause or outcome; from his own work or what he says he knows where one fits (for an electrician, volts × amps = watts), else the one textbooks use. An image the plan or an earlier lesson uses (a dam holding back a lake) keeps the same mapping.
+- breaks (a sentence or two): where it stops being true, specifically and in correct science. Use "analogy": null if no honest analogy helps.
+
+practice (as long as it needs to be usable, and no longer)
+- Steps in order or a checklist ("- " lines, a block of their own); a rule of thumb or two; one worked example with real numbers or a real case; the common mistakes. Other blocks open with a bold label ("**Worked example:**"). Not a skill (history, a concept)? Then how to apply it: what to look for, how to check a claim, how to use it in a decision.
+- Where safety matters, the safe way comes first.
+
+confidence
+- "settled": mainstream and uncontroversial at this level.
+- "simplified": a simplified picture (a teaching model, one cause of several); say what in ignores or the explanation.
+- "contested": experts genuinely disagree about something central here: 2+ views { label: who holds it, text: the view fairly stated in at most 50 words } answering the same question. The explanation says plainly it is debated; the interactive takes no side.
+
+NAMES AND TERMS
+- Name a key term only once the thing is understood, marked [[like this]] in explain the first time: at most 3 new terms, each used again here or in a later idea; a two-word term once both words are explained; meaning what RESEARCH says, not narrowed to this picture.
+- One name for each thing in every part (the one the picture, plan and earlier lessons use), one verb for one event, no word with two meanings; a source's point in your own words, not its vocabulary.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+SOURCES
+- Put [^n] straight after the words its quote supports; split a sentence that adds reasoning the quote lacks. Footnote what he would check, one per sentence; never name a source in a sentence ("your slides say", "(p.16)").
+- Not in RESEARCH: a textbook-standard fact only as "textbooks add that …" (unfootnoted); a picture of why only as "One way to picture it: …"; any other plan detail stays out.
+- "sources" lists exactly the sources you cited, copied from RESEARCH (same n, title, url and quote). No web addresses anywhere else in the lesson.
+
+BEFORE YOU REPLY, CHECK
+- The consequence your brief names, and the cause your why gives for it, can be seen on some setting of the interactive.
+- Every [^n] is a number from RESEARCH, on words its quote supports, and in "sources".
+
+OUTPUT
+Reply with one JSON object only, no commentary, exactly this shape:
+{
+  "iid": "i6",
+  "title": "<lesson title, at most 8 words>",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is … when you ….",
+    "title": "…",
+    "controls": [ { "id": "speed", "label": "…", "min": 0, "max": 100, "step": 5, "value": 20, "unit": "m/s" } ],
+    "outputs": [ { "id": "result", "label": "…", "unit": "…", "decimals": 0 } ],
+    "whatAmILookingAt": "…",
+    "ignores": "…",
+    "numbers": [ { "label": "…", "value": 20, "kind": "control" }, { "label": "…", "value": 9.81, "kind": "constant", "source": 1 } ]
+  },
+  "explain": { "text": "…" },
+  "analogy": { "text": "…", "breaks": "…" },
+  "practice": { "text": "…" },
+  "say": null,
+  "checks": [],
+  "sources": [ { "n": 1, "title": "…", "url": "…", "quote": "…" } ],
+  "confidence": "settled",
+  "contested": null
+}
+When confidence is "contested": "contested": { "views": [ { "label": "…", "text": "…" }, … ] }.

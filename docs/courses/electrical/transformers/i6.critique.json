@@ -1,0 +1,26 @@
+{
+  "draft": "i6.lesson.draft1.txt",
+  "validator": "draft 1 passes: ok true, no problems, no soft problems, no warnings. whatAmILookingAt is 12006 characters, over the app's 12000 bound for that field, so trim it.",
+  "keep": [
+    "The idea is named up front: the windings' resistance and leakage reactance drop a voltage under load, most when lagging, a leading load can lift the output, and the same impedance sets the fault current, so less sag comes with more fault current.",
+    "The picture is the brief's phasor drop: output arrow, I x R along the current and I x X a quarter-turn ahead, tip to tail onto a fixed 115 V circle, zoomed on the tip so every arrow is true to scale; a load slider, a power factor stepper from 0.5 lag to 0.5 lead (so 0.8 and 0.6 land exactly, which a 5-degree slider would miss), an impedance slider, and a fault-current bar that falls as the drops stretch.",
+    "One rule set computes every figure, and it carries lesson 5's transformer on: R% = 400 W / 10 kVA = 4%, Z% = 22.0 V / 440 V = 5%, so X% = 3% (lesson 5's 3-4-5 triangle). Exact drawing: 110.35 V and 4.0% at unity, 109.25 V and 5.0% at 0.8 lag, 113.26 V and 1.5% at 0.8 lead, 115.55 V and -0.5% at 0.5 lead. The rule R% cos phi + X% sin phi gives 4.0, 5.0, 1.4 and -0.6%, and the lesson says the drawing and rule differ by tenths. Fault current 86.96 x 100 / Z%: 1739 A at 5%, 3478 A at 2.5%, 2174 A at 4%.",
+    "At 0.8 lagging the load angle equals the windings' own angle (36.9 degrees), so the drop lines up with the output and the regulation is the whole Z%: the deepest sag, shown exactly, not just asserted.",
+    "The recall opener the brief sets (AC circuits lesson 6: 6 V at 0 degrees plus 8 V at 90 degrees) is screen 1, typed, with 'Still there.', and it pays off on screen 3's right-angled triangle.",
+    "Typed answers for every figure (screens 1, 3, 5, 7, 9, 11, 12) with want, slips and hints; options only on screen 13, where choosing between two named transformers is the skill.",
+    "Misconceptions caught: regulation divided by the on-load voltage (screen 5, slip 4.2); regulation never negative (screens 7 and 12); R% and X% added straight or swapped (screen 9); higher impedance always better (screen 13, and the impedance slider's trade).",
+    "Footnotes only on the three rules he would look up: lead raises and lag lowers [^1], 20 times at 5% [^3], the trade [^2]. No source named in a sentence. Generators, AVRs and paralleling are left to the next course; three-phase groups to lesson 7."
+  ],
+  "fix": [
+    "Skipped causal step, unity: 'the 3.45 V points across the output, so it costs little' does not say why. Say it only tilts the output: across, it costs as a square, 115 against 114.95 V, 0.05 V.",
+    "Skipped causal step, lagging: why the drop lines up at 0.8 lagging. Say the whole drop points 36.9 degrees ahead of the current, the windings' own angle set by 3.45 against 4.6, so a current lagging by 36.9 degrees brings it into line.",
+    "False claim, leading (screen 6 and explain): 'the output has to grow' with 113.26 V at 0.8 leading reads as if it passed 115 V. Give the step: the part of the drop along the output shrinks; at 0.6 leading the drop points straight across; past that it points back and the output must pass 115 V.",
+    "False absolute, screen 4: 'the deepest sag this transformer gives' ignores the 125% end of the load slider. Say 'at this load'.",
+    "False absolute, screen 2 and explain: 'Off load no current flows'. The core's small current still flows in the primary. Say there is no load current, so the windings drop almost nothing.",
+    "Qualifier dropped: the bold takeaway turns the quote's 'may provide better voltage regulation' into a certainty. Keep the hedge.",
+    "Practice: breaking capacity 'must exceed' the prospective fault current; the rule is 'at least'. The analogy's breaks says a shorter run 'cuts both its drop and its fault limit', which is muddled: a shorter run raises the fault current. Say the cable's impedance changes with the run, the transformer's is fixed when built.",
+    "Trim whatAmILookingAt under 12000 characters: shorten the picture paragraph."
+  ],
+  "shape": "Idea in one line up front: yes. Rule in words: yes (the drop I(R + jX) adds tip to tail to reach the fixed supply; regulation = sag / no-load x 100; rule R% cos phi + X% sin phi, sin phi negative leading; Z% = share of rated voltage driving rated current into a short; fault = rated x 100 / Z%). One worked example with real numbers: lesson 5's 10 kVA, 440 V to 115 V unit through explain, screens and practice. Misconception shown failing: never-negative regulation (screens 6, 7, 12), higher impedance always better (screens 10, 13). Trade analogy with where it breaks: the BS 7671 volt-drop sum for a large cable at a power factor, new to this course. Put it into practice: safe way first (breaking capacity), steps, rules of thumb, worked example, mistakes. Recap: the bold takeaway and the finish screen.",
+  "verdict": "Rewrite as draft 2 with the eight fixes; no structural change."
+}

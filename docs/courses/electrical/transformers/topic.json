@@ -1,0 +1,174 @@
+{
+  "title": "Transformers and magnetism",
+  "hook": "A current transformer gives a meter just a few amps. Why can opening its secondary while the circuit is on load put a dangerous voltage, thousands of volts on a large one, across the open terminals?",
+  "oneBreath": "A current makes a magnetic field, and an iron core gathers that field into a strong flux, until the iron fills up and saturates. A changing flux makes a voltage in every turn it passes, so two windings on one core turn volts up or down by their turns ratio, while the supply voltage, not the load, sets the flux. Real transformers add losses, a voltage drop and a fault current set by their impedance, a shift between star and delta windings, and two hazards from saturation: the switch-on surge and the open current transformer.",
+  "ideas": [
+    {
+      "id": "i1",
+      "title": "Current makes a field",
+      "oneLine": "A current wraps rings of field round its wire, a coil gathers them into a bar magnet's, and flux counts how much threads a loop.",
+      "deps": [],
+      "kind": "mechanism"
+    },
+    {
+      "id": "i2",
+      "title": "The magnetic circuit: iron, saturation and loss",
+      "oneLine": "Ampere-turns push flux round an iron core far more easily than through air, until past a knee the iron saturates and more current buys little.",
+      "deps": [
+        "i1"
+      ],
+      "kind": "quantity"
+    },
+    {
+      "id": "i3",
+      "title": "Changing flux makes a voltage",
+      "oneLine": "Only a changing flux makes a voltage, in every turn it threads, so a transformer needs AC and its supply voltage fixes the core's flux.",
+      "deps": [
+        "i1",
+        "i2"
+      ],
+      "kind": "mechanism"
+    },
+    {
+      "id": "i4",
+      "title": "The ideal transformer: turns, volts and amps",
+      "oneLine": "The same flux threads both windings, so the volts follow the turns ratio, the amps go the other way, and power in equals power out.",
+      "deps": [
+        "i2",
+        "i3"
+      ],
+      "kind": "quantity"
+    },
+    {
+      "id": "i5",
+      "title": "The real transformer: losses, tests and efficiency",
+      "oneLine": "A real transformer has a fixed iron loss while energised and a copper loss growing with load squared, and two tests measure each.",
+      "deps": [
+        "i2",
+        "i3",
+        "i4"
+      ],
+      "kind": "quantity"
+    },
+    {
+      "id": "i6",
+      "title": "Regulation and percentage impedance",
+      "oneLine": "The windings' series impedance drops the output voltage under load, most at lagging power factor, and the same impedance sets the fault current.",
+      "deps": [
+        "i4",
+        "i5"
+      ],
+      "kind": "quantity"
+    },
+    {
+      "id": "i7",
+      "title": "Three-phase transformers and vector groups",
+      "oneLine": "Star and delta connections shift the output in 30° steps, named as a clock hour like Dyn11; only matching groups may be paralleled.",
+      "deps": [
+        "i4",
+        "i6"
+      ],
+      "kind": "structure"
+    },
+    {
+      "id": "i8",
+      "title": "Transformers on the job",
+      "oneLine": "Core saturation explains the current surge at switch-on and the dangerous voltage of an open-circuited current transformer, while an auto-transformer gives no isolation.",
+      "deps": [
+        "i2",
+        "i3",
+        "i4",
+        "i5",
+        "i6",
+        "i7"
+      ],
+      "kind": "mechanism"
+    }
+  ],
+  "calibration": [
+    {
+      "id": "c1",
+      "iid": "i1",
+      "q": "Two long straight wires lie side by side, carrying equal currents in the same direction. A compass sits exactly halfway between them. How does it respond?",
+      "options": [
+        "It swings hard, since two currents make twice the field",
+        "It barely moves, since the two fields point opposite ways there and cancel",
+        "It turns to point along the wires, with the current"
+      ],
+      "answer": 1,
+      "why": "Each wire's field runs in rings round it. Halfway between, the two rings point opposite ways with equal strength, so they cancel and the needle stays on Earth's north. The fields only add outside the pair, where they point the same way."
+    },
+    {
+      "id": "c2",
+      "iid": "i3",
+      "q": "You rewind a transformer's primary with 10% more turns and connect it to the same AC supply. What happens to the flux in its core?",
+      "options": [
+        "It rises, since more turns make a stronger electromagnet",
+        "It stays the same, since the supply is unchanged",
+        "It falls by about a tenth"
+      ],
+      "answer": 2,
+      "why": "Each turn makes its share of the supply voltage from how fast the flux changes. More turns sharing the same volts need less each, so the flux falls by about a tenth. More turns strengthen an electromagnet only when the current is held; here the voltage is."
+    }
+  ],
+  "query": "Transformers and magnetism",
+  "level": "some",
+  "mode": "read",
+  "intake": {
+    "questions": [
+      {
+        "id": "q1",
+        "q": "What do you want from this course?",
+        "options": [
+          "To understand transformers and magnetism and how to work with them",
+          "A quick refresher of the methods",
+          "Exam practice"
+        ],
+        "multi": false,
+        "other": false
+      },
+      {
+        "id": "q2",
+        "q": "Where will you use it?",
+        "options": [
+          "On the job and in everyday life",
+          "For further study",
+          "Just curiosity"
+        ],
+        "multi": false,
+        "other": false
+      },
+      {
+        "id": "q3",
+        "q": "How do you like to learn?",
+        "options": [
+          "Hands-on, with the why explained in full",
+          "Rules and worked examples only",
+          "Lots of practice questions"
+        ],
+        "multi": false,
+        "other": false
+      }
+    ],
+    "answers": {
+      "q1": {
+        "picked": [
+          "To understand transformers and magnetism and how to work with them"
+        ],
+        "other": null
+      },
+      "q2": {
+        "picked": [
+          "On the job and in everyday life"
+        ],
+        "other": null
+      },
+      "q3": {
+        "picked": [
+          "Hands-on, with the why explained in full"
+        ],
+        "other": null
+      }
+    }
+  }
+}

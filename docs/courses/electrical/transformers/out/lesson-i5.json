@@ -1,0 +1,615 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-29T05:43:32.654Z",
+ "startedAt": "2026-10-29T05:43:32.654Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i5",
+  "title": "The real transformer: losses, tests and efficiency",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the copper-loss bar fall from 400 W to match the flat 100 W iron-loss bar, and efficiency peak, while the flux bar holds still, when you drag the load from 100% to 50%.",
+   "title": "Where the watts go",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Screen",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [],
+   "whatAmILookingAt": "Thirteen small screens on one picture, with Back and Continue. Five show an idea and eight ask you to try it.\n\nThe picture. A 10 kVA, 440 V to 115 V transformer, say, drawn as its approximate equivalent circuit, seen from the 440 V side. On the left, a 440 V, 60 Hz supply with a wattmeter and an ammeter. Across it, the shunt branch for the core: a resistor beside a coil, labelled Core. In line after it, the series branch for the windings: 0.77 Ω of resistance and 0.58 Ω of leakage reactance, labelled Windings, with its current in amps beside it. Then the last lesson's ideal transformer, 880 turns to 230, with a flux bar on its core, and the load. A branch carrying current is drawn in ink, one carrying none or almost none faint. Below, two loss bars on one scale, Iron loss and Copper loss, in W. Under them, a plot of efficiency, 88% to 97%, against load, 0 to 125%: a dot on the curve, a dashed line at its 50% peak. At light load the curve drops off the bottom. In either test the plot fades, since nothing is delivered.\n\nThe controls, each shown only where a screen uses it. A load slider, 0 to 125% in steps of 5, opening at 100. A power factor switch, 1.0 or 0.8 lagging, opening at 1.0. A test selector, On load, Open-circuit test or Short-circuit test, opening On load. Its buttons wrap onto two rows on a phone. In either test the load slider is greyed out.\n\nThe rules. Full-load current at 440 V: 10,000 ÷ 440 = 22.7 A. Load fraction x = slider ÷ 100. Output = 10,000 × x × power factor, in W. Iron loss = 100 W, fixed by the flux, which the supply holds at the last lesson's 1.88 mWb. Copper loss = 400 × x², in W: it is I²R, and the current follows the load. The 0.77 Ω gives 400 W at 22.7 A. Efficiency = output ÷ (output + both losses), in %, and 0 at no load, where nothing is delivered. It peaks where the copper loss equals the iron loss, at x = √(100 ÷ 400) = 0.5, at either power factor.\n\nThe tests. Open circuit: the secondary open on 440 V. Only the shunt branch carries current, say 0.5 A. Flux 1.88 mWb, wattmeter 100 W, copper loss 0.0 W. Short circuit: a link across the secondary, the supply down to 22.0 V, driving 22.7 A through the series branch's 0.97 Ω. Nearly all the current takes that branch. The core's branch, on 5% of the voltage, takes only a trickle. Wattmeter 400 W. Flux 1.88 × 22.0 ÷ 440 = 0.09 mWb. The model's iron loss goes with the voltage squared, a sketch: 100 × (22.0 ÷ 440)² = 0.25 W.\n\nThe readouts, wrapping onto two rows on a phone, to one decimal place: Load, %; Output, kW; Iron loss, W; Copper loss, W; Efficiency, %. In a test: Supply voltage, V; Supply current, A; Wattmeter, W, whole watts. The flux bar reads in mWb, two decimal places.\n\nScreen 1, try it, a recall, typed. \"A curve's height is y = 6x − x². Its slope is 6 − 2x. At what x does it reach its top?\" Typed, no unit, whole numbers: answer 3, want \"3\". Slips: 6, \"That is where the height is back to zero. The top is where the slope is zero.\"; 9, \"That is the height at the top. The question asks for x.\" Hint otherwise: \"At the top the slope is zero. Solve 6 − 2x = 0.\" Why: \"6 − 2x = 0 gives x = 3. The height there is 18 − 9 = 9. You find the top of an efficiency curve the same way.\" The picture, plot and readouts are hidden on this screen. A right Check says \"Right: the slope is zero at x = 3.\" Read: \"The curve y = 6x − x² has slope 6 − 2x. At what x is its top?\"\n\nScreen 2, show. The load slider to drag. The words: \"A real transformer is the ideal one plus two branches. The ideal one lost nothing. The shunt branch sits across the supply and stands for the core. It takes the small current that magnetises the core. It also takes the iron loss, from hysteresis and eddy currents. The series branch sits in line with the load and stands for the windings. Its resistance wastes power as heat. Its reactance stands for leakage: flux that misses the other winding. Drag the load. Only the series branch's current changes.\" Read: \"A real transformer is the ideal one plus two branches. The shunt branch sits across the supply and stands for the core. The series branch sits in line with the load and stands for the windings. Only the series branch's current changes with the load.\" Still: on load, 50%.\n\nScreen 3, try it, typed. \"This transformer's windings lose 400 W at full load. What do they lose at 75% load?\" Typed, in W, whole numbers: answer 225, want \"225 W\". The copper loss readout shows ? until Check. Slips: 300, \"That scales it straight with the load. The loss goes with the current squared.\"; 400, \"That is the full-load figure. At 75% load the current is 0.75 of full.\" Hint otherwise: \"Copper loss = 400 × (load fraction)².\" Why: \"0.75² = 0.5625. 400 × 0.5625 = 225 W.\" A right Check sets the load to 75%. Read: \"This transformer's windings lose 400 W at full load. What do they lose at 75% load?\"\n\nScreen 4, show. The load slider to drag. The words: \"Copper loss grows with the load, but iron loss stays put. Drag the load and watch the two bars. The copper loss is I²R, so it goes with the current squared. Full load gives 400 W. Half load gives a quarter, 100 W. Here the iron loss stays at 100 W at every load.[^1] It depends on the flux, and the flux bar stays at 1.88 mWb. The supply's voltage holds the flux. The primary cancels the load's ampere-turns. So more load means more current, not more flux.\" Read: \"The copper loss grows with the square of the load. It is 400 W at full load and 100 W at half. The iron loss stays at 100 W, because the supply holds the flux at 1.88 mWb.\" Still: on load, 100%.\n\nScreen 5, try it, typed. The picture: on load, 50%. \"At half load this transformer's iron loss is 100 W. The load rises to full. What is its iron loss now?\" Typed, in W, whole numbers: answer 100, want \"100 W\". The iron loss readout shows ? until Check. Slips: 400, \"That grows it with the square, like the copper loss. But the iron loss follows the flux.\"; 200, \"That doubles it with the load. The load does not move the flux.\" Hint otherwise: \"What sets the flux, the load or the supply?\" Why: \"The supply still holds the flux at 1.88 mWb. Same flux, same iron loss: 100 W. The copper loss grows from 100 W to 400 W.\" A right Check moves the load to 100%. Read: \"At half load this transformer's iron loss is 100 W. The load rises to full. What is its iron loss now?\"\n\nScreen 6, show. The load slider and the power factor switch. The words: \"Efficiency is output ÷ input. The input is the output plus both losses. At full load and unity power factor, the load takes 10,000 W. The losses are 100 + 400 = 500 W. So the efficiency is 10,000 ÷ 10,500 = 95.2%. Now switch to 0.8 power factor. The load is set in kVA, so the current is still 22.7 A. So the losses stay the same. That is why the plate gives kVA. But only 8000 W comes out. So the efficiency falls to 94.1%.\" Read: \"At full load and unity power factor, 10,000 W comes out and 500 W is lost. That is 95.2%. At 0.8 power factor, only 8000 W comes out for the same losses. That is 94.1%.\" Still: on load, 100%, power factor 1.0.\n\nScreen 7, try it, typed. \"The same transformer runs at half load, unity power factor. What is its efficiency?\" Typed, in %, one decimal place: answer 96.2, want \"96.2%\". The efficiency readout shows ? until Check. Slips: 90.9, \"That uses the full-load copper loss. At half load it is a quarter of that, 100 W.\"; 94.3, \"That halves the copper loss. It goes with the square, so it quarters.\" Hint otherwise: \"Output 5000 W. Losses: 100 W iron, plus 400 × 0.5² copper.\" Why: \"Copper loss = 400 × 0.25 = 100 W. So the losses are 200 W in all. 5000 ÷ 5200 = 96.2%. That beats the 95.2% at full load.\" A right Check sets the load to 50%. Read: \"The same transformer runs at half load, unity power factor. What is its efficiency?\"\n\nScreen 8, show. The load slider to drag. The words: \"Efficiency peaks at 50% load, where both loss bars read 100 W. Drag the load and watch the dot. Call the load fraction x. The losses are 100 + 400x². Divide by the output, which grows as x. The loss per watt out goes as 100 ÷ x + 400x. Least loss per watt means highest efficiency. It is lowest where its slope, 400 − 100 ÷ x², is zero. That needs 400x² = 100. So copper loss equals iron loss. Then x = √(100 ÷ 400) = 0.5.\" Read: \"Efficiency peaks at 50% load, where the copper loss equals the 100 W iron loss. Peak load = √(iron loss ÷ full-load copper loss).\" Still: on load, 50%.\n\nScreen 9, try it, typed. The plot and readouts are hidden, since they show the first transformer. \"Another transformer has 64 W of iron loss and 400 W of copper loss at full load. At what load is it most efficient?\" Typed, in %, whole numbers: answer 40, want \"40%\". Slips: 16, \"That is 64 ÷ 400. Take its square root.\"; 250, \"That is upside down. Put the iron loss on top.\" Hint otherwise: \"Peak load = √(iron loss ÷ full-load copper loss).\" Why: \"64 ÷ 400 = 0.16, and √0.16 = 0.4. So the peak is at 40%. Check: 400 × 0.4² = 64 W of copper loss, equal to the iron loss.\" Read: \"A transformer has 64 W of iron loss and 400 W of full-load copper loss. At what load is it most efficient?\"\n\nScreen 10, show. The test selector to switch. The words: \"Two tests measure the two losses. The open-circuit test leaves the secondary open. The primary gets its full 440 V. The flux is full, but only a small current flows. A small current wastes almost nothing in the windings. So the wattmeter reads the iron loss, 100 W.[^2] The short-circuit test puts a link across the secondary. You raise the voltage from zero until rated current flows. Now the current is full, but the voltage is only 22.0 V. So the wattmeter reads the copper loss, 400 W.[^3]\" Read: \"With the secondary open at rated voltage, the wattmeter reads the iron loss, 100 W. With it shorted at rated current, on 22.0 V, it reads the copper loss, 400 W.\" Still: Short-circuit test.\n\nScreen 11, try it, typed. The picture: the short-circuit test, its flux readout ? until Check. \"The short-circuit test drives 22.7 A with 22.0 V on the primary. At 440 V the flux peaks at 1.88 mWb. What does it peak at in this test?\" Typed, in mWb, two decimal places: answer 0.09, accepting 0.094, want \"0.09 mWb\". Slips: 1.88, \"Rated current flows, but the voltage sets the flux.\"; 37.6, \"The voltage is 20 times lower, so the flux is too.\" Hint otherwise: \"The flux follows the voltage. 22.0 V is 5% of 440 V.\" Why: \"1.88 × 22.0 ÷ 440 = 0.09 mWb, 5% of normal. So the iron loss almost vanishes. The wattmeter reads the copper loss alone.\" Read: \"At 440 V the flux peaks at 1.88 mWb. What does it peak at in the short-circuit test, on 22.0 V?\"\n\nScreen 12, try it, the first of two mixed puzzles, typed. The plot and readouts are hidden, since they show the first transformer. \"A 100 kVA transformer's open-circuit test reads 500 W. Its short-circuit test at rated current reads 2000 W. It feeds a steady 20 kVA load at unity power factor. What is its efficiency?\" Typed, in %, one decimal place: answer 97.2, want \"97.2%\". Slips: 88.9, \"That uses the full-load copper loss. At 20% load it is 0.2² of that.\"; 95.7, \"That scales the copper loss straight with the load. It goes with the square.\"; 99.6, \"That leaves out the iron loss. It is there at every load.\". Hint otherwise: \"Load fraction 20 ÷ 100 = 0.2. Copper loss = 2000 × 0.2². Add the 500 W iron loss.\" Why: \"Copper loss = 2000 × 0.2² = 80 W. So 500 W of the 580 W lost is iron loss. 20,000 ÷ 20,580 = 97.2%. At its 50% peak it would give 98.0%. A big transformer on a light load wastes mostly iron loss.\" Read: \"A 100 kVA transformer tests at 500 W open circuit and 2000 W short circuit. It feeds a steady 20 kVA at unity power factor. What is its efficiency?\"\n\nScreen 13, try it, the second mixed puzzle. \"You want to measure a transformer's iron loss. How do you set up the test?\" Four choices, in this order: \"Secondary shorted, rated current\"; \"Secondary shorted, rated voltage\"; \"Secondary open, rated current\"; \"Secondary open, rated voltage\". Right, the fourth. Hint for the first: \"That is the short-circuit test. Its low voltage gives little flux. So it reads the copper loss.\" Hint for the second: \"Full voltage on a shorted secondary is a dead short. Here it would drive 20 times rated current.\" Hint for the third: \"The iron loss follows the flux. The voltage sets the flux. So set the voltage.\" Why: \"The iron loss needs the full flux, and rated voltage gives it. With the secondary open, only a small current flows. So the copper loss is too small to count.\" Read: \"You want to measure a transformer's iron loss. How do you set up the test?\"\n\nThe finish. The words: \"The supply holds the flux, so the iron loss barely moves with the load. The copper loss grows with the square of the load. Efficiency peaks where the two are equal. The open-circuit test reads the iron loss. The short-circuit test reads the copper loss. The 22.0 V it needs, 5% of rated, is called the impedance voltage. Next: what that 5% means for the voltage under load.\"",
+   "ignores": "The circuit is the approximate one. It puts the shunt branch right across the supply. So the flux and the iron loss stay exactly fixed under load. In a real transformer, the series branch's drop lowers the core's voltage very slightly. So both dip very slightly too. The iron loss is fixed only while the supply's voltage and frequency are. Here the open-circuit test's small current does not pass the series branch. So the copper loss reads 0.0 W. Through the 0.77 Ω it would add only 0.19 W. The windings' resistance is held fixed. Real copper's resistance rises as it warms. Loss in the tank and fittings is left out. The load is single-phase. Every current and voltage is rms. The losses are larger than a good transformer's. That makes the bars easy to see.",
+   "numbers": [
+    {
+     "label": "Screen, 1 to 13 (the stepper)",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Number of screens",
+     "value": 13,
+     "kind": "assumed"
+    },
+    {
+     "label": "Rating, in kVA",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Supply, in volts rms",
+     "value": 440,
+     "kind": "assumed"
+    },
+    {
+     "label": "Secondary, in volts rms",
+     "value": 115,
+     "kind": "assumed"
+    },
+    {
+     "label": "Supply frequency, in Hz",
+     "value": 60,
+     "kind": "assumed"
+    },
+    {
+     "label": "Primary and secondary turns",
+     "value": "880 and 230",
+     "kind": "assumed"
+    },
+    {
+     "label": "Iron loss at rated voltage, in watts",
+     "value": 100,
+     "kind": "assumed"
+    },
+    {
+     "label": "Copper loss at full load, in watts",
+     "value": 400,
+     "kind": "assumed"
+    },
+    {
+     "label": "Load slider, 0 to 125 in steps of 5, in per cent",
+     "value": 100,
+     "kind": "control"
+    },
+    {
+     "label": "Power factor switch, 1.0 or 0.8 lagging",
+     "value": 1,
+     "kind": "control"
+    },
+    {
+     "label": "Test selector, three choices",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Full-load current on the 440 V side, in amps",
+     "value": 22.7,
+     "kind": "computed"
+    },
+    {
+     "label": "Series resistance seen from 440 V, in ohms",
+     "value": 0.77,
+     "kind": "computed"
+    },
+    {
+     "label": "Leakage reactance seen from 440 V, in ohms",
+     "value": 0.58,
+     "kind": "assumed"
+    },
+    {
+     "label": "Series impedance seen from 440 V, in ohms",
+     "value": 0.97,
+     "kind": "computed"
+    },
+    {
+     "label": "Peak flux at 440 V, in mWb",
+     "value": 1.88,
+     "kind": "computed"
+    },
+    {
+     "label": "Open-circuit test current, in amps",
+     "value": 0.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Short-circuit test voltage, in volts",
+     "value": 22,
+     "kind": "computed"
+    },
+    {
+     "label": "Short-circuit test voltage, per cent of rated",
+     "value": 5,
+     "kind": "computed"
+    },
+    {
+     "label": "Flux in the short-circuit test, in mWb",
+     "value": 0.09,
+     "kind": "computed"
+    },
+    {
+     "label": "Iron loss in the short-circuit test, in watts",
+     "value": 0.25,
+     "kind": "computed"
+    },
+    {
+     "label": "Copper loss at half load, in watts",
+     "value": 100,
+     "kind": "computed"
+    },
+    {
+     "label": "Copper loss at 125% load, in watts",
+     "value": 625,
+     "kind": "computed"
+    },
+    {
+     "label": "Efficiency at full load, unity power factor, in per cent",
+     "value": 95.2,
+     "kind": "computed"
+    },
+    {
+     "label": "Efficiency at half load, unity power factor, in per cent",
+     "value": 96.2,
+     "kind": "computed"
+    },
+    {
+     "label": "Efficiency at full load, 0.8 power factor, in per cent",
+     "value": 94.1,
+     "kind": "computed"
+    },
+    {
+     "label": "Efficiency at half load, 0.8 power factor, in per cent",
+     "value": 95.2,
+     "kind": "computed"
+    },
+    {
+     "label": "Output at full load, 0.8 power factor, in watts",
+     "value": 8000,
+     "kind": "computed"
+    },
+    {
+     "label": "Peak-efficiency load, in per cent",
+     "value": 50,
+     "kind": "computed"
+    },
+    {
+     "label": "Plot's efficiency axis, in per cent",
+     "value": "88 to 97",
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 1 curve, y = 6x − x²",
+     "value": "6 and 1",
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 1 top, x",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 1 height at the top",
+     "value": 9,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 1 slips",
+     "value": "6 and 9",
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 3 load, in per cent",
+     "value": 75,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 3 copper loss, 400 × 0.75², in watts",
+     "value": 225,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 3 slips, in watts",
+     "value": "300 and 400",
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 5 slips, in watts",
+     "value": "400 and 200",
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 7 slips, in per cent",
+     "value": "90.9 and 94.3",
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 9 iron loss, in watts",
+     "value": 64,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 9 peak load, in per cent",
+     "value": 40,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 9 slips, in per cent",
+     "value": "16 and 250",
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 11 slips, in mWb",
+     "value": "1.88 and 37.6",
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 12 rating and load, in kVA",
+     "value": "100 and 20",
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 12 test readings, in watts",
+     "value": "500 and 2000",
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 12 efficiency, in per cent",
+     "value": 97.2,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 12 slips, in per cent",
+     "value": "88.9, 95.7 and 99.6",
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 12 copper loss at 20% load, in watts",
+     "value": 80,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 12 peak efficiency, at 50% load, in per cent",
+     "value": 98,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 13 short-circuit current at full voltage, times rated",
+     "value": 20,
+     "kind": "computed"
+    },
+    {
+     "label": "Iron loss over a day at no load, in kWh",
+     "value": 2.4,
+     "kind": "computed"
+    },
+    {
+     "label": "Open-circuit current's copper loss, 0.5² × 0.77, in watts",
+     "value": 0.19,
+     "kind": "computed"
+    },
+    {
+     "label": "Loss of a good real transformer, in per cent",
+     "value": 1,
+     "kind": "constant",
+     "source": 4
+    }
+   ]
+  },
+  "explain": {
+   "text": "A real transformer loses a little of the power it passes on. It loses it in two places. The core loses a fixed amount whenever the transformer is energised. The windings lose more as the load grows, with the square of the current. Two tests measure the two losses. The efficiency peaks at the load where they are equal.\n\nStart with the core. Hysteresis and eddy currents heat the iron every cycle. How much depends on the flux. The supply's voltage holds the flux. The primary cancels whatever ampere-turns the load adds. So the flux barely changes from no load to full, and nor does this [[iron loss]]. The windings are different. They are copper with resistance, so they waste I²R. Double the current and this [[copper loss]] goes up four times. So the iron loss is there whenever the transformer is energised, whatever the load. But the copper loss grows with the square of the load.[^1] Some flux also leaks round each winding without threading the other. The [[equivalent circuit]] draws all this as the ideal transformer plus two branches. A shunt branch across the supply stands for the core. A series branch of resistance and leakage reactance stands for the windings.\n\nEfficiency is output ÷ (output + losses). Take a 10 kVA transformer with 100 W of iron loss and 400 W of copper loss at full load. At full load and unity power factor, it gives 10,000 W and loses 500 W. So its efficiency is 10,000 ÷ 10,500 = 95.2%. At half load the copper loss is a quarter, 100 W. It gives 5000 W and loses 200 W. That is 96.2%, better than at full load. To find the peak, call the load fraction x. The losses for each watt delivered go as 100 ÷ x + 400x. The first part falls as the load grows. The second part rises. The total is lowest where its slope is zero: 400 − 100 ÷ x² = 0. That gives 400x² = 100. So at the peak, the copper loss equals the iron loss. Here x = √(100 ÷ 400) = 0.5, half load.\n\nTwo tests measure the two losses. The open-circuit test leaves the secondary open and puts rated voltage on the primary. The flux is full but the current is small. So the wattmeter reads the iron loss.[^2] The short-circuit test measures the copper loss, with a link shorting the secondary.[^3] You raise the voltage from zero until rated current flows. Here that takes only 22.0 V, 5% of 440 V. The current is full but the flux is tiny. So the wattmeter reads the copper loss. This picture is simplified. In a real transformer, the flux dips very slightly under load. So does the iron loss. A good transformer can lose as little as 1% of the power it passes on.[^4] This example's losses are larger, to make the bars easy to see. **The iron loss stays almost the same at every load while the transformer is energised. The copper loss grows with the square of the load.[^1] The efficiency peaks where the two are equal.**"
+  },
+  "analogy": {
+   "text": "Think of a long sub-main feeding a workshop board. The board's indicator lamps, meter and controls draw the same small power whenever it is live. The load makes no difference. The sub-main's own resistance wastes I²R. That goes up four times when the current doubles. At light load, the fixed draw is most of the waste. At heavy load, the cable's heat is. The share wasted is smallest at the load where the two are equal.",
+   "breaks": "The board's standing load is separate kit you could switch off. A transformer's iron loss comes from its own core. It stops only when you de-energise the transformer. Also, a sub-main passes power on at the same voltage, less its drop. A transformer changes the voltage. And the board's lamps and meter do a job, so theirs is a standing draw. A transformer's iron loss does nothing useful."
+  },
+  "practice": {
+   "text": "**Safe way first:**\n- In the open-circuit test, treat the open secondary as live. It sits at its full rated voltage.\n- In the short-circuit test, start the supply at zero. Bring it up slowly while you watch the ammeter. Stop at rated current. Full voltage on a shorted secondary is a dead short.\n\n**Steps:**\n- Get the rating in kVA. Take the iron loss from the open-circuit test. Take the full-load copper loss from the short-circuit test.\n- Work out the load fraction x: the load in kVA ÷ the rating.\n- Copper loss = full-load copper loss × x².\n- Output = rating × x × power factor.\n- Efficiency = output ÷ (output + iron loss + copper loss).\n- Peak load = √(iron loss ÷ full-load copper loss).\n\n**Rules of thumb:** The iron loss runs whenever the transformer is energised, even with nothing connected. The copper loss quarters when the load halves. Efficiency peaks where the two are equal. A lower power factor gives the same losses for fewer watts. So the efficiency falls. An oversized transformer on a light load wastes mostly iron loss.\n\n**Worked example:** A 10 kVA transformer tests at 100 W open circuit and 400 W short circuit. At full load and unity power factor, it loses 100 + 400 = 500 W. So its efficiency is 10,000 ÷ 10,500 = 95.2%. At half load the copper loss is 400 × 0.5² = 100 W. So the efficiency is 5000 ÷ 5200 = 96.2%. That is the peak, since √(100 ÷ 400) = 0.5. At full load and 0.8 power factor, it gives 8000 W for the same 500 W. That is 94.1%. Left energised all day with no load, it still burns 100 W × 24 h = 2.4 kWh.\n\n**Common mistakes**\n- Expecting a heavy load to raise the iron loss. The supply sets the flux, not the load.\n- Scaling the copper loss straight with the load. It goes with the square.\n- Taking the short-circuit test's reading as the total loss. It is the copper loss at rated current only.\n- Forgetting the iron loss at light load. It is why efficiency falls away as the load drops."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "TRANSFORMER LOSS ENERGY SAVINGS FLEXIBILITY",
+    "url": "https://downloads.regulations.gov/EERE-2017-BT-TP-0055-0022/attachment_3.pdf",
+    "quote": "Transformers have both a no-load loss, that is present whenever the transformer is energized and is independent of the load level, and a load loss that is related to the transformer loading squared."
+   },
+   {
+    "n": 2,
+    "title": "Short-circuit testing | Rohde & Schwarz",
+    "url": "https://www.rohde-schwarz.com/ch-en/solutions/electronics-testing/power-electronics-testing/transformer-short-circuit-testing/short-circuit-testing_258719.html",
+    "quote": "an open-circuit test measures the iron loss under no-load conditions"
+   },
+   {
+    "n": 3,
+    "title": "Part 4 – Transformer Testing – PEG-3722 Electrotechnology",
+    "url": "https://ecampusontario.pressbooks.pub/electrotechnology/chapter/part-4-transformer-testing",
+    "quote": "The short-circuit test is conducted to determine the copper losses of a transformer. It involves simulating a full-load condition by short-circuiting the secondary winding."
+   },
+   {
+    "n": 4,
+    "title": "15.6 Transformers - University Physics Volume 2 | OpenStax",
+    "url": "https://openstax.org/books/university-physics-volume-2/pages/15-6-transformers",
+    "quote": "A good transformer can have losses as low as 1% of the transmitted power, so this is not a bad assumption."
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: quantity -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .caption { max-width: 32rem; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.08rem; font-weight: 400; line-height: 1.6; }\n  .scene { display: block; width: 100%; max-width: 26rem; margin-inline: auto; touch-action: pan-y; }\n  /* The equivalent circuit: wires in ink when they carry current, faint when they carry almost none. */\n  .scene .wire { fill: none; stroke: var(--k-ink); stroke-linejoin: round; stroke-linecap: round; }\n  .scene .part { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.6; }\n  .scene .coil { fill: none; stroke: var(--k-ink); stroke-width: 2; stroke-linecap: round; }\n  .scene .wire.faint, .scene .part.faint, .scene .coil.faint { stroke: var(--k-muted); }\n  .scene .meter { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.6; }\n  .scene .core { stroke: var(--k-ink); stroke-width: 2.2; }\n  .scene .term0 { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.4; }\n  /* The bars: the flux, then the two losses on one scale. */\n  .scene .bar { fill: var(--k-sunk); stroke: var(--k-line); stroke-width: 1; }\n  .scene .fluxfill { fill: var(--k-accent2); }\n  .scene .fefill { fill: var(--k-cat1); }\n  .scene .cufill { fill: var(--k-cat2); }\n  .scene .tick { stroke: var(--k-strong); stroke-width: 1.2; }\n  .scene .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }\n  .scene .tk { font: 400 13px var(--k-font); fill: var(--k-muted); }\n  .scene .ttl { font: 700 16px var(--k-font); fill: var(--k-ink); }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; }\n  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }\n  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-inline: 16px; font-size: .95rem; white-space: nowrap; }\n  /* Five readouts: three share a row on a phone, and the other two take the next. */\n  .outs .k-readout { flex: 1 1 6.5rem !important; min-width: 0; }\n  .picks { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }\n  .picks .k-btn { min-height: 48px; font-size: 1.05rem; white-space: normal; overflow-wrap: normal; word-break: normal; hyphens: none; }\n  .picks .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  .answers .k-answer { max-width: 20rem; }\n  /* In a test nothing is delivered, so the efficiency plot fades. */\n  #plot { transition: opacity .3s; }\n  #plot.off { opacity: .25; }\n  html.k-testing #plot { transition: none; }\n  .fb { font-weight: 700; min-height: 1.5em; }\n  .fb.right { color: var(--k-good); }\n  .why, .done { line-height: 1.6; }\n  .done .row { margin-top: 14px; }\n  #stepbox.enter, #done.enter, #outs.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #outs.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter, #outs.enter { animation: none; } }\n</style>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <svg class=\"scene\" id=\"scene\" viewBox=\"0 0 340 280\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"art\"></g></svg>\n    <div class=\"replay\" id=\"replay\"></div>\n    <div class=\"k-controls\" id=\"c-load\"></div>\n    <div class=\"k-controls\" id=\"c-pf\"></div>\n    <div class=\"k-controls\" id=\"c-test\"></div>\n    <div id=\"plot\"></div>\n    <div class=\"k-readouts outs\" id=\"outs\"></div>\n    <div class=\"picks\" id=\"picks\"></div>\n    <div class=\"answers\" id=\"answers\"></div>\n    <div class=\"row acts\" id=\"acts\"></div>\n    <p class=\"fb\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p id=\"finish\"></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\">A 10 kVA, 440 V to 115 V transformer, drawn as its 440 V side sees it. Every value is an example.</p>\n\n<script>\n  // ================= the rules =================\n  const strip = (s) => s.replace(/\\[\\^\\d+\\]/g, '');\n  const NB = ' ';\n  const VR = 440, FQ = 60, N1 = 880, N2 = 230, SR = 10000;      // the example: 10 kVA on a 440 V, 60 Hz supply, 880 and 230 turns\n  const FE0 = 100, CU0 = 400, IOC = 0.5, XS = 0.58;              // iron loss at 440 V, copper loss at full load, open-circuit current, leakage reactance\n  const IFL = SR / VR;                                           // full-load current on the 440 V side: 22.7 A\n  const RS = CU0 / (IFL * IFL);                                  // the windings' resistance seen from 440 V: 0.77 Ω gives 400 W at 22.7 A\n  const ZS = Math.hypot(RS, XS);                                 // the series branch's impedance: 0.97 Ω\n  const VSC = IFL * ZS;                                          // the short-circuit test's supply: 22.0 V drives 22.7 A through it\n  const PHI0 = VR / (4.44 * FQ * N1);                            // the peak flux the 440 V supply holds: 1.88 mWb\n  const G = FE0 / (VR * VR), YC = IOC / VR, BC = Math.sqrt(YC * YC - G * G);   // the core's branch: 100 W and 0.5 A at 440 V\n  const SRC1 = 'https://downloads.regulations.gov/EERE-2017-BT-TP-0055-0022/attachment_3.pdf';\n  const SRC2 = 'https://www.rohde-schwarz.com/ch-en/solutions/electronics-testing/power-electronics-testing/transformer-short-circuit-testing/short-circuit-testing_258719.html';\n  const SRC3 = 'https://ecampusontario.pressbooks.pub/electrotechnology/chapter/part-4-transformer-testing';\n\n  // On load the supply holds 440 V, so the core's branch takes 0.5 A and 100 W at every load. The series branch\n  // carries the load's current, x × 22.7 A, so its copper loss is I²R = 400 × x². Open circuit: nothing in the\n  // series branch. Short circuit: 22.0 V drives 22.7 A through the series branch; the core's branch, on 5% of\n  // the voltage, takes 5% of its current, and its iron loss goes with the voltage squared (a sketch).\n  function rule(load, pf, test) {\n    const x = test === 'load' ? load / 100 : 0;\n    const v = test === 'sc' ? VSC : VR;\n    const ish = test === 'sc' ? IFL : x * IFL;\n    const fe = v * v * G, cu = ish * ish * RS;\n    const out = test === 'load' ? SR * x * pf : 0;\n    const eff = out > 0 ? 100 * out / (out + fe + cu) : 0;\n    const lag = test === 'sc' ? Math.atan2(XS, RS) : Math.acos(pf);         // how far the series branch's current lags\n    const isup = Math.hypot(v * G + ish * Math.cos(lag), v * BC + ish * Math.sin(lag));\n    return { x, v, ish, icore: v * YC, fe, cu, out, eff, phi: PHI0 * v / VR, isup, watt: out + fe + cu };\n  }\n  const effAt = (load, pf) => rule(load, pf, 'load').eff;\n  const fLoss = (v) => (v > 0 && v < 0.995 ? v.toFixed(2) : v.toFixed(1)) + NB + 'W';\n  const fFlux = (phi) => (phi * 1e3).toFixed(2) + NB + 'mWb';\n  const fSup = (v) => (Math.abs(v - VR) < 1e-9 ? String(VR) : v.toFixed(1)) + NB + 'V, ' + FQ + NB + 'Hz';\n\n  // ================= the lesson: SHOW screens demonstrate, DO screens are puzzles =================\n  const ramp = (t, t0, dur, a, b) => a + (b - a) * K.clamp((t - t0) / dur, 0, 1);\n  const r5 = (v) => Math.round(v / 5) * 5;\n  const STEPS = [\n    { kind: 'typed', name: 'The top of a curve', ans: 'top', pic: 'none', enter: {},\n      answer: 3, decimals: 0, unit: '', want: '3',\n      slips: [{ value: 6, hint: 'That is where the height is back to zero. The top is where the slope is zero.' },\n        { value: 9, hint: 'That is the height at the top. The question asks for x.' }],\n      task: 'A curve\\'s height is y = 6x − x². Its slope is 6 − 2x. At what x does it reach its top?',\n      hint: 'At the top the slope is zero. Solve 6 − 2x = 0.',\n      why: '6 − 2x = 0 gives x = 3. The height there is 18 − 9 = 9. You find the top of an efficiency curve the same way.',\n      right: 'Right: the slope is zero at x = 3.',\n      read: 'The curve y = 6x − x² has slope 6 − 2x. At what x is its top?' },\n    { show: true, name: 'Two branches', ctl: ['load'], enter: { load: 100 }, end: { load: 50 }, dur: 4.0,\n      demo: (t) => { X.load = r5(t < 2.2 ? ramp(t, 0.6, 1.4, 100, 25) : ramp(t, 2.4, 1.0, 25, 50)); },\n      text: strip('A real transformer is the ideal one plus two branches. The ideal one lost nothing. The shunt branch sits across the supply and stands for the core. It takes the small current that magnetises the core. It also takes the *iron loss*, from hysteresis and eddy currents. The series branch sits in line with the load and stands for the windings. Its resistance wastes power as heat. Its reactance stands for leakage: flux that misses the other winding. Drag the load. Only the series branch\\'s current changes.'),\n      read: 'A real transformer is the ideal one plus two branches. The shunt branch sits across the supply and stands for the core. The series branch sits in line with the load and stands for the windings. Only the series branch\\'s current changes with the load.',\n      still: () => setStill() },\n    { kind: 'typed', name: 'At 75% load', ans: 'cu75', hide: 'cu', enter: { load: 100 }, run: 1.4,\n      runFn: (t) => { X.load = r5(ramp(t, 0.2, 1.0, 100, 75)); }, runEnd: { load: 75 },\n      answer: 225, decimals: 0, unit: 'W', want: '225' + NB + 'W',\n      slips: [{ value: 300, hint: 'That scales it straight with the load. The loss goes with the current squared.' },\n        { value: 400, hint: 'That is the full-load figure. At 75% load the current is 0.75 of full.' }],\n      task: 'This transformer\\'s windings lose 400 W at full load. What do they lose at 75% load?',\n      hint: 'Copper loss = 400 × (load fraction)².',\n      why: '0.75² = 0.5625. 400 × 0.5625 = 225 W.',\n      read: 'This transformer\\'s windings lose 400 W at full load. What do they lose at 75% load?' },\n    { show: true, name: 'Iron stays put', ctl: ['load'], enter: { load: 100 }, end: { load: 100 }, dur: 4.5,\n      demo: (t) => { X.load = r5(t < 2.0 ? ramp(t, 0.6, 1.0, 100, 50) : t < 3.6 ? ramp(t, 2.0, 1.4, 50, 125) : ramp(t, 3.6, 0.8, 125, 100)); },\n      text: strip('*Copper loss* grows with the load, but iron loss stays put. Drag the load and watch the two bars. The copper loss is I²R, so it goes with the current squared. Full load gives 400 W. Half load gives a quarter, 100 W. Here the iron loss stays at 100 W at every load.[^1] It depends on the flux, and the flux bar stays at 1.88 mWb. The supply\\'s voltage holds the flux. The primary cancels the load\\'s ampere-turns. So more load means more current, not more flux.'),\n      read: 'The copper loss grows with the square of the load. It is 400 W at full load and 100 W at half. The iron loss stays at 100 W, because the supply holds the flux at 1.88 mWb.',\n      still: () => setStill() },\n    { kind: 'typed', name: 'Iron at full load', ans: 'fe', hide: 'fe', enter: { load: 50 }, run: 1.4,\n      runFn: (t) => { X.load = r5(ramp(t, 0.2, 1.0, 50, 100)); }, runEnd: { load: 100 },\n      answer: 100, decimals: 0, unit: 'W', want: '100' + NB + 'W',\n      slips: [{ value: 400, hint: 'That grows it with the square, like the copper loss. But the iron loss follows the flux.' },\n        { value: 200, hint: 'That doubles it with the load. The load does not move the flux.' }],\n      task: 'At half load this transformer\\'s iron loss is 100 W. The load rises to full. What is its iron loss now?',\n      hint: 'What sets the flux, the load or the supply?',\n      why: 'The supply still holds the flux at 1.88 mWb. Same flux, same iron loss: 100 W. The copper loss grows from 100 W to 400 W.',\n      read: 'At half load this transformer\\'s iron loss is 100 W. The load rises to full. What is its iron loss now?' },\n    { show: true, name: 'Efficiency', ctl: ['load', 'pf'], enter: { load: 100, pf: 1 }, end: { load: 100, pf: 1 }, dur: 4.0,\n      demo: (t) => { X.pf = t >= 1.0 && t < 3.0 ? 0.8 : 1; },\n      text: strip('Efficiency is output ÷ input. The input is the output plus both losses. At full load and unity power factor, the load takes 10,000 W. The losses are 100 + 400 = 500 W. So the efficiency is 10,000 ÷ 10,500 = 95.2%. Now switch to 0.8 power factor. The load is set in kVA, so the current is still 22.7 A. So the losses stay the same. That is why the plate gives kVA. But only 8000 W comes out. So the efficiency falls to 94.1%.'),\n      read: 'At full load and unity power factor, 10,000 W comes out and 500 W is lost. That is 95.2%. At 0.8 power factor, only 8000 W comes out for the same losses. That is 94.1%.',\n      still: () => setStill() },\n    { kind: 'typed', name: 'Half load', ans: 'eff50', hide: 'eff', enter: { load: 100 }, run: 1.4,\n      runFn: (t) => { X.load = r5(ramp(t, 0.2, 1.0, 100, 50)); }, runEnd: { load: 50 },\n      answer: 96.2, decimals: 1, unit: '%', want: '96.2%',\n      slips: [{ value: 90.9, hint: 'That uses the full-load copper loss. At half load it is a quarter of that, 100 W.' },\n        { value: 94.3, hint: 'That halves the copper loss. It goes with the square, so it quarters.' }],\n      task: 'The same transformer runs at half load, unity power factor. What is its efficiency?',\n      hint: 'Output 5000 W. Losses: 100 W iron, plus 400 × 0.5² copper.',\n      why: 'Copper loss = 400 × 0.25 = 100 W. So the losses are 200 W in all. 5000 ÷ 5200 = 96.2%. That beats the 95.2% at full load.',\n      read: 'The same transformer runs at half load, unity power factor. What is its efficiency?' },\n    { show: true, name: 'The peak', ctl: ['load'], enter: { load: 100 }, end: { load: 50 }, dur: 4.0,\n      demo: (t) => { X.load = r5(t < 2.2 ? ramp(t, 0.6, 1.4, 100, 20) : ramp(t, 2.4, 1.2, 20, 50)); },\n      text: strip('Efficiency peaks at 50% load, where both loss bars read 100 W. Drag the load and watch the dot. Call the load fraction x. The losses are 100 + 400x². Divide by the output, which grows as x. The loss per watt out goes as 100 ÷ x + 400x. Least loss per watt means highest efficiency. It is lowest where its slope, 400 − 100 ÷ x², is zero. That needs 400x² = 100. So copper loss equals iron loss. Then x = √(100 ÷ 400) = 0.5.'),\n      read: 'Efficiency peaks at 50% load, where the copper loss equals the 100 W iron loss. Peak load = √(iron loss ÷ full-load copper loss).',\n      still: () => setStill() },\n    { kind: 'typed', name: 'Another transformer', ans: 'pk', pic: 'scene', enter: { load: 50 },\n      answer: 40, decimals: 0, unit: '%', want: '40%',\n      slips: [{ value: 16, hint: 'That is 64 ÷ 400. Take its square root.' },\n        { value: 250, hint: 'That is upside down. Put the iron loss on top.' }],\n      task: 'Another transformer has 64 W of iron loss and 400 W of copper loss at full load. At what load is it most efficient?',\n      hint: 'Peak load = √(iron loss ÷ full-load copper loss).',\n      why: '64 ÷ 400 = 0.16, and √0.16 = 0.4. So the peak is at 40%. Check: 400 × 0.4² = 64 W of copper loss, equal to the iron loss.',\n      read: 'A transformer has 64 W of iron loss and 400 W of full-load copper loss. At what load is it most efficient?' },\n    { show: true, name: 'Two tests', ctl: ['test'], enter: { test: 'load' }, end: { test: 'sc' }, dur: 4.2,\n      demo: (t) => { X.test = t < 0.8 ? 'load' : t < 2.4 ? 'oc' : 'sc'; },\n      text: strip('Two tests measure the two losses. The open-circuit test leaves the secondary open. The primary gets its full 440 V. The flux is full, but only a small current flows. A small current wastes almost nothing in the windings. So the wattmeter reads the iron loss, 100 W.[^2] The short-circuit test puts a link across the secondary. You raise the voltage from zero until rated current flows. Now the current is full, but the voltage is only 22.0 V. So the wattmeter reads the copper loss, 400 W.[^3]'),\n      read: 'With the secondary open at rated voltage, the wattmeter reads the iron loss, 100 W. With it shorted at rated current, on 22.0 V, it reads the copper loss, 400 W.',\n      still: () => setStill() },\n    { kind: 'typed', name: 'Flux in the test', ans: 'fsc', hide: 'flux', enter: { test: 'sc' },\n      answer: 0.09, decimals: 2, accept: [0.094], unit: 'mWb', want: '0.09' + NB + 'mWb',\n      slips: [{ value: 1.88, hint: 'Rated current flows, but the voltage sets the flux.' },\n        { value: 37.6, hint: 'The voltage is 20 times lower, so the flux is too.' }],\n      task: 'The short-circuit test drives 22.7 A with 22.0 V on the primary. At 440 V the flux peaks at 1.88 mWb. What does it peak at in this test?',\n      hint: 'The flux follows the voltage. 22.0 V is 5% of 440 V.',\n      why: '1.88 × 22.0 ÷ 440 = 0.09 mWb, 5% of normal. So the iron loss almost vanishes. The wattmeter reads the copper loss alone.',\n      read: 'At 440 V the flux peaks at 1.88 mWb. What does it peak at in the short-circuit test, on 22.0 V?' },\n    { kind: 'typed', name: 'A big unit, a light load', ans: 'eff12', pic: 'scene', enter: {},\n      answer: 97.2, decimals: 1, unit: '%', want: '97.2%',\n      slips: [{ value: 88.9, hint: 'That uses the full-load copper loss. At 20% load it is 0.2² of that.' },\n        { value: 95.7, hint: 'That scales the copper loss straight with the load. It goes with the square.' },\n        { value: 99.6, hint: 'That leaves out the iron loss. It is there at every load.' }],\n      task: 'A 100 kVA transformer\\'s open-circuit test reads 500 W. Its short-circuit test at rated current reads 2000 W. It feeds a steady 20 kVA load at unity power factor. What is its efficiency?',\n      hint: 'Load fraction 20 ÷ 100 = 0.2. Copper loss = 2000 × 0.2². Add the 500 W iron loss.',\n      why: 'Copper loss = 2000 × 0.2² = 80 W. So 500 W of the 580 W lost is iron loss. 20,000 ÷ 20,580 = 97.2%. At its 50% peak it would give 98.0%. A big transformer on a light load wastes mostly iron loss.',\n      read: 'A 100 kVA transformer tests at 500 W open circuit and 2000 W short circuit. It feeds a steady 20 kVA at unity power factor. What is its efficiency?' },\n    { kind: 'pick', name: 'Setting up the test', enter: {},\n      opts: ['Secondary shorted, rated current', 'Secondary shorted, rated voltage', 'Secondary open, rated current', 'Secondary open, rated voltage'],\n      want: 'Secondary open, rated voltage',\n      task: 'You want to measure a transformer\\'s iron loss. How do you set up the test?',\n      hint: 'The iron loss follows the flux. The voltage sets the flux. So set the voltage.',\n      hints: { 'Secondary shorted, rated current': 'That is the short-circuit test. Its low voltage gives little flux. So it reads the copper loss.',\n        'Secondary shorted, rated voltage': 'Full voltage on a shorted secondary is a dead short. Here it would drive 20 times rated current.',\n        'Secondary open, rated current': 'The iron loss follows the flux. The voltage sets the flux. So set the voltage.' },\n      why: 'The iron loss needs the full flux, and rated voltage gives it. With the secondary open, only a small current flows. So the copper loss is too small to count.',\n      read: 'You want to measure a transformer\\'s iron loss. How do you set up the test?' },\n  ];\n  const FINISH = 'The supply holds the flux, so the iron loss barely moves with the load. The copper loss grows with the square of the load. Efficiency peaks where the two are equal. The open-circuit test reads the iron loss. The short-circuit test reads the copper loss. The 22.0 V it needs, 5% of rated, is called the impedance voltage. Next: what that 5% means for the voltage under load.';\n\n  // ================= state =================\n  const BASE = { load: 100, pf: 1, test: 'load' };\n  const X = Object.assign({}, BASE);              // what the picture shows now\n  const D = {};                                   // the drawn sizes, easing towards the rule's\n  const blank = () => ({ pick: null, res: null, why: false, tries: 0, hint: '' });\n  let S = STEPS.map(blank);\n  const solved = (st) => !!st && (st.res === 'right' || st.res === 'shown');\n  let T = Infinity, motionEnd = 0, scripted = false, lastStep = -1, finished = false, lastDone = false, held = false, probing = false, lastMode = 'load';\n  let REC = { t: {}, bars: {}, faint: {} };\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n  const quiet = () => REDUCE || testing();\n  const el = (id) => document.getElementById(id);\n  const idx = (name) => STEPS.findIndex((d) => d.name === name);\n  // A puzzle's figure stays \"?\" on screen until that puzzle is checked.\n  const hideOut = (i, key) => !finished && STEPS[i].hide === key && !solved(S[i]);\n\n  // ================= the drawn sizes ease towards the rule's =================\n  function targets() {\n    const r = rule(X.load, X.pf, X.test);\n    return { load: X.load, pf: X.pf, fe: r.fe, cu: r.cu, phi: r.phi, ish: r.ish, icore: r.icore, isup: r.isup };\n  }\n  function snapD() { Object.assign(D, targets()); }\n  function tween(dt) {\n    const t = targets(), a = 1 - Math.exp(-dt / 0.2);\n    Object.keys(t).forEach((k) => { const e = t[k] - D[k]; D[k] = Math.abs(e) <= 1e-6 * Math.max(1, Math.abs(t[k])) ? t[k] : D[k] + e * a; });\n  }\n  function settled() { const t = targets(); return Object.keys(t).every((k) => D[k] === t[k]); }\n  snapD();\n\n  // ================= text with amber key terms (built with K.el, never innerHTML) =================\n  const UNIT_GAP = /(\\d) (?=(?:Hz|mWb|kVA|kW|V|A|Ω|W)(?![A-Za-z]))/g;\n  function write(node, s) {\n    node.textContent = '';\n    String(s || '').replace(UNIT_GAP, '$1' + NB).split(/\\*([^*]+)\\*/).forEach((seg, k) => {\n      if (!seg) return;\n      node.appendChild(k % 2 ? K.el('span', { class: 'term' }, seg) : document.createTextNode(seg));\n    });\n  }\n\n  // ================= controls =================\n  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);\n  const CTL = {\n    load: K.control({ id: 'load', label: 'Load', min: 0, max: 125, step: 5, value: 100, snap: [50, 75, 100], fmt: (v) => v + '%', into: '#c-load' }),\n    pf: K.choice({ id: 'pf', label: 'Power factor', options: [{ value: 1, label: '1.0' }, { value: 0.8, label: '0.8 lagging' }], value: 1, into: '#c-pf' }),\n    test: K.choice({ id: 'test', label: 'Test', options: [{ value: 'load', label: 'On load' }, { value: 'oc', label: 'Open-circuit test' }, { value: 'sc', label: 'Short-circuit test' }], value: 'load', into: '#c-test' }),\n  };\n  const CTL_IDS = Object.keys(CTL);\n  const pushed = {};\n  CTL_IDS.forEach((id) => { pushed[id] = CTL[id].get(); });\n  // The page moves the controls itself during a demonstration (silently, so it is not taken for Dan's move).\n  function push() {\n    CTL_IDS.forEach((id) => { if (pushed[id] !== X[id]) { CTL[id].set(X[id], true); pushed[id] = CTL[id].get(); } });\n  }\n  const shownCtl = (d, id) => !finished && !!d.ctl && d.ctl.indexOf(id) >= 0;\n  function layoutCtl(d) { CTL_IDS.forEach((id) => { el('c-' + id).hidden = !shownCtl(d, id); }); }\n\n  // The efficiency curve: off the bottom at light load, a dashed line at its peak, a dot where the load is.\n  const plot = K.plot('#plot', {\n    x: { min: 0, max: 125, label: 'Load (%)' },\n    y: { min: 88, max: 97, label: 'Efficiency (%)' },\n    height: 170,\n    label: 'Efficiency against load: it climbs steeply from light load, peaks at half load, then falls slowly',\n  });\n\n  const RO = {\n    load: K.readout({ id: 'r-load', label: 'Load', fmt: (v) => Math.round(v) + '%', into: '#outs' }),\n    out: K.readout({ id: 'r-out', label: 'Output', fmt: (v) => (v / 1000).toFixed(1) + NB + 'kW', into: '#outs' }),\n    vs: K.readout({ id: 'r-vs', label: 'Supply voltage', fmt: (v) => v.toFixed(1) + NB + 'V', into: '#outs' }),\n    is: K.readout({ id: 'r-is', label: 'Supply current', fmt: (v) => v.toFixed(1) + NB + 'A', into: '#outs' }),\n    wm: K.readout({ id: 'r-wm', label: 'Wattmeter', fmt: (v) => String(Math.round(v)) + NB + 'W', into: '#outs' }),\n    fe: K.readout({ id: 'r-fe', label: 'Iron loss', fmt: fLoss, into: '#outs' }),\n    cu: K.readout({ id: 'r-cu', label: 'Copper loss', fmt: fLoss, into: '#outs' }),\n    eff: K.readout({ id: 'r-eff', label: 'Efficiency', fmt: (v) => v.toFixed(1) + '%', into: '#outs' }),\n  };\n\n  // Up to four answer buttons; each puzzle fills in its own.\n  const pickBtns = [0, 1, 2, 3].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.kind !== 'pick' || k >= d.opts.length || solved(st)) return;\n    st.pick = d.opts[k]; st.res = null;\n  } }));\n  // Typed answers: a field each; Check grades it, two misses show the working.\n  const ANS = {};\n  STEPS.forEach((d, i) => {\n    if (d.kind !== 'typed') return;\n    el('answers').appendChild(K.el('div', { id: 'ans-' + d.ans }));\n    const a = K.answer({ id: 'a-' + d.ans, unit: d.unit, answer: d.answer, decimals: d.decimals, accept: d.accept, slips: d.slips, into: '#ans-' + d.ans,\n      onCheck: (r) => {\n        const st = S[i];\n        if (solved(st)) return;\n        if (r.state === 'right') { st.res = 'right'; playRun(i, d.run); }\n        else if (r.state === 'wrong') {\n          st.tries += 1; st.hint = r.hint || d.hint;\n          if (st.tries >= 2) { st.res = 'shown'; st.why = true; a.reveal(); playRun(i, d.run); }\n          else st.res = 'wrong';\n        } else { st.res = r.state; st.hint = ''; }\n        K.refresh();\n      } });\n    ANS[d.ans] = a;\n  });\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || solved(st)) return;\n    if (d.kind === 'typed') { ANS[d.ans].check(); return; }\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = st.pick === d.want ? 'right' : 'wrong';\n    if (st.res === 'right') playRun(i, d.run);\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    const d = STEPS[at()];\n    if (d.show || finished) return;\n    S[at()].why = !S[at()].why;\n  } });\n  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {\n    if (!STEPS[at()].show || finished) return;\n    startDemo(at());\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && !solved(S[i]))) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true; anim.pause(); T = Infinity;\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S = STEPS.map(blank); finished = false; lastStep = -1;\n    Object.keys(ANS).forEach((k) => ANS[k].reset());\n    stepper.set(0, true);\n  } });\n\n  // ================= motion: one animation runs the demonstrations, the answers' motion and the easing =================\n  const needAnim = () => !finished && (T !== Infinity || !settled());\n  function finishNow(i) {\n    if (T === Infinity) return;\n    const d = STEPS[i];\n    T = Infinity;\n    if (scripted) { scripted = false; Object.assign(X, d.end || {}); }\n    else if (solved(S[i])) Object.assign(X, d.runEnd || {});\n    push();\n  }\n  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {\n    if (finished) return false;\n    dt = Math.min(dt, 0.1);\n    const i = at(), d = STEPS[i], st = S[i];\n    if (T !== Infinity) {\n      T += dt;\n      const tt = Math.min(T, motionEnd);\n      if (scripted) { if (d.demo) d.demo(tt); }\n      else if (solved(st) && d.runFn) d.runFn(tt);\n    }\n    if (T !== Infinity && T >= motionEnd) finishNow(i);\n    tween(dt);\n    push();\n    paint(i);\n    return needAnim();\n  } });\n  function kick() {\n    if (quiet()) { snapD(); return; }\n    if (needAnim() && !anim.playing()) anim.play();\n  }\n  // A screen's state: its opening, then (at once) its answer's motion or its demonstration.\n  function prep(i, solvedNow, showEnd) {\n    const d = STEPS[i];\n    Object.assign(X, BASE, d.enter || {});\n    if (d.show) { if (showEnd) { if (d.demo) d.demo(d.dur); Object.assign(X, d.end || {}); } }\n    else if (solvedNow) { if (d.runFn) d.runFn(d.run); Object.assign(X, d.runEnd || {}); }\n    snapD();\n  }\n  function startDemo(i) {\n    const d = STEPS[i];\n    anim.pause(); held = false;\n    if (d.demo && !quiet()) { prep(i, false, false); scripted = true; motionEnd = d.dur; T = 0; d.demo(0); snapD(); anim.play(); }\n    else { scripted = false; T = Infinity; prep(i, false, true); }\n    push();\n  }\n  function playRun(i, dur) {\n    const d = STEPS[i];\n    anim.pause(); scripted = false; held = false;\n    if (quiet() || !dur) {\n      T = Infinity;\n      if (solved(S[i]) && d.runFn && dur) d.runFn(dur);\n      if (solved(S[i])) Object.assign(X, d.runEnd || {});\n      push(); snapD(); return;\n    }\n    T = 0; motionEnd = dur; anim.play();\n  }\n  function enterStep(i) {\n    const d = STEPS[i];\n    anim.pause(); T = Infinity; scripted = false; held = false;\n    enter('stepbox');\n    if (d.show) { startDemo(i); return; }\n    prep(i, solved(S[i]), false);\n    push();\n  }\n  // The finished picture a still shows (the read-through), with the controls where its words end.\n  function setStill() {\n    const i = at();\n    anim.pause(); T = Infinity; scripted = false; held = true;\n    prep(i, true, true);\n    push();\n    K.refresh();\n  }\n  function enter(id) {\n    if (REDUCE) return;\n    const box = el(id);\n    box.classList.remove('enter');\n    void box.offsetWidth;\n    box.classList.add('enter');\n  }\n\n  // ================= drawing helpers =================\n  const svg = el('scene'), art = el('art');\n  const add = (node, par) => (par || art).appendChild(node);\n  const r1 = (v) => Math.round(v * 10) / 10;\n  const twCache = {};\n  function tw(s, cls) {\n    const key = (cls || 'lab') + '|' + s;\n    if (twCache[key]) return twCache[key];\n    let w = 0;\n    try { const t = svg.appendChild(K.svg('text', { class: cls || 'lab', x: 0, y: -50 }, s)); w = t.getComputedTextLength(); svg.removeChild(t); } catch (e) { w = 0; }\n    if (!(w > 0)) return s.length * 7.6;\n    twCache[key] = w;\n    return w;\n  }\n  const text = (x, y, s, cls, anchor) => add(K.svg('text', { class: cls || 'lab', x: r1(x), y: r1(y), 'text-anchor': anchor || 'start' }, s));\n  const ptsS = (pts) => pts.map((p) => r1(p[0]) + ',' + r1(p[1])).join(' ');\n  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r1(x1), y1: r1(y1), x2: r1(x2), y2: r1(y2) }));\n  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: r1(x), y: r1(y), width: r1(Math.max(0, w)), height: r1(Math.max(0, h)), rx: rx || 0 }));\n  const circle = (cls, cx, cy, r) => add(K.svg('circle', { class: cls, cx, cy, r }));\n  const wire = (pts, w, faint) => add(K.svg('polyline', { class: 'wire' + (faint ? ' faint' : ''), points: ptsS(pts), 'stroke-width': r1(w) }));\n  const coil = (d, faint) => add(K.svg('path', { class: 'coil' + (faint ? ' faint' : ''), d }));\n  // A coil of n turns drawn as half-circles: down a vertical line (bulging right or left), or along the top rail (bulging up).\n  function coilV(x, y0, y1, n, right) {\n    const h = (y1 - y0) / n;\n    let d = 'M' + x + ' ' + y0;\n    for (let k = 0; k < n; k++) d += ' a' + r1(h / 2) + ' ' + r1(h / 2) + ' 0 0 ' + (right ? 1 : 0) + ' 0 ' + r1(h);\n    return d;\n  }\n  function coilH(x0, x1, y, n) {\n    const w = (x1 - x0) / n;\n    let d = 'M' + x0 + ' ' + y;\n    for (let k = 0; k < n; k++) d += ' a' + r1(w / 2) + ' ' + r1(w / 2) + ' 0 0 1 ' + r1(w) + ' 0';\n    return d;\n  }\n  // A wire's thickness follows its current on the 440 V side.\n  const wd = (I) => 1.4 + 2.4 * K.clamp(I / 28.4, 0, 1);\n\n  // ================= the picture =================\n  const YT = 48, YB = 140;                       // the top and bottom rails\n  const BX = 106, BW = 220, LMAX = 650;          // the loss bars: one scale, 0 to 650 W\n  const FW = 140, FMAX = 2.5e-3;                 // the flux bar: 0 to 2.5 mWb\n  const FY = 196, FEY = 220, CUY = 240;\n  function drawScene(i) {\n    const r = rule(X.load, X.pf, X.test), hf = hideOut(i, 'flux'), mode = X.test;\n    const fS = D.ish < 0.1, fC = D.icore < 0.1;   // a branch carrying almost no current is drawn faint\n    const wS = wd(D.ish), wC = wd(D.icore), wU = wd(D.isup);\n    // The supply, its ammeter and its wattmeter.\n    const sup = fSup(r.v);\n    text(2, 14, sup);\n    wire([[16, 82], [16, YT], [36, YT]], wU);\n    wire([[56, YT], [66, YT]], wU);\n    wire([[86, YT], [114, YT]], wU);\n    wire([[16, 106], [16, YB], [114, YB]], wU);\n    circle('meter', 16, 94, 12); text(16, 99.5, '~', 'ttl', 'middle');\n    circle('meter', 46, YT, 10); text(46, YT + 4.5, 'A', 'lab', 'middle');\n    circle('meter', 76, YT, 10); text(76, YT + 4.5, 'W', 'lab', 'middle');\n    // The core's branch, across the supply: a resistor beside a coil.\n    wire([[114, YT], [114, 58]], wC, fC);\n    wire([[100, 76], [100, 58], [128, 58], [128, 72]], wC, fC);\n    rect('part' + (fC ? ' faint' : ''), 94, 76, 12, 34, 2);\n    coil(coilV(128, 72, 112, 4, true), fC);\n    wire([[100, 110], [100, 126], [128, 126], [128, 112]], wC, fC);\n    wire([[114, 126], [114, YB]], wC, fC);\n    text(114, 158, 'Core', 'lab', 'middle');\n    // The windings' branch, in line: resistance, then leakage reactance.\n    wire([[114, YT], [138, YT]], wS, fS);\n    rect('part' + (fS ? ' faint' : ''), 138, YT - 6, 24, 12, 2);\n    wire([[162, YT], [192, YT]], wS, fS);\n    coil(coilH(192, 220, YT, 4), fS);\n    wire([[220, YT], [236, YT], [236, 66]], wS, fS);\n    wire([[236, 122], [236, YB], [114, YB]], wS, fS);\n    text(178, 14, 'Windings', 'lab', 'middle');\n    text(150, 32, RS.toFixed(2) + NB + 'Ω', 'lab', 'middle');\n    text(206, 32, XS.toFixed(2) + NB + 'Ω', 'lab', 'middle');\n    const ia = D.ish.toFixed(1) + NB + 'A';\n    text(184, 70, '→ ' + ia, 'lab', 'middle');\n    // The ideal transformer: two coils on one core.\n    coil(coilV(236, 66, 122, 6, true), fS);\n    line('core', 249, 60, 249, 128);\n    line('core', 254, 60, 254, 128);\n    coil(coilV(267, 66, 122, 6, false), fS);\n    text(252, 158, 'Ideal, ' + N1 + ' to ' + N2 + ' turns', 'lab', 'middle');\n    // The secondary: a load, nothing (open), or a link (shorted).\n    wire([[267, 66], [267, YT], [292, YT], [292, 70]], wS, fS);\n    wire([[292, 118], [292, YB], [267, YB], [267, 122]], wS, fS);\n    if (mode === 'load') {\n      wire([[292, 70], [292, 78]], wS, fS);\n      rect('part' + (fS ? ' faint' : ''), 286, 78, 12, 32, 2);\n      wire([[292, 110], [292, 118]], wS, fS);\n    } else if (mode === 'sc') wire([[292, 70], [292, 118]], wS, fS);\n    circle('term0', 292, 70, 2.6);\n    circle('term0', 292, 118, 2.6);\n    const sec = mode === 'load' ? 'Load' : mode === 'oc' ? 'Open' : 'Link';\n    text(302, 98, sec);\n    // The key.\n    wire([[6, 176], [24, 176]], 4);\n    text(30, 180.5, 'Thick: more current');\n    const kx = 30 + tw('Thick: more current') + 16;\n    wire([[kx, 176], [kx + 18, 176]], 1.6, true);\n    text(kx + 24, 180.5, 'Faint: almost none');\n    // The flux bar: the supply's voltage sets it.\n    text(100, FY + 9.5, 'Peak flux', 'lab', 'end');\n    rect('bar', BX, FY, FW, 10, 3);\n    const fw = hf ? 0 : FW * K.clamp(D.phi / FMAX, 0, 1);\n    if (fw > 0.3) rect('fluxfill', BX, FY, fw, 10, 0);\n    const ft = hf ? '?' : fFlux(r.phi);\n    text(BX + FW + 6, FY + 9.5, ft);\n    // The two losses, on one scale.\n    const wfe = BW * K.clamp(D.fe / LMAX, 0, 1), wcu = BW * K.clamp(D.cu / LMAX, 0, 1);\n    text(100, FEY + 10.5, 'Iron loss', 'lab', 'end');\n    rect('bar', BX, FEY, BW, 12, 3);\n    if (wfe > 0.3) rect('fefill', BX, FEY, wfe, 12, 0);\n    text(100, CUY + 10.5, 'Copper loss', 'lab', 'end');\n    rect('bar', BX, CUY, BW, 12, 3);\n    if (wcu > 0.3) rect('cufill', BX, CUY, wcu, 12, 0);\n    [0, 200, 400, 600].forEach((w) => {\n      const x = BX + BW * w / LMAX;\n      line('tick', x, 254, x, 259);\n      text(x, 272, w === 600 ? w + NB + 'W' : String(w), 'tk', 'middle');\n    });\n    Object.assign(REC.t, { flux: ft, sup, sec, ish: ia });\n    Object.assign(REC.bars, { fe: wfe, cu: wcu, flux: fw });\n    REC.faint = { series: fS, core: fC };\n    REC.load = X.load; REC.pf = X.pf; REC.mode = mode;\n    // What it shows, in words (no readout's number).\n    let said = 'The transformer drawn as its 440 V side sees it: the supply with an ammeter and a wattmeter, the core\\'s branch across it, the windings\\' resistance and leakage reactance in line, then the ideal transformer and ';\n    if (mode === 'load') {\n      said += 'its load. ' + (fS ? 'The load takes nothing, so only the core\\'s branch carries current. ' : 'Both branches carry current. ');\n      said += r.cu > r.fe * 1.001 ? 'The copper-loss bar is longer than the iron-loss bar. ' : r.cu < r.fe * 0.999 ? 'The copper-loss bar is shorter than the iron-loss bar. ' : 'The two loss bars are equal, at the efficiency\\'s peak. ';\n      said += 'The flux bar holds where the supply sets it.';\n    } else if (mode === 'oc') {\n      said += 'an open secondary. Only the core\\'s branch carries current, so only the iron-loss bar shows, and the flux bar is full.';\n    } else {\n      said += 'a link across the secondary, on a low supply voltage. Nearly all the current takes the windings\\' branch, so the copper-loss bar is as long as at full load, and the flux bar is almost empty.';\n    }\n    REC.said = said;\n  }\n  function drawPlot() {\n    const pf = D.pf, onLoad = X.test === 'load';\n    el('plot').classList.toggle('off', !onLoad);\n    el('plot').setAttribute('aria-hidden', onLoad ? 'false' : 'true');\n    plot.draw({\n      series: [{ fn: (l) => effAt(l, pf) }],\n      lines: [{ x: 50, label: 'Peak' }],\n      marks: onLoad ? [{ x: D.load, y: effAt(D.load, pf) }] : [],\n    });\n  }\n\n  // ================= one paint =================\n  function paint(i) {\n    if (i == null) i = at();\n    art.textContent = '';\n    REC = { t: {}, bars: {}, faint: {} };\n    drawScene(i);\n    svg.setAttribute('aria-label', REC.said);\n    drawPlot();\n    readouts(i);\n  }\n  function readouts(i) {\n    const r = rule(X.load, X.pf, X.test), onLoad = X.test === 'load';\n    RO.load.set(X.load); RO.out.set(r.out); RO.vs.set(r.v); RO.is.set(r.isup); RO.wm.set(r.watt);\n    RO.fe.set(hideOut(i, 'fe') ? '?' : r.fe);\n    RO.cu.set(hideOut(i, 'cu') ? '?' : r.cu);\n    RO.eff.set(hideOut(i, 'eff') ? '?' : r.eff);\n    ['load', 'out', 'eff'].forEach((k) => { RO[k].el.hidden = !onLoad; });\n    ['vs', 'is', 'wm'].forEach((k) => { RO[k].el.hidden = onLoad; });\n    Object.keys(RO).forEach((k) => { REC.t[k] = RO[k].text(); });\n    // The readouts swap as the test changes: they fade in, not pop.\n    const mode = onLoad ? 'load' : 'test';\n    if (!probing && mode !== lastMode) { lastMode = mode; enter('outs'); }\n  }\n\n  // ================= the page around the picture =================\n  write(el('finish'), FINISH);\n  function layout(i) {\n    const d = STEPS[i], st = S[i], sol = solved(st);\n    el('stepbox').hidden = finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Screen ' + (i + 1) + ' of ' + STEPS.length;\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    write(task, d.show ? d.text : d.task);\n    layoutCtl(d);\n    const pic = finished ? 'all' : d.pic || 'all';\n    el('scene').toggleAttribute('hidden', pic === 'none');\n    el('plot').hidden = pic !== 'all';\n    el('outs').hidden = pic !== 'all';\n    replayBtn.el.hidden = !d.show || !d.demo || REDUCE;\n    el('replay').hidden = replayBtn.el.hidden;\n    const opts = d.kind === 'pick' ? d.opts : [];\n    el('picks').hidden = !opts.length;\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      if (b.el.textContent !== opts[k]) b.setLabel(opts[k]);\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n    el('answers').hidden = d.kind !== 'typed';\n    Object.keys(ANS).forEach((key) => { el('ans-' + key).hidden = d.ans !== key; });\n    el('acts').hidden = !!d.show;\n    checkBtn.el.hidden = sol;\n    const fb = el('fb');\n    fb.hidden = !!d.show;\n    fb.className = 'fb' + (st.res === 'right' ? ' right' : '');\n    let say = '';\n    if (!d.show) {\n      if (st.res === 'right') say = d.right || 'That\\'s it.';\n      else if (st.res === 'shown') say = 'Here is the working.';\n      else if (st.res === 'wrong') say = d.kind === 'typed' ? st.hint : (d.hints && d.hints[st.pick]) || d.hint;\n      else if (st.res === 'empty' && d.kind === 'pick') say = 'Pick one of the answers first.';\n    }\n    write(fb, say);\n    const why = el('why');\n    why.hidden = d.show || !st.why;\n    write(why, d.show ? '' : d.why);\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !sol);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  }\n\n  K.update((p) => {\n    const i = at(), d = STEPS[i];\n    if (i !== lastStep) { lastStep = i; enterStep(i); }\n    else {\n      let moved = false;\n      CTL_IDS.forEach((id) => {\n        if (p[id] === pushed[id]) return;\n        if (shownCtl(d, id)) {\n          if (T !== Infinity) { anim.pause(); T = Infinity; scripted = false; }   // his move ends the demonstration where it stands\n          X[id] = p[id]; pushed[id] = p[id]; moved = true;\n        } else CTL[id].set(pushed[id], true);      // a control this screen does not use stays put\n      });\n      if (moved) { held = false; push(); }\n    }\n    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }\n    if (quiet()) snapD();\n    layout(i);\n    paint(i);\n    kick();\n  });\n\n  // ================= known answers, worked out by hand =================\n  const near = (a, b, t) => Math.abs(a - b) <= t;\n  const solvedSt = (i) => Object.assign(blank(), STEPS[i].kind === 'pick' ? { pick: STEPS[i].want, res: 'right' } : { res: 'right' });\n  // A screen painted in the state given (finished), with optional settings: what it drew.\n  function drawn(i, st, x) {\n    const keep = { X: Object.assign({}, X), D: Object.assign({}, D), S: S[i], T, sc: scripted, held };\n    S[i] = st || blank(); T = Infinity; scripted = false; held = true; probing = true;\n    try {\n      prep(i, solved(S[i]), true);\n      if (x) Object.assign(X, x);\n      snapD();\n      paint(i);\n      return REC;\n    } finally {\n      Object.assign(X, keep.X); Object.assign(D, keep.D); S[i] = keep.S; T = keep.T; scripted = keep.sc; held = keep.held; paint(); probing = false;\n    }\n  }\n  const iTop = idx('The top of a curve'), iBranches = idx('Two branches'), iCu75 = idx('At 75% load'), iIron = idx('Iron stays put');\n  const iFe = idx('Iron at full load'), iEff = idx('Efficiency'), iHalf = idx('Half load'), iPeak = idx('The peak');\n  const iOther = idx('Another transformer'), iTests = idx('Two tests'), iFsc = idx('Flux in the test'), iTwo = idx('A big unit, a light load'), iPick = idx('Setting up the test');\n  const V_ = (s) => s + NB + 'V', A_ = (s) => s + NB + 'A', W_ = (s) => s + NB + 'W', MWB = (s) => s + NB + 'mWb', KW = (s) => s + NB + 'kW';\n  const LOADS = K.linspace(0, 125, 26);\n\n  K.check('A no-load loss is present whenever the transformer is energised and is independent of the load level, and the load loss goes with the loading squared', () => {\n    const fe = (l) => drawn(iIron, null, { load: l }).t.fe, cu = (l) => drawn(iIron, null, { load: l }).t.cu;\n    return LOADS.every((l) => near(rule(l, 1, 'load').fe, FE0, 1e-9) && near(rule(l, 1, 'load').cu, CU0 * Math.pow(l / 100, 2), 1e-9)) &&\n      fe(0) === W_('100.0') && fe(50) === W_('100.0') && fe(125) === W_('100.0') &&\n      cu(0) === W_('0.0') && cu(50) === W_('100.0') && cu(100) === W_('400.0') && cu(125) === W_('625.0');\n  }, { source: SRC1 });\n  K.check('An open-circuit test measures the iron loss under no-load conditions: on 440 V with the secondary open, 0.5 A flows and the wattmeter reads the 100 W iron loss', () => {\n    const o = drawn(iTests, null, { test: 'oc' });\n    return o.t.vs === V_('440.0') && o.t.is === A_('0.5') && o.t.wm === W_('100') && o.t.fe === W_('100.0') && o.t.cu === W_('0.0') &&\n      o.t.flux === MWB('1.88') && o.faint.series && !o.faint.core && o.t.sec === 'Open';\n  }, { source: SRC2 });\n  K.check('The short-circuit test determines the copper loss by short-circuiting the secondary at full-load current: 22.0 V drives 22.7 A, and the wattmeter reads 400 W', () => {\n    const s = drawn(iTests, null, { test: 'sc' });\n    return s.t.vs === V_('22.0') && s.t.is === A_('22.7') && s.t.wm === W_('400') && s.t.cu === W_('400.0') && s.t.fe === W_('0.25') &&\n      s.t.flux === MWB('0.09') && !s.faint.series && s.faint.core && s.t.sec === 'Link' && s.t.sup === V_('22.0') + ', 60' + NB + 'Hz';\n  }, { source: SRC3 });\n  K.check('The series branch: 0.77 Ω gives 400 W at the full-load 22.7 A, and with 0.58 Ω of reactance makes 0.97 Ω; the flux is 1.88 mWb at 440 V', () =>\n    near(IFL, 22.727, 0.001) && RS.toFixed(2) === '0.77' && near(IFL * IFL * RS, 400, 1e-9) && ZS.toFixed(2) === '0.97' && VSC.toFixed(1) === '22.0' &&\n    (PHI0 * 1e3).toFixed(2) === '1.88' && near(VSC / VR, 0.05, 0.001));\n  K.check('Efficiency: 95.2% at full load and 96.2% at half load at unity power factor, 94.1% and 95.2% at 0.8, and 0 at no load', () => {\n    const e = (x) => drawn(iEff, null, x).t;\n    const a = e({ load: 100, pf: 1 }), b = e({ load: 50, pf: 1 }), c = e({ load: 100, pf: 0.8 }), d = e({ load: 50, pf: 0.8 }), z = e({ load: 0 });\n    return a.eff === '95.2%' && a.out === KW('10.0') && b.eff === '96.2%' && c.eff === '94.1%' && c.out === KW('8.0') && d.eff === '95.2%' &&\n      z.eff === '0.0%' && near(effAt(100, 1), 100 * 10000 / 10500, 1e-9);\n  });\n  K.check('Efficiency peaks at 50% load at both power factors, where the copper loss equals the iron loss, and falls below 88% at light load', () =>\n    [1, 0.8].every((pf) => {\n      const fine = K.linspace(0.5, 125, 1250), best = fine.reduce((m, l) => effAt(l, pf) > effAt(m, pf) ? l : m, fine[0]);\n      return near(best, 50, 0.1) && near(rule(50, pf, 'load').cu, rule(50, pf, 'load').fe, 1e-9) && effAt(5, pf) < 88 && effAt(125, pf) < effAt(100, pf);\n    }));\n  K.check('The flux holds at 1.88 mWb at every load, while the copper-loss bar is four times the iron-loss bar at full load and equal at half load', () => {\n    const f = drawn(iIron, null, { load: 100 }), h = drawn(iIron, null, { load: 50 });\n    return [0, 25, 75, 125].every((l) => drawn(iIron, null, { load: l }).t.flux === MWB('1.88')) && f.t.flux === MWB('1.88') &&\n      near(f.bars.flux, h.bars.flux, 1e-9) && near(f.bars.cu, 4 * f.bars.fe, 1e-6) && near(h.bars.cu, h.bars.fe, 1e-6);\n  });\n  K.check('Each typed answer and slip is worked from its rule: 3 (6, 9), 225 W (300, 400), 100 W (400, 200), 96.2% (90.9, 94.3), 40% (16, 250), 0.09 mWb (1.88, 37.6) and 97.2% (88.9, 95.7, 99.6)', () => {\n    const sl = (i, v) => STEPS[i].slips.length === v.length && STEPS[i].slips.every((s, k) => near(s.value, v[k], 1e-12));\n    const r1_ = (v) => Math.round(v * 10) / 10, r2 = (v) => Math.round(v * 100) / 100;\n    const work = 6 / 2 === 3 && 6 * 3 - 9 === 9 && 6 * 6 - 36 === 0 &&\n      near(400 * 0.75 * 0.75, 225, 1e-9) && near(400 * 0.75, 300, 1e-9) &&\n      near(rule(100, 1, 'load').fe, 100, 1e-9) && 100 * 4 === 400 && 100 * 2 === 200 &&\n      r1_(effAt(50, 1)) === 96.2 && r1_(100 * 5000 / 5500) === 90.9 && r1_(100 * 5000 / 5300) === 94.3 &&\n      near(Math.sqrt(64 / 400), 0.4, 1e-12) && near(100 * 64 / 400, 16, 1e-9) && near(100 * 400 / 64, 625, 1e-9) && near(Math.sqrt(400 / 64) * 100, 250, 1e-9) &&\n      r2(1.88 * 22.0 / 440) === 0.09 && near(1.88 * 22.0 / 440, 0.094, 1e-9) && r2(1.88 * 20) === 37.6 &&\n      near(2000 * 0.2 * 0.2, 80, 1e-9) && r1_(100 * 20000 / 20580) === 97.2 && r1_(100 * 20000 / 22500) === 88.9 && r1_(100 * 20000 / 20900) === 95.7 && r1_(100 * 20000 / 20080) === 99.6 && r1_(100 * 50000 / 51000) === 98.0 && near(VR / VSC, 20, 0.02);\n    return work && STEPS[iTop].answer === 3 && STEPS[iCu75].answer === 225 && STEPS[iFe].answer === 100 && STEPS[iHalf].answer === 96.2 &&\n      STEPS[iOther].answer === 40 && STEPS[iFsc].answer === 0.09 && STEPS[iTwo].answer === 97.2 && STEPS[iPick].want === STEPS[iPick].opts[3] &&\n      sl(iTop, [6, 9]) && sl(iCu75, [300, 400]) && sl(iFe, [400, 200]) && sl(iHalf, [90.9, 94.3]) && sl(iOther, [16, 250]) && sl(iFsc, [1.88, 37.6]) && sl(iTwo, [88.9, 95.7, 99.6]);\n  });\n  K.check('Before a Check the copper loss, iron loss, efficiency and flux show ?; a right Check moves the load to 75%, 100% and 50%, and shows 225.0 W, 100.0 W, 96.2% and 0.09 mWb', () => {\n    const b = (i) => drawn(i, blank()), s = (i) => drawn(i, solvedSt(i));\n    const cb = b(iCu75), cs = s(iCu75), fb = b(iFe), fs = s(iFe), eb = b(iHalf), es = s(iHalf), xb = b(iFsc), xs = s(iFsc);\n    return cb.t.cu === '?' && cb.load === 100 && cs.t.cu === W_('225.0') && cs.load === 75 &&\n      fb.t.fe === '?' && fb.load === 50 && fs.t.fe === W_('100.0') && fs.load === 100 &&\n      eb.t.eff === '?' && eb.load === 100 && es.t.eff === '96.2%' && es.load === 50 &&\n      xb.t.flux === '?' && xb.bars.flux === 0 && xs.t.flux === MWB('0.09') && xs.bars.flux > 0;\n  });\n  K.check('Only the windings\\' branch changes with the load: at no load it is faint, and the core\\'s branch carries current at every load; its label reads 22.7 A at full load, 11.4 A at half', () =>\n    drawn(iBranches, null, { load: 100 }).t.ish === A_('22.7') && drawn(iBranches, null, { load: 50 }).t.ish === A_('11.4') &&\n    drawn(iBranches, null, { load: 0 }).faint.series && !drawn(iBranches, null, { load: 0 }).faint.core &&\n    LOADS.filter((l) => l > 0).every((l) => { const d = drawn(iBranches, null, { load: l }); return !d.faint.series && !d.faint.core; }));\n  K.check('Every demonstration ends 3 to 4.5 s after its screen opens, and every answer\\'s motion within 2.5 s', () =>\n    STEPS.every((d) => d.show ? (d.dur >= 3 && d.dur <= 4.5) : (!d.run || d.run <= 2.5)));\n  K.ready();\n</script>",
+  "title": "Where the watts go",
+  "brief": "The one thing you should see is the copper-loss bar fall from 400 W to match the flat 100 W iron-loss bar, and efficiency peak, while the flux bar holds still, when you drag the load from 100% to 50%.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "A no-load loss is present whenever the transformer is energised and is independent of the load level, and the load loss goes with the loading squared",
+     "ok": true,
+     "source": "https://downloads.regulations.gov/EERE-2017-BT-TP-0055-0022/attachment_3.pdf"
+    },
+    {
+     "label": "An open-circuit test measures the iron loss under no-load conditions: on 440 V with the secondary open, 0.5 A flows and the wattmeter reads the 100 W iron loss",
+     "ok": true,
+     "source": "https://www.rohde-schwarz.com/ch-en/solutions/electronics-testing/power-electronics-testing/transformer-short-circuit-testing/short-circuit-testing_258719.html"
+    },
+    {
+     "label": "The short-circuit test determines the copper loss by short-circuiting the secondary at full-load current: 22.0 V drives 22.7 A, and the wattmeter reads 400 W",
+     "ok": true,
+     "source": "https://ecampusontario.pressbooks.pub/electrotechnology/chapter/part-4-transformer-testing"
+    },
+    {
+     "label": "The series branch: 0.77 Ω gives 400 W at the full-load 22.7 A, and with 0.58 Ω of reactance makes 0.97 Ω; the flux is 1.88 mWb at 440 V",
+     "ok": true
+    },
+    {
+     "label": "Efficiency: 95.2% at full load and 96.2% at half load at unity power factor, 94.1% and 95.2% at 0.8, and 0 at no load",
+     "ok": true
+    },
+    {
+     "label": "Efficiency peaks at 50% load at both power factors, where the copper loss equals the iron loss, and falls below 88% at light load",
+     "ok": true
+    },
+    {
+     "label": "The flux holds at 1.88 mWb at every load, while the copper-loss bar is four times the iron-loss bar at full load and equal at half load",
+     "ok": true
+    },
+    {
+     "label": "Each typed answer and slip is worked from its rule: 3 (6, 9), 225 W (300, 400), 100 W (400, 200), 96.2% (90.9, 94.3), 40% (16, 250), 0.09 mWb (1.88, 37.6) and 97.2% (88.9, 95.7, 99.6)",
+     "ok": true
+    },
+    {
+     "label": "Before a Check the copper loss, iron loss, efficiency and flux show ?; a right Check moves the load to 75%, 100% and 50%, and shows 225.0 W, 100.0 W, 96.2% and 0.09 mWb",
+     "ok": true
+    },
+    {
+     "label": "Only the windings' branch changes with the load: at no load it is faint, and the core's branch carries current at every load; its label reads 22.7 A at full load, 11.4 A at half",
+     "ok": true
+    },
+    {
+     "label": "Every demonstration ends 3 to 4.5 s after its screen opens, and every answer's motion within 2.5 s",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step",
+    "load",
+    "pf",
+    "test"
+   ],
+   "readouts": [
+    "r-load",
+    "r-out",
+    "r-vs",
+    "r-is",
+    "r-wm",
+    "r-fe",
+    "r-cu",
+    "r-eff"
+   ],
+   "outputs": [],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Screen",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "steps": [
+      "The top of a curve",
+      "Two branches",
+      "At 75% load",
+      "Iron stays put",
+      "Iron at full load",
+      "Efficiency",
+      "Half load",
+      "The peak",
+      "Another transformer",
+      "Two tests",
+      "Flux in the test",
+      "A big unit, a light load",
+      "Setting up the test"
+     ],
+     "value": 0
+    },
+    {
+     "id": "load",
+     "kind": "control",
+     "label": "Load",
+     "min": 0,
+     "max": 125,
+     "step": 5,
+     "log": false,
+     "value": 100,
+     "shown": false,
+     "snap": [
+      50,
+      75,
+      100
+     ]
+    },
+    {
+     "id": "pf",
+     "kind": "choice",
+     "label": "Power factor",
+     "options": [
+      1,
+      0.8
+     ],
+     "labels": [
+      "1.0",
+      "0.8 lagging"
+     ],
+     "value": 1,
+     "index": 0,
+     "shown": false
+    },
+    {
+     "id": "test",
+     "kind": "choice",
+     "label": "Test",
+     "options": [
+      "load",
+      "oc",
+      "sc"
+     ],
+     "labels": [
+      "On load",
+      "Open-circuit test",
+      "Short-circuit test"
+     ],
+     "value": "load",
+     "index": 0,
+     "shown": false
+    }
+   ],
+   "actions": [
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Answer 4",
+    "Check",
+    "Why?",
+    "Play again",
+    "Back",
+    "Continue",
+    "Start again",
+    "Demonstration"
+   ],
+   "answers": [
+    {
+     "id": "a-top",
+     "answer": 3,
+     "accept": [],
+     "ok": true
+    },
+    {
+     "id": "a-cu75",
+     "answer": 225,
+     "accept": [],
+     "ok": true
+    },
+    {
+     "id": "a-fe",
+     "answer": 100,
+     "accept": [],
+     "ok": true
+    },
+    {
+     "id": "a-eff50",
+     "answer": 96.2,
+     "accept": [],
+     "ok": true
+    },
+    {
+     "id": "a-pk",
+     "answer": 40,
+     "accept": [],
+     "ok": true
+    },
+    {
+     "id": "a-fsc",
+     "answer": 0.09,
+     "accept": [
+      0.094
+     ],
+     "ok": true
+    },
+    {
+     "id": "a-eff12",
+     "answer": 97.2,
+     "accept": [],
+     "ok": true
+    }
+   ],
+   "written": [],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 1
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-29T05:43:32.654Z",
+  "applied": [
+   {
+    "path": "explain.text",
+    "problem": "The closing bold line says the iron loss is \"fixed\" while energised, but the same paragraph says it dips slightly under load and it also moves with supply voltage and frequency; read alone on review it overstates the source's \"independent of the load level\"."
+   },
+   {
+    "path": "interactive.whatAmILookingAt",
+    "problem": "In the short-circuit test the shunt branch sits across 22.0 V and makes the shown 0.25 W iron loss, so \"Only that branch carries current\" contradicts the model; screen 4's [^1] sat on a flux claim its quote does not make; the finish's \"fixed\" is narrowed as in the explanation."
+   },
+   {
+    "path": "interactive.ignores",
+    "problem": "The lesson energises the 440 V side for both tests; a specialist would add that real open-circuit tests are usually fed from the low-voltage side and short-circuit tests from the high-voltage side, with the same losses read, so the model's choice is not taken as practice."
+   },
+   {
+    "path": "practice.text",
+    "problem": "\"The load ÷ the rating\" lets the load be taken in kW, which gives the wrong x at 0.8 power factor (the next step multiplies by power factor again); the load must be in kVA, like the rating."
+   }
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}

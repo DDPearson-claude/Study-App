@@ -1,0 +1,323 @@
+{
+  "iid": "i7",
+  "title": "Three-phase transformers and vector groups",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the LV hand jump from twelve to eleven o'clock, and the name change from Yyn0 to Dyn11, when you switch the HV winding from star to delta.",
+    "title": "The clock and the paralleling switch",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Screen",
+        "min": 0,
+        "max": 13,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "Fourteen screens on two cards, with Back and Continue. Six show an idea and Eight ask you to try it.\n\nThe clock card. Left, a three-limb core, each limb with an HV winding above and an LV winding below. Terminals A, B, C along the top and a, b, c, n along the bottom, joins drawn as wires: an HV star meets at a star point, an HV delta runs end to end. The LV is always a star with n brought out. Right, a clock with small teal hours. A thick HV hand, A–B, is fixed at twelve. A thick LV hand, a–b, points to its hour. Two thin dashed hands show limb 1's HV winding and its LV winding a–n, together unless the LV ends are swapped. When they lie along A–B, they are drawn just beside it, so all three show. The name sits below.\n\nIts pickers, shown only where a screen uses them: HV winding, Star or Delta, opening at Star; Delta closed, A–B or A–C, opening at A–B, shown only with Delta; LV ends, As marked or Swapped, opening at As marked.\n\nIts rule. Hours run clockwise from twelve, 30° each, and 12 is written 0 in the name. Limb 1's HV winding sits at 1 in a star, at 12 in a delta closed A–B, and at 2 closed A–C. The LV winding a–n sits at the same hour, or 6 on when swapped. The a–b hand sits one hour anticlockwise of a–n. So Star, Delta A–B and Delta A–C give Yyn0, Dyn11 and Dyn1, and swapped ends give Yyn6, Dyn5 and Dyn7. On a change the a–b hand sweeps an hour per quarter-second. The name and the readouts keep their old values until it lands. Readouts: Hour; Clockwise from twelve, °, the hour × 30.\n\nThe paralleling card. T1 and T2 fed from one 440 V busbar, both 440 V to 115 V, LV neutrals joined. T1 is a fixed Dyn11. T2 has a group picker: Dyn11, Yyn0, Dyn1, Dyn5, opening at Dyn11, wrapping onto two rows on a phone. An open switch joins their phase-a outputs. Below, from one neutral dot, T1's and T2's phase-a arrows, 66.40 V each, at their a–n hours: Dyn11 at 12, Yyn0 at 1, Dyn1 at 2, Dyn5 at 6. A tip-to-tip gap arrow carries its volts, red unless zero. Each unit shows its impedance, 5%, or 4% on screen 11. A Close button: with no gap the switch closes in ink; with a gap it flashes red, a circulating bar labelled Circulating if closed, 0 to 25 times rated, jumps red to its figure, and the switch reopens after two seconds.\n\nIts rule. Phase voltage = 115 ÷ √3 = 66.40 V. Angle = hours apart × 30°. Gap = 2 × 66.40 × sin(angle ÷ 2), in V. Circulating current = (gap ÷ 66.40) ÷ (2 × Z% ÷ 100), in times rated. Readouts: Across the switch, V, two decimals; Circulating if closed, × rated, one decimal. At 5% each: Dyn11 0.00 V, 0.0; Yyn0 34.37 V, 5.2; Dyn1 66.40 V, 10.0; Dyn5 132.79 V, 20.0. At 4% each, Yyn0 gives 6.5.\n\nScreen 1, try it, a recall, typed. No picture. \"A 440 V supply is joined in star. What is the voltage from each line to the star point?\" Typed, in V, whole numbers: answer 254, want \"254 V\". Slips: 762, \"That multiplies by √3. Divide instead.\"; 147, \"That divides by 3. Divide by √3, which is 1.732.\"; 440, \"That is the line voltage.\" Hint otherwise: \"Phase voltage = line voltage ÷ √3.\" Why: \"440 ÷ 1.732 = 254 V. A star winding sees this, not 440 V.\" A right Check says \"Right, you still have it.\" and carries on. Read: \"A 440 V star: what is each line's voltage to the star point?\"\n\nScreen 2, show. The clock card at Yyn0, no pickers yet. The words: \"Here both sides are star, so the hand sits at twelve: Yyn0. A three-phase transformer works like three single-phase ones on one core. Each limb carries an HV and an LV winding. One flux threads both, so they keep exact time. The HV line voltage A–B is fixed at twelve. The LV line voltage a–b is the hour hand. Each hour is 30°. Phasors turn anticlockwise, so ahead means anticlockwise. On each side, a line voltage runs 30° ahead of its winding's. The two shifts match and cancel.\" Read: \"With both sides in star, the hand sits at twelve: Yyn0. Each limb's windings share one flux. The clock fixes the HV line voltage A–B at twelve. The LV line voltage a–b is the hour hand, 30° an hour.\" Still: HV winding Star, LV ends As marked.\n\nScreen 3, try it, typed. No picture. \"A transformer's name ends in 5. How far clockwise from twelve is its LV hand?\" Typed, in °, whole numbers: answer 150, want \"150°\". Slips: 5, \"That is the hour. Each hour is 30°.\"; 30, \"That is one hour, not five.\"; 210, \"That counts anticlockwise. Hours run clockwise.\" Hint otherwise: \"Hour × 30°.\" Why: \"5 × 30 = 150°. Its LV line voltage sits 150° behind the HV's.\" Read: \"A name ends in 5. How far clockwise from twelve is its LV hand?\"\n\nScreen 4, show. The clock card, the HV picker. The words: \"Switch the HV winding to delta and the hand moves to eleven. Limb 1's HV winding now sits across lines A and B. So it carries A–B itself, at twelve. The LV winding a–n on that limb keeps time with it. A star's line voltage runs 30° ahead of its winding's. Ahead is anticlockwise, so a–b sits at eleven. Capitals name the HV side and small letters the LV. D is an HV delta and yn an LV star with its neutral out. The 11 is the hour.[^2]\" Read: \"With the HV in delta, the hand sits at eleven: Dyn11. Limb 1's HV winding carries A–B, at twelve. The LV winding a–n keeps time with it. The LV line voltage runs 30° ahead of a–n, so a–b sits one hour anticlockwise.\" Still: HV winding Delta, Delta closed A–B, LV ends As marked.\n\nScreen 5, try it, typed. The picture: the clock card at Dyn11. \"A Dyn11 unit steps 440 V to 115 V. Each delta winding sees 440 V. Each star winding sees 115 ÷ √3. What is each limb's turns ratio, HV to LV?\" Typed, no unit, two decimal places: answer 6.63, want \"6.63\". Slips: 3.83, \"That is the line ratio. Each star winding gives only 66.40 V.\"; 2.21, \"That puts the star on the HV side.\" Hint otherwise: \"Turns ratio = 440 ÷ (115 ÷ 1.732).\" Why: \"115 ÷ 1.732 = 66.40 V per star winding. 440 ÷ 66.40 = 6.63.\" Read: \"A 440 V to 115 V Dyn11: what is each limb's turns ratio, HV to LV?\"\n\nScreen 6, show. The clock card, all three pickers. The words: \"Joins move the hand in whole hours, 30° at a time. Close the delta the other way. Limb 1's HV winding now sits across A and C. A–C is C–A turned round. C–A sits at eight, so A–C sits at two, 60° behind A–B. The LV winding keeps time with it. Its line voltage a–b runs one hour ahead, at one o'clock: Dyn1. Close it across A and B again, then swap the LV ends. Every LV voltage flips half a turn, six hours. Eleven becomes five: Dyn5.\" Read: \"Closed across A and C, the delta puts the hand at one: Dyn1. Swapping the LV ends of a Dyn11 flips it six hours: Dyn5.\" Still: HV winding Delta, Delta closed A–B, LV ends Swapped.\n\nScreen 7, try it. The picture: the clock card at Dyn11. \"In a Dyn11 unit, where is the LV line voltage compared with the HV's?\" Four choices, in this order: \"30° ahead\"; \"30° behind\"; \"11° behind\"; \"In step\". Right, the first. Hint for the second: \"Phasors turn anticlockwise, and eleven is anticlockwise of twelve.\" Hint for the third: \"Each hour is 30°, not one degree.\" Hint for the fourth: \"That is Yyn0. The delta moves the LV one hour.\" Why: \"330° clockwise lands where 30° anticlockwise does. So the LV is 30° ahead.[^3]\" Read: \"In a Dyn11, where is the LV line voltage compared with the HV's?\"\n\nScreen 8, show. The paralleling card, the T2 picker. The words: \"Two units can share a board only if their outputs match. The groups must match, or closing the switch is a short.[^4] Here T1 is a Dyn11. T1 and T2 both step 440 V to 115 V, and their neutrals are joined. Each phase-a arrow is 66.40 V long. The voltage across the open switch is the gap between their tips. It is 2 × 66.40 × sin(half the angle between them). Pick Yyn0 for T2. That is one hour, 30°, so 34.37 V.\" Read: \"The voltage across the open switch is the gap between the two 66.40 V arrows. It is 2 × 66.40 × sin(half the angle). A Dyn11 beside a Yyn0 leaves 34.37 V.\" Still: T2 Yyn0, switch open.\n\nScreen 9, try it, typed. The picture: T2 at Dyn1, the gap readout and label ? until Check. \"A Dyn11 and a Dyn1 both step 440 V to 115 V. Each LV phase voltage is 66.40 V. What voltage sits across each pole of the open switch?\" Typed, in V, two decimals: answer 66.40, want \"66.40 V\". Slips: 0, \"The ratios match, but eleven and one are two hours apart.\"; 34.37, \"That is one hour. From eleven to one is two hours, 60°.\"; 115, \"That is the line voltage. Use the gap rule.\" Hint otherwise: \"2 × 66.40 × sin 30°.\" Why: \"2 × 66.40 × 0.5 = 66.40 V. A matching ratio is not enough.\" Read: \"A Dyn11 and a Dyn1, both 440 V to 115 V: what voltage sits across each pole of the open switch?\"\n\nScreen 10, show. The paralleling card, now with Close and the circulating bar. The words: \"Close the switch across a gap and it drives a [[circulating current]] round the pair. Only the impedances and cables hold it back. 5% of the voltage drives rated current through one unit. Round the pair, it takes 5% + 5% = 10%. The 30° gap is 34.37 ÷ 66.40 = 52% of the phase voltage. So it drives 52 ÷ 10 = 5.2 times rated current with no load. Dyn11 against Dyn5 is half a turn apart. That gap is 200%, so 20 times rated flows: a dead short.\" Read: \"A 30° gap is 52% of the phase voltage. Through 5% + 5%, it drives 5.2 times rated current round the pair with no load. Dyn11 against Dyn5 drives 20 times rated.\" The demonstration closes the switch at Yyn0 first, then at Dyn5. Still: T2 Dyn5, the circulating bar at 20.0 times rated.\n\nScreen 11, try it, typed. The picture: T2 at Yyn0, 4% each, the circulating readout ? until Check. \"A Dyn11 and a Yyn0 again, but each has 4% impedance. The gap is 52% of the phase voltage. How many times rated current would circulate?\" Typed, in × rated, one decimal place: answer 6.5, want \"6.5 × rated\". Slips: 13, \"That counts one unit. The current goes round both.\"; 5.2, \"That is the 5% figure.\"; 2.1, \"That multiplies by the impedance. Divide by it.\" Hint otherwise: \"Gap share ÷ (4% + 4%).\" Why: \"4% + 4% = 8%, and 52 ÷ 8 = 6.5.\" Read: \"A Dyn11 and a Yyn0 at 4% each, with a 52% gap: how many times rated current would circulate?\"\n\nScreen 12, show. The clock card with Yyn0's hand at twelve and Dyn11's at eleven. Below, three traces over one cycle, drawn to shape: two bridges' rectified outputs, six bumps a cycle, the second moved 30°, and their sum, twelve smaller bumps. The words: \"Sometimes the shift is the point. It is how a twelve-pulse rectifier smooths its output. Feed one six-pulse rectifier from a Yyn0 unit. Feed another from a Dyn11 on the same supply. Each output ripples six times a cycle, one bump every 60°. Their supplies sit 30° apart, which is half a bump. So one bridge's peaks fall in the other's dips. Added, they give twelve smaller bumps a cycle.\" Read: \"Two six-pulse rectifiers fed 30° apart put one's peaks in the other's dips: twelve smaller bumps a cycle.\" Still: false, as the picture has nothing to set.\n\nScreen 13, try it, the first of two mixed puzzles, typed. The picture: Dyn1, the hour ? until Check, then LV ends Swapped. \"Take a Dyn1 unit and swap its LV winding's two ends. What hour does its name end in now?\" Typed, no unit, whole numbers: answer 7, want \"7\". Slips: 5, \"That is Dyn11 swapped. Start from one o'clock.\"; 1, \"Swapping the ends flips every LV voltage half a turn.\" Hint otherwise: \"Swapping adds six hours.\" Why: \"1 + 6 = 7: Dyn7.\" Read: \"Swap a Dyn1's LV ends. What hour does its name end in now?\"\n\nScreen 14, try it, the second mixed puzzle. No picture. \"A board has a Dyn11, 440 V to 115 V, 5% unit. Which second unit leaves no voltage across the open switch?\" Four choices, in this order: \"Dyn1, 440 V to 115 V, 5%\"; \"Yyn0, 440 V to 115 V, 5%\"; \"Dyn11, 440 V to 115 V, 5%\"; \"Dyn11, 440 V to 110 V, 5%\". Right, the third. Hint for the first: \"Two hours apart: a 66.40 V gap.\" Hint for the second: \"One hour apart: a 34.37 V gap.\" Hint for the fourth: \"Its arrows are shorter. A difference in length is a gap too.\" Why: \"Only the 115 V Dyn11 matches in hour and length. So its arrow lies on the first.\" Read: \"A 440 V to 115 V, 5% Dyn11 is on the board. Which second unit leaves no voltage across the switch?\"\n\nThe finish. The words: \"Star and delta joins turn a transformer's output in whole hours of 30°. Delta on one side and star on the other moves it one hour. Dyn11 puts the LV 30° ahead. Units may share a board only with the same ratio and group as connected. Otherwise the gap between them drives a circulating current. Next: transformers on the job.\"",
+    "ignores": "Each transformer is ideal. It has no magnetising current, and every winding keeps exact time with its limb's flux. The supply turns A, B, C in that order. Reverse the order and the same joins give Dyn1 where this shows Dyn11. The clock here fixes the HV line voltage at twelve. Some drawings fix the HV phase voltage there instead, against the LV phase voltage. Both sides then move by the same 30°, so the hour comes out the same. A Dyn1 can sometimes run beside a Dyn11. Cross two lines on both sides of one unit, and their hours match as connected. Only HV star and delta joins are shown. Delta LV windings and zigzag windings give other names on the same clock. The gap is drawn from each line to the joined neutrals. The circulating current assumes a stiff HV busbar. It also leaves out the cables to the board, so a real one is a little smaller. Both units share one rating. Every voltage and current is rms.",
+    "numbers": [
+      {
+        "label": "Screen, 1 to 14 (the stepper)",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Number of screens",
+        "value": 14,
+        "kind": "assumed"
+      },
+      {
+        "label": "Supply line voltage, in volts",
+        "value": 440,
+        "kind": "assumed"
+      },
+      {
+        "label": "LV line voltage, in volts",
+        "value": 115,
+        "kind": "assumed"
+      },
+      {
+        "label": "Square root of 3, to three decimals",
+        "value": 1.732,
+        "kind": "constant"
+      },
+      {
+        "label": "Degrees per clock hour",
+        "value": 30,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "Hours round the clock",
+        "value": 12,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "Supply phase voltage, in volts",
+        "value": 254,
+        "kind": "computed"
+      },
+      {
+        "label": "LV phase voltage, in volts",
+        "value": 66.4,
+        "kind": "computed"
+      },
+      {
+        "label": "Dyn11's displacement, in degrees",
+        "value": 330,
+        "kind": "computed",
+        "source": 2
+      },
+      {
+        "label": "Yyn0 turns per limb, 440 V to 115 V",
+        "value": 3.83,
+        "kind": "computed"
+      },
+      {
+        "label": "Dyn11 turns per limb, 440 V to 115 V",
+        "value": 6.63,
+        "kind": "computed"
+      },
+      {
+        "label": "Limb 1's HV winding hour: star, delta A–B, delta A–C",
+        "value": "1, 12 and 2",
+        "kind": "computed"
+      },
+      {
+        "label": "Hours added by swapping the LV ends",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "Clock numbers shown",
+        "value": "0, 1, 5, 6, 7 and 11",
+        "kind": "computed"
+      },
+      {
+        "label": "Line voltage A–C behind A–B, in degrees",
+        "value": 60,
+        "kind": "computed"
+      },
+      {
+        "label": "Hand sweep per hour, in seconds",
+        "value": 0.25,
+        "kind": "assumed"
+      },
+      {
+        "label": "Each unit's percentage impedance, in per cent",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Both impedances in series, in per cent",
+        "value": 10,
+        "kind": "computed"
+      },
+      {
+        "label": "Gap at 30°, in volts",
+        "value": 34.37,
+        "kind": "computed"
+      },
+      {
+        "label": "Gap at 30°, share of phase voltage, in per cent",
+        "value": 52,
+        "kind": "computed"
+      },
+      {
+        "label": "Gap at 60°, in volts",
+        "value": 66.4,
+        "kind": "computed"
+      },
+      {
+        "label": "Gap at 180°, in volts",
+        "value": 132.79,
+        "kind": "computed"
+      },
+      {
+        "label": "Gap at 180°, share of phase voltage, in per cent",
+        "value": 200,
+        "kind": "computed"
+      },
+      {
+        "label": "Circulating current at 30°, 5% each, times rated",
+        "value": 5.2,
+        "kind": "computed"
+      },
+      {
+        "label": "Circulating current at 60°, 5% each, times rated",
+        "value": 10,
+        "kind": "computed"
+      },
+      {
+        "label": "Circulating current at 180°, 5% each, times rated",
+        "value": 20,
+        "kind": "computed"
+      },
+      {
+        "label": "Circulating bar scale, times rated",
+        "value": "0 to 25",
+        "kind": "assumed"
+      },
+      {
+        "label": "Six-pulse ripple spacing, in degrees",
+        "value": 60,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 1 slips, in volts",
+        "value": "762, 147 and 440",
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 3 hour",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 3 angle, in degrees",
+        "value": 150,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 3 slips, in degrees",
+        "value": "5, 30 and 210",
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 5 slips",
+        "value": "3.83 and 2.21",
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 9 sine of 30°",
+        "value": 0.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 9 slips, in volts",
+        "value": "0, 34.37 and 115",
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 11 impedance of each unit, in per cent",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 11 impedances in series, in per cent",
+        "value": 8,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 11 circulating current, times rated",
+        "value": 6.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 11 slips, times rated",
+        "value": "13, 5.2 and 2.1",
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 13 hour",
+        "value": 7,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 13 slips",
+        "value": "5 and 1",
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 14 other LV voltage, in volts",
+        "value": 110,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example rating, in kVA",
+        "value": 100,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example rated LV current, in amps",
+        "value": 502,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example circulating current, in amps",
+        "value": 2600,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example circulating current unrounded, times rated",
+        "value": 5.18,
+        "kind": "computed"
+      },
+      {
+        "label": "Rating ratio at which paralleling is not recommended",
+        "value": 2,
+        "kind": "constant",
+        "source": 6
+      }
+    ]
+  },
+  "explain": {
+    "text": "A three-phase transformer works like three single-phase transformers sharing one core. Each side's three windings are joined in star or in delta. Those joins can turn the whole output round by whole steps of 30°. The [[vector group]], a name like Dyn11, records the joins and that turn as an hour on a clock. Two transformers may share a board only if their ratios match and their hours match as connected. Otherwise the gap between their outputs drives a large current round the pair, with no load connected.\n\nStart from what you know. On each limb, one flux threads an HV winding and an LV winding. So the LV winding's voltage keeps exact time with its HV partner. Now picture the clock. The HV line voltage A–B is the hand fixed at twelve. The LV line voltage a–b is the hour hand. Each hour is 30°. In a star, each line voltage runs 30° ahead of the voltage across its winding. Join both sides in star and that shift happens on both sides alike. So the hand stays at twelve: Yyn0. Now join the HV side in delta. Its winding on limb 1 then sits straight across lines A and B. So it carries A–B itself, at twelve. The LV winding a–n on that limb keeps time with it, at twelve too. The LV is still a star, so its line voltage a–b runs 30° ahead of a–n. That puts the hand one hour anticlockwise, at eleven.\n\nThe name spells this out. Capitals name the HV side and small letters the LV. D means delta, y means star and n means a neutral brought out. The hour comes last. So Dyn11 means an HV delta, an LV star with its neutral out, and 11 × 30 = 330°.[^2] That 330° is counted clockwise, the way the hours run. It lands where 30° anticlockwise does. Phasors turn anticlockwise, so the LV is 30° ahead of the HV.[^3] You may meet Dyn11 described as a 330° lag. That is the same as 30° ahead. Close the delta across A and C instead and the hand goes to one o'clock. That is Dyn1, 30° behind. Swap the LV winding's two ends and every LV voltage flips half a turn. So Dyn11 becomes Dyn5. Each limb still follows the turns rule. A delta winding sees the full 440 V line voltage. A star winding on a 115 V side gives 115 ÷ √3 = 66.40 V. On each limb, a 440 V to 115 V Dyn11 needs 440 ÷ 66.40 = 6.63 turns to one.\n\nNow put two transformers of the same size on one board. Both step 440 V to 115 V, with an open switch between their outputs. Each LV phase voltage is an arrow 66.40 V long. The voltage across the switch is the gap between their tips. Two equal arrows make a triangle with two equal sides. Cut it down the middle and each half has half the gap opposite half the angle. So the gap is 2 × 66.40 × sin(half the angle). A Dyn11 beside a Yyn0 is one hour apart. So the gap is 2 × 66.40 × sin 15° = 34.37 V. That is 52% of the phase voltage. Matching ratios alone do not close it. Close the switch and that voltage drives a [[circulating current]] round the pair. Only the impedances of the two transformers and the cables to the board hold it back. At 5% each, 52 ÷ 10 = 5.2 times rated current flows with no load at all. A Dyn11 against a Dyn5 is half a turn apart. There the gap is twice the phase voltage. Then 20 times rated flows, as into a dead short. Matching ratio and group make the switch safe to close. For a fair share of the load, their percentage impedances should match as well.[^5] The larger unit should also be rated under twice the smaller. Running generators together brings checks of its own. Those come next, in Generators and paralleling. This picture is simplified. It takes ideal windings, a supply turning A, B, C, and only star and delta joins. **Transformers in parallel need equal vector groups, so that their outputs are in phase and no short circuit occurs.[^4]**"
+  },
+  "analogy": {
+    "text": "Think of joining two battery strings in parallel. If their voltages differ, current flows from one to the other with no load connected. Only their internal resistance and the links between them hold it back. Two transformers on one board behave the same way. The gap between their outputs drives a circulating current round the pair. Their impedances hold it back.",
+    "breaks": "A battery mismatch is only a difference in size. Charge flowing between the strings evens it out. Two transformer outputs of exactly equal size still leave a gap if they point different ways. And that gap never evens out. It lasts as long as both are switched on."
+  },
+  "practice": {
+    "text": "**Safe way first:** Check both plates before two transformers are ever paralleled. Their voltage ratios and their vector groups must match. Their percentage impedances should be close. The larger should be rated under twice the smaller. Then energise both from the same supply, with the switch open. Measure across each pole with a meter rated for the system. Close only if each pole reads near zero. A reading of tens of volts means the groups, the ratios or the connections differ.\n\n**Steps:**\n- Read the vector group on each plate. Capitals give the HV side and small letters the LV. Then comes n for a neutral brought out, then the hour.\n- Turn the hour into an angle: hour × 30°, clockwise from the HV. 11 means the LV is 30° ahead, and 1 means 30° behind.\n- Work out each winding's voltage. A delta winding sees the line voltage. A star winding sees the line voltage ÷ √3.\n- Turns per limb = HV winding voltage ÷ LV winding voltage.\n- For two units, count the hours between them, then turn that into an angle.\n- Gap across the open switch = 2 × LV phase voltage × sin(half the angle).\n- Circulating current, in times rated = gap as a share of the phase voltage ÷ the sum of both percentage impedances. This holds for two units of the same rating.\n\n**Rules of thumb:** Star on one side and delta on the other shifts the output one hour, 30°. Swapping a winding's two ends shifts it six hours. One hour apart leaves a gap of 52% of the phase voltage. Half a turn apart leaves twice the phase voltage, like a dead short. Units in parallel drop the same volts. So the one with the lower percentage impedance carries a bigger share of its rating.\n\n**Worked example:** Two 100 kVA units feed one board. Each steps 440 V to 115 V with 5% impedance. One is a Dyn11 and the other a Yyn0, so they are one hour apart, 30°. The LV phase voltage is 115 ÷ 1.732 = 66.40 V. The gap is 2 × 66.40 × sin 15° = 34.37 V. That is 52% of 66.40 V. Closing the switch would drive 52 ÷ (5 + 5) = 5.2 times rated current round the pair. Rated LV current is 100,000 ÷ (1.732 × 115) = 502 A. Unrounded, that is 5.18 times rated. So 5.18 × 502 gives about 2600 A, with no load connected. Fit a second Dyn11 instead of the Yyn0 and the gap is zero.\n\n**Common mistakes**\n- Matching only the voltage ratio. Two 440 V to 115 V units of different groups still leave a gap.\n- Reading Dyn11's LV as behind. Eleven o'clock is 30° ahead of twelve.\n- Taking the line-voltage ratio as the turns ratio when one side is delta and the other star.\n- Counting one impedance for the circulating current. The current goes round both units.\n- Treating one hour as close enough. At 5% each, a 30° gap drives 5.2 times rated current."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+    {
+      "n": 1,
+      "title": "Transformer vector groups — Phasor learn",
+      "url": "https://www.phasors.io/learn/transformer-vector-groups",
+      "quote": "Picture a clock face. The HV phase-A voltage is a hand nailed to 12; the number says which hour the LV phase-a voltage points to. Twelve hours cover a full turn, so one hour is 30°"
+    },
+    {
+      "n": 2,
+      "title": "Transformer Vector Group Explained: Dyn1, Dyn11, Yyn0",
+      "url": "https://www.ryantransformers.com/en/blog/transformer-vector-group-dyn1-vs-dyn11",
+      "quote": "So a transformer vector group written as Dyn11 is a delta HV winding, a star LV winding with the neutral brought out, and a phase displacement of 11 × 30 = 330 degrees."
+    },
+    {
+      "n": 3,
+      "title": "Transformer Vector Group Explained: Dyn1, Dyn11, Yyn0",
+      "url": "https://www.ryantransformers.com/en/blog/transformer-vector-group-dyn1-vs-dyn11",
+      "quote": "Eleven o’clock is 330 degrees, which is the same as saying the LV leads the HV by 30 degrees."
+    },
+    {
+      "n": 4,
+      "title": "Cast Resin TransformersMedium voltage - SGB-SMIT Group",
+      "url": "https://www.sgb-smit.com/products/dry-type-transformers/cast-resin-transformers-medium-voltage",
+      "quote": "The coefficient of vector groups must be equal so that phasing of the output voltages corresponds and no short-circuit occurs."
+    },
+    {
+      "n": 5,
+      "title": "Substation including generators and parallel operation of transformers - Electrical Installation Guide",
+      "url": "https://www.electrical-installation.org/enwiki/Substation_including_generators_and_parallel_operation_of_transformers",
+      "quote": "It is preferred to connect in parallel transformers having the same characteristics: * Same voltage ratio * Same rated power * Same short circuit impedance. * Same coupling symbol of windings as for example D yn 11"
+    },
+    {
+      "n": 6,
+      "title": "Substation including generators and parallel operation of transformers - Electrical Installation Guide",
+      "url": "https://www.electrical-installation.org/enwiki/Substation_including_generators_and_parallel_operation_of_transformers",
+      "quote": "Connection in parallel of transformers having a power ratio equal or higher than two is not recommended."
+    }
+  ]
+}

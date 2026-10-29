@@ -1,0 +1,571 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Transformers and magnetism
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i8 "Transformers on the job" — Core saturation explains the current surge at switch-on and the dangerous voltage of an open-circuited current transformer, while an auto-transformer gives no isolation. [mechanism]
+This is the last idea in the course.
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] Transformer Inrush — https://www.idc-online.com/technical_references/pdfs/electrical_engineering/Transformer_Inrush.pdf
+    "Transformer inrush currents are predominantly due to saturation of the transformer core"
+[R2] ABB Dry-type Transformers — https://new.abb.com/docs/librariesprovider68/default-document-library/data-center-forum-2017/dryabb-data-center-forum-2017---dry_transformers_michael_gogioli.pdf
+    "This inrush current, which appears as an internal fault to the differential relays , may reach instantaneous peaks of 8 to 30 times the full load current."
+[R3] What are Current Transformer (CT) shorting blocks used for? Where can they be found? Are there any hazards of having the CT secondary open-circuited? | Schneid… — https://www.se.com/us/en/faqs/FA125574
+    "As much as 4000V on the secondary has been measured on large core CTs with an open-circuited secondary."
+[R4] TESTING OF OPEN SECONDARY WINDOW-TYPE CURRENT TRANSFORMERS – TEST PLAN — https://downloads.regulations.gov/NRC-2015-0183-0002/content.pdf
+    "as long as current is flowing in the primary winding of a CT, an open-circuit in a CT’s secondary can cause high voltages on the secondary"
+[R5] Rev 0 to "Evaluation of Open Current Transformer Secondary Voltages On Unit 1 & Unit 2 Computer Input Circuits." — https://www.nrc.gov/docs/ML1715/ML17156B503.pdf
+    "producing sufficient flux to drive the CT into saturation."
+[R6] What is the difference between a regular transformer and an isolation transformer? What is an autotransformer? | Schneider Electric USA — https://www.se.com/us/en/faqs/FA123708
+    "Any two winding transformer where the primary and secondary are not electrically connected is an isolation transformer. In contrast, an autotransformer has a physical, electrical connection between the primary and secondary."
+[R7] lecture 8 outline - magnetic circuits.PDF — https://www.rose-hulman.edu/class/ee/HTML/NSF/CCLI_EMD_DUE_0088904/PDFS/lecture_notes_08.pdf
+    "The units for NI are ampere-turns (At). This quantity, magnetomotive force (MMF), is analogous to voltage in electric circuits."
+[R8] Summary — https://castellidezza.faculty.polimi.it/wp-content/uploads/fundamentalsMagneticCircuits3.pdf
+    "Usually the ferromagnetic material has a permeability much higher than that of the air (the relative permeability of Iron is about 5000)."
+[R9] Electrical Tech Note — 317 — https://www.maec.msu.edu/application/files/3716/4555/7425/Tech_Note_317_Magnetic_Flux_Density.pdf
+    "the materials with the best magnetic properties reach a point called saturation where an increase in magnetic field intensity results in only a minimal increase in magnetic flux density."
+[R10] Marine Electro-Technology Written Examination Syllabus - GOV.UK — https://www.gov.uk/government/publications/second-engineer-written-examination-syllabuses/marine-electro-technology-written-examination-syllabus
+    "Explains the term reluctance and states the advantages and disadvantages of leaving air gaps in magnetic circuits. 10. States that S = F/Φ."
+[R11] Ch. 12 Key Terms - University Physics Volume 2 | OpenStax — https://openstax.org/books/university-physics-volume-2/pages/12-key-terms
+    "contain groups of dipoles, called domains, that align with the applied magnetic field; when this field is removed, the material is still magnetized"
+[R12] D16 Ferromagnetism — http://physics.bu.edu/~duffy/semester2/d16_ferromagnetism.html
+    "This is known as saturation, the point where most of the domains are aligned and, essentially, maximum M is reached. Increasing the current in the coil past this point doesn't get you very much."
+[R13] Nonlinear magnetics | IEEE Technology Navigator — https://technav.ieee.org/topic/nonlinear-magnetics
+    "The area enclosed by the hysteresis loop equals the energy dissipated as heat per unit volume per cycle, a quantity called hysteresis loss."
+[R14] 6.685 Electric Machines, Course Notes 3: Eddy Currents, Surface Impedances and Loss Mechanisms — https://ocw.mit.edu/courses/6-685-electric-machines-fall-2013/73ce73e3a02b085d00df37882e7636fe_MIT6_685F13_chapter3.pdf
+    "power is proportional to the square of flux density and to the square of frequency. It is also proportional to the square of the lamination thickness (this is average volume power dissipation)."
+[R15] 6.685 Electric Machines, Course Notes 3: Eddy Currents, Surface Impedances and Loss Mechanisms — https://ocw.mit.edu/courses/6-685-electric-machines-fall-2013/73ce73e3a02b085d00df37882e7636fe_MIT6_685F13_chapter3.pdf
+    "To further reduce losses the steel is alloyed with elements (often silicon) which poison the electrical conductivity."
+[R16] Transformer Efficiency and Losses — https://www.monolithicpower.com/en/learning/mpscholar/ac-power/transformers/transformer-efficiency-and-losses
+    "Losses that occur in the core due to hysteresis and eddy current are examples of no-load losses."
+[R17] SP 330 - Section 2 | NIST — https://www.nist.gov/pml/special-publication-330/sp-330-section-2
+    "At the time of adopting the present definition of the ampere, µ₀ was equal to 4π × 10−7 H/m with a relative standard uncertainty of 2.3 × 10−10."
+[R18] 5.1: Magnetic Induction - Physics LibreTexts — https://phys.libretexts.org/Courses/University_of_California_Davis/UCD%3A_Physics_9C__Electricity_and_Magnetism/5%3A_Electromagnetism/5.1%3A_Magnetic_Induction
+    "With an unchanging flux, there is no induced emf in the loop, and no current as a result."
+[R19] Chapter 5 — https://pages.mtu.edu/~avsergue/EET2233/Lectures/CHAPTER5.pdf
+    "This equation demonstrates a definite relation between the voltage in a coil, the flux density, and the size of the core."
+[R20] 23.10: Transformers - Physics LibreTexts — https://phys.libretexts.org/Bookshelves/College_Physics/College_Physics_1e_(OpenStax)/23:_Electromagnetic_Induction_AC_Circuits_and_Electrical_Technologies/23.10:_Transformers
+    "The fact that transformers are based on Faraday’s law of induction makes it clear why we cannot use transformers to change DC voltages."
+[R21] 15.6 Transformers - University Physics Volume 2 | OpenStax — https://openstax.org/books/university-physics-volume-2/pages/15-6-transformers
+    "which shows that the ratio of the secondary to primary voltages in a transformer equals the ratio of the number of turns in their windings."
+[R22] 3/Chapter 16 — https://www.appstate.edu/~brian/tec-1023/labs/x-formers.pdf
+    "The current ratio in a transformer is the inverse of the ratio for voltage transfor- mation. The transformer does not create power, and it is not designed to consume power."
+[R23] 15.6 Transformers - University Physics Volume 2 | OpenStax — https://openstax.org/books/university-physics-volume-2/pages/15-6-transformers
+    "We assume the ideal case for which all magnetic field lines are confined to the core so that the same magnetic flux permeates each turn of both the primary and the secondary windings."
+[R24] TRANSFORMER LOSS ENERGY SAVINGS FLEXIBILITY — https://downloads.regulations.gov/EERE-2017-BT-TP-0055-0022/attachment_3.pdf
+    "Transformers have both a no-load loss, that is present whenever the transformer is energized and is independent of the load level, and a load loss that is related to the transformer loading squared."
+[R25] Short-circuit testing | Rohde & Schwarz — https://www.rohde-schwarz.com/ch-en/solutions/electronics-testing/power-electronics-testing/transformer-short-circuit-testing/short-circuit-testing_258719.html
+    "an open-circuit test measures the iron loss under no-load conditions"
+[R26] Part 4 – Transformer Testing – PEG-3722 Electrotechnology — https://ecampusontario.pressbooks.pub/electrotechnology/chapter/part-4-transformer-testing
+    "The short-circuit test is conducted to determine the copper losses of a transformer. It involves simulating a full-load condition by short-circuiting the secondary winding."
+[R27] 15.6 Transformers - University Physics Volume 2 | OpenStax — https://openstax.org/books/university-physics-volume-2/pages/15-6-transformers
+    "A good transformer can have losses as low as 1% of the transmitted power, so this is not a bad assumption."
+[R28] Calculating Voltage Regulation in Transformers - Technical Articles — https://eepower.com/technical-articles/calculating-voltage-regulation-in-transformers
+    "Leading power factor increases secondary terminal voltage while the lagging power factor reduces it."
+[R29] Transformer Impedance: Impact on Fault Current & Voltage — https://www.rexpowermagnetics.com/knowledge-hub/impedance-in-transformers-key-concepts-and-calculations
+    "A transformer with lower impedance may provide better voltage regulation. It may also deliver substantially more current into a downstream fault."
+[R30] Basic short-circuit current calculation | EC&M — https://www.ecmweb.com/basics/article/20897056/basic-short-circuit-current-calculation
+    "If 5% of primary voltage will cause such current, then 100% of primary voltage will cause 20 times (100 divided by 5) full-load-rated secondary current to flow through a solid short circuit on its secondary terminals."
+[R31] Transformer Impedance — https://www.idc-online.com/technical_references/pdfs/electrical_engineering/Transformer_Impedance.pdf
+    "The impedance voltage is also often expressed as a percentage (Z%)."
+[R32] Transformer vector groups — Phasor learn — https://www.phasors.io/learn/transformer-vector-groups
+    "Picture a clock face. The HV phase-A voltage is a hand nailed to 12; the number says which hour the LV phase-a voltage points to. Twelve hours cover a full turn, so one hour is 30°"
+[R33] Transformer Vector Group Explained: Dyn1, Dyn11, Yyn0 — https://www.ryantransformers.com/en/blog/transformer-vector-group-dyn1-vs-dyn11
+    "So a transformer vector group written as Dyn11 is a delta HV winding, a star LV winding with the neutral brought out, and a phase displacement of 11 × 30 = 330 degrees."
+[R34] Transformer Vector Group Explained: Dyn1, Dyn11, Yyn0 — https://www.ryantransformers.com/en/blog/transformer-vector-group-dyn1-vs-dyn11
+    "Eleven o’clock is 330 degrees, which is the same as saying the LV leads the HV by 30 degrees."
+[R35] Cast Resin TransformersMedium voltage - SGB-SMIT Group — https://www.sgb-smit.com/products/dry-type-transformers/cast-resin-transformers-medium-voltage
+    "The coefficient of vector groups must be equal so that phasing of the output voltages corresponds and no short-circuit occurs."
+[R36] Dyn11 Vector Group: Meaning, Diagram & When to Use It — https://hd-transformer.com/blog/dyn11-vector-group-distribution-transformer
+    "30 degree phase lag of the LV voltage vector behind the HV vector"
+[R37] Substation including generators and parallel operation of transformers - Electrical Installation Guide — https://www.electrical-installation.org/enwiki/Substation_including_generators_and_parallel_operation_of_transformers
+    "It is preferred to connect in parallel transformers having the same characteristics: * Same voltage ratio * Same rated power * Same short circuit impedance. * Same coupling symbol of windings as for example D yn 11"
+[R38] Substation including generators and parallel operation of transformers - Electrical Installation Guide — https://www.electrical-installation.org/enwiki/Substation_including_generators_and_parallel_operation_of_transformers
+    "Connection in parallel of transformers having a power ratio equal or higher than two is not recommended."
+Notes (claims, and the sources that support them):
+- Transformer inrush currents are predominantly due to saturation of the core. [R1]
+- Inrush can reach instantaneous peaks of 8 to 30 times the full-load current. [R2]
+- With primary current flowing, an open-circuited current transformer secondary can cause high voltages, as much as 4000 V measured on large-core CTs, and the open secondary drives the core into saturation. [R3][R4][R5]
+- An isolation transformer has no electrical connection between primary and secondary; an autotransformer has a physical electrical connection between them. [R6]
+- Current times turns, in ampere-turns, is the magnetomotive force that drives flux round a magnetic circuit, much as voltage drives current round an electric one. [R7]  (from an idea this one builds on)
+- Iron's permeability is far higher than air's; one source puts iron's relative permeability at about 5000, so the same ampere-turns give far more flux through an iron core. [R8]  (from an idea this one builds on)
+- At saturation a rise in magnetic field intensity gives only a minimal rise in flux density, so more current buys little extra flux. [R9]  (from an idea this one builds on)
+- Reluctance S = F ÷ Φ, so the flux is the ampere-turns divided by the reluctance: Ohm's law for a magnetic circuit. (added for i2, review fix) [R10]  (from an idea this one builds on)
+- Ferromagnetic materials contain domains, groups of aligned dipoles, that align with an applied field; when the field is removed the material stays magnetised. (added for i2, review fix) [R11]  (from an idea this one builds on)
+- Saturation is the point where most of the domains are aligned, so more current gets little more. (added for i2, review fix) [R12]  (from an idea this one builds on)
+- The hysteresis loop's area is the energy lost as heat per unit volume each cycle, so a thinner loop loses less. (added for i2, review fix) [R13]  (from an idea this one builds on)
+- Eddy loss per unit volume in a thin lamination goes as the square of its thickness, so halving the thickness quarters it. (added for i2, review fix) [R14]  (from an idea this one builds on)
+- Core steel is alloyed with silicon, which lowers its conductivity and so its eddy loss. (added for i2, review fix) [R15]  (from an idea this one builds on)
+- Hysteresis and eddy-current losses in the core are no-load losses, the iron loss (SECONDARY source). (added for i2, review fix) [R16]  (from an idea this one builds on)
+- The magnetic constant μ0 is 4π × 10⁻⁷ H/m (= T m/A) to within 2.3 parts in 10¹⁰. (added for i2, review fix) [R17]  (from an idea this one builds on)
+- With an unchanging flux there is no induced emf in the loop and no current from it. [R18]  (from an idea this one builds on)
+- A sinusoidal supply voltage on a coil is tied by a definite relation to the flux density in the core and the core's size. [R19]  (from an idea this one builds on)
+- Transformers cannot change DC voltages, because they work by Faraday's law of induction. [R20]  (from an idea this one builds on)
+- In an ideal transformer the ratio of secondary to primary voltage equals the ratio of turns in the windings. [R21]  (from an idea this one builds on)
+- The current ratio is the inverse of the voltage ratio; a transformer does not create power or consume it, so power in equals power out in the ideal case. [R22]  (from an idea this one builds on)
+- The ideal case assumes the same flux links every turn of both windings, which is why the voltage ratio follows the turns ratio. [R23]  (from an idea this one builds on)
+- A transformer has a no-load loss, present whenever it is energised whatever the load, and a load loss that goes with the square of the loading. [R24]  (from an idea this one builds on)
+- The open-circuit (no-load) test measures the iron loss; the short-circuit test, run at rated current, measures the copper loss. [R25][R26]  (from an idea this one builds on)
+- A good real transformer can have losses as low as 1% of the transmitted power. [R27]  (from an idea this one builds on)
+- A lagging power factor load lowers a transformer's secondary terminal voltage, while a leading one raises it. [R28]  (from an idea this one builds on)
+- A transformer with lower impedance may give better voltage regulation but can deliver substantially more current into a downstream fault. [R29]  (from an idea this one builds on)
+- At 5% impedance, full primary voltage would drive 20 times (100 divided by 5) the full-load secondary current through a solid short on the secondary terminals. [R30]  (from an idea this one builds on)
+- A transformer's percentage impedance is also called its impedance voltage, expressed as a percentage (Z%). [R31]  (from an idea this one builds on)
+- In clock notation the high-voltage phasor sits at 12 and the number gives the hour of the low-voltage phasor, each hour being 30 degrees. [R32]  (from an idea this one builds on)
+- Dyn11 means a delta high-voltage winding, a star low-voltage winding with its neutral brought out, and a displacement of 11 times 30, or 330 degrees. [R33]  (from an idea this one builds on)
+- Eleven o'clock is 330 degrees, the same as the low-voltage side leading the high-voltage side by 30 degrees. [R34]  (from an idea this one builds on)
+- Transformers to be paralleled need matching vector groups, so their output voltages are in phase and no short circuit occurs. [R35]  (from an idea this one builds on)
+- Dyn11 is read by most sources as the low-voltage side leading by 30 degrees (330 degrees lagging), but one maker's page calls it a 30 degree lag. [R34][R36]  [CONTESTED: Ryan Transformers (and the clock convention it cites) read 11 as LV leading HV by 30 degrees; HD Transformer's page calls it a 30 degree lag of LV behind HV.]  (from an idea this one builds on)
+- Transformers to be paralleled should preferably have the same voltage ratio, rated power, short-circuit impedance and vector group. [R37]  (from an idea this one builds on)
+- Paralleling transformers whose power ratio is two or more is not recommended. [R38]  (from an idea this one builds on)
+- An ideal transformer assumes all the magnetic field lines stay in the core, so the same flux links every turn of both windings. [R23]  (whole topic)
+- A good real transformer can have losses as low as 1% of the transmitted power. [R27]  (whole topic)
+- Transformers cannot change DC voltages, because they work by Faraday's law of induction. [R20]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i8",
+ "title": "Transformers on the job",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the flux overshoot the knee to twice its normal peak and the current spike red, when you switch on at a voltage zero instead of a peak.",
+  "title": "The knee on the job",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Screen",
+    "min": 0,
+    "max": 13,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [],
+  "whatAmILookingAt": "Fourteen screens on three cards, with Back and Continue. Five show an idea; nine ask you to try it.\n\nThe switch-on card. Left, a ring core with one winding and a flux bar. Right, lesson 2's B-H curve, sketched: steep, a knee at 1.2 times the normal peak flux, then nearly flat, with a dot riding it. Below, on one time axis: supply voltage; core flux, dashed at its normal peaks and the knee; primary current. Two sliders. Switch-on point, 0° to 90° after a rising voltage zero in steps of 15°, ends marked zero and peak, opening at 0°, with a marker on the voltage trace. Flux left in, 0 to 0.8 of the normal peak in steps of 0.2, pushing the same way as the first half-cycle, opening at 0. Switch on draws five cycles over 2 s.\n\nIts rule, with flux in times the normal peak. Offset = flux left in + cos(switch-on point). Flux = offset − cos(the wave's angle), so it starts at the flux left in. The offset holds to the first flux peak, half a cycle after the rising zero, then halves every cycle, a rate chosen for the picture. So the first flux peak = 1 + flux left in + cos(switch-on point). Current, in times full load: 0.02 × flux up to the knee, and 0.024 + 15 × (flux − 1.2) past it, either way round. Past the knee the trace, the bar and the dot turn red. Readouts, wrapping on a phone: First flux peak, × normal, one decimal; Peak current, × full load, two decimals. At a zero: 2.0 and 12.02 empty, 2.6 and 21.02 with 0.6 left, 2.8 and 24.02 with 0.8 left. At 60°, empty: 1.5 and 4.52. At a peak: 1.0 and 0.02 empty, 1.4 and 3.02 with 0.4 left.\n\nThe CT card. A busbar passes once through a ring core: a one-turn primary carrying a steady 400 A. An 80-turn secondary runs to a meter circuit. A burden picker, wrapping on a phone: Shorted, 0.6 Ω, 2 Ω, 4 Ω, Open, opening at Shorted. A flux bar with the knee marked, and two cycles of busbar current and secondary voltage.\n\nIts rule. Below the knee the ampere-turns balance, 400 × 1 = 5 × 80, so the secondary carries 5 A. Volts needed = 5 × (burden + 0.2 Ω of winding). The flux follows those volts, with the knee at 30 V. Readouts: Volts to drive 5 A, V, one decimal; Core flux, % of knee, whole numbers: 1.0 V and 3%, 4.0 V and 13%, 11.0 V and 37%, 21.0 V and 70%. Open: no secondary current, so all 400 ampere-turns drive the core. The bar slams into saturation each half-cycle and flips near each current zero. The voltage sits flat, with a tall, narrow red spike off the scale at each flip. Readouts: no limit and saturated, labelled Up to 4000 V measured on large CTs.\n\nThe isolating card: two drawings, stacked on a phone. Isolating: two windings, 440 V in, 115 V out, a gap between them. Auto: one winding across 440 V, with 115 V taken from a tap to its lower end, and a red mark where output joins input. A ratio picker, 440 V to 115 V or 440 V to 400 V, opening at 115 V. A bar splits the auto's power into Transformed and Passed straight through. Its rule: the supply current flows straight on into the load, carrying output ÷ input of the power. Transformed = 1 − output ÷ input: 74% and 26% at 115 V, 9% and 91% at 400 V.\n\nScreen 1, try it, a recall, typed. No picture. “An empty capacitor is switched straight onto a 325 V peak. The supply and wiring have 1 Ω. What current flows at the first instant?” Typed, in A, whole numbers: answer 325, want “325 A”. Slips: 0, “An empty capacitor holds 0 V, so all 325 V falls across the 1 Ω.”; 3.25, “That is through a 100 Ω precharge resistor.” Hint otherwise: “325 V ÷ 1 Ω.” Why: “325 ÷ 1 = 325 A.” A right Check says “Still there.” Read: “An empty capacitor meets a 325 V peak through 1 Ω: what current flows at the first instant?”\n\nScreen 2, show. The switch-on card, sliders hidden. The words: “A transformer can surge at switch-on too, for a different reason. Remember, the voltage sets how fast the flux changes. So the flux is the voltage's running total. It rises while the voltage is positive and stops as it reaches zero. So running normally, the flux peaks at each voltage zero. Switch on at a zero and the flux starts from nothing instead. Half a cycle then adds two peaks' worth, taking it to twice its normal peak. Past the knee the iron is full, so the current soars.” Read: “Switched on at a zero with an empty core, the flux climbs to 2.0 times its normal peak and the current spikes red to 12.02 times full load.” Still: point 0°, flux left in 0, after Switch on.\n\nScreen 3, try it, typed. The picture: the switch-on card at a zero with 0.6 left in, readouts ? until Check. “A transformer is switched on at a voltage zero. Its core still holds 0.6 of the normal peak flux, pushing the same way as the first half-cycle. How high does the flux climb, in times its normal peak?” Typed, in × normal peak, one decimal: answer 2.6, want “2.6 × normal peak”. Slips: 2, “Add the 0.6 still in the core.”; 1.6, “From a zero the climb is two peaks, not one.”; 1.4, “Flux left in the same way adds to the climb.” Hint otherwise: “Flux left in + 2.” Why: “0.6 + 2 = 2.6 times the normal peak.” Read: “Switched on at a zero with 0.6 left in, how high does the flux climb?”\n\nScreen 4, show. The switch-on card with both sliders. The words: “Now switch on at a voltage peak. Running normally, the flux passes through zero there. An empty core starts just where it should be. So the flux swings only to its normal peak, and the current stays at 0.02 times full load. The moment on the wave and the flux left in set the size of the surge. That surge is the [[inrush current]]. It comes mostly from the core saturating.[^1] Its peaks can reach 8 to 30 times full-load current.[^2]” Still: point 90°, flux left in 0, after Switch on.\n\nScreen 5, try it. The picture: the switch-on card at a zero with 0.8 left in, after Switch on. “A breaker feeding a transformer trips the moment it closes. Closed again, it holds. Nothing else has changed. What most likely tripped it?” Four choices, in this order: “Inrush current at switch-on”; “A fault in the windings”; “An overload on the 115 V side”; “The core's iron loss”. Right, the first. Hint for the second: “A winding fault would trip it again.” Hint for the third: “The load has not changed.” Hint for the fourth: “Iron loss is small and steady.” Why: “The first close caught a worse moment on the wave. Inrush can even look like an internal fault to differential protection.[^2]” Read: “A breaker trips on closing onto a transformer, then holds. What most likely tripped it?”\n\nScreen 6, show. The CT card, Shorted. The words: “A current transformer, a CT, works the other way round. Its primary is a busbar through its core, one turn carrying 400 A. The circuit's load sets that current, not the CT. The 80-turn secondary drives 5 A round the meter, so its ampere-turns cancel the busbar's. The core then needs only enough flux to make the volts that push 5 A round. The meter circuit's resistance is the CT's [[burden]]. Shorted, it needs just 1.0 V.” Still: burden Shorted.\n\nScreen 7, try it, typed. The picture: the CT card at 0.6 Ω, readouts ? until Check. “A CT's 80-turn secondary carries 5 A. Its own winding is 0.2 Ω and the meter circuit 0.6 Ω. What voltage must the secondary make?” Typed, in V, one decimal: answer 4.0, want “4.0 V”. Slips: 3, “Add the winding's own 0.2 Ω.”; 1, “That is the winding alone. Add the meter's 0.6 Ω.”; 0.8, “That is the resistance. Multiply by the 5 A.” Hint otherwise: “5 A × (0.6 + 0.2) Ω.” Why: “5 × 0.8 = 4.0 V. That is 13% of the knee.” Read: “5 A through 0.2 Ω of winding and a 0.6 Ω meter circuit: what voltage must the secondary make?”\n\nScreen 8, show. The CT card, Open. The words: “Now open the secondary while the busbar still carries 400 A. Nothing cancels its 400 ampere-turns. They drive the core into saturation.[^3] Saturated, the flux sits flat and makes no voltage. Near each current zero it flips to the other side in a moment. That fast flip makes a tall, narrow spike. So with current in the primary, an open secondary can make high voltages.[^4] As much as 4000 V has been measured on large CTs.[^5]” Read: “Open, with 400 A in the busbar, the core saturates and the secondary spikes red at every flip.” Still: burden Open.\n\nScreen 9, try it. The picture: the CT card, Shorted. “A panel ammeter fed by a CT must be changed. The circuit stays on load. What do you do first?” Four choices, in this order: “Short the CT's secondary at its shorting terminals”; “Disconnect the ammeter's leads”; “Wait for a light load, then disconnect”; “Fit a fuse in the secondary”. Right, the first. Hint for the second: “That opens the secondary with current in the busbar.” Hint for the third: “While current flows, an open secondary can still make high voltages.” Hint for the fourth: “A fuse that blows opens the secondary.” Why: “The short keeps the ampere-turns balanced while the meter is out.” Read: “A CT-fed ammeter must be changed with the circuit on load. What do you do first?”\n\nScreen 10, show. The isolating card at 440 V to 115 V. The words: “An isolating transformer's two windings are not joined. An [[auto-transformer]] is one winding with a tap, so its output is joined to its input.[^6] Its two sides are one connected system. An earth fault on either is an earth fault on both. So it cannot make a separate insulated system. The supply's current flows straight on into the load. That carries 115 ÷ 440 of the power, 26%. Transformer action carries the other 74%.” Still: ratio 440 V to 115 V.\n\nScreen 11, try it, typed. The picture: the isolating card at 440 V to 400 V, the bar ? until Check. “An auto-transformer steps 440 V to 400 V. What share of its power is transformed?” Typed, in %, whole numbers: answer 9, want “9%”. Slips: 91, “That is the share passed straight through.”; 74, “That is for 440 V to 115 V.”; 10, “Divide by 440, the input, not 400.” Hint otherwise: “1 − 400 ÷ 440.” Why: “400 ÷ 440 = 0.909, and 1 − 0.909 = 0.091, so 9%.” Read: “An auto-transformer steps 440 V to 400 V: what share of its power is transformed?”\n\nScreen 12, try it, the first of three mixed puzzles, typed. No picture. “A CT is marked 400/5 A. Its busbar is one turn. How many turns has its secondary?” Typed, no unit, whole numbers: answer 80, want “80”. Slips: 5, “That is its secondary current.”; 2000, “Ampere-turns balance, so divide.”; 0.0125, “That divides the wrong way.” Hint otherwise: “400 × 1 = 5 × turns.” Why: “400 ÷ 5 = 80.” Read: “A 400/5 A CT on a one-turn busbar: how many secondary turns?”\n\nScreen 13, try it, the second mixed puzzle. No picture. “An insulated 115 V system is to be fed from 440 V. Which transformer makes it a separate system?” Three choices, in this order: “A 440 V to 115 V isolating transformer”; “A 440 V to 115 V auto-transformer”; “Either, as both give 115 V”. Right, the first. Hint for the second: “Its output is joined to its input.” Hint for the third: “The same voltage is not the same system.” Why: “Only separate windings leave the 115 V side unjoined to the 440 V side.” Read: “Which transformer feeds an insulated 115 V system from 440 V as a separate system?”\n\nScreen 14, try it, the third mixed puzzle. No picture. “A voltage transformer, a VT, steps the system voltage down for meters. Its primary sits across that voltage, like a power transformer's. What happens if its secondary is shorted?” Three choices, in this order: “It feeds a fault current”; “Nothing, as a CT runs shorted”; “It spikes, as an open CT does”. Right, the first. Hint for the second: “A CT is fed a current. A VT is fed a voltage.” Hint for the third: “The spike needs a fixed current with nothing to cancel it.” Why: “Its voltage drives a large current through its own small impedance, like any power transformer's.” Read: “What happens if a VT's secondary is shorted?”\n\nThe finish. The words: “Saturation explains both hazards. Switch on at a bad moment and the flux overshoots the knee, so the current surges. Open a CT on load and its core saturates, so its secondary spikes. Short a CT before you open its circuit, and never short a VT. An auto-transformer gives no isolation.”",
+  "ignores": "The B-H curve is a sketch: a knee and straight lines either side, with no hysteresis loop. The offset halves each cycle at a rate chosen for the picture. Real units fade at a rate set by their windings' resistance, and large ones take longer. The supply is stiff, so its voltage does not dip during the surge. Only one phase is drawn; each limb of a three-phase unit meets a different moment on the wave. The CT keeps an exact ratio below its knee, ignoring its small magnetising current. Its open-circuit spikes are drawn off the scale, not computed. The auto-transformer's share ignores losses.",
+  "numbers": [
+   {
+    "label": "Screen, 1 to 14 (the stepper)",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Number of screens",
+    "value": 14,
+    "kind": "assumed"
+   },
+   {
+    "label": "Supply, in volts rms",
+    "value": 440,
+    "kind": "assumed"
+   },
+   {
+    "label": "Secondary, in volts rms",
+    "value": 115,
+    "kind": "assumed"
+   },
+   {
+    "label": "Knee, in times the normal peak flux",
+    "value": 1.2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Switch-on point slider, 0 to 90 in steps of 15, degrees",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Flux left in slider, 0 to 0.8 in steps of 0.2",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Cycles drawn after switch-on",
+    "value": 5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Time to draw them, in seconds",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Current per unit flux below the knee, times full load",
+    "value": 0.02,
+    "kind": "assumed"
+   },
+   {
+    "label": "Current rise per unit flux past the knee, times full load",
+    "value": 15,
+    "kind": "assumed"
+   },
+   {
+    "label": "Share of the offset kept each cycle",
+    "value": 0.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "First flux peak at a zero, nothing left in",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "First flux peak at a zero, 0.6 left in",
+    "value": 2.6,
+    "kind": "computed"
+   },
+   {
+    "label": "First flux peak at a zero, 0.8 left in",
+    "value": 2.8,
+    "kind": "computed"
+   },
+   {
+    "label": "First flux peak at 60°, nothing left in",
+    "value": 1.5,
+    "kind": "computed"
+   },
+   {
+    "label": "First flux peak at a peak, nothing left in",
+    "value": 1,
+    "kind": "computed"
+   },
+   {
+    "label": "First flux peak at a peak, 0.4 left in",
+    "value": 1.4,
+    "kind": "computed"
+   },
+   {
+    "label": "Peak current at a zero, nothing left, times full load",
+    "value": 12.02,
+    "kind": "computed"
+   },
+   {
+    "label": "Peak current at a zero, 0.6 left, times full load",
+    "value": 21.02,
+    "kind": "computed"
+   },
+   {
+    "label": "Peak current at a zero, 0.8 left, times full load",
+    "value": 24.02,
+    "kind": "computed"
+   },
+   {
+    "label": "Peak current at 60°, nothing left, times full load",
+    "value": 4.52,
+    "kind": "computed"
+   },
+   {
+    "label": "Peak current at a peak, nothing left, times full load",
+    "value": 0.02,
+    "kind": "computed"
+   },
+   {
+    "label": "Peak current at a peak, 0.4 left, times full load",
+    "value": 3.02,
+    "kind": "computed"
+   },
+   {
+    "label": "Inrush peaks, times full-load current",
+    "value": "8 to 30",
+    "kind": "constant",
+    "source": 2
+   },
+   {
+    "label": "CT busbar current, in amps",
+    "value": 400,
+    "kind": "assumed"
+   },
+   {
+    "label": "CT rated secondary current, in amps",
+    "value": 5,
+    "kind": "assumed"
+   },
+   {
+    "label": "CT busbar turns",
+    "value": 1,
+    "kind": "assumed"
+   },
+   {
+    "label": "CT secondary turns",
+    "value": 80,
+    "kind": "computed"
+   },
+   {
+    "label": "CT secondary winding resistance, in ohms",
+    "value": 0.2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Burden picker settings, in ohms",
+    "value": "0, 0.6, 2 and 4",
+    "kind": "assumed"
+   },
+   {
+    "label": "CT knee, in volts",
+    "value": 30,
+    "kind": "assumed"
+   },
+   {
+    "label": "Volts to drive 5 A, in volts",
+    "value": "1.0, 4.0, 11.0 and 21.0",
+    "kind": "computed"
+   },
+   {
+    "label": "Core flux, per cent of knee",
+    "value": "3, 13, 37 and 70",
+    "kind": "computed"
+   },
+   {
+    "label": "Voltage measured on large open CTs, in volts",
+    "value": 4000,
+    "kind": "constant",
+    "source": 5
+   },
+   {
+    "label": "Auto second ratio's output, in volts",
+    "value": 400,
+    "kind": "assumed"
+   },
+   {
+    "label": "Auto share transformed, 440 V to 115 V, per cent",
+    "value": 74,
+    "kind": "computed"
+   },
+   {
+    "label": "Auto share passed through, 440 V to 115 V, per cent",
+    "value": 26,
+    "kind": "computed"
+   },
+   {
+    "label": "Auto share transformed, 440 V to 400 V, per cent",
+    "value": 9,
+    "kind": "computed"
+   },
+   {
+    "label": "Auto share passed through, 440 V to 400 V, per cent",
+    "value": 91,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 1 peak voltage, in volts",
+    "value": 325,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 1 supply and wiring, in ohms",
+    "value": 1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 1 current, in amps",
+    "value": 325,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 1 precharge resistor, in ohms",
+    "value": 100,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 1 slips, in amps",
+    "value": "0 and 3.25",
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 3 slips",
+    "value": "2, 1.6 and 1.4",
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 7 slips",
+    "value": "3, 1 and 0.8",
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 11 ratio, 400 ÷ 440",
+    "value": 0.909,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 11 slips, per cent",
+    "value": "91, 74 and 10",
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12 slips",
+    "value": "5, 2000 and 0.0125",
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example rating, in kVA",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "Worked example turns ratio",
+    "value": 3.83,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example full-load current at 440 V, in amps",
+    "value": 22.7,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example full-load current at 115 V, in amps",
+    "value": 86.96,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example inrush peaks, in amps",
+    "value": "182 to 681",
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example iron loss, in watts",
+    "value": 100,
+    "kind": "assumed"
+   },
+   {
+    "label": "Worked example copper loss at full load, in watts",
+    "value": 400,
+    "kind": "assumed"
+   },
+   {
+    "label": "Worked example efficiency at full load, in per cent",
+    "value": 95.2,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example impedance, resistance and reactance, per cent",
+    "value": "5, 4 and 3",
+    "kind": "assumed"
+   },
+   {
+    "label": "Worked example output at 0.8 lagging, in volts",
+    "value": 109.25,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example fault current at its terminals, in amps",
+    "value": 1739,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example power an auto would transform, in kVA",
+    "value": 7.4,
+    "kind": "computed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "Two hazards on the job share one cause: the core saturating. Switch a transformer on at the wrong moment and its flux overshoots the knee, so it draws a surge many times its full-load current. Open a current transformer's secondary while its primary carries current, and its core saturates every half-cycle. Tall voltage spikes then appear across the open terminals. A third point is about joins, not saturation: an auto-transformer's output is joined to its input, so it gives no isolation.\n\nStart from the rule that runs through every transformer. The supply voltage sets how fast the flux changes. So the flux is the running total of the voltage. Running normally, the flux swings between equal peaks either way. It rises while the voltage is positive and stops rising as the voltage reaches zero. So the flux peaks at each voltage zero. Now switch on at a voltage zero with an empty core. The flux should be at a peak there, but it starts from nothing. The next half-cycle of voltage still adds a full swing, two peaks' worth, so the flux climbs to twice its normal peak. Any flux left in the iron from last time, pushing the same way, adds on top. A core normally runs not far below its knee, so this takes it far past. Past the knee the iron is full and helps little more. Each extra bit of flux is then pushed through almost as if the core were air, and that takes a great deal of current. That surge is the [[inrush current]]. It comes mostly from the core saturating.[^1] Its peaks can reach 8 to 30 times the full-load current.[^2] Switch on at a voltage peak with an empty core instead, and the flux starts where it should be, so nothing overshoots. So two things set the surge: the moment on the wave, and the flux left in.\n\nA current transformer, a CT, turns the rule round. A power transformer is fed from a voltage, so the voltage fixes its flux. A CT's primary is a busbar carrying whatever current the circuit's load draws. Its 80-turn secondary drives 5 A round the meter, and those ampere-turns cancel the busbar's 400. The core then needs only enough flux to make the few volts that push 5 A round the meter circuit, its [[burden]]. Open the secondary and nothing cancels the busbar's ampere-turns. They drive the core into saturation.[^3] Saturated, the flux sits flat and makes no voltage. Near each current zero it flips to the other side in a moment, and that fast change makes a tall, narrow spike. With current in the primary, an open secondary can make high voltages.[^4] As much as 4000 V has been measured on large CTs left open.[^5] A voltage transformer, a VT, is fed from the system voltage like a power transformer. So it runs safely open, and a short on it is a fault.\n\nAn isolating transformer's two windings are not joined. An [[auto-transformer]] is one winding with a tap, so its output is joined to its input.[^6] Its two sides are one connected system, so an earth fault on either is an earth fault on both. It cannot make a separate insulated system. The supply's current flows straight on into the load, carrying 115 ÷ 440 of the power, 26%, at 440 V to 115 V. Transformer action carries the other 74%. So this is why an open CT is dangerous: with nothing to balance the busbar, its core saturates, and its flipping flux can drive thousands of volts across the open terminals. This picture is simplified: a sketched knee, a stiff supply, one phase, and a CT that keeps its ratio below the knee. **Core saturation explains both the surge at switch-on and an open CT's dangerous voltage, while an auto-transformer gives no isolation.**"
+ },
+ "analogy": {
+  "text": "Think of breaking the supply to a contactor coil. The coil's current wants to keep flowing, so the voltage across the opening contacts leaps until it arcs. A CT's secondary is like that coil's circuit, with the busbar holding the current up. Open it, and the voltage across the gap leaps.",
+  "breaks": "The coil kicks once, from the energy it stored, and then it is done. An open CT kicks twice every cycle for as long as the busbar carries current. Its spikes come from saturated flux flipping, not from stored energy alone."
+ },
+ "practice": {
+  "text": "**Safe way first:** Treat a CT's secondary as dangerous whenever its busbar carries current. Before you remove or change a meter or relay on it, short the secondary at its shorting terminals. Remove the short only once the new device is wired in. A VT is the opposite: open is safe, and a short is a fault. When you energise a transformer, expect a surge, and make sure its protection rides through it.\n\n**Steps:**\n- Energising: inrush peaks can reach 8 to 30 times full-load current.[^2] Work out full-load current as rating ÷ voltage, then multiply.\n- A breaker that trips once on switch-on and holds on the next try points to inrush. If it trips again, treat it as a fault and test before trying again.\n- CT ratio: secondary turns = busbar current ÷ secondary current, for a one-turn busbar.\n- CT secondary volts = 5 A × (burden + winding resistance). Keep it well below the knee.\n- Choosing a transformer: if the output must be a separate or insulated system, use an isolating transformer.\n- Auto-transformer: transformed share = 1 − output volts ÷ input volts.\n\n**Rules of thumb:** Switching on at a voltage zero with flux left in is the worst case. At a voltage peak with an empty core, the flux starts where it should. A CT runs safely shorted and must not run open. A VT runs safely open and must not be shorted. An auto-transformer is much smaller than an isolating one only when its ratio is near one.\n\n**Worked example:** A 10 kVA transformer steps 440 V to 115 V for an insulated 115 V system. Its turns ratio is 440 ÷ 115 = 3.83. Full-load current is 10,000 ÷ 440 = 22.7 A on the 440 V side and 10,000 ÷ 115 = 86.96 A on the 115 V side. At switch-on its inrush peaks could reach 8 × 22.7 = 182 A to 30 × 22.7 = 681 A. With 100 W of iron loss and 400 W of copper loss, it is 95.2% efficient at full load and unity power factor. At 5% impedance, made of 4% resistance and 3% reactance, its output sags to 109.25 V at full load and 0.8 lagging. A short at its terminals draws 1739 A. An auto-transformer would transform only 74% of the power, 7.4 kVA. But its 115 V side would be joined to the 440 V system. So it must be an isolating transformer.\n\n**Common mistakes**\n- Opening a CT's secondary to change a meter on load. Short it first.\n- Fusing a CT's secondary. A fuse that blows opens it.\n- Shorting a VT's secondary as you would a CT's. It feeds a fault.\n- Taking every trip at switch-on for a winding fault. Inrush can trip protection set too keenly.\n- Expecting a light load to make an open CT safe. While current flows in the primary, an open secondary can still make high voltages.\n- Taking an auto-transformer for an isolating one. Its output is joined to its input."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "simplified",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "sources": [
+  {
+   "n": 1,
+   "title": "Transformer Inrush",
+   "url": "https://www.idc-online.com/technical_references/pdfs/electrical_engineering/Transformer_Inrush.pdf",
+   "quote": "Transformer inrush currents are predominantly due to saturation of the transformer core"
+  },
+  {
+   "n": 2,
+   "title": "ABB Dry-type Transformers",
+   "url": "https://new.abb.com/docs/librariesprovider68/default-document-library/data-center-forum-2017/dryabb-data-center-forum-2017---dry_transformers_michael_gogioli.pdf",
+   "quote": "This inrush current, which appears as an internal fault to the differential relays , may reach instantaneous peaks of 8 to 30 times the full load current."
+  },
+  {
+   "n": 3,
+   "title": "Rev 0 to \"Evaluation of Open Current Transformer Secondary Voltages On Unit 1 & Unit 2 Computer Input Circuits.\"",
+   "url": "https://www.nrc.gov/docs/ML1715/ML17156B503.pdf",
+   "quote": "producing sufficient flux to drive the CT into saturation."
+  },
+  {
+   "n": 4,
+   "title": "TESTING OF OPEN SECONDARY WINDOW-TYPE CURRENT TRANSFORMERS – TEST PLAN",
+   "url": "https://downloads.regulations.gov/NRC-2015-0183-0002/content.pdf",
+   "quote": "as long as current is flowing in the primary winding of a CT, an open-circuit in a CT’s secondary can cause high voltages on the secondary"
+  },
+  {
+   "n": 5,
+   "title": "What are Current Transformer (CT) shorting blocks used for? Where can they be found? Are there any hazards of having the CT secondary open-circuited? | Schneider Electric USA",
+   "url": "https://www.se.com/us/en/faqs/FA125574",
+   "quote": "As much as 4000V on the secondary has been measured on large core CTs with an open-circuited secondary."
+  },
+  {
+   "n": 6,
+   "title": "What is the difference between a regular transformer and an isolation transformer? What is an autotransformer? | Schneider Electric USA",
+   "url": "https://www.se.com/us/en/faqs/FA123708",
+   "quote": "Any two winding transformer where the primary and secondary are not electrically connected is an isolation transformer. In contrast, an autotransformer has a physical, electrical connection between the primary and secondary."
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }

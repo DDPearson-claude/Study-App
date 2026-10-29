@@ -1,0 +1,241 @@
+{
+  "ok": true,
+  "reachChecked": true,
+  "problems": [],
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "Twelve hours make a full turn, so one hour is 30°, and the HV line voltage A–B stays nailed to 12 whatever the joins",
+        "ok": true,
+        "source": "https://www.phasors.io/learn/transformer-vector-groups"
+      },
+      {
+        "label": "Dyn11 is a delta HV winding, a star LV winding with the neutral brought out, and a phase displacement of 11 × 30 = 330 degrees",
+        "ok": true,
+        "source": "https://www.ryantransformers.com/en/blog/transformer-vector-group-dyn1-vs-dyn11"
+      },
+      {
+        "label": "Eleven o'clock is 330 degrees, the same as the LV leading the HV by 30 degrees",
+        "ok": true,
+        "source": "https://www.ryantransformers.com/en/blog/transformer-vector-group-dyn1-vs-dyn11"
+      },
+      {
+        "label": "The vector groups must be equal so that the output voltages correspond: only a matching group leaves no voltage across the open switch, and any other leaves a red gap",
+        "ok": true,
+        "source": "https://www.sgb-smit.com/products/dry-type-transformers/cast-resin-transformers-medium-voltage"
+      },
+      {
+        "label": "Worked from the phase voltages, A–B = A–N − B–N points at twelve and A–C = A–N − C–N at two; so limb 1's HV winding sits at 1, 12 and 2, and the names are Yyn0, Dyn11, Dyn1, Yyn6, Dyn5 and Dyn7",
+        "ok": true
+      },
+      {
+        "label": "At 5% each the switch sees 0.00 V, 34.37 V, 66.40 V and 132.79 V for Dyn11, Yyn0, Dyn1 and Dyn5, driving 0.0, 5.2, 10.0 and 20.0 times rated; at 4% each Yyn0 drives 6.5; the gap arrow is the distance between the tips",
+        "ok": true
+      },
+      {
+        "label": "Each typed answer and slip is worked from its rule: 254 V (762, 147, 440), 150° (5, 30, 210), 6.63 (3.83, 2.21), 66.40 V (0, 34.37, 115), 6.5 (13, 5.2, 2.1) and 7 (5, 1)",
+        "ok": true
+      },
+      {
+        "label": "Before a Check the gap, the circulating current and the swapped hour show ?, after it 66.40 V, 6.5 × rated and 7; the Dyn1 gap shows ? on the screen before its puzzle",
+        "ok": true
+      },
+      {
+        "label": "Each six-pulse output has six bumps a cycle and their sum twelve, with under a third of the ripple",
+        "ok": true
+      },
+      {
+        "label": "Every demonstration ends 3 to 4.5 s after its screen opens, on the state its words end on",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "hv",
+      "dc",
+      "lv",
+      "g2"
+    ],
+    "readouts": [
+      "r-hour",
+      "r-deg",
+      "r-gap",
+      "r-circ"
+    ],
+    "outputs": [],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Screen",
+        "min": 0,
+        "max": 13,
+        "step": 1,
+        "steps": [
+          "Star phase voltage",
+          "Both sides star",
+          "Hour to degrees",
+          "Delta on the HV side",
+          "Turns per limb",
+          "Whole hours",
+          "Ahead or behind",
+          "Two on one board",
+          "Two hours apart",
+          "Circulating current",
+          "Four per cent each",
+          "Twelve pulses",
+          "Swap a Dyn1",
+          "A matching partner"
+        ],
+        "value": 0
+      },
+      {
+        "id": "hv",
+        "kind": "choice",
+        "label": "HV winding",
+        "options": [
+          "Star",
+          "Delta"
+        ],
+        "labels": [
+          "Star",
+          "Delta"
+        ],
+        "value": "Star",
+        "index": 0,
+        "shown": false
+      },
+      {
+        "id": "dc",
+        "kind": "choice",
+        "label": "Delta closed",
+        "options": [
+          "A–B",
+          "A–C"
+        ],
+        "labels": [
+          "A–B",
+          "A–C"
+        ],
+        "value": "A–B",
+        "index": 0,
+        "shown": false
+      },
+      {
+        "id": "lv",
+        "kind": "choice",
+        "label": "LV ends",
+        "options": [
+          "As marked",
+          "Swapped"
+        ],
+        "labels": [
+          "As marked",
+          "Swapped"
+        ],
+        "value": "As marked",
+        "index": 0,
+        "shown": false
+      },
+      {
+        "id": "g2",
+        "kind": "choice",
+        "label": "T2 group",
+        "options": [
+          "Dyn11",
+          "Yyn0",
+          "Dyn1",
+          "Dyn5"
+        ],
+        "labels": [
+          "Dyn11",
+          "Yyn0",
+          "Dyn1",
+          "Dyn5"
+        ],
+        "value": "Dyn11",
+        "index": 0,
+        "shown": false
+      }
+    ],
+    "actions": [
+      "Close the switch",
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Answer 4",
+      "Check",
+      "Why?",
+      "Play again",
+      "Back",
+      "Continue",
+      "Start again",
+      "Demonstration"
+    ],
+    "answers": [
+      {
+        "id": "a-ph",
+        "answer": 254,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-deg",
+        "answer": 150,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-turns",
+        "answer": 6.63,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-gap",
+        "answer": 66.4,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-circ",
+        "answer": 6.5,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-swap",
+        "answer": 7,
+        "accept": [],
+        "ok": true
+      }
+    ],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ],
+    "foreign": [],
+    "unreachable": []
+  }
+}

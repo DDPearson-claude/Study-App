@@ -1,0 +1,400 @@
+TASK: repair-interactive
+
+The interactive below, written for Dan's learning app, failed its automatic checks. Fix every problem listed and return the complete corrected body. Keep what already works.
+
+## The idea
+Topic: Transformers and magnetism
+Idea: Changing flux makes a voltage (Only a changing flux makes a voltage, in every turn it threads, so a transformer needs AC and its supply voltage fixes the core's flux.)
+Kind: mechanism
+Dan knows a little about this topic. Show an equation on the page only if every symbol in it is labelled on the picture; otherwise say the rule in words.
+
+## What the interactive must show
+Brief: The one thing you should see is the secondary's meter fall to zero when you hold the primary's current at 2 A, though the core's flux stays at 5 mWb.
+Title (the app shows it above the frame, so do not repeat it): Move the flux
+The rule (the app shows it just above the frame, under "What you're looking at"): Thirteen small screens on one picture, with Back and Continue. Five show an idea and eight ask you to try it. No marks and no timers.
+
+The picture. A square iron ring, as in the last lesson, with two coils on it and no wire between them. The primary, on the left, has 300 turns, say. The secondary, on the right, has 100 turns, say, with a voltmeter across it and a small lamp behind an open switch. A flux bar along the ring fills in step with the flux. Under the ring, a flux trace, in mWb, and the secondary's emf trace, in V, scroll side by side against time. A mode switch, Hand, AC or DC, opens on Hand. Its three buttons wrap onto two rows on a phone.
+
+Hand. A current slider for the primary runs from −2 to 2 A in steps of 0.05 A, opening at 0. You drag it yourself. The core is drawn as one that never saturates, with a reluctance of 120,000 At/Wb, say. So by the last lesson's rule, flux = N I ÷ reluctance, each amp in 300 turns gives 2.5 mWb. The meter is Faraday's law, e = N × ΔΦ ÷ Δt, on the secondary's 100 turns, over the last tenth of a second. Dragging from 0 to 2 A in 1 s changes the flux by 5 mWb in 1 s, so it reads 100 × 0.005 = 0.5 V. Held still, at any current, it reads 0 V. Three readouts, which wrap onto two rows on a phone: Primary current, in A; Flux, in mWb; Meter, in V, two decimal places.
+
+The arrows. A thick arrow in the core shows the main flux's direction, and a small one beside it the way the flux is changing. Close the lamp's switch, and a dashed arrow shows the secondary current's own field. It always points against the change arrow, and it vanishes while the flux is still. The lamp glows in step with the meter.
+
+AC. The current slider is greyed. The flux swings as a slowed-down sine, and the emf trace is its slope, peaking as the flux crosses zero. A frequency slider runs from 40 to 60 Hz in steps of 5, opening at 60. A turns slider for the primary runs from 240 to 360 in steps of 30, opening at 300. A switch, Fix the voltage, opens off. Off, the peak flux Φm is held at 5.5 mWb, and E = 4.44 f N Φm is read out in V rms: 440 V at 60 Hz and 300 turns, 484 V at 330 turns. On, the supply is held at 440 V rms and the flux follows: Φm = 440 ÷ (4.44 f N). A line on the flux bar marks 5.5 mWb, this winding's peak at 60 Hz. Three readouts, wrapping on a phone: E, in V; Peak flux, in mWb, one decimal place; Primary current peak, Φm × 120,000 ÷ N, in A. At 60 Hz and 300 turns they read 440 V, 5.5 mWb and 2.20 A. At 330 turns, 5.0 mWb and 1.82 A. At 50 Hz, 6.6 mWb and 2.64 A. Worked lines beside the traces show where 4.44 comes from: 4 f Φm per turn on average over a half cycle, times the form factor 1.11, which is 0.707 ÷ 0.637. A check line: 2π ÷ √2 = 4.443.
+
+DC. The supply is 24 V DC from a battery charger, say, and the primary's resistance is 0.5 Ω, say. The current climbs over a moment and settles at 24 ÷ 0.5 = 48 A. Its bar runs red past 2.2 A, its AC peak. While it climbs, the flux trace rises and the meter kicks. Once it settles, the flux trace is flat and the meter reads 0 V. The flux bar runs off its scale, marked Saturated. A readout gives the winding's heat, 24 × 48 = 1152 W.
+
+Screen 1, try it, a recall. The picture: the ring on Hand at 0 A. "A coil turns steadily between two magnet poles. Where in its turn is its emf biggest?" Three choices, in this order: "Face-on, with the most flux through it"; "Edge-on, with the flux changing fastest"; "Halfway between the two". Right, the second. Hint for the first: "Face-on, the flux is at its most, but it is not changing." Hint for the third: "Halfway, the flux is changing, but not at its fastest." Why: "Edge-on, no flux passes through it, but the flux is changing fastest. The emf follows the change, not the amount. Now nothing turns. The flux itself will grow and shrink." A right Check says "Still there." and carries on. Read: "A coil turns steadily between two magnet poles. Where in its turn is its emf biggest?"
+
+Screen 2, show. Hand, with the current slider to drag. The words: "Only a changing flux makes a voltage. A primary and a secondary coil share one iron core. No wire joins them. A voltmeter reads the secondary. Drag the primary's current. The flux follows, and the meter reads while you move. Move faster, and it reads more. Hold still, and it reads zero, however strong the flux.[^1] Each turn gets an emf set by how fast the flux changes. The turns are in series, so their emfs add: e = N × ΔΦ ÷ Δt. This is Faraday's law." Read: "Two coils share one iron core, with no wire between them. The meter on the secondary reads only while the primary's current is changing. With the current held at 2 A and 5 mWb in the core, it reads zero." Still: Hand, the current dragged from 0 to 2 A over 1 s and held, with both traces drawn.
+
+Screen 3, try it, typed. "You drag the primary's current from 0 to 2 A in 1 s. The meter reads 0.5 V while you move. You stop and hold it at 2 A. What does the meter read now?" A typed field in V, two decimal places: answer 0, want "0 V". Slips: 0.5, "That was while the current moved. Now the flux is steady."; 1, "That doubles the moving reading. A held current changes nothing." Hint for any other answer: "Ask what the flux is doing now, not how big it is." Why: "Held at 2 A, the flux sits steady at 5 mWb. It is not changing at all, so no turn gets an emf. A strong field alone makes no voltage." A right Check holds 2 A, and the emf trace falls flat. Read: "You drag the primary's current from 0 to 2 A in 1 s. The meter reads 0.5 V while you move. You stop and hold it at 2 A. What does the meter read now?"
+
+Screen 4, show. Hand, with the lamp's switch to close. The words: "The meter takes almost no current, yet it reads. So the emf is there with or without a current. Close the lamp's switch, and current flows round the secondary. That current makes its own field, drawn dashed. The field always pushes against the change. Drag the flux up, and it points against the main flux. Let the flux fall, and it points the same way, holding the flux up. If it helped the change, the change would feed itself. That would make energy from nothing. This is Lenz's law." Read: "With the lamp's switch closed, the secondary's own field pushes against the change. It points against a rising flux, and with a falling one." Still: Hand, switch closed, the current falling from 2 A to 1 A, with all three arrows drawn.
+
+Screen 5, try it. "The lamp's switch is closed. The primary's current is falling. The main flux still points up the core, but it is shrinking. Which way does the secondary's own field point inside the core?" Three choices, in this order: "Up, the same way as the main flux"; "Down, against the main flux"; "Nowhere: a falling flux makes no field". Right, the first. Hint for the second: "It fights the change, not the field. The change here is a fall." Hint for the third: "A falling flux is still a changing flux, so the lamp still lights." Why: "The secondary's current pushes against the change, and here the change is a fall. So its own field points up, with the main flux, to hold it up. Against the change is not always against the field." A right Check drags the current down, and the dashed arrow points up beside the main flux. Read: "The lamp's switch is closed. The primary's current is falling. The main flux still points up the core, but it is shrinking. Which way does the secondary's own field point?"
+
+Screen 6, show. AC, 60 Hz, 300 turns, Fix the voltage off. The words: "Switch to AC. The flux swings as a sine, and the emf follows its slope. It peaks as the flux crosses zero, as in the turning coil. Half a cycle lasts 1 ÷ 2f seconds. In that time the flux swings from −Φm to +Φm. Each turn's average emf is 2Φm × 2f = 4 f Φm. The form factor, 1.11, turns that into rms. For N turns, E = 4.44 f N Φm. Φm is flux density times core area, so this ties a coil's volts to its core.[^2]" Read: "On AC the emf wave follows the flux wave's slope. It peaks as the flux crosses zero. At 60 Hz, 300 turns and a peak flux of 5.5 mWb, E = 4.44 × 60 × 300 × 0.0055 = 440 V." Still: AC, 60 Hz, 300 turns, Fix the voltage off.
+
+Screen 7, try it, typed. "A coil of 200 turns sits on a core whose flux peaks at 4 mWb, at 50 Hz. What rms emf does it give?" A typed field in V, whole numbers: answer 178, also accepting 177.6, want "178 V". Slips: 40, "That leaves out the 4.44."; 160, "That is the average. The rms is 1.11 times it."; 251, "That is the peak. E = 4.44 f N Φm gives the rms." Hint for any other answer: "E = 4.44 × f × N × Φm, with Φm in webers." Why: "4.44 × 50 × 200 × 0.004 = 177.6, so 178 V rms. The peak is √2 times that, 251 V." Read: "A coil of 200 turns sits on a core whose flux peaks at 4 mWb, at 50 Hz. What rms emf does it give?"
+
+Screen 8, show. AC, with the Fix the voltage switch to turn on. The words: "On a fixed supply, the voltage sets the flux. A supply holds the primary at 440 V. The winding's resistance is small. So its own emf must almost equal the supply's, or a huge current would flow. The flux swings just enough to make it: Φm = V ÷ (4.44 f N). At 60 Hz, 300 turns need 5.5 mWb. The current finds whatever value makes that flux. On 330 turns, each needs less voltage, so the flux falls to 5.0 mWb. At 50 Hz, it rises to 6.6 mWb." Read: "With the supply held at 440 V, f and N set the flux. At 60 Hz, 300 turns hold 5.5 mWb and 330 turns hold 5.0 mWb. At 50 Hz, 300 turns hold 6.6 mWb." Still: AC, Fix the voltage on, 60 Hz, 330 turns.
+
+Screen 9, try it, typed. "A primary on a fixed 440 V, 60 Hz supply has 300 turns and a peak flux of 5.5 mWb. It is rewound with 10% more turns, 330. What is the peak flux now?" A typed field in mWb, one decimal place: answer 5.0, want "5.0 mWb". Slips: 6.1, "More turns would push more flux on a fixed current. Here the voltage is fixed."; 5.5, "The flux does change. Each turn now needs less voltage."; 0.005, "That is in webers. The box is in mWb." Hint for any other answer: "Φm = 440 ÷ (4.44 × 60 × 330)." Why: "440 ÷ (4.44 × 60 × 330) = 0.0050 Wb, which is 5.0 mWb. The 440 V is shared over more turns. Each turn needs less emf, so the flux swings less." A right Check sets 330 turns with Fix the voltage on. Read: "A primary on a fixed 440 V, 60 Hz supply has 300 turns and a peak flux of 5.5 mWb. It is rewound with 330 turns. What is the peak flux now?"
+
+Screen 10, show. DC, with the mode switch to turn to it. The words: "Switch to DC. Take 24 V from a battery charger, say. The current climbs, and the meter kicks while it climbs. Then the current settles and the flux holds steady. The meter reads zero, and the primary makes no emf of its own. Only the winding's resistance holds the current back. Say it is 0.5 Ω. Then 48 A flows, over 20 times the 2.2 A peak on AC. The core saturates, and the winding turns 1152 W into heat. So a transformer cannot change a DC voltage.[^3]" Read: "On 24 V DC the current settles at 48 A. Only the winding's 0.5 Ω holds it back. The flux is steady, so the secondary's meter reads zero." Still: DC, settled.
+
+Screen 11, try it, typed. "A primary winding has a resistance of 0.4 Ω. It is put across 24 V DC. What steady current flows?" A typed field in A, whole numbers: answer 60, want "60 A". Slips: 0, "A steady current meets no emf from its own coil. Only the resistance holds it back."; 9.6, "That multiplies. Divide instead: I = V ÷ R." Hint for any other answer: "On DC, only the resistance limits the current." Why: "24 ÷ 0.4 = 60 A. The flux is steady, so the winding makes no emf to oppose the supply. On AC that emf would hold the current far lower." Read: "A primary winding has a resistance of 0.4 Ω. It is put across 24 V DC. What steady current flows?"
+
+Screen 12, try it, the first of two mixed puzzles, typed. "The flux through a 100-turn secondary rises steadily by 3 mWb in 0.5 s. What emf does it give?" A typed field in V, one decimal place: answer 0.6, want "0.6 V". Slips: 0.3, "That leaves out the time. Divide by 0.5 s."; 0.15, "That multiplies by the time. Divide by it."; 0.006, "That leaves out the turns. Each of the 100 adds its share." Hint for any other answer: "e = N × ΔΦ ÷ Δt, with ΔΦ in webers." Why: "The flux changes at 0.003 ÷ 0.5 = 0.006 Wb each second. Each turn gets 0.006 V, and 100 turns add up to 0.6 V. A steady rise gives a steady emf." Read: "The flux through a 100-turn secondary rises steadily by 3 mWb in 0.5 s. What emf does it give?"
+
+Screen 13, try it, the second mixed puzzle, typed. "The 300-turn primary is built for 440 V at 60 Hz. It is put on 440 V at 50 Hz. What is its peak flux now?" A typed field in mWb, one decimal place: answer 6.6, want "6.6 mWb". Slips: 4.6, "f is on the bottom, so a lower frequency gives more flux, not less."; 5.5, "The flux does change, because f has fallen."; 0.0066, "That is in webers. The box is in mWb." Hint for any other answer: "Φm = 440 ÷ (4.44 × 50 × 300)." Why: "440 ÷ (4.44 × 50 × 300) = 0.0066 Wb, which is 6.6 mWb. Each half cycle lasts longer. So the flux must swing further to make the same volts. That is 20% more flux, closer to the core's knee." A right Check sets 50 Hz with Fix the voltage on. Read: "The 300-turn primary is built for 440 V at 60 Hz. It is put on 440 V at 50 Hz. What is its peak flux now?"
+
+The finish. The words: "Only a changing flux makes a voltage. Every turn it threads gets the same voltage. The current that voltage drives pushes against the change. On AC, E = 4.44 f N Φm, so a supply's voltage fixes the core's flux. More turns or a higher frequency mean less flux. On DC nothing changes, so there is nothing to step. Next: two windings, and the turns ratio."
+
+Every figure on these screens is an example value or worked from the rules above.
+What the model leaves out (the app shows this in its own panel; do not repeat it on the page): On Hand and AC the core is drawn as one that never saturates, with its flux always in step with the primary's current. A real core's flux bends over near its knee. There its current climbs much faster. Every line of flux is drawn through both coils. In a real core a little leaks round each coil. On AC the primary's resistance is ignored, so its emf is drawn equal to the supply. In a real winding the two differ by a small resistive drop. The meter is drawn as taking no current. A real voltmeter takes a tiny one. The lamp's current is drawn only as its field's direction, not its size. On AC, time is slowed right down. On DC the climb to 48 A is drawn as a short smooth rise. Saturation is shown only by the flux bar running off its scale. A generator makes its emf by the same law, with the flux moved by turning. That is not shown here.
+Controls (use these ids, ranges and opening values exactly; when the prediction or a check names a setting of a slider, add it to that slider's snap):
+- id "step": Screen, from 0 to 12 in steps of 1, opening at 0
+Outputs: none. No rule computes a number here, so show no readouts beyond plain counts of what is on screen ("4 of 7 at war"): the picture, its labels and the .say line do the teaching.
+Numbers it may show (control = Dan sets it; computed = from the rule; constant = a fixed real value; assumed = an example value, said once as an example in the lead line or a caption, then drawn as a plain value; date = a historical date or fact):
+- Screen, 1 to 13 (the stepper): 0 (control)
+- Number of screens: 13 (assumed)
+- Primary turns: 300 (assumed)
+- Secondary turns: 100 (assumed)
+- Core's reluctance, in At/Wb: 120000 (assumed)
+- Flux per amp in the primary, in mWb: 2.5 (computed)
+- Current slider, −2 to 2 in steps of 0.05, in amps: 0 (control)
+- Meter's change window, in seconds: 0.1 (assumed)
+- Screen 3 drag, 0 to 2 A in 1 s: flux change, in mWb: 5 (computed)
+- Screen 3 reading while moving, in volts: 0.5 (computed)
+- Screen 3 reading held still, in volts: 0 (computed)
+- Screen 3 slip, in volts: 1 (computed)
+- Frequency slider, 40 to 60 in steps of 5, in Hz: 60 (control)
+- Turns slider, 240 to 360 in steps of 30: 300 (control)
+- Held peak flux with Fix off, in mWb: 5.5 (assumed)
+- E at 60 Hz, 300 turns, 5.5 mWb, in volts: 440 (computed)
+- E at 60 Hz, 330 turns, 5.5 mWb, in volts: 484 (computed)
+- Fixed supply, in volts rms: 440 (assumed)
+- Peak flux at 60 Hz, 300 turns, in mWb: 5.5 (computed)
+- Peak flux at 60 Hz, 330 turns, in mWb: 5 (computed)
+- Peak flux at 50 Hz, 300 turns, in mWb: 6.6 (computed)
+- Rise at 50 Hz, in per cent: 20 (computed)
+- Primary current peak at 60 Hz, 300 turns, in amps: 2.2 (computed)
+- Primary current peak at 60 Hz, 330 turns, in amps: 1.82 (computed)
+- Primary current peak at 50 Hz, 300 turns, in amps: 2.64 (computed)
+- Average emf per turn over a half cycle, times f Φm: 4 (computed)
+- Form factor, 0.707 ÷ 0.637: 1.11 (computed)
+- EMF equation's factor, 4 × 1.11: 4.44 (computed)
+- Check, 2π ÷ √2: 4.443 (computed)
+- DC supply, in volts: 24 (assumed)
+- Primary's resistance, in ohms: 0.5 (assumed)
+- DC current, 24 ÷ 0.5, in amps: 48 (computed)
+- DC heat, 24 × 48, in watts: 1152 (computed)
+- DC current over AC peak, times: 20 (computed)
+- Screen 7 turns: 200 (assumed)
+- Screen 7 peak flux, in mWb: 4 (assumed)
+- Screen 7 frequency, in Hz: 50 (assumed)
+- Screen 7 emf, 4.44 × 50 × 200 × 0.004, in volts: 178 (computed)
+- Screen 7 slips, in volts: 40, 160 and 251 (computed)
+- Screen 9 slips, in mWb: 6.1, 5.5 and 0.005 (computed)
+- Screen 11 resistance, in ohms: 0.4 (assumed)
+- Screen 11 current, 24 ÷ 0.4, in amps: 60 (computed)
+- Screen 11 slips, in amps: 0 and 9.6 (computed)
+- Screen 12 flux rise, in mWb: 3 (assumed)
+- Screen 12 time, in seconds: 0.5 (assumed)
+- Screen 12 emf, 100 × 0.003 ÷ 0.5, in volts: 0.6 (computed)
+- Screen 12 slips, in volts: 0.3, 0.15 and 0.006 (computed)
+- Screen 13 slips, in mWb: 4.6, 5.5 and 0.0066 (computed)
+
+## What the checks found (at 340, 720 and 1040 px wide)
+- Error: On a 360 px phone the three readouts stack one to a row; the brief asks them to wrap onto two rows (size each tile at 8rem so two share a row).
+- Error: The labels 'meter' and 'lamp' sit 4 px apart above the secondary's circuit and read as one phrase, 'meter lamp'; give them more space.
+- The page uses K.answer, but the self-test graded no typed answer: test it again with the current kit.
+
+## How to fix the usual problems
+- A thrown error (also from a K.button press or a K.anim step): go to the body line it names; check element ids, variable names and the kit call signatures.
+- NaN or Infinity: guard the maths at the ends of every control's range (division by zero, log of 0, square root of a negative), or start the range where the rule makes sense.
+- A model output that is a list or object: K.model returns single numbers or short strings; keep lists in your own variables.
+- Too wide at 340 px: let rows wrap (flex-wrap), use width:100% and max-width:100%, give SVG a viewBox with width 100%, no fixed widths over 300 px, shorter labels.
+- Text cut off: shorten it or let it wrap, or give it room (a wider box, a bigger viewBox); never cut it off or hide the overflow. SVG labels printed over each other, even by a letter or two: move one, or place them with K.labels. A plot's axis title too long for a phone: shorten it (about 30 characters). A word split across two lines (often at Text size XL): size its grid columns or tiles in rem, not px (minmax(6rem, 1fr)), so they reflow to fewer, wider columns; or use a shorter word.
+- SVG text too small on a phone: font-size 13-16 in a drawing about 340 wide. A line or arrowhead through a label: place the label with K.labels and pass that line in avoid, or stop the line short of it. More labels than room (K.labels says avoid cannot be honoured): label fewer things, or move the names into a key under the drawing or a list beside it.
+- A readout's value printed elsewhere (a label, an aria-label or a plot label that follows it): while Dan answers a check the app hides only the readout and the .say line, so show the number in the readout alone and name the thing elsewhere.
+- Text hard to read (contrast) or a colour name: ink, muted, accent2, accent, warn or good (on-accent2 on navy), as var(--k-…) or K.color set in K.update, so it follows the theme.
+- A blank hole before Dan moves: hide only the answer (a line, a mark, a sentence), never a whole figure.
+- The first control far below the main figure (phone layout): put the visual and its controls together with K.stage(visual, controls), secondary figures below.
+- K.sound: frequencies 20 to 20,000 Hz (200 to 2,000 for anything Dan must hear on a phone), dur above 0 and at most 10 s, gain 0 to 1, a listed type; play it from a K.button press.
+- Navigation, links out, connections or frames: everything stays on this page (no <a href> or forms, no location changes, no WebSocket, XMLHttpRequest or iframes); name sources in words.
+- A failing check: work the expected value out again by hand. Fix whichever is wrong, the model or the check. Never delete a correct check or change its expected answer to pass. A tolerance that was unrealistically tight (a millionth, where square roots or small steps meet rounding) may be widened to a sensible one (a thousandth of the size).
+- Slow updates: sample curves less densely and do not rebuild large parts of the page on every change.
+- Missing ids: use exactly the ids listed; an output must be a key of the object K.model returns.
+- An unlisted web address: delete it, and the {source} that held it.
+- A target out of reach: make the model follow the lesson's rule with the lesson's ranges and opening values, so moving that one control brings the output to the target.
+
+## Sources
+The only web addresses this page may contain, each only as a K.check {source} on a check whose label restates what that source's quote says (a result of your rule, or a fact about your drawing, takes no source; the caption names a source in words). The app rejects any other:
+[1] 5.1: Magnetic Induction - Physics LibreTexts (https://phys.libretexts.org/Courses/University_of_California_Davis/UCD%3A_Physics_9C__Electricity_and_Magnetism/5%3A_Electromagnetism/5.1%3A_Magnetic_Induction): "With an unchanging flux, there is no induced emf in the loop, and no current as a result."
+[2] Chapter 5 (https://pages.mtu.edu/~avsergue/EET2233/Lectures/CHAPTER5.pdf): "This equation demonstrates a definite relation between the voltage in a coil, the flux density, and the size of the core."
+[3] 23.10: Transformers - Physics LibreTexts (https://phys.libretexts.org/Bookshelves/College_Physics/College_Physics_1e_(OpenStax)/23:_Electromagnetic_Induction_AC_Circuits_and_Electrical_Technologies/23.10:_Transformers): "The fact that transformers are based on Faraday’s law of induction makes it clear why we cannot use transformers to change DC voltages."
+
+## Rules for this page
+- There is no guess to protect: show everything from the start (no k-after-move), curves and results included.
+- The lead line says what is drawn, plainly ("Water from a 5 m drop hits the blades of a wheel"), not what to do: the app gives the action above the frame. Example values are said once there ("an example stream: a 5 m drop, 20 kg of water each second"), then the drawing labels them plainly ("5 m"), never "for example" on the drawing.
+- Every label and arrow sits on, or starts from, the thing it is about: a force arrow starts on the part it pushes; a speed arrow on the part that moves. Anything the rule says turns or flows does so (K.anim), at a speed that follows its control.
+- The .say sentence must make sense on its own to someone who has just read the explanation: what is happening on screen now, cause then effect, in everyday words; no term, threshold or comparison the page or the explanation has not named; a number as part of its whole ("353 W of the stream's 981 W is carried off by the water"). Bad: "The buckets move slower than half the jet speed, so the water still leaves going backwards, taking 353 W away with it." Good: "The buckets are moving slowly, so the water bounces off them still moving fast, and carries 353 W of its 981 W away downstream."
+- A key for the main drawing sits inside the drawing; show each quantity once (a bar, a readout or a curve, not all three); every number drawn that is worked out (a speed from a drop) is explained in "What you're looking at", or is left off.
+- Draw the cause the explanation gives, not only its effect, and let Dan cause it (a drag, a push, a switch); include the setting where the effect does not happen.
+- Mark the brief's one quantity on the picture itself, with a label saying what it is and its value (a bracket between the two heights reading "2.4 m"); an output with a readout is marked without its number, which the readout alone shows (the app hides it while Dan answers a check).
+- A shaded band states something true of the axis it spans: inputs across x, outputs across y. To show many inputs giving nearly the same output, shade the narrow output band (regions {y0, y1}).
+- Draw every comparison the explanation makes the same way, in the same place, on the axis where the effect happens. A time period is a bracket or thin band along the time axis, not a tall block.
+- Give each reference line its own look and a label beside it; every styled line is in the key or labelled on the drawing.
+- Draw only what the brief, the rule or the explanation names, with the same names. An extra figure says on itself how to read it: what its line stands for and which way is which.
+- Show only the numbers listed above or computed from the rule, each written the way the explanation writes it (the same rounding).
+- Any example cases you choose are fair and representative, never picked to exaggerate the effect.
+- Money, health and law: show how it works, never advice, and never a guaranteed outcome.
+
+## The house kit (complete API reference)
+You write the BODY of one page: HTML, an optional `<style>`, then one inline `<script>` ending
+with `K.ready()`. It runs in a sandboxed iframe on Dan's phone (about 340 px wide, touch) and
+laptop, with the global `K` and the kit's stylesheet. No network or storage: no web
+addresses, `fetch`, `localStorage`, `alert` or `prompt`.
+
+### Page shape that works
+1. `<p class="lead">`: one line saying what is drawn (the app adds title and action).
+2. The main visual with its controls right under it: `K.stage('#scene', '#controls')` keeps the
+   pair on one phone screen. A choice that re-sorts the picture may sit above it.
+3. `<p class="say">`: one sentence that changes with the state and says why. Then
+   `<div class="k-readouts">` for numbers the drawing does not label.
+4. Secondary figures and anything that grows go below.
+5. `<p class="caption">`: one short sentence, at most 20 words: where the numbers come from ("A
+   sketch, not measured data") or the rule in the explanation's words. No new claim, no law or
+   term the explanation does not teach. The app shows what the model leaves out.
+
+### Keep the answer hidden until Dan moves
+Dan predicts before he plays: open on a setting the question is not about, and hide whatever
+gives the answer away until his first move:
+- class `k-after-move` on any element (a mark, an arrow, a sentence): hidden, its space kept.
+  Hide the answer, not the controls or a whole figure (a blank hole fails the test).
+- `K.readout({..., afterMove: true})` shows "?" until then; plot series and marks take `afterMove: true` too.
+- `K.moved` is true from then on: in `K.update`, write `K.moved ? answer : question`.
+- `K.afterMove(fn)` runs `fn` once at that moment; `K.reveal()` marks it from your handlers.
+
+### The pipeline
+Controls register themselves; their values form `params` = `{id: value}`.
+```
+K.model(fn)        fn(params) -> outputs {name: number | string}. Pure: no DOM, no lists or objects.
+K.update(fn)       fn(params, outputs): draw everything here. More than one is allowed.
+K.at(over)         -> outputs of the model at those params (others take each control's starting value)
+K.check(label, fn, {source?})   fn() must return exactly true
+K.ready()          call once, last: draws the opening state and runs the checks
+K.complete()       at the lesson's end
+K.params()  K.outputs()  K.refresh()   (refresh reruns the pipeline after you change your own state)
+```
+A readout whose id is an output key updates itself.
+
+### Controls
+Every control takes `into` (a selector or element). Ids are unique; use the lesson's ids exactly.
+```
+K.control({id, label, min, max, step, value, unit?, prefix?, fmt?, log?, snap?, hint?, into}) -> {el, get(), set(v)}
+K.choice({id, label, options: [value | {value, label}], value, hint?, into}) -> {el, get, set}
+K.toggle({id, label, value: false, hint?, into}) -> {el, get, set}
+K.stepper({id, steps: [title | {title, text}], value: 0, compact?, label?, into}) -> {el, get, set, setSteps(list)}
+K.button({label, press, secondary?, into}) -> {el, press(), setLabel(text)}
+K.drag(el, {control, toValue(x, y)}) -> {el}
+```
+`control` is a big slider with − / + buttons. Keep `unit` short; `fmt(v)` returns the whole text;
+`log: true` spans decades; `snap: [values]` lands a drag exactly on a setting the prediction or a
+check names. `choice`: 2-8 short named options; `value` is an option's value or its 0-based
+index. `stepper` walks a process with Back / Next (`compact: true` when your diagram shows the
+content). `button` is an action (Send it in): use it, not plain buttons. `drag` lets Dan move
+the thing itself: `toValue` maps the pointer (viewBox units; px from `el`'s top-left for HTML)
+to the control's value; the first touch counts as his move.
+
+### Outputs
+```
+K.readout({id, label, unit?, prefix?, decimals?, fmt?, big?, hint?, afterMove?, into}) -> {el, set(v), get(), text()}
+```
+One rounding everywhere a number appears: `decimals` matching the lesson text, and the `.say`
+sentence built with `K.fmt(v, {decimals})` or `readout.text()`. Labels under 30 characters.
+While Dan answers a lesson check, the app hides that output's readout and the `.say` lines:
+never repeat a readout's value elsewhere (a label, an aria-label).
+```
+K.plot(target, opts) -> {draw(opts), x(v), y(v), invert(px, py), el, canvas}
+```
+- `x`, `y`: `{min, max, label, log?, prefix?, unit?, fmt?, ticks?}`. Leave out `y.min`/`y.max` to fit the data.
+- `series`: `[{fn: x => y | points: [[x, y], ...], label?, color?, dash?, width?, fill?, dots?, gaps?, afterMove?}]`
+- `shade`: `[{between: [a, b], label?, color?, x0?, x1?}]`: fills between two series (by label), a
+  series and a constant, or two functions.
+- `marks`: `[{x, y, label?, color?, guides?, afterMove?}]`: a dot with a label pill; `guides` adds dashed lines to the axes.
+- `regions`: `[{x0, x1, label?} | {y0, y1, label?}]` (a band); `lines`: `[{x | y, label?}]` (a dashed line).
+- `label`: the text alternative; `height`; `after(ctx, plot)` draws extras using `plot.x()`, `plot.y()`.
+
+`draw(opts)` redraws with `opts` over the creation options: call it in `K.update`. Values must be
+finite (`gaps: true` only where a gap is real). Series are navy, then teal; `color: 'muted',
+dash: true` for a baseline.
+```
+K.bars(target, {max?, unit?, prefix?, decimals?, fmt?}) -> {draw(items)}      items: [{label, value, color?}], values >= 0
+K.anim({step(dt, t), reset?, label?, autoplay?, button?, into}) -> {el, play, pause, toggle, reset, playing()}
+```
+`anim` adds a Play button (text `label`); `reset` adds Reset. When a switch, button or drag
+already starts the motion, pass `button: false` and call `play()` from that control: one control
+per action. In `step` advance your state (`dt` in seconds) and redraw; return `false` to stop. To
+drive a slider, keep the exact value yourself (the slider moves in whole steps).
+
+### Sound
+```
+K.sound.tone(hz, {dur?, type?, gain?})   K.sound.chord([hz, ...], {dur?, stagger?})   K.sound.stop()   K.sound.mute(on)
+K.sound.hold(hz, {type?, gain?, max?}) -> {set({hz?, gain?}), stop(), playing()}
+```
+`dur` in seconds (at most 10). Sound plays only from a `K.button` press, never `K.update`; show
+what is sounding. `hold` keeps a tone going while `set()` follows a slider. Phones can't play
+below about 150 Hz: use 200 to 2,000 Hz.
+
+### Drawings and helpers
+```
+K.el(tag, attrs?, ...children)    attrs: class, style, on: {click: fn}, text, html, dataset, any attribute
+K.svg(tag, attrs?, ...children)   the same in the SVG namespace
+K.labels(group, [{x, y, text, anchor?, size?, class?, color?}], {avoid?}) -> [<text>]
+K.stage(visual, controls, {max?, beside?}) -> {el}
+K.fmt(v, {decimals?, sig?, prefix?, unit?, percent?, sign?, compact?}) -> '1,234.5', '−3', '2.5 × 10⁶'
+K.near(a, b, tol)   K.clamp(v, lo, hi)   K.lerp(a, b, t)   K.linspace(a, b, n)   K.color(role, alpha?)
+K.ease(p)   K.arrive(T, t0, dur?)   K.fade(el, a, rise?)
+```
+Give an `<svg>` a viewBox about 340 wide, `width="100%"`, `role="img"` and an `aria-label` that
+follows the state. Text 13-16 units, never under 12 (a phone shows 340 units at about 0.9x). A
+row of N labels gets about 300/N units each; label only what differs. Every label sits on, or
+points to, something drawn. `K.labels` places labels (13 units unless `size`) clear of other
+text, the edges and the lines or shapes in `avoid`: use it for labels that move or appear later.
+Put an angle's label inside its wedge, beyond the arc, hidden while the wedge is too narrow.
+`K.stage` fits the pair in `max` px (600) on a phone; `beside: false` keeps it stacked.
+
+Draw the mechanism as it physically works. If the explanation gives a reason (X because Y), draw
+Y so Dan can watch it; parts that fit are drawn fitting (teeth in teeth), never two identical
+icons joined by a line; whatever the rule says happens (slides, grips, multiplies) happens on screen.
+
+### Colour
+Colour carries meaning. Use these roles as `var(--k-…)` or `K.color('fill2')` (`K.color('accent2',
+0.3)` is see-through); a colour name fails the test.
+- Lines and text: `ink`, `muted` (secondary, comparisons), `accent2` (navy: the main thing,
+  controls), `accent` (teal: small labels, a second series), `warn` (red: warnings and mistakes
+  only), `good` (green: "done" only), `amber-line` (amber lines that must stand out).
+- Fills: `bg` (page), `panel`, `sunk`, `amber` (note box), `hl` (key-term highlighter), `fill1`
+  (area of the main thing), `fill2` (highlighted area, amber), `fill3` (area of a second thing).
+- `cat1`-`cat4` (blue, orange, magenta, aqua): telling equal things apart, never meaning; with a
+  key or labels; cat1 and cat2 first. A thing with a familiar colour (water, fire) never gets
+  another thing's colour: use the nearest role and label it. What is still there stays solid:
+  mark a state such as unused with a label, not by fading it, and key any dashed style.
+- Also `--k-line`, `--k-strong` (borders), `--k-on-accent2` (text on navy), `--k-font`, `--k-r` (radius).
+
+Never describe colours by lightness or hue in words Dan reads ("the dark square"): dark mode
+changes them.
+
+Classes: `muted`, `small`, `k-label` (small teal caps), `term` (key term), `note` (amber box),
+`warn-note`, `panel`, `row`, `grid2`, `big`, `k-btn` (`secondary`), and a legend:
+`<div class="key"><span><i class="swatch" style="background:var(--k-accent2)"></i>Your push</span>
+<span><i class="swatch line dash" style="color:var(--k-muted)"></i>The limit</span></div>`.
+
+### Rules for a great interactive
+- One idea. The answer to Dan's prediction shows within about 3 seconds of his first move (add
+  a K.check that it does). Include something Dan causes and a case that surprises. One or two
+  controls, three at most.
+- Phone first: nothing wider than 340 px, no fixed widths over 300 px, rows wrap, no hover-only
+  information, tap targets at least 44 px. Size tiles and grid columns in rem (`minmax(6rem,
+  1fr)`): text grows a quarter at Text size XL, and no word may split across two lines.
+- Every number shown is a control, computed by the rule shown, a constant from the lesson, an
+  example value named once in the lead, or a date from the lesson. Never invent data, rates or chances.
+- The `.say` sentence describes what is on screen now, plainly and warmly, and reads right at the
+  extremes ("none of the 100"). Never claim Dan did something ("When you slid it to 20"):
+  describe the state, or write conditionally ("Push it past 20 and…").
+- 3-5 `K.check` known answers worked out by hand: an edge case, a shape fact (rises, halves,
+  always last), and one answer from outside your formula. `source` may ONLY be a URL from the
+  lesson's own sources, and only on a check whose label restates what that source's quote says;
+  a result of your rule, or a fact about your drawing, takes none. Compare numbers with
+  `K.near(a, b, tol)`: tolerance about a millionth of the size, a thousandth where rounding meets roots.
+- `K.anim` for motion, never timers: soft, unhurried, nothing popping in. Parts arrive about 0.6
+  s apart by `K.fade(el, K.arrive(T, t0))`; travel and growth use `K.ease`; a demonstration takes
+  3-5 s. No `vh` units, `position: fixed` or `height: 100%`.
+- Ideas without numbers (mechanism, process, structure, history, concept): prefer a timeline
+  slider, a named choice, a sorter or a drag; use `K.stepper` only when every step changes the
+  drawing. Checks assert order and structure facts.
+- A timeline runs forward: a slider rising left to right, its `fmt` showing the date (−500 as
+  "500 BC"), or a stepper of named events in order. A lesson's calendar-year control keeps its
+  range, its `fmt` showing the year; years after the first date are for new controls. Each dated
+  event appears as he reaches its date.
+
+### The self-test
+Before Dan sees it, the app loads your body 340, 720 and 1040 px wide, runs every check, moves
+every control, button, animation and drag, reveals the after-move parts, and looks again at Text
+size XL and in the other theme. It fails on an exception, NaN or undefined on the page, an update
+over 150 ms, sideways overflow, text cut off or over other text, SVG text under 11 px on a phone,
+a line or arrowhead through a label, text under 3:1 contrast with what is behind it, a colour
+name, a blank hole until a move, or no `K.ready()`.
+
+### Example
+```html
+<p class="lead">Lengthen the string and watch each swing take longer.</p>
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+<p class="caption">Small swings only; g = 9.81 m/s² is gravity at the Earth's surface.</p>
+<script>
+  const g = 9.81;
+  const period = (L) => 2 * Math.PI * Math.sqrt(L / g);
+  K.control({ id: 'L', label: 'String length', min: 0.1, max: 3, step: 0.05, value: 1, unit: 'm', snap: [2], into: '#controls' });
+  K.stage('#plot', '#controls');
+  K.readout({ id: 'T', label: 'One full swing takes', unit: 's', decimals: 2, into: '#outs' });
+  const plot = K.plot('#plot', { x: { min: 0, max: 3, label: 'Length (m)' }, y: { min: 0, max: 4, label: 'Period (s)' } });
+  K.model((p) => ({ T: period(p.L) }));
+  K.update((p, o) => {
+    plot.draw({ series: [{ fn: period }], marks: [{ x: p.L, y: o.T, guides: true }] });
+    document.getElementById('say').textContent = !K.moved ? 'Make the string four times longer: how much longer is each swing?'
+      : 'A ' + K.fmt(p.L, { decimals: 2 }) + ' m string swings there and back every ' + K.fmt(o.T, { decimals: 2 }) + ' s. Four times the length only doubles that.';
+  });
+  K.check('No length, no swing time', () => K.near(period(0), 0));
+  K.check('A seconds pendulum (2 s per swing) is 0.994 m long', () => K.near(period(0.994), 2, 0.002),
+    { source: 'https://en.wikipedia.org/wiki/Seconds_pendulum' });
+  K.check('Four times the length doubles the period', () => K.near(K.at({ L: 2 }).T / K.at({ L: 0.5 }).T, 2, 1e-9));
+  K.ready();
+</script>
+```
+
+
+## The body that failed
+The body you just wrote (/home/user/Study-App/build/electrical/transformers/i3.body1.x.html). You already have it; it is not repeated here. Return the complete corrected body.
+
+## Output
+Return ONLY the complete corrected body: HTML elements, an optional <style>, then one inline <script> that ends with K.ready(). No <html>, <head> or <body> tags, no markdown fences, no commentary before or after. Keep it under 40 KB.
+
+## Typed answers (every ready-made course from 28 Oct)
+
+Dan works each puzzle on paper, then types his answer (Dan, 27-28 Oct). So a DO puzzle whose answer
+is a figure (a number with at most a unit: "0.70 V", "24 m²", "9.26 V") is typed into a field,
+never picked from options. Options stay for answers in words, a direction, an expression
+("4i − 2j"), an order, or where choosing between named things is the skill being taught ("Which
+pole leaks?"). Never write "About" in a typed answer: give the figure to the places you want.
+
+```
+K.answer({id, label?, unit, answer, decimals?, tolerance?, accept?, slips?, into, onCheck?, onEnter?})
+    -> {el, input, check(), result, right(), missed(), reveal(), reset(), set(text)}
+K.answer.grade(text, spec) -> {state: 'right'|'wrong'|'empty'|'unreadable', value, accepted?, slip?, hint?}
+```
+
+- A decimal-keypad field with the unit beside it. `answer` is the lesson's figure, worked from the
+  rounded figures the lesson shows; it is accepted within half a unit in its last place
+  (`decimals`, default 2: give `decimals: 0` for a whole number, 1 for "0.7"). `accept: [13.32]`
+  adds the answer worked from unrounded figures. A unit typed after the number ("0.70 V") is fine.
+- The wrong options you would have offered become `slips`: `[{value: 0.07, hint: 'That is 7 mΩ
+  read as 0.7 Ω. Milli is a thousandth.'}]`, each with the hint that names the mistake.
+- Your Check button calls `a.check()` (Enter does too); never grade as he types (the app's
+  calculator can type its result into the field for him). Write the feedback from `a.result`:
+  right, "That's it." and Continue; wrong, the slip's hint (`r.hint`) or the step's one-line hint,
+  and the field kept for another go; after two wrong tries, the working (Why?) and `a.reveal()`,
+  then Continue. Continue only once `a.right()` (a revealed answer counts).
+- Give each field its own `id` (the step's name in a few letters is fine).
+- Nothing on screen gives the answer before it is checked: a readout that would show the figure
+  shows "?" until then.
+- STEPS: the typed step keeps `want`, the answer as printed with its unit ('0.70 V'). The lesson's
+  read-through, its Book chapter and its problem set (the app asks it again, typed) read it.
+- The self-test grades every field: its answer and each accepted one right (with the unit too),
+  a near miss and each slip refused, and the answer typed into the field and checked on its step.
+- A worked example of the field in use: docs/courses/electrical/design-and-verification/i2.body.final.html.

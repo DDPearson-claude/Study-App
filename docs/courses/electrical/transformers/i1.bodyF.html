@@ -1,0 +1,1065 @@
+<!-- kind: mechanism -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.08rem; font-weight: 400; line-height: 1.6; }
+  .scene { display: block; width: 100%; max-width: 24rem; margin-inline: auto; touch-action: pan-y; }
+  /* Field lines and rings are the main thing (navy); the lines a hoop catches light up in amber. */
+  .scene .ring, .scene .fl { fill: none; stroke: var(--k-accent2); stroke-width: 1.5; }
+  .scene .fl.lit { stroke: var(--k-amber-line); stroke-width: 2.6; }
+  .scene .ah { fill: var(--k-accent2); }
+  .scene .wire { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 2; }
+  .scene .cond { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.6; }
+  .scene .dotc { fill: var(--k-ink); }
+  .scene .xc { fill: none; stroke: var(--k-ink); stroke-width: 1.8; stroke-linecap: round; }
+  /* A compass: its case, and a needle whose filled end points along the field. */
+  .scene .case { fill: var(--k-bg); stroke: var(--k-muted); stroke-width: 1.2; }
+  .scene .case.lit { stroke: var(--k-amber-line); stroke-width: 3; }
+  .scene .nN { fill: var(--k-ink); }
+  .scene .nS { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1; }
+  .scene .nN.off { fill: var(--k-muted); }
+  .scene .nS.off { stroke: var(--k-muted); }
+  .scene .nN.bad { fill: var(--k-warn); }
+  .scene .nS.bad { stroke: var(--k-warn); }
+  .scene .pin { fill: var(--k-ink); }
+  .scene .ask { font: 700 15px var(--k-font); fill: var(--k-muted); }
+  /* The right hand, in its own small panel. */
+  .scene .panelr { fill: var(--k-panel); stroke: var(--k-line); stroke-width: 1; }
+  .scene .ttl { font: 700 13px var(--k-font); fill: var(--k-ink); }
+  .scene .gwire { stroke: var(--k-ink); stroke-width: 2.5; stroke-linecap: round; }
+  .scene .gwire.off { stroke: var(--k-muted); }
+  .scene .ghead { fill: var(--k-ink); }
+  .scene .fist { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.5; stroke-linejoin: round; }
+  .scene .knuck { stroke: var(--k-ink); stroke-width: 1; }
+  .scene .curl { fill: none; stroke: var(--k-accent2); stroke-width: 2; }
+  .scene .curlb { fill: none; stroke: var(--k-accent2); stroke-width: 1.5; stroke-dasharray: 3 3; }
+  .scene .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .key { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .pill { fill: var(--k-bg); stroke: var(--k-line); stroke-width: 1; }
+  .scene .pole { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.5; }
+  .scene .poleT { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  .scene .hoop { fill: none; stroke: var(--k-ink); stroke-width: 3.5; }
+  .scene .hoopk { fill: none; stroke: var(--k-ink); stroke-width: 2; }
+  .scene .refl { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 4 3; }
+  .scene .arc, .scene .dim { fill: none; stroke: var(--k-muted); stroke-width: 1.5; }
+  .scene .turn { fill: none; stroke: var(--k-strong); stroke-width: 6; }
+  .scene .turnb { fill: none; stroke: var(--k-line); stroke-width: 3; }
+  .scene .big { font: 700 28px var(--k-font); fill: var(--k-muted); }
+  .scene .keyl { stroke: var(--k-accent2); stroke-width: 1.5; }
+  .scene .keyl.lit { stroke: var(--k-amber-line); stroke-width: 2.6; }
+  .scene #hoopUI, .scene #needleUI { cursor: grab; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-inline: 16px; font-size: .95rem; white-space: nowrap; }
+  /* Short answers sit two to a row; long ones one to a row. Words never split. */
+  .picks { display: grid; grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr)); gap: 8px; }
+  .picks.long { grid-template-columns: minmax(0, 1fr); }
+  .picks .k-btn { min-height: 48px; font-size: 1.05rem; white-space: normal; overflow-wrap: normal; word-break: normal; hyphens: none; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .answers .k-answer { max-width: 20rem; }
+  .fb { font-weight: 700; min-height: 1.5em; }
+  .fb.right { color: var(--k-good); }
+  .why, .done { line-height: 1.6; }
+  /* On Loop the turns slider keeps its place, greyed, so nothing below it jumps when the coil appears. */
+  .ctl.off { opacity: .45; pointer-events: none; }
+  .done .row { margin-top: 14px; }
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }
+</style>
+
+<p class="lead">A wire carrying a current, seen end-on, then bent into a loop and a coil, with a hoop to hold in the coil's field. Every value is an example. Inside the coil the density is 5&nbsp;mT, and each line the hoop catches is 1&nbsp;µWb.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <div class="k-controls ctl" id="c-mode"></div>
+    <svg class="scene" id="scene" viewBox="0 0 340 316" width="100%" role="img" aria-label=""><g id="art"></g><g id="ui"><g id="needleUI" style="display:none"></g><ellipse id="hoopUI" class="hoop" cx="110" cy="140" rx="5" ry="35" style="display:none"></ellipse></g></svg>
+    <div class="replay" id="replay"></div>
+    <div class="k-controls ctl" id="c-hoop"></div>
+    <div class="k-controls ctl" id="c-cur"></div>
+    <div class="k-controls ctl" id="c-turns"></div>
+    <div class="k-controls ctl" id="c-dist"></div>
+    <div class="k-controls ctl" id="c-tilt"></div>
+    <div class="k-controls ctl" id="c-pos"></div>
+    <div class="k-controls ctl" id="c-size"></div>
+    <div class="k-readouts" id="outs"></div>
+    <div class="picks" id="picks"></div>
+    <div class="answers" id="answers"><div id="ans-wide"></div><div id="ans-far"></div><div id="ans-tilt"></div></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p id="finish"></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption"><span id="cap-line">Each line drawn is 1&nbsp;µWb. </span>Near a long straight wire, the density in mT is 0.2 × amps ÷ mm.</p>
+
+<script>
+  // ================= the rules =================
+  const strip = (s) => s.replace(/\[\^\d+\]/g, '');
+  const NB = ' ';
+  // Round a long straight wire in air: B = μ₀ I ÷ 2πr, μ₀ = 4π × 10⁻⁷ T m/A. With B in mT and r in mm,
+  // μ₀ ÷ 2π comes to 0.2: flux density in mT = 0.2 × current in A ÷ distance in mm.
+  const MU0 = 4 * Math.PI * 1e-7;
+  const WIRE_K = MU0 / (2 * Math.PI) * 1e3 * 1e3;
+  const wireB = (amps, mm) => WIRE_K * Math.abs(amps) / mm;
+  // A hoop: flux in µWb = density (mT, so × 0.001 for T) × area (m²) × cos of the tilt from square-on.
+  const rad = (deg) => deg * Math.PI / 180;
+  const fluxOf = (B, area, tilt) => B * 1e-3 * area * Math.cos(rad(tilt)) * 1e6;
+  const B_IN = 5;                               // mT inside the coil while the hoop is in it (an example setting)
+  const U_B = 8, U_A = 0.003, U_TILT = 60;      // the last hoop puzzle's example field, hoop and tilt
+  const SRC1 = 'https://phys.libretexts.org/Bookshelves/University_Physics/Physics_(Boundless)/21%3A_Magnetism/21.1%3A_Magnetism_and_Magnetic_Fields';
+  const SRC2 = 'https://labs.phys.utk.edu/mbreinig/phys222core/modules/m4/magnetic%20fields.html';
+  const SRC3 = 'https://www.khanacademy.org/science/ap-physics-2/x0e2f5a2c:magnetism-and-electromagnetism';
+  const SRC4 = 'https://labs.phys.utk.edu/mbreinig/phys222core/modules/m4/magnetic%20fields.html';
+
+  // A number as the lesson writes it: no trailing zeros ("0.4", "10", "8.7").
+  function trim(v, dp) {
+    const p = Math.pow(10, dp);
+    let s = (Math.round(v * p) / p).toFixed(dp);
+    if (dp > 0) s = s.replace(/0+$/, '').replace(/\.$/, '');
+    return s === '-0' ? '0' : s;
+  }
+  const uWb = (v) => trim(v, 1) + NB + 'µWb';
+  const mTx = (v, dp) => trim(v, dp) + NB + 'mT';
+  const ease01 = (p) => K.ease(K.clamp(p, 0, 1));
+  const r1 = (v) => Math.round(v * 10) / 10;
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+
+  // ================= the drawing's sizes =================
+  const W = 340, CX = 170, Y0 = 140;
+  const H_FIELD = 316, H_HOOP = 282, H_UNI = 282, H_END = 200, FIELD_Y1 = 274;
+  // The wire end-on: 2.3 px a millimetre; eight needles 20 mm out; rings drawn from 4.5 to 56 mm.
+  const PXMM = 2.3, RING_MM = 20, RMIN = 4.5, RMAX = 56;
+  // The loop and the coil, cut through: each turn 110 px across, the coil 150 px long whatever its turns.
+  const CA = 55, COIL_L = 150, RC = 7;
+  // The coil the hoop sits in: 6 turns, its middle at x = 110, a line every 7 px inside (1 µWb a line).
+  const HMID = 110, HFAR = 318, HS = 7, HK = [-11, 10], HROW = 86;
+  const HOOP_TURNS = [40, 68, 96, 124, 152, 180];
+  // The last hoop puzzle: a line every 9 px; its 0.003 m² hoop is 216 px long (24 lines square-on).
+  const U_S = 9, U_K = [-12, 12], U_L = 216;
+  // Inside the hoop's coil the lines run straight; past its ends they spread (a sketch), so the density falls.
+  function spread(x) { const d = Math.max(0, Math.abs(x - HMID) - 40); return 1 + (d / 97) * (d / 97); }
+  function hoopX(pos) { return HMID + (HFAR - HMID) * pos / 100; }
+  function densAt(x) { return B_IN / spread(x); }
+
+  // ================= the lesson: SHOW screens demonstrate, DO screens are puzzles =================
+  // enter: the picture a screen opens on; end: where its demonstration finishes; ctl: the controls
+  // it shows; demo(t): the demonstration at t seconds; run / runFn / runEnd: what a right answer plays.
+  const STEPS = [
+    { show: true, name: 'Round a wire', ctl: ['cur'], enter: { mode: 'wire', cur: 0 }, end: { cur: 10 }, dur: 3.6, gripAt: 0.4,
+      demo: (t) => { X.cur = 10 * ease01((t - 0.4) / 2.0); },
+      text: strip('A current makes a *magnetic field*. Here you see a wire end-on. The cross is the tail of the current\'s arrow, going away from you. A dot would be its point, coming towards you. Compass needles round the wire line up in circles centred on it.[^1] Grip the wire in your right hand with your thumb along the current. Your fingers curl the way the field goes. Drag the current down through zero. The rings fade to nothing, then come back turning the other way.'),
+      read: 'With the current into the page, the needles line up in clockwise circles centred on the wire. At zero current the wire makes no field. Reverse the current, and the rings turn the other way.',
+      still: () => setStill({ mode: 'wire', cur: 10 }) },
+    { kind: 'pick', name: 'Above the wire', ask: 'above', enter: { mode: 'wire', cur: 10 }, run: 1.0, slipRun: 0.5,
+      task: 'The current flows into the page, away from you. Which way does the needle just above the wire point?',
+      opts: ['Towards the wire', 'To the right', 'To the left', 'Away from the wire'], want: 'To the right',
+      hint: 'Point your right thumb into the page and follow your fingers.',
+      hints: { 'Towards the wire': 'The field runs round the wire in rings. It never points at the wire.',
+        'To the left': 'Point your right thumb into the page. Your fingers curl clockwise. Above the wire, they point right.',
+        'Away from the wire': 'Rings, not spokes. The needle lies along its ring.' },
+      why: 'Point your right thumb along the current, into the page. Your fingers curl clockwise as you look. At the top of a clockwise ring, the field points right. The needle lies along it.',
+      read: 'The current flows into the page. Which way does the needle just above the wire point?' },
+    { show: true, name: 'A loop, then a coil', ctl: ['mode', 'turns', 'cur'], enter: { mode: 'loop', cur: 0, turns: 6 }, end: { mode: 'coil', cur: 10, turns: 6 }, dur: 3.2, xfade: 2.1,
+      demo: (t) => { X.cur = 10 * ease01((t - 0.4) / 1.4); X.mode = t < 2.1 ? 'loop' : 'coil'; },
+      text: strip('Switch to a loop, cut through and seen side-on. Its current comes out at the top and goes in at the bottom. Inside the loop, the rings from both sides point the same way, so they add. Add turns to make a coil. The rings join into lines through the middle and round the outside, like a bar magnet\'s field.[^2] Curl your right fingers along the current in the turns. Your thumb points to the north end, where the lines leave. More turns or more current crowd the lines closer.'),
+      read: 'Inside a loop, the rings from its two sides add. A coil\'s rings join into a bar magnet\'s field. The lines leave from its north end. More turns or more current crowd them closer.',
+      still: () => setStill({ mode: 'coil', turns: 6, cur: 10 }) },
+    { kind: 'pick', name: 'Which end?', pic: 'end', run: 2.0,
+      task: 'You look at one end of a coil. The current runs round it anticlockwise as you look. Is that end north or south?',
+      opts: ['South', 'North', 'Neither: only a bar magnet has poles'], want: 'North',
+      hint: 'Curl your right fingers the way the current runs.',
+      hints: { 'South': 'Curl your right fingers anticlockwise as you look. Your thumb points at you, out of this end.',
+        'Neither: only a bar magnet has poles': 'A coil\'s lines leave one end and go back in at the other, as a bar magnet\'s do.' },
+      why: 'Curl your right fingers the way the current runs, anticlockwise as you look. Your thumb points out of the coil towards you. The lines leave that end, so it is north.',
+      read: 'You look at one end of a coil. The current runs round it anticlockwise. Is that end north or south?' },
+    { show: true, name: 'Flux through a hoop', ctl: ['hoop'], enter: { mode: 'coil', hoop: true, size: 0.002, tilt: 0, pos: 0 }, end: {}, dur: 3.2, hoopAt: 0.4, count: [1.0, 0.17],
+      demo: () => {},
+      text: strip('Now hold a hoop inside the coil, square-on to the lines. The *flux*, Φ, is how much field threads it.[^3] It is measured in webers, Wb. Say each line drawn stands for 1 µWb, a millionth of a weber. This 0.002 m² hoop catches 10 lines, so 10 µWb. The *flux density*, B, is how crowded the lines are. It is the flux through each square metre, square-on. It is measured in teslas, T. Here B = 10 µWb ÷ 0.002 m² = 0.005 T, which is 5 mT.'),
+      read: 'A 0.002 m² hoop, square-on inside the coil, catches 10 lines. That is 10 µWb. The flux density is 10 µWb ÷ 0.002 m² = 5 mT.',
+      still: () => setStill({ mode: 'coil', hoop: true, size: 0.002, tilt: 0, pos: 0 }) },
+    { kind: 'typed', name: 'A wider hoop', ans: 'wide', enter: { mode: 'coil', hoop: true, size: 0.002, tilt: 0, pos: 0 }, run: 1.4,
+      runFn: (t) => { X.size = 0.002 + 0.002 * ease01((t - 0.2) / 1.0); }, runEnd: { size: 0.004 },
+      answer: 20, decimals: 0, unit: 'µWb', want: '20' + NB + 'µWb',
+      slips: [{ value: 10, hint: 'The field is the same, but a wider hoop catches more of it. Flux is density times area.' },
+        { value: 20000, hint: '5 mT is 0.005 T, not 5 T.' },
+        { value: 0.02, hint: 'That is in milliwebers. The box is in microwebers.' }],
+      task: 'Swap in a wider hoop, 0.004 m², square-on in the same 5 mT. What flux threads it?',
+      hint: 'Multiply the density in teslas by the area in square metres.',
+      why: 'Flux is density times area. 0.005 T × 0.004 m² = 0.000' + NB + '02 Wb, which is 20 µWb. Twice the area catches twice the flux at the same density.',
+      read: 'A 0.004 m² hoop sits square-on in the same 5 mT. What flux threads it?' },
+    { show: true, name: 'Tilt the hoop', ctl: ['tilt', 'pos', 'size'], enter: { mode: 'coil', hoop: true, size: 0.002, tilt: 0, pos: 0 }, end: { tilt: 60 }, dur: 3.0,
+      demo: (t) => { X.tilt = 60 * ease01((t - 0.5) / 2.1); },
+      text: strip('Tilt the hoop. Its face now shows the lines a smaller area. Fewer lines thread it. At 60°, that area is cos 60° = 0.5 of the hoop. So the flux halves to 5 µWb. Edge-on, at 90°, it catches none. The field has not changed. Its density there is still 5 mT. So flux = B × area × cos of the tilt. Now drag the hoop out past the coil\'s end. The lines spread out there. So the density falls, and the flux falls with it.'),
+      read: 'Tilted 60°, the hoop catches 5 µWb, half as much. The density stays 5 mT. Past the coil\'s end, the lines spread, so the density and the flux both fall.',
+      still: () => setStill({ mode: 'coil', hoop: true, size: 0.002, tilt: 60, pos: 0 }) },
+    { kind: 'pick', name: 'What the field did', enter: { mode: 'coil', hoop: true, size: 0.002, tilt: 60, pos: 0 }, hideDens: true, run: 0.6,
+      task: 'Tilting the hoop drops its flux from 10 µWb to 5 µWb. What has the coil\'s field done?',
+      opts: ['It has halved, to 2.5 mT', 'Nothing: the hoop catches less of the same field', 'It has turned to follow the hoop'], want: 'Nothing: the hoop catches less of the same field',
+      hint: 'Ask what the coil has changed.',
+      hints: { 'It has halved, to 2.5 mT': 'The coil\'s current and turns are the same, so its field is too. Only the hoop moved.',
+        'It has turned to follow the hoop': 'The coil sets its field\'s lines. The hoop only catches them.' },
+      why: 'Flux belongs to the hoop. It is how much field threads the hoop. The field belongs to the coil. Tilted, the hoop shows the lines a smaller face. So it catches less of the same 5 mT.',
+      read: 'Tilting the hoop drops its flux from 10 µWb to 5 µWb. What has the coil\'s field done?' },
+    { show: true, name: 'Out from the wire', ctl: ['dist', 'cur'], needle: true, enter: { mode: 'wire', cur: 20, dist: 10 }, end: { dist: 20 }, dur: 3.0,
+      demo: (t) => { X.dist = 10 + 10 * ease01((t - 0.6) / 2.0); },
+      text: strip('Back to the straight wire. Its flux density grows in step with the current. It falls in step with the distance. A ring twice as far out is twice as long. So the same field is spread twice as thin. In air, B = μ₀ I ÷ 2πr.[^4] Here μ₀ is the magnetic constant, 4π × 10⁻⁷ T m/A. With B in mT and r in mm, μ₀ ÷ 2π comes to 0.2. At 20 A and 10 mm, B = 0.2 × 20 ÷ 10 = 0.4 mT. Drag the needle out to 20 mm, and the density halves to 0.2 mT.'),
+      read: 'With 20 A flowing, the flux density 10 mm from the wire is 0.4 mT. At 20 mm it is half that, 0.2 mT.',
+      still: () => setStill({ mode: 'wire', cur: 20, dist: 20 }) },
+    { kind: 'typed', name: 'Four times as far', ans: 'far', needle: true, enter: { mode: 'wire', cur: 20, dist: 10 }, run: 2.0,
+      runFn: (t) => { X.dist = 10 + 30 * ease01((t - 0.2) / 1.6); }, runEnd: { dist: 40 },
+      answer: 0.1, decimals: 2, unit: 'mT', want: '0.10' + NB + 'mT',
+      slips: [{ value: 0.025, hint: 'That answer falls with the square of the distance, as light does. Round a long wire, the field falls in step with distance. Four times as far is a quarter as strong.' },
+        { value: 0.4, hint: 'That is the density at 10 mm. Further out, the rings thin.' },
+        { value: 1.6, hint: 'Further out the density falls, not rises.' }],
+      task: 'The same 20 A wire. What is the flux density 40 mm from it?',
+      hint: 'Use 0.2 × current in A ÷ distance in mm.',
+      why: '0.2 × 20 ÷ 40 = 0.1 mT. 40 mm is four times as far as 10 mm. So the density is a quarter of 0.4 mT.',
+      read: 'A wire carries 20 A. What is the flux density 40 mm from it?' },
+    { kind: 'typed', name: 'A tilted hoop', ans: 'tilt', pic: 'uni', hideFlux: true, run: 1.0,
+      answer: 12, decimals: 0, unit: 'µWb', want: '12' + NB + 'µWb',
+      slips: [{ value: 24, hint: 'That is the flux square-on. Tilted, the hoop shows the lines a smaller face.' },
+        { value: 20.8, hint: 'That used sin 60°. Square-on is 0°, so the face shrinks by cos 60° = 0.5.' },
+        { value: 12000, hint: '8 mT is 0.008 T, not 8 T.' }],
+      task: 'A hoop of 0.003 m² sits in an 8 mT field, tilted 60° from square-on. What flux threads it?',
+      hint: 'Density × area × cos of the tilt.',
+      why: 'Square-on, 0.008 T × 0.003 m² = 0.000' + NB + '024 Wb, which is 24 µWb. Tilted 60°, the hoop catches cos 60° = 0.5 of that, so 12 µWb.',
+      read: 'A 0.003 m² hoop sits in an 8 mT field, tilted 60° from square-on. What flux threads it?' },
+    { kind: 'pick', name: 'Reverse the current', enter: { mode: 'coil', cur: 10, turns: 6 }, run: 2.2,
+      runFn: (t) => { X.cur = 10 - 20 * ease01((t - 0.2) / 1.8); }, runEnd: { cur: -10 },
+      task: 'You reverse the current in a coil. What happens to its field?',
+      opts: ['Nothing: the winding fixes which end is north', 'Its north and south ends swap', 'It stays the same way round, only weaker'], want: 'Its north and south ends swap',
+      hint: 'Grip the coil again with the current reversed.',
+      hints: { 'Nothing: the winding fixes which end is north': 'The grip follows the current. Reverse it, and your thumb points the other way.',
+        'It stays the same way round, only weaker': 'The same current, reversed, makes the same strength of field, turned round.' },
+      why: 'The field turns round with the current. The rings round the wire did the same through zero. Curl your fingers the new way, and your thumb points out of the other end. So north and south swap.',
+      read: 'You reverse the current in a coil. What happens to its field?' },
+  ];
+  const FINISH = 'A current wraps rings of field round its wire, and your right-hand grip gives their way. A coil gathers them into a bar magnet\'s field, with north where the lines leave. *Flux* is how much of that field threads a hoop: density × area × cos of the tilt. Every contactor, relay and solenoid coil works by this field. Slide an iron core into the coil, and the same current makes far more flux. Why it does comes next.';
+
+  // ================= state =================
+  const BASE = { mode: 'wire', cur: 10, turns: 6, hoop: false, dist: 10, pos: 0, tilt: 0, size: 0.002 };
+  const X = Object.assign({}, BASE);              // what the picture shows now
+  const blank = () => ({ pick: null, res: null, why: false, tries: 0, hint: '' });
+  let S = STEPS.map(blank);
+  const solved = (st) => !!st && (st.res === 'right' || st.res === 'shown');
+  let T = Infinity, motionEnd = 0, scripted = false, lastStep = -1, finished = false, lastDone = false;
+  let REC = { said: [] };
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  const quiet = () => REDUCE || testing();
+  const el = (id) => document.getElementById(id);
+  const arr = (t0, dur) => K.arrive(T, t0, dur);
+
+  // ================= text with amber key terms (built with K.el, never innerHTML) =================
+  function write(node, s) {
+    node.textContent = '';
+    String(s || '').split(/\*([^*]+)\*/).forEach((seg, k) => { if (seg) node.appendChild(k % 2 ? K.el('span', { class: 'term' }, seg) : document.createTextNode(seg)); });
+  }
+
+  // ================= controls =================
+  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);
+  // The current's words follow the shape: into or out of the page for the wire. The slider's ends
+  // are written short (made before the words are wanted).
+  let wordy = false;
+  const curFmt = (v) => {
+    if (!wordy) return (v < 0 ? '−' : '') + Math.abs(v) + NB + 'A';
+    if (v === 0) return 'No current';
+    if (X.mode === 'wire') return Math.abs(v) + NB + 'A ' + (v > 0 ? 'into the page' : 'out of the page');
+    return Math.abs(v) + NB + 'A' + (v < 0 ? ', reversed' : '');
+  };
+  const posFmt = (p) => { const x = hoopX(p); return p === 0 ? 'Middle' : x < 172 ? 'Inside the coil' : x <= 196 ? 'At the end' : 'Past the end'; };
+  const CTL = {
+    mode: K.choice({ id: 'mode', label: 'Shape', options: [{ value: 'wire', label: 'Wire' }, { value: 'loop', label: 'Loop' }, { value: 'coil', label: 'Coil' }], value: 'wire', into: '#c-mode' }),
+    hoop: K.toggle({ id: 'hoop', label: 'Hoop', value: false, into: '#c-hoop' }),
+    cur: K.control({ id: 'cur', label: 'Current', min: -20, max: 20, step: 1, value: 10, snap: [-10, 0, 10], fmt: curFmt, into: '#c-cur' }),
+    turns: K.control({ id: 'turns', label: 'Turns', min: 2, max: 10, step: 1, value: 6, into: '#c-turns' }),
+    dist: K.control({ id: 'dist', label: 'Needle from the wire', min: 5, max: 50, step: 1, value: 10, unit: 'mm', snap: [10, 20, 40], into: '#c-dist' }),
+    tilt: K.control({ id: 'tilt', label: 'Tilt', min: 0, max: 90, step: 15, value: 0, fmt: (v) => v === 0 ? '0°, square-on' : v === 90 ? '90°, edge-on' : v + '°', snap: [60], into: '#c-tilt' }),
+    pos: K.control({ id: 'pos', label: 'Hoop along the coil', min: 0, max: 100, step: 1, value: 0, fmt: posFmt, into: '#c-pos' }),
+    size: K.choice({ id: 'size', label: 'Hoop size', options: [{ value: 0.002, label: '0.002' + NB + 'm²' }, { value: 0.004, label: '0.004' + NB + 'm²' }], value: 0.002, into: '#c-size' }),
+  };
+  wordy = true;
+  CTL.cur.set(CTL.cur.get(), true);
+  const CTL_IDS = Object.keys(CTL);
+  const pushed = {};
+  CTL_IDS.forEach((id) => { pushed[id] = CTL[id].get(); });
+  let wordsFor = X.mode;
+  // The page moves the controls itself during a demonstration (silently, so it is not taken for Dan's move).
+  function push() {
+    CTL_IDS.forEach((id) => { if (pushed[id] !== X[id]) { CTL[id].set(X[id], true); pushed[id] = CTL[id].get(); } });
+    if (wordsFor !== X.mode) { wordsFor = X.mode; CTL.cur.set(CTL.cur.get(), true); }
+  }
+  const shownCtl = (d, id) => !finished && !!d.ctl && d.ctl.indexOf(id) >= 0 && (id !== 'turns' || X.mode === 'coil');
+  // On a screen with the turns slider, Loop keeps it in place but greyed and unusable.
+  let turnsOff = false;
+  function layoutCtl(d) {
+    const off = !finished && !!d.ctl && d.ctl.indexOf('turns') >= 0 && X.mode !== 'coil';
+    CTL_IDS.forEach((id) => { el('c-' + id).hidden = !shownCtl(d, id) && !(id === 'turns' && off); });
+    if (off === turnsOff) return;
+    turnsOff = off;
+    const box = el('c-turns');
+    box.classList.toggle('off', off);
+    box.setAttribute('aria-disabled', off ? 'true' : 'false');
+    box.querySelectorAll('input, button').forEach((c) => { c.disabled = off; });
+    if (!off) CTL.turns.set(CTL.turns.get(), true);
+  }
+
+  const RO = {
+    bNeedle: K.readout({ id: 'bNeedle', label: 'Flux density at the needle', fmt: (v) => mTx(v, 2), into: '#outs' }),
+    flux: K.readout({ id: 'flux', label: 'Flux through the hoop', fmt: uWb, into: '#outs' }),
+    dens: K.readout({ id: 'dens', label: 'Flux density where it sits', fmt: (v) => mTx(v, 1), into: '#outs' }),
+  };
+
+  // Up to four answer buttons; each puzzle fills in its own.
+  const pickBtns = [0, 1, 2, 3].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.kind !== 'pick' || k >= d.opts.length || solved(st)) return;
+    if (st.res === 'wrong') { anim.pause(); T = Infinity; }
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+  // Typed answers: a field each; Check grades it, two misses show the working.
+  const ANS = {};
+  STEPS.forEach((d, i) => {
+    if (d.kind !== 'typed') return;
+    const a = K.answer({ id: 'a-' + d.ans, unit: d.unit, answer: d.answer, decimals: d.decimals, slips: d.slips, into: '#ans-' + d.ans,
+      onCheck: (r) => {
+        const st = S[i];
+        if (solved(st)) return;
+        if (r.state === 'right') { st.res = 'right'; playRun(i, d.run); }
+        else if (r.state === 'wrong') {
+          st.tries += 1; st.hint = r.hint || d.hint;
+          if (st.tries >= 2) { st.res = 'shown'; st.why = true; a.reveal(); playRun(i, d.run); }
+          else st.res = 'wrong';
+        } else { st.res = r.state; st.hint = ''; }
+        K.refresh();
+      } });
+    ANS[d.ans] = a;
+  });
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || solved(st)) return;
+    if (d.kind === 'typed') { ANS[d.ans].check(); return; }
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = st.pick === d.want ? 'right' : 'wrong';
+    playRun(i, st.res === 'right' ? d.run : d.slipRun || 0);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    const d = STEPS[at()];
+    if (d.show || finished) return;
+    S[at()].why = !S[at()].why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    if (!STEPS[at()].show || finished) return;
+    startDemo(at());
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && !solved(S[i]))) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true; anim.pause(); T = Infinity;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(blank); finished = false; lastStep = -1;
+    Object.keys(ANS).forEach((k) => ANS[k].reset());
+    stepper.set(0, true);
+  } });
+
+  // ================= motion: one animation runs each demonstration and each answer's motion =================
+  function finishNow(i) {
+    if (T === Infinity) return;
+    const d = STEPS[i];
+    T = Infinity;
+    if (scripted) { scripted = false; Object.assign(X, d.end || {}); }
+    else if (solved(S[i])) Object.assign(X, d.runEnd || {});
+    push();
+  }
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished || T === Infinity) return false;
+    const i = at(), d = STEPS[i], st = S[i];
+    T += dt;
+    if (scripted) { if (d.demo) d.demo(Math.min(T, d.dur)); }
+    else if (solved(st) && d.runFn) d.runFn(Math.min(T, motionEnd));
+    if (T >= motionEnd) finishNow(i);
+    push();
+    layoutCtl(d);
+    paint(i);
+    return T !== Infinity;
+  } });
+  function startDemo(i) {
+    const d = STEPS[i];
+    anim.pause();
+    Object.assign(X, BASE, d.enter || {});
+    if (d.demo && !quiet()) { scripted = true; motionEnd = d.dur; T = 0; d.demo(0); anim.play(); }
+    else { scripted = false; T = Infinity; Object.assign(X, d.end || {}); }
+    push();
+  }
+  function playRun(i, dur) {
+    anim.pause(); scripted = false;
+    if (quiet() || !dur) { T = Infinity; if (solved(S[i])) Object.assign(X, STEPS[i].runEnd || {}); push(); return; }
+    T = 0; motionEnd = dur; anim.play();
+  }
+  function enterStep(i) {
+    const d = STEPS[i];
+    anim.pause(); T = Infinity; scripted = false;
+    enter('stepbox');
+    if (d.show) { startDemo(i); return; }
+    Object.assign(X, BASE, d.enter || {});
+    if (solved(S[i])) Object.assign(X, d.runEnd || {});
+    push();
+  }
+  // The finished picture a still shows (the read-through), with the controls where its words end.
+  function setStill(x) {
+    const i = at(), d = STEPS[i];
+    anim.pause(); T = Infinity; scripted = false;
+    Object.assign(X, BASE, d.enter || {}, d.end || {}, x);
+    push();
+    K.refresh();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ================= drawing helpers =================
+  const svg = el('scene'), art = el('art'), needleUI = el('needleUI'), hoopUI = el('hoopUI');
+  const add = (node) => art.appendChild(node);
+  const twCache = {};
+  function tw(s) {
+    if (twCache[s]) return twCache[s];
+    let w = 0;
+    try { const t = svg.appendChild(K.svg('text', { class: 'lab', x: 0, y: -50 }, s)); w = t.getComputedTextLength(); svg.removeChild(t); } catch (e) { w = 0; }
+    if (!(w > 0)) return s.length * 7.6;
+    twCache[s] = w;
+    return w;
+  }
+  function pill(x, y, s, par, pad) {
+    const w = tw(s) + (pad == null ? 12 : pad), h = pad == null ? 20 : 18, cx = K.clamp(x, w / 2 + 2, W - w / 2 - 2);
+    const g = (par || art).appendChild(K.svg('g'));
+    g.appendChild(K.svg('rect', { class: 'pill', x: r1(cx - w / 2), y: r1(y - h / 2), width: r1(w), height: h, rx: 6 }));
+    g.appendChild(K.svg('text', { class: 'lab', x: r1(cx), y: r1(y + 4.5), 'text-anchor': 'middle' }, s));
+    return g;
+  }
+  function pole(par, x, y, s) {
+    par.appendChild(K.svg('circle', { class: 'pole', cx: r1(x), cy: r1(y), r: 11 }));
+    par.appendChild(K.svg('text', { class: 'poleT', x: r1(x), y: r1(y + 5), 'text-anchor': 'middle' }, s));
+  }
+  // An arrowhead centred on (x, y), pointing along ang.
+  function head(par, x, y, ang, cls, size, alpha) {
+    const s = size || 5, c = Math.cos(ang), n = Math.sin(ang), bx = x - c * s * 0.8, by = y - n * s * 0.8, w = s * 0.75;
+    const e = par.appendChild(K.svg('path', { class: cls || 'ah', d: 'M' + r1(x + c * s) + ' ' + r1(y + n * s) + 'L' + r1(bx - n * w) + ' ' + r1(by + c * w) + 'L' + r1(bx + n * w) + ' ' + r1(by - c * w) + 'Z' }));
+    if (alpha != null && alpha < 1) e.setAttribute('opacity', r3(alpha));
+    return e;
+  }
+  // A dot (current coming out of the page) or a cross (going into it).
+  function mark(par, x, y, kind, s) {
+    if (kind === 'dot') par.appendChild(K.svg('circle', { class: 'dotc', cx: r1(x), cy: r1(y), r: r1(s * 0.65) }));
+    else if (kind === 'x') par.appendChild(K.svg('path', { class: 'xc', d: 'M' + r1(x - s) + ' ' + r1(y - s) + 'L' + r1(x + s) + ' ' + r1(y + s) + 'M' + r1(x - s) + ' ' + r1(y + s) + 'L' + r1(x + s) + ' ' + r1(y - s) }));
+  }
+  function cond(par, x, y, kind) {
+    par.appendChild(K.svg('circle', { class: 'cond', cx: r1(x), cy: r1(y), r: RC }));
+    mark(par, x, y, kind, 3.6);
+  }
+  // A polyline as a path, broken wherever it leaves the band it is drawn in, or runs into a conductor.
+  function pathD(pts, y0, y1, avoid) {
+    let d = '', pen = false;
+    const clear = (p) => !avoid || avoid.every((c) => Math.hypot(p[0] - c[0], p[1] - c[1]) >= RC + 2.5);
+    for (let k = 0; k < pts.length; k++) {
+      const p = pts[k], ok = p[1] >= y0 && p[1] <= y1 && p[0] >= -6 && p[0] <= W + 6 && clear(p);
+      if (!ok) { pen = false; continue; }
+      d += (pen ? 'L' : 'M') + r1(p[0]) + ' ' + r1(p[1]);
+      pen = true;
+    }
+    return /L/.test(d) ? d : '';
+  }
+  function circlePts(cx, cy, R) {
+    const out = [], step = Math.min(0.12, 5 / R);
+    for (let a = 0; a <= 2 * Math.PI + step; a += step) out.push([cx + R * Math.cos(a), cy + R * Math.sin(a)]);
+    return out;
+  }
+  // A compass: its case and a needle whose filled end points along ang. empty: a "?" (or a slip in red).
+  function needleShape(g, ang, cls) {
+    const n = g.appendChild(K.svg('g', { transform: 'rotate(' + r1(ang * 180 / Math.PI) + ')' }));
+    n.appendChild(K.svg('path', { class: 'nS' + (cls ? ' ' + cls : ''), d: 'M-8.5 0L0 -3.3L0 3.3Z' }));
+    n.appendChild(K.svg('path', { class: 'nN' + (cls ? ' ' + cls : ''), d: 'M8.5 0L0 -3.3L0 3.3Z' }));
+    n.appendChild(K.svg('circle', { class: 'pin', r: 1.2 }));
+  }
+  function compass(par, x, y, ang, o) {
+    const g = par.appendChild(K.svg('g', { transform: 'translate(' + r1(x) + ' ' + r1(y) + ')' }));
+    g.appendChild(K.svg('circle', { class: 'case' + (o.lit ? ' lit' : ''), r: 11 }));
+    if (o.empty) {
+      if (o.slip != null) needleShape(g, o.slip, 'bad');
+      else g.appendChild(K.svg('text', { class: 'ask', x: 0, y: 5.5, 'text-anchor': 'middle' }, '?'));
+      return g;
+    }
+    needleShape(g, ang, o.grey ? 'off' : '');
+    return g;
+  }
+  // The key under the field pictures: a cross and a dot, and a needle or a field line.
+  function keyRows(second) {
+    const y1 = 292, y2 = 310;
+    cond(art, 16, y1 - 5, 'x');
+    add(K.svg('text', { class: 'key', x: 29, y: y1 }, 'into the page'));
+    cond(art, 152, y1 - 5, 'dot');
+    add(K.svg('text', { class: 'key', x: 165, y: y1 }, 'out of the page'));
+    if (second === 'needle') {
+      const g = add(K.svg('g', { transform: 'translate(17 ' + (y2 - 5) + ')' }));
+      needleShape(g, 0, '');
+      add(K.svg('text', { class: 'key', x: 32, y: y2 }, 'filled end points along the field'));
+    } else {
+      add(K.svg('line', { class: 'keyl', x1: 6, y1: y2 - 5, x2: 22, y2: y2 - 5 }));
+      head(art, 23, y2 - 5, 0, 'ah', 5);
+      add(K.svg('text', { class: 'key', x: 34, y: y2 }, 'a field line, pointing the way it runs'));
+    }
+  }
+
+  // ================= the wire, end-on =================
+  // Rings where the field takes the levels 0.05 × √2ⁿ mT: they grow out of the wire as the current
+  // rises, sit closer together near it, and shrink back into it as the current falls to zero.
+  const LEVELS = Array.from({ length: 26 }, (_, k) => 0.05 * Math.pow(2, k / 2));
+  function ringsMm(amps) {
+    const a = Math.abs(amps), out = [];
+    if (!a) return out;
+    LEVELS.forEach((b, k) => { const r = WIRE_K * a / b; if (r >= RMIN && r <= RMAX) out.push({ r, k }); });
+    return out;
+  }
+  const ringAlpha = (r) => K.clamp((r - RMIN) / 1.5, 0, 1) * K.clamp((RMAX - r) / 3, 0, 1);
+  // The way a needle points: along the clockwise ring for a current into the page (anticlockwise
+  // out of it), swinging there from rest (pointing up, grey) as the current grows from zero.
+  function needleAng(x, y, amps) {
+    const target = Math.atan2(y - Y0, x - CX) + (amps >= 0 ? 1 : -1) * Math.PI / 2;
+    const w = Math.min(1, Math.abs(amps) / 2), d = Math.atan2(Math.sin(target + Math.PI / 2), Math.cos(target + Math.PI / 2));
+    return -Math.PI / 2 + w * d;
+  }
+  const SLIP_ANG = { 'Towards the wire': Math.PI / 2, 'To the left': Math.PI, 'Away from the wire': -Math.PI / 2 };
+  // The right-hand grip, in a small panel: thumb along the current, fingers curling with the field.
+  function grip(amps, alpha) {
+    const g = add(K.svg('g', { transform: 'translate(4 4)' }));
+    K.fade(g, alpha, 0);
+    g.appendChild(K.svg('rect', { class: 'panelr', x: 0, y: 0, width: 130, height: 78, rx: 8 }));
+    g.appendChild(K.svg('text', { class: 'ttl', x: 10, y: 20 }, 'Right-hand grip'));
+    const on = amps !== 0, icon = g.appendChild(K.svg('g', amps < 0 ? { transform: 'rotate(180 66 52)' } : {}));
+    if (on) icon.appendChild(K.svg('path', { class: 'curlb', d: 'M28 68A7 16 0 0 1 28 36' }));
+    icon.appendChild(K.svg('line', { class: 'gwire' + (on ? '' : ' off'), x1: 10, y1: 52, x2: on ? 112 : 120, y2: 52 }));
+    if (on) icon.appendChild(K.svg('path', { class: 'ghead', d: 'M122 52L112 47L112 57Z' }));
+    icon.appendChild(K.svg('rect', { class: 'fist', x: 46, y: 37, width: 24, height: 30, rx: 7 }));
+    [52, 58, 64].forEach((x) => icon.appendChild(K.svg('line', { class: 'knuck', x1: x, y1: 40, x2: x, y2: 64 })));
+    icon.appendChild(K.svg('path', { class: 'fist', d: 'M66 39C76 37 86 39 92 44C94 47 92 50 88 50L68 50Z' }));
+    if (on) {
+      icon.appendChild(K.svg('path', { class: 'curl', d: 'M28 36A7 16 0 0 1 28 68' }));
+      icon.appendChild(K.svg('path', { class: 'ghead', d: 'M21 68L29 63.5L29 72.5Z' }));
+    }
+  }
+  function drawWire(d, st) {
+    const amps = X.cur, sol = solved(st), ask = d.ask === 'above', open = ask && !sol;
+    const R = { rings: [], arrows: [], needles: [], top: null, drag: null };
+    const rings = ringsMm(amps), rg = add(K.svg('g'));
+    rings.forEach((q) => {
+      const r = q.r * PXMM, a = ringAlpha(q.r), c = rg.appendChild(K.svg('circle', { class: 'ring', cx: CX, cy: Y0, r: r3(r) }));
+      if (a < 1) c.setAttribute('opacity', r3(a));
+      R.rings.push({ cx: CX, cy: Y0, r });
+    });
+    if (!open && amps) {
+      const ag = add(K.svg('g'));
+      if (ask) K.fade(ag, arr(0.1, 0.6), 0);
+      rings.forEach((q) => {
+        const r = q.r * PXMM, b = rad(22.5 + 45 * (q.k % 8)), x = CX + r * Math.cos(b), y = Y0 + r * Math.sin(b), dir = b + (amps > 0 ? 1 : -1) * Math.PI / 2;
+        head(ag, x, y, dir, 'ah', 5, ringAlpha(q.r));
+        R.arrows.push({ x, y, dir });
+      });
+    }
+    add(K.svg('circle', { class: 'wire', cx: CX, cy: Y0, r: 8 }));
+    mark(art, CX, Y0, amps > 0 ? 'x' : amps < 0 ? 'dot' : null, 4.2);
+    const ring = RING_MM * PXMM;
+    for (let m = 0; m < 8; m++) {
+      if (d.needle && m === 0) continue;   // the needle he drags takes this one's place
+      const b = rad(45 * m), x = CX + ring * Math.cos(b), y = Y0 + ring * Math.sin(b), ang = needleAng(x, y, amps);
+      if (ask && m === 6) {
+        if (open) {
+          const g = add(K.svg('g'));
+          if (st.res === 'wrong' && SLIP_ANG[st.pick] != null) K.fade(g, arr(0, 0.4), 0);
+          compass(g, x, y, 0, { empty: true, slip: st.res === 'wrong' && SLIP_ANG[st.pick] != null ? SLIP_ANG[st.pick] : null });
+        } else { compass(art, x, y, ang, { lit: true }); R.top = { ang }; }
+        continue;
+      }
+      if (open) continue;
+      const g = add(K.svg('g'));
+      if (ask) K.fade(g, arr(0.3, 0.6), 0);
+      compass(g, x, y, ang, { grey: !amps });
+      R.needles.push({ x, y, ang, m });
+    }
+    if (d.needle) {
+      const nx = CX + X.dist * PXMM, ang = needleAng(nx, Y0, amps), live = shownCtl(d, 'dist');
+      needleUI.textContent = '';
+      needleUI.style.display = live ? '' : 'none';
+      compass(live ? needleUI : add(K.svg('g')), nx, Y0, ang, { grey: !amps });
+      const yb = Y0 + 66;
+      add(K.svg('path', { class: 'dim', d: 'M' + CX + ' ' + (yb - 6) + 'V' + (yb + 6) + 'M' + CX + ' ' + yb + 'H' + r1(nx) + 'M' + r1(nx) + ' ' + (yb - 6) + 'V' + (yb + 6) }));
+      pill((CX + nx) / 2, yb + 18, trim(X.dist, 0) + NB + 'mm');
+      R.drag = { mm: X.dist, ang, x: nx };
+    }
+    if (!open) {
+      const a = scripted && d.gripAt != null ? arr(d.gripAt, 0.6) : ask ? arr(0.3, 0.6) : 1;
+      if (a > 0) grip(amps, a);
+    }
+    keyRows('needle');
+    REC.wire = R;
+    REC.said.push(!amps ? 'A wire seen end-on carries no current, so it makes no field: there are no rings, and the needles are grey.'
+      : 'A wire seen end-on carries ' + trim(Math.abs(amps), 0) + ' A ' + (amps > 0 ? 'into' : 'out of') + ' the page. Rings of field circle it, closer together near the wire' +
+        (open ? '. The compass just above the wire is blank.' : ', running ' + (amps > 0 ? 'clockwise' : 'anticlockwise') + ', and the needles lie along them.') +
+        (d.needle ? ' One needle sits ' + trim(X.dist, 0) + ' mm from the wire.' : ''));
+  }
+
+  // ================= the loop and the coil, cut through and seen side-on =================
+  // Each turn shows twice: its top (a dot, for a positive current: coming out of the page) and its
+  // bottom (a cross). A field line is where ψ = Σ ln(distance to a cross ÷ distance to a dot) stays
+  // the same; lines are spaced by equal steps of ψ, so they crowd where the field is strong.
+  function turnsAt(n) { return n === 1 ? [CX] : Array.from({ length: n }, (_, i) => CX - COIL_L / 2 + i * COIL_L / (n - 1)); }
+  function wiresOf(n) { const out = []; turnsAt(n).forEach((x) => { out.push({ x, y: Y0 - CA, s: 1 }, { x, y: Y0 + CA, s: -1 }); }); return out; }
+  function psi(ws, x, y) { let p = 0; for (let k = 0; k < ws.length; k++) p -= ws[k].s * Math.log(Math.hypot(x - ws[k].x, y - ws[k].y)); return p; }
+  function fieldAt(ws, x, y) {
+    let bx = 0, by = 0, m = Infinity;
+    for (let k = 0; k < ws.length; k++) {
+      const w = ws[k], dx = x - w.x, dy = y - w.y, r2 = dx * dx + dy * dy || 1e-9;
+      bx += w.s * dy / r2; by -= w.s * dx / r2;
+      if (r2 < m) m = r2;
+    }
+    return [bx, by, m];
+  }
+  // One line from its seed in the middle of the coil, along the field, to where it comes back
+  // over the top (x = the middle again) or leaves the picture. The other half is its mirror image.
+  function traceHalf(ws, y0) {
+    let x = CX, y = y0, run = 0, closed = false;
+    const pts = [[x, y]];
+    for (let n = 1; n <= 900; n++) {
+      let b = fieldAt(ws, x, y);
+      const h = K.clamp(0.5 * (Math.sqrt(b[2]) - RC), 0.8, 3);
+      let m = Math.hypot(b[0], b[1]) || 1;
+      const xm = x + 0.5 * h * b[0] / m, ym = y + 0.5 * h * b[1] / m;
+      b = fieldAt(ws, xm, ym); m = Math.hypot(b[0], b[1]) || 1;
+      const nx = x + h * b[0] / m, ny = y + h * b[1] / m;
+      if (n > 3 && nx <= CX) { const f = (x - CX) / ((x - nx) || 1); pts.push([CX, y + f * (ny - y)]); closed = true; break; }
+      x = nx; y = ny; run += h;
+      if (x > W + 40 || y < -60 || y > H_FIELD + 60) { pts.push([x, y]); break; }
+      if (run >= 5) { pts.push([x, y]); run = 0; }
+    }
+    return { pts, closed };
+  }
+  // The coil's lines through its middle: turns × current ÷ 10 of them, at equal steps of ψ across
+  // the bore, so they crowd closer in proportion to turns × current. Each fades in at the wall.
+  const lineCache = new Map();
+  function coilLines(n, amps) {
+    const nf = n * Math.abs(amps) / 10;
+    if (!(nf > 0.05)) return [];
+    const key = n + '|' + nf.toFixed(3);
+    if (lineCache.has(key)) return lineCache.get(key);
+    const ws = wiresOf(n), gap = CA - RC - 3, wall = psi(ws, CX, Y0 - gap), D = 2 * wall / nf, out = [];
+    for (let j = 0; (j + 0.5) * D < wall && j < 40; j++) {
+      const lev = (j + 0.5) * D;
+      let lo = Y0 - gap, hi = Y0;
+      for (let k = 0; k < 32; k++) { const mid = (lo + hi) / 2; if (psi(ws, CX, mid) > lev) lo = mid; else hi = mid; }
+      const half = traceHalf(ws, (lo + hi) / 2), left = half.pts.map((p) => [2 * CX - p[0], p[1]]).reverse();
+      out.push({ j, lev, pts: left.concat(half.pts.slice(1)), seed: left.length - 1, closed: half.closed, alpha: K.clamp((wall - lev) / (0.5 * D), 0, 1) });
+    }
+    if (lineCache.size > 80) lineCache.clear();
+    lineCache.set(key, out);
+    return out;
+  }
+  // A single loop: its two sides' rings are circles (equal steps of ψ), each round one side.
+  function loopRings(amps) {
+    const a = Math.abs(amps), out = [];
+    if (!a) return out;
+    const D = 5 / a;
+    for (let j = 0; j < 60; j++) {
+      const lev = (j + 0.5) * D, k = Math.exp(-lev), R = 2 * CA * k / (1 - k * k), off = CA * (1 + k * k) / (1 - k * k);
+      if (R < RC + 3) break;
+      if (R > 2000) continue;
+      out.push({ j, R, off, alpha: K.clamp((R - RC - 3) / 4, 0, 1) });
+    }
+    return out;
+  }
+  // The point where a line crosses x = xa, scanning from its seed, and the way the line runs there.
+  function pointAtX(pts, from, xa) {
+    const p0 = pts[from];
+    if (Math.abs(p0[0] - xa) < 1e-9) { const q = pts[from + 1] || p0; return { x: p0[0], y: p0[1], dx: q[0] - p0[0], dy: q[1] - p0[1] }; }
+    const fwd = xa > p0[0];
+    for (let k = from; fwd ? k + 1 < pts.length : k - 1 >= 0; k += fwd ? 1 : -1) {
+      const a = pts[k], b = pts[fwd ? k + 1 : k - 1];
+      if ((a[0] - xa) * (b[0] - xa) <= 0 && a[0] !== b[0]) {
+        const f = (xa - a[0]) / (b[0] - a[0]);
+        return { x: xa, y: a[1] + f * (b[1] - a[1]), dx: fwd ? b[0] - a[0] : a[0] - b[0], dy: fwd ? b[1] - a[1] : a[1] - b[1] };
+      }
+    }
+    return null;
+  }
+  function fieldInto(g, mode, amps, n, quietRec) {
+    const sg = amps > 0 ? 1 : amps < 0 ? -1 : 0, top = sg > 0 ? 'dot' : sg < 0 ? 'x' : null, bot = sg > 0 ? 'x' : sg < 0 ? 'dot' : null;
+    const F = { lines: [], rings: [], inside: [], N: null, mode };
+    const lg = g.appendChild(K.svg('g')), hg = g.appendChild(K.svg('g')), cg = g.appendChild(K.svg('g'));
+    if (mode === 'loop') {
+      loopRings(amps).forEach((q) => {
+        [-1, 1].forEach((side) => {        // −1: the ring round the top side, +1: round the bottom side
+          const cy = Y0 + side * q.off, s = side < 0 ? sg : -sg;   // s: +1 for a dot (anticlockwise rings)
+          const d = pathD(circlePts(CX, cy, q.R), 4, FIELD_Y1);
+          if (d) { const e = lg.appendChild(K.svg('path', { class: 'fl', d })); if (q.alpha < 1) e.setAttribute('opacity', r3(q.alpha)); }
+          F.rings.push({ cx: CX, cy, R: q.R });
+          const stag = side < 0 ? [-1, 0, 1][q.j % 3] : [-0.5, 0.5, 1.5][q.j % 3], phi = stag * Math.min(0.6, 32 / q.R);
+          [1, -1].forEach((face) => {      // 1: the side facing the middle of the loop; −1: the far side
+            const dyu = -side * face, px = CX + q.R * Math.sin(phi), py = cy + dyu * q.R * Math.cos(phi);
+            const rx = px - CX, ry = py - cy, ang = Math.atan2(-s * rx, s * ry);
+            if (face === 1) F.inside.push(Math.sign(Math.round(Math.cos(ang) * 1e6)));
+            if (py > 8 && py < FIELD_Y1 - 4 && (face === 1 || q.j % 2 === 0)) head(hg, px, py, ang, 'ah', 5, q.alpha);
+          });
+        });
+      });
+      cond(cg, CX, Y0 - CA, top); cond(cg, CX, Y0 + CA, bot);
+    } else {
+      const xs = turnsAt(n), avoid = [];
+      xs.forEach((x) => { avoid.push([x, Y0 - CA], [x, Y0 + CA]); });
+      coilLines(n, amps).forEach((ln) => {
+        [ln.pts, ln.pts.map((p) => [p[0], 2 * Y0 - p[1]])].forEach((pts, half) => {
+          const d = pathD(pts, 4, FIELD_Y1, avoid);
+          if (d) { const e = lg.appendChild(K.svg('path', { class: 'fl', d })); if (ln.alpha < 1) e.setAttribute('opacity', r3(ln.alpha)); }
+          const xa = CX + (half ? [-20, 20, 60] : [-40, 0, 40])[ln.j % 3], pa = pointAtX(pts, ln.seed, xa);
+          let inDir = 0, outDir = null;
+          if (pa) { inDir = Math.sign(pa.dx) * sg; head(hg, pa.x, pa.y, Math.atan2(pa.dy * sg, pa.dx * sg), 'ah', 5, ln.alpha); }
+          if (ln.closed) {
+            const k = pts.length - 1, dx = pts[k][0] - pts[k - 1][0], dy = pts[k][1] - pts[k - 1][1];
+            outDir = Math.sign(dx) * sg;
+            if (ln.j % 2 === 0 && pts[k][1] > 8 && pts[k][1] < FIELD_Y1 - 4) head(hg, pts[k][0], pts[k][1], Math.atan2(dy * sg, dx * sg), 'ah', 5, ln.alpha);
+          }
+          F.lines.push({ inDir, outDir, closed: ln.closed });
+        });
+      });
+      xs.forEach((x) => { cond(cg, x, Y0 - CA, top); cond(cg, x, Y0 + CA, bot); });
+      if (sg) {
+        const right = xs[xs.length - 1] + RC + 18, left = xs[0] - RC - 18;
+        pole(cg, sg > 0 ? right : left, Y0, 'N'); pole(cg, sg > 0 ? left : right, Y0, 'S');
+        F.N = sg > 0 ? 'right' : 'left';
+      }
+    }
+    if (!quietRec) REC.field = F;
+    return F;
+  }
+  function drawFieldPic(d) {
+    const fading = scripted && d.xfade != null && T >= d.xfade, a = fading ? arr(d.xfade, 0.6) : 1;
+    if (fading && a < 1) { const g0 = add(K.svg('g')); K.fade(g0, 1 - a, 0); fieldInto(g0, 'loop', X.cur, 1, true); }
+    const g = add(K.svg('g'));
+    if (fading && a < 1) K.fade(g, a, 0);
+    const F = fieldInto(g, X.mode, X.cur, X.mode === 'loop' ? 1 : X.turns, false);
+    keyRows('line');
+    const amps = X.cur;
+    if (!amps) REC.said.push('The ' + (X.mode === 'loop' ? 'loop' : 'coil') + ', cut through and seen side-on, carries no current, so it makes no field.');
+    else if (X.mode === 'loop') REC.said.push('A loop of wire, cut through and seen side-on: ' + (amps > 0 ? 'a dot at the top and a cross at the bottom' : 'a cross at the top and a dot at the bottom') + '. Rings circle each side, and inside the loop they all point ' + (amps > 0 ? 'right' : 'left') + '.');
+    else REC.said.push('A coil of ' + X.turns + ' turns, cut through and seen side-on. ' + F.lines.length + ' field lines run through its middle to the ' + (amps > 0 ? 'right' : 'left') + ' and back round the outside, leaving from the end marked N.');
+  }
+
+  // ================= the hoop in the coil =================
+  // Inside the coil the lines run straight, one every 7 px; past its ends they spread (a sketch).
+  // A line is caught when it threads the hoop's face, square-on to the lines: |k + ¼| ≤ flux ÷ 2.
+  const litK = (k, flux) => Math.abs(k + 0.25) <= flux / 2 + 1e-9;
+  function setHoop(e, xh, L, tilt) {
+    e.setAttribute('cx', r1(xh)); e.setAttribute('cy', Y0); e.setAttribute('rx', 5); e.setAttribute('ry', r1(L / 2));
+    e.setAttribute('transform', 'rotate(' + r1(tilt) + ' ' + r1(xh) + ' ' + Y0 + ')');
+  }
+  // The tilt: a dashed square-on line below the hoop's middle, an arc to its lower half, and the angle
+  // on a backing in that wedge (shown once the wedge is wide enough to hold it clear of the hoop).
+  function tiltMark(xh, L, tilt) {
+    if (tilt <= 0.5) return;
+    const t = rad(tilt), r = 22;
+    add(K.svg('line', { class: 'refl', x1: r1(xh), y1: Y0, x2: r1(xh), y2: r1(Y0 + L / 2 + 4) }));
+    add(K.svg('path', { class: 'arc', d: 'M' + r1(xh) + ' ' + (Y0 + r) + 'A' + r + ' ' + r + ' 0 0 1 ' + r1(xh - r * Math.sin(t)) + ' ' + r1(Y0 + r * Math.cos(t)) }));
+    if (tilt >= 59.5) pill(xh - 48 * Math.sin(t / 2), Y0 + 48 * Math.cos(t / 2), trim(tilt, 0) + '°', null, 8);
+  }
+  function hoopKey(area) {
+    const y = H_HOOP - 14;
+    add(K.svg('ellipse', { class: 'hoopk', cx: 16, cy: y - 5, rx: 3, ry: 8 }));
+    add(K.svg('text', { class: 'key', x: 27, y }, 'hoop, ' + trim(area, 4) + NB + 'm²'));
+    add(K.svg('line', { class: 'keyl lit', x1: 156, y1: y - 5, x2: 178, y2: y - 5 }));
+    add(K.svg('text', { class: 'key', x: 186, y }, 'lines through it'));
+  }
+  function drawHoop(d, st) {
+    const xh = hoopX(X.pos), B = densAt(xh), flux = fluxOf(B, X.size, X.tilt), L = 70 * X.size / 0.002;
+    const lit = [];
+    for (let k = HK[0]; k <= HK[1]; k++) if (litK(k, flux)) lit.push(k);
+    const shown = scripted && d.count ? Math.max(0, Math.floor((T - d.count[0]) / d.count[1]) + 1) : Infinity;
+    const lg = add(K.svg('g')), litg = add(K.svg('g')), hg = add(K.svg('g'));
+    let litDrawn = 0;
+    for (let k = HK[0]; k <= HK[1]; k++) {
+      const pts = [];
+      for (let x = -6; x <= W + 6; x += 6) pts.push([x, Y0 + (k + 0.25) * HS * spread(x)]);
+      const on = lit.indexOf(k) >= 0 && lit.indexOf(k) < shown, dd = pathD(pts, 30, 246);
+      if (!dd) continue;
+      (on ? litg : lg).appendChild(K.svg('path', { class: 'fl' + (on ? ' lit' : ''), d: dd }));
+      if (on) litDrawn++;
+      if ((k & 1) === 0) head(hg, 64, Y0 + (k + 0.25) * HS * spread(64), 0, 'ah', 4.5);
+    }
+    const cg = add(K.svg('g'));
+    HOOP_TURNS.forEach((x) => { cond(cg, x, Y0 - HROW, 'dot'); cond(cg, x, Y0 + HROW, 'x'); });
+    pole(cg, 186, 20, 'N'); pole(cg, 34, 20, 'S');
+    tiltMark(xh, L, X.tilt);
+    const live = shownCtl(d, 'pos');
+    hoopUI.style.display = live ? '' : 'none';
+    if (live) setHoop(hoopUI, xh, L, X.tilt);
+    else {
+      const e = add(K.svg('ellipse', { class: 'hoop' }));
+      setHoop(e, xh, L, X.tilt);
+      if (scripted && d.hoopAt != null) K.fade(e, arr(d.hoopAt, 0.6), 0);
+    }
+    hoopKey(X.size);
+    REC.hoop = { lit: litDrawn, flux, B, L, xh };
+    REC.said.push('A coil, cut through, with straight field lines inside that spread out past its ends. A hoop of ' + trim(X.size, 4) + ' m², ' +
+      (X.tilt > 0.5 ? 'tilted ' + trim(X.tilt, 0) + '° from square-on, ' : 'square-on, ') + (X.pos === 0 ? 'sits in the middle' : 'sits ' + posFmt(X.pos).toLowerCase()) + ' and catches ' + litDrawn + ' of the lines.');
+  }
+  // The last hoop puzzle: an even 8 mT field, a 0.003 m² hoop tilted 60°.
+  function drawUni(d, st) {
+    const sol = solved(st), flux = fluxOf(U_B, U_A, U_TILT);
+    const lg = add(K.svg('g')), litg = add(K.svg('g')), hg = add(K.svg('g'));
+    let litDrawn = 0;
+    K.fade(litg, sol ? arr(0.2, 0.6) : 1, 0);
+    for (let k = U_K[0]; k <= U_K[1]; k++) {
+      const y = r1(Y0 + (k + 0.25) * U_S), on = sol && litK(k, flux);
+      (on ? litg : lg).appendChild(K.svg('line', { class: 'fl' + (on ? ' lit' : ''), x1: -2, y1: y, x2: W + 2, y2: y }));
+      if (on) litDrawn++;
+      if ((k & 1) === 0) head(hg, 40, y, 0, 'ah', 4.5);
+    }
+    tiltMark(CX, U_L, U_TILT);
+    setHoop(add(K.svg('ellipse', { class: 'hoop' })), CX, U_L, U_TILT);
+    pill(46, 14, trim(U_B, 0) + NB + 'mT field');
+    hoopKey(U_A);
+    REC.uni = { lit: litDrawn };
+    REC.said.push('An even 8 mT field drawn as straight lines, with a hoop of 0.003 m² tilted 60° from square-on' + (sol ? ', catching ' + litDrawn + ' of the lines.' : '.'));
+  }
+  // A coil seen from one end, its current anticlockwise; a right answer turns it side-on to show N.
+  function drawEnd(d, st) {
+    const sol = solved(st), p = sol ? arr(0.1, 1.6) : 0, phi = rad(70) * p, s = Math.sin(phi), c = Math.cos(phi);
+    const n = 6, pitch = 14, R0 = 66, cy = 118, xn = CX + (n - 1) * pitch / 2 * s, rx = Math.max(5, R0 * c);
+    for (let k = n - 1; k >= 1; k--) add(K.svg('ellipse', { class: 'turnb', cx: r1(xn - k * pitch * s), cy, rx: r1(rx), ry: R0 }));
+    add(K.svg('ellipse', { class: 'turn', cx: r1(xn), cy, rx: r1(rx), ry: R0 }));
+    const aa = K.clamp((rx - 20) / 20, 0, 1);
+    if (aa > 0) [45, 135, 225, 315].forEach((deg) => {
+      const a = rad(deg);
+      head(art, xn + rx * Math.cos(a), cy + R0 * Math.sin(a), Math.atan2(-R0 * Math.cos(a), rx * Math.sin(a)), 'ghead', 8, aa);
+    });
+    const lab = add(K.svg('text', { class: 'lab', x: CX, y: 32, 'text-anchor': 'middle' }, 'This end faces you'));
+    if (p > 0) K.fade(lab, 1 - p, 0);
+    if (!sol) add(K.svg('text', { class: 'big', x: CX, y: cy + 10, 'text-anchor': 'middle' }, '?'));
+    let N = null;
+    if (sol) {
+      const a = arr(1.0, 0.6), g = add(K.svg('g')), x2 = xn + rx + 14, x1 = xn - (n - 1) * pitch * s - rx - 14;
+      K.fade(g, a, 0);
+      g.appendChild(K.svg('line', { class: 'fl', x1: r1(x1), y1: cy, x2: r1(x2 - 4), y2: cy }));
+      head(g, x2, cy, 0, 'ah', 6);
+      pole(g, x2 + 18, cy, 'N'); pole(g, x1 - 16, cy, 'S');
+      if (a >= 1) N = 'near';
+    }
+    REC.end = { N, phi };
+    REC.said.push(sol ? 'The coil turned side-on: the lines run out of the end that faced you, so that end is marked N.' : 'A coil seen end-on, with its current running round anticlockwise as you look. Its middle shows a question mark.');
+  }
+
+  // ================= one paint =================
+  const picOf = (d) => d.pic || (X.mode === 'wire' ? 'wire' : X.mode === 'coil' && X.hoop ? 'hoop' : 'field');
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i], pic = picOf(d);
+    art.textContent = '';
+    needleUI.style.display = 'none';
+    hoopUI.style.display = 'none';
+    REC = { pic, said: [], readouts: {} };
+    let H = H_FIELD;
+    if (pic === 'wire') drawWire(d, st);
+    else if (pic === 'field') drawFieldPic(d);
+    else if (pic === 'hoop') { H = H_HOOP; drawHoop(d, st); }
+    else if (pic === 'uni') { H = H_UNI; drawUni(d, st); }
+    else if (pic === 'end') { H = H_END; drawEnd(d, st); }
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+    svg.setAttribute('aria-label', REC.said.join(' '));
+    el('cap-line').hidden = !(pic === 'hoop' || pic === 'uni');     // the lines stand for 1 µWb only in the hoop's pictures
+    readouts(d, st, pic);
+  }
+  function readouts(d, st, pic) {
+    const sol = solved(st), showN = pic === 'wire' && !!d.needle, showH = pic === 'hoop' || pic === 'uni';
+    RO.bNeedle.el.hidden = !showN; RO.flux.el.hidden = !showH; RO.dens.el.hidden = !showH;
+    el('outs').hidden = !showN && !showH;
+    if (showN) RO.bNeedle.set(wireB(X.cur, X.dist));
+    if (pic === 'hoop') { const B = densAt(hoopX(X.pos)); RO.flux.set(fluxOf(B, X.size, X.tilt)); RO.dens.set(d.hideDens && !sol ? '?' : B); }
+    if (pic === 'uni') { RO.flux.set(sol ? fluxOf(U_B, U_A, U_TILT) : '?'); RO.dens.set(U_B); }
+    REC.readouts = { bNeedle: RO.bNeedle.text(), flux: RO.flux.text(), dens: RO.dens.text() };
+  }
+
+  // ================= the page around the picture =================
+  write(el('finish'), FINISH);
+  function layout(i) {
+    const d = STEPS[i], st = S[i], sol = solved(st);
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Screen ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    layoutCtl(d);
+    replayBtn.el.hidden = !d.show || !d.demo || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    const opts = d.kind === 'pick' ? d.opts : [];
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 18));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      if (b.el.textContent !== opts[k]) b.setLabel(opts[k]);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    el('answers').hidden = d.kind !== 'typed';
+    Object.keys(ANS).forEach((key) => { el('ans-' + key).hidden = d.ans !== key; });
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = sol;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (st.res === 'right' ? ' right' : '');
+    let say = '';
+    if (!d.show) {
+      if (st.res === 'right') say = 'That\'s it.';
+      else if (st.res === 'shown') say = 'Here is the working.';
+      else if (st.res === 'wrong') say = d.kind === 'typed' ? st.hint : (d.hints && d.hints[st.pick]) || d.hint;
+      else if (st.res === 'empty' && d.kind === 'pick') say = 'Pick one of the answers first.';
+    }
+    write(fb, say);
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !sol);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  }
+
+  K.update((p) => {
+    const i = at(), d = STEPS[i];
+    if (i !== lastStep) { lastStep = i; enterStep(i); }
+    else {
+      let moved = false;
+      CTL_IDS.forEach((id) => {
+        if (p[id] === pushed[id]) return;
+        if (shownCtl(d, id)) { X[id] = p[id]; pushed[id] = p[id]; moved = true; }
+        else CTL[id].set(pushed[id], true);      // a control this screen does not show stays put
+      });
+      if (moved && T !== Infinity) {             // his move ends the demonstration where it stands
+        anim.pause(); T = Infinity; scripted = false;
+        CTL_IDS.forEach((id) => { X[id] = pushed[id]; });
+      }
+      if (moved) push();
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    layout(i);
+    paint(i);
+  });
+
+  // The hoop and the needle are dragged themselves (their sliders move with them).
+  K.drag(hoopUI, { control: 'pos', toValue: (x) => K.clamp((x - HMID) / (HFAR - HMID) * 100, 0, 100) });
+  K.drag(needleUI, { control: 'dist', toValue: (x, y) => K.clamp(Math.hypot(x - CX, y - Y0) / PXMM, 5, 50) });
+
+  // ================= known answers, worked out by hand =================
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  const near = (a, b, t) => Math.abs(a - b) <= t;
+  const solvedSt = (i) => Object.assign(blank(), STEPS[i].kind === 'pick' ? { pick: STEPS[i].want, res: 'right' } : { res: 'right' });
+  // A screen painted in the state given (finished): what it drew.
+  function drawn(i, st, x) {
+    const d = STEPS[i], keep = { X: Object.assign({}, X), S: S[i], T, sc: scripted };
+    S[i] = st || blank(); T = Infinity; scripted = false;
+    Object.assign(X, BASE, d.enter || {}, d.show ? d.end || {} : solved(S[i]) ? d.runEnd || {} : {}, x || {});
+    try { paint(i); return REC; }
+    finally { Object.assign(X, keep.X); S[i] = keep.S; T = keep.T; scripted = keep.sc; paint(); }
+  }
+  const iWire = idx('Round a wire'), iAbove = idx('Above the wire'), iCoil = idx('A loop, then a coil'), iEnd = idx('Which end?');
+  const iWide = idx('A wider hoop'), iTilt = idx('Tilt the hoop'), iDid = idx('What the field did'), iOut = idx('Out from the wire');
+  const iFar = idx('Four times as far'), iUni = idx('A tilted hoop'), iRev = idx('Reverse the current');
+
+  K.check('Compasses placed near a long straight current-carrying wire show field lines forming circular loops centred on the wire: every ring is drawn round the wire, and every needle lies along its ring', () =>
+    [10, -10, 20, -20, 3].every((a) => {
+      const r = drawn(iWire, null, { cur: a }).wire;
+      return r.rings.length > 0 && r.rings.every((c) => c.cx === CX && c.cy === Y0) && r.needles.length === 8 &&
+        r.needles.every((q) => Math.abs(Math.cos(q.ang - Math.atan2(q.y - Y0, q.x - CX))) < 1e-9);
+    }), { source: SRC1 });
+  K.check('The right-hand grip: a current into the page makes clockwise rings, so the needle just above the wire points right; reversed it points left; with no current there are no rings', () => {
+    const top = (a) => drawn(iWire, null, { cur: a }).wire.needles.find((q) => q.m === 6);
+    const clockwise = drawn(iWire, null, { cur: 10 }).wire.arrows.every((q) => Math.abs(Math.cos(q.dir - Math.atan2(q.y - Y0, q.x - CX) - Math.PI / 2) - 1) < 1e-9);
+    return near(Math.cos(top(10).ang), 1, 1e-9) && near(Math.cos(top(-10).ang), -1, 1e-9) && clockwise && drawn(iWire, null, { cur: 0 }).wire.rings.length === 0 &&
+      STEPS[iAbove].want === 'To the right';
+  });
+  K.check('B = μ₀ I ÷ 2πr with μ₀ = 4π × 10⁻⁷ T m/A, which in mT and mm is 0.2 × A ÷ mm: 20 A gives 0.4 mT at 10 mm, 0.2 mT at 20 mm and 0.1 mT at 40 mm, as the needle\'s readout shows', () => {
+    const rd = (mm) => drawn(iOut, null, { dist: mm }).readouts.bNeedle;
+    return near(WIRE_K, 0.2, 1e-12) && near(MU0 * 20 / (2 * Math.PI * 0.01) * 1e3, 0.4, 1e-12) && near(wireB(20, 10), 0.4, 1e-12) && near(wireB(20, 20), 0.2, 1e-12) && near(wireB(20, 40), 0.1, 1e-12) &&
+      rd(10) === '0.4' + NB + 'mT' && rd(20) === '0.2' + NB + 'mT' && rd(40) === '0.1' + NB + 'mT';
+  }, { source: SRC4 });
+  K.check('The magnetic field produced by the coil resembles that of a bar magnet: its lines run one way through the middle and back the other way round the outside, leaving from the end marked N', () => {
+    const f = (a) => drawn(iCoil, null, { mode: 'coil', turns: 6, cur: a }).field;
+    const ok = (r, s) => r.lines.length >= 4 && r.lines.every((l) => l.inDir === s && (l.outDir == null || l.outDir === -s)) && r.lines.some((l) => l.outDir != null) && r.N === (s > 0 ? 'right' : 'left');
+    return ok(f(10), 1) && ok(f(-10), -1);
+  }, { source: SRC2 });
+  K.check('More turns or more current crowd the lines: 10 turns draw more lines than 6, 20 A more than 10 A, and 2 turns fewer; reversing the current keeps their number; inside a loop the rings from both sides point the same way', () => {
+    const n = (t, a) => drawn(iCoil, null, { mode: 'coil', turns: t, cur: a }).field.lines.length;
+    const loop = drawn(iCoil, null, { mode: 'loop', cur: 10 }).field;
+    return n(10, 10) > n(6, 10) && n(6, 20) > n(6, 10) && n(2, 10) < n(6, 10) && n(2, 10) > 0 && n(6, -10) === n(6, 10) &&
+      loop.rings.length >= 6 && loop.inside.length > 0 && loop.inside.every((s) => s === 1);
+  });
+  K.check('Magnetic flux counts the part of the field perpendicular to the hoop\'s area: square-on the hoop catches the most, tilted less, edge-on none, while the field it sits in stays the same', () => {
+    const r = [0, 60, 90].map((t) => drawn(iTilt, null, { tilt: t, pos: 0, size: 0.002 }));
+    return r[0].hoop.lit === 10 && r[1].hoop.lit === 5 && r[2].hoop.lit === 0 &&
+      r[0].readouts.flux === '10' + NB + 'µWb' && r[1].readouts.flux === '5' + NB + 'µWb' && r[2].readouts.flux === '0' + NB + 'µWb' &&
+      r.every((q) => q.readouts.dens === '5' + NB + 'mT');
+  }, { source: SRC3 });
+  K.check('The hoop lights as many lines as its flux in µWb, to the nearest line, for both hoops at every tilt (10 → 5 at 60°, 20 → 10); past the coil\'s end the density and the flux fall', () => {
+    const inside = [0.002, 0.004].every((A) => [0, 15, 30, 45, 60, 75, 90].every((t) => { const h = drawn(iTilt, null, { size: A, tilt: t, pos: 0 }).hoop; return h.lit === Math.round(h.flux); }));
+    const out = [0, 25, 50, 75, 100].map((p) => drawn(iTilt, null, { size: 0.002, tilt: 0, pos: p }).hoop);
+    return inside && out.every((h, k) => !k || (h.B <= out[k - 1].B + 1e-12 && h.flux <= out[k - 1].flux + 1e-12)) && out[4].B < 2.5 && near(out[0].B, 5, 1e-12);
+  });
+  K.check('Each typed answer and slip is worked from its rule: 20 µWb (slips 10, 20 000 and 0.02), 0.1 mT (slips 0.025, 0.4 and 1.6) and 12 µWb (slips 24, 20.8 and 12 000)', () => {
+    const sl = (i) => STEPS[i].slips.map((s) => s.value);
+    const wide = near(fluxOf(5, 0.004, 0), 20, 1e-9) && near(fluxOf(5, 0.002, 0), 10, 1e-9) && near(0.005 * 0.004 * 1e9, 20000, 1e-6) && near(fluxOf(5, 0.004, 0) / 1000, 0.02, 1e-12);
+    const far = near(wireB(20, 40), 0.1, 1e-12) && near(wireB(20, 10) / 16, 0.025, 1e-12) && near(wireB(20, 10), 0.4, 1e-12) && near(wireB(20, 10) * 4, 1.6, 1e-12);
+    const tilt = near(fluxOf(8, 0.003, 60), 12, 1e-9) && near(fluxOf(8, 0.003, 0), 24, 1e-9) && near(24 * Math.sin(rad(60)), 20.8, 0.05) && near(0.008 * 0.003 * 0.5 * 1e9, 12000, 1e-6);
+    return wide && far && tilt && STEPS[iWide].answer === 20 && STEPS[iFar].answer === 0.1 && STEPS[iUni].answer === 12 &&
+      sl(iWide).join() === '10,20000,0.02' && sl(iFar).join() === '0.025,0.4,1.6' && sl(iUni).join() === '24,20.8,12000';
+  });
+  K.check('Before a Check no puzzle shows its answer, and a right Check shows it: the needle above the wire points right, the coil\'s end turns to show N, the wider hoop lights 20 lines, the density shows 5 mT, the needle moves to 40 mm, the tilted hoop lights 12 lines, and the reversed coil swaps N and S', () => {
+    const b = (i) => drawn(i, blank()), s = (i) => drawn(i, solvedSt(i));
+    const above = b(iAbove).wire.arrows.length === 0 && b(iAbove).wire.top === null && near(Math.cos(s(iAbove).wire.top.ang), 1, 1e-9);
+    const end = b(iEnd).end.N === null && s(iEnd).end.N === 'near';
+    const wide = b(iWide).hoop.lit === 10 && s(iWide).hoop.lit === 20 && s(iWide).readouts.flux === '20' + NB + 'µWb';
+    const did = b(iDid).readouts.dens === '?' && s(iDid).readouts.dens === '5' + NB + 'mT' && b(iDid).readouts.flux === '5' + NB + 'µWb';
+    const far = b(iFar).wire.drag.mm === 10 && b(iFar).readouts.bNeedle === '0.4' + NB + 'mT' && s(iFar).wire.drag.mm === 40 && s(iFar).readouts.bNeedle === '0.1' + NB + 'mT';
+    const uni = b(iUni).uni.lit === 0 && b(iUni).readouts.flux === '?' && s(iUni).uni.lit === 12 && s(iUni).readouts.flux === '12' + NB + 'µWb';
+    const rev = b(iRev).field.N === 'right' && s(iRev).field.N === 'left';
+    return above && end && wide && did && far && uni && rev;
+  });
+  K.check('Every demonstration ends 3 to 4.5 s after its screen opens, and every answer\'s motion within 2.5 s', () =>
+    STEPS.every((d) => d.show ? (!d.demo || (d.dur >= 3 && d.dur <= 4.5)) : (!d.run || d.run <= 2.5) && (!d.slipRun || d.slipRun <= 2.5)));
+
+  K.ready();
+</script>

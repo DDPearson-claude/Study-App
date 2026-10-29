@@ -1,0 +1,691 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-29T05:43:32.654Z",
+ "startedAt": "2026-10-29T05:43:32.654Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i8",
+  "title": "Transformers on the job",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the flux overshoot the knee to twice its normal peak and the current spike red, when you switch on at a voltage zero instead of a peak.",
+   "title": "The knee on the job",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Screen",
+     "min": 0,
+     "max": 13,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [],
+   "whatAmILookingAt": "Fourteen screens on three cards, with Back and Continue. Five show an idea; nine ask you to try it.\n\nThe switch-on card. Left, a ring core with one winding and a flux bar. Right, lesson 2's B-H curve, sketched: steep, a knee at 1.2 times the normal peak flux, then nearly flat, with a dot riding it. Its Flux axis stands at zero current. Below, on one time axis: supply voltage; core flux, dashed at its normal peaks and the knee; primary current. Two sliders. Switch-on point, 0° to 90° after a rising voltage zero in steps of 15°, ends marked zero and peak, opening at 0°, with a marker on the voltage trace. Flux left in, 0 to 0.8 of the normal peak in steps of 0.2, pushing the same way as the first half-cycle, opening at 0. Switch on draws five cycles over 2 s.\n\nIts rule, with flux in times the normal peak. Offset = flux left in + cos(switch-on point). Flux = offset − cos(the wave's angle), so it starts at the flux left in. The offset holds to the first flux peak, half a cycle after the rising zero, then halves every cycle, a rate chosen for the picture. So the first flux peak = 1 + flux left in + cos(switch-on point). Current, in times full load: 0.02 × flux up to the knee, and 0.024 + 15 × (flux − 1.2) past it, either way round. Past the knee the trace, the bar and the dot turn red. Readouts, wrapping on a phone: First flux peak, × normal, one decimal; Peak current, × full load, two decimals up to the knee and whole numbers past it, since the slope past the knee is chosen for the picture. At a zero: 2.0 and 12 empty, 2.6 and 21 with 0.6 left, 2.8 and 24 with 0.8 left. At 60°, empty: 1.5 and 5. At a peak: 1.0 and 0.02 empty, 1.4 and 3 with 0.4 left.\n\nThe CT card. A busbar passes once through a ring core: a one-turn primary carrying a steady 400 A. An 80-turn secondary runs to a meter circuit. A burden picker, wrapping on a phone: Shorted, 0.6 Ω, 2 Ω, 4 Ω, Open, opening at Shorted. A flux bar with the knee marked, and two cycles of busbar current and secondary voltage.\n\nIts rule. Below the knee the ampere-turns balance, 400 × 1 = 5 × 80, so the secondary carries 5 A. Volts needed = 5 × (burden + 0.2 Ω of winding). The flux follows those volts, with the knee at 30 V. Readouts: Volts to drive 5 A, V, one decimal; Core flux, % of knee, whole numbers: 1.0 V and 3%, 4.0 V and 13%, 11.0 V and 37%, 21.0 V and 70%. Open: no secondary current, so all 400 ampere-turns drive the core. The bar slams into saturation each half-cycle and flips near each current zero. The voltage sits flat, with a tall, narrow red spike off the scale at each flip. Readouts: no limit and saturated, labelled Up to 4000 V measured on large CTs.\n\nThe isolating card: two drawings, stacked on a phone. Isolating: two windings, 440 V in, 115 V out, a gap between them. Auto: one winding across 440 V, with 115 V taken from a tap to its lower end, and a red mark where output joins input. A ratio picker, 440 V to 115 V or 440 V to 400 V, opening at 115 V. A bar splits the auto's power into Transformed and Passed straight through. Its rule: the supply current flows straight on into the load, carrying output ÷ input of the power. Transformed = 1 − output ÷ input: 74% and 26% at 115 V, 9% and 91% at 400 V.\n\nScreen 1, try it, a recall, typed. No picture. “An empty capacitor is switched straight onto a 325 V peak. The supply and wiring have 1 Ω. What current flows at the first instant?” Typed, in A, whole numbers: answer 325, want “325 A”. Slips: 0, “An empty capacitor holds 0 V, so all 325 V falls across the 1 Ω.”; 3.25, “That is through a 100 Ω precharge resistor.” Hint otherwise: “325 V ÷ 1 Ω.” Why: “325 ÷ 1 = 325 A.” A right Check says “Right, you still have it.” Read: “An empty capacitor meets a 325 V peak through 1 Ω: what current flows at the first instant?”\n\nScreen 2, show. The switch-on card, sliders hidden. The words: “A transformer can surge at switch-on too, for a different reason. The voltage sets how fast the flux changes. So the flux is the voltage's running total, and it peaks at each voltage zero. At a rising zero it sits at its lowest peak. Each half-cycle swings it to the other peak, two peaks' worth. Switch on at a zero and it starts from nothing instead. The same swing takes it to twice its normal peak. Past the knee the iron is full, so the current soars.” Read: “Switched on at a zero with an empty core, the flux climbs to 2.0 times its normal peak. The current spikes red to 12 times full load.” Still: point 0°, flux left in 0, after Switch on.\n\nScreen 3, try it, typed. The picture: the switch-on card at a zero with 0.6 left in, readouts ? until Check. “A transformer is switched on at a voltage zero. Its core still holds 0.6 of the normal peak flux. That flux pushes the same way as the first half-cycle. How high does the flux climb, in times its normal peak?” Typed, in × normal peak, one decimal: answer 2.6, want “2.6 × normal peak”. Slips: 2, “Add the 0.6 still in the core.”; 1.6, “From a zero the climb is two peaks, not one.”; 1.4, “Flux left in the same way adds to the climb.” Hint otherwise: “Flux left in + 2.” Why: “0.6 + 2 = 2.6 times the normal peak.” Read: “Switched on at a zero with 0.6 left in, how high does the flux climb?”\n\nScreen 4, show. The switch-on card with both sliders. The words: “Switch on at a voltage peak instead, and nothing overshoots. In normal running, the flux passes through zero there. So an empty core starts just where it should be. The flux swings only to its normal peak. The current stays at 0.02 times full load. So two things set the surge: the moment on the wave and the flux left in. That surge is the [[inrush current]]. Its peaks can reach 8 to 30 times full-load current.[^1] Try other moments and flux left in, then switch on again.” Read: “Switched on at a peak with an empty core, the flux swings only to its normal peak. The current stays at 0.02 times full load.” Still: point 90°, flux left in 0, after Switch on.\n\nScreen 5, try it. The picture: the switch-on card at a zero with 0.8 left in, after Switch on. “A breaker feeding a transformer trips the moment it closes. Closed again, it holds. Nothing else has changed. What most likely tripped it?” Four choices, in this order: “Inrush current at switch-on”; “A fault in the windings”; “An overload on the 115 V side”; “The core's iron loss”. Right, the first. Hint for the second: “A winding fault would trip it again.” Hint for the third: “The load has not changed.” Hint for the fourth: “Iron loss is small and steady.” Why: “The first close caught a worse moment on the wave, with flux left in the same way. Inrush can even look like an internal fault to differential protection.[^1]” Read: “A breaker trips on closing onto a transformer, then holds. What most likely tripped it?”\n\nScreen 6, show. The CT card, Shorted. The words: “A current transformer, a CT, is fed a current, not a voltage. Its primary is a busbar through its core, one turn carrying 400 A. The circuit's load sets that current. The 80-turn secondary drives 5 A round the meter. Its ampere-turns almost cancel the busbar's. The small difference makes the flux, just enough for the volts that push 5 A round. The meter circuit's resistance is the CT's [[burden]]. Its own winding has 0.2 Ω, so even shorted it needs 5 × 0.2 = 1.0 V.” Still: burden Shorted.\n\nScreen 7, try it, typed. The picture: the CT card at 0.6 Ω, readouts ? until Check. “A CT's 80-turn secondary carries 5 A. Its own winding is 0.2 Ω and the meter circuit 0.6 Ω. What voltage must the secondary make?” Typed, in V, one decimal: answer 4.0, want “4.0 V”. Slips: 3, “Add the winding's own 0.2 Ω.”; 1, “That is the winding alone. Add the meter's 0.6 Ω.”; 0.8, “That is the resistance. Multiply by the 5 A.” Hint otherwise: “5 A × (0.6 + 0.2) Ω.” Why: “5 × 0.8 = 4.0 V. That is 13% of the 30 V knee.” Read: “5 A through 0.2 Ω of winding and a 0.6 Ω meter circuit: what voltage must the secondary make?”\n\nScreen 8, show. The CT card, Open. The words: “An open secondary on load is dangerous. With the busbar still carrying 400 A, nothing cancels its 400 ampere-turns. They drive the core into saturation. Saturated, the flux sits flat and makes no voltage. Near each current zero it flips to the other side in a moment. That fast flip makes a tall, narrow spike. As much as 4000 V has been measured on large CTs.[^2] A voltage transformer, a VT, is fed a voltage instead. So a VT is safe open, and a short on it is a fault.” Read: “With the secondary open and 400 A in the busbar, the core saturates. The secondary spikes red at every flip.” Still: burden Open.\n\nScreen 9, try it. The picture: the CT card, Shorted. “A panel ammeter fed by a CT must be changed. The circuit stays on load. What do you do first?” Four choices, in this order: “Short the CT's secondary at its shorting terminals”; “Disconnect the ammeter's leads”; “Wait for a light load, then disconnect”; “Fit a fuse in the secondary”. Right, the first. Hint for the second: “That opens the secondary with current in the busbar.” Hint for the third: “While current flows, an open secondary can still make high voltages.” Hint for the fourth: “A fuse that blows opens the secondary.” Why: “The short keeps the ampere-turns balanced while the meter is out.” Read: “A CT-fed ammeter must be changed with the circuit on load. What do you do first?”\n\nScreen 10, show. The isolating card at 440 V to 115 V. The words: “An [[auto-transformer]] gives no isolation. It is one winding with a tap, so its output is joined to its input. An earth fault on either side is an earth fault on both. So it cannot make a separate insulated system. The supply's current is the power ÷ 440. It flows straight on into the load at 115 V, so it carries 115 ÷ 440 of the power, 26%. Only the other 74% is transformed and needs iron and copper. So an auto is much smaller only near a 1:1 ratio.” Still: ratio 440 V to 115 V.\n\nScreen 11, try it, typed. The picture: the isolating card at 440 V to 400 V, the bar ? until Check. “An auto-transformer steps 440 V to 400 V. What share of its power is transformed?” Typed, in %, whole numbers: answer 9, want “9%”. Slips: 91, “That is the share passed straight through.”; 74, “That is for 440 V to 115 V.”; 10, “Divide by 440, the input, not 400.” Hint otherwise: “1 − 400 ÷ 440.” Why: “400 ÷ 440 = 0.909. Then 1 − 0.909 = 0.091, so 9%. Only that 9% needs iron and copper, so this auto can be much smaller than an isolating one.” Read: “An auto-transformer steps 440 V to 400 V: what share of its power is transformed?”\n\nScreen 12, try it, the first of three mixed puzzles, typed. No picture. “A CT is marked 200/5 A. Its busbar is one turn. How many turns has its secondary?” Typed, no unit, whole numbers: answer 40, want “40”. Slips: 5, “That is its secondary current.”; 1000, “Ampere-turns balance, so divide.”; 0.025, “That divides the wrong way.” Hint otherwise: “200 × 1 = 5 × turns.” Why: “200 ÷ 5 = 40.” Read: “A 200/5 A CT on a one-turn busbar: how many secondary turns?”\n\nScreen 13, try it, the second mixed puzzle, typed. No picture. “A transformer's full-load current is 50 A. Its impedance is 4%, and its supply is stiff. What current flows into a short at its terminals?” Typed, in A, whole numbers: answer 1250, want “1250 A”. Slips: 2, “That multiplies by 4%. Divide by it instead.”; 200, “That multiplies by 4. Divide by 4%, which is × 100 ÷ 4.”; 12.5, “That divides by 4. Divide by 4%, which is × 100 ÷ 4.”. Hint otherwise: “50 A × 100 ÷ 4.” Why: “100 ÷ 4 = 25, so the short draws 25 × 50 = 1250 A.” Read: “A transformer with 50 A full-load current and 4% impedance, on a stiff supply: what current flows into a short at its terminals?”\n\nScreen 14, try it, the third mixed puzzle. No picture. “A voltage transformer, a VT, steps the system voltage down for meters. Like a power transformer's, its primary sits across that voltage. What happens if its secondary is shorted?” Three choices, in this order: “It feeds a fault current”; “Nothing, as a CT runs shorted”; “It spikes, as an open CT does”. Right, the first. Hint for the second: “A CT is fed a current. A VT is fed a voltage.” Hint for the third: “The spike needs a fixed current with nothing to cancel it.” Why: “Its voltage drives a large current through its own small impedance, like any power transformer's.” Read: “What happens if a VT's secondary is shorted?”\n\nThe finish. The words: “Saturation explains both hazards. Switch on at a bad moment, and the flux overshoots the knee, so the current surges. Open a CT on load and its core saturates, so its secondary spikes. Short a CT before you open its circuit. Never short a VT. An auto-transformer gives no isolation.”",
+   "ignores": "The B-H curve is a sketch: a knee and straight lines either side, with no hysteresis loop. The offset halves each cycle at a rate chosen for the picture. Real units fade at a rate set by their windings' resistance, and large ones take longer. The supply is stiff, so its voltage does not dip during the surge. Only one phase is drawn. Each limb of a three-phase unit meets a different moment on the wave. The CT keeps an exact ratio below its knee, ignoring its small magnetising current. Its open-circuit spikes are drawn off the scale, not computed. The auto-transformer's share ignores losses.",
+   "numbers": [
+    {
+     "label": "Screen, 1 to 14 (the stepper)",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Number of screens",
+     "value": 14,
+     "kind": "assumed"
+    },
+    {
+     "label": "Supply, in volts rms",
+     "value": 440,
+     "kind": "assumed"
+    },
+    {
+     "label": "Secondary, in volts rms",
+     "value": 115,
+     "kind": "assumed"
+    },
+    {
+     "label": "Knee, in times the normal peak flux",
+     "value": 1.2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Switch-on point slider, 0 to 90 in steps of 15, degrees",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Flux left in slider, 0 to 0.8 in steps of 0.2",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Cycles drawn after switch-on",
+     "value": 5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Time to draw them, in seconds",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Current per unit flux below the knee, times full load",
+     "value": 0.02,
+     "kind": "assumed"
+    },
+    {
+     "label": "Current rise per unit flux past the knee, times full load",
+     "value": 15,
+     "kind": "assumed"
+    },
+    {
+     "label": "Share of the offset kept each cycle",
+     "value": 0.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "First flux peak at a zero, nothing left in",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "First flux peak at a zero, 0.6 left in",
+     "value": 2.6,
+     "kind": "computed"
+    },
+    {
+     "label": "First flux peak at a zero, 0.8 left in",
+     "value": 2.8,
+     "kind": "computed"
+    },
+    {
+     "label": "First flux peak at 60°, nothing left in",
+     "value": 1.5,
+     "kind": "computed"
+    },
+    {
+     "label": "First flux peak at a peak, nothing left in",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "First flux peak at a peak, 0.4 left in",
+     "value": 1.4,
+     "kind": "computed"
+    },
+    {
+     "label": "Peak current at a zero, nothing left, times full load",
+     "value": 12,
+     "kind": "computed"
+    },
+    {
+     "label": "Peak current at a zero, 0.6 left, times full load",
+     "value": 21,
+     "kind": "computed"
+    },
+    {
+     "label": "Peak current at a zero, 0.8 left, times full load",
+     "value": 24,
+     "kind": "computed"
+    },
+    {
+     "label": "Peak current at 60°, nothing left, times full load",
+     "value": 5,
+     "kind": "computed"
+    },
+    {
+     "label": "Peak current at a peak, nothing left, times full load",
+     "value": 0.02,
+     "kind": "computed"
+    },
+    {
+     "label": "Peak current at a peak, 0.4 left, times full load",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Inrush peaks, times full-load current",
+     "value": "8 to 30",
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "CT busbar current, in amps",
+     "value": 400,
+     "kind": "assumed"
+    },
+    {
+     "label": "CT rated secondary current, in amps",
+     "value": 5,
+     "kind": "assumed"
+    },
+    {
+     "label": "CT busbar turns",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "CT secondary turns",
+     "value": 80,
+     "kind": "computed"
+    },
+    {
+     "label": "CT secondary winding resistance, in ohms",
+     "value": 0.2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Burden picker settings, in ohms",
+     "value": "0, 0.6, 2 and 4",
+     "kind": "assumed"
+    },
+    {
+     "label": "CT knee, in volts",
+     "value": 30,
+     "kind": "assumed"
+    },
+    {
+     "label": "Volts to drive 5 A, in volts",
+     "value": "1.0, 4.0, 11.0 and 21.0",
+     "kind": "computed"
+    },
+    {
+     "label": "Core flux, per cent of knee",
+     "value": "3, 13, 37 and 70",
+     "kind": "computed"
+    },
+    {
+     "label": "Voltage measured on large open CTs, in volts",
+     "value": 4000,
+     "kind": "constant",
+     "source": 2
+    },
+    {
+     "label": "Auto second ratio's output, in volts",
+     "value": 400,
+     "kind": "assumed"
+    },
+    {
+     "label": "Auto share transformed, 440 V to 115 V, per cent",
+     "value": 74,
+     "kind": "computed"
+    },
+    {
+     "label": "Auto share passed through, 440 V to 115 V, per cent",
+     "value": 26,
+     "kind": "computed"
+    },
+    {
+     "label": "Auto share transformed, 440 V to 400 V, per cent",
+     "value": 9,
+     "kind": "computed"
+    },
+    {
+     "label": "Auto share passed through, 440 V to 400 V, per cent",
+     "value": 91,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 1 peak voltage, in volts",
+     "value": 325,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 1 supply and wiring, in ohms",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 1 current, in amps",
+     "value": 325,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 1 precharge resistor, in ohms",
+     "value": 100,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 1 slips, in amps",
+     "value": "0 and 3.25",
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 3 slips",
+     "value": "2, 1.6 and 1.4",
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 7 slips",
+     "value": "3, 1 and 0.8",
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 11 ratio, 400 ÷ 440",
+     "value": 0.909,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 11 slips, per cent",
+     "value": "91, 74 and 10",
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 12 CT rating, in amps",
+     "value": 200,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 12 secondary turns",
+     "value": 40,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 12 slips",
+     "value": "5, 1000 and 0.025",
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 13 full-load current, in amps",
+     "value": 50,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 13 impedance, per cent",
+     "value": 4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 13 fault current, in amps",
+     "value": 1250,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 13 slips, in amps",
+     "value": "2, 200 and 12.5",
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example impedance multiplier, 100 ÷ 4",
+     "value": 25,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example rating, in kVA",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example turns ratio",
+     "value": 3.83,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example full-load current at 440 V, in amps",
+     "value": 22.7,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example full-load current at 115 V, in amps",
+     "value": 86.96,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example inrush peaks, in amps",
+     "value": "182 to 681",
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example iron loss, in watts",
+     "value": 100,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example copper loss at full load, in watts",
+     "value": 400,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example efficiency at full load, in per cent",
+     "value": 95.2,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example impedance, resistance and reactance, per cent",
+     "value": "5, 4 and 3",
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example output at 0.8 lagging, in volts",
+     "value": 109.25,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example fault current at its terminals, in amps",
+     "value": 1739,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example power an auto would transform, in kVA",
+     "value": 7.4,
+     "kind": "computed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "Two hazards on the job share one cause: the core saturating. Switch a transformer on at the wrong moment, and its flux overshoots the knee. It then draws a surge many times its full-load current. Open a current transformer's secondary while its primary carries current, and its core saturates every half-cycle. Tall voltage spikes then appear across the open terminals. A third point is about joins, not saturation. An auto-transformer's output is joined to its input, so it gives no isolation.\n\nStart from the rule that runs through every transformer. The supply voltage sets how fast the flux changes. So the flux is the running total of the voltage. In normal running, the flux swings between equal peaks either way. It rises while the voltage is positive and stops rising as the voltage reaches zero. So the flux peaks at each voltage zero. Now switch on at a voltage zero with an empty core. The flux should be at a peak there, but it starts from nothing. The next half-cycle of voltage still adds a full swing of two peaks' worth. So the flux climbs to twice its normal peak. Flux left in the iron from last time adds on top, if it pushes the same way. A core normally runs not far below its knee, so this takes it far past. Past the knee the iron is full and helps little more. Each extra bit of flux is then pushed through almost as if the core were air. That takes a great deal of current. That surge is the [[inrush current]]. It comes mostly from the core saturating. Its peaks can reach 8 to 30 times the full-load current.[^1] Switch on at a voltage peak with an empty core instead, and the flux starts where it should be. Nothing overshoots. So two things set the surge: the moment on the wave, and the flux left in.\n\nA current transformer, a CT, turns the rule round. A power transformer is fed from a voltage, so the voltage fixes its flux. A CT's primary is a busbar carrying whatever current the circuit's load draws. Its 80-turn secondary drives 5 A round the meter. Those ampere-turns almost cancel the busbar's 400. The core then needs only enough flux to make the few volts that push 5 A round the meter circuit. That circuit is the CT's [[burden]]. Open the secondary, and nothing cancels the busbar's ampere-turns. They drive the core into saturation. Saturated, the flux sits flat and makes no voltage. Near each current zero it flips to the other side in a moment. That fast change makes a tall, narrow spike. With current in the primary, an open secondary can make high voltages. As much as 4000 V has been measured on large CTs left open.[^2] A voltage transformer, a VT, is fed from the system voltage like a power transformer. So it runs safely open, and a short on it is a fault.\n\nAn isolating transformer's two windings are not joined. An [[auto-transformer]] is one winding with a tap, so its output is joined to its input. Its two sides are one connected system. An earth fault on either is an earth fault on both. So it cannot make a separate insulated system. The supply's current is the power ÷ 440. It flows straight on into the load at 115 V, so it carries 115 ÷ 440 of the power, 26%. Transformer action carries the other 74%. Only that share needs a transformer's iron and copper. So an auto is much smaller than an isolating one only when its ratio is near one. At 440 V to 115 V it saves only about a quarter.\n\nSo on a ship, transformers make the isolated systems. They feed distribution kept separate from the main supply. US rules for ships ask for at least two independent transformers. With the largest out of service, the rest must still carry the ship's service loads.[^3] A ship taking shore power often has a transformer on its own side, feeding its main switchboard. An ungrounded, insulated system needs a fully insulated winding.[^4] One earth fault leaves such a system running, with the healthy lines at full line voltage to earth. HV transformers also get their own protection, and a polarisation index test, a PI test, of their insulation. This picture is simplified: a sketched knee, a stiff supply, one phase, and a CT that keeps its ratio below the knee. **Core saturation explains both the surge at switch-on and an open CT's dangerous voltage, while an auto-transformer gives no isolation.**"
+  },
+  "analogy": {
+   "text": "Think of breaking the supply to a contactor coil. The coil's current wants to keep flowing. So the voltage across the opening contacts leaps until it arcs. A CT's secondary is like that coil's circuit, and the busbar holds its current up. Open it, and the voltage across the gap leaps.",
+   "breaks": "The coil kicks once from the energy it stored, then it is done. An open CT kicks twice every cycle, for as long as the busbar carries current. Its spikes come from saturated flux flipping, not from stored energy alone."
+  },
+  "practice": {
+   "text": "**Safe way first:** Treat a CT's secondary as dangerous whenever its busbar carries current. Before you remove or change a meter or relay on it, short the secondary at its shorting terminals. Remove the short only once the new device is wired in. A VT is the opposite: open is safe, and a short is a fault. When you energise a transformer, expect a surge. Make sure its protection rides through it.\n\n**Steps:**\n- Energising: inrush peaks can reach 8 to 30 times full-load current.[^1] Work out full-load current as rating ÷ voltage for single-phase, or rating ÷ (1.732 × line voltage) for three-phase. Then multiply.\n- A trip on switch-on: inrush can look like an internal fault to differential protection and trip it. Find which protection operated before you close again.\n- CT ratio: secondary turns = busbar current ÷ secondary current, for a one-turn busbar.\n- CT secondary volts = 5 A × (burden + winding resistance). Keep it well below the knee.\n- Choosing a transformer: if the output must be a separate or insulated system, use an isolating transformer. On an ungrounded system, its winding must be fully insulated.\n- Two independent transformers: size them so that, with the largest out, the rest still carry the service load.\n- Auto-transformer: transformed share = 1 − lower voltage ÷ higher voltage.\n\n**Rules of thumb:** The worst case is switching on at a voltage zero with flux left in that pushes the same way. At a voltage peak with an empty core, the flux starts where it should. A CT runs safely shorted and must not run open. A VT runs safely open and must not be shorted. An auto-transformer is much smaller than an isolating one only when its ratio is near one.\n\n**Worked example:** A 10 kVA single-phase transformer steps 440 V to 115 V for an insulated 115 V system. Its turns ratio is 440 ÷ 115 = 3.83. On the 440 V side, full-load current is 10,000 ÷ 440 = 22.7 A. On the 115 V side, it is 10,000 ÷ 115 = 86.96 A. At switch-on its inrush peaks could reach 8 × 22.7 = 182 A to 30 × 22.7 = 681 A. With 100 W of iron loss and 400 W of copper loss, it is 95.2% efficient at full load and unity power factor. Its 5% impedance is made of 4% resistance and 3% reactance. At full load and 0.8 lagging, its output sags to 109.25 V. A short at its terminals draws 1739 A. An auto-transformer would transform only 74% of the power, 7.4 kVA. But its 115 V side would be joined to the 440 V system. So it must be an isolating transformer.\n\n**Common mistakes**\n- Opening a CT's secondary to change a meter on load. Short it first.\n- Fusing a CT's secondary. A fuse that blows opens it.\n- Shorting a VT's secondary as you would a CT's. It feeds a fault.\n- Taking every trip at switch-on for a winding fault. Inrush can trip protection set too keenly.\n- Expecting a light load to make an open CT safe. While current flows in the primary, an open secondary can still make high voltages.\n- Taking an auto-transformer for an isolating one. Its output is joined to its input."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "ABB Dry-type Transformers",
+    "url": "https://new.abb.com/docs/librariesprovider68/default-document-library/data-center-forum-2017/dryabb-data-center-forum-2017---dry_transformers_michael_gogioli.pdf",
+    "quote": "This inrush current, which appears as an internal fault to the differential relays , may reach instantaneous peaks of 8 to 30 times the full load current."
+   },
+   {
+    "n": 2,
+    "title": "What are Current Transformer (CT) shorting blocks used for? Where can they be found? Are there any hazards of having the CT secondary open-circuited? | Schneider Electric USA",
+    "url": "https://www.se.com/us/en/faqs/FA125574",
+    "quote": "As much as 4000V on the secondary has been measured on large core CTs with an open-circuited secondary."
+   },
+   {
+    "n": 3,
+    "title": "46 CFR 111.10-9 - Ship's service supply transformers; two required.",
+    "url": "https://www.govinfo.gov/app/details/CFR-1999-title46-vol4/CFR-1999-title46-vol4-sec111-10-9",
+    "quote": "there must be at least two installed, independent power transformers. With the largest transformer out of service, the capacity of the remaining units must be sufficient to supply the ship service loads."
+   },
+   {
+    "n": 4,
+    "title": "Delta and Wye Transformer Connections",
+    "url": "https://www.maddox.com/resources/articles/delta-wye-connections",
+    "quote": "The winding insulation needs to be insulated for the type of system feeding it. Ungrounded systems require a fully insulated winding."
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: mechanism -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .caption { max-width: 32rem; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.08rem; font-weight: 400; line-height: 1.6; }\n  .scene { display: block; width: 100%; max-width: 26rem; margin-inline: auto; touch-action: pan-y; }\n  .scene text { font: 600 13px var(--k-font); fill: var(--k-ink); }\n  .scene .tk { font-weight: 400; fill: var(--k-muted); }\n  .scene .hr { font-size: 12.5px; fill: var(--k-accent); }\n  .scene .side { font-size: 13px; font-weight: 700; letter-spacing: .04em; fill: var(--k-accent); }\n  .scene .warnt { fill: var(--k-warn); }\n  .scene .iron { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1; }\n  .scene .hole { fill: var(--k-bg); stroke: var(--k-strong); stroke-width: 1; }\n  .scene .coil { fill: var(--k-panel); stroke-width: 1.6; }\n  .scene .p1 { stroke: var(--k-cat1); }\n  .scene .p2 { stroke: var(--k-cat2); }\n  .scene .turn { stroke-width: 1; }\n  .scene .wind { stroke: var(--k-accent2); stroke-width: 3; stroke-linecap: round; }\n  .scene .wire { fill: none; stroke: var(--k-ink); stroke-width: 1.6; stroke-linejoin: round; }\n  .scene .term { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.6; }\n  .scene .dot { fill: var(--k-ink); }\n  .scene .blade { stroke: var(--k-ink); stroke-width: 3; stroke-linecap: round; }\n  .scene .bus { fill: var(--k-strong); }\n  .scene .axis { stroke: var(--k-strong); stroke-width: 1.2; }\n  .scene .zero { stroke: var(--k-line); stroke-width: 1; }\n  .scene .ref { stroke: var(--k-muted); stroke-width: 1.3; stroke-dasharray: 6 4; }\n  .scene .ref2 { stroke: var(--k-muted); stroke-width: 1.3; stroke-dasharray: 1.5 3; }\n  .scene .mark { stroke: var(--k-accent2); stroke-width: 1.4; stroke-dasharray: 3 3; }\n  .scene .tr { fill: none; stroke-width: 2.2; stroke-linejoin: round; stroke-linecap: round; }\n  .scene .volt { stroke: var(--k-accent); }\n  .scene .main { stroke: var(--k-accent2); }\n  .scene .inkl { stroke: var(--k-ink); }\n  .scene .tr.bad { stroke: var(--k-warn); }\n  .scene .curve { fill: none; stroke: var(--k-ink); stroke-width: 2; stroke-linejoin: round; }\n  .scene .barbg { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1; }\n  .scene .barfill { fill: var(--k-accent2); }\n  .scene .barfill.bad { fill: var(--k-warn); }\n  .scene .now { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }\n  .scene .now.bad { fill: var(--k-warn); }\n  .scene .ring { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 2; }\n  .scene .ring.bad { stroke: var(--k-warn); }\n  .scene .res { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.6; }\n  .scene .opn { fill: var(--k-bg); stroke: var(--k-warn); stroke-width: 2; }\n  .scene .tf { fill: var(--k-accent2); }\n  .scene .ps { fill: var(--k-fill3); stroke: var(--k-accent); stroke-width: 1; }\n  .scene .joint { fill: none; stroke: var(--k-warn); stroke-width: 2.4; }\n  /* The burden picker wraps: three to a row on a phone. */\n  #c-burden .k-seg { display: grid; grid-template-columns: repeat(auto-fit, minmax(5.5rem, 1fr)); }\n  #c-burden .k-seg button, #c-ratio .k-seg button { white-space: nowrap; }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; }\n  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }\n  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-inline: 16px; font-size: .95rem; white-space: nowrap; }\n  .outs .k-readout { flex: 1 1 8rem !important; min-width: 0; }\n  .picks { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }\n  .picks .k-btn { min-height: 48px; font-size: 1.05rem; white-space: normal; overflow-wrap: normal; word-break: normal; hyphens: none; }\n  .picks .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  .answers .k-answer { max-width: 20rem; }\n  .fb { font-weight: 700; min-height: 1.5em; }\n  .fb.right { color: var(--k-good); }\n  .why, .done { line-height: 1.6; }\n  .done .row { margin-top: 14px; }\n  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }\n</style>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <svg class=\"scene\" id=\"scOn\" viewBox=\"0 0 340 394\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"artO\"></g></svg>\n    <svg class=\"scene\" id=\"scCt\" viewBox=\"0 0 340 324\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"artC\"></g></svg>\n    <svg class=\"scene\" id=\"scIso\" viewBox=\"0 0 340 384\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"artI\"></g></svg>\n    <div class=\"replay\" id=\"replay\"></div>\n    <div class=\"k-controls\" id=\"c-pt\"></div>\n    <div class=\"k-controls\" id=\"c-res\"></div>\n    <div class=\"k-controls\" id=\"c-burden\"></div>\n    <div class=\"k-controls\" id=\"c-ratio\"></div>\n    <div class=\"row\" id=\"on-acts\"></div>\n    <div class=\"k-readouts outs\" id=\"outs\"></div>\n    <div class=\"picks\" id=\"picks\"></div>\n    <div class=\"answers\" id=\"answers\"></div>\n    <div class=\"row acts\" id=\"acts\"></div>\n    <p class=\"fb\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p id=\"finish\"></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\">A sketch, not measured data. Every flux, current, voltage and share is worked from the rule.</p>\n\n<script>\n  // ================= the rules =================\n  const W = (s) => s.replace(/\\[\\^\\d+\\]/g, '').replace(/\\[\\[([^\\]]+)\\]\\]/g, '*$1*');\n  const NB = '\\u00a0';\n  const rad = (d) => d * Math.PI / 180;\n  const one = (v) => (Math.round(v * 10) / 10).toFixed(1);\n  const two = (v) => (Math.round(v * 100) / 100).toFixed(2);\n  const SRC1 = 'https://new.abb.com/docs/librariesprovider68/default-document-library/data-center-forum-2017/dryabb-data-center-forum-2017---dry_transformers_michael_gogioli.pdf';\n  const SRC2 = 'https://www.se.com/us/en/faqs/FA125574';\n\n  // Switching on. Flux in times the normal peak; the wave's angle in degrees from a rising zero.\n  // Offset = flux left in + cos(switch-on point); flux = offset − cos(angle), so it starts at the flux left in.\n  // The offset holds to the first flux peak (180°), then halves every cycle (a rate chosen for the picture).\n  const KNEE = 1.2, LO = 0.02, HI = 15, KEEP = 0.5, SWEEP = 2;\n  const off0 = (pt, res) => res + Math.cos(rad(pt));\n  function fluxAt(th, pt, res) {\n    if (th < pt) return res;\n    const o = off0(pt, res) * (th <= 180 ? 1 : Math.pow(KEEP, (th - 180) / 360));\n    return o - Math.cos(rad(th));\n  }\n  // Current in times full load: 0.02 × flux up to the knee, 0.024 + 15 × (flux − 1.2) past it, either way round.\n  const ampOf = (f) => { const a = Math.abs(f); return a <= KNEE ? LO * f : Math.sign(f) * (LO * KNEE + HI * (a - KNEE)); };\n  const firstPeak = (pt, res) => 1 + off0(pt, res);\n  const peakAmp = (pt, res) => ampOf(firstPeak(pt, res));\n\n  // The CT: 400 A in a one-turn busbar, an 80-turn secondary. Below the knee 400 × 1 = 5 × 80.\n  const IBUS = 400, TURNS = 80, ISEC = IBUS * 1 / TURNS, RW = 0.2, KNEEV = 30, SAT = 1.3, LAG = 10;\n  const ohms = (b) => b === 'Shorted' ? 0 : +b;\n  const voltsOf = (b) => ISEC * (ohms(b) + RW);\n  const kneeShare = (b) => voltsOf(b) / KNEEV;\n  // Flux and secondary voltage over the cycle, in knee units. Closed: the volts are in step with the\n  // current and the flux is their running total. Open: the busbar drives the core into saturation,\n  // and it flips near each current zero; the voltage is the flux's rate of change.\n  function ctFlux(th, b) { return b === 'Open' ? SAT * Math.tanh(Math.sin(rad(th - LAG)) / 0.1) : -kneeShare(b) * Math.cos(rad(th)); }\n  function ctVolt(th, b) {\n    if (b !== 'Open') return kneeShare(b) * Math.sin(rad(th));\n    const h = 0.25;\n    return (ctFlux(th + h, b) - ctFlux(th - h, b)) / rad(2 * h);\n  }\n\n  // The auto-transformer: the supply current flows straight on into the load, carrying output ÷ input of the power.\n  const VIN = 440;\n  const outOf = (r) => r === '400' ? 400 : 115;\n  const passShare = (r) => outOf(r) / VIN;\n  const tfShare = (r) => 1 - passShare(r);\n\n  // ================= the lesson: SHOW screens demonstrate, DO screens are puzzles =================\n  const ramp = (t, t0, dur, a, b) => a + (b - a) * K.clamp((t - t0) / dur, 0, 1);\n  const nbv = (s) => s.replace(/(\\d) (V|Ω|A)\\b/g, '$1' + NB + '$2');\n  const TRIP = ['Inrush current at switch-on', 'A fault in the windings', 'An overload on the 115 V side', 'The core\\'s iron loss'].map(nbv);\n  const METER = ['Short the CT\\'s secondary at its shorting terminals', 'Disconnect the ammeter\\'s leads', 'Wait for a light load, then disconnect', 'Fit a fuse in the secondary'];\n  const VT = ['It feeds a fault current', 'Nothing, as a CT runs shorted', 'It spikes, as an open CT does'];\n  const swOn = (t0) => (t) => { X.on = t >= t0; X.head = ramp(t, t0, SWEEP, 0, 1); };\n  const STEPS = [\n    { kind: 'typed', name: 'An empty capacitor', ans: 'cap', card: 'none', enter: {},\n      answer: 325, decimals: 0, unit: 'A', want: '325' + NB + 'A',\n      slips: [{ value: 0, hint: 'An empty capacitor holds 0 V, so all 325 V falls across the 1 Ω.' },\n        { value: 3.25, hint: 'That is through a 100 Ω precharge resistor.' }],\n      task: 'An empty capacitor is switched straight onto a 325 V peak. The supply and wiring have 1 Ω. What current flows at the first instant?',\n      hint: '325 V ÷ 1 Ω.',\n      why: '325 ÷ 1 = 325 A.',\n      right: 'Right, you still have it.',\n      read: 'An empty capacitor meets a 325 V peak through 1 Ω: what current flows at the first instant?' },\n    { show: true, name: 'Switching on at a zero', card: 'on', ctl: [], ro: ['peak', 'amp'], enter: { on: false, head: 0 }, end: { on: true, head: 1 }, dur: 3.0,\n      demo: swOn(0.6),\n      text: W('A transformer can surge at switch-on too, for a different reason. The voltage sets how fast the flux changes. So the flux is the voltage\\'s running total, and it peaks at each voltage zero. At a rising zero it sits at its lowest peak. Each half-cycle swings it to the other peak, two peaks\\' worth. Switch on at a zero and it starts from nothing instead. The same swing takes it to twice its normal peak. Past the knee the iron is full, so the current soars.'),\n      read: 'Switched on at a zero with an empty core, the flux climbs to 2.0 times its normal peak. The current spikes red to 12 times full load.',\n      still: () => setStill() },\n    { kind: 'typed', name: 'Flux left in', ans: 'left', card: 'on', enter: { res: 0.6, on: false }, after: { on: true }, post: swOn(0), postDur: SWEEP,\n      hide: ['peak'], ro: ['peak', 'amp'],\n      answer: 2.6, decimals: 1, unit: 'times normal peak', want: '2.6' + NB + '× normal peak',\n      slips: [{ value: 2, hint: 'Add the 0.6 still in the core.' },\n        { value: 1.6, hint: 'From a zero the climb is two peaks, not one.' },\n        { value: 1.4, hint: 'Flux left in the same way adds to the climb.' }],\n      task: 'A transformer is switched on at a voltage zero. Its core still holds 0.6 of the normal peak flux. That flux pushes the same way as the first half-cycle. How high does the flux climb, in times its normal peak?',\n      hint: 'Flux left in + 2.',\n      why: '0.6 + 2 = 2.6 times the normal peak.',\n      read: 'Switched on at a zero with 0.6 left in, how high does the flux climb?' },\n    { show: true, name: 'At a peak', card: 'on', ctl: ['pt', 'res'], btn: true, ro: ['peak', 'amp'], enter: { on: true }, end: { pt: 90, on: true, head: 1 }, dur: 3.0,\n      // From a zero, the switch-on point steps a slider notch at a time to a peak; the traces follow.\n      demo: (t) => { X.on = true; X.head = 1; X.pt = 15 * Math.min(6, Math.floor(ramp(t, 0.4, 2.0, 0, 6.999))); },\n      text: W('Switch on at a voltage peak instead, and nothing overshoots. In normal running, the flux passes through zero there. So an empty core starts just where it should be. The flux swings only to its normal peak. The current stays at 0.02 times full load. So two things set the surge: the moment on the wave and the flux left in. That surge is the [[inrush current]]. Its peaks can reach 8 to 30 times full-load current.[^1] Try other moments and flux left in, then switch on again.'),\n      read: 'Switched on at a peak with an empty core, the flux swings only to its normal peak. The current stays at 0.02 times full load.',\n      still: () => setStill() },\n    { kind: 'pick', name: 'A trip on closing', card: 'on', enter: { res: 0.8, on: true }, ro: ['peak', 'amp'],\n      opts: TRIP, want: TRIP[0],\n      task: 'A breaker feeding a transformer trips the moment it closes. Closed again, it holds. Nothing else has changed. What most likely tripped it?',\n      hint: 'A winding fault would trip it again.',\n      hints: { [TRIP[1]]: 'A winding fault would trip it again.', [TRIP[2]]: 'The load has not changed.', [TRIP[3]]: 'Iron loss is small and steady.' },\n      why: W('The first close caught a worse moment on the wave, with flux left in the same way. Inrush can even look like an internal fault to differential protection.[^1]'),\n      read: 'A breaker trips on closing onto a transformer, then holds. What most likely tripped it?' },\n    { show: true, name: 'A current transformer', card: 'ct', ctl: ['burden'], ro: ['volts', 'kflux'], enter: { ct: 0 }, end: { burden: 'Shorted', ct: 1 }, dur: 3.0,\n      demo: (t) => { X.burden = 'Shorted'; X.ct = ramp(t, 0.5, SWEEP, 0, 1); },\n      text: W('A current transformer, a CT, is fed a current, not a voltage. Its primary is a busbar through its core, one turn carrying 400 A. The circuit\\'s load sets that current. The 80-turn secondary drives 5 A round the meter. Its ampere-turns almost cancel the busbar\\'s. The small difference makes the flux, just enough for the volts that push 5 A round. The meter circuit\\'s resistance is the CT\\'s [[burden]]. Its own winding has 0.2 Ω, so even shorted it needs 5 × 0.2 = 1.0 V.'),\n      still: () => setStill() },\n    { kind: 'typed', name: 'Volts for 5 A', ans: 'volt', card: 'ct', enter: { burden: '0.6' }, hide: ['volts'], ro: ['volts', 'kflux'],\n      answer: 4.0, decimals: 1, unit: 'V', want: '4.0' + NB + 'V',\n      slips: [{ value: 3, hint: 'Add the winding\\'s own 0.2 Ω.' },\n        { value: 1, hint: 'That is the winding alone. Add the meter\\'s 0.6 Ω.' },\n        { value: 0.8, hint: 'That is the resistance. Multiply by the 5 A.' }],\n      task: 'A CT\\'s 80-turn secondary carries 5 A. Its own winding is 0.2 Ω and the meter circuit 0.6 Ω. What voltage must the secondary make?',\n      hint: '5 A × (0.6 + 0.2) Ω.',\n      why: '5 × 0.8 = 4.0 V. That is 13% of the 30 V knee.',\n      read: '5 A through 0.2 Ω of winding and a 0.6 Ω meter circuit: what voltage must the secondary make?' },\n    { show: true, name: 'An open secondary', card: 'ct', ctl: ['burden'], ro: ['volts', 'kflux'], enter: {}, end: { burden: 'Open', ct: 1 }, dur: 3.0,\n      demo: (t) => { X.burden = t < 0.7 ? 'Shorted' : 'Open'; X.ct = t < 0.7 ? 1 : ramp(t, 0.7, SWEEP, 0, 1); },\n      text: W('An open secondary on load is dangerous. With the busbar still carrying 400 A, nothing cancels its 400 ampere-turns. They drive the core into saturation. Saturated, the flux sits flat and makes no voltage. Near each current zero it flips to the other side in a moment. That fast flip makes a tall, narrow spike. As much as 4000 V has been measured on large CTs.[^2] A voltage transformer, a VT, is fed a voltage instead. So a VT is safe open, and a short on it is a fault.'),\n      read: 'With the secondary open and 400 A in the busbar, the core saturates. The secondary spikes red at every flip.',\n      still: () => setStill() },\n    { kind: 'pick', name: 'Changing a meter', card: 'ct', enter: { burden: 'Shorted' }, ro: ['volts', 'kflux'],\n      opts: METER, want: METER[0],\n      task: 'A panel ammeter fed by a CT must be changed. The circuit stays on load. What do you do first?',\n      hint: 'That opens the secondary with current in the busbar.',\n      hints: { [METER[1]]: 'That opens the secondary with current in the busbar.', [METER[2]]: 'While current flows, an open secondary can still make high voltages.', [METER[3]]: 'A fuse that blows opens the secondary.' },\n      why: 'The short keeps the ampere-turns balanced while the meter is out.',\n      read: 'A CT-fed ammeter must be changed with the circuit on load. What do you do first?' },\n    { show: true, name: 'No isolation', card: 'iso', ctl: ['ratio'], ro: [], enter: { iso: 0 }, end: { ratio: '115', iso: 3 }, dur: 3.0,\n      demo: (t) => { X.iso = ramp(t, 0.2, 2.6, 0, 3); },\n      text: W('An [[auto-transformer]] gives no isolation. It is one winding with a tap, so its output is joined to its input. An earth fault on either side is an earth fault on both. So it cannot make a separate insulated system. The supply\\'s current is the power ÷ 440. It flows straight on into the load at 115 V, so it carries 115 ÷ 440 of the power, 26%. Only the other 74% is transformed and needs iron and copper. So an auto is much smaller only near a 1:1 ratio.'),\n      still: () => setStill() },\n    { kind: 'typed', name: 'Share transformed', ans: 'share', card: 'iso', enter: { ratio: '400' }, after: { iso: 3 }, post: (t) => { X.iso = 2 + ramp(t, 0, 0.8, 0, 1); }, postDur: 0.8,\n      hide: ['split'], ro: [],\n      answer: 9, decimals: 0, unit: '%', want: '9%',\n      slips: [{ value: 91, hint: 'That is the share passed straight through.' },\n        { value: 74, hint: 'That is for 440 V to 115 V.' },\n        { value: 10, hint: 'Divide by 440, the input, not 400.' }],\n      task: 'An auto-transformer steps 440 V to 400 V. What share of its power is transformed?',\n      hint: '1 − 400 ÷ 440.',\n      why: '400 ÷ 440 = 0.909. Then 1 − 0.909 = 0.091, so 9%. Only that 9% needs iron and copper, so this auto can be much smaller than an isolating one.',\n      read: 'An auto-transformer steps 440 V to 400 V: what share of its power is transformed?' },\n    { kind: 'typed', name: 'Secondary turns', ans: 'turns', card: 'none', enter: {},\n      answer: 40, decimals: 0, unit: '', want: '40',\n      slips: [{ value: 5, hint: 'That is its secondary current.' },\n        { value: 1000, hint: 'Ampere-turns balance, so divide.' },\n        { value: 0.025, hint: 'That divides the wrong way.' }],\n      task: 'A CT is marked 200/5 A. Its busbar is one turn. How many turns has its secondary?',\n      hint: '200 × 1 = 5 × turns.',\n      why: '200 ÷ 5 = 40.',\n      read: 'A 200/5 A CT on a one-turn busbar: how many secondary turns?' },\n    { kind: 'typed', name: 'A short at the terminals', ans: 'fault', card: 'none', enter: {},\n      answer: 1250, decimals: 0, unit: 'A', want: '1250' + NB + 'A',\n      slips: [{ value: 2, hint: 'That multiplies by 4%. Divide by it instead.' },\n        { value: 200, hint: 'That multiplies by 4. Divide by 4%, which is × 100 ÷ 4.' },\n        { value: 12.5, hint: 'That divides by 4. Divide by 4%, which is × 100 ÷ 4.' }],\n      task: 'A transformer\\'s full-load current is 50 A. Its impedance is 4%, and its supply is stiff. What current flows into a short at its terminals?',\n      hint: '50 A × 100 ÷ 4.',\n      why: '100 ÷ 4 = 25, so the short draws 25 × 50 = 1250 A.',\n      read: 'A transformer with 50 A full-load current and 4% impedance, on a stiff supply: what current flows into a short at its terminals?' },\n    { kind: 'pick', name: 'Shorting a VT', card: 'none', enter: {},\n      opts: VT, want: VT[0],\n      task: 'A voltage transformer, a VT, steps the system voltage down for meters. Like a power transformer\\'s, its primary sits across that voltage. What happens if its secondary is shorted?',\n      hint: 'A CT is fed a current. A VT is fed a voltage.',\n      hints: { [VT[1]]: 'A CT is fed a current. A VT is fed a voltage.', [VT[2]]: 'The spike needs a fixed current with nothing to cancel it.' },\n      why: 'Its voltage drives a large current through its own small impedance, like any power transformer\\'s.',\n      read: 'What happens if a VT\\'s secondary is shorted?' },\n  ];\n  const FINISH = 'Saturation explains both hazards. Switch on at a bad moment, and the flux overshoots the knee, so the current surges. Open a CT on load and its core saturates, so its secondary spikes. Short a CT before you open its circuit. Never short a VT. An auto-transformer gives no isolation.';\n  const idx = (name) => STEPS.findIndex((d) => d.name === name);\n  const iCap = idx('An empty capacitor'), iZero = idx('Switching on at a zero'), iLeft = idx('Flux left in'), iPeak = idx('At a peak');\n  const iTrip = idx('A trip on closing'), iCt = idx('A current transformer'), I_VOLT = idx('Volts for 5 A'), iOpen = idx('An open secondary');\n  const iMeter = idx('Changing a meter'), iAuto = idx('No isolation'), I_SHARE = idx('Share transformed'), iTurns = idx('Secondary turns'), iFault = idx('A short at the terminals');\n\n  // ================= state =================\n  const BASE = { pt: 0, res: 0, on: false, head: 1, burden: 'Shorted', ct: 1, ratio: '115', iso: 3 };\n  const X = Object.assign({}, BASE);              // what the picture shows now\n  const D = { pt: 0, res: 0, tap: passShare('115') };   // the drawn settings, easing towards X\n  const blank = () => ({ pick: null, res: null, why: false, tries: 0, hint: '' });\n  let S = STEPS.map(blank);\n  const solved = (st) => !!st && (st.res === 'right' || st.res === 'shown');\n  let RUN = null, lastStep = -1, finished = false, lastDone = false, VIEW = 0;\n  let REC = { t: {} };\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n  const quiet = () => REDUCE || testing();\n  const el = (id) => document.getElementById(id);\n  // A puzzle's figure stays \"?\" until that puzzle is checked; the figure a later puzzle asks for stays \"?\" on the screens before it.\n  const hideOut = (i, key) => !finished && !!STEPS[i].hide && STEPS[i].hide.indexOf(key) >= 0 && !solved(S[i]);\n  const spoilsCt = (i) => !finished && i < I_VOLT && X.burden === '0.6' && !solved(S[I_VOLT]);\n  const spoilsIso = (i) => !finished && i < I_SHARE && X.ratio === '400' && !solved(S[I_SHARE]);\n\n  // A run is a timed script: a demonstration, a switch-on drawing its five cycles, a CT drawing its two.\n  function startRun(fn, dur, end) {\n    RUN = { fn, dur, end: end || {}, t: 0 };\n    fn(0);\n    if (quiet()) finishRun();\n  }\n  function finishRun() { const r = RUN; if (!r) return; RUN = null; r.fn(r.dur); Object.assign(X, r.end); }\n  const ctSweep = (t) => { X.ct = ramp(t, 0, SWEEP, 0, 1); };\n  const ease1 = (v, t, dt, tau) => { const e = t - v; return Math.abs(e) <= 1e-3 * Math.max(1, Math.abs(t)) ? t : v + e * (1 - Math.exp(-dt / tau)); };\n  function snapD() { D.pt = X.pt; D.res = X.res; D.tap = passShare(X.ratio); }\n  function tween(dt) { D.pt = ease1(D.pt, X.pt, dt, 0.08); D.res = ease1(D.res, X.res, dt, 0.08); D.tap = ease1(D.tap, passShare(X.ratio), dt, 0.12); }\n  const settled = () => D.pt === X.pt && D.res === X.res && D.tap === passShare(X.ratio);\n\n  // ================= text with amber key terms (built with K.el, never innerHTML) =================\n  const UNIT_GAP = /(\\d) (?=(?:kVA|V|A|W|Ω|×)(?![A-Za-z]))/g;\n  function write(node, s) {\n    node.textContent = '';\n    String(s || '').replace(UNIT_GAP, '$1' + NB).split(/\\*([^*]+)\\*/).forEach((seg, k) => {\n      if (!seg) return;\n      node.appendChild(k % 2 ? K.el('span', { class: 'term' }, seg) : document.createTextNode(seg));\n    });\n  }\n\n  // ================= controls =================\n  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);\n  const CTL = {\n    pt: K.control({ id: 'pt', label: 'Switch-on point', min: 0, max: 90, step: 15, value: 0,\n      fmt: (v) => v === 0 ? '0°, a zero' : v === 90 ? '90°, a peak' : Math.round(v) + '°', into: '#c-pt' }),\n    res: K.control({ id: 'res', label: 'Flux left in', min: 0, max: 0.8, step: 0.2, value: 0,\n      fmt: (v) => v < 1e-9 ? 'None' : one(v) + ' of normal peak', into: '#c-res' }),\n    burden: K.choice({ id: 'burden', label: 'Burden', value: 'Shorted', into: '#c-burden',\n      options: [{ value: 'Shorted', label: 'Shorted' }, { value: '0.6', label: '0.6' + NB + 'Ω' }, { value: '2', label: '2' + NB + 'Ω' }, { value: '4', label: '4' + NB + 'Ω' }, { value: 'Open', label: 'Open' }] }),\n    ratio: K.choice({ id: 'ratio', label: 'Auto ratio', value: '115', into: '#c-ratio',\n      options: [{ value: '115', label: '440' + NB + 'V to 115' + NB + 'V' }, { value: '400', label: '440' + NB + 'V to 400' + NB + 'V' }] }),\n  };\n  const CTL_IDS = Object.keys(CTL);\n  const same = (a, b) => typeof a === 'number' && typeof b === 'number' ? Math.abs(a - b) < 1e-9 : a === b;\n  const pushed = {};\n  CTL_IDS.forEach((id) => { pushed[id] = CTL[id].get(); });\n  // The page moves the controls itself during a demonstration (silently, so it is not taken for Dan's move).\n  function push() {\n    CTL_IDS.forEach((id) => { if (!same(pushed[id], X[id])) { CTL[id].set(X[id], true); pushed[id] = CTL[id].get(); } });\n  }\n  const shownCtl = (d, id) => !finished && !!d.ctl && d.ctl.indexOf(id) >= 0;\n  const onBtn = K.button({ label: 'Switch on', into: '#on-acts', press: () => {\n    const d = STEPS[at()];\n    if (finished || !d.btn) return;\n    if (RUN) finishRun();\n    startRun(swOn(0), SWEEP, { on: true, head: 1 });\n    K.refresh();\n  } });\n\n  const RO = {\n    peak: K.readout({ id: 'r-peak', label: 'First flux peak', fmt: (v) => one(v) + NB + '× normal', into: '#outs' }),\n    amp: K.readout({ id: 'r-amp', label: 'Peak current', fmt: (v) => (Math.abs(v) > LO * KNEE + 1e-9 ? String(Math.round(v)) : two(v)) + NB + '× full load', into: '#outs' }),\n    volts: K.readout({ id: 'r-volts', label: 'Volts to drive 5 A', fmt: (v) => one(v) + NB + 'V', into: '#outs' }),\n    kflux: K.readout({ id: 'r-kflux', label: 'Core flux', fmt: (v) => Math.round(v) + '% of knee', into: '#outs' }),\n  };\n\n  // Up to four answer buttons; each puzzle fills in its own.\n  const pickBtns = [0, 1, 2, 3].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.kind !== 'pick' || k >= d.opts.length || solved(st)) return;\n    st.pick = d.opts[k]; st.res = null;\n  } }));\n  // Typed answers: a field each; Check grades it, two misses show the working.\n  const ANS = {};\n  STEPS.forEach((d, i) => {\n    if (d.kind !== 'typed') return;\n    el('answers').appendChild(K.el('div', { id: 'ans-' + d.ans }));\n    const a = K.answer({ id: 'a-' + d.ans, unit: d.unit, answer: d.answer, decimals: d.decimals, slips: d.slips, into: '#ans-' + d.ans,\n      onCheck: (r) => {\n        const st = S[i];\n        if (solved(st)) return;\n        if (r.state === 'right') st.res = 'right';\n        else if (r.state === 'wrong') {\n          st.tries += 1; st.hint = r.hint || d.hint;\n          if (st.tries >= 2) { st.res = 'shown'; st.why = true; a.reveal(); }\n          else st.res = 'wrong';\n        } else { st.res = r.state; st.hint = ''; }\n        if (solved(st) && d.post && at() === i) startRun(d.post, d.postDur, d.after);\n        K.refresh();\n      } });\n    ANS[d.ans] = a;\n  });\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || solved(st)) return;\n    if (d.kind === 'typed') { ANS[d.ans].check(); return; }\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = st.pick === d.want ? 'right' : 'wrong';\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    const d = STEPS[at()];\n    if (d.show || finished) return;\n    S[at()].why = !S[at()].why;\n  } });\n  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {\n    if (!STEPS[at()].show || finished) return;\n    startDemo(at());\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && !solved(S[i]))) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true; anim.pause(); RUN = null;\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S = STEPS.map(blank); finished = false; lastStep = -1;\n    Object.keys(ANS).forEach((k) => ANS[k].reset());\n    stepper.set(0, true);\n  } });\n\n  // ================= motion: one animation runs the demonstrations, the sweeps and the easing =================\n  const needAnim = () => !finished && (!!RUN || !settled());\n  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {\n    if (finished) return false;\n    dt = Math.min(dt, 0.1);\n    const i = at();\n    VIEW = i;\n    if (RUN) { RUN.t += dt; if (RUN.t >= RUN.dur) finishRun(); else RUN.fn(RUN.t); }\n    if (REDUCE) snapD(); else tween(dt);\n    push();\n    paint(i);\n    return needAnim();\n  } });\n  function kick() {\n    if (testing()) { snapD(); return; }\n    if (REDUCE) snapD();\n    if (needAnim() && !anim.playing()) anim.play();\n  }\n  // A screen's state: its opening, or (for a demonstration) where it ends; a solved puzzle shows its answer.\n  function prep(i, showEnd) {\n    const d = STEPS[i];\n    VIEW = i; RUN = null;\n    Object.assign(X, BASE, d.enter || {});\n    if (d.show && showEnd) { if (d.demo) d.demo(d.dur); Object.assign(X, d.end || {}); }\n    if (!d.show && d.after && solved(S[i])) Object.assign(X, d.after);\n    snapD();\n  }\n  function startDemo(i) {\n    const d = STEPS[i];\n    anim.pause();\n    if (d.demo && !quiet()) { prep(i, false); startRun(d.demo, d.dur, d.end); snapD(); anim.play(); }\n    else prep(i, true);\n    push();\n  }\n  function enterStep(i) {\n    const d = STEPS[i];\n    anim.pause(); RUN = null;\n    enter('stepbox');\n    if (d.show) { startDemo(i); return; }\n    prep(i, false);\n    push();\n  }\n  // The finished picture a still shows (the read-through), with the controls where its words end.\n  function setStill() {\n    const i = at();\n    anim.pause();\n    prep(i, true);\n    push();\n    K.refresh();\n  }\n  function enter(id) {\n    if (REDUCE) return;\n    const box = el(id);\n    box.classList.remove('enter');\n    void box.offsetWidth;\n    box.classList.add('enter');\n  }\n\n  // ================= drawing helpers =================\n  let G = null;\n  const add = (node, par) => (par || G).appendChild(node);\n  const r1 = (v) => Math.round(v * 10) / 10;\n  const text = (x, y, s, cls, anchor) => add(K.svg('text', { class: cls || 'lab', x: r1(x), y: r1(y), 'text-anchor': anchor || 'start' }, s));\n  const ptsS = (pts) => pts.map((p) => r1(p[0]) + ',' + r1(p[1])).join(' ');\n  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r1(x1), y1: r1(y1), x2: r1(x2), y2: r1(y2) }));\n  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: r1(x), y: r1(y), width: r1(Math.max(0, w)), height: r1(Math.max(0, h)), rx: rx || 0 }));\n  const circle = (cls, cx, cy, r) => add(K.svg('circle', { class: cls, cx: r1(cx), cy: r1(cy), r }));\n  const path = (cls, d) => add(K.svg('path', { class: cls, d }));\n  function inGroup(o, fn) {\n    if (o < 0.01) return;\n    const g = add(K.svg('g', { opacity: (Math.round(o * 100) / 100).toString() })), keep = G;\n    G = g; fn(); G = keep;\n  }\n  // Angles to sample from a to b, every step, with any extra angles (a peak) put in exactly.\n  function samples(a, b, step, extra) {\n    if (b <= a) return [a];\n    const out = [];\n    for (let th = a; th < b; th += step) out.push(th);\n    out.push(b);\n    (extra || []).forEach((e) => { if (e > a && e < b && out.indexOf(e) < 0) out.push(e); });\n    return out.sort((p, q) => p - q);\n  }\n  // A trace, cut into runs drawn in ink or navy, and red where isBad. -> how many red runs.\n  function runs(ths, f, xOf, yOf, isBad, cls) {\n    let pts = [], bad = null, nBad = 0;\n    const flush = () => { if (pts.length > 1) { add(K.svg('polyline', { class: 'tr ' + cls + (bad ? ' bad' : ''), points: ptsS(pts) })); if (bad) nBad++; } };\n    ths.forEach((th) => {\n      const v = f(th), b = !!isBad(th, v), p = [xOf(th), yOf(v)];\n      if (bad !== null && b !== bad) { pts.push(p); flush(); pts = [p]; } else pts.push(p);\n      bad = b;\n    });\n    flush();\n    return nBad;\n  }\n\n  // ================= the switch-on card =================\n  const TX0 = 14, TX1 = 258, TH0 = -90, TH1 = 1800;\n  const tx = (th) => TX0 + (th - TH0) / (TH1 - TH0) * (TX1 - TX0);\n  const VC = 176, VA = 18;\n  const fy = (f) => 309 - (f + 1.3) * 19;            // the flux trace\n  const iy = (a) => 384 - a * 46 / 25;               // the current trace, 0 to 25 times full load\n  const ty = (f) => 118 - (f + 1.3) * 24;            // the flux bar and the B-H curve share this scale\n  const BH0 = 150, BH1 = 336, HMIN = -3, HMAX = 25;\n  const hx = (h) => BH0 + (h - HMIN) / (HMAX - HMIN) * (BH1 - BH0);\n  const headTh = () => X.on ? D.pt + K.clamp(X.head, 0, 1) * (TH1 - D.pt) : D.pt;\n  function drawOn(i) {\n    G = el('artO'); G.textContent = '';\n    const pt = D.pt, res = D.res, thh = headTh();\n    const fNow = X.on ? fluxAt(thh, pt, res) : res, aNow = X.on ? ampOf(fNow) : 0, past = Math.abs(fNow) > KNEE + 1e-9;\n    // The ring core and its one winding, switched onto the 440 V supply.\n    circle('iron', 70, 66, 32); circle('hole', 70, 66, 20);\n    [54, 60, 66, 72, 78].forEach((y) => {\n      const o = 70 - Math.sqrt(32 * 32 - (y - 66) * (y - 66)), n = 70 - Math.sqrt(20 * 20 - (y - 66) * (y - 66));\n      line('wind', o - 3, y, n + 3, y);\n    });\n    path('wire', 'M37 54H30'); path('wire', 'M16 54H9'); path('wire', 'M37 78H9');\n    circle('term', 6, 54, 3); circle('term', 6, 78, 3); circle('dot', 16, 54, 2.2);\n    const ba = X.on ? 0 : -0.62;\n    line('blade', 30, 54, 30 - 14 * Math.cos(ba), 54 + 14 * Math.sin(ba));\n    circle('dot', 30, 54, 2.6);\n    text(4, 98, '440' + NB + 'V', 'lab', 'start');\n    // The flux bar, on the same scale as the B-H curve beside it; the knee runs across both.\n    rect('barbg', 114, 12, 14, 106, 3);\n    const z = ty(0), yv = ty(K.clamp(fNow, -1.3, 3.1));\n    if (Math.abs(yv - z) > 0.3) rect('barfill' + (past ? ' bad' : ''), 114, Math.min(z, yv), 14, Math.abs(yv - z));\n    line('zero', 110, z, 132, z);\n    text(121, 133, 'Core flux', 'lab', 'middle');\n    line('axis', hx(0), 10, hx(0), 118); line('axis', BH0, z, BH1, z);\n    line('ref', 108, ty(KNEE), BH1, ty(KNEE));\n    text(BH1, ty(KNEE) - 4, 'knee', 'tk', 'end');\n    text(hx(0) + 5, 15, 'Flux', 'tk', 'start'); text(BH1, z + 14, 'Current', 'tk', 'end');\n    add(K.svg('polyline', { class: 'curve', points: ptsS([-1.3, -KNEE, KNEE, 2.86].map((f) => [hx(ampOf(f)), ty(f)])) }));\n    circle('now' + (past ? ' bad' : ''), hx(aNow), ty(K.clamp(fNow, -1.3, 3.1)), 6);\n    // One time axis: the supply voltage, the core flux and the primary current.\n    text(TX1, 152, 'Supply voltage', 'hr', 'end');\n    line('zero', TX0, VC, TX1, VC);\n    add(K.svg('polyline', { class: 'tr volt', points: ptsS(samples(TH0, TH1, 6).map((th) => [tx(th), VC - VA * Math.sin(rad(th))])) }));\n    const mx = tx(pt);\n    line('mark', mx, 158, mx, 388);\n    text(mx + 9, 150, 'switch on', 'lab', 'start');\n    circle('dot', mx, VC - VA * Math.sin(rad(pt)), 3.6);\n    text(TX1, 216, 'Core flux', 'hr', 'end');\n    line('zero', TX0, fy(0), TX1, fy(0));\n    line('ref2', TX0, fy(1), TX1, fy(1)); line('ref2', TX0, fy(-1), TX1, fy(-1));\n    line('ref', TX0, fy(KNEE), TX1, fy(KNEE));\n    text(338, fy(KNEE) - 3, 'knee', 'tk', 'end'); text(338, fy(1) + 13, 'normal peak', 'tk', 'end');\n    line('tr main', tx(TH0), fy(res), mx, fy(res));\n    const sT = X.on && thh > pt ? samples(pt, thh, 3, [180]) : null;\n    let redF = 0, redA = 0;\n    if (sT) redF = runs(sT, (th) => fluxAt(th, pt, res), tx, fy, (th, v) => Math.abs(v) > KNEE + 1e-9, 'main');\n    const fp = firstPeak(pt, res), seen = X.on && thh >= 180 - 1e-9;\n    if (seen) {\n      circle('ring' + (fp > KNEE + 1e-9 ? ' bad' : ''), tx(180), fy(fp), 4.5);\n      text(tx(180) + 8, fy(fp) - 11, 'first peak', 'lab', 'start');\n    }\n    text(TX1, 332, 'Primary current', 'hr', 'end');\n    line('zero', TX0, iy(0), TX1, iy(0));\n    line('tr inkl', tx(TH0), iy(0), mx, iy(0));\n    if (sT) redA = runs(sT, (th) => ampOf(fluxAt(th, pt, res)), tx, iy, (th) => Math.abs(fluxAt(th, pt, res)) > KNEE + 1e-9, 'inkl');\n    el('scOn').setAttribute('aria-label', 'A ring core with one winding and a switch to a 440 V supply. Beside it a flux bar and a B-H curve with its knee. Below, on one time axis, the supply voltage, the core flux and the primary current. ' +\n      (X.on ? 'Switched on ' + Math.round(X.pt) + '° after a rising voltage zero' + (X.res > 1e-9 ? ', with ' + one(X.res) + ' of the normal peak flux left in.' : ', with an empty core.') +\n        (seen ? (fp > KNEE + 1e-9 ? ' The flux overshoots the knee and the current spikes red.' : ' The flux stays below the knee and the current stays small.') : '')\n        : 'The switch is open. The core holds ' + (X.res > 1e-9 ? one(X.res) + ' of the normal peak flux.' : 'no flux.')));\n    REC.fp = seen ? fp : null; REC.redF = redF; REC.redA = redA; REC.past = past; REC.fNow = fNow;\n  }\n\n  // ================= the CT card =================\n  const CX0 = 14, CX1 = 258, CTH0 = -180, CTH1 = 540;\n  const cxp = (th) => CX0 + (th - CTH0) / (CTH1 - CTH0) * (CX1 - CX0);\n  const IC = 196, IA = 18, VCT = 272, VS = 17, CLIP = 1.45;\n  const FB = (k) => 70 - k * 37;                    // the flux bar, in knee units\n  const outerX = (y) => 130 + 19 * Math.sqrt(Math.max(0, 1 - ((y - 50) / 39) * ((y - 50) / 39)));\n  const innerX = (y) => 130 + 9 * Math.sqrt(Math.max(0, 1 - ((y - 50) / 29) * ((y - 50) / 29)));\n  function drawCt(i) {\n    G = el('artC'); G.textContent = '';\n    const b = X.burden, open = b === 'Open', thh = CTH0 + K.clamp(X.ct, 0, 1) * (CTH1 - CTH0);\n    const fNow = ctFlux(thh, b), sat = Math.abs(fNow) > 1 + 1e-9;\n    // The busbar passes once through the ring: the ring's far half behind it, its near half in front.\n    add(K.svg('ellipse', { class: 'iron', cx: 130, cy: 50, rx: 19, ry: 39 }));\n    add(K.svg('ellipse', { class: 'hole', cx: 130, cy: 50, rx: 9, ry: 29 }));\n    rect('bus', 8, 44, 228, 12, 2);\n    path('iron', 'M130 11A19 39 0 0 1 130 89V79A9 29 0 0 0 130 21Z');\n    [62, 67, 72, 77].forEach((y) => line('wind', innerX(y) - 2, y, outerX(y) + 3, y));\n    path('wire', 'M151 62H214V128'); path('wire', 'M147 77V128');\n    let bl;\n    if (b === 'Shorted') { path('wire', 'M147 128H214'); bl = 'Meter circuit shorted'; }\n    else if (open) { path('wire', 'M147 128H170'); path('wire', 'M191 128H214'); circle('opn', 170, 128, 3.4); circle('opn', 191, 128, 3.4); bl = 'Meter circuit open'; }\n    else { path('wire', 'M147 128H165'); path('wire', 'M195 128H214'); rect('res', 165, 122, 30, 12, 2); bl = 'Meter circuit, ' + b + NB + 'Ω'; }\n    text(180, 150, bl, open ? 'lab warnt' : 'lab', 'middle');\n    text(8, 36, 'Busbar, 1 turn', 'lab', 'start');\n    text(240, 54.5, IBUS + NB + 'A', 'lab', 'start');\n    text(153, 98, TURNS + ' turns', 'lab', 'start');\n    const secA = (open ? 0 : ISEC) + NB + 'A';\n    text(220, 100, secA, 'lab', 'start');\n    // The flux bar, with the knee marked either way.\n    rect('barbg', 312, 18, 14, 104, 3);\n    const fk = K.clamp(fNow, -1.4, 1.4), z = FB(0), yv = FB(fk);\n    if (Math.abs(yv - z) > 0.3) rect('barfill' + (sat ? ' bad' : ''), 312, Math.min(z, yv), 14, Math.abs(yv - z));\n    line('zero', 308, z, 330, z);\n    line('ref', 308, FB(1), 330, FB(1)); line('ref', 308, FB(-1), 330, FB(-1));\n    text(304, FB(1) + 4, 'knee', 'tk', 'end'); text(304, FB(-1) + 4, 'knee', 'tk', 'end');\n    text(338, 12, 'Core flux', 'lab', 'end');\n    // Two cycles of busbar current and secondary voltage.\n    text(CX1, 172, 'Busbar current', 'hr', 'end');\n    line('zero', CX0, IC, CX1, IC);\n    if (thh > CTH0) add(K.svg('polyline', { class: 'tr inkl', points: ptsS(samples(CTH0, thh, 4).map((th) => [cxp(th), IC - IA * Math.sin(rad(th))])) }));\n    text(CX1, 238, 'Secondary voltage', 'hr', 'end');\n    line('zero', CX0, VCT, CX1, VCT);\n    line('ref', CX0, VCT - VS, CX1, VCT - VS); line('ref', CX0, VCT + VS, CX1, VCT + VS);\n    text(338, VCT - VS + 4, 'knee', 'tk', 'end');\n    let spikes = 0, vMax = 0, wasClip = false;\n    if (thh > CTH0) {\n      runs(samples(CTH0, thh, open ? 0.5 : 4), (th) => {\n        const v = ctVolt(th, b), c = Math.abs(v) >= CLIP;\n        vMax = Math.max(vMax, Math.abs(v));\n        if (c && !wasClip) spikes++;\n        wasClip = c;\n        return K.clamp(v, -CLIP, CLIP);\n      }, cxp, (v) => VCT - v * VS, (th, v) => open && Math.abs(v) > 0.15, 'main');\n    }\n    REC.lab4000 = null;\n    if (open) { const s = 'Up to 4000' + NB + 'V measured on large CTs'; text(14, 316, s, 'lab warnt', 'start'); REC.lab4000 = s; }\n    el('scCt').setAttribute('aria-label', 'A busbar carrying 400 A passes once through a ring core. Its 80-turn secondary feeds a meter circuit that is ' +\n      (b === 'Shorted' ? 'shorted' : open ? 'open' : b + ' Ω') + '. A flux bar beside it ' + (sat ? 'sits past the knee.' : 'stays inside the knee.') +\n      ' Below, two cycles of busbar current and secondary voltage' + (open ? ': the voltage sits flat with tall, narrow red spikes off the scale.' : ': the voltage is a small wave in step with the current.'));\n    REC.barSat = sat; REC.spikes = spikes; REC.vMax = vMax; REC.secA = secA;\n  }\n\n  // ================= the isolating card =================\n  function coil(x, y, h, cls) {\n    rect('coil ' + cls, x, y, 28, h, 5);\n    for (let yy = y + 8; yy < y + h - 2; yy += 8) line('turn ' + cls, x, yy, x + 28, yy);\n  }\n  function drawIso(i) {\n    G = el('artI'); G.textContent = '';\n    const a1 = K.clamp(X.iso, 0, 1), a2 = K.clamp(X.iso - 1, 0, 1), a3 = K.ease(K.clamp(X.iso - 2, 0, 1));\n    const outTxt = outOf(X.ratio) + NB + 'V out';\n    REC.joined = false; REC.isoJoined = false; REC.tf = null; REC.ps = null; REC.tapFrac = D.tap;\n    inGroup(a1, () => {\n      text(14, 18, 'Isolating', 'side', 'start');\n      rect('iron', 120, 26, 100, 92, 2); rect('hole', 136, 42, 68, 60);\n      coil(114, 46, 52, 'p1'); coil(198, 46, 52, 'p2');\n      path('wire', 'M114 54H30'); path('wire', 'M114 90H30'); circle('term', 26, 54, 3.6); circle('term', 26, 90, 3.6);\n      path('wire', 'M226 54H310'); path('wire', 'M226 90H310'); circle('term', 314, 54, 3.6); circle('term', 314, 90, 3.6);\n      text(14, 76, '440' + NB + 'V in', 'lab', 'start');\n      text(170, 76, 'no join', 'tk', 'middle');\n      text(326, 76, outTxt, 'lab', 'end');\n    });\n    inGroup(a2, () => {\n      text(14, 158, 'Auto', 'side', 'start');\n      coil(150, 168, 116, 'p1');\n      path('wire', 'M164 168V162H30'); circle('term', 26, 162, 3.6);\n      path('wire', 'M164 284V290'); path('wire', 'M30 290H310'); circle('term', 26, 290, 3.6); circle('term', 314, 290, 3.6);\n      const yt = 284 - 116 * D.tap;\n      path('wire', 'M178 ' + r1(yt) + 'H310'); circle('term', 314, yt, 3.6); circle('dot', 178, yt, 3);\n      text(184, yt - 6, 'tap', 'tk', 'start');\n      text(14, 230, '440' + NB + 'V in', 'lab', 'start');\n      text(326, (yt + 290) / 2 + 4, outTxt, 'lab', 'end');\n      circle('joint', 164, 290, 7); circle('dot', 164, 290, 2.8);\n      text(176, 308, 'output joined to input', 'lab warnt', 'start');\n      text(14, 318, 'The auto\\'s power', 'lab', 'start');\n      rect('barbg', 14, 324, 312, 16, 3);\n      REC.joined = true;\n    });\n    const hid = hideOut(i, 'split') || spoilsIso(i);\n    const tf = 1 - D.tap, pT = Math.round(100 * tfShare(X.ratio)), pP = Math.round(100 * passShare(X.ratio));\n    if (!hid && a3 > 0.01) { rect('tf', 14, 324, 312 * tf * a3, 16); rect('ps', 14 + 312 * tf * a3, 324, 312 * (1 - tf) * a3, 16); }\n    inGroup(hid ? a2 : a3, () => {\n      const t1 = 'Transformed ' + (hid ? '?' : pT + '%'), t2 = 'Passed straight through ' + (hid ? '?' : pP + '%');\n      rect('tf', 14, 348, 10, 10); text(30, 357.5, t1, 'lab', 'start');\n      rect('ps', 14, 366, 10, 10); text(30, 375.5, t2, 'lab', 'start');\n      REC.tf = t1; REC.ps = t2;\n    });\n    el('scIso').setAttribute('aria-label', 'Two drawings. Isolating: two windings on one core, 440 V in and ' + outTxt + ', with a gap between them. Auto: one winding across 440 V, with ' +\n      outTxt + ' taken from a tap to its lower end, and a red mark where output joins input. A bar splits the auto\\'s power: ' +\n      (hid ? 'its split is hidden until you check.' : pT + '% transformed, ' + pP + '% passed straight through.'));\n  }\n\n  // ================= one paint =================\n  function paint(i) {\n    if (i == null) i = at();\n    REC = { t: {}, X: Object.assign({}, X) };\n    const card = STEPS[i].card;\n    if (card === 'on') drawOn(i);\n    else if (card === 'ct') drawCt(i);\n    else if (card === 'iso') drawIso(i);\n    readouts(i);\n    const lab = X.on ? 'Switch on again' : 'Switch on';\n    if (onBtn.el.textContent !== lab) onBtn.setLabel(lab);\n  }\n  function readouts(i) {\n    const hp = hideOut(i, 'peak'), hc = hideOut(i, 'volts') || spoilsCt(i), b = X.burden;\n    RO.peak.set(hp ? '?' : firstPeak(X.pt, X.res));\n    RO.amp.set(hp ? '?' : peakAmp(X.pt, X.res));\n    RO.volts.set(hc ? '?' : b === 'Open' ? 'no limit' : voltsOf(b));\n    RO.kflux.set(hc ? '?' : b === 'Open' ? 'saturated' : 100 * kneeShare(b));\n    Object.keys(RO).forEach((k) => { REC.t[k] = RO[k].text(); });\n  }\n\n  // ================= the page around the picture =================\n  write(el('finish'), FINISH);\n  function layout(i) {\n    const d = STEPS[i], st = S[i], sol = solved(st);\n    el('stepbox').hidden = finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Screen ' + (i + 1) + ' of ' + STEPS.length;\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    write(task, d.show ? d.text : d.task);\n    CTL_IDS.forEach((id) => { el('c-' + id).hidden = !shownCtl(d, id); });\n    [['scOn', 'on'], ['scCt', 'ct'], ['scIso', 'iso']].forEach(([s, c]) => el(s).toggleAttribute('hidden', d.card !== c));\n    el('on-acts').hidden = finished || !d.btn;\n    const ro = d.ro || [];\n    el('outs').hidden = !ro.length;\n    Object.keys(RO).forEach((k) => { RO[k].el.hidden = ro.indexOf(k) < 0; });\n    replayBtn.el.hidden = !d.show || !d.demo || REDUCE;\n    el('replay').hidden = replayBtn.el.hidden;\n    const opts = d.kind === 'pick' ? d.opts : [];\n    el('picks').hidden = !opts.length;\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      if (b.el.textContent !== opts[k]) b.setLabel(opts[k]);\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n    el('answers').hidden = d.kind !== 'typed';\n    Object.keys(ANS).forEach((key) => { el('ans-' + key).hidden = d.ans !== key; });\n    el('acts').hidden = !!d.show;\n    checkBtn.el.hidden = sol;\n    const fb = el('fb');\n    fb.hidden = !!d.show;\n    fb.className = 'fb' + (st.res === 'right' ? ' right' : '');\n    let say = '';\n    if (!d.show) {\n      if (st.res === 'right') say = d.right || 'That\\'s it.';\n      else if (st.res === 'shown') say = 'Here is the working.';\n      else if (st.res === 'wrong') say = d.kind === 'typed' ? st.hint : (d.hints && d.hints[st.pick]) || d.hint;\n      else if (st.res === 'empty' && d.kind === 'pick') say = 'Pick one of the answers first.';\n    }\n    write(fb, say);\n    const why = el('why');\n    why.hidden = d.show || !st.why;\n    write(why, d.show ? '' : d.why);\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !sol);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  }\n\n  K.update((p) => {\n    const i = at(), d = STEPS[i];\n    VIEW = i;\n    if (i !== lastStep) { lastStep = i; enterStep(i); }\n    else {\n      let moved = false;\n      CTL_IDS.forEach((id) => {\n        if (same(p[id], pushed[id])) return;\n        if (shownCtl(d, id)) {\n          if (RUN) finishRun();                      // his move ends the demonstration at its end state\n          X[id] = p[id]; pushed[id] = p[id]; moved = true;\n          if (id === 'burden') startRun(ctSweep, SWEEP, { ct: 1 });   // a new burden draws its two cycles\n        } else CTL[id].set(pushed[id], true);        // a control this screen does not use stays put\n      });\n      if (moved) push();\n    }\n    if (!d.show && d.after && solved(S[i]) && !RUN) Object.assign(X, d.after);\n    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }\n    if (quiet()) { if (RUN) finishRun(); snapD(); }\n    layout(i);\n    paint(i);\n    kick();\n  });\n\n  // ================= known answers, worked out by hand =================\n  const solvedSt = (i) => Object.assign(blank(), STEPS[i].kind === 'pick' ? { pick: STEPS[i].want, res: 'right' } : { res: 'right' });\n  // A screen painted in the state given (finished), with optional settings: what it drew.\n  function drawn(i, st, x) {\n    const keep = { X: Object.assign({}, X), D: Object.assign({}, D), S: S[i], RUN, V: VIEW };\n    S[i] = st || blank();\n    try {\n      prep(i, true);\n      if (x) Object.assign(X, x);\n      snapD();\n      paint(i);\n      return REC;\n    } finally {\n      Object.assign(X, keep.X); Object.assign(D, keep.D);\n      S[i] = keep.S; RUN = keep.RUN; VIEW = keep.V; paint();\n    }\n  }\n  const PTS = [0, 15, 30, 45, 60, 75, 90], RES = [0, 0.4, 0.8];\n\n  K.check('Transformer inrush is mostly due to the core saturating: a switch-on draws more than 0.024 times full load, drawn red, only when its flux passes the knee', () =>\n    PTS.every((pt) => RES.every((res) => {\n      const over = firstPeak(pt, res) > KNEE + 1e-9, r = drawn(iPeak, null, { pt, res });\n      return (peakAmp(pt, res) > LO * KNEE + 1e-9) === over && (r.redF > 0) === over && (r.redA > 0) === over;\n    })));\n  K.check('Worked by hand: at a zero 2.0 and 12, with 0.6 left 2.6 and 21, with 0.8 left 2.8 and 24; at 60° 1.5 and 5; at a peak 1.0 and 0.02, with 0.4 left 1.4 and 3 (whole numbers past the knee)', () => {\n    const C = [[0, 0, '2.0', '12'], [0, 0.6, '2.6', '21'], [0, 0.8, '2.8', '24'], [60, 0, '1.5', '5'], [90, 0, '1.0', '0.02'], [90, 0.4, '1.4', '3']];\n    return C.every(([pt, res, f, a]) => {\n      const r = drawn(iPeak, null, { pt, res });\n      return r.t.peak === f + NB + '× normal' && r.t.amp === a + NB + '× full load' && K.near(r.fp, firstPeak(pt, res), 1e-9);\n    });\n  });\n  K.check('Inrush may reach instantaneous peaks of 8 to 30 times the full load current: every switch-on at a voltage zero here peaks inside that range', () =>\n    [0, 0.2, 0.4, 0.6, 0.8].every((res) => { const a = peakAmp(0, res); return a >= 8 && a <= 30; }), { source: SRC1 });\n  K.check('The flux starts at the flux left in, peaks at 1 + flux left in + cos(switch-on point) half a cycle after the rising zero, and each later offset is half the one before', () =>\n    [[0, 0], [30, 0.4], [60, 0.8], [90, 0.2]].every(([pt, res]) => {\n      let best = -Infinity, when = 0;\n      for (let th = pt; th <= TH1; th += 0.5) { const f = fluxAt(th, pt, res); if (f > best) { best = f; when = th; } }\n      const o = off0(pt, res);\n      return K.near(fluxAt(pt, pt, res), res, 1e-9) && K.near(best, 1 + o, 1e-9) && when === 180 &&\n        K.near(fluxAt(540, pt, res) - 1, o / 2, 1e-9) && K.near(fluxAt(900, pt, res) - 1, o / 4, 1e-9);\n    }));\n  K.check('Below the knee 400 × 1 = 5 × 80, so 5 A flows, needing 1.0, 4.0, 11.0 and 21.0 V: 3, 13, 37 and 70% of the 30 V knee', () => {\n    const C = { Shorted: ['1.0', '3'], '0.6': ['4.0', '13'], '2': ['11.0', '37'], '4': ['21.0', '70'] };\n    return IBUS * 1 === ISEC * TURNS && Object.keys(C).every((b) => {\n      const r = drawn(iMeter, null, { burden: b });\n      return r.t.volts === C[b][0] + NB + 'V' && r.t.kflux === C[b][1] + '% of knee' && r.secA === '5' + NB + 'A' && !r.barSat;\n    });\n  });\n  K.check('An open secondary leaves the busbar\\'s ampere-turns producing enough flux to drive the CT into saturation: the bar sits past the knee and the flux is past it for most of each cycle', () => {\n    const r = drawn(iMeter, null, { burden: 'Open' });\n    let n = 0, m = 0;\n    for (let th = CTH0; th < CTH1; th += 1) { m++; if (Math.abs(ctFlux(th, 'Open')) > 1) n++; }\n    return r.barSat && r.t.kflux === 'saturated' && r.t.volts === 'no limit' && r.secA === '0' + NB + 'A' && n / m > 0.8;\n  });\n  K.check('As long as current flows in the primary, an open CT secondary can cause high voltages: open, the drawn spikes run off the scale, while every closed burden stays inside its knee lines', () => {\n    const o = drawn(iMeter, null, { burden: 'Open' });\n    return o.spikes >= 3 && ['Shorted', '0.6', '2', '4'].every((b) => { const r = drawn(iMeter, null, { burden: b }); return r.spikes === 0 && r.vMax < 1; });\n  });\n  K.check('As much as 4000 V has been measured on large CTs with an open secondary: the label shows only when the secondary is open', () =>\n    drawn(iMeter, null, { burden: 'Open' }).lab4000 === 'Up to 4000' + NB + 'V measured on large CTs' &&\n    ['Shorted', '0.6', '2', '4'].every((b) => drawn(iMeter, null, { burden: b }).lab4000 === null), { source: SRC2 });\n  K.check('An autotransformer has an electrical connection between primary and secondary, and an isolation transformer has none: the auto is drawn joined, with its red mark, at either ratio', () =>\n    ['115', '400'].every((r) => { const d = drawn(I_SHARE, solvedSt(I_SHARE), { ratio: r }); return d.joined === true && d.isoJoined === false; }));\n  K.check('The auto passes output ÷ input of its power straight through: 26% and 74% transformed at 115 V, 91% and 9% at 400 V, with the tap at that share of the winding', () => {\n    const a = drawn(I_SHARE, solvedSt(I_SHARE), { ratio: '115' }), b = drawn(I_SHARE, solvedSt(I_SHARE), { ratio: '400' });\n    return a.tf === 'Transformed 74%' && a.ps === 'Passed straight through 26%' && b.tf === 'Transformed 9%' && b.ps === 'Passed straight through 91%' &&\n      K.near(a.tapFrac, 115 / 440, 1e-9) && K.near(b.tapFrac, 400 / 440, 1e-9);\n  });\n  K.check('Each typed answer and slip is worked from its rule: 325 A (0, 3.25), 2.6 (2, 1.6, 1.4), 4.0 V (3, 1, 0.8), 9% (91, 74, 10), 40 (5, 1000, 0.025) and 1250 A (2, 200, 12.5)', () => {\n    const sl = (i, v) => STEPS[i].slips.length === v.length && STEPS[i].slips.every((s, k) => K.near(s.value, v[k], 1e-12));\n    const w1 = (v) => Math.round(v * 10) / 10, w0 = Math.round;\n    const work = 325 / 1 === 325 && 325 / 100 === 3.25 &&\n      w1(firstPeak(0, 0.6)) === 2.6 && w1(firstPeak(0, 0)) === 2 && w1(1 + 0.6) === 1.6 && w1(2 - 0.6) === 1.4 &&\n      w1(voltsOf('0.6')) === 4 && w1(ISEC * 0.6) === 3 && w1(voltsOf('Shorted')) === 1 && w1(0.6 + RW) === 0.8 &&\n      w0(100 * tfShare('400')) === 9 && w0(100 * passShare('400')) === 91 && w0(100 * tfShare('115')) === 74 && w0(100 * (440 - 400) / 400) === 10 &&\n      IBUS / ISEC === 80 && 200 / 5 === 40 && 200 * 5 === 1000 && 5 / 200 === 0.025 &&\n      50 * 100 / 4 === 1250 && 50 * 4 / 100 === 2 && 50 * 4 === 200 && 50 / 4 === 12.5;\n    return work && STEPS[iCap].answer === 325 && STEPS[iLeft].answer === 2.6 && STEPS[I_VOLT].answer === 4 && STEPS[I_SHARE].answer === 9 && STEPS[iTurns].answer === 40 && STEPS[iFault].answer === 1250 &&\n      sl(iCap, [0, 3.25]) && sl(iLeft, [2, 1.6, 1.4]) && sl(I_VOLT, [3, 1, 0.8]) && sl(I_SHARE, [91, 74, 10]) && sl(iTurns, [5, 1000, 0.025]) && sl(iFault, [2, 200, 12.5]);\n  });\n  K.check('Before a Check the flux peak, the volts and the share show ?, after it 2.6 and 21, 4.0 V and 13%, and 9%; the 0.6 Ω volts and the 400 V share show ? on the screens before their puzzles', () => {\n    const b0 = drawn(iLeft, blank()), b1 = drawn(iLeft, solvedSt(iLeft));\n    const c0 = drawn(I_VOLT, blank()), c1 = drawn(I_VOLT, solvedSt(I_VOLT));\n    const s0 = drawn(I_SHARE, blank()), s1 = drawn(I_SHARE, solvedSt(I_SHARE));\n    const e1 = drawn(iCt, null, { burden: '0.6' }), e2 = drawn(iAuto, null, { ratio: '400' });\n    return b0.t.peak === '?' && b0.t.amp === '?' && b0.fp === null && b1.t.peak === '2.6' + NB + '× normal' && b1.t.amp === '21' + NB + '× full load' && K.near(b1.fp, 2.6, 1e-9) &&\n      c0.t.volts === '?' && c0.t.kflux === '?' && c1.t.volts === '4.0' + NB + 'V' && c1.t.kflux === '13% of knee' &&\n      s0.tf === 'Transformed ?' && s1.tf === 'Transformed 9%' && s1.ps === 'Passed straight through 91%' &&\n      e1.t.volts === '?' && e2.tf === 'Transformed ?';\n  });\n  K.check('Every demonstration ends 3 s after its screen opens, on the state its words end on; a switch-on or a new burden draws in 2 s', () => {\n    const z = drawn(iZero), p = drawn(iPeak), c = drawn(iCt), o = drawn(iOpen), a = drawn(iAuto);\n    return STEPS.every((d) => !d.show || (d.dur >= 3 && d.dur <= 4.5)) && SWEEP === 2 &&\n      K.near(z.fp, 2, 1e-9) && z.X.pt === 0 && z.X.on === true && z.redF > 0 &&\n      K.near(p.fp, 1, 1e-9) && p.X.pt === 90 && p.redF === 0 &&\n      c.X.burden === 'Shorted' && c.X.ct === 1 && o.X.burden === 'Open' && o.spikes >= 3 && a.X.iso === 3 && a.X.ratio === '115';\n  });\n  K.ready();\n</script>",
+  "title": "The knee on the job",
+  "brief": "The one thing you should see is the flux overshoot the knee to twice its normal peak and the current spike red, when you switch on at a voltage zero instead of a peak.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "Transformer inrush is mostly due to the core saturating: a switch-on draws more than 0.024 times full load, drawn red, only when its flux passes the knee",
+     "ok": true
+    },
+    {
+     "label": "Worked by hand: at a zero 2.0 and 12, with 0.6 left 2.6 and 21, with 0.8 left 2.8 and 24; at 60° 1.5 and 5; at a peak 1.0 and 0.02, with 0.4 left 1.4 and 3 (whole numbers past the knee)",
+     "ok": true
+    },
+    {
+     "label": "Inrush may reach instantaneous peaks of 8 to 30 times the full load current: every switch-on at a voltage zero here peaks inside that range",
+     "ok": true,
+     "source": "https://new.abb.com/docs/librariesprovider68/default-document-library/data-center-forum-2017/dryabb-data-center-forum-2017---dry_transformers_michael_gogioli.pdf"
+    },
+    {
+     "label": "The flux starts at the flux left in, peaks at 1 + flux left in + cos(switch-on point) half a cycle after the rising zero, and each later offset is half the one before",
+     "ok": true
+    },
+    {
+     "label": "Below the knee 400 × 1 = 5 × 80, so 5 A flows, needing 1.0, 4.0, 11.0 and 21.0 V: 3, 13, 37 and 70% of the 30 V knee",
+     "ok": true
+    },
+    {
+     "label": "An open secondary leaves the busbar's ampere-turns producing enough flux to drive the CT into saturation: the bar sits past the knee and the flux is past it for most of each cycle",
+     "ok": true
+    },
+    {
+     "label": "As long as current flows in the primary, an open CT secondary can cause high voltages: open, the drawn spikes run off the scale, while every closed burden stays inside its knee lines",
+     "ok": true
+    },
+    {
+     "label": "As much as 4000 V has been measured on large CTs with an open secondary: the label shows only when the secondary is open",
+     "ok": true,
+     "source": "https://www.se.com/us/en/faqs/FA125574"
+    },
+    {
+     "label": "An autotransformer has an electrical connection between primary and secondary, and an isolation transformer has none: the auto is drawn joined, with its red mark, at either ratio",
+     "ok": true
+    },
+    {
+     "label": "The auto passes output ÷ input of its power straight through: 26% and 74% transformed at 115 V, 91% and 9% at 400 V, with the tap at that share of the winding",
+     "ok": true
+    },
+    {
+     "label": "Each typed answer and slip is worked from its rule: 325 A (0, 3.25), 2.6 (2, 1.6, 1.4), 4.0 V (3, 1, 0.8), 9% (91, 74, 10), 40 (5, 1000, 0.025) and 1250 A (2, 200, 12.5)",
+     "ok": true
+    },
+    {
+     "label": "Before a Check the flux peak, the volts and the share show ?, after it 2.6 and 21, 4.0 V and 13%, and 9%; the 0.6 Ω volts and the 400 V share show ? on the screens before their puzzles",
+     "ok": true
+    },
+    {
+     "label": "Every demonstration ends 3 s after its screen opens, on the state its words end on; a switch-on or a new burden draws in 2 s",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step",
+    "pt",
+    "res",
+    "burden",
+    "ratio"
+   ],
+   "readouts": [
+    "r-peak",
+    "r-amp",
+    "r-volts",
+    "r-kflux"
+   ],
+   "outputs": [],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Screen",
+     "min": 0,
+     "max": 13,
+     "step": 1,
+     "steps": [
+      "An empty capacitor",
+      "Switching on at a zero",
+      "Flux left in",
+      "At a peak",
+      "A trip on closing",
+      "A current transformer",
+      "Volts for 5 A",
+      "An open secondary",
+      "Changing a meter",
+      "No isolation",
+      "Share transformed",
+      "Secondary turns",
+      "A short at the terminals",
+      "Shorting a VT"
+     ],
+     "value": 0
+    },
+    {
+     "id": "pt",
+     "kind": "control",
+     "label": "Switch-on point",
+     "min": 0,
+     "max": 90,
+     "step": 15,
+     "log": false,
+     "value": 0,
+     "shown": false
+    },
+    {
+     "id": "res",
+     "kind": "control",
+     "label": "Flux left in",
+     "min": 0,
+     "max": 0.8,
+     "step": 0.2,
+     "log": false,
+     "value": 0,
+     "shown": false
+    },
+    {
+     "id": "burden",
+     "kind": "choice",
+     "label": "Burden",
+     "options": [
+      "Shorted",
+      "0.6",
+      "2",
+      "4",
+      "Open"
+     ],
+     "labels": [
+      "Shorted",
+      "0.6 Ω",
+      "2 Ω",
+      "4 Ω",
+      "Open"
+     ],
+     "value": "Shorted",
+     "index": 0,
+     "shown": false
+    },
+    {
+     "id": "ratio",
+     "kind": "choice",
+     "label": "Auto ratio",
+     "options": [
+      "115",
+      "400"
+     ],
+     "labels": [
+      "440 V to 115 V",
+      "440 V to 400 V"
+     ],
+     "value": "115",
+     "index": 0,
+     "shown": false
+    }
+   ],
+   "actions": [
+    "Switch on",
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Answer 4",
+    "Check",
+    "Why?",
+    "Play again",
+    "Back",
+    "Continue",
+    "Start again",
+    "Demonstration"
+   ],
+   "answers": [
+    {
+     "id": "a-cap",
+     "answer": 325,
+     "accept": [],
+     "ok": true
+    },
+    {
+     "id": "a-left",
+     "answer": 2.6,
+     "accept": [],
+     "ok": true
+    },
+    {
+     "id": "a-volt",
+     "answer": 4,
+     "accept": [],
+     "ok": true
+    },
+    {
+     "id": "a-share",
+     "answer": 9,
+     "accept": [],
+     "ok": true
+    },
+    {
+     "id": "a-turns",
+     "answer": 40,
+     "accept": [],
+     "ok": true
+    },
+    {
+     "id": "a-fault",
+     "answer": 1250,
+     "accept": [],
+     "ok": true
+    }
+   ],
+   "written": [],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 1
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-29T05:43:32.654Z",
+  "applied": [
+   {
+    "path": "explain.text",
+    "problem": "The busbar and secondary ampere-turns only almost cancel (the small difference is the magnetising current that makes the flux); and thousands of volts is sourced only for large CTs, so the closing claim is narrowed to match its quote."
+   },
+   {
+    "path": "practice.text",
+    "problem": "Rating ÷ voltage gives full-load current only for single-phase, but Dan's 440 V systems are three-phase; 1 − output ÷ input fails for a step-up auto; the worst case needs flux left in the same way; a trip-then-hold only usually means inrush."
+   }
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}

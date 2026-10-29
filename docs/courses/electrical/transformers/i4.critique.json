@@ -1,0 +1,26 @@
+{
+  "draft": "i4.lesson.draft1.txt",
+  "validator": "draft 1 passes: ok true, no problems, no soft problems, no warnings. whatAmILookingAt is 11858 characters, close to the 12000 limit, so trim it to leave room for the fact-check's fixes.",
+  "keep": [
+    "The idea is named up front: one shared flux, so every turn gets the same volts and the volts follow the turns; the supply holds the flux, so the primary cancels the secondary's ampere-turns, the amps go the other way and power in equals power out.",
+    "The picture is the brief's turns ratio: one core, two windings with turns sliders, a load switch and slider, a volts-per-turn tick the same on both windings, current bars moving the other way, equal power-in and power-out bars, a balancing ampere-turns line, a box showing the load as the 440 V side sees it, and a flux bar that stays put under load.",
+    "One rule set computes every figure: 0.5 V per turn = 440 / 880; V2 = 0.5 x N2; flux = 440 / (4.44 x 60 x N1) from lesson 3 (1.88 and 1.50 mWb); I2 = V2 / R; I1 = N2 I2 / N1; seen R = 440 / I1 = R (N1/N2)^2. 115 V, 23 A, 6.01 A, 5290 At, 2645 W, 73.2 ohm, 11.5 and 3.01 A, 29.3 ohm and 15.03 A all follow.",
+    "The causal step for the amps is there: the secondary's ampere-turns push against the change (Lenz, lesson 3), the flux must still make 440 V in the primary (lesson 3), so the primary draws just enough to cancel them. Power in = power out is then derived from the two ratios, not stated bare.",
+    "Both misconceptions the brief names have a DO screen with a hint per slip: OCR's 'step-down decreases the current' (screen 5, slip 153.04 A) and Lenz and Schmidt's 'higher load current saturates the core' (screen 9, slip 3.76 mWb). Ratio-once versus ratio-squared is caught on screens 11 and 12.",
+    "The recall opener the brief sets (Complex numbers lesson 7, the size of 3 + j4) is screen 1, typed, with 'Still there.', and it pays off in mixed puzzle 12: a complex load scaled by a real factor keeps its angle.",
+    "Typed answers for every figure (screens 1, 3, 5, 7, 9, 11, 13) with want, slips and hints; options only on screen 12, whose answer is an expression.",
+    "The isolating point the brief gives lesson 4 is one sentence: the windings share only flux, no wire joins them, so the secondary is a circuit of its own. Losses, regulation, three-phase and the CT are left to lessons 5 to 8.",
+    "Every SHOW screen is under 90 words (82, 79, 81, 78, 77); every DO Read only restates its question; every SHOW has a Read and a Still. Three footnotes on screens and four sources in all."
+  ],
+  "fix": [
+    "False absolute in explain: 'The supply holds that flux, so a load cannot move it.' A real load moves the flux a very little (the ignores says so). Say a load barely moves it.",
+    "Explain's closing paragraph chains three clauses round a footnote ('needs a small magnetising current, loses a little power, as little as 1% in a good one, and its output sags'). Split into short sentences.",
+    "Analogy: 'from a gearbox you have taken apart' presumes; say 'in a gearbox'. 'Torque times speed is the same on both shafts' needs 'less a little friction' to stay true.",
+    "Breaks: 'a transformer passes nothing on DC' is too absolute, since a switched DC gives a kick while the current changes (lesson 3). Say nothing on steady DC.",
+    "Screen 5's hint for 153.04 says 'steps the current down with the volts', which describes the wrong side. The slip makes the 115 V side's current the smaller; say that, and that a step-down raises the current.",
+    "Screen 13's hint for 0.6 says the current 'steps down as the volts go up', but 0.6 A on the 115 V side means the current rises with the volts. Reword: the higher-voltage side carries less current.",
+    "Trim whatAmILookingAt by a few hundred characters (repeated words in the picture and rules paragraphs) to leave room under 12000."
+  ],
+  "shape": "Idea in one line up front: yes. Rule in words: yes (volts follow turns; ampere-turns balance; power in = power out; load seen times ratio squared). One worked example with real numbers: the 880/230 turn, 440 V to 115 V, 5 ohm case through explain, and the 10 kVA case in practice. Misconception shown failing: step-down current (screen 5) and load saturating the core (screens 8, 9). Trade analogy with where it breaks: meshed gears (torque follows teeth as volts follow turns), new to this course. Put it into practice: safe way first, steps, rules of thumb, worked example, mistakes. Recap: the bold takeaway and the finish screen.",
+  "verdict": "Rewrite as draft 2 with the seven fixes; no structural change."
+}

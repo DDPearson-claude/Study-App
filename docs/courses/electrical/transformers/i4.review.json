@@ -1,0 +1,25 @@
+{
+  "scores": { "lands": 5, "why": 4, "cause": 4, "trade": 4, "honest": 5, "pleasure": 4 },
+  "findings": [
+    { "severity": "fix", "where": "Screen 6 (Power in, power out), the I1/I2 current bars and the power bars",
+      "what": "The current and power bar scales are reset from the turns (cs = niceUp of the 2 Ω currents, ps = niceUp(V2²/2)), so in the demo itself, as N2 steps 230 to 460 turns on 10 Ω, the secondary current bar shrinks from 0.19 to 0.15 of its track while I2 doubles from 11.5 A to 23 A, and the power bars barely move (0.165 to 0.176) while the power quadruples from 1323 W to 5290 W; fix the scales per screen from the sliders' extremes, or rescale only on screen entry, so a bigger current always draws a longer bar." },
+    { "severity": "fix", "where": "Screen 9 (A heavier load), the question",
+      "what": "The typed answer, 1.88 mWb, is printed in the question itself (\"The flux peaks at 1.88 mWb\"), so the figure is on screen before Check even though the flux readout shows ?; give the supply and turns instead (440 V, 60 Hz, 880 primary turns, load changed from 10 Ω to 5 Ω, secondary current doubles to 23 A: what is the peak flux now?), so he works Φm = 440 ÷ (4.44 × 60 × 880) = 1.88 mWb and the slips 3.76 and 0.94 still catch letting the load in." },
+    { "severity": "polish", "where": "Screen 13 (A step-up), the picture",
+      "what": "The question is a 200 to 800 turn step-up on 115 V, where the primary carries the larger current, but the picture beside it shows the 880 to 230 step-down on 440 V with the I1 bar the shorter and the box at 73.2 Ω, the opposite direction; show a step-up setting (for example N1 440, N2 920, so the I1 bar is the longer) or leave the bars empty." },
+    { "severity": "polish", "where": "Screens 1 and 12 at 360 px, the question text",
+      "what": "\"3 + j4 Ω\" breaks across lines as \"3 +\" and \"j4 Ω\" (seen on screen 1 at 360 light); join the expression with non-breaking spaces so the complex number stays whole." },
+    { "severity": "polish", "where": "Screen 10 (Seen from the supply) load slider, ahead of screen 11",
+      "what": "Screen 10's load slider reaches 2 Ω, where the box reads 29.3 Ω and \"The 2 Ω load × (880 ÷ 230)²\", which is screen 11's typed answer one screen later; use a screen 11 load the slider cannot reach (for example 2.5 Ω, 36.6 Ω seen) or start screen 10's slider at 3 Ω." },
+    { "severity": "polish", "where": "Practice, worked example (10 kVA)",
+      "what": "The brief promised lesson 4 would say why the plate gives kVA, not kW (the losses follow the volts and the amps whatever the power factor), but the worked example uses 10 kVA with no word on it; add one sentence." },
+    { "severity": "polish", "where": "Explain, reflected impedance paragraph, and the finish",
+      "what": "The lesson never says what referring a load is for: it lets the whole transformer and its load be drawn as one circuit on one side, which lesson 5's equivalent circuit uses (in the brief); one sentence would give the ratio-squared rule its purpose." },
+    { "severity": "polish", "where": "Explain, footnotes",
+      "what": "Five footnote markers, including [^4] on the ideal-case assumption and a second [^2] on \"makes none and uses none\", which are not rules or values he would look up on a job; keep [^1] (the turns ratio) and [^3] (the 1% loss) and drop the rest." },
+    { "severity": "polish", "where": "Screen 2 (Volts follow turns), \"the same voltage tick\"",
+      "what": "\"Voltage tick\" is a coined term never explained, while the picture's tag says \"0.5 V a turn\"; say \"the same volts per turn\" so the words and the tag match." },
+    { "severity": "polish", "where": "Screen 4 (Close the switch), \"But the flux must still make 440 V in the primary\"",
+      "what": "The screen drops the reason the explain gives (\"to match the supply\"), the one link between the supply and the flux holding steady; add those three words so the on-screen why has no gap." }
+  ]
+}

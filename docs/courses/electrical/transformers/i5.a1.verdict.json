@@ -1,0 +1,235 @@
+{
+  "ok": true,
+  "reachChecked": true,
+  "problems": [],
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "A no-load loss is present whenever the transformer is energised and is independent of the load level, and the load loss goes with the loading squared",
+        "ok": true,
+        "source": "https://downloads.regulations.gov/EERE-2017-BT-TP-0055-0022/attachment_3.pdf"
+      },
+      {
+        "label": "An open-circuit test measures the iron loss under no-load conditions: on 440 V with the secondary open, 0.5 A flows and the wattmeter reads the 100 W iron loss",
+        "ok": true,
+        "source": "https://www.rohde-schwarz.com/ch-en/solutions/electronics-testing/power-electronics-testing/transformer-short-circuit-testing/short-circuit-testing_258719.html"
+      },
+      {
+        "label": "The short-circuit test determines the copper loss by short-circuiting the secondary at full-load current: 22.0 V drives 22.7 A, and the wattmeter reads 400 W",
+        "ok": true,
+        "source": "https://ecampusontario.pressbooks.pub/electrotechnology/chapter/part-4-transformer-testing"
+      },
+      {
+        "label": "The series branch: 0.77 Ω gives 400 W at the full-load 22.7 A, and with 0.58 Ω of reactance makes 0.97 Ω; the flux is 1.88 mWb at 440 V",
+        "ok": true
+      },
+      {
+        "label": "Efficiency: 95.2% at full load and 96.2% at half load at unity power factor, 94.1% and 95.2% at 0.8, and 0 at no load",
+        "ok": true
+      },
+      {
+        "label": "Efficiency peaks at 50% load at both power factors, where the copper loss equals the iron loss, and falls below 88% at light load",
+        "ok": true
+      },
+      {
+        "label": "The flux holds at 1.88 mWb at every load, while the copper-loss bar is four times the iron-loss bar at full load and equal at half load",
+        "ok": true
+      },
+      {
+        "label": "Each typed answer and slip is worked from its rule: 3 (6, 9), 225 W (300, 400), 100 W (400, 200), 96.2% (90.9, 94.3), 40% (16, 250), 0.09 mWb (1.88, 37.6) and 96.3% (97.1, 99.2)",
+        "ok": true
+      },
+      {
+        "label": "Before a Check the copper loss, iron loss, efficiency and flux show ?; a right Check moves the load to 75%, 100% and 50%, and shows 225.0 W, 100.0 W, 96.2% and 0.09 mWb",
+        "ok": true
+      },
+      {
+        "label": "Only the windings' branch changes with the load: at no load it is faint, and the core's branch carries current at every load",
+        "ok": true
+      },
+      {
+        "label": "Every demonstration ends 3 to 4.5 s after its screen opens, and every answer's motion within 2.5 s",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "load",
+      "pf",
+      "test"
+    ],
+    "readouts": [
+      "r-load",
+      "r-out",
+      "r-vs",
+      "r-is",
+      "r-wm",
+      "r-fe",
+      "r-cu",
+      "r-eff"
+    ],
+    "outputs": [],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Screen",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "steps": [
+          "The top of a curve",
+          "Two branches",
+          "At 75% load",
+          "Iron stays put",
+          "Iron at full load",
+          "Efficiency",
+          "Half load",
+          "The peak",
+          "Another transformer",
+          "Two tests",
+          "Flux in the test",
+          "From the two tests",
+          "Setting up the test"
+        ],
+        "value": 0
+      },
+      {
+        "id": "load",
+        "kind": "control",
+        "label": "Load",
+        "min": 0,
+        "max": 125,
+        "step": 5,
+        "log": false,
+        "value": 100,
+        "shown": false,
+        "snap": [
+          50,
+          75,
+          100
+        ]
+      },
+      {
+        "id": "pf",
+        "kind": "choice",
+        "label": "Power factor",
+        "options": [
+          1,
+          0.8
+        ],
+        "labels": [
+          "1.0",
+          "0.8 lagging"
+        ],
+        "value": 1,
+        "index": 0,
+        "shown": false
+      },
+      {
+        "id": "test",
+        "kind": "choice",
+        "label": "Test",
+        "options": [
+          "load",
+          "oc",
+          "sc"
+        ],
+        "labels": [
+          "On load",
+          "Open-circuit test",
+          "Short-circuit test"
+        ],
+        "value": "load",
+        "index": 0,
+        "shown": false
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Answer 4",
+      "Check",
+      "Why?",
+      "Play again",
+      "Back",
+      "Continue",
+      "Start again",
+      "Demonstration"
+    ],
+    "answers": [
+      {
+        "id": "a-top",
+        "answer": 3,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-cu75",
+        "answer": 225,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-fe",
+        "answer": 100,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-eff50",
+        "answer": 96.2,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-pk",
+        "answer": 40,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-fsc",
+        "answer": 0.09,
+        "accept": [
+          0.094
+        ],
+        "ok": true
+      },
+      {
+        "id": "a-eff12",
+        "answer": 96.3,
+        "accept": [],
+        "ok": true
+      }
+    ],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ],
+    "foreign": [],
+    "unreachable": []
+  }
+}

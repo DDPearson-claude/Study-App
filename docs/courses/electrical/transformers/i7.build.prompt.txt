@@ -1,0 +1,587 @@
+TASK: build-interactive
+
+You are building one small interactive page for "My University", Dan's personal learning app. It lets him see one idea for himself by playing with it. It runs inside a sandboxed iframe on top of the house kit described below, and the app tests it automatically before Dan sees it.
+
+## The idea
+Topic: Transformers and magnetism
+Idea: Three-phase transformers and vector groups (Star and delta connections shift the output in 30° steps, named as a clock hour like Dyn11; only matching groups may be paralleled.)
+Kind: structure
+Dan knows a little about this topic. Show an equation on the page only if every symbol in it is labelled on the picture; otherwise say the rule in words.
+
+## What the interactive must show
+Brief: The one thing you should see is the LV hand jump from twelve to eleven o'clock, and the name change from Yyn0 to Dyn11, when you switch the HV winding from star to delta.
+Title (the app shows it above the frame, so do not repeat it): The clock and the paralleling switch
+The rule (the app shows it just above the frame, under "What you're looking at"): Fourteen screens on two cards, with Back and Continue. Six show an idea and Eight ask you to try it.
+
+The clock card. Left, a three-limb core, each limb with an HV winding above and an LV winding below. Terminals A, B, C along the top and a, b, c, n along the bottom, joins drawn as wires: an HV star meets at a star point, an HV delta runs end to end. The LV is always a star with n brought out. Right, a clock with small teal hours. A thick HV hand, A–B, is fixed at twelve. A thick LV hand, a–b, points to its hour. Two thin dashed hands show limb 1's HV winding and its LV winding a–n, together unless the LV ends are swapped. The name sits below.
+
+Its pickers, shown only where a screen uses them: HV winding, Star or Delta, opening at Star; Delta closed, A–B or A–C, opening at A–B, shown only with Delta; LV ends, As marked or Swapped, opening at As marked.
+
+Its rule. Hours run clockwise from twelve, 30° each, and 12 is written 0 in the name. Limb 1's HV winding sits at 1 in a star, at 12 in a delta closed A–B, and at 2 closed A–C. The LV winding a–n sits at the same hour, or 6 on when swapped. The a–b hand sits one hour anticlockwise of a–n. So Star, Delta A–B and Delta A–C give Yyn0, Dyn11 and Dyn1, and swapped ends give Yyn6, Dyn5 and Dyn7. On a change the a–b hand sweeps an hour per quarter-second. Readouts: Hour; Clockwise from twelve, °, the hour × 30.
+
+The paralleling card. T1 and T2 fed from one 440 V busbar, both 440 V to 115 V, LV neutrals joined. T1 is a fixed Dyn11. T2 has a group picker: Dyn11, Yyn0, Dyn1, Dyn5, opening at Dyn11, wrapping onto two rows on a phone. An open switch joins their phase-a outputs. Below, from one neutral dot, T1's and T2's phase-a arrows, 66.40 V each, at their a–n hours: Dyn11 at 12, Yyn0 at 1, Dyn1 at 2, Dyn5 at 6. A tip-to-tip gap arrow carries its volts, red unless zero. Each unit shows its impedance, 5%, or 4% on screen 11. A Close button: with no gap the switch closes in ink; with a gap it flashes red, a circulating bar, 0 to 25 times rated, jumps red to its figure, and the switch reopens after two seconds.
+
+Its rule. Phase voltage = 115 ÷ √3 = 66.40 V. Angle = hours apart × 30°. Gap = 2 × 66.40 × sin(angle ÷ 2), in V. Circulating current = (gap ÷ 66.40) ÷ (2 × Z% ÷ 100), in times rated. Readouts: Across the switch, V, two decimals; Circulating if closed, × rated, one decimal. At 5% each: Dyn11 0.00 V, 0.0; Yyn0 34.37 V, 5.2; Dyn1 66.40 V, 10.0; Dyn5 132.79 V, 20.0. At 4% each, Yyn0 gives 6.5.
+
+Screen 1, try it, a recall, typed. No picture. "A 440 V supply is joined in star. What is the voltage from each line to the star point?" Typed, in V, whole numbers: answer 254, want "254 V". Slips: 762, "That multiplies by √3. Divide instead."; 147, "That divides by 3. Divide by √3, which is 1.732."; 440, "That is the line voltage." Hint otherwise: "Phase voltage = line voltage ÷ √3." Why: "440 ÷ 1.732 = 254 V. A star winding sees this, not 440 V." A right Check says "Still there." and carries on. Read: "A 440 V star: what is each line's voltage to the star point?"
+
+Screen 2, show. The clock card at Yyn0, no pickers yet. The words: "Here both sides are star, so the hand sits at twelve: Yyn0. A three-phase transformer is three single-phase ones on one core. Each limb carries an HV and an LV winding. One flux threads both, so they keep exact time. The clock compares the two sides. The HV line voltage A–B is fixed at twelve. The LV line voltage a–b is the hour hand. Each hour is 30°.[^1] On each side, a line voltage runs 30° ahead of its winding's. The two shifts match and cancel." Read: "With both sides in star, the hand sits at twelve: Yyn0. Each limb's windings share one flux. The clock fixes the HV line voltage A–B at twelve. The LV line voltage a–b is the hour hand, 30° an hour." Still: HV winding Star, LV ends As marked.
+
+Screen 3, try it, typed. No picture. "A transformer's name ends in 5. How far clockwise from twelve is its LV hand?" Typed, in °, whole numbers: answer 150, want "150°". Slips: 5, "That is the hour. Each hour is 30°."; 30, "That is one hour, not five."; 210, "That counts anticlockwise. Hours run clockwise." Hint otherwise: "Hour × 30°." Why: "5 × 30 = 150°. Its LV line voltage sits 150° behind the HV's." Read: "A name ends in 5. How far clockwise from twelve is its LV hand?"
+
+Screen 4, show. The clock card, the HV picker. The words: "Switch the HV winding to delta and the hand moves to eleven. Limb 1's HV winding now sits across lines A and B. So its voltage is A–B itself, at twelve. The LV winding a–n on that limb keeps time with it. But a star's line voltage runs 30° ahead of its winding's. So a–b sits one hour anticlockwise. Capitals name the HV side and small letters the LV. D is an HV delta and yn an LV star with its neutral brought out. The 11 is the hour.[^2]" Read: "With the HV in delta, the hand sits at eleven: Dyn11. Limb 1's HV winding carries A–B, at twelve. The LV winding a–n keeps time with it. The LV line voltage runs 30° ahead of a–n, so a–b sits one hour anticlockwise." Still: HV winding Delta, Delta closed A–B, LV ends As marked.
+
+Screen 5, try it, typed. The picture: the clock card at Dyn11. "A Dyn11 unit steps 440 V to 115 V. Each delta winding sees 440 V. Each star winding sees 115 ÷ √3. What is each limb's turns ratio, HV to LV?" Typed, no unit, two decimal places: answer 6.63, want "6.63". Slips: 3.83, "That is the line ratio. Each star winding gives only 66.40 V."; 2.21, "That puts the star on the HV side." Hint otherwise: "Turns ratio = 440 ÷ (115 ÷ 1.732)." Why: "115 ÷ 1.732 = 66.40 V per star winding. 440 ÷ 66.40 = 6.63." Read: "A 440 V to 115 V Dyn11: what is each limb's turns ratio, HV to LV?"
+
+Screen 6, show. The clock card, all three pickers. The words: "Star and delta joins move the hand in whole hours, 30° at a time. Close the delta the other way. Limb 1's HV winding now sits across A and C. Line voltage A–C sits at two o'clock, 60° behind A–B. The LV winding keeps time with it. Its line voltage a–b runs one hour ahead, at one o'clock: Dyn1. Now close it across A and B again. Then swap the LV winding's two ends. Every LV voltage flips half a turn, six hours. Eleven becomes five: Dyn5." Read: "Closed across A and C, the delta puts the hand at one: Dyn1. Swapping the LV ends of a Dyn11 flips it six hours: Dyn5." Still: HV winding Delta, Delta closed A–B, LV ends Swapped.
+
+Screen 7, try it. The picture: the clock card at Dyn11. "In a Dyn11 unit, where is the LV line voltage compared with the HV's?" Four choices, in this order: "30° ahead"; "30° behind"; "11° behind"; "In step". Right, the first. Hint for the second: "Phasors turn anticlockwise, and eleven is anticlockwise of twelve." Hint for the third: "Each hour is 30°, not one degree." Hint for the fourth: "That is Yyn0. The delta moves the LV one hour." Why: "330° clockwise lands where 30° anticlockwise does. So the LV is 30° ahead.[^3]" Read: "In a Dyn11, where is the LV line voltage compared with the HV's?"
+
+Screen 8, show. The paralleling card, the T2 picker. The words: "Two units can share a board only if their outputs match. The groups must match, or closing the switch is a short.[^4] Here T1 is a Dyn11. T1 and T2 both step 440 V to 115 V, and their neutrals are joined. Each phase-a arrow is 66.40 V long. The voltage across the open switch is the gap between their tips. It is 2 × 66.40 × sin(half the angle between them). Pick Yyn0 for T2. That is one hour, 30°, so 34.37 V." Read: "The voltage across the open switch is the gap between the two 66.40 V arrows. It is 2 × 66.40 × sin(half the angle). A Dyn11 beside a Yyn0 leaves 34.37 V." Still: T2 Yyn0, switch open.
+
+Screen 9, try it, typed. The picture: T2 at Dyn1, the gap readout and label ? until Check. "A Dyn11 and a Dyn1 both step 440 V to 115 V. Each LV phase voltage is 66.40 V. What voltage sits across each pole of the open switch?" Typed, in V, two decimals: answer 66.40, want "66.40 V". Slips: 0, "The ratios match, but eleven and one are two hours apart."; 34.37, "That is one hour. From eleven to one is two hours, 60°."; 115, "That is the line voltage. Use the gap rule." Hint otherwise: "2 × 66.40 × sin 30°." Why: "2 × 66.40 × 0.5 = 66.40 V. A matching ratio is not enough." Read: "A Dyn11 and a Dyn1, both 440 V to 115 V: what voltage sits across each pole of the open switch?"
+
+Screen 10, show. The paralleling card, now with Close and the circulating bar. The words: "Close the switch across a gap and that voltage drives a [[circulating current]] round the pair. Only their two impedances and the cables hold it back. Remember percentage impedance: 5% of the voltage drives rated current. The 30° gap is 34.37 ÷ 66.40, which is 52% of the phase voltage. Through 5% + 5%, that drives 52 ÷ 10 = 5.2 times rated current with no load at all. Dyn11 against Dyn5 is half a turn apart. That gap is 200%, so 20 times rated flows: a dead short." Read: "A 30° gap is 52% of the phase voltage. Through 5% + 5%, it drives 5.2 times rated current round the pair with no load. Dyn11 against Dyn5 drives 20 times rated." Still: T2 Dyn5, the circulating bar at 20.0 times rated.
+
+Screen 11, try it, typed. The picture: T2 at Yyn0, 4% each, the circulating readout ? until Check. "A Dyn11 and a Yyn0 again, but each has 4% impedance. The gap is 52% of the phase voltage. How many times rated current would circulate?" Typed, in × rated, one decimal place: answer 6.5, want "6.5 × rated". Slips: 13, "That counts one unit. The current goes round both."; 5.2, "That is the 5% figure."; 2.1, "That multiplies by the impedance. Divide by it." Hint otherwise: "Gap share ÷ (4% + 4%)." Why: "4% + 4% = 8%, and 52 ÷ 8 = 6.5." Read: "A Dyn11 and a Yyn0 at 4% each, with a 52% gap: how many times rated current would circulate?"
+
+Screen 12, show. The clock card with Yyn0's hand at twelve and Dyn11's at eleven. Below, three traces over one cycle, drawn to shape: two bridges' rectified outputs, six bumps a cycle, the second moved 30°, and their sum, twelve smaller bumps. The words: "Sometimes the shift is the point. It is how a twelve-pulse rectifier smooths its output. Feed one six-pulse rectifier from a Yyn0 unit. Feed another from a Dyn11 on the same supply. Each output ripples six times a cycle, one bump every 60°. Their supplies sit 30° apart, which is half a bump. So one bridge's peaks fall in the other's dips. Added, they give twelve smaller bumps a cycle." Read: "Two six-pulse rectifiers fed 30° apart put one's peaks in the other's dips: twelve smaller bumps a cycle." Still: false, as the picture has nothing to set.
+
+Screen 13, try it, the first of two mixed puzzles, typed. The picture: Dyn1, the hour ? until Check, then LV ends Swapped. "Take a Dyn1 unit and swap its LV winding's two ends. What hour does its name end in now?" Typed, no unit, whole numbers: answer 7, want "7". Slips: 5, "That is Dyn11 swapped. Start from one o'clock."; 1, "Swapping the ends flips every LV voltage half a turn." Hint otherwise: "Swapping adds six hours." Why: "1 + 6 = 7: Dyn7." Read: "Swap a Dyn1's LV ends. What hour does its name end in now?"
+
+Screen 14, try it, the second mixed puzzle. No picture. "A board has a Dyn11, 440 V to 115 V, 5% unit. Which second unit leaves no voltage across the open switch?" Four choices, in this order: "Dyn1, 440 V to 115 V, 5%"; "Yyn0, 440 V to 115 V, 5%"; "Dyn11, 440 V to 115 V, 5%"; "Dyn11, 440 V to 110 V, 5%". Right, the third. Hint for the first: "Two hours apart: a 66.40 V gap." Hint for the second: "One hour apart: a 34.37 V gap." Hint for the fourth: "Its arrows are shorter. A difference in length is a gap too." Why: "Only the 115 V Dyn11 matches in hour and length. So its arrow lies on the first." Read: "A 440 V to 115 V, 5% Dyn11 is on the board. Which second unit leaves no voltage across the switch?"
+
+The finish. The words: "Star and delta joins turn a transformer's output in whole hours of 30°. Delta on one side and star on the other moves it one hour. Dyn11 puts the LV 30° ahead. Units may share a board only with the same ratio and group. Otherwise the gap between them drives a circulating current. Next: transformers on the job."
+What the model leaves out (the app shows this in its own panel; do not repeat it on the page): Each transformer is ideal. It has no magnetising current, and every winding keeps exact time with its limb's flux. The supply turns A, B, C in that order. Reverse the order and the same joins give Dyn1 where this shows Dyn11. The clock here fixes the HV line voltage at twelve. Some drawings fix the HV phase voltage there instead, against the LV phase voltage. Both sides then move by the same 30°, so the hour comes out the same. A Dyn1 can sometimes run beside a Dyn11. Cross two lines on both sides of one unit, and their hours match as connected. Only HV star and delta joins are shown. Delta LV windings and zigzag windings give other names on the same clock. The gap is drawn from each line to the joined neutrals. The circulating current assumes a stiff HV busbar. It also leaves out the cables to the board, so a real one is a little smaller. Both units share one rating. Every voltage and current is rms.
+Controls (use these ids, ranges and opening values exactly; when the prediction or a check names a setting of a slider, add it to that slider's snap):
+- id "step": Screen, from 0 to 13 in steps of 1, opening at 0
+Outputs: none. No rule computes a number here, so show no readouts beyond plain counts of what is on screen ("4 of 7 at war"): the picture, its labels and the .say line do the teaching.
+Numbers it may show (control = Dan sets it; computed = from the rule; constant = a fixed real value; assumed = an example value, said once as an example in the lead line or a caption, then drawn as a plain value; date = a historical date or fact):
+- Screen, 1 to 14 (the stepper): 0 (control)
+- Number of screens: 14 (assumed)
+- Supply line voltage, in volts: 440 (assumed)
+- LV line voltage, in volts: 115 (assumed)
+- Square root of 3, to three decimals: 1.732 (constant)
+- Degrees per clock hour: 30 (constant, source [1])
+- Hours round the clock: 12 (constant, source [1])
+- Supply phase voltage, in volts: 254 (computed)
+- LV phase voltage, in volts: 66.4 (computed)
+- Dyn11's displacement, in degrees: 330 (computed, source [2])
+- Yyn0 turns per limb, 440 V to 115 V: 3.83 (computed)
+- Dyn11 turns per limb, 440 V to 115 V: 6.63 (computed)
+- Limb 1's HV winding hour: star, delta A–B, delta A–C: 1, 12 and 2 (computed)
+- Hours added by swapping the LV ends: 6 (computed)
+- Clock numbers shown: 0, 1, 5, 6, 7 and 11 (computed)
+- Line voltage A–C behind A–B, in degrees: 60 (computed)
+- Hand sweep per hour, in seconds: 0.25 (assumed)
+- Each unit's percentage impedance, in per cent: 5 (assumed)
+- Both impedances in series, in per cent: 10 (computed)
+- Gap at 30°, in volts: 34.37 (computed)
+- Gap at 30°, share of phase voltage, in per cent: 52 (computed)
+- Gap at 60°, in volts: 66.4 (computed)
+- Gap at 180°, in volts: 132.79 (computed)
+- Gap at 180°, share of phase voltage, in per cent: 200 (computed)
+- Circulating current at 30°, 5% each, times rated: 5.2 (computed)
+- Circulating current at 60°, 5% each, times rated: 10 (computed)
+- Circulating current at 180°, 5% each, times rated: 20 (computed)
+- Circulating bar scale, times rated: 0 to 25 (assumed)
+- Six-pulse ripple spacing, in degrees: 60 (computed)
+- Screen 1 slips, in volts: 762, 147 and 440 (computed)
+- Screen 3 hour: 5 (assumed)
+- Screen 3 angle, in degrees: 150 (computed)
+- Screen 3 slips, in degrees: 5, 30 and 210 (computed)
+- Screen 5 slips: 3.83 and 2.21 (computed)
+- Screen 9 sine of 30°: 0.5 (computed)
+- Screen 9 slips, in volts: 0, 34.37 and 115 (computed)
+- Screen 11 impedance of each unit, in per cent: 4 (assumed)
+- Screen 11 impedances in series, in per cent: 8 (computed)
+- Screen 11 circulating current, times rated: 6.5 (computed)
+- Screen 11 slips, times rated: 13, 5.2 and 2.1 (computed)
+- Screen 13 hour: 7 (computed)
+- Screen 13 slips: 5 and 1 (computed)
+- Screen 14 other LV voltage, in volts: 110 (assumed)
+- Worked example rating, in kVA: 100 (assumed)
+- Worked example rated LV current, in amps: 502 (computed)
+- Worked example circulating current, in amps: 2610 (computed)
+
+## The explanation Dan reads after playing (use the same words for the same things)
+A three-phase transformer works like three single-phase transformers sharing one core. Each side's three windings are joined in star or in delta. Those joins can turn the whole output round by whole steps of 30°. The vector group, a name like Dyn11, records the joins and that turn as an hour on a clock. Two transformers may share a board only if their ratios match and their hours match as connected. Otherwise the gap between their outputs drives a large current round the pair, with no load connected.
+
+Start from what you know. On each limb, one flux threads an HV winding and an LV winding. So the LV winding's voltage keeps exact time with its HV partner. Now picture the clock. The HV line voltage A–B is the hand fixed at twelve. The LV line voltage a–b is the hour hand. Each hour is 30°. In a star, each line voltage runs 30° ahead of the voltage across its winding. Join both sides in star and that shift happens on both sides alike. So the hand stays at twelve: Yyn0. Now join the HV side in delta. Its winding on limb 1 then sits straight across lines A and B. So it carries A–B itself, at twelve. The LV winding a–n on that limb keeps time with it, at twelve too. The LV is still a star, so its line voltage a–b runs 30° ahead of a–n. That puts the hand one hour anticlockwise, at eleven.
+
+The name spells this out. Capitals name the HV side and small letters the LV. D means delta, y…
+
+## Sources
+The only web addresses this page may contain, each only as a K.check {source} on a check whose label restates what that source's quote says (a result of your rule, or a fact about your drawing, takes no source; the caption names a source in words). The app rejects any other:
+[1] Transformer vector groups — Phasor learn (https://www.phasors.io/learn/transformer-vector-groups): "Picture a clock face. The HV phase-A voltage is a hand nailed to 12; the number says which hour the LV phase-a voltage points to. Twelve hours cover a full turn, so one hour is 30°"
+[2] Transformer Vector Group Explained: Dyn1, Dyn11, Yyn0 (https://www.ryantransformers.com/en/blog/transformer-vector-group-dyn1-vs-dyn11): "So a transformer vector group written as Dyn11 is a delta HV winding, a star LV winding with the neutral brought out, and a phase displacement of 11 × 30 = 330 degrees."
+[3] Transformer Vector Group Explained: Dyn1, Dyn11, Yyn0 (https://www.ryantransformers.com/en/blog/transformer-vector-group-dyn1-vs-dyn11): "Eleven o’clock is 330 degrees, which is the same as saying the LV leads the HV by 30 degrees."
+[4] Cast Resin TransformersMedium voltage - SGB-SMIT Group (https://www.sgb-smit.com/products/dry-type-transformers/cast-resin-transformers-medium-voltage): "The coefficient of vector groups must be equal so that phasing of the output voltages corresponds and no short-circuit occurs."
+
+## Dan and how he learns
+- He learns best by doing: something visual he can push and watch respond. Warm, plain words, first principles; no jargon unless explained.
+- He uses an Android phone (this frame is about 340 px wide there, touch only) and a laptop (about 1000 px, where K.stage puts the controls beside the visual). Design for the phone first.
+
+## Rules for this page
+- There is no guess to protect: show everything from the start (no k-after-move), curves and results included.
+- The lead line says what is drawn, plainly ("Water from a 5 m drop hits the blades of a wheel"), not what to do: the app gives the action above the frame. Example values are said once there ("an example stream: a 5 m drop, 20 kg of water each second"), then the drawing labels them plainly ("5 m"), never "for example" on the drawing.
+- Every label and arrow sits on, or starts from, the thing it is about: a force arrow starts on the part it pushes; a speed arrow on the part that moves. Anything the rule says turns or flows does so (K.anim), at a speed that follows its control.
+- The .say sentence must make sense on its own to someone who has just read the explanation: what is happening on screen now, cause then effect, in everyday words; no term, threshold or comparison the page or the explanation has not named; a number as part of its whole ("353 W of the stream's 981 W is carried off by the water"). Bad: "The buckets move slower than half the jet speed, so the water still leaves going backwards, taking 353 W away with it." Good: "The buckets are moving slowly, so the water bounces off them still moving fast, and carries 353 W of its 981 W away downstream."
+- A key for the main drawing sits inside the drawing; show each quantity once (a bar, a readout or a curve, not all three); every number drawn that is worked out (a speed from a drop) is explained in "What you're looking at", or is left off.
+- Draw the cause the explanation gives, not only its effect, and let Dan cause it (a drag, a push, a switch); include the setting where the effect does not happen.
+- Mark the brief's one quantity on the picture itself, with a label saying what it is and its value (a bracket between the two heights reading "2.4 m"); an output with a readout is marked without its number, which the readout alone shows (the app hides it while Dan answers a check).
+- A shaded band states something true of the axis it spans: inputs across x, outputs across y. To show many inputs giving nearly the same output, shade the narrow output band (regions {y0, y1}).
+- Draw every comparison the explanation makes the same way, in the same place, on the axis where the effect happens. A time period is a bracket or thin band along the time axis, not a tall block.
+- Give each reference line its own look and a label beside it; every styled line is in the key or labelled on the drawing.
+- Draw only what the brief, the rule or the explanation names, with the same names. An extra figure says on itself how to read it: what its line stands for and which way is which.
+- Show only the numbers listed above or computed from the rule, each written the way the explanation writes it (the same rounding).
+- Any example cases you choose are fair and representative, never picked to exaggerate the effect.
+- Money, health and law: show how it works, never advice, and never a guaranteed outcome.
+
+## The house kit (complete API reference)
+You write the BODY of one page: HTML, an optional `<style>`, then one inline `<script>` ending
+with `K.ready()`. It runs in a sandboxed iframe on Dan's phone (about 340 px wide, touch) and
+laptop, with the global `K` and the kit's stylesheet. No network or storage: no web
+addresses, `fetch`, `localStorage`, `alert` or `prompt`.
+
+### Page shape that works
+1. `<p class="lead">`: one line saying what is drawn (the app adds title and action).
+2. The main visual with its controls right under it: `K.stage('#scene', '#controls')` keeps the
+   pair on one phone screen. A choice that re-sorts the picture may sit above it.
+3. `<p class="say">`: one sentence that changes with the state and says why. Then
+   `<div class="k-readouts">` for numbers the drawing does not label.
+4. Secondary figures and anything that grows go below.
+5. `<p class="caption">`: one short sentence, at most 20 words: where the numbers come from ("A
+   sketch, not measured data") or the rule in the explanation's words. No new claim, no law or
+   term the explanation does not teach. The app shows what the model leaves out.
+
+### Keep the answer hidden until Dan moves
+Dan predicts before he plays: open on a setting the question is not about, and hide whatever
+gives the answer away until his first move:
+- class `k-after-move` on any element (a mark, an arrow, a sentence): hidden, its space kept.
+  Hide the answer, not the controls or a whole figure (a blank hole fails the test).
+- `K.readout({..., afterMove: true})` shows "?" until then; plot series and marks take `afterMove: true` too.
+- `K.moved` is true from then on: in `K.update`, write `K.moved ? answer : question`.
+- `K.afterMove(fn)` runs `fn` once at that moment; `K.reveal()` marks it from your handlers.
+
+### The pipeline
+Controls register themselves; their values form `params` = `{id: value}`.
+```
+K.model(fn)        fn(params) -> outputs {name: number | string}. Pure: no DOM, no lists or objects.
+K.update(fn)       fn(params, outputs): draw everything here. More than one is allowed.
+K.at(over)         -> outputs of the model at those params (others take each control's starting value)
+K.check(label, fn, {source?})   fn() must return exactly true
+K.ready()          call once, last: draws the opening state and runs the checks
+K.complete()       at the lesson's end
+K.params()  K.outputs()  K.refresh()   (refresh reruns the pipeline after you change your own state)
+```
+A readout whose id is an output key updates itself.
+
+### Controls
+Every control takes `into` (a selector or element). Ids are unique; use the lesson's ids exactly.
+```
+K.control({id, label, min, max, step, value, unit?, prefix?, fmt?, log?, snap?, hint?, into}) -> {el, get(), set(v)}
+K.choice({id, label, options: [value | {value, label}], value, hint?, into}) -> {el, get, set}
+K.toggle({id, label, value: false, hint?, into}) -> {el, get, set}
+K.stepper({id, steps: [title | {title, text}], value: 0, compact?, label?, into}) -> {el, get, set, setSteps(list)}
+K.button({label, press, secondary?, into}) -> {el, press(), setLabel(text)}
+K.drag(el, {control, toValue(x, y)}) -> {el}
+```
+`control` is a big slider with − / + buttons. Keep `unit` short; `fmt(v)` returns the whole text;
+`log: true` spans decades; `snap: [values]` lands a drag exactly on a setting the prediction or a
+check names. `choice`: 2-8 short named options; `value` is an option's value or its 0-based
+index. `stepper` walks a process with Back / Next (`compact: true` when your diagram shows the
+content). `button` is an action (Send it in): use it, not plain buttons. `drag` lets Dan move
+the thing itself: `toValue` maps the pointer (viewBox units; px from `el`'s top-left for HTML)
+to the control's value; the first touch counts as his move.
+
+### Outputs
+```
+K.readout({id, label, unit?, prefix?, decimals?, fmt?, big?, hint?, afterMove?, into}) -> {el, set(v), get(), text()}
+```
+One rounding everywhere a number appears: `decimals` matching the lesson text, and the `.say`
+sentence built with `K.fmt(v, {decimals})` or `readout.text()`. Labels under 30 characters.
+While Dan answers a lesson check, the app hides that output's readout and the `.say` lines:
+never repeat a readout's value elsewhere (a label, an aria-label).
+```
+K.plot(target, opts) -> {draw(opts), x(v), y(v), invert(px, py), el, canvas}
+```
+- `x`, `y`: `{min, max, label, log?, prefix?, unit?, fmt?, ticks?}`. Leave out `y.min`/`y.max` to fit the data.
+- `series`: `[{fn: x => y | points: [[x, y], ...], label?, color?, dash?, width?, fill?, dots?, gaps?, afterMove?}]`
+- `shade`: `[{between: [a, b], label?, color?, x0?, x1?}]`: fills between two series (by label), a
+  series and a constant, or two functions.
+- `marks`: `[{x, y, label?, color?, guides?, afterMove?}]`: a dot with a label pill; `guides` adds dashed lines to the axes.
+- `regions`: `[{x0, x1, label?} | {y0, y1, label?}]` (a band); `lines`: `[{x | y, label?}]` (a dashed line).
+- `label`: the text alternative; `height`; `after(ctx, plot)` draws extras using `plot.x()`, `plot.y()`.
+
+`draw(opts)` redraws with `opts` over the creation options: call it in `K.update`. Values must be
+finite (`gaps: true` only where a gap is real). Series are navy, then teal; `color: 'muted',
+dash: true` for a baseline.
+```
+K.bars(target, {max?, unit?, prefix?, decimals?, fmt?}) -> {draw(items)}      items: [{label, value, color?}], values >= 0
+K.anim({step(dt, t), reset?, label?, autoplay?, button?, into}) -> {el, play, pause, toggle, reset, playing()}
+```
+`anim` adds a Play button (text `label`); `reset` adds Reset. When a switch, button or drag
+already starts the motion, pass `button: false` and call `play()` from that control: one control
+per action. In `step` advance your state (`dt` in seconds) and redraw; return `false` to stop. To
+drive a slider, keep the exact value yourself (the slider moves in whole steps).
+
+### Sound
+```
+K.sound.tone(hz, {dur?, type?, gain?})   K.sound.chord([hz, ...], {dur?, stagger?})   K.sound.stop()   K.sound.mute(on)
+K.sound.hold(hz, {type?, gain?, max?}) -> {set({hz?, gain?}), stop(), playing()}
+```
+`dur` in seconds (at most 10). Sound plays only from a `K.button` press, never `K.update`; show
+what is sounding. `hold` keeps a tone going while `set()` follows a slider. Phones can't play
+below about 150 Hz: use 200 to 2,000 Hz.
+
+### Drawings and helpers
+```
+K.el(tag, attrs?, ...children)    attrs: class, style, on: {click: fn}, text, html, dataset, any attribute
+K.svg(tag, attrs?, ...children)   the same in the SVG namespace
+K.labels(group, [{x, y, text, anchor?, size?, class?, color?}], {avoid?}) -> [<text>]
+K.stage(visual, controls, {max?, beside?}) -> {el}
+K.fmt(v, {decimals?, sig?, prefix?, unit?, percent?, sign?, compact?}) -> '1,234.5', '−3', '2.5 × 10⁶'
+K.near(a, b, tol)   K.clamp(v, lo, hi)   K.lerp(a, b, t)   K.linspace(a, b, n)   K.color(role, alpha?)
+K.ease(p)   K.arrive(T, t0, dur?)   K.fade(el, a, rise?)
+```
+Give an `<svg>` a viewBox about 340 wide, `width="100%"`, `role="img"` and an `aria-label` that
+follows the state. Text 13-16 units, never under 12 (a phone shows 340 units at about 0.9x). A
+row of N labels gets about 300/N units each; label only what differs. Every label sits on, or
+points to, something drawn. `K.labels` places labels (13 units unless `size`) clear of other
+text, the edges and the lines or shapes in `avoid`: use it for labels that move or appear later.
+Put an angle's label inside its wedge, beyond the arc, hidden while the wedge is too narrow.
+`K.stage` fits the pair in `max` px (600) on a phone; `beside: false` keeps it stacked.
+
+Draw the mechanism as it physically works. If the explanation gives a reason (X because Y), draw
+Y so Dan can watch it; parts that fit are drawn fitting (teeth in teeth), never two identical
+icons joined by a line; whatever the rule says happens (slides, grips, multiplies) happens on screen.
+
+### Colour
+Colour carries meaning. Use these roles as `var(--k-…)` or `K.color('fill2')` (`K.color('accent2',
+0.3)` is see-through); a colour name fails the test.
+- Lines and text: `ink`, `muted` (secondary, comparisons), `accent2` (navy: the main thing,
+  controls), `accent` (teal: small labels, a second series), `warn` (red: warnings and mistakes
+  only), `good` (green: "done" only), `amber-line` (amber lines that must stand out).
+- Fills: `bg` (page), `panel`, `sunk`, `amber` (note box), `hl` (key-term highlighter), `fill1`
+  (area of the main thing), `fill2` (highlighted area, amber), `fill3` (area of a second thing).
+- `cat1`-`cat4` (blue, orange, magenta, aqua): telling equal things apart, never meaning; with a
+  key or labels; cat1 and cat2 first. A thing with a familiar colour (water, fire) never gets
+  another thing's colour: use the nearest role and label it. What is still there stays solid:
+  mark a state such as unused with a label, not by fading it, and key any dashed style.
+- Also `--k-line`, `--k-strong` (borders), `--k-on-accent2` (text on navy), `--k-font`, `--k-r` (radius).
+
+Never describe colours by lightness or hue in words Dan reads ("the dark square"): dark mode
+changes them.
+
+Classes: `muted`, `small`, `k-label` (small teal caps), `term` (key term), `note` (amber box),
+`warn-note`, `panel`, `row`, `grid2`, `big`, `k-btn` (`secondary`), and a legend:
+`<div class="key"><span><i class="swatch" style="background:var(--k-accent2)"></i>Your push</span>
+<span><i class="swatch line dash" style="color:var(--k-muted)"></i>The limit</span></div>`.
+
+### Rules for a great interactive
+- One idea. The answer to Dan's prediction shows within about 3 seconds of his first move (add
+  a K.check that it does). Include something Dan causes and a case that surprises. One or two
+  controls, three at most.
+- Phone first: nothing wider than 340 px, no fixed widths over 300 px, rows wrap, no hover-only
+  information, tap targets at least 44 px. Size tiles and grid columns in rem (`minmax(6rem,
+  1fr)`): text grows a quarter at Text size XL, and no word may split across two lines.
+- Every number shown is a control, computed by the rule shown, a constant from the lesson, an
+  example value named once in the lead, or a date from the lesson. Never invent data, rates or chances.
+- The `.say` sentence describes what is on screen now, plainly and warmly, and reads right at the
+  extremes ("none of the 100"). Never claim Dan did something ("When you slid it to 20"):
+  describe the state, or write conditionally ("Push it past 20 and…").
+- 3-5 `K.check` known answers worked out by hand: an edge case, a shape fact (rises, halves,
+  always last), and one answer from outside your formula. `source` may ONLY be a URL from the
+  lesson's own sources, and only on a check whose label restates what that source's quote says;
+  a result of your rule, or a fact about your drawing, takes none. Compare numbers with
+  `K.near(a, b, tol)`: tolerance about a millionth of the size, a thousandth where rounding meets roots.
+- `K.anim` for motion, never timers: soft, unhurried, nothing popping in. Parts arrive about 0.6
+  s apart by `K.fade(el, K.arrive(T, t0))`; travel and growth use `K.ease`; a demonstration takes
+  3-5 s. No `vh` units, `position: fixed` or `height: 100%`.
+- Ideas without numbers (mechanism, process, structure, history, concept): prefer a timeline
+  slider, a named choice, a sorter or a drag; use `K.stepper` only when every step changes the
+  drawing. Checks assert order and structure facts.
+- A timeline runs forward: a slider rising left to right, its `fmt` showing the date (−500 as
+  "500 BC"), or a stepper of named events in order. A lesson's calendar-year control keeps its
+  range, its `fmt` showing the year; years after the first date are for new controls. Each dated
+  event appears as he reaches its date.
+
+### The self-test
+Before Dan sees it, the app loads your body 340, 720 and 1040 px wide, runs every check, moves
+every control, button, animation and drag, reveals the after-move parts, and looks again at Text
+size XL and in the other theme. It fails on an exception, NaN or undefined on the page, an update
+over 150 ms, sideways overflow, text cut off or over other text, SVG text under 11 px on a phone,
+a line or arrowhead through a label, text under 3:1 contrast with what is behind it, a colour
+name, a blank hole until a move, or no `K.ready()`.
+
+### Example
+```html
+<p class="lead">Lengthen the string and watch each swing take longer.</p>
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+<p class="caption">Small swings only; g = 9.81 m/s² is gravity at the Earth's surface.</p>
+<script>
+  const g = 9.81;
+  const period = (L) => 2 * Math.PI * Math.sqrt(L / g);
+  K.control({ id: 'L', label: 'String length', min: 0.1, max: 3, step: 0.05, value: 1, unit: 'm', snap: [2], into: '#controls' });
+  K.stage('#plot', '#controls');
+  K.readout({ id: 'T', label: 'One full swing takes', unit: 's', decimals: 2, into: '#outs' });
+  const plot = K.plot('#plot', { x: { min: 0, max: 3, label: 'Length (m)' }, y: { min: 0, max: 4, label: 'Period (s)' } });
+  K.model((p) => ({ T: period(p.L) }));
+  K.update((p, o) => {
+    plot.draw({ series: [{ fn: period }], marks: [{ x: p.L, y: o.T, guides: true }] });
+    document.getElementById('say').textContent = !K.moved ? 'Make the string four times longer: how much longer is each swing?'
+      : 'A ' + K.fmt(p.L, { decimals: 2 }) + ' m string swings there and back every ' + K.fmt(o.T, { decimals: 2 }) + ' s. Four times the length only doubles that.';
+  });
+  K.check('No length, no swing time', () => K.near(period(0), 0));
+  K.check('A seconds pendulum (2 s per swing) is 0.994 m long', () => K.near(period(0.994), 2, 0.002),
+    { source: 'https://en.wikipedia.org/wiki/Seconds_pendulum' });
+  K.check('Four times the length doubles the period', () => K.near(K.at({ L: 2 }).T / K.at({ L: 0.5 }).T, 2, 1e-9));
+  K.ready();
+</script>
+```
+
+
+## A finished example (kind: structure). Match its standard and structure, not its topic. Its SOURCE line and {source} addresses belong to that example's own lesson: never copy them
+<!-- kind: structure -->
+<style>
+  .heart text { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .heart .organ { fill: var(--k-panel); stroke: var(--k-line); stroke-width: 1.5; }
+  .heart .vessel { fill: none; stroke: var(--k-sunk); stroke-width: 9; stroke-linecap: round; stroke-linejoin: round; }
+  .heart .room { fill: var(--k-bg); stroke: var(--k-strong); stroke-width: 2; }
+  .heart .room.here { fill: var(--k-fill1); stroke: var(--k-accent2); }
+  .heart .room.thick { stroke-width: 5; }
+  .heart .trail { fill: none; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; }
+  .heart .poor { stroke: var(--k-cat1); }
+  .heart .rich { stroke: var(--k-cat2); }
+  .heart .valve { stroke: var(--k-ink); stroke-width: 2.5; stroke-linecap: round; }
+  .heart .arrow { fill: var(--k-muted); }
+  .heart .side { font-size: 12.5px; font-weight: 700; letter-spacing: .06em; fill: var(--k-accent); }
+  .heart .valve-name { font-size: 13px; fill: var(--k-accent2); }
+  .heart .drop { stroke: var(--k-bg); stroke-width: 2.5; }
+  .dot-poor { background: var(--k-cat1); }
+  .dot-rich { background: var(--k-cat2); }
+</style>
+
+<p class="lead">Follow one drop of blood through the heart. Drag it along, or press Play, and watch which chamber it passes through.</p>
+
+<div id="scene">
+  <svg class="heart" id="heart" viewBox="0 0 340 340" role="img" aria-label="">
+    <rect class="organ" x="80" y="6" width="200" height="46" rx="14"/>
+    <text x="104" y="40">Lungs</text>
+    <rect class="organ" x="80" y="292" width="200" height="42" rx="14"/>
+    <text x="180" y="326" text-anchor="middle">Rest of the body</text>
+    <path class="vessel" id="vessels"/>
+    <rect class="room" id="room-ra" x="58" y="92" width="90" height="58" rx="12"/>
+    <rect class="room" id="room-la" x="192" y="92" width="90" height="58" rx="12"/>
+    <rect class="room" id="room-rv" x="58" y="160" width="90" height="86" rx="14"/>
+    <rect class="room thick" id="room-lv" x="192" y="160" width="90" height="86" rx="14"/>
+    <text x="117" y="114" text-anchor="middle">Right</text><text x="117" y="129" text-anchor="middle">atrium</text>
+    <text x="225" y="114" text-anchor="middle">Left</text><text x="225" y="129" text-anchor="middle">atrium</text>
+    <text x="117" y="191" text-anchor="middle">Right</text><text x="117" y="206" text-anchor="middle">ventricle</text>
+    <text x="225" y="191" text-anchor="middle">Left</text><text x="225" y="206" text-anchor="middle">ventricle</text>
+    <text class="side" x="103" y="266" text-anchor="middle">THEIR RIGHT</text>
+    <text class="side" x="237" y="266" text-anchor="middle">THEIR LEFT</text>
+    <path class="trail poor" id="trail-poor"/>
+    <path class="trail rich" id="trail-rich"/>
+    <g id="valves"></g>
+    <g class="k-after-move" id="arrows"></g>
+    <g id="valve-label"></g>
+    <circle class="drop" id="drop" r="7"/>
+  </svg>
+  <div class="key" aria-hidden="true">
+    <span><i class="swatch dot-poor"></i>Blood low in oxygen</span>
+    <span><i class="swatch dot-rich"></i>Blood rich in oxygen</span>
+  </div>
+</div>
+<div class="k-controls" id="controls"></div>
+<div class="k-readouts" id="outs"></div>
+<p class="say" id="say"></p>
+<p class="caption">A flat map of the heart seen from the front, so the person's right side is on your left.</p>
+
+<script>
+  // Source [1] of the lesson: the heart's chambers, valves and the two circuits.
+  const SOURCE = 'https://en.wikipedia.org/wiki/Heart';
+
+  // The drop's loop, leg by leg: the path it follows (viewBox units), its share of the slider
+  // (weights add up to 100, so short valves still get room), what it is, and where it goes next.
+  const LEGS = [
+    { key: 'body', name: 'Rest of the body', pts: [[180, 303], [80, 303]], w: 10, next: 'Right atrium',
+      say: 'The drop is out in the body, where its oxygen has just been handed to the cells. Next it heads back to the heart.' },
+    { key: 'veins', name: 'Big veins from the body', pts: [[80, 303], [30, 303], [30, 135], [58, 135]], w: 8, next: 'Right atrium',
+      say: 'Low on oxygen, it rides the big veins (the venae cavae) back to the heart\'s right side.' },
+    { key: 'ra', name: 'Right atrium', room: 'ra', pts: [[58, 135], [80, 135], [80, 150]], w: 8, next: 'Right ventricle',
+      say: 'It collects in the right atrium, the holding chamber at the top of the heart\'s right side.' },
+    { key: 'tricuspid', name: 'Tricuspid valve', valve: true, pts: [[80, 150], [80, 160]], w: 3, next: 'Right ventricle',
+      say: 'The tricuspid valve opens one way only: blood can drop into the right ventricle but not flow back.' },
+    { key: 'rv', name: 'Right ventricle', room: 'rv', pts: [[80, 160], [80, 225], [148, 225]], w: 8, next: 'Lungs',
+      say: 'The right ventricle squeezes it out to the lungs, not to the body.' },
+    { key: 'pulmonary', name: 'Pulmonary valve', valve: true, pts: [[148, 225], [158, 225]], w: 3, next: 'Lungs',
+      say: 'Through the pulmonary valve, another one-way door.' },
+    { key: 'artery', name: 'Pulmonary artery', pts: [[158, 225], [170, 225], [170, 52]], w: 6, next: 'Lungs',
+      say: 'The pulmonary artery carries it to the lungs. It counts as an artery because it leads away from the heart, even though this blood is low in oxygen.' },
+    { key: 'lungs', name: 'Lungs', pts: [[170, 52], [170, 20], [260, 20], [260, 52]], w: 9, next: 'Left atrium',
+      say: 'In the lungs it gives up carbon dioxide and picks up oxygen from the air breathed in.' },
+    { key: 'pveins', name: 'Pulmonary veins', pts: [[260, 52], [260, 92]], w: 5, next: 'Left atrium',
+      say: 'Rich in oxygen now, it returns along the pulmonary veins to the heart\'s left side.' },
+    { key: 'la', name: 'Left atrium', room: 'la', pts: [[260, 92], [260, 150]], w: 8, next: 'Left ventricle',
+      say: 'It collects in the left atrium.' },
+    { key: 'mitral', name: 'Mitral valve', valve: true, pts: [[260, 150], [260, 160]], w: 3, next: 'Left ventricle',
+      say: 'The mitral valve lets it into the left ventricle and stops it flowing back.' },
+    { key: 'lv', name: 'Left ventricle', room: 'lv', pts: [[260, 160], [260, 225], [282, 225]], w: 8, next: 'Rest of the body',
+      say: 'The left ventricle has the thickest wall of the four: it pushes blood all the way round the body.' },
+    { key: 'aortic', name: 'Aortic valve', valve: true, pts: [[282, 225], [292, 225]], w: 3, next: 'Rest of the body',
+      say: 'Out through the aortic valve, the last of the four one-way doors.' },
+    { key: 'aorta', name: 'Aorta', pts: [[292, 225], [310, 225], [310, 303], [280, 303]], w: 8, next: 'Rest of the body',
+      say: 'Into the aorta, the body\'s biggest artery, which branches to every part of the body.' },
+    { key: 'body2', name: 'Rest of the body', pts: [[280, 303], [180, 303]], w: 10, next: 'Right atrium',
+      say: 'Back in the body, it hands over its oxygen. One loop has taken it through the heart twice: once on each side.' },
+  ];
+  // Each leg's span of the slider [from, to) and its path length.
+  let at0 = 0;
+  LEGS.forEach((L) => {
+    L.from = at0; at0 += L.w; L.to = at0;
+    L.len = L.pts.slice(1).reduce((s, q, i) => s + Math.hypot(q[0] - L.pts[i][0], q[1] - L.pts[i][1]), 0);
+  });
+  const LUNGS = LEGS.find((L) => L.key === 'lungs'), LUNGS_MID = LUNGS.from + LUNGS.w / 2;   // oxygen picked up from here on
+  const legAt = (pos) => LEGS.find((L) => pos < L.to) || LEGS[LEGS.length - 1];
+  // The point a fraction f of the way along a leg's path.
+  function pointOn(L, f) {
+    let d = f * L.len;
+    for (let i = 1; i < L.pts.length; i++) {
+      const a = L.pts[i - 1], b = L.pts[i], s = Math.hypot(b[0] - a[0], b[1] - a[1]);
+      if (d <= s || i === L.pts.length - 1) { const t = s ? Math.min(1, d / s) : 0; return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t]; }
+      d -= s;
+    }
+    return L.pts[L.pts.length - 1];
+  }
+  const where = (pos) => { const L = legAt(pos); return pointOn(L, Math.min(1, (pos - L.from) / L.w)); };
+  // The path from slider position a to b, as an SVG path.
+  function pathBetween(a, b) {
+    if (!(b > a)) return '';
+    const pts = [where(a)];
+    LEGS.forEach((L) => L.pts.forEach((q, i) => {
+      const pos = L.from + L.w * (L.len ? L.pts.slice(1, i + 1).reduce((s, r, j) => s + Math.hypot(r[0] - L.pts[j][0], r[1] - L.pts[j][1]), 0) / L.len : 0);
+      if (pos > a && pos < b) pts.push(q);
+    }));
+    pts.push(where(b));
+    return 'M' + pts.map((q) => q[0].toFixed(1) + ' ' + q[1].toFixed(1)).join('L');
+  }
+  const oxygen = (pos) => pos >= LUNGS_MID ? 'Plenty' : 'Little';
+
+  const pos = K.control({ id: 'pos', label: 'Round the loop', min: 0, max: 100, step: 1, value: 22, unit: '%', into: '#controls' });
+  // Play moves the slider. The slider moves in whole steps, so the drawing follows the exact
+  // position while playing; Dan dragging the slider takes over from wherever he leaves it.
+  let smooth = null;
+  K.anim({ label: 'Play the loop', into: '#controls', step: (dt) => {
+    const from = smooth !== null && Math.abs(smooth - pos.get()) < 1 ? smooth : pos.get();
+    smooth = (from + dt * 5) % 100;
+    pos.set(smooth);
+  } });
+  K.stage('#scene', '#controls');
+
+  K.readout({ id: 'place', label: 'Where the drop is', into: '#outs' });
+  K.readout({ id: 'oxygen', label: 'Oxygen it carries', into: '#outs' });
+  // Shows "?" until Dan moves something: it would answer his prediction.
+  K.readout({ id: 'next', label: 'Where it goes next', afterMove: true, into: '#outs' });
+
+  // The pure model: position round the loop -> where the drop is (text outputs only).
+  K.model((p) => {
+    const L = legAt(p.pos);
+    return { place: L.name, oxygen: oxygen(p.pos), next: L.next, leg: L.key };
+  });
+
+  // The drawing that never changes: vessels, valves, and the flow arrows kept for after a move.
+  const svg = document.getElementById('heart');
+  document.getElementById('vessels').setAttribute('d', pathBetween(0, 100));
+  LEGS.filter((L) => L.valve).forEach((L) => {
+    const [a, b] = L.pts, cx = (a[0] + b[0]) / 2, cy = (a[1] + b[1]) / 2, across = a[0] === b[0];
+    document.getElementById('valves').appendChild(across
+      ? K.svg('path', { class: 'valve', d: `M${cx - 8} ${cy - 2}L${cx} ${cy + 3}L${cx + 8} ${cy - 2}` })
+      : K.svg('path', { class: 'valve', d: `M${cx - 2} ${cy - 8}L${cx + 3} ${cy}L${cx - 2} ${cy + 8}` }));
+  });
+  [['veins', 0.55], ['artery', 0.55], ['pveins', 0.5], ['aorta', 0.5], ['body', 0.5], ['lungs', 0.5]].forEach(([key, f]) => {
+    const L = LEGS.find((x) => x.key === key), a = pointOn(L, f - 0.02), b = pointOn(L, f + 0.02);
+    const ang = Math.atan2(b[1] - a[1], b[0] - a[0]) * 180 / Math.PI, c = pointOn(L, f);
+    document.getElementById('arrows').appendChild(K.svg('path', { class: 'arrow', d: 'M-5 -5L5 0L-5 5Z', transform: `translate(${c[0]} ${c[1]}) rotate(${ang})` }));
+  });
+
+  K.update((p, o) => {
+    const at = smooth !== null && Math.abs(smooth - p.pos) < 1 ? smooth : p.pos;
+    const L = legAt(at), [x, y] = where(at), rich = at >= LUNGS_MID;
+    document.getElementById('trail-poor').setAttribute('d', pathBetween(0, Math.min(at, LUNGS_MID)));
+    document.getElementById('trail-rich').setAttribute('d', pathBetween(LUNGS_MID, at));
+    const drop = document.getElementById('drop');
+    drop.setAttribute('cx', x.toFixed(1)); drop.setAttribute('cy', y.toFixed(1));
+    drop.style.fill = K.color(rich ? 'cat2' : 'cat1');
+    ['ra', 'rv', 'la', 'lv'].forEach((r) => document.getElementById('room-' + r).classList.toggle('here', L.room === r));
+    // Name a valve while the drop is going through it, placed clear of the other labels and off the trails.
+    const v = L.valve ? L : null;
+    K.labels('#valve-label', v ? [{ x: v.pts[0][0] + 12, y: v.pts[0][1] + 9, text: v.name.toLowerCase(), anchor: 'start', class: 'valve-name' }] : [], { avoid: '.trail' });
+    svg.setAttribute('aria-label', 'Map of the heart. The drop is in the ' + L.name.toLowerCase() + ', carrying ' + o.oxygen.toLowerCase() + ' oxygen.');
+    // Until Dan moves something, the sentence asks rather than tells.
+    document.getElementById('say').textContent = K.moved ? L.say : 'Where will this drop go after the right atrium? Make your guess, then move it on.';
+  });
+
+  // Known answers: the route and the valves, as the source describes them.
+  const visits = (keep) => {
+    const out = [];
+    for (let q = 0; q < 100; q += 0.5) { const n = K.at({ pos: q }).place; if (keep(n) && out[out.length - 1] !== n) out.push(n); }
+    return out;
+  };
+  const STOPS = ['Rest of the body', 'Right atrium', 'Right ventricle', 'Lungs', 'Left atrium', 'Left ventricle'];
+  K.check('One loop: body, right atrium, right ventricle, lungs, left atrium, left ventricle, body', () =>
+    visits((n) => STOPS.includes(n)).join('|') === STOPS.concat(['Rest of the body']).join('|'), { source: SOURCE });
+  K.check('Four valves, each passed once, in order: tricuspid, pulmonary, mitral, aortic', () =>
+    visits((n) => / valve$/.test(n)).join('|') === 'Tricuspid valve|Pulmonary valve|Mitral valve|Aortic valve', { source: SOURCE });
+  K.check('The right side carries blood low in oxygen, the left side blood rich in it', () =>
+    ['Right atrium', 'Right ventricle', 'Pulmonary artery'].every((n) => K.at({ pos: LEGS.find((L) => L.name === n).from + 1 }).oxygen === 'Little') &&
+    ['Pulmonary veins', 'Left atrium', 'Left ventricle', 'Aorta'].every((n) => K.at({ pos: LEGS.find((L) => L.name === n).from + 1 }).oxygen === 'Plenty'));
+  K.check('Each loop goes through the heart twice, once on each side', () =>
+    visits((n) => /atrium$/.test(n)).length === 2);
+  K.check('The ends of the slider are the same place: the loop closes', () =>
+    at0 === 100 && K.at({ pos: 0 }).place === K.at({ pos: 100 }).place && Math.hypot(where(0)[0] - where(100)[0], where(0)[1] - where(100)[1]) < 1e-9);
+
+  K.ready();
+</script>
+
+
+## Typed answers (every ready-made course from 28 Oct)
+
+Dan works each puzzle on paper, then types his answer (Dan, 27-28 Oct). So a DO puzzle whose answer
+is a figure (a number with at most a unit: "0.70 V", "24 m²", "9.26 V") is typed into a field,
+never picked from options. Options stay for answers in words, a direction, an expression
+("4i − 2j"), an order, or where choosing between named things is the skill being taught ("Which
+pole leaks?"). Never write "About" in a typed answer: give the figure to the places you want.
+
+```
+K.answer({id, label?, unit, answer, decimals?, tolerance?, accept?, slips?, into, onCheck?, onEnter?})
+    -> {el, input, check(), result, right(), missed(), reveal(), reset(), set(text)}
+K.answer.grade(text, spec) -> {state: 'right'|'wrong'|'empty'|'unreadable', value, accepted?, slip?, hint?}
+```
+
+- A decimal-keypad field with the unit beside it. `answer` is the lesson's figure, worked from the
+  rounded figures the lesson shows; it is accepted within half a unit in its last place
+  (`decimals`, default 2: give `decimals: 0` for a whole number, 1 for "0.7"). `accept: [13.32]`
+  adds the answer worked from unrounded figures. A unit typed after the number ("0.70 V") is fine.
+- The wrong options you would have offered become `slips`: `[{value: 0.07, hint: 'That is 7 mΩ
+  read as 0.7 Ω. Milli is a thousandth.'}]`, each with the hint that names the mistake.
+- Your Check button calls `a.check()` (Enter does too); never grade as he types (the app's
+  calculator can type its result into the field for him). Write the feedback from `a.result`:
+  right, "That's it." and Continue; wrong, the slip's hint (`r.hint`) or the step's one-line hint,
+  and the field kept for another go; after two wrong tries, the working (Why?) and `a.reveal()`,
+  then Continue. Continue only once `a.right()` (a revealed answer counts).
+- Give each field its own `id` (the step's name in a few letters is fine).
+- Nothing on screen gives the answer before it is checked: a readout that would show the figure
+  shows "?" until then.
+- STEPS: the typed step keeps `want`, the answer as printed with its unit ('0.70 V'). The lesson's
+  read-through, its Book chapter and its problem set (the app asks it again, typed) read it.
+- The self-test grades every field: its answer and each accepted one right (with the unit too),
+  a near miss and each slip refused, and the answer typed into the field and checked on its step.
+- A worked example of the field in use: docs/courses/electrical/design-and-verification/i2.body.final.html.
+
+## Output
+Return ONLY the body: HTML elements, an optional <style>, then one inline <script> that ends with K.ready(). No <html>, <head> or <body> tags, no markdown fences, no commentary before or after. Keep it under 40 KB.

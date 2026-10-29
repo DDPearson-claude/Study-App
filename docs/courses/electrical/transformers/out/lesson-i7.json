@@ -1,0 +1,609 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-29T05:43:32.654Z",
+ "startedAt": "2026-10-29T05:43:32.654Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i7",
+  "title": "Three-phase transformers and vector groups",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the LV hand jump from twelve to eleven o'clock, and the name change from Yyn0 to Dyn11, when you switch the HV winding from star to delta.",
+   "title": "The clock and the paralleling switch",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Screen",
+     "min": 0,
+     "max": 13,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [],
+   "whatAmILookingAt": "Fourteen screens on two cards, with Back and Continue. Six show an idea and Eight ask you to try it.\n\nThe clock card. Left, a three-limb core, each limb with an HV winding above and an LV winding below. Terminals A, B, C along the top and a, b, c, n along the bottom, joins drawn as wires: an HV star meets at a star point, an HV delta runs end to end. The LV is always a star with n brought out. Right, a clock with small teal hours. A thick HV hand, A–B, is fixed at twelve. A thick LV hand, a–b, points to its hour. Two thin dashed hands show limb 1's HV winding and its LV winding a–n, together unless the LV ends are swapped. When they lie along A–B, they are drawn just beside it, so all three show. The name sits below.\n\nIts pickers, shown only where a screen uses them: HV winding, Star or Delta, opening at Star; Delta closed, A–B or A–C, opening at A–B, shown only with Delta; LV ends, As marked or Swapped, opening at As marked.\n\nIts rule. Hours run clockwise from twelve, 30° each, and 12 is written 0 in the name. Limb 1's HV winding sits at 1 in a star, at 12 in a delta closed A–B, and at 2 closed A–C. The LV winding a–n sits at the same hour, or 6 on when swapped. The a–b hand sits one hour anticlockwise of a–n. So Star, Delta A–B and Delta A–C give Yyn0, Dyn11 and Dyn1, and swapped ends give Yyn6, Dyn5 and Dyn7. On a change the a–b hand sweeps an hour per quarter-second. The name and the readouts keep their old values until it lands. Readouts: Hour; Clockwise from twelve, °, the hour × 30.\n\nThe paralleling card. T1 and T2 fed from one 440 V busbar, both 440 V to 115 V, LV neutrals joined. T1 is a fixed Dyn11. T2 has a group picker: Dyn11, Yyn0, Dyn1, Dyn5, opening at Dyn11, wrapping onto two rows on a phone. An open switch joins their phase-a outputs. Below, from one neutral dot, T1's and T2's phase-a arrows, 66.40 V each, at their a–n hours: Dyn11 at 12, Yyn0 at 1, Dyn1 at 2, Dyn5 at 6. A tip-to-tip gap arrow carries its volts, red unless zero. Each unit shows its impedance, 5%, or 4% on screen 11. A Close button: with no gap the switch closes in ink; with a gap it flashes red, a circulating bar labelled Circulating if closed, 0 to 25 times rated, jumps red to its figure, and the switch reopens after two seconds.\n\nIts rule. Phase voltage = 115 ÷ √3 = 66.40 V. Angle = hours apart × 30°. Gap = 2 × 66.40 × sin(angle ÷ 2), in V. Circulating current = (gap ÷ 66.40) ÷ (2 × Z% ÷ 100), in times rated. Readouts: Across the switch, V, two decimals; Circulating if closed, × rated, one decimal. At 5% each: Dyn11 0.00 V, 0.0; Yyn0 34.37 V, 5.2; Dyn1 66.40 V, 10.0; Dyn5 132.79 V, 20.0. At 4% each, Yyn0 gives 6.5.\n\nScreen 1, try it, a recall, typed. No picture. \"A 440 V supply is joined in star. What is the voltage from each line to the star point?\" Typed, in V, whole numbers: answer 254, want \"254 V\". Slips: 762, \"That multiplies by √3. Divide instead.\"; 147, \"That divides by 3. Divide by √3, which is 1.732.\"; 440, \"That is the line voltage.\" Hint otherwise: \"Phase voltage = line voltage ÷ √3.\" Why: \"440 ÷ 1.732 = 254 V. A star winding sees this, not 440 V.\" A right Check says \"Right, you still have it.\" and carries on. Read: \"A 440 V star: what is each line's voltage to the star point?\"\n\nScreen 2, show. The clock card at Yyn0, no pickers yet. The words: \"Here both sides are star, so the hand sits at twelve: Yyn0. A three-phase transformer works like three single-phase ones on one core. Each limb carries an HV and an LV winding. One flux threads both, so they keep exact time. The HV line voltage A–B is fixed at twelve. The LV line voltage a–b is the hour hand. Each hour is 30°. Phasors turn anticlockwise, so ahead means anticlockwise. On each side, a line voltage runs 30° ahead of its winding's. The two shifts match and cancel.\" Read: \"With both sides in star, the hand sits at twelve: Yyn0. Each limb's windings share one flux. The clock fixes the HV line voltage A–B at twelve. The LV line voltage a–b is the hour hand, 30° an hour.\" Still: HV winding Star, LV ends As marked.\n\nScreen 3, try it, typed. No picture. \"A transformer's name ends in 5. How far clockwise from twelve is its LV hand?\" Typed, in °, whole numbers: answer 150, want \"150°\". Slips: 5, \"That is the hour. Each hour is 30°.\"; 30, \"That is one hour, not five.\"; 210, \"That counts anticlockwise. Hours run clockwise.\" Hint otherwise: \"Hour × 30°.\" Why: \"5 × 30 = 150°. Its LV line voltage sits 150° behind the HV's.\" Read: \"A name ends in 5. How far clockwise from twelve is its LV hand?\"\n\nScreen 4, show. The clock card, the HV picker. The words: \"Switch the HV winding to delta and the hand moves to eleven. Limb 1's HV winding now sits across lines A and B. So it carries A–B itself, at twelve. The LV winding a–n on that limb keeps time with it. A star's line voltage runs 30° ahead of its winding's. Ahead is anticlockwise, so a–b sits at eleven. Capitals name the HV side and small letters the LV. D is an HV delta and yn an LV star with its neutral out. The 11 is the hour.[^2]\" Read: \"With the HV in delta, the hand sits at eleven: Dyn11. Limb 1's HV winding carries A–B, at twelve. The LV winding a–n keeps time with it. The LV line voltage runs 30° ahead of a–n, so a–b sits one hour anticlockwise.\" Still: HV winding Delta, Delta closed A–B, LV ends As marked.\n\nScreen 5, try it, typed. The picture: the clock card at Dyn11. \"A Dyn11 unit steps 440 V to 115 V. Each delta winding sees 440 V. Each star winding sees 115 ÷ √3. What is each limb's turns ratio, HV to LV?\" Typed, no unit, two decimal places: answer 6.63, want \"6.63\". Slips: 3.83, \"That is the line ratio. Each star winding gives only 66.40 V.\"; 2.21, \"That puts the star on the HV side.\" Hint otherwise: \"Turns ratio = 440 ÷ (115 ÷ 1.732).\" Why: \"115 ÷ 1.732 = 66.40 V per star winding. 440 ÷ 66.40 = 6.63.\" Read: \"A 440 V to 115 V Dyn11: what is each limb's turns ratio, HV to LV?\"\n\nScreen 6, show. The clock card, all three pickers. The words: \"Joins move the hand in whole hours, 30° at a time. Close the delta the other way. Limb 1's HV winding now sits across A and C. A–C is C–A turned round. C–A sits at eight, so A–C sits at two, 60° behind A–B. The LV winding keeps time with it. Its line voltage a–b runs one hour ahead, at one o'clock: Dyn1. Close it across A and B again, then swap the LV ends. Every LV voltage flips half a turn, six hours. Eleven becomes five: Dyn5.\" Read: \"Closed across A and C, the delta puts the hand at one: Dyn1. Swapping the LV ends of a Dyn11 flips it six hours: Dyn5.\" Still: HV winding Delta, Delta closed A–B, LV ends Swapped.\n\nScreen 7, try it. The picture: the clock card at Dyn11. \"In a Dyn11 unit, where is the LV line voltage compared with the HV's?\" Four choices, in this order: \"30° ahead\"; \"30° behind\"; \"11° behind\"; \"In step\". Right, the first. Hint for the second: \"Phasors turn anticlockwise, and eleven is anticlockwise of twelve.\" Hint for the third: \"Each hour is 30°, not one degree.\" Hint for the fourth: \"That is Yyn0. The delta moves the LV one hour.\" Why: \"330° clockwise lands where 30° anticlockwise does. So the LV is 30° ahead.[^3]\" Read: \"In a Dyn11, where is the LV line voltage compared with the HV's?\"\n\nScreen 8, show. The paralleling card, the T2 picker. The words: \"Two units can share a board only if their outputs match. The groups must match, or closing the switch is a short.[^4] Here T1 is a Dyn11. T1 and T2 both step 440 V to 115 V, and their neutrals are joined. Each phase-a arrow is 66.40 V long. The voltage across the open switch is the gap between their tips. It is 2 × 66.40 × sin(half the angle between them). Pick Yyn0 for T2. That is one hour, 30°, so 34.37 V.\" Read: \"The voltage across the open switch is the gap between the two 66.40 V arrows. It is 2 × 66.40 × sin(half the angle). A Dyn11 beside a Yyn0 leaves 34.37 V.\" Still: T2 Yyn0, switch open.\n\nScreen 9, try it, typed. The picture: T2 at Dyn1, the gap readout and label ? until Check. \"A Dyn11 and a Dyn1 both step 440 V to 115 V. Each LV phase voltage is 66.40 V. What voltage sits across each pole of the open switch?\" Typed, in V, two decimals: answer 66.40, want \"66.40 V\". Slips: 0, \"The ratios match, but eleven and one are two hours apart.\"; 34.37, \"That is one hour. From eleven to one is two hours, 60°.\"; 115, \"That is the line voltage. Use the gap rule.\" Hint otherwise: \"2 × 66.40 × sin 30°.\" Why: \"2 × 66.40 × 0.5 = 66.40 V. A matching ratio is not enough.\" Read: \"A Dyn11 and a Dyn1, both 440 V to 115 V: what voltage sits across each pole of the open switch?\"\n\nScreen 10, show. The paralleling card, now with Close and the circulating bar. The words: \"Close the switch across a gap and it drives a [[circulating current]] round the pair. Only the impedances and cables hold it back. 5% of the voltage drives rated current through one unit. Round the pair, it takes 5% + 5% = 10%. The 30° gap is 34.37 ÷ 66.40 = 52% of the phase voltage. So it drives 52 ÷ 10 = 5.2 times rated current with no load. Dyn11 against Dyn5 is half a turn apart. That gap is 200%, so 20 times rated flows: a dead short.\" Read: \"A 30° gap is 52% of the phase voltage. Through 5% + 5%, it drives 5.2 times rated current round the pair with no load. Dyn11 against Dyn5 drives 20 times rated.\" The demonstration closes the switch at Yyn0 first, then at Dyn5. Still: T2 Dyn5, the circulating bar at 20.0 times rated.\n\nScreen 11, try it, typed. The picture: T2 at Yyn0, 4% each, the circulating readout ? until Check. \"A Dyn11 and a Yyn0 again, but each has 4% impedance. The gap is 52% of the phase voltage. How many times rated current would circulate?\" Typed, in × rated, one decimal place: answer 6.5, want \"6.5 × rated\". Slips: 13, \"That counts one unit. The current goes round both.\"; 5.2, \"That is the 5% figure.\"; 2.1, \"That multiplies by the impedance. Divide by it.\" Hint otherwise: \"Gap share ÷ (4% + 4%).\" Why: \"4% + 4% = 8%, and 52 ÷ 8 = 6.5.\" Read: \"A Dyn11 and a Yyn0 at 4% each, with a 52% gap: how many times rated current would circulate?\"\n\nScreen 12, show. The clock card with Yyn0's hand at twelve and Dyn11's at eleven. Below, three traces over one cycle, drawn to shape: two bridges' rectified outputs, six bumps a cycle, the second moved 30°, and their sum, twelve smaller bumps. The words: \"Sometimes the shift is the point. It is how a twelve-pulse rectifier smooths its output. Feed one six-pulse rectifier from a Yyn0 unit. Feed another from a Dyn11 on the same supply. Each output ripples six times a cycle, one bump every 60°. Their supplies sit 30° apart, which is half a bump. So one bridge's peaks fall in the other's dips. Added, they give twelve smaller bumps a cycle.\" Read: \"Two six-pulse rectifiers fed 30° apart put one's peaks in the other's dips: twelve smaller bumps a cycle.\" Still: false, as the picture has nothing to set.\n\nScreen 13, try it, the first of two mixed puzzles, typed. The picture: Dyn1, the hour ? until Check, then LV ends Swapped. \"Take a Dyn1 unit and swap its LV winding's two ends. What hour does its name end in now?\" Typed, no unit, whole numbers: answer 7, want \"7\". Slips: 5, \"That is Dyn11 swapped. Start from one o'clock.\"; 1, \"Swapping the ends flips every LV voltage half a turn.\" Hint otherwise: \"Swapping adds six hours.\" Why: \"1 + 6 = 7: Dyn7.\" Read: \"Swap a Dyn1's LV ends. What hour does its name end in now?\"\n\nScreen 14, try it, the second mixed puzzle. No picture. \"A board has a Dyn11, 440 V to 115 V, 5% unit. Which second unit leaves no voltage across the open switch?\" Four choices, in this order: \"Dyn1, 440 V to 115 V, 5%\"; \"Yyn0, 440 V to 115 V, 5%\"; \"Dyn11, 440 V to 115 V, 5%\"; \"Dyn11, 440 V to 110 V, 5%\". Right, the third. Hint for the first: \"Two hours apart: a 66.40 V gap.\" Hint for the second: \"One hour apart: a 34.37 V gap.\" Hint for the fourth: \"Its arrows are shorter. A difference in length is a gap too.\" Why: \"Only the 115 V Dyn11 matches in hour and length. So its arrow lies on the first.\" Read: \"A 440 V to 115 V, 5% Dyn11 is on the board. Which second unit leaves no voltage across the switch?\"\n\nThe finish. The words: \"Star and delta joins turn a transformer's output in whole hours of 30°. Delta on one side and star on the other moves it one hour. Dyn11 puts the LV 30° ahead. Units may share a board only with the same ratio and group as connected. Otherwise the gap between them drives a circulating current. Next: transformers on the job.\"",
+   "ignores": "Each transformer is ideal. It has no magnetising current, and every winding keeps exact time with its limb's flux. The supply turns A, B, C in that order. Reverse the order and the same joins give Dyn1 where this shows Dyn11. The clock here fixes the HV line voltage at twelve. Some drawings fix the HV phase voltage there instead, against the LV phase voltage. Both sides then move by the same 30°, so the hour comes out the same. A Dyn1 can sometimes run beside a Dyn11. Cross two lines on both sides of one unit, and their hours match as connected. Only HV star and delta joins are shown. Delta LV windings and zigzag windings give other names on the same clock. The gap is drawn from each line to the joined neutrals. The circulating current assumes a stiff HV busbar. It also leaves out the cables to the board, so a real one is a little smaller. Both units share one rating. Every voltage and current is rms.",
+   "numbers": [
+    {
+     "label": "Screen, 1 to 14 (the stepper)",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Number of screens",
+     "value": 14,
+     "kind": "assumed"
+    },
+    {
+     "label": "Supply line voltage, in volts",
+     "value": 440,
+     "kind": "assumed"
+    },
+    {
+     "label": "LV line voltage, in volts",
+     "value": 115,
+     "kind": "assumed"
+    },
+    {
+     "label": "Square root of 3, to three decimals",
+     "value": 1.732,
+     "kind": "constant"
+    },
+    {
+     "label": "Degrees per clock hour",
+     "value": 30,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "Hours round the clock",
+     "value": 12,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "Supply phase voltage, in volts",
+     "value": 254,
+     "kind": "computed"
+    },
+    {
+     "label": "LV phase voltage, in volts",
+     "value": 66.4,
+     "kind": "computed"
+    },
+    {
+     "label": "Dyn11's displacement, in degrees",
+     "value": 330,
+     "kind": "computed",
+     "source": 2
+    },
+    {
+     "label": "Yyn0 turns per limb, 440 V to 115 V",
+     "value": 3.83,
+     "kind": "computed"
+    },
+    {
+     "label": "Dyn11 turns per limb, 440 V to 115 V",
+     "value": 6.63,
+     "kind": "computed"
+    },
+    {
+     "label": "Limb 1's HV winding hour: star, delta A–B, delta A–C",
+     "value": "1, 12 and 2",
+     "kind": "computed"
+    },
+    {
+     "label": "Hours added by swapping the LV ends",
+     "value": 6,
+     "kind": "computed"
+    },
+    {
+     "label": "Clock numbers shown",
+     "value": "0, 1, 5, 6, 7 and 11",
+     "kind": "computed"
+    },
+    {
+     "label": "Line voltage A–C behind A–B, in degrees",
+     "value": 60,
+     "kind": "computed"
+    },
+    {
+     "label": "Hand sweep per hour, in seconds",
+     "value": 0.25,
+     "kind": "assumed"
+    },
+    {
+     "label": "Each unit's percentage impedance, in per cent",
+     "value": 5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Both impedances in series, in per cent",
+     "value": 10,
+     "kind": "computed"
+    },
+    {
+     "label": "Gap at 30°, in volts",
+     "value": 34.37,
+     "kind": "computed"
+    },
+    {
+     "label": "Gap at 30°, share of phase voltage, in per cent",
+     "value": 52,
+     "kind": "computed"
+    },
+    {
+     "label": "Gap at 60°, in volts",
+     "value": 66.4,
+     "kind": "computed"
+    },
+    {
+     "label": "Gap at 180°, in volts",
+     "value": 132.79,
+     "kind": "computed"
+    },
+    {
+     "label": "Gap at 180°, share of phase voltage, in per cent",
+     "value": 200,
+     "kind": "computed"
+    },
+    {
+     "label": "Circulating current at 30°, 5% each, times rated",
+     "value": 5.2,
+     "kind": "computed"
+    },
+    {
+     "label": "Circulating current at 60°, 5% each, times rated",
+     "value": 10,
+     "kind": "computed"
+    },
+    {
+     "label": "Circulating current at 180°, 5% each, times rated",
+     "value": 20,
+     "kind": "computed"
+    },
+    {
+     "label": "Circulating bar scale, times rated",
+     "value": "0 to 25",
+     "kind": "assumed"
+    },
+    {
+     "label": "Six-pulse ripple spacing, in degrees",
+     "value": 60,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 1 slips, in volts",
+     "value": "762, 147 and 440",
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 3 hour",
+     "value": 5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 3 angle, in degrees",
+     "value": 150,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 3 slips, in degrees",
+     "value": "5, 30 and 210",
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 5 slips",
+     "value": "3.83 and 2.21",
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 9 sine of 30°",
+     "value": 0.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 9 slips, in volts",
+     "value": "0, 34.37 and 115",
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 11 impedance of each unit, in per cent",
+     "value": 4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 11 impedances in series, in per cent",
+     "value": 8,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 11 circulating current, times rated",
+     "value": 6.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 11 slips, times rated",
+     "value": "13, 5.2 and 2.1",
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 13 hour",
+     "value": 7,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 13 slips",
+     "value": "5 and 1",
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 14 other LV voltage, in volts",
+     "value": 110,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example rating, in kVA",
+     "value": 100,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example rated LV current, in amps",
+     "value": 502,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example circulating current, in amps",
+     "value": 2600,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example circulating current unrounded, times rated",
+     "value": 5.18,
+     "kind": "computed"
+    },
+    {
+     "label": "Rating ratio at which paralleling is not recommended",
+     "value": 2,
+     "kind": "constant",
+     "source": 6
+    }
+   ]
+  },
+  "explain": {
+   "text": "A three-phase transformer works like three single-phase transformers sharing one core. Each side's three windings are joined in star or in delta. Those joins can turn the whole output round by whole steps of 30°. The [[vector group]], a name like Dyn11, records the joins and that turn as an hour on a clock. Two transformers may share a board only if their ratios match and their hours match as connected. Otherwise the gap between their outputs drives a large current round the pair, with no load connected.\n\nStart from what you know. On each limb, one flux threads an HV winding and an LV winding. So the LV winding's voltage keeps exact time with its HV partner. Now picture the clock. The HV line voltage A–B is the hand fixed at twelve. The LV line voltage a–b is the hour hand. Each hour is 30°. In a star, each line voltage runs 30° ahead of the voltage across its winding. Join both sides in star and that shift happens on both sides alike. So the hand stays at twelve: Yyn0. Now join the HV side in delta. Its winding on limb 1 then sits straight across lines A and B. So it carries A–B itself, at twelve. The LV winding a–n on that limb keeps time with it, at twelve too. The LV is still a star, so its line voltage a–b runs 30° ahead of a–n. That puts the hand one hour anticlockwise, at eleven.\n\nThe name spells this out. Capitals name the HV side and small letters the LV. D means delta, y means star and n means a neutral brought out. The hour comes last. So Dyn11 means an HV delta, an LV star with its neutral out, and 11 × 30 = 330°.[^2] That 330° is counted clockwise, the way the hours run. It lands where 30° anticlockwise does. Phasors turn anticlockwise, so the LV is 30° ahead of the HV.[^3] You may meet Dyn11 described as a 330° lag. That is the same as 30° ahead. Close the delta across A and C instead and the hand goes to one o'clock. That is Dyn1, 30° behind. Swap the LV winding's two ends and every LV voltage flips half a turn. So Dyn11 becomes Dyn5. Each limb still follows the turns rule. A delta winding sees the full 440 V line voltage. A star winding on a 115 V side gives 115 ÷ √3 = 66.40 V. On each limb, a 440 V to 115 V Dyn11 needs 440 ÷ 66.40 = 6.63 turns to one.\n\nNow put two transformers of the same size on one board. Both step 440 V to 115 V, with an open switch between their outputs. Each LV phase voltage is an arrow 66.40 V long. The voltage across the switch is the gap between their tips. Two equal arrows make a triangle with two equal sides. Cut it down the middle and each half has half the gap opposite half the angle. So the gap is 2 × 66.40 × sin(half the angle). A Dyn11 beside a Yyn0 is one hour apart. So the gap is 2 × 66.40 × sin 15° = 34.37 V. That is 52% of the phase voltage. Matching ratios alone do not close it. Close the switch and that voltage drives a [[circulating current]] round the pair. Only the impedances of the two transformers and the cables to the board hold it back. At 5% each, 52 ÷ 10 = 5.2 times rated current flows with no load at all. A Dyn11 against a Dyn5 is half a turn apart. There the gap is twice the phase voltage. Then 20 times rated flows, as into a dead short. Matching ratio and group make the switch safe to close. For a fair share of the load, their percentage impedances should match as well.[^5] The larger unit should also be rated under twice the smaller. Running generators together brings checks of its own. Those come next, in Generators and paralleling. This picture is simplified. It takes ideal windings, a supply turning A, B, C, and only star and delta joins. **Transformers in parallel need equal vector groups, so that their outputs are in phase and no short circuit occurs.[^4]**"
+  },
+  "analogy": {
+   "text": "Think of joining two battery strings in parallel. If their voltages differ, current flows from one to the other with no load connected. Only their internal resistance and the links between them hold it back. Two transformers on one board behave the same way. The gap between their outputs drives a circulating current round the pair. Their impedances hold it back.",
+   "breaks": "A battery mismatch is only a difference in size. Charge flowing between the strings evens it out. Two transformer outputs of exactly equal size still leave a gap if they point different ways. And that gap never evens out. It lasts as long as both are switched on."
+  },
+  "practice": {
+   "text": "**Safe way first:** Check both plates before two transformers are ever paralleled. Their voltage ratios and their vector groups must match. Their percentage impedances should be close. The larger should be rated under twice the smaller. Then energise both from the same supply, with the switch open. Measure across each pole with a meter rated for the system. Close only if each pole reads near zero. A reading of tens of volts means the groups, the ratios or the connections differ.\n\n**Steps:**\n- Read the vector group on each plate. Capitals give the HV side and small letters the LV. Then comes n for a neutral brought out, then the hour.\n- Turn the hour into an angle: hour × 30°, clockwise from the HV. 11 means the LV is 30° ahead, and 1 means 30° behind.\n- Work out each winding's voltage. A delta winding sees the line voltage. A star winding sees the line voltage ÷ √3.\n- Turns per limb = HV winding voltage ÷ LV winding voltage.\n- For two units, count the hours between them, then turn that into an angle.\n- Gap across the open switch = 2 × LV phase voltage × sin(half the angle).\n- Circulating current, in times rated = gap as a share of the phase voltage ÷ the sum of both percentage impedances. This holds for two units of the same rating.\n\n**Rules of thumb:** Star on one side and delta on the other shifts the output one hour, 30°. Swapping a winding's two ends shifts it six hours. One hour apart leaves a gap of 52% of the phase voltage. Half a turn apart leaves twice the phase voltage, like a dead short. Units in parallel drop the same volts. So the one with the lower percentage impedance carries a bigger share of its rating.\n\n**Worked example:** Two 100 kVA units feed one board. Each steps 440 V to 115 V with 5% impedance. One is a Dyn11 and the other a Yyn0, so they are one hour apart, 30°. The LV phase voltage is 115 ÷ 1.732 = 66.40 V. The gap is 2 × 66.40 × sin 15° = 34.37 V. That is 52% of 66.40 V. Closing the switch would drive 52 ÷ (5 + 5) = 5.2 times rated current round the pair. Rated LV current is 100,000 ÷ (1.732 × 115) = 502 A. Unrounded, that is 5.18 times rated. So 5.18 × 502 gives about 2600 A, with no load connected. Fit a second Dyn11 instead of the Yyn0 and the gap is zero.\n\n**Common mistakes**\n- Matching only the voltage ratio. Two 440 V to 115 V units of different groups still leave a gap.\n- Reading Dyn11's LV as behind. Eleven o'clock is 30° ahead of twelve.\n- Taking the line-voltage ratio as the turns ratio when one side is delta and the other star.\n- Counting one impedance for the circulating current. The current goes round both units.\n- Treating one hour as close enough. At 5% each, a 30° gap drives 5.2 times rated current."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "Transformer vector groups — Phasor learn",
+    "url": "https://www.phasors.io/learn/transformer-vector-groups",
+    "quote": "Picture a clock face. The HV phase-A voltage is a hand nailed to 12; the number says which hour the LV phase-a voltage points to. Twelve hours cover a full turn, so one hour is 30°"
+   },
+   {
+    "n": 2,
+    "title": "Transformer Vector Group Explained: Dyn1, Dyn11, Yyn0",
+    "url": "https://www.ryantransformers.com/en/blog/transformer-vector-group-dyn1-vs-dyn11",
+    "quote": "So a transformer vector group written as Dyn11 is a delta HV winding, a star LV winding with the neutral brought out, and a phase displacement of 11 × 30 = 330 degrees."
+   },
+   {
+    "n": 3,
+    "title": "Transformer Vector Group Explained: Dyn1, Dyn11, Yyn0",
+    "url": "https://www.ryantransformers.com/en/blog/transformer-vector-group-dyn1-vs-dyn11",
+    "quote": "Eleven o’clock is 330 degrees, which is the same as saying the LV leads the HV by 30 degrees."
+   },
+   {
+    "n": 4,
+    "title": "Cast Resin TransformersMedium voltage - SGB-SMIT Group",
+    "url": "https://www.sgb-smit.com/products/dry-type-transformers/cast-resin-transformers-medium-voltage",
+    "quote": "The coefficient of vector groups must be equal so that phasing of the output voltages corresponds and no short-circuit occurs."
+   },
+   {
+    "n": 5,
+    "title": "Substation including generators and parallel operation of transformers - Electrical Installation Guide",
+    "url": "https://www.electrical-installation.org/enwiki/Substation_including_generators_and_parallel_operation_of_transformers",
+    "quote": "It is preferred to connect in parallel transformers having the same characteristics: * Same voltage ratio * Same rated power * Same short circuit impedance. * Same coupling symbol of windings as for example D yn 11"
+   },
+   {
+    "n": 6,
+    "title": "Substation including generators and parallel operation of transformers - Electrical Installation Guide",
+    "url": "https://www.electrical-installation.org/enwiki/Substation_including_generators_and_parallel_operation_of_transformers",
+    "quote": "Connection in parallel of transformers having a power ratio equal or higher than two is not recommended."
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: structure -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .caption { max-width: 32rem; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.08rem; font-weight: 400; line-height: 1.6; }\n  .scene { display: block; width: 100%; max-width: 26rem; margin-inline: auto; touch-action: pan-y; }\n  .scene text { font: 600 13px var(--k-font); fill: var(--k-ink); }\n  .scene .tk { font-weight: 400; fill: var(--k-muted); }\n  .scene .hr { font-size: 12.5px; fill: var(--k-accent); }\n  .scene .side { font-size: 12.5px; font-weight: 700; letter-spacing: .06em; fill: var(--k-accent); }\n  .scene .name { font-size: 24px; font-weight: 700; }\n  .scene .iron { fill: var(--k-sunk); stroke: var(--k-line); stroke-width: 1; }\n  .scene .coil { fill: var(--k-panel); stroke-width: 1.6; }\n  .scene .coil.one { stroke-width: 3; }\n  .scene .hv { stroke: var(--k-cat1); }\n  .scene .lv { stroke: var(--k-cat2); }\n  .scene .turn { stroke-width: 1; }\n  .scene .wire { fill: none; stroke: var(--k-ink); stroke-width: 1.6; stroke-linejoin: round; }\n  .scene .rail { stroke: var(--k-ink); stroke-width: 2.2; }\n  .scene .bus { stroke: var(--k-ink); stroke-width: 3.4; stroke-linecap: round; }\n  .scene .term { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.6; }\n  .scene .dot { fill: var(--k-ink); }\n  .scene .rim { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.6; }\n  .scene .tick { stroke: var(--k-strong); stroke-width: 1.4; }\n  .scene .hand { fill: none; stroke-linecap: round; }\n  .scene .thick { stroke-width: 6; }\n  .scene .thin { stroke-width: 2.2; stroke-dasharray: 5 5; stroke-linecap: butt; }\n  .scene .thin.lv { stroke-dashoffset: 5; }\n  .scene .tc { fill: none; stroke-width: 2; }\n  .scene .blade { stroke: var(--k-ink); stroke-width: 3; stroke-linecap: round; }\n  .scene .blade.bad { stroke: var(--k-warn); }\n  .scene .ta1 { stroke: var(--k-muted); stroke-width: 3; }\n  .scene .ta1-h { fill: var(--k-muted); }\n  .scene .ta2 { stroke: var(--k-accent2); stroke-width: 3; }\n  .scene .ta2-h { fill: var(--k-accent2); }\n  .scene .gapa { stroke: var(--k-warn); stroke-width: 2.4; }\n  .scene .gapa-h { fill: var(--k-warn); }\n  .scene .gaplab.bad { fill: var(--k-warn); }\n  .scene .bar { fill: var(--k-sunk); stroke: var(--k-line); stroke-width: 1; }\n  .scene .barfill { fill: var(--k-warn); }\n  .scene .base { stroke: var(--k-line); stroke-width: 1.2; }\n  .scene .tr { fill: none; stroke-width: 2.4; stroke-linejoin: round; stroke-linecap: round; }\n  .scene .c3 { stroke: var(--k-cat3); }\n  .scene .c4 { stroke: var(--k-cat4); }\n  .scene .cs { stroke: var(--k-ink); }\n  /* T2's four groups: two rows of two on every screen. */\n  #c-g2 .k-seg { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }\n  #c-g2 .k-seg button, #c-lv .k-seg button { white-space: nowrap; }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; }\n  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }\n  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-inline: 16px; font-size: .95rem; white-space: nowrap; }\n  .outs .k-readout { flex: 1 1 8rem !important; min-width: 0; }\n  .picks { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }\n  .picks .k-btn { min-height: 48px; font-size: 1.05rem; white-space: normal; overflow-wrap: normal; word-break: normal; hyphens: none; }\n  .picks .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  .answers .k-answer { max-width: 20rem; }\n  .fb { font-weight: 700; min-height: 1.5em; }\n  .fb.right { color: var(--k-good); }\n  .why, .done { line-height: 1.6; }\n  .done .row { margin-top: 14px; }\n  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }\n</style>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <svg class=\"scene\" id=\"clock\" viewBox=\"0 0 340 258\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"artC\"></g></svg>\n    <svg class=\"scene\" id=\"par\" viewBox=\"0 0 340 312\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"artP\"></g></svg>\n    <svg class=\"scene\" id=\"pulse\" viewBox=\"0 0 340 332\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"artU\"></g></svg>\n    <div class=\"replay\" id=\"replay\"></div>\n    <div class=\"k-controls\" id=\"c-hv\"></div>\n    <div class=\"k-controls\" id=\"c-dc\"></div>\n    <div class=\"k-controls\" id=\"c-lv\"></div>\n    <div class=\"k-controls\" id=\"c-g2\"></div>\n    <div class=\"row\" id=\"par-acts\"></div>\n    <div class=\"k-readouts outs\" id=\"outs\"></div>\n    <div class=\"picks\" id=\"picks\"></div>\n    <div class=\"answers\" id=\"answers\"></div>\n    <div class=\"row acts\" id=\"acts\"></div>\n    <p class=\"fb\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p id=\"finish\"></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\">An example board of 440&#160;V to 115&#160;V transformers. Every hour, angle and voltage is worked from the rule.</p>\n\n<script>\n  // ================= the rules =================\n  const strip = (s) => s.replace(/\\[\\^\\d+\\]/g, '');\n  const NB = ' ';\n  const VPH = 115 / Math.sqrt(3);                  // the LV phase voltage, 66.40 V\n  const HOUR_S = 0.25, TRIP_S = 2;                 // a hand moves an hour a quarter-second; a bad close trips after 2 s\n  const SRC1 = 'https://www.phasors.io/learn/transformer-vector-groups';\n  const SRC2 = 'https://www.ryantransformers.com/en/blog/transformer-vector-group-dyn1-vs-dyn11';\n  const SRC4 = 'https://www.sgb-smit.com/products/dry-type-transformers/cast-resin-transformers-medium-voltage';\n  const GROUPS = ['Dyn11', 'Yyn0', 'Dyn1', 'Dyn5'];\n  const m12 = (h) => ((Math.round(h) % 12) + 12) % 12;\n  // The clock rule: limb 1's HV winding sits at 1 in a star, 12 in a delta closed A–B and 2 closed A–C.\n  // The LV winding a–n sits at the same hour, or 6 on when its ends are swapped. a–b is one hour anticlockwise of a–n.\n  const hvWind = (hv, dc) => hv === 'Star' ? 1 : dc === 'A–C' ? 2 : 0;\n  function clockOf(hv, dc, lv) {\n    const hw = hvWind(hv, dc), lw = (hw + (lv === 'Swapped' ? 6 : 0)) % 12, ab = (lw + 11) % 12;\n    return { hw, lw, ab, name: (hv === 'Star' ? 'Yyn' : 'Dyn') + ab, deg: ab * 30 };\n  }\n  // The paralleling rule: each phase-a arrow sits at its group's a–n hour; the gap is the chord between the tips.\n  const hourOf = (g) => +g.replace(/^\\D+/, '');\n  const anOf = (g) => (hourOf(g) + 1) % 12;\n  function apart(g1, g2) { const d = Math.abs(anOf(g1) - anOf(g2)) % 12; return Math.min(d, 12 - d); }\n  const gapOf = (g2) => 2 * VPH * Math.sin(apart('Dyn11', g2) * 30 / 2 * Math.PI / 180);\n  const circOf = (g2, z) => (gapOf(g2) / VPH) / (2 * z / 100);\n  const one = (v) => (Math.round(v * 10) / 10).toFixed(1);\n  const fV = (v) => v.toFixed(2) + NB + 'V';\n  const fX = (v) => one(v) + NB + '× rated';\n  // Two six-pulse bridges' outputs, the second fed 30° later, and their sum (each as a share of its peak).\n  const six = (a) => { let m = -Infinity; for (let k = 0; k < 6; k++) m = Math.max(m, Math.cos((a - 60 * k) * Math.PI / 180)); return m; };\n  const sixB = (a) => six(a - 30);\n  const both = (a) => six(a) + sixB(a);\n\n  // ================= the lesson: SHOW screens demonstrate, DO screens are puzzles =================\n  const ramp = (t, t0, dur, a, b) => a + (b - a) * K.clamp((t - t0) / dur, 0, 1);\n  const nbv = (s) => s.replace(/(\\d) V\\b/g, '$1' + NB + 'V');\n  const AHEAD = ['30° ahead', '30° behind', '11° behind', 'In step'];\n  const MATCH = ['Dyn1, 440 V to 115 V, 5%', 'Yyn0, 440 V to 115 V, 5%', 'Dyn11, 440 V to 115 V, 5%', 'Dyn11, 440 V to 110 V, 5%'].map(nbv);\n  const STEPS = [\n    { kind: 'typed', name: 'Star phase voltage', ans: 'ph', card: 'none', enter: {},\n      answer: 254, decimals: 0, unit: 'V', want: '254' + NB + 'V',\n      slips: [{ value: 762, hint: 'That multiplies by √3. Divide instead.' },\n        { value: 147, hint: 'That divides by 3. Divide by √3, which is 1.732.' },\n        { value: 440, hint: 'That is the line voltage.' }],\n      task: 'A 440 V supply is joined in star. What is the voltage from each line to the star point?',\n      hint: 'Phase voltage = line voltage ÷ √3.',\n      why: '440 ÷ 1.732 = 254 V. A star winding sees this, not 440 V.',\n      right: 'Right, you still have it.',\n      read: 'A 440 V star: what is each line\\'s voltage to the star point?' },\n    { show: true, name: 'Both sides star', card: 'clock', ctl: [], ro: ['hour', 'deg'], enter: { arr: 0 }, end: { arr: 4 }, dur: 3.0,\n      demo: (t) => { X.arr = ramp(t, 0.4, 2.4, 0, 4); },\n      text: strip('Here both sides are star, so the hand sits at twelve: Yyn0. A three-phase transformer works like three single-phase ones on one core. Each limb carries an HV and an LV winding. One flux threads both, so they keep exact time. The HV line voltage A–B is fixed at twelve. The LV line voltage a–b is the hour hand. Each hour is 30°. Phasors turn anticlockwise, so ahead means anticlockwise. On each side, a line voltage runs 30° ahead of its winding\\'s. The two shifts match and cancel.'),\n      read: 'With both sides in star, the hand sits at twelve: Yyn0. Each limb\\'s windings share one flux. The clock fixes the HV line voltage A–B at twelve. The LV line voltage a–b is the hour hand, 30° an hour.',\n      still: () => setStill() },\n    { kind: 'typed', name: 'Hour to degrees', ans: 'deg', card: 'none', enter: {},\n      answer: 150, decimals: 0, unit: '°', want: '150°',\n      slips: [{ value: 5, hint: 'That is the hour. Each hour is 30°.' },\n        { value: 30, hint: 'That is one hour, not five.' },\n        { value: 210, hint: 'That counts anticlockwise. Hours run clockwise.' }],\n      task: 'A transformer\\'s name ends in 5. How far clockwise from twelve is its LV hand?',\n      hint: 'Hour × 30°.',\n      why: '5 × 30 = 150°. Its LV line voltage sits 150° behind the HV\\'s.',\n      read: 'A name ends in 5. How far clockwise from twelve is its LV hand?' },\n    { show: true, name: 'Delta on the HV side', card: 'clock', ctl: ['hv'], ro: ['hour', 'deg'], enter: {}, end: { hv: 'Delta' }, dur: 3.0,\n      demo: (t) => { X.hv = t < 1.0 ? 'Star' : 'Delta'; },\n      text: strip('Switch the HV winding to delta and the hand moves to eleven. Limb 1\\'s HV winding now sits across lines A and B. So it carries A–B itself, at twelve. The LV winding a–n on that limb keeps time with it. A star\\'s line voltage runs 30° ahead of its winding\\'s. Ahead is anticlockwise, so a–b sits at eleven. Capitals name the HV side and small letters the LV. D is an HV delta and yn an LV star with its neutral out. The 11 is the hour.[^2]'),\n      read: 'With the HV in delta, the hand sits at eleven: Dyn11. Limb 1\\'s HV winding carries A–B, at twelve. The LV winding a–n keeps time with it. The LV line voltage runs 30° ahead of a–n, so a–b sits one hour anticlockwise.',\n      still: () => setStill() },\n    { kind: 'typed', name: 'Turns per limb', ans: 'turns', card: 'clock', enter: { hv: 'Delta' }, ro: [],\n      answer: 6.63, decimals: 2, unit: '', want: '6.63',\n      slips: [{ value: 3.83, hint: 'That is the line ratio. Each star winding gives only 66.40 V.' },\n        { value: 2.21, hint: 'That puts the star on the HV side.' }],\n      task: 'A Dyn11 unit steps 440 V to 115 V. Each delta winding sees 440 V. Each star winding sees 115 ÷ √3. What is each limb\\'s turns ratio, HV to LV?',\n      hint: 'Turns ratio = 440 ÷ (115 ÷ 1.732).',\n      why: '115 ÷ 1.732 = 66.40 V per star winding. 440 ÷ 66.40 = 6.63.',\n      read: 'A 440 V to 115 V Dyn11: what is each limb\\'s turns ratio, HV to LV?' },\n    { show: true, name: 'Whole hours', card: 'clock', ctl: ['hv', 'dc', 'lv'], ro: ['hour', 'deg'], enter: { hv: 'Delta' }, end: { hv: 'Delta', dc: 'A–B', lv: 'Swapped' }, dur: 4.5,\n      demo: (t) => { X.dc = t >= 0.8 && t < 2.0 ? 'A–C' : 'A–B'; X.lv = t >= 3.0 ? 'Swapped' : 'As marked'; },\n      text: 'Joins move the hand in whole hours, 30° at a time. Close the delta the other way. Limb 1\\'s HV winding now sits across A and C. A–C is C–A turned round. C–A sits at eight, so A–C sits at two, 60° behind A–B. The LV winding keeps time with it. Its line voltage a–b runs one hour ahead, at one o\\'clock: Dyn1. Close it across A and B again, then swap the LV ends. Every LV voltage flips half a turn, six hours. Eleven becomes five: Dyn5.',\n      read: 'Closed across A and C, the delta puts the hand at one: Dyn1. Swapping the LV ends of a Dyn11 flips it six hours: Dyn5.',\n      still: () => setStill() },\n    { kind: 'pick', name: 'Ahead or behind', card: 'clock', enter: { hv: 'Delta' }, ro: [],\n      opts: AHEAD, want: AHEAD[0],\n      task: 'In a Dyn11 unit, where is the LV line voltage compared with the HV\\'s?',\n      hint: 'Phasors turn anticlockwise, and eleven is anticlockwise of twelve.',\n      hints: { [AHEAD[1]]: 'Phasors turn anticlockwise, and eleven is anticlockwise of twelve.',\n        [AHEAD[2]]: 'Each hour is 30°, not one degree.',\n        [AHEAD[3]]: 'That is Yyn0. The delta moves the LV one hour.' },\n      why: strip('330° clockwise lands where 30° anticlockwise does. So the LV is 30° ahead.[^3]'),\n      read: 'In a Dyn11, where is the LV line voltage compared with the HV\\'s?' },\n    { show: true, name: 'Two on one board', card: 'par', ctl: ['g2'], ro: ['gap'], enter: {}, end: { g2: 'Yyn0' }, dur: 3.0,\n      demo: (t) => { X.g2 = t < 1.0 ? 'Dyn11' : 'Yyn0'; },\n      text: strip('Two units can share a board only if their outputs match. The groups must match, or closing the switch is a short.[^4] Here T1 is a Dyn11. T1 and T2 both step 440 V to 115 V, and their neutrals are joined. Each phase-a arrow is 66.40 V long. The voltage across the open switch is the gap between their tips. It is 2 × 66.40 × sin(half the angle between them). Pick Yyn0 for T2. That is one hour, 30°, so 34.37 V.'),\n      read: 'The voltage across the open switch is the gap between the two 66.40 V arrows. It is 2 × 66.40 × sin(half the angle). A Dyn11 beside a Yyn0 leaves 34.37 V.',\n      still: () => setStill() },\n    { kind: 'typed', name: 'Two hours apart', ans: 'gap', card: 'par', enter: { g2: 'Dyn1' }, hide: ['gap'], ro: ['gap'],\n      answer: 66.40, decimals: 2, unit: 'V', want: '66.40' + NB + 'V',\n      slips: [{ value: 0, hint: 'The ratios match, but eleven and one are two hours apart.' },\n        { value: 34.37, hint: 'That is one hour. From eleven to one is two hours, 60°.' },\n        { value: 115, hint: 'That is the line voltage. Use the gap rule.' }],\n      task: 'A Dyn11 and a Dyn1 both step 440 V to 115 V. Each LV phase voltage is 66.40 V. What voltage sits across each pole of the open switch?',\n      hint: '2 × 66.40 × sin 30°.',\n      why: '2 × 66.40 × 0.5 = 66.40 V. A matching ratio is not enough.',\n      read: 'A Dyn11 and a Dyn1, both 440 V to 115 V: what voltage sits across each pole of the open switch?' },\n    { show: true, name: 'Circulating current', card: 'par', ctl: ['g2'], close: true, bar: true, ro: ['gap', 'circ'], enter: { g2: 'Yyn0' },\n      end: { g2: 'Dyn5', barOn: true, closed: false }, dur: 4.5,\n      // Close at Yyn0 first (5.2 times rated, tripping open after 2 s), then pick Dyn5 and close again (20 times rated).\n      demo: (t) => {\n        if (t >= 2.3 && X.g2 !== 'Dyn5') { X.g2 = 'Dyn5'; X.closed = false; X.barOn = false; X.trip = 0; }\n        else if (t < 2.3) X.g2 = 'Yyn0';\n        const n = t >= 2.45 ? 2 : t >= 0.2 ? 1 : 0;\n        if (n > X.shot) { X.shot = n; X.closed = true; X.barOn = true; X.trip = t - (n === 2 ? 2.45 : 0.2); }\n      },\n      text: 'Close the switch across a gap and it drives a *circulating current* round the pair. Only the impedances and cables hold it back. 5% of the voltage drives rated current through one unit. Round the pair, it takes 5% + 5% = 10%. The 30° gap is 34.37 ÷ 66.40 = 52% of the phase voltage. So it drives 52 ÷ 10 = 5.2 times rated current with no load. Dyn11 against Dyn5 is half a turn apart. That gap is 200%, so 20 times rated flows: a dead short.',\n      read: 'A 30° gap is 52% of the phase voltage. Through 5% + 5%, it drives 5.2 times rated current round the pair with no load. Dyn11 against Dyn5 drives 20 times rated.',\n      still: () => setStill() },\n    { kind: 'typed', name: 'Four per cent each', ans: 'circ', card: 'par', bar: true, enter: { g2: 'Yyn0', z: 4 }, after: { barOn: true }, hide: ['circ'], ro: ['gap', 'circ'],\n      answer: 6.5, decimals: 1, unit: 'times rated', want: '6.5' + NB + '× rated',\n      slips: [{ value: 13, hint: 'That counts one unit. The current goes round both.' },\n        { value: 5.2, hint: 'That is the 5% figure.' },\n        { value: 2.1, hint: 'That multiplies by the impedance. Divide by it.' }],\n      task: 'A Dyn11 and a Yyn0 again, but each has 4% impedance. The gap is 52% of the phase voltage. How many times rated current would circulate?',\n      hint: 'Gap share ÷ (4% + 4%).',\n      why: '4% + 4% = 8%, and 52 ÷ 8 = 6.5.',\n      read: 'A Dyn11 and a Yyn0 at 4% each, with a 52% gap: how many times rated current would circulate?' },\n    { show: true, name: 'Twelve pulses', card: 'pulse', ctl: [], ro: [], enter: { pulse: 0 }, end: { pulse: 3 }, dur: 4.0,\n      demo: (t) => { X.pulse = ramp(t, 0.3, 3.6, 0, 3); },\n      text: 'Sometimes the shift is the point. It is how a twelve-pulse rectifier smooths its output. Feed one six-pulse rectifier from a Yyn0 unit. Feed another from a Dyn11 on the same supply. Each output ripples six times a cycle, one bump every 60°. Their supplies sit 30° apart, which is half a bump. So one bridge\\'s peaks fall in the other\\'s dips. Added, they give twelve smaller bumps a cycle.',\n      read: 'Two six-pulse rectifiers fed 30° apart put one\\'s peaks in the other\\'s dips: twelve smaller bumps a cycle.',\n      still: false },\n    { kind: 'typed', name: 'Swap a Dyn1', ans: 'swap', card: 'clock', enter: { hv: 'Delta', dc: 'A–C' }, after: { lv: 'Swapped' }, hide: ['hour'], ro: ['hour', 'deg'],\n      answer: 7, decimals: 0, unit: '', want: '7',\n      slips: [{ value: 5, hint: 'That is Dyn11 swapped. Start from one o\\'clock.' },\n        { value: 1, hint: 'Swapping the ends flips every LV voltage half a turn.' }],\n      task: 'Take a Dyn1 unit and swap its LV winding\\'s two ends. What hour does its name end in now?',\n      hint: 'Swapping adds six hours.',\n      why: '1 + 6 = 7: Dyn7.',\n      read: 'Swap a Dyn1\\'s LV ends. What hour does its name end in now?' },\n    { kind: 'pick', name: 'A matching partner', card: 'none', enter: {},\n      opts: MATCH, want: MATCH[2],\n      task: 'A board has a Dyn11, 440 V to 115 V, 5% unit. Which second unit leaves no voltage across the open switch?',\n      hint: 'Two hours apart: a 66.40 V gap.',\n      hints: { [MATCH[0]]: 'Two hours apart: a 66.40 V gap.',\n        [MATCH[1]]: 'One hour apart: a 34.37 V gap.',\n        [MATCH[3]]: 'Its arrows are shorter. A difference in length is a gap too.' },\n      why: 'Only the 115 V Dyn11 matches in hour and length. So its arrow lies on the first.',\n      read: 'A 440 V to 115 V, 5% Dyn11 is on the board. Which second unit leaves no voltage across the switch?' },\n  ];\n  const FINISH = 'Star and delta joins turn a transformer\\'s output in whole hours of 30°. Delta on one side and star on the other moves it one hour. Dyn11 puts the LV 30° ahead. Units may share a board only with the same ratio and group as connected. Otherwise the gap between them drives a circulating current. Next: transformers on the job.';\n\n  // ================= state =================\n  const BASE = { hv: 'Star', dc: 'A–B', lv: 'As marked', g2: 'Dyn11', z: 5, closed: false, barOn: false, trip: 0, shot: 0, arr: 4, pulse: 3 };\n  const X = Object.assign({}, BASE);              // what the picture shows now\n  const D = { bar: 0, sw: 1 };                    // the drawn bar and switch, easing towards X\n  const blank = () => ({ pick: null, res: null, why: false, tries: 0, hint: '' });\n  let S = STEPS.map(blank);\n  const solved = (st) => !!st && (st.res === 'right' || st.res === 'shown');\n  let T = Infinity, motionEnd = 0, scripted = false, lastStep = -1, finished = false, lastDone = false, held = false, VIEW = 0;\n  let REC = { t: {} };\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n  const quiet = () => REDUCE || testing();\n  const el = (id) => document.getElementById(id);\n  const idx = (name) => STEPS.findIndex((d) => d.name === name);\n  const I_GAP = idx('Two hours apart');\n  // A puzzle's figure stays \"?\" on screen until that puzzle is checked.\n  const hideOut = (i, key) => !finished && !!STEPS[i].hide && STEPS[i].hide.indexOf(key) >= 0 && !solved(S[i]);\n  // The Dyn1 gap a later puzzle asks for stays \"?\" on the screens before it.\n  const spoils = (i) => !finished && i < I_GAP && !solved(S[I_GAP]) && X.g2 === 'Dyn1';\n\n  // ================= hands that move an hour at a time, wires that cross-fade =================\n  const mk = (h) => ({ base: h, dist: 0, el: 0, tgt: h });\n  const SW = { hw: mk(1), lw: mk(1), ab: mk(0), t2: mk(0) };\n  function sv(s) {\n    if (!s.dist) return s.base;\n    const n = Math.abs(s.dist), q = s.el / HOUR_S;\n    if (q >= n) return s.base + s.dist;\n    const k = Math.floor(q), f = q - k, stp = Math.min(1, n - k);\n    return s.base + Math.sign(s.dist) * (k + stp * K.ease(Math.min(1, f / 0.7)));\n  }\n  function sto(s, h) {\n    if (s.tgt === h) return;\n    const cur = sv(s);\n    let d = (((h - cur) % 12) + 12) % 12;\n    if (d > 6 + 1e-9) d -= 12;\n    s.tgt = h; s.el = 0;\n    if (Math.abs(d) < 1e-9) { s.base = h; s.dist = 0; } else { s.base = cur; s.dist = d; }\n  }\n  function stick(s, dt) { if (!s.dist) return; s.el += dt; if (s.el / HOUR_S >= Math.abs(s.dist)) { s.base = s.tgt; s.dist = 0; s.el = 0; } }\n  function ssnap(s, h) { s.base = h; s.tgt = h; s.dist = 0; s.el = 0; }\n  const mkW = (k) => ({ cur: k, old: k, p: 1 });\n  const WS = { hv: mkW('Y'), lv: mkW('M') };\n  function wto(w, k) { if (w.cur === k) return; w.old = w.p >= 0.5 ? w.cur : w.old; w.cur = k; w.p = 0; }\n  function wsnap(w, k) { w.cur = k; w.old = k; w.p = 1; }\n  const ease1 = (v, t, dt, tau) => { const e = t - v; return Math.abs(e) <= 1e-3 * Math.max(1, Math.abs(t)) ? t : v + e * (1 - Math.exp(-dt / tau)); };\n  function targets() {\n    const c = clockOf(X.hv, X.dc, X.lv);\n    return { hw: c.hw, lw: c.lw, ab: c.ab, t2: anOf(X.g2), hvK: X.hv === 'Star' ? 'Y' : X.dc === 'A–C' ? 'DAC' : 'DAB',\n      lvK: X.lv === 'Swapped' ? 'S' : 'M', bar: X.barOn ? circOf(X.g2, X.z) : 0, sw: X.closed ? 0 : 1 };\n  }\n  const HANDS = ['hw', 'lw', 'ab', 't2'];\n  function snapD() {\n    const t = targets();\n    HANDS.forEach((k) => ssnap(SW[k], t[k]));\n    wsnap(WS.hv, t.hvK); wsnap(WS.lv, t.lvK);\n    D.bar = t.bar; D.sw = t.sw;\n  }\n  function tween(dt) {\n    const t = targets();\n    HANDS.forEach((k) => { sto(SW[k], t[k]); stick(SW[k], dt); });\n    wto(WS.hv, t.hvK); wto(WS.lv, t.lvK);\n    [WS.hv, WS.lv].forEach((w) => { if (w.p < 1) w.p = Math.min(1, w.p + dt / 0.4); });\n    D.bar = ease1(D.bar, t.bar, dt, 0.1); D.sw = ease1(D.sw, t.sw, dt, 0.08);\n  }\n  function settled() {\n    const t = targets();\n    return HANDS.every((k) => !SW[k].dist && SW[k].tgt === t[k]) && WS.hv.p === 1 && WS.lv.p === 1 &&\n      WS.hv.cur === t.hvK && WS.lv.cur === t.lvK && D.bar === t.bar && D.sw === t.sw;\n  }\n  // The name and the hour readouts change only when the a–b hand lands: they never tick through the hours it passes.\n  let LAND = { h: 0, pre: 'Yyn' };\n  function landed() {\n    const t = clockOf(X.hv, X.dc, X.lv);\n    if (!SW.ab.dist && SW.ab.tgt === t.ab) LAND = { h: t.ab, pre: X.hv === 'Star' ? 'Yyn' : 'Dyn' };\n    return LAND;\n  }\n  const tripping = () => X.closed && gapOf(X.g2) > 1e-9 && STEPS[VIEW].card === 'par';\n  snapD();\n\n  // ================= text with amber key terms (built with K.el, never innerHTML) =================\n  const UNIT_GAP = /(\\d) (?=(?:kVA|V|A|W|×)(?![A-Za-z]))/g;\n  function write(node, s) {\n    node.textContent = '';\n    String(s || '').replace(UNIT_GAP, '$1' + NB).split(/\\*([^*]+)\\*/).forEach((seg, k) => {\n      if (!seg) return;\n      node.appendChild(k % 2 ? K.el('span', { class: 'term' }, seg) : document.createTextNode(seg));\n    });\n  }\n\n  // ================= controls =================\n  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);\n  const CTL = {\n    hv: K.choice({ id: 'hv', label: 'HV winding', options: ['Star', 'Delta'], value: 'Star', into: '#c-hv' }),\n    dc: K.choice({ id: 'dc', label: 'Delta closed', options: ['A–B', 'A–C'], value: 'A–B', into: '#c-dc' }),\n    lv: K.choice({ id: 'lv', label: 'LV ends', options: ['As marked', 'Swapped'], value: 'As marked', into: '#c-lv' }),\n    g2: K.choice({ id: 'g2', label: 'T2 group', options: GROUPS, value: 'Dyn11', into: '#c-g2' }),\n  };\n  const CTL_IDS = Object.keys(CTL);\n  const pushed = {};\n  CTL_IDS.forEach((id) => { pushed[id] = CTL[id].get(); });\n  // The page moves the controls itself during a demonstration (silently, so it is not taken for Dan's move).\n  function push() {\n    CTL_IDS.forEach((id) => { if (pushed[id] !== X[id]) { CTL[id].set(X[id], true); pushed[id] = CTL[id].get(); } });\n  }\n  const shownCtl = (d, id) => !finished && !!d.ctl && d.ctl.indexOf(id) >= 0 && (id !== 'dc' || X.hv === 'Delta');\n  const closeBtn = K.button({ label: 'Close the switch', into: '#par-acts', press: () => {\n    const d = STEPS[at()];\n    if (finished || !d.close) return;\n    if (T !== Infinity) { anim.pause(); T = Infinity; scripted = false; }\n    if (X.closed && gapOf(X.g2) < 1e-9) X.closed = false;          // no gap: it simply opens again\n    else { X.closed = true; X.barOn = true; X.trip = 0; }\n    held = false;\n    K.refresh();\n  } });\n\n  const RO = {\n    hour: K.readout({ id: 'r-hour', label: 'Hour', fmt: (v) => String(v), into: '#outs' }),\n    deg: K.readout({ id: 'r-deg', label: 'Clockwise from twelve', fmt: (v) => v + '°', into: '#outs' }),\n    gap: K.readout({ id: 'r-gap', label: 'Across the switch', fmt: fV, into: '#outs' }),\n    circ: K.readout({ id: 'r-circ', label: 'Circulating if closed', fmt: fX, into: '#outs' }),\n  };\n\n  // Up to four answer buttons; each puzzle fills in its own.\n  const pickBtns = [0, 1, 2, 3].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.kind !== 'pick' || k >= d.opts.length || solved(st)) return;\n    st.pick = d.opts[k]; st.res = null;\n  } }));\n  // Typed answers: a field each; Check grades it, two misses show the working.\n  const ANS = {};\n  STEPS.forEach((d, i) => {\n    if (d.kind !== 'typed') return;\n    el('answers').appendChild(K.el('div', { id: 'ans-' + d.ans }));\n    const a = K.answer({ id: 'a-' + d.ans, unit: d.unit, answer: d.answer, decimals: d.decimals, accept: d.accept, slips: d.slips, into: '#ans-' + d.ans,\n      onCheck: (r) => {\n        const st = S[i];\n        if (solved(st)) return;\n        if (r.state === 'right') st.res = 'right';\n        else if (r.state === 'wrong') {\n          st.tries += 1; st.hint = r.hint || d.hint;\n          if (st.tries >= 2) { st.res = 'shown'; st.why = true; a.reveal(); }\n          else st.res = 'wrong';\n        } else { st.res = r.state; st.hint = ''; }\n        K.refresh();\n      } });\n    ANS[d.ans] = a;\n  });\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || solved(st)) return;\n    if (d.kind === 'typed') { ANS[d.ans].check(); return; }\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = st.pick === d.want ? 'right' : 'wrong';\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    const d = STEPS[at()];\n    if (d.show || finished) return;\n    S[at()].why = !S[at()].why;\n  } });\n  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {\n    if (!STEPS[at()].show || finished) return;\n    startDemo(at());\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && !solved(S[i]))) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true; anim.pause(); T = Infinity;\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S = STEPS.map(blank); finished = false; lastStep = -1;\n    Object.keys(ANS).forEach((k) => ANS[k].reset());\n    stepper.set(0, true);\n  } });\n\n  // ================= motion: one animation runs the demonstrations, the hands and the trip =================\n  const needAnim = () => !finished && (T !== Infinity || !settled() || tripping());\n  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {\n    if (finished) return false;\n    dt = Math.min(dt, 0.1);\n    const i = at(), d = STEPS[i];\n    VIEW = i;\n    if (T !== Infinity) {\n      T += dt;\n      if (scripted && d.demo) d.demo(Math.min(T, motionEnd));\n      if (T >= motionEnd) { T = Infinity; if (scripted) { scripted = false; Object.assign(X, d.end || {}); } }\n    }\n    if (tripping()) { X.trip += dt; if (X.trip >= TRIP_S) { X.closed = false; X.trip = 0; } }\n    if (REDUCE) snapD(); else tween(dt);\n    push();\n    paint(i);\n    return needAnim();\n  } });\n  function kick() {\n    if (testing()) { snapD(); return; }\n    if (REDUCE) snapD();\n    if (needAnim() && !anim.playing()) anim.play();\n  }\n  // A screen's state: its opening, or (for a demonstration) where it ends; a solved puzzle shows its answer.\n  function prep(i, showEnd) {\n    const d = STEPS[i];\n    VIEW = i;\n    Object.assign(X, BASE, d.enter || {});\n    if (d.show && showEnd) { if (d.demo) d.demo(d.dur); Object.assign(X, d.end || {}); }\n    if (!d.show && d.after && solved(S[i])) Object.assign(X, d.after);\n    snapD();\n  }\n  function startDemo(i) {\n    const d = STEPS[i];\n    anim.pause(); held = false;\n    if (d.demo && !quiet()) { prep(i, false); scripted = true; motionEnd = d.dur; T = 0; d.demo(0); snapD(); anim.play(); }\n    else { scripted = false; T = Infinity; prep(i, true); }\n    push();\n  }\n  function enterStep(i) {\n    const d = STEPS[i];\n    anim.pause(); T = Infinity; scripted = false; held = false;\n    enter('stepbox');\n    if (d.show) { startDemo(i); return; }\n    prep(i, false);\n    push();\n  }\n  // The finished picture a still shows (the read-through), with the controls where its words end.\n  function setStill() {\n    const i = at();\n    anim.pause(); T = Infinity; scripted = false; held = true;\n    prep(i, true);\n    push();\n    K.refresh();\n  }\n  function enter(id) {\n    if (REDUCE) return;\n    const box = el(id);\n    box.classList.remove('enter');\n    void box.offsetWidth;\n    box.classList.add('enter');\n  }\n\n  // ================= drawing helpers =================\n  let G = null;\n  const add = (node, par) => (par || G).appendChild(node);\n  const r1 = (v) => Math.round(v * 10) / 10;\n  const text = (x, y, s, cls, anchor) => add(K.svg('text', { class: cls || 'lab', x: r1(x), y: r1(y), 'text-anchor': anchor || 'start' }, s));\n  const ptsS = (pts) => pts.map((p) => r1(p[0]) + ',' + r1(p[1])).join(' ');\n  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r1(x1), y1: r1(y1), x2: r1(x2), y2: r1(y2) }));\n  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: r1(x), y: r1(y), width: r1(Math.max(0, w)), height: r1(Math.max(0, h)), rx: rx || 0 }));\n  const circle = (cls, cx, cy, r) => add(K.svg('circle', { class: cls, cx: r1(cx), cy: r1(cy), r }));\n  const path = (cls, d) => add(K.svg('path', { class: cls, d }));\n  const setOp = (n, o) => { if (n && o < 1) n.setAttribute('opacity', (Math.round(o * 100) / 100).toString()); return n; };\n  const nrm = (x) => { const v = ((x % 360) + 360) % 360; return Math.abs(v - 360) < 1e-9 ? 0 : v; };\n  // An arrow: its shaft stops at the base of its head, so the tip is exact.\n  function arrow(x1, y1, x2, y2, cls, head) {\n    const L = Math.hypot(x2 - x1, y2 - y1);\n    if (L < 0.6) return [];\n    const ux = (x2 - x1) / L, uy = (y2 - y1) / L, hl = Math.min(head, L * 0.6), hw = hl * 0.5;\n    const bx = x2 - ux * hl, by = y2 - uy * hl;\n    const out = [add(K.svg('polygon', { class: cls + '-h', points: ptsS([[x2, y2], [bx - uy * hw, by + ux * hw], [bx + uy * hw, by - ux * hw]]) }))];\n    if (L - hl > 0.6) out.unshift(line(cls, x1, y1, bx, by));\n    return out;\n  }\n\n  // ================= the clock card =================\n  const LX = [60, 106, 152], HVR = [16, 30, 44], LVR = [206, 220, 234], NR = 248;\n  const C0 = [268, 88], RIM = 62;\n  const cAt = (h, r) => [C0[0] + r * Math.sin(h * Math.PI / 6), C0[1] - r * Math.cos(h * Math.PI / 6)];\n  function rail(n, y) { line('rail', 22, y, 176, y); circle('term', 18, y, 3.6); text(8, y + 4.5, n, 'lab', 'middle'); }\n  function coil(cx, y0, cls, first) {\n    rect('coil ' + cls + (first ? ' one' : ''), cx - 12, y0, 24, 42, 5);\n    for (let k = 1; k < 6; k++) line('turn ' + cls, cx - 12, y0 + 7 * k, cx + 12, y0 + 7 * k);\n  }\n  function inGroup(o, fn) {\n    if (o < 0.01) return;\n    const g = add(K.svg('g', { opacity: (Math.round(o * 100) / 100).toString() })), keep = G;\n    G = g; fn(); G = keep;\n  }\n  // HV: each winding's top end goes to its own line; the bottom ends meet at a star point, or go on round the delta.\n  function hvWires(key, o) {\n    inGroup(o, () => {\n      if (key === 'Y') {\n        LX.forEach((cx) => path('wire', 'M' + (cx - 6) + ' 104V114'));\n        path('wire', 'M' + (LX[0] - 6) + ' 114H' + (LX[2] - 6));\n        circle('dot', LX[1] - 6, 114, 2.8);\n      } else {\n        const to = key === 'DAB' ? [1, 2, 0] : [2, 0, 1];\n        LX.forEach((cx, k) => { path('wire', 'M' + (cx + 6) + ' 104V110H' + (cx + 19) + 'V' + HVR[to[k]]); circle('dot', cx + 19, HVR[to[k]], 2.8); });\n      }\n    });\n  }\n  // LV: a star with n brought out. As marked, the top end goes to its line and the bottom end to n; swapped, the other way.\n  function lvWires(key, o) {\n    inGroup(o, () => {\n      LX.forEach((cx, k) => {\n        const top = key === 'M' ? LVR[k] : NR, bot = key === 'M' ? NR : LVR[k];\n        path('wire', 'M' + (cx - 6) + ' 134V128H' + (cx - 19) + 'V' + top); circle('dot', cx - 19, top, 2.8);\n        path('wire', 'M' + (cx + 6) + ' 176V' + bot); circle('dot', cx + 6, bot, 2.8);\n      });\n    });\n  }\n  function hand(h, len, cls, o, side) {\n    if (o < 0.01) return null;\n    const p = cAt(h, len), a = h * Math.PI / 6, sx = (side || 0) * Math.cos(a), sy = (side || 0) * Math.sin(a);\n    return setOp(line('hand ' + cls, C0[0] + sx, C0[1] + sy, p[0] + sx, p[1] + sy), o);\n  }\n  // A thin limb-1 hand lying along A–B is drawn just beside it, so the thick hand never hides it.\n  const besideAB = (h) => { const v = ((h % 12) + 12) % 12; return 6.5 * K.clamp(1 - Math.min(v, 12 - v) / 0.6, 0, 1); };\n  const HOURW = ['twelve', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven'];\n  function drawClock() {\n    G = el('artC'); G.textContent = '';\n    rect('iron', 50, 52, 112, 6); rect('iron', 50, 186, 112, 6);\n    LX.forEach((cx) => rect('iron', cx - 4, 52, 8, 140));\n    ['A', 'B', 'C'].forEach((n, k) => rail(n, HVR[k]));\n    ['a', 'b', 'c', 'n'].forEach((n, k) => rail(n, k < 3 ? LVR[k] : NR));\n    LX.forEach((cx, k) => { coil(cx, 62, 'hv', !k); coil(cx, 134, 'lv', !k); });\n    LX.forEach((cx, k) => { path('wire', 'M' + (cx - 6) + ' 62V' + HVR[k]); circle('dot', cx - 6, HVR[k], 2.8); });\n    if (WS.hv.p < 1 && WS.hv.old !== WS.hv.cur) hvWires(WS.hv.old, 1 - WS.hv.p);\n    hvWires(WS.hv.cur, WS.hv.p);\n    if (WS.lv.p < 1 && WS.lv.old !== WS.lv.cur) lvWires(WS.lv.old, 1 - WS.lv.p);\n    lvWires(WS.lv.cur, WS.lv.p);\n    text(4, 87, 'HV', 'side', 'start'); text(4, 159, 'LV', 'side', 'start'); text(4, 118, 'Limb 1', 'hr', 'start');\n    // The clock: small teal hours, the HV line voltage fixed at twelve, the LV line voltage as the hour hand.\n    circle('rim', C0[0], C0[1], RIM);\n    for (let h = 0; h < 12; h++) {\n      const p = cAt(h, 56), q = cAt(h, 62), t = cAt(h, 48);\n      line('tick', p[0], p[1], q[0], q[1]);\n      text(t[0], t[1] + 4.5, h ? String(h) : '12', 'hr', 'middle');\n    }\n    const op = (k) => K.clamp(X.arr - k, 0, 1);\n    const hw = sv(SW.hw), lw = sv(SW.lw), ab = sv(SW.ab);\n    hand(hw, 40, 'thin hv', op(1), besideAB(hw)); hand(lw, 40, 'thin lv', op(1), besideAB(lw));\n    hand(0, 33, 'thick hv', op(0)); hand(ab, 27, 'thick lv', op(2));\n    circle('dot', C0[0], C0[1], 4);\n    const L = landed(), hn = L.h, nm = L.pre + hn;\n    setOp(text(C0[0], 184, nm, 'name', 'middle'), op(3));\n    [['thick hv', 'Line A–B'], ['thick lv', 'Line a–b'], ['thin hv', 'Limb 1 HV'], ['thin lv', 'Limb 1 a–n']].forEach(([cls, s], k) => {\n      const y = 202 + 15 * k;\n      line('hand ' + cls, cls.indexOf('thick') >= 0 ? 200 : 196, y, cls.indexOf('thick') >= 0 ? 212 : 216, y);\n      text(222, y + 4.5, s, 'lab', 'start');\n    });\n    const joins = X.hv === 'Star' ? 'a star' : 'a delta closed ' + X.dc;\n    el('clock').setAttribute('aria-label', 'A three-limb core. Its HV windings are joined in ' + joins + '. Its LV windings are a star with n brought out, ends ' +\n      (X.lv === 'Swapped' ? 'swapped' : 'as marked') + '. On the clock the HV line voltage A–B points at twelve, limb 1\\'s HV winding at ' + HOURW[m12(hw)] +\n      ', its LV winding a–n at ' + HOURW[m12(lw)] + ' and the LV line voltage a–b at ' + HOURW[hn] + '. The name is ' + nm + '.');\n    REC.name = nm; REC.hv = X.hv; REC.nOut = true;\n    REC.ang = { AB: 0, ab: nrm(ab * 30), hw: nrm(hw * 30), lw: nrm(lw * 30) };\n  }\n\n  // ================= the paralleling card =================\n  const P0 = [150, 236], PR = 52, T1X = 100, T2X = 240;\n  const pAt = (h, r) => [P0[0] + r * Math.sin(h * Math.PI / 6), P0[1] - r * Math.cos(h * Math.PI / 6)];\n  const cdist = (a, b) => { const d = Math.abs(a - b) % 12; return Math.min(d, 12 - d); };\n  function drawPar(i) {\n    const d = STEPS[i];\n    G = el('artP'); G.textContent = '';\n    line('bus', 60, 14, 280, 14); text(286, 18.5, '440' + NB + 'V', 'lab', 'start');\n    [[T1X, 'T1', 'Dyn11', 'end', T1X - 28], [T2X, 'T2', X.g2, 'start', T2X + 28]].forEach(([x, nm, grp, anc, lx]) => {\n      line('wire', x, 14, x, 28); circle('dot', x, 14, 3);\n      circle('tc hv', x, 40, 12); circle('tc lv', x, 58, 12);\n      text(lx, 36, nm, 'lab', anc); text(lx, 52, grp, 'lab', anc); text(lx, 68, 'Z = ' + X.z + '%', 'tk', anc);\n    });\n    // Phase a of each unit to the open switch; the neutrals joined below.\n    path('wire', 'M100 70V92H147'); path('wire', 'M240 70V92H193');\n    circle('term', 150, 92, 3); circle('term', 190, 92, 3);\n    const gap = gapOf(X.g2), bad = X.closed && gap > 1e-9, a = -0.56 * D.sw;\n    const blade = line('blade' + (bad ? ' bad' : ''), 150, 92, 150 + 40 * Math.cos(a), 92 + 40 * Math.sin(a));\n    if (bad) setOp(blade, 0.6 + 0.4 * Math.cos(X.trip * Math.PI * 5));\n    text(170, 112, 'Switch', 'lab', 'middle');\n    path('wire', 'M88 58H78V124H262V58H252');\n    text(84, 118, 'Neutral', 'tk', 'start');\n    // The phase-a arrows from the joined neutrals, and the gap between their tips.\n    circle('dot', P0[0], P0[1], 3.5);\n    text(P0[0] - 9, P0[1] + 4.5, 'n', 'lab', 'end');\n    text(14, 272, 'Each arrow 66.40' + NB + 'V', 'tk', 'start');\n    const h2 = sv(SW.t2), tip1 = pAt(0, PR), tip2 = pAt(h2, PR);\n    arrow(P0[0], P0[1], tip1[0], tip1[1], 'ta1', 10);\n    arrow(P0[0], P0[1], tip2[0], tip2[1], 'ta2', 10);\n    const gx = tip1[0] - tip2[0], gy = tip1[1] - tip2[1], glen = Math.hypot(gx, gy);\n    const mid = [(tip1[0] + tip2[0]) / 2, (tip1[1] + tip2[1]) / 2];\n    let nx = mid[0] - P0[0], ny = mid[1] - P0[1];\n    const nr = Math.hypot(nx, ny);\n    if (nr < 1e-6) { nx = glen ? -gy / glen : 1; ny = glen ? gx / glen : 0; } else { nx /= nr; ny /= nr; }\n    const off = Math.max(0, 10 - nr);              // keeps the gap arrow beside the two arrows when it runs through n\n    if (glen > 2) arrow(tip2[0] + nx * off, tip2[1] + ny * off, tip1[0] + nx * off, tip1[1] + ny * off, 'gapa', 9);\n    if (cdist(h2, 0) < 0.35) { const p = pAt(0, PR + 14); text(p[0], p[1] + 4.5, 'T1, T2', 'lab', 'middle'); }\n    else {\n      const p = pAt(0, PR + 14), q = pAt(h2, PR + 14);\n      text(p[0], p[1] + 4.5, 'T1', 'lab', 'middle'); text(q[0], q[1] + 4.5, 'T2', 'lab', 'middle');\n    }\n    const shown = hideOut(i, 'gap') || spoils(i) ? '?' : fV(gap);\n    const lop = K.clamp(1 - 1.5 * cdist(h2, SW.t2.tgt), 0, 1);\n    if (lop > 0.05) {\n      const out = 34 - 18 * K.clamp(1 - nr / 20, 0, 1) + off;\n      const lp = [mid[0] + nx * out, mid[1] + ny * out], anc = nx > 0.6 ? 'start' : nx < -0.6 ? 'end' : 'middle';\n      setOp(text(lp[0], lp[1] + 4.5, shown, 'gaplab' + (gap > 1e-9 ? ' bad' : ''), anc), lop);\n    }\n    // The circulating bar, 0 to 25 times rated: it jumps to its figure when the switch closes across a gap.\n    if (d.bar) {\n      rect('bar', 300, 184, 16, 108, 3);\n      const h = 108 * K.clamp(D.bar / 25, 0, 1);\n      if (h > 0.3) rect('barfill', 300, 292 - h, 16, h);\n      text(336, 146, 'Circulating', 'lab', 'end'); text(336, 160, 'if closed', 'tk', 'end'); text(336, 174, '×' + NB + 'rated', 'tk', 'end');\n      line('tick', 295, 184, 300, 184); line('tick', 295, 292, 300, 292);\n      text(292, 188.5, '25', 'tk', 'end'); text(292, 296.5, '0', 'tk', 'end');\n    }\n    el('par').setAttribute('aria-label', 'T1, a Dyn11, and T2, a ' + X.g2 + ', both fed from a 440 V busbar, each with ' + X.z + '% impedance. Their phase-a outputs meet at a switch that is ' +\n      (X.closed ? 'closed' : 'open') + ', and their neutrals are joined. Below, from the joined neutrals, T1\\'s and T2\\'s phase-a arrows ' +\n      (glen > 2 ? 'point apart, with a gap arrow between their tips.' : 'lie on top of each other, so there is no gap.') +\n      (d.bar ? ' On the right, a bar for the circulating current ' + (D.bar > 0.05 ? 'is filled.' : 'is empty.') : ''));\n    REC.gapLab = shown; REC.gapLen = glen / PR * VPH; REC.bar = D.bar; REC.closed = X.closed; REC.g2 = X.g2; REC.gapBad = glen > 2;\n  }\n\n  // ================= the twelve-pulse card =================\n  function drawPulse() {\n    G = el('artU'); G.textContent = '';\n    const c = [170, 72];\n    circle('rim', c[0], c[1], 48);\n    for (let h = 0; h < 12; h++) { const s = Math.sin(h * Math.PI / 6), k = Math.cos(h * Math.PI / 6); line('tick', c[0] + 42 * s, c[1] - 42 * k, c[0] + 48 * s, c[1] - 48 * k); }\n    const hd = (h, cls) => { const s = Math.sin(h * Math.PI / 6), k = Math.cos(h * Math.PI / 6); line('hand thick ' + cls, c[0], c[1], c[0] + 36 * s, c[1] - 36 * k); };\n    hd(0, 'c3'); hd(11, 'c4'); circle('dot', c[0], c[1], 4);\n    text(170, 15, 'Yyn0', 'lab', 'middle'); text(136, 21, 'Dyn11', 'lab', 'end');\n    text(20, 140, 'Each output over one cycle, tops only', 'hr', 'start');\n    const ROWS = [{ y: 164, f: six, cls: 'c3', lab: 'Bridge fed from the Yyn0: six bumps' },\n      { y: 226, f: sixB, cls: 'c4', lab: 'Bridge fed from the Dyn11, 30° later' },\n      { y: 288, f: both, cls: 'cs', lab: 'Both added: twelve smaller bumps' }];\n    ROWS.forEach((r, k) => {\n      line('tr ' + r.cls, 20, r.y - 12, 36, r.y - 12);\n      text(42, r.y - 8, r.lab, 'lab', 'start');\n      line('base', 24, r.y + 36, 324, r.y + 36);\n      const pk = r.f === both ? both(15) : 1, upto = K.clamp(X.pulse - k, 0, 1) * 360;\n      if (upto < 1) return;\n      const pts = [];\n      for (let a = 0; a <= upto + 1e-9; a += 2) pts.push([24 + a * 300 / 360, r.y + 36 * (1 - (r.f(a) / pk - 0.8) / 0.2)]);\n      add(K.svg('polyline', { class: 'tr ' + r.cls, points: ptsS(pts) }));\n    });\n    el('pulse').setAttribute('aria-label', 'A clock with the Yyn0 unit\\'s LV hand at twelve and the Dyn11 unit\\'s at eleven. Below, over one cycle, the bridge fed from the Yyn0 gives six bumps, the bridge fed from the Dyn11 gives six bumps half a bump later, and their sum gives twelve smaller bumps.');\n    REC.pulse = X.pulse;\n  }\n\n  // ================= one paint =================\n  function paint(i) {\n    if (i == null) i = at();\n    REC = { t: {} };\n    const card = STEPS[i].card;\n    if (card === 'clock') drawClock();\n    else if (card === 'par') drawPar(i);\n    else if (card === 'pulse') drawPulse();\n    readouts(i);\n    const lab = X.closed && gapOf(X.g2) < 1e-9 ? 'Open the switch' : 'Close the switch';\n    if (closeBtn.el.textContent !== lab) closeBtn.setLabel(lab);\n  }\n  function readouts(i) {\n    const h = landed().h, hid = hideOut(i, 'hour');\n    RO.hour.set(hid ? '?' : h);\n    RO.deg.set(hid ? '?' : h * 30);\n    RO.gap.set(hideOut(i, 'gap') || spoils(i) ? '?' : gapOf(X.g2));\n    RO.circ.set(hideOut(i, 'circ') ? '?' : circOf(X.g2, X.z));\n    Object.keys(RO).forEach((k) => { REC.t[k] = RO[k].text(); });\n  }\n\n  // ================= the page around the picture =================\n  write(el('finish'), FINISH);\n  function layout(i) {\n    const d = STEPS[i], st = S[i], sol = solved(st);\n    el('stepbox').hidden = finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Screen ' + (i + 1) + ' of ' + STEPS.length;\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    write(task, d.show ? d.text : d.task);\n    CTL_IDS.forEach((id) => { el('c-' + id).hidden = !shownCtl(d, id); });\n    ['clock', 'par', 'pulse'].forEach((c) => el(c).toggleAttribute('hidden', d.card !== c));\n    el('par-acts').hidden = finished || !d.close;\n    const ro = d.ro || [];\n    el('outs').hidden = !ro.length;\n    Object.keys(RO).forEach((k) => { RO[k].el.hidden = ro.indexOf(k) < 0; });\n    replayBtn.el.hidden = !d.show || !d.demo || REDUCE;\n    el('replay').hidden = replayBtn.el.hidden;\n    const opts = d.kind === 'pick' ? d.opts : [];\n    el('picks').hidden = !opts.length;\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      if (b.el.textContent !== opts[k]) b.setLabel(opts[k]);\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n    el('answers').hidden = d.kind !== 'typed';\n    Object.keys(ANS).forEach((key) => { el('ans-' + key).hidden = d.ans !== key; });\n    el('acts').hidden = !!d.show;\n    checkBtn.el.hidden = sol;\n    const fb = el('fb');\n    fb.hidden = !!d.show;\n    fb.className = 'fb' + (st.res === 'right' ? ' right' : '');\n    let say = '';\n    if (!d.show) {\n      if (st.res === 'right') say = d.right || 'That\\'s it.';\n      else if (st.res === 'shown') say = 'Here is the working.';\n      else if (st.res === 'wrong') say = d.kind === 'typed' ? st.hint : (d.hints && d.hints[st.pick]) || d.hint;\n      else if (st.res === 'empty' && d.kind === 'pick') say = 'Pick one of the answers first.';\n    }\n    write(fb, say);\n    const why = el('why');\n    why.hidden = d.show || !st.why;\n    write(why, d.show ? '' : d.why);\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !sol);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  }\n\n  K.update((p) => {\n    const i = at(), d = STEPS[i];\n    VIEW = i;\n    if (i !== lastStep) { lastStep = i; enterStep(i); }\n    else {\n      let moved = false;\n      CTL_IDS.forEach((id) => {\n        if (p[id] === pushed[id]) return;\n        if (shownCtl(d, id)) {\n          if (T !== Infinity) { anim.pause(); T = Infinity; scripted = false; }   // his move ends the demonstration where it stands\n          X[id] = p[id]; pushed[id] = p[id]; moved = true;\n          if (id === 'g2') { X.closed = false; X.barOn = false; X.trip = 0; }     // a new partner starts with the switch open\n        } else CTL[id].set(pushed[id], true);      // a control this screen does not use stays put\n      });\n      if (moved) { held = false; push(); }\n    }\n    if (!d.show && d.after && solved(S[i])) Object.assign(X, d.after);\n    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }\n    if (quiet()) snapD();\n    layout(i);\n    paint(i);\n    kick();\n  });\n\n  // ================= known answers, worked out by hand =================\n  const near = (a, b, t) => Math.abs(a - b) <= t;\n  const solvedSt = (i) => Object.assign(blank(), STEPS[i].kind === 'pick' ? { pick: STEPS[i].want, res: 'right' } : { res: 'right' });\n  // A screen painted in the state given (finished), with optional settings: what it drew.\n  function drawn(i, st, x) {\n    const keep = { X: Object.assign({}, X), SW: JSON.stringify(SW), WS: JSON.stringify(WS), D: Object.assign({}, D), S: S[i], T, sc: scripted, held, V: VIEW, L: LAND };\n    S[i] = st || blank(); T = Infinity; scripted = false; held = true;\n    try {\n      prep(i, true);\n      if (x) Object.assign(X, x);\n      snapD();\n      paint(i);\n      return REC;\n    } finally {\n      Object.assign(X, keep.X); Object.assign(D, keep.D);\n      const sw = JSON.parse(keep.SW), ws = JSON.parse(keep.WS);\n      Object.keys(sw).forEach((k) => Object.assign(SW[k], sw[k]));\n      Object.keys(ws).forEach((k) => Object.assign(WS[k], ws[k]));\n      S[i] = keep.S; T = keep.T; scripted = keep.sc; held = keep.held; VIEW = keep.V; LAND = keep.L; paint();\n    }\n  }\n  const iRec = idx('Star phase voltage'), iStar = idx('Both sides star'), iDeg = idx('Hour to degrees'), iDelta = idx('Delta on the HV side');\n  const iTurns = idx('Turns per limb'), iWhole = idx('Whole hours'), iAhead = idx('Ahead or behind'), iBoard = idx('Two on one board');\n  const iCirc = idx('Circulating current'), iFour = idx('Four per cent each'), iPulse = idx('Twelve pulses'), iSwap = idx('Swap a Dyn1'), iMatch = idx('A matching partner');\n\n  K.check('Twelve hours make a full turn, so one hour is 30°, and the HV line voltage A–B stays nailed to 12 whatever the joins', () =>\n    12 * 30 === 360 && ['Star', 'Delta'].every((hv) => ['A–B', 'A–C'].every((dc) => ['As marked', 'Swapped'].every((lv) => {\n      const r = drawn(iWhole, null, { hv, dc, lv }), c = clockOf(hv, dc, lv);\n      return r.ang.AB === 0 && near(r.ang.ab, c.ab * 30, 1e-9) && r.t.deg === (c.ab * 30) + '°' && r.t.hour === String(c.ab);\n    }))), { source: SRC1 });\n  K.check('Dyn11 is a delta HV winding, a star LV winding with the neutral brought out, and a phase displacement of 11 × 30 = 330 degrees', () => {\n    const r = drawn(iDelta);\n    return r.name === 'Dyn11' && r.hv === 'Delta' && r.nOut === true && r.t.hour === '11' && r.t.deg === '330°' && 11 * 30 === 330;\n  }, { source: SRC2 });\n  K.check('Eleven o\\'clock is 330 degrees, the same as the LV leading the HV by 30 degrees', () => {\n    const r = drawn(iAhead), cw = nrm(r.ang.ab - r.ang.AB);\n    return near(cw, 330, 1e-9) && near(360 - cw, 30, 1e-9) && STEPS[iAhead].want === '30° ahead';\n  }, { source: SRC2 });\n  K.check('The vector groups must be equal so that the output voltages correspond: only a matching group leaves no voltage across the open switch, and any other leaves a red gap', () =>\n    GROUPS.every((g) => (gapOf(g) < 1e-9) === (g === 'Dyn11')) && drawn(iBoard, null, { g2: 'Dyn11' }).t.gap === fV(0) &&\n    !drawn(iBoard, null, { g2: 'Dyn11' }).gapBad && drawn(iBoard, null, { g2: 'Yyn0' }).gapBad && STEPS[iMatch].want === STEPS[iMatch].opts[2], { source: SRC4 });\n  K.check('Worked from the phase voltages, A–B = A–N − B–N points at twelve and A–C = A–N − C–N at two; so limb 1\\'s HV winding sits at 1, 12 and 2, and the names are Yyn0, Dyn11, Dyn1, Yyn6, Dyn5 and Dyn7', () => {\n    const v = (h) => [Math.sin(h * Math.PI / 6), Math.cos(h * Math.PI / 6)];\n    const hourV = (p) => { const a = Math.atan2(p[0], p[1]) * 6 / Math.PI; return ((a % 12) + 12) % 12; };\n    const AN = v(1), BN = v(5), CN = v(9);\n    const ab = hourV([AN[0] - BN[0], AN[1] - BN[1]]), ac = hourV([AN[0] - CN[0], AN[1] - CN[1]]);\n    const W = [['Star', 'A–B', 'As marked', 'Yyn0', 30], ['Delta', 'A–B', 'As marked', 'Dyn11', 0], ['Delta', 'A–C', 'As marked', 'Dyn1', 60],\n      ['Star', 'A–B', 'Swapped', 'Yyn6', 30], ['Delta', 'A–B', 'Swapped', 'Dyn5', 0], ['Delta', 'A–C', 'Swapped', 'Dyn7', 60]];\n    return cdist(ab, 0) < 1e-9 && cdist(ac, 2) < 1e-9 && W.every(([hv, dc, lv, nm, hd]) => {\n      const r = drawn(iWhole, null, { hv, dc, lv });\n      return r.name === nm && near(r.ang.hw, hd, 1e-9) && near(r.ang.lw, nrm(hd + (lv === 'Swapped' ? 180 : 0)), 1e-9) && near(nrm(r.ang.lw - r.ang.ab), 30, 1e-9);\n    });\n  });\n  K.check('At 5% each the switch sees 0.00 V, 34.37 V, 66.40 V and 132.79 V for Dyn11, Yyn0, Dyn1 and Dyn5, driving 0.0, 5.2, 10.0 and 20.0 times rated; at 4% each Yyn0 drives 6.5; the gap arrow is the distance between the tips', () => {\n    const W = { Dyn11: ['0.00', '0.0'], Yyn0: ['34.37', '5.2'], Dyn1: ['66.40', '10.0'], Dyn5: ['132.79', '20.0'] };\n    const ok = GROUPS.every((g) => {\n      const r = drawn(iCirc, null, { g2: g });\n      return r.t.gap === W[g][0] + NB + 'V' && r.t.circ === W[g][1] + NB + '× rated' && near(r.gapLen, gapOf(g), 1e-6);\n    });\n    return ok && drawn(iFour, solvedSt(iFour)).t.circ === '6.5' + NB + '× rated' && near(VPH, 66.395, 0.001) && near(2 * VPH, 132.79, 0.005);\n  });\n  K.check('Each typed answer and slip is worked from its rule: 254 V (762, 147, 440), 150° (5, 30, 210), 6.63 (3.83, 2.21), 66.40 V (0, 34.37, 115), 6.5 (13, 5.2, 2.1) and 7 (5, 1)', () => {\n    const sl = (i, v) => STEPS[i].slips.length === v.length && STEPS[i].slips.every((s, k) => near(s.value, v[k], 1e-12));\n    const w0 = (v) => Math.round(v), w1 = (v) => Math.round(v * 10) / 10, w2 = (v) => Math.round(v * 100) / 100;\n    const work = w0(440 / 1.732) === 254 && w0(440 * 1.732) === 762 && w0(440 / 3) === 147 &&\n      5 * 30 === 150 && 7 * 30 === 210 &&\n      w2(115 / 1.732) === 66.4 && w2(440 / 66.40) === 6.63 && w2(440 / 115) === 3.83 && w2(254 / 115) === 2.21 &&\n      w2(2 * 66.40 * Math.sin(Math.PI / 6)) === 66.4 && w2(gapOf('Yyn0')) === 34.37 && w2(gapOf('Dyn1')) === 66.4 &&\n      w0(100 * gapOf('Yyn0') / VPH) === 52 && 52 / 8 === 6.5 && 52 / 4 === 13 && w1(52 * 4 / 100) === 2.1 &&\n      w1(circOf('Yyn0', 4)) === 6.5 && w1(circOf('Yyn0', 5)) === 5.2 &&\n      clockOf('Delta', 'A–C', 'Swapped').ab === 7 && clockOf('Delta', 'A–B', 'Swapped').ab === 5 && clockOf('Delta', 'A–C', 'As marked').ab === 1;\n    return work && STEPS[iRec].answer === 254 && STEPS[iDeg].answer === 150 && STEPS[iTurns].answer === 6.63 && STEPS[I_GAP].answer === 66.4 &&\n      STEPS[iFour].answer === 6.5 && STEPS[iSwap].answer === 7 &&\n      sl(iRec, [762, 147, 440]) && sl(iDeg, [5, 30, 210]) && sl(iTurns, [3.83, 2.21]) && sl(I_GAP, [0, 34.37, 115]) && sl(iFour, [13, 5.2, 2.1]) && sl(iSwap, [5, 1]);\n  });\n  K.check('Before a Check the gap, the circulating current and the swapped hour show ?, after it 66.40 V, 6.5 × rated and 7; the Dyn1 gap shows ? on the screen before its puzzle', () => {\n    const b = (i) => drawn(i, blank()), s = (i) => drawn(i, solvedSt(i));\n    const g0 = b(I_GAP), g1 = s(I_GAP), c0 = b(iFour), c1 = s(iFour), w0 = b(iSwap), w1 = s(iSwap), early = drawn(iBoard, null, { g2: 'Dyn1' });\n    return g0.t.gap === '?' && g0.gapLab === '?' && g1.t.gap === '66.40' + NB + 'V' && g1.gapLab === '66.40' + NB + 'V' &&\n      c0.t.circ === '?' && c0.bar === 0 && c1.t.circ === '6.5' + NB + '× rated' && c1.bar > 6 &&\n      w0.t.hour === '?' && w0.t.deg === '?' && w0.name === 'Dyn1' && w1.t.hour === '7' && w1.t.deg === '210°' && w1.name === 'Dyn7' &&\n      early.t.gap === '?' && early.gapLab === '?';\n  });\n  K.check('Each six-pulse output has six bumps a cycle and their sum twelve, with under a third of the ripple', () => {\n    const peaks = (f) => { let n = 0; for (let a = 0; a < 360; a += 0.5) { const v = f(a); if (v > f(a - 0.5) && v >= f(a + 0.5)) n++; } return n; };\n    const rip = (f) => { let lo = Infinity, hi = -Infinity; for (let a = 0; a < 360; a += 0.5) { lo = Math.min(lo, f(a)); hi = Math.max(hi, f(a)); } return (hi - lo) / hi; };\n    return peaks(six) === 6 && peaks(sixB) === 6 && peaks(both) === 12 && rip(both) < rip(six) / 3 && near(six(0), 1, 1e-12) && near(sixB(30), 1, 1e-12);\n  });\n  K.check('Every demonstration ends 3 to 4.5 s after its screen opens, on the state its words end on', () => {\n    const c = drawn(iCirc);\n    return STEPS.every((d) => !d.show || (d.dur >= 3 && d.dur <= 4.5)) && drawn(iStar).name === 'Yyn0' && drawn(iDelta).name === 'Dyn11' &&\n      drawn(iWhole).name === 'Dyn5' && drawn(iBoard).g2 === 'Yyn0' && c.g2 === 'Dyn5' && near(c.bar, 20, 1e-9) && c.closed === false && drawn(iPulse).pulse === 3;\n  });\n  K.ready();\n</script>",
+  "title": "The clock and the paralleling switch",
+  "brief": "The one thing you should see is the LV hand jump from twelve to eleven o'clock, and the name change from Yyn0 to Dyn11, when you switch the HV winding from star to delta.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "Twelve hours make a full turn, so one hour is 30°, and the HV line voltage A–B stays nailed to 12 whatever the joins",
+     "ok": true,
+     "source": "https://www.phasors.io/learn/transformer-vector-groups"
+    },
+    {
+     "label": "Dyn11 is a delta HV winding, a star LV winding with the neutral brought out, and a phase displacement of 11 × 30 = 330 degrees",
+     "ok": true,
+     "source": "https://www.ryantransformers.com/en/blog/transformer-vector-group-dyn1-vs-dyn11"
+    },
+    {
+     "label": "Eleven o'clock is 330 degrees, the same as the LV leading the HV by 30 degrees",
+     "ok": true,
+     "source": "https://www.ryantransformers.com/en/blog/transformer-vector-group-dyn1-vs-dyn11"
+    },
+    {
+     "label": "The vector groups must be equal so that the output voltages correspond: only a matching group leaves no voltage across the open switch, and any other leaves a red gap",
+     "ok": true,
+     "source": "https://www.sgb-smit.com/products/dry-type-transformers/cast-resin-transformers-medium-voltage"
+    },
+    {
+     "label": "Worked from the phase voltages, A–B = A–N − B–N points at twelve and A–C = A–N − C–N at two; so limb 1's HV winding sits at 1, 12 and 2, and the names are Yyn0, Dyn11, Dyn1, Yyn6, Dyn5 and Dyn7",
+     "ok": true
+    },
+    {
+     "label": "At 5% each the switch sees 0.00 V, 34.37 V, 66.40 V and 132.79 V for Dyn11, Yyn0, Dyn1 and Dyn5, driving 0.0, 5.2, 10.0 and 20.0 times rated; at 4% each Yyn0 drives 6.5; the gap arrow is the distance between the tips",
+     "ok": true
+    },
+    {
+     "label": "Each typed answer and slip is worked from its rule: 254 V (762, 147, 440), 150° (5, 30, 210), 6.63 (3.83, 2.21), 66.40 V (0, 34.37, 115), 6.5 (13, 5.2, 2.1) and 7 (5, 1)",
+     "ok": true
+    },
+    {
+     "label": "Before a Check the gap, the circulating current and the swapped hour show ?, after it 66.40 V, 6.5 × rated and 7; the Dyn1 gap shows ? on the screen before its puzzle",
+     "ok": true
+    },
+    {
+     "label": "Each six-pulse output has six bumps a cycle and their sum twelve, with under a third of the ripple",
+     "ok": true
+    },
+    {
+     "label": "Every demonstration ends 3 to 4.5 s after its screen opens, on the state its words end on",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step",
+    "hv",
+    "dc",
+    "lv",
+    "g2"
+   ],
+   "readouts": [
+    "r-hour",
+    "r-deg",
+    "r-gap",
+    "r-circ"
+   ],
+   "outputs": [],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Screen",
+     "min": 0,
+     "max": 13,
+     "step": 1,
+     "steps": [
+      "Star phase voltage",
+      "Both sides star",
+      "Hour to degrees",
+      "Delta on the HV side",
+      "Turns per limb",
+      "Whole hours",
+      "Ahead or behind",
+      "Two on one board",
+      "Two hours apart",
+      "Circulating current",
+      "Four per cent each",
+      "Twelve pulses",
+      "Swap a Dyn1",
+      "A matching partner"
+     ],
+     "value": 0
+    },
+    {
+     "id": "hv",
+     "kind": "choice",
+     "label": "HV winding",
+     "options": [
+      "Star",
+      "Delta"
+     ],
+     "labels": [
+      "Star",
+      "Delta"
+     ],
+     "value": "Star",
+     "index": 0,
+     "shown": false
+    },
+    {
+     "id": "dc",
+     "kind": "choice",
+     "label": "Delta closed",
+     "options": [
+      "A–B",
+      "A–C"
+     ],
+     "labels": [
+      "A–B",
+      "A–C"
+     ],
+     "value": "A–B",
+     "index": 0,
+     "shown": false
+    },
+    {
+     "id": "lv",
+     "kind": "choice",
+     "label": "LV ends",
+     "options": [
+      "As marked",
+      "Swapped"
+     ],
+     "labels": [
+      "As marked",
+      "Swapped"
+     ],
+     "value": "As marked",
+     "index": 0,
+     "shown": false
+    },
+    {
+     "id": "g2",
+     "kind": "choice",
+     "label": "T2 group",
+     "options": [
+      "Dyn11",
+      "Yyn0",
+      "Dyn1",
+      "Dyn5"
+     ],
+     "labels": [
+      "Dyn11",
+      "Yyn0",
+      "Dyn1",
+      "Dyn5"
+     ],
+     "value": "Dyn11",
+     "index": 0,
+     "shown": false
+    }
+   ],
+   "actions": [
+    "Close the switch",
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Answer 4",
+    "Check",
+    "Why?",
+    "Play again",
+    "Back",
+    "Continue",
+    "Start again",
+    "Demonstration"
+   ],
+   "answers": [
+    {
+     "id": "a-ph",
+     "answer": 254,
+     "accept": [],
+     "ok": true
+    },
+    {
+     "id": "a-deg",
+     "answer": 150,
+     "accept": [],
+     "ok": true
+    },
+    {
+     "id": "a-turns",
+     "answer": 6.63,
+     "accept": [],
+     "ok": true
+    },
+    {
+     "id": "a-gap",
+     "answer": 66.4,
+     "accept": [],
+     "ok": true
+    },
+    {
+     "id": "a-circ",
+     "answer": 6.5,
+     "accept": [],
+     "ok": true
+    },
+    {
+     "id": "a-swap",
+     "answer": 7,
+     "accept": [],
+     "ok": true
+    }
+   ],
+   "written": [],
+   "ready": true,
+   "warnings": [
+    "The page height keeps growing with the frame (avoid vh units and height:100%). [at 340 px wide]"
+   ],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 1
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-29T05:43:32.654Z",
+  "applied": [
+   {
+    "path": "explain.text",
+    "problem": "Three overstatements: a three-limb core couples its limbs, so it works like three single-phase units rather than being them; a Dyn1 can be paralleled with a Dyn11 by crossing two lines, so the hours must match as connected; the 5.2 times rated figure needs units of the same size."
+   },
+   {
+    "path": "practice.text",
+    "problem": "The circulating-current step adds percentage impedances, which holds only for units of the same rating; a crossed connection also gives tens of volts; and a delta-delta unit does have line ratio equal to turns ratio, so the mistake applies to delta against star."
+   },
+   {
+    "path": "interactive.ignores",
+    "problem": "The explanation now says hours must match as connected; the ignores panel should say what that leaves out: a Dyn1 and a Dyn11 can be paralleled by crossing two lines on both sides of one unit."
+   }
+  ],
+  "notes": [
+   {
+    "path": "interactive.numbers",
+    "problem": "The Dyn5 gap readout is listed as 132.79 V, but the stated rule with the shown 66.40 V gives 2 × 66.40 = 132.80 V; the readout comes from the unrounded phase voltage, so Dan may see a 0.01 V mismatch with the words."
+   }
+  ]
+ },
+ "error": null,
+ "flags": {}
+}

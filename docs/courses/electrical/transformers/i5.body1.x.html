@@ -1,0 +1,752 @@
+<!-- kind: quantity -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .caption { max-width: 32rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.08rem; font-weight: 400; line-height: 1.6; }
+  .scene { display: block; width: 100%; max-width: 26rem; margin-inline: auto; touch-action: pan-y; }
+  /* The equivalent circuit: wires in ink when they carry current, faint when they carry almost none. */
+  .scene .wire { fill: none; stroke: var(--k-ink); stroke-linejoin: round; stroke-linecap: round; }
+  .scene .part { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.6; }
+  .scene .coil { fill: none; stroke: var(--k-ink); stroke-width: 2; stroke-linecap: round; }
+  .scene .wire.faint, .scene .part.faint, .scene .coil.faint { stroke: var(--k-muted); }
+  .scene .meter { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.6; }
+  .scene .core { stroke: var(--k-ink); stroke-width: 2.2; }
+  .scene .term0 { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.4; }
+  /* The bars: the flux, then the two losses on one scale. */
+  .scene .bar { fill: var(--k-sunk); stroke: var(--k-line); stroke-width: 1; }
+  .scene .fluxfill { fill: var(--k-accent2); }
+  .scene .fefill { fill: var(--k-cat1); }
+  .scene .cufill { fill: var(--k-cat2); }
+  .scene .tick { stroke: var(--k-strong); stroke-width: 1.2; }
+  .scene .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .tk { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .ttl { font: 700 16px var(--k-font); fill: var(--k-ink); }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-inline: 16px; font-size: .95rem; white-space: nowrap; }
+  /* Five readouts: three share a row on a phone, and the other two take the next. */
+  .outs .k-readout { flex: 1 1 6.5rem !important; min-width: 0; }
+  .picks { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .picks .k-btn { min-height: 48px; font-size: 1.05rem; white-space: normal; overflow-wrap: normal; word-break: normal; hyphens: none; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .answers .k-answer { max-width: 20rem; }
+  .fb { font-weight: 700; min-height: 1.5em; }
+  .fb.right { color: var(--k-good); }
+  .why, .done { line-height: 1.6; }
+  .done .row { margin-top: 14px; }
+  #stepbox.enter, #done.enter, #outs.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #outs.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter, #outs.enter { animation: none; } }
+</style>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 280" width="100%" role="img" aria-label=""><g id="art"></g></svg>
+    <div class="replay" id="replay"></div>
+    <div class="k-controls" id="c-load"></div>
+    <div class="k-controls" id="c-pf"></div>
+    <div class="k-controls" id="c-test"></div>
+    <div id="plot"></div>
+    <div class="k-readouts outs" id="outs"></div>
+    <div class="picks" id="picks"></div>
+    <div class="answers" id="answers"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p id="finish"></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">A 10 kVA, 440 V to 115 V transformer, drawn as its 440 V side sees it. Every value is an example.</p>
+
+<script>
+  // ================= the rules =================
+  const strip = (s) => s.replace(/\[\^\d+\]/g, '');
+  const NB = ' ';
+  const VR = 440, FQ = 60, N1 = 880, N2 = 230, SR = 10000;      // the example: 10 kVA on a 440 V, 60 Hz supply, 880 and 230 turns
+  const FE0 = 100, CU0 = 400, IOC = 0.5, XS = 0.58;              // iron loss at 440 V, copper loss at full load, open-circuit current, leakage reactance
+  const IFL = SR / VR;                                           // full-load current on the 440 V side: 22.7 A
+  const RS = CU0 / (IFL * IFL);                                  // the windings' resistance seen from 440 V: 0.77 Ω gives 400 W at 22.7 A
+  const ZS = Math.hypot(RS, XS);                                 // the series branch's impedance: 0.97 Ω
+  const VSC = IFL * ZS;                                          // the short-circuit test's supply: 22.0 V drives 22.7 A through it
+  const PHI0 = VR / (4.44 * FQ * N1);                            // the peak flux the 440 V supply holds: 1.88 mWb
+  const G = FE0 / (VR * VR), YC = IOC / VR, BC = Math.sqrt(YC * YC - G * G);   // the core's branch: 100 W and 0.5 A at 440 V
+  const SRC1 = 'https://downloads.regulations.gov/EERE-2017-BT-TP-0055-0022/attachment_3.pdf';
+  const SRC2 = 'https://www.rohde-schwarz.com/ch-en/solutions/electronics-testing/power-electronics-testing/transformer-short-circuit-testing/short-circuit-testing_258719.html';
+  const SRC3 = 'https://ecampusontario.pressbooks.pub/electrotechnology/chapter/part-4-transformer-testing';
+
+  // On load the supply holds 440 V, so the core's branch takes 0.5 A and 100 W at every load. The series branch
+  // carries the load's current, x × 22.7 A, so its copper loss is I²R = 400 × x². Open circuit: nothing in the
+  // series branch. Short circuit: 22.0 V drives 22.7 A through the series branch; the core's branch, on 5% of
+  // the voltage, takes 5% of its current, and its iron loss goes with the voltage squared (a sketch).
+  function rule(load, pf, test) {
+    const x = test === 'load' ? load / 100 : 0;
+    const v = test === 'sc' ? VSC : VR;
+    const ish = test === 'sc' ? IFL : x * IFL;
+    const fe = v * v * G, cu = ish * ish * RS;
+    const out = test === 'load' ? SR * x * pf : 0;
+    const eff = out > 0 ? 100 * out / (out + fe + cu) : 0;
+    const lag = test === 'sc' ? Math.atan2(XS, RS) : Math.acos(pf);         // how far the series branch's current lags
+    const isup = Math.hypot(v * G + ish * Math.cos(lag), v * BC + ish * Math.sin(lag));
+    return { x, v, ish, icore: v * YC, fe, cu, out, eff, phi: PHI0 * v / VR, isup, watt: out + fe + cu };
+  }
+  const effAt = (load, pf) => rule(load, pf, 'load').eff;
+  const fLoss = (v) => (v > 0 && v < 0.995 ? v.toFixed(2) : v.toFixed(1)) + NB + 'W';
+  const fFlux = (phi) => (phi * 1e3).toFixed(2) + NB + 'mWb';
+  const fSup = (v) => (Math.abs(v - VR) < 1e-9 ? String(VR) : v.toFixed(1)) + NB + 'V, ' + FQ + NB + 'Hz';
+
+  // ================= the lesson: SHOW screens demonstrate, DO screens are puzzles =================
+  const ramp = (t, t0, dur, a, b) => a + (b - a) * K.clamp((t - t0) / dur, 0, 1);
+  const r5 = (v) => Math.round(v / 5) * 5;
+  const STEPS = [
+    { kind: 'typed', name: 'The top of a curve', ans: 'top', enter: {},
+      answer: 3, decimals: 0, unit: '', want: '3',
+      slips: [{ value: 6, hint: 'That is where the height is back to zero. The top is where the slope is zero.' },
+        { value: 9, hint: 'That is the height at the top. The question asks for x.' }],
+      task: 'A curve\'s height is y = 6x − x². Its slope is 6 − 2x. At what x does it reach its top?',
+      hint: 'At the top the slope is zero. Solve 6 − 2x = 0.',
+      why: '6 − 2x = 0 gives x = 3. The height there is 18 − 9 = 9. You find the top of an efficiency curve the same way.',
+      right: 'Still there.',
+      read: 'The curve y = 6x − x² has slope 6 − 2x. At what x is its top?' },
+    { show: true, name: 'Two branches', ctl: ['load'], enter: { load: 100 }, end: { load: 50 }, dur: 4.0,
+      demo: (t) => { X.load = r5(t < 2.2 ? ramp(t, 0.6, 1.4, 100, 25) : ramp(t, 2.4, 1.0, 25, 50)); },
+      text: strip('A real transformer is the ideal one plus two branches. The ideal one lost nothing. The shunt branch sits across the supply and stands for the core. It takes the small current that magnetises the core. It also takes the *iron loss*, from hysteresis and eddy currents. The series branch sits in line with the load and stands for the windings. Its resistance wastes power as heat. Its reactance stands for leakage: flux that misses the other winding. Drag the load. Only the series branch\'s current changes.'),
+      read: 'A real transformer is the ideal one plus two branches. The shunt branch sits across the supply and stands for the core. The series branch sits in line with the load and stands for the windings. Only the series branch\'s current changes with the load.',
+      still: () => setStill() },
+    { kind: 'typed', name: 'At 75% load', ans: 'cu75', hide: 'cu', enter: { load: 100 }, run: 1.4,
+      runFn: (t) => { X.load = r5(ramp(t, 0.2, 1.0, 100, 75)); }, runEnd: { load: 75 },
+      answer: 225, decimals: 0, unit: 'W', want: '225' + NB + 'W',
+      slips: [{ value: 300, hint: 'That scales it straight with the load. The loss goes with the current squared.' },
+        { value: 400, hint: 'That is the full-load figure. At 75% load the current is 0.75 of full.' }],
+      task: 'This transformer\'s windings lose 400 W at full load. What do they lose at 75% load?',
+      hint: 'Copper loss = 400 × (load fraction)².',
+      why: '0.75² = 0.5625. 400 × 0.5625 = 225 W.',
+      read: 'This transformer\'s windings lose 400 W at full load. What do they lose at 75% load?' },
+    { show: true, name: 'Iron stays put', ctl: ['load'], enter: { load: 100 }, end: { load: 100 }, dur: 4.5,
+      demo: (t) => { X.load = r5(t < 2.0 ? ramp(t, 0.6, 1.0, 100, 50) : t < 3.6 ? ramp(t, 2.0, 1.4, 50, 125) : ramp(t, 3.6, 0.8, 125, 100)); },
+      text: strip('*Copper loss* grows with the load, but iron loss stays put. Drag the load and watch the two bars. The copper loss is I²R, so it goes with the current squared. Full load gives 400 W. Half load gives a quarter, 100 W. The iron loss stays at 100 W from no load to 125%.[^1] It depends on the flux, and the flux bar stays at 1.88 mWb. The supply\'s voltage holds the flux. The primary cancels the load\'s ampere-turns. So more load means more current, not more flux.'),
+      read: 'The copper loss grows with the square of the load. It is 400 W at full load and 100 W at half. The iron loss stays at 100 W, because the supply holds the flux at 1.88 mWb.',
+      still: () => setStill() },
+    { kind: 'typed', name: 'Iron at full load', ans: 'fe', hide: 'fe', enter: { load: 50 }, run: 1.4,
+      runFn: (t) => { X.load = r5(ramp(t, 0.2, 1.0, 50, 100)); }, runEnd: { load: 100 },
+      answer: 100, decimals: 0, unit: 'W', want: '100' + NB + 'W',
+      slips: [{ value: 400, hint: 'That grows it with the square, like the copper loss. But the iron loss follows the flux.' },
+        { value: 200, hint: 'That doubles it with the load. The load does not move the flux.' }],
+      task: 'At half load this transformer\'s iron loss is 100 W. The load rises to full. What is its iron loss now?',
+      hint: 'What sets the flux, the load or the supply?',
+      why: 'The supply still holds the flux at 1.88 mWb. Same flux, same iron loss: 100 W. The copper loss grows from 100 W to 400 W.',
+      read: 'At half load this transformer\'s iron loss is 100 W. The load rises to full. What is its iron loss now?' },
+    { show: true, name: 'Efficiency', ctl: ['load', 'pf'], enter: { load: 100, pf: 1 }, end: { load: 100, pf: 1 }, dur: 4.0,
+      demo: (t) => { X.pf = t >= 1.0 && t < 3.0 ? 0.8 : 1; },
+      text: strip('Efficiency is output ÷ input. The input is the output plus both losses. At full load and unity power factor, the load takes 10,000 W. The losses are 100 + 400 = 500 W. So the efficiency is 10,000 ÷ 10,500 = 95.2%. Now switch to 0.8 power factor. The current is the same, so the losses are too. But only 8000 W comes out. So the efficiency falls to 94.1%.'),
+      read: 'At full load and unity power factor, 10,000 W comes out and 500 W is lost. That is 95.2%. At 0.8 power factor, only 8000 W comes out for the same losses. That is 94.1%.',
+      still: () => setStill() },
+    { kind: 'typed', name: 'Half load', ans: 'eff50', hide: 'eff', enter: { load: 100 }, run: 1.4,
+      runFn: (t) => { X.load = r5(ramp(t, 0.2, 1.0, 100, 50)); }, runEnd: { load: 50 },
+      answer: 96.2, decimals: 1, unit: '%', want: '96.2%',
+      slips: [{ value: 90.9, hint: 'That uses the full-load copper loss. At half load it is a quarter of that, 100 W.' },
+        { value: 94.3, hint: 'That halves the copper loss. It goes with the square, so it quarters.' }],
+      task: 'The same transformer runs at half load, unity power factor. What is its efficiency?',
+      hint: 'Output 5000 W. Losses: 100 W iron, plus 400 × 0.5² copper.',
+      why: 'Copper loss = 400 × 0.25 = 100 W. So the losses are 200 W in all. 5000 ÷ 5200 = 96.2%. That beats the 95.2% at full load.',
+      read: 'The same transformer runs at half load, unity power factor. What is its efficiency?' },
+    { show: true, name: 'The peak', ctl: ['load'], enter: { load: 100 }, end: { load: 50 }, dur: 4.0,
+      demo: (t) => { X.load = r5(t < 2.2 ? ramp(t, 0.6, 1.4, 100, 20) : ramp(t, 2.4, 1.2, 20, 50)); },
+      text: strip('Efficiency peaks at 50% load, where both loss bars read 100 W. Drag the load and watch the dot. Why there? Call the load fraction x. For each watt delivered, the losses go as 100 ÷ x + 400x. The iron part falls as the load grows. The copper part rises. The total is lowest where its slope, 400 − 100 ÷ x², is zero. That needs 400x² = 100. So the copper loss equals the iron loss. Then x = √(100 ÷ 400) = 0.5.'),
+      read: 'Efficiency peaks at 50% load, where the copper loss equals the 100 W iron loss. Peak load = √(iron loss ÷ full-load copper loss).',
+      still: () => setStill() },
+    { kind: 'typed', name: 'Another transformer', ans: 'pk', enter: { load: 50 },
+      answer: 40, decimals: 0, unit: '%', want: '40%',
+      slips: [{ value: 16, hint: 'That is 64 ÷ 400. Take its square root.' },
+        { value: 250, hint: 'That is upside down. Put the iron loss on top.' }],
+      task: 'Another transformer has 64 W of iron loss and 400 W of copper loss at full load. At what load is it most efficient?',
+      hint: 'Peak load = √(iron loss ÷ full-load copper loss).',
+      why: '64 ÷ 400 = 0.16, and √0.16 = 0.4. So the peak is at 40%. Check: 400 × 0.4² = 64 W of copper loss, equal to the iron loss.',
+      read: 'A transformer has 64 W of iron loss and 400 W of full-load copper loss. At what load is it most efficient?' },
+    { show: true, name: 'Two tests', ctl: ['test'], enter: { test: 'load' }, end: { test: 'sc' }, dur: 4.2,
+      demo: (t) => { X.test = t < 0.8 ? 'load' : t < 2.4 ? 'oc' : 'sc'; },
+      text: strip('Two tests measure the two losses. The open-circuit test leaves the secondary open. The primary gets its full 440 V. The flux is full, but only a small current flows. So the wattmeter reads the iron loss, 100 W.[^2] The short-circuit test puts a link across the secondary. You raise the voltage from zero until rated current flows. Now the current is full, but the voltage is only 22.0 V. So the wattmeter reads the copper loss, 400 W.[^3]'),
+      read: 'With the secondary open at rated voltage, the wattmeter reads the iron loss, 100 W. With it shorted at rated current, on 22.0 V, it reads the copper loss, 400 W.',
+      still: () => setStill() },
+    { kind: 'typed', name: 'Flux in the test', ans: 'fsc', hide: 'flux', enter: { test: 'sc' },
+      answer: 0.09, decimals: 2, accept: [0.094], unit: 'mWb', want: '0.09' + NB + 'mWb',
+      slips: [{ value: 1.88, hint: 'Rated current flows, but the voltage sets the flux.' },
+        { value: 37.6, hint: 'The voltage is 20 times lower, so the flux is too.' }],
+      task: 'The short-circuit test drives 22.7 A with 22.0 V on the primary. At 440 V the flux peaks at 1.88 mWb. What does it peak at in this test?',
+      hint: 'The flux follows the voltage. 22.0 V is 5% of 440 V.',
+      why: '1.88 × 22.0 ÷ 440 = 0.09 mWb, 5% of normal. So the iron loss almost vanishes. The wattmeter reads the copper loss alone.',
+      read: 'At 440 V the flux peaks at 1.88 mWb. What does it peak at in the short-circuit test, on 22.0 V?' },
+    { kind: 'typed', name: 'From the two tests', ans: 'eff12', enter: {},
+      answer: 96.3, decimals: 1, unit: '%', want: '96.3%',
+      slips: [{ value: 97.1, hint: 'That leaves out the iron loss. It is there at every load.' },
+        { value: 99.2, hint: 'That leaves out the copper loss. At full load it is the whole 300 W.' }],
+      task: 'A 10 kVA transformer\'s open-circuit test reads 80 W. Its short-circuit test at rated current reads 300 W. What is its efficiency at full load, unity power factor?',
+      hint: 'Efficiency = 10,000 ÷ (10,000 + 80 + 300).',
+      why: 'At full load both losses count. 80 + 300 = 380 W. 10,000 ÷ 10,380 = 96.3%.',
+      read: 'A 10 kVA transformer tests at 80 W open circuit and 300 W short circuit. What is its efficiency at full load, unity power factor?' },
+    { kind: 'pick', name: 'Setting up the test', enter: {},
+      opts: ['Secondary shorted, rated current', 'Secondary shorted, rated voltage', 'Secondary open, rated current', 'Secondary open, rated voltage'],
+      want: 'Secondary open, rated voltage',
+      task: 'You want to measure a transformer\'s iron loss. How do you set up the test?',
+      hint: 'The iron loss follows the flux. The voltage sets the flux. So set the voltage.',
+      hints: { 'Secondary shorted, rated current': 'That is the short-circuit test. Its low voltage gives little flux. So it reads the copper loss.',
+        'Secondary shorted, rated voltage': 'Full voltage on a shorted secondary is a dead short. Here it would drive 20 times rated current.',
+        'Secondary open, rated current': 'The iron loss follows the flux. The voltage sets the flux. So set the voltage.' },
+      why: 'The iron loss needs the full flux, and rated voltage gives it. With the secondary open, only a small current flows. So the copper loss is too small to count.',
+      read: 'You want to measure a transformer\'s iron loss. How do you set up the test?' },
+  ];
+  const FINISH = 'The supply holds the flux, so the iron loss barely moves with the load. The copper loss grows with the square of the load. Efficiency peaks where the two are equal. The open-circuit test reads the iron loss. The short-circuit test reads the copper loss. Next: the voltage the series branch drops under load.';
+
+  // ================= state =================
+  const BASE = { load: 100, pf: 1, test: 'load' };
+  const X = Object.assign({}, BASE);              // what the picture shows now
+  const D = {};                                   // the drawn sizes, easing towards the rule's
+  const blank = () => ({ pick: null, res: null, why: false, tries: 0, hint: '' });
+  let S = STEPS.map(blank);
+  const solved = (st) => !!st && (st.res === 'right' || st.res === 'shown');
+  let T = Infinity, motionEnd = 0, scripted = false, lastStep = -1, finished = false, lastDone = false, held = false, probing = false, lastMode = 'load';
+  let REC = { t: {}, bars: {}, faint: {} };
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  const quiet = () => REDUCE || testing();
+  const el = (id) => document.getElementById(id);
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  // A puzzle's figure stays "?" on screen until that puzzle is checked.
+  const hideOut = (i, key) => !finished && STEPS[i].hide === key && !solved(S[i]);
+
+  // ================= the drawn sizes ease towards the rule's =================
+  function targets() {
+    const r = rule(X.load, X.pf, X.test);
+    return { load: X.load, pf: X.pf, fe: r.fe, cu: r.cu, phi: r.phi, ish: r.ish, icore: r.icore, isup: r.isup };
+  }
+  function snapD() { Object.assign(D, targets()); }
+  function tween(dt) {
+    const t = targets(), a = 1 - Math.exp(-dt / 0.2);
+    Object.keys(t).forEach((k) => { const e = t[k] - D[k]; D[k] = Math.abs(e) <= 1e-6 * Math.max(1, Math.abs(t[k])) ? t[k] : D[k] + e * a; });
+  }
+  function settled() { const t = targets(); return Object.keys(t).every((k) => D[k] === t[k]); }
+  snapD();
+
+  // ================= text with amber key terms (built with K.el, never innerHTML) =================
+  const UNIT_GAP = /(\d) (?=(?:Hz|mWb|kVA|kW|V|A|Ω|W)(?![A-Za-z]))/g;
+  function write(node, s) {
+    node.textContent = '';
+    String(s || '').replace(UNIT_GAP, '$1' + NB).split(/\*([^*]+)\*/).forEach((seg, k) => {
+      if (!seg) return;
+      node.appendChild(k % 2 ? K.el('span', { class: 'term' }, seg) : document.createTextNode(seg));
+    });
+  }
+
+  // ================= controls =================
+  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);
+  const CTL = {
+    load: K.control({ id: 'load', label: 'Load', min: 0, max: 125, step: 5, value: 100, snap: [50, 75, 100], fmt: (v) => v + '%', into: '#c-load' }),
+    pf: K.choice({ id: 'pf', label: 'Power factor', options: [{ value: 1, label: '1.0' }, { value: 0.8, label: '0.8 lagging' }], value: 1, into: '#c-pf' }),
+    test: K.choice({ id: 'test', label: 'Test', options: [{ value: 'load', label: 'On load' }, { value: 'oc', label: 'Open-circuit test' }, { value: 'sc', label: 'Short-circuit test' }], value: 'load', into: '#c-test' }),
+  };
+  const CTL_IDS = Object.keys(CTL);
+  const pushed = {};
+  CTL_IDS.forEach((id) => { pushed[id] = CTL[id].get(); });
+  // The page moves the controls itself during a demonstration (silently, so it is not taken for Dan's move).
+  function push() {
+    CTL_IDS.forEach((id) => { if (pushed[id] !== X[id]) { CTL[id].set(X[id], true); pushed[id] = CTL[id].get(); } });
+  }
+  const shownCtl = (d, id) => !finished && !!d.ctl && d.ctl.indexOf(id) >= 0;
+  function layoutCtl(d) { CTL_IDS.forEach((id) => { el('c-' + id).hidden = !shownCtl(d, id); }); }
+
+  // The efficiency curve: off the bottom at light load, a dashed line at its peak, a dot where the load is.
+  const plot = K.plot('#plot', {
+    x: { min: 0, max: 125, label: 'Load (%)' },
+    y: { min: 88, max: 97, label: 'Efficiency (%)' },
+    height: 170,
+    label: 'Efficiency against load: it climbs steeply from light load, peaks at half load, then falls slowly',
+  });
+
+  const RO = {
+    load: K.readout({ id: 'r-load', label: 'Load', fmt: (v) => Math.round(v) + '%', into: '#outs' }),
+    out: K.readout({ id: 'r-out', label: 'Output', fmt: (v) => (v / 1000).toFixed(1) + NB + 'kW', into: '#outs' }),
+    vs: K.readout({ id: 'r-vs', label: 'Supply voltage', fmt: (v) => v.toFixed(1) + NB + 'V', into: '#outs' }),
+    is: K.readout({ id: 'r-is', label: 'Supply current', fmt: (v) => v.toFixed(1) + NB + 'A', into: '#outs' }),
+    wm: K.readout({ id: 'r-wm', label: 'Wattmeter', fmt: (v) => String(Math.round(v)) + NB + 'W', into: '#outs' }),
+    fe: K.readout({ id: 'r-fe', label: 'Iron loss', fmt: fLoss, into: '#outs' }),
+    cu: K.readout({ id: 'r-cu', label: 'Copper loss', fmt: fLoss, into: '#outs' }),
+    eff: K.readout({ id: 'r-eff', label: 'Efficiency', fmt: (v) => v.toFixed(1) + '%', into: '#outs' }),
+  };
+
+  // Up to four answer buttons; each puzzle fills in its own.
+  const pickBtns = [0, 1, 2, 3].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.kind !== 'pick' || k >= d.opts.length || solved(st)) return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+  // Typed answers: a field each; Check grades it, two misses show the working.
+  const ANS = {};
+  STEPS.forEach((d, i) => {
+    if (d.kind !== 'typed') return;
+    el('answers').appendChild(K.el('div', { id: 'ans-' + d.ans }));
+    const a = K.answer({ id: 'a-' + d.ans, unit: d.unit, answer: d.answer, decimals: d.decimals, accept: d.accept, slips: d.slips, into: '#ans-' + d.ans,
+      onCheck: (r) => {
+        const st = S[i];
+        if (solved(st)) return;
+        if (r.state === 'right') { st.res = 'right'; playRun(i, d.run); }
+        else if (r.state === 'wrong') {
+          st.tries += 1; st.hint = r.hint || d.hint;
+          if (st.tries >= 2) { st.res = 'shown'; st.why = true; a.reveal(); playRun(i, d.run); }
+          else st.res = 'wrong';
+        } else { st.res = r.state; st.hint = ''; }
+        K.refresh();
+      } });
+    ANS[d.ans] = a;
+  });
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || solved(st)) return;
+    if (d.kind === 'typed') { ANS[d.ans].check(); return; }
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = st.pick === d.want ? 'right' : 'wrong';
+    if (st.res === 'right') playRun(i, d.run);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    const d = STEPS[at()];
+    if (d.show || finished) return;
+    S[at()].why = !S[at()].why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    if (!STEPS[at()].show || finished) return;
+    startDemo(at());
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && !solved(S[i]))) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true; anim.pause(); T = Infinity;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(blank); finished = false; lastStep = -1;
+    Object.keys(ANS).forEach((k) => ANS[k].reset());
+    stepper.set(0, true);
+  } });
+
+  // ================= motion: one animation runs the demonstrations, the answers' motion and the easing =================
+  const needAnim = () => !finished && (T !== Infinity || !settled());
+  function finishNow(i) {
+    if (T === Infinity) return;
+    const d = STEPS[i];
+    T = Infinity;
+    if (scripted) { scripted = false; Object.assign(X, d.end || {}); }
+    else if (solved(S[i])) Object.assign(X, d.runEnd || {});
+    push();
+  }
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    dt = Math.min(dt, 0.1);
+    const i = at(), d = STEPS[i], st = S[i];
+    if (T !== Infinity) {
+      T += dt;
+      const tt = Math.min(T, motionEnd);
+      if (scripted) { if (d.demo) d.demo(tt); }
+      else if (solved(st) && d.runFn) d.runFn(tt);
+    }
+    if (T !== Infinity && T >= motionEnd) finishNow(i);
+    tween(dt);
+    push();
+    paint(i);
+    return needAnim();
+  } });
+  function kick() {
+    if (quiet()) { snapD(); return; }
+    if (needAnim() && !anim.playing()) anim.play();
+  }
+  // A screen's state: its opening, then (at once) its answer's motion or its demonstration.
+  function prep(i, solvedNow, showEnd) {
+    const d = STEPS[i];
+    Object.assign(X, BASE, d.enter || {});
+    if (d.show) { if (showEnd) { if (d.demo) d.demo(d.dur); Object.assign(X, d.end || {}); } }
+    else if (solvedNow) { if (d.runFn) d.runFn(d.run); Object.assign(X, d.runEnd || {}); }
+    snapD();
+  }
+  function startDemo(i) {
+    const d = STEPS[i];
+    anim.pause(); held = false;
+    if (d.demo && !quiet()) { prep(i, false, false); scripted = true; motionEnd = d.dur; T = 0; d.demo(0); snapD(); anim.play(); }
+    else { scripted = false; T = Infinity; prep(i, false, true); }
+    push();
+  }
+  function playRun(i, dur) {
+    const d = STEPS[i];
+    anim.pause(); scripted = false; held = false;
+    if (quiet() || !dur) {
+      T = Infinity;
+      if (solved(S[i]) && d.runFn && dur) d.runFn(dur);
+      if (solved(S[i])) Object.assign(X, d.runEnd || {});
+      push(); snapD(); return;
+    }
+    T = 0; motionEnd = dur; anim.play();
+  }
+  function enterStep(i) {
+    const d = STEPS[i];
+    anim.pause(); T = Infinity; scripted = false; held = false;
+    enter('stepbox');
+    if (d.show) { startDemo(i); return; }
+    prep(i, solved(S[i]), false);
+    push();
+  }
+  // The finished picture a still shows (the read-through), with the controls where its words end.
+  function setStill() {
+    const i = at();
+    anim.pause(); T = Infinity; scripted = false; held = true;
+    prep(i, true, true);
+    push();
+    K.refresh();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ================= drawing helpers =================
+  const svg = el('scene'), art = el('art');
+  const add = (node, par) => (par || art).appendChild(node);
+  const r1 = (v) => Math.round(v * 10) / 10;
+  const twCache = {};
+  function tw(s, cls) {
+    const key = (cls || 'lab') + '|' + s;
+    if (twCache[key]) return twCache[key];
+    let w = 0;
+    try { const t = svg.appendChild(K.svg('text', { class: cls || 'lab', x: 0, y: -50 }, s)); w = t.getComputedTextLength(); svg.removeChild(t); } catch (e) { w = 0; }
+    if (!(w > 0)) return s.length * 7.6;
+    twCache[key] = w;
+    return w;
+  }
+  const text = (x, y, s, cls, anchor) => add(K.svg('text', { class: cls || 'lab', x: r1(x), y: r1(y), 'text-anchor': anchor || 'start' }, s));
+  const ptsS = (pts) => pts.map((p) => r1(p[0]) + ',' + r1(p[1])).join(' ');
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r1(x1), y1: r1(y1), x2: r1(x2), y2: r1(y2) }));
+  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: r1(x), y: r1(y), width: r1(Math.max(0, w)), height: r1(Math.max(0, h)), rx: rx || 0 }));
+  const circle = (cls, cx, cy, r) => add(K.svg('circle', { class: cls, cx, cy, r }));
+  const wire = (pts, w, faint) => add(K.svg('polyline', { class: 'wire' + (faint ? ' faint' : ''), points: ptsS(pts), 'stroke-width': r1(w) }));
+  const coil = (d, faint) => add(K.svg('path', { class: 'coil' + (faint ? ' faint' : ''), d }));
+  // A coil of n turns drawn as half-circles: down a vertical line (bulging right or left), or along the top rail (bulging up).
+  function coilV(x, y0, y1, n, right) {
+    const h = (y1 - y0) / n;
+    let d = 'M' + x + ' ' + y0;
+    for (let k = 0; k < n; k++) d += ' a' + r1(h / 2) + ' ' + r1(h / 2) + ' 0 0 ' + (right ? 1 : 0) + ' 0 ' + r1(h);
+    return d;
+  }
+  function coilH(x0, x1, y, n) {
+    const w = (x1 - x0) / n;
+    let d = 'M' + x0 + ' ' + y;
+    for (let k = 0; k < n; k++) d += ' a' + r1(w / 2) + ' ' + r1(w / 2) + ' 0 0 1 ' + r1(w) + ' 0';
+    return d;
+  }
+  // A wire's thickness follows its current on the 440 V side.
+  const wd = (I) => 1.4 + 2.4 * K.clamp(I / 28.4, 0, 1);
+
+  // ================= the picture =================
+  const YT = 48, YB = 140;                       // the top and bottom rails
+  const BX = 106, BW = 220, LMAX = 650;          // the loss bars: one scale, 0 to 650 W
+  const FW = 140, FMAX = 2.5e-3;                 // the flux bar: 0 to 2.5 mWb
+  const FY = 196, FEY = 220, CUY = 240;
+  function drawScene(i) {
+    const r = rule(X.load, X.pf, X.test), hf = hideOut(i, 'flux'), mode = X.test;
+    const fS = D.ish < 0.1, fC = D.icore < 0.1;   // a branch carrying almost no current is drawn faint
+    const wS = wd(D.ish), wC = wd(D.icore), wU = wd(D.isup);
+    // The supply, its ammeter and its wattmeter.
+    const sup = fSup(r.v);
+    text(2, 14, sup);
+    wire([[16, 82], [16, YT], [36, YT]], wU);
+    wire([[56, YT], [66, YT]], wU);
+    wire([[86, YT], [114, YT]], wU);
+    wire([[16, 106], [16, YB], [114, YB]], wU);
+    circle('meter', 16, 94, 12); text(16, 99.5, '~', 'ttl', 'middle');
+    circle('meter', 46, YT, 10); text(46, YT + 4.5, 'A', 'lab', 'middle');
+    circle('meter', 76, YT, 10); text(76, YT + 4.5, 'W', 'lab', 'middle');
+    // The core's branch, across the supply: a resistor beside a coil.
+    wire([[114, YT], [114, 58]], wC, fC);
+    wire([[100, 76], [100, 58], [128, 58], [128, 72]], wC, fC);
+    rect('part' + (fC ? ' faint' : ''), 94, 76, 12, 34, 2);
+    coil(coilV(128, 72, 112, 4, true), fC);
+    wire([[100, 110], [100, 126], [128, 126], [128, 112]], wC, fC);
+    wire([[114, 126], [114, YB]], wC, fC);
+    text(114, 158, 'Core', 'lab', 'middle');
+    // The windings' branch, in line: resistance, then leakage reactance.
+    wire([[114, YT], [138, YT]], wS, fS);
+    rect('part' + (fS ? ' faint' : ''), 138, YT - 6, 24, 12, 2);
+    wire([[162, YT], [192, YT]], wS, fS);
+    coil(coilH(192, 220, YT, 4), fS);
+    wire([[220, YT], [236, YT], [236, 66]], wS, fS);
+    wire([[236, 122], [236, YB], [114, YB]], wS, fS);
+    text(178, 14, 'Windings', 'lab', 'middle');
+    text(150, 32, RS.toFixed(2) + NB + 'Ω', 'lab', 'middle');
+    text(206, 32, XS.toFixed(2) + NB + 'Ω', 'lab', 'middle');
+    // The ideal transformer: two coils on one core.
+    coil(coilV(236, 66, 122, 6, true), fS);
+    line('core', 249, 60, 249, 128);
+    line('core', 254, 60, 254, 128);
+    coil(coilV(267, 66, 122, 6, false), fS);
+    text(252, 158, 'Ideal, ' + N1 + ' to ' + N2 + ' turns', 'lab', 'middle');
+    // The secondary: a load, nothing (open), or a link (shorted).
+    wire([[267, 66], [267, YT], [292, YT], [292, 70]], wS, fS);
+    wire([[292, 118], [292, YB], [267, YB], [267, 122]], wS, fS);
+    if (mode === 'load') {
+      wire([[292, 70], [292, 78]], wS, fS);
+      rect('part' + (fS ? ' faint' : ''), 286, 78, 12, 32, 2);
+      wire([[292, 110], [292, 118]], wS, fS);
+    } else if (mode === 'sc') wire([[292, 70], [292, 118]], wS, fS);
+    circle('term0', 292, 70, 2.6);
+    circle('term0', 292, 118, 2.6);
+    const sec = mode === 'load' ? 'Load' : mode === 'oc' ? 'Open' : 'Link';
+    text(302, 98, sec);
+    // The key.
+    wire([[6, 176], [24, 176]], 4);
+    text(30, 180.5, 'Thick: more current');
+    const kx = 30 + tw('Thick: more current') + 16;
+    wire([[kx, 176], [kx + 18, 176]], 1.6, true);
+    text(kx + 24, 180.5, 'Faint: almost none');
+    // The flux bar: the supply's voltage sets it.
+    text(100, FY + 9.5, 'Peak flux', 'lab', 'end');
+    rect('bar', BX, FY, FW, 10, 3);
+    const fw = hf ? 0 : FW * K.clamp(D.phi / FMAX, 0, 1);
+    if (fw > 0.3) rect('fluxfill', BX, FY, fw, 10, 0);
+    const ft = hf ? '?' : fFlux(r.phi);
+    text(BX + FW + 6, FY + 9.5, ft);
+    // The two losses, on one scale.
+    const wfe = BW * K.clamp(D.fe / LMAX, 0, 1), wcu = BW * K.clamp(D.cu / LMAX, 0, 1);
+    text(100, FEY + 10.5, 'Iron loss', 'lab', 'end');
+    rect('bar', BX, FEY, BW, 12, 3);
+    if (wfe > 0.3) rect('fefill', BX, FEY, wfe, 12, 0);
+    text(100, CUY + 10.5, 'Copper loss', 'lab', 'end');
+    rect('bar', BX, CUY, BW, 12, 3);
+    if (wcu > 0.3) rect('cufill', BX, CUY, wcu, 12, 0);
+    [0, 200, 400, 600].forEach((w) => {
+      const x = BX + BW * w / LMAX;
+      line('tick', x, 254, x, 259);
+      text(x, 272, w === 600 ? w + NB + 'W' : String(w), 'tk', 'middle');
+    });
+    Object.assign(REC.t, { flux: ft, sup, sec });
+    Object.assign(REC.bars, { fe: wfe, cu: wcu, flux: fw });
+    REC.faint = { series: fS, core: fC };
+    REC.load = X.load; REC.pf = X.pf; REC.mode = mode;
+    // What it shows, in words (no readout's number).
+    let said = 'The transformer drawn as its 440 V side sees it: the supply with an ammeter and a wattmeter, the core\'s branch across it, the windings\' resistance and leakage reactance in line, then the ideal transformer and ';
+    if (mode === 'load') {
+      said += 'its load. ' + (fS ? 'The load takes nothing, so only the core\'s branch carries current. ' : 'Both branches carry current. ');
+      said += r.cu > r.fe * 1.001 ? 'The copper-loss bar is longer than the iron-loss bar. ' : r.cu < r.fe * 0.999 ? 'The copper-loss bar is shorter than the iron-loss bar. ' : 'The two loss bars are equal, at the efficiency\'s peak. ';
+      said += 'The flux bar holds where the supply sets it.';
+    } else if (mode === 'oc') {
+      said += 'an open secondary. Only the core\'s branch carries current, so only the iron-loss bar shows, and the flux bar is full.';
+    } else {
+      said += 'a link across the secondary, on a low supply voltage. Nearly all the current takes the windings\' branch, so the copper-loss bar is as long as at full load, and the flux bar is almost empty.';
+    }
+    REC.said = said;
+  }
+  function drawPlot() {
+    const pf = D.pf, onLoad = X.test === 'load';
+    plot.draw({
+      series: [{ fn: (l) => effAt(l, pf) }],
+      lines: [{ x: 50, label: 'Peak' }],
+      marks: onLoad ? [{ x: D.load, y: effAt(D.load, pf) }] : [],
+    });
+  }
+
+  // ================= one paint =================
+  function paint(i) {
+    if (i == null) i = at();
+    art.textContent = '';
+    REC = { t: {}, bars: {}, faint: {} };
+    drawScene(i);
+    svg.setAttribute('aria-label', REC.said);
+    drawPlot();
+    readouts(i);
+  }
+  function readouts(i) {
+    const r = rule(X.load, X.pf, X.test), onLoad = X.test === 'load';
+    RO.load.set(X.load); RO.out.set(r.out); RO.vs.set(r.v); RO.is.set(r.isup); RO.wm.set(r.watt);
+    RO.fe.set(hideOut(i, 'fe') ? '?' : r.fe);
+    RO.cu.set(hideOut(i, 'cu') ? '?' : r.cu);
+    RO.eff.set(hideOut(i, 'eff') ? '?' : r.eff);
+    ['load', 'out', 'eff'].forEach((k) => { RO[k].el.hidden = !onLoad; });
+    ['vs', 'is', 'wm'].forEach((k) => { RO[k].el.hidden = onLoad; });
+    Object.keys(RO).forEach((k) => { REC.t[k] = RO[k].text(); });
+    // The readouts swap as the test changes: they fade in, not pop.
+    const mode = onLoad ? 'load' : 'test';
+    if (!probing && mode !== lastMode) { lastMode = mode; enter('outs'); }
+  }
+
+  // ================= the page around the picture =================
+  write(el('finish'), FINISH);
+  function layout(i) {
+    const d = STEPS[i], st = S[i], sol = solved(st);
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Screen ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    layoutCtl(d);
+    replayBtn.el.hidden = !d.show || !d.demo || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    const opts = d.kind === 'pick' ? d.opts : [];
+    el('picks').hidden = !opts.length;
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      if (b.el.textContent !== opts[k]) b.setLabel(opts[k]);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    el('answers').hidden = d.kind !== 'typed';
+    Object.keys(ANS).forEach((key) => { el('ans-' + key).hidden = d.ans !== key; });
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = sol;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (st.res === 'right' ? ' right' : '');
+    let say = '';
+    if (!d.show) {
+      if (st.res === 'right') say = d.right || 'That\'s it.';
+      else if (st.res === 'shown') say = 'Here is the working.';
+      else if (st.res === 'wrong') say = d.kind === 'typed' ? st.hint : (d.hints && d.hints[st.pick]) || d.hint;
+      else if (st.res === 'empty' && d.kind === 'pick') say = 'Pick one of the answers first.';
+    }
+    write(fb, say);
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !sol);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  }
+
+  K.update((p) => {
+    const i = at(), d = STEPS[i];
+    if (i !== lastStep) { lastStep = i; enterStep(i); }
+    else {
+      let moved = false;
+      CTL_IDS.forEach((id) => {
+        if (p[id] === pushed[id]) return;
+        if (shownCtl(d, id)) {
+          if (T !== Infinity) { anim.pause(); T = Infinity; scripted = false; }   // his move ends the demonstration where it stands
+          X[id] = p[id]; pushed[id] = p[id]; moved = true;
+        } else CTL[id].set(pushed[id], true);      // a control this screen does not use stays put
+      });
+      if (moved) { held = false; push(); }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    if (quiet()) snapD();
+    layout(i);
+    paint(i);
+    kick();
+  });
+
+  // ================= known answers, worked out by hand =================
+  const near = (a, b, t) => Math.abs(a - b) <= t;
+  const solvedSt = (i) => Object.assign(blank(), STEPS[i].kind === 'pick' ? { pick: STEPS[i].want, res: 'right' } : { res: 'right' });
+  // A screen painted in the state given (finished), with optional settings: what it drew.
+  function drawn(i, st, x) {
+    const keep = { X: Object.assign({}, X), D: Object.assign({}, D), S: S[i], T, sc: scripted, held };
+    S[i] = st || blank(); T = Infinity; scripted = false; held = true; probing = true;
+    try {
+      prep(i, solved(S[i]), true);
+      if (x) Object.assign(X, x);
+      snapD();
+      paint(i);
+      return REC;
+    } finally {
+      Object.assign(X, keep.X); Object.assign(D, keep.D); S[i] = keep.S; T = keep.T; scripted = keep.sc; held = keep.held; paint(); probing = false;
+    }
+  }
+  const iTop = idx('The top of a curve'), iBranches = idx('Two branches'), iCu75 = idx('At 75% load'), iIron = idx('Iron stays put');
+  const iFe = idx('Iron at full load'), iEff = idx('Efficiency'), iHalf = idx('Half load'), iPeak = idx('The peak');
+  const iOther = idx('Another transformer'), iTests = idx('Two tests'), iFsc = idx('Flux in the test'), iTwo = idx('From the two tests'), iPick = idx('Setting up the test');
+  const V_ = (s) => s + NB + 'V', A_ = (s) => s + NB + 'A', W_ = (s) => s + NB + 'W', MWB = (s) => s + NB + 'mWb', KW = (s) => s + NB + 'kW';
+  const LOADS = K.linspace(0, 125, 26);
+
+  K.check('A no-load loss is present whenever the transformer is energised and is independent of the load level, and the load loss goes with the loading squared', () => {
+    const fe = (l) => drawn(iIron, null, { load: l }).t.fe, cu = (l) => drawn(iIron, null, { load: l }).t.cu;
+    return LOADS.every((l) => near(rule(l, 1, 'load').fe, FE0, 1e-9) && near(rule(l, 1, 'load').cu, CU0 * Math.pow(l / 100, 2), 1e-9)) &&
+      fe(0) === W_('100.0') && fe(50) === W_('100.0') && fe(125) === W_('100.0') &&
+      cu(0) === W_('0.0') && cu(50) === W_('100.0') && cu(100) === W_('400.0') && cu(125) === W_('625.0');
+  }, { source: SRC1 });
+  K.check('An open-circuit test measures the iron loss under no-load conditions: on 440 V with the secondary open, 0.5 A flows and the wattmeter reads the 100 W iron loss', () => {
+    const o = drawn(iTests, null, { test: 'oc' });
+    return o.t.vs === V_('440.0') && o.t.is === A_('0.5') && o.t.wm === W_('100') && o.t.fe === W_('100.0') && o.t.cu === W_('0.0') &&
+      o.t.flux === MWB('1.88') && o.faint.series && !o.faint.core && o.t.sec === 'Open';
+  }, { source: SRC2 });
+  K.check('The short-circuit test determines the copper loss by short-circuiting the secondary at full-load current: 22.0 V drives 22.7 A, and the wattmeter reads 400 W', () => {
+    const s = drawn(iTests, null, { test: 'sc' });
+    return s.t.vs === V_('22.0') && s.t.is === A_('22.7') && s.t.wm === W_('400') && s.t.cu === W_('400.0') && s.t.fe === W_('0.25') &&
+      s.t.flux === MWB('0.09') && !s.faint.series && s.faint.core && s.t.sec === 'Link' && s.t.sup === V_('22.0') + ', 60' + NB + 'Hz';
+  }, { source: SRC3 });
+  K.check('The series branch: 0.77 Ω gives 400 W at the full-load 22.7 A, and with 0.58 Ω of reactance makes 0.97 Ω; the flux is 1.88 mWb at 440 V', () =>
+    near(IFL, 22.727, 0.001) && RS.toFixed(2) === '0.77' && near(IFL * IFL * RS, 400, 1e-9) && ZS.toFixed(2) === '0.97' && VSC.toFixed(1) === '22.0' &&
+    (PHI0 * 1e3).toFixed(2) === '1.88' && near(VSC / VR, 0.05, 0.001));
+  K.check('Efficiency: 95.2% at full load and 96.2% at half load at unity power factor, 94.1% and 95.2% at 0.8, and 0 at no load', () => {
+    const e = (x) => drawn(iEff, null, x).t;
+    const a = e({ load: 100, pf: 1 }), b = e({ load: 50, pf: 1 }), c = e({ load: 100, pf: 0.8 }), d = e({ load: 50, pf: 0.8 }), z = e({ load: 0 });
+    return a.eff === '95.2%' && a.out === KW('10.0') && b.eff === '96.2%' && c.eff === '94.1%' && c.out === KW('8.0') && d.eff === '95.2%' &&
+      z.eff === '0.0%' && near(effAt(100, 1), 100 * 10000 / 10500, 1e-9);
+  });
+  K.check('Efficiency peaks at 50% load at both power factors, where the copper loss equals the iron loss, and falls below 88% at light load', () =>
+    [1, 0.8].every((pf) => {
+      const fine = K.linspace(0.5, 125, 1250), best = fine.reduce((m, l) => effAt(l, pf) > effAt(m, pf) ? l : m, fine[0]);
+      return near(best, 50, 0.1) && near(rule(50, pf, 'load').cu, rule(50, pf, 'load').fe, 1e-9) && effAt(5, pf) < 88 && effAt(125, pf) < effAt(100, pf);
+    }));
+  K.check('The flux holds at 1.88 mWb at every load, while the copper-loss bar is four times the iron-loss bar at full load and equal at half load', () => {
+    const f = drawn(iIron, null, { load: 100 }), h = drawn(iIron, null, { load: 50 });
+    return [0, 25, 75, 125].every((l) => drawn(iIron, null, { load: l }).t.flux === MWB('1.88')) && f.t.flux === MWB('1.88') &&
+      near(f.bars.flux, h.bars.flux, 1e-9) && near(f.bars.cu, 4 * f.bars.fe, 1e-6) && near(h.bars.cu, h.bars.fe, 1e-6);
+  });
+  K.check('Each typed answer and slip is worked from its rule: 3 (6, 9), 225 W (300, 400), 100 W (400, 200), 96.2% (90.9, 94.3), 40% (16, 250), 0.09 mWb (1.88, 37.6) and 96.3% (97.1, 99.2)', () => {
+    const sl = (i, v) => STEPS[i].slips.length === v.length && STEPS[i].slips.every((s, k) => near(s.value, v[k], 1e-12));
+    const r1_ = (v) => Math.round(v * 10) / 10, r2 = (v) => Math.round(v * 100) / 100;
+    const work = 6 / 2 === 3 && 6 * 3 - 9 === 9 && 6 * 6 - 36 === 0 &&
+      near(400 * 0.75 * 0.75, 225, 1e-9) && near(400 * 0.75, 300, 1e-9) &&
+      near(rule(100, 1, 'load').fe, 100, 1e-9) && 100 * 4 === 400 && 100 * 2 === 200 &&
+      r1_(effAt(50, 1)) === 96.2 && r1_(100 * 5000 / 5500) === 90.9 && r1_(100 * 5000 / 5300) === 94.3 &&
+      near(Math.sqrt(64 / 400), 0.4, 1e-12) && near(100 * 64 / 400, 16, 1e-9) && near(100 * 400 / 64, 625, 1e-9) && near(Math.sqrt(400 / 64) * 100, 250, 1e-9) &&
+      r2(1.88 * 22.0 / 440) === 0.09 && near(1.88 * 22.0 / 440, 0.094, 1e-9) && r2(1.88 * 20) === 37.6 &&
+      r1_(100 * 10000 / 10380) === 96.3 && r1_(100 * 10000 / 10300) === 97.1 && r1_(100 * 10000 / 10080) === 99.2 && near(VR / VSC, 20, 0.02);
+    return work && STEPS[iTop].answer === 3 && STEPS[iCu75].answer === 225 && STEPS[iFe].answer === 100 && STEPS[iHalf].answer === 96.2 &&
+      STEPS[iOther].answer === 40 && STEPS[iFsc].answer === 0.09 && STEPS[iTwo].answer === 96.3 && STEPS[iPick].want === STEPS[iPick].opts[3] &&
+      sl(iTop, [6, 9]) && sl(iCu75, [300, 400]) && sl(iFe, [400, 200]) && sl(iHalf, [90.9, 94.3]) && sl(iOther, [16, 250]) && sl(iFsc, [1.88, 37.6]) && sl(iTwo, [97.1, 99.2]);
+  });
+  K.check('Before a Check the copper loss, iron loss, efficiency and flux show ?; a right Check moves the load to 75%, 100% and 50%, and shows 225.0 W, 100.0 W, 96.2% and 0.09 mWb', () => {
+    const b = (i) => drawn(i, blank()), s = (i) => drawn(i, solvedSt(i));
+    const cb = b(iCu75), cs = s(iCu75), fb = b(iFe), fs = s(iFe), eb = b(iHalf), es = s(iHalf), xb = b(iFsc), xs = s(iFsc);
+    return cb.t.cu === '?' && cb.load === 100 && cs.t.cu === W_('225.0') && cs.load === 75 &&
+      fb.t.fe === '?' && fb.load === 50 && fs.t.fe === W_('100.0') && fs.load === 100 &&
+      eb.t.eff === '?' && eb.load === 100 && es.t.eff === '96.2%' && es.load === 50 &&
+      xb.t.flux === '?' && xb.bars.flux === 0 && xs.t.flux === MWB('0.09') && xs.bars.flux > 0;
+  });
+  K.check('Only the windings\' branch changes with the load: at no load it is faint, and the core\'s branch carries current at every load', () =>
+    drawn(iBranches, null, { load: 0 }).faint.series && !drawn(iBranches, null, { load: 0 }).faint.core &&
+    LOADS.filter((l) => l > 0).every((l) => { const d = drawn(iBranches, null, { load: l }); return !d.faint.series && !d.faint.core; }));
+  K.check('Every demonstration ends 3 to 4.5 s after its screen opens, and every answer\'s motion within 2.5 s', () =>
+    STEPS.every((d) => d.show ? (d.dur >= 3 && d.dur <= 4.5) : (!d.run || d.run <= 2.5)));
+  K.ready();
+</script>

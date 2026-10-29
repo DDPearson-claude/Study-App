@@ -1,0 +1,670 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-29T05:43:32.654Z",
+ "startedAt": "2026-10-29T05:43:32.654Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i2",
+  "title": "The magnetic circuit: iron, saturation and loss",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the dot barely rise along the flat, from 1.54 T to 1.60 T, with the ring's small magnets nearly all in line, when you double the current from 1 A to 2 A.",
+   "title": "The core and its curve",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Screen",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [],
+   "whatAmILookingAt": "Thirteen small screens on one picture, with Back and Continue. Five show an idea and eight ask you to try it. No marks and no timers.\n\nThe picture. A ring core, drawn as a square ring with rounded corners, with a coil wound on its left side. The coil has 200 turns, say. The ring's mean path, drawn as a dashed line round its middle, is 0.4 m long, say, and its cross-section is 0.001 m², say. A current slider runs from 0 to 2 A in steps of 0.05 A, opening at 0.1 A. A switch, Air or Iron, sets what the ring is made of. It opens on Air. A flux bar along the ring fills in step with the flux, B × 0.001 m². Inside the iron ring, a grid of small arrows stands for its tiny magnets. The share of them turned into line along the ring is tanh(H ÷ 255), the iron's part of B over its 1.6 T ceiling. On AC and with a gap, the share follows the iron's B the same way. In air the arrows are hidden. Three readouts, which stack on a phone: Ampere-turns, in At; Flux density, in T, shown in mT while the ring is air; and Flux, Φ = B × A, in mWb, shown in µWb while the ring is air.\n\nBeside the ring, the curve. Flux density B runs up, from 0 to 1.8 T. H, the push per metre of ring, N I ÷ l, runs along, from 0 to 1000 A/m. A dot rides the curve at the slider's current. The knee is drawn and labelled at 255 A/m. Air's line, B = μ₀ H, is drawn too, lying all but flat along the bottom.\n\nThe rules it computes. Ampere-turns F = N × I. H = F ÷ 0.4 m. In air, B = μ₀ H, where μ₀ = 4π × 10⁻⁷ T m/A is the magnetic constant.[^11] The iron's curve is a sketch of one iron: B = 1.6 tanh(H ÷ 255) + μ₀ H, in teslas, with H in A/m. It starts about 5000 times as steep as air's line, bends round a knee near 255 A/m, and beyond about 1.6 T climbs only as air's line does. So at 0.1 A, 20 At, H is 50 A/m: air gives 0.063 mT and iron 0.31 T. At 0.5 A iron reads 1.21 T, at 1 A 1.54 T and at 2 A 1.60 T.\n\nAn air-gap slider, 0 to 1 mm in steps of 0.25 mm, opening at 0, cuts a gap in the ring opposite the coil. The push is then shared: F = 0.4 × H in the iron + B × gap ÷ μ₀, with the gap in metres. The picture finds the B that balances it, and draws the gapped curve, against F ÷ 0.4 m, beside the faint gapless one. A 0.25 mm gap takes 199 At for each tesla. With it, 0.5 A gives 0.38 T, 1 A gives 0.75 T and 2 A gives 1.36 T.\n\nAn AC switch makes the current swing slowly as a sine, from 2 A one way to 2 A the other, and greys the current slider. The axes then run from −1000 to 1000 A/m and from −1.8 to 1.8 T, labelled beside the centred axes. With the current rising, the dot follows B = 1.6 tanh((H − 60) ÷ 255) + μ₀ H. With it falling, B = 1.6 tanh((H + 60) ÷ 255) + μ₀ H. This loop is a sketch too. Its inside is shaded. Where it crosses zero current, a mark reads the residual flux density, 0.37 T.\n\nA second card, Eddy currents, shows the core cut across. A stepper sets it: Solid, 2 sheets, 4 sheets, 8 sheets. Its four buttons wrap onto two rows on a phone. On AC, eddy currents are drawn as loops swirling inside each piece, smaller in thinner sheets. A loss bar reads the eddy loss as a percentage of the solid block's, by the thin-sheet rule, loss in step with thickness squared,[^8] so 100%, 25%, 6.3% and 1.6%.\n\nScreen 1, try it, typed, a recall. The picture: the iron ring at 0.1 A. \"A coil has an inductance of 0.2 H. What is its reactance on DC, at 0 Hz?\" A typed field in Ω, two decimal places: answer 0, want \"0 Ω\". Slips: 1.26, \"That is 2π × 0.2, its reactance at 1 Hz. On DC the frequency is 0.\"; 0.2, \"That is the inductance, in henries. Reactance is 2π f L.\" Hint for any other answer: \"Use X_L = 2π f L with f = 0.\" Why: \"X_L = 2π × 0 × 0.2 = 0 Ω. A coil pushes back only while its current changes. On DC the winding's resistance alone sets a steady current. That current sets up a steady flux. How much flux it buys comes next.\" A right Check says \"Still there.\" and carries on. Read: the question.\n\nScreen 2, show. The ring on Air at 0.1 A, then switched to Iron. The words: \"Wind 200 turns on a ring and pass 0.1 A. Each turn adds its own field. So the push round the ring is turns × current. That push is the magnetomotive force, F = N I, in ampere-turns, At.[^1] Here it is 20 At. It drives flux round the ring, as volts drive current. The ring's reluctance, S, opposes it, as resistance does. So the flux Φ = F ÷ S.[^4] In air, 20 At buy just 0.063 mT. Now switch the ring to iron. The same push buys 0.31 T, nearly 5000 times as much.[^2]\" Read: \"200 turns carrying 0.1 A push 20 At round the ring. The flux is that push divided by the ring's reluctance. In air that buys 0.063 mT. In iron it buys 0.31 T, nearly 5000 times as much.\" Still: Iron, 0.1 A.\n\nScreen 3, try it. \"The dot sits at 1 A, reading 1.54 T. You double the current to 2 A. What does the flux density do?\" Three choices, in this order: \"It roughly doubles\"; \"It rises only a little\"; \"It stops rising at all\". Right, the second. Hint for the first: \"Doubling holds only on the steep part. At 1 A the curve has already bent over.\" Hint for the third: \"It still rises a little. The curve never goes perfectly flat.\" Why: \"At 1 A the curve has already bent over and runs nearly flat. Doubling the current buys only 0.06 T more, from 1.54 T to 1.60 T. Twice the current gives just 4% more flux density.\" A right Check slides the current to 2 A, and the dot crawls along the flat. Read: the question.\n\nScreen 4, show. Iron, with the current to drag up. The words: \"Turn the current up. The dot climbs the iron's curve of B against H. H is the push per metre of ring, N I ÷ l. The curve rises steeply, bends at a knee near 0.5 A, then runs nearly flat. The arrows are iron's tiny regions, each a small magnet.[^5] The push swings them into line, and their fields add to the coil's. Near the knee most are in line, so little is left to swing.[^6] This is saturation: more push buys only a little more flux density.[^3]\" Read: \"The dot climbs the iron's curve steeply, bends round a knee near 0.5 A and runs nearly flat. At 0.5 A it reads 1.21 T. At 2 A it reads only 1.60 T, with nearly every arrow in the iron in line.\" Still: Iron, 2 A, with the dot's path traced.\n\nScreen 5, try it, typed. \"In air, 10 ampere-turns on this ring give 0.0314 mT. Take iron as 5000 times air on the steep part of its curve. What flux density does the iron ring reach?\" A typed field in mT, decimals allowed: answer 157, want \"157 mT\". Slips: 0.0314, \"That is air's figure. Iron multiplies it.\"; 0.157, \"That is in teslas. The box is in millitesla.\"; 0.00000628, \"That divides by 5000. Iron gives more flux density, not less.\" Hint for any other answer: \"Multiply air's 0.0314 mT by 5000.\" Why: \"0.0314 mT × 5000 = 157 mT, which is 0.157 T. Iron's reluctance is that much lower. So the same push buys that much more. The drawn curve reads 0.16 T here, as it has barely begun to bend.\" A right Check sets Iron at 0.05 A. Read: the question.\n\nScreen 6, show. Iron, with the gap slider at 0.25 mm. The words: \"Cut a 0.25 mm gap in the ring. Air has no small magnets to swing. In the gap, H = B ÷ μ₀. The gap's share of the push is that H times its length, B × gap ÷ μ₀. Here that is 199 At for each tesla. The iron below its knee needs about a third as much. So the gap takes most of the push. Air never saturates, so the curve leans over and runs straighter. The flux then keeps in step with the current, so a coil's inductance holds steady.\" Read: \"With a 0.25 mm gap, the curve leans over. At 0.5 A the ring reaches 0.38 T, not 1.21 T. At 1 A it reaches 0.75 T, about twice as much.\" Still: Iron, 0.25 mm gap, 1 A.\n\nScreen 7, try it, typed. \"A 0.5 mm gap carries 1.2 T. How many ampere-turns does the gap alone take? Use μ₀ = 4π × 10⁻⁷ T m/A.\" A typed field in At, whole numbers: answer 477, also accepting 476 and 478, want \"477 At\". Slips: 477465, \"0.5 mm is 0.0005 m.\"; 398, \"That is the push for 1 T. This gap carries 1.2 T.\"; 199, \"That is a 0.25 mm gap at 1 T. This one is twice as long and carries more.\" Hint for any other answer: \"B × gap ÷ μ₀, with the gap in metres.\" Why: \"1.2 × 0.0005 ÷ (4π × 10⁻⁷) = 477 At. The iron at 1.2 T needs about 100 At. So half a millimetre of air takes nearly five times the push of the whole iron ring.\" Read: \"A 0.5 mm gap carries 1.2 T. How many ampere-turns does the gap alone take?\"\n\nScreen 8, show. Iron, no gap, with the AC switch to turn on. The words: \"Switch to AC. The current swings to 2 A one way, back through zero, then to 2 A the other way. The dot does not come back down the line it climbed. Some regions stay in line, so the iron holds on to its magnetism.[^5] At zero current, a residual flux is left in the core. The mark shows it. This lag is called hysteresis. Swinging the regions back costs energy every cycle, and that warms the iron. The loop's shaded area sets how much.[^7]\" Read: \"On AC the dot runs round a loop, not up and down one line. At zero current the core keeps a residual flux density of 0.37 T. The loop's shaded area sets the heat left in the iron each cycle.\" Still: AC, the whole loop drawn, the dot at zero current on the way down.\n\nScreen 9, try it. \"Two equal cores of different irons reach the same peak flux density on AC. Iron A's loop is wide. Iron B's loop is thin. Which heats up less each cycle?\" Three choices, in this order: \"Iron A, the wide loop\"; \"Iron B, the thin loop\"; \"Neither: they reach the same peak\". Right, the second. Hint for the first: \"A wide loop encloses more area, and the area sets the heat.\" Hint for the third: \"The peak sets the loop's height. The heat goes with its area.\" Why: \"Each cycle costs heat, set by the loop's area. Both loops are the same height. Iron B's loop is thinner, so it encloses less area. So a core wants an iron with a thin loop.\" A right Check draws the two loops side by side, B's shaded area the smaller. Read: the question.\n\nScreen 10, show. The Eddy currents card, on AC, with the stepper on Solid. The words: \"Here the core is seen cut across. A changing flux makes a voltage round any loop it threads. The iron itself forms such loops, and iron conducts. So currents swirl round inside it. These eddy currents heat the core. Now cut it into thin sheets, insulated from each other. Halve the thickness, and the current in each square millimetre halves. The heat goes as that current squared. So the eddy loss falls to a quarter.[^8] Step through the cuts and watch the loss bar fall.\" Read: \"Seen cut across, a solid core carries large swirling eddy currents. In 8 thin insulated sheets, each loop is small. The eddy loss falls to 1.6% of the solid block's.\" Still: 8 sheets.\n\nScreen 11, try it, typed. \"A core's eddy loss is 40 W. It is rebuilt from sheets half as thick, at the same flux and frequency. What is its eddy loss now?\" A typed field in W, whole numbers: answer 10, want \"10 W\". Slips: 20, \"That halves the loss. It goes as the thickness squared.\"; 80, \"Thinner sheets cut the loss. They do not raise it.\"; 160, \"That squares the wrong way. Thinner sheets cut the loss.\" Hint for any other answer: \"Halve the thickness, and the heat falls to a quarter.\" Why: \"Eddy loss goes as the sheet's thickness squared. Half the thickness gives ½ × ½ = ¼ of the loss. So 40 W × ¼ = 10 W. The hysteresis loss does not change, because the loop is the same.\" Read: \"A core's eddy loss is 40 W. It is rebuilt from sheets half as thick. What is its eddy loss now?\"\n\nScreen 12, try it, the first of two mixed puzzles, typed. \"This ring's curve has its knee at H = 255 A/m. The ring's path is 0.4 m and its coil has 200 turns. What current puts it at the knee?\" A typed field in A, two decimal places: answer 0.51, want \"0.51 A\". Slips: 127500, \"That multiplies by the turns. H = N I ÷ l, so I = H × l ÷ N.\"; 3.19, \"That divides by the length. Multiply H by the length first.\"; 1.96, \"That is upside down. I = H × l ÷ N.\"; 0.5, \"Close. Give it to two decimal places.\" Hint for any other answer: \"H × l gives the ampere-turns. Then divide by the turns.\" Why: \"At the knee the ring needs 255 × 0.4 = 102 At. Shared over 200 turns, that is 0.51 A. Beyond about half an amp, this ring buys less and less flux for each extra amp.\" A right Check slides the current to 0.51 A, with the dot on the knee. Read: \"This ring's knee is at H = 255 A/m. Its path is 0.4 m and its coil has 200 turns. What current puts it at the knee?\"\n\nScreen 13, try it, the second mixed puzzle. \"AC has swung the iron ring round its loop. The current now falls from its peak to zero. What is left in the core?\" Three choices, in this order: \"No flux: no current, no field\"; \"Some flux, held by the iron\"; \"All of the peak's flux\". Right, the second. Hint for the first: \"In air that is true. Iron keeps some of its regions in line.\" Hint for the third: \"As the push falls, many regions swing back. Not all stay in line.\" Why: \"Coming down from the peak, the dot does not retrace its climb. Some regions stay in line. So at zero current the core keeps a residual flux density, 0.37 T on this sketch.\" A right Check stops the dot at the residual mark. Read: the question.\n\nThe finish. The words: \"Ampere-turns push flux round a core, as volts push current round a circuit. Iron carries it about 5000 times as readily as air. Past a knee it saturates, and then more current buys little. An iron core is never a straight line. That is why a motor drive holds V/f steady, to keep the flux level. A gap costs push, but keeps the flux in step with the current for longer. On AC, the loop and the eddy currents both heat the iron. Together they are its iron loss, a no-load loss.[^10] So cores are thin insulated sheets of silicon steel, which conducts poorly.[^9] Next: why only a changing flux makes a voltage.\"\n\nEvery figure on these screens is an example value, a sketch value, or worked from the rules above.",
+   "ignores": "The picture is flat. It draws the ring's flux spread evenly across it. In a real ring the flux crowds towards the inside edge, where the path is shorter. The curve and the loop are sketches of one iron, from a rule chosen to have a steep start, a knee and a nearly flat top. Real steels differ in where they bend and how high they reach. The arrows are a picture of the share of tiny magnets in line. Real ones grow and turn in more complicated ways. The gap is drawn with its flux going straight across. In a real gap the flux bulges out a little at the edges. That eases the push slightly. On AC the current swings as a sine, slowed right down. In a transformer the supply voltage sets the flux instead, and the current follows it. A smaller swing would trace a smaller loop, and that is not drawn. The eddy bar follows the thin-sheet rule. That rule is only rough for a thick solid block.",
+   "numbers": [
+    {
+     "label": "Screen, 1 to 13 (the stepper)",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Number of screens",
+     "value": 13,
+     "kind": "assumed"
+    },
+    {
+     "label": "Coil turns",
+     "value": 200,
+     "kind": "assumed"
+    },
+    {
+     "label": "Ring's mean path length, in metres",
+     "value": 0.4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Ring's cross-section, in square metres",
+     "value": 0.001,
+     "kind": "assumed"
+    },
+    {
+     "label": "Current slider, 0 to 2 in steps of 0.05, in amps",
+     "value": 2,
+     "kind": "control"
+    },
+    {
+     "label": "Current slider's opening setting, in amps",
+     "value": 0.1,
+     "kind": "control"
+    },
+    {
+     "label": "μ₀, the magnetic constant, in T m/A",
+     "value": "4π × 10⁻⁷",
+     "kind": "constant",
+     "source": 11
+    },
+    {
+     "label": "Iron's relative permeability, about",
+     "value": 5000,
+     "kind": "constant",
+     "source": 2
+    },
+    {
+     "label": "Sketch curve's ceiling, in teslas",
+     "value": 1.6,
+     "kind": "assumed"
+    },
+    {
+     "label": "Sketch curve's knee, H in A/m",
+     "value": 255,
+     "kind": "assumed"
+    },
+    {
+     "label": "Curve's axes: B to 1.8 T, H to 1000 A/m",
+     "value": "1.8 and 1000",
+     "kind": "assumed"
+    },
+    {
+     "label": "Share of arrows in line, tanh(H ÷ 255)",
+     "value": "0 to 1",
+     "kind": "computed"
+    },
+    {
+     "label": "Ampere-turns at 0.1 A, 200 × 0.1",
+     "value": 20,
+     "kind": "computed"
+    },
+    {
+     "label": "H at 0.1 A, 20 ÷ 0.4, in A/m",
+     "value": 50,
+     "kind": "computed"
+    },
+    {
+     "label": "Air at 0.1 A, μ₀ × 50, in mT",
+     "value": 0.063,
+     "kind": "computed"
+    },
+    {
+     "label": "Iron at 0.1 A on the sketch, in teslas",
+     "value": 0.31,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 5 ampere-turns",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 5 air, μ₀ × 25, in mT",
+     "value": 0.0314,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 5 iron, 0.0314 × 5000, in mT",
+     "value": 157,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 5 sketch reading, in teslas",
+     "value": 0.16,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 5 slips, in mT",
+     "value": "0.0314, 0.157 and 0.00000628",
+     "kind": "computed"
+    },
+    {
+     "label": "Iron at 0.5 A on the sketch, in teslas",
+     "value": 1.21,
+     "kind": "computed"
+    },
+    {
+     "label": "Iron at 1 A on the sketch, in teslas",
+     "value": 1.54,
+     "kind": "computed"
+    },
+    {
+     "label": "Flux at 1 A, 1.54 × 0.001 m², in mWb",
+     "value": 1.54,
+     "kind": "computed"
+    },
+    {
+     "label": "Iron at 2 A on the sketch, in teslas",
+     "value": 1.6,
+     "kind": "computed"
+    },
+    {
+     "label": "Rise from 1 A to 2 A, in teslas",
+     "value": 0.06,
+     "kind": "computed"
+    },
+    {
+     "label": "Rise from 1 A to 2 A, in per cent",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Air-gap slider, 0 to 1 in steps of 0.25, in mm",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Example gap, in mm",
+     "value": 0.25,
+     "kind": "assumed"
+    },
+    {
+     "label": "Push for that gap per tesla, 0.00025 ÷ μ₀, in At",
+     "value": 199,
+     "kind": "computed"
+    },
+    {
+     "label": "Push per tesla for the iron below its knee, 20 At ÷ 0.31 T, about, in At",
+     "value": 65,
+     "kind": "computed"
+    },
+    {
+     "label": "Push for the iron at 1.2 T, in At",
+     "value": 100,
+     "kind": "computed"
+    },
+    {
+     "label": "With the 0.25 mm gap, B at 0.5 A, in teslas",
+     "value": 0.38,
+     "kind": "computed"
+    },
+    {
+     "label": "With the 0.25 mm gap, B at 1 A, in teslas",
+     "value": 0.75,
+     "kind": "computed"
+    },
+    {
+     "label": "With the 0.25 mm gap, B at 2 A, in teslas",
+     "value": 1.36,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 7 gap, in mm",
+     "value": 0.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 7 flux density, in teslas",
+     "value": 1.2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 7 gap push, 1.2 × 0.0005 ÷ μ₀, in At",
+     "value": 477,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 7 slips, in At",
+     "value": "477465, 398 and 199",
+     "kind": "computed"
+    },
+    {
+     "label": "Gap push over iron push at 1.2 T, times",
+     "value": 5,
+     "kind": "computed"
+    },
+    {
+     "label": "AC swing each way, in amps",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Sketch loop's sideways shift, in A/m",
+     "value": 60,
+     "kind": "assumed"
+    },
+    {
+     "label": "Residual flux density on the sketch, in teslas",
+     "value": 0.37,
+     "kind": "computed"
+    },
+    {
+     "label": "Eddy loss by cuts, per cent of solid",
+     "value": "100, 25, 6.3 and 1.6",
+     "kind": "computed",
+     "source": 8
+    },
+    {
+     "label": "Sheets on the last setting",
+     "value": 8,
+     "kind": "control"
+    },
+    {
+     "label": "Screen 11 eddy loss before, in watts",
+     "value": 40,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 11 eddy loss after, 40 ÷ 4, in watts",
+     "value": 10,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 11 slips, in watts",
+     "value": "20, 80 and 160",
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 12 knee push, 255 × 0.4, in At",
+     "value": 102,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 12 knee current, 102 ÷ 200, in amps",
+     "value": 0.51,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 12 slips, in amps",
+     "value": "127500, 3.19, 1.96 and 0.5",
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 1 inductance, in henries",
+     "value": 0.2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 1 reactance at 0 Hz, in ohms",
+     "value": 0,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 1 slip, 2π × 0.2, in ohms",
+     "value": 1.26,
+     "kind": "computed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "A coil's current pushes flux round a core, as volts push current round a circuit. Iron carries that flux far more readily than air, until it fills up. Past a knee in its curve it saturates, and more current buys little more flux.\n\nWind N turns on a ring and pass a current I. Each turn adds its own field. So the push round the ring is N × I. That push is the [[magnetomotive force]], F, measured in ampere-turns.[^1] It drives flux round the ring, as volts drive current. The ring's [[reluctance]], S, opposes it, as resistance opposes current. So the flux is Φ = F ÷ S, Ohm's law for the magnetic circuit.[^4] The push is spread round the whole path. So the push per metre, H = N I ÷ l, sets the flux density B. In air, B = μ₀ H. Here μ₀ is the magnetic constant. Iron is full of tiny regions, and each is already a small magnet. The push swings them into line, and their fields add to the coil's.[^5] So on the steep part of its curve, iron gives about 5000 times air's flux density.[^2] Its reluctance is that much lower.\n\nBut the regions run out. Once nearly all are in line, little is left to swing.[^6] So the curve of B against H bends round a knee and runs nearly flat. This is [[saturation]]: more push buys only a little more flux density.[^3] So iron's reluctance is not fixed. It climbs as the iron fills. Take the ring in the picture, with 200 turns on a 0.4 m path. There, 0.5 A reaches 1.21 T. Doubling to 1 A gives 1.54 T, and 2 A gives only 1.60 T.\n\nAn air gap changes the shape. Air has no regions to swing. In the gap, H = B ÷ μ₀. The gap's share of the push is that H times the gap's length, B × gap ÷ μ₀. So a gap needs far more current for the same flux density. But air never saturates, so the curve runs straighter for longer. The flux then keeps in step with the current, so a coil's inductance holds steady.\n\nOn AC the iron is swung one way, then the other, every cycle. Its regions lag behind the push. So the dot runs round a loop, and some flux is left at zero current. This lag is called hysteresis. Swinging the regions back heats the iron every cycle. The loop's area sets how much.[^7] The changing flux also drives eddy currents, swirling round inside the iron. Thin sheets, insulated from each other, shrink them. Halve the thickness, and the eddy loss falls to a quarter.[^8] Silicon in the steel cuts it further, as it makes the iron conduct worse.[^9] Together, the hysteresis and eddy heat are the core's iron loss, a no-load loss.[^10] The curve in the picture is a sketch of one iron. Real steels differ in where they bend. **Ampere-turns push flux round a core. Iron carries far more than air, until it saturates past a knee.[^3]**"
+  },
+  "analogy": {
+   "text": "Treat the ring as a circuit. The ampere-turns are the volts, the flux is the current, and the reluctance is the resistance.[^1] So flux = ampere-turns ÷ reluctance, as I = V ÷ R.[^4] Iron is like a run of good conductor. Air is the same run in a far poorer one. The same volts drive far more current through the good conductor.",
+   "breaks": "A conductor keeps nearly the same resistance as its current grows. It changes only a little as it warms. Iron does not keep its reluctance. Past the knee its reluctance climbs steeply, as if the conductor choked. And a steady flux uses no power. Current through a resistance always heats it."
+  },
+  "practice": {
+   "text": "- Work out the push: magnetomotive force F = N × I, in ampere-turns.\n- Divide by the core's mean path length to get the push per metre: H = N I ÷ l, in A/m.\n- Read B off that core's curve of B against H. Past the knee, never scale it up in a straight line.\n- For an air gap, add its share of the push: B × gap ÷ μ₀, with the gap in metres.\n- Flux is B × the core's cross-section, as before.\n\n**Rules of thumb:** Below the knee, iron gives thousands of times air's flux density for the same push. Well past the knee, doubling the current adds only a little flux. Half a millimetre of air can take more push than a whole iron ring. An iron-cored coil's reactance is not a constant. It falls as the iron saturates, because each extra amp buys less flux. Halve a sheet's thickness, and its eddy loss falls to about a quarter.\n\n**Worked example:** 200 turns carry 0.5 A round an iron ring with a 0.4 m path. F = 200 × 0.5 = 100 At. H = 100 ÷ 0.4 = 250 A/m. That is close to this sketch's knee at 255 A/m, where it reads 1.21 T. Double the current to 1 A, and H is 500 A/m, but B is only 1.54 T. Add a 0.25 mm gap, and 0.5 A buys just 0.38 T.\n\n**Common mistakes**\n- Treating iron's 5000 as fixed. It holds only on the steep part of the curve.\n- Expecting twice the current to give twice the flux in iron. That holds only below the knee.\n- Forgetting the length. H is ampere-turns per metre of path.\n- Ignoring a small gap. Metre for metre, it opposes flux thousands of times more than the iron.\n- Putting the gap in millimetres into B × gap ÷ μ₀. Use metres."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "lecture 8 outline - magnetic circuits.PDF",
+    "url": "https://www.rose-hulman.edu/class/ee/HTML/NSF/CCLI_EMD_DUE_0088904/PDFS/lecture_notes_08.pdf",
+    "quote": "The units for NI are ampere-turns (At). This quantity, magnetomotive force (MMF), is analogous to voltage in electric circuits."
+   },
+   {
+    "n": 2,
+    "title": "Summary",
+    "url": "https://castellidezza.faculty.polimi.it/wp-content/uploads/fundamentalsMagneticCircuits3.pdf",
+    "quote": "Usually the ferromagnetic material has a permeability much higher than that of the air (the relative permeability of Iron is about 5000)."
+   },
+   {
+    "n": 3,
+    "title": "Electrical Tech Note — 317",
+    "url": "https://www.maec.msu.edu/application/files/3716/4555/7425/Tech_Note_317_Magnetic_Flux_Density.pdf",
+    "quote": "the materials with the best magnetic properties reach a point called saturation where an increase in magnetic field intensity results in only a minimal increase in magnetic flux density."
+   },
+   {
+    "n": 4,
+    "title": "Marine Electro-Technology Written Examination Syllabus - GOV.UK",
+    "url": "https://www.gov.uk/government/publications/second-engineer-written-examination-syllabuses/marine-electro-technology-written-examination-syllabus",
+    "quote": "Explains the term reluctance and states the advantages and disadvantages of leaving air gaps in magnetic circuits. 10. States that S = F/Φ."
+   },
+   {
+    "n": 5,
+    "title": "Ch. 12 Key Terms - University Physics Volume 2 | OpenStax",
+    "url": "https://openstax.org/books/university-physics-volume-2/pages/12-key-terms",
+    "quote": "contain groups of dipoles, called domains, that align with the applied magnetic field; when this field is removed, the material is still magnetized"
+   },
+   {
+    "n": 6,
+    "title": "D16 Ferromagnetism",
+    "url": "http://physics.bu.edu/~duffy/semester2/d16_ferromagnetism.html",
+    "quote": "This is known as saturation, the point where most of the domains are aligned and, essentially, maximum M is reached. Increasing the current in the coil past this point doesn't get you very much."
+   },
+   {
+    "n": 7,
+    "title": "Nonlinear magnetics | IEEE Technology Navigator",
+    "url": "https://technav.ieee.org/topic/nonlinear-magnetics",
+    "quote": "The area enclosed by the hysteresis loop equals the energy dissipated as heat per unit volume per cycle, a quantity called hysteresis loss."
+   },
+   {
+    "n": 8,
+    "title": "6.685 Electric Machines, Course Notes 3: Eddy Currents, Surface Impedances and Loss Mechanisms",
+    "url": "https://ocw.mit.edu/courses/6-685-electric-machines-fall-2013/73ce73e3a02b085d00df37882e7636fe_MIT6_685F13_chapter3.pdf",
+    "quote": "power is proportional to the square of flux density and to the square of frequency. It is also proportional to the square of the lamination thickness (this is average volume power dissipation)."
+   },
+   {
+    "n": 9,
+    "title": "6.685 Electric Machines, Course Notes 3: Eddy Currents, Surface Impedances and Loss Mechanisms",
+    "url": "https://ocw.mit.edu/courses/6-685-electric-machines-fall-2013/73ce73e3a02b085d00df37882e7636fe_MIT6_685F13_chapter3.pdf",
+    "quote": "To further reduce losses the steel is alloyed with elements (often silicon) which poison the electrical conductivity."
+   },
+   {
+    "n": 10,
+    "title": "Transformer Efficiency and Losses",
+    "url": "https://www.monolithicpower.com/en/learning/mpscholar/ac-power/transformers/transformer-efficiency-and-losses",
+    "quote": "Losses that occur in the core due to hysteresis and eddy current are examples of no-load losses."
+   },
+   {
+    "n": 11,
+    "title": "SP 330 - Section 2 | NIST",
+    "url": "https://www.nist.gov/pml/special-publication-330/sp-330-section-2",
+    "quote": "At the time of adopting the present definition of the ampere, µ₀ was equal to 4π × 10−7 H/m with a relative standard uncertainty of 2.3 × 10−10."
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: quantity -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .lead, .caption { max-width: 32rem; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.08rem; font-weight: 400; line-height: 1.6; }\n  .nowrap { white-space: nowrap; }\n  .scene { display: block; width: 100%; max-width: 26rem; margin-inline: auto; touch-action: pan-y; }\n  /* The ring: iron is filled, air is only an outline. */\n  .scene .air { fill: var(--k-bg); stroke: var(--k-muted); stroke-width: 1.5; }\n  .scene .iron { fill: var(--k-sunk); stroke: var(--k-ink); stroke-width: 1.6; }\n  .scene .iron.hole { fill: var(--k-bg); }\n  .scene .cut { fill: var(--k-bg); }\n  .scene .face { stroke: var(--k-ink); stroke-width: 1.4; }\n  .scene .mpath { fill: none; stroke: var(--k-muted); stroke-width: 1.4; stroke-dasharray: 5 4; }\n  .scene .turn { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.5; }\n  .scene .lead { fill: none; stroke: var(--k-ink); stroke-width: 1.6; }\n  .scene .term0 { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.5; }\n  /* The iron's small magnets (the main thing, navy). */\n  .scene .mag { fill: none; stroke: var(--k-accent2); stroke-width: 1.6; stroke-linecap: round; }\n  .scene .magh { fill: var(--k-accent2); }\n  .scene .fbar { fill: var(--k-sunk); stroke: var(--k-line); stroke-width: 1; }\n  .scene .ffill { fill: var(--k-accent2); }\n  .scene .mid { stroke: var(--k-strong); stroke-width: 1.5; }\n  /* The curve. */\n  .scene .ax { fill: none; stroke: var(--k-strong); stroke-width: 1.2; }\n  .scene .tk { font: 400 13px var(--k-font); fill: var(--k-muted); }\n  .scene .axt { font: 600 13px var(--k-font); fill: var(--k-ink); }\n  .scene .cv { fill: none; stroke: var(--k-accent2); stroke-width: 2.4; stroke-linejoin: round; }\n  .scene .cv.faint { stroke: var(--k-muted); stroke-width: 1.6; }\n  .scene .airl { fill: none; stroke: var(--k-accent); stroke-width: 2.2; stroke-dasharray: 6 4; }\n  .scene .knee { stroke: var(--k-muted); stroke-width: 1.3; stroke-dasharray: 3 3; }\n  .scene .guide { stroke: var(--k-muted); stroke-width: 1.2; stroke-dasharray: 3 3; }\n  .scene .trail { fill: none; stroke: var(--k-amber-line); stroke-width: 6; stroke-linecap: round; stroke-linejoin: round; }\n  .scene .area { fill: var(--k-fill1); stroke: none; }\n  .scene .dot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }\n  .scene .res { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 2; }\n  /* Eddy currents: iron sheets, and the current loops swirling in them. */\n  .scene .sheet { fill: var(--k-sunk); stroke: var(--k-ink); stroke-width: 1.3; }\n  .scene .eddy { fill: none; stroke: var(--k-accent2); stroke-width: 2; stroke-dasharray: 6 5; }\n  .scene .eh { fill: var(--k-accent2); }\n  .scene .ldr { stroke: var(--k-muted); stroke-width: 1.2; }\n  .scene .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }\n  .scene .ttl { font: 700 14px var(--k-font); fill: var(--k-ink); }\n  .scene .key { font: 400 13px var(--k-font); fill: var(--k-ink); }\n  .scene .pill { fill: var(--k-bg); stroke: var(--k-line); stroke-width: 1; }\n  .scene .sw { stroke-width: 2.4; }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; }\n  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }\n  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-inline: 16px; font-size: .95rem; white-space: nowrap; }\n  /* The three readouts share a row on a laptop and stack on a phone. */\n  #outs .k-readout { flex: 1 1 9rem !important; }\n  /* The four cuts sit two to a row on a phone. Words never split. */\n  #c-sheets .k-seg { display: grid; grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr)); }\n  #c-sheets .k-seg button { white-space: nowrap; }\n  /* Short answers sit two to a row; long ones one to a row. */\n  .picks { display: grid; grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr)); gap: 8px; }\n  .picks.long { grid-template-columns: minmax(0, 1fr); }\n  .picks .k-btn { min-height: 48px; font-size: 1.05rem; white-space: normal; overflow-wrap: normal; word-break: normal; hyphens: none; }\n  .picks .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  .answers .k-answer { max-width: 20rem; }\n  .fb { font-weight: 700; min-height: 1.5em; }\n  .fb.right { color: var(--k-good); }\n  .why, .done { line-height: 1.6; }\n  /* On AC the current slider keeps its place, greyed, so nothing below it jumps. */\n  .ctl.off { opacity: .45; pointer-events: none; }\n  .done .row { margin-top: 14px; }\n  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }\n</style>\n\n<p class=\"lead\">A ring core with a 200-turn coil, a 0.4&nbsp;m mean path and a 0.001&nbsp;m² cross-section, drawn above its curve of flux density against push. Every value is an example.</p>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <svg class=\"scene\" id=\"scene\" viewBox=\"0 0 340 462\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"art\"></g></svg>\n    <div class=\"replay\" id=\"replay\"></div>\n    <div class=\"k-controls ctl\" id=\"c-core\"></div>\n    <div class=\"k-controls ctl\" id=\"c-ac\"></div>\n    <div class=\"k-controls ctl\" id=\"c-cur\"></div>\n    <div class=\"k-controls ctl\" id=\"c-gap\"></div>\n    <div class=\"k-controls ctl\" id=\"c-sheets\"></div>\n    <div class=\"k-readouts\" id=\"outs\"></div>\n    <div class=\"picks\" id=\"picks\"></div>\n    <div class=\"answers\" id=\"answers\"><div id=\"ans-xl\"></div><div id=\"ans-x5k\"></div><div id=\"ans-gap\"></div><div id=\"ans-eddy\"></div><div id=\"ans-knee\"></div></div>\n    <div class=\"row acts\" id=\"acts\"></div>\n    <p class=\"fb\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p id=\"finish\"></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\">The curve and the loop are sketches of one iron, not measured data.</p>\n\n<script>\n  // ================= the rules =================\n  const strip = (s) => s.replace(/\\[\\^\\d+\\]/g, '');\n  const NB = ' ', MINUS = '−';\n  const MU0 = 4 * Math.PI * 1e-7;                 // the magnetic constant, T m/A\n  const N = 200, L = 0.4, AREA = 0.001;           // the example ring: turns, mean path (m), cross-section (m²)\n  const BSAT = 1.6, KNEE = 255, SHIFT = 60;       // the sketch iron: its ceiling (T), its knee (A/m), its loop's sideways shift (A/m)\n  const AMP = 2, HMAX = 1000, BMAX = 1.8;         // AC swings 2 A each way; the axes run to 1000 A/m and 1.8 T\n  const OMEGA = 2 * Math.PI / 4.8;                // one slow AC cycle every 4.8 s\n  const SRC1 = 'https://www.rose-hulman.edu/class/ee/HTML/NSF/CCLI_EMD_DUE_0088904/PDFS/lecture_notes_08.pdf';\n  const SRC2 = 'https://castellidezza.faculty.polimi.it/wp-content/uploads/fundamentalsMagneticCircuits3.pdf';\n  const SRC3 = 'https://www.maec.msu.edu/application/files/3716/4555/7425/Tech_Note_317_Magnetic_Flux_Density.pdf';\n\n  // The sketch iron: B = 1.6 tanh((H − c) ÷ 255) + μ₀ H. c = 0 is the curve; +60 the loop rising, −60 falling.\n  const ironB = (H, c) => BSAT * Math.tanh((H - (c || 0)) / KNEE) + MU0 * H;\n  // With a gap the push is shared: F = l × H in the iron + B × gap ÷ μ₀. Find the iron's H that balances it.\n  function ironAt(F, gapM, c) {\n    c = c || 0;\n    if (!(gapM > 0)) { const Hi = F / L; return { Hi, B: ironB(Hi, c) }; }\n    let lo = -6000, hi = 6000;\n    for (let k = 0; k < 64; k++) { const m = (lo + hi) / 2; if (L * m + ironB(m, c) * gapM / MU0 > F) hi = m; else lo = m; }\n    const Hi = (lo + hi) / 2;\n    return { Hi, B: ironB(Hi, c) };\n  }\n  // The iron's H for a flux density B on the curve (no gap).\n  function hFor(B) { let lo = 0, hi = 6000; for (let k = 0; k < 64; k++) { const m = (lo + hi) / 2; if (ironB(m) > B) hi = m; else lo = m; } return (lo + hi) / 2; }\n  const residual = (gapMm) => ironAt(0, gapMm * 1e-3, -SHIFT).B;\n  const lossPct = (n) => 100 / (n * n);                  // the thin-sheet rule: loss in step with thickness squared\n\n  // What the ring shows: x the settings, mix 0 air to 1 iron, gapMm the gap.\n  function calc(x, mix, gapMm) {\n    const g = gapMm * 1e-3;\n    let I, c = 0, rising = true;\n    if (x.ac) { I = AMP * Math.sin(x.phase); rising = Math.cos(x.phase) > 1e-9; c = rising ? SHIFT : -SHIFT; }\n    else I = x.cur;\n    const F = N * I, r = ironAt(F, g, c), air = MU0 * F / L;\n    return { I, F, Hx: F / L, B: K.lerp(air, r.B, mix), air, share: Math.tanh((r.Hi - c) / KNEE) * mix, rising };\n  }\n\n  // Numbers as the lesson writes them.\n  function trim(v, dp) {\n    const p = Math.pow(10, dp);\n    let s = (Math.round(v * p) / p).toFixed(dp);\n    if (dp > 0) s = s.replace(/0+$/, '').replace(/\\.$/, '');\n    return s === '-0' ? '0' : s;\n  }\n  const fmtF = (v) => { const r = Math.round(v); return (r < 0 ? MINUS : '') + Math.abs(r) + NB + 'At'; };\n  function fmtB(v, air) {\n    const a = Math.abs(v);\n    if (air) { const mT = a * 1e3; if (mT < 5e-5) return '0' + NB + 'mT'; return (v < 0 ? MINUS : '') + mT.toFixed(mT >= 0.05 ? 3 : 4) + NB + 'mT'; }\n    return (v < 0 && Math.round(a * 100) > 0 ? MINUS : '') + a.toFixed(2) + NB + 'T';\n  }\n  // The flux, Φ = B × A: in mWb in iron, in µWb in air (the same digits as B in T and in mT, as A is 0.001 m²).\n  function fmtP(v, air) {\n    const a = Math.abs(v);\n    if (air) { const u = a * 1e6; if (u < 5e-5) return '0' + NB + 'µWb'; return (v < 0 ? MINUS : '') + u.toFixed(u >= 0.05 ? 3 : 4) + NB + 'µWb'; }\n    return (v < 0 && Math.round(a * 1e5) > 0 ? MINUS : '') + (a * 1e3).toFixed(2) + NB + 'mWb';\n  }\n  const fmtLoss = (p) => (p >= 10 ? p.toFixed(0) : p.toFixed(1)) + '%';\n  const ease01 = (p) => K.ease(K.clamp(p, 0, 1));\n  const r1 = (v) => Math.round(v * 10) / 10;\n\n  // ================= the lesson: SHOW screens demonstrate, DO screens are puzzles =================\n  const STEPS = [\n    { kind: 'typed', name: 'Still there?', ans: 'xl', enter: { core: 'iron', cur: 0.1 }, run: 0,\n      answer: 0, decimals: 2, unit: 'Ω', want: '0' + NB + 'Ω', right: 'Still there.',\n      slips: [{ value: 1.26, hint: 'That is 2π × 0.2, its reactance at 1 Hz. On DC the frequency is 0.' },\n        { value: 0.2, hint: 'That is the inductance, in henries. Reactance is 2π f L.' }],\n      task: 'A coil has an inductance of 0.2 H. What is its reactance on DC, at 0 Hz?',\n      hint: 'Use X_L = 2π f L with f = 0.',\n      why: 'X_L = 2π × 0 × 0.2 = 0 Ω. A coil pushes back only while its current changes. On DC the winding\\'s resistance alone sets a steady current. That current sets up a steady flux. How much flux it buys comes next.',\n      read: 'A coil has an inductance of 0.2 H. What is its reactance on DC, at 0 Hz?' },\n    { show: true, name: 'Iron or air', ctl: ['core', 'cur'], enter: { core: 'air', cur: 0.1 }, end: { core: 'iron' }, dur: 3.4,\n      demo: (t) => { X.core = t < 1.4 ? 'air' : 'iron'; },\n      text: strip('Wind 200 turns on a ring and pass 0.1 A. Each turn adds its own field. So the push round the ring is turns × current. That push is the *magnetomotive force*, F = N I, in ampere-turns, At.[^1] Here it is 20 At. It drives flux round the ring, as volts drive current. The ring\\'s *reluctance*, S, opposes it, as resistance does. So the flux Φ = F ÷ S.[^4] In air, 20 At buy just 0.063 mT. Now switch the ring to iron. The same push buys 0.31 T, nearly 5000 times as much.[^2]'),\n      read: '200 turns carrying 0.1 A push 20 At round the ring. The flux is that push divided by the ring\\'s reluctance. In air that buys 0.063 mT. In iron it buys 0.31 T, nearly 5000 times as much.',\n      still: () => setStill({ core: 'iron', cur: 0.1 }) },\n    { kind: 'pick', name: 'Double the current', enter: { core: 'iron', cur: 1 }, run: 2.0,\n      runFn: (t) => { X.cur = 1 + ease01((t - 0.2) / 1.5); X.trail = 1; }, runEnd: { cur: 2, trail: 1 },\n      task: 'The dot sits at 1 A, reading 1.54 T. You double the current to 2 A. What does the flux density do?',\n      opts: ['It roughly doubles', 'It rises only a little', 'It stops rising at all'], want: 'It rises only a little',\n      hint: 'Look at where 1 A sits on the curve.',\n      hints: { 'It roughly doubles': 'Doubling holds only on the steep part. At 1 A the curve has already bent over.',\n        'It stops rising at all': 'It still rises a little. The curve never goes perfectly flat.' },\n      why: 'At 1 A the curve has already bent over and runs nearly flat. Doubling the current buys only 0.06 T more, from 1.54 T to 1.60 T. Twice the current gives just 4% more flux density.',\n      read: 'The dot sits at 1 A, reading 1.54 T. You double the current to 2 A. What does the flux density do?' },\n    { show: true, name: 'The knee', ctl: ['cur'], enter: { core: 'iron', cur: 0.1, trail: 0.1 }, end: { cur: 2 }, dur: 4.0,\n      demo: (t) => { X.cur = 0.1 + 1.9 * ease01((t - 0.4) / 3.2); },\n      text: strip('Turn the current up. The dot climbs the iron\\'s curve of B against H. H is the push per metre of ring, N I ÷ l. The curve rises steeply, bends at a knee near 0.5 A, then runs nearly flat. The arrows are iron\\'s tiny regions, each a small magnet.[^5] The push swings them into line, and their fields add to the coil\\'s. Near the knee most are in line, so little is left to swing.[^6] This is *saturation*: more push buys only a little more flux density.[^3]'),\n      read: 'The dot climbs the iron\\'s curve steeply, bends round a knee near 0.5 A and runs nearly flat. At 0.5 A it reads 1.21 T. At 2 A it reads only 1.60 T, with nearly every arrow in the iron in line.',\n      still: () => setStill({ core: 'iron', cur: 2, trail: 0.1 }) },\n    { kind: 'typed', name: 'Five thousand times', ans: 'x5k', enter: { core: 'air', cur: 0.05 }, run: 1.4,\n      runFn: (t) => { X.core = t >= 0.2 ? 'iron' : 'air'; }, runEnd: { core: 'iron', cur: 0.05 },\n      answer: 157, decimals: 0, tolerance: 0.02, accept: [157.08, 157.1], unit: 'mT', want: '157' + NB + 'mT',\n      slips: [{ value: 0.0314, hint: 'That is air\\'s figure. Iron multiplies it.' },\n        { value: 0.157, hint: 'That is in teslas. The box is in millitesla.' },\n        { value: 0.00000628, hint: 'That divides by 5000. Iron gives more flux density, not less.' }],\n      task: 'In air, 10 ampere-turns on this ring give 0.0314 mT. Take iron as 5000 times air on the steep part of its curve. What flux density does the iron ring reach?',\n      hint: 'Multiply air\\'s 0.0314 mT by 5000.',\n      why: '0.0314 mT × 5000 = 157 mT, which is 0.157 T. Iron\\'s reluctance is that much lower. So the same push buys that much more. The drawn curve reads 0.16 T here, as it has barely begun to bend.',\n      read: 'In air, 10 ampere-turns on this ring give 0.0314 mT. Take iron as 5000 times air on the steep part of its curve. What flux density does the iron ring reach?' },\n    { show: true, name: 'A gap', ctl: ['gap', 'cur'], enter: { core: 'iron', cur: 1, gap: 0 }, end: { gap: 0.25 }, dur: 3.4,\n      demo: (t) => { X.gap = t < 1.0 ? 0 : 0.25; },\n      text: strip('Cut a 0.25 mm gap in the ring. Air has no small magnets to swing. In the gap, H = B ÷ μ₀. The gap\\'s share of the push is that H times its length, B × gap ÷ μ₀. Here that is 199 At for each tesla. The iron below its knee needs about a third as much. So the gap takes most of the push. Air never saturates, so the curve leans over and runs straighter. The flux then keeps in step with the current, so a coil\\'s inductance holds steady.'),\n      read: 'With a 0.25 mm gap, the curve leans over. At 0.5 A the ring reaches 0.38 T, not 1.21 T. At 1 A it reaches 0.75 T, about twice as much.',\n      still: () => setStill({ core: 'iron', gap: 0.25, cur: 1 }) },\n    { kind: 'typed', name: 'Half a millimetre', ans: 'gap', pic: 'gapq', enter: { core: 'iron', gap: 0.5 }, run: 1.0,\n      answer: 477, decimals: 0, accept: [476, 478], unit: 'At', want: '477' + NB + 'At',\n      slips: [{ value: 477465, hint: '0.5 mm is 0.0005 m.' },\n        { value: 398, hint: 'That is the push for 1 T. This gap carries 1.2 T.' },\n        { value: 199, hint: 'That is a 0.25 mm gap at 1 T. This one is twice as long and carries more.' }],\n      task: 'A 0.5 mm gap carries 1.2 T. How many ampere-turns does the gap alone take? Use μ₀ = 4π × 10⁻⁷ T m/A.',\n      hint: 'B × gap ÷ μ₀, with the gap in metres.',\n      why: '1.2 × 0.0005 ÷ (4π × 10⁻⁷) = 477 At. The iron at 1.2 T needs about 100 At. So half a millimetre of air takes nearly five times the push of the whole iron ring.',\n      read: 'A 0.5 mm gap carries 1.2 T. How many ampere-turns does the gap alone take?' },\n    { show: true, name: 'Round a loop', ctl: ['ac', 'cur'], swing: true, enter: { core: 'iron', cur: 2, ac: false }, end: { ac: true }, dur: 4.5,\n      demo: (t) => { if (t >= 0.6 && !X.ac) { X.ac = true; X.phase = Math.PI / 2; } },\n      text: strip('Switch to AC. The current swings to 2 A one way, back through zero, then to 2 A the other way. The dot does not come back down the line it climbed. Some regions stay in line, so the iron holds on to its magnetism.[^5] At zero current, a *residual flux* is left in the core. The mark shows it. This lag is called *hysteresis*. Swinging the regions back costs energy every cycle, and that warms the iron. The loop\\'s shaded area sets how much.[^7]'),\n      read: 'On AC the dot runs round a loop, not up and down one line. At zero current the core keeps a residual flux density of 0.37 T. The loop\\'s shaded area sets the heat left in the iron each cycle.',\n      still: () => setStill({ core: 'iron', ac: true, phase: Math.PI }) },\n    { kind: 'pick', name: 'Wide or thin', pic: 'loops', run: 1.0,\n      task: 'Two equal cores of different irons reach the same peak flux density on AC. Iron A\\'s loop is wide. Iron B\\'s loop is thin. Which heats up less each cycle?',\n      opts: ['Iron A, the wide loop', 'Iron B, the thin loop', 'Neither: they reach the same peak'], want: 'Iron B, the thin loop',\n      hint: 'The heat goes with the loop\\'s area.',\n      hints: { 'Iron A, the wide loop': 'A wide loop encloses more area, and the area sets the heat.',\n        'Neither: they reach the same peak': 'The peak sets the loop\\'s height. The heat goes with its area.' },\n      why: 'Each cycle costs heat, set by the loop\\'s area. Both loops are the same height. Iron B\\'s loop is thinner, so it encloses less area. So a core wants an iron with a thin loop.',\n      read: 'Two equal cores of different irons reach the same peak flux density on AC. Iron A\\'s loop is wide. Iron B\\'s loop is thin. Which heats up less each cycle?' },\n    { show: true, name: 'Eddy currents', pic: 'eddy', ctl: ['sheets'], enter: { sheets: 1 }, end: { sheets: 8 }, dur: 4.2,\n      demo: (t) => { X.sheets = t < 0.9 ? 1 : t < 1.9 ? 2 : t < 2.9 ? 4 : 8; },\n      text: strip('Here the core is seen cut across. A changing flux makes a voltage round any loop it threads. The iron itself forms such loops, and iron conducts. So currents swirl round inside it. These *eddy currents* heat the core. Now cut it into thin sheets, insulated from each other. Halve the thickness, and the current in each square millimetre halves. The heat goes as that current squared. So the eddy loss falls to a quarter.[^8] Step through the cuts and watch the loss bar fall.'),\n      read: 'Seen cut across, a solid core carries large swirling eddy currents. In 8 thin insulated sheets, each loop is small. The eddy loss falls to 1.6% of the solid block\\'s.',\n      still: () => setStill({ sheets: 8 }) },\n    { kind: 'typed', name: 'Thinner sheets', ans: 'eddy', pic: 'eddy', enter: { sheets: 1 }, run: 1.4,\n      runFn: (t) => { X.sheets = t >= 0.2 ? 2 : 1; }, runEnd: { sheets: 2 },\n      answer: 10, decimals: 0, unit: 'W', want: '10' + NB + 'W',\n      slips: [{ value: 20, hint: 'That halves the loss. It goes as the thickness squared.' },\n        { value: 80, hint: 'Thinner sheets cut the loss. They do not raise it.' },\n        { value: 160, hint: 'That squares the wrong way. Thinner sheets cut the loss.' }],\n      task: 'A core\\'s eddy loss is 40 W. It is rebuilt from sheets half as thick, at the same flux and frequency. What is its eddy loss now?',\n      hint: 'Halve the thickness, and the heat falls to a quarter.',\n      why: 'Eddy loss goes as the sheet\\'s thickness squared. Half the thickness gives ½ × ½ = ¼ of the loss. So 40 W × ¼ = 10 W. The hysteresis loss does not change, because the loop is the same.',\n      read: 'A core\\'s eddy loss is 40 W. It is rebuilt from sheets half as thick. What is its eddy loss now?' },\n    { kind: 'typed', name: 'Find the knee', ans: 'knee', enter: { core: 'iron', cur: 0.1 }, run: 2.0,\n      runFn: (t) => { X.cur = 0.1 + 0.41 * ease01((t - 0.2) / 1.5); X.trail = 0.1; }, runEnd: { cur: 0.51, trail: 0.1 },\n      answer: 0.51, decimals: 2, unit: 'A', want: '0.51' + NB + 'A',\n      slips: [{ value: 127500, hint: 'That multiplies by the turns. H = N I ÷ l, so I = H × l ÷ N.' },\n        { value: 3.19, hint: 'That divides by the length. Multiply H by the length first.' },\n        { value: 1.96, hint: 'That is upside down. I = H × l ÷ N.' },\n        { value: 0.5, hint: 'Close. Give it to two decimal places.' }],\n      task: 'This ring\\'s curve has its knee at H = 255 A/m. The ring\\'s path is 0.4 m and its coil has 200 turns. What current puts it at the knee?',\n      hint: 'H × l gives the ampere-turns. Then divide by the turns.',\n      why: 'At the knee the ring needs 255 × 0.4 = 102 At. Shared over 200 turns, that is 0.51 A. Beyond about half an amp, this ring buys less and less flux for each extra amp.',\n      read: 'This ring\\'s knee is at H = 255 A/m. Its path is 0.4 m and its coil has 200 turns. What current puts it at the knee?' },\n    { kind: 'pick', name: 'At zero current', enter: { core: 'iron', ac: true, phase: Math.PI / 2, loop: 'trace' }, run: 2.2,\n      runFn: (t) => { X.phase = Math.PI / 2 + Math.PI / 2 * ease01((t - 0.2) / 1.4); }, runEnd: { phase: Math.PI },\n      task: 'AC has swung the iron ring round its loop. The current now falls from its peak to zero. What is left in the core?',\n      opts: ['No flux: no current, no field', 'Some flux, held by the iron', 'All of the peak\\'s flux'], want: 'Some flux, held by the iron',\n      hint: 'Think about the small magnets in the iron.',\n      hints: { 'No flux: no current, no field': 'In air that is true. Iron keeps some of its regions in line.',\n        'All of the peak\\'s flux': 'As the push falls, many regions swing back. Not all stay in line.' },\n      why: 'Coming down from the peak, the dot does not retrace its climb. Some regions stay in line. So at zero current the core keeps a residual flux density, 0.37 T on this sketch.',\n      read: 'AC has swung the iron ring round its loop. The current now falls from its peak to zero. What is left in the core?' },\n  ];\n  const FINISH = strip('Ampere-turns push flux round a core, as volts push current round a circuit. Iron carries it about 5000 times as readily as air. Past a knee it *saturates*, and then more current buys little. An iron core is never a straight line. That is why a motor drive holds V/f steady, to keep the flux level. A gap costs push, but keeps the flux in step with the current for longer. On AC, the loop and the eddy currents both heat the iron. Together they are its *iron loss*, a no-load loss.[^10] So cores are thin insulated sheets of silicon steel, which conducts poorly.[^9] Next: why only a changing flux makes a voltage.');\n\n  // ================= state =================\n  const BASE = { core: 'iron', cur: 0.1, gap: 0, ac: false, sheets: 1, phase: Math.PI, trail: null, loop: 'full' };\n  const X = Object.assign({}, BASE);              // what the picture shows now\n  const D = { mix: 1, gap: 0, loss: 100, plot: 1, eFade: 1 };   // what is drawn, easing towards X\n  const seen = { sheets: 1, ac: false };\n  const blank = () => ({ pick: null, res: null, why: false, tries: 0, hint: '' });\n  let S = STEPS.map(blank);\n  const solved = (st) => !!st && (st.res === 'right' || st.res === 'shown');\n  let T = Infinity, motionEnd = 0, scripted = false, lastStep = -1, finished = false, lastDone = false, held = false;\n  let ephase = 0, eInt = 0;\n  let REC = { said: [] };\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n  const quiet = () => REDUCE || testing();\n  const el = (id) => document.getElementById(id);\n  const arr = (t0, dur) => T === Infinity ? 1 : K.arrive(T, t0, dur);\n  const picOf = (d) => d.pic || 'ring';\n\n  const targ = () => ({ mix: X.core === 'iron' ? 1 : 0, gap: X.gap, loss: lossPct(X.sheets) });\n  function snapD() { Object.assign(D, targ(), { plot: 1, eFade: 1 }); seen.sheets = X.sheets; seen.ac = X.ac; }\n  const TAU = { mix: 0.18, gap: 0.3, loss: 0.25 };\n  function tween(dt) {\n    const t = targ();\n    Object.keys(TAU).forEach((key) => {\n      const e = t[key] - D[key];\n      D[key] = Math.abs(e) < 1e-4 * Math.max(1, Math.abs(t[key])) ? t[key] : D[key] + e * (1 - Math.exp(-dt / TAU[key]));\n    });\n    D.plot = Math.min(1, D.plot + dt / 0.6);\n    D.eFade = Math.min(1, D.eFade + dt / 0.5);\n  }\n  function settled() { const t = targ(); return D.mix === t.mix && D.gap === t.gap && D.loss === t.loss && D.plot >= 1 && D.eFade >= 1; }\n  // A change of cut, or of AC, fades the new drawing in.\n  function watch() {\n    if (X.sheets !== seen.sheets) { seen.sheets = X.sheets; if (!quiet()) D.eFade = 0; }\n    if (X.ac !== seen.ac) { seen.ac = X.ac; if (!quiet()) D.plot = 0; }\n  }\n  const swinging = (d) => !quiet() && !held && !finished && !!X.ac && !!d.swing && picOf(d) === 'ring';\n  const swirling = (d) => !quiet() && !held && !finished && picOf(d) === 'eddy';\n\n  // ================= text with amber key terms (built with K.el, never innerHTML) =================\n  // A number keeps its unit on the same line.\n  const UNIT_GAP = /(\\d) (?=(?:Hz|H|At|A\\/m|A|mT|mm|m²|mWb|m|W|Ω|T)(?![A-Za-z]))/g;\n  function write(node, s) {\n    node.textContent = '';\n    String(s || '').replace(UNIT_GAP, '$1' + NB).split(/\\*([^*]+)\\*/).forEach((seg, k) => {\n      if (!seg) return;\n      if (k % 2) { node.appendChild(K.el('span', { class: 'term' }, seg)); return; }\n      seg.split('X_L').forEach((part, j) => {\n        if (j) node.appendChild(K.el('span', { class: 'nowrap' }, 'X', K.el('sub', {}, 'L')));\n        if (part) node.appendChild(document.createTextNode(part));\n      });\n    });\n  }\n\n  // ================= controls =================\n  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);\n  const CTL = {\n    core: K.choice({ id: 'core', label: 'Ring made of', options: [{ value: 'air', label: 'Air' }, { value: 'iron', label: 'Iron' }], value: 'air', into: '#c-core' }),\n    ac: K.toggle({ id: 'ac', label: 'AC supply', value: false, into: '#c-ac' }),\n    cur: K.control({ id: 'cur', label: 'Current', min: 0, max: 2, step: 0.05, value: 0.1, snap: [0.5, 1, 2], fmt: (v) => v.toFixed(2) + NB + 'A', into: '#c-cur' }),\n    gap: K.control({ id: 'gap', label: 'Air gap', min: 0, max: 1, step: 0.25, value: 0, snap: [0.25], fmt: (v) => v === 0 ? 'No gap' : trim(v, 2) + NB + 'mm', into: '#c-gap' }),\n    sheets: K.choice({ id: 'sheets', label: 'Core cut into', options: [{ value: 1, label: 'Solid' }, { value: 2, label: '2 sheets' }, { value: 4, label: '4 sheets' }, { value: 8, label: '8 sheets' }], value: 1, into: '#c-sheets' }),\n  };\n  const CTL_IDS = Object.keys(CTL);\n  const pushed = {};\n  CTL_IDS.forEach((id) => { pushed[id] = CTL[id].get(); });\n  // The page moves the controls itself during a demonstration (silently, so it is not taken for Dan's move).\n  function push() {\n    CTL_IDS.forEach((id) => { if (pushed[id] !== X[id]) { CTL[id].set(X[id], true); pushed[id] = CTL[id].get(); } });\n  }\n  const shownCtl = (d, id) => !finished && !!d.ctl && d.ctl.indexOf(id) >= 0;\n  // On AC the current slider keeps its place, greyed and unusable.\n  let curOff = false;\n  function layoutCtl(d) {\n    CTL_IDS.forEach((id) => { el('c-' + id).hidden = !shownCtl(d, id); });\n    const off = shownCtl(d, 'cur') && !!X.ac;\n    if (off === curOff) return;\n    curOff = off;\n    const box = el('c-cur');\n    box.classList.toggle('off', off);\n    box.setAttribute('aria-disabled', off ? 'true' : 'false');\n    box.querySelectorAll('input, button').forEach((c) => { c.disabled = off; });\n  }\n\n  let roAir = false;\n  const RO = {\n    F: K.readout({ id: 'F', label: 'Ampere-turns', fmt: fmtF, into: '#outs' }),\n    B: K.readout({ id: 'B', label: 'Flux density', fmt: (v) => fmtB(v, roAir), into: '#outs' }),\n    P: K.readout({ id: 'P', label: 'Flux, Φ = B × A', fmt: (v) => fmtP(v, roAir), into: '#outs' }),\n  };\n\n  // Up to three answer buttons; each puzzle fills in its own.\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.kind !== 'pick' || k >= d.opts.length || solved(st)) return;\n    if (st.res === 'wrong') { anim.pause(); T = Infinity; }\n    st.pick = d.opts[k]; st.res = null;\n  } }));\n  // Typed answers: a field each; Check grades it, two misses show the working.\n  const ANS = {};\n  STEPS.forEach((d, i) => {\n    if (d.kind !== 'typed') return;\n    const a = K.answer({ id: 'a-' + d.ans, unit: d.unit, answer: d.answer, decimals: d.decimals, tolerance: d.tolerance, accept: d.accept, slips: d.slips, into: '#ans-' + d.ans,\n      onCheck: (r) => {\n        const st = S[i];\n        if (solved(st)) return;\n        if (r.state === 'right') { st.res = 'right'; playRun(i, d.run); }\n        else if (r.state === 'wrong') {\n          st.tries += 1; st.hint = r.hint || d.hint;\n          if (st.tries >= 2) { st.res = 'shown'; st.why = true; a.reveal(); playRun(i, d.run); }\n          else st.res = 'wrong';\n        } else { st.res = r.state; st.hint = ''; }\n        K.refresh();\n      } });\n    ANS[d.ans] = a;\n  });\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || solved(st)) return;\n    if (d.kind === 'typed') { ANS[d.ans].check(); return; }\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = st.pick === d.want ? 'right' : 'wrong';\n    if (st.res === 'right') playRun(i, d.run);\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    const d = STEPS[at()];\n    if (d.show || finished) return;\n    S[at()].why = !S[at()].why;\n  } });\n  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {\n    if (!STEPS[at()].show || finished) return;\n    startDemo(at());\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && !solved(S[i]))) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true; anim.pause(); T = Infinity;\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S = STEPS.map(blank); finished = false; lastStep = -1;\n    Object.keys(ANS).forEach((k) => ANS[k].reset());\n    stepper.set(0, true);\n  } });\n\n  // ================= motion: one animation runs the demonstrations, the answers' motion, AC and the easing =================\n  function finishNow(i) {\n    if (T === Infinity) return;\n    const d = STEPS[i];\n    T = Infinity;\n    if (scripted) { scripted = false; Object.assign(X, d.end || {}); }\n    else if (solved(S[i])) Object.assign(X, d.runEnd || {});\n    push();\n  }\n  const needAnim = (d) => !finished && (T !== Infinity || swinging(d) || swirling(d) || !settled());\n  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {\n    if (finished) return false;\n    dt = Math.min(dt, 0.1);\n    const i = at(), d = STEPS[i], st = S[i];\n    if (T !== Infinity) {\n      T += dt;\n      if (scripted) { if (d.demo) d.demo(Math.min(T, d.dur)); }\n      else if (solved(st) && d.runFn) d.runFn(Math.min(T, motionEnd));\n      if (T >= motionEnd) finishNow(i);\n    }\n    if (swinging(d)) X.phase = (X.phase + dt * OMEGA) % (2 * Math.PI);\n    if (swirling(d)) { ephase = (ephase + dt * OMEGA) % (2 * Math.PI); eInt += dt * Math.cos(ephase); }\n    watch();\n    tween(dt);\n    push();\n    layoutCtl(d);\n    paint(i);\n    return needAnim(d);\n  } });\n  function kick() {\n    if (quiet()) { snapD(); return; }\n    if (needAnim(STEPS[at()]) && !anim.playing()) anim.play();\n  }\n  function startDemo(i) {\n    const d = STEPS[i];\n    anim.pause(); held = false;\n    Object.assign(X, BASE, d.enter || {});\n    if (d.demo && !quiet()) { scripted = true; motionEnd = d.dur; T = 0; d.demo(0); snapD(); anim.play(); }\n    else { scripted = false; T = Infinity; Object.assign(X, d.end || {}); snapD(); }\n    push();\n  }\n  function playRun(i, dur) {\n    anim.pause(); scripted = false;\n    if (quiet() || !dur) { T = Infinity; if (solved(S[i])) Object.assign(X, STEPS[i].runEnd || {}); push(); snapD(); return; }\n    T = 0; motionEnd = dur; anim.play();\n  }\n  function enterStep(i) {\n    const d = STEPS[i];\n    anim.pause(); T = Infinity; scripted = false; held = false;\n    enter('stepbox');\n    if (d.show) { startDemo(i); return; }\n    Object.assign(X, BASE, d.enter || {});\n    if (solved(S[i])) Object.assign(X, d.runEnd || {});\n    snapD();\n    push();\n  }\n  // The finished picture a still shows (the read-through), with the controls where its words end.\n  function setStill(x) {\n    const i = at(), d = STEPS[i];\n    anim.pause(); T = Infinity; scripted = false; held = true;\n    Object.assign(X, BASE, d.enter || {}, d.end || {}, x);\n    snapD();\n    push();\n    K.refresh();\n  }\n  function enter(id) {\n    if (REDUCE) return;\n    const box = el(id);\n    box.classList.remove('enter');\n    void box.offsetWidth;\n    box.classList.add('enter');\n  }\n\n  // ================= drawing helpers =================\n  const svg = el('scene'), art = el('art');\n  const add = (node, par) => (par || art).appendChild(node);\n  const twCache = {};\n  function tw(s, cls) {\n    const key = (cls || 'lab') + '|' + s;\n    if (twCache[key]) return twCache[key];\n    let w = 0;\n    try { const t = svg.appendChild(K.svg('text', { class: cls || 'lab', x: 0, y: -50 }, s)); w = t.getComputedTextLength(); svg.removeChild(t); } catch (e) { w = 0; }\n    if (!(w > 0)) return s.length * 7.6;\n    twCache[key] = w;\n    return w;\n  }\n  function pill(cx, y, s, par) {\n    const w = tw(s) + 12, h = 20; cx = K.clamp(cx, w / 2 + 2, 338 - w / 2);\n    const g = add(K.svg('g'), par);\n    g.appendChild(K.svg('rect', { class: 'pill', x: r1(cx - w / 2), y: r1(y - h / 2), width: r1(w), height: h, rx: 6 }));\n    g.appendChild(K.svg('text', { class: 'lab', x: r1(cx), y: r1(y + 4.5), 'text-anchor': 'middle' }, s));\n    return g;\n  }\n  function text(par, x, y, s, cls, anchor) { return add(K.svg('text', { class: cls || 'lab', x: r1(x), y: r1(y), 'text-anchor': anchor || 'start' }, s), par); }\n  const ptsS = (pts) => pts.map((p) => r1(p[0]) + ',' + r1(p[1])).join(' ');\n  const line = (par, cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r1(x1), y1: r1(y1), x2: r1(x2), y2: r1(y2) }), par);\n  function head(par, x, y, ang, cls, size, alpha) {\n    const s = size || 5, c = Math.cos(ang), n = Math.sin(ang), bx = x - c * s * 0.8, by = y - n * s * 0.8, w = s * 0.75;\n    const e = add(K.svg('polygon', { class: cls, points: ptsS([[x + c * s, y + n * s], [bx - n * w, by + c * w], [bx + n * w, by - c * w]]) }), par);\n    if (alpha != null && alpha < 1) e.setAttribute('opacity', Math.round(alpha * 1000) / 1000);\n    return e;\n  }\n\n  // ================= the ring =================\n  const RX = 70, RY = 24, RS = 150, RT = 30;           // outer corner, size and band of the ring\n  const GAP_Y = RY + RS / 2, COIL0 = 60, COIL1 = 138, NTURN = 10;\n  const GAP_PX = 16;                                  // px for each mm of gap: drawn far wider than to scale\n  // The small magnets: two rows round the band, clear of the coil. Each has its own resting way (u its\n  // turn to line up: the share in line, tanh(H ÷ 255), swings the lowest u first).\n  const MAGS = [];\n  [8, 22].forEach((ins) => {\n    const x0 = RX + ins, y0 = RY + ins, s = RS - 2 * ins, per = 4 * s, n = Math.round(per / 15);\n    for (let k = 0; k < n; k++) {\n      const p = (k + 0.5) * per / n;\n      let x, y, a;\n      if (p < s) { x = x0 + p; y = y0; a = 0; }\n      else if (p < 2 * s) { x = x0 + s; y = y0 + p - s; a = Math.PI / 2; }\n      else if (p < 3 * s) { x = x0 + s - (p - 2 * s); y = y0 + s; a = Math.PI; }\n      else { x = x0; y = y0 + s - (p - 3 * s); a = -Math.PI / 2; }\n      if (x < RX + RT + 2 && y > COIL0 - 8 && y < COIL1 + 8) continue;\n      MAGS.push({ x, y, a });\n    }\n  });\n  (function () {\n    const n = MAGS.length, mul = [37, 41, 43, 47].find((q) => n % q !== 0);\n    MAGS.forEach((m, k) => { m.r = (k * 2.39996323) % (2 * Math.PI); m.u = ((k * mul) % n + 0.5) / n; });\n  })();\n  const wrapA = (a) => Math.atan2(Math.sin(a), Math.cos(a));\n\n  function drawRing(d, st, withPlot) {\n    const sol = solved(st), q = picOf(d) === 'gapq';\n    let s;\n    if (q) { const Hi = hFor(1.2); s = { B: 1.2, share: Math.tanh(Hi / KNEE), F: 0, Hx: 0, I: 0 }; }\n    else s = calc(X, D.mix, D.gap);\n    const R = { share: s.share, aligned: 0, shown: 0, residual: null, pills: [], key: [], dotB: s.B };\n    // The dashed mean path's key, above the ring.\n    add(K.svg('line', { class: 'mpath', x1: 92, y1: 10, x2: 114, y2: 10 }));\n    text(null, 120, 14.5, 'mean path, 0.4' + NB + 'm', 'key');\n    // The ring: air's outline, with iron filling it in.\n    const ring = (par, cls) => { add(K.svg('rect', { class: cls, x: RX, y: RY, width: RS, height: RS, rx: 20 }), par); add(K.svg('rect', { class: cls + ' hole', x: RX + RT, y: RY + RT, width: RS - 2 * RT, height: RS - 2 * RT, rx: 6 }), par); };\n    ring(null, 'air');\n    if (D.mix > 0.001) { const ir = add(K.svg('g')); ring(ir, 'iron'); if (D.mix < 1) ir.setAttribute('opacity', r1(D.mix * 100) / 100); }\n    const gpx = GAP_PX * D.gap;\n    if (gpx > 0.3) {\n      add(K.svg('rect', { class: 'cut', x: RX + RS - RT - 1, y: r1(GAP_Y - gpx / 2), width: RT + 2, height: r1(gpx) }));\n      line(null, 'face', RX + RS - RT, GAP_Y - gpx / 2, RX + RS, GAP_Y - gpx / 2);\n      line(null, 'face', RX + RS - RT, GAP_Y + gpx / 2, RX + RS, GAP_Y + gpx / 2);\n    }\n    add(K.svg('rect', { class: 'mpath', x: RX + RT / 2, y: RY + RT / 2, width: RS - RT, height: RS - RT, rx: 12 }));\n    // The small magnets: in line along the ring (clockwise for flux one way, anticlockwise the other).\n    if (D.mix > 0.01) {\n      const mg = add(K.svg('g'));\n      if (D.mix < 1) mg.setAttribute('opacity', r1(D.mix * 100) / 100);\n      const sh = Math.abs(s.share), turn = s.share >= 0 ? 0 : Math.PI;\n      MAGS.forEach((m) => {\n        if (m.x > RX + RS - RT - 2 && Math.abs(m.y - GAP_Y) < gpx / 2 + 6) return;\n        const w = K.clamp((sh - m.u) * 20, 0, 1), ang = m.r + w * wrapA(m.a + turn - m.r), c = Math.cos(ang), n = Math.sin(ang);\n        R.shown += 1; if (w >= 1) R.aligned += 1;\n        line(mg, 'mag', m.x - c * 4.5, m.y - n * 4.5, m.x + c * 1.5, m.y + n * 1.5);\n        const tx = m.x + c * 5, ty = m.y + n * 5, bx = m.x + c * 0.8, by = m.y + n * 0.8;\n        add(K.svg('polygon', { class: 'magh', points: ptsS([[tx, ty], [bx - n * 3, by + c * 3], [bx + n * 3, by - c * 3]]) }), mg);\n      });\n    }\n    // The coil on the left side, its leads and its turns.\n    line(null, 'lead', 63, COIL0, 44, COIL0);\n    line(null, 'lead', 63, COIL1, 44, COIL1);\n    add(K.svg('circle', { class: 'term0', cx: 41, cy: COIL0, r: 3 }));\n    add(K.svg('circle', { class: 'term0', cx: 41, cy: COIL1, r: 3 }));\n    for (let k = 0; k < NTURN; k++) {\n      const y = COIL0 + k * (COIL1 - COIL0) / (NTURN - 1);\n      add(K.svg('rect', { class: 'turn', x: 63, y: r1(y - 2.5), width: 44, height: 5, rx: 2.5 }));\n    }\n    text(null, 34, 96, '200', 'lab', 'middle');\n    text(null, 34, 112, 'turns', 'lab', 'middle');\n    text(null, RX + RS / 2, GAP_Y + 5, D.mix >= 0.5 ? 'Iron' : 'Air', 'ttl', 'middle');\n    // The flux bar, along the ring's foot: it fills with the flux, B × 0.001 m² (centred on zero for AC).\n    const fy = RY + RS + 12, fx0 = RX, fw = RS;\n    text(null, fx0 - 8, fy + 9, 'Flux', 'lab', 'end');\n    add(K.svg('rect', { class: 'fbar', x: fx0, y: fy, width: fw, height: 10, rx: 3 }));\n    const frac = K.clamp(s.B * AREA / (BMAX * AREA), -1, 1);\n    if (X.ac && !q) {\n      const mid = fx0 + fw / 2, len = frac * fw / 2;\n      if (Math.abs(len) > 0.2) add(K.svg('rect', { class: 'ffill', x: r1(Math.min(mid, mid + len)), y: fy, width: r1(Math.abs(len)), height: 10 }));\n      add(K.svg('line', { class: 'mid', x1: mid, y1: fy - 3, x2: mid, y2: fy + 13 }));\n    } else if (frac * fw > 0.2) add(K.svg('rect', { class: 'ffill', x: fx0, y: fy, width: r1(Math.max(0, frac) * fw), height: 10, rx: 3 }));\n    R.flux = frac;\n    // The gap's labels.\n    if (q) {\n      const ans = sol ? 'takes 477' + NB + 'At' : 'takes ?' + NB + 'At';\n      pill(283, GAP_Y - 24, '0.5' + NB + 'mm gap'); pill(283, GAP_Y, 'carries 1.2' + NB + 'T');\n      const g = pill(283, GAP_Y + 24, ans);\n      if (sol) K.fade(g, arr(0.1, 0.6), 0);\n      R.pills = ['0.5' + NB + 'mm gap', 'carries 1.2' + NB + 'T', ans];\n    } else if (X.gap > 0) { pill(283, GAP_Y, trim(X.gap, 2) + NB + 'mm gap'); R.pills = [trim(X.gap, 2) + NB + 'mm gap']; }\n    REC.ring = R;\n    const where = s.Hx < 150 ? 'on the steep part of its curve' : s.Hx < 420 ? 'round the knee of its curve' : 'on the nearly flat part of its curve';\n    REC.said.push(q ? 'An iron ring with a 0.5 mm gap opposite its 200-turn coil. The gap carries 1.2 T. ' + R.aligned + ' of its ' + R.shown + ' small magnets are in line.'\n      : (D.mix >= 0.5 ? 'An iron ring' : 'A ring of air') + ' with a 200-turn coil' + (X.gap > 0 ? ' and a ' + trim(X.gap, 2) + ' mm gap' : '') +\n        (X.ac ? ', on AC.' : ', carrying ' + trim(X.cur, 2) + ' A.') +\n        (D.mix >= 0.5 ? ' ' + R.aligned + ' of its ' + R.shown + ' small magnets are in line' + (X.ac ? '.' : ', and the dot sits ' + where + '.') : ' Air has no small magnets, and its line lies all but flat.'));\n    if (withPlot) drawPlot(s, d, st);\n  }\n\n  // ================= the curve =================\n  const PX0 = 48, PX1 = 326, PY0 = 256, PY1 = 420, PXC = (PX0 + PX1) / 2, PYC = (PY0 + PY1) / 2;\n  const PW = PX1 - PX0, PH = PY1 - PY0;\n  const CACHE = {};\n  function curvePts(gapMm, c, lo, hi, n) {\n    const key = [gapMm.toFixed(5), c, lo, hi, n].join('|');\n    if (CACHE[key]) return CACHE[key];\n    if (Object.keys(CACHE).length > 300) Object.keys(CACHE).forEach((k) => { delete CACHE[k]; });\n    const out = [];\n    for (let k = 0; k <= n; k++) { const H = lo + (hi - lo) * k / n; out.push([H, ironAt(H * L, gapMm * 1e-3, c).B]); }\n    return (CACHE[key] = out);\n  }\n  function keyRow(par, items, y) {\n    const sw = 18, gapT = 6, sp = 18;\n    const widths = items.map((it) => sw + gapT + tw(it.t, 'key'));\n    let x = Math.max(4, (340 - widths.reduce((a, b) => a + b, 0) - sp * (items.length - 1)) / 2);\n    items.forEach((it, k) => {\n      if (it.kind === 'fill') add(K.svg('rect', { class: 'area', x: r1(x), y: y - 10, width: sw, height: 11, rx: 2 }), par);\n      else add(K.svg('line', { class: it.cls + ' sw', x1: r1(x), y1: y - 4.5, x2: r1(x + sw), y2: y - 4.5 }), par);\n      add(K.svg('text', { class: 'key', x: r1(x + sw + gapT), y }, it.t), par);\n      x += widths[k] + sp;\n    });\n  }\n  function drawPlot(s, d, st) {\n    const ac = !!X.ac, g = add(K.svg('g'));\n    if (D.plot < 1) K.fade(g, D.plot, 0);\n    const px = ac ? (H) => PXC + H / HMAX * PW / 2 : (H) => PX0 + H / HMAX * PW;\n    const py = ac ? (B) => PYC - K.clamp(B, -BMAX, BMAX) / BMAX * PH / 2 : (B) => PY1 - K.clamp(B, 0, BMAX) / BMAX * PH;\n    const P = (pts) => ptsS(pts.map((p) => [px(p[0]), py(p[1])]));\n    const pl = (cls, pts) => add(K.svg('polyline', { class: cls, points: P(pts) }), g);\n    const R = REC.ring, items = [];\n    // Axes and their numbers.\n    // On AC the labels sit beside the centred axes: B above the upright one, H below the right end of the level one.\n    if (!ac) { text(g, 8, 240, 'B, flux density (T)', 'axt'); text(g, PX1, 456, 'H, push per metre (A/m)', 'axt', 'end'); }\n    else { text(g, PXC, 246, 'B, flux density (T)', 'axt', 'middle'); text(g, PX1, PYC + 38, 'H, push per metre', 'axt', 'end'); text(g, PX1, PYC + 54, '(A/m)', 'axt', 'end'); }\n    if (!ac) {\n      add(K.svg('polyline', { class: 'ax', points: PX0 + ',' + PY0 + ' ' + PX0 + ',' + PY1 + ' ' + PX1 + ',' + PY1 }), g);\n      [0, 0.5, 1, 1.5].forEach((b) => { add(K.svg('line', { class: 'ax', x1: PX0 - 4, y1: r1(py(b)), x2: PX0, y2: r1(py(b)) }), g); text(g, PX0 - 7, py(b) + 4.5, b === 0 ? '0' : b.toFixed(1), 'tk', 'end'); });\n      [0, 500, 1000].forEach((h) => { add(K.svg('line', { class: 'ax', x1: r1(px(h)), y1: PY1, x2: r1(px(h)), y2: PY1 + 4 }), g); text(g, px(h), PY1 + 18, String(h), 'tk', h === 1000 ? 'end' : 'middle'); });\n    } else {\n      line(g, 'ax', PX0, PYC, PX1, PYC);\n      line(g, 'ax', PXC, PY0, PXC, PY1);\n      [-1.5, 1.5].forEach((b) => { add(K.svg('line', { class: 'ax', x1: PXC, y1: r1(py(b)), x2: PXC + 4, y2: r1(py(b)) }), g); text(g, PXC + 7, py(b) + 4.5, (b < 0 ? MINUS : '') + Math.abs(b).toFixed(1), 'tk'); });\n      [-1000, 1000].forEach((h) => { add(K.svg('line', { class: 'ax', x1: r1(px(h)), y1: PYC, x2: r1(px(h)), y2: PYC + 4 }), g); text(g, px(h), PYC + 18, (h < 0 ? MINUS : '') + Math.abs(h), 'tk', h < 0 ? 'start' : 'end'); });\n    }\n    const gap = D.gap;\n    if (!ac) {\n      // The knee, the trail the dot has climbed, air's line, the curve (and, with a gap, the faint gapless one).\n      const kx = px(KNEE);\n      add(K.svg('line', { class: 'knee', x1: r1(kx), y1: PY1, x2: r1(kx), y2: PY0 + 14 }), g);\n      text(g, kx + 6, PY0 + 6, 'knee, 255' + NB + 'A/m', 'lab');\n      if (X.trail != null) {\n        const a = Math.min(X.trail, X.cur) * N / L, b = Math.max(X.trail, X.cur) * N / L;\n        if (b - a > 1) {\n          const pts = curvePts(gap, 0, a, b, 60).map((p) => [p[0], K.lerp(MU0 * p[0], p[1], D.mix)]);\n          pl('trail', pts);\n          items.push({ cls: 'trail', t: 'the dot\\'s path' });\n        }\n      }\n      pl('airl', [[0, 0], [HMAX, MU0 * HMAX]]);\n      if (gap > 0.001) pl('cv faint', curvePts(0, 0, 0, HMAX, 200));\n      pl('cv', curvePts(gap, 0, 0, HMAX, gap > 0.001 ? 120 : 200));\n      if (X.gap > 0) items.unshift({ cls: 'cv', t: 'with gap' }, { cls: 'cv faint', t: 'no gap' });\n      else items.unshift({ cls: 'cv', t: 'iron' });\n      items.push({ cls: 'airl', t: 'air' });\n      // The dot, read across to the flux density axis.\n      const dx = px(s.Hx), dy = py(s.B);\n      if (dx - PX0 > 10) add(K.svg('line', { class: 'guide', x1: PX0, y1: r1(dy), x2: r1(dx - 7), y2: r1(dy) }), g);\n      add(K.svg('circle', { class: 'dot', cx: r1(dx), cy: r1(dy), r: 5.5 }), g);\n    } else {\n      const rise = curvePts(gap, SHIFT, -HMAX, HMAX, 160), fall = curvePts(gap, -SHIFT, HMAX, -HMAX, 160);\n      let showRes = false, resA = 1;\n      if (X.loop === 'full') {\n        add(K.svg('polygon', { class: 'area', points: P(rise.concat(fall)) }), g);\n        pl('cv', rise);\n        pl('cv', fall);\n        items.push({ cls: 'cv', t: 'iron' }, { kind: 'fill', t: 'loop area' });\n        showRes = true;\n      } else {\n        // The way down from the top of the swing, as far as the dot has come.\n        // The line it climbed first, faint, so the way down can be seen not to retrace it.\n        pl('cv faint', curvePts(gap, 0, 0, HMAX, 120));\n        items.push({ cls: 'cv faint', t: 'the climb' });\n        const ph = K.clamp(X.phase, Math.PI / 2, Math.PI), h = HMAX * Math.sin(ph);\n        if (ph > Math.PI / 2 + 1e-3) {\n          pl('trail', curvePts(gap, -SHIFT, HMAX, h, 60));\n          items.push({ cls: 'trail', t: 'the dot\\'s path' });\n        }\n        if (ph >= Math.PI - 1e-6) { showRes = true; resA = arr(1.6, 0.5); }\n      }\n      items.push({ cls: 'airl', t: 'air' });\n      pl('airl', [[-HMAX, -MU0 * HMAX], [HMAX, MU0 * HMAX]]);\n      if (showRes) {\n        const br = residual(gap), rx = px(0), ry = py(br), lab = 'residual ' + br.toFixed(2) + NB + 'T';\n        const rg = add(K.svg('g'), g);\n        if (resA < 1) K.fade(rg, resA, 0);\n        add(K.svg('circle', { class: 'res', cx: r1(rx), cy: r1(ry), r: 4.5 }), rg);\n        pill(rx - 10 - (tw(lab) + 12) / 2, ry, lab, rg);\n        R.residual = lab;\n      }\n      add(K.svg('circle', { class: 'dot', cx: r1(px(s.Hx)), cy: r1(py(s.B)), r: 5.5 }), g);\n    }\n    keyRow(g, items, 218);\n    R.key = items.map((it) => it.t);\n    REC.said.push(ac ? (X.loop === 'full' ? 'Beside it, on AC, the dot runs round a shaded loop of flux density against push, with the residual flux density marked where the current is zero.'\n      : 'Beside it, on AC, the dot ' + (R.residual ? 'has come down from the top of the swing to zero current, and the residual flux density is marked.' : 'sits at the top of the swing.'))\n      : 'Below, the iron\\'s curve of flux density against push rises steeply, bends round a knee at 255 A/m and runs nearly flat. Air\\'s line lies along the bottom.');\n  }\n\n  // ================= two irons' loops =================\n  function drawLoops(d, st) {\n    const sol = solved(st), a = sol ? arr(0.1, 0.7) : 0, top = 44, bot = 196, W2 = 146;\n    const R = { shaded: a > 0, area: [] };\n    [{ x0: 12, name: 'Iron A', c: 150, shape: 'wide loop', heat: 'more heat' }, { x0: 182, name: 'Iron B', c: 25, shape: 'thin loop', heat: 'less heat' }].forEach((q) => {\n      const cx = q.x0 + W2 / 2, cy = (top + bot) / 2;\n      const X_ = (H) => cx + H / HMAX * W2 / 2, Y_ = (B) => cy - B / BMAX * (bot - top) / 2;\n      const rise = [], fall = [];\n      for (let k = 0; k <= 100; k++) { const H = -HMAX + 2 * HMAX * k / 100; rise.push([X_(H), Y_(ironB(H, q.c))]); fall.unshift([X_(H), Y_(ironB(H, -q.c))]); }\n      let A = 0;\n      for (let k = 0; k < 400; k++) { const H = -HMAX + 2 * HMAX * (k + 0.5) / 400; A += (ironB(H, -q.c) - ironB(H, q.c)) * 2 * HMAX / 400; }\n      R.area.push(A);\n      line(null, 'ax', q.x0, cy, q.x0 + W2, cy);\n      line(null, 'ax', cx, top, cx, bot);\n      text(null, q.x0 + W2, cy - 7, 'H', 'tk', 'end');\n      text(null, cx + 6, top + 10, 'B', 'tk');\n      if (a > 0) { const f = add(K.svg('polygon', { class: 'area', points: ptsS(rise.concat(fall)) })); if (a < 1) f.setAttribute('opacity', Math.round(a * 1000) / 1000); }\n      add(K.svg('polyline', { class: 'cv', points: ptsS(rise) }));\n      add(K.svg('polyline', { class: 'cv', points: ptsS(fall) }));\n      text(null, cx, 26, q.name, 'ttl', 'middle');\n      text(null, cx, 218, q.shape, 'lab', 'middle');\n      if (a > 0) K.fade(text(null, cx, 236, q.heat + ' each cycle', 'key', 'middle'), a, 0);\n    });\n    REC.loops = R;\n    REC.said.push('Two irons\\' loops of flux density against push, side by side, the same height. Iron A\\'s loop is wide and Iron B\\'s is thin.' + (R.shaded ? ' Their areas are shaded, and Iron B\\'s is the smaller.' : ''));\n  }\n\n  // ================= eddy currents, the core cut across =================\n  function drawEddy(d) {\n    const n = X.sheets, x0 = 80, y0 = 34, S0 = 180, gp = 3, w = (S0 - (n - 1) * gp) / n;\n    const live = swirling(d), cE = live ? Math.cos(ephase) : 1;\n    text(null, 170, 18, 'Eddy currents, the core cut across', 'ttl', 'middle');\n    const sg = add(K.svg('g')), lg = add(K.svg('g'));\n    if (D.eFade < 1) { K.fade(lg, D.eFade, 0); }\n    const ix = Math.max(3.5, 0.2 * w), iy = 16, lw = w - 2 * ix, rx = Math.min(10, lw / 2);\n    for (let k = 0; k < n; k++) {\n      const x = x0 + k * (w + gp);\n      add(K.svg('rect', { class: 'sheet', x: r1(x), y: y0, width: r1(w), height: S0 }), sg);\n      const lp = add(K.svg('rect', { class: 'eddy', x: r1(x + ix), y: y0 + iy, width: r1(lw), height: S0 - 2 * iy, rx: r1(rx) }), lg);\n      lp.setAttribute('stroke-dashoffset', r1(-70 * (w / S0) * eInt));\n      head(lg, x + w / 2, y0 + iy, cE >= 0 ? 0 : Math.PI, 'eh', Math.min(5, lw / 2.2), Math.abs(cE));\n    }\n    text(null, 72, 52, 'iron', 'lab', 'end');\n    add(K.svg('line', { class: 'ldr', x1: 75, y1: 48, x2: x0 + 2, y2: 48 }));\n    text(null, 72, 120, 'eddy', 'lab', 'end');\n    text(null, 72, 136, 'current', 'lab', 'end');\n    add(K.svg('line', { class: 'ldr', x1: 75, y1: 124, x2: r1(x0 + ix - 2), y2: 124 }));\n    if (n > 1) {\n      const ig = add(K.svg('g'));\n      if (D.eFade < 1) K.fade(ig, D.eFade, 0);\n      add(K.svg('line', { class: 'ldr', x1: 170, y1: y0 + S0 + 2, x2: 170, y2: y0 + S0 + 8 }), ig);\n      text(ig, 170, y0 + S0 + 22, 'insulation between the sheets', 'lab', 'middle');\n    }\n    // The loss bar: eddy loss as a share of the solid block's.\n    const by = 268, bw = 240, lossT = lossPct(n);\n    text(null, 40, by - 8, 'Eddy loss, as % of the solid block\\'s', 'key');\n    add(K.svg('rect', { class: 'fbar', x: 40, y: by, width: bw, height: 14, rx: 3 }));\n    add(K.svg('rect', { class: 'ffill', x: 40, y: by, width: r1(Math.max(0.5, bw * D.loss / 100)), height: 14, rx: 3 }));\n    text(null, 40 + bw * D.loss / 100 + 6, by + 12, fmtLoss(lossT), 'lab');\n    REC.eddy = { n, loss: fmtLoss(lossT), loops: n, loopW: lw };\n    REC.said.push('The core cut across' + (n === 1 ? ', solid: one large eddy current swirls round inside it.' : ', in ' + n + ' insulated sheets, each with its own small eddy current swirling round.') +\n      ' The eddy loss bar reads ' + fmtLoss(lossT) + ' of the solid block\\'s.');\n  }\n\n  // ================= one paint =================\n  const H_PIC = { ring: 462, gapq: 204, loops: 246, eddy: 290 };\n  function paint(i) {\n    if (i == null) i = at();\n    const d = STEPS[i], st = S[i], pic = picOf(d);\n    art.textContent = '';\n    REC = { pic, said: [], readouts: {} };\n    if (pic === 'ring' || pic === 'gapq') drawRing(d, st, pic === 'ring');\n    else if (pic === 'loops') drawLoops(d, st);\n    else drawEddy(d, st);\n    svg.setAttribute('viewBox', '0 0 340 ' + H_PIC[pic]);\n    svg.setAttribute('aria-label', REC.said.join(' '));\n    readouts(pic);\n  }\n  function readouts(pic) {\n    const on = pic === 'ring';\n    el('outs').hidden = !on;\n    if (on) {\n      const s = calc(X, X.core === 'iron' ? 1 : 0, X.gap);\n      roAir = X.core !== 'iron';\n      RO.F.set(s.F); RO.B.set(s.B); RO.P.set(s.B * AREA);\n    }\n    REC.readouts = { F: RO.F.text(), B: RO.B.text(), P: RO.P.text() };\n  }\n\n  // ================= the page around the picture =================\n  write(el('finish'), FINISH);\n  function layout(i) {\n    const d = STEPS[i], st = S[i], sol = solved(st);\n    el('stepbox').hidden = finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Screen ' + (i + 1) + ' of ' + STEPS.length;\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    write(task, d.show ? d.text : d.task);\n    layoutCtl(d);\n    replayBtn.el.hidden = !d.show || !d.demo || REDUCE;\n    el('replay').hidden = replayBtn.el.hidden;\n    const opts = d.kind === 'pick' ? d.opts : [];\n    el('picks').hidden = !opts.length;\n    el('picks').classList.toggle('long', opts.some((o) => o.length > 18));\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      if (b.el.textContent !== opts[k]) b.setLabel(opts[k]);\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n    el('answers').hidden = d.kind !== 'typed';\n    Object.keys(ANS).forEach((key) => { el('ans-' + key).hidden = d.ans !== key; });\n    el('acts').hidden = !!d.show;\n    checkBtn.el.hidden = sol;\n    const fb = el('fb');\n    fb.hidden = !!d.show;\n    fb.className = 'fb' + (st.res === 'right' ? ' right' : '');\n    let say = '';\n    if (!d.show) {\n      if (st.res === 'right') say = d.right || 'That\\'s it.';\n      else if (st.res === 'shown') say = 'Here is the working.';\n      else if (st.res === 'wrong') say = d.kind === 'typed' ? st.hint : (d.hints && d.hints[st.pick]) || d.hint;\n      else if (st.res === 'empty' && d.kind === 'pick') say = 'Pick one of the answers first.';\n    }\n    write(fb, say);\n    const why = el('why');\n    why.hidden = d.show || !st.why;\n    write(why, d.show ? '' : d.why);\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !sol);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  }\n\n  K.update((p) => {\n    const i = at(), d = STEPS[i];\n    if (i !== lastStep) { lastStep = i; enterStep(i); }\n    else {\n      let moved = false;\n      CTL_IDS.forEach((id) => {\n        if (p[id] === pushed[id]) return;\n        if (shownCtl(d, id) && !(id === 'cur' && X.ac)) {\n          if (id === 'ac' && p.ac && !X.ac) X.phase = Math.PI / 2;\n          X[id] = p[id]; pushed[id] = p[id]; moved = true;\n        }\n        else CTL[id].set(pushed[id], true);      // a control this screen does not show stays put\n      });\n      if (moved && T !== Infinity) {             // his move ends the demonstration where it stands\n        anim.pause(); T = Infinity; scripted = false;\n        CTL_IDS.forEach((id) => { X[id] = pushed[id]; });\n      }\n      if (moved) { held = false; push(); }\n    }\n    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }\n    watch();\n    if (quiet()) snapD();\n    layout(i);\n    paint(i);\n    kick();\n  });\n\n  // ================= known answers, worked out by hand =================\n  const idx = (name) => STEPS.findIndex((d) => d.name === name);\n  const near = (a, b, t) => Math.abs(a - b) <= t;\n  const solvedSt = (i) => Object.assign(blank(), STEPS[i].kind === 'pick' ? { pick: STEPS[i].want, res: 'right' } : { res: 'right' });\n  // A screen painted in the state given (finished): what it drew.\n  function drawn(i, st, x) {\n    const d = STEPS[i], keep = { X: Object.assign({}, X), S: S[i], T, sc: scripted, D: Object.assign({}, D), seen: Object.assign({}, seen), held };\n    S[i] = st || blank(); T = Infinity; scripted = false; held = true;\n    Object.assign(X, BASE, d.enter || {}, d.show ? d.end || {} : solved(S[i]) ? d.runEnd || {} : {}, x || {});\n    snapD();\n    try { paint(i); return REC; }\n    finally { Object.assign(X, keep.X); S[i] = keep.S; T = keep.T; scripted = keep.sc; Object.assign(D, keep.D); Object.assign(seen, keep.seen); held = keep.held; paint(); }\n  }\n  const iRecall = idx('Still there?'), iIron = idx('Iron or air'), iX5k = idx('Five thousand times'), iKnee = idx('The knee');\n  const iDouble = idx('Double the current'), iGap = idx('A gap'), iGapQ = idx('Half a millimetre'), iLoop = idx('Round a loop');\n  const iWide = idx('Wide or thin'), iEddy = idx('Eddy currents'), iThin = idx('Thinner sheets'), iFind = idx('Find the knee'), iZero = idx('At zero current');\n  const T_ = (v) => v + NB + 'T';\n\n  K.check('N I is in ampere-turns (At), the magnetomotive force that drives flux as volts drive current: 200 turns × 0.1 A reads 20 At, and × 2 A reads 400 At', () =>\n    drawn(iIron, null, { cur: 0.1 }).readouts.F === '20' + NB + 'At' && drawn(iIron, null, { cur: 2 }).readouts.F === '400' + NB + 'At', { source: SRC1 });\n  K.check('The relative permeability of iron is about 5000: the sketch curve starts 4994 times as steep as air\\'s line, and at 0.1 A the iron ring reads 0.31 T where the air ring reads 0.063 mT', () => {\n    const slope = (ironB(1e-3) - ironB(0)) / 1e-3 / MU0;\n    return near(slope, 4994, 1) && drawn(iIron, null, { core: 'air', cur: 0.1 }).readouts.B === '0.063' + NB + 'mT' && drawn(iIron, null, { core: 'iron', cur: 0.1 }).readouts.B === T_('0.31');\n  }, { source: SRC2 });\n  K.check('Past saturation an increase in push gives only a minimal increase in flux density: 1 A reads 1.54 T and 2 A only 1.60 T, 4% more, while 0.1 A to 0.2 A nearly doubles it', () => {\n    const r = (I) => drawn(iKnee, null, { cur: I, trail: null }).readouts.B;\n    return r(1) === T_('1.54') && r(2) === T_('1.60') && near((ironB(1000) / ironB(500) - 1) * 100, 4, 0.05) && ironB(100) / ironB(50) > 1.8;\n  }, { source: SRC3 });\n  K.check('The sketch curve reads 1.21 T at 0.5 A, rises at every step to 2 A and grows less steep at every step; the share of small magnets in line is tanh(H ÷ 255), 0.19 at 0.1 A and 0.96 at 1 A, more line up as the current rises, and air shows none', () => {\n    const B = []; for (let k = 0; k <= 40; k++) B.push(ironB(N * k * 0.05 / L));\n    let ok = true; for (let k = 2; k <= 40; k++) { const a = B[k] - B[k - 1], b = B[k - 1] - B[k - 2]; if (!(a > 0 && a <= b + 1e-12)) ok = false; }\n    const at1 = drawn(iKnee, null, { cur: 0.1, trail: null }).ring, at2 = drawn(iKnee, null, { cur: 1, trail: null }).ring, at3 = drawn(iKnee, null, { cur: 2, trail: null }).ring;\n    return ok && drawn(iKnee, null, { cur: 0.5, trail: null }).readouts.B === T_('1.21') && near(at1.share, 0.1936, 1e-3) && near(at2.share, 0.9612, 1e-3) &&\n      at1.aligned < at2.aligned && at2.aligned <= at3.aligned && at3.aligned >= at3.shown - 4 && drawn(iIron, null, { core: 'air' }).ring.shown === 0;\n  });\n  K.check('A 0.25 mm gap takes 199 At for each tesla; with it 0.5 A reads 0.38 T, 1 A 0.75 T and 2 A 1.36 T, and the iron\\'s share of the push plus the gap\\'s adds up to N I', () => {\n    const r = (I) => drawn(iGap, null, { cur: I, gap: 0.25 }).readouts.B, q = ironAt(200, 0.00025);\n    return near(0.00025 / MU0, 198.94, 0.01) && r(0.5) === T_('0.38') && r(1) === T_('0.75') && r(2) === T_('1.36') &&\n      near(L * q.Hi + q.B * 0.00025 / MU0, 200, 1e-6) && drawn(iGap, null, { cur: 1, gap: 0 }).readouts.B === T_('1.54');\n  });\n  K.check('On AC the dot runs round a loop: at zero current on the way down the core keeps 0.37 T, and on the way up −0.37 T; a wide loop encloses more area than a thin one of the same height', () => {\n    const down = drawn(iLoop, null, { phase: Math.PI }), up = drawn(iLoop, null, { phase: 0 }), lp = drawn(iWide, solvedSt(iWide)).loops;\n    return down.readouts.B === T_('0.37') && down.readouts.F === '0' + NB + 'At' && up.readouts.B === MINUS + T_('0.37') && down.ring.residual === 'residual 0.37' + NB + 'T' &&\n      lp.area[0] > lp.area[1] && lp.area[1] > 0 && near(ironB(HMAX, 150), ironB(HMAX, 25), 0.01) && near(residual(0), 0.3697, 1e-3);\n  });\n  K.check('Eddy loss goes with sheet thickness squared: Solid, 2, 4 and 8 sheets read 100%, 25%, 6.3% and 1.6%, with one loop in each piece, smaller in thinner sheets', () => {\n    const e = [1, 2, 4, 8].map((n) => drawn(iEddy, null, { sheets: n }).eddy);\n    return e.every((q, k) => q.loss === ['100%', '25%', '6.3%', '1.6%'][k] && q.loops === [1, 2, 4, 8][k] && (k === 0 || q.loopW < e[k - 1].loopW));\n  });\n  K.check('Each typed answer and slip is worked from its rule: 0 Ω (slips 1.26, 0.2), 157 mT (0.0314, 0.157, 0.00000628), 477 At (477 465, 398, 199), 10 W (20, 80, 160) and 0.51 A (127 500, 3.19, 1.96, 0.5)', () => {\n    const sl = (i, v) => STEPS[i].slips.length === v.length && STEPS[i].slips.every((s, k) => near(s.value, v[k], 1e-12));\n    const work = near(2 * Math.PI * 0 * 0.2, 0, 1e-12) && near(2 * Math.PI * 0.2, 1.26, 0.005) &&\n      near(MU0 * 25 * 1e3, 0.0314, 0.00005) && near(0.0314 * 5000, 157, 1e-9) && near(0.0314 / 5000, 0.00000628, 1e-12) && near(ironB(25), 0.16, 0.005) &&\n      near(1.2 * 0.0005 / MU0, 477, 0.5) && near(1.2 * 0.5 / MU0, 477465, 1) && near(0.0005 / MU0, 398, 0.5) && near(0.00025 / MU0, 199, 0.5) && near(L * hFor(1.2), 100, 1) &&\n      near(40 / 4, 10, 0) && near(KNEE * L / N, 0.51, 1e-12) && near(KNEE * N / L, 127500, 1e-9) && near(KNEE / L / N, 3.19, 0.005) && near(N / (KNEE * L), 1.96, 0.005) && near(KNEE * L / N, 0.5, 0.0101);\n    return work && STEPS[iRecall].answer === 0 && STEPS[iX5k].answer === 157 && STEPS[iGapQ].answer === 477 && STEPS[iThin].answer === 10 && STEPS[iFind].answer === 0.51 &&\n      sl(iRecall, [1.26, 0.2]) && sl(iX5k, [0.0314, 0.157, 0.00000628]) && sl(iGapQ, [477465, 398, 199]) && sl(iThin, [20, 80, 160]) && sl(iFind, [127500, 3.19, 1.96, 0.5]);\n  });\n  K.check('Before a Check no puzzle shows its answer, and a right Check shows it: air\\'s 0.0314 mT turns to iron\\'s 0.16 T, 1.54 T crawls to 1.60 T, the gap\\'s push reads 477 At, the loops are shaded, the loss falls to 25%, the dot reaches the knee at 102 At, and the core keeps 0.37 T at zero current', () => {\n    const b = (i) => drawn(i, blank()), s = (i) => drawn(i, solvedSt(i));\n    return b(iX5k).readouts.B === '0.0314' + NB + 'mT' && s(iX5k).readouts.B === T_('0.16') &&\n      b(iDouble).readouts.B === T_('1.54') && s(iDouble).readouts.B === T_('1.60') &&\n      b(iGapQ).ring.pills[2] === 'takes ?' + NB + 'At' && s(iGapQ).ring.pills[2] === 'takes 477' + NB + 'At' &&\n      !b(iWide).loops.shaded && s(iWide).loops.shaded &&\n      b(iThin).eddy.loss === '100%' && s(iThin).eddy.loss === '25%' &&\n      b(iFind).readouts.F === '20' + NB + 'At' && s(iFind).readouts.F === '102' + NB + 'At' && s(iFind).readouts.B === T_('1.22') &&\n      b(iZero).ring.residual === null && b(iZero).readouts.B === T_('1.60') && s(iZero).ring.residual === 'residual 0.37' + NB + 'T' && s(iZero).readouts.B === T_('0.37');\n  });\n  K.check('Every demonstration ends 3 to 4.5 s after its screen opens, and every answer\\'s motion within 2.5 s', () =>\n    STEPS.every((d) => d.show ? (!d.demo || (d.dur >= 3 && d.dur <= 4.5)) : (!d.run || d.run <= 2.5)));\n\n  K.check('Flux is B × A on the 0.001 m² ring: at 1 A the iron reads 1.54 mWb, at 0.1 A 0.31 mWb, and the air ring at 0.1 A 0.063 µWb', () =>\n    drawn(iKnee, null, { cur: 1, trail: null }).readouts.P === '1.54' + NB + 'mWb' && drawn(iIron, null, { core: 'iron', cur: 0.1 }).readouts.P === '0.31' + NB + 'mWb' &&\n    drawn(iIron, null, { core: 'air', cur: 0.1 }).readouts.P === '0.063' + NB + 'µWb');\n  K.check('A number and its unit never part: 0.2 H, 0.25 mm and 1.54 T keep a no-break space', () =>\n    '0.2 H, 0.25 mm gap, 1.54 T.'.replace(UNIT_GAP, '$1' + NB) === '0.2' + NB + 'H, 0.25' + NB + 'mm gap, 1.54' + NB + 'T.');\n  K.ready();\n</script>",
+  "title": "The core and its curve",
+  "brief": "The one thing you should see is the dot barely rise along the flat, from 1.54 T to 1.60 T, with the ring's small magnets nearly all in line, when you double the current from 1 A to 2 A.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "N I is in ampere-turns (At), the magnetomotive force that drives flux as volts drive current: 200 turns × 0.1 A reads 20 At, and × 2 A reads 400 At",
+     "ok": true,
+     "source": "https://www.rose-hulman.edu/class/ee/HTML/NSF/CCLI_EMD_DUE_0088904/PDFS/lecture_notes_08.pdf"
+    },
+    {
+     "label": "The relative permeability of iron is about 5000: the sketch curve starts 4994 times as steep as air's line, and at 0.1 A the iron ring reads 0.31 T where the air ring reads 0.063 mT",
+     "ok": true,
+     "source": "https://castellidezza.faculty.polimi.it/wp-content/uploads/fundamentalsMagneticCircuits3.pdf"
+    },
+    {
+     "label": "Past saturation an increase in push gives only a minimal increase in flux density: 1 A reads 1.54 T and 2 A only 1.60 T, 4% more, while 0.1 A to 0.2 A nearly doubles it",
+     "ok": true,
+     "source": "https://www.maec.msu.edu/application/files/3716/4555/7425/Tech_Note_317_Magnetic_Flux_Density.pdf"
+    },
+    {
+     "label": "The sketch curve reads 1.21 T at 0.5 A, rises at every step to 2 A and grows less steep at every step; the share of small magnets in line is tanh(H ÷ 255), 0.19 at 0.1 A and 0.96 at 1 A, more line up as the current rises, and air shows none",
+     "ok": true
+    },
+    {
+     "label": "A 0.25 mm gap takes 199 At for each tesla; with it 0.5 A reads 0.38 T, 1 A 0.75 T and 2 A 1.36 T, and the iron's share of the push plus the gap's adds up to N I",
+     "ok": true
+    },
+    {
+     "label": "On AC the dot runs round a loop: at zero current on the way down the core keeps 0.37 T, and on the way up −0.37 T; a wide loop encloses more area than a thin one of the same height",
+     "ok": true
+    },
+    {
+     "label": "Eddy loss goes with sheet thickness squared: Solid, 2, 4 and 8 sheets read 100%, 25%, 6.3% and 1.6%, with one loop in each piece, smaller in thinner sheets",
+     "ok": true
+    },
+    {
+     "label": "Each typed answer and slip is worked from its rule: 0 Ω (slips 1.26, 0.2), 157 mT (0.0314, 0.157, 0.00000628), 477 At (477 465, 398, 199), 10 W (20, 80, 160) and 0.51 A (127 500, 3.19, 1.96, 0.5)",
+     "ok": true
+    },
+    {
+     "label": "Before a Check no puzzle shows its answer, and a right Check shows it: air's 0.0314 mT turns to iron's 0.16 T, 1.54 T crawls to 1.60 T, the gap's push reads 477 At, the loops are shaded, the loss falls to 25%, the dot reaches the knee at 102 At, and the core keeps 0.37 T at zero current",
+     "ok": true
+    },
+    {
+     "label": "Every demonstration ends 3 to 4.5 s after its screen opens, and every answer's motion within 2.5 s",
+     "ok": true
+    },
+    {
+     "label": "Flux is B × A on the 0.001 m² ring: at 1 A the iron reads 1.54 mWb, at 0.1 A 0.31 mWb, and the air ring at 0.1 A 0.063 µWb",
+     "ok": true
+    },
+    {
+     "label": "A number and its unit never part: 0.2 H, 0.25 mm and 1.54 T keep a no-break space",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step",
+    "core",
+    "ac",
+    "cur",
+    "gap",
+    "sheets"
+   ],
+   "readouts": [
+    "F",
+    "B",
+    "P"
+   ],
+   "outputs": [],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Screen",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "steps": [
+      "Still there?",
+      "Iron or air",
+      "Double the current",
+      "The knee",
+      "Five thousand times",
+      "A gap",
+      "Half a millimetre",
+      "Round a loop",
+      "Wide or thin",
+      "Eddy currents",
+      "Thinner sheets",
+      "Find the knee",
+      "At zero current"
+     ],
+     "value": 0
+    },
+    {
+     "id": "core",
+     "kind": "choice",
+     "label": "Ring made of",
+     "options": [
+      "air",
+      "iron"
+     ],
+     "labels": [
+      "Air",
+      "Iron"
+     ],
+     "value": "iron",
+     "index": 1,
+     "shown": false
+    },
+    {
+     "id": "ac",
+     "kind": "toggle",
+     "label": "AC supply",
+     "options": [
+      false,
+      true
+     ],
+     "value": false,
+     "shown": false
+    },
+    {
+     "id": "cur",
+     "kind": "control",
+     "label": "Current",
+     "min": 0,
+     "max": 2,
+     "step": 0.05,
+     "log": false,
+     "value": 0.1,
+     "shown": false,
+     "snap": [
+      0.5,
+      1,
+      2
+     ]
+    },
+    {
+     "id": "gap",
+     "kind": "control",
+     "label": "Air gap",
+     "min": 0,
+     "max": 1,
+     "step": 0.25,
+     "log": false,
+     "value": 0,
+     "shown": false,
+     "snap": [
+      0.25
+     ]
+    },
+    {
+     "id": "sheets",
+     "kind": "choice",
+     "label": "Core cut into",
+     "options": [
+      1,
+      2,
+      4,
+      8
+     ],
+     "labels": [
+      "Solid",
+      "2 sheets",
+      "4 sheets",
+      "8 sheets"
+     ],
+     "value": 1,
+     "index": 0,
+     "shown": false
+    }
+   ],
+   "actions": [
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Check",
+    "Why?",
+    "Play again",
+    "Back",
+    "Continue",
+    "Start again",
+    "Demonstration"
+   ],
+   "answers": [
+    {
+     "id": "a-xl",
+     "answer": 0,
+     "accept": [],
+     "ok": true
+    },
+    {
+     "id": "a-x5k",
+     "answer": 157,
+     "accept": [
+      157.08,
+      157.1
+     ],
+     "ok": true
+    },
+    {
+     "id": "a-gap",
+     "answer": 477,
+     "accept": [
+      476,
+      478
+     ],
+     "ok": true
+    },
+    {
+     "id": "a-eddy",
+     "answer": 10,
+     "accept": [],
+     "ok": true
+    },
+    {
+     "id": "a-knee",
+     "answer": 0.51,
+     "accept": [],
+     "ok": true
+    }
+   ],
+   "written": [],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 2
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-29T05:43:32.654Z",
+  "applied": [
+   "interactive.whatAmILookingAt: screen 3's typed field now takes decimals so its slips 0.0314, 0.157 and 0.00000628 can fire; screen 13's hint now says many regions swing back, not most, since square-loop core steels keep a high residual flux; screen 9 now compares two equal cores of different irons.",
+   "analogy.breaks: a conductor now keeps nearly the same resistance as the current grows, bar a little as it warms, not exactly the same.",
+   "practice.text: worked example now ties 1.21 T to H = 250 A/m, not to the 255 A/m knee, where the sketch reads 1.22 T."
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}

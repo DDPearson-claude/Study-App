@@ -46,10 +46,11 @@ built side by side, each about 8 lessons and 8 to 10M tokens:
    9.7M tokens, topic insulated-systems-and-earth-faults-al99a)
 3. Batteries: cells, charging, hydrogen (Supply systems folder; live 27 Oct, about 9.8M tokens, topic batteries-ui8aw)
 4. Generators and paralleling (Power and machines folder)
-5. Transformers and magnetism (Electrical principles folder)
+5. Transformers and magnetism (Electrical principles folder; live 29 Oct, about 10M tokens with the work lost to a
+   machine restart, topic transformers-and-magnetism-vlbpr; the first course built with typed answers)
 Built in two pairs: 2 with 3, then 5 with 4 (Transformers owns the magnetism Generators uses). The first
-pair is live. PAUSED (Dan, 27 Oct: "Once these two are done, pause"): do not start Transformers or
-Generators until he says. Their settings are ready in tools/course/args/.
+pair is live. Dan, 28 Oct: "Move ahead with typed answers, transformers and then generators. Stop after
+that." Transformers is live; Generators is built next, on top of it, then the queue stops.
 Lower: Control and instrumentation with digital logic; Distribution and protection at sea.
 
 Hidden on 27 Oct (Dan: "Hide everyday maths, computer science and any other folders we aren't immediately

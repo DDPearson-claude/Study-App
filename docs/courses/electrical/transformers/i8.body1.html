@@ -1,0 +1,877 @@
+<!-- kind: mechanism -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .caption { max-width: 32rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.08rem; font-weight: 400; line-height: 1.6; }
+  .scene { display: block; width: 100%; max-width: 26rem; margin-inline: auto; touch-action: pan-y; }
+  .scene text { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .tk { font-weight: 400; fill: var(--k-muted); }
+  .scene .hr { font-size: 12.5px; fill: var(--k-accent); }
+  .scene .side { font-size: 13px; font-weight: 700; letter-spacing: .04em; fill: var(--k-accent); }
+  .scene .warnt { fill: var(--k-warn); }
+  .scene .iron { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1; }
+  .scene .hole { fill: var(--k-bg); stroke: var(--k-strong); stroke-width: 1; }
+  .scene .coil { fill: var(--k-panel); stroke-width: 1.6; }
+  .scene .p1 { stroke: var(--k-cat1); }
+  .scene .p2 { stroke: var(--k-cat2); }
+  .scene .turn { stroke-width: 1; }
+  .scene .wind { stroke: var(--k-accent2); stroke-width: 3; stroke-linecap: round; }
+  .scene .wire { fill: none; stroke: var(--k-ink); stroke-width: 1.6; stroke-linejoin: round; }
+  .scene .term { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.6; }
+  .scene .dot { fill: var(--k-ink); }
+  .scene .blade { stroke: var(--k-ink); stroke-width: 3; stroke-linecap: round; }
+  .scene .bus { fill: var(--k-strong); }
+  .scene .axis { stroke: var(--k-strong); stroke-width: 1.2; }
+  .scene .zero { stroke: var(--k-line); stroke-width: 1; }
+  .scene .ref { stroke: var(--k-muted); stroke-width: 1.3; stroke-dasharray: 6 4; }
+  .scene .ref2 { stroke: var(--k-muted); stroke-width: 1.3; stroke-dasharray: 1.5 3; }
+  .scene .mark { stroke: var(--k-accent2); stroke-width: 1.4; stroke-dasharray: 3 3; }
+  .scene .tr { fill: none; stroke-width: 2.2; stroke-linejoin: round; stroke-linecap: round; }
+  .scene .volt { stroke: var(--k-accent); }
+  .scene .main { stroke: var(--k-accent2); }
+  .scene .inkl { stroke: var(--k-ink); }
+  .scene .tr.bad { stroke: var(--k-warn); }
+  .scene .curve { fill: none; stroke: var(--k-ink); stroke-width: 2; stroke-linejoin: round; }
+  .scene .barbg { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1; }
+  .scene .barfill { fill: var(--k-accent2); }
+  .scene .barfill.bad { fill: var(--k-warn); }
+  .scene .now { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .now.bad { fill: var(--k-warn); }
+  .scene .ring { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 2; }
+  .scene .ring.bad { stroke: var(--k-warn); }
+  .scene .res { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.6; }
+  .scene .opn { fill: var(--k-bg); stroke: var(--k-warn); stroke-width: 2; }
+  .scene .tf { fill: var(--k-accent2); }
+  .scene .ps { fill: var(--k-fill3); stroke: var(--k-accent); stroke-width: 1; }
+  .scene .joint { fill: none; stroke: var(--k-warn); stroke-width: 2.4; }
+  /* The burden picker wraps: three to a row on a phone. */
+  #c-burden .k-seg { display: grid; grid-template-columns: repeat(auto-fit, minmax(5.5rem, 1fr)); }
+  #c-burden .k-seg button, #c-ratio .k-seg button { white-space: nowrap; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-inline: 16px; font-size: .95rem; white-space: nowrap; }
+  .outs .k-readout { flex: 1 1 8rem !important; min-width: 0; }
+  .picks { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .picks .k-btn { min-height: 48px; font-size: 1.05rem; white-space: normal; overflow-wrap: normal; word-break: normal; hyphens: none; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .answers .k-answer { max-width: 20rem; }
+  .fb { font-weight: 700; min-height: 1.5em; }
+  .fb.right { color: var(--k-good); }
+  .why, .done { line-height: 1.6; }
+  .done .row { margin-top: 14px; }
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }
+</style>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scOn" viewBox="0 0 340 394" width="100%" role="img" aria-label=""><g id="artO"></g></svg>
+    <svg class="scene" id="scCt" viewBox="0 0 340 324" width="100%" role="img" aria-label=""><g id="artC"></g></svg>
+    <svg class="scene" id="scIso" viewBox="0 0 340 384" width="100%" role="img" aria-label=""><g id="artI"></g></svg>
+    <div class="replay" id="replay"></div>
+    <div class="k-controls" id="c-pt"></div>
+    <div class="k-controls" id="c-res"></div>
+    <div class="k-controls" id="c-burden"></div>
+    <div class="k-controls" id="c-ratio"></div>
+    <div class="row" id="on-acts"></div>
+    <div class="k-readouts outs" id="outs"></div>
+    <div class="picks" id="picks"></div>
+    <div class="answers" id="answers"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p id="finish"></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">A sketch, not measured data. Every flux, current, voltage and share is worked from the rule.</p>
+
+<script>
+  // ================= the rules =================
+  const W = (s) => s.replace(/\[\^\d+\]/g, '').replace(/\[\[([^\]]+)\]\]/g, '*$1*');
+  const NB = '\u00a0';
+  const rad = (d) => d * Math.PI / 180;
+  const one = (v) => (Math.round(v * 10) / 10).toFixed(1);
+  const two = (v) => (Math.round(v * 100) / 100).toFixed(2);
+  const SRC1 = 'https://www.idc-online.com/technical_references/pdfs/electrical_engineering/Transformer_Inrush.pdf';
+  const SRC2 = 'https://new.abb.com/docs/librariesprovider68/default-document-library/data-center-forum-2017/dryabb-data-center-forum-2017---dry_transformers_michael_gogioli.pdf';
+  const SRC3 = 'https://www.nrc.gov/docs/ML1715/ML17156B503.pdf';
+  const SRC4 = 'https://downloads.regulations.gov/NRC-2015-0183-0002/content.pdf';
+  const SRC5 = 'https://www.se.com/us/en/faqs/FA125574';
+  const SRC6 = 'https://www.se.com/us/en/faqs/FA123708';
+
+  // Switching on. Flux in times the normal peak; the wave's angle in degrees from a rising zero.
+  // Offset = flux left in + cos(switch-on point); flux = offset − cos(angle), so it starts at the flux left in.
+  // The offset holds to the first flux peak (180°), then halves every cycle (a rate chosen for the picture).
+  const KNEE = 1.2, LO = 0.02, HI = 15, KEEP = 0.5, SWEEP = 2;
+  const off0 = (pt, res) => res + Math.cos(rad(pt));
+  function fluxAt(th, pt, res) {
+    if (th < pt) return res;
+    const o = off0(pt, res) * (th <= 180 ? 1 : Math.pow(KEEP, (th - 180) / 360));
+    return o - Math.cos(rad(th));
+  }
+  // Current in times full load: 0.02 × flux up to the knee, 0.024 + 15 × (flux − 1.2) past it, either way round.
+  const ampOf = (f) => { const a = Math.abs(f); return a <= KNEE ? LO * f : Math.sign(f) * (LO * KNEE + HI * (a - KNEE)); };
+  const firstPeak = (pt, res) => 1 + off0(pt, res);
+  const peakAmp = (pt, res) => ampOf(firstPeak(pt, res));
+
+  // The CT: 400 A in a one-turn busbar, an 80-turn secondary. Below the knee 400 × 1 = 5 × 80.
+  const IBUS = 400, TURNS = 80, ISEC = IBUS * 1 / TURNS, RW = 0.2, KNEEV = 30, SAT = 1.3, LAG = 10;
+  const ohms = (b) => b === 'Shorted' ? 0 : +b;
+  const voltsOf = (b) => ISEC * (ohms(b) + RW);
+  const kneeShare = (b) => voltsOf(b) / KNEEV;
+  // Flux and secondary voltage over the cycle, in knee units. Closed: the volts are in step with the
+  // current and the flux is their running total. Open: the busbar drives the core into saturation,
+  // and it flips near each current zero; the voltage is the flux's rate of change.
+  function ctFlux(th, b) { return b === 'Open' ? SAT * Math.tanh(Math.sin(rad(th - LAG)) / 0.1) : -kneeShare(b) * Math.cos(rad(th)); }
+  function ctVolt(th, b) {
+    if (b !== 'Open') return kneeShare(b) * Math.sin(rad(th));
+    const h = 0.25;
+    return (ctFlux(th + h, b) - ctFlux(th - h, b)) / rad(2 * h);
+  }
+
+  // The auto-transformer: the supply current flows straight on into the load, carrying output ÷ input of the power.
+  const VIN = 440;
+  const outOf = (r) => r === '400' ? 400 : 115;
+  const passShare = (r) => outOf(r) / VIN;
+  const tfShare = (r) => 1 - passShare(r);
+
+  // ================= the lesson: SHOW screens demonstrate, DO screens are puzzles =================
+  const ramp = (t, t0, dur, a, b) => a + (b - a) * K.clamp((t - t0) / dur, 0, 1);
+  const nbv = (s) => s.replace(/(\d) (V|Ω|A)\b/g, '$1' + NB + '$2');
+  const TRIP = ['Inrush current at switch-on', 'A fault in the windings', 'An overload on the 115 V side', 'The core\'s iron loss'].map(nbv);
+  const METER = ['Short the CT\'s secondary at its shorting terminals', 'Disconnect the ammeter\'s leads', 'Wait for a light load, then disconnect', 'Fit a fuse in the secondary'];
+  const SEP = ['A 440 V to 115 V isolating transformer', 'A 440 V to 115 V auto-transformer', 'Either, as both give 115 V'].map(nbv);
+  const VT = ['It feeds a fault current', 'Nothing, as a CT runs shorted', 'It spikes, as an open CT does'];
+  const swOn = (t0) => (t) => { X.on = t >= t0; X.head = ramp(t, t0, SWEEP, 0, 1); };
+  const STEPS = [
+    { kind: 'typed', name: 'An empty capacitor', ans: 'cap', card: 'none', enter: {},
+      answer: 325, decimals: 0, unit: 'A', want: '325' + NB + 'A',
+      slips: [{ value: 0, hint: 'An empty capacitor holds 0 V, so all 325 V falls across the 1 Ω.' },
+        { value: 3.25, hint: 'That is through a 100 Ω precharge resistor.' }],
+      task: 'An empty capacitor is switched straight onto a 325 V peak. The supply and wiring have 1 Ω. What current flows at the first instant?',
+      hint: '325 V ÷ 1 Ω.',
+      why: '325 ÷ 1 = 325 A.',
+      right: 'Still there.',
+      read: 'An empty capacitor meets a 325 V peak through 1 Ω: what current flows at the first instant?' },
+    { show: true, name: 'Switching on at a zero', card: 'on', ctl: [], ro: ['peak', 'amp'], enter: { on: false, head: 0 }, end: { on: true, head: 1 }, dur: 3.0,
+      demo: swOn(0.6),
+      text: W('A transformer can surge at switch-on too, for a different reason. Switch on at a voltage zero, and its flux climbs to twice its normal peak. The voltage sets how fast the flux changes. So the flux is the voltage\'s running total. It rises while the voltage is positive, so it peaks at each voltage zero. Switch on at a zero and the flux starts from nothing instead. The next half-cycle still adds two peaks\' worth. Past the knee the iron is full, so the current soars.'),
+      read: 'Switched on at a zero with an empty core, the flux climbs to 2.0 times its normal peak. The current spikes red to 12.02 times full load.',
+      still: () => setStill() },
+    { kind: 'typed', name: 'Flux left in', ans: 'left', card: 'on', enter: { res: 0.6, on: false }, after: { on: true }, post: swOn(0), postDur: SWEEP,
+      hide: ['peak'], ro: ['peak', 'amp'],
+      answer: 2.6, decimals: 1, unit: 'times normal peak', want: '2.6' + NB + '× normal peak',
+      slips: [{ value: 2, hint: 'Add the 0.6 still in the core.' },
+        { value: 1.6, hint: 'From a zero the climb is two peaks, not one.' },
+        { value: 1.4, hint: 'Flux left in the same way adds to the climb.' }],
+      task: 'A transformer is switched on at a voltage zero. Its core still holds 0.6 of the normal peak flux. That flux pushes the same way as the first half-cycle. How high does the flux climb, in times its normal peak?',
+      hint: 'Flux left in + 2.',
+      why: '0.6 + 2 = 2.6 times the normal peak.',
+      read: 'Switched on at a zero with 0.6 left in, how high does the flux climb?' },
+    { show: true, name: 'At a peak', card: 'on', ctl: ['pt', 'res'], btn: true, ro: ['peak', 'amp'], enter: { on: true }, end: { pt: 90, on: true, head: 1 }, dur: 3.0,
+      // From a zero, the switch-on point steps a slider notch at a time to a peak; the traces follow.
+      demo: (t) => { X.on = true; X.head = 1; X.pt = 15 * Math.min(6, Math.floor(ramp(t, 0.4, 2.0, 0, 6.999))); },
+      text: W('Switch on at a voltage peak instead, and nothing overshoots. In normal running, the flux passes through zero there. So an empty core starts just where it should be. The flux swings only to its normal peak. The current stays at 0.02 times full load. So two things set the size of the surge: the moment on the wave and the flux left in. That surge is the [[inrush current]]. It comes mostly from the core saturating.[^1] Its peaks can reach 8 to 30 times full-load current.[^2]'),
+      still: () => setStill() },
+    { kind: 'pick', name: 'A trip on closing', card: 'on', enter: { res: 0.8, on: true }, ro: ['peak', 'amp'],
+      opts: TRIP, want: TRIP[0],
+      task: 'A breaker feeding a transformer trips the moment it closes. Closed again, it holds. Nothing else has changed. What most likely tripped it?',
+      hint: 'A winding fault would trip it again.',
+      hints: { [TRIP[1]]: 'A winding fault would trip it again.', [TRIP[2]]: 'The load has not changed.', [TRIP[3]]: 'Iron loss is small and steady.' },
+      why: W('The first close caught a worse moment on the wave. Inrush can even look like an internal fault to differential protection.[^2]'),
+      read: 'A breaker trips on closing onto a transformer, then holds. What most likely tripped it?' },
+    { show: true, name: 'A current transformer', card: 'ct', ctl: ['burden'], ro: ['volts', 'kflux'], enter: { ct: 0 }, end: { burden: 'Shorted', ct: 1 }, dur: 3.0,
+      demo: (t) => { X.burden = 'Shorted'; X.ct = ramp(t, 0.5, SWEEP, 0, 1); },
+      text: W('A current transformer, a CT, works the other way round: it is fed a current, not a voltage. Its primary is a busbar through its core, one turn carrying 400 A. The circuit\'s load sets that current, not the CT. The 80-turn secondary drives 5 A round the meter. Its ampere-turns cancel the busbar\'s. So the core needs only enough flux to make the volts that push 5 A round. The meter circuit\'s resistance is the CT\'s [[burden]]. Shorted, it needs just 1.0 V.'),
+      still: () => setStill() },
+    { kind: 'typed', name: 'Volts for 5 A', ans: 'volt', card: 'ct', enter: { burden: '0.6' }, hide: ['volts'], ro: ['volts', 'kflux'],
+      answer: 4.0, decimals: 1, unit: 'V', want: '4.0' + NB + 'V',
+      slips: [{ value: 3, hint: 'Add the winding\'s own 0.2 Ω.' },
+        { value: 1, hint: 'That is the winding alone. Add the meter\'s 0.6 Ω.' },
+        { value: 0.8, hint: 'That is the resistance. Multiply by the 5 A.' }],
+      task: 'A CT\'s 80-turn secondary carries 5 A. Its own winding is 0.2 Ω and the meter circuit 0.6 Ω. What voltage must the secondary make?',
+      hint: '5 A × (0.6 + 0.2) Ω.',
+      why: '5 × 0.8 = 4.0 V. That is 13% of the knee.',
+      read: '5 A through 0.2 Ω of winding and a 0.6 Ω meter circuit: what voltage must the secondary make?' },
+    { show: true, name: 'An open secondary', card: 'ct', ctl: ['burden'], ro: ['volts', 'kflux'], enter: {}, end: { burden: 'Open', ct: 1 }, dur: 3.0,
+      demo: (t) => { X.burden = t < 0.7 ? 'Shorted' : 'Open'; X.ct = t < 0.7 ? 1 : ramp(t, 0.7, SWEEP, 0, 1); },
+      text: W('An open secondary on load is dangerous. With the busbar still carrying 400 A, nothing cancels its 400 ampere-turns. They drive the core into saturation.[^3] Saturated, the flux sits flat and makes no voltage. Near each current zero it flips to the other side in a moment. That fast flip makes a tall, narrow spike. So with current in the primary, an open secondary can make high voltages.[^4] As much as 4000 V has been measured on large CTs.[^5]'),
+      read: 'With the secondary open and 400 A in the busbar, the core saturates. The secondary spikes red at every flip.',
+      still: () => setStill() },
+    { kind: 'pick', name: 'Changing a meter', card: 'ct', enter: { burden: 'Shorted' }, ro: ['volts', 'kflux'],
+      opts: METER, want: METER[0],
+      task: 'A panel ammeter fed by a CT must be changed. The circuit stays on load. What do you do first?',
+      hint: 'That opens the secondary with current in the busbar.',
+      hints: { [METER[1]]: 'That opens the secondary with current in the busbar.', [METER[2]]: 'While current flows, an open secondary can still make high voltages.', [METER[3]]: 'A fuse that blows opens the secondary.' },
+      why: 'The short keeps the ampere-turns balanced while the meter is out.',
+      read: 'A CT-fed ammeter must be changed with the circuit on load. What do you do first?' },
+    { show: true, name: 'No isolation', card: 'iso', ctl: ['ratio'], ro: [], enter: { iso: 0 }, end: { ratio: '115', iso: 3 }, dur: 3.0,
+      demo: (t) => { X.iso = ramp(t, 0.2, 2.6, 0, 3); },
+      text: W('An [[auto-transformer]] gives no isolation. It is one winding with a tap, so its output is joined to its input.[^6] An isolating transformer\'s two windings are not joined. The auto\'s two sides are one connected system. An earth fault on either is an earth fault on both. So it cannot make a separate insulated system. The supply\'s current flows straight on into the load. That carries 115 ÷ 440 of the power, 26%. Transformer action carries the other 74%.'),
+      still: () => setStill() },
+    { kind: 'typed', name: 'Share transformed', ans: 'share', card: 'iso', enter: { ratio: '400' }, after: { iso: 3 }, post: (t) => { X.iso = 2 + ramp(t, 0, 0.8, 0, 1); }, postDur: 0.8,
+      hide: ['split'], ro: [],
+      answer: 9, decimals: 0, unit: '%', want: '9%',
+      slips: [{ value: 91, hint: 'That is the share passed straight through.' },
+        { value: 74, hint: 'That is for 440 V to 115 V.' },
+        { value: 10, hint: 'Divide by 440, the input, not 400.' }],
+      task: 'An auto-transformer steps 440 V to 400 V. What share of its power is transformed?',
+      hint: '1 − 400 ÷ 440.',
+      why: '400 ÷ 440 = 0.909. Then 1 − 0.909 = 0.091, so 9%.',
+      read: 'An auto-transformer steps 440 V to 400 V: what share of its power is transformed?' },
+    { kind: 'typed', name: 'Secondary turns', ans: 'turns', card: 'none', enter: {},
+      answer: 80, decimals: 0, unit: '', want: '80',
+      slips: [{ value: 5, hint: 'That is its secondary current.' },
+        { value: 2000, hint: 'Ampere-turns balance, so divide.' },
+        { value: 0.0125, hint: 'That divides the wrong way.' }],
+      task: 'A CT is marked 400/5 A. Its busbar is one turn. How many turns has its secondary?',
+      hint: '400 × 1 = 5 × turns.',
+      why: '400 ÷ 5 = 80.',
+      read: 'A 400/5 A CT on a one-turn busbar: how many secondary turns?' },
+    { kind: 'pick', name: 'A separate system', card: 'none', enter: {},
+      opts: SEP, want: SEP[0],
+      task: 'An insulated 115 V system is to be fed from 440 V. Which transformer makes it a separate system?',
+      hint: 'Its output is joined to its input.',
+      hints: { [SEP[1]]: 'Its output is joined to its input.', [SEP[2]]: 'The same voltage is not the same system.' },
+      why: 'Only separate windings leave the 115 V side unjoined to the 440 V side.',
+      read: 'Which transformer feeds an insulated 115 V system from 440 V as a separate system?' },
+    { kind: 'pick', name: 'Shorting a VT', card: 'none', enter: {},
+      opts: VT, want: VT[0],
+      task: 'A voltage transformer, a VT, steps the system voltage down for meters. Like a power transformer\'s, its primary sits across that voltage. What happens if its secondary is shorted?',
+      hint: 'A CT is fed a current. A VT is fed a voltage.',
+      hints: { [VT[1]]: 'A CT is fed a current. A VT is fed a voltage.', [VT[2]]: 'The spike needs a fixed current with nothing to cancel it.' },
+      why: 'Its voltage drives a large current through its own small impedance, like any power transformer\'s.',
+      read: 'What happens if a VT\'s secondary is shorted?' },
+  ];
+  const FINISH = 'Saturation explains both hazards. Switch on at a bad moment, and the flux overshoots the knee, so the current surges. Open a CT on load and its core saturates, so its secondary spikes. Short a CT before you open its circuit. Never short a VT. An auto-transformer gives no isolation.';
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  const iCap = idx('An empty capacitor'), iZero = idx('Switching on at a zero'), iLeft = idx('Flux left in'), iPeak = idx('At a peak');
+  const iTrip = idx('A trip on closing'), iCt = idx('A current transformer'), I_VOLT = idx('Volts for 5 A'), iOpen = idx('An open secondary');
+  const iMeter = idx('Changing a meter'), iAuto = idx('No isolation'), I_SHARE = idx('Share transformed'), iTurns = idx('Secondary turns');
+
+  // ================= state =================
+  const BASE = { pt: 0, res: 0, on: false, head: 1, burden: 'Shorted', ct: 1, ratio: '115', iso: 3 };
+  const X = Object.assign({}, BASE);              // what the picture shows now
+  const D = { pt: 0, res: 0, tap: passShare('115') };   // the drawn settings, easing towards X
+  const blank = () => ({ pick: null, res: null, why: false, tries: 0, hint: '' });
+  let S = STEPS.map(blank);
+  const solved = (st) => !!st && (st.res === 'right' || st.res === 'shown');
+  let RUN = null, lastStep = -1, finished = false, lastDone = false, VIEW = 0;
+  let REC = { t: {} };
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  const quiet = () => REDUCE || testing();
+  const el = (id) => document.getElementById(id);
+  // A puzzle's figure stays "?" until that puzzle is checked; the figure a later puzzle asks for stays "?" on the screens before it.
+  const hideOut = (i, key) => !finished && !!STEPS[i].hide && STEPS[i].hide.indexOf(key) >= 0 && !solved(S[i]);
+  const spoilsCt = (i) => !finished && i < I_VOLT && X.burden === '0.6' && !solved(S[I_VOLT]);
+  const spoilsIso = (i) => !finished && i < I_SHARE && X.ratio === '400' && !solved(S[I_SHARE]);
+
+  // A run is a timed script: a demonstration, a switch-on drawing its five cycles, a CT drawing its two.
+  function startRun(fn, dur, end) {
+    RUN = { fn, dur, end: end || {}, t: 0 };
+    fn(0);
+    if (quiet()) finishRun();
+  }
+  function finishRun() { const r = RUN; if (!r) return; RUN = null; r.fn(r.dur); Object.assign(X, r.end); }
+  const ctSweep = (t) => { X.ct = ramp(t, 0, SWEEP, 0, 1); };
+  const ease1 = (v, t, dt, tau) => { const e = t - v; return Math.abs(e) <= 1e-3 * Math.max(1, Math.abs(t)) ? t : v + e * (1 - Math.exp(-dt / tau)); };
+  function snapD() { D.pt = X.pt; D.res = X.res; D.tap = passShare(X.ratio); }
+  function tween(dt) { D.pt = ease1(D.pt, X.pt, dt, 0.08); D.res = ease1(D.res, X.res, dt, 0.08); D.tap = ease1(D.tap, passShare(X.ratio), dt, 0.12); }
+  const settled = () => D.pt === X.pt && D.res === X.res && D.tap === passShare(X.ratio);
+
+  // ================= text with amber key terms (built with K.el, never innerHTML) =================
+  const UNIT_GAP = /(\d) (?=(?:kVA|V|A|W|Ω|×)(?![A-Za-z]))/g;
+  function write(node, s) {
+    node.textContent = '';
+    String(s || '').replace(UNIT_GAP, '$1' + NB).split(/\*([^*]+)\*/).forEach((seg, k) => {
+      if (!seg) return;
+      node.appendChild(k % 2 ? K.el('span', { class: 'term' }, seg) : document.createTextNode(seg));
+    });
+  }
+
+  // ================= controls =================
+  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);
+  const CTL = {
+    pt: K.control({ id: 'pt', label: 'Switch-on point', min: 0, max: 90, step: 15, value: 0,
+      fmt: (v) => v === 0 ? '0°, a zero' : v === 90 ? '90°, a peak' : Math.round(v) + '°', into: '#c-pt' }),
+    res: K.control({ id: 'res', label: 'Flux left in', min: 0, max: 0.8, step: 0.2, value: 0,
+      fmt: (v) => v < 1e-9 ? 'None' : one(v) + ' of normal peak', into: '#c-res' }),
+    burden: K.choice({ id: 'burden', label: 'Burden', value: 'Shorted', into: '#c-burden',
+      options: [{ value: 'Shorted', label: 'Shorted' }, { value: '0.6', label: '0.6' + NB + 'Ω' }, { value: '2', label: '2' + NB + 'Ω' }, { value: '4', label: '4' + NB + 'Ω' }, { value: 'Open', label: 'Open' }] }),
+    ratio: K.choice({ id: 'ratio', label: 'Auto ratio', value: '115', into: '#c-ratio',
+      options: [{ value: '115', label: '440' + NB + 'V to 115' + NB + 'V' }, { value: '400', label: '440' + NB + 'V to 400' + NB + 'V' }] }),
+  };
+  const CTL_IDS = Object.keys(CTL);
+  const same = (a, b) => typeof a === 'number' && typeof b === 'number' ? Math.abs(a - b) < 1e-9 : a === b;
+  const pushed = {};
+  CTL_IDS.forEach((id) => { pushed[id] = CTL[id].get(); });
+  // The page moves the controls itself during a demonstration (silently, so it is not taken for Dan's move).
+  function push() {
+    CTL_IDS.forEach((id) => { if (!same(pushed[id], X[id])) { CTL[id].set(X[id], true); pushed[id] = CTL[id].get(); } });
+  }
+  const shownCtl = (d, id) => !finished && !!d.ctl && d.ctl.indexOf(id) >= 0;
+  const onBtn = K.button({ label: 'Switch on', into: '#on-acts', press: () => {
+    const d = STEPS[at()];
+    if (finished || !d.btn) return;
+    if (RUN) finishRun();
+    startRun(swOn(0), SWEEP, { on: true, head: 1 });
+    K.refresh();
+  } });
+
+  const RO = {
+    peak: K.readout({ id: 'r-peak', label: 'First flux peak', fmt: (v) => one(v) + NB + '× normal', into: '#outs' }),
+    amp: K.readout({ id: 'r-amp', label: 'Peak current', fmt: (v) => two(v) + NB + '× full load', into: '#outs' }),
+    volts: K.readout({ id: 'r-volts', label: 'Volts to drive 5 A', fmt: (v) => one(v) + NB + 'V', into: '#outs' }),
+    kflux: K.readout({ id: 'r-kflux', label: 'Core flux', fmt: (v) => Math.round(v) + '% of knee', into: '#outs' }),
+  };
+
+  // Up to four answer buttons; each puzzle fills in its own.
+  const pickBtns = [0, 1, 2, 3].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.kind !== 'pick' || k >= d.opts.length || solved(st)) return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+  // Typed answers: a field each; Check grades it, two misses show the working.
+  const ANS = {};
+  STEPS.forEach((d, i) => {
+    if (d.kind !== 'typed') return;
+    el('answers').appendChild(K.el('div', { id: 'ans-' + d.ans }));
+    const a = K.answer({ id: 'a-' + d.ans, unit: d.unit, answer: d.answer, decimals: d.decimals, slips: d.slips, into: '#ans-' + d.ans,
+      onCheck: (r) => {
+        const st = S[i];
+        if (solved(st)) return;
+        if (r.state === 'right') st.res = 'right';
+        else if (r.state === 'wrong') {
+          st.tries += 1; st.hint = r.hint || d.hint;
+          if (st.tries >= 2) { st.res = 'shown'; st.why = true; a.reveal(); }
+          else st.res = 'wrong';
+        } else { st.res = r.state; st.hint = ''; }
+        if (solved(st) && d.post && at() === i) startRun(d.post, d.postDur, d.after);
+        K.refresh();
+      } });
+    ANS[d.ans] = a;
+  });
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || solved(st)) return;
+    if (d.kind === 'typed') { ANS[d.ans].check(); return; }
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = st.pick === d.want ? 'right' : 'wrong';
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    const d = STEPS[at()];
+    if (d.show || finished) return;
+    S[at()].why = !S[at()].why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    if (!STEPS[at()].show || finished) return;
+    startDemo(at());
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && !solved(S[i]))) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true; anim.pause(); RUN = null;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(blank); finished = false; lastStep = -1;
+    Object.keys(ANS).forEach((k) => ANS[k].reset());
+    stepper.set(0, true);
+  } });
+
+  // ================= motion: one animation runs the demonstrations, the sweeps and the easing =================
+  const needAnim = () => !finished && (!!RUN || !settled());
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    dt = Math.min(dt, 0.1);
+    const i = at();
+    VIEW = i;
+    if (RUN) { RUN.t += dt; if (RUN.t >= RUN.dur) finishRun(); else RUN.fn(RUN.t); }
+    if (REDUCE) snapD(); else tween(dt);
+    push();
+    paint(i);
+    return needAnim();
+  } });
+  function kick() {
+    if (testing()) { snapD(); return; }
+    if (REDUCE) snapD();
+    if (needAnim() && !anim.playing()) anim.play();
+  }
+  // A screen's state: its opening, or (for a demonstration) where it ends; a solved puzzle shows its answer.
+  function prep(i, showEnd) {
+    const d = STEPS[i];
+    VIEW = i; RUN = null;
+    Object.assign(X, BASE, d.enter || {});
+    if (d.show && showEnd) { if (d.demo) d.demo(d.dur); Object.assign(X, d.end || {}); }
+    if (!d.show && d.after && solved(S[i])) Object.assign(X, d.after);
+    snapD();
+  }
+  function startDemo(i) {
+    const d = STEPS[i];
+    anim.pause();
+    if (d.demo && !quiet()) { prep(i, false); startRun(d.demo, d.dur, d.end); snapD(); anim.play(); }
+    else prep(i, true);
+    push();
+  }
+  function enterStep(i) {
+    const d = STEPS[i];
+    anim.pause(); RUN = null;
+    enter('stepbox');
+    if (d.show) { startDemo(i); return; }
+    prep(i, false);
+    push();
+  }
+  // The finished picture a still shows (the read-through), with the controls where its words end.
+  function setStill() {
+    const i = at();
+    anim.pause();
+    prep(i, true);
+    push();
+    K.refresh();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ================= drawing helpers =================
+  let G = null;
+  const add = (node, par) => (par || G).appendChild(node);
+  const r1 = (v) => Math.round(v * 10) / 10;
+  const text = (x, y, s, cls, anchor) => add(K.svg('text', { class: cls || 'lab', x: r1(x), y: r1(y), 'text-anchor': anchor || 'start' }, s));
+  const ptsS = (pts) => pts.map((p) => r1(p[0]) + ',' + r1(p[1])).join(' ');
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r1(x1), y1: r1(y1), x2: r1(x2), y2: r1(y2) }));
+  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: r1(x), y: r1(y), width: r1(Math.max(0, w)), height: r1(Math.max(0, h)), rx: rx || 0 }));
+  const circle = (cls, cx, cy, r) => add(K.svg('circle', { class: cls, cx: r1(cx), cy: r1(cy), r }));
+  const path = (cls, d) => add(K.svg('path', { class: cls, d }));
+  function inGroup(o, fn) {
+    if (o < 0.01) return;
+    const g = add(K.svg('g', { opacity: (Math.round(o * 100) / 100).toString() })), keep = G;
+    G = g; fn(); G = keep;
+  }
+  // Angles to sample from a to b, every step, with any extra angles (a peak) put in exactly.
+  function samples(a, b, step, extra) {
+    if (b <= a) return [a];
+    const out = [];
+    for (let th = a; th < b; th += step) out.push(th);
+    out.push(b);
+    (extra || []).forEach((e) => { if (e > a && e < b && out.indexOf(e) < 0) out.push(e); });
+    return out.sort((p, q) => p - q);
+  }
+  // A trace, cut into runs drawn in ink or navy, and red where isBad. -> how many red runs.
+  function runs(ths, f, xOf, yOf, isBad, cls) {
+    let pts = [], bad = null, nBad = 0;
+    const flush = () => { if (pts.length > 1) { add(K.svg('polyline', { class: 'tr ' + cls + (bad ? ' bad' : ''), points: ptsS(pts) })); if (bad) nBad++; } };
+    ths.forEach((th) => {
+      const v = f(th), b = !!isBad(th, v), p = [xOf(th), yOf(v)];
+      if (bad !== null && b !== bad) { pts.push(p); flush(); pts = [p]; } else pts.push(p);
+      bad = b;
+    });
+    flush();
+    return nBad;
+  }
+
+  // ================= the switch-on card =================
+  const TX0 = 14, TX1 = 258, TH0 = -90, TH1 = 1800;
+  const tx = (th) => TX0 + (th - TH0) / (TH1 - TH0) * (TX1 - TX0);
+  const VC = 176, VA = 18;
+  const fy = (f) => 309 - (f + 1.3) * 19;            // the flux trace
+  const iy = (a) => 384 - a * 46 / 25;               // the current trace, 0 to 25 times full load
+  const ty = (f) => 118 - (f + 1.3) * 24;            // the flux bar and the B-H curve share this scale
+  const BH0 = 150, BH1 = 336, HMIN = -3, HMAX = 25;
+  const hx = (h) => BH0 + (h - HMIN) / (HMAX - HMIN) * (BH1 - BH0);
+  const headTh = () => X.on ? D.pt + K.clamp(X.head, 0, 1) * (TH1 - D.pt) : D.pt;
+  function drawOn(i) {
+    G = el('artO'); G.textContent = '';
+    const pt = D.pt, res = D.res, thh = headTh();
+    const fNow = X.on ? fluxAt(thh, pt, res) : res, aNow = X.on ? ampOf(fNow) : 0, past = Math.abs(fNow) > KNEE + 1e-9;
+    // The ring core and its one winding, switched onto the 440 V supply.
+    circle('iron', 70, 66, 32); circle('hole', 70, 66, 20);
+    [54, 60, 66, 72, 78].forEach((y) => {
+      const o = 70 - Math.sqrt(32 * 32 - (y - 66) * (y - 66)), n = 70 - Math.sqrt(20 * 20 - (y - 66) * (y - 66));
+      line('wind', o - 3, y, n + 3, y);
+    });
+    path('wire', 'M37 54H30'); path('wire', 'M16 54H9'); path('wire', 'M37 78H9');
+    circle('term', 6, 54, 3); circle('term', 6, 78, 3); circle('dot', 16, 54, 2.2);
+    const ba = X.on ? 0 : -0.62;
+    line('blade', 30, 54, 30 - 14 * Math.cos(ba), 54 + 14 * Math.sin(ba));
+    circle('dot', 30, 54, 2.6);
+    text(4, 98, '440' + NB + 'V', 'lab', 'start');
+    // The flux bar, on the same scale as the B-H curve beside it; the knee runs across both.
+    rect('barbg', 114, 12, 14, 106, 3);
+    const z = ty(0), yv = ty(K.clamp(fNow, -1.3, 3.1));
+    if (Math.abs(yv - z) > 0.3) rect('barfill' + (past ? ' bad' : ''), 114, Math.min(z, yv), 14, Math.abs(yv - z));
+    line('zero', 110, z, 132, z);
+    text(121, 133, 'Core flux', 'lab', 'middle');
+    line('axis', BH0, 10, BH0, 118); line('axis', BH0, z, BH1, z);
+    line('ref', 108, ty(KNEE), BH1, ty(KNEE));
+    text(BH1, ty(KNEE) - 4, 'knee', 'tk', 'end');
+    text(BH0 + 5, 15, 'Flux', 'tk', 'start'); text(BH1, z + 14, 'Current', 'tk', 'end');
+    add(K.svg('polyline', { class: 'curve', points: ptsS([-1.3, -KNEE, KNEE, 2.86].map((f) => [hx(ampOf(f)), ty(f)])) }));
+    circle('now' + (past ? ' bad' : ''), hx(aNow), ty(K.clamp(fNow, -1.3, 3.1)), 6);
+    // One time axis: the supply voltage, the core flux and the primary current.
+    text(TX1, 152, 'Supply voltage', 'hr', 'end');
+    line('zero', TX0, VC, TX1, VC);
+    add(K.svg('polyline', { class: 'tr volt', points: ptsS(samples(TH0, TH1, 6).map((th) => [tx(th), VC - VA * Math.sin(rad(th))])) }));
+    const mx = tx(pt);
+    line('mark', mx, 158, mx, 388);
+    text(mx + 9, 150, 'switch on', 'lab', 'start');
+    circle('dot', mx, VC - VA * Math.sin(rad(pt)), 3.6);
+    text(TX1, 216, 'Core flux', 'hr', 'end');
+    line('zero', TX0, fy(0), TX1, fy(0));
+    line('ref2', TX0, fy(1), TX1, fy(1)); line('ref2', TX0, fy(-1), TX1, fy(-1));
+    line('ref', TX0, fy(KNEE), TX1, fy(KNEE));
+    text(338, fy(KNEE) - 3, 'knee', 'tk', 'end'); text(338, fy(1) + 13, 'normal peak', 'tk', 'end');
+    line('tr main', tx(TH0), fy(res), mx, fy(res));
+    const sT = X.on && thh > pt ? samples(pt, thh, 3, [180]) : null;
+    let redF = 0, redA = 0;
+    if (sT) redF = runs(sT, (th) => fluxAt(th, pt, res), tx, fy, (th, v) => Math.abs(v) > KNEE + 1e-9, 'main');
+    const fp = firstPeak(pt, res), seen = X.on && thh >= 180 - 1e-9;
+    if (seen) {
+      circle('ring' + (fp > KNEE + 1e-9 ? ' bad' : ''), tx(180), fy(fp), 4.5);
+      text(tx(180) + 8, fy(fp) - 11, 'first peak', 'lab', 'start');
+    }
+    text(TX1, 332, 'Primary current', 'hr', 'end');
+    line('zero', TX0, iy(0), TX1, iy(0));
+    line('tr inkl', tx(TH0), iy(0), mx, iy(0));
+    if (sT) redA = runs(sT, (th) => ampOf(fluxAt(th, pt, res)), tx, iy, (th) => Math.abs(fluxAt(th, pt, res)) > KNEE + 1e-9, 'inkl');
+    el('scOn').setAttribute('aria-label', 'A ring core with one winding and a switch to a 440 V supply. Beside it a flux bar and a B-H curve with its knee. Below, on one time axis, the supply voltage, the core flux and the primary current. ' +
+      (X.on ? 'Switched on ' + Math.round(X.pt) + '° after a rising voltage zero' + (X.res > 1e-9 ? ', with ' + one(X.res) + ' of the normal peak flux left in.' : ', with an empty core.') +
+        (seen ? (fp > KNEE + 1e-9 ? ' The flux overshoots the knee and the current spikes red.' : ' The flux stays below the knee and the current stays small.') : '')
+        : 'The switch is open. The core holds ' + (X.res > 1e-9 ? one(X.res) + ' of the normal peak flux.' : 'no flux.')));
+    REC.fp = seen ? fp : null; REC.redF = redF; REC.redA = redA; REC.past = past; REC.fNow = fNow;
+  }
+
+  // ================= the CT card =================
+  const CX0 = 14, CX1 = 258, CTH0 = -180, CTH1 = 540;
+  const cxp = (th) => CX0 + (th - CTH0) / (CTH1 - CTH0) * (CX1 - CX0);
+  const IC = 196, IA = 18, VCT = 272, VS = 17, CLIP = 1.45;
+  const FB = (k) => 70 - k * 37;                    // the flux bar, in knee units
+  const outerX = (y) => 130 + 19 * Math.sqrt(Math.max(0, 1 - ((y - 50) / 39) * ((y - 50) / 39)));
+  const innerX = (y) => 130 + 9 * Math.sqrt(Math.max(0, 1 - ((y - 50) / 29) * ((y - 50) / 29)));
+  function drawCt(i) {
+    G = el('artC'); G.textContent = '';
+    const b = X.burden, open = b === 'Open', thh = CTH0 + K.clamp(X.ct, 0, 1) * (CTH1 - CTH0);
+    const fNow = ctFlux(thh, b), sat = Math.abs(fNow) > 1 + 1e-9;
+    // The busbar passes once through the ring: the ring's far half behind it, its near half in front.
+    add(K.svg('ellipse', { class: 'iron', cx: 130, cy: 50, rx: 19, ry: 39 }));
+    add(K.svg('ellipse', { class: 'hole', cx: 130, cy: 50, rx: 9, ry: 29 }));
+    rect('bus', 8, 44, 228, 12, 2);
+    path('iron', 'M130 11A19 39 0 0 1 130 89V79A9 29 0 0 0 130 21Z');
+    [62, 67, 72, 77].forEach((y) => line('wind', innerX(y) - 2, y, outerX(y) + 3, y));
+    path('wire', 'M151 62H214V128'); path('wire', 'M147 77V128');
+    let bl;
+    if (b === 'Shorted') { path('wire', 'M147 128H214'); bl = 'Meter circuit shorted'; }
+    else if (open) { path('wire', 'M147 128H170'); path('wire', 'M191 128H214'); circle('opn', 170, 128, 3.4); circle('opn', 191, 128, 3.4); bl = 'Meter circuit open'; }
+    else { path('wire', 'M147 128H165'); path('wire', 'M195 128H214'); rect('res', 165, 122, 30, 12, 2); bl = 'Meter circuit, ' + b + NB + 'Ω'; }
+    text(180, 150, bl, open ? 'lab warnt' : 'lab', 'middle');
+    text(8, 36, 'Busbar, 1 turn', 'lab', 'start');
+    text(240, 54.5, IBUS + NB + 'A', 'lab', 'start');
+    text(153, 98, TURNS + ' turns', 'lab', 'start');
+    const secA = (open ? 0 : ISEC) + NB + 'A';
+    text(220, 100, secA, 'lab', 'start');
+    // The flux bar, with the knee marked either way.
+    rect('barbg', 312, 18, 14, 104, 3);
+    const fk = K.clamp(fNow, -1.4, 1.4), z = FB(0), yv = FB(fk);
+    if (Math.abs(yv - z) > 0.3) rect('barfill' + (sat ? ' bad' : ''), 312, Math.min(z, yv), 14, Math.abs(yv - z));
+    line('zero', 308, z, 330, z);
+    line('ref', 308, FB(1), 330, FB(1)); line('ref', 308, FB(-1), 330, FB(-1));
+    text(304, FB(1) + 4, 'knee', 'tk', 'end'); text(304, FB(-1) + 4, 'knee', 'tk', 'end');
+    text(338, 12, 'Core flux', 'lab', 'end');
+    // Two cycles of busbar current and secondary voltage.
+    text(CX1, 172, 'Busbar current', 'hr', 'end');
+    line('zero', CX0, IC, CX1, IC);
+    if (thh > CTH0) add(K.svg('polyline', { class: 'tr inkl', points: ptsS(samples(CTH0, thh, 4).map((th) => [cxp(th), IC - IA * Math.sin(rad(th))])) }));
+    text(CX1, 238, 'Secondary voltage', 'hr', 'end');
+    line('zero', CX0, VCT, CX1, VCT);
+    line('ref', CX0, VCT - VS, CX1, VCT - VS); line('ref', CX0, VCT + VS, CX1, VCT + VS);
+    text(338, VCT - VS + 4, 'knee', 'tk', 'end');
+    let spikes = 0, vMax = 0, wasClip = false;
+    if (thh > CTH0) {
+      runs(samples(CTH0, thh, open ? 0.5 : 4), (th) => {
+        const v = ctVolt(th, b), c = Math.abs(v) >= CLIP;
+        vMax = Math.max(vMax, Math.abs(v));
+        if (c && !wasClip) spikes++;
+        wasClip = c;
+        return K.clamp(v, -CLIP, CLIP);
+      }, cxp, (v) => VCT - v * VS, (th, v) => open && Math.abs(v) > 0.15, 'main');
+    }
+    REC.lab4000 = null;
+    if (open) { const s = 'Up to 4000' + NB + 'V measured on large CTs'; text(14, 316, s, 'lab warnt', 'start'); REC.lab4000 = s; }
+    el('scCt').setAttribute('aria-label', 'A busbar carrying 400 A passes once through a ring core. Its 80-turn secondary feeds a meter circuit that is ' +
+      (b === 'Shorted' ? 'shorted' : open ? 'open' : b + ' Ω') + '. A flux bar beside it ' + (sat ? 'sits past the knee.' : 'stays inside the knee.') +
+      ' Below, two cycles of busbar current and secondary voltage' + (open ? ': the voltage sits flat with tall, narrow red spikes off the scale.' : ': the voltage is a small wave in step with the current.'));
+    REC.barSat = sat; REC.spikes = spikes; REC.vMax = vMax; REC.secA = secA;
+  }
+
+  // ================= the isolating card =================
+  function coil(x, y, h, cls) {
+    rect('coil ' + cls, x, y, 28, h, 5);
+    for (let yy = y + 8; yy < y + h - 2; yy += 8) line('turn ' + cls, x, yy, x + 28, yy);
+  }
+  function drawIso(i) {
+    G = el('artI'); G.textContent = '';
+    const a1 = K.clamp(X.iso, 0, 1), a2 = K.clamp(X.iso - 1, 0, 1), a3 = K.ease(K.clamp(X.iso - 2, 0, 1));
+    const outTxt = outOf(X.ratio) + NB + 'V out';
+    REC.joined = false; REC.isoJoined = false; REC.tf = null; REC.ps = null; REC.tapFrac = D.tap;
+    inGroup(a1, () => {
+      text(14, 18, 'Isolating', 'side', 'start');
+      rect('iron', 120, 26, 100, 92, 2); rect('hole', 136, 42, 68, 60);
+      coil(114, 46, 52, 'p1'); coil(198, 46, 52, 'p2');
+      path('wire', 'M114 54H30'); path('wire', 'M114 90H30'); circle('term', 26, 54, 3.6); circle('term', 26, 90, 3.6);
+      path('wire', 'M226 54H310'); path('wire', 'M226 90H310'); circle('term', 314, 54, 3.6); circle('term', 314, 90, 3.6);
+      text(14, 76, '440' + NB + 'V in', 'lab', 'start');
+      text(170, 76, 'no join', 'tk', 'middle');
+      text(326, 76, outTxt, 'lab', 'end');
+    });
+    inGroup(a2, () => {
+      text(14, 158, 'Auto', 'side', 'start');
+      coil(150, 168, 116, 'p1');
+      path('wire', 'M164 168V162H30'); circle('term', 26, 162, 3.6);
+      path('wire', 'M164 284V290'); path('wire', 'M30 290H310'); circle('term', 26, 290, 3.6); circle('term', 314, 290, 3.6);
+      const yt = 284 - 116 * D.tap;
+      path('wire', 'M178 ' + r1(yt) + 'H310'); circle('term', 314, yt, 3.6); circle('dot', 178, yt, 3);
+      text(184, yt - 6, 'tap', 'tk', 'start');
+      text(14, 230, '440' + NB + 'V in', 'lab', 'start');
+      text(326, (yt + 290) / 2 + 4, outTxt, 'lab', 'end');
+      circle('joint', 164, 290, 7); circle('dot', 164, 290, 2.8);
+      text(176, 308, 'output joined to input', 'lab warnt', 'start');
+      text(14, 318, 'The auto\'s power', 'lab', 'start');
+      rect('barbg', 14, 324, 312, 16, 3);
+      REC.joined = true;
+    });
+    const hid = hideOut(i, 'split') || spoilsIso(i);
+    const tf = 1 - D.tap, pT = Math.round(100 * tfShare(X.ratio)), pP = Math.round(100 * passShare(X.ratio));
+    if (!hid && a3 > 0.01) { rect('tf', 14, 324, 312 * tf * a3, 16); rect('ps', 14 + 312 * tf * a3, 324, 312 * (1 - tf) * a3, 16); }
+    inGroup(hid ? a2 : a3, () => {
+      const t1 = 'Transformed ' + (hid ? '?' : pT + '%'), t2 = 'Passed straight through ' + (hid ? '?' : pP + '%');
+      rect('tf', 14, 348, 10, 10); text(30, 357.5, t1, 'lab', 'start');
+      rect('ps', 14, 366, 10, 10); text(30, 375.5, t2, 'lab', 'start');
+      REC.tf = t1; REC.ps = t2;
+    });
+    el('scIso').setAttribute('aria-label', 'Two drawings. Isolating: two windings on one core, 440 V in and ' + outTxt + ', with a gap between them. Auto: one winding across 440 V, with ' +
+      outTxt + ' taken from a tap to its lower end, and a red mark where output joins input. A bar splits the auto\'s power: ' +
+      (hid ? 'its split is hidden until you check.' : pT + '% transformed, ' + pP + '% passed straight through.'));
+  }
+
+  // ================= one paint =================
+  function paint(i) {
+    if (i == null) i = at();
+    REC = { t: {}, X: Object.assign({}, X) };
+    const card = STEPS[i].card;
+    if (card === 'on') drawOn(i);
+    else if (card === 'ct') drawCt(i);
+    else if (card === 'iso') drawIso(i);
+    readouts(i);
+    const lab = X.on ? 'Switch on again' : 'Switch on';
+    if (onBtn.el.textContent !== lab) onBtn.setLabel(lab);
+  }
+  function readouts(i) {
+    const hp = hideOut(i, 'peak'), hc = hideOut(i, 'volts') || spoilsCt(i), b = X.burden;
+    RO.peak.set(hp ? '?' : firstPeak(X.pt, X.res));
+    RO.amp.set(hp ? '?' : peakAmp(X.pt, X.res));
+    RO.volts.set(hc ? '?' : b === 'Open' ? 'no limit' : voltsOf(b));
+    RO.kflux.set(hc ? '?' : b === 'Open' ? 'saturated' : 100 * kneeShare(b));
+    Object.keys(RO).forEach((k) => { REC.t[k] = RO[k].text(); });
+  }
+
+  // ================= the page around the picture =================
+  write(el('finish'), FINISH);
+  function layout(i) {
+    const d = STEPS[i], st = S[i], sol = solved(st);
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Screen ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    CTL_IDS.forEach((id) => { el('c-' + id).hidden = !shownCtl(d, id); });
+    [['scOn', 'on'], ['scCt', 'ct'], ['scIso', 'iso']].forEach(([s, c]) => el(s).toggleAttribute('hidden', d.card !== c));
+    el('on-acts').hidden = finished || !d.btn;
+    const ro = d.ro || [];
+    el('outs').hidden = !ro.length;
+    Object.keys(RO).forEach((k) => { RO[k].el.hidden = ro.indexOf(k) < 0; });
+    replayBtn.el.hidden = !d.show || !d.demo || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    const opts = d.kind === 'pick' ? d.opts : [];
+    el('picks').hidden = !opts.length;
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      if (b.el.textContent !== opts[k]) b.setLabel(opts[k]);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    el('answers').hidden = d.kind !== 'typed';
+    Object.keys(ANS).forEach((key) => { el('ans-' + key).hidden = d.ans !== key; });
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = sol;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (st.res === 'right' ? ' right' : '');
+    let say = '';
+    if (!d.show) {
+      if (st.res === 'right') say = d.right || 'That\'s it.';
+      else if (st.res === 'shown') say = 'Here is the working.';
+      else if (st.res === 'wrong') say = d.kind === 'typed' ? st.hint : (d.hints && d.hints[st.pick]) || d.hint;
+      else if (st.res === 'empty' && d.kind === 'pick') say = 'Pick one of the answers first.';
+    }
+    write(fb, say);
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !sol);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  }
+
+  K.update((p) => {
+    const i = at(), d = STEPS[i];
+    VIEW = i;
+    if (i !== lastStep) { lastStep = i; enterStep(i); }
+    else {
+      let moved = false;
+      CTL_IDS.forEach((id) => {
+        if (same(p[id], pushed[id])) return;
+        if (shownCtl(d, id)) {
+          if (RUN) finishRun();                      // his move ends the demonstration at its end state
+          X[id] = p[id]; pushed[id] = p[id]; moved = true;
+          if (id === 'burden') startRun(ctSweep, SWEEP, { ct: 1 });   // a new burden draws its two cycles
+        } else CTL[id].set(pushed[id], true);        // a control this screen does not use stays put
+      });
+      if (moved) push();
+    }
+    if (!d.show && d.after && solved(S[i]) && !RUN) Object.assign(X, d.after);
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    if (quiet()) { if (RUN) finishRun(); snapD(); }
+    layout(i);
+    paint(i);
+    kick();
+  });
+
+  // ================= known answers, worked out by hand =================
+  const solvedSt = (i) => Object.assign(blank(), STEPS[i].kind === 'pick' ? { pick: STEPS[i].want, res: 'right' } : { res: 'right' });
+  // A screen painted in the state given (finished), with optional settings: what it drew.
+  function drawn(i, st, x) {
+    const keep = { X: Object.assign({}, X), D: Object.assign({}, D), S: S[i], RUN, V: VIEW };
+    S[i] = st || blank();
+    try {
+      prep(i, true);
+      if (x) Object.assign(X, x);
+      snapD();
+      paint(i);
+      return REC;
+    } finally {
+      Object.assign(X, keep.X); Object.assign(D, keep.D);
+      S[i] = keep.S; RUN = keep.RUN; VIEW = keep.V; paint();
+    }
+  }
+  const PTS = [0, 15, 30, 45, 60, 75, 90], RES = [0, 0.4, 0.8];
+
+  K.check('Transformer inrush is mostly due to the core saturating: a switch-on draws more than 0.024 times full load, drawn red, only when its flux passes the knee', () =>
+    PTS.every((pt) => RES.every((res) => {
+      const over = firstPeak(pt, res) > KNEE + 1e-9, r = drawn(iPeak, null, { pt, res });
+      return (peakAmp(pt, res) > LO * KNEE + 1e-9) === over && (r.redF > 0) === over && (r.redA > 0) === over;
+    })), { source: SRC1 });
+  K.check('Worked by hand: at a zero 2.0 and 12.02, with 0.6 left 2.6 and 21.02, with 0.8 left 2.8 and 24.02; at 60° 1.5 and 4.52; at a peak 1.0 and 0.02, with 0.4 left 1.4 and 3.02', () => {
+    const C = [[0, 0, '2.0', '12.02'], [0, 0.6, '2.6', '21.02'], [0, 0.8, '2.8', '24.02'], [60, 0, '1.5', '4.52'], [90, 0, '1.0', '0.02'], [90, 0.4, '1.4', '3.02']];
+    return C.every(([pt, res, f, a]) => {
+      const r = drawn(iPeak, null, { pt, res });
+      return r.t.peak === f + NB + '× normal' && r.t.amp === a + NB + '× full load' && K.near(r.fp, firstPeak(pt, res), 1e-9);
+    });
+  });
+  K.check('Inrush may reach instantaneous peaks of 8 to 30 times the full load current: every switch-on at a voltage zero here peaks inside that range', () =>
+    [0, 0.2, 0.4, 0.6, 0.8].every((res) => { const a = peakAmp(0, res); return a >= 8 && a <= 30; }), { source: SRC2 });
+  K.check('The flux starts at the flux left in, peaks at 1 + flux left in + cos(switch-on point) half a cycle after the rising zero, and each later offset is half the one before', () =>
+    [[0, 0], [30, 0.4], [60, 0.8], [90, 0.2]].every(([pt, res]) => {
+      let best = -Infinity, when = 0;
+      for (let th = pt; th <= TH1; th += 0.5) { const f = fluxAt(th, pt, res); if (f > best) { best = f; when = th; } }
+      const o = off0(pt, res);
+      return K.near(fluxAt(pt, pt, res), res, 1e-9) && K.near(best, 1 + o, 1e-9) && when === 180 &&
+        K.near(fluxAt(540, pt, res) - 1, o / 2, 1e-9) && K.near(fluxAt(900, pt, res) - 1, o / 4, 1e-9);
+    }));
+  K.check('Below the knee 400 × 1 = 5 × 80, so 5 A flows, needing 1.0, 4.0, 11.0 and 21.0 V: 3, 13, 37 and 70% of the 30 V knee', () => {
+    const C = { Shorted: ['1.0', '3'], '0.6': ['4.0', '13'], '2': ['11.0', '37'], '4': ['21.0', '70'] };
+    return IBUS * 1 === ISEC * TURNS && Object.keys(C).every((b) => {
+      const r = drawn(iMeter, null, { burden: b });
+      return r.t.volts === C[b][0] + NB + 'V' && r.t.kflux === C[b][1] + '% of knee' && r.secA === '5' + NB + 'A' && !r.barSat;
+    });
+  });
+  K.check('An open secondary leaves the busbar\'s ampere-turns producing enough flux to drive the CT into saturation: the bar sits past the knee and the flux is past it for most of each cycle', () => {
+    const r = drawn(iMeter, null, { burden: 'Open' });
+    let n = 0, m = 0;
+    for (let th = CTH0; th < CTH1; th += 1) { m++; if (Math.abs(ctFlux(th, 'Open')) > 1) n++; }
+    return r.barSat && r.t.kflux === 'saturated' && r.t.volts === 'no limit' && r.secA === '0' + NB + 'A' && n / m > 0.8;
+  }, { source: SRC3 });
+  K.check('As long as current flows in the primary, an open CT secondary can cause high voltages: open, the drawn spikes run off the scale, while every closed burden stays inside its knee lines', () => {
+    const o = drawn(iMeter, null, { burden: 'Open' });
+    return o.spikes >= 3 && ['Shorted', '0.6', '2', '4'].every((b) => { const r = drawn(iMeter, null, { burden: b }); return r.spikes === 0 && r.vMax < 1; });
+  }, { source: SRC4 });
+  K.check('As much as 4000 V has been measured on large CTs with an open secondary: the label shows only when the secondary is open', () =>
+    drawn(iMeter, null, { burden: 'Open' }).lab4000 === 'Up to 4000' + NB + 'V measured on large CTs' &&
+    ['Shorted', '0.6', '2', '4'].every((b) => drawn(iMeter, null, { burden: b }).lab4000 === null), { source: SRC5 });
+  K.check('An autotransformer has an electrical connection between primary and secondary, and an isolation transformer has none: the auto is drawn joined, with its red mark, at either ratio', () =>
+    ['115', '400'].every((r) => { const d = drawn(I_SHARE, solvedSt(I_SHARE), { ratio: r }); return d.joined === true && d.isoJoined === false; }), { source: SRC6 });
+  K.check('The auto passes output ÷ input of its power straight through: 26% and 74% transformed at 115 V, 91% and 9% at 400 V, with the tap at that share of the winding', () => {
+    const a = drawn(I_SHARE, solvedSt(I_SHARE), { ratio: '115' }), b = drawn(I_SHARE, solvedSt(I_SHARE), { ratio: '400' });
+    return a.tf === 'Transformed 74%' && a.ps === 'Passed straight through 26%' && b.tf === 'Transformed 9%' && b.ps === 'Passed straight through 91%' &&
+      K.near(a.tapFrac, 115 / 440, 1e-9) && K.near(b.tapFrac, 400 / 440, 1e-9);
+  });
+  K.check('Each typed answer and slip is worked from its rule: 325 A (0, 3.25), 2.6 (2, 1.6, 1.4), 4.0 V (3, 1, 0.8), 9% (91, 74, 10) and 80 (5, 2000, 0.0125)', () => {
+    const sl = (i, v) => STEPS[i].slips.length === v.length && STEPS[i].slips.every((s, k) => K.near(s.value, v[k], 1e-12));
+    const w1 = (v) => Math.round(v * 10) / 10, w0 = Math.round;
+    const work = 325 / 1 === 325 && 325 / 100 === 3.25 &&
+      w1(firstPeak(0, 0.6)) === 2.6 && w1(firstPeak(0, 0)) === 2 && w1(1 + 0.6) === 1.6 && w1(2 - 0.6) === 1.4 &&
+      w1(voltsOf('0.6')) === 4 && w1(ISEC * 0.6) === 3 && w1(voltsOf('Shorted')) === 1 && w1(0.6 + RW) === 0.8 &&
+      w0(100 * tfShare('400')) === 9 && w0(100 * passShare('400')) === 91 && w0(100 * tfShare('115')) === 74 && w0(100 * (440 - 400) / 400) === 10 &&
+      IBUS / ISEC === 80 && IBUS * ISEC === 2000 && ISEC / IBUS === 0.0125;
+    return work && STEPS[iCap].answer === 325 && STEPS[iLeft].answer === 2.6 && STEPS[I_VOLT].answer === 4 && STEPS[I_SHARE].answer === 9 && STEPS[iTurns].answer === 80 &&
+      sl(iCap, [0, 3.25]) && sl(iLeft, [2, 1.6, 1.4]) && sl(I_VOLT, [3, 1, 0.8]) && sl(I_SHARE, [91, 74, 10]) && sl(iTurns, [5, 2000, 0.0125]);
+  });
+  K.check('Before a Check the flux peak, the volts and the share show ?, after it 2.6 and 21.02, 4.0 V and 13%, and 9%; the 0.6 Ω volts and the 400 V share show ? on the screens before their puzzles', () => {
+    const b0 = drawn(iLeft, blank()), b1 = drawn(iLeft, solvedSt(iLeft));
+    const c0 = drawn(I_VOLT, blank()), c1 = drawn(I_VOLT, solvedSt(I_VOLT));
+    const s0 = drawn(I_SHARE, blank()), s1 = drawn(I_SHARE, solvedSt(I_SHARE));
+    const e1 = drawn(iCt, null, { burden: '0.6' }), e2 = drawn(iAuto, null, { ratio: '400' });
+    return b0.t.peak === '?' && b0.t.amp === '?' && b0.fp === null && b1.t.peak === '2.6' + NB + '× normal' && b1.t.amp === '21.02' + NB + '× full load' && K.near(b1.fp, 2.6, 1e-9) &&
+      c0.t.volts === '?' && c0.t.kflux === '?' && c1.t.volts === '4.0' + NB + 'V' && c1.t.kflux === '13% of knee' &&
+      s0.tf === 'Transformed ?' && s1.tf === 'Transformed 9%' && s1.ps === 'Passed straight through 91%' &&
+      e1.t.volts === '?' && e2.tf === 'Transformed ?';
+  });
+  K.check('Every demonstration ends 3 s after its screen opens, on the state its words end on; a switch-on or a new burden draws in 2 s', () => {
+    const z = drawn(iZero), p = drawn(iPeak), c = drawn(iCt), o = drawn(iOpen), a = drawn(iAuto);
+    return STEPS.every((d) => !d.show || (d.dur >= 3 && d.dur <= 4.5)) && SWEEP === 2 &&
+      K.near(z.fp, 2, 1e-9) && z.X.pt === 0 && z.X.on === true && z.redF > 0 &&
+      K.near(p.fp, 1, 1e-9) && p.X.pt === 90 && p.redF === 0 &&
+      c.X.burden === 'Shorted' && c.X.ct === 1 && o.X.burden === 'Open' && o.spikes >= 3 && a.X.iso === 3 && a.X.ratio === '115';
+  });
+  K.ready();
+</script>

@@ -1,0 +1,623 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-29T05:43:32.654Z",
+ "startedAt": "2026-10-29T05:43:32.654Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i3",
+  "title": "Changing flux makes a voltage",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the secondary's meter fall to zero when you hold the primary's current at 2 A, though the core's flux stays at 5 mWb.",
+   "title": "Move the flux",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Screen",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [],
+   "whatAmILookingAt": "Thirteen small screens on one picture, with Back and Continue. Five show an idea and eight ask you to try it. No marks and no timers.\n\nThe picture. A square iron ring, as in the last lesson, with two coils on it and no wire between them. The primary, on the left, has 300 turns, say. The secondary, on the right, has 100 turns, say, with a voltmeter across it and a small lamp behind an open switch. A flux bar along the ring fills in step with the flux. Under the ring, a flux trace, in mWb, and the secondary's emf trace, in V, scroll side by side against time. A mode switch, Hand, AC or DC, opens on Hand. Its three buttons wrap onto two rows on a phone.\n\nHand. A current slider for the primary runs from −2 to 2 A in steps of 0.05 A, opening at 0. You drag it yourself. The core is drawn as one that never saturates, with a reluctance of 120,000 At/Wb, say. So by the last lesson's rule, flux = N I ÷ reluctance, each amp in 300 turns gives 2.5 mWb. The meter is Faraday's law, e = N × ΔΦ ÷ Δt, on the secondary's 100 turns, over the last tenth of a second. Dragging from 0 to 2 A in 1 s changes the flux by 5 mWb in 1 s, so it reads 100 × 0.005 = 0.5 V. Held still, at any current, it reads 0 V. Two readouts share a row: Flux, in mWb, and Meter, in V, both to two decimal places.\n\nThe arrows. A thick arrow in the core shows the main flux's direction, and a small one beside it the way the flux is changing. Close the lamp's switch, and a dashed arrow shows the secondary current's own field. It always points against the change arrow, and it vanishes while the flux is still. The lamp glows in step with the meter.\n\nAC. The current slider is greyed. The flux swings as a slowed-down sine, and the emf trace is its slope, peaking as the flux crosses zero. A frequency slider runs from 40 to 60 Hz in steps of 5, opening at 60. A turns slider for the primary runs from 240 to 360 in steps of 30, opening at 300. A switch, Fix the voltage, opens off. Off, the peak flux Φm is held at 5.5 mWb, and E = 4.44 f N Φm is read out in V rms: 440 V at 60 Hz and 300 turns, 484 V at 330 turns. On, the supply is held at 440 V rms and the flux follows: Φm = 440 ÷ (4.44 f N). A line on the flux bar marks 5.5 mWb, this winding's peak at 60 Hz. Three readouts, wrapping on a phone: E, in V; Peak flux, in mWb, one decimal place; Primary current peak, Φm × 120,000 ÷ N, in A. At 60 Hz and 300 turns they read 440 V, 5.5 mWb and 2.20 A. At 330 turns, 5.0 mWb and 1.82 A. At 50 Hz, 6.6 mWb and 2.64 A. At 360 turns, 4.6 mWb and 1.53 A. At 40 Hz, 8.3 mWb and 3.30 A. The lower trace then shows the primary's own emf. Worked lines beside the traces show where 4.44 comes from: the flux swings 2Φm in a half cycle's 1 ÷ 2f, so by Faraday's law each turn's average emf is 2Φm ÷ (1 ÷ 2f) = 4 f Φm. That is times the form factor 1.11, which is 0.707 ÷ 0.637. A check line: 2π ÷ √2 = 4.443.\n\nDC. The supply is 24 V DC from a battery charger, say, and the primary's resistance is 0.5 Ω, say. The current climbs over a moment and settles at 24 ÷ 0.5 = 48 A. Its bar runs red past 2.2 A, its AC peak. While it climbs, the flux trace rises and the meter kicks. Once it settles, the flux trace is flat and the meter reads 0 V. The flux bar runs off its scale, marked Saturated. A readout gives the winding's heat, 24 × 48 = 1152 W.\n\nScreen 1, try it, a recall. The picture: a small sketch of a coil turning between a north and a south magnet pole, with no traces or readouts. \"A coil turns steadily between two magnet poles. Where in its turn is its emf biggest?\" Three choices, in this order: \"Face-on, with the most flux through it\"; \"Edge-on, with the flux changing fastest\"; \"Halfway between the two\". Right, the second. Hint for the first: \"Face-on, the flux is at its most, but it is not changing.\" Hint for the third: \"Halfway, the flux is changing, but not at its fastest.\" Why: \"Edge-on, no flux passes through it, but the flux is changing fastest. The emf follows the change, not the amount. Now nothing turns. The flux itself will grow and shrink.\" A right Check says \"Still there.\" and carries on. Read: the question as asked.\n\nScreen 2, show. Hand, with the current slider to drag. The words: \"Only a changing flux makes a voltage. Two coils share one iron core, with no wire between them. Drag the primary's current. The flux follows, and the secondary's meter reads while you move. Move faster, and it reads more. Hold still, and it reads zero, however strong the flux.[^1] So one coil's changing current makes a voltage in the other. That is mutual induction. Each turn gets an emf set by how fast the flux changes. The turns are in series, so their emfs add: e = N × ΔΦ ÷ Δt. This is Faraday's law.\" Read: \"Two coils share one iron core, with no wire between them. The meter on the secondary reads only while the primary's current is changing. With the current held at 2 A and 5 mWb in the core, it reads zero.\" Still: Hand, the current dragged from 0 to 2 A over 1 s and held, with both traces drawn.\n\nScreen 3, try it, typed. \"You drag the primary's current from 0 to 2 A in 1 s. The meter reads 0.5 V while you move. You stop and hold it at 2 A. What does the meter read now?\" A typed field in V, two decimal places: answer 0, want \"0 V\". Slips: 0.5, \"That was while the current moved. Now the flux is steady.\"; 1, \"That doubles the moving reading. A held current changes nothing.\" Hint for any other answer: \"Ask what the flux is doing now, not how big it is.\" Why: \"Held at 2 A, the flux sits steady at 5 mWb. It is not changing at all, so no turn gets an emf. A strong field alone makes no voltage.\" A right Check holds 2 A, and the emf trace falls flat. Read: the question as asked.\n\nScreen 4, show. Hand, with the lamp's switch to close. The words: \"The current a changing flux drives always pushes against the change. The emf is there with or without a current. Close the lamp's switch, and current flows round the secondary. That current makes its own field, drawn dashed. Drag the current up, and the field points against the main flux. Let the current fall, and the field points the same way, holding the flux up. If it helped the change, the change would feed itself. That would make energy from nothing. This is Lenz's law.\" Read: \"With the lamp's switch closed, the secondary's own field pushes against the change. It points against a rising flux, and with a falling one.\" Still: Hand, switch closed, the current falling from 2 A to 1 A, with all three arrows drawn.\n\nScreen 5, try it. \"The lamp's switch is closed. The primary's current is falling. The main flux still points up the core, but it is shrinking. Which way does the secondary's own field point inside the core?\" Three choices, in this order: \"Up, the same way as the main flux\"; \"Down, against the main flux\"; \"Nowhere: a falling flux makes no field\". Right, the first. Hint for the second: \"It fights the change, not the field. The change here is a fall.\" Hint for the third: \"A falling flux is still a changing flux, so the lamp still lights.\" Why: \"The secondary's current pushes against the change, and here the change is a fall. So its own field points up, with the main flux, to hold it up. Against the change is not always against the field.\" A right Check drags the current down, and the dashed arrow points up beside the main flux. Read: \"The lamp's switch is closed. The primary's current is falling. The main flux still points up the core, but it is shrinking. Which way does the secondary's own field point?\"\n\nScreen 6, show. AC, 60 Hz, 300 turns, Fix the voltage off. The words: \"On AC, E = 4.44 f N Φm ties a coil's volts to its flux.[^2] The flux swings as a sine, and the emf follows its slope. It peaks as the flux crosses zero. The lower trace now shows the primary's own emf. Half a cycle lasts 1 ÷ 2f seconds, and the flux swings 2Φm in it. By Faraday's law, each turn's average emf is swing ÷ time: 2Φm ÷ (1 ÷ 2f) = 4 f Φm. The form factor, 1.11, turns that into rms. N turns then give 4.44 f N Φm.\" Read: \"On AC the emf wave follows the flux wave's slope. It peaks as the flux crosses zero. The lower trace now shows the primary's own emf. At 60 Hz, 300 turns and a peak flux of 5.5 mWb, E = 4.44 × 60 × 300 × 0.0055 = 440 V.\" Still: AC, 60 Hz, 300 turns, Fix the voltage off.\n\nScreen 7, try it, typed. \"A coil of 200 turns sits on a core whose flux peaks at 4 mWb, at 50 Hz. What rms emf does it give?\" A typed field in V, whole numbers: answer 178, also accepting 177.6, want \"178 V\". Slips: 40, \"That leaves out the 4.44.\"; 160, \"That is the average. The rms is 1.11 times it.\"; 251, \"That is the peak. E = 4.44 f N Φm gives the rms.\" Hint for any other answer: \"E = 4.44 × f × N × Φm, with Φm in webers.\" Why: \"4.44 × 50 × 200 × 0.004 = 177.6, so 178 V rms. The peak is √2 times that, 251 V.\" Read: the question as asked.\n\nScreen 8, show. AC, with the Fix the voltage switch to turn on. The words: \"On a fixed supply, the voltage sets the flux. A supply holds the primary at 440 V. The winding's resistance is small. So its own emf must almost equal the supply's, or a huge current would flow. The flux swings just enough to make it: Φm = V ÷ (4.44 f N). At 60 Hz, 300 turns need 5.5 mWb. The current finds whatever value makes that flux. On 330 turns, each turn needs less voltage, so the flux falls to 5.0 mWb. At 50 Hz, it rises to 6.6 mWb.\" Read: \"With the supply held at 440 V, f and N set the flux. At 60 Hz, 300 turns hold 5.5 mWb and 330 turns hold 5.0 mWb. At 50 Hz, 300 turns hold 6.6 mWb.\" Still: AC, Fix the voltage on, 60 Hz, 330 turns.\n\nScreen 9, try it, typed. \"A primary on a fixed 440 V, 60 Hz supply has 300 turns and a peak flux of 5.5 mWb. It is rewound with 20% more turns, 360. What is the peak flux now?\" A typed field in mWb, one decimal place: answer 4.6, want \"4.6 mWb\". Slips: 6.6, \"More turns would push more flux on a fixed current. Here the voltage is fixed.\"; 5.5, \"The flux does change. Each turn now needs less voltage.\"; 0.0046, \"That is in webers. The box is in mWb.\" Hint for any other answer: \"Φm = 440 ÷ (4.44 × 60 × 360).\" Why: \"440 ÷ (4.44 × 60 × 360) = 0.0046 Wb, which is 4.6 mWb. The 440 V is shared over more turns. Each turn needs less emf, so the flux swings less.\" A right Check sets 360 turns with Fix the voltage on. Read: \"A primary on a fixed 440 V, 60 Hz supply has 300 turns and a peak flux of 5.5 mWb. It is rewound with 360 turns. What is the peak flux now?\"\n\nScreen 10, show. DC, with the mode switch to turn to it. The words: \"A transformer cannot change a DC voltage.[^3] Take 24 V DC from a battery charger, say. The current climbs, and the meter kicks while it climbs. Then the flux holds steady, and the meter reads zero. A coil's X_L is zero at 0 Hz, so the primary makes no emf of its own. Only the winding's resistance holds the current back. Say it is 0.5 Ω, so 48 A flows, over 20 times the 2.2 A peak on AC. The core saturates, and the winding turns 1152 W into heat.\" Read: \"On 24 V DC the current settles at 48 A. Only the winding's 0.5 Ω holds it back. The flux is steady, so the secondary's meter reads zero.\" Still: DC, settled.\n\nScreen 11, try it, typed. \"A primary winding has a resistance of 0.4 Ω. It is put across 24 V DC. What steady current flows?\" A typed field in A, whole numbers: answer 60, want \"60 A\". Slips: 0, \"A steady current meets no emf from its own coil. Only the resistance holds it back.\"; 9.6, \"That multiplies. Divide instead: I = V ÷ R.\"; 48, \"That is the 0.5 Ω example. This winding is 0.4 Ω.\" Hint for any other answer: \"On DC, only the resistance limits the current.\" Why: \"24 ÷ 0.4 = 60 A. The flux is steady, so the winding makes no emf to oppose the supply. On AC that emf would hold the current far lower.\" Read: the question as asked.\n\nScreen 12, try it, the first of two mixed puzzles, typed. \"The flux through a 100-turn secondary rises steadily by 3 mWb in 0.5 s. What emf does it give?\" A typed field in V, one decimal place: answer 0.6, want \"0.6 V\". Slips: 0.3, \"That leaves out the time. Divide by 0.5 s.\"; 0.15, \"That multiplies by the time. Divide by it.\"; 0.006, \"That leaves out the turns. Each of the 100 adds its share.\" Hint for any other answer: \"e = N × ΔΦ ÷ Δt, with ΔΦ in webers.\" Why: \"The flux changes at 0.003 ÷ 0.5 = 0.006 Wb each second. Each turn gets 0.006 V, and 100 turns add up to 0.6 V. A steady rise gives a steady emf.\" Read: the question as asked.\n\nScreen 13, try it, the second mixed puzzle, typed. \"The 300-turn primary is built for 440 V at 60 Hz. It is put on 440 V at 40 Hz. What is its peak flux now?\" A typed field in mWb, one decimal place: answer 8.3, want \"8.3 mWb\". Slips: 3.7, \"f is on the bottom, so a lower frequency gives more flux, not less.\"; 5.5, \"The flux does change, because f has fallen.\"; 0.0083, \"That is in webers. The box is in mWb.\" Hint for any other answer: \"Φm = 440 ÷ (4.44 × 40 × 300).\" Why: \"440 ÷ (4.44 × 40 × 300) = 0.0083 Wb, which is 8.3 mWb. Each half cycle lasts longer. So the flux must swing further to make the same volts. That is 50% more flux, pushing the core towards its knee.\" A right Check sets 40 Hz with Fix the voltage on. Read: the question as asked.\n\nThe finish. The words: \"Only a changing flux makes a voltage. Every turn it threads gets the same voltage. The current that voltage drives pushes against the change. On AC, E = 4.44 f N Φm, so a supply's voltage fixes the core's flux. More turns or a higher frequency mean less flux. On DC nothing changes, so a transformer cannot step a DC voltage up or down. The same law works on a coil's own turns. Put Φ = N I ÷ S into it, and the coil's emf is N² ÷ S times the current's rate of change. That is its inductance: L = N² ÷ S. Next: two windings, and the turns ratio.\"\n\nEvery figure on these screens is an example value or worked from the rules above.",
+   "ignores": "On Hand and AC the core is drawn as one that never saturates, with its flux always in step with the primary's current. A real core's flux bends over near its knee. There its current climbs much faster. Every line of flux is drawn through both coils. In a real core a little leaks round each coil. On AC the primary's resistance is ignored, so its emf is drawn equal to the supply. In a real winding the two differ by a small resistive drop. The meter is drawn as taking no current. A real voltmeter takes a tiny one. The lamp's current is drawn only as its field's direction, not its size. On AC, time is slowed right down. On DC the climb to 48 A is drawn as a short smooth rise. Saturation is shown only by the flux bar running off its scale. A generator makes its emf by the same law, with the flux moved by turning. That is not shown here.",
+   "numbers": [
+    {
+     "label": "Screen, 1 to 13 (the stepper)",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Number of screens",
+     "value": 13,
+     "kind": "assumed"
+    },
+    {
+     "label": "Primary turns",
+     "value": 300,
+     "kind": "assumed"
+    },
+    {
+     "label": "Secondary turns",
+     "value": 100,
+     "kind": "assumed"
+    },
+    {
+     "label": "Core's reluctance, in At/Wb",
+     "value": 120000,
+     "kind": "assumed"
+    },
+    {
+     "label": "Flux per amp in the primary, in mWb",
+     "value": 2.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Current slider, −2 to 2 in steps of 0.05, in amps",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Meter's change window, in seconds",
+     "value": 0.1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 3 drag, 0 to 2 A in 1 s: flux change, in mWb",
+     "value": 5,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 3 reading while moving, in volts",
+     "value": 0.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 3 reading held still, in volts",
+     "value": 0,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 3 slip, in volts",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Frequency slider, 40 to 60 in steps of 5, in Hz",
+     "value": 60,
+     "kind": "control"
+    },
+    {
+     "label": "Turns slider, 240 to 360 in steps of 30",
+     "value": 300,
+     "kind": "control"
+    },
+    {
+     "label": "Held peak flux with Fix off, in mWb",
+     "value": 5.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "E at 60 Hz, 300 turns, 5.5 mWb, in volts",
+     "value": 440,
+     "kind": "computed"
+    },
+    {
+     "label": "E at 60 Hz, 330 turns, 5.5 mWb, in volts",
+     "value": 484,
+     "kind": "computed"
+    },
+    {
+     "label": "Fixed supply, in volts rms",
+     "value": 440,
+     "kind": "assumed"
+    },
+    {
+     "label": "Peak flux at 60 Hz, 300 turns, in mWb",
+     "value": 5.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Peak flux at 60 Hz, 330 turns, in mWb",
+     "value": 5,
+     "kind": "computed"
+    },
+    {
+     "label": "Peak flux at 50 Hz, 300 turns, in mWb",
+     "value": 6.6,
+     "kind": "computed"
+    },
+    {
+     "label": "Rise at 50 Hz, in per cent",
+     "value": 20,
+     "kind": "computed"
+    },
+    {
+     "label": "Peak flux at 60 Hz, 360 turns, in mWb",
+     "value": 4.6,
+     "kind": "computed"
+    },
+    {
+     "label": "Peak flux at 40 Hz, 300 turns, in mWb",
+     "value": 8.3,
+     "kind": "computed"
+    },
+    {
+     "label": "Rise at 40 Hz, in per cent",
+     "value": 50,
+     "kind": "computed"
+    },
+    {
+     "label": "Primary current peak at 60 Hz, 360 turns, in amps",
+     "value": 1.53,
+     "kind": "computed"
+    },
+    {
+     "label": "Primary current peak at 40 Hz, 300 turns, in amps",
+     "value": 3.3,
+     "kind": "computed"
+    },
+    {
+     "label": "Primary current peak at 60 Hz, 300 turns, in amps",
+     "value": 2.2,
+     "kind": "computed"
+    },
+    {
+     "label": "Primary current peak at 60 Hz, 330 turns, in amps",
+     "value": 1.82,
+     "kind": "computed"
+    },
+    {
+     "label": "Primary current peak at 50 Hz, 300 turns, in amps",
+     "value": 2.64,
+     "kind": "computed"
+    },
+    {
+     "label": "Average emf per turn over a half cycle, times f Φm",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Form factor, 0.707 ÷ 0.637",
+     "value": 1.11,
+     "kind": "computed"
+    },
+    {
+     "label": "EMF equation's factor, 4 × 1.11",
+     "value": 4.44,
+     "kind": "computed"
+    },
+    {
+     "label": "Check, 2π ÷ √2",
+     "value": 4.443,
+     "kind": "computed"
+    },
+    {
+     "label": "DC supply, in volts",
+     "value": 24,
+     "kind": "assumed"
+    },
+    {
+     "label": "Primary's resistance, in ohms",
+     "value": 0.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "DC current, 24 ÷ 0.5, in amps",
+     "value": 48,
+     "kind": "computed"
+    },
+    {
+     "label": "DC heat, 24 × 48, in watts",
+     "value": 1152,
+     "kind": "computed"
+    },
+    {
+     "label": "DC current over AC peak, times",
+     "value": 20,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 7 turns",
+     "value": 200,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 7 peak flux, in mWb",
+     "value": 4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 7 frequency, in Hz",
+     "value": 50,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 7 emf, 4.44 × 50 × 200 × 0.004, in volts",
+     "value": 178,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 7 slips, in volts",
+     "value": "40, 160 and 251",
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 9 slips, in mWb",
+     "value": "6.6, 5.5 and 0.0046",
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 11 resistance, in ohms",
+     "value": 0.4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 11 current, 24 ÷ 0.4, in amps",
+     "value": 60,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 11 slips, in amps",
+     "value": "0, 9.6 and 48",
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 12 flux rise, in mWb",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 12 time, in seconds",
+     "value": 0.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 12 emf, 100 × 0.003 ÷ 0.5, in volts",
+     "value": 0.6,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 12 slips, in volts",
+     "value": "0.3, 0.15 and 0.006",
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 13 slips, in mWb",
+     "value": "3.7, 5.5 and 0.0083",
+     "kind": "computed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "A coil gets a voltage only while the flux through it is changing. How fast the flux changes sets the voltage. Every turn the flux threads gets that same voltage. So a transformer needs a changing current, such as AC. On a supply, the voltage also fixes how far the core's flux swings.\n\nWind two coils on one iron core, with no wire between them. Current in the primary drives flux round the core, through the secondary's turns. Change that current, and the flux changes. Each turn of the secondary then gets an emf, just as a turning coil does. But nothing turns here. The flux itself grows and shrinks. One coil's changing current makes an emf in another. This is [[mutual induction]]. The emf in each turn equals the flux's rate of change. The turns are in series, so their emfs add: e = N × ΔΦ ÷ Δt. This is [[Faraday's law]]. Hold the current steady, and the flux holds steady too. Then there is no emf, however strong the flux.[^1]\n\nThe emf is there whether or not a current flows. Close a circuit on the secondary, and a current flows. That current makes its own field, and the field pushes against the change. Against a rising flux, it points the other way. Against a falling flux, it points the same way, holding the flux up. If it helped the change instead, the change would feed itself. That would make energy from nothing. This is [[Lenz's law]]. So against the change is not always against the field.\n\nOn AC the flux swings as a sine, and the emf follows its slope. Half a cycle lasts 1 ÷ 2f seconds. In that time the flux swings from −Φm to +Φm. By Faraday's law, each turn's average emf is that swing over that time: 2Φm ÷ (1 ÷ 2f) = 4 f Φm. The form factor, 1.11, turns that average into rms. N turns then give E = 4.44 f N Φm, in volts rms.[^2]\n\nNow turn it round. A supply holds the primary's voltage, and the winding's resistance is small. So the winding's own emf must almost equal the supply's. The flux must swing just enough to make that emf: Φm = V ÷ (4.44 f N). On 440 V at 60 Hz, 300 turns need a peak flux of 5.5 mWb. With 330 turns, the flux falls to 5.0 mWb. At 50 Hz, it rises 20%, to 6.6 mWb.\n\nOn DC the flux stops changing. Then the coil holds the current back by its resistance alone. The picture here is simplified. On Hand and AC its core never saturates, and all its flux threads both coils. **Only a changing flux makes a voltage, so a transformer cannot change a DC voltage.[^3]**"
+  },
+  "analogy": {
+   "text": "Think of a car's mileage and its speed. The flux is like the mileage: how far the car has gone. The emf is like the speedometer: how fast the mileage is changing. Park with 100,000 miles on the clock, and the speedometer reads zero. On the move, the faster the miles go by, the more it reads. Each turn of a coil is one more speedometer reading the same speed. The coil adds them all up.",
+   "breaks": "A speedometer's reading does nothing to slow the car. A coil's emf is different. It drives a current, and that current's field pushes against the change. A car can also sit still. A transformer's flux on AC never can, because the supply keeps it swinging."
+  },
+  "practice": {
+   "text": "- To find the emf from a change: e = N × ΔΦ ÷ Δt, with Φ in webers and t in seconds.\n- To find the flux a supply sets: Φm = V ÷ (4.44 f N), with V in volts rms. It gives the peak flux.\n- To find the emf from a known flux: E = 4.44 f N Φm, in volts rms.\n- Before connecting a transformer, check the supply's frequency against its plate. At a lower frequency the same voltage drives more flux.\n- Never feed a transformer from a DC supply. Nothing in the coil but its resistance would limit the current. A winding resistance test is a different matter. The test set's current is small.\n\n**Rules of thumb:** A steady flux, however strong, makes no voltage. The induced current fights the change, not the field. On a fixed supply, more turns mean less flux, and a lower frequency means more. A coil's inductance comes from the same law. A coil's own emf is L × the current's rate of change. Now take the magnetic circuit rule, Φ = N I ÷ S, and put it into Faraday's law. The coil's own emf is then (N² ÷ S) × the current's rate of change. Comparing the two gives L = N² ÷ S. Iron raises it, and a gap lowers it. Saturation cuts it sharply.\n\n**Worked example:** A primary of 300 turns is on 440 V at 60 Hz. Φm = 440 ÷ (4.44 × 60 × 300) = 440 ÷ 79,920 = 0.0055 Wb, or 5.5 mWb. Put the same winding on 440 V at 50 Hz. Φm = 440 ÷ (4.44 × 50 × 300) = 0.0066 Wb, or 6.6 mWb. That is 20% more flux, which takes the core closer to its knee.\n\n**Common mistakes**\n- Blaming the field. A strong steady field makes no voltage. Only its change does.\n- Reading \"against the change\" as \"against the field\". With the flux falling, the induced field points the same way as the main one.\n- Expecting more primary turns to give more flux on a fixed supply. The voltage sets the flux, so more turns give less.\n- Leaving out the turns. Every turn adds its own emf to the total.\n- Mixing rms and peak. E = 4.44 f N Φm takes the peak flux and gives the rms voltage."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "5.1: Magnetic Induction - Physics LibreTexts",
+    "url": "https://phys.libretexts.org/Courses/University_of_California_Davis/UCD%3A_Physics_9C__Electricity_and_Magnetism/5%3A_Electromagnetism/5.1%3A_Magnetic_Induction",
+    "quote": "With an unchanging flux, there is no induced emf in the loop, and no current as a result."
+   },
+   {
+    "n": 2,
+    "title": "Chapter 5",
+    "url": "https://pages.mtu.edu/~avsergue/EET2233/Lectures/CHAPTER5.pdf",
+    "quote": "This equation demonstrates a definite relation between the voltage in a coil, the flux density, and the size of the core."
+   },
+   {
+    "n": 3,
+    "title": "23.10: Transformers - Physics LibreTexts",
+    "url": "https://phys.libretexts.org/Bookshelves/College_Physics/College_Physics_1e_(OpenStax)/23:_Electromagnetic_Induction_AC_Circuits_and_Electrical_Technologies/23.10:_Transformers",
+    "quote": "The fact that transformers are based on Faraday’s law of induction makes it clear why we cannot use transformers to change DC voltages."
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: mechanism -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .lead, .caption { max-width: 32rem; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.08rem; font-weight: 400; line-height: 1.6; }\n  .nowrap { white-space: nowrap; }\n  .scene { display: block; width: 100%; max-width: 26rem; margin-inline: auto; touch-action: pan-y; }\n  /* The ring core and its two coils. */\n  .scene .iron { fill: var(--k-sunk); stroke: var(--k-ink); stroke-width: 1.6; }\n  .scene .hole { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.6; }\n  .scene .turn { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.5; }\n  .scene .wire { fill: none; stroke: var(--k-ink); stroke-width: 1.6; stroke-linejoin: round; }\n  .scene .dev { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.6; }\n  .scene .term0 { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.4; }\n  .scene .glow { fill: var(--k-fill2); stroke: none; }\n  .scene .needle { stroke: var(--k-accent2); stroke-width: 2.4; stroke-linecap: round; }\n  .scene .pivot { fill: var(--k-accent2); }\n  /* The arrows: the main flux (navy, thick), its change (teal), the secondary current's own field (dashed). */\n  .scene .main { stroke: var(--k-accent2); stroke-width: 6; }\n  .scene .mainh { fill: var(--k-accent2); }\n  .scene .chg { stroke: var(--k-accent); stroke-width: 2.6; }\n  .scene .chgh { fill: var(--k-accent); }\n  .scene .sec { stroke: var(--k-cat2); stroke-width: 2.6; stroke-dasharray: 5 4; }\n  .scene .sech { fill: var(--k-cat2); }\n  .scene .sw.main { stroke-width: 5; }\n  /* The bars. */\n  .scene .bar { fill: var(--k-sunk); stroke: var(--k-line); stroke-width: 1; }\n  .scene .bfill { fill: var(--k-accent2); }\n  .scene .bwarn { fill: var(--k-warn); }\n  .scene .mid { stroke: var(--k-strong); stroke-width: 1.5; }\n  .scene .mark { stroke: var(--k-amber-line); stroke-width: 2.4; }\n  /* The traces. */\n  .scene .ax { fill: none; stroke: var(--k-strong); stroke-width: 1.2; }\n  .scene .zero { stroke: var(--k-line); stroke-width: 1.2; }\n  .scene .tk { font: 400 13px var(--k-font); fill: var(--k-muted); }\n  .scene .axt { font: 600 13px var(--k-font); fill: var(--k-ink); }\n  .scene .tr { fill: none; stroke: var(--k-accent2); stroke-width: 2.4; stroke-linejoin: round; }\n  .scene .tr2 { fill: none; stroke: var(--k-accent); stroke-width: 2.4; stroke-linejoin: round; }\n  .scene .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }\n  .scene .ttl { font: 700 16px var(--k-font); fill: var(--k-ink); }\n  .scene .key { font: 400 13px var(--k-font); fill: var(--k-ink); }\n  .scene .loop { fill: none; stroke: var(--k-accent2); stroke-width: 3.2; }\n  .scene .pill { fill: var(--k-bg); stroke: var(--k-line); stroke-width: 1; }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; }\n  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }\n  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-inline: 16px; font-size: .95rem; white-space: nowrap; }\n  /* Three readouts share a row on a laptop; on a phone two share a row and the third takes the next. */\n  .outs .k-readout { flex: 1 1 8rem !important; }\n  /* Hand, AC and DC wrap onto two rows on a phone. Words never split. */\n  #c-mode .k-seg { display: grid; grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr)); }\n  #c-mode .k-seg button { white-space: nowrap; }\n  .picks { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }\n  .picks .k-btn { min-height: 48px; font-size: 1.05rem; white-space: normal; overflow-wrap: normal; word-break: normal; hyphens: none; }\n  .picks .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  .answers .k-answer { max-width: 20rem; }\n  .fb { font-weight: 700; min-height: 1.5em; }\n  .fb.right { color: var(--k-good); }\n  .why, .done { line-height: 1.6; }\n  .work { line-height: 1.55; }\n  .work p { margin: 0; }\n  .work p + p { margin-top: 4px; }\n  /* A control this mode does not use keeps its place, greyed, so nothing below it jumps. */\n  .ctl.off { opacity: .45; pointer-events: none; }\n  .done .row { margin-top: 14px; }\n  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }\n</style>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <svg class=\"scene\" id=\"scene\" viewBox=\"0 0 340 462\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"art\"></g></svg>\n    <div class=\"replay\" id=\"replay\"></div>\n    <div class=\"k-controls ctl\" id=\"c-mode\"></div>\n    <div class=\"k-controls ctl\" id=\"c-cur\"></div>\n    <div class=\"k-controls ctl\" id=\"c-lamp\"></div>\n    <div class=\"k-controls ctl\" id=\"c-fix\"></div>\n    <div class=\"k-controls ctl\" id=\"c-f\"></div>\n    <div class=\"k-controls ctl\" id=\"c-n\"></div>\n    <div class=\"k-readouts outs\" id=\"o-hand\"></div>\n    <div class=\"k-readouts outs\" id=\"o-ac\"></div>\n    <div class=\"k-readouts outs\" id=\"o-dc\"></div>\n    <div class=\"panel small work\" id=\"work\"></div>\n    <div class=\"picks\" id=\"picks\"></div>\n    <div class=\"answers\" id=\"answers\"><div id=\"ans-hold\"></div><div id=\"ans-emf\"></div><div id=\"ans-turns\"></div><div id=\"ans-dc\"></div><div id=\"ans-rise\"></div><div id=\"ans-freq\"></div></div>\n    <div class=\"row acts\" id=\"acts\"></div>\n    <p class=\"fb\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p id=\"finish\"></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\">A sketch of an ideal core, worked from Faraday's law. Every value is an example. On AC, time is slowed right down.</p>\n\n<script>\n  // ================= the rules =================\n  const strip = (s) => s.replace(/\\[\\^\\d+\\]/g, '');\n  const NB = '\\u00a0', MINUS = '−';\n  const N1 = 300, N2 = 100, REL = 120000;           // the example windings, and the core's reluctance in At/Wb\n  const PER_A = N1 / REL;                            // flux per amp in the primary, N I ÷ reluctance: 0.0025 Wb\n  const WIN = 0.1;                                   // the meter's change window, s\n  const VS = 440, PHI_OFF = 0.0055;                  // the fixed supply (V rms), and the peak flux held with Fix off (Wb)\n  const VDC = 24, RDC = 0.5, IDC = VDC / RDC;        // DC: the charger's volts, the winding's ohms, the settled 48 A\n  const ACPK = PHI_OFF * REL / N1;                   // the primary's AC peak current at 60 Hz and 300 turns: 2.2 A\n  const CLIMB = 2.2;                                 // the DC climb, drawn as a smooth rise over 2.2 s\n  const SLOW = 2.4;                                  // on AC one cycle at 60 Hz takes 2.4 s on screen\n  const SPAN = 4, SPAN_AC = 4.8;                     // the traces show the last 4 s (AC: 4.8 s of slowed time)\n  const FF = 0.707 / 0.637;                          // the form factor, 1.11\n  const SRC1 = 'https://phys.libretexts.org/Courses/University_of_California_Davis/UCD%3A_Physics_9C__Electricity_and_Magnetism/5%3A_Electromagnetism/5.1%3A_Magnetic_Induction';\n  const SRC2 = 'https://pages.mtu.edu/~avsergue/EET2233/Lectures/CHAPTER5.pdf';\n  const SRC3 = 'https://phys.libretexts.org/Bookshelves/College_Physics/College_Physics_1e_(OpenStax)/23:_Electromagnetic_Induction_AC_Circuits_and_Electrical_Technologies/23.10:_Transformers';\n\n  // AC: with Fix off the peak flux is held at 5.5 mWb and E = 4.44 f N Φm; with Fix on E is held at 440 V and Φm = 440 ÷ (4.44 f N).\n  function acOf(f, n, fix) {\n    const phim = fix ? VS / (4.44 * f * n) : PHI_OFF;\n    return { phim, E: fix ? VS : 4.44 * f * n * phim, ipk: phim * REL / n };\n  }\n  // DC: the current climbs smoothly to 24 ÷ 0.5 = 48 A. The flux trace is drawn bending flat at the top of its scale.\n  const dcI = (t) => IDC * K.ease(K.clamp(t / CLIMB, 0, 1));\n  const FSDC = 0.011;\n  const dcPhi = (I) => FSDC * Math.tanh(PER_A * I / FSDC);\n  const KICK = (() => { let m = 0; for (let k = 0; k <= 440; k++) { const t = k * CLIMB / 400; m = Math.max(m, N2 * (dcPhi(dcI(t)) - dcPhi(dcI(t - WIN))) / WIN); } return m; })();\n\n  // ================= the lesson: SHOW screens demonstrate, DO screens are puzzles =================\n  const ramp = (t, t0, dur, a, b) => a + (b - a) * K.clamp((t - t0) / dur, 0, 1);\n  const STEPS = [\n    { kind: 'pick', name: 'A turning coil', bare: true, enter: { mode: 'hand', cur: 0 },\n      task: 'A coil turns steadily between two magnet poles. Where in its turn is its emf biggest?',\n      opts: ['Face-on, with the most flux through it', 'Edge-on, with the flux changing fastest', 'Halfway between the two'],\n      want: 'Edge-on, with the flux changing fastest', right: 'Still there.',\n      hint: 'The emf follows the change, not the amount.',\n      hints: { 'Face-on, with the most flux through it': 'Face-on, the flux is at its most, but it is not changing.',\n        'Halfway between the two': 'Halfway, the flux is changing, but not at its fastest.' },\n      why: 'Edge-on, no flux passes through it, but the flux is changing fastest. The emf follows the change, not the amount. Now nothing turns. The flux itself will grow and shrink.',\n      read: 'A coil turns steadily between two magnet poles. Where in its turn is its emf biggest?' },\n    { show: true, name: 'Move the flux', ctl: ['cur'], enter: { mode: 'hand', cur: 0 }, end: { cur: 2 }, dur: 4.0,\n      demo: (t) => { X.cur = ramp(t, 0.6, 1, 0, 2); },\n      text: strip('Only a changing flux makes a voltage. Two coils share one iron core, with no wire between them. Drag the primary\\'s current. The flux follows, and the secondary\\'s meter reads while you move. Move faster, and it reads more. Hold still, and it reads zero, however strong the flux.[^1] So one coil\\'s changing current makes a voltage in the other. That is *mutual induction*. Each turn gets an emf set by how fast the flux changes. The turns are in series, so their emfs add: e = N × ΔΦ ÷ Δt. This is *Faraday\\'s law*.'),\n      read: 'Two coils share one iron core, with no wire between them. The meter on the secondary reads only while the primary\\'s current is changing. With the current held at 2 A and 5 mWb in the core, it reads zero.',\n      still: () => setStill() },\n    { kind: 'typed', name: 'Hold it still', ans: 'hold', enter: { mode: 'hand', cur: 0 },\n      pre: (t) => { X.cur = ramp(t, 1, 1, 0, 2); }, preDur: 2, run: 2.0, runFn: () => { X.cur = 2; }, runEnd: { cur: 2 },\n      answer: 0, decimals: 2, unit: 'V', want: '0' + NB + 'V',\n      slips: [{ value: 0.5, hint: 'That was while the current moved. Now the flux is steady.' },\n        { value: 1, hint: 'That doubles the moving reading. A held current changes nothing.' }],\n      task: 'You drag the primary\\'s current from 0 to 2 A in 1 s. The meter reads 0.5 V while you move. You stop and hold it at 2 A. What does the meter read now?',\n      hint: 'Ask what the flux is doing now, not how big it is.',\n      why: 'Held at 2 A, the flux sits steady at 5 mWb. It is not changing at all, so no turn gets an emf. A strong field alone makes no voltage.',\n      read: 'The primary\\'s current rises from 0 to 2 A in 1 s, and the meter reads 0.5 V while it rises. Then the current is held at 2 A. What does the meter read now?' },\n    { show: true, name: 'Against the change', ctl: ['lamp', 'cur'], enter: { mode: 'hand', cur: 0, lamp: false }, end: { lamp: true, cur: 1 }, dur: 4.4,\n      demo: (t) => { X.lamp = t >= 0.4; X.cur = t < 2.4 ? ramp(t, 0.8, 1, 0, 2) : ramp(t, 2.4, 2, 2, 1); },\n      text: strip('The current a changing flux drives always pushes against the change. The emf is there with or without a current. Close the lamp\\'s switch, and current flows round the secondary. That current makes its own field, drawn dashed. Drag the current up, and the field points against the main flux. Let the current fall, and the field points the same way, holding the flux up. If it helped the change, the change would feed itself. That would make energy from nothing. This is *Lenz\\'s law*.'),\n      read: 'With the lamp\\'s switch closed, the secondary\\'s own field pushes against the change. It points against a rising flux, and with a falling one.',\n      still: () => setStill() },\n    { kind: 'pick', name: 'A falling flux', enter: { mode: 'hand', cur: 2, lamp: true }, run: 2.2,\n      runFn: (t) => { X.cur = ramp(t, 0.2, 2, 2, 1); }, runEnd: { cur: 1 },\n      task: 'The lamp\\'s switch is closed. The primary\\'s current is falling. The main flux still points up the core, but it is shrinking. Which way does the secondary\\'s own field point inside the core?',\n      opts: ['Up, the same way as the main flux', 'Down, against the main flux', 'Nowhere: a falling flux makes no field'], want: 'Up, the same way as the main flux',\n      hint: 'It fights the change, not the field.',\n      hints: { 'Down, against the main flux': 'It fights the change, not the field. The change here is a fall.',\n        'Nowhere: a falling flux makes no field': 'A falling flux is still a changing flux, so the lamp still lights.' },\n      why: 'The secondary\\'s current pushes against the change, and here the change is a fall. So its own field points up, with the main flux, to hold it up. Against the change is not always against the field.',\n      read: 'The lamp\\'s switch is closed. The primary\\'s current is falling. The main flux still points up the core, but it is shrinking. Which way does the secondary\\'s own field point?' },\n    { show: true, name: 'Switch to AC', ctl: ['mode', 'cur', 'f', 'n'], enter: { mode: 'hand', cur: 0 }, end: { mode: 'ac' }, dur: 3.6, work: true,\n      demo: (t) => { if (t >= 0.6) setMode('ac'); },\n      text: strip('On AC, E = 4.44 f N Φm ties a coil\\'s volts to its flux.[^2] The flux swings as a sine, and the emf follows its slope. It peaks as the flux crosses zero. The lower trace now shows the primary\\'s own emf. Half a cycle lasts 1 ÷ 2f seconds, and the flux swings 2Φm in it. By Faraday\\'s law, each turn\\'s average emf is swing ÷ time: 2Φm ÷ (1 ÷ 2f) = 4 f Φm. The *form factor*, 1.11, turns that into rms. N turns then give 4.44 f N Φm.'),\n      read: 'On AC the emf wave follows the flux wave\\'s slope. It peaks as the flux crosses zero. The lower trace now shows the primary\\'s own emf. At 60 Hz, 300 turns and a peak flux of 5.5 mWb, E = 4.44 × 60 × 300 × 0.0055 = 440 V.',\n      still: () => setStill() },\n    { kind: 'typed', name: 'Volts from flux', ans: 'emf', enter: { mode: 'ac', f: 60, n: 300, fix: false },\n      answer: 178, decimals: 0, accept: [177.6], unit: 'V', want: '178' + NB + 'V',\n      slips: [{ value: 40, hint: 'That leaves out the 4.44.' },\n        { value: 160, hint: 'That is the average. The rms is 1.11 times it.' },\n        { value: 251, hint: 'That is the peak. E = 4.44 f N Φm gives the rms.' }],\n      task: 'A coil of 200 turns sits on a core whose flux peaks at 4 mWb, at 50 Hz. What rms emf does it give?',\n      hint: 'E = 4.44 × f × N × Φm, with Φm in webers.',\n      why: '4.44 × 50 × 200 × 0.004 = 177.6, so 178 V rms. The peak is √2 times that, 251 V.',\n      read: 'A coil of 200 turns sits on a core whose flux peaks at 4 mWb, at 50 Hz. What rms emf does it give?' },\n    { show: true, name: 'Fix the voltage', ctl: ['fix', 'f', 'n'], enter: { mode: 'ac', fix: false, f: 60, n: 300 }, end: { fix: true, n: 330 }, dur: 3.6,\n      demo: (t) => { X.fix = t >= 0.6; X.n = t >= 2.0 ? 330 : 300; },\n      text: strip('On a fixed supply, the voltage sets the flux. A supply holds the primary at 440 V. The winding\\'s resistance is small. So its own emf must almost equal the supply\\'s, or a huge current would flow. The flux swings just enough to make it: Φm = V ÷ (4.44 f N). At 60 Hz, 300 turns need 5.5 mWb. The current finds whatever value makes that flux. On 330 turns, each turn needs less voltage, so the flux falls to 5.0 mWb. At 50 Hz, it rises to 6.6 mWb.'),\n      read: 'With the supply held at 440 V, f and N set the flux. At 60 Hz, 300 turns hold 5.5 mWb and 330 turns hold 5.0 mWb. At 50 Hz, 300 turns hold 6.6 mWb.',\n      still: () => setStill() },\n    { kind: 'typed', name: 'More turns', ans: 'turns', enter: { mode: 'ac', fix: true, f: 60, n: 300 }, run: 1.2,\n      runFn: (t) => { X.n = t >= 0.2 ? 360 : 300; }, runEnd: { n: 360 },\n      answer: 4.6, decimals: 1, unit: 'mWb', want: '4.6' + NB + 'mWb',\n      slips: [{ value: 6.6, hint: 'More turns would push more flux on a fixed current. Here the voltage is fixed.' },\n        { value: 5.5, hint: 'The flux does change. Each turn now needs less voltage.' },\n        { value: 0.0046, hint: 'That is in webers. The box is in mWb.' }],\n      task: 'A primary on a fixed 440 V, 60 Hz supply has 300 turns and a peak flux of 5.5 mWb. It is rewound with 20% more turns, 360. What is the peak flux now?',\n      hint: 'Φm = 440 ÷ (4.44 × 60 × 360).',\n      why: '440 ÷ (4.44 × 60 × 360) = 0.0046 Wb, which is 4.6 mWb. The 440 V is shared over more turns. Each turn needs less emf, so the flux swings less.',\n      read: 'A primary on a fixed 440 V, 60 Hz supply has 300 turns and a peak flux of 5.5 mWb. It is rewound with 360 turns. What is the peak flux now?' },\n    { show: true, name: 'Switch to DC', ctl: ['mode', 'cur'], enter: { mode: 'hand', cur: 0 }, end: { mode: 'dc' }, dur: 4.0,\n      demo: (t) => { if (t >= 0.6) setMode('dc'); },\n      text: strip('A transformer cannot change a DC voltage.[^3] Take 24 V DC from a battery charger, say. The current climbs, and the meter kicks while it climbs. Then the flux holds steady, and the meter reads zero. A coil\\'s X_L is zero at 0 Hz, so the primary makes no emf of its own. Only the winding\\'s resistance holds the current back. Say it is 0.5 Ω, so 48 A flows, over 20 times the 2.2 A peak on AC. The core saturates, and the winding turns 1152 W into heat.'),\n      read: 'On 24 V DC the current settles at 48 A. Only the winding\\'s 0.5 Ω holds it back. The flux is steady, so the secondary\\'s meter reads zero.',\n      still: () => setStill() },\n    { kind: 'typed', name: 'Steady current', ans: 'dc', enter: { mode: 'dc' }, pre: () => {}, preDur: CLIMB + 1.2,\n      answer: 60, decimals: 0, unit: 'A', want: '60' + NB + 'A',\n      slips: [{ value: 0, hint: 'A steady current meets no emf from its own coil. Only the resistance holds it back.' },\n        { value: 9.6, hint: 'That multiplies. Divide instead: I = V ÷ R.' },\n        { value: 48, hint: 'That is the 0.5 Ω example. This winding is 0.4 Ω.' }],\n      task: 'A primary winding has a resistance of 0.4 Ω. It is put across 24 V DC. What steady current flows?',\n      hint: 'On DC, only the resistance limits the current.',\n      why: '24 ÷ 0.4 = 60 A. The flux is steady, so the winding makes no emf to oppose the supply. On AC that emf would hold the current far lower.',\n      read: 'A primary winding has a resistance of 0.4 Ω. It is put across 24 V DC. What steady current flows?' },\n    { kind: 'typed', name: 'A steady rise', ans: 'rise', enter: { mode: 'hand', cur: 0 }, run: 0.9,\n      runFn: (t) => { X.cur = ramp(t, 0.4, 0.5, 0, 1.2); }, runEnd: { cur: 1.2 },\n      answer: 0.6, decimals: 1, unit: 'V', want: '0.6' + NB + 'V',\n      slips: [{ value: 0.3, hint: 'That leaves out the time. Divide by 0.5 s.' },\n        { value: 0.15, hint: 'That multiplies by the time. Divide by it.' },\n        { value: 0.006, hint: 'That leaves out the turns. Each of the 100 adds its share.' }],\n      task: 'The flux through a 100-turn secondary rises steadily by 3 mWb in 0.5 s. What emf does it give?',\n      hint: 'e = N × ΔΦ ÷ Δt, with ΔΦ in webers.',\n      why: 'The flux changes at 0.003 ÷ 0.5 = 0.006 Wb each second. Each turn gets 0.006 V, and 100 turns add up to 0.6 V. A steady rise gives a steady emf.',\n      read: 'The flux through a 100-turn secondary rises steadily by 3 mWb in 0.5 s. What emf does it give?' },\n    { kind: 'typed', name: 'A lower frequency', ans: 'freq', enter: { mode: 'ac', fix: true, f: 60, n: 300 }, run: 1.2,\n      runFn: (t) => { X.f = t >= 0.2 ? 40 : 60; }, runEnd: { f: 40 },\n      answer: 8.3, decimals: 1, unit: 'mWb', want: '8.3' + NB + 'mWb',\n      slips: [{ value: 3.7, hint: 'f is on the bottom, so a lower frequency gives more flux, not less.' },\n        { value: 5.5, hint: 'The flux does change, because f has fallen.' },\n        { value: 0.0083, hint: 'That is in webers. The box is in mWb.' }],\n      task: 'The 300-turn primary is built for 440 V at 60 Hz. It is put on 440 V at 40 Hz. What is its peak flux now?',\n      hint: 'Φm = 440 ÷ (4.44 × 40 × 300).',\n      why: '440 ÷ (4.44 × 40 × 300) = 0.0083 Wb, which is 8.3 mWb. Each half cycle lasts longer. So the flux must swing further to make the same volts. That is 50% more flux, pushing the core towards its knee.',\n      read: 'The 300-turn primary is built for 440 V at 60 Hz. It is put on 440 V at 40 Hz. What is its peak flux now?' },\n  ];\n  const FINISH = 'Only a changing flux makes a voltage. Every turn it threads gets the same voltage. The current that voltage drives pushes against the change. On AC, E = 4.44 f N Φm, so a supply\\'s voltage fixes the core\\'s flux. More turns or a higher frequency mean less flux. On DC nothing changes, so a transformer cannot step a DC voltage up or down. The same law works on a coil\\'s own turns. Put Φ = N I ÷ S into it, and the coil\\'s emf is N² ÷ S times the current\\'s rate of change. That is its inductance: L = N² ÷ S. Next: two windings, and the turns ratio.';\n\n  // ================= state =================\n  const BASE = { mode: 'hand', cur: 0, lamp: false, f: 60, n: 300, fix: false };\n  const X = Object.assign({}, BASE);              // what the picture shows now\n  const TH0 = 0.3 * Math.PI;                      // where the AC swing starts\n  const TM = { clock: 0, hist: [], th: TH0, dcT: 0, lastMove: -99 };   // the picture's own clock and the current's recent past\n  const D = { phim: PHI_OFF };                    // the drawn peak flux, easing towards the rule's\n  const blank = () => ({ pick: null, res: null, why: false, tries: 0, hint: '' });\n  let S = STEPS.map(blank);\n  const solved = (st) => !!st && (st.res === 'right' || st.res === 'shown');\n  let T = Infinity, motionEnd = 0, scripted = false, lastStep = -1, finished = false, lastDone = false, held = false;\n  let REC = { said: [] };\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n  const quiet = () => REDUCE || testing();\n  const el = (id) => document.getElementById(id);\n\n  // ================= time: the current's recent past sets the flux trace and the meter =================\n  const curI = () => X.mode === 'dc' ? dcI(TM.dcT) : X.mode === 'hand' ? X.cur : 0;\n  const phiOf = (I) => X.mode === 'dc' ? dcPhi(I) : PER_A * I;\n  function resetTime() { TM.dcT = 0; const I = curI(); TM.hist = [[TM.clock - 5, I], [TM.clock, I]]; }\n  function advance(dt) {\n    TM.clock += dt;\n    if (X.mode === 'ac') TM.th = (TM.th + dt * 2 * Math.PI * X.f / (60 * SLOW)) % (2 * Math.PI);\n    if (X.mode === 'dc') TM.dcT += dt;\n    TM.hist.push([TM.clock, curI()]);\n    while (TM.hist.length > 2 && TM.hist[1][0] < TM.clock - 4.6) TM.hist.shift();\n  }\n  function setMode(m) { if (X.mode === m) return; X.mode = m; resetTime(); }\n  function Iat(t) {\n    const h = TM.hist;\n    if (t <= h[0][0]) return h[0][1];\n    let lo = 0, hi = h.length - 1;\n    if (t >= h[hi][0]) return h[hi][1];\n    while (hi - lo > 1) { const m = (lo + hi) >> 1; if (h[m][0] <= t) lo = m; else hi = m; }\n    const a = h[lo], b = h[hi];\n    return b[0] > a[0] ? a[1] + (b[1] - a[1]) * (t - a[0]) / (b[0] - a[0]) : b[1];\n  }\n  // Faraday's law on the secondary's 100 turns, over the last tenth of a second.\n  const meterAt = (t) => N2 * (phiOf(Iat(t)) - phiOf(Iat(t - WIN))) / WIN;\n  // Run a motion at once (reduced motion, the self-test, stills and checks): the same steps the animation takes.\n  function sim(fn, dur) { const n = Math.max(1, Math.ceil(dur * 30)); for (let k = 1; k <= n; k++) { fn(k * dur / n); advance(dur / n); } }\n\n  const targ = () => acOf(X.f, X.n, X.fix).phim;\n  function snapD() { D.phim = targ(); }\n  function tween(dt) { const t = targ(), e = t - D.phim; D.phim = Math.abs(e) < 1e-7 ? t : D.phim + e * (1 - Math.exp(-dt / 0.3)); }\n  const settled = () => D.phim === targ();\n\n  // ================= text with amber key terms (built with K.el, never innerHTML) =================\n  // A number keeps its unit on the same line.\n  const UNIT_GAP = /(\\d) (?=(?:Hz|mWb|Wb|V|A|Ω|W|s|mm)(?![A-Za-z]))/g;\n  function write(node, s) {\n    node.textContent = '';\n    String(s || '').replace(UNIT_GAP, '$1' + NB).split(/\\*([^*]+)\\*/).forEach((seg, k) => {\n      if (!seg) return;\n      node.appendChild(k % 2 ? K.el('span', { class: 'term' }, seg) : document.createTextNode(seg));\n    });\n  }\n\n  // ================= controls =================\n  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);\n  const signed = (v, dp) => { const s = Math.abs(v).toFixed(dp); return (v < 0 && Number(s) !== 0 ? MINUS : '') + s; };\n  const CTL = {\n    mode: K.choice({ id: 'mode', label: 'Supply', options: [{ value: 'hand', label: 'Hand' }, { value: 'ac', label: 'AC' }, { value: 'dc', label: 'DC' }], value: 'hand', into: '#c-mode' }),\n    cur: K.control({ id: 'cur', label: 'Primary current', min: -2, max: 2, step: 0.05, value: 0, snap: [0, 1.2, 2], fmt: (v) => signed(v, 2) + NB + 'A', into: '#c-cur' }),\n    lamp: K.toggle({ id: 'lamp', label: 'Lamp\\'s switch closed', value: false, into: '#c-lamp' }),\n    fix: K.toggle({ id: 'fix', label: 'Fix the voltage at 440 V', value: false, into: '#c-fix' }),\n    f: K.control({ id: 'f', label: 'Frequency, f', min: 40, max: 60, step: 5, value: 60, snap: [50, 60], fmt: (v) => v + NB + 'Hz', into: '#c-f' }),\n    n: K.control({ id: 'n', label: 'Primary turns, N', min: 240, max: 360, step: 30, value: 300, snap: [300, 330], fmt: (v) => v + NB + 'turns', into: '#c-n' }),\n  };\n  const CTL_IDS = Object.keys(CTL);\n  const pushed = {};\n  CTL_IDS.forEach((id) => { pushed[id] = CTL[id].get(); });\n  // The page moves the controls itself during a demonstration (silently, so it is not taken for Dan's move).\n  function push() {\n    CTL_IDS.forEach((id) => { if (pushed[id] !== X[id]) { CTL[id].set(X[id], true); pushed[id] = CTL[id].get(); } });\n  }\n  const shownCtl = (d, id) => !finished && !!d.ctl && d.ctl.indexOf(id) >= 0;\n  // The current slider works only on Hand; f, N and Fix only on AC. Off, each keeps its place, greyed.\n  const usable = (id) => id === 'cur' ? X.mode === 'hand' : (id === 'f' || id === 'n' || id === 'fix') ? X.mode === 'ac' : true;\n  const offNow = {};\n  function layoutCtl(d) {\n    CTL_IDS.forEach((id) => {\n      el('c-' + id).hidden = !shownCtl(d, id);\n      const off = shownCtl(d, id) && !usable(id);\n      if (offNow[id] === off) return;\n      offNow[id] = off;\n      const box = el('c-' + id);\n      box.classList.toggle('off', off);\n      box.setAttribute('aria-disabled', off ? 'true' : 'false');\n      box.querySelectorAll('input, button').forEach((c) => { c.disabled = off; });\n    });\n  }\n\n  const vFmt = (dp, unit) => (v) => signed(v, dp) + NB + unit;\n  const RO = {\n    phi: K.readout({ id: 'r-phi', label: 'Flux', fmt: (v) => signed(v * 1e3, 2) + NB + 'mWb', into: '#o-hand' }),\n    m: K.readout({ id: 'r-m', label: 'Meter', fmt: vFmt(2, 'V'), into: '#o-hand' }),\n    E: K.readout({ id: 'r-E', label: 'E, rms', fmt: (v) => Math.round(v) + NB + 'V', into: '#o-ac' }),\n    pk: K.readout({ id: 'r-pk', label: 'Peak flux, Φm', fmt: (v) => (v * 1e3).toFixed(1) + NB + 'mWb', into: '#o-ac' }),\n    ipk: K.readout({ id: 'r-ipk', label: 'Primary current peak', fmt: (v) => v.toFixed(2) + NB + 'A', into: '#o-ac' }),\n    idc: K.readout({ id: 'r-idc', label: 'Primary current', fmt: (v) => Math.round(v) + NB + 'A', into: '#o-dc' }),\n    heat: K.readout({ id: 'r-heat', label: 'Winding heat', fmt: (v) => Math.round(v) + NB + 'W', into: '#o-dc' }),\n  };\n\n  // Up to three answer buttons; each puzzle fills in its own.\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.kind !== 'pick' || k >= d.opts.length || solved(st)) return;\n    st.pick = d.opts[k]; st.res = null;\n  } }));\n  // Typed answers: a field each; Check grades it, two misses show the working.\n  const ANS = {};\n  STEPS.forEach((d, i) => {\n    if (d.kind !== 'typed') return;\n    const a = K.answer({ id: 'a-' + d.ans, unit: d.unit, answer: d.answer, decimals: d.decimals, tolerance: d.tolerance, accept: d.accept, slips: d.slips, into: '#ans-' + d.ans,\n      onCheck: (r) => {\n        const st = S[i];\n        if (solved(st)) return;\n        if (r.state === 'right') { st.res = 'right'; playRun(i, d.run); }\n        else if (r.state === 'wrong') {\n          st.tries += 1; st.hint = r.hint || d.hint;\n          if (st.tries >= 2) { st.res = 'shown'; st.why = true; a.reveal(); playRun(i, d.run); }\n          else st.res = 'wrong';\n        } else { st.res = r.state; st.hint = ''; }\n        K.refresh();\n      } });\n    ANS[d.ans] = a;\n  });\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || solved(st)) return;\n    if (d.kind === 'typed') { ANS[d.ans].check(); return; }\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = st.pick === d.want ? 'right' : 'wrong';\n    if (st.res === 'right') playRun(i, d.run);\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    const d = STEPS[at()];\n    if (d.show || finished) return;\n    S[at()].why = !S[at()].why;\n  } });\n  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {\n    if (!STEPS[at()].show || finished) return;\n    startDemo(at());\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && !solved(S[i]))) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true; anim.pause(); T = Infinity;\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S = STEPS.map(blank); finished = false; lastStep = -1;\n    Object.keys(ANS).forEach((k) => ANS[k].reset());\n    stepper.set(0, true);\n  } });\n\n  // ================= motion: one animation runs the demonstrations, the answers' motion, AC and the clock =================\n  // Hand runs on for a moment after each move, so the trace shows the meter fall back to zero; DC runs until it settles.\n  const swinging = () => !quiet() && !held && !finished && X.mode === 'ac';\n  const freeRun = () => !quiet() && !held && !finished && ((X.mode === 'hand' && TM.clock - TM.lastMove < 1.6) || (X.mode === 'dc' && TM.dcT < CLIMB + 1.2));\n  const needAnim = () => !finished && (T !== Infinity || swinging() || freeRun() || !settled());\n  function finishNow(i) {\n    if (T === Infinity) return;\n    const d = STEPS[i];\n    T = Infinity;\n    if (scripted) { scripted = false; Object.assign(X, d.end || {}); }\n    else if (solved(S[i])) Object.assign(X, d.runEnd || {});\n    push();\n  }\n  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {\n    if (finished) return false;\n    dt = Math.min(dt, 0.1);\n    const i = at(), d = STEPS[i], st = S[i];\n    if (T !== Infinity) {\n      T += dt;\n      const tt = Math.min(T, motionEnd);\n      if (scripted) { if (d.demo) d.demo(tt); }\n      else if (solved(st) && d.runFn) d.runFn(tt);\n    }\n    advance(dt);\n    if (T !== Infinity && T >= motionEnd) finishNow(i);\n    tween(dt);\n    push();\n    layoutCtl(d);\n    paint(i);\n    return needAnim();\n  } });\n  function kick() {\n    if (quiet()) { snapD(); return; }\n    if (needAnim() && !anim.playing()) anim.play();\n  }\n  // A screen's state: its opening, then (at once) what came before, its answer's motion or its demonstration.\n  function prep(i, solvedNow, showEnd) {\n    const d = STEPS[i];\n    Object.assign(X, BASE, d.enter || {});\n    TM.th = TH0;\n    resetTime();\n    if (d.show) { if (showEnd && d.demo) sim(d.demo, d.dur); }\n    else {\n      if (d.pre) sim(d.pre, d.preDur);\n      if (solvedNow && d.runFn) sim(d.runFn, d.run);\n    }\n    if (d.show && showEnd) Object.assign(X, d.end || {});\n    else if (!d.show && solvedNow) Object.assign(X, d.runEnd || {});\n    TM.lastMove = -99;\n    snapD();\n  }\n  function startDemo(i) {\n    const d = STEPS[i];\n    anim.pause(); held = false;\n    if (d.demo && !quiet()) { prep(i, false, false); scripted = true; motionEnd = d.dur; T = 0; d.demo(0); snapD(); anim.play(); }\n    else { scripted = false; T = Infinity; prep(i, false, true); }\n    push();\n  }\n  function playRun(i, dur) {\n    const d = STEPS[i];\n    anim.pause(); scripted = false; held = false;\n    if (quiet() || !dur) {\n      T = Infinity;\n      if (solved(S[i]) && d.runFn && dur) sim(d.runFn, dur);\n      if (solved(S[i])) Object.assign(X, d.runEnd || {});\n      push(); snapD(); return;\n    }\n    T = 0; motionEnd = dur; anim.play();\n  }\n  function enterStep(i) {\n    const d = STEPS[i];\n    anim.pause(); T = Infinity; scripted = false; held = false;\n    enter('stepbox');\n    if (d.show) { startDemo(i); return; }\n    prep(i, solved(S[i]), false);\n    push();\n  }\n  // The finished picture a still shows (the read-through), with the controls where its words end.\n  function setStill() {\n    const i = at();\n    anim.pause(); T = Infinity; scripted = false; held = true;\n    prep(i, true, true);\n    push();\n    K.refresh();\n  }\n  function enter(id) {\n    if (REDUCE) return;\n    const box = el(id);\n    box.classList.remove('enter');\n    void box.offsetWidth;\n    box.classList.add('enter');\n  }\n  // Dan's own move of a control this screen shows.\n  function setFrom(id, v) {\n    if (id === 'mode') { setMode(v); if (quiet() && v === 'dc') sim(() => {}, CLIMB + 1.2); return; }\n    if (id === 'cur') {\n      const old = X.cur;\n      if (quiet()) sim((t) => { X.cur = old + (v - old) * Math.min(1, t); }, 2.5);\n      X.cur = v; TM.lastMove = TM.clock;\n      return;\n    }\n    X[id] = v;\n  }\n\n  // ================= drawing helpers =================\n  const svg = el('scene'), art = el('art');\n  const add = (node, par) => (par || art).appendChild(node);\n  const r1 = (v) => Math.round(v * 10) / 10;\n  const twCache = {};\n  function tw(s, cls) {\n    const key = (cls || 'lab') + '|' + s;\n    if (twCache[key]) return twCache[key];\n    let w = 0;\n    try { const t = svg.appendChild(K.svg('text', { class: cls || 'lab', x: 0, y: -50 }, s)); w = t.getComputedTextLength(); svg.removeChild(t); } catch (e) { w = 0; }\n    if (!(w > 0)) return s.length * 7.6;\n    twCache[key] = w;\n    return w;\n  }\n  function pill(cx, y, s, par) {\n    const w = tw(s) + 12, h = 20; cx = K.clamp(cx, w / 2 + 2, 338 - w / 2);\n    const g = add(K.svg('g'), par);\n    g.appendChild(K.svg('rect', { class: 'pill', x: r1(cx - w / 2), y: r1(y - h / 2), width: r1(w), height: h, rx: 6 }));\n    g.appendChild(K.svg('text', { class: 'lab', x: r1(cx), y: r1(y + 4.5), 'text-anchor': 'middle' }, s));\n    return g;\n  }\n  function text(par, x, y, s, cls, anchor) { return add(K.svg('text', { class: cls || 'lab', x: r1(x), y: r1(y), 'text-anchor': anchor || 'start' }, s), par); }\n  const ptsS = (pts) => pts.map((p) => r1(p[0]) + ',' + r1(p[1])).join(' ');\n  const line = (par, cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r1(x1), y1: r1(y1), x2: r1(x2), y2: r1(y2) }), par);\n  const poly = (par, cls, pts) => add(K.svg('polyline', { class: cls, points: ptsS(pts) }), par);\n  // An upright arrow centred at yc: dir +1 points up, −1 down.\n  function arrowV(x, yc, len, dir, cls, hcls, hs) {\n    const tip = yc - dir * len / 2, tail = yc + dir * len / 2;\n    line(null, cls, x, tail, x, tip + dir * hs * 0.9);\n    add(K.svg('polygon', { class: hcls, points: ptsS([[x, tip], [x - hs * 0.85, tip + dir * hs * 1.4], [x + hs * 0.85, tip + dir * hs * 1.4]]) }));\n  }\n  function keyRow(items, y) {\n    const sw = 18, gapT = 6, sp = 12;\n    const widths = items.map((it) => sw + gapT + tw(it.t, 'key'));\n    let x = Math.max(4, (340 - widths.reduce((a, b) => a + b, 0) - sp * (items.length - 1)) / 2);\n    items.forEach((it, k) => {\n      add(K.svg('line', { class: it.cls + ' sw', x1: r1(x), y1: y - 4.5, x2: r1(x + sw), y2: y - 4.5 }));\n      add(K.svg('text', { class: 'key', x: r1(x + sw + gapT), y }, it.t));\n      x += widths[k] + sp;\n    });\n  }\n\n  // ================= what the picture shows now =================\n  function stateNow() {\n    const a = acOf(X.f, X.n, X.fix);\n    if (X.mode === 'ac') {\n      const c = Math.cos(TM.th), phi = D.phim * Math.sin(TM.th);\n      return { a, phi, I: phi * REL / X.n, meter: null, needle: 0.9 * c, changing: Math.abs(c) > 0.1, dir: Math.sign(c) };\n    }\n    const I = Iat(TM.clock), m = meterAt(TM.clock), nd = X.mode === 'dc' ? m / KICK : m;\n    const changing = X.mode === 'dc' ? Math.abs(nd) > 0.02 : Math.abs(m) >= 0.005;\n    return { a, phi: phiOf(I), I, meter: m, needle: K.clamp(nd, -1, 1), changing, dir: changing ? Math.sign(m) : 0 };\n  }\n\n  // ================= the ring, its coils, the bars and the traces =================\n  const RX = 96, RY = 34, RS = 148, RT = 28;\n  const BX0 = 70, BW = 230, BC = BX0 + BW / 2, HALF = BW / 2;\n  const PX0 = 44, PX1 = 326, NPT = 120;\n  function plot(top, h, scale, ticks, vals, cls, fmtT) {\n    const yc = top + h / 2, Y = (v) => yc - K.clamp(v / scale, -1, 1) * h / 2;\n    line(null, 'zero', PX0, yc, PX1, yc);\n    line(null, 'ax', PX0, top, PX0, top + h);\n    text(null, PX0 - 6, yc + 4.5, '0', 'tk', 'end');\n    ticks.forEach((v) => { line(null, 'ax', PX0 - 4, Y(v), PX0, Y(v)); text(null, PX0 - 6, Y(v) + 4.5, fmtT(v), 'tk', 'end'); });\n    poly(null, cls, vals.map((v, k) => [PX0 + (PX1 - PX0) * k / (vals.length - 1), Y(v)]));\n  }\n  const tick = (v) => (v < 0 ? MINUS : '') + Math.abs(v);\n\n  function drawScene() {\n    const s = stateNow(), m = X.mode, R = { mode: m, s, arrows: { main: 0, chg: 0, sec: 0 }, sat: false, red: false };\n    // The coils' names.\n    text(null, 48, 24, 'primary', 'lab', 'middle');\n    text(null, 48, 40, (m === 'ac' ? X.n : N1) + NB + 'turns', 'lab', 'middle');\n    text(null, 292, 24, 'secondary', 'lab', 'middle');\n    text(null, 292, 40, N2 + NB + 'turns', 'lab', 'middle');\n    // The iron ring.\n    add(K.svg('rect', { class: 'iron', x: RX, y: RY, width: RS, height: RS, rx: 18 }));\n    add(K.svg('rect', { class: 'hole', x: RX + RT, y: RY + RT, width: RS - 2 * RT, height: RS - 2 * RT, rx: 6 }));\n    // The primary: its supply and its turns on the left limb.\n    poly(null, 'wire', [[90, 68], [48, 68], [48, 94]]);\n    poly(null, 'wire', [[90, 148], [48, 148], [48, 122]]);\n    add(K.svg('circle', { class: 'dev', cx: 48, cy: 108, r: 14 }));\n    text(null, 48, 113.5, m === 'hand' ? 'I' : m === 'ac' ? '~' : '=', 'ttl', 'middle');\n    text(null, 48, 170, m === 'hand' ? 'by hand' : m === 'ac' ? (X.fix ? '440' + NB + 'V AC' : 'AC') : '24' + NB + 'V DC', 'lab', 'middle');\n    for (let k = 0; k < 9; k++) add(K.svg('rect', { class: 'turn', x: 89, y: 65 + k * 10, width: 42, height: 6, rx: 3 }));\n    // The secondary: its turns on the right limb, a voltmeter and a lamp behind a switch across it.\n    for (let k = 0; k < 3; k++) add(K.svg('rect', { class: 'turn', x: 209, y: 119 + k * 15, width: 42, height: 6, rx: 3 }));\n    poly(null, 'wire', [[251, 122], [258, 122], [258, 96], [322, 96], [322, 103.4]]);\n    poly(null, 'wire', [[251, 152], [258, 152], [258, 176], [322, 176], [322, 155]]);\n    line(null, 'wire', 284, 96, 284, 118);\n    line(null, 'wire', 284, 154, 284, 176);\n    add(K.svg('circle', { class: 'dev', cx: 284, cy: 136, r: 18 }));\n    line(null, 'mid', 284, 119, 284, 123);\n    const na = s.needle * 50 * Math.PI / 180;\n    line(null, 'needle', 284, 146, 284 + 21 * Math.sin(na), 146 - 21 * Math.cos(na));\n    add(K.svg('circle', { class: 'pivot', cx: 284, cy: 146, r: 2.6 }));\n    text(null, 272, 88, 'meter', 'lab', 'middle');\n    const lit = X.lamp ? Math.abs(s.needle) : 0;\n    add(K.svg('circle', { class: 'term0', cx: 322, cy: 106, r: 2.6 }));\n    add(K.svg('circle', { class: 'term0', cx: 322, cy: 122, r: 2.6 }));\n    line(null, 'wire', 322, 122, X.lamp ? 322 : 333, X.lamp ? 106 : 111);\n    line(null, 'wire', 322, 124.6, 322, 135);\n    if (lit > 0.02) { const h = add(K.svg('circle', { class: 'glow', cx: 322, cy: 145, r: 16 })); h.setAttribute('opacity', Math.round(lit * 60) / 100); }\n    add(K.svg('circle', { class: 'dev', cx: 322, cy: 145, r: 10 }));\n    if (lit > 0.02) { const g = add(K.svg('circle', { class: 'glow', cx: 322, cy: 145, r: 10 })); g.setAttribute('opacity', Math.round(lit * 100) / 100); }\n    line(null, 'wire', 315, 138, 329, 152);\n    line(null, 'wire', 329, 138, 315, 152);\n    text(null, 322, 88, 'lamp', 'lab', 'middle');\n    R.lit = lit;\n    // The arrows, on the secondary's limb: the main flux in the core, the way it is changing, the lamp current's own field.\n    const FS = m === 'hand' ? 0.006 : 0.011;\n    const fr = K.clamp(s.phi / FS, -1, 1);\n    if (Math.abs(fr) > 0.04) { arrowV(230, 76, 14 + 42 * Math.abs(fr), Math.sign(fr), 'main', 'mainh', 7); R.arrows.main = Math.sign(fr); }\n    if (s.changing) {\n      arrowV(205, 90, 28, s.dir, 'chg', 'chgh', 5); R.arrows.chg = s.dir;\n      if (X.lamp) { arrowV(188, 90, 34, -s.dir, 'sec', 'sech', 5); R.arrows.sec = -s.dir; }\n    }\n    // The flux bar (on DC it runs off its scale).\n    const fb = m === 'dc' ? PER_A * s.I / FS : s.phi / FS;\n    text(null, 62, 214, 'Flux', 'lab', 'end');\n    add(K.svg('rect', { class: 'bar', x: BX0, y: 205, width: BW, height: 10, rx: 3 }));\n    const fl = K.clamp(fb, -1, 1) * HALF;\n    if (Math.abs(fl) > 0.3) add(K.svg('rect', { class: 'bfill', x: r1(Math.min(BC, BC + fl)), y: 205, width: r1(Math.abs(fl)), height: 10 }));\n    line(null, 'mid', BC, 202, BC, 218);\n    R.sat = m === 'dc' && fb >= 1;\n    if (R.sat) { add(K.svg('polygon', { class: 'bfill', points: ptsS([[BX0 + BW + 9, 210], [BX0 + BW + 1, 203], [BX0 + BW + 1, 217]]) })); pill(262, 192, 'Saturated'); }\n    if (m === 'ac') { const x = BC + HALF * PHI_OFF / FS; line(null, 'mark', x, 201, x, 219); text(null, x, 197, '5.5' + NB + 'mWb', 'key', 'middle'); }\n    // The primary's current bar (on DC it runs red past the 2.2 A it peaks at on AC).\n    const CS = m === 'hand' ? 2.5 : 6;\n    text(null, 62, 238, 'Current', 'lab', 'end');\n    add(K.svg('rect', { class: 'bar', x: BX0, y: 229, width: BW, height: 10, rx: 3 }));\n    const ci = K.clamp(s.I / CS, -1, 1) * HALF;\n    if (m === 'dc') {\n      const xa = BC + HALF * ACPK / CS, blue = Math.min(ci, xa - BC);\n      if (blue > 0.3) add(K.svg('rect', { class: 'bfill', x: BC, y: 229, width: r1(blue), height: 10 }));\n      R.red = ci > xa - BC + 0.3;\n      if (R.red) add(K.svg('rect', { class: 'bwarn', x: r1(xa), y: 229, width: r1(ci - (xa - BC)), height: 10 }));\n      if (s.I > CS) add(K.svg('polygon', { class: 'bwarn', points: ptsS([[BX0 + BW + 9, 234], [BX0 + BW + 1, 227], [BX0 + BW + 1, 241]]) }));\n      line(null, 'mark', xa, 225, xa, 243);\n      text(null, xa, 258, 'AC peak 2.2' + NB + 'A', 'key', 'middle');\n    } else if (Math.abs(ci) > 0.3) add(K.svg('rect', { class: 'bfill', x: r1(Math.min(BC, BC + ci)), y: 229, width: r1(Math.abs(ci)), height: 10 }));\n    line(null, 'mid', BC, 226, BC, 242);\n    // The key to the arrows.\n    const items = [{ cls: 'main', t: 'main flux' }, { cls: 'chg', t: 'its change' }];\n    if (X.lamp) items.push({ cls: 'sec', t: 'secondary\\'s field' });\n    keyRow(items, 280);\n    R.key = items.map((it) => it.t);\n    // The traces against time, now at the right.\n    const vf = [], ve = [];\n    if (m === 'ac') {\n      const w = 2 * Math.PI * X.f / (60 * SLOW), Epk = Math.SQRT2 * 4.44 * X.f * X.n * D.phim;\n      for (let k = 0; k < NPT; k++) { const th = TM.th - w * SPAN_AC * (1 - k / (NPT - 1)); vf.push(D.phim * 1e3 * Math.sin(th)); ve.push(Epk * Math.cos(th)); }\n    } else {\n      for (let k = 0; k < NPT; k++) { const t = TM.clock - SPAN * (1 - k / (NPT - 1)); vf.push(phiOf(Iat(t)) * 1e3); ve.push(meterAt(t)); }\n    }\n    text(null, 4, 300, 'Flux in the core, Φ (mWb)', 'axt');\n    plot(308, 54, m === 'hand' ? 6 : 11, m === 'hand' ? [-5, 5] : [-10, 10], vf, 'tr', tick);\n    text(null, 4, 384, m === 'ac' ? 'The primary\\'s emf (V)' : m === 'dc' ? 'The meter on the secondary' : 'The meter on the secondary (V)', 'axt');\n    plot(392, 54, m === 'hand' ? 1.2 : m === 'ac' ? 800 : KICK * 1.15, m === 'hand' ? [-1, 1] : m === 'ac' ? [-500, 500] : [], ve, 'tr2', tick);\n    text(null, PX0, 458, '← earlier', 'key');\n    text(null, PX1, 458, 'now', 'key', 'end');\n    R.trace = { flux: vf, emf: ve };\n    // What it shows, in words (no readout's number).\n    const grow = s.dir * (Math.abs(s.phi) > 1e-6 ? Math.sign(s.phi) : s.dir) > 0;\n    let said;\n    if (m === 'ac') said = 'On AC the flux in the core swings as a sine, and the emf trace follows its slope, peaking as the flux crosses zero.' + (X.fix ? ' The supply is fixed, so the flux swings just far enough to match it.' : '');\n    else if (m === 'dc') said = s.changing ? 'On DC the primary\\'s current climbs, and the meter kicks while the flux rises.' : 'On DC the primary\\'s current has settled far past its AC peak, and the core is saturated. The flux is steady, so the meter reads zero.';\n    else said = 'Two coils on one iron ring, with no wire between them. ' + (s.changing ? 'The flux in the core is ' + (grow ? 'growing' : 'shrinking') + ', so the meter on the secondary reads.' : 'The flux in the core is steady, so the meter on the secondary reads zero.');\n    if (X.lamp) said += s.changing ? ' The lamp lights, and its current\\'s field points ' + (grow ? 'against the main flux.' : 'with the main flux, holding it up.') : ' The lamp\\'s switch is closed, but nothing is changing, so the lamp is dark.';\n    REC.said.push(said + ' Below, the flux trace and the ' + (m === 'ac' ? 'emf' : 'meter') + ' trace run against time.');\n    Object.assign(REC, R);\n  }\n\n  // The recall's picture: a coil turning steadily between two magnet poles, nothing of the transformer yet.\n  function drawSketch() {\n    add(K.svg('rect', { class: 'iron', x: 20, y: 40, width: 70, height: 110, rx: 6 }));\n    add(K.svg('rect', { class: 'iron', x: 250, y: 40, width: 70, height: 110, rx: 6 }));\n    text(null, 55, 101, 'N', 'ttl', 'middle');\n    text(null, 285, 101, 'S', 'ttl', 'middle');\n    [62, 95, 128].forEach((y) => line(null, 'zero', 90, y, 250, y));\n    line(null, 'mid', 170, 30, 170, 162);\n    add(K.svg('ellipse', { class: 'loop', cx: 170, cy: 95, rx: 26, ry: 52 }));\n    add(K.svg('path', { class: 'wire', d: 'M 140 22 Q 170 8 198 21' }));\n    add(K.svg('polygon', { class: 'mainh', points: '205,24 193.9,24.3 197.7,16.1' }));\n    text(null, 170, 188, 'a coil turning steadily', 'lab', 'middle');\n    REC.said.push('A sketch of a coil turning steadily on its axle between a north and a south magnet pole.');\n  }\n\n  // ================= one paint =================\n  function paint(i) {\n    if (i == null) i = at();\n    const d = STEPS[i];\n    art.textContent = '';\n    REC = { said: [], readouts: {} };\n    const bare = !!d.bare && !finished;\n    svg.setAttribute('viewBox', bare ? '0 0 340 200' : '0 0 340 462');\n    if (bare) drawSketch(); else drawScene();\n    svg.setAttribute('aria-label', REC.said.join(' '));\n    el('work').hidden = finished || !d.work || X.mode !== 'ac';\n    readouts(bare);\n  }\n  function readouts(bare) {\n    const m = bare ? '' : X.mode, a = acOf(X.f, X.n, X.fix), s = REC.s;\n    el('o-hand').hidden = m !== 'hand';\n    el('o-ac').hidden = m !== 'ac';\n    el('o-dc').hidden = m !== 'dc';\n    if (m === 'hand') { RO.phi.set(PER_A * X.cur); RO.m.set(Math.abs(s.meter) < 0.005 ? 0 : s.meter); }\n    else if (m === 'ac') { RO.E.set(a.E); RO.pk.set(a.phim); RO.ipk.set(a.ipk); }\n    else { const I = dcI(TM.dcT); RO.idc.set(I); RO.heat.set(I * I * RDC); }\n    Object.keys(RO).forEach((k) => { REC.readouts[k] = RO[k].text(); });\n  }\n\n  // ================= the page around the picture =================\n  write(el('finish'), FINISH);\n  ['Half a cycle lasts 1 ÷ 2f, and the flux swings 2Φm in it.', 'Average emf per turn, swing ÷ time: 2Φm ÷ (1 ÷ 2f) = 4 f Φm.', 'Form factor: 0.707 ÷ 0.637 = 1.11. So 4 × 1.11 = 4.44.', 'Check: 2π ÷ √2 = 4.443.']\n    .forEach((s) => { const p = K.el('p'); write(p, s); el('work').appendChild(p); });\n  function layout(i) {\n    const d = STEPS[i], st = S[i], sol = solved(st);\n    el('stepbox').hidden = finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Screen ' + (i + 1) + ' of ' + STEPS.length;\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    write(task, d.show ? d.text : d.task);\n    layoutCtl(d);\n    replayBtn.el.hidden = !d.show || !d.demo || REDUCE;\n    el('replay').hidden = replayBtn.el.hidden;\n    const opts = d.kind === 'pick' ? d.opts : [];\n    el('picks').hidden = !opts.length;\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      if (b.el.textContent !== opts[k]) b.setLabel(opts[k]);\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n    el('answers').hidden = d.kind !== 'typed';\n    Object.keys(ANS).forEach((key) => { el('ans-' + key).hidden = d.ans !== key; });\n    el('acts').hidden = !!d.show;\n    checkBtn.el.hidden = sol;\n    const fb = el('fb');\n    fb.hidden = !!d.show;\n    fb.className = 'fb' + (st.res === 'right' ? ' right' : '');\n    let say = '';\n    if (!d.show) {\n      if (st.res === 'right') say = d.right || 'That\\'s it.';\n      else if (st.res === 'shown') say = 'Here is the working.';\n      else if (st.res === 'wrong') say = d.kind === 'typed' ? st.hint : (d.hints && d.hints[st.pick]) || d.hint;\n      else if (st.res === 'empty' && d.kind === 'pick') say = 'Pick one of the answers first.';\n    }\n    write(fb, say);\n    const why = el('why');\n    why.hidden = d.show || !st.why;\n    write(why, d.show ? '' : d.why);\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !sol);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  }\n\n  K.update((p) => {\n    const i = at(), d = STEPS[i];\n    if (i !== lastStep) { lastStep = i; enterStep(i); }\n    else {\n      let moved = false;\n      CTL_IDS.forEach((id) => {\n        if (p[id] === pushed[id]) return;\n        if (shownCtl(d, id) && usable(id)) {\n          if (T !== Infinity) { anim.pause(); T = Infinity; scripted = false; }   // his move ends the demonstration where it stands\n          setFrom(id, p[id]); pushed[id] = p[id]; moved = true;\n        } else CTL[id].set(pushed[id], true);      // a control this screen does not use stays put\n      });\n      if (moved) { held = false; push(); }\n    }\n    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }\n    if (quiet()) snapD();\n    layout(i);\n    paint(i);\n    kick();\n  });\n\n  // ================= known answers, worked out by hand =================\n  const idx = (name) => STEPS.findIndex((d) => d.name === name);\n  const near = (a, b, t) => Math.abs(a - b) <= t;\n  const solvedSt = (i) => Object.assign(blank(), STEPS[i].kind === 'pick' ? { pick: STEPS[i].want, res: 'right' } : { res: 'right' });\n  // A screen painted in the state given (finished), with optional settings and a motion of its own: what it drew.\n  function drawn(i, st, x, fn) {\n    const keep = { X: Object.assign({}, X), TM: Object.assign({}, TM, { hist: TM.hist.slice() }), D: Object.assign({}, D), S: S[i], T, sc: scripted, held };\n    S[i] = st || blank(); T = Infinity; scripted = false; held = true;\n    try {\n      prep(i, solved(S[i]), true);\n      if (x) Object.assign(X, x);\n      if (fn) fn();\n      snapD();\n      paint(i);\n      return REC;\n    } finally {\n      Object.assign(X, keep.X); Object.assign(TM, keep.TM); Object.assign(D, keep.D); S[i] = keep.S; T = keep.T; scripted = keep.sc; held = keep.held; paint();\n    }\n  }\n  const iMove = idx('Move the flux'), iHold = idx('Hold it still'), iAgainst = idx('Against the change'), iFall = idx('A falling flux');\n  const iAC = idx('Switch to AC'), iEmf = idx('Volts from flux'), iFix = idx('Fix the voltage'), iTurns = idx('More turns');\n  const iDC = idx('Switch to DC'), iSteady = idx('Steady current'), iRise = idx('A steady rise'), iFreq = idx('A lower frequency');\n  const V_ = (s) => s + NB + 'V', MWB = (s) => s + NB + 'mWb';\n\n  K.check('With an unchanging flux there is no induced emf: held at 2 A, with 5 mWb in the core, the meter reads 0.00 V, while a drag from 0 to 2 A in 1 s reads 0.50 V', () => {\n    const heldAt2 = drawn(iMove), moving = drawn(iHold, blank());\n    return heldAt2.readouts.m === V_('0.00') && heldAt2.readouts.phi === MWB('5.00') && moving.readouts.m === V_('0.50') && near(PER_A, 0.0025, 1e-12);\n  }, { source: SRC1 });\n  K.check('Faster reads more: 0 to 2 A in 0.5 s reads 1.00 V, twice the 1 s drag, and a fall from 2 A to 1 A in 2 s reads the other way, 0.125 V', () => {\n    const fast = drawn(iMove, null, null, () => { resetTime(); sim((t) => { X.cur = ramp(t, 0, 0.5, 0, 2); }, 0.5); });\n    const fall = drawn(iAgainst);\n    return fast.readouts.m === V_('1.00') && near(fall.s.meter, -0.125, 1e-6);\n  });\n  K.check('The secondary\\'s own field always points against the change: against a rising flux, with a falling one, and gone while the flux is still', () => {\n    const rise = drawn(iAgainst, null, null, () => { resetTime(); sim((t) => { X.cur = ramp(t, 0, 1.5, 0, 1.5); }, 1.5); });\n    const fall = drawn(iAgainst), still = drawn(iFall, blank());\n    return rise.arrows.main === 1 && rise.arrows.chg === 1 && rise.arrows.sec === -1 && rise.lit > 0 &&\n      fall.arrows.main === 1 && fall.arrows.chg === -1 && fall.arrows.sec === 1 &&\n      still.arrows.main === 1 && still.arrows.chg === 0 && still.arrows.sec === 0 && still.lit === 0;\n  });\n  K.check('E = 4.44 f N Φm gives a definite relation between a coil\\'s voltage and its core\\'s flux: 60 Hz, 300 turns and 5.5 mWb give 440 V, and 330 turns give 484 V', () => {\n    const a = drawn(iAC, null, { f: 60, n: 300, fix: false }).readouts, b = drawn(iAC, null, { f: 60, n: 330, fix: false }).readouts;\n    return a.E === V_('440') && a.pk === MWB('5.5') && a.ipk === '2.20' + NB + 'A' && b.E === V_('484');\n  }, { source: SRC2 });\n  K.check('With the supply fixed at 440 V the flux follows f and N: 5.5 mWb and 2.20 A at 60 Hz and 300 turns, 5.0 mWb and 1.82 A at 330 turns, 6.6 mWb and 2.64 A at 50 Hz, 20% more', () => {\n    const r = (f, n) => drawn(iFix, null, { fix: true, f, n }).readouts;\n    const a = r(60, 300), b = r(60, 330), c = r(50, 300);\n    return a.E === V_('440') && a.pk === MWB('5.5') && a.ipk === '2.20' + NB + 'A' && b.E === V_('440') && b.pk === MWB('5.0') && b.ipk === '1.82' + NB + 'A' &&\n      c.pk === MWB('6.6') && c.ipk === '2.64' + NB + 'A' && near(acOf(50, 300, true).phim / acOf(60, 300, true).phim, 1.2, 1e-9);\n  });\n  K.check('Where 4.44 comes from: the form factor 0.707 ÷ 0.637 is 1.11, 4 × 1.11 = 4.44, and 2π ÷ √2 = 4.443; the emf trace peaks where the flux trace crosses zero', () => {\n    const tr = drawn(iAC).trace, k0 = tr.emf.reduce((b, v, k) => (Math.abs(v) > Math.abs(tr.emf[b]) ? k : b), 0);\n    return near(FF, 1.11, 0.005) && near(4 * FF, 4.44, 0.005) && near(2 * Math.PI / Math.SQRT2, 4.443, 0.0005) && Math.abs(tr.flux[k0]) < 0.6;\n  });\n  K.check('A transformer cannot change a DC voltage: on 24 V DC the current settles at 48 A, the flux holds steady and the meter reads 0 V', () => {\n    const r = drawn(iDC);\n    return r.readouts.idc === '48' + NB + 'A' && near(r.s.meter, 0, 1e-9) && r.arrows.chg === 0 && r.sat && r.red;\n  }, { source: SRC3 });\n  K.check('On DC the meter kicks only while the current climbs, and the settled winding turns 24 × 48 = 1152 W into heat, with 48 A over 20 times the 2.2 A AC peak', () => {\n    const climbing = drawn(iDC, null, null, () => { resetTime(); sim(() => {}, 0.3); }), r = drawn(iDC);\n    return climbing.arrows.chg === 1 && climbing.s.needle > 0.02 && r.readouts.heat === '1152' + NB + 'W' && near(VDC * IDC, 1152, 1e-9) && IDC / ACPK > 20 && near(ACPK, 2.2, 1e-12);\n  });\n  K.check('Each typed answer and slip is worked from its rule: 0 V (0.5, 1), 178 V (40, 160, 251), 4.6 mWb (6.6, 5.5, 0.0046), 60 A (0, 9.6, 48), 0.6 V (0.3, 0.15, 0.006) and 8.3 mWb (3.7, 5.5, 0.0083)', () => {\n    const sl = (i, v) => STEPS[i].slips.length === v.length && STEPS[i].slips.every((s, k) => near(s.value, v[k], 1e-12));\n    const work = near(4.44 * 50 * 200 * 0.004, 177.6, 1e-9) && near(50 * 200 * 0.004, 40, 1e-9) && near(4 * 50 * 200 * 0.004, 160, 1e-9) && near(177.6 * Math.SQRT2, 251, 0.5) &&\n      near(acOf(60, 360, true).phim * 1e3, 4.6, 0.05) && near(5.5 * 1.2, 6.6, 0.05) && near(24 / 0.4, 60, 1e-9) && near(24 * 0.4, 9.6, 1e-9) && near(24 / 0.5, 48, 1e-9) &&\n      near(100 * 0.003 / 0.5, 0.6, 1e-9) && near(100 * 0.003, 0.3, 1e-9) && near(100 * 0.003 * 0.5, 0.15, 1e-9) && near(0.003 / 0.5, 0.006, 1e-12) &&\n      near(acOf(40, 300, true).phim * 1e3, 8.3, 0.05) && near(5.5 * 40 / 60, 3.7, 0.05) && near(N2 * PER_A * 2, 0.5, 1e-12);\n    return work && STEPS[iHold].answer === 0 && STEPS[iEmf].answer === 178 && STEPS[iTurns].answer === 4.6 && STEPS[iSteady].answer === 60 && STEPS[iRise].answer === 0.6 && STEPS[iFreq].answer === 8.3 &&\n      sl(iHold, [0.5, 1]) && sl(iEmf, [40, 160, 251]) && sl(iTurns, [6.6, 5.5, 0.0046]) && sl(iSteady, [0, 9.6, 48]) && sl(iRise, [0.3, 0.15, 0.006]) && sl(iFreq, [3.7, 5.5, 0.0083]);\n  });\n  K.check('Before a Check no puzzle shows its answer, and a right Check shows it: the meter falls from 0.50 V to 0.00 V, the falling flux brings the dashed field up, a steady rise reads 0.60 V, and the peak flux moves from 5.5 mWb to 4.6 mWb and to 8.3 mWb', () => {\n    const b = (i) => drawn(i, blank()), s = (i) => drawn(i, solvedSt(i));\n    return b(iHold).readouts.m === V_('0.50') && s(iHold).readouts.m === V_('0.00') &&\n      b(iFall).arrows.sec === 0 && s(iFall).arrows.sec === 1 &&\n      b(iRise).readouts.m === V_('0.00') && s(iRise).readouts.m === V_('0.60') &&\n      b(iTurns).readouts.pk === MWB('5.5') && s(iTurns).readouts.pk === MWB('4.6') &&\n      b(iFreq).readouts.pk === MWB('5.5') && s(iFreq).readouts.pk === MWB('8.3') && b(iSteady).readouts.idc === '48' + NB + 'A';\n  });\n  K.check('Every demonstration ends 3 to 4.5 s after its screen opens, and every answer\\'s motion within 2.5 s', () =>\n    STEPS.every((d) => d.show ? (d.dur >= 3 && d.dur <= 4.5) : (!d.run || d.run <= 2.5)));\n  K.ready();\n</script>",
+  "title": "Move the flux",
+  "brief": "The one thing you should see is the secondary's meter fall to zero when you hold the primary's current at 2 A, though the core's flux stays at 5 mWb.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "With an unchanging flux there is no induced emf: held at 2 A, with 5 mWb in the core, the meter reads 0.00 V, while a drag from 0 to 2 A in 1 s reads 0.50 V",
+     "ok": true,
+     "source": "https://phys.libretexts.org/Courses/University_of_California_Davis/UCD%3A_Physics_9C__Electricity_and_Magnetism/5%3A_Electromagnetism/5.1%3A_Magnetic_Induction"
+    },
+    {
+     "label": "Faster reads more: 0 to 2 A in 0.5 s reads 1.00 V, twice the 1 s drag, and a fall from 2 A to 1 A in 2 s reads the other way, 0.125 V",
+     "ok": true
+    },
+    {
+     "label": "The secondary's own field always points against the change: against a rising flux, with a falling one, and gone while the flux is still",
+     "ok": true
+    },
+    {
+     "label": "E = 4.44 f N Φm gives a definite relation between a coil's voltage and its core's flux: 60 Hz, 300 turns and 5.5 mWb give 440 V, and 330 turns give 484 V",
+     "ok": true,
+     "source": "https://pages.mtu.edu/~avsergue/EET2233/Lectures/CHAPTER5.pdf"
+    },
+    {
+     "label": "With the supply fixed at 440 V the flux follows f and N: 5.5 mWb and 2.20 A at 60 Hz and 300 turns, 5.0 mWb and 1.82 A at 330 turns, 6.6 mWb and 2.64 A at 50 Hz, 20% more",
+     "ok": true
+    },
+    {
+     "label": "Where 4.44 comes from: the form factor 0.707 ÷ 0.637 is 1.11, 4 × 1.11 = 4.44, and 2π ÷ √2 = 4.443; the emf trace peaks where the flux trace crosses zero",
+     "ok": true
+    },
+    {
+     "label": "A transformer cannot change a DC voltage: on 24 V DC the current settles at 48 A, the flux holds steady and the meter reads 0 V",
+     "ok": true,
+     "source": "https://phys.libretexts.org/Bookshelves/College_Physics/College_Physics_1e_(OpenStax)/23:_Electromagnetic_Induction_AC_Circuits_and_Electrical_Technologies/23.10:_Transformers"
+    },
+    {
+     "label": "On DC the meter kicks only while the current climbs, and the settled winding turns 24 × 48 = 1152 W into heat, with 48 A over 20 times the 2.2 A AC peak",
+     "ok": true
+    },
+    {
+     "label": "Each typed answer and slip is worked from its rule: 0 V (0.5, 1), 178 V (40, 160, 251), 4.6 mWb (6.6, 5.5, 0.0046), 60 A (0, 9.6, 48), 0.6 V (0.3, 0.15, 0.006) and 8.3 mWb (3.7, 5.5, 0.0083)",
+     "ok": true
+    },
+    {
+     "label": "Before a Check no puzzle shows its answer, and a right Check shows it: the meter falls from 0.50 V to 0.00 V, the falling flux brings the dashed field up, a steady rise reads 0.60 V, and the peak flux moves from 5.5 mWb to 4.6 mWb and to 8.3 mWb",
+     "ok": true
+    },
+    {
+     "label": "Every demonstration ends 3 to 4.5 s after its screen opens, and every answer's motion within 2.5 s",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step",
+    "mode",
+    "cur",
+    "lamp",
+    "fix",
+    "f",
+    "n"
+   ],
+   "readouts": [
+    "r-phi",
+    "r-m",
+    "r-E",
+    "r-pk",
+    "r-ipk",
+    "r-idc",
+    "r-heat"
+   ],
+   "outputs": [],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Screen",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "steps": [
+      "A turning coil",
+      "Move the flux",
+      "Hold it still",
+      "Against the change",
+      "A falling flux",
+      "Switch to AC",
+      "Volts from flux",
+      "Fix the voltage",
+      "More turns",
+      "Switch to DC",
+      "Steady current",
+      "A steady rise",
+      "A lower frequency"
+     ],
+     "value": 0
+    },
+    {
+     "id": "mode",
+     "kind": "choice",
+     "label": "Supply",
+     "options": [
+      "hand",
+      "ac",
+      "dc"
+     ],
+     "labels": [
+      "Hand",
+      "AC",
+      "DC"
+     ],
+     "value": "hand",
+     "index": 0,
+     "shown": false
+    },
+    {
+     "id": "cur",
+     "kind": "control",
+     "label": "Primary current",
+     "min": -2,
+     "max": 2,
+     "step": 0.05,
+     "log": false,
+     "value": 0,
+     "shown": false,
+     "snap": [
+      0,
+      1.2,
+      2
+     ]
+    },
+    {
+     "id": "lamp",
+     "kind": "toggle",
+     "label": "Lamp's switch closed",
+     "options": [
+      false,
+      true
+     ],
+     "value": false,
+     "shown": false
+    },
+    {
+     "id": "fix",
+     "kind": "toggle",
+     "label": "Fix the voltage at 440 V",
+     "options": [
+      false,
+      true
+     ],
+     "value": false,
+     "shown": false
+    },
+    {
+     "id": "f",
+     "kind": "control",
+     "label": "Frequency, f",
+     "min": 40,
+     "max": 60,
+     "step": 5,
+     "log": false,
+     "value": 60,
+     "shown": false,
+     "snap": [
+      50,
+      60
+     ]
+    },
+    {
+     "id": "n",
+     "kind": "control",
+     "label": "Primary turns, N",
+     "min": 240,
+     "max": 360,
+     "step": 30,
+     "log": false,
+     "value": 300,
+     "shown": false,
+     "snap": [
+      300,
+      330
+     ]
+    }
+   ],
+   "actions": [
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Check",
+    "Why?",
+    "Play again",
+    "Back",
+    "Continue",
+    "Start again",
+    "Demonstration"
+   ],
+   "answers": [
+    {
+     "id": "a-hold",
+     "answer": 0,
+     "accept": [],
+     "ok": true
+    },
+    {
+     "id": "a-emf",
+     "answer": 178,
+     "accept": [
+      177.6
+     ],
+     "ok": true
+    },
+    {
+     "id": "a-turns",
+     "answer": 4.6,
+     "accept": [],
+     "ok": true
+    },
+    {
+     "id": "a-dc",
+     "answer": 60,
+     "accept": [],
+     "ok": true
+    },
+    {
+     "id": "a-rise",
+     "answer": 0.6,
+     "accept": [],
+     "ok": true
+    },
+    {
+     "id": "a-freq",
+     "answer": 8.3,
+     "accept": [],
+     "ok": true
+    }
+   ],
+   "written": [],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 2
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-29T05:43:32.654Z",
+  "applied": [
+   "explain.text: \"A transformer needs AC\" is too broad: pulse and switch-mode transformers run on chopped DC, which still changes; and on DC the supply and leads limit the current too, not only the winding. Narrowed to a changing current and to the coil itself.",
+   "practice.text: \"Only its winding's resistance would limit the current\" is not true of a real DC feed: the supply's own resistance, its leads and any current limit also act. Narrowed to what the coil itself offers.",
+   "interactive.whatAmILookingAt: \"A quarter cycle ahead\" depends on sign convention: with Lenz's minus sign, textbook phasor diagrams put the induced emf a quarter cycle behind the flux. Reworded to the convention-free fact that the emf peaks as the flux crosses zero.",
+   "interactive.ignores: It says the core is drawn as never saturating, yet DC mode marks the flux bar Saturated; the two disagree. Narrowed to Hand and AC, with DC's saturation named as drawn only by the bar.",
+   "analogy.breaks: \"A car's speed does nothing to stop it moving\" is false in everyday life: air drag grows with speed and slows the car. Narrowed to the speedometer's reading, which truly pushes back on nothing."
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}

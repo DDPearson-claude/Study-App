@@ -1,0 +1,640 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-29T05:43:32.654Z",
+ "startedAt": "2026-10-29T05:43:32.654Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i4",
+  "title": "The ideal transformer: turns, volts and amps",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the primary's current rise to 6.01 A when you drag the load from 10 Ω to 5 Ω. It cancels the secondary's 5290 ampere-turns. The flux stays at 1.88 mWb.",
+   "title": "The turns ratio",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Screen",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [],
+   "whatAmILookingAt": "Thirteen small screens on one picture, with Back and Continue. Five show an idea and eight ask you to try it. No marks and no timers.\n\nThe picture. A square iron core, as in the last two lessons, with two windings and no wire between them. The primary, on the left, sits on a 440 V, 60 Hz supply, say. The secondary, on the right, feeds a load resistor behind an open switch. Each winding is drawn longer for more turns, with its turns in a label. Beside each, a tag shows one turn and its volts per turn, 440 ÷ N1, the same on both. A voltage column beside each stacks those volts, so its height is turns × volts per turn. A flux bar runs along the core.\n\nThe controls, each shown only where a screen uses it. A primary turns slider runs from 440 to 1320 in steps of 220, opening at 880. A secondary turns slider runs from 115 to 920 in steps of 115, opening at 230. A load switch opens off. A load slider runs from 2 to 20 Ω in steps of 1, opening at 5.\n\nThe rules. Volts per turn = 440 ÷ N1, so 0.5 V at 880 turns. V2 = N2 × volts per turn, so 115 V at 230 turns. The peak flux is the last lesson's Φm = 440 ÷ (4.44 × 60 × N1): 1.88 mWb at 880 turns and 1.50 mWb at 1100. Nothing on the secondary side enters it. With the switch closed, I2 = V2 ÷ R, so 23 A on 5 Ω. The primary's current cancels the secondary's ampere-turns: I1 = N2 × I2 ÷ N1, so 6.01 A.\n\nThe readouts, which wrap onto two rows on a phone: Secondary volts, in V; Secondary current, in A, two decimal places; Primary current, in A, two decimal places. Under them: primary and secondary current bars on one scale. Two power bars, Power in = 440 × I1 and Power out = V2 × I2, in W, always equal: 2645 W on 5 Ω. An ampere-turns line, Primary N1 × I1 and Secondary N2 × I2, in At, which balance at 5290 At each on 5 Ω; its two halves wrap onto two rows on a phone. A box, As the 440 V side sees it: 440 ÷ I1 in Ω, one decimal place, which equals R × (N1 ÷ N2)². It reads 73.2 Ω on 5 Ω, and Open with the switch open. The flux bar's readout is in mWb, two decimal places. Each screen fixes the current and power bars' scales as it opens, from its turns and its heaviest load. So a bigger current always draws a longer bar. A current past the scale stops at the end of its track, with an arrow.\n\nScreen 1, try it, a recall, typed. The picture: switch open, 880 and 230 turns. \"A load has an impedance of 3 + j4 Ω. What is its size?\" A typed field in Ω, whole numbers: answer 5, want \"5 Ω\". Slips: 7, \"That adds the parts. The size is the square root of 3² + 4².\"; 25, \"That is 3² + 4². Now take its square root.\" Hint for any other answer: \"Size = √(3² + 4²).\" Why: \"√(9 + 16) = √25 = 5 Ω. You will meet this load again later, seen through a transformer.\" A right Check says \"Still there.\" and carries on. Read: \"A load has an impedance of 3 + j4 Ω. What is its size?\"\n\nScreen 2, show. The secondary turns slider to drag. The words: \"The volts follow the turns. One iron core carries two windings, with no wire between them. The primary has 880 turns on 440 V. The secondary has 230. The same flux threads every turn of both. So both windings get the same volts per turn. Here it is 440 ÷ 880 = 0.5 V. The secondary's 230 turns add up to 230 × 0.5 = 115 V. Drag the secondary's turns, and each one adds another 0.5 V. So V2 ÷ V1 = N2 ÷ N1.[^1]\" Read: \"Two windings share one core and one flux. On 440 V, the primary's 880 turns give 0.5 V per turn. So the secondary's 230 turns give 115 V. The volts follow the turns.\" Still: switch open, 880 and 230 turns, both voltage columns drawn.\n\nScreen 3, try it, typed. \"A primary of 880 turns sits on 440 V. A control circuit needs 24 V. How many turns does its secondary need?\" A typed field in turns, whole numbers: answer 48, want \"48 turns\". Slips: 12, \"That multiplies 24 by 0.5. Each turn gives 0.5 V, so divide.\"; 37, \"That is 880 ÷ 24. Find the volts per turn first.\" Hint for any other answer: \"Volts per turn = 440 ÷ 880. Then divide 24 V by it.\" Why: \"440 ÷ 880 = 0.5 V per turn. 24 ÷ 0.5 = 48 turns. Check: 48 turns × 0.5 V = 24 V.\" Read: \"A primary of 880 turns sits on 440 V. A control circuit needs 24 V. How many turns does its secondary need?\"\n\nScreen 4, show. The load switch to close. The words: \"The primary cancels the secondary's ampere-turns. Close the load switch. A 5 Ω load on 115 V draws 23 A. The secondary's 230 turns now carry 230 × 23 = 5290 ampere-turns. They push against the change that made them. But the flux must still make 440 V in the primary, to match the supply. So it cannot shrink. Instead, the primary draws 5290 ÷ 880 = 6.01 A extra to cancel them. The ampere-turns balance: N1 × I1 = N2 × I2. Fewer turns carry more amps.\" Read: \"With a 5 Ω load, the secondary's 230 turns carry 23 A. That is 5290 ampere-turns. The primary cancels them with 6.01 A through its 880 turns.\" Still: switch closed, 5 Ω.\n\nScreen 5, try it, typed. \"A 440 V to 115 V transformer supplies 40 A on its 115 V side. What current does its 440 V side take?\" A typed field in A, two decimal places: answer 10.45, want \"10.45 A\". Slips: 153.04, \"That makes the 115 V side's current the smaller. A step-down raises the current, so the 440 V side carries less.\"; 40, \"The two currents differ by the same ratio as the volts.\" Hint for any other answer: \"I1 = I2 × 115 ÷ 440.\" Why: \"The volts step down by 440 ÷ 115 = 3.826. So the amps step up by the same. 40 ÷ 3.826 = 10.45 A. Check: 440 × 10.45 and 115 × 40 both come to about 4600 W.\" Read: \"A 440 V to 115 V transformer supplies 40 A on its 115 V side. What current does its 440 V side take?\"\n\nScreen 6, show. All three sliders to drag. The words: \"Power in equals power out. Watch the two power bars. Power in is 440 V times 6.01 A. Power out is 115 V times 23 A. Both come to 2645 W. Drag the load or either winding's turns, and they stay equal. The volts step down by the turns ratio. The amps step up by the same ratio. So volts times amps is the same on both sides. The transformer passes power on. Ideally, it makes none and uses none.\" Read: \"Power in is 440 V times 6.01 A. Power out is 115 V times 23 A. Both come to 2645 W, and they stay equal at every setting.\" Still: switch closed, 5 Ω, 880 and 230 turns.\n\nScreen 7, try it, typed. \"A 440 V to 115 V transformer feeds a 3 kW heater on its 115 V side. What current does it take from the 440 V supply?\" A typed field in A, two decimal places: answer 6.82, want \"6.82 A\". Slips: 26.09, \"That is the heater's own current, at 115 V. The 440 V side takes less.\"; 0.01, \"That uses 3 W. A kilowatt is 1000 W.\" Hint for any other answer: \"Power in equals power out. So I1 = 3000 ÷ 440.\" Why: \"Power in equals power out, which is 3000 W. 3000 ÷ 440 = 6.82 A. The heater itself takes 3000 ÷ 115 = 26.09 A.\" Read: \"A 440 V to 115 V transformer feeds a 3 kW heater on its 115 V side. What current does it take from the 440 V supply?\"\n\nScreen 8, show. The load and primary turns sliders to drag. The words: \"The load does not move the flux. Watch the flux bar as you drag the load. It stays at 1.88 mWb. The flux must still make 440 V in the primary, so it swings the same. The primary cancels every ampere-turn the load adds. So a heavier load does not push the core towards saturation. In this ideal picture, only the supply's voltage, its frequency or the primary's turns move the flux. Drag the primary to 1100 turns, and the flux falls to 1.50 mWb.\" Read: \"The flux stays at 1.88 mWb at every load. It moves only with the supply or the primary's turns. On 1100 turns, it falls to 1.50 mWb.\" Still: switch closed, 2 Ω, 880 turns.\n\nScreen 9, try it, typed. \"A 440 V, 60 Hz supply feeds a primary of 880 turns. The load changes from 10 Ω to 5 Ω, and the secondary current doubles from 11.5 A to 23 A. What is the peak flux now?\" A typed field in mWb, two decimal places: answer 1.88, want \"1.88 mWb\". The flux readout shows ? until Check. Slips: 3.76, \"That doubles the flux with the load. The primary cancels the extra ampere-turns.\"; 0.94, \"That halves it. The load does not move the flux either way.\" Hint for any other answer: \"Φm = V ÷ (4.44 × f × N1). Is the load in it?\" Why: \"Φm = 440 ÷ (4.44 × 60 × 880) = 1.88 mWb. The load is not in the rule, so the flux stays put. The primary's current rises from 3.01 A to 6.01 A. That cancels the extra ampere-turns.\" A right Check moves the load from 10 Ω to 5 Ω with the switch closed. Read: \"A 440 V, 60 Hz supply feeds a primary of 880 turns. The load changes from 10 Ω to 5 Ω, and the secondary current doubles from 11.5 A to 23 A. What is the peak flux now?\"\n\nScreen 10, show. The load slider to drag. The words: \"Seen from the supply, the load looks bigger by the turns ratio squared. The supply sees only its own 440 V and the 6.01 A it gives. So the load looks like 440 ÷ 6.01 = 73.2 Ω. The box shows it. On this side, the volts are 3.83 times higher. The amps are 3.83 times lower. So the load looks bigger by the ratio twice over: 5 × (880 ÷ 230)² = 5 × 14.64 = 73.2 Ω. Drag the load, and the box stays at 14.64 times it.\" Read: \"The 440 V side sees 440 V driving 6.01 A. That looks like 73.2 Ω. It is the 5 Ω load times (880 ÷ 230)², which is 14.64.\" Still: switch closed, 5 Ω.\n\nScreen 11, try it, typed. \"On the same 880 to 230 turn transformer, the load is 2.5 Ω. What resistance does the 440 V side see?\" A typed field in Ω, one decimal place: answer 36.6, want \"36.6 Ω\". The box shows ? until Check. Slips: 9.6, \"That multiplies by the ratio once. Volts and amps each change, so square it.\"; 0.2, \"That divides. Seen from the higher voltage, the load looks bigger.\" Hint for any other answer: \"Seen resistance = load × (N1 ÷ N2)².\" Why: \"(880 ÷ 230)² = 14.64. So the 440 V side sees 2.5 × 14.64 = 36.6 Ω. Check: 115 V on 2.5 Ω draws 46 A. The primary takes 46 × 230 ÷ 880 = 12.02 A. And 440 ÷ 12.02 = 36.6 Ω.\" A right Check sets the load to 2.5 Ω. Read: \"On the same 880 to 230 turn transformer, the load is 2.5 Ω. What resistance does the 440 V side see?\"\n\nScreen 12, try it, the first of two mixed puzzles. \"The load on the 115 V side is 3 + j4 Ω. You found its size at the start. The transformer has 880 and 230 turns. What impedance does the 440 V side see?\" Four choices, in this order: \"3 + j4 Ω\"; \"11.5 + j15.3 Ω\"; \"43.9 + j58.6 Ω\"; \"73.2 + j0 Ω\". Right, the third. Hint for the first: \"From the other side, the load looks bigger by the ratio squared.\" Hint for the second: \"That scales it by the ratio once. It takes the ratio squared.\" Hint for the fourth: \"73.2 Ω is its size. Scaling by a plain number keeps its angle.\" Why: \"The ratio squared, 14.64, is a plain number. It scales both parts: 3 × 14.64 = 43.9 and 4 × 14.64 = 58.6. The size grows from 5 Ω to 73.2 Ω. The angle stays the same. So the power factor is the same from both sides.\" Read: \"A 3 + j4 Ω load sits on the 115 V side of the 880 to 230 turn transformer. What impedance does the 440 V side see?\"\n\nScreen 13, try it, the second mixed puzzle, typed. \"A small step-up transformer has 200 turns on 115 V. Its secondary has 800 turns and feeds 2.3 A. What current does the primary take?\" The picture: a step-up, 440 and 920 turns on 20 Ω, so the I1 bar is the longer. A typed field in A, one decimal place: answer 9.2, want \"9.2 A\". Slips: 0.6, \"That has the current rising with the volts. The higher-voltage side carries less, so turn it round.\"; 2.3, \"The two currents differ by the turns ratio.\" Hint for any other answer: \"N1 × I1 = N2 × I2.\" Why: \"800 × 2.3 = 1840 ampere-turns. The primary must cancel them, so it takes 1840 ÷ 200 = 9.2 A. Check the power. The secondary gives 115 × 800 ÷ 200 = 460 V. 460 × 2.3 and 115 × 9.2 both come to 1058 W.\" Read: \"A step-up transformer has 200 turns on 115 V. Its secondary has 800 turns and feeds 2.3 A. What current does the primary take?\"\n\nThe finish. The words: \"Every turn on one core gets the same volts, so the volts follow the turns. The primary cancels the secondary's ampere-turns, so the amps go the other way. Power in equals power out. The flux stays where the supply holds it. Seen through the windings, a load scales by the turns ratio squared. That lets you draw a transformer and its load as one circuit. Next: the real transformer, and where its watts go.\"\n\nEvery figure on these screens is an example value or worked from the rules above.",
+   "ignores": "The transformer is ideal. It draws no current to make its flux. So with the switch open, the primary current reads 0 A. A real one draws a small magnetising current even at no load. Every line of flux is drawn through both windings. In a real core a little leaks round each winding. The windings have no resistance, and the core has no loss. So power in exactly equals power out. The secondary voltage holds at every load. A real transformer warms up, loses a little power, and its output sags a little under load. Under load its flux also falls a very little. The load is a pure resistance on a single-phase supply. Every current and voltage is rms. The core never saturates. The windings are drawn far shorter than real ones.",
+   "numbers": [
+    {
+     "label": "Screen, 1 to 13 (the stepper)",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Number of screens",
+     "value": 13,
+     "kind": "assumed"
+    },
+    {
+     "label": "Supply, in volts rms",
+     "value": 440,
+     "kind": "assumed"
+    },
+    {
+     "label": "Supply frequency, in Hz",
+     "value": 60,
+     "kind": "assumed"
+    },
+    {
+     "label": "Primary turns slider, 440 to 1320 in steps of 220",
+     "value": 880,
+     "kind": "control"
+    },
+    {
+     "label": "Secondary turns slider, 115 to 920 in steps of 115",
+     "value": 230,
+     "kind": "control"
+    },
+    {
+     "label": "Load switch, off or on",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Load slider, 2 to 20 in steps of 1, in ohms",
+     "value": 5,
+     "kind": "control"
+    },
+    {
+     "label": "Volts per turn at 880 turns, 440 ÷ 880",
+     "value": 0.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Secondary volts at 230 turns",
+     "value": 115,
+     "kind": "computed"
+    },
+    {
+     "label": "Secondary volts at 460 turns",
+     "value": 230,
+     "kind": "computed"
+    },
+    {
+     "label": "Turns ratio, 880 ÷ 230",
+     "value": 3.83,
+     "kind": "computed"
+    },
+    {
+     "label": "Ratio squared, (880 ÷ 230)²",
+     "value": 14.64,
+     "kind": "computed"
+    },
+    {
+     "label": "Peak flux at 880 turns, in mWb",
+     "value": 1.88,
+     "kind": "computed"
+    },
+    {
+     "label": "Peak flux at 1100 turns, in mWb",
+     "value": 1.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Secondary current on 5 Ω, in amps",
+     "value": 23,
+     "kind": "computed"
+    },
+    {
+     "label": "Primary current on 5 Ω, in amps",
+     "value": 6.01,
+     "kind": "computed"
+    },
+    {
+     "label": "Ampere-turns each side on 5 Ω, in At",
+     "value": 5290,
+     "kind": "computed"
+    },
+    {
+     "label": "Power in and out on 5 Ω, in watts",
+     "value": 2645,
+     "kind": "computed"
+    },
+    {
+     "label": "Load as the 440 V side sees it, 5 Ω, in ohms",
+     "value": 73.2,
+     "kind": "computed"
+    },
+    {
+     "label": "Secondary current on 10 Ω, in amps",
+     "value": 11.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Primary current on 10 Ω, in amps",
+     "value": 3.01,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 1 load, 3 + j4, in ohms",
+     "value": "3 and 4",
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 1 size, in ohms",
+     "value": 5,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 1 slips, in ohms",
+     "value": "7 and 25",
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 3 control circuit, in volts",
+     "value": 24,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 3 secondary turns, 24 ÷ 0.5",
+     "value": 48,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 3 slips, in turns",
+     "value": "12 and 37",
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 5 secondary current, in amps",
+     "value": 40,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 5 primary current, 40 × 115 ÷ 440, in amps",
+     "value": 10.45,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 5 slip, 40 × 440 ÷ 115, in amps",
+     "value": 153.04,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 5 power each side, in watts",
+     "value": 4600,
+     "kind": "computed"
+    },
+    {
+     "label": "Voltage ratio, 440 ÷ 115",
+     "value": 3.826,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 7 heater, in kilowatts",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 7 primary current, 3000 ÷ 440, in amps",
+     "value": 6.82,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 7 heater current, 3000 ÷ 115, in amps",
+     "value": 26.09,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 7 slip, 3 ÷ 440, in amps",
+     "value": 0.01,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 9 slips, in mWb",
+     "value": "3.76 and 0.94",
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 11 load, in ohms",
+     "value": 2.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 11 seen resistance, 2.5 × 14.64, in ohms",
+     "value": 36.6,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 11 slips, in ohms",
+     "value": "9.6 and 0.2",
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 11 secondary current, 115 ÷ 2.5, in amps",
+     "value": 46,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 11 primary current, in amps",
+     "value": 12.02,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 12 load seen, real part, in ohms",
+     "value": 43.9,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 12 load seen, j part, in ohms",
+     "value": 58.6,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 12 ratio once, in ohms",
+     "value": "11.5 + j15.3",
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 13 turns, primary and secondary",
+     "value": "200 and 800",
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 13 primary supply, in volts",
+     "value": 115,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 13 secondary current, in amps",
+     "value": 2.3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 13 primary current, 800 × 2.3 ÷ 200, in amps",
+     "value": 9.2,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 13 ampere-turns, in At",
+     "value": 1840,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 13 secondary volts, in volts",
+     "value": 460,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 13 power each side, in watts",
+     "value": 1058,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 13 slips, in amps",
+     "value": "0.6 and 2.3",
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 13 picture turns, primary and secondary",
+     "value": "440 and 920",
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 13 picture load, in ohms",
+     "value": 20,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example rating, in kVA",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example 440 V full-load current, in amps",
+     "value": 22.7,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example 115 V full-load current, in amps",
+     "value": 87,
+     "kind": "computed"
+    },
+    {
+     "label": "Loss of a good real transformer, in per cent",
+     "value": 1,
+     "kind": "constant",
+     "source": 2
+    },
+    {
+     "label": "Most secondary volts at 880 primary turns",
+     "value": 460,
+     "kind": "computed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "In a transformer, both windings share one flux. So every turn gets the same voltage, and the volts follow the turns. The supply holds that flux, so a load barely moves it. Whatever ampere-turns the secondary draws, the primary cancels with its own. So the amps go the other way, and power in equals power out.\n\nEach turn gets an emf set by how fast the flux through it changes. Picture an [[ideal transformer]]. All its flux stays in the core. So the same flux threads every turn of both windings. Then every turn gets the same volts. On 440 V, a primary of 880 turns has 0.5 V per turn. A secondary of 230 turns adds up 230 of them. That makes 115 V. So V2 ÷ V1 = N2 ÷ N1.[^1] In a two-winding transformer like this one, the windings share only the flux. No wire joins them. So the secondary is a circuit of its own.\n\nNow switch a 5 Ω load onto the secondary. It draws 115 ÷ 5 = 23 A. So its 230 turns carry 5290 ampere-turns. By Lenz's law, they push against the change that made them. On their own they would shrink the flux. But the flux must still make 440 V in the primary, to match the supply. So the primary draws just enough extra current to cancel them. That is 5290 ÷ 880 = 6.01 A. This is the [[ampere-turn balance]]: N1 × I1 = N2 × I2. A step-down transformer's secondary has fewer turns, so it carries more current, not less. Multiply volts by amps on each side, and both give 2645 W. The transformer passes power on. Ideally, it makes none and uses none.\n\nThe supply sees only its 440 V and the 6.01 A it gives. So to the supply, the 5 Ω load looks like 440 ÷ 6.01 = 73.2 Ω. On this side, the volts are higher by the turns ratio. The amps are lower by it. So the load looks bigger by the ratio squared: 5 × (880 ÷ 230)² = 73.2 Ω. This is the load's [[reflected impedance]]. It lets you draw the whole transformer and its load as one circuit, on one side. This picture is simplified. A real transformer needs a small magnetising current. It loses a little power, as little as 1% in a good one.[^2] And its output sags a little under load. **In an ideal transformer the volts follow the turns, the amps go the other way, and power in equals power out.**"
+  },
+  "analogy": {
+   "text": "Think of two meshed gears in a gearbox. Where the teeth meet, each tooth pushes on the other with the same force. So each gear's torque follows its teeth. In the same way, each winding's volts follow its turns. The gear with more teeth turns slower. Likewise, the winding with more turns carries less current. Torque times speed is the same on both shafts, less a little friction. Volts times amps is the same on both windings.",
+   "breaks": "A gearbox holds a steady torque with its shafts still. A transformer passes nothing on steady DC. Its flux must keep changing. Metal teeth join two gears. In a two-winding transformer, only the flux joins the windings. So the secondary is a separate circuit."
+  },
+  "practice": {
+   "text": "- Treat a secondary as live whenever its primary is energised. Its full voltage is there with no load at all.\n- Find the turns ratio, N1 ÷ N2. In an ideal transformer, it equals V1 ÷ V2. For 440 V to 115 V, it is 3.83.\n- Volts: V2 = V1 × N2 ÷ N1.\n- Amps: I1 = I2 × N2 ÷ N1. On a step-down transformer, the secondary carries the larger current.\n- Check the power: V1 × I1 should match V2 × I2. A real transformer gives out a little less than it takes in.\n- To see a load from the primary side, multiply its impedance by (N1 ÷ N2)². To move one from the primary side to the secondary side, divide by it.\n- Size each side's cables and protection for that side's own current.\n\n**Rules of thumb:** Volts go with the turns. Amps go against them. Volts times amps stays the same. The supply sets the flux, not the load.\n\n**Worked example:** A single-phase 10 kVA transformer steps 440 V down to 115 V. It is rated in kVA, not kW, because its losses follow the volts and the amps, whatever the power factor. Its turns ratio is 440 ÷ 115 = 3.83. At full load, the 440 V side takes 10,000 ÷ 440 = 22.7 A. The 115 V side gives 10,000 ÷ 115 = 87.0 A. Check: 87.0 ÷ 22.7 = 3.83. That is the turns ratio again. From the 440 V side, a 5 Ω load on the 115 V side looks like 5 × (440 ÷ 115)² = 73.2 Ω.\n\n**Common mistakes**\n- Thinking a step-down transformer steps the current down too. It steps it up.\n- Expecting a heavy load to push the core towards saturation. The supply sets the flux. The primary cancels the load's ampere-turns.\n- Scaling an impedance by the ratio once. It takes the ratio squared.\n- Turning the ratio upside down. Ask which side has the higher voltage. That side carries the smaller current and sees the bigger impedance."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "15.6 Transformers - University Physics Volume 2 | OpenStax",
+    "url": "https://openstax.org/books/university-physics-volume-2/pages/15-6-transformers",
+    "quote": "which shows that the ratio of the secondary to primary voltages in a transformer equals the ratio of the number of turns in their windings."
+   },
+   {
+    "n": 2,
+    "title": "15.6 Transformers - University Physics Volume 2 | OpenStax",
+    "url": "https://openstax.org/books/university-physics-volume-2/pages/15-6-transformers",
+    "quote": "A good transformer can have losses as low as 1% of the transmitted power, so this is not a bad assumption."
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: quantity -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .caption { max-width: 32rem; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.08rem; font-weight: 400; line-height: 1.6; }\n  .scene { display: block; width: 100%; max-width: 26rem; margin-inline: auto; touch-action: pan-y; }\n  /* The core, its two windings, the supply and the load. */\n  .scene .iron { fill: var(--k-sunk); stroke: var(--k-ink); stroke-width: 1.6; }\n  .scene .hole { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.6; }\n  .scene .turn { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.3; }\n  .scene .wire { fill: none; stroke: var(--k-ink); stroke-width: 1.6; stroke-linejoin: round; }\n  .scene .dev { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.6; }\n  .scene .term0 { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.4; }\n  .scene .res { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.6; }\n  /* The flux path through both windings, and the voltage columns. */\n  .scene .flux { fill: none; stroke: var(--k-accent2); stroke-width: 2; stroke-dasharray: 6 4; }\n  .scene .fluxh { fill: var(--k-accent2); }\n  .scene .col { fill: var(--k-fill1); stroke: var(--k-accent2); stroke-width: 1.4; }\n  .scene .base { stroke: var(--k-strong); stroke-width: 1.4; }\n  /* The bars. */\n  .scene .bar { fill: var(--k-sunk); stroke: var(--k-line); stroke-width: 1; }\n  .scene .bfill { fill: var(--k-accent2); }\n  .scene .pfill { fill: var(--k-accent); }\n  .scene .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }\n  .scene .ttl { font: 700 16px var(--k-font); fill: var(--k-ink); }\n  .scene .pill { fill: var(--k-bg); stroke: var(--k-line); stroke-width: 1; }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; }\n  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }\n  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-inline: 16px; font-size: .95rem; white-space: nowrap; }\n  /* Three readouts share a row on a laptop; on a phone two share a row and the third takes the next. */\n  .outs .k-readout { flex: 1 1 8rem !important; }\n  /* The two halves of the ampere-turn line wrap onto two rows on a phone. */\n  .ats .k-readout { flex: 1 1 11rem !important; }\n  .seen .seen-v { font-size: 1.5rem; font-weight: 700; margin: 2px 0 0; }\n  .seen .seen-w { margin: 2px 0 0; }\n  .picks { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }\n  .picks .k-btn { min-height: 48px; font-size: 1.05rem; white-space: normal; overflow-wrap: normal; word-break: normal; hyphens: none; }\n  .picks .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  .answers .k-answer { max-width: 20rem; }\n  .fb { font-weight: 700; min-height: 1.5em; }\n  .fb.right { color: var(--k-good); }\n  .why, .done { line-height: 1.6; }\n  .done .row { margin-top: 14px; }\n  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }\n</style>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <svg class=\"scene\" id=\"scene\" viewBox=\"0 0 340 394\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"art\"></g></svg>\n    <div class=\"replay\" id=\"replay\"></div>\n    <div class=\"k-controls\" id=\"c-n1\"></div>\n    <div class=\"k-controls\" id=\"c-n2\"></div>\n    <div class=\"k-controls\" id=\"c-sw\"></div>\n    <div class=\"k-controls\" id=\"c-R\"></div>\n    <div class=\"k-readouts outs\" id=\"outs\"></div>\n    <div id=\"atline\">\n      <span class=\"k-label\">Ampere-turns</span>\n      <div class=\"k-readouts ats\" id=\"ats\"></div>\n    </div>\n    <div class=\"panel seen\" id=\"seen\">\n      <p class=\"k-label\">As the 440&nbsp;V side sees it</p>\n      <p class=\"seen-v\" id=\"seen-v\"></p>\n      <p class=\"small muted seen-w\" id=\"seen-w\"></p>\n    </div>\n    <div class=\"picks\" id=\"picks\"></div>\n    <div class=\"answers\" id=\"answers\"></div>\n    <div class=\"row acts\" id=\"acts\"></div>\n    <p class=\"fb\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p id=\"finish\"></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\">An ideal transformer on a 440 V, 60 Hz supply, worked from the turns ratio. Every value is an example.</p>\n\n<script>\n  // ================= the rules =================\n  const strip = (s) => s.replace(/\\[\\^\\d+\\]/g, '');\n  const NB = ' ';\n  const VS = 440, FQ = 60;                           // the example supply: 440 V rms at 60 Hz\n  const SRC_V = 'https://openstax.org/books/university-physics-volume-2/pages/15-6-transformers';\n\n  // Volts per turn = 440 ÷ N1; V2 = N2 × that; the peak flux is 440 ÷ (4.44 × 60 × N1), and nothing on the\n  // secondary side enters it. With the switch closed I2 = V2 ÷ R, and the primary cancels the secondary's\n  // ampere-turns: I1 = N2 × I2 ÷ N1.\n  function rule(n1, n2, sw, R) {\n    const vpt = VS / n1, v2 = n2 * vpt, phim = VS / (4.44 * FQ * n1);\n    const i2 = sw ? v2 / R : 0, i1 = n2 * i2 / n1;\n    return { vpt, v2, phim, i2, i1, pin: VS * i1, pout: v2 * i2, at1: n1 * i1, at2: n2 * i2, seen: sw ? VS / i1 : null };\n  }\n  const N1S = [440, 660, 880, 1100, 1320], N2S = [115, 230, 345, 460, 575, 690, 805, 920];\n  const r0 = (v) => String(Math.round(v + 1e-7));\n  const fmtV = (v) => { const w = Math.round(v); return Math.abs(v - w) < 0.05 ? String(w) : v.toFixed(1); };\n  const fmtVpt = (v) => String(Number(v.toFixed(3)));\n  const tagText = (volts, turns) => fmtVpt(volts / turns) + NB + 'V a turn';\n  // A bar scale that steps up in round numbers.\n  function niceUp(v) {\n    if (!(v > 0)) return 1;\n    const e = Math.pow(10, Math.floor(Math.log10(v)));\n    const m = [1, 1.5, 2, 3, 4, 5, 6, 8, 10].find((k) => k * e >= v - 1e-9);\n    return (m || 10) * e;\n  }\n\n  // ================= the lesson: SHOW screens demonstrate, DO screens are puzzles =================\n  const ramp = (t, t0, dur, a, b) => a + (b - a) * K.clamp((t - t0) / dur, 0, 1);\n  const R_HEAT = 115 * 115 / 3000;   // the 3 kW heater's resistance at 115 V, in Ω\n  const STEPS = [\n    { kind: 'typed', name: 'Size of a load', ans: 'size', enter: {},\n      answer: 5, decimals: 0, unit: 'Ω', want: '5' + NB + 'Ω',\n      slips: [{ value: 7, hint: 'That adds the parts. The size is the square root of 3² + 4².' },\n        { value: 25, hint: 'That is 3² + 4². Now take its square root.' }],\n      task: 'A load has an impedance of 3 + j4 Ω. What is its size?',\n      hint: 'Size = √(3² + 4²).',\n      why: '√(9 + 16) = √25 = 5 Ω. You will meet this load again later, seen through a transformer.',\n      right: 'Still there.',\n      read: 'A load has an impedance of 3 + j4 Ω. What is its size?' },\n    { show: true, name: 'Volts follow turns', ctl: ['n2'], enter: {}, end: { n2: 230 }, dur: 4.0,\n      demo: (t) => { X.n2 = t < 0.8 ? 230 : t < 1.6 ? 345 : t < 2.6 ? 460 : t < 3.4 ? 345 : 230; },\n      text: strip('The volts follow the turns. One iron core carries two windings, with no wire between them. The primary has 880 turns on 440 V. The secondary has 230. The same flux threads every turn of both. So both windings get the same volts per turn. Here it is 440 ÷ 880 = 0.5 V. The secondary\\'s 230 turns add up to 230 × 0.5 = 115 V. Drag the secondary\\'s turns, and each one adds another 0.5 V. So V2 ÷ V1 = N2 ÷ N1.[^1]'),\n      read: 'Two windings share one core and one flux. On 440 V, the primary\\'s 880 turns give 0.5 V per turn. So the secondary\\'s 230 turns give 115 V. The volts follow the turns.',\n      still: () => setStill() },\n    { kind: 'typed', name: 'A 24 V winding', ans: 'n24', enter: {},\n      answer: 48, decimals: 0, unit: 'turns', want: '48' + NB + 'turns',\n      slips: [{ value: 12, hint: 'That multiplies 24 by 0.5. Each turn gives 0.5 V, so divide.' },\n        { value: 37, hint: 'That is 880 ÷ 24. Find the volts per turn first.' }],\n      task: 'A primary of 880 turns sits on 440 V. A control circuit needs 24 V. How many turns does its secondary need?',\n      hint: 'Volts per turn = 440 ÷ 880. Then divide 24 V by it.',\n      why: '440 ÷ 880 = 0.5 V per turn. 24 ÷ 0.5 = 48 turns. Check: 48 turns × 0.5 V = 24 V.',\n      read: 'A primary of 880 turns sits on 440 V. A control circuit needs 24 V. How many turns does its secondary need?' },\n    { show: true, name: 'Close the switch', ctl: ['sw'], enter: { sw: false }, end: { sw: true }, dur: 3.4,\n      demo: (t) => { X.sw = t >= 0.8; },\n      text: strip('The primary cancels the secondary\\'s *ampere-turns*. Close the load switch. A 5 Ω load on 115 V draws 23 A. The secondary\\'s 230 turns now carry 230 × 23 = 5290 ampere-turns. They push against the change that made them. But the flux must still make 440 V in the primary, to match the supply. So it cannot shrink. Instead, the primary draws 5290 ÷ 880 = 6.01 A extra to cancel them. The ampere-turns balance: N1 × I1 = N2 × I2. Fewer turns carry more amps.'),\n      read: 'With a 5 Ω load, the secondary\\'s 230 turns carry 23 A. That is 5290 ampere-turns. The primary cancels them with 6.01 A through its 880 turns.',\n      still: () => setStill() },\n    { kind: 'typed', name: 'The 440 V side', ans: 'i440', enter: { sw: true },\n      answer: 10.45, decimals: 2, unit: 'A', want: '10.45' + NB + 'A',\n      slips: [{ value: 153.04, hint: 'That makes the 115 V side\\'s current the smaller. A step-down raises the current, so the 440 V side carries less.' },\n        { value: 40, hint: 'The two currents differ by the same ratio as the volts.' }],\n      task: 'A 440 V to 115 V transformer supplies 40 A on its 115 V side. What current does its 440 V side take?',\n      hint: 'I1 = I2 × 115 ÷ 440.',\n      why: 'The volts step down by 440 ÷ 115 = 3.826. So the amps step up by the same. 40 ÷ 3.826 = 10.45 A. Check: 440 × 10.45 and 115 × 40 both come to about 4600 W.',\n      read: 'A 440 V to 115 V transformer supplies 40 A on its 115 V side. What current does its 440 V side take?' },\n    { show: true, name: 'Power in, power out', ctl: ['R', 'n1', 'n2'], enter: { sw: true }, end: { R: 5, n1: 880, n2: 230 }, dur: 4.4,\n      demo: (t) => {\n        X.R = t < 3.4 ? Math.round(ramp(t, 0.6, 1, 5, 10)) : Math.round(ramp(t, 3.4, 0.8, 10, 5));\n        X.n2 = t < 2.0 ? 230 : t < 2.4 ? 345 : t < 3.0 ? 460 : t < 3.3 ? 345 : 230;\n      },\n      text: strip('Power in equals power out. Watch the two power bars. Power in is 440 V times 6.01 A. Power out is 115 V times 23 A. Both come to 2645 W. Drag the load or either winding\\'s turns, and they stay equal. The volts step down by the *turns ratio*. The amps step up by the same ratio. So volts times amps is the same on both sides. The transformer passes power on. Ideally, it makes none and uses none.'),\n      read: 'Power in is 440 V times 6.01 A. Power out is 115 V times 23 A. Both come to 2645 W, and they stay equal at every setting.',\n      still: () => setStill() },\n    // After the answer the load becomes the heater: 115² ÷ 3000 W = 4.41 Ω, so the bars and readouts show its 3000 W and 6.82 A.\n    { kind: 'typed', name: 'A 3 kW heater', ans: 'heat', enter: { sw: true, R: 5 }, run: 1.6,\n      runFn: (t) => { X.R = ramp(t, 0.2, 1.2, 5, R_HEAT); }, runEnd: { R: R_HEAT },\n      answer: 6.82, decimals: 2, unit: 'A', want: '6.82' + NB + 'A',\n      slips: [{ value: 26.09, hint: 'That is the heater\\'s own current, at 115 V. The 440 V side takes less.' },\n        { value: 0.01, hint: 'That uses 3 W. A kilowatt is 1000 W.' }],\n      task: 'A 440 V to 115 V transformer feeds a 3 kW heater on its 115 V side. What current does it take from the 440 V supply?',\n      hint: 'Power in equals power out. So I1 = 3000 ÷ 440.',\n      why: 'Power in equals power out, which is 3000 W. 3000 ÷ 440 = 6.82 A. The heater itself takes 3000 ÷ 115 = 26.09 A.',\n      read: 'A 440 V to 115 V transformer feeds a 3 kW heater on its 115 V side. What current does it take from the 440 V supply?' },\n    { show: true, name: 'The flux holds', ctl: ['R', 'n1'], enter: { sw: true, R: 5 }, end: { R: 2 }, dur: 3.6,\n      demo: (t) => { X.R = Math.round(ramp(t, 0.8, 1.4, 5, 2)); },\n      text: strip('The load does not move the flux. Watch the flux bar as you drag the load. It stays at 1.88 mWb. The flux must still make 440 V in the primary, so it swings the same. The primary cancels every ampere-turn the load adds. So a heavier load does not push the core towards saturation. In this ideal picture, only the supply\\'s voltage, its frequency or the primary\\'s turns move the flux. Drag the primary to 1100 turns, and the flux falls to 1.50 mWb.'),\n      read: 'The flux stays at 1.88 mWb at every load. It moves only with the supply or the primary\\'s turns. On 1100 turns, it falls to 1.50 mWb.',\n      still: () => setStill() },\n    { kind: 'typed', name: 'A heavier load', ans: 'flux', enter: { sw: true, R: 10 }, run: 1.6,\n      runFn: (t) => { X.R = Math.round(ramp(t, 0.2, 1.2, 10, 5)); }, runEnd: { R: 5 },\n      answer: 1.88, decimals: 2, unit: 'mWb', want: '1.88' + NB + 'mWb',\n      slips: [{ value: 3.76, hint: 'That doubles the flux with the load. The primary cancels the extra ampere-turns.' },\n        { value: 0.94, hint: 'That halves it. The load does not move the flux either way.' }],\n      task: 'A 440 V, 60 Hz supply feeds a primary of 880 turns. The load changes from 10 Ω to 5 Ω, and the secondary current doubles from 11.5 A to 23 A. What is the peak flux now?',\n      hint: 'Φm = V ÷ (4.44 × f × N1). Is the load in it?',\n      why: 'Φm = 440 ÷ (4.44 × 60 × 880) = 1.88 mWb. The load is not in the rule, so the flux stays put. The primary\\'s current rises from 3.01 A to 6.01 A. That cancels the extra ampere-turns.',\n      read: 'A 440 V, 60 Hz supply feeds a primary of 880 turns. The load changes from 10 Ω to 5 Ω, and the secondary current doubles from 11.5 A to 23 A. What is the peak flux now?' },\n    { show: true, name: 'Seen from the supply', ctl: ['R'], enter: { sw: true, R: 10 }, end: { R: 5 }, dur: 3.6,\n      demo: (t) => { X.R = Math.round(ramp(t, 0.8, 1.4, 10, 5)); },\n      text: strip('Seen from the supply, the load looks bigger by the turns ratio squared. The supply sees only its own 440 V and the 6.01 A it gives. So the load looks like 440 ÷ 6.01 = 73.2 Ω. The box shows it. On this side, the volts are 3.83 times higher. The amps are 3.83 times lower. So the load looks bigger by the ratio twice over: 5 × (880 ÷ 230)² = 5 × 14.64 = 73.2 Ω. Drag the load, and the box stays at 14.64 times it.'),\n      read: 'The 440 V side sees 440 V driving 6.01 A. That looks like 73.2 Ω. It is the 5 Ω load times (880 ÷ 230)², which is 14.64.',\n      still: () => setStill() },\n    { kind: 'typed', name: 'A 2.5 Ω load', ans: 'seen', enter: { sw: true, R: 5 }, run: 1.6,\n      runFn: (t) => { X.R = Math.round(ramp(t, 0.2, 1.2, 5, 2.5) * 2) / 2; }, runEnd: { R: 2.5 },\n      answer: 36.6, decimals: 1, unit: 'Ω', want: '36.6' + NB + 'Ω',\n      slips: [{ value: 9.6, hint: 'That multiplies by the ratio once. Volts and amps each change, so square it.' },\n        { value: 0.2, hint: 'That divides. Seen from the higher voltage, the load looks bigger.' }],\n      task: 'On the same 880 to 230 turn transformer, the load is 2.5 Ω. What resistance does the 440 V side see?',\n      hint: 'Seen resistance = load × (N1 ÷ N2)².',\n      why: '(880 ÷ 230)² = 14.64. So the 440 V side sees 2.5 × 14.64 = 36.6 Ω. Check: 115 V on 2.5 Ω draws 46 A. The primary takes 46 × 230 ÷ 880 = 12.02 A. And 440 ÷ 12.02 = 36.6 Ω.',\n      read: 'On the same 880 to 230 turn transformer, the load is 2.5 Ω. What resistance does the 440 V side see?' },\n    { kind: 'pick', name: 'Through the windings', enter: { sw: true },\n      opts: ['3 + j4 Ω', '11.5 + j15.3 Ω', '43.9 + j58.6 Ω', '73.2 + j0 Ω'], want: '43.9 + j58.6 Ω',\n      task: 'The load on the 115 V side is 3 + j4 Ω. You found its size at the start. The transformer has 880 and 230 turns. What impedance does the 440 V side see?',\n      hint: 'From the other side, the load looks bigger by the ratio squared.',\n      hints: { '3 + j4 Ω': 'From the other side, the load looks bigger by the ratio squared.',\n        '11.5 + j15.3 Ω': 'That scales it by the ratio once. It takes the ratio squared.',\n        '73.2 + j0 Ω': '73.2 Ω is its size. Scaling by a plain number keeps its angle.' },\n      why: 'The ratio squared, 14.64, is a plain number. It scales both parts: 3 × 14.64 = 43.9 and 4 × 14.64 = 58.6. The size grows from 5 Ω to 73.2 Ω. The angle stays the same. So the power factor is the same from both sides.',\n      read: 'A 3 + j4 Ω load sits on the 115 V side of the 880 to 230 turn transformer. What impedance does the 440 V side see?' },\n    { kind: 'typed', name: 'A step-up', ans: 'up', enter: { sw: true, n1: 440, n2: 920, R: 20 },\n      answer: 9.2, decimals: 1, unit: 'A', want: '9.2' + NB + 'A',\n      slips: [{ value: 0.6, hint: 'That has the current rising with the volts. The higher-voltage side carries less, so turn it round.' },\n        { value: 2.3, hint: 'The two currents differ by the turns ratio.' }],\n      task: 'A small step-up transformer has 200 turns on 115 V. Its secondary has 800 turns and feeds 2.3 A. What current does the primary take?',\n      hint: 'N1 × I1 = N2 × I2.',\n      why: '800 × 2.3 = 1840 ampere-turns. The primary must cancel them, so it takes 1840 ÷ 200 = 9.2 A. Check the power. The secondary gives 115 × 800 ÷ 200 = 460 V. 460 × 2.3 and 115 × 9.2 both come to 1058 W.',\n      read: 'A step-up transformer has 200 turns on 115 V. Its secondary has 800 turns and feeds 2.3 A. What current does the primary take?' },\n  ];\n  const FINISH = 'Every turn on one core gets the same volts, so the volts follow the turns. The primary cancels the secondary\\'s ampere-turns, so the amps go the other way. Power in equals power out. The flux stays where the supply holds it. Seen through the windings, a load scales by the turns ratio squared. That lets you draw a transformer and its load as one circuit. Next: the real transformer, and where its watts go.';\n\n  // ================= state =================\n  const BASE = { n1: 880, n2: 230, sw: false, R: 5 };\n  const X = Object.assign({}, BASE);              // what the picture shows now\n  const D = {};                                   // the drawn sizes, easing towards the rule's\n  const blank = () => ({ pick: null, res: null, why: false, tries: 0, hint: '' });\n  let S = STEPS.map(blank);\n  const solved = (st) => !!st && (st.res === 'right' || st.res === 'shown');\n  let T = Infinity, motionEnd = 0, scripted = false, lastStep = -1, finished = false, lastDone = false, held = false;\n  let REC = { t: {}, bars: {} };\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n  const quiet = () => REDUCE || testing();\n  const el = (id) => document.getElementById(id);\n  const idx = (name) => STEPS.findIndex((d) => d.name === name);\n  const I_AT = idx('Close the switch'), I_BOX = idx('Seen from the supply');\n  // The flux readout and the box keep their answers back until the puzzle that asks for them is checked.\n  const hideFlux = (i) => !finished && STEPS[i].ans === 'flux' && !solved(S[i]);\n  const hideSeen = (i) => !finished && STEPS[i].ans === 'seen' && !solved(S[i]);\n\n  // ================= the drawn sizes ease towards the rule's =================\n  const WC = 134, LMAX = 112, KT = LMAX / 1320;   // the windings' centre, and their drawn length per turn\n  const KV = 156 / 920;                            // the voltage columns: px per volt\n  // Each screen fixes the current and power scales as it opens, from its turns and its heaviest load,\n  // so a bigger current always draws a longer bar on that screen.\n  const SC = { cs: 1, ps: 1 };\n  function setScale(i) {\n    const d = STEPS[i], rs = [X.R];\n    if (d.ctl && d.ctl.indexOf('R') >= 0) rs.push(2);\n    [d.end, d.runEnd].forEach((e) => { if (e && e.R) rs.push(e.R); });\n    const r = rule(X.n1, X.n2, true, Math.min.apply(null, rs));\n    SC.cs = niceUp(Math.max(r.i1, r.i2)); SC.ps = niceUp(r.pin);\n  }\n  function targets() {\n    const r = rule(X.n1, X.n2, X.sw, X.R);\n    return { l1: KT * X.n1, l2: KT * X.n2, v2: r.v2, i1: r.i1, i2: r.i2, p: r.pin, phim: r.phim, cs: SC.cs, ps: SC.ps };\n  }\n  function snapD() { Object.assign(D, targets()); }\n  function tween(dt) {\n    const t = targets(), a = 1 - Math.exp(-dt / 0.2);\n    Object.keys(t).forEach((k) => { const e = t[k] - D[k]; D[k] = Math.abs(e) <= 1e-6 * Math.max(1, Math.abs(t[k])) ? t[k] : D[k] + e * a; });\n  }\n  function settled() { const t = targets(); return Object.keys(t).every((k) => D[k] === t[k]); }\n  setScale(0);\n  snapD();\n\n  // ================= text with amber key terms (built with K.el, never innerHTML) =================\n  const UNIT_GAP = /(\\d) (?=(?:Hz|mWb|Wb|V|A|Ω|W|At|kW|turns)(?![A-Za-z]))/g;\n  function write(node, s) {\n    node.textContent = '';\n    String(s || '').replace(UNIT_GAP, '$1' + NB).replace(/(\\d) \\+ j/g, '$1' + NB + '+' + NB + 'j').split(/\\*([^*]+)\\*/).forEach((seg, k) => {\n      if (!seg) return;\n      node.appendChild(k % 2 ? K.el('span', { class: 'term' }, seg) : document.createTextNode(seg));\n    });\n  }\n\n  // ================= controls =================\n  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);\n  const CTL = {\n    n1: K.control({ id: 'n1', label: 'Primary turns, N1', min: 440, max: 1320, step: 220, value: 880, snap: [880, 1100], fmt: (v) => v + NB + 'turns', into: '#c-n1' }),\n    n2: K.control({ id: 'n2', label: 'Secondary turns, N2', min: 115, max: 920, step: 115, value: 230, snap: [230, 460], fmt: (v) => v + NB + 'turns', into: '#c-n2' }),\n    sw: K.toggle({ id: 'sw', label: 'Load switch closed', value: false, into: '#c-sw' }),\n    R: K.control({ id: 'R', label: 'Load', min: 2, max: 20, step: 1, value: 5, snap: [2, 5, 10], fmt: (v) => v + NB + 'Ω', into: '#c-R' }),\n  };\n  const CTL_IDS = Object.keys(CTL);\n  const pushed = {};\n  CTL_IDS.forEach((id) => { pushed[id] = CTL[id].get(); });\n  // The page moves the controls itself during a demonstration (silently, so it is not taken for Dan's move).\n  function push() {\n    CTL_IDS.forEach((id) => { if (pushed[id] !== X[id]) { CTL[id].set(X[id], true); pushed[id] = CTL[id].get(); } });\n  }\n  const shownCtl = (d, id) => !finished && !!d.ctl && d.ctl.indexOf(id) >= 0;\n  function layoutCtl(d) { CTL_IDS.forEach((id) => { el('c-' + id).hidden = !shownCtl(d, id); }); }\n\n  const RO = {\n    v2: K.readout({ id: 'r-v2', label: 'Secondary volts, V2', fmt: (v) => fmtV(v) + NB + 'V', into: '#outs' }),\n    i2: K.readout({ id: 'r-i2', label: 'Secondary current, I2', fmt: (v) => v.toFixed(2) + NB + 'A', into: '#outs' }),\n    i1: K.readout({ id: 'r-i1', label: 'Primary current, I1', fmt: (v) => v.toFixed(2) + NB + 'A', into: '#outs' }),\n    at1: K.readout({ id: 'r-at1', label: 'Primary, N1 × I1', fmt: (v) => r0(v) + NB + 'At', into: '#ats' }),\n    at2: K.readout({ id: 'r-at2', label: 'Secondary, N2 × I2', fmt: (v) => r0(v) + NB + 'At', into: '#ats' }),\n  };\n\n  // Up to four answer buttons; each puzzle fills in its own.\n  const pickBtns = [0, 1, 2, 3].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.kind !== 'pick' || k >= d.opts.length || solved(st)) return;\n    st.pick = d.opts[k]; st.res = null;\n  } }));\n  // Typed answers: a field each; Check grades it, two misses show the working.\n  const ANS = {};\n  STEPS.forEach((d, i) => {\n    if (d.kind !== 'typed') return;\n    el('answers').appendChild(K.el('div', { id: 'ans-' + d.ans }));\n    const a = K.answer({ id: 'a-' + d.ans, unit: d.unit, answer: d.answer, decimals: d.decimals, accept: d.accept, slips: d.slips, into: '#ans-' + d.ans,\n      onCheck: (r) => {\n        const st = S[i];\n        if (solved(st)) return;\n        if (r.state === 'right') { st.res = 'right'; playRun(i, d.run); }\n        else if (r.state === 'wrong') {\n          st.tries += 1; st.hint = r.hint || d.hint;\n          if (st.tries >= 2) { st.res = 'shown'; st.why = true; a.reveal(); playRun(i, d.run); }\n          else st.res = 'wrong';\n        } else { st.res = r.state; st.hint = ''; }\n        K.refresh();\n      } });\n    ANS[d.ans] = a;\n  });\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || solved(st)) return;\n    if (d.kind === 'typed') { ANS[d.ans].check(); return; }\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = st.pick === d.want ? 'right' : 'wrong';\n    if (st.res === 'right') playRun(i, d.run);\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    const d = STEPS[at()];\n    if (d.show || finished) return;\n    S[at()].why = !S[at()].why;\n  } });\n  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {\n    if (!STEPS[at()].show || finished) return;\n    startDemo(at());\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && !solved(S[i]))) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true; anim.pause(); T = Infinity;\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S = STEPS.map(blank); finished = false; lastStep = -1;\n    Object.keys(ANS).forEach((k) => ANS[k].reset());\n    stepper.set(0, true);\n  } });\n\n  // ================= motion: one animation runs the demonstrations, the answers' motion and the easing =================\n  const needAnim = () => !finished && (T !== Infinity || !settled());\n  function finishNow(i) {\n    if (T === Infinity) return;\n    const d = STEPS[i];\n    T = Infinity;\n    if (scripted) { scripted = false; Object.assign(X, d.end || {}); }\n    else if (solved(S[i])) Object.assign(X, d.runEnd || {});\n    push();\n  }\n  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {\n    if (finished) return false;\n    dt = Math.min(dt, 0.1);\n    const i = at(), d = STEPS[i], st = S[i];\n    if (T !== Infinity) {\n      T += dt;\n      const tt = Math.min(T, motionEnd);\n      if (scripted) { if (d.demo) d.demo(tt); }\n      else if (solved(st) && d.runFn) d.runFn(tt);\n    }\n    if (T !== Infinity && T >= motionEnd) finishNow(i);\n    tween(dt);\n    push();\n    paint(i);\n    return needAnim();\n  } });\n  function kick() {\n    if (quiet()) { snapD(); return; }\n    if (needAnim() && !anim.playing()) anim.play();\n  }\n  // A screen's state: its opening, then (at once) its answer's motion or its demonstration.\n  function prep(i, solvedNow, showEnd) {\n    const d = STEPS[i];\n    Object.assign(X, BASE, d.enter || {});\n    setScale(i);\n    if (d.show) { if (showEnd) { if (d.demo) d.demo(d.dur); Object.assign(X, d.end || {}); } }\n    else if (solvedNow) { if (d.runFn) d.runFn(d.run); Object.assign(X, d.runEnd || {}); }\n    snapD();\n  }\n  function startDemo(i) {\n    const d = STEPS[i];\n    anim.pause(); held = false;\n    if (d.demo && !quiet()) { prep(i, false, false); scripted = true; motionEnd = d.dur; T = 0; d.demo(0); snapD(); anim.play(); }\n    else { scripted = false; T = Infinity; prep(i, false, true); }\n    push();\n  }\n  function playRun(i, dur) {\n    const d = STEPS[i];\n    anim.pause(); scripted = false; held = false;\n    if (quiet() || !dur) {\n      T = Infinity;\n      if (solved(S[i]) && d.runFn && dur) d.runFn(dur);\n      if (solved(S[i])) Object.assign(X, d.runEnd || {});\n      push(); snapD(); return;\n    }\n    T = 0; motionEnd = dur; anim.play();\n  }\n  function enterStep(i) {\n    const d = STEPS[i];\n    anim.pause(); T = Infinity; scripted = false; held = false;\n    enter('stepbox');\n    if (d.show) { startDemo(i); return; }\n    prep(i, solved(S[i]), false);\n    push();\n  }\n  // The finished picture a still shows (the read-through), with the controls where its words end.\n  function setStill() {\n    const i = at();\n    anim.pause(); T = Infinity; scripted = false; held = true;\n    prep(i, true, true);\n    push();\n    K.refresh();\n  }\n  function enter(id) {\n    if (REDUCE) return;\n    const box = el(id);\n    box.classList.remove('enter');\n    void box.offsetWidth;\n    box.classList.add('enter');\n  }\n\n  // ================= drawing helpers =================\n  const svg = el('scene'), art = el('art');\n  const add = (node, par) => (par || art).appendChild(node);\n  const r1 = (v) => Math.round(v * 10) / 10;\n  const twCache = {};\n  function tw(s, cls) {\n    const key = (cls || 'lab') + '|' + s;\n    if (twCache[key]) return twCache[key];\n    let w = 0;\n    try { const t = svg.appendChild(K.svg('text', { class: cls || 'lab', x: 0, y: -50 }, s)); w = t.getComputedTextLength(); svg.removeChild(t); } catch (e) { w = 0; }\n    if (!(w > 0)) return s.length * 7.6;\n    twCache[key] = w;\n    return w;\n  }\n  const text = (x, y, s, cls, anchor) => add(K.svg('text', { class: cls || 'lab', x: r1(x), y: r1(y), 'text-anchor': anchor || 'start' }, s));\n  const ptsS = (pts) => pts.map((p) => r1(p[0]) + ',' + r1(p[1])).join(' ');\n  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r1(x1), y1: r1(y1), x2: r1(x2), y2: r1(y2) }));\n  const poly = (cls, pts) => add(K.svg('polyline', { class: cls, points: ptsS(pts) }));\n  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: r1(x), y: r1(y), width: r1(Math.max(0, w)), height: r1(Math.max(0, h)), rx: rx || 0 }));\n  const circle = (cls, cx, cy, r) => add(K.svg('circle', { class: cls, cx, cy, r }));\n  // A tag: one drawn turn and the volts it carries.\n  function tag(cx, y, s) {\n    const w = 12 + 5 + tw(s) + 16, x0 = cx - w / 2;\n    rect('pill', x0, y - 10, w, 20, 6);\n    rect('turn', x0 + 8, y - 1.8, 12, 3.6, 1.8);\n    text(x0 + 8 + 12 + 5, y + 4.5, s);\n  }\n  // A winding: its drawn length follows its turns; it returns where its two ends are.\n  function winding(x, len) {\n    const n = Math.max(2, Math.round(len / 5.6)), top = WC - len / 2;\n    for (let k = 0; k < n; k++) rect('turn', x, top + k * len / (n - 1) - 1.8, 36, 3.6, 1.8);\n    return [top, top + len];\n  }\n\n  // ================= the picture =================\n  const CX0 = 104, CX1 = 236, CY0 = 52, CY1 = 216, LB = 24;   // the core\n  const W1X = 98, W2X = 206;                                   // the windings' left edges\n  const C1X = 70, C2X = 256, CW = 14;                          // the voltage columns\n  const XL = 20, XW1 = 92, XW2 = 248, XR = 322, YT = 36, YB = 228;\n  const FY = 292, I1Y = 314, I2Y = 332, P1Y = 358, P2Y = 376;  // the bars\n  function drawScene(i) {\n    const r = rule(X.n1, X.n2, X.sw, X.R), hf = hideFlux(i);\n    text(52, 16, '440' + NB + 'V, 60' + NB + 'Hz', 'lab', 'middle');\n    text(170, 46, 'the same flux, Φ', 'lab', 'middle');\n    // The core, and the one flux path that threads both windings.\n    rect('iron', CX0, CY0, CX1 - CX0, CY1 - CY0, 12);\n    rect('hole', CX0 + LB, CY0 + LB, CX1 - CX0 - 2 * LB, CY1 - CY0 - 2 * LB, 4);\n    rect('flux', 116, 64, 108, 140, 10);\n    add(K.svg('polygon', { class: 'fluxh', points: ptsS([[182, 64], [172, 59], [172, 69]]) }));\n    add(K.svg('polygon', { class: 'fluxh', points: ptsS([[158, 204], [168, 199], [168, 209]]) }));\n    // The wires, then the windings over them.\n    const e1 = [WC - D.l1 / 2, WC + D.l1 / 2], e2 = [WC - D.l2 / 2, WC + D.l2 / 2];\n    poly('wire', [[W1X, e1[0]], [XW1, e1[0]], [XW1, YT], [XL, YT], [XL, YB], [XW1, YB], [XW1, e1[1]], [W1X, e1[1]]]);\n    poly('wire', [[W2X + 36, e2[0]], [XW2, e2[0]], [XW2, YT], [XR, YT], [XR, 66]]);\n    line('wire', XR, 94.6, XR, 108);\n    poly('wire', [[XR, 154], [XR, YB], [XW2, YB], [XW2, e2[1]], [W2X + 36, e2[1]]]);\n    winding(W1X, D.l1);\n    winding(W2X, D.l2);\n    // The supply.\n    circle('dev', 52, YT, 11);\n    text(52, YT + 5.5, '~', 'ttl', 'middle');\n    // The load behind its switch.\n    line('wire', XR, 92, X.sw ? XR : XR + 12, X.sw ? 71.2 : 74);\n    circle('term0', XR, 68.6, 2.6);\n    circle('term0', XR, 92, 2.6);\n    rect('res', XR - 6, 108, 12, 46, 2);\n    text(310, 126, 'load', 'lab', 'end');\n    text(310, 142, Number(X.R.toFixed(2)) + NB + 'Ω', 'lab', 'end');\n    // The voltage columns: turns × volts per turn, on one scale.\n    const h1 = KV * VS, h2 = KV * D.v2;\n    rect('col', C1X, CY1 - h1, CW, h1, 0);\n    if (h2 > 0.3) rect('col', C2X, CY1 - h2, CW, h2, 0);\n    line('base', C1X - 4, CY1, C1X + CW + 4, CY1);\n    line('base', C2X - 4, CY1, C2X + CW + 4, CY1);\n    text(C1X + CW / 2, CY1 - h1 - 6, 'V1', 'lab', 'middle');\n    text(C2X + CW / 2, CY1 - h2 - 6, 'V2', 'lab', 'middle');\n    // The turns, and the tag of one turn's volts on each side.\n    text(104, 248, 'N1 = ' + X.n1 + NB + 'turns', 'lab', 'middle');\n    text(236, 248, 'N2 = ' + X.n2 + NB + 'turns', 'lab', 'middle');\n    const tg1 = tagText(VS, X.n1), tg2 = tagText(r.v2, X.n2);\n    tag(104, 270, tg1);\n    tag(236, 270, tg2);\n    // The flux bar: it moves only with the primary's turns.\n    text(92, FY + 9.5, 'Peak flux', 'lab', 'end');\n    rect('bar', 98, FY, 148, 10, 3);\n    const fw = 148 * K.clamp(D.phim / 0.004, 0, 1);\n    if (fw > 0.3) rect('bfill', 98, FY, fw, 10, 0);\n    const ft = hf ? '?' : (r.phim * 1e3).toFixed(2) + NB + 'mWb';\n    text(252, FY + 9.5, ft);\n    // The two currents on one scale.\n    const cw1 = 232 * K.clamp(D.i1 / D.cs, 0, 1), cw2 = 232 * K.clamp(D.i2 / D.cs, 0, 1);\n    text(92, I1Y + 9.5, 'I1, primary', 'lab', 'end');\n    rect('bar', 98, I1Y, 232, 10, 3);\n    if (cw1 > 0.3) rect('bfill', 98, I1Y, cw1, 10, 0);\n    text(92, I2Y + 9.5, 'I2, secondary', 'lab', 'end');\n    rect('bar', 98, I2Y, 232, 10, 3);\n    if (cw2 > 0.3) rect('bfill', 98, I2Y, cw2, 10, 0);\n    // A current past this screen's scale stops at the end of its track, with an arrow.\n    [[D.i1, I1Y], [D.i2, I2Y]].forEach((q) => { if (q[0] > D.cs * 1.0001) add(K.svg('polygon', { class: 'fluxh', points: ptsS([[331, q[1]], [338, q[1] + 5], [331, q[1] + 10]]) })); });\n    // Power in and power out.\n    const pw = 148 * K.clamp(D.p / D.ps, 0, 1), pin = r0(r.pin) + NB + 'W', pout = r0(r.pout) + NB + 'W';\n    text(92, P1Y + 9.5, 'Power in', 'lab', 'end');\n    rect('bar', 98, P1Y, 148, 10, 3);\n    if (pw > 0.3) rect('pfill', 98, P1Y, pw, 10, 0);\n    text(252, P1Y + 9.5, pin);\n    text(92, P2Y + 9.5, 'Power out', 'lab', 'end');\n    rect('bar', 98, P2Y, 148, 10, 3);\n    if (pw > 0.3) rect('pfill', 98, P2Y, pw, 10, 0);\n    text(252, P2Y + 9.5, pout);\n    Object.assign(REC.t, { flux: ft, pin, pout, tag1: tg1, tag2: tg2 });\n    Object.assign(REC.bars, { i1: cw1, i2: cw2, p: pw, flux: fw, v1: h1, v2: h2 });\n    REC.R = X.R; REC.sw = X.sw;\n    // What it shows, in words (no readout's number).\n    const cmp = X.n2 < X.n1 ? 'shorter than' : X.n2 > X.n1 ? 'taller than' : 'as tall as';\n    let said = 'An iron core with two windings and no wire between them. The primary has ' + X.n1 + ' turns on 440 V, 60 Hz. The secondary has ' + X.n2 +\n      ' turns. The same flux threads every turn, so every turn carries the same volts, and the secondary\\'s voltage column is ' + cmp + ' the primary\\'s.';\n    said += X.sw ? ' The load switch is closed on ' + X.R + ' Ω. The ' + (X.n2 < X.n1 ? 'secondary' : 'primary') + '\\'s current bar is the longer, the power in and power out bars are equal, and the flux bar holds where the supply sets it.'\n      : ' The load switch is open, so no current flows and the power bars are empty.';\n    REC.said = said;\n  }\n\n  // ================= one paint =================\n  function paint(i) {\n    if (i == null) i = at();\n    art.textContent = '';\n    REC = { t: {}, bars: {} };\n    drawScene(i);\n    svg.setAttribute('aria-label', REC.said);\n    readouts(i);\n  }\n  function readouts(i) {\n    const r = rule(X.n1, X.n2, X.sw, X.R), hs = hideSeen(i);\n    RO.v2.set(r.v2); RO.i2.set(r.i2); RO.i1.set(r.i1); RO.at1.set(r.at1); RO.at2.set(r.at2);\n    const sv = hs ? '?' : X.sw ? r.seen.toFixed(1) + NB + 'Ω' : 'Open';\n    const sw = hs ? '' : X.sw ? 'The ' + X.R + NB + 'Ω load × (' + X.n1 + ' ÷ ' + X.n2 + ')²' : 'The switch is open, so there is no load to see.';\n    el('seen-v').textContent = sv;\n    el('seen-w').textContent = sw;\n    el('seen-w').hidden = !sw;\n    REC.t.seen = sv;\n    Object.keys(RO).forEach((k) => { REC.t[k] = RO[k].text(); });\n  }\n\n  // ================= the page around the picture =================\n  write(el('finish'), FINISH);\n  function layout(i) {\n    const d = STEPS[i], st = S[i], sol = solved(st);\n    el('stepbox').hidden = finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Screen ' + (i + 1) + ' of ' + STEPS.length;\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    write(task, d.show ? d.text : d.task);\n    layoutCtl(d);\n    replayBtn.el.hidden = !d.show || !d.demo || REDUCE;\n    el('replay').hidden = replayBtn.el.hidden;\n    el('atline').hidden = i < I_AT;\n    el('seen').hidden = i < I_BOX;\n    const opts = d.kind === 'pick' ? d.opts : [];\n    el('picks').hidden = !opts.length;\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      if (b.el.textContent !== opts[k]) b.setLabel(opts[k]);\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n    el('answers').hidden = d.kind !== 'typed';\n    Object.keys(ANS).forEach((key) => { el('ans-' + key).hidden = d.ans !== key; });\n    el('acts').hidden = !!d.show;\n    checkBtn.el.hidden = sol;\n    const fb = el('fb');\n    fb.hidden = !!d.show;\n    fb.className = 'fb' + (st.res === 'right' ? ' right' : '');\n    let say = '';\n    if (!d.show) {\n      if (st.res === 'right') say = d.right || 'That\\'s it.';\n      else if (st.res === 'shown') say = 'Here is the working.';\n      else if (st.res === 'wrong') say = d.kind === 'typed' ? st.hint : (d.hints && d.hints[st.pick]) || d.hint;\n      else if (st.res === 'empty' && d.kind === 'pick') say = 'Pick one of the answers first.';\n    }\n    write(fb, say);\n    const why = el('why');\n    why.hidden = d.show || !st.why;\n    write(why, d.show ? '' : d.why);\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !sol);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  }\n\n  K.update((p) => {\n    const i = at(), d = STEPS[i];\n    if (i !== lastStep) { lastStep = i; enterStep(i); }\n    else {\n      let moved = false;\n      CTL_IDS.forEach((id) => {\n        if (p[id] === pushed[id]) return;\n        if (shownCtl(d, id)) {\n          if (T !== Infinity) { anim.pause(); T = Infinity; scripted = false; }   // his move ends the demonstration where it stands\n          X[id] = p[id]; pushed[id] = p[id]; moved = true;\n        } else CTL[id].set(pushed[id], true);      // a control this screen does not use stays put\n      });\n      if (moved) { held = false; push(); }\n    }\n    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }\n    if (quiet()) snapD();\n    layout(i);\n    paint(i);\n    kick();\n  });\n\n  // ================= known answers, worked out by hand =================\n  const near = (a, b, t) => Math.abs(a - b) <= t;\n  const solvedSt = (i) => Object.assign(blank(), STEPS[i].kind === 'pick' ? { pick: STEPS[i].want, res: 'right' } : { res: 'right' });\n  // A screen painted in the state given (finished), with optional settings: what it drew.\n  function drawn(i, st, x) {\n    const keep = { X: Object.assign({}, X), D: Object.assign({}, D), SC: Object.assign({}, SC), S: S[i], T, sc: scripted, held };\n    S[i] = st || blank(); T = Infinity; scripted = false; held = true;\n    try {\n      prep(i, solved(S[i]), true);\n      if (x) Object.assign(X, x);\n      snapD();\n      paint(i);\n      return REC;\n    } finally {\n      Object.assign(X, keep.X); Object.assign(D, keep.D); Object.assign(SC, keep.SC); S[i] = keep.S; T = keep.T; scripted = keep.sc; held = keep.held; paint();\n    }\n  }\n  const iSize = idx('Size of a load'), iVolts = idx('Volts follow turns'), iN24 = idx('A 24 V winding'), iClose = idx('Close the switch');\n  const iI440 = idx('The 440 V side'), iPower = idx('Power in, power out'), iHeat = idx('A 3 kW heater'), iHolds = idx('The flux holds');\n  const iHeavy = idx('A heavier load'), iSeen = idx('Seen from the supply'), iTwo = idx('A 2.5 Ω load'), iPick = idx('Through the windings'), iUp = idx('A step-up');\n  const V_ = (s) => s + NB + 'V', A_ = (s) => s + NB + 'A', MWB = (s) => s + NB + 'mWb', OHM = (s) => s + NB + 'Ω', W_ = (s) => s + NB + 'W', AT_ = (s) => s + NB + 'At';\n  const every = (fn) => N1S.every((n1) => N2S.every((n2) => [2, 5, 10, 20].every((R) => fn(n1, n2, R))));\n\n  K.check('The ratio of the secondary to primary voltages equals the ratio of the turns in their windings', () => {\n    const a = drawn(iVolts), b = drawn(iVolts, null, { n2: 460 });\n    return every((n1, n2) => near(rule(n1, n2, false, 5).v2 / VS, n2 / n1, 1e-12)) && a.t.v2 === V_('115') && b.t.v2 === V_('230') && near(b.bars.v2, 2 * a.bars.v2, 1e-9);\n  }, { source: SRC_V });\n  K.check('The same flux permeates each turn of both the primary and the secondary, so each turn carries the same volts on both sides', () => {\n    const a = drawn(iVolts);\n    return every((n1, n2) => tagText(VS, n1) === tagText(rule(n1, n2, false, 5).v2, n2)) && a.t.tag1 === a.t.tag2 && a.t.tag1 === '0.5' + NB + 'V a turn';\n  }, { source: SRC_V });\n  K.check('The current ratio is the inverse of the voltage ratio, and the transformer neither creates nor consumes power', () =>\n    every((n1, n2, R) => { const r = rule(n1, n2, true, R); return near(r.i1 / r.i2, r.v2 / VS, 1e-12) && near(r.pin, r.pout, 1e-9 * r.pin) && r0(r.pin) === r0(r.pout); }));\n  K.check('On 5 Ω the secondary draws 23 A, so 5290 ampere-turns; the primary cancels them with 6.01 A, and 2645 W goes in and out', () => {\n    const c = drawn(iClose).t, o = drawn(iClose, null, { sw: false }).t;\n    return c.i2 === A_('23.00') && c.i1 === A_('6.01') && c.at1 === AT_('5290') && c.at2 === AT_('5290') && c.pin === W_('2645') && c.pout === W_('2645') &&\n      o.i1 === A_('0.00') && o.pin === W_('0') && o.seen === 'Open';\n  });\n  K.check('The flux holds at 1.88 mWb with the switch open and on 10, 5 or 2 Ω, and falls to 1.50 mWb on 1100 primary turns', () => {\n    const f = (x) => drawn(iHolds, null, x).t.flux;\n    return f({ sw: false }) === MWB('1.88') && f({ R: 10 }) === MWB('1.88') && f({ R: 5 }) === MWB('1.88') && f({ R: 2 }) === MWB('1.88') && f({ n1: 1100 }) === MWB('1.50');\n  });\n  K.check('A step-down raises the current: on 880 and 230 turns the secondary current bar is 3.83 times the primary\\'s; on 660 and 920 turns, and in the step-up puzzle\\'s picture, it is the shorter', () => {\n    const a = drawn(iClose).bars, b = drawn(iPower, null, { n1: 660, n2: 920, R: 20 }).bars, u = drawn(iUp, solvedSt(iUp)).bars;\n    return near(a.i2 / a.i1, 880 / 230, 1e-6) && near(880 / 230, 3.83, 0.005) && b.i2 < b.i1 && near(b.i2 / b.i1, 660 / 920, 1e-6) && u.i2 < u.i1;\n  });\n  K.check('A bigger current always draws a longer bar: on 10 Ω, taking the secondary from 230 to 460 turns doubles the I2 bar and quadruples the power bars', () => {\n    const a = drawn(iPower, null, { R: 10 }).bars, b = drawn(iPower, null, { R: 10, n2: 460 }).bars;\n    return a.i2 > 0 && a.p > 0 && near(b.i2, 2 * a.i2, 1e-9) && near(b.p, 4 * a.p, 1e-9);\n  });\n  K.check('The 440 V side sees 73.2 Ω on 5 Ω, which is 5 × 14.64, 146.4 Ω on 10 Ω and 29.3 Ω on 2 Ω', () => {\n    const s = (x) => drawn(iSeen, null, x).t.seen;\n    return s({ R: 5 }) === OHM('73.2') && s({ R: 10 }) === OHM('146.4') && s({ R: 2 }) === OHM('29.3') && near(Math.pow(880 / 230, 2), 14.64, 0.005) &&\n      every((n1, n2, R) => near(rule(n1, n2, true, R).seen, R * Math.pow(n1 / n2, 2), 1e-9 * R * Math.pow(n1 / n2, 2)));\n  });\n  K.check('Each typed answer and slip is worked from its rule: 5 Ω (7, 25), 48 turns (12, 37), 10.45 A (153.04, 40), 6.82 A (26.09, 0.01), 1.88 mWb (3.76, 0.94), 36.6 Ω (9.6, 0.2) and 9.2 A (0.6, 2.3)', () => {\n    const sl = (i, v) => STEPS[i].slips.length === v.length && STEPS[i].slips.every((s, k) => near(s.value, v[k], 1e-12));\n    const r2 = (v) => Math.round(v * 100) / 100, r1_ = (v) => Math.round(v * 10) / 10, sq = Math.pow(880 / 230, 2);\n    const work = near(Math.hypot(3, 4), 5, 1e-12) && 3 + 4 === 7 && 9 + 16 === 25 &&\n      near(24 / (440 / 880), 48, 1e-9) && near(24 * 0.5, 12, 1e-9) && Math.round(880 / 24) === 37 &&\n      r2(40 * 115 / 440) === 10.45 && r2(40 * 440 / 115) === 153.04 &&\n      r2(3000 / 440) === 6.82 && r2(3000 / 115) === 26.09 && r2(3 / 440) === 0.01 &&\n      r2(rule(880, 230, true, 5).phim * 1e3) === 1.88 && r2(2 * 1.88) === 3.76 && r2(1.88 / 2) === 0.94 &&\n      r1_(2.5 * sq) === 36.6 && r1_(2.5 * 880 / 230) === 9.6 && r1_(2.5 / sq) === 0.2 &&\n      near(800 * 2.3 / 200, 9.2, 1e-9) && r1_(2.3 * 200 / 800) === 0.6 && near(115 * 9.2, 460 * 2.3, 1e-9) &&\n      r1_(3 * sq) === 43.9 && r1_(4 * sq) === 58.6 && r1_(3 * 880 / 230) === 11.5 && r1_(4 * 880 / 230) === 15.3;\n    return work && STEPS[iSize].answer === 5 && STEPS[iN24].answer === 48 && STEPS[iI440].answer === 10.45 && STEPS[iHeat].answer === 6.82 &&\n      STEPS[iHeavy].answer === 1.88 && STEPS[iTwo].answer === 36.6 && STEPS[iUp].answer === 9.2 && STEPS[iPick].want === STEPS[iPick].opts[2] &&\n      sl(iSize, [7, 25]) && sl(iN24, [12, 37]) && sl(iI440, [153.04, 40]) && sl(iHeat, [26.09, 0.01]) && sl(iHeavy, [3.76, 0.94]) && sl(iTwo, [9.6, 0.2]) && sl(iUp, [0.6, 2.3]);\n  });\n  K.check('A right Check on the 3 kW heater moves the load to 115² ÷ 3000 = 4.41 Ω, where the primary takes 6.82 A and 3000 W goes in', () => {\n    const r = rule(880, 230, true, R_HEAT);\n    return Math.abs(r.i1 - 6.82) < 0.005 && Math.abs(r.pin - 3000) < 0.5 && STEPS.filter((d) => d.name === 'A 3 kW heater')[0].runEnd.R === R_HEAT;\n  });\n  K.check('Before a Check the flux and the box show ?; a right Check moves the load from 10 Ω to 5 Ω with the flux at 1.88 mWb, and from 5 Ω to 2.5 Ω with the box at 36.6 Ω', () => {\n    const b = (i) => drawn(i, blank()), s = (i) => drawn(i, solvedSt(i));\n    const hb = b(iHeavy), hs = s(iHeavy), tb = b(iTwo), ts = s(iTwo);\n    return hb.t.flux === '?' && hb.R === 10 && hs.t.flux === MWB('1.88') && hs.R === 5 && tb.t.seen === '?' && tb.R === 5 && ts.t.seen === OHM('36.6') && ts.R === 2.5;\n  });\n  K.check('Every demonstration ends 3 to 4.5 s after its screen opens, and every answer\\'s motion within 2.5 s', () =>\n    STEPS.every((d) => d.show ? (d.dur >= 3 && d.dur <= 4.5) : (!d.run || d.run <= 2.5)));\n  K.ready();\n</script>",
+  "title": "The turns ratio",
+  "brief": "The one thing you should see is the primary's current rise to 6.01 A when you drag the load from 10 Ω to 5 Ω. It cancels the secondary's 5290 ampere-turns. The flux stays at 1.88 mWb.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "The ratio of the secondary to primary voltages equals the ratio of the turns in their windings",
+     "ok": true,
+     "source": "https://openstax.org/books/university-physics-volume-2/pages/15-6-transformers"
+    },
+    {
+     "label": "The same flux permeates each turn of both the primary and the secondary, so each turn carries the same volts on both sides",
+     "ok": true,
+     "source": "https://openstax.org/books/university-physics-volume-2/pages/15-6-transformers"
+    },
+    {
+     "label": "The current ratio is the inverse of the voltage ratio, and the transformer neither creates nor consumes power",
+     "ok": true
+    },
+    {
+     "label": "On 5 Ω the secondary draws 23 A, so 5290 ampere-turns; the primary cancels them with 6.01 A, and 2645 W goes in and out",
+     "ok": true
+    },
+    {
+     "label": "The flux holds at 1.88 mWb with the switch open and on 10, 5 or 2 Ω, and falls to 1.50 mWb on 1100 primary turns",
+     "ok": true
+    },
+    {
+     "label": "A step-down raises the current: on 880 and 230 turns the secondary current bar is 3.83 times the primary's; on 660 and 920 turns, and in the step-up puzzle's picture, it is the shorter",
+     "ok": true
+    },
+    {
+     "label": "A bigger current always draws a longer bar: on 10 Ω, taking the secondary from 230 to 460 turns doubles the I2 bar and quadruples the power bars",
+     "ok": true
+    },
+    {
+     "label": "The 440 V side sees 73.2 Ω on 5 Ω, which is 5 × 14.64, 146.4 Ω on 10 Ω and 29.3 Ω on 2 Ω",
+     "ok": true
+    },
+    {
+     "label": "Each typed answer and slip is worked from its rule: 5 Ω (7, 25), 48 turns (12, 37), 10.45 A (153.04, 40), 6.82 A (26.09, 0.01), 1.88 mWb (3.76, 0.94), 36.6 Ω (9.6, 0.2) and 9.2 A (0.6, 2.3)",
+     "ok": true
+    },
+    {
+     "label": "A right Check on the 3 kW heater moves the load to 115² ÷ 3000 = 4.41 Ω, where the primary takes 6.82 A and 3000 W goes in",
+     "ok": true
+    },
+    {
+     "label": "Before a Check the flux and the box show ?; a right Check moves the load from 10 Ω to 5 Ω with the flux at 1.88 mWb, and from 5 Ω to 2.5 Ω with the box at 36.6 Ω",
+     "ok": true
+    },
+    {
+     "label": "Every demonstration ends 3 to 4.5 s after its screen opens, and every answer's motion within 2.5 s",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step",
+    "n1",
+    "n2",
+    "sw",
+    "R"
+   ],
+   "readouts": [
+    "r-v2",
+    "r-i2",
+    "r-i1",
+    "r-at1",
+    "r-at2"
+   ],
+   "outputs": [],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Screen",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "steps": [
+      "Size of a load",
+      "Volts follow turns",
+      "A 24 V winding",
+      "Close the switch",
+      "The 440 V side",
+      "Power in, power out",
+      "A 3 kW heater",
+      "The flux holds",
+      "A heavier load",
+      "Seen from the supply",
+      "A 2.5 Ω load",
+      "Through the windings",
+      "A step-up"
+     ],
+     "value": 0
+    },
+    {
+     "id": "n1",
+     "kind": "control",
+     "label": "Primary turns, N1",
+     "min": 440,
+     "max": 1320,
+     "step": 220,
+     "log": false,
+     "value": 880,
+     "shown": false,
+     "snap": [
+      880,
+      1100
+     ]
+    },
+    {
+     "id": "n2",
+     "kind": "control",
+     "label": "Secondary turns, N2",
+     "min": 115,
+     "max": 920,
+     "step": 115,
+     "log": false,
+     "value": 230,
+     "shown": false,
+     "snap": [
+      230,
+      460
+     ]
+    },
+    {
+     "id": "sw",
+     "kind": "toggle",
+     "label": "Load switch closed",
+     "options": [
+      false,
+      true
+     ],
+     "value": false,
+     "shown": false
+    },
+    {
+     "id": "R",
+     "kind": "control",
+     "label": "Load",
+     "min": 2,
+     "max": 20,
+     "step": 1,
+     "log": false,
+     "value": 5,
+     "shown": false,
+     "snap": [
+      2,
+      5,
+      10
+     ]
+    }
+   ],
+   "actions": [
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Answer 4",
+    "Check",
+    "Why?",
+    "Play again",
+    "Back",
+    "Continue",
+    "Start again",
+    "Demonstration"
+   ],
+   "answers": [
+    {
+     "id": "a-size",
+     "answer": 5,
+     "accept": [],
+     "ok": true
+    },
+    {
+     "id": "a-n24",
+     "answer": 48,
+     "accept": [],
+     "ok": true
+    },
+    {
+     "id": "a-i440",
+     "answer": 10.45,
+     "accept": [],
+     "ok": true
+    },
+    {
+     "id": "a-heat",
+     "answer": 6.82,
+     "accept": [],
+     "ok": true
+    },
+    {
+     "id": "a-flux",
+     "answer": 1.88,
+     "accept": [],
+     "ok": true
+    },
+    {
+     "id": "a-seen",
+     "answer": 36.6,
+     "accept": [],
+     "ok": true
+    },
+    {
+     "id": "a-up",
+     "answer": 9.2,
+     "accept": [],
+     "ok": true
+    }
+   ],
+   "written": [],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 1
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-29T05:43:32.654Z",
+  "applied": [
+   {
+    "path": "explain.text",
+    "problem": "\"A load cannot move it\" is absolute: in a real transformer the flux falls a very little under load (the ignores panel says so), and later \"No wire joins them\" is false for the auto-transformer of i8, so both are narrowed."
+   },
+   {
+    "path": "analogy.breaks",
+    "problem": "\"Only the flux joins two windings, so the secondary is a separate circuit\" stops being true once i8 teaches the auto-transformer, whose windings share wire; narrowed to a two-winding transformer."
+   },
+   {
+    "path": "interactive.whatAmILookingAt",
+    "problem": "Screen 5's check says 440 × 10.45 comes to 4600 W, but it is 4598 W; the rounded current only gives about 4600 W, so a learner checking it by hand would be puzzled."
+   }
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}

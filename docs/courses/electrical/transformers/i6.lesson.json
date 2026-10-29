@@ -1,0 +1,356 @@
+{
+ "iid": "i6",
+ "title": "Regulation and percentage impedance",
+ "format": "steps",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the output arrow shorten most at 0.8 lagging, to 109.25 V, and pass its 115 V no-load length at 0.5 leading, when you step the power factor from lagging to leading.",
+  "title": "The drop inside the windings",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Screen",
+    "min": 0,
+    "max": 12,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [],
+  "whatAmILookingAt": "Thirteen small screens on one picture, with Back and Continue. Five show an idea and eight ask you to try it.\n\nThe picture. Last lesson's 10 kVA, 440 V to 115 V transformer, single-phase, seen from its 115 V side: windings' resistance 4%, leakage reactance 3%, impedance 5%. On the left, a phasor diagram zoomed in on the tip of the output arrow, true to scale, its axis from 95 V to 120 V. The Output arrow lies along the axis. From its tip, the I × R arrow points along the current, then the I × X arrow a quarter-turn ahead of it. The last tip sits on an arc of the fixed 115 V circle, labelled Supply. A tick marks 115 V on the axis, the no-load tip. A short Current arrow shows the current's direction. On the right, a fault-current bar, 0 to 5000 A.\n\nThe controls, each shown only where a screen uses it. A load slider, 0 to 125% in steps of 5, opening at 100. A power factor stepper with seven settings, in this order: 0.5 lag, 0.6 lag, 0.8 lag, 1.0, 0.8 lead, 0.6 lead, 0.5 lead. It opens at 1.0, and its buttons wrap onto two rows on a phone. An impedance slider, 2 to 10% in steps of 0.5, opening at 5.\n\nThe rules. Rated current = 10,000 ÷ 115 = 86.96 A. Load fraction x = slider ÷ 100. The impedance slider sets Z%, and R% = 0.8 × Z% and X% = 0.6 × Z%, so the 4 to 3 ratio holds. The drop's size d = Z% ÷ 100 × 115 × x, in V: 5.75 V at full load and 5%. Its two parts are R% ÷ 100 × 115 × x along the current, 4.6 V at full load, and X% ÷ 100 × 115 × x a quarter-turn ahead, 3.45 V. The load angle φ = arccos(power factor), positive lagging, negative leading: 36.9° at 0.8. The windings' own angle is 36.9° too, as 3.45 ÷ 4.6 = 0.75. The drop points at the windings' angle minus φ, called α, from the output. The tip must land on the 115 V circle, so Output = √(115² − (d sin α)²) − d cos α, in V. Regulation = (115 − Output) ÷ 115 × 100, in %. Rule = x × (R% cos φ + X% sin φ), in %, with sin φ negative when leading. Fault current = 86.96 × 100 ÷ Z%, in A.\n\nThe readouts, wrapping onto two rows on a phone: Output, V, two decimal places; Regulation, %, one decimal place; Rule, %, one decimal place; Fault current, A, whole amps. At full load and 5%: 110.35 V and 4.0% at 1.0; 109.25 V and 5.0% at 0.8 lag; 113.26 V and 1.5% at 0.8 lead; 115.55 V and −0.5% at 0.5 lead. The rule gives 4.0, 5.0, 1.4 and −0.6%. The fault current is 1739 A at 5%, 3478 A at 2.5% and 870 A at 10%.\n\nScreen 1, try it, a recall, typed. \"Two voltages in series: 6 V at 0° and 8 V at 90°. What is their total size?\" Typed, in V, whole numbers: answer 10, want \"10 V\". Slips: 14, \"That adds them straight. At right angles they add like a triangle's sides.\"; 2, \"That takes one from the other. They are at right angles, not opposed.\" Hint otherwise: \"Square each, add, then take the root.\" Why: \"√(6² + 8²) = √100 = 10 V. The drops inside a transformer add the same way.\" A right Check says \"Still there.\" and carries on. Read: \"Two voltages in series are 6 V at 0° and 8 V at 90°. What is their total size?\"\n\nScreen 2, show. The load slider to drag. The words: \"Here is last lesson's transformer, seen from its 115 V side. Off load there is no load current, so the windings drop almost nothing. The output arrow reaches the 115 V circle. Drag the load up. The current drops a voltage across the windings' resistance, in line with the current. It drops another across their reactance, a quarter-turn ahead of it. Both sit tip to tail on the output arrow. The supply fixes the circle, so the output must shorten to keep the last tip on it.\" Read: \"Off load the output reaches the 115 V circle. On load, the drops across the windings' resistance and reactance sit tip to tail on the output arrow. The last tip stays on the circle, so the output shortens.\" Still: load 100%, power factor 1.0.\n\nScreen 3, try it, typed. \"At full load and unity power factor, the drop is 4.6 V in line with the output and 3.45 V at right angles to it. The supply's circle is 115 V. What is the output?\" Typed, in V, two decimal places: answer 110.35, want \"110.35 V\". The output readout shows ? until Check. Slips: 106.95, \"That takes both drops straight off. The 3.45 V is at right angles, so it costs little.\"; 109.25, \"That takes the whole 5.75 V straight off. At unity the drop is not in line with the output.\" Hint otherwise: \"The output plus 4.6 V, and the 3.45 V across, make a right-angled triangle with 115 V as its long side.\" Why: \"√(115² − 3.45²) = 114.95 V along the axis. The 3.45 V across costs only 0.05 V. Take off the 4.6 V: 110.35 V.\" Read: \"At full load and unity power factor, the drop is 4.6 V in line with the output and 3.45 V across it, closing on 115 V. What is the output?\"\n\nScreen 4, show. The power factor stepper. The words: \"The whole drop points 36.9° ahead of the current, the windings' own angle, set by 3.45 against 4.6. Step the power factor to 0.8 lagging. The current swings back 36.9°, so the drop lines up with the output. The whole 5.75 V comes straight off, leaving 109.25 V. That is the deepest sag at this load. [[Voltage regulation]] is the sag as a share of the no-load voltage. Here it is 5.75 ÷ 115 = 5.0%.\" Read: \"At 0.8 lagging the drop lines up with the output, so the whole 5.75 V comes off, leaving 109.25 V. Regulation is the sag as a share of the no-load voltage: 5.0%.\" Still: load 100%, power factor 0.8 lag.\n\nScreen 5, try it, typed. The picture: load 100%, power factor 1.0. \"At unity power factor the output is 110.35 V. No-load, it is 115 V. What is the regulation?\" Typed, in %, one decimal place: answer 4.0, want \"4.0%\". The regulation readout shows ? until Check. Slips: 4.2, \"That divides by the on-load 110.35 V. Regulation divides by the no-load 115 V.\"; 5.0, \"That is the figure at 0.8 lagging. At unity most of the reactance drop points across.\" Hint otherwise: \"(115 − 110.35) ÷ 115 × 100.\" Why: \"4.65 ÷ 115 = 0.040, so 4.0%. It is less than at 0.8 lagging, because the 3.45 V points across the output.\" Read: \"At unity power factor the output is 110.35 V against 115 V at no load. What is the regulation?\"\n\nScreen 6, show. The power factor stepper. The words: \"Step on to leading. The drop swings forward, so less of it lies along the output. At 0.8 leading the output is 113.26 V, a regulation of 1.5%. At 0.6 leading the drop points straight across. Past that it points back against the output, so the output must pass 115 V to reach the circle. At 0.5 leading it is 115.55 V. A leading load raises the output.[^1]\" Read: \"Leading, less of the drop lies along the output, so the output rises: 113.26 V at 0.8 leading. Past 0.6 leading the drop points back, and at 0.5 leading the output is 115.55 V, above no load.\" Still: load 100%, power factor 0.5 lead.\n\nScreen 7, try it, typed. The picture: load 100%, power factor 0.5 lead. \"At 0.5 leading the output reads 115.55 V. No-load, it is 115 V. What is the regulation?\" Typed, in %, one decimal place: answer −0.5, want \"−0.5%\". The regulation readout shows ? until Check. Slips: 0.5, \"The output rose above no load. So no-load minus on-load is negative.\" Hint otherwise: \"(115 − 115.55) ÷ 115 × 100.\" Why: \"−0.55 ÷ 115 = −0.0048, so −0.5%. Negative regulation means the output rose on load.\" Read: \"At 0.5 leading the output is 115.55 V against 115 V at no load. What is the regulation?\"\n\nScreen 8, show. The power factor stepper and the Rule readout. The words: \"You need not draw it every time. Take only the part of the drop that lies along the output. That gives regulation ≈ R% cos φ + X% sin φ, with sin φ negative when leading. R% is the full-load copper loss as a share of the rating: 400 W of 10 kVA is 4%. X% here is 3%. At 0.8 lagging, 4 × 0.8 + 3 × 0.6 = 5.0%. At 0.8 leading, 3.2 − 1.8 = 1.4%, beside the drawing's 1.5%.\" Read: \"Regulation ≈ R% cos φ + X% sin φ, with sin φ negative when leading. With R% 4 and X% 3, that is 5.0% at 0.8 lagging and 1.4% at 0.8 leading.\" Still: load 100%, power factor 0.8 lead.\n\nScreen 9, try it, typed. \"Another transformer has an R% of 1.5 and an X% of 3. What is its regulation at full load, 0.8 lagging?\" Typed, in %, one decimal place: answer 3.0, want \"3.0%\". Slips: 4.5, \"That adds them straight. Weight R% by cos φ and X% by sin φ.\"; 3.3, \"That swaps them. R% goes with cos φ, which is 0.8.\"; −0.6, \"That is the leading figure. Lagging, X% sin φ adds.\" Hint otherwise: \"R% × 0.8 + X% × 0.6.\" Why: \"1.5 × 0.8 = 1.2 and 3 × 0.6 = 1.8. Together that is 3.0%.\" Read: \"A transformer has an R% of 1.5 and an X% of 3. What is its regulation at full load, 0.8 lagging?\"\n\nScreen 10, show. The impedance slider to drag. The words: \"[[Percentage impedance]] is the share of rated voltage that drives rated current through a shorted secondary. That is last lesson's short-circuit test: 22.0 V of 440 V, so 5%. Full voltage on that short drives 100 ÷ 5 = 20 times rated current.[^3] Rated current is 86.96 A, so a short at the terminals draws 1739 A. Drag the impedance down. The drops shrink and the output holds up, but the fault bar grows.[^2]\" Read: \"Percentage impedance is the share of rated voltage that drives rated current through a short, 5% here. So full voltage drives 20 times rated current, 1739 A. A lower impedance gives less drop and more fault current.\" Still: load 100%, power factor 0.8 lag, impedance 5%.\n\nScreen 11, try it, typed. The picture: impedance 4%. \"The same 10 kVA, 115 V transformer is built with 4% impedance instead. What current flows into a dead short at its terminals?\" Typed, in A, whole numbers: answer 2174, accepting 2175, want \"2174 A\". The fault current readout shows ? until Check. Slips: 348, \"That multiplies by 4. Divide 100 by the impedance first.\"; 1739, \"That is the 5% unit's figure. Less impedance lets more current through.\" Hint otherwise: \"Fault current = rated current × 100 ÷ Z%.\" Why: \"100 ÷ 4 = 25, and 86.96 × 25 = 2174 A. Its regulation is better than the 5% unit's, and its fault current higher.\" Read: \"A 10 kVA, 115 V transformer has 4% impedance. What current flows into a dead short at its terminals?\"\n\nScreen 12, try it, the first of two mixed puzzles, typed. \"A transformer has an R% of 2 and an X% of 4. What is its regulation at full load, 0.8 leading?\" Typed, in %, one decimal place: answer −0.8, want \"−0.8%\". Slips: 0.8, \"Leading, sin φ counts as negative, so X% sin φ comes off.\"; 4.0, \"That is the lagging figure. Leading, X% sin φ comes off.\"; −2.0, \"That swaps them. R% goes with cos φ, which is 0.8.\" Hint otherwise: \"2 × 0.8 − 4 × 0.6.\" Why: \"1.6 − 2.4 = −0.8%. The output rises a little above no load.\" Read: \"A transformer has an R% of 2 and an X% of 4. What is its regulation at full load, 0.8 leading?\"\n\nScreen 13, try it, the second mixed puzzle. \"A board needs a small volt drop and a low fault current. You can fit a 4% or an 8% transformer of the same rating. What do you get?\" Four choices, in this order: \"8% gives less drop and less fault current\"; \"4% gives less drop and less fault current\"; \"4% gives less drop, 8% less fault current\"; \"8% gives less drop, 4% less fault current\". Right, the third. Hint for the first: \"More impedance drops more volts, so the 8% unit sags more.\" Hint for the second: \"Halving the impedance doubles the fault current.\" Hint for the fourth: \"That is the wrong way round. Less impedance, less drop.\" Why: \"The 8% unit's drop is twice the 4% unit's, and its fault current half. One impedance cannot make both small, so you choose by which limit is tighter.\" Read: \"A board needs a small volt drop and a low fault current. You can fit a 4% or an 8% transformer of the same rating. What do you get?\"\n\nThe finish. The words: \"Current through the windings drops a voltage that sits tip to tail on the output. The sag is deepest when the load lags at the windings' own angle. A leading load can lift the output above no load. Percentage impedance sets both the sag and the fault current: less of one means more of the other. Next: three-phase transformers and their clock.\"",
+  "ignores": "The supply is stiff: its own impedance is left out, so the 115 V circle never moves. A real supply and the cables after the transformer add impedance, so a real fault draws less than the figure shown, which is the most a short at the terminals can draw. The core's small magnetising current is left out, as in last lesson's approximate circuit. The windings' resistance is held fixed, though copper's rises as it warms. The impedance slider keeps resistance and reactance in the same 4 to 3 ratio. A real design of another impedance would have its own ratio. The fault current is the steady rms current. In the first cycle of a real fault the current can peak higher. The load is single-phase, and every voltage and current is rms.",
+  "numbers": [
+   {
+    "label": "Screen, 1 to 13 (the stepper)",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Number of screens",
+    "value": 13,
+    "kind": "assumed"
+   },
+   {
+    "label": "Rating, in kVA",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "Supply, in volts rms",
+    "value": 440,
+    "kind": "assumed"
+   },
+   {
+    "label": "Secondary, in volts rms",
+    "value": 115,
+    "kind": "assumed"
+   },
+   {
+    "label": "Windings' resistance, R%",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Windings' leakage reactance, X%",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Windings' impedance, Z%",
+    "value": 5,
+    "kind": "computed"
+   },
+   {
+    "label": "Full-load copper loss, in watts",
+    "value": 400,
+    "kind": "assumed"
+   },
+   {
+    "label": "Load slider, 0 to 125 in steps of 5, in per cent",
+    "value": 100,
+    "kind": "control"
+   },
+   {
+    "label": "Power factor stepper, seven settings, opening at 1.0",
+    "value": 1.0,
+    "kind": "control"
+   },
+   {
+    "label": "Power factor settings, lagging and leading",
+    "value": "0.5, 0.6, 0.8",
+    "kind": "assumed"
+   },
+   {
+    "label": "Impedance slider, 2 to 10 in steps of 0.5, in per cent",
+    "value": 5,
+    "kind": "control"
+   },
+   {
+    "label": "Zoomed axis, in volts",
+    "value": "95 to 120",
+    "kind": "assumed"
+   },
+   {
+    "label": "Fault bar scale, in amps",
+    "value": "0 to 5000",
+    "kind": "assumed"
+   },
+   {
+    "label": "Rated secondary current, in amps",
+    "value": 86.96,
+    "kind": "computed"
+   },
+   {
+    "label": "Resistance drop at full load, in volts",
+    "value": 4.6,
+    "kind": "computed"
+   },
+   {
+    "label": "Reactance drop at full load, in volts",
+    "value": 3.45,
+    "kind": "computed"
+   },
+   {
+    "label": "Whole drop at full load, in volts",
+    "value": 5.75,
+    "kind": "computed"
+   },
+   {
+    "label": "Load angle at 0.8 power factor, in degrees",
+    "value": 36.9,
+    "kind": "computed"
+   },
+   {
+    "label": "Windings' own angle, in degrees",
+    "value": 36.9,
+    "kind": "computed"
+   },
+   {
+    "label": "Output at unity power factor, in volts",
+    "value": 110.35,
+    "kind": "computed"
+   },
+   {
+    "label": "Output at 0.8 lagging, in volts",
+    "value": 109.25,
+    "kind": "computed"
+   },
+   {
+    "label": "Output at 0.8 leading, in volts",
+    "value": 113.26,
+    "kind": "computed"
+   },
+   {
+    "label": "Output at 0.5 leading, in volts",
+    "value": 115.55,
+    "kind": "computed"
+   },
+   {
+    "label": "Regulation at unity, in per cent",
+    "value": 4.0,
+    "kind": "computed"
+   },
+   {
+    "label": "Regulation at 0.8 lagging, in per cent",
+    "value": 5.0,
+    "kind": "computed"
+   },
+   {
+    "label": "Regulation at 0.8 leading, in per cent",
+    "value": 1.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Regulation at 0.5 leading, in per cent",
+    "value": -0.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Rule at 0.8 leading, in per cent",
+    "value": 1.4,
+    "kind": "computed"
+   },
+   {
+    "label": "Rule at 0.5 leading, in per cent",
+    "value": -0.6,
+    "kind": "computed"
+   },
+   {
+    "label": "Short-circuit test voltage, in volts",
+    "value": 22.0,
+    "kind": "computed"
+   },
+   {
+    "label": "Fault current, times rated, at 5%",
+    "value": 20,
+    "kind": "computed",
+    "source": 3
+   },
+   {
+    "label": "Fault current at 5%, in amps",
+    "value": 1739,
+    "kind": "computed"
+   },
+   {
+    "label": "Fault current at 2.5%, in amps",
+    "value": 3478,
+    "kind": "computed"
+   },
+   {
+    "label": "Fault current at 10%, in amps",
+    "value": 870,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 1 voltages, in volts",
+    "value": "6 and 8",
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 1 angles, in degrees",
+    "value": "0 and 90",
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 1 total, in volts",
+    "value": 10,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 1 slips, in volts",
+    "value": "14 and 2",
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 3 along-axis length, in volts",
+    "value": 114.95,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 3 slips, in volts",
+    "value": "106.95 and 109.25",
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 5 sag, in volts",
+    "value": 4.65,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 5 slips, in per cent",
+    "value": "4.2 and 5.0",
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 7 sag, in volts",
+    "value": -0.55,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 7 slip, in per cent",
+    "value": 0.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 9 R% and X%",
+    "value": "1.5 and 3",
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 9 regulation, in per cent",
+    "value": 3.0,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 9 slips, in per cent",
+    "value": "4.5, 3.3 and −0.6",
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 11 impedance, in per cent",
+    "value": 4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 11 fault current, in amps",
+    "value": 2174,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 11 slips, in amps",
+    "value": "348 and 1739",
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12 R% and X%",
+    "value": "2 and 4",
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 12 regulation, in per cent",
+    "value": -0.8,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12 slips, in per cent",
+    "value": "0.8, 4.0 and −2.0",
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 13 impedances, in per cent",
+    "value": "4 and 8",
+    "kind": "assumed"
+   },
+   {
+    "label": "Rule at unity, output, in volts",
+    "value": 110.4,
+    "kind": "computed"
+   },
+   {
+    "label": "Cost of the 3.45 V across, in volts",
+    "value": 0.05,
+    "kind": "computed"
+   },
+   {
+    "label": "Power factor where the drop points straight across, leading",
+    "value": 0.6,
+    "kind": "computed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "A transformer's output sags as you load it. The load current passes through the windings' resistance and leakage reactance, and each drops a voltage. How far the output sags depends on the power factor. It sags most when the load lags, and a leading load can even lift it. The same impedance limits the current a short at the terminals can draw, so less sag comes with more fault current.\n\nTake last lesson's 10 kVA, 440 V to 115 V transformer, seen from its 115 V side. Off load there is no load current, so the windings drop almost nothing and the output is the full 115 V the supply fixes. At full load, 86.96 A, the current drops 4.6 V across the windings' resistance, in line with the current. It drops 3.45 V across their reactance, a quarter-turn ahead of the current, as in any inductor. These drops add tip to tail onto the output, and the total must still be 115 V. At unity power factor the 3.45 V points across the output. Across, it only tilts the output, costing 0.05 V, so the output is √(115² − 3.45²) − 4.6 = 110.35 V. The whole drop points 36.9° ahead of the current, the windings' own angle, set by 3.45 against 4.6. At 0.8 lagging the current swings back 36.9°, so the drop lines up with the output and comes straight off: 115 − 5.75 = 109.25 V. Lead the current and the drop swings the other way, so less of it lies along the output. Past 0.6 leading it points back against the output, and the output must pass 115 V to reach the circle. At 0.5 leading it is 115.55 V. So a leading load raises the output, and a lagging one lowers it.[^1]\n\n[[Voltage regulation]] is the sag as a share of the no-load voltage: (no-load − on-load) ÷ no-load × 100. Here it is 4.0% at unity, 5.0% at 0.8 lagging and −0.5% at 0.5 leading. A smaller figure means a steadier voltage. A quick rule gives it without the drawing: R% cos φ + X% sin φ, with sin φ negative when leading. R% is the full-load copper loss as a share of the rating, 400 W of 10 kVA, so 4%. With X% at 3%, the rule gives 5.0% at 0.8 lagging.\n\n[[Percentage impedance]] is the share of rated voltage that drives rated current through a shorted secondary. That is last lesson's short-circuit test, 22.0 V of 440 V, so 5%. Full voltage on that short drives 100 ÷ 5 = 20 times rated current.[^3] Here that is 86.96 × 20 = 1739 A at the 115 V terminals. Build the same transformer with 2.5% and its sag halves, but its fault current doubles to 3478 A. This picture is simplified: it takes the supply as stiff and leaves out the core's small current. **A lower impedance can give better regulation, but it also lets more current into a downstream fault.[^2]**"
+ },
+ "analogy": {
+  "text": "Think of the volt-drop sum for a large cable at a power factor. You take the resistive part times cos φ and the reactive part times sin φ, then add. Regulation's quick rule is the same sum, with the windings in place of the cable. And as with a cable, the one that drops the fewest volts lets the most fault current through.",
+  "breaks": "A cable's impedance changes with its length and size, so you can change it by changing the run. A transformer's impedance is fixed when it is built, and you read it off its plate. And its drop starts from a no-load voltage set by the turns ratio, so a leading load can lift its output above that."
+ },
+ "practice": {
+  "text": "**Safe way first:** Work out the fault current at the terminals before you choose the protective devices. Each device's breaking capacity must be at least the prospective fault current where it is fitted. A lower-impedance transformer raises that figure.\n\n**Steps:**\n- Read the rating, the secondary voltage and the impedance, Z%, from the plate.\n- Get R% from the copper loss: full-load copper loss ÷ rating × 100. Then X% = √(Z%² − R%²).\n- Rated current = rating ÷ secondary voltage.\n- Regulation at full load ≈ R% cos φ + X% sin φ, with sin φ negative when leading. At part load, multiply by the load fraction.\n- On-load voltage ≈ no-load voltage × (1 − regulation ÷ 100).\n- Fault current at the terminals, with a stiff supply = rated current × 100 ÷ Z%.\n\n**Rules of thumb:** The sag is deepest when the load's angle matches the windings' own. Then the regulation is the whole Z% at full load. A leading load can lift the output above no load. Halve the impedance and the fault current doubles.\n\n**Worked example:** A 10 kVA, 115 V transformer has 5% impedance, made of 4% resistance and 3% reactance. Rated current is 10,000 ÷ 115 = 86.96 A. At 0.8 lagging the regulation is 4 × 0.8 + 3 × 0.6 = 5.0%, so the output is about 115 × 0.95 = 109.25 V. At unity it is 4.0%, about 110.4 V. A short at its terminals draws up to 86.96 × 20 = 1739 A. A 2.5% unit of the same size sags only 2.5% at 0.8 lagging, but lets 3478 A into the same short.\n\n**Common mistakes**\n- Dividing by the on-load voltage. Regulation is a share of the no-load voltage.\n- Forgetting the sign of sin φ for a leading load. Regulation can be negative.\n- Adding R% and X% straight. They are at right angles, so Z% = √(R%² + X%²).\n- Taking a higher impedance as better all round. It lowers the fault current, but it deepens the sag.\n- Using the terminal figure far downstream. The cables' impedance lowers the fault current further along."
+ },
+ "say": null,
+ "checks": [],
+ "sources": [
+  {
+   "n": 1,
+   "title": "Calculating Voltage Regulation in Transformers - Technical Articles",
+   "url": "https://eepower.com/technical-articles/calculating-voltage-regulation-in-transformers",
+   "quote": "Leading power factor increases secondary terminal voltage while the lagging power factor reduces it."
+  },
+  {
+   "n": 2,
+   "title": "Transformer Impedance: Impact on Fault Current & Voltage",
+   "url": "https://www.rexpowermagnetics.com/knowledge-hub/impedance-in-transformers-key-concepts-and-calculations",
+   "quote": "A transformer with lower impedance may provide better voltage regulation. It may also deliver substantially more current into a downstream fault."
+  },
+  {
+   "n": 3,
+   "title": "Basic short-circuit current calculation | EC&M",
+   "url": "https://www.ecmweb.com/basics/article/20897056/basic-short-circuit-current-calculation",
+   "quote": "If 5% of primary voltage will cause such current, then 100% of primary voltage will cause 20 times (100 divided by 5) full-load-rated secondary current to flow through a solid short circuit on its secondary terminals."
+  }
+ ],
+ "confidence": "simplified",
+ "contested": null
+}

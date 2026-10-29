@@ -1,0 +1,245 @@
+{
+  "ok": true,
+  "reachChecked": true,
+  "problems": [],
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "N I is in ampere-turns (At), the magnetomotive force that drives flux as volts drive current: 200 turns × 0.1 A reads 20 At, and × 2 A reads 400 At",
+        "ok": true,
+        "source": "https://www.rose-hulman.edu/class/ee/HTML/NSF/CCLI_EMD_DUE_0088904/PDFS/lecture_notes_08.pdf"
+      },
+      {
+        "label": "The relative permeability of iron is about 5000: the sketch curve starts 4994 times as steep as air's line, and at 0.1 A the iron ring reads 0.31 T where the air ring reads 0.063 mT",
+        "ok": true,
+        "source": "https://castellidezza.faculty.polimi.it/wp-content/uploads/fundamentalsMagneticCircuits3.pdf"
+      },
+      {
+        "label": "Past saturation an increase in push gives only a minimal increase in flux density: 1 A reads 1.54 T and 2 A only 1.60 T, 4% more, while 0.1 A to 0.2 A nearly doubles it",
+        "ok": true,
+        "source": "https://www.maec.msu.edu/application/files/3716/4555/7425/Tech_Note_317_Magnetic_Flux_Density.pdf"
+      },
+      {
+        "label": "The sketch curve reads 1.21 T at 0.5 A, rises at every step to 2 A and grows less steep at every step; the share of small magnets in line is tanh(H ÷ 255), 0.19 at 0.1 A and 0.96 at 1 A, more line up as the current rises, and air shows none",
+        "ok": true
+      },
+      {
+        "label": "A 0.25 mm gap takes 199 At for each tesla; with it 0.5 A reads 0.38 T, 1 A 0.75 T and 2 A 1.36 T, and the iron's share of the push plus the gap's adds up to N I",
+        "ok": true
+      },
+      {
+        "label": "On AC the dot runs round a loop: at zero current on the way down the core keeps 0.37 T, and on the way up −0.37 T; a wide loop encloses more area than a thin one of the same height",
+        "ok": true
+      },
+      {
+        "label": "Eddy loss goes with sheet thickness squared: Solid, 2, 4 and 8 sheets read 100%, 25%, 6.3% and 1.6%, with one loop in each piece, smaller in thinner sheets",
+        "ok": true
+      },
+      {
+        "label": "Each typed answer and slip is worked from its rule: 0 Ω (slips 1.26, 0.2), 157 mT (0.0314, 0.157, 0.00000628), 477 At (477 465, 398, 199), 10 W (20, 80, 160) and 0.51 A (127 500, 3.19, 1.96)",
+        "ok": true
+      },
+      {
+        "label": "Before a Check no puzzle shows its answer, and a right Check shows it: air's 0.0314 mT turns to iron's 0.16 T, 1.54 T crawls to 1.60 T, the gap's push reads 477 At, the loops are shaded, the loss falls to 25%, the dot reaches the knee at 102 At, and the core keeps 0.37 T at zero current",
+        "ok": true
+      },
+      {
+        "label": "Every demonstration ends 3 to 4.5 s after its screen opens, and every answer's motion within 2.5 s",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "core",
+      "ac",
+      "cur",
+      "gap",
+      "sheets"
+    ],
+    "readouts": [
+      "F",
+      "B"
+    ],
+    "outputs": [],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Screen",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "steps": [
+          "Still there?",
+          "Iron or air",
+          "Five thousand times",
+          "The knee",
+          "Double the current",
+          "A gap",
+          "Half a millimetre",
+          "Round a loop",
+          "Wide or thin",
+          "Eddy currents",
+          "Thinner sheets",
+          "Find the knee",
+          "At zero current"
+        ],
+        "value": 0
+      },
+      {
+        "id": "core",
+        "kind": "choice",
+        "label": "Ring made of",
+        "options": [
+          "air",
+          "iron"
+        ],
+        "labels": [
+          "Air",
+          "Iron"
+        ],
+        "value": "iron",
+        "index": 1,
+        "shown": false
+      },
+      {
+        "id": "ac",
+        "kind": "toggle",
+        "label": "AC supply",
+        "options": [
+          false,
+          true
+        ],
+        "value": false,
+        "shown": false
+      },
+      {
+        "id": "cur",
+        "kind": "control",
+        "label": "Current",
+        "min": 0,
+        "max": 2,
+        "step": 0.05,
+        "log": false,
+        "value": 0.1,
+        "shown": false,
+        "snap": [
+          0.5,
+          1,
+          2
+        ]
+      },
+      {
+        "id": "gap",
+        "kind": "control",
+        "label": "Air gap",
+        "min": 0,
+        "max": 1,
+        "step": 0.25,
+        "log": false,
+        "value": 0,
+        "shown": false,
+        "snap": [
+          0.25
+        ]
+      },
+      {
+        "id": "sheets",
+        "kind": "choice",
+        "label": "Core cut into",
+        "options": [
+          1,
+          2,
+          4,
+          8
+        ],
+        "labels": [
+          "Solid",
+          "2 sheets",
+          "4 sheets",
+          "8 sheets"
+        ],
+        "value": 1,
+        "index": 0,
+        "shown": false
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Play again",
+      "Back",
+      "Continue",
+      "Start again",
+      "Demonstration"
+    ],
+    "answers": [
+      {
+        "id": "a-xl",
+        "answer": 0,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-x5k",
+        "answer": 157,
+        "accept": [
+          157.08,
+          157.1
+        ],
+        "ok": true
+      },
+      {
+        "id": "a-gap",
+        "answer": 477,
+        "accept": [
+          476,
+          478
+        ],
+        "ok": true
+      },
+      {
+        "id": "a-eddy",
+        "answer": 10,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-knee",
+        "answer": 0.51,
+        "accept": [],
+        "ok": true
+      }
+    ],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ],
+    "foreign": [],
+    "unreachable": []
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "draft": "i5.lesson.draft1.txt",
+  "validator": "draft 1 passes: ok true, no problems, no soft problems, no warnings. whatAmILookingAt is 13054 characters, over the app's 12000 bound for that field, so trim it.",
+  "keep": [
+    "The idea is named up front: two losses in two places, the core's fixed while energised and the windings' growing with the square of the current; two tests measure them; the efficiency peaks where they are equal.",
+    "The picture is the brief's 'Where the watts go': the approximate equivalent circuit seen from 440 V, a load slider from 0 to 125%, a flat iron-loss bar, a square-law copper-loss bar, an efficiency curve with its peak marked at 50%, a flux bar that never moves with load, and a test selector whose open-circuit and short-circuit settings each light one branch with its wattmeter reading.",
+    "One rule set computes every figure: 22.7 A = 10,000 / 440; copper = 400 x^2; iron = 100 W; efficiency = output / (output + losses); 95.2, 96.2, 94.1, 95.2 and 94.5% all follow; R = 400 / 22.7^2 = 0.77 ohm, X 0.58 ohm (assumed, a 3-4-5 triangle with R), Z 0.97 ohm, so the short-circuit test takes 22.0 V (5%) and a dead short at 440 V drives 20 times rated current; the flux follows the voltage, 1.88 x 22 / 440 = 0.09 mWb.",
+    "The causal steps are there: iron loss flat because the supply holds the flux and the primary cancels the load's ampere-turns (lessons 3 and 4); copper loss squared because it is I^2R and the current follows the load; the open-circuit test reads iron only because the current is small; the short-circuit test reads copper only because the flux follows the 22.0 V.",
+    "The misconception the brief names ('more load saturates the core', arXiv 1107.2684, notes 6.1) is caught three times: the still flux bar (screen 4), the iron loss at full load (screen 5, slips 400 and 200 W) and the flux in the short-circuit test (screen 11: full current, 5% of the flux).",
+    "The recall opener the brief sets (Calculus fundamentals lesson 6, the slope at a top) is screen 1, typed, with 'Still there.', and it pays off in the peak-efficiency derivation.",
+    "Typed answers for every figure (screens 1, 3, 5, 7, 9, 11, 12) with want, slips and hints; options only on screen 13, where choosing the test set-up is the skill.",
+    "Kept consistent with lessons 3 and 4: 440 V, 60 Hz, 880 to 230 turns, 1.88 mWb, the 10 kVA example and 22.7 A. Regulation and percentage impedance are left to lesson 6; the 22.0 V is shown and named only as the test's voltage.",
+    "Footnotes only on the rules he would look up: the two kinds of loss [^1], what each test measures [^2][^3], and the 1% for a good transformer [^4]. No source named in a sentence."
+  ],
+  "fix": [
+    "Brief: the load opens at 50%, so 'drag the load to 50%' changes nothing. Open the load at 100% and brief the drag from 100% to 50%, with the copper bar falling to match the flat iron bar and the flux bar holding still, within 40 words.",
+    "Skipped causal step on screen 8: 'The total is lowest where one share falls as fast as the other rises. That is where the two losses are equal' asks him to take the second sentence on trust. Give the sum he can follow from screen 1: losses per watt go as 100 / x + 400x, slope 400 - 100 / x^2 = 0, so 400x^2 = 100, copper equals iron.",
+    "False absolute in explain: 'So the flux stays put from no load to full, and so does this iron loss' is literally untrue of a real transformer (the closing sentence admits the dip). Say it barely changes.",
+    "Explain's [^3] sits after 'raised from zero until rated current flows', which the quote does not say. Put the footnote on 'measures the copper loss, with the secondary shorted' and give the voltage-raising its own sentence.",
+    "The opening line of whatAmILookingAt miscounts: five screens show (2, 4, 6, 8, 10) and eight ask (1, 3, 5, 7, 9, 11, 12, 13).",
+    "Ignores: 'In a real winding it adds well under a watt' is a claim with no figure behind it. Work it from the model: 0.5 A through 0.77 ohm adds 0.19 W, and list it.",
+    "Trim whatAmILookingAt by about 1200 characters: the picture and test paragraphs repeat what screens 10 and 11 say."
+  ],
+  "shape": "Idea in one line up front: yes. Rule in words: yes (iron loss fixed while energised; copper loss with the load squared; efficiency = output / (output + losses); peak where copper = iron, at sqrt(iron / full-load copper)). One worked example with real numbers: the 10 kVA, 100 W and 400 W unit at full and half load and 0.8 power factor, through explain, screens and practice. Misconception shown failing: load saturating the core (screens 4, 5, 11); copper scaling straight (screen 3 slip 300, screen 7 slip 94.3). Trade analogy with where it breaks: a sub-main with a board's standing load and the cable's I^2R, new to this course. Put it into practice: safe way first, steps, rules of thumb, worked example, mistakes. Recap: the bold takeaway and the finish screen.",
+  "verdict": "Rewrite as draft 2 with the seven fixes; no structural change."
+}

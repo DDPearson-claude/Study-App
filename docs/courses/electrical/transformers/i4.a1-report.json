@@ -1,0 +1,250 @@
+{
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "The ratio of the secondary to primary voltages equals the ratio of the turns in their windings",
+        "ok": true,
+        "source": "https://openstax.org/books/university-physics-volume-2/pages/15-6-transformers"
+      },
+      {
+        "label": "The same flux permeates each turn of both the primary and the secondary, so each turn carries the same volts on both sides",
+        "ok": true,
+        "source": "https://openstax.org/books/university-physics-volume-2/pages/15-6-transformers"
+      },
+      {
+        "label": "The current ratio is the inverse of the voltage ratio, and the transformer neither creates nor consumes power",
+        "ok": true,
+        "source": "https://www.appstate.edu/~brian/tec-1023/labs/x-formers.pdf"
+      },
+      {
+        "label": "On 5 Ω the secondary draws 23 A, so 5290 ampere-turns; the primary cancels them with 6.01 A, and 2645 W goes in and out",
+        "ok": true
+      },
+      {
+        "label": "The flux holds at 1.88 mWb with the switch open and on 10, 5 or 2 Ω, and falls to 1.50 mWb on 1100 primary turns",
+        "ok": true
+      },
+      {
+        "label": "A step-down raises the current: on 880 and 230 turns the secondary current bar is 3.83 times the primary's; on 440 and 920 turns it is the shorter",
+        "ok": true
+      },
+      {
+        "label": "The 440 V side sees 73.2 Ω on 5 Ω, which is 5 × 14.64, 146.4 Ω on 10 Ω and 29.3 Ω on 2 Ω",
+        "ok": true
+      },
+      {
+        "label": "Each typed answer and slip is worked from its rule: 5 Ω (7, 25), 48 turns (12, 37), 10.45 A (153.04, 40), 6.82 A (26.09, 0.01), 1.88 mWb (3.76, 0.94), 29.3 Ω (7.7, 0.1) and 9.2 A (0.6, 2.3)",
+        "ok": true
+      },
+      {
+        "label": "Before a Check the flux and the box show ?; a right Check moves the load from 10 Ω to 5 Ω with the flux at 1.88 mWb, and from 5 Ω to 2 Ω with the box at 29.3 Ω",
+        "ok": true
+      },
+      {
+        "label": "Every demonstration ends 3 to 4.5 s after its screen opens, and every answer's motion within 2.5 s",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "n1",
+      "n2",
+      "sw",
+      "R"
+    ],
+    "readouts": [
+      "r-v2",
+      "r-i2",
+      "r-i1",
+      "r-at1",
+      "r-at2"
+    ],
+    "outputs": [],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Screen",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "steps": [
+          "Size of a load",
+          "Volts follow turns",
+          "A 24 V winding",
+          "Close the switch",
+          "The 440 V side",
+          "Power in, power out",
+          "A 3 kW heater",
+          "The flux holds",
+          "A heavier load",
+          "Seen from the supply",
+          "A 2 Ω load",
+          "Through the windings",
+          "A step-up"
+        ],
+        "value": 0
+      },
+      {
+        "id": "n1",
+        "kind": "control",
+        "label": "Primary turns, N1",
+        "min": 440,
+        "max": 1320,
+        "step": 220,
+        "log": false,
+        "value": 880,
+        "shown": false,
+        "snap": [
+          880,
+          1100
+        ]
+      },
+      {
+        "id": "n2",
+        "kind": "control",
+        "label": "Secondary turns, N2",
+        "min": 115,
+        "max": 920,
+        "step": 115,
+        "log": false,
+        "value": 230,
+        "shown": false,
+        "snap": [
+          230,
+          460
+        ]
+      },
+      {
+        "id": "sw",
+        "kind": "toggle",
+        "label": "Load switch closed",
+        "options": [
+          false,
+          true
+        ],
+        "value": false,
+        "shown": false
+      },
+      {
+        "id": "R",
+        "kind": "control",
+        "label": "Load",
+        "min": 2,
+        "max": 20,
+        "step": 1,
+        "log": false,
+        "value": 5,
+        "shown": false,
+        "snap": [
+          2,
+          5,
+          10
+        ]
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Answer 4",
+      "Check",
+      "Why?",
+      "Play again",
+      "Back",
+      "Continue",
+      "Start again",
+      "Demonstration"
+    ],
+    "answers": [
+      {
+        "id": "a-size",
+        "answer": 5,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-n24",
+        "answer": 48,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-i440",
+        "answer": 10.45,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-heat",
+        "answer": 6.82,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-flux",
+        "answer": 1.88,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-seen",
+        "answer": 29.3,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-up",
+        "answer": 9.2,
+        "accept": [],
+        "ok": true
+      }
+    ],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ]
+  },
+  "moved": [
+    "step = 1 (the first step that shows a control)",
+    "n1 = 1100",
+    "n2 = 718.75",
+    "sw = true",
+    "R = 15.5"
+  ],
+  "shots": [
+    "/home/user/Study-App/build/electrical/transformers/i4.a1-360-light.png",
+    "/home/user/Study-App/build/electrical/transformers/i4.a1-360-light-moved.png",
+    "/home/user/Study-App/build/electrical/transformers/i4.a1-360-light-end.png",
+    "/home/user/Study-App/build/electrical/transformers/i4.a1-360-dark.png",
+    "/home/user/Study-App/build/electrical/transformers/i4.a1-360-dark-moved.png",
+    "/home/user/Study-App/build/electrical/transformers/i4.a1-360-dark-end.png",
+    "/home/user/Study-App/build/electrical/transformers/i4.a1-1280-light.png",
+    "/home/user/Study-App/build/electrical/transformers/i4.a1-1280-light-moved.png",
+    "/home/user/Study-App/build/electrical/transformers/i4.a1-1280-light-end.png",
+    "/home/user/Study-App/build/electrical/transformers/i4.a1-1280-dark.png",
+    "/home/user/Study-App/build/electrical/transformers/i4.a1-1280-dark-moved.png",
+    "/home/user/Study-App/build/electrical/transformers/i4.a1-1280-dark-end.png"
+  ]
+}

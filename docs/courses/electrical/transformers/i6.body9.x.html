@@ -1,0 +1,726 @@
+<!-- kind: quantity -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .caption { max-width: 32rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.08rem; font-weight: 400; line-height: 1.6; }
+  .scene { display: block; width: 100%; max-width: 26rem; margin-inline: auto; touch-action: pan-y; }
+  /* The phasor drawing. */
+  .scene .ax { stroke: var(--k-strong); stroke-width: 1.2; }
+  .scene .tick { stroke: var(--k-strong); stroke-width: 1.2; }
+  .scene .oarr { stroke: var(--k-accent2); stroke-width: 3.4; }
+  .scene .oarr-h { fill: var(--k-accent2); }
+  .scene .rarr { stroke: var(--k-cat2); stroke-width: 2.6; }
+  .scene .rarr-h { fill: var(--k-cat2); }
+  .scene .xarr { stroke: var(--k-cat3); stroke-width: 2.6; }
+  .scene .xarr-h { fill: var(--k-cat3); }
+  .scene .carr { stroke: var(--k-ink); stroke-width: 1.8; }
+  .scene .carr-h { fill: var(--k-ink); }
+  .scene .ref { stroke: var(--k-muted); stroke-width: 1.2; }
+  .scene .wedge { fill: none; stroke: var(--k-muted); stroke-width: 1.2; }
+  .scene .supply { fill: none; stroke: var(--k-muted); stroke-width: 2; }
+  .scene .nl { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.6; }
+  .scene .dot { fill: var(--k-ink); }
+  .scene .bar { fill: var(--k-sunk); stroke: var(--k-line); stroke-width: 1; }
+  .scene .barfill { fill: var(--k-cat1); }
+  .scene .tot { fill: none; stroke: var(--k-muted); stroke-width: 1.8; stroke-dasharray: 5 4; }
+  .scene .sq { fill: none; stroke: var(--k-muted); stroke-width: 1.2; }
+  .scene .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .tk { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  /* Seven power factors: four on the first row and three on the next on a phone. */
+  #c-pf .k-seg { display: grid; grid-template-columns: repeat(auto-fit, minmax(3.4rem, 1fr)); }
+  #c-pf .k-seg button { padding: 8px 2px; font-size: .92rem; text-align: center; white-space: nowrap; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-inline: 16px; font-size: .95rem; white-space: nowrap; }
+  .outs .k-readout { flex: 1 1 6.5rem !important; min-width: 0; }
+  .picks { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .picks .k-btn { min-height: 48px; font-size: 1.05rem; white-space: normal; overflow-wrap: normal; word-break: normal; hyphens: none; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .answers .k-answer { max-width: 20rem; }
+  .fb { font-weight: 700; min-height: 1.5em; }
+  .fb.right { color: var(--k-good); }
+  .why, .done { line-height: 1.6; }
+  .done .row { margin-top: 14px; }
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }
+</style>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="tri" viewBox="0 0 340 160" width="100%" role="img" aria-label="Two voltages drawn tip to tail: 6 V along, then 8 V at right angles to it. A dashed line closes the triangle. Its length is the total, still to find.">
+      <line class="tot" x1="102" y1="134" x2="180" y2="30"></line>
+      <line class="rarr" x1="102" y1="134" x2="171" y2="134"></line>
+      <polygon class="rarr-h" points="180,134 171,129.5 171,138.5"></polygon>
+      <path class="sq" d="M170 134 V124 H180"></path>
+      <line class="xarr" x1="180" y1="134" x2="180" y2="39"></line>
+      <polygon class="xarr-h" points="180,30 175.5,39 184.5,39"></polygon>
+      <text class="lab" x="141" y="153" text-anchor="middle">6&#160;V</text>
+      <text class="lab" x="190" y="90" text-anchor="start">8&#160;V</text>
+      <text class="lab" x="115" y="67" text-anchor="middle">Total = ?</text>
+    </svg>
+    <svg class="scene" id="scene" viewBox="0 0 340 224" width="100%" role="img" aria-label=""><g id="art"></g><g id="lbl"></g></svg>
+    <div class="replay" id="replay"></div>
+    <div class="k-controls" id="c-load"></div>
+    <div class="k-controls" id="c-pf"></div>
+    <div class="k-controls" id="c-z"></div>
+    <div class="k-readouts outs" id="outs"></div>
+    <div class="picks" id="picks"></div>
+    <div class="answers" id="answers"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p id="finish"></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">A 10&#160;kVA, 440&#160;V to 115&#160;V transformer, seen from its 115&#160;V side. Every value is an example.</p>
+
+<script>
+  // ================= the rules =================
+  const strip = (s) => s.replace(/\[\^\d+\]/g, '');
+  const NB = ' ';
+  const VS = 115, SR = 10000, IRATED = SR / VS;      // the example: 10 kVA at 115 V, so 86.96 A at full load
+  const RSH = 0.8, XSH = 0.6;                        // R% = 0.8 × Z% and X% = 0.6 × Z%: 4% and 3% at 5%
+  const SRC1 = 'https://eepower.com/technical-articles/calculating-voltage-regulation-in-transformers';
+  const SRC2 = 'https://www.ecmweb.com/basics/article/20897056/basic-short-circuit-current-calculation';
+  const SRC3 = 'https://www.rexpowermagnetics.com/knowledge-hub/impedance-in-transformers-key-concepts-and-calculations';
+  const PFS = ['0.5 lag', '0.6 lag', '0.8 lag', '1.0', '0.8 lead', '0.6 lead', '0.5 lead'];
+  // The load angle: positive lagging, negative leading, 0 at unity.
+  const phiOf = (k) => (/lag/.test(k) ? 1 : /lead/.test(k) ? -1 : 0) * Math.acos(parseFloat(k));
+
+  // The drawing's form: the output lies along the axis; from its tip the I × R drop points along the current
+  // (at −φ) and the I × X drop a quarter-turn ahead of it; the last tip must sit on the 115 V circle.
+  function geom(load, phi, z) {
+    const x = load / 100, rp = RSH * z, xp = XSH * z;
+    const ir = rp / 100 * VS * x, ix = xp / 100 * VS * x;
+    const R = [ir * Math.cos(phi), -ir * Math.sin(phi)];
+    const Q = [ix * Math.sin(phi), ix * Math.cos(phi)];
+    const dx = R[0] + Q[0], dy = R[1] + Q[1];
+    return { x, rp, xp, ir, ix, R, Q, dx, dy, out: Math.sqrt(VS * VS - dy * dy) - dx };
+  }
+  // The lesson's form: the whole drop d points α = (windings' angle − φ) from the output.
+  function rule(load, pfKey, z) {
+    const phi = phiOf(pfKey), g = geom(load, phi, z);
+    const d = Math.hypot(g.ir, g.ix), alpha = Math.atan2(g.xp, g.rp) - phi;
+    const out = Math.sqrt(VS * VS - Math.pow(d * Math.sin(alpha), 2)) - d * Math.cos(alpha);
+    return { phi, d, alpha, ir: g.ir, ix: g.ix, out, reg: (VS - out) / VS * 100,
+      quick: g.x * (g.rp * Math.cos(phi) + g.xp * Math.sin(phi)), fault: IRATED * 100 / z };
+  }
+  const one = (v) => { const s = (Math.round(v * 10) / 10).toFixed(1); return /^-0\.0$/.test(s) ? '0.0' : s.replace(/^-/, '−'); };
+  const fV = (v) => v.toFixed(2) + NB + 'V';
+  const fP = (v) => one(v) + '%';
+  const fA = (v) => String(Math.round(v)) + NB + 'A';
+
+  // ================= the lesson: SHOW screens demonstrate, DO screens are puzzles =================
+  const ramp = (t, t0, dur, a, b) => a + (b - a) * K.clamp((t - t0) / dur, 0, 1);
+  const r5 = (v) => Math.round(v / 5) * 5;
+  const h5 = (v) => Math.round(v * 2) / 2;
+  const PICK = ['8% gives less drop and less fault current', '4% gives less drop and less fault current',
+    '4% gives less drop, 8% less fault current', '8% gives less drop, 4% less fault current'];
+  const PRED = ['More than at unity', 'Less than at unity', 'The same as at unity'];
+  const STEPS = [
+    { kind: 'typed', name: 'Two at right angles', ans: 'tri', pic: 'tri', enter: {},
+      answer: 10, decimals: 0, unit: 'V', want: '10' + NB + 'V',
+      slips: [{ value: 14, hint: 'That adds them straight. At right angles they add like a triangle\'s sides.' },
+        { value: 2, hint: 'That takes one from the other. They are at right angles, not opposed.' }],
+      task: 'Two voltages in series: 6 V at 0° and 8 V at 90°. What is their total size?',
+      hint: 'Square each, add, then take the root.',
+      why: '√(6² + 8²) = √100 = 10 V. The drops inside a transformer add the same way.',
+      right: 'Still there.',
+      read: 'Two voltages in series are 6 V at 0° and 8 V at 90°. What is their total size?' },
+    { show: true, name: 'Loading', ctl: ['load'], ro: [], enter: { load: 0 }, end: { load: 100 }, dur: 4.0,
+      demo: (t) => { X.load = r5(ramp(t, 0.6, 2.8, 0, 100)); },
+      text: 'Loading shortens the output. Off load there is no load current, so the windings drop almost nothing. The output reaches the 115 V circle. Drag the load up. The current drops a voltage across the windings\' resistance, in line with the current. It drops another across their reactance, a quarter-turn ahead of it. Both sit tip to tail on the output arrow. The supply fixes the circle. So the output must shorten to keep the last tip on it.',
+      read: 'Off load the output reaches the 115 V circle. On load, two drops sit tip to tail on the output arrow. One is across the windings\' resistance, the other across their reactance. The last tip stays on the circle, so the output shortens.',
+      still: () => setStill() },
+    { kind: 'typed', name: 'Full load, unity', ans: 'out', hide: ['out'], ro: ['out'], enter: {},
+      answer: 110.35, decimals: 2, unit: 'V', want: '110.35' + NB + 'V',
+      slips: [{ value: 106.95, hint: 'That takes both drops straight off. The 3.45 V is at right angles, so it costs little.' },
+        { value: 109.25, hint: 'That takes the whole 5.75 V straight off. At unity the drop is not in line with the output.' },
+        { value: 110.4, hint: 'That is close. Work the triangle to two decimal places.' }],
+      task: 'At full load and unity power factor, the drop has two parts. It is 4.6 V in line with the output and 3.45 V at right angles to it. The supply\'s circle is 115 V. What is the output, to two decimal places?',
+      hint: 'Make a right-angled triangle with 115 V as its long side. Its short sides are the output plus 4.6 V, and the 3.45 V across.',
+      why: '√(115² − 3.45²) = 114.95 V along the axis. The 3.45 V across costs only 0.05 V. Take off the 4.6 V: 110.35 V.',
+      read: 'At full load and unity power factor, the drop is 4.6 V in line with the output and 3.45 V across it. The arrows close on 115 V. What is the output, to two decimal places?' },
+    { show: true, name: 'The deepest sag', ctl: ['pf'], ro: ['out', 'reg'], enter: {}, end: { pf: '0.8 lag' }, dur: 3.6,
+      demo: (t) => { X.pf = t < 1.2 ? '1.0' : '0.8 lag'; },
+      text: 'For this transformer, 0.8 lagging gives the deepest sag. The whole drop points 36.9° ahead of the current. That is the windings\' own angle, set by 3.45 against 4.6. Step the power factor to 0.8 lagging. The current swings back 36.9°, so the drop lines up with the output. The whole 5.75 V comes straight off, leaving 109.25 V. *Voltage regulation* is the sag as a share of the no-load voltage. Here it is 5.75 ÷ 115 = 5.0%.',
+      read: 'At 0.8 lagging the drop lines up with the output. The whole 5.75 V comes off, leaving 109.25 V. Regulation is the sag as a share of the no-load voltage: 5.0%.',
+      still: () => setStill() },
+    { kind: 'typed', name: 'Regulation at unity', ans: 'reg1', hide: ['reg'], ro: ['out', 'reg'], enter: {},
+      answer: 4.0, decimals: 1, unit: '%', want: '4.0%',
+      slips: [{ value: 4.2, hint: 'That divides by the on-load 110.35 V. Regulation divides by the no-load 115 V.' },
+        { value: 5.0, hint: 'That is the figure at 0.8 lagging. At unity the reactance drop points straight across, so it costs almost nothing.' }],
+      task: 'At unity power factor the output is 110.35 V. At no load it is 115 V. What is the regulation?',
+      hint: '(115 − 110.35) ÷ 115 × 100.',
+      why: '4.65 ÷ 115 = 0.040, so 4.0%. It is less than at 0.8 lagging. Here the 3.45 V points across the output.',
+      read: 'At unity power factor the output is 110.35 V against 115 V at no load. What is the regulation?' },
+    { kind: 'pick', name: 'Predict: leading', enter: {}, ro: ['out'],
+      opts: PRED, want: PRED[1],
+      task: 'Before you see it, predict. At full load, will 0.8 leading sag more or less than unity?',
+      hint: 'Leading swings the current forward, not back. The drop swings forward with it, away from the output.',
+      hints: { [PRED[0]]: 'Leading swings the current forward, not back. The drop swings forward with it, away from the output.',
+        [PRED[2]]: 'The drop swings with the current. So its part along the output changes too.' },
+      why: 'A leading current swings the drop forward, away from the output. Less of the drop then lies along the output. So the output sags less than at unity.',
+      read: 'Before you see it, predict. At full load, will 0.8 leading sag more or less than unity?' },
+    { show: true, name: 'Leading', ctl: ['pf'], ro: ['out'], enter: {}, end: { pf: '0.5 lead' }, dur: 4.2,
+      demo: (t) => { X.pf = t < 0.8 ? '1.0' : t < 2.0 ? '0.8 lead' : t < 3.2 ? '0.6 lead' : '0.5 lead'; },
+      text: strip('A leading load raises the output.[^1] Step on to leading. The drop swings forward, so less of it lies along the output. At 0.8 leading the output is 113.26 V. That is a regulation of 1.5%. At 0.6 leading the drop points straight across. Past that it points back against the output. Soon the output passes 115 V to reach the circle. At 0.5 leading it is 115.55 V.'),
+      read: 'With a leading load, less of the drop lies along the output, so the output rises. It is 113.26 V at 0.8 leading. Past 0.6 leading the drop points back. At 0.5 leading the output is 115.55 V, above no load.',
+      still: () => setStill() },
+    { kind: 'typed', name: 'Above no load', ans: 'reg2', hide: ['reg'], ro: ['out', 'reg'], enter: { pf: '0.5 lead' },
+      answer: -0.5, decimals: 1, unit: '%', want: '−0.5%',
+      slips: [{ value: 0.5, hint: 'The output rose above no load. So no-load minus on-load is negative.' }],
+      task: 'At 0.5 leading the output reads 115.55 V. At no load it is 115 V. What is the regulation?',
+      hint: '(115 − 115.55) ÷ 115 × 100.',
+      why: '−0.55 ÷ 115 = −0.0048, so −0.5%. Negative regulation means the output rose on load.',
+      read: 'At 0.5 leading the output is 115.55 V against 115 V at no load. What is the regulation?' },
+    { show: true, name: 'A quick rule', ctl: ['pf'], ro: ['out', 'reg', 'quick'], enter: { pf: '0.8 lag' }, end: { pf: '0.8 lead' }, dur: 4.0,
+      demo: (t) => { X.pf = t < 1.2 ? '0.8 lag' : t < 2.6 ? '1.0' : '0.8 lead'; },
+      text: 'A quick rule counts only the parts of the drops along the output. I × R sits at φ to it, giving IR cos φ. I × X is a quarter-turn further on, giving IX sin φ. As shares, regulation ≈ R% cos φ + X% sin φ. Take sin φ as negative when leading. R% is also the full-load copper loss over the rating, since I²R ÷ VI = IR ÷ V. With R% at 4 and X% at 3, 0.8 leading gives 3.2 − 1.8 = 1.4%.',
+      read: 'Regulation ≈ R% cos φ + X% sin φ, the parts of the two drops along the output. Take sin φ as negative when leading. R% is the full-load copper loss as a share of the rating. With R% at 4 and X% at 3, that gives 5.0% at 0.8 lagging and 1.4% at 0.8 leading.',
+      still: () => setStill() },
+    { kind: 'typed', name: 'Another transformer', ans: 'r9', pic: 'none', enter: {},
+      answer: 3.0, decimals: 1, unit: '%', want: '3.0%',
+      slips: [{ value: 4.5, hint: 'That adds them straight. Weight R% by cos φ and X% by sin φ.' },
+        { value: 3.3, hint: 'That swaps them. R% goes with cos φ, which is 0.8.' },
+        { value: -0.6, hint: 'That is the leading figure. Lagging, X% sin φ adds.' }],
+      task: 'Another transformer has an R% of 1.5 and an X% of 3. What is its regulation at full load, 0.8 lagging?',
+      hint: 'R% × 0.8 + X% × 0.6.',
+      why: '1.5 × 0.8 = 1.2 and 3 × 0.6 = 1.8. Together that is 3.0%.',
+      read: 'A transformer has an R% of 1.5 and an X% of 3. What is its regulation at full load, 0.8 lagging?' },
+    { show: true, name: 'Percentage impedance', ctl: ['z'], ro: ['out', 'reg', 'fault'], enter: { pf: '0.8 lag' }, end: { z: 5 }, dur: 4.4,
+      demo: (t) => { X.z = h5(t < 1.7 ? ramp(t, 0.5, 1.0, 5, 2.5) : t < 3.3 ? ramp(t, 1.9, 1.2, 2.5, 8) : ramp(t, 3.4, 0.8, 8, 5)); },
+      text: strip('One impedance sets both the sag and the fault current. *Percentage impedance* is the share of rated voltage that drives rated current through a shorted secondary. Last lesson\'s short-circuit test measured it: 22.0 V of 440 V, so 5%. Full voltage on that short drives 100 ÷ 5 = 20 times rated current.[^2] Rated current is 86.96 A. With a stiff supply, a short at the terminals draws 1739 A. Drag the impedance down. The drops shrink and the output holds up, but the fault bar grows.[^3]'),
+      read: 'Percentage impedance is the share of rated voltage that drives rated current through a short. Here it is 5%. So with a stiff supply, full voltage drives 20 times rated current, 1739 A. A lower impedance gives less drop and more fault current.',
+      still: () => setStill() },
+    { kind: 'typed', name: 'A 4% unit', ans: 'fc', pic: 'none', enter: {},
+      answer: 4348, decimals: 0, accept: [4350], unit: 'A', want: '4348' + NB + 'A',
+      slips: [{ value: 696, hint: 'That multiplies by 4. Divide 100 by the impedance first.' },
+        { value: 2174, hint: 'That is the figure for 10 kVA. Find this unit\'s own rated current first.' }],
+      task: 'A 20 kVA, 115 V transformer has 4% impedance. What current flows into a dead short at its terminals?',
+      hint: 'Rated current = 20,000 ÷ 115. Then multiply by 100 ÷ Z%.',
+      why: '20,000 ÷ 115 = 173.91 A rated. 100 ÷ 4 = 25, and 173.91 × 25 = 4348 A. Twice the rating at the same impedance gives twice the fault current.',
+      read: 'A 20 kVA, 115 V transformer has 4% impedance. What current flows into a dead short at its terminals?' },
+    { kind: 'typed', name: 'Leading, another unit', ans: 'r12', pic: 'none', enter: {},
+      answer: -0.8, decimals: 1, unit: '%', want: '−0.8%',
+      slips: [{ value: 0.8, hint: 'When leading, sin φ counts as negative. So X% sin φ comes off.' },
+        { value: 4.0, hint: 'That is the lagging figure. Leading, X% sin φ comes off.' },
+        { value: -2.0, hint: 'That swaps them. R% goes with cos φ, which is 0.8.' }],
+      task: 'A transformer has an R% of 2 and an X% of 4. What is its regulation at full load, 0.8 leading?',
+      hint: '2 × 0.8 − 4 × 0.6.',
+      why: '1.6 − 2.4 = −0.8%. The output rises a little above no load.',
+      read: 'A transformer has an R% of 2 and an X% of 4. What is its regulation at full load, 0.8 leading?' },
+    { kind: 'pick', name: 'Choosing an impedance', pic: 'none', enter: {},
+      opts: PICK, want: PICK[2],
+      task: 'A board needs a small volt drop and a low fault current. You can fit a 4% or an 8% transformer of the same rating. Which is true of the two?',
+      hint: 'Halving the impedance doubles the fault current.',
+      hints: { [PICK[0]]: 'More impedance drops more volts, so the 8% unit sags more.',
+        [PICK[1]]: 'Halving the impedance doubles the fault current.',
+        [PICK[3]]: 'That is the wrong way round. Less impedance, less drop.' },
+      why: 'The 8% unit\'s drop is about twice the 4% unit\'s. Its fault current is about half. One impedance cannot make both small. So you choose by which limit is tighter.',
+      read: 'A board needs a small volt drop and a low fault current. You can fit a 4% or an 8% transformer of the same rating. Which is true of the two?' },
+  ];
+  const FINISH = 'Current through the windings drops a voltage that sits tip to tail on the output. The sag is deepest when the load lags at the windings\' own angle. A leading load can lift the output above no load. Percentage impedance sets both the sag and the fault current. Less of one means more of the other. Next: three-phase transformers and their clock.';
+
+  // ================= state =================
+  const BASE = { load: 100, pf: '1.0', z: 5 };
+  const X = Object.assign({}, BASE);              // what the picture shows now
+  const D = {};                                   // the drawn sizes, easing towards the rule's
+  const blank = () => ({ pick: null, res: null, why: false, tries: 0, hint: '' });
+  let S = STEPS.map(blank);
+  const solved = (st) => !!st && (st.res === 'right' || st.res === 'shown');
+  let T = Infinity, motionEnd = 0, scripted = false, lastStep = -1, finished = false, lastDone = false, held = false, VIEW = 0;
+  let REC = { t: {} };
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  const quiet = () => REDUCE || testing();
+  const el = (id) => document.getElementById(id);
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  // A puzzle's figure stays "?" on screen until that puzzle is checked.
+  const hideOut = (i, key) => !finished && !!STEPS[i].hide && STEPS[i].hide.indexOf(key) >= 0 && !solved(S[i]);
+  // A regulation a later puzzle asks for stays "?" on the screens before that puzzle.
+  const spoils = (i) => !finished && X.load === 100 && X.z === 5 &&
+    ((X.pf === '1.0' && i < idx('Regulation at unity')) || (X.pf === '0.5 lead' && i < idx('Above no load')));
+  // The fault bar waits for the screen that explains it.
+  const barOn = (i) => i >= idx('Percentage impedance');
+
+  // ================= the drawn sizes ease towards the rule's =================
+  function targets() {
+    return { load: X.load, phi: phiOf(X.pf), z: X.z, fshow: (!barOn(VIEW) || hideOut(VIEW, 'fault')) ? 0 : 1 };
+  }
+  function snapD() { Object.assign(D, targets()); }
+  function tween(dt) {
+    const t = targets(), a = 1 - Math.exp(-dt / 0.22);
+    Object.keys(t).forEach((k) => { const e = t[k] - D[k]; D[k] = Math.abs(e) <= 1e-6 * Math.max(1, Math.abs(t[k])) ? t[k] : D[k] + e * a; });
+  }
+  function settled() { const t = targets(); return Object.keys(t).every((k) => D[k] === t[k]); }
+  snapD();
+
+  // ================= text with amber key terms (built with K.el, never innerHTML) =================
+  const UNIT_GAP = /(\d) (?=(?:kVA|V|A|W)(?![A-Za-z]))/g;
+  function write(node, s) {
+    node.textContent = '';
+    String(s || '').replace(UNIT_GAP, '$1' + NB).split(/\*([^*]+)\*/).forEach((seg, k) => {
+      if (!seg) return;
+      node.appendChild(k % 2 ? K.el('span', { class: 'term' }, seg) : document.createTextNode(seg));
+    });
+  }
+
+  // ================= controls =================
+  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);
+  const CTL = {
+    load: K.control({ id: 'load', label: 'Load', min: 0, max: 125, step: 5, value: 100, snap: [100], fmt: (v) => v + '%', into: '#c-load' }),
+    pf: K.choice({ id: 'pf', label: 'Power factor', options: PFS.map((k) => ({ value: k, label: k })), value: '1.0', into: '#c-pf' }),
+    z: K.control({ id: 'z', label: 'Impedance', min: 2, max: 10, step: 0.5, value: 5, snap: [2.5, 5], fmt: (v) => (Math.round(v * 10) / 10) + '%', into: '#c-z' }),
+  };
+  const CTL_IDS = Object.keys(CTL);
+  const pushed = {};
+  CTL_IDS.forEach((id) => { pushed[id] = CTL[id].get(); });
+  // The page moves the controls itself during a demonstration (silently, so it is not taken for Dan's move).
+  function push() {
+    CTL_IDS.forEach((id) => { if (pushed[id] !== X[id]) { CTL[id].set(X[id], true); pushed[id] = CTL[id].get(); } });
+  }
+  const shownCtl = (d, id) => !finished && !!d.ctl && d.ctl.indexOf(id) >= 0;
+  function layoutCtl(d) { CTL_IDS.forEach((id) => { el('c-' + id).hidden = !shownCtl(d, id); }); }
+
+  const RO = {
+    out: K.readout({ id: 'r-out', label: 'Output', fmt: fV, into: '#outs' }),
+    reg: K.readout({ id: 'r-reg', label: 'Regulation', fmt: fP, into: '#outs' }),
+    quick: K.readout({ id: 'r-quick', label: 'Quick rule', fmt: fP, into: '#outs' }),
+    fault: K.readout({ id: 'r-fault', label: 'Fault current', fmt: fA, into: '#outs' }),
+  };
+
+  // Up to four answer buttons; each puzzle fills in its own.
+  const pickBtns = [0, 1, 2, 3].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.kind !== 'pick' || k >= d.opts.length || solved(st)) return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+  // Typed answers: a field each; Check grades it, two misses show the working.
+  const ANS = {};
+  STEPS.forEach((d, i) => {
+    if (d.kind !== 'typed') return;
+    el('answers').appendChild(K.el('div', { id: 'ans-' + d.ans }));
+    const a = K.answer({ id: 'a-' + d.ans, unit: d.unit, answer: d.answer, decimals: d.decimals, accept: d.accept, slips: d.slips, into: '#ans-' + d.ans,
+      onCheck: (r) => {
+        const st = S[i];
+        if (solved(st)) return;
+        if (r.state === 'right') st.res = 'right';
+        else if (r.state === 'wrong') {
+          st.tries += 1; st.hint = r.hint || d.hint;
+          if (st.tries >= 2) { st.res = 'shown'; st.why = true; a.reveal(); }
+          else st.res = 'wrong';
+        } else { st.res = r.state; st.hint = ''; }
+        K.refresh();
+      } });
+    ANS[d.ans] = a;
+  });
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || solved(st)) return;
+    if (d.kind === 'typed') { ANS[d.ans].check(); return; }
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = st.pick === d.want ? 'right' : 'wrong';
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    const d = STEPS[at()];
+    if (d.show || finished) return;
+    S[at()].why = !S[at()].why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    if (!STEPS[at()].show || finished) return;
+    startDemo(at());
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && !solved(S[i]))) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true; anim.pause(); T = Infinity;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(blank); finished = false; lastStep = -1;
+    Object.keys(ANS).forEach((k) => ANS[k].reset());
+    stepper.set(0, true);
+  } });
+
+  // ================= motion: one animation runs the demonstrations and the easing =================
+  const needAnim = () => !finished && (T !== Infinity || !settled());
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    dt = Math.min(dt, 0.1);
+    const i = at(), d = STEPS[i];
+    VIEW = i;
+    if (T !== Infinity) {
+      T += dt;
+      if (scripted && d.demo) d.demo(Math.min(T, motionEnd));
+      if (T >= motionEnd) { T = Infinity; if (scripted) { scripted = false; Object.assign(X, d.end || {}); } }
+    }
+    tween(dt);
+    push();
+    paint(i);
+    return needAnim();
+  } });
+  function kick() {
+    if (quiet()) { snapD(); return; }
+    if (needAnim() && !anim.playing()) anim.play();
+  }
+  // A screen's state: its opening, or (for a demonstration) where it ends.
+  function prep(i, showEnd) {
+    const d = STEPS[i];
+    VIEW = i;
+    Object.assign(X, BASE, d.enter || {});
+    if (d.show && showEnd) { if (d.demo) d.demo(d.dur); Object.assign(X, d.end || {}); }
+    snapD();
+  }
+  function startDemo(i) {
+    const d = STEPS[i];
+    anim.pause(); held = false;
+    if (d.demo && !quiet()) { prep(i, false); scripted = true; motionEnd = d.dur; T = 0; d.demo(0); snapD(); anim.play(); }
+    else { scripted = false; T = Infinity; prep(i, true); }
+    push();
+  }
+  function enterStep(i) {
+    const d = STEPS[i];
+    anim.pause(); T = Infinity; scripted = false; held = false;
+    enter('stepbox');
+    if (d.show) { startDemo(i); return; }
+    prep(i, false);
+    push();
+  }
+  // The finished picture a still shows (the read-through), with the controls where its words end.
+  function setStill() {
+    const i = at();
+    anim.pause(); T = Infinity; scripted = false; held = true;
+    prep(i, true);
+    push();
+    K.refresh();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ================= drawing helpers =================
+  const svg = el('scene'), art = el('art'), lbl = el('lbl');
+  const add = (node, par) => (par || art).appendChild(node);
+  const r1 = (v) => Math.round(v * 10) / 10;
+  const text = (x, y, s, cls, anchor) => add(K.svg('text', { class: cls || 'lab', x: r1(x), y: r1(y), 'text-anchor': anchor || 'start' }, s));
+  const ptsS = (pts) => pts.map((p) => r1(p[0]) + ',' + r1(p[1])).join(' ');
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r1(x1), y1: r1(y1), x2: r1(x2), y2: r1(y2) }));
+  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: r1(x), y: r1(y), width: r1(Math.max(0, w)), height: r1(Math.max(0, h)), rx: rx || 0 }));
+  const circle = (cls, cx, cy, r) => add(K.svg('circle', { class: cls, cx, cy, r }));
+  // An arrow: its shaft stops at the base of its head, so the tip is exact.
+  function arrow(x1, y1, x2, y2, cls, head) {
+    const L = Math.hypot(x2 - x1, y2 - y1);
+    if (L < 0.6) return [];
+    const ux = (x2 - x1) / L, uy = (y2 - y1) / L, hl = Math.min(head, L * 0.6), hw = hl * 0.5;
+    const bx = x2 - ux * hl, by = y2 - uy * hl;
+    const out = [add(K.svg('polygon', { class: cls + '-h', points: ptsS([[x2, y2], [bx - uy * hw, by + ux * hw], [bx + uy * hw, by - ux * hw]]) }))];
+    if (L - hl > 0.6) out.unshift(line(cls, x1, y1, bx, by));
+    return out;
+  }
+
+  // ================= the picture =================
+  const PX0 = 14, KS = 15, V0 = 102, YA = 124;   // the phasors, true to scale: 15 units a volt, the axis from 102 V to 117 V
+  const px = (v) => PX0 + (v - V0) * KS;
+  const py = (y) => YA - y * KS;
+  const CX = 70, CY = 46;                        // where the short Current arrow starts
+  const BX = 300, BWD = 16, BT = 48, BB = 198, FMAX = 5000;   // the fault-current bar, 0 to 5000 A
+  const RY = 198;                                // the volts scale under the drawing
+  const ARC = [];
+  for (let k = 0; k <= 30; k++) { const y = -4.2 + 10.6 * k / 30; ARC.push([px(Math.sqrt(VS * VS - y * y)), py(y)]); }
+
+  // A label beside an arrow, on the side away from the third corner of the triangle, clear of the arrow.
+  function besideArrow(a, b, away, s) {
+    const L = Math.hypot(b[0] - a[0], b[1] - a[1]);
+    if (L < 16) return null;
+    const ux = (b[0] - a[0]) / L, uy = (b[1] - a[1]) / L, m = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
+    let nx = -uy, ny = ux;
+    if (nx * (away[0] - m[0]) + ny * (away[1] - m[1]) > 0) { nx = -nx; ny = -ny; }
+    const off = 5 + 17 * Math.abs(nx) + 7 * Math.abs(ny);
+    return { x: r1(m[0] + nx * off), y: r1(m[1] + ny * off + 4.5), text: s, class: 'lab', anchor: 'middle' };
+  }
+
+  function drawScene(i) {
+    const g = geom(D.load, D.phi, D.z), r = rule(X.load, X.pf, X.z), hidF = hideOut(i, 'fault'), bar = barOn(i);
+    // The volts scale.
+    line('ax', px(102), RY, px(117), RY);
+    [105, 110, 115].forEach((v) => {
+      line('tick', px(v), RY, px(v), RY + 5);
+      text(px(v), RY + 19, v === 115 ? '115' + NB + 'V' : String(v), 'tk', 'middle');
+    });
+    // The output's axis, the supply's fixed 115 V circle, and the no-load tip where they meet.
+    const axis = line('ax', px(102), YA, px(117), YA);
+    const arc = add(K.svg('polyline', { class: 'supply', points: ptsS(ARC) }));
+    text(px(VS), ARC[30][1] - 8, 'Supply', 'lab', 'middle');
+    circle('nl', px(VS), YA, 3.2);
+    text(px(VS) + 5, YA + 16, 'No load', 'lab', 'start');
+    // The output, then the two drops tip to tail.
+    const p0 = [px(g.out), YA], p1 = [px(g.out + g.R[0]), py(g.R[1])], p2 = [px(g.out + g.dx), py(g.dy)];
+    const oa = arrow(px(102), YA, p0[0], p0[1], 'oarr', 11);
+    text(px(102) + 2, YA + 18, 'Output', 'lab', 'start');
+    const ra = arrow(p0[0], p0[1], p1[0], p1[1], 'rarr', 9);
+    const xa = arrow(p1[0], p1[1], p2[0], p2[1], 'xarr', 9);
+    // The current's direction, and its angle from the output's.
+    line('ref', CX, CY, CX + 40, CY);
+    const ce = [CX + 34 * Math.cos(D.phi), CY + 34 * Math.sin(D.phi)];
+    const ca = arrow(CX, CY, ce[0], ce[1], 'carr', 8);
+    circle('dot', CX, CY, 2.6);
+    text(CX - 8, CY + 4.5, 'Current', 'lab', 'end');
+    const items = [];
+    let wedge = null;
+    if (Math.abs(D.phi) > 0.06) {
+      const rr = 16;
+      wedge = add(K.svg('path', { class: 'wedge', d: 'M' + (CX + rr) + ' ' + CY + ' A' + rr + ' ' + rr + ' 0 0 ' + (D.phi > 0 ? 1 : 0) + ' ' + r1(CX + rr * Math.cos(D.phi)) + ' ' + r1(CY + rr * Math.sin(D.phi)) }));
+    }
+    const tphi = r.phi, aop = tphi === 0 ? 0 : K.clamp(1 - Math.abs(D.phi - tphi) / 0.25, 0, 1);
+    // The fault-current bar: it fills to the current a short at the terminals would draw.
+    let fh = 0;
+    if (bar) {
+      rect('bar', BX, BT, BWD, BB - BT, 3);
+      fh = (BB - BT) * K.clamp(IRATED * 100 / D.z / FMAX, 0, 1) * (hidF ? 0 : D.fshow);
+      if (fh > 0.3) rect('barfill', BX, BB - fh, BWD, fh, 0);
+      text(BX + BWD / 2, 16, 'Fault', 'lab', 'middle');
+      text(BX + BWD / 2, 31, 'current', 'lab', 'middle');
+      [0, 2500, 5000].forEach((a) => {
+        const y = BB - (BB - BT) * a / FMAX;
+        line('tick', BX - 4, y, BX, y);
+        text(BX - 7, y + 4.5, a === 5000 ? '5000' + NB + 'A' : String(a), 'tk', 'end');
+      });
+    }
+    // Moving labels: the two drops, and the current's angle.
+    const lr = besideArrow(p0, p1, p2, 'I × R'), lx = besideArrow(p1, p2, p0, 'I × X');
+    if (lr) items.push(lr);
+    if (lx) items.push(lx);
+    let angTxt = '';
+    if (aop > 0.01 && wedge) {
+      angTxt = one(Math.abs(tphi) * 180 / Math.PI) + '°';
+      items.push({ x: CX + 44, y: r1(CY + 17 * Math.sin(D.phi) + 4.5), text: angTxt, class: 'lab', anchor: 'start' });
+    }
+    const placed = K.labels(lbl, items, { avoid: [axis, arc].concat(oa, ra, xa, ca, wedge ? [wedge] : []) });
+    if (angTxt && placed.length) placed[placed.length - 1].setAttribute('opacity', r1(aop * 10) / 10);
+    // What it shows, in words (no readout's number).
+    let said = 'A phasor diagram, zoomed in near 115 V. The output arrow lies along the axis. From its tip the I × R drop points along the current and the I × X drop a quarter-turn ahead of it, ending on the supply\'s 115 V circle. ';
+    said += D.phi > 0.01 ? 'The current lags the output. ' : D.phi < -0.01 ? 'The current leads the output. ' : 'The current is in step with the output. ';
+    const al = Math.atan2(g.xp, g.rp) - D.phi;
+    if (g.ir < 0.02) said += 'With no load there is no drop, so the output reaches the circle at the no-load mark. ';
+    else if (Math.abs(al) < 0.02) said += 'The drop lines up with the output, so all of it comes straight off. ';
+    else if (al < Math.PI / 2 - 0.02) said += 'Part of the drop lies along the output, so the output falls short of no load. ';
+    else if (al > Math.PI / 2 + 0.02) said += 'The drop points back against the output, so the output passes the no-load mark. ';
+    else said += 'The drop points straight across, so the output almost reaches no load. ';
+    if (bar) said += hidF ? 'On the right, the fault-current bar is empty for now.' : 'On the right, the fault-current bar shows the current a short at the terminals would draw.';
+    REC.said = said;
+    REC.tip = [g.out + g.dx, g.dy];
+    REC.outV = g.out;
+    REC.fbar = fh;
+    REC.lab = { r: !!lr, x: !!lx, ang: angTxt };
+    REC.load = X.load; REC.pf = X.pf; REC.z = X.z;
+  }
+
+  // ================= one paint =================
+  function paint(i) {
+    if (i == null) i = at();
+    art.textContent = '';
+    REC = { t: {} };
+    drawScene(i);
+    svg.setAttribute('aria-label', REC.said);
+    readouts(i);
+  }
+  function readouts(i) {
+    const r = rule(X.load, X.pf, X.z);
+    RO.out.set(hideOut(i, 'out') ? '?' : r.out);
+    RO.reg.set(hideOut(i, 'reg') || spoils(i) ? '?' : r.reg);
+    RO.quick.set(r.quick);
+    RO.fault.set(hideOut(i, 'fault') ? '?' : r.fault);
+    Object.keys(RO).forEach((k) => { REC.t[k] = RO[k].text(); });
+  }
+
+  // ================= the page around the picture =================
+  write(el('finish'), FINISH);
+  function layout(i) {
+    const d = STEPS[i], st = S[i], sol = solved(st);
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Screen ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    layoutCtl(d);
+    const pic = d.pic || 'all';
+    el('scene').toggleAttribute('hidden', pic !== 'all');
+    el('tri').toggleAttribute('hidden', pic !== 'tri');
+    const ro = d.ro || [];
+    el('outs').hidden = pic !== 'all' || !ro.length;
+    Object.keys(RO).forEach((k) => { RO[k].el.hidden = ro.indexOf(k) < 0; });
+    replayBtn.el.hidden = !d.show || !d.demo || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    const opts = d.kind === 'pick' ? d.opts : [];
+    el('picks').hidden = !opts.length;
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      if (b.el.textContent !== opts[k]) b.setLabel(opts[k]);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    el('answers').hidden = d.kind !== 'typed';
+    Object.keys(ANS).forEach((key) => { el('ans-' + key).hidden = d.ans !== key; });
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = sol;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (st.res === 'right' ? ' right' : '');
+    let say = '';
+    if (!d.show) {
+      if (st.res === 'right') say = d.right || 'That\'s it.';
+      else if (st.res === 'shown') say = 'Here is the working.';
+      else if (st.res === 'wrong') say = d.kind === 'typed' ? st.hint : (d.hints && d.hints[st.pick]) || d.hint;
+      else if (st.res === 'empty' && d.kind === 'pick') say = 'Pick one of the answers first.';
+    }
+    write(fb, say);
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !sol);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  }
+
+  K.update((p) => {
+    const i = at(), d = STEPS[i];
+    VIEW = i;
+    if (i !== lastStep) { lastStep = i; enterStep(i); }
+    else {
+      let moved = false;
+      CTL_IDS.forEach((id) => {
+        if (p[id] === pushed[id]) return;
+        if (shownCtl(d, id)) {
+          if (T !== Infinity) { anim.pause(); T = Infinity; scripted = false; }   // his move ends the demonstration where it stands
+          X[id] = p[id]; pushed[id] = p[id]; moved = true;
+        } else CTL[id].set(pushed[id], true);      // a control this screen does not use stays put
+      });
+      if (moved) { held = false; push(); }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    if (quiet()) snapD();
+    layout(i);
+    paint(i);
+    kick();
+  });
+
+  // ================= known answers, worked out by hand =================
+  const near = (a, b, t) => Math.abs(a - b) <= t;
+  const solvedSt = (i) => Object.assign(blank(), STEPS[i].kind === 'pick' ? { pick: STEPS[i].want, res: 'right' } : { res: 'right' });
+  // A screen painted in the state given (finished), with optional settings: what it drew.
+  function drawn(i, st, x) {
+    const keep = { X: Object.assign({}, X), D: Object.assign({}, D), S: S[i], T, sc: scripted, held, V: VIEW };
+    S[i] = st || blank(); T = Infinity; scripted = false; held = true;
+    try {
+      prep(i, true);
+      if (x) Object.assign(X, x);
+      snapD();
+      paint(i);
+      return REC;
+    } finally {
+      Object.assign(X, keep.X); Object.assign(D, keep.D); S[i] = keep.S; T = keep.T; scripted = keep.sc; held = keep.held; VIEW = keep.V; paint();
+    }
+  }
+  const iTri = idx('Two at right angles'), iLoad = idx('Loading'), iOut = idx('Full load, unity'), iSag = idx('The deepest sag');
+  const iReg1 = idx('Regulation at unity'), iLead = idx('Leading'), iReg2 = idx('Above no load'), iQuick = idx('A quick rule');
+  const iR9 = idx('Another transformer'), iZ = idx('Percentage impedance'), iFc = idx('A 4% unit'), iR12 = idx('Leading, another unit'), iPick = idx('Choosing an impedance');
+  const V_ = (s) => s + NB + 'V', A_ = (s) => s + NB + 'A';
+
+  K.check('Leading power factor increases the secondary terminal voltage and lagging reduces it: every leading setting gives more than unity\'s 110.35 V, every lagging one less', () => {
+    const u = rule(100, '1.0', 5).out;
+    return u.toFixed(2) === '110.35' && ['0.8 lead', '0.6 lead', '0.5 lead'].every((k) => rule(100, k, 5).out > u) &&
+      ['0.8 lag', '0.6 lag', '0.5 lag'].every((k) => rule(100, k, 5).out < u);
+  }, { source: SRC1 });
+  K.check('With 5% impedance, full voltage drives 100 ÷ 5 = 20 times full-load current into a solid short on the secondary terminals: 1739 A', () =>
+    near(rule(100, '1.0', 5).fault, 20 * IRATED, 1e-9) && near(IRATED, 86.957, 0.001) && drawn(iZ, null, { z: 5 }).t.fault === A_('1739'), { source: SRC2 });
+  K.check('Lower impedance gives better regulation and more current into a fault: from 10% down to 2%, the sag at 0.8 lagging shrinks and the fault current grows (870 A, 1739 A, 3478 A)', () => {
+    const zs = K.linspace(2, 10, 17);
+    for (let k = 1; k < zs.length; k++) {
+      const a = rule(100, '0.8 lag', zs[k - 1]), b = rule(100, '0.8 lag', zs[k]);
+      if (!(a.reg < b.reg && a.fault > b.fault)) return false;
+    }
+    return drawn(iZ, null, { z: 10 }).t.fault === A_('870') && drawn(iZ, null, { z: 2.5 }).t.fault === A_('3478');
+  }, { source: SRC3 });
+  K.check('At full load and 5%: 110.35 V and 4.0% at unity, 109.25 V and 5.0% at 0.8 lagging, 113.26 V and 1.5% at 0.8 leading, 115.55 V and −0.5% at 0.5 leading; the quick rule gives 4.0, 5.0, 1.4 and −0.6%', () => {
+    const t = (k) => drawn(iQuick, null, { pf: k }).t;
+    const u = t('1.0'), lg = t('0.8 lag'), ld = t('0.8 lead'), l5 = t('0.5 lead');
+    return u.out === V_('110.35') && u.reg === '4.0%' && u.quick === '4.0%' && lg.out === V_('109.25') && lg.reg === '5.0%' && lg.quick === '5.0%' &&
+      ld.out === V_('113.26') && ld.reg === '1.5%' && ld.quick === '1.4%' && l5.out === V_('115.55') && l5.reg === '−0.5%' && l5.quick === '−0.6%';
+  });
+  K.check('The drawing and the lesson\'s formula agree, and the last tip sits on the 115 V circle at every setting; at full load the drops are 4.6 V and 3.45 V, 5.75 V in all', () => {
+    const ok = PFS.every((k) => [0, 25, 50, 75, 100, 125].every((l) => [2, 5, 10].every((z) => {
+      const g = geom(l, phiOf(k), z), r = rule(l, k, z);
+      return near(g.out, r.out, 1e-9) && near(Math.hypot(g.out + g.dx, g.dy), VS, 1e-9);
+    })));
+    const f = rule(100, '1.0', 5), d = drawn(iLead, null, { pf: '0.6 lead' });
+    return ok && near(f.ir, 4.6, 1e-9) && near(f.ix, 3.45, 1e-9) && near(f.d, 5.75, 1e-9) && near(Math.hypot(d.tip[0], d.tip[1]), VS, 1e-9) &&
+      near(Math.atan2(3.45, 4.6) * 180 / Math.PI, 36.87, 0.01);
+  });
+  K.check('The output is shortest at 0.8 lagging, where the drop lines up with it; at no load it is 115.00 V, and past 0.6 leading it passes 115 V', () => {
+    const outs = PFS.map((k) => rule(100, k, 5).out), lo = Math.min.apply(null, outs);
+    const nl = drawn(iLoad, null, { load: 0 });
+    return lo === rule(100, '0.8 lag', 5).out && near(rule(100, '0.8 lag', 5).alpha, 0, 1e-3) && nl.t.out === V_('115.00') && nl.t.reg === '0.0%' &&
+      !nl.lab.r && near(rule(100, '0.6 lead', 5).alpha, Math.PI / 2, 1e-3) && rule(100, '0.6 lead', 5).out < VS && rule(100, '0.5 lead', 5).out > VS &&
+      drawn(iSag, null, { pf: '0.8 lag' }).lab.ang === '36.9°';
+  });
+  K.check('Each typed answer and slip is worked from its rule: 10 V (14, 2), 110.35 V (106.95, 109.25, 110.4), 4.0% (4.2, 5.0), −0.5% (0.5), 3.0% (4.5, 3.3, −0.6), 4348 A (696, 2174) and −0.8% (0.8, 4.0, −2.0)', () => {
+    const sl = (i, v) => STEPS[i].slips.length === v.length && STEPS[i].slips.every((s, k) => near(s.value, v[k], 1e-12));
+    const o1 = (v) => Math.round(v * 10) / 10, o2 = (v) => Math.round(v * 100) / 100;
+    const work = Math.hypot(6, 8) === 10 && 6 + 8 === 14 && 8 - 6 === 2 &&
+      o2(Math.sqrt(115 * 115 - 3.45 * 3.45) - 4.6) === 110.35 && o2(115 - 4.6 - 3.45) === 106.95 && o2(115 - 5.75) === 109.25 && o1(115 * 0.96) === 110.4 &&
+      o2(Math.sqrt(115 * 115 - 3.45 * 3.45)) === 114.95 && o2(rule(100, '1.0', 5).out) === 110.35 &&
+      o1(100 * (115 - 110.35) / 115) === 4.0 && o1(100 * (115 - 110.35) / 110.35) === 4.2 && o1(100 * 5.75 / 115) === 5.0 &&
+      o1(100 * (115 - 115.55) / 115) === -0.5 && o1(100 * (115.55 - 115) / 115) === 0.5 &&
+      o1(1.5 * 0.8 + 3 * 0.6) === 3.0 && o1(1.5 + 3) === 4.5 && o1(1.5 * 0.6 + 3 * 0.8) === 3.3 && o1(1.5 * 0.8 - 3 * 0.6) === -0.6 &&
+      Math.round(20000 / VS * 100 / 4) === 4348 && Math.round(20000 / VS * 4) === 696 && Math.round(IRATED * 25) === 2174 && 174 * 25 === 4350 &&
+      o1(2 * 0.8 - 4 * 0.6) === -0.8 && o1(4 * 0.6 - 2 * 0.8) === 0.8 && o1(2 * 0.8 + 4 * 0.6) === 4.0 && o1(2 * 0.6 - 4 * 0.8) === -2.0;
+    return work && STEPS[iTri].answer === 10 && STEPS[iOut].answer === 110.35 && STEPS[iReg1].answer === 4.0 && STEPS[iReg2].answer === -0.5 &&
+      STEPS[iR9].answer === 3.0 && STEPS[iFc].answer === 4348 && STEPS[iR12].answer === -0.8 && STEPS[iPick].want === STEPS[iPick].opts[2] &&
+      sl(iTri, [14, 2]) && sl(iOut, [106.95, 109.25, 110.4]) && sl(iReg1, [4.2, 5.0]) && sl(iReg2, [0.5]) && sl(iR9, [4.5, 3.3, -0.6]) &&
+      sl(iFc, [696, 2174]) && sl(iR12, [0.8, 4.0, -2.0]);
+  });
+  K.check('Before a Check the output and regulation show ?, after it 110.35 V, 4.0% and −0.5%; a regulation a later puzzle asks for shows ? on the screens before it, and the fault bar waits for its screen', () => {
+    const b = (i) => drawn(i, blank()), s = (i) => drawn(i, solvedSt(i));
+    const ob = b(iOut), os = s(iOut), ab = b(iReg1), as = s(iReg1), cb = b(iReg2), cs = s(iReg2);
+    const sg = drawn(iSag, null, { pf: '1.0' }), ld = drawn(iLead, null, { pf: '0.5 lead' }), qk = drawn(iQuick, null, { pf: '0.5 lead' });
+    return ob.t.out === '?' && os.t.out === V_('110.35') && ab.t.reg === '?' && ab.t.out === V_('110.35') && as.t.reg === '4.0%' &&
+      cb.t.reg === '?' && cb.t.out === V_('115.55') && cs.t.reg === '−0.5%' && sg.t.reg === '?' && ld.t.reg === '?' && qk.t.reg === '−0.5%' &&
+      drawn(iLoad).fbar === 0 && drawn(iQuick).fbar === 0 && drawn(iZ).fbar > 0 && STEPS[idx('Predict: leading')].want === PRED[1] &&
+      rule(100, '0.8 lead', 5).reg < rule(100, '1.0', 5).reg;
+  });
+  K.check('Every demonstration ends 3 to 4.5 s after its screen opens, on the setting its words end on', () =>
+    STEPS.every((d) => !d.show || (d.dur >= 3 && d.dur <= 4.5)) &&
+    drawn(iLoad).load === 100 && drawn(iSag).pf === '0.8 lag' && drawn(iLead).pf === '0.5 lead' && drawn(iQuick).pf === '0.8 lead' && drawn(iZ).z === 5);
+  K.ready();
+</script>

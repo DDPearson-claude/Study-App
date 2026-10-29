@@ -1,0 +1,53 @@
+{
+  "draft": "i8.lesson.draft1.txt",
+  "validator": "draft 1 passes with no problems, but whatAmILookingAt is 13242 characters against the 12000 the prompt's validator names. Trim it in draft 2 so the app never has to repair it.",
+  "keep": [
+    "The idea up front in the explanation: two hazards, one cause, the core saturating; and a third point about joins, not saturation: an auto-transformer gives no isolation.",
+    "The causal chain for inrush: the voltage sets how fast the flux changes, so the flux is the voltage's running total; switched at a zero the flux starts from nothing instead of a peak, so half a cycle adds two peaks' worth; the flux left in adds; past the knee the current soars. The peak switch-on is the setting where the cause does not produce the effect.",
+    "The CT taught as the rule turned round: a power transformer is voltage-fed so the voltage fixes its flux; a CT's primary current is fixed by the load, its secondary ampere-turns cancel it, and the core needs only the flux for the burden's few volts. Open, nothing cancels, the core saturates, the flat flux makes nothing and the fast flip makes the spike.",
+    "Every figure computed from a shown rule: first flux peak 1 + left in + cos(point), giving 2.0, 2.6, 2.8, 1.5, 1.0, 1.4; current 0.02 x flux to the 1.2 knee, 0.024 + 15 x (flux - 1.2) past it, giving 12.02, 21.02, 24.02 (inside the cited 8 to 30), 4.52, 0.02, 3.02; CT volts 5 x (burden + 0.2): 1.0, 4.0, 11.0, 21.0 V and 3, 13, 37, 70% of a 30 V knee; auto share 1 - 115/440 = 74%, 1 - 400/440 = 9%; worked example 3.83, 22.7 A, 86.96 A, 182 to 681 A, 95.2%, 109.25 V, 1739 A, 7.4 kVA, all consistent with lessons 5 and 6.",
+    "Typed answers for every figure (screens 1, 3, 7, 11, 12) with want, slips and hints; options only for answers in words: the breaker that trips once (5), the first thing to do before changing a CT-fed meter (9), which transformer makes a separate system (13), and what a shorted VT does (14).",
+    "Misconceptions from the brief each get a DO screen: opening a CT secondary to fit a meter (9, with the fuse and light-load slips); shorting a VT, paired with the CT (14); inrush taken for a fault (5); an auto-transformer isolating (13).",
+    "Recall opener from Electronics lesson 3 (325 V, 1 ohm, 325 A; 3.25 A through 100 ohms), named as a different cause on the next screen.",
+    "Footnotes only where he would look something up: inrush mostly saturation, 8 to 30 times, the open CT saturating, high voltages while primary current flows, 4000 V measured, the auto-transformer's join. No source named in a sentence."
+  ],
+  "faults": [
+    {
+      "fault": "causal step",
+      "where": "screen 2 and explain paragraph 2, 'Running normally, the flux peaks as the voltage crosses zero'",
+      "fix": "Give the reason: the flux keeps rising while the voltage is positive and stops when it reaches zero, so that is where the flux peaks."
+    },
+    {
+      "fault": "causal step",
+      "where": "explain paragraph 2, 'Past the knee the iron is full, and each extra bit of flux takes a great deal of current'",
+      "fix": "Tie it to lesson 2: once saturated, the iron helps little more, so the extra flux is pushed through almost as if the core were air."
+    },
+    {
+      "fault": "causal step",
+      "where": "screen 10, 'The supply's current runs straight on into the load. Only the rest is transformed'",
+      "fix": "Say what that current carries: 115 / 440 of the power, 26%, so the winding transforms the other 74%."
+    },
+    {
+      "fault": "false absolute",
+      "where": "screen 10 and explain paragraph 4, 'A fault on one side reaches the other'",
+      "fix": "Narrow it to what is true: the two sides are one connected system, so an earth fault on either is an earth fault on both."
+    },
+    {
+      "fault": "plain writing",
+      "where": "explain paragraph 1, the 25-word sentence on the open CT",
+      "fix": "Split into two sentences."
+    },
+    {
+      "fault": "analogy",
+      "where": "'Open it, and the voltage climbs to drive the current on'",
+      "fix": "An open CT drives no current; say only that the voltage leaps."
+    },
+    {
+      "fault": "length",
+      "where": "whatAmILookingAt",
+      "fix": "Cut the card descriptions and the readout lists, and shorten the SHOW screens' read lines, to under 12000 characters."
+    }
+  ],
+  "shape": "Matches the recommended shape: the idea in one line up front; the rule in words (flux is the voltage's running total; ampere-turns balance; transformed share 1 - out/in); a worked example with real numbers (the 10 kVA 440 V to 115 V unit through ratio, currents, inrush, losses, regulation, fault current and why isolating); the misconceptions shown failing (open CT, shorted VT, inrush taken for a fault, auto isolating); an analogy from his trade (breaking a contactor coil's supply) with where it breaks; practice with the safe way first, steps, rules of thumb and mistakes; a recap he could say back.",
+  "verdict": "Rewrite as draft 2 with the seven fixes."
+}

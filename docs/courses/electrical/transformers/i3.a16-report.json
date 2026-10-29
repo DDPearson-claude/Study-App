@@ -1,0 +1,284 @@
+{
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "With an unchanging flux there is no induced emf: held at 2 A, with 5 mWb in the core, the meter reads 0.00 V, while a drag from 0 to 2 A in 1 s reads 0.50 V",
+        "ok": true,
+        "source": "https://phys.libretexts.org/Courses/University_of_California_Davis/UCD%3A_Physics_9C__Electricity_and_Magnetism/5%3A_Electromagnetism/5.1%3A_Magnetic_Induction"
+      },
+      {
+        "label": "Faster reads more: 0 to 2 A in 0.5 s reads 1.00 V, twice the 1 s drag, and a fall from 2 A to 1 A in 2 s reads the other way, 0.125 V",
+        "ok": true
+      },
+      {
+        "label": "The secondary's own field always points against the change: against a rising flux, with a falling one, and gone while the flux is still",
+        "ok": true
+      },
+      {
+        "label": "E = 4.44 f N Φm gives a definite relation between a coil's voltage and its core's flux: 60 Hz, 300 turns and 5.5 mWb give 440 V, and 330 turns give 484 V",
+        "ok": true,
+        "source": "https://pages.mtu.edu/~avsergue/EET2233/Lectures/CHAPTER5.pdf"
+      },
+      {
+        "label": "With the supply fixed at 440 V the flux follows f and N: 5.5 mWb and 2.20 A at 60 Hz and 300 turns, 5.0 mWb and 1.82 A at 330 turns, 6.6 mWb and 2.64 A at 50 Hz, 20% more",
+        "ok": true
+      },
+      {
+        "label": "Where 4.44 comes from: the form factor 0.707 ÷ 0.637 is 1.11, 4 × 1.11 = 4.44, and 2π ÷ √2 = 4.443; the emf trace peaks where the flux trace crosses zero",
+        "ok": true
+      },
+      {
+        "label": "A transformer cannot change a DC voltage: on 24 V DC the current settles at 48 A, the flux holds steady and the meter reads 0 V",
+        "ok": true,
+        "source": "https://phys.libretexts.org/Bookshelves/College_Physics/College_Physics_1e_(OpenStax)/23:_Electromagnetic_Induction_AC_Circuits_and_Electrical_Technologies/23.10:_Transformers"
+      },
+      {
+        "label": "On DC the meter kicks only while the current climbs, and the settled winding turns 24 × 48 = 1152 W into heat, with 48 A over 20 times the 2.2 A AC peak",
+        "ok": true
+      },
+      {
+        "label": "Each typed answer and slip is worked from its rule: 0 V (0.5, 1), 178 V (40, 160, 251), 4.6 mWb (6.6, 5.5, 0.0046), 60 A (0, 9.6, 48), 0.6 V (0.3, 0.15, 0.006) and 8.3 mWb (3.7, 5.5, 0.0083)",
+        "ok": true
+      },
+      {
+        "label": "Before a Check no puzzle shows its answer, and a right Check shows it: the meter falls from 0.50 V to 0.00 V, the falling flux brings the dashed field up, a steady rise reads 0.60 V, and the peak flux moves from 5.5 mWb to 4.6 mWb and to 8.3 mWb",
+        "ok": true
+      },
+      {
+        "label": "Every demonstration ends 3 to 4.5 s after its screen opens, and every answer's motion within 2.5 s",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "mode",
+      "cur",
+      "lamp",
+      "fix",
+      "f",
+      "n"
+    ],
+    "readouts": [
+      "r-phi",
+      "r-m",
+      "r-E",
+      "r-pk",
+      "r-ipk",
+      "r-idc",
+      "r-heat"
+    ],
+    "outputs": [],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Screen",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "steps": [
+          "A turning coil",
+          "Move the flux",
+          "Hold it still",
+          "Against the change",
+          "A falling flux",
+          "Switch to AC",
+          "Volts from flux",
+          "Fix the voltage",
+          "More turns",
+          "Switch to DC",
+          "Steady current",
+          "A steady rise",
+          "A lower frequency"
+        ],
+        "value": 0
+      },
+      {
+        "id": "mode",
+        "kind": "choice",
+        "label": "Supply",
+        "options": [
+          "hand",
+          "ac",
+          "dc"
+        ],
+        "labels": [
+          "Hand",
+          "AC",
+          "DC"
+        ],
+        "value": "hand",
+        "index": 0,
+        "shown": false
+      },
+      {
+        "id": "cur",
+        "kind": "control",
+        "label": "Primary current",
+        "min": -2,
+        "max": 2,
+        "step": 0.05,
+        "log": false,
+        "value": 0,
+        "shown": false,
+        "snap": [
+          0,
+          1.2,
+          2
+        ]
+      },
+      {
+        "id": "lamp",
+        "kind": "toggle",
+        "label": "Lamp's switch closed",
+        "options": [
+          false,
+          true
+        ],
+        "value": false,
+        "shown": false
+      },
+      {
+        "id": "fix",
+        "kind": "toggle",
+        "label": "Fix the voltage at 440 V",
+        "options": [
+          false,
+          true
+        ],
+        "value": false,
+        "shown": false
+      },
+      {
+        "id": "f",
+        "kind": "control",
+        "label": "Frequency, f",
+        "min": 40,
+        "max": 60,
+        "step": 5,
+        "log": false,
+        "value": 60,
+        "shown": false,
+        "snap": [
+          50,
+          60
+        ]
+      },
+      {
+        "id": "n",
+        "kind": "control",
+        "label": "Primary turns, N",
+        "min": 240,
+        "max": 360,
+        "step": 30,
+        "log": false,
+        "value": 300,
+        "shown": false,
+        "snap": [
+          300,
+          330
+        ]
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Play again",
+      "Back",
+      "Continue",
+      "Start again",
+      "Demonstration"
+    ],
+    "answers": [
+      {
+        "id": "a-hold",
+        "answer": 0,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-emf",
+        "answer": 178,
+        "accept": [
+          177.6
+        ],
+        "ok": true
+      },
+      {
+        "id": "a-turns",
+        "answer": 4.6,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-dc",
+        "answer": 60,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-rise",
+        "answer": 0.6,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-freq",
+        "answer": 8.3,
+        "accept": [],
+        "ok": true
+      }
+    ],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ]
+  },
+  "moved": [
+    "step = 1 (the first step that shows a control)",
+    "mode = \"ac\"",
+    "cur = 1",
+    "lamp = true",
+    "fix = true",
+    "f = 55",
+    "n = 330"
+  ],
+  "shots": [
+    "/home/user/Study-App/build/electrical/transformers/i3.a16-360-light.png",
+    "/home/user/Study-App/build/electrical/transformers/i3.a16-360-light-moved.png",
+    "/home/user/Study-App/build/electrical/transformers/i3.a16-360-light-end.png",
+    "/home/user/Study-App/build/electrical/transformers/i3.a16-360-dark.png",
+    "/home/user/Study-App/build/electrical/transformers/i3.a16-360-dark-moved.png",
+    "/home/user/Study-App/build/electrical/transformers/i3.a16-360-dark-end.png",
+    "/home/user/Study-App/build/electrical/transformers/i3.a16-1280-light.png",
+    "/home/user/Study-App/build/electrical/transformers/i3.a16-1280-light-moved.png",
+    "/home/user/Study-App/build/electrical/transformers/i3.a16-1280-light-end.png",
+    "/home/user/Study-App/build/electrical/transformers/i3.a16-1280-dark.png",
+    "/home/user/Study-App/build/electrical/transformers/i3.a16-1280-dark-moved.png",
+    "/home/user/Study-App/build/electrical/transformers/i3.a16-1280-dark-end.png"
+  ]
+}

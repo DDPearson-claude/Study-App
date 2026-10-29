@@ -1,0 +1,741 @@
+<!-- kind: quantity -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .caption { max-width: 32rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.08rem; font-weight: 400; line-height: 1.6; }
+  .scene { display: block; width: 100%; max-width: 26rem; margin-inline: auto; touch-action: pan-y; }
+  /* The core, its two windings, the supply and the load. */
+  .scene .iron { fill: var(--k-sunk); stroke: var(--k-ink); stroke-width: 1.6; }
+  .scene .hole { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.6; }
+  .scene .turn { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.3; }
+  .scene .wire { fill: none; stroke: var(--k-ink); stroke-width: 1.6; stroke-linejoin: round; }
+  .scene .dev { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.6; }
+  .scene .term0 { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.4; }
+  .scene .res { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.6; }
+  /* The flux path through both windings, and the voltage columns. */
+  .scene .flux { fill: none; stroke: var(--k-accent2); stroke-width: 2; stroke-dasharray: 6 4; }
+  .scene .fluxh { fill: var(--k-accent2); }
+  .scene .col { fill: var(--k-fill1); stroke: var(--k-accent2); stroke-width: 1.4; }
+  .scene .base { stroke: var(--k-strong); stroke-width: 1.4; }
+  /* The bars. */
+  .scene .bar { fill: var(--k-sunk); stroke: var(--k-line); stroke-width: 1; }
+  .scene .bfill { fill: var(--k-accent2); }
+  .scene .pfill { fill: var(--k-accent); }
+  .scene .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .ttl { font: 700 16px var(--k-font); fill: var(--k-ink); }
+  .scene .pill { fill: var(--k-bg); stroke: var(--k-line); stroke-width: 1; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-inline: 16px; font-size: .95rem; white-space: nowrap; }
+  /* Three readouts share a row on a laptop; on a phone two share a row and the third takes the next. */
+  .outs .k-readout { flex: 1 1 8rem !important; }
+  /* The two halves of the ampere-turn line wrap onto two rows on a phone. */
+  .ats .k-readout { flex: 1 1 11rem !important; }
+  .seen .seen-v { font-size: 1.5rem; font-weight: 700; margin: 2px 0 0; }
+  .seen .seen-w { margin: 2px 0 0; }
+  .picks { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .picks .k-btn { min-height: 48px; font-size: 1.05rem; white-space: normal; overflow-wrap: normal; word-break: normal; hyphens: none; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .answers .k-answer { max-width: 20rem; }
+  .fb { font-weight: 700; min-height: 1.5em; }
+  .fb.right { color: var(--k-good); }
+  .why, .done { line-height: 1.6; }
+  .done .row { margin-top: 14px; }
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }
+</style>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 394" width="100%" role="img" aria-label=""><g id="art"></g></svg>
+    <div class="replay" id="replay"></div>
+    <div class="k-controls" id="c-n1"></div>
+    <div class="k-controls" id="c-n2"></div>
+    <div class="k-controls" id="c-sw"></div>
+    <div class="k-controls" id="c-R"></div>
+    <div class="k-readouts outs" id="outs"></div>
+    <div id="atline">
+      <span class="k-label">Ampere-turns</span>
+      <div class="k-readouts ats" id="ats"></div>
+    </div>
+    <div class="panel seen" id="seen">
+      <p class="k-label">As the 440&nbsp;V side sees it</p>
+      <p class="seen-v" id="seen-v"></p>
+      <p class="small muted seen-w" id="seen-w"></p>
+    </div>
+    <div class="picks" id="picks"></div>
+    <div class="answers" id="answers"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p id="finish"></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">An ideal transformer on a 440 V, 60 Hz supply, worked from the turns ratio. Every value is an example.</p>
+
+<script>
+  // ================= the rules =================
+  const strip = (s) => s.replace(/\[\^\d+\]/g, '');
+  const NB = ' ';
+  const VS = 440, FQ = 60;                           // the example supply: 440 V rms at 60 Hz
+  const SRC_V = 'https://openstax.org/books/university-physics-volume-2/pages/15-6-transformers';
+
+  // Volts per turn = 440 ÷ N1; V2 = N2 × that; the peak flux is 440 ÷ (4.44 × 60 × N1), and nothing on the
+  // secondary side enters it. With the switch closed I2 = V2 ÷ R, and the primary cancels the secondary's
+  // ampere-turns: I1 = N2 × I2 ÷ N1.
+  function rule(n1, n2, sw, R) {
+    const vpt = VS / n1, v2 = n2 * vpt, phim = VS / (4.44 * FQ * n1);
+    const i2 = sw ? v2 / R : 0, i1 = n2 * i2 / n1;
+    return { vpt, v2, phim, i2, i1, pin: VS * i1, pout: v2 * i2, at1: n1 * i1, at2: n2 * i2, seen: sw ? VS / i1 : null };
+  }
+  const N1S = [440, 660, 880, 1100, 1320], N2S = [115, 230, 345, 460, 575, 690, 805, 920];
+  const r0 = (v) => String(Math.round(v + 1e-7));
+  const fmtV = (v) => { const w = Math.round(v); return Math.abs(v - w) < 0.05 ? String(w) : v.toFixed(1); };
+  const fmtVpt = (v) => String(Number(v.toFixed(3)));
+  const tagText = (volts, turns) => fmtVpt(volts / turns) + NB + 'V a turn';
+  // A bar scale that steps up in round numbers.
+  function niceUp(v) {
+    if (!(v > 0)) return 1;
+    const e = Math.pow(10, Math.floor(Math.log10(v)));
+    const m = [1, 1.5, 2, 3, 4, 5, 6, 8, 10].find((k) => k * e >= v - 1e-9);
+    return (m || 10) * e;
+  }
+
+  // ================= the lesson: SHOW screens demonstrate, DO screens are puzzles =================
+  const ramp = (t, t0, dur, a, b) => a + (b - a) * K.clamp((t - t0) / dur, 0, 1);
+  const R_HEAT = 115 * 115 / 3000;   // the 3 kW heater's resistance at 115 V, in Ω
+  const STEPS = [
+    { kind: 'typed', name: 'Size of a load', ans: 'size', enter: {},
+      answer: 5, decimals: 0, unit: 'Ω', want: '5' + NB + 'Ω',
+      slips: [{ value: 7, hint: 'That adds the parts. The size is the square root of 3² + 4².' },
+        { value: 25, hint: 'That is 3² + 4². Now take its square root.' }],
+      task: 'A load has an impedance of 3 + j4 Ω. What is its size?',
+      hint: 'Size = √(3² + 4²).',
+      why: '√(9 + 16) = √25 = 5 Ω. You will meet this load again later, seen through a transformer.',
+      right: 'Still there.',
+      read: 'A load has an impedance of 3 + j4 Ω. What is its size?' },
+    { show: true, name: 'Volts follow turns', ctl: ['n2'], enter: {}, end: { n2: 230 }, dur: 4.0,
+      demo: (t) => { X.n2 = t < 0.8 ? 230 : t < 1.6 ? 345 : t < 2.6 ? 460 : t < 3.4 ? 345 : 230; },
+      text: strip('The volts follow the turns. One iron core carries two windings, with no wire between them. The primary has 880 turns on 440 V. The secondary has 230. The same flux threads every turn of both. So both windings get the same volts per turn. Here it is 440 ÷ 880 = 0.5 V. The secondary\'s 230 turns add up to 230 × 0.5 = 115 V. Drag the secondary\'s turns, and each one adds another 0.5 V. So V2 ÷ V1 = N2 ÷ N1.[^1]'),
+      read: 'Two windings share one core and one flux. On 440 V, the primary\'s 880 turns give 0.5 V per turn. So the secondary\'s 230 turns give 115 V. The volts follow the turns.',
+      still: () => setStill() },
+    { kind: 'typed', name: 'A 24 V winding', ans: 'n24', enter: {},
+      answer: 48, decimals: 0, unit: 'turns', want: '48' + NB + 'turns',
+      slips: [{ value: 12, hint: 'That multiplies 24 by 0.5. Each turn gives 0.5 V, so divide.' },
+        { value: 37, hint: 'That is 880 ÷ 24. Find the volts per turn first.' }],
+      task: 'A primary of 880 turns sits on 440 V. A control circuit needs 24 V. How many turns does its secondary need?',
+      hint: 'Volts per turn = 440 ÷ 880. Then divide 24 V by it.',
+      why: '440 ÷ 880 = 0.5 V per turn. 24 ÷ 0.5 = 48 turns. Check: 48 turns × 0.5 V = 24 V.',
+      read: 'A primary of 880 turns sits on 440 V. A control circuit needs 24 V. How many turns does its secondary need?' },
+    { show: true, name: 'Close the switch', ctl: ['sw'], enter: { sw: false }, end: { sw: true }, dur: 3.4,
+      demo: (t) => { X.sw = t >= 0.8; },
+      text: strip('The primary cancels the secondary\'s *ampere-turns*. Close the load switch. A 5 Ω load on 115 V draws 23 A. The secondary\'s 230 turns now carry 230 × 23 = 5290 ampere-turns. They push against the change that made them. But the flux must still make 440 V in the primary, to match the supply. So it cannot shrink. Instead, the primary draws 5290 ÷ 880 = 6.01 A extra to cancel them. The ampere-turns balance: N1 × I1 = N2 × I2. Fewer turns carry more amps.'),
+      read: 'With a 5 Ω load, the secondary\'s 230 turns carry 23 A. That is 5290 ampere-turns. The primary cancels them with 6.01 A through its 880 turns.',
+      still: () => setStill() },
+    { kind: 'typed', name: 'The 440 V side', ans: 'i440', enter: { sw: true },
+      answer: 10.45, decimals: 2, unit: 'A', want: '10.45' + NB + 'A',
+      slips: [{ value: 153.04, hint: 'That makes the 115 V side\'s current the smaller. A step-down raises the current, so the 440 V side carries less.' },
+        { value: 40, hint: 'The two currents differ by the same ratio as the volts.' }],
+      task: 'A 440 V to 115 V transformer supplies 40 A on its 115 V side. What current does its 440 V side take?',
+      hint: 'I1 = I2 × 115 ÷ 440.',
+      why: 'The volts step down by 440 ÷ 115 = 3.826. So the amps step up by the same. 40 ÷ 3.826 = 10.45 A. Check: 440 × 10.45 and 115 × 40 both come to about 4600 W.',
+      read: 'A 440 V to 115 V transformer supplies 40 A on its 115 V side. What current does its 440 V side take?' },
+    { show: true, name: 'Power in, power out', ctl: ['R', 'n1', 'n2'], enter: { sw: true }, end: { R: 5, n1: 880, n2: 230 }, dur: 4.4,
+      demo: (t) => {
+        X.R = t < 3.4 ? Math.round(ramp(t, 0.6, 1, 5, 10)) : Math.round(ramp(t, 3.4, 0.8, 10, 5));
+        X.n2 = t < 2.0 ? 230 : t < 2.4 ? 345 : t < 3.0 ? 460 : t < 3.3 ? 345 : 230;
+      },
+      text: strip('Power in equals power out. Watch the two power bars. Power in is 440 V times 6.01 A. Power out is 115 V times 23 A. Both come to 2645 W. Drag the load or either winding\'s turns, and they stay equal. The volts step down by the *turns ratio*. The amps step up by the same ratio. So volts times amps is the same on both sides. The transformer passes power on. Ideally, it makes none and uses none.'),
+      read: 'Power in is 440 V times 6.01 A. Power out is 115 V times 23 A. Both come to 2645 W, and they stay equal at every setting.',
+      still: () => setStill() },
+    // After the answer the load becomes the heater: 115² ÷ 3000 W = 4.41 Ω, so the bars and readouts show its 3000 W and 6.82 A.
+    { kind: 'typed', name: 'A 3 kW heater', ans: 'heat', enter: { sw: true, R: 5 }, run: 1.6,
+      runFn: (t) => { X.R = ramp(t, 0.2, 1.2, 5, R_HEAT); }, runEnd: { R: R_HEAT },
+      answer: 6.82, decimals: 2, unit: 'A', want: '6.82' + NB + 'A',
+      slips: [{ value: 26.09, hint: 'That is the heater\'s own current, at 115 V. The 440 V side takes less.' },
+        { value: 0.01, hint: 'That uses 3 W. A kilowatt is 1000 W.' }],
+      task: 'A 440 V to 115 V transformer feeds a 3 kW heater on its 115 V side. What current does it take from the 440 V supply?',
+      hint: 'Power in equals power out. So I1 = 3000 ÷ 440.',
+      why: 'Power in equals power out, which is 3000 W. 3000 ÷ 440 = 6.82 A. The heater itself takes 3000 ÷ 115 = 26.09 A.',
+      read: 'A 440 V to 115 V transformer feeds a 3 kW heater on its 115 V side. What current does it take from the 440 V supply?' },
+    { show: true, name: 'The flux holds', ctl: ['R', 'n1'], enter: { sw: true, R: 5 }, end: { R: 2 }, dur: 3.6,
+      demo: (t) => { X.R = Math.round(ramp(t, 0.8, 1.4, 5, 2)); },
+      text: strip('The load does not move the flux. Watch the flux bar as you drag the load. It stays at 1.88 mWb. The flux must still make 440 V in the primary, so it swings the same. The primary cancels every ampere-turn the load adds. So a heavier load does not push the core towards saturation. In this ideal picture, only the supply\'s voltage, its frequency or the primary\'s turns move the flux. Drag the primary to 1100 turns, and the flux falls to 1.50 mWb.'),
+      read: 'The flux stays at 1.88 mWb at every load. It moves only with the supply or the primary\'s turns. On 1100 turns, it falls to 1.50 mWb.',
+      still: () => setStill() },
+    { kind: 'typed', name: 'A heavier load', ans: 'flux', enter: { sw: true, R: 10 }, run: 1.6,
+      runFn: (t) => { X.R = Math.round(ramp(t, 0.2, 1.2, 10, 5)); }, runEnd: { R: 5 },
+      answer: 1.88, decimals: 2, unit: 'mWb', want: '1.88' + NB + 'mWb',
+      slips: [{ value: 3.76, hint: 'That doubles the flux with the load. The primary cancels the extra ampere-turns.' },
+        { value: 0.94, hint: 'That halves it. The load does not move the flux either way.' }],
+      task: 'A 440 V, 60 Hz supply feeds a primary of 880 turns. The load changes from 10 Ω to 5 Ω, and the secondary current doubles from 11.5 A to 23 A. What is the peak flux now?',
+      hint: 'Φm = V ÷ (4.44 × f × N1). Is the load in it?',
+      why: 'Φm = 440 ÷ (4.44 × 60 × 880) = 1.88 mWb. The load is not in the rule, so the flux stays put. The primary\'s current rises from 3.01 A to 6.01 A. That cancels the extra ampere-turns.',
+      read: 'A 440 V, 60 Hz supply feeds a primary of 880 turns. The load changes from 10 Ω to 5 Ω, and the secondary current doubles from 11.5 A to 23 A. What is the peak flux now?' },
+    { show: true, name: 'Seen from the supply', ctl: ['R'], enter: { sw: true, R: 10 }, end: { R: 5 }, dur: 3.6,
+      demo: (t) => { X.R = Math.round(ramp(t, 0.8, 1.4, 10, 5)); },
+      text: strip('Seen from the supply, the load looks bigger by the turns ratio squared. The supply sees only its own 440 V and the 6.01 A it gives. So the load looks like 440 ÷ 6.01 = 73.2 Ω. The box shows it. On this side, the volts are 3.83 times higher. The amps are 3.83 times lower. So the load looks bigger by the ratio twice over: 5 × (880 ÷ 230)² = 5 × 14.64 = 73.2 Ω. Drag the load, and the box stays at 14.64 times it.'),
+      read: 'The 440 V side sees 440 V driving 6.01 A. That looks like 73.2 Ω. It is the 5 Ω load times (880 ÷ 230)², which is 14.64.',
+      still: () => setStill() },
+    { kind: 'typed', name: 'A 2.5 Ω load', ans: 'seen', enter: { sw: true, R: 5 }, run: 1.6,
+      runFn: (t) => { X.R = Math.round(ramp(t, 0.2, 1.2, 5, 2.5) * 2) / 2; }, runEnd: { R: 2.5 },
+      answer: 36.6, decimals: 1, unit: 'Ω', want: '36.6' + NB + 'Ω',
+      slips: [{ value: 9.6, hint: 'That multiplies by the ratio once. Volts and amps each change, so square it.' },
+        { value: 0.2, hint: 'That divides. Seen from the higher voltage, the load looks bigger.' }],
+      task: 'On the same 880 to 230 turn transformer, the load is 2.5 Ω. What resistance does the 440 V side see?',
+      hint: 'Seen resistance = load × (N1 ÷ N2)².',
+      why: '(880 ÷ 230)² = 14.64. So the 440 V side sees 2.5 × 14.64 = 36.6 Ω. Check: 115 V on 2.5 Ω draws 46 A. The primary takes 46 × 230 ÷ 880 = 12.02 A. And 440 ÷ 12.02 = 36.6 Ω.',
+      read: 'On the same 880 to 230 turn transformer, the load is 2.5 Ω. What resistance does the 440 V side see?' },
+    { kind: 'pick', name: 'Through the windings', enter: { sw: true },
+      opts: ['3 + j4 Ω', '11.5 + j15.3 Ω', '43.9 + j58.6 Ω', '73.2 + j0 Ω'], want: '43.9 + j58.6 Ω',
+      task: 'The load on the 115 V side is 3 + j4 Ω. You found its size at the start. The transformer has 880 and 230 turns. What impedance does the 440 V side see?',
+      hint: 'From the other side, the load looks bigger by the ratio squared.',
+      hints: { '3 + j4 Ω': 'From the other side, the load looks bigger by the ratio squared.',
+        '11.5 + j15.3 Ω': 'That scales it by the ratio once. It takes the ratio squared.',
+        '73.2 + j0 Ω': '73.2 Ω is its size. Scaling by a plain number keeps its angle.' },
+      why: 'The ratio squared, 14.64, is a plain number. It scales both parts: 3 × 14.64 = 43.9 and 4 × 14.64 = 58.6. The size grows from 5 Ω to 73.2 Ω. The angle stays the same. So the power factor is the same from both sides.',
+      read: 'A 3 + j4 Ω load sits on the 115 V side of the 880 to 230 turn transformer. What impedance does the 440 V side see?' },
+    { kind: 'typed', name: 'A step-up', ans: 'up', enter: { sw: true, n1: 440, n2: 920, R: 20 },
+      answer: 9.2, decimals: 1, unit: 'A', want: '9.2' + NB + 'A',
+      slips: [{ value: 0.6, hint: 'That has the current rising with the volts. The higher-voltage side carries less, so turn it round.' },
+        { value: 2.3, hint: 'The two currents differ by the turns ratio.' }],
+      task: 'A small step-up transformer has 200 turns on 115 V. Its secondary has 800 turns and feeds 2.3 A. What current does the primary take?',
+      hint: 'N1 × I1 = N2 × I2.',
+      why: '800 × 2.3 = 1840 ampere-turns. The primary must cancel them, so it takes 1840 ÷ 200 = 9.2 A. Check the power. The secondary gives 115 × 800 ÷ 200 = 460 V. 460 × 2.3 and 115 × 9.2 both come to 1058 W.',
+      read: 'A step-up transformer has 200 turns on 115 V. Its secondary has 800 turns and feeds 2.3 A. What current does the primary take?' },
+  ];
+  const FINISH = 'Every turn on one core gets the same volts, so the volts follow the turns. The primary cancels the secondary\'s ampere-turns, so the amps go the other way. Power in equals power out. The flux stays where the supply holds it. Seen through the windings, a load scales by the turns ratio squared. That lets you draw a transformer and its load as one circuit. Next: the real transformer, and where its watts go.';
+
+  // ================= state =================
+  const BASE = { n1: 880, n2: 230, sw: false, R: 5 };
+  const X = Object.assign({}, BASE);              // what the picture shows now
+  const D = {};                                   // the drawn sizes, easing towards the rule's
+  const blank = () => ({ pick: null, res: null, why: false, tries: 0, hint: '' });
+  let S = STEPS.map(blank);
+  const solved = (st) => !!st && (st.res === 'right' || st.res === 'shown');
+  let T = Infinity, motionEnd = 0, scripted = false, lastStep = -1, finished = false, lastDone = false, held = false;
+  let REC = { t: {}, bars: {} };
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  const quiet = () => REDUCE || testing();
+  const el = (id) => document.getElementById(id);
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  const I_AT = idx('Close the switch'), I_BOX = idx('Seen from the supply');
+  // The flux readout and the box keep their answers back until the puzzle that asks for them is checked.
+  const hideFlux = (i) => !finished && STEPS[i].ans === 'flux' && !solved(S[i]);
+  const hideSeen = (i) => !finished && STEPS[i].ans === 'seen' && !solved(S[i]);
+
+  // ================= the drawn sizes ease towards the rule's =================
+  const WC = 134, LMAX = 112, KT = LMAX / 1320;   // the windings' centre, and their drawn length per turn
+  const KV = 156 / 920;                            // the voltage columns: px per volt
+  // Each screen fixes the current and power scales as it opens, from its turns and its heaviest load,
+  // so a bigger current always draws a longer bar on that screen.
+  const SC = { cs: 1, ps: 1 };
+  function setScale(i) {
+    const d = STEPS[i], rs = [X.R];
+    if (d.ctl && d.ctl.indexOf('R') >= 0) rs.push(2);
+    [d.end, d.runEnd].forEach((e) => { if (e && e.R) rs.push(e.R); });
+    const r = rule(X.n1, X.n2, true, Math.min.apply(null, rs));
+    SC.cs = niceUp(Math.max(r.i1, r.i2)); SC.ps = niceUp(r.pin);
+  }
+  function targets() {
+    const r = rule(X.n1, X.n2, X.sw, X.R);
+    return { l1: KT * X.n1, l2: KT * X.n2, v2: r.v2, i1: r.i1, i2: r.i2, p: r.pin, phim: r.phim, cs: SC.cs, ps: SC.ps };
+  }
+  function snapD() { Object.assign(D, targets()); }
+  function tween(dt) {
+    const t = targets(), a = 1 - Math.exp(-dt / 0.2);
+    Object.keys(t).forEach((k) => { const e = t[k] - D[k]; D[k] = Math.abs(e) <= 1e-6 * Math.max(1, Math.abs(t[k])) ? t[k] : D[k] + e * a; });
+  }
+  function settled() { const t = targets(); return Object.keys(t).every((k) => D[k] === t[k]); }
+  setScale(0);
+  snapD();
+
+  // ================= text with amber key terms (built with K.el, never innerHTML) =================
+  const UNIT_GAP = /(\d) (?=(?:Hz|mWb|Wb|V|A|Ω|W|At|kW|turns)(?![A-Za-z]))/g;
+  function write(node, s) {
+    node.textContent = '';
+    String(s || '').replace(UNIT_GAP, '$1' + NB).replace(/(\d) \+ j/g, '$1' + NB + '+' + NB + 'j').split(/\*([^*]+)\*/).forEach((seg, k) => {
+      if (!seg) return;
+      node.appendChild(k % 2 ? K.el('span', { class: 'term' }, seg) : document.createTextNode(seg));
+    });
+  }
+
+  // ================= controls =================
+  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);
+  const CTL = {
+    n1: K.control({ id: 'n1', label: 'Primary turns, N1', min: 440, max: 1320, step: 220, value: 880, snap: [880, 1100], fmt: (v) => v + NB + 'turns', into: '#c-n1' }),
+    n2: K.control({ id: 'n2', label: 'Secondary turns, N2', min: 115, max: 920, step: 115, value: 230, snap: [230, 460], fmt: (v) => v + NB + 'turns', into: '#c-n2' }),
+    sw: K.toggle({ id: 'sw', label: 'Load switch closed', value: false, into: '#c-sw' }),
+    R: K.control({ id: 'R', label: 'Load', min: 2, max: 20, step: 1, value: 5, snap: [2, 5, 10], fmt: (v) => v + NB + 'Ω', into: '#c-R' }),
+  };
+  const CTL_IDS = Object.keys(CTL);
+  const pushed = {};
+  CTL_IDS.forEach((id) => { pushed[id] = CTL[id].get(); });
+  // The page moves the controls itself during a demonstration (silently, so it is not taken for Dan's move).
+  function push() {
+    CTL_IDS.forEach((id) => { if (pushed[id] !== X[id]) { CTL[id].set(X[id], true); pushed[id] = CTL[id].get(); } });
+  }
+  const shownCtl = (d, id) => !finished && !!d.ctl && d.ctl.indexOf(id) >= 0;
+  function layoutCtl(d) { CTL_IDS.forEach((id) => { el('c-' + id).hidden = !shownCtl(d, id); }); }
+
+  const RO = {
+    v2: K.readout({ id: 'r-v2', label: 'Secondary volts, V2', fmt: (v) => fmtV(v) + NB + 'V', into: '#outs' }),
+    i2: K.readout({ id: 'r-i2', label: 'Secondary current, I2', fmt: (v) => v.toFixed(2) + NB + 'A', into: '#outs' }),
+    i1: K.readout({ id: 'r-i1', label: 'Primary current, I1', fmt: (v) => v.toFixed(2) + NB + 'A', into: '#outs' }),
+    at1: K.readout({ id: 'r-at1', label: 'Primary, N1 × I1', fmt: (v) => r0(v) + NB + 'At', into: '#ats' }),
+    at2: K.readout({ id: 'r-at2', label: 'Secondary, N2 × I2', fmt: (v) => r0(v) + NB + 'At', into: '#ats' }),
+  };
+
+  // Up to four answer buttons; each puzzle fills in its own.
+  const pickBtns = [0, 1, 2, 3].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.kind !== 'pick' || k >= d.opts.length || solved(st)) return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+  // Typed answers: a field each; Check grades it, two misses show the working.
+  const ANS = {};
+  STEPS.forEach((d, i) => {
+    if (d.kind !== 'typed') return;
+    el('answers').appendChild(K.el('div', { id: 'ans-' + d.ans }));
+    const a = K.answer({ id: 'a-' + d.ans, unit: d.unit, answer: d.answer, decimals: d.decimals, accept: d.accept, slips: d.slips, into: '#ans-' + d.ans,
+      onCheck: (r) => {
+        const st = S[i];
+        if (solved(st)) return;
+        if (r.state === 'right') { st.res = 'right'; playRun(i, d.run); }
+        else if (r.state === 'wrong') {
+          st.tries += 1; st.hint = r.hint || d.hint;
+          if (st.tries >= 2) { st.res = 'shown'; st.why = true; a.reveal(); playRun(i, d.run); }
+          else st.res = 'wrong';
+        } else { st.res = r.state; st.hint = ''; }
+        K.refresh();
+      } });
+    ANS[d.ans] = a;
+  });
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || solved(st)) return;
+    if (d.kind === 'typed') { ANS[d.ans].check(); return; }
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = st.pick === d.want ? 'right' : 'wrong';
+    if (st.res === 'right') playRun(i, d.run);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    const d = STEPS[at()];
+    if (d.show || finished) return;
+    S[at()].why = !S[at()].why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    if (!STEPS[at()].show || finished) return;
+    startDemo(at());
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && !solved(S[i]))) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true; anim.pause(); T = Infinity;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(blank); finished = false; lastStep = -1;
+    Object.keys(ANS).forEach((k) => ANS[k].reset());
+    stepper.set(0, true);
+  } });
+
+  // ================= motion: one animation runs the demonstrations, the answers' motion and the easing =================
+  const needAnim = () => !finished && (T !== Infinity || !settled());
+  function finishNow(i) {
+    if (T === Infinity) return;
+    const d = STEPS[i];
+    T = Infinity;
+    if (scripted) { scripted = false; Object.assign(X, d.end || {}); }
+    else if (solved(S[i])) Object.assign(X, d.runEnd || {});
+    push();
+  }
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    dt = Math.min(dt, 0.1);
+    const i = at(), d = STEPS[i], st = S[i];
+    if (T !== Infinity) {
+      T += dt;
+      const tt = Math.min(T, motionEnd);
+      if (scripted) { if (d.demo) d.demo(tt); }
+      else if (solved(st) && d.runFn) d.runFn(tt);
+    }
+    if (T !== Infinity && T >= motionEnd) finishNow(i);
+    tween(dt);
+    push();
+    paint(i);
+    return needAnim();
+  } });
+  function kick() {
+    if (quiet()) { snapD(); return; }
+    if (needAnim() && !anim.playing()) anim.play();
+  }
+  // A screen's state: its opening, then (at once) its answer's motion or its demonstration.
+  function prep(i, solvedNow, showEnd) {
+    const d = STEPS[i];
+    Object.assign(X, BASE, d.enter || {});
+    setScale(i);
+    if (d.show) { if (showEnd) { if (d.demo) d.demo(d.dur); Object.assign(X, d.end || {}); } }
+    else if (solvedNow) { if (d.runFn) d.runFn(d.run); Object.assign(X, d.runEnd || {}); }
+    snapD();
+  }
+  function startDemo(i) {
+    const d = STEPS[i];
+    anim.pause(); held = false;
+    if (d.demo && !quiet()) { prep(i, false, false); scripted = true; motionEnd = d.dur; T = 0; d.demo(0); snapD(); anim.play(); }
+    else { scripted = false; T = Infinity; prep(i, false, true); }
+    push();
+  }
+  function playRun(i, dur) {
+    const d = STEPS[i];
+    anim.pause(); scripted = false; held = false;
+    if (quiet() || !dur) {
+      T = Infinity;
+      if (solved(S[i]) && d.runFn && dur) d.runFn(dur);
+      if (solved(S[i])) Object.assign(X, d.runEnd || {});
+      push(); snapD(); return;
+    }
+    T = 0; motionEnd = dur; anim.play();
+  }
+  function enterStep(i) {
+    const d = STEPS[i];
+    anim.pause(); T = Infinity; scripted = false; held = false;
+    enter('stepbox');
+    if (d.show) { startDemo(i); return; }
+    prep(i, solved(S[i]), false);
+    push();
+  }
+  // The finished picture a still shows (the read-through), with the controls where its words end.
+  function setStill() {
+    const i = at();
+    anim.pause(); T = Infinity; scripted = false; held = true;
+    prep(i, true, true);
+    push();
+    K.refresh();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ================= drawing helpers =================
+  const svg = el('scene'), art = el('art');
+  const add = (node, par) => (par || art).appendChild(node);
+  const r1 = (v) => Math.round(v * 10) / 10;
+  const twCache = {};
+  function tw(s, cls) {
+    const key = (cls || 'lab') + '|' + s;
+    if (twCache[key]) return twCache[key];
+    let w = 0;
+    try { const t = svg.appendChild(K.svg('text', { class: cls || 'lab', x: 0, y: -50 }, s)); w = t.getComputedTextLength(); svg.removeChild(t); } catch (e) { w = 0; }
+    if (!(w > 0)) return s.length * 7.6;
+    twCache[key] = w;
+    return w;
+  }
+  const text = (x, y, s, cls, anchor) => add(K.svg('text', { class: cls || 'lab', x: r1(x), y: r1(y), 'text-anchor': anchor || 'start' }, s));
+  const ptsS = (pts) => pts.map((p) => r1(p[0]) + ',' + r1(p[1])).join(' ');
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r1(x1), y1: r1(y1), x2: r1(x2), y2: r1(y2) }));
+  const poly = (cls, pts) => add(K.svg('polyline', { class: cls, points: ptsS(pts) }));
+  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: r1(x), y: r1(y), width: r1(Math.max(0, w)), height: r1(Math.max(0, h)), rx: rx || 0 }));
+  const circle = (cls, cx, cy, r) => add(K.svg('circle', { class: cls, cx, cy, r }));
+  // A tag: one drawn turn and the volts it carries.
+  function tag(cx, y, s) {
+    const w = 12 + 5 + tw(s) + 16, x0 = cx - w / 2;
+    rect('pill', x0, y - 10, w, 20, 6);
+    rect('turn', x0 + 8, y - 1.8, 12, 3.6, 1.8);
+    text(x0 + 8 + 12 + 5, y + 4.5, s);
+  }
+  // A winding: its drawn length follows its turns; it returns where its two ends are.
+  function winding(x, len) {
+    const n = Math.max(2, Math.round(len / 5.6)), top = WC - len / 2;
+    for (let k = 0; k < n; k++) rect('turn', x, top + k * len / (n - 1) - 1.8, 36, 3.6, 1.8);
+    return [top, top + len];
+  }
+
+  // ================= the picture =================
+  const CX0 = 104, CX1 = 236, CY0 = 52, CY1 = 216, LB = 24;   // the core
+  const W1X = 98, W2X = 206;                                   // the windings' left edges
+  const C1X = 70, C2X = 256, CW = 14;                          // the voltage columns
+  const XL = 20, XW1 = 92, XW2 = 248, XR = 322, YT = 36, YB = 228;
+  const FY = 292, I1Y = 314, I2Y = 332, P1Y = 358, P2Y = 376;  // the bars
+  function drawScene(i) {
+    const r = rule(X.n1, X.n2, X.sw, X.R), hf = hideFlux(i);
+    text(52, 16, '440' + NB + 'V, 60' + NB + 'Hz', 'lab', 'middle');
+    text(170, 46, 'the same flux, Φ', 'lab', 'middle');
+    // The core, and the one flux path that threads both windings.
+    rect('iron', CX0, CY0, CX1 - CX0, CY1 - CY0, 12);
+    rect('hole', CX0 + LB, CY0 + LB, CX1 - CX0 - 2 * LB, CY1 - CY0 - 2 * LB, 4);
+    rect('flux', 116, 64, 108, 140, 10);
+    add(K.svg('polygon', { class: 'fluxh', points: ptsS([[182, 64], [172, 59], [172, 69]]) }));
+    add(K.svg('polygon', { class: 'fluxh', points: ptsS([[158, 204], [168, 199], [168, 209]]) }));
+    // The wires, then the windings over them.
+    const e1 = [WC - D.l1 / 2, WC + D.l1 / 2], e2 = [WC - D.l2 / 2, WC + D.l2 / 2];
+    poly('wire', [[W1X, e1[0]], [XW1, e1[0]], [XW1, YT], [XL, YT], [XL, YB], [XW1, YB], [XW1, e1[1]], [W1X, e1[1]]]);
+    poly('wire', [[W2X + 36, e2[0]], [XW2, e2[0]], [XW2, YT], [XR, YT], [XR, 66]]);
+    line('wire', XR, 94.6, XR, 108);
+    poly('wire', [[XR, 154], [XR, YB], [XW2, YB], [XW2, e2[1]], [W2X + 36, e2[1]]]);
+    winding(W1X, D.l1);
+    winding(W2X, D.l2);
+    // The supply.
+    circle('dev', 52, YT, 11);
+    text(52, YT + 5.5, '~', 'ttl', 'middle');
+    // The load behind its switch.
+    line('wire', XR, 92, X.sw ? XR : XR + 12, X.sw ? 71.2 : 74);
+    circle('term0', XR, 68.6, 2.6);
+    circle('term0', XR, 92, 2.6);
+    rect('res', XR - 6, 108, 12, 46, 2);
+    text(310, 126, 'load', 'lab', 'end');
+    text(310, 142, Number(X.R.toFixed(2)) + NB + 'Ω', 'lab', 'end');
+    // The voltage columns: turns × volts per turn, on one scale.
+    const h1 = KV * VS, h2 = KV * D.v2;
+    rect('col', C1X, CY1 - h1, CW, h1, 0);
+    if (h2 > 0.3) rect('col', C2X, CY1 - h2, CW, h2, 0);
+    line('base', C1X - 4, CY1, C1X + CW + 4, CY1);
+    line('base', C2X - 4, CY1, C2X + CW + 4, CY1);
+    text(C1X + CW / 2, CY1 - h1 - 6, 'V1', 'lab', 'middle');
+    text(C2X + CW / 2, CY1 - h2 - 6, 'V2', 'lab', 'middle');
+    // The turns, and the tag of one turn's volts on each side.
+    text(104, 248, 'N1 = ' + X.n1 + NB + 'turns', 'lab', 'middle');
+    text(236, 248, 'N2 = ' + X.n2 + NB + 'turns', 'lab', 'middle');
+    const tg1 = tagText(VS, X.n1), tg2 = tagText(r.v2, X.n2);
+    tag(104, 270, tg1);
+    tag(236, 270, tg2);
+    // The flux bar: it moves only with the primary's turns.
+    text(92, FY + 9.5, 'Peak flux', 'lab', 'end');
+    rect('bar', 98, FY, 148, 10, 3);
+    const fw = 148 * K.clamp(D.phim / 0.004, 0, 1);
+    if (fw > 0.3) rect('bfill', 98, FY, fw, 10, 0);
+    const ft = hf ? '?' : (r.phim * 1e3).toFixed(2) + NB + 'mWb';
+    text(252, FY + 9.5, ft);
+    // The two currents on one scale.
+    const cw1 = 232 * K.clamp(D.i1 / D.cs, 0, 1), cw2 = 232 * K.clamp(D.i2 / D.cs, 0, 1);
+    text(92, I1Y + 9.5, 'I1, primary', 'lab', 'end');
+    rect('bar', 98, I1Y, 232, 10, 3);
+    if (cw1 > 0.3) rect('bfill', 98, I1Y, cw1, 10, 0);
+    text(92, I2Y + 9.5, 'I2, secondary', 'lab', 'end');
+    rect('bar', 98, I2Y, 232, 10, 3);
+    if (cw2 > 0.3) rect('bfill', 98, I2Y, cw2, 10, 0);
+    // A current past this screen's scale stops at the end of its track, with an arrow.
+    [[D.i1, I1Y], [D.i2, I2Y]].forEach((q) => { if (q[0] > D.cs * 1.0001) add(K.svg('polygon', { class: 'fluxh', points: ptsS([[331, q[1]], [338, q[1] + 5], [331, q[1] + 10]]) })); });
+    // Power in and power out.
+    const pw = 148 * K.clamp(D.p / D.ps, 0, 1), pin = r0(r.pin) + NB + 'W', pout = r0(r.pout) + NB + 'W';
+    text(92, P1Y + 9.5, 'Power in', 'lab', 'end');
+    rect('bar', 98, P1Y, 148, 10, 3);
+    if (pw > 0.3) rect('pfill', 98, P1Y, pw, 10, 0);
+    text(252, P1Y + 9.5, pin);
+    text(92, P2Y + 9.5, 'Power out', 'lab', 'end');
+    rect('bar', 98, P2Y, 148, 10, 3);
+    if (pw > 0.3) rect('pfill', 98, P2Y, pw, 10, 0);
+    text(252, P2Y + 9.5, pout);
+    Object.assign(REC.t, { flux: ft, pin, pout, tag1: tg1, tag2: tg2 });
+    Object.assign(REC.bars, { i1: cw1, i2: cw2, p: pw, flux: fw, v1: h1, v2: h2 });
+    REC.R = X.R; REC.sw = X.sw;
+    // What it shows, in words (no readout's number).
+    const cmp = X.n2 < X.n1 ? 'shorter than' : X.n2 > X.n1 ? 'taller than' : 'as tall as';
+    let said = 'An iron core with two windings and no wire between them. The primary has ' + X.n1 + ' turns on 440 V, 60 Hz. The secondary has ' + X.n2 +
+      ' turns. The same flux threads every turn, so every turn carries the same volts, and the secondary\'s voltage column is ' + cmp + ' the primary\'s.';
+    said += X.sw ? ' The load switch is closed on ' + X.R + ' Ω. The ' + (X.n2 < X.n1 ? 'secondary' : 'primary') + '\'s current bar is the longer, the power in and power out bars are equal, and the flux bar holds where the supply sets it.'
+      : ' The load switch is open, so no current flows and the power bars are empty.';
+    REC.said = said;
+  }
+
+  // ================= one paint =================
+  function paint(i) {
+    if (i == null) i = at();
+    art.textContent = '';
+    REC = { t: {}, bars: {} };
+    drawScene(i);
+    svg.setAttribute('aria-label', REC.said);
+    readouts(i);
+  }
+  function readouts(i) {
+    const r = rule(X.n1, X.n2, X.sw, X.R), hs = hideSeen(i);
+    RO.v2.set(r.v2); RO.i2.set(r.i2); RO.i1.set(r.i1); RO.at1.set(r.at1); RO.at2.set(r.at2);
+    const sv = hs ? '?' : X.sw ? r.seen.toFixed(1) + NB + 'Ω' : 'Open';
+    const sw = hs ? '' : X.sw ? 'The ' + X.R + NB + 'Ω load × (' + X.n1 + ' ÷ ' + X.n2 + ')²' : 'The switch is open, so there is no load to see.';
+    el('seen-v').textContent = sv;
+    el('seen-w').textContent = sw;
+    el('seen-w').hidden = !sw;
+    REC.t.seen = sv;
+    Object.keys(RO).forEach((k) => { REC.t[k] = RO[k].text(); });
+  }
+
+  // ================= the page around the picture =================
+  write(el('finish'), FINISH);
+  function layout(i) {
+    const d = STEPS[i], st = S[i], sol = solved(st);
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Screen ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    layoutCtl(d);
+    replayBtn.el.hidden = !d.show || !d.demo || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    el('atline').hidden = i < I_AT;
+    el('seen').hidden = i < I_BOX;
+    const opts = d.kind === 'pick' ? d.opts : [];
+    el('picks').hidden = !opts.length;
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      if (b.el.textContent !== opts[k]) b.setLabel(opts[k]);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    el('answers').hidden = d.kind !== 'typed';
+    Object.keys(ANS).forEach((key) => { el('ans-' + key).hidden = d.ans !== key; });
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = sol;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (st.res === 'right' ? ' right' : '');
+    let say = '';
+    if (!d.show) {
+      if (st.res === 'right') say = d.right || 'That\'s it.';
+      else if (st.res === 'shown') say = 'Here is the working.';
+      else if (st.res === 'wrong') say = d.kind === 'typed' ? st.hint : (d.hints && d.hints[st.pick]) || d.hint;
+      else if (st.res === 'empty' && d.kind === 'pick') say = 'Pick one of the answers first.';
+    }
+    write(fb, say);
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !sol);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  }
+
+  K.update((p) => {
+    const i = at(), d = STEPS[i];
+    if (i !== lastStep) { lastStep = i; enterStep(i); }
+    else {
+      let moved = false;
+      CTL_IDS.forEach((id) => {
+        if (p[id] === pushed[id]) return;
+        if (shownCtl(d, id)) {
+          if (T !== Infinity) { anim.pause(); T = Infinity; scripted = false; }   // his move ends the demonstration where it stands
+          X[id] = p[id]; pushed[id] = p[id]; moved = true;
+        } else CTL[id].set(pushed[id], true);      // a control this screen does not use stays put
+      });
+      if (moved) { held = false; push(); }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    if (quiet()) snapD();
+    layout(i);
+    paint(i);
+    kick();
+  });
+
+  // ================= known answers, worked out by hand =================
+  const near = (a, b, t) => Math.abs(a - b) <= t;
+  const solvedSt = (i) => Object.assign(blank(), STEPS[i].kind === 'pick' ? { pick: STEPS[i].want, res: 'right' } : { res: 'right' });
+  // A screen painted in the state given (finished), with optional settings: what it drew.
+  function drawn(i, st, x) {
+    const keep = { X: Object.assign({}, X), D: Object.assign({}, D), SC: Object.assign({}, SC), S: S[i], T, sc: scripted, held };
+    S[i] = st || blank(); T = Infinity; scripted = false; held = true;
+    try {
+      prep(i, solved(S[i]), true);
+      if (x) Object.assign(X, x);
+      snapD();
+      paint(i);
+      return REC;
+    } finally {
+      Object.assign(X, keep.X); Object.assign(D, keep.D); Object.assign(SC, keep.SC); S[i] = keep.S; T = keep.T; scripted = keep.sc; held = keep.held; paint();
+    }
+  }
+  const iSize = idx('Size of a load'), iVolts = idx('Volts follow turns'), iN24 = idx('A 24 V winding'), iClose = idx('Close the switch');
+  const iI440 = idx('The 440 V side'), iPower = idx('Power in, power out'), iHeat = idx('A 3 kW heater'), iHolds = idx('The flux holds');
+  const iHeavy = idx('A heavier load'), iSeen = idx('Seen from the supply'), iTwo = idx('A 2.5 Ω load'), iPick = idx('Through the windings'), iUp = idx('A step-up');
+  const V_ = (s) => s + NB + 'V', A_ = (s) => s + NB + 'A', MWB = (s) => s + NB + 'mWb', OHM = (s) => s + NB + 'Ω', W_ = (s) => s + NB + 'W', AT_ = (s) => s + NB + 'At';
+  const every = (fn) => N1S.every((n1) => N2S.every((n2) => [2, 5, 10, 20].every((R) => fn(n1, n2, R))));
+
+  K.check('The ratio of the secondary to primary voltages equals the ratio of the turns in their windings', () => {
+    const a = drawn(iVolts), b = drawn(iVolts, null, { n2: 460 });
+    return every((n1, n2) => near(rule(n1, n2, false, 5).v2 / VS, n2 / n1, 1e-12)) && a.t.v2 === V_('115') && b.t.v2 === V_('230') && near(b.bars.v2, 2 * a.bars.v2, 1e-9);
+  }, { source: SRC_V });
+  K.check('The same flux permeates each turn of both the primary and the secondary, so each turn carries the same volts on both sides', () => {
+    const a = drawn(iVolts);
+    return every((n1, n2) => tagText(VS, n1) === tagText(rule(n1, n2, false, 5).v2, n2)) && a.t.tag1 === a.t.tag2 && a.t.tag1 === '0.5' + NB + 'V a turn';
+  }, { source: SRC_V });
+  K.check('The current ratio is the inverse of the voltage ratio, and the transformer neither creates nor consumes power', () =>
+    every((n1, n2, R) => { const r = rule(n1, n2, true, R); return near(r.i1 / r.i2, r.v2 / VS, 1e-12) && near(r.pin, r.pout, 1e-9 * r.pin) && r0(r.pin) === r0(r.pout); }));
+  K.check('On 5 Ω the secondary draws 23 A, so 5290 ampere-turns; the primary cancels them with 6.01 A, and 2645 W goes in and out', () => {
+    const c = drawn(iClose).t, o = drawn(iClose, null, { sw: false }).t;
+    return c.i2 === A_('23.00') && c.i1 === A_('6.01') && c.at1 === AT_('5290') && c.at2 === AT_('5290') && c.pin === W_('2645') && c.pout === W_('2645') &&
+      o.i1 === A_('0.00') && o.pin === W_('0') && o.seen === 'Open';
+  });
+  K.check('The flux holds at 1.88 mWb with the switch open and on 10, 5 or 2 Ω, and falls to 1.50 mWb on 1100 primary turns', () => {
+    const f = (x) => drawn(iHolds, null, x).t.flux;
+    return f({ sw: false }) === MWB('1.88') && f({ R: 10 }) === MWB('1.88') && f({ R: 5 }) === MWB('1.88') && f({ R: 2 }) === MWB('1.88') && f({ n1: 1100 }) === MWB('1.50');
+  });
+  K.check('A step-down raises the current: on 880 and 230 turns the secondary current bar is 3.83 times the primary\'s; on 660 and 920 turns, and in the step-up puzzle\'s picture, it is the shorter', () => {
+    const a = drawn(iClose).bars, b = drawn(iPower, null, { n1: 660, n2: 920, R: 20 }).bars, u = drawn(iUp, solvedSt(iUp)).bars;
+    return near(a.i2 / a.i1, 880 / 230, 1e-6) && near(880 / 230, 3.83, 0.005) && b.i2 < b.i1 && near(b.i2 / b.i1, 660 / 920, 1e-6) && u.i2 < u.i1;
+  });
+  K.check('A bigger current always draws a longer bar: on 10 Ω, taking the secondary from 230 to 460 turns doubles the I2 bar and quadruples the power bars', () => {
+    const a = drawn(iPower, null, { R: 10 }).bars, b = drawn(iPower, null, { R: 10, n2: 460 }).bars;
+    return a.i2 > 0 && a.p > 0 && near(b.i2, 2 * a.i2, 1e-9) && near(b.p, 4 * a.p, 1e-9);
+  });
+  K.check('The 440 V side sees 73.2 Ω on 5 Ω, which is 5 × 14.64, 146.4 Ω on 10 Ω and 29.3 Ω on 2 Ω', () => {
+    const s = (x) => drawn(iSeen, null, x).t.seen;
+    return s({ R: 5 }) === OHM('73.2') && s({ R: 10 }) === OHM('146.4') && s({ R: 2 }) === OHM('29.3') && near(Math.pow(880 / 230, 2), 14.64, 0.005) &&
+      every((n1, n2, R) => near(rule(n1, n2, true, R).seen, R * Math.pow(n1 / n2, 2), 1e-9 * R * Math.pow(n1 / n2, 2)));
+  });
+  K.check('Each typed answer and slip is worked from its rule: 5 Ω (7, 25), 48 turns (12, 37), 10.45 A (153.04, 40), 6.82 A (26.09, 0.01), 1.88 mWb (3.76, 0.94), 36.6 Ω (9.6, 0.2) and 9.2 A (0.6, 2.3)', () => {
+    const sl = (i, v) => STEPS[i].slips.length === v.length && STEPS[i].slips.every((s, k) => near(s.value, v[k], 1e-12));
+    const r2 = (v) => Math.round(v * 100) / 100, r1_ = (v) => Math.round(v * 10) / 10, sq = Math.pow(880 / 230, 2);
+    const work = near(Math.hypot(3, 4), 5, 1e-12) && 3 + 4 === 7 && 9 + 16 === 25 &&
+      near(24 / (440 / 880), 48, 1e-9) && near(24 * 0.5, 12, 1e-9) && Math.round(880 / 24) === 37 &&
+      r2(40 * 115 / 440) === 10.45 && r2(40 * 440 / 115) === 153.04 &&
+      r2(3000 / 440) === 6.82 && r2(3000 / 115) === 26.09 && r2(3 / 440) === 0.01 &&
+      r2(rule(880, 230, true, 5).phim * 1e3) === 1.88 && r2(2 * 1.88) === 3.76 && r2(1.88 / 2) === 0.94 &&
+      r1_(2.5 * sq) === 36.6 && r1_(2.5 * 880 / 230) === 9.6 && r1_(2.5 / sq) === 0.2 &&
+      near(800 * 2.3 / 200, 9.2, 1e-9) && r1_(2.3 * 200 / 800) === 0.6 && near(115 * 9.2, 460 * 2.3, 1e-9) &&
+      r1_(3 * sq) === 43.9 && r1_(4 * sq) === 58.6 && r1_(3 * 880 / 230) === 11.5 && r1_(4 * 880 / 230) === 15.3;
+    return work && STEPS[iSize].answer === 5 && STEPS[iN24].answer === 48 && STEPS[iI440].answer === 10.45 && STEPS[iHeat].answer === 6.82 &&
+      STEPS[iHeavy].answer === 1.88 && STEPS[iTwo].answer === 36.6 && STEPS[iUp].answer === 9.2 && STEPS[iPick].want === STEPS[iPick].opts[2] &&
+      sl(iSize, [7, 25]) && sl(iN24, [12, 37]) && sl(iI440, [153.04, 40]) && sl(iHeat, [26.09, 0.01]) && sl(iHeavy, [3.76, 0.94]) && sl(iTwo, [9.6, 0.2]) && sl(iUp, [0.6, 2.3]);
+  });
+  K.check('A right Check on the 3 kW heater moves the load to 115² ÷ 3000 = 4.41 Ω, where the primary takes 6.82 A and 3000 W goes in', () => {
+    const r = rule(880, 230, true, R_HEAT);
+    return Math.abs(r.i1 - 6.82) < 0.005 && Math.abs(r.pin - 3000) < 0.5 && STEPS.filter((d) => d.name === 'A 3 kW heater')[0].runEnd.R === R_HEAT;
+  });
+  K.check('Before a Check the flux and the box show ?; a right Check moves the load from 10 Ω to 5 Ω with the flux at 1.88 mWb, and from 5 Ω to 2.5 Ω with the box at 36.6 Ω', () => {
+    const b = (i) => drawn(i, blank()), s = (i) => drawn(i, solvedSt(i));
+    const hb = b(iHeavy), hs = s(iHeavy), tb = b(iTwo), ts = s(iTwo);
+    return hb.t.flux === '?' && hb.R === 10 && hs.t.flux === MWB('1.88') && hs.R === 5 && tb.t.seen === '?' && tb.R === 5 && ts.t.seen === OHM('36.6') && ts.R === 2.5;
+  });
+  K.check('Every demonstration ends 3 to 4.5 s after its screen opens, and every answer\'s motion within 2.5 s', () =>
+    STEPS.every((d) => d.show ? (d.dur >= 3 && d.dur <= 4.5) : (!d.run || d.run <= 2.5)));
+  K.ready();
+</script>

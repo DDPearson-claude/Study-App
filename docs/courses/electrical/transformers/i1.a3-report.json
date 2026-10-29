@@ -1,0 +1,288 @@
+{
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "Compasses placed near a long straight current-carrying wire show field lines forming circular loops centred on the wire: every ring is drawn round the wire, and every needle lies along its ring",
+        "ok": true,
+        "source": "https://phys.libretexts.org/Bookshelves/University_Physics/Physics_(Boundless)/21%3A_Magnetism/21.1%3A_Magnetism_and_Magnetic_Fields"
+      },
+      {
+        "label": "The right-hand grip: a current into the page makes clockwise rings, so the needle just above the wire points right; reversed it points left; with no current there are no rings",
+        "ok": true
+      },
+      {
+        "label": "B in mT = 0.2 × A ÷ mm: 20 A gives 0.4 mT at 10 mm, 0.2 mT at 20 mm and 0.1 mT at 40 mm, as the needle's readout shows",
+        "ok": true
+      },
+      {
+        "label": "The magnetic field produced by the coil resembles that of a bar magnet: its lines run one way through the middle and back the other way round the outside, leaving from the end marked N",
+        "ok": true,
+        "source": "https://labs.phys.utk.edu/mbreinig/phys222core/modules/m4/magnetic%20fields.html"
+      },
+      {
+        "label": "More turns or more current crowd the lines: 10 turns draw more lines than 6, 20 A more than 10 A, and 2 turns fewer; reversing the current keeps their number; inside a loop the rings from both sides point the same way",
+        "ok": true
+      },
+      {
+        "label": "Magnetic flux counts the part of the field perpendicular to the hoop's area: square-on the hoop catches the most, tilted less, edge-on none, while the field it sits in stays the same",
+        "ok": true,
+        "source": "https://www.khanacademy.org/science/ap-physics-2/x0e2f5a2c:magnetism-and-electromagnetism"
+      },
+      {
+        "label": "The hoop lights as many lines as its flux in µWb, to the nearest line, for both hoops at every tilt (10 → 5 at 60°, 20 → 10); past the coil's end the density and the flux fall",
+        "ok": true
+      },
+      {
+        "label": "Each typed answer and slip is worked from its rule: 20 µWb (slips 10, 20 000 and 0.02), 0.1 mT (slips 0.025, 0.4 and 1.6) and 12 µWb (slips 24, 20.8 and 12 000)",
+        "ok": true
+      },
+      {
+        "label": "Before a Check no puzzle shows its answer, and a right Check shows it: the needle above the wire points right, the coil's end turns to show N, the wider hoop lights 20 lines, the density shows 5 mT, the needle moves to 40 mm, the tilted hoop lights 12 lines, and the reversed coil swaps N and S",
+        "ok": true
+      },
+      {
+        "label": "Every demonstration ends 3 to 4.5 s after its screen opens, and every answer's motion within 2.5 s",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "mode",
+      "hoop",
+      "cur",
+      "turns",
+      "dist",
+      "tilt",
+      "pos",
+      "size"
+    ],
+    "readouts": [
+      "bNeedle",
+      "flux",
+      "dens"
+    ],
+    "outputs": [],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Screen",
+        "min": 0,
+        "max": 11,
+        "step": 1,
+        "steps": [
+          "Round a wire",
+          "Above the wire",
+          "A loop, then a coil",
+          "Which end?",
+          "Flux through a hoop",
+          "A wider hoop",
+          "Tilt the hoop",
+          "What the field did",
+          "Out from the wire",
+          "Four times as far",
+          "A tilted hoop",
+          "Reverse the current"
+        ],
+        "value": 0
+      },
+      {
+        "id": "mode",
+        "kind": "choice",
+        "label": "Shape",
+        "options": [
+          "wire",
+          "loop",
+          "coil"
+        ],
+        "labels": [
+          "Wire",
+          "Loop",
+          "Coil"
+        ],
+        "value": "wire",
+        "index": 0,
+        "shown": false
+      },
+      {
+        "id": "hoop",
+        "kind": "toggle",
+        "label": "Hoop",
+        "options": [
+          false,
+          true
+        ],
+        "value": false,
+        "shown": false
+      },
+      {
+        "id": "cur",
+        "kind": "control",
+        "label": "Current",
+        "min": -20,
+        "max": 20,
+        "step": 1,
+        "log": false,
+        "value": 0,
+        "shown": true,
+        "snap": [
+          -10,
+          0,
+          10
+        ]
+      },
+      {
+        "id": "turns",
+        "kind": "control",
+        "label": "Turns",
+        "min": 2,
+        "max": 10,
+        "step": 1,
+        "log": false,
+        "value": 6,
+        "shown": false
+      },
+      {
+        "id": "dist",
+        "kind": "control",
+        "label": "Needle from the wire",
+        "min": 5,
+        "max": 50,
+        "step": 1,
+        "log": false,
+        "value": 10,
+        "shown": false,
+        "snap": [
+          10,
+          20,
+          40
+        ]
+      },
+      {
+        "id": "tilt",
+        "kind": "control",
+        "label": "Tilt",
+        "min": 0,
+        "max": 90,
+        "step": 15,
+        "log": false,
+        "value": 0,
+        "shown": false,
+        "snap": [
+          60
+        ]
+      },
+      {
+        "id": "pos",
+        "kind": "control",
+        "label": "Hoop along the coil",
+        "min": 0,
+        "max": 100,
+        "step": 1,
+        "log": false,
+        "value": 0,
+        "shown": false
+      },
+      {
+        "id": "size",
+        "kind": "choice",
+        "label": "Hoop size",
+        "options": [
+          0.002,
+          0.004
+        ],
+        "labels": [
+          "0.002 m²",
+          "0.004 m²"
+        ],
+        "value": 0.002,
+        "index": 0,
+        "shown": false
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Answer 4",
+      "Check",
+      "Why?",
+      "Play again",
+      "Back",
+      "Continue",
+      "Start again",
+      "Demonstration"
+    ],
+    "answers": [
+      {
+        "id": "a-wide",
+        "answer": 20,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-far",
+        "answer": 0.1,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-tilt",
+        "answer": 12,
+        "accept": [],
+        "ok": true
+      }
+    ],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ]
+  },
+  "moved": [
+    "step = 1",
+    "mode = \"loop\"",
+    "hoop = true",
+    "cur = 10",
+    "turns = 8",
+    "dist = 38.75",
+    "tilt = 67.5",
+    "pos = 75",
+    "size = 0.004",
+    "pressed \"Answer 1\""
+  ],
+  "shots": [
+    "/home/user/Study-App/build/electrical/transformers/i1.a3-360-light.png",
+    "/home/user/Study-App/build/electrical/transformers/i1.a3-360-light-moved.png",
+    "/home/user/Study-App/build/electrical/transformers/i1.a3-360-light-end.png",
+    "/home/user/Study-App/build/electrical/transformers/i1.a3-360-dark.png",
+    "/home/user/Study-App/build/electrical/transformers/i1.a3-360-dark-moved.png",
+    "/home/user/Study-App/build/electrical/transformers/i1.a3-360-dark-end.png",
+    "/home/user/Study-App/build/electrical/transformers/i1.a3-1280-light.png",
+    "/home/user/Study-App/build/electrical/transformers/i1.a3-1280-light-moved.png",
+    "/home/user/Study-App/build/electrical/transformers/i1.a3-1280-light-end.png",
+    "/home/user/Study-App/build/electrical/transformers/i1.a3-1280-dark.png",
+    "/home/user/Study-App/build/electrical/transformers/i1.a3-1280-dark-moved.png",
+    "/home/user/Study-App/build/electrical/transformers/i1.a3-1280-dark-end.png"
+  ]
+}
