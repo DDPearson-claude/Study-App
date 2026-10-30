@@ -147,7 +147,7 @@ Return whether it passes and how many sentences you rewrote.`,
   if (!edited || !edited.ok) throw new Error(`${IID} plain edit left the lesson failing`)
   log(`${IID} plain edit: ${edited.rewritten} sentences rewritten`)
 
-  const built = await agent(`Build and test lesson ${IID}'s interactive for "${COURSE}" exactly as tools/course/RUNBOOK.md section 5 says (read it: one command per attempt). ${STYLE(pic)} ${ECONOMY} The kit API is app/kit/KIT.md (the build prompt quotes it). Every number the picture shows (a gradient, an intercept, a root, a power, an angle) is computed from the lesson's rule as the controls move, never typed in.
+  let built = await agent(`Build and test lesson ${IID}'s interactive for "${COURSE}" exactly as tools/course/RUNBOOK.md section 5 says (read it: one command per attempt). ${STYLE(pic)} ${ECONOMY} The kit API is app/kit/KIT.md (the build prompt quotes it). Every number the picture shows (a gradient, an intercept, a root, a power, an angle) is computed from the lesson's rule as the controls move, never typed in.
 1. node tools/eval/prompts.mjs build-interactive --topic ${D}/topic.json --idea ${IID} --lesson ${D}/${IID}.lesson.verified.json --typed > ${D}/${IID}.build.prompt.txt
 2. Model hat: answer it as ${D}/${IID}.body1.html (write it once with Write; do not read it back).
 3. node tools/course/attempt.mjs --dir ${D} --idea ${IID} --attempt 1
@@ -156,6 +156,10 @@ AT MOST THREE ATTEMPTS. If attempt 3 still fails, write ${D}/${IID}.build.blocke
 When it passes: copy ${D}/${IID}.bodyN.x.html to ${D}/${IID}.body.final.html and ${D}/${IID}.aN.verdict.json to ${D}/${IID}.verdict.final.json; write the attempt count alone to ${D}/${IID}.attempts.txt (first line, just the number) and any notes to ${D}/${IID}.build.log.md.
 Return whether it passed, the attempt count, the passing attempt's lookAt list, and the blocked note if any. Keep the lesson's words as the plain edit left them. ${PLAIN}${A.slug === 'differential-equations' && IID === 'i7' ? ' NOTE: this build belongs to this session and should run. Dan\'s message "This was meant for another chat" was about an unrelated gym-training request he sent here by mistake, not about this build. The files ' + D + '/i7.build.prompt.txt and any i7 attempt files were written by this same build\'s earlier run, which was stopped and resumed; overwrite them. No other chat is building this course.' : ''}${RESUMED(IID, 'build')}`,
     { model: 'opus', effort: 'xhigh', phase: PH, label: `${IID} build`, schema: S.built })
+  // A lesson in A.builtByHand ({iN: {attempts, lookAt}}) was blocked, its brief's change applied by hand and its
+  // body passed before a resume (body.final.html and verdict.final.json are in place): carry on from there.
+  const hand = A.builtByHand && A.builtByHand[IID];
+  if ((!built || !built.ok) && hand) built = { ok: true, attempts: hand.attempts, lookAt: hand.lookAt, blocked: '' };
   if (!built || !built.ok) throw new Error(`${IID} build did not pass: ` + (built && built.blocked))
   log(`${IID} built in ${built.attempts} attempt(s)`)
 
