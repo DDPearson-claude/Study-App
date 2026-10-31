@@ -5,7 +5,7 @@
 //   await app.page.goto(app.url('#/'));  ...  await app.close();
 //
 // sample(input, info) runs in Node. `input` is the prompt string (or the turns array);
-// info = { tier, toolNames }. Return a string or an object (objects are JSON-encoded).
+// info = { tier, toolNames, images } (images: how many the call sends). Return a string or an object (objects are JSON-encoded).
 // Every prompt begins with "TASK: <name>", so route on that: taskOf(input).
 // tools: { 'Server Name': { toolName: (input) => payload } } run in Node too.
 // puzzleBox: true shows the puzzle box (hidden by default since 25 Oct: U.flags.puzzleBox).
@@ -60,7 +60,7 @@ export async function openApp(opts = {}) {
   await page.addInitScript({ path: STUB });
   await page.addInitScript((toolList) => {
     const S = window.__CLAUDE_STUB__;
-    S.onSample((input, o) => window.__nodeSample(input, { tier: o.modelTier, toolNames: (o.tools || []).map((t) => t.name) }));
+    S.onSample((input, o) => window.__nodeSample(input, { tier: o.modelTier, toolNames: (o.tools || []).map((t) => t.name), images: o.images ? (o.images.length == null ? 1 : o.images.length) : 0 }));
     toolList.forEach(([server, tool]) => S.onTool(server, tool, (input) => window.__nodeTool(server, tool, input).then((s) => JSON.parse(s))));
   }, Object.entries(tools).flatMap(([s, t]) => Object.keys(t).map((k) => [s, k])));
 

@@ -940,6 +940,18 @@
         root.appendChild(h('p', { class: 'td-lead' }, 'Start a course from your library whenever you feel like it.'));
         root.appendChild(h('section', { class: 'td-plan td-study', 'aria-label': 'Today\'s study' }, h('a', { class: 'btn wide', href: '#/' }, 'Browse your library')));
       }
+      // Mixed problems from his finished lessons (54-problems.js), once a ready-made course has one.
+      var V = U.views || {};
+      var mixable = U.problems && (r[0] || []).some(function (t) {
+        var p = (r[1] || {})[t.__id];
+        return t && t.readyMade && (t.ideas || []).some(function (i) { return V.isDone ? V.isDone(p, i.id) : false; });
+      });
+      if (mixable) {
+        root.appendChild(h('a', { class: 'today-row td-mix', href: U.problems.mixHref() },
+          h('span', { class: 'today-ico', 'aria-hidden': 'true' }, U.icon('puzzle')),
+          h('span', { class: 'today-text' }, h('strong', null, 'Mixed problems'), h('span', { class: 'muted small' }, 'From the lessons you have finished, to work on paper')),
+          U.icon('arrow', 'today-go')));
+      }
       root.appendChild(weekStrip((r[3] && r[3].days) || {}, day, []));
     });
   }

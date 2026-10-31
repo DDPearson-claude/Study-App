@@ -992,6 +992,9 @@
       if (!correct) parts.push(h('p', { class: 'qc-answer' }, 'You said ' + said + '. The answer: ', inline('strong', null, String(s.answer)), '.'));
       parts.push(why(s.why));
       parts.push(c.extra());
+      // opts.afterAnswer (the problem set, 54-problems.js): its own part under the working, such as
+      // "Check my working" from a photo of his paper.
+      if (typeof c.opts.afterAnswer === 'function') parts.push(c.opts.afterAnswer({ card: c.card, spec: s, said: said, correct: correct }) || null);
       feedback(c, {
         correct: correct, title: correct ? RIGHT[U.hash(c.card.id) % RIGHT.length] : 'Not quite',
         parts: parts, grade: autoGrade(c, correct), result: { answer: said, tries: tries },

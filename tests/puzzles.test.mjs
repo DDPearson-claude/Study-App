@@ -40,7 +40,7 @@ function load(seed = {}, { box = true } = {}) {
       globalThis.__setNow = function (t) { now = +t; };
       globalThis.Date = D;
     })();`, ctx);
-  vm.runInContext('"use strict";\n' + ['00-core.js', '40-fsrs.js', '41-cards.js', '54-problems.js', '60-today.js'].map(src).join('\n'), ctx);
+  vm.runInContext('"use strict";\n' + ['00-core.js', '40-fsrs.js', '41-cards.js', '45-calc.js', '54-problems.js', '55-practice.js', '60-today.js'].map(src).join('\n'), ctx);
   const U = ctx.U;
   // The puzzle box is off by default (U.flags.puzzleBox, 00-core.js): these tests test it, so it is
   // on unless a test turns it off (box: false).
@@ -127,6 +127,50 @@ test('a problem set (54-problems.js) is the guide\'s typed puzzles in order, whe
   const about = { v: 2, pages: [{ kind: 'example', task: 'What does the negative read?', answer: 'About 9.26 V', why: '100 × 51 ÷ 551.', input: 'pick', options: ['About 51 V', 'About 9.26 V'] }] };
   assert.deepEqual(plain(U_from(about)), ['typed'], 'an About figure is a problem too');
   function U_from(g) { return load().U.problems.from('tA', 'i9', g, null, null).map((c) => c.spec.input); }
+});
+
+test('new numbers (55-practice.js): the app checks Claude\'s formula against the lesson\'s answer and works out the new answer itself', () => {
+  const { U } = load();
+  const card = { id: 'i4_x2', spec: { q: 'The load draws 100 A through 7 mΩ. What are the lost volts?', answer: '0.70 V', why: 'I × r = 100 × 0.007 = 0.70 V.', input: 'typed', page: 3 } };
+  const good = { id: 'i4_x2', vars: { I: { was: 100, now: 150 }, r: { was: 7, now: 5 } }, formula: '{I} * {r} / 1000', task: 'The load draws 150 A through 5 mΩ. What are the lost volts?', why: 'I × r = 150 × 0.005 = {answer}.' };
+  const v = plain(U.practice.makeVariant(card, good));
+  assert.equal(v.answer, '0.75 V', 'the app\'s own sum, to the lesson\'s two places, with its unit');
+  assert.equal(v.q, good.task);
+  assert.equal(v.why, 'I × r = 150 × 0.005 = 0.75 V.');
+  assert.equal(v.input, 'typed'); assert.equal(v.fresh, true);
+  assert.equal(U.cards.gradeTyped('0.75', v).state, 'right', 'and it is graded like any typed answer');
+  const no = (patch, why) => assert.equal(U.practice.makeVariant(card, { ...good, ...patch }), null, why);
+  no({ formula: '{I} * {r} / 100' }, 'a formula that does not give the lesson\'s own answer with the old values');
+  no({ task: 'The load draws 150 A through 7 mΩ. What are the lost volts?' }, 'a task that does not carry every new value');
+  no({ vars: { I: { was: 100, now: 100 }, r: { was: 7, now: 7 } } }, 'nothing changed');
+  no({ formula: '{I} * {x} / 1000' }, 'a name the formula uses but vars do not give');
+  no({ vars: { I: { was: 100, now: 150 }, r: { was: 7, now: 5 }, k: { was: 2, now: 3 } } }, 'a var the formula never uses');
+  no({ vars: { I: { was: 100, now: 150000 }, r: { was: 7, now: 5 } }, task: 'The load draws 150000 A through 5 mΩ. What are the lost volts?' }, 'an answer more than twenty times the old one');
+  no({ formula: 'alert({I}) * {r} / 1000' }, 'nothing but the calculator\'s own words runs');
+  no({ skip: true }, 'a skipped problem');
+  assert.equal(U.practice.makeVariant({ id: 'w', spec: { q: 'Which floor?', answer: 'Floor B', why: '' } }, good), null, 'a word answer has no new numbers');
+  // An About answer: the old values need only come within 1%; the new answer is printed to its places, without the About.
+  const about = { id: 'a', spec: { q: 'A 100 V board leaks 500 kΩ and 51 kΩ. What does the negative read?', answer: 'About 9.26 V', why: '100 × 51 ÷ 551.' } };
+  const av = plain(U.practice.makeVariant(about, { vars: { V: { was: 100, now: 220 }, P: { was: 500, now: 400 }, N: { was: 51, now: 40 } }, formula: '{V} * {N} / ({P} + {N})',
+    task: 'A 220 V board leaks 400 kΩ and 40 kΩ. What does the negative read?', why: '220 × 40 ÷ 440 = {answer}.' }));
+  assert.equal(av.answer, '20.00 V');
+  // A per-unit answer keeps its unit.
+  const pu = plain(U.practice.makeVariant({ id: 'p', spec: { q: 'Xs is 1.5 per unit and the current 0.5 per unit. What is the drop?', answer: '0.75 per unit', why: '1.5 × 0.5.' } },
+    { vars: { X: { was: 1.5, now: 1.2 }, I: { was: 0.5, now: 0.8 } }, formula: '{X} * {I}', task: 'Xs is 1.2 per unit and the current 0.8 per unit. What is the drop?', why: '1.2 × 0.8 = {answer}.' }));
+  assert.equal(pu.answer, '0.96 per unit');
+});
+
+test('mixed problems (54-problems.js): taken in turn from each pool, so the set spreads over the courses and lessons', () => {
+  const { U } = load();
+  let seed = 1; const rand = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+  const pools = [['a1', 'a2', 'a3', 'a4', 'a5', 'a6'], ['b1', 'b2'], [], ['c1', 'c2', 'c3']];
+  const got = plain(U.problems.pick(pools, 6, rand));
+  assert.equal(got.length, 6);
+  assert.equal(new Set(got).size, 6, 'no problem twice');
+  for (const p of ['a', 'b', 'c']) assert.ok(got.filter((x) => x[0] === p).length >= 2, 'each pool gives at least two: ' + got.join());
+  assert.equal(plain(U.problems.pick(pools, 50, rand)).length, 11, 'never more than there are');
+  assert.equal(U.problems.mixHref(), '#/problems/mix');
+  assert.equal(U.problems.mixHref('tA'), '#/problems/mix?topic=tA');
 });
 
 test('typed answers are graded to the course\'s rounding: half a unit in the last decimal shown, the unit optional', () => {

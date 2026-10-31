@@ -393,6 +393,15 @@
         }],
         // Puzzles from this course, once it has cards in the box: flip through just these.
         mine ? ['box', sig(mine), function () { return boxRow(mine, ideas); }] : null,
+        // Pen and paper (55-practice.js, 54-problems.js): the course's formula sheet, and mixed
+        // problems from its finished lessons once there is one.
+        topic.readyMade && (U.practice || U.problems) ? ['practise', sig(s.done), function () {
+          return U.h('section', { class: 'tp-practise', 'aria-labelledby': 'practise-h' },
+            U.h('h2', { id: 'practise-h', class: 'tp-practise-h' }, 'Practise on paper'),
+            U.h('div', { class: 'tp-practise-row' },
+              U.practice ? U.h('a', { class: 'btn secondary small', href: U.practice.sheetHref(tid), 'data-key': 'sheet' }, 'Formula sheet') : null,
+              U.problems && s.done > 0 ? U.h('a', { class: 'btn secondary small', href: U.problems.mixHref(tid), 'data-key': 'mix' }, 'Mixed problems') : null));
+        }] : null,
         U.tutor && U.tutor.open ? ['ask', 'ask', function () {
           return U.h('button', { class: 'btn secondary wide tp-ask', type: 'button', 'data-key': 'ask', on: { click: function () { U.tutor.open({ topic: topic, tid: tid }); } } }, U.icon('chat'), 'Ask Claude about this topic');
         }, 'rail'] : null,

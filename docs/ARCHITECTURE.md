@@ -1646,7 +1646,31 @@ problems ("Work the problems", then its last score); the lesson's and the read-t
 screens link them too. A lesson with no figures says so, with the lesson and the course to go to.
 ```
 U.problems.from(tid, iid, guide, lesson, idea) -> [card]   pure: the typed puzzle cards, in guide order
-U.problems.href(tid, iid) -> '#/t/<tid>/<iid>/problems'
+U.problems.href(tid, iid) -> '#/t/<tid>/<iid>/problems'   U.problems.mixHref(tid?) -> '#/problems/mix[?topic=]'
+U.problems.pick(pools, n, rand?) -> [item]   pure: n items, one from each pool in turn
+```
+**Pen and paper** (55-practice.js; Dan, 31 Oct). Both problem sets open on Start or "Start with new
+numbers", and end with both again. *New numbers*: one call (TASK: new-numbers) returns each problem's
+formula with named values `{name}` (`was`, `now`); `U.practice.makeVariant` keeps a variant only when
+the formula with the `was` values gives the lesson's own answer (U.calc, graded as a typed answer),
+every changed value is in the new task as a whole number, something changed, the new answer has the
+original's sign and is within 0.05 to 20 times it; the answer is the app's own sum printed to the
+original's places and unit, put into Claude's working at `{answer}`. A variant shows no picture.
+*Check my working*: under a problem set's working (41-cards `opts.afterAnswer`), where
+`sample.limits()` has `images`, a photo of his paper (shrunk to 1600 px JPEG, kept nowhere) goes to
+Claude with the problem, the lesson's working and what he typed (TASK: check-working): verdict
+sound | slip | method | unclear, the first wrong line, a note and one pointer. *Mixed problems*
+(`#/problems/mix`): ready-made courses with a finished lesson (`V.isDone`), chosen by checkbox, 10 or
+20 problems taken in turn from at most twelve lesson guides; linked from Today (while the box is
+hidden) and the course page's Practise on paper row. *Formula sheet* (`#/sheet/:tid`): written once
+by Claude from the course's ready lessons' explanation and practice (TASK: formula-sheet; per lesson
+its rules `{name, formula, symbols, note}` and at most three traps), kept at
+`topics/{tid}/sheet/main` (`U.store.sheet.get/set`), shown as Claude's summary; "Save a copy to
+print" is a standalone HTML file (the viewer blocks printing).
+```
+U.practice.photoPanel({title, task, answer, why, said, correct}) -> Element   hidden without images
+U.practice.variants(cards) -> Promise<{[cardId]: spec}>   U.practice.makeVariant(card, entry) -> spec | null (pure)
+U.practice.sheetHref(tid) -> '#/sheet/<tid>'   U.store.sheet.get(tid) / set(tid, doc)
 ```
 The course page never reads guides (100-240 KB each) to decide: in a ready-made course every built
 steps lesson has one (assemble.mjs), so a lesson can be read through when `topic.readyMade` and it
@@ -1796,6 +1820,8 @@ topics started here are not source-checked); "Not connected." with the steps to 
 #/t/:tid/:iid/read     lesson   focus        53-read.js   a ready-made steps lesson read through (its guide); without a
                                              guide (or a whole lesson) it opens #/t/:tid/:iid in its place
 #/t/:tid/:iid/problems lesson   focus        54-problems.js   its worked examples with a figure, worked on paper and typed in
+#/problems/mix         lesson   focus        54-problems.js   mixed problems from finished lessons across chosen courses (?topic=: one course)
+#/sheet/:tid           lesson   focus        55-practice.js   a course's formula sheet (not #/t/:tid/sheet: that is a lesson's address)
 #/today                today    tab today    60-today.js   the puzzle box; while it is hidden, today's study (section 4, Puzzles)
 #/review               review   focus        60-today.js   while the box is hidden it (and /more, ?topic=) opens #/ in its place
 #/review/more          review   focus        one batch beyond the daily cap

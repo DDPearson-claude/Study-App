@@ -76,8 +76,12 @@ function db(progress) {
     [PROGRESS]: progress || { updatedAt: at, way: 'quiz', ideas: { i1: { ...doneIdea }, i2: { ...doneIdea } } },
   };
 }
+// Claude, played by each test: a reply per TASK (the prompt's first line); calls are recorded with their image count.
+let replies = {}, asked = [];
+const taskOf = (input) => String(typeof input === 'string' ? input : input[input.length - 1].content).split('\n')[0].replace('TASK: ', '');
 async function open({ width = 360, dark = false, hash = '#/t/pendulums', progress = null } = {}) {
-  const app = await openApp({ width, height: width < 700 ? 780 : 900, dark, file: FILE, config: { db: db(progress) }, sample: () => new Promise(() => {}) });
+  const app = await openApp({ width, height: width < 700 ? 780 : 900, dark, file: FILE, config: { db: db(progress) },
+    sample: (input, info) => { const t = taskOf(input); asked.push({ task: t, images: info.images }); return replies[t] ? replies[t](input) : new Promise(() => {}); } });
   current.apps.push(app);
   await app.page.addInitScript((v) => { try { if (!sessionStorage.getItem('__p')) { localStorage.setItem('mu-prefs', JSON.stringify(v)); sessionStorage.setItem('__p', '1'); } } catch (e) {} }, { theme: dark ? 'dark' : 'light', size: 'm' });
   await app.page.goto(app.url(hash));
@@ -105,6 +109,7 @@ await test('the course page links each finished lesson\'s problems', async () =>
 await test('a problem set: figures only, typed; a wrong first answer gets one more go; the score is kept and shown', async () => {
   for (const [width, dark] of [[360, false], [360, true], [1280, false]]) {
     const app = await open({ width, dark, hash: '#/t/pendulums/i1/problems' });
+    await app.page.locator('.pb-start .btn', { hasText: /^Start$/ }).click({ timeout: 20000 });
     await app.page.locator('.qc-typed-input').waitFor({ timeout: 20000 });
     const head = await app.page.evaluate(() => ({ bar: document.querySelector('.rd-bar-label').textContent, calc: !!document.querySelector('.rd-bar .rd-calc, .rd-bar [aria-label*="alculator"]'),
       lede: document.querySelector('.pb-lede').textContent, kind: document.querySelector('.qc-kind').textContent, q: document.querySelector('.qc-q').textContent,
@@ -150,7 +155,7 @@ await test('a problem set: figures only, typed; a wrong first answer gets one mo
     if (width === 360) await shot(app, 'end-360-' + (dark ? 'dark' : 'light'));
     if (width === 1280) await shot(app, 'end-1280-light');
     // Work them again starts over; the course page shows the score.
-    await app.page.locator('.pb-go .btn', { hasText: 'Work them again' }).click();
+    await app.page.locator('.pb-go .btn', { hasText: 'Again with the lesson\'s numbers' }).click();
     await app.page.locator('.qc-kind', { hasText: 'Problem 1 of 3' }).waitFor({ timeout: 5000 });
     await app.page.evaluate(() => U.go('#/t/pendulums'));
     await app.page.locator('.pnode-problems').first().waitFor({ timeout: 20000 });
@@ -172,6 +177,105 @@ await test('the read-through\'s finish links the problems', async () => {
   await app.page.locator('.rd-done').waitFor({ timeout: 5000 });
   eq(await app.page.evaluate(() => [...document.querySelectorAll('.rd-done a')].filter((a) => /problems/.test(a.getAttribute('href'))).map((a) => [a.textContent, a.getAttribute('href')])),
     [['Work the problems on paper', '#/t/pendulums/i1/problems']], 'the link');
+});
+
+await test('new numbers: Claude writes them, the app checks each formula and works the answers; a problem that fails keeps the lesson\'s numbers', async () => {
+  replies = { 'new-numbers': () => ({ problems: [
+    { id: 'i1_x1', vars: { W: { was: 6, now: 8 }, L: { was: 4, now: 5 } }, formula: '{W} * {L}', task: 'A plant room is 8 m by 5 m. What is its area?', why: '8 × 5 = {answer}.' },
+    { id: 'i1_x3', vars: { I: { was: 100, now: 150 }, r: { was: 7, now: 5 } }, formula: '{I} * {r} / 100', task: 'The load draws 150 A through 5 mΩ. What are the lost volts?', why: '{answer}' },
+    { id: 'i1_x5', skip: true },
+  ] }) };
+  asked = [];
+  const app = await open({ hash: '#/t/pendulums/i1/problems' });
+  await app.page.locator('.pb-start .btn', { hasText: 'Start with new numbers' }).click({ timeout: 20000 });
+  await app.page.locator('.qc-kind', { hasText: 'Problem 1 of 3' }).waitFor({ timeout: 10000 });
+  const one = await app.page.evaluate(() => ({ kind: document.querySelector('.qc-kind').textContent, q: document.querySelector('.qc-q').textContent, note: (document.querySelector('.pb-fresh-note') || {}).textContent }));
+  eq(one, { kind: 'Problem 1 of 3 · new numbers', q: 'A plant room is 8 m by 5 m. What is its area?', note: '1 of the 3 problems have new numbers; the rest keep the lesson\'s.' }, 'the new problem, said so');
+  eq(asked.map((a) => a.task), ['new-numbers'], 'one call for the set');
+  await answer(app, '40');
+  await app.page.locator('.qc-fb.is-right').waitFor({ timeout: 5000 });
+  const fb = await app.page.evaluate(() => ({ pics: document.querySelectorAll('.qc-fb .rd-pic').length, why: document.querySelector('.qc-fb').innerText.replace(/\s+/g, ' ') }));
+  assert(fb.pics === 0 && /8 × 5 = 40 m²/.test(fb.why), 'no lesson picture for new numbers; the working with the app\'s answer: ' + JSON.stringify(fb));
+  await app.page.locator('.qc-continue').click();
+  await app.page.locator('.qc-kind', { hasText: 'Problem 2 of 3' }).waitFor({ timeout: 5000 });
+  eq(await app.page.evaluate(() => [document.querySelector('.qc-kind').textContent, document.querySelector('.qc-q').textContent]),
+    ['Problem 2 of 3', 'The load draws 100 A through 7 mΩ. What are the lost volts?'], 'a formula that does not give the lesson\'s answer: the lesson\'s numbers');
+  await shot(app, 'fresh-360-light');
+});
+
+await test('check my working: a photo of the paper goes to Claude, and its reading of the method shows under the working', async () => {
+  replies = { 'check-working': () => ({ verdict: 'slip', line: '6 x 4 = 25', note: 'You chose the right rule and put in both sides. The multiplication slipped.', next: 'Six fours are twenty-four.' }) };
+  asked = [];
+  const app = await open({ hash: '#/t/pendulums/i1/problems' });
+  await app.page.locator('.pb-start .btn', { hasText: /^Start$/ }).click({ timeout: 20000 });
+  await answer(app, '25');
+  await answer(app, '26');
+  await app.page.locator('.qc-fb.is-wrong .pr-photo:not([hidden])').waitFor({ timeout: 5000 });
+  const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==', 'base64');
+  await app.page.locator('.pr-photo input[type=file]').setInputFiles({ name: 'working.png', mimeType: 'image/png', buffer: png });
+  await app.page.locator('.pr-photo-res').waitFor({ timeout: 10000 });
+  const r = await app.page.evaluate(() => document.querySelector('.pr-photo-res').innerText.replace(/\s+/g, ' '));
+  assert(/One slip to put right/.test(r) && /6 x 4 = 25/.test(r) && /Six fours are twenty-four/.test(r), 'the reading: ' + r);
+  eq(asked.map((a) => [a.task, a.images]), [['check-working', 1]], 'one call, with the photo');
+  const prompt = await app.page.evaluate(() => window.__CLAUDE_STUB__.calls.filter((c) => c.kind === 'sample').map((c) => String(c.input))[0]);
+  assert(/HE TYPED: "26"/.test(prompt) && /THE RIGHT ANSWER: 24 m²/.test(prompt), 'the prompt carries the problem and his answer');
+  await shot(app, 'photo-360-light');
+});
+
+await test('mixed problems: from Today, across his finished lessons; one course from its page; a course with none says so', async () => {
+  replies = {};
+  const app = await open({ hash: '#/today' });
+  await app.page.locator('.td-mix').waitFor({ timeout: 20000 });
+  eq(await app.page.evaluate(() => document.querySelector('.td-mix').getAttribute('href')), '#/problems/mix', 'Today\'s row');
+  await app.page.locator('.td-mix').click();
+  await app.page.locator('.pb-course').waitFor({ timeout: 20000 });
+  eq(await app.page.evaluate(() => [...document.querySelectorAll('.pb-course')].map((l) => [l.querySelector('input').checked, l.innerText.replace(/\s+/g, ' ').trim()])),
+    [[true, 'Why pendulums keep time 2 lessons finished']], 'the courses with finished lessons, chosen');
+  await shot(app, 'mix-pick-360-light');
+  await app.page.locator('.pb-start .btn', { hasText: 'Make the set' }).click();
+  await app.page.locator('.pb-start .btn', { hasText: /^Start$/ }).click({ timeout: 20000 });
+  await app.page.locator('.qc-kind').waitFor({ timeout: 5000 });
+  const k = await app.page.evaluate(() => document.querySelector('.qc-kind').textContent);
+  assert(/^Problem 1 of 3 · Why pendulums keep time, lesson 1$/.test(k), 'all three of lesson 1\'s figures (lesson 2 has none), each says where it is from: ' + k);
+  await noSideways(app, 'mixed');
+  // From the course page: Practise on paper, its mixed problems alone.
+  await app.page.evaluate(() => U.go('#/t/pendulums'));
+  await app.page.locator('.tp-practise').waitFor({ timeout: 20000 });
+  eq(await app.page.evaluate(() => [...document.querySelectorAll('.tp-practise a')].map((a) => [a.textContent, a.getAttribute('href')])),
+    [['Formula sheet', '#/sheet/pendulums'], ['Mixed problems', '#/problems/mix?topic=pendulums']], 'the course page\'s row');
+  await app.page.locator('.tp-practise a', { hasText: 'Mixed problems' }).click();
+  await app.page.locator('.pb-start .btn', { hasText: 'Make the set' }).waitFor({ timeout: 20000 });
+  eq(await app.page.evaluate(() => document.querySelectorAll('.pb-course').length), 0, 'one course: no picker');
+  const none = await open({ hash: '#/problems/mix', progress: { updatedAt: at, way: 'quiz', ideas: {} } });
+  await none.page.locator('.pb-none').waitFor({ timeout: 20000 });
+});
+
+await test('formula sheet: Claude writes it once from the lessons, it is kept and shown at once next time, and a copy can be saved', async () => {
+  replies = { 'formula-sheet': () => ({ sections: [
+    { lesson: 1, title: 'What sets the beat', rules: [{ name: 'The period', formula: 'T = 2π √(L ÷ g)', symbols: 'T in s, L in m, g = 9.81 m/s²', note: 'For small swings.' }], traps: ['The mass does not change the period.'] },
+    { lesson: 2, title: 'Longer strings', rules: [{ name: 'Length and period', formula: 'T ∝ √L', symbols: '', note: '' }], traps: [] },
+  ] }) };
+  asked = [];
+  const app = await open({ hash: '#/sheet/pendulums' });
+  await app.page.locator('.fs-make .btn').click({ timeout: 20000 });
+  await app.page.locator('.fs-sec').first().waitFor({ timeout: 10000 });
+  const s1 = await app.page.evaluate(() => ({ secs: [...document.querySelectorAll('.fs-sec')].map((x) => x.querySelector('.fs-h').textContent), f: document.querySelector('.fs-f').textContent, trap: document.querySelector('.fs-trap').textContent }));
+  eq(s1, { secs: ['Lesson 1What sets the beat', 'Lesson 2Longer strings'], f: 'T = 2π √(L ÷ g)', trap: 'The mass does not change the period.' }, 'the sheet');
+  const prompt = await app.page.evaluate(() => String(window.__CLAUDE_STUB__.calls.filter((c) => c.kind === 'sample')[0].input));
+  assert(/^TASK: formula-sheet/.test(prompt) && /Lesson 1: /.test(prompt) && /Lesson 3: /.test(prompt), 'written from the course\'s ready lessons');
+  await app.page.waitForFunction(() => { const d = window.__CLAUDE_STUB__.get('topics/pendulums/sheet/main'); return d && d.sections && d.sections.length === 2; }, null, { timeout: 10000 });
+  await noSideways(app, 'sheet');
+  await shot(app, 'sheet-360-light');
+  await app.page.locator('.fs-end .btn', { hasText: 'Save a copy to print' }).click();
+  await app.page.waitForFunction(() => window.__CLAUDE_STUB__.calls.some((c) => c.kind === 'download'), null, { timeout: 5000 });
+  const dl = await app.page.evaluate(() => window.__CLAUDE_STUB__.calls.filter((c) => c.kind === 'download')[0]);
+  assert(/formula-sheet\.html$/.test(dl.filename) && dl.size > 500, 'a standalone HTML copy: ' + JSON.stringify(dl).slice(0, 200));
+  // Next time: shown at once, no call.
+  asked = [];
+  await app.page.evaluate(() => U.go('#/t/pendulums'));
+  await app.page.evaluate(() => U.go('#/sheet/pendulums'));
+  await app.page.locator('.fs-sec').first().waitFor({ timeout: 10000 });
+  eq(asked.length, 0, 'kept: no second call');
 });
 
 console.log('\n' + results.map((r) => `${r.ok ? 'PASS' : 'FAIL'}  ${r.name}`).join('\n'));

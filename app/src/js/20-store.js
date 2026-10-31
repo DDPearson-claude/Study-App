@@ -629,6 +629,8 @@ U.store = (function () {
       // A refresher course's case file: the running case's givens, assumptions and worked figures,
       // one doc every lesson reads (written at build time by tools/course/assemble.mjs).
       caseFile: function (tid) { return 'topics/' + tid + '/case/file'; },
+      // A course's formula sheet (55-practice.js): written by Claude from the course's lessons, once, then kept.
+      sheet: function (tid) { return 'topics/' + tid + '/sheet/main'; },
       research: function (tid, key) { return 'topics/' + tid + '/research/' + key; },
       profile: function () { return priv('profile'); },
       progress: function (tid) { return priv('profile/progress/' + tid); },
@@ -706,6 +708,14 @@ U.store = (function () {
   // This page's own job is on the lesson (U.gen.status: writing, waiting for another holder, building).
   function jobOn(live) { return live === 'writing' || live === 'waiting' || live === 'building'; }
   S.guide = { get: function (tid, iid) { return getDoc(S.paths.guide(tid, iid)); } };
+  S.sheet = {
+    get: function (tid) { return getDoc(S.paths.sheet(tid)); },
+    // Only under a topic that still exists, as a lesson is.
+    set: function (tid, data) {
+      data.updatedAt = U.now();
+      return getDoc(S.paths.topic(tid)).then(function (t) { noteTopic(tid, !!t); return t ? setDoc(S.paths.sheet(tid), data) : null; });
+    },
+  };
   S.caseFile = { get: function (tid) { return getDoc(S.paths.caseFile(tid)); } };
   S.lesson = {
     get: function (tid, iid) { return getDoc(S.paths.lesson(tid, iid)); },
