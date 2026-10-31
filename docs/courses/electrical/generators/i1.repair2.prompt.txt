@@ -1,0 +1,363 @@
+TASK: repair-interactive
+
+The interactive below, written for Dan's learning app, failed its automatic checks. Fix every problem listed and return the complete corrected body. Keep what already works.
+
+## The idea
+Topic: Generators and paralleling
+Idea: The alternator: a turning field makes three phases (Direct current in the spinning rotor makes a field that sweeps past three fixed coils 120° apart, giving three phases, one cycle per pole pair.)
+Kind: mechanism
+Dan knows a little about this topic. Show an equation on the page only if every symbol in it is labelled on the picture; otherwise say the rule in words.
+
+## What the interactive must show
+Brief: The one thing you should see is each coil's wave making one cycle for each pole pair that sweeps past it, a north pole and then a south, when you turn the rotor round.
+Title (the app shows it above the frame, so do not repeat it): The turning field
+The rule (the app shows it just above the frame, under "What you're looking at"): Twelve small screens on one picture, with Back and Continue. Six show an idea and six ask you to try it. No marks and no timers.
+
+The picture. On the left is a cross-section of an alternator. The stator is the fixed outer ring. It carries coils marked A, B and C. The rotor turns inside it, with its poles marked N and S. Field arrows run out of each north pole and round into the next south pole. The rotor wears a ring to drag it round by, and a Play button spins it. A pole switch of three buttons gives 2, 4 or 6 poles. With 2 poles the stator carries one set of three coils, A, B and C, 120° apart. With 4 poles it carries two sets, A, B, C, A, B, C, 60° apart. With 6 poles it carries three sets, 40° apart. So each set of three spans one pole pair. Each phase's coils are joined in series. A coil glows while a pole passes it. On the right, three traces labelled A, B and C are drawn against time as the rotor turns, one for each phase. A speed slider sets the rotor's speed, from 0 to 3600 rev/min in steps of 60. A field-current slider sets the current in the rotor's winding as a percentage of full field. It runs from 0 to 120% in steps of 10. The picture runs 60 times slower than real, so you can follow it. At 1800 rev/min one turn takes 2 s on screen.
+
+The readouts sit in four tiles: Pole pairs, Speed in rev/min, Frequency in Hz and Voltage in V. On a phone the tiles wrap onto two rows. The three pole buttons wrap too.
+
+The rule it computes. Each pole pair sweeping past a coil makes one cycle. The rotor turns rev/min ÷ 60 times a second. So frequency = pole pairs × rev/min ÷ 60. Each phase's voltage follows E = 4.44 f N Φ. The turns N are fixed, and the flux Φ is in proportion to the field current. Each pole setting stands for a machine built to make 440 V between lines at 60 Hz on full field. So voltage = 440 × (frequency ÷ 60) × (field current ÷ 100%). Each trace's height follows it. At 4 poles, 1800 rev/min and full field, the readouts give 2 pole pairs, 60 Hz and 440 V. With the rotor stopped, or the field current at 0, the traces run flat.
+
+Screen 1, show. 2 poles, full field, coil A only; B and C are drawn faint. The words: "A generator set's alternator is the simple turning-coil generator, turned inside out. Its coils stay still in the stator, the fixed outer ring. The rotor turns inside it. Direct current in the rotor's winding makes it a magnet, with a north and a south pole. Its field turns with it. Drag the rotor round once. Coil A's flux rises as the north pole arrives and falls as it leaves. Then the south pole sends flux through the other way. One turn makes one full cycle." Read: "The rotor is a magnet with one north and one south pole. It turns inside the fixed stator. As the north pole and then the south pole pass coil A, its trace makes one full cycle. That happens once every turn." Still: the rotor dragged one full turn, coil A's trace drawn for that turn.
+
+Screen 2, try it. "The rotor stops with its north pole square in front of coil A. The field current is still on. What voltage does coil A make?" Three choices, in this order: "None, because the flux through it is not changing"; "Its biggest, because the flux through it is strongest"; "A steady direct voltage, because the field current is direct". Right, the first. Hint for the second: "Voltage comes from the flux changing, not from how much there is. A parked pole changes nothing." Hint for the third: "The rotor's current is direct. But a coil only gets a voltage while a pole moves past it." Why: "A coil makes voltage only while the flux through it changes. A parked pole gives coil A plenty of flux, but the flux is steady. So coil A makes nothing until the rotor turns again." A right Check shows coil A's trace lying flat at zero. Read: "The rotor stops with its north pole square in front of coil A. The field current is still on. What voltage does coil A make?"
+
+Screen 3, show. 2 poles at 3600 rev/min, full field, all three coils. The words: "Now add coils B and C. Each sits 120° round the stator from the last. Tap Play. The north pole reaches B a third of a turn after A. It reaches C a third of a turn after that. So the three waves have the same shape, each 120° behind the last. These are the three phases you already know, and here is their cause. Each coil is one phase's winding." Read: "Coils B and C sit 120° round the stator from A and from each other. Each pole reaches them a third of a turn later. So three equal waves build, each 120° behind the one before." Still: playing, a turn and a half of all three traces drawn.
+
+Screen 4, try it, typed. "A 2-pole rotor turns at 3000 rev/min. Coil B sits 120° on from coil A, in the direction the rotor turns. How long after coil A's wave peaks does coil B's wave peak?" A field in ms. Answer 6.67 ms. Slips: 20 ms, "That is a whole turn. B is only a third of a turn on from A."; 13.33 ms, "That is two thirds of a turn, from B on round to A. The rotor reaches B first."; 3.33 ms, "That is a sixth of a turn. 120° is a third of 360°." Hint when wrong: "Work out how long one turn takes. Then take a third of it." Why: "3000 rev/min is 3000 ÷ 60 = 50 turns a second. So one turn takes 1 ÷ 50 s, which is 20 ms. Coil B is a third of a turn on. So its wave peaks 20 ÷ 3 = 6.67 ms after A's." Read: "A 2-pole rotor turns at 3000 rev/min. Coil B sits 120° on from coil A, in the direction the rotor turns. How long after coil A's wave peaks does coil B's wave peak?"
+
+Screen 5, show. 4 poles, full field, the rotor at rest for dragging. The words: "Switch the rotor to 4 poles: north, south, north, south. Drag it round once. Coil A now sees a north and a south go by twice. So it makes two full cycles in one turn. A north and a south together are a pole pair. Each pole pair that passes makes one cycle. The stator now carries a set of three coils for each pole pair. That keeps the three phases 120° apart in the wave." Read: "A 4-pole rotor has two pole pairs. Coil A sees a north and a south go by twice each turn. So it makes two full cycles a turn. The stator carries a set of three coils for each pole pair." Still: 4 poles, the rotor dragged one turn, two cycles on each trace.
+
+Screen 6, try it, typed. "A 6-pole rotor makes one full turn. How many full cycles does coil A make?" A field in cycles. Answer 3 cycles. Slips: 6, "That counts poles. A cycle needs a north and a south, so count pole pairs."; 1, "One cycle a turn is the 2-pole machine only. Each pole pair gives one cycle." Hint when wrong: "Pair each north pole with a south pole. Then count the pairs." Why: "6 poles make 3 pole pairs, each a north and a south. Each pair sweeping past coil A makes one cycle. So one turn makes 3." A right Check switches to 6 poles and draws one turn: three cycles on each trace. Read: "A 6-pole rotor makes one full turn. How many full cycles does coil A make?"
+
+Screen 7, show. 4 poles at 1800 rev/min, full field, with the speed slider and pole switch free. The words: "The rotor turns rev/min ÷ 60 times a second. Each turn gives one cycle for each pole pair. So frequency = pole pairs × rev/min ÷ 60. A 2-pole machine must turn at 3600 rev/min to make 60 Hz.[^1] A 4-pole one needs only 1800 rev/min. The rule is printed two ways. f = P × n ÷ 60 counts P in pole pairs. f = P × N ÷ 120 counts P in poles. Always check which P you have." Read: "Frequency = pole pairs × rev/min ÷ 60. A 2-pole machine makes 60 Hz at 3600 rev/min. A 4-pole one makes it at 1800 rev/min. The rule is also printed as f = P × N ÷ 120, where P counts poles." Still: 4 poles, 1800 rev/min, 60 Hz.
+
+Screen 8, try it, typed. "A 4-pole set turns at 1800 rev/min. What frequency does it make?" A field in Hz. Answer 60 Hz. Slips: 120 Hz, "4 poles are 2 pole pairs. That answer puts poles into the pole-pair form."; 30 Hz, "The form with 120 counts poles, so 4 goes in, not 2." Hint when wrong: "Count the pole pairs first." Why: "4 poles make 2 pole pairs. So 2 × 1800 ÷ 60 = 60 Hz. The poles form gives 4 × 1800 ÷ 120 = 60 Hz. Both forms agree when P means what each one says." A right Check sets the picture to 4 poles at 1800 rev/min. Read: "A 4-pole set turns at 1800 rev/min. What frequency does it make?"
+
+Screen 9, show. 4 poles, with the speed slider opening at 1710 rev/min and the field-current slider at 100%, both free. The words: "Each coil's voltage follows the transformer rule, E = 4.44 f N Φ. Its turns N were fixed when it was wound. The speed sets f, so it moves the voltage too. The field current sets the flux Φ, so it moves only the voltage. Say a 4-pole set with nothing connected makes 440 V at 60 Hz. Slow it 5%, to 1710 rev/min. It makes 57 Hz and 418 V. Put the speed back and turn the field current down instead. The waves shrink, but they come just as often." Read: "Take a 4-pole set with nothing connected and the field unchanged. Slowed 5%, from 1800 to 1710 rev/min, its waves get both lower and less frequent: 57 Hz and 418 V. Turning the field current down shrinks the waves but leaves them at 60 Hz." Still: 4 poles, 1710 rev/min, full field.
+
+Screen 10, try it. "A set running alone on its board reads 58 Hz. What brings it back to 60 Hz?" Three choices, in this order: "Speeding up the engine"; "Raising the field current"; "Either one, since both change the waves". Right, the first. Hint for the second: "The field current changes the flux, and so the height of the waves. Only poles passing more often raises the frequency." Hint for the third: "Speed moves both. The field current moves the voltage only." Why: "Frequency = pole pairs × rev/min ÷ 60. The field is nowhere in that rule. So only the speed changes the frequency. Speeding up raises the voltage a little too. The field current can then trim that back." A right Check slides the speed up until the frequency reads 60 Hz. Read: "A set running alone on its board reads 58 Hz. What brings it back to 60 Hz?"
+
+Screen 11, try it, typed (mixed). "A 6-pole set with nothing connected makes 440 V at 60 Hz. Its engine slows to 1080 rev/min. The field current stays the same. What voltage does it make now?" A field in V. Answer 396 V. Slips: 440 V, "The field is unchanged, but the poles now pass less often. So the flux changes more slowly."; 489 V, "That ratio is upside down. A lower frequency gives a lower voltage."; 792 V, "6 poles are 3 pole pairs, not 6." Hint when wrong: "Find the new frequency first. Then scale 440 V by it." Why: "6 poles are 3 pole pairs. So the frequency is 3 × 1080 ÷ 60 = 54 Hz. With the field unchanged, the voltage falls in step: 440 × 54 ÷ 60 = 396 V." Read: "A 6-pole set with nothing connected makes 440 V at 60 Hz. Its engine slows to 1080 rev/min. The field current stays the same. What voltage does it make now?"
+
+Screen 12, try it, typed (mixed). "What speed must a 6-pole alternator turn at to make 50 Hz?" A field in rev/min. Answer 1000 rev/min. Slips: 500 rev/min, "That counts 6 pole pairs. 6 poles are 3 pairs."; 2000 rev/min, "The form with 120 counts poles, so 6 goes in, not 3." Hint when wrong: "Turn the rule round: rev/min = frequency × 60 ÷ pole pairs." Why: "6 poles are 3 pole pairs. So rev/min = 50 × 60 ÷ 3 = 1000. As a check, 3 × 1000 ÷ 60 = 50 Hz." A right Check sets the picture to 6 poles at 1000 rev/min, and a closing line reads: "Speed sets the frequency. The field current sets the voltage. Next comes the regulator that trims the field." Read: "What speed must a 6-pole alternator turn at to make 50 Hz?"
+What the model leaves out (the app shows this in its own panel; do not repeat it on the page): The picture runs 60 times slower than real. Its waves are drawn as perfect sines. A real machine's waves are close to sines, but not exact. Each pole setting stands for a different machine built to make 440 V at 60 Hz on full field. That is because a real machine's poles are fixed when it is built. The speed slider runs well past what a 4- or 6-pole set is built for, so the rule can be seen. Real sets run near their rated speed. The flux is drawn in proportion to the field current. Real iron saturates, so more field current adds less and less flux. With no field current, the iron's leftover magnetism still makes a small voltage. Nothing is connected, so no current flows and nothing loads the engine. The picture leaves out how the field current reaches the turning rotor. Some small machines turn their coils inside a fixed magnet instead. Real stator coils are spread across many slots. That trims the 4.44 by a factor near 1, called the winding factor.
+Controls (use these ids, ranges and opening values exactly; when the prediction or a check names a setting of a slider, add it to that slider's snap):
+- id "step": Screen, from 0 to 11 in steps of 1, opening at 0
+Outputs: none. No rule computes a number here, so show no readouts beyond plain counts of what is on screen ("4 of 7 at war"): the picture, its labels and the .say line do the teaching.
+Numbers it may show (control = Dan sets it; computed = from the rule; constant = a fixed real value; assumed = an example value, said once as an example in the lead line or a caption, then drawn as a plain value; date = a historical date or fact):
+- Number of screens: 12 (assumed)
+- Coils of one set apart round a 2-pole stator, degrees: 120 (constant, source [2])
+- Phases' waves apart, in degrees: 120 (constant, source [2])
+- 2-pole machine's speed for 60 Hz, rev/min: 3600 (constant, source [1])
+- Frequency a 2-pole machine makes at 3600 rev/min, Hz: 60 (constant, source [1])
+- Seconds in a minute, in rev/min ÷ 60: 60 (constant)
+- The 120 in f = P × N ÷ 120, which is 2 × 60: 120 (computed)
+- The constant in E = 4.44 f N Φ: 4.44 (constant)
+- Coil spacing with 4 poles, degrees: 60 (computed)
+- Coil spacing with 6 poles, degrees: 40 (computed)
+- Speed slider, lowest, rev/min: 0 (control)
+- Speed slider, highest, rev/min: 3600 (control)
+- Speed slider step, rev/min: 60 (control)
+- Field-current slider, lowest, % of full field: 0 (control)
+- Field-current slider, highest, % of full field: 120 (control)
+- Field-current slider step, %: 10 (control)
+- Field-current slider opening value, %: 100 (control)
+- Picture slowed this many times: 60 (assumed)
+- One turn on screen at 1800 rev/min, seconds: 2 (computed)
+- Voltage each pole setting makes at 60 Hz, full field, V: 440 (assumed)
+- Frequency at 4 poles and 1800 rev/min, Hz: 60 (computed)
+- Pole pairs of a 4-pole rotor: 2 (computed)
+- Speed for 50 Hz with 4 poles, rev/min: 1500 (computed)
+- Example frequency for 4 poles at 1500 rev/min, Hz: 50 (assumed)
+- Example slowdown, per cent: 5 (assumed)
+- 4-pole set slowed 5%, rev/min: 1710 (computed)
+- Its frequency, 2 × 1710 ÷ 60, Hz: 57 (computed)
+- Its voltage, 440 × 57 ÷ 60, V: 418 (computed)
+- Screen 4: rotor speed, rev/min: 3000 (assumed)
+- Screen 4: turns a second, 3000 ÷ 60: 50 (computed)
+- Screen 4: one turn, ms: 20 (computed)
+- Screen 4: B's peak after A's, 20 ÷ 3, ms: 6.67 (computed)
+- Screen 4 slip: two thirds of a turn, ms: 13.33 (computed)
+- Screen 4 slip: a sixth of a turn, ms: 3.33 (computed)
+- Screen 6: poles on the rotor: 6 (assumed)
+- Screen 6: cycles in one turn: 3 (computed)
+- Screen 10: frequency the set reads, Hz: 58 (assumed)
+- Screen 11: engine speed, rev/min: 1080 (assumed)
+- Screen 11: new frequency, 3 × 1080 ÷ 60, Hz: 54 (computed)
+- Screen 11: new voltage, 440 × 54 ÷ 60, V: 396 (computed)
+- Screen 11 slip: ratio upside down, 440 × 60 ÷ 54, V: 489 (computed)
+- Screen 11 slip: 6 used as pole pairs, V: 792 (computed)
+- Screen 12: target frequency, Hz: 50 (assumed)
+- Screen 12: speed, 50 × 60 ÷ 3, rev/min: 1000 (computed)
+- Screen 12 slip: 6 used as pole pairs, rev/min: 500 (computed)
+- Screen 12 slip: 3 used in the poles form, rev/min: 2000 (computed)
+- Rule of thumb: poles × rev/min for 60 Hz: 7200 (computed)
+- Rule of thumb: poles × rev/min for 50 Hz: 6000 (computed)
+- 6-pole speed for 60 Hz, rev/min: 1200 (computed)
+- 2-pole speed for 50 Hz, rev/min: 3000 (computed)
+- 6-pole speed for 50 Hz, rev/min: 1000 (computed)
+- Worked example: engine runs slow by, per cent: 2 (assumed)
+- Worked example: slowed speed, rev/min: 1176 (computed)
+- Worked example: frequency, 3 × 1176 ÷ 60, Hz: 58.8 (computed)
+- Worked example: voltage, 440 × 58.8 ÷ 60, V: 431.2 (computed)
+
+## What the checks found (at 340, 720 and 1040 px wide)
+- Text cut off: the word "min" is split across two lines in <span.k-readout-value> (it needs 35px and has 123px) (at the opening state, and 75 more settings) [at 340 px wide]
+- Text cut off: the word "min" is split across two lines in <span.k-readout-value> (it needs 38px and has 135px) (at the opening state, and 75 more settings) [at 720 px wide]
+- Advice: The page height keeps growing with the frame (avoid vh units and height:100%). [at 1040 px wide]
+
+## How to fix the usual problems
+- A thrown error (also from a K.button press or a K.anim step): go to the body line it names; check element ids, variable names and the kit call signatures.
+- NaN or Infinity: guard the maths at the ends of every control's range (division by zero, log of 0, square root of a negative), or start the range where the rule makes sense.
+- A model output that is a list or object: K.model returns single numbers or short strings; keep lists in your own variables.
+- Too wide at 340 px: let rows wrap (flex-wrap), use width:100% and max-width:100%, give SVG a viewBox with width 100%, no fixed widths over 300 px, shorter labels.
+- Text cut off: shorten it or let it wrap, or give it room (a wider box, a bigger viewBox); never cut it off or hide the overflow. SVG labels printed over each other, even by a letter or two: move one, or place them with K.labels. A plot's axis title too long for a phone: shorten it (about 30 characters). A word split across two lines (often at Text size XL): size its grid columns or tiles in rem, not px (minmax(6rem, 1fr)), so they reflow to fewer, wider columns; or use a shorter word.
+- SVG text too small on a phone: font-size 13-16 in a drawing about 340 wide. A line or arrowhead through a label: place the label with K.labels and pass that line in avoid, or stop the line short of it. More labels than room (K.labels says avoid cannot be honoured): label fewer things, or move the names into a key under the drawing or a list beside it.
+- A readout's value printed elsewhere (a label, an aria-label or a plot label that follows it): while Dan answers a check the app hides only the readout and the .say line, so show the number in the readout alone and name the thing elsewhere.
+- Text hard to read (contrast) or a colour name: ink, muted, accent2, accent, warn or good (on-accent2 on navy), as var(--k-…) or K.color set in K.update, so it follows the theme.
+- A blank hole before Dan moves: hide only the answer (a line, a mark, a sentence), never a whole figure.
+- The first control far below the main figure (phone layout): put the visual and its controls together with K.stage(visual, controls), secondary figures below.
+- K.sound: frequencies 20 to 20,000 Hz (200 to 2,000 for anything Dan must hear on a phone), dur above 0 and at most 10 s, gain 0 to 1, a listed type; play it from a K.button press.
+- Navigation, links out, connections or frames: everything stays on this page (no <a href> or forms, no location changes, no WebSocket, XMLHttpRequest or iframes); name sources in words.
+- A failing check: work the expected value out again by hand. Fix whichever is wrong, the model or the check. Never delete a correct check or change its expected answer to pass. A tolerance that was unrealistically tight (a millionth, where square roots or small steps meet rounding) may be widened to a sensible one (a thousandth of the size).
+- Slow updates: sample curves less densely and do not rebuild large parts of the page on every change.
+- Missing ids: use exactly the ids listed; an output must be a key of the object K.model returns.
+- An unlisted web address: delete it, and the {source} that held it.
+- A target out of reach: make the model follow the lesson's rule with the lesson's ranges and opening values, so moving that one control brings the output to the target.
+
+## Sources
+The only web addresses this page may contain, each only as a K.check {source} on a check whose label restates what that source's quote says (a result of your rule, or a fact about your drawing, takes no source; the caption names a source in words). The app rejects any other:
+[1] Lecture 4 — aast.edu (https://www.aast.edu/pheed/staffadminview/pdf_retreive.php?stafftype=staffcourses&url=45_24985_EE328_2016_1__2_1_lecture7.pdf): "to generate 60-Hz power in a two-pole machine, the rotor _must_ turn at 3600 rpm."
+[2] Chapter 2 ABFC Power Plant Operations and Procedures — media.defense.gov (https://media.defense.gov/2014/Jun/20/2002655888/-1/-1/1/140620-N-ZZ182-6532.pdf): "The three-phase alternator, as the name implies, has three single-phase windings spaced such that the voltage induced in any one phase is displaced by 120° from the other two."
+[3] Lecture 6: Synchronous machines — egr.unlv.edu (http://www.egr.unlv.edu/~eebag/SYNCHRONOUS%20GENERATORS.pdf): "The rotor is then turned by external means producing a rotating magnetic field, which induces a 3-phase voltage within the stator winding."
+
+## Rules for this page
+- There is no guess to protect: show everything from the start (no k-after-move), curves and results included.
+- The lead line says what is drawn, plainly ("Water from a 5 m drop hits the blades of a wheel"), not what to do: the app gives the action above the frame. Example values are said once there ("an example stream: a 5 m drop, 20 kg of water each second"), then the drawing labels them plainly ("5 m"), never "for example" on the drawing.
+- Every label and arrow sits on, or starts from, the thing it is about: a force arrow starts on the part it pushes; a speed arrow on the part that moves. Anything the rule says turns or flows does so (K.anim), at a speed that follows its control.
+- The .say sentence must make sense on its own to someone who has just read the explanation: what is happening on screen now, cause then effect, in everyday words; no term, threshold or comparison the page or the explanation has not named; a number as part of its whole ("353 W of the stream's 981 W is carried off by the water"). Bad: "The buckets move slower than half the jet speed, so the water still leaves going backwards, taking 353 W away with it." Good: "The buckets are moving slowly, so the water bounces off them still moving fast, and carries 353 W of its 981 W away downstream."
+- A key for the main drawing sits inside the drawing; show each quantity once (a bar, a readout or a curve, not all three); every number drawn that is worked out (a speed from a drop) is explained in "What you're looking at", or is left off.
+- Draw the cause the explanation gives, not only its effect, and let Dan cause it (a drag, a push, a switch); include the setting where the effect does not happen.
+- Mark the brief's one quantity on the picture itself, with a label saying what it is and its value (a bracket between the two heights reading "2.4 m"); an output with a readout is marked without its number, which the readout alone shows (the app hides it while Dan answers a check).
+- A shaded band states something true of the axis it spans: inputs across x, outputs across y. To show many inputs giving nearly the same output, shade the narrow output band (regions {y0, y1}).
+- Draw every comparison the explanation makes the same way, in the same place, on the axis where the effect happens. A time period is a bracket or thin band along the time axis, not a tall block.
+- Give each reference line its own look and a label beside it; every styled line is in the key or labelled on the drawing.
+- Draw only what the brief, the rule or the explanation names, with the same names. An extra figure says on itself how to read it: what its line stands for and which way is which.
+- Show only the numbers listed above or computed from the rule, each written the way the explanation writes it (the same rounding).
+- Any example cases you choose are fair and representative, never picked to exaggerate the effect.
+- Money, health and law: show how it works, never advice, and never a guaranteed outcome.
+
+## The house kit (complete API reference)
+You write the BODY of one page: HTML, an optional `<style>`, then one inline `<script>` ending
+with `K.ready()`. It runs in a sandboxed iframe on Dan's phone (about 340 px wide, touch) and
+laptop, with the global `K` and the kit's stylesheet. No network or storage: no web
+addresses, `fetch`, `localStorage`, `alert` or `prompt`.
+
+### Page shape that works
+1. `<p class="lead">`: one line saying what is drawn (the app adds title and action).
+2. The main visual with its controls right under it: `K.stage('#scene', '#controls')` keeps the
+   pair on one phone screen. A choice that re-sorts the picture may sit above it.
+3. `<p class="say">`: one sentence that changes with the state and says why. Then
+   `<div class="k-readouts">` for numbers the drawing does not label.
+4. Secondary figures and anything that grows go below.
+5. `<p class="caption">`: one short sentence, at most 20 words: where the numbers come from ("A
+   sketch, not measured data") or the rule in the explanation's words. No new claim, no law or
+   term the explanation does not teach. The app shows what the model leaves out.
+
+### Keep the answer hidden until Dan moves
+Dan predicts before he plays: open on a setting the question is not about, and hide whatever
+gives the answer away until his first move:
+- class `k-after-move` on any element (a mark, an arrow, a sentence): hidden, its space kept.
+  Hide the answer, not the controls or a whole figure (a blank hole fails the test).
+- `K.readout({..., afterMove: true})` shows "?" until then; plot series and marks take `afterMove: true` too.
+- `K.moved` is true from then on: in `K.update`, write `K.moved ? answer : question`.
+- `K.afterMove(fn)` runs `fn` once at that moment; `K.reveal()` marks it from your handlers.
+
+### The pipeline
+Controls register themselves; their values form `params` = `{id: value}`.
+```
+K.model(fn)        fn(params) -> outputs {name: number | string}. Pure: no DOM, no lists or objects.
+K.update(fn)       fn(params, outputs): draw everything here. More than one is allowed.
+K.at(over)         -> outputs of the model at those params (others take each control's starting value)
+K.check(label, fn, {source?})   fn() must return exactly true
+K.ready()          call once, last: draws the opening state and runs the checks
+K.complete()       at the lesson's end
+K.params()  K.outputs()  K.refresh()   (refresh reruns the pipeline after you change your own state)
+```
+A readout whose id is an output key updates itself.
+
+### Controls
+Every control takes `into` (a selector or element). Ids are unique; use the lesson's ids exactly.
+```
+K.control({id, label, min, max, step, value, unit?, prefix?, fmt?, log?, snap?, hint?, into}) -> {el, get(), set(v)}
+K.choice({id, label, options: [value | {value, label}], value, hint?, into}) -> {el, get, set}
+K.toggle({id, label, value: false, hint?, into}) -> {el, get, set}
+K.stepper({id, steps: [title | {title, text}], value: 0, compact?, label?, into}) -> {el, get, set, setSteps(list)}
+K.button({label, press, secondary?, into}) -> {el, press(), setLabel(text)}
+K.drag(el, {control, toValue(x, y)}) -> {el}
+```
+`control` is a big slider with − / + buttons. Keep `unit` short; `fmt(v)` returns the whole text;
+`log: true` spans decades; `snap: [values]` lands a drag exactly on a setting the prediction or a
+check names. `choice`: 2-8 short named options; `value` is an option's value or its 0-based
+index. `stepper` walks a process with Back / Next (`compact: true` when your diagram shows the
+content). `button` is an action (Send it in): use it, not plain buttons. `drag` lets Dan move
+the thing itself: `toValue` maps the pointer (viewBox units; px from `el`'s top-left for HTML)
+to the control's value; the first touch counts as his move.
+
+### Outputs
+```
+K.readout({id, label, unit?, prefix?, decimals?, fmt?, big?, hint?, afterMove?, into}) -> {el, set(v), get(), text()}
+```
+One rounding everywhere a number appears: `decimals` matching the lesson text, and the `.say`
+sentence built with `K.fmt(v, {decimals})` or `readout.text()`. Labels under 30 characters.
+While Dan answers a lesson check, the app hides that output's readout and the `.say` lines:
+never repeat a readout's value elsewhere (a label, an aria-label).
+```
+K.plot(target, opts) -> {draw(opts), x(v), y(v), invert(px, py), el, canvas}
+```
+- `x`, `y`: `{min, max, label, log?, prefix?, unit?, fmt?, ticks?}`. Leave out `y.min`/`y.max` to fit the data.
+- `series`: `[{fn: x => y | points: [[x, y], ...], label?, color?, dash?, width?, fill?, dots?, gaps?, afterMove?}]`
+- `shade`: `[{between: [a, b], label?, color?, x0?, x1?}]`: fills between two series (by label), a
+  series and a constant, or two functions.
+- `marks`: `[{x, y, label?, color?, guides?, afterMove?}]`: a dot with a label pill; `guides` adds dashed lines to the axes.
+- `regions`: `[{x0, x1, label?} | {y0, y1, label?}]` (a band); `lines`: `[{x | y, label?}]` (a dashed line).
+- `label`: the text alternative; `height`; `after(ctx, plot)` draws extras using `plot.x()`, `plot.y()`.
+
+`draw(opts)` redraws with `opts` over the creation options: call it in `K.update`. Values must be
+finite (`gaps: true` only where a gap is real). Series are navy, then teal; `color: 'muted',
+dash: true` for a baseline.
+```
+K.bars(target, {max?, unit?, prefix?, decimals?, fmt?}) -> {draw(items)}      items: [{label, value, color?}], values >= 0
+K.anim({step(dt, t), reset?, label?, autoplay?, button?, into}) -> {el, play, pause, toggle, reset, playing()}
+```
+`anim` adds a Play button (text `label`); `reset` adds Reset. When a switch, button or drag
+already starts the motion, pass `button: false` and call `play()` from that control: one control
+per action. In `step` advance your state (`dt` in seconds) and redraw; return `false` to stop. To
+drive a slider, keep the exact value yourself (the slider moves in whole steps).
+
+### Sound
+```
+K.sound.tone(hz, {dur?, type?, gain?})   K.sound.chord([hz, ...], {dur?, stagger?})   K.sound.stop()   K.sound.mute(on)
+K.sound.hold(hz, {type?, gain?, max?}) -> {set({hz?, gain?}), stop(), playing()}
+```
+`dur` in seconds (at most 10). Sound plays only from a `K.button` press, never `K.update`; show
+what is sounding. `hold` keeps a tone going while `set()` follows a slider. Phones can't play
+below about 150 Hz: use 200 to 2,000 Hz.
+
+### Drawings and helpers
+```
+K.el(tag, attrs?, ...children)    attrs: class, style, on: {click: fn}, text, html, dataset, any attribute
+K.svg(tag, attrs?, ...children)   the same in the SVG namespace
+K.labels(group, [{x, y, text, anchor?, size?, class?, color?}], {avoid?}) -> [<text>]
+K.stage(visual, controls, {max?, beside?}) -> {el}
+K.fmt(v, {decimals?, sig?, prefix?, unit?, percent?, sign?, compact?}) -> '1,234.5', '−3', '2.5 × 10⁶'
+K.near(a, b, tol)   K.clamp(v, lo, hi)   K.lerp(a, b, t)   K.linspace(a, b, n)   K.color(role, alpha?)
+K.ease(p)   K.arrive(T, t0, dur?)   K.fade(el, a, rise?)
+```
+Give an `<svg>` a viewBox about 340 wide, `width="100%"`, `role="img"` and an `aria-label` that
+follows the state. Text 13-16 units, never under 12 (a phone shows 340 units at about 0.9x). A
+row of N labels gets about 300/N units each; label only what differs. Every label sits on, or
+points to, something drawn. `K.labels` places labels (13 units unless `size`) clear of other
+text, the edges and the lines or shapes in `avoid`: use it for labels that move or appear later.
+Put an angle's label inside its wedge, beyond the arc, hidden while the wedge is too narrow.
+`K.stage` fits the pair in `max` px (600) on a phone; `beside: false` keeps it stacked.
+
+Draw the mechanism as it physically works. If the explanation gives a reason (X because Y), draw
+Y so Dan can watch it; parts that fit are drawn fitting (teeth in teeth), never two identical
+icons joined by a line; whatever the rule says happens (slides, grips, multiplies) happens on screen.
+
+### Colour
+Colour carries meaning. Use these roles as `var(--k-…)` or `K.color('fill2')` (`K.color('accent2',
+0.3)` is see-through); a colour name fails the test.
+- Lines and text: `ink`, `muted` (secondary, comparisons), `accent2` (navy: the main thing,
+  controls), `accent` (teal: small labels, a second series), `warn` (red: warnings and mistakes
+  only), `good` (green: "done" only), `amber-line` (amber lines that must stand out).
+- Fills: `bg` (page), `panel`, `sunk`, `amber` (note box), `hl` (key-term highlighter), `fill1`
+  (area of the main thing), `fill2` (highlighted area, amber), `fill3` (area of a second thing).
+- `cat1`-`cat4` (blue, orange, magenta, aqua): telling equal things apart, never meaning; with a
+  key or labels; cat1 and cat2 first. A thing with a familiar colour (water, fire) never gets
+  another thing's colour: use the nearest role and label it. What is still there stays solid:
+  mark a state such as unused with a label, not by fading it, and key any dashed style.
+- Also `--k-line`, `--k-strong` (borders), `--k-on-accent2` (text on navy), `--k-font`, `--k-r` (radius).
+
+Never describe colours by lightness or hue in words Dan reads ("the dark square"): dark mode
+changes them.
+
+Classes: `muted`, `small`, `k-label` (small teal caps), `term` (key term), `note` (amber box),
+`warn-note`, `panel`, `row`, `grid2`, `big`, `k-btn` (`secondary`), and a legend:
+`<div class="key"><span><i class="swatch" style="background:var(--k-accent2)"></i>Your push</span>
+<span><i class="swatch line dash" style="color:var(--k-muted)"></i>The limit</span></div>`.
+
+### Rules for a great interactive
+- One idea. The answer to Dan's prediction shows within about 3 seconds of his first move (add
+  a K.check that it does). Include something Dan causes and a case that surprises. One or two
+  controls, three at most.
+- Phone first: nothing wider than 340 px, no fixed widths over 300 px, rows wrap, no hover-only
+  information, tap targets at least 44 px. Size tiles and grid columns in rem (`minmax(6rem,
+  1fr)`): text grows a quarter at Text size XL, and no word may split across two lines.
+- Every number shown is a control, computed by the rule shown, a constant from the lesson, an
+  example value named once in the lead, or a date from the lesson. Never invent data, rates or chances.
+- The `.say` sentence describes what is on screen now, plainly and warmly, and reads right at the
+  extremes ("none of the 100"). Never claim Dan did something ("When you slid it to 20"):
+  describe the state, or write conditionally ("Push it past 20 and…").
+- 3-5 `K.check` known answers worked out by hand: an edge case, a shape fact (rises, halves,
+  always last), and one answer from outside your formula. `source` may ONLY be a URL from the
+  lesson's own sources, and only on a check whose label restates what that source's quote says;
+  a result of your rule, or a fact about your drawing, takes none. Compare numbers with
+  `K.near(a, b, tol)`: tolerance about a millionth of the size, a thousandth where rounding meets roots.
+- `K.anim` for motion, never timers: soft, unhurried, nothing popping in. Parts arrive about 0.6
+  s apart by `K.fade(el, K.arrive(T, t0))`; travel and growth use `K.ease`; a demonstration takes
+  3-5 s. No `vh` units, `position: fixed` or `height: 100%`.
+- Ideas without numbers (mechanism, process, structure, history, concept): prefer a timeline
+  slider, a named choice, a sorter or a drag; use `K.stepper` only when every step changes the
+  drawing. Checks assert order and structure facts.
+- A timeline runs forward: a slider rising left to right, its `fmt` showing the date (−500 as
+  "500 BC"), or a stepper of named events in order. A lesson's calendar-year control keeps its
+  range, its `fmt` showing the year; years after the first date are for new controls. Each dated
+  event appears as he reaches its date.
+
+### The self-test
+Before Dan sees it, the app loads your body 340, 720 and 1040 px wide, runs every check, moves
+every control, button, animation and drag, reveals the after-move parts, and looks again at Text
+size XL and in the other theme. It fails on an exception, NaN or undefined on the page, an update
+over 150 ms, sideways overflow, text cut off or over other text, SVG text under 11 px on a phone,
+a line or arrowhead through a label, text under 3:1 contrast with what is behind it, a colour
+name, a blank hole until a move, or no `K.ready()`.
+
+### Example
+```html
+<p class="lead">Lengthen the string and watch each swing take longer.</p>
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+<p class="caption">Small swings only; g = 9.81 m/s² is gravity at the Earth's surface.</p>
+<script>
+  const g = 9.81;
+  const period = (L) => 2 * Math.PI * Math.sqrt(L / g);
+  K.control({ id: 'L', label: 'String length', min: 0.1, max: 3, step: 0.05, value: 1, unit: 'm', snap: [2], into: '#controls' });
+  K.stage('#plot', '#controls');
+  K.readout({ id: 'T', label: 'One full swing takes', unit: 's', decimals: 2, into: '#outs' });
+  const plot = K.plot('#plot', { x: { min: 0, max: 3, label: 'Length (m)' }, y: { min: 0, max: 4, label: 'Period (s)' } });
+  K.model((p) => ({ T: period(p.L) }));
+  K.update((p, o) => {
+    plot.draw({ series: [{ fn: period }], marks: [{ x: p.L, y: o.T, guides: true }] });
+    document.getElementById('say').textContent = !K.moved ? 'Make the string four times longer: how much longer is each swing?'
+      : 'A ' + K.fmt(p.L, { decimals: 2 }) + ' m string swings there and back every ' + K.fmt(o.T, { decimals: 2 }) + ' s. Four times the length only doubles that.';
+  });
+  K.check('No length, no swing time', () => K.near(period(0), 0));
+  K.check('A seconds pendulum (2 s per swing) is 0.994 m long', () => K.near(period(0.994), 2, 0.002),
+    { source: 'https://en.wikipedia.org/wiki/Seconds_pendulum' });
+  K.check('Four times the length doubles the period', () => K.near(K.at({ L: 2 }).T / K.at({ L: 0.5 }).T, 2, 1e-9));
+  K.ready();
+</script>
+```
+
+
+## The body that failed
+The body you just wrote (/home/user/Study-App/build/electrical/generators/i1.body2.x.html). You already have it; it is not repeated here. Return the complete corrected body.
+
+## Output
+Return ONLY the complete corrected body: HTML elements, an optional <style>, then one inline <script> that ends with K.ready(). No <html>, <head> or <body> tags, no markdown fences, no commentary before or after. Keep it under 40 KB.

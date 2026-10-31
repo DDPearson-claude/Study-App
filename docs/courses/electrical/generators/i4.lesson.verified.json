@@ -1,0 +1,468 @@
+{
+ "iid": "i4",
+ "title": "The governor: fuel, speed and droop",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the trace dip as the flywheel slows, then climb back as the fuel rises, settling lower on its droop line, when you tap a load step.",
+  "title": "The droop line",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Screen",
+    "min": 0,
+    "max": 12,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [],
+  "whatAmILookingAt": "There are thirteen small screens on one picture, with Back and Continue. Five show an idea and eight ask you to try it. There are no marks and no timers. In a read-through, each puzzle reads as its question.\n\nThe picture. On the left is a generator set, drawn side-on along one shaft. It has an engine, a flywheel and the alternator, each labelled. A fuel bar beside the engine shows the fuel as a percentage of full-load fuel. A mark on the flywheel shows it turn faster or slower. Two arrows by the shaft are drawn to scale, each labelled as a turning effort. One is the engine's torque driving the shaft round. The other is the alternator's torque holding it back. On the right is a graph of frequency, 56 to 68 Hz, against load, 0 to 504 kW. It shows the governor's line and a dot at the present load and frequency. Under it is a trace of frequency against time over the last 6 s, from 54 to 72 Hz, with 60 Hz dashed. On a phone the three stack. The load stepper has five settings, 0% to 100% of 504 kW in steps of 25%. It opens on 0%. Each tap moves the load at once. A Trip button drops all the load at once. The droop slider runs 0% to 6% in steps of 1, opening at 4%. At 0% it reads Isochronous. The set point slider runs 58.0 to 64.0 Hz in steps of 0.1, opening at 62.4 Hz.\n\nFour tiles read Load in kW, Fuel in %, Speed in rev/min and Frequency in Hz. On a phone the tiles and the buttons wrap, so no word splits.\n\nThe rule it computes. The set has 4 poles and is rated 504 kW at 1800 rev/min, 60 Hz. Frequency is pole pairs × rev/min ÷ 60, so rev/min = 30 × the frequency. Its speed in rad/s is rev/min × 2π ÷ 60. That gives 188.5 rad/s at 1800 rev/min. The shaft carries 20 kg m² of inertia. The load takes its kW whatever the speed. The engine's power is the fuel % × 504 kW. Each torque is its power ÷ the speed in rad/s. The speed changes at (engine torque − load torque) ÷ 20 kg m², in rad/s². The governor measures the frequency. Its target is the set point − droop % × 60 Hz ÷ 100 × fuel % ÷ 100. So with 4% droop and a 62.4 Hz set point, the target is 62.4 Hz at no fuel and 60.0 Hz at full fuel. At 0% droop the target is the set point at any fuel. The governor's fuel demand is 12% for each hertz the frequency sits below its target. A running total adds to it, growing by 12% a second for each hertz below. The total stops growing while the demand sits at a limit. The fuel follows the demand after a 0.1 s wait. It closes the gap with a time constant of 0.1 s. It runs from 0% to 110%. When the governor asks for less than nothing, the bar sits at 0%. Then the engine's own friction drags the shaft, by up to 10% of 504 kW. At a steady speed the engine's power equals the load's, so the fuel % equals the load %. So the dot settles on its line: frequency = set point − droop % × 60 ÷ 100 × load ÷ 504 kW. During a step the dot falls below the line, then climbs back to it. Time runs three times slower than real.\n\nScreen 1, try it, a recall. No picture. \"A flywheel of 2 kg m² feels 50 N m of net torque. How fast does its speed rise?\" Typed, in rad/s². Answer 25 rad/s². Slips: 100, \"That multiplies. The speed changes at net torque ÷ inertia.\"; 0.04, \"That is upside down. The torque goes on top.\" Hint: \"Net torque = inertia × angular acceleration. Rearrange for the acceleration.\" Why: \"Angular acceleration = net torque ÷ inertia = 50 ÷ 2 = 25 rad/s². It keeps rising at that rate for as long as the torques stay unbalanced.\" A right Check says \"Still there.\"\n\nScreen 2, show. Isochronous at 60.0 Hz, the load at 25%, steady, the controls hidden. A demonstration steps the set point to 61.0 Hz and back. The words: \"A set on its own makes whatever power its load draws. The alternator pulls back on the shaft with a torque equal to power ÷ speed. The engine drives it forward. While the two torques match, the speed holds. Any gap goes into or out of the spinning mass. The governor compares the speed with its set point and moves the fuel. It is the AVR's loop again, with fuel in place of field. Here the set point steps 1 Hz up and back. The fuel moves first, then the speed.\" Read: the words. Still: back at 60.0 Hz, the rise and return on the trace, the arrows equal, 126 kW, 25%, 1800 rev/min and 60.0 Hz.\n\nScreen 3, try it, a prediction. Isochronous at 60.0 Hz, no load. \"The set runs alone at 60 Hz with no load. A load of 25% lands all at once. The governor is working. What does the frequency do?\" Choices, in this order: \"It holds at 60 Hz, because the governor adds fuel at once\"; \"It dips first, then climbs back as the fuel rises\", right; \"It rises, because the governor adds fuel\". Hint for the first: \"This governor measures the speed, so it adds fuel only once the speed starts to fall. The engine then takes time to answer.\" Hint for the third: \"The load pulls back on the shaft before any extra fuel arrives. So the speed falls first.\" Why: \"The load's torque arrives at once. The fuel takes time to follow. Until it does, the gap slows the spinning mass. So the frequency dips. Then the fuel catches up and the speed climbs back.\" A right Check plays the step.\n\nScreen 4, show. Isochronous at 60.0 Hz, no load, the stepper free. The words: \"Tap the load up to 25%, 126 kW. The set turns at 1800 rev/min, which is 188.5 rad/s. So the load's torque rises by 126 000 ÷ 188.5 = 668 N m at once. The fuel has not moved yet. So the load's arrow outgrows the engine's. The flywheel slows and the trace dips. This fall is a frequency dip. After 0.1 s the fuel bar starts to rise. The gap closes and the speed climbs back.\" Read: the same, told as a step that has happened. Still: the dip and the climb back on the trace, 126 kW, 25%, 1800 rev/min and 60.0 Hz.\n\nScreen 5, try it, typed. As screen 4 opens. \"The load's torque has jumped by 668 N m. The fuel has not moved yet. The shaft carries 20 kg m². How fast does the set slow?\" Typed, in rad/s². Answer 33.4 rad/s². Slips: 13 360, \"That multiplies. The speed changes at torque ÷ inertia.\"; 0.03, \"That is upside down. The torque goes on top.\"; 6.3, \"That divides the 126 kW. Use the torque gap, 668 N m.\" Hint: \"It is the flywheel sum from the first screen.\" Why: \"668 ÷ 20 = 33.4 rad/s². In the 0.1 s before the fuel moves, the set loses 33.4 × 0.1 = 3.34 rad/s. That is 1.8% of 188.5 rad/s. The frequency follows the speed. So by 0.1 s it has fallen 1.8% too, from 60 to 58.9 Hz. It goes on falling until the engine's torque matches the load's again.\" A right Check plays the step and marks 58.9 Hz on the trace at 0.1 s.\n\nScreen 6, show. Isochronous at 60.0 Hz, the load at 25% after its step, the stepper free. The words: \"The speed came back to exactly 60.0 Hz. The governor kept adding fuel until the frequency was back at its set point. The fuel now matches the load, 25%. Tap the load up again. Each step dips the trace, and each time it climbs back to 60 Hz. On the graph the dot slides along a flat line. A governor that holds the same speed at any load is called isochronous.\" Read: the words without the tap. Still: three dips on the trace, each back to 60 Hz, 378 kW, 75%, 1800 rev/min and 60.0 Hz.\n\nScreen 7, try it. Isochronous at 60.0 Hz, the load at 50%. \"An isochronous set runs at 60 Hz with 50% load. The load steps up to 75%. Once it settles, what has changed?\" Choices, in this order: \"The fuel, now higher to match the bigger load\", right; \"The frequency, now a little lower\"; \"Nothing, fuel and frequency are back where they were\". Hint for the second: \"An isochronous governor keeps adding fuel until the speed is back at its set point.\" Hint for the third: \"The load is bigger, so the engine must make more power to hold the speed.\" Why: \"Holding the speed needs the engine's torque to match the load's. A bigger load needs more torque, so more fuel. The governor brings the frequency back to 60 Hz. The fuel settles at 75%.\" A right Check plays the step: the trace dips and returns to 60 Hz, and the fuel settles at 75%.\n\nScreen 8, show. Isochronous, the set point at 62.4 Hz, no load, the droop slider and stepper free. The words: \"The set point now sits at 62.4 Hz, chosen to give 60 Hz on full load. Drag the droop to 4%. The line tilts down from 62.4 Hz at no load. Droop is the percentage change in speed that takes the governor through its full travel.[^1] With 5% droop, full load runs at 100% speed and no load at 105%.[^2] Here 4% of 60 Hz is 2.4 Hz. So full load sits 2.4 Hz lower, at 60 Hz. Step the load up and the dot walks down its line.\" Read: the words in short, without the drag and the tap. Still: 4% droop at full load, 504 kW, 100%, 1800 rev/min and 60.0 Hz.\n\nScreen 9, try it, typed. 4% droop, the set point at 62.4 Hz, no load, the Frequency tile reading ? until Check. \"With 4% droop, this set runs at 62.4 Hz with no load and 60 Hz at full load, 504 kW. What frequency does it settle at with 252 kW?\" Typed, in Hz. Answer 61.2 Hz. Slips: 60, \"60 Hz is full load. At half load the line has fallen only half its 2.4 Hz.\"; 60.4, \"That takes the droop as 4 Hz. 4% of 60 Hz is 2.4 Hz.\"; 63.6, \"The frequency falls as the load grows. Take the fall off.\" Hint: \"252 kW is half of 504 kW. So the line has fallen half its 2.4 Hz.\" Why: \"252 ÷ 504 = 0.5. The line falls 2.4 Hz from no load to full load. So by half load it has fallen 1.2 Hz. 62.4 − 1.2 = 61.2 Hz.\" A right Check steps the load to 50%, and the dot settles at 61.2 Hz.\n\nScreen 10, show. 4% droop, the set point at 62.4 Hz, the load at 50%, steady at 61.2 Hz, the set point slider and Trip free. The words: \"The set point lifts the whole line without tilting it. Drag it. The dot rides up or down with it at the same load. So the set point picks the load at which the set runs at 60 Hz. Droop has a cost on a set alone. Its frequency moves with its load. Its use shows when two sets share one load. Tap Trip. The trace overshoots. Then the dot settles at the top of its line, its set point.\" Read: the words without the drag and the tap, ending \"its set point, here 62.4 Hz. That is above 60 Hz.\" Still: after the trip, the overshoot on the trace, 0 kW, 0%, 1872 rev/min and 62.4 Hz.\n\nScreen 11, try it, typed. 4% droop, the set point at 62.4 Hz, the load at 75%, steady at 60.6 Hz. \"This set has 4% droop. You want it at exactly 60 Hz with 378 kW, 75% of its rating. Its set point is its no-load frequency. What set point do you choose?\" Typed, in Hz. Answer 61.8 Hz. Slips: 62.4, \"That gives 60 Hz at full load. At 75% the line has fallen less.\"; 58.2, \"The set point is the top of the line. It sits above 60 Hz.\"; 63, \"That takes the droop as 4 Hz. 4% of 60 Hz is 2.4 Hz.\" Hint: \"Find how far the line falls by 75% load. Add that to 60 Hz.\" Why: \"The full fall is 2.4 Hz. By 75% load the line has fallen 0.75 × 2.4 = 1.8 Hz. So its top must sit 1.8 Hz above 60 Hz, at 61.8 Hz.\" A right Check moves the set point to 61.8 Hz, and the dot rises to 60.0 Hz.\n\nScreen 12, try it, mixed. 4% droop, the set point at 60.0 Hz, full load, steady at 57.6 Hz. \"A set on 4% droop runs at 60.0 Hz with no load. On full load it settles at 57.6 Hz. Fault or design?\" Choices, in this order: \"A fault: the governor cannot hold the speed\"; \"No fault: droop working as set, but the set point needs raising\", right; \"A fault: the engine is short of power\". Hint for the first: \"Work out the line. 4% of 60 Hz is 2.4 Hz. Full load sits that far below the no-load frequency.\" Hint for the third: \"The set carries its full load and its speed is steady. The fall matches its droop exactly.\" Why: \"4% of 60 Hz is 2.4 Hz. 60.0 − 2.4 = 57.6 Hz. That is exactly on its line. The governor is doing what it was set to do. Raise the set point to 62.4 Hz and full load lands on 60 Hz.\" A right Check drags the set point to 62.4 Hz, and the dot rises to 60.0 Hz.\n\nScreen 13, try it, typed, mixed. No picture. \"Another set makes 50 Hz. It has 5% droop and runs at 50 Hz on full load. All its load trips. What frequency does it settle at?\" Typed, in Hz. Answer 52.5 Hz. Slips: 55, \"That takes the droop as 5 Hz. 5% of 50 Hz is 2.5 Hz.\"; 47.5, \"Losing load sends the dot up its line, not down.\"; 50, \"That is isochronous. With droop the set settles at the top of its line.\" Hint: \"5% of 50 Hz is the droop in hertz. A trip sends the set to the top of its line.\" Why: \"5% of 50 Hz is 2.5 Hz. Full load sits at 50 Hz. So no load sits at 50 + 2.5 = 52.5 Hz. The frequency overshoots first, then settles there.\" A right Check shows a closing line: \"The governor holds the speed with fuel. Droop sets how far it gives with load.\"",
+  "ignores": "Time is slowed three times so you can follow it. The governor here waits a fixed 0.1 s, then moves the fuel smoothly. A real engine's answer depends on its fuel system, its turbocharger and its tuning. So real dips are deeper or shallower. A governor can also swing about its speed. This swing is called hunting. Here it is tuned to settle cleanly. The engine's power is drawn in proportion to its fuel, with no losses at a steady load. The voltage is not drawn. A slower set also makes less voltage. So a frequency dip adds to the voltage dip until the AVR catches up. The load draws the same power whatever the speed.",
+  "numbers": [
+   {
+    "label": "Number of screens",
+    "value": 13,
+    "kind": "assumed"
+   },
+   {
+    "label": "Poles on the example set",
+    "value": 4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example set speed, rev/min",
+    "value": 1800,
+    "kind": "assumed"
+   },
+   {
+    "label": "Its frequency, 2 × 1800 ÷ 60, Hz",
+    "value": 60,
+    "kind": "computed"
+   },
+   {
+    "label": "Seconds in a minute",
+    "value": 60,
+    "kind": "constant"
+   },
+   {
+    "label": "Rev/min for each hertz on 4 poles",
+    "value": 30,
+    "kind": "computed"
+   },
+   {
+    "label": "Its speed, 1800 × 2π ÷ 60, rad/s",
+    "value": 188.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Rated power of the set, kW",
+    "value": 504,
+    "kind": "assumed"
+   },
+   {
+    "label": "Inertia on the shaft, kg m²",
+    "value": 20,
+    "kind": "assumed"
+   },
+   {
+    "label": "Governor's wait before the fuel moves, s",
+    "value": 0.1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Fuel's time constant, s",
+    "value": 0.1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Governor's fuel per hertz below target, %",
+    "value": 12,
+    "kind": "assumed"
+   },
+   {
+    "label": "Governor's running total, % a second per hertz",
+    "value": 12,
+    "kind": "assumed"
+   },
+   {
+    "label": "Highest fuel, %",
+    "value": 110,
+    "kind": "assumed"
+   },
+   {
+    "label": "Engine's friction drag with fuel cut, % of rating",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "Time slowed, times",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Trace window, s",
+    "value": 6,
+    "kind": "assumed"
+   },
+   {
+    "label": "Graph frequency axis, lowest, Hz",
+    "value": 56,
+    "kind": "assumed"
+   },
+   {
+    "label": "Graph frequency axis, highest, Hz",
+    "value": 68,
+    "kind": "assumed"
+   },
+   {
+    "label": "Trace axis, lowest, Hz",
+    "value": 54,
+    "kind": "assumed"
+   },
+   {
+    "label": "Trace axis, highest, Hz",
+    "value": 72,
+    "kind": "assumed"
+   },
+   {
+    "label": "Load stepper settings, %",
+    "value": 25,
+    "kind": "control"
+   },
+   {
+    "label": "Load stepper, highest, %",
+    "value": 100,
+    "kind": "control"
+   },
+   {
+    "label": "Droop slider, lowest, %",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Droop slider, highest, %",
+    "value": 6,
+    "kind": "control"
+   },
+   {
+    "label": "Droop slider step, %",
+    "value": 1,
+    "kind": "control"
+   },
+   {
+    "label": "Droop slider opening, %",
+    "value": 4,
+    "kind": "control"
+   },
+   {
+    "label": "Set point slider, lowest, Hz",
+    "value": 58,
+    "kind": "control"
+   },
+   {
+    "label": "Set point slider, highest, Hz",
+    "value": 64,
+    "kind": "control"
+   },
+   {
+    "label": "Set point slider step, Hz",
+    "value": 0.1,
+    "kind": "control"
+   },
+   {
+    "label": "Set point slider opening, Hz",
+    "value": 62.4,
+    "kind": "control"
+   },
+   {
+    "label": "Screen 2: set point step, Hz",
+    "value": 1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 2: set point stepped to, Hz",
+    "value": 61,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 1: net torque, N m",
+    "value": 50,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 1: inertia, kg m²",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 1: angular acceleration, rad/s²",
+    "value": 25,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 1 slip: multiplied, rad/s²",
+    "value": 100,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 1 slip: upside down, rad/s²",
+    "value": 0.04,
+    "kind": "computed"
+   },
+   {
+    "label": "25% load, kW",
+    "value": 126,
+    "kind": "computed"
+   },
+   {
+    "label": "50% load, kW",
+    "value": 252,
+    "kind": "computed"
+   },
+   {
+    "label": "75% load, kW",
+    "value": 378,
+    "kind": "computed"
+   },
+   {
+    "label": "Load torque rise for 126 kW at 188.5 rad/s, N m",
+    "value": 668,
+    "kind": "computed"
+   },
+   {
+    "label": "Slowing, 668 ÷ 20, rad/s²",
+    "value": 33.4,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 5 slip: multiplied",
+    "value": 13360,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 5 slip: upside down",
+    "value": 0.03,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 5 slip: 126 ÷ 20",
+    "value": 6.3,
+    "kind": "computed"
+   },
+   {
+    "label": "Speed lost in 0.1 s, rad/s",
+    "value": 3.34,
+    "kind": "computed"
+   },
+   {
+    "label": "Speed lost as a share, %",
+    "value": 1.8,
+    "kind": "computed"
+   },
+   {
+    "label": "Frequency after 0.1 s, Hz",
+    "value": 58.9,
+    "kind": "computed"
+   },
+   {
+    "label": "Droop example, full-load speed, %",
+    "value": 100,
+    "kind": "constant",
+    "source": 2
+   },
+   {
+    "label": "Droop example, no-load speed with 5% droop, %",
+    "value": 105,
+    "kind": "constant",
+    "source": 2
+   },
+   {
+    "label": "Droop example, %",
+    "value": 5,
+    "kind": "constant",
+    "source": 2
+   },
+   {
+    "label": "Droop on the set, in hertz, 4% of 60",
+    "value": 2.4,
+    "kind": "computed"
+   },
+   {
+    "label": "No-load frequency at 4% droop, Hz",
+    "value": 62.4,
+    "kind": "computed"
+   },
+   {
+    "label": "No-load speed at 62.4 Hz, rev/min",
+    "value": 1872,
+    "kind": "computed"
+   },
+   {
+    "label": "Half load as a fraction",
+    "value": 0.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Half-load fall, Hz",
+    "value": 1.2,
+    "kind": "computed"
+   },
+   {
+    "label": "Half-load frequency, Hz",
+    "value": 61.2,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 9 slip: droop as 4 Hz, Hz",
+    "value": 60.4,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 9 slip: fall added, Hz",
+    "value": 63.6,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 11: fall by 75% load, 0.75 × 2.4, Hz",
+    "value": 1.8,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 11: load as a fraction",
+    "value": 0.75,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 11: set point, Hz",
+    "value": 61.8,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 11: frequency at 378 kW on the 62.4 Hz line, Hz",
+    "value": 60.6,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 11 slip: below 60, Hz",
+    "value": 58.2,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 11 slip: droop as 4 Hz, Hz",
+    "value": 63,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12: full-load frequency with a 60.0 Hz set point, Hz",
+    "value": 57.6,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 13: rated frequency, Hz",
+    "value": 50,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 13: droop in hertz, 5% of 50, Hz",
+    "value": 2.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 13: no-load frequency, Hz",
+    "value": 52.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 13 slip: droop as 5 Hz, Hz",
+    "value": 55,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 13 slip: wrong way, Hz",
+    "value": 47.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example: rated power, kW",
+    "value": 400,
+    "kind": "assumed"
+   },
+   {
+    "label": "Worked example: droop, %",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Worked example: droop in hertz, Hz",
+    "value": 1.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example: no-load frequency, Hz",
+    "value": 51.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example: load, kW",
+    "value": 240,
+    "kind": "assumed"
+   },
+   {
+    "label": "Worked example: load as a fraction",
+    "value": 0.6,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example: fall at 240 kW, Hz",
+    "value": 0.9,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example: frequency at 240 kW, Hz",
+    "value": 50.6,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example: set point for 50 Hz at 240 kW, Hz",
+    "value": 50.9,
+    "kind": "computed"
+   },
+   {
+    "label": "Radians in a revolution, 2π",
+    "value": 6.283,
+    "kind": "constant"
+   }
+  ]
+ },
+ "explain": {
+  "text": "The governor and the AVR are the two basic controls on every set. The AVR trims the field to hold the voltage. The governor trims the fuel to hold the speed, and so the frequency. A sudden load slows the set first. The governor then adds fuel to catch it. Where the speed then settles is something you set.\n\nOn its own, a set makes whatever power its load draws. The alternator pulls back on the shaft with a torque equal to power ÷ speed. The engine's torque must match it. Any gap speeds up or slows the spinning mass. Add 126 kW to a set turning at 1800 rev/min, which is 188.5 rad/s. The load's torque rises by 126 000 ÷ 188.5 = 668 N m at once. The fuel cannot follow that fast. For a moment the engine falls short. Take an example shaft carrying 20 kg m² of inertia. The set slows at 668 ÷ 20 = 33.4 rad/s². Say the governor takes 0.1 s to answer. By then the set has lost 3.34 rad/s. That is 1.8% of its speed. The frequency follows the speed. So by 0.1 s it has fallen 1.8% too, from 60 to 58.9 Hz. This fall is a [[frequency dip]]. Then the governor adds fuel. The speed goes on falling until the engine's torque matches the load's again. Only then does it climb back.\n\nWhere it climbs back to depends on the governor. A governor that brings the speed back exactly to its set point at any load is called [[isochronous]]. The other kind lowers its own target speed as it opens the fuel. More load needs more fuel, so the speed settles lower. That fall is its [[droop]]. Droop is the percentage change in speed that takes the governor through its full travel, from no load to full load.[^1] With 5% droop, full load runs at 100% of rated speed and no load at 105%.[^2] Take a 60 Hz set with 4% droop, set to give 60 Hz on full load. Its droop in hertz is 4% of 60 Hz, which is 2.4 Hz. So no load runs at 62.4 Hz and full load at 60 Hz. A straight line joins them. Half load is 252 kW of 504 kW. There the set runs at 62.4 − 2.4 × 0.5 = 61.2 Hz. The set point slides the whole line up or down without tilting it.\n\nDroop is set on purpose. When sets run side by side, speed control is what shares the kW between them. On a set running alone, droop has a cost. Its frequency moves with the load. If all the load trips, the set settles at the top of its line. That is usually above its rated frequency. These figures come from a simplified picture. It uses a fixed response time and example values for the inertia. **The governor trims the fuel to hold the speed. Isochronous brings the speed back exactly. Droop lets it settle a set few per cent lower from no load to full load.**"
+ },
+ "analogy": {
+  "text": "Think of a battery with some internal resistance. Its terminal voltage is its open-circuit voltage minus the current × r. That is a straight line falling with load. The open-circuit voltage plays the set point, and r plays the droop. A regulated supply that holds its voltage at any current plays the isochronous governor. Put two cells in parallel. Their open-circuit voltages and slopes decide how they share the current.",
+  "breaks": "A cell's slope is a real loss inside it, which turns into heat. A governor's droop wastes nothing. It is only a setting in the control. And a cell answers a load at once. A set dips first, because its fuel must catch up with a spinning mass."
+ },
+ "practice": {
+  "text": "**Working out a droop line**\n\n- Find the droop in hertz: the droop % × the rated frequency ÷ 100.\n- If the set runs at its rated frequency on full load, its no-load frequency is the rated frequency plus the droop in hertz.\n- At any load, the frequency is the no-load frequency − the droop in hertz × the load ÷ the rated load.\n- Find the fall at a chosen load: the droop in hertz × that load ÷ the rated load. To run at a chosen frequency there, set the no-load set point to that frequency plus the fall.\n- For a sudden load, find the torque gap: the kW added × 1000 ÷ the speed in rad/s. The set slows at that gap ÷ the inertia until the fuel catches up.\n\n**Rules of thumb:** a sudden load dips the frequency before the governor can catch it. A set alone on droop runs faster on light load than on heavy load. It sits at its rated frequency only at the load its set point was chosen for.\n\n**Worked example:** a 50 Hz set rated 400 kW has 3% droop and runs at 50 Hz on full load. Its droop in hertz is 3 × 50 ÷ 100 = 1.5 Hz. So no load sits at 51.5 Hz. A load of 240 kW is 0.6 of its rating. There it runs at 51.5 − 1.5 × 0.6 = 51.5 − 0.9 = 50.6 Hz. To run it at 50 Hz on 240 kW, set its no-load point to 50 + 0.9 = 50.9 Hz.\n\n**Common mistakes**\n- Treating droop as a fault. A set on droop that settles below its no-load frequency is doing what it was set to do.\n- Taking the droop % as hertz. 4% of 60 Hz is 2.4 Hz, not 4 Hz.\n- Expecting the governor to stop the dip. A governor that measures speed adds fuel only once the speed has started to fall. Then the engine takes time to answer.\n- Forgetting that a load trip sends a set on droop to the top of its line, usually above its rated frequency."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "simplified",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "sources": [
+  {
+   "n": 1,
+   "title": "Droop speed control - Wikipedia — en.wikipedia.org",
+   "url": "https://en.wikipedia.org/wiki/Droop_speed_control",
+   "quote": "Droop is therefore expressed as the percentage change in (design) speed required for 100% governor action."
+  },
+  {
+   "n": 2,
+   "title": "Droop speed control - Wikipedia — en.wikipedia.org",
+   "url": "https://en.wikipedia.org/wiki/Droop_speed_control",
+   "quote": "By definition, with 5% droop the full-load speed is 100% and the no-load speed is 105%."
+  }
+ ]
+}

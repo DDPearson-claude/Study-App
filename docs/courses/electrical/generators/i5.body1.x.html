@@ -1,0 +1,980 @@
+<!-- kind: process -->
+<style>
+  [hidden] { display: none !important; }
+  .pz { max-width: 52rem; }
+  .pz > * + *, #stepbox > * + *, .figs > * + * { margin-top: 14px; }
+  .task, .fb, .why, .closing, .done p, .say { max-width: 34rem; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.08rem; font-weight: 400; line-height: 1.6; }
+  /* The board and the dial side by side on a laptop, stacked on a phone; the bars below. */
+  .pics { display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-start; gap: 6px 18px; }
+  .pics svg { display: block; width: 100%; flex: 1 1 17rem; max-width: 26rem; }
+  .barsvg { display: block; width: 100%; max-width: 32rem; margin-inline: auto; }
+  .sws, .tgs { display: flex; flex-wrap: wrap; gap: 10px 16px; }
+  .sws > div, .tgs > div { flex: 1 1 12rem; min-width: 0; }
+  .btns { display: grid; grid-template-columns: repeat(auto-fit, minmax(6rem, 1fr)); gap: 10px; }
+  .btns .k-btn { min-height: 44px; white-space: nowrap; }
+  .outs.k-readouts { display: grid; grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr)); gap: 10px; }
+  .outs .k-readout { min-width: 0; }
+  .say { min-height: 3.2em; transition: opacity .3s ease-out; }
+  .say.off { opacity: 0; }
+  svg .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  svg .labb { font: 700 13px var(--k-font); fill: var(--k-ink); }
+  svg .labm { font: 600 13px var(--k-font); fill: var(--k-muted); }
+  svg .labw { font: 700 13px var(--k-font); fill: var(--k-warn); }
+  .bus { stroke: var(--k-ink); stroke-width: 3; stroke-linecap: round; }
+  .wire { stroke: var(--k-ink); stroke-width: 1.6; fill: none; stroke-linejoin: round; }
+  .blade { stroke: var(--k-accent2); stroke-width: 3.2; stroke-linecap: round; }
+  .jn { fill: var(--k-ink); }
+  .lamp { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.6; }
+  .glow { fill: var(--k-fill2); }
+  .halo { fill: var(--k-amber-line); }
+  .fil { stroke: var(--k-ink); stroke-width: 1.3; }
+  .gen { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.6; }
+  .face { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }
+  .tk { stroke: var(--k-muted); stroke-width: 1.4; }
+  .tk12 { stroke: var(--k-ink); stroke-width: 3.2; stroke-linecap: round; }
+  .dir { fill: none; stroke: var(--k-muted); stroke-width: 1.6; }
+  .dirh { fill: var(--k-muted); }
+  .ptr { stroke: var(--k-accent2); stroke-width: 3.2; stroke-linecap: round; }
+  .hub { fill: var(--k-accent2); }
+  .swept { fill: none; stroke: var(--k-accent); stroke-width: 3; stroke-linecap: round; }
+  .pmark { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.8; }
+  .smark { fill: var(--k-ink); stroke: var(--k-bg); stroke-width: 1.2; }
+  .smark.red { fill: var(--k-warn); }
+  .zero { stroke: var(--k-line); stroke-width: 1.2; }
+  .wb { fill: none; stroke: var(--k-accent2); stroke-width: 2.2; stroke-linejoin: round; }
+  .ws { fill: none; stroke: var(--k-accent2); stroke-width: 2.2; stroke-dasharray: 6 4; }
+  .wd { fill: none; stroke: var(--k-accent); stroke-width: 1.3; stroke-linejoin: round; }
+  .trk { fill: var(--k-sunk); stroke: var(--k-line); stroke-width: 1.2; }
+  .trk.red { stroke: var(--k-warn); stroke-width: 1.6; }
+  .fillb { fill: var(--k-accent2); }
+  .fillb.red { fill: var(--k-warn); }
+  .fault { stroke: var(--k-ink); stroke-width: 1.6; stroke-dasharray: 4 3; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-inline: 16px; font-size: .95rem; white-space: nowrap; }
+  .picks { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .picks .k-btn { min-height: 48px; font-size: 1.05rem; white-space: normal; overflow-wrap: normal; word-break: normal; hyphens: none; text-align: left; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .answers .k-answer { max-width: 20rem; }
+  .fb { font-weight: 700; min-height: 1.5em; }
+  .fb.right { color: var(--k-good); }
+  .why, .done, .closing { line-height: 1.6; }
+  .done .row { margin-top: 14px; }
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } .say { transition: none; } }
+</style>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <div class="figs" id="figs">
+      <div class="pics">
+        <svg id="scene" viewBox="0 0 340 176" width="100%" role="img" aria-label=""><g id="sceneArt"></g></svg>
+        <svg id="dial" viewBox="0 0 340 204" width="100%" role="img" aria-label=""><g id="dialArt"></g></svg>
+      </div>
+      <svg class="barsvg" id="bars" viewBox="0 0 340 126" width="100%" role="img" aria-label=""><g id="barArt"></g></svg>
+      <div class="sws" id="sws"><div class="k-controls" id="c-f"></div><div class="k-controls" id="c-v"></div></div>
+      <div class="tgs" id="tgs"><div class="k-controls" id="c-sw"></div><div class="k-controls" id="c-rl"></div></div>
+      <div class="btns" id="c-btn"></div>
+      <div class="replay" id="replay"></div>
+      <p class="say" id="say"></p>
+      <div class="k-readouts outs" id="outs"></div>
+    </div>
+    <div class="picks" id="picks"></div>
+    <div class="answers" id="answers"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+    <p class="closing" id="closing" hidden></p>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p id="finish"></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption" id="cap">Worked from the rule, with example reactances and relay settings. The dial marks the press and the shut.</p>
+
+<script>
+  // ================= the rule =================
+  const strip = (s) => String(s || '').replace(/\[\^\d+\]/g, '');
+  const NB = ' ';                                  // a no-break space: a number never parts from its unit
+  const SRC_FOUR = 'https://forumelectrical.com/dg-synchronization-with-step-by-step-procedure';
+  const SRC_PSRC = 'https://www.pes-psrc.org/kb/report/119.pdf';
+  // The live board: 440 V, 60 Hz, fixed. Each phase is 440 ÷ √3 = 254 V.
+  const VB = 440, F0 = 60, VPH = VB / Math.sqrt(3);
+  // The breaker shuts 50 ms after the command. Example reactances: the set 0.15, the board 0.10 per unit.
+  const TC = 0.05, XS = 0.15, XB = 0.10, XT = XS + XB, FAULT = 1 / XS;
+  // The example window: 10° either side of 12, 0.2 Hz of slip, 2% of 440 V = 8.8 V.
+  const WA = 10, WS = 0.2, WV = 0.02 * VB, BMAX = 9, EPS = 1e-9;
+  const r1 = (v) => Math.round(v * 10) / 10;
+  const r2 = (v) => Math.round(v * 100) / 100;
+  const rad = (d) => d * Math.PI / 180;
+  const wrap = (a) => a - 360 * Math.ceil((a - 180) / 360);         // into (−180°, 180°]
+  // The voltage across one pole: the difference of its two phases, φ apart.
+  const gap = (vi, phi) => Math.sqrt(Math.max(0, VPH * VPH + vi * vi - 2 * VPH * vi * Math.cos(rad(phi))));
+  const phis = (a, swap) => (swap ? [a, a - 120, a + 120] : [a, a, a]);
+  const poleVs = (a, v, swap) => phis(a, swap).map((p) => gap(v / Math.sqrt(3), p));
+  const advOf = (s) => 360 * s * TC;                                 // degrees the pointer turns while the breaker shuts
+  // Which parts of the window a close at angle a misses.
+  function outside(a, s, v, swap) {
+    const w = [];
+    if (Math.abs(a) > WA + EPS) w.push('ang');
+    if (Math.abs(s) > WS + EPS) w.push('slip');
+    if (Math.abs(v - VB) > WV + EPS) w.push('volt');
+    if (swap) w.push('seq');
+    return w;
+  }
+  // A close at angle a: the surge and the shaft torque, per unit on the set's rating.
+  function closeAt(a, s, v, swap) {
+    const vs = poleVs(a, v, swap), vi = v / Math.sqrt(3);
+    return { surge: Math.max.apply(null, vs) / VPH / XT, torque: vi / VPH * Math.sin(rad(Math.min(Math.abs(a), 90))) / XT,
+      out: outside(a, s, v, swap), swap: !!swap, v };
+  }
+  const fmtDeg = (x) => { x = Math.abs(x); if (x >= 9.95) return String(Math.round(x)); const v = r1(x); return Number.isInteger(v) ? String(v) : v.toFixed(1); };
+  const angTxt = (a) => (Math.abs(a) < 0.05 ? 'at 12' : 'at ' + fmtDeg(a) + '° ' + (a > 0 ? 'FAST' : 'SLOW'));
+  const fmtSec = (x) => { const v = r1(x); return Number.isInteger(v) ? String(v) : v.toFixed(1); };
+  const signed = (n) => (n === 0 ? '0' : n < 0 ? '−' + (-n) : String(n));
+
+  // ================= the lesson: SHOW screens demonstrate, DO screens are puzzles =================
+  const STEPS = [
+    { kind: 'typed', name: 'Still there?', ans: 'rec', nofig: true, right: 'Still there.',
+      answer: 0.52, decimals: 2, unit: '', want: '0.52',
+      slips: [{ value: 0.5, hint: 'That is sin 30°. Halve the angle first.' },
+        { value: 0.26, hint: 'That is sin 15°. Double it.' },
+        { value: 1, hint: 'That doubles sin 30°. Halve the angle first.' }],
+      task: 'Two transformers sit 30° apart across an open paralleling switch. What fraction of the phase voltage appears across it?',
+      hint: 'The gap is 2 sin(θ ÷ 2) of the phase voltage.',
+      why: '2 × sin 15° = 2 × 0.259 = 0.52 of the phase voltage.',
+      read: 'Two transformers sit 30° apart across an open paralleling switch. What fraction of the phase voltage appears across it?' },
+    { show: true, name: 'The gap across a pole', hold: true, enter: { f: 60 }, ang0: 40,
+      text: 'A second set runs beside a live board. Its breaker is open. Before it closes, it must match the board in four things: voltage, frequency, phase sequence and phase angle.[^1] Each pole has a board phase on one side and the set\'s same phase on the other. On a 440 V board each phase is 254 V. The thin wave is the difference between them. That is the voltage across the pole. The set\'s wave runs 40° ahead. So the pole sees 2 sin 20° × 254 = 174 V.',
+      read: 'A second set runs beside a live board. Its breaker is open. Before it closes, it must match the board in four things: voltage, frequency, phase sequence and phase angle. Each pole has a board phase on one side and the set\'s same phase on the other. On a 440 V board each phase is 254 V. What the pole sees is the difference between them. That is the voltage across the pole. The set\'s wave runs 40° ahead. So the pole sees 2 sin 20° × 254 = 174 V.',
+      still: () => setStill() },
+    { kind: 'typed', name: 'Sixty degrees', ans: 'sixty', enter: { f: 60 }, ang0: 60, hide: ['P'],
+      answer: 254, decimals: 0, unit: 'V', want: '254' + NB + 'V',
+      slips: [{ value: 440, hint: 'That uses the full 60°. Halve it first.' },
+        { value: 127, hint: 'That is 254 × sin 30°. Double it.' },
+        { value: 220, hint: 'That is 254 × sin 60°. Halve the angle first.' }],
+      task: 'The set\'s wave runs 60° ahead of the board\'s. Each phase is 254 V. What voltage appears across each pole?',
+      hint: 'Use 2 sin(θ ÷ 2) × 254 V.',
+      why: '2 × sin 30° × 254 = 2 × 0.5 × 254 = 254 V. That is a whole phase voltage.',
+      read: 'The set\'s wave runs 60° ahead of the board\'s. Each phase is 254 V. What voltage appears across each pole?' },
+    { show: true, name: 'Slip', ctl: ['f'], enter: { f: 60.2 }, ang0: 0,
+      text: 'Now the set runs 0.2 Hz faster than the board. That frequency difference is the [[slip]]. The set\'s waves gain one whole cycle every 1 ÷ 0.2 = 5 s. So the angle creeps round, and the gap swells and shrinks every 5 s. The three lamps glow and go dark together. The dial is a [[synchroscope]]. Its pointer turns once each slip cycle. It turns clockwise when the set runs fast. It stands at 12 when the angle is zero. Drag the speed trim and watch the pointer.',
+      read: 'Now the set runs 0.2 Hz faster than the board. That frequency difference is the slip. The set\'s waves gain one whole cycle every 1 ÷ 0.2 = 5 s. So the angle creeps round, and the gap swells and shrinks every 5 s. The three lamps glow and go dark together. The dial is a synchroscope. Its pointer turns once each slip cycle. It turns clockwise when the set runs fast. It stands at 12 when the angle is zero.',
+      still: () => setStill(() => { ang = 60; }) },
+    { kind: 'typed', name: 'One turn', ans: 'turn', enter: { f: 60.25 }, ang0: 0, hide: ['S'], run: [], rdur: 4, sweep: true, endAng: 0,
+      answer: 4, decimals: 0, unit: 's', want: '4' + NB + 's',
+      slips: [{ value: 0.25, hint: 'That is the slip. One turn takes 1 ÷ the slip.' },
+        { value: 240, hint: 'That is 60 ÷ the slip. Use 1 ÷ the slip.' }],
+      task: 'The set runs at 60.25 Hz on a 60 Hz board. How long does the pointer take to go once round?',
+      hint: 'Find the slip first.',
+      why: 'The slip is 60.25 − 60 = 0.25 Hz. The set gains a quarter of a cycle each second. So a whole cycle takes 1 ÷ 0.25 = 4 s.',
+      read: 'The set runs at 60.25 Hz on a 60 Hz board. How long does the pointer take to go once round?' },
+    { show: true, name: 'A close out of step', ctl: ['close'], enter: { f: 60.2 }, ang0: 0,
+      demo: [{ at: 1.2, close: true }], dur: 1.3,
+      text: 'Press Close as the pointer nears 90°, a quarter turn. The breaker shuts and both bars jump into red. Shut at 90°, each pole sees 359 V. Only the reactances of the set and the board limit the surge that gap drives. Here it is 5.7 per unit. The surge also yanks the rotor into step. That puts 4.0 per unit of torque through the shaft and coupling. Shut at 180° and the surge reaches 8.0. That is more than a three-phase fault at the set.[^2]',
+      read: 'Suppose the breaker shuts a quarter turn out. Shut at 90°, each pole sees 359 V. Only the reactances of the set and the board limit the surge that gap drives. Here it is 5.7 per unit. The surge also yanks the rotor into step. That puts 4.0 per unit of torque through the shaft and coupling. Shut at 180° and the surge reaches 8.0. That is more than a three-phase fault at the set.',
+      still: () => setStill() },
+    { kind: 'pick', name: 'Bottom of the dial', enter: { f: 60.05 }, ang0: 180, hide: ['P'], run: [], rdur: 10, endAng: 0,
+      opts: ['Yes, the voltages match', 'No, each pole sees about twice the phase voltage', 'Yes, the slip is small'],
+      want: 'No, each pole sees about twice the phase voltage',
+      task: 'Both voltmeters read 440 V. The pointer is at the bottom of the dial, at 180°. It is turning slowly. Can you close?',
+      hints: { 'Yes, the voltages match': 'Voltage is one of four things. The waves are half a cycle apart.',
+        'Yes, the slip is small': 'A small slip lets you time the close. But the angle is wrong now.' },
+      why: 'At 180° the waves are opposite. Each pole sees 2 × sin 90° × 254 = 508 V. That gives the biggest surge of all. Wait for the pointer to come round to 12.',
+      read: 'Both voltmeters read 440 V. The pointer is at the bottom of the dial, at 180°. It is turning slowly. Can you close?' },
+    { show: true, name: 'The advance angle', ctl: ['close'], enter: { f: 60.2 }, ang0: -60,
+      demo: [{ at: 60 / 72, close: true }], dur: 0.95,
+      text: 'A breaker takes a set time to shut after the command. Say 50 ms. At 0.2 Hz slip the pointer turns 360 × 0.2 = 72° a second. In 50 ms it moves 72 × 0.05 = 3.6°. So if you press Close at 12, the breaker shuts 3.6° past it. Instead, send the close 3.6° before 12. That lead is the [[advance angle]].[^3] The dial marks where you pressed and where the breaker shut.',
+      read: 'A breaker takes a set time to shut after the command. Say 50 ms. At 0.2 Hz slip the pointer turns 360 × 0.2 = 72° a second. In 50 ms it moves 72 × 0.05 = 3.6°. So if you press Close at 12, the breaker shuts 3.6° past it. Instead, send the close 3.6° before 12. That lead is the advance angle.',
+      still: () => setStill() },
+    { kind: 'typed', name: 'Late by', ans: 'late', enter: { f: 60.5 }, ang0: -36, run: [{ at: 0.2, close: true }], rdur: 0.3,
+      answer: 9, decimals: 0, unit: '°', want: '9°',
+      slips: [{ value: 0, hint: 'The breaker takes 50 ms, and the pointer keeps turning.' },
+        { value: 18, hint: 'That is for 1 Hz of slip. Multiply by 0.5 Hz too.' },
+        { value: 0.025, hint: 'That is in turns. Multiply by 360 for degrees.' },
+        { value: 9000, hint: 'Turn 50 ms into seconds first. It is 0.05 s.' }],
+      task: 'The set runs 0.5 Hz fast. The breaker takes 50 ms. You press Close just as the pointer passes 12. How many degrees past 12 does the breaker shut?',
+      hint: 'Degrees a second = 360 × the slip. Multiply by the closing time in seconds.',
+      why: '360 × 0.5 = 180° a second. 180 × 0.05 = 9°. Pressing at 12 lands 9° late. So the close should go 9° early.',
+      read: 'The set runs 0.5 Hz fast. The breaker takes 50 ms. You press Close just as the pointer passes 12. How many degrees past 12 does the breaker shut?' },
+    { show: true, name: 'Phase sequence', ctl: ['swap'], enter: { f: 60.1, swap: true }, ang0: -40,
+      text: 'Swap two of the set\'s phases, B and C. The lamps no longer dim together. One goes dark while the other two blaze. The dark lamp runs round the three in turn. When lamp A is dark, lamps B and C each see 440 V. The pointer turns exactly as before. It compares only phase A on each side. So it cannot see the order of the other two. The wiring fixes the phase sequence. It is the phase rotation you already test.',
+      read: 'Suppose two of the set\'s phases, B and C, are swapped. The lamps no longer dim together. One goes dark while the other two blaze. The dark lamp runs round the three in turn. When lamp A is dark, lamps B and C each see 440 V. The pointer turns exactly as before. It compares only phase A on each side. So it cannot see the order of the other two. The wiring fixes the phase sequence. It is the phase rotation you already test.',
+      still: () => setStill(() => { ang = 0; }) },
+    { kind: 'pick', name: 'Crossed phases', enter: { f: 60.05, swap: true }, ang0: -9, run: [{ at: 0.45, close: true }], rdur: 0.55,
+      opts: ['Yes, the pointer is at 12 and turning slowly', 'No, the phase sequence is wrong', 'No, wait until all three lamps are bright'],
+      want: 'No, the phase sequence is wrong',
+      task: 'The pointer turns slowly through 12. Lamp A is dark, but lamps B and C are bright. Can you close?',
+      hints: { 'Yes, the pointer is at 12 and turning slowly': 'The pointer compares phase A only. Look at the other two lamps.',
+        'No, wait until all three lamps are bright': 'A bright lamp means a big gap. You want all three dark together.' },
+      why: 'With the sequence right, all three lamps go dark together. Here B and C blaze at 440 V while A is dark. So B and C are crossed. Put the wiring right first.',
+      read: 'The pointer turns slowly through 12. Lamp A is dark, but lamps B and C are bright. Can you close?' },
+    { show: true, name: 'The relay', ctl: ['f', 'relay', 'close'], enter: { f: 60.5, relay: true }, ang0: 0,
+      demo: [{ at: 0.6, close: true }, { at: 1.4, to: 2.6, ramp: { f: [60.5, 60.1] } }, { at: 3.0, close: true }], dur: 4.4,
+      text: 'Turn the relay on. Now Close only asks. The relay closes only inside its window. Here the window is 10°, 0.2 Hz and 2% of voltage. These are example settings. At 0.5 Hz slip it refuses and says why. Trim the speed to 60.10 Hz and ask again. It waits for the advance angle, 1.8°, and sends the close. The breaker shuts at 12. An automatic synchroniser goes further. It trims the governor and the AVR by moving their set points.[^4]',
+      read: 'With a relay in charge, Close only asks. The relay closes only inside its window. Here the window is 10°, 0.2 Hz and 2% of voltage. These are example settings. At 0.5 Hz slip it refuses and says why. At 60.10 Hz it agrees. It waits for the advance angle, 1.8°, and sends the close. The breaker shuts at 12. An automatic synchroniser goes further. It trims the governor and the AVR by moving their set points.',
+      still: () => setStill() },
+    { kind: 'pick', name: 'Trim before closing', enter: { v: 420, f: 60.4 }, ang0: 120, live: true, ctlSolved: ['f', 'v'],
+      run: [{ at: 0.2, to: 2.2, ramp: { v: [420, 440], f: [60.4, 60.1] } }], rdur: 2.3,
+      opts: ['Raise the field, and lower the fuel a little', 'Raise the fuel, and lower the field a little', 'Raise the field only, then close as the pointer passes 12'],
+      want: 'Raise the field, and lower the fuel a little',
+      task: 'The set reads 420 V and 60.40 Hz. The board is 440 V, 60 Hz. What do you trim before closing?',
+      hints: { 'Raise the fuel, and lower the field a little': 'More fuel speeds the set up. It is already fast, and its voltage is low.',
+        'Raise the field only, then close as the pointer passes 12': 'At 0.4 Hz the pointer turns once every 2.5 s. That is too fast to catch.' },
+      why: 'More field raises the voltage towards 440 V. Less fuel slows the set until the pointer turns slowly enough to catch at 12.',
+      read: 'The set reads 420 V and 60.40 Hz. The board is 440 V, 60 Hz. What do you trim before closing?' },
+    { kind: 'typed', name: 'Advance for 80 ms', ans: 'adv', nofig: true,
+      answer: 8.6, decimals: 1, accept: [8.64], unit: '°', want: '8.6°',
+      slips: [{ value: 28.8, hint: 'That leaves out the slip. Multiply by 0.3 Hz too.' },
+        { value: 0.024, hint: 'That is in turns. Multiply by 360 for degrees.' },
+        { value: 8640, hint: 'Turn 80 ms into seconds first. It is 0.08 s.' }],
+      task: 'A relay must shut a breaker at 12. The set runs 0.3 Hz fast. The breaker takes 80 ms. How many degrees before 12 does the relay send the close? Give it to one decimal place.',
+      hint: '360 × the slip × the closing time in seconds.',
+      why: '360 × 0.3 = 108° a second. 108 × 0.08 = 8.64°. To one decimal place that is 8.6°.',
+      close: 'Match all four, then close early by the advance angle.',
+      read: 'A relay must shut a breaker at 12. The set runs 0.3 Hz fast. The breaker takes 80 ms. How many degrees before 12 does the relay send the close? Give it to one decimal place.' },
+  ];
+  const FINISH = 'A set closes onto a live board only when it matches the board in four things: voltage, frequency, phase sequence and phase angle. Any mismatch leaves a gap across each pole, and closing on it drives a surge. The [[slip]] turns the angle round, and the [[synchroscope]] shows it. Its dial cannot show the phase sequence. The breaker takes time to shut, so the close goes early by the [[advance angle]].';
+
+  // ================= state =================
+  const BASE = { f: 60.2, v: 440, swap: false, relay: false };
+  const X = Object.assign({}, BASE);
+  const openBrk = () => ({ st: 'open', left: 0, press: null, shut: null, res: null, by: '', adv: 0, age: 1 });
+  let ang = 0, brk = openBrk(), rel = null, sweep = 0, sweeping = false, held = false;
+  const blank = () => ({ pick: null, res: null, why: false, tries: 0, hint: '' });
+  let S = STEPS.map(blank);
+  const solved = (st) => !!st && (st.res === 'right' || st.res === 'shown');
+  let T = Infinity, motionEnd = 0, scripted = false, lastStep = -1, finished = false, lastDone = false;
+  let REC = { t: {} };
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  const quiet = () => REDUCE || testing();
+  const el = (id) => document.getElementById(id);
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  const slipNow = () => X.f - F0;
+
+  // ================= the set slipping past the board, and the breaker =================
+  function sendClose(by) {
+    const s = slipNow();
+    brk = { st: 'pending', left: TC, press: ang, shut: wrap(ang + advOf(s)), res: null, by, adv: Math.abs(advOf(s)), age: 0 };
+  }
+  function shutNow() {
+    brk.st = 'shut'; brk.left = 0; brk.age = 0;
+    brk.res = closeAt(brk.shut, slipNow(), X.v, X.swap);
+    ang = 0;                                              // pulled into step: the pointer stops at 12
+  }
+  // h seconds of real time: the angle grows by 360 × the slip degrees a second.
+  function rotate(h) {
+    if (!(h > 0) || brk.st === 'shut') return;
+    const s = slipNow(), d = 360 * s * h;
+    if (brk.st === 'pending') {
+      ang = wrap(ang + d);
+      brk.left -= h;
+      if (brk.left <= 1e-9) shutNow();
+      return;
+    }
+    if (rel && rel.kind === 'wait' && d !== 0) {
+      const tgt = -advOf(s), p = ang, q = ang + d;   // the relay sends the close the advance angle short of 12
+      if ((d > 0 && p < tgt && q >= tgt) || (d < 0 && p > tgt && q <= tgt)) {
+        const used = (tgt - p) / d;
+        ang = tgt;
+        rel = { kind: 'sent', adv: Math.abs(tgt) };
+        sendClose('relay');
+        rotate(h * (1 - used));
+        return;
+      }
+    }
+    ang = wrap(ang + d);
+    if (sweeping) sweep += Math.abs(d);
+  }
+  // Close: by hand it goes at once; with the relay on it only asks.
+  function pressClose() {
+    if (brk.st !== 'open') return;
+    if (!X.relay) { rel = null; sendClose('hand'); return; }
+    const s = slipNow(), w = outside(0, s, X.v, X.swap);
+    if (w.length) { rel = { kind: 'refuse', w, s, v: X.v }; return; }
+    if (Math.abs(s) < 1e-6) { rel = { kind: 'still' }; return; }
+    rel = { kind: 'wait', adv: Math.abs(advOf(s)) };
+  }
+  function settle() {
+    let n = 0;
+    while ((brk.st === 'pending' || (brk.st === 'open' && rel && rel.kind === 'wait')) && n++ < 5000) rotate(1 / 60);
+    if (brk.st === 'shut') brk.age = 1;
+  }
+  function playScript(sc, t0, t1) {
+    let cur = t0;
+    (sc || []).forEach((m) => {
+      if (m.to == null && m.at >= t0 && m.at < t1) {
+        rotate(m.at - cur); cur = m.at;
+        if (m.set) Object.assign(X, m.set);
+        if (m.close) pressClose();
+      }
+    });
+    (sc || []).forEach((m) => {
+      if (m.ramp && t1 > m.at && t0 < m.to + 1e-9) {
+        const u = K.clamp((t1 - m.at) / (m.to - m.at), 0, 1);
+        Object.keys(m.ramp).forEach((k) => { const r = m.ramp[k]; X[k] = u >= 1 ? r[1] : K.lerp(r[0], r[1], K.ease(u)); });
+      }
+    });
+    rotate(t1 - cur);
+  }
+  function runSync(sc, dur) {
+    const h = 1 / 60;
+    for (let t = 0; t < dur - 1e-9; t += h) playScript(sc, t, Math.min(t + h, dur));
+    if (brk.st === 'shut') brk.age = 1;
+  }
+  // The relay screen's demonstration starts where its second ask lands 45° short of 12.
+  (function calibrate() {
+    const d = STEPS[idx('The relay')];
+    Object.assign(X, BASE, d.enter); ang = 0; brk = openBrk(); rel = null;
+    runSync(d.demo.filter((m) => !m.close), 3.0);
+    d.ang0 = wrap(-45 - ang);
+    Object.assign(X, BASE); ang = 0; brk = openBrk(); rel = null;
+  })();
+
+  // ================= text with amber key terms (built with K.el, never innerHTML) =================
+  const UNIT_GAP = /(\d) (?=(?:Hz|V|ms|s|per unit)(?![A-Za-z]))/g;
+  function write(node, s) {
+    node.textContent = '';
+    strip(s).replace(UNIT_GAP, '$1' + NB).split(/\[\[([^\]]+)\]\]/).forEach((seg, k) => {
+      if (!seg) return;
+      node.appendChild(k % 2 ? K.el('span', { class: 'term' }, seg) : document.createTextNode(seg));
+    });
+  }
+
+  // ================= controls =================
+  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);
+  const CTL = {
+    f: K.control({ id: 'f', label: 'Speed trim', min: 59, max: 61, step: 0.05, value: 60.2, snap: [60, 60.1, 60.2, 60.25, 60.4, 60.5],
+      fmt: (v) => Number(v).toFixed(2) + NB + 'Hz', into: '#c-f' }),
+    v: K.control({ id: 'v', label: 'Voltage trim', min: 400, max: 480, step: 5, value: 440, snap: [420, 440], fmt: (v) => Math.round(v) + NB + 'V', into: '#c-v' }),
+    swap: K.toggle({ id: 'swap', label: 'Swap B and C', value: false, into: '#c-sw' }),
+    relay: K.toggle({ id: 'relay', label: 'Relay', hint: 'Close only asks. The relay decides.', value: false, into: '#c-rl' }),
+  };
+  const CIDS = ['f', 'v', 'swap', 'relay'];
+  const norm = (id, v) => (id === 'f' ? r2(Number(v)) : id === 'v' ? Math.round(Number(v)) : v === true || v === 'true' || v === 1);
+  const ctlVal = (id) => (id === 'f' ? r2(X.f) : id === 'v' ? Math.round(X.v) : !!X[id]);
+  const pushed = {};
+  CIDS.forEach((id) => { pushed[id] = norm(id, CTL[id].get()); });
+  // The page moves the controls itself (silently, so it is not taken for Dan's move).
+  function push() {
+    CIDS.forEach((id) => {
+      const v = ctlVal(id);
+      if (pushed[id] !== v) { CTL[id].set(v, true); pushed[id] = norm(id, CTL[id].get()); }
+    });
+  }
+  const shownCtl = (i, id) => {
+    const d = STEPS[i];
+    if (finished) return false;
+    if (d.ctl && d.ctl.indexOf(id) >= 0) return true;
+    return !d.show && !!d.ctlSolved && d.ctlSolved.indexOf(id) >= 0 && solved(S[i]);
+  };
+  function applyCtl(id, v) {
+    held = false;
+    X[id] = v;
+    if (id === 'relay') rel = null;
+    else if (rel && (rel.kind === 'wait' || rel.kind === 'still')) { rel = null; pressClose(); }
+    else if (rel && rel.kind === 'refuse') rel = null;
+    if (quiet()) settle();
+  }
+  const closeBtn = K.button({ label: 'Close', into: '#c-btn', press: () => {
+    if (!shownCtl(at(), 'close')) return;
+    endDemo(); held = false;
+    pressClose();
+    if (quiet()) settle();
+    push();
+  } });
+  const resetBtn = K.button({ label: 'Reset', secondary: true, into: '#c-btn', press: () => {
+    if (!shownCtl(at(), 'close')) return;
+    endDemo(); held = false;
+    brk = openBrk(); rel = null;
+    push();
+  } });
+
+  const RO = {
+    A: K.readout({ id: 'r-a', label: 'Angle in °', fmt: (v) => String(v), into: '#outs' }),
+    S: K.readout({ id: 'r-s', label: 'Slip in Hz', fmt: (v) => String(v), into: '#outs' }),
+    P: K.readout({ id: 'r-p', label: 'Across pole A in V', fmt: (v) => String(v), into: '#outs' }),
+    I: K.readout({ id: 'r-i', label: 'Incoming in V', fmt: (v) => String(v), into: '#outs' }),
+  };
+
+  // Up to three answer buttons; each puzzle fills in its own.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.kind !== 'pick' || k >= d.opts.length || solved(st)) return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+  // Typed answers: a field each; Check grades it, two misses show the working.
+  const ANS = {};
+  STEPS.forEach((d, i) => {
+    if (d.kind !== 'typed') return;
+    el('answers').appendChild(K.el('div', { id: 'ans-' + d.ans }));
+    const a = K.answer({ id: 'a-' + d.ans, unit: d.unit, answer: d.answer, decimals: d.decimals, accept: d.accept, slips: d.slips, into: '#ans-' + d.ans,
+      onCheck: (r) => {
+        const st = S[i];
+        if (solved(st)) return;
+        if (r.state === 'right') { st.res = 'right'; playRun(i); }
+        else if (r.state === 'wrong') {
+          st.tries += 1; st.hint = r.hint || d.hint;
+          if (st.tries >= 2) { st.res = 'shown'; st.why = true; a.reveal(); playRun(i); }
+          else st.res = 'wrong';
+        } else { st.res = r.state; st.hint = ''; }
+        K.refresh();
+      } });
+    ANS[d.ans] = a;
+  });
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || solved(st)) return;
+    if (d.kind === 'typed') { ANS[d.ans].check(); return; }
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = st.pick === d.want ? 'right' : 'wrong';
+    if (st.res === 'right') playRun(i);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    const d = STEPS[at()];
+    if (d.show || finished) return;
+    S[at()].why = !S[at()].why;
+  } });
+  const replayBtn = K.button({ label: 'Show me again', secondary: true, into: '#replay', press: () => {
+    const d = STEPS[at()];
+    if (finished || !d.show || !d.demo) return;
+    startDemo(at());
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && !solved(S[i]))) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true; anim.pause(); T = Infinity;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(blank); finished = false; lastStep = -1;
+    Object.keys(ANS).forEach((k) => ANS[k].reset());
+    stepper.set(0, true);
+  } });
+
+  // ================= motion: one animation runs the demonstrations, the answers' motion and the slipping set =================
+  function spins(i) {
+    const d = STEPS[i];
+    if (finished || d.nofig || held || brk.st === 'shut') return false;
+    if (brk.st === 'pending' || (rel && rel.kind === 'wait')) return true;
+    if (Math.abs(slipNow()) < 1e-9) return false;
+    return d.show ? !d.hold : solved(S[i]) && !!d.live;
+  }
+  const growing = () => brk.st === 'shut' && brk.age < 0.5;
+  const needAnim = () => !finished && (T !== Infinity || spins(at()) || growing());
+  const anim = K.anim({ button: false, label: 'Running', step: (dt) => {
+    if (finished) return false;
+    dt = Math.min(dt, 0.1);
+    const i = at(), d = STEPS[i];
+    if (T !== Infinity) {
+      const t0 = T;
+      T = Math.min(T + dt, motionEnd);
+      playScript(scripted ? d.demo : d.run, t0, T);
+      if (T >= motionEnd) { T = Infinity; if (scripted) scripted = false; else endRun(d); }
+    } else if (spins(i)) rotate(dt);
+    if (brk.st === 'shut' && brk.age < 1) brk.age = Math.min(1, brk.age + dt);
+    push();
+    paint(i);
+    return needAnim();
+  } });
+  function kick() { if (!quiet() && needAnim() && !anim.playing()) anim.play(); }
+  function endDemo() { if (T !== Infinity) { T = Infinity; scripted = false; sweeping = false; } }
+  function endRun(d) { if (d.endAng != null && brk.st === 'open') ang = d.endAng; sweeping = false; }
+  function fresh(d) {
+    Object.assign(X, BASE, d.enter || {});
+    ang = d.ang0 || 0; brk = openBrk(); rel = null; sweep = 0; sweeping = false;
+  }
+  // A screen's state: its opening, then its demonstration's end, or its answer's motion once solved.
+  function prep(i, toEnd) {
+    const d = STEPS[i];
+    fresh(d);
+    if (d.show) { if (toEnd && d.demo) { runSync(d.demo, d.dur); settle(); } }
+    else if (solved(S[i]) && d.run) { sweeping = !!d.sweep; runSync(d.run, d.rdur); settle(); endRun(d); }
+  }
+  function startDemo(i) {
+    const d = STEPS[i];
+    anim.pause(); T = Infinity; scripted = false; held = false;
+    if (!d.demo || quiet()) { prep(i, true); push(); return; }
+    prep(i, false); scripted = true; T = 0; motionEnd = d.dur;
+    push();
+    anim.play();
+  }
+  function playRun(i) {
+    const d = STEPS[i];
+    anim.pause(); scripted = false; T = Infinity; held = false;
+    if (!d.run) return;
+    fresh(d);
+    sweeping = !!d.sweep;
+    if (quiet()) { runSync(d.run, d.rdur); settle(); endRun(d); push(); return; }
+    T = 0; motionEnd = d.rdur;
+    anim.play();
+  }
+  function enterStep(i) {
+    anim.pause(); T = Infinity; scripted = false; held = false;
+    enter('stepbox');
+    if (STEPS[i].show) { startDemo(i); return; }
+    prep(i, false);
+    push();
+  }
+  // The finished picture a still shows (the read-through): the demonstration's end, then the still's own state, held.
+  function setStill(fn) {
+    const i = at();
+    anim.pause(); T = Infinity; scripted = false;
+    prep(i, true);
+    if (fn) fn();
+    held = true;
+    push();
+    K.refresh();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ================= drawing helpers =================
+  function adder(g) { return (tag, attrs, txt) => g.appendChild(txt == null ? K.svg(tag, attrs) : K.svg(tag, attrs, txt)); }
+  const f1 = (v) => Math.round(v * 10) / 10;
+  const f2 = (v) => Math.round(v * 100) / 100;
+  const grown = () => (brk.st === 'shut' ? K.ease(K.clamp(brk.age / 0.5, 0, 1)) : 0);
+  const dispAng = () => (brk.st === 'shut' ? brk.shut * (1 - grown()) : ang);
+  const LET = ['A', 'B', 'C'];
+  const lampWord = (g) => (g < 0.05 ? 'dark' : g < 0.4 ? 'dim' : g < 0.75 ? 'bright' : 'blazing');
+
+  // ================= the board, the breaker with its lamps, and the incoming set =================
+  const PX = [96, 176, 256];
+  function drawScene() {
+    const g = el('sceneArt');
+    g.textContent = '';
+    const a = adder(g), shut = brk.st === 'shut';
+    const vs = shut ? [0, 0, 0] : poleVs(ang, X.v, X.swap);
+    const glow = vs.map((v) => K.clamp(v / (2 * VPH), 0, 1));
+    a('text', { class: 'labb', x: 8, y: 16 }, 'Live board, 440' + NB + 'V, 60' + NB + 'Hz');
+    LET.forEach((n, k) => {
+      const y = 28 + 12 * k;
+      a('line', { class: 'bus', x1: 34, y1: y, x2: 330, y2: y });
+      a('text', { class: 'lab', x: 22, y: y + 4.5, 'text-anchor': 'middle' }, n);
+    });
+    PX.forEach((x, k) => {
+      const yb = 28 + 12 * k, lx = x + 30;
+      a('line', { class: 'wire', x1: x, y1: yb, x2: x, y2: 80 });
+      a('circle', { class: 'jn', cx: x, cy: yb, r: 3 });
+      // The lamp across the pole: from above the contacts to below them.
+      a('polyline', { class: 'wire', points: x + ',70 ' + lx + ',70 ' + lx + ',83' });
+      a('polyline', { class: 'wire', points: lx + ',101 ' + lx + ',114 ' + x + ',114' });
+      a('circle', { class: 'jn', cx: x, cy: 70, r: 2.6 });
+      a('circle', { class: 'jn', cx: x, cy: 114, r: 2.6 });
+      if (glow[k] > 0.02) a('circle', { class: 'halo', cx: lx, cy: 92, r: 14, 'fill-opacity': f2(glow[k] * 0.3) });
+      a('circle', { class: 'lamp', cx: lx, cy: 92, r: 9 });
+      if (glow[k] > 0.005) a('circle', { class: 'glow', cx: lx, cy: 92, r: 8.2, 'fill-opacity': f2(glow[k]) });
+      a('line', { class: 'fil', x1: lx - 6.3, y1: 85.7, x2: lx + 6.3, y2: 98.3 });
+      a('line', { class: 'fil', x1: lx - 6.3, y1: 98.3, x2: lx + 6.3, y2: 85.7 });
+      a('text', { class: 'lab', x: lx + 17, y: 96.5 }, LET[k]);
+      // The pole's contacts: the blade hinged below, open or shut.
+      const tip = shut ? [x, 80] : brk.st === 'pending' ? [x - 6, 81] : [x - 13, 84];
+      a('line', { class: 'wire', x1: x, y1: 104, x2: x, y2: 120 });
+      a('line', { class: 'blade', x1: x, y1: 104, x2: tip[0], y2: tip[1] });
+      a('circle', { class: 'jn', cx: x, cy: 104, r: 2.6 });
+      a('circle', { class: 'jn', cx: x, cy: 80, r: 2.2 });
+    });
+    a('text', { class: 'labb', x: 8, y: 92 }, 'Breaker');
+    a('text', { class: 'lab', x: 8, y: 108 }, shut ? 'shut' : brk.st === 'pending' ? 'shutting' : 'open');
+    // The leads down to the set, B and C crossed when swapped.
+    a('polyline', { class: 'wire', points: '96,120 96,132 166,147' });
+    if (X.swap) {
+      a('line', { class: 'wire', x1: 176, y1: 120, x2: 256, y2: 132 });
+      a('line', { class: 'wire', x1: 256, y1: 120, x2: 176, y2: 132 });
+      a('text', { class: 'lab', x: 262, y: 131 }, 'swapped');
+    } else {
+      a('line', { class: 'wire', x1: 176, y1: 120, x2: 176, y2: 132 });
+      a('line', { class: 'wire', x1: 256, y1: 120, x2: 256, y2: 132 });
+    }
+    a('line', { class: 'wire', x1: 176, y1: 132, x2: 176, y2: 144 });
+    a('line', { class: 'wire', x1: 256, y1: 132, x2: 186, y2: 147 });
+    a('circle', { class: 'gen', cx: 176, cy: 157, r: 13 });
+    a('text', { class: 'labb', x: 176, y: 161.5, 'text-anchor': 'middle' }, 'G');
+    a('text', { class: 'lab', x: 196, y: 161 }, 'Incoming set');
+    Object.assign(REC, { glow, vs });
+    el('scene').setAttribute('aria-label', 'The live board\'s three busbars, A, B and C, run down through the breaker, now ' +
+      (shut ? 'shut' : brk.st === 'pending' ? 'shutting' : 'open') + ', to the incoming set' + (X.swap ? ', whose B and C leads are swapped' : '') + '. ' +
+      (shut ? 'The lamps across the poles are dark, shorted by the shut breaker.' : 'Across the poles, lamp A is ' + lampWord(glow[0]) + ', lamp B is ' + lampWord(glow[1]) + ' and lamp C is ' + lampWord(glow[2]) + '.'));
+  }
+
+  // ================= the synchroscope and the waves of phase A =================
+  const CX = 84, CY = 106, R = 48;
+  const pt = (deg, r) => [f1(CX + r * Math.sin(rad(deg))), f1(CY - r * Math.cos(rad(deg)))];
+  function head(a, deg, r, sign) {
+    const tip = [CX + r * Math.sin(rad(deg)), CY - r * Math.cos(rad(deg))];
+    const tx = Math.cos(rad(deg)) * sign, ty = Math.sin(rad(deg)) * sign, nx = Math.sin(rad(deg)), ny = -Math.cos(rad(deg));
+    const bx = tip[0] - tx * 9, by = tip[1] - ty * 9;
+    a('path', { class: 'dirh', d: 'M' + f1(tip[0]) + ' ' + f1(tip[1]) + 'L' + f1(bx + nx * 4.5) + ' ' + f1(by + ny * 4.5) + 'L' + f1(bx - nx * 4.5) + ' ' + f1(by - ny * 4.5) + 'Z' });
+  }
+  function drawDial() {
+    const g = el('dialArt');
+    g.textContent = '';
+    const a = adder(g), shut = brk.st === 'shut', gf = grown(), da = dispAng();
+    const red = shut && brk.res.out.length > 0;
+    a('text', { class: 'lab', x: CX, y: 22, 'text-anchor': 'middle' }, 'in phase');
+    a('text', { class: 'labm', x: 122, y: 46 }, 'FAST');
+    a('text', { class: 'labm', x: 46, y: 46, 'text-anchor': 'end' }, 'SLOW');
+    a('path', { class: 'dir', d: 'M' + pt(28, 60).join(' ') + 'A60 60 0 0 1 ' + pt(55, 60).join(' ') });
+    head(a, 64, 60, 1);
+    a('path', { class: 'dir', d: 'M' + pt(-28, 60).join(' ') + 'A60 60 0 0 0 ' + pt(-55, 60).join(' ') });
+    head(a, -64, 60, -1);
+    a('circle', { class: 'face', cx: CX, cy: CY, r: R });
+    for (let k = 1; k < 12; k++) { const u = pt(30 * k, 42), w = pt(30 * k, 48); a('line', { class: 'tk', x1: u[0], y1: u[1], x2: w[0], y2: w[1] }); }
+    const t0 = pt(0, 48), t1 = pt(0, 57);
+    a('line', { class: 'tk12', x1: t0[0], y1: t0[1], x2: t1[0], y2: t1[1] });
+    // One turn timed: the path the pointer has swept.
+    if (sweep > 0.5) {
+      if (sweep >= 359.5) a('circle', { class: 'swept', cx: CX, cy: CY, r: 34 });
+      else a('path', { class: 'swept', d: 'M' + pt(0, 34).join(' ') + 'A34 34 0 ' + (sweep > 180 ? 1 : 0) + ' 1 ' + pt(sweep, 34).join(' ') });
+    }
+    // Where Close went (a ring outside the dial) and where the breaker shut (a dot on its rim).
+    if (brk.press != null) { const m = pt(brk.press, 62); a('circle', { class: 'pmark', cx: m[0], cy: m[1], r: 4 }); }
+    if (shut) { const m = pt(brk.shut, 48); a('circle', { class: 'smark' + (red ? ' red' : ''), cx: m[0], cy: m[1], r: 4.5, opacity: f2(gf) }); }
+    const pa = pt(da + 180, 10), pb = pt(da, 42);
+    a('line', { class: 'ptr', x1: pa[0], y1: pa[1], x2: pb[0], y2: pb[1] });
+    a('circle', { class: 'hub', cx: CX, cy: CY, r: 4.5 });
+    // The dial's key.
+    let y = 182;
+    REC.turn = null; REC.pressTxt = null; REC.shutTxt = null;
+    if (sweep >= 359.5 && Math.abs(slipNow()) > 1e-6) {
+      REC.turn = fmtSec(1 / Math.abs(slipNow()));
+      a('line', { class: 'swept', x1: 10, y1: y - 4.5, x2: 22, y2: y - 4.5 });
+      a('text', { class: 'lab', x: 28, y }, 'one turn in ' + REC.turn + NB + 's');
+      y += 16;
+    }
+    if (brk.press != null) {
+      REC.pressTxt = brk.by === 'relay' ? 'close sent' : 'Close pressed';
+      a('circle', { class: 'pmark', cx: 16, cy: y - 4.5, r: 4 });
+      a('text', { class: 'lab', x: 26, y }, REC.pressTxt);
+      y += 16;
+    }
+    if (shut) {
+      REC.shutTxt = 'shut ' + angTxt(brk.shut);
+      a('circle', { class: 'smark' + (red ? ' red' : ''), cx: 16, cy: y - 4.5, r: 4.5 });
+      a('text', { class: 'lab', x: 26, y }, REC.shutTxt);
+    }
+    // Two cycles of phase A: the board's, the set's and the difference across pole A.
+    const WX0 = 176, WX1 = 334, WY = 100, AMP = 46, amp = (vr) => vr / (2 * VPH) * AMP;
+    const ab = amp(VPH), ai = amp(shut ? VPH : X.v / Math.sqrt(3)), pbd = [], psd = [], pdd = [];
+    for (let k = 0; k <= 80; k++) {
+      const x = f1(WX0 + (WX1 - WX0) * k / 80), wt = 4 * Math.PI * k / 80;
+      const b = ab * Math.sin(wt), s = ai * Math.sin(wt + rad(da));
+      pbd.push(x + ',' + f1(WY - b)); psd.push(x + ',' + f1(WY - s)); pdd.push(x + ',' + f1(WY - (shut ? 0 : s - b)));
+    }
+    a('line', { class: 'zero', x1: WX0, y1: WY, x2: WX1, y2: WY });
+    a('polyline', { class: 'wd', points: pdd.join(' ') });
+    a('polyline', { class: 'wb', points: pbd.join(' ') });
+    a('polyline', { class: 'ws', points: psd.join(' ') });
+    [['wb', 'board phase A', 166], ['ws', 'set phase A', 182], ['wd', 'across pole A', 198]].forEach((k) => {
+      a('line', { class: k[0], x1: 178, y1: k[2] - 4.5, x2: 198, y2: k[2] - 4.5 });
+      a('text', { class: 'lab', x: 204, y: k[2] }, k[1]);
+    });
+    REC.disp = da;
+    const where = Math.abs(da) < 0.5 ? 'at 12, in phase' : (Math.abs(Math.round(da)) + ' degrees ' + (da > 0 ? 'FAST, clockwise' : 'SLOW, anticlockwise') + ' from 12');
+    el('dial').setAttribute('aria-label', 'A synchroscope dial with its pointer ' + where + '. ' +
+      (REC.shutTxt ? 'A ring marks where Close went and a dot where the breaker ' + REC.shutTxt + '. ' : '') +
+      'Beside it, two cycles of phase A: the board\'s wave solid, the set\'s dashed' + (shut ? ' and lying on it.' : ', and the thin difference across pole A.'));
+  }
+
+  // ================= the surge and the shaft torque at the close =================
+  function drawBars() {
+    const g = el('barArt');
+    g.textContent = '';
+    const a = adder(g), shut = brk.st === 'shut', r = shut ? brk.res : null, red = !!(r && r.out.length), gf = grown();
+    const BX = 8, BW = 324, bx = (v) => BX + Math.min(v, BMAX) / BMAX * BW;
+    const rows = [
+      { name: 'Surge', y: 16, v: r ? r.surge : 0, txt: r ? r1(r.surge).toFixed(1) + NB + 'per unit' : 'breaker open' },
+      { name: 'Shaft torque', y: 82, v: r && !r.swap ? r.torque : 0, txt: r ? (r.swap ? 'Wrong sequence' : r1(r.torque).toFixed(1) + NB + 'per unit') : 'breaker open' },
+    ];
+    rows.forEach((row) => {
+      a('text', { class: 'labb', x: BX, y: row.y }, row.name);
+      a('text', { class: r ? (red ? 'labw' : 'lab') : 'labm', x: 332, y: row.y, 'text-anchor': 'end' }, row.txt);
+      a('rect', { class: 'trk' + (red ? ' red' : ''), x: BX, y: row.y + 6, width: BW, height: 16, rx: 3 });
+      const w = (bx(row.v) - BX) * gf;
+      if (w > 1.4) a('rect', { class: 'fillb' + (red ? ' red' : ''), x: BX + 0.6, y: row.y + 6.6, width: f1(w - 1.2), height: 14.8, rx: 2.5 });
+    });
+    const fx = f1(bx(FAULT));
+    a('line', { class: 'fault', x1: fx, y1: 22, x2: fx, y2: 44 });
+    a('text', { class: 'lab', x: fx, y: 58, 'text-anchor': 'end' }, 'Three-phase fault at the set');
+    a('text', { class: 'labm', x: BX, y: 120 }, '0');
+    a('text', { class: 'labm', x: 332, y: 120, 'text-anchor': 'end' }, '9' + NB + 'per unit');
+    Object.assign(REC, { surge: rows[0].txt, torque: rows[1].txt, red });
+    el('bars').setAttribute('aria-label', 'Two bars from 0 to 9 per unit, with a dashed line on the surge bar at a three-phase fault at the set. ' +
+      (r ? 'Surge ' + rows[0].txt + ', shaft torque ' + rows[1].txt + (red ? ', both red: the close was outside the window.' : ', both small.') : 'The breaker is open, so both are empty.'));
+  }
+
+  // ================= the readouts and the sentence under the controls =================
+  function readouts(i) {
+    const d = STEPS[i], shut = brk.st === 'shut';
+    const hid = (k) => !finished && !!d.hide && d.hide.indexOf(k) >= 0 && !solved(S[i]);
+    const s = shut ? 0 : r2(slipNow());
+    const pa = shut ? 0 : poleVs(ang, X.v, X.swap)[0];
+    const tx = { A: signed(shut ? 0 : Math.round(ang)), S: (s < 0 ? '−' : '') + Math.abs(s).toFixed(2), P: String(Math.round(pa)), I: String(Math.round(shut ? VB : X.v)) };
+    Object.keys(tx).forEach((k) => { if (hid(k)) tx[k] = '?'; RO[k].set(tx[k]); });
+    REC.t = tx;
+  }
+  const capF = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+  function refuseWhy(r) {
+    const out = [];
+    if (r.w.indexOf('volt') >= 0) out.push('the set is ' + Math.round(Math.abs(r.v - VB)) + ' V off 440 V');
+    if (r.w.indexOf('slip') >= 0) out.push('the slip, ' + Math.abs(r2(r.s)).toFixed(2) + ' Hz, is over 0.2 Hz');
+    if (r.w.indexOf('seq') >= 0) out.push('the phase sequence is wrong');
+    return capF(out.join(', and ')) + '.';
+  }
+  function shutWhy(res) {
+    const o = [], w = [];
+    if (res.out.indexOf('ang') >= 0) o.push('more than 10° from 12');
+    if (res.out.indexOf('slip') >= 0) w.push('the slip over 0.2 Hz');
+    if (res.out.indexOf('volt') >= 0) w.push('the voltage ' + Math.round(Math.abs(res.v - VB)) + ' V off');
+    if (res.out.indexOf('seq') >= 0) w.push('B and C crossed');
+    if (w.length) o.push('with ' + w.join(' and '));
+    return o.join(' and ');
+  }
+  function sayText() {
+    if (brk.st === 'shut') {
+      if (brk.by === 'relay' && !brk.res.out.length) return 'The relay sent the close ' + fmtDeg(brk.adv) + '° before 12. The breaker shut at 12, so both bars stay small.';
+      return 'The breaker shut ' + angTxt(brk.shut) + (brk.res.out.length ? ', ' + shutWhy(brk.res) + ', so the bars turn red.' : ', inside the window, so both bars stay small.');
+    }
+    if (brk.st === 'pending') return brk.by === 'relay' ? 'The relay sends the close ' + fmtDeg(brk.adv) + '° before 12.' : 'Close is pressed. The breaker takes 50 ms to shut.';
+    if (rel && rel.kind === 'refuse') return 'The relay refuses. ' + refuseWhy(rel);
+    if (rel && rel.kind === 'still') return 'The relay agrees, but the pointer stands still. With no slip it never comes round to 12.';
+    if (rel && rel.kind === 'wait') return 'The relay agrees. It waits until the pointer is ' + fmtDeg(rel.adv) + '° short of 12, then sends the close.';
+    return '';
+  }
+  function sayRoom(i) {
+    const d = STEPS[i];
+    if (finished || d.nofig) return false;
+    if (d.show) return !!d.ctl && d.ctl.indexOf('close') >= 0;
+    return solved(S[i]) && !!d.run && d.run.some((m) => m.close);
+  }
+  function sayLine(i) {
+    const p = el('say'), room = sayRoom(i), s = room ? sayText() : '';
+    p.hidden = !room;
+    p.classList.toggle('off', !s);
+    if (p.dataset.s !== s) { p.dataset.s = s; write(p, s); }
+    REC.say = s;
+  }
+
+  // ================= one paint =================
+  function paint(i) {
+    if (i == null) i = at();
+    REC = { t: {}, f: X.f, v: X.v, st: brk.st, press: brk.press, shut: brk.shut, ang };
+    drawScene();
+    drawDial();
+    drawBars();
+    readouts(i);
+    sayLine(i);
+  }
+
+  // ================= the page around the picture =================
+  write(el('finish'), FINISH);
+  const setLab = (b, s) => { if (b.el.textContent !== s) b.setLabel(s); };
+  function showCtls(i) {
+    const on = (id) => shownCtl(i, id);
+    el('c-f').hidden = !on('f');
+    el('c-v').hidden = !on('v');
+    el('sws').hidden = el('c-f').hidden && el('c-v').hidden;
+    el('c-sw').hidden = !on('swap');
+    el('c-rl').hidden = !on('relay');
+    el('tgs').hidden = el('c-sw').hidden && el('c-rl').hidden;
+    el('c-btn').hidden = !on('close');
+  }
+  function layout(i) {
+    const d = STEPS[i], st = S[i], sol = solved(st);
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Screen ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    el('figs').hidden = !!d.nofig;
+    el('cap').hidden = finished || !!d.nofig;
+    showCtls(i);
+    replayBtn.el.hidden = !d.show || !d.demo || finished || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    const opts = d.kind === 'pick' ? d.opts : [];
+    el('picks').hidden = !opts.length;
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      setLab(b, opts[k]);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    el('answers').hidden = d.kind !== 'typed';
+    Object.keys(ANS).forEach((key) => { el('ans-' + key).hidden = d.ans !== key; });
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = sol;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (st.res === 'right' ? ' right' : '');
+    let say = '';
+    if (!d.show) {
+      if (st.res === 'right') say = d.right || 'That\'s it.';
+      else if (st.res === 'shown') say = 'Here is the working.';
+      else if (st.res === 'wrong') say = d.kind === 'typed' ? st.hint : (d.hints && d.hints[st.pick]) || d.hint || '';
+      else if (st.res === 'empty') say = d.kind === 'pick' ? 'Pick one of the answers first.' : 'Type your answer first.';
+    }
+    write(fb, say);
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    setLab(whyBtn, st.why ? 'Hide why' : 'Why?');
+    const cl = el('closing');
+    cl.hidden = !(d.close && sol);
+    write(cl, d.close || '');
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !sol);
+    setLab(nextBtn, i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  }
+
+  K.update((p) => {
+    const i = at();
+    if (i !== lastStep) { lastStep = i; enterStep(i); }
+    else {
+      CIDS.forEach((id) => {
+        const v = norm(id, p[id]);
+        if (v === pushed[id]) return;
+        if (shownCtl(i, id)) { endDemo(); pushed[id] = v; applyCtl(id, v); }
+        else CTL[id].set(pushed[id], true);        // a control this screen does not use stays put
+      });
+      push();
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    layout(i);
+    paint(i);
+    kick();
+  });
+
+  // ================= known answers, worked out by hand =================
+  const solvedSt = (i) => Object.assign(blank(), STEPS[i].kind === 'pick' ? { pick: STEPS[i].want, res: 'right' } : { res: 'right' });
+  function saveAll() {
+    return { X: Object.assign({}, X), ang, brk: Object.assign({}, brk, { res: brk.res && Object.assign({}, brk.res) }), rel: rel && Object.assign({}, rel),
+      sweep, sweeping, held, T, sc: scripted, fin: finished, S: S.slice() };
+  }
+  function restoreAll(k) {
+    Object.assign(X, k.X); ang = k.ang; brk = k.brk; rel = k.rel; sweep = k.sweep; sweeping = k.sweeping; held = k.held;
+    T = k.T; scripted = k.sc; finished = k.fin; S = k.S;
+  }
+  // A screen in the state given (its demonstration finished, unless opening), and what it drew.
+  function drawn(i, st, opening, then) {
+    const keep = saveAll();
+    S = S.slice(); S[i] = st || blank(); T = Infinity; scripted = false; finished = false;
+    try {
+      prep(i, !opening);
+      if (then) then();
+      paint(i);
+      return Object.assign({}, REC, { t: Object.assign({}, REC.t) });
+    } finally { restoreAll(keep); paint(); }
+  }
+  // A bare run from a given setting and angle, for the checks.
+  function trial(start, a0, fn) {
+    const keep = saveAll();
+    try { Object.assign(X, BASE, start); ang = a0; brk = openBrk(); rel = null; sweep = 0; sweeping = false; return fn(); }
+    finally { restoreAll(keep); paint(); }
+  }
+  const iRec = idx('Still there?'), iGap = idx('The gap across a pole'), iSixty = idx('Sixty degrees'), iSlip = idx('Slip'), iTurn = idx('One turn');
+  const iOut = idx('A close out of step'), iBottom = idx('Bottom of the dial'), iAdv = idx('The advance angle'), iLate = idx('Late by');
+  const iSeq = idx('Phase sequence'), iCross = idx('Crossed phases'), iRelay = idx('The relay'), iTrim = idx('Trim before closing'), iEighty = idx('Advance for 80 ms');
+
+  K.check('Each phase of a 440 V board is 440 ÷ √3 = 254 V; with equal voltages a pole sees 2 sin(θ ÷ 2) × 254 V: 174 V at 40°, 254 V at 60°, 359 V at 90° and 508 V at 180°; screen 2 reads 40°, 0.00 Hz, 174 V and 440 V', () => {
+    const r = drawn(iGap, null, true);
+    return Math.round(VPH) === 254 && Math.round(gap(VPH, 40)) === 174 && Math.round(gap(VPH, 60)) === 254 && Math.round(gap(VPH, 90)) === 359 &&
+      Math.round(gap(VPH, 180)) === 508 && K.near(gap(VPH, 40), 2 * Math.sin(rad(20)) * VPH, 1e-9) &&
+      r.t.A === '40' && r.t.S === '0.00' && r.t.P === '174' && r.t.I === '440' && r.glow.every((g) => K.near(g, 174 / 508, 0.002));
+  });
+  K.check('Screen 3 shows ? across pole A until checked, then 254 V; screen 5 shows ? for the slip, then times one turn at 0.25 Hz in 4 s and stops at 12', () => {
+    const a = drawn(iSixty), b = drawn(iSixty, solvedSt(iSixty)), c = drawn(iTurn), e = drawn(iTurn, solvedSt(iTurn));
+    return a.t.P === '?' && b.t.P === '254' && c.t.S === '?' && c.turn === null && e.t.S === '0.25' && e.turn === '4' && K.near(e.ang, 0, 1e-9);
+  });
+  K.check('The synchronization current can exceed that of a three-phase fault at the generator: shut at 180° the surge reaches 8.0 per unit, past 1 ÷ 0.15 = 6.7', () => {
+    const c = closeAt(180, 0.05, 440, false), c90 = closeAt(90, 0.2, 440, false);
+    return r1(c.surge) === 8 && c.surge > FAULT && r1(FAULT) === 6.7 && r1(c90.surge) === 5.7 && c90.surge < FAULT && r1(c90.torque) === 4;
+  }, { source: SRC_PSRC });
+  K.check('Screen 6: Close at 86.4° shuts the breaker 50 ms later at 90°, with Surge 5.7 and Torque 4.0 per unit, both red; then the pointer stands at 12 and the lamps are dark', () => {
+    const r = drawn(iOut);
+    return K.near(r.press, 86.4, 1e-6) && K.near(r.shut, 90, 1e-6) && r.surge === '5.7' + NB + 'per unit' && r.torque === '4.0' + NB + 'per unit' && r.red &&
+      r.t.A === '0' && r.glow.every((g) => g === 0) && K.near(r.disp, 0, 1e-9) && r.shutTxt === 'shut at 90° FAST';
+  });
+  K.check('The close command is initiated early at the advance angle to compensate for breaker closing time: at 0.1 Hz slip the relay sends it 1.8° before 12, and the breaker shuts at 12', () =>
+    trial({ f: 60.1, relay: true }, -30, () => {
+      pressClose();
+      const w = !!rel && rel.kind === 'wait';
+      settle();
+      return w && brk.st === 'shut' && brk.by === 'relay' && K.near(brk.press, -1.8, 1e-9) && K.near(brk.shut, 0, 1e-9) && brk.res.out.length === 0;
+    }), { source: SRC_PSRC });
+  K.check('Before a generator breaker is allowed to close, four quantities of the incoming machine must be matched, within tolerance, to the running bus: the relay refuses 420 V, 0.25 Hz of slip or B and C swapped, and waits to close at 445 V and 0.1 Hz', () => {
+    const ask = (start) => trial(start, -30, () => { pressClose(); return rel ? rel.kind : ''; });
+    return ask({ f: 60.1, v: 420, relay: true }) === 'refuse' && ask({ f: 60.25, relay: true }) === 'refuse' && ask({ f: 60.1, swap: true, relay: true }) === 'refuse' &&
+      ask({ f: 60.1, v: 445, relay: true }) === 'wait' && ask({ f: 60.2, relay: true }) === 'wait' && ask({ f: 60.1, relay: false }) === '';
+  }, { source: SRC_FOUR });
+  K.check('Pressed at 12 with 0.2 Hz slip the breaker shuts 72 × 0.05 = 3.6° FAST and both bars stay small; pressed at 12 with 0.5 Hz it shuts 9° FAST, red for the slip', () => {
+    const a = drawn(iAdv), b = drawn(iLate, solvedSt(iLate)), b0 = drawn(iLate);
+    return K.near(a.press, 0, 1e-9) && K.near(a.shut, 3.6, 1e-9) && !a.red && a.surge === '0.3' + NB + 'per unit' && a.shutTxt === 'shut at 3.6° FAST' &&
+      K.near(b.press, 0, 1e-9) && K.near(b.shut, 9, 1e-9) && b.red && b.shutTxt === 'shut at 9° FAST' && b0.shutTxt === null && b0.st === 'open';
+  });
+  K.check('With B and C swapped at 0°, lamp A is dark while lamps B and C see 440 V; a close there drives 6.9 per unit, past the fault line, and the torque bar reads Wrong sequence', () => {
+    const s = drawn(iSeq, null, false, () => { ang = 0; }), c = drawn(iCross, solvedSt(iCross));
+    return s.glow[0] === 0 && Math.round(s.vs[1]) === 440 && Math.round(s.vs[2]) === 440 && s.glow[1] > 0.85 &&
+      c.surge === '6.9' + NB + 'per unit' && c.torque === 'Wrong sequence' && c.red && K.near(c.shut, 0, 1e-6) && closeAt(0, 0, 440, true).surge > FAULT;
+  });
+  K.check('The pointer turns once each slip cycle, clockwise when the set is fast: half a turn in 2.5 s at 0.2 Hz, a whole turn in 5 s; from 180° at 0.05 Hz it reaches 12 in 10 s', () => {
+    const a = trial({ f: 60.2 }, 0, () => { rotate(2.5); const h = ang; rotate(2.5); return K.near(h, 180, 1e-9) && K.near(ang, 0, 1e-9); });
+    const b = trial({ f: 60.05 }, 180, () => { rotate(5); const h = ang; rotate(5); return K.near(h, -90, 1e-9) && K.near(ang, 0, 1e-9); });
+    const c = trial({ f: 59.8 }, 0, () => { rotate(1); return K.near(ang, -72, 1e-9); });
+    const d = drawn(iBottom), e = drawn(iBottom, solvedSt(iBottom));
+    return a && b && c && d.t.A === '180' && d.t.P === '?' && e.t.A === '0' && e.glow.every((g) => g < 1e-6);
+  });
+  K.check('Screen 12: the relay refuses at 60.50 Hz and says why; trimmed to 60.10 Hz it sends the close 1.8° early and the breaker shuts at 12 within the demonstration', () => {
+    const d = STEPS[iRelay];
+    const refuse = trial({ f: 60.5, relay: true }, 0, () => { pressClose(); return rel.kind === 'refuse' && sayText() === 'The relay refuses. The slip, 0.50 Hz, is over 0.2 Hz.'; });
+    const demo = trial(d.enter, d.ang0, () => { runSync(d.demo, d.dur); return brk.st === 'shut' && K.near(brk.press, -1.8, 1e-6) && K.near(brk.shut, 0, 1e-6) && !brk.res.out.length && K.near(X.f, 60.1, 1e-9); });
+    const r = drawn(iRelay);
+    return refuse && demo && !r.red && r.shutTxt === 'shut at 12' && r.pressTxt === 'close sent' && r.glow.every((g) => g === 0);
+  });
+  K.check('Screen 13 answered: the trims move to 440 V and 60.10 Hz and stay free to play with', () => {
+    const r = drawn(iTrim, solvedSt(iTrim)), r0 = drawn(iTrim);
+    return K.near(r.f, 60.1, 1e-9) && K.near(r.v, 440, 1e-9) && r.t.I === '440' && r.t.S === '0.10' && r0.t.I === '420' && r0.t.S === '0.40' && STEPS[iTrim].want === STEPS[iTrim].opts[0];
+  });
+  K.check('Each typed answer and slip is worked from the rule: 0.52 (0.5, 0.26, 1), 254 V (440, 127, 220), 4 s (0.25, 240), 9° (0, 18, 0.025, 9000) and 8.6° (28.8, 0.024, 8640)', () => {
+    const sl = (i, v) => STEPS[i].slips.length === v.length && STEPS[i].slips.every((s, k) => Math.abs(s.value - v[k]) < 1e-12);
+    const sn = (d) => Math.sin(rad(d));
+    const work = r2(2 * sn(15)) === 0.52 && r2(sn(30)) === 0.5 && r2(sn(15)) === 0.26 && K.near(2 * sn(30), 1, 1e-12) &&
+      Math.round(2 * sn(30) * 254) === 254 && Math.round(2 * sn(60) * 254) === 440 && Math.round(254 * sn(30)) === 127 && Math.round(254 * sn(60)) === 220 &&
+      K.near(1 / 0.25, 4, 1e-12) && K.near(60 / 0.25, 240, 1e-9) &&
+      K.near(360 * 0.5 * 0.05, 9, 1e-9) && K.near(360 * 0.05, 18, 1e-9) && K.near(0.5 * 0.05, 0.025, 1e-12) && K.near(360 * 0.5 * 50, 9000, 1e-6) &&
+      r1(360 * 0.3 * 0.08) === 8.6 && K.near(360 * 0.08, 28.8, 1e-9) && K.near(0.3 * 0.08, 0.024, 1e-12) && K.near(360 * 0.3 * 80, 8640, 1e-6);
+    return work && STEPS[iRec].answer === 0.52 && STEPS[iSixty].answer === 254 && STEPS[iTurn].answer === 4 && STEPS[iLate].answer === 9 && STEPS[iEighty].answer === 8.6 &&
+      sl(iRec, [0.5, 0.26, 1]) && sl(iSixty, [440, 127, 220]) && sl(iTurn, [0.25, 240]) && sl(iLate, [0, 18, 0.025, 9000]) && sl(iEighty, [28.8, 0.024, 8640]) &&
+      STEPS[iBottom].want === STEPS[iBottom].opts[1] && STEPS[iCross].want === STEPS[iCross].opts[1] && STEPS[iRec].right === 'Still there.' &&
+      iEighty === STEPS.length - 1 && STEPS.length === 14 && STEPS.filter((d) => d.show).length === 6 && iSlip === 3;
+  });
+  K.ready();
+</script>

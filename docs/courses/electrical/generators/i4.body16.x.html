@@ -1,0 +1,911 @@
+<!-- kind: quantity -->
+<style>
+  [hidden] { display: none !important; }
+  .pz { max-width: 52rem; }
+  .pz > * + *, #stepbox > * + *, .figs > * + * { margin-top: 14px; }
+  .task, .fb, .why, .closing, .done p { max-width: 34rem; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.08rem; font-weight: 400; line-height: 1.6; }
+  /* The set along its shaft; below it the droop line and the trace, side by side on a laptop, stacked on a phone. */
+  .set { display: block; width: 100%; max-width: 32rem; margin-inline: auto; }
+  .plots { display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-start; gap: 6px 18px; }
+  .plots svg { display: block; width: 100%; flex: 1 1 17rem; max-width: 26rem; }
+  /* The load's five settings and the Trip button wrap in rows of equal buttons, so no word splits. */
+  #c-load .k-seg { display: grid; grid-template-columns: repeat(auto-fit, minmax(6rem, 1fr)); }
+  #c-load .k-seg button { text-align: center; white-space: nowrap; }
+  .trip { display: grid; grid-template-columns: repeat(auto-fit, minmax(6rem, 1fr)); gap: 10px; }
+  .sws { display: flex; flex-wrap: wrap; gap: 10px 16px; }
+  .sws > div { flex: 1 1 12rem; min-width: 0; }
+  .outs.k-readouts { display: grid; grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr)); gap: 10px; }
+  .outs .k-readout { min-width: 0; }
+  .set .blk { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.4; }
+  .set .shaft { fill: var(--k-sunk); stroke: var(--k-ink); stroke-width: 1.2; }
+  .set .fwb { fill: var(--k-sunk); stroke: var(--k-ink); stroke-width: 1.4; }
+  .set .fw { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.4; }
+  .set .side { fill: var(--k-sunk); }
+  .set .edge { stroke: var(--k-ink); stroke-width: 1.4; }
+  .set .wind { stroke: var(--k-muted); stroke-width: 1.2; }
+  .set .trk { fill: var(--k-sunk); stroke: var(--k-ink); stroke-width: 1.2; }
+  .set .bar { fill: var(--k-accent2); }
+  .set .tick { stroke: var(--k-ink); stroke-width: 1.6; }
+  .set .mark { fill: var(--k-ink); stroke: var(--k-bg); stroke-width: 1.2; }
+  .set .te { stroke: var(--k-accent2); stroke-width: 3.4; }
+  .set .teh { fill: var(--k-accent2); }
+  .set .tl { stroke: var(--k-ink); stroke-width: 3.4; }
+  .set .tlh { fill: var(--k-ink); }
+  .set .lab, .plots .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .set .labb { font: 700 13px var(--k-font); fill: var(--k-ink); }
+  .plots .ax { stroke: var(--k-strong); stroke-width: 1.3; }
+  .plots .ref { stroke: var(--k-muted); stroke-width: 1.4; stroke-dasharray: 6 4; }
+  .plots .gl { fill: none; stroke: var(--k-accent2); stroke-width: 2.4; stroke-linecap: round; }
+  .plots .tr { fill: none; stroke: var(--k-accent2); stroke-width: 2.2; stroke-linejoin: round; stroke-linecap: round; }
+  .plots .pdot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 1.5; }
+  .plots .ring { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 2; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-inline: 16px; font-size: .95rem; white-space: nowrap; }
+  .picks { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .picks .k-btn { min-height: 48px; font-size: 1.05rem; white-space: normal; overflow-wrap: normal; word-break: normal; hyphens: none; text-align: left; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .answers .k-answer { max-width: 20rem; }
+  .fb { font-weight: 700; min-height: 1.5em; }
+  .fb.right { color: var(--k-good); }
+  .why, .done, .closing { line-height: 1.6; }
+  .done .row { margin-top: 14px; }
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }
+</style>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <div class="figs" id="figs">
+      <svg class="set" id="scene" viewBox="0 0 340 164" width="100%" role="img" aria-label=""><g id="setArt"></g></svg>
+      <div class="k-controls" id="c-load"></div>
+      <div class="trip" id="c-trip"></div>
+      <div class="sws" id="sws"><div class="k-controls" id="c-droop"></div><div class="k-controls" id="c-sp"></div></div>
+      <div class="replay" id="replay"></div>
+      <div class="plots">
+        <svg id="dl" viewBox="0 0 340 212" width="100%" role="img" aria-label=""><g id="dlArt"></g></svg>
+        <svg id="trc" viewBox="0 0 340 200" width="100%" role="img" aria-label=""><g id="trArt"></g></svg>
+      </div>
+      <div class="k-readouts outs" id="outs"></div>
+    </div>
+    <div class="picks" id="picks"></div>
+    <div class="answers" id="answers"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+    <p class="closing" id="closing" hidden></p>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p id="finish"></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption" id="cap">Worked from the rule, shown three times slower than real. A strobe at 1800 rev/min lights the flywheel's mark, so it stands still there.</p>
+
+<script>
+  // ================= the rule =================
+  const strip = (s) => s.replace(/\[\^\d+\]/g, '');
+  const NB = ' ';                              // a no-break space: a number never parts from its unit
+  const SRC_DROOP = 'https://en.wikipedia.org/wiki/Droop_speed_control';
+  // The example set: 4 poles (2 pairs), rated 504 kW at 1800 rev/min, 60 Hz, with 20 kg m² on its shaft.
+  const PAIRS = 2, PR = 504, J = 20;
+  const rpmOf = (f) => 60 * f / PAIRS;                          // rev/min = pole pairs × ... so 30 × the frequency
+  const wOf = (f) => rpmOf(f) * 2 * Math.PI / 60;               // rad/s
+  const fOfW = (w) => w * 60 / (2 * Math.PI) * PAIRS / 60;      // Hz
+  // The governor: 12% fuel for each hertz below its target, a running total growing 12% a second per hertz,
+  // the fuel following the demand after a 0.1 s wait with a 0.1 s time constant, from 0% to 110%.
+  // Below 0% the engine's own friction drags the shaft, by up to 10% of 504 kW.
+  const KP = 12, KI = 12, WAIT = 0.1, TF = 0.1, UMAX = 110, UMIN = -10;
+  const SLOW = 3;                                   // time on screen runs three times slower than real
+  const SIMH = 0.002, NDEL = Math.round(WAIT / SIMH), GAIN = 1 - Math.exp(-SIMH / TF);
+  const SAMP = 0.02, WIN = 6;                       // the trace: a sample every 0.02 s over the last 6 s
+  const r1 = (v) => Math.round(v * 10) / 10;
+  const r2 = (v) => Math.round(v * 100) / 100;
+  // Where the governor aims: the set point, lowered by the droop as the fuel opens.
+  const targetOf = (x, u) => x.sp - x.droop * 60 / 100 * Math.max(0, u) / 100;
+  // Where the set settles: the fuel equals the load, so the dot sits on its line.
+  const lineOf = (x, load) => x.sp - x.droop * 60 / 100 * load / 100;
+
+  // ================= the lesson: SHOW screens demonstrate, DO screens are puzzles =================
+  const STEPS = [
+    { kind: 'typed', name: 'Still there?', ans: 'rec', nofig: true, right: 'Still there.',
+      answer: 25, decimals: 0, unit: 'rad/s²', want: '25' + NB + 'rad/s²',
+      slips: [{ value: 100, hint: 'That multiplies. The speed changes at net torque ÷ inertia.' },
+        { value: 0.04, hint: 'That is upside down. The torque goes on top.' }],
+      task: 'A flywheel of 2 kg m² feels 50 N m of net torque. How fast does its speed rise?',
+      hint: 'Net torque = inertia × angular acceleration. Rearrange for the acceleration.',
+      why: 'Angular acceleration = net torque ÷ inertia = 50 ÷ 2 = 25 rad/s². It keeps rising at that rate for as long as the torques stay unbalanced.',
+      read: 'A flywheel of 2 kg m² feels 50 N m of net torque. How fast does its speed rise?' },
+    { show: true, name: 'Two torques', enter: { droop: 0, sp: 60, load: 25 },
+      demo: [{ at: 0.6, set: { sp: 61 } }, { at: 4.2, set: { sp: 60 } }], dur: 4.3,
+      text: 'A set on its own makes whatever power its load draws. The alternator pulls back on the shaft with a torque equal to power ÷ speed. The engine drives it forward. While the two torques match, the speed holds. Any gap goes into or out of the spinning mass. The governor compares the speed with its set point and moves the fuel. It is the AVR\'s loop again, with fuel in place of field. Here the set point steps 1 Hz up and back. The fuel moves first, then the speed.',
+      read: 'A set on its own makes whatever power its load draws. The alternator pulls back on the shaft with a torque equal to power ÷ speed. The engine drives it forward. While the two torques match, the speed holds. Any gap goes into or out of the spinning mass. The governor compares the speed with its set point and moves the fuel. It is the AVR\'s loop again, with fuel in place of field. Here the set point steps 1 Hz up and back. The fuel moves first, then the speed.',
+      still: () => setStill() },
+    { kind: 'pick', name: 'Predict the dip', enter: { droop: 0, sp: 60, load: 0 },
+      run: [{ at: 0.3, set: { load: 25 } }], rdur: 0.4,
+      opts: ['It holds at 60 Hz, because the governor adds fuel at once', 'It dips first, then climbs back as the fuel rises', 'It rises, because the governor adds fuel'],
+      want: 'It dips first, then climbs back as the fuel rises',
+      task: 'The set runs alone at 60 Hz with no load. A load of 25% lands all at once. The governor is working. What does the frequency do?',
+      hints: { 'It holds at 60 Hz, because the governor adds fuel at once': 'This governor measures the speed, so it adds fuel only once the speed starts to fall. The engine then takes time to answer.',
+        'It rises, because the governor adds fuel': 'The load pulls back on the shaft before any extra fuel arrives. So the speed falls first.' },
+      why: 'The load\'s torque arrives at once. The fuel takes time to follow. Until it does, the gap slows the spinning mass. So the frequency dips. Then the fuel catches up and the speed climbs back.',
+      read: 'The set runs alone at 60 Hz with no load. A load of 25% lands all at once. The governor is working. What does the frequency do?' },
+    { show: true, name: 'A load step', ctl: ['load'], enter: { droop: 0, sp: 60, load: 0 },
+      demo: [{ at: 0.6, set: { load: 25 } }], dur: 0.7,
+      text: strip('Tap the load up to 25%, 126 kW. The set turns at 1800 rev/min, which is 188.5 rad/s. So the load\'s torque rises by 126 000 ÷ 188.5 = 668 N m at once. The fuel has not moved yet. So the load\'s arrow outgrows the engine\'s. The flywheel slows and the trace dips. This fall is a *frequency dip*.[^1] After 0.1 s the fuel bar starts to rise. The gap closes and the speed climbs back.'),
+      read: 'Adding 126 kW at 188.5 rad/s raises the load\'s torque by 668 N m at once. The fuel has not moved yet. So the flywheel slows and the frequency dips. Then the fuel rises and the speed climbs back.',
+      still: () => setStill() },
+    { kind: 'typed', name: 'How fast it slows', ans: 'slow', enter: { droop: 0, sp: 60, load: 0 }, mark01: true,
+      run: [{ at: 0.3, set: { load: 25 } }], rdur: 0.4,
+      answer: 33.4, decimals: 1, unit: 'rad/s²', want: '33.4' + NB + 'rad/s²',
+      slips: [{ value: 13360, hint: 'That multiplies. The speed changes at torque ÷ inertia.' },
+        { value: 0.03, hint: 'That is upside down. The torque goes on top.' },
+        { value: 6.3, hint: 'That divides the 126 kW. Use the torque gap, 668 N m.' }],
+      task: 'The load\'s torque has jumped by 668 N m. The fuel has not moved yet. The shaft carries 20 kg m². How fast does the set slow?',
+      hint: 'It is the flywheel sum from the first screen.',
+      why: '668 ÷ 20 = 33.4 rad/s². In the 0.1 s before the fuel moves, the set loses 33.4 × 0.1 = 3.34 rad/s. That is 1.8% of 188.5 rad/s. The frequency follows the speed. So by 0.1 s it has fallen 1.8% too, from 60 to 58.9 Hz. It goes on falling until the engine\'s torque matches the load\'s again.',
+      read: 'The load\'s torque has jumped by 668 N m. The fuel has not moved yet. The shaft carries 20 kg m². How fast does the set slow?' },
+    { show: true, name: 'Back to 60 Hz', ctl: ['load'], enter: { droop: 0, sp: 60, load: 0 },
+      pre: [{ at: 0.3, set: { load: 25 } }], pdur: 0.4,
+      text: 'The speed came back to exactly 60.0 Hz. The governor kept adding fuel until the frequency was back at its set point. The fuel now matches the load, 25%. Tap the load up again. Each step dips the trace, and each time it climbs back to 60 Hz. On the graph the dot slides along a flat line. A governor that holds the same speed at any load is called *isochronous*.',
+      read: 'The governor kept adding fuel until the frequency was back at its set point, 60.0 Hz. The fuel now matches the load. At every load the dot returns to the same flat line. A governor that holds the same speed at any load is called isochronous.',
+      still: () => setStill(stillIso) },
+    { kind: 'pick', name: 'What changed', enter: { droop: 0, sp: 60, load: 50 },
+      run: [{ at: 0.3, set: { load: 75 } }], rdur: 0.4,
+      opts: ['The fuel, now higher to match the bigger load', 'The frequency, now a little lower', 'Nothing, fuel and frequency are back where they were'],
+      want: 'The fuel, now higher to match the bigger load',
+      task: 'An isochronous set runs at 60 Hz with 50% load. The load steps up to 75%. Once it settles, what has changed?',
+      hints: { 'The frequency, now a little lower': 'An isochronous governor keeps adding fuel until the speed is back at its set point.',
+        'Nothing, fuel and frequency are back where they were': 'The load is bigger, so the engine must make more power to hold the speed.' },
+      why: 'Holding the speed needs the engine\'s torque to match the load\'s. A bigger load needs more torque, so more fuel. The governor brings the frequency back to 60 Hz. The fuel settles at 75%.',
+      read: 'An isochronous set runs at 60 Hz with 50% load. The load steps up to 75%. Once it settles, what has changed?' },
+    { show: true, name: 'Droop', ctl: ['droop', 'load'], enter: { droop: 0, sp: 62.4, load: 0 },
+      demo: [{ at: 0.5, to: 1.7, ramp: { droop: [0, 4] } }, { at: 2.2, set: { load: 25 } }], dur: 2.3,
+      text: strip('The set point now sits at 62.4 Hz, chosen to give 60 Hz on full load. Drag the droop to 4%. The line tilts down from 62.4 Hz at no load. *Droop* is the percentage change in speed that takes the governor through its full travel.[^2] With 5% droop, full load runs at 100% speed and no load at 105%.[^3] Here 4% of 60 Hz is 2.4 Hz. So full load sits 2.4 Hz lower, at 60 Hz. Step the load up and the dot walks down its line.'),
+      read: 'The set point now sits at 62.4 Hz, chosen to give 60 Hz on full load. With 4% droop the line tilts down from 62.4 Hz at no load to 60 Hz at full load. Droop is the percentage change in speed that takes the governor through its full travel. 4% of 60 Hz is 2.4 Hz. As the load steps up, the dot walks down its line.',
+      still: () => setStill(stillDroop) },
+    { kind: 'typed', name: 'Half load', ans: 'half', enter: { droop: 4, sp: 62.4, load: 0 }, hide: ['F'],
+      run: [{ at: 0.3, set: { load: 50 } }], rdur: 0.4,
+      answer: 61.2, decimals: 1, unit: 'Hz', want: '61.2' + NB + 'Hz',
+      slips: [{ value: 60, hint: '60 Hz is full load. At half load the line has fallen only half its 2.4 Hz.' },
+        { value: 60.4, hint: 'That takes the droop as 4 Hz. 4% of 60 Hz is 2.4 Hz.' },
+        { value: 63.6, hint: 'The frequency falls as the load grows. Take the fall off.' }],
+      task: 'With 4% droop, this set runs at 62.4 Hz with no load and 60 Hz at full load, 504 kW. What frequency does it settle at with 252 kW?',
+      hint: '252 kW is half of 504 kW. So the line has fallen half its 2.4 Hz.',
+      why: '252 ÷ 504 = 0.5. The line falls 2.4 Hz from no load to full load. So by half load it has fallen 1.2 Hz. 62.4 − 1.2 = 61.2 Hz.',
+      read: 'With 4% droop, this set runs at 62.4 Hz with no load and 60 Hz at full load, 504 kW. What frequency does it settle at with 252 kW?' },
+    { show: true, name: 'The set point', ctl: ['sp', 'trip'], enter: { droop: 4, sp: 62.4, load: 50 },
+      demo: [{ at: 0.5, to: 1.3, ramp: { sp: [62.4, 63.0] } }, { at: 1.5, to: 2.3, ramp: { sp: [63.0, 62.4] } }, { at: 2.8, trip: true }], dur: 2.9,
+      text: 'The set point lifts the whole line without tilting it. Drag it. The dot rides up or down with it at the same load. So the set point picks the load at which the set runs at 60 Hz. Droop has a cost on a set alone. Its frequency moves with its load. Its use shows when two sets share one load. Tap Trip. The trace overshoots. Then the dot settles at the top of its line, its set point.',
+      read: 'The set point lifts the whole line without tilting it. So it picks the load at which the set runs at 60 Hz. Droop has a cost on a set alone. Its frequency moves with its load. Its use shows when two sets share one load. When all the load trips, the trace overshoots. Then the dot settles at the top of its line, its set point, here 62.4 Hz. That is above 60 Hz.',
+      still: () => setStill() },
+    { kind: 'typed', name: 'Choose a set point', ans: 'sp', enter: { droop: 4, sp: 62.4, load: 75 },
+      run: [{ at: 0.3, to: 1.3, ramp: { sp: [62.4, 61.8] } }], rdur: 1.4,
+      answer: 61.8, decimals: 1, unit: 'Hz', want: '61.8' + NB + 'Hz',
+      slips: [{ value: 62.4, hint: 'That gives 60 Hz at full load. At 75% the line has fallen less.' },
+        { value: 58.2, hint: 'The set point is the top of the line. It sits above 60 Hz.' },
+        { value: 63, hint: 'That takes the droop as 4 Hz. 4% of 60 Hz is 2.4 Hz.' }],
+      task: 'This set has 4% droop. You want it at exactly 60 Hz with 378 kW, 75% of its rating. Its set point is its no-load frequency. What set point do you choose?',
+      hint: 'Find how far the line falls by 75% load. Add that to 60 Hz.',
+      why: 'The full fall is 2.4 Hz. By 75% load the line has fallen 0.75 × 2.4 = 1.8 Hz. So its top must sit 1.8 Hz above 60 Hz, at 61.8 Hz.',
+      read: 'This set has 4% droop. You want it at exactly 60 Hz with 378 kW, 75% of its rating. Its set point is its no-load frequency. What set point do you choose?' },
+    { kind: 'pick', name: 'Fault or design?', enter: { droop: 4, sp: 60, load: 100 },
+      run: [{ at: 0.3, to: 1.3, ramp: { sp: [60, 62.4] } }], rdur: 1.4,
+      opts: ['A fault: the governor cannot hold the speed', 'No fault: droop working as set, but the set point needs raising', 'A fault: the engine is short of power'],
+      want: 'No fault: droop working as set, but the set point needs raising',
+      task: 'A set on 4% droop runs at 60.0 Hz with no load. On full load it settles at 57.6 Hz. Fault or design?',
+      hints: { 'A fault: the governor cannot hold the speed': 'Work out the line. 4% of 60 Hz is 2.4 Hz. Full load sits that far below the no-load frequency.',
+        'A fault: the engine is short of power': 'The set carries its full load and its speed is steady. The fall matches its droop exactly.' },
+      why: '4% of 60 Hz is 2.4 Hz. 60.0 − 2.4 = 57.6 Hz. That is exactly on its line. The governor is doing what it was set to do. Raise the set point to 62.4 Hz and full load lands on 60 Hz.',
+      read: 'A set on 4% droop runs at 60.0 Hz with no load. On full load it settles at 57.6 Hz. Fault or design?' },
+    { kind: 'typed', name: 'A 50 Hz set', ans: 'fifty', nofig: true,
+      answer: 52.5, decimals: 1, unit: 'Hz', want: '52.5' + NB + 'Hz',
+      slips: [{ value: 55, hint: 'That takes the droop as 5 Hz. 5% of 50 Hz is 2.5 Hz.' },
+        { value: 47.5, hint: 'Losing load sends the dot up its line, not down.' },
+        { value: 50, hint: 'That is isochronous. With droop the set settles at the top of its line.' }],
+      task: 'Another set makes 50 Hz. It has 5% droop and runs at 50 Hz on full load. All its load trips. What frequency does it settle at?',
+      hint: '5% of 50 Hz is the droop in hertz. A trip sends the set to the top of its line.',
+      why: '5% of 50 Hz is 2.5 Hz. Full load sits at 50 Hz. So no load sits at 50 + 2.5 = 52.5 Hz. The frequency overshoots first, then settles there.',
+      close: 'The governor holds the speed with fuel. Droop sets how far it gives with load.',
+      read: 'Another set makes 50 Hz. It has 5% droop and runs at 50 Hz on full load. All its load trips. What frequency does it settle at?' },
+  ];
+  const FINISH = 'The governor trims the fuel to hold the speed, and so the frequency. A sudden load slows the set first, because the fuel takes time to follow. The torque gap goes into the spinning mass, and the trace dips. Then the fuel catches up. An *isochronous* governor brings the speed back to its set point at any load. With *droop*, the speed settles lower as the load grows, along a line. The droop tilts the line, and the set point lifts it.';
+
+  // ================= state =================
+  const BASE = { droop: 0, sp: 60, load: 0 };
+  const X = Object.assign({}, BASE);
+  const sim = {};
+  const blank = () => ({ pick: null, res: null, why: false, tries: 0, hint: '' });
+  let S = STEPS.map(blank);
+  const solved = (st) => !!st && (st.res === 'right' || st.res === 'shown');
+  let T = Infinity, motionEnd = 0, scripted = false, lastStep = -1, finished = false, lastDone = false;
+  const ANG0 = 0.9;
+  let ang = ANG0, markEl = null;
+  let REC = { t: {} };
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  const quiet = () => REDUCE || testing();
+  const el = (id) => document.getElementById(id);
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+
+  // ================= the set running =================
+  const fNow = () => fOfW(sim.w);
+  const fss = () => lineOf(X, X.load);
+  function resetSim() {
+    const f = fss();
+    Object.assign(sim, { t: 0, w: wOf(f), I: X.load, u: X.load, del: new Array(NDEL).fill(X.load), k: 0, acc: 0, sa: 0,
+      live: false, ts: [-WIN, 0], fs: [f, f], ev: null, dfdt: 0, since: 99 });
+  }
+  function sample() {
+    sim.ts.push(sim.t); sim.fs.push(fNow());
+    while (sim.ts.length > 2 && sim.ts[1] < sim.t - WIN - 0.05) { sim.ts.shift(); sim.fs.shift(); }
+  }
+  // Settled: on its line, still, the fuel at the load and nothing left in the governor's wait.
+  function settledNow() {
+    if (sim.since < 0.3 || Math.abs(fNow() - fss()) >= 0.1 || Math.abs(sim.dfdt) >= 0.3 || Math.abs(sim.u - X.load) >= 1) return false;
+    for (let j = 0; j < NDEL; j++) if (Math.abs(sim.del[j] - X.load) >= 1) return false;
+    return true;
+  }
+  // One small step of real time: the governor reads the frequency, the fuel follows its demand after the
+  // wait, and the torque gap speeds up or slows the spinning mass.
+  function step1() {
+    const f = fNow(), e = targetOf(X, sim.u) - f;
+    let dem = KP * e + sim.I;
+    const hi = dem >= UMAX, lo = dem <= UMIN;
+    dem = K.clamp(dem, UMIN, UMAX);
+    if (!(hi && e > 0) && !(lo && e < 0)) sim.I += KI * e * SIMH;     // the total stops growing at a limit
+    const late = sim.del[sim.k];
+    sim.del[sim.k] = dem; sim.k = (sim.k + 1) % NDEL;
+    sim.u = K.clamp(sim.u + (late - sim.u) * GAIN, UMIN, UMAX);
+    const acc = (sim.u - X.load) / 100 * PR * 1000 / (sim.w * J);       // (engine torque − load torque) ÷ inertia
+    sim.w = Math.max(wOf(20), sim.w + acc * SIMH);
+    sim.dfdt = fOfW(acc);
+    sim.t += SIMH; sim.since += SIMH;
+    if (sim.ev && sim.ev.n != null) { sim.ev.n += 1; if (sim.ev.n === NDEL) { sim.ev.f01 = fNow(); sim.ev.n = null; } }
+    sim.sa += SIMH;
+    if (sim.sa >= SAMP - 1e-9) { sim.sa -= SAMP; sample(); }
+    if (settledNow()) {
+      sim.w = wOf(fss()); sim.u = X.load; sim.I = X.load; sim.del.fill(X.load); sim.live = false; sim.dfdt = 0;
+      sample();
+    }
+  }
+  function advance(h) {
+    if (!sim.live) { sim.acc = 0; return; }
+    sim.acc += h;
+    while (sim.acc >= SIMH - 1e-12 && sim.live) { sim.acc -= SIMH; step1(); }
+  }
+  function settleNow() { let n = 0; while (sim.live && n++ < 25000) step1(); }
+  Object.assign(X, BASE); resetSim();
+  // Something changed: the clock runs again (the trace holds still while nothing changes).
+  function bump(kind) {
+    if (!sim.live) { sim.sa = 0; sample(); }
+    sim.live = true; sim.since = 0;
+    if (kind) sim.ev = { t: sim.t, f0: fNow(), kind, n: 0, f01: null };
+  }
+  function setLoad(v, kind) { if (v === X.load) return; const up = v < X.load; X.load = v; bump(kind || 'load'); sim.ev.up = up; }
+  function setX(k, v) { if (v === X[k]) return; X[k] = v; bump(null); }
+  function playScript(sc, t0, t1) {
+    if (!sc) return;
+    sc.forEach((m) => {
+      if (m.to == null && t0 <= m.at && m.at < t1) {
+        if (m.set) Object.keys(m.set).forEach((k) => { if (k === 'load') setLoad(m.set.load); else setX(k, m.set[k]); });
+        if (m.trip) setLoad(0, 'trip');
+      }
+      if (m.ramp && t1 > m.at && t0 < m.to + 1e-9) {
+        const f = K.ease(K.clamp((t1 - m.at) / (m.to - m.at), 0, 1));
+        Object.keys(m.ramp).forEach((k) => { const r = m.ramp[k]; setX(k, f >= 1 ? r[1] : K.lerp(r[0], r[1], f)); });
+      }
+    });
+  }
+  function runSync(sc, dur) {
+    const h = 1 / 60;
+    for (let t = 0; t < dur - 1e-9; t += h) { const t1 = Math.min(t + h, dur); playScript(sc, t, t1); advance((t1 - t) / SLOW); }
+  }
+  const lastOf = (sc) => Math.max.apply(null, sc.map((m) => (m.to != null ? m.to : m.at)));
+  // The read-through's finished pictures: three isochronous steps on one trace; the droop line walked to full load.
+  const ISO3 = [{ at: 0.9, set: { load: 25 } }, { at: 6.3, set: { load: 50 } }, { at: 11.7, set: { load: 75 } }];
+  function stillIso() { Object.assign(X, BASE, { droop: 0, sp: 60, load: 0 }); resetSim(); runSync(ISO3, 11.8); settleNow(); }
+  function stillDroop() { setX('droop', 4); settleNow(); [25, 50, 75, 100].forEach((v) => { setLoad(v); settleNow(); }); }
+
+  // ================= text with amber key terms (built with K.el, never innerHTML) =================
+  const UNIT_GAP = /(\d) (?=(?:Hz|kW|rev\/min|rad\/s²|rad\/s|N m|kg m²|s)(?![A-Za-z]))/g;
+  function write(node, s) {
+    node.textContent = '';
+    String(s || '').replace(/(\d) (\d{3})/g, '$1' + NB + '$2').replace(UNIT_GAP, '$1' + NB)
+      .replace(/N m/g, 'N' + NB + 'm').replace(/kg m²/g, 'kg' + NB + 'm²').replace(/rev\/min/g, 'rev/⁠min')
+      .split(/\*([^*]+)\*/).forEach((seg, k) => {
+        if (!seg) return;
+        node.appendChild(k % 2 ? K.el('span', { class: 'term' }, seg) : document.createTextNode(seg));
+      });
+  }
+
+  // ================= controls =================
+  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);
+  const LOADS = [0, 25, 50, 75, 100];
+  const CTL = {
+    load: K.choice({ id: 'load', label: 'Load', options: LOADS.map((v) => ({ value: String(v), label: v + '%' })), value: '0', into: '#c-load' }),
+    droop: K.control({ id: 'droop', label: 'Droop', min: 0, max: 6, step: 1, value: 4, snap: [0, 4], fmt: (v) => (Math.round(v) === 0 ? 'Isochronous' : Math.round(v) + '%'), into: '#c-droop' }),
+    sp: K.control({ id: 'sp', label: 'Set point', min: 58, max: 64, step: 0.1, value: 62.4, snap: [60, 61.8, 62.4], fmt: (v) => r1(v).toFixed(1) + NB + 'Hz', into: '#c-sp' }),
+  };
+  const CIDS = ['load', 'droop', 'sp'];
+  const norm = (id, v) => (id === 'load' ? Number(v) : id === 'droop' ? Math.round(Number(v)) : r1(Number(v)));
+  const ctlVal = (id) => (id === 'load' ? X.load : id === 'droop' ? Math.round(X.droop) : r1(X.sp));
+  const pushed = {};
+  CIDS.forEach((id) => { pushed[id] = norm(id, CTL[id].get()); });
+  // The page moves the controls itself (silently, so it is not taken for Dan's move).
+  function push() {
+    CIDS.forEach((id) => {
+      const v = ctlVal(id);
+      if (pushed[id] !== v) { CTL[id].set(id === 'load' ? String(v) : v, true); pushed[id] = norm(id, CTL[id].get()); }
+    });
+  }
+  const shownCtl = (d, id) => !finished && !!d.ctl && d.ctl.indexOf(id) >= 0;
+  function applyCtl(id, v) {
+    if (id === 'load') setLoad(v);
+    else setX(id, v);
+    if (quiet()) settleNow();
+  }
+  const tripBtn = K.button({ label: 'Trip', secondary: true, into: '#c-trip', press: () => {
+    if (!shownCtl(STEPS[at()], 'trip')) return;
+    endDemo();
+    setLoad(0, 'trip');
+    if (quiet()) settleNow();
+    push();
+  } });
+
+  const RO = {
+    L: K.readout({ id: 'r-l', label: 'Load in kW', fmt: (v) => String(v), into: '#outs' }),
+    U: K.readout({ id: 'r-u', label: 'Fuel in %', fmt: (v) => String(v), into: '#outs' }),
+    S: K.readout({ id: 'r-s', label: 'Speed in rev/min', fmt: (v) => String(v), into: '#outs' }),
+    F: K.readout({ id: 'r-f', label: 'Frequency in Hz', fmt: (v) => String(v), into: '#outs' }),
+  };
+
+  // Up to three answer buttons; each puzzle fills in its own.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.kind !== 'pick' || k >= d.opts.length || solved(st)) return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+  // Typed answers: a field each; Check grades it, two misses show the working.
+  const ANS = {};
+  STEPS.forEach((d, i) => {
+    if (d.kind !== 'typed') return;
+    el('answers').appendChild(K.el('div', { id: 'ans-' + d.ans }));
+    const a = K.answer({ id: 'a-' + d.ans, unit: d.unit, answer: d.answer, decimals: d.decimals, slips: d.slips, into: '#ans-' + d.ans,
+      onCheck: (r) => {
+        const st = S[i];
+        if (solved(st)) return;
+        if (r.state === 'right') { st.res = 'right'; playRun(i); }
+        else if (r.state === 'wrong') {
+          st.tries += 1; st.hint = r.hint || d.hint;
+          if (st.tries >= 2) { st.res = 'shown'; st.why = true; a.reveal(); playRun(i); }
+          else st.res = 'wrong';
+        } else { st.res = r.state; st.hint = ''; }
+        K.refresh();
+      } });
+    ANS[d.ans] = a;
+  });
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || solved(st)) return;
+    if (d.kind === 'typed') { ANS[d.ans].check(); return; }
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = st.pick === d.want ? 'right' : 'wrong';
+    if (st.res === 'right') playRun(i);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    const d = STEPS[at()];
+    if (d.show || finished) return;
+    S[at()].why = !S[at()].why;
+  } });
+  const replayBtn = K.button({ label: 'Show me again', secondary: true, into: '#replay', press: () => {
+    const d = STEPS[at()];
+    if (finished || !d.show || !d.demo) return;
+    startDemo(at());
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && !solved(S[i]))) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true; anim.pause(); T = Infinity;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(blank); finished = false; lastStep = -1;
+    Object.keys(ANS).forEach((k) => ANS[k].reset());
+    stepper.set(0, true);
+  } });
+
+  // ================= motion: one animation runs the demonstrations, the answers' motion and the set =================
+  const spins = () => !STEPS[at()].nofig && Math.abs(fNow() - 60) > 0.004;
+  const needAnim = () => !finished && (T !== Infinity || sim.live || spins());
+  const anim = K.anim({ button: false, label: 'Running', step: (dt) => {
+    if (finished) return false;
+    dt = Math.min(dt, 0.1);
+    const i = at(), d = STEPS[i];
+    const busy = T !== Infinity || sim.live;
+    if (T !== Infinity) {
+      const t0 = T;
+      T = Math.min(T + dt, motionEnd);
+      playScript(scripted ? d.demo : d.run, t0, T);
+      if (T >= motionEnd) { T = Infinity; scripted = false; }
+    }
+    advance(dt / SLOW);
+    // The strobe at 1800 rev/min: the mark slips back when the set runs slower, creeps forward when faster.
+    ang += 2 * Math.PI * (rpmOf(fNow()) - 1800) / 60 * dt / SLOW;
+    push();
+    if (busy || sim.live) paint(i); else placeMark();
+    return needAnim();
+  } });
+  function kick() { if (!quiet() && needAnim() && !anim.playing()) anim.play(); }
+  function endDemo() { if (T !== Infinity) { T = Infinity; scripted = false; } }
+  // A screen's state: its opening (and what came before it), then its demonstration's end, or its answer's motion once solved.
+  function prep(i, toEnd) {
+    const d = STEPS[i];
+    Object.assign(X, BASE, d.enter || {});
+    resetSim();
+    if (d.pre) { runSync(d.pre, d.pdur); settleNow(); }
+    if (d.show) { if (toEnd && d.demo) { runSync(d.demo, d.dur); settleNow(); } }
+    else if (solved(S[i]) && d.run) { runSync(d.run, d.rdur); settleNow(); }
+    ang = ANG0;
+  }
+  function startDemo(i) {
+    const d = STEPS[i];
+    anim.pause(); T = Infinity; scripted = false;
+    if (!d.demo || quiet()) { prep(i, true); push(); return; }
+    prep(i, false); scripted = true; T = 0; motionEnd = d.dur;
+    push();
+    anim.play();
+  }
+  function playRun(i) {
+    const d = STEPS[i];
+    anim.pause(); scripted = false; T = Infinity;
+    if (!d.run) return;
+    if (quiet()) { runSync(d.run, d.rdur); settleNow(); push(); return; }
+    T = 0; motionEnd = d.rdur;
+    anim.play();
+  }
+  function enterStep(i) {
+    anim.pause(); T = Infinity; scripted = false;
+    enter('stepbox');
+    if (STEPS[i].show) { startDemo(i); return; }
+    prep(i, false);
+    push();
+  }
+  // The finished picture a still shows (the read-through): the demonstration's end, then the still's own moves.
+  function setStill(fn) {
+    const i = at();
+    anim.pause(); T = Infinity; scripted = false;
+    prep(i, true);
+    if (fn) fn();
+    push();
+    K.refresh();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ================= drawing helpers =================
+  function adder(g) { return (tag, attrs, txt) => g.appendChild(txt == null ? K.svg(tag, attrs) : K.svg(tag, attrs, txt)); }
+  const P = (p) => r1(p[0]) + ' ' + r1(p[1]);
+  function arrow(add, p, q, cls) {
+    const dx = q[0] - p[0], dy = q[1] - p[1], L = Math.hypot(dx, dy);
+    if (L < 3) return [];
+    const ux = dx / L, uy = dy / L, h = Math.min(11, L * 0.6), w = 5.2;
+    const b = [q[0] - ux * h, q[1] - uy * h];
+    const line = add('line', { class: cls, x1: r1(p[0]), y1: r1(p[1]), x2: r1(b[0] + ux), y2: r1(b[1] + uy) });
+    const head = add('path', { class: cls + 'h', d: 'M' + P(q) + 'L' + P([b[0] - uy * w, b[1] + ux * w]) + 'L' + P([b[0] + uy * w, b[1] - ux * w]) + 'Z' });
+    return [line, head];
+  }
+
+  // ================= the set along its shaft =================
+  const FWX = 132, FWY = 92, FWRX = 7, FWRY = 46, AX0 = 152, KT = 95 / (PR * 1000 / wOf(60)), AMAX = 124;
+  const markAt = () => [FWX + FWRX * Math.sin(ang), FWY - FWRY * Math.cos(ang)];
+  function placeMark() {
+    if (!markEl) return;
+    const m = markAt();
+    markEl.setAttribute('cx', r1(m[0])); markEl.setAttribute('cy', r1(m[1]));
+  }
+  function drawSet() {
+    const g = el('setArt');
+    g.textContent = '';
+    const a = adder(g), w = sim.w, ub = Math.max(0, sim.u);
+    const te = sim.u / 100 * PR * 1000 / w, tl = X.load / 100 * PR * 1000 / w;
+    // The fuel bar, 0% to 110%, with its 100% tick.
+    a('text', { class: 'lab', x: 14, y: 34, 'text-anchor': 'middle' }, 'fuel');
+    a('rect', { class: 'trk', x: 8, y: 40, width: 12, height: 96, rx: 2 });
+    const hb = 96 * Math.min(ub, UMAX) / UMAX;
+    if (hb > 0.3) a('rect', { class: 'bar', x: 8.6, y: r1(136 - hb), width: 10.8, height: r1(hb) });
+    const y100 = r1(136 - 96 * 100 / UMAX);
+    a('line', { class: 'tick', x1: 5, y1: y100, x2: 23, y2: y100 });
+    a('text', { class: 'lab', x: 26, y: r1(y100 + 4.5) }, '100%');
+    // The engine, the shaft through the flywheel, and the alternator.
+    [70, 84, 98].forEach((x) => a('rect', { class: 'blk', x, y: 50, width: 12, height: 9, rx: 2 }));
+    a('rect', { class: 'blk', x: 62, y: 58, width: 56, height: 70, rx: 6 });
+    a('text', { class: 'labb', x: 90, y: 97.5, 'text-anchor': 'middle' }, 'Engine');
+    a('rect', { class: 'shaft', x: 118, y: 89, width: 164, height: 6 });
+    a('rect', { class: 'blk', x: 282, y: 60, width: 52, height: 58, rx: 4 });
+    for (let x = 290; x <= 326; x += 6) a('line', { class: 'wind', x1: x, y1: 66, x2: x, y2: 112 });
+    a('text', { class: 'labb', x: 336, y: 34, 'text-anchor': 'end' }, 'Alternator');
+    a('ellipse', { class: 'fwb', cx: FWX + 6, cy: FWY, rx: FWRX, ry: FWRY });
+    a('rect', { class: 'side', x: FWX, y: FWY - FWRY, width: 6, height: 2 * FWRY });
+    a('line', { class: 'edge', x1: FWX, y1: FWY - FWRY, x2: FWX + 6, y2: FWY - FWRY });
+    a('line', { class: 'edge', x1: FWX, y1: FWY + FWRY, x2: FWX + 6, y2: FWY + FWRY });
+    a('ellipse', { class: 'fw', cx: FWX, cy: FWY, rx: FWRX, ry: FWRY });
+    a('ellipse', { class: 'shaft', cx: FWX, cy: FWY, rx: 2, ry: 6 });
+    a('text', { class: 'labb', x: 135, y: 34, 'text-anchor': 'middle' }, 'Flywheel');
+    const m = markAt();
+    markEl = a('circle', { class: 'mark', cx: r1(m[0]), cy: r1(m[1]), r: 4.5 });
+    a('text', { class: 'lab', x: 62, y: 156 }, 'mark stands still at 1800' + NB + 'rev/min');
+    // The two torques on the shaft, to scale: the engine's driving forward, the alternator's pulling back.
+    const le = Math.min(AMAX, Math.abs(te) * KT), ll = Math.min(AMAX, tl * KT);
+    if (le > 3) {
+      if (te > 0) arrow(a, [AX0, 74], [AX0 + le, 74], 'te');
+      else arrow(a, [AX0 + le, 74], [AX0, 74], 'te');
+      a('text', { class: 'lab', x: AX0, y: 58 }, te > 0 ? 'engine\'s turning effort' : 'engine\'s drag');
+    }
+    if (ll > 3) {
+      arrow(a, [AX0 + ll, 110], [AX0, 110], 'tl');
+      a('text', { class: 'lab', x: AX0, y: 132 }, 'alternator\'s turning effort');
+    }
+    Object.assign(REC, { te, tl, le, ll, ang });
+    const rpm = rpmOf(fNow());
+    const cmp = Math.abs(le - ll) < 1 ? 'as long as' : le > ll ? 'longer than' : 'shorter than';
+    el('scene').setAttribute('aria-label', 'A generator set drawn side-on along one shaft: the engine with its fuel bar, the flywheel with a mark, and the alternator. ' +
+      (le > 3 || ll > 3 ? 'The arrow for the engine\'s torque is ' + cmp + ' the arrow for the alternator\'s torque, drawn to scale. ' : 'With no load and no fuel there is no torque on the shaft. ') +
+      'Under a strobe at 1800 rev/min the flywheel\'s mark ' + (Math.abs(rpm - 1800) < 0.2 ? 'stands still.' : rpm < 1800 ? 'slips back, so the set is running slow.' : 'creeps forward, so the set is running fast.'));
+  }
+
+  // ================= the droop line: frequency against load =================
+  const DX0 = 46, DX1 = 322, DY0 = 174, DYT = 34;
+  const xL = (kw) => DX0 + kw / PR * (DX1 - DX0);
+  const yD = (f) => DY0 - (K.clamp(f, 56, 68) - 56) * (DY0 - DYT) / 12;
+  function drawDroop() {
+    const g = el('dlArt');
+    g.textContent = '';
+    const a = adder(g);
+    a('line', { class: 'gl', x1: 46, y1: 10, x2: 66, y2: 10 });
+    a('text', { class: 'lab', x: 71, y: 14.5 }, 'governor\'s line');
+    a('circle', { class: 'pdot', cx: 202, cy: 10, r: 5 });
+    a('text', { class: 'lab', x: 211, y: 14.5 }, 'the set now');
+    a('line', { class: 'ax', x1: DX0, y1: DY0, x2: DX1, y2: DY0 });
+    a('line', { class: 'ax', x1: DX0, y1: DY0, x2: DX0, y2: DYT - 4 });
+    [56, 58, 60, 62, 64, 66, 68].forEach((f) => {
+      const y = r1(yD(f));
+      a('line', { class: 'ax', x1: DX0 - 4, y1: y, x2: DX0, y2: y });
+      if (f % 4 === 0) a('text', { class: 'lab', x: DX0 - 7, y: r1(y + 4.5), 'text-anchor': 'end' }, f === 68 ? '68' + NB + 'Hz' : String(f));
+    });
+    [0, 126, 252, 378, 504].forEach((kw) => { const x = r1(xL(kw)); a('line', { class: 'ax', x1: x, y1: DY0, x2: x, y2: DY0 + 5 }); });
+    a('text', { class: 'lab', x: DX0, y: 191, 'text-anchor': 'middle' }, '0');
+    a('text', { class: 'lab', x: r1(xL(252)), y: 191, 'text-anchor': 'middle' }, '252');
+    a('text', { class: 'lab', x: 330, y: 191, 'text-anchor': 'end' }, '504' + NB + 'kW');
+    a('text', { class: 'lab', x: r1(xL(252)), y: 207, 'text-anchor': 'middle' }, 'load');
+    // The governor's line, clipped to the graph.
+    const f0 = lineOf(X, 0), f1 = lineOf(X, 100);
+    let la = 0, lb = 1;
+    if (f1 !== f0) {
+      [56, 68].forEach((edge) => {
+        const s = (edge - f0) / (f1 - f0);
+        if (s > 0 && s < 1) { if ((f0 > 68 && edge === 68) || (f0 < 56 && edge === 56)) la = Math.max(la, s); else lb = Math.min(lb, s); }
+      });
+    }
+    if (lb > la) a('line', { class: 'gl', x1: r1(xL(PR * la)), y1: r1(yD(K.lerp(f0, f1, la))), x2: r1(xL(PR * lb)), y2: r1(yD(K.lerp(f0, f1, lb))) });
+    const f = fNow(), kw = X.load / 100 * PR;
+    a('circle', { class: 'pdot', cx: r1(xL(kw)), cy: r1(yD(f)), r: 6 });
+    const off = f - lineOf(X, X.load);
+    Object.assign(REC, { line: [r2(f0), r2(f1)], onLine: Math.abs(off) < 0.05 });
+    el('dl').setAttribute('aria-label', 'Frequency, 56 to 68 Hz, against load, 0 to 504 kW. The governor\'s line ' +
+      (X.droop > 0.001 ? 'runs from its set point at no load down by ' + r1(X.droop) + '% of 60 Hz at full load.' : 'runs flat at its set point across every load.') +
+      ' A dot marks the set now, ' + (Math.abs(off) < 0.05 ? 'on its line.' : off < 0 ? 'below its line.' : 'above its line.'));
+  }
+
+  // ================= the trace: frequency against time over the last 6 s =================
+  const TX0 = 46, TX1 = 322, TY0 = 176, TYT = 32;
+  const yT = (f) => TY0 - (K.clamp(f, 54, 72) - 54) * (TY0 - TYT) / 18;
+  const xT = (t) => TX1 - (sim.t - t) / WIN * (TX1 - TX0);
+  function drawTrace(i) {
+    const g = el('trArt');
+    g.textContent = '';
+    const a = adder(g), y60 = r1(yT(60));
+    a('line', { class: 'tr', x1: 46, y1: 10, x2: 66, y2: 10 });
+    a('text', { class: 'lab', x: 71, y: 14.5 }, 'frequency');
+    a('line', { class: 'ref', x1: 186, y1: 10, x2: 206, y2: 10 });
+    a('text', { class: 'lab', x: 211, y: 14.5 }, '60' + NB + 'Hz');
+    const axB = a('line', { class: 'ax', x1: TX0, y1: TY0, x2: TX1, y2: TY0 });
+    const axL = a('line', { class: 'ax', x1: TX0, y1: TY0, x2: TX0, y2: TYT - 4 });
+    [54, 60, 66, 72].forEach((f) => {
+      const y = r1(yT(f));
+      a('line', { class: 'ax', x1: TX0 - 4, y1: y, x2: TX0, y2: y });
+      a('text', { class: 'lab', x: TX0 - 7, y: r1(y + 4.5), 'text-anchor': 'end' }, f === 72 ? '72' + NB + 'Hz' : String(f));
+    });
+    a('text', { class: 'lab', x: TX0, y: 193 }, '6' + NB + 's ago');
+    a('text', { class: 'lab', x: TX1, y: 193, 'text-anchor': 'end' }, 'now');
+    const ref = a('line', { class: 'ref', x1: TX0, y1: y60, x2: TX1, y2: y60 });
+    // The samples in the window, the first one cut at its left edge.
+    const t0 = sim.t - WIN, pts = [];
+    for (let j = 0; j < sim.ts.length; j++) {
+      if (sim.ts[j] < t0) continue;
+      if (!pts.length && j > 0) {
+        const s = (t0 - sim.ts[j - 1]) / (sim.ts[j] - sim.ts[j - 1]);
+        pts.push([TX0, yT(K.lerp(sim.fs[j - 1], sim.fs[j], s))]);
+      }
+      pts.push([xT(sim.ts[j]), yT(sim.fs[j])]);
+    }
+    pts.push([TX1, yT(fNow())]);
+    const line = a('polyline', { class: 'tr', points: pts.map((p) => r1(p[0]) + ',' + r1(p[1])).join(' ') });
+    a('circle', { class: 'pdot', cx: TX1, cy: r1(yT(fNow())), r: 3.5 });
+    // The dip (or the overshoot after a trip) the last load step made, named on the trace.
+    const items = [], avoid = [line, ref, axB, axL];
+    REC.dip = null; REC.m01 = null;
+    const ev = sim.ev;
+    if (ev && ev.t >= t0) {
+      let ex = ev.f0, tx = ev.t;
+      const up = !!ev.up;
+      for (let j = 0; j < sim.ts.length; j++) {
+        if (sim.ts[j] < ev.t) continue;
+        if (up ? sim.fs[j] > ex : sim.fs[j] < ex) { ex = sim.fs[j]; tx = sim.ts[j]; }
+      }
+      if (Math.abs(ex - ev.f0) > 0.5) {
+        REC.dip = up ? 'overshoot' : 'dip';
+        // Under the trough, or beside it when the trough sits near the time axis.
+        const px = xT(tx), py = yT(ex), low = !up && py + 20 > TY0 - 6, right = px < TX1 - 40;
+        items.push(low ? { x: r1(px + (right ? 10 : -10)), y: r1(py + 4.5), text: REC.dip, anchor: right ? 'start' : 'end', class: 'lab' }
+          : { x: r1(px), y: r1(up ? py - 10 : py + 20), text: REC.dip, anchor: 'middle', class: 'lab' });
+      }
+      // Screen 5's answer: the frequency 0.1 s after the step, marked on the trace.
+      if (STEPS[i].mark01 && solved(S[i]) && ev.f01 != null && ev.t + WAIT >= t0) {
+        const x = xT(ev.t + WAIT), y = yT(ev.f01);
+        avoid.push(a('circle', { class: 'ring', cx: r1(x), cy: r1(y), r: 4.5 }));
+        REC.m01 = K.fmt(ev.f01, { decimals: 1 }) + NB + 'Hz at 0.1' + NB + 's';
+        items.unshift({ x: r1(x - 9), y: r1(y + 4.5), text: REC.m01, anchor: 'end', class: 'lab' });
+      }
+    }
+    if (items.length) K.labels(a('g', {}), items, { avoid });
+    let mn = Infinity, mx = -Infinity;
+    for (let j = 0; j < sim.ts.length; j++) if (sim.ts[j] >= t0) { mn = Math.min(mn, sim.fs[j]); mx = Math.max(mx, sim.fs[j]); }
+    Object.assign(REC, { trMin: mn, trMax: mx, dips: countDips(t0) });
+    el('trc').setAttribute('aria-label', 'Frequency against time over the last 6 s, newest at the right, from 54 to 72 Hz, with 60 Hz dashed. ' +
+      (REC.dip === 'dip' ? 'After the last load step it dips, then climbs back.' : REC.dip === 'overshoot' ? 'After the trip it overshoots, then settles.' : mx - mn > 0.3 ? 'It shows a change a few seconds ago.' : 'It runs flat.'));
+  }
+  // How many separate dips the window shows: each falls below 59.0 Hz after running at 59.5 Hz or more.
+  function countDips(t0) {
+    let c = 0, armed = true;
+    for (let j = 0; j < sim.ts.length; j++) {
+      if (sim.ts[j] < t0) continue;
+      const f = sim.fs[j];
+      if (armed && f < 59) { c++; armed = false; } else if (!armed && f >= 59.5) armed = true;
+    }
+    return c;
+  }
+
+  // ================= one paint =================
+  function readouts(i) {
+    const d = STEPS[i], f = fNow();
+    const hideF = !finished && !!d.hide && d.hide.indexOf('F') >= 0 && !solved(S[i]);
+    const tx = { L: String(Math.round(X.load / 100 * PR)), U: String(Math.round(Math.max(0, sim.u))), S: String(Math.round(rpmOf(f))), F: hideF ? '?' : f.toFixed(1) };
+    Object.keys(RO).forEach((k) => RO[k].set(tx[k]));
+    REC.t = tx;
+  }
+  function paint(i) {
+    if (i == null) i = at();
+    REC = { t: {}, load: X.load, droop: X.droop, sp: X.sp, f: fNow(), u: sim.u, live: sim.live };
+    drawSet();
+    drawDroop();
+    drawTrace(i);
+    readouts(i);
+  }
+
+  // ================= the page around the picture =================
+  write(el('finish'), FINISH);
+  const setLab = (b, s) => { if (b.el.textContent !== s) b.setLabel(s); };
+  function showCtls(i) {
+    const d = STEPS[i];
+    el('c-load').hidden = !shownCtl(d, 'load');
+    el('c-trip').hidden = !shownCtl(d, 'trip');
+    el('c-droop').hidden = !shownCtl(d, 'droop');
+    el('c-sp').hidden = !shownCtl(d, 'sp');
+    el('sws').hidden = el('c-droop').hidden && el('c-sp').hidden;
+  }
+  function layout(i) {
+    const d = STEPS[i], st = S[i], sol = solved(st);
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Screen ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    el('figs').hidden = !!d.nofig;
+    el('cap').hidden = finished || !!d.nofig;
+    showCtls(i);
+    replayBtn.el.hidden = !d.show || !d.demo || finished || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    const opts = d.kind === 'pick' ? d.opts : [];
+    el('picks').hidden = !opts.length;
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      setLab(b, opts[k]);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    el('answers').hidden = d.kind !== 'typed';
+    Object.keys(ANS).forEach((key) => { el('ans-' + key).hidden = d.ans !== key; });
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = sol;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (st.res === 'right' ? ' right' : '');
+    let say = '';
+    if (!d.show) {
+      if (st.res === 'right') say = d.right || 'That\'s it.';
+      else if (st.res === 'shown') say = 'Here is the working.';
+      else if (st.res === 'wrong') say = d.kind === 'typed' ? st.hint : (d.hints && d.hints[st.pick]) || d.hint || '';
+      else if (st.res === 'empty') say = d.kind === 'pick' ? 'Pick one of the answers first.' : 'Type your answer first.';
+    }
+    write(fb, say);
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    setLab(whyBtn, st.why ? 'Hide why' : 'Why?');
+    const cl = el('closing');
+    cl.hidden = !(d.close && sol);
+    write(cl, d.close || '');
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !sol);
+    setLab(nextBtn, i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  }
+
+  K.update((p) => {
+    const i = at(), d = STEPS[i];
+    if (i !== lastStep) { lastStep = i; enterStep(i); }
+    else {
+      CIDS.forEach((id) => {
+        const v = norm(id, p[id]);
+        if (v === pushed[id]) return;
+        if (shownCtl(d, id)) { endDemo(); pushed[id] = v; applyCtl(id, v); }
+        else CTL[id].set(id === 'load' ? String(pushed[id]) : pushed[id], true);   // a control this screen does not use stays put
+      });
+      push();
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    layout(i);
+    paint(i);
+    kick();
+  });
+
+  // ================= known answers, worked out by hand =================
+  const solvedSt = (i) => Object.assign(blank(), STEPS[i].kind === 'pick' ? { pick: STEPS[i].want, res: 'right' } : { res: 'right' });
+  function saveAll() {
+    return { X: Object.assign({}, X), sim: Object.assign({}, sim, { del: sim.del.slice(), ts: sim.ts.slice(), fs: sim.fs.slice(), ev: sim.ev && Object.assign({}, sim.ev) }),
+      T, sc: scripted, fin: finished, ang, S: S.slice() };
+  }
+  function restoreAll(k) {
+    Object.assign(X, k.X); Object.assign(sim, k.sim); T = k.T; scripted = k.sc; finished = k.fin; ang = k.ang; S = k.S;
+  }
+  // A screen in the state given (its demonstration finished, unless opening), and what it drew.
+  function drawn(i, st, opening, then) {
+    const keep = saveAll();
+    S = S.slice(); S[i] = st || blank(); T = Infinity; scripted = false; finished = false;
+    try {
+      prep(i, !opening);
+      if (then) then();
+      paint(i);
+      return Object.assign({}, REC, { t: Object.assign({}, REC.t) });
+    } finally { restoreAll(keep); paint(); }
+  }
+  // A bare run of the set from a steady state, for the checks: fn gets the set to play with.
+  function trial(start, fn) {
+    const keep = saveAll();
+    try { Object.assign(X, BASE, start); resetSim(); return fn(); } finally { restoreAll(keep); paint(); }
+  }
+  const iRec = idx('Still there?'), iBal = idx('Two torques'), iPred = idx('Predict the dip'), iStep = idx('A load step'), iSlow = idx('How fast it slows');
+  const iIso = idx('Back to 60 Hz'), iWhat = idx('What changed'), iDroop = idx('Droop'), iHalf = idx('Half load'), iSet = idx('The set point');
+  const iChoose = idx('Choose a set point'), iFault = idx('Fault or design?'), iFifty = idx('A 50 Hz set');
+  const W60 = wOf(60);
+
+  K.check('At 1800 rev/min the set turns at 188.5 rad/s and 60 Hz; at 25% load the torques match at 126 000 ÷ 188.5 = 668 N m, and the tiles read 126 kW, 25%, 1800 rev/min and 60.0 Hz', () => {
+    const r = drawn(iBal, null, true);
+    return r1(W60) === 188.5 && rpmOf(60) === 1800 && Math.round(126000 / W60) === 668 && K.near(r.te, 126000 / W60, 1e-6) && K.near(r.tl, r.te, 1e-9) &&
+      K.near(r.le, r.ll, 1e-9) && r.t.L === '126' && r.t.U === '25' && r.t.S === '1800' && r.t.F === '60.0' && !r.live;
+  });
+  K.check('A 25% step with the fuel not yet moved slows the set at 668 ÷ 20 = 33.4 rad/s², so 0.1 s later it runs at 58.9 Hz; the dip bottoms out within 1.5 s on screen, then the set climbs back to 60.0 Hz with the fuel at 25%', () => {
+    const t = trial({ droop: 0, sp: 60, load: 0 }, () => {
+      setLoad(25); step1();
+      const a0 = sim.dfdt * Math.PI;
+      let mn = Infinity, tm = 0, fuelStill = true;
+      while (sim.t < 1.5) { step1(); if (sim.t < WAIT - 1e-9 && sim.u > 0.001) fuelStill = false; if (fNow() < mn) { mn = fNow(); tm = sim.t; } }
+      return { a0, f01: sim.ev.f01, mn, tm, fuelStill };
+    });
+    const r = drawn(iSlow, solvedSt(iSlow)), r0 = drawn(iSlow);
+    return K.near(t.a0, -33.4, 0.05) && t.f01.toFixed(1) === '58.9' && t.fuelStill && t.mn < 58.9 && t.tm * SLOW <= 1.5 &&
+      r.m01 === '58.9' + NB + 'Hz at 0.1' + NB + 's' && r.dip === 'dip' && r.t.F === '60.0' && r.t.U === '25' && r0.m01 === null && r0.dip === null;
+  });
+  K.check('Frequency dip is when the engine cannot supply enough power to support the load demand, causing a reduction in engine RPM', () => trial({ droop: 0, sp: 60, load: 0 }, () => {
+    setLoad(25);
+    let ok = true, n = 0;
+    while (sim.live && n++ < 5000) {
+      const r0 = rpmOf(fNow()), short = sim.u < X.load - 1, over = sim.u > X.load + 1;
+      step1();
+      if (!sim.live) break;
+      const r1v = rpmOf(fNow());
+      if (short && !(r1v < r0)) ok = false;
+      if (over && !(r1v > r0)) ok = false;
+    }
+    return ok && n > 100;
+  }));
+  K.check('Isochronous: every step of the load returns the set to exactly 60.0 Hz with the fuel at the load; the read-through of screen 6 shows three dips, ending at 378 kW, 75%, 1800 rev/min and 60.0 Hz', () => {
+    const ok = trial({ droop: 0, sp: 60, load: 0 }, () => LOADS.slice(1).every((v) => { setLoad(v); settleNow(); return !sim.live && K.near(fNow(), 60, 1e-9) && sim.u === v; }));
+    const r = drawn(iIso, null, false, stillIso), w = drawn(iWhat, solvedSt(iWhat));
+    return ok && r.dips === 3 && r.t.L === '378' && r.t.U === '75' && r.t.S === '1800' && r.t.F === '60.0' && r.line[0] === 60 && r.line[1] === 60 &&
+      w.t.U === '75' && w.t.F === '60.0' && STEPS[iWhat].want === STEPS[iWhat].opts[0];
+  });
+  K.check('Droop is the percentage change in design speed required for 100% governor action: at 4%, full fuel lowers the target 2.4 Hz below its no-fuel 62.4 Hz', () => {
+    const x = { droop: 4, sp: 62.4 };
+    return K.near(targetOf(x, 0) - targetOf(x, 100), 2.4, 1e-9) && K.near(targetOf(x, 0), 62.4, 1e-9) && K.near(targetOf(x, 100), 60, 1e-9) &&
+      K.near(targetOf({ droop: 0, sp: 60 }, 100), 60, 1e-9);
+  }, { source: SRC_DROOP });
+  K.check('By definition, with 5% droop the full-load speed is 100% and the no-load speed is 105%', () => trial({ droop: 5, sp: 63, load: 100 }, () => {
+    const full = fNow();
+    setLoad(0); settleNow();
+    return K.near(full, 60, 1e-9) && K.near(fNow() / full, 1.05, 1e-9) && !sim.live;
+  }), { source: SRC_DROOP });
+  K.check('On 4% droop from 62.4 Hz the set settles at 61.2 Hz on 252 kW, 60.6 Hz on 378 kW and 60.0 Hz on 504 kW; 61.8 Hz puts 378 kW on 60.0 Hz; a 60.0 Hz set point gives 57.6 Hz on full load, and 62.4 Hz lifts it to 60.0 Hz', () => {
+    const h0 = drawn(iHalf), h = drawn(iHalf, solvedSt(iHalf)), c0 = drawn(iChoose), c = drawn(iChoose, solvedSt(iChoose)), f0 = drawn(iFault), f = drawn(iFault, solvedSt(iFault));
+    const full = drawn(iDroop, null, false, stillDroop);
+    return h0.t.F === '?' && h0.t.S === '1872' && h.t.F === '61.2' && h.t.L === '252' && h.t.U === '50' && h.onLine &&
+      c0.t.F === '60.6' && c.t.F === '60.0' && K.near(c.sp, 61.8, 1e-9) && f0.t.F === '57.6' && f.t.F === '60.0' && K.near(f.sp, 62.4, 1e-9) &&
+      full.t.L === '504' && full.t.U === '100' && full.t.S === '1800' && full.t.F === '60.0' && full.line[0] === 62.4 && full.line[1] === 60;
+  });
+  K.check('A trip from 252 kW on 4% droop overshoots, then settles at the top of the line, 62.4 Hz and 1872 rev/min; even a trip from full load peaks below the trace\'s 72 Hz', () => {
+    const r = drawn(iSet);
+    const peak = trial({ droop: 4, sp: 62.4, load: 100 }, () => { setLoad(0, 'trip'); let mx = 0; while (sim.live) { step1(); mx = Math.max(mx, fNow()); } return mx; });
+    return r.dip === 'overshoot' && r.trMax > 64 && r.t.F === '62.4' && r.t.S === '1872' && r.t.L === '0' && r.t.U === '0' && peak > 66 && peak < 72;
+  });
+  K.check('The torque arrows are drawn to scale: just after a 25% step the alternator\'s arrow outgrows the engine\'s, and their lengths keep the torques\' ratio', () => trial({ droop: 0, sp: 60, load: 0 }, () => {
+    setLoad(25);
+    for (let n = 0; n < 150; n++) step1();
+    paint(iStep);
+    const r = Object.assign({}, REC);
+    return r.ll > r.le && r.le > 3 && K.near(r.le / r.ll, r.te / r.tl, 1e-6) && K.near(r.ll, 25 / 100 * PR * 1000 / sim.w * KT, 1e-6);
+  }));
+  K.check('Each typed answer and slip is worked from the rule: 25 rad/s² (100, 0.04), 33.4 rad/s² (13 360, 0.03, 6.3), 61.2 Hz (60, 60.4, 63.6), 61.8 Hz (62.4, 58.2, 63) and 52.5 Hz (55, 47.5, 50)', () => {
+    const sl = (i, v) => STEPS[i].slips.length === v.length && STEPS[i].slips.every((s, k) => Math.abs(s.value - v[k]) < 1e-12);
+    const tq = Math.round(126000 / W60);
+    const work = 50 / 2 === 25 && 50 * 2 === 100 && 2 / 50 === 0.04 && r1(tq / 20) === 33.4 && tq * 20 === 13360 && r2(20 / tq) === 0.03 && 126 / 20 === 6.3 &&
+      r1(33.4 * 0.1 / 188.5 * 100) === 1.8 && r1(60 * (1 - 3.34 / 188.5)) === 58.9 &&
+      r1(62.4 - 2.4 * 252 / 504) === 61.2 && r1(62.4 - 4 * 0.5) === 60.4 && r1(62.4 + 1.2) === 63.6 &&
+      r1(60 + 0.75 * 2.4) === 61.8 && r1(60 + 2.4) === 62.4 && r1(60 - 1.8) === 58.2 && r1(60 + 0.75 * 4) === 63 &&
+      r1(50 + 0.05 * 50) === 52.5 && 50 + 5 === 55 && r1(50 - 2.5) === 47.5 && r1(60 - 2.4) === 57.6;
+    return work && STEPS[iRec].answer === 25 && STEPS[iSlow].answer === 33.4 && STEPS[iHalf].answer === 61.2 && STEPS[iChoose].answer === 61.8 && STEPS[iFifty].answer === 52.5 &&
+      sl(iRec, [100, 0.04]) && sl(iSlow, [13360, 0.03, 6.3]) && sl(iHalf, [60, 60.4, 63.6]) && sl(iChoose, [62.4, 58.2, 63]) && sl(iFifty, [55, 47.5, 50]) &&
+      STEPS[iPred].want === STEPS[iPred].opts[1] && STEPS[iFault].want === STEPS[iFault].opts[1] && STEPS[iRec].right === 'Still there.' && iFifty === STEPS.length - 1;
+  });
+  K.check('Screen 4\'s demonstration ends with the dip on the trace and the set back at 60.0 Hz on 25% fuel; screen 8\'s ends on its 4% line at 61.8 Hz with 126 kW', () => {
+    const a = drawn(iStep), b = drawn(iDroop), p = drawn(iPred, solvedSt(iPred));
+    return a.dip === 'dip' && a.t.F === '60.0' && a.t.U === '25' && a.trMin < 58 && b.t.F === '61.8' && b.t.L === '126' && b.onLine && p.dip === 'dip' && p.t.F === '60.0';
+  });
+  K.ready();
+</script>

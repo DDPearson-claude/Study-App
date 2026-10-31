@@ -1,0 +1,887 @@
+{
+  "iid": "i6",
+  "title": "Load sharing: kW by fuel, kVAr by field",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is set A's share of the kW growing while the board's frequency barely moves, when you raise A's governor setting with the two sets' droop lines back to back.",
+    "title": "Two sets, back to back",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Screen",
+        "min": 0,
+        "max": 13,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "Sixteen small screens share one picture, with Back and Continue. Seven show an idea and nine ask you to try it. There are no marks and no timers.\n\nThe picture. Two 504 kW sets, A and B, run side by side on one 440 V, 60 Hz board. Below them sit two droop lines, back to back. The width between the two edges is the shared load. It is 600 kW at 0.8 power factor. A's kW runs rightwards from the left edge. B's runs leftwards from the right edge. Each line is that set's frequency against its own kW. A dot marks where they cross. A dashed line runs from it across to the frequency. Under the graph, each set has a bar that shows its share, labelled at its own edge. A share below zero is drawn red, past its edge. A small inset shows set A's E and V, and the load angle δ between them. A switch flips the picture to voltage against kVAr. Then the same two lines show each set's voltage against its kVAr, across the load's 450 kVAr. One screen swaps the picture for the two sets' neutrals. They are linked, with A's earthed and B's earth link open. A red dashed loop shows a third-harmonic current running round them.\n\nThe controls. The kW view has a Governors choice, Droop or Isochronous. A's setting and B's setting run from 58.0 to 64.0 Hz in steps of 0.1. Both open at 62.4 Hz. A Droop slider runs from 1 to 6% in steps of 1 and opens at 4%. It moves both sets together. An A's droop slider moves A's alone, over the same range. A Load stepper runs from 0 to 900 kW in steps of 100 and opens at 600 kW. The kVAr view has A's field setting and B's field setting. They run from 430 to 460 V in steps of 0.5, and both open at 447.5 V. A Compensation switch starts off. The neutral view has a Windings choice, Mixed or 2/3 pitch. The readouts sit in four tiles that wrap onto two rows on a phone. They are Frequency in Hz, A in kW, B in kW and A's δ in °. In the kVAr view they are Voltage in V, A in kVAr, B in kVAr and Cross current in A. In that view, a small label under each set gives its kW. The buttons wrap too.\n\nThe rule it computes. A setting is the set's frequency with no load. With droop, each set falls its droop × 60 Hz across its 504 kW. At 4% that is 2.4 Hz, so the set takes 504 ÷ 2.4 = 210 kW for each hertz below its setting. At 2% it takes 420. Both run at the board's one frequency, f. Their kW must add up to the load. So f = (A's kW per hertz × A's setting + B's kW per hertz × B's setting − the load) ÷ (the two kW per hertz added). Each set carries its kW per hertz × (its setting − f). A share is capped at 504 kW, full fuel. With its fuel cut to nothing, a set is driven as a motor. It then draws 50.4 kW, 10% of its rating. That is an example value. Isochronous lines are flat at their settings. The higher one sets the frequency. It takes the whole load plus the motored set's 50.4 kW, up to 504 kW. Past that, the frequency falls to the lower setting. That set then carries the rest. Exactly equal settings share equally here. The inset keeps E at 2.25 per unit and Xs at 1.5. It sets sin δ = A's kW ÷ 630 kVA × 1.5 ÷ 2.25. The kVAr view works the same way. The load's kVAr is its kW × 0.75, so 450 kVAr. Each AVR's voltage falls 1 V for each 30 kVAr it carries. That is an example setting. So the voltage = the average of the field settings − the load's kVAr ÷ (2 × 30). Each set carries 30 × (its setting − the voltage). The cross current is the difference in kVAr ÷ 2, ÷ (√3 × 440 V). A set is drawn red below zero kVAr, where it runs leading. It is also drawn red past its 630 kVA. With compensation on, both AVRs hold 440 V and share the kVAr equally. The field settings wait, greyed. The governors alone set the kW, so the kVAr view never moves it. In the neutral view, the loop shows while the windings are mixed and fades away at 2/3 pitch. It carries no figure, because none is computed.\n\nScreen 1, try it, a recall. The kW view at its opening, the readouts hidden. \"These two sets will share a load of kW and kVAr. A load takes 100 kVA at 0.8 power factor. How many kW does it take?\" A field in kW. Answer 80 kW. Slips: 60, the kVAr; 125, divided by 0.8. Hint when wrong: \"kW = kVA × the power factor.\" Why: \"100 × 0.8 = 80 kW. The other part is √(100² − 80²) = 60 kVAr. That is the reactive power the field supplies.\" A right Check shows both parts as two sides of a right-angled triangle. Read: the question.\n\nScreen 2, show. The kW view, both settings 62.4 Hz, every control hidden, the inset large. The load comes on from 0 to 600 kW. The words: more fuel cannot speed a set locked in step, so it pushes the rotor further ahead, and δ and the kW grow. Here the load comes on, and each governor adds fuel as the board slows. A set's kW follows its engine's output.[^1] At 600 kW, A carries 300 kW at a δ of 18.5°. Read: the words. Still: readouts 60.97 Hz, 300 kW, 300 kW, 18.5°.\n\nScreen 3, try it, typed. The inset alone, δ at 32.3°, the δ tile reading 32.3°. \"Set A's E is 2.25 per unit, V is 1.0 and Xs is 1.5. The load angle is 32.3°. Power = E × V × sin δ ÷ Xs. What power does it send out, in per unit?\" A field with no unit. Answer 0.80. Slips: 1.20, not divided by Xs; 1.27, cos δ for sin δ; 1.80, times Xs. Hint when wrong: \"sin 32.3° is 0.534.\" Why: \"2.25 × 1.0 × 0.534 ÷ 1.5 = 0.80 per unit. On a 630 kVA set that is 504 kW. That is its full rating.\" A right Check shows A at 504 kW. Read: the question.\n\nScreen 4, show. The kW view at its opening settings, the controls hidden. The words build the two lines, 210 kW for each hertz, and the 600 kW load between them. They settle at 300 kW each, at 62.4 − 300 ÷ 210 = 60.97 Hz. Lowering both settings together would bring the board back to 60 Hz. Read: the words. Still: readouts 60.97 Hz, 300 kW, 300 kW, 18.5°.\n\nScreen 5, try it. As screen 4. \"You raise A's governor setting by 0.3 Hz, from 62.4 to 62.7 Hz. What happens?\" Three choices, in this order: \"A takes the whole load\"; \"The board speeds up 0.3 Hz, and the kW stays put\"; \"A takes more kW, B less, and the frequency rises a little\". Right, the third. Each wrong choice has a one-line hint. Why: \"A's line lifts, and the crossing moves towards B. The board can have only one frequency. So the two shares change instead.\" A right Check moves A's setting to 62.7 Hz. Read: the question.\n\nScreen 6, show. A's setting at 62.7 Hz and free. The words: B's governor sees the rise and backs off. They settle with A on 331.5 kW and B on 268.5 kW, δ 20.5°. The board rose only 0.15 Hz, half the nudge. Alone, a set would rise the full 0.3 Hz and move no kW. In a big group, the frequency hardly moves at all.[^2] Then: drag A's setting and watch the shares. Read: the words without the last sentence. Still: A's setting 62.7 Hz, readouts 61.12 Hz, 331.5 kW, 268.5 kW, 20.5°.\n\nScreen 7, try it, typed. Both settings back at 62.4 Hz, the A tile reading ? until Check. \"Both sets carry 300 kW at 60.97 Hz. You raise A's setting by 0.2 Hz. Each set takes 210 kW for each hertz below its setting. How many kW does A carry now?\" A field in kW. Answer 321 kW. Slips: 342, the whole nudge; 300, no change; 279, B's share. Also accepted: 321.3. Hint when wrong: \"The frequency rises by half the nudge, to 61.07 Hz.\" Why: \"The board rises 0.1 Hz to 61.07 Hz. A sits 62.6 − 61.07 = 1.53 Hz below its setting. 210 × 1.53 = 321 kW.\" A right Check moves A's setting to 62.6 Hz. Read: the question.\n\nScreen 8, show. Both droops at 1%, both settings 60.6 Hz, the Droop slider and A's setting free. The words say both droops are now 1%, and both settings 60.6 Hz, so full load still gives 60 Hz. Each line falls 0.6 Hz across 504 kW, so the same 0.3 Hz nudge moves 126 kW, four times as much. With flat lines, the smallest difference decides everything. Read: the words. Still: A's setting 60.9 Hz, readouts 60.39 Hz, 426 kW, 174 kW.\n\nScreen 9, try it. A's droop at 2% and its setting at 61.2 Hz, B at 4% and 62.4 Hz, the load 900 kW, readouts 60.17 Hz, 432 kW and 468 kW. \"A has a 2% droop and B 4%. Each reaches 60 Hz at its full 504 kW. At 900 kW, A carries 432 kW and B 468 kW. The load falls to 300 kW. What happens to the shares?\" Three choices, in this order: \"A sheds twice as much as B, so the shares drift apart\"; \"B sheds more, because its line is steeper\"; \"Each sheds 300 kW, so they stay 36 kW apart\". Right, the first. Each wrong choice has a one-line hint. Why: as the load falls, the board rises. A gives up 420 kW for each hertz and B only 210, so A sheds 400 kW and B 200. Every set needs the same droop, or the shares drift apart each time the load changes.[^5] A right Check steps the load to 600 kW, with A on 232 kW and B on 368 kW, then to 300 kW, at 61.12 Hz. Then the Load stepper and A's droop slider come free. Read: the question.\n\nScreen 10, try it. Governors on Isochronous, A at 60.1 Hz, B at 60.0 Hz, the load 400 kW, the result hidden until Check. \"Both governors are isochronous, with no droop. A is set to 60.1 Hz and B to 60.0 Hz. They share a 400 kW load. What happens?\" Three choices, in this order: \"They share it, 200 kW each\"; \"A takes it all, and B is driven as a motor\"; \"They settle halfway, at 60.05 Hz\". Right, the second. Each wrong choice has a one-line hint. Why: A holds the board at 60.1 Hz, and B cuts its fuel to nothing. The board drives B as a motor, drawing an example 50.4 kW. So A carries 400 + 50.4 = 450.4 kW. A right Check shows the result, B's bar red past its edge. The line under the picture calls B's 50.4 kW draw an example. Read: the question.\n\nScreen 11, show. The kVAr view, both field settings 447.5 V, the governors back at their openings, compensation off, the controls hidden. The words: the 600 kW load at 0.8 also takes 450 kVAr, and the AVRs share it. Here each AVR's voltage falls 1 V for every 30 kVAr, voltage droop. At a full 630 kVAr that is 21 V, or 4.8%, close to a common factory setting of 5%.[^6] Set at 447.5 V, the lines cross at 440 V with 225 kVAr each. Read: the words. Still: readouts 440.0 V, 225 kVAr, 225 kVAr, 0.0 A.\n\nScreen 12, try it. As screen 11. \"Both sets carry 300 kW and 225 kVAr at 440 V. You raise A's field setting by 2 V. What happens?\" Three choices, in this order: \"A's kVAr goes up and its power factor down\"; \"The board's voltage goes up 2 V\"; \"A's kW goes up\". Right, the first. Each wrong choice has a one-line hint. Why: \"The board rises only 1 V, to 441 V. A sits 8.5 V below its setting. So it carries 30 × 8.5 = 255 kVAr. B carries 195 kVAr. A's kW stays at 300 kW. So its power factor falls.[^3]\" A right Check moves A's field setting to 449.5 V. Read: the question.\n\nScreen 13, show. A's field setting at 449.5 V, the Compensation switch free. The words: A's kW has not moved, but A carries 255 kVAr and B 195. Each carries its fair 225 kVAr, plus or minus 30 kVAr. That 30 kVAr runs round from A into B, not to the load: a cross current of 30 000 ÷ (√3 × 440) = 39.4 A. Turn on the compensation, and the AVRs trim their fields until it falls to zero. Read: \"Turn on the compensation.\" read as \"Cross-current compensation cures it.\" Still: compensation on, readouts 440.0 V, 225 kVAr, 225 kVAr, 0.0 A.\n\nScreen 14, show. The neutral view, the Windings choice free. It opens Mixed, with A at 2/3 pitch, B at 5/6 pitch and the red loop running. Then both switch to 2/3 pitch and the loop fades away. The words: \"Paralleled sets have a third path for current, through their neutrals. Many windings make a small third harmonic, in step in all three phases. So these add in the neutral. If two sets' windings differ, a large current can run round through their star points.[^7] A 2/3 pitch winding makes no third harmonic, so it suits paralleling.[^8] Where neutrals are earthed, only one running set's is earthed at a time.[^9] On an insulated system, coupling two boards couples their insulation monitors too. Only one may stay on.\" Read: the words. Still: Mixed, with the red loop.\n\nScreen 15, try it, typed (mixed). The kVAr view, A at 449.5 V, compensation off. \"Set A carries 300 kW and 255 kVAr. What is its power factor, to two decimal places?\" A field with no unit. Answer 0.76. Slips: 0.80, the load's; 0.84, B's; 0.65, kVAr ÷ kVA. Hint when wrong: \"Find its kVA first. It is √(kW² + kVAr²).\" Why: \"√(300² + 255²) = 393.7 kVA. 300 ÷ 393.7 = 0.76.\" Read: the question.\n\nScreen 16, try it, typed (mixed). The kW view, A at 62.8 Hz, B at 62.4 Hz. \"A carries 342 kW and B 258 kW, at 61.17 Hz. You want 300 kW each without moving the frequency. You lower A's setting and raise B's by the same amount. How far do you move each, in Hz?\" A field in Hz. Answer 0.2 Hz. Slips: 0.4, the whole gap; 0.1, half of it; 42, the kW. Hint when wrong: \"A must lose 42 kW, at 210 kW per hertz.\" Why: \"42 ÷ 210 = 0.2 Hz. A goes to 62.6 Hz. B goes to 62.6 Hz too. The average setting is unchanged. So the board stays at 61.17 Hz.\" A right Check shows: \"Fuel moves kW. Field moves kVAr.\" Read: the question.",
+    "ignores": "The load stays at 600 kW and 0.8 power factor whatever the frequency and voltage. Real loads change a little with both. Each droop is a straight line. Each governor and AVR settles at once. Real ones take a few seconds and can overshoot. The governors alone set the kW and the AVRs alone set the kVAr. In a real set each nudges the other a little. The inset holds E at 2.25 per unit while A's kW changes. A real AVR trims E as the kVAr moves. Losses are left out. The motored set's draw is an example figure. Compensation here makes the kVAr exactly equal. A real scheme leaves a small difference. The third-harmonic loop on the neutral screen has no size, because none is computed.",
+    "numbers": [
+      {
+        "label": "Number of screens",
+        "value": 16,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screens that show an idea",
+        "value": 7,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screens that ask you to try it",
+        "value": 9,
+        "kind": "assumed"
+      },
+      {
+        "label": "Each set's rating, kW",
+        "value": 504,
+        "kind": "assumed"
+      },
+      {
+        "label": "Each set's rating, kVA",
+        "value": 630,
+        "kind": "assumed"
+      },
+      {
+        "label": "Board line voltage, V",
+        "value": 440,
+        "kind": "assumed"
+      },
+      {
+        "label": "Board frequency, Hz",
+        "value": 60,
+        "kind": "assumed"
+      },
+      {
+        "label": "Shared load, kW",
+        "value": 600,
+        "kind": "control"
+      },
+      {
+        "label": "Load power factor",
+        "value": 0.8,
+        "kind": "assumed"
+      },
+      {
+        "label": "Load's kVAr for each kW",
+        "value": 0.75,
+        "kind": "computed"
+      },
+      {
+        "label": "Load's kVAr, 600 × 0.75",
+        "value": 450,
+        "kind": "computed"
+      },
+      {
+        "label": "Governor setting, lowest, Hz",
+        "value": 58,
+        "kind": "control"
+      },
+      {
+        "label": "Governor setting, highest, Hz",
+        "value": 64,
+        "kind": "control"
+      },
+      {
+        "label": "Governor setting step, Hz",
+        "value": 0.1,
+        "kind": "control"
+      },
+      {
+        "label": "Governor setting opening, Hz",
+        "value": 62.4,
+        "kind": "control"
+      },
+      {
+        "label": "Droop slider, lowest, %",
+        "value": 1,
+        "kind": "control"
+      },
+      {
+        "label": "Droop slider, highest, %",
+        "value": 6,
+        "kind": "control"
+      },
+      {
+        "label": "Droop slider step, %",
+        "value": 1,
+        "kind": "control"
+      },
+      {
+        "label": "Droop opening, %",
+        "value": 4,
+        "kind": "control"
+      },
+      {
+        "label": "Droop at 4% of 60 Hz, Hz",
+        "value": 2.4,
+        "kind": "computed"
+      },
+      {
+        "label": "Load stepper, lowest, kW",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Load stepper, highest, kW",
+        "value": 900,
+        "kind": "control"
+      },
+      {
+        "label": "Load stepper step, kW",
+        "value": 100,
+        "kind": "control"
+      },
+      {
+        "label": "kW for each hertz at 4%, 504 ÷ 2.4",
+        "value": 210,
+        "kind": "computed"
+      },
+      {
+        "label": "Sets sharing the load",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Motored set's draw, % of rating",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Motored set's draw, kW",
+        "value": 50.4,
+        "kind": "computed"
+      },
+      {
+        "label": "Inset E, per unit",
+        "value": 2.25,
+        "kind": "assumed"
+      },
+      {
+        "label": "Inset V, per unit",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Inset Xs, per unit",
+        "value": 1.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Field setting, lowest, V",
+        "value": 430,
+        "kind": "control"
+      },
+      {
+        "label": "Field setting, highest, V",
+        "value": 460,
+        "kind": "control"
+      },
+      {
+        "label": "Field setting step, V",
+        "value": 0.5,
+        "kind": "control"
+      },
+      {
+        "label": "Field setting opening, V",
+        "value": 447.5,
+        "kind": "control"
+      },
+      {
+        "label": "Voltage droop, kVAr for each volt",
+        "value": 30,
+        "kind": "assumed"
+      },
+      {
+        "label": "Voltage droop, V for each 30 kVAr",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Square root of 3",
+        "value": 1.732,
+        "kind": "constant"
+      },
+      {
+        "label": "Compensated voltage, V",
+        "value": 440,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 1: load, kVA",
+        "value": 100,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 1: power factor",
+        "value": 0.8,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 1: answer, kW",
+        "value": 80,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 1: reactive part, kVAr",
+        "value": 60,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 1 slip: divided, kW",
+        "value": 125,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 2: each set, kW",
+        "value": 300,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 2: A's load angle, degrees",
+        "value": 18.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 3: load angle, degrees",
+        "value": 32.3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 3: sin 32.3°",
+        "value": 0.534,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 3: answer, per unit",
+        "value": 0.8,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 3: on a 630 kVA set, kW",
+        "value": 504,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 3 slip: E sin δ, per unit",
+        "value": 1.2,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 3 slip: cos δ, per unit",
+        "value": 1.27,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 3 slip: times Xs, per unit",
+        "value": 1.8,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 4: frequency with no load, Hz",
+        "value": 62.4,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 4: frequency at full load, Hz",
+        "value": 60,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 4: board frequency, Hz",
+        "value": 60.97,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 5: nudge to A's setting, Hz",
+        "value": 0.3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 5: A's new setting, Hz",
+        "value": 62.7,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 6: A's share, kW",
+        "value": 331.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 6: B's share, kW",
+        "value": 268.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 6: A's load angle, degrees",
+        "value": 20.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 6: frequency rise, Hz",
+        "value": 0.15,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 6: board frequency, Hz",
+        "value": 61.12,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 7: nudge, Hz",
+        "value": 0.2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 7: frequency rise, Hz",
+        "value": 0.1,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 7: board frequency, Hz",
+        "value": 61.07,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 7: A's setting, Hz",
+        "value": 62.6,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 7: A below its setting, Hz",
+        "value": 1.53,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 7: answer, kW",
+        "value": 321,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 7: answer unrounded, kW",
+        "value": 321.3,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 7 slip: whole nudge, kW",
+        "value": 342,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 7 slip: B's share, kW",
+        "value": 279,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 8: droop, %",
+        "value": 1,
+        "kind": "control"
+      },
+      {
+        "label": "Screen 8: droop in hertz, Hz",
+        "value": 0.6,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 8: both settings, Hz",
+        "value": 60.6,
+        "kind": "control"
+      },
+      {
+        "label": "Screen 8: kW for each hertz",
+        "value": 840,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 8: kW moved by 0.3 Hz",
+        "value": 126,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 8: times as much as at 4%",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 8: A's setting after the nudge, Hz",
+        "value": 60.9,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 8: board frequency, Hz",
+        "value": 60.39,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 8: A's share, kW",
+        "value": 426,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 8: B's share, kW",
+        "value": 174,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 9: A's droop, %",
+        "value": 2,
+        "kind": "control"
+      },
+      {
+        "label": "Screen 9: A's droop in hertz, Hz",
+        "value": 1.2,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 9: A's setting, Hz",
+        "value": 61.2,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 9: B's droop, %",
+        "value": 4,
+        "kind": "control"
+      },
+      {
+        "label": "Screen 9: B's setting, Hz",
+        "value": 62.4,
+        "kind": "control"
+      },
+      {
+        "label": "Screen 9: A's kW for each hertz",
+        "value": 420,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 9: load at the start, kW",
+        "value": 900,
+        "kind": "control"
+      },
+      {
+        "label": "Screen 9: load midway, kW",
+        "value": 600,
+        "kind": "control"
+      },
+      {
+        "label": "Screen 9: load at the end, kW",
+        "value": 300,
+        "kind": "control"
+      },
+      {
+        "label": "Screen 9: board at 900 kW, Hz",
+        "value": 60.17,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 9: A's share at 900 kW",
+        "value": 432,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 9: B's share at 900 kW",
+        "value": 468,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 9: gap at 900 kW, kW",
+        "value": 36,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 9: A's share at 600 kW",
+        "value": 232,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 9: B's share at 600 kW",
+        "value": 368,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 9: board at 300 kW, Hz",
+        "value": 61.12,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 9: A's share at 300 kW",
+        "value": 32,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 9: B's share at 300 kW",
+        "value": 268,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 9: A sheds, kW",
+        "value": 400,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 9: B sheds, kW",
+        "value": 200,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 9 slip: equal shedding, kW each",
+        "value": 300,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 10: A's setting, Hz",
+        "value": 60.1,
+        "kind": "control"
+      },
+      {
+        "label": "Screen 10: B's setting, Hz",
+        "value": 60,
+        "kind": "control"
+      },
+      {
+        "label": "Screen 10: load, kW",
+        "value": 400,
+        "kind": "control"
+      },
+      {
+        "label": "Screen 10: wrong split, kW",
+        "value": 200,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 10: wrong halfway frequency, Hz",
+        "value": 60.05,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 10: A's share, kW",
+        "value": 450.4,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 11: each set, kVAr",
+        "value": 225,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 11: board voltage, V",
+        "value": 440,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 11: cross current, A",
+        "value": 0,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 11: a set's full kVAr at zero power factor",
+        "value": 630,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 11: voltage droop at 630 kVAr, V",
+        "value": 21,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 11: voltage droop at 630 kVAr, %",
+        "value": 4.8,
+        "kind": "computed"
+      },
+      {
+        "label": "Factory droop CT setting at full load, zero power factor, %",
+        "value": 5,
+        "kind": "constant",
+        "source": 6
+      },
+      {
+        "label": "Screen 12: raise in A's field setting, V",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 12: board voltage rise, V",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 12: board voltage, V",
+        "value": 441,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 12: A below its setting, V",
+        "value": 8.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 12: A's share, kVAr",
+        "value": 255,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 12: B's share, kVAr",
+        "value": 195,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 13: A's field setting, V",
+        "value": 449.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 13: extra kVAr from A to B",
+        "value": 30,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 13: 30 kVAr in watts' units, var",
+        "value": 30000,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 13: cross current, A",
+        "value": 39.4,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 14: winding pitch that makes no third harmonic",
+        "value": 0.667,
+        "kind": "constant",
+        "source": 8
+      },
+      {
+        "label": "Screen 14: the other set's winding pitch",
+        "value": 0.833,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 15: A's kVA",
+        "value": 393.7,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 15: answer",
+        "value": 0.76,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 15 slip: B's power factor",
+        "value": 0.84,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 15 slip: kVAr ÷ kVA",
+        "value": 0.65,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 15: decimal places",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 16: A's setting, Hz",
+        "value": 62.8,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 16: B's setting, Hz",
+        "value": 62.4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 16: A's share, kW",
+        "value": 342,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 16: B's share, kW",
+        "value": 258,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 16: board frequency, Hz",
+        "value": 61.17,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 16: kW gap",
+        "value": 84,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 16: kW A must lose",
+        "value": 42,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 16: answer, Hz",
+        "value": 0.2,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 16 slip: whole gap, Hz",
+        "value": 0.4,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 16 slip: half, Hz",
+        "value": 0.1,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 16: both settings after, Hz",
+        "value": 62.6,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example: A's setting, Hz",
+        "value": 62.7,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example: B's setting, Hz",
+        "value": 62.1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example: A's share, kW",
+        "value": 363,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example: B's share, kW",
+        "value": 237,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example: kW to move",
+        "value": 63,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example: setting change, Hz",
+        "value": 0.3,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example: lower both by, Hz",
+        "value": 0.97,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example: both settings after, Hz",
+        "value": 61.43,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example: board frequency after, Hz",
+        "value": 60,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example: A's power factor at 255 kVAr",
+        "value": 0.76,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example: B's power factor at 195 kVAr",
+        "value": 0.84,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "Once a set runs in parallel with others, its two controls change jobs. On its own, its fuel set its frequency and its field set its voltage. In parallel, every set shares one frequency and one voltage. So fuel decides a set's share of the kW, and field its share of the kVAr. You move both through the governor's and the AVR's set points.\n\nMore fuel cannot speed one paralleled set away from the others. Its rotor is locked in step with the board. The same pull that brought it into step as it closed holds it there. So the extra fuel first pushes its rotor a few degrees further ahead. That widens the load angle δ between E and V. Now look again at the drawing of E as V plus the drop across Xs. The part of the current in phase with V makes the part of the drop that stands square to V. So E × sin δ = Xs × that in-phase current. Multiply both sides by V and divide by Xs. V × the in-phase current is the power. So, in per unit, power = E × V × sin δ ÷ Xs. Take E at 2.25, V at 1.0 and Xs at 1.5. Then a 32.3° angle gives 2.25 × 0.534 ÷ 1.5 = 0.80 per unit. That is the set's full 504 kW. A wider angle sends out more. So a set's kW follows its engine's output.\n\nThe droop lines decide how the kW divides. Take two 504 kW sets at 4% droop on 60 Hz. Each runs at 62.4 Hz with no load and 60 Hz at full load. So each takes 504 ÷ 2.4 = 210 kW for each hertz it falls. Both must run at the board's one frequency. Their kW must add up to the load. On a 600 kW load they settle at 300 kW each, at 62.4 − 300 ÷ 210 = 60.97 Hz. Raise A's setting by 0.3 Hz. A's extra fuel starts to push the board faster. B's governor sees the rise and backs off. They settle with A on 331.5 kW and B on 268.5 kW, at 61.12 Hz. The frequency rose by half the nudge, because two sets shared it. In a big group it hardly moves.[^2] A board so big that no one set can move its frequency or voltage is called an [[infinite bus]]. The mains ashore are one. Against them, a set's fuel moves only its kW, never the frequency. Droop is what makes the sharing steady. Every set needs the same droop. With unequal droops, the shares drift apart each time the load changes.[^5] Two isochronous sets have flat lines. So they have no crossing to settle at. Set them a little apart, and the higher one takes all the load it can carry. If that is the whole load, the other has its fuel cut to nothing. It is then driven round as a motor. To share, isochronous sets need a link between their governors that measures each set's kW.\n\nThe field shares the kVAr the same way. Raise one set's field and its E grows. So it pushes out more lagging current. The board's voltage starts to rise. The other set's AVR sees it and trims its own field back. So in a group the board's voltage hardly rises. Instead that set takes a bigger part of the kVAr, and its power factor falls. Its kW stays put. The fuel sets its engine's output, not the field. Each AVR can also let its voltage fall a little as its kVAr rises. That [[voltage droop]] makes the AVRs share as droop governors do. A small current transformer in each set, the droop CT, does this. Here each falls 1 V for every 30 kVAr. That is an example setting. Against the mains, voltage droop does not work well, because the mains voltage wanders as their load changes.[^10] Raise A's setting by 2 V. Then A carries 255 kVAr against B's 195, and the board is up just 1 V. Each carries its fair 225 kVAr, plus or minus 30 kVAr. That 30 kVAr runs round from A into B and does no work for the load. That is a [[cross current]]. Here it is 30 000 ÷ (√3 × 440) = 39.4 A. It adds to A's current and its heating. The cure is cross-current compensation. It links the AVRs. Each compares its kVAr with the other's and trims its field until they match. Paralleled sets can also pass current through their neutrals. Third harmonics add there, so sets meant for paralleling use 2/3 pitch windings, which make none. And only one running set's neutral is earthed at a time. These figures use a simplified picture, with straight droop lines and example settings. **In parallel, more fuel moves kW onto a set and more field moves kVAr onto it. The board's frequency and voltage barely change.**[^4]"
+  },
+  "analogy": {
+    "text": "Think of two battery strings in parallel on one DC board, with nothing switched on. Charge one a little higher than the other. A current still flows. It runs out of the higher string and into the lower one, and none of it reaches a load. A cross current between two sets is the same kind of thing. It runs round between them instead of to the load.",
+    "breaks": "Between battery strings, the current is real power, and it charges the lower string. Between two sets it is reactive. It moves kVAr, not kW, so it stores nothing. It only adds to the current in the set that drives it."
+  },
+  "practice": {
+    "text": "**Sharing load on a running board**\n\nThe safe way first. Where a power management system or load-sharing controller is fitted, let it share the load. Trim by hand only as your procedures allow.\n- Read each set's kW, kVAr and power factor, or its current.\n- Move kW with the governor controls only. Lower the heavy set's setting and raise the light one's by the same amount. On equal sets, the frequency then holds.\n- To bring the frequency back to rated, move both settings together, the same way. That moves the frequency and leaves the shares alone.\n- Move kVAr with the voltage controls only, in the same way. Stop when the power factors match.\n- Check the currents, not only the kW. Two sets on equal kW but unequal currents are carrying a cross current.\n- To take a set off, lower its setting until its kW is small. Then open its breaker. Stop before its kW reaches zero, or it is driven as a motor.\n\n**Setting up a new pair:** match their no-load voltages first. Then trim the speed settings until no kW passes between the sets. Then trim one voltage setting to cancel the current running round between them.[^12]\n\n**Rules of thumb:** a set takes its rating ÷ its droop in hertz for each hertz below its setting. On a 4% set that is 504 ÷ 2.4 = 210 kW. On two equal sets, a nudge to one setting moves the frequency by half the nudge. Raise one and lower the other, and the frequency stays put. Equal kW and equal power factor on equal sets means no cross current.\n\n**Worked example:** two 504 kW sets at 4% droop share 600 kW. A is set at 62.7 Hz and B at 62.1 Hz. So A carries 363 kW and B 237 kW, at 60.97 Hz. Each should carry 300 kW, so 63 kW must move. At 210 kW per hertz that is 63 ÷ 210 = 0.3 Hz. Lower A to 62.4 Hz and raise B to 62.4 Hz. The frequency stays at 60.97 Hz. Then lower both by 0.97 Hz together, to 61.43 Hz. The board comes back to 60 Hz with 300 kW on each. Then look at the kVAr. Say A shows 0.76 power factor and B 0.84, on equal kW. Then A's field is high. Lower A's voltage setting and raise B's until they match.\n\n**Common mistakes**\n- Giving one paralleled set more fuel to raise the frequency. It mostly takes load off the others instead.\n- Raising one set's field to lift the board voltage. It takes kVAr off the others. It also drives a cross current.\n- Running two isochronous governors with no link between them. One takes the load. The other can be driven as a motor.\n- Judging the share by kW alone. A set can carry its share of kW and still be overloaded by kVAr.\n- Giving the sets different droops. Their shares then drift apart each time the load changes.\n- Thinking the droop CT matters on a set running alone. It only lets the voltage sag as the kVAr rises. A shorting switch across it gives normal regulation.[^11]"
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+    {
+      "n": 1,
+      "title": "Considerations when Paralleling Generating Sets — mart.cummins.com",
+      "url": "https://mart.cummins.com/imagelibrary/data/assetfiles/0056622.pdf",
+      "quote": "Real power (kW) provided by a generator set operating in parallel with others is a direct function of engine real power output."
+    },
+    {
+      "n": 2,
+      "title": "ACTIVE & REACTIVE POWER SHARING IN PARALLELED GENERATORS (KW & KVAR) - DieselShip — dieselship.com",
+      "url": "https://dieselship.com/marine-technical-articles/marine-electro-technology/active-reactive-power-sharing-in-a-paralleled-generator-set-kw-kvar",
+      "quote": "As the fuel to the engine of one generator set in a group is increased it will not lead to an increase in speed and hence frequency"
+    },
+    {
+      "n": 3,
+      "title": "ACTIVE & REACTIVE POWER SHARING IN PARALLELED GENERATORS (KW & KVAR) - DieselShip — dieselship.com",
+      "url": "https://dieselship.com/marine-technical-articles/marine-electro-technology/active-reactive-power-sharing-in-a-paralleled-generator-set-kw-kvar",
+      "quote": "it will lead to an increase in the proportion of the total kVAR load it will deliver and a decrease in its power factor."
+    },
+    {
+      "n": 4,
+      "title": "Load Sharing: Balancing kW and kVAR Between Generators — bengibb.ca",
+      "url": "https://www.bengibb.ca/blog/kw-and-kvar-control",
+      "quote": "These two types of load sharing rely on separate systems: speed control for kW and voltage control for kVAR."
+    },
+    {
+      "n": 5,
+      "title": "Paralleling Dissimilar Generators: Part 3 – Load Sharing Compatibility — mart.cummins.com",
+      "url": "https://mart.cummins.com/imagelibrary/data/assetfiles/0056549.pdf",
+      "quote": "Each generator must be set to drop frequency at the same rate from no load to full load."
+    },
+    {
+      "n": 6,
+      "title": "STAMFORD S9 alternators owner manual — stamford-avk.com",
+      "url": "https://www.stamford-avk.com/sites/stamfordavk/files/2025-03/S9-Owners-Manual-English.pdf",
+      "quote": "A factory-fitted droop CT is pre-set for 5% voltage drop at full-load zero power factor."
+    },
+    {
+      "n": 7,
+      "title": "Considerations when Paralleling Generating Sets — mart.cummins.com",
+      "url": "https://mart.cummins.com/imagelibrary/data/assetfiles/0056622.pdf",
+      "quote": "Third-order harmonics (and their multiples) are problematical because they directly add in the neutral and can result in large neutral current flows between paralleled machines."
+    },
+    {
+      "n": 8,
+      "title": "Considerations when Paralleling Generating Sets — mart.cummins.com",
+      "url": "https://mart.cummins.com/imagelibrary/data/assetfiles/0056622.pdf",
+      "quote": "For paralleling applications, it is highly desirable to utilise 2/3 pitch designs because no third-order harmonics are created by the machine."
+    },
+    {
+      "n": 9,
+      "title": "Cressall catalogue 2024, neutral earthing and load banks — cressall.com",
+      "url": "https://www.cressall.com/wp-content/uploads/2024/06/cressallweb2024.pdf",
+      "quote": "it is necessary to ensure that one (and only one, to avoid the possibility of circulating currents) of the neutrals of one of the running generating sets is earthed at all times."
+    },
+    {
+      "n": 10,
+      "title": "Paralleling Dissimilar Generators: Part 3 – Load Sharing Compatibility — mart.cummins.com",
+      "url": "https://mart.cummins.com/imagelibrary/data/assetfiles/0056549.pdf",
+      "quote": "However, reactive droop is not effective for utility paralleling due to the greatly varying voltage level at any point in a utility distribution system as the load on the system changes."
+    },
+    {
+      "n": 11,
+      "title": "STAMFORD S9 HV alternators installation, service and maintenance manual — stamford-avk.com",
+      "url": "https://www.stamford-avk.com/sites/stamfordavk/files/2026-05/S9-HV-Alternators-Installation-Service-and-Maintenance-Manual-English.pdf",
+      "quote": "For normal voltage regulation as a single running machine, a shorting switch should be fitted across the parallel droop transformer."
+    },
+    {
+      "n": 12,
+      "title": "Leroy-Somer R438 AVR installation and maintenance — leroy-somer.com",
+      "url": "https://www.leroy-somer.com/documentation_pdf/3971_en.pdf",
+      "quote": "By altering the voltage setting P2 on one of the machines, try to cancel (or minimise) the current circulating between the machines."
+    }
+  ]
+}

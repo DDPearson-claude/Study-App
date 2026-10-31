@@ -1,0 +1,474 @@
+TASK: repair-interactive
+
+The interactive below, written for Dan's learning app, failed its automatic checks. Fix every problem listed and return the complete corrected body. Keep what already works.
+
+## The idea
+Topic: Generators and paralleling
+Idea: Load sharing: kW by fuel, kVAr by field (In parallel, more fuel moves kW onto a set and more field moves kVAr onto it, while the board's frequency and voltage barely change.)
+Kind: quantity
+Dan knows a little about this topic. Show an equation on the page only if every symbol in it is labelled on the picture; otherwise say the rule in words.
+
+## What the interactive must show
+Brief: The one thing you should see is set A's share of the kW growing while the board's frequency barely moves, when you raise A's governor setting with the two sets' droop lines back to back.
+Title (the app shows it above the frame, so do not repeat it): Two sets, back to back
+The rule (the app shows it just above the frame, under "What you're looking at"): Fourteen small screens share one picture, with Back and Continue. Six show an idea and eight ask you to try it. There are no marks and no timers.
+
+The picture. Two 504 kW sets, A and B, run side by side on one 440 V, 60 Hz board. Below them sit two droop lines, back to back. The width between the two edges is the shared load. It is 600 kW at 0.8 power factor. A's kW runs rightwards from the left edge. B's runs leftwards from the right edge. Each line is that set's frequency against its own kW. A dot marks where they cross. A dashed line runs from it across to the frequency. Under the graph, each set has a bar that shows its share. A share below zero is drawn red, past its edge. A small inset shows set A's E and V, and the load angle δ between them. A switch flips the picture to voltage against kVAr. Then the same two lines show each set's voltage against its kVAr, across the load's 450 kVAr.
+
+The controls. The kW view has a Governors choice, Droop or Isochronous. A's setting and B's setting run from 58.0 to 64.0 Hz in steps of 0.1. Both open at 62.4 Hz. A Droop slider runs from 1 to 6% in steps of 1 and opens at 4%. It is the same on both sets. A Load stepper runs from 0 to 900 kW in steps of 100 and opens at 600 kW. The kVAr view has A's field setting and B's field setting. They run from 430 to 460 V in steps of 0.5, and both open at 447.5 V. A Compensation switch starts off. The readouts sit in four tiles that wrap onto two rows on a phone. They are Frequency in Hz, A in kW, B in kW and A's δ in °. In the kVAr view they are Voltage in V, A in kVAr, B in kVAr and Cross current in A. In that view, a small label under each set gives its kW. The buttons wrap too, so no word splits.
+
+The rule it computes. A setting is the set's frequency with no load. With droop, each set falls the droop × 60 Hz across its 504 kW. At 4% that is 2.4 Hz. So each set takes 504 ÷ 2.4 = 210 kW for each hertz below its setting. Both run at the board's one frequency, f. Their kW must add up to the load. So f = the average of the two settings − the load ÷ (2 × 210). Each set carries 210 × (its setting − f). A share is capped at 504 kW, full fuel. With its fuel cut to nothing, a set is driven as a motor. It then draws 50.4 kW, 10% of its rating. That is an example value. Isochronous lines are flat at their settings. The higher one sets the frequency. It takes the whole load plus the motored set's 50.4 kW, up to 504 kW. Past that, the frequency falls to the lower setting. That set then carries the rest. Exactly equal settings share equally here. The inset keeps E at 2.25 per unit and Xs at 1.5. It sets sin δ = A's kW ÷ 630 kVA × 1.5 ÷ 2.25. The kVAr view works the same way. The load's kVAr is its kW × 0.75, so 450 kVAr. Each AVR's voltage falls 1 V for each 30 kVAr it carries. That is an example setting. So the voltage = the average of the field settings − the load's kVAr ÷ (2 × 30). Each set carries 30 × (its setting − the voltage). The cross current is the difference in kVAr ÷ 2, ÷ (√3 × 440 V). A set is drawn red below zero kVAr, where it runs leading. It is also drawn red past its 630 kVA. With compensation on, both AVRs hold 440 V and share the kVAr equally. The field settings wait, greyed. The governors alone set the kW, so the kVAr view never moves it.
+
+Screen 1, try it, a recall. No picture. "A load takes 100 kVA at 0.8 power factor. How many kW does it take?" A field in kW. Answer 80 kW. Slips: 60, "That is the kVAr. kW is kVA × the power factor."; 125, "That divides by 0.8. Multiply instead." Hint when wrong: "kW = kVA × the power factor." Why: "100 × 0.8 = 80 kW. The other part is √(100² − 80²) = 60 kVAr. That is the reactive power the field supplies." A right Check shows both parts as two sides of a right-angled triangle. Read: the question.
+
+Screen 2, show. The kW view, both settings 62.4 Hz, every control hidden, the inset large. The words: "On a live board, a set's rotor is locked in step with the others. So more fuel cannot simply speed it up. Instead it pushes the rotor a few degrees further ahead. The load angle δ grows. So the set sends out more kW. A set's kW follows its engine's output.[^1] Here A carries 300 kW at a δ of 18.5°." Read: the words. Still: readouts 60.97 Hz, 300 kW, 300 kW, 18.5°.
+
+Screen 3, try it, typed. The inset alone, δ at 32.3°, the δ tile reading 32.3°. "Set A's E is 2.25 per unit, V is 1.0 and Xs is 1.5. The load angle is 32.3°. Power = E × V × sin δ ÷ Xs. What power does it send out, in per unit?" A field with no unit. Answer 0.80. Slips: 1.20, "That is E × sin δ. Divide by Xs too."; 1.27, "That uses cos δ. Power goes with sin δ."; 1.80, "That multiplies by Xs. Divide by it." Hint when wrong: "sin 32.3° is 0.534." Why: "2.25 × 1.0 × 0.534 ÷ 1.5 = 0.80 per unit. On a 630 kVA set that is 504 kW. That is its full rating." A right Check shows A at 504 kW. Read: the question.
+
+Screen 4, show. The kW view at its opening settings, the controls hidden. The words: "Two sets share the load through their droop lines. Each runs at 62.4 Hz with no load and 60 Hz at its full 504 kW. So each takes 210 kW for each hertz it falls. A's line starts at the left edge and B's at the right. The 600 kW load lies between. Both must run at the board's one frequency. So they settle where the lines cross. That gives 300 kW each, at 62.4 − 300 ÷ 210 = 60.97 Hz." Read: the words. Still: readouts 60.97 Hz, 300 kW, 300 kW, 18.5°.
+
+Screen 5, try it. As screen 4. "You raise A's governor setting by 0.3 Hz, from 62.4 to 62.7 Hz. What happens?" Three choices, in this order: "The board speeds up 0.3 Hz, and the kW stays put"; "A takes more kW, B less, and the frequency rises a little"; "A takes the whole load". Right, the second. Hint for the first: "That is what a set does alone. Here B's governor answers too."; for the third: "A's line has lifted only 0.3 Hz. The lines still cross." Why: "A's line lifts, and the crossing moves towards B. The board can have only one frequency. So the two shares change instead." A right Check moves A's setting to 62.7 Hz. Read: the question.
+
+Screen 6, show. A's setting at 62.7 Hz and free. The words: "A's extra fuel starts to push the board faster. B's governor sees the rise and backs off its fuel. They settle with A on 331.5 kW and B on 268.5 kW. A's load angle has grown to 20.5°. The board rose only 0.15 Hz. That is half the nudge. On a set alone, the same nudge would lift the frequency the full 0.3 Hz. It would move no kW. In a big group, the frequency hardly moves at all.[^2] Drag A's setting and watch the shares." Read: the words without the last sentence. Still: A's setting 62.7 Hz, readouts 61.12 Hz, 331.5 kW, 268.5 kW, 20.5°.
+
+Screen 7, try it, typed. Both settings back at 62.4 Hz, the A tile reading ? until Check. "Both sets carry 300 kW at 60.97 Hz. You raise A's setting by 0.2 Hz. Each set takes 210 kW for each hertz below its setting. How many kW does A carry now?" A field in kW. Answer 321 kW. Slips: 342, "That gives A the whole 0.2 Hz. The frequency rises too, by half the nudge."; 300, "A's line has lifted. So it carries more."; 279, "That is B's share." Also accepted: 321.3. Hint when wrong: "The frequency rises by half the nudge, to 61.07 Hz." Why: "The board rises 0.1 Hz to 61.07 Hz. A sits 62.6 − 61.07 = 1.53 Hz below its setting. 210 × 1.53 = 321 kW." A right Check moves A's setting to 62.6 Hz. Read: the question.
+
+Screen 8, show. The droop at 1%, both settings 60.6 Hz, the Droop slider and A's setting free. The words: "The droop sets how firmly each set holds its share. Turn both droops down to 1%. Each line now falls just 0.6 Hz across 504 kW. The same 0.3 Hz nudge on A now moves 126 kW. That is four times as much. With no droop, the lines are flat. Then the smallest difference decides everything. To move load but hold the frequency, raise one setting and lower the other by the same amount." Read: "Turn both droops down to 1%." read as "With both droops at 1%." Still: A's setting 60.9 Hz, readouts 60.39 Hz, 426 kW, 174 kW.
+
+Screen 9, try it. Governors on Isochronous, A at 60.1 Hz, B at 60.0 Hz, the load 400 kW, the result hidden until Check. "Both governors are isochronous, with no droop. A is set to 60.1 Hz and B to 60.0 Hz. They share a 400 kW load. What happens?" Three choices, in this order: "They share it, 200 kW each"; "A takes it all, and B is driven as a motor"; "They settle halfway, at 60.05 Hz". Right, the second. Hint for the first: "Each governor holds its own speed exactly. Only one speed can win."; for the third: "Flat lines have no halfway point to cross at." Why: "A adds fuel until the board runs at 60.1 Hz. B sees the board above its setting and cuts its fuel to nothing. B's rotor is still locked in step. So the board drives it. It draws 50.4 kW as a motor. A carries 450.4 kW." A right Check shows the result, B's bar red past its edge. Read: the question.
+
+Screen 10, show. The kVAr view, both field settings 447.5 V, the governors back at their openings, compensation off, the controls hidden. The words: "Now the picture shows voltage against kVAr. The same 600 kW load at 0.8 also takes 450 kVAr. The AVRs share that kVAr, just as the governors share the kW. Each AVR lets its voltage fall 1 V for every 30 kVAr it carries. That is an example setting. This gentle fall is voltage droop. Both are set to 447.5 V at no kVAr. So the lines cross at 440 V, with 225 kVAr each." Read: the words. Still: readouts 440.0 V, 225 kVAr, 225 kVAr, 0.0 A.
+
+Screen 11, try it. As screen 10. "Both sets carry 300 kW and 225 kVAr at 440 V. You raise A's field setting by 2 V. What moves most?" Three choices, in this order: "The board's voltage, up 2 V"; "A's kVAr goes up and its power factor down"; "A's kW goes up". Right, the second. Hint for the first: "Alone it would. In parallel, B's AVR answers and carries less."; for the third: "kW comes from the fuel. The field cannot make any." Why: "The board rises only 1 V, to 441 V. A sits 8.5 V below its setting. So it carries 30 × 8.5 = 255 kVAr. B carries 195 kVAr. A's kW stays at 300 kW. So its power factor falls.[^3]" A right Check moves A's field setting to 449.5 V. Read: the question.
+
+Screen 12, show. A's field setting at 449.5 V, the Compensation switch free. The words: "A's kW has not moved. But A now carries 255 kVAr and B 195. That extra 30 kVAr flows out of A and into B. It does no work for the load. It is a cross current. Here it is 30 000 ÷ (√3 × 440) = 39.4 A. It adds to A's current and its heating. Turn on the compensation. The AVRs compare their kVAr and trim their fields until it matches. The cross current falls to zero." Read: "Turn on the compensation." read as "Cross-current compensation cures it." Still: compensation on, readouts 440.0 V, 225 kVAr, 225 kVAr, 0.0 A.
+
+Screen 13, try it, typed (mixed). The kVAr view, A at 449.5 V, compensation off. "Set A carries 300 kW and 255 kVAr. What is its power factor, to two decimal places?" A field with no unit. Answer 0.76. Slips: 0.80, "That is the load's. A carries more than its share of kVAr."; 0.84, "That is B's, with 195 kVAr."; 0.65, "That is kVAr ÷ kVA. Use kW ÷ kVA." Hint when wrong: "Find its kVA first. It is √(kW² + kVAr²)." Why: "√(300² + 255²) = 393.7 kVA. 300 ÷ 393.7 = 0.76." Read: the question.
+
+Screen 14, try it, typed (mixed). The kW view, A at 62.8 Hz, B at 62.4 Hz. "A carries 342 kW and B 258 kW, at 61.17 Hz. You want 300 kW each without moving the frequency. You lower A's setting and raise B's by the same amount. How far do you move each, in Hz?" A field in Hz. Answer 0.2 Hz. Slips: 0.4, "That moves the whole 84 kW gap. A only needs to lose 42 kW."; 0.1, "With B raised too, the frequency holds. So A loses the full 210 kW per hertz."; 42, "That is the kW. Divide by 210 kW per hertz." Hint when wrong: "A must lose 42 kW, at 210 kW per hertz." Why: "42 ÷ 210 = 0.2 Hz. A goes to 62.6 Hz. B goes to 62.6 Hz too. The average setting is unchanged. So the board stays at 61.17 Hz." A right Check shows: "Fuel moves kW. Field moves kVAr." Read: the question.
+What the model leaves out (the app shows this in its own panel; do not repeat it on the page): The load stays at 600 kW and 0.8 power factor whatever the frequency and voltage. Real loads change a little with both. Each droop is a straight line. Each governor and AVR settles at once. Real ones take a few seconds and can overshoot. The governors alone set the kW and the AVRs alone set the kVAr. In a real set each nudges the other a little. The inset holds E at 2.25 per unit while A's kW changes. A real AVR trims E as the kVAr moves. Losses are left out. The motored set's draw is an example figure. Compensation here makes the kVAr exactly equal. A real scheme leaves a small difference.
+Controls (use these ids, ranges and opening values exactly; when the prediction or a check names a setting of a slider, add it to that slider's snap):
+- id "step": Screen, from 0 to 13 in steps of 1, opening at 0
+Outputs: none. No rule computes a number here, so show no readouts beyond plain counts of what is on screen ("4 of 7 at war"): the picture, its labels and the .say line do the teaching.
+Numbers it may show (control = Dan sets it; computed = from the rule; constant = a fixed real value; assumed = an example value, said once as an example in the lead line or a caption, then drawn as a plain value; date = a historical date or fact):
+- Number of screens: 14 (assumed)
+- Screens that show an idea: 6 (assumed)
+- Screens that ask you to try it: 8 (assumed)
+- Each set's rating, kW: 504 (assumed)
+- Each set's rating, kVA: 630 (assumed)
+- Board line voltage, V: 440 (assumed)
+- Board frequency, Hz: 60 (assumed)
+- Shared load, kW: 600 (control)
+- Load power factor: 0.8 (assumed)
+- Load's kVAr for each kW: 0.75 (computed)
+- Load's kVAr, 600 × 0.75: 450 (computed)
+- Governor setting, lowest, Hz: 58 (control)
+- Governor setting, highest, Hz: 64 (control)
+- Governor setting step, Hz: 0.1 (control)
+- Governor setting opening, Hz: 62.4 (control)
+- Droop slider, lowest, %: 1 (control)
+- Droop slider, highest, %: 6 (control)
+- Droop slider step, %: 1 (control)
+- Droop opening, %: 4 (control)
+- Droop at 4% of 60 Hz, Hz: 2.4 (computed)
+- Load stepper, lowest, kW: 0 (control)
+- Load stepper, highest, kW: 900 (control)
+- Load stepper step, kW: 100 (control)
+- kW for each hertz at 4%, 504 ÷ 2.4: 210 (computed)
+- Sets sharing the load: 2 (assumed)
+- Motored set's draw, % of rating: 10 (assumed)
+- Motored set's draw, kW: 50.4 (computed)
+- Inset E, per unit: 2.25 (assumed)
+- Inset V, per unit: 1 (assumed)
+- Inset Xs, per unit: 1.5 (assumed)
+- Field setting, lowest, V: 430 (control)
+- Field setting, highest, V: 460 (control)
+- Field setting step, V: 0.5 (control)
+- Field setting opening, V: 447.5 (control)
+- Voltage droop, kVAr for each volt: 30 (assumed)
+- Voltage droop, V for each 30 kVAr: 1 (assumed)
+- Square root of 3: 1.732 (constant)
+- Compensated voltage, V: 440 (assumed)
+- Screen 1: load, kVA: 100 (assumed)
+- Screen 1: power factor: 0.8 (assumed)
+- Screen 1: answer, kW: 80 (computed)
+- Screen 1: reactive part, kVAr: 60 (computed)
+- Screen 1 slip: divided, kW: 125 (computed)
+- Screen 2: each set, kW: 300 (computed)
+- Screen 2: A's load angle, degrees: 18.5 (computed)
+- Screen 3: load angle, degrees: 32.3 (assumed)
+- Screen 3: sin 32.3°: 0.534 (computed)
+- Screen 3: answer, per unit: 0.8 (computed)
+- Screen 3: on a 630 kVA set, kW: 504 (computed)
+- Screen 3 slip: E sin δ, per unit: 1.2 (computed)
+- Screen 3 slip: cos δ, per unit: 1.27 (computed)
+- Screen 3 slip: times Xs, per unit: 1.8 (computed)
+- Screen 4: frequency with no load, Hz: 62.4 (computed)
+- Screen 4: frequency at full load, Hz: 60 (computed)
+- Screen 4: board frequency, Hz: 60.97 (computed)
+- Screen 5: nudge to A's setting, Hz: 0.3 (assumed)
+- Screen 5: A's new setting, Hz: 62.7 (computed)
+- Screen 6: A's share, kW: 331.5 (computed)
+- Screen 6: B's share, kW: 268.5 (computed)
+- Screen 6: A's load angle, degrees: 20.5 (computed)
+- Screen 6: frequency rise, Hz: 0.15 (computed)
+- Screen 6: board frequency, Hz: 61.12 (computed)
+- Screen 7: nudge, Hz: 0.2 (assumed)
+- Screen 7: frequency rise, Hz: 0.1 (computed)
+- Screen 7: board frequency, Hz: 61.07 (computed)
+- Screen 7: A's setting, Hz: 62.6 (computed)
+- Screen 7: A below its setting, Hz: 1.53 (computed)
+- Screen 7: answer, kW: 321 (computed)
+- Screen 7: answer unrounded, kW: 321.3 (computed)
+- Screen 7 slip: whole nudge, kW: 342 (computed)
+- Screen 7 slip: B's share, kW: 279 (computed)
+- Screen 8: droop, %: 1 (control)
+- Screen 8: droop in hertz, Hz: 0.6 (computed)
+- Screen 8: both settings, Hz: 60.6 (control)
+- Screen 8: kW for each hertz: 840 (computed)
+- Screen 8: kW moved by 0.3 Hz: 126 (computed)
+- Screen 8: times as much as at 4%: 4 (computed)
+- Screen 8: A's setting after the nudge, Hz: 60.9 (computed)
+- Screen 8: board frequency, Hz: 60.39 (computed)
+- Screen 8: A's share, kW: 426 (computed)
+- Screen 8: B's share, kW: 174 (computed)
+- Screen 9: A's setting, Hz: 60.1 (control)
+- Screen 9: B's setting, Hz: 60 (control)
+- Screen 9: load, kW: 400 (control)
+- Screen 9: wrong split, kW: 200 (computed)
+- Screen 9: wrong halfway frequency, Hz: 60.05 (computed)
+- Screen 9: A's share, kW: 450.4 (computed)
+- Screen 10: each set, kVAr: 225 (computed)
+- Screen 10: board voltage, V: 440 (computed)
+- Screen 10: cross current, A: 0 (computed)
+- Screen 11: raise in A's field setting, V: 2 (assumed)
+- Screen 11: board voltage rise, V: 1 (computed)
+- Screen 11: board voltage, V: 441 (computed)
+- Screen 11: A below its setting, V: 8.5 (computed)
+- Screen 11: A's share, kVAr: 255 (computed)
+- Screen 11: B's share, kVAr: 195 (computed)
+- Screen 12: A's field setting, V: 449.5 (computed)
+- Screen 12: extra kVAr from A to B: 30 (computed)
+- Screen 12: 30 kVAr in watts' units, var: 30000 (computed)
+- Screen 12: cross current, A: 39.4 (computed)
+- Screen 13: A's kVA: 393.7 (computed)
+- Screen 13: answer: 0.76 (computed)
+- Screen 13 slip: B's power factor: 0.84 (computed)
+- Screen 13 slip: kVAr ÷ kVA: 0.65 (computed)
+- Screen 13: decimal places: 2 (assumed)
+- Screen 14: A's setting, Hz: 62.8 (assumed)
+- Screen 14: B's setting, Hz: 62.4 (assumed)
+- Screen 14: A's share, kW: 342 (computed)
+- Screen 14: B's share, kW: 258 (computed)
+- Screen 14: board frequency, Hz: 61.17 (computed)
+- Screen 14: kW gap: 84 (computed)
+- Screen 14: kW A must lose: 42 (computed)
+- Screen 14: answer, Hz: 0.2 (computed)
+- Screen 14 slip: whole gap, Hz: 0.4 (computed)
+- Screen 14 slip: half, Hz: 0.1 (computed)
+- Screen 14: both settings after, Hz: 62.6 (computed)
+- Worked example: A's setting, Hz: 62.7 (assumed)
+- Worked example: B's setting, Hz: 62.1 (assumed)
+- Worked example: A's share, kW: 363 (computed)
+- Worked example: B's share, kW: 237 (computed)
+- Worked example: kW to move: 63 (computed)
+- Worked example: setting change, Hz: 0.3 (computed)
+- Worked example: lower both by, Hz: 0.97 (computed)
+- Worked example: both settings after, Hz: 61.43 (computed)
+- Worked example: board frequency after, Hz: 60 (computed)
+- Worked example: A's power factor at 255 kVAr: 0.76 (computed)
+- Worked example: B's power factor at 195 kVAr: 0.84 (computed)
+
+## What the checks found (at 340, 720 and 1040 px wide)
+- Error: The big inset (#big) and the empty triangle box (#tri) show on every screen, because the page sets .hidden on SVG elements, which has no effect there: toggle the hidden attribute (setAttribute / removeAttribute) for #scene, #big and #tri so the big inset shows only on screens 2 and 3 and the triangle only on screen 1 once checked.
+- The page uses K.answer, but the self-test graded no typed answer: test it again with the current kit.
+
+## How to fix the usual problems
+- A thrown error (also from a K.button press or a K.anim step): go to the body line it names; check element ids, variable names and the kit call signatures.
+- NaN or Infinity: guard the maths at the ends of every control's range (division by zero, log of 0, square root of a negative), or start the range where the rule makes sense.
+- A model output that is a list or object: K.model returns single numbers or short strings; keep lists in your own variables.
+- Too wide at 340 px: let rows wrap (flex-wrap), use width:100% and max-width:100%, give SVG a viewBox with width 100%, no fixed widths over 300 px, shorter labels.
+- Text cut off: shorten it or let it wrap, or give it room (a wider box, a bigger viewBox); never cut it off or hide the overflow. SVG labels printed over each other, even by a letter or two: move one, or place them with K.labels. A plot's axis title too long for a phone: shorten it (about 30 characters). A word split across two lines (often at Text size XL): size its grid columns or tiles in rem, not px (minmax(6rem, 1fr)), so they reflow to fewer, wider columns; or use a shorter word.
+- SVG text too small on a phone: font-size 13-16 in a drawing about 340 wide. A line or arrowhead through a label: place the label with K.labels and pass that line in avoid, or stop the line short of it. More labels than room (K.labels says avoid cannot be honoured): label fewer things, or move the names into a key under the drawing or a list beside it.
+- A readout's value printed elsewhere (a label, an aria-label or a plot label that follows it): while Dan answers a check the app hides only the readout and the .say line, so show the number in the readout alone and name the thing elsewhere.
+- Text hard to read (contrast) or a colour name: ink, muted, accent2, accent, warn or good (on-accent2 on navy), as var(--k-…) or K.color set in K.update, so it follows the theme.
+- A blank hole before Dan moves: hide only the answer (a line, a mark, a sentence), never a whole figure.
+- The first control far below the main figure (phone layout): put the visual and its controls together with K.stage(visual, controls), secondary figures below.
+- K.sound: frequencies 20 to 20,000 Hz (200 to 2,000 for anything Dan must hear on a phone), dur above 0 and at most 10 s, gain 0 to 1, a listed type; play it from a K.button press.
+- Navigation, links out, connections or frames: everything stays on this page (no <a href> or forms, no location changes, no WebSocket, XMLHttpRequest or iframes); name sources in words.
+- A failing check: work the expected value out again by hand. Fix whichever is wrong, the model or the check. Never delete a correct check or change its expected answer to pass. A tolerance that was unrealistically tight (a millionth, where square roots or small steps meet rounding) may be widened to a sensible one (a thousandth of the size).
+- Slow updates: sample curves less densely and do not rebuild large parts of the page on every change.
+- Missing ids: use exactly the ids listed; an output must be a key of the object K.model returns.
+- An unlisted web address: delete it, and the {source} that held it.
+- A target out of reach: make the model follow the lesson's rule with the lesson's ranges and opening values, so moving that one control brings the output to the target.
+
+## Sources
+The only web addresses this page may contain, each only as a K.check {source} on a check whose label restates what that source's quote says (a result of your rule, or a fact about your drawing, takes no source; the caption names a source in words). The app rejects any other:
+[1] Considerations when Paralleling Generating Sets — mart.cummins.com (https://mart.cummins.com/imagelibrary/data/assetfiles/0056622.pdf): "Real power (kW) provided by a generator set operating in parallel with others is a direct function of engine real power output."
+[2] ACTIVE & REACTIVE POWER SHARING IN PARALLELED GENERATORS (KW & KVAR) - DieselShip — dieselship.com (https://dieselship.com/marine-technical-articles/marine-electro-technology/active-reactive-power-sharing-in-a-paralleled-generator-set-kw-kvar): "As the fuel to the engine of one generator set in a group is increased it will not lead to an increase in speed and hence frequency"
+[3] ACTIVE & REACTIVE POWER SHARING IN PARALLELED GENERATORS (KW & KVAR) - DieselShip — dieselship.com (https://dieselship.com/marine-technical-articles/marine-electro-technology/active-reactive-power-sharing-in-a-paralleled-generator-set-kw-kvar): "it will lead to an increase in the proportion of the total kVAR load it will deliver and a decrease in its power factor."
+[4] Load Sharing: Balancing kW and kVAR Between Generators — bengibb.ca (https://www.bengibb.ca/blog/kw-and-kvar-control): "These two types of load sharing rely on separate systems: speed control for kW and voltage control for kVAR."
+[5] Cummins Power Seminar, Paralleling Basics (IEEE PES New York archive) (https://ewh.ieee.org/soc/pes/newyork/Archive%20Docs/CumminsPowerSeminar_Basics%20of%20Paralleling%20169.pdf): "Governor and AVR are the basic functions on every genset and the synchronizer, load share and load govern simply adjust the reference point to them"
+
+## Rules for this page
+- There is no guess to protect: show everything from the start (no k-after-move), curves and results included.
+- The lead line says what is drawn, plainly ("Water from a 5 m drop hits the blades of a wheel"), not what to do: the app gives the action above the frame. Example values are said once there ("an example stream: a 5 m drop, 20 kg of water each second"), then the drawing labels them plainly ("5 m"), never "for example" on the drawing.
+- Every label and arrow sits on, or starts from, the thing it is about: a force arrow starts on the part it pushes; a speed arrow on the part that moves. Anything the rule says turns or flows does so (K.anim), at a speed that follows its control.
+- The .say sentence must make sense on its own to someone who has just read the explanation: what is happening on screen now, cause then effect, in everyday words; no term, threshold or comparison the page or the explanation has not named; a number as part of its whole ("353 W of the stream's 981 W is carried off by the water"). Bad: "The buckets move slower than half the jet speed, so the water still leaves going backwards, taking 353 W away with it." Good: "The buckets are moving slowly, so the water bounces off them still moving fast, and carries 353 W of its 981 W away downstream."
+- A key for the main drawing sits inside the drawing; show each quantity once (a bar, a readout or a curve, not all three); every number drawn that is worked out (a speed from a drop) is explained in "What you're looking at", or is left off.
+- Draw the cause the explanation gives, not only its effect, and let Dan cause it (a drag, a push, a switch); include the setting where the effect does not happen.
+- Mark the brief's one quantity on the picture itself, with a label saying what it is and its value (a bracket between the two heights reading "2.4 m"); an output with a readout is marked without its number, which the readout alone shows (the app hides it while Dan answers a check).
+- A shaded band states something true of the axis it spans: inputs across x, outputs across y. To show many inputs giving nearly the same output, shade the narrow output band (regions {y0, y1}).
+- Draw every comparison the explanation makes the same way, in the same place, on the axis where the effect happens. A time period is a bracket or thin band along the time axis, not a tall block.
+- Give each reference line its own look and a label beside it; every styled line is in the key or labelled on the drawing.
+- Draw only what the brief, the rule or the explanation names, with the same names. An extra figure says on itself how to read it: what its line stands for and which way is which.
+- Show only the numbers listed above or computed from the rule, each written the way the explanation writes it (the same rounding).
+- Any example cases you choose are fair and representative, never picked to exaggerate the effect.
+- Money, health and law: show how it works, never advice, and never a guaranteed outcome.
+
+## The house kit (complete API reference)
+You write the BODY of one page: HTML, an optional `<style>`, then one inline `<script>` ending
+with `K.ready()`. It runs in a sandboxed iframe on Dan's phone (about 340 px wide, touch) and
+laptop, with the global `K` and the kit's stylesheet. No network or storage: no web
+addresses, `fetch`, `localStorage`, `alert` or `prompt`.
+
+### Page shape that works
+1. `<p class="lead">`: one line saying what is drawn (the app adds title and action).
+2. The main visual with its controls right under it: `K.stage('#scene', '#controls')` keeps the
+   pair on one phone screen. A choice that re-sorts the picture may sit above it.
+3. `<p class="say">`: one sentence that changes with the state and says why. Then
+   `<div class="k-readouts">` for numbers the drawing does not label.
+4. Secondary figures and anything that grows go below.
+5. `<p class="caption">`: one short sentence, at most 20 words: where the numbers come from ("A
+   sketch, not measured data") or the rule in the explanation's words. No new claim, no law or
+   term the explanation does not teach. The app shows what the model leaves out.
+
+### Keep the answer hidden until Dan moves
+Dan predicts before he plays: open on a setting the question is not about, and hide whatever
+gives the answer away until his first move:
+- class `k-after-move` on any element (a mark, an arrow, a sentence): hidden, its space kept.
+  Hide the answer, not the controls or a whole figure (a blank hole fails the test).
+- `K.readout({..., afterMove: true})` shows "?" until then; plot series and marks take `afterMove: true` too.
+- `K.moved` is true from then on: in `K.update`, write `K.moved ? answer : question`.
+- `K.afterMove(fn)` runs `fn` once at that moment; `K.reveal()` marks it from your handlers.
+
+### The pipeline
+Controls register themselves; their values form `params` = `{id: value}`.
+```
+K.model(fn)        fn(params) -> outputs {name: number | string}. Pure: no DOM, no lists or objects.
+K.update(fn)       fn(params, outputs): draw everything here. More than one is allowed.
+K.at(over)         -> outputs of the model at those params (others take each control's starting value)
+K.check(label, fn, {source?})   fn() must return exactly true
+K.ready()          call once, last: draws the opening state and runs the checks
+K.complete()       at the lesson's end
+K.params()  K.outputs()  K.refresh()   (refresh reruns the pipeline after you change your own state)
+```
+A readout whose id is an output key updates itself.
+
+### Controls
+Every control takes `into` (a selector or element). Ids are unique; use the lesson's ids exactly.
+```
+K.control({id, label, min, max, step, value, unit?, prefix?, fmt?, log?, snap?, hint?, into}) -> {el, get(), set(v)}
+K.choice({id, label, options: [value | {value, label}], value, hint?, into}) -> {el, get, set}
+K.toggle({id, label, value: false, hint?, into}) -> {el, get, set}
+K.stepper({id, steps: [title | {title, text}], value: 0, compact?, label?, into}) -> {el, get, set, setSteps(list)}
+K.button({label, press, secondary?, into}) -> {el, press(), setLabel(text)}
+K.drag(el, {control, toValue(x, y)}) -> {el}
+```
+`control` is a big slider with − / + buttons. Keep `unit` short; `fmt(v)` returns the whole text;
+`log: true` spans decades; `snap: [values]` lands a drag exactly on a setting the prediction or a
+check names. `choice`: 2-8 short named options; `value` is an option's value or its 0-based
+index. `stepper` walks a process with Back / Next (`compact: true` when your diagram shows the
+content). `button` is an action (Send it in): use it, not plain buttons. `drag` lets Dan move
+the thing itself: `toValue` maps the pointer (viewBox units; px from `el`'s top-left for HTML)
+to the control's value; the first touch counts as his move.
+
+### Outputs
+```
+K.readout({id, label, unit?, prefix?, decimals?, fmt?, big?, hint?, afterMove?, into}) -> {el, set(v), get(), text()}
+```
+One rounding everywhere a number appears: `decimals` matching the lesson text, and the `.say`
+sentence built with `K.fmt(v, {decimals})` or `readout.text()`. Labels under 30 characters.
+While Dan answers a lesson check, the app hides that output's readout and the `.say` lines:
+never repeat a readout's value elsewhere (a label, an aria-label).
+```
+K.plot(target, opts) -> {draw(opts), x(v), y(v), invert(px, py), el, canvas}
+```
+- `x`, `y`: `{min, max, label, log?, prefix?, unit?, fmt?, ticks?}`. Leave out `y.min`/`y.max` to fit the data.
+- `series`: `[{fn: x => y | points: [[x, y], ...], label?, color?, dash?, width?, fill?, dots?, gaps?, afterMove?}]`
+- `shade`: `[{between: [a, b], label?, color?, x0?, x1?}]`: fills between two series (by label), a
+  series and a constant, or two functions.
+- `marks`: `[{x, y, label?, color?, guides?, afterMove?}]`: a dot with a label pill; `guides` adds dashed lines to the axes.
+- `regions`: `[{x0, x1, label?} | {y0, y1, label?}]` (a band); `lines`: `[{x | y, label?}]` (a dashed line).
+- `label`: the text alternative; `height`; `after(ctx, plot)` draws extras using `plot.x()`, `plot.y()`.
+
+`draw(opts)` redraws with `opts` over the creation options: call it in `K.update`. Values must be
+finite (`gaps: true` only where a gap is real). Series are navy, then teal; `color: 'muted',
+dash: true` for a baseline.
+```
+K.bars(target, {max?, unit?, prefix?, decimals?, fmt?}) -> {draw(items)}      items: [{label, value, color?}], values >= 0
+K.anim({step(dt, t), reset?, label?, autoplay?, button?, into}) -> {el, play, pause, toggle, reset, playing()}
+```
+`anim` adds a Play button (text `label`); `reset` adds Reset. When a switch, button or drag
+already starts the motion, pass `button: false` and call `play()` from that control: one control
+per action. In `step` advance your state (`dt` in seconds) and redraw; return `false` to stop. To
+drive a slider, keep the exact value yourself (the slider moves in whole steps).
+
+### Sound
+```
+K.sound.tone(hz, {dur?, type?, gain?})   K.sound.chord([hz, ...], {dur?, stagger?})   K.sound.stop()   K.sound.mute(on)
+K.sound.hold(hz, {type?, gain?, max?}) -> {set({hz?, gain?}), stop(), playing()}
+```
+`dur` in seconds (at most 10). Sound plays only from a `K.button` press, never `K.update`; show
+what is sounding. `hold` keeps a tone going while `set()` follows a slider. Phones can't play
+below about 150 Hz: use 200 to 2,000 Hz.
+
+### Drawings and helpers
+```
+K.el(tag, attrs?, ...children)    attrs: class, style, on: {click: fn}, text, html, dataset, any attribute
+K.svg(tag, attrs?, ...children)   the same in the SVG namespace
+K.labels(group, [{x, y, text, anchor?, size?, class?, color?}], {avoid?}) -> [<text>]
+K.stage(visual, controls, {max?, beside?}) -> {el}
+K.fmt(v, {decimals?, sig?, prefix?, unit?, percent?, sign?, compact?}) -> '1,234.5', '−3', '2.5 × 10⁶'
+K.near(a, b, tol)   K.clamp(v, lo, hi)   K.lerp(a, b, t)   K.linspace(a, b, n)   K.color(role, alpha?)
+K.ease(p)   K.arrive(T, t0, dur?)   K.fade(el, a, rise?)
+```
+Give an `<svg>` a viewBox about 340 wide, `width="100%"`, `role="img"` and an `aria-label` that
+follows the state. Text 13-16 units, never under 12 (a phone shows 340 units at about 0.9x). A
+row of N labels gets about 300/N units each; label only what differs. Every label sits on, or
+points to, something drawn. `K.labels` places labels (13 units unless `size`) clear of other
+text, the edges and the lines or shapes in `avoid`: use it for labels that move or appear later.
+Put an angle's label inside its wedge, beyond the arc, hidden while the wedge is too narrow.
+`K.stage` fits the pair in `max` px (600) on a phone; `beside: false` keeps it stacked.
+
+Draw the mechanism as it physically works. If the explanation gives a reason (X because Y), draw
+Y so Dan can watch it; parts that fit are drawn fitting (teeth in teeth), never two identical
+icons joined by a line; whatever the rule says happens (slides, grips, multiplies) happens on screen.
+
+### Colour
+Colour carries meaning. Use these roles as `var(--k-…)` or `K.color('fill2')` (`K.color('accent2',
+0.3)` is see-through); a colour name fails the test.
+- Lines and text: `ink`, `muted` (secondary, comparisons), `accent2` (navy: the main thing,
+  controls), `accent` (teal: small labels, a second series), `warn` (red: warnings and mistakes
+  only), `good` (green: "done" only), `amber-line` (amber lines that must stand out).
+- Fills: `bg` (page), `panel`, `sunk`, `amber` (note box), `hl` (key-term highlighter), `fill1`
+  (area of the main thing), `fill2` (highlighted area, amber), `fill3` (area of a second thing).
+- `cat1`-`cat4` (blue, orange, magenta, aqua): telling equal things apart, never meaning; with a
+  key or labels; cat1 and cat2 first. A thing with a familiar colour (water, fire) never gets
+  another thing's colour: use the nearest role and label it. What is still there stays solid:
+  mark a state such as unused with a label, not by fading it, and key any dashed style.
+- Also `--k-line`, `--k-strong` (borders), `--k-on-accent2` (text on navy), `--k-font`, `--k-r` (radius).
+
+Never describe colours by lightness or hue in words Dan reads ("the dark square"): dark mode
+changes them.
+
+Classes: `muted`, `small`, `k-label` (small teal caps), `term` (key term), `note` (amber box),
+`warn-note`, `panel`, `row`, `grid2`, `big`, `k-btn` (`secondary`), and a legend:
+`<div class="key"><span><i class="swatch" style="background:var(--k-accent2)"></i>Your push</span>
+<span><i class="swatch line dash" style="color:var(--k-muted)"></i>The limit</span></div>`.
+
+### Rules for a great interactive
+- One idea. The answer to Dan's prediction shows within about 3 seconds of his first move (add
+  a K.check that it does). Include something Dan causes and a case that surprises. One or two
+  controls, three at most.
+- Phone first: nothing wider than 340 px, no fixed widths over 300 px, rows wrap, no hover-only
+  information, tap targets at least 44 px. Size tiles and grid columns in rem (`minmax(6rem,
+  1fr)`): text grows a quarter at Text size XL, and no word may split across two lines.
+- Every number shown is a control, computed by the rule shown, a constant from the lesson, an
+  example value named once in the lead, or a date from the lesson. Never invent data, rates or chances.
+- The `.say` sentence describes what is on screen now, plainly and warmly, and reads right at the
+  extremes ("none of the 100"). Never claim Dan did something ("When you slid it to 20"):
+  describe the state, or write conditionally ("Push it past 20 and…").
+- 3-5 `K.check` known answers worked out by hand: an edge case, a shape fact (rises, halves,
+  always last), and one answer from outside your formula. `source` may ONLY be a URL from the
+  lesson's own sources, and only on a check whose label restates what that source's quote says;
+  a result of your rule, or a fact about your drawing, takes none. Compare numbers with
+  `K.near(a, b, tol)`: tolerance about a millionth of the size, a thousandth where rounding meets roots.
+- `K.anim` for motion, never timers: soft, unhurried, nothing popping in. Parts arrive about 0.6
+  s apart by `K.fade(el, K.arrive(T, t0))`; travel and growth use `K.ease`; a demonstration takes
+  3-5 s. No `vh` units, `position: fixed` or `height: 100%`.
+- Ideas without numbers (mechanism, process, structure, history, concept): prefer a timeline
+  slider, a named choice, a sorter or a drag; use `K.stepper` only when every step changes the
+  drawing. Checks assert order and structure facts.
+- A timeline runs forward: a slider rising left to right, its `fmt` showing the date (−500 as
+  "500 BC"), or a stepper of named events in order. A lesson's calendar-year control keeps its
+  range, its `fmt` showing the year; years after the first date are for new controls. Each dated
+  event appears as he reaches its date.
+
+### The self-test
+Before Dan sees it, the app loads your body 340, 720 and 1040 px wide, runs every check, moves
+every control, button, animation and drag, reveals the after-move parts, and looks again at Text
+size XL and in the other theme. It fails on an exception, NaN or undefined on the page, an update
+over 150 ms, sideways overflow, text cut off or over other text, SVG text under 11 px on a phone,
+a line or arrowhead through a label, text under 3:1 contrast with what is behind it, a colour
+name, a blank hole until a move, or no `K.ready()`.
+
+### Example
+```html
+<p class="lead">Lengthen the string and watch each swing take longer.</p>
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+<p class="caption">Small swings only; g = 9.81 m/s² is gravity at the Earth's surface.</p>
+<script>
+  const g = 9.81;
+  const period = (L) => 2 * Math.PI * Math.sqrt(L / g);
+  K.control({ id: 'L', label: 'String length', min: 0.1, max: 3, step: 0.05, value: 1, unit: 'm', snap: [2], into: '#controls' });
+  K.stage('#plot', '#controls');
+  K.readout({ id: 'T', label: 'One full swing takes', unit: 's', decimals: 2, into: '#outs' });
+  const plot = K.plot('#plot', { x: { min: 0, max: 3, label: 'Length (m)' }, y: { min: 0, max: 4, label: 'Period (s)' } });
+  K.model((p) => ({ T: period(p.L) }));
+  K.update((p, o) => {
+    plot.draw({ series: [{ fn: period }], marks: [{ x: p.L, y: o.T, guides: true }] });
+    document.getElementById('say').textContent = !K.moved ? 'Make the string four times longer: how much longer is each swing?'
+      : 'A ' + K.fmt(p.L, { decimals: 2 }) + ' m string swings there and back every ' + K.fmt(o.T, { decimals: 2 }) + ' s. Four times the length only doubles that.';
+  });
+  K.check('No length, no swing time', () => K.near(period(0), 0));
+  K.check('A seconds pendulum (2 s per swing) is 0.994 m long', () => K.near(period(0.994), 2, 0.002),
+    { source: 'https://en.wikipedia.org/wiki/Seconds_pendulum' });
+  K.check('Four times the length doubles the period', () => K.near(K.at({ L: 2 }).T / K.at({ L: 0.5 }).T, 2, 1e-9));
+  K.ready();
+</script>
+```
+
+
+## The body that failed
+The body you just wrote (build/electrical/generators/i6.body1.x.html). You already have it; it is not repeated here. Return the complete corrected body.
+
+## Output
+Return ONLY the complete corrected body: HTML elements, an optional <style>, then one inline <script> that ends with K.ready(). No <html>, <head> or <body> tags, no markdown fences, no commentary before or after. Keep it under 40 KB.
+
+## Typed answers (every ready-made course from 28 Oct)
+
+Dan works each puzzle on paper, then types his answer (Dan, 27-28 Oct). So a DO puzzle whose answer
+is a figure (a number with at most a unit: "0.70 V", "24 m²", "9.26 V") is typed into a field,
+never picked from options. Options stay for answers in words, a direction, an expression
+("4i − 2j"), an order, or where choosing between named things is the skill being taught ("Which
+pole leaks?"). Never write "About" in a typed answer: give the figure to the places you want.
+
+```
+K.answer({id, label?, unit, answer, decimals?, tolerance?, accept?, slips?, into, onCheck?, onEnter?})
+    -> {el, input, check(), result, right(), missed(), reveal(), reset(), set(text)}
+K.answer.grade(text, spec) -> {state: 'right'|'wrong'|'empty'|'unreadable', value, accepted?, slip?, hint?}
+```
+
+- A decimal-keypad field with the unit beside it. `answer` is the lesson's figure, worked from the
+  rounded figures the lesson shows; it is accepted within half a unit in its last place
+  (`decimals`, default 2: give `decimals: 0` for a whole number, 1 for "0.7"). `accept: [13.32]`
+  adds the answer worked from unrounded figures. A unit typed after the number ("0.70 V") is fine.
+- The wrong options you would have offered become `slips`: `[{value: 0.07, hint: 'That is 7 mΩ
+  read as 0.7 Ω. Milli is a thousandth.'}]`, each with the hint that names the mistake.
+- Your Check button calls `a.check()` (Enter does too); never grade as he types (the app's
+  calculator can type its result into the field for him). Write the feedback from `a.result`:
+  right, "That's it." and Continue; wrong, the slip's hint (`r.hint`) or the step's one-line hint,
+  and the field kept for another go; after two wrong tries, the working (Why?) and `a.reveal()`,
+  then Continue. Continue only once `a.right()` (a revealed answer counts).
+- Give each field its own `id` (the step's name in a few letters is fine).
+- Nothing on screen gives the answer before it is checked: a readout that would show the figure
+  shows "?" until then.
+- STEPS: the typed step keeps `want`, the answer as printed with its unit ('0.70 V'). The lesson's
+  read-through, its Book chapter and its problem set (the app asks it again, typed) read it.
+- The self-test grades every field: its answer and each accepted one right (with the unit too),
+  a near miss and each slip refused, and the answer typed into the field and checked on its step.
+- A worked example of the field in use: docs/courses/electrical/design-and-verification/i2.body.final.html.

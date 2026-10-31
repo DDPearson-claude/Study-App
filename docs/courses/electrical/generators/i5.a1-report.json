@@ -1,0 +1,249 @@
+{
+  "report": {
+    "ok": false,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "Each phase of a 440 V board is 440 ÷ √3 = 254 V; with equal voltages a pole sees 2 sin(θ ÷ 2) × 254 V: 174 V at 40°, 254 V at 60°, 359 V at 90° and 508 V at 180°; screen 2 reads 40°, 0.00 Hz, 174 V and 440 V",
+        "ok": true
+      },
+      {
+        "label": "Screen 3 shows ? across pole A until checked, then 254 V; screen 5 shows ? for the slip, then times one turn at 0.25 Hz in 4 s and stops at 12",
+        "ok": true
+      },
+      {
+        "label": "The synchronization current can exceed that of a three-phase fault at the generator: shut at 180° the surge reaches 8.0 per unit, past 1 ÷ 0.15 = 6.7",
+        "ok": true,
+        "source": "https://www.pes-psrc.org/kb/report/119.pdf"
+      },
+      {
+        "label": "Screen 6: Close at 86.4° shuts the breaker 50 ms later at 90°, with Surge 5.7 and Torque 4.0 per unit, both red; then the pointer stands at 12 and the lamps are dark",
+        "ok": true
+      },
+      {
+        "label": "The close command is initiated early at the advance angle to compensate for breaker closing time: at 0.1 Hz slip the relay sends it 1.8° before 12, and the breaker shuts at 12",
+        "ok": true,
+        "source": "https://www.pes-psrc.org/kb/report/119.pdf"
+      },
+      {
+        "label": "Before a generator breaker is allowed to close, four quantities of the incoming machine must be matched, within tolerance, to the running bus: the relay refuses 420 V, 0.25 Hz of slip or B and C swapped, and waits to close at 445 V and 0.1 Hz",
+        "ok": true,
+        "source": "https://forumelectrical.com/dg-synchronization-with-step-by-step-procedure"
+      },
+      {
+        "label": "Pressed at 12 with 0.2 Hz slip the breaker shuts 72 × 0.05 = 3.6° FAST and both bars stay small; pressed at 12 with 0.5 Hz it shuts 9° FAST, red for the slip",
+        "ok": true
+      },
+      {
+        "label": "With B and C swapped at 0°, lamp A is dark while lamps B and C see 440 V; a close there drives 6.9 per unit, past the fault line, and the torque bar reads Wrong sequence",
+        "ok": true
+      },
+      {
+        "label": "The pointer turns once each slip cycle, clockwise when the set is fast: half a turn in 2.5 s at 0.2 Hz, a whole turn in 5 s; from 180° at 0.05 Hz it reaches 12 in 10 s",
+        "ok": false,
+        "error": "returned false"
+      },
+      {
+        "label": "Screen 12: the relay refuses at 60.50 Hz and says why; trimmed to 60.10 Hz it sends the close 1.8° early and the breaker shuts at 12 within the demonstration",
+        "ok": true
+      },
+      {
+        "label": "Screen 13 answered: the trims move to 440 V and 60.10 Hz and stay free to play with",
+        "ok": true
+      },
+      {
+        "label": "Each typed answer and slip is worked from the rule: 0.52 (0.5, 0.26, 1), 254 V (440, 127, 220), 4 s (0.25, 240), 9° (0, 18, 0.025, 9000) and 8.6° (28.8, 0.024, 8640)",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "f",
+      "v",
+      "swap",
+      "relay"
+    ],
+    "readouts": [
+      "r-a",
+      "r-s",
+      "r-p",
+      "r-i"
+    ],
+    "outputs": [],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Screen",
+        "min": 0,
+        "max": 13,
+        "step": 1,
+        "steps": [
+          "Still there?",
+          "The gap across a pole",
+          "Sixty degrees",
+          "Slip",
+          "One turn",
+          "A close out of step",
+          "Bottom of the dial",
+          "The advance angle",
+          "Late by",
+          "Phase sequence",
+          "Crossed phases",
+          "The relay",
+          "Trim before closing",
+          "Advance for 80 ms"
+        ],
+        "value": 0
+      },
+      {
+        "id": "f",
+        "kind": "control",
+        "label": "Speed trim",
+        "min": 59,
+        "max": 61,
+        "step": 0.05,
+        "log": false,
+        "value": 60.2,
+        "shown": false,
+        "snap": [
+          60,
+          60.1,
+          60.2,
+          60.25,
+          60.4,
+          60.5
+        ]
+      },
+      {
+        "id": "v",
+        "kind": "control",
+        "label": "Voltage trim",
+        "min": 400,
+        "max": 480,
+        "step": 5,
+        "log": false,
+        "value": 440,
+        "shown": false,
+        "snap": [
+          420,
+          440
+        ]
+      },
+      {
+        "id": "swap",
+        "kind": "toggle",
+        "label": "Swap B and C",
+        "options": [
+          false,
+          true
+        ],
+        "value": false,
+        "shown": false
+      },
+      {
+        "id": "relay",
+        "kind": "toggle",
+        "label": "Relay",
+        "options": [
+          false,
+          true
+        ],
+        "value": false,
+        "shown": false
+      }
+    ],
+    "actions": [
+      "Close",
+      "Reset",
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Show me again",
+      "Back",
+      "Continue",
+      "Start again",
+      "Running"
+    ],
+    "answers": [
+      {
+        "id": "a-rec",
+        "answer": 0.52,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-sixty",
+        "answer": 254,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-turn",
+        "answer": 4,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-late",
+        "answer": 9,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-adv",
+        "answer": 8.6,
+        "accept": [
+          8.64
+        ],
+        "ok": true
+      }
+    ],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": false
+      },
+      {
+        "width": 720,
+        "ok": false
+      },
+      {
+        "width": 1040,
+        "ok": false
+      }
+    ]
+  },
+  "moved": [
+    "step = 3 (the first step that shows a control)",
+    "f = 60.5",
+    "v = 460",
+    "swap = true",
+    "relay = true"
+  ],
+  "shots": [
+    "/home/user/Study-App/build/electrical/generators/i5.a1-360-light.png",
+    "/home/user/Study-App/build/electrical/generators/i5.a1-360-light-moved.png",
+    "/home/user/Study-App/build/electrical/generators/i5.a1-360-light-end.png",
+    "/home/user/Study-App/build/electrical/generators/i5.a1-360-dark.png",
+    "/home/user/Study-App/build/electrical/generators/i5.a1-360-dark-moved.png",
+    "/home/user/Study-App/build/electrical/generators/i5.a1-360-dark-end.png",
+    "/home/user/Study-App/build/electrical/generators/i5.a1-1280-light.png",
+    "/home/user/Study-App/build/electrical/generators/i5.a1-1280-light-moved.png",
+    "/home/user/Study-App/build/electrical/generators/i5.a1-1280-light-end.png",
+    "/home/user/Study-App/build/electrical/generators/i5.a1-1280-dark.png",
+    "/home/user/Study-App/build/electrical/generators/i5.a1-1280-dark-moved.png",
+    "/home/user/Study-App/build/electrical/generators/i5.a1-1280-dark-end.png"
+  ]
+}

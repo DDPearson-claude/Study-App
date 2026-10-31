@@ -1,0 +1,252 @@
+{
+  "ok": true,
+  "reachChecked": true,
+  "problems": [],
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "Screen 2: the motor's starting impedance is 630 ÷ 600 = 1.05 per unit, so 1.05 ÷ (1.05 + 0.15) = 87.5% is left at once; empty until Start, its still reads At once 87.5 with the others –",
+        "ok": true
+      },
+      {
+        "label": "Screen 3 lights the AVR before Start; once answered, the start runs to its end",
+        "ok": true
+      },
+      {
+        "label": "Screen 4: 600 kVA × 0.4 = 240 kW; the frequency is lowest at 0.3 s, 55.7 Hz; the voltage sags to 83.8%, recovers to 100%, and the motor gets away with 100% torque",
+        "ok": true
+      },
+      {
+        "label": "Screen 6: at 900 kVA, 82.4% at once and 72.8% at the lowest; the field ceiling reaches only 2.5 ÷ (1 + 1.5 × 900 ÷ 630) = 79.5%, so torque is 63.3%, and from 2 s the motor is red and Stalled",
+        "ok": true
+      },
+      {
+        "label": "Screen 8: star-delta takes 600 ÷ 3 = 200 kVA, leaving 95.5% at once; the soft starter takes 300 kVA, leaving 93.3%, lowest 91.4%; the Torque tile shows only for a DOL start",
+        "ok": true
+      },
+      {
+        "label": "Screen 10: two sets halve the reactance the motor sees, so 600 kVA leaves 1.05 ÷ (1.05 + 0.075) = 93.3%, a 6.7% drop instead of 12.5%, and the frequency dips half as far",
+        "ok": true
+      },
+      {
+        "label": "Screens 5, 9 and 11 show ? for At once until checked; checked, they run 900 kVA DOL on one set (82.4%), 1,200 kVA star-delta (91.3%) and 900 kVA with the second set on (90.3%); screen 5 opens at 900 kVA, and screen 9 hides its feeder's 400 kVA until checked",
+        "ok": true
+      },
+      {
+        "label": "Screen 7 has no picture; screen 14 shows only the frequency for a 900 kVA start, 900 × 0.4 = 360 kW, its lowest ? until checked, then 53.5 Hz",
+        "ok": true
+      },
+      {
+        "label": "Screen 12: before Start the board is dead and both sets stopped; at 2 s both sets are on a live board with no load back; the loads return one at a time, all three by 4 s",
+        "ok": true,
+        "source": "https://www.lerus.com/blog/components-of-the-dynamic-positioning-system-power"
+      },
+      {
+        "label": "Screens 13 and 15 draw sets A and B, each with its own breaker, and no traces; on 13 B waits off the board, on 15 both are on",
+        "ok": true
+      },
+      {
+        "label": "Each typed answer and slip is worked from the rule: 700 A (100, 200; also 600, 650, 750, 800), 82.4% (78.6, 17.6, 85), 72.3% (85, 92.2, 81; also 72.25, 72), 91.3% (77.8, 90.5, 8.7), 90.3% (82.4, 91.2, 9.7) and 360 kW (900, 720, 540)",
+        "ok": true
+      },
+      {
+        "label": "Starting current is typically six times a motor's rated full-load current, and stays high until about 75% of rated speed: 6 × 100 A = 600 A is accepted on screen 1, as is 800 A",
+        "ok": true,
+        "source": "https://www.cummins.com/sites/default/files/2020-03/PowerHour_Generator%20Set%20Sizing%20Software_Transient%20Performance%20and%20Motor%20Load%20Capabilities%20%281PDH%29.pdf"
+      },
+      {
+        "label": "With a sudden step the voltage drop equals what it would be with no AVR present: the first instant reads 87.5% whatever the AVR's field ceiling, and only later does the AVR lift it",
+        "ok": true,
+        "source": "https://benshaw.com/hubfs/Benshaw%20Website/Downloads/White-Papers/Benshaw-White-Paper-Starting-Motors-on-GenSets_EN.pdf"
+      },
+      {
+        "label": "When the engine slows under the frequency dip, the alternator's voltage dip increases: at 600 kVA the lowest is 83.8%, below the 87.5% the AVR's pull alone never falls under",
+        "ok": true,
+        "source": "https://resources.kohler.com/power/kohler/industrial/pdf/Sizing_Generators_for_Motor_Starting_WP.pdf"
+      },
+      {
+        "label": "If the voltage recovers to at least 90% of rated, the motor develops 81% of rated torque: 0.9 × 0.9 = 0.81; on one set a DOL start gets away from 700 kVA (93.8%) but stalls at 750 kVA (89.7%)",
+        "ok": true,
+        "source": "https://mart.cummins.com/imagelibrary/data/assetfiles/0056583.pdf"
+      },
+      {
+        "label": "At every setting the lowest voltage comes before 1 s, so the Lowest tile, filled at 1 s, shows the trace's lowest; a second set always leaves more voltage",
+        "ok": true
+      },
+      {
+        "label": "Fifteen screens, six that show and nine to try; all three picks' answers are second in their lists",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "kva",
+      "method",
+      "second"
+    ],
+    "readouts": [
+      "once",
+      "low",
+      "rec",
+      "tq"
+    ],
+    "outputs": [],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Screen",
+        "min": 0,
+        "max": 14,
+        "step": 1,
+        "steps": [
+          "The starting current",
+          "The first instant",
+          "What the AVR does",
+          "The engine slows",
+          "A bigger motor",
+          "Will it get away?",
+          "Torque from voltage",
+          "Start softly",
+          "Star-delta at 1,200 kVA",
+          "More sets on",
+          "A second set at 900 kVA",
+          "After a blackout",
+          "The second set after a blackout",
+          "The engine's kW",
+          "A governor fault"
+        ],
+        "value": 0
+      },
+      {
+        "id": "kva",
+        "kind": "control",
+        "label": "Starting kVA",
+        "min": 100,
+        "max": 1200,
+        "step": 50,
+        "log": false,
+        "value": 600,
+        "shown": false,
+        "snap": [
+          600,
+          900
+        ]
+      },
+      {
+        "id": "method",
+        "kind": "choice",
+        "label": "Start method",
+        "options": [
+          "DOL",
+          "Star-delta",
+          "Soft starter"
+        ],
+        "labels": [
+          "DOL",
+          "Star-delta",
+          "Soft starter"
+        ],
+        "value": "DOL",
+        "index": 0,
+        "shown": false
+      },
+      {
+        "id": "second",
+        "kind": "toggle",
+        "label": "Second set",
+        "options": [
+          false,
+          true
+        ],
+        "value": false,
+        "shown": false
+      }
+    ],
+    "actions": [
+      "Start",
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Back",
+      "Continue",
+      "Start again",
+      "The start"
+    ],
+    "answers": [
+      {
+        "id": "a-dol",
+        "answer": 700,
+        "accept": [
+          600,
+          650,
+          750,
+          800
+        ],
+        "ok": true
+      },
+      {
+        "id": "a-once9",
+        "answer": 82.4,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-torque",
+        "answer": 72.3,
+        "accept": [
+          72.25,
+          72
+        ],
+        "ok": true
+      },
+      {
+        "id": "a-sd12",
+        "answer": 91.3,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-two9",
+        "answer": 90.3,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-kw",
+        "answer": 360,
+        "accept": [],
+        "ok": true
+      }
+    ],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ],
+    "foreign": [],
+    "unreachable": []
+  }
+}

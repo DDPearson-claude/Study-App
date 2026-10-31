@@ -1,0 +1,258 @@
+{
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "Screen 2: the motor's starting impedance is 630 ÷ 600 = 1.05 per unit, so 1.05 ÷ (1.05 + 0.15) = 87.5% is left at once; empty until Start, its still reads At once 87.5 with the others –",
+        "ok": true
+      },
+      {
+        "label": "Screen 3 lights the AVR before Start; once answered, the start runs to its end",
+        "ok": true
+      },
+      {
+        "label": "Screen 4: 600 kVA × 0.4 = 240 kW; the frequency is lowest at 0.3 s, 55.7 Hz; the voltage sags to 83.8%, recovers to 100%, and the motor gets away with 100% torque",
+        "ok": true
+      },
+      {
+        "label": "Screen 6: at 900 kVA, 82.4% at once and 72.8% at the lowest; the field ceiling reaches only 2.5 ÷ (1 + 1.5 × 900 ÷ 630) = 79.5%, so torque is 63.3%, and from 2 s the motor is red and Stalled",
+        "ok": true
+      },
+      {
+        "label": "Screen 8: star-delta takes 600 ÷ 3 = 200 kVA, leaving 95.5% at once; the soft starter takes 300 kVA, leaving 93.3%, lowest 91.4%",
+        "ok": true
+      },
+      {
+        "label": "Screen 10: two sets halve the reactance the motor sees, so 600 kVA leaves 1.05 ÷ (1.05 + 0.075) = 93.3%, a 6.7% drop instead of 12.5%, and the frequency dips half as far",
+        "ok": true
+      },
+      {
+        "label": "Screens 5, 9 and 11 show ? for At once until checked; checked, they run 900 kVA DOL on one set (82.4%), star-delta (93.3%) and with the second set on (90.3%)",
+        "ok": true
+      },
+      {
+        "label": "Screen 7 shows ? for Torque until checked, then 63.3; screen 12 shows only the frequency, its lowest ? until checked, then 55.7 Hz",
+        "ok": true
+      },
+      {
+        "label": "Screen 13 draws sets A and B, both on the board, with no traces",
+        "ok": true
+      },
+      {
+        "label": "Each typed answer and slip is worked from the rule: 600 A (100, 200; also 700, 800), 82.4% (78.6, 17.6, 85), 72.3% (85, 92.2, 81; also 72.25, 72), 93.3% (82.4, 92.9, 6.7), 90.3% (82.4, 91.2, 9.7) and 240 kW (600, 480, 360)",
+        "ok": true
+      },
+      {
+        "label": "Starting current is typically six times a motor's rated full-load current, and stays high until about 75% of rated speed: 6 × 100 A = 600 A on screen 1",
+        "ok": true,
+        "source": "https://www.cummins.com/sites/default/files/2020-03/PowerHour_Generator%20Set%20Sizing%20Software_Transient%20Performance%20and%20Motor%20Load%20Capabilities%20%281PDH%29.pdf"
+      },
+      {
+        "label": "With a sudden step the voltage drop equals what it would be with no AVR present: the first instant reads 87.5% whatever the AVR's field ceiling, and only later does the AVR lift it",
+        "ok": true,
+        "source": "https://benshaw.com/hubfs/Benshaw%20Website/Downloads/White-Papers/Benshaw-White-Paper-Starting-Motors-on-GenSets_EN.pdf"
+      },
+      {
+        "label": "When the engine slows under the frequency dip, the alternator's voltage dip increases: at 600 kVA the lowest is 83.8%, below the 87.5% the AVR's pull alone never falls under",
+        "ok": true,
+        "source": "https://resources.kohler.com/power/kohler/industrial/pdf/Sizing_Generators_for_Motor_Starting_WP.pdf"
+      },
+      {
+        "label": "If the voltage recovers to at least 90% of rated, the motor develops 81% of rated torque: 0.9 × 0.9 = 0.81; on one set a DOL start gets away from 700 kVA (93.8%) but stalls at 750 kVA (89.7%)",
+        "ok": true,
+        "source": "https://mart.cummins.com/imagelibrary/data/assetfiles/0056583.pdf"
+      },
+      {
+        "label": "At every setting the lowest voltage comes before 1 s, so the Lowest tile, filled at 1 s, shows the trace's lowest; a second set always leaves more voltage",
+        "ok": true
+      },
+      {
+        "label": "Thirteen screens, five that show and eight to try; both picks' answers are second in their lists",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "kva",
+      "method",
+      "second"
+    ],
+    "readouts": [
+      "once",
+      "low",
+      "rec",
+      "tq"
+    ],
+    "outputs": [],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Screen",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "steps": [
+          "The starting current",
+          "The first instant",
+          "What the AVR does",
+          "The engine slows",
+          "A bigger motor",
+          "Will it get away?",
+          "Torque from voltage",
+          "Start softly",
+          "Star-delta at 900 kVA",
+          "More sets on",
+          "A second set at 900 kVA",
+          "The engine's kW",
+          "A governor fault"
+        ],
+        "value": 0
+      },
+      {
+        "id": "kva",
+        "kind": "control",
+        "label": "Starting kVA",
+        "min": 100,
+        "max": 1200,
+        "step": 50,
+        "log": false,
+        "value": 600,
+        "shown": false,
+        "snap": [
+          600,
+          900
+        ]
+      },
+      {
+        "id": "method",
+        "kind": "choice",
+        "label": "Start method",
+        "options": [
+          "DOL",
+          "Star-delta",
+          "Soft starter"
+        ],
+        "labels": [
+          "DOL",
+          "Star-delta",
+          "Soft starter"
+        ],
+        "value": "DOL",
+        "index": 0,
+        "shown": false
+      },
+      {
+        "id": "second",
+        "kind": "toggle",
+        "label": "Second set",
+        "options": [
+          false,
+          true
+        ],
+        "value": false,
+        "shown": false
+      }
+    ],
+    "actions": [
+      "Start",
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Back",
+      "Continue",
+      "Start again",
+      "The start"
+    ],
+    "answers": [
+      {
+        "id": "a-dol",
+        "answer": 600,
+        "accept": [
+          700,
+          800
+        ],
+        "ok": true
+      },
+      {
+        "id": "a-once9",
+        "answer": 82.4,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-torque",
+        "answer": 72.3,
+        "accept": [
+          72.25,
+          72
+        ],
+        "ok": true
+      },
+      {
+        "id": "a-sd9",
+        "answer": 93.3,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-two9",
+        "answer": 90.3,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-kw",
+        "answer": 240,
+        "accept": [],
+        "ok": true
+      }
+    ],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ]
+  },
+  "moved": [
+    "step = 5 (the first step that shows a control)",
+    "kva = 1200",
+    "method = \"Star-delta\"",
+    "second = true"
+  ],
+  "shots": [
+    "/home/user/Study-App/build/electrical/generators/i8.a2-360-light.png",
+    "/home/user/Study-App/build/electrical/generators/i8.a2-360-light-moved.png",
+    "/home/user/Study-App/build/electrical/generators/i8.a2-360-light-end.png",
+    "/home/user/Study-App/build/electrical/generators/i8.a2-360-dark.png",
+    "/home/user/Study-App/build/electrical/generators/i8.a2-360-dark-moved.png",
+    "/home/user/Study-App/build/electrical/generators/i8.a2-360-dark-end.png",
+    "/home/user/Study-App/build/electrical/generators/i8.a2-1280-light.png",
+    "/home/user/Study-App/build/electrical/generators/i8.a2-1280-light-moved.png",
+    "/home/user/Study-App/build/electrical/generators/i8.a2-1280-light-end.png",
+    "/home/user/Study-App/build/electrical/generators/i8.a2-1280-dark.png",
+    "/home/user/Study-App/build/electrical/generators/i8.a2-1280-dark-moved.png",
+    "/home/user/Study-App/build/electrical/generators/i8.a2-1280-dark-end.png"
+  ]
+}

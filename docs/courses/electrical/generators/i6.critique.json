@@ -1,0 +1,22 @@
+{
+  "draft": "i6.lesson.draft1.txt",
+  "validator": "ok, no problems, no soft points, no warnings; whatAmILookingAt 11483 characters, under the 12000 the i4 build hit; SHOW screens 60 to 80 words",
+  "keep": [
+    "The idea is named up front: in parallel fuel decides a set's share of the kW and field its share of the kVAr ([^26]), both moved through the governor's and the AVR's set points ([^7]).",
+    "The cause of fuel moving kW is derived, not asserted: the rotor is locked in step, more fuel widens delta, and from lesson 3's drawing E sin delta = Xs x the in-step current, so power = E V sin delta / Xs. Checked on lesson 3's own case: 2.25 x sin 32.3 / 1.5 = 0.80 per unit = 504 kW.",
+    "One rule computes every kW readout: f = average setting - load / (2 x 210), each share 210 x (setting - f). Checked: 60.97 Hz and 300/300; +0.3 Hz gives 61.12 Hz, 331.5/268.5; +0.2 Hz gives 61.07 Hz, 321; 1% droop at 60.6 Hz with +0.3 gives 60.39 Hz, 426/174 (126 kW moved, four times 31.5); 62.8/62.4 gives 342/258 at 61.17 Hz; inset delta 18.5 and 20.5 degrees.",
+    "The kVAr view mirrors it with 30 kVAr a volt: 447.5 V settings give 440 V, 225/225; +2 V gives 441 V, 255/195, cross current 30 kVAr / (sqrt3 x 440) = 39.4 A; A's power factor 300 / 393.7 = 0.76, B's 0.84.",
+    "Every misconception in the brief has a DO screen with its own hints: fuel raises the frequency in parallel (5), mismatched settings (7, 14), two isochronous sets share (9), field raises the voltage in parallel (11).",
+    "Fourteen screens alternate SHOW 2, 4, 6, 8, 10, 12 with DO 1, 3, 5, 7, 9, 11, ending on two mixed typed puzzles (13 power factor, 14 the opposite nudge). Every figure answer is typed with slips; options only for what happens and which reading moves.",
+    "The battery-string analogy extends lesson 4's internal-resistance image to two strings (his Batteries course), reproduces the sharing and the small rise, and even the circulating current; its breaks are true."
+  ],
+  "fix": [
+    "Causal step skipped (fault 1): explain says the board's voltage hardly rises when A's field goes up, but not why. Add that B's AVR sees the voltage start to rise and trims its own field back, the twin of B's governor backing off.",
+    "Causal step blurred (fault 1): 'why fuel cannot speed a paralleled set up' sits badly beside the board rising 0.15 Hz. Say it cannot run away from the others, so the extra fuel first widens its angle; the droop lines then settle the shared frequency.",
+    "False absolute (fault 2): 'its kW stays put, because only fuel moves kW' is too wide. Say the fuel, not the field, sets the engine's output. And 'isochronous sets share only through a link' becomes 'need a link between their governors to share'.",
+    "Unsourced facts not marked (fault 5): voltage droop and the infinite bus are textbook-standard but not in RESEARCH. Introduce each as 'textbooks add' / 'textbooks call'.",
+    "Screen 7: 210 x 1.53 = 321.3; accept it beside 321. Screen 10: say the governors are back at their openings, so A's kW label reads 300 kW.",
+    "Screen 1's right-Check line 'Both parts come back today' talks about the lesson; say instead what the 60 kVAr is."
+  ],
+  "verdict": "rewrite as draft 2 with the six fixes; no structural change"
+}

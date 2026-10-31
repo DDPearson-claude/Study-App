@@ -1,0 +1,200 @@
+{
+ "id": "generators-and-paralleling-q7a4n",
+ "title": "Generators and paralleling",
+ "query": "Generators and paralleling",
+ "createdAt": "2026-10-31T15:18:59.368Z",
+ "updatedAt": "2026-10-31T15:18:59.368Z",
+ "plannedAt": "2026-10-31T15:18:59.368Z",
+ "status": "ready",
+ "error": null,
+ "hook": "With two generators in parallel on one switchboard, why does giving one engine more fuel barely change the frequency, and where does the extra power go?",
+ "oneBreath": "A generator set is an engine turning a magnet inside three fixed coils: the engine's speed fixes the frequency, and a regulator trims the current in the turning magnet to hold the voltage. Alone, fuel and field set frequency and voltage; side by side on one board, the same two knobs share out the load instead, fuel the real power and field the reactive power. Matching a set before it closes on, protecting it when things go wrong and starting big motors gently keep the whole board alive.",
+ "level": "some",
+ "hue": 127,
+ "mode": "read",
+ "intake": {
+  "questions": [
+   {
+    "id": "q1",
+    "q": "What do you want from this course?",
+    "options": [
+     "To understand generators and paralleling and how to work with them",
+     "A quick refresher of the methods",
+     "Exam practice"
+    ],
+    "multi": false,
+    "other": false
+   },
+   {
+    "id": "q2",
+    "q": "Where will you use it?",
+    "options": [
+     "On the job and in everyday life",
+     "For further study",
+     "Just curiosity"
+    ],
+    "multi": false,
+    "other": false
+   },
+   {
+    "id": "q3",
+    "q": "How do you like to learn?",
+    "options": [
+     "Hands-on, with the why explained in full",
+     "Rules and worked examples only",
+     "Lots of practice questions"
+    ],
+    "multi": false,
+    "other": false
+   }
+  ],
+  "answers": {
+   "q1": {
+    "picked": [
+     "To understand generators and paralleling and how to work with them"
+    ],
+    "other": null
+   },
+   "q2": {
+    "picked": [
+     "On the job and in everyday life"
+    ],
+    "other": null
+   },
+   "q3": {
+    "picked": [
+     "Hands-on, with the why explained in full"
+    ],
+    "other": null
+   }
+  }
+ },
+ "ideas": [
+  {
+   "id": "i1",
+   "title": "The alternator: a turning field makes three phases",
+   "oneLine": "Direct current in the spinning rotor makes a field that sweeps past three fixed coils 120° apart, giving three phases, one cycle per pole pair.",
+   "deps": [],
+   "kind": "mechanism"
+  },
+  {
+   "id": "i2",
+   "title": "Excitation and the AVR: field current sets the voltage",
+   "oneLine": "The automatic voltage regulator, or AVR, measures the output and adjusts the current in the turning field to hold the voltage steady as load changes.",
+   "deps": [
+    "i1"
+   ],
+   "kind": "mechanism"
+  },
+  {
+   "id": "i3",
+   "title": "The loaded generator: synchronous reactance and the phasor",
+   "oneLine": "Synchronous reactance, the machine's inner reactance, drops voltage under load; drawn tip to tail, it shows the internal voltage the field must make.",
+   "deps": [
+    "i1",
+    "i2"
+   ],
+   "kind": "quantity"
+  },
+  {
+   "id": "i4",
+   "title": "The governor: fuel, speed and droop",
+   "oneLine": "The governor trims fuel to hold speed under load, and droop lets the speed fall a set few per cent from no load to full load.",
+   "deps": [
+    "i1",
+    "i2"
+   ],
+   "kind": "quantity"
+  },
+  {
+   "id": "i5",
+   "title": "Synchronising: closing onto a live board",
+   "oneLine": "Close onto a live board only when voltage, frequency, phase sequence and phase angle match, sending the close early for the breaker's closing time.",
+   "deps": [
+    "i1",
+    "i2",
+    "i4"
+   ],
+   "kind": "process"
+  },
+  {
+   "id": "i6",
+   "title": "Load sharing: kW by fuel, kVAr by field",
+   "oneLine": "In parallel, more fuel moves kW onto a set and more field moves kVAr onto it, while the board's frequency and voltage barely change.",
+   "deps": [
+    "i2",
+    "i3",
+    "i4",
+    "i5"
+   ],
+   "kind": "quantity"
+  },
+  {
+   "id": "i7",
+   "title": "Protection: reverse power, a lost field and the short circuit",
+   "oneLine": "Each generator fault has its own signature, reverse power, a lost field or a short-circuit current falling with time, and protection acts on it.",
+   "deps": [
+    "i2",
+    "i3",
+    "i5",
+    "i6"
+   ],
+   "kind": "mechanism"
+  },
+  {
+   "id": "i8",
+   "title": "The generator set in a power system",
+   "oneLine": "A big motor's start dips a set's voltage before the AVR can act, so big loads start softly, in sequence or with more sets on.",
+   "deps": [
+    "i2",
+    "i3",
+    "i4",
+    "i5",
+    "i6",
+    "i7"
+   ],
+   "kind": "mechanism"
+  }
+ ],
+ "calibration": [
+  {
+   "id": "c1",
+   "iid": "i1",
+   "q": "A generator with no voltage regulator is slowed by a tenth, with nothing else changed. What happens to its output?",
+   "options": [
+    "Its frequency falls by a tenth, but its voltage stays the same",
+    "Its voltage falls by a tenth, but its frequency stays the same",
+    "Both its frequency and its voltage fall by about a tenth"
+   ],
+   "answer": 2,
+   "why": "The frequency counts poles passing each coil per second, so it falls with the speed. The coils also see the flux change a tenth more slowly, so the voltage falls too. A strong field alone does not hold the voltage; how fast it sweeps past matters."
+  },
+  {
+   "id": "c2",
+   "iid": "i3",
+   "q": "One generator feeds motors drawing 100 A, then capacitors drawing 100 A. Which needs more current in its turning field to keep the same voltage?",
+   "options": [
+    "The motors",
+    "The capacitors",
+    "Neither: the same current needs the same field"
+   ],
+   "answer": 0,
+   "why": "A motor's lagging current makes the drop inside the machine add almost straight onto the output voltage, so the field must make much more. A capacitor's leading current does part of the field's job. Equal currents do not mean equal field."
+  }
+ ],
+ "readyMade": {
+  "shelf": "electrical",
+  "course": "generators"
+ },
+ "overviewChecked": true,
+ "guideV": 3,
+ "research": {
+  "status": "done",
+  "at": "2026-10-31T15:18:59.368Z",
+  "sources": 48,
+  "dropped": 0,
+  "error": null,
+  "reason": null,
+  "tries": 0
+ }
+}

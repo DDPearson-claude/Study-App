@@ -1,0 +1,365 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Generators and paralleling
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i2 "Excitation and the AVR: field current sets the voltage" — The automatic voltage regulator, or AVR, measures the output and adjusts the current in the turning field to hold the voltage steady as load changes. [mechanism]
+Later ideas in the course (every claim must stay true after Dan has learned each of them):
+- i3 The loaded generator: synchronous reactance and the phasor — Synchronous reactance, the machine's inner reactance, drops voltage under load; drawn tip to tail, it shows the internal voltage the field must make.
+- i4 The governor: fuel, speed and droop — The governor trims fuel to hold speed under load, and droop lets the speed fall a set few per cent from no load to full load.
+- i5 Synchronising: closing onto a live board — Close onto a live board only when voltage, frequency, phase sequence and phase angle match, sending the close early for the breaker's closing time.
+- i6 Load sharing: kW by fuel, kVAr by field — In parallel, more fuel moves kW onto a set and more field moves kVAr onto it, while the board's frequency and voltage barely change.
+- i7 Protection: reverse power, a lost field and the short circuit — Each generator fault has its own signature, reverse power, a lost field or a short-circuit current falling with time, and protection acts on it.
+- i8 The generator set in a power system — A big motor's start dips a set's voltage before the AVR can act, so big loads start softly, in sequence or with more sets on.
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] A062L877 (Issue 6) — stamford-avk.com — https://www.stamford-avk.com/sites/stamfordavk/files/2026-05/S9-HV-Alternators-Installation-Service-and-Maintenance-Manual-English.pdf
+    "The AVR controls the alternator output voltage by automatic adjustment of the exciter stator field strength."
+[R2] AGN 124 – AVR Power Supplies — stamford-avk.com — https://www.stamford-avk.com/sites/stamfordavk/files/AGN124_C.pdf
+    "Self-excited alternators will not maintain a short-circuit current - the short-circuit current will quickly decay to 0 if the short- circuit condition is not immediately cleared."
+[R3] Lecture 6: Synchronous machines — egr.unlv.edu — http://www.egr.unlv.edu/~eebag/SYNCHRONOUS%20GENERATORS.pdf
+    "The rotor is then turned by external means producing a rotating magnetic field, which induces a 3-phase voltage within the stator winding."
+[R4] Chapter 2 ABFC Power Plant Operations and Procedures — media.defense.gov — https://media.defense.gov/2014/Jun/20/2002655888/-1/-1/1/140620-N-ZZ182-6532.pdf
+    "The three-phase alternator, as the name implies, has three single-phase windings spaced such that the voltage induced in any one phase is displaced by 120° from the other two."
+[R5] Lecture 4 — aast.edu — https://www.aast.edu/pheed/staffadminview/pdf_retreive.php?stafftype=staffcourses&url=45_24985_EE328_2016_1__2_1_lecture7.pdf
+    "to generate 60-Hz power in a two-pole machine, the rotor _must_ turn at 3600 rpm."
+[R6] Load Sharing: Balancing kW and kVAR Between Generators — bengibb.ca — https://www.bengibb.ca/blog/kw-and-kvar-control
+    "These two types of load sharing rely on separate systems: speed control for kW and voltage control for kVAR."
+Notes (claims, and the sources that support them):
+- The automatic voltage regulator controls the alternator output voltage by adjusting the exciter stator field strength. [R1]
+- A self-excited alternator will not maintain a short-circuit current; it decays quickly unless the fault is cleared at once. [R2]
+- Turning the rotor makes a rotating magnetic field, which induces a three-phase voltage in the stator winding. [R3]  (from an idea this one builds on)
+- A three-phase alternator has three single-phase windings spaced so that the voltage in each phase is displaced by 120° from the other two. [R4]  (from an idea this one builds on)
+- The rotor speed fixes the frequency: a two-pole machine must turn at 3600 rpm to make 60 Hz. [R5]  (from an idea this one builds on)
+- Speed control and voltage control are two separate systems on a generator set: speed control shares kW and voltage control shares kVAr. [R6]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i2",
+ "title": "Excitation and the AVR: field current sets the voltage",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the voltage sagging under load and staying down with the AVR off, but coming back as the AVR raises the field up the open-circuit curve, when you drag the load up.",
+  "title": "The AVR loop",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Screen",
+    "min": 0,
+    "max": 11,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [],
+  "whatAmILookingAt": "Twelve small screens on one picture, with Back and Continue. Five show an idea and seven ask you to try it. No marks and no timers.\n\nThe picture. At the top, a generator set drawn side-on along one shaft, left to right, each part with a one-word or two-word label: PMG, a small permanent magnet generator; the exciter, its field ring fixed in the stator and its coils turning on the shaft; a diode bridge riding on the shaft; the main field on the rotor; and the main stator, whose output leads run down to a load below. The labels read PMG, Exciter, Diodes, Main field, Stator and AVR. Off the shaft sits the AVR box, with three leads: its power in, from the PMG or from the output terminals; a sensing lead from the output; and its output to the exciter's fixed field. Two current bars show the exciter's field current and the main field current, each as a percentage of its value at no load and 440 V, so they move together. Below, the open-circuit curve: the voltage the set makes inside, 0 to 600 V, against the field current, 0 to 200%. A dot sits at the present field current. A short line drops from the dot to the output voltage, the drop the load causes inside the machine. Beside it, the output voltage against time, with the 440 V set point dashed. On a phone the curve and the trace stack. The load slider runs 0 to 100% of the set's rating in steps of 10, opening at 0%. The field-current slider runs 0 to 200% in steps of 5, opening at 100%, and works only with the AVR off. An AVR switch turns it on and off. A supply switch, Shunt or PMG, lights where the AVR gets its power.\n\nThe readouts, in three tiles that wrap onto two rows on a phone: Load in %, Field current in % and Voltage in V. The two switches wrap too.\n\nThe rule it computes. The set is a 4-pole machine held at 1800 rev/min, so it makes 60 Hz throughout. Its field current is counted as a percentage of the field that makes 440 V with nothing connected. The curve is a sketch through these points: 0% gives 0 V, 25% gives 125 V, 50% gives 250 V, 75% gives 360 V, 100% gives 440 V, 125% gives 490 V, 150% gives 520 V, 175% gives 540 V and 200% gives 555 V. It runs straight between them. So it climbs steeply, then bends over at a knee where the iron saturates. The load drops 1 V inside the machine for each 1% of load, so 100 V at full load. So the output voltage = the curve's voltage at the present field − the load in %. With the AVR off, the field stays where the slider puts it. With the AVR on, it measures the output, compares it with its 440 V set point and moves the field until they match. So it settles where the curve gives 440 V + the load in %. At 50% load that is 490 V, at 125%; at 100% load it is 540 V, at 175%. The main field is a large coil, so its current changes gradually. So a load step moves the output at once by the change in drop, and the AVR then brings it back. That return is slowed so you can follow it. On Shunt, the AVR's supply bar follows the output voltage. On PMG it stays full.\n\nScreen 1, show. Nothing connected, the AVR off, the load slider hidden, the field-current slider free at 100%. The words: \"The set turns at a steady 1800 rev/min with nothing connected. So its voltage now depends on the field current alone. Drag the field current up and watch the dot. At first the voltage climbs in step with it. Then the curve bends over at a knee. That is the iron saturating, as on a B-H curve. Past the knee, each extra step of field buys less voltage. This plot is the open-circuit curve.\" Read: \"With the set at 1800 rev/min and nothing connected, the voltage follows the field current along the open-circuit curve. It climbs in step at first. Then it bends over at a knee as the iron saturates.\" Still: nothing connected, the field at 200%, the dot at the top of the curve and the readouts at 0%, 200% and 555 V.\n\nScreen 2, try it, typed. Nothing connected, the field at 100%. The Voltage tile reads ? until Check. \"With nothing connected, the field current doubles from 100% to 200%. The curve marks 440 V at 100% and 555 V at 200%. How many times higher is the voltage now?\" A field in ×. Answer 1.26 ×. Slips: 2 ×, \"That holds only on the straight part. Past the knee the flux no longer keeps up with the field.\"; 0.79 ×, \"That divides the wrong way round. The voltage went up.\" Hint when wrong: \"Divide the new voltage by the old one.\" Why: \"555 ÷ 440 = 1.26. The field current doubled, but the flux did not. The iron is saturating, so the voltage rose by only 26%.\" A right Check slides the field to 200% and the dot up the curve. Read: \"With nothing connected, the field current doubles from 100% to 200%. The curve marks 440 V at 100% and 555 V at 200%. How many times higher is the voltage now?\"\n\nScreen 3, show. Nothing connected, the field at 100%, a Follow button lighting the current path from the AVR to the main field. The words: \"The main field turns with the shaft. So how does direct current get into it? A brushless set has a second, smaller alternator on the same shaft, the exciter. Its field is fixed in the stator. Its coils turn on the shaft and make AC. A diode bridge on the shaft turns that AC into DC for the main field. The AVR feeds only the exciter's fixed field. A small current there controls a much bigger one in the main field.\" Read: \"In a brushless set, the AVR feeds the exciter's fixed field. The exciter's turning coils make AC, and a diode bridge on the shaft turns it into DC for the main field, with no brushes.\" Still: the whole path lit, from the AVR through the exciter and the diodes to the main field.\n\nScreen 4, try it. \"In a brushless set, which winding does the AVR's output feed?\" Three choices, in this order, along the chain: \"The exciter's fixed field\"; \"The main field on the rotor\"; \"The main stator's output coils\". Right, the first. Hint for the second: \"The main field turns with the shaft. The AVR sits still, so it reaches the main field only through the exciter and the diodes.\" Hint for the third: \"Those coils carry the output. The AVR measures them, but it feeds a field.\" Why: \"The AVR sits off the shaft. It feeds the exciter's fixed field, which needs no brushes. The exciter's turning coils and the diodes then carry a much bigger current into the main field.\" A right Check lights the AVR's lead to the exciter's field. Read: \"In a brushless set, which winding does the AVR's output feed?\"\n\nScreen 5, show. The AVR off, the field held at 100%, the load slider free from 0%. The words: \"Now connect a load, with the AVR off and the field held at 100%. Drag the load to 50%. The voltage falls from 440 V to 390 V and stays there. The load's current drops voltage inside the machine, much as a transformer's output falls on load. Nothing has changed the field, so nothing brings the voltage back. Here the drop is drawn as 1 V for each 1% of load.\" Read: \"With the AVR off and the field held at 100%, a 50% load pulls the voltage down from 440 V to 390 V. It stays there.\" Still: the AVR off, the load at 50%, the trace stepping down to 390 V and running flat.\n\nScreen 6, try it, typed. The AVR off, the field at 100%, the Voltage tile reading ? until Check. \"The AVR is off and the field is held at 100%. The load goes from 0% to 80%. The drop is 1 V for each 1% of load. What voltage reaches the board?\" A field in V. Answer 360 V. Slips: 440 V, \"The field is held, but the load's current still drops voltage inside the machine.\"; 520 V, \"The drop takes voltage away. It does not add it.\" Hint when wrong: \"Work out the drop, then take it off 440 V.\" Why: \"80% of load drops 80 V. The field has not moved, so the curve still gives 440 V inside. So 440 − 80 = 360 V reaches the board, and it stays there.\" A right Check slides the load to 80%. Read: \"The AVR is off and the field is held at 100%. The load goes from 0% to 80%. The drop is 1 V for each 1% of load. What voltage reaches the board?\"\n\nScreen 7, show. The AVR on, the load back at 0%, the load slider free. The words: \"Switch the AVR on and drag the load to 50% again. The voltage dips to 390 V at first. The main field is a big coil, so its current cannot jump. The AVR compares the output with its set point, 440 V. It is 50 V short, so the AVR raises the exciter's field. The main field current climbs to 125%. The dot rides up the curve to 490 V, and the board gets 440 V again.\" Read: \"With the AVR on, a 50% load dips the voltage to 390 V at first. The AVR finds it 50 V short of 440 V and raises the exciter's field. The main field climbs to 125%, and the output returns to 440 V.\" Still: the AVR on, the load at 50%, settled, the trace showing the dip and the climb back.\n\nScreen 8, try it, typed. The AVR on at 50% load, the Field current tile reading ? until Check. \"The AVR holds 440 V at 50% load with the field at 125%. The load rises to 100%. The drop is 1 V for each 1% of load. The curve marks 490 V at 125%, 520 V at 150% and 540 V at 175%. What field current does the AVR settle at?\" A field in %. Answer 175%. Slips: 150%, \"That doubles the 25% the first half of the load took. Past the knee each step of field buys fewer volts.\"; 200%, \"That adds 1% of field for each volt of drop. Read the curve instead.\"; 125%, \"That leaves the field where it was. The AVR must make up the bigger drop.\" Hint when wrong: \"Find the voltage the set must make inside, then read the curve.\" Why: \"At 100% load the drop is 100 V. So the set must make 440 + 100 = 540 V inside. The curve gives 540 V at 175%. The first half of the load took 25% more field. The second half took 50%, because the dot is climbing past the knee.\" A right Check slides the load to 100% and lets the AVR settle. Read: \"The AVR holds 440 V at 50% load with the field at 125%. The load rises to 100%. The drop is 1 V for each 1% of load. The curve marks 490 V at 125%, 520 V at 150% and 540 V at 175%. What field current does the AVR settle at?\"\n\nScreen 9, show. The AVR on at 50% load, the supply switch free, opening on Shunt. The words: \"The AVR needs power of its own. Flip the supply switch to see two common ways. On Shunt, it takes power from the set's own output, so the set is self-excited. On PMG, a permanent magnet generator on the same shaft feeds it. That power lasts as long as the shaft turns, whatever the output does. A self-excited set cannot keep up a short-circuit current. It dies away quickly unless the fault is cleared at once.[^1]\" Read: \"A shunt supply feeds the AVR from the set's own output, so the set is self-excited. A permanent magnet generator, or PMG, on the same shaft feeds it for as long as the shaft turns.\" Still: the AVR on at 50% load, the supply on Shunt, its path lit from the output terminals to the AVR.\n\nScreen 10, try it. \"A short circuit on the board pulls the set's output voltage close to zero. Which AVR supply can keep the field up?\" Three choices, in this order: \"Shunt, from the set's own output\"; \"PMG, on the same shaft\"; \"Either, since the shaft keeps turning\". Right, the second. Hint for the first: \"A shunt supply takes its power from the output. With the output near zero, the AVR has almost no power.\" Hint for the third: \"The shaft turns either way. But only the PMG turns that into power for the AVR.\" Why: \"The PMG's power comes from the shaft, not from the output. So the AVR can keep the exciter's field up through the fault. A shunt-fed AVR loses its power with the output. So the field and the fault current die away.\" A right Check lights the PMG's path to the AVR. Read: \"A short circuit on the board pulls the set's output voltage close to zero. Which AVR supply can keep the field up?\"\n\nScreen 11, try it, typed (mixed). The AVR on at 50% load, the Voltage tile reading ? until Check. \"The AVR holds 440 V at 50% load, so the field sits at 125%. The load trips off. The curve marks 490 V at 125%. What is the voltage in the instant before the AVR acts?\" A field in V. Answer 490 V. Slips: 440 V, \"That is after the AVR has acted. The field current cannot change in an instant.\"; 390 V, \"A trip takes the drop away, so the voltage jumps up.\" Hint when wrong: \"Read the curve at the field the set has now. Then take off the drop at no load.\" Why: \"The field is still at 125%, so the curve gives 490 V inside. With no load there is no drop. So the output jumps to 490 V. Then the AVR lowers the field until the board reads 440 V again.\" A right Check drops the load to 0% and plays the jump and the AVR's return. Read: \"The AVR holds 440 V at 50% load, so the field sits at 125%. The load trips off. The curve marks 490 V at 125%. What is the voltage in the instant before the AVR acts?\"\n\nScreen 12, try it, typed (mixed). The AVR on at 0% load, the Field current tile reading ? until Check. \"The AVR is on and the load is 20%. The drop is 1 V for each 1% of load. The curve runs straight from 440 V at 100% to 490 V at 125%. What field current does the AVR settle at?\" A field in %. Answer 110%. Slips: 120%, \"That adds 1% of field for each volt. On this stretch 25% of field buys 50 V, so each volt needs 0.5%.\"; 100%, \"That leaves the field where it was. The AVR must make up the 20 V drop.\" Hint when wrong: \"Find the voltage inside first. Then see how far along the straight stretch it sits.\" Why: \"The drop is 20 V, so the set must make 460 V inside. That is 20 V of the 50 V between 100% and 125%. So the field rises 20 ÷ 50 × 25 = 10%, to 110%.\" A right Check slides the load to 20%, and a closing line reads: \"The field sets the voltage, and the AVR sets the field.\" Read: \"The AVR is on and the load is 20%. The drop is 1 V for each 1% of load. The curve runs straight from 440 V at 100% to 490 V at 125%. What field current does the AVR settle at?\"",
+  "ignores": "The curve is a sketch, run straight between its marked points. A real one is smooth and comes from the maker's test. The drop is drawn as a fixed 1 V for each 1% of load. A real drop does not grow in a straight line, and it depends on the kind of load. A lagging load drops more than a resistive one, and a leading load can raise the voltage instead. The speed is held steady, so the frequency never moves. A real load step also slows the engine for a moment. The AVR's return is slowed, and drawn as a smooth climb with no overshoot. The main field is drawn in step with the exciter's field. A real exciter adds its own small delay and its own curve. The curve starts at 0 V, but with no field current the iron's leftover magnetism still makes a small voltage. Some sets feed the AVR from an extra winding in the main stator instead. The picture shows only Shunt and PMG.",
+  "numbers": [
+   {
+    "label": "Number of screens",
+    "value": 12,
+    "kind": "assumed"
+   },
+   {
+    "label": "Poles on the example set",
+    "value": 4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example set speed, rev/min",
+    "value": 1800,
+    "kind": "assumed"
+   },
+   {
+    "label": "Its frequency, 2 × 1800 ÷ 60, Hz",
+    "value": 60,
+    "kind": "computed"
+   },
+   {
+    "label": "Voltage with nothing connected at 100% field, V",
+    "value": 440,
+    "kind": "assumed"
+   },
+   {
+    "label": "AVR set point, V",
+    "value": 440,
+    "kind": "assumed"
+   },
+   {
+    "label": "Curve point: 25% field gives, V",
+    "value": 125,
+    "kind": "assumed"
+   },
+   {
+    "label": "Curve point: 50% field gives, V",
+    "value": 250,
+    "kind": "assumed"
+   },
+   {
+    "label": "Curve point: 75% field gives, V",
+    "value": 360,
+    "kind": "assumed"
+   },
+   {
+    "label": "Curve point: 125% field gives, V",
+    "value": 490,
+    "kind": "assumed"
+   },
+   {
+    "label": "Curve point: 150% field gives, V",
+    "value": 520,
+    "kind": "assumed"
+   },
+   {
+    "label": "Curve point: 175% field gives, V",
+    "value": 540,
+    "kind": "assumed"
+   },
+   {
+    "label": "Curve point: 200% field gives, V",
+    "value": 555,
+    "kind": "assumed"
+   },
+   {
+    "label": "Curve axis top, V",
+    "value": 600,
+    "kind": "assumed"
+   },
+   {
+    "label": "Drop inside per 1% of load, V",
+    "value": 1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Drop at full load, V",
+    "value": 100,
+    "kind": "computed"
+   },
+   {
+    "label": "Load slider, lowest, %",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Load slider, highest, %",
+    "value": 100,
+    "kind": "control"
+   },
+   {
+    "label": "Load slider step, %",
+    "value": 10,
+    "kind": "control"
+   },
+   {
+    "label": "Field-current slider, highest, %",
+    "value": 200,
+    "kind": "control"
+   },
+   {
+    "label": "Field-current slider step, %",
+    "value": 5,
+    "kind": "control"
+   },
+   {
+    "label": "Field-current slider opening value, %",
+    "value": 100,
+    "kind": "control"
+   },
+   {
+    "label": "Screen 2: voltage ratio, 555 ÷ 440",
+    "value": 1.26,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 2: rise, per cent",
+    "value": 26,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 2 slip: doubling",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 2 slip: 440 ÷ 555",
+    "value": 0.79,
+    "kind": "computed"
+   },
+   {
+    "label": "Screens 5 and 7: load, %",
+    "value": 50,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screens 5 and 7: drop, V",
+    "value": 50,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 5: voltage with the field held, V",
+    "value": 390,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 6: load, %",
+    "value": 80,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 6: voltage, 440 − 80, V",
+    "value": 360,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 6 slip: drop added, V",
+    "value": 520,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 7: field the AVR settles at, %",
+    "value": 125,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 8: field at full load, %",
+    "value": 175,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 8: field the first half of the load took, %",
+    "value": 25,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 8 slip: 25% doubled, field %",
+    "value": 150,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 8 slip: 1% per volt, field %",
+    "value": 200,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 11: voltage after the trip, V",
+    "value": 490,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12: load, %",
+    "value": 20,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 12: voltage inside, 440 + 20, V",
+    "value": 460,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12: field, 100 + 20 ÷ 50 × 25, %",
+    "value": 110,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12 slip: 1% per volt, field %",
+    "value": 120,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12: field per volt on that stretch, %",
+    "value": 0.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example: field at 80% load, %",
+    "value": 150,
+    "kind": "computed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "A generator set's voltage is set by the current in its turning field. A load drags that voltage down. So an [[automatic voltage regulator]], or AVR, measures the output and trims the field current to hold the voltage steady.\n\nRun a set at its steady speed with nothing connected. Its voltage then depends on the field current alone, because the field current sets the flux. Plot one against the other and you get the [[open-circuit curve]]. It climbs in step at first. Then it bends over at a knee, because the iron saturates, as on a B-H curve. Past the knee, each extra step of field buys less voltage. On the sketch here, doubling the field from 100% to 200% takes 440 V only to 555 V.\n\nConnect an ordinary load and the voltage falls. The load's current drops voltage inside the machine, much as a transformer's output falls on load. With the field held, the voltage stays down. So the field must rise as the load rises. The main field turns with the shaft, and a brushless set feeds it with no sliding contact. A smaller alternator on the same shaft, the [[exciter]], has its field fixed in the stator and its coils turning on the shaft. A diode bridge riding on the shaft turns their AC into DC for the main field. The AVR feeds only the exciter's fixed field. The engine turning the shaft supplies the power, so a small current there steers a much bigger one in the main field. It works as a loop. It measures the output, compares it with its set point and corrects the field. Say the drop is 50 V at half load. The AVR raises the field until the curve gives 490 V inside, at 125%. Then 490 − 50 = 440 V reaches the board. At full load the drop is 100 V, and 540 V needs 175%. The second half of the load costs twice the field of the first, because of the knee.\n\nThe AVR needs power too. A shunt supply takes it from the set's own output, so the set is self-excited. A permanent magnet generator, or PMG, on the same shaft gives power as long as the shaft turns. A self-excited set cannot keep up a short-circuit current. It dies away quickly unless the fault is cleared at once.[^1] These numbers come from a simplified picture, a sketched curve and a drop that grows in step with the load. A real drop depends on the kind of load, and a leading load can even raise the voltage. **On a set running alone, the AVR holds the output voltage by adjusting the strength of the exciter's field, which sets the main field current.[^2]**"
+ },
+ "analogy": {
+  "text": "Think of a battery charger on its constant-voltage stage. It measures the battery's voltage and compares it with its set voltage. Then it trims its output to hold that voltage. Put a load on the battery and the charger pushes more current. The AVR runs the same loop: it measures the output voltage and trims the field.",
+  "breaks": "A charger trims its own output current directly. The AVR never touches the output current. It trims a small field two stages away, through the exciter and the diodes, and the main field's coil makes it lag. And a charger has no knee, while past the knee each extra step of field buys less voltage."
+ },
+ "practice": {
+  "text": "**Safety first:** treat a turning set as live, even with its breaker open and its AVR off. Its output, its exciter and its rotating diodes all carry voltage while the shaft turns, and the iron's leftover magnetism makes some voltage with no field current.\n\n- Find out which supply feeds the AVR: shunt, PMG or a winding of its own. It tells you how the set behaves in a fault.\n- On load, read the field current, or the AVR's output, with the voltage. As the load rises, the field should rise and the voltage hold.\n- If the voltage sags on load while the field stays put, the AVR is not correcting. Check its supply, its sensing lead and the exciter's field.\n- If the field sits high on the curve at full load, the set is working past the knee. Each extra step of load then costs more field.\n\n**Rule of thumb:** once the set works past the knee, each extra 1% of load costs more field than the last.\n\n**Worked example:** take a set that makes 440 V with nothing connected at 100% field, with a drop of 1 V for each 1% of load and the curve drawn here. At 80% load the drop is 80 V. So the AVR must make 440 + 80 = 520 V inside. The curve gives 520 V at 150%, so the field settles at 150%. With the AVR off and the field left at 100%, the same load gives 440 − 80 = 360 V.\n\n**Common mistakes**\n- Expecting a set to hold its voltage by itself. With the field fixed, the voltage falls on load and stays down.\n- Thinking the AVR of a brushless set drives the main field. It feeds the exciter's fixed field, and the exciter and diodes feed the main field.\n- Expecting double the field to give double the voltage. Past the knee it gives much less.\n- Expecting a self-excited set to keep feeding a short circuit. Its AVR loses its power with the output."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "simplified",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "sources": [
+  {
+   "n": 1,
+   "title": "AGN 124 – AVR Power Supplies — stamford-avk.com",
+   "url": "https://www.stamford-avk.com/sites/stamfordavk/files/AGN124_C.pdf",
+   "quote": "Self-excited alternators will not maintain a short-circuit current - the short-circuit current will quickly decay to 0 if the short- circuit condition is not immediately cleared."
+  },
+  {
+   "n": 2,
+   "title": "A062L877 (Issue 6) — stamford-avk.com",
+   "url": "https://www.stamford-avk.com/sites/stamfordavk/files/2026-05/S9-HV-Alternators-Installation-Service-and-Maintenance-Manual-English.pdf",
+   "quote": "The AVR controls the alternator output voltage by automatic adjustment of the exciter stator field strength."
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }

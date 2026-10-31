@@ -1,0 +1,564 @@
+TASK: build-interactive
+
+You are building one small interactive page for "My University", Dan's personal learning app. It lets him see one idea for himself by playing with it. It runs inside a sandboxed iframe on top of the house kit described below, and the app tests it automatically before Dan sees it.
+
+## The idea
+Topic: Generators and paralleling
+Idea: Synchronising: closing onto a live board (Close onto a live board only when voltage, frequency, phase sequence and phase angle match, sending the close early for the breaker's closing time.)
+Kind: process
+Dan knows a little about this topic. Show an equation on the page only if every symbol in it is labelled on the picture; otherwise say the rule in words.
+
+## What the interactive must show
+Brief: The one thing you should see is the breaker shutting 50 ms after Close, wherever the pointer has got to, with the surge bar red far from 12, when you press Close as the pointer turns.
+Title (the app shows it above the frame, so do not repeat it): The synchroscope bench
+The rule (the app shows it just above the frame, under "What you're looking at"): Fourteen small screens share one picture, with Back and Continue. Six show an idea and eight ask you to try it. No marks, no timers.
+
+The picture. At the top, the live board: three busbars at 440 V, 60 Hz, fixed here. Beside it, the incoming set behind its open breaker, poles A, B and C. A lamp sits across each pole. Below, the synchroscope: a dial with the in-phase mark at 12 o'clock, FAST clockwise and SLOW anticlockwise. Beside it, a still of two cycles: the board's phase A wave solid, the set's dashed, and the voltage across pole A as a thinner third wave. Last, two bars, each 0 to 9 per unit on the set's own rating: Surge and Shaft torque. A dashed line on the Surge bar at 6.7 is labelled "Three-phase fault at the set". The controls: a Speed trim slider, 59.00 to 61.00 Hz in steps of 0.05, opening at 60.20 Hz; a Voltage trim slider, 400 to 480 V in steps of 5, opening at 440 V; a Swap B and C switch, off; a Relay switch, off; a Close button; and a Reset button that opens the breaker again.
+
+The readouts, in four tiles that wrap onto two rows on a phone: Angle in °, Slip in Hz, Across pole A in V and Incoming in V. The buttons wrap too, so no word splits.
+
+The rule it computes. Each board phase is 440 ÷ √3 = 254 V, each incoming phase the voltage trim ÷ √3. The slip is the speed trim − 60 Hz. The angle is how far the set's phase A runs ahead of the board's. It grows by 360 × the slip degrees a second, and is shown from −180° to 180°. The pointer stands at that angle, with 12 o'clock as 0°. Each pole sees the difference of its two phases: √(Vb² + Vi² − 2 Vb Vi cos φ), where Vb and Vi are the two phase voltages and φ the angle between them. With the swap on, φ becomes the angle − 120° on pole B and the angle + 120° on pole C. With equal voltages the rule becomes 2 sin(φ ÷ 2) × 254 V. Each lamp's glow is its voltage ÷ 508 V. The breaker shuts 50 ms after Close, at whatever angle it has reached, and the dial marks both places. When it shuts, the surge is the largest pole voltage ÷ 254 V ÷ 0.25. That 0.25 per unit is the set's reactance, 0.15, plus the board's, 0.10, both example values. The fault line is 1 ÷ 0.15 = 6.7. The torque is (Vi ÷ 254 V) × sin(the angle) ÷ 0.25. Any angle past 90° counts as 90°. The rotor swings back through 90°, where the pull is greatest. With the swap on, the torque bar shows "Wrong sequence" instead. The bars turn red for a close outside the window: the angle beyond 10° either side of 12, the slip over 0.2 Hz, the voltage more than 2% off, 8.8 V, or the swap on. These are example settings. After any close the pointer stops at 12 and the lamps go dark. With the Relay on, Close only asks. Outside the window on voltage, slip or sequence, the relay refuses and names why. Inside it, the relay sends the close when the pointer is 360 × slip × 0.05 degrees short of 12, so the breaker shuts at 12.
+
+Screen 1, try it, a recall. No picture. "Two transformers sit 30° apart across an open paralleling switch. What fraction of the phase voltage appears across it?" A field with no unit. Answer 0.52. Slips: 0.5, "That is sin 30°. Halve the angle first."; 0.26, "That is sin 15°. Double it."; 1, "That doubles sin 30°. Halve the angle first." Hint when wrong: "The gap is 2 sin(θ ÷ 2) of the phase voltage." Why: "2 × sin 15° = 2 × 0.259 = 0.52 of the phase voltage." A right Check says "Still there." Read: the question.
+
+Screen 2, show. 60.00 Hz, the angle held at 40°, 440 V, every control hidden. The words: "A second set runs beside a live board. Its breaker is open. Before it closes, it must match the board in four things: voltage, frequency, phase sequence and phase angle.[^1] Each pole has a board phase on one side and the set's same phase on the other. On a 440 V board each phase is 254 V. The thin wave is the difference between them. That is the voltage across the pole. The set's wave runs 40° ahead. So the pole sees 2 sin 20° × 254 = 174 V." Read: the words, "The thin wave" read as "What the pole sees". Still: the lamps glowing, readouts 40°, 0.00 Hz, 174 V, 440 V.
+
+Screen 3, try it, typed. As screen 2, the angle at 60°, the Across pole A tile reading ? until Check. "The set's wave runs 60° ahead of the board's. Each phase is 254 V. What voltage appears across each pole?" A field in V. Answer 254 V. Slips: 440, "That uses the full 60°. Halve it first."; 127, "That is 254 × sin 30°. Double it."; 220, "That is 254 × sin 60°. Halve the angle first." Hint when wrong: "Use 2 sin(θ ÷ 2) × 254 V." Why: "2 × sin 30° × 254 = 2 × 0.5 × 254 = 254 V. That is a whole phase voltage." A right Check shows 254 V in the tile. Read: the question.
+
+Screen 4, show. The speed trim free at 60.20 Hz. The words: "Now the set runs 0.2 Hz faster than the board. That frequency difference is the [[slip]]. The set's waves gain one whole cycle every 1 ÷ 0.2 = 5 s. So the angle creeps round, and the gap swells and shrinks every 5 s. The three lamps glow and go dark together. The dial is a [[synchroscope]]. Its pointer turns once each slip cycle. It turns clockwise when the set runs fast. It stands at 12 when the angle is zero. Drag the speed trim and watch the pointer." Read: the words without the last sentence. Still: the angle at 60° FAST, the lamps half lit, readouts 60°, 0.20 Hz, 254 V, 440 V.
+
+Screen 5, try it, typed. 60.25 Hz, the Slip tile reading ? until Check. "The set runs at 60.25 Hz on a 60 Hz board. How long does the pointer take to go once round?" A field in s. Answer 4 s. Slips: 0.25, "That is the slip. One turn takes 1 ÷ the slip."; 240, "That is 60 ÷ the slip. Use 1 ÷ the slip." Hint when wrong: "Find the slip first." Why: "The slip is 60.25 − 60 = 0.25 Hz. The set gains a quarter of a cycle each second. So a whole cycle takes 1 ÷ 0.25 = 4 s." A right Check times one turn of the pointer, 4 s. Read: the question.
+
+Screen 6, show. 60.20 Hz, Close and Reset free. The words: "Press Close as the pointer nears 90°, a quarter turn. The breaker shuts and both bars jump into red. Shut at 90°, each pole sees 359 V. Only the reactances of the set and the board limit the surge that gap drives. Here it is 5.7 per unit. The surge also yanks the rotor into step. That puts 4.0 per unit of torque through the shaft and coupling. Shut at 180° and the surge reaches 8.0. That is more than a three-phase fault at the set.[^2]" Read: the first two sentences read as "Suppose the breaker shuts a quarter turn out." Still: the breaker shut at 90°, Surge at 5.7 and Torque at 4.0, both red.
+
+Screen 7, try it. 60.05 Hz, the pointer near 180°, 440 V. "Both voltmeters read 440 V. The pointer is at the bottom of the dial, at 180°. It is turning slowly. Can you close?" Three choices, in this order: "Yes, the voltages match"; "No, each pole sees about twice the phase voltage"; "Yes, the slip is small". Right, the second. Hint for the first: "Voltage is one of four things. The waves are half a cycle apart."; for the third: "A small slip lets you time the close. But the angle is wrong now." Why: "At 180° the waves are opposite. Each pole sees 2 × sin 90° × 254 = 508 V. That gives the biggest surge of all. Wait for the pointer to come round to 12." A right Check plays the pointer round to 12, the lamps going dark. Read: the question.
+
+Screen 8, show. 60.20 Hz, Close free. The words: "A breaker takes a set time to shut after the command. Say 50 ms. At 0.2 Hz slip the pointer turns 360 × 0.2 = 72° a second. In 50 ms it moves 72 × 0.05 = 3.6°. So if you press Close at 12, the breaker shuts 3.6° past it. Instead, send the close 3.6° before 12. That lead is the [[advance angle]].[^3] The dial marks where you pressed and where the breaker shut." Read: the words without the last sentence. Still: a mark at 12 where Close was pressed, one at 3.6° FAST where it shut, both bars small.
+
+Screen 9, try it, typed. 60.50 Hz. "The set runs 0.5 Hz fast. The breaker takes 50 ms. You press Close just as the pointer passes 12. How many degrees past 12 does the breaker shut?" A field in °. Answer 9°. Slips: 0, "The breaker takes 50 ms, and the pointer keeps turning."; 18, "That is for 1 Hz of slip. Multiply by 0.5 Hz too."; 0.025, "That is in turns. Multiply by 360 for degrees."; 9000, "Turn 50 ms into seconds first. It is 0.05 s." Hint when wrong: "Degrees a second = 360 × the slip. Multiply by the closing time in seconds." Why: "360 × 0.5 = 180° a second. 180 × 0.05 = 9°. Pressing at 12 lands 9° late. So the close should go 9° early." A right Check plays it, marking 12 and 9° FAST. Read: the question.
+
+Screen 10, show. 60.10 Hz, the swap on and free. The words: "Swap two of the set's phases, B and C. The lamps no longer dim together. One goes dark while the other two blaze. The dark lamp runs round the three in turn. When lamp A is dark, lamps B and C each see 440 V. The pointer turns exactly as before. It compares only phase A on each side. So it cannot see the order of the other two. The wiring fixes the phase sequence. It is the phase rotation you already test." Read: the first sentence read as "Suppose two of the set's phases, B and C, are swapped." Still: the angle at 0°, lamp A dark, lamps B and C full.
+
+Screen 11, try it. 60.05 Hz, the swap on, hidden. "The pointer turns slowly through 12. Lamp A is dark, but lamps B and C are bright. Can you close?" Three choices, in this order: "Yes, the pointer is at 12 and turning slowly"; "No, the phase sequence is wrong"; "No, wait until all three lamps are bright". Right, the second. Hint for the first: "The pointer compares phase A only. Look at the other two lamps."; for the third: "A bright lamp means a big gap. You want all three dark together." Why: "With the sequence right, all three lamps go dark together. Here B and C blaze at 440 V while A is dark. So B and C are crossed. Put the wiring right first." A right Check closes anyway: Surge reaches 6.9, past the fault line, and the torque bar reads "Wrong sequence". Read: the question.
+
+Screen 12, show. The relay on, 60.50 Hz, 440 V; the speed trim, Relay and Close free. The words: "Turn the relay on. Now Close only asks. The relay closes only inside its window. Here the window is 10°, 0.2 Hz and 2% of voltage. These are example settings. At 0.5 Hz slip it refuses and says why. Trim the speed to 60.10 Hz and ask again. It waits for the advance angle, 1.8°, and sends the close. The breaker shuts at 12. An automatic synchroniser goes further. It trims the governor and the AVR by moving their set points.[^4]" Read: "Turn the relay on. Now Close only asks." read as "With a relay in charge, Close only asks." and "Trim the speed to 60.10 Hz and ask again." as "At 60.10 Hz it agrees." Still: the relay on, 60.10 Hz, the breaker shut at 0°, the lamps dark, both bars small.
+
+Screen 13, try it (mixed). 420 V, 60.40 Hz. "The set reads 420 V and 60.40 Hz. The board is 440 V, 60 Hz. What do you trim before closing?" Three choices, in this order: "Raise the field, and lower the fuel a little"; "Raise the fuel, and lower the field a little"; "Raise the field only, then close as the pointer passes 12". Right, the first. Hint for the second: "More fuel speeds the set up. It is already fast, and its voltage is low."; for the third: "At 0.4 Hz the pointer turns once every 2.5 s. That is too fast to catch." Why: "More field raises the voltage towards 440 V. Less fuel slows the set until the pointer turns slowly enough to catch at 12." A right Check moves the trims to 440 V and 60.10 Hz, and the pointer slows. Read: the question.
+
+Screen 14, try it, typed (mixed). No picture. "A relay must shut a breaker at 12. The set runs 0.3 Hz fast. The breaker takes 80 ms. How many degrees before 12 does the relay send the close? Give it to one decimal place." A field in °. Answer 8.6°. Slips: 28.8, "That leaves out the slip. Multiply by 0.3 Hz too."; 0.024, "That is in turns. Multiply by 360 for degrees."; 8640, "Turn 80 ms into seconds first. It is 0.08 s." Hint when wrong: "360 × the slip × the closing time in seconds." Why: "360 × 0.3 = 108° a second. 108 × 0.08 = 8.64°. To one decimal place that is 8.6°." A right Check shows: "Match all four, then close early by the advance angle." Read: the question.
+What the model leaves out (the app shows this in its own panel; do not repeat it on the page): The 50 ms close is too quick to see. So the dial marks where you pressed and where the breaker shut. The board stays at exactly 440 V and 60 Hz. A real board is a few sets running together, and it gives a little. The surge and torque are first-instant values from example reactances. A real surge dies away quickly, and the shaft rings as the rotor swings into step. Here the set always pulls into step. With a big enough slip, a real set can fail to. The lamps glow in proportion to their voltage. Real filament lamps stay dark until they see a fair share of their rating. So dark lamps alone give a wide window. The relay here both blocks a bad close and times a good one. Real schemes may split those jobs between devices. Each has its maker's own settings.
+Controls (use these ids, ranges and opening values exactly; when the prediction or a check names a setting of a slider, add it to that slider's snap):
+- id "step": Screen, from 0 to 13 in steps of 1, opening at 0
+Outputs: none. No rule computes a number here, so show no readouts beyond plain counts of what is on screen ("4 of 7 at war"): the picture, its labels and the .say line do the teaching.
+Numbers it may show (control = Dan sets it; computed = from the rule; constant = a fixed real value; assumed = an example value, said once as an example in the lead line or a caption, then drawn as a plain value; date = a historical date or fact):
+- Number of screens: 14 (assumed)
+- Board line voltage, V: 440 (assumed)
+- Board frequency, Hz: 60 (assumed)
+- Square root of 3: 1.732 (constant)
+- Board phase voltage, 440 ÷ √3, V: 254 (computed)
+- Twice the phase voltage, V: 508 (computed)
+- Dial in-phase mark, o'clock: 12 (constant)
+- Cycles in the wave still: 2 (assumed)
+- Bar scale, highest, per unit: 9 (assumed)
+- Bar scale, lowest, per unit: 0 (assumed)
+- Speed trim, lowest, Hz: 59 (control)
+- Speed trim, highest, Hz: 61 (control)
+- Speed trim step, Hz: 0.05 (control)
+- Speed trim opening, Hz: 60.2 (control)
+- Voltage trim, lowest, V: 400 (control)
+- Voltage trim, highest, V: 480 (control)
+- Voltage trim step, V: 5 (control)
+- Voltage trim opening, V: 440 (control)
+- Degrees in a turn: 360 (constant)
+- Angle shown from, degrees: -180 (assumed)
+- Angle shown to, degrees: 180 (assumed)
+- Phase shift for the swapped poles, degrees: 120 (constant)
+- Breaker closing time, ms: 50 (assumed)
+- Breaker closing time, s: 0.05 (computed)
+- Set reactance, per unit: 0.15 (assumed)
+- Board reactance, per unit: 0.1 (assumed)
+- Total reactance, per unit: 0.25 (computed)
+- Three-phase fault at the set, 1 ÷ 0.15, per unit: 6.7 (computed)
+- Angle where the pull is greatest, degrees: 90 (constant)
+- Window: angle either side of 12, degrees: 10 (assumed)
+- Window: slip, Hz: 0.2 (assumed)
+- Window: voltage, %: 2 (assumed)
+- Window: 2% of 440 V, V: 8.8 (computed)
+- Screen 1: angle, degrees: 30 (assumed)
+- Screen 1: half the angle, degrees: 15 (computed)
+- Screen 1: sin 15°: 0.259 (computed)
+- Screen 1: answer, fraction of phase voltage: 0.52 (computed)
+- Screen 1 slip: sin 30°: 0.5 (computed)
+- Screen 1 slip: sin 15°: 0.26 (computed)
+- Screen 1 slip: 2 sin 30°: 1 (computed)
+- Screen 2: speed trim, Hz: 60 (control)
+- Screen 2: angle, degrees: 40 (assumed)
+- Screen 2: half the angle, degrees: 20 (computed)
+- Screen 2: gap, V: 174 (computed)
+- Screen 2: slip, Hz: 0 (computed)
+- Screen 3: angle, degrees: 60 (assumed)
+- Screen 3: half the angle, degrees: 30 (computed)
+- Screen 3: gap, V: 254 (computed)
+- Screen 3 slip: full angle, V: 440 (computed)
+- Screen 3 slip: not doubled, V: 127 (computed)
+- Screen 3 slip: sin 60°, V: 220 (computed)
+- Screen 4: slip, Hz: 0.2 (computed)
+- Screen 4: one turn, s: 5 (computed)
+- Screen 4: still angle, degrees: 60 (assumed)
+- Screen 5: speed trim, Hz: 60.25 (control)
+- Screen 5: slip, Hz: 0.25 (computed)
+- Screen 5: one turn, s: 4 (computed)
+- Screen 5 slip: 60 ÷ 0.25, s: 240 (computed)
+- Screen 6: angle shut at, degrees: 90 (assumed)
+- Screen 6: gap, V: 359 (computed)
+- Screen 6: surge, per unit: 5.7 (computed)
+- Screen 6: torque, per unit: 4 (computed)
+- Screen 6: angle shut at, worst, degrees: 180 (assumed)
+- Screen 6: surge at 180°, per unit: 8 (computed)
+- Screen 7: speed trim, Hz: 60.05 (control)
+- Screen 7: half of 180°, degrees: 90 (computed)
+- Screen 7: gap at 180°, V: 508 (computed)
+- Screen 8: degrees a second at 0.2 Hz: 72 (computed)
+- Screen 8: advance angle, degrees: 3.6 (computed)
+- Screen 9: speed trim, Hz: 60.5 (control)
+- Screen 9: slip, Hz: 0.5 (computed)
+- Screen 9: degrees a second: 180 (computed)
+- Screen 9: angle late, degrees: 9 (computed)
+- Screen 9 slip: none: 0 (computed)
+- Screen 9 slip: 1 Hz of slip, degrees: 18 (computed)
+- Screen 9 slip: 1 Hz: 1 (computed)
+- Screen 9 slip: in turns: 0.025 (computed)
+- Screen 9 slip: ms not converted: 9000 (computed)
+- Screen 10: speed trim, Hz: 60.1 (control)
+- Screen 10: gap on B and C, V: 440 (computed)
+- Screen 11: surge with B and C crossed, per unit: 6.9 (computed)
+- Screen 12: speed trim after trimming, Hz: 60.1 (control)
+- Screen 12: advance angle at 0.1 Hz, degrees: 1.8 (computed)
+- Screen 13: voltage trim, V: 420 (control)
+- Screen 13: speed trim, Hz: 60.4 (control)
+- Screen 13: slip, Hz: 0.4 (computed)
+- Screen 13: one turn, s: 2.5 (computed)
+- Screen 14: slip, Hz: 0.3 (assumed)
+- Screen 14: closing time, ms: 80 (assumed)
+- Screen 14: closing time, s: 0.08 (computed)
+- Screen 14: degrees a second: 108 (computed)
+- Screen 14: advance angle, degrees: 8.64 (computed)
+- Screen 14: answer, degrees: 8.6 (computed)
+- Screen 14 slip: no slip, degrees: 28.8 (computed)
+- Screen 14 slip: in turns: 0.024 (computed)
+- Screen 14 slip: ms not converted: 8640 (computed)
+- Gap at 10°, V: 44 (computed)
+- Gap at 10°, fraction of phase voltage: 0.17 (computed)
+- Worked example: speed, Hz: 60.1 (assumed)
+- Worked example: slip, Hz: 0.1 (computed)
+- Worked example: one turn, s: 10 (computed)
+- Worked example: advance angle, degrees: 1.8 (computed)
+- Worked example: late angle, degrees: 20 (assumed)
+- Worked example: half of it, degrees: 10 (computed)
+- Worked example: gap, V: 88 (computed)
+- Worked example: surge, per unit: 1.4 (computed)
+- Mistake: advance angle at 1 Hz slip, degrees: 18 (computed)
+
+## The explanation Dan reads after playing (use the same words for the same things)
+Putting a second set onto a live board means closing its breaker with both sides alive. First, the set must match the board in four things: voltage, frequency, phase sequence and phase angle. The breaker also takes a moment to shut. So the close is sent a little early.
+
+The reason is the voltage across the open breaker. Each pole has a board phase on one side and the set's same phase on the other. If the two waves are the same size and rise and fall together, nothing sits across the pole. Now say the set's wave is the same size but runs θ degrees ahead. Then the pole sees 2 sin(θ ÷ 2) × the phase voltage. It is the same gap you met across a paralleling switch. On a 440 V board each phase is 254 V. At 10° apart the gap is 44 V. At 60° it is 254 V. At 180° the waves are opposite, and the gap is 508 V. Close the breaker and that gap drives a current. The reactances of the set and the board are the main limit on it. Closed far out of step, this current can exceed a three-phase fault at the set. The current also carries power between the two. That power pulls the set's rotor into step with the board. The shaft and coupling take that jerk.
+
+Frequency matters because a small difference keeps the angle moving. A set running 0.2 Hz fast gains one whole cycle on the board every 1 ÷ 0.2 = 5 s. So the angle creeps round once every 5 s, and the gap swells and shrinks with it. That differen…
+
+## Sources
+The only web addresses this page may contain, each only as a K.check {source} on a check whose label restates what that source's quote says (a result of your rule, or a fact about your drawing, takes no source; the caption names a source in words). The app rejects any other:
+[1] DG Synchronization with Step-by-Step Procedure — forumelectrical.com (https://forumelectrical.com/dg-synchronization-with-step-by-step-procedure): "Before a generator breaker is allowed to close, four electrical quantities of the incoming machine must be matched, within tolerance, to the running bus:"
+[2] PSRC WG J20 Report - Practices for Generator Synchronizing Systems — pes-psrc.org (https://www.pes-psrc.org/kb/report/119.pdf): "The synchronization current can exceed that of a three-phase fault at the generator"
+[3] PSRC WG J20 Report - Practices for Generator Synchronizing Systems — pes-psrc.org (https://www.pes-psrc.org/kb/report/119.pdf): "This allows the synchronizing breaker close command to be initiated early at the advance angle to compensate for breaker closing time."
+[4] Cummins Power Seminar, Paralleling Basics (IEEE PES New York archive) (https://ewh.ieee.org/soc/pes/newyork/Archive%20Docs/CumminsPowerSeminar_Basics%20of%20Paralleling%20169.pdf): "Governor and AVR are the basic functions on every genset and the synchronizer, load share and load govern simply adjust the reference point to them"
+
+## Dan and how he learns
+- He learns best by doing: something visual he can push and watch respond. Warm, plain words, first principles; no jargon unless explained.
+- He uses an Android phone (this frame is about 340 px wide there, touch only) and a laptop (about 1000 px, where K.stage puts the controls beside the visual). Design for the phone first.
+
+## Rules for this page
+- There is no guess to protect: show everything from the start (no k-after-move), curves and results included.
+- The lead line says what is drawn, plainly ("Water from a 5 m drop hits the blades of a wheel"), not what to do: the app gives the action above the frame. Example values are said once there ("an example stream: a 5 m drop, 20 kg of water each second"), then the drawing labels them plainly ("5 m"), never "for example" on the drawing.
+- Every label and arrow sits on, or starts from, the thing it is about: a force arrow starts on the part it pushes; a speed arrow on the part that moves. Anything the rule says turns or flows does so (K.anim), at a speed that follows its control.
+- The .say sentence must make sense on its own to someone who has just read the explanation: what is happening on screen now, cause then effect, in everyday words; no term, threshold or comparison the page or the explanation has not named; a number as part of its whole ("353 W of the stream's 981 W is carried off by the water"). Bad: "The buckets move slower than half the jet speed, so the water still leaves going backwards, taking 353 W away with it." Good: "The buckets are moving slowly, so the water bounces off them still moving fast, and carries 353 W of its 981 W away downstream."
+- A key for the main drawing sits inside the drawing; show each quantity once (a bar, a readout or a curve, not all three); every number drawn that is worked out (a speed from a drop) is explained in "What you're looking at", or is left off.
+- Draw the cause the explanation gives, not only its effect, and let Dan cause it (a drag, a push, a switch); include the setting where the effect does not happen.
+- Mark the brief's one quantity on the picture itself, with a label saying what it is and its value (a bracket between the two heights reading "2.4 m"); an output with a readout is marked without its number, which the readout alone shows (the app hides it while Dan answers a check).
+- A shaded band states something true of the axis it spans: inputs across x, outputs across y. To show many inputs giving nearly the same output, shade the narrow output band (regions {y0, y1}).
+- Draw every comparison the explanation makes the same way, in the same place, on the axis where the effect happens. A time period is a bracket or thin band along the time axis, not a tall block.
+- Give each reference line its own look and a label beside it; every styled line is in the key or labelled on the drawing.
+- Draw only what the brief, the rule or the explanation names, with the same names. An extra figure says on itself how to read it: what its line stands for and which way is which.
+- Show only the numbers listed above or computed from the rule, each written the way the explanation writes it (the same rounding).
+- Any example cases you choose are fair and representative, never picked to exaggerate the effect.
+- Money, health and law: show how it works, never advice, and never a guaranteed outcome.
+
+## The house kit (complete API reference)
+You write the BODY of one page: HTML, an optional `<style>`, then one inline `<script>` ending
+with `K.ready()`. It runs in a sandboxed iframe on Dan's phone (about 340 px wide, touch) and
+laptop, with the global `K` and the kit's stylesheet. No network or storage: no web
+addresses, `fetch`, `localStorage`, `alert` or `prompt`.
+
+### Page shape that works
+1. `<p class="lead">`: one line saying what is drawn (the app adds title and action).
+2. The main visual with its controls right under it: `K.stage('#scene', '#controls')` keeps the
+   pair on one phone screen. A choice that re-sorts the picture may sit above it.
+3. `<p class="say">`: one sentence that changes with the state and says why. Then
+   `<div class="k-readouts">` for numbers the drawing does not label.
+4. Secondary figures and anything that grows go below.
+5. `<p class="caption">`: one short sentence, at most 20 words: where the numbers come from ("A
+   sketch, not measured data") or the rule in the explanation's words. No new claim, no law or
+   term the explanation does not teach. The app shows what the model leaves out.
+
+### Keep the answer hidden until Dan moves
+Dan predicts before he plays: open on a setting the question is not about, and hide whatever
+gives the answer away until his first move:
+- class `k-after-move` on any element (a mark, an arrow, a sentence): hidden, its space kept.
+  Hide the answer, not the controls or a whole figure (a blank hole fails the test).
+- `K.readout({..., afterMove: true})` shows "?" until then; plot series and marks take `afterMove: true` too.
+- `K.moved` is true from then on: in `K.update`, write `K.moved ? answer : question`.
+- `K.afterMove(fn)` runs `fn` once at that moment; `K.reveal()` marks it from your handlers.
+
+### The pipeline
+Controls register themselves; their values form `params` = `{id: value}`.
+```
+K.model(fn)        fn(params) -> outputs {name: number | string}. Pure: no DOM, no lists or objects.
+K.update(fn)       fn(params, outputs): draw everything here. More than one is allowed.
+K.at(over)         -> outputs of the model at those params (others take each control's starting value)
+K.check(label, fn, {source?})   fn() must return exactly true
+K.ready()          call once, last: draws the opening state and runs the checks
+K.complete()       at the lesson's end
+K.params()  K.outputs()  K.refresh()   (refresh reruns the pipeline after you change your own state)
+```
+A readout whose id is an output key updates itself.
+
+### Controls
+Every control takes `into` (a selector or element). Ids are unique; use the lesson's ids exactly.
+```
+K.control({id, label, min, max, step, value, unit?, prefix?, fmt?, log?, snap?, hint?, into}) -> {el, get(), set(v)}
+K.choice({id, label, options: [value | {value, label}], value, hint?, into}) -> {el, get, set}
+K.toggle({id, label, value: false, hint?, into}) -> {el, get, set}
+K.stepper({id, steps: [title | {title, text}], value: 0, compact?, label?, into}) -> {el, get, set, setSteps(list)}
+K.button({label, press, secondary?, into}) -> {el, press(), setLabel(text)}
+K.drag(el, {control, toValue(x, y)}) -> {el}
+```
+`control` is a big slider with − / + buttons. Keep `unit` short; `fmt(v)` returns the whole text;
+`log: true` spans decades; `snap: [values]` lands a drag exactly on a setting the prediction or a
+check names. `choice`: 2-8 short named options; `value` is an option's value or its 0-based
+index. `stepper` walks a process with Back / Next (`compact: true` when your diagram shows the
+content). `button` is an action (Send it in): use it, not plain buttons. `drag` lets Dan move
+the thing itself: `toValue` maps the pointer (viewBox units; px from `el`'s top-left for HTML)
+to the control's value; the first touch counts as his move.
+
+### Outputs
+```
+K.readout({id, label, unit?, prefix?, decimals?, fmt?, big?, hint?, afterMove?, into}) -> {el, set(v), get(), text()}
+```
+One rounding everywhere a number appears: `decimals` matching the lesson text, and the `.say`
+sentence built with `K.fmt(v, {decimals})` or `readout.text()`. Labels under 30 characters.
+While Dan answers a lesson check, the app hides that output's readout and the `.say` lines:
+never repeat a readout's value elsewhere (a label, an aria-label).
+```
+K.plot(target, opts) -> {draw(opts), x(v), y(v), invert(px, py), el, canvas}
+```
+- `x`, `y`: `{min, max, label, log?, prefix?, unit?, fmt?, ticks?}`. Leave out `y.min`/`y.max` to fit the data.
+- `series`: `[{fn: x => y | points: [[x, y], ...], label?, color?, dash?, width?, fill?, dots?, gaps?, afterMove?}]`
+- `shade`: `[{between: [a, b], label?, color?, x0?, x1?}]`: fills between two series (by label), a
+  series and a constant, or two functions.
+- `marks`: `[{x, y, label?, color?, guides?, afterMove?}]`: a dot with a label pill; `guides` adds dashed lines to the axes.
+- `regions`: `[{x0, x1, label?} | {y0, y1, label?}]` (a band); `lines`: `[{x | y, label?}]` (a dashed line).
+- `label`: the text alternative; `height`; `after(ctx, plot)` draws extras using `plot.x()`, `plot.y()`.
+
+`draw(opts)` redraws with `opts` over the creation options: call it in `K.update`. Values must be
+finite (`gaps: true` only where a gap is real). Series are navy, then teal; `color: 'muted',
+dash: true` for a baseline.
+```
+K.bars(target, {max?, unit?, prefix?, decimals?, fmt?}) -> {draw(items)}      items: [{label, value, color?}], values >= 0
+K.anim({step(dt, t), reset?, label?, autoplay?, button?, into}) -> {el, play, pause, toggle, reset, playing()}
+```
+`anim` adds a Play button (text `label`); `reset` adds Reset. When a switch, button or drag
+already starts the motion, pass `button: false` and call `play()` from that control: one control
+per action. In `step` advance your state (`dt` in seconds) and redraw; return `false` to stop. To
+drive a slider, keep the exact value yourself (the slider moves in whole steps).
+
+### Sound
+```
+K.sound.tone(hz, {dur?, type?, gain?})   K.sound.chord([hz, ...], {dur?, stagger?})   K.sound.stop()   K.sound.mute(on)
+K.sound.hold(hz, {type?, gain?, max?}) -> {set({hz?, gain?}), stop(), playing()}
+```
+`dur` in seconds (at most 10). Sound plays only from a `K.button` press, never `K.update`; show
+what is sounding. `hold` keeps a tone going while `set()` follows a slider. Phones can't play
+below about 150 Hz: use 200 to 2,000 Hz.
+
+### Drawings and helpers
+```
+K.el(tag, attrs?, ...children)    attrs: class, style, on: {click: fn}, text, html, dataset, any attribute
+K.svg(tag, attrs?, ...children)   the same in the SVG namespace
+K.labels(group, [{x, y, text, anchor?, size?, class?, color?}], {avoid?}) -> [<text>]
+K.stage(visual, controls, {max?, beside?}) -> {el}
+K.fmt(v, {decimals?, sig?, prefix?, unit?, percent?, sign?, compact?}) -> '1,234.5', '−3', '2.5 × 10⁶'
+K.near(a, b, tol)   K.clamp(v, lo, hi)   K.lerp(a, b, t)   K.linspace(a, b, n)   K.color(role, alpha?)
+K.ease(p)   K.arrive(T, t0, dur?)   K.fade(el, a, rise?)
+```
+Give an `<svg>` a viewBox about 340 wide, `width="100%"`, `role="img"` and an `aria-label` that
+follows the state. Text 13-16 units, never under 12 (a phone shows 340 units at about 0.9x). A
+row of N labels gets about 300/N units each; label only what differs. Every label sits on, or
+points to, something drawn. `K.labels` places labels (13 units unless `size`) clear of other
+text, the edges and the lines or shapes in `avoid`: use it for labels that move or appear later.
+Put an angle's label inside its wedge, beyond the arc, hidden while the wedge is too narrow.
+`K.stage` fits the pair in `max` px (600) on a phone; `beside: false` keeps it stacked.
+
+Draw the mechanism as it physically works. If the explanation gives a reason (X because Y), draw
+Y so Dan can watch it; parts that fit are drawn fitting (teeth in teeth), never two identical
+icons joined by a line; whatever the rule says happens (slides, grips, multiplies) happens on screen.
+
+### Colour
+Colour carries meaning. Use these roles as `var(--k-…)` or `K.color('fill2')` (`K.color('accent2',
+0.3)` is see-through); a colour name fails the test.
+- Lines and text: `ink`, `muted` (secondary, comparisons), `accent2` (navy: the main thing,
+  controls), `accent` (teal: small labels, a second series), `warn` (red: warnings and mistakes
+  only), `good` (green: "done" only), `amber-line` (amber lines that must stand out).
+- Fills: `bg` (page), `panel`, `sunk`, `amber` (note box), `hl` (key-term highlighter), `fill1`
+  (area of the main thing), `fill2` (highlighted area, amber), `fill3` (area of a second thing).
+- `cat1`-`cat4` (blue, orange, magenta, aqua): telling equal things apart, never meaning; with a
+  key or labels; cat1 and cat2 first. A thing with a familiar colour (water, fire) never gets
+  another thing's colour: use the nearest role and label it. What is still there stays solid:
+  mark a state such as unused with a label, not by fading it, and key any dashed style.
+- Also `--k-line`, `--k-strong` (borders), `--k-on-accent2` (text on navy), `--k-font`, `--k-r` (radius).
+
+Never describe colours by lightness or hue in words Dan reads ("the dark square"): dark mode
+changes them.
+
+Classes: `muted`, `small`, `k-label` (small teal caps), `term` (key term), `note` (amber box),
+`warn-note`, `panel`, `row`, `grid2`, `big`, `k-btn` (`secondary`), and a legend:
+`<div class="key"><span><i class="swatch" style="background:var(--k-accent2)"></i>Your push</span>
+<span><i class="swatch line dash" style="color:var(--k-muted)"></i>The limit</span></div>`.
+
+### Rules for a great interactive
+- One idea. The answer to Dan's prediction shows within about 3 seconds of his first move (add
+  a K.check that it does). Include something Dan causes and a case that surprises. One or two
+  controls, three at most.
+- Phone first: nothing wider than 340 px, no fixed widths over 300 px, rows wrap, no hover-only
+  information, tap targets at least 44 px. Size tiles and grid columns in rem (`minmax(6rem,
+  1fr)`): text grows a quarter at Text size XL, and no word may split across two lines.
+- Every number shown is a control, computed by the rule shown, a constant from the lesson, an
+  example value named once in the lead, or a date from the lesson. Never invent data, rates or chances.
+- The `.say` sentence describes what is on screen now, plainly and warmly, and reads right at the
+  extremes ("none of the 100"). Never claim Dan did something ("When you slid it to 20"):
+  describe the state, or write conditionally ("Push it past 20 and…").
+- 3-5 `K.check` known answers worked out by hand: an edge case, a shape fact (rises, halves,
+  always last), and one answer from outside your formula. `source` may ONLY be a URL from the
+  lesson's own sources, and only on a check whose label restates what that source's quote says;
+  a result of your rule, or a fact about your drawing, takes none. Compare numbers with
+  `K.near(a, b, tol)`: tolerance about a millionth of the size, a thousandth where rounding meets roots.
+- `K.anim` for motion, never timers: soft, unhurried, nothing popping in. Parts arrive about 0.6
+  s apart by `K.fade(el, K.arrive(T, t0))`; travel and growth use `K.ease`; a demonstration takes
+  3-5 s. No `vh` units, `position: fixed` or `height: 100%`.
+- Ideas without numbers (mechanism, process, structure, history, concept): prefer a timeline
+  slider, a named choice, a sorter or a drag; use `K.stepper` only when every step changes the
+  drawing. Checks assert order and structure facts.
+- A timeline runs forward: a slider rising left to right, its `fmt` showing the date (−500 as
+  "500 BC"), or a stepper of named events in order. A lesson's calendar-year control keeps its
+  range, its `fmt` showing the year; years after the first date are for new controls. Each dated
+  event appears as he reaches its date.
+
+### The self-test
+Before Dan sees it, the app loads your body 340, 720 and 1040 px wide, runs every check, moves
+every control, button, animation and drag, reveals the after-move parts, and looks again at Text
+size XL and in the other theme. It fails on an exception, NaN or undefined on the page, an update
+over 150 ms, sideways overflow, text cut off or over other text, SVG text under 11 px on a phone,
+a line or arrowhead through a label, text under 3:1 contrast with what is behind it, a colour
+name, a blank hole until a move, or no `K.ready()`.
+
+### Example
+```html
+<p class="lead">Lengthen the string and watch each swing take longer.</p>
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+<p class="caption">Small swings only; g = 9.81 m/s² is gravity at the Earth's surface.</p>
+<script>
+  const g = 9.81;
+  const period = (L) => 2 * Math.PI * Math.sqrt(L / g);
+  K.control({ id: 'L', label: 'String length', min: 0.1, max: 3, step: 0.05, value: 1, unit: 'm', snap: [2], into: '#controls' });
+  K.stage('#plot', '#controls');
+  K.readout({ id: 'T', label: 'One full swing takes', unit: 's', decimals: 2, into: '#outs' });
+  const plot = K.plot('#plot', { x: { min: 0, max: 3, label: 'Length (m)' }, y: { min: 0, max: 4, label: 'Period (s)' } });
+  K.model((p) => ({ T: period(p.L) }));
+  K.update((p, o) => {
+    plot.draw({ series: [{ fn: period }], marks: [{ x: p.L, y: o.T, guides: true }] });
+    document.getElementById('say').textContent = !K.moved ? 'Make the string four times longer: how much longer is each swing?'
+      : 'A ' + K.fmt(p.L, { decimals: 2 }) + ' m string swings there and back every ' + K.fmt(o.T, { decimals: 2 }) + ' s. Four times the length only doubles that.';
+  });
+  K.check('No length, no swing time', () => K.near(period(0), 0));
+  K.check('A seconds pendulum (2 s per swing) is 0.994 m long', () => K.near(period(0.994), 2, 0.002),
+    { source: 'https://en.wikipedia.org/wiki/Seconds_pendulum' });
+  K.check('Four times the length doubles the period', () => K.near(K.at({ L: 2 }).T / K.at({ L: 0.5 }).T, 2, 1e-9));
+  K.ready();
+</script>
+```
+
+
+## A finished example (kind: process). Match its standard and structure, not its topic. Its SOURCE line and {source} addresses belong to that example's own lesson: never copy them
+<!-- kind: process -->
+<style>
+  .flow { list-style: none; padding: 0; margin-top: 6px; }
+  .start { margin-left: 40px; }
+  .grp { position: relative; display: block; margin: 16px 0 4px 40px; }
+  .row-item { position: relative; }
+  /* The thread joining the stages runs behind the dots and through the group labels. */
+  .row-item::before, .grp::before { content: ""; position: absolute; width: 2px; background: var(--k-line); }
+  .row-item::before { left: 13px; top: 0; bottom: 0; }
+  .grp::before { left: -27px; top: -16px; bottom: -4px; }
+  .flow > li:first-child .row-item::before { top: 22px; }
+  .flow > li:last-child .row-item::before { bottom: auto; height: 22px; }
+  .stage {
+    position: relative; display: flex; align-items: center; gap: 12px; width: 100%; min-height: 44px;
+    padding: 6px 0; border: 0; background: none; text-align: left; cursor: pointer; color: var(--k-muted); font: inherit;
+  }
+  .dot {
+    flex: none; display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%;
+    border: 2px solid var(--k-strong); background: var(--k-bg); font-size: 13px; font-weight: 700; color: var(--k-muted);
+  }
+  .stage.done { color: var(--k-ink); }
+  .stage.done .dot { background: var(--k-accent2); border-color: var(--k-accent2); color: var(--k-on-accent2); }
+  .stage.now { color: var(--k-ink); font-weight: 700; }
+  .stage.now .dot { border-color: var(--k-accent2); color: var(--k-accent2); box-shadow: 0 0 0 4px color-mix(in srgb, var(--k-accent2) 16%, transparent); }
+  .stage.skip { text-decoration: line-through; opacity: .55; }
+  .loop { display: inline-flex; align-items: center; gap: 4px; font-size: .85rem; font-weight: 600; color: var(--k-accent); }
+  .loop svg { width: 16px; height: 16px; }
+  .detail { margin: 0 0 8px 40px; padding: 10px 14px; border-radius: 12px; background: var(--k-panel); }
+</style>
+
+<p class="lead">Follow a bill on its way to becoming law. Then flip the switch to see what happens when the second House changes it.</p>
+
+<div>
+  <span class="k-label start">The House where it starts</span>
+  <ol class="flow" id="flow" aria-label="Stages of a bill"></ol>
+</div>
+
+<div class="k-controls" id="controls"></div>
+
+<p class="caption">Simplified from UK Parliament's guide to the passage of a bill; timings vary.</p>
+
+<script>
+  const SOURCE = 'https://www.parliament.uk/about/how/laws/passage-bill/';
+  const LOOP = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6.5a4.5 4.5 0 0 1 8.4-2.2M13 9.5a4.5 4.5 0 0 1-8.4 2.2M11.6 1.8v2.7H8.9M4.4 14.2v-2.7h2.7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+  // Each stage in order. `group` starts a labelled section of the diagram.
+  const FIRST = [
+    { key: 'first', title: 'First reading', text: 'The bill is introduced: its title is read out and it is printed. There is no debate and no vote yet.' },
+    { key: 'second', title: 'Second reading', text: 'The first debate, about the bill\'s main ideas rather than its details. Members can vote it down here.' },
+    { key: 'committee', title: 'Committee stage', text: 'Members go through it line by line and can change the wording. Each change is called an amendment.' },
+    { key: 'report', title: 'Report stage', text: 'The whole House looks at the amended bill and can make more changes.' },
+    { key: 'third', title: 'Third reading', text: 'A last debate on the bill as a whole. In the Commons it can no longer be changed at this point; in the Lords it still can.' },
+  ];
+  const OTHER = { key: 'other', title: 'The same five stages again', group: 'The other House', text: 'The bill goes through first reading to third reading in the other House. (A bill can start in either the Commons or the Lords.)' };
+  const PING = { key: 'ping', title: 'Consideration of amendments', group: 'Back to the first House', text: 'The House where it started votes on the other House\'s changes. If they still disagree, the bill goes back and forth (nicknamed ping-pong) until both agree on every word.' };
+  const ASSENT = { key: 'assent', title: 'Royal Assent', group: 'The monarch', text: 'The monarch formally agrees, and the bill becomes an Act of Parliament: it is now law.' };
+  const ALL = FIRST.concat([OTHER, PING, ASSENT]);
+  const stepsFor = (amended) => FIRST.concat([OTHER], amended ? [PING] : [], [ASSENT]);
+
+  const step = K.stepper({ id: 'step', steps: stepsFor(true).map((s) => s.title), value: 0, compact: true, into: '#controls' });
+  const amended = K.toggle({ id: 'amended', label: 'The other House amends it', hint: 'It changes the wording, so both Houses must agree', value: true, into: '#controls' });
+
+  // Build the diagram once; each update only changes classes and text.
+  const flow = document.getElementById('flow');
+  const rows = {};
+  ALL.forEach((s) => {
+    const btn = K.el('button', { type: 'button', class: 'stage' }, K.el('span', { class: 'dot' }), K.el('span', { class: 'name' }, s.title));
+    const detail = K.el('p', { class: 'detail', hidden: true });
+    const li = K.el('li', null, s.group ? K.el('span', { class: 'k-label grp' }, s.group) : null, K.el('div', { class: 'row-item' }, btn, detail));
+    btn.addEventListener('click', () => { const i = stepsFor(amended.get()).findIndex((x) => x.key === s.key); if (i >= 0) step.set(i); });
+    flow.appendChild(li);
+    rows[s.key] = { btn, detail, dot: btn.querySelector('.dot') };
+  });
+  // The ping-pong row carries a loop badge: the stage that can repeat.
+  const badge = K.el('span', { class: 'loop', html: LOOP + 'repeats until both agree' });
+  rows.ping.btn.querySelector('.name').appendChild(K.el('br'));
+  rows.ping.btn.querySelector('.name').appendChild(badge);
+
+  // The pure model: (step index, amended?) -> where the bill is (numbers and short strings only).
+  const orderFor = (amended) => stepsFor(amended).map((s) => s.title);
+  K.model((p) => {
+    const steps = stepsFor(p.amended);
+    const i = Math.min(Math.max(0, p.step), steps.length - 1);
+    return { total: steps.length, stage: steps[i].title, key: steps[i].key };
+  });
+
+  K.update((p, o) => {
+    step.setSteps(stepsFor(p.amended).map((s) => s.title));
+    const steps = stepsFor(p.amended);
+    ALL.forEach((s) => {
+      const r = rows[s.key], i = steps.findIndex((x) => x.key === s.key), cur = steps.findIndex((x) => x.key === o.key);
+      const skipped = i < 0;
+      r.btn.className = 'stage' + (skipped ? ' skip' : i < cur ? ' done' : i === cur ? ' now' : '');
+      r.btn.disabled = skipped;
+      r.btn.setAttribute('aria-current', i === cur ? 'step' : 'false');
+      r.dot.textContent = skipped ? '' : String(i + 1);
+      r.detail.hidden = i !== cur;
+      if (i === cur) {
+        let text = s.text;
+        if (s.key === 'other') text += p.amended ? ' Here it makes changes, so the bill has to go back.' : ' It makes no changes, so the bill is ready for Royal Assent.';
+        r.detail.textContent = text;
+      }
+      if (s.key === 'ping') {
+        r.btn.querySelector('.name').firstChild.textContent = skipped ? 'Consideration of amendments: not needed' : s.title;
+        badge.hidden = skipped;
+      }
+    });
+  });
+
+  // Known answers from UK Parliament's guide.
+  K.check('Each House\'s stages run: first reading, second reading, committee, report, third reading', () =>
+    orderFor(false).slice(0, 5).join('|') === 'First reading|Second reading|Committee stage|Report stage|Third reading', { source: SOURCE });
+  K.check('With amendments there are 8 steps; without, 7 (no ping-pong)', () =>
+    K.at({ amended: true }).total === 8 && K.at({ amended: false }).total === 7);
+  K.check('Royal Assent is always the last step', () =>
+    [true, false].every((a) => K.at({ amended: a, step: 99 }).stage === 'Royal Assent' && orderFor(a).indexOf('Royal Assent') === orderFor(a).length - 1));
+  K.check('Ping-pong comes after the other House and before Royal Assent', () => {
+    const o = orderFor(true);
+    return o.indexOf('Consideration of amendments') === o.indexOf('The same five stages again') + 1 && o.indexOf('Royal Assent') === o.length - 1;
+  });
+
+  K.ready();
+</script>
+
+
+## Typed answers (every ready-made course from 28 Oct)
+
+Dan works each puzzle on paper, then types his answer (Dan, 27-28 Oct). So a DO puzzle whose answer
+is a figure (a number with at most a unit: "0.70 V", "24 m²", "9.26 V") is typed into a field,
+never picked from options. Options stay for answers in words, a direction, an expression
+("4i − 2j"), an order, or where choosing between named things is the skill being taught ("Which
+pole leaks?"). Never write "About" in a typed answer: give the figure to the places you want.
+
+```
+K.answer({id, label?, unit, answer, decimals?, tolerance?, accept?, slips?, into, onCheck?, onEnter?})
+    -> {el, input, check(), result, right(), missed(), reveal(), reset(), set(text)}
+K.answer.grade(text, spec) -> {state: 'right'|'wrong'|'empty'|'unreadable', value, accepted?, slip?, hint?}
+```
+
+- A decimal-keypad field with the unit beside it. `answer` is the lesson's figure, worked from the
+  rounded figures the lesson shows; it is accepted within half a unit in its last place
+  (`decimals`, default 2: give `decimals: 0` for a whole number, 1 for "0.7"). `accept: [13.32]`
+  adds the answer worked from unrounded figures. A unit typed after the number ("0.70 V") is fine.
+- The wrong options you would have offered become `slips`: `[{value: 0.07, hint: 'That is 7 mΩ
+  read as 0.7 Ω. Milli is a thousandth.'}]`, each with the hint that names the mistake.
+- Your Check button calls `a.check()` (Enter does too); never grade as he types (the app's
+  calculator can type its result into the field for him). Write the feedback from `a.result`:
+  right, "That's it." and Continue; wrong, the slip's hint (`r.hint`) or the step's one-line hint,
+  and the field kept for another go; after two wrong tries, the working (Why?) and `a.reveal()`,
+  then Continue. Continue only once `a.right()` (a revealed answer counts).
+- Give each field its own `id` (the step's name in a few letters is fine).
+- Nothing on screen gives the answer before it is checked: a readout that would show the figure
+  shows "?" until then.
+- STEPS: the typed step keeps `want`, the answer as printed with its unit ('0.70 V'). The lesson's
+  read-through, its Book chapter and its problem set (the app asks it again, typed) read it.
+- The self-test grades every field: its answer and each accepted one right (with the unit too),
+  a near miss and each slip refused, and the answer typed into the field and checked on its step.
+- A worked example of the field in use: docs/courses/electrical/design-and-verification/i2.body.final.html.
+
+## Output
+Return ONLY the body: HTML elements, an optional <style>, then one inline <script> that ends with K.ready(). No <html>, <head> or <body> tags, no markdown fences, no commentary before or after. Keep it under 40 KB.

@@ -1,0 +1,901 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-31T15:18:59.368Z",
+ "startedAt": "2026-10-31T15:18:59.368Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i8",
+  "title": "The generator set in a power system",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the voltage fall at once by the sub-transient reactance's share, then climb back only as the AVR acts, when you press Start.",
+   "title": "Starting the big motor",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Screen",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [],
+   "whatAmILookingAt": "Fifteen small screens on one picture, with Back and Continue: six show an idea, nine ask you to try it. No marks, no timers. Each puzzle reads as its question in the read-through.\n\nThe picture. Left, one generator set, 630 kVA at 440 V and 60 Hz, feeding a board. A second, identical set is drawn dashed beside it, joined to the board through its breaker only when the Second set switch is on. A motor hangs off the board, behind a starter box marked DOL, Star-delta or Soft starter. Its feeder shows the kVA the sets see, written as the slider writes it, such as 1,200 kVA. A small AVR box sits on the set. Right, two traces against time, 0 to 4 s, with Start at 0 s. Above, the board voltage as a % of 440 V, from 60% to 105%, with a dashed line at 90%. Below, the board frequency, from 50 to 61 Hz, with its lowest point labelled. The motor's shaft turns once it gets away. If it stalls, the motor turns red and is labelled Stalled. On the screens with sets A and B, each set joins the board through its own breaker, both drawn the same.\n\nThe controls. A Starting kVA slider, the motor's starting load when started DOL, from 100 to 1,200 kVA in steps of 50, opening at 600 kVA. A Start method choice of three, in this order: DOL, Star-delta, Soft starter, opening on DOL. A Second set switch, opening off. A Start button. It plays the 4 s at half speed, taking 8 s, and pressing it again starts over. Changing any control clears the traces. Four readout tiles, wrapping onto two rows on a phone: At once in %, Lowest in %, Recovers to in %, and Torque in %. The Torque tile shows only for a DOL start. A star-delta or soft start hides it, because the starter itself cuts the motor's torque. At once fills at Start, Lowest at 1 s, and the other two at 3 s. Until then each shows –. The method buttons wrap too, so no word splits.\n\nThe rule it computes. The starting kVA the set sees is the slider's figure for DOL, a third of it for Star-delta, and half of it for the Soft starter, an example limit. Divide it by 630 kVA for each set on the board, and call that x. The sub-transient reactance is 0.15 per unit and the synchronous reactance 1.5, example values. At once, the voltage left is 1 ÷ (1 + 0.15 × x). This treats the motor's starting impedance, 1 ÷ x, and the reactance as a divider. Recovered, the voltage is 2.5 ÷ (1 + 1.5 × x), capped at 100%. The 2.5 is E at the AVR's field ceiling, an example. Torque = the recovered voltage squared, as a % of the DOL start's torque on full voltage. The start's real power is the starting kVA × 0.4, an example starting power factor. The frequency dips by 3% for every 100 kW of it, shared between the sets on the board, an example. With t in seconds from Start, the frequency is 60 × (1 − the dip × (t ÷ 0.3) × e^(1 − t ÷ 0.3)), a sketch that is lowest at 0.3 s. The AVR's pull is the recovered voltage − (the recovered voltage − the voltage at once) × e^(−t ÷ 1), a sketch. The voltage drawn is that pull × the frequency ÷ 60, because a slower rotor makes less voltage. Lowest is the voltage trace's lowest point. If the recovered voltage is 90% or more, the motor gets away at 3 s, an example run-up. Its current then falls, and the voltage returns to 100% over 0.5 s. Below 90%, the voltage stays down, and at 2 s the motor turns red, stalled. The 90% line promises enough torque for most loads, not all, so the words say the motor stalls with this load. The sentence under the picture changes only at 1 s, 2 s and 3 s of the run, so each holds for at least 2 s as it plays.\n\nThe blackout picture, screen 12. No traces or tiles. Sets A and B, each behind its own breaker, on a board drawn dashed and labelled dead in red. Three loads, 1, 2 and 3, each behind a breaker, labelled loads, in steps. Start plays it at half speed. Both sets start at 0.4 s, reading starting. Both breakers close at 1.4 s, the board turns solid and reads live, and each set reads on the board. The loads' breakers close at 2.4, 3.0 and 3.6 s, and each load box fills. It is a sequence, not drawn to time.\n\nScreen 1, try it, a recall, picked. No picture. \"A motor takes 100 A at full load. Started direct on line, roughly what current does it draw at first?\" Three options: About 100 A, 600 to 800 A, About 200 A. Answer 600 to 800 A (a range, so picked, not typed). About 100 A: \"That is its running current. A start draws several times more.\" About 200 A: \"That is nearer a star-delta start, about a third of DOL.\" Hint when wrong: \"A DOL start usually draws 6 to 8 times full-load current.\" Why: \"6 to 8 × 100 A gives 600 to 800 A, so about 700 A. The current stays high until the motor reaches about 75% of its speed.[^1]\" A right Check shows \"Still there.\"\n\nScreen 2, show. One set, DOL, 600 kVA, the traces empty until Start. The words build the divider. A load drawing the set's own 630 kVA at full voltage is 1 per unit, and a bigger load a smaller impedance. So the motor is 630 ÷ 600 = 1.05 per unit, and 1.05 ÷ (1.05 + 0.15) = 87.5% is left. They end \"Press Start to watch the drop.\", left out of the read-through. Still: the traces drawn to 0.05 s, At once 87.5%, the others –.\n\nScreen 3, try it, a prediction. One set, DOL, 600 kVA, before Start, the AVR box lit. \"The AVR is on and watching the voltage. The motor is about to start. What does the AVR do to that first drop?\" Three choices, in this order: \"It stops it, so the voltage holds at 100%\"; \"Nothing at first, then it pulls the voltage back\"; \"It makes it deeper, by cutting the field\". Right, the second. Hint for the first: \"The AVR acts only once it sees the voltage fall. The drop comes first.\"; for the third: \"When the voltage falls, the AVR raises the field.\" Why: \"The AVR must see the drop before it acts. Then the field takes time to grow. So a sudden step drops the voltage as far as it would with no AVR at all.[^2]\" A right Check runs the start.\n\nScreen 4, show. One set, DOL, 600 kVA, the run free. The words: the start takes 240 kW at 0.4, so the engine slows. A slower rotor makes less voltage,[^3] so the dip deepens to 83.8%. The governor and the AVR bring it back to 100%. Still: the run finished, frequency lowest 55.7 Hz, readouts 87.5%, 83.8%, 100%, 100%.\n\nScreen 5, try it, typed. One set, DOL, 900 kVA, before Start, the feeder reading 900 kVA and the At once tile reading ? until Check. \"The same 630 kVA set has a sub-transient reactance of 0.15 per unit. A bigger motor starts DOL and takes 900 kVA. What voltage is left at the first instant, in %, to one decimal place?\" A field in %. Answer 82.4%. Slips: 78.6, \"That takes the whole 0.15 × 900 ÷ 630 off. The motor's impedance shares the voltage too.\"; 17.6, \"That is the drop. The question asks what is left.\"; 85, \"That leaves out the motor's size.\" Hint when wrong: \"The motor's impedance is 630 ÷ 900 = 0.70 per unit.\" Why: \"0.70 ÷ (0.70 + 0.15) = 0.824, so 82.4% is left.\" A right Check runs the start.\n\nScreen 6, show. One set, DOL, 900 kVA, the run free. The words: torque goes with voltage squared, so 90% voltage gives 81% torque, enough for most loads.[^4] The reactance grows towards the synchronous 1.5, and the field ceiling is an example E of 2.5. At 900 kVA the same divider gives 2.5 × 0.70 ÷ (0.70 + 1.5) = 79.5%. With this load, the motor stalls. Still: the motor red and Stalled, readouts 82.4%, 72.8%, 79.5%, 63.3%.\n\nScreen 7, try it, typed. No picture. \"A start recovers the voltage to only 85%. What torque does the motor make, as a % of its full-voltage torque?\" A field in %. Answer 72.3%. Also accepted: 72.25%, 72%. Slips: 85, \"Torque goes with the square of the voltage.\"; 92.2, \"That is the square root. Square it instead.\"; 81, \"81% goes with 90% voltage. This voltage is lower.\" Hint when wrong: \"Write the voltage as a fraction, then square it.\" Why: \"0.85 × 0.85 = 0.7225, about 72.3%. That is under the 81% that goes with a 90% recovery.\"\n\nScreen 8, show. One set, 600 kVA, the Start method free, opening on Soft starter, the run free. The words: star-delta takes 200 kVA and leaves 95.5%. The soft starter, an example half, takes 300 kVA and leaves 93.3%. Both cut the motor's starting torque, so they suit light-starting loads. They end \"Switch the start method to compare.\", left out of the read-through. Still: readouts 93.3%, 91.4%, 100%, the Torque tile hidden.\n\nScreen 9, try it, typed. One set, Star-delta, 1,200 kVA, before Start, the feeder reading ? kVA and the At once tile reading ? until Check. \"The biggest motor here takes 1,200 kVA started DOL. On one set, it is started star-delta instead. What voltage is left at the first instant, in %, to one decimal place?\" A field in %. Answer 91.3%. Slips: 77.8, \"That is the DOL start. Star-delta draws about a third.\"; 90.5, \"That takes the whole share off. The motor's impedance shares the voltage too.\"; 8.7, \"That is the drop. The question asks what is left.\" Hint when wrong: \"Star-delta's starting load is 1,200 ÷ 3 = 400 kVA.\" Why: \"The motor's impedance is 630 ÷ 400 = 1.575 per unit. 1.575 ÷ (1.575 + 0.15) = 0.913, so 91.3% is left. It recovers to 100%, and the motor gets away.\" A right Check shows the feeder's 400 kVA and runs the start.\n\nScreen 10, show. DOL, 600 kVA, the Second set switch on, the run free. The words: two sets halve the reactance, so 600 kVA leaves 93.3%, as if each set carried 300 kVA. The drop is 6.7%, not 12.5%, and the frequency dips less. A power management system can hold a big start. Starting loads one at a time keeps each step small, and three motors started one after another can need 40% less starting kW. Still: two sets, readouts 93.3%, 91.4%, 100%, 100%.\n\nScreen 11, try it, typed (mixed). One set, DOL, 900 kVA, the Second set switch off, the At once tile reading ? until Check. \"A 900 kVA DOL start stalls on one set. So you synchronise a second, identical set onto the board first. What voltage is left at the first instant now, in %, to one decimal place?\" A field in %. Answer 90.3%. Slips: 82.4, \"That is one set. Two sets halve the reactance.\"; 91.2, \"Halving the reactance does not quite halve the drop. Work the divider.\"; 9.7, \"That is the drop. The question asks what is left.\" Hint when wrong: \"With two sets, the reactance is 0.15 ÷ 2 = 0.075 per unit.\" Why: \"The motor's impedance is 630 ÷ 900 = 0.70. 0.70 ÷ (0.70 + 0.075) = 0.903, so 90.3% is left. It recovers to 100%, and the motor gets away.\" A right Check turns the Second set switch on and runs the start.\n\nScreen 12, show. The blackout picture, the run free. The words: a blackout is the whole board lost. The power management system sheds loads and holds big starts to prevent one. If the board still goes dead, it starts the standby sets and closes them onto the dead board.[^5] Several sets can be on, in parallel, within about 15 seconds. Then the loads come back in small steps. They end \"Press Start to watch a recovery.\", left out of the read-through. Still: the sequence finished, both sets and all three loads on a live board.\n\nScreen 13, try it (mixed). No traces. Set A on the board, set B drawn dashed beside it with its breaker open, labelled not on the board. \"After a blackout, set A closes onto the dead board alone and takes the first loads. Set B is now up to speed. What must happen before B's breaker closes?\" Three choices, in this order: \"Nothing more: B can close at once, as A did\"; \"B must match the live board in voltage, frequency, phase sequence and angle\"; \"A must trip first, so that B also closes onto a dead board\". Right, the second. Hint for the first: \"A closed onto a dead board, with nothing to match. B now faces a live one.\"; for the third: \"Tripping A would black out the board again.\" Why: \"A dead board has no voltage to match, so A could close at once. Once A is on, the board is live. So B is synchronised like any set joining a live board.\"\n\nScreen 14, try it, typed (mixed). The frequency trace alone, for a 900 kVA DOL start on one set, the frequency lowest reading ? until Check. \"A motor's start takes 900 kVA at a power factor of 0.4. How many kW must the engine find at once?\" A field in kW. Answer 360 kW. Slips: 900, \"That is the kVA. The engine supplies only the kW.\"; 720, \"0.8 is the set's rated power factor. A starting motor's is lower, here 0.4.\"; 540, \"That is the part left over. Multiply by 0.4.\" Hint when wrong: \"kW = kVA × power factor.\" Why: \"900 × 0.4 = 360 kW. The governor needs a moment to add that much fuel, so the frequency dips.\" A right Check shows the lowest, 53.5 Hz.\n\nScreen 15, try it (mixed). No traces. Two sets drawn on the board, A and B, each through its own closed breaker. \"Two sets share the board in droop. Set A's governor fails and drives its fuel up. What happens?\" Three choices, in this order: \"Only A speeds up, and B carries on as before\"; \"A takes kW from B, the frequency rises, and B may be driven as a motor\"; \"The board's voltage rises, but the kW split stays the same\". Right, the second. Hint for the first: \"A is locked in step with the board. It cannot speed up alone.\"; for the third: \"Fuel moves kW, not voltage.\" Why: \"In parallel, more fuel on A moves kW onto A and off B. The board's frequency rises along the droop lines. If A pushes past the whole load, it drives B as a motor. B's reverse-power relay then trips it. A governor fault at one set reaches the whole board.\" A right Check shows: \"One board, every set.\"",
+   "ignores": "Time on the traces runs at half speed. The divider treats the motor's starting impedance as if it were pure reactance, like the set's. A real one is partly resistive, so the true drop is a little smaller. The move from the sub-transient to the synchronous reactance is drawn as one smooth pull. A real set passes through its transient reactance on the way. The AVR's pull, the engine's slowing and the run-up are sketches with example figures. The torque readout is for a DOL start only. Whether a motor really gets away depends on its load's torque, not on one 90% line. The set carries no other load before the start. The blackout recovery is a sequence, not drawn to time.",
+   "numbers": [
+    {
+     "label": "Number of screens",
+     "value": 15,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screens that show an idea",
+     "value": 6,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screens that ask you to try it",
+     "value": 9,
+     "kind": "assumed"
+    },
+    {
+     "label": "Set's rating, kVA",
+     "value": 630,
+     "kind": "assumed"
+    },
+    {
+     "label": "Board line voltage, V",
+     "value": 440,
+     "kind": "assumed"
+    },
+    {
+     "label": "Board frequency, Hz",
+     "value": 60,
+     "kind": "assumed"
+    },
+    {
+     "label": "Sets on the board with the switch on",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Sub-transient reactance, per unit",
+     "value": 0.15,
+     "kind": "assumed"
+    },
+    {
+     "label": "Synchronous reactance, per unit",
+     "value": 1.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "E at the AVR's field ceiling, per unit",
+     "value": 2.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Starting kVA slider opening, kVA",
+     "value": 600,
+     "kind": "control"
+    },
+    {
+     "label": "Starting kVA slider lowest, kVA",
+     "value": 100,
+     "kind": "control"
+    },
+    {
+     "label": "Starting kVA slider highest, kVA",
+     "value": 1200,
+     "kind": "control"
+    },
+    {
+     "label": "Starting kVA slider step, kVA",
+     "value": 50,
+     "kind": "control"
+    },
+    {
+     "label": "Star-delta starting current, share of DOL",
+     "value": 0.333,
+     "kind": "constant"
+    },
+    {
+     "label": "Star-delta divisor",
+     "value": 3,
+     "kind": "constant"
+    },
+    {
+     "label": "Soft starter limit, share of DOL",
+     "value": 0.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Starting power factor",
+     "value": 0.4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Frequency dip per 100 kW, %",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Real power step for the dip rule, kW",
+     "value": 100,
+     "kind": "assumed"
+    },
+    {
+     "label": "Frequency dip lowest at, s",
+     "value": 0.3,
+     "kind": "assumed"
+    },
+    {
+     "label": "AVR pull time constant, s",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Run-up time if it gets away, s",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Stall shown at, s",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Return to 100% takes, s",
+     "value": 0.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Trace length, s",
+     "value": 4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Run plays at half speed, s",
+     "value": 8,
+     "kind": "assumed"
+    },
+    {
+     "label": "Voltage axis lowest, %",
+     "value": 60,
+     "kind": "assumed"
+    },
+    {
+     "label": "Voltage axis highest, %",
+     "value": 105,
+     "kind": "assumed"
+    },
+    {
+     "label": "Frequency axis lowest, Hz",
+     "value": 50,
+     "kind": "assumed"
+    },
+    {
+     "label": "Frequency axis highest, Hz",
+     "value": 61,
+     "kind": "assumed"
+    },
+    {
+     "label": "Lowest tile fills at, s",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Still: traces drawn to, s",
+     "value": 0.05,
+     "kind": "assumed"
+    },
+    {
+     "label": "Recovered voltage cap, %",
+     "value": 100,
+     "kind": "assumed"
+    },
+    {
+     "label": "Recovery target, % of rated voltage",
+     "value": 90,
+     "kind": "constant",
+     "source": 4
+    },
+    {
+     "label": "Torque at 90% voltage, % of rated",
+     "value": 81,
+     "kind": "constant",
+     "source": 4
+    },
+    {
+     "label": "DOL starting current, times full-load (typical)",
+     "value": 6,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "DOL starting current, times full-load (upper usual)",
+     "value": 8,
+     "kind": "constant"
+    },
+    {
+     "label": "DOL starting current, times full-load (middle)",
+     "value": 7,
+     "kind": "constant"
+    },
+    {
+     "label": "Inrush stays high until, % of rated speed",
+     "value": 75,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "Recall: motor full-load current, A",
+     "value": 100,
+     "kind": "assumed"
+    },
+    {
+     "label": "Recall slip: star-delta, A",
+     "value": 200,
+     "kind": "computed"
+    },
+    {
+     "label": "600 kVA: motor's starting impedance, per unit",
+     "value": 1.05,
+     "kind": "computed"
+    },
+    {
+     "label": "600 kVA DOL: left at once, %",
+     "value": 87.5,
+     "kind": "computed"
+    },
+    {
+     "label": "600 kVA DOL: dip, %",
+     "value": 12.5,
+     "kind": "computed"
+    },
+    {
+     "label": "600 kVA DOL: starting kW",
+     "value": 240,
+     "kind": "computed"
+    },
+    {
+     "label": "600 kVA DOL: lowest, %",
+     "value": 83.8,
+     "kind": "computed"
+    },
+    {
+     "label": "600 kVA DOL: frequency lowest, Hz",
+     "value": 55.7,
+     "kind": "computed"
+    },
+    {
+     "label": "600 kVA DOL: recovers to, %",
+     "value": 100,
+     "kind": "computed"
+    },
+    {
+     "label": "600 kVA DOL: torque, %",
+     "value": 100,
+     "kind": "computed"
+    },
+    {
+     "label": "900 kVA: motor's starting impedance, per unit",
+     "value": 0.7,
+     "kind": "computed"
+    },
+    {
+     "label": "900 kVA DOL: left at once, %",
+     "value": 82.4,
+     "kind": "computed"
+    },
+    {
+     "label": "900 kVA DOL: unrounded, per unit",
+     "value": 0.824,
+     "kind": "computed"
+    },
+    {
+     "label": "900 kVA DOL: lowest, %",
+     "value": 72.8,
+     "kind": "computed"
+    },
+    {
+     "label": "900 kVA DOL: recovers to, %",
+     "value": 79.5,
+     "kind": "computed"
+    },
+    {
+     "label": "900 kVA DOL: torque, %",
+     "value": 63.3,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 5 slip: whole share taken off, %",
+     "value": 78.6,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 5 slip: the drop, %",
+     "value": 17.6,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 5 slip: 1 − 0.15, %",
+     "value": 85,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 7: recovered voltage, %",
+     "value": 85,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 7: torque, %",
+     "value": 72.3,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 7: unrounded, per unit",
+     "value": 0.7225,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 7: also accepted, %",
+     "value": 72.25,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 7: also accepted, rounded, %",
+     "value": 72,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 7 slip: square root, %",
+     "value": 92.2,
+     "kind": "computed"
+    },
+    {
+     "label": "600 kVA star-delta: starting kVA",
+     "value": 200,
+     "kind": "computed"
+    },
+    {
+     "label": "600 kVA star-delta: left at once, %",
+     "value": 95.5,
+     "kind": "computed"
+    },
+    {
+     "label": "600 kVA soft starter: starting kVA",
+     "value": 300,
+     "kind": "computed"
+    },
+    {
+     "label": "600 kVA soft starter: left at once, %",
+     "value": 93.3,
+     "kind": "computed"
+    },
+    {
+     "label": "600 kVA soft starter: lowest, %",
+     "value": 91.4,
+     "kind": "computed"
+    },
+    {
+     "label": "Two sets: reactance the motor sees, per unit",
+     "value": 0.075,
+     "kind": "computed"
+    },
+    {
+     "label": "Two sets, 600 kVA DOL: left at once, %",
+     "value": 93.3,
+     "kind": "computed"
+    },
+    {
+     "label": "Two sets, 600 kVA DOL: dip, %",
+     "value": 6.7,
+     "kind": "computed"
+    },
+    {
+     "label": "Two sets, 600 kVA DOL: lowest, %",
+     "value": 91.4,
+     "kind": "computed"
+    },
+    {
+     "label": "Two sets, 900 kVA DOL: left at once, %",
+     "value": 90.3,
+     "kind": "computed"
+    },
+    {
+     "label": "Two sets, 900 kVA DOL: unrounded, per unit",
+     "value": 0.903,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 11 slip: drop halved, %",
+     "value": 91.2,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 11 slip: the drop, %",
+     "value": 9.7,
+     "kind": "computed"
+    },
+    {
+     "label": "Recall: answer, A",
+     "value": 700,
+     "kind": "computed"
+    },
+    {
+     "label": "Recall: accepted, lowest, A",
+     "value": 600,
+     "kind": "computed"
+    },
+    {
+     "label": "Recall: accepted, A",
+     "value": 650,
+     "kind": "computed"
+    },
+    {
+     "label": "Recall: accepted, A ",
+     "value": 750,
+     "kind": "computed"
+    },
+    {
+     "label": "Recall: accepted, highest, A",
+     "value": 800,
+     "kind": "computed"
+    },
+    {
+     "label": "1,200 kVA star-delta: starting kVA",
+     "value": 400,
+     "kind": "computed"
+    },
+    {
+     "label": "1,200 kVA star-delta: impedance, per unit",
+     "value": 1.575,
+     "kind": "computed"
+    },
+    {
+     "label": "1,200 kVA star-delta: left at once, %",
+     "value": 91.3,
+     "kind": "computed"
+    },
+    {
+     "label": "1,200 kVA star-delta: unrounded, per unit",
+     "value": 0.913,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 9 slip: 1,200 kVA DOL, %",
+     "value": 77.8,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 9 slip: whole share off, %",
+     "value": 90.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 9 slip: the drop, %",
+     "value": 8.7,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 14: starting kVA",
+     "value": 900,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 14: real power, kW",
+     "value": 360,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 14: frequency lowest, Hz",
+     "value": 53.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 14 slip: set's rated power factor",
+     "value": 0.8,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 14 slip: at 0.8, kW",
+     "value": 720,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 14 slip: the part left over, kW",
+     "value": 540,
+     "kind": "computed"
+    },
+    {
+     "label": "Blackout picture: sets start at, s",
+     "value": 0.4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Blackout picture: breakers close at, s",
+     "value": 1.4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Blackout picture: first load at, s",
+     "value": 2.4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Blackout picture: second load at, s",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Blackout picture: third load at, s",
+     "value": 3.6,
+     "kind": "assumed"
+    },
+    {
+     "label": "Blackout picture: loads",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Sets on and in parallel after a blackout within, s",
+     "value": 15,
+     "kind": "constant",
+     "source": 6
+    },
+    {
+     "label": "Motors in the sequencing example",
+     "value": 3,
+     "kind": "constant",
+     "source": 7
+    },
+    {
+     "label": "Starting kW cut by starting in sequence, %",
+     "value": 40,
+     "kind": "constant",
+     "source": 7
+    }
+   ]
+  },
+  "explain": {
+   "text": "A big motor's start is a sudden, heavy load. A generator set feels it at once. The voltage drops before the AVR can move. The engine slows and deepens the dip. Then the governor and the AVR pull the board back. Whether the motor gets away depends on how far the voltage recovers. So big loads are started softly, one at a time, or with more sets on.\n\nStart with the first instant. A DOL start draws about six times the motor's full-load current. It keeps drawing it until the motor reaches about 75% of its speed.[^1] Say the start takes 600 kVA from a 630 kVA set. For the first few cycles, only the set's small sub-transient reactance holds that current back. Take it as 0.15 per unit, the same figure used for fault currents. On the set's own base, the motor's starting impedance is 630 ÷ 600 = 1.05 per unit. In a simplified picture, the two share the voltage like a divider. The motor gets 1.05 ÷ (1.05 + 0.15) = 87.5%. That is a [[voltage dip]] of 12.5%. The AVR cannot stop this. It acts only once it sees the voltage fall. Then the field takes time to grow. So a sudden step drops the voltage as far as it would with no AVR at all.[^2]\n\nThen two things pull in opposite directions. The start also takes 240 kW of real power, at a starting power factor of 0.4. The engine cannot find that at once, so it slows, as with any load step. A slower rotor makes less voltage, so the dip goes deeper.[^3] Meanwhile the governor adds fuel and the AVR raises the field. As the start goes on, the set's reactance grows towards the bigger synchronous reactance. So how far the voltage recovers depends on how much field the AVR can give. A motor's torque goes with the square of its voltage. If the voltage recovers to 90%, the motor makes 81% of its torque, enough to accelerate most loads.[^4] Any less, and it may stall.\n\nSo every cure cuts the [[starting kVA]] each set has to carry. Star-delta draws about a third. A soft starter holds the current to a limit. A second set on the board halves the reactance the motor sees. Then the same 600 kVA start leaves 93.3%. Starting loads one after another, not together, keeps each step small. A [[power management system]] can hold a big start until enough sets are on. If the board is lost all the same, it starts the standby sets, closes them onto the dead board and brings the loads back in steps.[^5] These figures come from a simplified picture with example reactances. Real dips also depend on the motor, the AVR and the engine. In parallel, fuel and field share the steady load between the sets. Neither acts fast enough to catch a sudden step. So enough sets must be on before the step comes. **A big motor's start dips a set's voltage before the AVR can act, so big loads start softly, one at a time, or with more sets on.**"
+  },
+  "analogy": {
+   "text": "Think of a big motor starting at the end of a long, thin sub-main. The cable's impedance and the motor's starting impedance share the supply voltage. So the lights on that board dip. A bigger cable shrinks the dip. So does a second feed in parallel, or a soft start. A set at the first instant behaves the same way, with its sub-transient reactance in place of the cable.",
+   "breaks": "A cable's impedance stays the same. A set's grows from the sub-transient to the synchronous reactance as the start goes on. Meanwhile the AVR raises the field to fight it. A cable also has no engine to slow down. So it has no frequency dip."
+  },
+  "practice": {
+   "text": "**Starting a big motor on generator sets**\n\nThe safe way first. Start big loads under your procedures, with the board's interlocks in place. Never override a power management system's hold on a start.\n\n- Before a big start, check how many sets are on and how much spare kW they have.\n- If another set is needed, start it and synchronise it first. Let the sets share the load before the start.\n- Start loads one at a time. Let the voltage and frequency settle between starts.\n- Use the starter fitted. A star-delta or soft starter is there to cut the starting current.\n- Watch the voltmeter and frequency meter during the start. If the voltage does not recover, or the motor does not run up, stop and find out why.\n\n**Rules of thumb:** voltage left at once ≈ 1 ÷ (1 + sub-transient reactance × starting kVA ÷ set kVA), in per unit. Two equal sets in parallel halve the reactance the motor sees. Torque goes with voltage squared. So 90% voltage gives 81% torque.[^4] Star-delta draws about a third of the DOL starting current.\n\n**Worked example:** say a 630 kVA set has a sub-transient reactance of 0.15. A pump motor takes 900 kVA starting DOL. Alone, the first instant leaves 1 ÷ (1 + 0.15 × 900 ÷ 630) = 82.4%. Take a synchronous reactance of 1.5 and a field ceiling of E = 2.5, both example values. Then it recovers to 2.5 ÷ (1 + 1.5 × 900 ÷ 630) = 79.5%. That is under 90%, so the motor may stall. Started star-delta, it takes 300 kVA. That leaves 93.3% at once, and the voltage recovers fully. Started DOL with a second set on, it leaves 90.3% at once and recovers fully.\n\n**Common mistakes**\n- Expecting the AVR to stop the dip. It can only pull the voltage back after the drop.[^2]\n- Judging a start by its kW alone. A motor's start draws far more kVA than kW, at a low power factor.\n- Starting several big loads together after a blackout. One at a time keeps each step small.\n- Thinking a governor or AVR fault at one set stays there. In parallel, it moves kW or kVAr onto or off the other sets."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "TITLE — cummins.com",
+    "url": "https://www.cummins.com/sites/default/files/2020-03/PowerHour_Generator%20Set%20Sizing%20Software_Transient%20Performance%20and%20Motor%20Load%20Capabilities%20%281PDH%29.pdf",
+    "quote": "Starting current is typically six times a motor’s rated full-load current, and this inrush current stays high until the motor reaches about 75 percent of rated speed"
+   },
+   {
+    "n": 2,
+    "title": "Starting Motors on Generator Sets — benshaw.com",
+    "url": "https://benshaw.com/hubfs/Benshaw%20Website/Downloads/White-Papers/Benshaw-White-Paper-Starting-Motors-on-GenSets_EN.pdf",
+    "quote": "In such situations, the voltage drop will be equal to that which would result if no AVR were present."
+   },
+   {
+    "n": 3,
+    "title": "Sizing Generators for Motor Starting: A Practical Guide to Understanding How Motor-Starting Loads Affect Generator Performance — resources.kohler.com",
+    "url": "https://resources.kohler.com/power/kohler/industrial/pdf/Sizing_Generators_for_Motor_Starting_WP.pdf",
+    "quote": "When the engine slows under load-frequency dips, this in turn, increases the alternator voltage dip."
+   },
+   {
+    "n": 4,
+    "title": "Understanding Cummins Power Generation’s suggested specifications for motor starting — mart.cummins.com",
+    "url": "https://mart.cummins.com/imagelibrary/data/assetfiles/0056583.pdf",
+    "quote": "If the generator can recover motor voltage to a minimum of 90% of rated voltage, the motor will develop 81% of rated torque, allowing adequate acceleration for most applications."
+   },
+   {
+    "n": 5,
+    "title": "Components of the dynamic positioning (DP) system: Power — lerus.com",
+    "url": "https://www.lerus.com/blog/components-of-the-dynamic-positioning-system-power",
+    "quote": "Starting generators and thrusters automatically after a full or partial loss of power on board (Blackout Recovery function)."
+   },
+   {
+    "n": 6,
+    "title": "DSE8610 MKII Operator Manual — technogamma.nl",
+    "url": "https://technogamma.nl/wp-content/uploads/DSE8610-MKII-Operator-Manual.pdf",
+    "quote": "Using _Dead Bus Synchronising_ , any number of generators are able to be online and in parallel potentially within 15 seconds"
+   },
+   {
+    "n": 7,
+    "title": "WHITE PAPER — generac.com",
+    "url": "https://www.generac.com/globalassets/pdfs/industrial/whitepapers/sizing-considerations-for-comm-and-ind-gens.pdf",
+    "quote": "Each unit started individually in sequence would reduce the starting kW required by 40 percent."
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: mechanism -->\n<style>\n  [hidden] { display: none !important; }\n  .pz { max-width: 52rem; }\n  .pz > * + *, #stepbox > * + *, .figs > * + * { margin-top: 14px; }\n  .task, .fb, .why, .closing, .done p, .say { max-width: 34rem; }\n  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.08rem; font-weight: 400; line-height: 1.6; }\n  /* The board and the traces: side by side on a laptop, stacked on a phone. */\n  .pics { display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-start; gap: 6px 18px; }\n  .pics svg { display: block; width: 100%; }\n  #scene { flex: 1 1 19rem; max-width: 28rem; }\n  #panel { flex: 1 1 19rem; max-width: 28rem; }\n  .sws { display: flex; flex-wrap: wrap; gap: 10px 16px; }\n  .sws > div { flex: 1 1 14rem; min-width: 0; }\n  #c-method .k-seg { flex-wrap: wrap; }\n  #c-method .k-seg button { flex: 1 1 7rem; white-space: nowrap; }\n  .go { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }\n  .go .k-btn { flex: 0 0 auto; min-height: 44px; padding-inline: 24px; white-space: nowrap; }\n  .outs.k-readouts { display: grid; grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr)); gap: 10px; }\n  .outs .k-readout { min-width: 0; }\n  .say { min-height: 3.2em; transition: opacity .3s ease-out; }\n  .say.off { opacity: 0; }\n  svg .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }\n  svg .labb { font: 700 13px var(--k-font); fill: var(--k-ink); }\n  svg .labm { font: 600 13px var(--k-font); fill: var(--k-muted); }\n  svg .labw { font: 700 13px var(--k-font); fill: var(--k-warn); }\n  svg .hl { paint-order: stroke; stroke: var(--k-bg); stroke-width: 4px; stroke-linejoin: round; }\n  .bus { stroke: var(--k-ink); stroke-width: 3; stroke-linecap: round; }\n  .wire { fill: none; stroke: var(--k-ink); stroke-width: 1.6; }\n  .gen { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.6; }\n  .eng { fill: var(--k-sunk); stroke: var(--k-ink); stroke-width: 1.4; }\n  .avr { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.4; }\n  .avr.lit { fill: var(--k-fill2); stroke-width: 2; }\n  .wire.off, .gen.off, .eng.off, .avr.off { stroke: var(--k-muted); stroke-dasharray: 4 3; }\n  .loadbox { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.4; }\n  .loadbox.on { fill: var(--k-fill2); }\n  .bus.dead { stroke: var(--k-muted); stroke-dasharray: 6 4; }\n  .mot { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.6; }\n  .mot-r { fill: var(--k-warn); fill-opacity: .2; stroke: var(--k-warn); stroke-width: 2.6; }\n  .disc { fill: var(--k-sunk); stroke: var(--k-ink); stroke-width: 1.4; }\n  .spoke { stroke: var(--k-ink); stroke-width: 2; stroke-linecap: round; }\n  .contact { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.4; }\n  .blade { stroke: var(--k-ink); stroke-width: 2.4; stroke-linecap: round; }\n  .axis { stroke: var(--k-strong); stroke-width: 1.4; }\n  .tick { stroke: var(--k-strong); stroke-width: 1.2; }\n  .cv { fill: none; stroke: var(--k-accent2); stroke-width: 2.6; stroke-linejoin: round; stroke-linecap: round; }\n  .lim { stroke: var(--k-ink); stroke-width: 1.4; stroke-dasharray: 7 4; }\n  .brk { fill: none; stroke: var(--k-ink); stroke-width: 1.5; }\n  .dot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 1.5; }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; }\n  .picks { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }\n  .picks .k-btn { min-height: 48px; font-size: 1.05rem; white-space: normal; overflow-wrap: normal; word-break: normal; hyphens: none; text-align: left; }\n  .picks .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  .answers .k-answer { max-width: 20rem; }\n  .fb { font-weight: 700; min-height: 1.5em; }\n  .fb.right { color: var(--k-good); }\n  .why, .done, .closing { line-height: 1.6; }\n  .closing { font-weight: 700; }\n  .done .row { margin-top: 14px; }\n  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } .say { transition: none; } }\n</style>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <div class=\"figs\" id=\"figs\">\n      <div class=\"pics\">\n        <svg id=\"scene\" viewBox=\"0 0 340 196\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"art\"></g></svg>\n        <svg id=\"panel\" viewBox=\"0 0 340 252\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"panelArt\"></g></svg>\n      </div>\n      <div class=\"sws\" id=\"sws\">\n        <div class=\"k-controls\" id=\"c-kva\"></div>\n        <div class=\"k-controls\" id=\"c-method\"></div>\n        <div class=\"k-controls\" id=\"c-second\"></div>\n      </div>\n      <div class=\"go\" id=\"go\"></div>\n      <p class=\"say\" id=\"say\"></p>\n      <div class=\"k-readouts outs\" id=\"outs\"></div>\n    </div>\n    <div class=\"picks\" id=\"picks\"></div>\n    <div class=\"answers\" id=\"answers\"></div>\n    <div class=\"row acts\" id=\"acts\"></div>\n    <p class=\"fb\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why\" id=\"why\" hidden></div>\n    <p class=\"closing\" id=\"closing\" hidden></p>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p id=\"finish\"></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\" id=\"cap\">Worked from the rule, with example settings and smooth sketched traces.</p>\n\n<script>\n  // ================= the rule =================\n  const strip = (s) => String(s || '').replace(/\\[\\^\\d+\\]/g, '');\n  const NB = ' ';                               // a no-break space: a number never parts from its unit\n  const DASH = '–';\n  const SRC_INRUSH = 'https://www.cummins.com/sites/default/files/2020-03/PowerHour_Generator%20Set%20Sizing%20Software_Transient%20Performance%20and%20Motor%20Load%20Capabilities%20%281PDH%29.pdf';\n  const SRC_AVR = 'https://benshaw.com/hubfs/Benshaw%20Website/Downloads/White-Papers/Benshaw-White-Paper-Starting-Motors-on-GenSets_EN.pdf';\n  const SRC_ENGINE = 'https://resources.kohler.com/power/kohler/industrial/pdf/Sizing_Generators_for_Motor_Starting_WP.pdf';\n  const SRC_TORQUE = 'https://mart.cummins.com/imagelibrary/data/assetfiles/0056583.pdf';\n  const SRC_RECOVER = 'https://www.lerus.com/blog/components-of-the-dynamic-positioning-system-power';\n  // One or two 630 kVA sets on a 440 V, 60 Hz board. Sub-transient reactance 0.15 and synchronous 1.5\n  // per unit, E at the AVR's field ceiling 2.5, a starting power factor of 0.4 (all example values).\n  const SET = 630, XD2 = 0.15, XS = 1.5, ECEIL = 2.5, SPF = 0.4, DIPK = 0.03;\n  // Times in seconds from Start: the frequency is lowest at 0.3 s, the AVR pulls with a 1 s time\n  // constant, a motor that gets away does so at 3 s, a stall shows at 2 s, the run lasts 4 s and plays at half speed.\n  const TLOW = 0.3, TAVR = 1, TRUN = 3, TSTALL = 2, TBACK = 0.5, TEND = 4, PACE = 0.5, TARGET = 0.9, TLOWTILE = 1;\n  const METHODS = ['DOL', 'Star-delta', 'Soft starter'];\n  const DIV = { 'DOL': 1, 'Star-delta': 3, 'Soft starter': 2 };\n  const HOW = { 'DOL': 'direct on line', 'Star-delta': 'star-delta', 'Soft starter': 'on its soft starter' };\n  // One start: the kVA the set sees, x = that ÷ (630 kVA × the sets on), the voltage left at once\n  // 1 ÷ (1 + 0.15x), the recovered voltage 2.5 ÷ (1 + 1.5x) capped at 100%, torque its square, the\n  // real power kVA × 0.4, and a frequency dip of 3% per 100 kW, shared between the sets.\n  function begin(kva, method, n, ceil) {\n    const sk = kva / DIV[method], x = sk / (SET * n), E = ceil == null ? ECEIL : ceil;\n    const v0 = 1 / (1 + XD2 * x), vr = Math.min(1, E / (1 + XS * x));\n    const P = sk * SPF, dip = DIPK * P / 100 / n;\n    return { kva, method, n, sk, x, v0, vr, tq: vr * vr, P, dip, flo: 60 * (1 - dip), away: vr >= TARGET - 1e-12 };\n  }\n  const freq = (r, t) => 60 * (1 - r.dip * (t / TLOW) * Math.exp(1 - t / TLOW));\n  const pull = (r, t) => r.vr - (r.vr - r.v0) * Math.exp(-t / TAVR);\n  const smooth = (u) => u * u * (3 - 2 * u);\n  // The voltage drawn: the AVR's pull, times the frequency ÷ 60 (a slower rotor makes less voltage).\n  // A motor that gets away draws less current from 3 s, and the voltage returns to 100% over 0.5 s.\n  function volt(r, t) {\n    const raw = pull(r, t) * freq(r, t) / 60;\n    if (!r.away || t <= TRUN) return raw;\n    return raw + (1 - raw) * smooth(Math.min(1, (t - TRUN) / TBACK));\n  }\n  function lowest(r) {\n    let lo = Infinity, tl = 0;\n    for (let k = 0; k <= 2000; k++) { const t = k * TEND / 2000, v = volt(r, t); if (v < lo) { lo = v; tl = t; } }\n    let a = Math.max(0, tl - 0.002), b = Math.min(TEND, tl + 0.002);\n    for (let k = 0; k < 50; k++) { const m1 = a + (b - a) / 3, m2 = b - (b - a) / 3; if (volt(r, m1) < volt(r, m2)) b = m2; else a = m1; }\n    const tm = (a + b) / 2, vm = volt(r, tm);\n    return vm < lo ? { lo: vm, tlo: tm } : { lo, tlo: tl };\n  }\n  const CACHE = {};\n  function run(kva, method, n) {\n    const key = kva + '|' + method + '|' + n;\n    if (!CACHE[key]) { const r = begin(kva, method, n); Object.assign(r, lowest(r)); CACHE[key] = r; }\n    return CACHE[key];\n  }\n  // The shaft's turns since Start: one that gets away runs up to full speed by 3 s; one that\n  // stalls creeps round, then stops at 2 s.\n  function turns(r, t) {\n    if (r.away) return t <= TRUN ? t * t / (2 * TRUN) : TRUN / 2 + (t - TRUN);\n    if (t <= 1) return 0.15 * t * t;\n    if (t <= TSTALL) { const u = t - 1; return 0.15 + 0.3 * u - 0.15 * u * u; }\n    return 0.3;\n  }\n  // Rounded half up to one place, as worked by hand: 0.9375 is stored as 0.93749999…, so a hair is added first.\n  const r1 = (v) => Math.round(v * 10 + 1e-9) / 10;\n  const one = (v) => { const r = r1(v); return Number.isInteger(r) ? String(r) : r.toFixed(1); };\n  const pc = (v) => one(v * 100);\n  const kv = (v) => one(v).replace(/\\B(?=(\\d{3})+(?!\\d))/g, ',');   // 1200 is written 1,200, as the slider writes it\n  const f1 = (v) => Math.round(v * 10) / 10;\n  const f2 = (v) => Math.round(v * 100) / 100;\n  const rad = (d) => d * Math.PI / 180;\n\n  // ================= the lesson: SHOW screens demonstrate, DO screens are puzzles =================\n  const STEPS = [\n    // A range, not one figure (6 to 8 times full load), so it is picked: a typed 620 A would be right but marked wrong.\n    { kind: 'pick', name: 'The starting current', nofig: true,\n      opts: ['About 100 A', '600 to 800 A', 'About 200 A'], want: '600 to 800 A',\n      hints: { 'About 100 A': 'That is its running current. A start draws several times more.',\n        'About 200 A': 'That is nearer a star-delta start, about a third of DOL.' },\n      task: 'A motor takes 100 A at full load. Started direct on line, roughly what current does it draw at first?',\n      hint: 'A DOL start usually draws 6 to 8 times full-load current.',\n      why: '6 to 8 × 100 A gives 600 to 800 A, so about 700 A. The current stays high until the motor reaches about 75% of its speed.[^1]',\n      right: 'Still there.',\n      read: 'A motor takes 100 A at full load. Started direct on line, roughly what current does it draw at first?' },\n    { show: true, name: 'The first instant', ctl: ['start'],\n      text: 'A big motor\\'s start is a sudden, heavy load. Here it takes 600 kVA from a 630 kVA set. At first, only the small [[sub-transient reactance]] holds the current back, say 0.15 per unit. A load drawing the set\\'s own 630 kVA at full voltage is 1 per unit. A bigger load is a smaller impedance. So the motor\\'s starting impedance is 630 ÷ 600 = 1.05 per unit. The two share the voltage like a divider. The motor keeps 1.05 ÷ (1.05 + 0.15) = 87.5%. Press Start to watch the drop.',\n      read: 'A big motor\\'s start is a sudden, heavy load. Here it takes 600 kVA from a 630 kVA set. At first, only the small sub-transient reactance holds the current back, say 0.15 per unit. A load drawing the set\\'s own 630 kVA at full voltage is 1 per unit. A bigger load is a smaller impedance. So the motor\\'s starting impedance is 630 ÷ 600 = 1.05 per unit. The two share the voltage like a divider. The motor keeps 1.05 ÷ (1.05 + 0.15) = 87.5%.',\n      still: () => setStill(0.05) },\n    { kind: 'pick', name: 'What the AVR does', lit: true, solveRun: {}, ctlSolved: ['start'],\n      opts: ['It stops it, so the voltage holds at 100%', 'Nothing at first, then it pulls the voltage back', 'It makes it deeper, by cutting the field'],\n      want: 'Nothing at first, then it pulls the voltage back',\n      task: 'The AVR is on and watching the voltage. The motor is about to start. What does the AVR do to that first drop?',\n      hints: { 'It stops it, so the voltage holds at 100%': 'The AVR acts only once it sees the voltage fall. The drop comes first.',\n        'It makes it deeper, by cutting the field': 'When the voltage falls, the AVR raises the field.' },\n      why: 'The AVR must see the drop before it acts. Then the field takes time to grow. So a sudden step drops the voltage as far as it would with no AVR at all.[^2]',\n      read: 'The AVR is on and watching the voltage. The motor is about to start. What does the AVR do to that first drop?' },\n    { show: true, name: 'The engine slows', auto: true, ctl: ['start'],\n      text: 'Now the engine. The start also takes 240 kW of real power, at an example power factor of 0.4. The engine cannot find that at once, so it slows. A slower rotor makes less voltage.[^3] So the dip goes deeper, to 83.8%. Then the governor adds fuel, and the speed comes back. The AVR raises the field, and the voltage climbs back to 100%. Once the motor is up to speed, its current falls away.',\n      read: 'Now the engine. The start also takes 240 kW of real power, at an example power factor of 0.4. The engine cannot find that at once, so it slows. A slower rotor makes less voltage. So the dip goes deeper, to 83.8%. Then the governor adds fuel, and the speed comes back. The AVR raises the field, and the voltage climbs back to 100%. Once the motor is up to speed, its current falls away.',\n      still: () => setStill() },\n    { kind: 'typed', name: 'A bigger motor', ans: 'once9', enter: { kva: 900 }, hide: ['once'], solveRun: { kva: 900 }, ctlSolved: ['start', 'kva'],\n      answer: 82.4, decimals: 1, unit: '%', want: '82.4%',\n      slips: [{ value: 78.6, hint: 'That takes the whole 0.15 × 900 ÷ 630 off. The motor\\'s impedance shares the voltage too.' },\n        { value: 17.6, hint: 'That is the drop. The question asks what is left.' },\n        { value: 85, hint: 'That leaves out the motor\\'s size.' }],\n      task: 'The same 630 kVA set has a sub-transient reactance of 0.15 per unit. A bigger motor starts DOL and takes 900 kVA. What voltage is left at the first instant, in %, to one decimal place?',\n      hint: 'The motor\\'s impedance is 630 ÷ 900 = 0.70 per unit.',\n      why: '0.70 ÷ (0.70 + 0.15) = 0.824, so 82.4% is left.',\n      read: 'The same 630 kVA set has a sub-transient reactance of 0.15 per unit. A bigger motor starts DOL and takes 900 kVA. What voltage is left at the first instant, in %, to one decimal place?' },\n    { show: true, name: 'Will it get away?', enter: { kva: 900 }, auto: true, ctl: ['start', 'kva'],\n      text: 'Will the motor get away? A motor\\'s torque goes with the square of its voltage. At 90% voltage it makes 81% of its torque, enough for most loads.[^4] So the target is 90%. As the start goes on, the set\\'s reactance grows towards its bigger [[synchronous reactance]], here 1.5. The AVR\\'s field has a ceiling, here an example E of 2.5. At 900 kVA, the same divider now gives 2.5 × 0.70 ÷ (0.70 + 1.5) = 79.5%. With this load, the motor stalls.',\n      read: 'Will the motor get away? A motor\\'s torque goes with the square of its voltage. At 90% voltage it makes 81% of its torque, enough for most loads. So the target is 90%. As the start goes on, the set\\'s reactance grows towards its bigger synchronous reactance, here 1.5. The AVR\\'s field has a ceiling, here an example E of 2.5. At 900 kVA, the same divider now gives 2.5 × 0.70 ÷ (0.70 + 1.5) = 79.5%. With this load, the motor stalls.',\n      still: () => setStill() },\n    { kind: 'typed', name: 'Torque from voltage', nofig: true, ans: 'torque',\n      answer: 72.3, decimals: 1, accept: [72.25, 72], unit: '%', want: '72.3%',\n      slips: [{ value: 85, hint: 'Torque goes with the square of the voltage.' },\n        { value: 92.2, hint: 'That is the square root. Square it instead.' },\n        { value: 81, hint: '81% goes with 90% voltage. This voltage is lower.' }],\n      task: 'A start recovers the voltage to only 85%. What torque does the motor make, as a % of its full-voltage torque?',\n      hint: 'Write the voltage as a fraction, then square it.',\n      why: '0.85 × 0.85 = 0.7225, about 72.3%. That is under the 81% that goes with a 90% recovery.',\n      read: 'A start recovers the voltage to only 85%. What torque does the motor make, as a % of its full-voltage torque?' },\n    { show: true, name: 'Start softly', enter: { method: 'Soft starter' }, auto: true, ctl: ['start', 'method'],\n      text: 'The first cure is to start softly. Star-delta draws about a third of the DOL current. So 600 kVA becomes 200 kVA, and 95.5% is left at once. A soft starter\\'s thyristors hold the current down too. In this example, it holds the start to half, 300 kVA. That leaves 93.3%. Both give the motor less torque as it starts. So they suit loads that start light, such as fans and pumps. Switch the start method to compare.',\n      read: 'The first cure is to start softly. Star-delta draws about a third of the DOL current. So 600 kVA becomes 200 kVA, and 95.5% is left at once. A soft starter\\'s thyristors hold the current down too. In this example, it holds the start to half, 300 kVA. That leaves 93.3%. Both give the motor less torque as it starts. So they suit loads that start light, such as fans and pumps.',\n      still: () => setStill() },\n    { kind: 'typed', name: 'Star-delta at 1,200 kVA', ans: 'sd12', enter: { kva: 1200, method: 'Star-delta' }, hide: ['once', 'wire'], solveRun: {}, ctlSolved: ['start', 'method'],\n      answer: 91.3, decimals: 1, unit: '%', want: '91.3%',\n      slips: [{ value: 77.8, hint: 'That is the DOL start. Star-delta draws about a third.' },\n        { value: 90.5, hint: 'That takes the whole share off. The motor\\'s impedance shares the voltage too.' },\n        { value: 8.7, hint: 'That is the drop. The question asks what is left.' }],\n      task: 'The biggest motor here takes 1,200 kVA started DOL. On one set, it is started star-delta instead. What voltage is left at the first instant, in %, to one decimal place?',\n      hint: 'Star-delta\\'s starting load is 1,200 ÷ 3 = 400 kVA.',\n      why: 'The motor\\'s impedance is 630 ÷ 400 = 1.575 per unit. 1.575 ÷ (1.575 + 0.15) = 0.913, so 91.3% is left. It recovers to 100%, and the motor gets away.',\n      read: 'The biggest motor here takes 1,200 kVA started DOL. On one set, it is started star-delta instead. What voltage is left at the first instant, in %, to one decimal place?' },\n    { show: true, name: 'More sets on', enter: { second: true }, auto: true, ctl: ['start', 'second'],\n      text: 'The second cure is more sets on the board. Two sets in parallel halve the reactance the motor sees. So the same 600 kVA start leaves 93.3%, as if each set carried 300 kVA. The drop is 6.7%, not 12.5%. They share the real power too, so the frequency dips less. A [[power management system]] can hold a big start until enough sets are on. Starting loads one at a time keeps each step small. Three motors started one after another, not together, can need 40% less starting kW.',\n      read: 'The second cure is more sets on the board. Two sets in parallel halve the reactance the motor sees. So the same 600 kVA start leaves 93.3%, as if each set carried 300 kVA. The drop is 6.7%, not 12.5%. They share the real power too, so the frequency dips less. A power management system can hold a big start until enough sets are on. Starting loads one at a time keeps each step small. Three motors started one after another, not together, can need 40% less starting kW.',\n      still: () => setStill() },\n    { kind: 'typed', name: 'A second set at 900 kVA', ans: 'two9', enter: { kva: 900 }, hide: ['once'], solveRun: { second: true }, ctlSolved: ['start', 'second'],\n      answer: 90.3, decimals: 1, unit: '%', want: '90.3%',\n      slips: [{ value: 82.4, hint: 'That is one set. Two sets halve the reactance.' },\n        { value: 91.2, hint: 'Halving the reactance does not quite halve the drop. Work the divider.' },\n        { value: 9.7, hint: 'That is the drop. The question asks what is left.' }],\n      task: 'A 900 kVA DOL start stalls on one set. So you synchronise a second, identical set onto the board first. What voltage is left at the first instant now, in %, to one decimal place?',\n      hint: 'With two sets, the reactance is 0.15 ÷ 2 = 0.075 per unit.',\n      why: 'The motor\\'s impedance is 630 ÷ 900 = 0.70. 0.70 ÷ (0.70 + 0.075) = 0.903, so 90.3% is left. It recovers to 100%, and the motor gets away.',\n      read: 'A 900 kVA DOL start stalls on one set. So you synchronise a second, identical set onto the board first. What voltage is left at the first instant now, in %, to one decimal place?' },\n    { show: true, name: 'After a blackout', mode: 'restore', auto: true, ctl: ['start'],\n      text: 'Sometimes the whole board is lost. That is a [[blackout]]. The power management system works to prevent one. It sheds loads before a set is overloaded, and it holds big starts. If the board still goes dead, it recovers it. It starts the standby sets and closes them onto the dead board.[^5] Several sets can be on together, in parallel, within about 15 seconds. Then the loads come back in small steps. Press Start to watch a recovery.',\n      read: 'Sometimes the whole board is lost. That is a blackout. The power management system works to prevent one. It sheds loads before a set is overloaded, and it holds big starts. If the board still goes dead, it recovers it. It starts the standby sets and closes them onto the dead board. Several sets can be on together, in parallel, within about 15 seconds. Then the loads come back in small steps.',\n      still: () => setStill() },\n    { kind: 'pick', name: 'The second set after a blackout', mode: 'ab', bOff: true,\n      opts: ['Nothing more: B can close at once, as A did', 'B must match the live board in voltage, frequency, phase sequence and angle', 'A must trip first, so that B also closes onto a dead board'],\n      want: 'B must match the live board in voltage, frequency, phase sequence and angle',\n      task: 'After a blackout, set A closes onto the dead board alone and takes the first loads. Set B is now up to speed. What must happen before B\\'s breaker closes?',\n      hints: { 'Nothing more: B can close at once, as A did': 'A closed onto a dead board, with nothing to match. B now faces a live one.',\n        'A must trip first, so that B also closes onto a dead board': 'Tripping A would black out the board again.' },\n      why: 'A dead board has no voltage to match, so A could close at once. Once A is on, the board is live. So B is synchronised like any set joining a live board.',\n      read: 'After a blackout, set A closes onto the dead board alone and takes the first loads. Set B is now up to speed. What must happen before B\\'s breaker closes?' },\n    { kind: 'typed', name: 'The engine\\'s kW', ans: 'kw', mode: 'freq', enter: { kva: 900 }, done: true, hide: ['flo'],\n      answer: 360, decimals: 0, unit: 'kW', want: '360' + NB + 'kW',\n      slips: [{ value: 900, hint: 'That is the kVA. The engine supplies only the kW.' },\n        { value: 720, hint: '0.8 is the set\\'s rated power factor. A starting motor\\'s is lower, here 0.4.' },\n        { value: 540, hint: 'That is the part left over. Multiply by 0.4.' }],\n      task: 'A motor\\'s start takes 900 kVA at a power factor of 0.4. How many kW must the engine find at once?',\n      hint: 'kW = kVA × power factor.',\n      why: '900 × 0.4 = 360 kW. The governor needs a moment to add that much fuel, so the frequency dips.',\n      read: 'A motor\\'s start takes 900 kVA at a power factor of 0.4. How many kW must the engine find at once?' },\n    { kind: 'pick', name: 'A governor fault', mode: 'ab',\n      opts: ['Only A speeds up, and B carries on as before', 'A takes kW from B, the frequency rises, and B may be driven as a motor', 'The board\\'s voltage rises, but the kW split stays the same'],\n      want: 'A takes kW from B, the frequency rises, and B may be driven as a motor',\n      task: 'Two sets share the board in droop. Set A\\'s governor fails and drives its fuel up. What happens?',\n      hints: { 'Only A speeds up, and B carries on as before': 'A is locked in step with the board. It cannot speed up alone.',\n        'The board\\'s voltage rises, but the kW split stays the same': 'Fuel moves kW, not voltage.' },\n      why: 'In parallel, more fuel on A moves kW onto A and off B. The board\\'s frequency rises along the droop lines. If A pushes past the whole load, it drives B as a motor. B\\'s reverse-power relay then trips it. A governor fault at one set reaches the whole board.',\n      close: 'One board, every set.',\n      read: 'Two sets share the board in droop. Set A\\'s governor fails and drives its fuel up. What happens?' },\n  ];\n  const FINISH = 'A big motor\\'s start is a sudden, heavy load. A generator set feels it at once. The voltage drops before the AVR can move. The engine slows and deepens the dip. Then the governor and the AVR pull the board back. Whether the motor gets away depends on how far the voltage recovers. So big loads are started softly, one at a time, or with more sets on.';\n\n  // ================= state =================\n  const BASE = { kva: 600, method: 'DOL', second: false };\n  const X = Object.assign({}, BASE);\n  let T = 0, started = false, running = false;\n  // What is drawn eases after the state: the labels that arrive during a run, and the second set joining.\n  const D = { drop: 0, flo: 0, stall: 0, away: 0, set2: 0 };\n  const DK = Object.keys(D);\n  const blank = () => ({ pick: null, res: null, why: false, tries: 0, hint: '' });\n  let S = STEPS.map(blank);\n  const solved = (st) => !!st && (st.res === 'right' || st.res === 'shown');\n  let lastStep = -1, finished = false, lastDone = false;\n  let REC = { t: {} };\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n  const quiet = () => REDUCE || testing();\n  const el = (id) => document.getElementById(id);\n  const idx = (name) => STEPS.findIndex((d) => d.name === name);\n  const cur = () => run(X.kva, X.method, X.second ? 2 : 1);\n  function targets() {\n    const r = cur();\n    return { drop: started ? 1 : 0, flo: started && T >= TLOW - 1e-9 ? 1 : 0,\n      stall: started && !r.away && T >= TSTALL - 1e-9 ? 1 : 0, away: started && r.away && T >= TRUN - 1e-9 ? 1 : 0, set2: X.second ? 1 : 0 };\n  }\n  function snapD() { Object.assign(D, targets()); }\n  function settled() { const g = targets(); return DK.every((k) => Math.abs(D[k] - g[k]) < 1e-9); }\n  function easeAll(dt) {\n    const g = targets();\n    DK.forEach((k) => { D[k] += (g[k] - D[k]) * (1 - Math.exp(-dt / 0.2)); if (Math.abs(g[k] - D[k]) < 0.004) D[k] = g[k]; });\n  }\n\n  // ================= text with amber key terms (built with K.el, never innerHTML) =================\n  const UNIT_GAP = /(\\d) (?=(?:Hz|kVA|kW|V|A|s|per unit)(?![A-Za-z]))/g;\n  function write(node, s) {\n    node.textContent = '';\n    strip(s).replace(UNIT_GAP, '$1' + NB).split(/\\[\\[([^\\]]+)\\]\\]/).forEach((seg, k) => {\n      if (!seg) return;\n      node.appendChild(k % 2 ? K.el('span', { class: 'term' }, seg) : document.createTextNode(seg));\n    });\n  }\n\n  // ================= controls =================\n  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);\n  const CTL = {\n    kva: K.control({ id: 'kva', label: 'Starting kVA', hint: 'The motor\\'s starting load when started DOL', min: 100, max: 1200, step: 50, value: 600, unit: 'kVA', snap: [600, 900], into: '#c-kva' }),\n    method: K.choice({ id: 'method', label: 'Start method', options: METHODS, value: 'DOL', into: '#c-method' }),\n    second: K.toggle({ id: 'second', label: 'Second set', hint: 'Joins a second 630 kVA set to the board', value: false, into: '#c-second' }),\n  };\n  const CIDS = ['kva', 'method', 'second'];\n  function norm(id, v) {\n    if (id === 'kva') return Math.round(Number(v) / 50) * 50;\n    if (id === 'second') return !!v;\n    return String(v);\n  }\n  const pushed = {};\n  CIDS.forEach((id) => { pushed[id] = norm(id, CTL[id].get()); });\n  // The page moves the controls itself (silently, so it is not taken for Dan's move).\n  function push() {\n    CIDS.forEach((id) => {\n      const v = norm(id, X[id]);\n      if (pushed[id] !== v) { CTL[id].set(v, true); pushed[id] = norm(id, CTL[id].get()); }\n    });\n  }\n  function freeList(i) {\n    const d = STEPS[i];\n    if (finished) return [];\n    return d.show ? (d.ctl || []) : solved(S[i]) ? (d.ctlSolved || []) : [];\n  }\n  const isFree = (i, id) => freeList(i).indexOf(id) >= 0;\n\n  K.button({ label: 'Start', into: '#go', press: () => { if (isFree(at(), 'start')) restart(); } });\n\n  const RO = {\n    once: K.readout({ id: 'once', label: 'At once,' + NB + '%', fmt: (v) => String(v), into: '#outs' }),\n    low: K.readout({ id: 'low', label: 'Lowest,' + NB + '%', fmt: (v) => String(v), into: '#outs' }),\n    rec: K.readout({ id: 'rec', label: 'Recovers to,' + NB + '%', fmt: (v) => String(v), into: '#outs' }),\n    tq: K.readout({ id: 'tq', label: 'Torque,' + NB + '%', fmt: (v) => String(v), into: '#outs' }),\n  };\n\n  // Up to three answer buttons; each puzzle fills in its own.\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.kind !== 'pick' || k >= d.opts.length || solved(st)) return;\n    st.pick = d.opts[k]; st.res = null;\n  } }));\n  // Typed answers: a field each; Check grades it, two misses show the working.\n  const ANS = {};\n  STEPS.forEach((d, i) => {\n    if (d.kind !== 'typed') return;\n    el('answers').appendChild(K.el('div', { id: 'ans-' + d.ans }));\n    const a = K.answer({ id: 'a-' + d.ans, unit: d.unit, answer: d.answer, decimals: d.decimals, accept: d.accept, slips: d.slips, into: '#ans-' + d.ans,\n      onCheck: (r) => {\n        const st = S[i];\n        if (solved(st)) return;\n        if (r.state === 'right') { st.res = 'right'; playRun(i); }\n        else if (r.state === 'wrong') {\n          st.tries += 1; st.hint = r.hint || d.hint;\n          if (st.tries >= 2) { st.res = 'shown'; st.why = true; a.reveal(); playRun(i); }\n          else st.res = 'wrong';\n        } else { st.res = r.state; st.hint = ''; }\n        K.refresh();\n      } });\n    ANS[d.ans] = a;\n  });\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || solved(st)) return;\n    if (d.kind === 'typed') { ANS[d.ans].check(); return; }\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = st.pick === d.want ? 'right' : 'wrong';\n    if (st.res === 'right') playRun(i);\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    const d = STEPS[at()];\n    if (d.show || finished) return;\n    S[at()].why = !S[at()].why;\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && !solved(S[i]))) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true; anim.pause(); running = false;\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S = STEPS.map(blank); finished = false; lastStep = -1;\n    Object.keys(ANS).forEach((k) => ANS[k].reset());\n    stepper.set(0, true);\n  } });\n\n  // ================= motion: the start, played at half speed =================\n  const anim = K.anim({ button: false, label: 'The start', step: (dt) => {\n    if (finished) return false;\n    dt = Math.min(dt, 0.1);\n    if (running) { T = Math.min(TEND, T + dt * PACE); if (T >= TEND) running = false; }\n    easeAll(dt);\n    paint(at());\n    return running || !settled();\n  } });\n  function kick() { if (!quiet() && !finished && (running || !settled()) && !anim.playing()) anim.play(); }\n  // Start (or start over): the traces clear and draw again from 0 s.\n  function restart() {\n    anim.pause();\n    started = true; T = 0; D.drop = 0; D.flo = 0; D.stall = 0; D.away = 0;\n    if (quiet()) { T = TEND; running = false; snapD(); return; }\n    running = true;\n    anim.play();\n  }\n  // A screen's state: its opening, or, once a puzzle is solved, its answer's run finished.\n  function prep(i) {\n    const d = STEPS[i];\n    Object.assign(X, BASE, d.enter || {});\n    started = false; T = 0; running = false;\n    if (d.done) { started = true; T = TEND; }\n    else if (!d.show && d.solveRun && solved(S[i])) { Object.assign(X, d.solveRun); started = true; T = TEND; }\n    snapD();\n  }\n  function enterStep(i) {\n    anim.pause(); running = false;\n    enter('stepbox');\n    prep(i);\n    push();\n    if (STEPS[i].show && STEPS[i].auto && !finished) restart();\n  }\n  function playRun(i) {\n    const d = STEPS[i];\n    if (!d.solveRun) return;\n    Object.assign(X, d.solveRun);\n    push();\n    restart();\n  }\n  // The finished picture a still shows (the read-through): the run drawn to time t, held.\n  function setStill(t) {\n    const i = at();\n    anim.pause(); running = false;\n    prep(i);\n    started = true; T = t == null ? TEND : t;\n    snapD();\n    push();\n    K.refresh();\n  }\n  function enter(id) {\n    if (REDUCE) return;\n    const box = el(id);\n    box.classList.remove('enter');\n    void box.offsetWidth;\n    box.classList.add('enter');\n  }\n\n  // ================= drawing helpers =================\n  function adder(g) { const f = (tag, attrs, txt) => g.appendChild(txt == null ? K.svg(tag, attrs) : K.svg(tag, attrs, txt)); f.g = g; return f; }\n  function grp(g, op) { const gg = K.svg('g', { opacity: f2(op) }); g.appendChild(gg); return adder(gg); }\n  const BUSY = 40, SX = [60, 176], MX = 288;\n  // A set: its wire up to the board, the generator, the AVR box on it, and its engine below.\n  function setParts(a, cx, name, cls, lit, top) {\n    a('line', { class: 'wire' + cls, x1: cx, y1: top ? BUSY : 72.6, x2: cx, y2: 94 });\n    a('circle', { class: 'gen' + cls, cx, cy: 112, r: 18 });\n    a('text', { class: 'labb', x: cx, y: 116.5, 'text-anchor': 'middle' }, name);\n    a('line', { class: 'wire' + cls, x1: cx + 18, y1: 112, x2: cx + 22, y2: 112 });\n    a('rect', { class: 'avr' + cls + (lit ? ' lit' : ''), x: cx + 22, y: 103, width: 36, height: 18, rx: 3 });\n    a('text', { class: 'lab', x: cx + 40, y: 116.5, 'text-anchor': 'middle' }, 'AVR');\n    a('line', { class: 'wire' + cls, x1: cx, y1: 130, x2: cx, y2: 144 });\n    a('rect', { class: 'eng' + cls, x: cx - 28, y: 144, width: 56, height: 22, rx: 3 });\n    a('text', { class: 'lab', x: cx, y: 159.5, 'text-anchor': 'middle' }, 'engine');\n  }\n  // The second set's breaker: two contacts and a blade, swung open while the set is off the board.\n  function breaker(a, x, open) {\n    a('line', { class: 'wire', x1: x, y1: BUSY, x2: x, y2: 49.4 });\n    const th = rad(40 * open);\n    a('line', { class: 'blade', x1: x, y1: 70, x2: f1(x - 18 * Math.sin(th)), y2: f1(70 - 18 * Math.cos(th)) });\n    a('circle', { class: 'contact', cx: x, cy: 52, r: 2.6 });\n    a('circle', { class: 'contact', cx: x, cy: 70, r: 2.6 });\n  }\n\n  // ================= the board: the sets, the starter and the motor =================\n  function drawScene(i, r) {\n    const d = STEPS[i], g = el('art');\n    g.textContent = '';\n    const a = adder(g), ab = d.mode === 'ab', lit = !!d.lit && !finished, s2 = ab ? (d.bOff ? 0 : 1) : D.set2;\n    REC.red = false; REC.status = ''; REC.wire = ''; REC.method = ''; REC.lit = lit; REC.brkA = ab;\n    if (d.mode === 'restore') { drawRestore(g, a); return; }\n    a('text', { class: 'labm hl', x: 20, y: 28 }, '440' + NB + 'V, 60' + NB + 'Hz board');\n    a('line', { class: 'bus', x1: 20, y1: BUSY, x2: ab ? 250 : 320, y2: BUSY });\n    // With sets A and B, each joins the board through its own breaker, both drawn the same.\n    if (ab) breaker(a, SX[0], 0);\n    setParts(a, SX[0], ab ? 'A' : 'G', '', lit, !ab);\n    a('text', { class: 'labm hl', x: SX[0], y: 186, 'text-anchor': 'middle' }, '630' + NB + 'kVA');\n    breaker(a, SX[1], 1 - s2);\n    if (1 - s2 > 0.005) {\n      const o = grp(g, 1 - s2);\n      setParts(o, SX[1], ab ? 'B' : 'G', ' off', false, false);\n      o('text', { class: 'labm hl', x: SX[1], y: 186, 'text-anchor': 'middle' }, 'not on the board');\n    }\n    if (s2 > 0.005) {\n      const o = grp(g, s2);\n      setParts(o, SX[1], ab ? 'B' : 'G', '', false, false);\n      o('text', { class: 'labm hl', x: SX[1], y: 186, 'text-anchor': 'middle' }, '630' + NB + 'kVA');\n    }\n    REC.joined = s2 > 0.5; REC.names = ab ? 'A,B' : 'G,G';\n    if (ab) {\n      el('scene').setAttribute('aria-label', d.bOff ? 'Set A, 630 kVA, is on a live 440 V, 60 Hz board through its closed breaker. Set B, identical and up to speed, waits beside it with its breaker open, drawn dashed.'\n        : 'Sets A and B, two identical 630 kVA sets, both on one 440 V, 60 Hz board, each through its own closed breaker. Each has an engine below and an AVR beside it.');\n      return;\n    }\n    // The motor's feeder, its starter and the motor, with its shaft.\n    a('line', { class: 'wire', x1: MX, y1: BUSY, x2: MX, y2: 62 });\n    const hideWire = !finished && !!d.hide && d.hide.indexOf('wire') >= 0 && !solved(S[i]);\n    const wire = (hideWire ? '?' : kv(r.sk)) + NB + 'kVA';\n    a('text', { class: 'lab hl', x: MX - 6, y: 56, 'text-anchor': 'end' }, wire);\n    a('rect', { class: 'loadbox', x: 238, y: 62, width: 100, height: 22, rx: 3 });\n    a('text', { class: 'lab', x: MX, y: 77.5, 'text-anchor': 'middle' }, X.method);\n    a('line', { class: 'wire', x1: MX, y1: 84, x2: MX, y2: 100 });\n    a('circle', { class: 'mot', cx: MX, cy: 118, r: 18 });\n    if (D.stall > 0.005) a('circle', { class: 'mot-r', cx: MX, cy: 118, r: 18, opacity: f2(D.stall) });\n    a('text', { class: 'labb', x: MX, y: 122.5, 'text-anchor': 'middle' }, 'M');\n    a('line', { class: 'wire', x1: MX, y1: 136, x2: MX, y2: 143 });\n    a('circle', { class: 'disc', cx: MX, cy: 152, r: 9 });\n    const th = rad(360 * 3 * turns(r, started ? T : 0));\n    [0, 90].forEach((o) => {\n      const t = th + rad(o), c = Math.cos(t) * 7, s = Math.sin(t) * 7;\n      a('line', { class: 'spoke', x1: f1(MX - c), y1: f1(152 - s), x2: f1(MX + c), y2: f1(152 + s) });\n    });\n    if (started) {\n      const opS = K.clamp(1 - D.stall - D.away, 0, 1);\n      if (opS > 0.005) a('text', { class: 'labm hl', x: MX, y: 186, 'text-anchor': 'middle', opacity: f2(opS) }, 'starting');\n      if (D.away > 0.005) a('text', { class: 'labb hl', x: MX, y: 186, 'text-anchor': 'middle', opacity: f2(D.away) }, 'up to speed');\n      if (D.stall > 0.005) a('text', { class: 'labw hl', x: MX, y: 186, 'text-anchor': 'middle', opacity: f2(D.stall) }, 'Stalled');\n      REC.status = D.stall > 0.5 ? 'Stalled' : D.away > 0.5 ? 'up to speed' : 'starting';\n    }\n    REC.red = D.stall > 0.5; REC.wire = wire; REC.method = X.method;\n    const sets = s2 > 0.5 ? 'Two 630 kVA sets are on' : 'One 630 kVA set is on';\n    el('scene').setAttribute('aria-label', sets + ' a 440 V, 60 Hz board, each with an engine and an AVR' + (s2 > 0.5 ? '' : ', and a second set waits off the board, drawn dashed') +\n      '. A motor hangs off the board behind a ' + X.method + ' starter, drawing ' + wire + ' as it starts. ' +\n      (!started ? 'It has not started yet.' : REC.status === 'Stalled' ? 'The motor is red: it has stalled.' : REC.status === 'up to speed' ? 'Its shaft is up to speed.' : 'Its shaft is starting to turn.'));\n  }\n\n  // ================= the blackout: the sets start, close onto the dead board, then the loads come back in steps =================\n  const TR = { start: 0.4, close: 1.4, loads: [2.4, 3, 3.6] }, LX = [254, 290, 326];\n  const shut = (t0, w) => (started ? smooth(K.clamp((T - t0) / (w || 0.25), 0, 1)) : 0);\n  function drawRestore(g, a) {\n    const up = shut(TR.start, 0.5), live = shut(TR.close);\n    a('text', { class: 'labm hl', x: 20, y: 28 }, '440' + NB + 'V, 60' + NB + 'Hz board');\n    a('text', { class: (live > 0.5 ? 'labb' : 'labw') + ' hl', x: 330, y: 28, 'text-anchor': 'end' }, live > 0.5 ? 'live' : 'dead');\n    a('line', { class: 'bus dead', x1: 20, y1: BUSY, x2: 330, y2: BUSY });\n    if (live > 0.005) a('line', { class: 'bus', x1: 20, y1: BUSY, x2: 330, y2: BUSY, opacity: f2(live) });\n    const state = live > 0.5 ? 'on the board' : up > 0.5 ? 'starting' : 'stopped';\n    ['A', 'B'].forEach((nm, k) => {\n      breaker(a, SX[k], 1 - live);\n      if (up < 0.995) setParts(grp(g, 1 - up), SX[k], nm, ' off', false, false);\n      if (up > 0.005) setParts(grp(g, up), SX[k], nm, '', false, false);\n      a('text', { class: 'labm hl', x: SX[k], y: 186, 'text-anchor': 'middle' }, state);\n    });\n    let on = 0;\n    LX.forEach((x, k) => {\n      const sh = shut(TR.loads[k]);\n      if (sh > 0.5) on += 1;\n      breaker(a, x, 1 - sh);\n      a('line', { class: 'wire', x1: x, y1: 72.6, x2: x, y2: 86 });\n      a('rect', { class: 'loadbox', x: x - 14, y: 86, width: 28, height: 22, rx: 3 });\n      if (sh > 0.005) a('rect', { class: 'loadbox on', x: x - 14, y: 86, width: 28, height: 22, rx: 3, opacity: f2(sh) });\n      a('text', { class: 'lab', x, y: 101.5, 'text-anchor': 'middle' }, String(k + 1));\n    });\n    a('text', { class: 'labm hl', x: LX[1], y: 128, 'text-anchor': 'middle' }, 'loads, in steps');\n    REC.names = 'A,B'; REC.joined = live > 0.5; REC.live = live > 0.5; REC.loads = on; REC.status = state;\n    el('scene').setAttribute('aria-label', 'A blackout. Sets A and B, each behind its own breaker, and three loads, each behind its own breaker, on a 440 V, 60 Hz board. ' +\n      (live > 0.5 ? 'Both sets are on the board, and it is live. ' + on + ' of the 3 loads are back on.' : up > 0.5 ? 'The board is dead, and both sets are starting.' : 'The board is dead, and both sets are stopped.'));\n  }\n\n  // ================= the traces: voltage above, frequency below =================\n  const XA = 46, X0 = 70, X1 = 326, tx = (t) => X0 + (X1 - X0) * t / TEND;\n  const vy = (v) => 22 + (1.05 - v) * 200;\n  function tracePts(fn, upto, yOf, pre) {\n    const pts = [XA + ',' + f1(yOf(pre)), X0 + ',' + f1(yOf(pre))];\n    const n = Math.ceil(upto / 0.02 - 1e-9);\n    for (let k = 0; k <= n; k++) { const t = Math.min(upto, k * 0.02); pts.push(f1(tx(t)) + ',' + f1(yOf(fn(t)))); }\n    return pts.join(' ');\n  }\n  function timeTicks(a, y) { for (let s = 0; s <= TEND; s++) a('line', { class: 'tick', x1: f1(tx(s)), y1: y, x2: f1(tx(s)), y2: y + 4 }); }\n  function drawVolt(g, a, r) {\n    a('text', { class: 'labm hl', x: 4, y: 14 }, 'Board voltage, % of 440' + NB + 'V');\n    a('line', { class: 'axis', x1: XA, y1: 22, x2: XA, y2: 112 });\n    a('line', { class: 'axis', x1: XA, y1: 112, x2: X1, y2: 112 });\n    timeTicks(a, 112);\n    a('line', { class: 'lim', x1: XA, y1: vy(TARGET), x2: X1, y2: vy(TARGET) });\n    a('text', { class: 'labm hl', x: 42, y: f1(vy(1) + 4.5), 'text-anchor': 'end' }, '100%');\n    a('text', { class: 'lab hl', x: 42, y: f1(vy(TARGET) + 4.5), 'text-anchor': 'end' }, '90%');\n    a('text', { class: 'labm hl', x: 42, y: 112, 'text-anchor': 'end' }, '60%');\n    REC.volt = false; REC.drop = false;\n    if (!started) return;\n    a('polyline', { class: 'cv', points: tracePts((t) => volt(r, t), T, vy, 1) });\n    REC.volt = true;\n    // The first drop, bracketed beside the step it makes at Start (its size is the At once tile).\n    if (D.drop > 0.005) {\n      const b = grp(g, D.drop), yb = f1(vy(r.v0));\n      b('path', { class: 'brk', d: 'M66 ' + f1(vy(1)) + 'H60V' + yb + 'H66' });\n      b('text', { class: 'lab hl', x: 50, y: 27 }, 'first drop');\n      REC.drop = D.drop > 0.5;\n    }\n  }\n  function drawFreq(g, a, r, y0, hideLow) {\n    const fy = (f) => y0 + 24 + (61 - f) * 80 / 11;\n    a('text', { class: 'labm hl', x: 4, y: y0 + 14 }, 'Board frequency, Hz');\n    a('line', { class: 'axis', x1: XA, y1: fy(61), x2: XA, y2: fy(50) });\n    a('line', { class: 'axis', x1: XA, y1: fy(50), x2: X1, y2: fy(50) });\n    timeTicks(a, fy(50));\n    a('text', { class: 'labm hl', x: 42, y: f1(fy(60) + 4.5), 'text-anchor': 'end' }, '60');\n    a('text', { class: 'labm hl', x: 42, y: f1(fy(50)), 'text-anchor': 'end' }, '50');\n    a('text', { class: 'labm hl', x: X0, y: y0 + 122, 'text-anchor': 'middle' }, 'Start');\n    [1, 2, 3].forEach((s) => a('text', { class: 'labm hl', x: f1(tx(s)), y: y0 + 122, 'text-anchor': 'middle' }, s + NB + 's'));\n    a('text', { class: 'labm hl', x: X1, y: y0 + 122, 'text-anchor': 'end' }, TEND + NB + 's');\n    REC.freq = false; REC.flo = null;\n    if (!started) return;\n    a('polyline', { class: 'cv', points: tracePts((t) => freq(r, t), T, fy, 60) });\n    REC.freq = true;\n    if (D.flo > 0.005) {\n      const b = grp(g, D.flo), lx = tx(TLOW), ly = fy(r.flo);\n      const txt = 'lowest ' + (hideLow ? '?' : one(r.flo) + NB + 'Hz');\n      b('circle', { class: 'dot', cx: f1(lx), cy: f1(ly), r: 5 });\n      b('text', { class: 'lab hl', x: f1(lx + 10), y: f1(Math.min(ly + 16, y0 + 102)) }, txt);\n      if (D.flo > 0.5) REC.flo = txt;\n    }\n  }\n  function drawPanel(i, r) {\n    const d = STEPS[i], g = el('panelArt'), mode = d.mode || 'full';\n    g.textContent = '';\n    REC.mode = mode; REC.volt = false; REC.freq = false; REC.flo = null; REC.drop = false;\n    if (d.nofig || mode === 'ab' || mode === 'restore') return;\n    const a = adder(g), hideLow = !finished && !!d.hide && d.hide.indexOf('flo') >= 0 && !solved(S[i]);\n    let y0 = 0;\n    if (mode === 'full') { drawVolt(g, a, r); y0 = 124; }\n    drawFreq(g, a, r, y0, hideLow);\n    el('panel').setAttribute('viewBox', '0 0 340 ' + (y0 + 128));\n    el('panel').setAttribute('aria-label', (mode === 'full' ? 'Two traces against time from Start to 4 s. Above, the board voltage as a % of 440 V, with a dashed line at 90%. Below, the board frequency in Hz.'\n      : 'The board frequency in Hz against time from Start to 4 s.') +\n      (!started ? ' Nothing is drawn until Start.' : mode === 'full' ? ' The voltage drops at once at Start, sags as the engine slows, then climbs as the AVR acts. The frequency dips to its lowest at 0.3 s and comes back.'\n        : ' The frequency dips to its lowest at 0.3 s, then the governor brings it back.'));\n  }\n\n  // ================= the readouts and the sentence under the picture =================\n  function readouts(i, r) {\n    const d = STEPS[i], sol = solved(S[i]);\n    const hid = (id) => !finished && !!d.hide && d.hide.indexOf(id) >= 0 && !sol;\n    const txt = {\n      once: started ? pc(r.v0) : DASH,\n      low: started && T >= TLOWTILE - 1e-9 ? pc(r.lo) : DASH,\n      rec: started && T >= TRUN - 1e-9 ? pc(r.vr) : DASH,\n      tq: started && T >= TRUN - 1e-9 && X.method === 'DOL' ? pc(r.tq) : DASH,\n    };\n    // The Torque tile is for a DOL start: a star-delta or soft starter cuts the motor's torque itself.\n    RO.tq.el.hidden = X.method !== 'DOL';\n    REC.tqTile = X.method === 'DOL';\n    Object.keys(txt).forEach((id) => { if (hid(id)) txt[id] = '?'; RO[id].set(txt[id]); });\n    REC.t = txt;\n  }\n  // The sentence under the picture changes only at 1 s, 2 s and 3 s of the run, so each holds for 2 s as it plays.\n  function sayText(i, r) {\n    const d = STEPS[i];\n    if (d.mode === 'freq') return 'The engine must find ' + one(r.P) + ' kW at once. It slows, and the frequency dips to ' + one(r.flo) + ' Hz before the governor catches it.';\n    if (d.mode === 'restore') {\n      if (!started) return 'The board is dead, and both sets are stopped.';\n      if (T < TR.close) return 'The power management system starts both sets.';\n      if (T < TR.loads[0]) return 'Both sets close onto the dead board, and it is live again.';\n      return 'The loads come back one step at a time, so each dip stays small.';\n    }\n    const sets = X.second ? 'two 630 kVA sets' : 'one 630 kVA set';\n    if (!started) return 'The motor is ready to start ' + HOW[X.method] + '. It will take ' + kv(r.sk) + ' kVA from ' + sets + '.';\n    if (T < 1) return 'The voltage drops to ' + pc(r.v0) + '% at once, before the AVR can act. Then the engine slows under the ' + one(r.P) + ' kW, and the dip goes deeper.';\n    if (!r.away && T >= TSTALL - 1e-9) return 'The voltage is stuck below the 90% line, so with this load the motor cannot make enough torque. It has stalled.' +\n      (T >= TRUN - 1e-9 ? ' At ' + pc(r.vr) + '% voltage it makes only ' + pc(r.tq) + '% of its torque.' : '');\n    if (!r.away) return 'The governor brings the speed back, and the AVR drives the field to its ceiling. Even so, the voltage stays below the 90% line.';\n    if (T < TRUN) return 'The governor brings the speed back, and the AVR raises the field, so the voltage climbs back.';\n    return 'The voltage recovered to ' + pc(r.vr) + '%, so the motor ' + (X.method === 'DOL' ? 'made ' + pc(r.tq) + '% of its full-voltage torque and ' : '') + 'got away. Its current falls, and the board returns to 100%.';\n  }\n  function sayLine(i, r) {\n    const d = STEPS[i], p = el('say');\n    const room = !finished && !d.nofig && d.mode !== 'ab' && (d.show || solved(S[i]));\n    const s = room ? sayText(i, r) : '';\n    p.hidden = !room;\n    p.classList.toggle('off', !s);\n    if (p.dataset.s !== s) { p.dataset.s = s; write(p, s); }\n    REC.say = s;\n  }\n\n  // ================= one paint =================\n  function paint(i) {\n    if (i == null) i = at();\n    const r = cur();\n    REC = { t: {}, T: started ? T : null };\n    drawScene(i, r);\n    drawPanel(i, r);\n    readouts(i, r);\n    sayLine(i, r);\n  }\n\n  // ================= the page around the picture =================\n  write(el('finish'), FINISH);\n  const setLab = (b, s) => { if (b.el.textContent !== s) b.setLabel(s); };\n  const vis = (id, on) => { const n = el(id); if (on) n.removeAttribute('hidden'); else n.setAttribute('hidden', ''); };\n  function layout(i) {\n    const d = STEPS[i], st = S[i], sol = solved(st), mode = d.mode || 'full';\n    el('stepbox').hidden = finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Screen ' + (i + 1) + ' of ' + STEPS.length;\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    write(task, d.show ? d.text : d.task);\n    el('figs').hidden = !!d.nofig;\n    // SVG elements have no .hidden property: the attribute itself is toggled.\n    vis('scene', !d.nofig && mode !== 'freq');\n    vis('panel', !d.nofig && mode !== 'ab' && mode !== 'restore');\n    el('outs').hidden = !!d.nofig || mode !== 'full';\n    el('cap').hidden = finished || !!d.nofig || mode === 'ab' || mode === 'restore';\n    let any = false;\n    CIDS.forEach((id) => { const on = isFree(i, id); el('c-' + id).hidden = !on; any = any || on; });\n    el('sws').hidden = !any;\n    el('go').hidden = !isFree(i, 'start');\n    const opts = d.kind === 'pick' ? d.opts : [];\n    el('picks').hidden = !opts.length;\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      setLab(b, opts[k]);\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n    el('answers').hidden = d.kind !== 'typed';\n    Object.keys(ANS).forEach((k) => { el('ans-' + k).hidden = d.ans !== k; });\n    el('acts').hidden = !!d.show;\n    checkBtn.el.hidden = sol;\n    const fb = el('fb');\n    fb.hidden = !!d.show;\n    fb.className = 'fb' + (st.res === 'right' ? ' right' : '');\n    let say = '';\n    if (!d.show) {\n      if (st.res === 'right') say = d.right || 'That\\'s it.';\n      else if (st.res === 'shown') say = 'Here is the working.';\n      else if (st.res === 'wrong') say = d.kind === 'typed' ? st.hint : (d.hints && d.hints[st.pick]) || d.hint || '';\n      else if (st.res === 'empty') say = d.kind === 'pick' ? 'Pick one of the answers first.' : 'Type your answer first.';\n      else if (st.res === 'unreadable') say = 'Type your answer as a number.';\n    }\n    write(fb, say);\n    const why = el('why');\n    why.hidden = d.show || !st.why;\n    write(why, d.show ? '' : d.why);\n    setLab(whyBtn, st.why ? 'Hide why' : 'Why?');\n    const cl = el('closing');\n    cl.hidden = !(d.close && sol);\n    write(cl, d.close || '');\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !sol);\n    setLab(nextBtn, i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  }\n\n  K.update((p) => {\n    const i = at();\n    if (i !== lastStep) { lastStep = i; enterStep(i); }\n    else {\n      let changed = false;\n      CIDS.forEach((id) => {\n        const v = norm(id, p[id]);\n        if (v === pushed[id]) return;\n        if (isFree(i, id)) { pushed[id] = v; X[id] = v; changed = true; }\n        else CTL[id].set(pushed[id], true);        // a control this screen does not use stays put\n      });\n      // Changing a control clears the traces, and the new start plays from 0 s.\n      if (changed) restart();\n    }\n    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }\n    layout(i);\n    paint(i);\n    kick();\n  });\n\n  // ================= known answers, worked out by hand =================\n  const solvedSt = (i) => Object.assign(blank(), STEPS[i].kind === 'pick' ? { pick: STEPS[i].want, res: 'right' } : { res: 'right' });\n  function saveAll() { return { X: Object.assign({}, X), D: Object.assign({}, D), T, started, running, fin: finished, S: S.slice() }; }\n  function restoreAll(k) { Object.assign(X, k.X); Object.assign(D, k.D); T = k.T; started = k.started; running = k.running; finished = k.fin; S = k.S; }\n  // A screen in the state given (drawn to time t, or its own opening or solved state), and what it drew.\n  function drawn(i, st, t) {\n    const keep = saveAll();\n    S = S.slice(); S[i] = st || blank(); finished = false;\n    try {\n      prep(i);\n      if (t != null) { started = true; T = t; }\n      snapD();\n      paint(i);\n      return JSON.parse(JSON.stringify(REC));\n    } finally { restoreAll(keep); paint(); }\n  }\n  const tIs = (t, o) => Object.keys(o).every((k) => t[k] === o[k]);\n  const iDol = idx('The starting current'), iFirst = idx('The first instant'), iAvr = idx('What the AVR does'), iEng = idx('The engine slows');\n  const iBig = idx('A bigger motor'), iAway = idx('Will it get away?'), iTq = idx('Torque from voltage'), iSoft = idx('Start softly');\n  const iSd = idx('Star-delta at 1,200 kVA'), iTwo = idx('More sets on'), iTwo9 = idx('A second set at 900 kVA'), iBlack = idx('After a blackout');\n  const iSync = idx('The second set after a blackout'), iKw = idx('The engine\\'s kW'), iGov = idx('A governor fault');\n  const HZ = (v) => 'lowest ' + v + NB + 'Hz';\n\n  K.check('Screen 2: the motor\\'s starting impedance is 630 ÷ 600 = 1.05 per unit, so 1.05 ÷ (1.05 + 0.15) = 87.5% is left at once; empty until Start, its still reads At once 87.5 with the others –', () => {\n    const r = run(600, 'DOL', 1), s0 = drawn(iFirst), s1 = drawn(iFirst, null, 0.05);\n    return K.near(SET / 600, 1.05, 1e-12) && K.near(r.v0, 1.05 / 1.2, 1e-12) && pc(r.v0) === '87.5' &&\n      tIs(s0.t, { once: DASH, low: DASH, rec: DASH, tq: DASH }) && !s0.volt && !s0.freq &&\n      tIs(s1.t, { once: '87.5', low: DASH, rec: DASH, tq: DASH }) && s1.volt && s1.drop && s1.status === 'starting';\n  });\n  K.check('Screen 3 lights the AVR before Start; once answered, the start runs to its end', () => {\n    const a0 = drawn(iAvr), a1 = drawn(iAvr, solvedSt(iAvr));\n    return a0.lit && !a0.volt && a0.t.once === DASH && a1.volt && a1.t.rec === '100';\n  });\n  K.check('Screen 4: 600 kVA × 0.4 = 240 kW; the frequency is lowest at 0.3 s, 55.7 Hz; the voltage sags to 83.8%, recovers to 100%, and the motor gets away with 100% torque', () => {\n    const r = run(600, 'DOL', 1), s = drawn(iEng, null, TEND);\n    return K.near(r.P, 240, 1e-9) && K.near(r.dip, 0.072, 1e-12) && freq(r, 0.29) > freq(r, 0.3) && freq(r, 0.31) > freq(r, 0.3) && s.flo === HZ('55.7') &&\n      tIs(s.t, { once: '87.5', low: '83.8', rec: '100', tq: '100' }) && r.away && s.status === 'up to speed' && !s.red && K.near(volt(r, TEND), 1, 1e-12);\n  });\n  K.check('Screen 6: at 900 kVA, 82.4% at once and 72.8% at the lowest; the field ceiling reaches only 2.5 ÷ (1 + 1.5 × 900 ÷ 630) = 79.5%, so torque is 63.3%, and from 2 s the motor is red and Stalled', () => {\n    const r = run(900, 'DOL', 1), s = drawn(iAway, null, TEND), early = drawn(iAway, null, 1.9);\n    return K.near(r.vr, 2.5 / (1 + 1.5 * 900 / 630), 1e-12) && !r.away && tIs(s.t, { once: '82.4', low: '72.8', rec: '79.5', tq: '63.3' }) &&\n      s.red && s.status === 'Stalled' && early.status === 'starting' && !early.red && early.t.rec === DASH && early.t.low === '72.8';\n  });\n  K.check('Screen 8: star-delta takes 600 ÷ 3 = 200 kVA, leaving 95.5% at once; the soft starter takes 300 kVA, leaving 93.3%, lowest 91.4%; the Torque tile shows only for a DOL start', () => {\n    const sd = run(600, 'Star-delta', 1), s = drawn(iSoft, null, TEND), e = drawn(iEng, null, TEND);\n    return sd.sk === 200 && pc(sd.v0) === '95.5' && s.method === 'Soft starter' && s.wire === '300' + NB + 'kVA' &&\n      tIs(s.t, { once: '93.3', low: '91.4', rec: '100', tq: DASH }) && !s.tqTile && e.tqTile;\n  });\n  K.check('Screen 10: two sets halve the reactance the motor sees, so 600 kVA leaves 1.05 ÷ (1.05 + 0.075) = 93.3%, a 6.7% drop instead of 12.5%, and the frequency dips half as far', () => {\n    const a = run(600, 'DOL', 1), b = run(600, 'DOL', 2), s = drawn(iTwo, null, TEND);\n    return K.near(b.v0, 1.05 / (1.05 + XD2 / 2), 1e-12) && one(100 - 100 * b.v0) === '6.7' && one(100 - 100 * a.v0) === '12.5' &&\n      K.near(b.dip, a.dip / 2, 1e-12) && s.joined && tIs(s.t, { once: '93.3', low: '91.4', rec: '100', tq: '100' });\n  });\n  K.check('Screens 5, 9 and 11 show ? for At once until checked; checked, they run 900 kVA DOL on one set (82.4%), 1,200 kVA star-delta (91.3%) and 900 kVA with the second set on (90.3%); screen 5 opens at 900 kVA, and screen 9 hides its feeder\\'s 400 kVA until checked', () => {\n    const pairs = [[iBig, '82.4'], [iSd, '91.3'], [iTwo9, '90.3']];\n    const ok = pairs.every((q) => { const a0 = drawn(q[0]), a1 = drawn(q[0], solvedSt(q[0])); return a0.t.once === '?' && a0.t.low === DASH && !a0.volt && a1.t.once === q[1] && a1.volt; });\n    const sd1 = drawn(iSd, solvedSt(iSd));\n    return ok && drawn(iTwo9, solvedSt(iTwo9)).joined && !drawn(iTwo9).joined && drawn(iBig).wire === '900' + NB + 'kVA' &&\n      drawn(iSd).wire === '?' + NB + 'kVA' && sd1.wire === '400' + NB + 'kVA' && sd1.t.rec === '100' && !sd1.red;\n  });\n  K.check('Screen 7 has no picture; screen 14 shows only the frequency for a 900 kVA start, 900 × 0.4 = 360 kW, its lowest ? until checked, then 53.5 Hz', () => {\n    const b0 = drawn(iKw), b1 = drawn(iKw, solvedSt(iKw)), r = run(900, 'DOL', 1);\n    return !!STEPS[iTq].nofig && K.near(r.P, 360, 1e-9) && one(r.flo) === '53.5' && b0.mode === 'freq' && !b0.volt && b0.freq && b0.flo === 'lowest ?' && b1.flo === HZ('53.5');\n  });\n  K.check('Screen 12: before Start the board is dead and both sets stopped; at 2 s both sets are on a live board with no load back; the loads return one at a time, all three by 4 s', () => {\n    const s0 = drawn(iBlack), s1 = drawn(iBlack, null, 2), s2 = drawn(iBlack, null, 2.7), s3 = drawn(iBlack, null, TEND);\n    return s0.mode === 'restore' && !s0.live && s0.status === 'stopped' && s1.live && s1.loads === 0 && s1.status === 'on the board' && s2.loads === 1 && s3.live && s3.loads === 3 && !s3.volt;\n  }, { source: SRC_RECOVER });\n  K.check('Screens 13 and 15 draw sets A and B, each with its own breaker, and no traces; on 13 B waits off the board, on 15 both are on', () => {\n    const a = drawn(iSync), s = drawn(iGov);\n    return a.names === 'A,B' && !a.joined && a.brkA && !a.volt && s.names === 'A,B' && s.joined && s.brkA && s.mode === 'ab' && !s.volt && !s.freq;\n  });\n  K.check('Screen 1 is the range 600 to 800 A, picked; each typed answer and slip is worked from the rule: 82.4% (78.6, 17.6, 85), 72.3% (85, 92.2, 81; also 72.25, 72), 91.3% (77.8, 90.5, 8.7), 90.3% (82.4, 91.2, 9.7) and 360 kW (900, 720, 540)', () => {\n    const sl = (i, v) => STEPS[i].slips.length === v.length && STEPS[i].slips.every((s, k) => Math.abs(s.value - v[k]) < 1e-12);\n    const r9 = run(900, 'DOL', 1), sd = run(1200, 'Star-delta', 1), d12 = run(1200, 'DOL', 1), t9 = run(900, 'DOL', 2);\n    return STEPS[iDol].kind === 'pick' && STEPS[iDol].want === (6 * 100) + ' to ' + (8 * 100) + ' A' && STEPS[iDol].opts.indexOf(STEPS[iDol].want) >= 0 && 1200 / 3 === 400 && K.near(SET / 400, 1.575, 1e-12) &&\n      pc(r9.v0) === '82.4' && one(100 - 100 * XD2 * 900 / SET) === '78.6' && one(100 - 100 * r9.v0) === '17.6' && one(100 * (1 - XD2)) === '85' &&\n      one(85 * 85 / 100) === '72.3' && one(100 * Math.sqrt(0.85)) === '92.2' && K.near(0.9 * 0.9, 0.81, 1e-12) &&\n      pc(sd.v0) === '91.3' && pc(d12.v0) === '77.8' && one(100 - 100 * XD2 * 400 / SET) === '90.5' && one(100 - 100 * sd.v0) === '8.7' && sd.away &&\n      pc(t9.v0) === '90.3' && one(100 - (100 - 100 * r9.v0) / 2) === '91.2' && one(100 - 100 * t9.v0) === '9.7' &&\n      K.near(r9.P, 360, 1e-9) && K.near(900 * 0.8, 720, 1e-9) && 900 - 360 === 540 &&\n      [STEPS[iBig].answer, STEPS[iTq].answer, STEPS[iSd].answer, STEPS[iTwo9].answer, STEPS[iKw].answer].join() === '82.4,72.3,91.3,90.3,360' &&\n      sl(iBig, [78.6, 17.6, 85]) && sl(iTq, [85, 92.2, 81]) && sl(iSd, [77.8, 90.5, 8.7]) && sl(iTwo9, [82.4, 91.2, 9.7]) && sl(iKw, [900, 720, 540]);\n  });\n  K.check('Starting current is typically six times a motor\\'s rated full-load current, and stays high until about 75% of rated speed: the answer on screen 1 is 6 × 100 A to 8 × 100 A', () =>\n    STEPS[iDol].want === (6 * 100) + ' to ' + (8 * 100) + ' A', { source: SRC_INRUSH });\n  K.check('With a sudden step the voltage drop equals what it would be with no AVR present: the first instant reads 87.5% whatever the AVR\\'s field ceiling, and only later does the AVR lift it', () => {\n    const r = begin(600, 'DOL', 1), none = begin(600, 'DOL', 1, 1);\n    return K.near(volt(r, 0), volt(none, 0), 1e-12) && K.near(volt(r, 0), 0.875, 1e-12) && volt(r, 2) > volt(none, 2) + 0.2;\n  }, { source: SRC_AVR });\n  K.check('When the engine slows under the frequency dip, the alternator\\'s voltage dip increases: at 600 kVA the lowest is 83.8%, below the 87.5% the AVR\\'s pull alone never falls under', () => {\n    const r = run(600, 'DOL', 1);\n    let pmin = Infinity;\n    for (let k = 0; k <= 400; k++) pmin = Math.min(pmin, pull(r, k / 100));\n    return K.near(pmin, r.v0, 1e-12) && r.lo < r.v0 - 0.03 && pc(r.lo) === '83.8';\n  }, { source: SRC_ENGINE });\n  K.check('If the voltage recovers to at least 90% of rated, the motor develops 81% of rated torque: 0.9 × 0.9 = 0.81; on one set a DOL start gets away from 700 kVA (93.8%) but stalls at 750 kVA (89.7%)', () => {\n    const a = run(700, 'DOL', 1), b = run(750, 'DOL', 1);\n    return K.near(TARGET * TARGET, 0.81, 1e-12) && a.away && pc(a.vr) === '93.8' && !b.away && pc(b.vr) === '89.7';\n  }, { source: SRC_TORQUE });\n  K.check('At every setting the lowest voltage comes before 1 s, so the Lowest tile, filled at 1 s, shows the trace\\'s lowest; a second set always leaves more voltage', () => {\n    for (let kva = 100; kva <= 1200; kva += 50) for (const m of METHODS) {\n      const a = run(kva, m, 1), b = run(kva, m, 2);\n      if (!(a.tlo < 1 && b.tlo < 1 && b.lo > a.lo && b.v0 > a.v0 && a.lo <= a.v0 + 1e-12 && a.lo > 0.6)) return false;\n    }\n    return true;\n  });\n  K.check('Fifteen screens, six that show and nine to try; all three picks\\' answers are second in their lists', () =>\n    STEPS.length === 15 && STEPS.filter((d) => d.show).length === 6 && STEPS.filter((d) => !d.show).length === 9 &&\n    [iAvr, iSync, iGov].every((i) => STEPS[i].opts.indexOf(STEPS[i].want) === 1));\n  K.ready();\n</script>",
+  "title": "Starting the big motor",
+  "brief": "The one thing you should see is the voltage fall at once by the sub-transient reactance's share, then climb back only as the AVR acts, when you press Start.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "Screen 2: the motor's starting impedance is 630 ÷ 600 = 1.05 per unit, so 1.05 ÷ (1.05 + 0.15) = 87.5% is left at once; empty until Start, its still reads At once 87.5 with the others –",
+     "ok": true
+    },
+    {
+     "label": "Screen 3 lights the AVR before Start; once answered, the start runs to its end",
+     "ok": true
+    },
+    {
+     "label": "Screen 4: 600 kVA × 0.4 = 240 kW; the frequency is lowest at 0.3 s, 55.7 Hz; the voltage sags to 83.8%, recovers to 100%, and the motor gets away with 100% torque",
+     "ok": true
+    },
+    {
+     "label": "Screen 6: at 900 kVA, 82.4% at once and 72.8% at the lowest; the field ceiling reaches only 2.5 ÷ (1 + 1.5 × 900 ÷ 630) = 79.5%, so torque is 63.3%, and from 2 s the motor is red and Stalled",
+     "ok": true
+    },
+    {
+     "label": "Screen 8: star-delta takes 600 ÷ 3 = 200 kVA, leaving 95.5% at once; the soft starter takes 300 kVA, leaving 93.3%, lowest 91.4%; the Torque tile shows only for a DOL start",
+     "ok": true
+    },
+    {
+     "label": "Screen 10: two sets halve the reactance the motor sees, so 600 kVA leaves 1.05 ÷ (1.05 + 0.075) = 93.3%, a 6.7% drop instead of 12.5%, and the frequency dips half as far",
+     "ok": true
+    },
+    {
+     "label": "Screens 5, 9 and 11 show ? for At once until checked; checked, they run 900 kVA DOL on one set (82.4%), 1,200 kVA star-delta (91.3%) and 900 kVA with the second set on (90.3%); screen 5 opens at 900 kVA, and screen 9 hides its feeder's 400 kVA until checked",
+     "ok": true
+    },
+    {
+     "label": "Screen 7 has no picture; screen 14 shows only the frequency for a 900 kVA start, 900 × 0.4 = 360 kW, its lowest ? until checked, then 53.5 Hz",
+     "ok": true
+    },
+    {
+     "label": "Screen 12: before Start the board is dead and both sets stopped; at 2 s both sets are on a live board with no load back; the loads return one at a time, all three by 4 s",
+     "ok": true,
+     "source": "https://www.lerus.com/blog/components-of-the-dynamic-positioning-system-power"
+    },
+    {
+     "label": "Screens 13 and 15 draw sets A and B, each with its own breaker, and no traces; on 13 B waits off the board, on 15 both are on",
+     "ok": true
+    },
+    {
+     "label": "Screen 1 is the range 600 to 800 A, picked; each typed answer and slip is worked from the rule: 82.4% (78.6, 17.6, 85), 72.3% (85, 92.2, 81; also 72.25, 72), 91.3% (77.8, 90.5, 8.7), 90.3% (82.4, 91.2, 9.7) and 360 kW (900, 720, 540)",
+     "ok": true
+    },
+    {
+     "label": "Starting current is typically six times a motor's rated full-load current, and stays high until about 75% of rated speed: the answer on screen 1 is 6 × 100 A to 8 × 100 A",
+     "ok": true,
+     "source": "https://www.cummins.com/sites/default/files/2020-03/PowerHour_Generator%20Set%20Sizing%20Software_Transient%20Performance%20and%20Motor%20Load%20Capabilities%20%281PDH%29.pdf"
+    },
+    {
+     "label": "With a sudden step the voltage drop equals what it would be with no AVR present: the first instant reads 87.5% whatever the AVR's field ceiling, and only later does the AVR lift it",
+     "ok": true,
+     "source": "https://benshaw.com/hubfs/Benshaw%20Website/Downloads/White-Papers/Benshaw-White-Paper-Starting-Motors-on-GenSets_EN.pdf"
+    },
+    {
+     "label": "When the engine slows under the frequency dip, the alternator's voltage dip increases: at 600 kVA the lowest is 83.8%, below the 87.5% the AVR's pull alone never falls under",
+     "ok": true,
+     "source": "https://resources.kohler.com/power/kohler/industrial/pdf/Sizing_Generators_for_Motor_Starting_WP.pdf"
+    },
+    {
+     "label": "If the voltage recovers to at least 90% of rated, the motor develops 81% of rated torque: 0.9 × 0.9 = 0.81; on one set a DOL start gets away from 700 kVA (93.8%) but stalls at 750 kVA (89.7%)",
+     "ok": true,
+     "source": "https://mart.cummins.com/imagelibrary/data/assetfiles/0056583.pdf"
+    },
+    {
+     "label": "At every setting the lowest voltage comes before 1 s, so the Lowest tile, filled at 1 s, shows the trace's lowest; a second set always leaves more voltage",
+     "ok": true
+    },
+    {
+     "label": "Fifteen screens, six that show and nine to try; all three picks' answers are second in their lists",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step",
+    "kva",
+    "method",
+    "second"
+   ],
+   "readouts": [
+    "once",
+    "low",
+    "rec",
+    "tq"
+   ],
+   "outputs": [],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Screen",
+     "min": 0,
+     "max": 14,
+     "step": 1,
+     "steps": [
+      "The starting current",
+      "The first instant",
+      "What the AVR does",
+      "The engine slows",
+      "A bigger motor",
+      "Will it get away?",
+      "Torque from voltage",
+      "Start softly",
+      "Star-delta at 1,200 kVA",
+      "More sets on",
+      "A second set at 900 kVA",
+      "After a blackout",
+      "The second set after a blackout",
+      "The engine's kW",
+      "A governor fault"
+     ],
+     "value": 0
+    },
+    {
+     "id": "kva",
+     "kind": "control",
+     "label": "Starting kVA",
+     "min": 100,
+     "max": 1200,
+     "step": 50,
+     "log": false,
+     "value": 600,
+     "shown": false,
+     "snap": [
+      600,
+      900
+     ]
+    },
+    {
+     "id": "method",
+     "kind": "choice",
+     "label": "Start method",
+     "options": [
+      "DOL",
+      "Star-delta",
+      "Soft starter"
+     ],
+     "labels": [
+      "DOL",
+      "Star-delta",
+      "Soft starter"
+     ],
+     "value": "DOL",
+     "index": 0,
+     "shown": false
+    },
+    {
+     "id": "second",
+     "kind": "toggle",
+     "label": "Second set",
+     "options": [
+      false,
+      true
+     ],
+     "value": false,
+     "shown": false
+    }
+   ],
+   "actions": [
+    "Start",
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Check",
+    "Why?",
+    "Back",
+    "Continue",
+    "Start again",
+    "The start"
+   ],
+   "answers": [
+    {
+     "id": "a-once9",
+     "answer": 82.4,
+     "accept": [],
+     "ok": true
+    },
+    {
+     "id": "a-torque",
+     "answer": 72.3,
+     "accept": [
+      72.25,
+      72
+     ],
+     "ok": true
+    },
+    {
+     "id": "a-sd12",
+     "answer": 91.3,
+     "accept": [],
+     "ok": true
+    },
+    {
+     "id": "a-two9",
+     "answer": 90.3,
+     "accept": [],
+     "ok": true
+    },
+    {
+     "id": "a-kw",
+     "answer": 360,
+     "accept": [],
+     "ok": true
+    }
+   ],
+   "written": [],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 2
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-31T15:18:59.368Z",
+  "applied": [
+   {
+    "path": "explain.text",
+    "problem": "\"After the first cycles, the bigger synchronous reactance carries the current\" is too absolute: a real set passes through its transient reactance for much of a start and nears the synchronous value only later, as analogy.breaks says."
+   },
+   {
+    "path": "interactive.whatAmILookingAt",
+    "problem": "Screen 6 repeats the absolute synchronous-reactance claim; Screen 13 says B is motored if A takes the whole load, but B only runs as a motor once A pushes past the whole load (at exactly the whole load B carries none)."
+   },
+   {
+    "path": "practice.text",
+    "problem": "The worked example states 0.15 per unit as fact though it is an example value; \"a start is mostly kVA\" is not meaningful since kW is part of kVA; \"one at a time needs much less\" generalises one worked case of 40%."
+   }
+  ],
+  "notes": [
+   {
+    "path": "explain.text",
+    "problem": "The research differs on which reactance sets the first-instant dip: one maker ties it to the subtransient reactance, another to the transient reactance. The lesson uses sub-transient only; a fair simplification, flagged for review."
+   }
+  ]
+ },
+ "error": null,
+ "flags": {}
+}

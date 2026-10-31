@@ -1,0 +1,328 @@
+{
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "Engine stops: A falls from 200 kW out to 50.4 kW in over 1 s; the relay picks up at 25.2 kW in, at 0.9 s, and A's breaker opens 5 s later, at 5.9 s",
+        "ok": true
+      },
+      {
+        "label": "Screen 2 at 2 s: A reads −50.4 kW with its kW arrow red into A, B 450.4 kW, A 150 kVAr; screen 3, sharing 360 kW with A drawing 40 kW, shows ? for B until checked, then 400 at 2 s",
+        "ok": true
+      },
+      {
+        "label": "Screen 4 at 7 s: the timer full at 5.0 s, A's breaker open, A 0 kW and B 400 kW",
+        "ok": true
+      },
+      {
+        "label": "Screen 5: a 1 s delay fills during the 2 s flow and trips; a 5 s delay reaches 2 s, then resets with no trip",
+        "ok": true
+      },
+      {
+        "label": "Field lost: E 1.44 carries 200 kW at δ 19.3°; at 0.8 s E is 0.80, δ 36.5°, and A draws 150 kVAr while its kW still flows out",
+        "ok": true
+      },
+      {
+        "label": "0.317 × 1.5 ÷ 1.0 = 0.48: below it δ passes 90°, near 1.2 s; screen 7 shows ? for δ until checked, then E 0.48 and δ 90.0",
+        "ok": true
+      },
+      {
+        "label": "A loss of excitation in parallel brings pole slipping and oscillation: past 90°, δ keeps turning and A's kW swings out and in",
+        "ok": true
+      },
+      {
+        "label": "Rated current 630 000 ÷ (√3 × 440) = 826.7 A; the first current 826.7 ÷ 0.15 = 5511 A, 6.67 times; at 0.05 s screen 8 reads 3361 A, 4.07 times",
+        "ok": true
+      },
+      {
+        "label": "Screen 9, with 0.18, hides the curve and shows ? for the current until checked, then 4593 A, 5.56 times rated, at 0 s",
+        "ok": true
+      },
+      {
+        "label": "Screen 10 at 0.5 s: with a PMG 2636 A, 3.19 times rated, above 2000 A for 0.50 s, and the breaker trips; shunt-fed, 625 A and no trip",
+        "ok": true
+      },
+      {
+        "label": "Screen 11 hides the curves and readouts until checked; once checked the shunt-fed current has died to 118 A at 1 s and the breaker never tripped",
+        "ok": true
+      },
+      {
+        "label": "Self-excited alternators do not maintain a short-circuit current: shunt-fed, it decays towards 0, under 2000 A near 0.15 s and 625 A by 0.5 s",
+        "ok": true,
+        "source": "https://www.stamford-avk.com/sites/stamfordavk/files/AGN124_C.pdf"
+      },
+      {
+        "label": "With a PMG the set sustains its output during a short circuit, so the protection has time to clear the fault: it holds 2480 A, and the breaker trips at 0.5 s",
+        "ok": true,
+        "source": "https://www.stamford-avk.com/sites/stamfordavk/files/AGN124_C.pdf"
+      },
+      {
+        "label": "The fault current runs through sub-transient, transient and sustained periods: from 6.67 times rated it loses its sub-transient part within 0.1 s, then settles on its sustained level",
+        "ok": true
+      },
+      {
+        "label": "Real power flows into the generator when it loses its prime-mover input, and the relay detects it: from 1 s on A draws power, and the relay picks up only once 25.2 kW flows in",
+        "ok": true
+      },
+      {
+        "label": "Overload: B trips out and A carries 560 kW, 56 over; a 30 kW group goes every 5 s, so at 12 s A carries 500 kW with two groups shed and the third on; from 590 kW three steps bring it to 500 kW at 15 s",
+        "ok": true
+      },
+      {
+        "label": "Each typed answer and slip is worked from the rule: 400 kW (360, 320, 220), 0.48 (0.21, 0.317, 1.44), 4593 A (148.8, 3307, 826.7, 5511) and 3 steps (2, 2.87, 86)",
+        "ok": true
+      },
+      {
+        "label": "Screen 14 hides the readouts and the cause until checked, while A's kW arrow points out and its kVAr arrow in; once checked, it names the field lost",
+        "ok": true
+      },
+      {
+        "label": "Holding the full-load E of 2.25 gives 2.25 ÷ 1.5 = 1.5 times rated, 1240 A; holding 3 times rated needs twice that field",
+        "ok": true
+      },
+      {
+        "label": "Fourteen screens, six that show and eight to try",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "fault",
+      "es",
+      "fl",
+      "sc",
+      "ov",
+      "supply"
+    ],
+    "readouts": [
+      "es-a",
+      "es-b",
+      "es-q",
+      "es-t",
+      "fl-a",
+      "fl-q",
+      "fl-e",
+      "fl-d",
+      "sc-i",
+      "sc-x",
+      "sc-c",
+      "ov-a",
+      "ov-o",
+      "ov-g"
+    ],
+    "outputs": [],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Screen",
+        "min": 0,
+        "max": 13,
+        "step": 1,
+        "steps": [
+          "A motor's voltage",
+          "The engine stops",
+          "B carries the rest",
+          "The reverse-power relay",
+          "A nuisance trip",
+          "The field is lost",
+          "Where it slips",
+          "A short circuit",
+          "The first current",
+          "Shunt or PMG",
+          "The shunt-fed set",
+          "Overload",
+          "How many steps",
+          "Which protection"
+        ],
+        "value": 0
+      },
+      {
+        "id": "fault",
+        "kind": "choice",
+        "label": "Fault",
+        "options": [
+          "Engine stops",
+          "Field lost",
+          "Short circuit",
+          "Overload"
+        ],
+        "labels": [
+          "Engine stops",
+          "Field lost",
+          "Short circuit",
+          "Overload"
+        ],
+        "value": "Engine stops",
+        "index": 0,
+        "shown": false
+      },
+      {
+        "id": "es",
+        "kind": "control",
+        "label": "Time",
+        "min": 0,
+        "max": 10,
+        "step": 0.1,
+        "log": false,
+        "value": 0,
+        "shown": false,
+        "snap": [
+          2,
+          7
+        ]
+      },
+      {
+        "id": "fl",
+        "kind": "control",
+        "label": "Time",
+        "min": 0,
+        "max": 2,
+        "step": 0.05,
+        "log": false,
+        "value": 0,
+        "shown": false,
+        "snap": [
+          0.8,
+          1.2
+        ]
+      },
+      {
+        "id": "sc",
+        "kind": "control",
+        "label": "Time",
+        "min": 0,
+        "max": 1,
+        "step": 0.01,
+        "log": false,
+        "value": 0,
+        "shown": false,
+        "snap": [
+          0.05,
+          0.5
+        ]
+      },
+      {
+        "id": "ov",
+        "kind": "control",
+        "label": "Time",
+        "min": 0,
+        "max": 15,
+        "step": 0.5,
+        "log": false,
+        "value": 0,
+        "shown": false,
+        "snap": [
+          12,
+          15
+        ]
+      },
+      {
+        "id": "supply",
+        "kind": "choice",
+        "label": "AVR supply",
+        "options": [
+          "Shunt",
+          "PMG"
+        ],
+        "labels": [
+          "Shunt",
+          "PMG"
+        ],
+        "value": "PMG",
+        "index": 1,
+        "shown": false
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Answer 4",
+      "Check",
+      "Why?",
+      "Show me again",
+      "Back",
+      "Continue",
+      "Start again",
+      "Running"
+    ],
+    "answers": [
+      {
+        "id": "a-b",
+        "answer": 400,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-e",
+        "answer": 0.48,
+        "accept": [
+          0.476
+        ],
+        "ok": true
+      },
+      {
+        "id": "a-i",
+        "answer": 4593,
+        "accept": [
+          4596
+        ],
+        "ok": true
+      },
+      {
+        "id": "a-n",
+        "answer": 3,
+        "accept": [],
+        "ok": true
+      }
+    ],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ]
+  },
+  "moved": [
+    "step = 1 (the first step that shows a control)",
+    "fault = \"Field lost\"",
+    "es = 7.5",
+    "fl = 1.5",
+    "sc = 0.75",
+    "ov = 11.25",
+    "supply = \"Shunt\""
+  ],
+  "shots": [
+    "/home/user/Study-App/build/electrical/generators/i7.a9-360-light.png",
+    "/home/user/Study-App/build/electrical/generators/i7.a9-360-light-moved.png",
+    "/home/user/Study-App/build/electrical/generators/i7.a9-360-light-end.png",
+    "/home/user/Study-App/build/electrical/generators/i7.a9-360-dark.png",
+    "/home/user/Study-App/build/electrical/generators/i7.a9-360-dark-moved.png",
+    "/home/user/Study-App/build/electrical/generators/i7.a9-360-dark-end.png",
+    "/home/user/Study-App/build/electrical/generators/i7.a9-1280-light.png",
+    "/home/user/Study-App/build/electrical/generators/i7.a9-1280-light-moved.png",
+    "/home/user/Study-App/build/electrical/generators/i7.a9-1280-light-end.png",
+    "/home/user/Study-App/build/electrical/generators/i7.a9-1280-dark.png",
+    "/home/user/Study-App/build/electrical/generators/i7.a9-1280-dark-moved.png",
+    "/home/user/Study-App/build/electrical/generators/i7.a9-1280-dark-end.png"
+  ]
+}

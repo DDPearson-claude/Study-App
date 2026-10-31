@@ -1,0 +1,16 @@
+{
+ "issues": [
+  {
+   "path": "practice.text",
+   "severity": "fix",
+   "problem": "Each phase is worked in per unit, so multiplying by the 440 V line base gives E as a line-to-line figure, not the phase voltage (about 422 V); \"read E in volts\" invites reading 730 V as the voltage in one phase.",
+   "now": "**Working out the voltage inside**\n\n- Put V along the reference at 1.0 per unit.\n- Split the load current. The part in step with V is I × the power factor. The part at right angles is I × the sine of its angle.\n- Multiply each part by Xs. The in-step part gives the drop across V. The other gives the drop along V, added for a lagging load and taken off for a leading one.\n- Find E's part along V, 1.0 plus or minus that drop. Then E = √(along² + across²), and δ is the angle whose tangent is across ÷ along.\n- Multiply by the base, here 440 V, to read E as a line voltage.\n\n**Rules of thumb:** at the same current, the more lagging the load, the more field it takes. A leading load takes less than a unity or lagging one. So capacitors on a lightly loaded set can leave the AVR little room to cut the field.\n\n**Worked example:** a set with Xs of 1.5 per unit carries half its rated current, 0.5 per unit, at 0.6 lagging. The AVR holds V at 1.0. The sine of the current's angle is 0.8. Across V: 1.5 × 0.5 × 0.6 = 0.45. Along V: 1.0 + 1.5 × 0.5 × 0.8 = 1.6. E = √(1.6² + 0.45²) = 1.66 per unit, or 1.66 × 440 = 730 V as a line voltage. δ = tan⁻¹(0.45 ÷ 1.6) = 16°. With the field in proportion to E, it sits at 166% of its no-load value.\n\n**Common mistakes**\n- Adding the drop straight onto V. That gives 1.0 + 1.5 = 2.5 at any power factor. Only the part along V adds straight.\n- Drawing the drop in line with the current. A reactance's drop runs 90° ahead of it.\n- Reading per unit as per cent. 1.5 per unit is 150%, not 1.5%.\n- Mixing up δ with the power factor's angle. The power factor's angle lies between I and V. δ lies between E and V.\n- Treating a leading load as harmless. The AVR must cut the field for it, and enough of it takes the field to its floor."
+  },
+  {
+   "path": "analogy.breaks",
+   "severity": "fix",
+   "problem": "\"A generator’s drop is bigger than its output\" is too absolute: it holds only near full load with a large Xs; at light load or small Xs the drop is smaller than V, yet the triangle is still needed.",
+   "now": "A cable's drop is a few per cent, so adding its parts straight is close enough. A generator's drop can be as big as its terminal voltage or bigger, so the part at right angles counts too, and you need the whole triangle. And a cable's board end is fixed by the supply, while E moves with the field."
+  }
+ ]
+}

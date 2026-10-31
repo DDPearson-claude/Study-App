@@ -1,0 +1,1284 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-31T15:18:59.368Z",
+ "startedAt": "2026-10-31T15:18:59.368Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i6",
+  "title": "Load sharing: kW by fuel, kVAr by field",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is set A's share of the kW growing while the board's frequency barely moves, when you raise A's governor setting with the two sets' droop lines back to back.",
+   "title": "Two sets, back to back",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Screen",
+     "min": 0,
+     "max": 13,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [],
+   "whatAmILookingAt": "Sixteen small screens share one picture, with Back and Continue. Seven show an idea and nine ask you to try it. There are no marks and no timers.\n\nThe picture. Two 504 kW sets, A and B, run side by side on one 440 V, 60 Hz board. Below them sit two droop lines, back to back. The width between the two edges is the shared load. It is 600 kW at 0.8 power factor. A's kW runs rightwards from the left edge. B's runs leftwards from the right edge. Each line is that set's frequency against its own kW. A dot marks where they cross. A dashed line runs from it across to the frequency. Under the graph, each set has a bar that shows its share, labelled at its own edge. A share below zero is drawn red, past its edge. A small inset shows set A's E and V, and the load angle δ between them. A switch flips the picture to voltage against kVAr. Then the same two lines show each set's voltage against its kVAr, across the load's 450 kVAr. One screen swaps the picture for the two sets' neutrals. They are linked, with A's earthed and B's earth link open. A red dashed loop shows a third-harmonic current running round them.\n\nThe controls. The kW view has a Governors choice, Droop or Isochronous. A's setting and B's setting run from 58.0 to 64.0 Hz in steps of 0.1. Both open at 62.4 Hz. A Droop slider runs from 1 to 6% in steps of 1 and opens at 4%. It moves both sets together. An A's droop slider moves A's alone, over the same range. A Load stepper runs from 0 to 900 kW in steps of 100 and opens at 600 kW. The kVAr view has A's field setting and B's field setting. They run from 430 to 460 V in steps of 0.5, and both open at 447.5 V. A Compensation switch starts off. The neutral view has a Windings choice, Mixed or 2/3 pitch. The readouts sit in four tiles that wrap onto two rows on a phone. They are Frequency in Hz, A in kW, B in kW and A's δ in °. In the kVAr view they are Voltage in V, A in kVAr, B in kVAr and Cross current in A. In that view, a small label under each set gives its kW. The buttons wrap too.\n\nThe rule it computes. A setting is the set's frequency with no load. With droop, each set falls its droop × 60 Hz across its 504 kW. At 4% that is 2.4 Hz, so the set takes 504 ÷ 2.4 = 210 kW for each hertz below its setting. At 2% it takes 420. Both run at the board's one frequency, f. Their kW must add up to the load. So f = (A's kW per hertz × A's setting + B's kW per hertz × B's setting − the load) ÷ (the two kW per hertz added). Each set carries its kW per hertz × (its setting − f). A share is capped at 504 kW, full fuel. With its fuel cut to nothing, a set is driven as a motor. It then draws 50.4 kW, 10% of its rating. That is an example value. Isochronous lines are flat at their settings. The higher one sets the frequency. It takes the whole load plus the motored set's 50.4 kW, up to 504 kW. Past that, the frequency falls to the lower setting. That set then carries the rest. Exactly equal settings share equally here. The inset keeps E at 2.25 per unit and Xs at 1.5. It sets sin δ = A's kW ÷ 630 kVA × 1.5 ÷ 2.25. The kVAr view works the same way. The load's kVAr is its kW × 0.75, so 450 kVAr. Each AVR's voltage falls 1 V for each 30 kVAr it carries. That is an example setting. So the voltage = the average of the field settings − the load's kVAr ÷ (2 × 30). Each set carries 30 × (its setting − the voltage). The cross current is the difference in kVAr ÷ 2, ÷ (√3 × 440 V). A set is drawn red below zero kVAr, where it runs leading. It is also drawn red past its 630 kVA. With compensation on, both AVRs hold 440 V and share the kVAr equally. The field settings wait, greyed. The governors alone set the kW, so the kVAr view never moves it. In the neutral view, the loop shows while the windings are mixed and fades away at 2/3 pitch. It carries no figure, because none is computed.\n\nScreen 1, try it, a recall. The kW view at its opening, the readouts hidden. \"These two sets will share a load of kW and kVAr. A load takes 100 kVA at 0.8 power factor. How many kW does it take?\" A field in kW. Answer 80 kW. Slips: 60, the kVAr; 125, divided by 0.8. Hint when wrong: \"kW = kVA × the power factor.\" Why: \"100 × 0.8 = 80 kW. The other part is √(100² − 80²) = 60 kVAr. That is the reactive power the field supplies.\" A right Check shows both parts as two sides of a right-angled triangle. Read: the question.\n\nScreen 2, show. The kW view, both settings 62.4 Hz, every control hidden, the inset large. The load comes on from 0 to 600 kW. The words: more fuel cannot speed a set locked in step, so it pushes the rotor further ahead, and δ and the kW grow. Here the load comes on, and each governor adds fuel as the board slows. A set's kW follows its engine's output.[^1] At 600 kW, A carries 300 kW at a δ of 18.5°. Read: the words. Still: readouts 60.97 Hz, 300 kW, 300 kW, 18.5°.\n\nScreen 3, try it, typed. The inset alone, δ at 32.3°, the δ tile reading 32.3°. \"Set A's E is 2.25 per unit, V is 1.0 and Xs is 1.5. The load angle is 32.3°. Power = E × V × sin δ ÷ Xs. What power does it send out, in per unit?\" A field with no unit. Answer 0.80. Slips: 1.20, not divided by Xs; 1.27, cos δ for sin δ; 1.80, times Xs. Hint when wrong: \"sin 32.3° is 0.534.\" Why: \"2.25 × 1.0 × 0.534 ÷ 1.5 = 0.80 per unit. On a 630 kVA set that is 504 kW. That is its full rating.\" A right Check shows A at 504 kW. Read: the question.\n\nScreen 4, show. The kW view at its opening settings, the controls hidden. The words build the two lines, 210 kW for each hertz, and the 600 kW load between them. They settle at 300 kW each, at 62.4 − 300 ÷ 210 = 60.97 Hz. Lowering both settings together would bring the board back to 60 Hz. Read: the words. Still: readouts 60.97 Hz, 300 kW, 300 kW, 18.5°.\n\nScreen 5, try it. As screen 4. \"You raise A's governor setting by 0.3 Hz, from 62.4 to 62.7 Hz. What happens?\" Three choices, in this order: \"A takes the whole load\"; \"The board speeds up 0.3 Hz, and the kW stays put\"; \"A takes more kW, B less, and the frequency rises a little\". Right, the third. Each wrong choice has a one-line hint. Why: \"A's line lifts, and the crossing moves towards B. The board can have only one frequency. So the two shares change instead.\" A right Check moves A's setting to 62.7 Hz. Read: the question.\n\nScreen 6, show. A's setting at 62.7 Hz and free. The words: B's governor sees the rise and backs off. They settle with A on 331.5 kW and B on 268.5 kW, δ 20.5°. The board rose only 0.15 Hz, half the nudge. Alone, a set would rise the full 0.3 Hz and move no kW. In a big group, the frequency hardly moves at all.[^2] Then: drag A's setting and watch the shares. Read: the words without the last sentence. Still: A's setting 62.7 Hz, readouts 61.12 Hz, 331.5 kW, 268.5 kW, 20.5°.\n\nScreen 7, try it, typed. Both settings back at 62.4 Hz, the A tile reading ? until Check. \"Both sets carry 300 kW at 60.97 Hz. You raise A's setting by 0.2 Hz. Each set takes 210 kW for each hertz below its setting. How many kW does A carry now?\" A field in kW. Answer 321 kW. Slips: 342, the whole nudge; 300, no change; 279, B's share. Also accepted: 321.3. Hint when wrong: \"The frequency rises by half the nudge, to 61.07 Hz.\" Why: \"The board rises 0.1 Hz to 61.07 Hz. A sits 62.6 − 61.07 = 1.53 Hz below its setting. 210 × 1.53 = 321 kW.\" A right Check moves A's setting to 62.6 Hz. Read: the question.\n\nScreen 8, show. Both droops at 1%, both settings 60.6 Hz, the Droop slider and A's setting free. The words say both droops are now 1%, and both settings 60.6 Hz, so full load still gives 60 Hz. Each line falls 0.6 Hz across 504 kW, so the same 0.3 Hz nudge moves 126 kW, four times as much. With flat lines, the smallest difference decides everything. Read: the words. Still: A's setting 60.9 Hz, readouts 60.39 Hz, 426 kW, 174 kW.\n\nScreen 9, try it. A's droop at 2% and its setting at 61.2 Hz, B at 4% and 62.4 Hz, the load 900 kW, readouts 60.17 Hz, 432 kW and 468 kW. \"A has a 2% droop and B 4%. Each reaches 60 Hz at its full 504 kW. At 900 kW, A carries 432 kW and B 468 kW. The load falls to 300 kW. What happens to the shares?\" Three choices, in this order: \"A sheds twice as much as B, so the shares drift apart\"; \"B sheds more, because its line is steeper\"; \"Each sheds 300 kW, so they stay 36 kW apart\". Right, the first. Each wrong choice has a one-line hint. Why: as the load falls, the board rises. A gives up 420 kW for each hertz and B only 210, so A sheds 400 kW and B 200. Every set needs the same droop, or the shares drift apart each time the load changes.[^5] A right Check steps the load to 600 kW, with A on 232 kW and B on 368 kW, then to 300 kW, at 61.12 Hz. Then the Load stepper and A's droop slider come free. Read: the question.\n\nScreen 10, try it. Governors on Isochronous, A at 60.1 Hz, B at 60.0 Hz, the load 400 kW, the result hidden until Check. \"Both governors are isochronous, with no droop. A is set to 60.1 Hz and B to 60.0 Hz. They share a 400 kW load. What happens?\" Three choices, in this order: \"They share it, 200 kW each\"; \"A takes it all, and B is driven as a motor\"; \"They settle halfway, at 60.05 Hz\". Right, the second. Each wrong choice has a one-line hint. Why: A holds the board at 60.1 Hz, and B cuts its fuel to nothing. The board drives B as a motor, drawing an example 50.4 kW. So A carries 400 + 50.4 = 450.4 kW. A right Check shows the result, B's bar red past its edge. The line under the picture calls B's 50.4 kW draw an example. Read: the question.\n\nScreen 11, show. The kVAr view, both field settings 447.5 V, the governors back at their openings, compensation off, the controls hidden. The words: the 600 kW load at 0.8 also takes 450 kVAr, and the AVRs share it. Here each AVR's voltage falls 1 V for every 30 kVAr, voltage droop. At a full 630 kVAr that is 21 V, or 4.8%, close to a common factory setting of 5%.[^6] Set at 447.5 V, the lines cross at 440 V with 225 kVAr each. Read: the words. Still: readouts 440.0 V, 225 kVAr, 225 kVAr, 0.0 A.\n\nScreen 12, try it. As screen 11. \"Both sets carry 300 kW and 225 kVAr at 440 V. You raise A's field setting by 2 V. What happens?\" Three choices, in this order: \"A's kVAr goes up and its power factor down\"; \"The board's voltage goes up 2 V\"; \"A's kW goes up\". Right, the first. Each wrong choice has a one-line hint. Why: \"The board rises only 1 V, to 441 V. A sits 8.5 V below its setting. So it carries 30 × 8.5 = 255 kVAr. B carries 195 kVAr. A's kW stays at 300 kW. So its power factor falls.[^3]\" A right Check moves A's field setting to 449.5 V. Read: the question.\n\nScreen 13, show. A's field setting at 449.5 V, the Compensation switch free. The words: A's kW has not moved, but A carries 255 kVAr and B 195. Each carries its fair 225 kVAr, plus or minus 30 kVAr. That 30 kVAr runs round from A into B, not to the load: a cross current of 30 000 ÷ (√3 × 440) = 39.4 A. Turn on the compensation, and the AVRs trim their fields until it falls to zero. Read: \"Turn on the compensation.\" read as \"Cross-current compensation cures it.\" Still: compensation on, readouts 440.0 V, 225 kVAr, 225 kVAr, 0.0 A.\n\nScreen 14, show. The neutral view, the Windings choice free. It opens Mixed, with A at 2/3 pitch, B at 5/6 pitch and the red loop running. Then both switch to 2/3 pitch and the loop fades away. The words: \"Paralleled sets have a third path for current, through their neutrals. Many windings make a small third harmonic, in step in all three phases. So these add in the neutral. If two sets' windings differ, a large current can run round through their star points.[^7] A 2/3 pitch winding makes no third harmonic, so it suits paralleling.[^8] Where neutrals are earthed, only one running set's is earthed at a time.[^9] On an insulated system, coupling two boards couples their insulation monitors too. Only one may stay on.\" Read: the words. Still: Mixed, with the red loop.\n\nScreen 15, try it, typed (mixed). The kVAr view, A at 449.5 V, compensation off. \"Set A carries 300 kW and 255 kVAr. What is its power factor, to two decimal places?\" A field with no unit. Answer 0.76. Slips: 0.80, the load's; 0.84, B's; 0.65, kVAr ÷ kVA. Hint when wrong: \"Find its kVA first. It is √(kW² + kVAr²).\" Why: \"√(300² + 255²) = 393.7 kVA. 300 ÷ 393.7 = 0.76.\" Read: the question.\n\nScreen 16, try it, typed (mixed). The kW view, A at 62.8 Hz, B at 62.4 Hz. \"A carries 342 kW and B 258 kW, at 61.17 Hz. You want 300 kW each without moving the frequency. You lower A's setting and raise B's by the same amount. How far do you move each, in Hz?\" A field in Hz. Answer 0.2 Hz. Slips: 0.4, the whole gap; 0.1, half of it; 42, the kW. Hint when wrong: \"A must lose 42 kW, at 210 kW per hertz.\" Why: \"42 ÷ 210 = 0.2 Hz. A goes to 62.6 Hz. B goes to 62.6 Hz too. The average setting is unchanged. So the board stays at 61.17 Hz.\" A right Check shows: \"Fuel moves kW. Field moves kVAr.\" Read: the question.",
+   "ignores": "The load stays at 600 kW and 0.8 power factor whatever the frequency and voltage. Real loads change a little with both. Each droop is a straight line. Each governor and AVR settles at once. Real ones take a few seconds and can overshoot. The governors alone set the kW and the AVRs alone set the kVAr. In a real set each nudges the other a little. The inset holds E at 2.25 per unit while A's kW changes. A real AVR trims E as the kVAr moves. Losses are left out. The motored set's draw is an example figure. Compensation here makes the kVAr exactly equal. A real scheme leaves a small difference. The third-harmonic loop on the neutral screen has no size, because none is computed.",
+   "numbers": [
+    {
+     "label": "Number of screens",
+     "value": 16,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screens that show an idea",
+     "value": 7,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screens that ask you to try it",
+     "value": 9,
+     "kind": "assumed"
+    },
+    {
+     "label": "Each set's rating, kW",
+     "value": 504,
+     "kind": "assumed"
+    },
+    {
+     "label": "Each set's rating, kVA",
+     "value": 630,
+     "kind": "assumed"
+    },
+    {
+     "label": "Board line voltage, V",
+     "value": 440,
+     "kind": "assumed"
+    },
+    {
+     "label": "Board frequency, Hz",
+     "value": 60,
+     "kind": "assumed"
+    },
+    {
+     "label": "Shared load, kW",
+     "value": 600,
+     "kind": "control"
+    },
+    {
+     "label": "Load power factor",
+     "value": 0.8,
+     "kind": "assumed"
+    },
+    {
+     "label": "Load's kVAr for each kW",
+     "value": 0.75,
+     "kind": "computed"
+    },
+    {
+     "label": "Load's kVAr, 600 × 0.75",
+     "value": 450,
+     "kind": "computed"
+    },
+    {
+     "label": "Governor setting, lowest, Hz",
+     "value": 58,
+     "kind": "control"
+    },
+    {
+     "label": "Governor setting, highest, Hz",
+     "value": 64,
+     "kind": "control"
+    },
+    {
+     "label": "Governor setting step, Hz",
+     "value": 0.1,
+     "kind": "control"
+    },
+    {
+     "label": "Governor setting opening, Hz",
+     "value": 62.4,
+     "kind": "control"
+    },
+    {
+     "label": "Droop slider, lowest, %",
+     "value": 1,
+     "kind": "control"
+    },
+    {
+     "label": "Droop slider, highest, %",
+     "value": 6,
+     "kind": "control"
+    },
+    {
+     "label": "Droop slider step, %",
+     "value": 1,
+     "kind": "control"
+    },
+    {
+     "label": "Droop opening, %",
+     "value": 4,
+     "kind": "control"
+    },
+    {
+     "label": "Droop at 4% of 60 Hz, Hz",
+     "value": 2.4,
+     "kind": "computed"
+    },
+    {
+     "label": "Load stepper, lowest, kW",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Load stepper, highest, kW",
+     "value": 900,
+     "kind": "control"
+    },
+    {
+     "label": "Load stepper step, kW",
+     "value": 100,
+     "kind": "control"
+    },
+    {
+     "label": "kW for each hertz at 4%, 504 ÷ 2.4",
+     "value": 210,
+     "kind": "computed"
+    },
+    {
+     "label": "Sets sharing the load",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Motored set's draw, % of rating",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Motored set's draw, kW",
+     "value": 50.4,
+     "kind": "computed"
+    },
+    {
+     "label": "Inset E, per unit",
+     "value": 2.25,
+     "kind": "assumed"
+    },
+    {
+     "label": "Inset V, per unit",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Inset Xs, per unit",
+     "value": 1.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Field setting, lowest, V",
+     "value": 430,
+     "kind": "control"
+    },
+    {
+     "label": "Field setting, highest, V",
+     "value": 460,
+     "kind": "control"
+    },
+    {
+     "label": "Field setting step, V",
+     "value": 0.5,
+     "kind": "control"
+    },
+    {
+     "label": "Field setting opening, V",
+     "value": 447.5,
+     "kind": "control"
+    },
+    {
+     "label": "Voltage droop, kVAr for each volt",
+     "value": 30,
+     "kind": "assumed"
+    },
+    {
+     "label": "Voltage droop, V for each 30 kVAr",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Square root of 3",
+     "value": 1.732,
+     "kind": "constant"
+    },
+    {
+     "label": "Compensated voltage, V",
+     "value": 440,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 1: load, kVA",
+     "value": 100,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 1: power factor",
+     "value": 0.8,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 1: answer, kW",
+     "value": 80,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 1: reactive part, kVAr",
+     "value": 60,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 1 slip: divided, kW",
+     "value": 125,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 2: each set, kW",
+     "value": 300,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 2: A's load angle, degrees",
+     "value": 18.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 3: load angle, degrees",
+     "value": 32.3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 3: sin 32.3°",
+     "value": 0.534,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 3: answer, per unit",
+     "value": 0.8,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 3: on a 630 kVA set, kW",
+     "value": 504,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 3 slip: E sin δ, per unit",
+     "value": 1.2,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 3 slip: cos δ, per unit",
+     "value": 1.27,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 3 slip: times Xs, per unit",
+     "value": 1.8,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 4: frequency with no load, Hz",
+     "value": 62.4,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 4: frequency at full load, Hz",
+     "value": 60,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 4: board frequency, Hz",
+     "value": 60.97,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 5: nudge to A's setting, Hz",
+     "value": 0.3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 5: A's new setting, Hz",
+     "value": 62.7,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 6: A's share, kW",
+     "value": 331.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 6: B's share, kW",
+     "value": 268.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 6: A's load angle, degrees",
+     "value": 20.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 6: frequency rise, Hz",
+     "value": 0.15,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 6: board frequency, Hz",
+     "value": 61.12,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 7: nudge, Hz",
+     "value": 0.2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 7: frequency rise, Hz",
+     "value": 0.1,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 7: board frequency, Hz",
+     "value": 61.07,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 7: A's setting, Hz",
+     "value": 62.6,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 7: A below its setting, Hz",
+     "value": 1.53,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 7: answer, kW",
+     "value": 321,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 7: answer unrounded, kW",
+     "value": 321.3,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 7 slip: whole nudge, kW",
+     "value": 342,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 7 slip: B's share, kW",
+     "value": 279,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 8: droop, %",
+     "value": 1,
+     "kind": "control"
+    },
+    {
+     "label": "Screen 8: droop in hertz, Hz",
+     "value": 0.6,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 8: both settings, Hz",
+     "value": 60.6,
+     "kind": "control"
+    },
+    {
+     "label": "Screen 8: kW for each hertz",
+     "value": 840,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 8: kW moved by 0.3 Hz",
+     "value": 126,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 8: times as much as at 4%",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 8: A's setting after the nudge, Hz",
+     "value": 60.9,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 8: board frequency, Hz",
+     "value": 60.39,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 8: A's share, kW",
+     "value": 426,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 8: B's share, kW",
+     "value": 174,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 9: A's droop, %",
+     "value": 2,
+     "kind": "control"
+    },
+    {
+     "label": "Screen 9: A's droop in hertz, Hz",
+     "value": 1.2,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 9: A's setting, Hz",
+     "value": 61.2,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 9: B's droop, %",
+     "value": 4,
+     "kind": "control"
+    },
+    {
+     "label": "Screen 9: B's setting, Hz",
+     "value": 62.4,
+     "kind": "control"
+    },
+    {
+     "label": "Screen 9: A's kW for each hertz",
+     "value": 420,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 9: load at the start, kW",
+     "value": 900,
+     "kind": "control"
+    },
+    {
+     "label": "Screen 9: load midway, kW",
+     "value": 600,
+     "kind": "control"
+    },
+    {
+     "label": "Screen 9: load at the end, kW",
+     "value": 300,
+     "kind": "control"
+    },
+    {
+     "label": "Screen 9: board at 900 kW, Hz",
+     "value": 60.17,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 9: A's share at 900 kW",
+     "value": 432,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 9: B's share at 900 kW",
+     "value": 468,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 9: gap at 900 kW, kW",
+     "value": 36,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 9: A's share at 600 kW",
+     "value": 232,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 9: B's share at 600 kW",
+     "value": 368,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 9: board at 300 kW, Hz",
+     "value": 61.12,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 9: A's share at 300 kW",
+     "value": 32,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 9: B's share at 300 kW",
+     "value": 268,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 9: A sheds, kW",
+     "value": 400,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 9: B sheds, kW",
+     "value": 200,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 9 slip: equal shedding, kW each",
+     "value": 300,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 10: A's setting, Hz",
+     "value": 60.1,
+     "kind": "control"
+    },
+    {
+     "label": "Screen 10: B's setting, Hz",
+     "value": 60,
+     "kind": "control"
+    },
+    {
+     "label": "Screen 10: load, kW",
+     "value": 400,
+     "kind": "control"
+    },
+    {
+     "label": "Screen 10: wrong split, kW",
+     "value": 200,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 10: wrong halfway frequency, Hz",
+     "value": 60.05,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 10: A's share, kW",
+     "value": 450.4,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 11: each set, kVAr",
+     "value": 225,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 11: board voltage, V",
+     "value": 440,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 11: cross current, A",
+     "value": 0,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 11: a set's full kVAr at zero power factor",
+     "value": 630,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 11: voltage droop at 630 kVAr, V",
+     "value": 21,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 11: voltage droop at 630 kVAr, %",
+     "value": 4.8,
+     "kind": "computed"
+    },
+    {
+     "label": "Factory droop CT setting at full load, zero power factor, %",
+     "value": 5,
+     "kind": "constant",
+     "source": 6
+    },
+    {
+     "label": "Screen 12: raise in A's field setting, V",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 12: board voltage rise, V",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 12: board voltage, V",
+     "value": 441,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 12: A below its setting, V",
+     "value": 8.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 12: A's share, kVAr",
+     "value": 255,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 12: B's share, kVAr",
+     "value": 195,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 13: A's field setting, V",
+     "value": 449.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 13: extra kVAr from A to B",
+     "value": 30,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 13: 30 kVAr in watts' units, var",
+     "value": 30000,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 13: cross current, A",
+     "value": 39.4,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 14: winding pitch that makes no third harmonic",
+     "value": 0.667,
+     "kind": "constant",
+     "source": 8
+    },
+    {
+     "label": "Screen 14: the other set's winding pitch",
+     "value": 0.833,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 15: A's kVA",
+     "value": 393.7,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 15: answer",
+     "value": 0.76,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 15 slip: B's power factor",
+     "value": 0.84,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 15 slip: kVAr ÷ kVA",
+     "value": 0.65,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 15: decimal places",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 16: A's setting, Hz",
+     "value": 62.8,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 16: B's setting, Hz",
+     "value": 62.4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 16: A's share, kW",
+     "value": 342,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 16: B's share, kW",
+     "value": 258,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 16: board frequency, Hz",
+     "value": 61.17,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 16: kW gap",
+     "value": 84,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 16: kW A must lose",
+     "value": 42,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 16: answer, Hz",
+     "value": 0.2,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 16 slip: whole gap, Hz",
+     "value": 0.4,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 16 slip: half, Hz",
+     "value": 0.1,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 16: both settings after, Hz",
+     "value": 62.6,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example: A's setting, Hz",
+     "value": 62.7,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example: B's setting, Hz",
+     "value": 62.1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example: A's share, kW",
+     "value": 363,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example: B's share, kW",
+     "value": 237,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example: kW to move",
+     "value": 63,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example: setting change, Hz",
+     "value": 0.3,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example: lower both by, Hz",
+     "value": 0.97,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example: both settings after, Hz",
+     "value": 61.43,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example: board frequency after, Hz",
+     "value": 60,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example: A's power factor at 255 kVAr",
+     "value": 0.76,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example: B's power factor at 195 kVAr",
+     "value": 0.84,
+     "kind": "computed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "Once a set runs in parallel with others, its two controls change jobs. On its own, its fuel set its frequency and its field set its voltage. In parallel, every set shares one frequency and one voltage. So fuel decides a set's share of the kW, and field its share of the kVAr. You move both through the governor's and the AVR's set points.\n\nMore fuel cannot speed one paralleled set away from the others. Its rotor is locked in step with the board. The same pull that brought it into step as it closed holds it there. So the extra fuel first pushes its rotor a few degrees further ahead. That widens the load angle δ between E and V. Now look again at the drawing of E as V plus the drop across Xs. The part of the current in phase with V makes the part of the drop that stands square to V. So E × sin δ = Xs × that in-phase current. Multiply both sides by V and divide by Xs. V × the in-phase current is the power. So, in per unit, power = E × V × sin δ ÷ Xs. Take E at 2.25, V at 1.0 and Xs at 1.5. Then a 32.3° angle gives 2.25 × 0.534 ÷ 1.5 = 0.80 per unit. That is the set's full 504 kW. A wider angle sends out more. So a set's kW follows its engine's output.\n\nThe droop lines decide how the kW divides. Take two 504 kW sets at 4% droop on 60 Hz. Each runs at 62.4 Hz with no load and 60 Hz at full load. So each takes 504 ÷ 2.4 = 210 kW for each hertz it falls. Both must run at the board's one frequency. Their kW must add up to the load. On a 600 kW load they settle at 300 kW each, at 62.4 − 300 ÷ 210 = 60.97 Hz. Raise A's setting by 0.3 Hz. A's extra fuel starts to push the board faster. B's governor sees the rise and backs off. They settle with A on 331.5 kW and B on 268.5 kW, at 61.12 Hz. The frequency rose by half the nudge, because two sets shared it. In a big group it hardly moves.[^2] A board so big that no one set can move its frequency or voltage is called an [[infinite bus]]. The mains ashore are one. Against them, a set's fuel moves only its kW, never the frequency. Droop is what makes the sharing steady. Every set needs the same droop. With unequal droops, the shares drift apart each time the load changes.[^5] Two isochronous sets have flat lines. So they have no crossing to settle at. Set them a little apart, and the higher one takes all the load it can carry. If that is the whole load, the other has its fuel cut to nothing. It is then driven round as a motor. To share, isochronous sets need a link between their governors that measures each set's kW.\n\nThe field shares the kVAr the same way. Raise one set's field and its E grows. So it pushes out more lagging current. The board's voltage starts to rise. The other set's AVR sees it and trims its own field back. So in a group the board's voltage hardly rises. Instead that set takes a bigger part of the kVAr, and its power factor falls. Its kW stays put. The fuel sets its engine's output, not the field. Each AVR can also let its voltage fall a little as its kVAr rises. That [[voltage droop]] makes the AVRs share as droop governors do. A small current transformer in each set, the droop CT, does this. Here each falls 1 V for every 30 kVAr. That is an example setting. Against the mains, voltage droop does not work well, because the mains voltage wanders as their load changes.[^10] Raise A's setting by 2 V. Then A carries 255 kVAr against B's 195, and the board is up just 1 V. Each carries its fair 225 kVAr, plus or minus 30 kVAr. That 30 kVAr runs round from A into B and does no work for the load. That is a [[cross current]]. Here it is 30 000 ÷ (√3 × 440) = 39.4 A. It adds to A's current and its heating. The cure is cross-current compensation. It links the AVRs. Each compares its kVAr with the other's and trims its field until they match. Paralleled sets can also pass current through their neutrals. Third harmonics add there, so sets meant for paralleling use 2/3 pitch windings, which make none. And only one running set's neutral is earthed at a time. These figures use a simplified picture, with straight droop lines and example settings. **In parallel, more fuel moves kW onto a set and more field moves kVAr onto it. The board's frequency and voltage barely change.**[^4]"
+  },
+  "analogy": {
+   "text": "Think of two battery strings in parallel on one DC board, with nothing switched on. Charge one a little higher than the other. A current still flows. It runs out of the higher string and into the lower one, and none of it reaches a load. A cross current between two sets is the same kind of thing. It runs round between them instead of to the load.",
+   "breaks": "Between battery strings, the current is real power, and it charges the lower string. Between two sets it is reactive. It moves kVAr, not kW, so it stores nothing. It only adds to the current in the set that drives it."
+  },
+  "practice": {
+   "text": "**Sharing load on a running board**\n\nThe safe way first. Where a power management system or load-sharing controller is fitted, let it share the load. Trim by hand only as your procedures allow.\n- Read each set's kW, kVAr and power factor, or its current.\n- Move kW with the governor controls only. Lower the heavy set's setting and raise the light one's by the same amount. On equal sets, the frequency then holds.\n- To bring the frequency back to rated, move both settings together, the same way. That moves the frequency and leaves the shares alone.\n- Move kVAr with the voltage controls only, in the same way. Stop when the power factors match.\n- Check the currents, not only the kW. Two sets on equal kW but unequal currents are carrying a cross current.\n- To take a set off, lower its setting until its kW is small. Then open its breaker. Stop before its kW reaches zero, or it is driven as a motor.\n\n**Setting up a new pair:** match their no-load voltages first. Then trim the speed settings until no kW passes between the sets. Then trim one voltage setting to cancel the current running round between them.[^12]\n\n**Rules of thumb:** a set takes its rating ÷ its droop in hertz for each hertz below its setting. On a 4% set that is 504 ÷ 2.4 = 210 kW. On two equal sets, a nudge to one setting moves the frequency by half the nudge. Raise one and lower the other, and the frequency stays put. Equal kW and equal power factor on equal sets means no cross current.\n\n**Worked example:** two 504 kW sets at 4% droop share 600 kW. A is set at 62.7 Hz and B at 62.1 Hz. So A carries 363 kW and B 237 kW, at 60.97 Hz. Each should carry 300 kW, so 63 kW must move. At 210 kW per hertz that is 63 ÷ 210 = 0.3 Hz. Lower A to 62.4 Hz and raise B to 62.4 Hz. The frequency stays at 60.97 Hz. Then lower both by 0.97 Hz together, to 61.43 Hz. The board comes back to 60 Hz with 300 kW on each. Then look at the kVAr. Say A shows 0.76 power factor and B 0.84, on equal kW. Then A's field is high. Lower A's voltage setting and raise B's until they match.\n\n**Common mistakes**\n- Giving one paralleled set more fuel to raise the frequency. It mostly takes load off the others instead.\n- Raising one set's field to lift the board voltage. It takes kVAr off the others. It also drives a cross current.\n- Running two isochronous governors with no link between them. One takes the load. The other can be driven as a motor.\n- Judging the share by kW alone. A set can carry its share of kW and still be overloaded by kVAr.\n- Giving the sets different droops. Their shares then drift apart each time the load changes.\n- Thinking the droop CT matters on a set running alone. It only lets the voltage sag as the kVAr rises. A shorting switch across it gives normal regulation.[^11]"
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "Considerations when Paralleling Generating Sets — mart.cummins.com",
+    "url": "https://mart.cummins.com/imagelibrary/data/assetfiles/0056622.pdf",
+    "quote": "Real power (kW) provided by a generator set operating in parallel with others is a direct function of engine real power output."
+   },
+   {
+    "n": 2,
+    "title": "ACTIVE & REACTIVE POWER SHARING IN PARALLELED GENERATORS (KW & KVAR) - DieselShip — dieselship.com",
+    "url": "https://dieselship.com/marine-technical-articles/marine-electro-technology/active-reactive-power-sharing-in-a-paralleled-generator-set-kw-kvar",
+    "quote": "As the fuel to the engine of one generator set in a group is increased it will not lead to an increase in speed and hence frequency"
+   },
+   {
+    "n": 3,
+    "title": "ACTIVE & REACTIVE POWER SHARING IN PARALLELED GENERATORS (KW & KVAR) - DieselShip — dieselship.com",
+    "url": "https://dieselship.com/marine-technical-articles/marine-electro-technology/active-reactive-power-sharing-in-a-paralleled-generator-set-kw-kvar",
+    "quote": "it will lead to an increase in the proportion of the total kVAR load it will deliver and a decrease in its power factor."
+   },
+   {
+    "n": 4,
+    "title": "Load Sharing: Balancing kW and kVAR Between Generators — bengibb.ca",
+    "url": "https://www.bengibb.ca/blog/kw-and-kvar-control",
+    "quote": "These two types of load sharing rely on separate systems: speed control for kW and voltage control for kVAR."
+   },
+   {
+    "n": 5,
+    "title": "Paralleling Dissimilar Generators: Part 3 – Load Sharing Compatibility — mart.cummins.com",
+    "url": "https://mart.cummins.com/imagelibrary/data/assetfiles/0056549.pdf",
+    "quote": "Each generator must be set to drop frequency at the same rate from no load to full load."
+   },
+   {
+    "n": 6,
+    "title": "STAMFORD S9 alternators owner manual — stamford-avk.com",
+    "url": "https://www.stamford-avk.com/sites/stamfordavk/files/2025-03/S9-Owners-Manual-English.pdf",
+    "quote": "A factory-fitted droop CT is pre-set for 5% voltage drop at full-load zero power factor."
+   },
+   {
+    "n": 7,
+    "title": "Considerations when Paralleling Generating Sets — mart.cummins.com",
+    "url": "https://mart.cummins.com/imagelibrary/data/assetfiles/0056622.pdf",
+    "quote": "Third-order harmonics (and their multiples) are problematical because they directly add in the neutral and can result in large neutral current flows between paralleled machines."
+   },
+   {
+    "n": 8,
+    "title": "Considerations when Paralleling Generating Sets — mart.cummins.com",
+    "url": "https://mart.cummins.com/imagelibrary/data/assetfiles/0056622.pdf",
+    "quote": "For paralleling applications, it is highly desirable to utilise 2/3 pitch designs because no third-order harmonics are created by the machine."
+   },
+   {
+    "n": 9,
+    "title": "Cressall catalogue 2024, neutral earthing and load banks — cressall.com",
+    "url": "https://www.cressall.com/wp-content/uploads/2024/06/cressallweb2024.pdf",
+    "quote": "it is necessary to ensure that one (and only one, to avoid the possibility of circulating currents) of the neutrals of one of the running generating sets is earthed at all times."
+   },
+   {
+    "n": 10,
+    "title": "Paralleling Dissimilar Generators: Part 3 – Load Sharing Compatibility — mart.cummins.com",
+    "url": "https://mart.cummins.com/imagelibrary/data/assetfiles/0056549.pdf",
+    "quote": "However, reactive droop is not effective for utility paralleling due to the greatly varying voltage level at any point in a utility distribution system as the load on the system changes."
+   },
+   {
+    "n": 11,
+    "title": "STAMFORD S9 HV alternators installation, service and maintenance manual — stamford-avk.com",
+    "url": "https://www.stamford-avk.com/sites/stamfordavk/files/2026-05/S9-HV-Alternators-Installation-Service-and-Maintenance-Manual-English.pdf",
+    "quote": "For normal voltage regulation as a single running machine, a shorting switch should be fitted across the parallel droop transformer."
+   },
+   {
+    "n": 12,
+    "title": "Leroy-Somer R438 AVR installation and maintenance — leroy-somer.com",
+    "url": "https://www.leroy-somer.com/documentation_pdf/3971_en.pdf",
+    "quote": "By altering the voltage setting P2 on one of the machines, try to cancel (or minimise) the current circulating between the machines."
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: quantity -->\n<style>\n  [hidden] { display: none !important; }\n  .pz { max-width: 52rem; }\n  .pz > * + *, #stepbox > * + *, .figs > * + * { margin-top: 14px; }\n  .task, .fb, .why, .closing, .done p, .say { max-width: 34rem; }\n  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.08rem; font-weight: 400; line-height: 1.6; }\n  /* The board with its lines, and the big inset beside it on a laptop; stacked on a phone. */\n  .pics { display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-start; gap: 6px 18px; }\n  .pics svg { display: block; width: 100%; }\n  #scene { flex: 1 1 19rem; max-width: 30rem; }\n  #big { flex: 1 1 17rem; max-width: 27rem; }\n  #tri { flex: 1 1 17rem; max-width: 24rem; }\n  #neu { flex: 1 1 19rem; max-width: 30rem; }\n  .sws { display: flex; flex-wrap: wrap; gap: 10px 16px; }\n  .sws > div { flex: 1 1 12rem; min-width: 0; }\n  .outs.k-readouts { display: grid; grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr)); gap: 10px; }\n  .outs .k-readout { min-width: 0; }\n  .say { min-height: 3.2em; transition: opacity .3s ease-out; }\n  .say.off { opacity: 0; }\n  svg .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }\n  svg .labb { font: 700 13px var(--k-font); fill: var(--k-ink); }\n  svg .labm { font: 600 13px var(--k-font); fill: var(--k-muted); }\n  svg .labw { font: 700 13px var(--k-font); fill: var(--k-warn); }\n  svg .hl { paint-order: stroke; stroke: var(--k-bg); stroke-width: 4px; stroke-linejoin: round; }\n  .bus { stroke: var(--k-ink); stroke-width: 3; stroke-linecap: round; }\n  .wire { stroke: var(--k-ink); stroke-width: 1.6; }\n  .gen { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.6; }\n  .axis { stroke: var(--k-strong); stroke-width: 1.4; }\n  .tick { stroke: var(--k-strong); stroke-width: 1.2; }\n  .edge { stroke: var(--k-line); stroke-width: 1.2; }\n  .brk { fill: none; stroke: var(--k-ink); stroke-width: 1.4; }\n  .ln-a { fill: none; stroke: var(--k-cat1); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }\n  .ln-b { fill: none; stroke: var(--k-cat2); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }\n  .ln-r { fill: none; stroke: var(--k-warn); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }\n  .guide { stroke: var(--k-muted); stroke-width: 1.4; stroke-dasharray: 5 4; }\n  .dot { fill: var(--k-ink); stroke: var(--k-bg); stroke-width: 1.5; }\n  .ring { fill: none; stroke: var(--k-muted); stroke-width: 1.8; }\n  .trk { fill: var(--k-sunk); }\n  .bar-a { fill: var(--k-cat1); }\n  .bar-b { fill: var(--k-cat2); }\n  .bar-r { fill: var(--k-warn); }\n  .flow { fill: none; stroke: var(--k-warn); stroke-width: 2.6; stroke-dasharray: 8 6; }\n  .flowh { fill: var(--k-warn); }\n  .ph-v { stroke: var(--k-ink); stroke-width: 2.4; stroke-linecap: round; }\n  .ph-e { stroke: var(--k-accent2); stroke-width: 2.6; stroke-linecap: round; }\n  .hd-v { fill: var(--k-ink); }\n  .hd-e { fill: var(--k-accent2); }\n  .arc { fill: none; stroke: var(--k-accent); stroke-width: 1.6; }\n  .esd { stroke: var(--k-accent); stroke-width: 1.8; stroke-dasharray: 3 3; }\n  .t-p { stroke: var(--k-accent2); stroke-width: 3; stroke-linecap: round; }\n  .t-q { stroke: var(--k-accent); stroke-width: 3; stroke-linecap: round; }\n  .t-s { stroke: var(--k-ink); stroke-width: 2.2; stroke-linecap: round; }\n  .t-rt { fill: none; stroke: var(--k-ink); stroke-width: 1.2; }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; }\n  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }\n  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-inline: 16px; font-size: .95rem; white-space: nowrap; }\n  .picks { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }\n  .picks .k-btn { min-height: 48px; font-size: 1.05rem; white-space: normal; overflow-wrap: normal; word-break: normal; hyphens: none; text-align: left; }\n  .picks .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  .answers .k-answer { max-width: 20rem; }\n  .fb { font-weight: 700; min-height: 1.5em; }\n  .fb.right { color: var(--k-good); }\n  .why, .done, .closing { line-height: 1.6; }\n  .closing { font-weight: 700; }\n  .done .row { margin-top: 14px; }\n  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } .say { transition: none; } }\n</style>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <div class=\"figs\" id=\"figs\">\n      <div class=\"pics\">\n        <svg id=\"scene\" viewBox=\"0 0 340 312\" width=\"100%\" role=\"img\" aria-label=\"\"><defs><clipPath id=\"clp\"><rect x=\"48\" y=\"108\" width=\"292\" height=\"140\"></rect></clipPath></defs><g id=\"art\"></g></svg>\n        <svg id=\"big\" viewBox=\"0 0 340 180\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"bigArt\"></g></svg>\n        <svg id=\"tri\" viewBox=\"0 0 340 152\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"triArt\"></g></svg>\n        <svg id=\"neu\" viewBox=\"0 0 340 172\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"neuArt\"></g></svg>\n      </div>\n      <div class=\"sws\" id=\"sws\">\n        <div class=\"k-controls\" id=\"c-gov\"></div>\n        <div class=\"k-controls\" id=\"c-fa\"></div>\n        <div class=\"k-controls\" id=\"c-fb\"></div>\n        <div class=\"k-controls\" id=\"c-droop\"></div>\n        <div class=\"k-controls\" id=\"c-da\"></div>\n        <div class=\"k-controls\" id=\"c-load\"></div>\n        <div class=\"k-controls\" id=\"c-va\"></div>\n        <div class=\"k-controls\" id=\"c-vb\"></div>\n        <div class=\"k-controls\" id=\"c-comp\"></div>\n        <div class=\"k-controls\" id=\"c-pitch\"></div>\n      </div>\n      <div class=\"replay\" id=\"replay\"></div>\n      <p class=\"say\" id=\"say\"></p>\n      <div class=\"k-readouts outs\" id=\"outsW\"></div>\n      <div class=\"k-readouts outs\" id=\"outsQ\"></div>\n    </div>\n    <div class=\"picks\" id=\"picks\"></div>\n    <div class=\"answers\" id=\"answers\"></div>\n    <div class=\"row acts\" id=\"acts\"></div>\n    <p class=\"fb\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why\" id=\"why\" hidden></div>\n    <p class=\"closing\" id=\"closing\" hidden></p>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p id=\"finish\"></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\" id=\"cap\">Worked from the rule, with straight droop lines and example settings.</p>\n\n<script>\n  // ================= the rule =================\n  const strip = (s) => String(s || '').replace(/\\[\\^\\d+\\]/g, '');\n  const NB = ' ';                                 // a no-break space: a number never parts from its unit\n  const SRC_CUM = 'https://mart.cummins.com/imagelibrary/data/assetfiles/0056622.pdf';\n  const SRC_DS = 'https://dieselship.com/marine-technical-articles/marine-electro-technology/active-reactive-power-sharing-in-a-paralleled-generator-set-kw-kvar';\n  const SRC_BG = 'https://www.bengibb.ca/blog/kw-and-kvar-control';\n  // Two 504 kW (630 kVA) sets on one 440 V, 60 Hz board.\n  const RK = 504, RKVA = 630, F0 = 60, VB = 440;\n  const MOT = 0.1 * RK;                                // a set with its fuel cut to nothing is driven as a motor: 50.4 kW (an example)\n  // The inset: power = E × V × sin δ ÷ Xs per unit, on 630 kVA. Full power at 90° would be 945 kW.\n  const EPU = 2.25, VPU = 1.0, XS = 1.5, PMAX = RKVA * EPU * VPU / XS;\n  // The load at 0.8 power factor takes 0.75 kVAr for each kW. Each AVR falls 1 V for each 30 kVAr (an example).\n  const PFL = 0.8, QK = Math.sqrt(1 - PFL * PFL) / PFL, KQ = 30, VC = 440;\n  const kOf = (dr) => RK / (dr / 100 * F0);          // kW for each hertz below the setting: 210 at 4%\n  const rad = (d) => d * Math.PI / 180, deg = (r) => r * 180 / Math.PI;\n  const r1 = (v) => Math.round(v * 10) / 10, r2 = (v) => Math.round(v * 100) / 100;\n  const sgn = (r, s) => (r < 0 ? '−' : '') + s;\n  const fK = (v) => { const r = r1(v); return sgn(r, Number.isInteger(r) ? String(Math.abs(r)) : Math.abs(r).toFixed(1)); };\n  const fHz = (v) => sgn(r2(v), Math.abs(r2(v)).toFixed(2));\n  const fV1 = (v) => sgn(r1(v), Math.abs(r1(v)).toFixed(1));\n\n  // Droop: each set carries its own k × (its setting − f), from 0 to 504 kW. At 504 it is at full fuel and\n  // the frequency can fall further. Below 0 its fuel is cut to nothing: at its own setting it is\n  // driven by anything from 0 to 50.4 kW, and above its setting it draws the full 50.4 kW.\n  function droopSolve(fa, fb, ka, kb, L) {\n    const fs = [fa, fb], ks = [ka, kb], e = 1e-9;\n    const P = (j, st, f) => (st === 'lin' ? ks[j] * (fs[j] - f) : st === 'full' ? RK : -MOT);\n    const ok = (j, st, f, p) => (st === 'lin' ? p >= -e && p <= RK + e : st === 'full' ? f <= fs[j] - RK / ks[j] + e : st === 'mot' ? f >= fs[j] - e : p >= -MOT - e && p <= e);\n    const SS = ['lin', 'full', 'mot', 'edge'];\n    for (let x = 0; x < 4; x++) for (let y = 0; y < 4; y++) {\n      const a = SS[x], b = SS[y];\n      let f, pa, pb;\n      if (a === 'edge' && b === 'edge') { if (Math.abs(fa - fb) > e || L > e) continue; f = fa; pa = pb = L / 2; }\n      else if (a === 'edge') { f = fa; pb = P(1, b, f); pa = L - pb; }\n      else if (b === 'edge') { f = fb; pa = P(0, a, f); pb = L - pa; }\n      else {\n        const la = a === 'lin', lb = b === 'lin';\n        if (!la && !lb) continue;\n        const C = (la ? 0 : P(0, a, 0)) + (lb ? 0 : P(1, b, 0));\n        f = ((la ? ka * fa : 0) + (lb ? kb * fb : 0) - (L - C)) / ((la ? ka : 0) + (lb ? kb : 0));\n        pa = P(0, a, f); pb = P(1, b, f);\n      }\n      if (ok(0, a, f, pa) && ok(1, b, f, pb)) return { f, pa, pb, st: [a, b] };\n    }\n    const f = (ka * fa + kb * fb - L) / (ka + kb);\n    return { f, pa: ka * (fa - f), pb: kb * (fb - f), st: ['lin', 'lin'] };\n  }\n  // Isochronous: flat lines. The higher setting holds the board and takes the load plus the other's\n  // 50.4 kW, up to 504 kW; past that the frequency falls to the lower setting, which carries the rest.\n  function isoSolve(fa, fb, L) {\n    if (Math.abs(fa - fb) < 1e-9) return { f: fa, pa: L / 2, pb: L / 2, st: ['flat', 'flat'] };\n    const hiA = fa > fb, fh = hiA ? fa : fb, fl = hiA ? fb : fa;\n    let f, ph, pl, sh, sl;\n    if (L + MOT <= RK + 1e-9) { f = fh; ph = L + MOT; pl = -MOT; sh = 'flat'; sl = 'mot'; }\n    else { f = fl; ph = RK; pl = L - RK; sh = 'full'; sl = 'flat'; }\n    return hiA ? { f, pa: ph, pb: pl, st: [sh, sl] } : { f, pa: pl, pb: ph, st: [sl, sh] };\n  }\n  // The whole state: kW from the governors, kVAr from the AVRs (c is how far compensation has trimmed them).\n  function model(s) {\n    const L = s.load;\n    const r = s.gov === 'Isochronous' ? isoSolve(s.fa, s.fb, L) : droopSolve(s.fa, s.fb, kOf(s.da), kOf(s.droop), L);\n    let pa = r.pa, d = deg(Math.asin(K.clamp(pa / PMAX, -1, 1))), pu = null;\n    // Screen 3 sets the angle itself and works the power as the lesson does: 0.80 per unit of 630 kVA.\n    if (s.dset != null) { pu = r2(EPU * VPU * Math.sin(rad(s.dset)) / XS); pa = pu * RKVA; d = s.dset; }\n    const Q = QK * L, half = Q / (2 * KQ), vt = VC + half;\n    const ea = K.lerp(s.va, vt, s.c), eb = K.lerp(s.vb, vt, s.c);\n    const V = (ea + eb) / 2 - half, qa = KQ * (ea - V), qb = KQ * (eb - V);\n    return { f: r.f, pa, pb: r.pb, st: r.st, d, pu, Q, V, qa, qb, ea, eb, ix: Math.abs(qa - qb) / 2 * 1000 / (Math.sqrt(3) * VB) };\n  }\n\n  // ================= the lesson: SHOW screens demonstrate, DO screens are puzzles =================\n  const STEPS = [\n    { kind: 'typed', name: 'Real and reactive', ans: 'kw', bare: true, tri: true, right: 'Still there.',\n      answer: 80, decimals: 0, unit: 'kW', want: '80' + NB + 'kW',\n      slips: [{ value: 60, hint: 'That is the kVAr. kW is kVA × the power factor.' },\n        { value: 125, hint: 'That divides by 0.8. Multiply instead.' }],\n      task: 'These two sets will share a load of kW and kVAr. A load takes 100 kVA at 0.8 power factor. How many kW does it take?',\n      hint: 'kW = kVA × the power factor.',\n      why: '100 × 0.8 = 80 kW. The other part is √(100² − 80²) = 60 kVAr. That is the reactive power the field supplies.',\n      read: 'These two sets will share a load of kW and kVAr. A load takes 100 kVA at 0.8 power factor. How many kW does it take?' },\n    { show: true, name: 'More fuel, wider angle', inset: 'big', enter: { load: 0 },\n      demo: [{ at: 0.4, to: 3.4, ramp: { load: [0, 600] } }], dur: 3.6,\n      text: 'On a live board, a set\\'s rotor is locked in step with the others. So more fuel cannot simply speed it up. Instead it pushes the rotor a few degrees further ahead. The load angle δ grows, and the set sends out more kW. Here the load comes on, and each governor adds fuel as the board slows. A set\\'s kW follows its engine\\'s output.[^1] At 600 kW, A carries 300 kW at a δ of 18.5°.',\n      read: 'On a live board, a set\\'s rotor is locked in step with the others. So more fuel cannot simply speed it up. Instead it pushes the rotor a few degrees further ahead. The load angle δ grows, and the set sends out more kW. Here the load comes on, and each governor adds fuel as the board slows. A set\\'s kW follows its engine\\'s output. At 600 kW, A carries 300 kW at a δ of 18.5°.',\n      still: () => setStill() },\n    { kind: 'typed', name: 'Power from the angle', ans: 'pu', inset: 'only', enter: { dset: 32.3 }, tiles: ['D', 'PA'], hide: ['PA'],\n      answer: 0.80, decimals: 2, unit: '', want: '0.80',\n      slips: [{ value: 1.20, hint: 'That is E × sin δ. Divide by Xs too.' },\n        { value: 1.27, hint: 'That uses cos δ. Power goes with sin δ.' },\n        { value: 1.80, hint: 'That multiplies by Xs. Divide by it.' }],\n      task: 'Set A\\'s E is 2.25 per unit, V is 1.0 and Xs is 1.5. The load angle is 32.3°. Power = E × V × sin δ ÷ Xs. What power does it send out, in per unit?',\n      hint: 'sin 32.3° is 0.534.',\n      why: '2.25 × 1.0 × 0.534 ÷ 1.5 = 0.80 per unit. On a 630 kVA set that is 504 kW. That is its full rating.',\n      read: 'Set A\\'s E is 2.25 per unit, V is 1.0 and Xs is 1.5. The load angle is 32.3°. Power = E × V × sin δ ÷ Xs. What power does it send out, in per unit?' },\n    { show: true, name: 'Two droop lines', build: true, dur: 2.9,\n      text: 'Two sets share the load through their droop lines. Each runs at 62.4 Hz with no load and 60 Hz at its full 504 kW. So each takes 210 kW for each hertz it falls. A\\'s line starts at the left edge and B\\'s at the right. The 600 kW load lies between. Both run at the board\\'s one frequency, so they settle where the lines cross. That gives 300 kW each, at 62.4 − 300 ÷ 210 = 60.97 Hz. Lowering both settings together would bring the board back to 60 Hz.',\n      read: 'Two sets share the load through their droop lines. Each runs at 62.4 Hz with no load and 60 Hz at its full 504 kW. So each takes 210 kW for each hertz it falls. A\\'s line starts at the left edge and B\\'s at the right. The 600 kW load lies between. Both run at the board\\'s one frequency, so they settle where the lines cross. That gives 300 kW each, at 62.4 − 300 ÷ 210 = 60.97 Hz. Lowering both settings together would bring the board back to 60 Hz.',\n      still: () => setStill() },\n    { kind: 'pick', name: 'A nudge to A', ring: true, run: [{ at: 0.2, to: 1.8, ramp: { fa: [62.4, 62.7] } }], rdur: 1.9,\n      opts: ['A takes the whole load', 'The board speeds up 0.3 Hz, and the kW stays put', 'A takes more kW, B less, and the frequency rises a little'],\n      want: 'A takes more kW, B less, and the frequency rises a little',\n      task: 'You raise A\\'s governor setting by 0.3 Hz, from 62.4 to 62.7 Hz. What happens?',\n      hints: { 'The board speeds up 0.3 Hz, and the kW stays put': 'That is what a set does alone. Here B\\'s governor answers too.',\n        'A takes the whole load': 'A\\'s line has lifted only 0.3 Hz. The lines still cross.' },\n      why: 'A\\'s line lifts, and the crossing moves towards B. The board can have only one frequency. So the two shares change instead.',\n      read: 'You raise A\\'s governor setting by 0.3 Hz, from 62.4 to 62.7 Hz. What happens?' },\n    { show: true, name: 'Half the nudge', ctl: ['fa'], ring: true,\n      demo: [{ at: 0.4, to: 2.4, ramp: { fa: [62.4, 62.7] } }], dur: 2.6,\n      text: 'A\\'s extra fuel starts to push the board faster. B\\'s governor sees the rise and backs off its fuel. They settle with A on 331.5 kW and B on 268.5 kW. A\\'s load angle has grown to 20.5°. The board rose only 0.15 Hz. That is half the nudge. On a set alone, the same nudge would lift the frequency the full 0.3 Hz. It would move no kW. In a big group, the frequency hardly moves at all.[^2] Drag A\\'s setting and watch the shares.',\n      read: 'A\\'s extra fuel starts to push the board faster. B\\'s governor sees the rise and backs off its fuel. They settle with A on 331.5 kW and B on 268.5 kW. A\\'s load angle has grown to 20.5°. The board rose only 0.15 Hz. That is half the nudge. On a set alone, the same nudge would lift the frequency the full 0.3 Hz. It would move no kW. In a big group, the frequency hardly moves at all.',\n      still: () => setStill() },\n    { kind: 'typed', name: 'How much more', ans: 'share', ring: true, hide: ['PA'], run: [{ at: 0.2, to: 1.6, ramp: { fa: [62.4, 62.6] } }], rdur: 1.7,\n      answer: 321, decimals: 0, accept: [321.3], unit: 'kW', want: '321' + NB + 'kW',\n      slips: [{ value: 342, hint: 'That gives A the whole 0.2 Hz. The frequency rises too, by half the nudge.' },\n        { value: 300, hint: 'A\\'s line has lifted. So it carries more.' },\n        { value: 279, hint: 'That is B\\'s share.' }],\n      task: 'Both sets carry 300 kW at 60.97 Hz. You raise A\\'s setting by 0.2 Hz. Each set takes 210 kW for each hertz below its setting. How many kW does A carry now?',\n      hint: 'The frequency rises by half the nudge, to 61.07 Hz.',\n      why: 'The board rises 0.1 Hz to 61.07 Hz. A sits 62.6 − 61.07 = 1.53 Hz below its setting. 210 × 1.53 = 321 kW.',\n      read: 'Both sets carry 300 kW at 60.97 Hz. You raise A\\'s setting by 0.2 Hz. Each set takes 210 kW for each hertz below its setting. How many kW does A carry now?' },\n    { show: true, name: 'Less droop', ctl: ['droop', 'fa'], ring: true, enter: { droop: 1, da: 1, fa: 60.6, fb: 60.6 }, win: [58.5, 62.5],\n      demo: [{ at: 0.4, to: 2.4, ramp: { fa: [60.6, 60.9] } }], dur: 2.6,\n      text: 'The droop sets how firmly each set holds its share. Both droops are now 1%. Both settings are 60.6 Hz, so full load still gives 60 Hz. Each line falls just 0.6 Hz across 504 kW. The same 0.3 Hz nudge on A now moves 126 kW. That is four times as much. With no droop, the lines are flat. Then the smallest difference decides everything.',\n      read: 'The droop sets how firmly each set holds its share. Both droops are now 1%. Both settings are 60.6 Hz, so full load still gives 60 Hz. Each line falls just 0.6 Hz across 504 kW. The same 0.3 Hz nudge on A now moves 126 kW. That is four times as much. With no droop, the lines are flat. Then the smallest difference decides everything.',\n      still: () => setStill() },\n    { kind: 'pick', name: 'Unequal droops', ring: true, ctlSolved: ['load', 'da'], enter: { da: 2, fa: 61.2, load: 900 },\n      run: [{ at: 0.3, set: { load: 600 } }, { at: 1.3, set: { load: 300 } }], rdur: 2.4,\n      opts: ['A sheds twice as much as B, so the shares drift apart', 'B sheds more, because its line is steeper', 'Each sheds 300 kW, so they stay 36 kW apart'],\n      want: 'A sheds twice as much as B, so the shares drift apart',\n      task: 'A has a 2% droop and B 4%. Each reaches 60 Hz at its full 504 kW. At 900 kW, A carries 432 kW and B 468 kW. The load falls to 300 kW. What happens to the shares?',\n      hints: { 'B sheds more, because its line is steeper': 'A steeper line gives up fewer kW for each hertz the board rises.',\n        'Each sheds 300 kW, so they stay 36 kW apart': 'Each sheds its own kW for each hertz. A sheds 420 and B only 210.' },\n      why: 'As the load falls, the board rises. A gives up 420 kW for each hertz and B only 210. So A sheds 400 kW and B 200. A ends on 32 kW and B on 268 kW. So every set needs the same droop, or the shares drift apart each time the load changes.[^5]',\n      read: 'A has a 2% droop and B 4%. Each reaches 60 Hz at its full 504 kW. At 900 kW, A carries 432 kW and B 468 kW. The load falls to 300 kW. What happens to the shares?' },\n    { kind: 'pick', name: 'Two flat lines', reveal: true, ctlSolved: ['gov', 'load'], hide: ['F', 'PA', 'PB', 'D'],\n      enter: { gov: 'Isochronous', fa: 60.1, fb: 60.0, load: 400 }, win: [59.8, 60.3], run: [],\n      opts: ['They share it, 200 kW each', 'A takes it all, and B is driven as a motor', 'They settle halfway, at 60.05 Hz'],\n      want: 'A takes it all, and B is driven as a motor',\n      task: 'Both governors are isochronous, with no droop. A is set to 60.1 Hz and B to 60.0 Hz. They share a 400 kW load. What happens?',\n      hints: { 'They share it, 200 kW each': 'Each governor holds its own speed exactly. Only one speed can win.',\n        'They settle halfway, at 60.05 Hz': 'Flat lines have no halfway point to cross at.' },\n      why: 'A adds fuel until the board runs at 60.1 Hz. B sees the board above its setting and cuts its fuel to nothing. B\\'s rotor is still locked in step, so the board drives it as a motor. Take its draw as an example 50.4 kW. Then A carries 400 + 50.4 = 450.4 kW.',\n      read: 'Both governors are isochronous, with no droop. A is set to 60.1 Hz and B to 60.0 Hz. They share a 400 kW load. What happens?' },\n    { show: true, name: 'Voltage and kVAr', build: true, dur: 2.9, enter: { view: 'kVAr' },\n      text: 'Now the picture shows voltage against kVAr. The same 600 kW load at 0.8 also takes 450 kVAr. The AVRs share that kVAr, just as the governors share the kW. Here each AVR lets its voltage fall 1 V for every 30 kVAr it carries. This gentle fall is [[voltage droop]]. At a full 630 kVAr it comes to 21 V, or 4.8%. That is close to a common factory setting of 5%.[^6] Both are set to 447.5 V at no kVAr. So the lines cross at 440 V, with 225 kVAr each.',\n      read: 'Now the picture shows voltage against kVAr. The same 600 kW load at 0.8 also takes 450 kVAr. The AVRs share that kVAr, just as the governors share the kW. Here each AVR lets its voltage fall 1 V for every 30 kVAr it carries. This gentle fall is voltage droop. At a full 630 kVAr it comes to 21 V, or 4.8%. That is close to a common factory setting of 5%. Both are set to 447.5 V at no kVAr. So the lines cross at 440 V, with 225 kVAr each.',\n      still: () => setStill() },\n    { kind: 'pick', name: 'More field on A', ring: true, enter: { view: 'kVAr' }, run: [{ at: 0.2, to: 1.8, ramp: { va: [447.5, 449.5] } }], rdur: 1.9,\n      opts: ['A\\'s kVAr goes up and its power factor down', 'The board\\'s voltage goes up 2 V', 'A\\'s kW goes up'],\n      want: 'A\\'s kVAr goes up and its power factor down',\n      task: 'Both sets carry 300 kW and 225 kVAr at 440 V. You raise A\\'s field setting by 2 V. What happens?',\n      hints: { 'The board\\'s voltage goes up 2 V': 'Alone it would. In parallel, B\\'s AVR answers and carries less.',\n        'A\\'s kW goes up': 'kW comes from the fuel. The field cannot make any.' },\n      why: 'The board rises only 1 V, to 441 V. A sits 8.5 V below its setting. So it carries 30 × 8.5 = 255 kVAr. B carries 195 kVAr. A\\'s kW stays at 300 kW. So its power factor falls.[^3]',\n      read: 'Both sets carry 300 kW and 225 kVAr at 440 V. You raise A\\'s field setting by 2 V. What happens?' },\n    { show: true, name: 'Cross current', ctl: ['comp'], ring: true, enter: { view: 'kVAr', va: 449.5 },\n      text: 'A\\'s kW has not moved. But A now carries 255 kVAr and B 195. Each carries its fair 225 kVAr, plus or minus 30 kVAr. That 30 kVAr runs round from A into B, not to the load. It is a [[cross current]]. Here it is 30' + NB + '000 ÷ (√3 × 440) = 39.4 A. It adds to A\\'s current and its heating. Turn on the compensation. The AVRs compare their kVAr and trim their fields until it matches. The cross current falls to zero.',\n      read: 'A\\'s kW has not moved. But A now carries 255 kVAr and B 195. Each carries its fair 225 kVAr, plus or minus 30 kVAr. That 30 kVAr runs round from A into B, not to the load. It is a cross current. Here it is 30' + NB + '000 ÷ (√3 × 440) = 39.4 A. It adds to A\\'s current and its heating. Cross-current compensation cures it. The AVRs compare their kVAr and trim their fields until it matches. The cross current falls to zero.',\n      still: () => setStill(() => { X.comp = true; }) },\n    { show: true, name: 'The neutrals', neu: true, ctl: ['pitch'], enter: { view: 'N' },\n      demo: [{ at: 1.6, set: { pitch: '2/3 pitch' } }], dur: 3.4,\n      text: 'Paralleled sets have a third path for current, through their neutrals. Many windings make a small third harmonic, in step in all three phases. So these add in the neutral. If two sets\\' windings differ, a large current can run round through their star points.[^7] A 2/3 pitch winding makes no third harmonic, so it suits paralleling.[^8] Where neutrals are earthed, only one running set\\'s is earthed at a time.[^9] On an insulated system, coupling two boards couples their insulation monitors too. Only one may stay on.',\n      read: 'Paralleled sets have a third path for current, through their neutrals. Many windings make a small third harmonic, in step in all three phases. So these add in the neutral. If two sets\\' windings differ, a large current can run round through their star points. A 2/3 pitch winding makes no third harmonic, so it suits paralleling. Where neutrals are earthed, only one running set\\'s is earthed at a time. On an insulated system, coupling two boards couples their insulation monitors too. Only one may stay on.',\n      still: () => setStill(() => { X.pitch = 'Mixed'; }) },\n    { kind: 'typed', name: 'A\\'s power factor', ans: 'pf', enter: { view: 'kVAr', va: 449.5 },\n      answer: 0.76, decimals: 2, unit: '', want: '0.76',\n      slips: [{ value: 0.80, hint: 'That is the load\\'s. A carries more than its share of kVAr.' },\n        { value: 0.84, hint: 'That is B\\'s, with 195 kVAr.' },\n        { value: 0.65, hint: 'That is kVAr ÷ kVA. Use kW ÷ kVA.' }],\n      task: 'Set A carries 300 kW and 255 kVAr. What is its power factor, to two decimal places?',\n      hint: 'Find its kVA first. It is √(kW² + kVAr²).',\n      why: '√(300² + 255²) = 393.7 kVA. 300 ÷ 393.7 = 0.76.',\n      read: 'Set A carries 300 kW and 255 kVAr. What is its power factor, to two decimal places?' },\n    { kind: 'typed', name: 'Share it back', ans: 'hz', ring: true, ctlSolved: ['fa', 'fb'], enter: { fa: 62.8, fb: 62.4 },\n      run: [{ at: 0.2, to: 1.8, ramp: { fa: [62.8, 62.6], fb: [62.4, 62.6] } }], rdur: 1.9,\n      answer: 0.2, decimals: 1, unit: 'Hz', want: '0.2' + NB + 'Hz',\n      slips: [{ value: 0.4, hint: 'That moves the whole 84 kW gap. A only needs to lose 42 kW.' },\n        { value: 0.1, hint: 'With B raised too, the frequency holds. So A loses the full 210 kW per hertz.' },\n        { value: 42, hint: 'That is the kW. Divide by 210 kW per hertz.' }],\n      task: 'A carries 342 kW and B 258 kW, at 61.17 Hz. You want 300 kW each without moving the frequency. You lower A\\'s setting and raise B\\'s by the same amount. How far do you move each, in Hz?',\n      hint: 'A must lose 42 kW, at 210 kW per hertz.',\n      why: '42 ÷ 210 = 0.2 Hz. A goes to 62.6 Hz. B goes to 62.6 Hz too. The average setting is unchanged. So the board stays at 61.17 Hz.',\n      close: 'Fuel moves kW. Field moves kVAr.',\n      read: 'A carries 342 kW and B 258 kW, at 61.17 Hz. You want 300 kW each without moving the frequency. You lower A\\'s setting and raise B\\'s by the same amount. How far do you move each, in Hz?' },\n  ];\n  const FINISH = 'In parallel, more fuel moves kW onto a set and more field moves kVAr onto it. The board\\'s frequency and voltage barely change. The droop lines decide the shares, so every set needs the same droop. With flat isochronous lines, the higher setting takes all it can. Unequal fields drive a [[cross current]] from one set into the other, and cross-current compensation cures it. Paralleled sets suit 2/3 pitch windings, so no third harmonic runs round their neutrals.';\n\n  // ================= state =================\n  const BASE = { view: 'kW', gov: 'Droop', fa: 62.4, fb: 62.4, droop: 4, da: 4, load: 600, va: 447.5, vb: 447.5, comp: false, pitch: 'Mixed', dset: null };\n  const X = Object.assign({}, BASE);\n  const NUMK = ['fa', 'fb', 'droop', 'da', 'load', 'va', 'vb'];\n  const D = { fa: 62.4, fb: 62.4, droop: 4, da: 4, load: 600, va: 447.5, vb: 447.5, c: 0, p: 0 };   // what is drawn: it eases after X\n  let W = { lo: 59.5, hi: 63.5 };                      // the graph's window, in Hz or V\n  const blank = () => ({ pick: null, res: null, why: false, tries: 0, hint: '' });\n  let S = STEPS.map(blank);\n  const solved = (st) => !!st && (st.res === 'right' || st.res === 'shown');\n  let T = Infinity, motionEnd = 0, scripted = false, rv = Infinity, phase = 0, held = false;\n  let lastStep = -1, finished = false, lastDone = false;\n  let REC = { t: {} };\n  const RV_END = 2.4;\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n  const quiet = () => REDUCE || testing();\n  const el = (id) => document.getElementById(id);\n  const idx = (name) => STEPS.findIndex((d) => d.name === name);\n  const disp = () => ({ view: X.view, gov: X.gov, fa: D.fa, fb: D.fb, droop: D.droop, da: D.da, load: D.load, va: D.va, vb: D.vb, c: D.c, dset: X.dset });\n  const p23 = () => (X.pitch === '2/3 pitch' ? 1 : 0);\n  function snapD() { NUMK.forEach((k) => { D[k] = X[k]; }); D.c = X.comp ? 1 : 0; D.p = p23(); }\n  function baseOf(i) { const b = Object.assign({}, BASE, STEPS[i].enter || {}); b.c = b.comp ? 1 : 0; return model(b); }\n  function ringBase(i) { const d = STEPS[i]; return d.ring && !finished && (d.show || solved(S[i])) ? baseOf(i) : null; }\n\n  // ================= text with amber key terms (built with K.el, never innerHTML) =================\n  const UNIT_GAP = /(\\d) (?=(?:Hz|kW|kVAr|kVA|V|A|per unit)(?![A-Za-z]))/g;\n  function write(node, s) {\n    node.textContent = '';\n    strip(s).replace(UNIT_GAP, '$1' + NB).split(/\\[\\[([^\\]]+)\\]\\]/).forEach((seg, k) => {\n      if (!seg) return;\n      node.appendChild(k % 2 ? K.el('span', { class: 'term' }, seg) : document.createTextNode(seg));\n    });\n  }\n\n  // ================= controls =================\n  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);\n  const CTL = {\n    gov: K.choice({ id: 'gov', label: 'Governors', options: ['Droop', 'Isochronous'], value: 'Droop', into: '#c-gov' }),\n    fa: K.control({ id: 'fa', label: 'A\\'s setting', min: 58, max: 64, step: 0.1, value: 62.4, snap: [62.4, 62.6, 62.7, 60.6, 60.9],\n      fmt: (v) => Number(v).toFixed(1) + NB + 'Hz', into: '#c-fa' }),\n    fb: K.control({ id: 'fb', label: 'B\\'s setting', min: 58, max: 64, step: 0.1, value: 62.4, snap: [62.4, 62.6],\n      fmt: (v) => Number(v).toFixed(1) + NB + 'Hz', into: '#c-fb' }),\n    droop: K.control({ id: 'droop', label: 'Droop', hint: 'Both sets together', min: 1, max: 6, step: 1, value: 4, fmt: (v) => Math.round(v) + '%', into: '#c-droop' }),\n    da: K.control({ id: 'da', label: 'A\\'s droop', hint: 'A alone', min: 1, max: 6, step: 1, value: 4, fmt: (v) => Math.round(v) + '%', into: '#c-da' }),\n    load: K.control({ id: 'load', label: 'Load', min: 0, max: 900, step: 100, value: 600, fmt: (v) => Math.round(v) + NB + 'kW', into: '#c-load' }),\n    va: K.control({ id: 'va', label: 'A\\'s field setting', min: 430, max: 460, step: 0.5, value: 447.5, fmt: (v) => Number(v).toFixed(1) + NB + 'V', into: '#c-va' }),\n    vb: K.control({ id: 'vb', label: 'B\\'s field setting', min: 430, max: 460, step: 0.5, value: 447.5, fmt: (v) => Number(v).toFixed(1) + NB + 'V', into: '#c-vb' }),\n    comp: K.toggle({ id: 'comp', label: 'Compensation', hint: 'Cross-current compensation links the two AVRs', value: false, into: '#c-comp' }),\n    pitch: K.choice({ id: 'pitch', label: 'Windings', options: ['Mixed', '2/3 pitch'], value: 'Mixed', into: '#c-pitch' }),\n  };\n  const CIDS = ['gov', 'fa', 'fb', 'droop', 'da', 'load', 'va', 'vb', 'comp', 'pitch'];\n  function norm(id, v) {\n    if (id === 'gov' || id === 'pitch') return String(v);\n    if (id === 'comp') return v === true || v === 'true' || v === 1;\n    if (id === 'fa' || id === 'fb') return r1(Number(v));\n    if (id === 'va' || id === 'vb') return Math.round(Number(v) * 2) / 2;\n    return Math.round(Number(v));\n  }\n  function ctlVal(id) {\n    if (id === 'gov' || id === 'pitch') return X[id];\n    if (id === 'comp') return !!X.comp;\n    if (id === 'fa' || id === 'fb') return r1(X[id]);\n    if (id === 'va' || id === 'vb') return Math.round(X[id] * 2) / 2;\n    if (id === 'load') return Math.round(X.load / 100) * 100;\n    return Math.round(X[id]);\n  }\n  const pushed = {};\n  CIDS.forEach((id) => { pushed[id] = norm(id, CTL[id].get()); });\n  // The page moves the controls itself (silently, so it is not taken for Dan's move).\n  function push() {\n    CIDS.forEach((id) => {\n      const v = ctlVal(id);\n      if (pushed[id] !== v) { CTL[id].set(v, true); pushed[id] = norm(id, CTL[id].get()); }\n    });\n  }\n  const shownCtl = (i, id) => {\n    const d = STEPS[i];\n    if (finished) return false;\n    if (d.ctl && d.ctl.indexOf(id) >= 0) return true;\n    return !d.show && !!d.ctlSolved && d.ctlSolved.indexOf(id) >= 0 && solved(S[i]);\n  };\n  function applyCtl(id, v) {\n    held = false;\n    X[id] = v;\n    if (id === 'droop') X.da = v;                    // the Droop slider moves both sets\n    if (quiet()) { snapD(); snapW(at()); }\n  }\n\n  const RW = {\n    F: K.readout({ id: 'r-f', label: 'Frequency in' + NB + 'Hz', fmt: (v) => String(v), into: '#outsW' }),\n    PA: K.readout({ id: 'r-pa', label: 'A in' + NB + 'kW', fmt: (v) => String(v), into: '#outsW' }),\n    PB: K.readout({ id: 'r-pb', label: 'B in' + NB + 'kW', fmt: (v) => String(v), into: '#outsW' }),\n    D: K.readout({ id: 'r-d', label: 'A\\'s δ in' + NB + '°', fmt: (v) => String(v), into: '#outsW' }),\n  };\n  const RQ = {\n    V: K.readout({ id: 'r-v', label: 'Voltage in' + NB + 'V', fmt: (v) => String(v), into: '#outsQ' }),\n    QA: K.readout({ id: 'r-qa', label: 'A in' + NB + 'kVAr', fmt: (v) => String(v), into: '#outsQ' }),\n    QB: K.readout({ id: 'r-qb', label: 'B in' + NB + 'kVAr', fmt: (v) => String(v), into: '#outsQ' }),\n    X: K.readout({ id: 'r-x', label: 'Cross current in' + NB + 'A', fmt: (v) => String(v), into: '#outsQ' }),\n  };\n\n  // Up to three answer buttons; each puzzle fills in its own.\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.kind !== 'pick' || k >= d.opts.length || solved(st)) return;\n    st.pick = d.opts[k]; st.res = null;\n  } }));\n  // Typed answers: a field each; Check grades it, two misses show the working.\n  const ANS = {};\n  STEPS.forEach((d, i) => {\n    if (d.kind !== 'typed') return;\n    el('answers').appendChild(K.el('div', { id: 'ans-' + d.ans }));\n    const a = K.answer({ id: 'a-' + d.ans, unit: d.unit, answer: d.answer, decimals: d.decimals, accept: d.accept, slips: d.slips, into: '#ans-' + d.ans,\n      onCheck: (r) => {\n        const st = S[i];\n        if (solved(st)) return;\n        if (r.state === 'right') { st.res = 'right'; playRun(i); }\n        else if (r.state === 'wrong') {\n          st.tries += 1; st.hint = r.hint || d.hint;\n          if (st.tries >= 2) { st.res = 'shown'; st.why = true; a.reveal(); playRun(i); }\n          else st.res = 'wrong';\n        } else { st.res = r.state; st.hint = ''; }\n        K.refresh();\n      } });\n    ANS[d.ans] = a;\n  });\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || solved(st)) return;\n    if (d.kind === 'typed') { ANS[d.ans].check(); return; }\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = st.pick === d.want ? 'right' : 'wrong';\n    if (st.res === 'right') playRun(i);\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    const d = STEPS[at()];\n    if (d.show || finished) return;\n    S[at()].why = !S[at()].why;\n  } });\n  const replayBtn = K.button({ label: 'Show me again', secondary: true, into: '#replay', press: () => {\n    const d = STEPS[at()];\n    if (finished || !d.show || !(d.demo || d.build)) return;\n    startDemo(at());\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && !solved(S[i]))) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true; anim.pause(); T = Infinity;\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S = STEPS.map(blank); finished = false; lastStep = -1;\n    Object.keys(ANS).forEach((k) => ANS[k].reset());\n    stepper.set(0, true);\n  } });\n\n  // ================= motion: demonstrations, answers' motion, easing and the cross current's flow =================\n  function playScript(sc, t0, t1) {\n    (sc || []).forEach((m) => {\n      if (m.to == null && m.set && m.at >= t0 && m.at < t1) Object.assign(X, m.set);\n      if (m.ramp && t1 > m.at && t0 < m.to + 1e-9) {\n        const u = K.clamp((t1 - m.at) / (m.to - m.at), 0, 1);\n        Object.keys(m.ramp).forEach((k) => { const r = m.ramp[k]; X[k] = u >= 1 ? r[1] : K.lerp(r[0], r[1], K.ease(u)); });\n      }\n    });\n  }\n  const runSync = (sc) => playScript(sc, -1, 1e9);\n  // The graph's window: the screen's own, slid or widened just enough to hold the settings and the crossing.\n  const PL = 48, PT = 108, PB = 248, CX = 191, BY = [256, 271], BH = 10;\n  function wTarget(i) {\n    const d = STEPS[i], kv = X.view === 'kVAr', M = model(disp());\n    const w0 = d.win || (kv ? [432, 453] : [59.5, 63.5]), span = w0[1] - w0[0], ppu = (PB - PT) / span;\n    const vals = kv ? [M.V, M.ea, M.eb] : [M.f, D.fa, D.fb];\n    const B = ringBase(i);\n    if (B) vals.push(kv ? B.V : B.f);\n    const mn = Math.min.apply(null, vals), mx = Math.max.apply(null, vals);\n    const lo = mn - 36 / ppu, hi = mx + 22 / ppu;\n    if (hi - lo <= span) { const l = K.clamp(w0[0], hi - span, lo); return { lo: l, hi: l + span }; }\n    const tot = (mx - mn) * (PB - PT) / (PB - PT - 58);\n    const l2 = mn - 36 * tot / (PB - PT);\n    return { lo: l2, hi: l2 + tot };\n  }\n  function snapW(i) { W = wTarget(i); }\n  function settledAll(i) {\n    if (NUMK.some((k) => Math.abs(D[k] - X[k]) > 1e-9)) return false;\n    if (Math.abs(D.c - (X.comp ? 1 : 0)) > 1e-9) return false;\n    if (Math.abs(D.p - p23()) > 1e-9) return false;\n    const t = wTarget(i);\n    return Math.abs(W.lo - t.lo) < 1e-9 && Math.abs(W.hi - t.hi) < 1e-9;\n  }\n  function easeAll(dt, i) {\n    const e1 = 1 - Math.exp(-dt / 0.12), e2 = 1 - Math.exp(-dt / 0.35), e3 = 1 - Math.exp(-dt / 0.2);\n    NUMK.forEach((k) => { D[k] += (X[k] - D[k]) * e1; if (Math.abs(X[k] - D[k]) < (k === 'load' ? 0.05 : 0.0005)) D[k] = X[k]; });\n    const ct = X.comp ? 1 : 0;\n    D.c += (ct - D.c) * e2;\n    if (Math.abs(ct - D.c) < 0.002) D.c = ct;\n    D.p += (p23() - D.p) * e2;\n    if (Math.abs(p23() - D.p) < 0.002) D.p = p23();\n    const t = wTarget(i), tol = 0.0005 * (t.hi - t.lo);\n    ['lo', 'hi'].forEach((k) => { W[k] += (t[k] - W[k]) * e3; if (Math.abs(t[k] - W[k]) < tol) W[k] = t[k]; });\n  }\n  const flowing = (i) => !held && !finished && !STEPS[i].nofig && (X.view === 'N' ? D.p < 0.99 : X.view === 'kVAr' && model(disp()).ix > 0.5);\n  const needAnim = () => !finished && (T !== Infinity || rv !== Infinity || !settledAll(at()) || flowing(at()));\n  const anim = K.anim({ button: false, label: 'Running', step: (dt) => {\n    if (finished) return false;\n    dt = Math.min(dt, 0.1);\n    const i = at(), d = STEPS[i];\n    if (T !== Infinity) {\n      const t0 = T;\n      T = Math.min(T + dt, motionEnd);\n      playScript(scripted ? d.demo : d.run, t0, T);\n      if (T >= motionEnd) { T = Infinity; scripted = false; }\n    }\n    if (rv !== Infinity) { rv += dt; if (rv > RV_END) rv = Infinity; }\n    easeAll(dt, i);\n    const m = model(disp());\n    phase = (phase + dt * (X.view === 'N' ? 40 * (1 - D.p) : 40 * Math.min(m.ix, 60) / 39.4)) % 1400;\n    push();\n    paint(i);\n    return needAnim();\n  } });\n  function kick() { if (!quiet() && needAnim() && !anim.playing()) anim.play(); }\n  function endDemo() { if (T !== Infinity) { T = Infinity; scripted = false; } }\n  function fresh(d) { Object.assign(X, BASE, d.enter || {}); snapD(); }\n  // A screen's state: its opening, then its demonstration's end, or its answer's motion once solved.\n  function prep(i, toEnd) {\n    const d = STEPS[i];\n    fresh(d);\n    if (d.show) { if (toEnd && d.demo) runSync(d.demo); }\n    else if (solved(S[i]) && d.run) runSync(d.run);\n    snapD(); snapW(i);\n  }\n  function startDemo(i) {\n    const d = STEPS[i];\n    anim.pause(); T = Infinity; scripted = false; rv = Infinity; held = false;\n    if ((!d.demo && !d.build) || quiet()) { prep(i, true); push(); return; }\n    prep(i, false); scripted = true; T = 0; motionEnd = d.dur;\n    push();\n    anim.play();\n  }\n  function playRun(i) {\n    const d = STEPS[i];\n    anim.pause(); scripted = false; T = Infinity; held = false;\n    if (quiet()) { if (d.run) runSync(d.run); snapD(); snapW(i); rv = Infinity; push(); return; }\n    if (d.run && d.run.length) { T = 0; motionEnd = d.rdur; }\n    rv = 0;\n    anim.play();\n  }\n  function enterStep(i) {\n    anim.pause(); T = Infinity; scripted = false; rv = Infinity; held = false;\n    enter('stepbox');\n    if (STEPS[i].show) { startDemo(i); return; }\n    prep(i, false);\n    push();\n  }\n  // The finished picture a still shows (the read-through): the demonstration's end, then the still's own state, held.\n  function setStill(fn) {\n    const i = at();\n    anim.pause(); T = Infinity; scripted = false; rv = Infinity;\n    prep(i, true);\n    if (fn) fn();\n    snapD(); snapW(i);\n    held = true;\n    push();\n    K.refresh();\n  }\n  function enter(id) {\n    if (REDUCE) return;\n    const box = el(id);\n    box.classList.remove('enter');\n    void box.offsetWidth;\n    box.classList.add('enter');\n  }\n\n  // ================= drawing helpers =================\n  function adder(g) { const f = (tag, attrs, txt) => g.appendChild(txt == null ? K.svg(tag, attrs) : K.svg(tag, attrs, txt)); f.g = g; return f; }\n  const f1 = (v) => Math.round(v * 10) / 10;\n  const f2 = (v) => Math.round(v * 100) / 100;\n  const pts = (list) => list.map((q) => f1(q[0]) + ',' + f1(q[1])).join(' ');\n  const buildT = (i) => (scripted && STEPS[i].build ? T : Infinity);\n  const revA = (i, t0, dur) => (STEPS[i].reveal && rv !== Infinity ? K.arrive(rv, t0, dur) : 1);\n  const revT = (i, t0) => (STEPS[i].tri && rv !== Infinity ? K.arrive(rv, t0) : 1);\n  const resultShown = (i) => finished || !STEPS[i].reveal || solved(S[i]);\n  const yOf = (v) => PB - (v - W.lo) / (W.hi - W.lo) * (PB - PT);\n  function head(a, x, y, angDeg, cls) {\n    const t = rad(angDeg), ux = Math.cos(t), uy = -Math.sin(t), nx = -uy, ny = ux, bx = x - ux * 9, by = y - uy * 9;\n    a('path', { class: cls, d: 'M' + f1(x) + ' ' + f1(y) + 'L' + f1(bx + nx * 4.5) + ' ' + f1(by + ny * 4.5) + 'L' + f1(bx - nx * 4.5) + ' ' + f1(by - ny * 4.5) + 'Z' });\n  }\n\n  // ================= set A's E and V, and the load angle between them =================\n  function phasor(a, P, dl, op) {\n    const L = P.v * EPU / VPU, t = rad(dl), ex = P.ox + L * Math.cos(t), ey = P.oy - L * Math.sin(t);\n    a('line', { class: 'ph-v', x1: P.ox, y1: P.oy, x2: P.ox + P.v - 7, y2: P.oy });\n    head(a, P.ox + P.v, P.oy, 0, 'hd-v');\n    if (P.small) {\n      a('text', { class: 'lab hl', x: P.ox + P.v / 2, y: P.oy + 14, 'text-anchor': 'middle' }, 'V');\n      a('text', { class: 'labb hl', x: P.ox - 8, y: P.oy + 4, 'text-anchor': 'end' }, 'Set A');\n    } else a('text', { class: 'lab hl', x: P.ox + P.v / 2, y: P.oy + 18, 'text-anchor': 'middle' }, 'V, 1.0' + NB + 'per unit');\n    if (op <= 0.005) return;\n    const gg = K.svg('g', { opacity: f2(op) });\n    a.g.appendChild(gg);\n    const b = adder(gg);\n    b('line', { class: 'ph-e', x1: P.ox, y1: P.oy, x2: f1(ex - 7 * Math.cos(t)), y2: f1(ey + 7 * Math.sin(t)) });\n    head(b, ex, ey, dl, 'hd-e');\n    const ra = P.small ? 22 : 60;\n    if (Math.abs(dl) >= 1) b('path', { class: 'arc', d: 'M' + (P.ox + ra) + ' ' + P.oy + 'A' + ra + ' ' + ra + ' 0 0 ' + (dl > 0 ? 0 : 1) + ' ' + f1(P.ox + ra * Math.cos(t)) + ' ' + f1(P.oy - ra * Math.sin(t)) });\n    const rl = P.small ? 42 : 78, need = P.small ? 16 : 8;\n    if (Math.abs(dl) >= need) b('text', { class: 'labb hl', x: f1(P.ox + rl * Math.cos(t / 2)), y: f1(P.oy - rl * Math.sin(t / 2) + 4.5), 'text-anchor': 'middle' }, 'δ');\n    if (P.small) b('text', { class: 'labb hl', x: f1(ex + 6), y: f1(ey + 4) }, 'E');\n    else {\n      const mx = P.ox + 0.55 * L * Math.cos(t), my = P.oy - 0.55 * L * Math.sin(t);\n      b('text', { class: 'lab hl', x: f1(mx - 14 * Math.sin(t)), y: f1(my - 14 * Math.cos(t)), 'text-anchor': 'end' }, 'E, 2.25' + NB + 'per unit');\n      if (P.oy - ey > 14) {\n        b('line', { class: 'esd', x1: f1(ex), y1: f1(ey + 6), x2: f1(ex), y2: P.oy });\n        b('text', { class: 'lab hl', x: f1(ex + 7), y: f1((ey + P.oy) / 2 + 4) }, 'E × sin δ');\n      }\n    }\n  }\n\n  // ================= the board, the two lines back to back, and the shares =================\n  function drawScene(i, M) {\n    const d = STEPS[i], g = el('art');\n    g.textContent = '';\n    const a = adder(g), kv = X.view === 'kVAr', iso = !kv && X.gov === 'Isochronous';\n    const s = kv ? 0.4 : 0.3, span = kv ? M.Q : D.load, xa = CX - span * s / 2, xb = CX + span * s / 2;\n    const px = (j, p) => (j ? xb - p * s : xa + p * s);\n    const res = resultShown(i), bt = buildT(i);\n    const aL = [K.arrive(bt, 0.2), K.arrive(bt, 0.8)];\n    const aD = Math.min(K.arrive(bt, 1.4), revA(i, 0.1));\n    const aB = Math.min(K.arrive(bt, 2.0, 0.8), revA(i, 0.4, 0.8));\n    const aM = revA(i, 0.6);\n    REC.dot = null; REC.ring = null; REC.flow = 0; REC.kw = null;\n    // The board and its two sets.\n    a('text', { class: 'labb hl', x: 170, y: 13, 'text-anchor': 'middle' }, '440' + NB + 'V, 60' + NB + 'Hz board');\n    a('line', { class: 'bus', x1: 18, y1: 21, x2: 322, y2: 21 });\n    const kwTxt = [fK(M.pa) + NB + 'kW', fK(M.pb) + NB + 'kW'];\n    [30, 310].forEach((x, j) => {\n      a('line', { class: 'wire', x1: x, y1: 21, x2: x, y2: 31 });\n      a('circle', { class: 'gen', cx: x, cy: 42, r: 11 });\n      a('text', { class: 'labb', x, y: 46.5, 'text-anchor': 'middle' }, j ? 'B' : 'A');\n      if (kv) a('text', { class: 'labm hl', x, y: 70, 'text-anchor': 'middle' }, kwTxt[j]);\n    });\n    if (kv) {\n      REC.kw = kwTxt;\n      // The cross current, flowing along the board from the set with more kVAr into the other.\n      const op = K.clamp(M.ix / 8, 0, 1);\n      REC.flow = op;\n      if (op > 0.02) {\n        const fwd = M.qa >= M.qb, tip = fwd ? 290 : 50, sg = fwd ? 1 : -1;\n        const fg = K.svg('g', { opacity: f2(op) });\n        g.appendChild(fg);\n        const b = adder(fg);\n        b('line', { class: 'flow', x1: fwd ? 50 : 290, y1: 40, x2: tip - sg * 8, y2: 40, 'stroke-dashoffset': f1(-(phase % 14)) });\n        b('path', { class: 'flowh', d: 'M' + tip + ' 40L' + (tip - sg * 10) + ' 35L' + (tip - sg * 10) + ' 45Z' });\n        b('text', { class: 'labw hl', x: 170, y: 57, 'text-anchor': 'middle' }, 'cross current');\n      }\n    } else if (d.inset !== 'big') phasor(a, { ox: 122, oy: 86, v: 30, small: true }, M.d, res ? revA(i, 0.1) : 0);\n    // The axis, its ticks and the reference value.\n    a('line', { class: 'axis', x1: PL, y1: PT, x2: PL, y2: PB });\n    const wspan = W.hi - W.lo, stp = wspan <= 0.8 ? 0.1 : kv ? (wspan <= 30 ? 5 : 10) : (wspan <= 8 ? 1 : 2), ref = kv ? VC : F0;\n    for (let n = Math.ceil(W.lo / stp - 1e-9); n * stp <= W.hi + 1e-9; n++) {\n      const v = n * stp, yy = f1(yOf(v));\n      a('line', { class: 'tick', x1: PL - 5, y1: yy, x2: PL, y2: yy });\n      if (Math.abs(v - ref) < stp / 10) a('text', { class: 'labm hl', x: PL - 7, y: f1(yy + 4.5), 'text-anchor': 'end' }, ref + NB + (kv ? 'V' : 'Hz'));\n    }\n    a('text', { class: 'labm hl', x: 4, y: PT - 7 }, kv ? 'Voltage' : 'Frequency');\n    // The two edges, and the load between them.\n    [xa, xb].forEach((x) => a('line', { class: 'edge', x1: f1(x), y1: PT, x2: f1(x), y2: 290 }));\n    a('path', { class: 'brk', d: 'M' + f1(xa) + ' 284V291H' + f1(xb) + 'V284' });\n    a('text', { class: 'lab hl', x: CX, y: 306, 'text-anchor': 'middle' }, 'Load ' + fK(span) + NB + (kv ? 'kVAr' : 'kW'));\n    // The lines, clipped to the graph.\n    const cg = K.svg('g', { 'clip-path': 'url(#clp)' });\n    g.appendChild(cg);\n    const c = adder(cg);\n    const P = kv ? [M.qa, M.qb] : [M.pa, M.pb], fs = kv ? [M.ea, M.eb] : [D.fa, D.fb];\n    [0, 1].forEach((j) => {\n      let ln;\n      if (kv) ln = [[px(j, -40), yOf(fs[j] + 40 / KQ)], [px(j, M.Q + 40), yOf(fs[j] - (M.Q + 40) / KQ)]];\n      else {\n        const fe = iso ? fs[j] : fs[j] - RK / kOf(j ? D.droop : D.da);\n        ln = [[px(j, 0), yOf(fs[j])], [px(j, RK), yOf(fe)]];\n        if (M.st[j] === 'full') ln.push([px(j, RK), PB + 30]);\n      }\n      if (aL[j] > 0.005) c('polyline', { class: j ? 'ln-b' : 'ln-a', points: pts(ln), opacity: f2(aL[j]) });\n    });\n    // A set with its fuel cut to nothing: driven past its edge, in red.\n    const red = [false, false];\n    if (res) [0, 1].forEach((j) => {\n      const p = P[j];\n      if (kv) { red[j] = p < -1e-6 || Math.hypot(j ? M.pb : M.pa, p) > RKVA + 1e-6; return; }\n      if (!(p < -1e-6)) return;\n      red[j] = true;\n      const ln = [[px(j, 0), yOf(fs[j])], [px(j, p), yOf(fs[j])]];\n      if (M.st[j] === 'mot') ln.push([px(j, p), yOf(M.f)]);\n      if (aM > 0.005) c('polyline', { class: 'ln-r', points: pts(ln), opacity: f2(aM) });\n    });\n    REC.red = red;\n    // Where they cross, the dashed line across to the axis, and where they crossed before.\n    const xd = px(0, P[0]), yd = yOf(kv ? M.V : M.f);\n    if (res && aD > 0.005) c('line', { class: 'guide', x1: PL, y1: f1(yd), x2: f1(xd), y2: f1(yd), opacity: f2(aD) });\n    const B = ringBase(i);\n    let ring = null;\n    if (B) { const bx = px(0, kv ? B.qa : B.pa), by = yOf(kv ? B.V : B.f); if (Math.hypot(bx - xd, by - yd) > 3) ring = [bx, by]; }\n    if (ring) c('circle', { class: 'ring', cx: f1(ring[0]), cy: f1(ring[1]), r: 6 });\n    if (res && aD > 0.005) { c('circle', { class: 'dot', cx: f1(xd), cy: f1(yd), r: 5, opacity: f2(aD) }); REC.dot = { x: xd, y: yd }; }\n    // Each set's share: a bar from its own edge, red past it or past 630 kVA.\n    [0, 1].forEach((j) => {\n      const cap = kv ? Math.sqrt(Math.max(0, RKVA * RKVA - Math.pow(j ? M.pb : M.pa, 2))) : RK;\n      const t0 = px(j, 0), t1 = px(j, cap);\n      a('rect', { class: 'trk', x: f1(Math.min(t0, t1)), y: BY[j], width: f1(Math.abs(t1 - t0)), height: BH, rx: 2 });\n      if (res && aB > 0.002) {\n        const x1 = px(j, P[j] * aB);\n        if (Math.abs(x1 - t0) > 0.4) a('rect', { class: red[j] ? 'bar-r' : j ? 'bar-b' : 'bar-a', x: f1(Math.min(t0, x1)), y: BY[j], width: f1(Math.abs(x1 - t0)), height: BH, rx: 2 });\n      }\n      // Each label at its own bar's edge, clear of a red bar past it.\n      const off = red[j] ? 22 : 5;\n      a('text', { class: 'labb hl', x: f1(j ? Math.min(t0 + off, 331) : Math.max(t0 - off, 10)), y: BY[j] + 9.5, 'text-anchor': j ? 'start' : 'end' }, j ? 'B' : 'A');\n    });\n    // Labels on top: each line's setting, the board's level and the old crossing.\n    const setTxt = (j) => (j ? 'B' : 'A') + (kv ? (D.c > 0.01 ? '' : ', ' + fs[j].toFixed(1) + NB + 'V') : ', ' + fs[j].toFixed(1) + NB + 'Hz');\n    if (aL[0] > 0.01) a('text', { class: 'lab hl', x: f1(xa + 6), y: f1(yOf(fs[0]) - 7), opacity: f2(aL[0]) }, setTxt(0));\n    if (aL[1] > 0.01) a('text', { class: 'lab hl', x: f1(xb - 6), y: f1(yOf(fs[1]) - 7), 'text-anchor': 'end', opacity: f2(aL[1]) }, setTxt(1));\n    if (res && aD > 0.005) a('text', { class: 'labm hl', x: PL + 5, y: f1(yd - 5), opacity: f2(aD) }, 'board');\n    if (ring) { a('text', { class: 'labm hl', x: f1(ring[0]), y: f1(ring[1] + 24), 'text-anchor': 'middle' }, 'before'); REC.ring = ring; }\n    const who = red[0] ? 'A' : red[1] ? 'B' : '';\n    el('scene').setAttribute('aria-label', (kv ? 'Two voltage droop lines, back to back over the load\\'s kVAr: A\\'s from the left edge, B\\'s from the right.'\n      : 'Two ' + (iso ? 'flat isochronous lines' : 'droop lines') + ', back to back over the shared load: A\\'s from the left edge, B\\'s from the right.') +\n      (REC.dot ? ' A dot marks where they cross, and the bars below show each set\\'s share' + (who ? ', with ' + who + '\\'s bar red past its edge.' : '.') : ' Where they settle stays hidden until the answer is checked.') +\n      (ring ? ' A ring marks where they crossed before.' : '') +\n      (kv && REC.flow > 0.02 ? ' An arrow along the board shows a cross current flowing from ' + (M.qa >= M.qb ? 'A to B.' : 'B to A.') : ''));\n  }\n\n  function drawBig(i, M) {\n    const g = el('bigArt');\n    g.textContent = '';\n    const a = adder(g);\n    a('text', { class: 'lab hl', x: 8, y: 18 }, 'Set A, with Xs 1.5' + NB + 'per unit');\n    phasor(a, { ox: 40, oy: 150, v: 100, small: false }, M.d, 1);\n    el('big').setAttribute('aria-label', 'Set A\\'s E leads V by the load angle δ. The height of E\\'s tip above V\\'s line is E × sin δ, and the power follows it.');\n  }\n\n  function drawTri(i) {\n    const d = STEPS[i], g = el('triArt');\n    g.textContent = '';\n    REC.tri = !!(d.tri && solved(S[i]));\n    if (!REC.tri) return;\n    const kva = 100, kw = kva * PFL, kvar = Math.sqrt(kva * kva - kw * kw), sc = 2;\n    const p0 = [70, 128], p1 = [70 + kw * sc, 128], p2 = [70 + kw * sc, 128 - kvar * sc];\n    const grp = (op) => { const gg = K.svg('g', { opacity: f2(op) }); g.appendChild(gg); return adder(gg); };\n    const a1 = grp(revT(i, 0)), a2 = grp(revT(i, 0.6)), a3 = grp(revT(i, 1.2));\n    a1('line', { class: 't-p', x1: p0[0], y1: p0[1], x2: p1[0], y2: p1[1] });\n    a1('text', { class: 'lab hl', x: (p0[0] + p1[0]) / 2, y: 146, 'text-anchor': 'middle' }, Math.round(kw) + NB + 'kW');\n    a2('line', { class: 't-q', x1: p1[0], y1: p1[1], x2: p2[0], y2: p2[1] });\n    a2('path', { class: 't-rt', d: 'M' + (p1[0] - 10) + ' ' + p1[1] + 'V' + (p1[1] - 10) + 'H' + p1[0] });\n    a2('text', { class: 'lab hl', x: p1[0] + 8, y: (p1[1] + p2[1]) / 2 + 4 }, Math.round(kvar) + NB + 'kVAr');\n    a3('line', { class: 't-s', x1: p0[0], y1: p0[1], x2: p2[0], y2: p2[1] });\n    a3('text', { class: 'lab hl', x: 132, y: 60, 'text-anchor': 'end' }, kva + NB + 'kVA');\n    el('tri').setAttribute('aria-label', 'A right-angled triangle: ' + Math.round(kw) + ' kW along the bottom, ' + Math.round(kvar) + ' kVAr up the side, and ' + kva + ' kVA along the slope.');\n  }\n\n  // ================= the neutrals: two star points linked, one earthed =================\n  function drawNeu(i) {\n    const g = el('neuArt');\n    g.textContent = '';\n    REC.nflow = 0;\n    if (!STEPS[i].neu) return;\n    const a = adder(g), op = K.clamp(1 - D.p, 0, 1), both = D.p > 0.5;\n    REC.nflow = f2(op);\n    a('text', { class: 'labb hl', x: 170, y: 13, 'text-anchor': 'middle' }, '440' + NB + 'V board');\n    a('line', { class: 'bus', x1: 30, y1: 21, x2: 310, y2: 21 });\n    [100, 240].forEach((x, j) => {\n      [-8, 0, 8].forEach((dx) => a('line', { class: 'wire', x1: x + dx, y1: 21, x2: x + dx, y2: dx ? 51 : 48 }));\n      a('circle', { class: 'gen', cx: x, cy: 62, r: 14 });\n      a('text', { class: 'labb', x, y: 67, 'text-anchor': 'middle' }, j ? 'B' : 'A');\n      a('line', { class: 'wire', x1: x, y1: 76, x2: x, y2: 112 });\n      a('text', { class: 'labm hl', x: j ? x + 9 : x - 9, y: 100, 'text-anchor': j ? 'start' : 'end' }, 'N');\n      a('text', { class: 'lab hl', x, y: 168, 'text-anchor': 'middle' }, (j && !both ? '5/6' : '2/3') + NB + 'pitch');\n    });\n    a('line', { class: 'wire', x1: 100, y1: 112, x2: 240, y2: 112 });\n    [100, 240].forEach((x) => a('circle', { class: 'dot', cx: x, cy: 112, r: 3.5 }));\n    // A's neutral earthed; B's earth link open.\n    a('line', { class: 'wire', x1: 100, y1: 112, x2: 100, y2: 134 });\n    a('line', { class: 'wire', x1: 240, y1: 112, x2: 240, y2: 122 });\n    a('line', { class: 'wire', x1: 240, y1: 122, x2: 251, y2: 131 });\n    a('line', { class: 'wire', x1: 240, y1: 132, x2: 240, y2: 136 });\n    [[100, 134], [240, 136]].forEach((q) => [[11, 0], [7, 5], [3, 10]].forEach((w) => a('line', { class: 'wire', x1: q[0] - w[0], y1: q[1] + w[1], x2: q[0] + w[0], y2: q[1] + w[1] })));\n    a('text', { class: 'labm hl', x: 84, y: 142, 'text-anchor': 'end' }, 'earthed');\n    a('text', { class: 'labm hl', x: 258, y: 142 }, 'open');\n    if (op > 0.01) {\n      const fg = K.svg('g', { opacity: f2(op) });\n      g.appendChild(fg);\n      const b = adder(fg);\n      b('path', { class: 'flow', d: 'M220 104H120V30H220Z', 'stroke-dashoffset': f1(-(phase % 14)) });\n      b('path', { class: 'flowh', d: 'M152 104L162 99L162 109Z' });\n      b('path', { class: 'flowh', d: 'M188 30L178 25L178 35Z' });\n      b('text', { class: 'labw hl', x: 170, y: 62, 'text-anchor': 'middle' }, 'third');\n      b('text', { class: 'labw hl', x: 170, y: 78, 'text-anchor': 'middle' }, 'harmonic');\n    }\n    el('neu').setAttribute('aria-label', 'Sets A and B on one board, with their neutrals linked. A\\'s neutral is earthed and B\\'s earth link is open. ' +\n      (op > 0.01 ? 'A dashed red loop shows a third-harmonic current running round through the two sets and their neutrals.' : 'Both have 2/3 pitch windings, and no current runs round the neutrals.'));\n  }\n\n  // ================= the readouts and the sentence under the picture =================\n  function readouts(i, M) {\n    const d = STEPS[i], sol = solved(S[i]);\n    const hid = (k) => !finished && !!d.hide && d.hide.indexOf(k) >= 0 && !sol;\n    const tw = { F: fHz(M.f), PA: fK(M.pa), PB: fK(M.pb), D: fV1(M.d) };\n    const tq = { V: fV1(M.V), QA: fK(M.qa), QB: fK(M.qb), X: fV1(M.ix) };\n    Object.keys(tw).forEach((k) => { if (hid(k)) tw[k] = '?'; RW[k].set(tw[k]); RW[k].el.hidden = !!d.tiles && d.tiles.indexOf(k) < 0; });\n    Object.keys(tq).forEach((k) => { if (hid(k)) tq[k] = '?'; RQ[k].set(tq[k]); });\n    REC.t = X.view === 'kVAr' ? tq : tw;\n  }\n  function sayText(i, M) {\n    const n = ['A', 'B'];\n    if (X.view === 'N') {\n      if (D.p > 0.999) return 'Both sets now have 2/3 pitch windings. Neither makes a third harmonic, so no current runs round the neutrals.';\n      if (D.p < 0.001) return 'A has a 2/3 pitch winding and B a 5/6 pitch. B\\'s third harmonic drives a current round through the linked neutrals.';\n      return 'With matching windings, the current round the neutrals dies away.';\n    }\n    if (X.view === 'kVAr') {\n      if (D.c > 0.999) return 'The compensation trims both fields until A and B carry ' + fK(M.Q / 2) + ' kVAr each. No cross current flows.';\n      if (D.c > 0.001) return 'The compensation is trimming both fields towards an equal share.';\n      if (Math.abs(M.qa - M.qb) < 0.05) return 'The field settings match, so A and B share the load\\'s ' + fK(M.Q) + ' kVAr equally.';\n      const h = M.qa > M.qb ? 0 : 1, Q = [M.qa, M.qb];\n      return n[h] + ' carries ' + fK(Q[h]) + ' kVAr of the load\\'s ' + fK(M.Q) + ' kVAr, and ' + n[1 - h] + ' ' + fK(Q[1 - h]) + '. The extra ' +\n        fK(Math.abs(Q[0] - Q[1]) / 2) + ' kVAr flows from ' + n[h] + ' into ' + n[1 - h] + ' as a ' + fV1(M.ix) + ' A cross current.';\n    }\n    const P = [M.pa, M.pb], L = fK(D.load);\n    const m = P[0] < -0.05 ? 0 : P[1] < -0.05 ? 1 : -1;\n    if (m >= 0) return n[m] + '\\'s fuel is cut to nothing, so the board drives it as a motor. ' + n[1 - m] + ' carries the ' + L + ' kW load and ' + n[m] + '\\'s draw, here an example ' + fK(-P[m]) + ' kW.';\n    const fu = P[0] > RK - 0.05 ? 0 : P[1] > RK - 0.05 ? 1 : -1;\n    if (fu >= 0) return n[fu] + ' is at full fuel, 504 kW. ' + n[1 - fu] + ' carries the other ' + fK(P[1 - fu]) + ' kW of the ' + L + ' kW, so the board sits at ' + fHz(M.f) + ' Hz.';\n    if (X.gov === 'Isochronous') return 'The two settings match exactly, so here A and B share the ' + L + ' kW equally.';\n    const B = ringBase(i);\n    if (B && Math.abs(M.pa - B.pa) > 0.05) {\n      const df = M.f - B.f;\n      return 'A now carries ' + fK(M.pa) + ' kW of the ' + L + ' kW, and B ' + fK(M.pb) + ' kW. ' +\n        (Math.abs(df) < 0.005 ? 'The board stayed at ' + fHz(M.f) + ' Hz.' : 'The board ' + (df > 0 ? 'rose' : 'fell') + ' ' + fHz(Math.abs(df)) + ' Hz.');\n    }\n    if (Math.abs(M.pa - M.pb) < 0.05) return 'The lines cross in the middle, so A and B share the ' + L + ' kW equally, at ' + fHz(M.f) + ' Hz.';\n    return 'A carries ' + fK(M.pa) + ' kW of the ' + L + ' kW, and B ' + fK(M.pb) + ' kW. The board runs at ' + fHz(M.f) + ' Hz.';\n  }\n  function sayRoom(i) {\n    const d = STEPS[i];\n    if (finished || d.nofig) return false;\n    return d.show ? !!(d.ctl && d.ctl.length) : !!(d.ctlSolved && solved(S[i]));\n  }\n  function sayLine(i, M) {\n    const p = el('say'), room = sayRoom(i), s = room ? sayText(i, M) : '';\n    p.hidden = !room;\n    p.classList.toggle('off', !s);\n    if (p.dataset.s !== s) { p.dataset.s = s; write(p, s); }\n    REC.say = s;\n  }\n\n  // ================= one paint =================\n  function paint(i) {\n    if (i == null) i = at();\n    const M = model(disp());\n    REC = { t: {}, M };\n    drawScene(i, M);\n    drawBig(i, M);\n    drawTri(i);\n    drawNeu(i);\n    readouts(i, M);\n    sayLine(i, M);\n  }\n\n  // ================= the page around the picture =================\n  write(el('finish'), FINISH);\n  const setLab = (b, s) => { if (b.el.textContent !== s) b.setLabel(s); };\n  function showCtls(i) {\n    let any = false;\n    CIDS.forEach((id) => { const on = shownCtl(i, id); el('c-' + id).hidden = !on; any = any || on; });\n    el('sws').hidden = !any;\n  }\n  const vis = (id, on) => { const n = el(id); if (on) n.removeAttribute('hidden'); else n.setAttribute('hidden', ''); };\n  function layout(i) {\n    const d = STEPS[i], st = S[i], sol = solved(st);\n    el('stepbox').hidden = finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Screen ' + (i + 1) + ' of ' + STEPS.length;\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    write(task, d.show ? d.text : d.task);\n    const triOn = !!(d.tri && sol);\n    el('figs').hidden = !!d.nofig && !triOn;\n    // SVG elements have no .hidden property: the attribute itself is toggled.\n    vis('scene', !d.nofig && d.inset !== 'only' && !d.neu);\n    vis('neu', !!d.neu);\n    vis('big', d.inset === 'big' || d.inset === 'only');\n    vis('tri', triOn);\n    el('outsW').hidden = !!d.nofig || !!d.bare || X.view !== 'kW';\n    el('outsQ').hidden = !!d.nofig || !!d.bare || X.view !== 'kVAr';\n    el('cap').hidden = finished || !!d.nofig || !!d.neu;\n    showCtls(i);\n    replayBtn.el.hidden = !d.show || !(d.demo || d.build) || finished || REDUCE;\n    el('replay').hidden = replayBtn.el.hidden;\n    const opts = d.kind === 'pick' ? d.opts : [];\n    el('picks').hidden = !opts.length;\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      setLab(b, opts[k]);\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n    el('answers').hidden = d.kind !== 'typed';\n    Object.keys(ANS).forEach((key) => { el('ans-' + key).hidden = d.ans !== key; });\n    el('acts').hidden = !!d.show;\n    checkBtn.el.hidden = sol;\n    const fb = el('fb');\n    fb.hidden = !!d.show;\n    fb.className = 'fb' + (st.res === 'right' ? ' right' : '');\n    let say = '';\n    if (!d.show) {\n      if (st.res === 'right') say = d.right || 'That\\'s it.';\n      else if (st.res === 'shown') say = 'Here is the working.';\n      else if (st.res === 'wrong') say = d.kind === 'typed' ? st.hint : (d.hints && d.hints[st.pick]) || d.hint || '';\n      else if (st.res === 'empty') say = d.kind === 'pick' ? 'Pick one of the answers first.' : 'Type your answer first.';\n    }\n    write(fb, say);\n    const why = el('why');\n    why.hidden = d.show || !st.why;\n    write(why, d.show ? '' : d.why);\n    setLab(whyBtn, st.why ? 'Hide why' : 'Why?');\n    const cl = el('closing');\n    cl.hidden = !(d.close && sol);\n    write(cl, d.close || '');\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !sol);\n    setLab(nextBtn, i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  }\n\n  K.update((p) => {\n    const i = at();\n    if (i !== lastStep) { lastStep = i; enterStep(i); }\n    else {\n      CIDS.forEach((id) => {\n        const v = norm(id, p[id]);\n        if (v === pushed[id]) return;\n        if (shownCtl(i, id)) { endDemo(); pushed[id] = v; applyCtl(id, v); }\n        else CTL[id].set(pushed[id], true);        // a control this screen does not use stays put\n      });\n      push();\n    }\n    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }\n    layout(i);\n    paint(i);\n    kick();\n  });\n\n  // ================= known answers, worked out by hand =================\n  const solvedSt = (i) => Object.assign(blank(), STEPS[i].kind === 'pick' ? { pick: STEPS[i].want, res: 'right' } : { res: 'right' });\n  function saveAll() {\n    return { X: Object.assign({}, X), D: Object.assign({}, D), W: Object.assign({}, W), T, sc: scripted, rv, fin: finished, S: S.slice(), held, phase };\n  }\n  function restoreAll(k) {\n    Object.assign(X, k.X); Object.assign(D, k.D); W = k.W; T = k.T; scripted = k.sc; rv = k.rv; finished = k.fin; S = k.S; held = k.held; phase = k.phase;\n  }\n  // A screen in the state given (its demonstration finished, unless opening), and what it drew.\n  function drawn(i, st, opening, then) {\n    const keep = saveAll();\n    S = S.slice(); S[i] = st || blank(); T = Infinity; scripted = false; rv = Infinity; finished = false; held = false;\n    try {\n      prep(i, !opening);\n      if (then) { then(); snapD(); snapW(i); }\n      paint(i);\n      return Object.assign({}, REC, { t: Object.assign({}, REC.t) });\n    } finally { restoreAll(keep); paint(); }\n  }\n  const tIs = (t, o) => Object.keys(o).every((k) => t[k] === o[k]);\n  const mk = (o) => model(Object.assign({}, BASE, { c: 0 }, o));\n  const iRec = idx('Real and reactive'), iFuel = idx('More fuel, wider angle'), iPu = idx('Power from the angle'), iTwo = idx('Two droop lines');\n  const iNudge = idx('A nudge to A'), iHalf = idx('Half the nudge'), iMore = idx('How much more'), iLess = idx('Less droop'), iFlat = idx('Two flat lines'), iUneq = idx('Unequal droops');\n  const iVolt = idx('Voltage and kVAr'), iField = idx('More field on A'), iCross = idx('Cross current'), iNeu = idx('The neutrals'), iPf = idx('A\\'s power factor'), iBack = idx('Share it back');\n\n  K.check('At 4% droop a set falls 2.4 Hz across 504 kW, so it takes 210 kW for each hertz; equal 62.4 Hz settings share 600 kW as 300 kW each at 60.97 Hz with δ 18.5° (screens 2 and 4)', () => {\n    const a = drawn(iFuel), a0 = drawn(iFuel, null, true), b = drawn(iTwo), want = { F: '60.97', PA: '300', PB: '300', D: '18.5' };\n    return K.near(kOf(4), 210, 1e-9) && K.near(0.04 * F0, 2.4, 1e-12) && tIs(a.t, want) && tIs(b.t, want) && a0.t.PA === '0' && a0.t.F === '62.40' && !!b.dot;\n  });\n  K.check('Raising A\\'s setting 0.3 Hz moves 31.5 kW onto A, 331.5 against 268.5 kW with δ 20.5°, and lifts the board only 0.15 Hz, half the nudge, to 61.12 Hz; the old crossing stays marked (screen 6)', () => {\n    const r = drawn(iHalf), r0 = drawn(iHalf, null, true), base = baseOf(iHalf);\n    return tIs(r.t, { F: '61.12', PA: '331.5', PB: '268.5', D: '20.5' }) && K.near(r.M.f - base.f, 0.15, 1e-9) && K.near(r.M.pa - base.pa, 31.5, 1e-9) &&\n      !!r.ring && !r0.ring && r0.t.PA === '300';\n  });\n  K.check('Screen 5 answered moves A to 62.7 Hz; screen 7 shows ? for A until checked, then A at 62.6 Hz carries 321 kW and B 279 kW at 61.07 Hz', () => {\n    const n = drawn(iNudge, solvedSt(iNudge)), a = drawn(iMore), b = drawn(iMore, solvedSt(iMore));\n    return tIs(n.t, { PA: '331.5', F: '61.12' }) && !!n.ring && tIs(a.t, { F: '60.97', PA: '?', PB: '300' }) && tIs(b.t, { F: '61.07', PA: '321', PB: '279' }) &&\n      K.near(b.M.pa, 210 * (62.6 - b.M.f), 1e-9);\n  });\n  K.check('At 1% droop a set takes 840 kW for each hertz: the same 0.3 Hz nudge from 60.6 Hz gives 426 and 174 kW at 60.39 Hz, moving 126 kW, four times the 31.5 kW at 4% (screen 8)', () => {\n    const r = drawn(iLess), base = baseOf(iLess);\n    return K.near(kOf(1), 840, 1e-9) && tIs(r.t, { F: '60.39', PA: '426', PB: '174' }) && K.near(r.M.pa - base.pa, 126, 1e-6) && K.near((r.M.pa - base.pa) / 31.5, 4, 1e-6);\n  });\n  K.check('Isochronous at 60.1 and 60.0 Hz on 400 kW: hidden until checked, then A carries 450.4 kW at 60.10 Hz and B draws 50.4 kW as a motor, red past its edge; on 600 kW A is at full fuel and the board falls to 60.0 Hz with B on 96 kW', () => {\n    const a = drawn(iFlat), b = drawn(iFlat, solvedSt(iFlat)), c = isoSolve(60.1, 60.0, 600);\n    return tIs(a.t, { F: '?', PA: '?', PB: '?', D: '?' }) && a.dot === null && tIs(b.t, { F: '60.10', PA: '450.4', PB: '−50.4' }) && b.red[1] && !b.red[0] && !!b.dot &&\n      K.near(c.f, 60, 1e-12) && K.near(c.pa, 504, 1e-12) && K.near(c.pb, 96, 1e-9);\n  });\n  K.check('More fuel to the engine of one set in a group does not raise the frequency as it would alone: the board rises by less than the nudge, and less still with more sets', () => {\n    const k = kOf(4), rise = (n) => { const g0 = 62.4 - 600 / (n * k), g1 = (n * 62.4 + 0.3) / n - 600 / (n * k); return g1 - g0; };\n    const two = droopSolve(62.7, 62.4, k, k, 600).f - droopSolve(62.4, 62.4, k, k, 600).f;\n    return K.near(two, rise(2), 1e-9) && K.near(rise(1), 0.3, 1e-9) && rise(1) > rise(2) && rise(2) > rise(10);\n  }, { source: SRC_DS });\n  K.check('Real power from a set in parallel is a direct function of its engine\\'s output: raising A\\'s setting always moves more kW onto A and widens its load angle', () => {\n    let prev = null;\n    for (let n = 580; n <= 640; n++) {\n      const m = mk({ fa: n / 10 });\n      if (prev && (m.pa < prev.pa - 1e-9 || m.d < prev.d - 1e-9)) return false;\n      prev = m;\n    }\n    return mk({ fa: 64 }).pa > mk({ fa: 58 }).pa + 300;\n  }, { source: SRC_CUM });\n  K.check('Raising one set\\'s excitation increases its share of the total kVAr and decreases its power factor', () => {\n    let prev = null;\n    for (let n = 895; n <= 904; n++) {\n      const m = mk({ va: n / 2 }), pf = m.pa / Math.hypot(m.pa, m.qa);\n      if (prev && !(m.qa > prev.qa && pf < prev.pf)) return false;\n      prev = { qa: m.qa, pf };\n    }\n    return true;\n  }, { source: SRC_DS });\n  K.check('Speed control shares the kW and voltage control the kVAr: the field settings never move the kW, and the governor settings never move the kVAr', () => {\n    const m0 = mk({}), m1 = mk({ va: 455, vb: 440 }), m2 = mk({ fa: 63.5, fb: 61 });\n    return m1.pa === m0.pa && m1.pb === m0.pb && K.near(m2.qa, m0.qa, 1e-12) && K.near(m2.qb, m0.qb, 1e-12) && Math.abs(m1.qa - m0.qa) > 50 && Math.abs(m2.pa - m0.pa) > 50;\n  }, { source: SRC_BG });\n  K.check('Raising A\\'s field 2 V lifts the board only 1 V, to 441.0 V: A carries 255 kVAr and B 195, a cross current of 30 000 ÷ (√3 × 440) = 39.4 A; compensation brings 440.0 V, 225 kVAr each and 0.0 A, with each set still on 300 kW (screens 11 and 12)', () => {\n    const a = drawn(iField, solvedSt(iField)), b = drawn(iCross), c = drawn(iCross, null, false, () => { X.comp = true; });\n    const q = { V: '441.0', QA: '255', QB: '195', X: '39.4' };\n    return tIs(a.t, q) && tIs(b.t, q) && tIs(c.t, { V: '440.0', QA: '225', QB: '225', X: '0.0' }) && b.flow === 1 && c.flow === 0 &&\n      b.kw[0] === '300' + NB + 'kW' && c.kw[1] === '300' + NB + 'kW' && !!c.ring && !!a.ring;\n  });\n  K.check('Screen 3: δ 32.3° with E 2.25, V 1.0 and Xs 1.5 gives 2.25 × 1.0 × 0.534 ÷ 1.5 = 0.80 per unit, and 0.80 × 630 kVA = 504 kW; A shows ? until checked', () => {\n    const a = drawn(iPu), b = drawn(iPu, solvedSt(iPu));\n    return a.t.D === '32.3' && a.t.PA === '?' && b.t.PA === '504' && b.M.pu === 0.8 && r2(EPU * VPU * 0.534 / XS) === 0.8 && Math.round(Math.sin(rad(32.3)) * 1000) / 1000 === 0.534;\n  });\n  K.check('Screen 10: the 600 kW load at 0.8 takes 600 × 0.75 = 450 kVAr; settings of 447.5 V cross at 440.0 V with 225 kVAr each and no cross current', () => {\n    const r = drawn(iVolt);\n    return K.near(QK, 0.75, 1e-12) && K.near(r.M.Q, 450, 1e-9) && tIs(r.t, { V: '440.0', QA: '225', QB: '225', X: '0.0' }) && r.flow === 0;\n  });\n  K.check('Screen 14: A at 62.8 Hz and B at 62.4 Hz carry 342 and 258 kW at 61.17 Hz; moved 0.2 Hz towards each other they carry 300 kW each, still at 61.17 Hz', () => {\n    const a = drawn(iBack), b = drawn(iBack, solvedSt(iBack));\n    return tIs(a.t, { F: '61.17', PA: '342', PB: '258' }) && tIs(b.t, { F: '61.17', PA: '300', PB: '300' }) && K.near(a.M.f, b.M.f, 1e-9) && K.near((342 - 300) / 210, 0.2, 1e-12) && !!b.ring;\n  });\n  K.check('With no load, equal settings carry nothing at their setting; a set set well below the other is driven as a motor, drawing 50.4 kW that the other supplies', () => {\n    const a = droopSolve(62.4, 62.4, 210, 210, 0), b = droopSolve(64, 58, 210, 210, 0);\n    return K.near(a.f, 62.4, 1e-12) && K.near(a.pa, 0, 1e-9) && K.near(b.pb, -50.4, 1e-9) && K.near(b.pa, 50.4, 1e-9) && K.near(b.f, 64 - 50.4 / 210, 1e-9);\n  });\n  K.check('Screen 1 shows the 80 kW and 60 kVAr triangle once checked; each typed answer and slip is worked from the rule: 80 kW (60, 125), 0.80 (1.20, 1.27, 1.80), 321 kW (342, 300, 279), 0.76 (0.80, 0.84, 0.65) and 0.2 Hz (0.4, 0.1, 42)', () => {\n    const t0 = drawn(iRec), t1 = drawn(iRec, solvedSt(iRec));\n    const sl = (i, v) => STEPS[i].slips.length === v.length && STEPS[i].slips.every((s, k) => Math.abs(s.value - v[k]) < 1e-12);\n    const sn = Math.sin(rad(32.3)), cs = Math.cos(rad(32.3)), kva = Math.hypot(300, 255), kvb = Math.hypot(300, 195);\n    const work = K.near(100 * 0.8, 80, 1e-12) && K.near(Math.sqrt(100 * 100 - 80 * 80), 60, 1e-12) && K.near(100 / 0.8, 125, 1e-12) &&\n      r2(2.25 * 0.534 / 1.5) === 0.8 && r2(2.25 * sn / 1.5) === 0.8 && r2(2.25 * 0.534) === 1.2 && r2(2.25 * cs / 1.5) === 1.27 && r2(2.25 * 0.534 * 1.5) === 1.8 &&\n      K.near(210 * 1.53, 321.3, 1e-9) && Math.round(210 * (62.6 - 60.97)) === 342 && 600 - 321 === 279 &&\n      r2(300 / kva) === 0.76 && r2(300 / kvb) === 0.84 && r2(255 / kva) === 0.65 &&\n      K.near(42 / 210, 0.2, 1e-12) && K.near(84 / 210, 0.4, 1e-12) && K.near(42 / 210 / 2, 0.1, 1e-12) && 342 - 300 === 42;\n    return work && !t0.tri && t1.tri && STEPS[iRec].answer === 80 && STEPS[iPu].answer === 0.8 && STEPS[iMore].answer === 321 && STEPS[iPf].answer === 0.76 && STEPS[iBack].answer === 0.2 &&\n      sl(iRec, [60, 125]) && sl(iPu, [1.2, 1.27, 1.8]) && sl(iMore, [342, 300, 279]) && sl(iPf, [0.8, 0.84, 0.65]) && sl(iBack, [0.4, 0.1, 42]);\n  });\n  K.check('Unequal droops: A at 2% from 61.2 Hz takes 420 kW for each hertz and B at 4% from 62.4 Hz takes 210; at 900 kW they carry 432 and 468 kW at 60.17 Hz, at 300 kW 32 and 268 kW at 61.12 Hz, so A sheds 400 kW and B 200 (screen 9)', () => {\n    const a = drawn(iUneq), b = drawn(iUneq, solvedSt(iUneq)), m6 = mk({ da: 2, fa: 61.2, load: 600 });\n    return K.near(kOf(2), 420, 1e-9) && tIs(a.t, { F: '60.17', PA: '432', PB: '468' }) && tIs(b.t, { F: '61.12', PA: '32', PB: '268' }) &&\n      K.near(a.M.pa - b.M.pa, 400, 1e-6) && K.near(a.M.pb - b.M.pb, 200, 1e-6) && K.near(m6.pa, 232, 1e-6) && K.near(m6.pb, 368, 1e-6) && !!b.ring;\n  });\n  K.check('The Droop slider moves both sets; with equal droops the shares stay equal at any load', () =>\n    [0, 300, 900].every((L) => { const m = mk({ droop: 2, da: 2, load: L }); return K.near(m.pa, m.pb, 1e-9); }));\n  K.check('Screen 14: with mixed windings a third-harmonic current runs round the linked neutrals; with both at 2/3 pitch none does', () => {\n    const a = drawn(iNeu, null, false, () => { X.pitch = 'Mixed'; }), b = drawn(iNeu);\n    return a.nflow === 1 && b.nflow === 0;\n  });\n  K.check('Screen 11: 1 V for each 30 kVAr is 21 V at 630 kVAr, 4.8% of 440 V', () => K.near(RKVA / KQ, 21, 1e-12) && r1(100 * 21 / VB) === 4.8);\n  K.check('Sixteen screens, seven that show and nine to try; the picks put their right answers in different places', () => {\n    const pos = [iNudge, iUneq, iFlat, iField].map((i) => STEPS[i].opts.indexOf(STEPS[i].want));\n    return STEPS.length === 16 && STEPS.filter((d) => d.show).length === 7 && pos.every((p) => p >= 0) && new Set(pos).size === 3 &&\n      iRec === 0 && iBack === STEPS.length - 1 && iCross === 12 && iNeu === 13 && iUneq === 8;\n  });\n  K.ready();\n</script>",
+  "title": "Two sets, back to back",
+  "brief": "The one thing you should see is set A's share of the kW growing while the board's frequency barely moves, when you raise A's governor setting with the two sets' droop lines back to back.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "At 4% droop a set falls 2.4 Hz across 504 kW, so it takes 210 kW for each hertz; equal 62.4 Hz settings share 600 kW as 300 kW each at 60.97 Hz with δ 18.5° (screens 2 and 4)",
+     "ok": true
+    },
+    {
+     "label": "Raising A's setting 0.3 Hz moves 31.5 kW onto A, 331.5 against 268.5 kW with δ 20.5°, and lifts the board only 0.15 Hz, half the nudge, to 61.12 Hz; the old crossing stays marked (screen 6)",
+     "ok": true
+    },
+    {
+     "label": "Screen 5 answered moves A to 62.7 Hz; screen 7 shows ? for A until checked, then A at 62.6 Hz carries 321 kW and B 279 kW at 61.07 Hz",
+     "ok": true
+    },
+    {
+     "label": "At 1% droop a set takes 840 kW for each hertz: the same 0.3 Hz nudge from 60.6 Hz gives 426 and 174 kW at 60.39 Hz, moving 126 kW, four times the 31.5 kW at 4% (screen 8)",
+     "ok": true
+    },
+    {
+     "label": "Isochronous at 60.1 and 60.0 Hz on 400 kW: hidden until checked, then A carries 450.4 kW at 60.10 Hz and B draws 50.4 kW as a motor, red past its edge; on 600 kW A is at full fuel and the board falls to 60.0 Hz with B on 96 kW",
+     "ok": true
+    },
+    {
+     "label": "More fuel to the engine of one set in a group does not raise the frequency as it would alone: the board rises by less than the nudge, and less still with more sets",
+     "ok": true,
+     "source": "https://dieselship.com/marine-technical-articles/marine-electro-technology/active-reactive-power-sharing-in-a-paralleled-generator-set-kw-kvar"
+    },
+    {
+     "label": "Real power from a set in parallel is a direct function of its engine's output: raising A's setting always moves more kW onto A and widens its load angle",
+     "ok": true,
+     "source": "https://mart.cummins.com/imagelibrary/data/assetfiles/0056622.pdf"
+    },
+    {
+     "label": "Raising one set's excitation increases its share of the total kVAr and decreases its power factor",
+     "ok": true,
+     "source": "https://dieselship.com/marine-technical-articles/marine-electro-technology/active-reactive-power-sharing-in-a-paralleled-generator-set-kw-kvar"
+    },
+    {
+     "label": "Speed control shares the kW and voltage control the kVAr: the field settings never move the kW, and the governor settings never move the kVAr",
+     "ok": true,
+     "source": "https://www.bengibb.ca/blog/kw-and-kvar-control"
+    },
+    {
+     "label": "Raising A's field 2 V lifts the board only 1 V, to 441.0 V: A carries 255 kVAr and B 195, a cross current of 30 000 ÷ (√3 × 440) = 39.4 A; compensation brings 440.0 V, 225 kVAr each and 0.0 A, with each set still on 300 kW (screens 11 and 12)",
+     "ok": true
+    },
+    {
+     "label": "Screen 3: δ 32.3° with E 2.25, V 1.0 and Xs 1.5 gives 2.25 × 1.0 × 0.534 ÷ 1.5 = 0.80 per unit, and 0.80 × 630 kVA = 504 kW; A shows ? until checked",
+     "ok": true
+    },
+    {
+     "label": "Screen 10: the 600 kW load at 0.8 takes 600 × 0.75 = 450 kVAr; settings of 447.5 V cross at 440.0 V with 225 kVAr each and no cross current",
+     "ok": true
+    },
+    {
+     "label": "Screen 14: A at 62.8 Hz and B at 62.4 Hz carry 342 and 258 kW at 61.17 Hz; moved 0.2 Hz towards each other they carry 300 kW each, still at 61.17 Hz",
+     "ok": true
+    },
+    {
+     "label": "With no load, equal settings carry nothing at their setting; a set set well below the other is driven as a motor, drawing 50.4 kW that the other supplies",
+     "ok": true
+    },
+    {
+     "label": "Screen 1 shows the 80 kW and 60 kVAr triangle once checked; each typed answer and slip is worked from the rule: 80 kW (60, 125), 0.80 (1.20, 1.27, 1.80), 321 kW (342, 300, 279), 0.76 (0.80, 0.84, 0.65) and 0.2 Hz (0.4, 0.1, 42)",
+     "ok": true
+    },
+    {
+     "label": "Unequal droops: A at 2% from 61.2 Hz takes 420 kW for each hertz and B at 4% from 62.4 Hz takes 210; at 900 kW they carry 432 and 468 kW at 60.17 Hz, at 300 kW 32 and 268 kW at 61.12 Hz, so A sheds 400 kW and B 200 (screen 9)",
+     "ok": true
+    },
+    {
+     "label": "The Droop slider moves both sets; with equal droops the shares stay equal at any load",
+     "ok": true
+    },
+    {
+     "label": "Screen 14: with mixed windings a third-harmonic current runs round the linked neutrals; with both at 2/3 pitch none does",
+     "ok": true
+    },
+    {
+     "label": "Screen 11: 1 V for each 30 kVAr is 21 V at 630 kVAr, 4.8% of 440 V",
+     "ok": true
+    },
+    {
+     "label": "Sixteen screens, seven that show and nine to try; the picks put their right answers in different places",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step",
+    "gov",
+    "fa",
+    "fb",
+    "droop",
+    "da",
+    "load",
+    "va",
+    "vb",
+    "comp",
+    "pitch"
+   ],
+   "readouts": [
+    "r-f",
+    "r-pa",
+    "r-pb",
+    "r-d",
+    "r-v",
+    "r-qa",
+    "r-qb",
+    "r-x"
+   ],
+   "outputs": [],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Screen",
+     "min": 0,
+     "max": 15,
+     "step": 1,
+     "steps": [
+      "Real and reactive",
+      "More fuel, wider angle",
+      "Power from the angle",
+      "Two droop lines",
+      "A nudge to A",
+      "Half the nudge",
+      "How much more",
+      "Less droop",
+      "Unequal droops",
+      "Two flat lines",
+      "Voltage and kVAr",
+      "More field on A",
+      "Cross current",
+      "The neutrals",
+      "A's power factor",
+      "Share it back"
+     ],
+     "value": 0
+    },
+    {
+     "id": "gov",
+     "kind": "choice",
+     "label": "Governors",
+     "options": [
+      "Droop",
+      "Isochronous"
+     ],
+     "labels": [
+      "Droop",
+      "Isochronous"
+     ],
+     "value": "Droop",
+     "index": 0,
+     "shown": false
+    },
+    {
+     "id": "fa",
+     "kind": "control",
+     "label": "A's setting",
+     "min": 58,
+     "max": 64,
+     "step": 0.1,
+     "log": false,
+     "value": 62.4,
+     "shown": false,
+     "snap": [
+      62.4,
+      62.6,
+      62.7,
+      60.6,
+      60.9
+     ]
+    },
+    {
+     "id": "fb",
+     "kind": "control",
+     "label": "B's setting",
+     "min": 58,
+     "max": 64,
+     "step": 0.1,
+     "log": false,
+     "value": 62.4,
+     "shown": false,
+     "snap": [
+      62.4,
+      62.6
+     ]
+    },
+    {
+     "id": "droop",
+     "kind": "control",
+     "label": "Droop",
+     "min": 1,
+     "max": 6,
+     "step": 1,
+     "log": false,
+     "value": 4,
+     "shown": false
+    },
+    {
+     "id": "da",
+     "kind": "control",
+     "label": "A's droop",
+     "min": 1,
+     "max": 6,
+     "step": 1,
+     "log": false,
+     "value": 4,
+     "shown": false
+    },
+    {
+     "id": "load",
+     "kind": "control",
+     "label": "Load",
+     "min": 0,
+     "max": 900,
+     "step": 100,
+     "log": false,
+     "value": 600,
+     "shown": false
+    },
+    {
+     "id": "va",
+     "kind": "control",
+     "label": "A's field setting",
+     "min": 430,
+     "max": 460,
+     "step": 0.5,
+     "log": false,
+     "value": 447.5,
+     "shown": false
+    },
+    {
+     "id": "vb",
+     "kind": "control",
+     "label": "B's field setting",
+     "min": 430,
+     "max": 460,
+     "step": 0.5,
+     "log": false,
+     "value": 447.5,
+     "shown": false
+    },
+    {
+     "id": "comp",
+     "kind": "toggle",
+     "label": "Compensation",
+     "options": [
+      false,
+      true
+     ],
+     "value": false,
+     "shown": false
+    },
+    {
+     "id": "pitch",
+     "kind": "choice",
+     "label": "Windings",
+     "options": [
+      "Mixed",
+      "2/3 pitch"
+     ],
+     "labels": [
+      "Mixed",
+      "2/3 pitch"
+     ],
+     "value": "Mixed",
+     "index": 0,
+     "shown": false
+    }
+   ],
+   "actions": [
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Check",
+    "Why?",
+    "Show me again",
+    "Back",
+    "Continue",
+    "Start again",
+    "Running"
+   ],
+   "answers": [
+    {
+     "id": "a-kw",
+     "answer": 80,
+     "accept": [],
+     "ok": true
+    },
+    {
+     "id": "a-pu",
+     "answer": 0.8,
+     "accept": [],
+     "ok": true
+    },
+    {
+     "id": "a-share",
+     "answer": 321,
+     "accept": [
+      321.3
+     ],
+     "ok": true
+    },
+    {
+     "id": "a-pf",
+     "answer": 0.76,
+     "accept": [],
+     "ok": true
+    },
+    {
+     "id": "a-hz",
+     "answer": 0.2,
+     "accept": [],
+     "ok": true
+    }
+   ],
+   "written": [],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 2
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-31T15:18:59.368Z",
+  "applied": [
+   {
+    "path": "explain.text",
+    "problem": "Across the Load stepper's range to 900 kW, an isochronous set cannot take the whole load past its 504 kW; and in this loaded example B's current falls, so the cross current warms A's winding, not both."
+   },
+   {
+    "path": "interactive.whatAmILookingAt",
+    "problem": "Screen 12 says the cross current warms both windings, but B's current falls (357.8 against 375 kVA); the isochronous rule says nothing past 504 kW though the load goes to 900; kVAr settings can drive a set leading or past 630 kVA unmarked."
+   },
+   {
+    "path": "practice.text",
+    "problem": "Raising one setting and lowering the other by the same amount holds the frequency only on equal sets with equal droop; one set's extra fuel also lifts the frequency a little; unlinked isochronous sets can, not always, motor one set."
+   },
+   {
+    "path": "analogy.text",
+    "problem": "For a battery string, 'takes more of the current' reads as charging; the higher string gives more of the load current."
+   }
+  ],
+  "notes": [
+   {
+    "path": "interactive.whatAmILookingAt",
+    "problem": "The droop rule does not say how a share below zero meets the 50.4 kW motoring draw, nor how f is re-solved when one share hits its 504 kW cap; the build should clamp at −50.4 and 504 kW and re-solve so the shares still add to the load."
+   }
+  ]
+ },
+ "error": null,
+ "flags": {}
+}

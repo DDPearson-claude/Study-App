@@ -1,0 +1,1134 @@
+<!-- kind: mechanism -->
+<style>
+  [hidden] { display: none !important; }
+  .pz { max-width: 52rem; }
+  .pz > * + *, #stepbox > * + *, .figs > * + * { margin-top: 14px; }
+  .task, .fb, .why, .closing, .done p, .say { max-width: 34rem; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.08rem; font-weight: 400; line-height: 1.6; }
+  /* The board and the fault's own panel: side by side on a laptop, stacked on a phone. */
+  .pics { display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-start; gap: 6px 18px; }
+  .pics svg { display: block; width: 100%; }
+  #scene { flex: 1 1 19rem; max-width: 28rem; }
+  #panel { flex: 1 1 19rem; max-width: 28rem; }
+  .sws { display: flex; flex-wrap: wrap; gap: 10px 16px; }
+  .sws > div { flex: 1 1 14rem; min-width: 0; }
+  #c-fault .k-seg button { flex: 1 1 8rem; white-space: nowrap; }
+  #c-supply .k-seg button { flex: 1 1 5rem; white-space: nowrap; }
+  .outs.k-readouts { display: grid; grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr)); gap: 10px; }
+  .outs .k-readout { min-width: 0; }
+  .say { min-height: 3.2em; transition: opacity .3s ease-out; }
+  .say.off { opacity: 0; }
+  svg .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  svg .labb { font: 700 13px var(--k-font); fill: var(--k-ink); }
+  svg .labm { font: 600 13px var(--k-font); fill: var(--k-muted); }
+  svg .labw { font: 700 13px var(--k-font); fill: var(--k-warn); }
+  svg .hl { paint-order: stroke; stroke: var(--k-bg); stroke-width: 4px; stroke-linejoin: round; }
+  .bus { stroke: var(--k-ink); stroke-width: 3; stroke-linecap: round; }
+  .wire { fill: none; stroke: var(--k-ink); stroke-width: 1.6; }
+  .gen { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.6; }
+  .eng { fill: var(--k-sunk); stroke: var(--k-ink); stroke-width: 1.4; }
+  .loadbox { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.4; }
+  .contact { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.4; }
+  .blade { stroke: var(--k-ink); stroke-width: 2.4; stroke-linecap: round; }
+  .ar { stroke: var(--k-accent2); stroke-width: 3; stroke-linecap: round; }
+  .arh { fill: var(--k-accent2); }
+  .ar-r { stroke: var(--k-warn); stroke-width: 3; stroke-linecap: round; }
+  .ar-rh { fill: var(--k-warn); }
+  .fc { fill: none; stroke: var(--k-warn); stroke-linejoin: round; stroke-linecap: round; }
+  .zig { fill: none; stroke: var(--k-warn); stroke-width: 2.4; stroke-linejoin: round; stroke-linecap: round; }
+  .axis { stroke: var(--k-strong); stroke-width: 1.4; }
+  .tick { stroke: var(--k-strong); stroke-width: 1.2; }
+  .trk { fill: var(--k-sunk); }
+  .fill-n { fill: var(--k-accent2); }
+  .fill-r { fill: var(--k-warn); }
+  .band-r { fill: var(--k-warn); fill-opacity: .28; }
+  .dot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 1.5; }
+  .cv { fill: none; stroke: var(--k-accent2); stroke-width: 2.6; stroke-linejoin: round; stroke-linecap: round; }
+  .cv-o { fill: none; stroke: var(--k-muted); stroke-width: 1.8; stroke-dasharray: 5 4; stroke-linejoin: round; }
+  .lim { stroke: var(--k-ink); stroke-width: 1.4; stroke-dasharray: 7 4; }
+  .dl { stroke: var(--k-muted); stroke-width: 1.4; stroke-dasharray: 3 3; }
+  .guide { stroke: var(--k-muted); stroke-width: 1.4; stroke-dasharray: 5 4; }
+  .rate { stroke: var(--k-ink); stroke-width: 1.6; stroke-dasharray: 5 3; }
+  .brk { fill: none; stroke: var(--k-ink); stroke-width: 1.3; }
+  .ph-v { stroke: var(--k-ink); stroke-width: 2.4; stroke-linecap: round; }
+  .ph-e { stroke: var(--k-accent2); stroke-width: 2.6; stroke-linecap: round; }
+  .hd-v { fill: var(--k-ink); }
+  .hd-e { fill: var(--k-accent2); }
+  .arc { fill: none; stroke: var(--k-accent); stroke-width: 1.6; }
+  .grp { fill: var(--k-fill3); stroke: var(--k-ink); stroke-width: 1.4; }
+  .grp-off { fill: none; stroke: var(--k-muted); stroke-width: 1.4; stroke-dasharray: 4 3; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-inline: 16px; font-size: .95rem; white-space: nowrap; }
+  .picks { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .picks .k-btn { min-height: 48px; font-size: 1.05rem; white-space: normal; overflow-wrap: normal; word-break: normal; hyphens: none; text-align: left; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .answers .k-answer { max-width: 20rem; }
+  .fb { font-weight: 700; min-height: 1.5em; }
+  .fb.right { color: var(--k-good); }
+  .why, .done, .closing { line-height: 1.6; }
+  .closing { font-weight: 700; }
+  .done .row { margin-top: 14px; }
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } .say { transition: none; } }
+</style>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <div class="figs" id="figs">
+      <div class="pics">
+        <svg id="scene" viewBox="0 0 340 196" width="100%" role="img" aria-label=""><g id="art"></g></svg>
+        <svg id="panel" viewBox="0 0 340 200" width="100%" role="img" aria-label=""><g id="panelArt"></g></svg>
+      </div>
+      <div class="sws" id="sws">
+        <div class="k-controls" id="c-fault"></div>
+        <div class="k-controls" id="c-es"></div>
+        <div class="k-controls" id="c-fl"></div>
+        <div class="k-controls" id="c-sc"></div>
+        <div class="k-controls" id="c-ov"></div>
+        <div class="k-controls" id="c-supply"></div>
+      </div>
+      <div class="replay" id="replay"></div>
+      <p class="say" id="say"></p>
+      <div class="k-readouts outs" id="o-es"></div>
+      <div class="k-readouts outs" id="o-fl"></div>
+      <div class="k-readouts outs" id="o-sc"></div>
+      <div class="k-readouts outs" id="o-ov"></div>
+    </div>
+    <div class="picks" id="picks"></div>
+    <div class="answers" id="answers"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+    <p class="closing" id="closing" hidden></p>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p id="finish"></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption" id="cap">Worked from the rule, with example settings and smooth sketched decays.</p>
+
+<script>
+  // ================= the rule =================
+  const strip = (s) => String(s || '').replace(/\[\^\d+\]/g, '');
+  const NB = ' ';                                  // a no-break space: a number never parts from its unit
+  const SRC_CED = 'https://www.cedengineering.com/userfiles/E04-047%20-%20Generator%20Protection%20-%20US.pdf';
+  const SRC_024 = 'https://www.stamford-avk.com/sites/stamfordavk/files/AGNs/AGN024_E.pdf';
+  const SRC_005 = 'https://www.stamford-avk.com/sites/stamfordavk/files/AGN005_D.pdf';
+  const SRC_124 = 'https://www.stamford-avk.com/sites/stamfordavk/files/AGN124_C.pdf';
+  const ES = 'Engine stops', FL = 'Field lost', SC = 'Short circuit', OV = 'Overload';
+  const FK = { 'Engine stops': 'es', 'Field lost': 'fl', 'Short circuit': 'sc', 'Overload': 'ov' };
+  // Two 504 kW (630 kVA) sets on one 440 V, 60 Hz board.
+  const RK = 504, RKVA = 630, VB = 440;
+  const rad = (d) => d * Math.PI / 180, deg = (r) => r * 180 / Math.PI;
+
+  // Engine stops: 400 kW at 0.8 power factor (300 kVAr), shared 200 kW and 150 kVAr each. A's kW falls
+  // evenly over 1 s (a sketch) from 200 kW out to 50.4 kW in, 10% of its rating (an example figure).
+  // The relay picks up at 25.2 kW in, 5% of the rating, and waits 5 s (example settings).
+  const LOAD = 400, QLOAD = 300, MOT = 0.1 * RK, PICK = 0.05 * RK, DELAY = 5, RUN = 1;
+  // Screen 3 asks with its own figures: a load L shared equally, and a motoring draw m.
+  const pES = (t, L = LOAD, m = MOT) => (t >= RUN ? -m : L / 2 - (L / 2 + m) * t / RUN);
+  const T_PICK = (200 + PICK) / (200 + MOT) * RUN;      // 0.9 s
+  const T_TRIP = T_PICK + DELAY;                        // 5.9 s
+  function es(t, L = LOAD, m = MOT) {
+    const tp = (L / 2 + PICK) / (L / 2 + m) * RUN, ql = 0.75 * L;
+    const trip = t >= tp + DELAY - 1e-9, picked = t >= tp;
+    const pa = trip ? 0 : pES(t, L, m), qa = trip ? 0 : ql / 2;
+    return { pa, pb: L - pa, qa, qb: ql - qa, timer: picked ? Math.min(t - tp, DELAY) : 0, picked, trip, load: L };
+  }
+  // A brief reverse flow just after closing on: 30 kW back for 2 s, against a timer of D seconds.
+  // The timer runs while the flow lasts, and resets (quickly, drawn over half a second) once it stops.
+  function brief(u, D0) {
+    const trip = D0 <= 2 && u >= D0 - 1e-9;
+    const tau = trip ? D0 : u <= 2 ? Math.min(u, D0) : Math.max(0, Math.min(2, D0) - 4 * (u - 2));
+    return { trip, tau, reach: Math.min(u, 2, D0) };
+  }
+
+  // Field lost: V 1.0 and Xs 1.5 per unit. E starts at 1.44 (an example field) and falls 0.8 each
+  // second (a sketch). A still sends out 200 kW = 200 ÷ 630 per unit, so sin δ = P × Xs ÷ (E × V).
+  // A's kVAr = (E × cos δ − V) ÷ Xs per unit, times 630 kVA. Below 0.48 no angle carries the kW:
+  // the rotor slips, δ turning round once a second (a sketch).
+  const VPU = 1.0, XS = 1.5, E0 = 1.44, EFALL = 0.8;
+  const PPU = 200 / RKVA, ECRIT = PPU * XS / VPU, T_SLIP = (E0 - ECRIT) / EFALL;
+  const eOf = (t) => Math.max(0, E0 - EFALL * t);
+  function fl(t) {
+    const E = eOf(t), slip = t > T_SLIP + 1e-9;
+    const d = slip ? 90 + 360 * (t - T_SLIP) : deg(Math.asin(K.clamp(PPU * XS / (Math.max(E, ECRIT) * VPU), -1, 1)));
+    const pa = slip ? E * VPU * Math.sin(rad(d)) / XS * RKVA : 200;
+    const qa = (E * Math.cos(rad(d)) - VPU) / XS * RKVA;
+    return { E, d, slip, pa, pb: LOAD - pa, qa, qb: QLOAD - qa };
+  }
+
+  // Short circuit: A alone. Rated current 630 000 ÷ (√3 × 440). Sub-transient 0.15 and transient 0.25
+  // per unit, time constants 0.02 s and 0.3 s (example values). Sustained 3 times rated with a PMG
+  // (an example), 0 when shunt-fed. The breaker opens once the current has stayed above 2000 A for 0.5 s.
+  const IR = RKVA * 1000 / (Math.sqrt(3) * VB);
+  const XD2 = 0.15, XD1 = 0.25, TD1 = 0.3, TD2 = 0.02, SUS = { PMG: 3, Shunt: 0 }, BRK = 2000, BDEL = 0.5;
+  // Screen 9 asks about a sub-transient reactance of 0.18 instead (X.xd2).
+  const xOf = (t, s, x2 = X.xd2) => SUS[s] + (1 / XD1 - SUS[s]) * Math.exp(-t / TD1) + (1 / x2 - 1 / XD1) * Math.exp(-t / TD2);
+  function tBelow(s) {
+    if (xOf(10, s, XD2) * IR > BRK) return Infinity;
+    let lo = 0, hi = 10;
+    for (let k = 0; k < 60; k++) { const m = (lo + hi) / 2; if (xOf(m, s, XD2) * IR > BRK) lo = m; else hi = m; }
+    return hi;
+  }
+  const TB = { PMG: tBelow('PMG'), Shunt: tBelow('Shunt') };
+  function sc(t, s) {
+    const tb = TB[s], tt = tb > BDEL ? BDEL : Infinity;          // above 2000 A from the start
+    const opened = t >= tt - 1e-9, cleared = t > tt + 1e-9;
+    const x = cleared ? 0 : xOf(t, s);
+    return { x, I: x * IR, count: cleared ? BDEL : t < tb ? Math.min(t, BDEL) : 0, opened, cleared, tt };
+  }
+
+  // Overload: B trips out at 0 s and A carries the whole load. While A is over 504 kW, preferential
+  // trips shed one 30 kW group every 5 s (example settings).
+  const GROUP = 30, NG = 3, STEP_T = 5;
+  function ov(t, L0) {
+    let n = 0;
+    for (let k = 1; k <= NG; k++) if (n === k - 1 && t >= k * STEP_T - 1e-9 && L0 - GROUP * (k - 1) > RK + 1e-9) n = k;
+    const pa = L0 - GROUP * n;
+    return { pa, pb: 0, qa: 0.75 * pa, qb: 0, over: Math.max(0, pa - RK), n };
+  }
+
+  function model(s) {
+    const f = s.fault;
+    if (f === ES) { const r = es(s.es, s.esL, s.esM); return Object.assign({ f, t: s.es, brk: [r.trip, false, false] }, r); }
+    if (f === FL) { const r = fl(s.fl); return Object.assign({ f, t: s.fl, brk: [false, false, false] }, r); }
+    if (f === SC) { const r = sc(s.sc, s.supply); return Object.assign({ f, t: s.sc, pa: 0, pb: 0, qa: 0, qb: 0, brk: [false, true, r.opened] }, r); }
+    const r = ov(s.ov, s.L0);
+    return Object.assign({ f, t: s.ov, brk: [false, true, false] }, r);
+  }
+
+  // ================= the lesson: SHOW screens demonstrate, DO screens are puzzles =================
+  const STEPS = [
+    { kind: 'pick', name: 'A motor\'s voltage', nofig: true,
+      opts: ['A back-emf, pushing against the supply', 'Nothing, it only takes current', 'Extra current, helping the supply'],
+      want: 'A back-emf, pushing against the supply',
+      task: 'A DC motor\'s armature turns in its field. What does it make as it turns?',
+      hints: { 'Nothing, it only takes current': 'Any coil turning in a field has a voltage made in it.',
+        'Extra current, helping the supply': 'Its voltage pushes against the supply, so it holds the current back.' },
+      why: 'A motor and a generator are the same machine. Which way the power flows decides which it is.',
+      read: 'A DC motor\'s armature turns in its field. What does it make as it turns?' },
+    { show: true, name: 'The engine stops', notimer: true, enter: { fault: ES, es: 0 }, ctl: ['time'],
+      demo: [{ at: 0.6, to: 3.6, ramp: { es: [0, 2] } }], dur: 3.8,
+      text: 'Each fault leaves its own mark on a set\'s meters. Here two sets share 400 kW. Then A\'s engine stops. A\'s rotor is still locked in step with the board. So B drives it round as a motor. A\'s kW arrow turns round, and real power flows into A. That is [[reverse power]]. In this example, A draws 50.4 kW and B carries 450.4 kW. Drag the time cursor to watch it turn.',
+      read: 'Each fault leaves its own mark on a set\'s meters. Here two sets share 400 kW. Then A\'s engine stops. A\'s rotor is still locked in step with the board. So B drives it round as a motor. A\'s kW arrow turns round, and real power flows into A. That is reverse power. In this example, A draws 50.4 kW and B carries 450.4 kW.',
+      still: () => setStill() },
+    { kind: 'typed', name: 'B carries the rest', notimer: true, ans: 'b', enter: { fault: ES, es: 0, esL: 360, esM: 40 }, hide: ['es-b'],
+      answer: 400, decimals: 0, unit: 'kW', want: '400' + NB + 'kW',
+      slips: [{ value: 360, hint: 'B drives A round too. Add A\'s draw.' },
+        { value: 320, hint: 'A\'s draw adds to B\'s load. It does not help it.' },
+        { value: 220, hint: 'B carries the whole load, not just A\'s share.' }],
+      task: 'Now the two sets share 360 kW equally. A\'s engine stops. A draws 40 kW as a motor. How many kW does B carry now?',
+      hint: 'B now feeds the load and A\'s draw.',
+      why: '360 + 40 = 400 kW. That is still under B\'s 504 kW rating, so the board stays up.',
+      run: [{ at: 0.2, to: 2.2, ramp: { es: [0, 2] } }], rdur: 2.3, ctlSolved: ['time'],
+      read: 'Now the two sets share 360 kW equally. A\'s engine stops. A draws 40 kW as a motor. How many kW does B carry now?' },
+    { show: true, name: 'The reverse-power relay', enter: { fault: ES, es: 0 }, ctl: ['time'],
+      demo: [{ at: 0.4, to: 4.6, ramp: { es: [0, 7] } }], dur: 4.8,
+      text: 'A motoring set must come off. Its diesel can gather unburned fuel, a fire and explosion risk.[^1] And B carries A\'s draw, which can overload it. A reverse-power relay picks up once power flows in past its setting. Here that is 25.2 kW, 5% of A\'s rating. Then it waits, here for 5 s. Both are example settings. A brief reverse flow can come and go just after a set closes on. A stopped engine keeps drawing. So once the timer fills, A\'s breaker opens.',
+      read: 'A motoring set must come off. Its diesel can gather unburned fuel, a fire and explosion risk. And B carries A\'s draw, which can overload it. A reverse-power relay picks up once power flows in past its setting. Here that is 25.2 kW, 5% of A\'s rating. Then it waits, here for 5 s. Both are example settings. A brief reverse flow can come and go just after a set closes on. A stopped engine keeps drawing. So once the timer fills, A\'s breaker opens.',
+      still: () => setStill() },
+    { kind: 'pick', name: 'A nuisance trip', only: 'brief', enter: { fault: ES, delay: 1, u: 2 },
+      opts: ['Raise the pickup to 60 kW', 'Lengthen the delay, past the 2 s', 'Switch the relay off while closing on'],
+      want: 'Lengthen the delay, past the 2 s',
+      task: 'The relay picks up at 25.2 kW and waits 1 s. Just after closing on, a set sends 30 kW back for 2 s. Its governor is still picking up load. The relay trips it. Which change stops this trip but still catches a stopped engine?',
+      hints: { 'Raise the pickup to 60 kW': 'A stopped engine here draws only 50.4 kW. The relay would never see it.',
+        'Switch the relay off while closing on': 'A set that stops just after closing on would go unseen.' },
+      why: 'The delay sorts brief flows from lasting ones. A stopped engine draws for as long as it stays on the board. So a longer delay still catches it, and the pickup stays sensitive.',
+      run: [{ at: 0, set: { delay: 5, u: 0 } }, { at: 0.5, to: 2.5, ramp: { u: [0, 2] } }, { at: 2.7, to: 3.3, ramp: { u: [2, 2.6] } }], rdur: 3.4,
+      read: 'The relay picks up at 25.2 kW and waits 1 s. Just after closing on, a set sends 30 kW back for 2 s. Its governor is still picking up load. The relay trips it. Which change stops this trip but still catches a stopped engine?' },
+    { show: true, name: 'The field is lost', enter: { fault: FL, fl: 0 }, ctl: ['time'],
+      demo: [{ at: 0.6, to: 3.6, ramp: { fl: [0, 0.8] } }], dur: 3.8,
+      text: 'Now A\'s field is lost, and its E shrinks. Its engine still sends out 200 kW. Remember, power = E × V × sin δ ÷ Xs. So as E shrinks, δ must grow to carry the same kW. At E = 0.80, δ is 36.5°. A weak field cannot send kVAr out, so A draws 150 kVAr in. Once E is too small, even 90° cannot pass the 200 kW out. The engine still pushes it in, so the rotor speeds past the board\'s field. It slips a pole.',
+      read: 'Now A\'s field is lost, and its E shrinks. Its engine still sends out 200 kW. Remember, power = E × V × sin δ ÷ Xs. So as E shrinks, δ must grow to carry the same kW. At E = 0.80, δ is 36.5°. A weak field cannot send kVAr out, so A draws 150 kVAr in. Once E is too small, even 90° cannot pass the 200 kW out. The engine still pushes it in, so the rotor speeds past the board\'s field. It slips a pole.',
+      still: () => setStill() },
+    { kind: 'typed', name: 'Where it slips', ans: 'e', enter: { fault: FL, fl: 0 }, hide: ['fl-d'],
+      answer: 0.48, decimals: 2, accept: [0.476], unit: '', want: '0.48',
+      slips: [{ value: 0.21, hint: 'That divides by Xs. At 90°, sin δ is 1. So E × V ÷ Xs = the power.' },
+        { value: 0.317, hint: 'That leaves out Xs.' },
+        { value: 1.44, hint: 'That is A\'s E before the field was lost.' }],
+      task: 'A sends out 0.317 per unit of power. V is 1.0 and Xs is 1.5. Below what E does δ pass 90°, so that A slips a pole?',
+      hint: 'At 90°, sin δ = 1. So E × V ÷ Xs = the power.',
+      why: '0.317 × 1.5 ÷ 1.0 = 0.48 per unit. A smaller E cannot carry 200 kW at any angle.',
+      run: [{ at: 0.2, to: 2.6, ramp: { fl: [0, T_SLIP] } }], rdur: 2.7, ctlSolved: ['time'],
+      read: 'A sends out 0.317 per unit of power. V is 1.0 and Xs is 1.5. Below what E does δ pass 90°, so that A slips a pole?' },
+    { show: true, name: 'A short circuit', plain: true, enter: { fault: SC, sc: 0, supply: 'PMG' }, ctl: ['time'],
+      demo: [{ at: 0.6, to: 3.6, ramp: { sc: [0, 0.05] } }], dur: 3.8,
+      text: 'A short circuit\'s current starts huge and falls with time. At first the rotor\'s windings hold on to their flux, and only a small reactance holds the current back. That grip fades through three periods: sub-transient, transient and sustained. This 630 kVA, 440 V set has a rated current of 826.7 A. Its transient reactance is 0.25 per unit, or 25%. As with a transformer, fault current = rated current × 100 ÷ the percentage impedance. So the transient period starts near 826.7 × 100 ÷ 25 = 3307 A.',
+      read: 'A short circuit\'s current starts huge and falls with time. At first the rotor\'s windings hold on to their flux, and only a small reactance holds the current back. That grip fades through three periods: sub-transient, transient and sustained. This 630 kVA, 440 V set has a rated current of 826.7 A. Its transient reactance is 0.25 per unit, or 25%. As with a transformer, fault current = rated current × 100 ÷ the percentage impedance. So the transient period starts near 826.7 × 100 ÷ 25 = 3307 A.',
+      still: () => setStill() },
+    { kind: 'typed', name: 'The first current', plain: true, trace: true, ans: 'i', enter: { fault: SC, sc: 0, supply: 'PMG', xd2: 0.18 }, hide: ['sc-i', 'sc-x'],
+      answer: 4593, decimals: 0, accept: [4596], unit: 'A', want: '4593' + NB + 'A',
+      slips: [{ value: 148.8, hint: 'That multiplies by 0.18. Divide instead.' },
+        { value: 3307, hint: 'That uses the transient reactance, 0.25.' },
+        { value: 826.7, hint: 'That is the rated current. A fault draws many times more.' },
+        { value: 5511, hint: 'That is the first current with 0.15. Divide by 0.18.' }],
+      task: 'Suppose this set\'s sub-transient reactance were 0.18 per unit. Its rated current is still 826.7 A. What would its first fault current be?',
+      hint: 'First fault current = rated current ÷ the sub-transient reactance.',
+      why: '826.7 ÷ 0.18 = 4593 A. That is 5.56 times rated. It lasts only the first few cycles.',
+      run: [], rdur: 0, ctlSolved: ['time'],
+      read: 'Suppose this set\'s sub-transient reactance were 0.18 per unit. Its rated current is still 826.7 A. What would its first fault current be?' },
+    { show: true, name: 'Shunt or PMG', enter: { fault: SC, sc: 0.5, supply: 'Shunt' }, ctl: ['time', 'supply'],
+      demo: [{ at: 1.6, set: { supply: 'PMG' } }], dur: 3.2,
+      text: 'Now flip the AVR\'s supply. A shunt-fed AVR takes its power from the set\'s own output. A short circuit pulls that output down. So the field fails, and the current dies away.[^2] It falls below a breaker\'s 2000 A setting before its 0.5 s delay runs out. Fed by a PMG, the AVR forces the field. In this example the current settles at 3 times rated, 2480 A. The breaker trips.',
+      read: 'Compare the two supplies at 0.5 s. A shunt-fed AVR takes its power from the set\'s own output. A short circuit pulls that output down. So the field fails, and the current dies away. It falls below a breaker\'s 2000 A setting before its 0.5 s delay runs out. Fed by a PMG, the AVR forces the field. In this example the current settles at 3 times rated, 2480 A. The breaker trips.',
+      still: () => setStill() },
+    { kind: 'pick', name: 'The shunt-fed set', trace: true, enter: { fault: SC, sc: 0, supply: 'Shunt' }, hide: ['sc-i', 'sc-x', 'sc-c'],
+      opts: ['The breaker trips at 0.5 s', 'The breaker never trips, as the current dies first', 'The AVR forces the current back to 3 times rated'],
+      want: 'The breaker never trips, as the current dies first',
+      task: 'A shunt-fed set feeds a fault. By 0.5 s its current is 625 A. A breaker downstream trips at 2000 A after 0.5 s. What happens?',
+      hints: { 'The breaker trips at 0.5 s': 'By 0.5 s the current is well under 2000 A.',
+        'The AVR forces the current back to 3 times rated': 'A shunt-fed AVR\'s supply has collapsed with the output.' },
+      why: 'The current falls below 2000 A near 0.15 s. So the breaker\'s timer never runs out. The fault is not cleared. Fed by a PMG, the set would still give 2636 A at 0.5 s.',
+      run: [{ at: 0.2, to: 3.6, ramp: { sc: [0, 1] } }], rdur: 3.7, ctlSolved: ['time', 'supply'],
+      read: 'A shunt-fed set feeds a fault. By 0.5 s its current is 625 A. A breaker downstream trips at 2000 A after 0.5 s. What happens?' },
+    { show: true, name: 'Overload', enter: { fault: OV, ov: 0, L0: 560 }, ctl: ['time'],
+      demo: [{ at: 0.4, to: 4.6, ramp: { ov: [0, 12] } }], dur: 4.8,
+      text: 'Last, overload. Two sets share 560 kW, and B trips out. A is left with all 560 kW. That is more than its 504 kW rating. Left like that, A\'s own overload protection would trip it. The board would go dark. So [[preferential trips]] shed non-essential loads first, in steps. Here each step drops a 30 kW group, 5 s apart. Two steps bring A to 500 kW, inside its rating.',
+      read: 'Last, overload. Two sets share 560 kW, and B trips out. A is left with all 560 kW. That is more than its 504 kW rating. Left like that, A\'s own overload protection would trip it. The board would go dark. So preferential trips shed non-essential loads first, in steps. Here each step drops a 30 kW group, 5 s apart. Two steps bring A to 500 kW, inside its rating.',
+      still: () => setStill() },
+    { kind: 'typed', name: 'How many steps', ans: 'n', enter: { fault: OV, ov: 0, L0: 590 }, hide: ['ov-g'],
+      answer: 3, decimals: 2, unit: 'steps', want: '3' + NB + 'steps', whole: '3',
+      slips: [{ value: 2, hint: 'Two steps leave 530 kW, still over.' },
+        { value: 2.87, hint: 'Steps come whole. Round up.' },
+        { value: 86, hint: 'That is the kW over. Divide by 30 kW a step.' }],
+      task: 'A 504 kW set is left carrying 590 kW. Each preferential trip sheds 30 kW. How many steps bring it within its rating?',
+      hint: 'It is 86 kW over its rating.',
+      why: '590 − 504 = 86 kW over. 86 ÷ 30 = 2.87, so it takes 3 steps. That leaves 500 kW.',
+      run: [{ at: 0.2, to: 4.2, ramp: { ov: [0, 15] } }], rdur: 4.3, ctlSolved: ['time'],
+      read: 'A 504 kW set is left carrying 590 kW. Each preferential trip sheds 30 kW. How many steps bring it within its rating?' },
+    { kind: 'pick', name: 'Which protection', blind: true, enter: { fault: FL, fl: 0.8 }, hide: ['fl-a', 'fl-q', 'fl-e', 'fl-d'],
+      opts: ['Reverse power', 'Loss of field', 'Short-circuit overcurrent', 'Preferential trip'],
+      want: 'Loss of field',
+      task: 'Set A\'s kW still flows out at 200 kW. But its kVAr arrow turns inwards, and its load angle climbs. Which protection should act?',
+      hints: { 'Reverse power': 'A\'s kW still flows out. Reverse power needs it flowing in.',
+        'Short-circuit overcurrent': 'The current has not jumped to many times rated.',
+        'Preferential trip': 'Shedding load cannot bring back a lost field.' },
+      why: 'kVAr flowing in while δ climbs is the mark of a lost field. Left on, the rotor slips a pole.',
+      close: 'Each fault, its own signature.', ctlSolved: ['fault', 'time', 'supply'],
+      read: 'Set A\'s kW still flows out at 200 kW. But its kVAr arrow turns inwards, and its load angle climbs. Which protection should act?' },
+  ];
+  const FINISH = 'Each generator fault leaves its own mark. An engine that stops sends real power into its set, and a reverse-power relay trips it after a delay. A lost field draws kVAr in while δ climbs towards 90°, and then the rotor slips. A short circuit\'s current starts huge and falls with time. It holds long enough to trip a breaker only when the AVR keeps its supply, as a PMG does. On overload, [[preferential trips]] shed non-essential loads in steps.';
+
+  // ================= state =================
+  const BASE = { fault: ES, es: 0, esL: LOAD, esM: MOT, fl: 0, sc: 0, ov: 0, supply: 'PMG', xd2: XD2, L0: 560, delay: 1, u: 2 };
+  const X = Object.assign({}, BASE);
+  // What is drawn eases after the rule: the arrows, the breakers, the shed groups and the supply's curve.
+  const D = { pa: 200, pb: 200, qa: 150, qb: 150, ba: 0, bb: 0, bf: 0, g0: 0, g1: 0, g2: 0, sig: 1 };
+  const DK = Object.keys(D);
+  const blank = () => ({ pick: null, res: null, why: false, tries: 0, hint: '' });
+  let S = STEPS.map(blank);
+  const solved = (st) => !!st && (st.res === 'right' || st.res === 'shown');
+  let T = Infinity, motionEnd = 0, scripted = false;
+  let lastStep = -1, finished = false, lastDone = false;
+  let REC = { t: {} };
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  const quiet = () => REDUCE || testing();
+  const el = (id) => document.getElementById(id);
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  const tNow = () => X[FK[X.fault]];
+  function targets() {
+    const M = model(X);
+    return { pa: M.pa, pb: M.pb, qa: M.qa, qb: M.qb, ba: M.brk[0] ? 1 : 0, bb: M.brk[1] ? 1 : 0, bf: M.brk[2] ? 1 : 0,
+      g0: M.n > 0 ? 1 : 0, g1: M.n > 1 ? 1 : 0, g2: M.n > 2 ? 1 : 0, sig: X.supply === 'PMG' ? 1 : 0 };
+  }
+  function snapD() { Object.assign(D, targets()); }
+  const flowKey = (k) => k[0] === 'p' || k[0] === 'q';
+  function settled() { const g = targets(); return DK.every((k) => Math.abs(D[k] - g[k]) < 1e-9); }
+  function easeAll(dt) {
+    const g = targets();
+    DK.forEach((k) => {
+      const tau = flowKey(k) ? 0.12 : 0.22;
+      D[k] += (g[k] - D[k]) * (1 - Math.exp(-dt / tau));
+      if (Math.abs(g[k] - D[k]) < (flowKey(k) ? 0.05 : 0.002)) D[k] = g[k];
+    });
+  }
+
+  // ================= text with amber key terms (built with K.el, never innerHTML) =================
+  const UNIT_GAP = /(\d) (?=(?:Hz|kW|kVAr|kVA|V|A|s|per unit|steps)(?![A-Za-z]))/g;
+  function write(node, s) {
+    node.textContent = '';
+    strip(s).replace(UNIT_GAP, '$1' + NB).split(/\[\[([^\]]+)\]\]/).forEach((seg, k) => {
+      if (!seg) return;
+      node.appendChild(k % 2 ? K.el('span', { class: 'term' }, seg) : document.createTextNode(seg));
+    });
+  }
+  const r1 = (v) => Math.round(v * 10) / 10;
+  const sgn = (r, s) => (r < 0 ? '−' : '') + s;
+  const fK = (v) => { const r = r1(v); return sgn(r, Number.isInteger(r) ? String(Math.abs(r)) : Math.abs(r).toFixed(1)); };
+  const fI = (v) => { const r = Math.round(v); return sgn(r, String(Math.abs(r))); };
+  const f1 = (v) => Math.round(v * 10) / 10;
+  const f2 = (v) => Math.round(v * 100) / 100;
+
+  // ================= controls =================
+  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);
+  const tfmt = (dp) => (v) => Number(v).toFixed(dp) + NB + 's';
+  const CTL = {
+    fault: K.choice({ id: 'fault', label: 'Fault', options: [ES, FL, SC, OV], value: ES, into: '#c-fault' }),
+    es: K.control({ id: 'es', label: 'Time', hint: 'Since the engine stopped', min: 0, max: 10, step: 0.1, value: 0, snap: [2, 7], fmt: tfmt(1), into: '#c-es' }),
+    fl: K.control({ id: 'fl', label: 'Time', hint: 'Since the field was lost', min: 0, max: 2, step: 0.05, value: 0, snap: [0.8, 1.2], fmt: tfmt(2), into: '#c-fl' }),
+    sc: K.control({ id: 'sc', label: 'Time', hint: 'Since the fault struck', min: 0, max: 1, step: 0.01, value: 0, snap: [0.05, 0.5], fmt: tfmt(2), into: '#c-sc' }),
+    ov: K.control({ id: 'ov', label: 'Time', hint: 'Since B tripped out', min: 0, max: 15, step: 0.5, value: 0, snap: [12, 15], fmt: tfmt(1), into: '#c-ov' }),
+    supply: K.choice({ id: 'supply', label: 'AVR supply', options: ['Shunt', 'PMG'], value: 'PMG', into: '#c-supply' }),
+  };
+  const CIDS = ['fault', 'es', 'fl', 'sc', 'ov', 'supply'];
+  const TQ = { es: 10, fl: 20, sc: 100, ov: 2 };       // each time slider's steps per second
+  function norm(id, v) {
+    if (id === 'fault' || id === 'supply') return String(v);
+    return Math.round(Number(v) * TQ[id]) / TQ[id];
+  }
+  const ctlVal = (id) => norm(id, X[id]);
+  const pushed = {};
+  CIDS.forEach((id) => { pushed[id] = norm(id, CTL[id].get()); });
+  // The page moves the controls itself (silently, so it is not taken for Dan's move).
+  function push() {
+    CIDS.forEach((id) => {
+      const v = ctlVal(id);
+      if (pushed[id] !== v) { CTL[id].set(v, true); pushed[id] = norm(id, CTL[id].get()); }
+    });
+  }
+  function freeList(i) {
+    const d = STEPS[i];
+    if (finished) return [];
+    return d.show ? (d.ctl || []) : solved(S[i]) ? (d.ctlSolved || []) : [];
+  }
+  function shownCtl(i, id) {
+    const list = freeList(i);
+    if (id === 'fault') return list.indexOf('fault') >= 0;
+    if (id === 'supply') return list.indexOf('supply') >= 0 && X.fault === SC;
+    return list.indexOf('time') >= 0 && FK[X.fault] === id;
+  }
+  function applyCtl(id, v) {
+    X[id] = v;
+    if (quiet()) snapD();
+  }
+
+  const RO = {
+    'es-a': K.readout({ id: 'es-a', label: 'A in' + NB + 'kW', fmt: (v) => String(v), into: '#o-es' }),
+    'es-b': K.readout({ id: 'es-b', label: 'B in' + NB + 'kW', fmt: (v) => String(v), into: '#o-es' }),
+    'es-q': K.readout({ id: 'es-q', label: 'A in' + NB + 'kVAr', fmt: (v) => String(v), into: '#o-es' }),
+    'es-t': K.readout({ id: 'es-t', label: 'Timer in' + NB + 's', fmt: (v) => String(v), into: '#o-es' }),
+    'fl-a': K.readout({ id: 'fl-a', label: 'A in' + NB + 'kW', fmt: (v) => String(v), into: '#o-fl' }),
+    'fl-q': K.readout({ id: 'fl-q', label: 'A in' + NB + 'kVAr', fmt: (v) => String(v), into: '#o-fl' }),
+    'fl-e': K.readout({ id: 'fl-e', label: 'E in per' + NB + 'unit', fmt: (v) => String(v), into: '#o-fl' }),
+    'fl-d': K.readout({ id: 'fl-d', label: 'δ in' + NB + '°', fmt: (v) => String(v), into: '#o-fl' }),
+    'sc-i': K.readout({ id: 'sc-i', label: 'Current in' + NB + 'A', fmt: (v) => String(v), into: '#o-sc' }),
+    'sc-x': K.readout({ id: 'sc-x', label: 'Times rated', fmt: (v) => String(v), into: '#o-sc' }),
+    'sc-c': K.readout({ id: 'sc-c', label: 'Above 2000' + NB + 'A in' + NB + 's', fmt: (v) => String(v), into: '#o-sc' }),
+    'ov-a': K.readout({ id: 'ov-a', label: 'A in' + NB + 'kW', fmt: (v) => String(v), into: '#o-ov' }),
+    'ov-o': K.readout({ id: 'ov-o', label: 'Over rating in' + NB + 'kW', fmt: (v) => String(v), into: '#o-ov' }),
+    'ov-g': K.readout({ id: 'ov-g', label: 'Groups shed', fmt: (v) => String(v), into: '#o-ov' }),
+  };
+
+  // Up to four answer buttons; each puzzle fills in its own.
+  const pickBtns = [0, 1, 2, 3].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.kind !== 'pick' || k >= d.opts.length || solved(st)) return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+  // Typed answers: a field each; Check grades it, two misses show the working.
+  const ANS = {};
+  STEPS.forEach((d, i) => {
+    if (d.kind !== 'typed') return;
+    el('answers').appendChild(K.el('div', { id: 'ans-' + d.ans }));
+    const a = K.answer({ id: 'a-' + d.ans, unit: d.unit, answer: d.answer, decimals: d.decimals, accept: d.accept, slips: d.slips, into: '#ans-' + d.ans,
+      onCheck: (r) => {
+        const st = S[i];
+        if (solved(st)) return;
+        if (r.state === 'right') { st.res = 'right'; playRun(i); }
+        else if (r.state === 'wrong') {
+          st.tries += 1; st.hint = r.hint || d.hint;
+          if (st.tries >= 2) {
+            st.res = 'shown'; st.why = true; a.reveal();
+            if (d.whole) a.input.value = d.whole;        // a count is shown whole
+            playRun(i);
+          } else st.res = 'wrong';
+        } else { st.res = r.state; st.hint = ''; }
+        K.refresh();
+      } });
+    ANS[d.ans] = a;
+  });
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || solved(st)) return;
+    if (d.kind === 'typed') { ANS[d.ans].check(); return; }
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = st.pick === d.want ? 'right' : 'wrong';
+    if (st.res === 'right') playRun(i);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    const d = STEPS[at()];
+    if (d.show || finished) return;
+    S[at()].why = !S[at()].why;
+  } });
+  const replayBtn = K.button({ label: 'Show me again', secondary: true, into: '#replay', press: () => {
+    const d = STEPS[at()];
+    if (finished || !d.show || !d.demo) return;
+    startDemo(at());
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && !solved(S[i]))) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true; anim.pause(); T = Infinity;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(blank); finished = false; lastStep = -1;
+    Object.keys(ANS).forEach((k) => ANS[k].reset());
+    stepper.set(0, true);
+  } });
+
+  // ================= motion: demonstrations and answers' motion =================
+  function playScript(sc0, t0, t1) {
+    (sc0 || []).forEach((m) => {
+      if (m.to == null && m.set && m.at >= t0 && m.at < t1) Object.assign(X, m.set);
+      if (m.ramp && t1 > m.at && t0 < m.to + 1e-9) {
+        const u = K.clamp((t1 - m.at) / (m.to - m.at), 0, 1);
+        Object.keys(m.ramp).forEach((k) => { const r = m.ramp[k]; X[k] = u >= 1 ? r[1] : K.lerp(r[0], r[1], K.ease(u)); });
+      }
+    });
+  }
+  const runSync = (sc0) => playScript(sc0, -1, 1e9);
+  const running = () => T !== Infinity;
+  const needAnim = () => !finished && (running() || !settled());
+  const anim = K.anim({ button: false, label: 'Running', step: (dt) => {
+    if (finished) return false;
+    dt = Math.min(dt, 0.1);
+    const i = at(), d = STEPS[i];
+    if (running()) {
+      const t0 = T;
+      T = Math.min(T + dt, motionEnd);
+      playScript(scripted ? d.demo : d.run, t0, T);
+      if (T >= motionEnd) { T = Infinity; scripted = false; }
+    }
+    easeAll(dt);
+    push();
+    paint(i);
+    return needAnim();
+  } });
+  function kick() { if (!quiet() && needAnim() && !anim.playing()) anim.play(); }
+  function endDemo() { if (running()) { T = Infinity; scripted = false; } }
+  function fresh(d) { Object.assign(X, BASE, d.enter || {}); }
+  // A screen's state: its opening, then its demonstration's end, or its answer's motion once solved.
+  function prep(i, toEnd) {
+    const d = STEPS[i];
+    fresh(d);
+    if (d.show) { if (toEnd && d.demo) runSync(d.demo); }
+    else if (solved(S[i]) && d.run) runSync(d.run);
+    snapD();
+  }
+  function startDemo(i) {
+    const d = STEPS[i];
+    anim.pause(); T = Infinity; scripted = false;
+    if (!d.demo || quiet()) { prep(i, true); push(); return; }
+    prep(i, false); scripted = true; T = 0; motionEnd = d.dur;
+    push();
+    anim.play();
+  }
+  function playRun(i) {
+    const d = STEPS[i];
+    anim.pause(); scripted = false; T = Infinity;
+    if (quiet()) { if (d.run) runSync(d.run); snapD(); push(); return; }
+    if (d.run && d.run.length) { T = 0; motionEnd = d.rdur; }
+    anim.play();
+  }
+  function enterStep(i) {
+    anim.pause(); T = Infinity; scripted = false;
+    enter('stepbox');
+    if (STEPS[i].show) { startDemo(i); return; }
+    prep(i, false);
+    push();
+  }
+  // The finished picture a still shows (the read-through): the demonstration's end, held.
+  function setStill(fn) {
+    const i = at();
+    anim.pause(); T = Infinity; scripted = false;
+    prep(i, true);
+    if (fn) fn();
+    snapD();
+    push();
+    K.refresh();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ================= drawing helpers =================
+  function adder(g) { const f = (tag, attrs, txt) => g.appendChild(txt == null ? K.svg(tag, attrs) : K.svg(tag, attrs, txt)); f.g = g; return f; }
+  function grp(g, op) { const gg = K.svg('g', { opacity: f2(op) }); g.appendChild(gg); return adder(gg); }
+  function head(a, x, y, angDeg, cls) {
+    const t = rad(angDeg), ux = Math.cos(t), uy = -Math.sin(t), nx = -uy, ny = ux, bx = x - ux * 9, by = y - uy * 9;
+    a('path', { class: cls, d: 'M' + f1(x) + ' ' + f1(y) + 'L' + f1(bx + nx * 4.5) + ' ' + f1(by + ny * 4.5) + 'L' + f1(bx - nx * 4.5) + ' ' + f1(by - ny * 4.5) + 'Z' });
+  }
+  const BUS = 24, SX = [84, 256], ACY = 84;
+  // A flow arrow beside a set's wire: up to the board while the set sends it out, down into the set
+  // (red) while it flows in. Its length follows the size of the flow.
+  function arrowV(a, x, v) {
+    const m = Math.abs(v);
+    if (m < 0.5) return 0;
+    const L = 10 + 40 * Math.min(m / 600, 1), out = v > 0;
+    const top = ACY - L / 2, bot = ACY + L / 2, tip = out ? top : bot, tail = out ? bot : top, cls = out ? 'ar' : 'ar-r';
+    a('line', { class: cls, x1: x, y1: f1(tail), x2: x, y2: f1(out ? tip + 7 : tip - 7) });
+    a('path', { class: cls + 'h', d: 'M' + x + ' ' + f1(tip) + 'l-5.5 ' + (out ? 9 : -9) + 'h11z' });
+    return out ? 1 : -1;
+  }
+  // A breaker on a wire: two contacts and a blade, shut or swung open (side: which way it swings).
+  function breaker(a, x, open, side) {
+    a('line', { class: 'wire', x1: x, y1: BUS, x2: x, y2: 33.4 });
+    const th = rad(40 * open);
+    a('line', { class: 'blade', x1: x, y1: 54, x2: f1(x + side * 18 * Math.sin(th)), y2: f1(54 - 18 * Math.cos(th)) });
+    a('circle', { class: 'contact', cx: x, cy: 36, r: 2.6 });
+    a('circle', { class: 'contact', cx: x, cy: 54, r: 2.6 });
+  }
+
+  // ================= the board: two sets, their breakers, flows and engines =================
+  function drawScene(i, M) {
+    const d = STEPS[i], g = el('art');
+    g.textContent = '';
+    const a = adder(g), isSC = M.f === SC;
+    REC.dir = { pa: 0, qa: 0, pb: 0, qb: 0 };
+    a('text', { class: 'labb hl', x: 170, y: 14, 'text-anchor': 'middle' }, '440' + NB + 'V, 60' + NB + 'Hz board');
+    a('line', { class: 'bus', x1: 18, y1: BUS, x2: 322, y2: BUS });
+    // The fault current: from A along the board and down into the fault. It thins as the current dies.
+    REC.fc = 0;
+    if (isSC) {
+      const Id = K.lerp(sc(M.t, 'Shunt').I, sc(M.t, 'PMG').I, D.sig);
+      REC.fc = Id;
+      if (Id > 1) {
+        const fg = grp(g, K.clamp(Id / 400, 0, 1));
+        fg('polyline', { class: 'fc', points: SX[0] + ',112 ' + SX[0] + ',' + BUS + ' 170,' + BUS + ' 170,70', 'stroke-width': f1(1.5 + 4.5 * Math.min(Id / IR * X.xd2, 1)) });
+        fg('text', { class: 'labw hl', x: 127, y: 46, 'text-anchor': 'middle' }, 'fault');
+        fg('text', { class: 'labw hl', x: 127, y: 61, 'text-anchor': 'middle' }, 'current');
+      }
+    }
+    const open = [D.ba, D.bb];
+    [0, 1].forEach((j) => {
+      const cx = SX[j], side = j ? -1 : 1;
+      breaker(a, cx, open[j], side);
+      a('line', { class: 'wire', x1: cx, y1: 56.6, x2: cx, y2: 112 });
+      a('circle', { class: 'gen', cx, cy: 128, r: 16 });
+      a('text', { class: 'labb', x: cx, y: 132.5, 'text-anchor': 'middle' }, j ? 'B' : 'A');
+      const ex = j ? 278 : 8;
+      a('rect', { class: 'eng', x: ex, y: 117, width: 54, height: 22, rx: 3 });
+      a('line', { class: 'wire', x1: j ? 272 : 62, y1: 128, x2: j ? 278 : 68, y2: 128 });
+      a('text', { class: 'lab', x: ex + 27, y: 132.5, 'text-anchor': 'middle' }, 'engine');
+      const isOpen = open[j] > 0.5;
+      a('text', { class: (isOpen ? 'labb' : 'labm') + ' hl', x: cx - side * 10, y: 49, 'text-anchor': j ? 'start' : 'end' }, isOpen ? 'open' : 'shut');
+      const vis = 1 - open[j];
+      if (!isSC && vis > 0.02) {
+        const ag = grp(g, vis);
+        REC.dir[j ? 'pb' : 'pa'] = arrowV(ag, cx - 14, j ? D.pb : D.pa);
+        REC.dir[j ? 'qb' : 'qa'] = arrowV(ag, cx + 14, j ? D.qb : D.qa);
+        ag('text', { class: 'lab hl', x: cx - 22, y: 88, 'text-anchor': 'end' }, 'kW');
+        ag('text', { class: 'lab hl', x: cx + 22, y: 88 }, 'kVAr');
+      }
+    });
+    // The board's load, or, in a short circuit, the faulted feeder with its breaker.
+    if (isSC) {
+      breaker(a, 170, D.bf, -1);
+      a('line', { class: 'wire', x1: 170, y1: 56.6, x2: 170, y2: 70 });
+      a('path', { class: 'zig', d: 'M170 70L177 77L163 84L177 91L170 98' });
+      a('text', { class: 'labw hl', x: 184, y: 89 }, 'fault');
+      a('text', { class: (D.bf > 0.5 ? 'labb' : 'labm') + ' hl', x: 180, y: 49 }, D.bf > 0.5 ? 'open' : 'shut');
+    } else {
+      a('line', { class: 'wire', x1: 170, y1: BUS, x2: 170, y2: 66 });
+      a('rect', { class: 'loadbox', x: 150, y: 66, width: 40, height: 24, rx: 3 });
+      a('text', { class: 'lab', x: 170, y: 82.5, 'text-anchor': 'middle' }, 'load');
+      if (M.f !== OV) a('text', { class: 'lab hl', x: 170, y: 107, 'text-anchor': 'middle' }, fK(M.load || LOAD) + NB + 'kW');
+    }
+    // What happened to each set: the cause of the fault, hidden while a puzzle asks for it.
+    const blind = d.blind && !solved(S[i]) && !finished;
+    const stA = M.f === ES ? 'engine stopped' : M.f === FL ? 'field lost' : '';
+    const stB = M.f === SC ? 'shut down' : M.f === OV ? 'tripped out' : '';
+    if (stA && !blind) a('text', { class: 'labw hl', x: 8, y: 162 }, stA);
+    if (stB) a('text', { class: (M.f === SC ? 'labm' : 'labw') + ' hl', x: 332, y: 162, 'text-anchor': 'end' }, stB);
+    REC.status = [blind ? '' : stA, stB];
+    // The key for the arrows.
+    if (!isSC) {
+      a('line', { class: 'ar', x1: 16, y1: 192, x2: 16, y2: 186 });
+      a('path', { class: 'arh', d: 'M16 178l-5 8h10z' });
+      a('text', { class: 'labm', x: 27, y: 190 }, 'out to the board');
+      a('line', { class: 'ar-r', x1: 176, y1: 178, x2: 176, y2: 184 });
+      a('path', { class: 'ar-rh', d: 'M176 192l-5 -8h10z' });
+      a('text', { class: 'labm', x: 187, y: 190 }, 'into the set');
+    }
+    REC.brk = [D.ba > 0.5, D.bb > 0.5, D.bf > 0.5];
+    const word = (v) => (v > 0 ? 'sends out' : v < 0 ? 'draws in' : 'carries no');
+    el('scene').setAttribute('aria-label', isSC
+      ? 'Set A on a 440 V board feeds a short circuit through a feeder breaker, which is ' + (REC.brk[2] ? 'open' : 'shut') + '. ' + (REC.fc > 1 ? 'A red path shows the fault current. ' : '') + 'B is shut down.'
+      : 'Sets A and B on a 440 V, 60 Hz board. A ' + word(REC.dir.pa) + ' kW and ' + word(REC.dir.qa) + ' kVAr, with its breaker ' + (REC.brk[0] ? 'open' : 'shut') +
+        '. B ' + word(REC.dir.pb) + ' kW and ' + word(REC.dir.qb) + ' kVAr, with its breaker ' + (REC.brk[1] ? 'open' : 'shut') + '. Arrows up send power out to the board; red arrows down carry it into the set.');
+  }
+
+  // ================= the fault's own panel =================
+  function panelMode(i) {
+    const d = STEPS[i];
+    if (d.nofig) return null;
+    if (d.only) return d.only;
+    if (X.fault === ES) return d.notimer && !finished ? null : 'timer';
+    return X.fault === FL ? 'phasor' : X.fault === SC ? 'plot' : 'shed';
+  }
+  const PH = { timer: 92, brief: 140, phasor: 196, plot: 206, shed: 156 };
+  function drawPanel(i, M) {
+    const g = el('panelArt');
+    g.textContent = '';
+    const mode = panelMode(i);
+    REC.panel = mode;
+    if (!mode) return;
+    el('panel').setAttribute('viewBox', '0 0 340 ' + PH[mode]);
+    const a = adder(g);
+    if (mode === 'timer') drawTimer(a, M);
+    else if (mode === 'brief') drawBrief(a);
+    else if (mode === 'phasor') drawPhasor(a, M);
+    else if (mode === 'plot') drawPlot(a, M, i);
+    else drawShed(a, M);
+  }
+  // The reverse-power relay's timer: it fills from pickup to its 5 s delay.
+  function drawTimer(a, M) {
+    a('text', { class: 'labb hl', x: 20, y: 16 }, 'Reverse-power relay');
+    const st = M.trip ? 'Timer full. A\'s breaker opened at ' + T_TRIP.toFixed(1) + NB + 's.'
+      : M.picked ? 'Picked up at ' + T_PICK.toFixed(1) + NB + 's. Timer running.' : 'Picks up at ' + fK(PICK) + NB + 'kW in.';
+    a('text', { class: 'lab hl', x: 20, y: 36 }, st);
+    a('rect', { class: 'trk', x: 20, y: 48, width: 300, height: 16, rx: 3 });
+    const w = 300 * M.timer / DELAY;
+    if (w > 0.4) a('rect', { class: 'fill-n', x: 20, y: 48, width: f1(w), height: 16, rx: 3 });
+    for (let k = 1; k < DELAY; k++) a('line', { class: 'tick', x1: 20 + 60 * k, y1: 64, x2: 20 + 60 * k, y2: 69 });
+    a('text', { class: 'labm hl', x: 20, y: 84 }, '0');
+    a('text', { class: 'labm hl', x: 320, y: 84, 'text-anchor': 'end' }, DELAY + NB + 's delay');
+    REC.timer = M.timer / DELAY;
+    el('panel').setAttribute('aria-label', 'The reverse-power relay\'s timer bar, filling towards its 5 s delay once power flows into A past its pickup.');
+  }
+  // A brief reverse flow against the timer: the flow along a time line, and the timer bar below it.
+  function drawBrief(a) {
+    const b = brief(X.u, X.delay), tx = (u) => 20 + 100 * u;
+    REC.brief = { trip: b.trip, tau: b.tau, reach: b.reach };
+    a('text', { class: 'labb hl', x: 20, y: 16 }, 'Reverse-power relay');
+    a('rect', { class: 'band-r', x: tx(0), y: 42, width: 200, height: 8 });
+    a('text', { class: 'labw hl', x: tx(1), y: 36, 'text-anchor': 'middle' }, '30' + NB + 'kW flows back');
+    a('line', { class: 'axis', x1: 20, y1: 50, x2: 320, y2: 50 });
+    a('line', { class: 'tick', x1: tx(2), y1: 50, x2: tx(2), y2: 55 });
+    a('text', { class: 'labm hl', x: 20, y: 68 }, '0');
+    a('text', { class: 'labm hl', x: tx(2), y: 68, 'text-anchor': 'middle' }, '2' + NB + 's');
+    a('circle', { class: 'dot', cx: f1(tx(Math.min(X.u, 3))), cy: 50, r: 5 });
+    a('rect', { class: 'trk', x: 20, y: 78, width: 300, height: 16, rx: 3 });
+    const w = 300 * b.tau / X.delay;
+    if (w > 0.4) a('rect', { class: b.trip ? 'fill-r' : 'fill-n', x: 20, y: 78, width: f1(w), height: 16, rx: 3 });
+    a('text', { class: 'labm hl', x: 20, y: 112 }, '0');
+    a('text', { class: 'labm hl', x: 320, y: 112, 'text-anchor': 'end' }, X.delay + NB + 's delay');
+    if (!b.trip && X.u > 2) {
+      const rx = 20 + 300 * b.reach / X.delay;
+      a('line', { class: 'tick', x1: f1(rx), y1: 94, x2: f1(rx), y2: 100 });
+      a('text', { class: 'labm hl', x: f1(rx), y: 112, 'text-anchor': 'middle' }, 'reached 2' + NB + 's');
+    }
+    const st = b.trip ? 'Timer full at ' + X.delay + NB + 's, so the set trips.' : X.u < 2 ? 'Timer running while the flow lasts.' : 'Flow over, so the timer resets. No trip.';
+    a('text', { class: (b.trip ? 'labw' : 'lab') + ' hl', x: 20, y: 134 }, st);
+    el('panel').setAttribute('aria-label', 'A 30 kW reverse flow lasting 2 s, drawn along a time line, and below it the relay\'s timer bar against its ' + X.delay + ' s delay. ' +
+      (b.trip ? 'The timer fills before the flow ends, so the set trips.' : 'The flow ends first, so the timer resets and nothing trips.'));
+  }
+  // Set A's E and V, the load angle δ between them, and a mark at 90°.
+  function drawPhasor(a, M) {
+    const O = [104, 136], SCL = 100;
+    a('text', { class: 'lab hl', x: 14, y: 16 }, 'Set A, with Xs 1.5' + NB + 'per unit');
+    a('line', { class: 'guide', x1: O[0], y1: O[1], x2: O[0], y2: 28 });
+    a('text', { class: 'labm hl', x: O[0] + 7, y: 38 }, '90°');
+    a('line', { class: 'ph-v', x1: O[0], y1: O[1], x2: O[0] + SCL - 7, y2: O[1] });
+    head(a, O[0] + SCL, O[1], 0, 'hd-v');
+    a('text', { class: 'lab hl', x: O[0] + SCL + 8, y: O[1] + 5 }, 'V, 1.0');
+    const L = M.E * SCL, dm = ((M.d % 360) + 360) % 360, t = rad(dm);
+    REC.slip = M.slip;
+    if (L >= 12) {
+      const ex = O[0] + L * Math.cos(t), ey = O[1] - L * Math.sin(t);
+      if (dm >= 1) {
+        const ra = 30, large = dm > 180 ? 1 : 0;
+        a('path', { class: 'arc', d: 'M' + (O[0] + ra) + ' ' + O[1] + 'A' + ra + ' ' + ra + ' 0 ' + large + ' 0 ' + f1(O[0] + ra * Math.cos(t)) + ' ' + f1(O[1] - ra * Math.sin(t)) });
+        if (dm >= 14) a('text', { class: 'labb hl', x: f1(O[0] + 66 * Math.cos(t / 2)), y: f1(O[1] - 66 * Math.sin(t / 2) + 4.5), 'text-anchor': 'middle' }, 'δ');
+      }
+      a('line', { class: 'ph-e', x1: O[0], y1: O[1], x2: f1(ex - 7 * Math.cos(t)), y2: f1(ey + 7 * Math.sin(t)) });
+      head(a, ex, ey, dm, 'hd-e');
+      a('text', { class: 'labb hl', x: f1(ex + 13 * Math.cos(t)), y: f1(ey - 13 * Math.sin(t) + 4.5), 'text-anchor': 'middle' }, 'E');
+    }
+    if (M.slip) a('text', { class: 'labw hl', x: 330, y: 38, 'text-anchor': 'end' }, 'slipping');
+    el('panel').setAttribute('aria-label', 'Set A\'s E and V, with the load angle δ between them and a dashed mark at 90°. ' +
+      (M.slip ? 'E is too small to hold any angle, so it turns round and round.' : 'As E shrinks, δ opens towards the 90° mark.'));
+  }
+  // The decrement curve: current against time, the breaker's 2000 A line and 0.5 s delay, and the three periods.
+  const PX0 = 50, PX1 = 326, PY0 = 150, PYT = 26, IMAX = 6000;
+  const px = (t) => PX0 + t * (PX1 - PX0), py = (I) => PY0 - I / IMAX * (PY0 - PYT);
+  function curvePts(s, upto) {
+    const tt = sc(0, s).tt, end = Math.min(1, upto), out = [];
+    for (let k = 0; k <= 400; k++) {
+      const t = k / 400;
+      if (t > end + 1e-9 || t > tt + 1e-9) break;
+      out.push(f1(px(t)) + ',' + f1(py(xOf(t, s) * IR)));
+    }
+    if (tt <= end) { out.push(f1(px(tt)) + ',' + f1(py(xOf(tt, s) * IR)), f1(px(tt)) + ',' + PY0); if (end > tt) out.push(f1(px(end)) + ',' + PY0); }
+    else if (end < 1 && end > 0) out.push(f1(px(end)) + ',' + f1(py(xOf(end, s) * IR)));
+    return out.length > 1 ? out.join(' ') : null;
+  }
+  function drawPlot(a, M, i) {
+    const d = STEPS[i], plain = !!d.plain && !finished, sol = solved(S[i]);
+    const traceTo = d.trace && !finished && (!sol || (running() && !scripted)) ? M.t : Infinity;
+    const hidden = traceTo !== Infinity && traceTo <= 1e-9;
+    a('text', { class: 'labm hl', x: 4, y: 16 }, 'Current');
+    a('line', { class: 'axis', x1: PX0, y1: PYT, x2: PX0, y2: PY0 });
+    a('line', { class: 'axis', x1: PX0, y1: PY0, x2: PX1, y2: PY0 });
+    for (let k = 1000; k <= IMAX; k += 1000) a('line', { class: 'tick', x1: PX0 - 4, y1: f1(py(k)), x2: PX0, y2: f1(py(k)) });
+    [0, 0.5, 1].forEach((t) => a('line', { class: 'tick', x1: f1(px(t)), y1: PY0, x2: f1(px(t)), y2: PY0 + 4 }));
+    a('line', { class: 'dl', x1: px(BDEL), y1: PYT, x2: px(BDEL), y2: PY0 });
+    a('text', { class: 'labm hl', x: px(BDEL) + 5, y: 36 }, '0.5' + NB + 's delay');
+    a('line', { class: 'lim', x1: PX0, y1: f1(py(BRK)), x2: PX1, y2: f1(py(BRK)) });
+    a('text', { class: 'lab hl', x: PX1 - 2, y: f1(py(BRK) + 16), 'text-anchor': 'end' }, 'breaker 2000' + NB + 'A');
+    // The three periods, as brackets along the time axis.
+    const per = [[0, 3 * TD2], [3 * TD2, 3 * TD1], [3 * TD1, 1]];
+    per.forEach((p) => a('path', { class: 'brk', d: 'M' + f1(px(p[0]) + 1) + ' 156V162H' + f1(px(p[1]) - 1) + 'V156' }));
+    a('text', { class: 'lab hl', x: PX0, y: 177 }, 'sub-transient');
+    a('text', { class: 'lab hl', x: f1(px((per[1][0] + per[1][1]) / 2)), y: 177, 'text-anchor': 'middle' }, 'transient');
+    a('text', { class: 'lab hl', x: PX1, y: 177, 'text-anchor': 'end' }, 'sustained');
+    a('text', { class: 'labm hl', x: PX0, y: 197 }, '0');
+    a('text', { class: 'labm hl', x: PX1, y: 197, 'text-anchor': 'end' }, '1' + NB + 's');
+    REC.periods = per.length;
+    // The two supplies' curves: the chosen one solid, the other dashed for comparison.
+    REC.curves = 0;
+    const sups = plain ? ['PMG'] : ['Shunt', 'PMG'];
+    sups.forEach((s) => {
+      const pts = curvePts(s, traceTo);
+      if (!pts) return;
+      REC.curves += 1;
+      const w = plain ? 1 : s === 'PMG' ? D.sig : 1 - D.sig;
+      if (w > 0.005) a('polyline', { class: 'cv', points: pts, opacity: f2(w) });
+      if (1 - w > 0.005) a('polyline', { class: 'cv-o', points: pts, opacity: f2(1 - w) });
+      if (!plain && traceTo >= 0.3) {
+        const yy = py(xOf(0.3, s) * IR), mine = (s === 'PMG') === (X.supply === 'PMG');
+        a('text', { class: (mine ? 'labb' : 'labm') + ' hl', x: f1(px(0.3)), y: f1(s === 'PMG' ? yy - 8 : yy + 21), 'text-anchor': 'middle' }, s);
+      }
+    });
+    REC.trips = false;
+    if (!hidden) {
+      const Id = K.lerp(sc(M.t, 'Shunt').I, sc(M.t, 'PMG').I, plain ? 1 : D.sig);
+      a('circle', { class: 'dot', cx: f1(px(M.t)), cy: f1(py(Id)), r: 5 });
+      if (M.opened && traceTo >= BDEL) {
+        REC.trips = true;
+        a('text', { class: 'labb hl', x: px(BDEL) + 6, y: f1(py(xOf(BDEL, X.supply) * IR) - 8) }, 'breaker trips');
+      }
+    }
+    el('panel').setAttribute('aria-label', 'The fault current against time, from 0 to 1 s, with a dashed line at the breaker\'s 2000 A setting and a mark at its 0.5 s delay. Brackets below name the sub-transient, transient and sustained periods.' +
+      (hidden ? ' The curve stays hidden until the answer is checked.' : plain ? '' : ' The ' + X.supply + ' curve is solid, and the other supply\'s is dashed.'));
+  }
+  // Overload: A's kW against its rating, and three 30 kW groups of non-essential loads.
+  function drawShed(a, M) {
+    const BX0 = 38, BW = 280, kx = (p) => BX0 + BW * p / 600, P = D.pa;
+    a('text', { class: 'labb hl', x: 30, y: 50, 'text-anchor': 'end' }, 'A');
+    a('rect', { class: 'trk', x: BX0, y: 34, width: BW, height: 22, rx: 3 });
+    const xr = kx(Math.min(P, RK));
+    if (xr - BX0 > 0.4) a('rect', { class: 'fill-n', x: BX0, y: 34, width: f1(xr - BX0), height: 22, rx: 3 });
+    if (P > RK + 0.2) a('rect', { class: 'fill-r', x: f1(kx(RK)), y: 34, width: f1(kx(P) - kx(RK)), height: 22 });
+    a('line', { class: 'rate', x1: f1(kx(RK)), y1: 26, x2: f1(kx(RK)), y2: 64 });
+    a('text', { class: 'lab hl', x: f1(kx(RK)), y: 20, 'text-anchor': 'middle' }, 'rating 504' + NB + 'kW');
+    a('text', { class: 'labm hl', x: 14, y: 86 }, 'Non-essential loads, one shed every 5' + NB + 's');
+    const gs = [D.g0, D.g1, D.g2];
+    REC.groups = gs.map((v) => v > 0.5);
+    gs.forEach((s, k) => {
+      const x0 = 14 + k * 108;
+      if (1 - s > 0.005) a('rect', { class: 'grp', x: x0, y: 96, width: 96, height: 36, rx: 4, opacity: f2(1 - s) });
+      if (s > 0.005) a('rect', { class: 'grp-off', x: x0, y: 96, width: 96, height: 36, rx: 4, opacity: f2(s) });
+      a('text', { class: 'lab', x: x0 + 48, y: 111, 'text-anchor': 'middle' }, 'Group ' + (k + 1));
+      a('text', { class: 'lab', x: x0 + 48, y: 126, 'text-anchor': 'middle' }, '30' + NB + 'kW');
+      a('text', { class: (s > 0.5 ? 'labb' : 'labm') + ' hl', x: x0 + 48, y: 150, 'text-anchor': 'middle' }, s > 0.5 ? 'shed' : 'on');
+    });
+    el('panel').setAttribute('aria-label', 'Set A\'s load as a bar against a dashed line at its 504 kW rating, red where it is over. Below, three 30 kW groups of non-essential loads, ' +
+      REC.groups.filter(Boolean).length + ' of 3 shed.');
+  }
+
+  // ================= the readouts and the sentence under the picture =================
+  function readouts(i, M) {
+    const d = STEPS[i], sol = solved(S[i]);
+    const hid = (id) => !finished && !!d.hide && d.hide.indexOf(id) >= 0 && !sol;
+    let txt;
+    if (M.f === ES) txt = { 'es-a': fK(M.pa), 'es-b': fK(M.pb), 'es-q': fI(M.qa), 'es-t': M.timer.toFixed(1) };
+    else if (M.f === FL) txt = { 'fl-a': fK(M.pa), 'fl-q': fI(M.qa), 'fl-e': M.E.toFixed(2), 'fl-d': (((M.d % 360) + 360) % 360).toFixed(1) };
+    else if (M.f === SC) txt = { 'sc-i': fI(M.I), 'sc-x': M.x.toFixed(2), 'sc-c': M.count.toFixed(2) };
+    else txt = { 'ov-a': fK(M.pa), 'ov-o': fK(M.over), 'ov-g': String(M.n) };
+    Object.keys(txt).forEach((id) => { if (hid(id)) txt[id] = '?'; RO[id].set(txt[id]); });
+    REC.t = txt;
+  }
+  const WORD = ['No', 'One', 'Two', 'Three'];
+  function sayText(i, M) {
+    if (M.f === ES) {
+      const relay = panelMode(i) === 'timer';
+      if (M.trip) return relay ? 'The timer has run its full 5 s, so A\'s breaker opened at ' + T_TRIP.toFixed(1) + ' s. B carries the whole ' + fK(M.load) + ' kW alone.' : 'A\'s breaker has opened, so B carries the whole ' + fK(M.load) + ' kW alone.';
+      if (M.t < 1e-9) return 'A\'s engine has just stopped. For a moment A still sends out ' + fK(M.pa) + ' kW, and B ' + fK(M.pb) + ' kW.';
+      if (M.pa > 0.05) return 'A\'s engine is running down. A sends out only ' + fK(M.pa) + ' kW, so B carries ' + fK(M.pb) + ' kW.';
+      if (M.pa > -0.05) return 'A sends out nothing now, so B carries all ' + fK(M.load) + ' kW.';
+      const s = 'B drives A round as a motor, so ' + fK(-M.pa) + ' kW flows into A. B carries ' + fK(M.pb) + ' kW.';
+      if (!relay) return s;
+      return M.picked ? s + ' The relay\'s timer has run ' + M.timer.toFixed(1) + ' s of its 5 s.' : s + ' That is still under the relay\'s 25.2 kW pickup.';
+    }
+    if (M.f === FL) {
+      if (M.slip) return M.E <= 1e-9 ? 'A\'s field is gone. It carries no kW, and draws ' + fI(-M.qa) + ' kVAr from the board.'
+        : 'E is now too small for any angle to carry the 200 kW. The rotor slips poles, and A\'s kW swings out and in.';
+      if (M.d > 89.95) return 'E has fallen to 0.48, so δ has reached 90°. Below this, no angle can carry the 200 kW.';
+      if (M.t < 1e-9) return 'A\'s field has just been lost. E is still ' + M.E.toFixed(2) + ', and δ is ' + M.d.toFixed(1) + '° to carry its 200 kW.';
+      return 'E has shrunk to ' + M.E.toFixed(2) + ', so δ has grown to ' + M.d.toFixed(1) + '° to carry the same 200 kW. ' +
+        (M.qa > 0.5 ? 'A still sends out ' + fI(M.qa) + ' kVAr.' : M.qa < -0.5 ? 'A now draws ' + fI(-M.qa) + ' kVAr from the board.' : 'A sends out no kVAr now.');
+    }
+    if (M.f === SC) {
+      const I = fI(M.I), x = M.x.toFixed(2);
+      if (M.cleared) return 'The current stayed above 2000 A for the full 0.5 s, so the breaker tripped and cleared the fault.';
+      if (M.opened) return 'The current is still ' + I + ' A, ' + x + ' times rated. It has stayed above 2000 A for 0.5 s, so the breaker trips now.';
+      if (!shownCtl(i, 'supply')) return M.t < 1e-9 ? 'The fault has just struck. The current is ' + I + ' A, ' + x + ' times rated.'
+        : 'The current has fallen to ' + I + ' A, ' + x + ' times rated. It has stayed above 2000 A for ' + M.count.toFixed(2) + ' s.';
+      if (X.supply === 'PMG') return 'Fed by a PMG, the AVR forces the field. The current is ' + I + ' A, ' + x + ' times rated, and has stayed above 2000 A for ' + M.count.toFixed(2) + ' s.';
+      if (M.I > BRK) return 'Fed from the set\'s own output, the AVR\'s supply is collapsing. The current is ' + I + ' A and falling fast.';
+      return 'Fed from the set\'s own output, the field has failed. The current is down to ' + I + ' A, under 2000 A, so the breaker\'s count has stopped.';
+    }
+    if (M.n === 0 && M.over > 0) return 'B has tripped out, so A carries all ' + fK(M.pa) + ' kW, ' + fK(M.over) + ' kW over its rating. The first group goes at 5 s.';
+    if (M.over > 0) return WORD[M.n] + (M.n === 1 ? ' group is' : ' groups are') + ' shed. A carries ' + fK(M.pa) + ' kW, still ' + fK(M.over) + ' kW over. The next goes at ' + (STEP_T * (M.n + 1)) + ' s.';
+    const left = NG - M.n;
+    return WORD[M.n] + (M.n === 1 ? ' group is' : ' groups are') + ' shed, so A carries ' + fK(M.pa) + ' kW, inside its 504 kW rating. ' +
+      (left === 0 ? 'All three groups are off.' : left === 1 ? 'The other group stays on.' : 'The other groups stay on.');
+  }
+  function sayRoom(i) {
+    const d = STEPS[i];
+    if (finished || d.nofig || d.only) return false;
+    return d.show || (solved(S[i]) && !!d.ctlSolved);
+  }
+  function sayLine(i, M) {
+    const p = el('say'), room = sayRoom(i), s = room ? sayText(i, M) : '';
+    p.hidden = !room;
+    p.classList.toggle('off', !s);
+    if (p.dataset.s !== s) { p.dataset.s = s; write(p, s); }
+    REC.say = s;
+  }
+
+  // ================= one paint =================
+  function paint(i) {
+    if (i == null) i = at();
+    const M = model(X);
+    REC = { t: {}, M };
+    drawScene(i, M);
+    drawPanel(i, M);
+    readouts(i, M);
+    sayLine(i, M);
+  }
+
+  // ================= the page around the picture =================
+  write(el('finish'), FINISH);
+  const setLab = (b, s) => { if (b.el.textContent !== s) b.setLabel(s); };
+  const vis = (id, on) => { const n = el(id); if (on) n.removeAttribute('hidden'); else n.setAttribute('hidden', ''); };
+  function showCtls(i) {
+    let any = false;
+    CIDS.forEach((id) => { const on = shownCtl(i, id); el('c-' + id).hidden = !on; any = any || on; });
+    el('sws').hidden = !any;
+  }
+  function layout(i) {
+    const d = STEPS[i], st = S[i], sol = solved(st);
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Screen ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    el('figs').hidden = !!d.nofig;
+    // SVG elements have no .hidden property: the attribute itself is toggled.
+    vis('scene', !d.nofig && !d.only);
+    vis('panel', !!panelMode(i));
+    const key = FK[X.fault], outsOn = !d.nofig && !d.only;
+    ['es', 'fl', 'sc', 'ov'].forEach((k) => { el('o-' + k).hidden = !outsOn || k !== key; });
+    // The Timer tile comes with the relay: hidden while its bar is (screens 2 and 3).
+    RO['es-t'].el.hidden = !!d.notimer && !finished;
+    el('cap').hidden = finished || !!d.nofig;
+    showCtls(i);
+    replayBtn.el.hidden = !d.show || !d.demo || finished || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    const opts = d.kind === 'pick' ? d.opts : [];
+    el('picks').hidden = !opts.length;
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      setLab(b, opts[k]);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    el('answers').hidden = d.kind !== 'typed';
+    Object.keys(ANS).forEach((k) => { el('ans-' + k).hidden = d.ans !== k; });
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = sol;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (st.res === 'right' ? ' right' : '');
+    let say = '';
+    if (!d.show) {
+      if (st.res === 'right') say = d.right || 'That\'s it.';
+      else if (st.res === 'shown') say = 'Here is the working.';
+      else if (st.res === 'wrong') say = d.kind === 'typed' ? st.hint : (d.hints && d.hints[st.pick]) || d.hint || '';
+      else if (st.res === 'empty') say = d.kind === 'pick' ? 'Pick one of the answers first.' : 'Type your answer first.';
+    }
+    write(fb, say);
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    setLab(whyBtn, st.why ? 'Hide why' : 'Why?');
+    const cl = el('closing');
+    cl.hidden = !(d.close && sol);
+    write(cl, d.close || '');
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !sol);
+    setLab(nextBtn, i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  }
+
+  K.update((p) => {
+    const i = at();
+    if (i !== lastStep) { lastStep = i; enterStep(i); }
+    else {
+      CIDS.forEach((id) => {
+        const v = norm(id, p[id]);
+        if (v === pushed[id]) return;
+        if (shownCtl(i, id)) { endDemo(); pushed[id] = v; applyCtl(id, v); }
+        else CTL[id].set(pushed[id], true);        // a control this screen does not use stays put
+      });
+      push();
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    layout(i);
+    paint(i);
+    kick();
+  });
+
+  // ================= known answers, worked out by hand =================
+  const solvedSt = (i) => Object.assign(blank(), STEPS[i].kind === 'pick' ? { pick: STEPS[i].want, res: 'right' } : { res: 'right' });
+  function saveAll() { return { X: Object.assign({}, X), D: Object.assign({}, D), T, sc: scripted, fin: finished, S: S.slice() }; }
+  function restoreAll(k) { Object.assign(X, k.X); Object.assign(D, k.D); T = k.T; scripted = k.sc; finished = k.fin; S = k.S; }
+  // A screen in the state given (its demonstration finished, unless opening), and what it drew.
+  function drawn(i, st, opening, then) {
+    const keep = saveAll();
+    S = S.slice(); S[i] = st || blank(); T = Infinity; scripted = false; finished = false;
+    try {
+      prep(i, !opening);
+      if (then) { then(); snapD(); }
+      paint(i);
+      return Object.assign({}, REC, { t: Object.assign({}, REC.t) });
+    } finally { restoreAll(keep); paint(); }
+  }
+  const tIs = (t, o) => Object.keys(o).every((k) => t[k] === o[k]);
+  const iMotor = idx('A motor\'s voltage'), iEng = idx('The engine stops'), iB = idx('B carries the rest'), iRelay = idx('The reverse-power relay');
+  const iNuis = idx('A nuisance trip'), iField = idx('The field is lost'), iSlip = idx('Where it slips'), iSC = idx('A short circuit');
+  const iFirst = idx('The first current'), iSup = idx('Shunt or PMG'), iShunt = idx('The shunt-fed set'), iOv = idx('Overload');
+  const iSteps = idx('How many steps'), iLast = idx('Which protection');
+
+  K.check('Engine stops: A falls from 200 kW out to 50.4 kW in over 1 s; the relay picks up at 25.2 kW in, at 0.9 s, and A\'s breaker opens 5 s later, at 5.9 s', () =>
+    K.near(pES(0), 200, 1e-9) && K.near(pES(1), -50.4, 1e-9) && K.near(PICK, 25.2, 1e-9) && K.near(pES(T_PICK), -PICK, 1e-9) &&
+    T_PICK.toFixed(1) === '0.9' && T_TRIP.toFixed(1) === '5.9' && !es(5.8).trip && es(5.9).trip);
+  K.check('Screen 2 at 2 s: A reads −50.4 kW with its kW arrow red into A, B 450.4 kW, A 150 kVAr; screen 3, sharing 360 kW with A drawing 40 kW, shows ? for B until checked, then 400 at 2 s', () => {
+    const r0 = drawn(iEng, null, true), r = drawn(iEng), b0 = drawn(iB), b1 = drawn(iB, solvedSt(iB));
+    return tIs(r.t, { 'es-a': '−50.4', 'es-b': '450.4', 'es-q': '150' }) && r.dir.pa === -1 && r.dir.qa === 1 && r0.dir.pa === 1 && r0.t['es-a'] === '200' &&
+      r.panel === null && b0.t['es-b'] === '?' && b0.t['es-a'] === '180' && b1.t['es-b'] === '400' && b1.t['es-a'] === '−40';
+  });
+  K.check('Screen 4 at 7 s: the timer full at 5.0 s, A\'s breaker open, A 0 kW and B 400 kW', () => {
+    const r = drawn(iRelay);
+    return tIs(r.t, { 'es-a': '0', 'es-b': '400', 'es-t': '5.0' }) && r.brk[0] && !r.brk[1] && r.panel === 'timer' && r.timer === 1 && r.dir.pa === 0;
+  });
+  K.check('Screen 5: a 1 s delay fills during the 2 s flow and trips; a 5 s delay reaches 2 s, then resets with no trip', () => {
+    const a0 = drawn(iNuis), a1 = drawn(iNuis, solvedSt(iNuis));
+    return a0.panel === 'brief' && a0.brief.trip && a0.brief.tau === 1 && !a1.brief.trip && a1.brief.tau === 0 && a1.brief.reach === 2;
+  });
+  K.check('Field lost: E 1.44 carries 200 kW at δ 19.3°; at 0.8 s E is 0.80, δ 36.5°, and A draws 150 kVAr while its kW still flows out', () => {
+    const r = drawn(iField);
+    return fl(0).d.toFixed(1) === '19.3' && fl(0).qa > 0 && tIs(r.t, { 'fl-a': '200', 'fl-q': '−150', 'fl-e': '0.80', 'fl-d': '36.5' }) &&
+      r.dir.qa === -1 && r.dir.pa === 1 && r.panel === 'phasor';
+  });
+  K.check('0.317 × 1.5 ÷ 1.0 = 0.48: below it δ passes 90°, near 1.2 s; screen 7 shows ? for δ until checked, then E 0.48 and δ 90.0', () => {
+    const a0 = drawn(iSlip), a1 = drawn(iSlip, solvedSt(iSlip));
+    return K.near(ECRIT, 0.476, 0.0005) && ECRIT.toFixed(2) === '0.48' && T_SLIP.toFixed(1) === '1.2' && a0.t['fl-d'] === '?' && a0.t['fl-e'] === '1.44' &&
+      a1.t['fl-e'] === '0.48' && a1.t['fl-d'] === '90.0' && !a1.slip && fl(T_SLIP + 0.01).slip;
+  });
+  K.check('A loss of excitation in parallel brings pole slipping and oscillation: past 90°, δ keeps turning and A\'s kW swings out and in', () => {
+    let out = false, inn = false;
+    for (let k = 1; T_SLIP + k / 100 < 1.8; k++) { const m = fl(T_SLIP + k / 100); if (!m.slip) return false; if (m.pa > 1) out = true; if (m.pa < -1) inn = true; }
+    return out && inn && !fl(T_SLIP - 0.01).slip && K.near(fl(T_SLIP + 0.25).d, 180, 1e-6);
+  }, { source: SRC_024 });
+  K.check('Rated current 630 000 ÷ (√3 × 440) = 826.7 A; the first current 826.7 ÷ 0.15 = 5511 A, 6.67 times; at 0.05 s screen 8 reads 3361 A, 4.07 times', () => {
+    const r = drawn(iSC);
+    return IR.toFixed(1) === '826.7' && Math.round(xOf(0, 'PMG') * IR) === 5511 && xOf(0, 'PMG').toFixed(2) === '6.67' && Math.round(IR / XD1) === 3307 &&
+      tIs(r.t, { 'sc-i': '3361', 'sc-x': '4.07' }) && r.panel === 'plot' && r.curves === 1;
+  });
+  K.check('Screen 9, with 0.18, hides the curve and shows ? for the current until checked, then 4593 A, 5.56 times rated, at 0 s', () => {
+    const a0 = drawn(iFirst), a1 = drawn(iFirst, solvedSt(iFirst));
+    return a0.t['sc-i'] === '?' && a0.t['sc-x'] === '?' && a0.curves === 0 && a1.curves === 1 && a1.t['sc-i'] === '4593' && a1.t['sc-x'] === '5.56';
+  });
+  K.check('Screen 10 at 0.5 s: with a PMG 2636 A, 3.19 times rated, above 2000 A for 0.50 s, and the breaker trips; shunt-fed, 625 A and no trip', () => {
+    const p = drawn(iSup), s = drawn(iSup, null, true);
+    return tIs(p.t, { 'sc-i': '2636', 'sc-x': '3.19', 'sc-c': '0.50' }) && p.brk[2] && p.trips && p.curves === 2 &&
+      s.t['sc-i'] === '625' && s.t['sc-c'] === '0.00' && !s.brk[2] && !s.trips;
+  });
+  K.check('Screen 11 hides the curves and readouts until checked; once checked the shunt-fed current has died to 118 A at 1 s and the breaker never tripped', () => {
+    const a0 = drawn(iShunt), a1 = drawn(iShunt, solvedSt(iShunt));
+    return a0.curves === 0 && a0.t['sc-i'] === '?' && a1.curves === 2 && a1.t['sc-i'] === '118' && !a1.brk[2] && !a1.trips;
+  });
+  K.check('Self-excited alternators do not maintain a short-circuit current: shunt-fed, it decays towards 0, under 2000 A near 0.15 s and 625 A by 0.5 s', () =>
+    SUS.Shunt === 0 && TB.Shunt.toFixed(2) === '0.15' && Math.round(xOf(0.5, 'Shunt') * IR) === 625 && xOf(3, 'Shunt') < 0.01, { source: SRC_124 });
+  K.check('With a PMG the set sustains its output during a short circuit, so the protection has time to clear the fault: it holds 2480 A, and the breaker trips at 0.5 s', () =>
+    Math.round(SUS.PMG * IR) === 2480 && TB.PMG === Infinity && sc(0.5, 'PMG').opened && !sc(0.49, 'PMG').opened && sc(0.51, 'PMG').cleared && !sc(1, 'Shunt').opened, { source: SRC_124 });
+  K.check('The fault current runs through sub-transient, transient and sustained periods: from 6.67 times rated it loses its sub-transient part within 0.1 s, then settles on its sustained level', () => {
+    const x0 = xOf(0, 'PMG'), x1 = xOf(0.1, 'PMG'), x3 = xOf(3, 'PMG'), r = drawn(iSC);
+    return K.near(x0, 1 / XD2, 1e-9) && x1 < 1 / XD1 && x1 > SUS.PMG + 0.5 && K.near(x3, SUS.PMG, 1e-3) && r.periods === 3;
+  }, { source: SRC_005 });
+  K.check('Real power flows into the generator when it loses its prime-mover input, and the relay detects it: from 1 s on A draws power, and the relay picks up only once 25.2 kW flows in', () => {
+    for (let k = 0; k <= 58; k++) {
+      const t = k / 10, m = es(t);
+      if (m.picked !== (-pES(t) >= PICK - 1e-9)) return false;
+      if (t >= 1 && !(m.pa < 0)) return false;
+    }
+    return true;
+  }, { source: SRC_CED });
+  K.check('Overload: B trips out and A carries 560 kW, 56 over; a 30 kW group goes every 5 s, so at 12 s A carries 500 kW with two groups shed and the third on; from 590 kW three steps bring it to 500 kW at 15 s', () => {
+    const r = drawn(iOv), q0 = drawn(iSteps), q1 = drawn(iSteps, solvedSt(iSteps));
+    return tIs(r.t, { 'ov-a': '500', 'ov-o': '0', 'ov-g': '2' }) && r.groups.join() === 'true,true,false' && ov(0, 560).over === 56 && ov(5, 560).pa === 530 &&
+      q0.t['ov-g'] === '?' && q0.t['ov-o'] === '86' && tIs(q1.t, { 'ov-a': '500', 'ov-o': '0', 'ov-g': '3' }) && q1.groups.every(Boolean) && r.brk[1] && !r.brk[0];
+  });
+  K.check('Each typed answer and slip is worked from the rule: 400 kW (360, 320, 220), 0.48 (0.21, 0.317, 1.44), 4593 A (148.8, 3307, 826.7, 5511) and 3 steps (2, 2.87, 86)', () => {
+    const sl = (i, v) => STEPS[i].slips.length === v.length && STEPS[i].slips.every((s, k) => Math.abs(s.value - v[k]) < 1e-12);
+    return 360 + 40 === 400 && 360 - 40 === 320 && 180 + 40 === 220 && es(2, 360, 40).pb === 400 && es(0, 360, 40).pa === 180 &&
+      (200 / 630).toFixed(3) === '0.317' && (0.317 * 1.5 / 1.0).toFixed(2) === '0.48' && (0.317 / 1.5).toFixed(2) === '0.21' &&
+      Math.round(826.7 / 0.18) === 4593 && Math.round(5.56 * 826.7) === 4596 && (826.7 * 0.18).toFixed(1) === '148.8' && Math.round(826.7 / 0.25) === 3307 && Math.round(826.7 / 0.15) === 5511 &&
+      590 - 504 === 86 && (86 / 30).toFixed(2) === '2.87' && Math.ceil(86 / 30) === 3 && 590 - 3 * 30 === 500 && 590 - 2 * 30 === 530 &&
+      STEPS[iB].answer === 400 && STEPS[iSlip].answer === 0.48 && STEPS[iFirst].answer === 4593 && STEPS[iSteps].answer === 3 &&
+      sl(iB, [360, 320, 220]) && sl(iSlip, [0.21, 0.317, 1.44]) && sl(iFirst, [148.8, 3307, 826.7, 5511]) && sl(iSteps, [2, 2.87, 86]);
+  });
+  K.check('Screen 14 hides the readouts and the cause until checked, while A\'s kW arrow points out and its kVAr arrow in; once checked, it names the field lost', () => {
+    const a0 = drawn(iLast), a1 = drawn(iLast, solvedSt(iLast));
+    return tIs(a0.t, { 'fl-a': '?', 'fl-q': '?', 'fl-e': '?', 'fl-d': '?' }) && a0.status[0] === '' && a0.dir.pa === 1 && a0.dir.qa === -1 &&
+      a1.status[0] === 'field lost' && a1.t['fl-d'] === '36.5';
+  });
+  K.check('Holding the full-load E of 2.25 gives 2.25 ÷ 1.5 = 1.5 times rated, 1240 A; holding 3 times rated needs twice that field', () =>
+    Math.round(2.25 / XS * IR) === 1240 && K.near(2.25 / XS, 1.5, 1e-12) && K.near(SUS.PMG / (2.25 / XS), 2, 1e-12));
+  K.check('Fourteen screens, six that show and eight to try', () =>
+    STEPS.length === 14 && STEPS.filter((d) => d.show).length === 6 && STEPS.filter((d) => !d.show).length === 8 &&
+    [iMotor, iNuis, iShunt, iLast].map((i) => STEPS[i].opts.indexOf(STEPS[i].want)).join() === '0,1,1,1');
+  K.ready();
+</script>

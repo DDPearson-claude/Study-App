@@ -441,7 +441,9 @@ for (const iid of ideas) {
         // A typed answer (K.answer): the answer typed into its field, then Check.
         const field = !btn && ans ? [...document.querySelectorAll('.k-answer-input')].find((x) => x.offsetParent !== null) : null;
         if (field) {
-          field.value = String(ans).replace(/\s*[A-Za-zΩ°%²³µμ·/]+$/, '');
+          // The number alone: a unit of two words ("1.25 per unit", "6.5 × rated") would leave half a unit behind.
+          const num = String(ans).replace(/[\u00a0\u202f]/g, ' ').match(/^\s*[−+-]?\d[\d ,]*(?:\.\d+)?/);
+          field.value = num ? num[0].trim().replace(/^−/, '-') : String(ans).replace(/\s*[A-Za-zΩ°%²³µμ·/]+$/, '');
           field.dispatchEvent(new Event('input', { bubbles: true }));
           const check = all.find((b) => norm(b.textContent) === 'Check');
           if (check) check.click();

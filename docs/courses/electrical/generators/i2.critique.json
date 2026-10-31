@@ -1,0 +1,37 @@
+{
+  "draft": "i2.lesson.draft1.txt",
+  "validator": "draft 1 passes with no problems, soft points or warnings",
+  "keep": [
+    "The idea is named up front: the field current sets the voltage, a load drags it down, and the AVR measures the output and trims the field to hold it.",
+    "The open-circuit curve is the knee he already knows from the B-H curve, recognised rather than taught, and screen 2 makes the 'double the field, double the voltage' belief fail with a typed 1.26 and slips of 2 and 0.79.",
+    "Both misconceptions in the brief have a DO screen with its own hints: the set holding its voltage by itself (screen 6, 360 V, slip 440 V) and the AVR feeding the main field directly (screen 4, which winding).",
+    "One rule computes every readout: output = curve voltage at the field − 1 V per 1% of load; with the AVR on the field settles where the curve gives 440 V + load. 390 V, 360 V, 125%, 175%, 490 V and 110% all come from it.",
+    "The picture shows the cause, the field climbing the curve, and the setting where the cause is absent (AVR off: the voltage sags and stays down).",
+    "Twelve screens: SHOW 1, 3, 5, 7, 9 alternate with DO 2, 4, 6, 8, 10, ending on two mixed typed puzzles (11, 12). Every figure answer is typed; options remain only for which winding and which supply. Every SHOW screen is under 90 words (74, 81, 63, 77, 76). Every SHOW screen with an action has a Read and a Still.",
+    "False absolutes are guarded: 'in a brushless set', 'on a set running alone', 'an ordinary load', with the leading-load exception in explain and ignores."
+  ],
+  "fix": [
+    "Causal step skipped (fault 1): why a small current in the exciter's field can control a much bigger main field current is asserted, not explained. Say the shaft supplies the power, so the AVR only steers it.",
+    "Causal step thin (fault 1): 'the load's current drops voltage inside the machine' has no anchor. Tie it in one clause to what he knows, a transformer's output falling on load, without teaching the reactance (that idea follows).",
+    "Talks about the lesson (plain writing): practice's worked example says 'this lesson's set'. Name the set's figures instead.",
+    "Unreadable labels risk (fault 6): seven parts along one shaft at 340 px. Give the chain short labels (PMG, Exciter, Diodes, Main field, Stator, AVR) and let the stator's output run down to the load so nothing crowds."
+  ],
+  "faults_checked": {
+    "skipped causal step": "two places, fixed in draft 2",
+    "false absolutes": "none left: brushless, running alone, ordinary load are qualified",
+    "brief shows effect only": "no: the field bar and the dot climbing the curve are the cause, drawn",
+    "checks test recall": "screen 4 is close to recall of the chain, but it is the brief's named check and its hints give reasons",
+    "thin or decorative research": "the idea has two notes in research.json; both are cited where they carry weight ([^1] on the takeaway, [^2] on the self-excited short circuit)",
+    "unreadable labels": "fixed with short labels",
+    "talks about the idea instead of teaching it": "none"
+  },
+  "shape": {
+    "idea in one line up front": "yes",
+    "rule in words": "yes: measure, compare with the set point, correct the exciter's field",
+    "worked example with real numbers": "yes: 50 V drop, 490 V at 125%; 100 V drop, 540 V at 175%; practice 80% load, 150%",
+    "misconception shown failing": "yes: field held, voltage stays down; doubling the field gives 1.26 times",
+    "analogy from his trade with where it breaks": "a battery charger's constant-voltage stage; breaks on acting two stages away, the field's lag and the knee",
+    "put it into practice": "safety first, steps, rule of thumb, worked example, common mistakes",
+    "recap": "the bold takeaway"
+  }
+}

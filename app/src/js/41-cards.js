@@ -901,10 +901,13 @@
     var str = String(answer == null ? '' : answer).replace(/[−‒–—]/g, '-').replace(/[  ]/g, ' ').trim();
     var about = ABOUT.test(str);
     if (about) str = str.replace(ABOUT, '');
+    // "per unit", the one unit of two words (the machine courses' per-unit figures: "1.25 per unit").
+    var pu = /^(.*\d)\s+per unit$/i.exec(str);
+    if (pu) str = pu[1];
     var m = /^([+-]?\d[\d ,]*(?:\.\d+)?)\s*([^\s\d][^\s]*)?$/.exec(str);
-    if (!m) return null;
-    var num = m[1].trim(), unit = m[2] || '';
-    if (unit && !UNIT.test(unit.replace(/μ/g, 'µ').replace(/Ω/g, 'Ω'))) return null;
+    if (!m || (pu && m[2])) return null;
+    var num = m[1].trim(), unit = pu ? 'per unit' : m[2] || '';
+    if (unit && !pu && !UNIT.test(unit.replace(/μ/g, 'µ').replace(/Ω/g, 'Ω'))) return null;
     var r = readTyped(num, '');
     if (r.value == null) return null;
     var decimals = /\.(\d+)$/.test(num) ? num.split('.')[1].length : /^[+-]?\d+,\d{1,2}$/.test(num) ? num.split(',')[1].length : 0;

@@ -1,0 +1,23 @@
+{
+  "draft": "i7.lesson.draft1.txt",
+  "validator": "ok, no problems, no soft points, no warnings; whatAmILookingAt 12754 characters (lessons 1-6 finals run 11964 to 13505); SHOW screens 69 to 78 words",
+  "keep": [
+    "The idea is named up front: each fault leaves its own mark on the meters (power in, kVAr in as delta climbs, a fault current falling with time), and each protection watches for one.",
+    "Reverse power is caused, not asserted: the rotor stays locked in step, so the board drives it round and real power flows in ([^1]). 400 kW shared, A draws 50.4 kW (lesson 6's example 10%), B carries 450.4 kW.",
+    "The lost field is derived from lesson 6's power = E V sin delta / Xs: 200 kW on 630 kVA = 0.32 pu, Xs 1.5; E 1.44 gives 19.3 deg; E 0.80 gives 36.5 deg and Q = (0.8 cos 36.5 - 1)/1.5 x 630 = -150 kVAr; past E = 0.48 no angle carries the kW, so the rotor slips ([^2]).",
+    "The decrement is computed from one rule: rated 630 000 / (1.732 x 440) = 826.7 A; first 826.7 / 0.15 = 5511 A; transient level 3307 A; PMG settles 3 x rated = 2480 A, 2636 A at 0.5 s; shunt 625 A at 0.5 s, below 2000 A near 0.15 s ([^3], [^4], [^6]). Steady current with the field held is E / Xs = 2.25 / 1.5 = 1.5 x rated, so 3 x needs forcing: the supply switch disproves the 300% myth by its cause.",
+    "Every misconception in the brief has a DO screen with its own hints: pickup raised instead of delay (5), every set holds 3 x rated (11), a lost field read as overload or reverse power (14).",
+    "Fourteen screens alternate SHOW 2, 4, 6, 8, 10, 12 with DO 1, 3, 5, 7, 9, 11, ending on two mixed puzzles (13 typed steps, 14 which protection). Every figure answer is typed with slips (3: 450.4 kW, 7: 0.48, 9: 5511 A, 13: 3 steps); options only for what to change, what happens and which protection.",
+    "The consumer-unit analogy (MCB and RCD each watching one signature) reproduces the main result; its breaks name the grid's held fault current his Zs checks rely on, and the missing reverse-power fault."
+  ],
+  "fix": [
+    "Brief names three changes and 'pick a fault' as a second action (fault 3, the brief should name one change and one cause): reword around one action, dragging the time cursor, and the mark appearing as time runs on.",
+    "False absolute (fault 2): 'a nuisance trip is cured with a longer delay' reads as true of every nuisance trip. Narrow it to 'a nuisance trip like this'.",
+    "Unsourced detail stated as a device (fault 5): 'a loss-of-field relay watches for the inward kVAr' names one relay type the research does not hold. Say loss-of-field protection watches for signs such as the inward kVAr, and trips before the slip.",
+    "Long sentences (plain writing): the reverse-power relay sentence (26 words) and the preferential tripping sentence (22 words) each split in two.",
+    "Analogy false absolute (fault 2): 'Neither sees the other's fault' is wrong, since an MCB does clear a large earth fault. Say an RCD cannot see an overload and an MCB cannot see a small leak to earth (fixed before draft 1 was validated).",
+    "whatAmILookingAt is long: trim repeated stage directions (time cursor at 0 s, controls free), the recall's Why, and the picture's wording; drop the stray 'Screen 14 options' number."
+  ],
+  "shape": "Idea in one line up front; the rule in words (reverse power, power = E V sin delta / Xs, I = E / Xs, the decrement); one fully worked example with real numbers (826.7 A, 5511 A, 625 A against 2480 A at a 2000 A, 0.5 s breaker); the misconceptions shown failing (raised pickup misses a 50.4 kW motoring draw; shunt-fed current never trips the breaker); analogy with where it breaks; practice with the safe way first, steps, rules of thumb, a worked example and common mistakes; a bold takeaway he could say back.",
+  "after": "Draft 2 applies every fix. Validator: ok, no problems, no soft points, no warnings; whatAmILookingAt 12478 characters. No fault left, so no third draft."
+}

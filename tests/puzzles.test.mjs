@@ -165,6 +165,12 @@ test('typed answers are graded to the course\'s rounding: half a unit in the las
   assert.equal(g('36.6', 'About 37%'), 'right', 'half a unit or 1%, whichever is wider');
   assert.equal(g('36', 'About 37%'), 'wrong');
   assert.equal(g('2.5', 'roughly 2.5 kW'), 'right');
+  // "per unit" (the machine courses): a unit of two words, optional when typed.
+  assert.deepEqual(plain(U.cards.figureOf('1.25 per unit')), { value: 1.25, decimals: 2, unit: 'per unit' });
+  assert.equal(g('1.25', '1.25 per unit'), 'right');
+  assert.equal(g('1.25 per unit', '1.25 per unit'), 'right');
+  assert.equal(g('1.3', '1.25 per unit'), 'wrong');
+  assert.equal(U.cards.figureOf('6.5 × rated'), null, 'times rated stays words');
 });
 
 test('finishing by quizzing through makes the puzzles once, first in the box tomorrow; an older guide only its written questions', async () => {

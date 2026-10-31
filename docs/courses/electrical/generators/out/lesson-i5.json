@@ -1,0 +1,978 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-31T15:18:59.368Z",
+ "startedAt": "2026-10-31T15:18:59.368Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i5",
+  "title": "Synchronising: closing onto a live board",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the breaker shutting 50 ms after Close, wherever the pointer has got to, with the surge bar red far from 12, when you press Close as the pointer turns.",
+   "title": "The synchroscope bench",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Screen",
+     "min": 0,
+     "max": 13,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [],
+   "whatAmILookingAt": "Fourteen small screens share one picture, with Back and Continue. Six show an idea and eight ask you to try it. No marks, no timers.\n\nThe picture. At the top, the live board: three busbars at 440 V, 60 Hz, fixed here. Beside it, the incoming set behind its open breaker, poles A, B and C. A lamp sits across each pole. Below, the synchroscope: a dial with the in-phase mark at 12 o'clock, FAST clockwise and SLOW anticlockwise. Beside it, a still of two cycles: the board's phase A wave solid, the set's dashed, and the voltage across pole A as a thinner third wave. Last, two bars, each 0 to 9 per unit on the set's own rating: Surge and Shaft torque. A dashed line on the Surge bar at 6.7 is labelled \"Three-phase fault at the set\". The controls: a Speed trim slider, 59.00 to 61.00 Hz in steps of 0.05, opening at 60.20 Hz; a Voltage trim slider, 400 to 480 V in steps of 5, opening at 440 V; a Swap B and C switch, off; a Relay switch, off; a Close button; and a Reset button that opens the breaker again.\n\nThe readouts, in four tiles that wrap onto two rows on a phone: Angle in °, Slip in Hz, Across pole A in V and Incoming in V. The buttons wrap too, so no word splits.\n\nThe rule it computes. Each board phase is 440 ÷ √3 = 254 V, each incoming phase the voltage trim ÷ √3. The slip is the speed trim − 60 Hz. The angle is how far the set's phase A runs ahead of the board's. It grows by 360 × the slip degrees a second, and is shown from −180° to 180°. The pointer stands at that angle, with 12 o'clock as 0°. Each pole sees the difference of its two phases: √(Vb² + Vi² − 2 Vb Vi cos φ), where Vb and Vi are the two phase voltages and φ the angle between them. With the swap on, φ becomes the angle − 120° on pole B and the angle + 120° on pole C. With equal voltages the rule becomes 2 sin(φ ÷ 2) × 254 V. Each lamp's glow is its voltage ÷ 508 V. The breaker shuts 50 ms after Close, at whatever angle it has reached, and the dial marks both places. When it shuts, the surge is the largest pole voltage ÷ 254 V ÷ 0.25. That 0.25 per unit is the set's reactance, 0.15, plus the board's, 0.10, both example values. The fault line is 1 ÷ 0.15 = 6.7. The torque is (Vi ÷ 254 V) × sin(the angle) ÷ 0.25. Any angle past 90° counts as 90°. The rotor swings back through 90°, where the pull is greatest. With the swap on, the torque bar shows \"Wrong sequence\" instead. A close outside the window edges both bars in red and labels them \"Outside the window\": the angle beyond 10° either side of 12, the slip over 0.2 Hz, the voltage more than 2% off, 8.8 V, or the swap on. The bars fill red only when the angle or the sequence was wrong. These are example settings. Makers set them anywhere from 0.5% to 5% on voltage and 0.1 to 0.5 Hz on slip. After any close the pointer stops at 12 and the lamps go dark. With the Relay on, Close only asks. Outside the window on voltage, slip or sequence, the relay refuses and names why. Inside it, the relay sends the close when the pointer is 360 × slip × 0.05 degrees short of 12, so the breaker shuts at 12.\n\nScreen 1, try it, a recall. 60.00 Hz, the angle held at 30°, the Across pole A tile reading ? until Check. \"The set's wave runs 30° ahead of the board's, as two transformers did across a paralleling switch. What fraction of the phase voltage appears across each pole?\" A field with no unit. Answer 0.52. Slips: 0.5, \"That is sin 30°. Halve the angle first.\"; 0.26, \"That is sin 15°. Double it.\"; 1, \"That doubles sin 30°. Halve the angle first.\" Hint when wrong: \"The gap is 2 sin(θ ÷ 2) of the phase voltage.\" Why: \"2 × sin 15° = 2 × 0.259 = 0.52 of the phase voltage.\" A right Check says \"Still there.\" and shows 131 V in the tile. Read: the question.\n\nScreen 2, show. 60.00 Hz, 440 V, every control hidden. The set's wave slides from in step to 40° ahead over 2 s, the thin wave and the lamps growing with it, and is held there. The words: \"A second set runs beside a live board. Its breaker is open. Before it closes, it must match the board in four things: voltage, frequency, phase sequence and phase angle.[^1] Each pole has a board phase on one side and the set's same phase on the other. On a 440 V board each phase is 254 V. The thin wave is the difference between them. That is the voltage across the pole. The set's wave runs 40° ahead. So the pole sees 2 sin 20° × 254 = 174 V.\" Read: the words, \"The thin wave\" read as \"What the pole sees\". Still: the lamps glowing, readouts 40°, 0.00 Hz, 174 V, 440 V.\n\nScreen 3, try it, typed. As screen 2, the angle at 60°, the Across pole A tile reading ? until Check. \"The set's wave runs 60° ahead of the board's. Each phase is 254 V. What voltage appears across each pole?\" A field in V. Answer 254 V. Slips: 440, \"That uses the full 60°. Halve it first.\"; 127, \"That is 254 × sin 30°. Double it.\"; 220, \"That is 254 × sin 60°. Halve the angle first.\" Hint when wrong: \"Use 2 sin(θ ÷ 2) × 254 V.\" Why: \"2 × sin 30° × 254 = 2 × 0.5 × 254 = 254 V. That is a whole phase voltage.\" A right Check shows 254 V in the tile. Read: the question.\n\nScreen 4, show. The speed trim free at 60.20 Hz. The words: \"Now the set runs 0.2 Hz faster than the board. That frequency difference is the [[slip]]. The set's waves gain one whole cycle every 1 ÷ 0.2 = 5 s. So the angle creeps round, and the gap swells and shrinks every 5 s. The three lamps glow and go dark together. The dial is a [[synchroscope]]. Its pointer turns once each slip cycle. It turns clockwise when the set runs fast. It stands at 12 when the angle is zero. Drag the speed trim and watch the pointer.\" Read: the words without the last sentence. Still: the angle at 60° FAST, the lamps half lit, readouts 60°, 0.20 Hz, 254 V, 440 V.\n\nScreen 5, try it, typed. 60.25 Hz, the Slip tile reading ? until Check. \"The set runs at 60.25 Hz on a 60 Hz board. How long does the pointer take to go once round?\" A field in s. Answer 4 s. Slips: 0.25, \"That is the slip. One turn takes 1 ÷ the slip.\"; 240, \"That is 60 ÷ the slip. Use 1 ÷ the slip.\" Hint when wrong: \"Find the slip first.\" Why: \"The slip is 60.25 − 60 = 0.25 Hz. The set gains a quarter of a cycle each second. So a whole cycle takes 1 ÷ 0.25 = 4 s.\" A right Check times one turn of the pointer, 4 s. Read: the question.\n\nScreen 6, show. 60.20 Hz, Close and Reset free. The words: \"Press Close as the pointer nears 90°, a quarter turn. The breaker shuts and both bars jump into red. Shut at 90°, each pole sees 359 V. The reactances of the set and the board are the main limit on the surge that gap drives. Here it is 5.7 per unit. The surge also yanks the rotor into step. That puts 4.0 per unit of torque through the shaft and coupling. Shut at 180° and the surge reaches 8.0 per unit. That is more than a three-phase fault at the set.[^2]\" Read: the first two sentences read as \"Suppose the breaker shuts a quarter turn out.\" Still: the breaker shut at 90°, Surge at 5.7 and Torque at 4.0, both red.\n\nScreen 7, try it. 60.05 Hz, the pointer near 180°, 440 V. \"Both voltmeters read 440 V. The pointer is at the bottom of the dial, at 180°. It is turning slowly. Can you close?\" Three choices, in this order: \"Yes, the voltages match\"; \"No, each pole sees about twice the phase voltage\"; \"Yes, the slip is small\". Right, the second. Hint for the first: \"Voltage is one of four things. The waves are half a cycle apart.\"; for the third: \"A small slip lets you time the close. But the angle is wrong now.\" Why: \"At 180° the waves are opposite. Each pole sees 2 × sin 90° × 254 = 508 V. That gives the biggest surge of all. Wait for the pointer to come round to 12.\" A right Check plays the pointer round to 12, the lamps going dark. Read: the question.\n\nScreen 8, show. 60.20 Hz, Close free. The words: \"A breaker takes a set time to shut after the command. Say 50 ms. At 0.2 Hz slip the pointer turns 360 × 0.2 = 72° a second. In 50 ms it moves 72 × 0.05 = 3.6°. So if you press Close at 12, the breaker shuts 3.6° past it. Instead, send the close 3.6° before 12. That lead is the [[advance angle]].[^3] Watch both presses. The faded dot is the first, late close. The second lands at 12.\" The demonstration presses Close at 12, and the breaker shuts at 3.6° FAST. Then it opens the breaker, keeps that close as a faded dot labelled \"first shut 3.6° FAST\", and presses again 3.6° before 12. Read: the words, the last three sentences read as \"The dial shows both. The first close lands 3.6° past 12. The second, sent 3.6° early, lands at 12.\" Still: the faded dot at 3.6° FAST, a ring at 3.6° SLOW where Close was pressed, a dot at 12 where it shut, both bars small.\n\nScreen 9, try it, typed. 60.50 Hz. \"The set runs 0.5 Hz fast. The breaker takes 50 ms. You press Close just as the pointer passes 12. How many degrees past 12 does the breaker shut?\" A field in °. Answer 9°. Slips: 0, \"The breaker takes 50 ms, and the pointer keeps turning.\"; 18, \"That is for 1 Hz of slip. Multiply by 0.5 Hz too.\"; 0.025, \"That is in turns. Multiply by 360 for degrees.\"; 9000, \"Turn 50 ms into seconds first. It is 0.05 s.\" Hint when wrong: \"Degrees a second = 360 × the slip. Multiply by the closing time in seconds.\" Why: \"360 × 0.5 = 180° a second. 180 × 0.05 = 9°. Pressing at 12 lands 9° late. So the close should go 9° early.\" A right Check plays it, marking 12 and 9° FAST. The slip is outside the window, so both bars are edged red and labelled \"Outside the window\", but their small fills stay ink. The line below says \"The surge is small, but the close was outside the window.\" Read: the question.\n\nScreen 10, show. 60.10 Hz, the swap on and free. The words: \"Two of the set's phases, B and C, are now swapped. The lamps no longer dim together. One goes dark while the other two blaze. The dark lamp runs round the three in turn. When lamp A is dark, lamps B and C each see 440 V. The pointer turns exactly as before. It compares only phase A on each side. So it cannot see the order of the other two. The wiring fixes the phase sequence. It is the phase rotation you already test.\" Read: the words. Still: the angle at 0°, lamp A dark, lamps B and C full.\n\nScreen 11, try it. 60.05 Hz, the swap on, hidden. \"The pointer turns slowly through 12. Lamp A is dark, but lamps B and C are bright. Can you close?\" Three choices, in this order: \"Yes, the pointer is at 12 and turning slowly\"; \"No, the phase sequence is wrong\"; \"No, wait until all three lamps are bright\". Right, the second. Hint for the first: \"The pointer compares phase A only. Look at the other two lamps.\"; for the third: \"A bright lamp means a big gap. You want all three dark together.\" Why: \"With the sequence right, all three lamps go dark together. Here B and C blaze at 440 V while A is dark. So B and C are crossed. Put the wiring right first.\" A right Check says \"Right. Here is what closing would do.\" and closes anyway: Surge reaches 6.9, past the fault line, and the torque bar reads \"Wrong sequence\". Read: the question.\n\nScreen 12, show. The relay on, 60.50 Hz, 440 V; the speed trim, Relay and Close free. The words: \"The relay is now on, so Close only asks. The relay closes only inside its window. Here it is 10°, 0.2 Hz and 2% of voltage. Makers set it anywhere from 0.5% to 5% on voltage and 0.1 to 0.5 Hz on slip. At 0.5 Hz slip it refuses and says why. Trim the speed to 60.10 Hz and ask again. It waits for the advance angle, 1.8°, and sends the close. The breaker shuts at 12. An automatic synchroniser also trims the governor and the AVR, by moving their set points.[^4]\" Read: \"The relay is now on, so Close only asks.\" read as \"With a relay in charge, Close only asks.\" and \"Trim the speed to 60.10 Hz and ask again.\" as \"At 60.10 Hz it agrees.\" Still: the relay on, 60.10 Hz, the breaker shut at 0°, the lamps dark, both bars small.\n\nScreen 13, try it (mixed). 420 V, 60.40 Hz. \"The set reads 420 V and 60.40 Hz. The board is 440 V, 60 Hz. What do you trim before closing?\" Three choices, in this order: \"Raise the field, and lower the fuel a little\"; \"Raise the fuel, and lower the field a little\"; \"Raise the field only, then close as the pointer passes 12\". Right, the first. Hint for the second: \"More fuel speeds the set up. It is already fast, and its voltage is low.\"; for the third: \"At 0.4 Hz the pointer turns once every 2.5 s. That is too fast to catch.\" Why: \"More field raises the voltage towards 440 V. Less fuel slows the set until the pointer turns slowly enough to catch at 12.\" A right Check moves the trims to 440 V and 60.10 Hz, and the pointer slows. Read: the question.\n\nScreen 14, try it, typed (mixed). No picture. \"A relay must shut a breaker at 12. The set runs 0.3 Hz fast. The breaker takes 80 ms. How many degrees before 12 does the relay send the close? Give it to one decimal place.\" A field in °. Answer 8.6°. Slips: 28.8, \"That leaves out the slip. Multiply by 0.3 Hz too.\"; 0.024, \"That is in turns. Multiply by 360 for degrees.\"; 8640, \"Turn 80 ms into seconds first. It is 0.08 s.\" Hint when wrong: \"360 × the slip × the closing time in seconds.\" Why: \"360 × 0.3 = 108° a second. 108 × 0.08 = 8.64°. To one decimal place that is 8.6°.\" A right Check shows: \"Match all four, then close early by the advance angle.\" Read: the question.",
+   "ignores": "The 50 ms close is too quick to see. So the dial marks where you pressed and where the breaker shut. The board stays at exactly 440 V and 60 Hz. A real board is a few sets running together, and it gives a little. The surge and torque are first-instant values from example reactances. A real surge dies away quickly, and the shaft rings as the rotor swings into step. Here the set always pulls into step. With a big enough slip, a real set can fail to. The lamps glow in proportion to their voltage. Real filament lamps stay dark until they see a fair share of their rating. So dark lamps alone give a wide window. The relay here both blocks a bad close and times a good one. Real schemes may split those jobs between devices. Each has its maker's own settings.",
+   "numbers": [
+    {
+     "label": "Number of screens",
+     "value": 14,
+     "kind": "assumed"
+    },
+    {
+     "label": "Board line voltage, V",
+     "value": 440,
+     "kind": "assumed"
+    },
+    {
+     "label": "Board frequency, Hz",
+     "value": 60,
+     "kind": "assumed"
+    },
+    {
+     "label": "Square root of 3",
+     "value": 1.732,
+     "kind": "constant"
+    },
+    {
+     "label": "Board phase voltage, 440 ÷ √3, V",
+     "value": 254,
+     "kind": "computed"
+    },
+    {
+     "label": "Twice the phase voltage, V",
+     "value": 508,
+     "kind": "computed"
+    },
+    {
+     "label": "Dial in-phase mark, o'clock",
+     "value": 12,
+     "kind": "constant"
+    },
+    {
+     "label": "Cycles in the wave still",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Bar scale, highest, per unit",
+     "value": 9,
+     "kind": "assumed"
+    },
+    {
+     "label": "Bar scale, lowest, per unit",
+     "value": 0,
+     "kind": "assumed"
+    },
+    {
+     "label": "Speed trim, lowest, Hz",
+     "value": 59,
+     "kind": "control"
+    },
+    {
+     "label": "Speed trim, highest, Hz",
+     "value": 61,
+     "kind": "control"
+    },
+    {
+     "label": "Speed trim step, Hz",
+     "value": 0.05,
+     "kind": "control"
+    },
+    {
+     "label": "Speed trim opening, Hz",
+     "value": 60.2,
+     "kind": "control"
+    },
+    {
+     "label": "Voltage trim, lowest, V",
+     "value": 400,
+     "kind": "control"
+    },
+    {
+     "label": "Voltage trim, highest, V",
+     "value": 480,
+     "kind": "control"
+    },
+    {
+     "label": "Voltage trim step, V",
+     "value": 5,
+     "kind": "control"
+    },
+    {
+     "label": "Voltage trim opening, V",
+     "value": 440,
+     "kind": "control"
+    },
+    {
+     "label": "Degrees in a turn",
+     "value": 360,
+     "kind": "constant"
+    },
+    {
+     "label": "Angle shown from, degrees",
+     "value": -180,
+     "kind": "assumed"
+    },
+    {
+     "label": "Angle shown to, degrees",
+     "value": 180,
+     "kind": "assumed"
+    },
+    {
+     "label": "Phase shift for the swapped poles, degrees",
+     "value": 120,
+     "kind": "constant"
+    },
+    {
+     "label": "Breaker closing time, ms",
+     "value": 50,
+     "kind": "assumed"
+    },
+    {
+     "label": "Breaker closing time, s",
+     "value": 0.05,
+     "kind": "computed"
+    },
+    {
+     "label": "Set reactance, per unit",
+     "value": 0.15,
+     "kind": "assumed"
+    },
+    {
+     "label": "Board reactance, per unit",
+     "value": 0.1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Total reactance, per unit",
+     "value": 0.25,
+     "kind": "computed"
+    },
+    {
+     "label": "Three-phase fault at the set, 1 ÷ 0.15, per unit",
+     "value": 6.7,
+     "kind": "computed"
+    },
+    {
+     "label": "Angle where the pull is greatest, degrees",
+     "value": 90,
+     "kind": "constant"
+    },
+    {
+     "label": "Window: angle either side of 12, degrees",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Window: slip, Hz",
+     "value": 0.2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Window: voltage, %",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Window: 2% of 440 V, V",
+     "value": 8.8,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 1: angle, degrees",
+     "value": 30,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 1: half the angle, degrees",
+     "value": 15,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 1: sin 15°",
+     "value": 0.259,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 1: answer, fraction of phase voltage",
+     "value": 0.52,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 1 slip: sin 30°",
+     "value": 0.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 1 slip: sin 15°",
+     "value": 0.26,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 1 slip: 2 sin 30°",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 2: speed trim, Hz",
+     "value": 60,
+     "kind": "control"
+    },
+    {
+     "label": "Screen 2: angle, degrees",
+     "value": 40,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 2: half the angle, degrees",
+     "value": 20,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 2: gap, V",
+     "value": 174,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 2: slip, Hz",
+     "value": 0,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 3: angle, degrees",
+     "value": 60,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 3: half the angle, degrees",
+     "value": 30,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 3: gap, V",
+     "value": 254,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 3 slip: full angle, V",
+     "value": 440,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 3 slip: not doubled, V",
+     "value": 127,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 3 slip: sin 60°, V",
+     "value": 220,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 4: slip, Hz",
+     "value": 0.2,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 4: one turn, s",
+     "value": 5,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 4: still angle, degrees",
+     "value": 60,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 5: speed trim, Hz",
+     "value": 60.25,
+     "kind": "control"
+    },
+    {
+     "label": "Screen 5: slip, Hz",
+     "value": 0.25,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 5: one turn, s",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 5 slip: 60 ÷ 0.25, s",
+     "value": 240,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 6: angle shut at, degrees",
+     "value": 90,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 6: gap, V",
+     "value": 359,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 6: surge, per unit",
+     "value": 5.7,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 6: torque, per unit",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 6: angle shut at, worst, degrees",
+     "value": 180,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 6: surge at 180°, per unit",
+     "value": 8,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 7: speed trim, Hz",
+     "value": 60.05,
+     "kind": "control"
+    },
+    {
+     "label": "Screen 7: half of 180°, degrees",
+     "value": 90,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 7: gap at 180°, V",
+     "value": 508,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 8: degrees a second at 0.2 Hz",
+     "value": 72,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 8: advance angle, degrees",
+     "value": 3.6,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 9: speed trim, Hz",
+     "value": 60.5,
+     "kind": "control"
+    },
+    {
+     "label": "Screen 9: slip, Hz",
+     "value": 0.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 9: degrees a second",
+     "value": 180,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 9: angle late, degrees",
+     "value": 9,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 9 slip: none",
+     "value": 0,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 9 slip: 1 Hz of slip, degrees",
+     "value": 18,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 9 slip: 1 Hz",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 9 slip: in turns",
+     "value": 0.025,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 9 slip: ms not converted",
+     "value": 9000,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 10: speed trim, Hz",
+     "value": 60.1,
+     "kind": "control"
+    },
+    {
+     "label": "Screen 10: gap on B and C, V",
+     "value": 440,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 11: surge with B and C crossed, per unit",
+     "value": 6.9,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 12: speed trim after trimming, Hz",
+     "value": 60.1,
+     "kind": "control"
+    },
+    {
+     "label": "Screen 12: advance angle at 0.1 Hz, degrees",
+     "value": 1.8,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 13: voltage trim, V",
+     "value": 420,
+     "kind": "control"
+    },
+    {
+     "label": "Screen 13: speed trim, Hz",
+     "value": 60.4,
+     "kind": "control"
+    },
+    {
+     "label": "Screen 13: slip, Hz",
+     "value": 0.4,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 13: one turn, s",
+     "value": 2.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 14: slip, Hz",
+     "value": 0.3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 14: closing time, ms",
+     "value": 80,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 14: closing time, s",
+     "value": 0.08,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 14: degrees a second",
+     "value": 108,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 14: advance angle, degrees",
+     "value": 8.64,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 14: answer, degrees",
+     "value": 8.6,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 14 slip: no slip, degrees",
+     "value": 28.8,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 14 slip: in turns",
+     "value": 0.024,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 14 slip: ms not converted",
+     "value": 8640,
+     "kind": "computed"
+    },
+    {
+     "label": "Gap at 10°, V",
+     "value": 44,
+     "kind": "computed"
+    },
+    {
+     "label": "Gap at 10°, fraction of phase voltage",
+     "value": 0.17,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example: speed, Hz",
+     "value": 60.1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example: slip, Hz",
+     "value": 0.1,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example: one turn, s",
+     "value": 10,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example: advance angle, degrees",
+     "value": 1.8,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example: late angle, degrees",
+     "value": 20,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example: half of it, degrees",
+     "value": 10,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example: gap, V",
+     "value": 88,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example: surge, per unit",
+     "value": 1.4,
+     "kind": "computed"
+    },
+    {
+     "label": "Mistake: advance angle at 1 Hz slip, degrees",
+     "value": 18,
+     "kind": "computed"
+    },
+    {
+     "label": "Hours on the dial",
+     "value": 12,
+     "kind": "constant"
+    },
+    {
+     "label": "Manual close, one practice: 11 o'clock, degrees before 12",
+     "value": 30,
+     "kind": "computed"
+    },
+    {
+     "label": "Manual close, other practice: 5 minutes to 12 on an hour hand, degrees",
+     "value": 2.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Minutes on the dial, 5 minutes to 12",
+     "value": 5,
+     "kind": "constant"
+    },
+    {
+     "label": "Makers' voltage window, tightest, %",
+     "value": 0.5,
+     "kind": "constant",
+     "source": 7
+    },
+    {
+     "label": "Makers' voltage window, widest, %",
+     "value": 5,
+     "kind": "constant",
+     "source": 8
+    },
+    {
+     "label": "Makers' slip window, tightest, Hz",
+     "value": 0.1,
+     "kind": "constant",
+     "source": 9
+    },
+    {
+     "label": "Makers' slip window, widest, Hz",
+     "value": 0.5,
+     "kind": "constant",
+     "source": 9
+    },
+    {
+     "label": "Screen 1: gap at 30°, V",
+     "value": 131,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 8: second press, degrees before 12",
+     "value": 3.6,
+     "kind": "computed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "Putting a second set onto a live board means closing its breaker with both sides alive. First, the set must match the board in four things: voltage, frequency, phase sequence and phase angle.[^1] The breaker also takes a moment to shut. So the close is sent a little early.[^3]\n\nThe reason is the voltage across the open breaker. Each pole has a board phase on one side and the set's same phase on the other. If the two waves are the same size and rise and fall together, nothing sits across the pole. Now say the set's wave is the same size but runs θ degrees ahead. Then the pole sees 2 sin(θ ÷ 2) × the phase voltage. It is the same gap you met across a paralleling switch. On a 440 V board each phase is 254 V. At 10° apart the gap is 44 V. At 60° it is 254 V. At 180° the waves are opposite, and the gap is 508 V. Close the breaker and that gap drives a current. The reactances of the set and the board are the main limit on it. Closed far out of step, this current can exceed a three-phase fault at the set.[^2] The current also carries power between the two. That power pulls the set's rotor into step with the board. The shaft and coupling take that jerk.\n\nFrequency matters because a small difference keeps the angle moving. A set running 0.2 Hz fast gains one whole cycle on the board every 1 ÷ 0.2 = 5 s. So the angle creeps round once every 5 s, and the gap swells and shrinks with it. That difference is the [[slip]]. A [[synchroscope]] is a dial whose pointer turns at the slip. It turns clockwise when the set runs fast. It stands at 12 when the angle is zero. Say the breaker shuts 50 ms after its command. At 0.2 Hz slip the angle moves 360 × 0.2 = 72° a second. That is 3.6° in 50 ms. Sending the close 3.6° before 12 lands it at 12. That lead is the [[advance angle]].[^3]\n\nThe governor trims the frequency and the angle. The AVR trims the voltage. An automatic synchroniser does both by moving their set points.[^4] Phase sequence is the phase rotation you already test. The wiring fixes it, so it is not trimmed. It is proved after work on the connections. These figures come from a simplified picture with example reactances and an example breaker. **Close only when voltage, frequency, phase sequence and phase angle all match within a small window. Send the close early by the advance angle, so the breaker shuts in phase.**[^3]"
+  },
+  "analogy": {
+   "text": "Think of engaging a dog clutch onto a shaft that is already turning. The two halves must turn at the same speed, or the dogs crash. Their teeth must line up, or they clash. And the lever takes a moment to travel. So you push it a touch before the teeth line up.",
+   "breaks": "A clutch has no voltage to match. Its halves cannot be fitted in the wrong sequence either. And a bad engagement only crashes the dogs. A bad close can also drive a current through the set bigger than a three-phase fault at its terminals."
+  },
+  "practice": {
+   "text": "**Closing a set onto a live board**\n\nThe safe way first. Where an automatic synchroniser or a check relay is fitted, let it make or check the close. By hand, in order:\n- After any work on the set's connections, prove its phase sequence matches the board's. Use a phase rotation tester on each side, or the fitted lamps. With the lamps, all three must go dark together.\n- Run the set up and match its voltage to the board's with the AVR.\n- Trim its speed with the governor until the pointer turns slowly. It is usual to leave it turning slowly towards FAST. Then the set picks up a little load as it closes. Closed running slow, the board would drive it as a motor. Reverse power protection would see that.\n- Send the close once, a little before 12, as the pointer climbs slowly towards it. How far before is taught two ways, set out below. A 1.8° lead is only 50 ms, too short to time by hand.\n- Then let go. Held in, a check relay lets the close through the moment its window opens. The breaker then shuts at the window's edge, not at 12.\n\n**Rules of thumb:** one turn of the pointer takes 1 ÷ the slip seconds. The gap across a pole is 2 sin(θ ÷ 2) × the phase voltage. So 10° out leaves 0.17 of it. On a 440 V board that is 44 V. A relay or synchroniser sends the close at the advance angle: 360 × the slip × the closing time in seconds. A slower pointer gives a smaller advance angle and more time to judge it. The window is a setting, never a constant. Makers set it anywhere from 0.5% to 5% on voltage and 0.1 to 0.5 Hz on slip.\n\n**Worked example:** the board is 440 V, 60 Hz. The set reads 440 V and 60.1 Hz. So the slip is 0.1 Hz, and the pointer turns once every 10 s. The breaker takes 50 ms. The advance angle is 360 × 0.1 × 0.05 = 1.8°. So a relay sends the close 1.8° before 12. Had the breaker shut 20° late instead, each pole would see 2 × sin 10° × 254 = 88 V. Take 0.25 per unit of reactance between the set and the board, as an example. Then the 88 V drives a surge of 88 ÷ 254 ÷ 0.25 = 1.4 per unit.\n\n**Common mistakes**\n- Closing because the voltmeters agree. The angle can still be 180°. Then each pole sees twice the phase voltage.\n- Pressing Close exactly at 12. At 0.5 Hz slip with a 50 ms breaker, it shuts 9° late.\n- Trusting the synchroscope for phase sequence. A synchroscope usually compares one phase on each side.\n- Closing on a fast-turning pointer. At 1 Hz slip with a 50 ms breaker the advance angle is 18°. A small error in timing then becomes a big angle.\n\n**Ashore** it is the other way round. A standby set there must never run in parallel with the supply. Interlocks and switching make sure it cannot.[^10]"
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "contested",
+  "contested": {
+   "views": [
+    {
+     "label": "About 11 o'clock",
+     "text": "Close as the pointer passes about 11 o'clock, turning slowly towards FAST.[^5] On the dial that is 30° before 12. Both views close early for the same reason: the breaker takes time to shut."
+    },
+    {
+     "label": "About 5 minutes to 12",
+     "text": "Close when the pointer is about 5 minutes to 12, again turning slowly towards FAST.[^6] Read as an hour hand, that is only 2.5° before 12. Read as a minute hand, it is the 11 o'clock mark again."
+    }
+   ]
+  },
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "DG Synchronization with Step-by-Step Procedure — forumelectrical.com",
+    "url": "https://forumelectrical.com/dg-synchronization-with-step-by-step-procedure",
+    "quote": "Before a generator breaker is allowed to close, four electrical quantities of the incoming machine must be matched, within tolerance, to the running bus:"
+   },
+   {
+    "n": 2,
+    "title": "PSRC WG J20 Report - Practices for Generator Synchronizing Systems — pes-psrc.org",
+    "url": "https://www.pes-psrc.org/kb/report/119.pdf",
+    "quote": "The synchronization current can exceed that of a three-phase fault at the generator"
+   },
+   {
+    "n": 3,
+    "title": "PSRC WG J20 Report - Practices for Generator Synchronizing Systems — pes-psrc.org",
+    "url": "https://www.pes-psrc.org/kb/report/119.pdf",
+    "quote": "This allows the synchronizing breaker close command to be initiated early at the advance angle to compensate for breaker closing time."
+   },
+   {
+    "n": 4,
+    "title": "Cummins Power Seminar, Paralleling Basics (IEEE PES New York archive)",
+    "url": "https://ewh.ieee.org/soc/pes/newyork/Archive%20Docs/CumminsPowerSeminar_Basics%20of%20Paralleling%20169.pdf",
+    "quote": "Governor and AVR are the basic functions on every genset and the synchronizer, load share and load govern simply adjust the reference point to them"
+   },
+   {
+    "n": 5,
+    "title": "Synchroscope - Wikipedia — en.wikipedia.org",
+    "url": "https://en.wikipedia.org/wiki/Synchroscope",
+    "quote": "the operator closes the breaker when the synchroscope pointer is passing through approximately \"11 o'clock\", while traveling slowly in the fast direction."
+   },
+   {
+    "n": 6,
+    "title": "PSRC WG J20 Report - Practices for Generator Synchronizing Systems — pes-psrc.org",
+    "url": "https://www.pes-psrc.org/kb/report/119.pdf",
+    "quote": "When the synchroscope is about 5 minutes to 12 o’clock, the generator breaker is closed."
+   },
+   {
+    "n": 7,
+    "title": "STAMFORD S9 alternators owner manual — stamford-avk.com",
+    "url": "https://www.stamford-avk.com/sites/stamfordavk/files/2025-03/S9-Owners-Manual-English.pdf",
+    "quote": "Voltage Difference +/- 0.5% Frequency Difference 0.1 Hz/sec Phase Angle +/- 10 o C/B Closing Time 50 ms"
+   },
+   {
+    "n": 8,
+    "title": "DG Synchronization with Step-by-Step Procedure — forumelectrical.com",
+    "url": "https://forumelectrical.com/dg-synchronization-with-step-by-step-procedure",
+    "quote": "typically within about 5 percent"
+   },
+   {
+    "n": 9,
+    "title": "DG Synchronization with Step-by-Step Procedure — forumelectrical.com",
+    "url": "https://forumelectrical.com/dg-synchronization-with-step-by-step-procedure",
+    "quote": "generally within 0.1 to 0.5 Hz"
+   },
+   {
+    "n": 10,
+    "title": "TLC Electrical Supplies, 2.5 Low voltage generating sets (a guide to the IEE Wiring Regulations) — tlc-direct.co.uk",
+    "url": "https://www.tlc-direct.co.uk/Book/2.5.htm",
+    "quote": "interlocks and switching must be provided to ensure that parallel operation is not possible."
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: process -->\n<style>\n  [hidden] { display: none !important; }\n  .pz { max-width: 52rem; }\n  .pz > * + *, #stepbox > * + *, .figs > * + * { margin-top: 14px; }\n  .task, .fb, .why, .closing, .done p, .say { max-width: 34rem; }\n  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.08rem; font-weight: 400; line-height: 1.6; }\n  /* The board and the dial side by side on a laptop, stacked on a phone; the bars below. */\n  .pics { display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-start; gap: 6px 18px; }\n  .pics svg { display: block; width: 100%; flex: 1 1 17rem; max-width: 26rem; }\n  .barsvg { display: block; width: 100%; max-width: 32rem; margin-inline: auto; }\n  .sws, .tgs { display: flex; flex-wrap: wrap; gap: 10px 16px; }\n  .sws > div, .tgs > div { flex: 1 1 12rem; min-width: 0; }\n  .btns { display: grid; grid-template-columns: repeat(auto-fit, minmax(6rem, 1fr)); gap: 10px; }\n  .btns .k-btn { min-height: 44px; white-space: nowrap; }\n  .outs.k-readouts { display: grid; grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr)); gap: 10px; }\n  .outs .k-readout { min-width: 0; }\n  .say { min-height: 3.2em; transition: opacity .3s ease-out; }\n  .say.off { opacity: 0; }\n  svg .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }\n  svg .labb { font: 700 13px var(--k-font); fill: var(--k-ink); }\n  svg .labm { font: 600 13px var(--k-font); fill: var(--k-muted); }\n  svg .labw { font: 700 13px var(--k-font); fill: var(--k-warn); }\n  .bus { stroke: var(--k-ink); stroke-width: 3; stroke-linecap: round; }\n  .wire { stroke: var(--k-ink); stroke-width: 1.6; fill: none; stroke-linejoin: round; }\n  .blade { stroke: var(--k-accent2); stroke-width: 3.2; stroke-linecap: round; }\n  .jn { fill: var(--k-ink); }\n  .lamp { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.6; }\n  .glow { fill: var(--k-fill2); }\n  .halo { fill: var(--k-amber-line); }\n  .fil { stroke: var(--k-ink); stroke-width: 1.3; }\n  .gen { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.6; }\n  .face { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }\n  .tk { stroke: var(--k-muted); stroke-width: 1.4; }\n  .tk12 { stroke: var(--k-ink); stroke-width: 3.2; stroke-linecap: round; }\n  .dir { fill: none; stroke: var(--k-muted); stroke-width: 1.6; }\n  .dirh { fill: var(--k-muted); }\n  .ptr { stroke: var(--k-accent2); stroke-width: 3.2; stroke-linecap: round; }\n  .hub { fill: var(--k-accent2); }\n  .swept { fill: none; stroke: var(--k-accent); stroke-width: 3; stroke-linecap: round; }\n  .pmark { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.8; }\n  .smark { fill: var(--k-ink); stroke: var(--k-bg); stroke-width: 1.2; }\n  .smark.red { fill: var(--k-warn); }\n  .zero { stroke: var(--k-line); stroke-width: 1.2; }\n  .wb { fill: none; stroke: var(--k-accent2); stroke-width: 2.2; stroke-linejoin: round; }\n  .ws { fill: none; stroke: var(--k-accent2); stroke-width: 2.2; stroke-dasharray: 6 4; }\n  .wd { fill: none; stroke: var(--k-accent); stroke-width: 1.3; stroke-linejoin: round; }\n  .trk { fill: var(--k-sunk); stroke: var(--k-line); stroke-width: 1.2; }\n  .trk.red { stroke: var(--k-warn); stroke-width: 1.6; }\n  .fillb { fill: var(--k-accent2); }\n  .fillb.red { fill: var(--k-warn); }\n  .fault { stroke: var(--k-ink); stroke-width: 1.6; stroke-dasharray: 4 3; }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; }\n  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }\n  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-inline: 16px; font-size: .95rem; white-space: nowrap; }\n  .picks { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }\n  .picks .k-btn { min-height: 48px; font-size: 1.05rem; white-space: normal; overflow-wrap: normal; word-break: normal; hyphens: none; text-align: left; }\n  .picks .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  .answers .k-answer { max-width: 20rem; }\n  .fb { font-weight: 700; min-height: 1.5em; }\n  .fb.right { color: var(--k-good); }\n  .why, .done, .closing { line-height: 1.6; }\n  .done .row { margin-top: 14px; }\n  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } .say { transition: none; } }\n</style>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <div class=\"figs\" id=\"figs\">\n      <div class=\"pics\">\n        <svg id=\"scene\" viewBox=\"0 0 340 176\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"sceneArt\"></g></svg>\n        <svg id=\"dial\" viewBox=\"0 0 340 204\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"dialArt\"></g></svg>\n      </div>\n      <svg class=\"barsvg\" id=\"bars\" viewBox=\"0 0 340 126\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"barArt\"></g></svg>\n      <div class=\"sws\" id=\"sws\"><div class=\"k-controls\" id=\"c-f\"></div><div class=\"k-controls\" id=\"c-v\"></div></div>\n      <div class=\"tgs\" id=\"tgs\"><div class=\"k-controls\" id=\"c-sw\"></div><div class=\"k-controls\" id=\"c-rl\"></div></div>\n      <div class=\"btns\" id=\"c-btn\"></div>\n      <div class=\"replay\" id=\"replay\"></div>\n      <p class=\"say\" id=\"say\"></p>\n      <div class=\"k-readouts outs\" id=\"outs\"></div>\n    </div>\n    <div class=\"picks\" id=\"picks\"></div>\n    <div class=\"answers\" id=\"answers\"></div>\n    <div class=\"row acts\" id=\"acts\"></div>\n    <p class=\"fb\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why\" id=\"why\" hidden></div>\n    <p class=\"closing\" id=\"closing\" hidden></p>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p id=\"finish\"></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\" id=\"cap\">Worked from the rule, with example reactances and relay settings. The dial marks the press and the shut.</p>\n\n<script>\n  // ================= the rule =================\n  const strip = (s) => String(s || '').replace(/\\[\\^\\d+\\]/g, '');\n  const NB = ' ';                                  // a no-break space: a number never parts from its unit\n  const SRC_FOUR = 'https://forumelectrical.com/dg-synchronization-with-step-by-step-procedure';\n  const SRC_PSRC = 'https://www.pes-psrc.org/kb/report/119.pdf';\n  // The live board: 440 V, 60 Hz, fixed. Each phase is 440 ÷ √3 = 254 V.\n  const VB = 440, F0 = 60, VPH = VB / Math.sqrt(3);\n  // The breaker shuts 50 ms after the command. Example reactances: the set 0.15, the board 0.10 per unit.\n  const TC = 0.05, XS = 0.15, XB = 0.10, XT = XS + XB, FAULT = 1 / XS;\n  // The example window: 10° either side of 12, 0.2 Hz of slip, 2% of 440 V = 8.8 V.\n  const WA = 10, WS = 0.2, WV = 0.02 * VB, BMAX = 9, EPS = 1e-9;\n  const r1 = (v) => Math.round(v * 10) / 10;\n  const r2 = (v) => Math.round(v * 100) / 100;\n  const rad = (d) => d * Math.PI / 180;\n  const wrap = (a) => a - 360 * Math.ceil((a - 180) / 360);         // into (−180°, 180°]\n  // The voltage across one pole: the difference of its two phases, φ apart.\n  const gap = (vi, phi) => Math.sqrt(Math.max(0, VPH * VPH + vi * vi - 2 * VPH * vi * Math.cos(rad(phi))));\n  const phis = (a, swap) => (swap ? [a, a - 120, a + 120] : [a, a, a]);\n  const poleVs = (a, v, swap) => phis(a, swap).map((p) => gap(v / Math.sqrt(3), p));\n  const advOf = (s) => 360 * s * TC;                                 // degrees the pointer turns while the breaker shuts\n  // Which parts of the window a close at angle a misses.\n  function outside(a, s, v, swap) {\n    const w = [];\n    if (Math.abs(a) > WA + EPS) w.push('ang');\n    if (Math.abs(s) > WS + EPS) w.push('slip');\n    if (Math.abs(v - VB) > WV + EPS) w.push('volt');\n    if (swap) w.push('seq');\n    return w;\n  }\n  // A close at angle a: the surge and the shaft torque, per unit on the set's rating.\n  function closeAt(a, s, v, swap) {\n    const vs = poleVs(a, v, swap), vi = v / Math.sqrt(3);\n    return { surge: Math.max.apply(null, vs) / VPH / XT, torque: vi / VPH * Math.sin(rad(Math.min(Math.abs(a), 90))) / XT,\n      out: outside(a, s, v, swap), swap: !!swap, v };\n  }\n  const fmtDeg = (x) => { x = Math.abs(x); if (x >= 9.95) return String(Math.round(x)); const v = r1(x); return Number.isInteger(v) ? String(v) : v.toFixed(1); };\n  const angTxt = (a) => (Math.abs(a) < 0.05 ? 'at 12' : 'at ' + fmtDeg(a) + '° ' + (a > 0 ? 'FAST' : 'SLOW'));\n  const fmtSec = (x) => { const v = r1(x); return Number.isInteger(v) ? String(v) : v.toFixed(1); };\n  const signed = (n) => (n === 0 ? '0' : n < 0 ? '−' + (-n) : String(n));\n\n  // ================= the lesson: SHOW screens demonstrate, DO screens are puzzles =================\n  const STEPS = [\n    { kind: 'typed', name: 'Still there?', ans: 'rec', right: 'Still there.', enter: { f: 60 }, ang0: 30, hide: ['P'],\n      answer: 0.52, decimals: 2, unit: '', want: '0.52',\n      slips: [{ value: 0.5, hint: 'That is sin 30°. Halve the angle first.' },\n        { value: 0.26, hint: 'That is sin 15°. Double it.' },\n        { value: 1, hint: 'That doubles sin 30°. Halve the angle first.' }],\n      task: 'The set\\'s wave runs 30° ahead of the board\\'s, as two transformers did across a paralleling switch. What fraction of the phase voltage appears across each pole?',\n      hint: 'The gap is 2 sin(θ ÷ 2) of the phase voltage.',\n      why: '2 × sin 15° = 2 × 0.259 = 0.52 of the phase voltage.',\n      read: 'The set\\'s wave runs 30° ahead of the board\\'s, as two transformers did across a paralleling switch. What fraction of the phase voltage appears across each pole?' },\n    { show: true, name: 'The gap across a pole', hold: true, enter: { f: 60 }, ang0: 0,\n      demo: [{ at: 0.3, to: 2.3, ramp: { ang: [0, 40] } }], dur: 2.4,\n      text: 'A second set runs beside a live board. Its breaker is open. Before it closes, it must match the board in four things: voltage, frequency, phase sequence and phase angle.[^1] Each pole has a board phase on one side and the set\\'s same phase on the other. On a 440 V board each phase is 254 V. The thin wave is the difference between them. That is the voltage across the pole. The set\\'s wave runs 40° ahead. So the pole sees 2 sin 20° × 254 = 174 V.',\n      read: 'A second set runs beside a live board. Its breaker is open. Before it closes, it must match the board in four things: voltage, frequency, phase sequence and phase angle. Each pole has a board phase on one side and the set\\'s same phase on the other. On a 440 V board each phase is 254 V. What the pole sees is the difference between them. That is the voltage across the pole. The set\\'s wave runs 40° ahead. So the pole sees 2 sin 20° × 254 = 174 V.',\n      still: () => setStill() },\n    { kind: 'typed', name: 'Sixty degrees', ans: 'sixty', enter: { f: 60 }, ang0: 60, hide: ['P'],\n      answer: 254, decimals: 0, unit: 'V', want: '254' + NB + 'V',\n      slips: [{ value: 440, hint: 'That uses the full 60°. Halve it first.' },\n        { value: 127, hint: 'That is 254 × sin 30°. Double it.' },\n        { value: 220, hint: 'That is 254 × sin 60°. Halve the angle first.' }],\n      task: 'The set\\'s wave runs 60° ahead of the board\\'s. Each phase is 254 V. What voltage appears across each pole?',\n      hint: 'Use 2 sin(θ ÷ 2) × 254 V.',\n      why: '2 × sin 30° × 254 = 2 × 0.5 × 254 = 254 V. That is a whole phase voltage.',\n      read: 'The set\\'s wave runs 60° ahead of the board\\'s. Each phase is 254 V. What voltage appears across each pole?' },\n    { show: true, name: 'Slip', ctl: ['f'], enter: { f: 60.2 }, ang0: 0,\n      text: 'Now the set runs 0.2 Hz faster than the board. That frequency difference is the [[slip]]. The set\\'s waves gain one whole cycle every 1 ÷ 0.2 = 5 s. So the angle creeps round, and the gap swells and shrinks every 5 s. The three lamps glow and go dark together. The dial is a [[synchroscope]]. Its pointer turns once each slip cycle. It turns clockwise when the set runs fast. It stands at 12 when the angle is zero. Drag the speed trim and watch the pointer.',\n      read: 'Now the set runs 0.2 Hz faster than the board. That frequency difference is the slip. The set\\'s waves gain one whole cycle every 1 ÷ 0.2 = 5 s. So the angle creeps round, and the gap swells and shrinks every 5 s. The three lamps glow and go dark together. The dial is a synchroscope. Its pointer turns once each slip cycle. It turns clockwise when the set runs fast. It stands at 12 when the angle is zero.',\n      still: () => setStill(() => { ang = 60; }) },\n    { kind: 'typed', name: 'One turn', ans: 'turn', enter: { f: 60.25 }, ang0: 0, hide: ['S'], run: [], rdur: 4, sweep: true, endAng: 0,\n      answer: 4, decimals: 0, unit: 's', want: '4' + NB + 's',\n      slips: [{ value: 0.25, hint: 'That is the slip. One turn takes 1 ÷ the slip.' },\n        { value: 240, hint: 'That is 60 ÷ the slip. Use 1 ÷ the slip.' }],\n      task: 'The set runs at 60.25 Hz on a 60 Hz board. How long does the pointer take to go once round?',\n      hint: 'Find the slip first.',\n      why: 'The slip is 60.25 − 60 = 0.25 Hz. The set gains a quarter of a cycle each second. So a whole cycle takes 1 ÷ 0.25 = 4 s.',\n      read: 'The set runs at 60.25 Hz on a 60 Hz board. How long does the pointer take to go once round?' },\n    { show: true, name: 'A close out of step', ctl: ['close'], enter: { f: 60.2 }, ang0: 0,\n      demo: [{ at: 1.2, close: true }], dur: 1.3,\n      text: 'Press Close as the pointer nears 90°, a quarter turn. The breaker shuts and both bars jump into red. Shut at 90°, each pole sees 359 V. The reactances of the set and the board are the main limit on the surge that gap drives. Here it is 5.7 per unit. The surge also yanks the rotor into step. That puts 4.0 per unit of torque through the shaft and coupling. Shut at 180° and the surge reaches 8.0 per unit. That is more than a three-phase fault at the set.[^2]',\n      read: 'Suppose the breaker shuts a quarter turn out. Shut at 90°, each pole sees 359 V. The reactances of the set and the board are the main limit on the surge that gap drives. Here it is 5.7 per unit. The surge also yanks the rotor into step. That puts 4.0 per unit of torque through the shaft and coupling. Shut at 180° and the surge reaches 8.0 per unit. That is more than a three-phase fault at the set.',\n      still: () => setStill() },\n    { kind: 'pick', name: 'Bottom of the dial', enter: { f: 60.05 }, ang0: 180, hide: ['P'], run: [], rdur: 10, endAng: 0,\n      opts: ['Yes, the voltages match', 'No, each pole sees about twice the phase voltage', 'Yes, the slip is small'],\n      want: 'No, each pole sees about twice the phase voltage',\n      task: 'Both voltmeters read 440 V. The pointer is at the bottom of the dial, at 180°. It is turning slowly. Can you close?',\n      hints: { 'Yes, the voltages match': 'Voltage is one of four things. The waves are half a cycle apart.',\n        'Yes, the slip is small': 'A small slip lets you time the close. But the angle is wrong now.' },\n      why: 'At 180° the waves are opposite. Each pole sees 2 × sin 90° × 254 = 508 V. That gives the biggest surge of all. Wait for the pointer to come round to 12.',\n      read: 'Both voltmeters read 440 V. The pointer is at the bottom of the dial, at 180°. It is turning slowly. Can you close?' },\n    { show: true, name: 'The advance angle', ctl: ['close'], enter: { f: 60.2 }, ang0: -60,\n      demo: [{ at: 60 / 72, close: true }, { at: 1.8, reset: true, ang: -40 }, { at: 1.8 + 36.4 / 72, close: true }], dur: 2.6,\n      text: 'A breaker takes a set time to shut after the command. Say 50 ms. At 0.2 Hz slip the pointer turns 360 × 0.2 = 72° a second. In 50 ms it moves 72 × 0.05 = 3.6°. So if you press Close at 12, the breaker shuts 3.6° past it. Instead, send the close 3.6° before 12. That lead is the [[advance angle]].[^3] Watch both presses. The faded dot is the first, late close. The second lands at 12.',\n      read: 'A breaker takes a set time to shut after the command. Say 50 ms. At 0.2 Hz slip the pointer turns 360 × 0.2 = 72° a second. In 50 ms it moves 72 × 0.05 = 3.6°. So if you press Close at 12, the breaker shuts 3.6° past it. Instead, send the close 3.6° before 12. That lead is the advance angle. The dial shows both. The first close lands 3.6° past 12. The second, sent 3.6° early, lands at 12.',\n      still: () => setStill() },\n    { kind: 'typed', name: 'Late by', ans: 'late', enter: { f: 60.5 }, ang0: -36, run: [{ at: 0.2, close: true }], rdur: 0.3,\n      answer: 9, decimals: 0, unit: '°', want: '9°',\n      slips: [{ value: 0, hint: 'The breaker takes 50 ms, and the pointer keeps turning.' },\n        { value: 18, hint: 'That is for 1 Hz of slip. Multiply by 0.5 Hz too.' },\n        { value: 0.025, hint: 'That is in turns. Multiply by 360 for degrees.' },\n        { value: 9000, hint: 'Turn 50 ms into seconds first. It is 0.05 s.' }],\n      task: 'The set runs 0.5 Hz fast. The breaker takes 50 ms. You press Close just as the pointer passes 12. How many degrees past 12 does the breaker shut?',\n      hint: 'Degrees a second = 360 × the slip. Multiply by the closing time in seconds.',\n      why: '360 × 0.5 = 180° a second. 180 × 0.05 = 9°. Pressing at 12 lands 9° late. So the close should go 9° early.',\n      read: 'The set runs 0.5 Hz fast. The breaker takes 50 ms. You press Close just as the pointer passes 12. How many degrees past 12 does the breaker shut?' },\n    { show: true, name: 'Phase sequence', ctl: ['swap'], enter: { f: 60.1, swap: true }, ang0: -40,\n      text: 'Two of the set\\'s phases, B and C, are now swapped. The lamps no longer dim together. One goes dark while the other two blaze. The dark lamp runs round the three in turn. When lamp A is dark, lamps B and C each see 440 V. The pointer turns exactly as before. It compares only phase A on each side. So it cannot see the order of the other two. The wiring fixes the phase sequence. It is the phase rotation you already test.',\n      read: 'Two of the set\\'s phases, B and C, are now swapped. The lamps no longer dim together. One goes dark while the other two blaze. The dark lamp runs round the three in turn. When lamp A is dark, lamps B and C each see 440 V. The pointer turns exactly as before. It compares only phase A on each side. So it cannot see the order of the other two. The wiring fixes the phase sequence. It is the phase rotation you already test.',\n      still: () => setStill(() => { ang = 0; }) },\n    { kind: 'pick', name: 'Crossed phases', right: 'Right. Here is what closing would do.', enter: { f: 60.05, swap: true }, ang0: -9, run: [{ at: 0.45, close: true }], rdur: 0.55,\n      opts: ['Yes, the pointer is at 12 and turning slowly', 'No, the phase sequence is wrong', 'No, wait until all three lamps are bright'],\n      want: 'No, the phase sequence is wrong',\n      task: 'The pointer turns slowly through 12. Lamp A is dark, but lamps B and C are bright. Can you close?',\n      hints: { 'Yes, the pointer is at 12 and turning slowly': 'The pointer compares phase A only. Look at the other two lamps.',\n        'No, wait until all three lamps are bright': 'A bright lamp means a big gap. You want all three dark together.' },\n      why: 'With the sequence right, all three lamps go dark together. Here B and C blaze at 440 V while A is dark. So B and C are crossed. Put the wiring right first.',\n      read: 'The pointer turns slowly through 12. Lamp A is dark, but lamps B and C are bright. Can you close?' },\n    { show: true, name: 'The relay', ctl: ['f', 'relay', 'close'], enter: { f: 60.5, relay: true }, ang0: 0,\n      demo: [{ at: 0.6, close: true }, { at: 1.4, to: 2.6, ramp: { f: [60.5, 60.1] } }, { at: 3.0, close: true }], dur: 4.4,\n      text: 'The relay is now on, so Close only asks. The relay closes only inside its window. Here it is 10°, 0.2 Hz and 2% of voltage. Makers set it anywhere from 0.5% to 5% on voltage and 0.1 to 0.5 Hz on slip. At 0.5 Hz slip it refuses and says why. Trim the speed to 60.10 Hz and ask again. It waits for the advance angle, 1.8°, and sends the close. The breaker shuts at 12. An automatic synchroniser also trims the governor and the AVR, by moving their set points.[^4]',\n      read: 'With a relay in charge, Close only asks. The relay closes only inside its window. Here it is 10°, 0.2 Hz and 2% of voltage. Makers set it anywhere from 0.5% to 5% on voltage and 0.1 to 0.5 Hz on slip. At 0.5 Hz slip it refuses and says why. At 60.10 Hz it agrees. It waits for the advance angle, 1.8°, and sends the close. The breaker shuts at 12. An automatic synchroniser also trims the governor and the AVR, by moving their set points.',\n      still: () => setStill() },\n    { kind: 'pick', name: 'Trim before closing', enter: { v: 420, f: 60.4 }, ang0: 120, live: true, ctlSolved: ['f', 'v'],\n      run: [{ at: 0.2, to: 2.2, ramp: { v: [420, 440], f: [60.4, 60.1] } }], rdur: 2.3,\n      opts: ['Raise the field, and lower the fuel a little', 'Raise the fuel, and lower the field a little', 'Raise the field only, then close as the pointer passes 12'],\n      want: 'Raise the field, and lower the fuel a little',\n      task: 'The set reads 420 V and 60.40 Hz. The board is 440 V, 60 Hz. What do you trim before closing?',\n      hints: { 'Raise the fuel, and lower the field a little': 'More fuel speeds the set up. It is already fast, and its voltage is low.',\n        'Raise the field only, then close as the pointer passes 12': 'At 0.4 Hz the pointer turns once every 2.5 s. That is too fast to catch.' },\n      why: 'More field raises the voltage towards 440 V. Less fuel slows the set until the pointer turns slowly enough to catch at 12.',\n      read: 'The set reads 420 V and 60.40 Hz. The board is 440 V, 60 Hz. What do you trim before closing?' },\n    { kind: 'typed', name: 'Advance for 80 ms', ans: 'adv', nofig: true,\n      answer: 8.6, decimals: 1, accept: [8.64], unit: '°', want: '8.6°',\n      slips: [{ value: 28.8, hint: 'That leaves out the slip. Multiply by 0.3 Hz too.' },\n        { value: 0.024, hint: 'That is in turns. Multiply by 360 for degrees.' },\n        { value: 8640, hint: 'Turn 80 ms into seconds first. It is 0.08 s.' }],\n      task: 'A relay must shut a breaker at 12. The set runs 0.3 Hz fast. The breaker takes 80 ms. How many degrees before 12 does the relay send the close? Give it to one decimal place.',\n      hint: '360 × the slip × the closing time in seconds.',\n      why: '360 × 0.3 = 108° a second. 108 × 0.08 = 8.64°. To one decimal place that is 8.6°.',\n      close: 'Match all four, then close early by the advance angle.',\n      read: 'A relay must shut a breaker at 12. The set runs 0.3 Hz fast. The breaker takes 80 ms. How many degrees before 12 does the relay send the close? Give it to one decimal place.' },\n  ];\n  const FINISH = 'A set closes onto a live board only when it matches the board in four things: voltage, frequency, phase sequence and phase angle. Any mismatch leaves a gap across each pole, and closing on it drives a surge. The [[slip]] turns the angle round, and the [[synchroscope]] shows it. Its dial cannot show the phase sequence. The breaker takes time to shut, so the close goes early by the [[advance angle]].';\n\n  // ================= state =================\n  const BASE = { f: 60.2, v: 440, swap: false, relay: false };\n  const X = Object.assign({}, BASE);\n  const openBrk = () => ({ st: 'open', left: 0, press: null, shut: null, res: null, by: '', adv: 0, age: 1 });\n  let ang = 0, brk = openBrk(), rel = null, sweep = 0, sweeping = false, held = false, ghost = null;\n  const blank = () => ({ pick: null, res: null, why: false, tries: 0, hint: '' });\n  let S = STEPS.map(blank);\n  const solved = (st) => !!st && (st.res === 'right' || st.res === 'shown');\n  let T = Infinity, motionEnd = 0, scripted = false, lastStep = -1, finished = false, lastDone = false;\n  let REC = { t: {} };\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n  const quiet = () => REDUCE || testing();\n  const el = (id) => document.getElementById(id);\n  const idx = (name) => STEPS.findIndex((d) => d.name === name);\n  const slipNow = () => X.f - F0;\n\n  // ================= the set slipping past the board, and the breaker =================\n  function sendClose(by) {\n    const s = slipNow();\n    brk = { st: 'pending', left: TC, press: ang, shut: wrap(ang + advOf(s)), res: null, by, adv: Math.abs(advOf(s)), age: 0 };\n  }\n  function shutNow() {\n    brk.st = 'shut'; brk.left = 0; brk.age = 0;\n    brk.res = closeAt(brk.shut, slipNow(), X.v, X.swap);\n    ang = 0;                                              // pulled into step: the pointer stops at 12\n  }\n  // h seconds of real time: the angle grows by 360 × the slip degrees a second.\n  function rotate(h) {\n    if (!(h > 0) || brk.st === 'shut') return;\n    const s = slipNow(), d = 360 * s * h;\n    if (brk.st === 'pending') {\n      ang = wrap(ang + d);\n      brk.left -= h;\n      if (brk.left <= 1e-9) shutNow();\n      return;\n    }\n    if (rel && rel.kind === 'wait' && d !== 0) {\n      const tgt = -advOf(s), p = ang, q = ang + d;   // the relay sends the close the advance angle short of 12\n      if ((d > 0 && p < tgt && q >= tgt) || (d < 0 && p > tgt && q <= tgt)) {\n        const used = (tgt - p) / d;\n        ang = tgt;\n        rel = { kind: 'sent', adv: Math.abs(tgt) };\n        sendClose('relay');\n        rotate(h * (1 - used));\n        return;\n      }\n    }\n    ang = wrap(ang + d);\n    if (sweeping) sweep += Math.abs(d);\n  }\n  // Close: by hand it goes at once; with the relay on it only asks.\n  function pressClose() {\n    if (brk.st !== 'open') return;\n    if (!X.relay) { rel = null; sendClose('hand'); return; }\n    const s = slipNow(), w = outside(0, s, X.v, X.swap);\n    if (w.length) { rel = { kind: 'refuse', w, s, v: X.v }; return; }\n    if (Math.abs(s) < 1e-6) { rel = { kind: 'still' }; return; }\n    rel = { kind: 'wait', adv: Math.abs(advOf(s)) };\n  }\n  function settle() {\n    let n = 0;\n    while ((brk.st === 'pending' || (brk.st === 'open' && rel && rel.kind === 'wait')) && n++ < 5000) rotate(1 / 60);\n    if (brk.st === 'shut') brk.age = 1;\n  }\n  function playScript(sc, t0, t1) {\n    let cur = t0;\n    (sc || []).forEach((m) => {\n      if (m.to == null && m.at >= t0 && m.at < t1) {\n        rotate(m.at - cur); cur = m.at;\n        if (m.set) Object.assign(X, m.set);\n        // A second try: the first close stays on the dial as a faded dot.\n        if (m.reset) { ghost = brk.st === 'shut' ? { press: brk.press, shut: brk.shut } : null; brk = openBrk(); rel = null; if (m.ang != null) ang = m.ang; }\n        if (m.close) pressClose();\n      }\n    });\n    (sc || []).forEach((m) => {\n      if (m.ramp && t1 > m.at && t0 < m.to + 1e-9) {\n        const u = K.clamp((t1 - m.at) / (m.to - m.at), 0, 1);\n        Object.keys(m.ramp).forEach((k) => { const r = m.ramp[k], v = u >= 1 ? r[1] : K.lerp(r[0], r[1], K.ease(u)); if (k === 'ang') ang = v; else X[k] = v; });\n      }\n    });\n    rotate(t1 - cur);\n  }\n  function runSync(sc, dur) {\n    const h = 1 / 60;\n    for (let t = 0; t < dur - 1e-9; t += h) playScript(sc, t, Math.min(t + h, dur));\n    if (brk.st === 'shut') brk.age = 1;\n  }\n  // The relay screen's demonstration starts where its second ask lands 45° short of 12.\n  (function calibrate() {\n    const d = STEPS[idx('The relay')];\n    Object.assign(X, BASE, d.enter); ang = 0; brk = openBrk(); rel = null;\n    runSync(d.demo.filter((m) => !m.close), 3.0);\n    d.ang0 = wrap(-45 - ang);\n    Object.assign(X, BASE); ang = 0; brk = openBrk(); rel = null;\n  })();\n\n  // ================= text with amber key terms (built with K.el, never innerHTML) =================\n  const UNIT_GAP = /(\\d) (?=(?:Hz|V|ms|s|per unit)(?![A-Za-z]))/g;\n  function write(node, s) {\n    node.textContent = '';\n    strip(s).replace(UNIT_GAP, '$1' + NB).split(/\\[\\[([^\\]]+)\\]\\]/).forEach((seg, k) => {\n      if (!seg) return;\n      node.appendChild(k % 2 ? K.el('span', { class: 'term' }, seg) : document.createTextNode(seg));\n    });\n  }\n\n  // ================= controls =================\n  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);\n  const CTL = {\n    f: K.control({ id: 'f', label: 'Speed trim', min: 59, max: 61, step: 0.05, value: 60.2, snap: [60, 60.1, 60.2, 60.25, 60.4, 60.5],\n      fmt: (v) => Number(v).toFixed(2) + NB + 'Hz', into: '#c-f' }),\n    v: K.control({ id: 'v', label: 'Voltage trim', min: 400, max: 480, step: 5, value: 440, snap: [420, 440], fmt: (v) => Math.round(v) + NB + 'V', into: '#c-v' }),\n    swap: K.toggle({ id: 'swap', label: 'Swap B and C', value: false, into: '#c-sw' }),\n    relay: K.toggle({ id: 'relay', label: 'Relay', hint: 'Close only asks. The relay decides.', value: false, into: '#c-rl' }),\n  };\n  const CIDS = ['f', 'v', 'swap', 'relay'];\n  const norm = (id, v) => (id === 'f' ? r2(Number(v)) : id === 'v' ? Math.round(Number(v)) : v === true || v === 'true' || v === 1);\n  const ctlVal = (id) => (id === 'f' ? r2(X.f) : id === 'v' ? Math.round(X.v) : !!X[id]);\n  const pushed = {};\n  CIDS.forEach((id) => { pushed[id] = norm(id, CTL[id].get()); });\n  // The page moves the controls itself (silently, so it is not taken for Dan's move).\n  function push() {\n    CIDS.forEach((id) => {\n      const v = ctlVal(id);\n      if (pushed[id] !== v) { CTL[id].set(v, true); pushed[id] = norm(id, CTL[id].get()); }\n    });\n  }\n  const shownCtl = (i, id) => {\n    const d = STEPS[i];\n    if (finished) return false;\n    if (d.ctl && d.ctl.indexOf(id) >= 0) return true;\n    return !d.show && !!d.ctlSolved && d.ctlSolved.indexOf(id) >= 0 && solved(S[i]);\n  };\n  function applyCtl(id, v) {\n    held = false;\n    X[id] = v;\n    if (id === 'relay') rel = null;\n    else if (rel && (rel.kind === 'wait' || rel.kind === 'still')) { rel = null; pressClose(); }\n    else if (rel && rel.kind === 'refuse') rel = null;\n    if (quiet()) settle();\n  }\n  const closeBtn = K.button({ label: 'Close', into: '#c-btn', press: () => {\n    if (!shownCtl(at(), 'close')) return;\n    endDemo(); held = false;\n    pressClose();\n    if (quiet()) settle();\n    push();\n  } });\n  const resetBtn = K.button({ label: 'Reset', secondary: true, into: '#c-btn', press: () => {\n    if (!shownCtl(at(), 'close')) return;\n    endDemo(); held = false;\n    brk = openBrk(); rel = null; ghost = null;\n    push();\n  } });\n\n  const RO = {\n    A: K.readout({ id: 'r-a', label: 'Angle in °', fmt: (v) => String(v), into: '#outs' }),\n    S: K.readout({ id: 'r-s', label: 'Slip in Hz', fmt: (v) => String(v), into: '#outs' }),\n    P: K.readout({ id: 'r-p', label: 'Across pole A in' + NB + 'V', fmt: (v) => String(v), into: '#outs' }),\n    I: K.readout({ id: 'r-i', label: 'Incoming in V', fmt: (v) => String(v), into: '#outs' }),\n  };\n\n  // Up to three answer buttons; each puzzle fills in its own.\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.kind !== 'pick' || k >= d.opts.length || solved(st)) return;\n    st.pick = d.opts[k]; st.res = null;\n  } }));\n  // Typed answers: a field each; Check grades it, two misses show the working.\n  const ANS = {};\n  STEPS.forEach((d, i) => {\n    if (d.kind !== 'typed') return;\n    el('answers').appendChild(K.el('div', { id: 'ans-' + d.ans }));\n    const a = K.answer({ id: 'a-' + d.ans, unit: d.unit, answer: d.answer, decimals: d.decimals, accept: d.accept, slips: d.slips, into: '#ans-' + d.ans,\n      onCheck: (r) => {\n        const st = S[i];\n        if (solved(st)) return;\n        if (r.state === 'right') { st.res = 'right'; playRun(i); }\n        else if (r.state === 'wrong') {\n          st.tries += 1; st.hint = r.hint || d.hint;\n          if (st.tries >= 2) { st.res = 'shown'; st.why = true; a.reveal(); playRun(i); }\n          else st.res = 'wrong';\n        } else { st.res = r.state; st.hint = ''; }\n        K.refresh();\n      } });\n    ANS[d.ans] = a;\n  });\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || solved(st)) return;\n    if (d.kind === 'typed') { ANS[d.ans].check(); return; }\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = st.pick === d.want ? 'right' : 'wrong';\n    if (st.res === 'right') playRun(i);\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    const d = STEPS[at()];\n    if (d.show || finished) return;\n    S[at()].why = !S[at()].why;\n  } });\n  const replayBtn = K.button({ label: 'Show me again', secondary: true, into: '#replay', press: () => {\n    const d = STEPS[at()];\n    if (finished || !d.show || !d.demo) return;\n    startDemo(at());\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && !solved(S[i]))) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true; anim.pause(); T = Infinity;\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S = STEPS.map(blank); finished = false; lastStep = -1;\n    Object.keys(ANS).forEach((k) => ANS[k].reset());\n    stepper.set(0, true);\n  } });\n\n  // ================= motion: one animation runs the demonstrations, the answers' motion and the slipping set =================\n  function spins(i) {\n    const d = STEPS[i];\n    if (finished || d.nofig || held || brk.st === 'shut') return false;\n    if (brk.st === 'pending' || (rel && rel.kind === 'wait')) return true;\n    if (Math.abs(slipNow()) < 1e-9) return false;\n    return d.show ? !d.hold : solved(S[i]) && !!d.live;\n  }\n  const growing = () => brk.st === 'shut' && brk.age < 0.5;\n  const needAnim = () => !finished && (T !== Infinity || spins(at()) || growing());\n  const anim = K.anim({ button: false, label: 'Running', step: (dt) => {\n    if (finished) return false;\n    dt = Math.min(dt, 0.1);\n    const i = at(), d = STEPS[i];\n    if (T !== Infinity) {\n      const t0 = T;\n      T = Math.min(T + dt, motionEnd);\n      playScript(scripted ? d.demo : d.run, t0, T);\n      if (T >= motionEnd) { T = Infinity; if (scripted) scripted = false; else endRun(d); }\n    } else if (spins(i)) rotate(dt);\n    if (brk.st === 'shut' && brk.age < 1) brk.age = Math.min(1, brk.age + dt);\n    push();\n    paint(i);\n    return needAnim();\n  } });\n  function kick() { if (!quiet() && needAnim() && !anim.playing()) anim.play(); }\n  function endDemo() { if (T !== Infinity) { T = Infinity; scripted = false; sweeping = false; } }\n  function endRun(d) { if (d.endAng != null && brk.st === 'open') ang = d.endAng; sweeping = false; }\n  function fresh(d) {\n    Object.assign(X, BASE, d.enter || {});\n    ang = d.ang0 || 0; brk = openBrk(); rel = null; sweep = 0; sweeping = false; ghost = null;\n  }\n  // A screen's state: its opening, then its demonstration's end, or its answer's motion once solved.\n  function prep(i, toEnd) {\n    const d = STEPS[i];\n    fresh(d);\n    if (d.show) { if (toEnd && d.demo) { runSync(d.demo, d.dur); settle(); } }\n    else if (solved(S[i]) && d.run) { sweeping = !!d.sweep; runSync(d.run, d.rdur); settle(); endRun(d); }\n  }\n  function startDemo(i) {\n    const d = STEPS[i];\n    anim.pause(); T = Infinity; scripted = false; held = false;\n    if (!d.demo || quiet()) { prep(i, true); push(); return; }\n    prep(i, false); scripted = true; T = 0; motionEnd = d.dur;\n    push();\n    anim.play();\n  }\n  function playRun(i) {\n    const d = STEPS[i];\n    anim.pause(); scripted = false; T = Infinity; held = false;\n    if (!d.run) return;\n    fresh(d);\n    sweeping = !!d.sweep;\n    if (quiet()) { runSync(d.run, d.rdur); settle(); endRun(d); push(); return; }\n    T = 0; motionEnd = d.rdur;\n    anim.play();\n  }\n  function enterStep(i) {\n    anim.pause(); T = Infinity; scripted = false; held = false;\n    enter('stepbox');\n    if (STEPS[i].show) { startDemo(i); return; }\n    prep(i, false);\n    push();\n  }\n  // The finished picture a still shows (the read-through): the demonstration's end, then the still's own state, held.\n  function setStill(fn) {\n    const i = at();\n    anim.pause(); T = Infinity; scripted = false;\n    prep(i, true);\n    if (fn) fn();\n    held = true;\n    push();\n    K.refresh();\n  }\n  function enter(id) {\n    if (REDUCE) return;\n    const box = el(id);\n    box.classList.remove('enter');\n    void box.offsetWidth;\n    box.classList.add('enter');\n  }\n\n  // ================= drawing helpers =================\n  function adder(g) { return (tag, attrs, txt) => g.appendChild(txt == null ? K.svg(tag, attrs) : K.svg(tag, attrs, txt)); }\n  const f1 = (v) => Math.round(v * 10) / 10;\n  const f2 = (v) => Math.round(v * 100) / 100;\n  const grown = () => (brk.st === 'shut' ? K.ease(K.clamp(brk.age / 0.5, 0, 1)) : 0);\n  const dispAng = () => (brk.st === 'shut' ? brk.shut * (1 - grown()) : ang);\n  const LET = ['A', 'B', 'C'];\n  const lampWord = (g) => (g < 0.05 ? 'dark' : g < 0.4 ? 'dim' : g < 0.75 ? 'bright' : 'blazing');\n\n  // ================= the board, the breaker with its lamps, and the incoming set =================\n  const PX = [96, 176, 256];\n  function drawScene() {\n    const g = el('sceneArt');\n    g.textContent = '';\n    const a = adder(g), shut = brk.st === 'shut';\n    const vs = shut ? [0, 0, 0] : poleVs(ang, X.v, X.swap);\n    const glow = vs.map((v) => K.clamp(v / (2 * VPH), 0, 1));\n    a('text', { class: 'labb', x: 8, y: 16 }, 'Live board, 440' + NB + 'V, 60' + NB + 'Hz');\n    LET.forEach((n, k) => {\n      const y = 26 + 14 * k;\n      a('line', { class: 'bus', x1: 34, y1: y, x2: 330, y2: y });\n      a('text', { class: 'lab', x: 22, y: y + 4.5, 'text-anchor': 'middle' }, n);\n    });\n    PX.forEach((x, k) => {\n      const yb = 26 + 14 * k, lx = x + 30;\n      a('line', { class: 'wire', x1: x, y1: yb, x2: x, y2: 80 });\n      a('circle', { class: 'jn', cx: x, cy: yb, r: 3 });\n      // The lamp across the pole: from above the contacts to below them.\n      a('polyline', { class: 'wire', points: x + ',70 ' + lx + ',70 ' + lx + ',83' });\n      a('polyline', { class: 'wire', points: lx + ',101 ' + lx + ',114 ' + x + ',114' });\n      a('circle', { class: 'jn', cx: x, cy: 70, r: 2.6 });\n      a('circle', { class: 'jn', cx: x, cy: 114, r: 2.6 });\n      if (glow[k] > 0.02) a('circle', { class: 'halo', cx: lx, cy: 92, r: 14, 'fill-opacity': f2(glow[k] * 0.3) });\n      a('circle', { class: 'lamp', cx: lx, cy: 92, r: 9 });\n      if (glow[k] > 0.005) a('circle', { class: 'glow', cx: lx, cy: 92, r: 8.2, 'fill-opacity': f2(glow[k]) });\n      a('line', { class: 'fil', x1: lx - 6.3, y1: 85.7, x2: lx + 6.3, y2: 98.3 });\n      a('line', { class: 'fil', x1: lx - 6.3, y1: 98.3, x2: lx + 6.3, y2: 85.7 });\n      a('text', { class: 'lab', x: lx + 17, y: 96.5 }, LET[k]);\n      // The pole's contacts: the blade hinged below, open or shut.\n      const tip = shut ? [x, 80] : brk.st === 'pending' ? [x - 6, 81] : [x - 13, 84];\n      a('line', { class: 'wire', x1: x, y1: 104, x2: x, y2: 120 });\n      a('line', { class: 'blade', x1: x, y1: 104, x2: tip[0], y2: tip[1] });\n      a('circle', { class: 'jn', cx: x, cy: 104, r: 2.6 });\n      a('circle', { class: 'jn', cx: x, cy: 80, r: 2.2 });\n    });\n    a('text', { class: 'labb', x: 8, y: 92 }, 'Breaker');\n    a('text', { class: 'lab', x: 8, y: 108 }, shut ? 'shut' : brk.st === 'pending' ? 'shutting' : 'open');\n    // The leads down to the set, B and C crossed when swapped.\n    a('polyline', { class: 'wire', points: '96,120 96,132 166,147' });\n    if (X.swap) {\n      a('line', { class: 'wire', x1: 176, y1: 120, x2: 256, y2: 132 });\n      a('line', { class: 'wire', x1: 256, y1: 120, x2: 176, y2: 132 });\n      a('text', { class: 'lab', x: 262, y: 131 }, 'swapped');\n    } else {\n      a('line', { class: 'wire', x1: 176, y1: 120, x2: 176, y2: 132 });\n      a('line', { class: 'wire', x1: 256, y1: 120, x2: 256, y2: 132 });\n    }\n    a('line', { class: 'wire', x1: 176, y1: 132, x2: 176, y2: 144 });\n    a('line', { class: 'wire', x1: 256, y1: 132, x2: 186, y2: 147 });\n    a('circle', { class: 'gen', cx: 176, cy: 157, r: 13 });\n    a('text', { class: 'labb', x: 176, y: 161.5, 'text-anchor': 'middle' }, 'G');\n    a('text', { class: 'lab', x: 196, y: 161 }, 'Incoming set');\n    Object.assign(REC, { glow, vs });\n    el('scene').setAttribute('aria-label', 'The live board\\'s three busbars, A, B and C, run down through the breaker, now ' +\n      (shut ? 'shut' : brk.st === 'pending' ? 'shutting' : 'open') + ', to the incoming set' + (X.swap ? ', whose B and C leads are swapped' : '') + '. ' +\n      (shut ? 'The lamps across the poles are dark, shorted by the shut breaker.' : 'Across the poles, lamp A is ' + lampWord(glow[0]) + ', lamp B is ' + lampWord(glow[1]) + ' and lamp C is ' + lampWord(glow[2]) + '.'));\n  }\n\n  // ================= the synchroscope and the waves of phase A =================\n  const CX = 84, CY = 106, R = 48;\n  const pt = (deg, r) => [f1(CX + r * Math.sin(rad(deg))), f1(CY - r * Math.cos(rad(deg)))];\n  function head(a, deg, r, sign) {\n    const tip = [CX + r * Math.sin(rad(deg)), CY - r * Math.cos(rad(deg))];\n    const tx = Math.cos(rad(deg)) * sign, ty = Math.sin(rad(deg)) * sign, nx = Math.sin(rad(deg)), ny = -Math.cos(rad(deg));\n    const bx = tip[0] - tx * 9, by = tip[1] - ty * 9;\n    a('path', { class: 'dirh', d: 'M' + f1(tip[0]) + ' ' + f1(tip[1]) + 'L' + f1(bx + nx * 4.5) + ' ' + f1(by + ny * 4.5) + 'L' + f1(bx - nx * 4.5) + ' ' + f1(by - ny * 4.5) + 'Z' });\n  }\n  function drawDial() {\n    const g = el('dialArt');\n    g.textContent = '';\n    const a = adder(g), shut = brk.st === 'shut', gf = grown(), da = dispAng();\n    const red = shut && brk.res.out.length > 0;\n    a('text', { class: 'lab', x: CX, y: 22, 'text-anchor': 'middle' }, 'in phase');\n    a('text', { class: 'labm', x: 122, y: 46 }, 'FAST');\n    a('text', { class: 'labm', x: 46, y: 46, 'text-anchor': 'end' }, 'SLOW');\n    a('path', { class: 'dir', d: 'M' + pt(28, 60).join(' ') + 'A60 60 0 0 1 ' + pt(55, 60).join(' ') });\n    head(a, 64, 60, 1);\n    a('path', { class: 'dir', d: 'M' + pt(-28, 60).join(' ') + 'A60 60 0 0 0 ' + pt(-55, 60).join(' ') });\n    head(a, -64, 60, -1);\n    a('circle', { class: 'face', cx: CX, cy: CY, r: R });\n    for (let k = 1; k < 12; k++) { const u = pt(30 * k, 42), w = pt(30 * k, 48); a('line', { class: 'tk', x1: u[0], y1: u[1], x2: w[0], y2: w[1] }); }\n    const t0 = pt(0, 48), t1 = pt(0, 57);\n    a('line', { class: 'tk12', x1: t0[0], y1: t0[1], x2: t1[0], y2: t1[1] });\n    // One turn timed: the path the pointer has swept.\n    if (sweep > 0.5) {\n      if (sweep >= 359.5) a('circle', { class: 'swept', cx: CX, cy: CY, r: 34 });\n      else a('path', { class: 'swept', d: 'M' + pt(0, 34).join(' ') + 'A34 34 0 ' + (sweep > 180 ? 1 : 0) + ' 1 ' + pt(sweep, 34).join(' ') });\n    }\n    // Where Close went (a ring outside the dial) and where the breaker shut (a dot on its rim).\n    if (brk.press != null) { const m = pt(brk.press, 62); a('circle', { class: 'pmark', cx: m[0], cy: m[1], r: 4 }); }\n    if (ghost) { const m = pt(ghost.shut, 36); a('circle', { class: 'smark', cx: m[0], cy: m[1], r: 4.5, opacity: 0.4 }); }\n    if (shut) { const m = pt(brk.shut, 48); a('circle', { class: 'smark' + (red ? ' red' : ''), cx: m[0], cy: m[1], r: 4.5, opacity: f2(gf) }); }\n    const pa = pt(da + 180, 10), pb = pt(da, 42);\n    a('line', { class: 'ptr', x1: pa[0], y1: pa[1], x2: pb[0], y2: pb[1] });\n    a('circle', { class: 'hub', cx: CX, cy: CY, r: 4.5 });\n    // The dial's key.\n    let y = 182;\n    REC.turn = null; REC.pressTxt = null; REC.shutTxt = null; REC.ghostTxt = null;\n    el('dial').setAttribute('viewBox', '0 0 340 ' + (STEPS[at()].demo && STEPS[at()].demo.some((m) => m.reset) ? 220 : 204));\n    if (ghost) {\n      REC.ghostTxt = 'first shut ' + fmtDeg(ghost.shut) + '° ' + (ghost.shut > 0 ? 'FAST' : 'SLOW');\n      a('circle', { class: 'smark', cx: 16, cy: y - 4.5, r: 4.5, opacity: 0.4 });\n      a('text', { class: 'lab', x: 26, y }, REC.ghostTxt);\n      y += 16;\n    }\n    if (sweep >= 359.5 && Math.abs(slipNow()) > 1e-6) {\n      REC.turn = fmtSec(1 / Math.abs(slipNow()));\n      a('line', { class: 'swept', x1: 10, y1: y - 4.5, x2: 22, y2: y - 4.5 });\n      a('text', { class: 'lab', x: 28, y }, 'one turn in ' + REC.turn + NB + 's');\n      y += 16;\n    }\n    if (brk.press != null) {\n      REC.pressTxt = brk.by === 'relay' ? 'close sent' : 'Close pressed';\n      a('circle', { class: 'pmark', cx: 16, cy: y - 4.5, r: 4 });\n      a('text', { class: 'lab', x: 26, y }, REC.pressTxt);\n      y += 16;\n    }\n    if (shut) {\n      REC.shutTxt = 'shut ' + angTxt(brk.shut);\n      a('circle', { class: 'smark' + (red ? ' red' : ''), cx: 16, cy: y - 4.5, r: 4.5 });\n      a('text', { class: 'lab', x: 26, y }, REC.shutTxt);\n    }\n    // Two cycles of phase A: the board's, the set's and the difference across pole A.\n    const WX0 = 176, WX1 = 334, WY = 100, AMP = 46, amp = (vr) => vr / (2 * VPH) * AMP;\n    const ab = amp(VPH), ai = amp(shut ? VPH : X.v / Math.sqrt(3)), pbd = [], psd = [], pdd = [];\n    for (let k = 0; k <= 80; k++) {\n      const x = f1(WX0 + (WX1 - WX0) * k / 80), wt = 4 * Math.PI * k / 80;\n      const b = ab * Math.sin(wt), s = ai * Math.sin(wt + rad(da));\n      pbd.push(x + ',' + f1(WY - b)); psd.push(x + ',' + f1(WY - s)); pdd.push(x + ',' + f1(WY - (shut ? 0 : s - b)));\n    }\n    a('line', { class: 'zero', x1: WX0, y1: WY, x2: WX1, y2: WY });\n    a('polyline', { class: 'wd', points: pdd.join(' ') });\n    a('polyline', { class: 'wb', points: pbd.join(' ') });\n    a('polyline', { class: 'ws', points: psd.join(' ') });\n    [['wb', 'board phase A', 166], ['ws', 'set phase A', 182], ['wd', 'across pole A', 198]].forEach((k) => {\n      a('line', { class: k[0], x1: 178, y1: k[2] - 4.5, x2: 198, y2: k[2] - 4.5 });\n      a('text', { class: 'lab', x: 204, y: k[2] }, k[1]);\n    });\n    REC.disp = da;\n    const where = Math.abs(da) < 0.5 ? 'at 12, in phase' : (Math.abs(Math.round(da)) + ' degrees ' + (da > 0 ? 'FAST, clockwise' : 'SLOW, anticlockwise') + ' from 12');\n    el('dial').setAttribute('aria-label', 'A synchroscope dial with its pointer ' + where + '. ' +\n      (REC.shutTxt ? 'A ring marks where Close went and a dot where the breaker ' + REC.shutTxt + '. ' : '') +\n      (REC.ghostTxt ? 'A faded dot marks the first close, which shut ' + angTxt(ghost.shut) + '. ' : '') +\n      'Beside it, two cycles of phase A: the board\\'s wave solid, the set\\'s dashed' + (shut ? ' and lying on it.' : ', and the thin difference across pole A.'));\n  }\n\n  // ================= the surge and the shaft torque at the close =================\n  function drawBars() {\n    const g = el('barArt');\n    g.textContent = '';\n    const a = adder(g), shut = brk.st === 'shut', r = shut ? brk.res : null, red = !!(r && r.out.length), gf = grown();\n    const hot = !!(r && (r.out.indexOf('ang') >= 0 || r.out.indexOf('seq') >= 0));   // the close itself landed badly\n    const BX = 8, BW = 324, bx = (v) => BX + Math.min(v, BMAX) / BMAX * BW;\n    const rows = [\n      { name: 'Surge', y: 16, v: r ? r.surge : 0, txt: r ? r1(r.surge).toFixed(1) + NB + 'per unit' : 'breaker open' },\n      { name: 'Shaft torque', y: 82, v: r && !r.swap ? r.torque : 0, txt: r ? (r.swap ? 'Wrong sequence' : r1(r.torque).toFixed(1) + NB + 'per unit') : 'breaker open' },\n    ];\n    rows.forEach((row) => {\n      a('text', { class: 'labb', x: BX, y: row.y }, row.name);\n      a('text', { class: r ? (hot ? 'labw' : 'lab') : 'labm', x: 332, y: row.y, 'text-anchor': 'end' }, row.txt);\n      a('rect', { class: 'trk' + (red ? ' red' : ''), x: BX, y: row.y + 6, width: BW, height: 16, rx: 3 });\n      const w = (bx(row.v) - BX) * gf;\n      if (w > 1.4) a('rect', { class: 'fillb' + (hot ? ' red' : ''), x: BX + 0.6, y: row.y + 6.6, width: f1(w - 1.2), height: 14.8, rx: 2.5 });\n    });\n    const fx = f1(bx(FAULT));\n    a('line', { class: 'fault', x1: fx, y1: 22, x2: fx, y2: 44 });\n    a('text', { class: 'lab', x: fx, y: 58, 'text-anchor': 'end' }, 'Three-phase fault at the set');\n    a('text', { class: 'labm', x: BX, y: 120 }, '0');\n    a('text', { class: 'labm', x: 332, y: 120, 'text-anchor': 'end' }, '9' + NB + 'per unit');\n    if (red) a('text', { class: 'labw', x: 170, y: 120, 'text-anchor': 'middle' }, 'Outside the window');\n    Object.assign(REC, { surge: rows[0].txt, torque: rows[1].txt, red, hot });\n    el('bars').setAttribute('aria-label', 'Two bars from 0 to 9 per unit, with a dashed line on the surge bar at a three-phase fault at the set. ' +\n      (r ? 'Surge ' + rows[0].txt + ', shaft torque ' + rows[1].txt + (hot ? ', both red: the close was outside the window.' : red ? ', both edged red and marked Outside the window.' : ', both small.') : 'The breaker is open, so both are empty.'));\n  }\n\n  // ================= the readouts and the sentence under the controls =================\n  function readouts(i) {\n    const d = STEPS[i], shut = brk.st === 'shut';\n    const hid = (k) => !finished && !!d.hide && d.hide.indexOf(k) >= 0 && !solved(S[i]);\n    const s = shut ? 0 : r2(slipNow());\n    const pa = shut ? 0 : poleVs(ang, X.v, X.swap)[0];\n    const tx = { A: signed(shut ? 0 : Math.round(ang)), S: (s < 0 ? '−' : '') + Math.abs(s).toFixed(2), P: String(Math.round(pa)), I: String(Math.round(shut ? VB : X.v)) };\n    Object.keys(tx).forEach((k) => { if (hid(k)) tx[k] = '?'; RO[k].set(tx[k]); });\n    REC.t = tx;\n  }\n  const capF = (s) => s.charAt(0).toUpperCase() + s.slice(1);\n  function refuseWhy(r) {\n    const out = [];\n    if (r.w.indexOf('volt') >= 0) out.push('the set is ' + Math.round(Math.abs(r.v - VB)) + ' V off 440 V');\n    if (r.w.indexOf('slip') >= 0) out.push('the slip, ' + Math.abs(r2(r.s)).toFixed(2) + ' Hz, is over 0.2 Hz');\n    if (r.w.indexOf('seq') >= 0) out.push('the phase sequence is wrong');\n    return capF(out.join(', and ')) + '.';\n  }\n  function shutWhy(res) {\n    const o = [], w = [];\n    if (res.out.indexOf('ang') >= 0) o.push('more than 10° from 12');\n    if (res.out.indexOf('slip') >= 0) w.push('the slip over 0.2 Hz');\n    if (res.out.indexOf('volt') >= 0) w.push('the voltage ' + Math.round(Math.abs(res.v - VB)) + ' V off');\n    if (res.out.indexOf('seq') >= 0) w.push('B and C crossed');\n    if (w.length) o.push('with ' + w.join(' and '));\n    return o.join(' and ');\n  }\n  function sayText() {\n    if (brk.st === 'shut') {\n      if (brk.by === 'relay' && !brk.res.out.length) return 'The relay sent the close ' + fmtDeg(brk.adv) + '° before 12. The breaker shut at 12, so both bars stay small.';\n      const o = brk.res.out, bad = o.indexOf('ang') >= 0 || o.indexOf('seq') >= 0;\n      return 'The breaker shut ' + angTxt(brk.shut) + (!o.length ? ', inside the window, so both bars stay small.' : ', ' + shutWhy(brk.res) + (bad ? ', so the bars turn red.' : '. The surge is small, but the close was outside the window.'));\n    }\n    if (brk.st === 'pending') return brk.by === 'relay' ? 'The relay sends the close ' + fmtDeg(brk.adv) + '° before 12.' : 'Close is pressed. The breaker takes 50 ms to shut.';\n    if (rel && rel.kind === 'refuse') return 'The relay refuses. ' + refuseWhy(rel);\n    if (rel && rel.kind === 'still') return 'The relay agrees, but the pointer stands still. With no slip it never comes round to 12.';\n    if (rel && rel.kind === 'wait') return 'The relay agrees. It waits until the pointer is ' + fmtDeg(rel.adv) + '° short of 12, then sends the close.';\n    return '';\n  }\n  function sayRoom(i) {\n    const d = STEPS[i];\n    if (finished || d.nofig) return false;\n    if (d.show) return !!d.ctl && d.ctl.indexOf('close') >= 0;\n    return solved(S[i]) && !!d.run && d.run.some((m) => m.close);\n  }\n  function sayLine(i) {\n    const p = el('say'), room = sayRoom(i), s = room ? sayText() : '';\n    p.hidden = !room;\n    p.classList.toggle('off', !s);\n    if (p.dataset.s !== s) { p.dataset.s = s; write(p, s); }\n    REC.say = s;\n  }\n\n  // ================= one paint =================\n  function paint(i) {\n    if (i == null) i = at();\n    REC = { t: {}, f: X.f, v: X.v, st: brk.st, press: brk.press, shut: brk.shut, ang };\n    drawScene();\n    drawDial();\n    drawBars();\n    readouts(i);\n    sayLine(i);\n  }\n\n  // ================= the page around the picture =================\n  write(el('finish'), FINISH);\n  const setLab = (b, s) => { if (b.el.textContent !== s) b.setLabel(s); };\n  function showCtls(i) {\n    const on = (id) => shownCtl(i, id);\n    el('c-f').hidden = !on('f');\n    el('c-v').hidden = !on('v');\n    el('sws').hidden = el('c-f').hidden && el('c-v').hidden;\n    el('c-sw').hidden = !on('swap');\n    el('c-rl').hidden = !on('relay');\n    el('tgs').hidden = el('c-sw').hidden && el('c-rl').hidden;\n    el('c-btn').hidden = !on('close');\n  }\n  function layout(i) {\n    const d = STEPS[i], st = S[i], sol = solved(st);\n    el('stepbox').hidden = finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Screen ' + (i + 1) + ' of ' + STEPS.length;\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    write(task, d.show ? d.text : d.task);\n    el('figs').hidden = !!d.nofig;\n    el('cap').hidden = finished || !!d.nofig;\n    showCtls(i);\n    replayBtn.el.hidden = !d.show || !d.demo || finished || REDUCE;\n    el('replay').hidden = replayBtn.el.hidden;\n    const opts = d.kind === 'pick' ? d.opts : [];\n    el('picks').hidden = !opts.length;\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      setLab(b, opts[k]);\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n    el('answers').hidden = d.kind !== 'typed';\n    Object.keys(ANS).forEach((key) => { el('ans-' + key).hidden = d.ans !== key; });\n    el('acts').hidden = !!d.show;\n    checkBtn.el.hidden = sol;\n    const fb = el('fb');\n    fb.hidden = !!d.show;\n    fb.className = 'fb' + (st.res === 'right' ? ' right' : '');\n    let say = '';\n    if (!d.show) {\n      if (st.res === 'right') say = d.right || 'That\\'s it.';\n      else if (st.res === 'shown') say = 'Here is the working.';\n      else if (st.res === 'wrong') say = d.kind === 'typed' ? st.hint : (d.hints && d.hints[st.pick]) || d.hint || '';\n      else if (st.res === 'empty') say = d.kind === 'pick' ? 'Pick one of the answers first.' : 'Type your answer first.';\n    }\n    write(fb, say);\n    const why = el('why');\n    why.hidden = d.show || !st.why;\n    write(why, d.show ? '' : d.why);\n    setLab(whyBtn, st.why ? 'Hide why' : 'Why?');\n    const cl = el('closing');\n    cl.hidden = !(d.close && sol);\n    write(cl, d.close || '');\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !sol);\n    setLab(nextBtn, i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  }\n\n  K.update((p) => {\n    const i = at();\n    if (i !== lastStep) { lastStep = i; enterStep(i); }\n    else {\n      CIDS.forEach((id) => {\n        const v = norm(id, p[id]);\n        if (v === pushed[id]) return;\n        if (shownCtl(i, id)) { endDemo(); pushed[id] = v; applyCtl(id, v); }\n        else CTL[id].set(pushed[id], true);        // a control this screen does not use stays put\n      });\n      push();\n    }\n    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }\n    layout(i);\n    paint(i);\n    kick();\n  });\n\n  // ================= known answers, worked out by hand =================\n  const solvedSt = (i) => Object.assign(blank(), STEPS[i].kind === 'pick' ? { pick: STEPS[i].want, res: 'right' } : { res: 'right' });\n  function saveAll() {\n    return { X: Object.assign({}, X), ang, brk: Object.assign({}, brk, { res: brk.res && Object.assign({}, brk.res) }), rel: rel && Object.assign({}, rel),\n      sweep, sweeping, held, ghost, T, sc: scripted, fin: finished, S: S.slice() };\n  }\n  function restoreAll(k) {\n    Object.assign(X, k.X); ang = k.ang; brk = k.brk; rel = k.rel; sweep = k.sweep; sweeping = k.sweeping; held = k.held; ghost = k.ghost;\n    T = k.T; scripted = k.sc; finished = k.fin; S = k.S;\n  }\n  // A screen in the state given (its demonstration finished, unless opening), and what it drew.\n  function drawn(i, st, opening, then) {\n    const keep = saveAll();\n    S = S.slice(); S[i] = st || blank(); T = Infinity; scripted = false; finished = false;\n    try {\n      prep(i, !opening);\n      if (then) then();\n      paint(i);\n      return Object.assign({}, REC, { t: Object.assign({}, REC.t) });\n    } finally { restoreAll(keep); paint(); }\n  }\n  // A bare run from a given setting and angle, for the checks.\n  function trial(start, a0, fn) {\n    const keep = saveAll();\n    try { Object.assign(X, BASE, start); ang = a0; brk = openBrk(); rel = null; sweep = 0; sweeping = false; ghost = null; return fn(); }\n    finally { restoreAll(keep); paint(); }\n  }\n  const iRec = idx('Still there?'), iGap = idx('The gap across a pole'), iSixty = idx('Sixty degrees'), iSlip = idx('Slip'), iTurn = idx('One turn');\n  const iOut = idx('A close out of step'), iBottom = idx('Bottom of the dial'), iAdv = idx('The advance angle'), iLate = idx('Late by');\n  const iSeq = idx('Phase sequence'), iCross = idx('Crossed phases'), iRelay = idx('The relay'), iTrim = idx('Trim before closing'), iEighty = idx('Advance for 80 ms');\n\n  K.check('Each phase of a 440 V board is 440 ÷ √3 = 254 V; with equal voltages a pole sees 2 sin(θ ÷ 2) × 254 V: 174 V at 40°, 254 V at 60°, 359 V at 90° and 508 V at 180°; screen 2 reads 40°, 0.00 Hz, 174 V and 440 V', () => {\n    const r = drawn(iGap), r0 = drawn(iGap, null, true);\n    return r0.t.A === '0' && r0.t.P === '0' && Math.round(VPH) === 254 && Math.round(gap(VPH, 40)) === 174 && Math.round(gap(VPH, 60)) === 254 && Math.round(gap(VPH, 90)) === 359 &&\n      Math.round(gap(VPH, 180)) === 508 && K.near(gap(VPH, 40), 2 * Math.sin(rad(20)) * VPH, 1e-9) &&\n      r.t.A === '40' && r.t.S === '0.00' && r.t.P === '174' && r.t.I === '440' && r.glow.every((g) => K.near(g, 174 / 508, 0.002));\n  });\n  K.check('Screen 3 shows ? across pole A until checked, then 254 V; screen 5 shows ? for the slip, then times one turn at 0.25 Hz in 4 s and stops at 12', () => {\n    const a = drawn(iSixty), b = drawn(iSixty, solvedSt(iSixty)), c = drawn(iTurn), e = drawn(iTurn, solvedSt(iTurn));\n    return a.t.P === '?' && b.t.P === '254' && c.t.S === '?' && c.turn === null && e.t.S === '0.25' && e.turn === '4' && K.near(e.ang, 0, 1e-9);\n  });\n  K.check('The synchronization current can exceed that of a three-phase fault at the generator: shut at 180° the surge reaches 8.0 per unit, past 1 ÷ 0.15 = 6.7', () => {\n    const c = closeAt(180, 0.05, 440, false), c90 = closeAt(90, 0.2, 440, false);\n    return r1(c.surge) === 8 && c.surge > FAULT && r1(FAULT) === 6.7 && r1(c90.surge) === 5.7 && c90.surge < FAULT && r1(c90.torque) === 4;\n  }, { source: SRC_PSRC });\n  K.check('Screen 6: Close at 86.4° shuts the breaker 50 ms later at 90°, with Surge 5.7 and Torque 4.0 per unit, both red; then the pointer stands at 12 and the lamps are dark', () => {\n    const r = drawn(iOut);\n    return K.near(r.press, 86.4, 1e-6) && K.near(r.shut, 90, 1e-6) && r.surge === '5.7' + NB + 'per unit' && r.torque === '4.0' + NB + 'per unit' && r.red &&\n      r.t.A === '0' && r.glow.every((g) => g === 0) && K.near(r.disp, 0, 1e-9) && r.shutTxt === 'shut at 90° FAST';\n  });\n  K.check('The close command is initiated early at the advance angle to compensate for breaker closing time: at 0.1 Hz slip the relay sends it 1.8° before 12, and the breaker shuts at 12', () =>\n    trial({ f: 60.1, relay: true }, -30, () => {\n      pressClose();\n      const w = !!rel && rel.kind === 'wait';\n      settle();\n      return w && brk.st === 'shut' && brk.by === 'relay' && K.near(brk.press, -1.8, 1e-9) && K.near(brk.shut, 0, 1e-9) && brk.res.out.length === 0;\n    }), { source: SRC_PSRC });\n  K.check('Before a generator breaker is allowed to close, four quantities of the incoming machine must be matched, within tolerance, to the running bus: the relay refuses 420 V, 0.25 Hz of slip or B and C swapped, and waits to close at 445 V and 0.1 Hz', () => {\n    const ask = (start) => trial(start, -30, () => { pressClose(); return rel ? rel.kind : ''; });\n    return ask({ f: 60.1, v: 420, relay: true }) === 'refuse' && ask({ f: 60.25, relay: true }) === 'refuse' && ask({ f: 60.1, swap: true, relay: true }) === 'refuse' &&\n      ask({ f: 60.1, v: 445, relay: true }) === 'wait' && ask({ f: 60.2, relay: true }) === 'wait' && ask({ f: 60.1, relay: false }) === '';\n  }, { source: SRC_FOUR });\n  K.check('Pressed at 12 with 0.2 Hz slip the breaker shuts 72 × 0.05 = 3.6° FAST, surge 0.3 per unit; screen 8 then presses 3.6° early and shuts at 12, the first close kept as a faded dot; pressed at 12 with 0.5 Hz it shuts 9° FAST, outside the window for the slip, with the bars edged red but not filled red', () => {\n    const late = trial({ f: 60.2 }, 0, () => { pressClose(); settle(); return K.near(brk.shut, 3.6, 1e-9) && r1(brk.res.surge) === 0.3 && !brk.res.out.length; });\n    const a = drawn(iAdv), b = drawn(iLate, solvedSt(iLate)), b0 = drawn(iLate);\n    return late && K.near(a.press, -3.6, 1e-6) && K.near(a.shut, 0, 1e-6) && !a.red && a.shutTxt === 'shut at 12' && a.ghostTxt === 'first shut 3.6° FAST' &&\n      K.near(b.press, 0, 1e-9) && K.near(b.shut, 9, 1e-9) && b.red && !b.hot && b.shutTxt === 'shut at 9° FAST' && b0.shutTxt === null && b0.st === 'open';\n  });\n  K.check('With B and C swapped at 0°, lamp A is dark while lamps B and C see 440 V; a close there drives 6.9 per unit, past the fault line, and the torque bar reads Wrong sequence', () => {\n    const s = drawn(iSeq, null, false, () => { ang = 0; }), c = drawn(iCross, solvedSt(iCross));\n    return s.glow[0] === 0 && Math.round(s.vs[1]) === 440 && Math.round(s.vs[2]) === 440 && s.glow[1] > 0.85 &&\n      c.surge === '6.9' + NB + 'per unit' && c.torque === 'Wrong sequence' && c.red && K.near(c.shut, 0, 1e-6) && closeAt(0, 0, 440, true).surge > FAULT;\n  });\n  K.check('The pointer turns once each slip cycle, clockwise when the set is fast: half a turn in 2.5 s at 0.2 Hz, a whole turn in 5 s; from 180° at 0.05 Hz it reaches 12 in 10 s', () => {\n    const a = trial({ f: 60.2 }, 0, () => { rotate(2.5); const h = ang; rotate(2.5); return K.near(Math.abs(h), 180, 1e-9) && K.near(ang, 0, 1e-9); });\n    const b = trial({ f: 60.05 }, 180, () => { rotate(5); const h = ang; rotate(5); return K.near(h, -90, 1e-9) && K.near(ang, 0, 1e-9); });\n    const c = trial({ f: 59.8 }, 0, () => { rotate(1); return K.near(ang, -72, 1e-9); });\n    const d = drawn(iBottom), e = drawn(iBottom, solvedSt(iBottom));\n    return a && b && c && d.t.A === '180' && d.t.P === '?' && e.t.A === '0' && e.glow.every((g) => g < 1e-6);\n  });\n  K.check('Screen 12: the relay refuses at 60.50 Hz and says why; trimmed to 60.10 Hz it sends the close 1.8° early and the breaker shuts at 12 within the demonstration', () => {\n    const d = STEPS[iRelay];\n    const refuse = trial({ f: 60.5, relay: true }, 0, () => { pressClose(); return rel.kind === 'refuse' && sayText() === 'The relay refuses. The slip, 0.50 Hz, is over 0.2 Hz.'; });\n    const demo = trial(d.enter, d.ang0, () => { runSync(d.demo, d.dur); return brk.st === 'shut' && K.near(brk.press, -1.8, 1e-6) && K.near(brk.shut, 0, 1e-6) && !brk.res.out.length && K.near(X.f, 60.1, 1e-9); });\n    const r = drawn(iRelay);\n    return refuse && demo && !r.red && r.shutTxt === 'shut at 12' && r.pressTxt === 'close sent' && r.glow.every((g) => g === 0);\n  });\n  K.check('Screen 13 answered: the trims move to 440 V and 60.10 Hz and stay free to play with', () => {\n    const r = drawn(iTrim, solvedSt(iTrim)), r0 = drawn(iTrim);\n    return K.near(r.f, 60.1, 1e-9) && K.near(r.v, 440, 1e-9) && r.t.I === '440' && r.t.S === '0.10' && r0.t.I === '420' && r0.t.S === '0.40' && STEPS[iTrim].want === STEPS[iTrim].opts[0];\n  });\n  K.check('Each typed answer and slip is worked from the rule: 0.52 (0.5, 0.26, 1), 254 V (440, 127, 220), 4 s (0.25, 240), 9° (0, 18, 0.025, 9000) and 8.6° (28.8, 0.024, 8640)', () => {\n    const sl = (i, v) => STEPS[i].slips.length === v.length && STEPS[i].slips.every((s, k) => Math.abs(s.value - v[k]) < 1e-12);\n    const sn = (d) => Math.sin(rad(d));\n    const work = r2(2 * sn(15)) === 0.52 && r2(sn(30)) === 0.5 && r2(sn(15)) === 0.26 && K.near(2 * sn(30), 1, 1e-12) &&\n      Math.round(2 * sn(30) * 254) === 254 && Math.round(2 * sn(60) * 254) === 440 && Math.round(254 * sn(30)) === 127 && Math.round(254 * sn(60)) === 220 &&\n      K.near(1 / 0.25, 4, 1e-12) && K.near(60 / 0.25, 240, 1e-9) &&\n      K.near(360 * 0.5 * 0.05, 9, 1e-9) && K.near(360 * 0.05, 18, 1e-9) && K.near(0.5 * 0.05, 0.025, 1e-12) && K.near(360 * 0.5 * 50, 9000, 1e-6) &&\n      r1(360 * 0.3 * 0.08) === 8.6 && K.near(360 * 0.08, 28.8, 1e-9) && K.near(0.3 * 0.08, 0.024, 1e-12) && K.near(360 * 0.3 * 80, 8640, 1e-6);\n    return work && STEPS[iRec].answer === 0.52 && STEPS[iSixty].answer === 254 && STEPS[iTurn].answer === 4 && STEPS[iLate].answer === 9 && STEPS[iEighty].answer === 8.6 &&\n      sl(iRec, [0.5, 0.26, 1]) && sl(iSixty, [440, 127, 220]) && sl(iTurn, [0.25, 240]) && sl(iLate, [0, 18, 0.025, 9000]) && sl(iEighty, [28.8, 0.024, 8640]) &&\n      STEPS[iBottom].want === STEPS[iBottom].opts[1] && STEPS[iCross].want === STEPS[iCross].opts[1] && STEPS[iRec].right === 'Still there.' &&\n      iEighty === STEPS.length - 1 && STEPS.length === 14 && STEPS.filter((d) => d.show).length === 6 && iSlip === 3;\n  });\n  K.ready();\n</script>",
+  "title": "The synchroscope bench",
+  "brief": "The one thing you should see is the breaker shutting 50 ms after Close, wherever the pointer has got to, with the surge bar red far from 12, when you press Close as the pointer turns.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "Each phase of a 440 V board is 440 ÷ √3 = 254 V; with equal voltages a pole sees 2 sin(θ ÷ 2) × 254 V: 174 V at 40°, 254 V at 60°, 359 V at 90° and 508 V at 180°; screen 2 reads 40°, 0.00 Hz, 174 V and 440 V",
+     "ok": true
+    },
+    {
+     "label": "Screen 3 shows ? across pole A until checked, then 254 V; screen 5 shows ? for the slip, then times one turn at 0.25 Hz in 4 s and stops at 12",
+     "ok": true
+    },
+    {
+     "label": "The synchronization current can exceed that of a three-phase fault at the generator: shut at 180° the surge reaches 8.0 per unit, past 1 ÷ 0.15 = 6.7",
+     "ok": true,
+     "source": "https://www.pes-psrc.org/kb/report/119.pdf"
+    },
+    {
+     "label": "Screen 6: Close at 86.4° shuts the breaker 50 ms later at 90°, with Surge 5.7 and Torque 4.0 per unit, both red; then the pointer stands at 12 and the lamps are dark",
+     "ok": true
+    },
+    {
+     "label": "The close command is initiated early at the advance angle to compensate for breaker closing time: at 0.1 Hz slip the relay sends it 1.8° before 12, and the breaker shuts at 12",
+     "ok": true,
+     "source": "https://www.pes-psrc.org/kb/report/119.pdf"
+    },
+    {
+     "label": "Before a generator breaker is allowed to close, four quantities of the incoming machine must be matched, within tolerance, to the running bus: the relay refuses 420 V, 0.25 Hz of slip or B and C swapped, and waits to close at 445 V and 0.1 Hz",
+     "ok": true,
+     "source": "https://forumelectrical.com/dg-synchronization-with-step-by-step-procedure"
+    },
+    {
+     "label": "Pressed at 12 with 0.2 Hz slip the breaker shuts 72 × 0.05 = 3.6° FAST, surge 0.3 per unit; screen 8 then presses 3.6° early and shuts at 12, the first close kept as a faded dot; pressed at 12 with 0.5 Hz it shuts 9° FAST, outside the window for the slip, with the bars edged red but not filled red",
+     "ok": true
+    },
+    {
+     "label": "With B and C swapped at 0°, lamp A is dark while lamps B and C see 440 V; a close there drives 6.9 per unit, past the fault line, and the torque bar reads Wrong sequence",
+     "ok": true
+    },
+    {
+     "label": "The pointer turns once each slip cycle, clockwise when the set is fast: half a turn in 2.5 s at 0.2 Hz, a whole turn in 5 s; from 180° at 0.05 Hz it reaches 12 in 10 s",
+     "ok": true
+    },
+    {
+     "label": "Screen 12: the relay refuses at 60.50 Hz and says why; trimmed to 60.10 Hz it sends the close 1.8° early and the breaker shuts at 12 within the demonstration",
+     "ok": true
+    },
+    {
+     "label": "Screen 13 answered: the trims move to 440 V and 60.10 Hz and stay free to play with",
+     "ok": true
+    },
+    {
+     "label": "Each typed answer and slip is worked from the rule: 0.52 (0.5, 0.26, 1), 254 V (440, 127, 220), 4 s (0.25, 240), 9° (0, 18, 0.025, 9000) and 8.6° (28.8, 0.024, 8640)",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step",
+    "f",
+    "v",
+    "swap",
+    "relay"
+   ],
+   "readouts": [
+    "r-a",
+    "r-s",
+    "r-p",
+    "r-i"
+   ],
+   "outputs": [],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Screen",
+     "min": 0,
+     "max": 13,
+     "step": 1,
+     "steps": [
+      "Still there?",
+      "The gap across a pole",
+      "Sixty degrees",
+      "Slip",
+      "One turn",
+      "A close out of step",
+      "Bottom of the dial",
+      "The advance angle",
+      "Late by",
+      "Phase sequence",
+      "Crossed phases",
+      "The relay",
+      "Trim before closing",
+      "Advance for 80 ms"
+     ],
+     "value": 0
+    },
+    {
+     "id": "f",
+     "kind": "control",
+     "label": "Speed trim",
+     "min": 59,
+     "max": 61,
+     "step": 0.05,
+     "log": false,
+     "value": 60,
+     "shown": false,
+     "snap": [
+      60,
+      60.1,
+      60.2,
+      60.25,
+      60.4,
+      60.5
+     ]
+    },
+    {
+     "id": "v",
+     "kind": "control",
+     "label": "Voltage trim",
+     "min": 400,
+     "max": 480,
+     "step": 5,
+     "log": false,
+     "value": 440,
+     "shown": false,
+     "snap": [
+      420,
+      440
+     ]
+    },
+    {
+     "id": "swap",
+     "kind": "toggle",
+     "label": "Swap B and C",
+     "options": [
+      false,
+      true
+     ],
+     "value": false,
+     "shown": false
+    },
+    {
+     "id": "relay",
+     "kind": "toggle",
+     "label": "Relay",
+     "options": [
+      false,
+      true
+     ],
+     "value": false,
+     "shown": false
+    }
+   ],
+   "actions": [
+    "Close",
+    "Reset",
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Check",
+    "Why?",
+    "Show me again",
+    "Back",
+    "Continue",
+    "Start again",
+    "Running"
+   ],
+   "answers": [
+    {
+     "id": "a-rec",
+     "answer": 0.52,
+     "accept": [],
+     "ok": true
+    },
+    {
+     "id": "a-sixty",
+     "answer": 254,
+     "accept": [],
+     "ok": true
+    },
+    {
+     "id": "a-turn",
+     "answer": 4,
+     "accept": [],
+     "ok": true
+    },
+    {
+     "id": "a-late",
+     "answer": 9,
+     "accept": [],
+     "ok": true
+    },
+    {
+     "id": "a-adv",
+     "answer": 8.6,
+     "accept": [
+      8.64
+     ],
+     "ok": true
+    }
+   ],
+   "written": [],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 2
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-31T15:18:59.368Z",
+  "applied": [
+   {
+    "path": "explain.text",
+    "problem": "The 2 sin(θ ÷ 2) rule holds only for equal-sized waves, and a closing surge is limited by the impedance of set and board, mostly but not only reactance; 'limited only by' is an absolute a specialist would narrow."
+   },
+   {
+    "path": "practice.text",
+    "problem": "A check relay supervises rather than makes the close; 'lamps across the poles' reads as connecting lamps across a live 440 V breaker, so the safe way first is a rotation tester or the fitted lamps; the synchroscope claim is typical, not universal; the 18° figure needs its 50 ms breaker."
+   },
+   {
+    "path": "analogy.breaks",
+    "problem": "The source compares the synchronising current with a three-phase fault at the generator terminals, not with any fault; a fault fed by the whole board can be larger, so 'bigger than a fault' overstates it."
+   }
+  ],
+  "notes": [
+   {
+    "path": "interactive.whatAmILookingAt",
+    "problem": "Screen 11's Surge of 6.9 holds only if the breaker shuts exactly at 12; shutting 0.9° past 12 at 60.05 Hz gives 7.0, so the build should time that close to shut at 12 (frozen number 6.9)."
+   }
+  ]
+ },
+ "error": null,
+ "flags": {}
+}

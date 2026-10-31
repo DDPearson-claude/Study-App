@@ -1,0 +1,547 @@
+{
+  "iid": "i7",
+  "title": "Protection: each fault leaves its own mark",
+  "format": "steps",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is a fault's own mark appearing as time runs on, kW or kVAr turning into a set, or the fault current dying away, when you drag the time cursor through the fault you picked.",
+    "title": "The fault timeline",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Screen",
+        "min": 0,
+        "max": 13,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "Fourteen small screens on one picture, with Back and Continue: six show an idea, eight ask you to try it. No marks, no timers.\n\nThe picture. Two sets, A and B, each 504 kW and 630 kVA, run side by side on one 440 V, 60 Hz board. Each set has a kW arrow and a kVAr arrow. An arrow points to the board while the set sends that power out, and turns round, drawn red, when it flows into the set. Each set's breaker is drawn shut or open. Below, a panel changes with the fault. Engine stops: a timer bar that fills to the relay's delay. Field lost: a small drawing of A's E and V, with the load angle δ between them and a mark at 90°. Short circuit: the decrement curve of current against time, its three periods shaded and named, with a dashed line at the breaker's 2000 A setting, marked at 0.5 s. Overload: A's kW bar against a line at its 504 kW, and three 30 kW groups of non-essential loads that drop out in turn.\n\nThe controls. A Fault choice of four, in this order: Engine stops, Field lost, Short circuit, Overload, opening on Engine stops. A Time slider, the time cursor, opening at 0 s: 0 to 10 s in steps of 0.1 s for Engine stops, 0 to 2 s in steps of 0.05 s for Field lost, 0 to 1 s in steps of 0.01 s for Short circuit, and 0 to 15 s in steps of 0.5 s for Overload. An AVR supply switch, Shunt or PMG, shown only for Short circuit, opening on PMG. Four readout tiles, wrapping onto two rows on a phone, change with the fault. Engine stops: A in kW, B in kW, A in kVAr, Timer in s. Field lost: A in kW, A in kVAr, E in per unit, δ in °. Short circuit: Current in A, Times rated, and Above 2000 A in s. Overload: A in kW, Over rating in kW, Groups shed. The fault buttons wrap too, so no word splits.\n\nThe rule it computes. Engine stops: two sets share 400 kW at 0.8 power factor, 200 kW and 150 kVAr each. At 0 s A's engine stops. Its kW falls evenly over 1 s, a sketch, from 200 kW out to 50.4 kW in, 10% of its rating, an example figure. B carries the load plus A's draw, 400 − A's kW. The relay picks up once the inward flow passes 25.2 kW, 5% of A's rating, an example setting, at 0.9 s. Its timer fills over 5 s, an example delay. At 5.9 s A's breaker opens, and B carries 400 kW. Field lost: the same 400 kW. V is 1.0 and Xs 1.5 per unit. A's E starts at 1.44, an example field, with δ at 19.3°. At 0 s the field is lost, and E falls by 0.8 each second, a sketch. A still sends out 200 kW, 200 ÷ 630 = 0.32 per unit, so sin δ = 0.32 × 1.5 ÷ E. A's kVAr = (E × cos δ − 1.0) ÷ 1.5 per unit, times 630 kVA. Below zero, it flows in. Once E falls below 0.48, near 1.2 s, no angle can carry the kW. The rotor slips: δ is drawn turning round, once a second, a sketch, and A's arrows swing back and forth. Short circuit: A runs alone, B shut down, and a fault strikes the board at 0 s. Rated current is 630 000 ÷ (√3 × 440) = 826.7 A. The sub-transient reactance is 0.15 and the transient reactance 0.25 per unit, example values, so 1 ÷ 0.15 = 6.67 and 1 ÷ 0.25 = 4 times rated. The current, in times rated, is the sustained level + (4 − the sustained level) × e^(−t ÷ 0.3 s) + (6.67 − 4) × e^(−t ÷ 0.02 s), with example time constants. With a PMG, the sustained level is 3 times rated, an example: the AVR forces the field to hold it. Shunt-fed, it is 0, because the AVR's supply collapses with the output. The breaker opens once the current has stayed above 2000 A for 0.5 s, and its count restarts whenever the current falls below. Overload: two sets share 560 kW, 280 kW each. At 0 s B's breaker opens, and A carries all 560 kW. While A is over 504 kW, preferential trips shed one 30 kW group every 5 s, example settings. A ends on 500 kW, and the third group stays on.\n\nScreen 1, try it, a recall. No picture. \"A DC motor's armature turns in its field. What does it make as it turns?\" Three choices, in this order: \"A back-emf, pushing against the supply\"; \"Nothing, it only takes current\"; \"Extra current, helping the supply\". Right, the first. Hint for the second: \"Any coil turning in a field has a voltage made in it.\"; for the third: \"Its voltage pushes against the supply, so it holds the current back.\" Why: \"Motor or generator, the machine is the same. Which way the power flows decides which it is.\" Read: the question.\n\nScreen 2, show. Engine stops at 0 s, the Time slider free, the timer bar hidden. The words: \"Each fault leaves its own mark on a set's meters. Here two sets share 400 kW, and A's engine stops. A's rotor is still locked in step with the board. So B drives it round as a motor. A's kW arrow turns round, and real power flows into A.[^1] That is reverse power. A draws 50.4 kW, an example figure, and B carries 450.4 kW. Drag the time cursor to watch it turn.\" Read: the words without the last sentence. Still: time 2 s, readouts A −50.4 kW, B 450.4 kW, A 150 kVAr.\n\nScreen 3, try it, typed. Engine stops at 0 s, the B tile reading ? until Check. \"Two sets share 400 kW equally. A's engine stops, and A draws 50.4 kW as a motor. How many kW does B carry now?\" A field in kW. Answer 450.4 kW. Slips: 400, \"B drives A round too. Add A's draw.\"; 349.6, \"A's draw adds to B's load. It does not help it.\"; 250.4, \"B carries the whole load, not just A's share.\" Hint when wrong: \"B now feeds the load and A's draw.\" Why: \"400 + 50.4 = 450.4 kW. That is still under B's 504 kW rating, so the board stays up.\" A right Check moves the time cursor to 2 s. Read: the question.\n\nScreen 4, show. Engine stops, the timer bar shown, the Time slider free. The words: \"A reverse-power relay watches for this. It picks up once power flows in past its setting, here 25.2 kW, 5% of A's rating. Then it waits, here for 5 s. Both are example settings. A brief reverse flow can come and go, just after a set closes on or when load drops. A stopped engine keeps drawing. So once the timer fills, A's breaker opens, and B carries the 400 kW alone.\" Read: the words. Still: time 7 s, the timer full, A's breaker open, readouts A 0 kW, B 400 kW, Timer 5.0 s.\n\nScreen 5, try it. The timer bar alone, its delay at 1 s. \"The relay picks up at 25.2 kW and waits 1 s. Just after closing on, a set sends 30 kW back for 2 s while its governor picks up load. It trips. What do you change?\" Three choices, in this order: \"Raise the pickup to 60 kW\"; \"Lengthen the delay, past the 2 s\"; \"Switch the relay off while closing on\". Right, the second. Hint for the first: \"A stopped engine here draws only 50.4 kW. The relay would never see it.\"; for the third: \"A set that stops just after closing on would go unseen.\" Why: \"The delay sorts brief flows from lasting ones. A stopped engine draws for as long as it stays on the board. So a longer delay still catches it, and the pickup stays sensitive.\" A right Check shows a 5 s timer filling for 2 s and emptying. Read: the question.\n\nScreen 6, show. Field lost at 0 s, the phasor panel large, the Time slider free. The words: \"Now A's field is lost, and its E shrinks. Its engine still sends out 200 kW. Remember, power = E × V × sin δ ÷ Xs. So as E shrinks, δ must grow to carry the same kW. At E = 0.80, δ is 36.5°, and A draws 150 kVAr from the board. Past 90°, no angle can carry the kW. The rotor slips a pole, and the current surges.[^2]\" Read: the words. Still: time 0.8 s, readouts A 200 kW, A −150 kVAr, E 0.80, δ 36.5°.\n\nScreen 7, try it, typed. Field lost at 0 s, the phasor panel, the δ tile reading ? until Check. \"A sends out 0.32 per unit of power. V is 1.0 and Xs is 1.5. Below what E does δ pass 90°, so that A slips a pole?\" A field with no unit. Answer 0.48. Also accepted: 0.476. Slips: 0.21, \"That divides by Xs. At 90°, sin δ is 1, so E × V ÷ Xs = the power.\"; 0.32, \"That leaves out Xs.\"; 1.44, \"That is A's E before the field was lost.\" Hint when wrong: \"At 90°, sin δ = 1. So E × V ÷ Xs = the power.\" Why: \"0.32 × 1.5 ÷ 1.0 = 0.48 per unit. A smaller E cannot carry 200 kW at any angle.\" A right Check moves the time cursor to 1.2 s, with δ at the 90° mark. Read: the question.\n\nScreen 8, show. Short circuit on PMG at 0 s, the Time slider free, the supply switch hidden. The words: \"A short circuit leaves a different mark, a huge current that falls with time. This set is 630 kVA at 440 V, so its rated current is 826.7 A. At first the rotor's windings hold on to their flux. Only a small reactance holds the current back. Then that grip fades. The current falls through three periods, sub-transient, transient and sustained.[^3] With a transient reactance of 0.25, the middle period sits near 826.7 ÷ 0.25 = 3307 A.\" Read: the words. Still: time 0.05 s, readouts Current 3361 A, 4.07 times rated.\n\nScreen 9, try it, typed. Short circuit at 0 s, the Current tile reading ? until Check. \"The same set's sub-transient reactance is 0.15 per unit. Its rated current is 826.7 A. What is its first fault current?\" A field in A. Answer 5511 A. Slips: 124, \"That multiplies by 0.15. Divide instead.\"; 3307, \"That uses the transient reactance, 0.25.\"; 826.7, \"That is the rated current. A fault draws many times more.\" Hint when wrong: \"First fault current = rated current ÷ the sub-transient reactance.\" Why: \"826.7 ÷ 0.15 = 5511 A, 6.67 times rated. It lasts only the first few cycles.\" A right Check shows the readout 5511 A at 0 s. Read: the question.\n\nScreen 10, show. Short circuit, the AVR supply switch and the Time slider free, opening on Shunt at 0.5 s. The words: \"Now flip the AVR's supply. A shunt-fed AVR takes its power from the set's own output. A short circuit pulls that output down, so the field fails and the current dies away.[^4] It falls below a breaker's 2000 A setting before its 0.5 s delay runs out. Fed by a PMG, the AVR forces the field. The current settles at 3 times rated, 2480 A, and the breaker trips.[^6]\" Read: \"Now flip the AVR's supply.\" read as \"Compare the two supplies at 0.5 s.\" Still: PMG, time 0.5 s, the shunt curve drawn faint beside it, readouts Current 2636 A, 3.19 times rated, above 2000 A for 0.5 s.\n\nScreen 11, try it. Short circuit on Shunt at 0 s, the result hidden until Check. \"A shunt-fed set feeds a fault. By 0.5 s its current is 625 A. A breaker downstream trips at 2000 A after 0.5 s. What happens?\" Three choices, in this order: \"The breaker trips at 0.5 s\"; \"The breaker never trips, as the current dies first\"; \"The AVR forces the current back to 3 times rated\". Right, the second. Hint for the first: \"By 0.5 s the current is well under 2000 A.\"; for the third: \"A shunt-fed AVR's supply has collapsed with the output.\" Why: \"The current falls below 2000 A near 0.15 s. So the breaker's timer never runs out, and the fault is not cleared. Fed by a PMG, the set would still give 2636 A at 0.5 s.\" A right Check runs the cursor to 1 s on Shunt. Read: the question.\n\nScreen 12, show. Overload at 0 s, the Time slider free. The words: \"Last, overload. Two sets share 560 kW, and B trips out. A is left with all 560 kW, more than its 504 kW. Left like that, A's own overload protection would trip it, and the board would go dark. So preferential trips shed non-essential loads first, in steps. Here each step drops a 30 kW group, 5 s apart. Two steps bring A to 500 kW, inside its rating.\" Read: the words. Still: time 12 s, readouts A 500 kW, Over rating 0 kW, Groups shed 2.\n\nScreen 13, try it, typed (mixed). Overload at 0 s, the Groups shed tile reading ? until Check. \"A 504 kW set is left carrying 590 kW. Each preferential trip sheds 30 kW. How many steps until it is within its rating?\" A field in steps. Answer 3 steps. Slips: 2, \"Two steps leave 530 kW, still over.\"; 2.87, \"Steps come whole. Round up.\"; 86, \"That is the kW over. Divide by 30 kW a step.\" Hint when wrong: \"It is 86 kW over its rating.\" Why: \"590 − 504 = 86 kW over. 86 ÷ 30 = 2.87, so it takes 3 steps. That leaves 500 kW.\" Read: the question.\n\nScreen 14, try it (mixed). Field lost at 0.8 s, the readouts hidden until Check. \"Set A's kW still flows out at 200 kW. But its kVAr arrow turns inwards, and its load angle climbs. Which protection should act?\" Four choices, in this order: \"Reverse power\"; \"Loss of field\"; \"Short-circuit overcurrent\"; \"Preferential trip\". Right, the second. Hint for the first: \"A's kW still flows out. Reverse power needs it flowing in.\"; for the third: \"The current has not jumped to many times rated.\"; for the fourth: \"Shedding load cannot bring back a lost field.\" Why: \"kVAr flowing in while δ climbs is the mark of a lost field. Left on, the rotor slips a pole.\" A right Check shows: \"Each fault, its own signature.\" Read: the question.",
+    "ignores": "Time runs at very different speeds from fault to fault. A short circuit's first period is over in a few hundredths of a second, while a reverse-power delay lasts seconds. The decays are smooth sketches with example reactances and time constants. The first fault current drawn is the steady swing of the current. A real one can be offset on one phase and peak higher still. Each set holds its speed, so the frequency never sags. A real engine at full fuel slows on overload until load is shed. The lost field uses the steady rule for E, V and δ. A real machine slipping poles behaves partly like an induction machine, and its currents swing harder. The breaker has only a delayed setting. One with an instant trip set below the first current would open at once on either supply. Losses are left out.",
+    "numbers": [
+      {
+        "label": "Number of screens",
+        "value": 14,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screens that show an idea",
+        "value": 6,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screens that ask you to try it",
+        "value": 8,
+        "kind": "assumed"
+      },
+      {
+        "label": "Each set's rating, kW",
+        "value": 504,
+        "kind": "assumed"
+      },
+      {
+        "label": "Each set's rating, kVA",
+        "value": 630,
+        "kind": "assumed"
+      },
+      {
+        "label": "Board line voltage, V",
+        "value": 440,
+        "kind": "assumed"
+      },
+      {
+        "label": "Board frequency, Hz",
+        "value": 60,
+        "kind": "assumed"
+      },
+      {
+        "label": "Square root of 3",
+        "value": 1.732,
+        "kind": "constant"
+      },
+      {
+        "label": "Load power factor",
+        "value": 0.8,
+        "kind": "assumed"
+      },
+      {
+        "label": "Engine stops: shared load, kW",
+        "value": 400,
+        "kind": "assumed"
+      },
+      {
+        "label": "Engine stops: each set before, kW",
+        "value": 200,
+        "kind": "computed"
+      },
+      {
+        "label": "Engine stops: each set before, kVAr",
+        "value": 150,
+        "kind": "computed"
+      },
+      {
+        "label": "Engine stops: run-down time, s",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Motored set's draw, % of rating",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Motored set's draw, kW",
+        "value": 50.4,
+        "kind": "computed"
+      },
+      {
+        "label": "B's load with A motored, kW",
+        "value": 450.4,
+        "kind": "computed"
+      },
+      {
+        "label": "Relay pickup, % of rating",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Relay pickup, kW",
+        "value": 25.2,
+        "kind": "computed"
+      },
+      {
+        "label": "Relay picks up at, s",
+        "value": 0.9,
+        "kind": "computed"
+      },
+      {
+        "label": "Relay delay, s",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "A's breaker opens at, s",
+        "value": 5.9,
+        "kind": "computed"
+      },
+      {
+        "label": "Engine stops: still time, s",
+        "value": 7,
+        "kind": "control"
+      },
+      {
+        "label": "Screen 2: still time, s",
+        "value": 2,
+        "kind": "control"
+      },
+      {
+        "label": "Time slider Engine stops, highest, s",
+        "value": 10,
+        "kind": "control"
+      },
+      {
+        "label": "Time slider Engine stops step, s",
+        "value": 0.1,
+        "kind": "control"
+      },
+      {
+        "label": "Time slider Field lost, highest, s",
+        "value": 2,
+        "kind": "control"
+      },
+      {
+        "label": "Time slider Field lost step, s",
+        "value": 0.05,
+        "kind": "control"
+      },
+      {
+        "label": "Time slider Short circuit, highest, s",
+        "value": 1,
+        "kind": "control"
+      },
+      {
+        "label": "Time slider Short circuit step, s",
+        "value": 0.01,
+        "kind": "control"
+      },
+      {
+        "label": "Time slider Overload, highest, s",
+        "value": 15,
+        "kind": "control"
+      },
+      {
+        "label": "Time slider Overload step, s",
+        "value": 0.5,
+        "kind": "control"
+      },
+      {
+        "label": "Time slider opening, s",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Screen 3 slip: load alone, kW",
+        "value": 400,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 3 slip: subtracted, kW",
+        "value": 349.6,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 3 slip: A's share plus draw, kW",
+        "value": 250.4,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 5: delay, s",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 5: brief reverse flow, kW",
+        "value": 30,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 5: brief flow lasts, s",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 5: raised pickup, kW",
+        "value": 60,
+        "kind": "assumed"
+      },
+      {
+        "label": "Field lost: V, per unit",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Field lost: Xs, per unit",
+        "value": 1.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Field lost: A's E before, per unit",
+        "value": 1.44,
+        "kind": "assumed"
+      },
+      {
+        "label": "Field lost: A's δ before, °",
+        "value": 19.3,
+        "kind": "computed"
+      },
+      {
+        "label": "Field lost: E falls each second, per unit",
+        "value": 0.8,
+        "kind": "assumed"
+      },
+      {
+        "label": "A's power, per unit",
+        "value": 0.32,
+        "kind": "computed"
+      },
+      {
+        "label": "Field lost: still time, s",
+        "value": 0.8,
+        "kind": "control"
+      },
+      {
+        "label": "Field lost: E at the still, per unit",
+        "value": 0.8,
+        "kind": "computed"
+      },
+      {
+        "label": "Field lost: δ at E = 0.80, °",
+        "value": 36.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Field lost: A's kVAr drawn in at E = 0.80",
+        "value": 150,
+        "kind": "computed"
+      },
+      {
+        "label": "Field lost: E at which δ reaches 90°, per unit",
+        "value": 0.48,
+        "kind": "computed"
+      },
+      {
+        "label": "Field lost: unrounded, per unit",
+        "value": 0.476,
+        "kind": "computed"
+      },
+      {
+        "label": "Field lost: slips near, s",
+        "value": 1.2,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip drawn, turns a second",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "δ at the slip mark, °",
+        "value": 90,
+        "kind": "constant"
+      },
+      {
+        "label": "sin 90°",
+        "value": 1,
+        "kind": "constant"
+      },
+      {
+        "label": "Screen 7 slip: divided by Xs, per unit",
+        "value": 0.21,
+        "kind": "computed"
+      },
+      {
+        "label": "Rated current, A",
+        "value": 826.7,
+        "kind": "computed"
+      },
+      {
+        "label": "Sub-transient reactance, per unit",
+        "value": 0.15,
+        "kind": "assumed"
+      },
+      {
+        "label": "Transient reactance, per unit",
+        "value": 0.25,
+        "kind": "assumed"
+      },
+      {
+        "label": "First fault current, times rated",
+        "value": 6.67,
+        "kind": "computed"
+      },
+      {
+        "label": "First fault current, A",
+        "value": 5511,
+        "kind": "computed"
+      },
+      {
+        "label": "Transient level, times rated",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Transient level, A",
+        "value": 3307,
+        "kind": "computed"
+      },
+      {
+        "label": "Transient time constant, s",
+        "value": 0.3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Sub-transient time constant, s",
+        "value": 0.02,
+        "kind": "assumed"
+      },
+      {
+        "label": "PMG sustained level, times rated",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "PMG sustained current, A",
+        "value": 2480,
+        "kind": "computed"
+      },
+      {
+        "label": "Shunt sustained level, times rated",
+        "value": 0,
+        "kind": "computed"
+      },
+      {
+        "label": "Breaker setting, A",
+        "value": 2000,
+        "kind": "assumed"
+      },
+      {
+        "label": "Breaker delay, s",
+        "value": 0.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 8 still: time, s",
+        "value": 0.05,
+        "kind": "control"
+      },
+      {
+        "label": "Screen 8 still: current, A",
+        "value": 3361,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 8 still: times rated",
+        "value": 4.07,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 9 slip: multiplied, A",
+        "value": 124,
+        "kind": "computed"
+      },
+      {
+        "label": "PMG current at 0.5 s, A",
+        "value": 2636,
+        "kind": "computed"
+      },
+      {
+        "label": "PMG current at 0.5 s, times rated",
+        "value": 3.19,
+        "kind": "computed"
+      },
+      {
+        "label": "Shunt current at 0.5 s, A",
+        "value": 625,
+        "kind": "computed"
+      },
+      {
+        "label": "Shunt current falls below 2000 A near, s",
+        "value": 0.15,
+        "kind": "computed"
+      },
+      {
+        "label": "Full-load E, per unit",
+        "value": 2.25,
+        "kind": "computed"
+      },
+      {
+        "label": "Steady fault current with field held, times rated",
+        "value": 1.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Steady fault current with field held, A",
+        "value": 1240,
+        "kind": "computed"
+      },
+      {
+        "label": "Field forced to, times its full-load value",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Overload: shared load, kW",
+        "value": 560,
+        "kind": "assumed"
+      },
+      {
+        "label": "Overload: each set before, kW",
+        "value": 280,
+        "kind": "computed"
+      },
+      {
+        "label": "Load group, kW",
+        "value": 30,
+        "kind": "assumed"
+      },
+      {
+        "label": "Load groups",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Time between steps, s",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Overload: after one step, kW",
+        "value": 530,
+        "kind": "computed"
+      },
+      {
+        "label": "Overload: after two steps, kW",
+        "value": 500,
+        "kind": "computed"
+      },
+      {
+        "label": "Overload: steps taken",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Overload: still time, s",
+        "value": 12,
+        "kind": "control"
+      },
+      {
+        "label": "Screen 13: load left, kW",
+        "value": 590,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 13: kW over",
+        "value": 86,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 13: 86 ÷ 30",
+        "value": 2.87,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 13: answer, steps",
+        "value": 3,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "A generator's protection works by recognising what each fault does to the set's meters. An engine that stops sends real power the wrong way. A lost field draws kVAr in and pushes the load angle towards 90°. A short circuit sends a huge current that falls with time. Each protection watches for one of these marks. Start with the engine that stops. In parallel, A's rotor is locked in step with the board. So when its fuel goes, it cannot simply slow down. The other sets hold the board's speed and drive A round as a motor. Real power now flows into A.[^1] That flow is [[reverse power]]. On two sets sharing 400 kW, A might draw 50.4 kW, an example figure, and B then carries 450.4 kW. Textbooks add that a reverse-power relay picks up once the inward flow passes its setting. Then it waits a few seconds before it opens the set's breaker. The wait sorts real faults from brief ones. A set just closed on can send a little power back for a second or two, until its governor picks up load. A stopped engine keeps drawing for as long as it stays on the board. So a nuisance trip like this is cured with a longer delay, not a higher pickup. A higher pickup could miss a stopped engine that draws only a little.\n\nA lost field shows a different mark. Remember from load sharing that power = E × V × sin δ ÷ Xs, in per unit. The engine still sends out its kW. So as E shrinks, sin δ must grow to carry it. Take A carrying 200 kW on its 630 kVA rating, 0.32 per unit, with Xs at 1.5. With a healthy field, say E = 1.44, δ is 19.3°. At E = 0.80, δ has grown to 36.5°. The kVAr follows the part of E that lies in line with V. Once that part falls below V, the set stops sending kVAr out and draws it in instead. At E = 0.80, A draws 150 kVAr from the board. At 90°, sin δ is 1, its largest. So once E falls below 0.32 × 1.5 = 0.48, no angle can carry the kW. The rotor slips a pole, and goes on slipping. The board then sees circulating currents and surges of torque and current.[^2] Textbooks add that loss-of-field protection watches for signs such as the inward kVAr, and trips the set before it slips.\n\nA short circuit has a third mark. Its current starts huge and falls with time. Textbooks explain the start this way. The rotor's windings resist any sudden change in their flux, as any coil resists a sudden change in its current. So for the first few cycles only a small reactance, the sub-transient reactance, holds the current back. That grip fades in two stages. The current falls through three periods, sub-transient, transient and sustained.[^3] Its plot against time is the set's [[decrement curve]]. On a 630 kVA, 440 V set, rated current is 630 000 ÷ (√3 × 440) = 826.7 A. With an example sub-transient reactance of 0.15 per unit, the first current is 826.7 ÷ 0.15 = 5511 A. Where it settles depends on the field. Shorted at its terminals, the set's own drawing leaves only Xs to hold the current back. So the steady current is E ÷ Xs. With the field held at its full-load E of 2.25, that is 2.25 ÷ 1.5 = 1.5 times rated, 1240 A. To hold 3 times rated, the AVR must force the field to twice that.\n\nThat forcing needs a supply the fault cannot pull down. A shunt-fed AVR takes its power from the set's own output. A short circuit pulls that output down, so the field fails, and the current dies away to nothing.[^4] A PMG on the shaft keeps the AVR fed whatever the output does. So the set can hold its output while the protection downstream clears the fault.[^6] It is easy to assume every set holds a large fault current for as long as needed. Only a set whose AVR keeps its supply can. Overload has the last answer. Sometimes one set is left carrying more than its rating. Textbooks add that [[preferential tripping]] then sheds non-essential loads in timed steps. The set and the essential loads stay on. These figures come from a simplified picture, with example settings, smooth decays and sets that hold their speed. **Each generator fault has its own signature, power flowing in, kVAr flowing in as δ climbs, or a short-circuit current falling with time, and each protection is set to see its own.**"
+  },
+  "analogy": {
+    "text": "Think of the devices in a consumer unit. Each watches for one signature. An MCB watches the current against time. An RCD watches the difference between line and neutral. An RCD cannot see an overload at all, and an MCB cannot see a small leak to earth. A set's protection works the same way. Reverse power, loss of field, overcurrent and preferential trips each watch for their own fault.",
+    "breaks": "A final circuit is fed from the grid, whose fault current stays up until a device clears it, and your Zs checks rely on that. A set's fault current falls with time, and a shunt-fed set's dies away. And a final circuit has no turning machine to drive backwards, so it has no reverse-power fault."
+  },
+  "practice": {
+    "text": "**When a generator trips**\n\nThe safe way first: protection is set and changed only by people authorised to do it, under your procedures. Do not raise a pickup or bypass a relay to stop a trip.\n\n- Read which protection acted before you reset anything. Each one points to a different cause.\n- Reverse power: look at the engine first, its fuel and its shutdowns. If it tripped just after closing on, close on with the incoming set a little fast, so it picks up load at once.\n- Loss of field: look at the AVR, the exciter and the rotating diodes before the set runs again.\n- Short circuit or overcurrent: find and clear the fault before the board is made live again.\n- Preferential trip: put the shed loads back only once enough sets are on the board to carry them.\n- Textbooks add under- and over-voltage and under- and over-frequency protection. Each watches the board's own voltage or frequency against a band.\n\n**Rules of thumb:** rated current = kVA ÷ (√3 × V). The first fault current is the rated current ÷ the sub-transient reactance. With its field held, a set's steady fault current is E ÷ Xs times rated. A shunt-fed set's fault current dies away. A set whose AVR is fed by a PMG can hold it.\n\n**Worked example:** will a set's fault current trip a breaker? The set is 630 kVA at 440 V, so its rated current is 630 000 ÷ (√3 × 440) = 826.7 A. With a sub-transient reactance of 0.15, the first current is 826.7 ÷ 0.15 = 5511 A. A breaker downstream trips at 2000 A after 0.5 s. On the example curve, a shunt-fed set's current has fallen to 625 A by 0.5 s. So the breaker never trips. Fed by a PMG and held at 3 times rated, the set gives 3 × 826.7 = 2480 A, and the breaker trips at 0.5 s. So check each breaker against the set's current at the breaker's own trip time, read off its decrement curve, not against the first current.\n\n**Common mistakes**\n- Raising the reverse-power pickup to stop nuisance trips. A longer delay cures them and still catches a stopped engine.\n- Assuming every set holds 3 times its rated current in a fault. A shunt-fed set's current dies away.\n- Judging discrimination on the first fault current alone. What counts is the current at each device's trip time.\n- Reading a lost field as an overload. The kW stays put while the kVAr turns inwards."
+  },
+  "say": null,
+  "checks": [],
+  "sources": [
+    {
+      "n": 1,
+      "title": "Generator Protection",
+      "url": "https://www.cedengineering.com/userfiles/E04-047%20-%20Generator%20Protection%20-%20US.pdf",
+      "quote": "detects real power flow ### into the generator, which will happen if the generator loses its prime-mover input."
+    },
+    {
+      "n": 2,
+      "title": "stamford-avk.com",
+      "url": "https://www.stamford-avk.com/sites/stamfordavk/files/AGNs/AGN024_E.pdf",
+      "quote": "A loss of excitation during parallel operation results in circulating currents, pole-slipping, torque/current surges and oscillation."
+    },
+    {
+      "n": 3,
+      "title": "AGN 005 – Fault Currents and Short Circuit Decrement Curves",
+      "url": "https://www.stamford-avk.com/sites/stamfordavk/files/AGN005_D.pdf",
+      "quote": "The Short Circuit Decrement Curves represent the alternator’s fault current during Sub Transient, Transient and Sustained periods of the fault condition."
+    },
+    {
+      "n": 4,
+      "title": "AGN 124 – AVR Power Supplies",
+      "url": "https://www.stamford-avk.com/sites/stamfordavk/files/AGN124_C.pdf",
+      "quote": "Self-excited alternators will not maintain a short-circuit current - the short-circuit current will quickly decay to 0 if the short- circuit condition is not immediately cleared."
+    },
+    {
+      "n": 6,
+      "title": "AGN 124 – AVR Power Supplies",
+      "url": "https://www.stamford-avk.com/sites/stamfordavk/files/AGN124_C.pdf",
+      "quote": "This allows the alternator to sustain its output during a short-circuit condition so the load’s protection devices have time to clear the fault."
+    }
+  ],
+  "confidence": "simplified",
+  "contested": null
+}

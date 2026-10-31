@@ -1,0 +1,551 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-31T15:18:59.368Z",
+ "startedAt": "2026-10-31T15:18:59.368Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i2",
+  "title": "Excitation and the AVR: field current sets the voltage",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the voltage sagging under load and staying down with the AVR off, but coming back as the AVR raises the field up the open-circuit curve, when you drag the load up.",
+   "title": "The AVR loop",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Screen",
+     "min": 0,
+     "max": 11,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [],
+   "whatAmILookingAt": "Twelve small screens on one picture, with Back and Continue. Five show an idea and seven ask you to try it. No marks and no timers.\n\nThe picture. At the top, a generator set is drawn side-on along one shaft, left to right. Each part has a one-word or two-word label. The PMG is a small permanent magnet generator. The exciter has its field ring fixed in the stator and its coils turning on the shaft. A diode bridge rides on the shaft. The main field sits on the rotor. The main stator's output leads run down to a load below. The labels read PMG, Exciter, Diodes, Main field, Stator and AVR. The AVR box sits off the shaft, with three leads. One brings its power in, from the PMG or from the output terminals. One senses the output. One feeds the exciter's fixed field. Two bars show the exciter's field current and the main field current. Each is a percentage of its value at no load and 440 V, so they move together. Below, the open-circuit curve plots the voltage the set makes inside, 0 to 600 V, against the field current, 0 to 200%. A dot sits at the present field current. A short line drops from the dot to the output voltage. That is the drop the load causes inside the machine. Beside it, a trace plots the output voltage against time, with the 440 V set point dashed. On a phone the curve and the trace stack. The load slider runs 0 to 100% of the set's rating in steps of 10, opening at 0%. The field-current slider runs 0 to 200% in steps of 5 and opens at 100%. It works only with the AVR off. An AVR switch turns it on and off. A supply switch, Shunt or PMG, lights where the AVR gets its power.\n\nThe readouts sit in three tiles: Load in %, Field current in % and Voltage in V. On a phone they wrap onto two rows. The two switches wrap too.\n\nThe rule it computes. The set is a 4-pole machine held at 1800 rev/min, so it makes 60 Hz throughout. Its field current is counted as a percentage of the field that makes 440 V with nothing connected. The curve is a sketch through these points: 0% gives 0 V, 25% gives 125 V, 50% gives 250 V, 75% gives 360 V, 100% gives 440 V, 125% gives 490 V, 150% gives 520 V, 175% gives 540 V and 200% gives 555 V. It runs straight between them. So it climbs steeply, then bends over at a knee where the iron saturates. The load drops 1 V inside the machine for each 1% of load, so 100 V at full load. So the output voltage = the curve's voltage at the present field − the load in %. With the AVR off, the field stays where the slider puts it. With the AVR on, it measures the output against its 440 V set point. It moves the field until they match. So it settles where the curve gives 440 V + the load in %. At 50% load that is 490 V, at 125%. At 100% load it is 540 V, at 175%. The main field is a large coil, so it changes gradually. So a load step moves the output at once by the change in drop. The AVR then brings it back. That return is slowed so you can follow it. On Shunt, the AVR's supply bar follows the output voltage. On PMG it stays full. A short circuit on the board pulls the output to 0 V.\n\nScreen 1, show. Nothing connected, the AVR off, the load slider hidden, the field-current slider free at 100%. The words: \"This plot is the open-circuit curve. The set turns at a steady 1800 rev/min with nothing connected. So its voltage depends on the field current alone. Drag the field current up and watch the dot. At first the voltage climbs in step with the field. Then the curve bends over at a knee. There the iron saturates, as on a B-H curve. Past the knee, each extra step of field buys less voltage.\" Read: \"The set turns at 1800 rev/min with nothing connected. Its voltage follows the field current along the open-circuit curve. It climbs in step at first. Then it bends over at a knee as the iron saturates.\" Still: nothing connected, the field at 200%, the dot at the top of the curve and the readouts at 0%, 200% and 555 V.\n\nScreen 2, try it, typed. Nothing connected, the field at 100%. The Voltage tile reads ? until Check. \"With nothing connected, the field current doubles from 100% to 200%. The curve marks 440 V at 100% and 555 V at 200%. How many times higher is the voltage now?\" A field in ×. Answer 1.26 ×. Slips: 2 ×, \"That holds only on the straight part. Past the knee the flux no longer keeps up with the field.\"; 0.79 ×, \"That divides the wrong way round. The voltage went up.\" Hint when wrong: \"Divide the new voltage by the old one.\" Why: \"555 ÷ 440 = 1.26. The field current doubled, but the flux did not. The iron is saturating, so the voltage rose by only 26%.\" A right Check slides the field to 200% and the dot up the curve. Read: the question, word for word.\n\nScreen 3, show. Nothing connected, the field at 100%, a Follow button lighting the current path from the AVR to the main field. The words: \"The main field turns with the shaft. A brushless set has a second, smaller alternator on the same shaft. This is the exciter. Its field is fixed in the stator. Its coils turn on the shaft and make AC. A diode bridge on the shaft turns that AC into DC for the main field. The automatic voltage regulator, or AVR, feeds only the exciter's fixed field. The engine turning the shaft supplies the power. So a small current there controls a much bigger one in the main field.\" Read: \"In a brushless set, the automatic voltage regulator, or AVR, feeds the exciter's fixed field. The exciter's turning coils make AC. A diode bridge on the shaft turns it into DC for the main field. No brushes are needed.\" Still: the whole path lit, from the AVR through the exciter and the diodes to the main field.\n\nScreen 4, try it. \"In a brushless set, which winding does the AVR's output feed?\" Three choices, in this order, along the chain: \"The exciter's fixed field\"; \"The main field on the rotor\"; \"The main stator's output coils\". Right, the first. Hint for the second: \"The main field turns with the shaft. The AVR sits still, so it reaches the main field only through the exciter and the diodes.\" Hint for the third: \"Those coils carry the output. The AVR measures them, but it feeds a field.\" Why: \"The AVR sits off the shaft. It feeds the exciter's fixed field, which needs no brushes. The exciter's turning coils and the diodes then carry a much bigger current into the main field.\" A right Check lights the AVR's lead to the exciter's field. Read: the question, word for word.\n\nScreen 5, show. The AVR off, the field held at 100%, the load slider free from 0%. The words: \"A load pulls the voltage down, and with the field held it stays down. The AVR is off and the field sits at 100%. Drag the load to 50%. The voltage falls from 440 V to 390 V and stays there. The load's current drops voltage inside the machine. A transformer's output falls on load in much the same way. Nothing has changed the field, so nothing brings the voltage back. Here the drop is drawn as 1 V for each 1% of load.\" Read: \"The AVR is off and the field is held at 100%. The load's current drops voltage inside the machine. So a 50% load pulls the voltage down from 440 V to 390 V. It stays there.\" Still: the AVR off, the load at 50%, the trace stepping down to 390 V and running flat.\n\nScreen 6, try it, typed. The AVR off, the field at 100%, the Voltage tile reading ? until Check. \"The AVR is off and the field is held at 100%. The load goes from 0% to 80%. The drop is 1 V for each 1% of load. What voltage reaches the board?\" A field in V. Answer 360 V. Slips: 440 V, \"The field is held, but the load's current still drops voltage inside the machine.\"; 520 V, \"The drop takes voltage away. It does not add it.\" Hint when wrong: \"Work out the drop, then take it off 440 V.\" Why: \"80% of load drops 80 V. The field has not moved, so the curve still gives 440 V inside. So 440 − 80 = 360 V reaches the board. It stays there.\" A right Check slides the load to 80%. Read: the question, word for word.\n\nScreen 7, show. The AVR on, the load back at 0%, the load slider free. The words: \"With the AVR on, the voltage comes back. Switch it on and drag the load to 50% again. The voltage dips towards 390 V at first. The main field is a big coil, so it cannot change in an instant. The AVR compares the output with its 440 V set point and raises the exciter's field. The load's drop is 50 V, so the set must make 490 V inside. The main field current climbs to 125%. The board gets 440 V again.\" Read: \"With the AVR on, a 50% load dips the voltage towards 390 V at first. The AVR compares the output with its 440 V set point and raises the exciter's field. The load's drop is 50 V, so the set must make 490 V inside. The main field climbs to 125%, and the output returns to 440 V.\" Still: the AVR on, the load at 50%, settled, the trace showing the dip and the climb back.\n\nScreen 8, try it, typed. The AVR on at 50% load, the Field current tile reading ? until Check. \"The AVR holds 440 V at 50% load with the field at 125%. The load rises to 100%. The drop is 1 V for each 1% of load. The curve marks 490 V at 125%, 520 V at 150% and 540 V at 175%. What field current does the AVR settle at?\" A field in %. Answer 175%. Slips: 150%, \"That doubles the 25% the first half of the load took. Past the knee each step of field buys fewer volts.\"; 200%, \"That adds 1% of field for each volt of drop. Read the curve instead.\"; 125%, \"That leaves the field where it was. The AVR must make up the bigger drop.\" Hint when wrong: \"Find the voltage the set must make inside, then read the curve.\" Why: \"At 100% load the drop is 100 V. So the set must make 440 + 100 = 540 V inside. The curve gives 540 V at 175%. The first half of the load took 25% more field. The second half took 50%. The dot is now climbing past the knee.\" A right Check slides the load to 100% and lets the AVR settle. Read: the question, word for word.\n\nScreen 9, show. The AVR on at 50% load, the supply switch free, opening on Shunt. The words: \"The AVR needs power of its own. Flip the supply switch to see two common ways. On Shunt, it takes power from the set's own output. It needs no extra machine on the shaft. The set is then self-excited. On PMG, a permanent magnet generator on the same shaft feeds it. That power lasts as long as the shaft turns, whatever the output does. A self-excited set cannot keep up a short-circuit current. It dies away quickly unless the fault is cleared at once.[^1]\" Read: \"A shunt supply feeds the AVR from the set's own output. It needs no extra machine on the shaft. The set is then self-excited. A permanent magnet generator, or PMG, on the same shaft feeds it for as long as the shaft turns.\" Still: the AVR on at 50% load, the supply on Shunt, its path lit from the output terminals to the AVR.\n\nScreen 10, try it. \"A short circuit on the board pulls the set's output voltage close to zero. Which AVR supply can keep the field up?\" Three choices, in this order: \"Shunt, from the set's own output\"; \"PMG, on the same shaft\"; \"Either, since the shaft keeps turning\". Right, the second. Hint for the first: \"A shunt supply takes its power from the output. With the output near zero, the AVR has almost no power.\" Hint for the third: \"The shaft turns either way. But only the PMG turns that into power for the AVR.\" Why: \"The PMG takes its power from the shaft, not from the output. So the AVR can keep the exciter's field up through the fault. A shunt-fed AVR loses its power with the output. So the field and the fault current die away. The protection needs that current to last long enough to clear the fault.\" A right Check shorts the board: the load box reads Short in red, the output falls to 0 V and the Shunt power bar empties. Then the supply flips to PMG, its path lights and the bar fills. Read: the question, word for word.\n\nScreen 11, try it, typed (mixed). The AVR on at 50% load, the Voltage tile reading ? until Check. \"The AVR holds 440 V at 50% load, so the field sits at 125%. The load trips off. The curve marks 490 V at 125%. What is the voltage in the instant before the AVR acts?\" A field in V. Answer 490 V. Slips: 440 V, \"That is after the AVR has acted. The main field cannot change in an instant.\"; 390 V, \"A trip takes the drop away, so the voltage jumps up.\" Hint when wrong: \"Read the curve at the field the set has now. With no load, there is no drop to take off.\" Why: \"The field is still at 125%, so the curve gives 490 V inside. With no load there is no drop. So the output jumps to 490 V. Then the AVR lowers the field until the board reads 440 V again.\" A right Check drops the load to 0% and plays the jump and the AVR's return. Read: the question, word for word.\n\nScreen 12, try it, typed (mixed). The AVR on at 0% load, the Field current tile reading ? until Check. \"The AVR is on and the load rises from 0% to 20%. The drop is 1 V for each 1% of load. The curve runs straight from 440 V at 100% to 490 V at 125%. What field current does the AVR settle at?\" A field in %. Answer 110%. Slips: 120%, \"That adds 1% of field for each volt. On this stretch 25% of field buys 50 V. So each volt needs 0.5%.\"; 100%, \"That leaves the field where it was. The AVR must make up the 20 V drop.\" Hint when wrong: \"Find the voltage inside first. Then see how far along the straight stretch it sits.\" Why: \"The drop is 20 V, so the set must make 460 V inside. That is 20 V of the 50 V between 100% and 125%. So the field rises 20 ÷ 50 × 25 = 10%, to 110%.\" A right Check slides the load to 20%, and a closing line reads: \"The field sets the voltage, and the AVR sets the field.\" Read: the question, word for word.",
+   "ignores": "The curve is a sketch, run straight between its marked points. A real one is smooth and comes from the maker's test. The drop is drawn as a fixed 1 V for each 1% of load. A real drop does not grow in a straight line. It also depends on the kind of load. A lagging load drops more than a resistive one, and a leading load can raise the voltage instead. The speed is held steady, so the frequency never moves. A real load step also slows the engine for a moment. It first moves the voltage by less than the full drop. Then the voltage moves further as the main field settles, while the AVR acts. The AVR's return is slowed. It is drawn as a smooth climb with no overshoot. The main field is drawn in step with the exciter's field. A real exciter adds its own small delay and its own curve. The curve starts at 0 V. A real set still makes a small voltage with no field current, from the iron's leftover magnetism. Some sets feed the AVR from an extra winding in the main stator instead. The picture shows only Shunt and PMG.",
+   "numbers": [
+    {
+     "label": "Number of screens",
+     "value": 12,
+     "kind": "assumed"
+    },
+    {
+     "label": "Poles on the example set",
+     "value": 4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example set speed, rev/min",
+     "value": 1800,
+     "kind": "assumed"
+    },
+    {
+     "label": "Its frequency, 2 × 1800 ÷ 60, Hz",
+     "value": 60,
+     "kind": "computed"
+    },
+    {
+     "label": "Voltage with nothing connected at 100% field, V",
+     "value": 440,
+     "kind": "assumed"
+    },
+    {
+     "label": "AVR set point, V",
+     "value": 440,
+     "kind": "assumed"
+    },
+    {
+     "label": "Curve point: 25% field gives, V",
+     "value": 125,
+     "kind": "assumed"
+    },
+    {
+     "label": "Curve point: 50% field gives, V",
+     "value": 250,
+     "kind": "assumed"
+    },
+    {
+     "label": "Curve point: 75% field gives, V",
+     "value": 360,
+     "kind": "assumed"
+    },
+    {
+     "label": "Curve point: 125% field gives, V",
+     "value": 490,
+     "kind": "assumed"
+    },
+    {
+     "label": "Curve point: 150% field gives, V",
+     "value": 520,
+     "kind": "assumed"
+    },
+    {
+     "label": "Curve point: 175% field gives, V",
+     "value": 540,
+     "kind": "assumed"
+    },
+    {
+     "label": "Curve point: 200% field gives, V",
+     "value": 555,
+     "kind": "assumed"
+    },
+    {
+     "label": "Curve axis top, V",
+     "value": 600,
+     "kind": "assumed"
+    },
+    {
+     "label": "Drop inside per 1% of load, V",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Drop at full load, V",
+     "value": 100,
+     "kind": "computed"
+    },
+    {
+     "label": "Load slider, lowest, %",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Load slider, highest, %",
+     "value": 100,
+     "kind": "control"
+    },
+    {
+     "label": "Load slider step, %",
+     "value": 10,
+     "kind": "control"
+    },
+    {
+     "label": "Field-current slider, highest, %",
+     "value": 200,
+     "kind": "control"
+    },
+    {
+     "label": "Field-current slider step, %",
+     "value": 5,
+     "kind": "control"
+    },
+    {
+     "label": "Field-current slider opening value, %",
+     "value": 100,
+     "kind": "control"
+    },
+    {
+     "label": "Screen 2: voltage ratio, 555 ÷ 440",
+     "value": 1.26,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 2: rise, per cent",
+     "value": 26,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 2 slip: doubling",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 2 slip: 440 ÷ 555",
+     "value": 0.79,
+     "kind": "computed"
+    },
+    {
+     "label": "Screens 5 and 7: load, %",
+     "value": 50,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screens 5 and 7: drop, V",
+     "value": 50,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 5: voltage with the field held, V",
+     "value": 390,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 6: load, %",
+     "value": 80,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 6: voltage, 440 − 80, V",
+     "value": 360,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 6 slip: drop added, V",
+     "value": 520,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 7: field the AVR settles at, %",
+     "value": 125,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 8: field at full load, %",
+     "value": 175,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 8: field the first half of the load took, %",
+     "value": 25,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 8 slip: 25% doubled, field %",
+     "value": 150,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 8 slip: 1% per volt, field %",
+     "value": 200,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 11: voltage after the trip, V",
+     "value": 490,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 12: load, %",
+     "value": 20,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 12: voltage inside, 440 + 20, V",
+     "value": 460,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 12: field, 100 + 20 ÷ 50 × 25, %",
+     "value": 110,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 12 slip: 1% per volt, field %",
+     "value": 120,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 12: field per volt on that stretch, %",
+     "value": 0.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example: field at 80% load, %",
+     "value": 150,
+     "kind": "computed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "Take a generator set running alone at a steady speed. The current in its turning field sets its voltage. A load drags that voltage down. So an [[automatic voltage regulator]], or AVR, measures the output and trims the field current to hold the voltage steady.\n\nRun a set at its steady speed with nothing connected. Its voltage then depends on the field current alone, because the field current sets the flux. Plot one against the other and you get the [[open-circuit curve]]. It climbs in step at first. Then it bends over at a knee. There the iron saturates, as on a B-H curve. Past the knee, each extra step of field buys less voltage. On this sketch, doubling the field from 100% to 200% lifts 440 V only to 555 V.\n\nConnect an ordinary load and the voltage falls. The load's current drops voltage inside the machine, much as a transformer's output falls on load. With the field held, the voltage stays down. So the field must rise as the load rises. The main field turns with the shaft. A brushless set feeds it with no sliding contact. A smaller alternator on the same shaft does the job. This is the [[exciter]]. Its field is fixed in the stator, and its coils turn on the shaft. A diode bridge riding on the shaft turns their AC into DC for the main field. On such a set, the AVR feeds only the exciter's fixed field. The engine turning the shaft supplies the power. So a small current in the exciter's field steers a much bigger one in the main field.\n\nThe AVR works as a loop. It measures the output, compares it with its set point and corrects the field. Say the drop is 50 V at half load. The AVR raises the field until the curve gives 490 V inside, at 125%. Then 490 − 50 = 440 V reaches the board. At full load the drop is 100 V. The set must then make 540 V inside, which needs 175%. The second half of the load costs twice the field of the first, because of the knee. Bringing a set onto a live board and sharing load between sets build on this loop. They work by moving its set point, and the set point of the engine's speed control.[^4]\n\nThe AVR needs power too. A shunt supply takes it from the set's own output, so it needs no extra machine. The set is then self-excited. A permanent magnet generator, or PMG, on the same shaft gives power as long as the shaft turns. A self-excited set cannot keep up a short-circuit current. It dies away quickly unless the fault is cleared at once.[^1] That is a problem, because the protection needs time to clear the fault. An AVR supply of its own, such as a PMG, keeps the output up long enough.[^3] These numbers come from a simplified picture. Its curve is a sketch, and its drop grows in step with the load. A real drop depends on the kind of load. A leading load can even raise the voltage. **On a brushless set running alone, the AVR holds the output voltage by adjusting the strength of the exciter's field.[^2] That field sets the main field current.**"
+  },
+  "analogy": {
+   "text": "Think of a battery charger on its constant-voltage stage. It measures the battery's voltage and compares it with its set voltage. Then it trims its output to hold that voltage. Put a load on the battery and the charger pushes more current. The AVR runs the same loop. It measures the output voltage and trims the field.",
+   "breaks": "A charger trims its own output current directly. The AVR never touches the output current. It trims a small field two stages away, through the exciter and the diodes. The main field's coil makes it lag. And a charger has no knee. On the AVR's curve, past the knee, each extra step of field buys less voltage."
+  },
+  "practice": {
+   "text": "**Safety first:** treat a turning set as live, even with its breaker open and its AVR off. Its output, its PMG if it has one, its exciter and its rotating diodes all carry voltage while the shaft turns. The iron's leftover magnetism makes some voltage even with no field current.\n\n- Find out which supply feeds the AVR: shunt, PMG or a winding of its own. It tells you how the set behaves in a fault.\n- On load, read the voltage together with the field current or the AVR's output. As an ordinary load rises, the field should rise and the voltage hold.\n- If the voltage sags on load while the field stays put, the AVR is not correcting. Check its supply, its sensing lead and the exciter's field.\n- If the field sits high on the curve at full load, the set is working past the knee. Each extra step of load then costs more field.\n\n**Rule of thumb:** once the set works past the knee, each extra 1% of load costs more field than the last.\n\n**Worked example:** take a set that makes 440 V with nothing connected at 100% field. Its drop is 1 V for each 1% of load, and its curve is the one drawn here. At 80% load the drop is 80 V. So the AVR must make 440 + 80 = 520 V inside. The curve gives 520 V at 150%, so the field settles at 150%. With the AVR off and the field left at 100%, the same load gives 440 − 80 = 360 V.\n\n**Common mistakes**\n- Expecting a set to hold its voltage by itself. With the field fixed, the voltage falls on an ordinary load and stays down.\n- Thinking the AVR of a brushless set drives the main field. It feeds the exciter's fixed field. The exciter and diodes then feed the main field.\n- Expecting double the field to give double the voltage. Past the knee it gives much less.\n- Expecting a self-excited set to keep feeding a short circuit. Its AVR loses its power with the output."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "AGN 124 – AVR Power Supplies — stamford-avk.com",
+    "url": "https://www.stamford-avk.com/sites/stamfordavk/files/AGN124_C.pdf",
+    "quote": "Self-excited alternators will not maintain a short-circuit current - the short-circuit current will quickly decay to 0 if the short- circuit condition is not immediately cleared."
+   },
+   {
+    "n": 2,
+    "title": "A062L877 (Issue 6) — stamford-avk.com",
+    "url": "https://www.stamford-avk.com/sites/stamfordavk/files/2026-05/S9-HV-Alternators-Installation-Service-and-Maintenance-Manual-English.pdf",
+    "quote": "The AVR controls the alternator output voltage by automatic adjustment of the exciter stator field strength."
+   },
+   {
+    "n": 3,
+    "title": "AGN 124 – AVR Power Supplies — stamford-avk.com",
+    "url": "https://www.stamford-avk.com/sites/stamfordavk/files/AGN124_C.pdf",
+    "quote": "This allows the alternator to sustain its output during a short-circuit condition so the load’s protection devices have time to clear the fault."
+   },
+   {
+    "n": 4,
+    "title": "Cummins Power Seminar, Paralleling Basics (IEEE PES New York archive)",
+    "url": "https://ewh.ieee.org/soc/pes/newyork/Archive%20Docs/CumminsPowerSeminar_Basics%20of%20Paralleling%20169.pdf",
+    "quote": "Governor and AVR are the basic functions on every genset and the synchronizer, load share and load govern simply adjust the reference point to them"
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: mechanism -->\n<style>\n  [hidden] { display: none !important; }\n  .pz { max-width: 46rem; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  .task, .fb, .why, .closing, .done p { max-width: 34rem; }\n  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.08rem; font-weight: 400; line-height: 1.6; }\n  /* The set along its shaft; below it the curve and the trace, side by side on a laptop, stacked on a phone. */\n  .set { display: block; width: 100%; max-width: 32rem; margin-inline: auto; }\n  .plots { display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-start; gap: 6px 18px; }\n  .plots svg { display: block; width: 100%; flex: 1 1 17rem; max-width: 26rem; }\n  .sws { display: flex; flex-wrap: wrap; gap: 10px 16px; }\n  .sws > div { flex: 1 1 12rem; min-width: 0; }\n  .set .shaft { fill: var(--k-sunk); stroke: var(--k-ink); stroke-width: 1.2; }\n  .set .iron { fill: var(--k-sunk); stroke: var(--k-ink); stroke-width: 1.3; }\n  .set .blk { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.3; }\n  .set .mag { fill: var(--k-fill3); stroke: var(--k-ink); stroke-width: 1.3; }\n  .set .bar { fill: var(--k-accent2); }\n  .set .tick { stroke: var(--k-ink); stroke-width: 1.6; }\n  .set .wind { stroke: var(--k-muted); stroke-width: 1.2; }\n  .set .lead { fill: none; stroke: var(--k-ink); stroke-width: 1.6; stroke-linejoin: round; }\n  .set .lit { fill: none; stroke: var(--k-amber-line); stroke-width: 4; stroke-linejoin: round; stroke-linecap: round; }\n  .set .ink { fill: var(--k-ink); }\n  .set .avr { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.6; }\n  .set .track { fill: var(--k-sunk); stroke: var(--k-ink); stroke-width: 1; }\n  .set .pow { fill: var(--k-accent2); }\n  .set .rot { fill: none; stroke: var(--k-ink); stroke-width: 1.5; }\n  .set .lab, .plots .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }\n  .set .warn { font: 700 13px var(--k-font); fill: var(--k-warn); }\n  .set .labb { font: 700 13px var(--k-font); fill: var(--k-ink); }\n  .plots .mut { font: 600 13px var(--k-font); fill: var(--k-muted); }\n  .plots .ax { stroke: var(--k-strong); stroke-width: 1.3; }\n  .plots .ref { stroke: var(--k-muted); stroke-width: 1.4; stroke-dasharray: 6 4; }\n  .plots .occ { fill: none; stroke: var(--k-accent2); stroke-width: 2.4; stroke-linejoin: round; }\n  .plots .tr { fill: none; stroke: var(--k-accent2); stroke-width: 2.2; stroke-linejoin: round; stroke-linecap: round; }\n  .plots .pdot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 1.5; }\n  .plots .ring { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 2.2; }\n  .plots .drop { stroke: var(--k-ink); stroke-width: 1.6; }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; }\n  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }\n  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-inline: 16px; font-size: .95rem; white-space: nowrap; }\n  .picks { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }\n  .picks .k-btn { min-height: 48px; font-size: 1.05rem; white-space: normal; overflow-wrap: normal; word-break: normal; hyphens: none; text-align: left; }\n  .picks .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  .answers .k-answer { max-width: 20rem; }\n  .fb { font-weight: 700; min-height: 1.5em; }\n  .fb.right { color: var(--k-good); }\n  .why, .done, .closing { line-height: 1.6; }\n  .done .row { margin-top: 14px; }\n  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }\n</style>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <svg class=\"set\" id=\"scene\" viewBox=\"0 0 340 198\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"setArt\"></g></svg>\n    <div class=\"k-controls\" id=\"c-field\"></div>\n    <div class=\"k-controls\" id=\"c-load\"></div>\n    <div class=\"sws\" id=\"sws\"><div class=\"k-controls\" id=\"c-avr\"></div><div class=\"k-controls\" id=\"c-supply\"></div></div>\n    <div class=\"replay\" id=\"replay\"></div>\n    <div class=\"plots\">\n      <svg id=\"occ\" viewBox=\"0 0 340 222\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"occArt\"></g></svg>\n      <svg id=\"trc\" viewBox=\"0 0 340 222\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"trArt\"></g></svg>\n    </div>\n    <div class=\"k-readouts outs\" id=\"outs\"></div>\n    <div class=\"picks\" id=\"picks\"></div>\n    <div class=\"answers\" id=\"answers\"></div>\n    <div class=\"row acts\" id=\"acts\"></div>\n    <p class=\"fb\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why\" id=\"why\" hidden></div>\n    <p class=\"closing\" id=\"closing\" hidden></p>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p id=\"finish\"></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\">A sketch worked from the rule. Each bar's tick marks 100% field. The AVR's return is slowed.</p>\n\n<script>\n  // ================= the rule =================\n  const strip = (s) => s.replace(/\\[\\^\\d+\\]/g, '');\n  const NB = ' ';                              // a no-break space: a number never parts from its unit\n  const SRC_AGN = 'https://www.stamford-avk.com/sites/stamfordavk/files/AGN124_C.pdf';\n  const SRC_MAN = 'https://www.stamford-avk.com/sites/stamfordavk/files/2026-05/S9-HV-Alternators-Installation-Service-and-Maintenance-Manual-English.pdf';\n  const SET = 440;                                  // the AVR's set point, V\n  const PER = 1;                                    // the drop inside the machine for each 1% of load, V\n  // The open-circuit curve: field current (% of the field that makes 440 V with nothing connected) against\n  // the voltage made inside. A sketch through these points, straight between them.\n  const OCC = [[0, 0], [25, 125], [50, 250], [75, 360], [100, 440], [125, 490], [150, 520], [175, 540], [200, 555]];\n  function occ(f) {\n    f = K.clamp(f, 0, 200);\n    for (let k = 1; k < OCC.length; k++) {\n      if (f <= OCC[k][0]) { const a = OCC[k - 1], b = OCC[k]; return a[1] + (b[1] - a[1]) * (f - a[0]) / (b[0] - a[0]); }\n    }\n    return OCC[OCC.length - 1][1];\n  }\n  // The curve read backwards: the field that makes v inside.\n  function fieldFor(v) {\n    v = K.clamp(v, 0, 555);\n    for (let k = 1; k < OCC.length; k++) {\n      if (v <= OCC[k][1]) { const a = OCC[k - 1], b = OCC[k]; return a[0] + (b[0] - a[0]) * (v - a[1]) / (b[1] - a[1]); }\n    }\n    return 200;\n  }\n  const dropOf = (load) => PER * load;\n  // The voltage at the board: the curve's voltage at the present field, less the drop the load causes.\n  const outOf = (field, load) => Math.max(0, occ(field) - dropOf(load));\n  // Where the AVR settles: the field at which the curve gives the set point plus the drop.\n  const avrField = (load) => fieldFor(SET + dropOf(load));\n  // The AVR's own supply: on Shunt it follows the output; a PMG gives full power while the shaft turns.\n  const avrPower = (supply, v) => (supply === 'pmg' ? 1 : K.clamp(v / SET, 0, 1));\n  const TAU = 0.55, SNAP = 0.25, HOLD = 1.2;        // the AVR's slowed return (s on screen); how long a change is traced\n  const r1 = (v) => Math.round(v * 10) / 10;\n  const r2 = (v) => Math.round(v * 100) / 100;\n\n  // ================= the lesson: SHOW screens demonstrate, DO screens are puzzles =================\n  const STEPS = [\n    { show: true, name: 'The open-circuit curve', mode: 'drag', ctl: ['field'], enter: { load: 0, field: 100, avr: false },\n      demo: [{ at: 0.6, to: 3.0, ramp: { field: [100, 200] } }], dur: 3.6,\n      text: 'This plot is the *open-circuit curve*. The set turns at a steady 1800 rev/min with nothing connected. So its voltage depends on the field current alone. Drag the field current up and watch the dot. At first the voltage climbs in step with the field. Then the curve bends over at a knee. There the iron saturates, as on a B-H curve. Past the knee, each extra step of field buys less voltage.',\n      read: 'The set turns at 1800 rev/min with nothing connected. Its voltage follows the field current along the open-circuit curve. It climbs in step at first. Then it bends over at a knee as the iron saturates.',\n      still: () => setStill() },\n    { kind: 'typed', name: 'Double the field', ans: 'dbl', enter: { load: 0, field: 100, avr: false }, hide: ['V'],\n      run: [{ at: 0.2, to: 1.8, ramp: { field: [100, 200] } }], rdur: 2.4,\n      answer: 1.26, decimals: 2, unit: 'times', want: '1.26' + NB + 'times',\n      slips: [{ value: 2, hint: 'That holds only on the straight part. Past the knee the flux no longer keeps up with the field.' },\n        { value: 0.79, hint: 'That divides the wrong way round. The voltage went up.' }],\n      task: 'With nothing connected, the field current doubles from 100% to 200%. The curve marks 440 V at 100% and 555 V at 200%. How many times higher is the voltage now?',\n      hint: 'Divide the new voltage by the old one.',\n      why: '555 ÷ 440 = 1.26. The field current doubled, but the flux did not. The iron is saturating, so the voltage rose by only 26%.',\n      read: 'With nothing connected, the field current doubles from 100% to 200%. The curve marks 440 V at 100% and 555 V at 200%. How many times higher is the voltage now?' },\n    { show: true, name: 'The exciter', mode: 'follow', enter: { load: 0, field: 100, avr: true },\n      demo: [{ at: 0.4, light: 'feed' }, { at: 1.0, light: 'exf' }, { at: 1.6, light: 'exa' }, { at: 2.2, light: 'dio' }, { at: 2.8, light: 'main' }], dur: 3.6,\n      text: 'The main field turns with the shaft. A brushless set has a second, smaller alternator on the same shaft. This is the *exciter*. Its field is fixed in the stator. Its coils turn on the shaft and make AC. A diode bridge on the shaft turns that AC into DC for the main field. The *automatic voltage regulator*, or AVR, feeds only the exciter\\'s fixed field. The engine turning the shaft supplies the power. So a small current there controls a much bigger one in the main field.',\n      read: 'In a brushless set, the automatic voltage regulator, or AVR, feeds the exciter\\'s fixed field. The exciter\\'s turning coils make AC. A diode bridge on the shaft turns it into DC for the main field. No brushes are needed.',\n      still: () => setStill() },\n    { kind: 'pick', name: 'What the AVR feeds', enter: { load: 0, field: 100, avr: true },\n      run: [{ at: 0.1, light: 'feed' }], rdur: 1.0,\n      opts: ['The exciter\\'s fixed field', 'The main field on the rotor', 'The main stator\\'s output coils'],\n      want: 'The exciter\\'s fixed field',\n      task: 'In a brushless set, which winding does the AVR\\'s output feed?',\n      hints: { 'The main field on the rotor': 'The main field turns with the shaft. The AVR sits still, so it reaches the main field only through the exciter and the diodes.',\n        'The main stator\\'s output coils': 'Those coils carry the output. The AVR measures them, but it feeds a field.' },\n      why: 'The AVR sits off the shaft. It feeds the exciter\\'s fixed field, which needs no brushes. The exciter\\'s turning coils and the diodes then carry a much bigger current into the main field.',\n      read: 'In a brushless set, which winding does the AVR\\'s output feed?' },\n    { show: true, name: 'A load pulls it down', mode: 'drag', ctl: ['load'], enter: { load: 0, field: 100, avr: false },\n      demo: [{ at: 0.8, to: 1.2, ramp: { load: [0, 50] } }], dur: 3.4,\n      text: 'A load pulls the voltage down, and with the field held it stays down. The AVR is off and the field sits at 100%. Drag the load to 50%. The voltage falls from 440 V to 390 V and stays there. The load\\'s current drops voltage inside the machine. A transformer\\'s output falls on load in much the same way. Nothing has changed the field, so nothing brings the voltage back. Here the drop is drawn as 1 V for each 1% of load.',\n      read: 'The AVR is off and the field is held at 100%. The load\\'s current drops voltage inside the machine. So a 50% load pulls the voltage down from 440 V to 390 V. It stays there.',\n      still: () => setStill() },\n    { kind: 'typed', name: 'Field held, more load', ans: 'held', enter: { load: 0, field: 100, avr: false }, hide: ['V'],\n      run: [{ at: 0.2, to: 0.7, ramp: { load: [0, 80] } }], rdur: 2.4,\n      answer: 360, decimals: 0, unit: 'V', want: '360' + NB + 'V',\n      slips: [{ value: 440, hint: 'The field is held, but the load\\'s current still drops voltage inside the machine.' },\n        { value: 520, hint: 'The drop takes voltage away. It does not add it.' }],\n      task: 'The AVR is off and the field is held at 100%. The load goes from 0% to 80%. The drop is 1 V for each 1% of load. What voltage reaches the board?',\n      hint: 'Work out the drop, then take it off 440 V.',\n      why: '80% of load drops 80 V. The field has not moved, so the curve still gives 440 V inside. So 440 − 80 = 360 V reaches the board. It stays there.',\n      read: 'The AVR is off and the field is held at 100%. The load goes from 0% to 80%. The drop is 1 V for each 1% of load. What voltage reaches the board?' },\n    { show: true, name: 'The AVR brings it back', mode: 'drag', ctl: ['load', 'avr'], enter: { load: 0, field: 100, avr: false },\n      demo: [{ at: 0.5, set: { avr: true } }, { at: 1.1, to: 1.4, ramp: { load: [0, 50] } }], dur: 4.4,\n      text: 'With the AVR on, the voltage comes back. Switch it on and drag the load to 50% again. The voltage dips towards 390 V at first. The main field is a big coil, so it cannot change in an instant. The AVR compares the output with its 440 V set point and raises the exciter\\'s field. The load\\'s drop is 50 V, so the set must make 490 V inside. The main field current climbs to 125%. The board gets 440 V again.',\n      read: 'With the AVR on, a 50% load dips the voltage towards 390 V at first. The AVR compares the output with its 440 V set point and raises the exciter\\'s field. The load\\'s drop is 50 V, so the set must make 490 V inside. The main field climbs to 125%, and the output returns to 440 V.',\n      still: () => setStill() },\n    { kind: 'typed', name: 'Full load', ans: 'full', enter: { load: 50, avr: true }, hide: ['F'],\n      run: [{ at: 0.2, to: 0.6, ramp: { load: [50, 100] } }], rdur: 3.8,\n      answer: 175, decimals: 0, unit: '%', want: '175%',\n      slips: [{ value: 150, hint: 'That doubles the 25% the first half of the load took. Past the knee each step of field buys fewer volts.' },\n        { value: 200, hint: 'That adds 1% of field for each volt of drop. Read the curve instead.' },\n        { value: 125, hint: 'That leaves the field where it was. The AVR must make up the bigger drop.' }],\n      task: 'The AVR holds 440 V at 50% load with the field at 125%. The load rises to 100%. The drop is 1 V for each 1% of load. The curve marks 490 V at 125%, 520 V at 150% and 540 V at 175%. What field current does the AVR settle at?',\n      hint: 'Find the voltage the set must make inside, then read the curve.',\n      why: 'At 100% load the drop is 100 V. So the set must make 440 + 100 = 540 V inside. The curve gives 540 V at 175%. The first half of the load took 25% more field. The second half took 50%. The dot is now climbing past the knee.',\n      read: 'The AVR holds 440 V at 50% load with the field at 125%. The load rises to 100%. The drop is 1 V for each 1% of load. The curve marks 490 V at 125%, 520 V at 150% and 540 V at 175%. What field current does the AVR settle at?' },\n    { show: true, name: 'Where the AVR gets power', mode: 'supply', ctl: ['supply'], enter: { load: 50, avr: true, supply: 'shunt' },\n      demo: [{ at: 0.6, light: 'shunt' }], dur: 3.0,\n      text: strip('The AVR needs power of its own. Flip the supply switch to see two common ways. On Shunt, it takes power from the set\\'s own output. It needs no extra machine on the shaft. The set is then self-excited. On PMG, a permanent magnet generator on the same shaft feeds it. That power lasts as long as the shaft turns, whatever the output does. A self-excited set cannot keep up a short-circuit current. It dies away quickly unless the fault is cleared at once.[^1]'),\n      read: 'A shunt supply feeds the AVR from the set\\'s own output. It needs no extra machine on the shaft. The set is then self-excited. A permanent magnet generator, or PMG, on the same shaft feeds it for as long as the shaft turns.',\n      still: () => setStill() },\n    { kind: 'pick', name: 'Through a short circuit', enter: { load: 50, avr: true, supply: 'shunt' }, lit: { shunt: 1 },\n      run: [{ at: 0.1, set: { sc: true } }, { at: 1.3, set: { supply: 'pmg' }, light: 'pmg', unlight: 'shunt' }], rdur: 2.6,\n      opts: ['Shunt, from the set\\'s own output', 'PMG, on the same shaft', 'Either, since the shaft keeps turning'],\n      want: 'PMG, on the same shaft',\n      task: 'A short circuit on the board pulls the set\\'s output voltage close to zero. Which AVR supply can keep the field up?',\n      hints: { 'Shunt, from the set\\'s own output': 'A shunt supply takes its power from the output. With the output near zero, the AVR has almost no power.',\n        'Either, since the shaft keeps turning': 'The shaft turns either way. But only the PMG turns that into power for the AVR.' },\n      why: 'The PMG takes its power from the shaft, not from the output. So the AVR can keep the exciter\\'s field up through the fault. A shunt-fed AVR loses its power with the output. So the field and the fault current die away. The protection needs that current to last long enough to clear the fault.',\n      read: 'A short circuit on the board pulls the set\\'s output voltage close to zero. Which AVR supply can keep the field up?' },\n    { kind: 'typed', name: 'The load trips', ans: 'trip', enter: { load: 50, avr: true }, hide: ['V'],\n      run: [{ at: 0.3, set: { load: 0 } }], rdur: 3.4,\n      answer: 490, decimals: 0, unit: 'V', want: '490' + NB + 'V',\n      slips: [{ value: 440, hint: 'That is after the AVR has acted. The main field cannot change in an instant.' },\n        { value: 390, hint: 'A trip takes the drop away, so the voltage jumps up.' }],\n      task: 'The AVR holds 440 V at 50% load, so the field sits at 125%. The load trips off. The curve marks 490 V at 125%. What is the voltage in the instant before the AVR acts?',\n      hint: 'Read the curve at the field the set has now. With no load, there is no drop to take off.',\n      why: 'The field is still at 125%, so the curve gives 490 V inside. With no load there is no drop. So the output jumps to 490 V. Then the AVR lowers the field until the board reads 440 V again.',\n      read: 'The AVR holds 440 V at 50% load, so the field sits at 125%. The load trips off. The curve marks 490 V at 125%. What is the voltage in the instant before the AVR acts?' },\n    { kind: 'typed', name: 'A light load', ans: 'light', enter: { load: 0, avr: true }, hide: ['F'],\n      run: [{ at: 0.2, to: 0.4, ramp: { load: [0, 20] } }], rdur: 3.0,\n      answer: 110, decimals: 0, unit: '%', want: '110%',\n      slips: [{ value: 120, hint: 'That adds 1% of field for each volt. On this stretch 25% of field buys 50 V. So each volt needs 0.5%.' },\n        { value: 100, hint: 'That leaves the field where it was. The AVR must make up the 20 V drop.' }],\n      task: 'The AVR is on and the load rises from 0% to 20%. The drop is 1 V for each 1% of load. The curve runs straight from 440 V at 100% to 490 V at 125%. What field current does the AVR settle at?',\n      hint: 'Find the voltage inside first. Then see how far along the straight stretch it sits.',\n      why: 'The drop is 20 V, so the set must make 460 V inside. That is 20 V of the 50 V between 100% and 125%. So the field rises 20 ÷ 50 × 25 = 10%, to 110%.',\n      close: 'The field sets the voltage, and the AVR sets the field.',\n      read: 'The AVR is on and the load rises from 0% to 20%. The drop is 1 V for each 1% of load. The curve runs straight from 440 V at 100% to 490 V at 125%. What field current does the AVR settle at?' },\n  ];\n  const FINISH = 'The field current sets the voltage along the open-circuit curve, which bends over at the knee. A load drops voltage inside the machine. The AVR measures the output and moves the exciter\\'s field until the board reads 440 V again. The field sets the voltage, and the AVR sets the field.';\n\n  // ================= state =================\n  const BASE = { load: 0, field: 100, avr: false, supply: 'shunt', sc: false };\n  const X = Object.assign({}, BASE);\n  const LITS = ['feed', 'exf', 'exa', 'dio', 'main', 'shunt', 'pmg'];\n  let LIT = {};                                     // the parts lit along a path (1) or not\n  const D = {};                                     // the lights as drawn, easing towards LIT\n  LITS.forEach((k) => { D[k] = 0; });\n  // The trace: the voltage at the board over the last WIN seconds on screen, one sample every DT.\n  const WIN = 6, DT = 1 / 30, NS = Math.round(WIN / DT) + 1;\n  const sim = { buf: new Array(NS).fill(SET), acc: 0, hold: 0 };\n  const out = () => (X.sc ? 0 : outOf(X.field, X.load));   // a short on the board pulls it to 0 V\n  const steady = () => !X.avr || X.field === avrField(X.load);\n  const blank = () => ({ pick: null, res: null, why: false, tries: 0, hint: '' });\n  let S = STEPS.map(blank);\n  const solved = (st) => !!st && (st.res === 'right' || st.res === 'shown');\n  let T = Infinity, motionEnd = 0, scripted = false, lastStep = -1, finished = false, lastDone = false, noSettle = false;\n  let REC = { t: {} };\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n  const quiet = () => REDUCE || testing();\n  const el = (id) => document.getElementById(id);\n  const idx = (name) => STEPS.findIndex((d) => d.name === name);\n  const hideVal = (i) => !finished && !STEPS[i].show && !solved(S[i]);\n  function hiddenSet(i) {\n    const d = STEPS[i], on = !finished && !!d.hide && !solved(S[i]), h = {};\n    ['L', 'F', 'V'].forEach((k) => { h[k] = on && d.hide.indexOf(k) >= 0; });\n    return h;\n  }\n\n  // ================= the set running =================\n  function sample() { sim.buf.push(out()); sim.buf.shift(); }\n  // Time h passes: the trace records the board's voltage, and a running AVR moves the field towards\n  // where the curve gives the set point plus the drop. The main field is a big coil, so it moves smoothly.\n  function advance(h) {\n    if (!(h > 0)) return;\n    sim.acc += h;\n    while (sim.acc >= DT - 1e-9) { sim.acc -= DT; sample(); }\n    if (X.avr) {\n      const tg = avrField(X.load), e = tg - X.field;\n      X.field = Math.abs(e) < SNAP ? tg : X.field + e * (1 - Math.exp(-h / TAU));\n    }\n    sim.hold = Math.max(0, sim.hold - h);\n  }\n  function playScript(sc, t0, t1) {\n    if (!sc) return;\n    sc.forEach((m) => {\n      if (m.to == null && t0 <= m.at && m.at < t1) {\n        const v0 = out();\n        if (m.set) Object.assign(X, m.set);\n        if (m.light) LIT[m.light] = 1;\n        if (m.unlight) LIT[m.unlight] = 0;\n        if (out() !== v0) sample();               // a sudden change shows on the trace at once\n      }\n      if (m.ramp && t1 > m.at) {\n        const f = K.ease(K.clamp((t1 - m.at) / (m.to - m.at), 0, 1));\n        Object.keys(m.ramp).forEach((k) => { const r = m.ramp[k]; X[k] = K.lerp(r[0], r[1], f); });\n      }\n    });\n  }\n  function runSync(sc, dur) {\n    const h = 1 / 60;\n    for (let t = 0; t < dur - 1e-9; t += h) { const t1 = Math.min(t + h, dur); playScript(sc, t, t1); advance(t1 - t); }\n  }\n  // Let the AVR finish, and the trace run on a little (tests and reduced motion draw it at once).\n  function settleNow() {\n    const h = 1 / 60;\n    let n = 0;\n    while ((!steady() || sim.hold > 0) && n++ < 900) advance(h);\n    sim.hold = 0;\n  }\n\n  // ================= text with amber key terms (built with K.el, never innerHTML) =================\n  const UNIT_GAP = /(\\d) (?=(?:V|rev\\/min|times)(?![A-Za-z]))/g;\n  function write(node, s) {\n    node.textContent = '';\n    String(s || '').replace(UNIT_GAP, '$1' + NB).replace(/rev\\/min/g, 'rev/⁠min').replace(/B-H/g, 'B‑H')\n      .split(/\\*([^*]+)\\*/).forEach((seg, k) => {\n        if (!seg) return;\n        node.appendChild(k % 2 ? K.el('span', { class: 'term' }, seg) : document.createTextNode(seg));\n      });\n  }\n\n  // ================= controls =================\n  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);\n  const CTL = {\n    field: K.control({ id: 'field', label: 'Field current', min: 0, max: 200, step: 5, value: 100, snap: [100, 200], fmt: (v) => v + '%', into: '#c-field' }),\n    load: K.control({ id: 'load', label: 'Load', min: 0, max: 100, step: 10, value: 0, snap: [50, 80, 100], fmt: (v) => v + '% of rating', into: '#c-load' }),\n    avr: K.toggle({ id: 'avr', label: 'AVR', value: false, into: '#c-avr' }),\n    supply: K.choice({ id: 'supply', label: 'AVR supply', options: [{ value: 'shunt', label: 'Shunt' }, { value: 'pmg', label: 'PMG' }], value: 'shunt', into: '#c-supply' }),\n  };\n  const CIDS = ['field', 'load', 'avr', 'supply'];\n  const pushed = {};\n  CIDS.forEach((id) => { pushed[id] = CTL[id].get(); });\n  // The page moves the controls itself (silently, so it is not taken for Dan's move).\n  function push() { CIDS.forEach((id) => { if (pushed[id] !== X[id]) { CTL[id].set(X[id], true); pushed[id] = CTL[id].get(); } }); }\n  const shownCtl = (d, id) => !finished && !!d.ctl && d.ctl.indexOf(id) >= 0;\n\n  const RO = {\n    L: K.readout({ id: 'r-load', label: 'Load in %', fmt: (v) => String(v), into: '#outs' }),\n    F: K.readout({ id: 'r-field', label: 'Field current in %', fmt: (v) => String(v), into: '#outs' }),\n    V: K.readout({ id: 'r-volt', label: 'Voltage in V', fmt: (v) => String(v), into: '#outs' }),\n  };\n\n  // Up to three answer buttons; each puzzle fills in its own.\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.kind !== 'pick' || k >= d.opts.length || solved(st)) return;\n    st.pick = d.opts[k]; st.res = null;\n  } }));\n  // Typed answers: a field each; Check grades it, two misses show the working.\n  const ANS = {};\n  STEPS.forEach((d, i) => {\n    if (d.kind !== 'typed') return;\n    el('answers').appendChild(K.el('div', { id: 'ans-' + d.ans }));\n    const a = K.answer({ id: 'a-' + d.ans, unit: d.unit, answer: d.answer, decimals: d.decimals, slips: d.slips, into: '#ans-' + d.ans,\n      onCheck: (r) => {\n        const st = S[i];\n        if (solved(st)) return;\n        if (r.state === 'right') { st.res = 'right'; playRun(i); }\n        else if (r.state === 'wrong') {\n          st.tries += 1; st.hint = r.hint || d.hint;\n          if (st.tries >= 2) { st.res = 'shown'; st.why = true; a.reveal(); playRun(i); }\n          else st.res = 'wrong';\n        } else { st.res = r.state; st.hint = ''; }\n        K.refresh();\n      } });\n    ANS[d.ans] = a;\n  });\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || solved(st)) return;\n    if (d.kind === 'typed') { ANS[d.ans].check(); return; }\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = st.pick === d.want ? 'right' : 'wrong';\n    if (st.res === 'right') playRun(i);\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    const d = STEPS[at()];\n    if (d.show || finished) return;\n    S[at()].why = !S[at()].why;\n  } });\n  const replayBtn = K.button({ label: 'Show me again', secondary: true, into: '#replay', press: () => {\n    const d = STEPS[at()];\n    if (finished || !d.show) return;\n    startDemo(at());\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && !solved(S[i]))) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true; anim.pause(); T = Infinity;\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S = STEPS.map(blank); finished = false; lastStep = -1;\n    Object.keys(ANS).forEach((k) => ANS[k].reset());\n    stepper.set(0, true);\n  } });\n\n  // ================= motion: one animation runs the demonstrations, the answers' motion, the AVR and the lights =================\n  function tween(dt) {\n    const a = 1 - Math.exp(-dt / 0.13);\n    LITS.forEach((k) => { const t = LIT[k] ? 1 : 0, e = t - D[k]; D[k] = Math.abs(e) < 2e-3 ? t : D[k] + e * a; });\n  }\n  const lightsSettled = () => LITS.every((k) => D[k] === (LIT[k] ? 1 : 0));\n  function snapD() { LITS.forEach((k) => { D[k] = LIT[k] ? 1 : 0; }); }\n  const needAnim = () => !finished && (T !== Infinity || !steady() || sim.hold > 0 || !lightsSettled());\n  const anim = K.anim({ button: false, label: 'Running', step: (dt) => {\n    if (finished) return false;\n    dt = Math.min(dt, 0.1);\n    const i = at(), d = STEPS[i];\n    if (T !== Infinity) {\n      const t0 = T;\n      T = Math.min(T + dt, motionEnd);\n      playScript(scripted ? d.demo : d.run, t0, T);\n      if (T >= motionEnd) { T = Infinity; scripted = false; }\n    }\n    advance(dt);\n    tween(dt);\n    push();\n    paint(i);\n    return needAnim();\n  } });\n  function kick() { if (!quiet() && needAnim() && !anim.playing()) anim.play(); }\n  function endDemo() { if (T !== Infinity) { T = Infinity; scripted = false; } }\n  // A screen's state: its opening, then (at once, when asked) its demonstration's end or its answer's motion.\n  function prep(i, solvedNow, showEnd) {\n    const d = STEPS[i];\n    Object.assign(X, BASE, d.enter || {});\n    if (X.avr) X.field = avrField(X.load);        // a running AVR has settled before the screen opens\n    LIT = Object.assign({}, d.lit || {});\n    sim.buf = new Array(NS).fill(out()); sim.acc = 0; sim.hold = 0;\n    if (d.show) { if (showEnd) { runSync(d.demo, d.dur); if (!noSettle) settleNow(); } }\n    else if (solvedNow && d.run) { runSync(d.run, d.rdur); if (!noSettle) settleNow(); }\n    snapD();\n  }\n  function startDemo(i) {\n    const d = STEPS[i];\n    anim.pause();\n    if (!quiet()) { prep(i, false, false); scripted = true; T = 0; motionEnd = d.dur; anim.play(); }\n    else { scripted = false; T = Infinity; prep(i, false, true); }\n    push();\n  }\n  function playRun(i) {\n    const d = STEPS[i];\n    anim.pause(); scripted = false; T = Infinity;\n    if (!d.run) return;\n    if (quiet()) { runSync(d.run, d.rdur); settleNow(); snapD(); push(); return; }\n    T = 0; motionEnd = d.rdur; anim.play();\n  }\n  function enterStep(i) {\n    anim.pause(); T = Infinity; scripted = false;\n    enter('stepbox');\n    if (STEPS[i].show) { startDemo(i); return; }\n    prep(i, solved(S[i]), false);\n    push();\n  }\n  // The finished picture a still shows (the read-through), with the controls where its words end.\n  function setStill() {\n    const i = at();\n    anim.pause(); T = Infinity; scripted = false;\n    prep(i, solved(S[i]), true);\n    push();\n    K.refresh();\n  }\n  function enter(id) {\n    if (REDUCE) return;\n    const box = el(id);\n    box.classList.remove('enter');\n    void box.offsetWidth;\n    box.classList.add('enter');\n  }\n\n  // ================= the set along its shaft =================\n  const scSvg = el('scene'), occSvg = el('occ'), trSvg = el('trc');\n  function adder(g) { return (tag, attrs, txt) => g.appendChild(txt == null ? K.svg(tag, attrs) : K.svg(tag, attrs, txt)); }\n  function drawSet() {\n    const g = el('setArt');\n    g.textContent = '';\n    const a = adder(g), fr = K.clamp(X.field / 200, 0, 1), vo = out(), pw = avrPower(X.supply, vo);\n    // The key: a field bar with its 100% tick; the lit path while anything is lit.\n    a('rect', { class: 'blk', x: 6, y: 5, width: 24, height: 11 });\n    a('rect', { class: 'bar', x: 6.6, y: 5.6, width: 11.4, height: 9.8 });\n    a('line', { class: 'tick', x1: 18, y1: 3, x2: 18, y2: 18 });\n    a('text', { class: 'lab', x: 36, y: 15 }, 'field current');\n    const litMax = Math.max.apply(null, LITS.map((k) => D[k]));\n    if (litMax > 0.01) {\n      const kg = a('g', { opacity: r2(litMax) });\n      kg.appendChild(K.svg('line', { class: 'lit', x1: 160, y1: 10.5, x2: 176, y2: 10.5 }));\n      kg.appendChild(K.svg('text', { class: 'lab', x: 182, y: 15 }, 'lit path'));\n    }\n    // The shaft, turning at a steady speed.\n    a('rect', { class: 'shaft', x: 6, y: 77, width: 328, height: 6 });\n    a('path', { class: 'rot', d: 'M298 66A8 14 0 1 1 298 94' });\n    a('path', { class: 'ink', d: 'M292 94L299 89.5L299 98.5Z' });\n    a('text', { class: 'lab', x: 334, y: 60, 'text-anchor': 'end' }, '1800' + NB + 'rev/min');\n    // The PMG: a magnet on the shaft inside its own small stator.\n    a('rect', { class: 'iron', x: 14, y: 58, width: 28, height: 9 });\n    a('rect', { class: 'iron', x: 14, y: 93, width: 28, height: 9 });\n    a('rect', { class: 'mag', x: 18, y: 71, width: 20, height: 18 });\n    a('text', { class: 'lab', x: 28, y: 51, 'text-anchor': 'middle' }, 'PMG');\n    // The exciter: its field fixed in the stator (with its bar), its coils turning on the shaft.\n    [54, 94].forEach((y) => {\n      a('rect', { class: 'blk', x: 54, y, width: 48, height: 12 });\n      if (fr > 0) a('rect', { class: 'bar', x: 54.6, y: y + 0.6, width: r1(46.8 * fr), height: 10.8 });\n      a('line', { class: 'tick', x1: 78, y1: y - 2, x2: 78, y2: y + 14 });\n    });\n    a('rect', { class: 'blk', x: 58, y: 70, width: 40, height: 20 });\n    for (let x = 63; x <= 93; x += 5) a('line', { class: 'wind', x1: x, y1: 72, x2: x, y2: 88 });\n    a('text', { class: 'lab', x: 78, y: 47, 'text-anchor': 'middle' }, 'Exciter');\n    // The diode bridge riding on the shaft, between the exciter's coils and the main field.\n    a('line', { class: 'lead', x1: 98, y1: 74, x2: 116, y2: 74 });\n    a('rect', { class: 'blk', x: 116, y: 70, width: 26, height: 20 });\n    a('path', { class: 'ink', d: 'M123 74V86L132 80Z' });\n    a('line', { class: 'lead', x1: 133, y1: 74, x2: 133, y2: 86 });\n    a('text', { class: 'lab', x: 129, y: 63, 'text-anchor': 'middle' }, 'Diodes');\n    a('line', { class: 'lead', x1: 142, y1: 74, x2: 160, y2: 74 });\n    // The main machine: the main field on the rotor (with its bar), the stator around it.\n    a('rect', { class: 'iron', x: 156, y: 40, width: 84, height: 18 });\n    a('rect', { class: 'iron', x: 156, y: 102, width: 84, height: 18 });\n    a('rect', { class: 'blk', x: 160, y: 64, width: 76, height: 32 });\n    if (fr > 0) a('rect', { class: 'bar', x: 160.6, y: 64.6, width: r1(74.8 * fr), height: 9.4 });\n    a('line', { class: 'tick', x1: 198, y1: 61, x2: 198, y2: 75 });\n    a('text', { class: 'lab', x: 198, y: 89, 'text-anchor': 'middle' }, 'Main field');\n    a('text', { class: 'lab', x: 198, y: 33, 'text-anchor': 'middle' }, 'Stator');\n    // The output: down from the stator to the board's terminals, and on to the load.\n    a('path', { class: 'lead', d: 'M226 120V136H268' });\n    a('rect', { class: 'blk', x: 268, y: 123, width: 64, height: 26, rx: 4 });\n    a('text', { class: X.sc ? 'warn' : 'lab', x: 300, y: 140.5, 'text-anchor': 'middle' }, X.sc ? 'Short' : 'Load');\n    // The AVR's leads: it senses the output, takes power from the output (Shunt) or the PMG, and feeds the exciter's field.\n    a('path', { class: 'lead', d: 'M226 136V160H92' });\n    a('text', { class: 'lab', x: 150, y: 154, 'text-anchor': 'middle' }, 'sense');\n    a('path', { class: 'lead', d: 'M246 136V184H92' });\n    a('text', { class: 'lab', x: 150, y: 176, 'text-anchor': 'middle' }, 'Shunt');\n    a('path', { class: 'lead', d: 'M28 102V140' });\n    a('path', { class: 'lead', d: 'M70 106V140' });\n    a('circle', { class: 'ink', cx: 226, cy: 136, r: 3 });\n    a('circle', { class: 'ink', cx: 246, cy: 136, r: 3 });\n    a('rect', { class: 'avr', x: 10, y: 140, width: 82, height: 54, rx: 6 });\n    a('text', { class: 'labb', x: 51, y: 159, 'text-anchor': 'middle' }, X.avr ? 'AVR on' : 'AVR off');\n    a('text', { class: 'lab', x: 17, y: 183 }, 'power');\n    a('rect', { class: 'track', x: 60, y: 174, width: 26, height: 9, rx: 2 });\n    if (pw > 0) a('rect', { class: 'pow', x: 60, y: 174, width: r1(26 * pw), height: 9, rx: 2 });\n    // The lit path, drawn over the parts it runs through.\n    const lit = (k, d) => { if (D[k] > 0.01) a('path', { class: 'lit', d, opacity: r2(D[k]) }); };\n    lit('feed', 'M70 140V106');\n    lit('exf', 'M54 54h48v12h-48zM54 94h48v12h-48z');\n    lit('exa', 'M58 70h40v20h-40z');\n    lit('dio', 'M98 74H116M116 70h26v20h-26z');\n    lit('main', 'M142 74H160M160 64h76v32h-76z');\n    lit('shunt', 'M246 136V184H92');\n    lit('pmg', 'M28 102V140');\n    REC.lit = Object.assign({}, D);\n    REC.pw = pw;\n    const rel = X.field > 100.5 ? 'past' : X.field < 99.5 ? 'short of' : 'at';\n    const litNames = { feed: 'the AVR\\'s lead to the exciter', exf: 'the exciter\\'s field', exa: 'the exciter\\'s turning coils', dio: 'the diodes', main: 'the main field', shunt: 'the shunt supply from the output', pmg: 'the supply from the PMG' };\n    const lits = LITS.filter((k) => D[k] > 0.5).map((k) => litNames[k]);\n    scSvg.setAttribute('aria-label', 'A brushless generator set drawn side-on along one shaft turning at 1800 rev/min: the PMG, the exciter with its fixed field and turning coils, the diodes on the shaft, and the main field inside the stator. The output runs to ' + (X.sc ? 'a short circuit, which pulls it to 0 V' : 'the load') + '. The AVR is ' +\n      (X.avr ? 'on' : 'off') + '. It senses the output, takes its power ' + (X.supply === 'pmg' ? 'from the PMG' : 'from the output, by the shunt lead') + ', and feeds the exciter\\'s fixed field. The exciter\\'s field bars and the main field\\'s bar stand ' + rel + ' their 100% ticks.' +\n      (lits.length ? ' Lit: ' + lits.join(', ') + '.' : ''));\n  }\n\n  // ================= the open-circuit curve and the trace: the same voltage scale =================\n  const PX0 = 50, PX1 = 326, PY0 = 182, PYT = 26, KY = (PY0 - PYT) / 600;\n  const xF = (f) => PX0 + f / 200 * (PX1 - PX0);\n  const yV = (v) => PY0 - v * KY;\n  function axes(a) {\n    a('line', { class: 'ax', x1: PX0, y1: PY0, x2: PX1, y2: PY0 });\n    a('line', { class: 'ax', x1: PX0, y1: PY0, x2: PX0, y2: PYT - 4 });\n    [[0, '0'], [200, '200'], [440, '440'], [600, '600' + NB + 'V']].forEach((q) => {\n      const y = r1(yV(q[0]));\n      a('line', { class: 'ax', x1: PX0 - 4, y1: y, x2: PX0, y2: y });\n      a('text', { class: 'lab', x: PX0 - 7, y: r1(y + 4.5), 'text-anchor': 'end' }, q[1]);\n    });\n  }\n  function drawCurve(i) {\n    const g = el('occArt');\n    g.textContent = '';\n    const a = adder(g), y440 = r1(yV(SET));\n    a('circle', { class: 'pdot', cx: 56, cy: 9, r: 4.5 });\n    a('text', { class: 'lab', x: 65, y: 13.5 }, 'made inside');\n    a('circle', { class: 'ring', cx: 168, cy: 9, r: 4.5 });\n    a('text', { class: 'lab', x: 177, y: 13.5 }, 'at the board');\n    axes(a);\n    [0, 50, 100, 150, 200].forEach((f) => { const x = r1(xF(f)); a('line', { class: 'ax', x1: x, y1: PY0, x2: x, y2: PY0 + 5 }); });\n    a('text', { class: 'lab', x: PX0, y: 198, 'text-anchor': 'middle' }, '0');\n    a('text', { class: 'lab', x: r1(xF(100)), y: 198, 'text-anchor': 'middle' }, '100%');\n    a('text', { class: 'lab', x: 332, y: 198, 'text-anchor': 'end' }, '200%');\n    a('text', { class: 'lab', x: r1(xF(100)), y: 215, 'text-anchor': 'middle' }, 'field current');\n    const ref = a('line', { class: 'ref', x1: PX0, y1: y440, x2: PX1, y2: y440 });\n    a('text', { class: 'mut', x: PX0 + 6, y: r1(y440 - 6) }, 'set point');\n    const curve = a('polyline', { class: 'occ', points: OCC.map((p) => r1(xF(p[0])) + ',' + r1(yV(p[1]))).join(' ') });\n    // The dot at the present field; the drop the load causes, down to the voltage at the board.\n    const vi = occ(X.field), vo = out(), dv = X.sc ? 0 : vi - vo, x = r1(xF(X.field)), y1 = r1(yV(vi)), y2 = r1(yV(vo));\n    let dropLine = null;\n    if (dv > 0.5) {\n      dropLine = a('line', { class: 'drop', x1: x, y1, x2: x, y2 });\n      a('circle', { class: 'ring', cx: x, cy: y2, r: 4.5 });\n    }\n    const dot = a('circle', { class: 'pdot', cx: x, cy: y1, r: 5 });\n    const items = [];\n    REC.val = hideVal(i) ? null : Math.round(vi) + NB + 'V';\n    REC.drop = dv > 0.5 ? 'drop ' + Math.round(dv) + NB + 'V' : null;\n    if (REC.val) items.push({ x: r1(x - 9), y: r1(y1 - 8), text: REC.val, anchor: 'end', class: 'lab' });\n    if (REC.drop) items.push({ x, y: r1(y2 + 20), text: REC.drop, class: 'lab' });\n    const lg = a('g', {});\n    const texts = K.labels(lg, items, { avoid: [curve, ref, dropLine, dot].filter(Boolean) });\n    if (REC.drop && texts.length) texts[texts.length - 1].setAttribute('opacity', r2(K.clamp((dv - 2) / 8, 0, 1)));\n    occSvg.setAttribute('aria-label', 'The open-circuit curve: the voltage the set makes inside, 0 to 600 V, against the field current, 0 to 200%. It climbs steeply, then bends over at a knee. A dot marks the present field current on the curve' +\n      (dv > 0.5 ? ', and a ring below it marks the voltage at the board. The line between them is the drop the load causes inside the machine.' : (X.sc ? '. A short circuit on the board pulls the voltage there to 0 V.' : '. With nothing connected, the board gets all of it.')) + ' A dashed line marks the 440 V set point.');\n  }\n  function drawTrace() {\n    const g = el('trArt');\n    g.textContent = '';\n    const a = adder(g), y440 = r1(yV(SET));\n    a('line', { class: 'tr', x1: 50, y1: 9, x2: 68, y2: 9 });\n    a('text', { class: 'lab', x: 73, y: 13.5 }, 'voltage at the board');\n    a('line', { class: 'ref', x1: 224, y1: 9, x2: 242, y2: 9 });\n    a('text', { class: 'lab', x: 247, y: 13.5 }, 'set point');\n    axes(a);\n    a('line', { class: 'ref', x1: PX0, y1: y440, x2: PX1, y2: y440 });\n    a('text', { class: 'lab', x: PX1, y: 198, 'text-anchor': 'end' }, 'time →');\n    const pts = sim.buf.map((v, k) => r1(PX0 + k * (PX1 - PX0) / (NS - 1)) + ',' + r1(yV(v))).join(' ');\n    a('polyline', { class: 'tr', points: pts });\n    const last = sim.buf[NS - 1];\n    a('circle', { class: 'pdot', cx: PX1, cy: r1(yV(last)), r: 3.5 });\n    const mn = Math.min.apply(null, sim.buf), mx = Math.max.apply(null, sim.buf);\n    Object.assign(REC, { min: mn, max: mx, last });\n    const where = Math.abs(last - SET) < 0.5 ? 'on the set point' : last < SET ? 'below the set point' : 'above the set point';\n    trSvg.setAttribute('aria-label', 'A trace of the voltage at the board against time, newest at the right, with the 440 V set point dashed. It ends ' + where +\n      (mx - mn > 1 ? ', after a change a few seconds ago.' : ', running flat.'));\n  }\n\n  // ================= one paint =================\n  function readouts(i) {\n    const h = hiddenSet(i), tx = {\n      L: h.L ? '?' : String(Math.round(X.load)),\n      F: h.F ? '?' : String(Math.round(X.field)),\n      V: h.V ? '?' : String(Math.round(out())) };\n    Object.keys(RO).forEach((k) => RO[k].set(tx[k]));\n    Object.assign(REC.t, tx);\n  }\n  function paint(i) {\n    if (i == null) i = at();\n    REC = { t: {}, field: X.field, load: X.load, avr: X.avr, supply: X.supply, steady: steady() };\n    drawSet();\n    drawCurve(i);\n    drawTrace();\n    readouts(i);\n  }\n\n  // ================= the page around the picture =================\n  write(el('finish'), FINISH);\n  const setLab = (b, s) => { if (b.el.textContent !== s) b.setLabel(s); };\n  function layout(i) {\n    const d = STEPS[i], st = S[i], sol = solved(st);\n    el('stepbox').hidden = finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Screen ' + (i + 1) + ' of ' + STEPS.length;\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    write(task, d.show ? d.text : d.task);\n    CIDS.forEach((id) => { el('c-' + id).hidden = !shownCtl(d, id); });\n    el('sws').hidden = el('c-avr').hidden && el('c-supply').hidden;\n    replayBtn.el.hidden = !d.show || finished || (REDUCE && d.mode !== 'follow');\n    setLab(replayBtn, d.mode === 'follow' ? 'Follow' : 'Show me again');\n    el('replay').hidden = replayBtn.el.hidden;\n    const opts = d.kind === 'pick' ? d.opts : [];\n    el('picks').hidden = !opts.length;\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      setLab(b, opts[k]);\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n    el('answers').hidden = d.kind !== 'typed';\n    Object.keys(ANS).forEach((key) => { el('ans-' + key).hidden = d.ans !== key; });\n    el('acts').hidden = !!d.show;\n    checkBtn.el.hidden = sol;\n    const fb = el('fb');\n    fb.hidden = !!d.show;\n    fb.className = 'fb' + (st.res === 'right' ? ' right' : '');\n    let say = '';\n    if (!d.show) {\n      if (st.res === 'right') say = 'That\\'s it.';\n      else if (st.res === 'shown') say = 'Here is the working.';\n      else if (st.res === 'wrong') say = d.kind === 'typed' ? st.hint : (d.hints && d.hints[st.pick]) || d.hint || '';\n      else if (st.res === 'empty' && d.kind === 'pick') say = 'Pick one of the answers first.';\n    }\n    write(fb, say);\n    const why = el('why');\n    why.hidden = d.show || !st.why;\n    write(why, d.show ? '' : d.why);\n    setLab(whyBtn, st.why ? 'Hide why' : 'Why?');\n    const cl = el('closing');\n    cl.hidden = !(d.close && sol);\n    write(cl, d.close || '');\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !sol);\n    setLab(nextBtn, i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  }\n\n  K.update((p) => {\n    const i = at(), d = STEPS[i];\n    if (i !== lastStep) { lastStep = i; enterStep(i); }\n    else {\n      let moved = false;\n      CIDS.forEach((id) => {\n        if (p[id] === pushed[id]) return;\n        if (shownCtl(d, id)) {\n          endDemo();\n          X[id] = p[id]; pushed[id] = p[id]; moved = true;\n          if (id === 'supply') { LIT.shunt = p[id] === 'shunt' ? 1 : 0; LIT.pmg = p[id] === 'pmg' ? 1 : 0; }\n        } else CTL[id].set(pushed[id], true);      // a control this screen does not use stays put\n      });\n      if (moved) { sample(); sim.hold = HOLD; if (quiet()) settleNow(); }\n      push();\n    }\n    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }\n    if (quiet()) snapD();\n    layout(i);\n    paint(i);\n    kick();\n  });\n\n  // ================= known answers, worked out by hand =================\n  const solvedSt = (i) => Object.assign(blank(), STEPS[i].kind === 'pick' ? { pick: STEPS[i].want, res: 'right' } : { res: 'right' });\n  // A screen in the state given (finished), with an optional change after: what it drew.\n  function drawn(i, st, more) {\n    const keep = { X: Object.assign({}, X), LIT: Object.assign({}, LIT), D: Object.assign({}, D), buf: sim.buf.slice(), acc: sim.acc, hold: sim.hold, S: S[i], T, sc: scripted };\n    S[i] = st || blank(); T = Infinity; scripted = false;\n    try {\n      prep(i, solved(S[i]), true);\n      if (more) more();\n      snapD();\n      paint(i);\n      return REC;\n    } finally {\n      Object.assign(X, keep.X); LIT = keep.LIT; Object.assign(D, keep.D); sim.buf = keep.buf; sim.acc = keep.acc; sim.hold = keep.hold;\n      S[i] = keep.S; T = keep.T; scripted = keep.sc;\n      paint();\n    }\n  }\n  const iCurve = idx('The open-circuit curve'), iDbl = idx('Double the field'), iExc = idx('The exciter'), iFeed = idx('What the AVR feeds');\n  const iLoad = idx('A load pulls it down'), iHeld = idx('Field held, more load'), iBack = idx('The AVR brings it back'), iFull = idx('Full load');\n  const iSup = idx('Where the AVR gets power'), iSc = idx('Through a short circuit'), iTrip = idx('The load trips'), iLight = idx('A light load');\n\n  K.check('The curve marks 440 V at 100% and 555 V at 200%: doubling the field lifts the voltage only 555 ÷ 440 = 1.26 times', () => {\n    const a = drawn(iCurve), b0 = drawn(iDbl), b = drawn(iDbl, solvedSt(iDbl));\n    return occ(100) === 440 && occ(200) === 555 && r2(555 / 440) === 1.26 && a.t.L === '0' && a.t.F === '200' && a.t.V === '555' &&\n      b0.t.V === '?' && b0.val === null && b.t.V === '555' && b.t.F === '200' && b.val === '555' + NB + 'V';\n  });\n  K.check('Past the knee each step of field buys less: the first 25% of field makes 125 V, the last 25% only 15 V', () => {\n    const s = OCC.slice(1).map((p, k) => (p[1] - OCC[k][1]) / (p[0] - OCC[k][0]));\n    return occ(25) - occ(0) === 125 && occ(200) - occ(175) === 15 && s.every((v, k) => k === 0 || v <= s[k - 1]) && occ(0) === 0;\n  });\n  K.check('With the AVR off and the field held at 100%, a 50% load leaves 390 V at the board and an 80% load 360 V, and the voltage stays there', () => {\n    const a = drawn(iLoad), b0 = drawn(iHeld), b = drawn(iHeld, solvedSt(iHeld));\n    return a.t.V === '390' && a.t.F === '100' && a.t.L === '50' && Math.abs(a.last - 390) < 1e-9 && Math.abs(a.min - 390) < 1e-9 && a.drop === 'drop 50' + NB + 'V' &&\n      b0.t.V === '?' && b.t.V === '360' && b.t.L === '80' && b.drop === 'drop 80' + NB + 'V' && Math.abs(b.last - 360) < 1e-9;\n  });\n  K.check('With the AVR on, the field settles where the curve gives 440 V plus the drop: 125% at 50% load, 175% at full load, 110% at 20%, with 440 V at the board', () => {\n    const a = drawn(iBack), b0 = drawn(iFull), b = drawn(iFull, solvedSt(iFull)), c0 = drawn(iLight), c = drawn(iLight, solvedSt(iLight));\n    return a.t.F === '125' && a.t.V === '440' && a.t.L === '50' && b0.t.F === '?' && b.t.F === '175' && b.t.V === '440' && b.t.L === '100' &&\n      c0.t.F === '?' && c.t.F === '110' && c.t.V === '440' && c.t.L === '20' && avrField(50) === 125 && avrField(100) === 175 && Math.abs(avrField(20) - 110) < 1e-9;\n  });\n  K.check('Under the AVR, a 50% load first dips the voltage below 440 V, not as far as 390 V, and then the AVR brings it back to 440 V', () => {\n    const a = drawn(iBack);\n    return a.avr === true && a.min < 430 && a.min > 390 && Math.abs(a.last - SET) < 1e-9 && a.drop === 'drop 50' + NB + 'V' && a.val === '490' + NB + 'V';\n  });\n  K.check('When the load trips off, the voltage jumps to 490 V at once; the AVR then brings it back to 440 V with the field at 100%', () => {\n    const a0 = drawn(iTrip), a = drawn(iTrip, solvedSt(iTrip));\n    return a0.t.V === '?' && a0.val === null && Math.abs(a.max - 490) < 1e-9 && Math.abs(a.last - SET) < 1e-9 && a.t.F === '100' && a.t.L === '0' && a.t.V === '440';\n  });\n  K.check('The AVR controls the alternator output voltage by automatic adjustment of the exciter stator field strength', () => {\n    const loads = K.linspace(0, 100, 11);\n    const ok = loads.every((ld) => Math.abs(outOf(avrField(ld), ld) - SET) < 1e-9) && loads.every((ld, k) => k === 0 || avrField(ld) > avrField(loads[k - 1]));\n    const a = drawn(iFeed, solvedSt(iFeed));\n    return ok && a.lit.feed === 1 && a.lit.main === 0 && STEPS[iFeed].want === STEPS[iFeed].opts[0];\n  }, { source: SRC_MAN });\n  K.check('Self-excited alternators will not maintain a short-circuit current: with the output near 0, a shunt-fed AVR has no power, while a PMG keeps it supplied', () => {\n    const a = drawn(iSc, solvedSt(iSc)), a0 = drawn(iSc);\n    return avrPower('shunt', 0) === 0 && avrPower('pmg', 0) === 1 && a0.pw === 1 && a0.t.V === '440' && a.pw === 1 && a.last === 0 && a.t.V === '0' && a.supply === 'pmg' && a.lit.pmg === 1 && a.lit.shunt === 0 && STEPS[iSc].want === STEPS[iSc].opts[1];\n  }, { source: SRC_AGN });\n  K.check('Follow lights the path from the AVR through the exciter and the diodes into the main field; the supply screen lights the shunt lead', () => {\n    const a = drawn(iExc), s = drawn(iSup);\n    return ['feed', 'exf', 'exa', 'dio', 'main'].every((k) => a.lit[k] === 1) && a.lit.shunt === 0 && s.lit.shunt === 1 && s.lit.pmg === 0 && s.supply === 'shunt' && s.pw === 1;\n  });\n  K.check('Each typed answer and slip is worked from the rule: 1.26 times (2, 0.79), 360 V (440, 520), 175% (150, 200, 125), 490 V (440, 390) and 110% (120, 100)', () => {\n    const sl = (i, v) => STEPS[i].slips.length === v.length && STEPS[i].slips.every((s, k) => Math.abs(s.value - v[k]) < 1e-12);\n    const work = r2(occ(200) / occ(100)) === 1.26 && r2(occ(100) / occ(200)) === 0.79 && 200 / 100 === 2 &&\n      outOf(100, 80) === 360 && occ(100) + dropOf(80) === 520 && outOf(100, 0) === 440 &&\n      avrField(100) === 175 && avrField(50) + 2 * (avrField(50) - 100) === 175 && 100 + 2 * (avrField(50) - 100) === 150 && 100 + dropOf(100) === 200 &&\n      outOf(125, 0) === 490 && outOf(125, 50) === 440 && outOf(100, 50) === 390 &&\n      Math.abs(avrField(20) - 110) < 1e-9 && 100 + dropOf(20) === 120 && Math.abs((490 - 440) / 25 - 2) < 1e-12;\n    return work && STEPS[iDbl].answer === 1.26 && STEPS[iHeld].answer === 360 && STEPS[iFull].answer === 175 && STEPS[iTrip].answer === 490 && STEPS[iLight].answer === 110 &&\n      sl(iDbl, [2, 0.79]) && sl(iHeld, [440, 520]) && sl(iFull, [150, 200, 125]) && sl(iTrip, [440, 390]) && sl(iLight, [120, 100]);\n  });\n  K.check('Every demonstration ends 3 to 4.5 s after its screen opens, and the AVR has settled within each one and within each answer\\'s motion', () => {\n    noSettle = true;\n    try {\n      const timing = STEPS.every((d) => (d.show ? d.dur >= 3 && d.dur <= 4.5 : !d.run || d.rdur <= 4));\n      const runs = [iDbl, iFeed, iHeld, iFull, iSc, iTrip, iLight].every((i) => drawn(i, solvedSt(i)).steady);\n      const demos = [iCurve, iExc, iLoad, iBack, iSup].every((i) => drawn(i).steady);\n      return timing && runs && demos;\n    } finally { noSettle = false; }\n  });\n  K.ready();\n</script>",
+  "title": "The AVR loop",
+  "brief": "The one thing you should see is the voltage sagging under load and staying down with the AVR off, but coming back as the AVR raises the field up the open-circuit curve, when you drag the load up.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "The curve marks 440 V at 100% and 555 V at 200%: doubling the field lifts the voltage only 555 ÷ 440 = 1.26 times",
+     "ok": true
+    },
+    {
+     "label": "Past the knee each step of field buys less: the first 25% of field makes 125 V, the last 25% only 15 V",
+     "ok": true
+    },
+    {
+     "label": "With the AVR off and the field held at 100%, a 50% load leaves 390 V at the board and an 80% load 360 V, and the voltage stays there",
+     "ok": true
+    },
+    {
+     "label": "With the AVR on, the field settles where the curve gives 440 V plus the drop: 125% at 50% load, 175% at full load, 110% at 20%, with 440 V at the board",
+     "ok": true
+    },
+    {
+     "label": "Under the AVR, a 50% load first dips the voltage below 440 V, not as far as 390 V, and then the AVR brings it back to 440 V",
+     "ok": true
+    },
+    {
+     "label": "When the load trips off, the voltage jumps to 490 V at once; the AVR then brings it back to 440 V with the field at 100%",
+     "ok": true
+    },
+    {
+     "label": "The AVR controls the alternator output voltage by automatic adjustment of the exciter stator field strength",
+     "ok": true,
+     "source": "https://www.stamford-avk.com/sites/stamfordavk/files/2026-05/S9-HV-Alternators-Installation-Service-and-Maintenance-Manual-English.pdf"
+    },
+    {
+     "label": "Self-excited alternators will not maintain a short-circuit current: with the output near 0, a shunt-fed AVR has no power, while a PMG keeps it supplied",
+     "ok": true,
+     "source": "https://www.stamford-avk.com/sites/stamfordavk/files/AGN124_C.pdf"
+    },
+    {
+     "label": "Follow lights the path from the AVR through the exciter and the diodes into the main field; the supply screen lights the shunt lead",
+     "ok": true
+    },
+    {
+     "label": "Each typed answer and slip is worked from the rule: 1.26 times (2, 0.79), 360 V (440, 520), 175% (150, 200, 125), 490 V (440, 390) and 110% (120, 100)",
+     "ok": true
+    },
+    {
+     "label": "Every demonstration ends 3 to 4.5 s after its screen opens, and the AVR has settled within each one and within each answer's motion",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step",
+    "field",
+    "load",
+    "avr",
+    "supply"
+   ],
+   "readouts": [
+    "r-load",
+    "r-field",
+    "r-volt"
+   ],
+   "outputs": [],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Screen",
+     "min": 0,
+     "max": 11,
+     "step": 1,
+     "steps": [
+      "The open-circuit curve",
+      "Double the field",
+      "The exciter",
+      "What the AVR feeds",
+      "A load pulls it down",
+      "Field held, more load",
+      "The AVR brings it back",
+      "Full load",
+      "Where the AVR gets power",
+      "Through a short circuit",
+      "The load trips",
+      "A light load"
+     ],
+     "value": 0
+    },
+    {
+     "id": "field",
+     "kind": "control",
+     "label": "Field current",
+     "min": 0,
+     "max": 200,
+     "step": 5,
+     "log": false,
+     "value": 100,
+     "shown": true,
+     "snap": [
+      100,
+      200
+     ]
+    },
+    {
+     "id": "load",
+     "kind": "control",
+     "label": "Load",
+     "min": 0,
+     "max": 100,
+     "step": 10,
+     "log": false,
+     "value": 0,
+     "shown": false,
+     "snap": [
+      50,
+      80,
+      100
+     ]
+    },
+    {
+     "id": "avr",
+     "kind": "toggle",
+     "label": "AVR",
+     "options": [
+      false,
+      true
+     ],
+     "value": false,
+     "shown": false
+    },
+    {
+     "id": "supply",
+     "kind": "choice",
+     "label": "AVR supply",
+     "options": [
+      "shunt",
+      "pmg"
+     ],
+     "labels": [
+      "Shunt",
+      "PMG"
+     ],
+     "value": "shunt",
+     "index": 0,
+     "shown": false
+    }
+   ],
+   "actions": [
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Check",
+    "Why?",
+    "Show me again",
+    "Back",
+    "Continue",
+    "Start again",
+    "Running"
+   ],
+   "answers": [
+    {
+     "id": "a-dbl",
+     "answer": 1.26,
+     "accept": [],
+     "ok": true
+    },
+    {
+     "id": "a-held",
+     "answer": 360,
+     "accept": [],
+     "ok": true
+    },
+    {
+     "id": "a-full",
+     "answer": 175,
+     "accept": [],
+     "ok": true
+    },
+    {
+     "id": "a-trip",
+     "answer": 490,
+     "accept": [],
+     "ok": true
+    },
+    {
+     "id": "a-light",
+     "answer": 110,
+     "accept": [],
+     "ok": true
+    }
+   ],
+   "written": [],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 2
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-31T15:18:59.368Z",
+  "applied": [
+   {
+    "path": "explain.text",
+    "problem": "Three lines are wider than true: the opening says field current sets a set's voltage, but in parallel (i6) the board holds it; and the AVR feeding only the exciter and the bold summary hold for brushless sets, not static-excited ones whose AVR feeds the main field through slip rings."
+   },
+   {
+    "path": "practice.text",
+    "problem": "The safety line misses the PMG, the part that makes full voltage whenever the shaft turns even with the AVR off; and 'the field should rise' and 'the voltage falls on load' are more general than the explanation, which limits them to an ordinary load (a leading load can raise it)."
+   },
+   {
+    "path": "interactive.whatAmILookingAt",
+    "problem": "'Its current cannot jump' and 'the field current cannot change in an instant' are not true of a real machine, whose field flux, not current, is what holds at a load step; and the dip reaches 390 V only if the load gets to 50% before the slowed AVR acts."
+   },
+   {
+    "path": "interactive.ignores",
+    "problem": "It does not say the model's instant jump by the whole drop is a simplification: a real set's first step on a load change is smaller, set by its transient behaviour, and the rest follows as the field settles; screens 7 and 11 rely on the full jump."
+   }
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}

@@ -1,0 +1,601 @@
+{
+  "iid": "i5",
+  "title": "Synchronising: closing onto a live board",
+  "format": "steps",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the breaker shutting 50 ms after Close, wherever the pointer has got to, with the surge bar red far from 12, when you press Close as the pointer turns.",
+    "title": "The synchroscope bench",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Screen",
+        "min": 0,
+        "max": 13,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "Fourteen small screens on one picture, with Back and Continue: six show an idea, eight ask you to try it. No marks, no timers.\n\nThe picture. At the top, the live board: three busbars at 440 V, 60 Hz, fixed here. Beside it, the incoming set behind its open breaker, poles A, B and C. A lamp sits across each pole. Below, the synchroscope: a dial with the in-phase mark at 12 o'clock, FAST clockwise and SLOW anticlockwise. Beside it, a still of two cycles: the board's phase A wave solid, the set's dashed, and the voltage across pole A as a thinner third wave. Last, two bars, each 0 to 9 per unit on the set's own rating: Surge and Shaft torque. A dashed line on the Surge bar at 6.7 is labelled \"Three-phase fault at the set\". The controls: a Speed trim slider, 59.00 to 61.00 Hz in steps of 0.05, opening at 60.20 Hz; a Voltage trim slider, 400 to 480 V in steps of 5, opening at 440 V; a Swap B and C switch, off; a Relay switch, off; a Close button; and a Reset button that opens the breaker again.\n\nThe readouts, in four tiles that wrap onto two rows on a phone: Angle in °, Slip in Hz, Across pole A in V and Incoming in V. The buttons wrap too, so no word splits.\n\nThe rule it computes. Each board phase is 440 ÷ √3 = 254 V, each incoming phase the voltage trim ÷ √3. The slip is the speed trim − 60 Hz. The angle, how far the set's phase A runs ahead of the board's, grows by 360 × the slip degrees a second, shown from −180° to 180°. The pointer stands at it, 12 o'clock being 0°. Each pole sees the difference of its two phases: √(Vb² + Vi² − 2 Vb Vi cos φ), where Vb and Vi are the two phase voltages and φ the angle between them. With the swap on, φ becomes the angle − 120° on pole B and the angle + 120° on pole C. With equal voltages the rule becomes 2 sin(φ ÷ 2) × 254 V. Each lamp's glow is its voltage ÷ 508 V. The breaker shuts 50 ms after Close, at whatever angle it has reached, and the dial marks both places. When it shuts, the surge is the largest pole voltage ÷ 254 V ÷ 0.25. That 0.25 per unit is the set's reactance, 0.15, plus the board's, 0.10, both example values. The fault line is 1 ÷ 0.15 = 6.7. The torque is (Vi ÷ 254 V) × sin(the angle) ÷ 0.25, taking 90° for any angle past it, since the rotor swings back through 90°, where the pull is greatest. With the swap on, the torque bar shows \"Wrong sequence\" instead. The bars turn red for a close outside the window: the angle beyond 10° either side of 12, the slip over 0.2 Hz, the voltage more than 2% off, 8.8 V, or the swap on. These are example settings. After any close the pointer stops at 12 and the lamps go dark. With the Relay on, Close only asks. Outside the window on voltage, slip or sequence, the relay refuses and names why. Inside it, the relay sends the close when the pointer is 360 × slip × 0.05 degrees short of 12, so the breaker shuts at 12.\n\nScreen 1, try it, a recall. No picture. \"Two transformers sit 30° apart across an open paralleling switch. What fraction of the phase voltage appears across it?\" A field with no unit. Answer 0.52. Slips: 0.5, \"That is sin 30°. Halve the angle first.\"; 0.26, \"That is sin 15°. Double it.\"; 1, \"That doubles sin 30°. Halve the angle first.\" Hint when wrong: \"The gap is 2 sin(θ ÷ 2) of the phase voltage.\" Why: \"2 × sin 15° = 2 × 0.259 = 0.52 of the phase voltage.\" A right Check says \"Still there.\" Read: the question.\n\nScreen 2, show. 60.00 Hz, the angle held at 40°, 440 V, every control hidden. The words: \"A second set runs beside a live board, its breaker open. Before it closes, four things must match the board: voltage, frequency, phase sequence and phase angle.[^1] Each pole has a board phase on one side and the set's same phase on the other. On a 440 V board each phase is 254 V. The thin wave is the difference, the voltage across the pole. The set's wave runs 40° ahead, so the pole sees 2 sin 20° × 254 = 174 V.\" Read: the words, \"The thin wave\" read as \"What the pole sees\". Still: the lamps glowing, readouts 40°, 0.00 Hz, 174 V, 440 V.\n\nScreen 3, try it, typed. As screen 2, the angle at 60°, the Across pole A tile reading ? until Check. \"The set's wave runs 60° ahead of the board's. Each phase is 254 V. What voltage appears across each pole?\" A field in V. Answer 254 V. Slips: 440, \"That uses the full 60°. Halve it first.\"; 127, \"That is 254 × sin 30°. Double it.\"; 220, \"That is 254 × sin 60°. Halve the angle first.\" Hint when wrong: \"Use 2 sin(θ ÷ 2) × 254 V.\" Why: \"2 × sin 30° × 254 = 2 × 0.5 × 254 = 254 V, a whole phase voltage.\" A right Check shows 254 V in the tile. Read: the question.\n\nScreen 4, show. The speed trim free at 60.20 Hz. The words: \"Now the set runs 0.2 Hz faster than the board. Its waves gain one whole cycle every 1 ÷ 0.2 = 5 s. So the angle creeps round, and the gap swells and shrinks every 5 s. The three lamps glow and go dark together. That frequency difference is the [[slip]]. The dial is a [[synchroscope]]. Its pointer turns once per slip cycle, clockwise when the set runs fast. It stands at 12 when the angle is zero. Drag the speed trim and watch the pointer.\" Read: the words without the last sentence. Still: the angle at 60° FAST, the lamps half lit, readouts 60°, 0.20 Hz, 254 V, 440 V.\n\nScreen 5, try it, typed. 60.25 Hz, the Slip tile reading ? until Check. \"The set runs at 60.25 Hz on a 60 Hz board. How long does the pointer take to go once round?\" A field in s. Answer 4 s. Slips: 0.25, \"That is the slip. One turn takes 1 ÷ the slip.\"; 240, \"That is 60 ÷ the slip. Use 1 ÷ the slip.\" Hint when wrong: \"Find the slip first.\" Why: \"The slip is 60.25 − 60 = 0.25 Hz. The set gains a quarter of a cycle each second, so a whole cycle takes 1 ÷ 0.25 = 4 s.\" A right Check times one turn of the pointer, 4 s. Read: the question.\n\nScreen 6, show. 60.20 Hz, Close and Reset free. The words: \"Press Close as the pointer nears 90°, a quarter turn. The breaker shuts and both bars jump into red. Shut at 90°, each pole sees 359 V. That gap drives a surge limited only by the reactances of the set and the board, 5.7 per unit here. It also yanks the rotor into step, 4.0 per unit of torque through the shaft and coupling. Shut at 180° and the surge reaches 8.0, more than a three-phase fault at the set.[^3]\" Read: the first two sentences read as \"Suppose the breaker shuts a quarter turn out.\" Still: the breaker shut at 90°, Surge at 5.7 and Torque at 4.0, both red.\n\nScreen 7, try it. 60.05 Hz, the pointer near 180°, 440 V. \"Both voltmeters read 440 V. The pointer is at the bottom of the dial, 180°, turning slowly. Can you close?\" Three choices, in this order: \"Yes, the voltages match\"; \"No, each pole sees about twice the phase voltage\"; \"Yes, the slip is small\". Right, the second. Hint for the first: \"Voltage is one of four things. The waves are half a cycle apart.\"; for the third: \"A small slip lets you time the close, but the angle is wrong now.\" Why: \"At 180° the waves are opposite. Each pole sees 2 × sin 90° × 254 = 508 V, the biggest surge of all. Wait for the pointer to come round to 12.\" A right Check plays the pointer round to 12, the lamps going dark. Read: the question.\n\nScreen 8, show. 60.20 Hz, Close free. The words: \"A breaker takes a set time to shut after the command. Say 50 ms. At 0.2 Hz slip the pointer turns 360 × 0.2 = 72° a second. In 50 ms it moves 72 × 0.05 = 3.6°. So press Close at 12 and the breaker shuts 3.6° past it. Instead, send the close early, at the [[advance angle]], 3.6° before 12.[^2] The dial marks where you pressed and where the breaker shut.\" Read: the words without the last sentence. Still: a mark at 12 where Close was pressed, one at 3.6° FAST where it shut, both bars small.\n\nScreen 9, try it, typed. 60.50 Hz. \"The set runs 0.5 Hz fast and the breaker takes 50 ms. You press Close just as the pointer passes 12. How many degrees past 12 does the breaker shut?\" A field in °. Answer 9°. Slips: 0, \"The breaker takes 50 ms, and the pointer keeps turning.\"; 18, \"That is for 1 Hz of slip. Multiply by 0.5 Hz too.\"; 0.025, \"That is in turns. Multiply by 360 for degrees.\"; 9000, \"Turn 50 ms into seconds, 0.05 s.\" Hint when wrong: \"Degrees a second = 360 × the slip. Multiply by the closing time in seconds.\" Why: \"360 × 0.5 = 180° a second. 180 × 0.05 = 9°. Pressing at 12 lands 9° late, so the close should go 9° early.\" A right Check plays it, marking 12 and 9° FAST. Read: the question.\n\nScreen 10, show. 60.10 Hz, the swap on and free. The words: \"Swap two of the set's phases, B and C. The lamps no longer dim together. One goes dark while the other two blaze, and the dark lamp runs round the three in turn. When lamp A is dark, lamps B and C each see 440 V. The pointer turns exactly as before. It compares phase A on each side only, so it cannot see the order of the other two. Phase sequence is fixed by the wiring: the phase rotation you already test.\" Read: the first sentence read as \"Suppose two of the set's phases, B and C, are swapped.\" Still: the angle at 0°, lamp A dark, lamps B and C full.\n\nScreen 11, try it. 60.05 Hz, the swap on, hidden. \"The pointer turns slowly through 12. Lamp A is dark, but lamps B and C are bright. Can you close?\" Three choices, in this order: \"Yes, the pointer is at 12 and turning slowly\"; \"No, the phase sequence is wrong\"; \"No, wait until all three lamps are bright\". Right, the second. Hint for the first: \"The pointer compares phase A only. Look at the other two lamps.\"; for the third: \"A bright lamp means a big gap. You want all three dark together.\" Why: \"With the sequence right, all three lamps go dark together. Here B and C blaze at 440 V while A is dark, so B and C are crossed. Put the wiring right first.\" A right Check closes anyway: Surge reaches 6.9, past the fault line, and the torque bar reads \"Wrong sequence\". Read: the question.\n\nScreen 12, show. The relay on, 60.50 Hz, 440 V; the speed trim, Relay and Close free. The words: \"Turn the relay on. Now Close only asks. The relay closes only inside its window, here 10°, 0.2 Hz and 2% of voltage, example settings. At 0.5 Hz slip it refuses and says why. Trim the speed to 60.10 Hz and ask again. It waits for the advance angle, 1.8°, sends the close, and the breaker shuts at 12. An automatic synchroniser goes further. It trims the governor and the AVR by moving their set points.[^10]\" Read: \"Turn the relay on. Now Close only asks.\" read as \"With a relay in charge, Close only asks.\" and \"Trim the speed to 60.10 Hz and ask again.\" as \"At 60.10 Hz it agrees.\" Still: the relay on, 60.10 Hz, the breaker shut at 0°, the lamps dark, both bars small.\n\nScreen 13, try it (mixed). 420 V, 60.40 Hz. \"The set reads 420 V and 60.40 Hz. The board is 440 V, 60 Hz. What do you trim before closing?\" Three choices, in this order: \"Raise the field, and lower the fuel a little\"; \"Raise the fuel, and lower the field a little\"; \"Raise the field only, then close as the pointer passes 12\". Right, the first. Hint for the second: \"More fuel speeds the set up. It is already fast, and its voltage is low.\"; for the third: \"At 0.4 Hz the pointer turns once every 2.5 s, too fast to catch.\" Why: \"More field raises the voltage towards 440 V. Less fuel slows the set until the pointer turns slowly enough to catch at 12.\" A right Check moves the trims to 440 V and 60.10 Hz, and the pointer slows. Read: the question.\n\nScreen 14, try it, typed (mixed). No picture. \"A relay must shut a breaker at 12. The set runs 0.3 Hz fast and the breaker takes 80 ms. How many degrees before 12 does it send the close, to one decimal place?\" A field in °. Answer 8.6°. Slips: 28.8, \"That leaves out the slip. Multiply by 0.3 Hz too.\"; 0.024, \"That is in turns. Multiply by 360 for degrees.\"; 8640, \"Turn 80 ms into seconds, 0.08 s.\" Hint when wrong: \"360 × the slip × the closing time in seconds.\" Why: \"360 × 0.3 = 108° a second. 108 × 0.08 = 8.64°, which is 8.6° to one decimal place.\" A right Check shows: \"Match all four, then close early by the advance angle.\" Read: the question.",
+    "ignores": "The 50 ms close is too quick to see, so the dial marks where you pressed and where the breaker shut. The board stays at exactly 440 V and 60 Hz. A real board is a few sets, and it gives a little. The surge and torque are first-instant values from example reactances. A real surge dies away quickly, and the shaft rings as the rotor swings into step. Here the set always pulls into step. With a big enough slip, a real set can fail to. The lamps glow in proportion to their voltage. Real filament lamps stay dark until they see a fair share of their rating, so dark lamps alone give a wide window. The relay here both blocks a bad close and times a good one. Real schemes may split those jobs between devices, each with its maker's own settings.",
+    "numbers": [
+      {
+        "label": "Number of screens",
+        "value": 14,
+        "kind": "assumed"
+      },
+      {
+        "label": "Board line voltage, V",
+        "value": 440,
+        "kind": "assumed"
+      },
+      {
+        "label": "Board frequency, Hz",
+        "value": 60,
+        "kind": "assumed"
+      },
+      {
+        "label": "Square root of 3",
+        "value": 1.732,
+        "kind": "constant"
+      },
+      {
+        "label": "Board phase voltage, 440 ÷ √3, V",
+        "value": 254,
+        "kind": "computed"
+      },
+      {
+        "label": "Twice the phase voltage, V",
+        "value": 508,
+        "kind": "computed"
+      },
+      {
+        "label": "Dial in-phase mark, o'clock",
+        "value": 12,
+        "kind": "constant"
+      },
+      {
+        "label": "Cycles in the wave still",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Bar scale, highest, per unit",
+        "value": 9,
+        "kind": "assumed"
+      },
+      {
+        "label": "Bar scale, lowest, per unit",
+        "value": 0,
+        "kind": "assumed"
+      },
+      {
+        "label": "Speed trim, lowest, Hz",
+        "value": 59,
+        "kind": "control"
+      },
+      {
+        "label": "Speed trim, highest, Hz",
+        "value": 61,
+        "kind": "control"
+      },
+      {
+        "label": "Speed trim step, Hz",
+        "value": 0.05,
+        "kind": "control"
+      },
+      {
+        "label": "Speed trim opening, Hz",
+        "value": 60.2,
+        "kind": "control"
+      },
+      {
+        "label": "Voltage trim, lowest, V",
+        "value": 400,
+        "kind": "control"
+      },
+      {
+        "label": "Voltage trim, highest, V",
+        "value": 480,
+        "kind": "control"
+      },
+      {
+        "label": "Voltage trim step, V",
+        "value": 5,
+        "kind": "control"
+      },
+      {
+        "label": "Voltage trim opening, V",
+        "value": 440,
+        "kind": "control"
+      },
+      {
+        "label": "Degrees in a turn",
+        "value": 360,
+        "kind": "constant"
+      },
+      {
+        "label": "Angle shown from, degrees",
+        "value": -180,
+        "kind": "assumed"
+      },
+      {
+        "label": "Angle shown to, degrees",
+        "value": 180,
+        "kind": "assumed"
+      },
+      {
+        "label": "Phase shift for the swapped poles, degrees",
+        "value": 120,
+        "kind": "constant"
+      },
+      {
+        "label": "Breaker closing time, ms",
+        "value": 50,
+        "kind": "assumed"
+      },
+      {
+        "label": "Breaker closing time, s",
+        "value": 0.05,
+        "kind": "computed"
+      },
+      {
+        "label": "Set reactance, per unit",
+        "value": 0.15,
+        "kind": "assumed"
+      },
+      {
+        "label": "Board reactance, per unit",
+        "value": 0.1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Total reactance, per unit",
+        "value": 0.25,
+        "kind": "computed"
+      },
+      {
+        "label": "Three-phase fault at the set, 1 ÷ 0.15, per unit",
+        "value": 6.7,
+        "kind": "computed"
+      },
+      {
+        "label": "Angle where the pull is greatest, degrees",
+        "value": 90,
+        "kind": "constant"
+      },
+      {
+        "label": "Window: angle either side of 12, degrees",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Window: slip, Hz",
+        "value": 0.2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Window: voltage, %",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Window: 2% of 440 V, V",
+        "value": 8.8,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 1: angle, degrees",
+        "value": 30,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 1: half the angle, degrees",
+        "value": 15,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 1: sin 15°",
+        "value": 0.259,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 1: answer, fraction of phase voltage",
+        "value": 0.52,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 1 slip: sin 30°",
+        "value": 0.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 1 slip: sin 15°",
+        "value": 0.26,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 1 slip: 2 sin 30°",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 2: speed trim, Hz",
+        "value": 60,
+        "kind": "control"
+      },
+      {
+        "label": "Screen 2: angle, degrees",
+        "value": 40,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 2: half the angle, degrees",
+        "value": 20,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 2: gap, V",
+        "value": 174,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 2: slip, Hz",
+        "value": 0,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 3: angle, degrees",
+        "value": 60,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 3: half the angle, degrees",
+        "value": 30,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 3: gap, V",
+        "value": 254,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 3 slip: full angle, V",
+        "value": 440,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 3 slip: not doubled, V",
+        "value": 127,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 3 slip: sin 60°, V",
+        "value": 220,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 4: slip, Hz",
+        "value": 0.2,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 4: one turn, s",
+        "value": 5,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 4: still angle, degrees",
+        "value": 60,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 5: speed trim, Hz",
+        "value": 60.25,
+        "kind": "control"
+      },
+      {
+        "label": "Screen 5: slip, Hz",
+        "value": 0.25,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 5: one turn, s",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 5 slip: 60 ÷ 0.25, s",
+        "value": 240,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 6: angle shut at, degrees",
+        "value": 90,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 6: gap, V",
+        "value": 359,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 6: surge, per unit",
+        "value": 5.7,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 6: torque, per unit",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 6: angle shut at, worst, degrees",
+        "value": 180,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 6: surge at 180°, per unit",
+        "value": 8,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 7: speed trim, Hz",
+        "value": 60.05,
+        "kind": "control"
+      },
+      {
+        "label": "Screen 7: half of 180°, degrees",
+        "value": 90,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 7: gap at 180°, V",
+        "value": 508,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 8: degrees a second at 0.2 Hz",
+        "value": 72,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 8: advance angle, degrees",
+        "value": 3.6,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 9: speed trim, Hz",
+        "value": 60.5,
+        "kind": "control"
+      },
+      {
+        "label": "Screen 9: slip, Hz",
+        "value": 0.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 9: degrees a second",
+        "value": 180,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 9: angle late, degrees",
+        "value": 9,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 9 slip: none",
+        "value": 0,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 9 slip: 1 Hz of slip, degrees",
+        "value": 18,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 9 slip: 1 Hz",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 9 slip: in turns",
+        "value": 0.025,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 9 slip: ms not converted",
+        "value": 9000,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 10: speed trim, Hz",
+        "value": 60.1,
+        "kind": "control"
+      },
+      {
+        "label": "Screen 10: gap on B and C, V",
+        "value": 440,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 11: surge with B and C crossed, per unit",
+        "value": 6.9,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 12: speed trim after trimming, Hz",
+        "value": 60.1,
+        "kind": "control"
+      },
+      {
+        "label": "Screen 12: advance angle at 0.1 Hz, degrees",
+        "value": 1.8,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 13: voltage trim, V",
+        "value": 420,
+        "kind": "control"
+      },
+      {
+        "label": "Screen 13: speed trim, Hz",
+        "value": 60.4,
+        "kind": "control"
+      },
+      {
+        "label": "Screen 13: slip, Hz",
+        "value": 0.4,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 13: one turn, s",
+        "value": 2.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 14: slip, Hz",
+        "value": 0.3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 14: closing time, ms",
+        "value": 80,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 14: closing time, s",
+        "value": 0.08,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 14: degrees a second",
+        "value": 108,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 14: advance angle, degrees",
+        "value": 8.64,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 14: answer, degrees",
+        "value": 8.6,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 14 slip: no slip, degrees",
+        "value": 28.8,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 14 slip: in turns",
+        "value": 0.024,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 14 slip: ms not converted",
+        "value": 8640,
+        "kind": "computed"
+      },
+      {
+        "label": "Gap at 10°, V",
+        "value": 44,
+        "kind": "computed"
+      },
+      {
+        "label": "Gap at 10°, fraction of phase voltage",
+        "value": 0.17,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example: speed, Hz",
+        "value": 60.1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example: slip, Hz",
+        "value": 0.1,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example: one turn, s",
+        "value": 10,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example: advance angle, degrees",
+        "value": 1.8,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example: late angle, degrees",
+        "value": 20,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example: half of it, degrees",
+        "value": 10,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example: gap, V",
+        "value": 88,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example: surge, per unit",
+        "value": 1.4,
+        "kind": "computed"
+      },
+      {
+        "label": "Mistake: advance angle at 1 Hz slip, degrees",
+        "value": 18,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "Putting a second set onto a live board means closing its breaker with both sides alive. First, the set must match the board in four things: voltage, frequency, phase sequence and phase angle.[^1] The breaker also takes a moment to shut, so the close is sent a little early.[^2]\n\nThe reason is the voltage across the open breaker. Each pole has a board phase on one side and the set's same phase on the other. If the two waves are the same size and rise and fall together, nothing sits across the pole. If the set's wave runs θ degrees ahead, the pole sees 2 sin(θ ÷ 2) × the phase voltage, the gap you met across a paralleling switch. On a 440 V board each phase is 254 V. At 10° apart the gap is 44 V. At 60° it is 254 V. At 180° the waves are opposite, and the gap is 508 V. Close the breaker and that gap drives a current limited only by the reactances of the set and the board. Closed far out of step, this current can exceed a three-phase fault at the set.[^3] The current also carries power between the two, which pulls the set's rotor into step with the board. The shaft and coupling take that jerk.\n\nFrequency matters because a small difference keeps the angle moving. A set running 0.2 Hz fast gains one whole cycle on the board every 1 ÷ 0.2 = 5 s. So the angle creeps round once every 5 s, and the gap swells and shrinks with it. That difference is the [[slip]]. A [[synchroscope]] is a dial whose pointer turns at the slip, clockwise when the set runs fast, and stands at 12 when the angle is zero. Say the breaker shuts 50 ms after its command. At 0.2 Hz slip the angle moves 360 × 0.2 = 72° a second, so 3.6° in 50 ms. Sending the close 3.6° before 12 lands it at 12. That lead is the [[advance angle]].[^2]\n\nThe governor trims the frequency and the angle, and the AVR trims the voltage. An automatic synchroniser does both by moving their set points.[^10] Phase sequence is the phase rotation you already test. The wiring fixes it, so it is proved after work on the connections, not trimmed. These figures come from a simplified picture with example reactances and an example breaker. **Close only when voltage, frequency, phase sequence and phase angle all match within a small window, and send the close early by the advance angle so the breaker shuts in phase.**[^2]"
+  },
+  "analogy": {
+    "text": "Think of engaging a dog clutch onto a shaft that is already turning. The two halves must turn at the same speed, or the dogs crash. Their teeth must line up, or they clash. And the lever takes a moment to travel, so you push it a touch before the teeth line up.",
+    "breaks": "A clutch has no voltage to match, and its halves cannot be fitted in the wrong sequence. And a bad engagement only crashes the dogs, while a bad close can also drive a current bigger than a fault through both machines."
+  },
+  "practice": {
+    "text": "**Closing a set onto a live board**\n\nThe safe way first: where an automatic synchroniser or a check relay is fitted, let it make the close. By hand, in order:\n- After any work on the set's connections, prove its phase sequence. With the lamps across the poles, all three must go dark together.\n- Run the set up and match its voltage to the board's with the AVR.\n- Trim its speed with the governor until the pointer turns slowly. Textbooks add that you leave it turning slowly towards FAST, so the set picks up a little load as it closes.\n- Work out the advance angle: 360 × the slip × the closing time in seconds.\n- Send the close once, that far before 12, and let go.\n\n**Rules of thumb:** one turn of the pointer takes 1 ÷ the slip seconds. The gap across a pole is 2 sin(θ ÷ 2) × the phase voltage, so 10° out leaves 0.17 of it, 44 V on a 440 V board. A slower pointer gives a smaller advance angle and more time to judge it.\n\n**Worked example:** the board is 440 V, 60 Hz. The set reads 440 V and 60.1 Hz, so the slip is 0.1 Hz and the pointer turns once every 10 s. The breaker takes 50 ms. The advance angle is 360 × 0.1 × 0.05 = 1.8°, so you send the close 1.8° before 12. Had the breaker shut 20° late instead, each pole would see 2 × sin 10° × 254 = 88 V. With 0.25 per unit of reactance between the set and the board, an example value, that drives a surge of 88 ÷ 254 ÷ 0.25 = 1.4 per unit.\n\n**Common mistakes**\n- Closing because the voltmeters agree. The angle can still be 180°, with twice the phase voltage across each pole.\n- Pressing Close exactly at 12. At 0.5 Hz slip with a 50 ms breaker, it shuts 9° late.\n- Trusting the synchroscope for phase sequence. It compares one phase on each side.\n- Closing on a fast-turning pointer. At 1 Hz slip the advance angle is 18°, and a small error in timing is a big angle."
+  },
+  "say": null,
+  "checks": [],
+  "sources": [
+    {
+      "n": 1,
+      "title": "DG Synchronization with Step-by-Step Procedure — forumelectrical.com",
+      "url": "https://forumelectrical.com/dg-synchronization-with-step-by-step-procedure",
+      "quote": "Before a generator breaker is allowed to close, four electrical quantities of the incoming machine must be matched, within tolerance, to the running bus:"
+    },
+    {
+      "n": 2,
+      "title": "PSRC WG J20 Report - Practices for Generator Synchronizing Systems — pes-psrc.org",
+      "url": "https://www.pes-psrc.org/kb/report/119.pdf",
+      "quote": "This allows the synchronizing breaker close command to be initiated early at the advance angle to compensate for breaker closing time."
+    },
+    {
+      "n": 3,
+      "title": "PSRC WG J20 Report - Practices for Generator Synchronizing Systems — pes-psrc.org",
+      "url": "https://www.pes-psrc.org/kb/report/119.pdf",
+      "quote": "The synchronization current can exceed that of a three-phase fault at the generator"
+    },
+    {
+      "n": 10,
+      "title": "Cummins Power Seminar, Paralleling Basics (IEEE PES New York archive)",
+      "url": "https://ewh.ieee.org/soc/pes/newyork/Archive%20Docs/CumminsPowerSeminar_Basics%20of%20Paralleling%20169.pdf",
+      "quote": "Governor and AVR are the basic functions on every genset and the synchronizer, load share and load govern simply adjust the reference point to them"
+    }
+  ],
+  "confidence": "simplified",
+  "contested": null
+}

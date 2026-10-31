@@ -1,0 +1,23 @@
+{
+  "draft": "i5.lesson.draft1.txt",
+  "validator": "ok, no problems; but interactive.whatAmILookingAt is 13248 characters, over the 12000 limit the i4 build hit",
+  "keep": [
+    "The idea is named up front: match voltage, frequency, phase sequence and phase angle, and send the close early for the breaker's closing time ([^1], [^2]).",
+    "One rule computes every readout: pole voltage = sqrt(Vb^2 + Vi^2 - 2 Vb Vi cos phi), 2 sin(phi/2) x 254 V at equal voltages; angle grows at 360 x slip degrees a second; the breaker shuts 50 ms after Close; surge = largest pole gap per unit / 0.25 (set 0.15 + board 0.10, example values) against a 6.7 fault line; torque = Vi x sin(min(angle, 90)) / 0.25. Checked: 40 deg 174 V, 60 deg 254 V, 90 deg 359 V, 5.7 and 4.0 per unit, 180 deg 8.0 per unit, swapped 440 V and 6.9 per unit, advance 3.6, 9, 1.8 and 8.64 deg.",
+    "All three brief misconceptions get a DO screen with their own hints: voltage alone (screen 7, pointer at 180 deg), close exactly at 12 (screen 9, 9 deg late at 0.5 Hz), the synchroscope checks sequence (screen 11, two lamps bright, pointer at 12).",
+    "Fourteen screens: SHOW 2, 4, 6, 8, 10, 12 alternate with DO 1, 3, 5, 7, 9, 11, ending on two mixed puzzles (13 options for which knob, 14 typed advance angle). Every figure is typed with slips; options stay for close-or-not and which knob. SHOW screens are 73 to 86 words.",
+    "The cause is drawn: the pole voltage as a third wave between the two phase-A waves, so the gap that drives the surge is visible before the close; the dial marks where Close was pressed and where the breaker shut.",
+    "The recall (2 sin 15 deg = 0.52, Transformers lesson 7) is the rule used on every later screen.",
+    "Analogy (a dog clutch onto a turning shaft) reproduces speed match, angle match and pushing early for the lever's travel; its breaks are true."
+  ],
+  "fix": [
+    "Hard: whatAmILookingAt is too long. Shorten each screen's setup to the settings that change, trim the Why lines and Read lines, and compress the rule paragraph.",
+    "Causal step skipped (fault 1): explain says the gap 'yanks the rotor into step' with no mechanism. Say the current carries power between the set and the board, which pulls the rotor into step.",
+    "False absolute (fault 2): 'If the two waves rise and fall together, nothing sits across the pole' holds only at equal voltages. Say 'the same size and rise and fall together'.",
+    "Qualifier lost (fault 2): the takeaway's 'all match' drops the source's 'within tolerance'. Say 'all match within a small window'.",
+    "Time words (fault 2): ignores 'dies away over a few cycles' is a figure with no source. Say 'dies away quickly'.",
+    "Shape: explain's third paragraph runs slip, advance angle, the two knobs and sequence together. Split at the advance angle so it stays at four paragraphs.",
+    "Brief names two effects in a loose order. Lead with the breaker shutting 50 ms after Close wherever the pointer has got to, with the surge red far from 12."
+  ],
+  "verdict": "rewrite as draft 2 with the seven fixes; no structural change"
+}

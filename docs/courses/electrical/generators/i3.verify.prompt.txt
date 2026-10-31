@@ -1,0 +1,479 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Generators and paralleling
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i3 "The loaded generator: synchronous reactance and the phasor" — Synchronous reactance, the machine's inner reactance, drops voltage under load; drawn tip to tail, it shows the internal voltage the field must make. [quantity]
+Later ideas in the course (every claim must stay true after Dan has learned each of them):
+- i4 The governor: fuel, speed and droop — The governor trims fuel to hold speed under load, and droop lets the speed fall a set few per cent from no load to full load.
+- i5 Synchronising: closing onto a live board — Close onto a live board only when voltage, frequency, phase sequence and phase angle match, sending the close early for the breaker's closing time.
+- i6 Load sharing: kW by fuel, kVAr by field — In parallel, more fuel moves kW onto a set and more field moves kVAr onto it, while the board's frequency and voltage barely change.
+- i7 Protection: reverse power, a lost field and the short circuit — Each generator fault has its own signature, reverse power, a lost field or a short-circuit current falling with time, and protection acts on it.
+- i8 The generator set in a power system — A big motor's start dips a set's voltage before the AVR can act, so big loads start softly, in sequence or with more sets on.
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] CHAPTER 5 – SYNCHRONOUS GENERATOR — abs.cu.edu.tr — https://abs.cu.edu.tr/Dokumanlar/2017/EEE318/271877548_2_synchronous_machines.pdf
+    "Each phase has an internal generated voltage with a series inductance XS (consisting of the sum of the armature reactance and the coil’s self-inductance) and a series resistance RA."
+[R2] CHAPTER 5 – SYNCHRONOUS GENERATOR — abs.cu.edu.tr — https://abs.cu.edu.tr/Dokumanlar/2017/EEE318/271877548_2_synchronous_machines.pdf
+    "For a given phase voltage and armature current, a larger internal voltage EA is needed for lagging loads than for leading loads."
+[R3] CHAPTER 5 – SYNCHRONOUS GENERATOR — abs.cu.edu.tr — https://abs.cu.edu.tr/Dokumanlar/2017/EEE318/271877548_2_synchronous_machines.pdf
+    "Thus, a larger field current is needed to get the same terminal voltage"
+[R4] Lecture 6: Synchronous machines — egr.unlv.edu — http://www.egr.unlv.edu/~eebag/SYNCHRONOUS%20GENERATORS.pdf
+    "The rotor is then turned by external means producing a rotating magnetic field, which induces a 3-phase voltage within the stator winding."
+[R5] Chapter 2 ABFC Power Plant Operations and Procedures — media.defense.gov — https://media.defense.gov/2014/Jun/20/2002655888/-1/-1/1/140620-N-ZZ182-6532.pdf
+    "The three-phase alternator, as the name implies, has three single-phase windings spaced such that the voltage induced in any one phase is displaced by 120° from the other two."
+[R6] Lecture 4 — aast.edu — https://www.aast.edu/pheed/staffadminview/pdf_retreive.php?stafftype=staffcourses&url=45_24985_EE328_2016_1__2_1_lecture7.pdf
+    "to generate 60-Hz power in a two-pole machine, the rotor _must_ turn at 3600 rpm."
+[R7] A062L877 (Issue 6) — stamford-avk.com — https://www.stamford-avk.com/sites/stamfordavk/files/2026-05/S9-HV-Alternators-Installation-Service-and-Maintenance-Manual-English.pdf
+    "The AVR controls the alternator output voltage by automatic adjustment of the exciter stator field strength."
+[R8] AGN 124 – AVR Power Supplies — stamford-avk.com — https://www.stamford-avk.com/sites/stamfordavk/files/AGN124_C.pdf
+    "Self-excited alternators will not maintain a short-circuit current - the short-circuit current will quickly decay to 0 if the short- circuit condition is not immediately cleared."
+[R9] AGN 124 – AVR Power Supplies — stamford-avk.com — https://www.stamford-avk.com/sites/stamfordavk/files/AGN124_C.pdf
+    "This allows the alternator to sustain its output during a short-circuit condition so the load’s protection devices have time to clear the fault."
+[R10] Cummins Power Seminar, Paralleling Basics (IEEE PES New York archive) — https://ewh.ieee.org/soc/pes/newyork/Archive%20Docs/CumminsPowerSeminar_Basics%20of%20Paralleling%20169.pdf
+    "Governor and AVR are the basic functions on every genset and the synchronizer, load share and load govern simply adjust the reference point to them"
+[R11] Load Sharing: Balancing kW and kVAR Between Generators — bengibb.ca — https://www.bengibb.ca/blog/kw-and-kvar-control
+    "These two types of load sharing rely on separate systems: speed control for kW and voltage control for kVAR."
+Notes (claims, and the sources that support them):
+- Each phase is an internally generated voltage in series with a reactance, made of armature reactance and the coil's self-inductance, and a series resistance. [R1]
+- A lagging load needs a larger internal voltage than a leading load, so a larger field current is needed for the same terminal voltage. [R2][R3]
+- Turning the rotor makes a rotating magnetic field, which induces a three-phase voltage in the stator winding. [R4]  (from an idea this one builds on)
+- A three-phase alternator has three single-phase windings spaced so that the voltage in each phase is displaced by 120° from the other two. [R5]  (from an idea this one builds on)
+- The rotor speed fixes the frequency: a two-pole machine must turn at 3600 rpm to make 60 Hz. [R6]  (from an idea this one builds on)
+- The automatic voltage regulator controls the alternator output voltage by adjusting the exciter stator field strength. [R7]  (from an idea this one builds on)
+- A self-excited alternator will not maintain a short-circuit current; it decays quickly unless the fault is cleared at once. [R8]  (from an idea this one builds on)
+- A dedicated AVR supply lets the alternator sustain its output during a short circuit, so the load's protection devices have time to clear the fault (i2). [R9]  (from an idea this one builds on)
+- The synchroniser and load sharing work by adjusting the reference points of the governor and the AVR (i2, forward line). [R10]  (from an idea this one builds on)
+- Speed control and voltage control are two separate systems on a generator set: speed control shares kW and voltage control shares kVAr. [R11]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i3",
+ "title": "The loaded generator: synchronous reactance and the phasor",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is E, the voltage inside, growing on a lagging load and shrinking on a leading one, while the AVR holds V, when you step the power factor.",
+  "title": "The phasor drop",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Screen",
+    "min": 0,
+    "max": 11,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [],
+  "whatAmILookingAt": "Twelve small screens on one picture, with Back and Continue. Five show an idea and seven ask you to try it. No marks and no timers.\n\nThe picture. At the top, one phase of the set drawn as a small circuit, left to right: a circle marked E, the voltage the set makes inside; a coil marked Xs, the synchronous reactance; and the terminals marked V, with the load beyond. A small AVR box measures V and drives a field-current bar beside E, from 0% up. Below, the phasor drawing. V lies flat from the origin, 1.0 per unit long. The current arrow I starts at the origin. Its length is the load current and its angle the power factor, drawn below V when lagging and above when leading. From V's tip, the drop across Xs is drawn as an arrow at right angles to I, 90° ahead of it. E runs from the origin to the drop's tip and closes the triangle. The angle δ is marked between E and V. Two dashed guides split the drop into its part along V and its part across V, each labelled with its length. The drawing rescales so the whole triangle stays in view. The load slider runs 0 to 1.0 per unit of rated current in steps of 0.1, opening at 1.0. The power factor stepper has five settings, in this order: Zero pf leading, 0.8 leading, Unity, 0.8 lagging and Zero pf lagging. It opens on Unity. The Xs slider runs 0.1 to 2.0 per unit in steps of 0.1, opening at 1.5. An AVR switch turns the AVR on and off.\n\nThe readouts, in four tiles that wrap onto two rows on a phone: E in per unit, Field current in %, V in per unit and δ in degrees. The stepper's five settings and the switch wrap too, so no word splits.\n\nThe rule it computes. Everything is one phase, in per unit. 1.0 means the set's rated voltage, 440 V at the terminals, or its rated current. Per unit is per cent ÷ 100. The winding's resistance is left out. The drop is Xs × I, and it runs 90° ahead of the current, as across any reactance. Split the current into its part in step with V, I × the power factor, and its part at right angles, I × the sine of its angle. That sine is 0.6 at 0.8, 1 at zero power factor and 0 at unity. The in-step part makes a drop across V: Xs × I × the power factor. The other part makes a drop along V: Xs × I × the sine, added for a lagging load and taken off for a leading one. With the AVR on, V is held at 1.0. So E's part along V is 1.0 plus or minus that drop, and its part across V is the across drop. E = √(along² + across²), and δ is the angle whose tangent is across ÷ along. The field bar is drawn in proportion to E, 100% for E = 1.0. That is the straight part of the open-circuit curve, carried on. The field current cannot go below zero, because the rotating diodes pass current one way. Only Zero pf leading can ask for less: there E = 1.0 − Xs × I. Past that point the bar sits at 0% in red, E is zero and V climbs to Xs × I. With the AVR off, the field freezes at the value it had, to the nearest whole per cent, and E keeps the length that gives. So from unity at rated current it holds 180% and E holds 1.80. V moves instead: V = √(E² − across²) − Xs × I × the sine, with the same signs.\n\nScreen 1, show. The AVR on, Unity, Xs at 1.5, the load at 0 and its slider free. The words: \"Each phase of a generator works like this small circuit. The field makes a voltage inside, E. On its way to the terminals, the current passes through a reactance, Xs. The stator's current makes a field of its own, which alters the rotor's. Some of the winding's flux also leaks past. Both act like one reactance in series, the synchronous reactance.[^1] With nothing connected, no current flows, so V equals E. Drag the load up and watch E grow past V.\" Read: \"Each phase works like a voltage inside, E, in series with the synchronous reactance, Xs. With nothing connected, no current flows and V equals E. On load, the current drops voltage across Xs, so E and V part.\" Still: the load at 1.0, Unity, the triangle drawn and the readouts at 1.80, 180%, 1.00 and 56°.\n\nScreen 2, try it, typed. The load at 1.0, Unity, the drop arrow hidden until Check. \"This set's Xs is 1.5 per unit. Per unit is a fraction of the set's own rating, so 1.0 means 440 V or rated current. Rated current flows. How big is the drop across Xs, on the same 440 V scale?\" A field in V. Answer 660 V. Slips: 6.6 V, \"That reads 1.5 per unit as 1.5%. Per unit is per cent ÷ 100, so 1.5 per unit is 150%.\"; 293 V, \"That divides by 1.5. Per unit multiplies the base.\" Hint when wrong: \"Find the drop in per unit, then multiply by 440 V.\" Why: \"The drop is Xs × I = 1.5 × 1.0 = 1.5 per unit. On the 440 V scale that is 1.5 × 440 = 660 V. The drop inside is bigger than the voltage at the terminals.\" A right Check draws the drop arrow, labelled 1.5. Read: \"This set's Xs is 1.5 per unit. Per unit is a fraction of the set's own rating, so 1.0 means 440 V or rated current. Rated current flows. How big is the drop across Xs, on the same 440 V scale?\"\n\nScreen 3, show. The AVR on, Unity, the load at 1.0, the Xs slider free from 1.5. The words: \"The drop across a reactance runs 90° ahead of its current. At unity the current lies along V. So the drop stands straight up from V's tip. E closes the triangle: √(1.0² + 1.5²) = 1.80. The field must make 1.80 to hold 1.0 at the terminals. The angle between E and V is the load angle, δ, here 56°. Drag Xs down to 0.1, nearer a transformer's size. E is then barely longer than V.\" Read: \"At unity, the drop stands at right angles to V from its tip. E closes the triangle, 1.80 per unit, 56° ahead of V. With Xs at 0.1, E is barely longer than V.\" Still: Xs at 1.5, the load at 1.0, Unity, the right angle and δ marked.\n\nScreen 4, try it, typed. The AVR on, Unity, Xs at 1.5, the E tile reading ? until Check. \"At unity, the load falls to half rated current, 0.5 per unit. Xs is 1.5 and the AVR holds V at 1.0. How big must E be?\" A field in per unit. Answer 1.25 per unit. Slips: 1.75, \"That adds the drop straight on. At unity it stands at right angles to V.\"; 0.25, \"The drop adds to V to make E. It is not taken off.\"; 1.80, \"That is at full current. Half the current makes half the drop.\" Hint when wrong: \"Find the drop, then use Pythagoras with V.\" Why: \"The drop is 1.5 × 0.5 = 0.75, at right angles to V. E = √(1.0² + 0.75²) = √1.5625 = 1.25.\" A right Check slides the load to 0.5. Read: \"At unity, the load falls to half rated current, 0.5 per unit. Xs is 1.5 and the AVR holds V at 1.0. How big must E be?\"\n\nScreen 5, show. The AVR on, the load at 1.0, Xs at 1.5, the stepper free from Unity, the dashed guides on. The words: \"Step the power factor to 0.8 lagging. The current swings 37° behind V. The drop swings round with it, so it now leans forward along V. Split the current in two. Its 0.8 in step with V makes a drop across V, 1.5 × 0.8 = 1.2. Its 0.6 lagging part makes a drop along V, 1.5 × 0.6 = 0.9. So E's part along V grows to 1.9. Watch the field bar climb.\" Read: \"At 0.8 lagging the drop leans forward. Its part across V is 1.5 × 0.8 = 1.2 and its part along V is 1.5 × 0.6 = 0.9. E's part along V becomes 1.9, so the field must rise.\" Still: 0.8 lagging, the load at 1.0, the guides labelled 1.2 and 0.9, the E, Field current and δ tiles showing ?.\n\nScreen 6, try it, typed. The AVR on, 0.8 lagging, the load at 1.0, the E and Field current tiles reading ? until Check. \"Rated current flows at 0.8 lagging. Xs is 1.5 and the AVR holds V at 1.0. How big must E be?\" A field in per unit. Answer 2.25 per unit. Slips: 1.80, \"That is the unity answer. At 0.8 lagging, part of the drop lies along V.\"; 2.50, \"That adds the whole drop along V. Only its 0.9 part lies along V.\"; 1.20, \"That takes the 0.9 off. A lagging current tips the drop forward, so it adds.\" Hint when wrong: \"Add the along parts, then use Pythagoras with the across part.\" Why: \"Along V: 1.0 + 0.9 = 1.9. Across V: 1.2. E = √(1.9² + 1.2²) = √5.05 = 2.25. At unity it was 1.80, so the same current at 0.8 lagging needs 25% more inside.\" A right Check shows the field bar at 225%. Read: \"Rated current flows at 0.8 lagging. Xs is 1.5 and the AVR holds V at 1.0. How big must E be?\"\n\nScreen 7, show. The AVR on, the load at 1.0, Xs at 1.5, the stepper free from 0.8 lagging, the load slider free. The words: \"Step to 0.8 leading. The current swings ahead of V, so the drop leans back. Its 0.9 part now points against V. E's part along V falls to 0.1, and E to 1.20. Step on to Zero pf leading, the current a bank of capacitors draws. Now the whole drop points straight back against V. Drag the load up. Partway, the field bar hits zero and turns red. The AVR has nothing left to cut, so V climbs above 1.0.\" Read: \"At 0.8 leading the drop leans back. E's part along V falls to 0.1, and E to 1.20. On a Zero pf leading load the whole drop points back against V. Enough current takes the field to zero, and V climbs.\" Still: Zero pf leading, the load at 1.0, the field bar at 0% in red, E at 0 and V at 1.50.\n\nScreen 8, try it, typed. The AVR on, Zero pf leading, the load at 0, the Field current tile reading ? until Check. \"A set feeds only a bank of capacitors, a Zero pf leading load. Xs is 1.5 and the AVR holds V at 1.0. At what current does the field reach zero?\" A field in per unit. Answer 0.67 per unit. Slips: 1.5, \"That multiplies. The drop 1.5 × I must equal 1.0, so divide.\"; 1.0, \"At rated current the drop is 1.5, more than V. The field gives out sooner.\" Hint when wrong: \"The drop points straight back against V. E is zero when the drop equals V.\" Why: \"E = 1.0 − 1.5 × I. That is zero when I = 1.0 ÷ 1.5 = 0.67 per unit. So two-thirds of rated current, all leading, leaves the AVR nothing to cut.\" A right Check slides the load up until the field bar turns red. Read: \"A set feeds only a bank of capacitors, a Zero pf leading load. Xs is 1.5 and the AVR holds V at 1.0. At what current does the field reach zero?\"\n\nScreen 9, show. The load at 1.0, Xs at 1.5, Unity, the AVR on. The AVR switch is free, and the stepper offers only 0.8 leading, Unity and 0.8 lagging. The words: \"Hold rated current at unity with the AVR on. E is 1.80 and the field 180%. Now switch the AVR off. The field stays at 180%, so E keeps its length. Step to 0.8 lagging. E's tip swings round a circle, and V shrinks to close the triangle. Step to 0.8 leading and V grows. This is why the voltage sagged on load with the AVR off.\" Read: \"With the AVR off, the field and E keep their lengths. At the same current, a 0.8 lagging load shrinks V, and a 0.8 leading load raises it.\" Still: the AVR off, the load at 1.0, 0.8 leading, E at 1.80, the field at 180% and V at 2.24.\n\nScreen 10, try it, typed. The AVR off, the field at 180%, the load at 1.0, Unity, the V tile reading ? until Check. \"With the AVR on at unity and rated current, the field sat at 180% and E at 1.80. The AVR is now off. The same current swings to 0.8 lagging. E's part across V is 1.2 and the drop's part along V is 0.9. What is V now?\" A field in per unit. Answer 0.44 per unit. Slips: 0.90, \"That leaves all of E along V. Part of it now stands across V, so less lies along it.\"; 0.30, \"That lines the whole drop up with V. Only its 0.9 part lies along V.\"; 1.00, \"That is with the AVR on. With it off, nothing holds V.\" Hint when wrong: \"E's part along V is √(1.80² − 1.2²). Take 0.9 off that.\" Why: \"E keeps its length, 1.80. Its part across V is 1.2, so its part along V is √(3.24 − 1.44) = √1.80 = 1.34. The drop takes 0.9 of that, so V = 1.34 − 0.9 = 0.44. On the same current, V has fallen by more than half.\" A right Check steps to 0.8 lagging and shrinks V. Read: \"With the AVR on at unity and rated current, the field sat at 180% and E at 1.80. The AVR is now off. The same current swings to 0.8 lagging. E's part across V is 1.2 and the drop's part along V is 0.9. What is V now?\"\n\nScreen 11, try it (mixed). The AVR on, the load at 1.0, Xs at 1.5. \"Two loads draw the same current from the set, one at 0.8 lagging and one at 0.8 leading. The AVR holds V at 1.0. Which needs more field current?\" Three choices, in this order: \"The 0.8 lagging load\"; \"The 0.8 leading load\"; \"Neither, the current is the same\". Right, the first. Hint for the second: \"A leading current tips the drop back against V, so E can be shorter.\" Hint for the third: \"The drop is the same size, but its angle differs. That changes how far E must reach.\" Why: \"A lagging current tips the drop forward along V, so E must reach further: 2.25 against 1.20. The field makes E, so the lagging load needs more field current.\" A right Check steps between the two settings and shows E at 2.25 and 1.20. Read: \"Two loads draw the same current from the set, one at 0.8 lagging and one at 0.8 leading. The AVR holds V at 1.0. Which needs more field current?\"\n\nScreen 12, try it, typed (mixed). The AVR on, the load at 1.0, Xs at 1.5, 0.8 lagging, the δ tile reading ? until Check. \"Rated current flows at 0.8 lagging. Xs is 1.5 and the AVR holds V at 1.0. What is the load angle δ between E and V?\" A field in °. Answer 32°. Slips: 37°, \"That is the angle between I and V, the power factor's angle. δ lies between E and V.\"; 58°, \"That is the tangent upside down. Use across ÷ along.\" Hint when wrong: \"Find E's parts along and across V. tan δ = across ÷ along.\" Why: \"Along V: 1.0 + 0.9 = 1.9. Across V: 1.2. tan δ = 1.2 ÷ 1.9 = 0.63, so δ = 32°. E runs 32° ahead of V. This angle matters again when sets share load.\" A right Check marks δ, and a closing line reads: \"A lagging load needs more field, a leading one less.\" Read: \"Rated current flows at 0.8 lagging. Xs is 1.5 and the AVR holds V at 1.0. What is the load angle δ between E and V?\"",
+  "ignores": "The picture is one phase, in per unit, with the winding's resistance left out. A real winding adds a small drop in step with the current. The field bar is drawn in proportion to E, the open-circuit curve's straight part carried on. Real iron saturates, so a large E costs more field than drawn. For the same reason, V cannot climb as far as drawn with the AVR off on a leading load. Xs is one fixed example value. In a real machine it changes with saturation, and on a salient-pole rotor it differs along and across the poles. These are steady values. In the first moments after a sudden change, a smaller reactance acts. The floor is drawn at zero field current. A real set can lose control of its voltage before its field reaches zero. The speed is held steady, so the frequency never moves, and the AVR settles at once.",
+  "numbers": [
+   {
+    "label": "Number of screens",
+    "value": 12,
+    "kind": "assumed"
+   },
+   {
+    "label": "Rated voltage at the terminals, the 1.0 per unit base, V",
+    "value": 440,
+    "kind": "assumed"
+   },
+   {
+    "label": "Terminal voltage held by the AVR, per unit",
+    "value": 1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Rated current, per unit",
+    "value": 1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Synchronous reactance Xs, per unit",
+    "value": 1.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Xs as a percentage, %",
+    "value": 150,
+    "kind": "computed"
+   },
+   {
+    "label": "Angle of the drop ahead of the current, degrees",
+    "value": 90,
+    "kind": "constant"
+   },
+   {
+    "label": "Load slider, lowest, per unit",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Load slider, highest, per unit",
+    "value": 1,
+    "kind": "control"
+   },
+   {
+    "label": "Load slider step, per unit",
+    "value": 0.1,
+    "kind": "control"
+   },
+   {
+    "label": "Xs slider, lowest, per unit",
+    "value": 0.1,
+    "kind": "control"
+   },
+   {
+    "label": "Xs slider, highest, per unit",
+    "value": 2,
+    "kind": "control"
+   },
+   {
+    "label": "Xs slider step, per unit",
+    "value": 0.1,
+    "kind": "control"
+   },
+   {
+    "label": "Power factor setting",
+    "value": 0.8,
+    "kind": "control"
+   },
+   {
+    "label": "Sine of the angle at 0.8 power factor",
+    "value": 0.6,
+    "kind": "computed"
+   },
+   {
+    "label": "Angle at 0.8 power factor, degrees",
+    "value": 37,
+    "kind": "computed"
+   },
+   {
+    "label": "Field current for E = 1.0, %",
+    "value": 100,
+    "kind": "assumed"
+   },
+   {
+    "label": "Field current floor, %",
+    "value": 0,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 2: drop at rated current, per unit",
+    "value": 1.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 2: drop on the 440 V scale, V",
+    "value": 660,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 2 slip: read as 1.5%, V",
+    "value": 6.6,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 2 slip: 440 ÷ 1.5, V",
+    "value": 293,
+    "kind": "computed"
+   },
+   {
+    "label": "Unity, rated current: E, per unit",
+    "value": 1.8,
+    "kind": "computed"
+   },
+   {
+    "label": "Unity, rated current: field current, %",
+    "value": 180,
+    "kind": "computed"
+   },
+   {
+    "label": "Unity, rated current: δ, degrees",
+    "value": 56,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 3: E with Xs at 0.1, per unit",
+    "value": 1,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 4: load, per unit",
+    "value": 0.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 4: drop, 1.5 × 0.5, per unit",
+    "value": 0.75,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 4: 1.0² + 0.75²",
+    "value": 1.5625,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 4: E, per unit",
+    "value": 1.25,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 4 slip: drop added straight, per unit",
+    "value": 1.75,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 4 slip: drop taken off, per unit",
+    "value": 0.25,
+    "kind": "computed"
+   },
+   {
+    "label": "0.8 lagging: drop across V, 1.5 × 0.8, per unit",
+    "value": 1.2,
+    "kind": "computed"
+   },
+   {
+    "label": "0.8 lagging: drop along V, 1.5 × 0.6, per unit",
+    "value": 0.9,
+    "kind": "computed"
+   },
+   {
+    "label": "0.8 lagging: E's part along V, per unit",
+    "value": 1.9,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 6: 1.9² + 1.2²",
+    "value": 5.05,
+    "kind": "computed"
+   },
+   {
+    "label": "0.8 lagging, rated current: E, per unit",
+    "value": 2.25,
+    "kind": "computed"
+   },
+   {
+    "label": "0.8 lagging, rated current: field current, %",
+    "value": 225,
+    "kind": "computed"
+   },
+   {
+    "label": "0.8 lagging against unity: more inside, %",
+    "value": 25,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 6 slip: whole drop along V, 1.0 + 1.5, per unit",
+    "value": 2.5,
+    "kind": "computed"
+   },
+   {
+    "label": "0.8 leading: E's part along V, 1.0 − 0.9, per unit",
+    "value": 0.1,
+    "kind": "computed"
+   },
+   {
+    "label": "0.8 leading, rated current: E, per unit",
+    "value": 1.2,
+    "kind": "computed"
+   },
+   {
+    "label": "Zero pf leading, rated current, field at its floor: V, per unit",
+    "value": 1.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 8: current that takes the field to zero, 1.0 ÷ 1.5, per unit",
+    "value": 0.67,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 9: AVR off, 0.8 leading: V, per unit",
+    "value": 2.24,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 10: 1.80²",
+    "value": 3.24,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 10: 1.2²",
+    "value": 1.44,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 10: E's part along V, √1.80, per unit",
+    "value": 1.34,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 10: V with the AVR off at 0.8 lagging, per unit",
+    "value": 0.44,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 10 slip: 1.80 − 0.9, per unit",
+    "value": 0.9,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 10 slip: 1.80 − 1.5, per unit",
+    "value": 0.3,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12: tan δ, 1.2 ÷ 1.9",
+    "value": 0.63,
+    "kind": "computed"
+   },
+   {
+    "label": "0.8 lagging, rated current: δ, degrees",
+    "value": 32,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12 slip: tangent upside down, degrees",
+    "value": 58,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example: load, per unit",
+    "value": 0.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Worked example: power factor, lagging",
+    "value": 0.6,
+    "kind": "assumed"
+   },
+   {
+    "label": "Worked example: sine of its angle",
+    "value": 0.8,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example: drop across V, 1.5 × 0.5 × 0.6, per unit",
+    "value": 0.45,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example: E's part along V, 1.0 + 1.5 × 0.5 × 0.8, per unit",
+    "value": 1.6,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example: E, per unit",
+    "value": 1.66,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example: E on the 440 V base, 1.66 × 440, V",
+    "value": 730,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example: δ, degrees",
+    "value": 16,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example: field current, %",
+    "value": 166,
+    "kind": "computed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "A loaded generator drops voltage inside itself, much as a transformer does, only far more. In each phase the field makes a voltage inside, E. The load current pushes through a reactance on its way to the terminals. So E must be the terminal voltage V plus that drop, added as arrows, tip to tail.\n\nTwo effects make that reactance. The stator's current makes a field of its own, which alters the rotor's. Some of the winding's flux also leaks past. Both grow with the load current, so together they act like one reactance in series with each phase, the [[synchronous reactance]], Xs.[^1] The winding's resistance is there too, but it is small and left out here. Xs is given as a fraction of the set's own rating, in [[per unit]]. Per unit is per cent ÷ 100, so it is your percentage impedance in another form. Here Xs is 1.5 per unit, an example value. So rated current drops 1.5 times the terminal voltage inside. Textbooks add that a generator's synchronous reactance is far larger than a transformer's reactance.\n\nThe drop across a reactance runs 90° ahead of its current. At unity power factor the current lies along V, so the drop stands at right angles from V's tip. With V held at 1.0 and rated current flowing, E = √(1.0² + 1.5²) = 1.80. Now let the same current lag at 0.8. Its 0.8 in step with V makes a drop across V, 1.5 × 0.8 = 1.2. Its 0.6 lagging part makes a drop along V, 1.5 × 0.6 = 0.9. So E = √(1.9² + 1.2²) = 2.25. At 0.8 leading, that 0.9 points back against V, and E = √(0.1² + 1.2²) = 1.20. The angle between E and V is the [[load angle]], δ. It is 56° at unity and 32° at 0.8 lagging.\n\nThe field makes E. So with the AVR on, a lagging load needs more field current to hold the same terminal voltage.[^2] At the same current, a leading load needs less. A big enough load of capacitors alone would need less than none, which the field cannot give. With the AVR off, the field holds E's length, so V moves instead. At the same current, V is lower on a lagging load than at unity, and higher on a leading one. These figures come from a simplified picture, with the field in proportion to E and no resistance. Real iron saturates, so a lagging load costs more field still. **For the same terminal voltage and current, a lagging load needs a larger voltage inside the machine than a leading load does.[^3]**"
+ },
+ "analogy": {
+  "text": "Think of a long run of big cable feeding a motor. To land 440 V at the motor, the board end must sit higher by the cable's drop. For a big cable, your voltage-drop tables give an r part and an x part. A lagging motor tips the x part's drop round towards the voltage, so it counts for more. A generator is the same, with the cable inside the machine and its x enormous.",
+  "breaks": "A cable's drop is a few per cent, so adding its parts straight is close enough. A generator's drop is bigger than its output, so the part at right angles counts too, and you need the whole triangle. And a cable's board end is fixed by the supply, while E moves with the field."
+ },
+ "practice": {
+  "text": "**Working out the voltage inside**\n\n- Put V along the reference at 1.0 per unit.\n- Split the load current. The part in step with V is I × the power factor. The part at right angles is I × the sine of its angle.\n- Multiply each part by Xs. The in-step part gives the drop across V. The other gives the drop along V, added for a lagging load and taken off for a leading one.\n- Find E's part along V, 1.0 plus or minus that drop. Then E = √(along² + across²), and δ is the angle whose tangent is across ÷ along.\n- Multiply by the base, here 440 V, to read E in volts.\n\n**Rules of thumb:** at the same current, the more lagging the load, the more field it takes. A leading load takes less than a unity or lagging one. So capacitors on a lightly loaded set can leave the AVR little room to cut the field.\n\n**Worked example:** a set with Xs of 1.5 per unit carries half its rated current, 0.5 per unit, at 0.6 lagging. The AVR holds V at 1.0. The sine of the current's angle is 0.8. Across V: 1.5 × 0.5 × 0.6 = 0.45. Along V: 1.0 + 1.5 × 0.5 × 0.8 = 1.6. E = √(1.6² + 0.45²) = 1.66 per unit, or 1.66 × 440 = 730 V on the 440 V base. δ = tan⁻¹(0.45 ÷ 1.6) = 16°. With the field in proportion to E, it sits at 166% of its no-load value.\n\n**Common mistakes**\n- Adding the drop straight onto V. That gives 1.0 + 1.5 = 2.5 at any power factor. Only the part along V adds straight.\n- Drawing the drop in line with the current. A reactance's drop runs 90° ahead of it.\n- Reading per unit as per cent. 1.5 per unit is 150%, not 1.5%.\n- Mixing up δ with the power factor's angle. The power factor's angle lies between I and V. δ lies between E and V.\n- Treating a leading load as harmless. The AVR must cut the field for it, and enough of it takes the field to its floor."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "simplified",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "sources": [
+  {
+   "n": 1,
+   "title": "CHAPTER 5 – SYNCHRONOUS GENERATOR — abs.cu.edu.tr",
+   "url": "https://abs.cu.edu.tr/Dokumanlar/2017/EEE318/271877548_2_synchronous_machines.pdf",
+   "quote": "Each phase has an internal generated voltage with a series inductance XS (consisting of the sum of the armature reactance and the coil’s self-inductance) and a series resistance RA."
+  },
+  {
+   "n": 2,
+   "title": "CHAPTER 5 – SYNCHRONOUS GENERATOR — abs.cu.edu.tr",
+   "url": "https://abs.cu.edu.tr/Dokumanlar/2017/EEE318/271877548_2_synchronous_machines.pdf",
+   "quote": "Thus, a larger field current is needed to get the same terminal voltage"
+  },
+  {
+   "n": 3,
+   "title": "CHAPTER 5 – SYNCHRONOUS GENERATOR — abs.cu.edu.tr",
+   "url": "https://abs.cu.edu.tr/Dokumanlar/2017/EEE318/271877548_2_synchronous_machines.pdf",
+   "quote": "For a given phase voltage and armature current, a larger internal voltage EA is needed for lagging loads than for leading loads."
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }

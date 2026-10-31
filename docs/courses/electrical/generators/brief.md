@@ -578,6 +578,10 @@ Book.
     generators and grid stability; neutral earthing resistor sizing; generator differential
     protection (not in the notes); HV generator sets; the engine's own governor hardware, fuel system
     and shutdowns; the shore connection itself.
+  - **Cut from lesson 8 at build (for Dan):** the set as a whole beyond the engine's kW (Heat and fluids'
+    energy split, and Cummins' advice against long running under 30 percent load, notes 4.8) and the
+    emergency generator's automatic start. Lesson 8 teaches motor starting, blackout prevention and
+    recovery in outline, and closes on three mixed puzzles (lessons 5, 4 and 6).
   - **The shelf entry "Three-phase power systems at sea"** still names this course's ground (decision
     above).
 - **Gaps to close at build time.** None blocks the build.

@@ -1,0 +1,323 @@
+{
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "At 4% droop a set falls 2.4 Hz across 504 kW, so it takes 210 kW for each hertz; equal 62.4 Hz settings share 600 kW as 300 kW each at 60.97 Hz with δ 18.5° (screens 2 and 4)",
+        "ok": true
+      },
+      {
+        "label": "Raising A's setting 0.3 Hz moves 31.5 kW onto A, 331.5 against 268.5 kW with δ 20.5°, and lifts the board only 0.15 Hz, half the nudge, to 61.12 Hz; the old crossing stays marked (screen 6)",
+        "ok": true
+      },
+      {
+        "label": "Screen 5 answered moves A to 62.7 Hz; screen 7 shows ? for A until checked, then A at 62.6 Hz carries 321 kW and B 279 kW at 61.07 Hz",
+        "ok": true
+      },
+      {
+        "label": "At 1% droop a set takes 840 kW for each hertz: the same 0.3 Hz nudge from 60.6 Hz gives 426 and 174 kW at 60.39 Hz, moving 126 kW, four times the 31.5 kW at 4% (screen 8)",
+        "ok": true
+      },
+      {
+        "label": "Isochronous at 60.1 and 60.0 Hz on 400 kW: hidden until checked, then A carries 450.4 kW at 60.10 Hz and B draws 50.4 kW as a motor, red past its edge; on 600 kW A is at full fuel and the board falls to 60.0 Hz with B on 96 kW",
+        "ok": true
+      },
+      {
+        "label": "More fuel to the engine of one set in a group does not raise the frequency as it would alone: the board rises by less than the nudge, and less still with more sets",
+        "ok": true,
+        "source": "https://dieselship.com/marine-technical-articles/marine-electro-technology/active-reactive-power-sharing-in-a-paralleled-generator-set-kw-kvar"
+      },
+      {
+        "label": "Real power from a set in parallel is a direct function of its engine's output: raising A's setting always moves more kW onto A and widens its load angle",
+        "ok": true,
+        "source": "https://mart.cummins.com/imagelibrary/data/assetfiles/0056622.pdf"
+      },
+      {
+        "label": "Raising one set's excitation increases its share of the total kVAr and decreases its power factor",
+        "ok": true,
+        "source": "https://dieselship.com/marine-technical-articles/marine-electro-technology/active-reactive-power-sharing-in-a-paralleled-generator-set-kw-kvar"
+      },
+      {
+        "label": "Speed control shares the kW and voltage control the kVAr: the field settings never move the kW, and the governor settings never move the kVAr",
+        "ok": true,
+        "source": "https://www.bengibb.ca/blog/kw-and-kvar-control"
+      },
+      {
+        "label": "Raising A's field 2 V lifts the board only 1 V, to 441.0 V: A carries 255 kVAr and B 195, a cross current of 30 000 ÷ (√3 × 440) = 39.4 A; compensation brings 440.0 V, 225 kVAr each and 0.0 A, with each set still on 300 kW (screens 11 and 12)",
+        "ok": true
+      },
+      {
+        "label": "Screen 3: δ 32.3° with E 2.25, V 1.0 and Xs 1.5 gives 2.25 × 1.0 × 0.534 ÷ 1.5 = 0.80 per unit, and 0.80 × 630 kVA = 504 kW; A shows ? until checked",
+        "ok": true
+      },
+      {
+        "label": "Screen 10: the 600 kW load at 0.8 takes 600 × 0.75 = 450 kVAr; settings of 447.5 V cross at 440.0 V with 225 kVAr each and no cross current",
+        "ok": true
+      },
+      {
+        "label": "Screen 14: A at 62.8 Hz and B at 62.4 Hz carry 342 and 258 kW at 61.17 Hz; moved 0.2 Hz towards each other they carry 300 kW each, still at 61.17 Hz",
+        "ok": true
+      },
+      {
+        "label": "With no load, equal settings carry nothing at their setting; a set set well below the other is driven as a motor, drawing 50.4 kW that the other supplies",
+        "ok": true
+      },
+      {
+        "label": "Screen 1 shows the 80 kW and 60 kVAr triangle once checked; each typed answer and slip is worked from the rule: 80 kW (60, 125), 0.80 (1.20, 1.27, 1.80), 321 kW (342, 300, 279), 0.76 (0.80, 0.84, 0.65) and 0.2 Hz (0.4, 0.1, 42)",
+        "ok": true
+      },
+      {
+        "label": "Fourteen screens, six that show and eight to try; each pick's right answer is its second option",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "gov",
+      "fa",
+      "fb",
+      "droop",
+      "load",
+      "va",
+      "vb",
+      "comp"
+    ],
+    "readouts": [
+      "r-f",
+      "r-pa",
+      "r-pb",
+      "r-d",
+      "r-v",
+      "r-qa",
+      "r-qb",
+      "r-x"
+    ],
+    "outputs": [],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Screen",
+        "min": 0,
+        "max": 13,
+        "step": 1,
+        "steps": [
+          "Real and reactive",
+          "More fuel, wider angle",
+          "Power from the angle",
+          "Two droop lines",
+          "A nudge to A",
+          "Half the nudge",
+          "How much more",
+          "Less droop",
+          "Two flat lines",
+          "Voltage and kVAr",
+          "More field on A",
+          "Cross current",
+          "A's power factor",
+          "Share it back"
+        ],
+        "value": 0
+      },
+      {
+        "id": "gov",
+        "kind": "choice",
+        "label": "Governors",
+        "options": [
+          "Droop",
+          "Isochronous"
+        ],
+        "labels": [
+          "Droop",
+          "Isochronous"
+        ],
+        "value": "Droop",
+        "index": 0,
+        "shown": false
+      },
+      {
+        "id": "fa",
+        "kind": "control",
+        "label": "A's setting",
+        "min": 58,
+        "max": 64,
+        "step": 0.1,
+        "log": false,
+        "value": 62.4,
+        "shown": false,
+        "snap": [
+          62.4,
+          62.6,
+          62.7,
+          60.6,
+          60.9
+        ]
+      },
+      {
+        "id": "fb",
+        "kind": "control",
+        "label": "B's setting",
+        "min": 58,
+        "max": 64,
+        "step": 0.1,
+        "log": false,
+        "value": 62.4,
+        "shown": false,
+        "snap": [
+          62.4,
+          62.6
+        ]
+      },
+      {
+        "id": "droop",
+        "kind": "control",
+        "label": "Droop",
+        "min": 1,
+        "max": 6,
+        "step": 1,
+        "log": false,
+        "value": 4,
+        "shown": false
+      },
+      {
+        "id": "load",
+        "kind": "control",
+        "label": "Load",
+        "min": 0,
+        "max": 900,
+        "step": 100,
+        "log": false,
+        "value": 600,
+        "shown": false
+      },
+      {
+        "id": "va",
+        "kind": "control",
+        "label": "A's field setting",
+        "min": 430,
+        "max": 460,
+        "step": 0.5,
+        "log": false,
+        "value": 447.5,
+        "shown": false
+      },
+      {
+        "id": "vb",
+        "kind": "control",
+        "label": "B's field setting",
+        "min": 430,
+        "max": 460,
+        "step": 0.5,
+        "log": false,
+        "value": 447.5,
+        "shown": false
+      },
+      {
+        "id": "comp",
+        "kind": "toggle",
+        "label": "Compensation",
+        "options": [
+          false,
+          true
+        ],
+        "value": false,
+        "shown": false
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Show me again",
+      "Back",
+      "Continue",
+      "Start again",
+      "Running"
+    ],
+    "answers": [
+      {
+        "id": "a-kw",
+        "answer": 80,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-pu",
+        "answer": 0.8,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-share",
+        "answer": 321,
+        "accept": [
+          321.3
+        ],
+        "ok": true
+      },
+      {
+        "id": "a-pf",
+        "answer": 0.76,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-hz",
+        "answer": 0.2,
+        "accept": [],
+        "ok": true
+      }
+    ],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ]
+  },
+  "moved": [
+    "step = 5 (the first step that shows a control)",
+    "gov = \"Isochronous\"",
+    "fa = 64",
+    "fb = 64",
+    "droop = 4.75",
+    "load = 900",
+    "va = 452.5",
+    "vb = 452.5",
+    "comp = true"
+  ],
+  "shots": [
+    "/home/user/Study-App/build/electrical/generators/i6.a1-360-light.png",
+    "/home/user/Study-App/build/electrical/generators/i6.a1-360-light-moved.png",
+    "/home/user/Study-App/build/electrical/generators/i6.a1-360-light-end.png",
+    "/home/user/Study-App/build/electrical/generators/i6.a1-360-dark.png",
+    "/home/user/Study-App/build/electrical/generators/i6.a1-360-dark-moved.png",
+    "/home/user/Study-App/build/electrical/generators/i6.a1-360-dark-end.png",
+    "/home/user/Study-App/build/electrical/generators/i6.a1-1280-light.png",
+    "/home/user/Study-App/build/electrical/generators/i6.a1-1280-light-moved.png",
+    "/home/user/Study-App/build/electrical/generators/i6.a1-1280-light-end.png",
+    "/home/user/Study-App/build/electrical/generators/i6.a1-1280-dark.png",
+    "/home/user/Study-App/build/electrical/generators/i6.a1-1280-dark-moved.png",
+    "/home/user/Study-App/build/electrical/generators/i6.a1-1280-dark-end.png"
+  ]
+}

@@ -1,0 +1,843 @@
+<!-- kind: mechanism -->
+<style>
+  [hidden] { display: none !important; }
+  .pz { max-width: 52rem; }
+  .pz > * + *, #stepbox > * + *, .figs > * + * { margin-top: 14px; }
+  .task, .fb, .why, .closing, .done p, .say { max-width: 34rem; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.08rem; font-weight: 400; line-height: 1.6; }
+  /* The board and the traces: side by side on a laptop, stacked on a phone. */
+  .pics { display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-start; gap: 6px 18px; }
+  .pics svg { display: block; width: 100%; }
+  #scene { flex: 1 1 19rem; max-width: 28rem; }
+  #panel { flex: 1 1 19rem; max-width: 28rem; }
+  .sws { display: flex; flex-wrap: wrap; gap: 10px 16px; }
+  .sws > div { flex: 1 1 14rem; min-width: 0; }
+  #c-method .k-seg { flex-wrap: wrap; }
+  #c-method .k-seg button { flex: 1 1 7rem; white-space: nowrap; }
+  .go { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .go .k-btn { flex: 0 0 auto; min-height: 44px; padding-inline: 24px; white-space: nowrap; }
+  .outs.k-readouts { display: grid; grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr)); gap: 10px; }
+  .outs .k-readout { min-width: 0; }
+  .say { min-height: 3.2em; transition: opacity .3s ease-out; }
+  .say.off { opacity: 0; }
+  svg .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  svg .labb { font: 700 13px var(--k-font); fill: var(--k-ink); }
+  svg .labm { font: 600 13px var(--k-font); fill: var(--k-muted); }
+  svg .labw { font: 700 13px var(--k-font); fill: var(--k-warn); }
+  svg .hl { paint-order: stroke; stroke: var(--k-bg); stroke-width: 4px; stroke-linejoin: round; }
+  .bus { stroke: var(--k-ink); stroke-width: 3; stroke-linecap: round; }
+  .wire { fill: none; stroke: var(--k-ink); stroke-width: 1.6; }
+  .gen { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.6; }
+  .eng { fill: var(--k-sunk); stroke: var(--k-ink); stroke-width: 1.4; }
+  .avr { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.4; }
+  .avr.lit { fill: var(--k-fill2); stroke-width: 2; }
+  .wire.off, .gen.off, .eng.off, .avr.off { stroke: var(--k-muted); stroke-dasharray: 4 3; }
+  .loadbox { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.4; }
+  .mot { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.6; }
+  .mot-r { fill: var(--k-warn); fill-opacity: .2; stroke: var(--k-warn); stroke-width: 2.6; }
+  .disc { fill: var(--k-sunk); stroke: var(--k-ink); stroke-width: 1.4; }
+  .spoke { stroke: var(--k-ink); stroke-width: 2; stroke-linecap: round; }
+  .contact { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.4; }
+  .blade { stroke: var(--k-ink); stroke-width: 2.4; stroke-linecap: round; }
+  .axis { stroke: var(--k-strong); stroke-width: 1.4; }
+  .tick { stroke: var(--k-strong); stroke-width: 1.2; }
+  .cv { fill: none; stroke: var(--k-accent2); stroke-width: 2.6; stroke-linejoin: round; stroke-linecap: round; }
+  .lim { stroke: var(--k-ink); stroke-width: 1.4; stroke-dasharray: 7 4; }
+  .brk { fill: none; stroke: var(--k-ink); stroke-width: 1.5; }
+  .dot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 1.5; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .picks { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .picks .k-btn { min-height: 48px; font-size: 1.05rem; white-space: normal; overflow-wrap: normal; word-break: normal; hyphens: none; text-align: left; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .answers .k-answer { max-width: 20rem; }
+  .fb { font-weight: 700; min-height: 1.5em; }
+  .fb.right { color: var(--k-good); }
+  .why, .done, .closing { line-height: 1.6; }
+  .closing { font-weight: 700; }
+  .done .row { margin-top: 14px; }
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } .say { transition: none; } }
+</style>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <div class="figs" id="figs">
+      <div class="pics">
+        <svg id="scene" viewBox="0 0 340 196" width="100%" role="img" aria-label=""><g id="art"></g></svg>
+        <svg id="panel" viewBox="0 0 340 252" width="100%" role="img" aria-label=""><g id="panelArt"></g></svg>
+      </div>
+      <div class="sws" id="sws">
+        <div class="k-controls" id="c-kva"></div>
+        <div class="k-controls" id="c-method"></div>
+        <div class="k-controls" id="c-second"></div>
+      </div>
+      <div class="go" id="go"></div>
+      <p class="say" id="say"></p>
+      <div class="k-readouts outs" id="outs"></div>
+    </div>
+    <div class="picks" id="picks"></div>
+    <div class="answers" id="answers"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+    <p class="closing" id="closing" hidden></p>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p id="finish"></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption" id="cap">Worked from the rule, with example settings and smooth sketched traces.</p>
+
+<script>
+  // ================= the rule =================
+  const strip = (s) => String(s || '').replace(/\[\^\d+\]/g, '');
+  const NB = ' ';                               // a no-break space: a number never parts from its unit
+  const DASH = '–';
+  const SRC_INRUSH = 'https://www.cummins.com/sites/default/files/2020-03/PowerHour_Generator%20Set%20Sizing%20Software_Transient%20Performance%20and%20Motor%20Load%20Capabilities%20%281PDH%29.pdf';
+  const SRC_AVR = 'https://benshaw.com/hubfs/Benshaw%20Website/Downloads/White-Papers/Benshaw-White-Paper-Starting-Motors-on-GenSets_EN.pdf';
+  const SRC_ENGINE = 'https://resources.kohler.com/power/kohler/industrial/pdf/Sizing_Generators_for_Motor_Starting_WP.pdf';
+  const SRC_TORQUE = 'https://mart.cummins.com/imagelibrary/data/assetfiles/0056583.pdf';
+  // One or two 630 kVA sets on a 440 V, 60 Hz board. Sub-transient reactance 0.15 and synchronous 1.5
+  // per unit, E at the AVR's field ceiling 2.5, a starting power factor of 0.4 (all example values).
+  const SET = 630, XD2 = 0.15, XS = 1.5, ECEIL = 2.5, SPF = 0.4, DIPK = 0.03;
+  // Times in seconds from Start: the frequency is lowest at 0.3 s, the AVR pulls with a 1 s time
+  // constant, a motor that gets away does so at 3 s, a stall shows at 2 s, the run lasts 4 s and plays at half speed.
+  const TLOW = 0.3, TAVR = 1, TRUN = 3, TSTALL = 2, TBACK = 0.5, TEND = 4, PACE = 0.5, TARGET = 0.9, TLOWTILE = 1;
+  const METHODS = ['DOL', 'Star-delta', 'Soft starter'];
+  const DIV = { 'DOL': 1, 'Star-delta': 3, 'Soft starter': 2 };
+  const HOW = { 'DOL': 'direct on line', 'Star-delta': 'star-delta', 'Soft starter': 'on its soft starter' };
+  // One start: the kVA the set sees, x = that ÷ (630 kVA × the sets on), the voltage left at once
+  // 1 ÷ (1 + 0.15x), the recovered voltage 2.5 ÷ (1 + 1.5x) capped at 100%, torque its square, the
+  // real power kVA × 0.4, and a frequency dip of 3% per 100 kW, shared between the sets.
+  function begin(kva, method, n, ceil) {
+    const sk = kva / DIV[method], x = sk / (SET * n), E = ceil == null ? ECEIL : ceil;
+    const v0 = 1 / (1 + XD2 * x), vr = Math.min(1, E / (1 + XS * x));
+    const P = sk * SPF, dip = DIPK * P / 100 / n;
+    return { kva, method, n, sk, x, v0, vr, tq: vr * vr, P, dip, flo: 60 * (1 - dip), away: vr >= TARGET - 1e-12 };
+  }
+  const freq = (r, t) => 60 * (1 - r.dip * (t / TLOW) * Math.exp(1 - t / TLOW));
+  const pull = (r, t) => r.vr - (r.vr - r.v0) * Math.exp(-t / TAVR);
+  const smooth = (u) => u * u * (3 - 2 * u);
+  // The voltage drawn: the AVR's pull, times the frequency ÷ 60 (a slower rotor makes less voltage).
+  // A motor that gets away draws less current from 3 s, and the voltage returns to 100% over 0.5 s.
+  function volt(r, t) {
+    const raw = pull(r, t) * freq(r, t) / 60;
+    if (!r.away || t <= TRUN) return raw;
+    return raw + (1 - raw) * smooth(Math.min(1, (t - TRUN) / TBACK));
+  }
+  function lowest(r) {
+    let lo = Infinity, tl = 0;
+    for (let k = 0; k <= 2000; k++) { const t = k * TEND / 2000, v = volt(r, t); if (v < lo) { lo = v; tl = t; } }
+    let a = Math.max(0, tl - 0.002), b = Math.min(TEND, tl + 0.002);
+    for (let k = 0; k < 50; k++) { const m1 = a + (b - a) / 3, m2 = b - (b - a) / 3; if (volt(r, m1) < volt(r, m2)) b = m2; else a = m1; }
+    const tm = (a + b) / 2, vm = volt(r, tm);
+    return vm < lo ? { lo: vm, tlo: tm } : { lo, tlo: tl };
+  }
+  const CACHE = {};
+  function run(kva, method, n) {
+    const key = kva + '|' + method + '|' + n;
+    if (!CACHE[key]) { const r = begin(kva, method, n); Object.assign(r, lowest(r)); CACHE[key] = r; }
+    return CACHE[key];
+  }
+  // The shaft's turns since Start: one that gets away runs up to full speed by 3 s; one that
+  // stalls creeps round, then stops at 2 s.
+  function turns(r, t) {
+    if (r.away) return t <= TRUN ? t * t / (2 * TRUN) : TRUN / 2 + (t - TRUN);
+    if (t <= 1) return 0.15 * t * t;
+    if (t <= TSTALL) { const u = t - 1; return 0.15 + 0.3 * u - 0.15 * u * u; }
+    return 0.3;
+  }
+  // Rounded half up to one place, as worked by hand: 0.9375 is stored as 0.93749999…, so a hair is added first.
+  const r1 = (v) => Math.round(v * 10 + 1e-9) / 10;
+  const one = (v) => { const r = r1(v); return Number.isInteger(r) ? String(r) : r.toFixed(1); };
+  const pc = (v) => one(v * 100);
+  const f1 = (v) => Math.round(v * 10) / 10;
+  const f2 = (v) => Math.round(v * 100) / 100;
+  const rad = (d) => d * Math.PI / 180;
+
+  // ================= the lesson: SHOW screens demonstrate, DO screens are puzzles =================
+  const STEPS = [
+    { kind: 'typed', name: 'The starting current', nofig: true, ans: 'dol',
+      answer: 600, decimals: 0, accept: [700, 800], unit: 'A', want: '600' + NB + 'A',
+      slips: [{ value: 100, hint: 'That is its running current. A start draws several times more.' },
+        { value: 200, hint: 'That is nearer a star-delta start, about a third of DOL.' }],
+      task: 'A motor takes 100 A at full load. Started direct on line, roughly what current does it draw at first?',
+      hint: 'A DOL start usually draws 6 to 8 times full-load current.',
+      why: '6 × 100 = 600 A, and up to 800 A is common. The current stays high until the motor reaches about 75% of its speed.[^1]',
+      right: 'Still there.',
+      read: 'A motor takes 100 A at full load. Started direct on line, roughly what current does it draw at first?' },
+    { show: true, name: 'The first instant', ctl: ['start'],
+      text: 'A big motor\'s start is a sudden, heavy load on the set. Here it takes 600 kVA from a 630 kVA set. For the first few cycles, only the small [[sub-transient reactance]] holds the set\'s current back. Say 0.15 per unit, as for fault currents. The motor\'s starting impedance is 630 ÷ 600 = 1.05 per unit. In this simplified picture, the two share the voltage like a divider. So the motor keeps 1.05 ÷ (1.05 + 0.15) = 87.5%. Press Start to watch the drop.',
+      read: 'A big motor\'s start is a sudden, heavy load on the set. Here it takes 600 kVA from a 630 kVA set. For the first few cycles, only the small sub-transient reactance holds the set\'s current back. Say 0.15 per unit, as for fault currents. The motor\'s starting impedance is 630 ÷ 600 = 1.05 per unit. In this simplified picture, the two share the voltage like a divider. So the motor keeps 1.05 ÷ (1.05 + 0.15) = 87.5%.',
+      still: () => setStill(0.05) },
+    { kind: 'pick', name: 'What the AVR does', lit: true, solveRun: {}, ctlSolved: ['start'],
+      opts: ['It stops it, so the voltage holds at 100%', 'Nothing at first, then it pulls the voltage back', 'It makes it deeper, by cutting the field'],
+      want: 'Nothing at first, then it pulls the voltage back',
+      task: 'The AVR is on and watching the voltage. You are about to press Start. What does the AVR do to that first drop?',
+      hints: { 'It stops it, so the voltage holds at 100%': 'The AVR acts only once it sees the voltage fall. The drop comes first.',
+        'It makes it deeper, by cutting the field': 'When the voltage falls, the AVR raises the field.' },
+      why: 'The AVR must see the drop before it acts. Then the field takes time to grow. So a sudden step drops the voltage as far as it would with no AVR at all.[^2]',
+      read: 'The AVR is on and watching the voltage. You are about to press Start. What does the AVR do to that first drop?' },
+    { show: true, name: 'The engine slows', auto: true, ctl: ['start'],
+      text: 'Now the engine. The start also takes 240 kW of real power, at an example power factor of 0.4. The engine cannot find that at once, so it slows. A slower rotor makes less voltage, so the dip goes deeper, to 83.8%.[^3] Then the governor adds fuel, and the speed comes back. The AVR raises the field, and the voltage climbs back to 100%. Once the motor is up to speed, its current falls away.',
+      read: 'Now the engine. The start also takes 240 kW of real power, at an example power factor of 0.4. The engine cannot find that at once, so it slows. A slower rotor makes less voltage, so the dip goes deeper, to 83.8%. Then the governor adds fuel, and the speed comes back. The AVR raises the field, and the voltage climbs back to 100%. Once the motor is up to speed, its current falls away.',
+      still: () => setStill() },
+    { kind: 'typed', name: 'A bigger motor', ans: 'once9', hide: ['once'], solveRun: { kva: 900 }, ctlSolved: ['start', 'kva'],
+      answer: 82.4, decimals: 1, unit: '%', want: '82.4%',
+      slips: [{ value: 78.6, hint: 'That takes the whole 0.15 × 900 ÷ 630 off. The motor\'s impedance shares the voltage too.' },
+        { value: 17.6, hint: 'That is the drop. The question asks what is left.' },
+        { value: 85, hint: 'That leaves out the motor\'s size.' }],
+      task: 'The same 630 kVA set has a sub-transient reactance of 0.15 per unit. A bigger motor starts DOL and takes 900 kVA. What voltage is left at the first instant, in %?',
+      hint: 'The motor\'s impedance is 630 ÷ 900 = 0.70 per unit.',
+      why: '0.70 ÷ (0.70 + 0.15) = 0.824, so 82.4% is left.',
+      read: 'The same 630 kVA set has a sub-transient reactance of 0.15 per unit. A bigger motor starts DOL and takes 900 kVA. What voltage is left at the first instant, in %?' },
+    { show: true, name: 'Will it get away?', enter: { kva: 900 }, auto: true, ctl: ['start', 'kva'],
+      text: 'Will the motor get away? A motor\'s torque goes with the square of its voltage. At 90% voltage it makes 81% of its torque, enough for most loads.[^4] So the target is 90%. As the start goes on, the set\'s reactance grows towards its bigger [[synchronous reactance]], here 1.5. The AVR\'s field has a ceiling, here an example E of 2.5. At 600 kVA that is plenty. At 900 kVA, it reaches only 2.5 ÷ (1 + 1.5 × 900 ÷ 630) = 79.5%. The motor stalls.',
+      read: 'Will the motor get away? A motor\'s torque goes with the square of its voltage. At 90% voltage it makes 81% of its torque, enough for most loads. So the target is 90%. As the start goes on, the set\'s reactance grows towards its bigger synchronous reactance, here 1.5. The AVR\'s field has a ceiling, here an example E of 2.5. At 600 kVA that is plenty. At 900 kVA, it reaches only 2.5 ÷ (1 + 1.5 × 900 ÷ 630) = 79.5%. The motor stalls.',
+      still: () => setStill() },
+    { kind: 'typed', name: 'Torque from voltage', ans: 'torque', enter: { kva: 900 }, done: true, hide: ['tq'], ctlSolved: ['start', 'kva'],
+      answer: 72.3, decimals: 1, accept: [72.25, 72], unit: '%', want: '72.3%',
+      slips: [{ value: 85, hint: 'Torque goes with the square of the voltage.' },
+        { value: 92.2, hint: 'That is the square root. Square it instead.' },
+        { value: 81, hint: '81% goes with 90% voltage. This voltage is lower.' }],
+      task: 'A start recovers the voltage to only 85%. What torque does the motor make, as a % of its full-voltage torque?',
+      hint: 'Write the voltage as a fraction, then square it.',
+      why: '0.85 × 0.85 = 0.7225, about 72.3%. That is under the 81% that goes with a 90% recovery.',
+      read: 'A start recovers the voltage to only 85%. What torque does the motor make, as a % of its full-voltage torque?' },
+    { show: true, name: 'Start softly', enter: { method: 'Soft starter' }, auto: true, ctl: ['start', 'method'],
+      text: 'The first cure is to start softly. Star-delta draws about a third of the DOL current. So 600 kVA becomes 200 kVA, and 95.5% is left at once. A soft starter\'s thyristors hold the current down too. In this example, it holds the start to half, 300 kVA. That leaves 93.3%. Both give the motor less torque as it starts. So they suit loads that start light, such as fans and pumps. Switch the start method to compare.',
+      read: 'The first cure is to start softly. Star-delta draws about a third of the DOL current. So 600 kVA becomes 200 kVA, and 95.5% is left at once. A soft starter\'s thyristors hold the current down too. In this example, it holds the start to half, 300 kVA. That leaves 93.3%. Both give the motor less torque as it starts. So they suit loads that start light, such as fans and pumps.',
+      still: () => setStill() },
+    { kind: 'typed', name: 'Star-delta at 900 kVA', ans: 'sd9', enter: { kva: 900, method: 'Star-delta' }, hide: ['once'], solveRun: {}, ctlSolved: ['start', 'method'],
+      answer: 93.3, decimals: 1, unit: '%', want: '93.3%',
+      slips: [{ value: 82.4, hint: 'That is the DOL start. Star-delta draws about a third.' },
+        { value: 92.9, hint: 'That takes the whole share off. The motor\'s impedance shares the voltage too.' },
+        { value: 6.7, hint: 'That is the drop. The question asks what is left.' }],
+      task: 'The 900 kVA motor is now started star-delta, on one set. What voltage is left at the first instant, in %?',
+      hint: 'Star-delta\'s starting load is 900 ÷ 3 = 300 kVA.',
+      why: 'The motor\'s impedance is 630 ÷ 300 = 2.10 per unit. 2.10 ÷ (2.10 + 0.15) = 0.933, so 93.3% is left. It recovers to 100%, and the motor gets away.',
+      read: 'The 900 kVA motor is now started star-delta, on one set. What voltage is left at the first instant, in %?' },
+    { show: true, name: 'More sets on', enter: { second: true }, auto: true, ctl: ['start', 'second'],
+      text: 'The second cure is more sets on the board. Two sets in parallel halve the reactance the motor sees. So the same 600 kVA start leaves 93.3%. The drop is 6.7%, not 12.5%. They share the real power too, so the frequency dips less. A power management system can hold a big start until enough sets are on. Starting loads one at a time helps the same way. In one worked case it cut the starting kW needed by 40%.[^5]',
+      read: 'The second cure is more sets on the board. Two sets in parallel halve the reactance the motor sees. So the same 600 kVA start leaves 93.3%. The drop is 6.7%, not 12.5%. They share the real power too, so the frequency dips less. A power management system can hold a big start until enough sets are on. Starting loads one at a time helps the same way. In one worked case it cut the starting kW needed by 40%.',
+      still: () => setStill() },
+    { kind: 'typed', name: 'A second set at 900 kVA', ans: 'two9', enter: { kva: 900 }, hide: ['once'], solveRun: { second: true }, ctlSolved: ['start', 'second'],
+      answer: 90.3, decimals: 1, unit: '%', want: '90.3%',
+      slips: [{ value: 82.4, hint: 'That is one set. Two sets halve the reactance.' },
+        { value: 91.2, hint: 'Halving the reactance does not quite halve the drop. Work the divider.' },
+        { value: 9.7, hint: 'That is the drop. The question asks what is left.' }],
+      task: 'A 900 kVA DOL start stalls on one set. So you synchronise a second, identical set onto the board first. What voltage is left at the first instant now, in %?',
+      hint: 'With two sets, the reactance is 0.15 ÷ 2 = 0.075 per unit.',
+      why: 'The motor\'s impedance is 630 ÷ 900 = 0.70. 0.70 ÷ (0.70 + 0.075) = 0.903, so 90.3% is left. It recovers to 100%, and the motor gets away.',
+      read: 'A 900 kVA DOL start stalls on one set. So you synchronise a second, identical set onto the board first. What voltage is left at the first instant now, in %?' },
+    { kind: 'typed', name: 'The engine\'s kW', ans: 'kw', mode: 'freq', done: true, hide: ['flo'],
+      answer: 240, decimals: 0, unit: 'kW', want: '240' + NB + 'kW',
+      slips: [{ value: 600, hint: 'That is the kVA. The engine supplies only the kW.' },
+        { value: 480, hint: '0.8 is the set\'s rated power factor. A starting motor\'s is lower, here 0.4.' },
+        { value: 360, hint: 'That is the part left over. Multiply by 0.4.' }],
+      task: 'A motor\'s start takes 600 kVA at a power factor of 0.4. How many kW must the engine find at once?',
+      hint: 'kW = kVA × power factor.',
+      why: '600 × 0.4 = 240 kW. The governor needs a moment to add that much fuel, so the frequency dips.',
+      read: 'A motor\'s start takes 600 kVA at a power factor of 0.4. How many kW must the engine find at once?' },
+    { kind: 'pick', name: 'A governor fault', mode: 'ab',
+      opts: ['Only A speeds up, and B carries on as before', 'A takes kW from B, the frequency rises, and B may be driven as a motor', 'The board\'s voltage rises, but the kW split stays the same'],
+      want: 'A takes kW from B, the frequency rises, and B may be driven as a motor',
+      task: 'Two sets share the board in droop. Set A\'s governor fails and drives its fuel up. What happens?',
+      hints: { 'Only A speeds up, and B carries on as before': 'A is locked in step with the board. It cannot speed up alone.',
+        'The board\'s voltage rises, but the kW split stays the same': 'Fuel moves kW, not voltage.' },
+      why: 'In parallel, more fuel on A moves kW onto A and off B. The board\'s frequency rises along the droop lines. If A pushes past the whole load, it drives B as a motor. B\'s reverse-power relay then trips it. A governor fault at one set reaches the whole board.',
+      close: 'One board, every set.',
+      read: 'Two sets share the board in droop. Set A\'s governor fails and drives its fuel up. What happens?' },
+  ];
+  const FINISH = 'A big motor\'s start is a sudden, heavy load. A generator set feels it at once. The voltage drops before the AVR can move. The engine slows and deepens the dip. Then the governor and the AVR pull the board back. Whether the motor gets away depends on how far the voltage recovers. So big loads are started softly, one at a time, or with more sets on.';
+
+  // ================= state =================
+  const BASE = { kva: 600, method: 'DOL', second: false };
+  const X = Object.assign({}, BASE);
+  let T = 0, started = false, running = false;
+  // What is drawn eases after the state: the labels that arrive during a run, and the second set joining.
+  const D = { drop: 0, flo: 0, stall: 0, away: 0, set2: 0 };
+  const DK = Object.keys(D);
+  const blank = () => ({ pick: null, res: null, why: false, tries: 0, hint: '' });
+  let S = STEPS.map(blank);
+  const solved = (st) => !!st && (st.res === 'right' || st.res === 'shown');
+  let lastStep = -1, finished = false, lastDone = false;
+  let REC = { t: {} };
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  const quiet = () => REDUCE || testing();
+  const el = (id) => document.getElementById(id);
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  const cur = () => run(X.kva, X.method, X.second ? 2 : 1);
+  function targets() {
+    const r = cur();
+    return { drop: started ? 1 : 0, flo: started && T >= TLOW - 1e-9 ? 1 : 0,
+      stall: started && !r.away && T >= TSTALL - 1e-9 ? 1 : 0, away: started && r.away && T >= TRUN - 1e-9 ? 1 : 0, set2: X.second ? 1 : 0 };
+  }
+  function snapD() { Object.assign(D, targets()); }
+  function settled() { const g = targets(); return DK.every((k) => Math.abs(D[k] - g[k]) < 1e-9); }
+  function easeAll(dt) {
+    const g = targets();
+    DK.forEach((k) => { D[k] += (g[k] - D[k]) * (1 - Math.exp(-dt / 0.2)); if (Math.abs(g[k] - D[k]) < 0.004) D[k] = g[k]; });
+  }
+
+  // ================= text with amber key terms (built with K.el, never innerHTML) =================
+  const UNIT_GAP = /(\d) (?=(?:Hz|kVA|kW|V|A|s|per unit)(?![A-Za-z]))/g;
+  function write(node, s) {
+    node.textContent = '';
+    strip(s).replace(UNIT_GAP, '$1' + NB).split(/\[\[([^\]]+)\]\]/).forEach((seg, k) => {
+      if (!seg) return;
+      node.appendChild(k % 2 ? K.el('span', { class: 'term' }, seg) : document.createTextNode(seg));
+    });
+  }
+
+  // ================= controls =================
+  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);
+  const CTL = {
+    kva: K.control({ id: 'kva', label: 'Starting kVA', hint: 'The motor\'s starting load when started DOL', min: 100, max: 1200, step: 50, value: 600, unit: 'kVA', snap: [600, 900], into: '#c-kva' }),
+    method: K.choice({ id: 'method', label: 'Start method', options: METHODS, value: 'DOL', into: '#c-method' }),
+    second: K.toggle({ id: 'second', label: 'Second set', hint: 'Joins a second 630 kVA set to the board', value: false, into: '#c-second' }),
+  };
+  const CIDS = ['kva', 'method', 'second'];
+  function norm(id, v) {
+    if (id === 'kva') return Math.round(Number(v) / 50) * 50;
+    if (id === 'second') return !!v;
+    return String(v);
+  }
+  const pushed = {};
+  CIDS.forEach((id) => { pushed[id] = norm(id, CTL[id].get()); });
+  // The page moves the controls itself (silently, so it is not taken for Dan's move).
+  function push() {
+    CIDS.forEach((id) => {
+      const v = norm(id, X[id]);
+      if (pushed[id] !== v) { CTL[id].set(v, true); pushed[id] = norm(id, CTL[id].get()); }
+    });
+  }
+  function freeList(i) {
+    const d = STEPS[i];
+    if (finished) return [];
+    return d.show ? (d.ctl || []) : solved(S[i]) ? (d.ctlSolved || []) : [];
+  }
+  const isFree = (i, id) => freeList(i).indexOf(id) >= 0;
+
+  K.button({ label: 'Start', into: '#go', press: () => { if (isFree(at(), 'start')) restart(); } });
+
+  const RO = {
+    once: K.readout({ id: 'once', label: 'At once,' + NB + '%', fmt: (v) => String(v), into: '#outs' }),
+    low: K.readout({ id: 'low', label: 'Lowest,' + NB + '%', fmt: (v) => String(v), into: '#outs' }),
+    rec: K.readout({ id: 'rec', label: 'Recovers to,' + NB + '%', fmt: (v) => String(v), into: '#outs' }),
+    tq: K.readout({ id: 'tq', label: 'Torque,' + NB + '%', fmt: (v) => String(v), into: '#outs' }),
+  };
+
+  // Up to three answer buttons; each puzzle fills in its own.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.kind !== 'pick' || k >= d.opts.length || solved(st)) return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+  // Typed answers: a field each; Check grades it, two misses show the working.
+  const ANS = {};
+  STEPS.forEach((d, i) => {
+    if (d.kind !== 'typed') return;
+    el('answers').appendChild(K.el('div', { id: 'ans-' + d.ans }));
+    const a = K.answer({ id: 'a-' + d.ans, unit: d.unit, answer: d.answer, decimals: d.decimals, accept: d.accept, slips: d.slips, into: '#ans-' + d.ans,
+      onCheck: (r) => {
+        const st = S[i];
+        if (solved(st)) return;
+        if (r.state === 'right') { st.res = 'right'; playRun(i); }
+        else if (r.state === 'wrong') {
+          st.tries += 1; st.hint = r.hint || d.hint;
+          if (st.tries >= 2) { st.res = 'shown'; st.why = true; a.reveal(); playRun(i); }
+          else st.res = 'wrong';
+        } else { st.res = r.state; st.hint = ''; }
+        K.refresh();
+      } });
+    ANS[d.ans] = a;
+  });
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || solved(st)) return;
+    if (d.kind === 'typed') { ANS[d.ans].check(); return; }
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = st.pick === d.want ? 'right' : 'wrong';
+    if (st.res === 'right') playRun(i);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    const d = STEPS[at()];
+    if (d.show || finished) return;
+    S[at()].why = !S[at()].why;
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && !solved(S[i]))) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true; anim.pause(); running = false;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(blank); finished = false; lastStep = -1;
+    Object.keys(ANS).forEach((k) => ANS[k].reset());
+    stepper.set(0, true);
+  } });
+
+  // ================= motion: the start, played at half speed =================
+  const anim = K.anim({ button: false, label: 'The start', step: (dt) => {
+    if (finished) return false;
+    dt = Math.min(dt, 0.1);
+    if (running) { T = Math.min(TEND, T + dt * PACE); if (T >= TEND) running = false; }
+    easeAll(dt);
+    paint(at());
+    return running || !settled();
+  } });
+  function kick() { if (!quiet() && !finished && (running || !settled()) && !anim.playing()) anim.play(); }
+  // Start (or start over): the traces clear and draw again from 0 s.
+  function restart() {
+    anim.pause();
+    started = true; T = 0; D.drop = 0; D.flo = 0; D.stall = 0; D.away = 0;
+    if (quiet()) { T = TEND; running = false; snapD(); return; }
+    running = true;
+    anim.play();
+  }
+  // A screen's state: its opening, or, once a puzzle is solved, its answer's run finished.
+  function prep(i) {
+    const d = STEPS[i];
+    Object.assign(X, BASE, d.enter || {});
+    started = false; T = 0; running = false;
+    if (d.done) { started = true; T = TEND; }
+    else if (!d.show && d.solveRun && solved(S[i])) { Object.assign(X, d.solveRun); started = true; T = TEND; }
+    snapD();
+  }
+  function enterStep(i) {
+    anim.pause(); running = false;
+    enter('stepbox');
+    prep(i);
+    push();
+    if (STEPS[i].show && STEPS[i].auto && !finished) restart();
+  }
+  function playRun(i) {
+    const d = STEPS[i];
+    if (!d.solveRun) return;
+    Object.assign(X, d.solveRun);
+    push();
+    restart();
+  }
+  // The finished picture a still shows (the read-through): the run drawn to time t, held.
+  function setStill(t) {
+    const i = at();
+    anim.pause(); running = false;
+    prep(i);
+    started = true; T = t == null ? TEND : t;
+    snapD();
+    push();
+    K.refresh();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ================= drawing helpers =================
+  function adder(g) { const f = (tag, attrs, txt) => g.appendChild(txt == null ? K.svg(tag, attrs) : K.svg(tag, attrs, txt)); f.g = g; return f; }
+  function grp(g, op) { const gg = K.svg('g', { opacity: f2(op) }); g.appendChild(gg); return adder(gg); }
+  const BUSY = 40, SX = [60, 176], MX = 288;
+  // A set: its wire up to the board, the generator, the AVR box on it, and its engine below.
+  function setParts(a, cx, name, cls, lit, top) {
+    a('line', { class: 'wire' + cls, x1: cx, y1: top ? BUSY : 72.6, x2: cx, y2: 94 });
+    a('circle', { class: 'gen' + cls, cx, cy: 112, r: 18 });
+    a('text', { class: 'labb', x: cx, y: 116.5, 'text-anchor': 'middle' }, name);
+    a('line', { class: 'wire' + cls, x1: cx + 18, y1: 112, x2: cx + 22, y2: 112 });
+    a('rect', { class: 'avr' + cls + (lit ? ' lit' : ''), x: cx + 22, y: 103, width: 36, height: 18, rx: 3 });
+    a('text', { class: 'lab', x: cx + 40, y: 116.5, 'text-anchor': 'middle' }, 'AVR');
+    a('line', { class: 'wire' + cls, x1: cx, y1: 130, x2: cx, y2: 144 });
+    a('rect', { class: 'eng' + cls, x: cx - 28, y: 144, width: 56, height: 22, rx: 3 });
+    a('text', { class: 'lab', x: cx, y: 159.5, 'text-anchor': 'middle' }, 'engine');
+  }
+  // The second set's breaker: two contacts and a blade, swung open while the set is off the board.
+  function breaker(a, x, open) {
+    a('line', { class: 'wire', x1: x, y1: BUSY, x2: x, y2: 49.4 });
+    const th = rad(40 * open);
+    a('line', { class: 'blade', x1: x, y1: 70, x2: f1(x - 18 * Math.sin(th)), y2: f1(70 - 18 * Math.cos(th)) });
+    a('circle', { class: 'contact', cx: x, cy: 52, r: 2.6 });
+    a('circle', { class: 'contact', cx: x, cy: 70, r: 2.6 });
+  }
+
+  // ================= the board: the sets, the starter and the motor =================
+  function drawScene(i, r) {
+    const d = STEPS[i], g = el('art');
+    g.textContent = '';
+    const a = adder(g), ab = d.mode === 'ab', lit = !!d.lit && !finished, s2 = ab ? 1 : D.set2;
+    a('text', { class: 'labm hl', x: 20, y: 28 }, '440' + NB + 'V, 60' + NB + 'Hz board');
+    a('line', { class: 'bus', x1: 20, y1: BUSY, x2: ab ? 250 : 320, y2: BUSY });
+    setParts(a, SX[0], ab ? 'A' : 'G', '', lit, true);
+    a('text', { class: 'labm hl', x: SX[0], y: 186, 'text-anchor': 'middle' }, '630' + NB + 'kVA');
+    breaker(a, SX[1], 1 - s2);
+    if (1 - s2 > 0.005) {
+      const o = grp(g, 1 - s2);
+      setParts(o, SX[1], 'G', ' off', false, false);
+      o('text', { class: 'labm hl', x: SX[1], y: 186, 'text-anchor': 'middle' }, 'not on the board');
+    }
+    if (s2 > 0.005) {
+      const o = grp(g, s2);
+      setParts(o, SX[1], ab ? 'B' : 'G', '', false, false);
+      o('text', { class: 'labm hl', x: SX[1], y: 186, 'text-anchor': 'middle' }, '630' + NB + 'kVA');
+    }
+    REC.joined = s2 > 0.5; REC.lit = lit; REC.names = ab ? 'A,B' : 'G,G';
+    REC.red = false; REC.status = ''; REC.wire = ''; REC.method = '';
+    if (ab) {
+      el('scene').setAttribute('aria-label', 'Sets A and B, two identical 630 kVA sets, both on one 440 V, 60 Hz board. Each has an engine below and an AVR beside it.');
+      return;
+    }
+    // The motor's feeder, its starter and the motor, with its shaft.
+    a('line', { class: 'wire', x1: MX, y1: BUSY, x2: MX, y2: 62 });
+    const wire = one(r.sk) + NB + 'kVA';
+    a('text', { class: 'lab hl', x: MX - 6, y: 56, 'text-anchor': 'end' }, wire);
+    a('rect', { class: 'loadbox', x: 238, y: 62, width: 100, height: 22, rx: 3 });
+    a('text', { class: 'lab', x: MX, y: 77.5, 'text-anchor': 'middle' }, X.method);
+    a('line', { class: 'wire', x1: MX, y1: 84, x2: MX, y2: 100 });
+    a('circle', { class: 'mot', cx: MX, cy: 118, r: 18 });
+    if (D.stall > 0.005) a('circle', { class: 'mot-r', cx: MX, cy: 118, r: 18, opacity: f2(D.stall) });
+    a('text', { class: 'labb', x: MX, y: 122.5, 'text-anchor': 'middle' }, 'M');
+    a('line', { class: 'wire', x1: MX, y1: 136, x2: MX, y2: 143 });
+    a('circle', { class: 'disc', cx: MX, cy: 152, r: 9 });
+    const th = rad(360 * 3 * turns(r, started ? T : 0));
+    [0, 90].forEach((o) => {
+      const t = th + rad(o), c = Math.cos(t) * 7, s = Math.sin(t) * 7;
+      a('line', { class: 'spoke', x1: f1(MX - c), y1: f1(152 - s), x2: f1(MX + c), y2: f1(152 + s) });
+    });
+    if (started) {
+      const opS = K.clamp(1 - D.stall - D.away, 0, 1);
+      if (opS > 0.005) a('text', { class: 'labm hl', x: MX, y: 186, 'text-anchor': 'middle', opacity: f2(opS) }, 'starting');
+      if (D.away > 0.005) a('text', { class: 'labb hl', x: MX, y: 186, 'text-anchor': 'middle', opacity: f2(D.away) }, 'up to speed');
+      if (D.stall > 0.005) a('text', { class: 'labw hl', x: MX, y: 186, 'text-anchor': 'middle', opacity: f2(D.stall) }, 'Stalled');
+      REC.status = D.stall > 0.5 ? 'Stalled' : D.away > 0.5 ? 'up to speed' : 'starting';
+    }
+    REC.red = D.stall > 0.5; REC.wire = wire; REC.method = X.method;
+    const sets = s2 > 0.5 ? 'Two 630 kVA sets are on' : 'One 630 kVA set is on';
+    el('scene').setAttribute('aria-label', sets + ' a 440 V, 60 Hz board, each with an engine and an AVR' + (s2 > 0.5 ? '' : ', and a second set waits off the board, drawn dashed') +
+      '. A motor hangs off the board behind a ' + X.method + ' starter, drawing ' + wire + ' as it starts. ' +
+      (!started ? 'It has not started yet.' : REC.status === 'Stalled' ? 'The motor is red: it has stalled.' : REC.status === 'up to speed' ? 'Its shaft is up to speed.' : 'Its shaft is starting to turn.'));
+  }
+
+  // ================= the traces: voltage above, frequency below =================
+  const XA = 46, X0 = 70, X1 = 326, tx = (t) => X0 + (X1 - X0) * t / TEND;
+  const vy = (v) => 22 + (1.05 - v) * 200;
+  function tracePts(fn, upto, yOf, pre) {
+    const pts = [XA + ',' + f1(yOf(pre)), X0 + ',' + f1(yOf(pre))];
+    const n = Math.ceil(upto / 0.02 - 1e-9);
+    for (let k = 0; k <= n; k++) { const t = Math.min(upto, k * 0.02); pts.push(f1(tx(t)) + ',' + f1(yOf(fn(t)))); }
+    return pts.join(' ');
+  }
+  function timeTicks(a, y) { for (let s = 0; s <= TEND; s++) a('line', { class: 'tick', x1: f1(tx(s)), y1: y, x2: f1(tx(s)), y2: y + 4 }); }
+  function drawVolt(g, a, r) {
+    a('text', { class: 'labm hl', x: 4, y: 14 }, 'Board voltage, % of 440' + NB + 'V');
+    a('line', { class: 'axis', x1: XA, y1: 22, x2: XA, y2: 112 });
+    a('line', { class: 'axis', x1: XA, y1: 112, x2: X1, y2: 112 });
+    timeTicks(a, 112);
+    a('line', { class: 'lim', x1: XA, y1: vy(TARGET), x2: X1, y2: vy(TARGET) });
+    a('text', { class: 'labm hl', x: 42, y: f1(vy(1) + 4.5), 'text-anchor': 'end' }, '100%');
+    a('text', { class: 'lab hl', x: 42, y: f1(vy(TARGET) + 4.5), 'text-anchor': 'end' }, '90%');
+    a('text', { class: 'labm hl', x: 42, y: 112, 'text-anchor': 'end' }, '60%');
+    REC.volt = false; REC.drop = false;
+    if (!started) return;
+    a('polyline', { class: 'cv', points: tracePts((t) => volt(r, t), T, vy, 1) });
+    REC.volt = true;
+    // The first drop, bracketed beside the step it makes at Start (its size is the At once tile).
+    if (D.drop > 0.005) {
+      const b = grp(g, D.drop), yb = f1(vy(r.v0));
+      b('path', { class: 'brk', d: 'M66 ' + f1(vy(1)) + 'H60V' + yb + 'H66' });
+      b('text', { class: 'lab hl', x: 50, y: 27 }, 'first drop');
+      REC.drop = D.drop > 0.5;
+    }
+  }
+  function drawFreq(g, a, r, y0, hideLow) {
+    const fy = (f) => y0 + 24 + (61 - f) * 80 / 11;
+    a('text', { class: 'labm hl', x: 4, y: y0 + 14 }, 'Board frequency, Hz');
+    a('line', { class: 'axis', x1: XA, y1: fy(61), x2: XA, y2: fy(50) });
+    a('line', { class: 'axis', x1: XA, y1: fy(50), x2: X1, y2: fy(50) });
+    timeTicks(a, fy(50));
+    a('text', { class: 'labm hl', x: 42, y: f1(fy(60) + 4.5), 'text-anchor': 'end' }, '60');
+    a('text', { class: 'labm hl', x: 42, y: f1(fy(50)), 'text-anchor': 'end' }, '50');
+    a('text', { class: 'labm hl', x: X0, y: y0 + 122, 'text-anchor': 'middle' }, 'Start');
+    [1, 2, 3].forEach((s) => a('text', { class: 'labm hl', x: f1(tx(s)), y: y0 + 122, 'text-anchor': 'middle' }, s + NB + 's'));
+    a('text', { class: 'labm hl', x: X1, y: y0 + 122, 'text-anchor': 'end' }, TEND + NB + 's');
+    REC.freq = false; REC.flo = null;
+    if (!started) return;
+    a('polyline', { class: 'cv', points: tracePts((t) => freq(r, t), T, fy, 60) });
+    REC.freq = true;
+    if (D.flo > 0.005) {
+      const b = grp(g, D.flo), lx = tx(TLOW), ly = fy(r.flo);
+      const txt = 'lowest ' + (hideLow ? '?' : one(r.flo) + NB + 'Hz');
+      b('circle', { class: 'dot', cx: f1(lx), cy: f1(ly), r: 5 });
+      b('text', { class: 'lab hl', x: f1(lx + 10), y: f1(Math.min(ly + 16, y0 + 102)) }, txt);
+      if (D.flo > 0.5) REC.flo = txt;
+    }
+  }
+  function drawPanel(i, r) {
+    const d = STEPS[i], g = el('panelArt'), mode = d.mode || 'full';
+    g.textContent = '';
+    REC.mode = mode; REC.volt = false; REC.freq = false; REC.flo = null; REC.drop = false;
+    if (d.nofig || mode === 'ab') return;
+    const a = adder(g), hideLow = !finished && !!d.hide && d.hide.indexOf('flo') >= 0 && !solved(S[i]);
+    let y0 = 0;
+    if (mode === 'full') { drawVolt(g, a, r); y0 = 124; }
+    drawFreq(g, a, r, y0, hideLow);
+    el('panel').setAttribute('viewBox', '0 0 340 ' + (y0 + 128));
+    el('panel').setAttribute('aria-label', (mode === 'full' ? 'Two traces against time from Start to 4 s. Above, the board voltage as a % of 440 V, with a dashed line at 90%. Below, the board frequency in Hz.'
+      : 'The board frequency in Hz against time from Start to 4 s.') +
+      (!started ? ' Nothing is drawn until Start.' : mode === 'full' ? ' The voltage drops at once at Start, sags as the engine slows, then climbs as the AVR acts. The frequency dips to its lowest at 0.3 s and comes back.'
+        : ' The frequency dips to its lowest at 0.3 s, then the governor brings it back.'));
+  }
+
+  // ================= the readouts and the sentence under the picture =================
+  function readouts(i, r) {
+    const d = STEPS[i], sol = solved(S[i]);
+    const hid = (id) => !finished && !!d.hide && d.hide.indexOf(id) >= 0 && !sol;
+    const txt = {
+      once: started ? pc(r.v0) : DASH,
+      low: started && T >= TLOWTILE - 1e-9 ? pc(r.lo) : DASH,
+      rec: started && T >= TRUN - 1e-9 ? pc(r.vr) : DASH,
+      tq: started && T >= TRUN - 1e-9 ? pc(r.tq) : DASH,
+    };
+    Object.keys(txt).forEach((id) => { if (hid(id)) txt[id] = '?'; RO[id].set(txt[id]); });
+    REC.t = txt;
+  }
+  function sayText(i, r) {
+    const d = STEPS[i];
+    if (d.mode === 'freq') return 'The engine must find ' + one(r.P) + ' kW at once. It slows, and the frequency dips to ' + one(r.flo) + ' Hz before the governor catches it.';
+    const sets = X.second ? 'two 630 kVA sets' : 'one 630 kVA set';
+    if (!started) return 'The motor is ready to start ' + HOW[X.method] + '. It will take ' + one(r.sk) + ' kVA from ' + sets + '.';
+    if (T < TLOW) return 'At the first instant the voltage drops to ' + pc(r.v0) + '%. Only the small sub-transient reactance holds the current back, and the AVR has not acted yet.';
+    if (!r.away && T >= TSTALL - 1e-9) return 'The voltage is stuck below the 90% line, so the motor cannot make enough torque. It has stalled.' +
+      (T >= TRUN - 1e-9 ? ' At ' + pc(r.vr) + '% voltage it makes only ' + pc(r.tq) + '% of its torque.' : '');
+    if (T < TLOWTILE) return 'The engine slows under the ' + one(r.P) + ' kW, and the frequency dips. A slower rotor makes less voltage, so the dip goes deeper.';
+    if (!r.away) return 'The governor brings the speed back, and the AVR drives the field to its ceiling. Even so, the voltage stays below the 90% line.';
+    if (T < TRUN) return 'The governor brings the speed back, and the AVR raises the field, so the voltage climbs back.';
+    return 'The voltage recovered to ' + pc(r.vr) + '%, so the motor made ' + pc(r.tq) + '% of its torque and got away. Its current falls, and the board returns to 100%.';
+  }
+  function sayLine(i, r) {
+    const d = STEPS[i], p = el('say');
+    const room = !finished && !d.nofig && d.mode !== 'ab' && (d.show || solved(S[i]));
+    const s = room ? sayText(i, r) : '';
+    p.hidden = !room;
+    p.classList.toggle('off', !s);
+    if (p.dataset.s !== s) { p.dataset.s = s; write(p, s); }
+    REC.say = s;
+  }
+
+  // ================= one paint =================
+  function paint(i) {
+    if (i == null) i = at();
+    const r = cur();
+    REC = { t: {}, T: started ? T : null };
+    drawScene(i, r);
+    drawPanel(i, r);
+    readouts(i, r);
+    sayLine(i, r);
+  }
+
+  // ================= the page around the picture =================
+  write(el('finish'), FINISH);
+  const setLab = (b, s) => { if (b.el.textContent !== s) b.setLabel(s); };
+  const vis = (id, on) => { const n = el(id); if (on) n.removeAttribute('hidden'); else n.setAttribute('hidden', ''); };
+  function layout(i) {
+    const d = STEPS[i], st = S[i], sol = solved(st), mode = d.mode || 'full';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Screen ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    el('figs').hidden = !!d.nofig;
+    // SVG elements have no .hidden property: the attribute itself is toggled.
+    vis('scene', !d.nofig && mode !== 'freq');
+    vis('panel', !d.nofig && mode !== 'ab');
+    el('outs').hidden = !!d.nofig || mode !== 'full';
+    el('cap').hidden = finished || !!d.nofig || mode === 'ab';
+    let any = false;
+    CIDS.forEach((id) => { const on = isFree(i, id); el('c-' + id).hidden = !on; any = any || on; });
+    el('sws').hidden = !any;
+    el('go').hidden = !isFree(i, 'start');
+    const opts = d.kind === 'pick' ? d.opts : [];
+    el('picks').hidden = !opts.length;
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      setLab(b, opts[k]);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    el('answers').hidden = d.kind !== 'typed';
+    Object.keys(ANS).forEach((k) => { el('ans-' + k).hidden = d.ans !== k; });
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = sol;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (st.res === 'right' ? ' right' : '');
+    let say = '';
+    if (!d.show) {
+      if (st.res === 'right') say = d.right || 'That\'s it.';
+      else if (st.res === 'shown') say = 'Here is the working.';
+      else if (st.res === 'wrong') say = d.kind === 'typed' ? st.hint : (d.hints && d.hints[st.pick]) || d.hint || '';
+      else if (st.res === 'empty') say = d.kind === 'pick' ? 'Pick one of the answers first.' : 'Type your answer first.';
+      else if (st.res === 'unreadable') say = 'Type your answer as a number.';
+    }
+    write(fb, say);
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    setLab(whyBtn, st.why ? 'Hide why' : 'Why?');
+    const cl = el('closing');
+    cl.hidden = !(d.close && sol);
+    write(cl, d.close || '');
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !sol);
+    setLab(nextBtn, i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  }
+
+  K.update((p) => {
+    const i = at();
+    if (i !== lastStep) { lastStep = i; enterStep(i); }
+    else {
+      let changed = false;
+      CIDS.forEach((id) => {
+        const v = norm(id, p[id]);
+        if (v === pushed[id]) return;
+        if (isFree(i, id)) { pushed[id] = v; X[id] = v; changed = true; }
+        else CTL[id].set(pushed[id], true);        // a control this screen does not use stays put
+      });
+      // Changing a control clears the traces, and the new start plays from 0 s.
+      if (changed) restart();
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    layout(i);
+    paint(i);
+    kick();
+  });
+
+  // ================= known answers, worked out by hand =================
+  const solvedSt = (i) => Object.assign(blank(), STEPS[i].kind === 'pick' ? { pick: STEPS[i].want, res: 'right' } : { res: 'right' });
+  function saveAll() { return { X: Object.assign({}, X), D: Object.assign({}, D), T, started, running, fin: finished, S: S.slice() }; }
+  function restoreAll(k) { Object.assign(X, k.X); Object.assign(D, k.D); T = k.T; started = k.started; running = k.running; finished = k.fin; S = k.S; }
+  // A screen in the state given (drawn to time t, or its own opening or solved state), and what it drew.
+  function drawn(i, st, t) {
+    const keep = saveAll();
+    S = S.slice(); S[i] = st || blank(); finished = false;
+    try {
+      prep(i);
+      if (t != null) { started = true; T = t; }
+      snapD();
+      paint(i);
+      return JSON.parse(JSON.stringify(REC));
+    } finally { restoreAll(keep); paint(); }
+  }
+  const tIs = (t, o) => Object.keys(o).every((k) => t[k] === o[k]);
+  const iDol = idx('The starting current'), iFirst = idx('The first instant'), iAvr = idx('What the AVR does'), iEng = idx('The engine slows');
+  const iBig = idx('A bigger motor'), iAway = idx('Will it get away?'), iTq = idx('Torque from voltage'), iSoft = idx('Start softly');
+  const iSd = idx('Star-delta at 900 kVA'), iTwo = idx('More sets on'), iTwo9 = idx('A second set at 900 kVA'), iKw = idx('The engine\'s kW'), iGov = idx('A governor fault');
+  const HZ = (v) => 'lowest ' + v + NB + 'Hz';
+
+  K.check('Screen 2: the motor\'s starting impedance is 630 ÷ 600 = 1.05 per unit, so 1.05 ÷ (1.05 + 0.15) = 87.5% is left at once; empty until Start, its still reads At once 87.5 with the others –', () => {
+    const r = run(600, 'DOL', 1), s0 = drawn(iFirst), s1 = drawn(iFirst, null, 0.05);
+    return K.near(SET / 600, 1.05, 1e-12) && K.near(r.v0, 1.05 / 1.2, 1e-12) && pc(r.v0) === '87.5' &&
+      tIs(s0.t, { once: DASH, low: DASH, rec: DASH, tq: DASH }) && !s0.volt && !s0.freq &&
+      tIs(s1.t, { once: '87.5', low: DASH, rec: DASH, tq: DASH }) && s1.volt && s1.drop && s1.status === 'starting';
+  });
+  K.check('Screen 3 lights the AVR before Start; once answered, the start runs to its end', () => {
+    const a0 = drawn(iAvr), a1 = drawn(iAvr, solvedSt(iAvr));
+    return a0.lit && !a0.volt && a0.t.once === DASH && a1.volt && a1.t.rec === '100';
+  });
+  K.check('Screen 4: 600 kVA × 0.4 = 240 kW; the frequency is lowest at 0.3 s, 55.7 Hz; the voltage sags to 83.8%, recovers to 100%, and the motor gets away with 100% torque', () => {
+    const r = run(600, 'DOL', 1), s = drawn(iEng, null, TEND);
+    return K.near(r.P, 240, 1e-9) && K.near(r.dip, 0.072, 1e-12) && freq(r, 0.29) > freq(r, 0.3) && freq(r, 0.31) > freq(r, 0.3) && s.flo === HZ('55.7') &&
+      tIs(s.t, { once: '87.5', low: '83.8', rec: '100', tq: '100' }) && r.away && s.status === 'up to speed' && !s.red && K.near(volt(r, TEND), 1, 1e-12);
+  });
+  K.check('Screen 6: at 900 kVA, 82.4% at once and 72.8% at the lowest; the field ceiling reaches only 2.5 ÷ (1 + 1.5 × 900 ÷ 630) = 79.5%, so torque is 63.3%, and from 2 s the motor is red and Stalled', () => {
+    const r = run(900, 'DOL', 1), s = drawn(iAway, null, TEND), early = drawn(iAway, null, 1.9);
+    return K.near(r.vr, 2.5 / (1 + 1.5 * 900 / 630), 1e-12) && !r.away && tIs(s.t, { once: '82.4', low: '72.8', rec: '79.5', tq: '63.3' }) &&
+      s.red && s.status === 'Stalled' && early.status === 'starting' && !early.red && early.t.rec === DASH && early.t.low === '72.8';
+  });
+  K.check('Screen 8: star-delta takes 600 ÷ 3 = 200 kVA, leaving 95.5% at once; the soft starter takes 300 kVA, leaving 93.3%, lowest 91.4%', () => {
+    const sd = run(600, 'Star-delta', 1), s = drawn(iSoft, null, TEND);
+    return sd.sk === 200 && pc(sd.v0) === '95.5' && s.method === 'Soft starter' && s.wire === '300' + NB + 'kVA' &&
+      tIs(s.t, { once: '93.3', low: '91.4', rec: '100', tq: '100' });
+  });
+  K.check('Screen 10: two sets halve the reactance the motor sees, so 600 kVA leaves 1.05 ÷ (1.05 + 0.075) = 93.3%, a 6.7% drop instead of 12.5%, and the frequency dips half as far', () => {
+    const a = run(600, 'DOL', 1), b = run(600, 'DOL', 2), s = drawn(iTwo, null, TEND);
+    return K.near(b.v0, 1.05 / (1.05 + XD2 / 2), 1e-12) && one(100 - 100 * b.v0) === '6.7' && one(100 - 100 * a.v0) === '12.5' &&
+      K.near(b.dip, a.dip / 2, 1e-12) && s.joined && tIs(s.t, { once: '93.3', low: '91.4', rec: '100', tq: '100' });
+  });
+  K.check('Screens 5, 9 and 11 show ? for At once until checked; checked, they run 900 kVA DOL on one set (82.4%), star-delta (93.3%) and with the second set on (90.3%)', () => {
+    const pairs = [[iBig, '82.4'], [iSd, '93.3'], [iTwo9, '90.3']];
+    const ok = pairs.every((q) => { const a0 = drawn(q[0]), a1 = drawn(q[0], solvedSt(q[0])); return a0.t.once === '?' && a0.t.low === DASH && !a0.volt && a1.t.once === q[1] && a1.volt; });
+    return ok && drawn(iTwo9, solvedSt(iTwo9)).joined && !drawn(iTwo9).joined && drawn(iBig, solvedSt(iBig)).wire === '900' + NB + 'kVA' && drawn(iSd).wire === '300' + NB + 'kVA';
+  });
+  K.check('Screen 7 shows ? for Torque until checked, then 63.3; screen 12 shows only the frequency, its lowest ? until checked, then 55.7 Hz', () => {
+    const a0 = drawn(iTq), a1 = drawn(iTq, solvedSt(iTq)), b0 = drawn(iKw), b1 = drawn(iKw, solvedSt(iKw));
+    return a0.t.tq === '?' && a0.t.rec === '79.5' && a1.t.tq === '63.3' && b0.mode === 'freq' && !b0.volt && b0.freq && b0.flo === 'lowest ?' && b1.flo === HZ('55.7');
+  });
+  K.check('Screen 13 draws sets A and B, both on the board, with no traces', () => {
+    const s = drawn(iGov);
+    return s.names === 'A,B' && s.joined && s.mode === 'ab' && !s.volt && !s.freq;
+  });
+  K.check('Each typed answer and slip is worked from the rule: 600 A (100, 200; also 700, 800), 82.4% (78.6, 17.6, 85), 72.3% (85, 92.2, 81; also 72.25, 72), 93.3% (82.4, 92.9, 6.7), 90.3% (82.4, 91.2, 9.7) and 240 kW (600, 480, 360)', () => {
+    const sl = (i, v) => STEPS[i].slips.length === v.length && STEPS[i].slips.every((s, k) => Math.abs(s.value - v[k]) < 1e-12);
+    const r9 = run(900, 'DOL', 1), sd = run(900, 'Star-delta', 1), t9 = run(900, 'DOL', 2);
+    return 6 * 100 === 600 && 600 / 3 === 200 &&
+      pc(r9.v0) === '82.4' && one(100 - 100 * XD2 * 900 / SET) === '78.6' && one(100 - 100 * r9.v0) === '17.6' && one(100 * (1 - XD2)) === '85' &&
+      one(85 * 85 / 100) === '72.3' && one(100 * Math.sqrt(0.85)) === '92.2' && K.near(0.9 * 0.9, 0.81, 1e-12) &&
+      pc(sd.v0) === '93.3' && one(100 - 100 * XD2 * 300 / SET) === '92.9' && one(100 - 100 * sd.v0) === '6.7' &&
+      pc(t9.v0) === '90.3' && one(100 - (100 - 100 * r9.v0) / 2) === '91.2' && one(100 - 100 * t9.v0) === '9.7' &&
+      K.near(run(600, 'DOL', 1).P, 240, 1e-9) && K.near(600 * 0.8, 480, 1e-9) && 600 - 240 === 360 &&
+      [STEPS[iDol].answer, STEPS[iBig].answer, STEPS[iTq].answer, STEPS[iSd].answer, STEPS[iTwo9].answer, STEPS[iKw].answer].join() === '600,82.4,72.3,93.3,90.3,240' &&
+      sl(iDol, [100, 200]) && sl(iBig, [78.6, 17.6, 85]) && sl(iTq, [85, 92.2, 81]) && sl(iSd, [82.4, 92.9, 6.7]) && sl(iTwo9, [82.4, 91.2, 9.7]) && sl(iKw, [600, 480, 360]);
+  });
+  K.check('Starting current is typically six times a motor\'s rated full-load current, and stays high until about 75% of rated speed: 6 × 100 A = 600 A on screen 1', () =>
+    STEPS[iDol].answer === 6 * 100 && STEPS[iDol].accept.indexOf(800) >= 0, { source: SRC_INRUSH });
+  K.check('With a sudden step the voltage drop equals what it would be with no AVR present: the first instant reads 87.5% whatever the AVR\'s field ceiling, and only later does the AVR lift it', () => {
+    const r = begin(600, 'DOL', 1), none = begin(600, 'DOL', 1, 1);
+    return K.near(volt(r, 0), volt(none, 0), 1e-12) && K.near(volt(r, 0), 0.875, 1e-12) && volt(r, 2) > volt(none, 2) + 0.2;
+  }, { source: SRC_AVR });
+  K.check('When the engine slows under the frequency dip, the alternator\'s voltage dip increases: at 600 kVA the lowest is 83.8%, below the 87.5% the AVR\'s pull alone never falls under', () => {
+    const r = run(600, 'DOL', 1);
+    let pmin = Infinity;
+    for (let k = 0; k <= 400; k++) pmin = Math.min(pmin, pull(r, k / 100));
+    return K.near(pmin, r.v0, 1e-12) && r.lo < r.v0 - 0.03 && pc(r.lo) === '83.8';
+  }, { source: SRC_ENGINE });
+  K.check('If the voltage recovers to at least 90% of rated, the motor develops 81% of rated torque: 0.9 × 0.9 = 0.81; on one set a DOL start gets away from 700 kVA (93.8%) but stalls at 750 kVA (89.7%)', () => {
+    const a = run(700, 'DOL', 1), b = run(750, 'DOL', 1);
+    return K.near(TARGET * TARGET, 0.81, 1e-12) && a.away && pc(a.vr) === '93.8' && !b.away && pc(b.vr) === '89.7';
+  }, { source: SRC_TORQUE });
+  K.check('At every setting the lowest voltage comes before 1 s, so the Lowest tile, filled at 1 s, shows the trace\'s lowest; a second set always leaves more voltage', () => {
+    for (let kva = 100; kva <= 1200; kva += 50) for (const m of METHODS) {
+      const a = run(kva, m, 1), b = run(kva, m, 2);
+      if (!(a.tlo < 1 && b.tlo < 1 && b.lo > a.lo && b.v0 > a.v0 && a.lo <= a.v0 + 1e-12 && a.lo > 0.6)) return false;
+    }
+    return true;
+  });
+  K.check('Thirteen screens, five that show and eight to try; both picks\' answers are second in their lists', () =>
+    STEPS.length === 13 && STEPS.filter((d) => d.show).length === 5 && STEPS.filter((d) => !d.show).length === 8 &&
+    [iAvr, iGov].every((i) => STEPS[i].opts.indexOf(STEPS[i].want) === 1));
+  K.ready();
+</script>

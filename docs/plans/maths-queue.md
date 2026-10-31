@@ -45,19 +45,15 @@ built side by side, each about 8 lessons and 8 to 10M tokens:
 2. Insulated systems and earth faults (Dan, 27 Oct: "Create them all"; Supply systems folder; live 27 Oct, about
    9.7M tokens, topic insulated-systems-and-earth-faults-al99a)
 3. Batteries: cells, charging, hydrogen (Supply systems folder; live 27 Oct, about 9.8M tokens, topic batteries-ui8aw)
-4. Generators and paralleling (Power and machines folder)
+4. Generators and paralleling (Power and machines folder; live 31 Oct, about 11M tokens across its stops, topic
+   generators-and-paralleling-q7a4n)
 5. Transformers and magnetism (Electrical principles folder; live 29 Oct, about 10M tokens with the work lost to a
    machine restart, topic transformers-and-magnetism-vlbpr; the first course built with typed answers)
 Built in two pairs: 2 with 3, then 5 with 4 (Transformers owns the magnetism Generators uses). The first
 pair is live. Dan, 28 Oct: "Move ahead with typed answers, transformers and then generators. Stop after
 that." Transformers is live; Generators is built next, on top of it, then the queue stops.
-PAUSED again (Dan, 29 Oct: "Pause for now I might need my tokens today"): Generators stopped during
-lesson 1's build. Its brief research (246 quotes checked), brief, plan and course research (26
-sources) are done and saved in docs/courses/electrical/generators/; lesson 1 was written, fact-checked
-and plain-edited. To carry on in the same session, resume workflow run wf_97d9f905-f01 (cached stages
-replay). In a new session, copy docs/courses/electrical/generators/ back to build/electrical/generators/
-and run the workflow with tools/course/args/generators.json (date 2026-10-29): it redoes the research
-stages unless the script is taught to skip them.
+Generators finished 31 Oct after two stops (a pause at Dan's word, then the weekly usage limit). The queue is
+now empty: wait for Dan.
 Lower: Control and instrumentation with digital logic; Distribution and protection at sea.
 
 Hidden on 27 Oct (Dan: "Hide everyday maths, computer science and any other folders we aren't immediately

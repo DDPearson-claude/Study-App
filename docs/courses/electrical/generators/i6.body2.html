@@ -1,0 +1,1006 @@
+<!-- kind: quantity -->
+<style>
+  [hidden] { display: none !important; }
+  .pz { max-width: 52rem; }
+  .pz > * + *, #stepbox > * + *, .figs > * + * { margin-top: 14px; }
+  .task, .fb, .why, .closing, .done p, .say { max-width: 34rem; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.08rem; font-weight: 400; line-height: 1.6; }
+  /* The board with its lines, and the big inset beside it on a laptop; stacked on a phone. */
+  .pics { display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-start; gap: 6px 18px; }
+  .pics svg { display: block; width: 100%; }
+  #scene { flex: 1 1 19rem; max-width: 30rem; }
+  #big { flex: 1 1 17rem; max-width: 27rem; }
+  #tri { flex: 1 1 17rem; max-width: 24rem; }
+  .sws { display: flex; flex-wrap: wrap; gap: 10px 16px; }
+  .sws > div { flex: 1 1 12rem; min-width: 0; }
+  .outs.k-readouts { display: grid; grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr)); gap: 10px; }
+  .outs .k-readout { min-width: 0; }
+  .say { min-height: 3.2em; transition: opacity .3s ease-out; }
+  .say.off { opacity: 0; }
+  svg .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  svg .labb { font: 700 13px var(--k-font); fill: var(--k-ink); }
+  svg .labm { font: 600 13px var(--k-font); fill: var(--k-muted); }
+  svg .labw { font: 700 13px var(--k-font); fill: var(--k-warn); }
+  svg .hl { paint-order: stroke; stroke: var(--k-bg); stroke-width: 4px; stroke-linejoin: round; }
+  .bus { stroke: var(--k-ink); stroke-width: 3; stroke-linecap: round; }
+  .wire { stroke: var(--k-ink); stroke-width: 1.6; }
+  .gen { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.6; }
+  .axis { stroke: var(--k-strong); stroke-width: 1.4; }
+  .tick { stroke: var(--k-strong); stroke-width: 1.2; }
+  .edge { stroke: var(--k-line); stroke-width: 1.2; }
+  .brk { fill: none; stroke: var(--k-ink); stroke-width: 1.4; }
+  .ln-a { fill: none; stroke: var(--k-cat1); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+  .ln-b { fill: none; stroke: var(--k-cat2); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+  .ln-r { fill: none; stroke: var(--k-warn); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+  .guide { stroke: var(--k-muted); stroke-width: 1.4; stroke-dasharray: 5 4; }
+  .dot { fill: var(--k-ink); stroke: var(--k-bg); stroke-width: 1.5; }
+  .ring { fill: none; stroke: var(--k-muted); stroke-width: 1.8; }
+  .trk { fill: var(--k-sunk); }
+  .bar-a { fill: var(--k-cat1); }
+  .bar-b { fill: var(--k-cat2); }
+  .bar-r { fill: var(--k-warn); }
+  .flow { fill: none; stroke: var(--k-warn); stroke-width: 2.6; stroke-dasharray: 8 6; }
+  .flowh { fill: var(--k-warn); }
+  .ph-v { stroke: var(--k-ink); stroke-width: 2.4; stroke-linecap: round; }
+  .ph-e { stroke: var(--k-accent2); stroke-width: 2.6; stroke-linecap: round; }
+  .hd-v { fill: var(--k-ink); }
+  .hd-e { fill: var(--k-accent2); }
+  .arc { fill: none; stroke: var(--k-accent); stroke-width: 1.6; }
+  .esd { stroke: var(--k-accent); stroke-width: 1.8; stroke-dasharray: 3 3; }
+  .t-p { stroke: var(--k-accent2); stroke-width: 3; stroke-linecap: round; }
+  .t-q { stroke: var(--k-accent); stroke-width: 3; stroke-linecap: round; }
+  .t-s { stroke: var(--k-ink); stroke-width: 2.2; stroke-linecap: round; }
+  .t-rt { fill: none; stroke: var(--k-ink); stroke-width: 1.2; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-inline: 16px; font-size: .95rem; white-space: nowrap; }
+  .picks { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .picks .k-btn { min-height: 48px; font-size: 1.05rem; white-space: normal; overflow-wrap: normal; word-break: normal; hyphens: none; text-align: left; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .answers .k-answer { max-width: 20rem; }
+  .fb { font-weight: 700; min-height: 1.5em; }
+  .fb.right { color: var(--k-good); }
+  .why, .done, .closing { line-height: 1.6; }
+  .closing { font-weight: 700; }
+  .done .row { margin-top: 14px; }
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } .say { transition: none; } }
+</style>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <div class="figs" id="figs">
+      <div class="pics">
+        <svg id="scene" viewBox="0 0 340 312" width="100%" role="img" aria-label=""><defs><clipPath id="clp"><rect x="48" y="108" width="292" height="140"></rect></clipPath></defs><g id="art"></g></svg>
+        <svg id="big" viewBox="0 0 340 180" width="100%" role="img" aria-label=""><g id="bigArt"></g></svg>
+        <svg id="tri" viewBox="0 0 340 152" width="100%" role="img" aria-label=""><g id="triArt"></g></svg>
+      </div>
+      <div class="sws" id="sws">
+        <div class="k-controls" id="c-gov"></div>
+        <div class="k-controls" id="c-fa"></div>
+        <div class="k-controls" id="c-fb"></div>
+        <div class="k-controls" id="c-droop"></div>
+        <div class="k-controls" id="c-load"></div>
+        <div class="k-controls" id="c-va"></div>
+        <div class="k-controls" id="c-vb"></div>
+        <div class="k-controls" id="c-comp"></div>
+      </div>
+      <div class="replay" id="replay"></div>
+      <p class="say" id="say"></p>
+      <div class="k-readouts outs" id="outsW"></div>
+      <div class="k-readouts outs" id="outsQ"></div>
+    </div>
+    <div class="picks" id="picks"></div>
+    <div class="answers" id="answers"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+    <p class="closing" id="closing" hidden></p>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p id="finish"></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption" id="cap">Worked from the rule, with straight droop lines and example settings.</p>
+
+<script>
+  // ================= the rule =================
+  const strip = (s) => String(s || '').replace(/\[\^\d+\]/g, '');
+  const NB = ' ';                                 // a no-break space: a number never parts from its unit
+  const SRC_CUM = 'https://mart.cummins.com/imagelibrary/data/assetfiles/0056622.pdf';
+  const SRC_DS = 'https://dieselship.com/marine-technical-articles/marine-electro-technology/active-reactive-power-sharing-in-a-paralleled-generator-set-kw-kvar';
+  const SRC_BG = 'https://www.bengibb.ca/blog/kw-and-kvar-control';
+  // Two 504 kW (630 kVA) sets on one 440 V, 60 Hz board.
+  const RK = 504, RKVA = 630, F0 = 60, VB = 440;
+  const MOT = 0.1 * RK;                                // a set with its fuel cut to nothing is driven as a motor: 50.4 kW (an example)
+  // The inset: power = E × V × sin δ ÷ Xs per unit, on 630 kVA. Full power at 90° would be 945 kW.
+  const EPU = 2.25, VPU = 1.0, XS = 1.5, PMAX = RKVA * EPU * VPU / XS;
+  // The load at 0.8 power factor takes 0.75 kVAr for each kW. Each AVR falls 1 V for each 30 kVAr (an example).
+  const PFL = 0.8, QK = Math.sqrt(1 - PFL * PFL) / PFL, KQ = 30, VC = 440;
+  const kOf = (dr) => RK / (dr / 100 * F0);          // kW for each hertz below the setting: 210 at 4%
+  const rad = (d) => d * Math.PI / 180, deg = (r) => r * 180 / Math.PI;
+  const r1 = (v) => Math.round(v * 10) / 10, r2 = (v) => Math.round(v * 100) / 100;
+  const sgn = (r, s) => (r < 0 ? '−' : '') + s;
+  const fK = (v) => { const r = r1(v); return sgn(r, Number.isInteger(r) ? String(Math.abs(r)) : Math.abs(r).toFixed(1)); };
+  const fHz = (v) => sgn(r2(v), Math.abs(r2(v)).toFixed(2));
+  const fV1 = (v) => sgn(r1(v), Math.abs(r1(v)).toFixed(1));
+
+  // Droop: each set carries k × (its setting − f), from 0 to 504 kW. At 504 it is at full fuel and
+  // the frequency can fall further. Below 0 its fuel is cut to nothing: at its own setting it is
+  // driven by anything from 0 to 50.4 kW, and above its setting it draws the full 50.4 kW.
+  function droopSolve(fa, fb, k, L) {
+    const fs = [fa, fb], e = 1e-9;
+    const P = (j, st, f) => (st === 'lin' ? k * (fs[j] - f) : st === 'full' ? RK : -MOT);
+    const ok = (j, st, f, p) => (st === 'lin' ? p >= -e && p <= RK + e : st === 'full' ? f <= fs[j] - RK / k + e : st === 'mot' ? f >= fs[j] - e : p >= -MOT - e && p <= e);
+    const SS = ['lin', 'full', 'mot', 'edge'];
+    for (let x = 0; x < 4; x++) for (let y = 0; y < 4; y++) {
+      const a = SS[x], b = SS[y];
+      let f, pa, pb;
+      if (a === 'edge' && b === 'edge') { if (Math.abs(fa - fb) > e || L > e) continue; f = fa; pa = pb = L / 2; }
+      else if (a === 'edge') { f = fa; pb = P(1, b, f); pa = L - pb; }
+      else if (b === 'edge') { f = fb; pa = P(0, a, f); pb = L - pa; }
+      else {
+        const n = (a === 'lin' ? 1 : 0) + (b === 'lin' ? 1 : 0);
+        if (!n) continue;
+        const C = (a === 'lin' ? 0 : P(0, a, 0)) + (b === 'lin' ? 0 : P(1, b, 0));
+        f = (k * ((a === 'lin' ? fa : 0) + (b === 'lin' ? fb : 0)) - (L - C)) / (k * n);
+        pa = P(0, a, f); pb = P(1, b, f);
+      }
+      if (ok(0, a, f, pa) && ok(1, b, f, pb)) return { f, pa, pb, st: [a, b] };
+    }
+    const f = (fa + fb) / 2 - L / (2 * k);
+    return { f, pa: k * (fa - f), pb: k * (fb - f), st: ['lin', 'lin'] };
+  }
+  // Isochronous: flat lines. The higher setting holds the board and takes the load plus the other's
+  // 50.4 kW, up to 504 kW; past that the frequency falls to the lower setting, which carries the rest.
+  function isoSolve(fa, fb, L) {
+    if (Math.abs(fa - fb) < 1e-9) return { f: fa, pa: L / 2, pb: L / 2, st: ['flat', 'flat'] };
+    const hiA = fa > fb, fh = hiA ? fa : fb, fl = hiA ? fb : fa;
+    let f, ph, pl, sh, sl;
+    if (L + MOT <= RK + 1e-9) { f = fh; ph = L + MOT; pl = -MOT; sh = 'flat'; sl = 'mot'; }
+    else { f = fl; ph = RK; pl = L - RK; sh = 'full'; sl = 'flat'; }
+    return hiA ? { f, pa: ph, pb: pl, st: [sh, sl] } : { f, pa: pl, pb: ph, st: [sl, sh] };
+  }
+  // The whole state: kW from the governors, kVAr from the AVRs (c is how far compensation has trimmed them).
+  function model(s) {
+    const L = s.load;
+    const r = s.gov === 'Isochronous' ? isoSolve(s.fa, s.fb, L) : droopSolve(s.fa, s.fb, kOf(s.droop), L);
+    let pa = r.pa, d = deg(Math.asin(K.clamp(pa / PMAX, -1, 1))), pu = null;
+    // Screen 3 sets the angle itself and works the power as the lesson does: 0.80 per unit of 630 kVA.
+    if (s.dset != null) { pu = r2(EPU * VPU * Math.sin(rad(s.dset)) / XS); pa = pu * RKVA; d = s.dset; }
+    const Q = QK * L, half = Q / (2 * KQ), vt = VC + half;
+    const ea = K.lerp(s.va, vt, s.c), eb = K.lerp(s.vb, vt, s.c);
+    const V = (ea + eb) / 2 - half, qa = KQ * (ea - V), qb = KQ * (eb - V);
+    return { f: r.f, pa, pb: r.pb, st: r.st, d, pu, Q, V, qa, qb, ea, eb, ix: Math.abs(qa - qb) / 2 * 1000 / (Math.sqrt(3) * VB) };
+  }
+
+  // ================= the lesson: SHOW screens demonstrate, DO screens are puzzles =================
+  const STEPS = [
+    { kind: 'typed', name: 'Real and reactive', ans: 'kw', nofig: true, tri: true, right: 'Still there.',
+      answer: 80, decimals: 0, unit: 'kW', want: '80' + NB + 'kW',
+      slips: [{ value: 60, hint: 'That is the kVAr. kW is kVA × the power factor.' },
+        { value: 125, hint: 'That divides by 0.8. Multiply instead.' }],
+      task: 'A load takes 100 kVA at 0.8 power factor. How many kW does it take?',
+      hint: 'kW = kVA × the power factor.',
+      why: '100 × 0.8 = 80 kW. The other part is √(100² − 80²) = 60 kVAr. That is the reactive power the field supplies.',
+      read: 'A load takes 100 kVA at 0.8 power factor. How many kW does it take?' },
+    { show: true, name: 'More fuel, wider angle', inset: 'big', enter: { load: 0 },
+      demo: [{ at: 0.4, to: 3.4, ramp: { load: [0, 600] } }], dur: 3.6,
+      text: 'On a live board, a set\'s rotor is locked in step with the others. So more fuel cannot simply speed it up. Instead it pushes the rotor a few degrees further ahead. The load angle δ grows. So the set sends out more kW. A set\'s kW follows its engine\'s output.[^1] Here A carries 300 kW at a δ of 18.5°.',
+      read: 'On a live board, a set\'s rotor is locked in step with the others. So more fuel cannot simply speed it up. Instead it pushes the rotor a few degrees further ahead. The load angle δ grows. So the set sends out more kW. A set\'s kW follows its engine\'s output. Here A carries 300 kW at a δ of 18.5°.',
+      still: () => setStill() },
+    { kind: 'typed', name: 'Power from the angle', ans: 'pu', inset: 'only', enter: { dset: 32.3 }, tiles: ['D', 'PA'], hide: ['PA'],
+      answer: 0.80, decimals: 2, unit: '', want: '0.80',
+      slips: [{ value: 1.20, hint: 'That is E × sin δ. Divide by Xs too.' },
+        { value: 1.27, hint: 'That uses cos δ. Power goes with sin δ.' },
+        { value: 1.80, hint: 'That multiplies by Xs. Divide by it.' }],
+      task: 'Set A\'s E is 2.25 per unit, V is 1.0 and Xs is 1.5. The load angle is 32.3°. Power = E × V × sin δ ÷ Xs. What power does it send out, in per unit?',
+      hint: 'sin 32.3° is 0.534.',
+      why: '2.25 × 1.0 × 0.534 ÷ 1.5 = 0.80 per unit. On a 630 kVA set that is 504 kW. That is its full rating.',
+      read: 'Set A\'s E is 2.25 per unit, V is 1.0 and Xs is 1.5. The load angle is 32.3°. Power = E × V × sin δ ÷ Xs. What power does it send out, in per unit?' },
+    { show: true, name: 'Two droop lines', build: true, dur: 2.9,
+      text: 'Two sets share the load through their droop lines. Each runs at 62.4 Hz with no load and 60 Hz at its full 504 kW. So each takes 210 kW for each hertz it falls. A\'s line starts at the left edge and B\'s at the right. The 600 kW load lies between. Both must run at the board\'s one frequency. So they settle where the lines cross. That gives 300 kW each, at 62.4 − 300 ÷ 210 = 60.97 Hz.',
+      read: 'Two sets share the load through their droop lines. Each runs at 62.4 Hz with no load and 60 Hz at its full 504 kW. So each takes 210 kW for each hertz it falls. A\'s line starts at the left edge and B\'s at the right. The 600 kW load lies between. Both must run at the board\'s one frequency. So they settle where the lines cross. That gives 300 kW each, at 62.4 − 300 ÷ 210 = 60.97 Hz.',
+      still: () => setStill() },
+    { kind: 'pick', name: 'A nudge to A', ring: true, run: [{ at: 0.2, to: 1.8, ramp: { fa: [62.4, 62.7] } }], rdur: 1.9,
+      opts: ['The board speeds up 0.3 Hz, and the kW stays put', 'A takes more kW, B less, and the frequency rises a little', 'A takes the whole load'],
+      want: 'A takes more kW, B less, and the frequency rises a little',
+      task: 'You raise A\'s governor setting by 0.3 Hz, from 62.4 to 62.7 Hz. What happens?',
+      hints: { 'The board speeds up 0.3 Hz, and the kW stays put': 'That is what a set does alone. Here B\'s governor answers too.',
+        'A takes the whole load': 'A\'s line has lifted only 0.3 Hz. The lines still cross.' },
+      why: 'A\'s line lifts, and the crossing moves towards B. The board can have only one frequency. So the two shares change instead.',
+      read: 'You raise A\'s governor setting by 0.3 Hz, from 62.4 to 62.7 Hz. What happens?' },
+    { show: true, name: 'Half the nudge', ctl: ['fa'], ring: true,
+      demo: [{ at: 0.4, to: 2.4, ramp: { fa: [62.4, 62.7] } }], dur: 2.6,
+      text: 'A\'s extra fuel starts to push the board faster. B\'s governor sees the rise and backs off its fuel. They settle with A on 331.5 kW and B on 268.5 kW. A\'s load angle has grown to 20.5°. The board rose only 0.15 Hz. That is half the nudge. On a set alone, the same nudge would lift the frequency the full 0.3 Hz. It would move no kW. In a big group, the frequency hardly moves at all.[^2] Drag A\'s setting and watch the shares.',
+      read: 'A\'s extra fuel starts to push the board faster. B\'s governor sees the rise and backs off its fuel. They settle with A on 331.5 kW and B on 268.5 kW. A\'s load angle has grown to 20.5°. The board rose only 0.15 Hz. That is half the nudge. On a set alone, the same nudge would lift the frequency the full 0.3 Hz. It would move no kW. In a big group, the frequency hardly moves at all.',
+      still: () => setStill() },
+    { kind: 'typed', name: 'How much more', ans: 'share', ring: true, hide: ['PA'], run: [{ at: 0.2, to: 1.6, ramp: { fa: [62.4, 62.6] } }], rdur: 1.7,
+      answer: 321, decimals: 0, accept: [321.3], unit: 'kW', want: '321' + NB + 'kW',
+      slips: [{ value: 342, hint: 'That gives A the whole 0.2 Hz. The frequency rises too, by half the nudge.' },
+        { value: 300, hint: 'A\'s line has lifted. So it carries more.' },
+        { value: 279, hint: 'That is B\'s share.' }],
+      task: 'Both sets carry 300 kW at 60.97 Hz. You raise A\'s setting by 0.2 Hz. Each set takes 210 kW for each hertz below its setting. How many kW does A carry now?',
+      hint: 'The frequency rises by half the nudge, to 61.07 Hz.',
+      why: 'The board rises 0.1 Hz to 61.07 Hz. A sits 62.6 − 61.07 = 1.53 Hz below its setting. 210 × 1.53 = 321 kW.',
+      read: 'Both sets carry 300 kW at 60.97 Hz. You raise A\'s setting by 0.2 Hz. Each set takes 210 kW for each hertz below its setting. How many kW does A carry now?' },
+    { show: true, name: 'Less droop', ctl: ['droop', 'fa'], ring: true, enter: { droop: 1, fa: 60.6, fb: 60.6 }, win: [58.5, 62.5],
+      demo: [{ at: 0.4, to: 2.4, ramp: { fa: [60.6, 60.9] } }], dur: 2.6,
+      text: 'The droop sets how firmly each set holds its share. Turn both droops down to 1%. Each line now falls just 0.6 Hz across 504 kW. The same 0.3 Hz nudge on A now moves 126 kW. That is four times as much. With no droop, the lines are flat. Then the smallest difference decides everything. To move load but hold the frequency, raise one setting and lower the other by the same amount.',
+      read: 'The droop sets how firmly each set holds its share. With both droops at 1%. Each line now falls just 0.6 Hz across 504 kW. The same 0.3 Hz nudge on A now moves 126 kW. That is four times as much. With no droop, the lines are flat. Then the smallest difference decides everything. To move load but hold the frequency, raise one setting and lower the other by the same amount.',
+      still: () => setStill() },
+    { kind: 'pick', name: 'Two flat lines', reveal: true, ctlSolved: ['gov', 'load'], hide: ['F', 'PA', 'PB', 'D'],
+      enter: { gov: 'Isochronous', fa: 60.1, fb: 60.0, load: 400 }, win: [59.8, 60.3], run: [],
+      opts: ['They share it, 200 kW each', 'A takes it all, and B is driven as a motor', 'They settle halfway, at 60.05 Hz'],
+      want: 'A takes it all, and B is driven as a motor',
+      task: 'Both governors are isochronous, with no droop. A is set to 60.1 Hz and B to 60.0 Hz. They share a 400 kW load. What happens?',
+      hints: { 'They share it, 200 kW each': 'Each governor holds its own speed exactly. Only one speed can win.',
+        'They settle halfway, at 60.05 Hz': 'Flat lines have no halfway point to cross at.' },
+      why: 'A adds fuel until the board runs at 60.1 Hz. B sees the board above its setting and cuts its fuel to nothing. B\'s rotor is still locked in step. So the board drives it. It draws 50.4 kW as a motor. A carries 450.4 kW.',
+      read: 'Both governors are isochronous, with no droop. A is set to 60.1 Hz and B to 60.0 Hz. They share a 400 kW load. What happens?' },
+    { show: true, name: 'Voltage and kVAr', build: true, dur: 2.9, enter: { view: 'kVAr' },
+      text: 'Now the picture shows voltage against kVAr. The same 600 kW load at 0.8 also takes 450 kVAr. The AVRs share that kVAr, just as the governors share the kW. Each AVR lets its voltage fall 1 V for every 30 kVAr it carries. That is an example setting. This gentle fall is [[voltage droop]]. Both are set to 447.5 V at no kVAr. So the lines cross at 440 V, with 225 kVAr each.',
+      read: 'Now the picture shows voltage against kVAr. The same 600 kW load at 0.8 also takes 450 kVAr. The AVRs share that kVAr, just as the governors share the kW. Each AVR lets its voltage fall 1 V for every 30 kVAr it carries. That is an example setting. This gentle fall is voltage droop. Both are set to 447.5 V at no kVAr. So the lines cross at 440 V, with 225 kVAr each.',
+      still: () => setStill() },
+    { kind: 'pick', name: 'More field on A', ring: true, enter: { view: 'kVAr' }, run: [{ at: 0.2, to: 1.8, ramp: { va: [447.5, 449.5] } }], rdur: 1.9,
+      opts: ['The board\'s voltage, up 2 V', 'A\'s kVAr goes up and its power factor down', 'A\'s kW goes up'],
+      want: 'A\'s kVAr goes up and its power factor down',
+      task: 'Both sets carry 300 kW and 225 kVAr at 440 V. You raise A\'s field setting by 2 V. What moves most?',
+      hints: { 'The board\'s voltage, up 2 V': 'Alone it would. In parallel, B\'s AVR answers and carries less.',
+        'A\'s kW goes up': 'kW comes from the fuel. The field cannot make any.' },
+      why: 'The board rises only 1 V, to 441 V. A sits 8.5 V below its setting. So it carries 30 × 8.5 = 255 kVAr. B carries 195 kVAr. A\'s kW stays at 300 kW. So its power factor falls.[^3]',
+      read: 'Both sets carry 300 kW and 225 kVAr at 440 V. You raise A\'s field setting by 2 V. What moves most?' },
+    { show: true, name: 'Cross current', ctl: ['comp'], ring: true, enter: { view: 'kVAr', va: 449.5 },
+      text: 'A\'s kW has not moved. But A now carries 255 kVAr and B 195. That extra 30 kVAr flows out of A and into B. It does no work for the load. It is a [[cross current]]. Here it is 30' + NB + '000 ÷ (√3 × 440) = 39.4 A. It adds to A\'s current and its heating. Turn on the compensation. The AVRs compare their kVAr and trim their fields until it matches. The cross current falls to zero.',
+      read: 'A\'s kW has not moved. But A now carries 255 kVAr and B 195. That extra 30 kVAr flows out of A and into B. It does no work for the load. It is a cross current. Here it is 30' + NB + '000 ÷ (√3 × 440) = 39.4 A. It adds to A\'s current and its heating. Cross-current compensation cures it. The AVRs compare their kVAr and trim their fields until it matches. The cross current falls to zero.',
+      still: () => setStill(() => { X.comp = true; }) },
+    { kind: 'typed', name: 'A\'s power factor', ans: 'pf', enter: { view: 'kVAr', va: 449.5 },
+      answer: 0.76, decimals: 2, unit: '', want: '0.76',
+      slips: [{ value: 0.80, hint: 'That is the load\'s. A carries more than its share of kVAr.' },
+        { value: 0.84, hint: 'That is B\'s, with 195 kVAr.' },
+        { value: 0.65, hint: 'That is kVAr ÷ kVA. Use kW ÷ kVA.' }],
+      task: 'Set A carries 300 kW and 255 kVAr. What is its power factor, to two decimal places?',
+      hint: 'Find its kVA first. It is √(kW² + kVAr²).',
+      why: '√(300² + 255²) = 393.7 kVA. 300 ÷ 393.7 = 0.76.',
+      read: 'Set A carries 300 kW and 255 kVAr. What is its power factor, to two decimal places?' },
+    { kind: 'typed', name: 'Share it back', ans: 'hz', ring: true, ctlSolved: ['fa', 'fb'], enter: { fa: 62.8, fb: 62.4 },
+      run: [{ at: 0.2, to: 1.8, ramp: { fa: [62.8, 62.6], fb: [62.4, 62.6] } }], rdur: 1.9,
+      answer: 0.2, decimals: 1, unit: 'Hz', want: '0.2' + NB + 'Hz',
+      slips: [{ value: 0.4, hint: 'That moves the whole 84 kW gap. A only needs to lose 42 kW.' },
+        { value: 0.1, hint: 'With B raised too, the frequency holds. So A loses the full 210 kW per hertz.' },
+        { value: 42, hint: 'That is the kW. Divide by 210 kW per hertz.' }],
+      task: 'A carries 342 kW and B 258 kW, at 61.17 Hz. You want 300 kW each without moving the frequency. You lower A\'s setting and raise B\'s by the same amount. How far do you move each, in Hz?',
+      hint: 'A must lose 42 kW, at 210 kW per hertz.',
+      why: '42 ÷ 210 = 0.2 Hz. A goes to 62.6 Hz. B goes to 62.6 Hz too. The average setting is unchanged. So the board stays at 61.17 Hz.',
+      close: 'Fuel moves kW. Field moves kVAr.',
+      read: 'A carries 342 kW and B 258 kW, at 61.17 Hz. You want 300 kW each without moving the frequency. You lower A\'s setting and raise B\'s by the same amount. How far do you move each, in Hz?' },
+  ];
+  const FINISH = 'In parallel, more fuel moves kW onto a set and more field moves kVAr onto it. The board\'s frequency and voltage barely change. The droop lines decide the shares. With flat isochronous lines, the higher setting takes all it can. Unequal fields drive a [[cross current]] from one set into the other, and cross-current compensation cures it.';
+
+  // ================= state =================
+  const BASE = { view: 'kW', gov: 'Droop', fa: 62.4, fb: 62.4, droop: 4, load: 600, va: 447.5, vb: 447.5, comp: false, dset: null };
+  const X = Object.assign({}, BASE);
+  const NUMK = ['fa', 'fb', 'droop', 'load', 'va', 'vb'];
+  const D = { fa: 62.4, fb: 62.4, droop: 4, load: 600, va: 447.5, vb: 447.5, c: 0 };   // what is drawn: it eases after X
+  let W = { lo: 59.5, hi: 63.5 };                      // the graph's window, in Hz or V
+  const blank = () => ({ pick: null, res: null, why: false, tries: 0, hint: '' });
+  let S = STEPS.map(blank);
+  const solved = (st) => !!st && (st.res === 'right' || st.res === 'shown');
+  let T = Infinity, motionEnd = 0, scripted = false, rv = Infinity, phase = 0, held = false;
+  let lastStep = -1, finished = false, lastDone = false;
+  let REC = { t: {} };
+  const RV_END = 2.4;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  const quiet = () => REDUCE || testing();
+  const el = (id) => document.getElementById(id);
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  const disp = () => ({ view: X.view, gov: X.gov, fa: D.fa, fb: D.fb, droop: D.droop, load: D.load, va: D.va, vb: D.vb, c: D.c, dset: X.dset });
+  function snapD() { NUMK.forEach((k) => { D[k] = X[k]; }); D.c = X.comp ? 1 : 0; }
+  function baseOf(i) { const b = Object.assign({}, BASE, STEPS[i].enter || {}); b.c = b.comp ? 1 : 0; return model(b); }
+  function ringBase(i) { const d = STEPS[i]; return d.ring && !finished && (d.show || solved(S[i])) ? baseOf(i) : null; }
+
+  // ================= text with amber key terms (built with K.el, never innerHTML) =================
+  const UNIT_GAP = /(\d) (?=(?:Hz|kW|kVAr|kVA|V|A|per unit)(?![A-Za-z]))/g;
+  function write(node, s) {
+    node.textContent = '';
+    strip(s).replace(UNIT_GAP, '$1' + NB).split(/\[\[([^\]]+)\]\]/).forEach((seg, k) => {
+      if (!seg) return;
+      node.appendChild(k % 2 ? K.el('span', { class: 'term' }, seg) : document.createTextNode(seg));
+    });
+  }
+
+  // ================= controls =================
+  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);
+  const CTL = {
+    gov: K.choice({ id: 'gov', label: 'Governors', options: ['Droop', 'Isochronous'], value: 'Droop', into: '#c-gov' }),
+    fa: K.control({ id: 'fa', label: 'A\'s setting', min: 58, max: 64, step: 0.1, value: 62.4, snap: [62.4, 62.6, 62.7, 60.6, 60.9],
+      fmt: (v) => Number(v).toFixed(1) + NB + 'Hz', into: '#c-fa' }),
+    fb: K.control({ id: 'fb', label: 'B\'s setting', min: 58, max: 64, step: 0.1, value: 62.4, snap: [62.4, 62.6],
+      fmt: (v) => Number(v).toFixed(1) + NB + 'Hz', into: '#c-fb' }),
+    droop: K.control({ id: 'droop', label: 'Droop', hint: 'The same on both sets', min: 1, max: 6, step: 1, value: 4, fmt: (v) => Math.round(v) + '%', into: '#c-droop' }),
+    load: K.control({ id: 'load', label: 'Load', min: 0, max: 900, step: 100, value: 600, fmt: (v) => Math.round(v) + NB + 'kW', into: '#c-load' }),
+    va: K.control({ id: 'va', label: 'A\'s field setting', min: 430, max: 460, step: 0.5, value: 447.5, fmt: (v) => Number(v).toFixed(1) + NB + 'V', into: '#c-va' }),
+    vb: K.control({ id: 'vb', label: 'B\'s field setting', min: 430, max: 460, step: 0.5, value: 447.5, fmt: (v) => Number(v).toFixed(1) + NB + 'V', into: '#c-vb' }),
+    comp: K.toggle({ id: 'comp', label: 'Compensation', hint: 'Cross-current compensation links the two AVRs', value: false, into: '#c-comp' }),
+  };
+  const CIDS = ['gov', 'fa', 'fb', 'droop', 'load', 'va', 'vb', 'comp'];
+  function norm(id, v) {
+    if (id === 'gov') return String(v);
+    if (id === 'comp') return v === true || v === 'true' || v === 1;
+    if (id === 'fa' || id === 'fb') return r1(Number(v));
+    if (id === 'va' || id === 'vb') return Math.round(Number(v) * 2) / 2;
+    return Math.round(Number(v));
+  }
+  function ctlVal(id) {
+    if (id === 'gov') return X.gov;
+    if (id === 'comp') return !!X.comp;
+    if (id === 'fa' || id === 'fb') return r1(X[id]);
+    if (id === 'va' || id === 'vb') return Math.round(X[id] * 2) / 2;
+    if (id === 'load') return Math.round(X.load / 100) * 100;
+    return Math.round(X[id]);
+  }
+  const pushed = {};
+  CIDS.forEach((id) => { pushed[id] = norm(id, CTL[id].get()); });
+  // The page moves the controls itself (silently, so it is not taken for Dan's move).
+  function push() {
+    CIDS.forEach((id) => {
+      const v = ctlVal(id);
+      if (pushed[id] !== v) { CTL[id].set(v, true); pushed[id] = norm(id, CTL[id].get()); }
+    });
+  }
+  const shownCtl = (i, id) => {
+    const d = STEPS[i];
+    if (finished) return false;
+    if (d.ctl && d.ctl.indexOf(id) >= 0) return true;
+    return !d.show && !!d.ctlSolved && d.ctlSolved.indexOf(id) >= 0 && solved(S[i]);
+  };
+  function applyCtl(id, v) {
+    held = false;
+    X[id] = v;
+    if (quiet()) { snapD(); snapW(at()); }
+  }
+
+  const RW = {
+    F: K.readout({ id: 'r-f', label: 'Frequency in' + NB + 'Hz', fmt: (v) => String(v), into: '#outsW' }),
+    PA: K.readout({ id: 'r-pa', label: 'A in' + NB + 'kW', fmt: (v) => String(v), into: '#outsW' }),
+    PB: K.readout({ id: 'r-pb', label: 'B in' + NB + 'kW', fmt: (v) => String(v), into: '#outsW' }),
+    D: K.readout({ id: 'r-d', label: 'A\'s δ in' + NB + '°', fmt: (v) => String(v), into: '#outsW' }),
+  };
+  const RQ = {
+    V: K.readout({ id: 'r-v', label: 'Voltage in' + NB + 'V', fmt: (v) => String(v), into: '#outsQ' }),
+    QA: K.readout({ id: 'r-qa', label: 'A in' + NB + 'kVAr', fmt: (v) => String(v), into: '#outsQ' }),
+    QB: K.readout({ id: 'r-qb', label: 'B in' + NB + 'kVAr', fmt: (v) => String(v), into: '#outsQ' }),
+    X: K.readout({ id: 'r-x', label: 'Cross current in' + NB + 'A', fmt: (v) => String(v), into: '#outsQ' }),
+  };
+
+  // Up to three answer buttons; each puzzle fills in its own.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.kind !== 'pick' || k >= d.opts.length || solved(st)) return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+  // Typed answers: a field each; Check grades it, two misses show the working.
+  const ANS = {};
+  STEPS.forEach((d, i) => {
+    if (d.kind !== 'typed') return;
+    el('answers').appendChild(K.el('div', { id: 'ans-' + d.ans }));
+    const a = K.answer({ id: 'a-' + d.ans, unit: d.unit, answer: d.answer, decimals: d.decimals, accept: d.accept, slips: d.slips, into: '#ans-' + d.ans,
+      onCheck: (r) => {
+        const st = S[i];
+        if (solved(st)) return;
+        if (r.state === 'right') { st.res = 'right'; playRun(i); }
+        else if (r.state === 'wrong') {
+          st.tries += 1; st.hint = r.hint || d.hint;
+          if (st.tries >= 2) { st.res = 'shown'; st.why = true; a.reveal(); playRun(i); }
+          else st.res = 'wrong';
+        } else { st.res = r.state; st.hint = ''; }
+        K.refresh();
+      } });
+    ANS[d.ans] = a;
+  });
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || solved(st)) return;
+    if (d.kind === 'typed') { ANS[d.ans].check(); return; }
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = st.pick === d.want ? 'right' : 'wrong';
+    if (st.res === 'right') playRun(i);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    const d = STEPS[at()];
+    if (d.show || finished) return;
+    S[at()].why = !S[at()].why;
+  } });
+  const replayBtn = K.button({ label: 'Show me again', secondary: true, into: '#replay', press: () => {
+    const d = STEPS[at()];
+    if (finished || !d.show || !(d.demo || d.build)) return;
+    startDemo(at());
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && !solved(S[i]))) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true; anim.pause(); T = Infinity;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(blank); finished = false; lastStep = -1;
+    Object.keys(ANS).forEach((k) => ANS[k].reset());
+    stepper.set(0, true);
+  } });
+
+  // ================= motion: demonstrations, answers' motion, easing and the cross current's flow =================
+  function playScript(sc, t0, t1) {
+    (sc || []).forEach((m) => {
+      if (m.to == null && m.set && m.at >= t0 && m.at < t1) Object.assign(X, m.set);
+      if (m.ramp && t1 > m.at && t0 < m.to + 1e-9) {
+        const u = K.clamp((t1 - m.at) / (m.to - m.at), 0, 1);
+        Object.keys(m.ramp).forEach((k) => { const r = m.ramp[k]; X[k] = u >= 1 ? r[1] : K.lerp(r[0], r[1], K.ease(u)); });
+      }
+    });
+  }
+  const runSync = (sc) => playScript(sc, -1, 1e9);
+  // The graph's window: the screen's own, slid or widened just enough to hold the settings and the crossing.
+  const PL = 48, PT = 108, PB = 248, CX = 191, BY = [256, 271], BH = 10;
+  function wTarget(i) {
+    const d = STEPS[i], kv = X.view === 'kVAr', M = model(disp());
+    const w0 = d.win || (kv ? [432, 453] : [59.5, 63.5]), span = w0[1] - w0[0], ppu = (PB - PT) / span;
+    const vals = kv ? [M.V, M.ea, M.eb] : [M.f, D.fa, D.fb];
+    const B = ringBase(i);
+    if (B) vals.push(kv ? B.V : B.f);
+    const mn = Math.min.apply(null, vals), mx = Math.max.apply(null, vals);
+    const lo = mn - 36 / ppu, hi = mx + 22 / ppu;
+    if (hi - lo <= span) { const l = K.clamp(w0[0], hi - span, lo); return { lo: l, hi: l + span }; }
+    const tot = (mx - mn) * (PB - PT) / (PB - PT - 58);
+    const l2 = mn - 36 * tot / (PB - PT);
+    return { lo: l2, hi: l2 + tot };
+  }
+  function snapW(i) { W = wTarget(i); }
+  function settledAll(i) {
+    if (NUMK.some((k) => Math.abs(D[k] - X[k]) > 1e-9)) return false;
+    if (Math.abs(D.c - (X.comp ? 1 : 0)) > 1e-9) return false;
+    const t = wTarget(i);
+    return Math.abs(W.lo - t.lo) < 1e-9 && Math.abs(W.hi - t.hi) < 1e-9;
+  }
+  function easeAll(dt, i) {
+    const e1 = 1 - Math.exp(-dt / 0.12), e2 = 1 - Math.exp(-dt / 0.35), e3 = 1 - Math.exp(-dt / 0.2);
+    NUMK.forEach((k) => { D[k] += (X[k] - D[k]) * e1; if (Math.abs(X[k] - D[k]) < (k === 'load' ? 0.05 : 0.0005)) D[k] = X[k]; });
+    const ct = X.comp ? 1 : 0;
+    D.c += (ct - D.c) * e2;
+    if (Math.abs(ct - D.c) < 0.002) D.c = ct;
+    const t = wTarget(i), tol = 0.0005 * (t.hi - t.lo);
+    ['lo', 'hi'].forEach((k) => { W[k] += (t[k] - W[k]) * e3; if (Math.abs(t[k] - W[k]) < tol) W[k] = t[k]; });
+  }
+  const flowing = (i) => !held && !finished && X.view === 'kVAr' && !STEPS[i].nofig && model(disp()).ix > 0.5;
+  const needAnim = () => !finished && (T !== Infinity || rv !== Infinity || !settledAll(at()) || flowing(at()));
+  const anim = K.anim({ button: false, label: 'Running', step: (dt) => {
+    if (finished) return false;
+    dt = Math.min(dt, 0.1);
+    const i = at(), d = STEPS[i];
+    if (T !== Infinity) {
+      const t0 = T;
+      T = Math.min(T + dt, motionEnd);
+      playScript(scripted ? d.demo : d.run, t0, T);
+      if (T >= motionEnd) { T = Infinity; scripted = false; }
+    }
+    if (rv !== Infinity) { rv += dt; if (rv > RV_END) rv = Infinity; }
+    easeAll(dt, i);
+    const m = model(disp());
+    phase = (phase + dt * 40 * Math.min(m.ix, 60) / 39.4) % 1400;
+    push();
+    paint(i);
+    return needAnim();
+  } });
+  function kick() { if (!quiet() && needAnim() && !anim.playing()) anim.play(); }
+  function endDemo() { if (T !== Infinity) { T = Infinity; scripted = false; } }
+  function fresh(d) { Object.assign(X, BASE, d.enter || {}); snapD(); }
+  // A screen's state: its opening, then its demonstration's end, or its answer's motion once solved.
+  function prep(i, toEnd) {
+    const d = STEPS[i];
+    fresh(d);
+    if (d.show) { if (toEnd && d.demo) runSync(d.demo); }
+    else if (solved(S[i]) && d.run) runSync(d.run);
+    snapD(); snapW(i);
+  }
+  function startDemo(i) {
+    const d = STEPS[i];
+    anim.pause(); T = Infinity; scripted = false; rv = Infinity; held = false;
+    if ((!d.demo && !d.build) || quiet()) { prep(i, true); push(); return; }
+    prep(i, false); scripted = true; T = 0; motionEnd = d.dur;
+    push();
+    anim.play();
+  }
+  function playRun(i) {
+    const d = STEPS[i];
+    anim.pause(); scripted = false; T = Infinity; held = false;
+    if (quiet()) { if (d.run) runSync(d.run); snapD(); snapW(i); rv = Infinity; push(); return; }
+    if (d.run && d.run.length) { T = 0; motionEnd = d.rdur; }
+    rv = 0;
+    anim.play();
+  }
+  function enterStep(i) {
+    anim.pause(); T = Infinity; scripted = false; rv = Infinity; held = false;
+    enter('stepbox');
+    if (STEPS[i].show) { startDemo(i); return; }
+    prep(i, false);
+    push();
+  }
+  // The finished picture a still shows (the read-through): the demonstration's end, then the still's own state, held.
+  function setStill(fn) {
+    const i = at();
+    anim.pause(); T = Infinity; scripted = false; rv = Infinity;
+    prep(i, true);
+    if (fn) fn();
+    snapD(); snapW(i);
+    held = true;
+    push();
+    K.refresh();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ================= drawing helpers =================
+  function adder(g) { const f = (tag, attrs, txt) => g.appendChild(txt == null ? K.svg(tag, attrs) : K.svg(tag, attrs, txt)); f.g = g; return f; }
+  const f1 = (v) => Math.round(v * 10) / 10;
+  const f2 = (v) => Math.round(v * 100) / 100;
+  const pts = (list) => list.map((q) => f1(q[0]) + ',' + f1(q[1])).join(' ');
+  const buildT = (i) => (scripted && STEPS[i].build ? T : Infinity);
+  const revA = (i, t0, dur) => ((STEPS[i].reveal || STEPS[i].tri) && rv !== Infinity ? K.arrive(rv, t0, dur) : 1);
+  const resultShown = (i) => finished || !STEPS[i].reveal || solved(S[i]);
+  const yOf = (v) => PB - (v - W.lo) / (W.hi - W.lo) * (PB - PT);
+  function head(a, x, y, angDeg, cls) {
+    const t = rad(angDeg), ux = Math.cos(t), uy = -Math.sin(t), nx = -uy, ny = ux, bx = x - ux * 9, by = y - uy * 9;
+    a('path', { class: cls, d: 'M' + f1(x) + ' ' + f1(y) + 'L' + f1(bx + nx * 4.5) + ' ' + f1(by + ny * 4.5) + 'L' + f1(bx - nx * 4.5) + ' ' + f1(by - ny * 4.5) + 'Z' });
+  }
+
+  // ================= set A's E and V, and the load angle between them =================
+  function phasor(a, P, dl, op) {
+    const L = P.v * EPU / VPU, t = rad(dl), ex = P.ox + L * Math.cos(t), ey = P.oy - L * Math.sin(t);
+    a('line', { class: 'ph-v', x1: P.ox, y1: P.oy, x2: P.ox + P.v - 7, y2: P.oy });
+    head(a, P.ox + P.v, P.oy, 0, 'hd-v');
+    if (P.small) {
+      a('text', { class: 'lab hl', x: P.ox + P.v / 2, y: P.oy + 14, 'text-anchor': 'middle' }, 'V');
+      a('text', { class: 'labb hl', x: P.ox - 8, y: P.oy + 4, 'text-anchor': 'end' }, 'Set A');
+    } else a('text', { class: 'lab hl', x: P.ox + P.v / 2, y: P.oy + 18, 'text-anchor': 'middle' }, 'V, 1.0' + NB + 'per unit');
+    if (op <= 0.005) return;
+    const gg = K.svg('g', { opacity: f2(op) });
+    a.g.appendChild(gg);
+    const b = adder(gg);
+    b('line', { class: 'ph-e', x1: P.ox, y1: P.oy, x2: f1(ex - 7 * Math.cos(t)), y2: f1(ey + 7 * Math.sin(t)) });
+    head(b, ex, ey, dl, 'hd-e');
+    const ra = P.small ? 22 : 60;
+    if (Math.abs(dl) >= 1) b('path', { class: 'arc', d: 'M' + (P.ox + ra) + ' ' + P.oy + 'A' + ra + ' ' + ra + ' 0 0 ' + (dl > 0 ? 0 : 1) + ' ' + f1(P.ox + ra * Math.cos(t)) + ' ' + f1(P.oy - ra * Math.sin(t)) });
+    const rl = P.small ? 42 : 78, need = P.small ? 16 : 8;
+    if (Math.abs(dl) >= need) b('text', { class: 'labb hl', x: f1(P.ox + rl * Math.cos(t / 2)), y: f1(P.oy - rl * Math.sin(t / 2) + 4.5), 'text-anchor': 'middle' }, 'δ');
+    if (P.small) b('text', { class: 'labb hl', x: f1(ex + 6), y: f1(ey + 4) }, 'E');
+    else {
+      const mx = P.ox + 0.55 * L * Math.cos(t), my = P.oy - 0.55 * L * Math.sin(t);
+      b('text', { class: 'lab hl', x: f1(mx - 14 * Math.sin(t)), y: f1(my - 14 * Math.cos(t)), 'text-anchor': 'end' }, 'E, 2.25' + NB + 'per unit');
+      if (P.oy - ey > 14) {
+        b('line', { class: 'esd', x1: f1(ex), y1: f1(ey + 6), x2: f1(ex), y2: P.oy });
+        b('text', { class: 'lab hl', x: f1(ex + 7), y: f1((ey + P.oy) / 2 + 4) }, 'E × sin δ');
+      }
+    }
+  }
+
+  // ================= the board, the two lines back to back, and the shares =================
+  function drawScene(i, M) {
+    const d = STEPS[i], g = el('art');
+    g.textContent = '';
+    const a = adder(g), kv = X.view === 'kVAr', iso = !kv && X.gov === 'Isochronous';
+    const s = kv ? 0.4 : 0.3, span = kv ? M.Q : D.load, xa = CX - span * s / 2, xb = CX + span * s / 2;
+    const px = (j, p) => (j ? xb - p * s : xa + p * s);
+    const res = resultShown(i), bt = buildT(i);
+    const aL = [K.arrive(bt, 0.2), K.arrive(bt, 0.8)];
+    const aD = Math.min(K.arrive(bt, 1.4), revA(i, 0.1));
+    const aB = Math.min(K.arrive(bt, 2.0, 0.8), revA(i, 0.4, 0.8));
+    const aM = revA(i, 0.6);
+    REC.dot = null; REC.ring = null; REC.flow = 0; REC.kw = null;
+    // The board and its two sets.
+    a('text', { class: 'labb hl', x: 170, y: 13, 'text-anchor': 'middle' }, '440' + NB + 'V, 60' + NB + 'Hz board');
+    a('line', { class: 'bus', x1: 18, y1: 21, x2: 322, y2: 21 });
+    const kwTxt = [fK(M.pa) + NB + 'kW', fK(M.pb) + NB + 'kW'];
+    [30, 310].forEach((x, j) => {
+      a('line', { class: 'wire', x1: x, y1: 21, x2: x, y2: 31 });
+      a('circle', { class: 'gen', cx: x, cy: 42, r: 11 });
+      a('text', { class: 'labb', x, y: 46.5, 'text-anchor': 'middle' }, j ? 'B' : 'A');
+      if (kv) a('text', { class: 'labm hl', x, y: 70, 'text-anchor': 'middle' }, kwTxt[j]);
+    });
+    if (kv) {
+      REC.kw = kwTxt;
+      // The cross current, flowing along the board from the set with more kVAr into the other.
+      const op = K.clamp(M.ix / 8, 0, 1);
+      REC.flow = op;
+      if (op > 0.02) {
+        const fwd = M.qa >= M.qb, tip = fwd ? 290 : 50, sg = fwd ? 1 : -1;
+        const fg = K.svg('g', { opacity: f2(op) });
+        g.appendChild(fg);
+        const b = adder(fg);
+        b('line', { class: 'flow', x1: fwd ? 50 : 290, y1: 40, x2: tip - sg * 8, y2: 40, 'stroke-dashoffset': f1(-(phase % 14)) });
+        b('path', { class: 'flowh', d: 'M' + tip + ' 40L' + (tip - sg * 10) + ' 35L' + (tip - sg * 10) + ' 45Z' });
+        b('text', { class: 'labw hl', x: 170, y: 57, 'text-anchor': 'middle' }, 'cross current');
+      }
+    } else if (d.inset !== 'big') phasor(a, { ox: 122, oy: 86, v: 30, small: true }, M.d, res ? revA(i, 0.1) : 0);
+    // The axis, its ticks and the reference value.
+    a('line', { class: 'axis', x1: PL, y1: PT, x2: PL, y2: PB });
+    const wspan = W.hi - W.lo, stp = wspan <= 0.8 ? 0.1 : kv ? (wspan <= 30 ? 5 : 10) : (wspan <= 8 ? 1 : 2), ref = kv ? VC : F0;
+    for (let n = Math.ceil(W.lo / stp - 1e-9); n * stp <= W.hi + 1e-9; n++) {
+      const v = n * stp, yy = f1(yOf(v));
+      a('line', { class: 'tick', x1: PL - 5, y1: yy, x2: PL, y2: yy });
+      if (Math.abs(v - ref) < stp / 10) a('text', { class: 'labm hl', x: PL - 7, y: f1(yy + 4.5), 'text-anchor': 'end' }, ref + NB + (kv ? 'V' : 'Hz'));
+    }
+    a('text', { class: 'labm hl', x: 4, y: PT - 7 }, kv ? 'Voltage' : 'Frequency');
+    // The two edges, and the load between them.
+    [xa, xb].forEach((x) => a('line', { class: 'edge', x1: f1(x), y1: PT, x2: f1(x), y2: 290 }));
+    a('path', { class: 'brk', d: 'M' + f1(xa) + ' 284V291H' + f1(xb) + 'V284' });
+    a('text', { class: 'lab hl', x: CX, y: 306, 'text-anchor': 'middle' }, 'Load ' + fK(span) + NB + (kv ? 'kVAr' : 'kW'));
+    // The lines, clipped to the graph.
+    const cg = K.svg('g', { 'clip-path': 'url(#clp)' });
+    g.appendChild(cg);
+    const c = adder(cg);
+    const P = kv ? [M.qa, M.qb] : [M.pa, M.pb], fs = kv ? [M.ea, M.eb] : [D.fa, D.fb];
+    [0, 1].forEach((j) => {
+      let ln;
+      if (kv) ln = [[px(j, -40), yOf(fs[j] + 40 / KQ)], [px(j, M.Q + 40), yOf(fs[j] - (M.Q + 40) / KQ)]];
+      else {
+        const fe = iso ? fs[j] : fs[j] - RK / kOf(D.droop);
+        ln = [[px(j, 0), yOf(fs[j])], [px(j, RK), yOf(fe)]];
+        if (M.st[j] === 'full') ln.push([px(j, RK), PB + 30]);
+      }
+      if (aL[j] > 0.005) c('polyline', { class: j ? 'ln-b' : 'ln-a', points: pts(ln), opacity: f2(aL[j]) });
+    });
+    // A set with its fuel cut to nothing: driven past its edge, in red.
+    const red = [false, false];
+    if (res) [0, 1].forEach((j) => {
+      const p = P[j];
+      if (kv) { red[j] = p < -1e-6 || Math.hypot(j ? M.pb : M.pa, p) > RKVA + 1e-6; return; }
+      if (!(p < -1e-6)) return;
+      red[j] = true;
+      const ln = [[px(j, 0), yOf(fs[j])], [px(j, p), yOf(fs[j])]];
+      if (M.st[j] === 'mot') ln.push([px(j, p), yOf(M.f)]);
+      if (aM > 0.005) c('polyline', { class: 'ln-r', points: pts(ln), opacity: f2(aM) });
+    });
+    REC.red = red;
+    // Where they cross, the dashed line across to the axis, and where they crossed before.
+    const xd = px(0, P[0]), yd = yOf(kv ? M.V : M.f);
+    if (res && aD > 0.005) c('line', { class: 'guide', x1: PL, y1: f1(yd), x2: f1(xd), y2: f1(yd), opacity: f2(aD) });
+    const B = ringBase(i);
+    let ring = null;
+    if (B) { const bx = px(0, kv ? B.qa : B.pa), by = yOf(kv ? B.V : B.f); if (Math.hypot(bx - xd, by - yd) > 3) ring = [bx, by]; }
+    if (ring) c('circle', { class: 'ring', cx: f1(ring[0]), cy: f1(ring[1]), r: 6 });
+    if (res && aD > 0.005) { c('circle', { class: 'dot', cx: f1(xd), cy: f1(yd), r: 5, opacity: f2(aD) }); REC.dot = { x: xd, y: yd }; }
+    // Each set's share: a bar from its own edge, red past it or past 630 kVA.
+    [0, 1].forEach((j) => {
+      const cap = kv ? Math.sqrt(Math.max(0, RKVA * RKVA - Math.pow(j ? M.pb : M.pa, 2))) : RK;
+      const t0 = px(j, 0), t1 = px(j, cap);
+      a('rect', { class: 'trk', x: f1(Math.min(t0, t1)), y: BY[j], width: f1(Math.abs(t1 - t0)), height: BH, rx: 2 });
+      if (res && aB > 0.002) {
+        const x1 = px(j, P[j] * aB);
+        if (Math.abs(x1 - t0) > 0.4) a('rect', { class: red[j] ? 'bar-r' : j ? 'bar-b' : 'bar-a', x: f1(Math.min(t0, x1)), y: BY[j], width: f1(Math.abs(x1 - t0)), height: BH, rx: 2 });
+      }
+      a('text', { class: 'labb hl', x: 8, y: BY[j] + 9.5 }, j ? 'B' : 'A');
+    });
+    // Labels on top: each line's setting, the board's level and the old crossing.
+    const setTxt = (j) => (j ? 'B' : 'A') + (kv ? (D.c > 0.01 ? '' : ', ' + fs[j].toFixed(1) + NB + 'V') : ', ' + fs[j].toFixed(1) + NB + 'Hz');
+    if (aL[0] > 0.01) a('text', { class: 'lab hl', x: f1(xa + 6), y: f1(yOf(fs[0]) - 7), opacity: f2(aL[0]) }, setTxt(0));
+    if (aL[1] > 0.01) a('text', { class: 'lab hl', x: f1(xb - 6), y: f1(yOf(fs[1]) - 7), 'text-anchor': 'end', opacity: f2(aL[1]) }, setTxt(1));
+    if (res && aD > 0.005) a('text', { class: 'labm hl', x: PL + 5, y: f1(yd - 5), opacity: f2(aD) }, 'board');
+    if (ring) { a('text', { class: 'labm hl', x: f1(ring[0]), y: f1(ring[1] + 24), 'text-anchor': 'middle' }, 'before'); REC.ring = ring; }
+    const who = red[0] ? 'A' : red[1] ? 'B' : '';
+    el('scene').setAttribute('aria-label', (kv ? 'Two voltage droop lines, back to back over the load\'s kVAr: A\'s from the left edge, B\'s from the right.'
+      : 'Two ' + (iso ? 'flat isochronous lines' : 'droop lines') + ', back to back over the shared load: A\'s from the left edge, B\'s from the right.') +
+      (REC.dot ? ' A dot marks where they cross, and the bars below show each set\'s share' + (who ? ', with ' + who + '\'s bar red past its edge.' : '.') : ' Where they settle stays hidden until the answer is checked.') +
+      (ring ? ' A ring marks where they crossed before.' : '') +
+      (kv && REC.flow > 0.02 ? ' An arrow along the board shows a cross current flowing from ' + (M.qa >= M.qb ? 'A to B.' : 'B to A.') : ''));
+  }
+
+  function drawBig(i, M) {
+    const g = el('bigArt');
+    g.textContent = '';
+    const a = adder(g);
+    a('text', { class: 'lab hl', x: 8, y: 18 }, 'Set A, with Xs 1.5' + NB + 'per unit');
+    phasor(a, { ox: 40, oy: 150, v: 100, small: false }, M.d, 1);
+    el('big').setAttribute('aria-label', 'Set A\'s E leads V by the load angle δ. The height of E\'s tip above V\'s line is E × sin δ, and the power follows it.');
+  }
+
+  function drawTri(i) {
+    const d = STEPS[i], g = el('triArt');
+    g.textContent = '';
+    REC.tri = !!(d.tri && solved(S[i]));
+    if (!REC.tri) return;
+    const kva = 100, kw = kva * PFL, kvar = Math.sqrt(kva * kva - kw * kw), sc = 2;
+    const p0 = [70, 128], p1 = [70 + kw * sc, 128], p2 = [70 + kw * sc, 128 - kvar * sc];
+    const grp = (op) => { const gg = K.svg('g', { opacity: f2(op) }); g.appendChild(gg); return adder(gg); };
+    const a1 = grp(revA(i, 0)), a2 = grp(revA(i, 0.6)), a3 = grp(revA(i, 1.2));
+    a1('line', { class: 't-p', x1: p0[0], y1: p0[1], x2: p1[0], y2: p1[1] });
+    a1('text', { class: 'lab hl', x: (p0[0] + p1[0]) / 2, y: 146, 'text-anchor': 'middle' }, Math.round(kw) + NB + 'kW');
+    a2('line', { class: 't-q', x1: p1[0], y1: p1[1], x2: p2[0], y2: p2[1] });
+    a2('path', { class: 't-rt', d: 'M' + (p1[0] - 10) + ' ' + p1[1] + 'V' + (p1[1] - 10) + 'H' + p1[0] });
+    a2('text', { class: 'lab hl', x: p1[0] + 8, y: (p1[1] + p2[1]) / 2 + 4 }, Math.round(kvar) + NB + 'kVAr');
+    a3('line', { class: 't-s', x1: p0[0], y1: p0[1], x2: p2[0], y2: p2[1] });
+    a3('text', { class: 'lab hl', x: 132, y: 60, 'text-anchor': 'end' }, kva + NB + 'kVA');
+    el('tri').setAttribute('aria-label', 'A right-angled triangle: ' + Math.round(kw) + ' kW along the bottom, ' + Math.round(kvar) + ' kVAr up the side, and ' + kva + ' kVA along the slope.');
+  }
+
+  // ================= the readouts and the sentence under the picture =================
+  function readouts(i, M) {
+    const d = STEPS[i], sol = solved(S[i]);
+    const hid = (k) => !finished && !!d.hide && d.hide.indexOf(k) >= 0 && !sol;
+    const tw = { F: fHz(M.f), PA: fK(M.pa), PB: fK(M.pb), D: fV1(M.d) };
+    const tq = { V: fV1(M.V), QA: fK(M.qa), QB: fK(M.qb), X: fV1(M.ix) };
+    Object.keys(tw).forEach((k) => { if (hid(k)) tw[k] = '?'; RW[k].set(tw[k]); RW[k].el.hidden = !!d.tiles && d.tiles.indexOf(k) < 0; });
+    Object.keys(tq).forEach((k) => { if (hid(k)) tq[k] = '?'; RQ[k].set(tq[k]); });
+    REC.t = X.view === 'kVAr' ? tq : tw;
+  }
+  function sayText(i, M) {
+    const n = ['A', 'B'];
+    if (X.view === 'kVAr') {
+      if (D.c > 0.999) return 'The compensation trims both fields until A and B carry ' + fK(M.Q / 2) + ' kVAr each. No cross current flows.';
+      if (D.c > 0.001) return 'The compensation is trimming both fields towards an equal share.';
+      if (Math.abs(M.qa - M.qb) < 0.05) return 'The field settings match, so A and B share the load\'s ' + fK(M.Q) + ' kVAr equally.';
+      const h = M.qa > M.qb ? 0 : 1, Q = [M.qa, M.qb];
+      return n[h] + ' carries ' + fK(Q[h]) + ' kVAr of the load\'s ' + fK(M.Q) + ' kVAr, and ' + n[1 - h] + ' ' + fK(Q[1 - h]) + '. The extra ' +
+        fK(Math.abs(Q[0] - Q[1]) / 2) + ' kVAr flows from ' + n[h] + ' into ' + n[1 - h] + ' as a ' + fV1(M.ix) + ' A cross current.';
+    }
+    const P = [M.pa, M.pb], L = fK(D.load);
+    const m = P[0] < -0.05 ? 0 : P[1] < -0.05 ? 1 : -1;
+    if (m >= 0) return n[m] + '\'s fuel is cut to nothing, so the board drives it as a motor. ' + n[1 - m] + ' carries the ' + L + ' kW load and ' + n[m] + '\'s ' + fK(-P[m]) + ' kW draw.';
+    const fu = P[0] > RK - 0.05 ? 0 : P[1] > RK - 0.05 ? 1 : -1;
+    if (fu >= 0) return n[fu] + ' is at full fuel, 504 kW. ' + n[1 - fu] + ' carries the other ' + fK(P[1 - fu]) + ' kW of the ' + L + ' kW, so the board sits at ' + fHz(M.f) + ' Hz.';
+    if (X.gov === 'Isochronous') return 'The two settings match exactly, so here A and B share the ' + L + ' kW equally.';
+    const B = ringBase(i);
+    if (B && Math.abs(M.pa - B.pa) > 0.05) {
+      const df = M.f - B.f;
+      return 'A now carries ' + fK(M.pa) + ' kW of the ' + L + ' kW, and B ' + fK(M.pb) + ' kW. ' +
+        (Math.abs(df) < 0.005 ? 'The board stayed at ' + fHz(M.f) + ' Hz.' : 'The board ' + (df > 0 ? 'rose' : 'fell') + ' ' + fHz(Math.abs(df)) + ' Hz.');
+    }
+    if (Math.abs(M.pa - M.pb) < 0.05) return 'The lines cross in the middle, so A and B share the ' + L + ' kW equally, at ' + fHz(M.f) + ' Hz.';
+    return 'A carries ' + fK(M.pa) + ' kW of the ' + L + ' kW, and B ' + fK(M.pb) + ' kW. The board runs at ' + fHz(M.f) + ' Hz.';
+  }
+  function sayRoom(i) {
+    const d = STEPS[i];
+    if (finished || d.nofig) return false;
+    return d.show ? !!(d.ctl && d.ctl.length) : !!(d.ctlSolved && solved(S[i]));
+  }
+  function sayLine(i, M) {
+    const p = el('say'), room = sayRoom(i), s = room ? sayText(i, M) : '';
+    p.hidden = !room;
+    p.classList.toggle('off', !s);
+    if (p.dataset.s !== s) { p.dataset.s = s; write(p, s); }
+    REC.say = s;
+  }
+
+  // ================= one paint =================
+  function paint(i) {
+    if (i == null) i = at();
+    const M = model(disp());
+    REC = { t: {}, M };
+    drawScene(i, M);
+    drawBig(i, M);
+    drawTri(i);
+    readouts(i, M);
+    sayLine(i, M);
+  }
+
+  // ================= the page around the picture =================
+  write(el('finish'), FINISH);
+  const setLab = (b, s) => { if (b.el.textContent !== s) b.setLabel(s); };
+  function showCtls(i) {
+    let any = false;
+    CIDS.forEach((id) => { const on = shownCtl(i, id); el('c-' + id).hidden = !on; any = any || on; });
+    el('sws').hidden = !any;
+  }
+  const vis = (id, on) => { const n = el(id); if (on) n.removeAttribute('hidden'); else n.setAttribute('hidden', ''); };
+  function layout(i) {
+    const d = STEPS[i], st = S[i], sol = solved(st);
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Screen ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    const triOn = !!(d.tri && sol);
+    el('figs').hidden = !!d.nofig && !triOn;
+    // SVG elements have no .hidden property: the attribute itself is toggled.
+    vis('scene', !d.nofig && d.inset !== 'only');
+    vis('big', d.inset === 'big' || d.inset === 'only');
+    vis('tri', triOn);
+    el('outsW').hidden = !!d.nofig || X.view !== 'kW';
+    el('outsQ').hidden = !!d.nofig || X.view !== 'kVAr';
+    el('cap').hidden = finished || !!d.nofig;
+    showCtls(i);
+    replayBtn.el.hidden = !d.show || !(d.demo || d.build) || finished || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    const opts = d.kind === 'pick' ? d.opts : [];
+    el('picks').hidden = !opts.length;
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      setLab(b, opts[k]);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    el('answers').hidden = d.kind !== 'typed';
+    Object.keys(ANS).forEach((key) => { el('ans-' + key).hidden = d.ans !== key; });
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = sol;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (st.res === 'right' ? ' right' : '');
+    let say = '';
+    if (!d.show) {
+      if (st.res === 'right') say = d.right || 'That\'s it.';
+      else if (st.res === 'shown') say = 'Here is the working.';
+      else if (st.res === 'wrong') say = d.kind === 'typed' ? st.hint : (d.hints && d.hints[st.pick]) || d.hint || '';
+      else if (st.res === 'empty') say = d.kind === 'pick' ? 'Pick one of the answers first.' : 'Type your answer first.';
+    }
+    write(fb, say);
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    setLab(whyBtn, st.why ? 'Hide why' : 'Why?');
+    const cl = el('closing');
+    cl.hidden = !(d.close && sol);
+    write(cl, d.close || '');
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !sol);
+    setLab(nextBtn, i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  }
+
+  K.update((p) => {
+    const i = at();
+    if (i !== lastStep) { lastStep = i; enterStep(i); }
+    else {
+      CIDS.forEach((id) => {
+        const v = norm(id, p[id]);
+        if (v === pushed[id]) return;
+        if (shownCtl(i, id)) { endDemo(); pushed[id] = v; applyCtl(id, v); }
+        else CTL[id].set(pushed[id], true);        // a control this screen does not use stays put
+      });
+      push();
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    layout(i);
+    paint(i);
+    kick();
+  });
+
+  // ================= known answers, worked out by hand =================
+  const solvedSt = (i) => Object.assign(blank(), STEPS[i].kind === 'pick' ? { pick: STEPS[i].want, res: 'right' } : { res: 'right' });
+  function saveAll() {
+    return { X: Object.assign({}, X), D: Object.assign({}, D), W: Object.assign({}, W), T, sc: scripted, rv, fin: finished, S: S.slice(), held, phase };
+  }
+  function restoreAll(k) {
+    Object.assign(X, k.X); Object.assign(D, k.D); W = k.W; T = k.T; scripted = k.sc; rv = k.rv; finished = k.fin; S = k.S; held = k.held; phase = k.phase;
+  }
+  // A screen in the state given (its demonstration finished, unless opening), and what it drew.
+  function drawn(i, st, opening, then) {
+    const keep = saveAll();
+    S = S.slice(); S[i] = st || blank(); T = Infinity; scripted = false; rv = Infinity; finished = false; held = false;
+    try {
+      prep(i, !opening);
+      if (then) { then(); snapD(); snapW(i); }
+      paint(i);
+      return Object.assign({}, REC, { t: Object.assign({}, REC.t) });
+    } finally { restoreAll(keep); paint(); }
+  }
+  const tIs = (t, o) => Object.keys(o).every((k) => t[k] === o[k]);
+  const mk = (o) => model(Object.assign({}, BASE, { c: 0 }, o));
+  const iRec = idx('Real and reactive'), iFuel = idx('More fuel, wider angle'), iPu = idx('Power from the angle'), iTwo = idx('Two droop lines');
+  const iNudge = idx('A nudge to A'), iHalf = idx('Half the nudge'), iMore = idx('How much more'), iLess = idx('Less droop'), iFlat = idx('Two flat lines');
+  const iVolt = idx('Voltage and kVAr'), iField = idx('More field on A'), iCross = idx('Cross current'), iPf = idx('A\'s power factor'), iBack = idx('Share it back');
+
+  K.check('At 4% droop a set falls 2.4 Hz across 504 kW, so it takes 210 kW for each hertz; equal 62.4 Hz settings share 600 kW as 300 kW each at 60.97 Hz with δ 18.5° (screens 2 and 4)', () => {
+    const a = drawn(iFuel), a0 = drawn(iFuel, null, true), b = drawn(iTwo), want = { F: '60.97', PA: '300', PB: '300', D: '18.5' };
+    return K.near(kOf(4), 210, 1e-9) && K.near(0.04 * F0, 2.4, 1e-12) && tIs(a.t, want) && tIs(b.t, want) && a0.t.PA === '0' && a0.t.F === '62.40' && !!b.dot;
+  });
+  K.check('Raising A\'s setting 0.3 Hz moves 31.5 kW onto A, 331.5 against 268.5 kW with δ 20.5°, and lifts the board only 0.15 Hz, half the nudge, to 61.12 Hz; the old crossing stays marked (screen 6)', () => {
+    const r = drawn(iHalf), r0 = drawn(iHalf, null, true), base = baseOf(iHalf);
+    return tIs(r.t, { F: '61.12', PA: '331.5', PB: '268.5', D: '20.5' }) && K.near(r.M.f - base.f, 0.15, 1e-9) && K.near(r.M.pa - base.pa, 31.5, 1e-9) &&
+      !!r.ring && !r0.ring && r0.t.PA === '300';
+  });
+  K.check('Screen 5 answered moves A to 62.7 Hz; screen 7 shows ? for A until checked, then A at 62.6 Hz carries 321 kW and B 279 kW at 61.07 Hz', () => {
+    const n = drawn(iNudge, solvedSt(iNudge)), a = drawn(iMore), b = drawn(iMore, solvedSt(iMore));
+    return tIs(n.t, { PA: '331.5', F: '61.12' }) && !!n.ring && tIs(a.t, { F: '60.97', PA: '?', PB: '300' }) && tIs(b.t, { F: '61.07', PA: '321', PB: '279' }) &&
+      K.near(b.M.pa, 210 * (62.6 - b.M.f), 1e-9);
+  });
+  K.check('At 1% droop a set takes 840 kW for each hertz: the same 0.3 Hz nudge from 60.6 Hz gives 426 and 174 kW at 60.39 Hz, moving 126 kW, four times the 31.5 kW at 4% (screen 8)', () => {
+    const r = drawn(iLess), base = baseOf(iLess);
+    return K.near(kOf(1), 840, 1e-9) && tIs(r.t, { F: '60.39', PA: '426', PB: '174' }) && K.near(r.M.pa - base.pa, 126, 1e-6) && K.near((r.M.pa - base.pa) / 31.5, 4, 1e-6);
+  });
+  K.check('Isochronous at 60.1 and 60.0 Hz on 400 kW: hidden until checked, then A carries 450.4 kW at 60.10 Hz and B draws 50.4 kW as a motor, red past its edge; on 600 kW A is at full fuel and the board falls to 60.0 Hz with B on 96 kW', () => {
+    const a = drawn(iFlat), b = drawn(iFlat, solvedSt(iFlat)), c = isoSolve(60.1, 60.0, 600);
+    return tIs(a.t, { F: '?', PA: '?', PB: '?', D: '?' }) && a.dot === null && tIs(b.t, { F: '60.10', PA: '450.4', PB: '−50.4' }) && b.red[1] && !b.red[0] && !!b.dot &&
+      K.near(c.f, 60, 1e-12) && K.near(c.pa, 504, 1e-12) && K.near(c.pb, 96, 1e-9);
+  });
+  K.check('More fuel to the engine of one set in a group does not raise the frequency as it would alone: the board rises by less than the nudge, and less still with more sets', () => {
+    const k = kOf(4), rise = (n) => { const g0 = 62.4 - 600 / (n * k), g1 = (n * 62.4 + 0.3) / n - 600 / (n * k); return g1 - g0; };
+    const two = droopSolve(62.7, 62.4, k, 600).f - droopSolve(62.4, 62.4, k, 600).f;
+    return K.near(two, rise(2), 1e-9) && K.near(rise(1), 0.3, 1e-9) && rise(1) > rise(2) && rise(2) > rise(10);
+  }, { source: SRC_DS });
+  K.check('Real power from a set in parallel is a direct function of its engine\'s output: raising A\'s setting always moves more kW onto A and widens its load angle', () => {
+    let prev = null;
+    for (let n = 580; n <= 640; n++) {
+      const m = mk({ fa: n / 10 });
+      if (prev && (m.pa < prev.pa - 1e-9 || m.d < prev.d - 1e-9)) return false;
+      prev = m;
+    }
+    return mk({ fa: 64 }).pa > mk({ fa: 58 }).pa + 300;
+  }, { source: SRC_CUM });
+  K.check('Raising one set\'s excitation increases its share of the total kVAr and decreases its power factor', () => {
+    let prev = null;
+    for (let n = 895; n <= 904; n++) {
+      const m = mk({ va: n / 2 }), pf = m.pa / Math.hypot(m.pa, m.qa);
+      if (prev && !(m.qa > prev.qa && pf < prev.pf)) return false;
+      prev = { qa: m.qa, pf };
+    }
+    return true;
+  }, { source: SRC_DS });
+  K.check('Speed control shares the kW and voltage control the kVAr: the field settings never move the kW, and the governor settings never move the kVAr', () => {
+    const m0 = mk({}), m1 = mk({ va: 455, vb: 440 }), m2 = mk({ fa: 63.5, fb: 61 });
+    return m1.pa === m0.pa && m1.pb === m0.pb && K.near(m2.qa, m0.qa, 1e-12) && K.near(m2.qb, m0.qb, 1e-12) && Math.abs(m1.qa - m0.qa) > 50 && Math.abs(m2.pa - m0.pa) > 50;
+  }, { source: SRC_BG });
+  K.check('Raising A\'s field 2 V lifts the board only 1 V, to 441.0 V: A carries 255 kVAr and B 195, a cross current of 30 000 ÷ (√3 × 440) = 39.4 A; compensation brings 440.0 V, 225 kVAr each and 0.0 A, with each set still on 300 kW (screens 11 and 12)', () => {
+    const a = drawn(iField, solvedSt(iField)), b = drawn(iCross), c = drawn(iCross, null, false, () => { X.comp = true; });
+    const q = { V: '441.0', QA: '255', QB: '195', X: '39.4' };
+    return tIs(a.t, q) && tIs(b.t, q) && tIs(c.t, { V: '440.0', QA: '225', QB: '225', X: '0.0' }) && b.flow === 1 && c.flow === 0 &&
+      b.kw[0] === '300' + NB + 'kW' && c.kw[1] === '300' + NB + 'kW' && !!c.ring && !!a.ring;
+  });
+  K.check('Screen 3: δ 32.3° with E 2.25, V 1.0 and Xs 1.5 gives 2.25 × 1.0 × 0.534 ÷ 1.5 = 0.80 per unit, and 0.80 × 630 kVA = 504 kW; A shows ? until checked', () => {
+    const a = drawn(iPu), b = drawn(iPu, solvedSt(iPu));
+    return a.t.D === '32.3' && a.t.PA === '?' && b.t.PA === '504' && b.M.pu === 0.8 && r2(EPU * VPU * 0.534 / XS) === 0.8 && Math.round(Math.sin(rad(32.3)) * 1000) / 1000 === 0.534;
+  });
+  K.check('Screen 10: the 600 kW load at 0.8 takes 600 × 0.75 = 450 kVAr; settings of 447.5 V cross at 440.0 V with 225 kVAr each and no cross current', () => {
+    const r = drawn(iVolt);
+    return K.near(QK, 0.75, 1e-12) && K.near(r.M.Q, 450, 1e-9) && tIs(r.t, { V: '440.0', QA: '225', QB: '225', X: '0.0' }) && r.flow === 0;
+  });
+  K.check('Screen 14: A at 62.8 Hz and B at 62.4 Hz carry 342 and 258 kW at 61.17 Hz; moved 0.2 Hz towards each other they carry 300 kW each, still at 61.17 Hz', () => {
+    const a = drawn(iBack), b = drawn(iBack, solvedSt(iBack));
+    return tIs(a.t, { F: '61.17', PA: '342', PB: '258' }) && tIs(b.t, { F: '61.17', PA: '300', PB: '300' }) && K.near(a.M.f, b.M.f, 1e-9) && K.near((342 - 300) / 210, 0.2, 1e-12) && !!b.ring;
+  });
+  K.check('With no load, equal settings carry nothing at their setting; a set set well below the other is driven as a motor, drawing 50.4 kW that the other supplies', () => {
+    const a = droopSolve(62.4, 62.4, 210, 0), b = droopSolve(64, 58, 210, 0);
+    return K.near(a.f, 62.4, 1e-12) && K.near(a.pa, 0, 1e-9) && K.near(b.pb, -50.4, 1e-9) && K.near(b.pa, 50.4, 1e-9) && K.near(b.f, 64 - 50.4 / 210, 1e-9);
+  });
+  K.check('Screen 1 shows the 80 kW and 60 kVAr triangle once checked; each typed answer and slip is worked from the rule: 80 kW (60, 125), 0.80 (1.20, 1.27, 1.80), 321 kW (342, 300, 279), 0.76 (0.80, 0.84, 0.65) and 0.2 Hz (0.4, 0.1, 42)', () => {
+    const t0 = drawn(iRec), t1 = drawn(iRec, solvedSt(iRec));
+    const sl = (i, v) => STEPS[i].slips.length === v.length && STEPS[i].slips.every((s, k) => Math.abs(s.value - v[k]) < 1e-12);
+    const sn = Math.sin(rad(32.3)), cs = Math.cos(rad(32.3)), kva = Math.hypot(300, 255), kvb = Math.hypot(300, 195);
+    const work = K.near(100 * 0.8, 80, 1e-12) && K.near(Math.sqrt(100 * 100 - 80 * 80), 60, 1e-12) && K.near(100 / 0.8, 125, 1e-12) &&
+      r2(2.25 * 0.534 / 1.5) === 0.8 && r2(2.25 * sn / 1.5) === 0.8 && r2(2.25 * 0.534) === 1.2 && r2(2.25 * cs / 1.5) === 1.27 && r2(2.25 * 0.534 * 1.5) === 1.8 &&
+      K.near(210 * 1.53, 321.3, 1e-9) && Math.round(210 * (62.6 - 60.97)) === 342 && 600 - 321 === 279 &&
+      r2(300 / kva) === 0.76 && r2(300 / kvb) === 0.84 && r2(255 / kva) === 0.65 &&
+      K.near(42 / 210, 0.2, 1e-12) && K.near(84 / 210, 0.4, 1e-12) && K.near(42 / 210 / 2, 0.1, 1e-12) && 342 - 300 === 42;
+    return work && !t0.tri && t1.tri && STEPS[iRec].answer === 80 && STEPS[iPu].answer === 0.8 && STEPS[iMore].answer === 321 && STEPS[iPf].answer === 0.76 && STEPS[iBack].answer === 0.2 &&
+      sl(iRec, [60, 125]) && sl(iPu, [1.2, 1.27, 1.8]) && sl(iMore, [342, 300, 279]) && sl(iPf, [0.8, 0.84, 0.65]) && sl(iBack, [0.4, 0.1, 42]);
+  });
+  K.check('Fourteen screens, six that show and eight to try; each pick\'s right answer is its second option', () =>
+    STEPS.length === 14 && STEPS.filter((d) => d.show).length === 6 && [iNudge, iFlat, iField].every((i) => STEPS[i].want === STEPS[i].opts[1]) &&
+    iRec === 0 && iBack === STEPS.length - 1 && iCross === 11);
+  K.ready();
+</script>

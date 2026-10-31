@@ -1,0 +1,222 @@
+{
+  "ok": true,
+  "reachChecked": true,
+  "problems": [],
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "The curve marks 440 V at 100% and 555 V at 200%: doubling the field lifts the voltage only 555 ÷ 440 = 1.26 times",
+        "ok": true
+      },
+      {
+        "label": "Past the knee each step of field buys less: the first 25% of field makes 125 V, the last 25% only 15 V",
+        "ok": true
+      },
+      {
+        "label": "With the AVR off and the field held at 100%, a 50% load leaves 390 V at the board and an 80% load 360 V, and the voltage stays there",
+        "ok": true
+      },
+      {
+        "label": "With the AVR on, the field settles where the curve gives 440 V plus the drop: 125% at 50% load, 175% at full load, 110% at 20%, with 440 V at the board",
+        "ok": true
+      },
+      {
+        "label": "Under the AVR, a 50% load first dips the voltage below 440 V, not as far as 390 V, and then the AVR brings it back to 440 V",
+        "ok": true
+      },
+      {
+        "label": "When the load trips off, the voltage jumps to 490 V at once; the AVR then brings it back to 440 V with the field at 100%",
+        "ok": true
+      },
+      {
+        "label": "The AVR controls the alternator output voltage by automatic adjustment of the exciter stator field strength",
+        "ok": true,
+        "source": "https://www.stamford-avk.com/sites/stamfordavk/files/2026-05/S9-HV-Alternators-Installation-Service-and-Maintenance-Manual-English.pdf"
+      },
+      {
+        "label": "Self-excited alternators will not maintain a short-circuit current: with the output near 0, a shunt-fed AVR has no power, while a PMG keeps it supplied",
+        "ok": true,
+        "source": "https://www.stamford-avk.com/sites/stamfordavk/files/AGN124_C.pdf"
+      },
+      {
+        "label": "Follow lights the path from the AVR through the exciter and the diodes into the main field; the supply screen lights the shunt lead",
+        "ok": true
+      },
+      {
+        "label": "Each typed answer and slip is worked from the rule: 1.26 times (2, 0.79), 360 V (440, 520), 175% (150, 200, 125), 490 V (440, 390) and 110% (120, 100)",
+        "ok": true
+      },
+      {
+        "label": "Every demonstration ends 3 to 4.5 s after its screen opens, and the AVR has settled within each one and within each answer's motion",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "field",
+      "load",
+      "avr",
+      "supply"
+    ],
+    "readouts": [
+      "r-load",
+      "r-field",
+      "r-volt"
+    ],
+    "outputs": [],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Screen",
+        "min": 0,
+        "max": 11,
+        "step": 1,
+        "steps": [
+          "The open-circuit curve",
+          "Double the field",
+          "The exciter",
+          "What the AVR feeds",
+          "A load pulls it down",
+          "Field held, more load",
+          "The AVR brings it back",
+          "Full load",
+          "Where the AVR gets power",
+          "Through a short circuit",
+          "The load trips",
+          "A light load"
+        ],
+        "value": 0
+      },
+      {
+        "id": "field",
+        "kind": "control",
+        "label": "Field current",
+        "min": 0,
+        "max": 200,
+        "step": 5,
+        "log": false,
+        "value": 100,
+        "shown": true,
+        "snap": [
+          100,
+          200
+        ]
+      },
+      {
+        "id": "load",
+        "kind": "control",
+        "label": "Load",
+        "min": 0,
+        "max": 100,
+        "step": 10,
+        "log": false,
+        "value": 0,
+        "shown": false,
+        "snap": [
+          50,
+          80,
+          100
+        ]
+      },
+      {
+        "id": "avr",
+        "kind": "toggle",
+        "label": "AVR",
+        "options": [
+          false,
+          true
+        ],
+        "value": false,
+        "shown": false
+      },
+      {
+        "id": "supply",
+        "kind": "choice",
+        "label": "AVR supply",
+        "options": [
+          "shunt",
+          "pmg"
+        ],
+        "labels": [
+          "Shunt",
+          "PMG"
+        ],
+        "value": "shunt",
+        "index": 0,
+        "shown": false
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Show me again",
+      "Back",
+      "Continue",
+      "Start again",
+      "Running"
+    ],
+    "answers": [
+      {
+        "id": "a-dbl",
+        "answer": 1.26,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-held",
+        "answer": 360,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-full",
+        "answer": 175,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-trip",
+        "answer": 490,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-light",
+        "answer": 110,
+        "accept": [],
+        "ok": true
+      }
+    ],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ],
+    "foreign": [],
+    "unreachable": []
+  }
+}

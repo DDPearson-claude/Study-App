@@ -1,0 +1,393 @@
+TASK: repair-interactive
+
+The interactive below, written for Dan's learning app, failed its automatic checks. Fix every problem listed and return the complete corrected body. Keep what already works.
+
+## The idea
+Topic: Generators and paralleling
+Idea: The loaded generator: synchronous reactance and the phasor (Synchronous reactance, the machine's inner reactance, drops voltage under load; drawn tip to tail, it shows the internal voltage the field must make.)
+Kind: quantity
+Dan knows a little about this topic. Show an equation on the page only if every symbol in it is labelled on the picture; otherwise say the rule in words.
+
+## What the interactive must show
+Brief: The one thing you should see is E, the voltage inside, growing on a lagging load and shrinking on a leading one, while the AVR holds V, when you step the power factor.
+Title (the app shows it above the frame, so do not repeat it): The phasor drop
+The rule (the app shows it just above the frame, under "What you're looking at"): Fourteen small screens on one picture, with Back and Continue. Five show an idea and nine ask you to try it. No marks and no timers.
+
+The picture. At the top is one phase of the set, drawn as a small circuit. On the left, a circle marked E is the voltage the set makes inside. Next comes a coil marked Xs, the synchronous reactance. On the right are the terminals, marked V, with the load beyond. A small AVR box measures V and drives a field-current bar beside E, from 0% up. Below it sits the phasor drawing. V lies flat from the origin, 1.0 per unit long. The current arrow I is dashed. It starts at the origin. Its length is the load current. Its angle is the power factor. It points below V when lagging and above V when leading. The drop across Xs is an arrow drawn from V's tip. It stands at right angles to I, 90° ahead of it. E runs from the origin to the drop's tip and closes the triangle. The angle δ is marked between E and V. Two dashed guides split the drop into its part along V and its part across V. Each is labelled with its length. They fade in as the drop leans over, and fade out as the AVR goes off. Each screen keeps one scale, set by the largest triangle it can reach. So V keeps its length while E grows or shrinks. The load slider runs from 0 to 1.0 per unit of rated current, in steps of 0.1. It opens at 1.0. The power factor stepper has five settings, in this order: Zero pf leading, 0.8 leading, Unity, 0.8 lagging and Zero pf lagging. It opens on Unity. The Xs slider runs from 0.1 to 2.0 per unit, in steps of 0.1. It opens at 1.5. An AVR switch turns the AVR on and off.
+
+Four readout tiles show E in per unit, Field current in %, V in per unit and δ in degrees. On a phone they wrap onto two rows. The stepper's five settings and the switch wrap too, so no word splits.
+
+The rule it computes. Everything is one phase, in per unit. 1.0 means the set's rated voltage, 440 V between lines at the terminals, or its rated current. Per unit reads the same on phase and line bases. Per unit is per cent ÷ 100. The winding's resistance is left out. The drop is Xs × I, and it runs 90° ahead of the current, as across any reactance. Split the current in two. Its part in step with V is I × the power factor. Its part at right angles is I × the sine of its angle. That sine is 0.6 at 0.8, 1 at zero power factor and 0 at unity. The in-step part makes a drop across V: Xs × I × the power factor. The other part makes a drop along V: Xs × I × the sine. It is added for a lagging load and taken off for a leading one. With the AVR on, V is held at 1.0. So E's part along V is 1.0 plus or minus that drop. Its part across V is the across drop. E = √(along² + across²). δ is the angle whose tangent is across ÷ along. The field bar is drawn in proportion to E. 100% is the field that makes 1.0 with nothing connected. That is the straight part of the open-circuit curve, carried on. The field current cannot go below zero, because the diodes on the shaft pass current one way only. Only Zero pf leading can ask for less: there E = 1.0 − Xs × I. Past that point the bar sits at 0% in red. E is zero, and V climbs to Xs × I. With the AVR off, the field freezes at exactly the value it had. E keeps the length that field gives. So from unity at rated current it holds 180%, and E holds 1.80. V moves instead: V = √(E² − across²) − Xs × I × the sine, with the same signs. The caption under the picture says that real iron saturates, so a real V never climbs as high as drawn.
+
+Screen 1, try it, a recall. No picture. "A transformer has an R% of 1.5 and an X% of 3. At full load, 0.8 lagging, its output sags 3.0%. At 0.8 leading, the same current lifts its output by 0.6%. Why the difference?" Three choices, in this order: "The leading load draws less current"; "The leading load meets less resistance"; "The angle turns the same drops along or against the output". Right, the third. Each wrong choice has its own hint. Why: the working, step by step. A right Check says "Still there." Read: the question.
+
+Screen 2, show. The AVR on, Unity, Xs at 1.5, the load at 0 and its slider free. At no load, the rated-current triangle is drawn faintly, dashed, and fades as the load rises. The words: "Each phase works like this small circuit. The field makes a voltage inside, E. 100% field makes 1.0 per unit with nothing connected. On its way out, the current passes through a reactance, Xs. The stator's current makes a field of its own, which alters the rotor's. Some flux also leaks past. Both make a voltage that grows with the current and runs 90° ahead of it. Together they act like one reactance, the synchronous reactance.[^1] With no load, V equals E. Drag the load up and watch E grow past V." Read: the words without the controls. Still: the load at 1.0, Unity, the triangle drawn and the readouts at 1.80, 180%, 1.00 and 56°.
+
+Screen 3, try it, typed. The load at 1.0, Unity, the drop arrow hidden until Check. "This set's Xs is 1.5 per unit. Per unit is a fraction of the set's own rating. So 1.0 means 440 V between lines, or rated current. Rated current flows. How big is the drop across Xs, as a line voltage?" A field in V. Answer 660 V. Slips, each with a hint naming the mistake: 6.6 V, 293 V and 381 V. Hint when wrong: "Find the drop in per unit, then multiply by 440 V." Why: the working, step by step. A right Check draws the drop arrow, labelled 1.5. Read: the question.
+
+Screen 4, show. The AVR on, Unity, the load at 1.0, the Xs slider free from 1.5. The words: "The drop across a reactance runs 90° ahead of its current. At unity the current lies along V. So the drop stands straight up from V's tip. E closes the triangle: √(1.0² + 1.5²) = 1.80. The field must make 1.80 to hold 1.0 at the terminals. The angle between E and V is the load angle, δ. Here it is 56°. Drag Xs down to 0.1. That is nearer a transformer's size. E is then barely longer than V." Read: the words without the controls. Still: Xs at 1.5, the load at 1.0, Unity, the right angle and δ marked.
+
+Screen 5, try it, typed. The AVR on, Unity, Xs at 1.5, the E tile reading ? until Check. "At unity, the load falls to half rated current, 0.5 per unit. Xs is 1.5 and the AVR holds V at 1.0. How big must E be?" A field in per unit. Answer 1.25 per unit. Slips, each with a hint naming the mistake: 1.75, 0.25 and 1.80. Hint when wrong: "Find the drop, then use Pythagoras with V." Why: the working, step by step. A right Check slides the load to 0.5. Read: the question.
+
+Screen 6, try it, a prediction. The AVR on, the load at 1.0, Xs at 1.5, Unity. The E, Field current and δ tiles read ? throughout. "Predict before you look. Two loads draw rated current from the set. One is at 0.8 lagging and one is at 0.8 leading. The AVR holds V at 1.0. Which needs more field current?" Three choices, in this order: "Neither, the current is the same"; "The 0.8 lagging load"; "The 0.8 leading load". Right, the second. Each wrong choice has its own hint. Why: the working, step by step. A right Check steps to 0.8 leading, then to 0.8 lagging, and the field bar climbs. Read: the question.
+
+Screen 7, show. The AVR on, the load at 1.0, Xs at 1.5, the stepper free from Unity. No readout tiles on this screen; the field bar shows the field. The words: "Step the power factor to 0.8 lagging. The current swings 37° behind V. The drop swings round with it. Now it leans forward along V. Split the current in two. Its 0.8 in step with V makes a drop across V, 1.5 × 0.8 = 1.2. Its 0.6 lagging part makes a drop along V, 1.5 × 0.6 = 0.9. So E's part along V grows to 1.9. Watch the field bar climb." Read: the words without the controls. Still: 0.8 lagging, the load at 1.0, the guides labelled 1.2 and 0.9. The 1.2 sits low on its guide, below where E crosses it.
+
+Screen 8, try it, typed. The AVR on, 0.8 lagging, the load at 1.0, the E and Field current tiles reading ? until Check. "Rated current flows at 0.8 lagging. Xs is 1.5 and the AVR holds V at 1.0. How big must E be?" A field in per unit. Answer 2.25 per unit. Slips, each with a hint naming the mistake: 1.80, 2.50 and 1.20. Hint when wrong: "Add the along parts, then use Pythagoras with the across part." Why: the working, step by step. A right Check shows the field bar at 225%. Read: the question.
+
+Screen 9, show. The AVR on, the load at 1.0, Xs at 1.5, the stepper free from 0.8 lagging, the load slider free. The words: "Step to 0.8 leading. The current swings ahead of V, so the drop leans back. E's part along V falls to 1.0 − 0.9 = 0.1, so E falls to 1.20. Step on to Zero pf leading, the current capacitors alone draw. The whole drop now points back against V. Drag the load up. Partway, the field bar hits zero and turns red. The diodes on the shaft pass current one way only, so the field cannot reverse. V climbs above 1.0." Read: the words without the controls. Still: Zero pf leading, the load at 1.0, the field bar at 0% in red, E at 0 and V at 1.50.
+
+Screen 10, try it, typed. The AVR on, Zero pf leading, the load at 0, the Field current tile reading ? until Check. "A set feeds only correction capacitors, left in after the rest of the load has gone. That is a Zero pf leading load. Xs is 1.5 and the AVR holds V at 1.0. At what current does the field reach zero?" A field in per unit. Answer 0.67 per unit. Slips, each with a hint naming the mistake: 1.5 and 1.0. Hint when wrong: "The drop points straight back against V. E is zero when the drop equals V." Why: the working, step by step. A right Check slides the load up until the field bar turns red. Read: the question.
+
+Screen 11, show. The load at 1.0, Xs at 1.5, Unity, the AVR on. The AVR switch is free, and the stepper offers only 0.8 leading, Unity and 0.8 lagging. The words: "Hold rated current at unity with the AVR on. E is 1.80 and the field 180%. Now switch the AVR off. The field stays at 180%, so E keeps its length. Step to 0.8 lagging. E's tip swings round a circle, and V shrinks to close the triangle. Step to 0.8 leading, and V grows. This is why the voltage sagged on load with the AVR off." Switching the AVR off at unity leaves V at 1.00. Read: the words without the controls. Still: the AVR off, the load at 1.0, 0.8 leading, E at 1.80, the field at 180% and V at 2.25.
+
+Screen 12, try it, typed. The AVR off, the field at 180%, the load at 1.0, Unity, the V tile reading ? until Check. "With the AVR on at unity and rated current, the field sat at 180% and E at 1.80. The AVR is now off. The same current swings to 0.8 lagging. E's part across V is 1.2 and the drop's part along V is 0.9. What is V now?" A field in per unit. Answer 0.44 per unit. Slips, each with a hint naming the mistake: 0.90, 0.30 and 1.00. Hint when wrong: "E's part along V is √(1.80² − 1.2²). Take 0.9 off that." Why: the working, step by step. A right Check steps to 0.8 lagging and shrinks V. Read: the question.
+
+Screen 13, try it, typed (mixed). The AVR on, the load at 1.0, Xs at 1.5, 0.8 lagging, the δ tile reading ? until Check. "Rated current flows at 0.8 lagging. Xs is 1.5 and the AVR holds V at 1.0. What is the load angle δ between E and V?" A field in degrees. Answer 32 degrees. Slips, each with a hint naming the mistake: 37 and 58. Hint when wrong: "Find E's parts along and across V. tan δ = across ÷ along." Why: the working, step by step. A right Check marks δ. Read: the question.
+
+Screen 14, try it, typed (mixed). The AVR on, the load at 1.0, Xs at 1.5, 0.8 lagging, the readouts showing. "Sets are rated at 0.8 power factor. So the winding and the field are built for rated current at 0.8 lagging, as drawn here. A 630 kVA set runs at 440 V between lines. What line current flows at its full rating?" A field in A. Answer 826.7 A. Slips, each with a hint naming the mistake: 1431.8, 661.3 and 477.3. Hint when wrong: "Line current = VA ÷ (√3 × the line voltage)." Why: the working, step by step. A right Check shows the closing line: "A lagging load needs more field, a leading one less." Read: the question.
+What the model leaves out (the app shows this in its own panel; do not repeat it on the page): The picture shows one phase, in per unit. The winding's resistance is left out. A real winding adds a small drop in step with the current. The field bar is drawn in proportion to E. That carries on the straight part of the open-circuit curve. Real iron saturates, so a large E costs more field than drawn. For the same reason, V cannot climb as far as drawn with the AVR off on a leading load. Xs is one fixed example value. In a real machine it changes with saturation. On a salient-pole rotor it differs along and across the poles. These are steady values. In the first moments after a sudden change, a smaller reactance acts. The floor is drawn at zero field current. A real set can lose control of its voltage before its field reaches zero. The speed is held steady, so the frequency never moves. The AVR settles at once.
+Controls (use these ids, ranges and opening values exactly; when the prediction or a check names a setting of a slider, add it to that slider's snap):
+- id "step": Screen, from 0 to 11 in steps of 1, opening at 0
+Outputs: none. No rule computes a number here, so show no readouts beyond plain counts of what is on screen ("4 of 7 at war"): the picture, its labels and the .say line do the teaching.
+Numbers it may show (control = Dan sets it; computed = from the rule; constant = a fixed real value; assumed = an example value, said once as an example in the lead line or a caption, then drawn as a plain value; date = a historical date or fact):
+- Number of screens: 14 (assumed)
+- Rated voltage at the terminals, the 1.0 per unit base, V: 440 (assumed)
+- Terminal voltage held by the AVR, per unit: 1 (assumed)
+- Rated current, per unit: 1 (assumed)
+- Synchronous reactance Xs, per unit: 1.5 (assumed)
+- Xs as a percentage, %: 150 (computed)
+- Angle of the drop ahead of the current, degrees: 90 (constant)
+- Load slider, lowest, per unit: 0 (control)
+- Load slider, highest, per unit: 1 (control)
+- Load slider step, per unit: 0.1 (control)
+- Xs slider, lowest, per unit: 0.1 (control)
+- Xs slider, highest, per unit: 2 (control)
+- Xs slider step, per unit: 0.1 (control)
+- Power factor setting: 0.8 (control)
+- Sine of the angle at 0.8 power factor: 0.6 (computed)
+- Angle at 0.8 power factor, degrees: 37 (computed)
+- Field current for E = 1.0, %: 100 (assumed)
+- Field current floor, %: 0 (assumed)
+- Screen 3: drop at rated current, per unit: 1.5 (computed)
+- Screen 3: drop on the 440 V scale, V: 660 (computed)
+- Screen 3 slip: read as 1.5%, V: 6.6 (computed)
+- Screen 3 slip: 440 ÷ 1.5, V: 293 (computed)
+- Unity, rated current: E, per unit: 1.8 (computed)
+- Unity, rated current: field current, %: 180 (computed)
+- Unity, rated current: δ, degrees: 56 (computed)
+- Screen 4: E with Xs at 0.1, per unit: 1 (computed)
+- Screen 5: load, per unit: 0.5 (assumed)
+- Screen 5: drop, 1.5 × 0.5, per unit: 0.75 (computed)
+- Screen 5: 1.0² + 0.75²: 1.5625 (computed)
+- Screen 5: E, per unit: 1.25 (computed)
+- Screen 5 slip: drop added straight, per unit: 1.75 (computed)
+- Screen 5 slip: drop taken off, per unit: 0.25 (computed)
+- 0.8 lagging: drop across V, 1.5 × 0.8, per unit: 1.2 (computed)
+- 0.8 lagging: drop along V, 1.5 × 0.6, per unit: 0.9 (computed)
+- 0.8 lagging: E's part along V, per unit: 1.9 (computed)
+- Screen 8: 1.9² + 1.2²: 5.05 (computed)
+- 0.8 lagging, rated current: E, per unit: 2.25 (computed)
+- 0.8 lagging, rated current: field current, %: 225 (computed)
+- 0.8 lagging against unity: more inside, %: 25 (computed)
+- Screen 8 slip: whole drop along V, 1.0 + 1.5, per unit: 2.5 (computed)
+- 0.8 leading: E's part along V, 1.0 − 0.9, per unit: 0.1 (computed)
+- 0.8 leading, rated current: E, per unit: 1.2 (computed)
+- Zero pf leading, rated current, field at its floor: V, per unit: 1.5 (computed)
+- Screen 10: current that takes the field to zero, 1.0 ÷ 1.5, per unit: 0.67 (computed)
+- Screen 11: AVR off from unity's exact field, 0.8 leading: V, per unit: 2.25 (computed)
+- Screen 12: 1.80²: 3.24 (computed)
+- Screen 12: 1.2²: 1.44 (computed)
+- Screen 12: E's part along V, √1.80, per unit: 1.34 (computed)
+- Screen 12: V with the AVR off at 0.8 lagging, per unit: 0.44 (computed)
+- Screen 12 slip: 1.80 − 0.9, per unit: 0.9 (computed)
+- Screen 12 slip: 1.80 − 1.5, per unit: 0.3 (computed)
+- Screen 13: tan δ, 1.2 ÷ 1.9: 0.63 (computed)
+- 0.8 lagging, rated current: δ, degrees: 32 (computed)
+- Screen 13 slip: tangent upside down, degrees: 58 (computed)
+- Worked example: load, per unit: 0.5 (assumed)
+- Worked example: power factor, lagging: 0.6 (assumed)
+- Worked example: sine of its angle: 0.8 (computed)
+- Worked example: drop across V, 1.5 × 0.5 × 0.6, per unit: 0.45 (computed)
+- Worked example: E's part along V, 1.0 + 1.5 × 0.5 × 0.8, per unit: 1.6 (computed)
+- Worked example: E, per unit: 1.66 (computed)
+- Worked example: E on the 440 V base, 1.66 × 440, V: 730 (computed)
+- Worked example: δ, degrees: 16 (computed)
+- Worked example: field current, %: 166 (computed)
+- Phase voltage at 440 V between lines, 440 ÷ √3, V: 254 (computed)
+- Screen 3 slip: the drop per phase, 1.5 × 254, V: 381 (computed)
+- Recall: the transformer's R%: 1.5 (assumed)
+- Recall: the transformer's X%: 3 (assumed)
+- Recall: regulation at 0.8 lagging, %: 3 (computed)
+- Recall: regulation at 0.8 leading, %: -0.6 (computed)
+- Recall: 3 × 0.6, %: 1.8 (computed)
+- Unity, rated current: field current frozen exactly, %: 180.28 (computed)
+- Rated power factor of a set: 0.8 (constant)
+- The set's rating, kVA: 630 (assumed)
+- The set's rating, VA: 630000 (computed)
+- The set's real power at 0.8, kW: 504 (computed)
+- √3 × 440, V: 762.1 (computed)
+- Rated line current, 630 000 ÷ (√3 × 440), A: 826.7 (computed)
+- Screen 14 slip: no √3, 630 000 ÷ 440, A: 1431.8 (computed)
+- Screen 14 slip: from the kW, 504 000 ÷ (√3 × 440), A: 661.3 (computed)
+- Screen 14 slip: 630 000 ÷ (3 × 440), A: 477.3 (computed)
+- Xs as a percentage against the transformer's X%, %: 3 (assumed)
+
+## What the checks found (at 340, 720 and 1040 px wide)
+- Check failed: "Each screen keeps one scale, so V keeps its length while E grows (1.80 to 2.25 on the lagging screen), and every state it can reach stays in view" (returned false)
+- Advice: The check "Three-phase generator sets are rated for 0.8 PF loads: the 630 kVA set gives 504 kW and 826.7 A a line at 440 V" cites [3], but none of its numbers is in that source's quote: give a source only to a check that restates the quote; a result of your own rule takes none.
+
+## How to fix the usual problems
+- A thrown error (also from a K.button press or a K.anim step): go to the body line it names; check element ids, variable names and the kit call signatures.
+- NaN or Infinity: guard the maths at the ends of every control's range (division by zero, log of 0, square root of a negative), or start the range where the rule makes sense.
+- A model output that is a list or object: K.model returns single numbers or short strings; keep lists in your own variables.
+- Too wide at 340 px: let rows wrap (flex-wrap), use width:100% and max-width:100%, give SVG a viewBox with width 100%, no fixed widths over 300 px, shorter labels.
+- Text cut off: shorten it or let it wrap, or give it room (a wider box, a bigger viewBox); never cut it off or hide the overflow. SVG labels printed over each other, even by a letter or two: move one, or place them with K.labels. A plot's axis title too long for a phone: shorten it (about 30 characters). A word split across two lines (often at Text size XL): size its grid columns or tiles in rem, not px (minmax(6rem, 1fr)), so they reflow to fewer, wider columns; or use a shorter word.
+- SVG text too small on a phone: font-size 13-16 in a drawing about 340 wide. A line or arrowhead through a label: place the label with K.labels and pass that line in avoid, or stop the line short of it. More labels than room (K.labels says avoid cannot be honoured): label fewer things, or move the names into a key under the drawing or a list beside it.
+- A readout's value printed elsewhere (a label, an aria-label or a plot label that follows it): while Dan answers a check the app hides only the readout and the .say line, so show the number in the readout alone and name the thing elsewhere.
+- Text hard to read (contrast) or a colour name: ink, muted, accent2, accent, warn or good (on-accent2 on navy), as var(--k-…) or K.color set in K.update, so it follows the theme.
+- A blank hole before Dan moves: hide only the answer (a line, a mark, a sentence), never a whole figure.
+- The first control far below the main figure (phone layout): put the visual and its controls together with K.stage(visual, controls), secondary figures below.
+- K.sound: frequencies 20 to 20,000 Hz (200 to 2,000 for anything Dan must hear on a phone), dur above 0 and at most 10 s, gain 0 to 1, a listed type; play it from a K.button press.
+- Navigation, links out, connections or frames: everything stays on this page (no <a href> or forms, no location changes, no WebSocket, XMLHttpRequest or iframes); name sources in words.
+- A failing check: work the expected value out again by hand. Fix whichever is wrong, the model or the check. Never delete a correct check or change its expected answer to pass. A tolerance that was unrealistically tight (a millionth, where square roots or small steps meet rounding) may be widened to a sensible one (a thousandth of the size).
+- Slow updates: sample curves less densely and do not rebuild large parts of the page on every change.
+- Missing ids: use exactly the ids listed; an output must be a key of the object K.model returns.
+- An unlisted web address: delete it, and the {source} that held it.
+- A target out of reach: make the model follow the lesson's rule with the lesson's ranges and opening values, so moving that one control brings the output to the target.
+
+## Sources
+The only web addresses this page may contain, each only as a K.check {source} on a check whose label restates what that source's quote says (a result of your rule, or a fact about your drawing, takes no source; the caption names a source in words). The app rejects any other:
+[1] CHAPTER 5 – SYNCHRONOUS GENERATOR — abs.cu.edu.tr (https://abs.cu.edu.tr/Dokumanlar/2017/EEE318/271877548_2_synchronous_machines.pdf): "Each phase has an internal generated voltage with a series inductance XS (consisting of the sum of the armature reactance and the coil’s self-inductance) and a series resistance RA."
+[2] WHITE PAPER — generac.com (https://www.generac.com/globalassets/pdfs/industrial/whitepapers/sizing-considerations-for-comm-and-ind-gens.pdf): "Some sources of a leading power factor can be a lightly loaded UPS, high intensity discharge lighting, and power factor correction capacitors."
+[3] How to size a genset: Proper generator set sizing requires analysis of parameters and loads — mart.cummins.com (https://mart.cummins.com/imagelibrary/data/assetfiles/0056648.pdf): "Only slightly leading power factor can cause generator sets to lose voltage control."
+[4] How to size a genset: Proper generator set sizing requires analysis of parameters and loads — mart.cummins.com (https://mart.cummins.com/imagelibrary/data/assetfiles/0056648.pdf): "Three-phase generator sets are rated for 0.8 PF loads"
+
+## Rules for this page
+- There is no guess to protect: show everything from the start (no k-after-move), curves and results included.
+- The lead line says what is drawn, plainly ("Water from a 5 m drop hits the blades of a wheel"), not what to do: the app gives the action above the frame. Example values are said once there ("an example stream: a 5 m drop, 20 kg of water each second"), then the drawing labels them plainly ("5 m"), never "for example" on the drawing.
+- Every label and arrow sits on, or starts from, the thing it is about: a force arrow starts on the part it pushes; a speed arrow on the part that moves. Anything the rule says turns or flows does so (K.anim), at a speed that follows its control.
+- The .say sentence must make sense on its own to someone who has just read the explanation: what is happening on screen now, cause then effect, in everyday words; no term, threshold or comparison the page or the explanation has not named; a number as part of its whole ("353 W of the stream's 981 W is carried off by the water"). Bad: "The buckets move slower than half the jet speed, so the water still leaves going backwards, taking 353 W away with it." Good: "The buckets are moving slowly, so the water bounces off them still moving fast, and carries 353 W of its 981 W away downstream."
+- A key for the main drawing sits inside the drawing; show each quantity once (a bar, a readout or a curve, not all three); every number drawn that is worked out (a speed from a drop) is explained in "What you're looking at", or is left off.
+- Draw the cause the explanation gives, not only its effect, and let Dan cause it (a drag, a push, a switch); include the setting where the effect does not happen.
+- Mark the brief's one quantity on the picture itself, with a label saying what it is and its value (a bracket between the two heights reading "2.4 m"); an output with a readout is marked without its number, which the readout alone shows (the app hides it while Dan answers a check).
+- A shaded band states something true of the axis it spans: inputs across x, outputs across y. To show many inputs giving nearly the same output, shade the narrow output band (regions {y0, y1}).
+- Draw every comparison the explanation makes the same way, in the same place, on the axis where the effect happens. A time period is a bracket or thin band along the time axis, not a tall block.
+- Give each reference line its own look and a label beside it; every styled line is in the key or labelled on the drawing.
+- Draw only what the brief, the rule or the explanation names, with the same names. An extra figure says on itself how to read it: what its line stands for and which way is which.
+- Show only the numbers listed above or computed from the rule, each written the way the explanation writes it (the same rounding).
+- Any example cases you choose are fair and representative, never picked to exaggerate the effect.
+- Money, health and law: show how it works, never advice, and never a guaranteed outcome.
+
+## The house kit (complete API reference)
+You write the BODY of one page: HTML, an optional `<style>`, then one inline `<script>` ending
+with `K.ready()`. It runs in a sandboxed iframe on Dan's phone (about 340 px wide, touch) and
+laptop, with the global `K` and the kit's stylesheet. No network or storage: no web
+addresses, `fetch`, `localStorage`, `alert` or `prompt`.
+
+### Page shape that works
+1. `<p class="lead">`: one line saying what is drawn (the app adds title and action).
+2. The main visual with its controls right under it: `K.stage('#scene', '#controls')` keeps the
+   pair on one phone screen. A choice that re-sorts the picture may sit above it.
+3. `<p class="say">`: one sentence that changes with the state and says why. Then
+   `<div class="k-readouts">` for numbers the drawing does not label.
+4. Secondary figures and anything that grows go below.
+5. `<p class="caption">`: one short sentence, at most 20 words: where the numbers come from ("A
+   sketch, not measured data") or the rule in the explanation's words. No new claim, no law or
+   term the explanation does not teach. The app shows what the model leaves out.
+
+### Keep the answer hidden until Dan moves
+Dan predicts before he plays: open on a setting the question is not about, and hide whatever
+gives the answer away until his first move:
+- class `k-after-move` on any element (a mark, an arrow, a sentence): hidden, its space kept.
+  Hide the answer, not the controls or a whole figure (a blank hole fails the test).
+- `K.readout({..., afterMove: true})` shows "?" until then; plot series and marks take `afterMove: true` too.
+- `K.moved` is true from then on: in `K.update`, write `K.moved ? answer : question`.
+- `K.afterMove(fn)` runs `fn` once at that moment; `K.reveal()` marks it from your handlers.
+
+### The pipeline
+Controls register themselves; their values form `params` = `{id: value}`.
+```
+K.model(fn)        fn(params) -> outputs {name: number | string}. Pure: no DOM, no lists or objects.
+K.update(fn)       fn(params, outputs): draw everything here. More than one is allowed.
+K.at(over)         -> outputs of the model at those params (others take each control's starting value)
+K.check(label, fn, {source?})   fn() must return exactly true
+K.ready()          call once, last: draws the opening state and runs the checks
+K.complete()       at the lesson's end
+K.params()  K.outputs()  K.refresh()   (refresh reruns the pipeline after you change your own state)
+```
+A readout whose id is an output key updates itself.
+
+### Controls
+Every control takes `into` (a selector or element). Ids are unique; use the lesson's ids exactly.
+```
+K.control({id, label, min, max, step, value, unit?, prefix?, fmt?, log?, snap?, hint?, into}) -> {el, get(), set(v)}
+K.choice({id, label, options: [value | {value, label}], value, hint?, into}) -> {el, get, set}
+K.toggle({id, label, value: false, hint?, into}) -> {el, get, set}
+K.stepper({id, steps: [title | {title, text}], value: 0, compact?, label?, into}) -> {el, get, set, setSteps(list)}
+K.button({label, press, secondary?, into}) -> {el, press(), setLabel(text)}
+K.drag(el, {control, toValue(x, y)}) -> {el}
+```
+`control` is a big slider with − / + buttons. Keep `unit` short; `fmt(v)` returns the whole text;
+`log: true` spans decades; `snap: [values]` lands a drag exactly on a setting the prediction or a
+check names. `choice`: 2-8 short named options; `value` is an option's value or its 0-based
+index. `stepper` walks a process with Back / Next (`compact: true` when your diagram shows the
+content). `button` is an action (Send it in): use it, not plain buttons. `drag` lets Dan move
+the thing itself: `toValue` maps the pointer (viewBox units; px from `el`'s top-left for HTML)
+to the control's value; the first touch counts as his move.
+
+### Outputs
+```
+K.readout({id, label, unit?, prefix?, decimals?, fmt?, big?, hint?, afterMove?, into}) -> {el, set(v), get(), text()}
+```
+One rounding everywhere a number appears: `decimals` matching the lesson text, and the `.say`
+sentence built with `K.fmt(v, {decimals})` or `readout.text()`. Labels under 30 characters.
+While Dan answers a lesson check, the app hides that output's readout and the `.say` lines:
+never repeat a readout's value elsewhere (a label, an aria-label).
+```
+K.plot(target, opts) -> {draw(opts), x(v), y(v), invert(px, py), el, canvas}
+```
+- `x`, `y`: `{min, max, label, log?, prefix?, unit?, fmt?, ticks?}`. Leave out `y.min`/`y.max` to fit the data.
+- `series`: `[{fn: x => y | points: [[x, y], ...], label?, color?, dash?, width?, fill?, dots?, gaps?, afterMove?}]`
+- `shade`: `[{between: [a, b], label?, color?, x0?, x1?}]`: fills between two series (by label), a
+  series and a constant, or two functions.
+- `marks`: `[{x, y, label?, color?, guides?, afterMove?}]`: a dot with a label pill; `guides` adds dashed lines to the axes.
+- `regions`: `[{x0, x1, label?} | {y0, y1, label?}]` (a band); `lines`: `[{x | y, label?}]` (a dashed line).
+- `label`: the text alternative; `height`; `after(ctx, plot)` draws extras using `plot.x()`, `plot.y()`.
+
+`draw(opts)` redraws with `opts` over the creation options: call it in `K.update`. Values must be
+finite (`gaps: true` only where a gap is real). Series are navy, then teal; `color: 'muted',
+dash: true` for a baseline.
+```
+K.bars(target, {max?, unit?, prefix?, decimals?, fmt?}) -> {draw(items)}      items: [{label, value, color?}], values >= 0
+K.anim({step(dt, t), reset?, label?, autoplay?, button?, into}) -> {el, play, pause, toggle, reset, playing()}
+```
+`anim` adds a Play button (text `label`); `reset` adds Reset. When a switch, button or drag
+already starts the motion, pass `button: false` and call `play()` from that control: one control
+per action. In `step` advance your state (`dt` in seconds) and redraw; return `false` to stop. To
+drive a slider, keep the exact value yourself (the slider moves in whole steps).
+
+### Sound
+```
+K.sound.tone(hz, {dur?, type?, gain?})   K.sound.chord([hz, ...], {dur?, stagger?})   K.sound.stop()   K.sound.mute(on)
+K.sound.hold(hz, {type?, gain?, max?}) -> {set({hz?, gain?}), stop(), playing()}
+```
+`dur` in seconds (at most 10). Sound plays only from a `K.button` press, never `K.update`; show
+what is sounding. `hold` keeps a tone going while `set()` follows a slider. Phones can't play
+below about 150 Hz: use 200 to 2,000 Hz.
+
+### Drawings and helpers
+```
+K.el(tag, attrs?, ...children)    attrs: class, style, on: {click: fn}, text, html, dataset, any attribute
+K.svg(tag, attrs?, ...children)   the same in the SVG namespace
+K.labels(group, [{x, y, text, anchor?, size?, class?, color?}], {avoid?}) -> [<text>]
+K.stage(visual, controls, {max?, beside?}) -> {el}
+K.fmt(v, {decimals?, sig?, prefix?, unit?, percent?, sign?, compact?}) -> '1,234.5', '−3', '2.5 × 10⁶'
+K.near(a, b, tol)   K.clamp(v, lo, hi)   K.lerp(a, b, t)   K.linspace(a, b, n)   K.color(role, alpha?)
+K.ease(p)   K.arrive(T, t0, dur?)   K.fade(el, a, rise?)
+```
+Give an `<svg>` a viewBox about 340 wide, `width="100%"`, `role="img"` and an `aria-label` that
+follows the state. Text 13-16 units, never under 12 (a phone shows 340 units at about 0.9x). A
+row of N labels gets about 300/N units each; label only what differs. Every label sits on, or
+points to, something drawn. `K.labels` places labels (13 units unless `size`) clear of other
+text, the edges and the lines or shapes in `avoid`: use it for labels that move or appear later.
+Put an angle's label inside its wedge, beyond the arc, hidden while the wedge is too narrow.
+`K.stage` fits the pair in `max` px (600) on a phone; `beside: false` keeps it stacked.
+
+Draw the mechanism as it physically works. If the explanation gives a reason (X because Y), draw
+Y so Dan can watch it; parts that fit are drawn fitting (teeth in teeth), never two identical
+icons joined by a line; whatever the rule says happens (slides, grips, multiplies) happens on screen.
+
+### Colour
+Colour carries meaning. Use these roles as `var(--k-…)` or `K.color('fill2')` (`K.color('accent2',
+0.3)` is see-through); a colour name fails the test.
+- Lines and text: `ink`, `muted` (secondary, comparisons), `accent2` (navy: the main thing,
+  controls), `accent` (teal: small labels, a second series), `warn` (red: warnings and mistakes
+  only), `good` (green: "done" only), `amber-line` (amber lines that must stand out).
+- Fills: `bg` (page), `panel`, `sunk`, `amber` (note box), `hl` (key-term highlighter), `fill1`
+  (area of the main thing), `fill2` (highlighted area, amber), `fill3` (area of a second thing).
+- `cat1`-`cat4` (blue, orange, magenta, aqua): telling equal things apart, never meaning; with a
+  key or labels; cat1 and cat2 first. A thing with a familiar colour (water, fire) never gets
+  another thing's colour: use the nearest role and label it. What is still there stays solid:
+  mark a state such as unused with a label, not by fading it, and key any dashed style.
+- Also `--k-line`, `--k-strong` (borders), `--k-on-accent2` (text on navy), `--k-font`, `--k-r` (radius).
+
+Never describe colours by lightness or hue in words Dan reads ("the dark square"): dark mode
+changes them.
+
+Classes: `muted`, `small`, `k-label` (small teal caps), `term` (key term), `note` (amber box),
+`warn-note`, `panel`, `row`, `grid2`, `big`, `k-btn` (`secondary`), and a legend:
+`<div class="key"><span><i class="swatch" style="background:var(--k-accent2)"></i>Your push</span>
+<span><i class="swatch line dash" style="color:var(--k-muted)"></i>The limit</span></div>`.
+
+### Rules for a great interactive
+- One idea. The answer to Dan's prediction shows within about 3 seconds of his first move (add
+  a K.check that it does). Include something Dan causes and a case that surprises. One or two
+  controls, three at most.
+- Phone first: nothing wider than 340 px, no fixed widths over 300 px, rows wrap, no hover-only
+  information, tap targets at least 44 px. Size tiles and grid columns in rem (`minmax(6rem,
+  1fr)`): text grows a quarter at Text size XL, and no word may split across two lines.
+- Every number shown is a control, computed by the rule shown, a constant from the lesson, an
+  example value named once in the lead, or a date from the lesson. Never invent data, rates or chances.
+- The `.say` sentence describes what is on screen now, plainly and warmly, and reads right at the
+  extremes ("none of the 100"). Never claim Dan did something ("When you slid it to 20"):
+  describe the state, or write conditionally ("Push it past 20 and…").
+- 3-5 `K.check` known answers worked out by hand: an edge case, a shape fact (rises, halves,
+  always last), and one answer from outside your formula. `source` may ONLY be a URL from the
+  lesson's own sources, and only on a check whose label restates what that source's quote says;
+  a result of your rule, or a fact about your drawing, takes none. Compare numbers with
+  `K.near(a, b, tol)`: tolerance about a millionth of the size, a thousandth where rounding meets roots.
+- `K.anim` for motion, never timers: soft, unhurried, nothing popping in. Parts arrive about 0.6
+  s apart by `K.fade(el, K.arrive(T, t0))`; travel and growth use `K.ease`; a demonstration takes
+  3-5 s. No `vh` units, `position: fixed` or `height: 100%`.
+- Ideas without numbers (mechanism, process, structure, history, concept): prefer a timeline
+  slider, a named choice, a sorter or a drag; use `K.stepper` only when every step changes the
+  drawing. Checks assert order and structure facts.
+- A timeline runs forward: a slider rising left to right, its `fmt` showing the date (−500 as
+  "500 BC"), or a stepper of named events in order. A lesson's calendar-year control keeps its
+  range, its `fmt` showing the year; years after the first date are for new controls. Each dated
+  event appears as he reaches its date.
+
+### The self-test
+Before Dan sees it, the app loads your body 340, 720 and 1040 px wide, runs every check, moves
+every control, button, animation and drag, reveals the after-move parts, and looks again at Text
+size XL and in the other theme. It fails on an exception, NaN or undefined on the page, an update
+over 150 ms, sideways overflow, text cut off or over other text, SVG text under 11 px on a phone,
+a line or arrowhead through a label, text under 3:1 contrast with what is behind it, a colour
+name, a blank hole until a move, or no `K.ready()`.
+
+### Example
+```html
+<p class="lead">Lengthen the string and watch each swing take longer.</p>
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+<p class="caption">Small swings only; g = 9.81 m/s² is gravity at the Earth's surface.</p>
+<script>
+  const g = 9.81;
+  const period = (L) => 2 * Math.PI * Math.sqrt(L / g);
+  K.control({ id: 'L', label: 'String length', min: 0.1, max: 3, step: 0.05, value: 1, unit: 'm', snap: [2], into: '#controls' });
+  K.stage('#plot', '#controls');
+  K.readout({ id: 'T', label: 'One full swing takes', unit: 's', decimals: 2, into: '#outs' });
+  const plot = K.plot('#plot', { x: { min: 0, max: 3, label: 'Length (m)' }, y: { min: 0, max: 4, label: 'Period (s)' } });
+  K.model((p) => ({ T: period(p.L) }));
+  K.update((p, o) => {
+    plot.draw({ series: [{ fn: period }], marks: [{ x: p.L, y: o.T, guides: true }] });
+    document.getElementById('say').textContent = !K.moved ? 'Make the string four times longer: how much longer is each swing?'
+      : 'A ' + K.fmt(p.L, { decimals: 2 }) + ' m string swings there and back every ' + K.fmt(o.T, { decimals: 2 }) + ' s. Four times the length only doubles that.';
+  });
+  K.check('No length, no swing time', () => K.near(period(0), 0));
+  K.check('A seconds pendulum (2 s per swing) is 0.994 m long', () => K.near(period(0.994), 2, 0.002),
+    { source: 'https://en.wikipedia.org/wiki/Seconds_pendulum' });
+  K.check('Four times the length doubles the period', () => K.near(K.at({ L: 2 }).T / K.at({ L: 0.5 }).T, 2, 1e-9));
+  K.ready();
+</script>
+```
+
+
+## The body that failed
+The body you just wrote (/home/user/Study-App/build/electrical/generators/i3.body8.x.html). You already have it; it is not repeated here. Return the complete corrected body.
+
+## Output
+Return ONLY the complete corrected body: HTML elements, an optional <style>, then one inline <script> that ends with K.ready(). No <html>, <head> or <body> tags, no markdown fences, no commentary before or after. Keep it under 40 KB.

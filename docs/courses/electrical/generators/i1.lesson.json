@@ -1,0 +1,339 @@
+{
+ "iid": "i1",
+ "title": "The alternator: a turning field makes three phases",
+ "format": "steps",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is each coil's wave rising and falling as a north then a south pole sweeps past it, one cycle per pole pair, when you drag the rotor round.",
+  "title": "The turning field",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Screen",
+    "min": 0,
+    "max": 11,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [],
+  "whatAmILookingAt": "Twelve small screens on one picture, with Back and Continue. Six show an idea and six ask you to try it. No marks and no timers.\n\nThe picture. On the left, a cross-section of an alternator. The stator, the fixed outer ring, carries coils marked A, B and C. The rotor turns inside it, its poles marked N and S, with field arrows running out of each north pole and round into the next south pole. The rotor wears a ring to drag it round by, and a Play button spins it. A pole switch, three buttons, gives 2, 4 or 6 poles. With 2 poles the stator carries one set of three coils, A, B and C, 120° apart. With 4 poles it carries two sets, A, B, C, A, B, C, 60° apart. With 6 poles it carries three sets, 40° apart. So each set of three spans one pole pair, and each phase's coils are joined in series. A coil glows while a pole passes it. On the right, three traces against time, labelled A, B and C, one for each phase, are drawn as the rotor turns. A speed slider sets the rotor's speed, 0 to 3600 rev/min in steps of 60. A field-current slider sets the current in the rotor's winding as a percentage of full field, 0 to 120% in steps of 10. The picture runs 60 times slower than real, so you can follow it: at 1800 rev/min one turn takes 2 s on screen.\n\nThe readouts, in four tiles that wrap onto two rows on a phone: Pole pairs, Speed in rev/min, Frequency in Hz and Voltage in V. The three pole buttons wrap too.\n\nThe rule it computes. Each pole pair sweeping past a coil makes one cycle, and the rotor turns rev/min ÷ 60 times a second. So frequency = pole pairs × rev/min ÷ 60. Each phase's voltage follows E = 4.44 f N Φ, with the turns N fixed and the flux Φ in proportion to the field current. Each pole setting stands for a machine built to make 440 V at 60 Hz on full field. So voltage = 440 × (frequency ÷ 60) × (field current ÷ 100%), and each trace's height follows it. At 4 poles, 1800 rev/min and full field the readouts give 2 pole pairs, 60 Hz and 440 V. With the rotor stopped, or the field current at 0, the traces run flat.\n\nScreen 1, show. 2 poles, full field, coil A only; B and C are drawn faint. The words: \"A generator set's alternator is the turning coil from AC circuits, turned inside out. Its coils stay still in the stator, the fixed outer ring. The rotor turns inside it. Direct current in the rotor's winding makes it a magnet, with a north and a south pole. As the rotor turns, its field turns with it. Drag the rotor round once. Coil A's flux rises as the north pole arrives and falls as it leaves. Then the south pole sends flux through the other way. One turn, one full cycle.\" Read: \"The rotor is a magnet with one north and one south pole, turning inside the fixed stator. As the north pole and then the south pole pass coil A, its trace makes one full cycle each turn.\" Still: the rotor dragged one full turn, coil A's trace drawn for that turn.\n\nScreen 2, try it. \"The rotor stops with its north pole square in front of coil A. The field current is still on. What voltage does coil A make?\" Three choices, in this order: \"None, because the flux through it is not changing\"; \"Its biggest, because the flux through it is strongest\"; \"A steady direct voltage, because the field current is direct\". Right, the first. Hint for the second: \"Voltage comes from the flux changing, not from how much there is. A parked pole changes nothing.\" Hint for the third: \"The rotor's current is direct, but a coil only gets a voltage while a pole moves past it.\" Why: \"A coil makes voltage only while the flux through it changes. A parked pole gives coil A plenty of flux, but steady flux. So coil A makes nothing until the rotor turns again.\" A right Check shows coil A's trace lying flat at zero. Read: \"The rotor stops with its north pole square in front of coil A, with the field current on. What voltage does coil A make?\"\n\nScreen 3, show. 2 poles at 3600 rev/min, full field, all three coils. The words: \"Now add coils B and C, each 120° round the stator from the last. Tap Play. The north pole reaches B a third of a turn after A, and C a third of a turn after that. So the three waves have the same shape, each 120° behind the last. These are the three phases from AC circuits, now with their cause. Each coil is one phase's winding.\" Read: \"Coils B and C sit 120° round the stator from A and from each other. Each pole reaches them a third of a turn later, so three equal waves build, each 120° behind the one before.\" Still: playing, a turn and a half of all three traces drawn.\n\nScreen 4, try it, typed. \"A 2-pole rotor turns at 3000 rev/min. Coil B sits 120° on from coil A, the way the rotor turns. How long after coil A's wave peaks does coil B's wave peak?\" A field in ms. Answer 6.67 ms. Slips: 20 ms, \"That is a whole turn. B is only a third of a turn on from A.\"; 13.33 ms, \"That is two thirds of a turn, from B on round to A. The rotor reaches B first.\"; 3.33 ms, \"That is a sixth of a turn. 120° is a third of 360°.\" Hint when wrong: \"Work out how long one turn takes, then take a third of it.\" Why: \"3000 rev/min is 3000 ÷ 60 = 50 turns a second, so one turn takes 1 ÷ 50 s, which is 20 ms. Coil B is a third of a turn on, so its wave peaks 20 ÷ 3 = 6.67 ms after A's.\" Read: \"A 2-pole rotor turns at 3000 rev/min, with coil B 120° on from coil A the way the rotor turns. How long after coil A's wave peaks does coil B's wave peak?\"\n\nScreen 5, show. 4 poles, full field, the rotor at rest for dragging. The words: \"Switch the rotor to 4 poles: north, south, north, south. Drag it round once. Coil A now sees a north and a south go by twice. So it makes two full cycles in one turn. A north and a south together are a pole pair. Each pole pair that passes makes one cycle. The stator now carries a set of three coils for each pole pair. So the three phases stay 120° apart in the wave.\" Read: \"With 4 poles, two pole pairs, coil A sees a north and a south go by twice each turn, so it makes two full cycles a turn. The stator carries a set of three coils for each pole pair.\" Still: 4 poles, the rotor dragged one turn, two cycles on each trace.\n\nScreen 6, try it, typed. \"A 6-pole rotor makes one full turn. How many full cycles does coil A make?\" A field in cycles. Answer 3 cycles. Slips: 6, \"That counts poles. A cycle needs a north and a south, so count pole pairs.\"; 1, \"One cycle a turn is the 2-pole machine only. Each pole pair gives one cycle.\" Hint when wrong: \"Pair each north pole with a south pole, then count the pairs.\" Why: \"6 poles make 3 pole pairs, each a north and a south. Each pair sweeping past coil A makes one cycle, so one turn makes 3.\" A right Check switches to 6 poles and draws one turn: three cycles on each trace. Read: \"A 6-pole rotor makes one full turn. How many full cycles does coil A make?\"\n\nScreen 7, show. 4 poles at 1800 rev/min, full field, with the speed slider and pole switch free. The words: \"The rotor turns rev/min ÷ 60 times a second. Each turn gives one cycle for each pole pair. So frequency = pole pairs × rev/min ÷ 60. A 2-pole machine must turn at 3600 rev/min to make 60 Hz.[^3] A 4-pole one needs only 1800 rev/min. You will see this rule printed two ways. f = P × n ÷ 60 counts P in pole pairs. f = P × N ÷ 120 counts P in poles. Always check which P you have.\" Read: \"Frequency = pole pairs × rev/min ÷ 60. A 2-pole machine makes 60 Hz at 3600 rev/min, and a 4-pole one at 1800 rev/min. The rule is also printed as f = P × N ÷ 120, where P counts poles.\" Still: 4 poles, 1800 rev/min, 60 Hz.\n\nScreen 8, try it, typed. \"A 4-pole set turns at 1800 rev/min. What frequency does it make?\" A field in Hz. Answer 60 Hz. Slips: 120 Hz, \"4 poles are 2 pole pairs. That put the poles into the pole-pair form.\"; 30 Hz, \"The form with 120 counts poles, so 4 goes in, not 2.\" Hint when wrong: \"Count the pole pairs first.\" Why: \"4 poles make 2 pole pairs, so 2 × 1800 ÷ 60 = 60 Hz. Counting poles instead, 4 × 1800 ÷ 120 = 60 Hz. Both forms agree when P means what each one says.\" A right Check sets the picture to 4 poles at 1800 rev/min. Read: \"A 4-pole set turns at 1800 rev/min. What frequency does it make?\"\n\nScreen 9, show. 4 poles, with the speed slider opening at 1710 rev/min and the field-current slider at 100%, both free. The words: \"Each coil's voltage follows the transformer rule, E = 4.44 f N Φ. Its turns N were fixed when it was wound. The speed sets f, so it moves the voltage as well. The field current sets the flux Φ, so it moves the voltage alone. Say a 4-pole set makes 440 V at 60 Hz. Slow it 5%, to 1710 rev/min. It makes 57 Hz and 418 V. Put the speed back and turn the field current down instead. The waves shrink, but they come just as often.\" Read: \"Slowing a 4-pole set 5%, from 1800 to 1710 rev/min, makes its waves both lower and less frequent: 57 Hz and 418 V. Turning the field current down shrinks the waves but leaves them at 60 Hz.\" Still: 4 poles, 1710 rev/min, full field.\n\nScreen 10, try it. \"A set running alone on its board reads 58 Hz. What brings it back to 60 Hz?\" Three choices, in this order: \"Speeding up the engine\"; \"Raising the field current\"; \"Either one, as both change the waves\". Right, the first. Hint for the second: \"The field current changes the flux, so the waves' height. Only poles passing more often raises the frequency.\" Hint for the third: \"Speed moves both. The field current moves the voltage only.\" Why: \"Frequency = pole pairs × rev/min ÷ 60, and the field is nowhere in it. So only the speed changes it. Speeding up raises the voltage a little too, and the field current can then trim that.\" A right Check slides the speed up until the frequency reads 60 Hz. Read: \"A set running alone on its board reads 58 Hz. What brings it back to 60 Hz?\"\n\nScreen 11, try it, typed (mixed). \"A 6-pole set makes 440 V at 60 Hz. Its engine slows to 1080 rev/min, with the field current unchanged. What voltage does it make now?\" A field in V. Answer 396 V. Slips: 440 V, \"The field is unchanged, but the poles now pass less often, so the flux changes more slowly.\"; 489 V, \"That ratio is upside down. A lower frequency gives a lower voltage.\"; 792 V, \"6 poles are 3 pole pairs, not 6.\" Hint when wrong: \"Find the new frequency first, then scale 440 V by it.\" Why: \"6 poles are 3 pole pairs, so the frequency is 3 × 1080 ÷ 60 = 54 Hz. With the field unchanged the voltage falls in step: 440 × 54 ÷ 60 = 396 V.\" Read: \"A 6-pole set makes 440 V at 60 Hz. Its engine slows to 1080 rev/min, with the field current unchanged. What voltage does it make now?\"\n\nScreen 12, try it, typed (mixed). \"What speed must a 6-pole alternator turn at to make 50 Hz?\" A field in rev/min. Answer 1000 rev/min. Slips: 500 rev/min, \"That counted 6 pole pairs. 6 poles are 3 pairs.\"; 2000 rev/min, \"The form with 120 counts poles, so 6 goes in, not 3.\" Hint when wrong: \"Turn the rule round: rev/min = frequency × 60 ÷ pole pairs.\" Why: \"6 poles are 3 pole pairs. rev/min = 50 × 60 ÷ 3 = 1000. Check it: 3 × 1000 ÷ 60 = 50 Hz.\" A right Check sets the picture to 6 poles at 1000 rev/min, and a closing line reads: \"Speed sets the frequency, and the field current sets the voltage. Next, the regulator that trims the field.\" Read: \"What speed must a 6-pole alternator turn at to make 50 Hz?\"",
+  "ignores": "The picture runs 60 times slower than real. Its waves are drawn as perfect sines, and a real machine's are close to sines but not exact. Each pole setting stands for a different machine built to make 440 V at 60 Hz on full field, because a real machine's poles are fixed when it is built. The speed slider runs well past what a 4- or 6-pole set is built for, so the rule can be seen; real sets run near their rated speed. The flux is drawn in proportion to the field current. Real iron saturates, so more field current adds less and less flux, and with no field current the iron's leftover magnetism still makes a small voltage. Nothing is connected, so no current flows and nothing loads the engine. The picture leaves out how the field current reaches the turning rotor. Some small machines turn their coils inside a fixed magnet instead. Real stator coils are spread across many slots, which trims the 4.44 by a factor near 1 called the winding factor.",
+  "numbers": [
+   {
+    "label": "Number of screens",
+    "value": 12,
+    "kind": "assumed"
+   },
+   {
+    "label": "Coils of one set apart round a 2-pole stator, degrees",
+    "value": 120,
+    "kind": "constant",
+    "source": 2
+   },
+   {
+    "label": "Phases' waves apart, in degrees",
+    "value": 120,
+    "kind": "constant",
+    "source": 2
+   },
+   {
+    "label": "2-pole machine's speed for 60 Hz, rev/min",
+    "value": 3600,
+    "kind": "constant",
+    "source": 3
+   },
+   {
+    "label": "Frequency a 2-pole machine makes at 3600 rev/min, Hz",
+    "value": 60,
+    "kind": "constant",
+    "source": 3
+   },
+   {
+    "label": "Seconds in a minute, in rev/min ÷ 60",
+    "value": 60,
+    "kind": "constant"
+   },
+   {
+    "label": "The 120 in f = P × N ÷ 120, which is 2 × 60",
+    "value": 120,
+    "kind": "computed"
+   },
+   {
+    "label": "The constant in E = 4.44 f N Φ",
+    "value": 4.44,
+    "kind": "constant"
+   },
+   {
+    "label": "Coil spacing with 4 poles, degrees",
+    "value": 60,
+    "kind": "computed"
+   },
+   {
+    "label": "Coil spacing with 6 poles, degrees",
+    "value": 40,
+    "kind": "computed"
+   },
+   {
+    "label": "Speed slider, lowest, rev/min",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Speed slider, highest, rev/min",
+    "value": 3600,
+    "kind": "control"
+   },
+   {
+    "label": "Speed slider step, rev/min",
+    "value": 60,
+    "kind": "control"
+   },
+   {
+    "label": "Field-current slider, lowest, % of full field",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Field-current slider, highest, % of full field",
+    "value": 120,
+    "kind": "control"
+   },
+   {
+    "label": "Field-current slider step, %",
+    "value": 10,
+    "kind": "control"
+   },
+   {
+    "label": "Field-current slider opening value, %",
+    "value": 100,
+    "kind": "control"
+   },
+   {
+    "label": "Picture slowed this many times",
+    "value": 60,
+    "kind": "assumed"
+   },
+   {
+    "label": "One turn on screen at 1800 rev/min, seconds",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Voltage each pole setting makes at 60 Hz, full field, V",
+    "value": 440,
+    "kind": "assumed"
+   },
+   {
+    "label": "Frequency at 4 poles and 1800 rev/min, Hz",
+    "value": 60,
+    "kind": "computed"
+   },
+   {
+    "label": "Pole pairs of a 4-pole rotor",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Speed for 50 Hz with 4 poles, rev/min",
+    "value": 1500,
+    "kind": "computed"
+   },
+   {
+    "label": "Example frequency for 4 poles at 1500 rev/min, Hz",
+    "value": 50,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example slowdown, per cent",
+    "value": 5,
+    "kind": "assumed"
+   },
+   {
+    "label": "4-pole set slowed 5%, rev/min",
+    "value": 1710,
+    "kind": "computed"
+   },
+   {
+    "label": "Its frequency, 2 × 1710 ÷ 60, Hz",
+    "value": 57,
+    "kind": "computed"
+   },
+   {
+    "label": "Its voltage, 440 × 57 ÷ 60, V",
+    "value": 418,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 4: rotor speed, rev/min",
+    "value": 3000,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 4: turns a second, 3000 ÷ 60",
+    "value": 50,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 4: one turn, ms",
+    "value": 20,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 4: B's peak after A's, 20 ÷ 3, ms",
+    "value": 6.67,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 4 slip: two thirds of a turn, ms",
+    "value": 13.33,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 4 slip: a sixth of a turn, ms",
+    "value": 3.33,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 6: poles on the rotor",
+    "value": 6,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 6: cycles in one turn",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 10: frequency the set reads, Hz",
+    "value": 58,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 11: engine speed, rev/min",
+    "value": 1080,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 11: new frequency, 3 × 1080 ÷ 60, Hz",
+    "value": 54,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 11: new voltage, 440 × 54 ÷ 60, V",
+    "value": 396,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 11 slip: ratio upside down, 440 × 60 ÷ 54, V",
+    "value": 489,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 11 slip: 6 used as pole pairs, V",
+    "value": 792,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12: target frequency, Hz",
+    "value": 50,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 12: speed, 50 × 60 ÷ 3, rev/min",
+    "value": 1000,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12 slip: 6 used as pole pairs, rev/min",
+    "value": 500,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12 slip: 3 used in the poles form, rev/min",
+    "value": 2000,
+    "kind": "computed"
+   },
+   {
+    "label": "Rule of thumb: poles × rev/min for 60 Hz",
+    "value": 7200,
+    "kind": "computed"
+   },
+   {
+    "label": "Rule of thumb: poles × rev/min for 50 Hz",
+    "value": 6000,
+    "kind": "computed"
+   },
+   {
+    "label": "6-pole speed for 60 Hz, rev/min",
+    "value": 1200,
+    "kind": "computed"
+   },
+   {
+    "label": "2-pole speed for 50 Hz, rev/min",
+    "value": 3000,
+    "kind": "computed"
+   },
+   {
+    "label": "6-pole speed for 50 Hz, rev/min",
+    "value": 1000,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example: engine runs slow by, per cent",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Worked example: slowed speed, rev/min",
+    "value": 1176,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example: frequency, 3 × 1176 ÷ 60, Hz",
+    "value": 58.8,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example: voltage, 440 × 58.8 ÷ 60, V",
+    "value": 431.2,
+    "kind": "computed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "A generator set's alternator is a magnet turning inside fixed coils. A north pole and then a south pole sweep past each coil. That makes one full cycle of voltage in it. Three coils spaced round the magnet make three waves 120° apart, the three phases.\n\nThe fixed outer part is the [[stator]], and it carries the coils. The turning part is the [[rotor]]. Direct current in the rotor's winding makes it an electromagnet, with poles that do not change. The engine turns the rotor, and its field turns with it.[^1] As a north pole comes up to a coil, more of its flux passes through the coil. As the pole moves on, that flux falls away. Then a south pole sends flux through the other way. A coil makes voltage only while the flux through it changes, just as in a transformer. So a pole parked in front of a coil makes nothing, however strong it is. A north and a south passing make one full cycle. On a 2-pole machine, coils B and C sit 120° round the stator from coil A. They see the same poles a third of a turn later. So their waves are the same shape, each 120° behind the last.\n\nA rotor can carry more than one north and one south. A north and a south together make a [[pole pair]], and each pole pair sweeping past a coil makes one cycle. So a 4-pole rotor makes two cycles in each coil every turn. Its stator carries a set of three coils for each pole pair, so the three phases stay 120° apart in the wave. The rotor turns rev/min ÷ 60 times a second. So frequency = pole pairs × rev/min ÷ 60. A 2-pole machine has one pole pair. It must turn at 3600 rev/min to make 60 Hz.[^3] A 4-pole machine makes 60 Hz at 1800 rev/min, and 50 Hz at 1500. The rule is printed two ways. f = P × n ÷ 60 counts P in pole pairs. f = P × N ÷ 120 counts P in poles. The synchronous speed rule from Motors, ns = 120 f ÷ p, is the second one turned round. Put poles into the pole-pair form and the answer doubles.\n\nEach phase's voltage follows the transformer rule, E = 4.44 f N Φ. Its turns N are fixed when it is wound. The frequency f comes from the speed, and the flux Φ from the field current. On a set running alone with nothing connected, a change of speed moves the frequency and the voltage together. A change of field current moves the voltage alone. It changes the flux, but not how often the poles pass. Say a 4-pole set makes 440 V at 60 Hz at 1800 rev/min. Slow it 5% to 1710 rev/min with the field unchanged. It makes 2 × 1710 ÷ 60 = 57 Hz, and 440 × 57 ÷ 60 = 418 V. That is a simplified picture of a machine with nothing connected. In a real one the iron limits how far more field current raises the flux. The load pulls the voltage about too. Paralleling comes down to these two handles, the engine's speed and the field current. It asks what each does when two sets share one board. **A field turning past fixed coils makes three phases 120° apart,[^2] one cycle for each pole pair that passes, so the frequency is locked to the speed, while the field current changes only the voltage the coils make.**"
+ },
+ "analogy": {
+  "text": "Picture a toothed wheel turning past a sensor that clicks once as each tooth goes by. Clicks a second = teeth × rev/min ÷ 60, so a wheel with twice the teeth clicks twice as often at the same speed. The rotor is that wheel with a pole pair for each tooth, and each coil is a sensor.",
+  "breaks": "One tooth makes a click, but it takes a north and a south pole to make one cycle, which is exactly where the poles-or-pole-pairs slip comes from. And a click is the same size at any speed, while a coil's voltage grows with the speed and with the field current."
+ },
+ "practice": {
+  "text": "**Safety first:** treat a turning alternator as live, even with its breaker open. Its coils make a voltage whenever a magnetised rotor sweeps past them.\n\n- Read the number of poles off the plate, or work it out from the rated speed and frequency.\n- Halve it to get the pole pairs.\n- Frequency = pole pairs × rev/min ÷ 60. Turned round, rev/min = frequency × 60 ÷ pole pairs.\n- If a printed formula has 120 in it, its P counts poles. If it has 60, its P counts pole pairs.\n- On a set running alone with nothing connected and the field current unchanged, the voltage moves in proportion to the frequency.\n\n**Rule of thumb:** poles × rev/min = 120 × frequency. For 60 Hz that is 7200, so 2, 4 and 6 poles turn at 3600, 1800 and 1200 rev/min. For 50 Hz it is 6000, so 3000, 1500 and 1000 rev/min.\n\n**Worked example:** a set's plate reads 6 poles, 440 V, 60 Hz. It has 3 pole pairs, so it turns at 60 × 60 ÷ 3 = 1200 rev/min. Say its engine runs 2% slow, at 1176 rev/min, with the field unchanged. It makes 3 × 1176 ÷ 60 = 58.8 Hz, and 440 × 58.8 ÷ 60 = 431.2 V. Raising the field current would bring the voltage back, but only the speed brings back 60 Hz.\n\n**Common mistakes**\n- Putting poles into the pole-pair form, which doubles the frequency. A 4-pole set at 1800 rev/min makes 60 Hz, not 120 Hz.\n- Putting pole pairs into the poles form, which halves it, to 30 Hz.\n- Reaching for the field current to correct the frequency. It moves the voltage only.\n- Expecting a strong field to make a voltage on its own. The flux through a coil must change, so the rotor must turn."
+ },
+ "say": null,
+ "checks": [],
+ "sources": [
+  {
+   "n": 1,
+   "title": "Lecture 6: Synchronous machines — egr.unlv.edu",
+   "url": "http://www.egr.unlv.edu/~eebag/SYNCHRONOUS%20GENERATORS.pdf",
+   "quote": "The rotor is then turned by external means producing a rotating magnetic field, which induces a 3-phase voltage within the stator winding."
+  },
+  {
+   "n": 2,
+   "title": "Chapter 2 ABFC Power Plant Operations and Procedures — media.defense.gov",
+   "url": "https://media.defense.gov/2014/Jun/20/2002655888/-1/-1/1/140620-N-ZZ182-6532.pdf",
+   "quote": "The three-phase alternator, as the name implies, has three single-phase windings spaced such that the voltage induced in any one phase is displaced by 120° from the other two."
+  },
+  {
+   "n": 3,
+   "title": "Lecture 4 — aast.edu",
+   "url": "https://www.aast.edu/pheed/staffadminview/pdf_retreive.php?stafftype=staffcourses&url=45_24985_EE328_2016_1__2_1_lecture7.pdf",
+   "quote": "to generate 60-Hz power in a two-pole machine, the rotor _must_ turn at 3600 rpm."
+  }
+ ],
+ "confidence": "simplified",
+ "contested": null
+}

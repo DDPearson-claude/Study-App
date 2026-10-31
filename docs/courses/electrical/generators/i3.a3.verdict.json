@@ -1,0 +1,262 @@
+{
+  "ok": false,
+  "reachChecked": true,
+  "problems": [
+    "Text cut off: K.labels has more labels than room in <svg#pha.ph>: some still sit on a line, a shape or another label, so avoid cannot be honoured. Label fewer things (only what differs), or move the labels into a key under the drawing, or a list beside it in HTML (at step = step 9, and 1 more setting)"
+  ],
+  "report": {
+    "ok": false,
+    "errors": [],
+    "overflow": false,
+    "clipped": [
+      "K.labels has more labels than room in <svg#pha.ph>: some still sit on a line, a shape or another label, so avoid cannot be honoured. Label fewer things (only what differs), or move the labels into a key under the drawing, or a list beside it in HTML (at step = step 9, and 1 more setting)"
+    ],
+    "checks": [
+      {
+        "label": "With nothing connected E equals V; at unity and rated current with Xs at 1.5, E = √(1.0² + 1.5²) = 1.80, the field 180%, V 1.00 and δ 56°; with Xs at 0.1, E is 1.00",
+        "ok": true
+      },
+      {
+        "label": "The drop is Xs × I: 1.5 per unit at rated current, 660 V on the 440 V scale; screen 2 hides its arrow until Check",
+        "ok": true
+      },
+      {
+        "label": "At unity with half rated current the drop is 0.75 and E = √(1.0² + 0.75²) = 1.25, with the field at 125%",
+        "ok": true
+      },
+      {
+        "label": "At 0.8 lagging the drop splits into 1.2 across V and 0.9 along it: E = √(1.9² + 1.2²) = 2.25, the field 225% and δ 32°, each hidden until its Check",
+        "ok": true
+      },
+      {
+        "label": "Leading loads shorten E: 1.20 at 0.8 leading; at Zero pf leading the field reaches zero at 1.0 ÷ 1.5 = 0.67 of rated current, and at rated current V climbs to 1.50",
+        "ok": true
+      },
+      {
+        "label": "With the AVR off the field stays at 180% and E at 1.80: V falls to √(3.24 − 1.44) − 0.9 = 0.44 at 0.8 lagging and rises to 2.24 at 0.8 leading",
+        "ok": true
+      },
+      {
+        "label": "For a given phase voltage and armature current, a larger internal voltage E is needed for lagging loads than for leading loads",
+        "ok": true,
+        "source": "https://abs.cu.edu.tr/Dokumanlar/2017/EEE318/271877548_2_synchronous_machines.pdf"
+      },
+      {
+        "label": "Thus, a larger field current is needed to get the same terminal voltage on a lagging load",
+        "ok": true,
+        "source": "https://abs.cu.edu.tr/Dokumanlar/2017/EEE318/271877548_2_synchronous_machines.pdf"
+      },
+      {
+        "label": "Each phase has an internal generated voltage E with a series reactance Xs: the drop across Xs is drawn from V's tip at right angles to I, and E closes the triangle",
+        "ok": true,
+        "source": "https://abs.cu.edu.tr/Dokumanlar/2017/EEE318/271877548_2_synchronous_machines.pdf"
+      },
+      {
+        "label": "Each typed answer and slip is worked from the rule: 660 V (6.6, 293), 1.25 (1.75, 0.25, 1.80), 2.25 (1.80, 2.50, 1.20), 0.67 (1.5, 1.0), 0.44 (0.90, 0.30, 1.00) and 32° (37, 58)",
+        "ok": true
+      },
+      {
+        "label": "The drawing rescales so the whole triangle stays in view at every load, Xs and power factor",
+        "ok": true
+      },
+      {
+        "label": "Every demonstration ends 3 to 4.5 s after its screen opens, each answer's motion within 3 s, and each swing of the current settles within 1 s of its step",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "load",
+      "xs",
+      "pf",
+      "avr",
+      "pf3"
+    ],
+    "readouts": [
+      "r-e",
+      "r-f",
+      "r-v",
+      "r-d"
+    ],
+    "outputs": [],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Screen",
+        "min": 0,
+        "max": 11,
+        "step": 1,
+        "steps": [
+          "One phase",
+          "The drop in volts",
+          "The triangle",
+          "Half the current",
+          "A lagging load",
+          "E at 0.8 lagging",
+          "A leading load",
+          "Field to zero",
+          "The AVR off",
+          "V with the AVR off",
+          "Which needs more field",
+          "The load angle"
+        ],
+        "value": 0
+      },
+      {
+        "id": "load",
+        "kind": "control",
+        "label": "Load current",
+        "min": 0,
+        "max": 1,
+        "step": 0.1,
+        "log": false,
+        "value": 0,
+        "shown": true,
+        "snap": [
+          0.5,
+          1
+        ]
+      },
+      {
+        "id": "xs",
+        "kind": "control",
+        "label": "Xs, the synchronous reactance",
+        "min": 0.1,
+        "max": 2,
+        "step": 0.1,
+        "log": false,
+        "value": 1.5,
+        "shown": false,
+        "snap": [
+          0.1,
+          1.5
+        ]
+      },
+      {
+        "id": "pf",
+        "kind": "choice",
+        "label": "Power factor",
+        "options": [
+          "zl",
+          "ld",
+          "u",
+          "lg",
+          "zg"
+        ],
+        "labels": [
+          "Zero pf leading",
+          "0.8 leading",
+          "Unity",
+          "0.8 lagging",
+          "Zero pf lagging"
+        ],
+        "value": "u",
+        "index": 2,
+        "shown": false
+      },
+      {
+        "id": "avr",
+        "kind": "toggle",
+        "label": "AVR",
+        "options": [
+          false,
+          true
+        ],
+        "value": true,
+        "shown": false
+      },
+      {
+        "id": "pf3",
+        "kind": "choice",
+        "label": "Power factor",
+        "options": [
+          "ld",
+          "u",
+          "lg"
+        ],
+        "labels": [
+          "0.8 leading",
+          "Unity",
+          "0.8 lagging"
+        ],
+        "value": "u",
+        "index": 1,
+        "shown": false
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Show me again",
+      "Back",
+      "Continue",
+      "Start again",
+      "Running"
+    ],
+    "answers": [
+      {
+        "id": "a-drop",
+        "answer": 660,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-half",
+        "answer": 1.25,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-lag",
+        "answer": 2.25,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-zero",
+        "answer": 0.67,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-off",
+        "answer": 0.44,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-delta",
+        "answer": 32,
+        "accept": [],
+        "ok": true
+      }
+    ],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": false
+      },
+      {
+        "width": 720,
+        "ok": false
+      },
+      {
+        "width": 1040,
+        "ok": false
+      }
+    ],
+    "foreign": [],
+    "unreachable": []
+  }
+}

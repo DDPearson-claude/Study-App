@@ -1,0 +1,22 @@
+{
+  "draft": "i4.lesson.draft1.txt",
+  "validator": "one hard problem: interactive.whatAmILookingAt is 14613 characters, over the 12000 limit",
+  "keep": [
+    "The idea is named up front: the governor trims fuel to hold speed, a load step slows the set first, and where the speed settles is a setting (isochronous or droop).",
+    "One rule computes every readout: engine power = fuel % x 504 kW; torque = power / speed; the speed changes at the torque gap / 20 kg m2; the governor's target = set point - droop % x 60 / 100 x fuel % / 100; PI on the frequency with a 0.1 s wait and a 0.1 s lag. Simulated: the 25% step reads 58.9 Hz at 0.1 s, settles at 60.0 Hz isochronous and on the droop line under droop; a trip settles at the set point.",
+    "Both brief misconceptions have a DO screen with their own hints: the governor stops the dip (screen 3, a prediction before the step) and droop is a fault (screen 12, 57.6 Hz on a 60.0 Hz set point). Droop read as hertz is caught by slips 60.4, 63 and 55.",
+    "Thirteen screens: SHOW 2, 4, 6, 8, 10 alternate with DO 1, 3, 5, 7, 9, 11, ending on two mixed puzzles (12 options, 13 typed). Every figure answer is typed with slips; options stay for a prediction, a 'what changed' and 'fault or design'. SHOW screens are 82, 71, 73, 89 and 74 words.",
+    "The cause is drawn: two torque arrows to scale on the shaft, so the load's arrow outgrows the engine's before the fuel bar moves.",
+    "The recall (50 N m on 2 kg m2) is reused at once for the dip (668 N m on 20 kg m2), so Mechanics lesson 6 carries the why.",
+    "The analogy (a cell's internal resistance as droop, a regulated supply as isochronous) reproduces the falling line and points at sharing; its breaks are true."
+  ],
+  "fix": [
+    "Hard: whatAmILookingAt is too long. DO screens' Read lines repeat the question in full; say 'Read: the question.' as the earlier lessons do, and trim the picture and rule paragraphs.",
+    "Causal step skipped (fault 1): explain says droop 'lets the speed settle lower as the load grows' but not why. Add the cause: a droop governor lowers its own target as it opens the fuel, so more load means more fuel and a lower settled speed.",
+    "False absolute (fault 2): practice 'The fuel can only rise after the speed has started to fall' and screen 3's hint 'The governor moves the fuel only once it sees the speed fall' hold for a governor that measures speed only. Say so.",
+    "False absolute (fault 2): the analogy says the cells' slopes decide how they share; their open-circuit voltages do too. Name both.",
+    "Padding (fault 7): the opening paragraph says the governor trims the fuel twice. Cut to one line each for the AVR and the governor.",
+    "The [^1] paraphrase should keep 'full governor action': say 'through its full travel, from no load to full load'."
+  ],
+  "verdict": "rewrite as draft 2 with the six fixes; no structural change"
+}

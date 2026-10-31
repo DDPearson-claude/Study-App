@@ -1,0 +1,735 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Generators and paralleling
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i8 "The generator set in a power system" — A big motor's start dips a set's voltage before the AVR can act, so big loads start softly, in sequence or with more sets on. [mechanism]
+This is the last idea in the course.
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] TITLE — cummins.com — https://www.cummins.com/sites/default/files/2020-03/PowerHour_Generator%20Set%20Sizing%20Software_Transient%20Performance%20and%20Motor%20Load%20Capabilities%20%281PDH%29.pdf
+    "Starting current is typically six times a motor’s rated full-load current, and this inrush current stays high until the motor reaches about 75 percent of rated speed"
+[R2] Starting Motors on Generator Sets — benshaw.com — https://benshaw.com/hubfs/Benshaw%20Website/Downloads/White-Papers/Benshaw-White-Paper-Starting-Motors-on-GenSets_EN.pdf
+    "In such situations, the voltage drop will be equal to that which would result if no AVR were present."
+[R3] Understanding Cummins Power Generation’s suggested specifications for motor starting — mart.cummins.com — https://mart.cummins.com/imagelibrary/data/assetfiles/0056583.pdf
+    "If the generator can recover motor voltage to a minimum of 90% of rated voltage, the motor will develop 81% of rated torque, allowing adequate acceleration for most applications."
+[R4] WHITE PAPER — generac.com — https://www.generac.com/globalassets/pdfs/industrial/whitepapers/sizing-considerations-for-comm-and-ind-gens.pdf
+    "Each unit started individually in sequence would reduce the starting kW required by 40 percent."
+[R5] Sizing Generators for Motor Starting: A Practical Guide to Understanding How Motor-Starting Loads Affect Generator Performance — resources.kohler.com — https://resources.kohler.com/power/kohler/industrial/pdf/Sizing_Generators_for_Motor_Starting_WP.pdf
+    "When the engine slows under load-frequency dips, this in turn, increases the alternator voltage dip."
+[R6] A062L877 (Issue 6) — stamford-avk.com — https://www.stamford-avk.com/sites/stamfordavk/files/2026-05/S9-HV-Alternators-Installation-Service-and-Maintenance-Manual-English.pdf
+    "The AVR controls the alternator output voltage by automatic adjustment of the exciter stator field strength."
+[R7] AGN 124 – AVR Power Supplies — stamford-avk.com — https://www.stamford-avk.com/sites/stamfordavk/files/AGN124_C.pdf
+    "Self-excited alternators will not maintain a short-circuit current - the short-circuit current will quickly decay to 0 if the short- circuit condition is not immediately cleared."
+[R8] AGN 124 – AVR Power Supplies — stamford-avk.com — https://www.stamford-avk.com/sites/stamfordavk/files/AGN124_C.pdf
+    "This allows the alternator to sustain its output during a short-circuit condition so the load’s protection devices have time to clear the fault."
+[R9] Cummins Power Seminar, Paralleling Basics (IEEE PES New York archive) — https://ewh.ieee.org/soc/pes/newyork/Archive%20Docs/CumminsPowerSeminar_Basics%20of%20Paralleling%20169.pdf
+    "Governor and AVR are the basic functions on every genset and the synchronizer, load share and load govern simply adjust the reference point to them"
+[R10] CHAPTER 5 – SYNCHRONOUS GENERATOR — abs.cu.edu.tr — https://abs.cu.edu.tr/Dokumanlar/2017/EEE318/271877548_2_synchronous_machines.pdf
+    "Each phase has an internal generated voltage with a series inductance XS (consisting of the sum of the armature reactance and the coil’s self-inductance) and a series resistance RA."
+[R11] CHAPTER 5 – SYNCHRONOUS GENERATOR — abs.cu.edu.tr — https://abs.cu.edu.tr/Dokumanlar/2017/EEE318/271877548_2_synchronous_machines.pdf
+    "For a given phase voltage and armature current, a larger internal voltage EA is needed for lagging loads than for leading loads."
+[R12] CHAPTER 5 – SYNCHRONOUS GENERATOR — abs.cu.edu.tr — https://abs.cu.edu.tr/Dokumanlar/2017/EEE318/271877548_2_synchronous_machines.pdf
+    "Thus, a larger field current is needed to get the same terminal voltage"
+[R13] How to size a genset: Proper generator set sizing requires analysis of parameters and loads — mart.cummins.com — https://mart.cummins.com/imagelibrary/data/assetfiles/0056648.pdf
+    "Three-phase generator sets are rated for 0.8 PF loads"
+[R14] How to size a genset: Proper generator set sizing requires analysis of parameters and loads — mart.cummins.com — https://mart.cummins.com/imagelibrary/data/assetfiles/0056648.pdf
+    "Only slightly leading power factor can cause generator sets to lose voltage control."
+[R15] WHITE PAPER — generac.com — https://www.generac.com/globalassets/pdfs/industrial/whitepapers/sizing-considerations-for-comm-and-ind-gens.pdf
+    "Some sources of a leading power factor can be a lightly loaded UPS, high intensity discharge lighting, and power factor correction capacitors."
+[R16] Droop speed control - Wikipedia — en.wikipedia.org — https://en.wikipedia.org/wiki/Droop_speed_control
+    "Droop is therefore expressed as the percentage change in (design) speed required for 100% governor action."
+[R17] Droop speed control - Wikipedia — en.wikipedia.org — https://en.wikipedia.org/wiki/Droop_speed_control
+    "By definition, with 5% droop the full-load speed is 100% and the no-load speed is 105%."
+[R18] WHITE PAPER — generac.com — https://www.generac.com/globalassets/pdfs/industrial/whitepapers/sizing-considerations-for-comm-and-ind-gens.pdf
+    "Frequency dip is when the engine cannot supply enough power (kW) to support the load demand, causing a reduction in engine RPM."
+[R19] DG Synchronization with Step-by-Step Procedure — forumelectrical.com — https://forumelectrical.com/dg-synchronization-with-step-by-step-procedure
+    "Before a generator breaker is allowed to close, four electrical quantities of the incoming machine must be matched, within tolerance, to the running bus:"
+[R20] PSRC WG J20 Report - Practices for Generator Synchronizing Systems — pes-psrc.org — https://www.pes-psrc.org/kb/report/119.pdf
+    "This allows the synchronizing breaker close command to be initiated early at the advance angle to compensate for breaker closing time."
+[R21] PSRC WG J20 Report - Practices for Generator Synchronizing Systems — pes-psrc.org — https://www.pes-psrc.org/kb/report/119.pdf
+    "The synchronization current can exceed that of a three-phase fault at the generator"
+[R22] Synchroscope - Wikipedia — en.wikipedia.org — https://en.wikipedia.org/wiki/Synchroscope
+    "the operator closes the breaker when the synchroscope pointer is passing through approximately "11 o'clock", while traveling slowly in the fast direction."
+[R23] PSRC WG J20 Report - Practices for Generator Synchronizing Systems — pes-psrc.org — https://www.pes-psrc.org/kb/report/119.pdf
+    "When the synchroscope is about 5 minutes to 12 o’clock, the generator breaker is closed."
+[R24] STAMFORD S9 alternators owner manual — stamford-avk.com — https://www.stamford-avk.com/sites/stamfordavk/files/2025-03/S9-Owners-Manual-English.pdf
+    "Voltage Difference +/- 0.5% Frequency Difference 0.1 Hz/sec Phase Angle +/- 10 o C/B Closing Time 50 ms"
+[R25] DG Synchronization with Step-by-Step Procedure — forumelectrical.com — https://forumelectrical.com/dg-synchronization-with-step-by-step-procedure
+    "typically within about 5 percent"
+[R26] DG Synchronization with Step-by-Step Procedure — forumelectrical.com — https://forumelectrical.com/dg-synchronization-with-step-by-step-procedure
+    "generally within 0.1 to 0.5 Hz"
+[R27] TLC Electrical Supplies, 2.5 Low voltage generating sets (a guide to the IEE Wiring Regulations) — tlc-direct.co.uk — https://www.tlc-direct.co.uk/Book/2.5.htm
+    "interlocks and switching must be provided to ensure that parallel operation is not possible."
+[R28] Considerations when Paralleling Generating Sets — mart.cummins.com — https://mart.cummins.com/imagelibrary/data/assetfiles/0056622.pdf
+    "Real power (kW) provided by a generator set operating in parallel with others is a direct function of engine real power output."
+[R29] ACTIVE & REACTIVE POWER SHARING IN PARALLELED GENERATORS (KW & KVAR) - DieselShip — dieselship.com — https://dieselship.com/marine-technical-articles/marine-electro-technology/active-reactive-power-sharing-in-a-paralleled-generator-set-kw-kvar
+    "As the fuel to the engine of one generator set in a group is increased it will not lead to an increase in speed and hence frequency"
+[R30] ACTIVE & REACTIVE POWER SHARING IN PARALLELED GENERATORS (KW & KVAR) - DieselShip — dieselship.com — https://dieselship.com/marine-technical-articles/marine-electro-technology/active-reactive-power-sharing-in-a-paralleled-generator-set-kw-kvar
+    "it will lead to an increase in the proportion of the total kVAR load it will deliver and a decrease in its power factor."
+[R31] Paralleling Dissimilar Generators: Part 3 – Load Sharing Compatibility — mart.cummins.com — https://mart.cummins.com/imagelibrary/data/assetfiles/0056549.pdf
+    "Each generator must be set to drop frequency at the same rate from no load to full load."
+[R32] STAMFORD S9 alternators owner manual — stamford-avk.com — https://www.stamford-avk.com/sites/stamfordavk/files/2025-03/S9-Owners-Manual-English.pdf
+    "A factory-fitted droop CT is pre-set for 5% voltage drop at full-load zero power factor."
+[R33] Considerations when Paralleling Generating Sets — mart.cummins.com — https://mart.cummins.com/imagelibrary/data/assetfiles/0056622.pdf
+    "Third-order harmonics (and their multiples) are problematical because they directly add in the neutral and can result in large neutral current flows between paralleled machines."
+[R34] Considerations when Paralleling Generating Sets — mart.cummins.com — https://mart.cummins.com/imagelibrary/data/assetfiles/0056622.pdf
+    "For paralleling applications, it is highly desirable to utilise 2/3 pitch designs because no third-order harmonics are created by the machine."
+[R35] Cressall catalogue 2024, neutral earthing and load banks — cressall.com — https://www.cressall.com/wp-content/uploads/2024/06/cressallweb2024.pdf
+    "it is necessary to ensure that one (and only one, to avoid the possibility of circulating currents) of the neutrals of one of the running generating sets is earthed at all times."
+[R36] Paralleling Dissimilar Generators: Part 3 – Load Sharing Compatibility — mart.cummins.com — https://mart.cummins.com/imagelibrary/data/assetfiles/0056549.pdf
+    "However, reactive droop is not effective for utility paralleling due to the greatly varying voltage level at any point in a utility distribution system as the load on the system changes."
+[R37] STAMFORD S9 HV alternators installation, service and maintenance manual — stamford-avk.com — https://www.stamford-avk.com/sites/stamfordavk/files/2026-05/S9-HV-Alternators-Installation-Service-and-Maintenance-Manual-English.pdf
+    "For normal voltage regulation as a single running machine, a shorting switch should be fitted across the parallel droop transformer."
+[R38] Leroy-Somer R438 AVR installation and maintenance — leroy-somer.com — https://www.leroy-somer.com/documentation_pdf/3971_en.pdf
+    "By altering the voltage setting P2 on one of the machines, try to cancel (or minimise) the current circulating between the machines."
+[R39] Generator Protection — cedengineering.com — https://www.cedengineering.com/userfiles/E04-047%20-%20Generator%20Protection%20-%20US.pdf
+    "detects real power flow ### into the generator, which will happen if the generator loses its prime-mover input."
+[R40] stamford-avk.com — stamford-avk.com — https://www.stamford-avk.com/sites/stamfordavk/files/AGNs/AGN024_E.pdf
+    "A loss of excitation during parallel operation results in circulating currents, pole-slipping, torque/current surges and oscillation."
+[R41] AGN 005 – Fault Currents and Short Circuit Decrement Curves — stamford-avk.com — https://www.stamford-avk.com/sites/stamfordavk/files/AGN005_D.pdf
+    "The Short Circuit Decrement Curves represent the alternator’s fault current during Sub Transient, Transient and Sustained periods of the fault condition."
+[R42] Diesel generator protective relays, US NRC document ML21104A365 — nrc.gov — https://www.nrc.gov/docs/ML2110/ML21104A365.pdf
+    "provides anti-motoring protection for the diesel to preclude the danger of explosion and fire from unburned fuel."
+[R43] Load Sharing: Balancing kW and kVAR Between Generators — bengibb.ca — https://www.bengibb.ca/blog/kw-and-kvar-control
+    "These two types of load sharing rely on separate systems: speed control for kW and voltage control for kVAR."
+Notes (claims, and the sources that support them):
+- Starting current is typically six times a motor's full-load current and stays high until the motor reaches about 75 percent of rated speed. [R1]
+- When the load step is fast, the regulator cannot beat it, so the voltage drop equals that with no regulator present. [R2]
+- If the generator recovers motor voltage to at least 90 percent of rated, the motor develops 81 percent of rated torque. [R3]
+- Starting three 100 hp motors one after another, not together, cuts the starting kW needed by 40 percent. [R4]
+- When an engine slows under a load step, the frequency dip makes the alternator voltage dip worse. [R5]
+- The automatic voltage regulator controls the alternator output voltage by adjusting the exciter stator field strength. [R6]  (from an idea this one builds on)
+- A self-excited alternator will not maintain a short-circuit current; it decays quickly unless the fault is cleared at once. [R7]  (from an idea this one builds on)
+- A dedicated AVR supply lets the alternator sustain its output during a short circuit, so the load's protection devices have time to clear the fault (i2). [R8]  (from an idea this one builds on)
+- The synchroniser and load sharing work by adjusting the reference points of the governor and the AVR (i2, forward line). [R9]  (from an idea this one builds on)
+- Each phase is an internally generated voltage in series with a reactance, made of armature reactance and the coil's self-inductance, and a series resistance. [R10]  (from an idea this one builds on)
+- A lagging load needs a larger internal voltage than a leading load, so a larger field current is needed for the same terminal voltage. [R11][R12]  (from an idea this one builds on)
+- Three-phase generator sets are rated for 0.8 power factor loads. [R13]  (from an idea this one builds on)
+- Only a slightly leading power factor can make a generator set lose voltage control. [R14]  (from an idea this one builds on)
+- Leading power factor comes from a lightly loaded UPS, high intensity discharge lighting and power factor correction capacitors. [R15]  (from an idea this one builds on)
+- Droop is the percentage change in speed that takes the governor through its full action. [R16]  (from an idea this one builds on)
+- With 5 percent droop, full-load speed is 100 percent and no-load speed is 105 percent. [R17]  (from an idea this one builds on)
+- A load step the engine cannot supply at once reduces the engine speed, which is a frequency dip. [R18]  (from an idea this one builds on)
+- Four electrical quantities of the incoming machine must match the running bus within tolerance before the breaker closes: voltage, frequency, phase sequence and phase angle. [R19]  (from an idea this one builds on)
+- An autosynchroniser sends the close command early, at an advance angle, to allow for the breaker's closing time. [R20]  (from an idea this one builds on)
+- A closure out of step can send a synchronising current larger than a three-phase fault at the generator. [R21]  (from an idea this one builds on)
+- Where to close by hand is contested: one practice closes as the pointer passes about 11 o'clock, another at about 5 minutes to 12, both turning slowly in the fast direction (i5). [R22][R23]  [CONTESTED: Wikipedia closes at about 11 o'clock, slowly in the fast direction; the PSRC report closes at about 5 minutes to 12.]  (from an idea this one builds on)
+- Synchronising windows are settings that differ by maker: one maker gives a voltage difference of 0.5%, a trade site gives voltage within about 5% and frequency within 0.1 to 0.5 Hz (i5). [R24][R25][R26]  (from an idea this one builds on)
+- Ashore, BS 7671 Section 551: interlocks and switching must make parallel operation of a standby set with the supply impossible (i5, one line). [R27]  (from an idea this one builds on)
+- The kW a set shares in parallel is a direct function of its engine's real power output. [R28]  (from an idea this one builds on)
+- Raising the fuel to one set in a paralleled group does not raise the speed or the frequency. [R29]  (from an idea this one builds on)
+- Raising the excitation of one paralleled set raises that set's share of the kVAr and lowers its power factor. [R30]  (from an idea this one builds on)
+- Paralleled sets need the same droop, falling in frequency at the same rate from no load to full load (i6). [R31]  (from an idea this one builds on)
+- A factory-fitted droop CT is preset for a 5% voltage drop at full load and zero power factor (i6). [R32]  (from an idea this one builds on)
+- Third harmonics add in the neutral and can drive large neutral currents between paralleled sets (i6). [R33]  (from an idea this one builds on)
+- A 2/3 pitch winding makes no third harmonics, so it suits paralleling (i6). [R34]  (from an idea this one builds on)
+- On an earthed scheme, one and only one running set's neutral is earthed at a time, to avoid circulating currents (i6). [R35]  (from an idea this one builds on)
+- Voltage (reactive) droop does not work well against the mains, because the mains voltage varies as its load changes (i6). [R36]  (from an idea this one builds on)
+- A set running alone has its droop CT shorted by a switch, for normal voltage regulation (i6). [R37]  (from an idea this one builds on)
+- When setting up sets to run in parallel, the voltage setting on one is trimmed last, to cancel the current circulating between them (i6). [R38]  (from an idea this one builds on)
+- A reverse power relay detects real power flowing into the generator, which happens when it loses its prime mover. [R39]  (from an idea this one builds on)
+- A loss of excitation during parallel operation causes circulating currents, pole-slipping and torque and current surges. [R40]  (from an idea this one builds on)
+- Decrement curves show an alternator's fault current through the sub-transient, transient and sustained periods of a fault. [R41]  (from an idea this one builds on)
+- A self-excited alternator's short-circuit current decays to nothing unless the fault is cleared quickly. [R7]  (from an idea this one builds on)
+- For i7: a reverse power relay gives a diesel anti-motoring protection, against the danger of explosion and fire from unburned fuel. [R42]  (from an idea this one builds on)
+- Speed control and voltage control are two separate systems on a generator set: speed control shares kW and voltage control shares kVAr. [R43]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i8",
+ "title": "The set in a system: starting big motors",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the voltage drop at once, by the share the set's sub-transient reactance takes, and only then climb back as the AVR acts, when you press Start.",
+  "title": "Starting the big motor",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Screen",
+    "min": 0,
+    "max": 12,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [],
+  "whatAmILookingAt": "Thirteen small screens on one picture, with Back and Continue: five show an idea, eight ask you to try it. No marks, no timers.\n\nThe picture. Left, one generator set, 630 kVA at 440 V and 60 Hz, feeding a board. A second, identical set is drawn dashed beside it, joined to the board only when the Second set switch is on. A motor hangs off the board, behind a starter box marked DOL, Star-delta or Soft starter. A small AVR box sits on the set. Right, two traces against time, 0 to 4 s, with Start at 0 s. Above, the board voltage as a % of 440 V, from 60% to 105%, with a dashed line at 90%. Below, the board frequency, from 50 to 61 Hz, with its lowest point labelled. The motor's shaft turns once it gets away. If it stalls, the motor turns red and is labelled Stalled.\n\nThe controls. A Starting kVA slider, the motor's starting load when started DOL, from 100 to 1200 kVA in steps of 50, opening at 600 kVA. A Start method choice of three, in this order: DOL, Star-delta, Soft starter, opening on DOL. A Second set switch, opening off. A Start button. It plays the 4 s at half speed, taking 8 s, and pressing it again starts over. Changing any control clears the traces. Four readout tiles, wrapping onto two rows on a phone: At once in %, Lowest in %, Recovers to in %, and Torque in %. At once fills at Start, Lowest at 1 s, and the other two at 3 s. Until then each shows –. The method buttons wrap too, so no word splits.\n\nThe rule it computes. The starting kVA the set sees is the slider's figure for DOL, a third of it for Star-delta, and half of it for the Soft starter, an example limit. Divide it by 630 kVA for each set on the board, and call that x. The sub-transient reactance is 0.15 per unit and the synchronous reactance 1.5, example values. At once, the voltage left is 1 ÷ (1 + 0.15 × x). This treats the motor's starting impedance, 1 ÷ x, and the reactance as a divider. Recovered, the voltage is 2.5 ÷ (1 + 1.5 × x), capped at 100%. The 2.5 is E at the AVR's field ceiling, an example. Torque = the recovered voltage squared, as a % of what the same start would give on full voltage. The start's real power is the starting kVA × 0.4, an example starting power factor. The frequency dips by 3% for every 100 kW of it, shared between the sets on the board, an example. With t in seconds from Start, the frequency is 60 × (1 − the dip × (t ÷ 0.3) × e^(1 − t ÷ 0.3)), a sketch that is lowest at 0.3 s. The AVR's pull is the recovered voltage − (the recovered voltage − the voltage at once) × e^(−t ÷ 1), a sketch. The voltage drawn is that pull × the frequency ÷ 60, because a slower rotor makes less voltage. Lowest is the voltage trace's lowest point. If the recovered voltage is 90% or more, the motor gets away at 3 s, an example run-up. Its current then falls, and the voltage returns to 100% over 0.5 s. Below 90%, the voltage stays down, and at 2 s the motor turns red, stalled.\n\nScreen 1, try it, a recall, typed. No picture. \"A motor takes 100 A at full load. Started direct on line, roughly what current does it draw at first?\" A field in A. Answer 600 A. Also accepted: 700 A, 800 A. Slips: 100, \"That is its running current. A start draws several times more.\"; 200, \"That is nearer a star-delta start, about a third of DOL.\" Hint when wrong: \"A DOL start usually draws 6 to 8 times full-load current.\" Why: \"6 × 100 = 600 A, and up to 800 A is common. The current stays high until the motor reaches about 75% of its speed.[^1]\" A right Check shows \"Still there.\" Read: the question.\n\nScreen 2, show. One set, DOL, 600 kVA, the traces empty until Start. The words: \"A big motor's start is a sudden, heavy load on the set. Here it takes 600 kVA from a 630 kVA set. For the first few cycles, only the small sub-transient reactance holds the set's current back. Say 0.15 per unit, as for fault currents. The motor's starting impedance is 630 ÷ 600 = 1.05 per unit. In this simplified picture, the two share the voltage like a divider. So 1.05 ÷ (1.05 + 0.15) = 87.5% is left. Press Start to watch the drop.\" Read: the words without the last sentence. Still: started, the traces drawn to 0.05 s, readouts At once 87.5%, the others –.\n\nScreen 3, try it, a prediction. One set, DOL, 600 kVA, before Start, the AVR box lit. \"The AVR is on and watching the voltage. You are about to press Start. What does the AVR do to that first drop?\" Three choices, in this order: \"It stops it, so the voltage holds at 100%\"; \"Nothing at first, then it pulls the voltage back\"; \"It makes it deeper, by cutting the field\". Right, the second. Hint for the first: \"The AVR acts only once it sees the voltage fall. The drop comes first.\"; for the third: \"When the voltage falls, the AVR raises the field.\" Why: \"The AVR must see the drop before it acts, and the field takes time to grow. So a sudden step drops the voltage as far as it would with no AVR at all.[^2]\" A right Check runs the start. Read: the question.\n\nScreen 4, show. One set, DOL, 600 kVA, the run free. The words: \"Now the engine. The start takes real power too, 240 kW at an example power factor of 0.4. The engine cannot find that at once, so it slows. A slower rotor makes less voltage, so the dip goes deeper, to 83.8%.[^3] Then the governor adds fuel, and the speed comes back. The AVR raises the field, and the voltage climbs back to 100%. Once the motor is up to speed, its current falls away.\" Read: the words. Still: the run finished at 4 s, frequency lowest 55.7 Hz, readouts At once 87.5%, Lowest 83.8%, Recovers to 100%, Torque 100%.\n\nScreen 5, try it, typed. One set, DOL, before Start, the At once tile reading ? until Check. \"The same 630 kVA set has a sub-transient reactance of 0.15 per unit. A bigger motor starts DOL and takes 900 kVA. What voltage is left at the first instant, in %?\" A field in %. Answer 82.4%. Slips: 78.6, \"That takes the whole 0.15 × 900 ÷ 630 off. The motor's impedance shares the voltage too.\"; 17.6, \"That is the drop. The question asks what is left.\"; 85, \"That leaves out the motor's size.\" Hint when wrong: \"The motor's impedance is 630 ÷ 900 = 0.70 per unit.\" Why: \"0.70 ÷ (0.70 + 0.15) = 0.824, so 82.4% is left.\" A right Check sets the slider to 900 kVA and runs the start. Read: the question.\n\nScreen 6, show. One set, DOL, 900 kVA, the run free. The words: \"Will the motor get away? Its torque goes with the square of its voltage. At 90% voltage it makes 81% of its torque, enough for most loads.[^4] So the target is to recover to 90%. After the first cycles, the bigger synchronous reactance of 1.5 carries the current. The AVR's field has a ceiling, here an example E of 2.5. At 600 kVA that is plenty. At 900 kVA, 2.5 ÷ (1 + 1.5 × 900 ÷ 630) = 79.5%. The motor stalls.\" Read: the words. Still: the run finished at 4 s, the motor red and Stalled, readouts At once 82.4%, Lowest 72.8%, Recovers to 79.5%, Torque 63.3%.\n\nScreen 7, try it, typed. One set, the Torque tile reading ? until Check. \"A start recovers the voltage to only 85%. What torque does the motor make, as a % of its full-voltage torque?\" A field in %. Answer 72.3%. Also accepted: 72.25%, 72%. Slips: 85, \"Torque goes with the square of the voltage.\"; 92.2, \"That is the square root. Square it instead.\"; 81, \"81% goes with 90% voltage. This is lower.\" Hint when wrong: \"Square the voltage as a fraction.\" Why: \"0.85 × 0.85 = 0.7225, about 72.3%. That is under the 81% that goes with a 90% recovery.\" Read: the question.\n\nScreen 8, show. One set, 600 kVA, the Start method free, opening on Soft starter, the run free. The words: \"The first cure is to start softly. Star-delta draws about a third of the DOL current. So 600 kVA becomes 200 kVA, and 95.5% is left at once. A soft starter's thyristors hold the current down too. Here it holds the start to half, an example, 300 kVA. That leaves 93.3%. Both give the motor less torque as it starts. So they suit loads that start light, such as fans and pumps. Switch the start method to compare.\" Read: the words without the last sentence. Still: Soft starter, the run finished at 4 s, readouts At once 93.3%, Lowest 91.4%, Recovers to 100%, Torque 100%.\n\nScreen 9, try it, typed. One set, Star-delta, 900 kVA, before Start, the At once tile reading ? until Check. \"The 900 kVA motor is now started star-delta, on one set. What voltage is left at the first instant, in %?\" A field in %. Answer 93.3%. Slips: 82.4, \"That is the DOL start. Star-delta draws about a third.\"; 92.9, \"That takes the whole share off. The motor's impedance shares the voltage too.\"; 6.7, \"That is the drop. The question asks what is left.\" Hint when wrong: \"Star-delta's starting load is 900 ÷ 3 = 300 kVA.\" Why: \"630 ÷ 300 = 2.10 per unit. 2.10 ÷ (2.10 + 0.15) = 0.933, so 93.3% is left. It recovers to 100%, and the motor gets away.\" A right Check runs the start. Read: the question.\n\nScreen 10, show. DOL, 600 kVA, the Second set switch on, the run free. The words: \"The second cure is more sets on the board. Two sets in parallel halve the reactance the motor sees. So the same 600 kVA start leaves 93.3%, a drop of 6.7% instead of 12.5%. They share the real power too, so the frequency dips less. A power management system can hold a big start until enough sets are on. Starting loads one at a time helps the same way. In one worked case it cut the starting kW needed by 40%.[^5]\" Read: the words. Still: two sets, the run finished at 4 s, readouts At once 93.3%, Lowest 91.4%, Recovers to 100%, Torque 100%.\n\nScreen 11, try it, typed (mixed). One set, DOL, 900 kVA, the Second set switch off, the At once tile reading ? until Check. \"A 900 kVA DOL start stalls on one set. So a second, identical set is synchronised onto the board first. What voltage is left at the first instant now, in %?\" A field in %. Answer 90.3%. Slips: 82.4, \"That is one set. Two sets halve the reactance.\"; 91.2, \"Halving the reactance does not quite halve the drop. Work the divider.\"; 9.7, \"That is the drop. The question asks what is left.\" Hint when wrong: \"With two sets, the reactance is 0.15 ÷ 2 = 0.075 per unit.\" Why: \"The motor's impedance is 630 ÷ 900 = 0.70. 0.70 ÷ (0.70 + 0.075) = 0.903, so 90.3% is left. It recovers to 100%, and the motor gets away.\" A right Check turns the Second set switch on and runs the start. Read: the question.\n\nScreen 12, try it, typed (mixed). The frequency trace alone, the frequency lowest reading ? until Check. \"A motor's start takes 600 kVA at a power factor of 0.4. How many kW must the engine find at once?\" A field in kW. Answer 240 kW. Slips: 600, \"That is the kVA. The engine supplies only the kW.\"; 480, \"0.8 is the set's rated power factor. A starting motor's is lower, here 0.4.\"; 360, \"That is the part left over. Multiply by 0.4.\" Hint when wrong: \"kW = kVA × power factor.\" Why: \"600 × 0.4 = 240 kW. The governor needs a moment to add that much fuel, so the frequency dips.\" Read: the question.\n\nScreen 13, try it (mixed). No traces. Two sets drawn on the board, A and B. \"Two sets share the board in droop. Set A's governor fails and drives its fuel up. What happens?\" Three choices, in this order: \"Only A speeds up, and B carries on as before\"; \"A takes kW from B, the frequency rises, and B may be driven as a motor\"; \"The board's voltage rises, but the kW split stays the same\". Right, the second. Hint for the first: \"A is locked in step with the board. It cannot speed up alone.\"; for the third: \"Fuel moves kW, not voltage.\" Why: \"In parallel, more fuel on A moves kW onto A and off B. The board's frequency rises along the droop lines. If A takes the whole load, B is driven as a motor, and its reverse-power relay trips it. A governor fault at one set reaches the whole board.\" A right Check shows: \"One board, every set.\" Read: the question.",
+  "ignores": "Time on the traces runs at half speed. The divider treats the motor's starting impedance as if it lined up with the set's reactance. A real one is partly resistive, so the true drop is a little smaller. The move from the sub-transient to the synchronous reactance is drawn as one smooth pull, and a real set passes through its transient reactance on the way. The AVR's pull, the engine's slowing and the run-up are sketches with example figures. The torque readout compares each start with itself on full voltage. Star-delta and a soft starter give the motor less torque than DOL anyway. Whether a motor really gets away depends on its load's torque, not on one 90% line. The set carries no other load before the start.",
+  "numbers": [
+   {
+    "label": "Number of screens",
+    "value": 13,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screens that show an idea",
+    "value": 5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screens that ask you to try it",
+    "value": 8,
+    "kind": "assumed"
+   },
+   {
+    "label": "Set's rating, kVA",
+    "value": 630,
+    "kind": "assumed"
+   },
+   {
+    "label": "Board line voltage, V",
+    "value": 440,
+    "kind": "assumed"
+   },
+   {
+    "label": "Board frequency, Hz",
+    "value": 60,
+    "kind": "assumed"
+   },
+   {
+    "label": "Sets on the board with the switch on",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Sub-transient reactance, per unit",
+    "value": 0.15,
+    "kind": "assumed"
+   },
+   {
+    "label": "Synchronous reactance, per unit",
+    "value": 1.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "E at the AVR's field ceiling, per unit",
+    "value": 2.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Starting kVA slider opening, kVA",
+    "value": 600,
+    "kind": "control"
+   },
+   {
+    "label": "Starting kVA slider lowest, kVA",
+    "value": 100,
+    "kind": "control"
+   },
+   {
+    "label": "Starting kVA slider highest, kVA",
+    "value": 1200,
+    "kind": "control"
+   },
+   {
+    "label": "Starting kVA slider step, kVA",
+    "value": 50,
+    "kind": "control"
+   },
+   {
+    "label": "Star-delta starting current, share of DOL",
+    "value": 0.333,
+    "kind": "constant"
+   },
+   {
+    "label": "Star-delta divisor",
+    "value": 3,
+    "kind": "constant"
+   },
+   {
+    "label": "Soft starter limit, share of DOL",
+    "value": 0.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Starting power factor",
+    "value": 0.4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Frequency dip per 100 kW, %",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Real power step for the dip rule, kW",
+    "value": 100,
+    "kind": "assumed"
+   },
+   {
+    "label": "Frequency dip lowest at, s",
+    "value": 0.3,
+    "kind": "assumed"
+   },
+   {
+    "label": "AVR pull time constant, s",
+    "value": 1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Run-up time if it gets away, s",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Stall shown at, s",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Return to 100% takes, s",
+    "value": 0.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Trace length, s",
+    "value": 4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Run plays at half speed, s",
+    "value": 8,
+    "kind": "assumed"
+   },
+   {
+    "label": "Voltage axis lowest, %",
+    "value": 60,
+    "kind": "assumed"
+   },
+   {
+    "label": "Voltage axis highest, %",
+    "value": 105,
+    "kind": "assumed"
+   },
+   {
+    "label": "Frequency axis lowest, Hz",
+    "value": 50,
+    "kind": "assumed"
+   },
+   {
+    "label": "Frequency axis highest, Hz",
+    "value": 61,
+    "kind": "assumed"
+   },
+   {
+    "label": "Lowest tile fills at, s",
+    "value": 1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Still: traces drawn to, s",
+    "value": 0.05,
+    "kind": "assumed"
+   },
+   {
+    "label": "Recovered voltage cap, %",
+    "value": 100,
+    "kind": "assumed"
+   },
+   {
+    "label": "Recovery target, % of rated voltage",
+    "value": 90,
+    "kind": "constant",
+    "source": 4
+   },
+   {
+    "label": "Torque at 90% voltage, % of rated",
+    "value": 81,
+    "kind": "constant",
+    "source": 4
+   },
+   {
+    "label": "DOL starting current, times full-load (typical)",
+    "value": 6,
+    "kind": "constant",
+    "source": 1
+   },
+   {
+    "label": "DOL starting current, times full-load (upper usual)",
+    "value": 8,
+    "kind": "constant"
+   },
+   {
+    "label": "DOL starting current, times full-load (middle)",
+    "value": 7,
+    "kind": "constant"
+   },
+   {
+    "label": "Inrush stays high until, % of rated speed",
+    "value": 75,
+    "kind": "constant",
+    "source": 1
+   },
+   {
+    "label": "Starting kW cut by starting in sequence, %",
+    "value": 40,
+    "kind": "constant",
+    "source": 5
+   },
+   {
+    "label": "Recall: motor full-load current, A",
+    "value": 100,
+    "kind": "assumed"
+   },
+   {
+    "label": "Recall: DOL start, A",
+    "value": 600,
+    "kind": "computed"
+   },
+   {
+    "label": "Recall: also accepted, A",
+    "value": 700,
+    "kind": "computed"
+   },
+   {
+    "label": "Recall: upper usual, A",
+    "value": 800,
+    "kind": "computed"
+   },
+   {
+    "label": "Recall slip: star-delta, A",
+    "value": 200,
+    "kind": "computed"
+   },
+   {
+    "label": "600 kVA: motor's starting impedance, per unit",
+    "value": 1.05,
+    "kind": "computed"
+   },
+   {
+    "label": "600 kVA DOL: left at once, %",
+    "value": 87.5,
+    "kind": "computed"
+   },
+   {
+    "label": "600 kVA DOL: dip, %",
+    "value": 12.5,
+    "kind": "computed"
+   },
+   {
+    "label": "600 kVA DOL: starting kW",
+    "value": 240,
+    "kind": "computed"
+   },
+   {
+    "label": "600 kVA DOL: lowest, %",
+    "value": 83.8,
+    "kind": "computed"
+   },
+   {
+    "label": "600 kVA DOL: frequency lowest, Hz",
+    "value": 55.7,
+    "kind": "computed"
+   },
+   {
+    "label": "600 kVA DOL: recovers to, %",
+    "value": 100,
+    "kind": "computed"
+   },
+   {
+    "label": "600 kVA DOL: torque, %",
+    "value": 100,
+    "kind": "computed"
+   },
+   {
+    "label": "900 kVA: motor's starting impedance, per unit",
+    "value": 0.7,
+    "kind": "computed"
+   },
+   {
+    "label": "900 kVA DOL: left at once, %",
+    "value": 82.4,
+    "kind": "computed"
+   },
+   {
+    "label": "900 kVA DOL: unrounded, per unit",
+    "value": 0.824,
+    "kind": "computed"
+   },
+   {
+    "label": "900 kVA DOL: lowest, %",
+    "value": 72.8,
+    "kind": "computed"
+   },
+   {
+    "label": "900 kVA DOL: recovers to, %",
+    "value": 79.5,
+    "kind": "computed"
+   },
+   {
+    "label": "900 kVA DOL: torque, %",
+    "value": 63.3,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 5 slip: whole share taken off, %",
+    "value": 78.6,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 5 slip: the drop, %",
+    "value": 17.6,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 5 slip: 1 − 0.15, %",
+    "value": 85,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 7: recovered voltage, %",
+    "value": 85,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 7: torque, %",
+    "value": 72.3,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 7: unrounded, per unit",
+    "value": 0.7225,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 7: also accepted, %",
+    "value": 72.25,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 7: also accepted, rounded, %",
+    "value": 72,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 7 slip: square root, %",
+    "value": 92.2,
+    "kind": "computed"
+   },
+   {
+    "label": "600 kVA star-delta: starting kVA",
+    "value": 200,
+    "kind": "computed"
+   },
+   {
+    "label": "600 kVA star-delta: left at once, %",
+    "value": 95.5,
+    "kind": "computed"
+   },
+   {
+    "label": "600 kVA soft starter: starting kVA",
+    "value": 300,
+    "kind": "computed"
+   },
+   {
+    "label": "600 kVA soft starter: left at once, %",
+    "value": 93.3,
+    "kind": "computed"
+   },
+   {
+    "label": "600 kVA soft starter: lowest, %",
+    "value": 91.4,
+    "kind": "computed"
+   },
+   {
+    "label": "900 kVA star-delta: starting kVA",
+    "value": 300,
+    "kind": "computed"
+   },
+   {
+    "label": "900 kVA star-delta: impedance, per unit",
+    "value": 2.1,
+    "kind": "computed"
+   },
+   {
+    "label": "900 kVA star-delta: left at once, %",
+    "value": 93.3,
+    "kind": "computed"
+   },
+   {
+    "label": "900 kVA star-delta: unrounded, per unit",
+    "value": 0.933,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 9 slip: whole share off, %",
+    "value": 92.9,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 9 slip: the drop, %",
+    "value": 6.7,
+    "kind": "computed"
+   },
+   {
+    "label": "Two sets: reactance the motor sees, per unit",
+    "value": 0.075,
+    "kind": "computed"
+   },
+   {
+    "label": "Two sets, 600 kVA DOL: left at once, %",
+    "value": 93.3,
+    "kind": "computed"
+   },
+   {
+    "label": "Two sets, 600 kVA DOL: dip, %",
+    "value": 6.7,
+    "kind": "computed"
+   },
+   {
+    "label": "Two sets, 600 kVA DOL: lowest, %",
+    "value": 91.4,
+    "kind": "computed"
+   },
+   {
+    "label": "Two sets, 900 kVA DOL: left at once, %",
+    "value": 90.3,
+    "kind": "computed"
+   },
+   {
+    "label": "Two sets, 900 kVA DOL: unrounded, per unit",
+    "value": 0.903,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 11 slip: drop halved, %",
+    "value": 91.2,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 11 slip: the drop, %",
+    "value": 9.7,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12: starting kVA",
+    "value": 600,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 12: real power, kW",
+    "value": 240,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12 slip: set's rated power factor",
+    "value": 0.8,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 12 slip: at 0.8, kW",
+    "value": 480,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12 slip: the part left over, kW",
+    "value": 360,
+    "kind": "computed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "A big motor's start is a sudden, heavy load, and a generator set feels it at once. The voltage drops before the AVR can move. The engine slows and deepens the dip. Then the governor and the AVR pull the board back. Whether the motor gets away depends on how far the voltage recovers. So big loads are started softly, one at a time, or with more sets on.\n\nStart with the first instant. A DOL start draws about six times the motor's full-load current. It keeps drawing it until the motor reaches about 75% of its speed.[^1] Say the start takes 600 kVA from a 630 kVA set. For the first few cycles, only the set's small sub-transient reactance holds that current back. Say it is 0.15 per unit, as for fault currents. On the set's own base, the motor's starting impedance is 630 ÷ 600 = 1.05 per unit. In a simplified picture, the two share the voltage like a divider. The motor gets 1.05 ÷ (1.05 + 0.15) = 87.5%, a [[voltage dip]] of 12.5%. The AVR cannot stop this. It acts only once it sees the voltage fall, and the field takes time to grow. So a sudden step drops the voltage as far as it would with no AVR at all.[^2]\n\nThen two things pull in opposite directions. The start takes real power too, here 240 kW at a starting power factor of 0.4. The engine cannot find that at once, so it slows, as with any load step. A slower rotor makes less voltage, so the dip goes deeper.[^3] Meanwhile the governor adds fuel and the AVR raises the field. After the first cycles, the bigger synchronous reactance carries the current. So how far the voltage recovers depends on how much field the AVR can give. A motor's torque goes with the square of its voltage. If the voltage recovers to 90%, the motor makes 81% of its torque, enough to accelerate most loads.[^4] Recover to less, and it may stall.\n\nSo every cure cuts the [[starting kVA]] each set has to carry. Star-delta draws about a third. A soft starter holds the current to a limit. A second set on the board halves the reactance the motor sees, so the same 600 kVA start leaves 93.3%. Starting loads one after another, not together, cuts the starting kW needed, by 40% in one worked case.[^5] A [[power management system]] can hold a big start until enough sets are on. These figures come from a simplified picture with example reactances. Real dips also depend on the motor, the AVR and the engine. In parallel, fuel and field share the steady load between the sets. Neither acts fast enough to catch a sudden step, so enough sets must be on before it comes. **A big motor's start dips a set's voltage before the AVR can act, so big loads start softly, one at a time, or with more sets on.**"
+ },
+ "analogy": {
+  "text": "Think of a big motor starting at the end of a long, thin sub-main. The cable's impedance and the motor's starting impedance share the supply voltage, so the lights on that board dip. A bigger cable, a second feed in parallel or a soft start shrinks the dip. A set at the first instant behaves the same way, with its sub-transient reactance in place of the cable.",
+  "breaks": "A cable's impedance stays the same. A set's grows from the sub-transient to the synchronous reactance as the start goes on, while the AVR raises the field to fight it. And a cable has no engine to slow down, so it has no frequency dip."
+ },
+ "practice": {
+  "text": "**Starting a big motor on generator sets**\n\nThe safe way first: start big loads under your procedures, with the board's interlocks in place. Never override a power management system's hold on a start.\n\n- Check how many sets are on, and their spare kW, before a big start.\n- If another set is needed, start it and synchronise it first. Let the sets share the load before the start.\n- Start loads one at a time. Let the voltage and frequency settle between starts.\n- Use the starter fitted. A star-delta or soft starter is there to cut the starting current.\n- Watch the voltmeter and frequency meter during the start. A voltage that does not recover, or a motor that does not run up, means stop and find out why.\n\n**Rules of thumb:** voltage left at once ≈ 1 ÷ (1 + sub-transient reactance × starting kVA ÷ set kVA), in per unit. Two equal sets in parallel halve the reactance the motor sees. Torque goes with voltage squared, so 90% voltage gives 81% torque.[^4] Star-delta draws about a third of the DOL starting current.\n\n**Worked example:** a 630 kVA set has a sub-transient reactance of 0.15. A pump motor takes 900 kVA starting DOL. Alone, the first instant leaves 1 ÷ (1 + 0.15 × 900 ÷ 630) = 82.4%. With a synchronous reactance of 1.5 and a field ceiling of E = 2.5, both example values, it recovers to 2.5 ÷ (1 + 1.5 × 900 ÷ 630) = 79.5%. That is under 90%, so the motor may stall. Started star-delta, it takes 300 kVA: 93.3% at once, and full recovery. Started DOL with a second set on, 90.3% is left at once, and it recovers fully.\n\n**Common mistakes**\n- Expecting the AVR to stop the dip. It can only pull the voltage back after the drop.[^2]\n- Judging a start by its kW alone. A motor's start is mostly kVA, at a low power factor.\n- Starting several big loads together after a blackout. One at a time needs much less.[^5]\n- Thinking a governor or AVR fault at one set stays there. In parallel, it moves kW or kVAr onto or off the other sets."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "simplified",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "sources": [
+  {
+   "n": 1,
+   "title": "TITLE — cummins.com",
+   "url": "https://www.cummins.com/sites/default/files/2020-03/PowerHour_Generator%20Set%20Sizing%20Software_Transient%20Performance%20and%20Motor%20Load%20Capabilities%20%281PDH%29.pdf",
+   "quote": "Starting current is typically six times a motor’s rated full-load current, and this inrush current stays high until the motor reaches about 75 percent of rated speed"
+  },
+  {
+   "n": 2,
+   "title": "Starting Motors on Generator Sets — benshaw.com",
+   "url": "https://benshaw.com/hubfs/Benshaw%20Website/Downloads/White-Papers/Benshaw-White-Paper-Starting-Motors-on-GenSets_EN.pdf",
+   "quote": "In such situations, the voltage drop will be equal to that which would result if no AVR were present."
+  },
+  {
+   "n": 3,
+   "title": "Sizing Generators for Motor Starting: A Practical Guide to Understanding How Motor-Starting Loads Affect Generator Performance — resources.kohler.com",
+   "url": "https://resources.kohler.com/power/kohler/industrial/pdf/Sizing_Generators_for_Motor_Starting_WP.pdf",
+   "quote": "When the engine slows under load-frequency dips, this in turn, increases the alternator voltage dip."
+  },
+  {
+   "n": 4,
+   "title": "Understanding Cummins Power Generation’s suggested specifications for motor starting — mart.cummins.com",
+   "url": "https://mart.cummins.com/imagelibrary/data/assetfiles/0056583.pdf",
+   "quote": "If the generator can recover motor voltage to a minimum of 90% of rated voltage, the motor will develop 81% of rated torque, allowing adequate acceleration for most applications."
+  },
+  {
+   "n": 5,
+   "title": "WHITE PAPER — generac.com",
+   "url": "https://www.generac.com/globalassets/pdfs/industrial/whitepapers/sizing-considerations-for-comm-and-ind-gens.pdf",
+   "quote": "Each unit started individually in sequence would reduce the starting kW required by 40 percent."
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }

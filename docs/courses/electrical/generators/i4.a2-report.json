@@ -1,0 +1,235 @@
+{
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "At 1800 rev/min the set turns at 188.5 rad/s and 60 Hz; at 25% load the torques match at 126 000 ÷ 188.5 = 668 N m, and the tiles read 126 kW, 25%, 1800 rev/min and 60.0 Hz",
+        "ok": true
+      },
+      {
+        "label": "A 25% step with the fuel not yet moved slows the set at 668 ÷ 20 = 33.4 rad/s², so 0.1 s later it runs at 58.9 Hz; the dip bottoms out within 1.5 s on screen, then the set climbs back to 60.0 Hz with the fuel at 25%",
+        "ok": true
+      },
+      {
+        "label": "Frequency dip is when the engine cannot supply enough power to support the load demand, causing a reduction in engine RPM",
+        "ok": true,
+        "source": "https://www.generac.com/globalassets/pdfs/industrial/whitepapers/sizing-considerations-for-comm-and-ind-gens.pdf"
+      },
+      {
+        "label": "Isochronous: every step of the load returns the set to exactly 60.0 Hz with the fuel at the load; the read-through of screen 6 shows three dips, ending at 378 kW, 75%, 1800 rev/min and 60.0 Hz",
+        "ok": true
+      },
+      {
+        "label": "Droop is the percentage change in design speed required for 100% governor action: at 4%, full fuel lowers the target 2.4 Hz below its no-fuel 62.4 Hz",
+        "ok": true,
+        "source": "https://en.wikipedia.org/wiki/Droop_speed_control"
+      },
+      {
+        "label": "By definition, with 5% droop the full-load speed is 100% and the no-load speed is 105%",
+        "ok": true,
+        "source": "https://en.wikipedia.org/wiki/Droop_speed_control"
+      },
+      {
+        "label": "On 4% droop from 62.4 Hz the set settles at 61.2 Hz on 252 kW, 60.6 Hz on 378 kW and 60.0 Hz on 504 kW; 61.8 Hz puts 378 kW on 60.0 Hz; a 60.0 Hz set point gives 57.6 Hz on full load, and 62.4 Hz lifts it to 60.0 Hz",
+        "ok": true
+      },
+      {
+        "label": "A trip from 252 kW on 4% droop overshoots, then settles at the top of the line, 62.4 Hz and 1872 rev/min; even a trip from full load peaks below the trace's 72 Hz",
+        "ok": true
+      },
+      {
+        "label": "The torque arrows are drawn to scale: just after a 25% step the alternator's arrow outgrows the engine's, and their lengths keep the torques' ratio",
+        "ok": true
+      },
+      {
+        "label": "Each typed answer and slip is worked from the rule: 25 rad/s² (100, 0.04), 33.4 rad/s² (13 360, 0.03, 6.3), 61.2 Hz (60, 60.4, 63.6), 61.8 Hz (62.4, 58.2, 63) and 52.5 Hz (55, 47.5, 50)",
+        "ok": true
+      },
+      {
+        "label": "Screen 4's demonstration ends with the dip on the trace and the set back at 60.0 Hz on 25% fuel; screen 8's ends on its 4% line at 61.8 Hz with 126 kW",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "load",
+      "droop",
+      "sp"
+    ],
+    "readouts": [
+      "r-l",
+      "r-u",
+      "r-s",
+      "r-f"
+    ],
+    "outputs": [],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Screen",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "steps": [
+          "Still there?",
+          "Two torques",
+          "Predict the dip",
+          "A load step",
+          "How fast it slows",
+          "Back to 60 Hz",
+          "What changed",
+          "Droop",
+          "Half load",
+          "The set point",
+          "Choose a set point",
+          "Fault or design?",
+          "A 50 Hz set"
+        ],
+        "value": 0
+      },
+      {
+        "id": "load",
+        "kind": "choice",
+        "label": "Load",
+        "options": [
+          "0",
+          "25",
+          "50",
+          "75",
+          "100"
+        ],
+        "labels": [
+          "0%",
+          "25%",
+          "50%",
+          "75%",
+          "100%"
+        ],
+        "value": "0",
+        "index": 0,
+        "shown": false
+      },
+      {
+        "id": "droop",
+        "kind": "control",
+        "label": "Droop",
+        "min": 0,
+        "max": 6,
+        "step": 1,
+        "log": false,
+        "value": 0,
+        "shown": false,
+        "snap": [
+          0,
+          4
+        ]
+      },
+      {
+        "id": "sp",
+        "kind": "control",
+        "label": "Set point",
+        "min": 58,
+        "max": 64,
+        "step": 0.1,
+        "log": false,
+        "value": 60,
+        "shown": false,
+        "snap": [
+          60,
+          61.8,
+          62.4
+        ]
+      }
+    ],
+    "actions": [
+      "Trip",
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Show me again",
+      "Back",
+      "Continue",
+      "Start again",
+      "Running"
+    ],
+    "answers": [
+      {
+        "id": "a-rec",
+        "answer": 25,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-slow",
+        "answer": 33.4,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-half",
+        "answer": 61.2,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-sp",
+        "answer": 61.8,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-fifty",
+        "answer": 52.5,
+        "accept": [],
+        "ok": true
+      }
+    ],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ]
+  },
+  "moved": [
+    "step = 3 (the first step that shows a control)",
+    "load = \"25\"",
+    "droop = 4.5",
+    "sp = 62.5"
+  ],
+  "shots": [
+    "/home/user/Study-App/build/electrical/generators/i4.a2-360-light.png",
+    "/home/user/Study-App/build/electrical/generators/i4.a2-360-light-moved.png",
+    "/home/user/Study-App/build/electrical/generators/i4.a2-360-light-end.png",
+    "/home/user/Study-App/build/electrical/generators/i4.a2-360-dark.png",
+    "/home/user/Study-App/build/electrical/generators/i4.a2-360-dark-moved.png",
+    "/home/user/Study-App/build/electrical/generators/i4.a2-360-dark-end.png",
+    "/home/user/Study-App/build/electrical/generators/i4.a2-1280-light.png",
+    "/home/user/Study-App/build/electrical/generators/i4.a2-1280-light-moved.png",
+    "/home/user/Study-App/build/electrical/generators/i4.a2-1280-light-end.png",
+    "/home/user/Study-App/build/electrical/generators/i4.a2-1280-dark.png",
+    "/home/user/Study-App/build/electrical/generators/i4.a2-1280-dark-moved.png",
+    "/home/user/Study-App/build/electrical/generators/i4.a2-1280-dark-end.png"
+  ]
+}

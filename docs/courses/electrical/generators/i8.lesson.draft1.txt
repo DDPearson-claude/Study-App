@@ -1,0 +1,542 @@
+{
+  "iid": "i8",
+  "title": "The set in a system: starting big motors",
+  "format": "steps",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the voltage drop at once, by the share the set's sub-transient reactance takes, and only then climb back as the AVR acts, when you press Start.",
+    "title": "Starting the big motor",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Screen",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "Thirteen small screens on one picture, with Back and Continue: five show an idea, eight ask you to try it. No marks, no timers.\n\nThe picture. Left, one generator set, 630 kVA at 440 V and 60 Hz, feeding a board. A second, identical set is drawn dashed beside it, joined to the board only when the Second set switch is on. A motor hangs off the board, behind a starter box marked DOL, Star-delta or Soft starter. A small AVR box sits on the set. Right, two traces against time, 0 to 4 s, with Start at 0 s. Above, the board voltage as a % of 440 V, from 60% to 105%, with a dashed line at 90%. Below, the board frequency, from 50 to 61 Hz, with its lowest point labelled. The motor's shaft turns once it gets away. If it stalls, the motor turns red and is labelled Stalled.\n\nThe controls. A Starting kVA slider, the motor's starting load when started DOL, from 100 to 1200 kVA in steps of 50, opening at 600 kVA. A Start method choice of three, in this order: DOL, Star-delta, Soft starter, opening on DOL. A Second set switch, opening off. A Start button. It plays the 4 s at half speed, taking 8 s, and pressing it again starts over. Changing any control clears the traces. Four readout tiles, wrapping onto two rows on a phone: At once in %, Lowest in %, Recovers to in %, and Torque in %. At once fills at Start, Lowest at 1 s, and the other two at 3 s. Until then each shows –. The method buttons wrap too, so no word splits.\n\nThe rule it computes. The starting kVA the set sees is the slider's figure for DOL, a third of it for Star-delta, and half of it for the Soft starter, an example limit. Divide it by 630 kVA for each set on the board, and call that x. The sub-transient reactance is 0.15 per unit and the synchronous reactance 1.5, example values. At once, the voltage left is 1 ÷ (1 + 0.15 × x). This treats the motor's starting impedance, 1 ÷ x, and the reactance as a divider. Recovered, the voltage is 2.5 ÷ (1 + 1.5 × x), capped at 100%. The 2.5 is E at the AVR's field ceiling, an example. Torque = the recovered voltage squared, as a % of what the same start would give on full voltage. The start's real power is the starting kVA × 0.4, an example starting power factor. The frequency dips by 3% for every 100 kW of it, shared between the sets on the board, an example. With t in seconds from Start, the frequency is 60 × (1 − the dip × (t ÷ 0.3) × e^(1 − t ÷ 0.3)), a sketch that is lowest at 0.3 s. The AVR's pull is the recovered voltage − (the recovered voltage − the voltage at once) × e^(−t ÷ 1), a sketch. The voltage drawn is that pull × the frequency ÷ 60, because a slower rotor makes less voltage. Lowest is the voltage trace's lowest point. If the recovered voltage is 90% or more, the motor gets away at 3 s, an example run-up. Its current then falls, and the voltage returns to 100% over 0.5 s. Below 90%, the voltage stays down, and at 2 s the motor turns red, stalled.\n\nScreen 1, try it, a recall, typed. No picture. \"A motor takes 100 A at full load. Started direct on line, roughly what current does it draw at first?\" A field in A. Answer 600 A. Also accepted: 700 A, 800 A. Slips: 100, \"That is its running current. A start draws several times more.\"; 200, \"That is nearer a star-delta start, about a third of DOL.\" Hint when wrong: \"A DOL start usually draws 6 to 8 times full-load current.\" Why: \"6 × 100 = 600 A, and up to 800 A is common. The current stays high until the motor reaches about 75% of its speed.[^1]\" A right Check shows \"Still there.\" Read: the question.\n\nScreen 2, show. One set, DOL, 600 kVA, the traces empty until Start. The words: \"A big motor's start is a sudden, heavy load on the set. Here it takes 600 kVA from a 630 kVA set. For the first few cycles, only the small sub-transient reactance holds the set's current back. Say 0.15 per unit, as for fault currents. The motor's starting impedance is 630 ÷ 600 = 1.05 per unit. In this simplified picture, the two share the voltage like a divider. So 1.05 ÷ (1.05 + 0.15) = 87.5% is left. Press Start to watch the drop.\" Read: the words without the last sentence. Still: started, the traces drawn to 0.05 s, readouts At once 87.5%, the others –.\n\nScreen 3, try it, a prediction. One set, DOL, 600 kVA, before Start, the AVR box lit. \"The AVR is on and watching the voltage. You are about to press Start. What does the AVR do to that first drop?\" Three choices, in this order: \"It stops it, so the voltage holds at 100%\"; \"Nothing at first, then it pulls the voltage back\"; \"It makes it deeper, by cutting the field\". Right, the second. Hint for the first: \"The AVR acts only once it sees the voltage fall. The drop comes first.\"; for the third: \"When the voltage falls, the AVR raises the field.\" Why: \"The AVR must see the drop before it acts, and the field takes time to grow. So a sudden step drops the voltage as far as it would with no AVR at all.[^2]\" A right Check runs the start. Read: the question.\n\nScreen 4, show. One set, DOL, 600 kVA, the run free. The words: \"Now the engine. The start takes real power too, 240 kW at an example power factor of 0.4. The engine cannot find that at once, so it slows. A slower rotor makes less voltage, so the dip goes deeper, to 83.8%.[^5] Then the governor adds fuel, and the speed comes back. The AVR raises the field, and the voltage climbs back to 100%. Once the motor is up to speed, its current falls away.\" Read: the words. Still: the run finished at 4 s, frequency lowest 55.7 Hz, readouts At once 87.5%, Lowest 83.8%, Recovers to 100%, Torque 100%.\n\nScreen 5, try it, typed. One set, DOL, before Start, the At once tile reading ? until Check. \"The same 630 kVA set has a sub-transient reactance of 0.15 per unit. A bigger motor starts DOL and takes 900 kVA. What voltage is left at the first instant, in %?\" A field in %. Answer 82.4%. Slips: 78.6, \"That takes the whole 0.15 × 900 ÷ 630 off. The motor's impedance shares the voltage too.\"; 17.6, \"That is the drop. The question asks what is left.\"; 85, \"That leaves out the motor's size.\" Hint when wrong: \"The motor's impedance is 630 ÷ 900 = 0.70 per unit.\" Why: \"0.70 ÷ (0.70 + 0.15) = 0.824, so 82.4% is left.\" A right Check sets the slider to 900 kVA and runs the start. Read: the question.\n\nScreen 6, show. One set, DOL, 900 kVA, the run free. The words: \"Will the motor get away? Its torque goes with the square of its voltage. At 90% voltage it makes 81% of its torque, enough for most loads.[^3] So the target is to recover to 90%. After the first cycles, the bigger synchronous reactance of 1.5 carries the current. The AVR's field has a ceiling, here an example E of 2.5. At 600 kVA that is plenty. At 900 kVA, 2.5 ÷ (1 + 1.5 × 900 ÷ 630) = 79.5%. The motor stalls.\" Read: the words. Still: the run finished at 4 s, the motor red and Stalled, readouts At once 82.4%, Lowest 72.8%, Recovers to 79.5%, Torque 63.3%.\n\nScreen 7, try it, typed. One set, the Torque tile reading ? until Check. \"A start recovers the voltage to only 85%. What torque does the motor make, as a % of its full-voltage torque?\" A field in %. Answer 72.3%. Also accepted: 72.25%, 72%. Slips: 85, \"Torque goes with the square of the voltage.\"; 92.2, \"That is the square root. Square it instead.\"; 81, \"81% goes with 90% voltage. This is lower.\" Hint when wrong: \"Square the voltage as a fraction.\" Why: \"0.85 × 0.85 = 0.7225, about 72.3%. That is under the 81% that goes with a 90% recovery.\" Read: the question.\n\nScreen 8, show. One set, 600 kVA, the Start method free, opening on Soft starter, the run free. The words: \"The first cure is to start softly. Star-delta draws about a third of the DOL current. So 600 kVA becomes 200 kVA, and 95.5% is left at once. A soft starter's thyristors hold the current down too. Here it holds the start to half, an example, 300 kVA. That leaves 93.3%. Both give the motor less torque as it starts. So they suit loads that start light, such as fans and pumps. Switch the start method to compare.\" Read: the words without the last sentence. Still: Soft starter, the run finished at 4 s, readouts At once 93.3%, Lowest 91.4%, Recovers to 100%, Torque 100%.\n\nScreen 9, try it, typed. One set, Star-delta, 900 kVA, before Start, the At once tile reading ? until Check. \"The 900 kVA motor is now started star-delta, on one set. What voltage is left at the first instant, in %?\" A field in %. Answer 93.3%. Slips: 82.4, \"That is the DOL start. Star-delta draws about a third.\"; 92.9, \"That takes the whole share off. The motor's impedance shares the voltage too.\"; 6.7, \"That is the drop. The question asks what is left.\" Hint when wrong: \"Star-delta's starting load is 900 ÷ 3 = 300 kVA.\" Why: \"630 ÷ 300 = 2.10 per unit. 2.10 ÷ (2.10 + 0.15) = 0.933, so 93.3% is left. It recovers to 100%, and the motor gets away.\" A right Check runs the start. Read: the question.\n\nScreen 10, show. DOL, 600 kVA, the Second set switch on, the run free. The words: \"The second cure is more sets on the board. Two sets in parallel halve the reactance the motor sees. So the same 600 kVA start leaves 93.3%, a drop of 6.7% instead of 12.5%. They share the real power too, so the frequency dips less. A power management system can hold a big start until enough sets are on. Starting loads one at a time helps the same way. In one worked case it cut the starting kW needed by 40%.[^4]\" Read: the words. Still: two sets, the run finished at 4 s, readouts At once 93.3%, Lowest 91.4%, Recovers to 100%, Torque 100%.\n\nScreen 11, try it, typed (mixed). One set, DOL, 900 kVA, the Second set switch off, the At once tile reading ? until Check. \"A 900 kVA DOL start stalls on one set. So a second, identical set is synchronised onto the board first. What voltage is left at the first instant now, in %?\" A field in %. Answer 90.3%. Slips: 82.4, \"That is one set. Two sets halve the reactance.\"; 91.2, \"Halving the reactance does not quite halve the drop. Work the divider.\"; 9.7, \"That is the drop. The question asks what is left.\" Hint when wrong: \"With two sets, the reactance is 0.15 ÷ 2 = 0.075 per unit.\" Why: \"The motor's impedance is 630 ÷ 900 = 0.70. 0.70 ÷ (0.70 + 0.075) = 0.903, so 90.3% is left. It recovers to 100%, and the motor gets away.\" A right Check turns the Second set switch on and runs the start. Read: the question.\n\nScreen 12, try it, typed (mixed). The frequency trace alone, the frequency lowest reading ? until Check. \"A motor's start takes 600 kVA at a power factor of 0.4. How many kW must the engine find at once?\" A field in kW. Answer 240 kW. Slips: 600, \"That is the kVA. The engine supplies only the kW.\"; 480, \"0.8 is the set's rated power factor. A starting motor's is lower, here 0.4.\"; 360, \"That is the part left over. Multiply by 0.4.\" Hint when wrong: \"kW = kVA × power factor.\" Why: \"600 × 0.4 = 240 kW. The governor needs a moment to add that much fuel, so the frequency dips.\" Read: the question.\n\nScreen 13, try it (mixed). No traces. Two sets drawn on the board, A and B. \"Two sets share the board in droop. Set A's governor fails and drives its fuel up. What happens?\" Three choices, in this order: \"Only A speeds up, and B carries on as before\"; \"A takes kW from B, the frequency rises, and B may be driven as a motor\"; \"The board's voltage rises, but the kW split stays the same\". Right, the second. Hint for the first: \"A is locked in step with the board. It cannot speed up alone.\"; for the third: \"Fuel moves kW, not voltage.\" Why: \"In parallel, more fuel on A moves kW onto A and off B. The board's frequency rises along the droop lines. Push far enough and B is driven as a motor, and its reverse-power relay trips it. A fault at one set reaches the whole board.\" A right Check shows: \"One board, every set.\" Read: the question.",
+    "ignores": "Time on the traces runs at half speed. The divider treats the motor's starting impedance as if it lined up with the set's reactance. A real one is partly resistive, so the true drop is a little smaller. The move from the sub-transient to the synchronous reactance is drawn as one smooth pull, and a real set passes through its transient reactance on the way. The AVR's pull, the engine's slowing and the run-up are sketches with example figures. The torque readout compares each start with itself on full voltage. Star-delta and a soft starter give the motor less torque than DOL anyway. Whether a motor really gets away depends on its load's torque, not on one 90% line. The set carries no other load before the start.",
+    "numbers": [
+      {
+        "label": "Number of screens",
+        "value": 13,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screens that show an idea",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screens that ask you to try it",
+        "value": 8,
+        "kind": "assumed"
+      },
+      {
+        "label": "Set's rating, kVA",
+        "value": 630,
+        "kind": "assumed"
+      },
+      {
+        "label": "Board line voltage, V",
+        "value": 440,
+        "kind": "assumed"
+      },
+      {
+        "label": "Board frequency, Hz",
+        "value": 60,
+        "kind": "assumed"
+      },
+      {
+        "label": "Sets on the board with the switch on",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Sub-transient reactance, per unit",
+        "value": 0.15,
+        "kind": "assumed"
+      },
+      {
+        "label": "Synchronous reactance, per unit",
+        "value": 1.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "E at the AVR's field ceiling, per unit",
+        "value": 2.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Starting kVA slider opening, kVA",
+        "value": 600,
+        "kind": "control"
+      },
+      {
+        "label": "Starting kVA slider lowest, kVA",
+        "value": 100,
+        "kind": "control"
+      },
+      {
+        "label": "Starting kVA slider highest, kVA",
+        "value": 1200,
+        "kind": "control"
+      },
+      {
+        "label": "Starting kVA slider step, kVA",
+        "value": 50,
+        "kind": "control"
+      },
+      {
+        "label": "Star-delta starting current, share of DOL",
+        "value": 0.333,
+        "kind": "constant"
+      },
+      {
+        "label": "Star-delta divisor",
+        "value": 3,
+        "kind": "constant"
+      },
+      {
+        "label": "Soft starter limit, share of DOL",
+        "value": 0.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Starting power factor",
+        "value": 0.4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Frequency dip per 100 kW, %",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Real power step for the dip rule, kW",
+        "value": 100,
+        "kind": "assumed"
+      },
+      {
+        "label": "Frequency dip lowest at, s",
+        "value": 0.3,
+        "kind": "assumed"
+      },
+      {
+        "label": "AVR pull time constant, s",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Run-up time if it gets away, s",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Stall shown at, s",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Return to 100% takes, s",
+        "value": 0.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Trace length, s",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Run plays at half speed, s",
+        "value": 8,
+        "kind": "assumed"
+      },
+      {
+        "label": "Voltage axis lowest, %",
+        "value": 60,
+        "kind": "assumed"
+      },
+      {
+        "label": "Voltage axis highest, %",
+        "value": 105,
+        "kind": "assumed"
+      },
+      {
+        "label": "Frequency axis lowest, Hz",
+        "value": 50,
+        "kind": "assumed"
+      },
+      {
+        "label": "Frequency axis highest, Hz",
+        "value": 61,
+        "kind": "assumed"
+      },
+      {
+        "label": "Lowest tile fills at, s",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Still: traces drawn to, s",
+        "value": 0.05,
+        "kind": "assumed"
+      },
+      {
+        "label": "Recovered voltage cap, %",
+        "value": 100,
+        "kind": "assumed"
+      },
+      {
+        "label": "Recovery target, % of rated voltage",
+        "value": 90,
+        "kind": "constant",
+        "source": 3
+      },
+      {
+        "label": "Torque at 90% voltage, % of rated",
+        "value": 81,
+        "kind": "constant",
+        "source": 3
+      },
+      {
+        "label": "DOL starting current, times full-load (typical)",
+        "value": 6,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "DOL starting current, times full-load (upper usual)",
+        "value": 8,
+        "kind": "constant"
+      },
+      {
+        "label": "DOL starting current, times full-load (middle)",
+        "value": 7,
+        "kind": "constant"
+      },
+      {
+        "label": "Inrush stays high until, % of rated speed",
+        "value": 75,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "Starting kW cut by starting in sequence, %",
+        "value": 40,
+        "kind": "constant",
+        "source": 4
+      },
+      {
+        "label": "Recall: motor full-load current, A",
+        "value": 100,
+        "kind": "assumed"
+      },
+      {
+        "label": "Recall: DOL start, A",
+        "value": 600,
+        "kind": "computed"
+      },
+      {
+        "label": "Recall: also accepted, A",
+        "value": 700,
+        "kind": "computed"
+      },
+      {
+        "label": "Recall: upper usual, A",
+        "value": 800,
+        "kind": "computed"
+      },
+      {
+        "label": "Recall slip: star-delta, A",
+        "value": 200,
+        "kind": "computed"
+      },
+      {
+        "label": "600 kVA: motor's starting impedance, per unit",
+        "value": 1.05,
+        "kind": "computed"
+      },
+      {
+        "label": "600 kVA DOL: left at once, %",
+        "value": 87.5,
+        "kind": "computed"
+      },
+      {
+        "label": "600 kVA DOL: dip, %",
+        "value": 12.5,
+        "kind": "computed"
+      },
+      {
+        "label": "600 kVA DOL: starting kW",
+        "value": 240,
+        "kind": "computed"
+      },
+      {
+        "label": "600 kVA DOL: lowest, %",
+        "value": 83.8,
+        "kind": "computed"
+      },
+      {
+        "label": "600 kVA DOL: frequency lowest, Hz",
+        "value": 55.7,
+        "kind": "computed"
+      },
+      {
+        "label": "600 kVA DOL: recovers to, %",
+        "value": 100,
+        "kind": "computed"
+      },
+      {
+        "label": "600 kVA DOL: torque, %",
+        "value": 100,
+        "kind": "computed"
+      },
+      {
+        "label": "900 kVA: motor's starting impedance, per unit",
+        "value": 0.7,
+        "kind": "computed"
+      },
+      {
+        "label": "900 kVA DOL: left at once, %",
+        "value": 82.4,
+        "kind": "computed"
+      },
+      {
+        "label": "900 kVA DOL: unrounded, per unit",
+        "value": 0.824,
+        "kind": "computed"
+      },
+      {
+        "label": "900 kVA DOL: lowest, %",
+        "value": 72.8,
+        "kind": "computed"
+      },
+      {
+        "label": "900 kVA DOL: recovers to, %",
+        "value": 79.5,
+        "kind": "computed"
+      },
+      {
+        "label": "900 kVA DOL: torque, %",
+        "value": 63.3,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 5 slip: whole share taken off, %",
+        "value": 78.6,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 5 slip: the drop, %",
+        "value": 17.6,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 5 slip: 1 − 0.15, %",
+        "value": 85,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 7: recovered voltage, %",
+        "value": 85,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 7: torque, %",
+        "value": 72.3,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 7: unrounded, per unit",
+        "value": 0.7225,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 7: also accepted, %",
+        "value": 72.25,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 7: also accepted, rounded, %",
+        "value": 72,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 7 slip: square root, %",
+        "value": 92.2,
+        "kind": "computed"
+      },
+      {
+        "label": "600 kVA star-delta: starting kVA",
+        "value": 200,
+        "kind": "computed"
+      },
+      {
+        "label": "600 kVA star-delta: left at once, %",
+        "value": 95.5,
+        "kind": "computed"
+      },
+      {
+        "label": "600 kVA soft starter: starting kVA",
+        "value": 300,
+        "kind": "computed"
+      },
+      {
+        "label": "600 kVA soft starter: left at once, %",
+        "value": 93.3,
+        "kind": "computed"
+      },
+      {
+        "label": "600 kVA soft starter: lowest, %",
+        "value": 91.4,
+        "kind": "computed"
+      },
+      {
+        "label": "900 kVA star-delta: starting kVA",
+        "value": 300,
+        "kind": "computed"
+      },
+      {
+        "label": "900 kVA star-delta: impedance, per unit",
+        "value": 2.1,
+        "kind": "computed"
+      },
+      {
+        "label": "900 kVA star-delta: left at once, %",
+        "value": 93.3,
+        "kind": "computed"
+      },
+      {
+        "label": "900 kVA star-delta: unrounded, per unit",
+        "value": 0.933,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 9 slip: whole share off, %",
+        "value": 92.9,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 9 slip: the drop, %",
+        "value": 6.7,
+        "kind": "computed"
+      },
+      {
+        "label": "Two sets: reactance the motor sees, per unit",
+        "value": 0.075,
+        "kind": "computed"
+      },
+      {
+        "label": "Two sets, 600 kVA DOL: left at once, %",
+        "value": 93.3,
+        "kind": "computed"
+      },
+      {
+        "label": "Two sets, 600 kVA DOL: dip, %",
+        "value": 6.7,
+        "kind": "computed"
+      },
+      {
+        "label": "Two sets, 600 kVA DOL: lowest, %",
+        "value": 91.4,
+        "kind": "computed"
+      },
+      {
+        "label": "Two sets, 900 kVA DOL: left at once, %",
+        "value": 90.3,
+        "kind": "computed"
+      },
+      {
+        "label": "Two sets, 900 kVA DOL: unrounded, per unit",
+        "value": 0.903,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 11 slip: drop halved, %",
+        "value": 91.2,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 11 slip: the drop, %",
+        "value": 9.7,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 12: starting kVA",
+        "value": 600,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 12: real power, kW",
+        "value": 240,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 12 slip: set's rated power factor",
+        "value": 0.8,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 12 slip: at 0.8, kW",
+        "value": 480,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 12 slip: the part left over, kW",
+        "value": 360,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "A big motor's start is a sudden, heavy load, and a generator set feels it at once. The voltage drops before the AVR can move. The engine slows and deepens the dip. Then the governor and the AVR pull the board back. Whether the motor gets away depends on how far the voltage recovers. So big loads are started softly, one at a time, or with more sets on.\n\nStart with the first instant. A DOL start draws about six times the motor's full-load current. It keeps drawing it until the motor reaches about 75% of its speed.[^1] Say the start takes 600 kVA from a 630 kVA set. For the first few cycles, only the set's small sub-transient reactance holds that current back. Say it is 0.15 per unit, as for fault currents. On the set's own base, the motor's starting impedance is 630 ÷ 600 = 1.05 per unit. In a simplified picture, the two share the voltage like a divider. The motor gets 1.05 ÷ (1.05 + 0.15) = 87.5%, a [[voltage dip]] of 12.5%. The AVR cannot stop this. It acts only once it sees the voltage fall, and the field takes time to grow. So a sudden step drops the voltage as far as it would with no AVR at all.[^2]\n\nThen two things pull in opposite directions. The start takes real power too, here 240 kW at a starting power factor of 0.4. The engine cannot find that at once, so it slows, as with any load step. A slower rotor makes less voltage, so the dip goes deeper.[^5] Meanwhile the governor adds fuel and the AVR raises the field. After the first cycles, the bigger synchronous reactance carries the current. So how far the voltage recovers depends on how much field the AVR can give. A motor's torque goes with the square of its voltage. If the voltage recovers to 90%, the motor makes 81% of its torque, enough to accelerate most loads.[^3] Recover to less, and it may stall.\n\nSo every cure cuts the [[starting kVA]] each set has to carry. Star-delta draws about a third. A soft starter holds the current to a limit. A second set on the board halves the reactance the motor sees, so the same 600 kVA start leaves 93.3%. Starting loads one after another, not together, cuts the starting kW needed, by 40% in one worked case.[^4] A [[power management system]] can hold a big start until enough sets are on. These figures come from a simplified picture with example reactances, and real dips also depend on the motor, the AVR and the engine. Fuel and field share the steady load between paralleled sets, but neither acts fast enough to catch a sudden step, so enough sets must be on before it comes. **A big motor's start dips a set's voltage before the AVR can act, so big loads start softly, one at a time, or with more sets on.**"
+  },
+  "analogy": {
+    "text": "Think of a big motor starting at the end of a long, thin sub-main. The cable's impedance and the motor's starting impedance share the supply voltage, so the lights on that board dip. A bigger cable, a second feed in parallel or a soft start shrinks the dip. A set at the first instant behaves the same way, with its sub-transient reactance in place of the cable.",
+    "breaks": "A cable's impedance stays the same. A set's grows from the sub-transient to the synchronous reactance as the start goes on, while the AVR raises the field to fight it. And a cable has no engine to slow down, so it has no frequency dip."
+  },
+  "practice": {
+    "text": "**Starting a big motor on generator sets**\n\nThe safe way first: start big loads under your procedures, with the board's interlocks in place. Never override a power management system's hold on a start.\n\n- Check how many sets are on, and their spare kW, before a big start.\n- If another set is needed, start it and synchronise it first. Let the sets share the load before the start.\n- Start loads one at a time. Let the voltage and frequency settle between starts.\n- Use the starter fitted. A star-delta or soft starter is there to cut the starting current.\n- Watch the voltmeter and frequency meter during the start. A voltage that does not recover, or a motor that does not run up, means stop and find out why.\n\n**Rules of thumb:** voltage left at once ≈ 1 ÷ (1 + sub-transient reactance × starting kVA ÷ set kVA), in per unit. Two equal sets in parallel halve the reactance the motor sees. Torque goes with voltage squared, so 90% voltage gives 81% torque.[^3] Star-delta draws about a third of the DOL starting current.\n\n**Worked example:** a 630 kVA set has a sub-transient reactance of 0.15. A pump motor takes 900 kVA starting DOL. Alone, the first instant leaves 1 ÷ (1 + 0.15 × 900 ÷ 630) = 82.4%. With a synchronous reactance of 1.5 and a field ceiling of E = 2.5, both example values, it recovers to 2.5 ÷ (1 + 1.5 × 900 ÷ 630) = 79.5%. That is under 90%, so the motor may stall. Started star-delta, it takes 300 kVA: 93.3% at once, and full recovery. Started DOL with a second set on, 90.3% is left at once, and it recovers fully.\n\n**Common mistakes**\n- Expecting the AVR to stop the dip. It can only pull the voltage back after the drop.[^2]\n- Judging a start by its kW alone. A motor's start is mostly kVA, at a low power factor.\n- Starting several big loads together after a blackout. One at a time needs much less.[^4]\n- Thinking a fault at one set stays there. In parallel, it moves load onto or off every other set."
+  },
+  "say": null,
+  "checks": [],
+  "sources": [
+    {
+      "n": 1,
+      "title": "TITLE",
+      "url": "https://www.cummins.com/sites/default/files/2020-03/PowerHour_Generator%20Set%20Sizing%20Software_Transient%20Performance%20and%20Motor%20Load%20Capabilities%20%281PDH%29.pdf",
+      "quote": "Starting current is typically six times a motor’s rated full-load current, and this inrush current stays high until the motor reaches about 75 percent of rated speed"
+    },
+    {
+      "n": 2,
+      "title": "Starting Motors on Generator Sets",
+      "url": "https://benshaw.com/hubfs/Benshaw%20Website/Downloads/White-Papers/Benshaw-White-Paper-Starting-Motors-on-GenSets_EN.pdf",
+      "quote": "In such situations, the voltage drop will be equal to that which would result if no AVR were present."
+    },
+    {
+      "n": 3,
+      "title": "Understanding Cummins Power Generation’s suggested specifications for motor starting",
+      "url": "https://mart.cummins.com/imagelibrary/data/assetfiles/0056583.pdf",
+      "quote": "If the generator can recover motor voltage to a minimum of 90% of rated voltage, the motor will develop 81% of rated torque, allowing adequate acceleration for most applications."
+    },
+    {
+      "n": 4,
+      "title": "WHITE PAPER",
+      "url": "https://www.generac.com/globalassets/pdfs/industrial/whitepapers/sizing-considerations-for-comm-and-ind-gens.pdf",
+      "quote": "Each unit started individually in sequence would reduce the starting kW required by 40 percent."
+    },
+    {
+      "n": 5,
+      "title": "Sizing Generators for Motor Starting: A Practical Guide to Understanding How Motor-Starting Loads Affect Generator Performance",
+      "url": "https://resources.kohler.com/power/kohler/industrial/pdf/Sizing_Generators_for_Motor_Starting_WP.pdf",
+      "quote": "When the engine slows under load-frequency dips, this in turn, increases the alternator voltage dip."
+    }
+  ],
+  "confidence": "simplified",
+  "contested": null
+}
