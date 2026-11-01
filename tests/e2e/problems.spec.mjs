@@ -181,9 +181,9 @@ await test('the read-through\'s finish links the problems', async () => {
 
 await test('new numbers: Claude writes them, the app checks each formula and works the answers; a problem that fails keeps the lesson\'s numbers', async () => {
   replies = { 'new-numbers': () => ({ problems: [
-    { id: 'i1_x1', vars: { W: { was: 6, now: 8 }, L: { was: 4, now: 5 } }, formula: '{W} * {L}', task: 'A plant room is 8 m by 5 m. What is its area?', why: '8 × 5 = {answer}.' },
-    { id: 'i1_x3', vars: { I: { was: 100, now: 150 }, r: { was: 7, now: 5 } }, formula: '{I} * {r} / 100', task: 'The load draws 150 A through 5 mΩ. What are the lost volts?', why: '{answer}' },
-    { id: 'i1_x5', skip: true },
+    { id: 'p1', vars: { W: { was: 6, now: 8 }, L: { was: 4, now: 5 } }, formula: '{W} * {L}', task: 'A plant room is 8 m by 5 m. What is its area?', why: '8 × 5 = {answer}.' },
+    { id: 'p2', vars: { I: { was: 100, now: 150 }, r: { was: 7, now: 5 } }, formula: '{I} * {r} / 100', task: 'The load draws 150 A through 5 mΩ. What are the lost volts?', why: '{answer}' },
+    { id: 'p3', skip: true },
   ] }) };
   asked = [];
   const app = await open({ hash: '#/t/pendulums/i1/problems' });

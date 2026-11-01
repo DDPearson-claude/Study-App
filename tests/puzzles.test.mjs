@@ -85,7 +85,7 @@ const GUIDE = {
     { kind: 'example', name: 'Typed', task: 'A plant room is 6 m by 4 m. What is its area?', answer: '24 m²', why: '6 × 4 = 24.', input: 'typed', svg: '<svg viewBox="0 0 2 2"></svg>', alt: 'A floor' },
     { kind: 'example', name: 'Pick words', task: 'Both floors are 16 m around. Which covers more floor?', answer: 'Floor B', why: 'B is square.', input: 'pick', options: ['Floor A', 'Floor B', 'The same'] },
     { kind: 'example', name: 'Pick a figure', task: 'A 7.5 kW motor at 400 V, pf 0.85, efficiency 90%. What is Ib?', answer: '14.15 A', why: 'Ib = P ÷ (√3 × U × eff × pf).', input: 'pick', options: ['12.03 A', '12.74 A', '14.15 A'] },
-    { kind: 'example', name: 'Which of these', task: 'Which of these is the area of the plate?', answer: '600 cm²', why: 'Half of 40 × 30.', input: 'pick', options: ['1,200 cm²', '600 cm²', '1,000 cm²'] },
+    { kind: 'example', name: 'Which of these', task: 'A triangular plate is 40 cm by 30 cm. Which of these is its area?', answer: '600 cm²', why: 'Half of 40 × 30.', input: 'pick', options: ['1,200 cm²', '600 cm²', '1,000 cm²'] },
     { kind: 'example', name: 'Drag', task: 'A floor has a 3 m side and covers 12 m². Drag the corner to draw it.', answer: '4 m × 3 m', why: '12 ÷ 3 = 4.' },
     { kind: 'example', name: 'Colour', task: 'Colour 1 1/4.', answer: '5', why: 'Four quarters and one more.' },
     { kind: 'example', name: 'Section B', task: 'Explain why Ib at a sub-board uses its own voltage.', answer: '', why: 'A model answer: …', written: 'b1' },
@@ -124,7 +124,7 @@ test('a problem set (54-problems.js) is the guide\'s typed puzzles in order, whe
     assert.ok(set.every((c) => c.spec.input === 'typed'));
     assert.equal(U.problems.href('tA', 'i1'), '#/t/tA/i1/problems');
   }
-  const about = { v: 2, pages: [{ kind: 'example', task: 'What does the negative read?', answer: 'About 9.26 V', why: '100 × 51 ÷ 551.', input: 'pick', options: ['About 51 V', 'About 9.26 V'] }] };
+  const about = { v: 2, pages: [{ kind: 'example', task: 'A 100 V board: 500 kΩ and 51 kΩ to the hull. What does the negative read?', answer: 'About 9.26 V', why: '100 × 51 ÷ 551.', input: 'pick', options: ['About 51 V', 'About 9.26 V'] }] };
   assert.deepEqual(plain(U_from(about)), ['typed'], 'an About figure is a problem too');
   function U_from(g) { return load().U.problems.from('tA', 'i9', g, null, null).map((c) => c.spec.input); }
 });

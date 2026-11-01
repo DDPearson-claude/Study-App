@@ -433,13 +433,16 @@
   function puzzleSpec(p, at) {
     var task = str(p.task).trim(), answer = str(p.answer).trim();
     if (!task || !answer || !U.cards || typeof U.cards.figureOf !== 'function') return null;
-    if (NEEDS_PICTURE.test(task) || (p.input === 'typed' && !/\d/.test(task))) return null;
+    if (NEEDS_PICTURE.test(task)) return null;
     var options = Array.isArray(p.options) ? p.options.map(function (o) { return str(o).trim(); }).filter(Boolean) : [];
     var pick = p.input === 'pick' && options.length >= 2 && options.length <= 8 && options.indexOf(answer) >= 0;
     // Asked typed in the lesson: any word unit is its unit (loose). Picked in the lesson: typed only
     // when the options do not test the unit itself (the same number in another prefix) and the task
     // does not ask which one.
     var loose = p.input === 'typed', f = U.cards.figureOf(answer, loose), fig = !!f;
+    // A figure to work out from a question with no number in it needs its picture ("How far apart
+    // are A and B?", "What is the floor area of this L-shaped room?"): left out.
+    if (fig && !/\d/.test(task)) return null;
     var unitTest = pick && f && options.some(function (o) { var g = o !== answer && U.cards.figureOf(o); return g && g.unit !== f.unit; });
     var input = p.input === 'typed' && fig ? 'typed' : pick && fig && !unitTest && !NAMES_OPTIONS.test(task) && !/^which\b/i.test(task) ? 'typed' : pick ? 'pick' : null;
     if (!input) return null;

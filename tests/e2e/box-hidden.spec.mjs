@@ -47,8 +47,8 @@ const PROG = { updatedAt: '2026-10-20T19:00:00.000Z', lastIdea: 'i3', way: 'quiz
   i3: { round: 0, stage: 'play', startedAt: '2026-10-20T18:55:00.000Z' },
 } };
 const GUIDE2 = { v: 2, iid: 'i2', pages: [
-  { kind: 'example', name: 'Bulges', task: 'How many tidal bulges does the Moon raise?', answer: '2', why: 'One facing it, one opposite.', input: 'typed' },
-  { kind: 'example', name: 'Day', task: 'Roughly how many hours between two high tides?', answer: '12.4 h', why: 'Half of a 24.8 hour lunar day.', input: 'typed' },
+  { kind: 'example', name: 'Bulges', task: 'The Moon pulls on 1 Earth. How many tidal bulges does it raise?', answer: '2', why: 'One facing it, one opposite.', input: 'typed' },
+  { kind: 'example', name: 'Day', task: 'A lunar day is 24.8 hours. Roughly how many hours between two high tides?', answer: '12.4 h', why: 'Half of a 24.8 hour lunar day.', input: 'typed' },
 ] };
 const puzzle = (id, due, extra = {}) => ({ id, tid: TID, iid: 'i1', type: 'puzzle', createdAt: '2026-10-10T18:20:00.000Z', learnedAt: '2026-10-10T18:20:00.000Z',
   spec: { q: 'How many high tides do most coasts get in a day?', answer: '2', why: 'Two bulges.', input: 'typed', page: 0 },
