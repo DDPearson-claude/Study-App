@@ -970,7 +970,7 @@
   // opts.retries (the problem set, 54-problems.js): wrong answers he may take back before the
   // working shows ("Not quite. Check your working and try again."); the result says how many tries.
   function typed(c) {
-    var s = c.spec, f = figureOf(s.answer, s.loose), unit = f.unit, tries = 0, retries = Math.max(0, Number(c.opts.retries) || 0);
+    var s = c.spec, f = figureOf(s.answer, s.loose), unit = f.unit, tries = 0, retries = Math.max(0, Number(c.opts.retries) || 0), before = [];
     c.typed = true;
     var msg = h('p', { class: 'qc-typed-msg muted small', id: U.id('qcmsg'), 'aria-live': 'polite' });
     var input = h('input', { class: 'input qc-typed-input', type: 'text', inputmode: 'decimal', enterkeyhint: 'done', autocomplete: 'off', autocapitalize: 'off', spellcheck: 'false', maxlength: '40',
@@ -992,6 +992,7 @@
       if (r.prefix) { msg.textContent = 'Check the prefix: this answer is in ' + unit + '.'; try { input.select(); } catch (e) { /* not focusable */ } return; }
       tries++;
       if (r.state === 'wrong' && tries <= retries) {
+        before.push(input.value.trim());
         box.classList.add('is-retry');
         msg.textContent = 'Not quite: ' + input.value.trim() + ' is not it. Check your working and try again.';
         try { input.select(); } catch (e) { /* not focusable */ }
@@ -1010,7 +1011,7 @@
       parts.push(c.extra());
       // opts.afterAnswer (the problem set, 54-problems.js): its own part under the working, such as
       // "Check my working" from a photo of his paper.
-      if (typeof c.opts.afterAnswer === 'function') parts.push(c.opts.afterAnswer({ card: c.card, spec: s, said: said, correct: correct }) || null);
+      if (typeof c.opts.afterAnswer === 'function') parts.push(c.opts.afterAnswer({ card: c.card, spec: s, said: said, correct: correct, before: before.slice() }) || null);
       feedback(c, {
         correct: correct, title: correct ? RIGHT[U.hash(c.card.id) % RIGHT.length] : 'Not quite',
         parts: parts, grade: autoGrade(c, correct), result: { answer: said, tries: tries },

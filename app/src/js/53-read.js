@@ -125,8 +125,12 @@
     var root = U.h('div', { class: 'lsn rd' });
     ctx.view.appendChild(root);
     var back = U.lesson && U.lesson.backLink ? U.lesson.backLink(tid) : U.h('a', { class: 'icon-btn lsn-close lsn-back', href: topicHref, 'aria-label': 'Back to the course' }, U.icon('back'));
-    root.appendChild(U.h('div', { class: 'lsn-bar rd-bar' }, back, U.h('span', { class: 'rd-bar-label' }, 'Read-through'),
-      U.calcSheet ? U.calcSheet.button('rd-calc') : U.h('span')));
+    // Ask Claude (51-tutor.js), as in a quizzed lesson: it can see this lesson (Dan, 1 Nov).
+    var askBtn = U.tutor && typeof U.tutor.open === 'function' ? U.h('button', { class: 'lsn-ask rd-ask', type: 'button', 'aria-label': 'Ask Claude', 'data-key': 'ask',
+      on: { click: function () { U.tutor.open({ tid: tid, iid: iid, topic: st.topic, idea: st.idea, lesson: st.doc && st.doc.lesson, lessonDoc: st.doc, stage: 'read-through' }); } } },
+      U.icon('chat'), U.h('span', null, 'Ask', U.h('span', { class: 'lsn-wide' }, ' Claude'))) : null;
+    root.appendChild(U.h('div', { class: 'lsn-bar rd-bar' + (askBtn ? ' has-ask' : '') }, back, U.h('span', { class: 'rd-bar-label' }, 'Read-through'),
+      U.calcSheet ? U.calcSheet.button('rd-calc') : U.h('span'), askBtn));
     var body = U.h('div', { class: 'rd-body' }, U.h('p', { class: 'muted rd-wait', role: 'status' }, 'Opening the read-through…'));
     root.appendChild(body);
     var st = { topic: null, idea: null, index: -1, doc: null, guide: null, progress: null };

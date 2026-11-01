@@ -187,6 +187,20 @@ await test('rich text draws a symbol\'s subscript (X_L, V_ph) and leaves words, 
   assert(/X<sub>L<\/sub>/.test(r.line) && !/<mark|<em/.test(r.line), 'a summary line draws the subscript and nothing else ' + r.line);
 });
 
+await test('rich text: a list straight under its lead line is a list; an indented line carries an item on', async () => {
+  const app = await open({ width: 390, height: 844, hash: '#/' });
+  await app.page.waitForFunction(() => window.U && U.rich, null, { timeout: 8000 });
+  const r = await app.page.evaluate(() => {
+    const html = (t) => { const d = document.createElement('div'); d.appendChild(U.rich(t)); return d.innerHTML; };
+    return {
+      lead: html('Check three things:\n- the fuse\n- the cable\n  and its gland\n- the load\nThen switch on.'),
+      plain: html('One line\nand the next.\n\n- a\n- b'),
+    };
+  });
+  eq(r.lead, '<p>Check three things:</p><ul><li>the fuse</li><li>the cable and its gland</li><li>the load</li></ul><p>Then switch on.</p>', 'lead line, list, closing line');
+  eq(r.plain, '<p>One line and the next.</p><ul><li>a</li><li>b</li></ul>', 'paragraphs and a list on its own are as before');
+});
+
 // ---------- reading settings before the profile is known ----------
 const SAVED = { theme: 'dark', size: 'xl', easy: true, cap: 30, light: false };
 const radioState = (app) => app.page.evaluate(() => Array.from(document.querySelectorAll('.sheet [role=radiogroup]')).map((g) => {

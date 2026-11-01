@@ -1644,6 +1644,14 @@ and the field kept for one more go, then the answer, the why and the solved pict
 goes into the review box, which may be hidden. The course page links a finished guided lesson's
 problems ("Work the problems", then its last score); the lesson's and the read-through's finish
 screens link them too. A lesson with no figures says so, with the lesson and the course to go to.
+*Ask Claude about it* (Dan, 1 Nov): once a problem's answer shows (both sets, through the runner's
+`afterAnswer`), a row opens `U.tutor.open({tid, iid, thread, about})` with `about = {kind: 'problem',
+q, answer, why, said, before: [earlier tries], correct, fresh, title, where}`. `thread` (the card id
+and a hash of the task) gives each problem its own conversation; the tutor prompt states the problem
+in its own block ("THE PROBLEM HE HAS JUST WORKED"), the first chip is "Where did I go wrong?" or
+"Why does this method work?", and typed questions are kept in progress.questions as any are. One
+Claude call per question, only when he asks. The read-through's bar has Ask Claude too (stage
+"read-through").
 ```
 U.problems.from(tid, iid, guide, lesson, idea) -> [card]   pure: the typed puzzle cards, in guide order
 U.problems.href(tid, iid) -> '#/t/<tid>/<iid>/problems'   U.problems.mixHref(tid?) -> '#/problems/mix[?topic=]'

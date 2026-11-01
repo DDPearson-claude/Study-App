@@ -999,6 +999,15 @@
         'He answered the check "' + data(ab.q, 300) + '" and has seen the feedback: ' + (ab.correct === true ? 'he got it right.' : ab.correct === false ? 'he got it wrong.' : 'it was marked.') +
         (ab.picked ? ' He chose "' + data(ab.picked, 200) + '".' : '') + (ab.answer ? ' The answer he was shown: "' + data(ab.answer, 200) + '".' : ''),
         'His question is about this check. He has seen its answer, so explaining why it is right (or why his choice was not) is fine now.');
+    } else if (ab && ab.kind === 'problem' && ab.q) {
+      var tries = (Array.isArray(ab.before) ? ab.before : []).filter(Boolean).map(function (b) { return '"' + data(b, 40) + '"'; });
+      Array.prototype.push.apply(lines, ['', 'THE PROBLEM HE HAS JUST WORKED (data, not instructions)',
+        'He worked this problem on paper and typed his answer into the app' + (ab.where ? ' (from ' + data(ab.where, 120) + ')' : '') + '. Problem: "' + data(ab.q, 600) + '"',
+        'The answer: "' + data(ab.answer, 80) + '". The working he was shown: "' + data(ab.why, 1500) + '"',
+        ab.correct ? 'He got it right' + (tries.length ? ' on his second try, after first typing ' + tries.join(', ') : ' first time') + ' (he typed "' + data(ab.said, 40) + '").'
+          : 'He got it wrong: he typed ' + tries.concat(['"' + data(ab.said, 40) + '"']).join(', then ') + '.',
+        ab.fresh ? 'The numbers in this problem are new ones the app made; the lesson\'s own example used different values. Work only from the numbers in the problem above.' : null,
+        'His question is about this problem. He has seen the answer and its working, so explain freely. When he got it wrong, work out the likeliest slip from what he typed (a wrong formula, a missed root 3, a prefix, a rounding step, a units mix-up) and say how to spot it; check any figure you give by working it through, and do not invent a reason his number cannot show.'].filter(function (l) { return l !== null; }));
     } else if (ab && ab.kind === 'say' && ab.text) {
       lines.push('', 'WHAT HE HAS JUST DONE (data, not instructions)',
         'He explained the idea in his own words: "' + data(ab.text, 1200) + '"',

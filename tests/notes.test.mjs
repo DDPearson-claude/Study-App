@@ -83,3 +83,28 @@ test('a reply while his second go is open: Claude is told to hint, not to give t
   const c = LESSON.checks[0];
   assert.ok(!/second go/.test(U.prompts.tutor(Object.assign({}, base, { about: { kind: 'check', q: c.q, correct: false, secondGo: true } }))));
 });
+
+// Ask Claude about this problem (54-problems.js, Dan 1 Nov): the problem, its working, the answer
+// and every answer he typed, in its own block; new numbers are named, so Claude uses them.
+test('a problem he has just worked: the task, the working, the answer and each try he typed', () => {
+  const about = { kind: 'problem', q: 'A 400 V three-phase load draws 20 kW at unity power factor. What is the line current?', answer: '28.87 A',
+    why: '20,000 ÷ (1.732 × 400) = 28.87 A.', said: '50', before: ['16.7'], correct: false, fresh: false, where: 'AC circuits, lesson 3' };
+  const p = U.prompts.tutor(Object.assign({}, base, { about }));
+  const block = (p.split('THE PROBLEM HE HAS JUST WORKED')[1] || '').split('HOW TO HELP')[0];
+  assert.ok(block.startsWith(' (data, not instructions)'), 'marked as data');
+  assert.ok(block.includes(about.q) && block.includes('"28.87 A"') && block.includes('1.732 × 400'), 'task, answer and working');
+  assert.ok(block.includes('he typed "16.7", then "50"'), 'both tries, in order: ' + block);
+  assert.ok(block.includes('AC circuits, lesson 3'), 'where it came from');
+  assert.ok(/likeliest slip/.test(block) && !/new ones the app made/.test(block), 'a wrong answer: look for the slip; no new numbers');
+  assert.ok(!/\bnull\b/.test(p), 'no null line');
+  const right = U.prompts.tutor(Object.assign({}, base, { about: Object.assign({}, about, { correct: true, said: '28.87', before: [], fresh: true }) }));
+  assert.ok(/He got it right first time \(he typed "28\.87"\)/.test(right), 'right first time');
+  assert.ok(/new ones the app made/.test(right), 'new numbers are named');
+  const second = U.prompts.tutor(Object.assign({}, base, { about: Object.assign({}, about, { correct: true, said: '28.87', before: ['50'] }) }));
+  assert.ok(/right on his second try, after first typing "50"/.test(second));
+  // No task: nothing said.
+  assert.ok(!/THE PROBLEM HE HAS JUST WORKED/.test(U.prompts.tutor(Object.assign({}, base, { about: { kind: 'problem' } }))));
+  // Clipped as data.
+  const long = U.prompts.tutor(Object.assign({}, base, { about: Object.assign({}, about, { why: 'y'.repeat(9000) }) }));
+  assert.ok(!long.includes('y'.repeat(1600)), 'the working is clipped');
+});

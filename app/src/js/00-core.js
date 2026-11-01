@@ -74,14 +74,27 @@ U.rich = function (text, opts) {
   String(text || '').replace(/\r/g, '').split(/\n{2,}/).forEach(function (block) {
     block = block.trim();
     if (!block) return;
-    var lines = block.split('\n');
-    if (lines.every(function (l) { return /^\s*[-•]\s+/.test(l); })) {
+    // Runs of lines: "- " lines make a list, other lines a paragraph, so a list written straight
+    // under its lead line ("Check three things:\n- …") is still a list. An indented line under an
+    // item carries that item on.
+    var runs = [];
+    block.split('\n').forEach(function (l) {
+      var item = /^\s*[-•]\s+/.test(l), last = runs[runs.length - 1];
+      if (item) {
+        if (!last || !last.list) runs.push(last = { list: true, lines: [] });
+        last.lines.push(l.replace(/^\s*[-•]\s+/, ''));
+      } else if (last && last.list && /^\s+\S/.test(l)) last.lines[last.lines.length - 1] += ' ' + l.trim();
+      else if (l.trim()) {
+        if (!last || last.list) runs.push(last = { list: false, lines: [] });
+        last.lines.push(l.trim());
+      }
+    });
+    runs.forEach(function (r) {
+      if (!r.list) { frag.appendChild(U.inline(U.h('p'), r.lines.join(' '), opts)); return; }
       var ul = U.h('ul');
-      lines.forEach(function (l) { ul.appendChild(U.inline(U.h('li'), l.replace(/^\s*[-•]\s+/, ''), opts)); });
+      r.lines.forEach(function (l) { ul.appendChild(U.inline(U.h('li'), l, opts)); });
       frag.appendChild(ul);
-    } else {
-      frag.appendChild(U.inline(U.h('p'), lines.join(' '), opts));
-    }
+    });
   });
   return frag;
 };

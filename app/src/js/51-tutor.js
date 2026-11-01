@@ -20,6 +20,11 @@
 (function () {
   var CHIPS = ['Explain it differently', 'Give me an example', 'Are you sure?'];   // most useful first
   var STARTERS = 2;     // the chips that make sense before any answer ("Are you sure?" needs one)
+  // About a problem he has just worked (54-problems.js): its own first chip, by how it went.
+  function chipsFor(about) {
+    if (!about || about.kind !== 'problem') return CHIPS;
+    return [about.correct ? 'Why does this method work?' : 'Where did I go wrong?', 'Explain it differently', 'Are you sure?'];
+  }
   var SHORT = 500;      // a viewport shorter than this (px) with the input focused: the keyboard is up
   // The share of the sheet the conversation keeps under wrapped chips (below the sheet's title,
   // read as if scrolled to the top). From screenshots with the app's font at 320-412 px and every
@@ -142,7 +147,8 @@
     if (view) view.close();
     var topic = context.topic || {}, lesson = context.lesson || null;
     var tid = context.tid || topic.id || '', iid = context.iid || '';
-    var key = tid + '/' + iid;
+    // context.thread: a conversation of its own within the lesson (one problem of a set).
+    var key = tid + '/' + iid + (context.thread ? '/' + String(context.thread) : '');
     var msgs = threads[key] = threads[key] || [];
     var about = (context.idea && context.idea.title) || (lesson && lesson.title) || topic.title || 'this';
     var sources = lesson && Array.isArray(lesson.sources) ? lesson.sources : [];
@@ -157,10 +163,12 @@
     var els = new Map();
     var input = U.h('textarea', { class: 'textarea tutor-input', rows: 1, maxlength: 2000, 'aria-label': 'Your question', placeholder: 'Type your question', enterkeyhint: 'send' });
     var sendBtn = U.h('button', { class: 'tutor-send', type: 'button', 'aria-label': 'Send', disabled: true, on: { click: function () { send(input.value, false); } } }, U.icon('arrow'));
-    var chips = U.h('div', { class: 'chips tutor-chips' }, CHIPS.map(function (c) {
+    var chips = U.h('div', { class: 'chips tutor-chips' }, chipsFor(context.about).map(function (c) {
       return U.h('button', { class: 'chip', type: 'button', on: { click: function () { send(c, true); } } }, c);
     }));
-    var seeing = lesson
+    var seeing = context.about && context.about.kind === 'problem'
+      ? 'Claude can see this problem, its working, the answer and what you typed.'
+      : lesson
       ? (context.getState ? 'Claude can see this lesson and where your controls are set.' : 'Claude can see this lesson.')
       : 'Claude can see the plan for this topic.';
     var dock = U.h('div', { class: 'tutor-dock' }, chips, U.h('div', { class: 'tutor-compose' }, input, sendBtn));

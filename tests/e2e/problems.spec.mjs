@@ -179,6 +179,74 @@ await test('the read-through\'s finish links the problems', async () => {
     [['Work the problems on paper', '#/t/pendulums/i1/problems']], 'the link');
 });
 
+await test('ask Claude about this problem: once the answer shows, Claude knows the problem, the working and each try; the read-through has Ask Claude too', async () => {
+  const prompts = [];
+  replies = { tutor: (input) => { prompts.push(String(input[0].content)); return 'You divided by 4 where the rule multiplies.'; } };
+  for (const [width, dark] of [[360, false], [360, true], [1280, false]]) {
+    const app = await open({ width, dark, hash: '#/t/pendulums/i1/problems' });
+    await app.page.locator('.pb-start .btn', { hasText: /^Start$/ }).click({ timeout: 20000 });
+    await app.page.locator('.qc-typed-input').waitFor({ timeout: 20000 });
+    eq(await app.page.locator('.pb-ask-btn').count(), 0, 'no row before the answer');
+    await answer(app, '25');
+    eq(await app.page.locator('.pb-ask-btn').count(), 0, 'no row during the second go');
+    await answer(app, '1.5');
+    await app.page.locator('.qc-fb.is-wrong').waitFor({ timeout: 5000 });
+    const row = app.page.locator('.pb-ask-btn');
+    eq((await row.textContent()).trim(), 'Ask Claude about it', 'the row under the working');
+    eq(await row.evaluate((b) => Math.round(b.getBoundingClientRect().height) <= 56), true, 'one line');
+    await noSideways(app, 'answer with the row');
+    if (width === 360) await shot(app, 'ask-row-360-' + (dark ? 'dark' : 'light'));
+    await row.click();
+    await app.page.locator('.tutor-sheet').waitFor({ timeout: 5000 });
+    const sheet = await app.page.evaluate(() => ({ about: document.querySelector('.tutor-about').textContent, chips: [...document.querySelectorAll('.tutor-chips .chip:not([hidden])')].map((c) => c.textContent) }));
+    eq(sheet, { about: 'Claude can see this problem, its working, the answer and what you typed.', chips: ['Where did I go wrong?', 'Explain it differently'] }, 'the sheet says what Claude can see; its first chip fits a wrong answer');
+    if (width === 360) await shot(app, 'ask-sheet-360-' + (dark ? 'dark' : 'light'));
+    if (width === 360 && !dark) {
+      await app.page.locator('.tutor-chips .chip', { hasText: 'Where did I go wrong?' }).click();
+      await app.page.locator('.tutor-msg.bot', { hasText: 'You divided by 4' }).waitFor({ timeout: 10000 });
+      const p = prompts[prompts.length - 1];
+      assert(p.startsWith('TASK: tutor'), 'the tutor task');
+      const block = (p.split('THE PROBLEM HE HAS JUST WORKED')[1] || '').split('HOW TO HELP')[0];
+      assert(block.includes('A plant room is 6 m by 4 m. What is its area?') && block.includes('"24 m²"') && block.includes('6 × 4 = 24.'), 'task, answer and working: ' + block);
+      assert(block.includes('he typed "25", then "1.5"'), 'both tries: ' + block);
+      assert(/Where did I go wrong\?\s*$/.test(p), 'the chip is the question');
+      // The chip is not saved as his own question; nothing else is written for it.
+      const pr = await doc(app, PROGRESS);
+      eq(Object.keys((pr && pr.questions) || {}).length, 0, 'a chip is not kept as his question');
+      // A typed question is kept with the lesson, for the Book.
+      await app.page.fill('.tutor-input', 'Why not add the sides?');
+      await app.page.locator('.tutor-send').click();
+      await app.page.waitForFunction(() => document.querySelectorAll('.tutor-msg.bot').length === 2, null, { timeout: 10000 });
+      await app.page.waitForFunction((p) => { const d = window.__CLAUDE_STUB__.get(p); return d && d.questions && Object.keys(d.questions).length === 1; }, PROGRESS, { timeout: 5000 });
+      const q = Object.values((await doc(app, PROGRESS)).questions)[0];
+      eq([q.q, q.iid], ['Why not add the sides?', 'i1'], 'his question kept with the lesson');
+      // Closing and opening the next problem's row starts a new conversation.
+      await app.page.keyboard.press('Escape');
+      await app.page.locator('.tutor-sheet').waitFor({ state: 'detached', timeout: 5000 });
+      await app.page.locator('.qc-continue').click();
+      await app.page.locator('.qc-kind', { hasText: 'Problem 2 of 3' }).waitFor({ timeout: 5000 });
+      await answer(app, '0.70');
+      await app.page.locator('.qc-fb.is-right').waitFor({ timeout: 5000 });
+      await app.page.locator('.pb-ask-btn').click();
+      await app.page.locator('.tutor-sheet').waitFor({ timeout: 5000 });
+      eq(await app.page.evaluate(() => [document.querySelectorAll('.tutor-msg').length, document.querySelector('.tutor-chips .chip').textContent]), [0, 'Why does this method work?'], 'a fresh conversation; a right answer\'s first chip');
+    }
+  }
+  // The read-through's bar: Ask Claude, beside the calculator, about this lesson.
+  for (const width of [360, 1280]) {
+    const app = await open({ width, hash: '#/t/pendulums/i1/read', progress: { updatedAt: at, way: 'read', ideas: {} } });
+    const ask = app.page.locator('.rd-bar .rd-ask');
+    await ask.waitFor({ timeout: 20000 });
+    await noSideways(app, 'read-through bar');
+    const box = await app.page.evaluate(() => { const b = document.querySelector('.rd-bar').getBoundingClientRect(), a = document.querySelector('.rd-ask').getBoundingClientRect(); return [a.right <= b.right + 1, a.height >= 40]; });
+    eq(box, [true, true], 'the button sits inside the bar, a full-size target');
+    if (width === 360) await shot(app, 'read-ask-360');
+    await ask.click();
+    await app.page.locator('.tutor-sheet').waitFor({ timeout: 5000 });
+    eq(await app.page.evaluate(() => document.querySelector('.tutor-about').textContent), 'Claude can see this lesson.', 'it can see the lesson');
+  }
+});
+
 await test('new numbers: Claude writes them, the app checks each formula and works the answers; a problem that fails keeps the lesson\'s numbers', async () => {
   replies = { 'new-numbers': () => ({ problems: [
     { id: 'p1', vars: { W: { was: 6, now: 8 }, L: { was: 4, now: 5 } }, formula: '{W} * {L}', task: 'A plant room is 8 m by 5 m. What is its area?', why: '8 × 5 = {answer}.' },

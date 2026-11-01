@@ -120,7 +120,10 @@
       var card = { id: r.card.id + (fresh ? '-n' : ''), type: 'puzzle', spec: r.spec };
       var kind = 'Problem ' + (st.at + 1) + ' of ' + st.run.length + (r.where ? ' · ' + r.where : '') + (fresh ? ' · new numbers' : '');
       var el = U.cards.render(card, { mode: 'lesson', kind: kind, retries: 1, page: fresh ? null : pageOf(r.guide, r.card),
-        afterAnswer: U.practice ? function (x) { return U.practice.photoPanel({ title: r.title, task: x.spec.q, answer: x.spec.answer, why: x.spec.why, said: x.said, correct: x.correct }); } : null,
+        afterAnswer: function (x) {
+          return U.h('div', { class: 'pb-after' }, askRow(r, x, st.at),
+            U.practice ? U.practice.photoPanel({ title: r.title, task: x.spec.q, answer: x.spec.answer, why: x.spec.why, said: x.said, correct: x.correct }) : null);
+        },
         onDone: function (res) { answered(r, res || {}); } });
       st.card = el;
       U.clear(st.slot);
@@ -130,6 +133,17 @@
         if (q) { q.setAttribute('tabindex', '-1'); try { q.focus({ preventScroll: true }); } catch (e) { q.focus(); } }
         el.scrollIntoView({ block: 'start', behavior: 'smooth' });
       }
+    }
+    // "Ask Claude about this problem" (Dan, 1 Nov): once the answer shows, Ask Claude opens already
+    // knowing the problem, its working, the answer and what he typed (each try), in a conversation
+    // of its own for this problem. One Claude call per question, only when he asks.
+    function askRow(r, x, at) {
+      if (!U.tutor || typeof U.tutor.open !== 'function' || !r.card.tid) return null;
+      var about = { kind: 'problem', q: str(x.spec.q), answer: str(x.spec.answer), why: str(x.spec.why), said: str(x.said),
+        before: (x.before || []).map(str), correct: x.correct === true, fresh: !!x.spec.fresh, title: r.title, where: str(r.where) };
+      return U.h('p', { class: 'pb-ask' }, U.h('button', { class: 'btn secondary pb-ask-btn', type: 'button', 'data-key': 'ask-problem',
+        on: { click: function () { U.tutor.open({ tid: r.card.tid, iid: r.card.iid, thread: r.card.id + '-' + U.hash(str(x.spec.q)), about: about }); } } },
+        U.icon('chat'), 'Ask Claude about it'));
     }
     function answered(r, res) {
       st.done.push({ r: r, correct: res.correct === true, tries: Number(res.tries) || 1, said: str(res.answer) });
