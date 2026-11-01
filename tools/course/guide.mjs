@@ -145,40 +145,100 @@ function summaryPage(sum) {
 
 // Runs in the lesson frame: the scene as a standalone SVG string with computed styles inlined.
 const SNAP = `(() => {
-  // The lesson's <svg id="scene">; a lesson without one (several named pictures) gives its largest visible picture.
-  const src = document.getElementById('scene') || [...document.querySelectorAll('svg')].filter((s) => { const r = s.getBoundingClientRect(), cs = getComputedStyle(s); return r.width > 0 && r.height > 0 && cs.display !== 'none' && cs.visibility !== 'hidden' && !s.closest('button') && !(s.parentElement && s.parentElement.closest('svg')); }).sort((a, b) => { const ra = a.getBoundingClientRect(), rb = b.getBoundingClientRect(); return rb.width * rb.height - ra.width * ra.height; })[0];
-  if (!src) return null;
-  // A step that hides its scene (a puzzle about another board than the one drawn) has no picture.
-  if (!src.getClientRects().length || getComputedStyle(src).visibility === 'hidden') return null;
+  // The step's picture: the lesson's <svg id="scene"> (or the pictures inside a #scene that wraps
+  // them), with every other picture the step shows beside it (a trace, a dial, a plot under a
+  // circuit: Dan's read-through lost them when only the largest was kept, 1 Nov). Small ones (a
+  // legend's swatch, an icon) and anything in a button are left out. Several are laid out as on
+  // screen, in one picture.
+  const vis = (s) => { const r = s.getBoundingClientRect(), cs = getComputedStyle(s); return r.width > 0 && r.height > 0 && cs.display !== 'none' && cs.visibility !== 'hidden' && +cs.opacity !== 0 && !s.closest('button, [hidden]') && !(s.parentElement && s.parentElement.closest('svg')); };
+  const big = (s) => { const r = s.getBoundingClientRect(); return r.width >= 60 && r.height >= 40 && r.width * r.height >= 4000; };
+  const scene = document.getElementById('scene');
+  let list = [...document.querySelectorAll('svg')].filter((s) => vis(s) && big(s));
+  if (scene && scene.tagName.toLowerCase() === 'svg') { if (!vis(scene)) return null; if (!list.includes(scene)) list.unshift(scene); }
+  else if (scene && !scene.querySelector('svg')) list = [];
+  if (!list.length) return null;
+  // In page order, top to bottom, then left to right.
+  list.sort((a, b) => { const ra = a.getBoundingClientRect(), rb = b.getBoundingClientRect(); return ra.top - rb.top || ra.left - rb.left; });
   const props = ['fill', 'fill-opacity', 'stroke', 'stroke-width', 'stroke-opacity', 'stroke-dasharray', 'stroke-linecap', 'stroke-linejoin', 'opacity', 'font-family', 'font-size', 'font-weight', 'font-style', 'letter-spacing', 'text-anchor', 'dominant-baseline', 'paint-order', 'visibility', 'display'];
   const keep = { 'fill-opacity': '1', 'stroke-opacity': '1', opacity: '1', 'font-style': 'normal', 'letter-spacing': 'normal', 'stroke-linecap': 'butt', 'stroke-linejoin': 'miter', 'stroke-dasharray': 'none', 'paint-order': 'normal', visibility: 'visible', 'dominant-baseline': 'auto' };
-  const copy = src.cloneNode(true), a = [src].concat([...src.querySelectorAll('*')]), b = [copy].concat([...copy.querySelectorAll('*')]);
-  a.forEach((el, i) => {
-    const cs = getComputedStyle(el), out = b[i];
-    if (cs.display === 'none' || cs.visibility === 'hidden' || +cs.opacity === 0) { out.remove(); return; }
-    // Inherited settings are written only where they differ from the parent's, which keeps a picture small.
-    const pcs = el === src ? null : getComputedStyle(el.parentElement);
-    const style = props.filter((p) => p !== 'display' && p !== 'visibility').map((p) => [p, cs.getPropertyValue(p)])
-      .filter(([p, v]) => v && keep[p] !== v && !(pcs && p !== 'opacity' && pcs.getPropertyValue(p) === v))
-      .map(([p, v]) => p + ':' + v.replace(/(\d+\.\d{2})\d+/g, '$1')).join(';');
-    ['class', 'style', 'tabindex', 'role', 'aria-pressed', 'aria-label', 'id', 'focusable'].forEach((k) => out.removeAttribute(k));
-    if (style) out.setAttribute('style', style);
-  });
-  const vb = src.viewBox && src.viewBox.baseVal;
-  // The serializer declares the SVG namespace itself; an xmlns the page set by hand as well would be
-  // written twice ("Attribute xmlns redefined"), so drop any and add one only if it is missing.
-  copy.removeAttribute('xmlns');
-  try { copy.removeAttributeNS('http://www.w3.org/2000/xmlns/', 'xmlns'); } catch (e) { /* none */ }
-  if (vb && vb.width) { copy.setAttribute('viewBox', [vb.x, vb.y, vb.width, vb.height].join(' ')); copy.setAttribute('width', vb.width); copy.setAttribute('height', vb.height); }
-  copy.querySelectorAll('rect.hit, [fill="transparent"]').forEach((n) => n.remove());
+  // One picture, its computed styles inlined; its viewBox widened a little (at most 40 units a
+  // side) where its own drawing runs past it, so a label at the edge is not cut off in the image.
+  function prep(src) {
+    const copy = src.cloneNode(true), a = [src].concat([...src.querySelectorAll('*')]), b = [copy].concat([...copy.querySelectorAll('*')]);
+    a.forEach((el, i) => {
+      const cs = getComputedStyle(el), out = b[i];
+      if (cs.display === 'none' || cs.visibility === 'hidden' || +cs.opacity === 0) { out.remove(); return; }
+      // Inherited settings are written only where they differ from the parent's, which keeps a picture small.
+      const pcs = el === src ? null : getComputedStyle(el.parentElement);
+      const style = props.filter((p) => p !== 'display' && p !== 'visibility').map((p) => [p, cs.getPropertyValue(p)])
+        .filter(([p, v]) => v && keep[p] !== v && !(pcs && p !== 'opacity' && pcs.getPropertyValue(p) === v))
+        .map(([p, v]) => p + ':' + v.replace(/(\\d+\\.\\d{2})\\d+/g, '$1')).join(';');
+      ['class', 'style', 'tabindex', 'role', 'aria-pressed', 'aria-label', 'id', 'focusable'].forEach((k) => out.removeAttribute(k));
+      if (style) out.setAttribute('style', style);
+    });
+    const r = src.getBoundingClientRect();
+    const v0 = src.viewBox && src.viewBox.baseVal && src.viewBox.baseVal.width ? src.viewBox.baseVal : { x: 0, y: 0, width: r.width, height: r.height };
+    let x0 = v0.x, y0 = v0.y, x1 = v0.x + v0.width, y1 = v0.y + v0.height;
+    try {
+      // Only what is drawn counts: hit areas and see-through shapes are left out of the measure.
+      let bx = null;
+      [...src.querySelectorAll('text, path, line, rect, circle, ellipse, polyline, polygon, use, image')].forEach((el) => {
+        if (el.closest('defs, clipPath, mask, marker, pattern, symbol') || el.matches('rect.hit, [fill="transparent"]')) return;
+        const cs = getComputedStyle(el); if (cs.display === 'none' || cs.visibility === 'hidden' || +cs.opacity === 0) return;
+        if (el.closest('[clip-path]')) return;
+        const rm = src.getScreenCTM && src.getScreenCTM(); if (!rm || !el.getScreenCTM()) return;
+        const bb = el.getBBox(), inv = rm.inverse().multiply(el.getScreenCTM());
+        [[bb.x, bb.y], [bb.x + bb.width, bb.y], [bb.x, bb.y + bb.height], [bb.x + bb.width, bb.y + bb.height]].forEach(([px, py]) => {
+          const q = new DOMPoint(px, py).matrixTransform(inv), ux = q.x, uy = q.y;   // in the picture's own units
+          bx = bx ? { x0: Math.min(bx.x0, ux), y0: Math.min(bx.y0, uy), x1: Math.max(bx.x1, ux), y1: Math.max(bx.y1, uy) } : { x0: ux, y0: uy, x1: ux, y1: uy };
+        });
+      });
+      const PAD = 3, MAX = 40;
+      if (bx) {
+        if (bx.x0 < x0 && x0 - bx.x0 <= MAX) x0 = Math.floor(bx.x0 - PAD);
+        if (bx.y0 < y0 && y0 - bx.y0 <= MAX) y0 = Math.floor(bx.y0 - PAD);
+        if (bx.x1 > x1 && bx.x1 - x1 <= MAX) x1 = Math.ceil(bx.x1 + PAD);
+        if (bx.y1 > y1 && bx.y1 - y1 <= MAX) y1 = Math.ceil(bx.y1 + PAD);
+      }
+    } catch (e) { /* measured as it is */ }
+    const vb = { x: x0, y: y0, width: x1 - x0, height: y1 - y0 };
+    copy.removeAttribute('xmlns');
+    try { copy.removeAttributeNS('http://www.w3.org/2000/xmlns/', 'xmlns'); } catch (e) { /* none */ }
+    copy.setAttribute('viewBox', [vb.x, vb.y, vb.width, vb.height].join(' '));
+    copy.querySelectorAll('rect.hit, [fill="transparent"]').forEach((n) => n.remove());
+    // Where it sits on screen once widened, in px.
+    const k = r.width / v0.width;
+    return { copy, vb, rect: { x: r.left + (vb.x - v0.x) * k, y: r.top + (vb.y - v0.y) * (r.height / v0.height), w: vb.width * k, h: vb.height * (r.height / v0.height) }, alt: src.getAttribute('aria-label') || '' };
+  }
+  const parts = list.map(prep).filter((p) => p.copy.querySelector('path, rect, circle, ellipse, line, polyline, polygon, text, image, use'));
   // Nothing left to see (a step whose picture is all HTML, as a refresher's recall question is): no picture.
-  if (!copy.querySelector('path, rect, circle, ellipse, line, polyline, polygon, text, image, use')) return null;
+  if (!parts.length) return null;
+  let out;
+  if (parts.length === 1) {
+    out = parts[0].copy;
+    out.setAttribute('width', parts[0].vb.width); out.setAttribute('height', parts[0].vb.height);
+  } else {
+    // Words that sat between the pictures on screen are not in the image: a gap they leave is
+    // closed to 16 px, so the pictures read as one figure. Side-by-side pictures keep their places.
+    let bottom = -Infinity, shift = 0;
+    parts.forEach((p) => { const gap = p.rect.y - shift - bottom; if (bottom > -Infinity && gap > 16) shift += gap - 16; p.rect.y -= shift; bottom = Math.max(bottom, p.rect.y + p.rect.h); });
+    const X = Math.min(...parts.map((p) => p.rect.x)), Y = Math.min(...parts.map((p) => p.rect.y));
+    const W = Math.max(...parts.map((p) => p.rect.x + p.rect.w)) - X, H = Math.max(...parts.map((p) => p.rect.y + p.rect.h)) - Y;
+    out = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    const f = (n) => Math.round(n * 10) / 10;
+    out.setAttribute('viewBox', '0 0 ' + f(W) + ' ' + f(H)); out.setAttribute('width', f(W)); out.setAttribute('height', f(H));
+    const font = getComputedStyle(parts[0].copy.ownerDocument.body).fontFamily;
+    if (font) out.setAttribute('style', 'font-family:' + font);
+    parts.forEach((p) => { p.copy.setAttribute('x', f(p.rect.x - X)); p.copy.setAttribute('y', f(p.rect.y - Y)); p.copy.setAttribute('width', f(p.rect.w)); p.copy.setAttribute('height', f(p.rect.h)); out.appendChild(p.copy); });
+  }
   // XMLSerializer, not outerHTML: outerHTML writes &nbsp;, which a standalone SVG image cannot parse.
-  let svg = new XMLSerializer().serializeToString(copy).replace(/\\s{2,}/g, ' ').replace(/(\\d+\\.\\d{2})\\d+/g, '$1');
+  // Numbers are shortened to two places only inside attributes (coordinates, sizes), never in the
+  // words drawn: a label of 0.7071 stays 0.7071 (it read 0.70 until 1 Nov).
+  let svg = new XMLSerializer().serializeToString(out).replace(/\\s{2,}/g, ' ').replace(/="([^"]*)"/g, (m, v) => '="' + v.replace(/(\\d+\\.\\d{2})\\d+/g, '$1') + '"');
   if (!/^<svg[^>]*\\sxmlns="/.test(svg)) svg = svg.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
   const bad = new DOMParser().parseFromString(svg, 'image/svg+xml').querySelector('parsererror');
   if (bad) throw new Error('picture is not valid SVG: ' + bad.textContent.slice(0, 120));
-  return { svg, alt: src.getAttribute('aria-label') || '' };
+  return { svg, alt: parts.map((p) => p.alt).filter(Boolean).join(' ') };
 })()`;
 
 // Runs in the lesson frame (after the step is set and finished): hides what is not to be read
