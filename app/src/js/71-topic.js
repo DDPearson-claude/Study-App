@@ -405,11 +405,14 @@
         U.tutor && U.tutor.open ? ['ask', 'ask', function () {
           return U.h('button', { class: 'btn secondary wide tp-ask', type: 'button', 'data-key': 'ask', on: { click: function () { U.tutor.open({ topic: topic, tid: tid }); } } }, U.icon('chat'), 'Ask Claude about this topic');
         }, 'rail'] : null,
-        ['mode', sig(V.modeOf(topic), topic.intake, ui.mode), modeSection, 'rail'],
+        // A ready-made course is built to read: switching it to Teach and test me would remove its unopened
+        // lessons, which only a Claude Code build can write again. So it has no mode switch.
+        topic.readyMade ? null : ['mode', sig(V.modeOf(topic), topic.intake, ui.mode), modeSection, 'rail'],
         U.dossier ? ['dossier', sig(U.dossier.on(progress), U.dossier.countOf(dossier), ideas.length), function () { return U.dossier.option(tid, progress, dossier, ideas.length); }, 'rail'] : null,
         ['library', sig(r.status, r.at, r.reason, r.sources, r.error, V.researchStale(topic), avail, ui.researching, lib.groups, lib.checked, ideas.map(function (i) { return [i.id, i.title]; })), function () { return library(ideas); }, 'rail'],
         ['foot', sig(artSig()), function () {
-          return U.h('div', { class: 'tp-foot' }, picture(), U.h('button', { class: 'linkish tp-delete', type: 'button', 'data-key': 'delete', on: { click: del } }, 'Delete this topic'));
+          // A ready-made course is shared and built in Claude Code: it cannot be deleted from here.
+          return U.h('div', { class: 'tp-foot' }, picture(), topic.readyMade ? null : U.h('button', { class: 'linkish tp-delete', type: 'button', 'data-key': 'delete', on: { click: del } }, 'Delete this topic'));
         }, 'end'],
       ];
     }
@@ -606,7 +609,7 @@
         told());
     }
     function setMode(m) {
-      if (m === (ui.mode || V.modeOf(topic))) return;
+      if (topic.readyMade || m === (ui.mode || V.modeOf(topic))) return;
       var was = ui.mode;
       ui.mode = m;
       // Shown at once; the section is drawn again on the next frame (after the radio group has
@@ -631,6 +634,8 @@
     }
     // His intake answers, as he gave them: each question with what he picked and wrote.
     function told() {
+      // A ready-made course's intake answers are the build's, not his: never shown as what he said.
+      if (topic.readyMade) return null;
       var it = topic.intake, qs = it && Array.isArray(it.questions) ? it.questions : [], ans = (it && it.answers) || {};
       var rows = qs.map(function (q) {
         var a = q && ans[q.id];

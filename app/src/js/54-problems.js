@@ -88,11 +88,12 @@
       U.clear(o.body);
       o.body.appendChild(o.head());
       o.body.appendChild(U.h('p', { class: 'muted', role: 'status' }, U.h('span', { class: 'v-dot', 'aria-hidden': 'true' }), 'Claude is writing new numbers for ' + (st.run.length === 1 ? 'this problem' : 'these ' + st.run.length + ' problems') + '…'));
-      U.practice.variants(st.run.map(function (r) { return r.card; })).then(function (v) {
+      // Keyed by place in the set: lesson ids (i2_x3) repeat across courses in a mixed set.
+      U.practice.variants(st.run.map(function (r, k) { return { key: 'p' + (k + 1), spec: r.card.spec }; })).then(function (v) {
         st.busy = false;
         if (!ctx.alive()) return;
         var n = 0;
-        st.run.forEach(function (r) { if (v[r.card.id]) { r.spec = v[r.card.id]; n++; } });
+        st.run.forEach(function (r, k) { if (v['p' + (k + 1)]) { r.spec = v['p' + (k + 1)]; n++; } });
         if (!n) { intro('New numbers could not be made for these problems just now, so they keep the lesson\'s numbers.'); st.fresh = false; return; }
         st.freshNote = n < st.run.length ? n + ' of the ' + st.run.length + ' problems have new numbers; the rest keep the lesson\'s.' : '';
         begin();

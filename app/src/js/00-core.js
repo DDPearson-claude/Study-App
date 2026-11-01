@@ -87,7 +87,7 @@ U.rich = function (text, opts) {
 };
 U.inline = function (el, text, opts) {
   opts = opts || {};
-  var re = /\[\[([^\]]{1,80})\]\]|\[\^(\d{1,3})\]|\*\*([^*]{1,300})\*\*|\*([^*\s][^*]{0,300}?)\*|`([^`]{1,120})`|(?<![A-Za-z0-9_])([A-Za-z\u03b8\u03c6\u03c9])_([A-Za-z0-9]{1,4})(?![A-Za-z0-9_])/g;
+  var re = /\[\[([^\]]{1,80})\]\]|\[\^(\d{1,3})\]|\*\*([^*]{1,300})\*\*|\*([^*\s][^*]{0,300}?)\*|`([^`]{1,120})`|(?<![A-Za-z0-9_])([A-Za-z\u03b8\u03c6\u03c9])_([A-Za-z0-9]{1,4})(?![A-Za-z0-9_])|(?<![A-Za-z_])_([A-Za-z][A-Za-z0-9]{0,20})_(?![A-Za-z0-9_])/g;
   var last = 0, m;
   text = String(text || '');
   while ((m = re.exec(text))) {
@@ -102,6 +102,8 @@ U.inline = function (el, text, opts) {
     else if (m[4]) el.appendChild(U.h('em', null, m[4]));
     else if (m[5]) el.appendChild(U.h('code', null, m[5]));
     else if (m[6]) { el.appendChild(document.createTextNode(m[6])); el.appendChild(U.h('sub', null, m[7])); }
+    // A symbol in _underscores_ (the maths courses' _R_ and _P_): italic, as a symbol is printed.
+    else if (m[8]) el.appendChild(U.h('em', null, m[8]));
     last = re.lastIndex;
   }
   if (last < text.length) el.appendChild(document.createTextNode(text.slice(last)));
@@ -109,7 +111,7 @@ U.inline = function (el, text, opts) {
 };
 // A plain line (a summary, say) with its subscripts drawn: markers are dropped, nothing else is formatted.
 U.line = function (el, text) { return U.inline(U.clear(el), U.plain(text)); };
-U.plain = function (text) { return String(text || '').replace(/\[\[([^\]]+)\]\]/g, '$1').replace(/\[\^\d+\]/g, '').replace(/\*\*?([^*]+)\*\*?/g, '$1').replace(/`([^`]+)`/g, '$1'); };
+U.plain = function (text) { return String(text || '').replace(/\[\[([^\]]+)\]\]/g, '$1').replace(/\[\^\d+\]/g, '').replace(/\*\*?([^*]+)\*\*?/g, '$1').replace(/`([^`]+)`/g, '$1').replace(/(^|[^A-Za-z_])_([A-Za-z][A-Za-z0-9]{0,20})_(?![A-Za-z0-9_])/g, '$1$2'); };
 
 // ---------- ids, time, hashing ----------
 U.id = function (prefix) { return (prefix || 'x') + Date.now().toString(36).slice(-5) + Math.random().toString(36).slice(2, 7); };

@@ -128,8 +128,16 @@
         continue;
       }
       if (SUP[c]) {
+        // The x², x³ and x⁻¹ keys each put a power of its own, so a run is read one power at a time:
+        // ² and ³ alone, ⁻¹ alone before another ² or ³ (3²² is 81 and 2⁻¹² is 0.25, as a school
+        // calculator gives); any other run of digits (¹⁰ or ⁻¹², typed or pasted) is one power.
         var j = i, txt = '';
-        while (j < n && SUP[s[j]]) { txt += SUP[s[j]]; j++; }
+        if (s[j] === '²' || s[j] === '³') { txt = SUP[s[j]]; j++; }
+        else {
+          if (s[j] === '⁻') { txt = '-'; j++; }
+          if (txt === '-' && s[j] === '¹' && (s[j + 1] === '²' || s[j + 1] === '³')) { txt += '1'; j++; }
+          else while (j < n && SUP[s[j]] && s[j] !== '⁻') { txt += SUP[s[j]]; j++; }
+        }
         if (!/^-?\d+$/.test(txt)) throw fail(ERR.NUMBER);
         out.push({ t: 'sup', v: Number(txt) });
         i = j;

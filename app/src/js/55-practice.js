@@ -8,8 +8,9 @@
 // 2. New numbers: the same problems with fresh values (U.prompts.newNumbers). Claude gives each
 //    problem's formula with named values, and the app trusts none of its arithmetic: the formula
 //    with the old values must give the lesson's own answer (U.calc, graded to the course's
-//    rounding), the new task must carry each new value, and the new answer is the app's own sum,
-//    rounded as the original was. A problem that fails any check keeps the lesson's numbers.
+//    rounding), every number in the new task must be an unchanged one or a stated new value, and
+//    the new answer and its working are the app's own sum (makeVariant says exactly what is
+//    checked). A problem that fails any check keeps the lesson's numbers.
 // 3. Formula sheet (#/sheet/:tid): one page of the course's rules, formulas with their symbols
 //    and units, and traps, lesson by lesson, written by Claude from the course's own lessons
 //    (U.prompts.formulaSheet) when he asks, then kept (U.store.sheet: topics/{tid}/sheet/main) and
@@ -17,7 +18,7 @@
 //    HTML file he can print outside the app (the viewer blocks printing).
 //
 //   U.practice.photoPanel({title, task, answer, why, said, correct}) -> Element   (hidden without images)
-//   U.practice.variants(cards) -> Promise<{[cardId]: spec}>   new-numbers specs for the cards that pass
+//   U.practice.variants([{key, spec}]) -> Promise<{[key]: spec}>   new-numbers specs for the problems that pass
 //   U.practice.makeVariant(card, entry) -> spec | null         pure: one entry checked and computed
 //   U.practice.sheetHref(tid) -> '#/sheet/<tid>'
 (function () {
@@ -67,7 +68,8 @@
     return p;
   }
   function photoPanel(ctx) {
-    var input = h('input', { type: 'file', accept: 'image/*', capture: 'environment', class: 'visually-hidden', tabindex: '-1', 'aria-hidden': 'true' });
+    // No capture attribute: on a phone that would open the camera only, never a photo or scan he already has.
+    var input = h('input', { type: 'file', accept: 'image/*', class: 'visually-hidden', tabindex: '-1', 'aria-hidden': 'true' });
     var btn = h('button', { class: 'btn secondary pr-photo-btn', type: 'button' }, 'Check my working from a photo');
     var out = h('div', { class: 'pr-photo-out', 'aria-live': 'polite' });
     var box = h('div', { class: 'pr-photo', hidden: true },
@@ -121,20 +123,54 @@
     });
     return bad || /[{}]/.test(t) ? null : t;
   }
-  // The figure as the original printed it: its decimals, its unit (a computed value of 0 or a
-  // flipped sign is no new version of the same problem).
+  function same(a, b) { return Math.abs(a - b) <= 1e-9 * Math.max(1, Math.abs(a), Math.abs(b)); }
+  function has(list, v) { return list.some(function (x) { return same(x, v); }); }
+  // Every number written in a text, as numbers: "1,500" and "1 500" are 1500, "0.50" is 0.5, "−3"
+  // (after a space, a bracket or =) is −3. A digit straight after a letter is a name's subscript
+  // (V2, N1, i3), not a value.
+  function nums(text) {
+    var t = str(text).replace(/[−‒–—]/g, '-').replace(/(\d)[,   ](?=\d{3}(?!\d))/g, '$1'), out = [], re = /\d+(?:\.\d+)?/g, m;
+    while ((m = re.exec(t))) {
+      var before = m.index ? t.charAt(m.index - 1) : '';
+      if (/[A-Za-z_]/.test(before)) continue;
+      var v = parseFloat(m[0]);
+      if (before === '-' && (m.index < 2 || /[\s(=]/.test(t.charAt(m.index - 2)))) v = -v;
+      out.push(v);
+    }
+    return out;
+  }
+  // Numbers a formula may use besides its named values: powers of ten (unit prefixes), a few
+  // everyday constants, and any number in the lesson's own working (4.44, 1.732, 9.81...).
+  var CONST = [0.5, 2, 3, 4, 60, 180, 360, 3600, 9.81, 1.732, 1.414, 0.707, 1.11];
+  function literalOk(v, allowed) {
+    var p = Math.log10(Math.abs(v));
+    return v === 0 || (isFinite(p) && Math.abs(p - Math.round(p)) < 1e-9 && Math.abs(p) <= 12) || has(CONST, v) || has(allowed, v);
+  }
+  // A figure printed to the original's places, or to three significant figures when that shows
+  // more (a whole-number answer of 2 does not round a new 1.5 to 2); "About" kept, with its 1%.
   function asPrinted(v, f) {
-    var t = Math.abs(v).toFixed(f.decimals);
-    return (v < 0 ? '−' : '') + t + (f.unit ? NB + f.unit : '');
+    var a = Math.abs(v), sig = a > 0 ? Math.max(0, 2 - Math.floor(Math.log10(a))) : 0, d = Math.min(6, Math.max(f.decimals, sig));
+    var t = a.toFixed(d);
+    if (d > f.decimals && t.indexOf('.') >= 0) {
+      while (t.split('.')[1].length > f.decimals && /0$/.test(t)) t = t.slice(0, -1);
+      t = t.replace(/\.$/, '');
+    }
+    var unit = f.unit ? (/^(%|°)$/.test(f.unit) ? f.unit : NB + f.unit) : '';
+    return (f.about ? 'About ' : '') + (v < 0 ? '−' : '') + t + unit;
   }
-  // The value as a whole number in the text ("150", not the 5 in it; "1,500" or "1 500" read as 1500).
-  function numberIn(text, v) {
-    var t = str(text).replace(/(\d)[,   ](?=\d{3}(?!\d))/g, '$1');
-    var forms = [String(v), v.toFixed(2).replace(/\.?0+$/, ''), v.toFixed(3).replace(/\.?0+$/, '')];
-    return forms.some(function (x) {
-      return x && new RegExp('(^|[^\\d.])' + x.replace(/[.\-]/g, '\\$&') + '(?!\\.?\\d)').test(t);
-    });
+  // The working shown with new numbers is the app's own sum, never Claude's text: the formula with
+  // the new values put in, then the lesson's working with its own numbers, for the method.
+  function workingOf(formula, vars, answer, lessonWhy) {
+    var shown = formula.replace(/\{([A-Za-z][A-Za-z0-9_]{0,15})\}/g, function (_, n) { return String(vars[n].now).replace(/^-/, '−'); })
+      .replace(/\s*\*\s*/g, ' × ').replace(/\s*\/\s*/g, ' ÷ ').replace(/sqrt\(/g, '√(').replace(/\bpi\b/g, 'π').replace(/\s+/g, ' ').trim();
+    return 'With these numbers: ' + shown + ' = ' + answer + '.' + (lessonWhy ? '\n\nThe lesson\'s working, with its own numbers: ' + clip(lessonWhy, 1200) : '');
   }
+  // One problem checked and computed (pure). Kept only when: the formula with the old values gives
+  // the lesson's own answer; each changed value was in the old task and its new value is in the new
+  // one; every number in the new task is an unchanged one from the old task or a new value (so
+  // nothing changed in the words that the formula does not use); every plain number in the formula
+  // is a unit power of ten, an everyday constant, or one the lesson used; and the new answer keeps
+  // the old one's sign and is within 0.05 to 20 times it.
   function makeVariant(card, e) {
     var sp = card && card.spec;
     if (!sp || !isObj(e) || e.skip || !U.cards || !U.calc) return null;
@@ -144,29 +180,32 @@
     if (!vars || !formula || formula.length > 300) return null;
     var names = Object.keys(vars);
     if (!names.length || names.length > 8) return null;
-    var changed = [];
+    var oldN = nums(sp.q), task = clip(e.task, 900), newN = nums(task), nowV = [], wasChanged = [];
     for (var i = 0; i < names.length; i++) {
       var v = vars[names[i]];
       if (!NAME.test(names[i]) || !isObj(v) || typeof v.was !== 'number' || typeof v.now !== 'number' || !isFinite(v.was) || !isFinite(v.now)) return null;
       if (formula.indexOf('{' + names[i] + '}') < 0) return null;
-      if (v.now !== v.was) changed.push(v.now);
+      if (!has(oldN, v.was)) return null;
+      nowV.push(v.now);
+      if (!same(v.now, v.was)) { wasChanged.push(v.was); if (!has(newN, v.now)) return null; }
     }
-    if (!changed.length) return null;
+    if (!wasChanged.length || !task || task === clip(sp.q, 900)) return null;
+    var kept = oldN.filter(function (x) { return !has(wasChanged, x); });
+    if (!newN.every(function (x) { return has(kept, x) || has(nowV, x); })) return null;
+    var lits = nums(formula.replace(/\{[A-Za-z][A-Za-z0-9_]{0,15}\}/g, ' '));
+    var allowed = kept.concat(nums(sp.why));
+    if (!lits.every(function (x) { return !has(wasChanged, x) && literalOk(x, allowed); })) return null;
     var was = fill(formula, vars, 'was'), now = fill(formula, vars, 'now');
     if (!was || !now) return null;
     var a = U.calc.evaluate(was, { angle: 'deg' }), b = U.calc.evaluate(now, { angle: 'deg' });
     if (!a.ok || !b.ok || !isFinite(a.value) || !isFinite(b.value)) return null;
-    // The formula with the old values must give the lesson's own answer, to its rounding.
     if (U.cards.gradeTyped(String(Math.round(a.value * 1e9) / 1e9), { answer: sp.answer }).state !== 'right') return null;
     var nv = b.value, ov = f.value;
     if (nv === 0 || (ov !== 0 && Math.sign(nv) !== Math.sign(ov))) return null;
     if (ov !== 0 && (Math.abs(nv / ov) > 20 || Math.abs(nv / ov) < 0.05)) return null;
-    var task = clip(e.task, 900), why = str(e.why).trim();
-    if (!task || task === clip(sp.q, 900) || !changed.every(function (x) { return numberIn(task, x); })) return null;
-    var answer = asPrinted(nv, f);
-    if (U.cards.figureOf(answer) === null || Number(Math.abs(nv).toFixed(f.decimals)) === 0) return null;
-    why = why.indexOf('{answer}') >= 0 ? why.replace(/\{answer\}/g, answer) : (why ? why + ' So the answer is ' + answer + '.' : 'The answer is ' + answer + '.');
-    return { q: task, answer: answer, why: clip(why, 1500), input: 'typed', fresh: true, name: sp.name };
+    var answer = asPrinted(nv, f), g = U.cards.figureOf(answer);
+    if (!g || g.value === 0) return null;
+    return { q: task, answer: answer, why: workingOf(formula, vars, answer, str(sp.why)), input: 'typed', fresh: true, name: sp.name };
   }
   function vNumbers(r) {
     if (!isObj(r) || !Array.isArray(r.problems)) return ['Reply with {"problems": [...]}, one entry per problem.'];
@@ -174,16 +213,18 @@
     r.problems.forEach(function (x, i) { if (!isObj(x) || typeof x.id !== 'string') p.push('problems[' + i + '] needs an "id".'); });
     return p;
   }
-  function variants(cards) {
-    var list = (cards || []).filter(function (c) { return c && c.spec; });
+  // items = [{key, spec}]: each problem by a key unique in this set (lesson ids repeat across
+  // courses, so a card id is not one) -> {[key]: spec}.
+  function variants(items) {
+    var list = (items || []).filter(function (x) { return x && x.key && x.spec; });
     if (!list.length) return Promise.resolve({});
-    var probs = list.map(function (c) { return { id: c.id, task: c.spec.q, answer: c.spec.answer, why: c.spec.why }; });
+    var probs = list.map(function (x) { return { id: x.key, task: x.spec.q, answer: x.spec.answer, why: x.spec.why }; });
     return U.ask(U.prompts.newNumbers(probs), { tier: 'default', json: true, label: 'new-numbers', schema: vNumbers, priority: 'foreground' }).then(function (r) {
       var out = {};
       r.problems.forEach(function (e) {
-        var c = list.filter(function (x) { return x.id === e.id; })[0];
-        var v = c ? makeVariant(c, e) : null;
-        if (v) out[c.id] = v;
+        var x = list.filter(function (y) { return y.key === e.id; })[0];
+        var v = x && !out[x.key] ? makeVariant({ spec: x.spec }, e) : null;
+        if (v) out[x.key] = v;
       });
       return out;
     });
@@ -200,19 +241,24 @@
       if (!Number.isInteger(sx.lesson) || sx.lesson < 1 || sx.lesson > n) p.push(at + '.lesson must be a lesson number from 1 to ' + n + '.');
       if (typeof sx.title !== 'string' || !sx.title.trim()) p.push(at + '.title is needed.');
       if (!Array.isArray(sx.rules)) p.push(at + '.rules must be a list.');
-      else sx.rules.forEach(function (rl, k) { if (!isObj(rl) || typeof rl.name !== 'string' || typeof rl.formula !== 'string') p.push(at + '.rules[' + k + '] needs a name and a formula.'); });
-      if (sx.traps != null && !Array.isArray(sx.traps)) p.push(at + '.traps must be a list.');
+      else sx.rules.forEach(function (rl, k) {
+        if (!isObj(rl) || typeof rl.name !== 'string' || typeof rl.formula !== 'string') p.push(at + '.rules[' + k + '] needs a name and a formula.');
+        else ['symbols', 'note'].forEach(function (f) { if (rl[f] != null && typeof rl[f] !== 'string') p.push(at + '.rules[' + k + '].' + f + ' must be text.'); });
+      });
+      if (sx.traps != null && !(Array.isArray(sx.traps) && sx.traps.every(function (t) { return typeof t === 'string'; }))) p.push(at + '.traps must be a list of sentences.');
     });
     return p;
   }
-  // Only what the page needs, each field cut to a sheet's length (the model's words, shown as text).
+  // Only what the page needs, each field cut to a sheet's length (the model's words, shown as text);
+  // anything that is not text is left out, never shown as "[object Object]".
+  function txt(v, n) { return typeof v === 'string' ? clip(v, n) : ''; }
   function cleanSheet(r) {
     return r.sections.map(function (sx) {
       return {
-        lesson: sx.lesson, title: clip(sx.title, 120),
-        rules: (sx.rules || []).slice(0, 10).map(function (rl) { return { name: clip(rl.name, 80), formula: clip(rl.formula, 160), symbols: clip(rl.symbols, 300), note: clip(rl.note, 200) }; })
+        lesson: sx.lesson, title: txt(sx.title, 120),
+        rules: (Array.isArray(sx.rules) ? sx.rules : []).slice(0, 10).filter(isObj).map(function (rl) { return { name: txt(rl.name, 80), formula: txt(rl.formula, 160), symbols: txt(rl.symbols, 300), note: txt(rl.note, 200) }; })
           .filter(function (rl) { return rl.name || rl.formula; }),
-        traps: (sx.traps || []).slice(0, 3).map(function (t) { return clip(t, 200); }).filter(Boolean),
+        traps: (Array.isArray(sx.traps) ? sx.traps : []).slice(0, 3).map(function (t) { return txt(t, 200); }).filter(Boolean),
       };
     }).sort(function (a, b) { return a.lesson - b.lesson; });
   }
@@ -298,12 +344,17 @@
       body.appendChild(head());
       body.appendChild(h('p', { class: 'muted', role: 'status' }, h('span', { class: 'v-dot', 'aria-hidden': 'true' }), 'Claude is reading the lessons and writing your formula sheet. This takes a minute or so.'));
       var ideas = Array.isArray(st.topic.ideas) ? st.topic.ideas : [];
-      Promise.all(ideas.map(function (idea) { return U.store.lesson.get(tid, idea.id).catch(function () { return null; }); })).then(function (docs) {
+      // Each ready lesson's explanation and practice, with its worked examples (from its guide), where
+      // most of the formulas are used.
+      Promise.all(ideas.map(function (idea) {
+        return Promise.all([U.store.lesson.get(tid, idea.id).catch(function () { return null; }), U.readThrough ? U.readThrough.guide(tid, idea.id).catch(function () { return null; }) : null]);
+      })).then(function (rows) {
         var lessons = [];
-        docs.forEach(function (d, k) {
-          var L = d && d.status === 'ready' && d.lesson;
+        rows.forEach(function (r, k) {
+          var L = r[0] && r[0].status === 'ready' && r[0].lesson;
           if (!L) return;
-          lessons.push({ n: k + 1, title: str(L.title || ideas[k].title), explain: str(L.explain && L.explain.text), practice: str(L.practice && L.practice.text), examples: [] });
+          var ex = r[1] && Array.isArray(r[1].pages) ? r[1].pages.filter(function (pg) { return pg && pg.kind === 'example' && str(pg.task) && str(pg.answer); }).map(function (pg) { return { task: str(pg.task), answer: str(pg.answer) }; }) : [];
+          lessons.push({ n: k + 1, title: str(L.title || ideas[k].title), explain: str(L.explain && L.explain.text), practice: str(L.practice && L.practice.text), examples: ex });
         });
         if (!lessons.length) throw { code: 'empty', message: 'No lessons of this course are ready yet.' };
         var n = ideas.length;

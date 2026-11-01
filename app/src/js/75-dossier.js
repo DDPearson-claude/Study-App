@@ -371,10 +371,12 @@
   function load(tid) { return loadBook(tid).then(withGuides); }
   // A ready-made course's bound chapters may have a still guide (Dan, 11 Oct: "a re-read guide with
   // visuals, not a test"): read with the book, so the chapter page shows it instead of the plate.
+  // Read once per visit (U.readThrough.guide caches them), not again on every page turn.
   function withGuides(book) {
     if (!book || !book.topic || !U.store.guide) return book;
     var ids = Object.keys(book.chapters || {});
-    return Promise.all(ids.map(function (iid) { return U.store.guide.get(book.tid, iid).catch(function () { return null; }); })).then(function (gs) {
+    var get = U.readThrough && U.readThrough.guide ? function (iid) { return U.readThrough.guide(book.tid, iid); } : function (iid) { return U.store.guide.get(book.tid, iid); };
+    return Promise.all(ids.map(function (iid) { return Promise.resolve().then(function () { return get(iid); }).catch(function () { return null; }); })).then(function (gs) {
       book.guides = {};
       ids.forEach(function (iid, k) { if (isObj(gs[k]) && Array.isArray(gs[k].pages) && gs[k].pages.length) book.guides[iid] = gs[k]; });
       return book;

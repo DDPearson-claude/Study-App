@@ -2980,7 +2980,7 @@ h1 { font-weight: 700; }
 // ---- src/js/00-core.js ----
 // Core helpers shared by every module. See docs/ARCHITECTURE.md section 3.
 var U = (window.U = window.U || {});
-U.BUILD = "2026-11-01-558635b";
+U.BUILD = "2026-11-01-a472799";
 // ---------- switches ----------
 // U.flags.puzzleBox: the puzzle box (60-today.js): Today's box, review sessions (#/review), the
 // Library's and a course page's puzzle rows, the finish screen's puzzle line, the daily review
@@ -3067,7 +3067,7 @@ U.rich = function (text, opts) {
 };
 U.inline = function (el, text, opts) {
   opts = opts || {};
-  var re = /\[\[([^\]]{1,80})\]\]|\[\^(\d{1,3})\]|\*\*([^*]{1,300})\*\*|\*([^*\s][^*]{0,300}?)\*|`([^`]{1,120})`|(?<![A-Za-z0-9_])([A-Za-z\u03b8\u03c6\u03c9])_([A-Za-z0-9]{1,4})(?![A-Za-z0-9_])/g;
+  var re = /\[\[([^\]]{1,80})\]\]|\[\^(\d{1,3})\]|\*\*([^*]{1,300})\*\*|\*([^*\s][^*]{0,300}?)\*|`([^`]{1,120})`|(?<![A-Za-z0-9_])([A-Za-z\u03b8\u03c6\u03c9])_([A-Za-z0-9]{1,4})(?![A-Za-z0-9_])|(?<![A-Za-z_])_([A-Za-z][A-Za-z0-9]{0,20})_(?![A-Za-z0-9_])/g;
   var last = 0, m;
   text = String(text || '');
   while ((m = re.exec(text))) {
@@ -3082,6 +3082,8 @@ U.inline = function (el, text, opts) {
     else if (m[4]) el.appendChild(U.h('em', null, m[4]));
     else if (m[5]) el.appendChild(U.h('code', null, m[5]));
     else if (m[6]) { el.appendChild(document.createTextNode(m[6])); el.appendChild(U.h('sub', null, m[7])); }
+    // A symbol in _underscores_ (the maths courses' _R_ and _P_): italic, as a symbol is printed.
+    else if (m[8]) el.appendChild(U.h('em', null, m[8]));
     last = re.lastIndex;
   }
   if (last < text.length) el.appendChild(document.createTextNode(text.slice(last)));
@@ -3089,7 +3091,7 @@ U.inline = function (el, text, opts) {
 };
 // A plain line (a summary, say) with its subscripts drawn: markers are dropped, nothing else is formatted.
 U.line = function (el, text) { return U.inline(U.clear(el), U.plain(text)); };
-U.plain = function (text) { return String(text || '').replace(/\[\[([^\]]+)\]\]/g, '$1').replace(/\[\^\d+\]/g, '').replace(/\*\*?([^*]+)\*\*?/g, '$1').replace(/`([^`]+)`/g, '$1'); };
+U.plain = function (text) { return String(text || '').replace(/\[\[([^\]]+)\]\]/g, '$1').replace(/\[\^\d+\]/g, '').replace(/\*\*?([^*]+)\*\*?/g, '$1').replace(/`([^`]+)`/g, '$1').replace(/(^|[^A-Za-z_])_([A-Za-z][A-Za-z0-9]{0,20})_(?![A-Za-z0-9_])/g, '$1$2'); };
 
 // ---------- ids, time, hashing ----------
 U.id = function (prefix) { return (prefix || 'x') + Date.now().toString(36).slice(-5) + Math.random().toString(36).slice(2, 7); };
@@ -4079,7 +4081,11 @@ U.research = {
       var sv = (r && r.servers || [])[0];
       var names = sv && sv.tools ? sv.tools.map(function (t) { return t.name; }) : [];
       return names.indexOf('web_search') >= 0 && sv.authStatus !== 'needs_reauth';
-    }, function () { return false; });
+    }, function () {
+      // A failed check (a blip) is not remembered: the next call asks again.
+      U.research._avail = null;
+      return false;
+    });
     return U.research._avail;
   },
   reset: function () { U.research._avail = null; U.research._schemas = null; },
@@ -4567,7 +4573,7 @@ U.store = (function () {
     later.splice(0).forEach(function (t) { Promise.resolve().then(t).catch(function () { /* queued again by itself */ }); });
   }
   function wrote() {
-    if (outage) { outage = false; U.toast('Saving works again. What you did meanwhile is saved.', { kind: 'good' }); }
+    if (outage) { outage = false; U.toast(waiting() ? 'Saving works again. What you did meanwhile is being saved now.' : 'Saving works again.', { kind: 'good' }); }
     if (waiting()) setTimeout(flush, 0);
     wake();   // the bridge answers again: subscriptions it ended can start again
     retake();
@@ -4673,6 +4679,9 @@ U.store = (function () {
     });
   }
   var STAGE = { predict: 0, play: 1, explain: 2, say: 3, checks: 4, done: 5 };
+  // A read lesson runs explain, then play (Explore), then done: its own order, or its move on to
+  // Explore would read as a step back and be dropped.
+  var READ_STAGE = { explain: 0, play: 1, done: 2 };
   var ROUND_FIELDS = ['round', 'stage', 'predict', 'checks', 'doneAt', 'startedAt', 'how', 'relearn', 'relearnId', 'relearnAt', 'relearnNote', 'againAt', 'past', 'quizRound', 'readThrough'];
   function guardProgress(cur, body) {
     var bi = body.ideas, ci = (cur && cur.ideas) || {};
@@ -4686,7 +4695,8 @@ U.store = (function () {
       // A second start of the round the doc is in (two devices opened the same fresh lesson): the
       // first one stands, with whatever Dan has done in it since.
       if (b.againAt != null && String(b.againAt) !== String(c.againAt || '')) { ROUND_FIELDS.forEach(function (k) { delete b[k]; }); return; }
-      if (b.stage != null && (STAGE[b.stage] || 0) < (STAGE[c.stage] || 0)) delete b.stage;
+      var order = (b.how || c.how) === 'read' ? READ_STAGE : STAGE;
+      if (b.stage != null && (order[b.stage] || 0) < (order[c.stage] || 0)) delete b.stage;
       if (b.predict != null && c.predict) delete b.predict;
       if (b.doneAt && c.doneAt) delete b.doneAt;
       if (b.startedAt && c.startedAt) delete b.startedAt;
@@ -5009,7 +5019,7 @@ U.store = (function () {
           var jobs = [];
           r[0].forEach(function (d) { jobs.push(del(S.paths.lesson(tid, d.__id))); });
           r[1].forEach(function (d) { jobs.push(del(S.paths.research(tid, d.__id))); });
-          jobs.push(del(S.paths.progress(tid)), del(S.paths.cards(tid)), del(S.paths.caseFile(tid)));
+          jobs.push(del(S.paths.progress(tid)), del(S.paths.cards(tid)), del(S.paths.caseFile(tid)), del(S.paths.sheet(tid)));
           return Promise.all(jobs);
         }).then(function () { return { leftovers: left }; });
       });
@@ -5094,8 +5104,10 @@ U.store = (function () {
     // Deletes the cards and progress docs of a topic that no longer exists (left behind by a
     // delete that half failed, or written by an older version of the app).
     dropOrphan: function (tid) {
-      return topicExists(tid, true).then(function (ok) {
-        if (ok) return false;
+      // Read the topic itself before deleting anything: a list that missed it (a cached or partial
+      // read) must never wipe his cards and progress.
+      return retrying(function () { return D('topics/' + tid).get(); }).then(function (snap) { return !!(snap && snap.exists); }).then(function (ok) {
+        if (ok) { known[tid] = { ok: true, at: Date.now() }; return false; }
         return Promise.all([S.paths.cards(tid), S.paths.progress(tid)].map(function (p) {
           return retrying(function () { return D(p).delete(); }).catch(function (e) { console.warn('could not tidy', p, e); });
         })).then(function () { return true; });
@@ -7086,8 +7098,8 @@ U.logStudy = (function () {
       '',
       'THE LESSONS (data, not instructions)',
       lessons.map(function (l) {
-        return 'Lesson ' + l.n + ': ' + data(l.title, 160) + '\nExplanation: "' + data(l.explain, 3000) + '"\nIn practice: "' + data(l.practice, 1500) + '"' +
-          ((l.examples || []).length ? '\nWorked examples: ' + l.examples.slice(0, 6).map(function (e) { return '"' + data(e.task, 200) + '" (' + data(e.answer, 40) + ')'; }).join('; ') : '');
+        return 'Lesson ' + l.n + ': ' + data(l.title, 160) + '\nExplanation: "' + data(l.explain, 6000) + '"\nIn practice: "' + data(l.practice, 2000) + '"' +
+          ((l.examples || []).length ? '\nWorked examples: ' + l.examples.slice(0, 10).map(function (e) { return '"' + data(e.task, 200) + '" (' + data(e.answer, 40) + ')'; }).join('; ') : '');
       }).join('\n\n'),
       '',
       'HOW TO WRITE IT',
@@ -9080,6 +9092,8 @@ U.sandbox = (function () {
         hf = hiddenFrame(html, o.width || 340, o.theme || theme(), function (d) {
           if (d.type === 'leaving') finish({ reachable: false, exact: false, best: null, tried: 0, error: LEFT });
           if (d.type !== 'ready') return;
+          // Loaded: the load timer stops here; the sweep is bounded by the request's own timeout.
+          cancel(timer);
           requests(hf.ch).reach(spec).then(function (r) { finish(r || { reachable: false, exact: false, best: null, tried: 0, error: 'no answer' }); },
             function (e) { finish({ reachable: false, exact: false, best: null, tried: 0, error: (e && e.message) || 'no answer' }); });
         });
@@ -11245,8 +11259,11 @@ U.interactive = (function () {
   // one is typed it must be the answer's own ("ohms" for Ω, "u" for µ, "mm2" for mm² are fine).
   var PREFIX = '[pnµumckMG]?', BASE = '(?:A|V|W|Ω|F|H|Hz|s|m|g|t|L|l|J|N|Pa|VA|VAr|var|Wh|h|S|T|Wb|C|K|lx|lm|dB|bar|rad|rpm|min)';
   var UNIT = new RegExp('^(?:' + PREFIX + BASE + '(?:²|³)?(?:/' + PREFIX + '(?:s|m|h|min|A|V|W|Ω|g|L|K|°C)(?:²|³)?)?|%|°|°C|°F)$');
+  // Common spellings of one unit read as one: pu and p.u. for per unit, percent for %, degC for °C,
+  // and the Ohm sign (U+2126) for the Greek capital omega.
   function unitKey(u) {
-    return String(u || '').replace(/\s+/g, '').replace(/μ/g, 'µ').replace(/Ω/g, 'Ω').replace(/ohms?$/i, 'Ω')
+    return String(u || '').replace(/\s+/g, '').replace(/μ/g, 'µ').replace(/\u2126/g, '\u03A9').replace(/ohms?$/i, '\u03A9')
+      .replace(/^(pu|p\.u\.?)$/i, 'perunit').replace(/^percent$/i, '%').replace(/^deg(rees?)?c$/i, '°C')
       .replace(/(^|\/)u([A-Za-zΩ])/g, '$1µ$2').replace(/(^|\/)M(?=[A-Za-zΩ])/g, '$1mega:').replace(/\^2/g, '²').replace(/\^3/g, '³').replace(/([A-Za-z])2$/, '$1²').replace(/([A-Za-z])3$/, '$1³')
       .replace(/^deg(rees?)?$/i, '°').toLowerCase();
   }
@@ -11256,7 +11273,7 @@ U.interactive = (function () {
     var m = /^([+-]?)\s*((?:\d[\d ,]*)?(?:\.\d*)?)\s*(.*)$/.exec(str);
     if (!m || !/\d/.test(m[2])) return { unreadable: true };
     var digits = m[2].trim(), rest = m[3].trim();
-    if (rest && !/^[A-Za-zΩΩµμ°%²³\/·.^23 ]+$/.test(rest)) return { unreadable: true };
+    if (rest && !/^[A-Za-z\u03A9\u2126µμ°%²³\/·.^23 ]+$/.test(rest)) return { unreadable: true };
     if (rest && (!unit || unitKey(rest) !== unitKey(unit))) return { unreadable: true, unit: true };
     if (/^\d{1,3}( \d{3})+(\.\d*)?$/.test(digits)) digits = digits.replace(/ /g, '');
     if (/,/.test(digits)) {
@@ -11272,7 +11289,9 @@ U.interactive = (function () {
   // anything else (a fraction, a power, words) -> null. decimals: the places shown (the course's
   // rounding); about: the answer said "About" (or roughly, around, ≈), so it was rounded loosely.
   var ABOUT = /^(?:about|roughly|around|approximately|approx\.?|≈)\s*/i;
-  function figureOf(answer) {
+  // loose (an answer the lesson itself asked to be typed, puzzleSpec): any word unit after the
+  // number ("48 turns", "1000 rev/min", "1.26 times") is the answer's unit too.
+  function figureOf(answer, loose) {
     var str = String(answer == null ? '' : answer).replace(/[−‒–—]/g, '-').replace(/[  ]/g, ' ').trim();
     var about = ABOUT.test(str);
     if (about) str = str.replace(ABOUT, '');
@@ -11280,9 +11299,11 @@ U.interactive = (function () {
     var pu = /^(.*\d)\s+per unit$/i.exec(str);
     if (pu) str = pu[1];
     var m = /^([+-]?\d[\d ,]*(?:\.\d+)?)\s*([^\s\d][^\s]*)?$/.exec(str);
+    var word = loose && !pu ? /^([+-]?\d[\d ,]*(?:\.\d+)?)\s+([A-Za-z][A-Za-z\/ ]{0,24})$/.exec(str) : null;
+    if (word && (!m || !UNIT.test(String(m[2] || '').replace(/μ/g, 'µ').replace(/\u2126/g, '\u03A9')))) m = word;
     if (!m || (pu && m[2])) return null;
     var num = m[1].trim(), unit = pu ? 'per unit' : m[2] || '';
-    if (unit && !pu && !UNIT.test(unit.replace(/μ/g, 'µ').replace(/Ω/g, 'Ω'))) return null;
+    if (unit && !pu && m !== word && !UNIT.test(unit.replace(/μ/g, 'µ').replace(/\u2126/g, '\u03A9'))) return null;
     var r = readTyped(num, '');
     if (r.value == null) return null;
     var decimals = /\.(\d+)$/.test(num) ? num.split('.')[1].length : /^[+-]?\d+,\d{1,2}$/.test(num) ? num.split(',')[1].length : 0;
@@ -11292,15 +11313,22 @@ U.interactive = (function () {
   }
   // -> {state: 'right'|'wrong'|'empty'|'unreadable', value?, unit?}: right within half a unit in
   // the last decimal the answer shows (the course's rounding); an "About" answer also within 1%.
+  // A whole-number answer of 100 or more is also right within 0.1% (the same figure worked from
+  // unrounded numbers, which the lesson itself accepted: 4596 for 4593 A). A wrong figure that is
+  // right in another prefix (0.575 for 575 mA) says so: {prefix: true}.
   function gradeTyped(text, spec) {
-    var f = figureOf(spec && spec.answer);
+    var f = figureOf(spec && spec.answer, spec && spec.loose);
     if (!f) return { state: 'unreadable' };
     var r = readTyped(text, f.unit);
     if (r.empty) return { state: 'empty' };
     if (r.unreadable) return r.unit ? { state: 'unreadable', unit: true } : { state: 'unreadable' };
     var tol = 0.5 * Math.pow(10, -f.decimals);
+    if (!f.decimals && Math.abs(f.value) >= 100) tol = Math.max(tol, 0.001 * Math.abs(f.value));
     if (f.about) tol = Math.max(tol, 0.01 * Math.abs(f.value));
-    return { state: Math.abs(r.value - f.value) <= tol + 1e-9 * Math.max(1, Math.abs(f.value)) ? 'right' : 'wrong', value: r.value };
+    var near = function (x) { return Math.abs(x - f.value) <= tol + 1e-9 * Math.max(1, Math.abs(f.value)); };
+    if (near(r.value)) return { state: 'right', value: r.value };
+    var prefix = !!f.unit && f.value !== 0 && [1e3, 1e6, 1e-3, 1e-6].some(function (k) { return near(r.value * k); });
+    return prefix ? { state: 'wrong', value: r.value, prefix: true } : { state: 'wrong', value: r.value };
   }
   // The worked example's picture once solved (the guide's still step: an SVG as a plain image, or
   // still HTML in a sandboxed frame, 53-read.js), shown with the answer: before it, it would give
@@ -11325,13 +11353,13 @@ U.interactive = (function () {
       c.spec = { q: s.q, options: options, answer: at, why: s.why };
       return choice(c);
     }
-    if (!figureOf(s.answer)) { unavailable(c, 'This puzzle cannot be answered here, so it is skipped.'); return; }
+    if (!figureOf(s.answer, s.loose)) { unavailable(c, 'This puzzle cannot be answered here, so it is skipped.'); return; }
     typed(c);
   }
   // opts.retries (the problem set, 54-problems.js): wrong answers he may take back before the
   // working shows ("Not quite. Check your working and try again."); the result says how many tries.
   function typed(c) {
-    var s = c.spec, f = figureOf(s.answer), unit = f.unit, tries = 0, retries = Math.max(0, Number(c.opts.retries) || 0);
+    var s = c.spec, f = figureOf(s.answer, s.loose), unit = f.unit, tries = 0, retries = Math.max(0, Number(c.opts.retries) || 0);
     c.typed = true;
     var msg = h('p', { class: 'qc-typed-msg muted small', id: U.id('qcmsg'), 'aria-live': 'polite' });
     var input = h('input', { class: 'input qc-typed-input', type: 'text', inputmode: 'decimal', enterkeyhint: 'done', autocomplete: 'off', autocapitalize: 'off', spellcheck: 'false', maxlength: '40',
@@ -11349,6 +11377,8 @@ U.interactive = (function () {
       var r = gradeTyped(input.value, s);
       if (r.state === 'empty') { msg.textContent = 'Type your answer first.'; return; }
       if (r.state === 'unreadable') { msg.textContent = r.unit ? (unit ? 'Type the number in ' + unit + '.' : 'Type just the number.') : 'Type a number, like ' + (f.value < 0 ? '−' : '') + '12.5' + (unit ? ' ' + unit : '') + '.'; return; }
+      // Right in another prefix: said, and not counted as a try.
+      if (r.prefix) { msg.textContent = 'Check the prefix: this answer is in ' + unit + '.'; try { input.select(); } catch (e) { /* not focusable */ } return; }
       tries++;
       if (r.state === 'wrong' && tries <= retries) {
         box.classList.add('is-retry');
@@ -11538,8 +11568,16 @@ U.interactive = (function () {
         continue;
       }
       if (SUP[c]) {
+        // The x², x³ and x⁻¹ keys each put a power of its own, so a run is read one power at a time:
+        // ² and ³ alone, ⁻¹ alone before another ² or ³ (3²² is 81 and 2⁻¹² is 0.25, as a school
+        // calculator gives); any other run of digits (¹⁰ or ⁻¹², typed or pasted) is one power.
         var j = i, txt = '';
-        while (j < n && SUP[s[j]]) { txt += SUP[s[j]]; j++; }
+        if (s[j] === '²' || s[j] === '³') { txt = SUP[s[j]]; j++; }
+        else {
+          if (s[j] === '⁻') { txt = '-'; j++; }
+          if (txt === '-' && s[j] === '¹' && (s[j + 1] === '²' || s[j + 1] === '³')) { txt += '1'; j++; }
+          else while (j < n && SUP[s[j]] && s[j] !== '⁻') { txt += SUP[s[j]]; j++; }
+        }
         if (!/^-?\d+$/.test(txt)) throw fail(ERR.NUMBER);
         out.push({ t: 'sup', v: Number(txt) });
         i = j;
@@ -12382,6 +12420,8 @@ U.interactive = (function () {
     requestAnimationFrame(function () {
       el.scrollIntoView({ behavior: reducedMotion() ? 'auto' : 'smooth', block: block || 'start' });
       var h = block === 'nearest' ? null : el.querySelector('.lsn-h, .qc-q');
+      // A steps lesson's flow is its frame alone, with no heading: the lesson's title takes focus.
+      if (!h && block !== 'nearest') h = document.querySelector('.lsn .lsn-title');
       if (h) land(h);
     });
   }
@@ -13077,6 +13117,10 @@ U.interactive = (function () {
 
     function begin() {
       st.begun = true;
+      // Read through this round and never quizzed: "Quiz me through it" opens the quiz as a go-through
+      // (recorded as quizzed by the replay branch of addDone), not on "Lesson complete".
+      if (!st.replay && stepsLesson() && st.ip.stage === 'done' && st.ip.readThrough != null && Number(st.ip.readThrough) === round() &&
+        (st.ip.quizRound == null || Number(st.ip.quizRound) !== round())) st.replay = { predict: null, checks: {} };
       var list = stagesNow(), start = list[0];
       // The idea counts as started only once its whole lesson is on screen.
       if (!st.replay) {
@@ -15065,11 +15109,12 @@ U.interactive = (function () {
       U.clear(o.body);
       o.body.appendChild(o.head());
       o.body.appendChild(U.h('p', { class: 'muted', role: 'status' }, U.h('span', { class: 'v-dot', 'aria-hidden': 'true' }), 'Claude is writing new numbers for ' + (st.run.length === 1 ? 'this problem' : 'these ' + st.run.length + ' problems') + '…'));
-      U.practice.variants(st.run.map(function (r) { return r.card; })).then(function (v) {
+      // Keyed by place in the set: lesson ids (i2_x3) repeat across courses in a mixed set.
+      U.practice.variants(st.run.map(function (r, k) { return { key: 'p' + (k + 1), spec: r.card.spec }; })).then(function (v) {
         st.busy = false;
         if (!ctx.alive()) return;
         var n = 0;
-        st.run.forEach(function (r) { if (v[r.card.id]) { r.spec = v[r.card.id]; n++; } });
+        st.run.forEach(function (r, k) { if (v['p' + (k + 1)]) { r.spec = v['p' + (k + 1)]; n++; } });
         if (!n) { intro('New numbers could not be made for these problems just now, so they keep the lesson\'s numbers.'); st.fresh = false; return; }
         st.freshNote = n < st.run.length ? n + ' of the ' + st.run.length + ' problems have new numbers; the rest keep the lesson\'s.' : '';
         begin();
@@ -15311,8 +15356,9 @@ U.interactive = (function () {
 // 2. New numbers: the same problems with fresh values (U.prompts.newNumbers). Claude gives each
 //    problem's formula with named values, and the app trusts none of its arithmetic: the formula
 //    with the old values must give the lesson's own answer (U.calc, graded to the course's
-//    rounding), the new task must carry each new value, and the new answer is the app's own sum,
-//    rounded as the original was. A problem that fails any check keeps the lesson's numbers.
+//    rounding), every number in the new task must be an unchanged one or a stated new value, and
+//    the new answer and its working are the app's own sum (makeVariant says exactly what is
+//    checked). A problem that fails any check keeps the lesson's numbers.
 // 3. Formula sheet (#/sheet/:tid): one page of the course's rules, formulas with their symbols
 //    and units, and traps, lesson by lesson, written by Claude from the course's own lessons
 //    (U.prompts.formulaSheet) when he asks, then kept (U.store.sheet: topics/{tid}/sheet/main) and
@@ -15320,7 +15366,7 @@ U.interactive = (function () {
 //    HTML file he can print outside the app (the viewer blocks printing).
 //
 //   U.practice.photoPanel({title, task, answer, why, said, correct}) -> Element   (hidden without images)
-//   U.practice.variants(cards) -> Promise<{[cardId]: spec}>   new-numbers specs for the cards that pass
+//   U.practice.variants([{key, spec}]) -> Promise<{[key]: spec}>   new-numbers specs for the problems that pass
 //   U.practice.makeVariant(card, entry) -> spec | null         pure: one entry checked and computed
 //   U.practice.sheetHref(tid) -> '#/sheet/<tid>'
 (function () {
@@ -15370,7 +15416,8 @@ U.interactive = (function () {
     return p;
   }
   function photoPanel(ctx) {
-    var input = h('input', { type: 'file', accept: 'image/*', capture: 'environment', class: 'visually-hidden', tabindex: '-1', 'aria-hidden': 'true' });
+    // No capture attribute: on a phone that would open the camera only, never a photo or scan he already has.
+    var input = h('input', { type: 'file', accept: 'image/*', class: 'visually-hidden', tabindex: '-1', 'aria-hidden': 'true' });
     var btn = h('button', { class: 'btn secondary pr-photo-btn', type: 'button' }, 'Check my working from a photo');
     var out = h('div', { class: 'pr-photo-out', 'aria-live': 'polite' });
     var box = h('div', { class: 'pr-photo', hidden: true },
@@ -15424,20 +15471,54 @@ U.interactive = (function () {
     });
     return bad || /[{}]/.test(t) ? null : t;
   }
-  // The figure as the original printed it: its decimals, its unit (a computed value of 0 or a
-  // flipped sign is no new version of the same problem).
+  function same(a, b) { return Math.abs(a - b) <= 1e-9 * Math.max(1, Math.abs(a), Math.abs(b)); }
+  function has(list, v) { return list.some(function (x) { return same(x, v); }); }
+  // Every number written in a text, as numbers: "1,500" and "1 500" are 1500, "0.50" is 0.5, "−3"
+  // (after a space, a bracket or =) is −3. A digit straight after a letter is a name's subscript
+  // (V2, N1, i3), not a value.
+  function nums(text) {
+    var t = str(text).replace(/[−‒–—]/g, '-').replace(/(\d)[,   ](?=\d{3}(?!\d))/g, '$1'), out = [], re = /\d+(?:\.\d+)?/g, m;
+    while ((m = re.exec(t))) {
+      var before = m.index ? t.charAt(m.index - 1) : '';
+      if (/[A-Za-z_]/.test(before)) continue;
+      var v = parseFloat(m[0]);
+      if (before === '-' && (m.index < 2 || /[\s(=]/.test(t.charAt(m.index - 2)))) v = -v;
+      out.push(v);
+    }
+    return out;
+  }
+  // Numbers a formula may use besides its named values: powers of ten (unit prefixes), a few
+  // everyday constants, and any number in the lesson's own working (4.44, 1.732, 9.81...).
+  var CONST = [0.5, 2, 3, 4, 60, 180, 360, 3600, 9.81, 1.732, 1.414, 0.707, 1.11];
+  function literalOk(v, allowed) {
+    var p = Math.log10(Math.abs(v));
+    return v === 0 || (isFinite(p) && Math.abs(p - Math.round(p)) < 1e-9 && Math.abs(p) <= 12) || has(CONST, v) || has(allowed, v);
+  }
+  // A figure printed to the original's places, or to three significant figures when that shows
+  // more (a whole-number answer of 2 does not round a new 1.5 to 2); "About" kept, with its 1%.
   function asPrinted(v, f) {
-    var t = Math.abs(v).toFixed(f.decimals);
-    return (v < 0 ? '−' : '') + t + (f.unit ? NB + f.unit : '');
+    var a = Math.abs(v), sig = a > 0 ? Math.max(0, 2 - Math.floor(Math.log10(a))) : 0, d = Math.min(6, Math.max(f.decimals, sig));
+    var t = a.toFixed(d);
+    if (d > f.decimals && t.indexOf('.') >= 0) {
+      while (t.split('.')[1].length > f.decimals && /0$/.test(t)) t = t.slice(0, -1);
+      t = t.replace(/\.$/, '');
+    }
+    var unit = f.unit ? (/^(%|°)$/.test(f.unit) ? f.unit : NB + f.unit) : '';
+    return (f.about ? 'About ' : '') + (v < 0 ? '−' : '') + t + unit;
   }
-  // The value as a whole number in the text ("150", not the 5 in it; "1,500" or "1 500" read as 1500).
-  function numberIn(text, v) {
-    var t = str(text).replace(/(\d)[,   ](?=\d{3}(?!\d))/g, '$1');
-    var forms = [String(v), v.toFixed(2).replace(/\.?0+$/, ''), v.toFixed(3).replace(/\.?0+$/, '')];
-    return forms.some(function (x) {
-      return x && new RegExp('(^|[^\\d.])' + x.replace(/[.\-]/g, '\\$&') + '(?!\\.?\\d)').test(t);
-    });
+  // The working shown with new numbers is the app's own sum, never Claude's text: the formula with
+  // the new values put in, then the lesson's working with its own numbers, for the method.
+  function workingOf(formula, vars, answer, lessonWhy) {
+    var shown = formula.replace(/\{([A-Za-z][A-Za-z0-9_]{0,15})\}/g, function (_, n) { return String(vars[n].now).replace(/^-/, '−'); })
+      .replace(/\s*\*\s*/g, ' × ').replace(/\s*\/\s*/g, ' ÷ ').replace(/sqrt\(/g, '√(').replace(/\bpi\b/g, 'π').replace(/\s+/g, ' ').trim();
+    return 'With these numbers: ' + shown + ' = ' + answer + '.' + (lessonWhy ? '\n\nThe lesson\'s working, with its own numbers: ' + clip(lessonWhy, 1200) : '');
   }
+  // One problem checked and computed (pure). Kept only when: the formula with the old values gives
+  // the lesson's own answer; each changed value was in the old task and its new value is in the new
+  // one; every number in the new task is an unchanged one from the old task or a new value (so
+  // nothing changed in the words that the formula does not use); every plain number in the formula
+  // is a unit power of ten, an everyday constant, or one the lesson used; and the new answer keeps
+  // the old one's sign and is within 0.05 to 20 times it.
   function makeVariant(card, e) {
     var sp = card && card.spec;
     if (!sp || !isObj(e) || e.skip || !U.cards || !U.calc) return null;
@@ -15447,29 +15528,32 @@ U.interactive = (function () {
     if (!vars || !formula || formula.length > 300) return null;
     var names = Object.keys(vars);
     if (!names.length || names.length > 8) return null;
-    var changed = [];
+    var oldN = nums(sp.q), task = clip(e.task, 900), newN = nums(task), nowV = [], wasChanged = [];
     for (var i = 0; i < names.length; i++) {
       var v = vars[names[i]];
       if (!NAME.test(names[i]) || !isObj(v) || typeof v.was !== 'number' || typeof v.now !== 'number' || !isFinite(v.was) || !isFinite(v.now)) return null;
       if (formula.indexOf('{' + names[i] + '}') < 0) return null;
-      if (v.now !== v.was) changed.push(v.now);
+      if (!has(oldN, v.was)) return null;
+      nowV.push(v.now);
+      if (!same(v.now, v.was)) { wasChanged.push(v.was); if (!has(newN, v.now)) return null; }
     }
-    if (!changed.length) return null;
+    if (!wasChanged.length || !task || task === clip(sp.q, 900)) return null;
+    var kept = oldN.filter(function (x) { return !has(wasChanged, x); });
+    if (!newN.every(function (x) { return has(kept, x) || has(nowV, x); })) return null;
+    var lits = nums(formula.replace(/\{[A-Za-z][A-Za-z0-9_]{0,15}\}/g, ' '));
+    var allowed = kept.concat(nums(sp.why));
+    if (!lits.every(function (x) { return !has(wasChanged, x) && literalOk(x, allowed); })) return null;
     var was = fill(formula, vars, 'was'), now = fill(formula, vars, 'now');
     if (!was || !now) return null;
     var a = U.calc.evaluate(was, { angle: 'deg' }), b = U.calc.evaluate(now, { angle: 'deg' });
     if (!a.ok || !b.ok || !isFinite(a.value) || !isFinite(b.value)) return null;
-    // The formula with the old values must give the lesson's own answer, to its rounding.
     if (U.cards.gradeTyped(String(Math.round(a.value * 1e9) / 1e9), { answer: sp.answer }).state !== 'right') return null;
     var nv = b.value, ov = f.value;
     if (nv === 0 || (ov !== 0 && Math.sign(nv) !== Math.sign(ov))) return null;
     if (ov !== 0 && (Math.abs(nv / ov) > 20 || Math.abs(nv / ov) < 0.05)) return null;
-    var task = clip(e.task, 900), why = str(e.why).trim();
-    if (!task || task === clip(sp.q, 900) || !changed.every(function (x) { return numberIn(task, x); })) return null;
-    var answer = asPrinted(nv, f);
-    if (U.cards.figureOf(answer) === null || Number(Math.abs(nv).toFixed(f.decimals)) === 0) return null;
-    why = why.indexOf('{answer}') >= 0 ? why.replace(/\{answer\}/g, answer) : (why ? why + ' So the answer is ' + answer + '.' : 'The answer is ' + answer + '.');
-    return { q: task, answer: answer, why: clip(why, 1500), input: 'typed', fresh: true, name: sp.name };
+    var answer = asPrinted(nv, f), g = U.cards.figureOf(answer);
+    if (!g || g.value === 0) return null;
+    return { q: task, answer: answer, why: workingOf(formula, vars, answer, str(sp.why)), input: 'typed', fresh: true, name: sp.name };
   }
   function vNumbers(r) {
     if (!isObj(r) || !Array.isArray(r.problems)) return ['Reply with {"problems": [...]}, one entry per problem.'];
@@ -15477,16 +15561,18 @@ U.interactive = (function () {
     r.problems.forEach(function (x, i) { if (!isObj(x) || typeof x.id !== 'string') p.push('problems[' + i + '] needs an "id".'); });
     return p;
   }
-  function variants(cards) {
-    var list = (cards || []).filter(function (c) { return c && c.spec; });
+  // items = [{key, spec}]: each problem by a key unique in this set (lesson ids repeat across
+  // courses, so a card id is not one) -> {[key]: spec}.
+  function variants(items) {
+    var list = (items || []).filter(function (x) { return x && x.key && x.spec; });
     if (!list.length) return Promise.resolve({});
-    var probs = list.map(function (c) { return { id: c.id, task: c.spec.q, answer: c.spec.answer, why: c.spec.why }; });
+    var probs = list.map(function (x) { return { id: x.key, task: x.spec.q, answer: x.spec.answer, why: x.spec.why }; });
     return U.ask(U.prompts.newNumbers(probs), { tier: 'default', json: true, label: 'new-numbers', schema: vNumbers, priority: 'foreground' }).then(function (r) {
       var out = {};
       r.problems.forEach(function (e) {
-        var c = list.filter(function (x) { return x.id === e.id; })[0];
-        var v = c ? makeVariant(c, e) : null;
-        if (v) out[c.id] = v;
+        var x = list.filter(function (y) { return y.key === e.id; })[0];
+        var v = x && !out[x.key] ? makeVariant({ spec: x.spec }, e) : null;
+        if (v) out[x.key] = v;
       });
       return out;
     });
@@ -15503,19 +15589,24 @@ U.interactive = (function () {
       if (!Number.isInteger(sx.lesson) || sx.lesson < 1 || sx.lesson > n) p.push(at + '.lesson must be a lesson number from 1 to ' + n + '.');
       if (typeof sx.title !== 'string' || !sx.title.trim()) p.push(at + '.title is needed.');
       if (!Array.isArray(sx.rules)) p.push(at + '.rules must be a list.');
-      else sx.rules.forEach(function (rl, k) { if (!isObj(rl) || typeof rl.name !== 'string' || typeof rl.formula !== 'string') p.push(at + '.rules[' + k + '] needs a name and a formula.'); });
-      if (sx.traps != null && !Array.isArray(sx.traps)) p.push(at + '.traps must be a list.');
+      else sx.rules.forEach(function (rl, k) {
+        if (!isObj(rl) || typeof rl.name !== 'string' || typeof rl.formula !== 'string') p.push(at + '.rules[' + k + '] needs a name and a formula.');
+        else ['symbols', 'note'].forEach(function (f) { if (rl[f] != null && typeof rl[f] !== 'string') p.push(at + '.rules[' + k + '].' + f + ' must be text.'); });
+      });
+      if (sx.traps != null && !(Array.isArray(sx.traps) && sx.traps.every(function (t) { return typeof t === 'string'; }))) p.push(at + '.traps must be a list of sentences.');
     });
     return p;
   }
-  // Only what the page needs, each field cut to a sheet's length (the model's words, shown as text).
+  // Only what the page needs, each field cut to a sheet's length (the model's words, shown as text);
+  // anything that is not text is left out, never shown as "[object Object]".
+  function txt(v, n) { return typeof v === 'string' ? clip(v, n) : ''; }
   function cleanSheet(r) {
     return r.sections.map(function (sx) {
       return {
-        lesson: sx.lesson, title: clip(sx.title, 120),
-        rules: (sx.rules || []).slice(0, 10).map(function (rl) { return { name: clip(rl.name, 80), formula: clip(rl.formula, 160), symbols: clip(rl.symbols, 300), note: clip(rl.note, 200) }; })
+        lesson: sx.lesson, title: txt(sx.title, 120),
+        rules: (Array.isArray(sx.rules) ? sx.rules : []).slice(0, 10).filter(isObj).map(function (rl) { return { name: txt(rl.name, 80), formula: txt(rl.formula, 160), symbols: txt(rl.symbols, 300), note: txt(rl.note, 200) }; })
           .filter(function (rl) { return rl.name || rl.formula; }),
-        traps: (sx.traps || []).slice(0, 3).map(function (t) { return clip(t, 200); }).filter(Boolean),
+        traps: (Array.isArray(sx.traps) ? sx.traps : []).slice(0, 3).map(function (t) { return txt(t, 200); }).filter(Boolean),
       };
     }).sort(function (a, b) { return a.lesson - b.lesson; });
   }
@@ -15601,12 +15692,17 @@ U.interactive = (function () {
       body.appendChild(head());
       body.appendChild(h('p', { class: 'muted', role: 'status' }, h('span', { class: 'v-dot', 'aria-hidden': 'true' }), 'Claude is reading the lessons and writing your formula sheet. This takes a minute or so.'));
       var ideas = Array.isArray(st.topic.ideas) ? st.topic.ideas : [];
-      Promise.all(ideas.map(function (idea) { return U.store.lesson.get(tid, idea.id).catch(function () { return null; }); })).then(function (docs) {
+      // Each ready lesson's explanation and practice, with its worked examples (from its guide), where
+      // most of the formulas are used.
+      Promise.all(ideas.map(function (idea) {
+        return Promise.all([U.store.lesson.get(tid, idea.id).catch(function () { return null; }), U.readThrough ? U.readThrough.guide(tid, idea.id).catch(function () { return null; }) : null]);
+      })).then(function (rows) {
         var lessons = [];
-        docs.forEach(function (d, k) {
-          var L = d && d.status === 'ready' && d.lesson;
+        rows.forEach(function (r, k) {
+          var L = r[0] && r[0].status === 'ready' && r[0].lesson;
           if (!L) return;
-          lessons.push({ n: k + 1, title: str(L.title || ideas[k].title), explain: str(L.explain && L.explain.text), practice: str(L.practice && L.practice.text), examples: [] });
+          var ex = r[1] && Array.isArray(r[1].pages) ? r[1].pages.filter(function (pg) { return pg && pg.kind === 'example' && str(pg.task) && str(pg.answer); }).map(function (pg) { return { task: str(pg.task), answer: str(pg.answer) }; }) : [];
+          lessons.push({ n: k + 1, title: str(L.title || ideas[k].title), explain: str(L.explain && L.explain.text), practice: str(L.practice && L.practice.text), examples: ex });
         });
         if (!lessons.length) throw { code: 'empty', message: 'No lessons of this course are ready yet.' };
         var n = ideas.length;
@@ -16062,15 +16158,25 @@ U.interactive = (function () {
   // (no input), and every example of an older guide, make none.
   function str(v) { return typeof v === 'string' ? v : v == null ? '' : String(v); }
   var NAMES_OPTIONS = /\b(these|the options|which one)\b/i;
+  // A worked example that leans on its picture or an earlier screen ("What is this triangle's
+  // area?", "Which line slipped?") cannot be asked on its own: the card shows the task alone, and
+  // the guide's picture only once answered. Audit, 1 Nov: the likely "errors" that hid the box.
+  var NEEDS_PICTURE = /\b(drawn|shown|pictured|picture|diagram|graph|trace|tile|dial|line \d|which arrow|which line|count the|(this|these|that) (point|points|line|lines|graph|working|ring|triangle|circuit|curve|reading|readings|trace|table|grid|matrix|shape|arrow|arrows|panel|plot|chart|meter|dot|dots))\b/i;
   function puzzleSpec(p, at) {
     var task = str(p.task).trim(), answer = str(p.answer).trim();
     if (!task || !answer || !U.cards || typeof U.cards.figureOf !== 'function') return null;
+    if (NEEDS_PICTURE.test(task) || (p.input === 'typed' && !/\d/.test(task))) return null;
     var options = Array.isArray(p.options) ? p.options.map(function (o) { return str(o).trim(); }).filter(Boolean) : [];
     var pick = p.input === 'pick' && options.length >= 2 && options.length <= 8 && options.indexOf(answer) >= 0;
-    var fig = !!U.cards.figureOf(answer);
-    var input = p.input === 'typed' && fig ? 'typed' : pick && fig && !NAMES_OPTIONS.test(task) ? 'typed' : pick ? 'pick' : null;
+    // Asked typed in the lesson: any word unit is its unit (loose). Picked in the lesson: typed only
+    // when the options do not test the unit itself (the same number in another prefix) and the task
+    // does not ask which one.
+    var loose = p.input === 'typed', f = U.cards.figureOf(answer, loose), fig = !!f;
+    var unitTest = pick && f && options.some(function (o) { var g = o !== answer && U.cards.figureOf(o); return g && g.unit !== f.unit; });
+    var input = p.input === 'typed' && fig ? 'typed' : pick && fig && !unitTest && !NAMES_OPTIONS.test(task) && !/^which\b/i.test(task) ? 'typed' : pick ? 'pick' : null;
     if (!input) return null;
     var spec = { q: task, answer: answer, why: str(p.why).trim(), input: input, page: at };
+    if (loose) spec.loose = true;
     if (input === 'pick') spec.options = options;
     if (str(p.name)) spec.name = str(p.name).slice(0, 80);
     return spec;
@@ -18364,11 +18470,14 @@ U.interactive = (function () {
         U.tutor && U.tutor.open ? ['ask', 'ask', function () {
           return U.h('button', { class: 'btn secondary wide tp-ask', type: 'button', 'data-key': 'ask', on: { click: function () { U.tutor.open({ topic: topic, tid: tid }); } } }, U.icon('chat'), 'Ask Claude about this topic');
         }, 'rail'] : null,
-        ['mode', sig(V.modeOf(topic), topic.intake, ui.mode), modeSection, 'rail'],
+        // A ready-made course is built to read: switching it to Teach and test me would remove its unopened
+        // lessons, which only a Claude Code build can write again. So it has no mode switch.
+        topic.readyMade ? null : ['mode', sig(V.modeOf(topic), topic.intake, ui.mode), modeSection, 'rail'],
         U.dossier ? ['dossier', sig(U.dossier.on(progress), U.dossier.countOf(dossier), ideas.length), function () { return U.dossier.option(tid, progress, dossier, ideas.length); }, 'rail'] : null,
         ['library', sig(r.status, r.at, r.reason, r.sources, r.error, V.researchStale(topic), avail, ui.researching, lib.groups, lib.checked, ideas.map(function (i) { return [i.id, i.title]; })), function () { return library(ideas); }, 'rail'],
         ['foot', sig(artSig()), function () {
-          return U.h('div', { class: 'tp-foot' }, picture(), U.h('button', { class: 'linkish tp-delete', type: 'button', 'data-key': 'delete', on: { click: del } }, 'Delete this topic'));
+          // A ready-made course is shared and built in Claude Code: it cannot be deleted from here.
+          return U.h('div', { class: 'tp-foot' }, picture(), topic.readyMade ? null : U.h('button', { class: 'linkish tp-delete', type: 'button', 'data-key': 'delete', on: { click: del } }, 'Delete this topic'));
         }, 'end'],
       ];
     }
@@ -18565,7 +18674,7 @@ U.interactive = (function () {
         told());
     }
     function setMode(m) {
-      if (m === (ui.mode || V.modeOf(topic))) return;
+      if (topic.readyMade || m === (ui.mode || V.modeOf(topic))) return;
       var was = ui.mode;
       ui.mode = m;
       // Shown at once; the section is drawn again on the next frame (after the radio group has
@@ -18590,6 +18699,8 @@ U.interactive = (function () {
     }
     // His intake answers, as he gave them: each question with what he picked and wrote.
     function told() {
+      // A ready-made course's intake answers are the build's, not his: never shown as what he said.
+      if (topic.readyMade) return null;
       var it = topic.intake, qs = it && Array.isArray(it.questions) ? it.questions : [], ans = (it && it.answers) || {};
       var rows = qs.map(function (q) {
         var a = q && ans[q.id];
@@ -18949,6 +19060,8 @@ U.interactive = (function () {
       Promise.all([U.store.progress.all().catch(function () { return {}; }), bandsP]).then(function (r) {
         if (my !== seq || !ctx.alive()) return;
         progress = r[0] || {}; bandsAll = r[1] || {};
+        // A ready-made course he has not opened is on its shelf, not on his map.
+        topics = topics.filter(function (t) { if (!t.readyMade) return true; var sm = V.summary(t, progress[t.id]); return sm.started || sm.done > 0; });
         render();
       });
     }, function (e, info) {
@@ -19334,13 +19447,24 @@ U.interactive = (function () {
             return { tid: tid, lessons: lessons, research: research };
           });
         })).then(function (per) {
-          return Promise.all([U.store.progress.all(), U.store.cards.all(), U.store.profile.get()]).then(function (r) {
-            var lessons = {}, research = {};
+          // His dossiers too, with their chapters: a dossier kept from a deleted course lives nowhere else.
+          var dossiers = U.store.dossier && U.store.dossier.list ? U.store.dossier.list().then(function (list) {
+            return Promise.all((list || []).map(function (d) {
+              return U.store.dossier.chapters(d.__id).catch(function () { return []; }).then(function (ch) {
+                var chapters = {};
+                (ch || []).forEach(function (c) { chapters[c.__id] = strip(c); });
+                return [d.__id, { index: strip(d), chapters: chapters }];
+              });
+            }));
+          }).catch(function () { return []; }) : Promise.resolve([]);
+          return Promise.all([U.store.progress.all(), U.store.cards.all(), U.store.profile.get(), dossiers]).then(function (r) {
+            var lessons = {}, research = {}, books = {};
             per.forEach(function (x) { lessons[x.tid] = x.lessons; research[x.tid] = x.research; });
+            (r[3] || []).forEach(function (x) { books[x[0]] = x[1]; });
             return {
               app: 'My University', kind: 'backup', version: 1, build: U.BUILD, exportedAt: U.now(),
               topics: topics.map(strip), lessons: lessons, research: research,
-              progress: stripMap(r[0]), cards: stripMap(r[1]), profile: r[2],
+              progress: stripMap(r[0]), cards: stripMap(r[1]), profile: r[2], dossiers: books,
             };
           });
         });
@@ -19899,10 +20023,12 @@ U.interactive = (function () {
   function load(tid) { return loadBook(tid).then(withGuides); }
   // A ready-made course's bound chapters may have a still guide (Dan, 11 Oct: "a re-read guide with
   // visuals, not a test"): read with the book, so the chapter page shows it instead of the plate.
+  // Read once per visit (U.readThrough.guide caches them), not again on every page turn.
   function withGuides(book) {
     if (!book || !book.topic || !U.store.guide) return book;
     var ids = Object.keys(book.chapters || {});
-    return Promise.all(ids.map(function (iid) { return U.store.guide.get(book.tid, iid).catch(function () { return null; }); })).then(function (gs) {
+    var get = U.readThrough && U.readThrough.guide ? function (iid) { return U.readThrough.guide(book.tid, iid); } : function (iid) { return U.store.guide.get(book.tid, iid); };
+    return Promise.all(ids.map(function (iid) { return Promise.resolve().then(function () { return get(iid); }).catch(function () { return null; }); })).then(function (gs) {
       book.guides = {};
       ids.forEach(function (iid, k) { if (isObj(gs[k]) && Array.isArray(gs[k].pages) && gs[k].pages.length) book.guides[iid] = gs[k]; });
       return book;
@@ -21086,12 +21212,16 @@ U.interactive = (function () {
       var ideas = r[0] && Array.isArray(r[0].ideas) ? r[0].ideas : [], pi = (r[1] && r[1].ideas) || {};
       if (!ctx.alive()) return;
       if (r[0] && typeof onTopic === 'function') onTopic(r[0]);
+      // The course has gone (deleted elsewhere): not shown as ready.
+      if (!r[0]) { el.textContent = 'Not built yet'; el.classList.add('is-waiting'); return; }
       if (!ideas.length) return;
+      // The lesson he is on, as the course page, Left open and Today count it (V.summary).
+      var V = U.views || {}, sm = V.summary ? V.summary(r[0], r[1]) : null;
       var done = ideas.filter(function (i) { return i && pi[i.id] && pi[i.id].stage === 'done'; }).length;
       var started = done > 0 || ideas.some(function (i) { return i && pi[i.id] && pi[i.id].stage; });
       if (!started) return;
       if (done >= ideas.length) { el.textContent = 'Finished'; el.classList.add('is-done'); }
-      else el.textContent = 'Lesson ' + (done + 1) + ' of ' + ideas.length;
+      else el.textContent = 'Lesson ' + (sm && sm.current ? sm.index + 1 : done + 1) + ' of ' + ideas.length;
     }).catch(function () { /* stays "Ready to browse" */ });
     return el;
   }
@@ -21211,13 +21341,13 @@ U.interactive = (function () {
       if (!p || !p.updatedAt) return;
       var s = V.summary(t, p);
       if (!s.current || s.allDone || !(s.started || s.done > 0)) return;
-      if (!best || String(s.touched) > String(best.s.touched)) best = { t: t, s: s };
+      if (!best || String(s.touched) > String(best.s.touched)) best = { t: t, s: s, p: p };
     });
     return best;
   }
   function openRow(best) {
     var t = best.t, s = best.s, title = V.asTitle(t.title || t.query);
-    return U.h('a', { class: 'today-row lib-open', 'data-tone': V.toneOf(title, t), href: '#/t/' + enc(t.id) + '/' + enc(s.current.id), 'aria-label': 'Left open: ' + title + ', lesson ' + (s.index + 1) + ' of ' + s.total + ', ' + s.current.title },
+    return U.h('a', { class: 'today-row lib-open', 'data-tone': V.toneOf(title, t), href: V.lessonHref(t.id, s.current.id, best.p || null), 'aria-label': 'Left open: ' + title + ', lesson ' + (s.index + 1) + ' of ' + s.total + ', ' + s.current.title },
       U.h('span', { class: 'lib-open-cover', 'aria-hidden': 'true' }, V.cover(t)),
       U.h('span', { class: 'today-text' },
         U.h('span', { class: 'lib-open-label' }, 'Left open · ' + title),

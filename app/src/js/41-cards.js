@@ -870,8 +870,11 @@
   // one is typed it must be the answer's own ("ohms" for Ω, "u" for µ, "mm2" for mm² are fine).
   var PREFIX = '[pnµumckMG]?', BASE = '(?:A|V|W|Ω|F|H|Hz|s|m|g|t|L|l|J|N|Pa|VA|VAr|var|Wh|h|S|T|Wb|C|K|lx|lm|dB|bar|rad|rpm|min)';
   var UNIT = new RegExp('^(?:' + PREFIX + BASE + '(?:²|³)?(?:/' + PREFIX + '(?:s|m|h|min|A|V|W|Ω|g|L|K|°C)(?:²|³)?)?|%|°|°C|°F)$');
+  // Common spellings of one unit read as one: pu and p.u. for per unit, percent for %, degC for °C,
+  // and the Ohm sign (U+2126) for the Greek capital omega.
   function unitKey(u) {
-    return String(u || '').replace(/\s+/g, '').replace(/μ/g, 'µ').replace(/Ω/g, 'Ω').replace(/ohms?$/i, 'Ω')
+    return String(u || '').replace(/\s+/g, '').replace(/μ/g, 'µ').replace(/\u2126/g, '\u03A9').replace(/ohms?$/i, '\u03A9')
+      .replace(/^(pu|p\.u\.?)$/i, 'perunit').replace(/^percent$/i, '%').replace(/^deg(rees?)?c$/i, '°C')
       .replace(/(^|\/)u([A-Za-zΩ])/g, '$1µ$2').replace(/(^|\/)M(?=[A-Za-zΩ])/g, '$1mega:').replace(/\^2/g, '²').replace(/\^3/g, '³').replace(/([A-Za-z])2$/, '$1²').replace(/([A-Za-z])3$/, '$1³')
       .replace(/^deg(rees?)?$/i, '°').toLowerCase();
   }
@@ -881,7 +884,7 @@
     var m = /^([+-]?)\s*((?:\d[\d ,]*)?(?:\.\d*)?)\s*(.*)$/.exec(str);
     if (!m || !/\d/.test(m[2])) return { unreadable: true };
     var digits = m[2].trim(), rest = m[3].trim();
-    if (rest && !/^[A-Za-zΩΩµμ°%²³\/·.^23 ]+$/.test(rest)) return { unreadable: true };
+    if (rest && !/^[A-Za-z\u03A9\u2126µμ°%²³\/·.^23 ]+$/.test(rest)) return { unreadable: true };
     if (rest && (!unit || unitKey(rest) !== unitKey(unit))) return { unreadable: true, unit: true };
     if (/^\d{1,3}( \d{3})+(\.\d*)?$/.test(digits)) digits = digits.replace(/ /g, '');
     if (/,/.test(digits)) {
@@ -897,7 +900,9 @@
   // anything else (a fraction, a power, words) -> null. decimals: the places shown (the course's
   // rounding); about: the answer said "About" (or roughly, around, ≈), so it was rounded loosely.
   var ABOUT = /^(?:about|roughly|around|approximately|approx\.?|≈)\s*/i;
-  function figureOf(answer) {
+  // loose (an answer the lesson itself asked to be typed, puzzleSpec): any word unit after the
+  // number ("48 turns", "1000 rev/min", "1.26 times") is the answer's unit too.
+  function figureOf(answer, loose) {
     var str = String(answer == null ? '' : answer).replace(/[−‒–—]/g, '-').replace(/[  ]/g, ' ').trim();
     var about = ABOUT.test(str);
     if (about) str = str.replace(ABOUT, '');
@@ -905,9 +910,11 @@
     var pu = /^(.*\d)\s+per unit$/i.exec(str);
     if (pu) str = pu[1];
     var m = /^([+-]?\d[\d ,]*(?:\.\d+)?)\s*([^\s\d][^\s]*)?$/.exec(str);
+    var word = loose && !pu ? /^([+-]?\d[\d ,]*(?:\.\d+)?)\s+([A-Za-z][A-Za-z\/ ]{0,24})$/.exec(str) : null;
+    if (word && (!m || !UNIT.test(String(m[2] || '').replace(/μ/g, 'µ').replace(/\u2126/g, '\u03A9')))) m = word;
     if (!m || (pu && m[2])) return null;
     var num = m[1].trim(), unit = pu ? 'per unit' : m[2] || '';
-    if (unit && !pu && !UNIT.test(unit.replace(/μ/g, 'µ').replace(/Ω/g, 'Ω'))) return null;
+    if (unit && !pu && m !== word && !UNIT.test(unit.replace(/μ/g, 'µ').replace(/\u2126/g, '\u03A9'))) return null;
     var r = readTyped(num, '');
     if (r.value == null) return null;
     var decimals = /\.(\d+)$/.test(num) ? num.split('.')[1].length : /^[+-]?\d+,\d{1,2}$/.test(num) ? num.split(',')[1].length : 0;
@@ -917,15 +924,22 @@
   }
   // -> {state: 'right'|'wrong'|'empty'|'unreadable', value?, unit?}: right within half a unit in
   // the last decimal the answer shows (the course's rounding); an "About" answer also within 1%.
+  // A whole-number answer of 100 or more is also right within 0.1% (the same figure worked from
+  // unrounded numbers, which the lesson itself accepted: 4596 for 4593 A). A wrong figure that is
+  // right in another prefix (0.575 for 575 mA) says so: {prefix: true}.
   function gradeTyped(text, spec) {
-    var f = figureOf(spec && spec.answer);
+    var f = figureOf(spec && spec.answer, spec && spec.loose);
     if (!f) return { state: 'unreadable' };
     var r = readTyped(text, f.unit);
     if (r.empty) return { state: 'empty' };
     if (r.unreadable) return r.unit ? { state: 'unreadable', unit: true } : { state: 'unreadable' };
     var tol = 0.5 * Math.pow(10, -f.decimals);
+    if (!f.decimals && Math.abs(f.value) >= 100) tol = Math.max(tol, 0.001 * Math.abs(f.value));
     if (f.about) tol = Math.max(tol, 0.01 * Math.abs(f.value));
-    return { state: Math.abs(r.value - f.value) <= tol + 1e-9 * Math.max(1, Math.abs(f.value)) ? 'right' : 'wrong', value: r.value };
+    var near = function (x) { return Math.abs(x - f.value) <= tol + 1e-9 * Math.max(1, Math.abs(f.value)); };
+    if (near(r.value)) return { state: 'right', value: r.value };
+    var prefix = !!f.unit && f.value !== 0 && [1e3, 1e6, 1e-3, 1e-6].some(function (k) { return near(r.value * k); });
+    return prefix ? { state: 'wrong', value: r.value, prefix: true } : { state: 'wrong', value: r.value };
   }
   // The worked example's picture once solved (the guide's still step: an SVG as a plain image, or
   // still HTML in a sandboxed frame, 53-read.js), shown with the answer: before it, it would give
@@ -950,13 +964,13 @@
       c.spec = { q: s.q, options: options, answer: at, why: s.why };
       return choice(c);
     }
-    if (!figureOf(s.answer)) { unavailable(c, 'This puzzle cannot be answered here, so it is skipped.'); return; }
+    if (!figureOf(s.answer, s.loose)) { unavailable(c, 'This puzzle cannot be answered here, so it is skipped.'); return; }
     typed(c);
   }
   // opts.retries (the problem set, 54-problems.js): wrong answers he may take back before the
   // working shows ("Not quite. Check your working and try again."); the result says how many tries.
   function typed(c) {
-    var s = c.spec, f = figureOf(s.answer), unit = f.unit, tries = 0, retries = Math.max(0, Number(c.opts.retries) || 0);
+    var s = c.spec, f = figureOf(s.answer, s.loose), unit = f.unit, tries = 0, retries = Math.max(0, Number(c.opts.retries) || 0);
     c.typed = true;
     var msg = h('p', { class: 'qc-typed-msg muted small', id: U.id('qcmsg'), 'aria-live': 'polite' });
     var input = h('input', { class: 'input qc-typed-input', type: 'text', inputmode: 'decimal', enterkeyhint: 'done', autocomplete: 'off', autocapitalize: 'off', spellcheck: 'false', maxlength: '40',
@@ -974,6 +988,8 @@
       var r = gradeTyped(input.value, s);
       if (r.state === 'empty') { msg.textContent = 'Type your answer first.'; return; }
       if (r.state === 'unreadable') { msg.textContent = r.unit ? (unit ? 'Type the number in ' + unit + '.' : 'Type just the number.') : 'Type a number, like ' + (f.value < 0 ? '−' : '') + '12.5' + (unit ? ' ' + unit : '') + '.'; return; }
+      // Right in another prefix: said, and not counted as a try.
+      if (r.prefix) { msg.textContent = 'Check the prefix: this answer is in ' + unit + '.'; try { input.select(); } catch (e) { /* not focusable */ } return; }
       tries++;
       if (r.state === 'wrong' && tries <= retries) {
         box.classList.add('is-retry');

@@ -62,6 +62,15 @@ test('powers group right to left; superscripts are powers too', () => {
   near(v('2^3π'), 8 * Math.PI, 1e-14);   // a power binds before a following π: (2^3)π, not 2^(3π)
 });
 
+test('each power key is a power of its own: x² twice squares twice, x⁻¹ then x² squares the reciprocal (audit, 1 Nov)', () => {
+  near(v('3²²'), 81);
+  near(v('2³²'), 64);
+  near(v('2⁻¹²'), 0.25);
+  near(v('4²⁻¹'), 0.0625);
+  near(v('5⁻³'), 0.008);
+  near(v('10¹⁰'), 1e10);
+});
+
 test('a minus in front: −2² is −4, (−2)² is 4, and minus minus is plus', () => {
   assert.equal(v('-2^2'), -4);
   assert.equal(v('−2²'), -4);

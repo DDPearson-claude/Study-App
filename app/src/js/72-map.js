@@ -137,6 +137,8 @@
       Promise.all([U.store.progress.all().catch(function () { return {}; }), bandsP]).then(function (r) {
         if (my !== seq || !ctx.alive()) return;
         progress = r[0] || {}; bandsAll = r[1] || {};
+        // A ready-made course he has not opened is on its shelf, not on his map.
+        topics = topics.filter(function (t) { if (!t.readyMade) return true; var sm = V.summary(t, progress[t.id]); return sm.started || sm.done > 0; });
         render();
       });
     }, function (e, info) {

@@ -95,13 +95,24 @@
             return { tid: tid, lessons: lessons, research: research };
           });
         })).then(function (per) {
-          return Promise.all([U.store.progress.all(), U.store.cards.all(), U.store.profile.get()]).then(function (r) {
-            var lessons = {}, research = {};
+          // His dossiers too, with their chapters: a dossier kept from a deleted course lives nowhere else.
+          var dossiers = U.store.dossier && U.store.dossier.list ? U.store.dossier.list().then(function (list) {
+            return Promise.all((list || []).map(function (d) {
+              return U.store.dossier.chapters(d.__id).catch(function () { return []; }).then(function (ch) {
+                var chapters = {};
+                (ch || []).forEach(function (c) { chapters[c.__id] = strip(c); });
+                return [d.__id, { index: strip(d), chapters: chapters }];
+              });
+            }));
+          }).catch(function () { return []; }) : Promise.resolve([]);
+          return Promise.all([U.store.progress.all(), U.store.cards.all(), U.store.profile.get(), dossiers]).then(function (r) {
+            var lessons = {}, research = {}, books = {};
             per.forEach(function (x) { lessons[x.tid] = x.lessons; research[x.tid] = x.research; });
+            (r[3] || []).forEach(function (x) { books[x[0]] = x[1]; });
             return {
               app: 'My University', kind: 'backup', version: 1, build: U.BUILD, exportedAt: U.now(),
               topics: topics.map(strip), lessons: lessons, research: research,
-              progress: stripMap(r[0]), cards: stripMap(r[1]), profile: r[2],
+              progress: stripMap(r[0]), cards: stripMap(r[1]), profile: r[2], dossiers: books,
             };
           });
         });

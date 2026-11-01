@@ -50,12 +50,16 @@
       var ideas = r[0] && Array.isArray(r[0].ideas) ? r[0].ideas : [], pi = (r[1] && r[1].ideas) || {};
       if (!ctx.alive()) return;
       if (r[0] && typeof onTopic === 'function') onTopic(r[0]);
+      // The course has gone (deleted elsewhere): not shown as ready.
+      if (!r[0]) { el.textContent = 'Not built yet'; el.classList.add('is-waiting'); return; }
       if (!ideas.length) return;
+      // The lesson he is on, as the course page, Left open and Today count it (V.summary).
+      var V = U.views || {}, sm = V.summary ? V.summary(r[0], r[1]) : null;
       var done = ideas.filter(function (i) { return i && pi[i.id] && pi[i.id].stage === 'done'; }).length;
       var started = done > 0 || ideas.some(function (i) { return i && pi[i.id] && pi[i.id].stage; });
       if (!started) return;
       if (done >= ideas.length) { el.textContent = 'Finished'; el.classList.add('is-done'); }
-      else el.textContent = 'Lesson ' + (done + 1) + ' of ' + ideas.length;
+      else el.textContent = 'Lesson ' + (sm && sm.current ? sm.index + 1 : done + 1) + ' of ' + ideas.length;
     }).catch(function () { /* stays "Ready to browse" */ });
     return el;
   }

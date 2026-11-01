@@ -378,7 +378,11 @@ U.research = {
       var sv = (r && r.servers || [])[0];
       var names = sv && sv.tools ? sv.tools.map(function (t) { return t.name; }) : [];
       return names.indexOf('web_search') >= 0 && sv.authStatus !== 'needs_reauth';
-    }, function () { return false; });
+    }, function () {
+      // A failed check (a blip) is not remembered: the next call asks again.
+      U.research._avail = null;
+      return false;
+    });
     return U.research._avail;
   },
   reset: function () { U.research._avail = null; U.research._schemas = null; },

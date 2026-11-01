@@ -38,13 +38,13 @@
       if (!p || !p.updatedAt) return;
       var s = V.summary(t, p);
       if (!s.current || s.allDone || !(s.started || s.done > 0)) return;
-      if (!best || String(s.touched) > String(best.s.touched)) best = { t: t, s: s };
+      if (!best || String(s.touched) > String(best.s.touched)) best = { t: t, s: s, p: p };
     });
     return best;
   }
   function openRow(best) {
     var t = best.t, s = best.s, title = V.asTitle(t.title || t.query);
-    return U.h('a', { class: 'today-row lib-open', 'data-tone': V.toneOf(title, t), href: '#/t/' + enc(t.id) + '/' + enc(s.current.id), 'aria-label': 'Left open: ' + title + ', lesson ' + (s.index + 1) + ' of ' + s.total + ', ' + s.current.title },
+    return U.h('a', { class: 'today-row lib-open', 'data-tone': V.toneOf(title, t), href: V.lessonHref(t.id, s.current.id, best.p || null), 'aria-label': 'Left open: ' + title + ', lesson ' + (s.index + 1) + ' of ' + s.total + ', ' + s.current.title },
       U.h('span', { class: 'lib-open-cover', 'aria-hidden': 'true' }, V.cover(t)),
       U.h('span', { class: 'today-text' },
         U.h('span', { class: 'lib-open-label' }, 'Left open · ' + title),

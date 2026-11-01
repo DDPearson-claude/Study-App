@@ -103,6 +103,8 @@
     requestAnimationFrame(function () {
       el.scrollIntoView({ behavior: reducedMotion() ? 'auto' : 'smooth', block: block || 'start' });
       var h = block === 'nearest' ? null : el.querySelector('.lsn-h, .qc-q');
+      // A steps lesson's flow is its frame alone, with no heading: the lesson's title takes focus.
+      if (!h && block !== 'nearest') h = document.querySelector('.lsn .lsn-title');
       if (h) land(h);
     });
   }
@@ -798,6 +800,10 @@
 
     function begin() {
       st.begun = true;
+      // Read through this round and never quizzed: "Quiz me through it" opens the quiz as a go-through
+      // (recorded as quizzed by the replay branch of addDone), not on "Lesson complete".
+      if (!st.replay && stepsLesson() && st.ip.stage === 'done' && st.ip.readThrough != null && Number(st.ip.readThrough) === round() &&
+        (st.ip.quizRound == null || Number(st.ip.quizRound) !== round())) st.replay = { predict: null, checks: {} };
       var list = stagesNow(), start = list[0];
       // The idea counts as started only once its whole lesson is on screen.
       if (!st.replay) {

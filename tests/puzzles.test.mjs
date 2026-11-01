@@ -97,7 +97,7 @@ test('cards made from a guide: typed figures, picked choices, written questions;
   const { U } = load();
   const made = plain(U.review.puzzlesFrom('tA', 'i1', GUIDE, LESSON, { written: { b1: { k1: { text: 'first go', at: '1' }, k2: { text: 'my words', at: '2' } } } }));
   assert.deepEqual(Object.keys(made).sort(), ['i1_w_b1', 'i1_x1', 'i1_x2', 'i1_x3', 'i1_x4']);
-  assert.deepEqual(made.i1_x1, { id: 'i1_x1', tid: 'tA', iid: 'i1', type: 'puzzle', spec: { q: 'A plant room is 6 m by 4 m. What is its area?', answer: '24 m²', why: '6 × 4 = 24.', input: 'typed', page: 1, name: 'Typed' } });
+  assert.deepEqual(made.i1_x1, { id: 'i1_x1', tid: 'tA', iid: 'i1', type: 'puzzle', spec: { q: 'A plant room is 6 m by 4 m. What is its area?', answer: '24 m²', why: '6 × 4 = 24.', input: 'typed', page: 1, loose: true, name: 'Typed' } });
   assert.equal(made.i1_x2.spec.input, 'pick', 'words are picked from the lesson\'s own options');
   assert.deepEqual(made.i1_x2.spec.options, ['Floor A', 'Floor B', 'The same']);
   assert.equal(made.i1_x3.spec.input, 'typed', 'a figure picked in the lesson is typed in review');
@@ -129,35 +129,53 @@ test('a problem set (54-problems.js) is the guide\'s typed puzzles in order, whe
   function U_from(g) { return load().U.problems.from('tA', 'i9', g, null, null).map((c) => c.spec.input); }
 });
 
-test('new numbers (55-practice.js): the app checks Claude\'s formula against the lesson\'s answer and works out the new answer itself', () => {
+test('new numbers (55-practice.js): the app checks Claude\'s formula against the lesson\'s answer, the old task and the new one, and works the answer and its working itself', () => {
   const { U } = load();
   const card = { id: 'i4_x2', spec: { q: 'The load draws 100 A through 7 mΩ. What are the lost volts?', answer: '0.70 V', why: 'I × r = 100 × 0.007 = 0.70 V.', input: 'typed', page: 3 } };
-  const good = { id: 'i4_x2', vars: { I: { was: 100, now: 150 }, r: { was: 7, now: 5 } }, formula: '{I} * {r} / 1000', task: 'The load draws 150 A through 5 mΩ. What are the lost volts?', why: 'I × r = 150 × 0.005 = {answer}.' };
+  const good = { id: 'i4_x2', vars: { I: { was: 100, now: 150 }, r: { was: 7, now: 5 } }, formula: '{I} * {r} / 1000', task: 'The load draws 150 A through 5 mΩ. What are the lost volts?', why: 'Claude\'s words are never shown.' };
   const v = plain(U.practice.makeVariant(card, good));
   assert.equal(v.answer, '0.75 V', 'the app\'s own sum, to the lesson\'s two places, with its unit');
   assert.equal(v.q, good.task);
-  assert.equal(v.why, 'I × r = 150 × 0.005 = 0.75 V.');
+  assert.equal(v.why, 'With these numbers: 150 × 5 ÷ 1000 = 0.75 V.\n\nThe lesson\'s working, with its own numbers: I × r = 100 × 0.007 = 0.70 V.', 'the working is the app\'s sum, then the lesson\'s method');
   assert.equal(v.input, 'typed'); assert.equal(v.fresh, true);
   assert.equal(U.cards.gradeTyped('0.75', v).state, 'right', 'and it is graded like any typed answer');
   const no = (patch, why) => assert.equal(U.practice.makeVariant(card, { ...good, ...patch }), null, why);
   no({ formula: '{I} * {r} / 100' }, 'a formula that does not give the lesson\'s own answer with the old values');
-  no({ task: 'The load draws 150 A through 7 mΩ. What are the lost volts?' }, 'a task that does not carry every new value');
+  no({ task: 'The load draws 150 A through 7 mΩ. What are the lost volts?' }, 'a changed value left at its old figure in the words');
   no({ vars: { I: { was: 100, now: 100 }, r: { was: 7, now: 7 } } }, 'nothing changed');
   no({ formula: '{I} * {x} / 1000' }, 'a name the formula uses but vars do not give');
   no({ vars: { I: { was: 100, now: 150 }, r: { was: 7, now: 5 }, k: { was: 2, now: 3 } } }, 'a var the formula never uses');
+  no({ vars: { I: { was: 120, now: 150 }, r: { was: 7, now: 5 } }, formula: '{I} * {r} / 1000 * 100 / 120' }, 'a "was" value that is not in the old task');
   no({ vars: { I: { was: 100, now: 150000 }, r: { was: 7, now: 5 } }, task: 'The load draws 150000 A through 5 mΩ. What are the lost volts?' }, 'an answer more than twenty times the old one');
   no({ formula: 'alert({I}) * {r} / 1000' }, 'nothing but the calculator\'s own words runs');
   no({ skip: true }, 'a skipped problem');
   assert.equal(U.practice.makeVariant({ id: 'w', spec: { q: 'Which floor?', answer: 'Floor B', why: '' } }, good), null, 'a word answer has no new numbers');
-  // An About answer: the old values need only come within 1%; the new answer is printed to its places, without the About.
+  // The audit's cases (1 Nov): a number changed in the words that the formula does not use.
+  const heater = { spec: { q: 'A 440 V to 115 V transformer feeds a 3 kW heater on its 115 V side. What current does it take from the 440 V supply?', answer: '6.82 A', why: 'Power in = power out, so I1 = 3000 ÷ 440 = 6.82 A.' } };
+  assert.equal(U.practice.makeVariant(heater, { vars: { P: { was: 3, now: 4 } }, formula: '{P}*1000/440',
+    task: 'A 400 V to 115 V transformer feeds a 4 kW heater on its 115 V side. What current does it take from the 400 V supply?' }), null, 'the voltage changed in the words but not in the formula');
+  const hv = plain(U.practice.makeVariant(heater, { vars: { P: { was: 3, now: 4 } }, formula: '{P}*1000/440',
+    task: 'A 440 V to 115 V transformer feeds a 4 kW heater on its 115 V side. What current does it take from the 440 V supply?' }));
+  assert.equal(hv.answer, '9.09 A', 'only the power changed: 4000 ÷ 440');
+  const ohm = { spec: { q: 'A 230 V supply feeds a 23 Ω heater. What current flows?', answer: '10 A', why: 'I = V ÷ R = 230 ÷ 23 = 10 A.' } };
+  assert.equal(U.practice.makeVariant(ohm, { vars: { V: { was: 230, now: 240 } }, formula: '{V}/23', task: 'A 240 V supply feeds a 16 Ω heater. What current flows?' }), null, 'a number written into the formula that changed in the words');
+  // A whole-number answer: the new one is not rounded to a whole number.
+  const flow = { spec: { q: 'Air crosses an opening of 0.4 m² at 2.5 m/s. What is the flow?', answer: '1 m³/s', why: 'Flow = area × speed = 0.4 × 2.5 = 1 m³/s.' } };
+  assert.equal(plain(U.practice.makeVariant(flow, { vars: { A: { was: 0.4, now: 0.6 } }, formula: '{A}*2.5', task: 'Air crosses an opening of 0.6 m² at 2.5 m/s. What is the flow?' })).answer, '1.5 m³/s');
+  // Written in the course's style: trailing zeros and a printed minus are the same numbers.
+  const st = { spec: { q: 'Two cells read 0.40 mΩ and 0.50 mΩ. What is their difference?', answer: '0.10 mΩ', why: '0.50 − 0.40 = 0.10 mΩ.' } };
+  assert.equal(plain(U.practice.makeVariant(st, { vars: { a: { was: 0.4, now: 0.45 }, b: { was: 0.5, now: 0.6 } }, formula: '{b}-{a}', task: 'Two cells read 0.45 mΩ and 0.60 mΩ. What is their difference?' })).answer, '0.15 mΩ');
+  // An About answer stays About (its 1% allowance); a per-unit answer keeps its unit.
   const about = { id: 'a', spec: { q: 'A 100 V board leaks 500 kΩ and 51 kΩ. What does the negative read?', answer: 'About 9.26 V', why: '100 × 51 ÷ 551.' } };
-  const av = plain(U.practice.makeVariant(about, { vars: { V: { was: 100, now: 220 }, P: { was: 500, now: 400 }, N: { was: 51, now: 40 } }, formula: '{V} * {N} / ({P} + {N})',
-    task: 'A 220 V board leaks 400 kΩ and 40 kΩ. What does the negative read?', why: '220 × 40 ÷ 440 = {answer}.' }));
-  assert.equal(av.answer, '20.00 V');
-  // A per-unit answer keeps its unit.
+  const av = plain(U.practice.makeVariant(about, { vars: { V: { was: 100, now: 100 }, P: { was: 500, now: 500 }, N: { was: 51, now: 68 } }, formula: '{V} * {N} / ({P} + {N})',
+    task: 'A 100 V board leaks 500 kΩ and 68 kΩ. What does the negative read?' }));
+  assert.equal(av.answer, 'About 11.97 V');
+  assert.equal(U.cards.gradeTyped('12.0', av).state, 'right', 'within 1%');
   const pu = plain(U.practice.makeVariant({ id: 'p', spec: { q: 'Xs is 1.5 per unit and the current 0.5 per unit. What is the drop?', answer: '0.75 per unit', why: '1.5 × 0.5.' } },
-    { vars: { X: { was: 1.5, now: 1.2 }, I: { was: 0.5, now: 0.8 } }, formula: '{X} * {I}', task: 'Xs is 1.2 per unit and the current 0.8 per unit. What is the drop?', why: '1.2 × 0.8 = {answer}.' }));
+    { vars: { X: { was: 1.5, now: 1.2 }, I: { was: 0.5, now: 0.8 } }, formula: '{X} * {I}', task: 'Xs is 1.2 per unit and the current 0.8 per unit. What is the drop?' }));
   assert.equal(pu.answer, '0.96 per unit');
+  assert.equal(plain(U.practice.makeVariant({ spec: { q: 'A 20 A load on a 40 A cable is what percentage?', answer: '50%', why: '20 ÷ 40 × 100 = 50%.' } },
+    { vars: { L: { was: 20, now: 30 } }, formula: '{L}/40*100', task: 'A 30 A load on a 40 A cable is what percentage?' })).answer, '75%', 'a percentage with no space');
 });
 
 test('mixed problems (54-problems.js): taken in turn from each pool, so the set spreads over the courses and lessons', () => {
@@ -183,6 +201,17 @@ test('typed answers are graded to the course\'s rounding: half a unit in the las
   assert.equal(g('28.88', '28.87 A'), 'wrong');
   assert.equal(g('28.9', '28.87 A'), 'wrong', 'rounded further than the course rounds is not the answer');
   assert.equal(g('28,87', '28.87 A'), 'right', 'a decimal comma');
+  // Audit, 1 Nov: whole numbers worked from unrounded figures, prefixes, word units, unit spellings.
+  assert.equal(g('4596', '4593 A'), 'right', 'within 0.1% of a whole number in the thousands');
+  assert.equal(g('4610', '4593 A'), 'wrong');
+  assert.equal(g('72', '72.3%'), 'wrong', 'an answer with decimals keeps its rounding');
+  assert.deepEqual(plain(U.cards.gradeTyped('0.575', { answer: '575 mA' })), { state: 'wrong', value: 0.575, prefix: true }, 'right in another prefix: said so');
+  assert.equal(U.cards.gradeTyped('48', { answer: '48 turns', loose: true }).state, 'right', 'a word unit, where the lesson asked it typed');
+  assert.equal(U.cards.gradeTyped('48 turns', { answer: '48 turns', loose: true }).state, 'right');
+  assert.equal(U.cards.figureOf('48 turns'), null, 'not a figure where the lesson picked it');
+  assert.equal(g('1.25 pu', '1.25 per unit'), 'right', 'pu for per unit');
+  assert.equal(g('5 \u2126', '5 Ω'), 'right', 'the Ohm sign');
+  assert.equal(g('40 percent', '40%'), 'right');
   assert.equal(g('28.87 V', '28.87 A'), 'unreadable', 'another unit is not accepted as the answer');
   assert.equal(g('', '28.87 A'), 'empty');
   assert.equal(g('about 30', '28.87 A'), 'unreadable');

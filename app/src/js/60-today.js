@@ -426,15 +426,25 @@
   // (no input), and every example of an older guide, make none.
   function str(v) { return typeof v === 'string' ? v : v == null ? '' : String(v); }
   var NAMES_OPTIONS = /\b(these|the options|which one)\b/i;
+  // A worked example that leans on its picture or an earlier screen ("What is this triangle's
+  // area?", "Which line slipped?") cannot be asked on its own: the card shows the task alone, and
+  // the guide's picture only once answered. Audit, 1 Nov: the likely "errors" that hid the box.
+  var NEEDS_PICTURE = /\b(drawn|shown|pictured|picture|diagram|graph|trace|tile|dial|line \d|which arrow|which line|count the|(this|these|that) (point|points|line|lines|graph|working|ring|triangle|circuit|curve|reading|readings|trace|table|grid|matrix|shape|arrow|arrows|panel|plot|chart|meter|dot|dots))\b/i;
   function puzzleSpec(p, at) {
     var task = str(p.task).trim(), answer = str(p.answer).trim();
     if (!task || !answer || !U.cards || typeof U.cards.figureOf !== 'function') return null;
+    if (NEEDS_PICTURE.test(task) || (p.input === 'typed' && !/\d/.test(task))) return null;
     var options = Array.isArray(p.options) ? p.options.map(function (o) { return str(o).trim(); }).filter(Boolean) : [];
     var pick = p.input === 'pick' && options.length >= 2 && options.length <= 8 && options.indexOf(answer) >= 0;
-    var fig = !!U.cards.figureOf(answer);
-    var input = p.input === 'typed' && fig ? 'typed' : pick && fig && !NAMES_OPTIONS.test(task) ? 'typed' : pick ? 'pick' : null;
+    // Asked typed in the lesson: any word unit is its unit (loose). Picked in the lesson: typed only
+    // when the options do not test the unit itself (the same number in another prefix) and the task
+    // does not ask which one.
+    var loose = p.input === 'typed', f = U.cards.figureOf(answer, loose), fig = !!f;
+    var unitTest = pick && f && options.some(function (o) { var g = o !== answer && U.cards.figureOf(o); return g && g.unit !== f.unit; });
+    var input = p.input === 'typed' && fig ? 'typed' : pick && fig && !unitTest && !NAMES_OPTIONS.test(task) && !/^which\b/i.test(task) ? 'typed' : pick ? 'pick' : null;
     if (!input) return null;
     var spec = { q: task, answer: answer, why: str(p.why).trim(), input: input, page: at };
+    if (loose) spec.loose = true;
     if (input === 'pick') spec.options = options;
     if (str(p.name)) spec.name = str(p.name).slice(0, 80);
     return spec;

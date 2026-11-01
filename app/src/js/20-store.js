@@ -256,7 +256,7 @@ U.store = (function () {
     later.splice(0).forEach(function (t) { Promise.resolve().then(t).catch(function () { /* queued again by itself */ }); });
   }
   function wrote() {
-    if (outage) { outage = false; U.toast('Saving works again. What you did meanwhile is saved.', { kind: 'good' }); }
+    if (outage) { outage = false; U.toast(waiting() ? 'Saving works again. What you did meanwhile is being saved now.' : 'Saving works again.', { kind: 'good' }); }
     if (waiting()) setTimeout(flush, 0);
     wake();   // the bridge answers again: subscriptions it ended can start again
     retake();
@@ -362,6 +362,9 @@ U.store = (function () {
     });
   }
   var STAGE = { predict: 0, play: 1, explain: 2, say: 3, checks: 4, done: 5 };
+  // A read lesson runs explain, then play (Explore), then done: its own order, or its move on to
+  // Explore would read as a step back and be dropped.
+  var READ_STAGE = { explain: 0, play: 1, done: 2 };
   var ROUND_FIELDS = ['round', 'stage', 'predict', 'checks', 'doneAt', 'startedAt', 'how', 'relearn', 'relearnId', 'relearnAt', 'relearnNote', 'againAt', 'past', 'quizRound', 'readThrough'];
   function guardProgress(cur, body) {
     var bi = body.ideas, ci = (cur && cur.ideas) || {};
@@ -375,7 +378,8 @@ U.store = (function () {
       // A second start of the round the doc is in (two devices opened the same fresh lesson): the
       // first one stands, with whatever Dan has done in it since.
       if (b.againAt != null && String(b.againAt) !== String(c.againAt || '')) { ROUND_FIELDS.forEach(function (k) { delete b[k]; }); return; }
-      if (b.stage != null && (STAGE[b.stage] || 0) < (STAGE[c.stage] || 0)) delete b.stage;
+      var order = (b.how || c.how) === 'read' ? READ_STAGE : STAGE;
+      if (b.stage != null && (order[b.stage] || 0) < (order[c.stage] || 0)) delete b.stage;
       if (b.predict != null && c.predict) delete b.predict;
       if (b.doneAt && c.doneAt) delete b.doneAt;
       if (b.startedAt && c.startedAt) delete b.startedAt;
@@ -698,7 +702,7 @@ U.store = (function () {
           var jobs = [];
           r[0].forEach(function (d) { jobs.push(del(S.paths.lesson(tid, d.__id))); });
           r[1].forEach(function (d) { jobs.push(del(S.paths.research(tid, d.__id))); });
-          jobs.push(del(S.paths.progress(tid)), del(S.paths.cards(tid)), del(S.paths.caseFile(tid)));
+          jobs.push(del(S.paths.progress(tid)), del(S.paths.cards(tid)), del(S.paths.caseFile(tid)), del(S.paths.sheet(tid)));
           return Promise.all(jobs);
         }).then(function () { return { leftovers: left }; });
       });
@@ -783,8 +787,10 @@ U.store = (function () {
     // Deletes the cards and progress docs of a topic that no longer exists (left behind by a
     // delete that half failed, or written by an older version of the app).
     dropOrphan: function (tid) {
-      return topicExists(tid, true).then(function (ok) {
-        if (ok) return false;
+      // Read the topic itself before deleting anything: a list that missed it (a cached or partial
+      // read) must never wipe his cards and progress.
+      return retrying(function () { return D('topics/' + tid).get(); }).then(function (snap) { return !!(snap && snap.exists); }).then(function (ok) {
+        if (ok) { known[tid] = { ok: true, at: Date.now() }; return false; }
         return Promise.all([S.paths.cards(tid), S.paths.progress(tid)].map(function (p) {
           return retrying(function () { return D(p).delete(); }).catch(function (e) { console.warn('could not tidy', p, e); });
         })).then(function () { return true; });

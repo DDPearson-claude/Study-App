@@ -601,6 +601,8 @@ U.sandbox = (function () {
         hf = hiddenFrame(html, o.width || 340, o.theme || theme(), function (d) {
           if (d.type === 'leaving') finish({ reachable: false, exact: false, best: null, tried: 0, error: LEFT });
           if (d.type !== 'ready') return;
+          // Loaded: the load timer stops here; the sweep is bounded by the request's own timeout.
+          cancel(timer);
           requests(hf.ch).reach(spec).then(function (r) { finish(r || { reachable: false, exact: false, best: null, tried: 0, error: 'no answer' }); },
             function (e) { finish({ reachable: false, exact: false, best: null, tried: 0, error: (e && e.message) || 'no answer' }); });
         });
