@@ -148,7 +148,8 @@
   // =====================================================================================
   function roman(n) { var r = ''; [[10, 'X'], [9, 'IX'], [5, 'V'], [4, 'IV'], [1, 'I']].forEach(function (p) { while (n >= p[0]) { r += p[1]; n -= p[0]; } }); return r; }
   function paras(t) { return str(t).replace(/\r/g, '').split(/\n{2,}/).map(function (s) { return s.trim(); }).filter(Boolean); }
-  function splitTitle(t) { var p = str(t).split(' — '); return { title: p[0].trim(), pub: (p[1] || '').trim() }; }
+  // "Title — Publisher"; a tail with no letters ("Tech Note — 317") is part of the title, not a publisher.
+  function splitTitle(t) { var p = str(t).split(' — '), pub = (p[1] || '').trim(); return /[A-Za-z]/.test(pub) ? { title: p[0].trim(), pub: pub } : { title: str(t).trim(), pub: '' }; }
   // "Put it into practice" (lesson.practice.text, U.rich text) sorted into the practice page's parts by
   // fixed rules, word for word (nothing reworded or added): a part is named by its own lead label,
   // on a line of its own or before its text ("**Steps**", "Rule of thumb:", "**Worked example:**",

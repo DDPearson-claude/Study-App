@@ -430,7 +430,7 @@
         U.h('div', { class: 'tp-split' },
           U.h('div', { class: 'tp-banner' }, V.cover(topic)),
           U.h('div', { class: 'tp-split-main' },
-            U.h('p', { class: 'eyebrow' }, s.total + (s.total === 1 ? ' idea' : ' ideas') + ((ui.mode || V.modeOf(topic)) === 'read' ? ' · Just teach me' : '')),   // the choice shows at once, before the saved topic comes back
+            U.h('p', { class: 'eyebrow' }, s.total + (s.total === 1 ? ' idea' : ' ideas') + (!topic.readyMade && (ui.mode || V.modeOf(topic)) === 'read' ? ' · Just teach me' : '')),   // the choice shows at once, before the saved topic comes back
             U.h('h1', { class: 'tp-title' }, V.asTitle(topic.title || topic.query)),
             topic.hook ? U.inline(U.h('p', { class: 'tp-hook' }), topic.hook) : null,
             // No summary to say it under (older plans): the question says it itself.
@@ -567,9 +567,10 @@
     function problemsLink(idea, st) {
       if (!U.problems) return null;
       var pb = st.problems && Number(st.problems.of) > 0 ? st.problems : null;
-      return [U.h('span', { class: 'pnode-sep', 'aria-hidden': 'true' }, ' · '),
+      // The dot travels with its link, so a wrapped line never ends on a dangling dot.
+      return [' ', U.h('span', { class: 'pnode-pb' }, U.h('span', { class: 'pnode-sep', 'aria-hidden': 'true' }, '· '),
         U.h('a', { class: 'linkish pnode-problems', href: U.problems.href(tid, idea.id), 'data-key': 'problems-' + idea.id },
-          pb ? 'Problems: ' + Number(pb.first) + ' of ' + Number(pb.of) + ' first time' : 'Work the problems')];
+          pb ? 'Problems: ' + Number(pb.first) + ' of ' + Number(pb.of) + ' first time' : 'Work the problems'))];
     }
     var WAYS = { quiz: 'Quiz me through it', read: 'Just read it through' };
     function wayLink(idea, way, cls, label) {

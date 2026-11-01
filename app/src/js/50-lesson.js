@@ -204,6 +204,9 @@
       if (st.ip.startedAt) return false;
       return !!(st.topic && st.topic.mode === 'read');
     }
+    // A ready-made course calls its parts lessons and itself a course (as the read-through does).
+    function noun() { return st.topic && st.topic.readyMade ? 'Lesson' : 'Idea'; }
+    function backWord() { return st.topic && st.topic.readyMade ? 'Back to the course' : 'Back to topic'; }
     function stepsLesson() { return reading() && st.lesson.format === 'steps' && !st.noSteps && !!builtIt(); }
     function stagesNow() { return stepsLesson() ? STEPS_STAGES : reading() ? READ_STAGES : STAGES; }
     function stepsNow() { return stepsLesson() ? STEPS_STAGES.slice(0, 1) : reading() ? READ_STEPS : STEPS; }
@@ -376,7 +379,7 @@
     function fillHead() {
       var n = (st.topic.ideas || []).length;
       // Two parts, so a narrow screen can drop the topic name whole (50-lesson.css).
-      U.append(U.clear(eb), [U.h('span', { class: 'lsn-eb-topic' }, st.topic.title || 'Topic'), U.h('span', { class: 'lsn-eb-n' }, 'Idea ' + (st.index + 1) + ' of ' + n)]);
+      U.append(U.clear(eb), [U.h('span', { class: 'lsn-eb-topic' }, st.topic.title || 'Topic'), U.h('span', { class: 'lsn-eb-n' }, noun() + ' ' + (st.index + 1) + ' of ' + n)]);
       eb.classList.add('is-filled');
       h1.textContent = st.idea.title || (st.lesson && st.lesson.title) || 'This idea';
       U.line(one, st.idea.oneLine || '');
@@ -904,7 +907,7 @@
         b.setAttribute('aria-label', stepName(list[i]) + (state === 'done' ? ', done' : state === 'now' ? ', current step' : ''));
         if (state === 'now') b.setAttribute('aria-current', 'step'); else b.removeAttribute('aria-current');
       });
-      stepLabel.textContent = all ? (reading() ? 'Idea read' : 'Idea learned') : st.begun ? labelOf(st.stage) : st.prep ? 'Getting ready' : '';
+      stepLabel.textContent = all ? (reading() ? noun() + ' read' : noun() + ' learned') : st.begun ? labelOf(st.stage) : st.prep ? 'Getting ready' : '';
       bar.classList.toggle('is-all', all);
       paintOne();
     }
@@ -1698,7 +1701,7 @@
       var boxShown = !!U.flags.puzzleBox;
       var sec = read
         // A read lesson: "Lesson complete", then on to the next lesson or start this one again.
-        ? U.h('section', { class: 'lsn-stage lsn-done' + (party ? ' is-fresh' : ''), dataset: { stage: 'done' }, 'aria-label': 'Idea read' },
+        ? U.h('section', { class: 'lsn-stage lsn-done' + (party ? ' is-fresh' : ''), dataset: { stage: 'done' }, 'aria-label': noun() + ' read' },
           U.h('div', { class: 'lsn-done-mark', 'aria-hidden': 'true' }, U.icon('tick')),
           heading('Lesson complete'),
           // A steps lesson was done, not read: no "just for reading" line under its heading; once
@@ -1712,10 +1715,10 @@
             ? U.h('div', { class: 'lsn-next' }, eyebrow('Next'), U.h('h3', null, String(nx.title || 'The next idea')), nextStatus(nx),
               go(U.h('a', { class: 'btn lsn-main', href: topicHref + '/' + encodeURIComponent(nx.id) }, 'Next lesson', U.icon('arrow')),
                 btn('Start again', again, 'secondary')))
-            : U.h('div', { class: 'lsn-next' }, U.h('h3', null, 'That was the last idea in ' + (st.topic.title || 'this topic')),
-              go(U.h('a', { class: 'btn lsn-main', href: topicHref, on: { click: function () { toTopic(tid); } } }, 'Back to topic'),
+            : U.h('div', { class: 'lsn-next' }, U.h('h3', null, 'That was the last ' + noun().toLowerCase() + ' in ' + (st.topic.title || 'this topic')),
+              go(U.h('a', { class: 'btn lsn-main', href: topicHref, on: { click: function () { toTopic(tid); } } }, backWord()),
                 btn('Start again', again, 'secondary'))),
-          nx ? U.h('p', { class: 'lsn-again' }, U.h('a', { class: 'linkish', href: topicHref, on: { click: function () { toTopic(tid); } } }, 'Back to topic')) : null,
+          nx ? U.h('p', { class: 'lsn-again' }, U.h('a', { class: 'linkish', href: topicHref, on: { click: function () { toTopic(tid); } } }, backWord())) : null,
           stepsLesson() ? stepsSources() : null)
         // A study lesson: how it went, and where his work went.
         : U.h('section', { class: 'lsn-stage lsn-done' + (first ? ' is-fresh' : ''), dataset: { stage: 'done' }, 'aria-label': 'Idea learned' },
@@ -1732,10 +1735,10 @@
               nx.oneLine ? U.line(U.h('p', { class: 'muted' }), String(nx.oneLine)) : null,
               nextStatus(nx),
               go(U.h('a', { class: 'btn lsn-main', href: topicHref + '/' + encodeURIComponent(nx.id) }, 'Start this idea', U.icon('arrow')),
-                U.h('a', { class: 'btn secondary', href: topicHref, on: { click: function () { toTopic(tid); } } }, 'Back to topic')))
-            : U.h('div', { class: 'lsn-next' }, eyebrow('Where next?'), U.h('h3', null, 'That was the last idea in ' + (st.topic.title || 'this topic')),
+                U.h('a', { class: 'btn secondary', href: topicHref, on: { click: function () { toTopic(tid); } } }, backWord())))
+            : U.h('div', { class: 'lsn-next' }, eyebrow('Where next?'), U.h('h3', null, 'That was the last ' + noun().toLowerCase() + ' in ' + (st.topic.title || 'this topic')),
               U.h('p', { class: 'muted' }, boxShown ? 'Every idea here is learned. Your review cards will bring them back a little before you would forget them.' : 'Every idea here is learned.'),
-              go(U.h('a', { class: 'btn lsn-main', href: topicHref, on: { click: function () { toTopic(tid); } } }, 'Back to topic'))),
+              go(U.h('a', { class: 'btn lsn-main', href: topicHref, on: { click: function () { toTopic(tid); } } }, backWord()))),
           U.h('p', { class: 'lsn-again' }, linkBtn('Go through it again', again)));
       flow.appendChild(sec);
       st.sections.done = sec;
@@ -1753,7 +1756,7 @@
     function nextStatus(nx) {
       stopNext();
       var el = U.h('p', { class: 'lsn-next-status', role: 'status' });
-      var n = 'Idea ' + ((st.topic.ideas || []).indexOf(nx) + 1), doc, read = false, shown = null;
+      var n = noun() + ' ' + ((st.topic.ideas || []).indexOf(nx) + 1), doc, read = false, shown = null;
       function paint() {
         if (!read || !alive()) return;
         var s = U.store.lesson.state(doc, liveOf(tid, nx.id));

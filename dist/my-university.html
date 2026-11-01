@@ -1401,6 +1401,7 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
 /* The course page's link to a finished lesson's problems (71-topic.js), beside "or just read it through". */
 .pnode-alt .pnode-problems { color: var(--ink); }
 .pnode-sep { color: var(--muted); }
+.pnode-pb { white-space: nowrap; }
 /* The start (54-problems.js): Start, or Start with new numbers; the mixed set's course picker. */
 .pb-start { display: flex; flex-direction: column; gap: 12px; }
 .pb-pick { border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
@@ -1713,6 +1714,7 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
 .tp-next-note { margin-top: 2px; }
 .tp-planning-in, .tp-failed-in { display: flex; flex-direction: column; gap: 14px; --tp-gap: 14px; }
 .tp-ask { margin-top: -8px; }
+.tp-foot:empty { display: none; }
 .tp-foot { display: flex; flex-direction: column; align-items: center; gap: 10px; padding-top: 12px; border-top: 1px solid var(--line); }
 .tp-art { display: flex; align-items: center; flex-wrap: wrap; justify-content: center; gap: 0 4px; margin: 0; text-align: center; }
 .tp-art .linkish { font-size: inherit; }
@@ -1798,18 +1800,18 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
 .lib-status.is-none { display: grid; gap: 4px; }
 .lib-retry.linkish { justify-self: start; }
 .lib-group-h { margin: 22px 0 0; font: 700 .9375rem/1.4 var(--sans); color: var(--heading); }
-.sources { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 12px; }
+.sources { list-style: none; margin: 12px 0 0; padding: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
 /* The source cards fold away under the status; the chevron and its turn are the lesson's (.lsn-chev, 50-lesson.css). */
 .lib-fold { margin-top: 14px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 .lib-fold > summary { list-style: none; display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; cursor: pointer; font: 700 1rem/1.3 var(--sans); color: var(--heading); }
 .lib-fold > summary::-webkit-details-marker { display: none; }
 .lib-fold-body { padding: 0 0 16px; }
-.src { display: grid; gap: 4px; padding: 14px 16px; border-radius: 16px; border: 1px solid var(--line); background: var(--surface); }
+.src { display: grid; grid-template-columns: minmax(0, 1fr); min-width: 0; gap: 4px; padding: 14px 16px; border-radius: 16px; border: 1px solid var(--line); background: var(--surface); }
 /* The padding makes a 44 px tap target; the negative margin gives the space back, and position
    keeps the link's padding above the line under it. */
 .src-title, .book-idea a { position: relative; padding-block: 12px; margin-block: -12px; }
 .src-title { justify-self: start; font: 700 1rem/1.35 var(--sans); color: var(--heading); text-decoration: underline; text-decoration-color: var(--line-strong); text-underline-offset: 3px; overflow-wrap: anywhere; }
-.src-site { font: 600 .8125rem/1.4 var(--sans); color: var(--teal); }
+.src-site { font: 600 .8125rem/1.4 var(--sans); color: var(--teal); overflow-wrap: anywhere; }
 .src-quote { margin: 6px 0 0; padding-left: 12px; border-left: 3px solid var(--hl); font: italic 400 .9375rem/1.6 var(--serif); color: var(--ink); }
 
 /* Planning and failed */
@@ -2980,7 +2982,7 @@ h1 { font-weight: 700; }
 // ---- src/js/00-core.js ----
 // Core helpers shared by every module. See docs/ARCHITECTURE.md section 3.
 var U = (window.U = window.U || {});
-U.BUILD = "2026-11-01-29e0530";
+U.BUILD = "2026-11-01-950bb2f";
 // ---------- switches ----------
 // U.flags.puzzleBox: the puzzle box (60-today.js): Today's box, review sessions (#/review), the
 // Library's and a course page's puzzle rows, the finish screen's puzzle line, the daily review
@@ -12521,6 +12523,9 @@ U.interactive = (function () {
       if (st.ip.startedAt) return false;
       return !!(st.topic && st.topic.mode === 'read');
     }
+    // A ready-made course calls its parts lessons and itself a course (as the read-through does).
+    function noun() { return st.topic && st.topic.readyMade ? 'Lesson' : 'Idea'; }
+    function backWord() { return st.topic && st.topic.readyMade ? 'Back to the course' : 'Back to topic'; }
     function stepsLesson() { return reading() && st.lesson.format === 'steps' && !st.noSteps && !!builtIt(); }
     function stagesNow() { return stepsLesson() ? STEPS_STAGES : reading() ? READ_STAGES : STAGES; }
     function stepsNow() { return stepsLesson() ? STEPS_STAGES.slice(0, 1) : reading() ? READ_STEPS : STEPS; }
@@ -12693,7 +12698,7 @@ U.interactive = (function () {
     function fillHead() {
       var n = (st.topic.ideas || []).length;
       // Two parts, so a narrow screen can drop the topic name whole (50-lesson.css).
-      U.append(U.clear(eb), [U.h('span', { class: 'lsn-eb-topic' }, st.topic.title || 'Topic'), U.h('span', { class: 'lsn-eb-n' }, 'Idea ' + (st.index + 1) + ' of ' + n)]);
+      U.append(U.clear(eb), [U.h('span', { class: 'lsn-eb-topic' }, st.topic.title || 'Topic'), U.h('span', { class: 'lsn-eb-n' }, noun() + ' ' + (st.index + 1) + ' of ' + n)]);
       eb.classList.add('is-filled');
       h1.textContent = st.idea.title || (st.lesson && st.lesson.title) || 'This idea';
       U.line(one, st.idea.oneLine || '');
@@ -13221,7 +13226,7 @@ U.interactive = (function () {
         b.setAttribute('aria-label', stepName(list[i]) + (state === 'done' ? ', done' : state === 'now' ? ', current step' : ''));
         if (state === 'now') b.setAttribute('aria-current', 'step'); else b.removeAttribute('aria-current');
       });
-      stepLabel.textContent = all ? (reading() ? 'Idea read' : 'Idea learned') : st.begun ? labelOf(st.stage) : st.prep ? 'Getting ready' : '';
+      stepLabel.textContent = all ? (reading() ? noun() + ' read' : noun() + ' learned') : st.begun ? labelOf(st.stage) : st.prep ? 'Getting ready' : '';
       bar.classList.toggle('is-all', all);
       paintOne();
     }
@@ -14015,7 +14020,7 @@ U.interactive = (function () {
       var boxShown = !!U.flags.puzzleBox;
       var sec = read
         // A read lesson: "Lesson complete", then on to the next lesson or start this one again.
-        ? U.h('section', { class: 'lsn-stage lsn-done' + (party ? ' is-fresh' : ''), dataset: { stage: 'done' }, 'aria-label': 'Idea read' },
+        ? U.h('section', { class: 'lsn-stage lsn-done' + (party ? ' is-fresh' : ''), dataset: { stage: 'done' }, 'aria-label': noun() + ' read' },
           U.h('div', { class: 'lsn-done-mark', 'aria-hidden': 'true' }, U.icon('tick')),
           heading('Lesson complete'),
           // A steps lesson was done, not read: no "just for reading" line under its heading; once
@@ -14029,10 +14034,10 @@ U.interactive = (function () {
             ? U.h('div', { class: 'lsn-next' }, eyebrow('Next'), U.h('h3', null, String(nx.title || 'The next idea')), nextStatus(nx),
               go(U.h('a', { class: 'btn lsn-main', href: topicHref + '/' + encodeURIComponent(nx.id) }, 'Next lesson', U.icon('arrow')),
                 btn('Start again', again, 'secondary')))
-            : U.h('div', { class: 'lsn-next' }, U.h('h3', null, 'That was the last idea in ' + (st.topic.title || 'this topic')),
-              go(U.h('a', { class: 'btn lsn-main', href: topicHref, on: { click: function () { toTopic(tid); } } }, 'Back to topic'),
+            : U.h('div', { class: 'lsn-next' }, U.h('h3', null, 'That was the last ' + noun().toLowerCase() + ' in ' + (st.topic.title || 'this topic')),
+              go(U.h('a', { class: 'btn lsn-main', href: topicHref, on: { click: function () { toTopic(tid); } } }, backWord()),
                 btn('Start again', again, 'secondary'))),
-          nx ? U.h('p', { class: 'lsn-again' }, U.h('a', { class: 'linkish', href: topicHref, on: { click: function () { toTopic(tid); } } }, 'Back to topic')) : null,
+          nx ? U.h('p', { class: 'lsn-again' }, U.h('a', { class: 'linkish', href: topicHref, on: { click: function () { toTopic(tid); } } }, backWord())) : null,
           stepsLesson() ? stepsSources() : null)
         // A study lesson: how it went, and where his work went.
         : U.h('section', { class: 'lsn-stage lsn-done' + (first ? ' is-fresh' : ''), dataset: { stage: 'done' }, 'aria-label': 'Idea learned' },
@@ -14049,10 +14054,10 @@ U.interactive = (function () {
               nx.oneLine ? U.line(U.h('p', { class: 'muted' }), String(nx.oneLine)) : null,
               nextStatus(nx),
               go(U.h('a', { class: 'btn lsn-main', href: topicHref + '/' + encodeURIComponent(nx.id) }, 'Start this idea', U.icon('arrow')),
-                U.h('a', { class: 'btn secondary', href: topicHref, on: { click: function () { toTopic(tid); } } }, 'Back to topic')))
-            : U.h('div', { class: 'lsn-next' }, eyebrow('Where next?'), U.h('h3', null, 'That was the last idea in ' + (st.topic.title || 'this topic')),
+                U.h('a', { class: 'btn secondary', href: topicHref, on: { click: function () { toTopic(tid); } } }, backWord())))
+            : U.h('div', { class: 'lsn-next' }, eyebrow('Where next?'), U.h('h3', null, 'That was the last ' + noun().toLowerCase() + ' in ' + (st.topic.title || 'this topic')),
               U.h('p', { class: 'muted' }, boxShown ? 'Every idea here is learned. Your review cards will bring them back a little before you would forget them.' : 'Every idea here is learned.'),
-              go(U.h('a', { class: 'btn lsn-main', href: topicHref, on: { click: function () { toTopic(tid); } } }, 'Back to topic'))),
+              go(U.h('a', { class: 'btn lsn-main', href: topicHref, on: { click: function () { toTopic(tid); } } }, backWord()))),
           U.h('p', { class: 'lsn-again' }, linkBtn('Go through it again', again)));
       flow.appendChild(sec);
       st.sections.done = sec;
@@ -14070,7 +14075,7 @@ U.interactive = (function () {
     function nextStatus(nx) {
       stopNext();
       var el = U.h('p', { class: 'lsn-next-status', role: 'status' });
-      var n = 'Idea ' + ((st.topic.ideas || []).indexOf(nx) + 1), doc, read = false, shown = null;
+      var n = noun() + ' ' + ((st.topic.ideas || []).indexOf(nx) + 1), doc, read = false, shown = null;
       function paint() {
         if (!read || !alive()) return;
         var s = U.store.lesson.state(doc, liveOf(tid, nx.id));
@@ -18498,7 +18503,7 @@ U.interactive = (function () {
         U.h('div', { class: 'tp-split' },
           U.h('div', { class: 'tp-banner' }, V.cover(topic)),
           U.h('div', { class: 'tp-split-main' },
-            U.h('p', { class: 'eyebrow' }, s.total + (s.total === 1 ? ' idea' : ' ideas') + ((ui.mode || V.modeOf(topic)) === 'read' ? ' · Just teach me' : '')),   // the choice shows at once, before the saved topic comes back
+            U.h('p', { class: 'eyebrow' }, s.total + (s.total === 1 ? ' idea' : ' ideas') + (!topic.readyMade && (ui.mode || V.modeOf(topic)) === 'read' ? ' · Just teach me' : '')),   // the choice shows at once, before the saved topic comes back
             U.h('h1', { class: 'tp-title' }, V.asTitle(topic.title || topic.query)),
             topic.hook ? U.inline(U.h('p', { class: 'tp-hook' }), topic.hook) : null,
             // No summary to say it under (older plans): the question says it itself.
@@ -18635,9 +18640,10 @@ U.interactive = (function () {
     function problemsLink(idea, st) {
       if (!U.problems) return null;
       var pb = st.problems && Number(st.problems.of) > 0 ? st.problems : null;
-      return [U.h('span', { class: 'pnode-sep', 'aria-hidden': 'true' }, ' · '),
+      // The dot travels with its link, so a wrapped line never ends on a dangling dot.
+      return [' ', U.h('span', { class: 'pnode-pb' }, U.h('span', { class: 'pnode-sep', 'aria-hidden': 'true' }, '· '),
         U.h('a', { class: 'linkish pnode-problems', href: U.problems.href(tid, idea.id), 'data-key': 'problems-' + idea.id },
-          pb ? 'Problems: ' + Number(pb.first) + ' of ' + Number(pb.of) + ' first time' : 'Work the problems')];
+          pb ? 'Problems: ' + Number(pb.first) + ' of ' + Number(pb.of) + ' first time' : 'Work the problems'))];
     }
     var WAYS = { quiz: 'Quiz me through it', read: 'Just read it through' };
     function wayLink(idea, way, cls, label) {
@@ -19803,7 +19809,8 @@ U.interactive = (function () {
   // =====================================================================================
   function roman(n) { var r = ''; [[10, 'X'], [9, 'IX'], [5, 'V'], [4, 'IV'], [1, 'I']].forEach(function (p) { while (n >= p[0]) { r += p[1]; n -= p[0]; } }); return r; }
   function paras(t) { return str(t).replace(/\r/g, '').split(/\n{2,}/).map(function (s) { return s.trim(); }).filter(Boolean); }
-  function splitTitle(t) { var p = str(t).split(' — '); return { title: p[0].trim(), pub: (p[1] || '').trim() }; }
+  // "Title — Publisher"; a tail with no letters ("Tech Note — 317") is part of the title, not a publisher.
+  function splitTitle(t) { var p = str(t).split(' — '), pub = (p[1] || '').trim(); return /[A-Za-z]/.test(pub) ? { title: p[0].trim(), pub: pub } : { title: str(t).trim(), pub: '' }; }
   // "Put it into practice" (lesson.practice.text, U.rich text) sorted into the practice page's parts by
   // fixed rules, word for word (nothing reworded or added): a part is named by its own lead label,
   // on a line of its own or before its text ("**Steps**", "Rule of thumb:", "**Worked example:**",
