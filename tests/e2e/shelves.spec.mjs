@@ -123,9 +123,11 @@ ok((await page.locator('.shelf-courses li.is-built .shelf-ready').textContent())
 ok(/Not built yet/.test(await page.locator('.shelf-courses li.is-waiting').innerText()) && (await page.locator('.shelf-courses li.is-waiting a').count()) === 0, 'one not built yet says so and is not a link');
 await page.screenshot({ path: join(SHOTS, 'folder-360.png'), fullPage: true });
 ok((await page.locator('.backlink').getAttribute('href')) === '#/shelf/maths', 'back to Maths');
+ok(!/\b(null|undefined|NaN)\b/.test(await page.locator('#view').innerText()), 'no stray "null" on a folder page');
 await page.evaluate(() => U.go('#/shelf/maths/algebra'));
 await page.waitForSelector('.shelf-fold');
 ok(await page.locator('.shelf-fold').evaluate((d) => d.open), 'a folder with nothing built opens with its fold open');
+ok(!/\b(null|undefined|NaN)\b/.test(await page.locator('#view').innerText()), 'no stray "null" where a folder has no built courses (the DOM\'s append printed it, 1 Nov)');
 await page.evaluate(() => U.go('#/shelf/maths/nope'));
 await page.waitForSelector('.v-empty');
 ok(/not in Maths any more/.test(await page.locator('.v-empty').innerText()), 'an unknown folder says so');

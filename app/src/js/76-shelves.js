@@ -113,7 +113,9 @@
       // opens it (open when nothing here is built yet), kept as he left it for the visit.
       var ready = rows.filter(function (li) { return li.className === 'is-built'; }), later = rows.filter(function (li) { return li.className !== 'is-built'; });
       var key = sid + '/' + fid, open = key in foldOpen ? foldOpen[key] : !ready.length;
-      U.clear(box).append(V.back('#/shelf/' + encodeURIComponent(sid), title),
+      // U.append, not the DOM's append: an empty part (no built courses, nothing more coming) is null,
+      // which the DOM's append would print as the word "null".
+      U.append(U.clear(box), [V.back('#/shelf/' + encodeURIComponent(sid), title),
         U.h('header', { class: 'page-head' },
           U.h('p', { class: 'eyebrow' }, title),
           U.h('h1', { tabindex: '-1' }, str(folder.title)),
@@ -122,7 +124,7 @@
         ready.length ? U.h('ol', { class: 'shelf-courses' }, ready) : null,
         later.length ? U.h('details', { class: 'lib-fold shelf-fold', open: open, on: { toggle: function (e) { foldOpen[key] = !!e.target.open; } } },
           U.h('summary', null, U.h('span', null, later.length + ' more coming'), U.h('span', { class: 'lsn-chev', 'aria-hidden': 'true' }, U.icon('back'))),
-          U.h('div', { class: 'lib-fold-body' }, U.h('ol', { class: 'shelf-courses' }, later))) : null);
+          U.h('div', { class: 'lib-fold-body' }, U.h('ol', { class: 'shelf-courses' }, later))) : null]);
     }, function (e) { if (ctx.alive()) loadError(box, 'These courses', e); });
   }
   U.routes.add('#/shelf/:sid', page, { tab: 'library', title: 'Your library' });
