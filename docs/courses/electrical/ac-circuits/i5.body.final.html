@@ -229,7 +229,7 @@
         'Charge jumps the gap only at high voltage': 'Not quite. Next to no charge crosses the gap. The current comes from filling and emptying.' } },
     { show: true, name: 'Taking and giving back', card: 'cap', cur: 'live', t: 10, sweep: [[0.5, 2.4, 0, 10]], trace: 'p', work: true,
       shade: true, avg: 'show', ghost: true, eli: true, dur: 4.3, tl: { next: 2.9, nd: 0.9, avg: 3.2, ghost: 3.2, row: 3.6 },
-      text: 'Back at 50 Hz, the power wave is the voltage × the current at each instant, as in lesson 3. From 0 to 5 ms both are positive and the plates fill: the dot climbs to 500 W as energy goes in. From 5 to 10 ms the plates drain and the current is negative: the dot dips to −500 W as the energy comes back. It averages 0 W, where lesson 3\'s heater averages 500 W. The last two rows give OpenStax\'s memory aid for the coil and the capacitor, ELI the ICE man.' },
+      text: 'Back at 50 Hz, the power wave is the voltage × the current at each instant, as in lesson 3. From 0 to 5 ms both are positive and the plates fill: the dot climbs to 500 W as energy goes in. From 5 to 10 ms the plates drain and the current is negative: the dot dips to −500 W as the energy comes back. It averages 0 W, where lesson 3\'s heater averages 500 W. The last two rows give a memory aid for the coil and the capacitor, ELI the ICE man.' },
     { name: 'Mixed: a 100 µF capacitor', card: 'ex', hideI: true, hidePow: true, pAt: 0.4, hideXC: true, ex: true, rdur: 2.0,
       slips: { '2.3 A': { iline: 2.3 * RT2 }, '0 A': { iline: 0 } },
       task: 'Mixed. An example 100 µF capacitor goes on 230 V, 50 Hz mains. What current does it draw?',
@@ -478,6 +478,8 @@
     return data;
   }
   const tickL = (y, s) => { line('axis', X0 - 4, y, X0, y); if (s != null) text(X0 - 7, y + 5, s, 'tk', 'end'); };
+  // A power tick's figure keeps below the voltage graph's lowest figure, so the two never touch.
+  const tickP = (y, s) => { line('axis', X0 - 4, y, X0, y); if (s != null) text(X0 - 7, Math.max(y, G.VY + G.VH + 14) + 5, s, 'tk', 'end'); };
   const tickR = (y, s) => { line('axis', X1, y, X1 + 4, y); if (s != null) text(X1 + 7, y + 5, s, 'tkc', 'start'); };
   // Where the cursor is in a demonstration's sweep (the last move started).
   function sweepPos(d, demo) {
@@ -585,7 +587,7 @@
       dc: false, xcDot: false, xcCurve: null, run: null, fill: null, ghostDot: null, iShown: false, pShown: false, pile: null, arrow: null,
       slip: slip && slipA > 0 ? slip : null });
 
-    text(8, G.title, c.title(f), 'tt', 'start');
+    text(8, G.title, dcK > 0.5 ? 'An ideal capacitor on a steady ' + num(c.Vp, 0) + ' V' : c.title(f), 'tt', 'start');
 
     // ---- the capacitor: at the cursor's instant, or filling from steady DC ----
     let cs = null;
@@ -705,13 +707,13 @@
       const room = top * G.PH / Pax >= 15;
       // A tick label is shown only where it fits left of the axis (a wide one such as −1000 keeps its tick mark alone).
       const lab = (s) => (room && tw(s, 'tk') <= X0 - 9 ? s : null);
-      tickL(yP(top), lab(num(top, 0))); tickL(yP(-top), lab('−' + num(top, 0)));
+      tickP(yP(top), lab(num(top, 0))); tickL(yP(-top), lab('−' + num(top, 0)));
     });
     let ghA = 0;
     if (d.ghost) {
       ghA = demo ? arr(tl.ghost) : 1;
       const hp = c.Vp * (c.Vp / HR);
-      part(ghA, 0, () => { REC.ghost = trace('ghost', (t) => hp * Math.pow(Math.sin(W.w / 1000 * t), 2), SPAN, yP); tickL(yP(hp), num(hp, 0)); });
+      part(ghA, 0, () => { REC.ghost = trace('ghost', (t) => hp * Math.pow(Math.sin(W.w / 1000 * t), 2), SPAN, yP); tickP(yP(hp), num(hp, 0)); });
     }
     if (d.shade && pUp > 0.05) {
       const pts = samples(pUp).map((t) => [t, W.p(t)]);

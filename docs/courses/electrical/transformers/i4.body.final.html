@@ -100,10 +100,14 @@
   // Volts per turn = 440 ÷ N1; V2 = N2 × that; the peak flux is 440 ÷ (4.44 × 60 × N1), and nothing on the
   // secondary side enters it. With the switch closed I2 = V2 ÷ R, and the primary cancels the secondary's
   // ampere-turns: I1 = N2 × I2 ÷ N1.
-  function rule(n1, n2, sw, R) {
-    const vpt = VS / n1, v2 = n2 * vpt, phim = VS / (4.44 * FQ * n1);
+  // A worked example's own supply (vs, 440 V unless it says) and a load's power factor (pf: the 3 + j4 Ω load's 0.6;
+  // R is then its size, 5 Ω, and only the real power is counted).
+  function rule(n1, n2, sw, R, vs, pf) {
+    if (vs == null) vs = VS;
+    if (pf == null) pf = 1;
+    const vpt = vs / n1, v2 = n2 * vpt, phim = vs / (4.44 * FQ * n1);
     const i2 = sw ? v2 / R : 0, i1 = n2 * i2 / n1;
-    return { vpt, v2, phim, i2, i1, pin: VS * i1, pout: v2 * i2, at1: n1 * i1, at2: n2 * i2, seen: sw ? VS / i1 : null };
+    return { vpt, v2, phim, i2, i1, pin: vs * i1 * pf, pout: v2 * i2 * pf, at1: n1 * i1, at2: n2 * i2, seen: sw ? vs / i1 : null };
   }
   const N1S = [440, 660, 880, 1100, 1320], N2S = [115, 230, 345, 460, 575, 690, 805, 920];
   const r0 = (v) => String(Math.round(v + 1e-7));
@@ -121,8 +125,9 @@
   // ================= the lesson: SHOW screens demonstrate, DO screens are puzzles =================
   const ramp = (t, t0, dur, a, b) => a + (b - a) * K.clamp((t - t0) / dur, 0, 1);
   const R_HEAT = 115 * 115 / 3000;   // the 3 kW heater's resistance at 115 V, in Ω
+  const ZL = '3' + NB + '+' + NB + 'j4' + NB + 'Ω';   // the 3 + j4 Ω load, labelled as its puzzles give it
   const STEPS = [
-    { kind: 'typed', name: 'Size of a load', ans: 'size', enter: {},
+    { kind: 'typed', name: 'Size of a load', ans: 'size', enter: { zlab: ZL },
       answer: 5, decimals: 0, unit: 'Ω', want: '5' + NB + 'Ω',
       slips: [{ value: 7, hint: 'That adds the parts. The size is the square root of 3² + 4².' },
         { value: 25, hint: 'That is 3² + 4². Now take its square root.' }],
@@ -136,7 +141,7 @@
       text: strip('The volts follow the turns. One iron core carries two windings, with no wire between them. The primary has 880 turns on 440 V. The secondary has 230. The same flux threads every turn of both. So both windings get the same volts per turn. Here it is 440 ÷ 880 = 0.5 V. The secondary\'s 230 turns add up to 230 × 0.5 = 115 V. Drag the secondary\'s turns, and each one adds another 0.5 V. So V2 ÷ V1 = N2 ÷ N1.[^1]'),
       read: 'Two windings share one core and one flux. On 440 V, the primary\'s 880 turns give 0.5 V per turn. So the secondary\'s 230 turns give 115 V. The volts follow the turns.',
       still: () => setStill() },
-    { kind: 'typed', name: 'A 24 V winding', ans: 'n24', enter: {},
+    { kind: 'typed', name: 'A 24 V winding', ans: 'n24', enter: {}, runEnd: { n2: 48 },
       answer: 48, decimals: 0, unit: 'turns', want: '48' + NB + 'turns',
       slips: [{ value: 12, hint: 'That multiplies 24 by 0.5. Each turn gives 0.5 V, so divide.' },
         { value: 37, hint: 'That is 880 ÷ 24. Find the volts per turn first.' }],
@@ -149,7 +154,7 @@
       text: strip('The primary cancels the secondary\'s *ampere-turns*. Close the load switch. A 5 Ω load on 115 V draws 23 A. The secondary\'s 230 turns now carry 230 × 23 = 5290 ampere-turns. They push against the change that made them. But the flux must still make 440 V in the primary, to match the supply. So it cannot shrink. Instead, the primary draws 5290 ÷ 880 = 6.01 A extra to cancel them. The ampere-turns balance: N1 × I1 = N2 × I2. Fewer turns carry more amps.'),
       read: 'With a 5 Ω load, the secondary\'s 230 turns carry 23 A. That is 5290 ampere-turns. The primary cancels them with 6.01 A through its 880 turns.',
       still: () => setStill() },
-    { kind: 'typed', name: 'The 440 V side', ans: 'i440', enter: { sw: true },
+    { kind: 'typed', name: 'The 440 V side', ans: 'i440', enter: { sw: true }, runEnd: { R: 115 / 40, ilab: '40' + NB + 'A' },
       answer: 10.45, decimals: 2, unit: 'A', want: '10.45' + NB + 'A',
       slips: [{ value: 153.04, hint: 'That makes the 115 V side\'s current the smaller. A step-down raises the current, so the 440 V side carries less.' },
         { value: 40, hint: 'The two currents differ by the same ratio as the volts.' }],
@@ -203,7 +208,7 @@
       hint: 'Seen resistance = load × (N1 ÷ N2)².',
       why: '(880 ÷ 230)² = 14.64. So the 440 V side sees 2.5 × 14.64 = 36.6 Ω. Check: 115 V on 2.5 Ω draws 46 A. The primary takes 46 × 230 ÷ 880 = 12.02 A. And 440 ÷ 12.02 = 36.6 Ω.',
       read: 'On the same 880 to 230 turn transformer, the load is 2.5 Ω. What resistance does the 440 V side see?' },
-    { kind: 'pick', name: 'Through the windings', enter: { sw: true },
+    { kind: 'pick', name: 'Through the windings', enter: { sw: true, zlab: ZL, pf: 0.6 },
       opts: ['3 + j4 Ω', '11.5 + j15.3 Ω', '43.9 + j58.6 Ω', '73.2 + j0 Ω'], want: '43.9 + j58.6 Ω',
       task: 'The load on the 115 V side is 3 + j4 Ω. You found its size at the start. The transformer has 880 and 230 turns. What impedance does the 440 V side see?',
       hint: 'From the other side, the load looks bigger by the ratio squared.',
@@ -212,7 +217,7 @@
         '73.2 + j0 Ω': '73.2 Ω is its size. Scaling by a plain number keeps its angle.' },
       why: 'The ratio squared, 14.64, is a plain number. It scales both parts: 3 × 14.64 = 43.9 and 4 × 14.64 = 58.6. The size grows from 5 Ω to 73.2 Ω. The angle stays the same. So the power factor is the same from both sides.',
       read: 'A 3 + j4 Ω load sits on the 115 V side of the 880 to 230 turn transformer. What impedance does the 440 V side see?' },
-    { kind: 'typed', name: 'A step-up', ans: 'up', enter: { sw: true, n1: 440, n2: 920, R: 20 },
+    { kind: 'typed', name: 'A step-up', ans: 'up', enter: { vs: 115, n1: 200, n2: 800, R: 115 * 800 / 200 / 2.3 }, runEnd: { sw: true, ilab: '2.3' + NB + 'A' },
       answer: 9.2, decimals: 1, unit: 'A', want: '9.2' + NB + 'A',
       slips: [{ value: 0.6, hint: 'That has the current rising with the volts. The higher-voltage side carries less, so turn it round.' },
         { value: 2.3, hint: 'The two currents differ by the turns ratio.' }],
@@ -224,7 +229,7 @@
   const FINISH = 'Every turn on one core gets the same volts, so the volts follow the turns. The primary cancels the secondary\'s ampere-turns, so the amps go the other way. Power in equals power out. The flux stays where the supply holds it. Seen through the windings, a load scales by the turns ratio squared. That lets you draw a transformer and its load as one circuit. Next: the real transformer, and where its watts go.';
 
   // ================= state =================
-  const BASE = { n1: 880, n2: 230, sw: false, R: 5 };
+  const BASE = { n1: 880, n2: 230, sw: false, R: 5, vs: VS, pf: 1, zlab: null, ilab: null };
   const X = Object.assign({}, BASE);              // what the picture shows now
   const D = {};                                   // the drawn sizes, easing towards the rule's
   const blank = () => ({ pick: null, res: null, why: false, tries: 0, hint: '' });
@@ -252,11 +257,11 @@
     const d = STEPS[i], rs = [X.R];
     if (d.ctl && d.ctl.indexOf('R') >= 0) rs.push(2);
     [d.end, d.runEnd].forEach((e) => { if (e && e.R) rs.push(e.R); });
-    const r = rule(X.n1, X.n2, true, Math.min.apply(null, rs));
+    const r = rule(X.n1, X.n2, true, Math.min.apply(null, rs), X.vs, X.pf);
     SC.cs = niceUp(Math.max(r.i1, r.i2)); SC.ps = niceUp(r.pin);
   }
   function targets() {
-    const r = rule(X.n1, X.n2, X.sw, X.R);
+    const r = rule(X.n1, X.n2, X.sw, X.R, X.vs, X.pf);
     return { l1: KT * X.n1, l2: KT * X.n2, v2: r.v2, i1: r.i1, i2: r.i2, p: r.pin, phim: r.phim, cs: SC.cs, ps: SC.ps };
   }
   function snapD() { Object.assign(D, targets()); }
@@ -291,8 +296,10 @@
   const pushed = {};
   CTL_IDS.forEach((id) => { pushed[id] = CTL[id].get(); });
   // The page moves the controls itself during a demonstration (silently, so it is not taken for Dan's move).
+  const RANGE = { n1: [440, 1320], n2: [115, 920], R: [2, 20] };
+  const onSlider = (id) => !RANGE[id] || (X[id] >= RANGE[id][0] && X[id] <= RANGE[id][1]);
   function push() {
-    CTL_IDS.forEach((id) => { if (pushed[id] !== X[id]) { CTL[id].set(X[id], true); pushed[id] = CTL[id].get(); } });
+    CTL_IDS.forEach((id) => { if (pushed[id] !== X[id] && onSlider(id)) { CTL[id].set(X[id], true); pushed[id] = CTL[id].get(); } });
   }
   const shownCtl = (d, id) => !finished && !!d.ctl && d.ctl.indexOf(id) >= 0;
   function layoutCtl(d) { CTL_IDS.forEach((id) => { el('c-' + id).hidden = !shownCtl(d, id); }); }
@@ -486,8 +493,9 @@
   const XL = 20, XW1 = 92, XW2 = 248, XR = 322, YT = 36, YB = 228;
   const FY = 292, I1Y = 314, I2Y = 332, P1Y = 358, P2Y = 376;  // the bars
   function drawScene(i) {
-    const r = rule(X.n1, X.n2, X.sw, X.R), hf = hideFlux(i);
-    text(52, 16, '440' + NB + 'V, 60' + NB + 'Hz', 'lab', 'middle');
+    const r = rule(X.n1, X.n2, X.sw, X.R, X.vs, X.pf), hf = hideFlux(i);
+    const supT = X.vs + NB + 'V, 60' + NB + 'Hz';
+    text(52, 16, supT, 'lab', 'middle');
     text(170, 46, 'the same flux, Φ', 'lab', 'middle');
     // The core, and the one flux path that threads both windings.
     rect('iron', CX0, CY0, CX1 - CX0, CY1 - CY0, 12);
@@ -512,9 +520,10 @@
     circle('term0', XR, 92, 2.6);
     rect('res', XR - 6, 108, 12, 46, 2);
     text(310, 126, 'load', 'lab', 'end');
-    text(310, 142, Number(X.R.toFixed(2)) + NB + 'Ω', 'lab', 'end');
+    const loadT = X.zlab || X.ilab || Number(X.R.toFixed(2)) + NB + 'Ω';
+    text(310, 142, loadT, 'lab', 'end');
     // The voltage columns: turns × volts per turn, on one scale.
-    const h1 = KV * VS, h2 = KV * D.v2;
+    const h1 = KV * X.vs, h2 = KV * D.v2;
     rect('col', C1X, CY1 - h1, CW, h1, 0);
     if (h2 > 0.3) rect('col', C2X, CY1 - h2, CW, h2, 0);
     line('base', C1X - 4, CY1, C1X + CW + 4, CY1);
@@ -524,7 +533,7 @@
     // The turns, and the tag of one turn's volts on each side.
     text(104, 248, 'N1 = ' + X.n1 + NB + 'turns', 'lab', 'middle');
     text(236, 248, 'N2 = ' + X.n2 + NB + 'turns', 'lab', 'middle');
-    const tg1 = tagText(VS, X.n1), tg2 = tagText(r.v2, X.n2);
+    const tg1 = tagText(X.vs, X.n1), tg2 = tagText(r.v2, X.n2);
     tag(104, 270, tg1);
     tag(236, 270, tg2);
     // The flux bar: it moves only with the primary's turns.
@@ -554,14 +563,14 @@
     rect('bar', 98, P2Y, 148, 10, 3);
     if (pw > 0.3) rect('pfill', 98, P2Y, pw, 10, 0);
     text(252, P2Y + 9.5, pout);
-    Object.assign(REC.t, { flux: ft, pin, pout, tag1: tg1, tag2: tg2 });
+    Object.assign(REC.t, { flux: ft, pin, pout, tag1: tg1, tag2: tg2, sup: supT, load: loadT });
     Object.assign(REC.bars, { i1: cw1, i2: cw2, p: pw, flux: fw, v1: h1, v2: h2 });
-    REC.R = X.R; REC.sw = X.sw;
+    REC.R = X.R; REC.sw = X.sw; REC.n1 = X.n1; REC.n2 = X.n2;
     // What it shows, in words (no readout's number).
     const cmp = X.n2 < X.n1 ? 'shorter than' : X.n2 > X.n1 ? 'taller than' : 'as tall as';
-    let said = 'An iron core with two windings and no wire between them. The primary has ' + X.n1 + ' turns on 440 V, 60 Hz. The secondary has ' + X.n2 +
+    let said = 'An iron core with two windings and no wire between them. The primary has ' + X.n1 + ' turns on ' + X.vs + ' V, 60 Hz. The secondary has ' + X.n2 +
       ' turns. The same flux threads every turn, so every turn carries the same volts, and the secondary\'s voltage column is ' + cmp + ' the primary\'s.';
-    said += X.sw ? ' The load switch is closed on ' + X.R + ' Ω. The ' + (X.n2 < X.n1 ? 'secondary' : 'primary') + '\'s current bar is the longer, the power in and power out bars are equal, and the flux bar holds where the supply sets it.'
+    said += X.sw ? ' The load switch is closed on ' + (X.zlab ? '3 + j4 Ω' : X.ilab ? 'a load drawing ' + X.ilab.replace(NB, ' ') : Number(X.R.toFixed(2)) + ' Ω') + '. The ' + (X.n2 < X.n1 ? 'secondary' : 'primary') + '\'s current bar is the longer, the power in and power out bars are equal, and the flux bar holds where the supply sets it.'
       : ' The load switch is open, so no current flows and the power bars are empty.';
     REC.said = said;
   }
@@ -576,7 +585,7 @@
     readouts(i);
   }
   function readouts(i) {
-    const r = rule(X.n1, X.n2, X.sw, X.R), hs = hideSeen(i);
+    const r = rule(X.n1, X.n2, X.sw, X.R, X.vs, X.pf), hs = hideSeen(i);
     RO.v2.set(r.v2); RO.i2.set(r.i2); RO.i1.set(r.i1); RO.at1.set(r.at1); RO.at2.set(r.at2);
     const sv = hs ? '?' : X.sw ? r.seen.toFixed(1) + NB + 'Ω' : 'Open';
     const sw = hs ? '' : X.sw ? 'The ' + X.R + NB + 'Ω load × (' + X.n1 + ' ÷ ' + X.n2 + ')²' : 'The switch is open, so there is no load to see.';
@@ -734,6 +743,14 @@
     const b = (i) => drawn(i, blank()), s = (i) => drawn(i, solvedSt(i));
     const hb = b(iHeavy), hs = s(iHeavy), tb = b(iTwo), ts = s(iTwo);
     return hb.t.flux === '?' && hb.R === 10 && hs.t.flux === MWB('1.88') && hs.R === 5 && tb.t.seen === '?' && tb.R === 5 && ts.t.seen === OHM('36.6') && ts.R === 2.5;
+  });
+  K.check('Each worked example draws its question once answered: 48 turns at 0.5 V a turn; a 40 A load taking 10.45 A; the 3 + j4 Ω load at 1587 W; 115 V on 200 and 800 turns with 2.3 A taking 9.2 A', () => {
+    const w = drawn(iN24, solvedSt(iN24)), a = drawn(iI440, solvedSt(iI440)), z = drawn(iPick, solvedSt(iPick)), u = drawn(iUp, solvedSt(iUp)), s = drawn(iSize);
+    const ra = rule(880, 230, true, 115 / 40), ru = rule(200, 800, true, 115 * 800 / 200 / 2.3, 115);
+    return w.n2 === 48 && w.t.tag2 === '0.5' + NB + 'V a turn' && near(rule(880, 48, false, 5).v2, 24, 1e-9) &&
+      a.t.load === A_('40') && near(ra.i2, 40, 1e-9) && near(ra.i1, 10.4545, 1e-4) &&
+      z.t.load === ZL && z.t.pin === W_('1587') && z.t.pout === W_('1587') && s.t.load === ZL &&
+      u.t.sup === '115' + NB + 'V, 60' + NB + 'Hz' && u.n1 === 200 && u.n2 === 800 && u.t.load === A_('2.3') && near(ru.i2, 2.3, 1e-9) && near(ru.i1, 9.2, 1e-9) && u.bars.i1 > u.bars.i2;
   });
   K.check('Every demonstration ends 3 to 4.5 s after its screen opens, and every answer\'s motion within 2.5 s', () =>
     STEPS.every((d) => d.show ? (d.dur >= 3 && d.dur <= 4.5) : (!d.run || d.run <= 2.5)));

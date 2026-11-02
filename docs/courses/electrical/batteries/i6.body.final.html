@@ -196,7 +196,7 @@
       hint: 'Not quite. Compare the cell with its band, not the total.',
       hints: { [O9_TOT]: 'Not quite. The charger holds the total. So the other five rise to 2.26 V to make up the shortfall.', [O9_NOM]: 'Not quite. On float each cell should sit near 2.23 V. This one sits 0.15 V low.' },
       why: 'The charger holds the total at 13.38 V, whatever the cells do. So the other five rise to 2.26 V each to make up the shortfall. The band runs from 2.18 to 2.33 V. At 2.08 V, the odd cell is 0.15 V below 2.23 V, well outside it. Only cell-by-cell readings find it.' },
-    { show: true, name: 'Strings in parallel', pic: 'par', ctl: ['cableA', 'cableB'], enter: { cableA: 2, cableB: 6 }, end: { cableB: 2 }, still: { cableA: 2, cableB: 2 }, dur: 4.2,
+    { show: true, name: 'Strings in parallel', pic: 'par', ctl: ['cableA', 'cableB'], enter: { cableA: 2, cableB: 6 }, end: { cableB: 2 }, still: { cableA: 2, cableB: 6 }, dur: 4.2,
       play: (t) => { X.cableB = Math.round(K.lerp(6, 2, ez((t - 1.6) / 2.2))); },
       text: W10 + ' Drag either cable to try it.', read: W10 },
     { name: 'Cable share', pic: 'par', enter: { cableA: 2, cableB: 8, sf: 0 }, end: { sf: 1 }, hide: ['shareA'],
@@ -512,7 +512,7 @@
       let p = 'M184 ' + y;
       for (let i = 1; i < 2 * n; i++) p += 'L' + r1(184 + 102 * i / (2 * n)) + ' ' + (y + (i % 2 ? -6 : 6));
       S_('path', { class: 'cable', d: p + 'L286 ' + y });
-      const w = 1 + cur / 10;
+      const w = 1 + cur * cur / 500;   // thickness grows faster than the current, so a 57/43 split reads at a glance
       if (X.sf > 0.001) part(X.sf, () => {
         S_('path', { class: 'cur', d: 'M40 ' + (y + 24) + 'H272', 'stroke-width': r1(w), 'stroke-dasharray': '12 6', 'stroke-dashoffset': r1(-((X.ph * cur * 0.6) % 18)) });
         S_('path', { class: 'curh', d: 'M272 ' + r1(y + 24 - w / 2 - 4) + 'L286 ' + (y + 24) + 'L272 ' + r1(y + 24 + w / 2 + 4) + 'Z' });

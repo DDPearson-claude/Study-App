@@ -650,7 +650,7 @@
       text(326, 76, outTxt, 'lab', 'end');
     });
     inGroup(a2, () => {
-      text(14, 158, 'Auto', 'side', 'start');
+      text(14, 146, 'Auto', 'side', 'start');   // clear above the input wire at 162
       coil(150, 168, 116, 'p1');
       path('wire', 'M164 168V162H30'); circle('term', 26, 162, 3.6);
       path('wire', 'M164 284V290'); path('wire', 'M30 290H310'); circle('term', 26, 290, 3.6); circle('term', 314, 290, 3.6);
@@ -702,6 +702,7 @@
 
   // ================= the page around the picture =================
   write(el('finish'), FINISH);
+  const cap = document.querySelector('.caption');   // the note under the card describes the drawing: hidden on a screen without it
   function layout(i) {
     const d = STEPS[i], st = S[i], sol = solved(st);
     el('stepbox').hidden = finished;
@@ -712,6 +713,7 @@
     write(task, d.show ? d.text : d.task);
     CTL_IDS.forEach((id) => { el('c-' + id).hidden = !shownCtl(d, id); });
     [['scOn', 'on'], ['scCt', 'ct'], ['scIso', 'iso']].forEach(([s, c]) => el(s).toggleAttribute('hidden', d.card !== c));
+    cap.hidden = !finished && d.card === 'none';
     el('on-acts').hidden = finished || !d.btn;
     const ro = d.ro || [];
     el('outs').hidden = !ro.length;

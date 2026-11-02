@@ -110,7 +110,7 @@
   <div class="row nav" id="nav"></div>
 </div>
 
-<p class="caption">The 12 V block and the 480 V string are real. The cable, the device and the other cases are examples.</p>
+<p class="caption">The 12 V block's and the 480 V string's figures come from real batteries. The cable, the device and the other cases are examples.</p>
 
 <script>
   // ---------- the rule ----------
@@ -480,7 +480,7 @@
     } else {
       S_('path', { class: 'core', d: 'M112 ' + TY + 'H122M154 ' + TY + 'H334M112 ' + BY + 'H334' });
       S_('rect', { class: 'devbox', x: 122, y: TY - 9, width: 32, height: 18, rx: 3 });
-      txt(138, 74, 'device', 'lbm');
+      txt(151, 74, 'device', 'lbm', 'end');   // clear left of a fault at 0 m (x 160)
       txt(247, 160, 'cores: ' + RCORE + ' mΩ a metre', 'lbm');
       if (linkA > 0.001) part(linkA, () => {
         S_('line', { class: 'fl', x1: r1(xf), y1: TY, x2: r1(xf), y2: BY });
@@ -714,6 +714,8 @@
     el('scenebox').hidden = d.pic === 'chem';
     el('chem').hidden = d.pic !== 'chem';
     if (h) svg.setAttribute('viewBox', '0 0 340 ' + h);
+    const cap = document.querySelector('.caption');
+    if (cap) cap.hidden = !finished && d.pic === 'recall';   // the note is about the batteries, not the warm-up's device
     svg.setAttribute('aria-label', said || 'A chemistry card.');
     grab.setAttribute('display', ctlOn(d, 'd') ? 'inline' : 'none');
     if (d.ctl) { el('say').textContent = ''; glue(el('say'), sayFor(d)); }

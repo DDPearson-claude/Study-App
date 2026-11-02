@@ -175,6 +175,7 @@
       read: 'Efficiency peaks at 50% load, where the copper loss equals the 100 W iron loss. Peak load = √(iron loss ÷ full-load copper loss).',
       still: () => setStill() },
     { kind: 'typed', name: 'Another transformer', ans: 'pk', pic: 'scene', enter: { load: 50 },
+      runEnd: { load: 40, ex: { fe: 64, cu: 400 * 0.4 * 0.4, sup: 'Another unit, at 40% load' } },
       answer: 40, decimals: 0, unit: '%', want: '40%',
       slips: [{ value: 16, hint: 'That is 64 ÷ 400. Take its square root.' },
         { value: 250, hint: 'That is upside down. Put the iron loss on top.' }],
@@ -196,6 +197,7 @@
       why: '1.88 × 22.0 ÷ 440 = 0.09 mWb, 5% of normal. So the iron loss almost vanishes. The wattmeter reads the copper loss alone.',
       read: 'At 440 V the flux peaks at 1.88 mWb. What does it peak at in the short-circuit test, on 22.0 V?' },
     { kind: 'typed', name: 'A big unit, a light load', ans: 'eff12', pic: 'scene', enter: {},
+      runEnd: { load: 20, ex: { fe: 500, cu: 2000 * 0.2 * 0.2, sup: 'A 100 kVA unit, at 20% load' } },
       answer: 97.2, decimals: 1, unit: '%', want: '97.2%',
       slips: [{ value: 88.9, hint: 'That uses the full-load copper loss. At 20% load it is 0.2² of that.' },
         { value: 95.7, hint: 'That scales the copper loss straight with the load. It goes with the square.' },
@@ -204,7 +206,7 @@
       hint: 'Load fraction 20 ÷ 100 = 0.2. Copper loss = 2000 × 0.2². Add the 500 W iron loss.',
       why: 'Copper loss = 2000 × 0.2² = 80 W. So 500 W of the 580 W lost is iron loss. 20,000 ÷ 20,580 = 97.2%. At its 50% peak it would give 98.0%. A big transformer on a light load wastes mostly iron loss.',
       read: 'A 100 kVA transformer tests at 500 W open circuit and 2000 W short circuit. It feeds a steady 20 kVA at unity power factor. What is its efficiency?' },
-    { kind: 'pick', name: 'Setting up the test', enter: {},
+    { kind: 'pick', name: 'Setting up the test', enter: {}, runEnd: { test: 'oc' },
       opts: ['Secondary shorted, rated current', 'Secondary shorted, rated voltage', 'Secondary open, rated current', 'Secondary open, rated voltage'],
       want: 'Secondary open, rated voltage',
       task: 'You want to measure a transformer\'s iron loss. How do you set up the test?',
@@ -218,7 +220,7 @@
   const FINISH = 'The supply holds the flux, so the iron loss barely moves with the load. The copper loss grows with the square of the load. Efficiency peaks where the two are equal. The open-circuit test reads the iron loss. The short-circuit test reads the copper loss. The 22.0 V it needs, 5% of rated, is called the impedance voltage. Next: what that 5% means for the voltage under load.';
 
   // ================= state =================
-  const BASE = { load: 100, pf: 1, test: 'load' };
+  const BASE = { load: 100, pf: 1, test: 'load', ex: null };   // ex: another unit's losses, for its worked example
   const X = Object.assign({}, BASE);              // what the picture shows now
   const D = {};                                   // the drawn sizes, easing towards the rule's
   const blank = () => ({ pick: null, res: null, why: false, tries: 0, hint: '' });
@@ -237,7 +239,7 @@
   // ================= the drawn sizes ease towards the rule's =================
   function targets() {
     const r = rule(X.load, X.pf, X.test);
-    return { load: X.load, pf: X.pf, fe: r.fe, cu: r.cu, phi: r.phi, ish: r.ish, icore: r.icore, isup: r.isup };
+    return { load: X.load, pf: X.pf, fe: X.ex ? X.ex.fe : r.fe, cu: X.ex ? X.ex.cu : r.cu, phi: r.phi, ish: r.ish, icore: r.icore, isup: r.isup };
   }
   function snapD() { Object.assign(D, targets()); }
   function tween(dt) {
@@ -480,7 +482,8 @@
     const fS = D.ish < 0.1, fC = D.icore < 0.1;   // a branch carrying almost no current is drawn faint
     const wS = wd(D.ish), wC = wd(D.icore), wU = wd(D.isup);
     // The supply, its ammeter and its wattmeter.
-    const sup = fSup(r.v);
+    // Another unit's worked example: its name and its own two losses; this unit's values are left off.
+    const ex = X.ex, sup = ex ? ex.sup : fSup(r.v);
     text(2, 14, sup);
     wire([[16, 82], [16, YT], [36, YT]], wU);
     wire([[56, YT], [66, YT]], wU);
@@ -504,17 +507,19 @@
     coil(coilH(192, 220, YT, 4), fS);
     wire([[220, YT], [236, YT], [236, 66]], wS, fS);
     wire([[236, 122], [236, YB], [114, YB]], wS, fS);
-    text(178, 14, 'Windings', 'lab', 'middle');
-    text(150, 32, RS.toFixed(2) + NB + 'Ω', 'lab', 'middle');
-    text(206, 32, XS.toFixed(2) + NB + 'Ω', 'lab', 'middle');
     const ia = D.ish.toFixed(1) + NB + 'A';
-    text(184, 70, '→ ' + ia, 'lab', 'middle');
+    if (!ex) {
+      text(178, 14, 'Windings', 'lab', 'middle');
+      text(150, 32, RS.toFixed(2) + NB + 'Ω', 'lab', 'middle');
+      text(206, 32, XS.toFixed(2) + NB + 'Ω', 'lab', 'middle');
+      text(184, 70, '→ ' + ia, 'lab', 'middle');
+    }
     // The ideal transformer: two coils on one core.
     coil(coilV(236, 66, 122, 6, true), fS);
     line('core', 249, 60, 249, 128);
     line('core', 254, 60, 254, 128);
     coil(coilV(267, 66, 122, 6, false), fS);
-    text(252, 158, 'Ideal, ' + N1 + ' to ' + N2 + ' turns', 'lab', 'middle');
+    if (!ex) text(252, 158, 'Ideal, ' + N1 + ' to ' + N2 + ' turns', 'lab', 'middle');
     // The secondary: a load, nothing (open), or a link (shorted).
     wire([[267, 66], [267, YT], [292, YT], [292, 70]], wS, fS);
     wire([[292, 118], [292, YB], [267, YB], [267, 122]], wS, fS);
@@ -534,12 +539,14 @@
     wire([[kx, 176], [kx + 18, 176]], 1.6, true);
     text(kx + 24, 180.5, 'Faint: almost none');
     // The flux bar: the supply's voltage sets it.
-    text(100, FY + 9.5, 'Peak flux', 'lab', 'end');
-    rect('bar', BX, FY, FW, 10, 3);
-    const fw = hf ? 0 : FW * K.clamp(D.phi / FMAX, 0, 1);
-    if (fw > 0.3) rect('fluxfill', BX, FY, fw, 10, 0);
-    const ft = hf ? '?' : fFlux(r.phi);
-    text(BX + FW + 6, FY + 9.5, ft);
+    const fw = hf || ex ? 0 : FW * K.clamp(D.phi / FMAX, 0, 1);
+    const ft = hf ? '?' : ex ? '' : fFlux(r.phi);
+    if (!ex) {
+      text(100, FY + 9.5, 'Peak flux', 'lab', 'end');
+      rect('bar', BX, FY, FW, 10, 3);
+      if (fw > 0.3) rect('fluxfill', BX, FY, fw, 10, 0);
+      text(BX + FW + 6, FY + 9.5, ft);
+    }
     // The two losses, on one scale.
     const wfe = BW * K.clamp(D.fe / LMAX, 0, 1), wcu = BW * K.clamp(D.cu / LMAX, 0, 1);
     text(100, FEY + 10.5, 'Iron loss', 'lab', 'end');
@@ -556,7 +563,7 @@
     Object.assign(REC.t, { flux: ft, sup, sec, ish: ia });
     Object.assign(REC.bars, { fe: wfe, cu: wcu, flux: fw });
     REC.faint = { series: fS, core: fC };
-    REC.load = X.load; REC.pf = X.pf; REC.mode = mode;
+    REC.load = X.load; REC.pf = X.pf; REC.mode = mode; REC.ex = ex ? ex.sup : null; REC.fe = D.fe; REC.cu = D.cu;
     // What it shows, in words (no readout's number).
     let said = 'The transformer drawn as its 440 V side sees it: the supply with an ammeter and a wattmeter, the core\'s branch across it, the windings\' resistance and leakage reactance in line, then the ideal transformer and ';
     if (mode === 'load') {
@@ -568,7 +575,7 @@
     } else {
       said += 'a link across the secondary, on a low supply voltage. Nearly all the current takes the windings\' branch, so the copper-loss bar is as long as at full load, and the flux bar is almost empty.';
     }
-    REC.said = said;
+    REC.said = ex ? ex.sup + ', drawn the same way, with its own two loss bars: ' + (Math.abs(ex.fe - ex.cu) < 1e-9 ? 'the iron loss and the copper loss are equal.' : 'the iron-loss bar is much the longer.') : said;
   }
   function drawPlot() {
     const pf = D.pf, onLoad = X.test === 'load';
@@ -607,6 +614,7 @@
 
   // ================= the page around the picture =================
   write(el('finish'), FINISH);
+  const cap = document.querySelector('.caption');
   function layout(i) {
     const d = STEPS[i], st = S[i], sol = solved(st);
     el('stepbox').hidden = finished;
@@ -618,6 +626,7 @@
     layoutCtl(d);
     const pic = finished ? 'all' : d.pic || 'all';
     el('scene').toggleAttribute('hidden', pic === 'none');
+    cap.hidden = pic === 'none';   // the note under the card describes the drawing: not under a warm-up with none
     el('plot').hidden = pic !== 'all';
     el('outs').hidden = pic !== 'all';
     replayBtn.el.hidden = !d.show || !d.demo || REDUCE;
@@ -760,6 +769,11 @@
     drawn(iBranches, null, { load: 100 }).t.ish === A_('22.7') && drawn(iBranches, null, { load: 50 }).t.ish === A_('11.4') &&
     drawn(iBranches, null, { load: 0 }).faint.series && !drawn(iBranches, null, { load: 0 }).faint.core &&
     LOADS.filter((l) => l > 0).every((l) => { const d = drawn(iBranches, null, { load: l }); return !d.faint.series && !d.faint.core; }));
+  K.check('Answered, each other unit\'s example draws its own losses: 64 W iron and 400 × 0.4² = 64 W copper at 40% load; 500 W iron and 2000 × 0.2² = 80 W copper at 20%; and the iron-loss test with the secondary open', () => {
+    const o = drawn(iOther, solvedSt(iOther)), b = drawn(iTwo, solvedSt(iTwo)), p = drawn(iPick, solvedSt(iPick)), u = drawn(iOther, blank());
+    return near(o.fe, 64, 1e-9) && near(o.cu, 64, 1e-9) && near(o.bars.fe, o.bars.cu, 1e-9) && o.ex === 'Another unit, at 40% load' &&
+      near(b.fe, 500, 1e-9) && near(b.cu, 80, 1e-9) && b.bars.fe > 6 * b.bars.cu && p.mode === 'oc' && u.ex === null;
+  });
   K.check('Every demonstration ends 3 to 4.5 s after its screen opens, and every answer\'s motion within 2.5 s', () =>
     STEPS.every((d) => d.show ? (d.dur >= 3 && d.dur <= 4.5) : (!d.run || d.run <= 2.5)));
   K.ready();

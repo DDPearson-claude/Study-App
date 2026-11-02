@@ -203,7 +203,7 @@
       hint: 'Not quite. Size from the most current the charger could push.',
       hints: { [fCp(36)]: 'Not quite. That is sized for float, but a failed charger pushes 20 A into a full battery.', [O7_NONE]: 'Not quite. A full battery still takes current if the charger pushes it, and that spare current splits water.' },
       why: 'Size from the fault current, not the float current. A failed charger can push 20 A into the full battery, and that spare current splits water. So each opening needs 0.3 × 24 × 20 × 10 = ' + fCp(needOf(24, I_FAULT, S_ROOM)) + '. Sized for float, 36 cm² would be forty times too small.' },
-    { show: true, name: 'Air carries it away', pic: 'room', ctl: ['opening', 'fanFails'], say: 'air', enter: { current: 10, opening: A0 }, end: { opening: 720, fanFails: true, tstop: 1, af: 0 }, still: { opening: 720, fanFails: true, tstop: 1 }, dur: 4.6,
+    { show: true, name: 'Air carries it away', pic: 'room', ctl: ['opening', 'fanFails'], say: 'air', enter: { current: 10, opening: A0 }, end: { opening: 720, fanFails: true, tstop: 1, af: 0 }, still: { opening: 720, fanFails: false }, dur: 4.6,
       play: (t) => {
         X.opening = Math.round(K.lerp(A0, 720, ez((t - 0.9) / 0.9)));
         X.fanFails = t >= 2.3;

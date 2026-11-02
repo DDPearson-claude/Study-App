@@ -261,11 +261,11 @@
       hint: 'Not quite. Divide the charger\'s volts by the cells first.',
       hints: { [O_COR]: 'Not quite. 51.60 ÷ 24 is 2.15 V a cell, below the float band. So the cells are undercharged.', [O_REST]: 'Not quite. 2.15 V a cell is below the float band, so the cells are not kept full.' },
       why: 'Divide by the cells: 51.60 ÷ 24 = ' + fV(2.15) + ' a cell. That is below the float band, so the cells never quite get back to full. The sulphate left on the negative plates builds up. Being above the rested 2.1 V only means a little current flows.' },
-    { name: 'Drifted cells', pic: 'bank', enter: { cells: 24, setpt: FLOAT, sulph: 0.3 }, end: { setpt: FLOAT, sulph: 0, grid: 0.3, water: 1 - 0.6 * 0.3 },
+    // Answered, the charger goes to equalise and holds there while the sulphate clears, so the picture shows the answer's 2.50 V a cell.
+    { name: 'Drifted cells', pic: 'bank', enter: { cells: 24, setpt: FLOAT, sulph: 0.3 }, end: { setpt: EQ, sulph: 0, grid: 0.3, water: 1 - 0.6 * 0.3 },
       run: { dur: 2.5, go: (u) => {
-        let s;
-        if (u < 0.25) s = K.lerp(FLOAT, EQ, ez(u / 0.25)); else if (u < 0.75) s = EQ; else s = K.lerp(EQ, FLOAT, ez((u - 0.75) / 0.25));
-        X.setpt = qS(s); Object.assign(X, grow({ sulph: 0.3, grid: 0, water: 1 }, EQ, 0.3 * ez((u - 0.25) / 0.45))); X.ph = u * 2.5;
+        X.setpt = qS(u < 0.3 ? K.lerp(FLOAT, EQ, ez(u / 0.3)) : EQ);
+        Object.assign(X, grow({ sulph: 0.3, grid: 0, water: 1 }, EQ, 0.3 * ez((u - 0.3) / 0.6))); X.ph = u * 2.5;
       } },
       task: 'After months on float, the specific gravities of this 24-cell battery have drifted apart. What does it need?',
       opts: [O_EQ, O_RAISE, O_BOOST], want: O_EQ,
@@ -858,7 +858,7 @@
       f0.bubbles === 0 && f0.stat.grid === '?' && f0.curText === '?' && f1.bubbles > 0 && f1.grid > 0 && f1.water < 1 &&
       g0.pinText === QP && g0.chargerText === QV && g1.pinText === STEPS[iD10].want + ' a cell' &&
       h0.pinText === QP && h0.stat.sulph === '?' && h1.sulph > 0 && h1.grid === 0 &&
-      j0.sulph > 0 && j1.sulph === 0 && j1.pinText === PIN(FLOAT) && drawn(iD13).inText === '?' + NB + 'Ah' && fin(iD13).inText === STEPS[iD13].want;
+      j0.sulph > 0 && j1.sulph === 0 && j1.pinText === PIN(EQ) && j1.chargerText === fV(24 * EQ) && drawn(iD13).inText === '?' + NB + 'Ah' && fin(iD13).inText === STEPS[iD13].want;
   });
   K.check('Fourteen screens: demonstrations and puzzles take turns, then three mixed puzzles end the lesson', () =>
     STEPS.length === 14 && STEPS.every((d, k) => (k < 11 ? !!d.show === (k % 2 === 1) : !d.show)));

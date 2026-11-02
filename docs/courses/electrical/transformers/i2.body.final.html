@@ -171,7 +171,7 @@
 
   // ================= the lesson: SHOW screens demonstrate, DO screens are puzzles =================
   const STEPS = [
-    { kind: 'typed', name: 'Still there?', ans: 'xl', enter: { core: 'iron', cur: 0.1 }, run: 0,
+    { kind: 'typed', name: 'Still there?', ans: 'xl', pic: 'xl', enter: { core: 'iron', cur: 0.1 }, run: 0,
       answer: 0, decimals: 2, unit: 'Ω', want: '0' + NB + 'Ω', right: 'Still there.',
       slips: [{ value: 1.26, hint: 'That is 2π × 0.2, its reactance at 1 Hz. On DC the frequency is 0.' },
         { value: 0.2, hint: 'That is the inductance, in henries. Reactance is 2π f L.' }],
@@ -763,6 +763,30 @@
     REC.said.push('Two irons\' loops of flux density against push, side by side, the same height. Iron A\'s loop is wide and Iron B\'s is thin.' + (R.shaded ? ' Their areas are shaded, and Iron B\'s is the smaller.' : ''));
   }
 
+  // ================= the warm-up's own picture: a 0.2 H coil's reactance against frequency =================
+  // X = 2π f L: before a Check only its 50 Hz point (62.8 Ω) and a ? at DC; answered, the line runs down to 0 Ω at 0 Hz.
+  function drawXl(d, st) {
+    const sol = solved(st), L = 0.2, x0 = 60, y0 = 160, px = 4, py = 1.5;
+    const X_ = (f) => x0 + f * px, Y_ = (x) => y0 - x * py, xl = (f) => 2 * Math.PI * f * L;
+    line(null, 'ax', x0, y0, X_(64), y0);
+    line(null, 'ax', x0, y0, x0, Y_(86));
+    [0, 20, 40, 60].forEach((f) => { line(null, 'ax', X_(f), y0, X_(f), y0 + 4); text(null, X_(f), y0 + 19, String(f), 'tk', 'middle'); });
+    [0, 40, 80].forEach((x) => { line(null, 'ax', x0 - 4, Y_(x), x0, Y_(x)); text(null, x0 - 8, Y_(x) + 5, String(x), 'tk', 'end'); });
+    text(null, x0 + 8, 36, 'Reactance, X (Ω)', 'axt');
+    text(null, X_(64), y0 + 38, 'Frequency (Hz)', 'axt', 'end');
+    if (sol) {
+      add(K.svg('polyline', { class: 'cv', points: ptsS([[X_(0), Y_(0)], [X_(60), Y_(xl(60))]]) }));
+      text(null, X_(36), Y_(xl(30)) + 20, 'X = 2π f L', 'key');
+    }
+    add(K.svg('circle', { class: 'dot', cx: X_(50), cy: r1(Y_(xl(50))), r: 5 }));
+    text(null, X_(50) - 6, Y_(xl(50)) - 12, '62.8' + NB + 'Ω at 50' + NB + 'Hz', 'lab', 'end');
+    if (sol) add(K.svg('circle', { class: 'dot', cx: X_(0), cy: Y_(0), r: 5 }));
+    line(null, 'ldr', x0 + 50, y0 - 9, x0 + 8, y0 - 3);
+    text(null, x0 + 54, y0 - 5, sol ? 'On DC: 0' + NB + 'Ω' : 'On DC: ?', 'lab');
+    REC.xl = { sol, at50: Math.round(xl(50) * 10) / 10 };
+    REC.said.push('A 0.2 H coil\'s reactance against frequency, from 0 to 60 Hz: 62.8 Ω at 50 Hz.' + (sol ? ' Its straight line X = 2π f L runs down to 0 Ω at 0 Hz, on DC.' : ' At 0 Hz, on DC, a question mark.'));
+  }
+
   // ================= eddy currents, the core cut across =================
   function drawEddy(d) {
     const n = X.sheets, x0 = 80, y0 = 34, S0 = 180, gp = 3, w = (S0 - (n - 1) * gp) / n;
@@ -801,7 +825,8 @@
   }
 
   // ================= one paint =================
-  const H_PIC = { ring: 462, gapq: 204, loops: 246, eddy: 290 };
+  const H_PIC = { ring: 462, gapq: 204, loops: 246, eddy: 290, xl: 210 };
+  const cap = document.querySelector('.caption');
   function paint(i) {
     if (i == null) i = at();
     const d = STEPS[i], st = S[i], pic = picOf(d);
@@ -809,8 +834,10 @@
     REC = { pic, said: [], readouts: {} };
     if (pic === 'ring' || pic === 'gapq') drawRing(d, st, pic === 'ring');
     else if (pic === 'loops') drawLoops(d, st);
+    else if (pic === 'xl') drawXl(d, st);
     else drawEddy(d, st);
     svg.setAttribute('viewBox', '0 0 340 ' + H_PIC[pic]);
+    if (cap) cap.hidden = pic === 'xl';   // the note under the card is about the iron, not the warm-up's coil
     svg.setAttribute('aria-label', REC.said.join(' '));
     readouts(pic);
   }
@@ -966,6 +993,10 @@
       b(iThin).eddy.loss === '100%' && s(iThin).eddy.loss === '25%' &&
       b(iFind).readouts.F === '20' + NB + 'At' && s(iFind).readouts.F === '102' + NB + 'At' && s(iFind).readouts.B === T_('1.22') &&
       b(iZero).ring.residual === null && b(iZero).readouts.B === T_('1.60') && s(iZero).ring.residual === 'residual 0.37' + NB + 'T' && s(iZero).readouts.B === T_('0.37');
+  });
+  K.check('The DC warm-up draws its own coil, X = 2π f L for 0.2 H: 62.8 Ω at 50 Hz, and only once answered the line down to 0 Ω at 0 Hz', () => {
+    const b = drawn(iRecall, blank()), s = drawn(iRecall, Object.assign(blank(), { res: 'right' }));
+    return b.pic === 'xl' && b.xl.sol === false && s.xl.sol === true && s.xl.at50 === 62.8 && near(2 * Math.PI * 50 * 0.2, 62.83, 0.005) && 2 * Math.PI * 0 * 0.2 === 0;
   });
   K.check('Every demonstration ends 3 to 4.5 s after its screen opens, and every answer\'s motion within 2.5 s', () =>
     STEPS.every((d) => d.show ? (!d.demo || (d.dur >= 3 && d.dur <= 4.5)) : (!d.run || d.run <= 2.5)));

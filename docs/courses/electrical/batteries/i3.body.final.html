@@ -460,7 +460,8 @@
     const ct = 'I = ' + fA(I);
     txt(184, 78, ct, null, 'start');
     if (!open) S_('path', { class: 'flow', d: 'M254 82L262 88L254 94' });
-    const loadT = open ? 'off' : fOhm(loadOf(I, tc));
+    // The load's R is the moment's: the terminals shown over the current shown, so V = I × R holds on the picture all through a run.
+    const loadT = open ? 'off' : fOhm(term / I);
     txt(336, 62, 'load R', 'lbm', 'end');
     txt(336, 78, loadT, null, 'end');
     REC.voltText = a >= 0.5 ? vt : '?'; REC.lostText = a >= 0.5 ? lt : 'I × r = ?'; REC.loadText = loadT; REC.curText = ct; REC.open = open; REC.yT = yT; REC.rText = rt;
@@ -795,6 +796,10 @@
     return last.i === 100 && last.hollow && last.arrow && g.key3 && g.dots.filter((q) => q.i <= I2).every((q) => !q.hollow) && g.panelLab === 'the fit says' && g.texts.indexOf('real battery: less') >= 0 &&
       d30.hollow && !d30.arrow && m.dots.filter((q) => q.i === 100)[0].arrow;
   }, { source: VIC });
+  K.check('Through a run the drawn load R, current and voltmeter come from one moment: at the end of the 28 A run, 10.50 V ÷ 28 A = 0.375 Ω', () => {
+    const g = fin(iS5), v = parseFloat(g.voltText), R = parseFloat(g.loadText), I = parseFloat(g.curText.replace('I = ', ''));
+    return g.voltText === fV(10.5) && K.near(R * I, v, 0.02) && g.loadText === fOhm(10.5 / 28);
+  });
   K.check('Lost volts are I × r: 0.35 V at 50 A and 0.70 V at 100 A, so the terminals read 12.25 V and 11.90 V, and the load reads 0.245 Ω and 0.119 Ω', () => {
     const a = K.at({ load: 50 }), b = K.at({ load: 100 }), g = drawn(iS1, null, { I: 50 }), h = fin(iD2), z = drawn(iS1, null, { I: 0 });
     return fV(a.lostVolts) === fV(0.35) && fV(b.lostVolts) === fV(0.7) && fV(a.terminal) === fV(12.25) && fV(b.terminal) === fV(11.9) &&

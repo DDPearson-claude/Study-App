@@ -452,6 +452,8 @@
     return data;
   }
   const tickL = (y, s) => { line('axis', X0 - 4, y, X0, y); if (s != null) text(X0 - 7, y + 5, s, 'tk', 'end'); };
+  // A power tick's figure keeps below the voltage graph's lowest figure, so the two never touch.
+  const tickP = (y, s) => { line('axis', X0 - 4, y, X0, y); if (s != null) text(X0 - 7, Math.max(y, G.VY + G.VH + 14) + 5, s, 'tk', 'end'); };
   const tickR = (y, s) => { line('axis', X1, y, X1 + 4, y); if (s != null) text(X1 + 7, y + 5, s, 'tkc', 'start'); };
   // Where the cursor is in a demonstration's sweep (the last move started).
   function sweepPos(d, demo) {
@@ -548,7 +550,8 @@
       dc: false, xlDot: false, xlLine: null, vShown: false, pShown: false, slip: slip && slipA > 0 ? slip : null,
       Lm: d.lsel ? (st.L != null ? st.L : 31.8) : null });
 
-    text(8, G.title, c.title(f), 'tt', 'start');
+    const dcT = d.dcRun ? (demo ? K.ease(lin(tl.run[0], tl.run[1])) : 1) : 0;
+    text(8, G.title, dcT > 0.5 ? 'An ideal coil on a steady ' + num(c.Vp, 0) + ' V' : c.title(f), 'tt', 'start');
 
     // ---- the coil and its flux ----
     drawCoil(c, tc != null ? W.i(tc) : null);
@@ -579,7 +582,10 @@
     if (xlA > 0) part(xlA, 0, () => {
       const px = xF(f), py = yX(W.XL);
       circ('xd', [px, py], 5.5);
-      if (f >= 75) text(px - 8, py - 8, XLs + ' Ω', 'lb', 'end'); else text(px + 9, py + 14, XLs + ' Ω', 'lb', 'start');
+      // A dot low on the line takes its figure further right, between the line and the axis.
+      if (f >= 75) text(px - 8, py - 8, XLs + ' Ω', 'lb', 'end');
+      else if (py + 14 > XB - 4) text(px + 12, Math.min(py + 10, XB - 6), XLs + ' Ω', 'lb', 'start');
+      else text(px + 9, py + 14, XLs + ' Ω', 'lb', 'start');
       REC.xlDot = true;
     });
     if (d.hideXL && !right) ask(xF(f), 64);
@@ -637,13 +643,13 @@
     text(X0 - 7, G.PY + 5, '0', 'tk', 'end');
     part(pA, 0, () => {
       const room = top * G.PH / Pax >= 15;
-      tickL(yP(top), room ? num(top, 0) : null); tickL(yP(-top), room ? '−' + num(top, 0) : null);
+      tickP(yP(top), room ? num(top, 0) : null); tickL(yP(-top), room ? '−' + num(top, 0) : null);
     });
     let ghA = 0;
     if (d.ghost) {
       ghA = demo ? arr(tl.ghost) : 1;
       const hp = c.Vp * (c.Vp / HR);
-      part(ghA, 0, () => { REC.ghost = trace('ghost', (t) => hp * Math.pow(Math.cos(W.w / 1000 * t), 2), SPAN, yP); tickL(yP(hp), num(hp, 0)); });
+      part(ghA, 0, () => { REC.ghost = trace('ghost', (t) => hp * Math.pow(Math.cos(W.w / 1000 * t), 2), SPAN, yP); tickP(yP(hp), num(hp, 0)); });
     }
     if (d.shade && pUp > 0.05) {
       const pts = samples(pUp).map((t) => [t, W.p(t)]);
@@ -735,7 +741,7 @@
         const a = demo ? arr(tl.row) : 1;
         ans.forEach((s) => row(s, a));
         // Two coils from the sources, to set on the sliders and check against.
-        if (d.lsel) { row('a textbook\'s 10 mH coil: 3.77 Ω on 60 Hz', a); row('City & Guilds\' 20 mH coil on 50 Hz: try it', a); }
+        if (d.lsel) { row('a 10 mH coil: 3.77 Ω on 60 Hz', a); row('a 20 mH coil on 50 Hz: try it', a); }
       } else {
         const qs = ['on ' + num(d.fAns || f, 0) + ' Hz: X_L = ?', 'current peak: ?'];
         if (d.lagRow) qs.push('its timing: ?');

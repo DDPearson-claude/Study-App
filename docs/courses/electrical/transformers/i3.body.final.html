@@ -126,8 +126,9 @@
   const SRC3 = 'https://phys.libretexts.org/Bookshelves/College_Physics/College_Physics_1e_(OpenStax)/23:_Electromagnetic_Induction_AC_Circuits_and_Electrical_Technologies/23.10:_Transformers';
 
   // AC: with Fix off the peak flux is held at 5.5 mWb and E = 4.44 f N Φm; with Fix on E is held at 440 V and Φm = 440 ÷ (4.44 f N).
-  function acOf(f, n, fix) {
-    const phim = fix ? VS / (4.44 * f * n) : PHI_OFF;
+  // ph: a worked example's own peak flux (its question's), in place of the 5.5 mWb.
+  function acOf(f, n, fix, ph) {
+    const phim = fix ? VS / (4.44 * f * n) : ph || PHI_OFF;
     return { phim, E: fix ? VS : 4.44 * f * n * phim, ipk: phim * REL / n };
   }
   // DC: the current climbs smoothly to 24 ÷ 0.5 = 48 A. The flux trace is drawn bending flat at the top of its scale.
@@ -181,7 +182,7 @@
       text: strip('On AC, E = 4.44 f N Φm ties a coil\'s volts to its flux.[^2] The flux swings as a sine, and the emf follows its slope. It peaks as the flux crosses zero. The lower trace now shows the primary\'s own emf. Half a cycle lasts 1 ÷ 2f seconds, and the flux swings 2Φm in it. By Faraday\'s law, each turn\'s average emf is swing ÷ time: 2Φm ÷ (1 ÷ 2f) = 4 f Φm. The *form factor*, 1.11, turns that into rms. N turns then give 4.44 f N Φm.'),
       read: 'On AC the emf wave follows the flux wave\'s slope. It peaks as the flux crosses zero. The lower trace now shows the primary\'s own emf. At 60 Hz, 300 turns and a peak flux of 5.5 mWb, E = 4.44 × 60 × 300 × 0.0055 = 440 V.',
       still: () => setStill() },
-    { kind: 'typed', name: 'Volts from flux', ans: 'emf', enter: { mode: 'ac', f: 60, n: 300, fix: false },
+    { kind: 'typed', name: 'Volts from flux', ans: 'emf', enter: { mode: 'ac', f: 60, n: 300, fix: false }, runEnd: { f: 50, n: 200, ph: 0.004 },
       answer: 178, decimals: 0, accept: [177.6], unit: 'V', want: '178' + NB + 'V',
       slips: [{ value: 40, hint: 'That leaves out the 4.44.' },
         { value: 160, hint: 'That is the average. The rms is 1.11 times it.' },
@@ -243,7 +244,7 @@
   const FINISH = 'Only a changing flux makes a voltage. Every turn it threads gets the same voltage. The current that voltage drives pushes against the change. On AC, E = 4.44 f N Φm, so a supply\'s voltage fixes the core\'s flux. More turns or a higher frequency mean less flux. On DC nothing changes, so a transformer cannot step a DC voltage up or down. The same law works on a coil\'s own turns. Put Φ = N I ÷ S into it, and the coil\'s emf is N² ÷ S times the current\'s rate of change. That is its inductance: L = N² ÷ S. Next: two windings, and the turns ratio.';
 
   // ================= state =================
-  const BASE = { mode: 'hand', cur: 0, lamp: false, f: 60, n: 300, fix: false };
+  const BASE = { mode: 'hand', cur: 0, lamp: false, f: 60, n: 300, fix: false, ph: null };
   const X = Object.assign({}, BASE);              // what the picture shows now
   const TH0 = 0.3 * Math.PI;                      // where the AC swing starts
   const TM = { clock: 0, hist: [], th: TH0, dcT: 0, lastMove: -99 };   // the picture's own clock and the current's recent past
@@ -284,7 +285,7 @@
   // Run a motion at once (reduced motion, the self-test, stills and checks): the same steps the animation takes.
   function sim(fn, dur) { const n = Math.max(1, Math.ceil(dur * 30)); for (let k = 1; k <= n; k++) { fn(k * dur / n); advance(dur / n); } }
 
-  const targ = () => acOf(X.f, X.n, X.fix).phim;
+  const targ = () => acOf(X.f, X.n, X.fix, X.ph).phim;
   function snapD() { D.phim = targ(); }
   function tween(dt) { const t = targ(), e = t - D.phim; D.phim = Math.abs(e) < 1e-7 ? t : D.phim + e * (1 - Math.exp(-dt / 0.3)); }
   const settled = () => D.phim === targ();
@@ -317,7 +318,8 @@
   CTL_IDS.forEach((id) => { pushed[id] = CTL[id].get(); });
   // The page moves the controls itself during a demonstration (silently, so it is not taken for Dan's move).
   function push() {
-    CTL_IDS.forEach((id) => { if (pushed[id] !== X[id]) { CTL[id].set(X[id], true); pushed[id] = CTL[id].get(); } });
+    // A worked example's turns can lie off the slider (200): the slider then stays where it was.
+    CTL_IDS.forEach((id) => { if (pushed[id] !== X[id] && !(id === 'n' && (X.n < 240 || X.n > 360))) { CTL[id].set(X[id], true); pushed[id] = CTL[id].get(); } });
   }
   const shownCtl = (d, id) => !finished && !!d.ctl && d.ctl.indexOf(id) >= 0;
   // The current slider works only on Hand; f, N and Fix only on AC. Off, each keeps its place, greyed.
@@ -553,7 +555,7 @@
 
   // ================= what the picture shows now =================
   function stateNow() {
-    const a = acOf(X.f, X.n, X.fix);
+    const a = acOf(X.f, X.n, X.fix, X.ph);
     if (X.mode === 'ac') {
       const c = Math.cos(TM.th), phi = D.phim * Math.sin(TM.th);
       return { a, phi, I: phi * REL / X.n, meter: null, needle: 0.9 * c, changing: Math.abs(c) > 0.1, dir: Math.sign(c) };
@@ -635,7 +637,7 @@
     line(null, 'mid', BC, 202, BC, 218);
     R.sat = m === 'dc' && fb >= 1;
     if (R.sat) { add(K.svg('polygon', { class: 'bfill', points: ptsS([[BX0 + BW + 9, 210], [BX0 + BW + 1, 203], [BX0 + BW + 1, 217]]) })); pill(262, 192, 'Saturated'); }
-    if (m === 'ac') { const x = BC + HALF * PHI_OFF / FS; line(null, 'mark', x, 201, x, 219); text(null, x, 197, '5.5' + NB + 'mWb', 'key', 'middle'); }
+    if (m === 'ac') { const pm = X.ph || PHI_OFF, x = BC + HALF * pm / FS; line(null, 'mark', x, 201, x, 219); text(null, x, 197, String(Number((pm * 1e3).toFixed(1))) + NB + 'mWb', 'key', 'middle'); }
     // The primary's current bar (on DC it runs red past the 2.2 A it peaks at on AC).
     const CS = m === 'hand' ? 2.5 : 6;
     text(null, 62, 238, 'Current', 'lab', 'end');
@@ -711,7 +713,7 @@
     readouts(bare);
   }
   function readouts(bare) {
-    const m = bare ? '' : X.mode, a = acOf(X.f, X.n, X.fix), s = REC.s;
+    const m = bare ? '' : X.mode, a = acOf(X.f, X.n, X.fix, X.ph), s = REC.s;
     el('o-hand').hidden = m !== 'hand';
     el('o-ac').hidden = m !== 'ac';
     el('o-dc').hidden = m !== 'dc';
@@ -829,6 +831,10 @@
     return rise.arrows.main === 1 && rise.arrows.chg === 1 && rise.arrows.sec === -1 && rise.lit > 0 &&
       fall.arrows.main === 1 && fall.arrows.chg === -1 && fall.arrows.sec === 1 &&
       still.arrows.main === 1 && still.arrows.chg === 0 && still.arrows.sec === 0 && still.lit === 0;
+  });
+  K.check('Answered, the volts-from-flux example draws its own coil: 200 turns, 50 Hz and a 4 mWb peak give 4.44 × 50 × 200 × 0.004 = 178 V', () => {
+    const s = drawn(iEmf, solvedSt(iEmf)).readouts, b = drawn(iEmf, blank()).readouts;
+    return s.E === V_('178') && s.pk === MWB('4.0') && b.E === V_('440') && near(4.44 * 50 * 200 * 0.004, 177.6, 1e-9);
   });
   K.check('E = 4.44 f N Φm gives a definite relation between a coil\'s voltage and its core\'s flux: 60 Hz, 300 turns and 5.5 mWb give 440 V, and 330 turns give 484 V', () => {
     const a = drawn(iAC, null, { f: 60, n: 300, fix: false }).readouts, b = drawn(iAC, null, { f: 60, n: 330, fix: false }).readouts;

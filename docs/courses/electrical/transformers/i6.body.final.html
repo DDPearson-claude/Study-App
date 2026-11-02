@@ -59,16 +59,16 @@
   <div id="stepbox">
     <p class="k-label count" id="count"></p>
     <p class="task" id="task"></p>
-    <svg class="scene" id="tri" viewBox="0 0 340 160" width="100%" role="img" aria-label="Two voltages drawn tip to tail: 6 V along, then 8 V at right angles to it. A dashed line closes the triangle. Its length is the total, still to find.">
-      <line class="tot" x1="102" y1="134" x2="180" y2="30"></line>
-      <line class="rarr" x1="102" y1="134" x2="171" y2="134"></line>
-      <polygon class="rarr-h" points="180,134 171,129.5 171,138.5"></polygon>
-      <path class="sq" d="M170 134 V124 H180"></path>
-      <line class="xarr" x1="180" y1="134" x2="180" y2="39"></line>
-      <polygon class="xarr-h" points="180,30 175.5,39 184.5,39"></polygon>
-      <text class="lab" x="141" y="153" text-anchor="middle">6&#160;V</text>
-      <text class="lab" x="190" y="90" text-anchor="start">8&#160;V</text>
-      <text class="lab" x="115" y="67" text-anchor="middle">Total = ?</text>
+    <svg class="scene" id="tri" viewBox="0 0 340 200" width="100%" role="img" aria-label="Two voltages drawn tip to tail: 6 V along, then 8 V at right angles to it. A dashed line closes the triangle. Its length is the total, still to find.">
+      <line class="tot" x1="70" y1="170" x2="190" y2="10"></line>
+      <line class="rarr" x1="70" y1="170" x2="180" y2="170"></line>
+      <polygon class="rarr-h" points="190,170 179,164.5 179,175.5"></polygon>
+      <path class="sq" d="M178 170 V158 H190"></path>
+      <line class="xarr" x1="190" y1="170" x2="190" y2="21"></line>
+      <polygon class="xarr-h" points="190,10 184.5,21 195.5,21"></polygon>
+      <text class="lab" x="130" y="192" text-anchor="middle">6&#160;V</text>
+      <text class="lab" x="202" y="95" text-anchor="start">8&#160;V</text>
+      <text class="lab" x="92" y="84" text-anchor="middle">Total = ?</text>
     </svg>
     <svg class="scene" id="scene" viewBox="0 0 340 224" width="100%" role="img" aria-label=""><g id="art"></g><g id="lbl"></g></svg>
     <div class="replay" id="replay"></div>
@@ -563,6 +563,7 @@
 
   // ================= the page around the picture =================
   write(el('finish'), FINISH);
+  const cap = document.querySelector('.caption');   // the note under the card describes the drawing: hidden on a screen without it
   function layout(i) {
     const d = STEPS[i], st = S[i], sol = solved(st);
     el('stepbox').hidden = finished;
@@ -573,6 +574,7 @@
     write(task, d.show ? d.text : d.task);
     layoutCtl(d);
     const pic = d.pic || 'all';
+    cap.hidden = !finished && pic !== 'all';
     el('scene').toggleAttribute('hidden', pic !== 'all');
     el('tri').toggleAttribute('hidden', pic !== 'tri');
     const ro = d.ro || [];
