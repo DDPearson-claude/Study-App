@@ -154,7 +154,8 @@ const SNAP = `(() => {
   const big = (s) => { const r = s.getBoundingClientRect(); return r.width >= 60 && r.height >= 40 && r.width * r.height >= 4000; };
   const scene = document.getElementById('scene');
   let list = [...document.querySelectorAll('svg')].filter((s) => vis(s) && big(s));
-  if (scene && scene.tagName.toLowerCase() === 'svg') { if (!vis(scene)) return null; if (!list.includes(scene)) list.unshift(scene); }
+  // A hidden scene gives way to the pictures the step does show (complex numbers i3, i4: 2 Nov).
+  if (scene && scene.tagName.toLowerCase() === 'svg') { if (vis(scene) && !list.includes(scene)) list.unshift(scene); }
   else if (scene && !scene.querySelector('svg')) list = [];
   if (!list.length) return null;
   // In page order, top to bottom, then left to right.
@@ -167,15 +168,23 @@ const SNAP = `(() => {
     const copy = src.cloneNode(true), a = [src].concat([...src.querySelectorAll('*')]), b = [copy].concat([...copy.querySelectorAll('*')]);
     a.forEach((el, i) => {
       const cs = getComputedStyle(el), out = b[i];
-      if (cs.display === 'none' || cs.visibility === 'hidden' || +cs.opacity === 0) { out.remove(); return; }
+      // A pattern, gradient, clip or marker is never drawn itself, so it is kept whatever its style says.
+      const def = el !== src && el.closest('defs, pattern, clipPath, mask, marker, linearGradient, radialGradient, symbol, filter');
+      if (!def && (cs.display === 'none' || cs.visibility === 'hidden' || +cs.opacity === 0)) { out.remove(); return; }
       // Inherited settings are written only where they differ from the parent's, which keeps a picture small.
       const pcs = el === src ? null : getComputedStyle(el.parentElement);
       const style = props.filter((p) => p !== 'display' && p !== 'visibility').map((p) => [p, cs.getPropertyValue(p)])
         .filter(([p, v]) => v && keep[p] !== v && !(pcs && p !== 'opacity' && pcs.getPropertyValue(p) === v))
-        .map(([p, v]) => p + ':' + v.replace(/(\\d+\\.\\d{2})\\d+/g, '$1')).join(';');
+        .map(([p, v]) => p + ':' + v.replace(/url\\("?[^#")]*#([^")]+)"?\\)/g, 'url(#$1)').replace(/(\\d+\\.\\d{2})\\d+/g, '$1')).join(';');
+      if (out.id) out.setAttribute('data-keep-id', out.id);
       ['class', 'style', 'tabindex', 'role', 'aria-pressed', 'aria-label', 'id', 'focusable'].forEach((k) => out.removeAttribute(k));
       if (style) out.setAttribute('style', style);
     });
+    // Ids go, except those a fill, stroke, clip, mask, marker or use points at (a hatch pattern, a
+    // ruler's window): without them the picture lost its hatching and clipping (2 Nov).
+    const used = new Set();
+    b.forEach((n) => { if (!n.attributes) return; [...n.attributes].forEach((at) => { const re = /url\\(#([^)]+)\\)|^#(.+)$/g; let m; while ((m = re.exec(at.value))) used.add(m[1] || m[2]); }); });
+    b.forEach((n) => { if (n.getAttribute && n.hasAttribute('data-keep-id')) { if (used.has(n.getAttribute('data-keep-id'))) n.setAttribute('id', n.getAttribute('data-keep-id')); n.removeAttribute('data-keep-id'); } });
     const r = src.getBoundingClientRect();
     const v0 = src.viewBox && src.viewBox.baseVal && src.viewBox.baseVal.width ? src.viewBox.baseVal : { x: 0, y: 0, width: r.width, height: r.height };
     let x0 = v0.x, y0 = v0.y, x1 = v0.x + v0.width, y1 = v0.y + v0.height;
