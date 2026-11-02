@@ -333,7 +333,7 @@
       why: 'Read the line between the readings. The rise is `39 − 15 = 24 N` of effort over a run of `220 − 60 = 160 N` of load, so `_a_ = 24 ÷ 160 = 0.15`. Carry the line back to no load: `_b_ = 15 − 0.15 × 60 = 6 N`. So `_P_ = 0.15_W_ + 6`.' },
   ];
   const FINISH = 'Lay one straight line through the *middle* of the readings, about as many above as below, with short sticks spread along it. Take its gradient from two points on the line far apart, and pin it through zero only when the physics says so.';
-  const LAST = 'That\'s it. Laws that curve can be turned into straight lines too: that comes in Exponentials and logarithms. And least squares, a way to calculate the line rather than lay it by eye, comes at college.';
+  const LAST = 'That\'s it. Laws that curve can be turned into straight lines too, with logarithms, later. And least squares, a way to calculate the line rather than lay it by eye, comes later.';
 
   // Margins round the graph (scale numbers left and below, axis names above and below).
   const ML = 44, MR = 10, MT = 30, MB = 46, PW = 340 - ML - MR, PH = 270;
@@ -700,8 +700,11 @@
     if (a <= 0.01) return;
     const X0 = G.px(d.band[0]), X1 = G.px(d.band[1]), Xm = (X0 + X1) / 2;
     K.fade(add(K.svg('rect', { class: 'band', x: r2(X0), y: MT, width: r2(X1 - X0), height: PH })), a, 0);
-    items.push({ x: Xm, y: MT + PH - 10, anchor: 'middle', alts: [{ x: Xm, y: MT + PH - 10, anchor: 'middle' }, { x: Xm, y: MT + PH - 34, anchor: 'middle' }, { x: X1, y: MT + PH - 10, anchor: 'end' }],
-      text: 'limit of proportionality', class: 'lab mu', a });
+    // Its name runs up inside the band, from the bottom: written across, it was wider than the band
+    // and lay over the rise arrow and the readings beside it.
+    const bx = Xm + 5, by = MT + PH - 6, bw = tw('limit of proportionality', 'lab');
+    K.fade(add(K.svg('text', { class: 'lab mu', x: r2(bx), y: r2(by), 'text-anchor': 'start', transform: 'rotate(-90 ' + r2(bx) + ' ' + r2(by) + ')' }, 'limit of proportionality')), a, 0);
+    OBS.hard.push({ x0: Xm - 7, y0: by - bw, x1: Xm + 8, y1: by });
     if (a >= 0.5) REC.band = true;
   }
   // The pin at (0, 0).

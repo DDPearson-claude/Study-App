@@ -615,16 +615,17 @@
       const bx = x - ux * 9, by = y2 - uy * 9, px = -uy * 4.5, py = ux * 4.5;
       part(hd, 0, () => pathOf('head', 'M' + x + ' ' + y2.toFixed(2) + ' L' + (bx + px).toFixed(2) + ' ' + (by + py).toFixed(2) + ' L' + (bx - px).toFixed(2) + ' ' + (by - py).toFixed(2) + ' Z'));
     }
-    part(arr(h.lt), 6, () => text(x + d + 8, (sc.y(h.a) + sc.y(h.b)) / 2 - 2, h.lab, 'hl2', 'start'));
+    part(arr(h.lt), 6, () => text(x + d + 8, (sc.y(h.a) + sc.y(h.b)) / 2 - 2 - (h.lift || 0), h.lab, 'hl2', 'start'));
     return e;
   }
   // `by` lots of `of` from 0, each a long hop down the line at ts[k]. Returns where the marker has got to, and the lots landed.
-  function lotsHops(sc, by, of, ts, dur) {
+  // lift: how far the last lot's size rises, clear of the answer's tag (the tank's short hops).
+  function lotsHops(sc, by, of, ts, dur, lift) {
     let v = 0, n = 0;
     if (!ts) return { v: 0, n: 0 };
     ts.slice(0, by).forEach((t, k) => {
       const a = round3(k * of), b = round3((k + 1) * of);
-      const e = bigHop(sc, { a: a, b: b, t: t, dur: dur, lab: fmt(of), lt: t + dur * 0.6 });
+      const e = bigHop(sc, { a: a, b: b, t: t, dur: dur, lab: fmt(of), lt: t + dur * 0.6, lift: k === by - 1 ? lift : 0 });
       v += (b - a) * e;
       if (e >= 1) n++;
     });
@@ -779,7 +780,7 @@
     const L = LAY[d.lay], sc = scaleOf(L), F = d.at, ans = answerOf(d);
     upright(sc);
     card([1, 1, 1], [1, 0, 1]);
-    const w = lotsHops(sc, d.by, d.of, right ? F.hops : null, F.hop);
+    const w = lotsHops(sc, d.by, d.of, right ? F.hops : null, F.hop, d.lay === 'tank' ? 5 : 0);
     marker(sc, w.v, 0, 1);
     const done = right ? arr(F.tag) : 0;
     tag(sc, ans, fmt(ans), done);

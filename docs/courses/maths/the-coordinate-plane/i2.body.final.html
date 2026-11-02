@@ -132,7 +132,9 @@
   const STEPS = [
     { show: true, demo: 'grow', dur: 4.1, name: 'Four quadrants',
       text: 'Both axes carry on past 0, like a number line. Left of 0, x is negative, and below 0, y is negative. The axes cut the grid into four *quadrants*.' },
+    // The read-through shows the point at (−3, 2), where the sentence starts, not where the tour ends.
     { show: true, demo: 'tour', dur: 3.8, drag: true, name: 'Signs flip',
+      still: () => { const i = STEPS.findIndex((s) => s.name === 'Signs flip'); S[i].pt = [-3, 2]; S[i].moved = true; S[i].pick = pair(-3, 2); paint(); },
       text: '(−3, 2) means 3 to the left, then 2 up. Watch the signs flip each time the point crosses an axis. Then drag it round yourself.' },
     { kind: 'drag', to: [-4, 3], want: '(−4, 3)', fb: 1.7, at: PLOT, name: 'Plot (−4, 3)',
       slips: { '(4, 3)': 'signX', '(−4, −3)': 'signY', '(4, −3)': 'both', '(3, −4)': 'swap', '(−3, 4)': 'swapSign' },
@@ -507,6 +509,7 @@
     for (let v = -R; v <= R; v++) {
       if (v === 0) continue;
       part(v < 0 && xa ? xa(-v) : 1, 0, () => { if (has('x', v)) backing(gx(v), OY + 16, num(v), 'middle', filled(Math.sign(v), -1)); text(gx(v), OY + 16, num(v), 'axv'); });
+      if (cut.skipY && cut.skipY.indexOf(v) >= 0) continue;
       part(v < 0 && ya ? ya(-v) : 1, 0, () => { if (has('y', v)) backing(OX - 6, gy(v) + 5, num(v), 'end', filled(-1, Math.sign(v))); text(OX - 6, gy(v) + 5, num(v), 'axv', 'end'); });
     }
     text(OX - 3, OY + 16, '0', 'axv', 'end');
@@ -689,7 +692,8 @@
     axes();
     if (xl > 0) line('ln', gx(3), gy(R), gx(3), K.lerp(gy(R), gy(-R), xl));
     if (yl > 0) line('ln', gx(-R), gy(-2), K.lerp(gx(-R), gx(R), yl), gy(-2));
-    numbers(null, null, { x: [3], y: [-2] });
+    // The dot at (−1, −2) sits on the y-axis's −2, so that number is left out: the line is named y = −2.
+    numbers(null, null, { x: [3], y: [-2], skipY: [-2] });
     XS.forEach((v, k) => part(xa[k], 4, () => { dot(3, v); text(gx(3) + 12, gy(v) + 5, pair(3, v), 'pl', 'start'); }));
     // each label below and to the left of its dot, clear of the numbers up the y-axis
     YS.forEach((v, k) => part(ya[k], 4, () => { dot(v, -2); text(gx(v) - 12, gy(-2) + 22, pair(v, -2), 'pl', 'end'); }));

@@ -184,7 +184,7 @@
   const STEPS = [
     { show: true, name: 'Roots make brackets', roots: [1, 2, 3], hand: 'drag', rows: 'roots', curve: true, shape: true, lo: -4.5, hi: 4.5, mode: 'lin', nW: 1,
       moves: [{ k: 0, t0: 0.9, t1: 1.9, to: -2 }, { k: 2, t0: 2.6, t1: 3.6, to: 4 }], dur: 4.0,
-      text: 'A *polynomial* adds up whole-number powers of `x`, and its highest power is its *degree*: a *cubic*, such as `x³ − 6x² + 11x − 6`, has degree 3. A round handle at `a` puts the bracket `(x − a)` in the rule, and at `x = a` that bracket is 0, so the whole product is 0 and the curve meets the axis there. A fourth bracket would make `x⁴`, so a cubic meets the axis at most three times; drag a handle and both rows rewrite.' },
+      text: 'A *polynomial* adds up whole-number powers of `x`, and its highest power is its *degree*: a *cubic*, such as `x³ − 6x² + 11x − 6`, where the handles start, has degree 3. A round handle at `a` puts the bracket `(x − a)` in the rule, and at `x = a` that bracket is 0, so the whole product is 0 and the curve meets the axis there. A fourth bracket would make `x⁴`, so a cubic meets the axis at most three times; drag a handle and both rows rewrite.' },
     { name: 'Read the handles', roots: [-1, 2, 4], hand: 'show', rows: 'hidden', curve: true, shape: true, lo: -4.5, hi: 4.5, mode: 'lin', nW: 2,
       opts: ['(x − 1)(x + 2)(x + 4)', '(x + 1)(x − 2)(x − 4)', '(x − 1)(x − 2)(x − 4)'], want: '(x + 1)(x − 2)(x − 4)',
       wrong: { '(x − 1)(x + 2)(x + 4)': { ring: 2, brs: [1, -2, -4] }, '(x − 1)(x − 2)(x − 4)': { ring: -1, brs: [1, 2, 4] } },
@@ -258,9 +258,9 @@
       hints: { 'Crosses': 'Not quite. Crossing would need `(x − 1)` only once, but dividing by it leaves `x² + x − 2`, which is `(x − 1)(x + 2)`.', 'Never reaches it': 'Not quite. `P(1) = 1 − 3 + 2 = 0`, so the curve is on the axis at 1.' } },
     { show: true, name: 'Look ahead: split a fraction', pf: true, roots: [1, -2], hand: 'pf', rows: 'pf', curve: false, marker: { lo: -3, hi: 2, x0: 0, drag: true }, lo: -3.5, hi: 2.5, GH: 50, mode: 'lin', nW: 7,
       moves: [{ m: 1, t0: 0.6, t1: 1.3, to: 1 }, { m: 1, t0: 1.7, t1: 2.5, to: -2 }, { m: 1, t0: 2.9, t1: 3.4, to: 0 }], pfT: [1.4, 2.6, 3.5, 3.6], dur: 4.3,
-      text: 'This last screen is an optional look ahead, which nothing later needs: splitting `(5x + 1)` ÷ `((x − 1)(x + 2))` into `A ÷ (x − 1)` + `B ÷ (x + 2)`, a step colleges call *partial fractions*. Multiply both sides by `(x − 1)(x + 2)` to get `5x + 1` = `A(x + 2) + B(x − 1)`, then put in each bracket\'s root. At `x = 1` the B part is 0, so `A = 2`, and at `x = −2` the A part is 0, so `B = 3`.' },
+      text: 'This last screen is an optional look ahead, which nothing later needs: splitting `(5x + 1)` ÷ `((x − 1)(x + 2))` into `A ÷ (x − 1)` + `B ÷ (x + 2)`, a step called *partial fractions*. Multiply both sides by `(x − 1)(x + 2)` to get `5x + 1` = `A(x + 2) + B(x − 1)`, then put in each bracket\'s root. At `x = 1` the B part is 0, so `A = 2`, and at `x = −2` the A part is 0, so `B = 3`.' },
   ];
-  const FINISH = 'If putting `x = a` into a polynomial gives 0, then `(x − a)` is one of its factors. So find a root, divide out its bracket and factorise what is left. The same hunt factorises lesson 7\'s power rule, `12I − 0.5I² = −0.5I(I − 24)`, and cubics turn up at sea: a ship\'s engine power grows roughly as the cube of its speed.';
+  const FINISH = 'If putting `x = a` into a polynomial gives 0, then `(x − a)` is one of its factors. So find a root, divide out its bracket and factorise what is left. The same hunt factorises lesson 7\'s power rule, `12I − 0.5I² = −0.5I(I − 24)`, and cubics turn up at sea: the power to drive a hull grows roughly as the cube of its speed.';
   // Sources the checks restate (the lesson's own).
   const MATHWORLD = 'https://mathworld.wolfram.com/PolynomialFactorTheorem.html';
   const BITESIZE = 'https://www.bbc.co.uk/bitesize/articles/zdtdh4j';
