@@ -828,11 +828,11 @@
     band([{ l: 'r × F', s: mText(r.Mk), a: arr(3.3) }, { l: 'F × r', s: mText(-r.Mk), a: arr(3.5) }, { l: 'axes', s: 'i × j = k, j × k = i, k × i = j', a: arr(3.7) }]);
     return 'A spanner on a bolt, drawn in 3-D. With r along the handle and F square to it, r × F points out of the nut, 45 N m. F × r is the same size, pointing into the nut. Beside them, the axes i, j and k: i × j = k, j × k = i and k × i = j.';
   };
-  // The puzzle: the axes in a view turned so k points down the screen. A right answer draws j × i,
-  // then the view turns back.
+  // The puzzle: the axes in a view turned so k points down the screen. A right answer draws j × i
+  // in that same view, so its finished picture matches the question: k down, j × i up.
   DRAW.turnq = (d, st) => {
-    const ok = st.res === 'right', pick = st.res ? st.pick : null, e = ok ? go(1.0, 1.4) : 0;
-    G.al = 210 + 90 * e; G.roll = 180 * (1 - e); V = view();
+    const ok = st.res === 'right', pick = st.res ? st.pick : null;
+    G.al = 210; G.roll = 180; V = view();
     const O = G.O, L = G.L, s = L * 0.62;
     const ax = [['i', [L, 0, 0]], ['j', [0, L, 0]], ['k', [0, 0, L]]].map((t) => ({ n: t[0], p: P3(t[1]) }));
     ax.forEach((a) => seg(O, a.p));
@@ -847,7 +847,7 @@
       pxArrow(O, lerp2(O, mk, go(0.2, 0.6)), 'vm');
       const w = tw('j × i = −k', 'lb');
       label(arr(0.6), 'j × i = −k', 'lb', noseCands(O, mk, w, 15).concat(besideCands(O, mk, w, 15, null, 0, [0, 12])), { vec: true });
-      said += ' The answer, j × i = −k, is drawn opposite k. The view has turned back, so k points up the screen and j × i points down it.';
+      said += ' The view is turned, so k points down the screen. The answer, j × i = −k, is drawn opposite k, so it points up the screen.';
     } else {
       said += ' The view is turned, so k points down the screen.';
       if (pick === 'Down the screen') { badArrow(O, ax[2].p, 'down the screen is i × j', 12); said += ' The pick, down the screen, is drawn in red. That is k, which is i × j.'; }
@@ -1182,7 +1182,7 @@
     const I = [1, 0, 0], J = [0, 1, 0], Kz = [0, 0, 1], eq = (a, b) => a.every((x, k) => K.near(x, b[k], 1e-12));
     const tq = atSt('turnq'), ts = atSt('turnq', 'solved');
     return eq(cross3(I, J), Kz) && eq(cross3(J, Kz), I) && eq(cross3(Kz, I), J) && eq(cross3(J, I), [0, 0, -1]) && eq(cross3(I, I), [0, 0, 0]) &&
-      tq.kDy > 0 && ts.kDy < 0 && eq(ts.ans, cross3(J, I)) && ts.ansDy > 0;
+      tq.kDy > 0 && ts.kDy > 0 && eq(ts.ans, cross3(J, I)) && ts.ansDy < 0;
   });
   K.check('Every puzzle offers three different answers with exactly one accepted, gives each wrong one its own hint, and draws a wrong pick in red but a right one without', () =>
     DO.every((i) => {

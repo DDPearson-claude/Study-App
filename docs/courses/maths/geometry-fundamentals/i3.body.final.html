@@ -102,7 +102,7 @@
   <div class="row nav" id="nav"></div>
 </div>
 
-<p class="caption">To change area units, square the step between lengths. The sizes are example values, except Nexans's conductor sizes.</p>
+<p class="caption">To change area units, square the step between lengths. The sizes are example values, except the conductor sizes, which are standard ones.</p>
 
 <script>
   // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
@@ -181,7 +181,7 @@
       hints: { '1,800 cm²': 'Not quite. That makes the area only 3 times as much. Each side is 3 times as long, so the area is 3 × 3 = 9 times.',
         '3,600 cm²': 'Not quite. That multiplies by 3 + 3 = 6. The sides grow 3 times in both directions, so the area grows 3 × 3 = 9 times.' } },
     { show: true, demo: 'cable', dur: 4.2, name: 'Cable sizes are areas',
-      text: 'Cable sizes are areas. Nexans lists 1.5 mm² to 35 mm², sizes set by IEC 60228. A 35 mm² size means an area of 35 of these 1 mm squares.' },
+      text: 'Cable sizes are areas. Standard conductor sizes run from 1.5 mm² to 35 mm² and up, set by IEC 60228. A 35 mm² size means an area of 35 of these 1 mm squares.' },
     { kind: 'pick', pic: 'c25', opts: ['0.25 cm²', '2.5 cm²', '2,500 cm²'], want: '0.25 cm²', slips: { '2.5 cm²': 'ten', '2,500 cm²': 'times' }, fb: 1.2, at: QUARTER, name: 'mm² to cm²',
       task: 'A conductor\'s cross-section is 25 mm². How many cm² is that?',
       why: '1 cm² is 100 mm², so 25 mm² is 25 ÷ 100 = 0.25 cm², a quarter of the 1 cm square.',
@@ -669,7 +669,7 @@
     const last = SZ[SZ.length - 1], size = () => readout2(amt(SZ[Math.max(0, cur)], 'mm²'), 'conductor');
     if (sa > 0) swap(sa, size, () => readout2(amt(last / CM2MM, 'cm²'), num(last) + ' ÷ 100 ='), 0);
     else part(arr(nth(A.size, 0), SIZE_T), 0, size);
-    const said = ['A 1 centimetre square ruled into 100 square millimetres, with Nexans\'s conductor sizes listed below it: ' + SZ.map((v) => num(v)).join(', ') + ' square millimetres.'];
+    const said = ['A 1 centimetre square ruled into 100 square millimetres, with standard conductor sizes listed below it: ' + SZ.map((v) => num(v)).join(', ') + ' square millimetres.'];
     if (cur >= 0) said.push('The squares filled show ' + say(amt(SZ[cur], 'mm²')) + '.');
     if (sa >= 0.5) said.push('35 square millimetres is 35 divided by 100, 0.35 square centimetres.');
     return said.join(' ');
@@ -1051,7 +1051,7 @@
     const g = drawn(8, blank(8)), Q = LAY.cable.Q;
     const tint = g.rects.filter((r) => /\bt1\b/.test(r.cls)).reduce((s, r) => s + r.w * r.h, 0) / (Q * Q);
     return SZ.map(String).join(' ') === '1.5 2.5 4 6 10 16 25 35' && SZ.every((v, k) => k === 0 || v > SZ[k - 1]) && SZ.every((v) => g.all.indexOf(num(v)) >= 0) &&
-      K.near(tint, SZ[SZ.length - 1], 1e-6) && g.all.indexOf('0.35 cm²') >= 0 && STEPS[8].text.indexOf('Nexans') >= 0;
+      K.near(tint, SZ[SZ.length - 1], 1e-6) && g.all.indexOf('0.35 cm²') >= 0 && STEPS[8].text.indexOf('IEC 60228') >= 0;
   }, { source: 'https://www.nexans.qa/en/Products/EnergyCables/Infrastructure/LowVoltageCablesIECStandards/2COREXLP34533.html' });
   K.check('IEC 60228 specifies the nominal cross-sectional areas, in the range 0,5 mm2 to 3 500 mm2: every conductor size the lesson uses, the eight listed and the 25 mm² puzzle, lies in that range and is given as an area in mm²', () =>
     SZ.concat([COND]).every((v) => v >= 0.5 && v <= 3500) && /mm²/.test(STEPS[9].task) && STEPS[8].text.indexOf('IEC 60228') >= 0,

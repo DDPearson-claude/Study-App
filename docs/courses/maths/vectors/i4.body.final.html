@@ -594,7 +594,11 @@
       for (let D = 28; D <= 170; D += 2) {
         const cx = t.S0[0] + bis[0] * D, cy = t.S0[1] + bis[1] * D;
         const box = [[cx - w / 2 - 2, cy - 8], [cx + w / 2 + 2, cy - 8], [cx + w / 2 + 2, cy + 8], [cx - w / 2 - 2, cy + 8]];
-        if (box.every((q) => inTri(q, tri))) { text(cx, cy + 5, s, 'sm ok', 'middle'); REC.angleShown = true; return; }
+        if (box.every((q) => inTri(q, tri))) {
+          // Far from its arc, a thin leader joins the label to the arc, so it is not read as the angle at the nose.
+          if (D > 40) { const q0 = add(t.S0, scale(bis, r + 3)), q1 = add(t.S0, scale(bis, D - 11)); put(K.svg('path', { class: 'arc', d: 'M' + pt2(q0) + ' L' + pt2(q1) })); }
+          text(cx, cy + 5, s, 'sm ok', 'middle'); REC.angleShown = true; return;
+        }
       }
     });
   }

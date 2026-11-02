@@ -568,7 +568,8 @@
     const shE = o.sh || 0;
     if (shE > 0) {
       if (tiny) part(shE, 0, () => put(K.svg('circle', { class: 'shdot' + (o.shBad ? ' bad' : ''), cx: r3(O[0]), cy: r3(O[1]), r: 5.5 })));
-      else ln('shd' + (o.shBad ? ' bad' : ''), O, add(O, scale(dir, sPx * shE)));
+      // The shadow lies just off b's line, on the side away from a, so b's arrow does not hide it.
+      else { const off = scale(nrm, -side * 5); ln('shd' + (o.shBad ? ' bad' : ''), add(O, off), add(add(O, scale(dir, sPx * shE)), off)); }
     }
     if ((o.rays || 0) > 0 && La > 4) part(o.rays, 0, () => {
       if (tiny) { raMark(O, dir, scale(va, 1 / La)); return; }
@@ -596,6 +597,8 @@
       if (!tiny) c.push(add(F, scale(dir, Math.sign(sPx) * (12 + w / 2))));
       mids.forEach((m) => c.push(add(m, scale(away, -D))));
       if (tiny) [[1, 1], [-1, 1], [1, -1], [-1, -1], [1, 0], [-1, 0], [0, 1], [0, -1]].forEach((u) => c.push(add(O, [u[0] * (12 + w / 2), u[1] * (12 + h / 2)])));
+      // A last row further out, so a crowded picture does not lay this label over another.
+      mids.forEach((m) => c.push(add(m, scale(away, D + 28))));
       label(o.shl, o.shText, cls, c, {});
     }
     if (wedgeOn && o.wTexts) {

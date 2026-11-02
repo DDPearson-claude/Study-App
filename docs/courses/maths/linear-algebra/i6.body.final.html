@@ -590,7 +590,7 @@
   const KEYS = { flag: [['flag', 'the flag'], ['ghost', 'a step before'], ['litln', 'eigenvector line'], ['leg', 'the dot’s amounts']],
     tanks: [['water', 'water'], ['ref', 'where it heads']], four: [['litln', 'eigenvector line']],
     amts: [['litln', 'eigenvector line'], ['leg', 'amounts']], swap: [['litln', 'eigenvector line']],
-    pdp: [['leg', 'amounts'], ['gl', 'before D']], settle: [['litln', 'eigenvector line'], ['trail', 'each step']] };
+    pdp: [['leg', 'amounts'], ['gl', 'before D']], settle: [['litln', 'eigenvector line'], ['trail', 'each step'], ['gsq', '1 square = 1']] };
   function keyLines(list) {
     const lines = [];
     let cur = [], w = 0;
@@ -605,6 +605,7 @@
   }
   function swatch(k, x, y) {
     if (k === 'flag' || k === 'ghost' || k === 'water') put(K.svg('rect', { class: k, x: r3(x + 3), y: y - 12, width: 16, height: 13, rx: 2 }));
+    else if (k === 'gsq') put(K.svg('rect', { class: 'grid', fill: 'none', x: r3(x + 4), y: y - 12, width: 13, height: 13 }));
     else if (k === 'trail') put(K.svg('circle', { class: 'trail', cx: r3(x + 11), cy: y - 5, r: 3 }));
     else put(K.svg('line', { class: k, x1: r3(x + 2), y1: y - 5, x2: r3(x + 20), y2: y - 5 }));
   }
@@ -807,6 +808,7 @@
       const q = stepBy(M13, START13, j);
       if (inBox(q, REC.box)) part(K.clamp((n - j + 0.25) * 4, 0, 1), () => dotD('trail', q, 2.6));
     }
+    KEYS.settle[2][1] = '1 square = ' + num(REC.g, 4);
     arrowD('pv', [0, 0], tip, 10);
     const a0 = right ? 1 - arr(0, 0.3) : 1, a1 = right ? arr(1.7, 0.3) : 0;
     labD(tip, 'start ' + pt(START13), 'nm', a0);

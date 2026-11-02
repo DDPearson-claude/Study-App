@@ -710,9 +710,9 @@
         v.lines.push({ s: 'Cut the end triangle and slide it across', cls: 'ln', a: arr(2.1, 0.4) - arr(3.3, 0.3) });
         v.lines.push({ s: 'base × height = ' + num(c.base) + ' × ' + num(c.h) + ' = ' + num(c.base * c.h), cls: 'ln', a: dn });
         v.over = (ctx) => part(dn, 0, () => {
-          const bp = ctx.P([c.q + c.base / 2, 0]), hp = ctx.P([c.q, c.h / 2]);
+          const bp = ctx.P([c.q + c.base / 2, 0]), hp = ctx.P([c.q, c.h * 0.83]);
           fixedLabel(bp[0], bp[1] + 19, 'base ' + num(c.base), 'lb');
-          fixedLabel(hp[0] - 8, hp[1] + 5, 'height ' + num(c.h), 'lb', 'end');
+          fixedLabel(hp[0] + 8, hp[1] + 5, 'height ' + num(c.h), 'lb', 'start');
         });
         break;
       }
@@ -729,9 +729,9 @@
           vals = [{ s: '?', cls: 'q', a: 1 - pa }, detVal(LEAN, { cls: 'ok', a: pa })];
           v.lines.push({ s: 'base × height = ' + num(c.base) + ' × ' + num(c.h) + ' = ' + num(c.base * c.h), cls: 'ln ok', a: lb });
           v.over = (ctx) => part(lb, 0, () => {
-            const bp = ctx.P([c.q + c.base / 2, 0]), hp = ctx.P([c.q, c.h / 2]);
+            const bp = ctx.P([c.q + c.base / 2, 0]), hp = ctx.P([c.q, c.h * 0.83]);
             fixedLabel(bp[0], bp[1] + 19, 'base ' + num(c.base), 'lb');
-            fixedLabel(hp[0] - 8, hp[1] + 5, 'height ' + num(c.h), 'lb', 'end');
+            fixedLabel(hp[0] + 8, hp[1] + 5, 'height ' + num(c.h), 'lb', 'start');
           });
           reveal(lb);
         } else if (wrong) {

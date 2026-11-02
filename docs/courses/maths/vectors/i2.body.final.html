@@ -701,6 +701,8 @@
     wedge(P, 60, 90, 26, '30°', { cls: 'sm', at: 80, D: 60 });
     wedge(v, 240, 270, 30, '30°', { tip: true, at: 255, D: 66 });
     legs(P, v, 1, 1); corner([v[0], 0], v);
+    // The hull sits just ahead of the start, above the east axis, so the east part's label below stays clear of it.
+    boatShape([X(0) + 11 * C(60), Y(0) - 11 * Sn(60)], Math.atan2(-v[1], v[0]));
     let said = 'A ship heading on a bearing of 030 at 12 knots, its velocity arrow drawn with two dashed parts, east and north. The same 30 degrees sits at the tip, between the north part and the arrow.';
     if (ok) {
       part(arr(0.2), 3, () => sideTag('across', P, v, d.reveal));
@@ -710,7 +712,6 @@
       badBar(P, d.pv[pick] / 2.5, pick, go(0.1, 0.9));
       said += ' The pick, ' + pick + ', is drawn in red along the east axis. It runs past the corner of the triangle.';
     }
-    boatShape([X(0), Y(0)], Math.atan2(-v[1], v[0]));
     vec(P, v, '', { main: true });
     const ra = ok ? arr(1.0) : 1;
     panel([{ t: 'title', s: '12 knots' }, { t: 'label', s: 'bearing' }, { t: 'value', s: '030' }].concat(ok ? [{ t: 'label', s: 'in knots', a: ra }, { t: 'col', vals: [12 * Sn(30), 12 * C(30)], a: ra }] : []));

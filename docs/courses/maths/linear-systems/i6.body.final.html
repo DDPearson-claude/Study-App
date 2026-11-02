@@ -364,15 +364,15 @@
     { kind: 'solve', name: 'Last one', sys: 'c2',
       opts: ['6 A, 2 A, 4 A', '5 A, 3 A, 9 A', '6 A, 2 A, 8 A'], want: '6 A, 2 A, 8 A', vals: { '6 A, 2 A, 4 A': [6, 2, 4], '5 A, 3 A, 9 A': [5, 3, 9], '6 A, 2 A, 8 A': [6, 2, 8] },
       task: 'Last one, with the new batteries. Which currents I₁, I₂ and I₃ fit all three rows?',
-      why: 'Row 1 plus row 3 gives `I₁ + 2I₂ = 10`, and row 1 plus row 2 gives `2I₁ + I₂ = 14`. Twice that, take away the first, and `3I₁ = 18`, so I₁ = 6 A. Then I₂ = 14 − 12 = 2 A, and row 2 gives I₃ = 14 − 6 = 8 A. To solve large systems, you set the numbers in front of the letters out as a block called a matrix: that is the Matrices course.',
-      done: 'That\'s it. To solve large systems, you set the numbers in front of the letters out as a block called a matrix: that is the Matrices course.',
+      why: 'Row 1 plus row 3 gives `I₁ + 2I₂ = 10`, and row 1 plus row 2 gives `2I₁ + I₂ = 14`. Twice that, take away the first, and `3I₁ = 18`, so I₁ = 6 A. Then I₂ = 14 − 12 = 2 A, and row 2 gives I₃ = 14 − 6 = 8 A. To solve large systems, you set the numbers in front of the letters out as a block called a matrix, which comes later.',
+      done: 'That\'s it. To solve large systems, you set the numbers in front of the letters out as a block called a matrix, which comes later.',
       hint: 'Not quite. Remove I₃ twice, then put back.',
       hints: { '6 A, 2 A, 4 A': 'Not quite. The junction says I₃ = I₁ + I₂, so I₃ = 6 + 2, not 6 − 2.', '5 A, 3 A, 9 A': 'Not quite. That fits loop 1, but loop 2 gives `3 + 9 = 12`, not 10.' } },
   ];
   const cv = (C) => 'Battery 1 is ' + num(C.E1) + ' V with ' + num(C.r1) + ' Ω inside it, battery 2 is ' + num(C.E2) + ' V with ' + num(C.r2) + ' Ω inside it, and the load is ' + num(C.R) + ' Ω.';
   const LEADS = { 0: 'Three example equations in x, y and z, stacked as rows, with a counter above of the unknowns and equations still in play.',
     6: 'The example circuit from Kirchhoff\'s laws: two loops. ' + cv(C1), 11: 'New example values. ' + cv(C2) };
-  const FINISH = 'Remove the same letter from two different pairs of rows, so three equations in three unknowns step down to two in two, then one in one. Put the answers back for the third, and check all three rows. To solve large systems, you set the numbers in front of the letters out as a block called a matrix: that is the Matrices course.';
+  const FINISH = 'Remove the same letter from two different pairs of rows, so three equations in three unknowns step down to two in two, then one in one. Put the answers back for the third, and check all three rows. To solve large systems, you set the numbers in front of the letters out as a block called a matrix, which comes later.';
   // Sources the checks restate (the lesson's own).
   const SRC1 = 'https://eajournals.org/wp-content/uploads/Some-Common-Misconstructions-and-Misinterpretations-in-Basic-Algebra-.pdf';
   const SRC2 = 'https://openstax.org/books/intermediate-algebra-2e/pages/4-4-solve-systems-of-equations-with-three-variables';

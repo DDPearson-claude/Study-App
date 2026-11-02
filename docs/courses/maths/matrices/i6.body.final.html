@@ -549,9 +549,9 @@
   // ---------- the layout: the band (matrix, readout), the minors, worked lines, the circuit, the key, the view ----------
   const BXC = 80, RXC = 252, BY = 38, PY = 22, MB = 126, LSTEP = 20, CH = 126, BLX = [62, 170, 278];
   function lay(d) {
-    const rows = d.rows || 0, y0 = d.minors ? MB + 92 : 136, ly = [];
+    const rows = d.rows || 0, y0 = d.minors ? MB + 99 : 136, ly = [];
     for (let k = 0; k < rows; k++) ly.push(y0 + k * LSTEP);
-    let y = rows ? ly[rows - 1] + 8 : (d.minors ? MB + 80 : 120);
+    let y = rows ? ly[rows - 1] + 8 : (d.minors ? MB + 87 : 120);
     const cy = d.circuit ? y + 6 : null;
     if (d.circuit) y += CH + 6;
     const ky = d.keyRow ? y + 17 : null;

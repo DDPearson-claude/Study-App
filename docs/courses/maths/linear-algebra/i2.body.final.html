@@ -817,7 +817,7 @@
         const gA = 1, jA = 1, nOld = 1 - arr(3.0, 0.3), nNew = arr(3.1, 0.4);
         const k1 = mulMV(MS, C1)[0] / C1[0], k2 = mulMV(MS, C2)[1] / C2[1];
         pic = basePic(u, v, { gA, bA: gA, n1: [['b₁', nOld], [fr(k1) + 'b₁', nNew]], n2: [['b₂', nOld], [fr(k2) + 'b₂', nNew]] });
-        pic.arrows.push({ to: j, cls: 'mu', name: 'j', a: jA });
+        pic.arrows.push({ to: j, cls: 'mu', name: e > 0 ? 'Mj' : 'j', a: jA });
         row(0, coordsT(C1, C2), 'ln', Math.min(gA, nOld));
         row(0, 'Mb₁ = ' + fr(k1) + 'b₁ and Mb₂ = ' + fr(k2) + 'b₂', 'ln ok', nNew);
         keyItems = [['gl', 'your grid'], ['sl', 'the new grid']];

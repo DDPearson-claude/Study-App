@@ -528,6 +528,8 @@
     path('gl', low);
     leave(ta, () => { path('gl', high); polyline('shp', [c, dd, a].map((p) => P(p[0], p[1]))); });
     polyline('shp', [a, b, c].map((p) => P(p[0], p[1])));
+    // The rest of the floor stays as a dashed outline, so the rectangle the diagonal cuts is still seen.
+    part(ta, 0, () => polyline('dsq', [c, dd, a].map((p) => P(p[0], p[1]))));
     if (e > 0) line('run', P(0, 0), P(w * e, h * e));
     part(ta, 0, () => corner(P(w, 0), [-1, 0], [0, -1]));
     plabel(P(w / 2, 0)[0], P(0, -0.62)[1] + 5, amt(w, 'm'), 'lbl');
@@ -535,7 +537,7 @@
     part(ra, 0, () => { const m = P(w / 2, h / 2); plabel(m[0], m[1] + 5, amt(n, 'm'), 'lbl'); readout(amt(n, 'm'), '√(' + sqd(w) + ' + ' + sqd(h) + ') ' + eq(n)); });
     const said = ['A ' + say(amt(w, 'm')) + ' by ' + say(amt(h, 'm')) + ' floor on 1 metre squares.'];
     if (e > 0.5) said.push('Its diagonal runs corner to corner, cutting it into two right-angled triangles.');
-    if (ta >= 0.5) said.push('The triangle under the diagonal is picked out, its square corner marked, and the rest of the floor fades away.');
+    if (ta >= 0.5) said.push('The triangle under the diagonal is picked out, its square corner marked, and the rest of the floor stays as a dashed outline.');
     if (sa[2] >= 0.5) said.push('Squares stand on its three sides: ' + say(amt(w * w, 'square metres')) + ' and ' + say(amt(h * h, 'square metres')) + ' on the shorter sides, and ' + say(amt(n * n, 'square metres')) + ' on the diagonal.');
     if (ra >= 0.5) said.push('The diagonal is the square root of ' + num(n * n) + ', ' + say(amt(n, 'm')) + '.');
     return said.join(' ');
