@@ -126,7 +126,7 @@
   <div class="row nav" id="nav"></div>
 </div>
 
-<p class="caption">Ideal parts on 230 V UK mains (BBC Bitesize); I = V ÷ Z, with volts and amps drawn to separate scales.</p>
+<p class="caption">Ideal parts on 230 V UK mains; I = V ÷ Z, with volts and amps drawn to separate scales.</p>
 
 <script>
   // ---------- numbers ----------
@@ -759,7 +759,7 @@
     AV.push(line('ax', ZX0, top, ZX0, bot));
     text(ZX0 - 6, top - 8, 'j20', 'tn', 'start');
     text(ZX0 - 6, bot + 16, '−j20', 'tn', 'start');
-    text(ZX0 + 10 * ZU, bot + 16, '10', 'tn');
+    // no 10 under the middle: in a panel this small it ran into −j20; 20 at the right end gives the scale
     text(right, bot + 16, '20', 'tn');
     text(right + 6, top - 8, 'Z, in Ω', 'an', 'end');
     layered(items.filter((it) => it.pane === 'z')).forEach((it) => { if (it.k === 'ar') drawAr(it, LB, said); else if (it.k === 'arc') drawArc(it); });

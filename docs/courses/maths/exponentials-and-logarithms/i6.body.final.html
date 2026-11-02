@@ -112,7 +112,7 @@
     <p class="task" id="task"></p>
     <svg class="scene" id="scene" viewBox="0 0 340 178" width="100%" role="img" aria-label=""><g id="art" class="art"></g><g id="ui"></g></svg>
     <svg class="scene" id="mach" viewBox="0 0 340 94" width="100%" role="img" aria-label=""><g id="mart" class="art"></g></svg>
-    <div class="key mkey" id="mkey"><span><i class="swatch line" style="color:var(--k-muted)"></i>Above: the rule, run forwards</span><span><i class="swatch line" style="color:var(--k-accent2)"></i>Below: the undoing machine</span></div>
+    <div class="key mkey" id="mkey"><span><i class="swatch line" style="color:var(--k-muted)"></i>Above: the rule, run forwards</span><span id="mkeyU"><i class="swatch line" style="color:var(--k-accent2)"></i>Below: the undoing machine</span></div>
     <div class="forms" id="forms" aria-live="polite"></div>
     <div class="k-controls" id="ctl"></div>
     <div class="replay" id="replay"></div>
@@ -271,7 +271,7 @@
         [O1[2]]: 'Not quite. ' + U_MUL + ' undoes the first forward step, so it comes last.' } },
     { show: true, live: true, card: 'cap', mach: 'cap', level: LOPEN, name: 'Run it backwards',
       g: { tag: { at: 2.9, drop: true } }, m: { u: [2.1, 1.3, 0.5], n: [2.4, 1.6, 0.8, 1] }, forms: [], dur: 3.6,
-      text: 'The *undoing machine* runs along the bottom, last step first. `' + LOPEN + ' ÷ ' + V0 + ' = ' + shS(LOPEN) + '`, so the power stands alone. ln undoes eˣ, giving ' + lnS(LOPEN) + ', and ' + U_MUL + ' undoes the ' + F_DIV + ', giving ' + sec(T75) + '. That lands exactly under the crossing, and the level line agrees by eye. A trade page reports that the IEC 60831 standard requires discharge to below ' + IEC_V + ' V within ' + IEC_MIN + ' minutes, and ' + sec(T75) + ' is inside that. But the standard is for power capacitor banks, and a worked-out time proves nothing: prove it dead with a tester before you touch it. Drag the level line and the machine follows.' },
+      text: 'The *undoing machine* runs along the bottom, last step first. `' + LOPEN + ' ÷ ' + V0 + ' = ' + shS(LOPEN) + '`, so the power stands alone. ln undoes eˣ, giving ' + lnS(LOPEN) + ', and ' + U_MUL + ' undoes the ' + F_DIV + ', giving ' + sec(T75) + '. That lands exactly under the crossing, and the level line agrees by eye. The IEC 60831 standard requires discharge to below ' + IEC_V + ' V within ' + IEC_MIN + ' minutes, and ' + sec(T75) + ' is inside that. But the standard is for power capacitor banks, and a worked-out time proves nothing: prove it dead with a tester before you touch it. Drag the level line and the machine follows.' },
     { kind: 'pick', card: 'cap', mach: 'cap', level: L200, name: 'Down to ' + L200 + ' V',
       g: { tag: R(1.2) }, m: { u: [1, 1, 1], n: [R(0.9), R(0.5), R(0.1), 1], rings: [{ row: 'n', i: 0, when: O3[2] }] },
       slips: [{ k: 'sline', pts: [[0, V0], [RC, 0]], when: O3[1] }, { k: 'sdot', x: PACE200, y: L200, when: O3[1] }],
@@ -673,8 +673,11 @@
     c.yt.forEach((v) => line('ax', GX0 - 4, gy(v), GX0, gy(v)));
     c.yt.forEach((v) => text(GX0 - 7, gy(v) + 4.5, fv(v, 1), 'tk', 'end'));
     text(4, 12, c.ytitle, 'axt', 'start');
+    // The last number carries the unit; pulled in from the edge, it may reach the one before, which then steps aside.
+    const nx = c.xt.length - 1, sL = fv(c.xt[nx], 1) + c.xu, wL = tw(sL, 'tk'), xL = K.clamp(gx(c.xt[nx]), 2 + wL / 2, 338 - wL / 2);
     c.xt.forEach((v, k) => {
-      const s = fv(v, 1) + (k === c.xt.length - 1 ? c.xu : ''), w = tw(s, 'tk'), x = K.clamp(gx(v), 2 + w / 2, 338 - w / 2);
+      const s = fv(v, 1) + (k === nx ? c.xu : ''), w = tw(s, 'tk'), x = K.clamp(gx(v), 2 + w / 2, 338 - w / 2);
+      if (k === nx - 1 && x + w / 2 + 4 > xL - wL / 2) return;
       const a = tagBox && tagA > 0 && !apart(tagBox, x - w / 2, x + w / 2, 2) ? 1 - tagA : 1;
       if (a > 0) part(a, 0, () => text(x, TAGY, s, 'tk', 'middle'));
       REC.ticks.push({ s, shown: a >= 1 });
@@ -804,6 +807,8 @@
       });
     });
     const used = M.u.map((u, k) => REC.uchips[k]).filter(Boolean);
+    const keyU = document.getElementById('mkeyU');   // the key names the undoing machine only once some of it is drawn
+    if (keyU) keyU.style.display = used.length ? '' : 'none';
     return 'The rule as a machine, forwards along the top: ' + M.names[0] + ', then ' + M.f.map(say).join(', then ') + ', giving ' + M.names[1] + '. ' +
       'The numbers it hands on: ' + REC.nodes.map((s) => (s === '?' ? 'unknown' : say(s))).join(', ') + '. ' +
       (used.length ? 'The undoing machine along the bottom runs the other way: ' + M.u.slice().reverse().filter((u) => used.indexOf(u) >= 0).map(say).join(', then ') + '.' : 'The undoing machine along the bottom is still empty.');

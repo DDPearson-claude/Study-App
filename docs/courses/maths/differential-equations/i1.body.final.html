@@ -34,6 +34,7 @@
   /* Labels on the grid carry their own halo of the page colour, so arrows and curves stay visible around them. */
   .scene .lab { font: 600 13px var(--k-font); fill: var(--k-ink); paint-order: stroke fill; stroke: var(--k-bg); stroke-width: 3.5px; stroke-linejoin: round; }
   .scene .lab.main { fill: var(--k-accent2); }
+  .scene .pill { fill: var(--k-bg); fill-opacity: .88; stroke: none; }
   .scene .lab.bad, .scene .te.bad { fill: var(--k-warn); }
   .scene .tag { font: 700 15px var(--k-font); fill: var(--k-accent2); }
   .scene .te { font: 600 14px var(--k-font); fill: var(--k-ink); }
@@ -598,6 +599,7 @@
     for (const dy of [0, -17, 17, -34, 34]) { if (!hits(box(y + dy))) { yy = y + dy; break; } }
     const b = box(yy);
     placed.push(b);
+    if (pill) add(K.svg('rect', { class: 'pill', x: r2(b.x), y: r2(b.y), width: r2(b.w), height: r2(b.h + 2), rx: 4 }));   // a card of the page colour, so the arrows pass behind the words
     text(left, yy, s, cls, 'start');
     REC.texts.push(s);
     said.push(say(s) + '.');

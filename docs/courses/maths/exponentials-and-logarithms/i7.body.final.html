@@ -353,7 +353,7 @@
         [O14[2]]: 'Not quite. A wrong law bends the whole set, as the y-only switch did.' } },
   ];
   const FINISH = 'Log the right axes and a curved law comes out straight: the y-axis alone for `y = ab^x`, both axes for `y = ax^n`. The line\'s gradient gives the unknown power, and its intercept is a log until you turn it back.';
-  const CAPTION = 'These are example readings, worked out from each law and rounded, with two of the lamp\'s readings moved a little to show scatter; logs are shown to three decimal places.';
+  const CAPTION = 'These are example readings, worked out from each law and rounded, and on the lamp\'s card two readings are moved a little to show scatter. Logs are shown to three decimal places.';
   const FADE = 0.35;
   const FB = [2.4, 1.8];   // how long the motion after a right and a wrong answer plays
   const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
@@ -792,7 +792,7 @@
       const a = ar(d, st, g.at2) * vis;
       if (a > 0) {
         const X = c.x.f(2), Y = L.m * X + L.c, s = 'line: ' + sg(Math.pow(10, Y), 3) + ' lux', w = tw(s, 'lab'), nA = g.near != null ? ar(d, st, g.near) : 0;
-        part(a, 0, () => text(Math.max(SX(X) - 10, GX0 + 8 + w), SY(Y) + 21, s, 'lab', 'end'));
+        part(a, 0, () => text(Math.max(SX(X) - 12, GX0 + 8 + w), SY(Y) + 26, s, 'lab', 'end'));   // a little lower, clear of the 2 m dot and the line
         if (nA < 1) part(a * (1 - nA), 0, () => text(SX(X) + 9, SY(c.y.f(98)) - 9, 'reading: 98 lux', 'lab', 'start'));
         if (a >= 1) said.push('The line reads ' + sg(Math.pow(10, Y), 3) + ' lux at 2 m, beside the 98 lux reading.');
       }

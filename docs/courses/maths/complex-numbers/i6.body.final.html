@@ -110,7 +110,7 @@
   <div class="row nav" id="nav"></div>
 </div>
 
-<p class="caption">To multiply, multiply the moduli (lengths) and add the arguments (angles); to divide, divide the moduli and subtract the arguments (mathcentre).</p>
+<p class="caption">To multiply, multiply the moduli (lengths) and add the arguments (angles); to divide, divide the moduli and subtract the arguments.</p>
 
 <script>
   // ---------- numbers: an arrow is [length, angle in degrees]; a point is [across, up] ----------
@@ -196,7 +196,7 @@
   const Z8 = [5, A34], W8 = [5, A43], Z9 = [10, 0], W9 = [5, A34], Z11 = [20, -30], W11 = [4, 60], Z12 = [2, QUARTER];
   const S11 = polOf([1, 1]);   // 1 + j1 in polar form
   const STEPS = [
-    { show: true, free: true, name: 'Turn and stretch', view: { lo: -6, hi: 6, blo: -6, bhi: 6 }, hmax: 280, dur: 4.3, lines: 3, key: keyFor('z = ' + pn(ZF), 'w = ' + pn(WF), { h: true }),
+    { show: true, free: true, name: 'Turn and stretch', view: { lo: -3, hi: 6, blo: -2, bhi: 7 }, hmax: 280, dur: 4.3, lines: 3, key: keyFor('z = ' + pn(ZF), 'w = ' + pn(WF), { h: true }),
       ops: [A([1, 0], null, { cls: 'one', nm: '1' }), ARC(0, ZF[1], R1, 'z', null), A(ZF, null, { nm: 'z' }),
         TU([1, 0], WF[0], WF[1], 0.5, { dur: 1.1, cls: 'w', arcCls: 'w', R: R2, nm: 'w', knob: true }),
         ...prodOps(ZF, WF, 1.9, { tu: { dur: 1.2 } }),
@@ -315,7 +315,7 @@
         A([1 + 1, 0 + QUARTER], 2.8, wrong({ nm: nA(1 + 1, 0 + QUARTER) + ', wrong' })),
         RW({ e: 'Lengths and angles added: 1 + 1', w: nA(1 + 1, 0 + QUARTER) }, 3.3, wrong())],
       text: 'Multiplying the lengths and adding the angles is the rule for multiplying, not for adding. To add, go back to parts and lay the arrows tip to tail.',
-      more: '`1∠0° + 1∠90°` is `1 + j1`, which is `1.41∠45°`. Adding the lengths and the angles would give `2∠90°`, a different arrow. So add and take away in parts, and multiply and divide in polar form.\nFurther on, engineering maths texts also write `r∠θ` as `re^(jθ)`, the same arrow, with θ in radians (mathcentre).' },
+      more: '`1∠0° + 1∠90°` is `1 + j1`, which is `1.41∠45°`. Adding the lengths and the angles would give `2∠90°`, a different arrow. So add and take away in parts, and multiply and divide in polar form.\nFurther on, engineering maths also writes `r∠θ` as `re^(jθ)`, the same arrow, with θ in radians.' },
     { name: '20∠−30° ÷ 4∠60°', view: { lo: -2, hi: 19, blo: -17, bhi: 5 }, hmax: 280, lines: 3, key: keyFor('z = ' + pn(Z11), 'w = ' + pn(W11)),
       base: pair(Z11, W11),
       opts: [nA(Z11[0] / W11[0], Z11[1] + W11[1]), pn(over(Z11, W11)), pn([Z11[0] - W11[0], Z11[1] - W11[1]])], ok: 1,

@@ -172,7 +172,7 @@
   const STEPS = [
     { show: true, name: 'Tape round a work area', g: 'tape', dur: 4.2, rows: 2, rowsAt: RA.tape,
       tour: { x0: 4, legs: [{ to: 16, t: 0.7, len: 3.0 }] },
-      flags: [{ k: 1, x: xT, text: 'slope 0' }, { k: 0, x: xT, text: 'the top' }],
+      flags: [{ k: 1, x: xT, text: 'slope 0' }, { k: 0, x: xT, text: 'the top', c: [4, -10, 'end'] }],
       text: 'Take 40 m of barrier tape, an example, round a rectangular work area. If one side is `x` metres, one side and the next together take half the tape, 20 m, so the other side is `20 − x` and the area is `A = 20x − x²` square metres. Its slope is `20 − 2x`: ' +
         fmtN(rate(ta, 4)) + ' at 4 m, ' + fmtN(rate(ta, 16)) + ' at 16 m. Where a curve turns over, at a *turning point*, its tangent lies level. Drag P over the top.' },
     { name: 'The largest area', g: 'tape', p: null, rows: 3, opts: ['zero', 'right', 'two'],
@@ -552,12 +552,13 @@
     for (const c of cands) if (ok(c[2] === 'end' ? c[0] - w : c[0], c[1])) return c;
     return cands[0];
   }
-  function valLabel(g, x, a, s) {
+  function valLabel(g, x, a, s, side) {
     if (a <= 0) return;
     const v = rate(g, x);
     s = s || fmtN(v);
     if (!inR(g, 1, v)) return;
-    const c = spot(g, 1, x, v, s);
+    const px = X(g, x), py = Yk(g, 1, v);   // side: beside its own dot, left or right, so two readings never swap
+    const c = side === 'left' ? [px - 10, py + 5, 'end'] : side === 'right' ? [px + 10, py + 5, 'start'] : spot(g, 1, x, v, s);
     queue(a, [{ x: c[0], y: c[1], text: s, anchor: c[2] }]);
   }
   function flag(g, f, a) {
@@ -681,7 +682,7 @@
   function drawPuzzleG(d, st, G, RW) {
     const g = G.g, k = st.res === 'right' ? 'right' : st.res === 'wrong' ? st.pick : null, a = arr(0.1), o = k ? d.o[k] : null, kn = d.known || {};
     const p = o && o.at != null ? o.at : d.p;
-    if (kn.dots) { drawTrail(g, [], kn.dots, 1, 5); kn.dots.forEach((x) => valLabel(g, x, 1)); }
+    if (kn.dots) { drawTrail(g, [], kn.dots, 1, 5); kn.dots.forEach((x, n) => valLabel(g, x, 1, null, n ? 'right' : 'left')); }
     if (k === 'right') {
       drawTangent(g, p, a);
       if (o.all) drawTrail(g, [[g.x[0], g.x[1]]], gridIn(g, g.x[0], g.x[1]), a);

@@ -192,7 +192,7 @@
   const STEPS = [
     { show: true, name: 'One time constant', mode0: 'Discharging', time0: 3, dur: 4.3,
       pen: { at: 0.4, dur: 1.0 }, startAt: 0.4, slope: 'handle', slopeAt: 1.4, glide: { from: 0, stops: [1, 2, 3], t0: 1.6, gap: 0.8, dur: 0.55 },
-      text: 'A capacitor charged to 10 V empties through a resistor. The current is the voltage left ÷ R, so the fall slows as the voltage does; the dashed line is its pace now. The bar is the gap still to close. In one *time constant*, written τ, it keeps 0.368 of itself. Here `τ = R × C = 47 s`, so 10 V becomes 3.68 V at 1τ, 1.35 V at 2τ and 0.50 V at 3τ. Drag the time handle.' },
+      text: 'A capacitor charged to 10 V empties through a resistor. The current is the voltage left ÷ R, so the fall slows as the voltage does; the dotted line is its pace now. The bar is the gap still to close. In one *time constant*, written τ, it keeps 0.368 of itself. Here `τ = R × C = 47 s`, so 10 V becomes 3.68 V at 1τ, 1.35 V at 2τ and 0.50 V at 3τ. Drag the time handle.' },
     { kind: 'pick', name: 'Two time constants', sc: SC.d10,
       graph: { tmax: 3, ticks: G3(['47 s', '94 s', '141 s']), header: 'RC = 47 s' },
       items: [
@@ -220,7 +220,7 @@
         '1.84 V': 'Not quite. That halves 3.68 V. Each τ keeps 0.368 of what is left, not half.' } },
     { show: true, name: 'R and C set the pace', mode0: 'Discharging', time0: 3, dur: 3.0, sliders: true, rcForm: true, sym: true,
       extras: { start: 0.4, p30: 1.0 }, slope: 0, slopeAt: 0.6,
-      text: 'A bigger R lets less current through, and a bigger C must lose more charge for each volt. Together the voltage falls at `v ÷ RC` volts a second. The dashed line is the starting pace, `10 V ÷ 47 s`: kept up, it would empty the capacitor in exactly one RC. It slows as it falls, so it only gets to 0.368. That is why RC is the unit of time. As a rule, `v = V e^(−t/RC)`. After 30 s, `e^(−30/47) ≈ 0.528`, so 5.28 V. Slide R and C.' },
+      text: 'A bigger R lets less current through, and a bigger C must lose more charge for each volt. Together the voltage falls at `v ÷ RC` volts a second. The dotted line is the starting pace, `10 V ÷ 47 s`: kept up, it would empty the capacitor in exactly one RC. It slows as it falls, so it only gets to 0.368. That is why RC is the unit of time. As a rule, `v = V e^(−t/RC)`. After 30 s, `e^(−30/47) ≈ 0.528`, so 5.28 V. Slide R and C.' },
     { kind: 'pick', name: '400 V after 10 s', sc: SC.d400,
       graph: { tmax: 2, ticks: [[0, '0', ''], [0.5, '', '10 s'], [1, '1τ', '20 s'], [2, '2τ', '40 s']], header: 'RC = 20 s' },
       items: [
@@ -275,7 +275,7 @@
     { show: true, name: 'Never quite full', mode0: 'Charging', time0: 5, dur: 3.4, switch: true, sliders: true, rcForm: true, pct: true, top: 50,
       glide: { from: 3, stops: [4, 5], t0: 0.5, gap: 0.8, dur: 0.55 }, line5At: 2.0, insetAt: 2.6,
       over: { dis: { start: 400, ymax: 440, yt: [0, 200, 400], fmt: V400 } },
-      text: 'At 4τ the gap left is `0.368^4 ≈ 0.018` of the start, so it is 98.2% charged. At 5τ it is `0.368^5 ≈ 0.007`, so 99.3%. By the rule the gap only ever shrinks, so it is never quite full. A trade tutorial counts 5τ as fully charged: a line people draw, not a point the curve reaches. The magnifier shows the 0.07 V still to go. Switch to discharging to see it from 400 V.' },
+      text: 'At 4τ the gap left is `0.368^4 ≈ 0.018` of the start, so it is 98.2% charged. At 5τ it is `0.368^5 ≈ 0.007`, so 99.3%. By the rule the gap only ever shrinks, so it is never quite full. In practice 5τ is counted as fully charged: a line people draw, not a point the curve reaches. The magnifier shows the 0.07 V still to go. Switch to discharging to see it from 400 V.' },
     { kind: 'pick', name: '400 V after five', sc: SC.d400b,
       graph: { tmax: 5, top: 50, ticks: [[0, '0', ''], [1, '1τ', ''], [2, '2τ', ''], [3, '3τ', ''], [4, '4τ', ''], [5, '5τ', '']], header: '' },
       items: [
@@ -329,7 +329,7 @@
       hints: { '33.1 °C': 'Not quite. That shrinks the whole 90 °C towards zero. The part cools towards the room, so only the 70 °C gap shrinks.',
         '64.2 °C': 'Not quite. That keeps 0.632 of the gap. Each τ keeps 0.368 of it.' } },
     { kind: 'pick', name: '5 V for 100 s', sc: SC.c5,
-      graph: { tmax: 3, ticks: [[0, '0', ''], [1, '1τ', ''], [2, '2τ', ''], [T100, '', '100 s'], [3, '3τ', '']], header: 'R = 100 kΩ, C = 470 µF' },
+      graph: { tmax: 3, ticks: [[0, '0', ''], [1, '1τ', ''], [2, '', ''], [T100, '2.13τ', '100 s'], [3, '3τ', '']], header: 'R = 100 kΩ, C = 470 µF' },
       items: [
         { k: 'ref' },
         { k: 'bar', t: 0 },
@@ -755,7 +755,7 @@
     part(a, 0, () => {
       rect('inbox', bx, by, bw, bh, 6);
       text(bx + 8, by + 16, 'Near 5τ, magnified', 'an', 'start');
-      const ix0 = bx + 10, ix1 = bx + bw - 20, y0 = by + 24, y1 = by + bh - 4, span = gapOf(s, 4) * 1.15;
+      const ix0 = bx + 10, ix1 = bx + bw - 20, y0 = by + 24, y1 = by + bh - (up ? 4 : 18), span = gapOf(s, 4) * 1.15;
       const iy = (v) => (up ? y0 + ((s.line - v) / span) * (y1 - y0) : y1 - ((v - s.line) / span) * (y1 - y0));
       const ix = (t) => ix0 + (t - 4) * (ix1 - ix0);
       line(up ? 'st-ref' : 'axis', ix0 - 4, iy(s.line), ix1 + 12, iy(s.line));
@@ -766,7 +766,7 @@
       rect('bar cur', ix(5) - 4, Math.min(yv, yl), 8, Math.abs(yv - yl), 1.5);
       if (slip != null) dot('ring bad', ix(5), iy(slip), 4);
       const g5 = gapOf(s, 5), lab = slip != null ? 'some still left' : s.fmt(g5) + (up ? ' to go' : ' left');
-      text(ix(5) - 9, up ? yl + 12 : yl - 1, lab, 'ml', 'end');
+      text(ix(5) - 9, yl + (up ? 12 : 14), lab, 'ml', 'end');   // under the line, clear of the curve
       REC.inset = { gap: g5, text: lab };
     });
   }

@@ -36,7 +36,7 @@
   .scene .polyar { fill: none; stroke: var(--k-accent); stroke-width: 1.8; stroke-dasharray: 5 4; }
   .scene .bar { fill: var(--k-fill1); stroke: var(--k-accent2); stroke-width: 1; }
   .scene .bar3 { fill: var(--k-fill3); stroke: var(--k-accent); stroke-width: 1; }
-  .scene .hatch { fill: url(#hatch); stroke: none; }
+  .scene .hatch { fill: url(#hatch) var(--k-strong); stroke: none; }
   .scene .hatchl { stroke: var(--k-accent2); stroke-width: 1.6; stroke-opacity: .6; }
   .scene .pair { fill: var(--k-fill2); stroke: var(--k-amber-line); stroke-width: 1.5; }
   .scene .piece { fill: var(--k-fill2); stroke: var(--k-accent2); stroke-width: 1.5; stroke-dasharray: 4 3; }
@@ -230,7 +230,7 @@
     if (!to.ov && to.top !== TOP_OV) return [];
     const e = ends(to), r = e.V1 / e.V2, pv = C * Math.pow(r, NP - 1);
     return [['p₂V₂ = ' + fv(C, 2) + ' × ' + fv(r, 3) + '^0.3 ≈ ' + fx(pv, 2), pv < C ? 'less than ' + fv(C, 2) + ', as the gas expands' : 'more than ' + fv(C, 2) + ', as it is squeezed', 3.2],
-      ['W = (' + fv(C, 2) + ' − ' + fx(pv, 2) + ') ÷ 0.3', 'the rule from Calculus fundamentals lesson 9', 3.6]];
+      ['W = (' + fv(C, 2) + ' − ' + fx(pv, 2) + ') ÷ 0.3', 'the rule you met before', 3.6]];
   }
 
   const STEPS = [
@@ -238,8 +238,8 @@
       tl: [{ t: 0, lo: 0.1, hi: 0.2, n: 4, sq: 0, ov: 0, top: TOP, hA: 1 }, { t: 2.9, n: 8, g: 0.5 }, { t: 3.6, n: 100, g: 0.5 }],
       forms: [['C = ' + P0 + ' × ' + V0 + ' = ' + fv(C, 2), 'kPa × m³ = kJ', 0.5],
         ['(p₁V₁ − p₂V₂) ÷ (n − 1) = (' + fv(C, 2) + ' − ' + fv(C, 2) + ') ÷ 0', 'the old rule with n = 1', 1.1, STRIKE],
-        [STRUCK, 'the reverse power rule: add one to the power, then divide by it', 1.7, STRIKE]],
-      text: 'A gas held at one temperature keeps `pV` the same: Boyle\'s law, which is `pV^n = C` with `n = 1`, the *isothermal* case. This one starts at 400 kPa in 0.1 m³, so `C = 400 × 0.1 = 40` kJ, and its pressure falls along `p = 40 ÷ V`. The work it does is the area under that curve, but both old rules divide by 0 here. So count the area with bars, as in Calculus fundamentals, and watch their total settle as they thin.' },
+        [STRUCK, 'the reverse power rule', 1.7, STRIKE]],
+      text: 'A gas held at one temperature keeps `pV` the same: Boyle\'s law, which is `pV^n = C` with `n = 1`, the *isothermal* case. This one starts at 400 kPa in 0.1 m³, so `C = 400 × 0.1 = 40` kJ, and its pressure falls along `p = 40 ÷ V`. The work it does is the area under that curve, but both old rules divide by 0 here. So count the area with bars, as you did before, and watch their total settle as they thin.' },
     { kind: 'pv', card: 'mid', name: 'Why no rule?',
       fix: { lo: 0.1, hi: 0.2, n: 100, sq: 0, ov: 0, top: TOP }, dots: [0.1, 0.2],
       key: [{ sw: 'bar', text: '0.1 to 0.2 m³: ' + kj(W27) }],
@@ -309,7 +309,7 @@
     { show: true, kind: 'pv', card: 'main', name: 'Show n = 1.3', drag: true, ln: true, ctl: { bars: 1, dbl: 1, sq: 1, ov: 1 }, outs: true, outsAt: 0.4, dur: 4.2,
       tl: [{ t: 0, lo: 0.1, hi: 0.2, n: 0, sq: 0, ov: 0, top: TOP, hA: 1 }, { t: 0.4, n: 100, g: 0.4 }, { t: 0.9, top: TOP_OV, g: 1.0 }, { t: 1.9, ov: 1, g: 1.0 }],
       forms: polyForms,
-      text: 'Show n = 1.3 lays a second gas from the same start, one where `p × V^1.3` stays the same, a *polytropic* process as in Calculus fundamentals, with 1.3 an example value. The pressure axis stretches to 800 kPa so its curve fits. Here `pV` is a fixed number ÷ `V^0.3`, which shrinks as the gas expands, so this curve falls below the steady one: 162 kPa at 0.2 m³, against 200. Its work, from `(p₁V₁ − p₂V₂) ÷ (n − 1)`, is the third readout.' },
+      text: 'Show n = 1.3 lays a second gas from the same start, one where `p × V^1.3` stays the same, a *polytropic* process as you met before, with 1.3 an example value. The pressure axis stretches to 800 kPa so its curve fits. Here `pV` is a fixed number ÷ `V^0.3`, which shrinks as the gas expands, so this curve falls below the steady one: 162 kPa at 0.2 m³, against 200. Its work, from `(p₁V₁ − p₂V₂) ÷ (n − 1)`, is the third readout.' },
     { kind: 'pv', card: 'mid', name: 'Which takes less work?',
       fix: { lo: 0.1, hi: 0.2, n: 100, sq: 1, ov: 1, top: TOP_OV }, dots: [0.2, 0.1], polyDot: true,
       key: [{ sw: 'hatch', text: 'the steady squeeze' }, { sw: 'poly', text: 'the _n_ = 1.3 curve' }, { sw: 'polyar', text: 'the area under it' }],
@@ -342,8 +342,8 @@
       hints: { [O13[1]]: 'Not quite. That is the log key. Use ln.', [O13[2]]: 'Not quite. Squeezing makes V₂ ÷ V₁ below 1, so the work is minus.' } },
     { show: true, kind: 'prev', name: 'A preview: ln x', drag: true, dur: 3.9,
       tl: [{ t: 0, x: 1 }, { t: 0.4, x: 3, g: 2.0 }], stripAt: 2.8,
-      forms: [['area from 1 to x = ln x', '', 0.6], ['strip ≈ h × 1 ÷ x', 'one more strip: its width times its height', 2.9], ['slope of ln x = 1 ÷ x', 'the Derivatives course takes this up', 3.3]],
-      text: 'A preview of where this leads. Here is `y = 1 ÷ x`, the same curve with `C = 1`, shaded from 1 to `x`. With `C = 1` and `V₁ = 1`, the area `C × ln(x ÷ 1)` is just `ln x`. Drag `x` along. One more thin strip, `h` wide, at `x` adds about `h × 1 ÷ x`, so `ln x` climbs at a rate of `1 ÷ x`: the slope of `ln x` is `1 ÷ x`. The Derivatives course takes this up.' },
+      forms: [['area from 1 to x = ln x', '', 0.6], ['strip ≈ h × 1 ÷ x', 'one more strip: its width times its height', 2.9], ['slope of ln x = 1 ÷ x', 'later work on derivatives takes this up', 3.3]],
+      text: 'A preview of where this leads. Here is `y = 1 ÷ x`, the same curve with `C = 1`, shaded from 1 to `x`. With `C = 1` and `V₁ = 1`, the area `C × ln(x ÷ 1)` is just `ln x`. Drag `x` along. One more thin strip, `h` wide, at `x` adds about `h × 1 ÷ x`, so `ln x` climbs at a rate of `1 ÷ x`: the slope of `ln x` is `1 ÷ x`. Later work on derivatives takes this up.' },
   ];
   STEPS.forEach((d) => { d.ctl = d.ctl || {}; });
   const FINISH = 'A gas at a steady temperature keeps `pV` the same, and the work it does, the area under `p = C ÷ V`, is `W = p₁V₁ ln(V₂ ÷ V₁)`: the same for every doubling of its volume, and minus when it is squeezed.';

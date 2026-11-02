@@ -21,7 +21,7 @@
   .scene .tag { font: 700 15px var(--k-font); fill: var(--k-accent2); }
   .scene .tag2 { font: 600 14px var(--k-font); fill: var(--k-ink); }
   .scene .sup { font-size: 12.5px; }
-  .scene .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .lab { font: 600 13px var(--k-font); fill: var(--k-ink); paint-order: stroke fill; stroke: var(--k-bg); stroke-width: 3.5px; stroke-linejoin: round; }
   .scene .lab.main { fill: var(--k-accent2); }
   .scene .lab.acc { fill: var(--k-accent); }
   .scene .lab.bad, .scene .te.bad { fill: var(--k-warn); }
@@ -38,7 +38,7 @@
   .scene .tick { stroke: var(--k-ink); stroke-width: 2.2; stroke-linecap: round; }
   /* The drift: hatched in ink between the walk and the curve, with a bracket at 1 s. */
   .scene .hl { stroke: var(--k-ink); stroke-opacity: .5; stroke-width: 1.4; }
-  .scene .hatch { fill: url(#hatch); stroke: none; }
+  .scene .hatch { fill: url(#hatch) var(--k-strong); stroke: none; }
   .scene .hatch.sw { stroke: var(--k-ink); stroke-opacity: .6; stroke-width: 1; }
   .scene .brk { fill: none; stroke: var(--k-ink); stroke-width: 2.4; stroke-linecap: round; }
   .scene .ss { stroke: var(--k-ink); stroke-width: 1.6; stroke-dasharray: 7 5; }
@@ -513,8 +513,8 @@
         drawWalk(w05, r.ok ? 'old' : 'walk', 1, { rate: tankRate });
         dot(4, tankAt4(1));
         dot(4, tankAt4(0.5));
-        label(G.x(4) - 8, G.y(tankAt4(1)) - 10, '1 min: ' + f2(tankAt4(1)) + ' m', 'lab acc', 'end');
-        label(G.x(4) - 8, G.y(tankAt4(0.5)) + 20, '0.5 min: ' + f2(tankAt4(0.5)) + ' m', r.ok ? 'lab acc' : 'lab main', 'end');
+        label(G.x(4) - 8, G.y(0.98), '1 min: ' + f2(tankAt4(1)) + ' m', 'lab acc', 'end');
+        label(G.x(4) - 8, G.y(0.87), '0.5 min: ' + f2(tankAt4(0.5)) + ' m', r.ok ? 'lab acc' : 'lab main', 'end');
         if (r.ok) {
           REC.answer = true;
           const tip = drawWalk(w025, 'walk', arr(0.1, 1.2), { rate: tankRate });

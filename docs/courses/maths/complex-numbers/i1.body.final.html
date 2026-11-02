@@ -45,7 +45,7 @@
   .scene .dot.bad { fill: var(--k-warn); }
   .scene .real { stroke: var(--k-amber-line); stroke-width: 6; stroke-linecap: round; }
   .scene .jpart { stroke: var(--k-accent2); stroke-width: 2; stroke-dasharray: 4 4; }
-  .scene .tl { font: 700 15px var(--k-font); fill: var(--k-ink); }
+  .scene .tl { font: 700 15px var(--k-font); fill: var(--k-ink); paint-order: stroke fill; stroke: var(--k-bg); stroke-width: 4px; stroke-linejoin: round; }
   .scene .tl.bad { fill: var(--k-warn); }
   .scene .tl.ghost { fill: var(--k-muted); }
   .scene .al { font: 600 14px var(--k-font); fill: var(--k-accent); }
@@ -110,7 +110,7 @@
   <div class="row nav" id="nav"></div>
 </div>
 
-<p class="caption">Times −1 turns an arrow 180° (LibreTexts), times j turns it 90° (Khan Academy), and <span class="nw">j² = −1</span> (mathcentre). Maths texts write i for j (UC Davis); one paper argues against starting from √−1 (Scimath).</p>
+<p class="caption">Times −1 turns an arrow 180°, times j turns it 90°, and <span class="nw">j² = −1</span>. Mathematicians write i for j.</p>
 
 <script>
   // ---------- numbers: a complex number is [real part, j part] ----------
@@ -171,7 +171,7 @@
       hints: { '45°': 'Not quite. 45° done twice is only 90°, which leaves the arrow pointing straight up.', '180°': 'Not quite. 180° is the half turn itself. Done twice it makes 360°, back on 1.' },
       why: 'On the line a half turn lands where a mirror at 0 would, but a turn splits in two. Half of 180° is 90°, a *quarter turn*, and two of them make 180°, landing on `−1`. After the first one the arrow points straight up, off the line.' },
     { show: true, name: 'The quarter turn, j', pic: 'handle', view: 'unit', lines: 2, key: HKEY, dur: 4.4,
-      text: 'A quarter turn leaves the arrow from 1 pointing straight up, off the line. No number on the line can do that, so it is a new number, called *j*. Times `j` turns an arrow 90° anticlockwise, and two quarter turns make a half turn, so `j × j = −1`. Maths books write `i` for the same number; engineers write `j`, because `i` already means current.\nThree quarter turns, 270°, done twice make 540° and land on `−1` too. That arrow points straight down, which is `j` turned half round, `−1 × j`: it is `−j`.' },
+      text: 'A quarter turn leaves the arrow from 1 pointing straight up, off the line. No number on the line can do that, so it is a new number, called *j*. Times `j` turns an arrow 90° anticlockwise, and two quarter turns make a half turn, so `j × j = −1`. Mathematicians write `i` for the same number; engineers write `j`, because `i` already means current.\nThree quarter turns, 270°, done twice make 540° and land on `−1` too. That arrow points straight down, which is `j` turned half round, `−1 × j`: it is `−j`.' },
     { name: 'j cubed', pic: 'power', view: 'unit', lines: 2, n: 3, opts: ['−j', 'j', '−1'], want: '−j',
       task: '`j³` is `j × j × j`. Where does it point? Count the quarter turns from 1.',
       hint: 'Not quite. Count three quarter turns anticlockwise from 1.',
@@ -189,7 +189,7 @@
       why: '`j3` is 3 turned a quarter turn. Squared, `(j3)² = j × j × 3 × 3 = −1 × 9 = −9`, and `(−j3)² = −9` too, so `x = ±j3`.' },
     { show: true, name: 'Two square roots', pic: 'mult', view: 'B', lines: 2, labels: [-6, -2, 0, 2, 6], dur: 4.0,
       demo: { f: [Z(2), J, J, Z(3)], stop: 2, e: 'j2 × j3 = j × j × 6' }, slip: [-4, -9],
-      text: 'People call `j` *the square root of −1*, and in the same way read `√−9` as `j3`, since `(j3)² = −9`. Books differ on which comes first. mathcentre starts from `j = √−1` and gets `j × j = −1` from it; one paper on teaching calls that start unjustifiable, as it leads to misconceptions. This lesson leads with `j × j = −1`.\nHere is one muddle. Read `√−4` as `j2`. The usual rule `√a × √b = √(ab)` gives `√36 = 6`, but `j2 × j3 = j × j × 6 = −6`: two quarter turns and a stretch to 6. When both numbers under the roots are negative, write each with `j` first.' },
+      text: 'People call `j` *the square root of −1*, and in the same way read `√−9` as `j3`, since `(j3)² = −9`. People differ on which comes first. Some start from `j = √−1` and get `j × j = −1` from it; others call that start unjustifiable, as it leads to misconceptions. This lesson leads with `j × j = −1`.\nHere is one muddle. Read `√−4` as `j2`. The usual rule `√a × √b = √(ab)` gives `√36 = 6`, but `j2 × j3 = j × j × 6 = −6`: two quarter turns and a stretch to 6. When both numbers under the roots are negative, write each with `j` first.' },
     { name: 'j3 × j2', pic: 'mult', view: 'B', lines: 2, labels: [-6, -3, 0, 3, 6], q: 'j3 × j2',
       opts: ['−6', '6', '−1'], want: '−6',
       mv: { '−6': { f: [Z(3), J, J, Z(2)], stop: 2, e: 'j × j × 3 × 2' }, '6': { f: [Z(3), Z(2)], stop: 1, e: 'j × j as +1: 3 × 2' },
@@ -200,7 +200,7 @@
       why: '`j3 × j2 = j × j × 3 × 2 = −1 × 6 = −6`. Two quarter turns make a half turn, and the arrow is stretched to 6.' },
     { show: true, name: 'Back to the quadratic', pic: 'quad', view: 'C', lines: 3, dur: 4.0, quad: { b: 2, c: 5 },
       key: [{ sw: 'real', label: 'real part' }, { sw: 'jpart', label: 'j part' }],
-      text: 'Back to `x² + 2x + 5 = 0`. Here `a = 1`, `b = 2` and `c = 5`, so `b² − 4ac = 4 − 20 = −16`. That is `(j4)²`, so the formula gives `x = (−2 ± j4) ÷ 2 = −1 ± j2`, the ÷ 2 being `2a`.\nAn ordinary number plus a `j` part is a *complex number*, in general `a + jb` (new letters, not the quadratic\'s). Here `−1` is its *real part* and 2 its `j` part, which books call the *imaginary part*. That is only a name: later lessons measure the `j` part of a circuit in ohms.' },
+      text: 'Back to `x² + 2x + 5 = 0`. Here `a = 1`, `b = 2` and `c = 5`, so `b² − 4ac = 4 − 20 = −16`. That is `(j4)²`, so the formula gives `x = (−2 ± j4) ÷ 2 = −1 ± j2`, the ÷ 2 being `2a`.\nAn ordinary number plus a `j` part is a *complex number*, in general `a + jb` (new letters, not the quadratic\'s). Here `−1` is its *real part* and 2 its `j` part, also called the *imaginary part*. That is only a name: later lessons measure the `j` part of a circuit in ohms.' },
     { name: 'j to the fifth', pic: 'power', view: 'unit', lines: 2, n: 5, opts: ['j', '1', '−j'], want: 'j',
       task: 'What is `j⁵`? Count the quarter turns.',
       hint: 'Not quite. Count five quarter turns anticlockwise from 1.',
@@ -412,7 +412,7 @@
   // A label just beyond an arrow's tip; beside it when the arrow points straight up or down.
   function tipLabel(p, a, s, cls) {
     const c = Math.cos(rad(a)), sn = Math.sin(rad(a));
-    if (Math.abs(c) < 0.2) { text(p[0] + 11, p[1] + (sn > 0 ? 9 : 1), s, cls, 'start', true); return; }
+    if (Math.abs(c) < 0.2) { text(p[0] + 12, p[1] + (sn > 0 ? 3 : 1), s, cls, 'start', true); return; }   // beside the tip, clear of the turn's arc
     text(p[0] + c * 16, p[1] - sn * 16 + 5 + (sn < -0.5 ? 6 : 0), s, cls, c > 0 ? 'start' : 'end', true);
   }
   function axis(V, labels, zeroLeft) {
@@ -655,7 +655,7 @@
       const t1 = mo.end + 0.05, p = K.ease(prog(t1, 0.35)), R = plus(P, Z(d.plus));
       const x0 = V.ox + P[0] * V.u, x1 = V.ox + R[0] * V.u, y = V.cy - 12;
       if (p > 0.02) arrowPx(x0, y, K.lerp(x0, x1, p), y, 'conn' + bad);
-      part(vis(t1), 4, () => text((x0 + x1) / 2, y - 8, '+ ' + d.plus, 'tl' + bad));
+      part(vis(t1), 4, () => text(Math.min(x0, x1) + 2, y - 8, '+ ' + d.plus, 'tl' + bad, 'start'));   // over the arrow's tail, clear of the turn at 0
       part(arr(t1 + 0.35, 0.3), 0, () => circle('dot' + bad, x1, V.cy, 5));
       REC.result = R;
       W.push({ e: m.e, w: num(P[0]) + ' + ' + d.plus + ' = ' + num(R[0]), t: t1 + 0.35, bad: !!bad });

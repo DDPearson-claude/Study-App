@@ -48,7 +48,7 @@
   .scene .trace { fill: none; stroke: var(--k-muted); stroke-width: 1.5; }
   .scene .thead { fill: var(--k-muted); }
   .scene .tickm { stroke: var(--k-muted); stroke-width: 1.5; }
-  .scene .tl { font: 700 15px var(--k-font); fill: var(--k-ink); }
+  .scene .tl { font: 700 15px var(--k-font); fill: var(--k-ink); paint-order: stroke fill; stroke: var(--k-bg); stroke-width: 4px; stroke-linejoin: round; }
   .scene .tl.bad { fill: var(--k-warn); }
   .scene .tl.old { font: 400 13px var(--k-font); fill: var(--k-muted); }
   .scene .al { font: 600 14px var(--k-font); fill: var(--k-accent); }
@@ -132,7 +132,7 @@
   <div class="row nav" id="nav"></div>
 </div>
 
-<p class="caption">Brackets multiply with j × j = −1 (Electronics Tutorials); times j turns 90° (Khan Academy), times −1 turns 180° (LibreTexts).</p>
+<p class="caption">Brackets multiply with j × j = −1; times j turns 90°, times −1 turns 180°.</p>
 
 <script>
   // ---------- numbers: a complex number is [real part, j part] ----------
@@ -233,7 +233,7 @@
       hints: { 1: 'Not quite. `j × j1` is `j × j × 1`, and `j × j = −1`, so the real part is `−1`.', 2: 'Not quite. The 3 becomes `j3`, the `j` part, and `j × j1 = −1` becomes the real part.' },
       why: '`j × 3 = j3`, and `j × j1 = j × j × 1 = −1`. So `j × (3 + j1) = −1 + j3`, the arrow turned a quarter turn anticlockwise and just as long.' },
     { show: true, name: 'Four tiles', pic: 'grid', z: Z(3, 2), m: Z(1, 2), dur: 4.2, grid: { t: 0.5, f: 1.1 },
-      text: 'Two brackets multiply as the four tiles in Quadratics, every part of the first times every part of the second. `(3 + j2)(1 + j2)` makes `3`, `j6`, `j2` and `j2 × j2 = j × j × 4`.',
+      text: 'Two brackets multiply as the four tiles you met before, every part of the first times every part of the second. `(3 + j2)(1 + j2)` makes `3`, `j6`, `j2` and `j2 × j2 = j × j × 4`.',
       more: 'That last tile started as two `j` parts multiplied, but `j × j = −1` makes it the real number `−4`. So it moves to the real pile with its sign changed. Real `3 − 4 = −1`, and the `j` parts `6 + 2 = 8`. The answer is `−1 + j8`. Take `j × j` as +1 and you would get `7 + j8`, a different arrow.' },
     { name: '(2 + j3)(1 − j2)', pic: 'grid', z: Z(2, 3), m: Z(1, -2),
       mvs: [{ g: 'ok' }, { slip: 'plusJJ' }, { slip: 'sep' }], ok: 0,

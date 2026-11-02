@@ -253,7 +253,7 @@
         [O6[2]]: 'Not quite. 8 is three 2s multiplied, the number at power 3. The logs are lengths, and 1 + 1 + 1 = 3.' } },
     { show: true, name: 'The ruler of e', H: 130, R: { base: RE, u: 60, lo: -3.9, hi: 5.6 }, p0: 3, dur: 3.2, sw: true,
       morph: { from: R2, at: 0.4, dur: 0.7 }, glide: { from: 0, stops: [[1, 1.2, 0.5], [2, 1.9, 0.5], [3, 2.6, 0.5]] },
-      text: 'The number e, about 2.71828, makes a ruler too. Each space multiplies by e, so its marks are 1, 2.718, 7.389 and 20.09. Its log is the *natural logarithm*, written ln, so `ln 7.389 ≈ 2`. On a calculator, and in this course, the log key means base 10 and the ln key base e. Any other base is written, as in log₂ 8. Flip the switch: the same power sits under a different number on each ruler.' },
+      text: 'The number e, about 2.71828, makes a ruler too. Each space multiplies by e, so its marks are 1, 2.718, 7.389 and 20.09. Its log is the *natural logarithm*, written ln, so `ln 7.389 ≈ 2`. On a calculator, and in these lessons, the log key means base 10 and the ln key base e. Any other base is written, as in log₂ 8. Flip the switch: the same power sits under a different number on each ruler.' },
     { kind: 'pick', name: 'Natural log of 10', H: 150, R: { base: RE, u: 84, lo: 0.7, fixed: true, pills: false, ask: { p: LN10, text: '10' } },
       items: [
         { k: 'askrv', text: fp(LN10), when: 'right', at: 0.2 },
@@ -286,7 +286,7 @@
       hints: { '−2': 'Not quite. −2 is the log of 0.01, a small positive number. No power of 10 is negative.',
         '2': 'Not quite. 2 is the log of 100. No power of 10 makes −100.' } },
     { show: true, graph: true, name: 'The fold', H: 312, dur: 4.0,
-      text: 'Asking the question the other way round swaps the input and the output. The graph of `y = eˣ` passes through `(0, 1)`, `(1, 2.718)` and `(2, 7.389)`. Fold it over the dashed line `y = x` and each point swaps its two numbers, so `(1, 2.718)` lands on `(2.718, 1)`. The folded curve is `y = ln x`, just as you undid machines in Functions and their graphs. So ln undoes eˣ: `ln(e²) = 2`.' },
+      text: 'Asking the question the other way round swaps the input and the output. The graph of `y = eˣ` passes through `(0, 1)`, `(1, 2.718)` and `(2, 7.389)`. Fold it over the dashed line `y = x` and each point swaps its two numbers, so `(1, 2.718)` lands on `(2.718, 1)`. The folded curve is `y = ln x`, just as you undid machines before. So ln undoes eˣ: `ln(e²) = 2`.' },
     { kind: 'pick', name: 'A small number', H: 150, R: { base: R10, u: 41.7, lo: -3.75, fixed: true, hideNum: [-3], askPow: -3 },
       items: [
         { k: 'numrv', p: -3, text: O12[2], when: 'right', at: 0.2 },
@@ -622,6 +622,7 @@
     if (show) { nT = fn4(numAt(name, pos)); pT = fp(pos); tN = tagBox(nT, X(pos)); tP = tagBox(pT, X(pos)); }
     else if (R.ptr != null) { nT = fn4(numAt(name, R.ptr)); pT = fp(R.ptr); tN = tagBox(nT, X(R.ptr)); tP = tagBox(pT, X(R.ptr)); }
     const occN = tN ? [tN] : [], occP = tP ? [tP] : [];
+    if (R.ask && !show && right) occP.push(tagBox(fp(R.ask.p), X(R.ask.p)));   // the answer shown on the powers row: the power beside it steps aside
 
     // numbers along the top: the base to each power (a ruler being switched fades into the next)
     const hideN = (k) => (R.hideNum || []).indexOf(k) >= 0;

@@ -39,6 +39,7 @@
   .scene .lit { fill: var(--k-bg); fill-opacity: .45; }
   .scene .dim { fill: var(--k-ink); fill-opacity: .1; }
   .scene .edge { fill: none; stroke: var(--k-strong); stroke-width: 1.2; stroke-linejoin: round; }
+  .scene .edge.thin { stroke: var(--k-accent); stroke-width: 1.5; }   /* the rods and tiny cube keep an outline in dark mode */
   .scene .sqok { fill: none; stroke: var(--k-accent2); stroke-width: 3; stroke-linejoin: round; }
   .scene .sqbad { fill: none; stroke: var(--k-warn); stroke-width: 3; stroke-linejoin: round; }
   .scene .sqgone { fill: none; stroke: var(--k-warn); stroke-width: 2.5; stroke-dasharray: 6 4; stroke-linejoin: round; }
@@ -692,14 +693,14 @@
     const sa0 = o.sa == null ? 1 : o.sa, fadeNew = o.slip === 'vol' ? K.lerp(1, 0.3, sa0) : 1;
     list.forEach((pc) => {
       if (pc.k !== 'old' && w < 0.3) return;
-      const al = (pc.b[4] < 0 ? 0.55 : 1) * (pc.k === 'old' ? 1 : fadeNew);
+      const al = pc.k === 'old' ? 1 : fadeNew;   // every piece solid, so the exploded cube reads as blocks
       const P = (x, y, dd) => [c.ox + pc.off[0] + x + dd * KD, c.oy + pc.off[1] - y - dd * KD];
       const [x0, x1, y0, y1, d0, d1] = pc.b;
       const faces = [[P(x0, y0, d0), P(x1, y0, d0), P(x1, y1, d0), P(x0, y1, d0)],
         [P(x0, y1, d0), P(x1, y1, d0), P(x1, y1, d1), P(x0, y1, d1)],
         [P(x1, y0, d0), P(x1, y0, d1), P(x1, y1, d1), P(x1, y1, d0)]];
       const cls = pc.k === 'old' ? 'pA' : pc.k === 'slab' ? 'pB' : 'pC';
-      const paintFaces = () => faces.forEach((f, i) => { poly(cls, f); if (i === 1) poly('lit', f); if (i === 2) poly('dim', f); poly('edge', f); });
+      const paintFaces = () => faces.forEach((f, i) => { poly(cls, f); if (i === 1) poly('lit', f); if (i === 2) poly('dim', f); poly(cls === 'pC' ? 'edge thin' : 'edge', f); });
       if (al < 1) part(al, 0, paintFaces); else paintFaces();
       const hex = [P(x0, y0, d0), P(x1, y0, d0), P(x1, y0, d1), P(x1, y1, d1), P(x0, y1, d1), P(x0, y1, d0)];
       if (pc.k === 'slab') { out.slabs++; out.hex[pc.n] = hex; } else if (pc.k === 'rod') out.rods++; else if (pc.k === 'tiny') out.tiny++; else out.hex.old = hex;

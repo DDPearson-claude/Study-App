@@ -21,7 +21,7 @@
   .scene .tag { font: 700 15px var(--k-font); fill: var(--k-accent2); }
   .scene .tag2 { font: 600 14px var(--k-font); fill: var(--k-ink); }
   .scene .sup { font-size: 12.5px; }
-  .scene .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .lab { font: 600 13px var(--k-font); fill: var(--k-ink); paint-order: stroke fill; stroke: var(--k-bg); stroke-width: 3.5px; stroke-linejoin: round; }
   .scene .lab.main { fill: var(--k-accent2); }
   .scene .lab.acc { fill: var(--k-accent); }
   .scene .lab.bad, .scene .te.bad { fill: var(--k-warn); }
@@ -211,7 +211,10 @@
         curve(coilI, 0, 0.3, 'sol', Math.max(t / 0.3, arr(3.3, 0.3)), 'main');
         dot(0, 0);
         rideRate(t, i, RULE(i));
-        workLines([{ s: 'at 0 A: (24 − 10 × 0) ÷ 0.5 = 48 A a second', a: vis(0.5) }]);
+        // The working follows the rider: the rate at the start, then, once it has climbed to 0.2 s, the rate there.
+        const iEnd = coilI(0.2), swap = arr(3.0, 0.3);
+        workLines([{ s: 'at 0 A: (24 − 10 × 0) ÷ 0.5 = 48 A a second', a: Math.min(vis(0.5), 1 - swap) }]);
+        workLines([{ s: 'at 0.2 s, ' + fmtV(iEnd) + ' A: rate down to ' + fmtV(RULE(iEnd)) + ' A a second', a: swap }]);
         shareBar(i, vis(0.5));
         said.push('A rider climbs the curve from 0 amps. Its rate arrow starts steep and flattens.');
       } },
@@ -341,7 +344,7 @@
         }
         label(120, G.y(ISS) - 8, 'steady 2.4 A', 'lab', 'start', [[180, G.y(ISS) - 8, 'start']]);
         label(G.x(TAU) + 6, G.PT + 14, 'after 0.05 s', 'lab', 'start');
-        label(PL + 14, G.PB - 8, 'gap −2.4 A at the start', 'lab', 'start');
+        label(G.x(0.05) + 8, G.PB - 8, 'gap −2.4 A at the start', 'lab', 'start');   // right of the dashed 0.05 s line, so nothing crosses the minus
       } },
     { show: true, name: 'Split', grid: 'split', switch: [['join', 'Together'], ['split', 'Split']], mode0: 'split', key: ['cur', 'gp'], dur: 3.6,
       text: 'Here the curve comes apart. One piece is the flat steady line at 2.4 A. The other is the dying gap, `−2.4 e^(−t/0.05)`, drawn below the axis. Add the two, height by height, and you get the current back. The supply and `R` set the steady line. The start sets the gap, the *transient*, and it dies away. With a sine supply the steady part is a sine. For a resistor and capacitor it is what the impedance method gives.',
@@ -480,8 +483,8 @@
       lead: 'One rule fits a coil, a motor and a tank: each climbs to its steady value. Every value is an example.',
       tagFn: (st) => { const s = SKINS[st.mode || 'coil']; return s.name + ': `τ` = ' + fmtV(s.tau) + ' s'; },
       tag2Fn: (st) => { const s = SKINS[st.mode || 'coil']; return 'steady ' + fmtV(s.ss) + ' ' + s.unit; },
-      text: 'The same shape fits a motor running up to speed. It fits a tank filling too, if its outflow keeps in step with its level. A ship answering its rudder is often modelled this way. Each has a steady value and a `τ`. Draw time in `τ`, and the value as its share of the way there. Then they all draw one curve: 63.2% at one `τ`, 86.5% at two, 95.0% at three and 99.3% at five. Switch between three of them to see it.',
-      read: 'The same shape fits a motor running up to speed. It fits a tank filling too, if its outflow keeps in step with its level. A ship answering its rudder is often modelled this way. Each has a steady value and a `τ`. Draw time in `τ`, and the value as its share of the way there. Then they all draw one curve: 63.2% at one `τ`, 86.5% at two, 95.0% at three and 99.3% at five. Coil, motor or tank, it is the same curve.',
+      text: 'The same shape fits a motor running up to speed. It fits a tank filling too, if its outflow keeps in step with its level. A vessel answering its rudder is often modelled this way. Each has a steady value and a `τ`. Draw time in `τ`, and the value as its share of the way there. Then they all draw one curve: 63.2% at one `τ`, 86.5% at two, 95.0% at three and 99.3% at five. Switch between three of them to see it.',
+      read: 'The same shape fits a motor running up to speed. It fits a tank filling too, if its outflow keeps in step with its level. A vessel answering its rudder is often modelled this way. Each has a steady value and a `τ`. Draw time in `τ`, and the value as its share of the way there. Then they all draw one curve: 63.2% at one `τ`, 86.5% at two, 95.0% at three and 99.3% at five. Coil, motor or tank, it is the same curve.',
       draw(st) {
         const mode = st.mode || 'coil', sk = SKINS[mode];
         steadyLine(100);

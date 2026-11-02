@@ -307,7 +307,7 @@
       work: { '13.0 dB': [fd(10 * L4 + 10 * L5) + ' dB', '13.0 dB'], '9.5 dB': [fd(10 * LG(4 + 5)) + ' dB', '9.5 dB'], '42 dB': [fv(plain(fd(10 * L4)) * plain(fd(10 * L5)), 0) + ' dB', '42 dB'] },
       forms: { before: [], right: ['× 4 then × 5 is × 20', fd(10 * L4) + ' dB + ' + fd(10 * L5) + ' dB = ' + fd(10 * L20) + ' dB'] },
       task: 'A signal passes a stage of × 4, then a stage of × 5. What is their total gain in decibels?',
-      why: 'Each stage multiplies the power, so their decibels add. `10 log 4 ≈ ' + fd(10 * L4) + ' dB` and `10 log 5 ≈ ' + fd(10 * L5) + ' dB` make ' + fd(10 * L4 + 10 * L5) + ' dB. Check by multiplying, `4 × 5 = 20`, and `10 log 20 ≈ ' + fd(10 * L20) + ' dB`. A loss is negative, so a cable that halves the power is `' + fd(10 * LG(0.5)) + ' dB`. For a voltage ratio across the same resistance, textbooks use 20 log, since power goes with the voltage squared.',
+      why: 'Each stage multiplies the power, so their decibels add. `10 log 4 ≈ ' + fd(10 * L4) + ' dB` and `10 log 5 ≈ ' + fd(10 * L5) + ' dB` make ' + fd(10 * L4 + 10 * L5) + ' dB. Check by multiplying, `4 × 5 = 20`, and `10 log 20 ≈ ' + fd(10 * L20) + ' dB`. A loss is negative, so a cable that halves the power is `' + fd(10 * LG(0.5)) + ' dB`. For a voltage ratio across the same resistance, use 20 log, since power goes with the voltage squared.',
       hint: 'Not quite. Stages in a row multiply the power, so their decibels add.',
       hints: { '9.5 dB': 'Not quite. That adds the ratios, × 9. Stages multiply the power, so their decibels add.',
         '42 dB': 'Not quite. That multiplies the decibels. Stages multiply the power, so their decibels add.' } },

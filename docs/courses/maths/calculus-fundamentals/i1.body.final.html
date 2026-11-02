@@ -35,7 +35,7 @@
   .scene .chord.bad { stroke: var(--k-warn); }
   .scene .pt.bad { fill: var(--k-warn); }
   .scene .slip { fill: none; stroke: var(--k-warn); stroke-width: 2.5; stroke-dasharray: 7 5; stroke-linecap: round; }
-  .scene .lab { font: 600 14px var(--k-font); fill: var(--k-ink); }
+  .scene .lab { font: 600 14px var(--k-font); fill: var(--k-ink); paint-order: stroke fill; stroke: var(--k-bg); stroke-width: 3.5px; stroke-linejoin: round; }
   .scene .lab.soft { font-weight: 400; fill: var(--k-muted); }
   .scene .row { font: 600 15px var(--k-font); fill: var(--k-ink); }
   .scene .row.big { font-weight: 700; fill: var(--k-accent2); }
@@ -126,6 +126,7 @@
       hints: { bracket: 'Not quite. That adds 10 and 4 first. Multiply `4 × 5` first, then add the 10.', add: 'Not quite. `4x` means 4 times `x`, so multiply 4 by 5.' } },
     { show: true, name: 'A chord and its slope', g: 'boat', pts: [1, 3], glide: { to: [2, 5], t: 2.6, len: 1.0 }, drag: true, dur: 4.2,
       tl: { pts: 0.4, chord: [0.7, 0.5], legs: 1.1, labs: 1.4, rows: [1.7, 2.0] },
+      read: 'Take two points on the graph, P at 1 s and Q at 3 s, and join them with a straight line, a *chord*. Δ, the Greek letter delta, means "change in". From P to Q, `Δx = 3 − 1 = 2` s and `Δy = 12 − 4 = 8` m, so `Δy ÷ Δx = 8 m ÷ 2 s = 4` m per s. That is the chord\'s *slope*. The picture has them moved on to 2 s and 5 s. That is 12 m over 3 s, still 4 m per s, because each second adds the same 4 m.',
       text: 'Pick two points on the graph, P at 1 s and Q at 3 s, and join them with a straight line, a *chord*. Δ, the Greek letter delta, means "change in". From P to Q, `Δx = 3 − 1 = 2` s and `Δy = 12 − 4 = 8` m, so `Δy ÷ Δx = 8 m ÷ 2 s = 4` m per s. That is the chord\'s *slope*. Moved to 2 s and 5 s it is 12 m over 3 s, still 4 m per s, because each second adds the same 4 m. Drag P or Q to try others.' },
     { kind: 'pick', name: 'Not from zero', g: 'head', pts: [1, 5], opts: ['origin', 'right', 'flip'],
       task: 'The boat that started 10 m out is at 14 m after 1 s and 30 m after 5 s. What is `Δy ÷ Δx` from P to Q?',
@@ -394,9 +395,9 @@
     return s;
   }
   // Gridlines, axes, their numbers and names.
-  function drawAxes(G) {
-    const g = G.g;
-    for (let v = g.y[0]; v <= g.y[1] + 1e-9; v += g.y[2]) { const y = Y(G, v); if (v > g.y[0]) line('grid', PL, y, PR, y); text(PL - 7, y + 4.5, fmtN(v), 'tick', 'end'); }
+  function drawAxes(G, onAxis) {
+    const g = G.g, off = onAxis ? 15 : 7;
+    for (let v = g.y[0]; v <= g.y[1] + 1e-9; v += g.y[2]) { const y = Y(G, v); if (v > g.y[0]) line('grid', PL, y, PR, y); text(PL - off, y + 4.5, fmtN(v), 'tick', 'end'); }
     if (g.minor) for (let v = g.x[0]; v <= g.x[1] + 1e-9; v += g.minor) line('mtick', X(G, v), G.PB, X(G, v), G.PB + 4);
     for (let v = g.x[0]; v <= g.x[1] + 1e-9; v += g.x[2]) { const x = X(G, v); line('mtick', x, G.PB, x, G.PB + 6); text(x, G.PB + 20, fmtN(v), 'tick'); }
     AV.push(line('axis', PL, G.PT - 8, PL, G.PB), line('axis', PL, G.PB, PR + 8, G.PB));
@@ -429,14 +430,14 @@
     if (a.pts > 0) { part(a.pts, 0, () => { if (o.halo) AV.push(circle('halo', px, py, 13), circle('halo', qx, qy, 13)); AV.push(circle('pt', px, py, 7), circle('pt', qx, qy, 7)); }); REC.pts.push([px, py], [qx, qy]); }
     if (o.names) {
       queue(Math.min(a.pts, a.ptLab), up ? [{ x: px - 11, y: py + 5, text: 'P', anchor: 'end' }, { x: qx - 9, y: qy - 9, text: 'Q', anchor: 'end' }]
-        : [{ x: px + 9, y: py - 9, text: 'P', anchor: 'start' }, { x: qx + 9, y: qy - 9, text: 'Q', anchor: 'start' }]);
+        : [px - PL > 24 ? { x: px - 10, y: py - 8, text: 'P', anchor: 'end' } : { x: px + 9, y: py - 9, text: 'P', anchor: 'start' }, { x: qx + 9, y: qy - 9, text: 'Q', anchor: 'start' }]);
     }
     if (o.legText) {
       const tx = o.legText[0], ty = o.legText[1], bad = o.legBad || [false, false];
       const dxY = up ? (py + 18 <= G.PB - 4 ? py + 18 : py - 8) : (py - 22 >= G.PT + 2 ? py - 8 : py + 18);
       const right = qx + 8 + tw(ty, 'lab') <= 334;
       queue(Math.min(a.legs, a.legLab), [{ x: (px + qx) / 2, y: dxY, text: tx, cls: bad[0] ? 'bad' : '' },
-        { x: right ? qx + 8 : qx - 8, y: (py + qy) / 2 + 5, text: ty, anchor: right ? 'start' : 'end', cls: bad[1] ? 'bad' : '' }]);
+        { x: right ? qx + 8 : right || up ? qx - 8 : qx - 5, y: right || up ? (py + qy) / 2 + 5 : py + 15, text: ty, anchor: right ? 'start' : 'end', cls: bad[1] ? 'bad' : '' }]);
     }
   }
   // Where the points are now on a demonstration screen, and how far their labels have arrived.
@@ -456,7 +457,7 @@
     const g = G.g, RW = [];
     REC = { rate: null, chord: null, rows: [], labs: [], bad: 0, pts: [] };
     AV = []; LQ = [];
-    drawAxes(G);
+    drawAxes(G, !g.table && (curPts(d, st) || []).some((v) => v === g.x[0]));
     const m = d.morph ? arr(d.morph[0], d.morph[1] - d.morph[0]) : 1;
     if (g.table) drawTable(d, G, d.pts, vis(d.show ? d.tl.hl : null));
     else if (d.morph) { part(1 - m, 0, () => text(12, G.tagY, GR.boat.rule, 'tag', 'start')); part(m, 0, () => text(12, G.tagY, g.rule, 'tag', 'start')); }

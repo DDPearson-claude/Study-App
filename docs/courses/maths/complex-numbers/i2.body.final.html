@@ -56,7 +56,7 @@
   .scene .ring { fill: none; stroke: var(--k-accent2); stroke-width: 2; }
   .scene .trace { fill: none; stroke: var(--k-muted); stroke-width: 1.5; }
   .scene .thead { fill: var(--k-muted); }
-  .scene .tl { font: 700 15px var(--k-font); fill: var(--k-ink); }
+  .scene .tl { font: 700 15px var(--k-font); fill: var(--k-ink); paint-order: stroke fill; stroke: var(--k-bg); stroke-width: 4px; stroke-linejoin: round; }
   .scene .tl.bad { fill: var(--k-warn); }
   .scene .tl.old { font: 400 13px var(--k-font); fill: var(--k-muted); }
   .scene .al { font: 600 14px var(--k-font); fill: var(--k-accent); }
@@ -123,7 +123,7 @@
   <div class="row nav" id="nav"></div>
 </div>
 
-<p class="caption">Adding works like adding arrows by their across and up parts, which textbooks call two-dimensional vectors (Sheffield); times −1 turns an arrow 180° (LibreTexts); the axes as in an Argand diagram, the complex plane's other name (Newcastle); resistance on the real axis and reactance on the j axis (Electronics Tutorials).</p>
+<p class="caption">Adding works like adding arrows by their across and up parts; times −1 turns an arrow 180°. The plane is also called an Argand diagram. A circuit puts resistance on the real axis and reactance on the j axis.</p>
 
 <script>
   // ---------- numbers: a complex number is [real part, j part] ----------
@@ -185,7 +185,7 @@
       old: [Z(3, 2), Z(-2, 3), Z(-2, -3)],
       nums: [{ z: Z(4, -3), t: 0.4 }, { z: Z(6, 0), t: 1.9, full: true, w: 'pure resistance' }, { z: Z(0, 4), t: 3.0, full: true, w: 'pure reactance' }],
       text: 'The two axes cut the plane into four quarters, and complex numbers sit in all of them. `4 − j3` is in the bottom right, 4 across and 3 down. With no `j` part, `6 + j0` lies on the real axis; with no real part, `0 + j4` lies on the `j` axis.',
-      more: 'Later lessons use this plane for a circuit\'s opposition to AC, which is measured in ohms. There the real part is the *resistance* and the `j` part the *reactance* (lesson 7 explains it), which is why the axes carry those names in brackets. So `6 + j0` is a pure resistance, and `0 + j4` a pure reactance (Electronics Tutorials).' },
+      more: 'Later lessons use this plane for a circuit\'s opposition to AC, which is measured in ohms. There the real part is the *resistance* and the `j` part the *reactance* (lesson 7 explains it), which is why the axes carry those names in brackets. So `6 + j0` is a pure resistance, and `0 + j4` a pure reactance.' },
     { name: 'Read an arrow', pic: 'read', as: 'arrow', z: Z(3, -2), key: RKEY, lines: 1,
       mvs: [Z(3, 2), Z(2, -3), Z(3, -2)], ok: 2,
       task: 'Which number does this arrow show?',
@@ -194,7 +194,7 @@
       why: 'The arrow ends 3 across, so the real part is 3, and 2 down, so the `j` part is `−2`. It shows `3 − j2`.' },
     { show: true, name: 'Tip to tail', pic: 'sum', drag: true, view: DRAGV, a: Z(3, 1), b: Z(1, 2), key: SKEY, lines: 3, dur: 3.6,
       text: 'Add `(3 + j1) + (1 + j2)`. Slide the second arrow, without turning or stretching it, until its tail sits on the first arrow\'s tip. It still means 1 across and 2 up.',
-      more: 'Going up does not change how far across you are, so the across parts add on their own, `3 + 1 = 4`, and the up parts add on their own, `1 + 2 = 3`. The bold arrow from 0 to the finish is the sum, `4 + j3`. Lumping every number together, `3 + 1 + 1 + 2 = 7`, would lose which way it points. Adding phasors by their floor and wall parts, in Trigonometry lesson 7, was this all along.\nDrag either tip, in any quarter, and watch the parts add along the axes.' },
+      more: 'Going up does not change how far across you are, so the across parts add on their own, `3 + 1 = 4`, and the up parts add on their own, `1 + 2 = 3`. The bold arrow from 0 to the finish is the sum, `4 + j3`. Lumping every number together, `3 + 1 + 1 + 2 = 7`, would lose which way it points. Adding phasors by their floor and wall parts, as you did before, was this all along.\nDrag either tip, in any quarter, and watch the parts add along the axes.' },
     { name: '(2 + j3) + (4 − j1)', pic: 'sum', a: Z(2, 3), b: Z(4, -1), key: SKEY, lines: 3,
       mvs: [{ t: Z(4, -1) }, { lump: true }, { t: Z(4, 1) }], ok: 0,
       task: 'Work out `(2 + j3) + (4 − j1)`. After Check, the second arrow slides onto the first to show your answer.',

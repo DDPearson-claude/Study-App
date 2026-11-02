@@ -24,10 +24,12 @@
   .scene .curve.bad { stroke: var(--k-warn); stroke-dasharray: 6 4; }
   .scene .bar { fill: var(--k-fill1); }
   .scene .bar.edge { stroke: var(--k-accent2); stroke-width: 1.2; }
-  .scene .bar.neg { fill: url(#hatch); }
+  .scene .bar.neg { fill: url(#hatch) var(--k-strong); }
   .scene .area { fill: var(--k-fill1); }
+  .scene .piece { fill: none; stroke: var(--k-amber-line); stroke-width: 2; stroke-dasharray: 5 3; stroke-linejoin: round; }
+  .scene .piece.gap { fill: var(--k-bg); fill-opacity: .6; }
   .scene .area.soft { fill: var(--k-sunk); }
-  .scene .area.neg { fill: url(#hatch); }
+  .scene .area.neg { fill: url(#hatch) var(--k-strong); }
   :root[data-theme="dark"] .scene .area.soft { fill: color-mix(in srgb, var(--k-strong) 40%, var(--k-sunk)); stroke: var(--k-strong); stroke-width: 1; }
   .scene .area.bad { fill: none; stroke: var(--k-warn); stroke-width: 2.5; stroke-dasharray: 6 4; }
   /* The mean: a flat rectangle with the same area. The humps that fold. The RMS level. */
@@ -53,7 +55,7 @@
   .scene .v { font-style: italic; }
   /* The key, inside the drawing. */
   .scene .sw { stroke: var(--k-strong); stroke-width: 1; }
-  .scene .sw.hatch { fill: url(#hatch); stroke: var(--k-accent2); }
+  .scene .sw.hatch { fill: url(#hatch) var(--k-strong); stroke: var(--k-accent2); }
   .scene .sw.hump { fill: var(--k-fill2); stroke: var(--k-amber-line); }
   .scene .keyt { font: 400 13px var(--k-font); fill: var(--k-ink); }
   .scene #art * { pointer-events: none; }
@@ -672,9 +674,15 @@
     const tt = 2 * sweep(0.2, 1.6);
     if (tt > 1e-9) areaOf(R3, 0, tt, '', 1);
     meanRect(0, 2, 4 * sweep(2.1, 1.0), 1, null);
+    const la = arr(3.1), ea = arr(3.6);
+    // The gap under the mean line and the extra above it, outlined alike: the one fills the other.
+    const tc = 2 / Math.sqrt(3), run = (a, b) => K.linspace(a, b, 41).map((v) => ' L' + r3(X(v)) + ' ' + r3(Y(R3(v)))).join('');
+    part(la, 0, () => {
+      path('piece gap', 'M' + r3(X(0)) + ' ' + r3(Y(4)) + run(0, tc) + ' Z');
+      path('piece', 'M' + r3(X(tc)) + ' ' + r3(Y(4)) + run(tc, 2) + ' L' + r3(X(2)) + ' ' + r3(Y(4)) + ' Z');
+    });
     curve(R3, 0, 2, '', 1);
     dotAt(tt, R3(tt), 1);
-    const la = arr(3.1), ea = arr(3.6);
     queue(arr(1.9), [{ x: X(1.62), y: Y(1.6) + 5, text: '8 C' }]);
     queue(la, [{ x: X(0.05), y: Y(4) - 7, text: 'mean 4 A', anchor: 'start' }, { x: X(1.85), y: Y(6.5), text: 'extra' }, { x: X(0.55), y: Y(2.4), text: 'gap' }]);
     hline('lvl', 0, 2, 6, ea, { x: X(0.05), y: Y(6) - 7, text: 'ends’ average', anchor: 'start', cls: 'soft' });

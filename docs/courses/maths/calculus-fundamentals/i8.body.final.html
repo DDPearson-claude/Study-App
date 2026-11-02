@@ -20,7 +20,7 @@
   .scene .curve { fill: none; stroke: var(--k-ink); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
   .scene .bar { fill: var(--k-fill1); }
   .scene .bar.edge { stroke: var(--k-accent2); stroke-width: 1.2; }
-  .scene .bar.neg { fill: url(#hatch); }
+  .scene .bar.neg { fill: url(#hatch) var(--k-strong); }
   .scene .bar.hi { stroke: var(--k-accent2); stroke-width: 3; }
   .scene .bar.soft { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1; }
   .scene .bar.ghost { fill: none; stroke: var(--k-warn); stroke-width: 2; stroke-dasharray: 5 4; }
@@ -28,7 +28,7 @@
   .scene .sliver { fill: var(--k-fill2); }
   .scene .sliver.extra { fill: var(--k-fill3); }
   .scene .area { fill: var(--k-fill1); }
-  .scene .area.neg { fill: url(#hatch); }
+  .scene .area.neg { fill: url(#hatch) var(--k-strong); }
   .scene .area.bad { fill: none; stroke: var(--k-warn); stroke-width: 2.5; stroke-dasharray: 6 4; }
   .scene .hbg { fill: var(--k-fill1); }
   .scene .hln { stroke: var(--k-accent2); stroke-width: 1.6; }
@@ -53,12 +53,12 @@
   .scene .sw { stroke: var(--k-strong); stroke-width: 1; }
   .scene .sw.sliver { fill: var(--k-fill2); }
   .scene .sw.extra { fill: var(--k-fill3); }
-  .scene .sw.hatch { fill: url(#hatch); stroke: var(--k-accent2); }
+  .scene .sw.hatch { fill: url(#hatch) var(--k-strong); stroke: var(--k-accent2); }
   .scene .keyt { font: 400 13px var(--k-font); fill: var(--k-ink); }
   /* The running total: the bars laid end to end, plus along the top lane, minus along the lower one. */
   .scene .track { fill: var(--k-sunk); stroke: var(--k-line); stroke-width: 1; }
   .scene .seg { fill: var(--k-fill1); stroke: var(--k-accent2); stroke-width: 1.2; }
-  .scene .seg.neg { fill: url(#hatch); }
+  .scene .seg.neg { fill: url(#hatch) var(--k-strong); }
   .scene .net { stroke: var(--k-accent2); stroke-width: 3; }
   .scene .goal { stroke: var(--k-ink); stroke-width: 2; stroke-dasharray: 5 4; }
   .scene .pmark { stroke: var(--k-muted); stroke-width: 3; }
@@ -174,7 +174,7 @@
     steady: 'A current is a rate: how fast charge flows. One amp is one coulomb each second, so a steady 3 A moves 3 C every second, and in 4 s it moves 3 × 4 = 12 C. On a graph of current against time, that charge is the rectangle under the flat line, 3 A high and 4 s wide. Its area is amps times seconds, which is coulombs. The *running total* above adds it up, second by second.',
     bars: 'Now the current rises, `i = 3t²` amps from 0 s to 2 s, an example. No single rectangle fits, so cut the time into bars of equal width, each as tall as the current at its start. Each bar is a current times a time, a charge. Four bars 0.5 s wide stand 0, 0.75, 3 and 6.75 A high and give 5.25 C: short, because each flat top misses a thin sliver under the rising curve. Adding up many thin pieces is what an *integral* is. Watch the bars thin, then drag the slider yourself.',
     rule: 'Now the reverse rule from the last lesson: the charge is `q = t³ + c`; call it F. The charge that flows is F at the end b take away F at the start a, F(b) − F(a): here (8 + `c`) − (0 + `c`) = 8 C, the number the bars settle on, whatever `c` is. Each step up the curve is one bar’s charge, so the bars climb nearly the whole rise. This is a *definite integral*, an integral with two ends.',
-    mid: 'Taking each bar’s height at its middle gets close much sooner. Each top then crosses the curve: on the bar’s left half it pokes above the curve, and on its right half the curve rises above it. The extra and the missed slivers nearly cancel, so 4 bars give 7.875 C. On a straight line the two slivers are the same size, so mid-height bars give the exact total. Your MCA papers call this the *mid-ordinate rule*.',
+    mid: 'Taking each bar’s height at its middle gets close much sooner. Each top then crosses the curve: on the bar’s left half it pokes above the curve, and on its right half the curve rises above it. The extra and the missed slivers nearly cancel, so 4 bars give 7.875 C. On a straight line the two slivers are the same size, so mid-height bars give the exact total. This is called the *mid-ordinate rule*.',
     back: 'A current can flow back. Take `i = 4 − 2t` amps from 0 s to 3 s: it flows forwards until 2 s, then turns negative, and its graph dips below the axis. A negative current times a time is charge taken away, so those bars hang below the axis, hatched, and count as minus: 4 C forwards, then 1 C back, 3 C in all. Count the 1 C back as plus and you get 5 C, more than ever arrived. The reverse rule does the minus for you: `4t − t²` is 12 − 9 = 3 at 3 s and 0 at 0 s.',
   };
   const sb4 = barsOf(R.sq3.f, 0, 2, 4, 0);

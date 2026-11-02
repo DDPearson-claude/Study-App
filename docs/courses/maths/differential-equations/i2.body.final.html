@@ -249,7 +249,7 @@
           part(vis(0.1), 0, () => ghostWindow(capV, 0, 1));
         }
         const w = windowAt(capV, rf, W4, 1, 1, { arrows: true });
-        const lx = G.x(W4), ly = G.y(w.v0) - 30;
+        const lx = G.x(W4), ly = G.y(w.v0) - 52;   // high enough to stay clear of the curve when the long label is pulled left
         if (r.ok) part(vis(0.6), 4, () => label(lx, ly, 'the same share as the window at 0 s', 'lab main', 'start'));
         else if (r.w) {
           part(vis(0.1), 0, () => ring(W4 + 1, w.v1)); REC.bad++;
@@ -431,11 +431,11 @@
         label(G.x(TAU13) + 6, G.PB - 10, 'after ' + fmtV(TAU13) + ' s', 'lab', 'start');
         arrowFrom(0, Y13, r0, 'pa', 1, 40);
         dot(0, Y13);
-        label(G.x(0) + 12, G.y(Y13) - 16, 'rate ' + sgn(r0) + ' a second', 'lab main', 'start');
+        label(G.x(0) + 12, G.y(Y13) + 22, 'rate ' + sgn(r0) + ' a second', 'lab main', 'start');   // under the curve, which climbs away above it
         if (r.ok) {
           REC.answer = true;
           curve(f, 0, 6, 'sol', arr(0.1, 1.2), 'ans');
-          part(vis(1.1), 0, () => { dot(TAU13, f(TAU13)); label(G.x(TAU13) - 10 - tw('about ' + fmtD(f(TAU13), 0), 'lab'), G.y(f(TAU13)) + 5, 'about ' + fmtD(f(TAU13), 0), 'lab main', 'start'); });
+          part(vis(1.1), 0, () => { dot(TAU13, f(TAU13)); label(G.x(TAU13) - 10 - tw('about ' + fmtD(f(TAU13), 0), 'lab'), G.y(f(TAU13)) - 8, 'about ' + fmtD(f(TAU13), 0), 'lab main', 'start'); });
           workLines([{ s: 'one `τ` multiplies by e: ' + fmtD(Y13, 0) + ' × e, about ' + fmtD(f(TAU13), 0), a: vis(0.6) }]);
         } else if (r.w === '200') {
           const g = (t) => Y13 + r0 * t;

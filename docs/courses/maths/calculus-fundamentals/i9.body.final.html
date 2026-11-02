@@ -27,12 +27,12 @@
   .scene .curve { fill: none; stroke: var(--k-ink); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
   .scene .bar { fill: var(--k-fill1); }
   .scene .bar.edge { stroke: var(--k-accent2); stroke-width: 1.2; }
-  .scene .bar.neg { fill: url(#hatch); }
+  .scene .bar.neg { fill: url(#hatch) var(--k-strong); }
   .scene .bar.hi { stroke: var(--k-accent2); stroke-width: 3; }
   .scene .bar.soft { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1; }
   .scene .area { fill: var(--k-fill1); }
   .scene .area.soft { fill: var(--k-sunk); }
-  .scene .area.neg { fill: url(#hatch); }
+  .scene .area.neg { fill: url(#hatch) var(--k-strong); }
   :root[data-theme="dark"] .scene .area.soft, :root[data-theme="dark"] .scene .bar.soft { fill: color-mix(in srgb, var(--k-strong) 40%, var(--k-sunk)); }
   :root[data-theme="dark"] .scene .area.soft { stroke: var(--k-strong); stroke-width: 1; }
   .scene .pvbox { fill: none; stroke: var(--k-muted); stroke-width: 2; stroke-dasharray: 5 4; }
@@ -57,12 +57,12 @@
   .scene .v { font-style: italic; }
   /* The key, inside the graph. */
   .scene .sw { stroke: var(--k-strong); stroke-width: 1; }
-  .scene .sw.hatch { fill: url(#hatch); stroke: var(--k-accent2); }
+  .scene .sw.hatch { fill: url(#hatch) var(--k-strong); stroke: var(--k-accent2); }
   .scene .keyt { font: 400 13px var(--k-font); fill: var(--k-ink); }
   /* The running total of the work: plus along the top lane, minus along the lower one. */
   .scene .track { fill: var(--k-sunk); stroke: var(--k-line); stroke-width: 1; }
   .scene .seg { fill: var(--k-fill1); stroke: var(--k-accent2); stroke-width: 1.2; }
-  .scene .seg.neg { fill: url(#hatch); }
+  .scene .seg.neg { fill: url(#hatch) var(--k-strong); }
   .scene .net { stroke: var(--k-accent2); stroke-width: 3; }
   .scene .goal { stroke: var(--k-ink); stroke-width: 2; stroke-dasharray: 5 4; }
   .scene .pmark { stroke: var(--k-muted); stroke-width: 3; }
@@ -186,7 +186,7 @@
     derive: 'Where does an exact answer come from? Along `pV² = 4` the pressure is `4 ÷ V²`, also written `4 × V⁻²`, because a power below zero means one over. The reverse power rule adds one to the power, giving −1, and divides by it: `4 × V⁻¹ ÷ (1 − 2)`. Differentiate that and `4 × V⁻²` comes back, so it is right. And `4 × V⁻¹` is just `pV` at each end, 40 and 20, the dashed rectangles. Put in the end, take away the start: (20 − 40) ÷ (1 − 2) = 20 kJ, the bars’ total.',
     rule: 'Any `n` goes the same way. `p = C × V⁻ⁿ`, the reverse power rule gives `C × V¹⁻ⁿ ÷ (1 − n)`, and `C × V¹⁻ⁿ` is `pV` at each end. Turn both subtractions round and the work is `(p₁V₁ − p₂V₂) ÷ (n − 1)`, with 1 the start and 2 the end. Here that is (40 − 20) ÷ (2 − 1) = 20 kJ, just where the bars settle. Slide `n` and the end volume: a hundred bars and the rule agree to 0.01 kJ every time. `n` = 1 is the one value the rule cannot take, as it would divide by 0.',
     squeeze: 'Run it backwards and the piston squeezes the gas from 0.2 m³ at 100 kPa back to 0.1 m³ at 400 kPa. The curve is the same, still above the axis, but each bar’s width, the change in volume, is now minus, so each bar counts as minus: hatched. The rule, with 1 the start, gives (100 × 0.2 − 400 × 0.1) ÷ 1 = −20 kJ. Work done by the gas is positive for expansion and negative for compression: here the piston does 20 kJ of work on the gas. Flip the switch to run it either way.',
-    mep: 'Last, lay a rectangle over the curve with the same area and the same width. Its height is its area divided by its length along the volume axis: 20 kJ ÷ 0.1 m³ = 200 kPa, the steady pressure that would do the same work. That is the idea behind the *mean effective pressure*, which the marine syllabuses ask you to define and to find from an indicator card. It is not the average of the end pressures, 250 kPa: the curve spends most of its width below that.',
+    mep: 'Last, lay a rectangle over the curve with the same area and the same width. Its height is its area divided by its length along the volume axis: 20 kJ ÷ 0.1 m³ = 200 kPa, the steady pressure that would do the same work. That is the idea behind the *mean effective pressure*, which you will be asked to define and to find from an indicator card. It is not the average of the end pressures, 250 kPa: the curve spends most of its width below that.',
   };
   const two = barsOf(P.sq.f, 0.1, 0.2, 2);
   const STEPS = [
@@ -324,7 +324,7 @@
     { name: 'A big expansion', pr: P.big, g: GG({ who: '`pV¹·⁵ = C`, from 0.02 to 0.18 m³', x: [0, 0.2, 0.05], y: [0, 3000, 1000] }),
       gauge: WG({ min: -80, max: 80, neg: true }), opts: ['right', 'ndiv', 'onform'],
       task: 'Gas at 2700 kPa in 0.02 m³ expands along `pV¹·⁵ = C` to 0.18 m³, where it is at 100 kPa, an example. How much work does the gas do?',
-      why: 'Start: 2700 × 0.02 = 54; end: 100 × 0.18 = 18. The work done by the gas is (54 − 18) ÷ (1.5 − 1) = 36 ÷ 0.5 = 72 kJ, plus, as it expands. −72 kJ is the form some books give, (p₂V₂ − p₁V₁) ÷ (n − 1), the work done on the gas. 36 ÷ 1.5 = 24 kJ divides by n instead of n − 1.',
+      why: 'Start: 2700 × 0.02 = 54; end: 100 × 0.18 = 18. The work done by the gas is (54 − 18) ÷ (1.5 − 1) = 36 ÷ 0.5 = 72 kJ, plus, as it expands. −72 kJ is the other form, (p₂V₂ − p₁V₁) ÷ (n − 1), the work done on the gas. 36 ÷ 1.5 = 24 kJ divides by n instead of n − 1.',
       hint: 'Not quite. Use `(p₁V₁ − p₂V₂) ÷ (n − 1)`.',
       hints: { onform: 'Not quite. That is the work done on the gas. It expands, so its own work is plus.', ndiv: 'Not quite. Divide by n − 1, which is 0.5, not by n.' },
       pre: ['Start: 2700 kPa at 0.02 m³', 'End: 100 kPa at 0.18 m³', 'Work = ?'], right: ['`p₁V₁` = 54, `p₂V₂` = 18', '(54 − 18) ÷ (1.5 − 1) = 72 kJ'],
