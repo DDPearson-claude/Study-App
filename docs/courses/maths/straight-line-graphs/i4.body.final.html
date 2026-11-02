@@ -488,7 +488,9 @@
         let b = boxOf(al.x + c[0], al.y + c[1], w, al.anchor);
         const sx = b.x0 < Bi.x0 ? Bi.x0 - b.x0 : b.x1 > Bi.x1 ? Bi.x1 - b.x1 : 0, sy = b.y0 < Bi.y0 ? Bi.y0 - b.y0 : b.y1 > Bi.y1 ? Bi.y1 - b.y1 : 0;
         b = { x0: b.x0 + sx, x1: b.x1 + sx, y0: b.y0 + sy, y1: b.y1 + sy };
-        let cost = Math.hypot(c[0] + sx, c[1] + sy) * 0.5 + k * 0.5 + ai * 8;
+        // A point's name (it has alts round its dot) pays more for drifting: pushed along past the run
+        // arrow's head it read as naming the arrow's end, not its own pin.
+        let cost = Math.hypot(c[0] + sx, c[1] + sy) * (it.alts ? 1.5 : 0.5) + k * 0.5 + ai * 8;
         hard.forEach((o) => { if (meets(b, o, 3)) cost += 1000; });
         placed.forEach((o) => { if (meets(b, o, 6)) cost += 1000; });
         const wide = { x0: b.x0 - 2, y0: b.y0 - 2, x1: b.x1 + 2, y1: b.y1 + 2 };

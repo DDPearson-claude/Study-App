@@ -125,7 +125,7 @@
   const NOTE_B = 'A is the end you know, and M is the midpoint.';
   const NOTE_L = 'The first light gives `x₁` and `y₁`, and the second gives `x₂` and `y₂`.';
   const SQ = (x0, x1, y0, y1, hmax) => ({ x0, x1, y0, y1, xt: 'x', yt: 'y', u: '', hmax: hmax || 250 });
-  const PLAN = { x0: 0, x1: 14, y0: 0, y1: 8, xt: 'Across the ceiling (m)', yt: 'Along the ceiling (m)', u: ' m', hmax: 250 };
+  const PLAN = { x0: 0, x1: 16, y0: 0, y1: 8, xt: 'Across the ceiling (m)', yt: 'Along the ceiling (m)', u: ' m', hmax: 250 };
   const AB = ['A', 'B'], AMB = ['A', 'M', 'B'];
   const ab = (P) => [Math.abs(P[1][0] - P[0][0]), Math.abs(P[1][1] - P[0][1])];
   const halves = (P) => [(P[1][0] - P[0][0]) / 2, (P[1][1] - P[0][1]) / 2];
@@ -161,7 +161,7 @@
       hints: { '(3, 2)': 'Not quite. (3, 2) is half the run and half the rise, the step from A to the middle. Add it on to A.', '(10, 10)': 'Not quite. Those are the totals. Halve each one.' } },
     { show: true, name: 'Negatives too', view: SQ(-4, 6, -2, 6), pts: [[-3, 5], [5, -1]], names: AB, drag: true, focus: 'm', dur: 3.0,
       text: 'With negatives the average works the same way. `(−3 + 5) ÷ 2 = 1` and `(5 + (−1)) ÷ 2 = 2`, so the midpoint is (1, 2).' },
-    { kind: 'pick', name: 'Mind the signs', view: SQ(-5, 3, -3, 7), pts: [[-4, -2], [2, 6]], names: AB, focus: 'm',
+    { kind: 'pick', name: 'Mind the signs', view: SQ(-5, 3, -4, 7), pts: [[-4, -2], [2, 6]], names: AB, focus: 'm', labA: [-22, 24],
       opts: ['(−1, 2)', '(3, 4)', '(3, 2)'], want: '(−1, 2)',
       slip: { '(3, 4)': halves, '(3, 2)': (P) => [(Math.abs(P[0][0]) + P[1][0]) / 2, (P[0][1] + P[1][1]) / 2] },
       task: 'Find the midpoint of A and B. Mind the negative coordinates.',
@@ -185,7 +185,7 @@
       why: '`(1 + 4) ÷ 2 = 5 ÷ 2 = 2.5` and `(3 + 9) ÷ 2 = 12 ÷ 2 = 6`, so the midpoint is (2.5, 6).',
       hint: HINT_M,
       hints: { '(1.5, 3)': 'Not quite. (1.5, 3) is half the run and half the rise. Add it on to A.', '(5, 12)': 'Not quite. Those are the totals. Halve each one.' } },
-    { kind: 'pick', name: 'Last one', view: SQ(-4, 3, -3, 12, 300), pts: [[-3, -1], [2, 11]], names: AB, focus: 'd', labA: [4, 24],
+    { kind: 'pick', name: 'Last one', view: SQ(-8, 3, -3, 12, 300), pts: [[-3, -1], [2, 11]], names: AB, focus: 'd', labA: [4, 24],
       opts: ['13', '17', '169'], want: '13', slip: { '17': (P) => ab(P)[0] + ab(P)[1], '169': (P) => ab(P)[0] ** 2 + ab(P)[1] ** 2 },
       task: 'Last one. How far apart are A and B? Mind A\'s negative coordinates.',
       why: 'The run is `2 − (−3) = 5` and the rise is `11 − (−1) = 12`. So `d = √(5² + 12²) = √(25 + 144) = √169 = 13`.',
@@ -471,7 +471,7 @@
   // A point's label, beside it on the side away from its triangle, then the other sides in turn; first: the point starts its triangle.
   function sideLabel(G, p, q, first) {
     const x = G.px(p[0]), y = G.py(p[1]), run = first ? q[0] - p[0] : p[0] - q[0], rise = first ? q[1] - p[1] : p[1] - q[1];
-    const below = { x, y: y + 24, anchor: 'middle' }, above = { x, y: y - 14, anchor: 'middle' }, left = { x: x - 12, y: y + 5, anchor: 'end' }, right = { x: x + 12, y: y + 5, anchor: 'start' };
+    const below = { x, y: y + 24, anchor: 'middle' }, above = { x, y: y - 17, anchor: 'middle' }, left = { x: x - 12, y: y + 5, anchor: 'end' }, right = { x: x + 12, y: y + 5, anchor: 'start' };
     const sx = first ? -Math.sign(run) : Math.sign(run), sy = first ? -Math.sign(rise) : Math.sign(rise);   // away from the triangle
     const side = sx < 0 ? [left, right] : [right, left], vert = sy < 0 ? [below, above] : [above, below];
     const alts = first && sx !== 0 ? [side[0], vert[0], vert[1], side[1]] : [vert[0], side[0], side[1], vert[1]];

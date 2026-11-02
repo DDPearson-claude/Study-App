@@ -145,7 +145,7 @@
       hints: { '4': 'Not quite. 4 is the small triangle\'s rise, for a run of only 2. A longer run rises further.', '5': 'Not quite. Each 1 along climbs 2, not 1, so the extra 1 along adds 2.' } },
     { show: true, name: 'A falling line', view: SQ(-1, 7, 0, 10), pts: [[1, 7], [4, 1]], names: AB, drag: 'free',
       tris: [{ a: 0, b: 1, t: 0.6 }], dur: 3.0,
-      text: 'The arrows\' directions give the sign. Here the run points right, 3, but the rise points down, `1 − 7 = −6`. A negative ÷ a positive is negative, so `m = −6 ÷ 3 = −2`, and the line falls from left to right, like the falling rates you met in Calculus fundamentals.' },
+      text: 'The arrows\' directions give the sign. Here the run points right, 3, but the rise points down, `1 − 7 = −6`. A negative ÷ a positive is negative, so `m = −6 ÷ 3 = −2`, and the line falls from left to right, like the falling rates you met before.' },
     { kind: 'pick', name: 'Downhill', view: SQ(-1, 7, 0, 10), pts: [[2, 9], [5, 3]], names: AB, tris: [{ a: 0, b: 1 }],
       opts: ['−2', '2', '−0.5'], want: '−2', slip: { '2': (R) => -R[0].rise / R[0].run, '−0.5': (R) => R[0].run / R[0].rise },
       task: 'This line falls from left to right. Find its gradient.',
@@ -175,7 +175,7 @@
       hints: { '0': 'Not quite. 0 belongs to a level line, whose rise is 0. Here it is the run that is 0.', '7': 'Not quite. 7 is the rise alone, and it cannot be divided by a run of 0.' } },
     { show: true, name: 'Read the scales', view: VOLTS, pts: [[2, 10], [5, 25]], names: [null, null],
       tris: [{ a: 0, b: 1, t: 0.6 }], dur: 3.2, note: 'The first reading gives `x₁` and `y₁`.',
-      text: 'As with the rates you met in Calculus fundamentals, read the rise and run off the scales, in their units. For an ordinary resistor, voltage against current makes a roughly straight line whose gradient is the resistance, and these example readings give `15 V ÷ 3 A = 5` volts per amp, which is 5 Ω. Counting squares would give `3 ÷ 3 = 1`, because each square up stands for 5 V.' },
+      text: 'As with the rates you met before, read the rise and run off the scales, in their units. For an ordinary resistor, voltage against current makes a roughly straight line whose gradient is the resistance, and these example readings give `15 V ÷ 3 A = 5` volts per amp, which is 5 Ω. Counting squares would give `3 ÷ 3 = 1`, because each square up stands for 5 V.' },
     { kind: 'pick', name: 'Filling a tank', view: TANK, pts: [[2, 300], [6, 500]], names: [null, null], tris: [{ a: 0, b: 1 }],
       note: 'The first reading gives `x₁` and `y₁`.',
       opts: ['50 litres per minute', '0.02 minutes per litre', '200 litres'], want: '50 litres per minute',
@@ -428,26 +428,30 @@
   // Each label tries spots round where it wants to be, pulled inside the bounds, and takes the one
   // that hits nothing solid, crosses the fewest lines and moves least.
   function placeLabels(items, hard, segs, B) {
-    const placed = [];
-    return items.map((it) => {
+    const placed = [], out = [];
+    items.forEach((it, n) => { out[n] = placeOne(it); });
+    return out;
+    function placeOne(it) {
       const w = tw(it.text, 'lab'), h = 15.5, g = 4;
       const C = [[0, 0], [0, -(h + g)], [0, h + g], [w / 2 + 2 * g, 0], [-(w / 2 + 2 * g), 0], [w / 2 + g, -(h + g)], [-(w / 2 + g), -(h + g)], [w / 2 + g, h + g], [-(w / 2 + g), h + g],
         [0, -2 * (h + g)], [0, 2 * (h + g)], [w + g, 0], [-(w + g), 0], [w + g, -(h + g)], [-(w + g), -(h + g)], [w + g, h + g], [-(w + g), h + g], [0, -3 * (h + g)], [0, 3 * (h + g)]];
       let best = null, bestCost = Infinity;
-      C.forEach((c, k) => {
-        let b = boxOf(it.x + c[0], it.y + c[1], w, it.anchor);
+      // A point's name also tries each side of its dot (alts) before drifting away, and distance weighs
+      // more than crossing the main line (the label keeps a halo over a line), so it stays by its dot.
+      (it.alts || [it]).forEach((al, ai) => C.forEach((c, k) => {
+        let b = boxOf(al.x + c[0], al.y + c[1], w, al.anchor);
         const sx = b.x0 < B.x0 ? B.x0 - b.x0 : b.x1 > B.x1 ? B.x1 - b.x1 : 0, sy = b.y0 < B.y0 ? B.y0 - b.y0 : b.y1 > B.y1 ? B.y1 - b.y1 : 0;
         b = { x0: b.x0 + sx, x1: b.x1 + sx, y0: b.y0 + sy, y1: b.y1 + sy };
-        let cost = Math.hypot(c[0] + sx, c[1] + sy) * 0.5 + k * 0.5;
+        let cost = Math.hypot(c[0] + sx, c[1] + sy) * (it.alts ? 1.5 : 0.5) + k * 0.5 + (ai ? 40 : 0);
         hard.forEach((o) => { if (meets(b, o, 3)) cost += 1000; });
         placed.forEach((o) => { if (meets(b, o, 6)) cost += 1000; });
         const wide = { x0: b.x0 - 2, y0: b.y0 - 2, x1: b.x1 + 2, y1: b.y1 + 2 };
         segs.forEach((s) => { if (segHits(s.s, wide)) cost += s.c; });
-        if (cost < bestCost) { bestCost = cost; best = { b, dx: c[0] + sx, dy: c[1] + sy }; }
-      });
+        if (cost < bestCost) { bestCost = cost; best = { b, x: al.x + c[0] + sx, y: al.y + c[1] + sy, anchor: al.anchor }; }
+      }));
       placed.push(best.b);
-      return { x: it.x + best.dx, y: it.y + best.dy };
-    });
+      return best;
+    }
   }
 
   // Where the points are now: Dan's, a SHOW step's slide at time T, or the step's own.
@@ -478,6 +482,11 @@
     if (tr.ask) return { vis: true, t: null, ask: true, open, tl: open ? 0.1 : null };
     return open ? { vis: true, t: 0.1 } : { vis: false };
   }
+  // The four sides of a point's dot, after its preferred side.
+  function ptAlts(G, P, n, d) {
+    const x = G.px(P[n][0]), y = G.py(P[n][1]);
+    return [pointLabelAt(G, P, n, d), { x: x + 12, y: y + 5, anchor: 'start' }, { x: x - 12, y: y + 5, anchor: 'end' }, { x, y: y - 17, anchor: 'middle' }, { x, y: y + 24, anchor: 'middle' }];
+  }
   // A point's label, beside it on the side away from its triangle.
   function pointLabelAt(G, P, n, d) {
     const x = G.px(P[n][0]), y = G.py(P[n][1]);
@@ -487,8 +496,9 @@
       if (Math.abs(run) < 1e-9) return { x, y: y + (rise > 0 ? 24 : -14), anchor: 'middle' };
       return { x: x - Math.sign(run) * 12, y: y + 5, anchor: run > 0 ? 'end' : 'start' };
     }
-    if (Math.abs(rise) < 1e-9) return { x, y: y - 14, anchor: 'middle' };
-    return { x, y: rise > 0 ? y - 14 : y + 24, anchor: 'middle' };
+    // Above a dot means 17 up: at 14 the name's box touched the dot's own and counted as a clash.
+    if (Math.abs(rise) < 1e-9) return { x, y: y - 17, anchor: 'middle' };
+    return { x, y: rise > 0 ? y - 17 : y + 24, anchor: 'middle' };
   }
   // The working rows above the grid.
   function pieces(v, p, q, at0, a) {
@@ -593,7 +603,7 @@
     });
     // Labels: each point's name and place, then each arrow's signed size.
     const hid = hiddenPt(tris);
-    P.forEach((p, n) => items.push(Object.assign(pointLabelAt(G, P, n, d), { text: n === hid ? '?' : (d.names[n] ? d.names[n] + ' ' : '') + coord(p), class: 'lab', a: ph.la })));
+    P.forEach((p, n) => items.push(Object.assign(pointLabelAt(G, P, n, d), { alts: ptAlts(G, P, n, d), text: n === hid ? '?' : (d.names[n] ? d.names[n] + ' ' : '') + coord(p), class: 'lab', a: ph.la })));
     tris.forEach((o) => {
       const cls = 'lab arw' + (o.tr.teal ? ' teal' : ''), flat = Math.abs(o.rise) < 1e-9, up = Math.abs(o.run) < 1e-9;
       items.push(up ? { x: o.A[0] - 12, y: o.A[1] + 5, anchor: 'end', text: 'run 0' + v.ux, class: cls, a: o.aRun }
@@ -605,7 +615,7 @@
     const pos = placeLabels(items, OBS.hard, OBS.segs, { x0: G.gx + 2, x1: 338, y0: 3, y1: G.gy + G.gh - 2 });
     labs.textContent = '';
     items.forEach((it, n) => {
-      const t = labs.appendChild(K.svg('text', { class: it.class, x: r2(pos[n].x), y: r2(pos[n].y), 'text-anchor': it.anchor || 'middle' }, it.text));
+      const t = labs.appendChild(K.svg('text', { class: it.class, x: r2(pos[n].x), y: r2(pos[n].y), 'text-anchor': pos[n].anchor || it.anchor || 'middle' }, it.text));
       K.fade(t, it.a, 0);
       if (it.a >= 0.5) REC.labels.push(it.text);
     });
