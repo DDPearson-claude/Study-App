@@ -155,6 +155,7 @@
     const r = v < 20 ? Math.round(v * 10) / 10 : Math.round(v);
     return K.fmt(r, { decimals: r % 1 ? 1 : 0 }) + ' mA';
   };
+  let REC_DIAL = '';
   const fmtK = (v) => (v === Infinity ? 'Off scale' : v > 0 && v < 100 ? K.fmt(Math.round(v * 10) / 10, { decimals: 1 }) + ' kΩ' : K.fmt(Math.round(v), { decimals: 0 }) + ' kΩ');
   const testerText = (x) => (x === 'cable' ? 'Over ' + CABLE_OK + ' MΩ' : K.fmt(0, { decimals: 2 }) + ' MΩ');
   const dialF = (v) => (v === Infinity ? 1 : v / (v + 30));
@@ -412,6 +413,9 @@
       [[-1, 0], [1, 0], [-0.7, -0.7], [0.7, -0.7], [0, -1]].forEach((u) => put(gl, 'line', { class: 'ray', x1: n2(112 + u[0] * 9), y1: n2(58 + u[1] * 9), x2: n2(112 + u[0] * 12), y2: n2(58 + u[1] * 12) }));
     }
     lab(g, 127, 62, 'Alarm', 'n');
+    // The dial's reading in words, as the Monitor tile gives it, so the picture reads alone.
+    REC_DIAL = 'Reads ' + fmtK(monitorK(cur));
+    lab(g, 104, 75, REC_DIAL, 's', 'start');
     if (v.loc > 0.01) put(sub(g, v.loc), 'path', { class: 'wave', d: 'M168 64V54H174V64H180V54H186V64H192' });
     // The key.
     spark(g, 212, 12, 5);

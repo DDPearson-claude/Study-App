@@ -162,7 +162,7 @@
   // demonstration lets Dan move; play: its motion as the screen opens. outs 'after' hides the readouts
   // until a right Check; hideB hides the battery current; ans: what a right Check changes.
   const STEPS = [
-    { name: 'Heat in a transistor', set: { mode: 'buck', d: 50 }, outs: 'after', plots: 'after', ans: {},
+    { name: 'Heat in a transistor', set: { mode: 'buck', d: 50 }, outs: 'after', plots: 'after', circ: 'after', ans: {},
       task: `You need ${N.b50} V at ${IL} A from a ${VIN} V battery. A transistor held part on drops the other ${N.drop} V. How much heat does it make?`,
       opts: ['Next to nothing, as it is a transistor', `About ${N.heat} W`, `About ${N.heatAll} W`],
       want: `About ${N.heat} W`,
@@ -237,7 +237,7 @@
       want: `${N.d40}%`,
       hints: { '50%, unchanged': `50% of ${VRUN} V is only ${N.half40} V.`,
         [`${N.dw}%`]: 'A smaller battery needs a bigger share of it, not a smaller one.' },
-      why: `${N.d40}%. D = Vout ÷ Vin = ${N.b50} ÷ ${VRUN} = ${N.d40f}. A controller can do this as it runs. It moves D to hold the output as the battery voltage changes. On a ship\'s DC network, power sources can join the DC bus through converters like these.` },
+      why: `${N.d40}%. D = Vout ÷ Vin = ${N.b50} ÷ ${VRUN} = ${N.d40f}. A controller can do this as it runs. It moves D to hold the output as the battery voltage changes. On a DC network at sea, power sources can join the DC bus through converters like these.` },
   ];
   const FINISH = 'Switch a battery on and off fast, and smooth the pulses with an inductor and a capacitor. You get a steady lower DC. It is the battery voltage times the share of time the switch is on. Rearrange the same parts, and you get a steady higher DC instead. Make D follow a sine in a bridge of switches, and the output\'s average follows that sine. That is how an inverter builds AC.';
   const DEMO = 3.9, FADE = 0.35, ANS_SW = 1.2;
@@ -730,13 +730,15 @@
     el('ctl').hidden = !(has('duty') || has('dutyB') || has('freq') || has('time'));
     playBtn.el.hidden = !has('play'); el('ctl2').hidden = !has('play');
     el('wave').toggleAttribute('hidden', d.plots === 'after' && !right);   // an svg has no .hidden property
+    // A question about a transistor held part on: the switching circuit, the answer to it, comes only after.
+    el('scene').toggleAttribute('hidden', d.circ === 'after' && !right);
     showEl('outs', outsShown(d, right));
     const outs = el('outs');
     if (!d.show && d.outs === 'after') { if (el('fb').nextElementSibling !== outs) el('fb').after(outs); }
     else if (el('say').nextElementSibling !== outs) el('say').after(outs);
     el('say').hidden = !d.show;
     el('say').textContent = d.show ? nb(sayFor(v)) : '';
-    el('setting').hidden = !!d.show;
+    el('setting').hidden = !!d.show || (d.circ === 'after' && !right);
     el('setting').textContent = d.show ? '' : nb(settingFor(v));
     const opts = d.show ? [] : d.opts;
     el('picks').hidden = !opts.length;

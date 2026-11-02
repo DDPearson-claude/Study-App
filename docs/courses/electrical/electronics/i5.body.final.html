@@ -158,7 +158,7 @@
   // motion as the screen opens; outs: readouts shown 'before' the answer or only 'after' a right Check;
   // ans: what a right Check moves.
   const STEPS = [
-    { name: 'Starting a motor', set: { mode: 'one', a: 90 }, outs: 'after', ans: {},
+    { name: 'Starting a motor', motor: true, set: { mode: 'one', a: 90 }, outs: 'after', ans: {},
       task: 'You start a motor direct on line. As it starts, about how much current does it draw?',
       opts: ['About its rated current', 'Usually 6 to 8 times its rated current', 'About twice its rated current'],
       want: 'Usually 6 to 8 times its rated current',
@@ -202,7 +202,7 @@
       text: `A *triac* behaves like two thyristors back to back. It fires in both halves, so the heater gets chopped AC. The readouts show rms and watts. Fired at 0°, the heater takes ${N.p} W. The squared wave is symmetrical too, so firing at 90° keeps half its heating, ${N.p90} W. The rms is ${N.v} × √${N.s90}, about ${N.rms90} V, not ${N.half} V. The chopped current costs power factor too. It is √${N.s90}, about ${N.pft90}.`,
       read: `A triac behaves like two thyristors back to back, so it fires in both halves. With α at 90°, both halves are shaded from 90° on, one above the line and one below. The rms reads ${N.rms90} V and the heater power ${N.p90} W. The chopped current gives a power factor of about ${N.pft90}.`,
       still: { mode: 'triac', alpha: 90, time: 360 } },
-    { name: 'A fan on a dimmer', set: { mode: 'triac', a: 90 }, outs: 'before', ans: {},
+    { name: 'A fan on a dimmer', motor: true, set: { mode: 'triac', a: 90 }, outs: 'before', ans: {},
       task: 'A triac lamp dimmer is to hand. Should it set the speed of a small fan motor?',
       opts: ['Yes, a lower rms means a slower fan', 'Yes, as the fan is small', 'No, a lamp dimmer is for resistive loads only'],
       want: 'No, a lamp dimmer is for resistive loads only',
@@ -224,7 +224,7 @@
       hints: { [`It stays near ${N.pf0}, as firing later costs nothing`]: 'Watch where the current block starts as α grows.',
         'It rises, as less power is drawn': 'Less power is drawn, but the block slides further behind the voltage.' },
       why: `It falls to about ${N.pf60}. Half of ${N.br0} V needs cos α = ${N.c60}. So α is 60°. The current block now starts 60° behind the voltage. A block scores only ${N.k}, even in step. So the power factor is ${N.k} × ${N.c60} = ${N.pf60}. The supply carries the same current for half the power.` },
-    { name: 'The soft starter', set: { mode: 'triac', a: 150 }, load: 'the heater stands in for the motor', outs: 'after', ans: { set: { a: 0 } },
+    { name: 'The soft starter', motor: true, set: { mode: 'triac', a: 150 }, load: 'the heater stands in for the motor', outs: 'after', ans: { set: { a: 0 } },
       task: 'A soft starter fires its thyristors late at first, then earlier and earlier. What does the motor get?',
       opts: ['A voltage that ramps up from low to full', 'The full voltage at once, for less time', 'A DC voltage that rises'],
       want: 'A voltage that ramps up from low to full',
@@ -489,9 +489,11 @@
       if (v.mode === 'one') { scr(160, 28, 0, 1, !!v.on, !!v.flash); tx('dev', 160, 12, 'thyristor', 'lab'); }
       else { triac(160, 28, !!v.on, !!v.flash); tx('dev', 160, 12, 'triac', 'lab'); }
       tx('gate', 182, 56, 'gate', 'lab t', 'start');
-      tx('load', 281, 102, 'heater', 'lab', 'end'); tx('ohm', 281, 118, N.r + ' Ω', 'lab m', 'end');
+      // A step about a motor names its load a motor, drawn as the same 23 Ω the waves are worked from.
+      const mot = !!(v.d && v.d.motor);
+      tx('load', 281, 102, mot ? 'motor' : 'heater', 'lab', 'end'); tx('ohm', 281, 118, (mot ? 'drawn as ' : '') + N.r + ' Ω', 'lab m', 'end');
       const dev = v.mode === 'one' ? 'one thyristor' : 'a triac';
-      words = 'A ' + VRMS + ' V supply feeds a heater through ' + dev + ', drawn with its gate lead.' + (v.on ? ' It conducts now.' : ' It is off now.');
+      words = 'A ' + VRMS + ' V supply feeds ' + (mot ? 'a motor, drawn as a resistor,' : 'a heater') + ' through ' + dev + ', drawn with its gate lead.' + (v.on ? ' It conducts now.' : ' It is off now.');
       FLOW = v.show && !finished && v.on ? [mk(v.on === 'A' ? SERA : SERA.slice().reverse(), 10 + 50 * Math.abs(vs(v.th)) / VP, skipSer)] : null;
     } else {
       const segs = ch ? BRC : BR, onIds = v.on ? PATH[v.on] : [];
@@ -571,7 +573,7 @@
     into = wart;
     const ch = v.mode === 'charger', a = v.a, th = v.th;
     OY = 0;
-    const items = [['line', 'sup', 'supply', 'k1'], ['line', 'ld', ch ? 'output' : 'heater', 'k2'], ['line', 'avg', 'average', 'k3'], ['tri', 'gm', 'gate pulse', 'k4']];
+    const items = [['line', 'sup', 'supply', 'k1'], ['line', 'ld', ch ? 'output' : v.d && v.d.motor ? 'motor' : 'heater', 'k2'], ['line', 'avg', 'average', 'k3'], ['tri', 'gm', 'gate pulse', 'k4']];
     if (ch) items.push(['box', 'shn', 'subtracts', 'k5']);
     OY = 18 * (keyRow(14, items) - 1);
     wsvg.setAttribute('viewBox', '0 0 340 ' + ((ch ? HCH : HH) + OY));
@@ -712,7 +714,7 @@
     return a === 0 ? 'Fired at 0°, the heater gets every positive hump.' : `Fired at ${a}°, the heater gets each positive half from ${a}° to 180°.`;
   }
   function settingFor(v) {
-    const parts = [MODEN[v.mode], 'fired at ' + v.a + '°', v.d.load || (v.mode === 'charger' ? 'battery through a choke' : fx(RH, 0) + ' Ω heater')];
+    const parts = [MODEN[v.mode], 'fired at ' + v.a + '°', v.d.load || (v.mode === 'charger' ? 'battery through a choke' : v.d.motor ? 'motor drawn as ' + fx(RH, 0) + ' Ω' : fx(RH, 0) + ' Ω heater')];
     if (v.cursorOn) parts.push('cursor at ' + Math.round(v.th) + '°');
     return parts.join(' · ');
   }

@@ -300,7 +300,12 @@
     const ga = group();
     LINES.forEach((l) => {
       const a = arrow(l), p = SP([a[0] * grow, a[1] * grow]);
-      put(ga, 'line', { class: 'arm', x1: CX, y1: CY, x2: p[0].toFixed(2), y2: p[1].toFixed(2), 'marker-end': 'url(#ah)' });
+      // The head drawn as its own triangle (a marker's id does not survive into a saved picture).
+      const L = Math.hypot(p[0] - CX, p[1] - CY);
+      if (L < 12) return;
+      const ux = (p[0] - CX) / L, uy = (p[1] - CY) / L, bx = p[0] - ux * 10, by = p[1] - uy * 10;
+      put(ga, 'line', { class: 'arm', x1: CX, y1: CY, x2: (bx + ux).toFixed(2), y2: (by + uy).toFixed(2) });
+      put(ga, 'path', { class: 'ahp', d: 'M' + p[0].toFixed(2) + ' ' + p[1].toFixed(2) + 'L' + (bx - uy * 5).toFixed(2) + ' ' + (by + ux * 5).toFixed(2) + 'L' + (bx + uy * 5).toFixed(2) + ' ' + (by - ux * 5).toFixed(2) + 'Z' });
     });
     put(ga, 'circle', { class: 'sdot', cx: CX, cy: CY, r: 3 });
     avoid.push(ga);

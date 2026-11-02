@@ -148,7 +148,7 @@
       why: `The current leaves the supply on L2 and L3 and crosses their capacitance into the hull. It runs along the hull to the fault and back through it into L1.[^2] The windings close the loop.` },
     { show: true, name: 'It grows with the system', pic: P({ mode: 'fault', len: 8 }), ctl: true, demo: P({ mode: 'fault' }), follow: true,
       text: `Two arrows 60° apart add to 1.73 times one of them. The same geometry makes 440 V 1.73 times 254 V. Each arrow was 1.73 times the healthy current, so the sum is 3 times it. The rule is fault current = 3 × ω × C × V_phase. Capacitance grows with the system. Every metre of cable and every filter adds some in parallel. Watch the cable go from 4 km to 8 km. C doubles to 2 µF and the fault current doubles to 575 mA.`,
-      read: `At 8 km of cable, C is 2 µF a line and the fault current is 575 mA, twice the 4 km figure. The plot is a straight line through zero.` },
+      read: `At 8 km of cable, C is 2 µF a line and the fault current is 575 mA, twice the 4 km figure. Double the cable, double the current.` },
     { kind: 'pick', name: 'Ten drives', before: P({ mode: 'fault' }), after: P({ mode: 'fault', drives: true }),
       task: `A 440 V system has 1 µF a line, and a first fault passes 287 mA. Ten drives are added, each with 0.1 µF a line in its filter. What does a first fault pass now?`,
       opts: ['287 mA, as the cable is the same', 'About 1.15 A, four times as much', 'About 575 mA'], want: 'About 575 mA',
@@ -192,7 +192,9 @@
   const AMAX = 58, K0 = AMAX / (OMEGA * 2e-6 * VLINE / Math.sqrt(3));
   const nGroups = (len) => K.clamp(Math.round(len / 2), 1, 8);
   function viewOf(c) {
-    const s = sys(c), k = Math.min(K0, AMAX / s.Ih), healthy = c.mode === 'healthy';
+    const s = sys(c), healthy = c.mode === 'healthy';
+    // Laid head to tail, the small healthy arrows are drawn twice as large, so the closed triangle and its labels can be read.
+    const grow = healthy && c.chain && 2 * s.Ih * K0 <= AMAX + 1e-6 ? 2 : 1, k = Math.min(K0, AMAX / s.Ih) * grow;
     return {
       mode: c.mode, len: c.len, v480: c.v480, vline: s.vline,
       f: nGroups(c.v480 ? s.C / PER_KM : c.len),
@@ -201,7 +203,7 @@
       sumA: healthy ? 0 : 1, angA: c.mode === 'person' ? 0 : 1, zeroA: healthy && c.chain ? 1 : 0,
       loopA: c.loop && !healthy ? 1 : 0, rowA: c.rowLab || c.v480 ? 1 : 0, rowText: K.fmt(r3(s.X)) + ' Ω',
       linkA: c.mode === 'fault' ? 1 : 0, personA: c.mode === 'person' ? 1 : 0, drvA: c.drives && !c.v480 ? 1 : 0,
-      panelA: c.panel ? 1 : 0, shrunk: s.Ih * K0 > AMAX + 1e-9,
+      panelA: c.panel ? 1 : 0, shrunk: s.Ih * K0 > AMAX + 1e-9, grown: grow > 1,
       sumName: c.mode === 'person' ? 'Body current' : 'Fault current',
     };
   }
@@ -399,6 +401,7 @@
     const g = group(v.panelA);
     lab(g, 6, 196, 'Currents into the hull');
     if (v.shrunk) lab(g, 334, 196, 'Drawn smaller to fit', 'm', 'end');
+    else if (v.grown) lab(g, 334, 196, 'Drawn twice as large', 'm', 'end');
     const cart = v.vec.map((q) => [q[0] * Math.cos(rad(q[1])), q[0] * Math.sin(rad(q[1]))]);
     const at = (p) => [O[0] + p[0], O[1] - p[1]];
     const add = (p, q) => [p[0] + q[0], p[1] + q[1]], mul = (p, s) => [p[0] * s, p[1] * s];

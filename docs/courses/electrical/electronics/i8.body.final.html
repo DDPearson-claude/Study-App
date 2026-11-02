@@ -596,7 +596,23 @@
     ssvg.setAttribute('aria-label', 'A spectrum of the sines added, each bar a share of the fundamental and labelled with its order and frequency. The slots at the even orders and the multiples of 3 stand empty.');
   }
   const TXS = (u) => 108 + u * 4.8;
+  // The neutral question, once answered: the three lines' 3rds are in step, so they add end to end.
+  function drawNeutral() {
+    tx(4, 14, 'In the neutral, at ' + N.h3 + '\u00a0Hz', 'lab t s', 'start');
+    const X0 = 36, L = 84, Y = 54, Y2 = 92;
+    ['L1', 'L2', 'L3'].forEach((n, k) => {
+      const a = X0 + k * L, b = a + L;
+      ln(a, Y, b - 8, Y, 'ph'); pa(`M${b} ${Y}L${b - 9} ${Y - 4.5}V${Y + 4.5}Z`, 'phh');
+      tx((a + b) / 2, Y - 10, n + ', 10\u00a0A', 'lab s');
+    });
+    const e = X0 + 3 * L;
+    ln(X0, Y2, e - 9, Y2, 'sm'); pa(`M${e} ${Y2}L${e - 11} ${Y2 - 5.5}V${Y2 + 5.5}Z`, 'smh');
+    tx((X0 + e) / 2, Y2 + 24, 'In step, they add: ' + N.n30 + '\u00a0A', 'lab s');
+    REC.neutral = true;
+    tsvg.setAttribute('aria-label', 'The three lines\' 3rd harmonics, 10 A each, drawn end to end because they are in step, and their sum, ' + N.n30 + ' A, in the neutral.');
+  }
   function drawThd(v) {
+    if (v.ring3 > 0) { drawNeutral(); return; }
     tx(4, 14, 'Current THD', 'lab t s', 'start');
     const rows = [36, 58, 80, 102];
     tx(4, rows[0], 'the sum above', 'lab s', 'start');
@@ -711,6 +727,8 @@
     });
     REC.tag = tagA;
     box(300, 24, 36, 72, 'dev', 6); tx(318, 64, 'drive', 'lab s');
+    // The RCD question: a fault inside the drive, on its DC link, to earth.
+    if (v.typeStep) { pa('M318 96 V112 L312 118 L324 128 L318 134 V166 H292 V180', 'wire flt'); ci(292, 180, 3, 'jn w'); tx(313, 152, 'DC fault', 'lab w s', 'end'); REC.dcFault = true; }
     csvg.setAttribute('aria-label', CIRC_SAY[cur]);
   }
   const PO = [112, 66], PK = 6;
@@ -776,7 +794,7 @@
       ring3: d.flag === 'ring3' && right ? vis(0.1) : 0,
       hzOff: d.hz === 'after' && !right,
       typeB: d.typeStep && right ? vis(0.1) : 0,
-      tagStep: !!d.tagStep, tagLit: d.tagStep && right ? vis(0.1) : 0 };
+      typeStep: !!d.typeStep, tagStep: !!d.tagStep, tagLit: d.tagStep && right ? vis(0.1) : 0 };
   }
   function render(i, p, st) {
     REC = { texts: [], v: null, ring: false, ring3: false, tag: 0, typeB: false, sumBar: false };

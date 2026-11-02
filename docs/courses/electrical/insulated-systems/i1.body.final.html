@@ -121,7 +121,7 @@
       want: 'The star point is isolated from earth. The frames go to earth.',
       hints: { 'The star point is tied to earth. The frames are isolated.': 'The first letter is the star point, and I means isolated.',
         'The star point and the frames are both tied to the hull.': 'Only the frames are. The I says the star point is joined to nothing.' },
-      why: 'Read the letters in order. The first is the star point: I, isolated. The second is the frames: T, to earth. On a ship that earth is the hull.' },
+      why: 'Read the letters in order. The first is the star point: I, isolated. The second is the frames: T, to earth. At sea that earth is the hull.' },
     { show: true, name: 'TN: the loop closes', pic: { sys: 'TN', fault: false }, ctl: 'both', demo: true,
       text: strip('On TN a fault from L1 to the frame goes on by itself. Tap Fault on L1 to run it again. Its current runs out of L1 and through the fault into the frame. It comes back along the protective conductor to the star point, then up L1\'s winding. Say that metal loop is 0.5 Ω. Then 254 ÷ 0.5 = 508 A flows, and the breaker trips at once.[^2] Earthing does not drain the fault away. It closes the loop, so the current is big enough to trip.'),
       read: 'On TN the fault current runs out of L1 and into the frame. It comes back along the protective conductor to the star point and up L1\'s winding. Say that metal loop is 0.5 Ω, so 254 ÷ 0.5 = 508 A. The breaker trips at once.',
@@ -176,7 +176,7 @@
       hints: { 'Nothing: it floats, IT': 'A floating star point gives no deliberate way home, so the current is small and nothing trips.',
         'Earth, through a protective conductor: TN': 'A metal loop back to the star point gives hundreds of amps, and the breaker trips.' },
       why: 'A trip means the star point is tied to earth. A few amps, not hundreds, means the loop runs through the ground between two electrodes. That is TT.' },
-    { kind: 'pick', name: 'TN-S', before: { sys: 'TN', fault: false }, after: { sys: 'TN', fault: true },
+    { kind: 'pick', name: 'TN-S', before: { sys: 'TN', fault: false, tns: true }, after: { sys: 'TN', fault: true, tns: true },
       task: 'A board\'s drawing says TN-S. The S means its protective conductor is separate from the neutral. What happens at its first earth fault to a frame?',
       read: 'A board\'s drawing says TN-S. The S means its protective conductor is separate from the neutral. What happens at its first earth fault to a frame?',
       opts: ['A large current flows and the breaker trips', 'A small current flows and the supply runs on', 'A few amps flow through the ground, and the RCD trips'],
@@ -237,7 +237,7 @@
   // cur: the picture (sys, fault, el = the TT electrodes); T: seconds into the motion (Infinity = settled);
   // fx: what the motion brings in (sys: the new earthing fades in as the old one, from, fades out; bolt: the fault strikes).
   function blank() { return { pick: null, res: null, why: false }; }
-  const pic = (p) => ({ sys: p.sys, fault: !!p.fault, el: (p.el || R_TT).slice() });
+  const pic = (p) => ({ sys: p.sys, fault: !!p.fault, el: (p.el || R_TT).slice(), tns: !!p.tns });
   let S = STEPS.map(() => blank());
   let cur = pic(STEPS[0].pic), T = Infinity, fx = {};
   let finished = false, lastStep = -1, lastDone = false, REC = null;
@@ -306,6 +306,14 @@
         put(g, 'circle', { class: 'dot', cx: 62, cy: YPE, r: 3 });
         lab(g, 150, 218, 'Protective', '', 'middle');
         lab(g, 150, 234, 'conductor', '', 'middle');
+        // TN-S: the neutral leaves the star point on its own wire, apart from the protective conductor.
+        if (c.tns && sys === 'TN') {
+          put(g, 'path', { class: 'wire', d: 'M62 190H118' });
+          put(g, 'circle', { class: 'dot', cx: 62, cy: 190, r: 3 });
+          put(g, 'circle', { class: 'open', cx: 122, cy: 190, r: 4 });
+          lab(g, 131, 195, 'Neutral');
+          rec.neutral = true;
+        }
         return;
       }
       put(g, 'rect', { class: 'res', x: 56, y: 196, width: 12, height: 30, rx: 2 });

@@ -33,6 +33,8 @@
   .fig .coil { fill: none; stroke: var(--k-ink); stroke-width: 2.2; }
   .fig .sw .ld, .fig .sw .ch, .fig .sw .gp { fill: none; stroke: var(--k-ink); stroke-width: 2; stroke-linecap: round; }
   .fig .sw .ch { stroke-width: 3; }
+  .fig .sw .ea { fill: var(--k-ink); }
+  .fig .sw.on .ea { fill: var(--k-accent2); }
   .fig .sw.on .ld, .fig .sw.on .ch { stroke: var(--k-accent2); stroke-width: 4; }
   .fig .sw.on .gp { stroke: var(--k-accent2); stroke-width: 2.6; }
   .fig .dio path { fill: var(--k-ink); stroke: var(--k-ink); stroke-width: 1.6; stroke-linejoin: round; }
@@ -79,9 +81,9 @@
     <p class="k-label count say" id="count"></p>
     <p class="task" id="task"></p>
     <div class="k-controls" id="sw"></div>
-    <svg class="fig" id="scene" viewBox="0 0 340 140" width="100%" role="img" aria-label=""><g id="art"></g><g id="clabs"></g></svg>
+    <svg class="fig" id="scene" viewBox="0 0 340 140" width="100%" role="img" aria-label=""><g id="art"></g><g id="clabs"></g><g id="cart"></g><g id="cardl"></g></svg>
     <svg class="fig" id="wave" viewBox="0 0 340 348" width="100%" role="img" aria-label=""><g id="wart"></g><g id="wlabs"></g></svg>
-    <svg class="fig" id="card" viewBox="0 0 340 274" width="100%" role="img" aria-label=""><g id="cart"></g><g id="cardl"></g></svg>
+    <svg class="fig" id="card" viewBox="0 0 340 274" width="100%" role="img" aria-label="" hidden></svg>
     <div class="k-controls" id="ctl"></div>
     <svg class="fig" id="zoom" viewBox="0 0 340 156" width="100%" role="img" aria-label=""><g id="zart"></g><g id="zlabs"></g></svg>
     <p class="gnote say" id="setting"></p>
@@ -342,7 +344,7 @@
   // the readouts until a right Check, hide hides some of them; zoom shows the close-up ('after': once
   // right); ans: what a right Check changes.
   const STEPS = [
-    { name: 'Volts per hertz', set: { mode: 'three', depth: 100 }, outs: 'after', wave: 'after', ans: {},
+    { name: 'Volts per hertz', set: { mode: 'three', depth: 100 }, outs: 'after', wave: 'after', noSetting: true, ans: {},
       task: `A drive runs a ${VLL} V, 50 Hz motor at 25 Hz. What voltage does it give the motor?`,
       opts: [`${VLL} V, as at full speed`, `About ${N.v25} V`, `About ${N.x2} V`],
       want: `About ${N.v25} V`,
@@ -613,6 +615,8 @@
     g.appendChild(K.svg('path', { class: 'ld', d: `M${X} ${cy - 12}H${X - 10}M${X - 10} ${cy + 12}H${X}` }));
     g.appendChild(K.svg('path', { class: 'ch', d: `M${X - 10} ${cy - 15}V${cy + 15}` }));
     g.appendChild(K.svg('path', { class: 'gp', d: `M${X - 16} ${cy - 12}V${cy + 12}M${X - 16} ${cy}H${X - 22}` }));
+    // The emitter's arrow, pointing out of the device, marks it as an IGBT (an n-channel one).
+    g.appendChild(K.svg('path', { class: 'ea', d: `M${X} ${cy + 12}L${X - 6} ${cy + 8.5}V${cy + 15.5}Z` }));
   }
   function diodeUp(x, cy, on) {
     const g = add(K.svg('g', { class: 'dio' + (on ? ' on' : '') }));
@@ -846,7 +850,7 @@
         }
       });
     });
-    el('card').setAttribute('aria-label', 'Three chains of blocks. An online UPS: supply, whose mains has failed, rectifier, DC link and battery, inverter, load. A drive: supply, rectifier, DC link, inverter, motor. A shore converter: 50 Hz port grid, rectifier, DC link, inverter, 60 Hz vessel network.' +
+    el('scene').setAttribute('aria-label', 'Three chains of blocks. An online UPS: supply, whose mains has failed, rectifier, DC link and battery, inverter, load. A drive: supply, rectifier, DC link, inverter, motor. A shore converter: 50 Hz port grid, rectifier, DC link, inverter, 60 Hz vessel network.' +
       (v.lit ? ' The battery\'s path through the inverter to the load is lit.' : ''));
   }
 
@@ -862,9 +866,10 @@
     REC = { texts: [], shoot: false, refs: 0, tris: 0, lit: [], zoom: false, card: false, gaps: 0, bands: 0, v: null };
     const v = view(i, p, st);
     REC.v = v;
-    if (!v.card) { drawCircuit(v); drawWave(v); }
+    // The card of three chains is drawn in the scene's own picture, so the step's picture is the card.
+    if (!v.card) { el('cart').textContent = ''; el('cardl').textContent = ''; drawCircuit(v); drawWave(v); }
     if (v.zoom) drawZoom(v);
-    if (v.card) drawCard(v);
+    if (v.card) { el('art').textContent = ''; el('clabs').textContent = ''; el('scene').setAttribute('viewBox', '0 0 340 274'); drawCard(v); }
     into = null; labInto = null;
     return REC;
   }
@@ -928,13 +933,13 @@
     modeCtl.el.hidden = !has('mode'); el('sw').hidden = !has('mode');
     SLIDERS.forEach((id) => { CTL[id].el.hidden = !has(id); });
     el('ctl').hidden = !SLIDERS.some(has);
-    el('scene').toggleAttribute('hidden', v.card); el('wave').toggleAttribute('hidden', v.card || (d.wave === 'after' && !right));
-    el('zoom').toggleAttribute('hidden', !v.zoom); el('card').toggleAttribute('hidden', !v.card);
+    el('scene').toggleAttribute('hidden', false); el('wave').toggleAttribute('hidden', v.card || (d.wave === 'after' && !right));
+    el('zoom').toggleAttribute('hidden', !v.zoom); el('card').toggleAttribute('hidden', true);
     showEl('outs', outsShown(v));
     rRms.el.hidden = v.mode === 'leg';
     el('say').hidden = !d.show;
     el('say').textContent = d.show ? nb(sayFor(v)) : '';
-    el('setting').hidden = !!d.show || v.card;
+    el('setting').hidden = !!d.show || v.card || !!d.noSetting;
     el('setting').textContent = d.show || v.card ? '' : nb(settingFor(v));
     const opts = d.show ? [] : d.opts;
     el('picks').hidden = !opts.length;

@@ -604,7 +604,7 @@
     return pts.join(' ');
   }
   function timeTicks(a, y) { for (let s = 0; s <= TEND; s++) a('line', { class: 'tick', x1: f1(tx(s)), y1: y, x2: f1(tx(s)), y2: y + 4 }); }
-  function drawVolt(g, a, r) {
+  function drawVolt(g, a, r, hideOnce) {
     a('text', { class: 'labm hl', x: 4, y: 14 }, 'Board voltage, % of 440' + NB + 'V');
     a('line', { class: 'axis', x1: XA, y1: 22, x2: XA, y2: 112 });
     a('line', { class: 'axis', x1: XA, y1: 112, x2: X1, y2: 112 });
@@ -621,7 +621,8 @@
     if (D.drop > 0.005) {
       const b = grp(g, D.drop), yb = f1(vy(r.v0));
       b('path', { class: 'brk', d: 'M66 ' + f1(vy(1)) + 'H60V' + yb + 'H66' });
-      b('text', { class: 'lab hl', x: 50, y: 27 }, 'first drop');
+      REC.dropTxt = 'first drop to ' + (hideOnce ? '?' : pc(r.v0) + '%');
+      b('text', { class: 'lab hl', x: 50, y: 27 }, REC.dropTxt);
       REC.drop = D.drop > 0.5;
     }
   }
@@ -655,7 +656,7 @@
     if (d.nofig || mode === 'ab' || mode === 'restore') return;
     const a = adder(g), hideLow = !finished && !!d.hide && d.hide.indexOf('flo') >= 0 && !solved(S[i]);
     let y0 = 0;
-    if (mode === 'full') { drawVolt(g, a, r); y0 = 124; }
+    if (mode === 'full') { drawVolt(g, a, r, !finished && !!d.hide && d.hide.indexOf('once') >= 0 && !solved(S[i])); y0 = 124; }
     drawFreq(g, a, r, y0, hideLow);
     el('panel').setAttribute('viewBox', '0 0 340 ' + (y0 + 128));
     el('panel').setAttribute('aria-label', (mode === 'full' ? 'Two traces against time from Start to 4 s. Above, the board voltage as a % of 440 V, with a dashed line at 90%. Below, the board frequency in Hz.'

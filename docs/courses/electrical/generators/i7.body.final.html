@@ -617,8 +617,11 @@
     if (isSC) {
       const Id = K.lerp(sc(M.t, 'Shunt').I, sc(M.t, 'PMG').I, D.sig);
       REC.fc = Id;
-      if (Id > 1) {
-        const fg = grp(g, K.clamp(Id / 400, 0, 1));
+      // Once the feeder breaker has opened, nothing flows to the fault: the path goes.
+      const fo = 1 - K.clamp(D.bf, 0, 1);
+      REC.fcShown = Id > 1 && fo > 0.01;
+      if (REC.fcShown) {
+        const fg = grp(g, K.clamp(Id / 400, 0, 1) * fo);
         fg('polyline', { class: 'fc', points: SX[0] + ',112 ' + SX[0] + ',' + BUS + ' 170,' + BUS + ' 170,70', 'stroke-width': f1(1.5 + 4.5 * Math.min(Id / IR * X.xd2, 1)) });
         fg('text', { class: 'labw hl', x: 127, y: 46, 'text-anchor': 'middle' }, 'fault');
         fg('text', { class: 'labw hl', x: 127, y: 61, 'text-anchor': 'middle' }, 'current');
@@ -678,7 +681,7 @@
     REC.brk = [D.ba > 0.5, D.bb > 0.5, D.bf > 0.5];
     const word = (v) => (v > 0 ? 'sends out' : v < 0 ? 'draws in' : 'carries no');
     el('scene').setAttribute('aria-label', isSC
-      ? 'Set A on a 440 V board feeds a short circuit through a feeder breaker, which is ' + (REC.brk[2] ? 'open' : 'shut') + '. ' + (REC.fc > 1 ? 'A red path shows the fault current. ' : '') + 'B is shut down.'
+      ? 'Set A on a 440 V board feeds a short circuit through a feeder breaker, which is ' + (REC.brk[2] ? 'open' : 'shut') + '. ' + (REC.fcShown ? 'A red path shows the fault current. ' : '') + 'B is shut down.'
       : 'Sets A and B on a 440 V, 60 Hz board. A ' + word(REC.dir.pa) + ' kW and ' + word(REC.dir.qa) + ' kVAr, with its breaker ' + (REC.brk[0] ? 'open' : 'shut') +
         '. B ' + word(REC.dir.pb) + ' kW and ' + word(REC.dir.qb) + ' kVAr, with its breaker ' + (REC.brk[1] ? 'open' : 'shut') + '. Arrows up send power out to the board; red arrows down carry it into the set.');
   }

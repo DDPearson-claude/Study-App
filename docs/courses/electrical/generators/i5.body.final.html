@@ -105,7 +105,7 @@
   <div class="row nav" id="nav"></div>
 </div>
 
-<p class="caption" id="cap">Worked from the rule, with example reactances and relay settings. The dial marks the press and the shut.</p>
+<p class="caption" id="cap">Worked from the rule, with example reactances and relay settings. When a close is tried, the dial marks where Close was pressed and where the breaker shut.</p>
 
 <script>
   // ================= the rule =================
@@ -150,7 +150,7 @@
 
   // ================= the lesson: SHOW screens demonstrate, DO screens are puzzles =================
   const STEPS = [
-    { kind: 'typed', name: 'Still there?', ans: 'rec', right: 'Still there.', enter: { f: 60 }, ang0: 30, hide: ['P'],
+    { kind: 'typed', name: 'Still there?', ans: 'rec', label: 'As a fraction of the phase voltage, a decimal', right: 'Still there.', enter: { f: 60 }, ang0: 30, hide: ['P'],
       answer: 0.52, decimals: 2, unit: '', want: '0.52',
       slips: [{ value: 0.5, hint: 'That is sin 30°. Halve the angle first.' },
         { value: 0.26, hint: 'That is sin 15°. Double it.' },
@@ -190,7 +190,7 @@
       text: 'Press Close as the pointer nears 90°, a quarter turn. The breaker shuts and both bars jump into red. Shut at 90°, each pole sees 359 V. The reactances of the set and the board are the main limit on the surge that gap drives. Here it is 5.7 per unit. The surge also yanks the rotor into step. That puts 4.0 per unit of torque through the shaft and coupling. Shut at 180° and the surge reaches 8.0 per unit. That is more than a three-phase fault at the set.[^2]',
       read: 'Suppose the breaker shuts a quarter turn out. Shut at 90°, each pole sees 359 V. The reactances of the set and the board are the main limit on the surge that gap drives. Here it is 5.7 per unit. The surge also yanks the rotor into step. That puts 4.0 per unit of torque through the shaft and coupling. Shut at 180° and the surge reaches 8.0 per unit. That is more than a three-phase fault at the set.',
       still: () => setStill() },
-    { kind: 'pick', name: 'Bottom of the dial', enter: { f: 60.05 }, ang0: 180, hide: ['P'], run: [], rdur: 10, endAng: 0,
+    { kind: 'pick', name: 'Bottom of the dial', enter: { f: 60.05 }, ang0: 180, hide: ['P'],
       opts: ['Yes, the voltages match', 'No, each pole sees about twice the phase voltage', 'Yes, the slip is small'],
       want: 'No, each pole sees about twice the phase voltage',
       task: 'Both voltmeters read 440 V. The pointer is at the bottom of the dial, at 180°. It is turning slowly. Can you close?',
@@ -217,7 +217,7 @@
       text: 'Two of the set\'s phases, B and C, are now swapped. The lamps no longer dim together. One goes dark while the other two blaze. The dark lamp runs round the three in turn. When lamp A is dark, lamps B and C each see 440 V. The pointer turns exactly as before. It compares only phase A on each side. So it cannot see the order of the other two. The wiring fixes the phase sequence. It is the phase rotation you already test.',
       read: 'Two of the set\'s phases, B and C, are now swapped. The lamps no longer dim together. One goes dark while the other two blaze. The dark lamp runs round the three in turn. When lamp A is dark, lamps B and C each see 440 V. The pointer turns exactly as before. It compares only phase A on each side. So it cannot see the order of the other two. The wiring fixes the phase sequence. It is the phase rotation you already test.',
       still: () => setStill(() => { ang = 0; }) },
-    { kind: 'pick', name: 'Crossed phases', right: 'Right. Here is what closing would do.', enter: { f: 60.05, swap: true }, ang0: -9, run: [{ at: 0.45, close: true }], rdur: 0.55,
+    { kind: 'pick', name: 'Crossed phases', right: 'Right. Closed now, B and C would each see 440 V, and the surge would pass a three-phase fault at the set.', enter: { f: 60.05, swap: true }, ang0: -9,
       opts: ['Yes, the pointer is at 12 and turning slowly', 'No, the phase sequence is wrong', 'No, wait until all three lamps are bright'],
       want: 'No, the phase sequence is wrong',
       task: 'The pointer turns slowly through 12. Lamp A is dark, but lamps B and C are bright. Can you close?',
@@ -428,7 +428,7 @@
   STEPS.forEach((d, i) => {
     if (d.kind !== 'typed') return;
     el('answers').appendChild(K.el('div', { id: 'ans-' + d.ans }));
-    const a = K.answer({ id: 'a-' + d.ans, unit: d.unit, answer: d.answer, decimals: d.decimals, accept: d.accept, slips: d.slips, into: '#ans-' + d.ans,
+    const a = K.answer({ id: 'a-' + d.ans, label: d.label, unit: d.unit, answer: d.answer, decimals: d.decimals, accept: d.accept, slips: d.slips, into: '#ans-' + d.ans,
       onCheck: (r) => {
         const st = S[i];
         if (solved(st)) return;
@@ -959,14 +959,14 @@
   K.check('With B and C swapped at 0°, lamp A is dark while lamps B and C see 440 V; a close there drives 6.9 per unit, past the fault line, and the torque bar reads Wrong sequence', () => {
     const s = drawn(iSeq, null, false, () => { ang = 0; }), c = drawn(iCross, solvedSt(iCross));
     return s.glow[0] === 0 && Math.round(s.vs[1]) === 440 && Math.round(s.vs[2]) === 440 && s.glow[1] > 0.85 &&
-      c.surge === '6.9' + NB + 'per unit' && c.torque === 'Wrong sequence' && c.red && K.near(c.shut, 0, 1e-6) && closeAt(0, 0, 440, true).surge > FAULT;
+      c.st === 'open' && c.glow[0] < 0.2 && c.glow[1] > 0.75 && c.glow[2] > 0.75 && r1(closeAt(0, 0, 440, true).surge) === 6.9 && closeAt(0, 0, 440, true).surge > FAULT;
   });
   K.check('The pointer turns once each slip cycle, clockwise when the set is fast: half a turn in 2.5 s at 0.2 Hz, a whole turn in 5 s; from 180° at 0.05 Hz it reaches 12 in 10 s', () => {
     const a = trial({ f: 60.2 }, 0, () => { rotate(2.5); const h = ang; rotate(2.5); return K.near(Math.abs(h), 180, 1e-9) && K.near(ang, 0, 1e-9); });
     const b = trial({ f: 60.05 }, 180, () => { rotate(5); const h = ang; rotate(5); return K.near(h, -90, 1e-9) && K.near(ang, 0, 1e-9); });
     const c = trial({ f: 59.8 }, 0, () => { rotate(1); return K.near(ang, -72, 1e-9); });
     const d = drawn(iBottom), e = drawn(iBottom, solvedSt(iBottom));
-    return a && b && c && d.t.A === '180' && d.t.P === '?' && e.t.A === '0' && e.glow.every((g) => g < 1e-6);
+    return a && b && c && d.t.A === '180' && d.t.P === '?' && e.t.A === '180' && e.st === 'open' && e.glow.every((g) => g > 0.9);
   });
   K.check('Screen 12: the relay refuses at 60.50 Hz and says why; trimmed to 60.10 Hz it sends the close 1.8° early and the breaker shuts at 12 within the demonstration', () => {
     const d = STEPS[iRelay];

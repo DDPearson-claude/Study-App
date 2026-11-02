@@ -192,7 +192,7 @@
     { show: true, name: 'The gap restrikes', pic: A({ n: 2, tp: OUT2 }), demo: A({ n: 1 }),
       text: `Each restrike leaves the star point further out. Half a cycle on, L1 is 718 V from the hull, twice its normal peak. Then the gap restrikes. To pull L1 to the hull, the star point must jump 718 V. The jump is sudden, so the capacitance and the supply's inductance ring like a struck bell. With no losses, the star point rings past by as much again. The arc goes out at the top of the ring. That leaves the star point held at 1,077 V, three times normal.`,
       read: `With no losses, the second strike lands when L1 is 718 V from the hull. The star point rings past and is held at 1,077 V.` },
-    { kind: 'pick', name: 'The next peak', before: A({ n: 2, tp: OUT2, qp: true }), after: A({ n: 3 }),
+    { kind: 'pick', name: 'The next peak', before: A({ n: 2, tp: OUT2, qp: true }), after: A({ n: 2 }),
       task: `There are no losses. After the second strike, the star point is held at 1,077 V. That is three times the normal peak of 359 V. How high does L1 peak half a cycle later?`,
       opts: ['1,077 V, the voltage the star point holds', '1,436 V, the held voltage plus L1\'s own swing', '718 V, twice the normal peak'],
       want: '1,436 V, the held voltage plus L1\'s own swing',
@@ -858,7 +858,7 @@
     const b = (i) => drawn(STEPS[i].before), a = (i) => drawn(finalOf(STEPS[i]));
     const s2 = b(1), s4 = b(3);
     return s2.read.held === '?' && s2.read.peak === '?' && s2.tp < TS[0] + 0.5 && a(1).read.held === fV(359) &&
-      s4.read.peak === '?' && s4.read.held === fV(1077) && s4.tp < TS[1] + 0.5 && a(3).read.peak === fV(2154) &&
+      s4.read.peak === '?' && s4.read.held === fV(1077) && s4.tp < TS[1] + 0.5 && a(3).read.peak === fV(1436) && a(3).struck === 2 &&
       b(5).struck === 0 && a(5).read.peak === fV(718) &&
       b(7).dc === 0 && b(7).fan === 1 && a(7).fan === 0 &&
       b(9).read.across === '?' && b(9).glow === 0 && a(9).read.body === '190 mA' &&

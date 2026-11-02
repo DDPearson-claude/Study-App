@@ -97,7 +97,7 @@
   <div class="row nav" id="nav"></div>
 </div>
 
-<p class="caption">One phase in per unit, from the rule. Resistance is left out, and the field bar follows E. Real iron saturates, so a real V never climbs as high as drawn.</p>
+<p class="caption" id="cap">One phase in per unit, from the rule. Resistance is left out, and the field bar follows E. Real iron saturates, so a real V never climbs as high as drawn.</p>
 
 <script>
   // ================= the rule =================
@@ -144,6 +144,8 @@
   const r1 = (v) => Math.round(v * 10) / 10;
   const r2 = (v) => Math.round(v * 100) / 100;
   const tr = (v) => String(r2(v));
+  // A drawn length: two places, a trailing nought dropped (1.5, 0.75, 1.0).
+  const fx = (v) => r2(v).toFixed(2).replace(/(\.\d)0$/, '$1');
   const TAU = 0.12, SETTLE = 1.0;                   // how fast the drawing swings to a new setting (s on screen)
   const ease1 = (v, t, dt, tau, eps) => (Math.abs(t - v) < eps ? t : v + (t - v) * (1 - Math.exp(-dt / tau)));
 
@@ -216,7 +218,7 @@
       read: 'At 0.8 leading, the drop leans back. E\'s part along V falls to 0.1. E falls to 1.20. On a Zero pf leading load the whole drop points back against V. Enough current takes the field to zero. The diodes on the shaft pass current one way only, so the field cannot reverse. Then V climbs.',
       still: () => setStill(false) },
     { kind: 'typed', name: 'Field to zero', ans: 'zero', enter: { pf: 'zl', load: 0 }, hide: ['F'],
-      run: [{ at: 0.2, to: 2.2, ramp: { load: [0, 0.7] } }], rdur: 2.8,
+      run: [{ at: 0.2, to: 2.2, ramp: { load: [0, 0.667] } }], rdur: 2.8,
       answer: 0.67, decimals: 2, unit: 'per unit', want: '0.67' + NB + 'per' + NB + 'unit',
       slips: [{ value: 1.5, hint: 'That multiplies. The drop 1.5 × I must equal 1.0, so divide.' },
         { value: 1.0, hint: 'At rated current the drop is 1.5, more than V. The field gives out sooner.' }],
@@ -605,6 +607,7 @@
     REC.pts = { O, Vt, It, Et };
     const sh = (p, dy) => [p[0], p[1] + dy];
     const avoid = [], items = [];
+    let dItem = null;                               // δ's letter: placed after the guides' numbers, left out when it would crowd them
     const iLen = ev.I * k, eLen = ev.e * k, dLen = Math.hypot(Et[0] - Vt[0], Et[1] - Vt[1]);
     // When the triangle lies flat on V's line, a drop running back over V is drawn just below it,
     // and an E running on past V just above it, so each can be seen.
@@ -641,7 +644,7 @@
       a('path', { class: 'wedge', d: path });
       if (DV.markD > 0.01) a('path', { class: 'wedge2', d: path, opacity: r2(DV.markD) });
       const rl = Math.min(70, Math.max(40, 12 / Math.sin(d / 2)));
-      if (ev.delta >= 20 && eLen > rl + 8 && ev.v * k > rl + 14) items.push({ x: r1(O[0] + rl * Math.cos(d / 2)), y: r1(O[1] - rl * Math.sin(d / 2) + 5), text: 'δ', anchor: 'middle', class: 'labb', size: 15 });
+      if (ev.delta >= 20 && eLen > rl + 8 && ev.v * k > rl + 14) dItem = ({ x: r1(O[0] + rl * Math.cos(d / 2)), y: r1(O[1] - rl * Math.sin(d / 2) + 5), text: 'δ', anchor: 'middle', class: 'labb', size: 15 });
     }
     // The dashed guides: the drop's part across V, up from V's tip, then its part along V.
     const gLab = [];
@@ -656,10 +659,13 @@
       const side = cross ? -1 : (O[0] + (Et[0] - O[0]) * 0.5 > Vt[0] ? -1 : 1);
       REC.gA = tr(ev.across); REC.gL = tr(Math.abs(ev.along));
       gLab.push(items.length);
-      items.push({ x: r1(Vt[0] + side * 7), y: r1((Vt[1] + yX) / 2 + 4.5), text: REC.gA, anchor: side < 0 ? 'end' : 'start', class: 'lab' });
+      // On a lagging load it sits low, at the guide's foot just above V, where E is furthest away.
+      items.push({ x: r1(Vt[0] + side * 7), y: r1(cross ? Vt[1] - 6 : (Vt[1] + yX) / 2 + 4.5), text: REC.gA, anchor: side < 0 ? 'end' : 'start', class: 'lab' });
       gLab.push(items.length);
       items.push({ x: r1((C[0] + Et[0]) / 2), y: r1(C[1] - 7), text: REC.gL, anchor: 'middle', class: 'lab' });
     }
+    if (dItem && !(guides && Math.hypot(items[gLab[0]].x - 7 * (items[gLab[0]].anchor === 'end' ? 1 : -1) - dItem.x, items[gLab[0]].y - dItem.y) < 34)) items.push(dItem);
+    REC.dLab = !!dItem && items.indexOf(dItem) >= 0;
     // At unity the drop stands at right angles to the current, and so to V: a small square marks it,
     // fading as the current swings away from V.
     const sqO = K.clamp(DV.drop * 2 - 1, 0, 1) * K.clamp(1 - Math.abs(ev.s) / 0.3, 0, 1);
@@ -680,7 +686,7 @@
       if (DV.drop > 0.5) {
         const ux = (Et[0] - Vt[0]) / dLen, uy = (Et[1] - Vt[1]) / dLen;
         const n = offD > 3 ? [0, 1] : [-uy, ux];
-        REC.dropTxt = X.avr ? 'drop ' + tr(X.xs * X.load) : 'drop';
+        REC.dropTxt = X.avr ? 'drop ' + fx(X.xs * X.load) : 'drop';
         dropAt = items.length;
         items.push({ x: r1((Vt[0] + Et[0]) / 2 + n[0] * 12), y: r1((Vt[1] + Et[1]) / 2 + offD + n[1] * 14 + 4.5), text: REC.dropTxt,
           anchor: n[0] > 0.3 ? 'start' : n[0] < -0.3 ? 'end' : 'middle', class: 'lab' });
@@ -698,10 +704,17 @@
     // V's letter: below its middle; above it, further along, when an arrow is drawn just below; past its tip when V is short.
     const vLen = Vt[0] - O[0];
     const vAt = offD > 3 || offI > 3 ? [O[0] + vLen * 0.72, O[1] - 8, 'middle'] : vLen < 70 ? [Vt[0] + 3, O[1] + 19, 'start'] : [(O[0] + Vt[0]) / 2, O[1] + 20, 'middle'];
-    items.push({ x: r1(vAt[0]), y: r1(vAt[1]), text: 'V', anchor: vAt[2], class: 'labb', size: 15 });
+    REC.vTxt = ev.floor ? 'V ' + fx(ev.v) : 'V';
+    items.push({ x: r1(vAt[0]), y: r1(vAt[1]), text: REC.vTxt, anchor: vAt[2], class: 'labb', size: 15 });
     if (iLen > 6) {
       const ux = (It[0] - O[0]) / iLen, uy = (It[1] - O[1]) / iLen;
-      items.push({ x: r1(It[0] + ux * 12), y: r1(It[1] + offI + uy * 12 + 5), text: 'I', anchor: 'middle', class: 'labb', size: 15 });
+      // When I lies along E (a leading load with the AVR off), its letter sits beside its shaft, away from E.
+      const dA = eLen > iLen + 6 ? Math.atan2(O[1] - Et[1], Et[0] - O[0]) - Math.atan2(O[1] - It[1], It[0] - O[0]) : 1;
+      REC.iBeside = Math.abs(dA) < 0.25;
+      if (REC.iBeside) {
+        const sd = dA > 0 ? 1 : -1, m = [It[0] + ux * 10, It[1] + uy * 10];
+        items.push({ x: r1(m[0] - uy * 11 * sd), y: r1(m[1] + ux * 11 * sd + 5), text: 'I', anchor: 'middle', class: 'labb', size: 15 });
+      } else items.push({ x: r1(It[0] + ux * 12), y: r1(It[1] + offI + uy * 12 + 5), text: 'I', anchor: 'middle', class: 'labb', size: 15 });
     }
     if (eLen > 3) {
       const ux = (Et[0] - O[0]) / eLen, uy = (Et[1] - O[1]) / eLen;
@@ -750,6 +763,7 @@
     task.className = 'task' + (d.show ? ' show' : '');
     write(task, d.show ? d.text : d.task);
     document.querySelector('.figs').hidden = !!d.nofig;
+    el('cap').hidden = !!d.nofig && !finished;          // the drawing's note, only under a drawing
     el('outs').hidden = !!d.nofig || !!d.noOuts;
     showCtls(i);
     replayBtn.el.hidden = !d.show || finished || REDUCE;
@@ -856,7 +870,7 @@
     const s7 = drawn(iLead), s80 = drawn(iZero), s8 = drawn(iZero, solvedSt(iZero));
     return r2(ld.e) === 1.2 && K.near(z6.field, 10, 1e-9) && !z6.floor && z7.field === 0 && z7.floor && K.near(z7.v, 1.05, 1e-9) &&
       s7.pf === 'zl' && s7.t.F === '0' && s7.t.E === '0.00' && s7.t.V === '1.50' && s7.red === true &&
-      s80.t.F === '?' && s80.red === false && s8.red === true && s8.t.F === '0' && s8.t.V === '1.05' && r2(1 / 1.5) === 0.67;
+      s80.t.F === '?' && s80.red === false && s8.red === true && s8.t.F === '0' && s8.t.V === '1.00' && s8.dropTxt === 'drop 1.0' && s8.vTxt === 'V 1.0' && s7.vTxt === 'V 1.5' && r2(1 / 1.5) === 0.67;
   });
   K.check('With the AVR off there are no dashed guides and the drop is labelled "drop" alone, so the short V keeps its labels clear', () => {
     const t = drawn(iOffV, solvedSt(iOffV)), s9 = drawn(iOff);
