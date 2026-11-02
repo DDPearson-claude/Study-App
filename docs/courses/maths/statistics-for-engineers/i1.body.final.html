@@ -314,6 +314,8 @@
   const SLIP10 = [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.5];
   const PA = [0.76, 0.80, 0.80, 0.80, 0.84], PB = [0.76, 0.76, 0.80, 0.84, 0.84];
   const W1 = [0.77, 0.79, 0.81, 0.81, 0.82], W2 = [0.75, 0.80, 0.81, 0.81, 0.83];
+  // Two testers' ten example readings each, mean 0.80 Ω: SD about 0.01 Ω (A) and about 0.04 Ω (B), as the puzzle gives them.
+  const TESTA = [0.78, 0.79, 0.79, 0.80, 0.80, 0.80, 0.80, 0.81, 0.81, 0.82], TESTB = [0.73, 0.76, 0.77, 0.78, 0.79, 0.81, 0.82, 0.83, 0.84, 0.87];
   const BUMPY = [0.78, 0.78, 0.78, 0.80, 0.80, 0.80, 0.80, 0.82, 0.82, 0.82], FLAT = [0.75, 0.76, 0.77, 0.78, 0.79, 0.81, 0.82, 0.83, 0.84, 0.85];
   const REPEAT = readings(0.02).slice(0, 10), CIRCUITS = [0.41, 0.48, 0.52, 0.55, 0.60, 0.64, 0.70, 0.73, 0.77, 0.80];
   // The standard deviation worked line by line: each distance from the mean, its square, the squares added, ÷ one fewer than the count, the root.
@@ -419,8 +421,8 @@
       titles: ['One circuit, ten simulated readings', 'Ten example circuits, one reading each'],
       alt: 'Above, ten simulated repeat readings of one circuit in a tight swarm. Below, one reading each on ten example circuits in a wide swarm. Each has a fulcrum at its mean and a bracket one SD each side.',
       text: 'On top are ten simulated repeat readings of the one example circuit. They make a tight swarm. Below is one reading each on ten example circuits. They make a wide swarm, with a mean of 0.62 Ω and an SD of about 0.13 Ω. Repeat readings show the wobble of the reading. Readings on different circuits mostly show how the circuits differ.' },
-    { name: 'Two testers', view: 'two', mean: 0.8, sdGiven: [0.01, 0.04], sd: 'answer', titles: ['Tester A', 'Tester B'],
-      alt: 'Two beams, one for each tester, each balanced at 0.80 ohms.',
+    { name: 'Two testers', view: 'two', a: TESTA, b: TESTB, mean: 0.8, sdGiven: [0.01, 0.04], sd: 'answer', titles: ['Tester A', 'Tester B'],
+      alt: 'Two beams, one for each tester, each balanced at 0.80 ohms. After the answer, ten example readings rise on each: a tight swarm for A and one about four times as wide for B.',
       task: 'Two testers each read one circuit ten times. A gets a mean of 0.80 Ω and an SD of 0.01 Ω. B gets a mean of 0.80 Ω and an SD of 0.04 Ω. What does that say?',
       opts: ['B\'s circuit has the higher impedance of the two', 'B\'s readings sit about four times as far out', 'B\'s tester reads about 0.04 Ω too high'], want: 'B\'s readings sit about four times as far out',
       why: 'The mean says where readings centre, and both centre on 0.80 Ω. The SD says how far they typically sit from it. B\'s 0.04 Ω is four times A\'s 0.01 Ω, so B\'s readings wobble about four times as much.',
@@ -782,7 +784,8 @@
     if (tr && show(trail, tra)) B.set(trail, { d: tr });
     let ia = 0;
     if (pouring && mv.slow) for (let k = 0; k < 3; k++) { const a = K.arrive(M.Tb, mv.rel[k] - 0.3, 0.25) * (1 - K.arrive(M.Tb, mv.rel[k], 0.18)); if (a > 0.002) { ia = a; B.words(intro, label(vs[k])); } }
-    if (show(intro, ia)) B.set(intro, { x: hx - 16, y: y0 - 2 });
+    // shown whole or not at all: a reading half faded into the page is too faint to read (the kit's contrast check)
+    if (show(intro, ia > 0.5 ? 1 : 0)) B.set(intro, { x: hx - 16, y: y0 - 2 });
     if (i === 0 && show(counter, n ? 1 : 0)) { counter.textContent = n === 1 ? '1 reading' : n + ' readings'; B.set(counter, { y: FY.y0 + 14 }); }
   }
   // After a pour the values wait for the beads under them to settle past their overshoot; a re-sort fades them while beads fly.

@@ -910,14 +910,15 @@
     const aF = K.arrive(u, CC, 0.1), aKept = K.arrive(u, CC + CP, 0.3);   // the pair stays drawn once the press is over, labelled as past
     if (aF > 0) {
       part(aF, () => { arrow(c.xA - 33, RY - 24, c.xA - 33 - CF * AS, RY - 24, 'ink'); arrow(c.xB + 33, RY - 24, c.xB + 33 + CF * AS, RY - 24, 'ink'); });
-      lab(c.xA - 33 - CF * AS / 2, RY - 52, 'B on A ' + N.cF + ' N', '', 'middle', aF);
-      lab(c.xB + 33 + CF * AS / 2, RY - 52, 'A on B ' + N.cF + ' N', '', 'middle', aF);
-      lab((c.xA + c.xB) / 2, RY - 80, 'while the buffers pressed, 0.5 s', 'm', 'middle', aKept);
+      // the pair's labels sit low by their arrows, kept in from the edges, so 'together' above has a row of its own
+      lab(Math.max(c.xA - 33 - CF * AS / 2, 60), RY - 40, 'B on A ' + N.cF + ' N', '', 'middle', aF);
+      lab(Math.min(c.xB + 33 + CF * AS / 2, 280), RY - 40, 'A on B ' + N.cF + ' N', '', 'middle', aF);
+      lab((c.xA + c.xB) / 2, RY - 86, 'while the buffers pressed, 0.5 s', 'm', 'middle', aKept);
     }
     const aPre = 1 - K.arrive(u, CC, 0.2), aPost = K.arrive(u, CC + CP, 0.3);
     lab(c.xA, RY - 50, '0.5 m/s', 'm', 'middle', aPre);
     lab(c.xB, RY - 50, 'still', 'm', 'middle', aPre);
-    lab((c.xA + c.xB) / 2, RY - 50, 'together ' + N.cV + ' m/s', 'm', 'middle', aPost);
+    lab((c.xA + c.xB) / 2, RY - 60, 'together ' + N.cV + ' m/s', 'm', 'middle', aPost);
     // momentum: A's falls as B's grows, and the total stays the same
     tx(GX0 + 6, 150, 'momentum (kg m/s)', 'lab h', 'start');
     const X0 = 64, W = 216;

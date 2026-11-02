@@ -512,7 +512,7 @@
     path('M36 167 L42 164 L48 170 L54 164 L60 170 L66 164 L72 170 L78 164 L84 170 L90 164 L96 170 L102 164 L106 167', 'coil');
     const heat = g.Tc == null ? 'steady temperature' : `heater ${fx(g.Tc)} °C · ${fx(kel(g.Tc))} K`;
     text(72, 190, heat, 'lab');
-    if (g.showV) lab(122, (top + CB) / 2 + 4.5, `${vt(g.V)} L`, 'lab n', 'start');
+    if (g.showV) lab(122, Math.min((top + CB) / 2 + 4.5, 138), `${vt(g.V)} L`, 'lab n', 'start');   // kept above the pipe at y 148
     path('M116 148 H146 V176 H196 V161', 'pipe');
     return `A cylinder of gas under ${how}` + (g.showV ? `, holding ${vt(g.V)} L` : '') + (g.Tc == null ? ', at a steady temperature.' : `, over a heater at ${fx(g.Tc)} °C.`);
   }

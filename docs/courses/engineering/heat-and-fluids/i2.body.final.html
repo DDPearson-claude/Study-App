@@ -555,7 +555,8 @@
       T -= dT;
       pts.push([x0 + bw, py(T)]);
       drops.push(dT);
-      if (dT >= 0.5) lab(x0 + bw / 2 + 4, (ya + py(T)) / 2 - 6, `${fx(dT)} °C`, 'lab', 'start');
+      const last = j === layers.length - 1;   // the last layer's label ends inside the right edge
+      if (dT >= 0.5) lab(last ? x0 + bw - 4 : x0 + bw / 2 + 4, (ya + py(T)) / 2 - 6, `${fx(dT)} °C drop`, 'lab', last ? 'end' : 'start');
     });
     AVOID.push(path(pts.map((p, j) => (j ? 'L' : 'M') + r2(p[0]) + ' ' + r2(p[1])).join(' '), 'prof'));
     lab(XE, yb - 8, `room ${fx(s.room)} °C`, 'lab m', 'end');

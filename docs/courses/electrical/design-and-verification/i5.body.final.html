@@ -213,7 +213,7 @@
   const CH_Q = 'A single-phase power circuit, ' + CH.L + ' m of 1.5 mm² 90 °C singles in conduit (' + CH.mv + ' mV/A/m), Ib ' + CH.ib + ' A, is fed from a sub-board whose three-phase submain drops ' + CH.sub + ' V. No supply voltage is given. Determine the total voltage drop from the origin.';
   const STEPS = [
     { name: 'Do you still have it?', label: 'Do you still have it?',
-      task: '“A supply is given as 395 V. A submain feeding a second board has a calculated voltage drop of 10 V, and a radial power circuit from that board 9.8 V. Does the circuit comply?” The example is three-phase throughout.',
+      task: 'A supply is given as 395 V. A submain feeding a second board has a calculated voltage drop of 10 V, and a radial power circuit from that board 9.8 V. Does the circuit comply? The example is three-phase throughout.',
       opts: O0, want: O0[0], read: RC.sub + ' + ' + RC.rad + ' = ' + RC_T + ' V. That is over 5% of the given 395 V, ' + fR.text + ', so it does not comply.' },
     { show: true, name: 'What it is for', label: 'What it is for',
       text: 'The cable\'s resistance uses up some of the supply\'s voltage on the way. The load gets what is left: the *voltage drop*. On a public supply, Table 4Ab limits it. Lighting may drop up to 3%: 6.9 V single-phase and 12 V three-phase. Other circuits may drop up to 5%: 11.5 V and 20 V. The limit runs from the *origin* to the most distant point of the circuit. BS 7671 takes the percentages of the nominal voltage. In your assessments, take them of the supply voltage when one is given. That is the stricter test when the supply is below nominal.',
@@ -674,7 +674,7 @@
 
     el('donefb').textContent = finished && i === iK ? 'Lesson finished. Back is there whenever you want another look.' : '';
     el('donefb').hidden = !el('donefb').textContent;
-    el('foot').textContent = i === iA ? 'Set out like a City & Guilds 2396 Section A question, on the showroom motor.' : '';
+    el('foot').textContent = i === iA ? 'Set out like a Section A exam question, on the showroom motor.' : '';
     el('foot').hidden = !el('foot').textContent;
 
     backBtn.el.hidden = i === 0;

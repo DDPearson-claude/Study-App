@@ -665,7 +665,7 @@
   // ---------- the valve wheel: a couple ----------
   function drawWheel(d, st) {
     const wh = d.wheel, live = !!d.show, t = tl(d, st), k = pickIndex(d, st), arm = k >= 0 ? d.arms[k] : null;
-    const Rp = wh.d / 2 * 400, FK = 0.6, F = wh.F, cx = 170, cy = 34 + F * FK;
+    const Rp = wh.d / 2 * 400, FK = 0.6, F = wh.F, cx = 170, cy = Math.max(34 + F * FK, Rp + 12);   // the rim stays inside the top edge
     setH(cy + Rp + 50);
     const rot = live ? 50 * D2R * K.arrive(T, t.rot, 3.4) : 0;
     ci(cx, cy, Rp, 'rim av');

@@ -988,14 +988,14 @@
       }
     }
     REC.runIR = R0;
-    // Screen 10: each test taken at 30 °C hops up by a factor of 2; the last one is bracketed.
+    // Screen 10: each test taken at 30 °C hops up by a factor of 2; a bracket beside the string runs from the puzzle's 300 MΩ to 600 MΩ.
     if (d.key === 'x2' && right) {
       let hops = 0;
       IRT.forEach((q, k) => { if (q.t !== 30) return; const t = T === Infinity ? 9 : T - M.sc.t[k] - 0.55 - 0.05; if (t >= 0 && t < 0.5) ringPh[k] = t / 0.5; if (t >= 0) hops++; });
-      const k = 13, xb = IXat(k) + 10, ya = yIR(IRM[k]), yz = yIR(IRC[k]), g = ans(T, 1.25, 0.4);
+      const xb = IX1 + 10, ya = yIR(300), yz = yIR(600), g = ans(T, 1.25, 0.4);   // the puzzle's own 300 MΩ to 600 MΩ, beside the string: every × 2 is this long
       if (show(dim, g > 0.01 ? 1 : 0)) B.set(dim, { d: 'M' + B.r2(xb - 4) + ' ' + B.r2(ya) + 'H' + B.r2(xb + 4) + 'M' + xb + ' ' + B.r2(ya) + 'V' + B.r2(B.lerp(ya, yz, g)) + (g >= 1 ? 'M' + B.r2(xb - 4) + ' ' + B.r2(yz) + 'H' + B.r2(xb + 4) : '') });
       label(dimLab, [['× 2', 'n']]);
-      if (show(dimLab, ans(T, 1.6, 0.3), 3)) B.set(dimLab, { x: xb + 6, y: B.r2((ya + yz) / 2 + 4.5), 'text-anchor': 'start' });
+      if (show(dimLab, ans(T, 1.6, 0.3), 3)) B.set(dimLab, { x: xb + 5, y: B.r2((ya + yz) / 2 + 4.5), 'text-anchor': 'start' });
       REC.x2 = hops;
     }
     // Screen 12: the last winding tested again the same day, 10 °C warmer: half the reading, on the fade of the string as measured.
