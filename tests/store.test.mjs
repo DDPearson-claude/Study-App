@@ -630,7 +630,7 @@ test('two tabs of one browser add up their study minutes instead of overwriting 
   const A = await page(srv, { local });
   const B = await page(srv, { local });
   assert.equal(A.U.device(), B.U.device(), 'one browser, one device id');
-  const day = A.U.today();
+  const day = A.U.studyDay();   // minutes after midnight count for the evening before
   const total = () => A.U.store.minutesOn((srv.get('data/users/u1/profile') || { days: {} }).days[day]);
   for (let i = 0; i < 5; i++) await A.U.logStudy(2);     // tab A: 10 min
   assert.equal(total(), 10);
@@ -647,7 +647,8 @@ test('two tabs of one browser add up their study minutes instead of overwriting 
 test('study minutes start from the saved count on a new day, and from a number left by an old version', async () => {
   const srv = await server();
   const local = storage();
-  const day = new Date().getFullYear() + '-' + String(new Date().getMonth() + 1).padStart(2, '0') + '-' + String(new Date().getDate()).padStart(2, '0');
+  const now = new Date(Date.now() - 4 * 3600e3);   // the study day turns over at 4 am
+  const day = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
   local.setItem('mu.device', 'dPhone');
   srv.seed('data/users/u1/profile', { prefs: {}, days: { [day]: { dPhone: 6, dLaptop: 3 } } });
   const A = await page(srv, { local });

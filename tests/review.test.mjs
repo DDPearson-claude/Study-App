@@ -39,7 +39,7 @@ test('the summary says how the puzzles coming back map to lessons', () => {
 
 // Cards for U.review._plan(opts, data): `due` due today, `doneToday` reviewed today (due in four
 // days), and `at` = {days from today: how many} for cards due later.
-function day(n) { return U.addDays(U.today(), n); }
+function day(n) { return U.addDays(U.studyDay(), n); }   // the review's day turns over at 4 am
 function deck({ due = 0, doneToday = 0, at = {} } = {}) {
   const cards = [], old = new Date(Date.now() - 9 * 864e5).toISOString();
   const add = (dueDay, today) => cards.push({ id: 'c' + cards.length, tid: 't', iid: 'i' + (cards.length % 4), type: 'choice', spec: { q: 'Q?' },
@@ -63,7 +63,7 @@ test('with nothing waiting, the words say when cards come back, counting what th
   // Tomorrow's review holds its usual limit, not more.
   assert.equal((await words(deck({ due: 20, doneToday: 15 }))).next, 'Next up: 15 puzzles tomorrow.');
   // A light day is for today only: 5 reviewed, 8 still due; tomorrow's limit is the usual 15.
-  w = await words(deck({ due: 8, doneToday: 5 }), { lightDay: U.today() });
+  w = await words(deck({ due: 8, doneToday: 5 }), { lightDay: U.studyDay() });
   assert.equal(w.head, 'Done for today');
   assert.equal(w.next, 'Next up: 8 puzzles tomorrow.');
   // Light days kept on in settings: tomorrow holds 5 too.
