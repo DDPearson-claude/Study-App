@@ -1,0 +1,390 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Scientific thinking: gears, balances, collisions, frames, light
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i1 "Gears" — Meshed gears pass teeth one for one, so neighbours turn opposite ways and speed times teeth is the same on both. [mechanism]
+Later ideas in the course (every claim must stay true after Dan has learned each of them):
+- i2 Compound gear trains — Because two gears on one shaft turn together, a compound train's overall ratio is its stage ratios multiplied together.
+- i3 Balancing mobiles — Each bar of a mobile hangs level when clockwise moments, force times distance from the pivot, equal anticlockwise ones, which finds a missing weight.
+- i4 Collisions — When things collide with no outside push, total momentum, mass times velocity with its direction, stays the same, even when kinetic energy is lost.
+- i5 Structures — A frame of pinned bars built from triangles cannot fold, and balancing the forces joint by joint shows which bars are pulled and which pushed.
+- i6 Mirrors — A flat mirror sends light off at the angle it arrives, so its image sits as far behind the mirror as the object is in front.
+- i7 Refraction and prisms — Light bends at the edge of water or glass because it changes speed, and Snell's law, linking the two angles, says by how much.
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] Gears - Moments, levers and gears - AQA - GCSE Physics (Single Science) Revision - AQA - BBC Bitesize — https://www.bbc.co.uk/bitesize/guides/ztjpb82/revision/4
+    "Where the gears meet, the teeth must both move in the same direction. In the diagram, the teeth of both gears move upwards. This means that the gears rotate in opposite directions."
+[R2] Basic Fundamentals of Gear Drives — https://www.cedengineering.ca/userfiles/M06-031%20-%20Basic%20Fundamentals%20of%20Gear%20Drives.pdf
+    "When gear 1 and gear 2 are in mesh: N1 * Z1 = N2 * Z2"
+[R3] https://www.dsimanek.vialattea.net/gearprob.htm — https://www.dsimanek.vialattea.net/gearprob.htm
+    "An odd number of gears in a closed loop in a plane will not turn no matter what their size and tooth count."
+[R4] Role of physics lecture demonstrations in conceptual learning | Phys. Rev. ST Phys. Educ. Res. — https://journals.aps.org/prper/abstract/10.1103/PhysRevSTPER.9.020113
+    "In the context of demonstrations, the “elicit, confront, resolve” cycle is better known as “predict, observe, explain” (POE)"
+Notes (claims, and the sources that support them):
+- Where two gears meet, their teeth move the same way, so the two gears rotate in opposite directions. [R1]
+- For two meshed gears, the speed of each multiplied by its tooth count is the same for both (N1 × Z1 = N2 × Z2). [R2]
+- An odd number of gears in a closed loop in a plane will not turn, whatever their sizes and tooth counts. [R3]
+- Physics teaching uses a predict, observe, explain cycle: students commit to a prediction, see the outcome, then resolve any conflict between the two. [R4]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i1",
+ "title": "Gears",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the two counters at a mesh ticking up together, tooth for tooth, so the two gears turn opposite ways, when you turn the driver by its rim.",
+  "title": "The gear board",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Step",
+    "min": 0,
+    "max": 12,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [],
+  "whatAmILookingAt": "A short lesson in thirteen small screens on a gear board. Some screens show an idea and the rest ask you to try it. The board is a grid of pegs. One peg holds the driver, the gear you turn, with a ring round its rim to drag. Gears wait in a tray, and you drag them onto pegs. A gear meshes with any gear it touches. Each gear shows its tooth count at its centre, one marked tooth on its rim, a revolution counter, and an arrow for the way it turns. At every mesh sit two counters, one for each gear, that tick up as teeth pass. Drag the driver round by its rim and everything it meshes with turns. Each tooth on one gear pushes one tooth on the other past the mesh, so the two counters at a mesh always match. At the mesh the teeth of both gears move the same way, so the two gears turn opposite ways. Each mesh flips the direction, so along a line the arrows alternate. Drop a gear that closes a loop. With an even number of gears the loop turns. With an odd number, the last gear and the first both try to turn the same way, so the driver will not move, and the mesh you closed last is drawn in red. The counters give the speed rule too. A gear passes its own tooth count each time it turns once, so the teeth it passes in a minute are its speed × its teeth. The two counters at a mesh match, so n₁T₁ = n₂T₂, where n is a gear's speed in rev/min and T its number of teeth. The screens, in order. Screen 1, show, Teeth pass one for one: a 12-tooth driver meshes with a 20-tooth gear. Words: \"Where two gears mesh, each tooth pushes one tooth on the other gear. So at the mesh, the teeth of both gears move the same way. That turns the two gears opposite ways.\" Then \"Turn the driver by its rim.\" Read: the 12-tooth driver turns clockwise and the 20-tooth gear turns anticlockwise, and the two counters at the mesh always show the same count. Screen 2, do, Five in a line: five gears in a line, still. \"The first gear turns clockwise. Which way does the fifth turn?\" Choices: Clockwise (right), Anticlockwise. Hint: \"Each mesh flips the direction. Count the meshes.\" Why: five gears make four meshes, so four flips: anticlockwise, clockwise, anticlockwise, clockwise, and the fifth turns the driver's way. After Check the line turns. Screen 3, show, Odd and even: lines of two, three, four and five gears turn side by side. Words: \"Each mesh flips the direction, so the arrows alternate along a line. An odd number of gears turns the last one the driver's way. An even number turns it the other way.\" Read: the same three sentences. Screen 4, do, Mixed sizes: four gears in a line with 12, 40, 16 and 30 teeth, the driver clockwise. \"Which way does the fourth gear turn?\" Choices: Clockwise, Anticlockwise (right). Hint on Clockwise: \"Size changes the speed, not the direction. Count the meshes.\" Why: three meshes make three flips, so the fourth turns anticlockwise; the big 40-tooth gear turns slower, but it still flips the direction once. Screen 5, show, Close the loop: a triangle of three gears, each meshing with the other two, locked, with its last mesh in red; beside it a ring of four gears turning. Words: \"Close three gears into a triangle, and the third meets the first. Both try to turn the same way, so their teeth at that mesh would have to move opposite ways. Neither can give way, so the triangle locks.\" Read: the triangle of three is locked, its last mesh drawn in red, and the ring of four turns. Screen 6, do, Which loop turns: three loops lying flat on the board, of five, six and seven gears. \"Which loop turns?\" Choices, in a row that wraps at phone width: The loop of five, The loop of six (right), The loop of seven. Hint: \"Round a loop the directions alternate. The last gear must end up opposite the first.\" Why: six is even, so the sixth gear turns opposite to the first, as their mesh needs; five and seven are odd, so they lock, whatever the gears' sizes. Screen 7, show, Count the teeth: a 12-tooth driver meshes with a 36-tooth gear, with the mesh counters and each gear's revolution counter. Words: \"Each tooth that passes on one gear pushes one past on the other. Three turns of the 12-tooth driver pass 36 teeth, which is one turn of the 36-tooth gear. So speed × teeth is the same on both gears: n₁T₁ = n₂T₂.\" Read: three turns of the 12-tooth driver pass 36 teeth and turn the 36-tooth gear once. Screen 8, do, typed, How fast: \"A 12-tooth gear turns at 60 rev/min and drives a 36-tooth gear. How fast does the 36-tooth gear turn?\" A typed answer: 20 rev/min, a whole number. Slips: 180 rev/min, \"That makes the bigger gear faster. It has more teeth to take in, so it turns slower.\"; 3 rev/min, \"That is the ratio, 36 ÷ 12. Divide the speed by it.\" Hint: \"Work out the teeth a minute through the mesh first.\" Why: 60 × 12 = 720 teeth a minute pass the mesh, and 720 ÷ 36 = 20 rev/min. The 36-tooth gear's revolution counter shows \"?\" until the answer is checked. Screen 9, show, The idler: a 20-tooth gear set between the 12-tooth driver and the 36-tooth gear. Words: \"Put a 20-tooth gear between the two. It passes on the same 720 teeth a minute, so the last gear still turns at 20 rev/min. Now it turns the driver's way, and the middle gear is called an idler gear.\" Read: with a 20-tooth idler between them, the idler turns at 36 rev/min and the 36-tooth gear still turns at 20 rev/min, now the driver's way. Screen 10, do, typed, Through an idler: \"A 15-tooth gear at 1200 rev/min drives a 40-tooth idler. The idler drives a 45-tooth gear. How fast does the 45-tooth gear turn?\" A typed answer: 400 rev/min, a whole number. Slips: 450 rev/min, \"That is the idler's speed. It passes the same teeth a minute on to the last gear.\"; 3600 rev/min, \"That makes the bigger gear faster. Turn the ratio the other way up.\" Hint: \"The idler passes on the driver's teeth a minute.\" Why: 1200 × 15 = 18,000 teeth a minute pass both meshes, and 18,000 ÷ 45 = 400 rev/min; the idler only flips the direction. Screen 11, do, typed, The winch: \"A winch motor turns an 18-tooth gear at 1440 rev/min. It drives a 72-tooth gear on the drum. How fast does the drum turn?\" A typed answer: 360 rev/min, a whole number. Slips: 5760 rev/min, \"That makes the drum faster than the motor. The 72-tooth gear has more teeth to take in.\"; 4 rev/min, \"That is the ratio, 72 ÷ 18. Divide the speed by it.\" Hint: \"Teeth a minute first, then divide by the drum gear's teeth.\" Why: 1440 × 18 = 25,920 teeth a minute, and 25,920 ÷ 72 = 360 rev/min. Screen 12, do, typed, How many teeth: \"A 24-tooth gear turns at 300 rev/min. The gear it drives must turn at 100 rev/min. How many teeth does that gear need?\" A typed answer: 72 teeth, a whole number. Slip: 8 teeth, \"That gear would turn faster than the driver. A slower gear needs more teeth.\" Hint: \"The teeth a minute are the same on both gears.\" Why: 300 × 24 = 7200 teeth a minute, and 7200 ÷ 100 = 72 teeth. Screen 13, do, Add a fifth: a ring of four gears turning. \"You fit a fifth gear into the ring. What happens when you turn the driver?\" Choices, in a row that wraps at phone width: It still turns; It locks (right); It turns, but slower. Hint on It still turns: \"Count the gears in the ring now.\" Hint on It turns, but slower: \"Sizes change the speed in a line. An odd loop cannot turn at all.\" Why: five is odd, so round the ring the fifth gear and the first both try to turn the same way, and nothing moves, whatever the sizes. After Check the fifth gear drops in and the new mesh goes red.",
+  "ignores": "The gears are drawn rigid, with teeth that fit perfectly and never slip. Real gears have a little play between their teeth, so a locked loop may rock slightly, but it still cannot turn. The board turns as fast as you drag, so a speed in rev/min comes from a puzzle's numbers, not from your finger. The red mesh is just the one closed last: the lock belongs to the whole loop. Every gear lies flat in one plane with its teeth on the outside. A ring gear has its teeth on the inside, and it turns the same way as a gear meshing inside it. Bevel gears, meeting at an angle, follow other direction rules too. Speed × teeth is the same on both sides of every kind of mesh.",
+  "numbers": [
+   {
+    "label": "Screen, 1 to 13 (the stepper)",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Example driver, teeth, in screens 1, 7 and 8",
+    "value": 12,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example gear it drives, teeth, in screen 1",
+    "value": 20,
+    "kind": "assumed"
+   },
+   {
+    "label": "Gears in the line, in screen 2",
+    "value": 5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Meshes in a line of five gears, in screen 2",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Example gears in screen 4, teeth: 12, 40, 16 and 30",
+    "value": 40,
+    "kind": "assumed"
+   },
+   {
+    "label": "Meshes in a line of four gears, in screen 4",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Gears in the triangle that locks, in screen 5",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Gears in the ring that turns, in screens 5 and 13",
+    "value": 4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Loops in screen 6: five, six and seven gears",
+    "value": 6,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example driven gear, teeth, in screens 7, 8 and 9",
+    "value": 36,
+    "kind": "assumed"
+   },
+   {
+    "label": "Turns of the 12-tooth driver, in screen 7",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Teeth passed by 3 turns of 12 teeth, in screen 7",
+    "value": 36,
+    "kind": "computed"
+   },
+   {
+    "label": "Example driver speed, rev/min, in screen 8",
+    "value": 60,
+    "kind": "assumed"
+   },
+   {
+    "label": "Teeth a minute, 60 × 12, in screens 8 and 9",
+    "value": 720,
+    "kind": "computed"
+   },
+   {
+    "label": "36-tooth gear's speed, 720 ÷ 36, rev/min, in screen 8",
+    "value": 20,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip: ratio upside down, 60 × 36 ÷ 12, rev/min",
+    "value": 180,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip: the ratio alone, 36 ÷ 12, in screen 8",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Example idler, teeth, in screen 9",
+    "value": 20,
+    "kind": "assumed"
+   },
+   {
+    "label": "Idler's speed, 720 ÷ 20, rev/min, in screen 9",
+    "value": 36,
+    "kind": "computed"
+   },
+   {
+    "label": "Example driver, teeth, in screen 10",
+    "value": 15,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example driver speed, rev/min, in screen 10",
+    "value": 1200,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example idler, teeth, in screen 10",
+    "value": 40,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example last gear, teeth, in screen 10",
+    "value": 45,
+    "kind": "assumed"
+   },
+   {
+    "label": "Teeth a minute, 1200 × 15, in screen 10",
+    "value": 18000,
+    "kind": "computed"
+   },
+   {
+    "label": "Last gear's speed, 18000 ÷ 45, rev/min, in screen 10",
+    "value": 400,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip: the idler's speed, 18000 ÷ 40, rev/min",
+    "value": 450,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip: upside down, 1200 × 45 ÷ 15, rev/min",
+    "value": 3600,
+    "kind": "computed"
+   },
+   {
+    "label": "Example motor gear, teeth, in screen 11",
+    "value": 18,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example motor speed, rev/min, in screen 11",
+    "value": 1440,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example drum gear, teeth, in screen 11",
+    "value": 72,
+    "kind": "assumed"
+   },
+   {
+    "label": "Teeth a minute, 1440 × 18, in screen 11",
+    "value": 25920,
+    "kind": "computed"
+   },
+   {
+    "label": "Drum speed, 25920 ÷ 72, rev/min, in screen 11",
+    "value": 360,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip: upside down, 1440 × 72 ÷ 18, rev/min",
+    "value": 5760,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip: the ratio alone, 72 ÷ 18, in screen 11",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Example driver, teeth, in screen 12",
+    "value": 24,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example driver speed, rev/min, in screen 12",
+    "value": 300,
+    "kind": "assumed"
+   },
+   {
+    "label": "Wanted speed, rev/min, in screen 12",
+    "value": 100,
+    "kind": "assumed"
+   },
+   {
+    "label": "Teeth a minute, 300 × 24, in screen 12",
+    "value": 7200,
+    "kind": "computed"
+   },
+   {
+    "label": "Teeth needed, 7200 ÷ 100, in screen 12",
+    "value": 72,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip: upside down, 24 × 100 ÷ 300, teeth",
+    "value": 8,
+    "kind": "computed"
+   },
+   {
+    "label": "Gears in the ring after one is added, in screen 13",
+    "value": 5,
+    "kind": "computed"
+   },
+   {
+    "label": "Example motor gear, teeth, in the practice",
+    "value": 20,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example motor speed, rev/min, in the practice",
+    "value": 1450,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example idler, teeth, in the practice",
+    "value": 25,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example output gear, teeth, in the practice",
+    "value": 100,
+    "kind": "assumed"
+   },
+   {
+    "label": "Teeth a minute, 1450 × 20, in the practice",
+    "value": 29000,
+    "kind": "computed"
+   },
+   {
+    "label": "Idler's speed, 29000 ÷ 25, rev/min, in the practice",
+    "value": 1160,
+    "kind": "computed"
+   },
+   {
+    "label": "Output speed, 29000 ÷ 100, rev/min, in the practice",
+    "value": 290,
+    "kind": "computed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "Where two gears mesh, their teeth pass one for one. So neighbouring gears turn opposite ways, and both pass the same number of teeth a minute. Look at the point where two gears meet, their [[mesh]]. Each tooth on the driver pushes a tooth on the other gear along with it. So at the mesh the teeth of both gears move the same way, and the two gears turn opposite ways.[^1] Say the driver turns clockwise, with the next gear on its right. The driver's right-hand teeth move down. They push the next gear's left-hand teeth down too, and that turns it anticlockwise.\n\nSo each mesh flips the direction. Along a line of gears with their teeth on the outside, the directions alternate. An odd number of gears in a line turns the last one the driver's way. An even number turns it the other way. A gear's size changes how fast it turns, not which way. One gear set between two others makes them turn the same way. It is called an [[idler gear]]. Now close a line into a loop, so the last gear meshes with the first. With an even number of gears, the last turns opposite to the first, as their mesh needs, and the loop turns. With an odd number, the last gear and the first try to turn the same way. At their mesh the teeth would have to move in opposite directions, and neither can give way. An odd number of gears in a closed loop in one plane will not turn, whatever their sizes and tooth counts.[^2]\n\nThe same count gives the speed. In any minute, both gears pass the same number of teeth through the mesh. A gear passes its whole tooth count each time it turns once. So the teeth it passes in a minute are its speed in rev/min × its number of teeth. Call the speed n and the number of teeth T. Then n₁T₁ = n₂T₂ for any two meshed gears.[^3] A 12-tooth driver at 60 rev/min passes 60 × 12 = 720 teeth a minute. A 36-tooth gear takes in those 720 teeth, so it turns at 720 ÷ 36 = 20 rev/min. Turn the ratio upside down and you get 60 × 36 ÷ 12 = 180 rev/min. That cannot be right, because the bigger gear has three times as many teeth to take in. An idler passes on the same 720 teeth a minute, whatever its size. So it changes the output's direction, not its speed.\n\nIn a winch, a small gear on the fast motor drives a gear with many more teeth on the drum. So the drum turns far slower than the motor. Textbooks add that the slower gear turns harder, which is where the winch's extra pull comes from. **Meshed gears pass teeth one for one, so neighbours turn opposite ways.[^1] Speed × teeth is the same on both: n₁T₁ = n₂T₂.[^3]**"
+ },
+ "analogy": {
+  "text": "A loaded transformer balances its ampere-turns: I₁N₁ = I₂N₂, so the winding with more turns carries less current. A gear pair balances speed × teeth the same way, n₁T₁ = n₂T₂, so the gear with more teeth turns slower.",
+  "breaks": "The transformer's balance is only nearly true, because the primary also carries a small magnetising current. The gear count is exact, since every tooth that passes the mesh is counted on both gears. The ampere-turn balance also says nothing about direction, while each mesh between outside teeth reverses it."
+ },
+ "practice": {
+  "text": "- Before you turn a machine's gears by hand, isolate it and lock it off. Keep fingers clear of any mesh that can move.\n- Number the gears from the driver, and note which gear meshes with which.\n- Direction: flip it at every mesh between outside teeth. In a line, an odd number of gears turns the last one the driver's way, and an even number the other way.\n- Loops: count the gears in any closed loop. An odd number lying flat in one plane locks.\n- Speed: work out the teeth a minute through the first mesh, the driver's speed × its teeth. Divide that by each gear's teeth to get its speed.\n\n**Rule of thumb:** the gear with more teeth turns slower than its partner. An idler flips the direction and leaves the output speed alone.\n\n**Worked example:** a 20-tooth gear on a motor at 1450 rev/min drives a 25-tooth idler, which drives a 100-tooth gear. Teeth a minute: 1450 × 20 = 29,000. The idler turns at 29,000 ÷ 25 = 1160 rev/min. The output turns at 29,000 ÷ 100 = 290 rev/min. Three gears in a line, so it turns the motor's way.\n\n**Common mistakes**\n- Thinking meshed gears turn the same way. Their teeth move together at the mesh, so the gears turn opposite ways.\n- Turning the ratio upside down, so the bigger gear comes out faster.\n- Letting the idler's teeth change the output speed. It passes on the same teeth a minute.\n- Letting a gear's size decide its direction. Count the meshes instead.\n- Missing an odd loop. Three gears that all mesh with each other cannot turn."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "settled",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "sources": [
+  {
+   "n": 1,
+   "title": "Gears - Moments, levers and gears - AQA - GCSE Physics (Single Science) Revision - AQA - BBC Bitesize",
+   "url": "https://www.bbc.co.uk/bitesize/guides/ztjpb82/revision/4",
+   "quote": "Where the gears meet, the teeth must both move in the same direction. In the diagram, the teeth of both gears move upwards. This means that the gears rotate in opposite directions."
+  },
+  {
+   "n": 2,
+   "title": "https://www.dsimanek.vialattea.net/gearprob.htm",
+   "url": "https://www.dsimanek.vialattea.net/gearprob.htm",
+   "quote": "An odd number of gears in a closed loop in a plane will not turn no matter what their size and tooth count."
+  },
+  {
+   "n": 3,
+   "title": "Basic Fundamentals of Gear Drives",
+   "url": "https://www.cedengineering.ca/userfiles/M06-031%20-%20Basic%20Fundamentals%20of%20Gear%20Drives.pdf",
+   "quote": "When gear 1 and gear 2 are in mesh: N1 * Z1 = N2 * Z2"
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }

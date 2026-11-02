@@ -1,0 +1,859 @@
+<!-- kind: mechanism -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 34rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.08rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .scene { display: block; width: 100%; max-width: 26rem; margin-inline: auto; touch-action: pan-y; }
+  .scene .gear { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.4; stroke-linejoin: round; }
+  .scene .mark { fill: var(--k-ink); }
+  .scene .hub { fill: var(--k-bg); stroke: var(--k-strong); stroke-width: 1.2; }
+  .scene .peg { fill: var(--k-strong); }
+  .scene .band { fill: none; stroke: var(--k-accent2); stroke-width: 4.5; }
+  .scene .dir { fill: none; stroke: var(--k-ink); stroke-width: 2; stroke-linecap: round; }
+  .scene .head { fill: var(--k-ink); }
+  .scene .lens { fill: var(--k-bg); fill-opacity: .92; stroke: var(--k-ink); stroke-width: 1.2; }
+  .scene .mhead { fill: var(--k-ink); }
+  .scene .cnt { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  .scene .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .lab.bad { fill: var(--k-warn); }
+  .scene .cap { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .tile { fill: var(--k-panel); stroke: var(--k-accent); stroke-width: 1.5; }
+  .scene .tnum { font: 700 13px var(--k-font); fill: var(--k-ink); }
+  .scene .red { fill: none; stroke: var(--k-warn); stroke-width: 2.5; }
+  .scene .redl { stroke: var(--k-warn); stroke-width: 2.5; stroke-linecap: round; }
+  .scene .redh { fill: var(--k-warn); }
+  .scene .tray { fill: var(--k-sunk); stroke: var(--k-line); stroke-width: 1.5; }
+  .scene .hole { fill: none; stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 5 4; }
+  .scene #art * { pointer-events: none; }
+  .scene .grab { fill: transparent; stroke: none; cursor: grab; touch-action: none; }
+  .scene .grab:active { cursor: grabbing; }
+  .scene .grab:focus { outline: none; }
+  .scene .grab:focus-visible { stroke: var(--k-accent); stroke-width: 3; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-inline: 16px; font-size: .95rem; white-space: nowrap; }
+  .picks { gap: 8px; align-items: stretch; }
+  .picks .k-btn { flex: 1 1 8.5rem; min-height: 48px; font-size: 1.05rem; white-space: normal; overflow-wrap: normal; word-break: normal; hyphens: none; }
+  .picks .k-btn[aria-pressed="true"] { border-color: var(--k-accent2); box-shadow: inset 0 0 0 1.5px var(--k-accent2), 0 2px 0 var(--k-line); }
+  .picks .k-btn[aria-pressed="true"]::before { content: "\2713"; margin-right: .45em; font-weight: 800; }
+  .answers .k-answer { max-width: 20rem; }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .why, .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }
+</style>
+
+<p class="lead">Gears on a board, meshing tooth in tooth. The driver has a ring round its rim, and every tooth count and speed is an example.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 200" width="100%" role="img" aria-label=""><g id="art"></g><g id="ui"></g></svg>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="answers" id="answers"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<script>
+  // ---------- helpers ----------
+  const TAU = 2 * Math.PI, NB = ' ';
+  const r2 = (v) => Math.round(v * 100) / 100;
+  const clamp01 = (p) => Math.min(1, Math.max(0, p));
+  // How far a move timed from t0 to t1 has got at T seconds: 0 before, 1 after, eased between.
+  const tw = (T, t0, t1) => (T >= t1 ? 1 : T <= t0 ? 0 : K.ease(clamp01((T - t0) / (t1 - t0))));
+  const rpmText = (v) => String(Math.round(v)) + NB + 'rev/min';
+  const sym = (x, P) => x - P * Math.round(x / P);
+  const near = (a, b) => Math.abs(a - b) <= 1e-9 * Math.max(1, Math.abs(a), Math.abs(b));
+  const BBC = 'https://www.bbc.co.uk/bitesize/guides/ztjpb82/revision/4';
+  const LOOP = 'https://www.dsimanek.vialattea.net/gearprob.htm';
+  const CED = 'https://www.cedengineering.ca/userfiles/M06-031%20-%20Basic%20Fundamentals%20of%20Gear%20Drives.pdf';
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // pic: the board drawn. open(T): the motion as the screen opens (al: each group's driver angle);
+  // run(T): the motion after a right answer. A typed puzzle's answer and slips are worked from the rule.
+  const STEPS = [
+    { kind: 'pick', name: 'Which way', pic: 'pairq', hideDir: true, rdur: 2,
+      task: 'The driver turns clockwise. Which way will the 20-tooth gear turn?',
+      opts: ['Clockwise', 'Anticlockwise'], want: 'Anticlockwise',
+      hint: 'Watch where the two gears touch. The teeth there must move together.',
+      why: 'At the mesh, the driver\'s right-hand teeth move down. They push the 20-tooth gear\'s left-hand teeth down too. Teeth moving down on its left side turn it anticlockwise.',
+      run: (T) => ({ al: [tw(T, 0.1, 2) * 0.6 * TAU], arr: tw(T, 0.1, 0.5) }) },
+    { show: true, name: 'Teeth pass one for one', pic: 'pair20', dur: 3.8,
+      text: 'Where two gears *mesh*, each tooth pushes one tooth on the other gear. So at the mesh, the teeth of both gears move the same way. The driver\'s right-hand teeth move down. They push the next gear\'s left-hand teeth down, and that turns it anticlockwise. Turn the driver by its rim.',
+      read: 'The 12-tooth driver turns clockwise and the 20-tooth gear turns anticlockwise. An arrow at the mesh shows the teeth of both gears moving down together. The two counters at the mesh always show the same count.',
+      open: (T) => ({ al: [tw(T, 0.6, 3.8) * 2 * TAU] }) },
+    { kind: 'pick', name: 'Five in a line', pic: 'five', hideDir: true, rdur: 2,
+      task: 'The first gear turns clockwise. Which way does the fifth turn?',
+      opts: ['Clockwise', 'Anticlockwise'], want: 'Clockwise',
+      hint: 'Each mesh flips the direction. Count the meshes.',
+      why: 'Five gears make four meshes, so there are four flips: anticlockwise, clockwise, anticlockwise, clockwise. So the fifth turns the driver\'s way.',
+      run: (T) => ({ al: [tw(T, 0.1, 2) * 0.75 * TAU], arr: tw(T, 0.1, 0.5) }) },
+    { kind: 'pick', name: 'Mixed sizes', pic: 'mixed', hideDir: true, rdur: 2,
+      task: 'The 12-tooth driver turns clockwise. Which way does the fourth gear turn?',
+      opts: ['Clockwise', 'Anticlockwise'], want: 'Anticlockwise',
+      hint: 'Size changes the speed, not the direction. Count the meshes.',
+      hints: { Clockwise: 'Size changes the speed, not the direction. Count the meshes.' },
+      why: 'Three meshes make three flips, so the fourth turns anticlockwise. The big 40-tooth gear turns slower, but it still flips the direction once.',
+      run: (T) => ({ al: [tw(T, 0.1, 2) * 0.5 * TAU], arr: tw(T, 0.1, 0.5) }) },
+    { kind: 'pick', name: 'A bent chain', pic: 'zigzag', hideDir: true, rdur: 2,
+      task: 'Six gears zigzag across the board. The driver turns clockwise. Which way does the last gear turn?',
+      opts: ['Clockwise', 'Anticlockwise'], want: 'Anticlockwise',
+      hint: 'The bends change nothing. Count the meshes.',
+      why: 'Six gears make five meshes, so there are five flips. Five flips leave the last gear turning anticlockwise, against the driver. Where the gears sit makes no difference.',
+      run: (T) => ({ al: [tw(T, 0.1, 2) * 0.5 * TAU], arr: tw(T, 0.1, 0.5) }) },
+    { show: true, name: 'Odd and even', pic: 'rows', dur: 3.8,
+      text: 'Each mesh flips the direction, so the arrows alternate along a line. An odd number of gears turns the last one the driver\'s way. An even number turns it the other way.',
+      read: 'Each mesh flips the direction, so the arrows alternate along a line. An odd number of gears turns the last one the driver\'s way. An even number turns it the other way.',
+      open: (T) => { const a = tw(T, 0.6, 3.8) * 0.6 * TAU; return { al: [a, a, a, a] }; } },
+    { show: true, name: 'Close the loop', pic: 'close', dur: 3.8,
+      text: 'Close three gears into a triangle, and the third meets the first. Both try to turn the same way. So their teeth at that mesh would have to move opposite ways. Neither can give way, so the triangle locks.',
+      read: 'The triangle of three is locked, its last mesh drawn in red, and the ring of four turns.',
+      open: (T) => ({ al: [0, tw(T, 0.6, 3.8) * 0.5 * TAU], red: tw(T, 0.9, 1.5) }) },
+    { kind: 'pick', name: 'Which loop turns', pic: 'loops', hideDir: true, rdur: 2,
+      task: 'Three loops lie flat on the board, of five, six and seven gears. Which loop turns?',
+      opts: ['The loop of five', 'The loop of six', 'The loop of seven'], want: 'The loop of six',
+      hint: 'Round a loop the directions alternate. The last gear must end up opposite the first.',
+      why: 'Six is even, so the sixth gear turns opposite to the first, as their mesh needs. Five and seven are odd, so those loops lock, whatever the gears\' sizes.',
+      run: (T) => ({ al: [0, tw(T, 0.1, 2) * 0.5 * TAU, 0], arr: tw(T, 0.1, 0.5), red: tw(T, 0.3, 0.9) }) },
+    { show: true, name: 'Count the teeth', pic: 'pair36', dur: 4.2,
+      text: 'Each tooth that passes on one gear pushes one past on the other. Three turns of the 12-tooth driver pass 36 teeth. That is one turn of the 36-tooth gear. A gear passes its own tooth count every turn. So its teeth a minute are speed × teeth, the same on both gears: `n₁T₁ = n₂T₂`. Here n is the speed in rev/min and T the number of teeth.',
+      read: 'Three turns of the 12-tooth driver pass 36 teeth and turn the 36-tooth gear once.',
+      open: (T) => ({ al: [tw(T, 0.6, 4.2) * 3 * TAU] }) },
+    { kind: 'typed', name: 'How fast', pic: 'fast', ans: 'fast', unit: 'rev/min', decimals: 0, rdur: 2,
+      answer: 60 * 12 / 36,
+      slips: [{ value: 60 * 36 / 12, hint: 'That makes the bigger gear faster. It has more teeth to take in, so it turns slower.' },
+        { value: 36 / 12, hint: 'That is the ratio, 36 ÷ 12. Divide the speed by it.' }],
+      task: 'A 12-tooth gear turns at 60 rev/min and drives a 36-tooth gear. How fast does the 36-tooth gear turn?',
+      hint: 'Work out the teeth a minute through the mesh first.',
+      why: '60 × 12 = 720 teeth a minute pass the mesh. Then 720 ÷ 36 = 20 rev/min.',
+      run: (T) => ({ al: [tw(T, 0.1, 2) * TAU] }) },
+    { show: true, name: 'The idler', pic: 'idler', dur: 4.2,
+      text: 'Put a 20-tooth gear between the two. Now `60 × 12 = 720` teeth a minute pass each mesh. So the last gear still turns at 20 rev/min, but now the driver\'s way. The middle gear is called an *idler gear*.',
+      read: 'A 20-tooth idler sits between them and turns at 36 rev/min. The 36-tooth gear still turns at 20 rev/min, now the driver\'s way.',
+      open: (T) => ({ al: [tw(T, 1.5, 4.2) * 1.5 * TAU], idler: tw(T, 0.6, 1.3) }) },
+    { kind: 'typed', name: 'Through an idler', pic: 'idler2', ans: 'idl', unit: 'rev/min', decimals: 0, rdur: 2,
+      answer: 1200 * 15 / 45,
+      slips: [{ value: 1200 * 15 / 40, hint: 'That is the idler\'s speed. It passes the same teeth a minute on to the last gear.' },
+        { value: 1200 * 45 / 15, hint: 'That makes the bigger gear faster. Turn the ratio the other way up.' }],
+      task: 'A 15-tooth gear at 1200 rev/min drives a 40-tooth idler. The idler drives a 45-tooth gear. How fast does the 45-tooth gear turn?',
+      hint: 'The idler passes on the driver\'s teeth a minute.',
+      why: '1200 × 15 = 18,000 teeth a minute pass both meshes. Then 18,000 ÷ 45 = 400 rev/min. The idler only flips the direction.',
+      run: (T) => ({ al: [tw(T, 0.1, 2) * 0.5 * TAU] }) },
+    { kind: 'typed', name: 'The drum', pic: 'winch', ans: 'win', unit: 'rev/min', decimals: 0, rdur: 2,
+      answer: 1440 * 18 / 72,
+      slips: [{ value: 1440 * 72 / 18, hint: 'That makes the drum faster than the motor. The 72-tooth gear has more teeth to take in.' },
+        { value: 72 / 18, hint: 'That is the ratio, 72 ÷ 18. Divide the speed by it.' }],
+      task: 'A motor turns an 18-tooth gear at 1440 rev/min. It drives a 72-tooth gear on a drum. How fast does the drum turn?',
+      hint: 'Teeth a minute first, then divide by the drum gear\'s teeth.',
+      why: '1440 × 18 = 25,920 teeth a minute. Then 25,920 ÷ 72 = 360 rev/min.',
+      run: (T) => ({ al: [tw(T, 0.1, 2) * TAU] }) },
+    { kind: 'typed', name: 'How many teeth', pic: 'teeth', ans: 'tth', unit: 'teeth', decimals: 0, rdur: 2.2,
+      answer: 300 * 24 / 100,
+      slips: [{ value: 24 * 100 / 300, hint: 'That gear would turn faster than the driver. A slower gear needs more teeth.' }],
+      task: 'A 24-tooth gear turns at 300 rev/min. The gear it drives must turn at 100 rev/min. How many teeth does that gear need?',
+      hint: 'The teeth a minute are the same on both gears.',
+      why: '300 × 24 = 7200 teeth a minute. Then 7200 ÷ 100 = 72 teeth.',
+      run: (T) => ({ al: [tw(T, 0.7, 2.2) * 0.75 * TAU], gear: tw(T, 0.1, 0.6) }) },
+    { kind: 'pick', name: 'Add a fifth', pic: 'ring', dur: 3.4, rdur: 2,
+      task: 'You fit a fifth gear into the ring. What happens when you turn the driver?',
+      opts: ['It still turns', 'It locks', 'It turns, but slower'], want: 'It locks',
+      hint: 'Count the gears in the ring now.',
+      hints: { 'It still turns': 'Count the gears in the ring now.', 'It turns, but slower': 'A gear of the same size cannot slow the ring. Count the gears in it now.' },
+      why: 'Five is odd. So round the ring, the fifth gear and the first both try to turn the same way. Nothing moves, whatever the sizes.',
+      open: (T) => ({ al: [tw(T, 0.6, 3.4) * 0.5 * TAU] }),
+      run: (T) => ({ morph: tw(T, 0.1, 1.3), red: tw(T, 1.4, 2) }) },
+  ];
+  STEPS.forEach((d) => { if (d.kind === 'typed') d.want = String(Math.round(d.answer)) + NB + d.unit; });
+  const FINISH = 'Meshed gears pass teeth one for one. So neighbours turn opposite ways, an odd loop locks, and speed × teeth is the same on both gears.';
+  const PICK = 'Tap one of the answers.';
+  const ORD = ['1st', '2nd', '3rd', '4th', '5th'];
+
+  // ---------- gears and boards (pure) ----------
+  // A gear: T teeth of module m (px per tooth of pitch diameter), its centre (x, y), and the side
+  // its direction arrow sits on (degrees, y down). Pitch radius mT/2; tips one module out.
+  const rP = (g) => g.m * g.T / 2, rO = (g) => rP(g) + g.m, rR = (g) => rP(g) - 1.25 * g.m;
+  // Gears in a straight line, centred on the board (or ending at `right`).
+  function inLine(m, Ts, y, o) {
+    o = o || {};
+    const xs = [0];
+    for (let k = 1; k < Ts.length; k++) xs.push(xs[k - 1] + m * (Ts[k - 1] + Ts[k]) / 2);
+    const lo = -m * Ts[0] / 2 - m, hi = xs[xs.length - 1] + m * Ts[Ts.length - 1] / 2 + m;
+    const dx = o.right != null ? o.right - hi : (340 - (hi - lo)) / 2 - lo;
+    return Object.assign({ gears: Ts.map((T, k) => ({ T, m, x: xs[k] + dx, y, side: -90 })), mesh: Ts.slice(1).map((T, k) => [k, k + 1]) }, o.g || {});
+  }
+  // A chain whose k-th mesh runs at degs[k] from one centre to the next.
+  function chain(m, Ts, x0, y0, degs, sides, g) {
+    const gears = [{ T: Ts[0], m, x: x0, y: y0, side: sides[0] }];
+    for (let k = 1; k < Ts.length; k++) {
+      const a = degs[k - 1] * Math.PI / 180, L = m * (Ts[k - 1] + Ts[k]) / 2, p = gears[k - 1];
+      gears.push({ T: Ts[k], m, x: p.x + L * Math.cos(a), y: p.y + L * Math.sin(a), side: sides[k] });
+    }
+    return Object.assign({ gears, mesh: Ts.slice(1).map((T, k) => [k, k + 1]) }, g || {});
+  }
+  // n equal gears round a ring, each meshing with the next; the last mesh closes the loop.
+  function inRing(m, n, T, cx, cy, start, g) {
+    const R = (m * T / 2) / Math.sin(Math.PI / n), gears = [];
+    for (let k = 0; k < n; k++) { const a = start + k * 360 / n, ar = a * Math.PI / 180; gears.push({ T, m, x: cx + R * Math.cos(ar), y: cy + R * Math.sin(ar), side: a }); }
+    return Object.assign({ gears, mesh: gears.map((x, k) => [k, (k + 1) % n]) }, g || {});
+  }
+  // Each gear's turn per turn of the driver (ratio, + clockwise) and the angle of its marked tooth,
+  // passed mesh by mesh: teeth roll one for one, so a gear turns T_p / T_c as far, the other way,
+  // with a gap facing its neighbour's tooth. A mesh that closes a loop where both gears turn the same
+  // way locks the loop; the drawing then sets the driver so that mesh still sits tooth in gap.
+  function solve(G) {
+    const n = G.gears.length, ratio = Array(n).fill(null), base = Array(n).fill(0), close = [], d = G.driver || 0;
+    ratio[d] = 1; base[d] = -Math.PI / 2;
+    let left = G.mesh.slice(), guard = 0;
+    while (left.length && guard++ < 50) {
+      const next = [];
+      left.forEach((e) => {
+        const a = e[0], b = e[1], ka = ratio[a] != null, kb = ratio[b] != null;
+        if (ka && kb) { close.push(e); return; }
+        if (!ka && !kb) { next.push(e); return; }
+        const p = ka ? a : b, c = ka ? b : a, P = G.gears[p], C = G.gears[c], k = P.T / C.T, psi = Math.atan2(C.y - P.y, C.x - P.x);
+        ratio[c] = -k * ratio[p];
+        base[c] = psi * (1 + k) + Math.PI + Math.PI / C.T - k * base[p];
+      });
+      left = next;
+    }
+    const miss = (ph, e) => { const A = G.gears[e[0]], B = G.gears[e[1]], k = A.T / B.T, psi = Math.atan2(B.y - A.y, B.x - A.x);
+      return sym(ph[e[1]] - (psi * (1 + k) + Math.PI + Math.PI / B.T - k * ph[e[0]]), TAU / B.T); };
+    let phi = 0, locked = false;
+    close.forEach((e) => {
+      const C = ratio[e[1]] + (G.gears[e[0]].T / G.gears[e[1]].T) * ratio[e[0]];
+      if (Math.abs(C) > 1e-9) { locked = true; phi = -miss(base, e) / C; }
+    });
+    const phase = base.map((b, k) => b + ratio[k] * phi);
+    return { ratio, phase, close, locked, fit: close.every((e) => Math.abs(miss(phase, e)) < 1e-6) };
+  }
+  // A gear's speed, passed mesh by mesh from the driver's: speed × teeth is the same on both sides.
+  const speedOf = (G, k) => G.rpm * Math.abs(G.Z.ratio[k]);
+
+  const BUILD = {
+    pairq: () => ({ groups: [inLine(7, [12, 20], 118, { g: { left: { 0: 'driver' } } })] }),
+    pair20: () => ({ groups: [inLine(7, [12, 20], 118, { g: { turns: true, tiles: [0], meshArrow: 0, left: { 0: 'driver' } } })] }),
+    five: () => ({ groups: [inLine(5.4, [12, 10, 14, 10, 12], 62, { g: { ord: true } })] }),
+    zigzag: () => ({ groups: [chain(4.6, Array(6).fill(10), 82, 100, [40, -40, 40, -40, 40], [-90, 90, -90, 90, -90, 90], { count: false, left: { 0: 'driver' }, right: { 5: 'last' } })] }),
+    rows: () => ({ groups: [2, 3, 4, 5].map((n, k) => inLine(4.6, Array(n).fill(10), 44 + 72 * k, { right: 332, g: { count: false, lab: { x: 8, y: 49 + 72 * k, a: n + ' gears', anchor: 'start' } } })) }),
+    mixed: () => ({ groups: [inLine(3.2, [12, 40, 16, 30], 84, { g: { ord: true } })] }),
+    close: () => ({ groups: [inRing(5.5, 3, 12, 82, 100, -90, { lab: { a: '3 gears', b: true } }), inRing(5.5, 4, 12, 258, 100, -135, { lab: { a: '4 gears', b: true } })] }),
+    loops: () => ({ groups: [[5, 51.6], [6, 160.5], [7, 279]].map((q) => inRing(3.8, q[0], 8, q[1], 72, -90, { count: false, lab: { a: q[0] + ' gears', b: true, late: true } })) }),
+    pair36: () => ({ groups: [inLine(5.5, [12, 36], 128, { g: { turns: true, tiles: [0] } })] }),
+    fast: () => ({ groups: [inLine(5.5, [12, 36], 128, { g: { rpm: 60, unknown: 1 } })] }),
+    idler: () => ({ groups: [inLine(4.6, [12, 20, 36], 120, { g: { rpm: 60, tiles: [0, 1], arrive: 1, after: [2] } })] }),
+    idler2: () => ({ groups: [chain(3.1, [15, 40, 45], 57.9, 100, [35, -35], [-90, 90, -90], { rpm: 1200, unknown: 2, later: 1 })] }),
+    winch: () => ({ groups: [chain(3, [18, 72], 92, 100, [30], [-90, -90], { rpm: 1440, unknown: 1, left: { 0: 'motor' }, sub: { 1: 'drum gear' } })] }),
+    teeth: () => ({ groups: [chain(3.2, [24, 300 * 24 / 100], 61.6, 100, [25], [-90, -90], { rpm: 300, hidden: 1, inSpeed: 1 })] }),
+    ring: () => {
+      const sq = inRing(5, 4, 12, 170, 100, -135, { lab: { x: 298, y: 96, a: '4 gears', b: true } });
+      const pent = inRing(5, 5, 12, 170, 111.3, -126, { lab: { x: 298, y: 96, a: '5 gears', b: true } });
+      pent.mesh = [[4, 0], [0, 1], [1, 2], [2, 3], [3, 4]];   // the new gear's second mesh closes the loop
+      const tray = { x: 110, y: 214, w: 120, h: 80, gear: { T: 12, m: 5, x: 170, y: 254, side: 90 } };
+      return { groups: [sq], ring: { sq, pent, tray, map: [0, 1, 2, 4], fresh: 3 } };
+    },
+  };
+  const BOARDS = {};
+  function board(i) {
+    const key = STEPS[i].pic;
+    if (BOARDS[key]) return BOARDS[key];
+    const B = BUILD[key]();
+    (B.ring ? [B.ring.sq, B.ring.pent] : B.groups).forEach((G) => { G.Z = solve(G); });
+    // group names sit under their groups, level with each other
+    const labd = B.groups.filter((G) => G.lab && G.lab.y == null);
+    if (labd.length) {
+      const y = Math.max.apply(null, labd.map((G) => Math.max.apply(null, G.gears.map((g) => g.y + rO(g) + 10)))) + 17;
+      labd.forEach((G) => { G.lab.y = y; G.lab.x = G.gears.reduce((s, g) => s + g.x, 0) / G.gears.length; });
+    }
+    return (BOARDS[key] = B);
+  }
+  const allGroups = (i) => { const B = board(i); return B.ring ? [B.ring.sq, B.ring.pent] : B.groups; };
+  function mixedTriangle() {
+    const m = 4, x = (48 * 48 + 56 * 56 - 64 * 64) / 96;
+    return { gears: [{ T: 10, m, x: 0, y: 0 }, { T: 14, m, x: 48, y: 0 }, { T: 18, m, x, y: Math.sqrt(56 * 56 - x * x) }], mesh: [[0, 1], [1, 2], [2, 0]] };
+  }
+
+  // ---------- each step's state and motion ----------
+  // res: 'right', 'wrong', 'shown' or 'empty'; free: Dan has turned the driver himself (ma: each
+  // driver's angle, md: how far each has turned in all); ba, bd: where the motion stood at Check.
+  const blank = () => ({ pick: null, res: null, why: false, tries: 0, hint: '', free: false, ma: null, md: null, ba: null, bd: null });
+  const solved = (st) => !!st && (st.res === 'right' || st.res === 'shown');
+  const zeros = (n) => Array(n).fill(0);
+  function motion(i, st, T) {
+    const d = STEPS[i], n = board(i).groups.length, sv = !d.show && solved(st);
+    if (st.free) return { al: st.ma.slice(), di: st.md.slice(), sv, free: true };
+    let o;
+    if (!sv) { o = Object.assign({}, d.open ? d.open(T) : {}); if (!o.al) o.al = zeros(n); o.di = o.al.map(Math.abs); }
+    else {
+      const r = d.run ? d.run(T) : {}, ra = r.al || zeros(n), ba = st.ba || zeros(n), bd = st.bd || zeros(n);
+      o = Object.assign({}, r, { al: ba.map((b, g) => b + (ra[g] || 0)), di: bd.map((b, g) => b + Math.abs(ra[g] || 0)) });
+    }
+    o.sv = sv;
+    return o;
+  }
+  const fade = (mo, k) => (mo.free || mo[k] == null ? 1 : mo[k]);
+
+  // ---------- drawing ----------
+  const el = (id) => document.getElementById(id);
+  const svg = el('scene'), art = el('art'), ui = el('ui');
+  let EXT = [0, 0], REC = null, into = null;
+  const add = (node) => (into || art).appendChild(node);
+  const ext = (a, b) => { if (a < EXT[0]) EXT[0] = a; if (b > EXT[1]) EXT[1] = b; };
+  function part(a, rise, draw) { if (a <= 0) return; const g = add(K.svg('g')); K.fade(g, a, rise); const keep = into; into = g; draw(); into = keep; }
+  // Text; without an anchor it is kept inside the board's edges.
+  function txt(x, y, s, cls, anchor) {
+    if (!anchor) { const w = String(s).length * 7.6; x = Math.min(Math.max(x, 4 + w / 2), 336 - w / 2); }
+    add(K.svg('text', { class: cls, x: r2(x), y: r2(y), 'text-anchor': anchor || 'middle' }, String(s)));
+    ext(y - 13, y + 4);
+    REC.texts.push(String(s));
+  }
+  const pt = (q, a) => r2(q * Math.cos(a)) + ' ' + r2(q * Math.sin(a));
+  const PATHS = {};
+  // A gear's outline round its centre, tooth 0 pointing along angle 0, and that tooth alone (the marked tooth).
+  function paths(T, m) {
+    const key = T + '/' + m;
+    if (PATHS[key]) return PATHS[key];
+    const r = m * T / 2, ro = r + m, rr = r - 1.25 * m, p = TAU / T, aR = 0.28 * p, aT = 0.12 * p;
+    let d = 'M' + pt(rr, -aR);
+    for (let k = 0; k < T; k++) {
+      const c = k * p;
+      d += ' L' + pt(ro, c - aT) + ' L' + pt(ro, c + aT) + ' L' + pt(rr, c + aR) + ' A' + r2(rr) + ' ' + r2(rr) + ' 0 0 1 ' + pt(rr, c + p - aR);
+    }
+    return (PATHS[key] = { body: d + 'Z', mark: 'M' + pt(rr - 0.2 * m, -aR) + ' L' + pt(ro, -aT) + ' L' + pt(ro, aT) + ' L' + pt(rr - 0.2 * m, aR) + 'Z' });
+  }
+  function gearBody(g, th) {
+    const P = paths(g.T, g.m), G = add(K.svg('g', { transform: 'translate(' + r2(g.x) + ' ' + r2(g.y) + ') rotate(' + r2(th * 180 / Math.PI) + ')' }));
+    G.appendChild(K.svg('path', { class: 'gear', d: P.body }));
+    G.appendChild(K.svg('path', { class: 'mark', d: P.mark }));
+    ext(g.y - rO(g), g.y + rO(g));
+    REC.gears++;
+  }
+  const hubR = (g) => Math.min(13, rR(g) * 0.62);
+  function hubAt(g) {
+    add(K.svg('circle', { class: 'hub', cx: r2(g.x), cy: r2(g.y), r: r2(hubR(g)) }));
+    txt(g.x, g.y + 5, g.T, 'cnt', 'middle');
+  }
+  // The way a gear turns: an arc just outside its teeth on its free side, its head leading.
+  function arrow(g, s) {
+    const ra = rO(g) + 5, a0 = g.side * Math.PI / 180, sp = Math.min(0.55, 24 / ra), hl = 7 / ra;
+    const a1 = a0 - s * sp, a2 = a0 + s * sp, ae = a2 - s * hl;
+    const P = (a, q) => [g.x + q * Math.cos(a), g.y + q * Math.sin(a)];
+    const p1 = P(a1, ra), pe = P(ae, ra), tip = P(a2, ra), b1 = P(ae, ra - 4.5), b2 = P(ae, ra + 4.5), top = P(a0, ra);
+    add(K.svg('path', { class: 'dir', d: 'M' + r2(p1[0]) + ' ' + r2(p1[1]) + ' A' + r2(ra) + ' ' + r2(ra) + ' 0 0 ' + (s > 0 ? 1 : 0) + ' ' + r2(pe[0]) + ' ' + r2(pe[1]) }));
+    add(K.svg('path', { class: 'head', d: 'M' + r2(tip[0]) + ' ' + r2(tip[1]) + ' L' + r2(b1[0]) + ' ' + r2(b1[1]) + ' L' + r2(b2[0]) + ' ' + r2(b2[1]) + 'Z' }));
+    const ys = [p1[1], tip[1], b1[1], b2[1], top[1]];
+    ext(Math.min.apply(null, ys) - 2, Math.max.apply(null, ys) + 2);
+    REC.arrows.push(s);
+  }
+  // The two counters at a mesh sit just below it, one on each gear's side, clear of every gear.
+  const TW = 30, TH = 20;
+  function tilePlace(gears, A, B) {
+    const L = Math.hypot(B.x - A.x, B.y - A.y), ux = (B.x - A.x) / L, uy = (B.y - A.y) / L;
+    let nx = -uy, ny = ux;
+    if (ny < 0 || (ny === 0 && nx < 0)) { nx = -nx; ny = -ny; }
+    const mx = A.x + ux * rP(A), my = A.y + uy * rP(A), off = TW / 2 + 2;
+    const clear = (cx, cy) => gears.every((g) => Math.hypot(Math.max(Math.abs(g.x - cx) - TW / 2, 0), Math.max(Math.abs(g.y - cy) - TH / 2, 0)) >= rO(g) + 3);
+    for (let d = 6; d < 240; d++) {
+      const c1 = [mx + nx * d - ux * off, my + ny * d - uy * off], c2 = [mx + nx * d + ux * off, my + ny * d + uy * off];
+      if (clear(c1[0], c1[1]) && clear(c2[0], c2[1])) return { t: [c1, c2], cap: [mx + nx * d, Math.max(c1[1], c2[1]) + TH / 2 + 15] };
+    }
+    return null;
+  }
+  function tiles(gears, a, b, Z, di) {
+    const pl = tilePlace(gears, gears[a], gears[b]);
+    if (!pl) return;
+    // each counter from its own gear: the teeth it has turned past the mesh
+    const n = [a, b].map((k) => Math.floor(di * Math.abs(Z.ratio[k]) * gears[k].T / TAU + 1e-7));
+    pl.t.forEach((c, j) => {
+      add(K.svg('rect', { class: 'tile', x: r2(c[0] - TW / 2), y: r2(c[1] - TH / 2), width: TW, height: TH, rx: 4 }));
+      txt(c[0], c[1] + 4.5, n[j], 'tnum', 'middle');
+    });
+    txt(pl.cap[0], pl.cap[1], 'teeth passed', 'cap');
+    REC.tiles.push(n);
+  }
+  // The mesh that closes a locked loop: a red ring, and each gear's tooth there trying to move its own way.
+  function redMesh(gears, Z, a, b, grow) {
+    const A = gears[a], B = gears[b], L = Math.hypot(B.x - A.x, B.y - A.y), ux = (B.x - A.x) / L, uy = (B.y - A.y) / L;
+    const mx = A.x + ux * rP(A), my = A.y + uy * rP(A), rc = Math.max(7, 1.5 * A.m), tx = -uy, ty = ux;
+    add(K.svg('circle', grow > 0 ? { class: 'red', cx: r2(mx), cy: r2(my), r: r2(rc + 4 * grow), style: 'stroke-width:' + r2(2.5 + 1.5 * grow) } : { class: 'red', cx: r2(mx), cy: r2(my), r: r2(rc) }));
+    [[-1, Math.sign(Z.ratio[a])], [1, -Math.sign(Z.ratio[b])]].forEach((q) => {
+      const cx = mx + q[0] * ux * (rc + 7), cy = my + q[0] * uy * (rc + 7), dx = q[1] * tx, dy = q[1] * ty;
+      add(K.svg('line', { class: 'redl', x1: r2(cx - dx * 7), y1: r2(cy - dy * 7), x2: r2(cx + dx * 2), y2: r2(cy + dy * 2) }));
+      add(K.svg('path', { class: 'redh', d: 'M' + r2(cx + dx * 8) + ' ' + r2(cy + dy * 8) + ' L' + r2(cx + dx - dy * 4.5) + ' ' + r2(cy + dy + dx * 4.5) + ' L' + r2(cx + dx + dy * 4.5) + ' ' + r2(cy + dy - dx * 4.5) + 'Z' }));
+    });
+    REC.red++;
+  }
+  function meshArrow(gears, Z, a, b) {
+    const A = gears[a], B = gears[b], L = Math.hypot(B.x - A.x, B.y - A.y), ux = (B.x - A.x) / L, uy = (B.y - A.y) / L;
+    const mx = A.x + ux * rP(A), my = A.y + uy * rP(A), s = Math.sign(Z.ratio[a]), dx = -uy * s, dy = ux * s;
+    const x1 = mx - dx * 8, y1 = my - dy * 8, x2 = mx + dx * 2, y2 = my + dy * 2;
+    add(K.svg('circle', { class: 'lens', cx: r2(mx), cy: r2(my), r: 12.5 }));
+    add(K.svg('line', { class: 'dir', x1: r2(x1), y1: r2(y1), x2: r2(x2), y2: r2(y2) }));
+    add(K.svg('path', { class: 'mhead', d: 'M' + r2(mx + dx * 9) + ' ' + r2(my + dy * 9) + ' L' + r2(mx + dx * 1 - dy * 4.5) + ' ' + r2(my + dy * 1 + dx * 4.5) + ' L' + r2(mx + dx * 1 + dy * 4.5) + ' ' + r2(my + dy * 1 - dx * 4.5) + 'Z' }));
+    REC.meshArrows.push(dy > 0 ? 'down' : 'up');
+  }
+  const TRAY_TH = -Math.PI / 2;
+  function trayAt(Tr, withGear) {
+    add(K.svg('rect', { class: 'tray', x: Tr.x, y: Tr.y, width: Tr.w, height: Tr.h, rx: 10 }));
+    ext(Tr.y, Tr.y + Tr.h);
+    txt(Tr.x - 8, Tr.y + Tr.h / 2 + 5, 'tray', 'cap', 'end');
+    if (withGear) { gearBody(Tr.gear, TRAY_TH); hubAt(Tr.gear); }
+  }
+  function placeholder(G, g) {
+    add(K.svg('rect', { class: 'hole', x: r2(g.x - 58), y: r2(g.y - 32), width: 116, height: 64, rx: 10 }));
+    txt(g.x, g.y - 5, '?' + NB + 'teeth', 'lab', 'middle');
+    txt(g.x, g.y + 16, rpmText(speedOf(G, G.inSpeed)), 'lab', 'middle');
+  }
+
+  // One group of gears as drawn now: its gears' places and angles, how far it has turned, and what shows.
+  function drawItem(d, it, mo, sv, said) {
+    const G = it.G, Z = it.Z, gears = it.gears, dk = G.driver || 0, vis = [], shownDir = [];
+    const ordY = G.ord && gears.length ? Math.max.apply(null, gears.map((g) => g.y + rO(g))) + 18 : 0;
+    gears.forEach((g, k) => {
+      let v = 1, rise = 0;
+      if (G.arrive === k) { v = fade(mo, 'idler'); rise = 8; }
+      if (G.hidden === k) v = sv ? fade(mo, 'gear') : 0;
+      vis[k] = v;
+      if (v <= 0) return;
+      const s = Math.sign(Z.ratio[k]), drv = k === dk;
+      const lt = G.after && G.after.indexOf(k) >= 0 ? fade(mo, 'idler') : 1;
+      const aA = (it.arrA ? it.arrA[k] : drv ? 1 : d.hideDir ? (sv ? fade(mo, 'arr') : 0) : 1) * lt;
+      shownDir[k] = aA >= 0.5;
+      part(v, rise, () => {
+        gearBody(g, it.th[k]);
+        const hr = hubR(g);
+        if (drv) add(K.svg('circle', { class: 'band', cx: r2(g.x), cy: r2(g.y), r: r2(rR(g) - 4 >= hr + 6 ? rR(g) - 2.5 : rP(g)) }));
+        if (G.count !== false) hubAt(g);
+        else add(K.svg('circle', { class: 'peg', cx: r2(g.x), cy: r2(g.y), r: 3.5 }));
+        if (G.sub && G.sub[k]) txt(g.x, g.y + hr + 18, G.sub[k], 'cap', 'middle');
+        if (G.inSpeed === k) txt(g.x, g.y + hr + 20, rpmText(speedOf(G, k)), 'lab', 'middle');
+        if (G.left && G.left[k]) txt(g.x - rO(g) - 6, g.y + 5, G.left[k], 'cap', 'end');
+        if (G.right && G.right[k]) txt(g.x + rO(g) + 6, g.y + 5, G.right[k], 'cap', 'start');
+        if (aA > 0) part(aA, 0, () => arrow(g, s));
+        let top = null, isSpeed = false;
+        if (G.turns) { const n = Math.floor(it.di * Math.abs(Z.ratio[k]) / TAU + 1e-7); top = n + NB + (n === 1 ? 'turn' : 'turns'); REC.turns.push(top); }
+        if (G.rpm && G.inSpeed !== k) {
+          top = G.unknown === k && !sv ? '?' + NB + 'rev/min' : G.later === k && !sv ? null : rpmText(speedOf(G, k));
+          isSpeed = true;
+        }
+        if (top) part(lt, 0, () => { txt(g.x, g.side > 0 ? g.y + rO(g) + 27 : g.y - rO(g) - 16, top, 'lab'); if (isSpeed) REC.speeds.push(top); });
+        if (G.ord) txt(g.x, ordY, ORD[k], 'cap');
+      });
+    });
+    if (G.hidden != null && gears.length && vis[G.hidden] < 1) part(1 - vis[G.hidden], 0, () => placeholder(G, gears[G.hidden]));
+    const counts = [];
+    (G.tiles || []).forEach((mi) => {
+      const a = G.mesh[mi][0], b = G.mesh[mi][1], v = Math.min(vis[a], vis[b]);
+      if (v > 0) part(v, 0, () => { tiles(gears, a, b, Z, it.di); counts.push(REC.tiles[REC.tiles.length - 1]); });
+    });
+    if (G.meshArrow != null && vis[G.mesh[G.meshArrow][0]] >= 1 && vis[G.mesh[G.meshArrow][1]] >= 1) meshArrow(gears, Z, G.mesh[G.meshArrow][0], G.mesh[G.meshArrow][1]);
+    if (it.red > 0) part(it.red, 0, () => Z.close.forEach((e) => redMesh(gears, Z, e[0], e[1], it.pulse || 0)));
+    if (G.lab && it.labA > 0) part(it.labA, 0, () => txt(G.lab.x, G.lab.y, G.lab.a, 'lab', G.lab.anchor));
+    if (G.lab && G.lab.b && it.labB > 0) part(it.labB, 0, () => txt(G.lab.x, G.lab.y + 17, Z.locked ? 'locked' : 'turns', Z.locked ? 'lab bad' : 'lab', G.lab.anchor));
+    // in words
+    const ws = gears.map((g, k) => (vis[k] >= 0.5 ? (k === dk ? 'the ' + g.T + '-tooth driver' : 'a ' + g.T + '-tooth gear') +
+      (shownDir[k] ? (Z.locked ? ' trying to turn ' : ' turning ') + (Z.ratio[k] > 0 ? 'clockwise' : 'anticlockwise') : '') : null)).filter(Boolean);
+    if (ws.length) said.push(ws.join(', ').replace(/^./, (c) => c.toUpperCase()) + '.');
+    counts.forEach((c) => said.push('The two counters at a mesh read ' + c[0] + ' and ' + c[1] + ' teeth passed.'));
+    if (G.meshArrow != null) said.push('An arrow at the mesh shows the teeth of both gears moving ' + REC.meshArrows[REC.meshArrows.length - 1] + ' together.');
+    if (it.red >= 0.5) said.push('This loop is locked, its last mesh drawn in red.');
+  }
+  // The ring screen: four gears turning; after a right answer they spread to five places and the
+  // tray's gear drops into the gap, each turning only as far as it must to sit tooth in gap.
+  function ringNow(R, mo, sv) {
+    const e = sv ? fade(mo, 'morph') : 0, sq = R.sq, a = mo.al[0] || 0;
+    const thS = sq.gears.map((g, k) => sq.Z.phase[k] + sq.Z.ratio[k] * a);
+    if (e <= 0) return [{ G: sq, Z: sq.Z, gears: sq.gears, th: thS, di: mo.di[0] || 0, red: 0, labA: 1, labB: 1 }];
+    const P = R.pent, src = [], out = [], lf = Math.max(0, 1 - e / 0.25), fin = e >= 1 ? fade(mo, 'red') : 0;
+    R.map.forEach((j, k) => { src[j] = { g: sq.gears[k], th: thS[k] }; });
+    src[R.fresh] = { g: R.tray.gear, th: TRAY_TH };
+    if (lf > 0) out.push({ G: sq, Z: sq.Z, gears: [], th: [], di: 0, red: 0, labA: lf, labB: lf });
+    const gears = P.gears.map((g, j) => Object.assign({}, g, { x: K.lerp(src[j].g.x, g.x, e), y: K.lerp(src[j].g.y, g.y, e), side: K.lerp(src[j].g.side, g.side, e) }));
+    const th = P.gears.map((g, j) => src[j].th + e * sym(P.Z.phase[j] - src[j].th, TAU / g.T));
+    out.push({ G: P, Z: P.Z, gears, th, di: 0, red: fin, labA: fin, labB: fin, arrA: gears.map((g, j) => (e >= 1 ? fin : j === R.fresh ? 0 : lf)) });
+    return out;
+  }
+  // The whole picture for step i in state st, T seconds into its motion; returns it in words.
+  function scene(i, st, T) {
+    const d = STEPS[i], B = board(i), mo = motion(i, st, T), sv = mo.sv, said = [];
+    REC = { texts: [], tiles: [], turns: [], speeds: [], arrows: [], meshArrows: [], red: 0, gears: 0 };
+    EXT = [Infinity, -Infinity];
+    art.textContent = ''; into = null;
+    let items;
+    if (B.ring) { trayAt(B.ring.tray, !(sv && fade(mo, 'morph') > 0)); items = ringNow(B.ring, mo, sv); }
+    else items = B.groups.map((G, gi) => {
+      const jp = G.Z.locked ? joltP(gi) : null;
+      const al = G.Z.locked ? (jp == null || REDUCE ? 0 : 0.035 * Math.sin(jp * 3 * Math.PI) * (1 - jp)) : mo.al[gi] || 0;
+      return { G, Z: G.Z, gears: G.gears, th: G.gears.map((g, k) => G.Z.phase[k] + G.Z.ratio[k] * al), di: G.Z.locked ? 0 : mo.di[gi] || 0, pulse: jp == null ? 0 : Math.sin(jp * Math.PI),
+        red: G.Z.locked && (d.show || sv) ? fade(mo, 'red') : 0, labA: 1, labB: G.lab && G.lab.late ? (sv ? fade(mo, 'red') : 0) : 1 };
+    });
+    items.forEach((it) => drawItem(d, it, mo, sv, said));
+    return said.join(' ');
+  }
+  // Each step's board height, from everything it ever shows (before and after its answer).
+  const VB = {};
+  function vbOf(i) {
+    if (VB[i]) return VB[i];
+    let lo = Infinity, hi = -Infinity;
+    [blank(), Object.assign(blank(), { res: 'right' })].forEach((st) => { scene(i, st, Infinity); lo = Math.min(lo, EXT[0]); hi = Math.max(hi, EXT[1]); });
+    lo = Math.floor(lo - 6); hi = Math.ceil(hi + 6);
+    return (VB[i] = [lo, hi - lo]);
+  }
+
+  // ---------- state, motion and controls ----------
+  let S = STEPS.map(blank);
+  let T = Infinity, motionEnd = 0, lastStep = -1, finished = false, lastDone = false;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  const quiet = () => REDUCE || testing();
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => Math.round(stepper.get());
+  const hintFor = (d, st) => (d.hints && d.hints[st.pick]) || d.hint;
+
+  function paint(i) {
+    if (i == null) i = at();
+    const v = vbOf(i), words = scene(i, S[i], T);
+    svg.setAttribute('viewBox', '0 ' + v[0] + ' 340 ' + v[1]);
+    svg.setAttribute('aria-label', words);
+    placeGrabs(i);
+  }
+  const anim = K.anim({ button: false, label: 'Turning', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur) {
+    if (quiet()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  // A right answer: the motion after it starts from wherever the picture stands now.
+  function startRun(i, before) {
+    const st = S[i], cur = motion(i, before, T);
+    st.ba = cur.al.slice(); st.bd = cur.di.slice();
+    play(STEPS[i].rdur);
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter'); void box.offsetWidth; box.classList.add('enter');
+  }
+
+  // Turning the driver by its rim (or with the arrow keys, a tooth at a time).
+  const canTurn = (i) => !finished && (STEPS[i].show || solved(S[i]));
+  let JOLT = null;
+  const joltP = (gi) => { if (!JOLT || JOLT.gi !== gi || JOLT.i !== at()) return null; const p = (performance.now() - JOLT.t0) / 600; return p >= 1 ? null : p; };
+  function jolt(gi) {
+    const idle = !JOLT;
+    JOLT = { gi, i: at(), t0: performance.now() };
+    if (!idle) return;
+    const tick = () => { paint(); if (JOLT && joltP(JOLT.gi) != null) requestAnimationFrame(tick); else { JOLT = null; paint(); } };
+    requestAnimationFrame(tick);
+  }
+  const lockedAt = (gi) => { const G = board(at()).groups[gi]; return !!(G && G.Z.locked); };
+  const grabs = [];
+  function turnBy(gi, dA) {
+    const i = at(), st = S[i];
+    if (!canTurn(i) || !dA) return;
+    if (!st.free) { const cur = motion(i, st, T); st.ma = cur.al.slice(); st.md = cur.di.slice(); st.free = true; anim.pause(); T = Infinity; }
+    st.ma[gi] += dA; st.md[gi] += Math.abs(dA);
+    paint();
+  }
+  function bindGrab(c) {
+    let held = null, last = 0;
+    const angleAt = (e) => {
+      const ctm = svg.getScreenCTM();
+      if (!ctm) return null;
+      const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse()), G = board(at()).groups[+c.dataset.g];
+      if (!G) return null;
+      const g = G.gears[G.driver || 0], dx = q.x - g.x, dy = q.y - g.y;
+      return Math.hypot(dx, dy) < 6 ? null : Math.atan2(dy, dx);
+    };
+    c.addEventListener('pointerdown', (e) => {
+      if (!canTurn(at())) return;
+      if (lockedAt(+c.dataset.g)) { jolt(+c.dataset.g); e.preventDefault(); return; }
+      const a = angleAt(e);
+      if (a == null) return;
+      held = e.pointerId; last = a;
+      try { c.setPointerCapture(e.pointerId); } catch (err) { /* the turn still follows the pointer over the gear */ }
+      e.preventDefault();
+    });
+    c.addEventListener('pointermove', (e) => {
+      if (held !== e.pointerId) return;
+      const a = angleAt(e);
+      if (a == null) return;
+      const dA = sym(a - last, TAU);
+      last = a;
+      turnBy(+c.dataset.g, dA);
+    });
+    const up = (e) => { if (held === e.pointerId) held = null; };
+    c.addEventListener('pointerup', up);
+    c.addEventListener('pointercancel', up);
+    c.addEventListener('lostpointercapture', () => { held = null; });
+    c.addEventListener('keydown', (e) => {
+      const by = { ArrowRight: 1, ArrowUp: 1, ArrowLeft: -1, ArrowDown: -1 }[e.key];
+      if (!by) return;
+      e.preventDefault();
+      if (lockedAt(+c.dataset.g)) { jolt(+c.dataset.g); return; }
+      const G = board(at()).groups[+c.dataset.g];
+      if (G) turnBy(+c.dataset.g, by * TAU / G.gears[G.driver || 0].T);
+    });
+  }
+  function placeGrabs(i) {
+    const B = board(i), want = [];
+    if (canTurn(i) && !B.ring) B.groups.forEach((G, gi) => want.push({ gi, g: G.gears[G.driver || 0], locked: G.Z.locked }));
+    while (grabs.length < want.length) {
+      const c = ui.appendChild(K.svg('circle', { class: 'grab', tabindex: '0', 'aria-label': 'The driver. Turn it by its rim, or with the arrow keys.' }));
+      bindGrab(c); grabs.push(c);
+    }
+    grabs.forEach((c, k) => {
+      const w = want[k];
+      c.style.display = w ? '' : 'none';
+      c.setAttribute('tabindex', w ? '0' : '-1');
+      if (!w) return;
+      c.dataset.g = w.gi;
+      c.setAttribute('aria-label', w.locked ? 'The driver of a locked loop. Try to turn it: it only rocks.' : 'The driver. Turn it by its rim, or with the arrow keys.');
+      c.setAttribute('cx', r2(w.g.x)); c.setAttribute('cy', r2(w.g.y)); c.setAttribute('r', r2(rO(w.g) + 6));
+    });
+  }
+
+  // Answers: up to three choices; a typed field for each figure.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.kind !== 'pick' || k >= d.opts.length || solved(st)) return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+  const ANS = {};
+  STEPS.forEach((d, i) => {
+    if (d.kind !== 'typed') return;
+    el('answers').appendChild(K.el('div', { id: 'ans-' + d.ans }));
+    const a = K.answer({ id: 'a-' + d.ans, unit: d.unit, answer: d.answer, decimals: d.decimals, slips: d.slips, into: '#ans-' + d.ans,
+      onCheck: (r) => {
+        const st = S[i];
+        if (solved(st)) return;
+        const before = Object.assign({}, st, { res: null });
+        if (r.state === 'right') { st.res = 'right'; startRun(i, before); }
+        else if (r.state === 'wrong') {
+          st.tries += 1; st.hint = r.hint || d.hint;
+          if (st.tries >= 2) { st.res = 'shown'; st.why = true; a.reveal(); startRun(i, before); } else st.res = 'wrong';
+        } else { st.res = null; st.hint = ''; }
+        K.refresh();
+      } });
+    ANS[d.ans] = a;
+  });
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || solved(st)) return;
+    if (d.kind === 'typed') { ANS[d.ans].check(); return; }
+    if (st.pick == null) { st.res = 'empty'; return; }
+    const before = Object.assign({}, st, { res: null });
+    st.res = st.pick === d.want ? 'right' : 'wrong';
+    if (st.res === 'right') startRun(i, before);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    const d = STEPS[at()], st = S[at()];
+    if (d.show || finished || (d.kind === 'typed' && !solved(st) && st.tries === 0)) return;
+    st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const d = STEPS[at()], st = S[at()];
+    if (!d.show || finished) return;
+    st.free = false; st.ma = st.md = null;
+    play(d.dur);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && !solved(S[i]))) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true; anim.pause(); T = Infinity;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(blank); finished = false; lastStep = -1;
+    Object.keys(ANS).forEach((k) => ANS[k].reset());
+    stepper.set(0, true);
+  } });
+
+  // ---------- words (built with K.el, never innerHTML): *a key term*, `kept on one line` ----------
+  function write(node, s) {
+    node.textContent = '';
+    String(s || '').split('`').forEach((seg, k) => {
+      if (!seg) return;
+      if (k % 2) { node.appendChild(K.el('span', { class: 'nw' }, seg)); return; }
+      const re = /\*([^*]+)\*/g;
+      let from = 0, m;
+      while ((m = re.exec(seg))) {
+        if (m.index > from) node.appendChild(document.createTextNode(seg.slice(from, m.index)));
+        node.appendChild(K.el('span', { class: 'term' }, m[1]));
+        from = m.index + m[0].length;
+      }
+      if (from < seg.length) node.appendChild(document.createTextNode(seg.slice(from)));
+    });
+    return node;
+  }
+  write(el('finish'), FINISH);
+
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      st.free = false; st.ma = st.md = null;
+      if (d.show || (d.open && !solved(st))) play(d.dur); else { anim.pause(); T = Infinity; }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const sv = solved(st);
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    const opts = d.kind === 'pick' ? d.opts : [];
+    el('picks').hidden = !opts.length;
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    STEPS.forEach((x, k) => { if (x.kind === 'typed') el('ans-' + x.ans).hidden = finished || k !== i; });
+    el('answers').hidden = d.kind !== 'typed';
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = sv;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (st.res === 'right' ? ' right' : '');
+    write(fb, d.show ? '' : st.res === 'right' ? 'That\'s it.' : st.res === 'shown' ? 'Here is the working.' :
+      st.res === 'wrong' ? (d.kind === 'typed' ? st.hint : hintFor(d, st)) : st.res === 'empty' ? PICK : '');
+    const why = el('why');
+    why.hidden = !!d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    whyBtn.el.hidden = d.kind === 'typed' && !sv && st.tries === 0;
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !sv);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const solvedSt = () => Object.assign(blank(), { res: 'right' });
+  const IX = (name) => STEPS.findIndex((d) => d.name === name);
+  // A step drawn in the state given: what it shows.
+  function drawn(i, st, t) { try { scene(i, st, t); return REC; } finally { paint(); } }
+
+  K.check('Where gears meet, the teeth of both move the same way, so the gears turn opposite ways: true at every mesh that turns, on every screen', () =>
+    STEPS.every((d, i) => allGroups(i).every((G) => G.Z.locked || G.mesh.every((e) => {
+      const A = G.gears[e[0]], B = G.gears[e[1]], L = Math.hypot(B.x - A.x, B.y - A.y), mx = A.x + (B.x - A.x) * rP(A) / L, my = A.y + (B.y - A.y) * rP(A) / L;
+      const wa = G.Z.ratio[e[0]], wb = G.Z.ratio[e[1]], va = [-(my - A.y) * wa, (mx - A.x) * wa], vb = [-(my - B.y) * wb, (mx - B.x) * wb];
+      return wa * wb < 0 && Math.hypot(va[0] - vb[0], va[1] - vb[1]) < 1e-9 * (1 + Math.hypot(va[0], va[1])) && va[0] * vb[0] + va[1] * vb[1] > 0;
+    }))), { source: BBC });
+  K.check('An odd number of gears in a closed loop in a plane will not turn, whatever their size and tooth count: every odd loop drawn locks, every even one turns, and an odd loop of mixed sizes locks too', () => {
+    const loops = [];
+    STEPS.forEach((d, i) => allGroups(i).forEach((G) => { if (G.Z.close.length && loops.indexOf(G) < 0) loops.push(G); }));
+    return loops.map((G) => G.gears.length).sort((a, b) => a - b).join() === '3,4,4,5,5,6,7' &&
+      loops.every((G) => G.Z.locked === (G.gears.length % 2 === 1)) && solve(mixedTriangle()).locked;
+  }, { source: LOOP });
+  K.check('When gear 1 and gear 2 are in mesh, N1 × Z1 = N2 × Z2: speed × teeth is the same on both sides of every mesh drawn with speeds, so the idler screen shows 60, 36 and 20 rev/min', () => {
+    let ok = true;
+    STEPS.forEach((d, i) => allGroups(i).forEach((G) => { if (G.rpm) G.mesh.forEach((e) => { if (!near(speedOf(G, e[0]) * G.gears[e[0]].T, speedOf(G, e[1]) * G.gears[e[1]].T)) ok = false; }); }));
+    const id = IX('The idler'), z = drawn(id, blank(), 0);
+    return ok && drawn(id, blank(), Infinity).speeds.join() === [60, 36, 20].map(rpmText).join() && z.speeds.join() === rpmText(60) && z.arrows.length === 1;
+  }, { source: CED });
+  K.check('Both counters at a mesh always match: two turns of the 12-tooth driver pass 24 teeth on each side, three turns pass 36 and turn the 36-tooth gear once, and the idler passes on the same count at both its meshes', () => {
+    const p = IX('Teeth pass one for one'), a = drawn(p, blank(), Infinity), b = drawn(IX('Count the teeth'), blank(), Infinity), c = drawn(IX('The idler'), blank(), Infinity);
+    const f = drawn(p, Object.assign(blank(), { free: true, ma: [5.3], md: [17.9] }), Infinity);
+    const tl = (r) => JSON.stringify(r.tiles);
+    return tl(a) === '[[24,24]]' && a.turns.join() === ['2' + NB + 'turns', '1' + NB + 'turn'].join() &&
+      tl(b) === '[[36,36]]' && b.turns.join() === ['3' + NB + 'turns', '1' + NB + 'turn'].join() &&
+      tl(c) === '[[18,18],[18,18]]' && tl(f) === '[[34,34]]' && a.meshArrows.join() === 'down';
+  });
+  K.check('Each mesh flips the direction: the 20-tooth gear turns against the driver, the fifth of five in a line turns the driver\'s way, the fourth of four and the sixth of a bent chain the other way, every row follows odd and even, only the loop of six turns, and a fifth gear locks the ring', () => {
+    const sg = (i, g, k) => Math.sign(board(i).groups[g].Z.ratio[k]), R = board(IX('Add a fifth')).ring;
+    const q = IX('Which way'), f = IX('Five in a line'), m = IX('Mixed sizes'), z = IX('A bent chain'), l = IX('Which loop turns');
+    return sg(q, 0, 1) === -1 && STEPS[q].want === 'Anticlockwise' && sg(f, 0, 4) === 1 && STEPS[f].want === 'Clockwise' && sg(m, 0, 3) === -1 && STEPS[m].want === 'Anticlockwise' &&
+      sg(z, 0, 5) === -1 && STEPS[z].want === 'Anticlockwise' && z < IX('Odd and even') &&
+      board(IX('Odd and even')).groups.every((G) => Math.sign(G.Z.ratio[G.gears.length - 1]) === (G.gears.length % 2 ? 1 : -1)) &&
+      board(l).groups.map((G) => G.Z.locked).join() === 'true,false,true' && STEPS[l].want === 'The loop of six' &&
+      !R.sq.Z.locked && R.pent.Z.locked && R.pent.gears.length === 5 && STEPS[IX('Add a fifth')].want === 'It locks';
+  });
+  K.check('Each typed answer and slip is worked from speed × teeth: 20 rev/min (slips 180 and 3), 400 rev/min (450 and 3600), 360 rev/min (5760 and 4) and 72 teeth (8), and the board draws the same', () => {
+    const one = (i, ans, sl) => {
+      const d = STEPS[i], sp = { answer: d.answer, decimals: d.decimals, unit: d.unit, slips: d.slips };
+      return near(d.answer, ans) && d.slips.length === sl.length && K.answer.grade(ans + ' ' + d.unit, sp).state === 'right' &&
+        d.slips.every((s, j) => near(s.value, sl[j]) && K.answer.grade(String(sl[j]), sp).state === 'wrong');
+    };
+    const sp = (i, k) => speedOf(board(i).groups[0], k);
+    const h = IX('How fast'), t = IX('Through an idler'), w = IX('The drum'), n = IX('How many teeth');
+    return one(h, 20, [180, 3]) && one(t, 400, [450, 3600]) && one(w, 360, [5760, 4]) && one(n, 72, [8]) &&
+      near(sp(h, 1), 20) && near(sp(t, 2), 400) && near(sp(t, 1), 450) && near(sp(w, 1), 360) && board(n).groups[0].gears[1].T === 72 && near(sp(n, 1), 100);
+  });
+  K.check('Before an answer nothing gives it away: an unknown speed reads "?", the idler\'s speed and the new gear stay hidden, and only the drivers show their way round; after it, the answer is drawn', () => {
+    const u = (i) => drawn(i, blank(), Infinity), s = (i) => drawn(i, solvedSt(), Infinity), q = '?' + NB + 'rev/min';
+    const i7 = IX('How fast'), i9 = IX('Through an idler'), i10 = IX('The drum'), i11 = IX('How many teeth');
+    const a7 = u(i7), b7 = s(i7), a9 = u(i9), b9 = s(i9), a10 = u(i10), b10 = s(i10), a11 = u(i11), b11 = s(i11);
+    const iq = IX('Which way'), i1 = IX('Five in a line'), i3 = IX('Mixed sizes'), iz = IX('A bent chain'), i5 = IX('Which loop turns'), i12 = IX('Add a fifth');
+    return a7.texts.indexOf(q) >= 0 && a7.texts.indexOf(STEPS[i7].want) < 0 && b7.texts.indexOf(STEPS[i7].want) >= 0 &&
+      a9.texts.indexOf(q) >= 0 && a9.speeds.length === 2 && b9.texts.indexOf(STEPS[i9].want) >= 0 && b9.speeds.length === 3 &&
+      a10.texts.indexOf(q) >= 0 && b10.texts.indexOf(STEPS[i10].want) >= 0 &&
+      a11.gears === 1 && a11.texts.indexOf('?' + NB + 'teeth') >= 0 && b11.gears === 2 && b11.texts.indexOf('72') >= 0 &&
+      u(iq).arrows.length === 1 && s(iq).arrows.length === 2 && u(iz).arrows.length === 1 && s(iz).arrows.length === 6 &&
+      u(i1).arrows.length === 1 && s(i1).arrows.length === 5 && u(i3).arrows.length === 1 && s(i3).arrows.length === 4 &&
+      u(i5).arrows.length === 3 && u(i5).red === 0 && s(i5).red === 2 && u(i12).red === 0 && s(i12).red === 1;
+  });
+  K.check('Every mesh is drawn with its gears touching at their pitch circles, every loop closes tooth in gap, and gears that do not mesh never touch', () =>
+    STEPS.every((d, i) => {
+      const B = board(i), sets = B.ring ? [[B.ring.sq, { gears: [B.ring.tray.gear], mesh: [] }], [B.ring.pent]] : [B.groups];
+      return sets.every((Gs) => {
+        const all = [], meshed = {};
+        Gs.forEach((G) => { const o = all.length; G.gears.forEach((g) => all.push(g)); G.mesh.forEach((e) => { meshed[(o + e[0]) + '-' + (o + e[1])] = meshed[(o + e[1]) + '-' + (o + e[0])] = true; }); });
+        const pitch = Gs.every((G) => !G.Z || (G.Z.fit && G.mesh.every((e) => {
+          const A = G.gears[e[0]], C = G.gears[e[1]];
+          return Math.abs(Math.hypot(A.x - C.x, A.y - C.y) - rP(A) - rP(C)) < 1e-6;
+        })));
+        return pitch && all.every((g, p) => all.every((h, q) => q <= p || meshed[p + '-' + q] || Math.hypot(g.x - h.x, g.y - h.y) > rO(g) + rO(h) + 1));
+      });
+    }));
+  K.check('Every demonstration is over within 4.5 s of its screen opening and nothing moves during the 0.35 s screen fade; every answer\'s motion is over within 2.5 s', () => {
+    const J = (i, st, t) => JSON.stringify(motion(i, st, t), (k, v) => (typeof v === 'number' ? Math.round(v * 1e6) / 1e6 : v));
+    return STEPS.every((d, i) => {
+      const b = blank(), r = solvedSt();
+      const open = !d.show && !d.open ? true : d.dur >= 3 && d.dur <= 4.5 && J(i, b, d.dur) === J(i, b, Infinity) && J(i, b, 0.35) === J(i, b, 0);
+      const run = d.show ? true : d.rdur <= 2.5 && J(i, r, d.rdur) === J(i, r, Infinity);
+      return open && run;
+    });
+  });
+
+  K.ready();
+</script>
