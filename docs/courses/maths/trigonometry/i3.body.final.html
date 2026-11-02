@@ -913,13 +913,15 @@
       arm(th, {});
       wedgeArc(0, th, 1);
       if (ok) keyLab(an(0.3));
+      // Each arm's angle sits just beyond its own tip, placed before the pills: inside the wedge the
+      // 110° label sat beside the 70° mirror arm, and the mirror's 70° was pushed round to the 110° arm.
+      tipLab(th, angS(th), 1);
+      if (ok) tipLab(mir, angS(mir), an(0.6));
+      if (wPos) tipLab(mir, angS(mir), an(0.1), true);
       pills(th, {
         c: ok ? { s: 'cos θ = ' + o11[1], a: an(0.3), cls: 'hl' } : { s: 'cos θ = ?' },
         s: ok || wUp ? { s: 'sin θ = ' + o11[2], a: ok ? an(0.5) : an(0.1), cls: wUp ? 'bad' : '' } : { s: 'sin θ = ?' } });
-      wedgeLab(0, th, angS(th), 1);
       oneLab(th, 1);
-      if (ok) tipLab(mir, angS(mir), an(0.6));
-      if (wPos) tipLab(mir, angS(mir), an(0.1), true);
       puzzleRows(d, st);
       return ok ? describe(th) + ' Its mirror arm at 70 degrees is 0.342 across, on the right.' : asked(th) + ' What is its cosine?';
     },

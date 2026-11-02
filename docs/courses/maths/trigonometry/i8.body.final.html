@@ -208,7 +208,7 @@
       after: "At a power factor of 0.6, φ is 53.1°. The long side is `10 ÷ 0.6 = 16.7 kVA` and the current is `10 000 ÷ (230 × 0.6) = 72.5 A`. The cables, fuses and supply carry the whole current, so a poor power factor means more current for the same work." },
     { kind: 'pick', name: 'The current at 0.8', pic: 'q543', opts: o7, want: o7[0], secret: ['current ' + o7[0]],
       task: 'The same 10 kW load on 230 V runs at a power factor of 0.8 (φ = 36.9°). What current does it draw?',
-      why: "The flat side stays 10 kW, so the current is `10 000 ÷ (230 × 0.8) = 54.3 A`, which Electrical A2Z's worked example prints as 54.5 A. A lower power factor needs more current, never less, so `43.5 × 0.8 = 34.8 A` goes the wrong way. 43.5 A is the current at a power factor of 1, so it leaves the power factor out.",
+      why: "The flat side stays 10 kW, so the current is `10 000 ÷ (230 × 0.8) = 54.3 A`. A lower power factor needs more current, never less, so `43.5 × 0.8 = 34.8 A` goes the wrong way. 43.5 A is the current at a power factor of 1, so it leaves the power factor out.",
       hint: 'Not quite. Current = true power ÷ (volts × power factor).',
       hints: { [o7[1]]: 'Not quite. That multiplies by 0.8. A lower power factor needs more current.',
         [o7[2]]: 'Not quite. 43.5 A is the current at a power factor of 1.' },
@@ -255,7 +255,7 @@
       toolHints: { [TOOLS[0]]: 'Not quite. First the currents become arrows. Two currents of one frequency, out of step, point to phasor arrows.',
         [TOOLS[1]]: 'Not quite. Two currents of one frequency, a quarter turn apart, point to phasor arrows.',
         [TOOLS[2]]: 'Not quite. No angle needs turning into radians. Two currents out of step point to phasor arrows.' },
-      why: "Lay the arrows tip to tail, 4 A along the voltage and then 3 A pointing a quarter turn behind. The supply current is `√(4² + 3²) = 5 A`, and its power factor is the in-step part over the whole, `4 ÷ 5 = 0.8`. 7 A adds the sizes as if both were in step, and 0.6 puts the quarter-turn part on top. Complex numbers, the next course, writes the power triangle's two short sides as one number.",
+      why: "Lay the arrows tip to tail, 4 A along the voltage and then 3 A pointing a quarter turn behind. The supply current is `√(4² + 3²) = 5 A`, and its power factor is the in-step part over the whole, `4 ÷ 5 = 0.8`. 7 A adds the sizes as if both were in step, and 0.6 puts the quarter-turn part on top. Later, complex numbers write the power triangle's two short sides as one number.",
       hint: 'Not quite. Lay the two currents tip to tail.',
       hints: { [o12[1]]: 'Not quite. 4 + 3 needs the two in step. They are a quarter turn apart.',
         [o12[2]]: 'Not quite. 3 ÷ 5 puts the quarter-turn part on top. Use the in-step part.' },
@@ -269,7 +269,7 @@
     const n = (ansOf(st) ? d.right.length : 0) + (wrongOf(st) ? [].concat(d.wrong[st.pick]).length : 0);
     return n ? d.ry + 24 * (n - 1) + 12 : d.ry - 12;
   }
-  const FINISH = "Power factor is true power ÷ apparent power, the flat side over the long side of the power triangle, so it is *cos φ*. Hold the true power and a lower power factor needs more current, `current = watts ÷ (volts × power factor)`. Complex numbers, the next course, writes the power triangle's two short sides as one number.";
+  const FINISH = "Power factor is true power ÷ apparent power, the flat side over the long side of the power triangle, so it is *cos φ*. Hold the true power and a lower power factor needs more current, `current = watts ÷ (volts × power factor)`. Later, complex numbers write the power triangle's two short sides as one number.";
   const CAPS = { split: "Example current: 10 A on 230 V, the UK's declared supply between phase and neutral (ESQCR 2002).",
     q5: '10 A lagging 230 V by 60°. Floor shadow = I × cos φ; wall shadow = I × sin φ.',
     scale: 'Each side of the current triangle × 230 V. Power factor = true power ÷ apparent power = cos φ.',
@@ -280,7 +280,7 @@
     q543: 'The same 10 kW load on 230 V, now at power factor 0.8.',
     wave: '10 A on 230 V. Power at each moment = volts × amps; its average is the true power.',
     q1840: '230 V and 10 A at power factor 0.8.', cable: 'Two straight cable runs from one junction box.',
-    rad: "60 Hz, the most common frequency on board ship (a college's marine electrical notes).",
+    rad: "60 Hz, the most common frequency in marine supplies.",
     twoI: 'Two branch currents of one frequency joining into the supply.' };
   // Sources the checks restate (the lesson's own).
   const SRC = { leg: 'https://www.legislation.gov.uk/uksi/2002/2665/regulation/27/made',

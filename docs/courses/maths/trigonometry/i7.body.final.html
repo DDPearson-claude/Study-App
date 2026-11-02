@@ -243,7 +243,7 @@
       wrong: { [o12[0]]: ['8 + 8 = ' + o12[0] + ' needs them pointing one way'], [o12[1]]: ['√(8² + 8²) = ' + o12[1] + ': a quarter turn apart'] } },
     { kind: 'pick', name: 'Two currents', pic: 'current', opts: o13, want: o13[0], secret: ['supply ' + trim(P13.L, 0) + ' A, ' + lag + ' behind'],
       task: 'Two branch currents join: 12 A peak in step with the supply, and 5 A peak a quarter turn behind it. What is the supply current?',
-      why: "Lay the 5 A arrow, a quarter turn behind and so pointing down, on the tip of the 12 A arrow. The floor shadows give 12 and the wall shadows `0 − 5 = −5`, so the sum is `√(12² + 5²) = 13` A at `tan⁻¹(−5 ÷ 12) = −22.6°`: below the floor, lagging. 17 A adds the sizes, and leading drops the minus sign of the wall shadow. Complex numbers, the next course, writes an arrow's floor shadow and wall shadow as one number, so adding phasors becomes adding numbers.",
+      why: "Lay the 5 A arrow, a quarter turn behind and so pointing down, on the tip of the 12 A arrow. The floor shadows give 12 and the wall shadows `0 − 5 = −5`, so the sum is `√(12² + 5²) = 13` A at `tan⁻¹(−5 ÷ 12) = −22.6°`: below the floor, lagging. 17 A adds the sizes, and leading drops the minus sign of the wall shadow. Later, complex numbers write an arrow's floor shadow and wall shadow as one number, so adding phasors becomes adding numbers.",
       hint: 'Not quite. Split each current into floor and wall shadows.',
       hints: { [o13[1]]: 'Not quite. The currents are a quarter turn apart, so use Pythagoras, not +.',
         [o13[2]]: 'Not quite. The wall shadow is −5, below the floor, so the sum is behind.' },
@@ -256,22 +256,22 @@
   const GX0 = 36, GX1 = 268, GCY = 200, GH = 42, TURNS = 2;   // the wave graph: two turns of arrow A
   const SBA = 280, SBB = 290, SBW = 8;                        // the two stacked bars beside the graph
   const TKY = 258, TTL = 273, PILLY = 142, PILLP = 146;
-  const RY = { sum1: 300, peak5: 300, shadows: 300, q693: 180, angle: 180, q30: 180, minus: 300, three: 284, meter: 284, fast: 300, q2x: 300, q440: 284, cancel: 300, current: 180 };
+  const RY = { sum1: 300, peak5: 300, shadows: 300, q693: 180, angle: 180, q30: 180, minus: 300, three: 284, meter: 284, fast: 300, q2x: 300, q440: 284, cancel: 300, current: 200 };
   STEPS.forEach((d) => { d.ry = RY[d.pic]; });
   function vhOf(d, st) {
     if (d.show) return d.ry + 24 * (d.rows - 1) + 12;
     const n = (ansOf(st) ? d.right.length : 0) + (wrongOf(st) ? [].concat(d.wrong[st.pick]).length : 0);
     return n ? d.ry + 24 * (n - 1) + 12 : d.ry - 12;
   }
-  const FINISH = "Two waves of one frequency add by laying their turning arrows, their *phasors*, tip to tail: the arrow from start to finish is the sum, its length the sum's peak and its angle its phase, and its height is always the two heights stacked. Floor and wall shadows measure it, and an arrow turned half a turn takes its wave away. Complex numbers, the next course, writes an arrow's floor and wall shadows as one number, so adding phasors becomes adding numbers.";
+  const FINISH = "Two waves of one frequency add by laying their turning arrows, their *phasors*, tip to tail: the arrow from start to finish is the sum, its length the sum's peak and its angle its phase, and its height is always the two heights stacked. Floor and wall shadows measure it, and an arrow turned half a turn takes its wave away. Later, complex numbers write an arrow's floor and wall shadows as one number, so adding phasors becomes adding numbers.";
   const CAPS = { sum1: "Example arrows: A 3 long, B 4 long a quarter turn on. Each height is length × sin of its angle.",
     peak5: 'The same arrows frozen at the start, with the waves of A and B.',
     shadows: 'Example arrows: A 10 long, B 6 long at 60°. Floor shadow = length × cos; wall shadow = length × sin.',
     q693: 'Two arrows 4 long, 60° apart, laid tip to tail.', angle: 'The cosine rule takes the angle inside the triangle, 180° minus the angle between the arrows.',
     q30: 'The same two arrows, 4 long and 60° apart.', minus: 'Taking B away is adding B turned half a turn.',
-    three: 'UK phases: 230 V between phase and neutral (Electricity Safety, Quality and Continuity Regulations 2002), an rms value (BBC Bitesize).',
+    three: 'UK phases: 230 V between phase and neutral, an rms value.',
     meter: 'Three 230 V phases, 120° apart, drawn at rms.', fast: 'Example arrows: A 3 long, B 4 long. The switch makes B turn twice for each turn of A.',
-    q2x: 'The same arrows, B turning twice for each turn of A.', q440: "A ship's supply: 440 V between lines, the phases 120° apart (a college's marine electrical notes).",
+    q2x: 'The same arrows, B turning twice for each turn of A.', q440: "A marine supply: 440 V between lines, the phases 120° apart.",
     cancel: 'Two waves of peak 8, half a turn apart.', current: 'Example currents: 12 A in step, 5 A a quarter turn behind.' };
   // Sources the checks restate (the lesson's own).
   const SRC = { unsw: 'https://www.animations.physics.unsw.edu.au/jw/AC.html',
@@ -1050,7 +1050,8 @@
       lineP('axis', [C[0], C[1] - 5 * kp - 14], [C[0], C[1] + 5 * kp + 14], 1);
       REC.map = m; REC.pivot = C;
       key(KEYW);
-      pill('ans', 'supply ' + (an ? trim(P13.L, 0) + ' A, ' + lag + ' behind' : '?'), PILLP, 1, false);
+      // 20 lower than the other pills: at PILLP it covered the sum arrow's head.
+      pill('ans', 'supply ' + (an ? trim(P13.L, 0) + ' A, ' + lag + ' behind' : '?'), PILLP + 20, 1, false);
       const ch = chainAt(o, 0), pp = drawChain(m, ch);
       rightMark(pp.pA, 180, 270, 6);
       arcAt(m.C, P13.phi, 0, 22, an ? a : 0);

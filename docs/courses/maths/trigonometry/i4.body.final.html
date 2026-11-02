@@ -599,11 +599,13 @@
     }
     if (aa > 0) part(aa, 0, () => add(K.svg('path', { class: cls || 'arc', d: arcPathAt(V, a0, a1, ra) })));
   }
-  function wedgeLabAt(V, a0, a1, s, a, ra, cls) {
+  // far: how far past the arc the label may go (the swing arm's corners sit close together, and a label
+  // carried far along its wedge landed beside another corner).
+  function wedgeLabAt(V, a0, a1, s, a, ra, cls, far) {
     if (!(a1 - a0 > 0.5) || !s) return null;
     cls = cls || 'al';
-    const w = tw(s, cls), span = a1 - a0, cands = [];
-    for (let dd = ra + Math.hypot(w / 2, 7) + 4; dd < 230; dd += 3) [0.5, 0.36, 0.64, 0.24, 0.76].forEach((f) => { const t = a0 + span * f; cands.push([V[0] + cosD(t) * dd, V[1] - sinD(t) * dd]); });
+    const w = tw(s, cls), span = a1 - a0, cands = [], d0 = ra + Math.hypot(w / 2, 7) + 4;
+    for (let dd = d0; dd < (far ? d0 + far : 230); dd += 3) [0.5, 0.36, 0.64, 0.24, 0.76].forEach((f) => { const t = a0 + span * f; cands.push([V[0] + cosD(t) * dd, V[1] - sinD(t) * dd]); });
     return plainLab(s, cls, () => cands, a, inWedgeAt(V, a0, a1, 3));
   }
   // A right angle's square at V between unit directions u1 and u2.
@@ -749,7 +751,8 @@
     if (a > 0) part(a, 0, () => add(K.svg('path', { class: 'swing', d: arcPathAt(V, a0, a1, r) })));
   }
   function angLabB(V, a0, a1, s, a) {
-    return wedgeLabAt(V, a0, a1, s, a, 16) || plainLab(s, 'al', () => [[V[0], BY + 34], [V[0] + 26, BY + 34], [V[0] - 26, BY + 34], [V[0] + 44, BY + 34], [V[0] - 44, BY + 34]], a);
+    // Under its own B, below the base line: carried up its wide wedge, it landed beside A or C.
+    return plainLab(s, 'al', () => [[V[0], BY + 34], [V[0] + 26, BY + 34], [V[0] - 26, BY + 34], [V[0] + 44, BY + 34], [V[0] - 44, BY + 34]], a);
   }
   function trackScene(al) {
     const x = trackX(al);
@@ -801,7 +804,8 @@
     cornerLab(A, 'A', 135, 1);
     cornerLab(C, 'C', 90, 1);
     segLab(A, C, 'b = ' + WB, F, 1);
-    wedgeLabAt(A, 0, WA, angS(WA), 1, 26);
+    // A's angle under A, below the base line, as the B angles are: up its narrow wedge it landed beside B or C.
+    plainLab(angS(WA), 'al', () => [[A[0] + 6, BY + 18], [A[0] + 18, BY + 18], [A[0] + 6, BY + 34]], 1);
     const hm = (C[1] + BY) / 2;
     plainLab(hS(WH), 'al', () => [[C[0] - 11, hm], [C[0] + 11, hm], [C[0] - 11, hm + 16], [C[0] + 11, hm + 16], [C[0] - 11, hm - 16], [C[0] + 11, hm - 16], [C[0], hm]], 1);
     const aLab = 'a = ' + trim(al, 1);

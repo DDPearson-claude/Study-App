@@ -20,6 +20,9 @@
   .scene text { font-family: var(--k-font); }
   /* Every label in the drawing keeps a thin rim of page colour, so a curve passing under it never cuts its letters. */
   .scene .h { paint-order: stroke; stroke: var(--k-bg); stroke-width: 4px; stroke-linejoin: round; }
+  /* A marked value ("72 W at 12 A") sits on a backing of the page colour: where K.labels finds no clear
+     room, a curve still runs under it, and the thin rim alone let the curve show between its letters. */
+  .scene .chip { fill: var(--k-bg); stroke: none; }
   .scene .tk { font-size: 13px; fill: var(--k-muted); }
   .scene .ttl { font-size: 13px; font-weight: 700; fill: var(--k-muted); }
   .scene .ll { font-size: 15px; font-weight: 700; }
@@ -459,7 +462,22 @@
   }
   // Labels that move or arrive are placed last, clear of each other and of the curves (K.labels).
   function lab(items) { const g = add(K.svg('g')); DYN.push({ g, items }); }
+  // A label group moves to the top of the drawing, keeping the fade of the part it was made in, so a
+  // gap bar or guide drawn after it never paints across its letters.
+  function lift(g) {
+    let op = 1, dy = 0;
+    for (let p = g.parentNode; p && p !== art; p = p.parentNode) {
+      if (!p.style) continue;
+      if (p.style.opacity !== '') op *= +p.style.opacity;
+      const m = /translate\(0px, ([-\d.]+)px\)/.exec(p.style.transform || '');
+      if (m) dy += +m[1];
+    }
+    art.appendChild(g);
+    if (op < 1) g.style.opacity = op.toFixed(3);
+    if (dy) g.style.transform = 'translate(0px, ' + dy.toFixed(2) + 'px)';
+  }
   function flushLabels() {
+    DYN.forEach(({ g }) => lift(g));
     DYN.forEach(({ g, items }) => {
       if (QUICK) {
         items.forEach((it) => { const t = g.appendChild(K.svg('text', { class: it.class, x: r2(it.x), y: r2(it.y), 'text-anchor': it.anchor || 'middle' })); fillText(t, it.text); });
@@ -467,6 +485,12 @@
       }
       const ts = K.labels(g, items.map((it) => ({ x: r2(it.x), y: r2(it.y), text: plain(it.text), anchor: it.anchor || 'middle', class: it.class })), { avoid: '#art .av' });
       ts.forEach((t, m) => { if (String(items[m].text).indexOf('`') >= 0) { t.textContent = ''; fillText(t, items[m].text); } });
+      ts.forEach((t) => {
+        if (!/\bmk\b/.test(t.getAttribute('class') || '')) return;
+        let b = null;
+        try { b = t.getBBox(); } catch (e) { b = null; }
+        if (b && b.width > 0) g.insertBefore(K.svg('rect', { class: 'chip', x: r2(b.x - 2), y: r2(b.y - 1), width: r2(b.width + 4), height: r2(b.height + 2), rx: 3 }), t);
+      });
     });
     DYN = [];
   }

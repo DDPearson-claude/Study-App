@@ -112,7 +112,7 @@
       hints: { '−2 or −5': 'Not quite. At `x = −2` the brackets make `−4 × −7 = 28`, not 0.', '10': 'Not quite. At `x = 10` the brackets make `8 × 5 = 40`, not 0.' } },
     { show: true, name: 'Opposite signs', br: [2, -5], c: 0, lo: -3, hi: 6, x0: 0, ask: { s: 'prod' },
       moves: [[1.5, 2.3, -2], [2.9, 4.0, 5]], dur: 4.4,
-      text: 'Each bracket is zero at the number that cancels it, so `x + 2` is zero at `x = −2`, and `x − 5` at `x = 5`. Each root has the opposite sign to its bracket\'s number. The dot rides the U-shaped parabola from Functions and their graphs, and meets the axis at the roots.' },
+      text: 'Each bracket is zero at the number that cancels it, so `x + 2` is zero at `x = −2`, and `x − 5` at `x = 5`. Each root has the opposite sign to its bracket\'s number. The dot rides the U-shaped parabola you met before, and meets the axis at the roots.' },
     { name: 'Plus signs', br: [2, 5], c: 0, lo: -8, hi: 1, x0: 0, ask: { s: 'prod' },
       opts: ['−2 or −5', '2 or 5', '−7'], want: '−2 or −5',
       task: 'Which values of `x` solve `(x + 2)(x + 5) = 0`?',
@@ -164,7 +164,7 @@
     { name: 'Mixed: the box', br: [0, -20], c: -75, lo: -1, hi: 21, x0: 10, ask: { s: 'poly', a: 12, b: -240, k: 900 }, need: 0,
       opts: ['5 or 15', '−5 or −15', '5'], want: '5 or 15',
       task: 'In Calculus fundamentals, the volume of the box cut from a 30 cm sheet had slope `12x² − 240x + 900`. Solve `12x² − 240x + 900 = 0`.',
-      why: 'Every term divides by 12, which is never 0, so `x² − 20x + 75 = 0`, which is `(x − 5)(x − 15) = 0`. So `x = 5` or `x = 15`. Both check: `300 − 1,200 + 900 = 0` and `2,700 − 3,600 + 900 = 0`. At 15 cm the cuts meet and there is no box, so 5 cm is the cut that course found.',
+      why: 'Every term divides by 12, which is never 0, so `x² − 20x + 75 = 0`, which is `(x − 5)(x − 15) = 0`. So `x = 5` or `x = 15`. Both check: `300 − 1,200 + 900 = 0` and `2,700 − 3,600 + 900 = 0`. At 15 cm the cuts meet and there is no box, so 5 cm is the cut found there.',
       hint: 'Not quite. Divide every term by 12 first.',
       hints: { '−5 or −15': 'Not quite. At `x = −5` it makes 2,400, not 0, so flip each sign.', '5': 'Not quite. `x = 15` works too, though at 15 cm the cuts meet and there is no box.' } },
   ];
@@ -176,7 +176,7 @@
   // names; the graph (GT..GB, x from GX0 to GX1); the pointer's track; the key; the working.
   const CX = [62, 170, 278], BW = 36, GX0 = 40, GX1 = 318;
   const MINH = 5;   // the shortest bar for a value that is not zero
-  const TAGY = 20, ZY = 74, HB = 36, LY = 134, GT = 152, GB = 252, KLY = 272, TY = 286, TKY = 307, KEYY = 330, WY0 = 356, WSTEP = 24;
+  const TAGY = 20, ZY = 74, HB = 44, LY = 134, GT = 152, GB = 252, KLY = 272, TY = 286, TKY = 307, KEYY = 330, WY0 = 356, WSTEP = 24;
   const FADE = 0.35;
   const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
   const testing = () => document.documentElement.classList.contains('k-testing');
@@ -403,7 +403,8 @@
     const cs = d.cs || [d.c], xv = -(d.br[0] + d.br[1]) / 2;
     const vals = [prodOf(d, d.lo), prodOf(d, d.hi)].concat(xv > d.lo && xv < d.hi ? [prodOf(d, xv)] : []);
     const ymin = Math.min.apply(null, [0].concat(cs, vals)), ymax = Math.max.apply(null, [0].concat(cs, vals)), pad = (ymax - ymin) * 0.06;
-    const maxB = Math.max.apply(null, [d.lo, d.hi].map((x) => Math.max(Math.abs(x + d.br[0]), Math.abs(x + d.br[1]))));
+    // The bars' scale counts a number in front (3x), so a bar never hangs past its name.
+    const maxB = Math.max.apply(null, [d.lo, d.hi].map((x) => Math.max(Math.abs(brV(d, 0, x)), Math.abs(brV(d, 1, x)))));
     const maxP = Math.max.apply(null, vals.concat(cs).map(Math.abs));
     const nWork = d.show ? (d.work ? d.work.length : 0) : 2;
     const G = { y0: ymin - pad, y1: ymax + pad, sB: HB / maxB, sP: HB / maxP, nWork, H: nWork ? WY0 + WSTEP * (nWork - 1) + 12 : KEYY + 12 };
