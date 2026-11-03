@@ -40,8 +40,9 @@ Every course brief starts from this: never re-teach what these cover, pitch abov
   foundations that make any new topic easy: maths, engineering science (mechanics, energy, heat, fluids, materials)
   and electrical and electronic principles, with marine and submarine examples only where they help.
 - Electrician, now committed to the electrical and electrical engineering path in the Royal Navy. Next: leading rate
-  engineering qualifications, a level 3 marine engineering qualification and a level 4 management and leadership
-  qualification (at HMS Drake / HMS Collingwood). Educationally qualified for Upper Yardman and Senior Upper Yardman.
+  engineering qualifications and a level 3 marine engineering qualification (at HMS Drake / HMS Collingwood).
+  Educationally qualified for Upper Yardman and Senior Upper Yardman. No leadership or management content, ever
+  (Dan, 3 Nov): never plan, suggest or build it.
 - Electrical (EAL): NVQ L3 Electrical Installation; L3 18th Edition BS 7671:2018 (Feb 2025); L3 Building Regulations
   for Electrical Installations in Dwellings (May 2025); L3 Initial Verification and Certification, L3 Periodic
   Inspection, Testing and Certification, L3 In-Service Inspection and Testing (PAT) and L2 Fundamental Inspection,

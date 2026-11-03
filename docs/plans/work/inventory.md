@@ -33,7 +33,6 @@ The most Navy-specific course on the list, but it rests on public sources only.
 | 3 | Transformers | 4 | 4.4M | None dedicated | **Yes** (lowest risk) |
 | 4 | Earthing at sea: insulated neutrals and earth faults (Three-phase power at sea, part 2) | 3 | 3.4M | None | Yes |
 | 5 | Instrumentation and control | 6-7 | 7.0M | None | No (too big; a 4-lesson cut could be) |
-| 6 | Leading a team (for the Level 4 management and leadership) | 4 | 4.3M | None; needs his syllabus | Yes, for a role-play style |
 | 7 | Batteries and stored energy | 3 | 3.4M | One IET introduction (PDF) | Yes |
 | 8 | Mechanical and heat science for marine engineering | 6-8 | 7-9M | None; needs his syllabus | No |
 | 9 | Maths: Vectors, then Differential equations | 6 + 6 | 6.5M each | None | No |
@@ -270,27 +269,6 @@ graphs.
 **As a TEST: not as a whole.** A 4-lesson cut ("Control loops: from on-off to PID", built around one
 tank or cooler loop he tunes) would be a strong simulator test.
 
-### 6. Leading a team (for the Level 4 management and leadership qualification)
-
-**What it is.** A non-electrical course for the qualification CLAUDE.md names. About 4 lessons, for
-example: leading a task and a team; giving direction and briefing a job; feedback and handling
-problems; planning and checking work. The exact topics must come from his syllabus.
-
-**His materials.** None. No leadership or management file is in his Drive, and the repo holds no Navy
-syllabus. Public models of leadership exist, but which ones his course uses is unknown; building
-before seeing the syllabus risks teaching the wrong model.
-
-**How it serves him.** Directly, the Level 4 ahead, and the leading rate's job of running a section.
-
-**Builds on.** Nothing live.
-
-**Instructions.** None. It is non-electrical; it is listed because it clearly serves the L4.
-
-**Size and cost.** 4 lessons, 4.0M; research about 0.3M. **About 4.3M**, once he shares the syllabus.
-
-**As a TEST: yes, for a different style:** scenario role-play, where Claude plays a team member and
-Dan's answer is marked against points (the app already marks written answers this way). Not a good
-first test, because the content cannot be fixed until the syllabus arrives.
 
 ### 7. Batteries and stored energy
 
@@ -396,8 +374,8 @@ TT case for shore work.
 ## 5. What we do not hold, and would change the ranking
 
 - **His Navy syllabi.** The leading rate engineering qualifications, the Level 3 marine engineering
-  qualification and the Level 4 management and leadership qualification. Every brief since 20 Oct has
-  asked for them (Motors question 4, I&T question 6). Ranks 2, 4, 5, 6 and 8 would be mapped to them,
+  qualification. Every brief since 20 Oct has
+  asked for them (Motors question 4, I&T question 6). Ranks 2, 4, 5 and 8 would be mapped to them,
   and rank 8 cannot start without one.
 - **PAT slides** (for the PAT course, once I&T is green-lit).
 - **GN3 pages** (for I&T, once green-lit).
@@ -418,8 +396,6 @@ A good test is small (3 to 5 lessons), self-contained, and quick to judge. Ranke
    sources only.
 3. **Transformers (rank 3, 4 lessons).** Lowest risk; tests presentation more than learning.
 4. **Earthing at sea (rank 4, 3 lessons).** Good, best after rank 2.
-5. **Leading a team (rank 6, 4 lessons).** The only fit for a conversation or role-play style, but
-   waits for his syllabus.
 6. **Emergency lighting (3 lessons).** The right size, but on hold.
 
 Whatever the style, the test should keep the two ways through ("quiz me through" and "just a read

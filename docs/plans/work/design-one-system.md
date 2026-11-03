@@ -120,8 +120,7 @@ puzzle shows a drawing he already knows, so he spends his attention on the quest
 2. **Each middle lesson adds one layer.** Its opener asks about an earlier layer on the same map.
 3. **The last lesson adds no new layer.** It runs the whole plant as one job, a scenario in short
    stages, each a decision on the map. It ends with a written handover to the next watch. That is a
-   whole task in the 4C/ID sense, and it also gives his Level 4 leadership path some practice in
-   briefing.
+   whole task in the 4C/ID sense.
 4. **The course page shows the map growing at no cost.** The current node of "Your path" already
    shows the lesson's first drawing (ARCHITECTURE section 12, "the topic page"). Here, that drawing is
    the plant with the lesson's part ringed. The path becomes the map filling in.

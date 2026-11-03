@@ -33,7 +33,7 @@ mostly on his phone (360 px first; laptop equally good).
 Dan: an electrician (BS 7671 design and verification, inspection and testing, subsea cable fault
 location) heading into Royal Navy electrical/engineering training. Full list in `CLAUDE.md`, "Dan's
 background". The courses serve that path: maths for the HNC now, an electrical engineering shelf
-next, leadership later.
+next.
 
 ## 3. The content the UI must present
 

@@ -26,7 +26,6 @@ cost. "Ready" means nothing is stopping it.
 | 2 | Generators and the ship's switchboard | Almost none | Very high for the Navy path | 4 | 4.6M | Ready. Public sources only |
 | 3 | Earth faults at sea | None | High. The biggest shore-to-ship change | 2 or 3 | 2.4–3.4M | Ready. Best after 1 |
 | 4 | Transformers | None | Medium. Partly known ground | 4 | 4.4M | Ready |
-| 5 | Leading a team (Level 4) | None yet | High | 4 | 4.3M | Waits for your syllabus |
 | 6 | Instrumentation and control | None | High, but wide | 4–7 | 4–7M | Ready |
 | 7 | Batteries and stored energy | One IET introduction | Medium | 3 | 3.4M | Ready |
 | 8 | Mechanical and heat science | None | Unknown | 6–8 | 7–9M | Waits for your Level 3 syllabus |

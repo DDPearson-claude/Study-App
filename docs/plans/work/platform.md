@@ -203,8 +203,7 @@ sources say it is the right test.
 
 ### 3.5 "Teach it back" to a named listener — S
 `K.written` with an audience: "Explain to a new AB on your section why the breaker tripped." Same
-marking against points, plus one point about pitch (no unexplained jargon, safe way first). Fits his
-Level 4 leadership path: explaining is part of leading.
+marking against points, plus one point about pitch (no unexplained jargon, safe way first).
 - **Size:** S (0.2 to 0.4M): one prompt line, one field, the rest exists.
 
 ### 3.6 "Spot the mistake" step — S on the engine
@@ -266,7 +265,7 @@ sooner (the hypercorrection effect). Light, no score shown.
 | **Find the fault** (recommended test) | A job opens with a symptom. He chooses tests on a drawn circuit, reads results computed from a shown rule, is asked by Claude what each tells him, names the fault, explains it to a junior, keeps a card | 3.4 (evidence-table cut first), 3.2, 3.3, 3.5 | Fault-finding: from symptom to cause |
 | Decide and see | Each lesson is three or four decisions on a real job (a generator to parallel, a load to shed); a poor choice plays out before the better one | 3.3, 3.2 | Generators and the ship's switchboard |
 | Spot the mistake | He checks someone else's design or working, line by line, as a supervisor | 3.6, 3.7 | A Design and verification follow-up; Transformers |
-| Talk it through | Claude plays a person on the job; he explains, persuades, briefs | 3.2, 3.5 | Leading a team (Level 4), once Dan shares the syllabus |
+| Talk it through | Claude plays a person on the job; he explains, persuades, briefs | 3.2, 3.5 | Fault-finding (talking a job through) |
 | Keep it fresh | Short mixed drills with new numbers, plus the quick reference on the job | 3.7, 3.8, 3.10 | Design and verification, the maths courses |
 
 **Why "Find the fault" for the test.** It is the most different from what Dan has used (the order is
