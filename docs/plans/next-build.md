@@ -480,3 +480,23 @@ jobs, not a different style. **It fails** if it felt slow, fiddly on the phone, 
 **One ask, no decision needed:** when you can, share the syllabi for the leading rate engineering
 qualifications and the Level 3 marine engineering qualification. Lessons 2 to 4 would be pitched at
 them. The test does not wait for them.
+
+## Queue, 3 Nov 2026 (Dan: "look at the overall course"; "select what's most relevant" from Brilliant)
+
+Brilliant's live catalogue (brilliant.org/courses, 3 Nov) matches the shelves of 7 Oct. What is
+left on it, judged against the whole path (Level 3 marine engineering, leading rate, electrical
+work at sea), with no leadership content (Dan, 3 Nov):
+
+| Order | Course | From Brilliant | Why |
+|---|---|---|---|
+| 1 | Instrumentation and control | none (not on Brilliant) | Building now (workflow wf_0e6171b6-277) |
+| 2 | Digital circuits | Digital Circuits | Gates, truth tables, binary, NAND/NOR: the logic under PLCs, alarms and trip voting |
+| 3 | Waves and radiation | Waves and Light (retired), plus GCSE atomic physics | The two GCSE physics gaps, for January (args in tools/course/args) |
+| 4 | Logic | Logic | Deduction from evidence: the reasoning fault-finding runs on |
+| 5 | Probability for reliability | Probability and Chance, Predicting with Probability | Failure chances, redundancy and 2oo3 voting |
+| - | Circuits | Circuits | Skip: below his level (he is an electrician) |
+| - | Python, AI, crypto, search, quantum, data science | various | Not on his path |
+| - | Classical mechanics, Physics of the everyday | retired | Covered by Mechanics and materials and Heat and fluids |
+
+Fault-finding (taste test pending) and Maintenance and condition monitoring stay planned; they are
+not Brilliant courses.
