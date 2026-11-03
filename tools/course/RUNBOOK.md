@@ -286,7 +286,9 @@ node tools/course/assemble.mjs docs --dir $D
 Writes `$D/out/` and `manifest.json`. Then, in the Claude Code session, one ArtifactData batch to
 the live artifact (docs/DEPLOY.md has its URL): a `set` per manifest entry (`file_path` = its file;
 no `if_version`: they are new documents). Then read `shelves/<sid>`, set the course's `tid` in its
-JSON (docs/shelves-<sid>.json too), and `set` it back with `if_version`. Finally copy `$D` (without
+JSON (docs/shelves-<sid>.json too), and `set` it back with `if_version`. If the shelf, the
+course's folder or the course itself is marked `hidden: true`, remove that flag in the same write,
+or Dan cannot see the course (the Science shelf was hidden on 27 Oct and hid Scientific thinking). Finally copy `$D` (without
 `tools/` and the PNGs) into `docs/courses/<shelf>/<course>/` and commit.
 
 ## 8. Refresher lessons (a course Dan has done before: Design and verification)
