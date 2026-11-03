@@ -1,0 +1,840 @@
+<!-- kind: skill -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 34rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.08rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .scene { display: block; width: 100%; max-width: 30rem; margin-inline: auto; }
+  /* The chain: five blocks joined by arrows; a block lights as the pressure reaches it. */
+  .scene .blk { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.2; }
+  .scene .lit { fill: var(--k-fill1); stroke: var(--k-accent2); stroke-width: 2; }
+  .scene .bt { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .big { font: 700 16px var(--k-font); fill: var(--k-accent2); }
+  .scene .arw { fill: none; stroke: var(--k-strong); stroke-width: 1.6; }
+  .scene .ah { fill: var(--k-strong); }
+  /* The bench: the ideal line dashed, the transmitter's own line solid, beads at the check points. */
+  .scene .grid { stroke: var(--k-line); stroke-width: 1; }
+  .scene .axis { stroke: var(--k-strong); stroke-width: 1.4; fill: none; }
+  .scene .ideal { stroke: var(--k-muted); stroke-width: 1.6; stroke-dasharray: 6 4; fill: none; }
+  .scene .tx { stroke: var(--k-accent2); stroke-width: 2.6; fill: none; stroke-linecap: round; }
+  .scene .stair { stroke: var(--k-accent); stroke-width: 2; fill: none; stroke-linejoin: round; }
+  .scene .bead { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 1.2; }
+  .scene .ring { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 1.8; }
+  .scene .guide { stroke: var(--k-muted); stroke-width: 1.2; stroke-dasharray: 3 3; }
+  .scene .brace { fill: none; stroke: var(--k-ink); stroke-width: 1.5; }
+  .scene .band { fill: var(--k-fill3); }
+  .scene .blk1 { fill: var(--k-fill2); stroke: var(--k-ink); stroke-width: .8; }
+  .scene .hoop { fill: none; stroke: var(--k-ink); stroke-width: 1.3; }
+  .scene .rule { stroke: var(--k-line); stroke-width: 1; }
+  .scene .tk { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .pc { font: 600 13px var(--k-font); fill: var(--k-accent); }
+  .scene .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .val { font: 700 14px var(--k-font); fill: var(--k-accent2); }
+  .scene .th { font: 600 13px var(--k-font); fill: var(--k-muted); }
+  .scene .td { font: 400 14px var(--k-font); fill: var(--k-ink); font-variant-numeric: tabular-nums; }
+  .scene .td.bad { fill: var(--k-warn); font-weight: 700; }
+  .scene .td.q { fill: var(--k-accent2); font-weight: 700; }
+  .scene .ph { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  .ctl > * + *, #c-screws > * + *, #c-panels > * + * { margin-top: 12px; }
+  .screw { width: 26px; height: 26px; vertical-align: -8px; margin-right: 8px; }
+  .screw .head { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.4; }
+  .screw .slot { stroke: var(--k-ink); stroke-width: 2.6; stroke-linecap: round; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-inline: 16px; font-size: .95rem; white-space: nowrap; }
+  /* Answer choices sit one under another, each label whole. */
+  .row.picks { flex-direction: column; flex-wrap: nowrap; gap: 8px; }
+  .picks .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; font-size: 1.02rem; text-align: left; white-space: normal; overflow-wrap: normal; word-break: normal; hyphens: none; }
+  .picks .k-btn[aria-pressed="true"] { border-color: var(--k-accent2); box-shadow: inset 0 0 0 1.5px var(--k-accent2), 0 2px 0 var(--k-line); }
+  .picks .k-btn[aria-pressed="true"]::before { content: "\2713"; margin-right: .45em; font-weight: 800; }
+  .answers .k-answer { max-width: 20rem; }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .why, .done, .closing { line-height: 1.6; }
+  .closing { font-weight: 600; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }
+</style>
+
+<p class="lead">A measurement chain, and a 0 to 10 bar transmitter's straight line on a calibration bench. The range and every error on it are examples.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 400" width="100%" role="img" aria-label=""><g id="art"></g></svg>
+    <div class="ctl" id="ctl">
+      <div id="c-screws"><div id="c-zero"></div><div id="c-span"></div></div>
+      <div id="c-press"></div>
+      <div id="c-panels"><div id="c-noise"></div><div id="c-dstep"></div><div class="row" id="c-sweep"></div><div id="c-dir"></div></div>
+    </div>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="answers" id="answers"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+    <p class="closing" id="closing" hidden></p>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Each bar adds 1.6 mA to the 4 mA at 0 bar. Close-ups and the band are not to scale.</p>
+
+<script>
+  // ---------- helpers ----------
+  const NB = ' ', MINUS = '−';
+  const el = (id) => document.getElementById(id);
+  const near = (a, b, tol) => Math.abs(a - b) <= (tol == null ? 1e-9 * Math.max(1, Math.abs(a), Math.abs(b)) : tol);
+  const strip = (s) => String(s).replace(/\[\^\d+\]/g, '');
+  // A number to dp places, with a true minus sign; sg adds + for a positive error.
+  const fx = (v, dp) => { const t = Math.abs(v).toFixed(dp); return (v < 0 && +t !== 0 ? MINUS : '') + t; };
+  const sg = (v, dp) => { const t = Math.abs(v).toFixed(dp); return (+t === 0 ? '' : v > 0 ? '+' : MINUS) + t; };
+  const mAText = (v) => fx(v, 2) + NB + 'mA';
+  const barText = (v, step) => fx(v, step >= 0.1 ? 1 : 2) + NB + 'bar';
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  const FADE = 0.35;
+  // Sources the checks restate (the lesson's own).
+  const ISA = 'https://www.isa.org/getmedia/a9356c34-5956-4952-9888-d6df8dd3e7ba/calabration-principles-chapter1.pdf';
+  const ACCU = 'https://accuspecinc.com/hvac-accuracy-statements/';
+  const UNC = 'https://users.physics.unc.edu/~deardorf/uncertainty/UNCguide.pdf';
+
+  // ---------- the rule (pure) ----------
+  const LO = 0, HI = 10;                        // the example range, bar
+  const OUT0 = 4, OUT1 = 20;                    // the signal, mA
+  const SPAN_IN = HI - LO, SPAN_OUT = OUT1 - OUT0, PER = SPAN_OUT / SPAN_IN;   // 10 bar, 16 mA, 1.6 mA a bar
+  const CHK = [0, 0.25, 0.5, 0.75, 1].map((f) => LO + f * SPAN_IN);          // the check pressures
+  const PCT = [0, 25, 50, 75, 100];
+  const LIMIT = 0.5;                            // an error above this, in % of span, shows as a warning
+  const DOWN_GAP = 0.16;                        // mA, the down run at the three middle points
+  const ideal = (p) => OUT0 + PER * (p - LO);
+  const reading = (p, z, s) => OUT0 + z + (SPAN_OUT + s) * (p - LO) / SPAN_IN;
+  const errPct = (out, p) => (out - ideal(p)) / SPAN_OUT * 100;
+  const toBar = (out) => LO + (out - OUT0) / PER;
+  const onStep = (v, step) => Math.round(v / step + 1e-9) * step;
+  const spanOf = (lo, hi) => hi - lo;
+  const downAt = (j) => (j > 0 && j < CHK.length - 1 ? DOWN_GAP : 0);
+  // Where each repeat bead lands in its noise band: a fixed scatter, from -1 to +1 of the band.
+  const SPREAD = [0.85, -0.6, 0.15, -0.95, 0.45];
+  const jit = (j, k) => SPREAD[(k + 2 * j) % 5] * (j % 2 ? -1 : 1);
+  // The display's trace as a pressure is swept up: [pressure, display reading] corners.
+  function stairPts(step, pEnd) {
+    const pts = [[LO, onStep(LO, step)]];
+    if (step < 0.05) { pts.push([pEnd, pEnd]); return pts; }
+    for (let k = 0; ; k++) {
+      const b = LO + (k + 0.5) * step;
+      if (b >= pEnd - 1e-9) break;
+      pts.push([b, LO + k * step], [b, LO + (k + 1) * step]);
+    }
+    pts.push([pEnd, onStep(pEnd, step)]);
+    return pts;
+  }
+  // The examples' figures, worked from the rule.
+  const Z1 = 0.32, S8 = -0.48, S9 = 0.40;
+  const ACC = 0.5, R1 = 1;                      // accurate to ±0.5% of span; a 1 bar reading
+  const ACC_BAR = ACC / 100 * SPAN_IN;          // 0.05 bar
+  const LOGGED = 6.27;
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // pic: what is drawn. screws: 'free' (both sliders) or fixed z, s in mA. table: 'live', 'errq'
+  // (errors hidden until checked), 'run' (fills in turn), 'mid' (half way row asked). disp: the
+  // pressure the display reads. A typed puzzle's answer and slips are worked from the rule.
+  const STEPS = [
+    { kind: 'pick', name: 'Which screw', pic: 'bench', screws: 'free', z: Z1, s: 0, fix: true, beads: 'all', table: 'live', disp: HI, rdur: 1.6,
+      task: 'This transmitter reads high at every check point. Try the two screws. Which one puts its line back on the dashed one?',
+      read: 'This transmitter reads high at every check point. Which screw puts its line back on the dashed one?',
+      opts: ['The zero screw', 'The span screw', 'Either one'], want: 'The zero screw',
+      hint: 'The span screw cannot move the bottom of the line. This line is high there.',
+      hints: { 'The span screw': 'The span screw tilts the line about its bottom end. This line is high at the bottom too.',
+        'Either one': 'The span screw cannot move the bottom of the line. This line is high there.' },
+      why: 'Every point reads 0.32 mA high. So the line runs parallel to the dashed one. Sliding the whole line down 0.32 mA lines up every point at once. The zero screw makes that slide.' },
+    { show: true, name: 'The chain', pic: 'bench', lights: true, press: true, disp: 'press', dur: 3.6,
+      text: 'A pressure reaches the display through a chain. A *sensor* feels it. A *transducer* makes it electrical. The *transmitter* sends it on as 4 to 20 mA. Here its straight line turns 0 to 10 bar into 4 to 20 mA. So 5 bar sends 12 mA.',
+      still: { press: 5 } },
+    { kind: 'typed', name: 'At 7.5 bar', pic: 'bench', ask75: true, disp: 7.5, ans: 'ma', unit: 'mA', decimals: 0, wdp: 0, rdur: 1.9,
+      answer: reading(7.5, 0, 0),
+      slips: [{ value: 0.75 * SPAN_OUT, hint: 'That is 75% of 16 mA. Add the 4 mA the line starts from.' },
+        { value: 0.75 * OUT1, hint: 'That is 75% of 20 mA. The line starts at 4 mA. Only the 16 mA above that carries the reading.' }],
+      task: 'The transmitter turns 0 to 10 bar into 4 to 20 mA along a straight line. What current should it send at 7.5 bar?',
+      read: 'The transmitter turns 0 to 10 bar into 4 to 20 mA along a straight line. What current should it send at 7.5 bar?',
+      hint: 'Each bar adds 1.6 mA to the 4 mA at 0 bar.',
+      why: 'The output rises 16 mA over 10 bar. That is 1.6 mA a bar. So 7.5 bar sends 4 + 1.6 × 7.5 = 4 + 12 = 16 mA.' },
+    { show: true, name: 'Range and span', pic: 'bench', braces: true, disp: 5, dur: 3.2,
+      text: strip('The *range* runs from the lowest value an instrument is set for to the highest. Here that is 0 to 10 bar. Its *span* is the difference, 10 bar in and 16 mA out.[^1] Errors are counted in *per cent of span*. So 1% is 0.1 bar or 0.16 mA anywhere on the line.') },
+    { kind: 'typed', name: 'A span to find', pic: 'bench', braceQ: true, plo: -1, ans: 'span', unit: 'bar', decimals: 0, wdp: 0, rdur: 0.8,
+      answer: spanOf(-1, 9),
+      slips: [{ value: 9, hint: 'That is the top of the range. The span is the top minus the bottom.' },
+        { value: 9 - 1, hint: 'Taking away −1 adds 1. So the span is 9 − (−1).' }],
+      task: 'A transmitter is set for −1 to 9 bar. What is its span?',
+      read: 'A transmitter is set for −1 to 9 bar. What is its span?',
+      hint: 'Take the bottom of the range from the top.',
+      why: 'The span is the top minus the bottom. 9 − (−1) = 9 + 1 = 10 bar. It is the same span as 0 to 10 bar, slid down by 1 bar.' },
+    { show: true, name: 'Two screws', pic: 'bench', screws: 'free', z: 0, s: 0, beads: 'open', table: 'live', disp: HI, dur: 3.2,
+      text: strip('The *zero screw* slides the whole line up or down. The *span screw* changes its slope.[^2] Here the span screw tilts the line about its bottom end. Slide each one and watch the beads.'),
+      read: 'The zero screw slides the whole line up or down. The span screw changes its slope. Here the span screw tilts the line about its bottom end. In the picture it has tilted the line 0.48 mA low at 10 bar. At 0 bar it still reads 4 mA.',
+      still: { zero: 0, span: S8 } },
+    { kind: 'typed', name: 'A zero error', pic: 'bench', z: Z1, s: 0, beads: 'all', table: 'errq', disp: HI, ans: 'zero', unit: '%', decimals: 1, wdp: 0, rdur: 1.8,
+      answer: errPct(reading(LO, Z1, 0), LO),
+      slips: [{ value: Z1, hint: 'That is the error in mA. Divide it by the 16 mA span, then multiply by 100.' },
+        { value: Z1 / OUT0 * 100, hint: 'That divides by the 4 mA reading. Errors here are counted in per cent of span, which is 16 mA.' },
+        { value: Z1 / OUT1 * 100, hint: 'That divides by 20 mA, the top of the range. The span is 20 − 4 = 16 mA.' }],
+      task: 'This transmitter reads 4.32 mA at 0 bar and 20.32 mA at 10 bar. What is its error at 0 bar, in per cent of span?',
+      read: 'This transmitter reads 4.32 mA at 0 bar and 20.32 mA at 10 bar. What is its error at 0 bar, in per cent of span?',
+      hint: 'Error in mA ÷ 16 mA × 100.',
+      why: 'It reads 4.32 − 4.00 = 0.32 mA high. 0.32 ÷ 16 × 100 = 2% of span. At 10 bar it is high by the same 0.32 mA. So it is a zero error.' },
+    { show: true, name: 'A span error', pic: 'bench', z: 0, s: S8, beads: 'run', table: 'run', disp: HI, dur: 3.8,
+      text: 'A *calibration* feeds in known pressures at 0, 25, 50, 75 and 100%. It compares each output with the ideal. This transmitter is right at 0 bar, but its error grows in step with the pressure. That is a *span error*, out by −3% of span at the top.' },
+    { kind: 'typed', name: 'Half way up', pic: 'bench', z: 0, s: S9, beads: 'ends', table: 'mid', disp: HI, ans: 'half', unit: '%', decimals: 2, wdp: 2, rdur: 0.9,
+      answer: errPct(reading(5, 0, S9), 5),
+      slips: [{ value: errPct(reading(HI, 0, S9), HI), hint: 'That is the error at 10 bar. A span error grows in step with the pressure. So at 50% it is half that.' },
+        { value: reading(5, 0, S9) - ideal(5), hint: 'That is the error in mA at 50%. Divide it by 16 mA, then multiply by 100.' },
+        { value: 0, hint: 'This line is right at 0 bar but not above it. Its error grows up the range.' }],
+      task: 'A transmitter reads 4.00 mA at 0 bar and 20.40 mA at 10 bar. What is its error at 50%, in per cent of span?',
+      read: 'A transmitter reads 4.00 mA at 0 bar and 20.40 mA at 10 bar. What is its error at 50%, in per cent of span?',
+      hint: 'Find the error at 10 bar first. Half way up, a span error is half as big.',
+      why: 'At 10 bar it reads 20.40 − 20.00 = 0.40 mA high. That is 0.40 ÷ 16 × 100 = 2.5% of span. It is right at 0 bar, so this is a span error. Half way up it is half as big, 1.25% of span. That is 0.20 mA, so it sends 12.20 mA at 5 bar.' },
+    { show: true, name: 'Not the line', pic: 'panels', panels: 'ABC', panelCtl: true, dur: 3.6,
+      text: 'Some trouble is not the line at all. *Noise* scatters repeat readings. A coarse display rounds them onto steps. With *hysteresis*, the down run reads apart from the up run. The screws only move the line, so they cure none of these.' },
+    { kind: 'pick', name: 'What the screws fix', pic: 'panels', panels: 'ABCD', rdur: 1.5,
+      task: 'Which of these could the zero and span screws put right?',
+      read: 'Which of these could the zero and span screws put right?',
+      opts: ['A, the readings scattered round the line', 'B, the readout climbing in steps', 'C, the up and down runs apart', 'D, the tight beads all 2% high'],
+      want: 'D, the tight beads all 2% high',
+      hint: 'The screws move the whole line. Look for the trouble that is in the line.',
+      hints: { 'A, the readings scattered round the line': 'The screws move the whole line. Scatter moves each reading a different way, so no one line fits them all.',
+        'B, the readout climbing in steps': 'The steps come from the display rounding. A finer display cures that, not the screws.',
+        'C, the up and down runs apart': 'The screws would move both runs together. The gap between them would stay.' },
+      why: 'D\'s beads agree closely and sit 2% high at every point. They are precise but not accurate. That is a zero error. Sliding the line down 0.32 mA puts them right. The screws move the line, and only D\'s trouble is in the line.' },
+    { kind: 'typed', name: 'Per cent of reading', pic: 'bench', band: true, disp: R1, ans: 'rd', unit: '%', decimals: 1, wdp: 0, rdur: 0.8,
+      answer: ACC_BAR / R1 * 100,
+      slips: [{ value: ACC, hint: 'That is per cent of span. Work out the error in bar, then compare it with the 1 bar reading.' },
+        { value: ACC_BAR, hint: 'That is the error in bar. Divide it by the 1 bar reading, then multiply by 100.' },
+        { value: ACC / R1 * 100, hint: '0.5% of 10 bar is 0.05 bar, not 0.5 bar.' }],
+      task: 'A 0 to 10 bar transmitter is accurate to ±0.5% of span. It reads 1 bar. How big can its error be, as a per cent of the reading?',
+      read: 'A 0 to 10 bar transmitter is accurate to ±0.5% of span. It reads 1 bar. How big can its error be, as a per cent of the reading?',
+      hint: 'Find 0.5% of the 10 bar span first.',
+      why: '0.5% of 10 bar is 0.05 bar, anywhere on the range. At 1 bar that is 0.05 ÷ 1 × 100 = 5% of the reading. At 10 bar the same 0.05 bar is only 0.5%.' },
+    { kind: 'pick', name: 'A fair record', pic: 'scale', dispBar: 6.3, dstep: 0.1, closing: true, rdur: 1.4,
+      task: 'The display steps in 0.1 bar and shows 6.3 bar. Someone logs it as 6.27 bar. Is that a fair record?',
+      read: 'The display steps in 0.1 bar and shows 6.3 bar. Someone logs it as 6.27 bar. Is that a fair record?',
+      opts: ['No. The display only says the value is nearer 6.3 than 6.2 or 6.4', 'Yes. 6.27 rounds to 6.3, so it agrees', 'Yes, if the pressure is held steady'],
+      want: 'No. The display only says the value is nearer 6.3 than 6.2 or 6.4',
+      hint: 'The display cannot tell apart values that round to the same step.',
+      hints: { 'Yes. 6.27 rounds to 6.3, so it agrees': 'It agrees, but so would 6.26 or 6.33. The display cannot tell them apart.',
+        'Yes, if the pressure is held steady': 'A steady pressure still shows in 0.1 bar steps. Holding it still adds no figures.' },
+      why: 'A display that steps in 0.1 bar rounds every value onto its steps. So 6.3 bar means only that the value is nearer 6.3 than 6.2 or 6.4. Log 6.3 bar. A second decimal place claims more than the display can show.' },
+  ];
+  STEPS.forEach((d) => { if (d.kind === 'typed') d.want = d.answer.toFixed(d.wdp) + (d.unit === '%' ? '%' : NB + d.unit); });
+  const CLOSING = 'A straight line, its zero and its span. Next, the sensors at the start of the chain, beginning with temperature.';
+  const PICK = 'Tap one of the answers.';
+  const RUN0 = 0.6, RUN_GAP = 0.6;              // the check run: one point every 0.6 s
+
+  // ---------- each step's state ----------
+  // res: 'right', 'wrong', 'shown' (worked after two tries) or 'empty'; from: the screws at a right Check.
+  const blank = () => ({ pick: null, res: null, why: false, tries: 0, hint: '', from: null });
+  const solved = (st) => !!st && (st.res === 'right' || st.res === 'shown');
+  let S = STEPS.map(blank);
+  let finished = false, lastStep = -1, lastDone = false, lastSig = '', T = Infinity, motionEnd = 0, mode = 'open';
+  let REC = null, latest = 0, earliest = Infinity;
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Screen', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => stepper.get();
+  const screwText = (v) => sg(v, 2) + NB + 'mA';
+  const zc = K.control({ id: 'zero', label: 'Zero screw', min: -0.8, max: 0.8, step: 0.04, value: STEPS[0].z, fmt: screwText, snap: [0], into: '#c-zero' });
+  const sc = K.control({ id: 'span', label: 'Span screw', min: -0.8, max: 0.8, step: 0.04, value: 0, fmt: screwText, snap: [0], into: '#c-span' });
+  const pc = K.control({ id: 'press', label: 'Pressure', min: 0, max: 10, step: 0.5, value: 5, fmt: (v) => fx(v, 1) + NB + 'bar', into: '#c-press' });
+  const nc = K.control({ id: 'noise', label: 'A · Noise', min: 0, max: 1, step: 0.25, value: 0.5, fmt: (v) => fx(v, 2) + '% of span', into: '#c-noise' });
+  const dsc = K.choice({ id: 'dstep', label: 'B · Display step', options: [{ value: 0.01, label: '0.01 bar' }, { value: 0.1, label: '0.1 bar' }, { value: 0.5, label: '0.5 bar' }], value: 0.5, into: '#c-dstep' });
+  const dirc = K.choice({ id: 'dir', label: 'C · Direction', options: ['Up', 'Down', 'Both'], value: 'Both', into: '#c-dir' });
+  const sig = () => [zc.get(), sc.get(), pc.get(), nc.get(), dsc.get(), dirc.get()].join('|');
+  // A small drawn screw beside each screw slider, turning as it moves.
+  function screwIcon(ctl) {
+    const g = K.svg('g', { transform: 'rotate(0 13 13)' }, K.svg('line', { class: 'slot', x1: 6, y1: 13, x2: 20, y2: 13 }));
+    const icon = K.svg('svg', { class: 'screw', viewBox: '0 0 26 26', width: 26, height: 26, 'aria-hidden': 'true', focusable: 'false' }, K.svg('circle', { class: 'head', cx: 13, cy: 13, r: 11 }), g);
+    const lab = ctl.el.querySelector('.k-field-label');
+    if (lab) lab.insertBefore(icon, lab.firstChild);
+    return (v) => g.setAttribute('transform', 'rotate(' + Math.round(v / 0.8 * 180) + ' 13 13)');
+  }
+  const turnZ = screwIcon(zc), turnS = screwIcon(sc);
+  const I_PANELS = STEPS.findIndex((d) => d.panelCtl);
+  K.button({ label: 'Sweep', secondary: true, into: '#c-sweep', press: () => {
+    if (finished || at() !== I_PANELS) return;
+    mode = 'sweep'; play(2.6);
+  } });
+
+  // Answers: up to four choices; a typed field for each figure.
+  const pickBtns = [0, 1, 2, 3].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.kind !== 'pick' || k >= d.opts.length || solved(st)) return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+  function startRun(i) { if (at() !== i) return; mode = 'run'; play(STEPS[i].rdur); }
+  const ANS = {};
+  STEPS.forEach((d, i) => {
+    if (d.kind !== 'typed') return;
+    el('answers').appendChild(K.el('div', { id: 'ans-' + d.ans }));
+    const a = K.answer({ id: 'a-' + d.ans, unit: d.unit, answer: d.answer, decimals: d.decimals, slips: d.slips, into: '#ans-' + d.ans,
+      onCheck: (r) => {
+        const st = S[i];
+        if (solved(st)) return;
+        if (r.state === 'right') { st.res = 'right'; startRun(i); }
+        else if (r.state === 'wrong') {
+          st.tries += 1; st.hint = r.hint || d.hint;
+          if (st.tries >= 2) { st.res = 'shown'; st.why = true; a.reveal(); startRun(i); } else st.res = 'wrong';
+        } else { st.res = null; st.hint = ''; }
+        K.refresh();
+      } });
+    ANS[d.ans] = a;
+  });
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || solved(st)) return;
+    if (d.kind === 'typed') { ANS[d.ans].check(); return; }
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = st.pick === d.want ? 'right' : 'wrong';
+    if (st.res !== 'right') return;
+    if (d.fix) { st.from = { z: zc.get(), s: sc.get() }; zc.set(0, true); sc.set(0, true); lastSig = sig(); }
+    startRun(i);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    const d = STEPS[at()], st = S[at()];
+    if (d.show || finished || (d.kind === 'typed' && !solved(st) && st.tries === 0)) return;
+    st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const d = STEPS[at()];
+    if (!d.show || finished) return;
+    mode = 'open'; play(d.dur);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && !solved(S[i]))) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true; anim.pause(); T = Infinity;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(blank); finished = false; lastStep = -1;
+    Object.keys(ANS).forEach((k) => ANS[k].reset());
+    stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration and the motion after an answer; with reduced motion
+  // (and while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur) {
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = el('scene'), art = el('art');
+  let into = null;
+  const add = (n) => (into || art).appendChild(n);
+  // How far a part due at t0 has arrived, noting the timetable for the timing check.
+  function arr(t0, d) { d = d == null ? K.SOFT : d; if (t0 + d > latest) latest = t0 + d; if (t0 < earliest) earliest = t0; return K.arrive(T, t0, d); }
+  // How far a move from t0 to t1 has got, eased.
+  function mv(t0, t1) { if (t1 > latest) latest = t1; if (t0 < earliest) earliest = t0; return T >= t1 ? 1 : T <= t0 ? 0 : K.ease((T - t0) / (t1 - t0)); }
+  function part(a, rise, draw) { if (a <= 0) return; const g = add(K.svg('g')); K.fade(g, a, rise); const keep = into; into = g; draw(); into = keep; }
+  const r1 = (v) => Math.round(v * 10) / 10;
+  const ln = (x1, y1, x2, y2, cls) => add(K.svg('line', { class: cls, x1: r1(x1), y1: r1(y1), x2: r1(x2), y2: r1(y2) }));
+  const rc = (x, y, w, h, cls, rx) => add(K.svg('rect', { class: cls, x: r1(x), y: r1(y), width: r1(Math.max(0, w)), height: r1(Math.max(0, h)), rx: rx || 0 }));
+  const dot = (cx, cy, r, cls) => add(K.svg('circle', { class: cls, cx: r1(cx), cy: r1(cy), r }));
+  const pth = (d, cls) => add(K.svg('path', { class: cls, d }));
+  function tx(x, y, s, cls, anchor, extra) {
+    REC.texts.push(String(s));
+    return add(K.svg('text', Object.assign({ class: cls, x: r1(x), y: r1(y), 'text-anchor': anchor || 'middle' }, extra || {}), String(s)));
+  }
+  const X0 = 40, X1 = 300;
+  const BX = (p) => X0 + (p - LO) / SPAN_IN * (X1 - X0);
+  const YLO = 2.8, YHI = 21.6;
+
+  // The screws a step draws with: Dan's on a free step (eased to zero after a right answer), else the step's own.
+  function screwsOf(i, st, over) {
+    const d = STEPS[i];
+    if (over) return over;
+    if (d.screws !== 'free') return { z: d.z || 0, s: d.s || 0 };
+    let z = zc.get(), s = sc.get();
+    if (d.fix && st.res === 'right' && st.from && T < Infinity) { const k = mv(0.1, 1.5); z = K.lerp(st.from.z, 0, k); s = K.lerp(st.from.s, 0, k); }
+    return { z, s };
+  }
+
+  // The chain across the top: five blocks; on the chain screen each lights in turn.
+  const BLOCKS = [
+    { name: 'Sensor', x: 6, y: 6, w: 98, h: 32 },
+    { name: 'Transducer', x: 121, y: 6, w: 98, h: 32 },
+    { name: 'Transmitter', x: 236, y: 6, w: 98, h: 32 },
+    { name: '4–20' + NB + 'mA signal', x: 6, y: 56, w: 132, h: 38 },
+    { name: 'Display', x: 162, y: 56, w: 172, h: 38 },
+  ];
+  const LIT = [0.5, 1.1, 1.7, 2.3, 2.9];
+  function dispOf(d, scr) {
+    if (d.dispBar != null) return { text: barText(onStep(d.dispBar, d.dstep), d.dstep), a: 1 };
+    let p = d.disp, a = 1;
+    if (p == null) return null;
+    if (p === 'press') { p = pc.get(); a = d.lights ? arr(LIT[4]) : 1; }
+    if (d.table === 'run') a = arr(RUN0 + RUN_GAP * 4);
+    return { text: barText(onStep(toBar(reading(p, scr.z, scr.s)), 0.01), 0.01), a };
+  }
+  function drawChain(d, scr) {
+    BLOCKS.forEach((b, k) => {
+      rc(b.x, b.y, b.w, b.h, 'blk', 7);
+      if (d.lights) part(arr(LIT[k]), 0, () => rc(b.x, b.y, b.w, b.h, 'lit', 7));
+      if (k < 4) tx(b.x + b.w / 2, b.y + b.h / 2 + 4.5, b.name, 'bt');
+      else tx(b.x + 10, b.y + 24, b.name, 'bt', 'start');
+    });
+    ln(105, 22, 113, 22, 'arw'); pth('M113 17.5 L120 22 L113 26.5 Z', 'ah');
+    ln(220, 22, 228, 22, 'arw'); pth('M228 17.5 L235 22 L228 26.5 Z', 'ah');
+    pth('M285 38 V46 H72 V49', 'arw'); pth('M67.5 49 L72 55.5 L76.5 49 Z', 'ah');
+    ln(139, 75, 153, 75, 'arw'); pth('M153 70.5 L160 75 L153 79.5 Z', 'ah');
+    const shown = dispOf(d, scr);
+    if (shown) part(shown.a, 0, () => tx(324, 81, shown.text, 'big', 'end'));
+    REC.display = shown && shown.a > 0 ? shown.text : null;
+    REC.said.push('The chain runs from sensor to transducer to transmitter, then the 4 to 20 mA signal to the display' + (REC.display ? ', which reads ' + REC.display.replace(NB, ' ') : '') + '.');
+    return 100;
+  }
+
+  // The bench: output (mA) up the side, pressure (bar) along the bottom, five check points.
+  function drawBench(d, st, top, scr) {
+    const BY = top + 4, GT = BY + 30, PH = 200, GB = GT + PH;
+    const yv = (v) => GB - (v - YLO) / (YHI - YLO) * PH;
+    tx(4, BY + 12, 'Output, mA', 'tk', 'start');
+    ln(150, BY + 7.5, 168, BY + 7.5, 'ideal'); tx(173, BY + 12, 'Ideal', 'tk', 'start');
+    ln(212, BY + 7.5, 230, BY + 7.5, 'tx'); tx(235, BY + 12, 'Transmitter', 'tk', 'start');
+    [4, 8, 12, 16, 20].forEach((v) => { ln(X0, yv(v), X1, yv(v), 'grid'); tx(34, yv(v) + 4.5, String(v), 'tk', 'end'); });
+    CHK.forEach((p) => ln(BX(p), GT, BX(p), GB, 'grid'));
+    ln(X0, GT, X0, GB, 'axis'); ln(X0, GB, X1, GB, 'axis');
+    const lo = d.plo != null ? d.plo : LO;
+    CHK.forEach((p, j) => {
+      const v = p - LO + lo;
+      ln(BX(p), GB, BX(p), GB + 5, 'axis');
+      tx(BX(p), GB + 19, fx(v, Math.round(v) === v ? 0 : 1) + (j === 4 ? NB + 'bar' : ''), 'tk');
+      tx(BX(p), GB + 35, PCT[j] + '%', 'pc');
+    });
+    const z = scr.z, s = scr.s;
+    // The accuracy band, drawn 10 times wider than ±0.5% of span so it can be seen.
+    if (d.band) {
+      const w = 10 * ACC / 100 * SPAN_OUT;
+      pth('M' + BX(LO) + ' ' + r1(yv(ideal(LO) + w)) + ' L' + BX(HI) + ' ' + r1(yv(ideal(HI) + w)) + ' L' + BX(HI) + ' ' + r1(yv(ideal(HI) - w)) + ' L' + BX(LO) + ' ' + r1(yv(ideal(LO) - w)) + ' Z', 'band');
+      tx(186, yv(8), '±' + fx(ACC, 1) + '% of span, drawn', 'lab', 'start');
+      tx(186, yv(8) + 16, '10 times wider', 'lab', 'start');
+    }
+    ln(BX(LO), yv(reading(LO, z, s)), BX(HI), yv(reading(HI, z, s)), 'tx');
+    ln(BX(LO), yv(ideal(LO)), BX(HI), yv(ideal(HI)), 'ideal');
+    REC.line = { bottom: reading(LO, z, s), top: reading(HI, z, s) };
+    REC.said.push('A graph of output against pressure. The dashed ideal line runs from 4 mA at the bottom of the range to 20 mA at the top. The transmitter\'s line runs from ' + mAText(REC.line.bottom).replace(NB, ' ') + ' to ' + mAText(REC.line.top).replace(NB, ' ') + '.');
+    // The check beads.
+    if (d.beads) CHK.forEach((p, j) => {
+      let a = 1;
+      if (d.beads === 'open') a = arr(0.5 + 0.5 * j);
+      else if (d.beads === 'run') a = arr(RUN0 + RUN_GAP * j);
+      else if (d.beads === 'ends') a = j === 0 || j === 4 ? 1 : j === 2 && solved(st) ? arr(0.2) : 0;
+      if (a <= 0) return;
+      const out = reading(p, z, s);
+      part(a, 8, () => dot(BX(p), yv(out), 4.5, 'bead'));
+      if (a >= 0.5) REC.beads.push({ p, out });
+    });
+    // The pressure slider's bead, with its output beside it.
+    if (d.press) {
+      const p = pc.get(), out = reading(p, 0, 0), bx = BX(p), by = yv(out);
+      part(arr(LIT[2]), 0, () => {
+        if (bx - 7 > X0 + 2) ln(X0, by, bx - 7, by, 'guide');
+        ln(bx, by + 7, bx, GB, 'guide');
+        dot(bx, by, 6, 'bead');
+        if (p < 3) tx(bx + 11, Math.min(by + 21, GB - 6), mAText(out), 'val', 'start');
+        else tx(bx - 11, by - 11, mAText(out), 'val', 'end');
+      });
+      REC.said.push('A bead at ' + fx(p, 1) + ' bar sends ' + mAText(out).replace(NB, ' ') + '.');
+    }
+    // At 7.5 bar: the bead waits on the pressure axis, then rises to the line once answered.
+    if (d.ask75) {
+      const p = 7.5, out = reading(p, 0, 0), bx = BX(p), sv = solved(st);
+      const k = sv ? mv(0.1, 1.3) : 0, by = K.lerp(GB, yv(out), k);
+      if (sv) {
+        if (by < GB - 8) ln(bx, by + 7, bx, GB, 'guide');
+        part(arr(1.2), 0, () => { ln(X0, by, bx - 7, by, 'guide'); tx(bx - 11, by - 11, mAText(out), 'val', 'end'); });
+      } else tx(bx + 11, GB - 9, '?' + NB + 'mA', 'val', 'start');
+      dot(bx, by, 6, 'bead');
+      REC.said.push(sv ? '7.5 bar sends ' + mAText(out).replace(NB, ' ') + '.' : 'A bead waits at 7.5 bar. Its output is not shown yet.');
+    }
+    let bottom = GB + 40;
+    // Range and span: a brace along the bottom, one up the side, and a block 1% of span each way.
+    if (d.braces || d.braceQ) {
+      const yb = GB + 44, hi = lo + SPAN_IN, sv = solved(st);
+      const label = 'Range ' + fx(lo, 0) + ' to ' + fx(hi, 0) + NB + 'bar, span ' + (d.braceQ && !sv ? '?' : fx(spanOf(lo, hi), 0) + NB + 'bar');
+      part(d.braces ? arr(0.6) : d.braceQ && sv ? arr(0.1) : 1, 4, () => {
+        pth('M' + X0 + ' ' + (yb - 6) + ' V' + yb + ' H' + X1 + ' V' + (yb - 6), 'brace');
+        tx((X0 + X1) / 2, yb + 18, label, 'lab');
+      });
+      bottom = yb + 26;
+    }
+    if (d.braces) {
+      const y4 = r1(yv(OUT0)), y20 = r1(yv(OUT1)), mid = r1((y4 + y20) / 2);
+      part(arr(1.3), 0, () => {
+        pth('M304 ' + y4 + ' H309 V' + y20 + ' H304', 'brace');
+        tx(331, mid, 'Span ' + fx(spanOf(OUT0, OUT1), 0) + NB + 'mA', 'lab', 'middle', { transform: 'rotate(-90 331 ' + mid + ')' });
+      });
+      const p = 5, x = BX(p), w = BX(p + SPAN_IN / 100) - x, y1 = yv(ideal(p) + SPAN_OUT / 100), h = yv(ideal(p)) - y1;
+      part(arr(2.0), 0, () => { rc(x, y1, w, h, 'blk1'); dot(x + w / 2, y1 + h / 2, 9, 'hoop'); });
+      part(arr(2.4), 0, () => {
+        ln(x + w / 2 + 6, y1 + h / 2 + 7, 184, yv(9) - 15, 'guide');
+        tx(186, yv(9), '1% of span:', 'lab', 'start');
+        tx(186, yv(9) + 16, fx(SPAN_IN / 100, 1) + NB + 'bar, ' + fx(SPAN_OUT / 100, 2) + NB + 'mA', 'lab', 'start');
+      });
+    }
+    // The 1 bar reading on the accuracy screen.
+    if (d.band) {
+      const bx = BX(R1), by = yv(ideal(R1)), sv = solved(st);
+      dot(bx, by, 5.5, 'bead');
+      tx(bx + 12, Math.min(by + 22, GB - 6), fx(R1, 0) + NB + 'bar' + (sv ? ', ±' + fx(ACC_BAR, 2) + NB + 'bar' : ''), 'lab', 'start');
+      REC.said.push('A shaded band either side of the line, drawn ten times wider than plus or minus 0.5% of span. A bead marks a 1 bar reading.');
+    }
+    return bottom;
+  }
+
+  // The table: one row per check point.
+  const COLS = [34, 112, 200, 290];
+  function drawTable(d, st, top, scr) {
+    const TT = top + 8, y0 = TT + 36, RH = 22, sv = solved(st);
+    tx(COLS[0], TT + 14, 'Point', 'th'); tx(COLS[1], TT + 14, 'Ideal', 'th'); tx(COLS[2], TT + 14, 'Reading', 'th'); tx(COLS[3], TT + 14, 'Error', 'th');
+    tx(COLS[1], TT + 29, 'mA', 'th'); tx(COLS[2], TT + 29, 'mA', 'th'); tx(COLS[3], TT + 29, '% of span', 'th');
+    ln(4, y0, 336, y0, 'rule');
+    CHK.forEach((p, j) => {
+      const yb = y0 + RH * j + 15.5, out = reading(p, scr.z, scr.s), e = errPct(out, p), bad = Math.abs(e) > LIMIT + 1e-9;
+      ln(4, y0 + RH * (j + 1), 336, y0 + RH * (j + 1), 'rule');
+      tx(COLS[0], yb, PCT[j] + '%', 'td'); tx(COLS[1], yb, fx(ideal(p), 2), 'td');
+      let r = fx(out, 2), er = sg(e, 2), ra = 1, ea = 1;
+      if (d.table === 'errq') { if (sv) ea = arr(0.1 + 0.25 * j); else er = '?'; }
+      else if (d.table === 'run') ra = ea = arr(RUN0 + RUN_GAP * j);
+      else if (d.table === 'mid') {
+        if (j === 1 || j === 3) { r = er = '–'; }
+        else if (j === 2) { if (sv) ra = ea = arr(0.2); else r = er = '?'; }
+        else er = '–';
+      }
+      const cls = (s, isErr) => (s === '?' ? 'td q' : s === '–' ? 'tk' : isErr && bad ? 'td bad' : 'td');
+      part(ra, 0, () => tx(COLS[2], yb, r, cls(r, false)));
+      part(ea, 0, () => tx(COLS[3], yb, er, cls(er, true)));
+      REC.rows.push({ reading: ra >= 0.5 ? r : '', error: ea >= 0.5 ? er : '', bad: ea >= 0.5 && er !== '?' && er !== '–' && bad });
+    });
+    REC.said.push('A table of the five check points: ' + REC.rows.map((rw, j) => PCT[j] + '%, ' + (rw.reading || 'not yet') + ' mA, error ' + (rw.error || 'not yet')).join('; ') + '.');
+    return y0 + RH * 5 + 4;
+  }
+
+  // The other troubles, as small panels. A close-up draws each bead's gap from the ideal line, in
+  // % of span, 10 px for each 1%; panel B is a copy of the bench with the display's trace.
+  const CU_H = 60, CU_PX = 10;
+  function closeUp(y, head) {
+    tx(4, y + 14, head, 'ph', 'start');
+    tx(336, y + 14, 'Gap from ideal, % of span', 'tk', 'end');
+    const top = y + 24, yz = top + CU_H / 2, bot = top + CU_H;
+    ln(X0, top, X0, bot, 'axis');
+    [[2, '+2%'], [0, '0'], [-2, MINUS + '2%']].forEach((t) => { ln(X0 - 4, yz - t[0] * CU_PX, X0, yz - t[0] * CU_PX, 'axis'); tx(34, yz - t[0] * CU_PX + 4.5, t[1], 'tk', 'end'); });
+    ln(X0, yz, X1, yz, 'ideal');
+    tx(72, yz - 6, 'Ideal', 'tk');
+    CHK.forEach((p, j) => tx(BX(p), bot + 17, fx(p, Math.round(p) === p ? 0 : 1) + (j === 4 ? NB + 'bar' : ''), 'tk'));
+    return { yz, end: bot + 22 };
+  }
+  function benchMini(y, step, prog) {
+    tx(4, y + 14, 'B' + NB + '·' + NB + 'Display step', 'ph', 'start');
+    ln(196, y + 9.5, 212, y + 9.5, 'tx'); tx(216, y + 14, 'Line', 'tk', 'start');
+    ln(254, y + 9.5, 270, y + 9.5, 'stair'); tx(274, y + 14, 'Display', 'tk', 'start');
+    const top = y + 24, H = 110, bot = top + H, yv = (v) => bot - (v - YLO) / (YHI - YLO) * H;
+    [4, 12, 20].forEach((v) => { ln(X0, yv(v), X1, yv(v), 'grid'); tx(34, yv(v) + 4.5, String(v), 'tk', 'end'); });
+    ln(X0, top, X0, bot, 'axis'); ln(X0, bot, X1, bot, 'axis');
+    ln(BX(LO), yv(ideal(LO)), BX(HI), yv(ideal(HI)), 'tx');
+    const pEnd = LO + SPAN_IN * prog;
+    if (prog > 0) {
+      const pts = stairPts(step, pEnd);
+      pth('M' + pts.map((q) => r1(BX(q[0])) + ' ' + r1(yv(ideal(q[1])))).join(' L'), 'stair');
+      tx(48, top + 28, 'Display ' + barText(onStep(pEnd, step), step), 'lab', 'start');
+      REC.steps = pts.length;
+    }
+    CHK.forEach((p, j) => tx(BX(p), bot + 17, fx(p, Math.round(p) === p ? 0 : 1) + (j === 4 ? NB + 'bar' : ''), 'tk'));
+    return bot + 22;
+  }
+  function drawPanels(d, st, top) {
+    let y = top + 2;
+    const open = !!d.show && mode !== 'sweep';
+    const noise = d.show ? nc.get() : 0.5, step = d.show ? dsc.get() : 0.5, dir = d.show ? dirc.get() : 'Both';
+    const prog = !d.show ? 1 : mode === 'sweep' ? mv(0.1, 2.5) : mv(1.0, 3.4);
+    REC.dBeads = [];
+    [...d.panels].forEach((L, n) => {
+      const a = open ? arr(0.4 + 0.5 * n) : 1;
+      if (L === 'B') { const y0 = y; part(a, 6, () => benchMini(y0, step, prog)); y += 156 + 10; return; }
+      const y0 = y;
+      part(a, 6, () => {
+        const head = L + NB + '·' + NB + ({ A: 'Noise', C: 'Direction', D: 'Another transmitter' })[L];
+        const f = closeUp(y0, head), yz = f.yz;
+        CHK.forEach((p, j) => {
+          if (L === 'A') for (let k = 0; k < 5; k++) dot(BX(p) + (k - 2) * 4, yz - CU_PX * noise * jit(j, k), 3, 'bead');
+          if (L === 'C') {
+            if (dir !== 'Down') dot(BX(p) - 4, yz, 3.5, 'bead');
+            if (dir !== 'Up') dot(BX(p) + 4, yz - CU_PX * downAt(j) / SPAN_OUT * 100, 3.5, 'ring');
+          }
+          if (L === 'D') {
+            const slide = solved(st) ? mv(0.1, 1.4) : 0, gap = errPct(reading(p, Z1, 0), p) * (1 - slide);
+            for (let k = 0; k < 5; k++) { const g = gap + 0.06 * jit(j, k); dot(BX(p) + (k - 2) * 4, yz - CU_PX * g, 3, 'bead'); REC.dBeads.push(g); }
+          }
+        });
+        if (L === 'C') { dot(226, yz + 22, 3.5, 'bead'); tx(233, yz + 26.5, 'Up', 'tk', 'start'); dot(264, yz + 22, 3.5, 'ring'); tx(271, yz + 26.5, 'Down', 'tk', 'start'); }
+      });
+      y += 106 + 10;
+    });
+    REC.said.push('Small panels. A: repeat readings scattered round the ideal line. B: the display\'s reading climbing in steps of ' + fx(step, 2) + ' bar. C: the up and down runs, the down run higher at the middle points.' + (d.panels.length > 3 ? ' D: five tight beads at each point, all ' + (solved(st) ? 'on the ideal line.' : '2% of span high.') : ''));
+    return y - 6;
+  }
+
+  // The display's steps on a pressure scale, for the fair record.
+  function drawScale(d, st, top) {
+    const BY = top + 6, ay = BY + 54, step = d.dstep, shown = onStep(d.dispBar, step);
+    const xs = (v) => X0 + (v - (shown - step)) / (2 * step) * (X1 - X0);
+    tx(4, BY + 12, 'Pressure, bar', 'tk', 'start');
+    ln(X0, ay, X1, ay, 'axis');
+    [shown - step, shown, shown + step].forEach((v) => { ln(xs(v), ay, xs(v), ay + 6, 'axis'); tx(xs(v), ay + 22, fx(v, 1), 'tk'); });
+    if (!solved(st)) {
+      pth('M' + r1(xs(shown) - 5) + ' ' + (ay - 12) + ' L' + r1(xs(shown) + 5) + ' ' + (ay - 12) + ' L' + r1(xs(shown)) + ' ' + (ay - 3) + ' Z', 'ah');
+      tx(xs(shown), ay - 17, 'Display shows ' + barText(shown, step), 'lab');
+      REC.said.push('A pressure scale from 6.2 to 6.4 bar. The display shows 6.3 bar.');
+    } else {
+      const a = xs(shown - step / 2), b = xs(shown + step / 2);
+      part(arr(0.1), 0, () => rc(a, ay - 12, b - a, 12, 'band'));
+      part(arr(0.5), 4, () => tx(xs(shown), ay - 20, 'Any pressure here shows ' + barText(shown, step), 'lab'));
+      part(arr(0.7), 4, () => { dot(xs(LOGGED), ay, 5, 'bead'); tx(xs(LOGGED), ay + 40, fx(LOGGED, 2) + NB + 'logged', 'val'); });
+      REC.said.push('Every pressure from 6.25 to 6.35 bar shows 6.3 bar, and 6.27 bar sits inside that band.');
+    }
+    return ay + 48;
+  }
+
+  // The whole picture for a step now.
+  function scene(i, st, over) {
+    const d = STEPS[i], scr = screwsOf(i, st, over);
+    REC = { texts: [], beads: [], rows: [], said: [], display: null, line: null, dBeads: [], steps: 0, scr };
+    art.textContent = '';
+    into = null;
+    let y = 0;
+    if (d.pic !== 'panels') y = drawChain(d, scr);
+    if (d.pic === 'bench') y = drawBench(d, st, y, scr);
+    else if (d.pic === 'panels') y = drawPanels(d, st, y);
+    else y = drawScale(d, st, y);
+    if (d.table) y = drawTable(d, st, y, scr);
+    if (d.screws === 'free') { turnZ(scr.z); turnS(scr.s); }
+    svg.setAttribute('viewBox', '0 0 340 ' + Math.ceil(y + 4));
+    svg.setAttribute('aria-label', REC.said.join(' '));
+    return REC;
+  }
+  const paint = () => scene(at(), S[at()]);
+
+  // Each step opens on its own settings.
+  function applyOpen(i) {
+    const d = STEPS[i], st = S[i];
+    if (d.screws === 'free') { const fixed = d.fix && solved(st); zc.set(fixed ? 0 : d.z, true); sc.set(fixed ? 0 : d.s, true); }
+    if (d.press) pc.set(5, true);
+    if (d.panelCtl) { nc.set(0.5, true); dsc.set(0.5, true); dirc.set('Both', true); }
+  }
+
+  // ---------- words (built with K.el, never innerHTML): *a key term*, `kept on one line` ----------
+  const UNIT_GAP = /(\d) (?=(?:mA|bar)\b)/g;
+  function write(node, s) {
+    node.textContent = '';
+    String(s || '').replace(UNIT_GAP, '$1' + NB).split('`').forEach((seg, k) => {
+      if (!seg) return;
+      if (k % 2) { node.appendChild(K.el('span', { class: 'nw' }, seg)); return; }
+      const re = /\*([^*]+)\*/g;
+      let from = 0, m;
+      while ((m = re.exec(seg))) {
+        if (m.index > from) node.appendChild(document.createTextNode(seg.slice(from, m.index)));
+        node.appendChild(K.el('span', { class: 'term' }, m[1]));
+        from = m.index + m[0].length;
+      }
+      if (from < seg.length) node.appendChild(document.createTextNode(seg.slice(from)));
+    });
+    return node;
+  }
+  write(el('finish'), CLOSING);
+  const hintFor = (d, st) => (d.hints && d.hints[st.pick]) || d.hint;
+
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox'); applyOpen(i); lastSig = sig();
+      mode = 'open';
+      if (d.show && d.dur) play(d.dur); else { anim.pause(); T = Infinity; }
+    } else if (sig() !== lastSig) {
+      // Dan moved a control: whatever was playing settles at once.
+      lastSig = sig();
+      if (anim.playing()) anim.pause();
+      T = Infinity; mode = 'open';
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const sv = solved(st);
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint();
+    el('c-screws').hidden = d.screws !== 'free';
+    el('c-press').hidden = !d.press;
+    el('c-panels').hidden = !d.panelCtl;
+    el('ctl').hidden = el('c-screws').hidden && el('c-press').hidden && el('c-panels').hidden;
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    const opts = d.kind === 'pick' ? d.opts : [];
+    el('picks').hidden = !opts.length;
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    STEPS.forEach((x, k) => { if (x.kind === 'typed') el('ans-' + x.ans).hidden = finished || k !== i; });
+    el('answers').hidden = d.kind !== 'typed';
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = sv;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (st.res === 'right' ? ' right' : '');
+    write(fb, d.show ? '' : st.res === 'right' ? 'That\'s it.' : st.res === 'shown' ? 'Here is the working.' :
+      st.res === 'wrong' ? (d.kind === 'typed' ? st.hint : hintFor(d, st)) : st.res === 'empty' ? PICK : '');
+    const why = el('why');
+    why.hidden = !!d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    whyBtn.el.hidden = d.kind === 'typed' && !sv && st.tries === 0;
+    const closing = el('closing');
+    closing.hidden = !(d.closing && sv);
+    write(closing, d.closing && sv ? CLOSING : '');
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !sv);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const IX = (name) => STEPS.findIndex((d) => d.name === name);
+  const solvedSt = () => Object.assign(blank(), { res: 'right' });
+  // A step drawn in the state given: what it shows.
+  function drawn(i, st, t, over) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = t == null ? Infinity : t;
+    try { return scene(i, st, over); } finally { S[i] = keepS; T = keepT; paint(); }
+  }
+
+  K.check('An instrument calibrated for its range = 4 to 20 mA: the ideal line sends 4 mA at the bottom of the 0 to 10 bar range, 20 mA at the top and 12 mA half way, and the chain\'s display turns that back into 5.00 bar', () =>
+    near(ideal(LO), 4) && near(ideal(HI), 20) && near(ideal(5), 12) && near(toBar(12), 5) &&
+    drawn(IX('The chain'), blank()).display === barText(5, 0.01), { source: ISA });
+  K.check('The zero adjustment produces a parallel shift of the input-output line, and the span adjustment changes its slope: every zero setting moves all five check readings by the same amount and keeps the slope, and every span setting changes the slope and leaves the bottom end where it was', () => {
+    let ok = true;
+    for (let k = -20; k <= 20; k++) {
+      const v = k * 0.04;
+      if (!CHK.every((p) => near(reading(p, v, 0) - ideal(p), v, 1e-9))) ok = false;
+      if (!near((reading(HI, v, 0) - reading(LO, v, 0)) / SPAN_IN, PER, 1e-9)) ok = false;
+      const slope = (reading(HI, 0, v) - reading(LO, 0, v)) / SPAN_IN;
+      if (!near(reading(LO, 0, v), OUT0, 1e-9) || (k !== 0 && near(slope, PER, 1e-9))) ok = false;
+    }
+    const b = drawn(IX('Two screws'), blank(), null, { z: 0, s: S8 }).beads;
+    return ok && b.length === 5 && near(b[0].out, 4, 1e-9) && near(b[4].out, 19.52, 1e-9);
+  }, { source: ISA });
+  K.check('Span is the algebraic difference between the upper and lower range values: the relabelled range\'s typed span is its top minus its bottom, the same span as the first range, and its brace shows it only once checked', () => {
+    const i = IX('A span to find'), d = STEPS[i];
+    return near(d.answer, spanOf(d.plo, d.plo + SPAN_IN)) && near(spanOf(LO, HI), d.answer) &&
+      drawn(i, blank()).texts.some((s) => /span \?$/.test(s)) && drawn(i, solvedSt()).texts.some((s) => s.endsWith('span 10' + NB + 'bar'));
+  }, { source: ISA });
+  K.check('With a percentage of full-scale statement the error stays the same size throughout the range, and as a percentage of the reading it goes up as the reading goes down: the band is the same width in bar at every pressure, and the error as a share of the reading rises steadily as the reading falls', () => {
+    let prev = -Infinity, ok = true;
+    for (let r = 10; r >= 0.5; r -= 0.5) { const pct = ACC_BAR / r * 100; if (!(pct > prev)) ok = false; prev = pct; }
+    const half = (p) => toBar(ideal(p) + ACC / 100 * SPAN_OUT) - p;
+    return ok && [0, 1, 5, 10].every((p) => near(half(p), ACC_BAR, 1e-9)) && near(ACC_BAR / R1 * 100, 5, 1e-9) && near(ACC_BAR / HI * 100, ACC, 1e-9);
+  }, { source: ACCU });
+  K.check('Accuracy is the closeness of agreement between a measured value and a true or accepted value: panel D\'s tight beads all sit well off the ideal line until the zero screw slides them down, and then they sit on it', () => {
+    const i = IX('What the screws fix'), b = drawn(i, blank()).dBeads, a = drawn(i, solvedSt()).dBeads;
+    return b.length === 25 && a.length === 25 && b.every((x) => x > 1.8) && a.every((x) => Math.abs(x) < 0.1) && Math.max(...b) - Math.min(...b) < 0.2;
+  }, { source: UNC });
+  K.check('Every worked figure is right: 7.5 bar sends 16 mA (slips 12 and 15); −1 to 9 bar spans 10 bar (slips 9 and 8); 0.32 mA high is 2% of span (slips 0.32, 8 and 1.6); a −0.48 mA span screw reads 7.88, 11.76, 15.64 and 19.52 mA, −0.75, −1.50, −2.25 and −3.00%; 20.40 mA at 10 bar is 2.5% there and 1.25% half way, 12.20 mA (slips 2.5, 0.2 and 0); ±0.5% of a 10 bar span is 5% of a 1 bar reading (slips 0.5, 0.05 and 50)', () => {
+    const sl = (n) => STEPS[IX(n)].slips.map((s) => s.value), an = (n) => STEPS[IX(n)].answer;
+    const eq = (xs, ys) => xs.length === ys.length && xs.every((x, k) => near(x, ys[k], 1e-9));
+    const run = CHK.map((p) => reading(p, 0, -0.48)), errs = CHK.map((p, j) => errPct(run[j], p));
+    return near(an('At 7.5 bar'), 16, 1e-9) && eq(sl('At 7.5 bar'), [12, 15]) && near(an('A span to find'), 10, 1e-9) && eq(sl('A span to find'), [9, 8]) &&
+      near(an('A zero error'), 2, 1e-9) && eq(sl('A zero error'), [0.32, 8, 1.6]) &&
+      eq(run, [4, 7.88, 11.76, 15.64, 19.52]) && eq(errs, [0, -0.75, -1.5, -2.25, -3]) &&
+      near(an('Half way up'), 1.25, 1e-9) && eq(sl('Half way up'), [2.5, 0.2, 0]) && near(reading(5, 0, 0.4), 12.2, 1e-9) && near(reading(10, 0, 0.4), 20.4, 1e-9) &&
+      near(an('Per cent of reading'), 5, 1e-9) && eq(sl('Per cent of reading'), [0.5, 0.05, 50]);
+  });
+  K.check('The table works each error from the rule and flags any above 0.5% of span: the span error screen fills 4.00, 7.88, 11.76, 15.64 and 19.52 mA at 0.00, −0.75, −1.50, −2.25 and −3.00%, the last four flagged, and a 0.32 mA zero error reads +2.00% at every point', () => {
+    const a = drawn(IX('A span error'), blank()).rows, b = drawn(0, blank(), null, { z: 0.32, s: 0 }).rows;
+    return a.map((r) => r.reading).join() === '4.00,7.88,11.76,15.64,19.52' &&
+      a.map((r) => r.error).join() === ['0.00', MINUS + '0.75', MINUS + '1.50', MINUS + '2.25', MINUS + '3.00'].join() &&
+      a.map((r) => r.bad).join() === 'false,true,true,true,true' && b.length === 5 && b.every((r) => r.error === '+2.00' && r.bad);
+  });
+  K.check('The three other troubles: the down run reads 0.16 mA, 1% of span, high at 25, 50 and 75% and the same as the up run at the ends; every noise bead stays inside its band; a 0.1 bar display shows 6.3 bar for 6.26, 6.27 and 6.33 bar but not 6.24 or 6.36; a 0.5 bar display climbs in 20 steps over the range', () => {
+    const pts = stairPts(0.5, HI);
+    const jumps = pts.filter((q, k) => k > 0 && near(q[0], pts[k - 1][0]) && !near(q[1], pts[k - 1][1])).length;
+    let inBand = true;
+    for (let j = 0; j < 5; j++) for (let k = 0; k < 5; k++) if (Math.abs(jit(j, k)) > 1) inBand = false;
+    return CHK.map((p, j) => downAt(j)).join() === '0,0.16,0.16,0.16,0' && near(DOWN_GAP / SPAN_OUT * 100, 1, 1e-9) && inBand &&
+      [6.26, 6.27, 6.33].every((v) => near(onStep(v, 0.1), 6.3, 1e-9)) && !near(onStep(6.24, 0.1), 6.3, 1e-9) && !near(onStep(6.36, 0.1), 6.3, 1e-9) && jumps === 20;
+  });
+  K.check('Before a typed answer is checked its picture never shows it, and once checked it does: the 16.00 mA bead label, the 10 bar span, the +2.00% errors, the +1.25% half way row and the ±0.05 bar', () => {
+    const t = (n, st) => drawn(IX(n), st).texts.join('|');
+    const pairs = [['At 7.5 bar', '16.00' + NB + 'mA'], ['A span to find', 'span 10' + NB + 'bar'], ['A zero error', '+2.00'], ['Half way up', '+1.25'], ['Per cent of reading', '±0.05']];
+    return pairs.every((q) => t(q[0], blank()).indexOf(q[1]) < 0 && t(q[0], solvedSt()).indexOf(q[1]) >= 0) && t('Half way up', blank()).indexOf('12.20') < 0;
+  });
+  K.check('Each typed answer is accepted with or without its unit, and each slip is refused with its own hint', () =>
+    STEPS.every((d) => {
+      if (d.kind !== 'typed') return true;
+      const sp = { answer: d.answer, decimals: d.decimals, slips: d.slips, unit: d.unit };
+      const r = K.answer.grade(String(d.answer), sp), u = K.answer.grade(d.answer + ' ' + d.unit, sp);
+      return r.state === 'right' && u.state === 'right' && d.slips.every((s) => { const g = K.answer.grade(String(s.value), sp); return g.state === 'wrong' && g.hint === s.hint; });
+    }));
+  K.check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\'s motion within 2.5 s', () => {
+    const keepT = T, keepMode = mode;
+    const timed = (i, st, limit) => {
+      const keepS = S[i];
+      S[i] = st; T = Infinity; latest = 0; earliest = Infinity;
+      try { scene(i, st); } finally { S[i] = keepS; }
+      return latest <= limit + 1e-9;
+    };
+    mode = 'open';
+    const ok = STEPS.every((d, i) => (d.show ? timed(i, blank(), d.dur) && d.dur >= 3 && d.dur <= 4.5 && earliest >= FADE : timed(i, solvedSt(), d.rdur) && d.rdur <= 2.5));
+    T = keepT; mode = keepMode; paint();
+    return ok;
+  });
+
+  K.ready();
+</script>

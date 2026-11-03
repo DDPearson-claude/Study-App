@@ -1,0 +1,19 @@
+{
+  "title": "Instrumentation and control: measure, compare, act",
+  "hook": "Cut one wire to a diesel generator's oil pressure trip and the engine stops, though the oil pressure is fine. Is that a fault in the design, or the whole point of it?",
+  "oneBreath": "A plant keeps itself in line by measuring, comparing what it finds with what it should be, and acting. Sensors turn temperature, pressure, level and flow into an electrical signal, most often a current sent round a two-wire loop, and every instrument is checked against a standard and set again. Controllers, from a thermostat to PID and the logic in a PLC, decide what to do, and alarms and trips guard the plant, wired so that most faults in their own wiring fail safe.",
+  "ideas": [
+    { "id": "i1", "title": "The measurement chain: from the plant to a number", "oneLine": "Calibration checks an instrument's straight input-to-output line against a standard: the zero adjustment shifts the whole line, and the span adjustment tilts it.", "deps": [], "kind": "skill" },
+    { "id": "i2", "title": "Temperature: the PT100 and the thermocouple", "oneLine": "Both temperature sensors can be fooled by their wiring: a PT100's leads add resistance, and a thermocouple reads its hot end against its cold end.", "deps": ["i1"], "kind": "quantity" },
+    { "id": "i3", "title": "Pressure, level and flow", "oneLine": "Pressure gives level, from the pressure at a tank's foot, and flow, from the drop across a pipe's narrowing, which grows as flow squared.", "deps": ["i1"], "kind": "quantity" },
+    { "id": "i4", "title": "The 4-20 mA loop", "oneLine": "A 4-20 mA loop is one series ring, so the same current carries the reading over any cable length the supply can drive.", "deps": ["i1"], "kind": "mechanism" },
+    { "id": "i5", "title": "Control loops: measure, compare, act", "oneLine": "A controller compares the measured value with the set point and acts; on/off control always swings, and swings further when the reading arrives late.", "deps": ["i1", "i2"], "kind": "mechanism" },
+    { "id": "i6", "title": "PID: tuning a loop by feel", "oneLine": "A PID controller acts on the error: proportional alone leaves an offset, integral removes it but can swing, derivative damps swings but amplifies noise.", "deps": ["i5"], "kind": "skill" },
+    { "id": "i7", "title": "Logic and PLCs: from relays to ladder", "oneLine": "A PLC solves relay logic as a ladder, scanning over and over: read every input, solve the rungs top to bottom, then write every output.", "deps": ["i5"], "kind": "process" },
+    { "id": "i8", "title": "Alarms, trips and fail-safe design", "oneLine": "A trip circuit kept energised trips on a broken wire, and sensor voting trades missed trips against false ones; designers judge which failure matters more.", "deps": ["i3", "i4", "i5", "i7"], "kind": "mechanism" }
+  ],
+  "calibration": [
+    { "id": "c1", "iid": "i1", "q": "A pressure gauge is accurate to plus or minus 1% of its whole 0 to 10 bar range. It reads 1 bar. How far out could that reading be?", "options": ["Up to 0.01 bar either way", "Up to 0.1 bar either way", "Up to 1 bar either way"], "answer": 1, "why": "The 1% is of the whole 10 bar range, so it allows 0.1 bar anywhere on the scale. At 1 bar that is a tenth of the reading. Taking 1% of the reading itself gives 0.01 bar, ten times too hopeful." },
+    { "id": "c2", "iid": "i3", "q": "A level gauge set up on a water tank is moved to an identical tank holding oil, lighter than water, to the same depth. What will it show?", "options": ["The same depth as before", "A greater depth than the real one", "A smaller depth than the real one"], "answer": 2, "why": "The gauge feels the weight of liquid above it. Lighter oil at the same depth presses less, so a gauge set for water reads low. It does not read the same, because it never sees the surface, only the pressure at the bottom." }
+  ]
+}

@@ -1,0 +1,436 @@
+{
+ "iid": "i1",
+ "title": "The measurement chain: from plant to number",
+ "format": "steps",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the zero screw sliding the whole line, so every check point's error changes by the same amount, while the span screw tilts it, so the error grows up the range, when you turn each screw.",
+  "title": "The calibration bench",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Screen",
+    "min": 0,
+    "max": 12,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [],
+  "whatAmILookingAt": "Thirteen small screens on one picture, with Back and Continue. Five show an idea and eight ask you to try it. No marks and no timers.\n\nThe picture. Across the top runs the measurement chain as five small blocks joined by arrows: Sensor, Transducer, Transmitter, 4–20 mA signal and Display. On a phone the blocks wrap onto two rows, and no word splits. The Display block shows the reading in bar. Below is the calibration bench, a graph of the transmitter's line. Pressure runs along the bottom from 0 to 10 bar. The output runs up the side from 4 to 20 mA, with a little room above and below. The ideal line is dashed, from 4 mA at 0 bar to 20 mA at 10 bar. The transmitter's own line is solid. Five check points sit on the pressure axis at 0, 25, 50, 75 and 100% of the range, which is 0, 2.5, 5, 7.5 and 10 bar. A Check button feeds in each check pressure in turn from the reference. At each point it drops a bead at the output the transmitter sends. A table fills one row per point, with four columns: Point, Ideal mA, Reading mA, and Error in % of span. An error larger than 0.5% of span shows in red. On a phone the table keeps its four narrow columns.\n\nThe two screws. A Zero screw slider runs from −0.80 to +0.80 mA in steps of 0.04. It slides the whole solid line up or down. A Span screw slider runs from −0.80 to +0.80 mA in steps of 0.04. It sets how far the line's top end sits from 20 mA, so it tilts the line about its bottom end. Each slider has a small screw drawn beside it that turns as the slider moves.\n\nThe three other troubles. A Noise slider runs from 0 to 1% of span in steps of 0.25. With noise on, the Check drops five repeat beads at each point, each scattered at random within plus or minus that much of the line. A Display step switch has three buttons, 0.01 bar, 0.1 bar and 0.5 bar. The Display block rounds its reading to that step. A Sweep button ramps the pressure slowly from 0 to 10 bar and draws what the display shows as a trace, a staircase when the step is coarse. A Direction switch has three buttons, Up, Down and Both. Going down, the bench's transmitter reads 0.16 mA high at 25, 50 and 75%, and the same as going up at 0 and 100%. Both shows the up beads and the down beads together. On a phone each row of three buttons wraps.\n\nThe rule it computes. The ideal output is 4 + 1.6 × pressure in mA, because 16 mA of span spread over 10 bar is 1.6 mA a bar. The transmitter sends 4 + zero + (16 + span) × pressure ÷ 10, where zero and span are the two screw settings in mA. The error in % of span is (reading − ideal) ÷ 16 × 100. The display shows (reading − 4) ÷ 1.6 in bar, rounded to its step. Noise and the down-run gap are added to the reading before it is rounded.\n\nScreen 1, try it (the opening puzzle). The screws are set to zero +0.32 mA and span 0. The Check has already run. The table reads 4.32, 8.32, 12.32, 16.32 and 20.32 mA, each +2.00% of span. Both screw sliders are free. The words: \"This transmitter reads high at every check point. Try the two screws. Which one puts its line back on the dashed one?\" Three choices, in this order: \"The zero screw\"; \"The span screw\"; \"Either one\". Right, the first. Hint for the second: \"The span screw tilts the line about its bottom end. This line is high at the bottom too.\" Hint for the third: \"The span screw cannot move the bottom of the line, and this line is high there.\" Why: \"Every point reads 0.32 mA high, so the line runs parallel to the dashed one. Sliding the whole line down 0.32 mA lines up every point at once. The zero screw makes that slide.\" A right Check sets the zero screw to 0. The line lands on the dashed one and every error reads 0.00%. Read: \"This transmitter reads high at every check point. Which screw puts its line back on the dashed one?\"\n\nScreen 2, show. Both screws at 0. A Pressure slider from 0 to 10 bar in steps of 0.5 opens at 5 bar. A bead rides the line at the pressure set, and each block of the chain lights in turn. The Display block reads 5.00 bar. The words: \"A pressure reaches the display through a chain. A sensor feels it, a transducer makes it electrical, and the transmitter sends it on as 4 to 20 mA. Here its straight line turns 0 to 10 bar into 4 to 20 mA, so 5 bar sends 12 mA.\" Read: the same words. Still: the pressure at 5 bar, the bead at 12 mA, every block lit.\n\nScreen 3, try it, typed. Both screws at 0. The bead's output reads ? until Check. \"The transmitter turns 0 to 10 bar into 4 to 20 mA along a straight line. What current should it send at 7.5 bar?\" A field in mA. Answer 16 mA. Slips: 12 mA, \"That is 75% of 16 mA. Add the 4 mA the line starts from.\"; 15 mA, \"That is 75% of 20 mA. The line starts at 4 mA, so only 16 mA of it carries the reading.\" Hint when wrong: \"Each bar adds 1.6 mA to the 4 mA at 0 bar.\" Why: \"The output rises 16 mA over 10 bar, which is 1.6 mA a bar. So 7.5 bar sends 4 + 1.6 × 7.5 = 4 + 12 = 16 mA.\" A right Check moves the bead to 7.5 bar and 16 mA. Read: \"The transmitter turns 0 to 10 bar into 4 to 20 mA along a straight line. What current should it send at 7.5 bar?\"\n\nScreen 4, show. Both screws at 0. A brace along the bottom reads \"Range 0 to 10 bar, span 10 bar\". A brace up the side reads \"Span 16 mA\". One small block on the line is marked \"1% of span: 0.1 bar, 0.16 mA\". The words: \"The range runs from the lowest value an instrument is set for to the highest, here 0 to 10 bar. Its span is the difference, 10 bar in and 16 mA out.[^1] Errors are counted in per cent of span, so 1% is 0.1 bar or 0.16 mA anywhere on the line.\" Read: the same words. Still: as opened, nothing to move.\n\nScreen 5, try it, typed. The bottom axis is relabelled −1 to 9 bar, with the span brace reading \"Span ?\". \"A transmitter is set for −1 to 9 bar. What is its span?\" A field in bar. Answer 10 bar. Slips: 9 bar, \"That is the top of the range. The span is the top minus the bottom.\"; 8 bar, \"Taking away −1 adds 1. So the span is 9 − (−1).\" Hint when wrong: \"Take the bottom of the range from the top.\" Why: \"The span is the top minus the bottom: 9 − (−1) = 9 + 1 = 10 bar. It is the same span as 0 to 10 bar, slid down by 1 bar.\" A right Check fills the brace with \"Span 10 bar\". Read: \"A transmitter is set for −1 to 9 bar. What is its span?\"\n\nScreen 6, show. Both screws free, opening at 0, with the five check beads drawn live as the screws move. The words: \"The zero screw slides the whole line up or down, and the span screw changes its slope.[^3] Here the span screw tilts the line about its bottom end. Slide each one and watch the beads.\" Read: \"The zero screw slides the whole line up or down, and the span screw changes its slope. Here the span screw tilts the line about its bottom end. In the picture it has tilted the line 0.48 mA low at 10 bar, while 0 bar still reads 4 mA.\" Still: zero 0, span −0.48.\n\nScreen 7, try it, typed. The screws are set to zero +0.32 mA and span 0, and both are locked. The table shows the readings, with the Error column reading ? until Check. \"This transmitter reads 4.32 mA at 0 bar and 20.32 mA at 10 bar. What is its error at 0 bar, in per cent of span?\" A field in %. Answer 2%. Slips: 0.32%, \"That is the error in mA. Divide it by the 16 mA span, then multiply by 100.\"; 8%, \"That divides by the 4 mA reading. Errors here are counted in per cent of span, 16 mA.\"; 1.6%, \"That divides by 20 mA, the top of the range. The span is 20 − 4 = 16 mA.\" Hint when wrong: \"Error in mA ÷ 16 mA × 100.\" Why: \"It reads 4.32 − 4.00 = 0.32 mA high. 0.32 ÷ 16 × 100 = 2% of span. 10 bar is high by the same 0.32 mA, so it is a zero error.\" A right Check fills the Error column with +2.00% on every row. Read: \"This transmitter reads 4.32 mA at 0 bar and 20.32 mA at 10 bar. What is its error at 0 bar, in per cent of span?\"\n\nScreen 8, show. The screws are set to zero 0 and span −0.48 mA. The Check runs on its own as the screen opens. The table fills: 4.00 mA, 0.00%; 7.88 mA, −0.75%; 11.76 mA, −1.50%; 15.64 mA, −2.25%; 19.52 mA, −3.00%. The words: \"A calibration feeds in known pressures at 0, 25, 50, 75 and 100% and compares each output with the ideal. This transmitter is right at 0 bar, but its error grows in step with the pressure. That is a span error, out by −3% of span at the top.\" Read: the same words. Still: the Check run, the table full.\n\nScreen 9, try it, typed. The screws are set to zero 0 and span +0.40 mA, and both are locked. Only the 0 bar and 10 bar rows are filled: 4.00 mA and 20.40 mA. The 50% row reads ?. \"A transmitter reads 4.00 mA at 0 bar and 20.40 mA at 10 bar. What is its error at 50%, in per cent of span?\" A field in %. Answer 1.25%. Slips: 2.5%, \"That is the error at 10 bar. A span error grows in step with the pressure, so at 50% it is half that.\"; 0.2%, \"That is the error in mA at 50%. Divide it by 16 mA, then multiply by 100.\"; 0%, \"This line is right at 0 bar but not above it. Its error grows up the range.\" Hint when wrong: \"Find the error at 10 bar first. Half way up, a span error is half as big.\" Why: \"At 10 bar it reads 20.40 − 20.00 = 0.40 mA high. That is 0.40 ÷ 16 × 100 = 2.5% of span. It is right at 0 bar, so this is a span error. Half way up it is half as big, 1.25% of span. That is 0.20 mA, so it sends 12.20 mA at 5 bar.\" A right Check fills the 50% row with 12.20 mA and +1.25%. Read: \"A transmitter reads 4.00 mA at 0 bar and 20.40 mA at 10 bar. What is its error at 50%, in per cent of span?\"\n\nScreen 10, show. The graph splits into three small panels stacked one above another, each a copy of the bench with both screws at 0. Panel A, Noise: the Noise slider opens at 0.5% of span, and five beads scatter at each point. Panel B, Display step: the step opens at 0.5 bar, and a Sweep has drawn the display's staircase beside the line. Panel C, Direction: the switch opens on Both, and the down beads sit 0.16 mA above the up beads at 25, 50 and 75%. The words: \"Some trouble is not the line at all. Noise scatters repeat readings, a coarse display rounds them onto steps, and with hysteresis the down run reads apart from the up run. The screws only move the line, so they cure none of these.\" Read: the same words. Still: as opened.\n\nScreen 11, try it. Four small panels, stacked: A, the noise panel at 0.5%; B, the 0.5 bar staircase; C, the up and down beads apart; D, five tight beads at each point, all 2% high. \"Which of these could the zero and span screws put right?\" Four choices, in this order: \"A, the readings scattered round the line\"; \"B, the readout climbing in steps\"; \"C, the up and down runs apart\"; \"D, the tight beads all 2% high\". Right, the fourth. Hint for the first: \"The screws move the whole line. Scatter moves each reading a different way, so no one line fits them all.\" Hint for the second: \"The steps come from the display rounding. A finer display cures that, not the screws.\" Hint for the third: \"The screws would move both runs together. The gap between them would stay.\" Why: \"D's beads agree closely and sit 2% high at every point. They are precise but not accurate, a zero error. Sliding the line down 0.32 mA puts them right. The screws move the line, and only D's trouble is in the line.\" A right Check slides D's beads down onto the dashed line. Read: \"Which of these could the zero and span screws put right?\"\n\nScreen 12, try it, typed (mixed). Both screws at 0. A shaded band either side of the line shows ±0.5% of span, drawn 10 times wider so it can be seen. A marker sits at 1 bar. \"A 0 to 10 bar transmitter is accurate to ±0.5% of span. It reads 1 bar. How big can its error be, as a per cent of the reading?\" A field in %. Answer 5%. Slips: 0.5%, \"That is per cent of span. Work out the error in bar, then compare it with the 1 bar reading.\"; 0.05%, \"That is the error in bar. Divide it by the 1 bar reading, then multiply by 100.\"; 50%, \"0.5% of 10 bar is 0.05 bar, not 0.5 bar.\" Hint when wrong: \"Find 0.5% of the 10 bar span first.\" Why: \"0.5% of 10 bar is 0.05 bar, anywhere on the range. At 1 bar that is 0.05 ÷ 1 × 100 = 5% of the reading. At 10 bar the same 0.05 bar is only 0.5%.\" Read: \"A 0 to 10 bar transmitter is accurate to ±0.5% of span. It reads 1 bar. How big can its error be, as a per cent of the reading?\"\n\nScreen 13, try it (mixed). The Display step is set to 0.1 bar and the Display block shows 6.3 bar. \"The display steps in 0.1 bar and shows 6.3 bar. Someone logs it as 6.27 bar. Is that a fair record?\" Three choices, in this order: \"No. The display only says the value is nearer 6.3 than 6.2 or 6.4\"; \"Yes. 6.27 rounds to 6.3, so it agrees\"; \"Yes, if the pressure is held steady\". Right, the first. Hint for the second: \"It agrees, but so would 6.26 or 6.33. The display cannot tell them apart.\" Hint for the third: \"A steady pressure still shows in 0.1 bar steps. Holding it still adds no figures.\" Why: \"A display that steps in 0.1 bar rounds every value onto its steps. 6.3 bar means only that its value is nearer 6.3 than 6.2 or 6.4. So log 6.3 bar. A second decimal place claims more than the display can show.\" A right Check shows a closing line: \"A straight line, its zero and its span. Next, the sensors at the start of the chain, beginning with temperature.\" Read: \"The display steps in 0.1 bar and shows 6.3 bar. Someone logs it as 6.27 bar. Is that a fair record?\"",
+  "ignores": "The 0 to 10 bar transmitter and every error on it are example values, chosen large enough to see. The reference pressure is taken as perfect. A real reference has a small error of its own, so it should be a good deal more accurate than the instrument it checks. The transmitter's line is drawn perfectly straight. A real one bends a little, and that bend shows as errors neither screw removes. Here the span screw tilts the line about its bottom end and leaves the zero alone. On many real transmitters each screw moves the other end a little, so zero and span are set in turn and checked again. Many transmitters set zero and span from buttons or a handheld rather than screws, with the same effect on the line. The noise is drawn as a random spread inside a fixed band. Real noise has no hard edge. The gap between the up and down runs is drawn as a fixed 0.16 mA at the three middle points. A real one varies from instrument to instrument. The accuracy band on screen 12 is drawn 10 times wider than to scale. The bench leaves out how fast the output follows a change of pressure, and what temperature does to the reading.",
+  "numbers": [
+   {
+    "label": "Number of screens",
+    "value": 13,
+    "kind": "assumed"
+   },
+   {
+    "label": "Bottom of the output signal, mA",
+    "value": 4,
+    "kind": "constant",
+    "source": 2
+   },
+   {
+    "label": "Top of the output signal, mA",
+    "value": 20,
+    "kind": "constant",
+    "source": 2
+   },
+   {
+    "label": "Example range bottom, bar",
+    "value": 0,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example range top, bar",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "Input span, 10 − 0, bar",
+    "value": 10,
+    "kind": "computed"
+   },
+   {
+    "label": "Output span, 20 − 4, mA",
+    "value": 16,
+    "kind": "computed"
+   },
+   {
+    "label": "Output per bar, 16 ÷ 10, mA",
+    "value": 1.6,
+    "kind": "computed"
+   },
+   {
+    "label": "Output at 5 bar, 4 + 8, mA",
+    "value": 12,
+    "kind": "computed"
+   },
+   {
+    "label": "Example range −1 to 9 bar: bottom, bar",
+    "value": -1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example range −1 to 9 bar: top, bar",
+    "value": 9,
+    "kind": "assumed"
+   },
+   {
+    "label": "Its span, 9 − (−1), bar",
+    "value": 10,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 5 slips: 9 bar and 8 bar",
+    "value": 8,
+    "kind": "computed"
+   },
+   {
+    "label": "Check points, per cent of range, in steps of",
+    "value": 25,
+    "kind": "assumed"
+   },
+   {
+    "label": "Check pressures 2.5 and 7.5 bar, the 25% and 75% points",
+    "value": 2.5,
+    "kind": "computed"
+   },
+   {
+    "label": "1% of span in bar",
+    "value": 0.1,
+    "kind": "computed"
+   },
+   {
+    "label": "1% of span in mA",
+    "value": 0.16,
+    "kind": "computed"
+   },
+   {
+    "label": "Error shown red above, per cent of span",
+    "value": 0.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Zero screw range, plus or minus, mA",
+    "value": 0.8,
+    "kind": "control"
+   },
+   {
+    "label": "Span screw range, plus or minus, mA",
+    "value": 0.8,
+    "kind": "control"
+   },
+   {
+    "label": "Screw step, mA",
+    "value": 0.04,
+    "kind": "control"
+   },
+   {
+    "label": "Pressure slider step on screen 2, bar",
+    "value": 0.5,
+    "kind": "control"
+   },
+   {
+    "label": "Noise slider top, per cent of span",
+    "value": 1,
+    "kind": "control"
+   },
+   {
+    "label": "Noise slider step, per cent of span",
+    "value": 0.25,
+    "kind": "control"
+   },
+   {
+    "label": "Noise opening on screens 10 and 11, per cent of span",
+    "value": 0.5,
+    "kind": "control"
+   },
+   {
+    "label": "Repeat beads at each point",
+    "value": 5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Display steps offered, bar: 0.01, 0.1, 0.5",
+    "value": 0.01,
+    "kind": "control"
+   },
+   {
+    "label": "Display step on screens 10 and 11, bar",
+    "value": 0.5,
+    "kind": "control"
+   },
+   {
+    "label": "Down-run gap at 25, 50 and 75%, mA",
+    "value": 0.16,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 1 and 7 zero error, mA",
+    "value": 0.32,
+    "kind": "assumed"
+   },
+   {
+    "label": "Its readings at 0 and 10 bar, mA: 4.32 and 20.32",
+    "value": 20.32,
+    "kind": "computed"
+   },
+   {
+    "label": "Its error, 0.32 ÷ 16 × 100, per cent of span",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 7 slips: 0.32%, 8% and 1.6%",
+    "value": 8,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 3 pressure, bar",
+    "value": 7.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Output at 7.5 bar, 4 + 1.6 × 7.5, mA",
+    "value": 16,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 3 slips: 12 mA and 15 mA",
+    "value": 15,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 6 and 8 span error at 10 bar, mA",
+    "value": -0.48,
+    "kind": "assumed"
+   },
+   {
+    "label": "Readings at 25, 50, 75%: 7.88, 11.76, 15.64 mA",
+    "value": 11.76,
+    "kind": "computed"
+   },
+   {
+    "label": "Reading at 10 bar, mA",
+    "value": 19.52,
+    "kind": "computed"
+   },
+   {
+    "label": "Errors at 25, 50, 75%: −0.75, −1.5, −2.25 per cent",
+    "value": -1.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Error at 10 bar, per cent of span",
+    "value": -3,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 9 reading at 10 bar, mA",
+    "value": 20.4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Its error at 10 bar, mA",
+    "value": 0.4,
+    "kind": "computed"
+   },
+   {
+    "label": "Its error at 10 bar, per cent of span",
+    "value": 2.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Its error at 50%, per cent of span",
+    "value": 1.25,
+    "kind": "computed"
+   },
+   {
+    "label": "Its error at 50%, mA",
+    "value": 0.2,
+    "kind": "computed"
+   },
+   {
+    "label": "Its reading at 5 bar, mA",
+    "value": 12.2,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 9 slips: 2.5%, 0.2% and 0%",
+    "value": 0.2,
+    "kind": "computed"
+   },
+   {
+    "label": "Example accuracy, plus or minus per cent of span",
+    "value": 0.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "That accuracy in bar on a 10 bar span",
+    "value": 0.05,
+    "kind": "computed"
+   },
+   {
+    "label": "Example reading on screen 12, bar",
+    "value": 1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Error as a per cent of a 1 bar reading",
+    "value": 5,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12 slips: 0.5%, 0.05% and 50%",
+    "value": 50,
+    "kind": "computed"
+   },
+   {
+    "label": "Accuracy band drawn wider than to scale, times",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 13 display step, bar",
+    "value": 0.1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 13 display reading, bar",
+    "value": 6.3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Logged figure on screen 13, bar",
+    "value": 6.27,
+    "kind": "assumed"
+   },
+   {
+    "label": "Neighbouring display steps, bar: 6.2 and 6.4",
+    "value": 6.4,
+    "kind": "computed"
+   },
+   {
+    "label": "Other values that round to 6.3: 6.26 and 6.33 bar",
+    "value": 6.33,
+    "kind": "assumed"
+   },
+   {
+    "label": "Worked example range top, bar",
+    "value": 16,
+    "kind": "assumed"
+   },
+   {
+    "label": "Worked example output per bar, mA",
+    "value": 1,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example reading at 0 bar, mA",
+    "value": 4.08,
+    "kind": "assumed"
+   },
+   {
+    "label": "Worked example reading at 16 bar, mA",
+    "value": 19.92,
+    "kind": "assumed"
+   },
+   {
+    "label": "Their errors, plus and minus per cent of span",
+    "value": 0.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example reading at 8 bar, mA",
+    "value": 12,
+    "kind": "computed"
+   },
+   {
+    "label": "After the zero: 16 bar reads, mA",
+    "value": 19.84,
+    "kind": "computed"
+   },
+   {
+    "label": "Then its span error, per cent of span",
+    "value": -1,
+    "kind": "computed"
+   },
+   {
+    "label": "Analogy: bent hook error, mm",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Analogy: tape reads long by, per cent",
+    "value": 1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Analogy: error over 1 m and 5 m, mm: 10 and 50",
+    "value": 50,
+    "kind": "computed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "A reading on a screen comes at the end of a chain, where each link turns one quantity into the next. To trust the number, you check a transmitter's straight line against a standard. One adjustment slides the line and the other tilts it. A sensor feels the pressure in the pipe. A transducer turns what it feels into an electrical quantity. A transmitter sends that on as a current. This one is calibrated so its range gives 4 to 20 mA.[^2] At the far end a display turns the current back into bar. The transmitter here is set for 0 to 10 bar, and its output follows a straight line. Its range is 0 to 10 bar, the lowest and highest values it is set to read. Its [[span]] is the difference between the two ends,[^1] 10 bar on the way in and 16 mA on the way out. So each bar adds 16 ÷ 10 = 1.6 mA to the 4 mA at the bottom. 5 bar sends 4 + 8 = 12 mA. A range of −1 to 9 bar has the same 10 bar span, because 9 − (−1) = 10.\n\nChecking that line against a standard, and setting it right, is [[calibration]]. Known pressures go in at 0, 25, 50, 75 and 100% of the range. Each output is compared with the ideal line, and its error is worked out in per cent of span, as the error in mA ÷ 16 mA × 100. Two screws set the line. The zero screw slides the whole line up or down, and the span screw changes its slope.[^3] A slide moves every point by the same amount, so a zero error is the same size at every point. Here the span screw tilts the line about its bottom end. That leaves 0 bar where it is and moves each point in proportion to its pressure. So a span error is nothing at 0 bar and grows in step with the pressure, to its largest at 10 bar. Say a transmitter reads 4.32 mA at 0 bar and 20.32 mA at 10 bar. Both ends are 0.32 mA high, which is 0.32 ÷ 16 × 100 = 2% of span. The same error at both ends is a zero error, and the zero screw slides it out. Another reads 4.00 mA at 0 bar but 19.52 mA at 10 bar. It is right at the bottom and 0.48 mA low at the top, which is −3% of span. That error grows up the range, so it is a span error. Zero and span errors are corrected by a calibration.[^4] Set the zero at the bottom first, then the span at the top. Then check the zero again, because on many transmitters each screw moves the other end a little.\n\nAccuracy is often stated in per cent of full scale, which on a 0 to 10 bar range is the same as its span. Then the error stays the same size across the range, so it is a bigger share of a low reading.[^5] ±0.5% of 10 bar is ±0.05 bar anywhere on the line. At 10 bar that is 0.5% of the reading, but at 1 bar it is 5%.\n\nNot every poor reading is the line in the wrong place. Repeat readings at one pressure can scatter round the line. A digital display rounds each reading onto its steps. One that steps in 0.1 bar and shows 6.3 bar says only that the value is nearer 6.3 than 6.2 or 6.4. So log 6.3 bar, not 6.27. Some instruments read a little differently on the way up than on the way down. That is [[hysteresis]], where the output depends on which way the input last moved. The screws move the whole line, so they cannot cure scatter, steps or hysteresis. Accuracy is how close a reading comes to the true value.[^6] Precision is how closely it can be pinned down, without reference to the true value.[^7] So a tight cluster of readings 2% high is precise but not accurate, and the zero screw puts it right. An oil pressure trip acts on a number that comes down a chain like this, so the trip can be trusted only as far as that number can. **Calibration checks an instrument's input-to-output line against a standard. The zero screw slides the line and the span screw changes its slope,[^3] so a zero error is the same at every point and a span error grows from the bottom of the range to the top.**"
+ },
+ "analogy": {
+  "text": "A tape measure with a bent hook reads every length 2 mm long. That is a zero error, the same at every length. A tape that reads 1% long at every length is out by 10 mm over a metre and 50 mm over 5 m. That is a span error, growing with the length.",
+  "breaks": "A tape has no screws, so a bad one is replaced rather than set again. And a tape gives the same reading every time, while a transmitter's readings can scatter from one to the next or differ going up and coming down."
+ },
+ "practice": {
+  "text": "**Safety first:** a transmitter in service feeds a display, a controller or a trip. Its output will move while you test it, and whatever it feeds may act on that. Agree with whoever relies on the reading, and put the loop or trip it feeds in a safe state under your permit, before you isolate it from the process.\n\n- Note the range, then work out the span on the way in and on the way out.\n- Write down the ideal output at 0, 25, 50, 75 and 100% of the range.\n- Feed each pressure in from a reference, going up and then coming down. Record each output.\n- Work out each error as (reading − ideal) ÷ output span × 100, in per cent of span.\n- The same error at every point is a zero error. An error that grows from nothing at the bottom is a span error. Set the zero at the bottom, then the span at the top, then check the zero again.\n- Up and down runs that differ, or repeat readings that spread, are not the line. The screws will not cure them. Record them and compare them with the instrument's stated accuracy.\n- Log a reading to the display's step, never finer.\n\n**Rule of thumb:** on a 4 to 20 mA signal, 1% of span is 0.16 mA.\n\n**Worked example:** a 0 to 16 bar transmitter sends 4 to 20 mA, so its line rises 1 mA a bar. It reads 4.08 mA at 0 bar, which is 0.08 mA high, or +0.5% of span. It reads 19.92 mA at 16 bar, which is 0.08 mA low, or −0.5%. At 8 bar it reads 12.00 mA, exactly right. So a check at the middle alone would pass it. Slide the zero down 0.08 mA. Now 0 bar reads 4.00 mA, and 16 bar reads 19.84 mA, 0.16 mA low, or −1% of span. That is a span error, so tilt the top up 0.16 mA to 20.00 mA. Then check 0 bar again.\n\n**Common mistakes**\n- Dividing the error by the reading, or by 20 mA, instead of by the 16 mA span.\n- Forgetting the 4 mA at the bottom. 75% of the range is 16 mA, not 12 mA.\n- Turning the span screw to cure an error that is the same at every point.\n- Checking one point only. A zero error and a span error can cancel in the middle.\n- Reading ±0.5% of span as ±0.5% of the reading. At a tenth of the range it is 5% of the reading.\n- Logging a reading finer than the display steps.\n- Expecting a calibration to cure scatter or hysteresis."
+ },
+ "say": null,
+ "checks": [],
+ "sources": [
+  {
+   "n": 1,
+   "title": "CALIBRATION PRINCIPLES - International Society of Automation",
+   "url": "https://www.isa.org/getmedia/a9356c34-5956-4952-9888-d6df8dd3e7ba/calabration-principles-chapter1.pdf",
+   "quote": "Span is defined as the algebraic difference between the upper and lower range values."
+  },
+  {
+   "n": 2,
+   "title": "CALIBRATION PRINCIPLES - International Society of Automation",
+   "url": "https://www.isa.org/getmedia/a9356c34-5956-4952-9888-d6df8dd3e7ba/calabration-principles-chapter1.pdf",
+   "quote": "the engineer has determined the instrument will be calibrated for 0-to-300 psig = 4-to-20 mA"
+  },
+  {
+   "n": 3,
+   "title": "CALIBRATION PRINCIPLES - International Society of Automation",
+   "url": "https://www.isa.org/getmedia/a9356c34-5956-4952-9888-d6df8dd3e7ba/calabration-principles-chapter1.pdf",
+   "quote": "The zero adjustment is used to produce a parallel shift of the input-output curve. The span adjustment is used to change the slope of the input-output curve."
+  },
+  {
+   "n": 4,
+   "title": "CALIBRATION PRINCIPLES - International Society of Automation",
+   "url": "https://www.isa.org/getmedia/a9356c34-5956-4952-9888-d6df8dd3e7ba/calabration-principles-chapter1.pdf",
+   "quote": "Zero and span errors are corrected by performing a calibration."
+  },
+  {
+   "n": 5,
+   "title": "HVAC Accuracy Statements 101 - Accuspec",
+   "url": "https://accuspecinc.com/hvac-accuracy-statements/",
+   "quote": "In a percentage of full-scale statement, the numeric magnitude of the error remains the same throughout the range. The percentage error goes up as the measured value goes down."
+  },
+  {
+   "n": 6,
+   "title": "Studio Measurement and Uncertainty Analysis",
+   "url": "https://users.physics.unc.edu/~deardorf/uncertainty/UNCguide.pdf",
+   "quote": "Accuracy is the closeness of agreement between a measured value and a true or accepted value."
+  },
+  {
+   "n": 7,
+   "title": "Studio Measurement and Uncertainty Analysis",
+   "url": "https://users.physics.unc.edu/~deardorf/uncertainty/UNCguide.pdf",
+   "quote": "Precision is a measure of how well a result can be determined (without reference to a theoretical or true value)."
+  }
+ ],
+ "confidence": "simplified",
+ "contested": null
+}

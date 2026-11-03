@@ -1,0 +1,487 @@
+TASK: build-interactive
+
+You are building one small interactive page for "My University", Dan's personal learning app. It lets him see one idea for himself by playing with it. It runs inside a sandboxed iframe on top of the house kit described below, and the app tests it automatically before Dan sees it.
+
+## The idea
+Topic: Instrumentation and control: measure, compare, act
+Idea: The measurement chain: from the plant to a number (Calibration checks an instrument's straight input-to-output line against a standard: the zero adjustment shifts the whole line, and the span adjustment tilts it.)
+Kind: skill
+Dan knows a little about this topic. Show an equation on the page only if every symbol in it is labelled on the picture; otherwise say the rule in words.
+
+## What the interactive must show
+Brief: The one thing you should see is that the zero screw slides the whole line and shifts every check point's error by the same amount, while the span screw tilts it and makes the error grow up the range, when you turn each screw.
+Title (the app shows it above the frame, so do not repeat it): The calibration bench
+The rule (the app shows it just above the frame, under "What you're looking at"): Thirteen small screens share one picture, with Back and Continue. Five show an idea, and eight ask you to try it. There are no marks and no timers.
+
+The picture. The measurement chain runs across the top as five small blocks joined by arrows: Sensor, Transducer, Transmitter, 4–20 mA signal and Display. On a phone the blocks wrap onto two rows, and no word splits. The Display block shows the reading in bar. Below the chain sits the calibration bench, a graph of the transmitter's line. Pressure runs along the bottom from 0 to 10 bar. The output runs up the side from 4 to 20 mA, with a little room above and below. The ideal line is dashed, from 4 mA at 0 bar to 20 mA at 10 bar. The transmitter's own line is solid. Five check points sit on the pressure axis at 0, 25, 50, 75 and 100% of the range. That is 0, 2.5, 5, 7.5 and 10 bar. A Check button feeds in each check pressure in turn from the reference. At each point it drops a bead at the output the transmitter sends. A table fills one row per point. Its four columns are Point, Ideal mA, Reading mA, and Error in % of span. Any error larger than 0.5% of span shows in red. On a phone the table keeps its four narrow columns.
+
+The two screws. A Zero screw slider runs from −0.80 to +0.80 mA in steps of 0.04. It slides the whole solid line up or down. A Span screw slider runs from −0.80 to +0.80 mA in steps of 0.04. It sets how far the top end of the line sits from 20 mA. So it tilts the line about its bottom end. Beside each slider, a small drawn screw turns as the slider moves.
+
+The three other troubles. A Noise slider runs from 0 to 1% of span in steps of 0.25. With noise on, the Check drops five repeat beads at each point. Each bead lands at random within plus or minus that much of the line. A Display step switch has three buttons: 0.01 bar, 0.1 bar and 0.5 bar. The Display block rounds its reading to that step. A Sweep button ramps the pressure slowly from 0 to 10 bar. It draws what the display shows as a trace, which is a staircase when the step is coarse. A Direction switch has three buttons: Up, Down and Both. Going down, the bench's transmitter reads 0.16 mA high at 25, 50 and 75%. At 0 and 100% it reads the same as going up. Both shows the up beads and the down beads together. On a phone each row of three buttons wraps. Answer choices sit one under another, so no word splits.
+
+The rule it computes. The ideal output is 4 + 1.6 × pressure, in mA. That is because 16 mA of span spread over 10 bar is 1.6 mA a bar. The transmitter sends 4 + zero + (16 + span) × pressure ÷ 10. Here zero and span are the two screw settings in mA. The error in % of span is (reading − ideal) ÷ 16 × 100. The display shows (reading − 4) ÷ 1.6 in bar, rounded to its step. Noise and the down-run gap are added to the reading before it is rounded.
+
+Screen 1, try it. This is the opening puzzle. The screws are set to zero +0.32 mA and span 0. The Check has already run. The table reads 4.32, 8.32, 12.32, 16.32 and 20.32 mA, each +2.00% of span. Both screw sliders are free. The words: "This transmitter reads high at every check point. Try the two screws. Which one puts its line back on the dashed one?" Three choices, in this order: "The zero screw"; "The span screw"; "Either one". The first is right. Hint for the second: "The span screw tilts the line about its bottom end. This line is high at the bottom too." Hint for the third: "The span screw cannot move the bottom of the line. This line is high there." Why: "Every point reads 0.32 mA high. So the line runs parallel to the dashed one. Sliding the whole line down 0.32 mA lines up every point at once. The zero screw makes that slide." A right Check sets the zero screw to 0. The line lands on the dashed one, and every error reads 0.00%. Read: "This transmitter reads high at every check point. Which screw puts its line back on the dashed one?"
+
+Screen 2, show. Both screws at 0. A Pressure slider runs from 0 to 10 bar in steps of 0.5 and opens at 5 bar. A bead rides the line at the set pressure, and each block of the chain lights in turn. The Display block reads 5.00 bar. The words: "A pressure reaches the display through a chain. A sensor feels it. A transducer makes it electrical. The transmitter sends it on as 4 to 20 mA. Here its straight line turns 0 to 10 bar into 4 to 20 mA. So 5 bar sends 12 mA." Read: the same words. Still: the pressure at 5 bar, the bead at 12 mA, every block lit.
+
+Screen 3, try it, typed. Both screws at 0. The bead's output reads ? until Check. "The transmitter turns 0 to 10 bar into 4 to 20 mA along a straight line. What current should it send at 7.5 bar?" A field in mA. Answer 16 mA. Slips: 12 mA, "That is 75% of 16 mA. Add the 4 mA the line starts from."; 15 mA, "That is 75% of 20 mA. The line starts at 4 mA. Only the 16 mA above that carries the reading." Hint when wrong: "Each bar adds 1.6 mA to the 4 mA at 0 bar." Why: "The output rises 16 mA over 10 bar. That is 1.6 mA a bar. So 7.5 bar sends 4 + 1.6 × 7.5 = 4 + 12 = 16 mA." A right Check moves the bead to 7.5 bar and 16 mA. Read: "The transmitter turns 0 to 10 bar into 4 to 20 mA along a straight line. What current should it send at 7.5 bar?"
+
+Screen 4, show. Both screws at 0. A brace along the bottom reads "Range 0 to 10 bar, span 10 bar". A brace up the side reads "Span 16 mA". One small block on the line is marked "1% of span: 0.1 bar, 0.16 mA". The words: "The range runs from the lowest value an instrument is set for to the highest. Here that is 0 to 10 bar. Its span is the difference, 10 bar in and 16 mA out.[^1] Errors are counted in per cent of span. So 1% is 0.1 bar or 0.16 mA anywhere on the line." Read: the same words. Still: as opened, nothing to move.
+
+Screen 5, try it, typed. The bottom axis is relabelled −1 to 9 bar, and the span brace reads "Span ?". "A transmitter is set for −1 to 9 bar. What is its span?" A field in bar. Answer 10 bar. Slips: 9 bar, "That is the top of the range. The span is the top minus the bottom."; 8 bar, "Taking away −1 adds 1. So the span is 9 − (−1)." Hint when wrong: "Take the bottom of the range from the top." Why: "The span is the top minus the bottom. 9 − (−1) = 9 + 1 = 10 bar. It is the same span as 0 to 10 bar, slid down by 1 bar." A right Check fills the brace with "Span 10 bar". Read: "A transmitter is set for −1 to 9 bar. What is its span?"
+
+Screen 6, show. Both screws are free and open at 0. The five check beads are drawn live as the screws move. The words: "The zero screw slides the whole line up or down. The span screw changes its slope.[^2] Here the span screw tilts the line about its bottom end. Slide each one and watch the beads." Read: "The zero screw slides the whole line up or down. The span screw changes its slope. Here the span screw tilts the line about its bottom end. In the picture it has tilted the line 0.48 mA low at 10 bar. At 0 bar it still reads 4 mA." Still: zero 0, span −0.48.
+
+Screen 7, try it, typed. The screws are set to zero +0.32 mA and span 0, and both are locked. The table shows the readings. Its Error column reads ? until Check. "This transmitter reads 4.32 mA at 0 bar and 20.32 mA at 10 bar. What is its error at 0 bar, in per cent of span?" A field in %. Answer 2%. Slips: 0.32%, "That is the error in mA. Divide it by the 16 mA span, then multiply by 100."; 8%, "That divides by the 4 mA reading. Errors here are counted in per cent of span, which is 16 mA."; 1.6%, "That divides by 20 mA, the top of the range. The span is 20 − 4 = 16 mA." Hint when wrong: "Error in mA ÷ 16 mA × 100." Why: "It reads 4.32 − 4.00 = 0.32 mA high. 0.32 ÷ 16 × 100 = 2% of span. At 10 bar it is high by the same 0.32 mA. So it is a zero error." A right Check fills the Error column with +2.00% on every row. Read: "This transmitter reads 4.32 mA at 0 bar and 20.32 mA at 10 bar. What is its error at 0 bar, in per cent of span?"
+
+Screen 8, show. The screws are set to zero 0 and span −0.48 mA. The Check runs on its own as the screen opens. The table fills: 4.00 mA, 0.00%; 7.88 mA, −0.75%; 11.76 mA, −1.50%; 15.64 mA, −2.25%; 19.52 mA, −3.00%. The words: "A calibration feeds in known pressures at 0, 25, 50, 75 and 100%. It compares each output with the ideal. This transmitter is right at 0 bar, but its error grows in step with the pressure. That is a span error, out by −3% of span at the top." Read: the same words. Still: the Check run, the table full.
+
+Screen 9, try it, typed. The screws are set to zero 0 and span +0.40 mA, and both are locked. Only the 0 bar and 10 bar rows are filled, with 4.00 mA and 20.40 mA. The 50% row reads ?. "A transmitter reads 4.00 mA at 0 bar and 20.40 mA at 10 bar. What is its error at 50%, in per cent of span?" A field in %. Answer 1.25%. Slips: 2.5%, "That is the error at 10 bar. A span error grows in step with the pressure. So at 50% it is half that."; 0.2%, "That is the error in mA at 50%. Divide it by 16 mA, then multiply by 100."; 0%, "This line is right at 0 bar but not above it. Its error grows up the range." Hint when wrong: "Find the error at 10 bar first. Half way up, a span error is half as big." Why: "At 10 bar it reads 20.40 − 20.00 = 0.40 mA high. That is 0.40 ÷ 16 × 100 = 2.5% of span. It is right at 0 bar, so this is a span error. Half way up it is half as big, 1.25% of span. That is 0.20 mA, so it sends 12.20 mA at 5 bar." A right Check fills the 50% row with 12.20 mA and +1.25%. Read: "A transmitter reads 4.00 mA at 0 bar and 20.40 mA at 10 bar. What is its error at 50%, in per cent of span?"
+
+Screen 10, show. The graph splits into three small panels, stacked one above another. Each is a copy of the bench with both screws at 0. Panel A is Noise. Its Noise slider opens at 0.5% of span, and five beads scatter at each point. Panel B is Display step. Its step opens at 0.5 bar, and a Sweep has drawn the display's staircase beside the line. Panel C is Direction. Its switch opens on Both, and the down beads sit 0.16 mA above the up beads at 25, 50 and 75%. The words: "Some trouble is not the line at all. Noise scatters repeat readings. A coarse display rounds them onto steps. With hysteresis, the down run reads apart from the up run. The screws only move the line, so they cure none of these." Read: the same words. Still: as opened.
+
+Screen 11, try it. Four small panels are stacked. A is the noise panel at 0.5%. B is the 0.5 bar staircase. C has the up and down beads apart. D has five tight beads at each point, all 2% high. "Which of these could the zero and span screws put right?" Four choices, in this order: "A, the readings scattered round the line"; "B, the readout climbing in steps"; "C, the up and down runs apart"; "D, the tight beads all 2% high". The fourth is right. Hint for the first: "The screws move the whole line. Scatter moves each reading a different way, so no one line fits them all." Hint for the second: "The steps come from the display rounding. A finer display cures that, not the screws." Hint for the third: "The screws would move both runs together. The gap between them would stay." Why: "D's beads agree closely and sit 2% high at every point. They are precise but not accurate. That is a zero error. Sliding the line down 0.32 mA puts them right. The screws move the line, and only D's trouble is in the line." A right Check slides D's beads down onto the dashed line. Read: "Which of these could the zero and span screws put right?"
+
+Screen 12, try it, typed and mixed. Both screws at 0. A shaded band either side of the line shows ±0.5% of span. It is drawn 10 times wider so it can be seen. A marker sits at 1 bar. "A 0 to 10 bar transmitter is accurate to ±0.5% of span. It reads 1 bar. How big can its error be, as a per cent of the reading?" A field in %. Answer 5%. Slips: 0.5%, "That is per cent of span. Work out the error in bar, then compare it with the 1 bar reading."; 0.05%, "That is the error in bar. Divide it by the 1 bar reading, then multiply by 100."; 50%, "0.5% of 10 bar is 0.05 bar, not 0.5 bar." Hint when wrong: "Find 0.5% of the 10 bar span first." Why: "0.5% of 10 bar is 0.05 bar, anywhere on the range. At 1 bar that is 0.05 ÷ 1 × 100 = 5% of the reading. At 10 bar the same 0.05 bar is only 0.5%." Read: "A 0 to 10 bar transmitter is accurate to ±0.5% of span. It reads 1 bar. How big can its error be, as a per cent of the reading?"
+
+Screen 13, try it, mixed. The Display step is set to 0.1 bar, and the Display block shows 6.3 bar. "The display steps in 0.1 bar and shows 6.3 bar. Someone logs it as 6.27 bar. Is that a fair record?" Three choices, in this order: "No. The display only says the value is nearer 6.3 than 6.2 or 6.4"; "Yes. 6.27 rounds to 6.3, so it agrees"; "Yes, if the pressure is held steady". The first is right. Hint for the second: "It agrees, but so would 6.26 or 6.33. The display cannot tell them apart." Hint for the third: "A steady pressure still shows in 0.1 bar steps. Holding it still adds no figures." Why: "A display that steps in 0.1 bar rounds every value onto its steps. So 6.3 bar means only that the value is nearer 6.3 than 6.2 or 6.4. Log 6.3 bar. A second decimal place claims more than the display can show." A right Check shows a closing line: "A straight line, its zero and its span. Next, the sensors at the start of the chain, beginning with temperature." Read: "The display steps in 0.1 bar and shows 6.3 bar. Someone logs it as 6.27 bar. Is that a fair record?"
+What the model leaves out (the app shows this in its own panel; do not repeat it on the page): The 0 to 10 bar transmitter and every error on it are example values, chosen large enough to see. The reference pressure is taken as perfect. A real reference has a small error of its own. So it should be a good deal more accurate than the instrument it checks. The transmitter's line is drawn perfectly straight. A real one bends a little, and neither screw removes the errors that bend makes. Here the span screw tilts the line about its bottom end and leaves the zero alone. On many real transmitters, each screw moves the other end a little. So zero and span are set in turn and checked again. Many transmitters set zero and span from buttons or a handheld rather than screws. The effect on the line is the same. The noise is drawn as a random spread inside a fixed band. Real noise has no hard edge. The gap between the up and down runs is drawn as a fixed 0.16 mA at the three middle points. A real gap varies from instrument to instrument. The accuracy band on screen 12 is drawn 10 times wider than to scale. The bench leaves out how fast the output follows a change of pressure. It also leaves out what temperature does to the reading.
+Controls (use these ids, ranges and opening values exactly; when the prediction or a check names a setting of a slider, add it to that slider's snap):
+- id "step": Screen, from 0 to 12 in steps of 1, opening at 0
+Outputs: none. No rule computes a number here, so show no readouts beyond plain counts of what is on screen ("4 of 7 at war"): the picture, its labels and the .say line do the teaching.
+Numbers it may show (control = Dan sets it; computed = from the rule; constant = a fixed real value; assumed = an example value, said once as an example in the lead line or a caption, then drawn as a plain value; date = a historical date or fact):
+- Number of screens: 13 (assumed)
+- Bottom of the output signal, mA: 4 (constant, source [3])
+- Top of the output signal, mA: 20 (constant, source [3])
+- Example range bottom, bar: 0 (assumed)
+- Example range top, bar: 10 (assumed)
+- Input span, 10 − 0, bar: 10 (computed)
+- Output span, 20 − 4, mA: 16 (computed)
+- Output per bar, 16 ÷ 10, mA: 1.6 (computed)
+- Output at 5 bar, 4 + 8, mA: 12 (computed)
+- Example range −1 to 9 bar: bottom, bar: -1 (assumed)
+- Example range −1 to 9 bar: top, bar: 9 (assumed)
+- Its span, 9 − (−1), bar: 10 (computed)
+- Screen 5 slips: 9 bar and 8 bar: 8 (computed)
+- Check points, per cent of range, in steps of: 25 (assumed)
+- Check pressures 2.5 and 7.5 bar, the 25% and 75% points: 2.5 (computed)
+- 1% of span in bar: 0.1 (computed)
+- 1% of span in mA: 0.16 (computed)
+- Error shown red above, per cent of span: 0.5 (assumed)
+- Zero screw range, plus or minus, mA: 0.8 (control)
+- Span screw range, plus or minus, mA: 0.8 (control)
+- Screw step, mA: 0.04 (control)
+- Pressure slider step on screen 2, bar: 0.5 (control)
+- Noise slider top, per cent of span: 1 (control)
+- Noise slider step, per cent of span: 0.25 (control)
+- Noise opening on screens 10 and 11, per cent of span: 0.5 (control)
+- Repeat beads at each point: 5 (assumed)
+- Display steps offered, bar: 0.01, 0.1, 0.5: 0.01 (control)
+- Display step on screens 10 and 11, bar: 0.5 (control)
+- Down-run gap at 25, 50 and 75%, mA: 0.16 (assumed)
+- Screen 1 and 7 zero error, mA: 0.32 (assumed)
+- Its readings at 0 and 10 bar, mA: 4.32 and 20.32: 20.32 (computed)
+- Its error, 0.32 ÷ 16 × 100, per cent of span: 2 (computed)
+- Screen 7 slips: 0.32%, 8% and 1.6%: 8 (computed)
+- Screen 3 pressure, bar: 7.5 (assumed)
+- Output at 7.5 bar, 4 + 1.6 × 7.5, mA: 16 (computed)
+- Screen 3 slips: 12 mA and 15 mA: 15 (computed)
+- Screen 6 and 8 span error at 10 bar, mA: -0.48 (assumed)
+- Readings at 25, 50, 75%: 7.88, 11.76, 15.64 mA: 11.76 (computed)
+- Reading at 10 bar, mA: 19.52 (computed)
+- Errors at 25, 50, 75%: −0.75, −1.5, −2.25 per cent: -1.5 (computed)
+- Error at 10 bar, per cent of span: -3 (computed)
+- Screen 9 reading at 10 bar, mA: 20.4 (assumed)
+- Its error at 10 bar, mA: 0.4 (computed)
+- Its error at 10 bar, per cent of span: 2.5 (computed)
+- Its error at 50%, per cent of span: 1.25 (computed)
+- Its error at 50%, mA: 0.2 (computed)
+- Its reading at 5 bar, mA: 12.2 (computed)
+- Screen 9 slips: 2.5%, 0.2% and 0%: 0.2 (computed)
+- Example accuracy, plus or minus per cent of span: 0.5 (assumed)
+- That accuracy in bar on a 10 bar span: 0.05 (computed)
+- Example reading on screen 12, bar: 1 (assumed)
+- Error as a per cent of a 1 bar reading: 5 (computed)
+- Screen 12 slips: 0.5%, 0.05% and 50%: 50 (computed)
+- Accuracy band drawn wider than to scale, times: 10 (assumed)
+- Screen 13 display step, bar: 0.1 (assumed)
+- Screen 13 display reading, bar: 6.3 (assumed)
+- Logged figure on screen 13, bar: 6.27 (assumed)
+- Neighbouring display steps, bar: 6.2 and 6.4: 6.4 (computed)
+- Other values that round to 6.3: 6.26 and 6.33 bar: 6.33 (assumed)
+- Worked example range top, bar: 16 (assumed)
+- Worked example output per bar, mA: 1 (computed)
+- Worked example reading at 0 bar, mA: 4.08 (assumed)
+- Worked example reading at 16 bar, mA: 19.92 (assumed)
+- Their errors, plus and minus per cent of span: 0.5 (computed)
+- Worked example reading at 8 bar, mA: 12 (computed)
+- After the zero: 16 bar reads, mA: 19.84 (computed)
+- Then its span error, per cent of span: -1 (computed)
+- Analogy: bent hook error, mm: 2 (assumed)
+- Analogy: tape reads long by, per cent: 1 (assumed)
+- Analogy: error over 1 m and 5 m, mm: 10 and 50: 50 (computed)
+
+## The explanation Dan reads after playing (use the same words for the same things)
+A reading on a screen comes at the end of a chain. Each link turns one quantity into the next. To trust the number, you check a transmitter's straight line against a standard. One adjustment slides the line, and the other tilts it.
+
+A sensor feels the pressure in the pipe. A transducer turns what it feels into an electrical quantity. A transmitter sends that on as a current. This one is calibrated so its range gives 4 to 20 mA. At the far end, a display turns the current back into bar. The transmitter here is set for 0 to 10 bar, and its output follows a straight line. Its range is 0 to 10 bar. Those are the lowest and highest values it is set to read. Its span is the difference between the two ends. That is 10 bar on the way in and 16 mA on the way out. So each bar adds 16 ÷ 10 = 1.6 mA to the 4 mA at the bottom. 5 bar sends 4 + 8 = 12 mA. A range of −1 to 9 bar has the same 10 bar span, because 9 − (−1) = 10.
+
+Checking that line against a standard, and setting it right, is calibration. Known pressures go in, often at 0, 25, 50, 75 and 100% of the range. Each output is compared with the ideal line. Its error is worked out in per cent of span, as the error in mA ÷ 16 mA × 100. Two adjustments set the line, and they are often screws. The zero screw slides the whole line up or down. The span screw changes its slope. A slide moves every point by the same amount. So a zero error i…
+
+## Sources
+The only web addresses this page may contain, each only as a K.check {source} on a check whose label restates what that source's quote says (a result of your rule, or a fact about your drawing, takes no source; the caption names a source in words). The app rejects any other:
+[1] CALIBRATION PRINCIPLES - International Society of Automation (https://www.isa.org/getmedia/a9356c34-5956-4952-9888-d6df8dd3e7ba/calabration-principles-chapter1.pdf): "Span is defined as the algebraic difference between the upper and lower range values."
+[2] CALIBRATION PRINCIPLES - International Society of Automation (https://www.isa.org/getmedia/a9356c34-5956-4952-9888-d6df8dd3e7ba/calabration-principles-chapter1.pdf): "The zero adjustment is used to produce a parallel shift of the input-output curve. The span adjustment is used to change the slope of the input-output curve."
+[3] CALIBRATION PRINCIPLES - International Society of Automation (https://www.isa.org/getmedia/a9356c34-5956-4952-9888-d6df8dd3e7ba/calabration-principles-chapter1.pdf): "the engineer has determined the instrument will be calibrated for 0-to-300 psig = 4-to-20 mA"
+[4] CALIBRATION PRINCIPLES - International Society of Automation (https://www.isa.org/getmedia/a9356c34-5956-4952-9888-d6df8dd3e7ba/calabration-principles-chapter1.pdf): "Zero and span errors are corrected by performing a calibration."
+[5] HVAC Accuracy Statements 101 - Accuspec (https://accuspecinc.com/hvac-accuracy-statements/): "In a percentage of full-scale statement, the numeric magnitude of the error remains the same throughout the range. The percentage error goes up as the measured value goes down."
+[6] Studio Measurement and Uncertainty Analysis (https://users.physics.unc.edu/~deardorf/uncertainty/UNCguide.pdf): "Accuracy is the closeness of agreement between a measured value and a true or accepted value."
+[7] Studio Measurement and Uncertainty Analysis (https://users.physics.unc.edu/~deardorf/uncertainty/UNCguide.pdf): "Precision is a measure of how well a result can be determined (without reference to a theoretical or true value)."
+
+## Dan and how he learns
+- He learns best by doing: something visual he can push and watch respond. Warm, plain words, first principles; no jargon unless explained.
+- He uses an Android phone (this frame is about 340 px wide there, touch only) and a laptop (about 1000 px, where K.stage puts the controls beside the visual). Design for the phone first.
+
+## Rules for this page
+- There is no guess to protect: show everything from the start (no k-after-move), curves and results included.
+- The lead line says what is drawn, plainly ("Water from a 5 m drop hits the blades of a wheel"), not what to do: the app gives the action above the frame. Example values are said once there ("an example stream: a 5 m drop, 20 kg of water each second"), then the drawing labels them plainly ("5 m"), never "for example" on the drawing.
+- Every label and arrow sits on, or starts from, the thing it is about: a force arrow starts on the part it pushes; a speed arrow on the part that moves. Anything the rule says turns or flows does so (K.anim), at a speed that follows its control.
+- The .say sentence must make sense on its own to someone who has just read the explanation: what is happening on screen now, cause then effect, in everyday words; no term, threshold or comparison the page or the explanation has not named; a number as part of its whole ("353 W of the stream's 981 W is carried off by the water"). Bad: "The buckets move slower than half the jet speed, so the water still leaves going backwards, taking 353 W away with it." Good: "The buckets are moving slowly, so the water bounces off them still moving fast, and carries 353 W of its 981 W away downstream."
+- A key for the main drawing sits inside the drawing; show each quantity once (a bar, a readout or a curve, not all three); every number drawn that is worked out (a speed from a drop) is explained in "What you're looking at", or is left off.
+- Draw the cause the explanation gives, not only its effect, and let Dan cause it (a drag, a push, a switch); include the setting where the effect does not happen.
+- Mark the brief's one quantity on the picture itself, with a label saying what it is and its value (a bracket between the two heights reading "2.4 m"); an output with a readout is marked without its number, which the readout alone shows (the app hides it while Dan answers a check).
+- A shaded band states something true of the axis it spans: inputs across x, outputs across y. To show many inputs giving nearly the same output, shade the narrow output band (regions {y0, y1}).
+- Draw every comparison the explanation makes the same way, in the same place, on the axis where the effect happens. A time period is a bracket or thin band along the time axis, not a tall block.
+- Give each reference line its own look and a label beside it; every styled line is in the key or labelled on the drawing.
+- Draw only what the brief, the rule or the explanation names, with the same names. An extra figure says on itself how to read it: what its line stands for and which way is which.
+- Show only the numbers listed above or computed from the rule, each written the way the explanation writes it (the same rounding).
+- Any example cases you choose are fair and representative, never picked to exaggerate the effect.
+- Money, health and law: show how it works, never advice, and never a guaranteed outcome.
+
+## The house kit (complete API reference)
+You write the BODY of one page: HTML, an optional `<style>`, then one inline `<script>` ending
+with `K.ready()`. It runs in a sandboxed iframe on Dan's phone (about 340 px wide, touch) and
+laptop, with the global `K` and the kit's stylesheet. No network or storage: no web
+addresses, `fetch`, `localStorage`, `alert` or `prompt`.
+
+### Page shape that works
+1. `<p class="lead">`: one line saying what is drawn (the app adds title and action).
+2. The main visual with its controls right under it: `K.stage('#scene', '#controls')` keeps the
+   pair on one phone screen. A choice that re-sorts the picture may sit above it.
+3. `<p class="say">`: one sentence that changes with the state and says why. Then
+   `<div class="k-readouts">` for numbers the drawing does not label.
+4. Secondary figures and anything that grows go below.
+5. `<p class="caption">`: one short sentence, at most 20 words: where the numbers come from ("A
+   sketch, not measured data") or the rule in the explanation's words. No new claim, no law or
+   term the explanation does not teach. The app shows what the model leaves out.
+
+### Keep the answer hidden until Dan moves
+Dan predicts before he plays: open on a setting the question is not about, and hide whatever
+gives the answer away until his first move:
+- class `k-after-move` on any element (a mark, an arrow, a sentence): hidden, its space kept.
+  Hide the answer, not the controls or a whole figure (a blank hole fails the test).
+- `K.readout({..., afterMove: true})` shows "?" until then; plot series and marks take `afterMove: true` too.
+- `K.moved` is true from then on: in `K.update`, write `K.moved ? answer : question`.
+- `K.afterMove(fn)` runs `fn` once at that moment; `K.reveal()` marks it from your handlers.
+
+### The pipeline
+Controls register themselves; their values form `params` = `{id: value}`.
+```
+K.model(fn)        fn(params) -> outputs {name: number | string}. Pure: no DOM, no lists or objects.
+K.update(fn)       fn(params, outputs): draw everything here. More than one is allowed.
+K.at(over)         -> outputs of the model at those params (others take each control's starting value)
+K.check(label, fn, {source?})   fn() must return exactly true
+K.ready()          call once, last: draws the opening state and runs the checks
+K.complete()       at the lesson's end
+K.params()  K.outputs()  K.refresh()   (refresh reruns the pipeline after you change your own state)
+```
+A readout whose id is an output key updates itself.
+
+### Controls
+Every control takes `into` (a selector or element). Ids are unique; use the lesson's ids exactly.
+```
+K.control({id, label, min, max, step, value, unit?, prefix?, fmt?, log?, snap?, hint?, into}) -> {el, get(), set(v)}
+K.choice({id, label, options: [value | {value, label}], value, hint?, into}) -> {el, get, set}
+K.toggle({id, label, value: false, hint?, into}) -> {el, get, set}
+K.stepper({id, steps: [title | {title, text}], value: 0, compact?, label?, into}) -> {el, get, set, setSteps(list)}
+K.button({label, press, secondary?, into}) -> {el, press(), setLabel(text)}
+K.drag(el, {control, toValue(x, y)}) -> {el}
+```
+`control` is a big slider with − / + buttons. Keep `unit` short; `fmt(v)` returns the whole text;
+`log: true` spans decades; `snap: [values]` lands a drag exactly on a setting the prediction or a
+check names. `choice`: 2-8 short named options; `value` is an option's value or its 0-based
+index. `stepper` walks a process with Back / Next (`compact: true` when your diagram shows the
+content). `button` is an action (Send it in): use it, not plain buttons. `drag` lets Dan move
+the thing itself: `toValue` maps the pointer (viewBox units; px from `el`'s top-left for HTML)
+to the control's value; the first touch counts as his move.
+
+### Outputs
+```
+K.readout({id, label, unit?, prefix?, decimals?, fmt?, big?, hint?, afterMove?, into}) -> {el, set(v), get(), text()}
+```
+One rounding everywhere a number appears: `decimals` matching the lesson text, and the `.say`
+sentence built with `K.fmt(v, {decimals})` or `readout.text()`. Labels under 30 characters.
+While Dan answers a lesson check, the app hides that output's readout and the `.say` lines:
+never repeat a readout's value elsewhere (a label, an aria-label).
+```
+K.plot(target, opts) -> {draw(opts), x(v), y(v), invert(px, py), el, canvas}
+```
+- `x`, `y`: `{min, max, label, log?, prefix?, unit?, fmt?, ticks?}`. Leave out `y.min`/`y.max` to fit the data.
+- `series`: `[{fn: x => y | points: [[x, y], ...], label?, color?, dash?, width?, fill?, dots?, gaps?, afterMove?}]`
+- `shade`: `[{between: [a, b], label?, color?, x0?, x1?}]`: fills between two series (by label), a
+  series and a constant, or two functions.
+- `marks`: `[{x, y, label?, color?, guides?, afterMove?}]`: a dot with a label pill; `guides` adds dashed lines to the axes.
+- `regions`: `[{x0, x1, label?} | {y0, y1, label?}]` (a band); `lines`: `[{x | y, label?}]` (a dashed line).
+- `label`: the text alternative; `height`; `after(ctx, plot)` draws extras using `plot.x()`, `plot.y()`.
+
+`draw(opts)` redraws with `opts` over the creation options: call it in `K.update`. Values must be
+finite (`gaps: true` only where a gap is real). Series are navy, then teal; `color: 'muted',
+dash: true` for a baseline.
+```
+K.bars(target, {max?, unit?, prefix?, decimals?, fmt?}) -> {draw(items)}      items: [{label, value, color?}], values >= 0
+K.anim({step(dt, t), reset?, label?, autoplay?, button?, into}) -> {el, play, pause, toggle, reset, playing()}
+```
+`anim` adds a Play button (text `label`); `reset` adds Reset. When a switch, button or drag
+already starts the motion, pass `button: false` and call `play()` from that control: one control
+per action. In `step` advance your state (`dt` in seconds) and redraw; return `false` to stop. To
+drive a slider, keep the exact value yourself (the slider moves in whole steps).
+
+### Sound
+```
+K.sound.tone(hz, {dur?, type?, gain?})   K.sound.chord([hz, ...], {dur?, stagger?})   K.sound.stop()   K.sound.mute(on)
+K.sound.hold(hz, {type?, gain?, max?}) -> {set({hz?, gain?}), stop(), playing()}
+```
+`dur` in seconds (at most 10). Sound plays only from a `K.button` press, never `K.update`; show
+what is sounding. `hold` keeps a tone going while `set()` follows a slider. Phones can't play
+below about 150 Hz: use 200 to 2,000 Hz.
+
+### Drawings and helpers
+```
+K.el(tag, attrs?, ...children)    attrs: class, style, on: {click: fn}, text, html, dataset, any attribute
+K.svg(tag, attrs?, ...children)   the same in the SVG namespace
+K.labels(group, [{x, y, text, anchor?, size?, class?, color?}], {avoid?}) -> [<text>]
+K.stage(visual, controls, {max?, beside?}) -> {el}
+K.fmt(v, {decimals?, sig?, prefix?, unit?, percent?, sign?, compact?}) -> '1,234.5', '−3', '2.5 × 10⁶'
+K.near(a, b, tol)   K.clamp(v, lo, hi)   K.lerp(a, b, t)   K.linspace(a, b, n)   K.color(role, alpha?)
+K.ease(p)   K.arrive(T, t0, dur?)   K.fade(el, a, rise?)
+```
+Give an `<svg>` a viewBox about 340 wide, `width="100%"`, `role="img"` and an `aria-label` that
+follows the state. Text 13-16 units, never under 12 (a phone shows 340 units at about 0.9x). A
+row of N labels gets about 300/N units each; label only what differs. Every label sits on, or
+points to, something drawn. `K.labels` places labels (13 units unless `size`) clear of other
+text, the edges and the lines or shapes in `avoid`: use it for labels that move or appear later.
+Put an angle's label inside its wedge, beyond the arc, hidden while the wedge is too narrow.
+`K.stage` fits the pair in `max` px (600) on a phone; `beside: false` keeps it stacked.
+
+Draw the mechanism as it physically works. If the explanation gives a reason (X because Y), draw
+Y so Dan can watch it; parts that fit are drawn fitting (teeth in teeth), never two identical
+icons joined by a line; whatever the rule says happens (slides, grips, multiplies) happens on screen.
+
+### Colour
+Colour carries meaning. Use these roles as `var(--k-…)` or `K.color('fill2')` (`K.color('accent2',
+0.3)` is see-through); a colour name fails the test.
+- Lines and text: `ink`, `muted` (secondary, comparisons), `accent2` (navy: the main thing,
+  controls), `accent` (teal: small labels, a second series), `warn` (red: warnings and mistakes
+  only), `good` (green: "done" only), `amber-line` (amber lines that must stand out).
+- Fills: `bg` (page), `panel`, `sunk`, `amber` (note box), `hl` (key-term highlighter), `fill1`
+  (area of the main thing), `fill2` (highlighted area, amber), `fill3` (area of a second thing).
+- `cat1`-`cat4` (blue, orange, magenta, aqua): telling equal things apart, never meaning; with a
+  key or labels; cat1 and cat2 first. A thing with a familiar colour (water, fire) never gets
+  another thing's colour: use the nearest role and label it. What is still there stays solid:
+  mark a state such as unused with a label, not by fading it, and key any dashed style.
+- Also `--k-line`, `--k-strong` (borders), `--k-on-accent2` (text on navy), `--k-font`, `--k-r` (radius).
+
+Never describe colours by lightness or hue in words Dan reads ("the dark square"): dark mode
+changes them.
+
+Classes: `muted`, `small`, `k-label` (small teal caps), `term` (key term), `note` (amber box),
+`warn-note`, `panel`, `row`, `grid2`, `big`, `k-btn` (`secondary`), and a legend:
+`<div class="key"><span><i class="swatch" style="background:var(--k-accent2)"></i>Your push</span>
+<span><i class="swatch line dash" style="color:var(--k-muted)"></i>The limit</span></div>`.
+
+### Rules for a great interactive
+- One idea. The answer to Dan's prediction shows within about 3 seconds of his first move (add
+  a K.check that it does). Include something Dan causes and a case that surprises. One or two
+  controls, three at most.
+- Phone first: nothing wider than 340 px, no fixed widths over 300 px, rows wrap, no hover-only
+  information, tap targets at least 44 px. Size tiles and grid columns in rem (`minmax(6rem,
+  1fr)`): text grows a quarter at Text size XL, and no word may split across two lines.
+- Every number shown is a control, computed by the rule shown, a constant from the lesson, an
+  example value named once in the lead, or a date from the lesson. Never invent data, rates or chances.
+- The `.say` sentence describes what is on screen now, plainly and warmly, and reads right at the
+  extremes ("none of the 100"). Never claim Dan did something ("When you slid it to 20"):
+  describe the state, or write conditionally ("Push it past 20 and…").
+- 3-5 `K.check` known answers worked out by hand: an edge case, a shape fact (rises, halves,
+  always last), and one answer from outside your formula. `source` may ONLY be a URL from the
+  lesson's own sources, and only on a check whose label restates what that source's quote says;
+  a result of your rule, or a fact about your drawing, takes none. Compare numbers with
+  `K.near(a, b, tol)`: tolerance about a millionth of the size, a thousandth where rounding meets roots.
+- `K.anim` for motion, never timers: soft, unhurried, nothing popping in. Parts arrive about 0.6
+  s apart by `K.fade(el, K.arrive(T, t0))`; travel and growth use `K.ease`; a demonstration takes
+  3-5 s. No `vh` units, `position: fixed` or `height: 100%`.
+- Ideas without numbers (mechanism, process, structure, history, concept): prefer a timeline
+  slider, a named choice, a sorter or a drag; use `K.stepper` only when every step changes the
+  drawing. Checks assert order and structure facts.
+- A timeline runs forward: a slider rising left to right, its `fmt` showing the date (−500 as
+  "500 BC"), or a stepper of named events in order. A lesson's calendar-year control keeps its
+  range, its `fmt` showing the year; years after the first date are for new controls. Each dated
+  event appears as he reaches its date.
+
+### The self-test
+Before Dan sees it, the app loads your body 340, 720 and 1040 px wide, runs every check, moves
+every control, button, animation and drag, reveals the after-move parts, and looks again at Text
+size XL and in the other theme. It fails on an exception, NaN or undefined on the page, an update
+over 150 ms, sideways overflow, text cut off or over other text, SVG text under 11 px on a phone,
+a line or arrowhead through a label, text under 3:1 contrast with what is behind it, a colour
+name, a blank hole until a move, or no `K.ready()`.
+
+### Example
+```html
+<p class="lead">Lengthen the string and watch each swing take longer.</p>
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+<p class="caption">Small swings only; g = 9.81 m/s² is gravity at the Earth's surface.</p>
+<script>
+  const g = 9.81;
+  const period = (L) => 2 * Math.PI * Math.sqrt(L / g);
+  K.control({ id: 'L', label: 'String length', min: 0.1, max: 3, step: 0.05, value: 1, unit: 'm', snap: [2], into: '#controls' });
+  K.stage('#plot', '#controls');
+  K.readout({ id: 'T', label: 'One full swing takes', unit: 's', decimals: 2, into: '#outs' });
+  const plot = K.plot('#plot', { x: { min: 0, max: 3, label: 'Length (m)' }, y: { min: 0, max: 4, label: 'Period (s)' } });
+  K.model((p) => ({ T: period(p.L) }));
+  K.update((p, o) => {
+    plot.draw({ series: [{ fn: period }], marks: [{ x: p.L, y: o.T, guides: true }] });
+    document.getElementById('say').textContent = !K.moved ? 'Make the string four times longer: how much longer is each swing?'
+      : 'A ' + K.fmt(p.L, { decimals: 2 }) + ' m string swings there and back every ' + K.fmt(o.T, { decimals: 2 }) + ' s. Four times the length only doubles that.';
+  });
+  K.check('No length, no swing time', () => K.near(period(0), 0));
+  K.check('A seconds pendulum (2 s per swing) is 0.994 m long', () => K.near(period(0.994), 2, 0.002),
+    { source: 'https://en.wikipedia.org/wiki/Seconds_pendulum' });
+  K.check('Four times the length doubles the period', () => K.near(K.at({ L: 2 }).T / K.at({ L: 0.5 }).T, 2, 1e-9));
+  K.ready();
+</script>
+```
+
+
+## A finished example (kind: quantity). Match its standard and structure, not its topic. Its SOURCE line and {source} addresses belong to that example's own lesson: never copy them
+<!-- kind: quantity -->
+<style>
+  .split { display: flex; height: 26px; border-radius: 8px; overflow: hidden; background: var(--k-sunk); }
+  .split .work { background: var(--k-accent2); transition: width .2s ease; }
+  .split-key { display: flex; justify-content: space-between; gap: 12px; margin-top: 6px; font-size: .9rem; color: var(--k-muted); }
+  .nowrap { white-space: nowrap; }
+</style>
+
+<p class="lead">Squeeze the air harder before the fuel burns in it, and watch how much more of the fuel's heat turns into useful work.</p>
+
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+
+<div>
+  <span class="k-label">Of every 100 units of heat from the fuel</span>
+  <div class="split" role="img" id="split" aria-label=""><i class="work" id="work"></i></div>
+  <div class="split-key"><span>Becomes work</span><span>Leaves in the hot exhaust</span></div>
+</div>
+
+<p class="caption">The ideal Brayton cycle with γ = 1.4 for air (NASA Glenn Research Center), an upper limit for real engines.</p>
+
+<script>
+  // gamma: ratio of specific heats for air, the value NASA Glenn's Brayton page uses.
+  const GAMMA = 1.4;
+  const SOURCE = 'https://www.grc.nasa.gov/www/k-12/airplane/brayton.html';
+  const pct = (r) => 100 * (1 - Math.pow(r, -(GAMMA - 1) / GAMMA));
+
+  const r = K.control({ id: 'r', label: 'Pressure ratio', hint: 'Pressure after the compressor ÷ pressure before it', min: 1, max: 50, step: 1, value: 8, unit: ':1', into: '#controls' });
+  K.readout({ id: 'eff', label: 'Ideal efficiency', unit: '%', decimals: 1, big: true, into: '#outs' });
+
+  K.stage('#plot', '#controls');   // stacked on a phone, side by side on a laptop
+
+  const plot = K.plot('#plot', {
+    x: { min: 1, max: 50, label: 'Pressure ratio' },
+    y: { min: 0, max: 100, label: 'Ideal efficiency (%)' },
+    label: 'Ideal efficiency rises steeply at low pressure ratios, then flattens',
+  });
+
+  // The pure model: pressure ratio -> ideal efficiency in percent.
+  K.model((p) => ({ eff: pct(p.r) }));
+
+  K.update((p, o) => {
+    plot.draw({
+      series: [{ fn: pct, label: 'Ideal efficiency' }],
+      marks: [{ x: p.r, y: o.eff, guides: true }],   // its value is in the readout alone
+    });
+    document.getElementById('work').style.width = o.eff + '%';
+    document.getElementById('split').setAttribute('aria-label', 'The filled part becomes work: ' + (o.eff < 50 ? 'under' : 'over') + ' half the heat');
+
+    let s;
+    if (p.r === 1) {
+      s = 'With no squeeze at all (r = 1), the hot gas has no extra pressure to push the turbine with, so no work comes out: 0%.';
+    } else if (p.r * 2 <= 50) {
+      const more = pct(p.r * 2) - o.eff;
+      s = 'At ' + p.r + ':1 an ideal engine turns ' + o.eff.toFixed(1) + '% of the fuel\'s heat into work. Doubling the squeeze to ' +
+        p.r * 2 + ':1 would add ' + more.toFixed(1) + ' more points.';
+    } else {
+      const less = o.eff - pct(p.r / 2);
+      s = 'At ' + p.r + ':1 an ideal engine turns ' + o.eff.toFixed(1) + '% of the fuel\'s heat into work. Halving the squeeze would cost only ' +
+        less.toFixed(1) + ' points: the curve has flattened.';
+    }
+    // Until Dan moves the slider the sentence invites rather than answers his prediction.
+    document.getElementById('say').textContent = K.moved ? s : 'Does doubling the squeeze double the work you get? Move the pressure ratio and see.';
+  });
+
+  // Known answers, worked out by hand from the formula.
+  K.check('No squeeze (r = 1) gives 0% efficiency', () => K.near(K.at({ r: 1 }).eff, 0, 1e-9));
+  K.check('r = 10 gives 48.2%, from the ideal Brayton formula', () => K.near(K.at({ r: 10 }).eff, 48.205, 0.001), { source: SOURCE });
+  K.check('Efficiency rises with every step up in pressure ratio', () => {
+    for (let x = 1; x < 50; x++) if (!(K.at({ r: x + 1 }).eff > K.at({ r: x }).eff)) return false;
+    return true;
+  });
+  K.check('Diminishing returns: 1 → 2 adds 18.0 points, 20 → 40 adds only 7.6', () =>
+    K.near(K.at({ r: 2 }).eff - K.at({ r: 1 }).eff, 17.97, 0.01) && K.near(K.at({ r: 40 }).eff - K.at({ r: 20 }).eff, 7.63, 0.01));
+  K.check('Even at r = 50 the ideal stays below 100% (67.3%)', () => K.near(K.at({ r: 50 }).eff, 67.30, 0.01));
+
+  K.ready();
+</script>
+
+
+## Typed answers (every ready-made course from 28 Oct)
+
+Dan works each puzzle on paper, then types his answer (Dan, 27-28 Oct). So a DO puzzle whose answer
+is a figure (a number with at most a unit: "0.70 V", "24 m²", "9.26 V") is typed into a field,
+never picked from options. Options stay for answers in words, a direction, an expression
+("4i − 2j"), an order, or where choosing between named things is the skill being taught ("Which
+pole leaks?"). Never write "About" in a typed answer: give the figure to the places you want.
+
+```
+K.answer({id, label?, unit, answer, decimals?, tolerance?, accept?, slips?, into, onCheck?, onEnter?})
+    -> {el, input, check(), result, right(), missed(), reveal(), reset(), set(text)}
+K.answer.grade(text, spec) -> {state: 'right'|'wrong'|'empty'|'unreadable', value, accepted?, slip?, hint?}
+```
+
+- A decimal-keypad field with the unit beside it. `answer` is the lesson's figure, worked from the
+  rounded figures the lesson shows; it is accepted within half a unit in its last place
+  (`decimals`, default 2: give `decimals: 0` for a whole number, 1 for "0.7"). `accept: [13.32]`
+  adds the answer worked from unrounded figures. A unit typed after the number ("0.70 V") is fine.
+- The wrong options you would have offered become `slips`: `[{value: 0.07, hint: 'That is 7 mΩ
+  read as 0.7 Ω. Milli is a thousandth.'}]`, each with the hint that names the mistake.
+- Your Check button calls `a.check()` (Enter does too); never grade as he types (the app's
+  calculator can type its result into the field for him). Write the feedback from `a.result`:
+  right, "That's it." and Continue; wrong, the slip's hint (`r.hint`) or the step's one-line hint,
+  and the field kept for another go; after two wrong tries, the working (Why?) and `a.reveal()`,
+  then Continue. Continue only once `a.right()` (a revealed answer counts).
+- Give each field its own `id` (the step's name in a few letters is fine).
+- Nothing on screen gives the answer before it is checked: a readout that would show the figure
+  shows "?" until then.
+- STEPS: the typed step keeps `want`, the answer as printed with its unit ('0.70 V'). The lesson's
+  read-through, its Book chapter and its problem set (the app asks it again, typed) read it.
+- The self-test grades every field: its answer and each accepted one right (with the unit too),
+  a near miss and each slip refused, and the answer typed into the field and checked on its step.
+- A worked example of the field in use: docs/courses/electrical/design-and-verification/i2.body.final.html.
+
+## Output
+Return ONLY the body: HTML elements, an optional <style>, then one inline <script> that ends with K.ready(). No <html>, <head> or <body> tags, no markdown fences, no commentary before or after. Keep it under 40 KB.

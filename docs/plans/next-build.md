@@ -489,11 +489,11 @@ work at sea), with no leadership content (Dan, 3 Nov):
 
 | Order | Course | From Brilliant | Why |
 |---|---|---|---|
-| 1 | Instrumentation and control | none (not on Brilliant) | Building now (workflow wf_0e6171b6-277) |
-| 2 | Digital circuits | Digital Circuits | Gates, truth tables, binary, NAND/NOR: the logic under PLCs, alarms and trip voting |
-| 3 | Waves and radiation | Waves and Light (retired), plus GCSE atomic physics | The two GCSE physics gaps, for January (args in tools/course/args) |
-| 4 | Logic | Logic | Deduction from evidence: the reasoning fault-finding runs on |
-| 5 | Probability for reliability | Probability and Chance, Predicting with Probability | Failure chances, redundancy and 2oo3 voting |
+| - | Instrumentation and control | none (not on Brilliant) | Shelved (Dan, 3 Nov: "I dont really think I want instrumentation and control"); lesson 1 saved in docs/courses/electrical/instrumentation-and-control |
+| 1 | Digital circuits | Digital Circuits | Gates, truth tables, binary, NAND/NOR: the logic under control circuits, alarms and trip voting. Building next (3 Nov) |
+| 2 | Waves and radiation | Waves and Light (retired), plus GCSE atomic physics | The two GCSE physics gaps, for January (args in tools/course/args) |
+| 3 | Logic | Logic | Deduction from evidence: the reasoning fault-finding runs on |
+| 4 | Probability for reliability | Probability and Chance, Predicting with Probability | Failure chances, redundancy and 2oo3 voting |
 | - | Circuits | Circuits | Skip: below his level (he is an electrician) |
 | - | Python, AI, crypto, search, quantum, data science | various | Not on his path |
 | - | Classical mechanics, Physics of the everyday | retired | Covered by Mechanics and materials and Heat and fluids |

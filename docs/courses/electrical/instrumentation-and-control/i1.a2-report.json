@@ -1,0 +1,273 @@
+{
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "An instrument calibrated for its range = 4 to 20 mA: the ideal line sends 4 mA at the bottom of the 0 to 10 bar range, 20 mA at the top and 12 mA half way, and the chain's display turns that back into 5.00 bar",
+        "ok": true,
+        "source": "https://www.isa.org/getmedia/a9356c34-5956-4952-9888-d6df8dd3e7ba/calabration-principles-chapter1.pdf"
+      },
+      {
+        "label": "The zero adjustment produces a parallel shift of the input-output line, and the span adjustment changes its slope: every zero setting moves all five check readings by the same amount and keeps the slope, and every span setting changes the slope and leaves the bottom end where it was",
+        "ok": true,
+        "source": "https://www.isa.org/getmedia/a9356c34-5956-4952-9888-d6df8dd3e7ba/calabration-principles-chapter1.pdf"
+      },
+      {
+        "label": "Span is the algebraic difference between the upper and lower range values: the relabelled range's typed span is its top minus its bottom, the same span as the first range, and its brace shows it only once checked",
+        "ok": true,
+        "source": "https://www.isa.org/getmedia/a9356c34-5956-4952-9888-d6df8dd3e7ba/calabration-principles-chapter1.pdf"
+      },
+      {
+        "label": "With a percentage of full-scale statement the error stays the same size throughout the range, and as a percentage of the reading it goes up as the reading goes down: the band is the same width in bar at every pressure, and the error as a share of the reading rises steadily as the reading falls",
+        "ok": true,
+        "source": "https://accuspecinc.com/hvac-accuracy-statements/"
+      },
+      {
+        "label": "Accuracy is the closeness of agreement between a measured value and a true or accepted value: panel D's tight beads all sit well off the ideal line until the zero screw slides them down, and then they sit on it",
+        "ok": true,
+        "source": "https://users.physics.unc.edu/~deardorf/uncertainty/UNCguide.pdf"
+      },
+      {
+        "label": "Every worked figure is right: 7.5 bar sends 16 mA (slips 12 and 15); −1 to 9 bar spans 10 bar (slips 9 and 8); 0.32 mA high is 2% of span (slips 0.32, 8 and 1.6); a −0.48 mA span screw reads 7.88, 11.76, 15.64 and 19.52 mA, −0.75, −1.50, −2.25 and −3.00%; 20.40 mA at 10 bar is 2.5% there and 1.25% half way, 12.20 mA (slips 2.5, 0.2 and 0); ±0.5% of a 10 bar span is 5% of a 1 bar reading (slips 0.5, 0.05 and 50)",
+        "ok": true
+      },
+      {
+        "label": "The table works each error from the rule and flags any above 0.5% of span: the span error screen fills 4.00, 7.88, 11.76, 15.64 and 19.52 mA at 0.00, −0.75, −1.50, −2.25 and −3.00%, the last four flagged, and a 0.32 mA zero error reads +2.00% at every point",
+        "ok": true
+      },
+      {
+        "label": "The three other troubles: the down run reads 0.16 mA, 1% of span, high at 25, 50 and 75% and the same as the up run at the ends; every noise bead stays inside its band; a 0.1 bar display shows 6.3 bar for 6.26, 6.27 and 6.33 bar but not 6.24 or 6.36; a 0.5 bar display climbs in 20 steps over the range",
+        "ok": true
+      },
+      {
+        "label": "Before a typed answer is checked its picture never shows it, and once checked it does: the 16.00 mA bead label, the 10 bar span, the +2.00% errors, the +1.25% half way row and the ±0.05 bar",
+        "ok": true
+      },
+      {
+        "label": "Each typed answer is accepted with or without its unit, and each slip is refused with its own hint",
+        "ok": true
+      },
+      {
+        "label": "Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer's motion within 2.5 s",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "zero",
+      "span",
+      "press",
+      "noise",
+      "dstep",
+      "dir"
+    ],
+    "readouts": [],
+    "outputs": [],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Screen",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "steps": [
+          "Which screw",
+          "The chain",
+          "At 7.5 bar",
+          "Range and span",
+          "A span to find",
+          "Two screws",
+          "A zero error",
+          "A span error",
+          "Half way up",
+          "Not the line",
+          "What the screws fix",
+          "Per cent of reading",
+          "A fair record"
+        ],
+        "value": 0
+      },
+      {
+        "id": "zero",
+        "kind": "control",
+        "label": "Zero screw",
+        "min": -0.8,
+        "max": 0.8,
+        "step": 0.04,
+        "log": false,
+        "value": 0.32,
+        "shown": true,
+        "snap": [
+          0
+        ]
+      },
+      {
+        "id": "span",
+        "kind": "control",
+        "label": "Span screw",
+        "min": -0.8,
+        "max": 0.8,
+        "step": 0.04,
+        "log": false,
+        "value": 0,
+        "shown": true,
+        "snap": [
+          0
+        ]
+      },
+      {
+        "id": "press",
+        "kind": "control",
+        "label": "Pressure",
+        "min": 0,
+        "max": 10,
+        "step": 0.5,
+        "log": false,
+        "value": 5,
+        "shown": false
+      },
+      {
+        "id": "noise",
+        "kind": "control",
+        "label": "A · Noise",
+        "min": 0,
+        "max": 1,
+        "step": 0.25,
+        "log": false,
+        "value": 0.5,
+        "shown": false
+      },
+      {
+        "id": "dstep",
+        "kind": "choice",
+        "label": "B · Display step",
+        "options": [
+          0.01,
+          0.1,
+          0.5
+        ],
+        "labels": [
+          "0.01 bar",
+          "0.1 bar",
+          "0.5 bar"
+        ],
+        "value": 0.5,
+        "index": 2,
+        "shown": false
+      },
+      {
+        "id": "dir",
+        "kind": "choice",
+        "label": "C · Direction",
+        "options": [
+          "Up",
+          "Down",
+          "Both"
+        ],
+        "labels": [
+          "Up",
+          "Down",
+          "Both"
+        ],
+        "value": "Both",
+        "index": 2,
+        "shown": false
+      }
+    ],
+    "actions": [
+      "Sweep",
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Answer 4",
+      "Check",
+      "Why?",
+      "Play again",
+      "Back",
+      "Continue",
+      "Start again",
+      "Demonstration"
+    ],
+    "answers": [
+      {
+        "id": "a-ma",
+        "answer": 16,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-span",
+        "answer": 10,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-zero",
+        "answer": 2.0000000000000018,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-half",
+        "answer": 1.2499999999999956,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-rd",
+        "answer": 5,
+        "accept": [],
+        "ok": true
+      }
+    ],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ]
+  },
+  "moved": [
+    "step = 1",
+    "zero = 0.8",
+    "span = 0.40000000000000013",
+    "press = 7.5",
+    "noise = 0.75",
+    "dstep = 0.01",
+    "dir = \"Up\"",
+    "pressed \"Sweep\""
+  ],
+  "shots": [
+    "/home/user/Study-App/build/electrical/instrumentation-and-control/i1.a2-360-light.png",
+    "/home/user/Study-App/build/electrical/instrumentation-and-control/i1.a2-360-light-moved.png",
+    "/home/user/Study-App/build/electrical/instrumentation-and-control/i1.a2-360-light-end.png",
+    "/home/user/Study-App/build/electrical/instrumentation-and-control/i1.a2-360-dark.png",
+    "/home/user/Study-App/build/electrical/instrumentation-and-control/i1.a2-360-dark-moved.png",
+    "/home/user/Study-App/build/electrical/instrumentation-and-control/i1.a2-360-dark-end.png",
+    "/home/user/Study-App/build/electrical/instrumentation-and-control/i1.a2-1280-light.png",
+    "/home/user/Study-App/build/electrical/instrumentation-and-control/i1.a2-1280-light-moved.png",
+    "/home/user/Study-App/build/electrical/instrumentation-and-control/i1.a2-1280-light-end.png",
+    "/home/user/Study-App/build/electrical/instrumentation-and-control/i1.a2-1280-dark.png",
+    "/home/user/Study-App/build/electrical/instrumentation-and-control/i1.a2-1280-dark-moved.png",
+    "/home/user/Study-App/build/electrical/instrumentation-and-control/i1.a2-1280-dark-end.png"
+  ]
+}
