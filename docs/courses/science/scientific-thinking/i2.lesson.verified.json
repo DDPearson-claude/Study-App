@@ -1,0 +1,511 @@
+{
+  "iid": "i2",
+  "title": "Compound gear trains",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the middle shaft's two gears counting the same turns, so the second stage divides a speed already slowed, when you turn the motor.",
+    "title": "The two-stage train",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Step",
+        "min": 0,
+        "max": 13,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "A motor turns a small gear, its pinion. The pinion drives a bigger wheel. A second pinion is fixed to that wheel's shaft. It drives the output wheel, which carries a winch drum. A load hangs from the drum's cable. So there are three shafts: the motor's, the middle shaft and the drum's. Each gear shows its tooth count at its centre, a revolution counter and an arrow for the way it turns. Each shaft has a speed bar and a torque bar. One power bar runs along the whole train. You turn the train by dragging the motor pinion round by its rim. On some screens you can also drag a gear's tooth count, from 10 to 60. Each pair of meshed gears is one stage. In a stage, speed × teeth is the same on both gears. So the driven gear turns at the driver's speed ÷ the stage ratio. The stage ratio is the driven gear's teeth ÷ the driver's teeth. The two gears on the middle shaft are fixed to it. So they turn together, the same way and at the same speed. The second stage starts from the speed the first stage leaves. So the overall ratio is the two stage ratios multiplied. Each mesh between these outside teeth flips the direction. So after two stages the output turns the motor's way. The train is ideal, with no friction. So each stage multiplies the torque by the same ratio it divides the speed by. Torque × speed is the power, and it stays the same. The power bar keeps one length all the way through. The bars are drawn as sizes relative to the motor's own speed and torque.",
+    "ignores": "The gears are drawn rigid, with teeth that never slip. The train is ideal, with no friction. A real gearbox loses some power as heat at every mesh and bearing. So its output torque is a little below the ideal figure. Its power would shrink a little at each stage. The board turns as fast as you drag. So a speed in rev/min comes from a puzzle's numbers, not from your finger. The bars show sizes relative to the motor, not real values. The load is a steady pull on the cable. Starting, stopping and the weight of the drum and cable are left out. Every gear lies flat with its teeth on the outside. Each stage is one mesh with no idler.",
+    "numbers": [
+      {
+        "label": "Screen, 1 to 14 (the stepper)",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Tooth count range when dragged, smallest",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Tooth count range when dragged, largest",
+        "value": 60,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example pinions, teeth, in screens 1 to 4, 6 and the explanation",
+        "value": 12,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example wheels, teeth, in screens 1 to 4, 6 and the explanation",
+        "value": 36,
+        "kind": "assumed"
+      },
+      {
+        "label": "Each stage ratio, 36 ÷ 12, screens 1 to 4",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Overall ratio, 3 × 3, screens 4 and 6",
+        "value": 9,
+        "kind": "computed"
+      },
+      {
+        "label": "Turns of the motor pinion, screen 2",
+        "value": 9,
+        "kind": "assumed"
+      },
+      {
+        "label": "Turns of the middle shaft, 9 ÷ 3, screen 2",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Turns of the output wheel, 3 ÷ 3, screen 2",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "Ratios added by mistake, 3 + 3, in the explanation",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "Turns of the motor pinion, screen 3",
+        "value": 18,
+        "kind": "assumed"
+      },
+      {
+        "label": "Turns of the middle shaft, 18 ÷ 3, screen 3",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "Output turns, 6 ÷ 3, screen 3",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: ratios added, 18 ÷ 6, turns",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: multiplied, 18 × 9, turns",
+        "value": 162,
+        "kind": "computed"
+      },
+      {
+        "label": "Motor speed, rev/min, screen 5",
+        "value": 1450,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 5 first pinion, teeth",
+        "value": 15,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 5 first wheel, teeth",
+        "value": 45,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 5 second pinion, teeth",
+        "value": 12,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 5 second wheel, teeth",
+        "value": 48,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 5 first stage ratio, 45 ÷ 15",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 5 second stage ratio, 48 ÷ 12",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 5 overall ratio, 3 × 4",
+        "value": 12,
+        "kind": "computed"
+      },
+      {
+        "label": "Output speed, 1450 ÷ 12, rev/min, screen 5",
+        "value": 120.8,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: ratios added, 1450 ÷ 7, rev/min",
+        "value": 207.1,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: one stage, 1450 ÷ 3, rev/min",
+        "value": 483.3,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: multiplied, 1450 × 12, rev/min",
+        "value": 17400,
+        "kind": "computed"
+      },
+      {
+        "label": "Example cable pull, kN, screen 8 and explanation",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Cable pull in newtons, screen 8",
+        "value": 5000,
+        "kind": "computed"
+      },
+      {
+        "label": "Example drum radius, m, screen 8 and explanation",
+        "value": 0.2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Drum torque, 5000 × 0.2, N m",
+        "value": 1000,
+        "kind": "computed"
+      },
+      {
+        "label": "Example ideal train ratio, screen 8 and explanation",
+        "value": 50,
+        "kind": "assumed"
+      },
+      {
+        "label": "Motor torque, 1000 ÷ 50, N m",
+        "value": 20,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 8 first stage, 12 into 60 teeth, ratio",
+        "value": 5,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 8 first wheel, teeth",
+        "value": 60,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 8 second pinion, teeth",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 8 second wheel, teeth",
+        "value": 100,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 8 second stage, 100 ÷ 10, ratio",
+        "value": 10,
+        "kind": "computed"
+      },
+      {
+        "label": "Drum radius, m, screen 9",
+        "value": 0.25,
+        "kind": "assumed"
+      },
+      {
+        "label": "Cable pull, kN, screen 9",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Cable pull in newtons, screen 9",
+        "value": 4000,
+        "kind": "computed"
+      },
+      {
+        "label": "Ideal train ratio, screen 9",
+        "value": 40,
+        "kind": "assumed"
+      },
+      {
+        "label": "Drum torque, 4000 × 0.25, N m, screen 9",
+        "value": 1000,
+        "kind": "computed"
+      },
+      {
+        "label": "Motor torque, 1000 ÷ 40, N m, screen 9",
+        "value": 25,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: multiplied, 1000 × 40, N m",
+        "value": 40000,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: kN left unconverted, 4 × 0.25 ÷ 40, N m",
+        "value": 0.025,
+        "kind": "computed"
+      },
+      {
+        "label": "Wanted ratio, screen 10",
+        "value": 20,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 10 first stage ratio, 48 ÷ 12",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 10 second stage ratio, 60 ÷ 12",
+        "value": 5,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 10 first wheel, teeth",
+        "value": 48,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 10 second wheel, teeth",
+        "value": 60,
+        "kind": "assumed"
+      },
+      {
+        "label": "Wanted ratio, screen 11",
+        "value": 36,
+        "kind": "assumed"
+      },
+      {
+        "label": "Pinion teeth, screen 11",
+        "value": 15,
+        "kind": "assumed"
+      },
+      {
+        "label": "Each equal stage, the ratio that times itself makes 36",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "Wheel teeth, 15 × 6, screen 11",
+        "value": 90,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: 36 halved, 15 × 18, teeth",
+        "value": 270,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: one stage does it all, 15 × 36, teeth",
+        "value": 540,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 12 crank wheel, teeth",
+        "value": 48,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 12 first pinion, teeth",
+        "value": 16,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 12 second wheel, teeth",
+        "value": 40,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 12 last pinion, teeth",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 12 first stage, 48 ÷ 16, times faster",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 12 second stage, 40 ÷ 10, times faster",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 12 last pinion, 3 × 4, times the crank speed",
+        "value": 12,
+        "kind": "computed"
+      },
+      {
+        "label": "Motor speed, rev/min, screen 13",
+        "value": 2400,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 13 stage ratios: 2, 3 and 5 (first shown)",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 13 wheels, teeth: 24, 36 and 60 (first shown)",
+        "value": 24,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 13 overall ratio, 2 × 3 × 5",
+        "value": 30,
+        "kind": "computed"
+      },
+      {
+        "label": "Output speed, 2400 ÷ 30, rev/min, screen 13",
+        "value": 80,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: ratios added, 2400 ÷ 10, rev/min",
+        "value": 240,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: multiplied, 2400 × 30, rev/min",
+        "value": 72000,
+        "kind": "computed"
+      },
+      {
+        "label": "Stages in screen 14",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Practice motor pinion, teeth",
+        "value": 14,
+        "kind": "assumed"
+      },
+      {
+        "label": "Practice motor speed, rev/min",
+        "value": 960,
+        "kind": "assumed"
+      },
+      {
+        "label": "Practice first wheel, teeth",
+        "value": 42,
+        "kind": "assumed"
+      },
+      {
+        "label": "Practice second pinion, teeth",
+        "value": 15,
+        "kind": "assumed"
+      },
+      {
+        "label": "Practice second wheel, teeth",
+        "value": 75,
+        "kind": "assumed"
+      },
+      {
+        "label": "Practice stage ratios, 42 ÷ 14 and 75 ÷ 15 (second)",
+        "value": 5,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice overall ratio, 3 × 5",
+        "value": 15,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice output speed, 960 ÷ 15, rev/min",
+        "value": 64,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice motor torque, N m",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Practice ideal output torque, 10 × 15, N m",
+        "value": 150,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice slip: ratios added, 3 + 5",
+        "value": 8,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice slip speed, 960 ÷ 8, rev/min",
+        "value": 120,
+        "kind": "computed"
+      },
+      {
+        "label": "Analogy first price cut, %",
+        "value": 20,
+        "kind": "assumed"
+      },
+      {
+        "label": "Analogy second price cut, %",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Analogy price left, 0.8 × 0.9",
+        "value": 0.72,
+        "kind": "computed"
+      },
+      {
+        "label": "Analogy total cut, %",
+        "value": 28,
+        "kind": "computed"
+      },
+      {
+        "label": "Analogy cuts added, %",
+        "value": 30,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "A [[compound gear train]] runs gear pairs one after another, and its overall ratio is their ratios multiplied. The driven gear of each pair is fixed to the same shaft as the driver of the next. So those two gears turn together.\n\nStart with one pair. A motor turns a small 12-tooth gear, called a [[pinion]]. It drives a wheel with 36 teeth. Speed × teeth is the same on both gears. So the wheel turns at a third of the motor's speed. That is a ratio of 3 : 1: three turns in for one turn out. Each meshed pair like this is one [[stage]] of the train. A stage's ratio is the driven gear's teeth ÷ the driver's teeth.\n\nNow fix a second 12-tooth pinion to the wheel's shaft. Two gears fixed to one shaft must turn at the same speed.[^1] So the second pinion turns at a third of the motor's speed. It has the same 12 teeth as the motor's pinion, yet it turns three times slower. It drives a second 36-tooth wheel. That wheel divides the speed by 3 again. Nine turns of the motor make three turns of the middle shaft and one turn of the output. So the overall ratio is 3 × 3 = 9, written 9 : 1.\n\nAdding the ratios would give 6 : 1, and that is wrong. The second stage divides the speed the first stage leaves, not the motor's speed. To find any compound train's ratio, work out each stage's ratio and multiply them together.[^2]\n\nWhy use two stages at all? One pair stops at about 10 : 1.[^3] Past that, the wheel grows huge beside its pinion. So a bigger ratio takes a second stage.\n\nDirection goes stage by stage too. With outside teeth on side-by-side shafts, each stage is one mesh. So each stage flips the direction. The two gears fixed to a shaft turn the same way.\n\nA train that cuts the speed raises the torque. That is where a winch's pull comes from, and it has a cost. An ideal train has no friction, so it has nowhere to lose energy. At a steady speed, the work out each second equals the work in. So the power stays the same. Power is torque × turning speed. So a stage that divides the speed by 3 multiplies the torque by 3.\n\nTake a 5 kN pull on a drum of 0.2 m radius. The drum needs 5000 × 0.2 = 1000 N m. Through an ideal 50 : 1 train, the motor needs only 1000 ÷ 50 = 20 N m. It pays in speed: it turns 50 times for each turn of the drum. This ideal train is a model. Real gears lose some power to friction at every mesh. So a real motor needs more torque than this. **Two gears fixed to one shaft turn together. So a compound train's overall ratio is its stage ratios multiplied.**"
+  },
+  "analogy": {
+    "text": "Take 20% off a price, then 10% off what is left. The second cut works on the reduced price. So the two cuts multiply: 0.8 × 0.9 = 0.72 of the price. That is 28% off, not 30%. A compound train works the same way. Its second stage divides the speed the first stage leaves. So the ratios multiply rather than add.",
+    "breaks": "A price cut is simply lost. Nothing comes back in return. An ideal gear stage gives back in torque exactly what it takes in speed. So the power stays the same."
+  },
+  "practice": {
+    "text": "- Isolate and lock off a gearbox before you turn it by hand. A winch's load can drive its train backwards. So land the load or hold it securely first. Keep fingers clear of every mesh.\n- Sketch the train from the motor out. Mark which gears are fixed to the same shaft.\n- For each stage, divide the driven gear's teeth by the driver's teeth.\n- Multiply the stage ratios to get the overall ratio.\n- Output speed = motor speed ÷ overall ratio.\n- Ideal output torque = motor torque × overall ratio. A real box gives less. Friction takes some at each mesh.\n- Direction: each mesh between outside-toothed gears on side-by-side shafts flips it. Gears fixed to one shaft turn the same way.\n\n**Rule of thumb:** gears fixed to one shaft share one speed. A train that cuts the speed by some ratio raises the torque by up to that ratio. Friction takes some of that gain.\n\n**Worked example:** a motor turns a 14-tooth pinion at 960 rev/min. It drives a 42-tooth wheel. A 15-tooth pinion on that shaft drives a 75-tooth wheel. Stage ratios: 42 ÷ 14 = 3 and 75 ÷ 15 = 5. Overall ratio: 3 × 5 = 15. Output speed: 960 ÷ 15 = 64 rev/min. There are two meshes, so the output turns the motor's way. If the motor gives 10 N m, the output gets at most 10 × 15 = 150 N m.\n\n**Common mistakes**\n- Adding the stage ratios. In the example, 3 + 5 = 8 would give 120 rev/min. That is nearly twice the real speed.\n- Treating the two gears on a shaft as meshed. They turn together, the same way and at the same speed.\n- Expecting two pinions with the same teeth to turn at the same speed. Where each sits in the train decides its speed.\n- Expecting a train to raise both speed and torque. It trades one for the other.\n- Leaving a pull in kN. Turn it into newtons before you work out the torque in N m."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+    {
+      "n": 1,
+      "title": "Mechanisms: Gears",
+      "url": "https://www.notesandsketches.co.uk/Gears.html",
+      "quote": "As both gears are keyed onto shaft B, they must revolve at the same velocity."
+    },
+    {
+      "n": 2,
+      "title": "Advanced Gears | REV ION Build System | REV Robotics Documentation",
+      "url": "https://docs.revrobotics.com/ion-build/motion/gears/advanced-gears",
+      "quote": "To calculate the total reduction of a compound reduction, identify the reduction of each stage and then multiply each reduction together."
+    },
+    {
+      "n": 3,
+      "title": "Gears",
+      "url": "https://www.me.iitb.ac.in/~ramesh/courses/ME423/Gears.pdf",
+      "quote": "A practical limit on train value for one pair of gears is 10 to 1"
+    }
+  ]
+}

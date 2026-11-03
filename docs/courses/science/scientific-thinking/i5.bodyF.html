@@ -1,0 +1,1125 @@
+<!-- kind: structure -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 34rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.08rem; font-weight: 400; line-height: 1.6; }
+  #stepbox > .act { margin-top: 6px; font-weight: 600; color: var(--k-muted); }
+  .nw { white-space: nowrap; }
+  .scene { display: block; width: 100%; max-width: 26rem; margin-inline: auto; touch-action: pan-y; }
+  .scene text { paint-order: stroke; stroke: var(--k-bg); stroke-width: 4px; stroke-linejoin: round; }
+  .scene .bar { stroke: var(--k-ink); stroke-width: 3.2; stroke-linecap: round; }
+  .scene .pin { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 2; }
+  .scene .pin.on { fill: var(--k-accent2); stroke: var(--k-accent2); }
+  .scene .sup { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .gnd { stroke: var(--k-strong); stroke-width: 2; }
+  .scene .hatch { stroke: var(--k-muted); stroke-width: 1.2; }
+  .scene .ar line { stroke: var(--k-ink); stroke-width: 2.6; }
+  .scene .ar path { fill: var(--k-ink); }
+  .scene .bf line { stroke: var(--k-accent2); stroke-width: 3; }
+  .scene .bf path { fill: var(--k-accent2); }
+  .scene .way line { stroke: var(--k-accent); stroke-width: 2; }
+  .scene .way path { fill: var(--k-accent); }
+  .scene .arc, .scene .dim { fill: none; stroke: var(--k-muted); stroke-width: 1.3; }
+  .scene .pull { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 4 4; }
+  .scene .ghost { fill: none; stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 3 3; }
+  .scene .shaft { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.6; }
+  .scene .thr { fill: none; stroke: var(--k-muted); stroke-width: 1.4; }
+  .scene .turn { fill: none; stroke: var(--k-accent2); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .ramp { fill: var(--k-fill1); stroke: none; }
+  .scene .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .flab { font: 700 13px var(--k-font); fill: var(--k-accent2); }
+  .scene .q { font: 700 15px var(--k-font); fill: var(--k-ink); }
+  .scene .cnt { font: 400 13px var(--k-font); fill: var(--k-ink); }
+  .scene .cnt.v { font-weight: 700; }
+  .scene .cnt.bad { font-weight: 700; fill: var(--k-warn); }
+  .scene .key { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .ttl { font: 700 13px var(--k-font); fill: var(--k-accent); letter-spacing: .03em; }
+  .scene #art * { pointer-events: none; }
+  .scene .hit { fill: transparent; stroke: none; cursor: grab; touch-action: none; }
+  .scene .hit.tap { cursor: pointer; }
+  .scene .hit:focus { outline: none; }
+  .scene .hit:focus-visible { stroke: var(--k-accent); stroke-width: 2.5; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-inline: 16px; font-size: .95rem; white-space: nowrap; }
+  .picks { gap: 8px; align-items: stretch; }
+  .picks .k-btn { flex: 1 1 8.5rem; min-height: 48px; font-size: 1.05rem; white-space: normal; overflow-wrap: normal; word-break: normal; hyphens: none; }
+  .picks.col { flex-direction: column; }
+  .picks.col .k-btn { flex: 0 0 auto; }
+  .picks .k-btn[aria-pressed="true"] { border-color: var(--k-accent2); box-shadow: inset 0 0 0 1.5px var(--k-accent2), 0 2px 0 var(--k-line); }
+  .picks .k-btn[aria-pressed="true"]::before { content: "\2713"; margin-right: .45em; font-weight: 800; }
+  .answers .k-answer { max-width: 20rem; }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .why, .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }
+</style>
+
+<p class="lead">Every figure here is an example.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <p class="act" id="act"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 200" width="100%" role="img" aria-label=""><g id="art"></g><g id="ui"></g></svg>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="answers" id="answers"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Each bar fixes the distance between its two pins. At every joint, the forces balance.</p>
+
+<script>
+  // ---------- helpers ----------
+  const IITB = 'https://www.civil.iitb.ac.in/~minamdar/ce102/Files/Trusses.pdf';
+  const CSUS = 'https://athena.ecs.csus.edu/~grandajj/e70/CHAP06.PDF';
+  const BOX = 'https://boxsand.physics.oregonstate.edu/PH201/Mechanics/Mechanical-Advantage/Content/Mechanical-Advantage-of-Simple-Machines';
+  const el = (id) => document.getElementById(id);
+  const rad = (dg) => dg * Math.PI / 180;
+  const r1 = (v) => Math.round(v * 10) / 10;
+  const r2 = (v) => Math.round(v * 100) / 100;
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  const near = (a, b, tol) => Math.abs(a - b) <= (tol != null ? tol : 1e-9 * Math.max(1, Math.abs(a), Math.abs(b)));
+  const dist = (p, q) => Math.hypot(p[0] - q[0], p[1] - q[1]);
+  const KN = 4.4;   // drawing units for each kN of a load or a support's push
+  // A force as the lesson writes it: whole numbers plain, others to two places.
+  const kn = (v, dp) => { const a = Math.abs(v), d = dp != null ? dp : Math.abs(a - Math.round(a)) < 1e-6 ? 0 : 2; return a.toFixed(d) + ' kN'; };
+  const pp = (t) => (t > 0 ? 'pull' : 'push');
+
+  // ---------- the rule: bars fix lengths, joints balance ----------
+  // A frame: joints [x, y] (y up, in frame units), bars [a, b], the pin's joint and the roller's.
+  // A frame with a `mode` has one way left to move; pose(F, q) is where its joints are at q.
+  function pose(F, q) {
+    if (!F.mode || !q) return F.J;
+    const s = Math.sin(q), c = Math.cos(q);
+    if (F.mode === 'lean') return [[0, 0], [1, 0], [1 + s, c], [s, c]].concat(F.J.length > 4 ? [[0.5 + s, c + 0.5]] : []);
+    // 'kink': the braced left bay turns q about the pin, the roller rolls, the right bay follows.
+    const rot = (p) => [p[0] * c - p[1] * s, p[0] * s + p[1] * c], j1 = rot([1, 0]), j3 = rot([0, 1]), j4 = rot([1, 1]);
+    const j2 = [j1[0] + Math.sqrt(Math.max(0, 1 - j1[1] * j1[1])), 0];
+    return [[0, 0], j1, j2, j3, j4, [j2[0] + j4[0] - j1[0], j4[1] - j1[1]]];
+  }
+  function rank(M) {
+    M = M.map((r) => r.slice());
+    let rk = 0;
+    const cols = M[0].length;
+    for (let c = 0; c < cols && rk < M.length; c++) {
+      let p = rk;
+      for (let i = rk + 1; i < M.length; i++) if (Math.abs(M[i][c]) > Math.abs(M[p][c])) p = i;
+      if (Math.abs(M[p][c]) < 1e-9) continue;
+      const t = M[rk]; M[rk] = M[p]; M[p] = t;
+      for (let i = 0; i < M.length; i++) if (i !== rk) { const f = M[i][c] / M[rk][c]; if (f) for (let k = c; k < cols; k++) M[i][k] -= f * M[rk][k]; }
+      rk++;
+    }
+    return rk;
+  }
+  // Ways left to move: 2 for each joint, less one for each bar or support that locks a new one.
+  function freedoms(F, P) {
+    P = P || F.J;
+    const n = 2 * P.length, rows = [], e = (k) => { const r = new Array(n).fill(0); r[k] = 1; return r; };
+    F.B.forEach(([a, b]) => { const r = new Array(n).fill(0), dx = P[a][0] - P[b][0], dy = P[a][1] - P[b][1]; r[2 * a] = dx; r[2 * a + 1] = dy; r[2 * b] = -dx; r[2 * b + 1] = -dy; rows.push(r); });
+    rows.push(e(2 * F.pin), e(2 * F.pin + 1), e(2 * F.roller + 1));
+    return n - rank(rows);
+  }
+  function gauss(A, b) {
+    const n = b.length, M = A.map((r, i) => r.concat([b[i]]));
+    for (let c = 0; c < n; c++) {
+      let p = c;
+      for (let r = c + 1; r < n; r++) if (Math.abs(M[r][c]) > Math.abs(M[p][c])) p = r;
+      if (Math.abs(M[p][c]) < 1e-12) return null;
+      const t = M[c]; M[c] = M[p]; M[p] = t;
+      for (let r = 0; r < n; r++) if (r !== c) { const f = M[r][c] / M[c][c]; if (f) for (let k = c; k <= n; k++) M[r][k] -= f * M[c][k]; }
+    }
+    return M.map((r, i) => r[n] / r[i]);
+  }
+  // Bar forces (pull positive, kN) and the supports' pushes, from balancing every joint at once.
+  function solve(F, loads) {
+    const P = F.J, m = F.B.length, n = 2 * P.length, A = [], rhs = [];
+    for (let r = 0; r < n; r++) { A.push(new Array(m + 3).fill(0)); rhs.push(0); }
+    F.B.forEach(([a, b], k) => { const L = dist(P[a], P[b]), ux = (P[b][0] - P[a][0]) / L, uy = (P[b][1] - P[a][1]) / L; A[2 * a][k] += ux; A[2 * a + 1][k] += uy; A[2 * b][k] -= ux; A[2 * b + 1][k] -= uy; });
+    A[2 * F.pin][m] = 1; A[2 * F.pin + 1][m + 1] = 1; A[2 * F.roller + 1][m + 2] = 1;
+    loads.forEach((l) => { rhs[2 * l.j + 1] += l.w; });
+    const x = gauss(A, rhs);
+    return x ? { T: x.slice(0, m), px: x[m], py: x[m + 1], ry: x[m + 2] } : null;
+  }
+  // What is left over at the worst joint once every force on it is added (none, in balance).
+  function resid(F, sol, loads) {
+    const P = F.J, s = P.map(() => [0, 0]);
+    F.B.forEach(([a, b], k) => { const L = dist(P[a], P[b]), ux = (P[b][0] - P[a][0]) / L, uy = (P[b][1] - P[a][1]) / L; s[a][0] += sol.T[k] * ux; s[a][1] += sol.T[k] * uy; s[b][0] -= sol.T[k] * ux; s[b][1] -= sol.T[k] * uy; });
+    s[F.pin][0] += sol.px; s[F.pin][1] += sol.py; s[F.roller][1] += sol.ry;
+    loads.forEach((l) => { s[l.j][1] -= l.w; });
+    return Math.max.apply(null, s.map((v) => Math.max(Math.abs(v[0]), Math.abs(v[1]))));
+  }
+  // The force bar k puts on joint j: along the bar, away from j when it pulls.
+  function onJoint(F, sol, j, k) { const [a, b] = F.B[k], o = a === j ? b : a, L = dist(F.J[j], F.J[o]); return [sol.T[k] * (F.J[o][0] - F.J[j][0]) / L, sol.T[k] * (F.J[o][1] - F.J[j][1]) / L]; }
+  const lengthsKept = (F, P) => F.B.every(([a, b]) => near(dist(P[a], P[b]), dist(F.J[a], F.J[b]), 1e-9));
+  // The setting q that brings joint j nearest a point (frame units), for a drag.
+  function bestQ(F, j, tgt, lo, hi, qNow) {
+    if (!F.mode) return qNow;
+    const cost = (q) => { const p = pose(F, q)[j]; return Math.hypot(p[0] - tgt[0], p[1] - tgt[1]) + 1e-4 * Math.abs(q - qNow); };
+    let best = qNow, bd = Infinity;
+    for (let n = 0; n <= 240; n++) { const q = lo + (hi - lo) * n / 240, c = cost(q); if (c < bd - 1e-12) { bd = c; best = q; } }
+    let a = Math.max(lo, best - (hi - lo) / 240), b = Math.min(hi, best + (hi - lo) / 240);
+    for (let k = 0; k < 30; k++) { const m1 = a + (b - a) / 3, m2 = b - (b - a) / 3; if (cost(m1) < cost(m2)) b = m2; else a = m1; }
+    return (a + b) / 2;
+  }
+  // A frame's count against 2j − 3, and whether it holds.
+  function countLines(F) {
+    const j = F.J.length, m = F.B.length, need = 2 * j - 3, free = freedoms(F), spare = m - (need - free);
+    return [{ s: j + ' joints, ' + m + ' bars', c: 'cnt' }, { s: 'needs 2 × ' + j + ' − 3 = ' + need, c: 'cnt' },
+      free ? { s: need > m ? (need - m) + ' short: folds' : spare > 0 ? spare + ' spare: folds' : 'folds', c: 'cnt bad' } : { s: 'holds', c: 'cnt v' }];
+  }
+
+  // ---------- the frames ----------
+  const R3 = Math.sqrt(3);
+  const F_EQ = { J: [[0, 0], [1, 0], [0.5, R3 / 2]], B: [[0, 1], [1, 2], [2, 0]], pin: 0, roller: 1 };
+  const tri = (dg) => ({ J: [[0, 0], [1, 0], [0.5, Math.tan(rad(dg)) / 2]], B: [[0, 1], [0, 2], [1, 2]], pin: 0, roller: 1 });
+  const F_T30 = tri(30), F_T45 = tri(45);
+  const square = (diag) => ({ J: [[0, 0], [1, 0], [1, 1], [0, 1]], B: [[0, 1], [1, 2], [2, 3], [3, 0]].concat(diag ? [[0, 2]] : []), pin: 0, roller: 1, mode: diag ? null : 'lean' });
+  const F_SQ = square(false), F_SQD = square(true);
+  // A square with a triangle roof: 5 joints, 6 bars; the diagonal across the square is bar 6.
+  const house = (diag) => ({ J: [[0, 0], [1, 0], [1, 1], [0, 1], [0.5, 1.5]], B: [[0, 1], [1, 2], [2, 3], [3, 0], [3, 4], [4, 2]].concat(diag ? [[0, 2]] : []), pin: 0, roller: 1, mode: diag ? null : 'lean' });
+  const F_HO = house(false), F_HOD = house(true);
+  // The screw: one turn of a 20 mm screw is a ramp π × 20 = 62.8 mm long; load ÷ push = that ÷ the pitch.
+  const SC_C1 = r1(Math.PI * 20), scGain = (pitch) => r1(SC_C1 / pitch);
+  const bays = (diags, mode) => ({ J: [[0, 0], [1, 0], [2, 0], [0, 1], [1, 1], [2, 1]], B: [[0, 1], [1, 2], [3, 4], [4, 5], [0, 3], [1, 4], [2, 5]].concat(diags), pin: 0, roller: 2, mode: mode || null });
+  const F_B1 = bays([[0, 4]], 'kink'), F_B2 = bays([[0, 4], [1, 5]]), F_BB = bays([[0, 4], [1, 3]], 'kink');
+  const F_W = { J: [[0, 0], [2, 0], [4, 0], [6, 0], [1, R3], [3, R3], [5, R3]], B: [[0, 1], [1, 2], [2, 3], [4, 5], [5, 6], [0, 4], [4, 1], [1, 5], [5, 2], [2, 6], [6, 3]], pin: 0, roller: 3 };
+  const S30 = solve(F_T30, [{ j: 2, w: 10 }]), S45 = solve(F_T45, [{ j: 2, w: 12 }]), SW = solve(F_W, [{ j: 1, w: 12 }]);
+  const JNAME = ['left foot', 'right foot', 'top joint'];
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  const STEPS = [
+    { kind: 'pick', name: 'Which holds?', pic: 'pair', col: true, dragAfter: true, run: 2.8,
+      task: 'Push sideways on the top of each frame. Which one keeps its shape?',
+      read: 'A square frame and a triangle frame of pinned bars each stand on two supports. Push sideways on the top of each. Which one keeps its shape?',
+      opts: ['The square', 'The triangle', 'Both keep their shape', 'Neither keeps its shape'], want: 'The triangle',
+      hint: 'Watch the square\'s corners. They turn freely.',
+      hints: { 'The square': 'Its four corners are hinges. Nothing stops it leaning over.', 'Both keep their shape': 'Watch the square\'s corners. They turn freely.',
+        'Neither keeps its shape': 'Three bars of fixed length fit together only one way.' },
+      why: 'Every joint is a pin, free to turn like a hinge. The square\'s four bars can all lean over into a diamond. So the square folds. Three bars of fixed length make one triangle and no other. So the triangle cannot change shape.' },
+    { show: true, name: 'Triangles hold', pic: 'pair', drag: true, dur: 3.0,
+      text: 'A pin lets bars turn at a joint, like a hinge. So a bar fixes only the distance between its two pins. Three fixed lengths make one triangle and no other. So a triangle of pinned bars is *rigid*. Four fixed lengths can make a square or a thin diamond. So a square folds.',
+      act: 'Drag any joint.',
+      read: 'When one joint is dragged, the square leans over until it folds flat. The triangle\'s joints will not move.', still: () => finishNow() },
+    { show: true, name: 'Counting ways to move', pic: 'pair', count: true, dur: 5.0,
+      text: 'On a flat page, each joint can move two ways, across and up. So j joints have 2j ways to move. Three of those ways slide or turn the whole frame without changing its shape. Each bar can stop one of the rest. So a frame of j joints needs at least `2j − 3` bars to hold its shape.',
+      act: 'Tap the triangle, then the square.',
+      read: 'The triangle has 3 joints and 3 bars. It needs 2 × 3 − 3 = 3, so it holds. The square has 4 joints and 4 bars. It needs 2 × 4 − 3 = 5, so it is one short and folds.', still: () => finishNow() },
+    { kind: 'typed', name: 'Lock the frame', pic: 'square', drag: true, run: 2.6, ans: 'lock', unit: 'bars', decimals: 0,
+      answer: 2 * F_HO.J.length - 3, want: '7 bars',
+      slips: [{ value: F_HO.B.length, hint: 'That is what the frame has now. Its square part still leans over.' },
+        { value: 2 * F_HO.J.length, hint: 'That counts all 2 × 5 ways to move. Three of them only slide or turn the whole frame.' },
+        { value: F_HO.J.length, hint: 'That is one bar for each joint. Each joint can move two ways.' }],
+      task: 'This frame is a square with a roof on top. It has 5 joints. What is the fewest bars it needs to hold its shape?',
+      read: 'A square frame with a triangle roof on top has 5 joints and 6 bars. What is the fewest bars it needs to hold its shape?',
+      hint: 'Use `2j − 3`, with j the number of joints.',
+      why: 'It needs 2 × 5 − 3 = 7 bars. It has only 6. So it has one way left to move, and its square part leans over. A diagonal across the square is the seventh bar. Then the whole frame is triangles.' },
+    { kind: 'typed', name: 'Grow the frame', pic: 'bays', drag: true, run: 2.6, ans: 'grow', unit: 'bar', decimals: 0,
+      answer: 2 * F_B1.J.length - 3 - F_B1.B.length, want: '1 bar',
+      slips: [{ value: 2 * F_B1.J.length - F_B1.B.length, hint: '2 × 6 − 8 leaves out the three ways that only slide or turn the whole frame.' },
+        { value: 2 * F_B1.J.length - 3, hint: '9 is the total it needs. It already has 8.' },
+        { value: 0, hint: 'The right bay still leans over. Check the count against `2j − 3` again.' }],
+      task: 'This frame has 6 joints and 8 bars. How many more bars does it need to hold its shape?',
+      read: 'A frame of two square bays has 6 joints and 8 bars. How many more bars does it need to hold its shape?',
+      hint: 'Work out `2j − 3`. Then take away the 8 bars it has.',
+      why: 'It needs 2 × 6 − 3 = 9 bars. It has 8, so it needs 1 more. That is a diagonal across the right bay. Each new joint brings two ways to move, so it needs two new bars. That is why a frame grown one triangle at a time keeps the count right.' },
+    { show: true, name: 'The supports push back', pic: 'reac', dur: 3.2,
+      text: 'Hang a load on a joint, and the supports push back. Find those pushes first. Treat the whole frame as one body. Take moments about one support, as for a mobile\'s bar. The pin can push any way. The roller can only push straight up.',
+      act: 'Tap a joint to hang the load there.',
+      read: 'A 10 kN load hangs from the top joint, midway between the supports. Each support pushes up with 5 kN.', still: () => finishNow() },
+    { kind: 'typed', name: 'Off centre', pic: 'warren', run: 1.8, ans: 'off', unit: 'kN', decimals: 0,
+      answer: r2(SW.py), want: '8 kN',
+      slips: [{ value: r2(SW.ry), hint: 'That is the right support\'s share. The support nearer the load carries more.' },
+        { value: 12 / 2, hint: 'Half each is right only for a load in the middle.' }],
+      task: 'A frame spans 6 m between its supports. A 12 kN load hangs from a joint 2 m from the left support. How hard does the left support push up?',
+      read: 'A frame spans 6 m between its supports. A 12 kN load hangs from a joint 2 m from the left support. How hard does the left support push up?',
+      hint: 'Take moments about the right support.',
+      why: 'The load is 6 − 2 = 4 m from the right support. Its moment about that support is 12 × 4 = 48 kN m. The left support is 6 m away, and its push must balance that moment. So it pushes 48 ÷ 6 = 8 kN. The right support takes the rest, 12 − 8 = 4 kN.' },
+    { show: true, name: 'Pull or push', pic: 'bar', dur: 3.6,
+      text: 'Each bar in a loaded frame is pulled or pushed along its length. Look at its arrow at a pin. If it points away from the pin, the bar pulls. It is in *tension*. If it points into the pin, the bar pushes. It is in *compression*.',
+      act: 'Drag one pin to stretch or squash the bar.',
+      read: 'A stretched bar pulls its pins towards each other. So its arrow at each pin points away from that pin, labelled pull. A squashed bar pushes its pins apart. So each arrow points into its pin, labelled push.', still: () => finishNow() },
+    { kind: 'pick', name: 'Which is pulled?', pic: 'tri', col: true, run: 1.6,
+      task: 'A triangle frame carries a load at its top joint. Which bar is in tension?',
+      read: 'A triangle frame carries a load at its top joint. Which bar is in tension?',
+      opts: ['The two sloping bars', 'All three bars', 'The bottom bar', 'None of them'], want: 'The bottom bar',
+      hint: 'The load squashes the sloping bars. Only one bar is stretched.',
+      hints: { 'The two sloping bars': 'The load presses them down onto the supports. They are squashed.', 'All three bars': 'The load squashes the sloping bars. Only one bar is stretched.',
+        'None of them': 'Something must stop the two feet sliding apart.' },
+      why: 'The load presses the top joint down. That squashes both sloping bars. Squashed, they push their feet outwards. The roller cannot push sideways. So the bottom bar holds the feet together by pulling.' },
+    { show: true, name: 'Joint by joint', pic: 'tri', dur: 4.4,
+      text: 'The forces at each joint balance. So, drawn nose to tail, they close into a triangle. A joint\'s balance gives two equations, across and up. So it can find two unknowns. Start at a joint with only two unknown bars, like the top joint. The bars slope equally, so each up part holds half the load, 5 kN. That up part is the bar\'s force × sin 30°. So each bar pushes with 5 ÷ 0.5 = 10 kN.',
+      act: 'Tap the top joint.',
+      read: 'At the top joint, the 10 kN load and the bars\' two 10 kN pushes close into a triangle with three equal sides. Both bar arrows point into the pin, so both are in compression.', still: () => finishNow() },
+    { kind: 'typed', name: 'The bottom bar', pic: 'tri', run: 2.4, ans: 'bot', unit: 'kN', decimals: 2,
+      answer: r2(S30.T[0]), want: '8.66 kN',
+      slips: [{ value: r2(-S30.T[1]), hint: 'That is the sloping bar\'s whole force. The bottom bar balances only its across part.' },
+        { value: r2(S30.py), hint: 'That is the up part, 10 × sin 30°. Use the across part.' },
+        { value: r2(-S30.T[1] / r3(Math.cos(rad(30)))), hint: 'Multiply by cos 30°. Don\'t divide.' }],
+      task: 'At the left foot, the support pushes up with 5 kN. The sloping bar pushes into the foot with 10 kN, at 30° above level. What is the force in the bottom bar?',
+      read: 'At the left foot, the support pushes up with 5 kN. The sloping bar pushes into the foot with 10 kN, at 30° above level. What is the force in the bottom bar?',
+      hint: 'Balance the across parts at the foot.',
+      why: 'The sloping bar\'s across part is 10 × cos 30° = 8.66 kN. It pushes the foot outwards. Its up part is 10 × sin 30° = 5 kN, which matches the support\'s push. The pin could push sideways too. But no other force on the frame pushes sideways, so here it pushes only up. So the bottom bar must pull the foot inwards with 8.66 kN. Its arrow points away from the pin, so it is in tension.' },
+    { show: true, name: 'A screw is a ramp', pic: 'screw', dur: 4.6,
+      text: 'A screw\'s thread is a ramp wrapped round a shaft. Laid flat, one turn runs the screw\'s circumference, π × 20 = 62.8 mm. It climbs one *pitch*, the gap between threads, here 2 mm. With friction ignored, the work in equals the work out. So `push × 62.8 mm = load × 2 mm`, and the load is 31.4 times the push.',
+      act: 'Play the unrolling.',
+      read: 'One turn of a 20 mm screw\'s thread unrolls into a ramp 62.8 mm long. The ramp climbs 2 mm, drawn five times taller here. With friction ignored, a push along the thread lifts a load 31.4 times its size.', still: () => finishNow() },
+    { kind: 'typed', name: 'A finer thread', pic: 'screw', pitch: 1.5, run: 3.2, ans: 'fine', unit: 'times', decimals: 1,
+      answer: scGain(1.5), want: '41.9 times',
+      slips: [{ value: scGain(2), hint: 'That is the 2 mm thread. A finer thread climbs less each turn, so it lifts more.' },
+        { value: r1(20 / 1.5), hint: 'That uses the width. One turn runs round the circumference, π × 20 mm.' },
+        { value: r1(SC_C1 * 1.5), hint: 'Divide the turn\'s length by the pitch. Don\'t multiply.' }],
+      task: 'The same 20 mm screw gets a finer thread, with a 1.5 mm pitch. With friction ignored, how many times the push is the load?',
+      read: 'The same 20 mm screw gets a finer thread, with a 1.5 mm pitch. With friction ignored, how many times the push is the load?',
+      hint: 'Divide one turn\'s length, 62.8 mm, by its climb.',
+      why: 'One turn runs π × 20 = 62.8 mm and climbs 1.5 mm. So push × 62.8 mm = load × 1.5 mm. The load is 62.8 ÷ 1.5 = 41.9 times the push. A finer thread lifts more for each push, but takes more turns. That is how a terminal screw clamps a conductor hard from a small twist. Left loose, it presses on less of the conductor, and the joint runs hot.' },
+    { kind: 'pick', name: 'Same count', pic: 'two', col: true, dragAfter: true, run: 2.8,
+      task: 'Both frames have 6 joints and 9 bars, as `2j − 3` asks. Which one folds?',
+      read: 'Two frames of two square bays each have 6 joints and 9 bars. Frame A has a diagonal in each bay. Frame B has both diagonals in its left bay. Which one folds?',
+      opts: ['Frame A, a diagonal in each bay', 'Frame B, both diagonals in one bay', 'Neither, since both have 9 bars', 'Both of them'], want: 'Frame B, both diagonals in one bay',
+      hint: 'The count says how many bars, not where. Look at Frame B\'s right bay.',
+      hints: { 'Frame A, a diagonal in each bay': 'Each of its bays is two triangles. Nothing in it can lean.',
+        'Neither, since both have 9 bars': 'The count says how many bars, not where. Look at Frame B\'s right bay.', 'Both of them': 'Frame A\'s two bays are both split into triangles.' },
+      why: 'The count says how many bars a frame needs, not where they go. Frame B\'s second diagonal locks nothing the first one had not already locked. So it is spare. Its right bay is a square with no diagonal, so it folds.' },
+    { kind: 'typed', name: 'A steeper frame', pic: 'tri45', run: 3.4, ans: 'steep', unit: 'kN', decimals: 2,
+      answer: r2(-S45.T[1]), want: '8.49 kN',
+      slips: [{ value: r2(S45.py), hint: 'That is each bar\'s up part. The bar slopes, so its force is bigger.' },
+        { value: 12, hint: 'The two sloping bars share the load.' },
+        { value: r2(S45.py * r3(Math.sin(rad(45)))), hint: 'Divide the up part by sin 45°. Don\'t multiply.' }],
+      task: 'A triangle frame on two supports carries 12 kN at its top joint. Its sloping bars are at 45° to level. What force is in each sloping bar?',
+      read: 'A triangle frame on two supports carries 12 kN at its top joint. Its sloping bars are at 45° to level. What force is in each sloping bar?',
+      hint: 'Each sloping bar\'s up part holds half the load.',
+      why: 'The two bars slope equally, so they share the load equally. Each bar\'s up part is 12 ÷ 2 = 6 kN. The up part is the force × sin 45°. So the force is 6 ÷ 0.707 = 8.49 kN. Both arrows point into the top joint, so both bars are in compression. At each foot, the bottom bar then pulls with 8.49 × cos 45° = 6.00 kN.' },
+  ];
+  const FINISH = 'A frame of pinned bars holds its shape when it is built from triangles. Under a load, each bar is pulled or pushed along its length. Balancing the forces at each joint tells you which, and how hard.';
+
+  // ---------- state and time ----------
+  const fresh = (d) => ({ pick: null, res: null, tries: 0, why: false, hint: '', q: d.pic === 'bays' ? [rad(10)] : [0, 0], dragged: false, pull: null,
+    load: 2, focus: null, ax: null, bx: null, qFrom: null });
+  let ST = STEPS.map(fresh);
+  const solved = (st) => st.res === 'right' || st.res === 'shown';
+  const canDrag = (d, st) => !!d.drag || (!!d.dragAfter && solved(st));
+  let T = Infinity, motionEnd = 0, latest = 0, REC = null, finished = false, lastStep = -1, lastDone = false, hold = null;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  const quiet = () => REDUCE || testing();
+  // How far a part due at t0 has arrived, and how far a motion from t0 to t1 has gone; both note
+  // the latest time any part settles, for the timing check.
+  const at = (t0, d) => { d = d == null ? K.SOFT : d; if (t0 + d > latest) latest = t0 + d; return K.arrive(T, t0, d); };
+  const mv = (t0, t1) => { if (t1 > latest) latest = t1; return T === Infinity ? 1 : T <= t0 ? 0 : T >= t1 ? 1 : K.ease((T - t0) / (t1 - t0)); };
+
+  // ---------- drawing (built with K.svg, never innerHTML) ----------
+  const svg = el('scene'), art = el('art'), ui = el('ui');
+  let into = null;
+  const add = (n) => (into || art).appendChild(n);
+  function grp(a, rise, fn) { if (!(a > 0)) return; const g = add(K.svg('g')); K.fade(g, a, rise || 0); const keep = into; into = g; try { fn(); } finally { into = keep; } }
+  const seg = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));
+  const pth = (cls, d) => add(K.svg('path', { class: cls, d }));
+  const circ = (cls, x, y, r) => add(K.svg('circle', { class: cls, cx: r3(x), cy: r3(y), r }));
+  function txt(x, y, s, cls, anchor) { REC.texts.push(s); return add(K.svg('text', { class: cls || 'lab', x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' }, s)); }
+  const WCACHE = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (WCACHE[key]) return WCACHE[key];
+    let w = 0;
+    try { const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, s)); w = t.getComputedTextLength(); svg.removeChild(t); } catch (e) { w = 0; }
+    if (w > 0) { WCACHE[key] = w; return w; }
+    return s.length * (cls === 'q' ? 9 : 7.4);
+  }
+  // An arrow from its tail to its tip: a shaft and a filled head.
+  function arrow(cls, x1, y1, x2, y2, head) {
+    const L = Math.hypot(x2 - x1, y2 - y1);
+    if (L < 2) return;
+    const h = Math.min(head || 10, L * 0.7), ux = (x2 - x1) / L, uy = (y2 - y1) / L, w = h * 0.55;
+    const g = add(K.svg('g', { class: cls }));
+    g.appendChild(K.svg('line', { x1: r3(x1), y1: r3(y1), x2: r3(x2 - ux * h * 0.7), y2: r3(y2 - uy * h * 0.7) }));
+    g.appendChild(K.svg('path', { d: 'M' + r3(x2) + ' ' + r3(y2) + 'L' + r3(x2 - ux * h - uy * w) + ' ' + r3(y2 - uy * h + ux * w) + 'L' + r3(x2 - ux * h + uy * w) + ' ' + r3(y2 - uy * h - ux * w) + 'Z' }));
+  }
+  const toS = (I, p) => [I.ox + I.s * p[0], I.oy - I.s * p[1]];
+  const toM = (I, x, y) => [(x - I.ox) / I.s, (I.oy - y) / I.s];
+  function ground(x, y) { seg('gnd', x - 15, y, x + 15, y); for (let k = 0; k < 4; k++) seg('hatch', x - 11 + 7 * k, y, x - 16 + 7 * k, y + 6); }
+  // The pin under one foot; the roller under the other, on two wheels (its ground stays put while it rolls).
+  function supports(I, P) {
+    const F = I.F, p = toS(I, P[F.pin]), r = toS(I, P[F.roller]), r0 = toS(I, F.J[F.roller]);
+    pth('sup', 'M' + r3(p[0]) + ' ' + r3(p[1]) + 'L' + r3(p[0] - 10) + ' ' + r3(p[1] + 13) + 'L' + r3(p[0] + 10) + ' ' + r3(p[1] + 13) + 'Z');
+    ground(p[0], p[1] + 13);
+    pth('sup', 'M' + r3(r[0]) + ' ' + r3(r[1]) + 'L' + r3(r[0] - 9) + ' ' + r3(r[1] + 10) + 'L' + r3(r[0] + 9) + ' ' + r3(r[1] + 10) + 'Z');
+    circ('sup', r[0] - 5, r[1] + 13.5, 3.2); circ('sup', r[0] + 5, r[1] + 13.5, 3.2);
+    ground(r0[0], r0[1] + 17);
+  }
+  // A frame: supports, bars (o.grow: how far a new bar has grown), then a ring at each pin (o.hl: lit).
+  function frameDraw(I, P, o) {
+    o = o || {};
+    supports(I, P);
+    I.F.B.forEach(([a, b], k) => {
+      const g = o.grow && o.grow[k] != null ? o.grow[k] : 1;
+      if (g <= 0.001) return;
+      const A = toS(I, P[a]), B = toS(I, P[b]);
+      seg('bar', A[0], A[1], A[0] + (B[0] - A[0]) * g, A[1] + (B[1] - A[1]) * g);
+    });
+    P.forEach((p, j) => {
+      const q = toS(I, p), h = o.hl ? o.hl[j] || 0 : 0;
+      circ('pin', q[0], q[1], 5.5);
+      if (h > 0) { const c = circ('pin on', q[0], q[1], 5.5); if (h < 1) c.style.opacity = h.toFixed(3); }
+    });
+  }
+  // The angle at the left foot: an arc, its label inside the wedge beyond it.
+  function angleMark(I, P, dg) {
+    const p = toS(I, P[0]), R = 50, a = rad(dg);
+    pth('arc', 'M' + r3(p[0] + R) + ' ' + r3(p[1]) + 'A' + R + ' ' + R + ' 0 0 0 ' + r3(p[0] + R * Math.cos(a)) + ' ' + r3(p[1] - R * Math.sin(a)));
+    txt(p[0] + 70 * Math.cos(a / 2), p[1] - 70 * Math.sin(a / 2) + 4.5, dg + '°', 'lab');
+  }
+  // A load at a joint, pointing down: from above (it settles into place), or hanging below.
+  function loadArrow(I, P, j, w, g, gl, below) {
+    const p = toS(I, P[j]), len = KN * w, s = kn(w);
+    REC.loads.push({ j, w });
+    if (below) {
+      grp(g, 0, () => arrow('ar', p[0], p[1] + 7, p[0], p[1] + 7 + len, 11));
+      grp(gl, 0, () => txt(p[0] + 9, p[1] + 7 + len * 0.6 + 4.5, s, 'lab', 'start'));
+      return;
+    }
+    const drop = (1 - Math.min(1, g)) * 18, left = j === I.F.pin;
+    grp(g, 0, () => arrow('ar', p[0], p[1] - 7 - len - drop, p[0], p[1] - 7 - drop, 11));
+    grp(gl, 0, () => txt(p[0] + (left ? -9 : 9), p[1] - 7 - len * 0.55 + 4.5, s, 'lab', left ? 'end' : 'start'));
+  }
+  // An old label fading out at t and a new one fading in after it (t null: the old one only).
+  function swapLabel(pa, pb, y, sa, ca, sb, cb, t) {
+    if (t == null) { txt(pa[0], y, sa, ca, pa[1]); return; }
+    const out = at(t, 0.3), inn = at(t + 0.3, 0.6);
+    grp(1 - out, 0, () => txt(pa[0], y, sa, ca, pa[1]));
+    grp(inn, 0, () => txt(pb[0], y, sb, cb, pb[1]));
+  }
+  // The supports' pushes, each an arrow under its support pointing up at it, its length by its size.
+  // o.g: how far grown; o.gl: the labels' arrival. o.ask: one length and "?" until o.swap.
+  function reactArrows(I, P, sol, o) {
+    [[I.F.pin, sol.py, -1], [I.F.roller, sol.ry, 1]].forEach(([j, R, side]) => {
+      const x = toS(I, P[j])[0], y0 = I.oy + 26, full = KN * R;
+      const len = o.ask ? 26 + (full - 26) * (o.grow || 0) : full * (o.g != null ? o.g : 1);
+      REC.reac.push({ j, R, len });
+      if (len > 2) arrow('ar', x, y0 + len, x, y0, 10);
+      const s = kn(R);
+      const place = (str, cls) => {
+        const w = tw(str, cls);
+        let sx = x + side * 9, an = side < 0 ? 'end' : 'start';
+        if (side < 0 && sx - w < 3) { sx = x + 9; an = 'start'; }
+        if (side > 0 && sx + w > 337) { sx = x - 9; an = 'end'; }
+        return [sx, an];
+      };
+      if (o.ask) swapLabel(place('?', 'q'), place(s, 'lab'), y0 + 19, '?', 'q', s, 'lab', o.swap);
+      else grp(o.gl != null ? o.gl : 1, 0, () => { const pl = place(s, 'lab'); txt(pl[0], y0 + 19, s, 'lab', pl[1]); });
+    });
+  }
+  // Bar k's force on its pin at `end`, drawn along the bar: away from the pin when it pulls, into it when it pushes.
+  function barArrow(I, P, k, end, t) {
+    const [a, b] = I.F.B[k], pin = toS(I, P[end ? b : a]), oth = toS(I, P[end ? a : b]);
+    const L = Math.hypot(oth[0] - pin[0], oth[1] - pin[1]), ux = (oth[0] - pin[0]) / L, uy = (oth[1] - pin[1]) / L, pull = t > 0;
+    const p8 = [pin[0] + ux * 8, pin[1] + uy * 8], p40 = [pin[0] + ux * 40, pin[1] + uy * 40];
+    const tail = pull ? p8 : p40, tip = pull ? p40 : p8;
+    arrow('bf', tail[0], tail[1], tip[0], tip[1], 11);
+    REC.arrows.push({ pin, tail, tip, kind: pp(t), T: t, bar: k });
+  }
+  // A bar's label beside its middle, on the side away from the frame.
+  function barLabel(I, P, k, s, cls) {
+    const [a, b] = I.F.B[k], A = toS(I, P[a]), B = toS(I, P[b]), mx = (A[0] + B[0]) / 2, my = (A[1] + B[1]) / 2;
+    const c = P.reduce((m, p) => { const q = toS(I, p); return [m[0] + q[0] / P.length, m[1] + q[1] / P.length]; }, [0, 0]);
+    const L = Math.hypot(B[0] - A[0], B[1] - A[1]);
+    let nx = -(B[1] - A[1]) / L, ny = (B[0] - A[0]) / L;
+    if (nx * (mx - c[0]) + ny * (my - c[1]) < 0) { nx = -nx; ny = -ny; }
+    txt(mx + nx * 12, my + ny * 12 + 4.5 + ny * 4, s, cls || 'flab', nx > 0.3 ? 'start' : nx < -0.3 ? 'end' : 'middle');
+  }
+  // One joint's forces nose to tail from (x0, y0): each side an arrow, each label beside it.
+  function polygon(x0, y0, sc, list, arr) {
+    const pts = [[x0, y0]];
+    list.forEach((f) => { const p = pts[pts.length - 1]; pts.push([p[0] + f.v[0] * sc, p[1] - f.v[1] * sc]); });
+    const c = [0, 1].map((ax) => pts.slice(0, list.length).reduce((s, p) => s + p[ax], 0) / list.length);
+    list.forEach((f, n) => {
+      const A = pts[n], B = pts[n + 1], g = arr[n][0];
+      if (g > 0 && !f.hide) grp(Math.min(1, g * 2.5), 0, () => arrow(f.cls, A[0], A[1], A[0] + (B[0] - A[0]) * g, A[1] + (B[1] - A[1]) * g, 11));
+      const L = Math.hypot(B[0] - A[0], B[1] - A[1]), mx = (A[0] + B[0]) / 2, my = (A[1] + B[1]) / 2;
+      let nx = -(B[1] - A[1]) / L, ny = (B[0] - A[0]) / L;
+      if (nx * (mx - c[0]) + ny * (my - c[1]) < 0) { nx = -nx; ny = -ny; }
+      const lx = mx + nx * 12, ly = my + ny * 12 + 4.5 + ny * 4, an = nx > 0.3 ? 'start' : nx < -0.3 ? 'end' : 'middle';
+      if (f.swap != null) swapLabel([lx, an], [lx, an], ly, '?', 'q', f.s, f.lc || 'lab', f.swap === false ? null : f.swap);
+      else grp(arr[n][1], 0, () => txt(lx, ly, f.s, f.lc || 'lab', an));
+    });
+    REC.polys.push({ pts: pts.slice() });
+  }
+  // Lines of a counter, centred under a frame and kept inside the drawing.
+  function counter(cx, y0, lines, arr) {
+    lines.forEach((L, n) => grp(arr[n], 3, () => { const w = tw(L.s, L.c); txt(K.clamp(cx, 3 + w / 2, 337 - w / 2), y0 + 18 * n, L.s, L.c); }));
+  }
+  function swapLines(cx, y0, oldL, newL, t) {
+    const out = t == null ? 0 : at(t, 0.3), inn = t == null ? 0 : at(t + 0.3, 0.6);
+    grp(1 - out, 0, () => counter(cx, y0, oldL, oldL.map(() => 1)));
+    if (t != null) grp(inn, 3, () => counter(cx, y0, newL, newL.map(() => 1)));
+  }
+  function dim(x1, x2, y, s, above) {
+    seg('dim', x1, y, x2, y); seg('dim', x1, y - 5, x1, y + 5); seg('dim', x2, y - 5, x2, y + 5);
+    txt((x1 + x2) / 2, above ? y - 9 : y + 17, s, 'lab');
+  }
+  function jointHits(I, P) { P.forEach((p, j) => { const q = toS(I, p); REC.jh.push({ kind: 'drag', I, j, x: q[0], y: q[1], aria: 'Joint ' + (j + 1) + ': drag it' }); }); }
+  function tapHits(I, P, list, aria) { list.forEach((j) => { const q = toS(I, P[j]); REC.jh.push({ kind: 'tap', I, j, x: q[0], y: q[1], aria: aria(j) }); }); }
+  // While Dan holds a joint: a dashed line from it to his finger.
+  function pullLine(st) {
+    if (!st.pull || !hold) return;
+    const I = REC.inst[st.pull.k];
+    if (!I || !I.P) return;
+    const q = toS(I, I.P[st.pull.j]), p = st.pull.p;
+    if (Math.hypot(p[0] - q[0], p[1] - q[1]) < 5) return;
+    seg('pull', q[0], q[1], p[0], p[1]); circ('ghost', p[0], p[1], 7);
+  }
+
+  // ---------- each screen's picture (returns it in words) ----------
+  const SCENES = {
+    // A square and a triangle side by side, each on a pin and a roller.
+    pair(d, st) {
+      const G = d.count ? 122 : 100, sv = solved(st);
+      const sq = { F: F_SQ, Fm: F_SQ, ox: 62, oy: G, s: 66, k: 0, lo: -48, hi: 85 }, tr = { F: F_EQ, Fm: null, ox: 236, oy: G, s: 76, k: 1 };
+      let lean = 0;
+      if (d.drag) lean = st.dragged ? st.q[0] : rad(80) * mv(0.4, 2.8);
+      else if (d.dragAfter && sv) lean = st.dragged ? st.q[0] : rad(80) * mv(0.3, 2.6);
+      const Ps = pose(F_SQ, lean), Pt = F_EQ.J;
+      sq.P = Ps; tr.P = Pt; REC.q = [lean, 0]; REC.inst = [sq, tr];
+      const f = st.focus;
+      const A = (part, t) => { if (f && f !== part) { at(t); return 1; } return at(t + (f === 'tri' ? -0.5 : f === 'sq' ? -2.2 : 0)); };
+      let hlS = null, hlT = null;
+      if (d.count) { hlT = [A('tri', 0.9), A('tri', 1.1), A('tri', 1.3)]; hlS = [A('sq', 2.6), A('sq', 2.8), A('sq', 3.0), A('sq', 3.2)]; }
+      frameDraw(sq, Ps, { hl: hlS }); frameDraw(tr, Pt, { hl: hlT });
+      const words = ['A square frame and a triangle frame of pinned bars, each on a pin support and a roller.'];
+      if (!d.count && !st.dragged) {
+        const fade = 1 - K.clamp((lean - rad(35)) / rad(20), 0, 1);
+        [[toS(sq, Ps[3]), fade], [toS(tr, Pt[2]), 1]].forEach(([p, a]) => grp(a, 0, () => { arrow('ar', p[0] - 46, p[1], p[0] - 8, p[1], 10); txt(p[0] - 27, p[1] - 9, 'push', 'lab'); }));
+        words.push('An arrow pushes sideways on the top of each.');
+      }
+      if (lean > rad(60)) words.push('The square has folded over. The triangle keeps its shape.');
+      else if (Math.abs(lean) > rad(5)) words.push('The square leans over. The triangle keeps its shape.');
+      if (d.count) {
+        grp(f ? 1 : at(0.4), 0, () => {
+          arrow('way', 14, 26, 32, 26, 8); arrow('way', 14, 26, 14, 8, 8);
+          txt(40, 22, 'the 2 ways a joint can move', 'key', 'start');
+          [toS(sq, Ps[2]), toS(tr, Pt[2])].forEach((p) => { arrow('way', p[0] + 7, p[1], p[0] + 25, p[1], 8); arrow('way', p[0], p[1] - 7, p[0], p[1] - 25, 8); });
+        });
+        counter(95, G + 44, countLines(F_SQ), [A('sq', 3.4), A('sq', 3.8), A('sq', 4.2)]);
+        counter(274, G + 44, countLines(F_EQ), [A('tri', 1.5), A('tri', 1.9), A('tri', 2.3)]);
+        words.push('The triangle has 3 joints and 3 bars. It needs 2 × 3 − 3 = 3, so it holds. The square has 4 joints and 4 bars. It needs 2 × 4 − 3 = 5, so it is one short and folds.');
+        REC.fh = [{ part: 'tri', x: 222, y: G - 84, w: 112, h: 110, aria: 'Count the triangle' }, { part: 'sq', x: 30, y: G - 84, w: 124, h: 110, aria: 'Count the square' }];
+        REC.H = G + 88;
+      } else {
+        if (canDrag(d, st)) { jointHits(sq, Ps); jointHits(tr, Pt); }
+        pullLine(st);
+        REC.H = G + 30;
+      }
+      return words.join(' ');
+    },
+    // A square with a triangle roof, 5 joints and 6 bars; after the answer a diagonal grows in.
+    square(d, st) {
+      const G = 124, sv = solved(st), I = { F: F_HOD, Fm: sv ? null : F_HO, ox: 138, oy: G, s: 64, k: 0, lo: -80, hi: 80 };
+      let q = st.q[0] || 0, g = 0;
+      if (sv) { q = (st.qFrom || 0) * (1 - mv(0, 0.8)); g = mv(0.8, 1.6); }
+      const P = pose(F_HO, q);
+      I.P = P; REC.q = [q]; REC.inst = [I];
+      frameDraw(I, P, { grow: { 6: g } });
+      swapLines(170, G + 44, [{ s: '5 joints, 6 bars', c: 'cnt' }, { s: 'needs ?', c: 'cnt' }], countLines(F_HOD), sv ? 1.6 : null);
+      jointHits(I, P); pullLine(st);
+      REC.H = G + 88;
+      return 'A square frame with a triangle roof, 5 joints and 6 pinned bars, on a pin support and a roller.' + (!sv && Math.abs(q) > rad(5) ? ' Its square part leans over.' : '') +
+        (sv ? ' A diagonal across the square is its seventh bar. It needs 2 × 5 − 3 = 7, and it holds.' : ' Its counter reads 5 joints and 6 bars.');
+    },
+    // Two square bays, the left one braced; after the answer the right one gets its diagonal.
+    bays(d, st) {
+      const G = 112, sv = solved(st), I = { F: F_B2, Fm: sv ? null : F_B1, ox: 90, oy: G, s: 80, k: 0, lo: -20, hi: 20 };
+      let q = st.dragged ? st.q[0] : rad(10), g = 0;
+      if (sv) { q = (st.qFrom != null ? st.qFrom : rad(10)) * (1 - mv(0, 0.8)); g = mv(0.8, 1.6); }
+      const P = pose(F_B1, q);
+      I.P = P; REC.q = [q]; REC.inst = [I];
+      frameDraw(I, P, { grow: { 8: g } });
+      swapLines(170, G + 50, [{ s: '6 joints, 8 bars', c: 'cnt' }, { s: 'needs ?', c: 'cnt' }], countLines(F_B2), sv ? 1.6 : null);
+      jointHits(I, P); pullLine(st);
+      REC.H = G + 94;
+      return 'A frame of two square bays on a pin support and a roller. The left bay has a diagonal.' +
+        (sv ? ' A second diagonal locks the right bay. It needs 2 × 6 − 3 = 9 bars, and it holds.' : Math.abs(q) > rad(3) ? ' The right bay leans over.' : ' The right bay has none.');
+    },
+    // The 30° triangle with a 10 kN load Dan hangs on any joint, and the supports' pushes.
+    reac(d, st) {
+      const G = 128, I = { F: F_T30, Fm: null, ox: 50, oy: G, s: 240, k: 0 }, P = F_T30.J, j = st.load, sol = solve(F_T30, [{ j, w: 10 }]);
+      I.P = P; REC.q = [0]; REC.inst = [I];
+      frameDraw(I, P); angleMark(I, P, 30);
+      loadArrow(I, P, j, 10, at(0.4, 1.0), at(1.2), false);
+      reactArrows(I, P, sol, { g: mv(1.6, 2.6), gl: at(2.4) });
+      tapHits(I, P, [0, 1, 2], (jj) => 'Hang the load on the ' + JNAME[jj]);
+      REC.H = G + 76;
+      return 'A triangle frame with sloping bars at 30° to level, on a pin under its left foot and a roller under its right. A 10 kN load hangs from the ' + JNAME[j] +
+        '. The left support pushes up with ' + kn(sol.py) + ' and the right with ' + kn(sol.ry) + '.';
+    },
+    // Five triangles over 6 m with 12 kN hanging 2 m from the left support.
+    warren(d, st) {
+      const G = 92, sv = solved(st), I = { F: F_W, Fm: null, ox: 44, oy: G, s: 42, k: 0 }, P = F_W.J;
+      I.P = P; REC.q = [0]; REC.inst = [I];
+      frameDraw(I, P);
+      loadArrow(I, P, 1, 12, 1, 1, true);
+      reactArrows(I, P, SW, { ask: true, grow: sv ? mv(0.2, 1.0) : 0, swap: sv ? 0.8 : null });
+      const x = (j) => toS(I, P[j])[0], m = (a, b) => (P[b][0] - P[a][0]) + ' m';
+      dim(x(0), x(1), G + 76, m(0, 1));
+      grp(sv ? at(1.0) : 0, 0, () => dim(x(1), x(3), G + 76, m(1, 3)));
+      dim(x(0), x(3), G + 104, m(0, 3));
+      REC.H = G + 126;
+      return 'A frame of five triangles spans 6 m between a pin and a roller. A 12 kN load hangs from the bottom joint 2 m from the left support.' +
+        (sv ? ' The left support pushes up with ' + kn(SW.py) + ' and the right with ' + kn(SW.ry) + '.' : ' Each support\'s push is marked with a question mark.');
+    },
+    // One bar between two pins, stretched or squashed.
+    bar(d, st) {
+      const Y = 50, REST = 200, ax = st.ax != null ? st.ax : 70;
+      const bx = st.bx != null ? st.bx : 270 + 30 * mv(0.4, 1.4) - 60 * mv(2.0, 3.2);
+      const ext = bx - ax - REST, kind = ext > 1.5 ? 'pull' : ext < -1.5 ? 'push' : '';
+      const op = K.clamp((Math.abs(ext) - 1.5) / 8, 0, 1);
+      REC.q = [0]; REC.inst = []; REC.ax = ax; REC.bx = bx;
+      seg('dim', ax, Y + 26, ax + REST, Y + 26); seg('dim', ax, Y + 21, ax, Y + 31); seg('dim', ax + REST, Y + 21, ax + REST, Y + 31);
+      txt(ax + REST / 2, Y + 45, 'length at rest', 'key');
+      seg('bar', ax, Y, bx, Y);
+      circ('pin', ax, Y, 5.5); circ('pin', bx, Y, 5.5);
+      grp(1 - op, 0, () => txt((ax + bx) / 2, Y - 13, 'no pull or push', 'lab'));
+      if (kind) grp(op, 0, () => [[ax, 1], [bx, -1]].forEach(([x, u]) => {
+        const tail = kind === 'pull' ? x + u * 8 : x + u * 44, tip = kind === 'pull' ? x + u * 44 : x + u * 8;
+        arrow('bf', tail, Y, tip, Y, 11);
+        REC.arrows.push({ pin: [x, Y], tail: [tail, Y], tip: [tip, Y], kind, T: ext, bar: 0 });
+        txt(x + u * 26, Y - 13, kind, 'flab');
+      }));
+      REC.jh.push({ kind: 'drag', pin: 'a', x: ax, y: Y, aria: 'Left pin: drag it' }, { kind: 'drag', pin: 'b', x: bx, y: Y, aria: 'Right pin: drag it' });
+      REC.H = Y + 54;
+      return 'One bar between two pins, ' + (kind === 'pull' ? 'stretched. It pulls its pins towards each other, so its arrow at each pin points away from the pin, labelled pull.' :
+        kind === 'push' ? 'squashed. It pushes its pins apart, so its arrow at each pin points into the pin, labelled push.' : 'at its length at rest. It neither pulls nor pushes.');
+    },
+    // The 30° triangle carrying 10 kN at its top joint.
+    tri(d, st) {
+      const G = 128, sv = solved(st), I = { F: F_T30, Fm: null, ox: 50, oy: G, s: 240, k: 0 }, P = F_T30.J, sol = S30, nm = d.name;
+      I.P = P; REC.q = [0]; REC.inst = [I];
+      const top = nm === 'Joint by joint', foot = nm === 'The bottom bar';
+      frameDraw(I, P, { hl: top ? [0, 0, at(0.4)] : foot ? [1, 0, 0] : null });
+      angleMark(I, P, 30);
+      loadArrow(I, P, 2, 10, 1, 1, false);
+      reactArrows(I, P, sol, {});
+      const base = 'A triangle frame with sloping bars at 30° to level, on a pin and a roller, carries 10 kN at its top joint. Each support pushes up with 5 kN.';
+      if (!top && !foot) {
+        grp(sv ? at(0.2) : 0, 0, () => [0, 1, 2].forEach((k) => { barArrow(I, P, k, 0, sol.T[k]); barArrow(I, P, k, 1, sol.T[k]); }));
+        grp(sv ? at(0.8) : 0, 0, () => [0, 1, 2].forEach((k) => barLabel(I, P, k, pp(sol.T[k]))));
+        REC.H = G + 56;
+        return base + (sv ? ' Both sloping bars push into their pins. The bottom bar pulls away from its pins.' : '');
+      }
+      if (top) {
+        grp(at(0.8), 0, () => { barArrow(I, P, 1, 1, sol.T[1]); barArrow(I, P, 2, 1, sol.T[2]); });
+        grp(at(1.2), 0, () => { barLabel(I, P, 1, kn(sol.T[1]) + ' ' + pp(sol.T[1])); barLabel(I, P, 2, kn(sol.T[2]) + ' ' + pp(sol.T[2])); });
+        grp(at(1.4), 0, () => txt(180, G + 64, 'Top joint, nose to tail', 'ttl'));
+        polygon(150, G + 80, 7, [{ v: [0, -10], cls: 'ar', s: kn(10) }, { v: onJoint(F_T30, sol, 2, 1), cls: 'bf', s: kn(sol.T[1]), lc: 'flab' },
+          { v: onJoint(F_T30, sol, 2, 2), cls: 'bf', s: kn(sol.T[2]), lc: 'flab' }], [[mv(1.6, 2.2), at(2.0)], [mv(2.4, 3.0), at(2.8)], [mv(3.2, 3.8), at(3.6)]]);
+        tapHits(I, P, [2], () => 'Show the top joint\'s forces');
+        REC.H = G + 160;
+        return base + ' At the top joint, the 10 kN load and the two bars\' 10 kN pushes, drawn nose to tail, close into a triangle with three equal sides.';
+      }
+      barArrow(I, P, 1, 0, sol.T[1]);
+      barLabel(I, P, 1, kn(sol.T[1]) + ' ' + pp(sol.T[1]));
+      grp(sv ? at(0.2) : 0, 0, () => barArrow(I, P, 0, 0, sol.T[0]));
+      const out = sv ? at(0.6, 0.3) : 0, inn = sv ? at(0.9) : 0;
+      grp(1 - out, 0, () => barLabel(I, P, 0, '?', 'q'));
+      grp(inn, 0, () => barLabel(I, P, 0, kn(sol.T[0]) + ' ' + pp(sol.T[0])));
+      txt(166, G + 76, 'Left foot, nose to tail', 'ttl');
+      polygon(196, G + 140, 7, [{ v: [0, sol.py], cls: 'ar', s: kn(sol.py) }, { v: onJoint(F_T30, sol, 0, 1), cls: 'bf', s: kn(sol.T[1]), lc: 'flab' },
+        { v: onJoint(F_T30, sol, 0, 0), cls: 'bf', s: kn(sol.T[0]), lc: 'flab', hide: !sv, swap: sv ? 1.3 : false }], [[1, 1], [1, 1], [sv ? mv(0.9, 1.5) : 0, 1]]);
+      REC.H = G + 168;
+      return base + ' At the left foot, the support pushes up with 5 kN and the sloping bar pushes into the foot with 10 kN.' +
+        (sv ? ' The bottom bar pulls the foot inwards with ' + kn(sol.T[0]) + ', closing the triangle.' : ' The bottom bar\'s force is marked with a question mark.');
+    },
+    // One turn of a screw's thread unrolling into a ramp, its climb drawn five times taller.
+    // As a puzzle (a finer pitch), the screw stays wound and the sum reads "?" until the answer.
+    screw(d, st) {
+      const k = 4.4, D = 20, PITCH = d.pitch || 2, TALL = 5, C = Math.PI * D, C1 = SC_C1, gain = scGain(PITCH);
+      const ask = d.kind === 'typed', sv = solved(st), shown = ask && !sv ? 0 : 1;
+      const cx = 84, r = D * k / 2, p = PITCH * k, pr = p * TALL, x0 = 26, YR = 188, len = C * k, top = 32, bot = 136, HL = 4;
+      const t0 = ask ? 0.2 : 0.4, t1 = ask ? 1.8 : 3.4, tL = ask ? 2.0 : 3.6;
+      REC.q = [0]; REC.inst = [];
+      add(K.svg('rect', { class: 'shaft', x: cx - r, y: top, width: 2 * r, height: bot - top, rx: 4 }));
+      const front = (y0) => { let s = ''; for (let n = 0; n <= 12; n++) { const th = -Math.PI / 2 + Math.PI * n / 12; s += (n ? 'L' : 'M') + r3(cx + r * Math.sin(th)) + ' ' + r3(y0 - p * n / 24); } return s; };
+      const nT = Math.floor(92 / p);
+      for (let n = 0; n <= nT; n++) if (n !== HL) pth('thr', front(130 - p * n));
+      dim(cx - r, cx + r, 24, D + ' mm', true);
+      const tau = shown ? mv(t0, t1) : 0, y0h = 130 - p * HL;
+      const pt = (u) => { const th = -Math.PI / 2 + 2 * Math.PI * u, a = [cx + r * Math.sin(th), y0h - p * u], b = [x0 + len * u, YR - pr * u]; return [a[0] + (b[0] - a[0]) * tau, a[1] + (b[1] - a[1]) * tau]; };
+      const path = (u0, u1) => { let s = ''; for (let n = 0; n <= 24; n++) { const q = pt(u0 + (u1 - u0) * n / 24); s += (n ? 'L' : 'M') + r3(q[0]) + ' ' + r3(q[1]); } return s; };
+      grp(shown * at(t1), 0, () => pth('ramp', 'M' + x0 + ' ' + YR + 'L' + r3(x0 + len) + ' ' + YR + 'L' + r3(x0 + len) + ' ' + r3(YR - pr) + 'Z'));
+      pth('turn', path(0, 0.5));
+      grp(Math.min(1, tau * 4), 0, () => pth('turn', path(0.5, 1)));
+      grp(shown * at(tL), 0, () => {
+        dim(x0, x0 + len, YR + 10, C1 + ' mm');
+        const bx = x0 + len + 7;
+        seg('dim', bx, YR, bx, YR - pr); seg('dim', bx - 4, YR, bx + 4, YR); seg('dim', bx - 4, YR - pr, bx + 4, YR - pr);
+        txt(x0 + len, YR - pr - 8, 'climbs ' + PITCH + ' mm', 'lab', 'end');
+        txt(x0 + len - 6, YR - 6, 'drawn ' + TALL + ' × taller', 'key', 'end');
+      });
+      const sum = 'load lifted ÷ push = ' + C1 + ' ÷ ' + PITCH + ' = ' + gain;
+      if (ask) swapLabel([170, 'middle'], [170, 'middle'], YR + 54, 'load lifted ÷ push = ?', 'lab', sum, 'lab', sv ? tL + 0.2 : null);
+      else grp(at(3.9), 0, () => txt(170, YR + 54, sum, 'lab'));
+      REC.H = YR + 64;
+      if (!shown) return 'A screw ' + D + ' mm across with a finer thread, ' + PITCH + ' mm from one thread to the next. The load lifted ÷ the push is marked with a question mark.';
+      return 'A screw ' + D + ' mm across, its thread wound round the shaft. ' + (tau >= 1 ? 'One turn of the thread lies flat as a ramp ' + C1 + ' mm long that climbs ' + PITCH +
+        ' mm, its climb drawn ' + TALL + ' times taller. The load lifted is ' + gain + ' times the push.' : 'One turn of the thread is unrolling into a ramp.');
+    },
+    // Frame A, a diagonal in each bay; Frame B, both in its left bay.
+    two(d, st) {
+      const G = 112, sv = solved(st);
+      const A = { F: F_B2, Fm: null, ox: 30, oy: G, s: 60, k: 0 }, B = { F: F_BB, Fm: F_BB, ox: 190, oy: G, s: 60, k: 1, lo: -18, hi: 18 };
+      const qB = sv ? (st.dragged ? st.q[1] : rad(15) * mv(0.3, 2.3)) : 0;
+      const PA = F_B2.J, PB = pose(F_BB, qB);
+      A.P = PA; B.P = PB; REC.q = [0, qB]; REC.inst = [A, B];
+      frameDraw(A, PA); frameDraw(B, PB);
+      txt(90, G - 90, 'Frame A', 'ttl'); txt(250, G - 90, 'Frame B', 'ttl');
+      const LA = countLines(F_B2), LB = countLines(F_BB);
+      counter(90, G + 44, [LA[0]], [1]); counter(250, G + 44, [LB[0]], [1]);
+      grp(sv ? at(2.0) : 0, 3, () => { counter(90, G + 62, [LA[2]], [1]); counter(250, G + 62, [LB[2]], [1]); });
+      if (sv) { jointHits(A, PA); jointHits(B, PB); pullLine(st); }
+      REC.H = G + 72;
+      return 'Two frames of two square bays, each on a pin and a roller, each with 6 joints and 9 bars. Frame A has a diagonal in each bay. Frame B has both diagonals crossed in its left bay.' +
+        (sv ? ' Frame A holds. Frame B\'s right bay leans over, and one of its bars is spare.' : '');
+    },
+    // The 45° triangle carrying 12 kN at its top joint.
+    tri45(d, st) {
+      const G = 166, sv = solved(st), I = { F: F_T45, Fm: null, ox: 70, oy: G, s: 200, k: 0 }, P = F_T45.J, sol = S45;
+      I.P = P; REC.q = [0]; REC.inst = [I];
+      frameDraw(I, P); angleMark(I, P, 45);
+      loadArrow(I, P, 2, 12, 1, 1, false);
+      reactArrows(I, P, sol, {});
+      grp(sv ? at(0.2) : 0, 0, () => [0, 1, 2].forEach((k) => { barArrow(I, P, k, 0, sol.T[k]); barArrow(I, P, k, 1, sol.T[k]); }));
+      const out = sv ? at(0.6, 0.3) : 0, inn = sv ? at(0.9) : 0;
+      [1, 2].forEach((k) => { grp(1 - out, 0, () => barLabel(I, P, k, '?', 'q')); grp(inn, 0, () => barLabel(I, P, k, kn(sol.T[k], 2) + ' ' + pp(sol.T[k]))); });
+      grp(inn, 0, () => barLabel(I, P, 0, kn(sol.T[0], 2) + ' ' + pp(sol.T[0])));
+      if (sv) {
+        grp(at(1.0), 0, () => txt(170, G + 62, 'Top joint, nose to tail', 'ttl'));
+        polygon(150, G + 76, 5.5, [{ v: [0, -12], cls: 'ar', s: kn(12) }, { v: onJoint(F_T45, sol, 2, 1), cls: 'bf', s: kn(sol.T[1], 2), lc: 'flab' },
+          { v: onJoint(F_T45, sol, 2, 2), cls: 'bf', s: kn(sol.T[2], 2), lc: 'flab' }], [[mv(1.2, 1.7), at(1.6)], [mv(1.8, 2.3), at(2.2)], [mv(2.4, 2.9), at(2.8)]]);
+      }
+      REC.H = sv ? G + 152 : G + 56;
+      return 'A triangle frame with sloping bars at 45° to level, on a pin and a roller, carries 12 kN at its top joint. Each support pushes up with 6 kN.' +
+        (sv ? ' Each sloping bar pushes into the top joint with ' + kn(sol.T[1], 2) + '. The bottom bar pulls with ' + kn(sol.T[0], 2) + '.' : ' Each sloping bar\'s force is marked with a question mark.');
+    },
+  };
+
+  function scene(i, st) {
+    REC = { texts: [], arrows: [], polys: [], loads: [], reac: [], jh: [], fh: [], q: [0, 0], inst: [], H: 200 };
+    art.textContent = ''; into = null;
+    return SCENES[STEPS[i].pic](STEPS[i], st);
+  }
+  function paint(i) {
+    if (i == null) i = cur();
+    const words = scene(i, ST[i]);
+    svg.setAttribute('viewBox', '0 0 340 ' + Math.ceil(REC.H));
+    svg.setAttribute('aria-label', words);
+    placeUI();
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const cur = () => Math.round(stepper.get());
+  const hintFor = (d, st) => (d.hints && d.hints[st.pick]) || d.hint;
+  const anim = K.anim({ button: false, label: 'Moving', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur) {
+    if (quiet()) { anim.pause(); T = Infinity; paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function finishNow() { anim.pause(); T = Infinity; K.refresh(); }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter'); void box.offsetWidth; box.classList.add('enter');
+  }
+  function enterStep(i) {
+    lastStep = i; enter('stepbox');
+    const d = STEPS[i], st = ST[i];
+    st.pull = null; hold = null;
+    if (d.show) { st.dragged = false; st.focus = null; st.ax = null; st.bx = null; st.load = 2; play(d.dur); }
+    else { anim.pause(); T = Infinity; }
+  }
+  function startRun(i) {
+    const st = ST[i];
+    st.qFrom = REC && REC.q ? REC.q[0] : 0;
+    st.dragged = false; st.pull = null;
+    play(STEPS[i].run);
+  }
+
+  // ---------- Dan's hands on the picture: drag a joint or a pin, tap a joint or a frame ----------
+  function svgPt(e) {
+    const m = svg.getScreenCTM();
+    if (!m) return null;
+    const p = new DOMPoint(e.clientX, e.clientY).matrixTransform(m.inverse());
+    return [p.x, p.y];
+  }
+  function dragTo(h, p) {
+    const st = ST[cur()];
+    if (finished) return;
+    if (anim.playing()) anim.pause();
+    T = Infinity;
+    if (h.pin) {
+      if (st.ax == null) st.ax = REC.ax;
+      if (st.bx == null) st.bx = REC.bx;
+      if (h.pin === 'a') st.ax = K.clamp(p[0], Math.max(30, st.bx - 240), Math.min(110, st.bx - 160));
+      else st.bx = K.clamp(p[0], Math.max(230, st.ax + 160), Math.min(310, st.ax + 240));
+    } else {
+      const I = h.I;
+      if (!st.dragged) { st.q = REC.q.slice(); st.dragged = true; }
+      if (I.Fm) st.q[I.k] = bestQ(I.Fm, h.j, toM(I, p[0], p[1]), rad(I.lo), rad(I.hi), st.q[I.k] || 0);
+      st.pull = { k: I.k, j: h.j, p };
+    }
+    K.refresh();
+  }
+  function endDrag() { const st = ST[cur()]; if (st.pull) { st.pull = null; K.refresh(); } }
+  function nudge(h, dir) {
+    const st = ST[cur()];
+    if (finished) return;
+    K.reveal();
+    if (h.pin) { dragTo(h, [(h.pin === 'a' ? REC.ax : REC.bx) + dir * 6, 50]); return; }
+    const I = h.I;
+    if (!I.Fm) return;
+    if (anim.playing()) anim.pause();
+    T = Infinity;
+    if (!st.dragged) { st.q = REC.q.slice(); st.dragged = true; }
+    st.q[I.k] = K.clamp((st.q[I.k] || 0) + dir * rad(4), rad(I.lo), rad(I.hi));
+    K.refresh();
+  }
+  function tap(h) {
+    const i = cur(), d = STEPS[i], st = ST[i];
+    if (finished) return;
+    K.reveal();
+    if (d.pic === 'reac') st.load = h.j;
+    play(d.dur);
+    K.refresh();
+  }
+  function tapFrame(part) {
+    const i = cur(), d = STEPS[i], st = ST[i];
+    if (finished || !d.count) return;
+    K.reveal();
+    st.focus = part;
+    play(3.0);
+    K.refresh();
+  }
+  function hookHit(c, get, onTap) {
+    c.addEventListener('pointerdown', (e) => {
+      const h = get(), p = svgPt(e);
+      if (!h || !p) return;
+      e.preventDefault();
+      try { c.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows the pointer while it stays on the target */ }
+      hold = { id: e.pointerId, h, x0: p[0], y0: p[1], moved: false };
+      K.reveal();
+    });
+    c.addEventListener('pointermove', (e) => {
+      if (!hold || hold.id !== e.pointerId) return;
+      const p = svgPt(e);
+      if (!p) return;
+      if (!hold.moved && Math.hypot(p[0] - hold.x0, p[1] - hold.y0) < 6) return;
+      hold.moved = true;
+      if (hold.h.kind === 'drag') dragTo(hold.h, p);
+    });
+    c.addEventListener('pointerup', (e) => {
+      if (!hold || hold.id !== e.pointerId) return;
+      const was = hold;
+      hold = null;
+      if (!was.moved && was.h.kind !== 'drag') onTap(was.h);
+      endDrag();
+    });
+    c.addEventListener('pointercancel', (e) => { if (hold && hold.id === e.pointerId) { hold = null; endDrag(); } });
+    c.addEventListener('lostpointercapture', () => { if (hold) { hold = null; endDrag(); } });
+    c.addEventListener('keydown', (e) => {
+      const h = get();
+      if (!h) return;
+      if ((e.key === 'Enter' || e.key === ' ') && h.kind !== 'drag') { e.preventDefault(); onTap(h); }
+      else if (h.kind === 'drag' && /^Arrow/.test(e.key)) { e.preventDefault(); nudge(h, e.key === 'ArrowLeft' || e.key === 'ArrowDown' ? -1 : 1); }
+    });
+  }
+  const HITS = [];
+  for (let n = 0; n < 14; n++) {
+    const c = ui.appendChild(K.svg('circle', { class: 'hit', r: 22, cx: -60, cy: -60, tabindex: -1, role: 'button', 'aria-label': 'Joint' }));
+    c.style.display = 'none';
+    HITS.push(c);
+    hookHit(c, () => (REC ? REC.jh[n] : null), tap);
+  }
+  const FHITS = [0, 1].map((n) => {
+    const r = ui.appendChild(K.svg('rect', { class: 'hit tap', x: -60, y: -60, width: 1, height: 1, tabindex: -1, role: 'button', 'aria-label': 'Frame' }));
+    r.style.display = 'none';
+    hookHit(r, () => (REC && REC.fh[n] ? Object.assign({ kind: 'tapf' }, REC.fh[n]) : null), (h) => tapFrame(h.part));
+    return r;
+  });
+  function placeUI() {
+    const jh = finished ? [] : REC.jh, fh = finished ? [] : REC.fh;
+    HITS.forEach((c, n) => {
+      const h = jh[n];
+      c.style.display = h ? '' : 'none';
+      c.setAttribute('tabindex', h ? '0' : '-1');
+      if (!h) return;
+      c.setAttribute('cx', r3(h.x)); c.setAttribute('cy', r3(h.y));
+      c.setAttribute('aria-label', h.aria);
+      c.classList.toggle('tap', h.kind === 'tap');
+    });
+    FHITS.forEach((r, n) => {
+      const h = fh[n];
+      r.style.display = h ? '' : 'none';
+      r.setAttribute('tabindex', h ? '0' : '-1');
+      if (!h) return;
+      r.setAttribute('x', h.x); r.setAttribute('y', h.y); r.setAttribute('width', h.w); r.setAttribute('height', h.h);
+      r.setAttribute('aria-label', h.aria);
+    });
+  }
+
+  // ---------- answers: up to four choices, or a typed field for each figure ----------
+  const pickBtns = [0, 1, 2, 3].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = cur(), d = STEPS[i], st = ST[i];
+    if (finished || d.kind !== 'pick' || k >= d.opts.length || solved(st)) return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+  const FIELDS = {};
+  STEPS.forEach((d, i) => {
+    if (d.kind !== 'typed') return;
+    el('answers').appendChild(K.el('div', { id: 'ans-' + d.ans }));
+    const a = K.answer({ id: 'a-' + d.ans, unit: d.unit, answer: d.answer, decimals: d.decimals, slips: d.slips, into: '#ans-' + d.ans,
+      onCheck: (r) => {
+        const st = ST[i];
+        if (solved(st)) return;
+        if (r.state === 'right') { st.res = 'right'; startRun(i); }
+        else if (r.state === 'wrong') {
+          st.tries += 1; st.hint = r.hint || d.hint;
+          if (st.tries >= 2) { st.res = 'shown'; st.why = true; a.reveal(); startRun(i); } else st.res = 'wrong';
+        } else { st.res = null; st.hint = ''; }
+        K.refresh();
+      } });
+    FIELDS[d.ans] = a;
+  });
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = cur(), d = STEPS[i], st = ST[i];
+    if (finished || d.show || solved(st)) return;
+    if (d.kind === 'typed') { FIELDS[d.ans].check(); return; }
+    if (st.pick == null) { st.res = 'empty'; return; }
+    if (st.pick === d.want) { st.res = 'right'; startRun(i); } else { st.res = 'wrong'; st.tries += 1; }
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    const d = STEPS[cur()], st = ST[cur()];
+    if (d.show || finished || (!solved(st) && st.tries === 0)) return;
+    st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const i = cur(), d = STEPS[i], st = ST[i];
+    if (!d.show || finished) return;
+    st.dragged = false; st.focus = null; st.ax = null; st.bx = null; st.pull = null;
+    play(d.dur);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, cur() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = cur();
+    if (finished || (!STEPS[i].show && !solved(ST[i]))) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true; anim.pause(); T = Infinity;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    ST = STEPS.map(fresh); finished = false; lastStep = -1; hold = null;
+    Object.keys(FIELDS).forEach((k) => FIELDS[k].reset());
+    stepper.set(0, true);
+  } });
+
+  // ---------- words (built with K.el, never innerHTML): *a key term*, `kept on one line` ----------
+  function write(node, s) {
+    node.textContent = '';
+    String(s || '').split('`').forEach((part, k) => {
+      if (!part) return;
+      if (k % 2) { node.appendChild(K.el('span', { class: 'nw' }, part)); return; }
+      const re = /\*([^*]+)\*/g;
+      let from = 0, m;
+      while ((m = re.exec(part))) {
+        if (m.index > from) node.appendChild(document.createTextNode(part.slice(from, m.index)));
+        node.appendChild(K.el('span', { class: 'term' }, m[1]));
+        from = m.index + m[0].length;
+      }
+      if (from < part.length) node.appendChild(document.createTextNode(part.slice(from)));
+    });
+    return node;
+  }
+  write(el('finish'), FINISH);
+
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = ST[i];
+    if (!anim.playing()) T = Infinity;
+    if (i !== lastStep) enterStep(i);
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const sv = solved(st);
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    el('act').hidden = !d.act;
+    write(el('act'), d.act || '');
+    paint(i);
+    replayBtn.el.hidden = !d.show || REDUCE;
+    replayBtn.setLabel(d.pic === 'screw' ? 'Play the unrolling' : 'Play again');
+    el('replay').hidden = replayBtn.el.hidden;
+    const opts = d.kind === 'pick' ? d.opts : [];
+    const picks = el('picks');
+    picks.hidden = !opts.length;
+    picks.classList.toggle('col', !!d.col);
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    STEPS.forEach((x, k) => { if (x.kind === 'typed') el('ans-' + x.ans).hidden = finished || k !== i; });
+    el('answers').hidden = d.kind !== 'typed';
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = sv;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (st.res === 'right' ? ' right' : '');
+    write(fb, d.show ? '' : st.res === 'right' ? 'That\'s it.' : st.res === 'shown' ? 'Here is the working.' :
+      st.res === 'wrong' ? (d.kind === 'typed' ? st.hint : hintFor(d, st)) : st.res === 'empty' ? 'Tap one of the answers.' : '');
+    const why = el('why');
+    why.hidden = !!d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    whyBtn.el.hidden = !sv && st.tries === 0;
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !sv);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const IX = (name) => STEPS.findIndex((d) => d.name === name);
+  const openSt = (i) => fresh(STEPS[i]);
+  const doneSt = (i) => Object.assign(fresh(STEPS[i]), { res: 'right', pick: STEPS[i].want, qFrom: 0 });
+  // A step drawn in the state given, finished: what it draws (then the current step is drawn again).
+  function drawn(i, st, t) {
+    const keepS = ST[i], keepT = T;
+    ST[i] = st; T = t == null ? Infinity : t; latest = 0;
+    try { scene(i, st); return { texts: REC.texts.slice(), arrows: REC.arrows.slice(), polys: REC.polys.slice(), reac: REC.reac.slice(), q: REC.q.slice(), latest }; }
+    finally { ST[i] = keepS; T = keepT; paint(); }
+  }
+
+  K.check('In a simple truss, m = 2j − 3, where m is the total number of members and j is the number of joints: every frame here grown one triangle at a time (the triangles, the braced square, the braced square with its roof, the two braced bays, the frame of five triangles) has exactly 2j − 3 bars and no way left to move', () =>
+    [F_EQ, F_T30, F_T45, F_SQD, F_HOD, F_B2, F_W].every((F) => F.B.length === 2 * F.J.length - 3 && freedoms(F) === 0), { source: IITB });
+
+  K.check('A triangular truss of three members connected at three joints is clearly a rigid truss: the triangle has no way to move, while a drag on the square\'s top corner folds it, every bar keeping its length', () => {
+    const q = bestQ(F_SQ, 3, [0.6, 0.9], rad(-80), rad(85), 0), P = pose(F_SQ, q);
+    return freedoms(F_EQ) === 0 && !F_EQ.mode && freedoms(F_SQ) === 1 && dist(P[3], F_SQ.J[3]) > 0.3 && lengthsKept(F_SQ, P);
+  }, { source: CSUS });
+
+  K.check('If an object is balanced, the total clockwise moment about a pivot is equal to the total anticlockwise moment about that pivot: the supports\' pushes, found by balancing every joint, balance the load\'s moment about either support (10 kN at mid-span gives 5 kN each; 12 kN 2 m from the left of a 6 m span gives 8 kN and 4 kN)', () => {
+    const cases = [[F_T30, [{ j: 2, w: 10 }]], [F_T30, [{ j: 0, w: 10 }]], [F_T45, [{ j: 2, w: 12 }]], [F_W, [{ j: 1, w: 12 }]]];
+    const ok = cases.every(([F, L]) => {
+      const s = solve(F, L), xp = F.J[F.pin][0], xr = F.J[F.roller][0];
+      const mL = L.reduce((a, l) => a + l.w * (F.J[l.j][0] - xp), 0), mR = L.reduce((a, l) => a + l.w * (xr - F.J[l.j][0]), 0);
+      return near(s.ry * (xr - xp), mL, 1e-9) && near(s.py * (xr - xp), mR, 1e-9) && near(s.px, 0, 1e-9);
+    });
+    return ok && near(S30.py, 5, 1e-9) && near(S30.ry, 5, 1e-9) && near(SW.py, 8, 1e-9) && near(SW.ry, 4, 1e-9);
+  });
+
+  K.check('If the force exerted by a member on a pin is directed toward that pin, the member is in compression; if it is directed away from the pin, the member is in tension: every bar arrow drawn at a pin points away from it exactly when its bar pulls, and each bar\'s label says pull or push to match', () => {
+    const bi = IX('Pull or push');
+    const recs = [drawn(IX('Which is pulled?'), doneSt(IX('Which is pulled?'))), drawn(IX('Joint by joint'), openSt(IX('Joint by joint'))),
+      drawn(IX('The bottom bar'), doneSt(IX('The bottom bar'))), drawn(IX('A steeper frame'), doneSt(IX('A steeper frame'))),
+      drawn(bi, Object.assign(openSt(bi), { bx: 300 })), drawn(bi, Object.assign(openSt(bi), { bx: 240 }))];
+    const all = recs.reduce((a, r) => a.concat(r.arrows), []);
+    const away = (a) => dist(a.tip, a.pin) > dist(a.tail, a.pin);
+    return all.length === 20 && all.every((a) => away(a) === (a.kind === 'pull') && (a.T > 0) === (a.kind === 'pull')) &&
+      recs[0].texts.filter((s) => s === 'pull').length === 1 && recs[0].texts.filter((s) => s === 'push').length === 2 &&
+      recs[4].texts.filter((s) => s === 'pull').length === 2 && recs[5].texts.filter((s) => s === 'push').length === 2;
+  }, { source: CSUS });
+
+  K.check('Every joint is in balance: at each joint of each loaded frame the bar forces, the load and the support pushes add to nothing, so each nose-to-tail drawing closes back on its start', () => {
+    const cases = [[F_T30, [{ j: 2, w: 10 }]], [F_T30, [{ j: 1, w: 10 }]], [F_T45, [{ j: 2, w: 12 }]], [F_W, [{ j: 1, w: 12 }]]];
+    const polys = [drawn(IX('Joint by joint'), openSt(IX('Joint by joint'))), drawn(IX('The bottom bar'), doneSt(IX('The bottom bar'))),
+      drawn(IX('A steeper frame'), doneSt(IX('A steeper frame')))].map((r) => r.polys[0]);
+    return cases.every(([F, L]) => resid(F, solve(F, L), L) < 1e-9) && polys.every((p) => p && p.pts.length === 4 && dist(p.pts[0], p.pts[3]) < 1e-6);
+  });
+
+  K.check('The figures come from the rule: 2 × 3 − 3 = 3, 2 × 4 − 3 = 5 and 2 × 6 − 3 = 9; 10 kN at the top joint gives 5 kN pushes, 10 kN in each 30° bar and 8.66 kN in the bottom bar; 12 kN at 45° gives 8.49 kN and 6.00 kN; 12 kN at 2 m of 6 m gives 8 kN and 4 kN; π × 20 = 62.8 mm, 62.8 ÷ 2 = 31.4 and 62.8 ÷ 1.5 = 41.9; 2 × 5 − 3 = 7', () => {
+    const t = (nm, done) => { const i = IX(nm); return drawn(i, done ? doneSt(i) : openSt(i)).texts; };
+    const t3 = t('Counting ways to move'), t10 = t('Joint by joint'), t11 = t('The bottom bar', true), t14 = t('A steeper frame', true), t7 = t('Off centre', true), t12 = t('A screw is a ramp'), t13 = t('A finer thread', true), t4 = t('Lock the frame', true);
+    return near(S30.py, 5, 1e-9) && near(-S30.T[1], 10, 1e-9) && near(-S30.T[2], 10, 1e-9) && r2(S30.T[0]) === 8.66 && r2(-S45.T[1]) === 8.49 && r2(S45.T[0]) === 6 &&
+      ['needs 2 × 3 − 3 = 3', 'needs 2 × 4 − 3 = 5', 'holds', '1 short: folds'].every((s) => t3.includes(s)) && countLines(F_B2)[1].s === 'needs 2 × 6 − 3 = 9' &&
+      t10.filter((s) => s === '10 kN push').length === 2 && t11.includes('8.66 kN pull') && t14.filter((s) => s === '8.49 kN push').length === 2 && t14.includes('6.00 kN pull') &&
+      t7.includes('8 kN') && t7.includes('4 kN') && t7.includes('2 m') && t7.includes('6 m') && t12.includes('62.8 mm') && t12.includes('load lifted ÷ push = 62.8 ÷ 2 = 31.4') &&
+      t13.includes('load lifted ÷ push = 62.8 ÷ 1.5 = 41.9') && t13.includes('climbs 1.5 mm') && t4.includes('needs 2 × 5 − 3 = 7') && t4.includes('holds');
+  });
+
+  K.check('Each typed answer and slip is worked from the lesson\'s figures: 7 bars (6, 10, 5), 1 bar (4, 9, 0), 8 kN (4, 6), 8.66 kN (10, 5, 11.55), 41.9 times (31.4, 13.3, 94.2) and 8.49 kN (6, 12, 4.24); each answer as printed is graded right and each slip wrong', () => {
+    const want = { 'Lock the frame': [7, '7 bars', [6, 10, 5]], 'A finer thread': [41.9, '41.9 times', [31.4, 13.3, 94.2]], 'Grow the frame': [1, '1 bar', [4, 9, 0]], 'Off centre': [8, '8 kN', [4, 6]],
+      'The bottom bar': [8.66, '8.66 kN', [10, 5, 11.55]], 'A steeper frame': [8.49, '8.49 kN', [6, 12, 4.24]] };
+    return Object.keys(want).every((nm) => {
+      const d = STEPS[IX(nm)], [ans, w, sl] = want[nm], sp = { answer: d.answer, decimals: d.decimals, unit: d.unit, slips: d.slips };
+      return d.kind === 'typed' && near(d.answer, ans, 1e-9) && d.want === w && d.slips.length === sl.length && d.slips.every((x, n) => near(x.value, sl[n], 1e-9)) &&
+        K.answer.grade(w, sp).state === 'right' && K.answer.grade(String(ans), sp).state === 'right' && sl.every((v) => K.answer.grade(String(v), sp).state === 'wrong');
+    });
+  });
+
+  K.check('Every pose a frame can be dragged into keeps each bar\'s length and each foot on its support: the square without a diagonal, with or without its roof, and the two bays with one bay unbraced, each have exactly one way left to move, and that is the motion drawn', () =>
+    [[F_SQ, -80, 85], [F_HO, -80, 80], [F_B1, -20, 20], [F_BB, -18, 18]].every(([F, a, b]) => freedoms(F) === 1 && K.linspace(a, b, 25).every((dg) => {
+      const P = pose(F, rad(dg));
+      return lengthsKept(F, P) && near(P[F.pin][0], 0) && near(P[F.pin][1], 0) && near(P[F.roller][1], 0);
+    })));
+
+  K.check('Before an answer nothing gives it away: each asked figure reads "?", no bar is labelled pull or push, and the frames stand unmoved; after it, each shows', () => {
+    const ask = { 'Lock the frame': 'needs 2 × 5 − 3 = 7', 'A finer thread': 'load lifted ÷ push = 62.8 ÷ 1.5 = 41.9', 'Grow the frame': 'needs 2 × 6 − 3 = 9', 'Off centre': '8 kN', 'The bottom bar': '8.66 kN pull', 'A steeper frame': '8.49 kN push' };
+    const typedOk = Object.keys(ask).every((nm) => {
+      const i = IX(nm), b = drawn(i, openSt(i)).texts, a = drawn(i, doneSt(i)).texts;
+      return b.some((s) => /\?/.test(s)) && !b.includes(ask[nm]) && a.includes(ask[nm]) && !a.some((s) => /\?/.test(s));
+    });
+    const i9 = IX('Which is pulled?'), b9 = drawn(i9, openSt(i9)), a9 = drawn(i9, doneSt(i9));
+    const i13 = IX('Same count'), b13 = drawn(i13, openSt(i13)), a13 = drawn(i13, doneSt(i13));
+    const i1 = IX('Which holds?'), b1 = drawn(i1, openSt(i1)), a1 = drawn(i1, doneSt(i1));
+    return typedOk && b9.arrows.length === 0 && !b9.texts.includes('pull') && a9.texts.includes('pull') &&
+      b13.q[1] === 0 && !b13.texts.some((s) => /folds/.test(s)) && a13.q[1] > rad(10) && a13.texts.some((s) => /folds/.test(s)) &&
+      b1.q[0] === 0 && a1.q[0] > rad(60);
+  });
+
+  K.check('The mechanical advantage of a screw can be found by dividing the circumference of the screw by the pitch (lead) of the screw: one turn of each screw drawn unrolls into a ramp as long as its circumference that climbs one pitch, and its load lifted ÷ push is that length ÷ the pitch, more for the finer thread', () => {
+    const a = drawn(IX('A screw is a ramp'), openSt(IX('A screw is a ramp'))).texts, b = drawn(IX('A finer thread'), doneSt(IX('A finer thread'))).texts;
+    return SC_C1 === r1(Math.PI * 20) && a.includes(SC_C1 + ' mm') && a.includes('climbs 2 mm') && a.includes('load lifted ÷ push = ' + SC_C1 + ' ÷ 2 = ' + r1(SC_C1 / 2)) &&
+      b.includes(SC_C1 + ' mm') && b.includes('climbs 1.5 mm') && b.includes('load lifted ÷ push = ' + SC_C1 + ' ÷ 1.5 = ' + r1(SC_C1 / 1.5)) && scGain(1.5) > scGain(2);
+  }, { source: BOX });
+
+  K.check('The choices follow the rule: the triangle holds and the square folds; with a load at its top joint only the triangle\'s bottom bar pulls; of the two frames with 9 bars only Frame B can move', () =>
+    freedoms(F_EQ) === 0 && freedoms(F_SQ) === 1 && STEPS[IX('Which holds?')].want === 'The triangle' &&
+    S30.T[0] > 0 && S30.T[1] < 0 && S30.T[2] < 0 && STEPS[IX('Which is pulled?')].want === 'The bottom bar' &&
+    freedoms(F_B2) === 0 && freedoms(F_BB) === 1 && STEPS[IX('Same count')].want.indexOf('Frame B') === 0);
+
+  K.check('Every demonstration settles within 5 s of its screen opening, and every answer\'s motion within 3.5 s', () =>
+    STEPS.every((d, i) => (d.show ? drawn(i, openSt(i)).latest <= d.dur + 1e-9 && d.dur <= 5 : drawn(i, doneSt(i)).latest <= d.run + 1e-9 && d.run <= 3.5)));
+
+  K.ready();
+</script>

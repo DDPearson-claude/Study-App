@@ -1,0 +1,704 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-11-03T04:17:24.586Z",
+ "startedAt": "2026-11-03T04:17:24.586Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i2",
+  "title": "Compound gear trains",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the middle shaft's two gears counting the same turns, so the second stage divides a speed already slowed, when you turn the motor.",
+   "title": "The two-stage train",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Step",
+     "min": 0,
+     "max": 13,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [],
+   "whatAmILookingAt": "A motor turns a small gear, its pinion. The pinion drives a bigger wheel. A second pinion is fixed to that wheel's shaft. It drives the output wheel, which carries a winch drum. A load hangs from the drum's cable. So there are three shafts: the motor's, the middle shaft and the drum's. Each gear shows its tooth count at its centre, a revolution counter and an arrow for the way it turns. Each shaft has a speed bar and a torque bar. One power bar runs along the whole train. You turn the train by dragging the motor pinion round by its rim. On some screens you can also drag a gear's tooth count, from 10 to 60. Each pair of meshed gears is one stage. In a stage, speed × teeth is the same on both gears. So the driven gear turns at the driver's speed ÷ the stage ratio. The stage ratio is the driven gear's teeth ÷ the driver's teeth. The two gears on the middle shaft are fixed to it. So they turn together, the same way and at the same speed. The second stage starts from the speed the first stage leaves. So the overall ratio is the two stage ratios multiplied. Each mesh between these outside teeth flips the direction. So after two stages the output turns the motor's way. The train is ideal, with no friction. So each stage multiplies the torque by the same ratio it divides the speed by. Torque × speed is the power, and it stays the same. The power bar keeps one length all the way through. The bars are drawn as sizes relative to the motor's own speed and torque.",
+   "ignores": "The gears are drawn rigid, with teeth that never slip. The train is ideal, with no friction. A real gearbox loses some power as heat at every mesh and bearing. So its output torque is a little below the ideal figure. Its power would shrink a little at each stage. The board turns as fast as you drag. So a speed in rev/min comes from a puzzle's numbers, not from your finger. The bars show sizes relative to the motor, not real values. The load is a steady pull on the cable. Starting, stopping and the weight of the drum and cable are left out. Every gear lies flat with its teeth on the outside. Each stage is one mesh with no idler.",
+   "numbers": [
+    {
+     "label": "Screen, 1 to 14 (the stepper)",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Tooth count range when dragged, smallest",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Tooth count range when dragged, largest",
+     "value": 60,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example pinions, teeth, in screens 1 to 4, 6 and the explanation",
+     "value": 12,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example wheels, teeth, in screens 1 to 4, 6 and the explanation",
+     "value": 36,
+     "kind": "assumed"
+    },
+    {
+     "label": "Each stage ratio, 36 ÷ 12, screens 1 to 4",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Overall ratio, 3 × 3, screens 4 and 6",
+     "value": 9,
+     "kind": "computed"
+    },
+    {
+     "label": "Turns of the motor pinion, screen 2",
+     "value": 9,
+     "kind": "assumed"
+    },
+    {
+     "label": "Turns of the middle shaft, 9 ÷ 3, screen 2",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Turns of the output wheel, 3 ÷ 3, screen 2",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Ratios added by mistake, 3 + 3, in the explanation",
+     "value": 6,
+     "kind": "computed"
+    },
+    {
+     "label": "Turns of the motor pinion, screen 3",
+     "value": 18,
+     "kind": "assumed"
+    },
+    {
+     "label": "Turns of the middle shaft, 18 ÷ 3, screen 3",
+     "value": 6,
+     "kind": "computed"
+    },
+    {
+     "label": "Output turns, 6 ÷ 3, screen 3",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: ratios added, 18 ÷ 6, turns",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: multiplied, 18 × 9, turns",
+     "value": 162,
+     "kind": "computed"
+    },
+    {
+     "label": "Motor speed, rev/min, screen 5",
+     "value": 1450,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 5 first pinion, teeth",
+     "value": 15,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 5 first wheel, teeth",
+     "value": 45,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 5 second pinion, teeth",
+     "value": 12,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 5 second wheel, teeth",
+     "value": 48,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 5 first stage ratio, 45 ÷ 15",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 5 second stage ratio, 48 ÷ 12",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 5 overall ratio, 3 × 4",
+     "value": 12,
+     "kind": "computed"
+    },
+    {
+     "label": "Output speed, 1450 ÷ 12, rev/min, screen 5",
+     "value": 120.8,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: ratios added, 1450 ÷ 7, rev/min",
+     "value": 207.1,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: one stage, 1450 ÷ 3, rev/min",
+     "value": 483.3,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: multiplied, 1450 × 12, rev/min",
+     "value": 17400,
+     "kind": "computed"
+    },
+    {
+     "label": "Example cable pull, kN, screen 8 and explanation",
+     "value": 5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Cable pull in newtons, screen 8",
+     "value": 5000,
+     "kind": "computed"
+    },
+    {
+     "label": "Example drum radius, m, screen 8 and explanation",
+     "value": 0.2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Drum torque, 5000 × 0.2, N m",
+     "value": 1000,
+     "kind": "computed"
+    },
+    {
+     "label": "Example ideal train ratio, screen 8 and explanation",
+     "value": 50,
+     "kind": "assumed"
+    },
+    {
+     "label": "Motor torque, 1000 ÷ 50, N m",
+     "value": 20,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 8 first stage, 12 into 60 teeth, ratio",
+     "value": 5,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 8 first wheel, teeth",
+     "value": 60,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 8 second pinion, teeth",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 8 second wheel, teeth",
+     "value": 100,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 8 second stage, 100 ÷ 10, ratio",
+     "value": 10,
+     "kind": "computed"
+    },
+    {
+     "label": "Drum radius, m, screen 9",
+     "value": 0.25,
+     "kind": "assumed"
+    },
+    {
+     "label": "Cable pull, kN, screen 9",
+     "value": 4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Cable pull in newtons, screen 9",
+     "value": 4000,
+     "kind": "computed"
+    },
+    {
+     "label": "Ideal train ratio, screen 9",
+     "value": 40,
+     "kind": "assumed"
+    },
+    {
+     "label": "Drum torque, 4000 × 0.25, N m, screen 9",
+     "value": 1000,
+     "kind": "computed"
+    },
+    {
+     "label": "Motor torque, 1000 ÷ 40, N m, screen 9",
+     "value": 25,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: multiplied, 1000 × 40, N m",
+     "value": 40000,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: kN left unconverted, 4 × 0.25 ÷ 40, N m",
+     "value": 0.025,
+     "kind": "computed"
+    },
+    {
+     "label": "Wanted ratio, screen 10",
+     "value": 20,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 10 first stage ratio, 48 ÷ 12",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 10 second stage ratio, 60 ÷ 12",
+     "value": 5,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 10 first wheel, teeth",
+     "value": 48,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 10 second wheel, teeth",
+     "value": 60,
+     "kind": "assumed"
+    },
+    {
+     "label": "Wanted ratio, screen 11",
+     "value": 36,
+     "kind": "assumed"
+    },
+    {
+     "label": "Pinion teeth, screen 11",
+     "value": 15,
+     "kind": "assumed"
+    },
+    {
+     "label": "Each equal stage, the ratio that times itself makes 36",
+     "value": 6,
+     "kind": "computed"
+    },
+    {
+     "label": "Wheel teeth, 15 × 6, screen 11",
+     "value": 90,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: 36 halved, 15 × 18, teeth",
+     "value": 270,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: one stage does it all, 15 × 36, teeth",
+     "value": 540,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 12 crank wheel, teeth",
+     "value": 48,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 12 first pinion, teeth",
+     "value": 16,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 12 second wheel, teeth",
+     "value": 40,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 12 last pinion, teeth",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 12 first stage, 48 ÷ 16, times faster",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 12 second stage, 40 ÷ 10, times faster",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 12 last pinion, 3 × 4, times the crank speed",
+     "value": 12,
+     "kind": "computed"
+    },
+    {
+     "label": "Motor speed, rev/min, screen 13",
+     "value": 2400,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 13 stage ratios: 2, 3 and 5 (first shown)",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 13 wheels, teeth: 24, 36 and 60 (first shown)",
+     "value": 24,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 13 overall ratio, 2 × 3 × 5",
+     "value": 30,
+     "kind": "computed"
+    },
+    {
+     "label": "Output speed, 2400 ÷ 30, rev/min, screen 13",
+     "value": 80,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: ratios added, 2400 ÷ 10, rev/min",
+     "value": 240,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: multiplied, 2400 × 30, rev/min",
+     "value": 72000,
+     "kind": "computed"
+    },
+    {
+     "label": "Stages in screen 14",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Practice motor pinion, teeth",
+     "value": 14,
+     "kind": "assumed"
+    },
+    {
+     "label": "Practice motor speed, rev/min",
+     "value": 960,
+     "kind": "assumed"
+    },
+    {
+     "label": "Practice first wheel, teeth",
+     "value": 42,
+     "kind": "assumed"
+    },
+    {
+     "label": "Practice second pinion, teeth",
+     "value": 15,
+     "kind": "assumed"
+    },
+    {
+     "label": "Practice second wheel, teeth",
+     "value": 75,
+     "kind": "assumed"
+    },
+    {
+     "label": "Practice stage ratios, 42 ÷ 14 and 75 ÷ 15 (second)",
+     "value": 5,
+     "kind": "computed"
+    },
+    {
+     "label": "Practice overall ratio, 3 × 5",
+     "value": 15,
+     "kind": "computed"
+    },
+    {
+     "label": "Practice output speed, 960 ÷ 15, rev/min",
+     "value": 64,
+     "kind": "computed"
+    },
+    {
+     "label": "Practice motor torque, N m",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Practice ideal output torque, 10 × 15, N m",
+     "value": 150,
+     "kind": "computed"
+    },
+    {
+     "label": "Practice slip: ratios added, 3 + 5",
+     "value": 8,
+     "kind": "computed"
+    },
+    {
+     "label": "Practice slip speed, 960 ÷ 8, rev/min",
+     "value": 120,
+     "kind": "computed"
+    },
+    {
+     "label": "Analogy first price cut, %",
+     "value": 20,
+     "kind": "assumed"
+    },
+    {
+     "label": "Analogy second price cut, %",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Analogy price left, 0.8 × 0.9",
+     "value": 0.72,
+     "kind": "computed"
+    },
+    {
+     "label": "Analogy total cut, %",
+     "value": 28,
+     "kind": "computed"
+    },
+    {
+     "label": "Analogy cuts added, %",
+     "value": 30,
+     "kind": "computed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "A [[compound gear train]] runs gear pairs one after another, and its overall ratio is their ratios multiplied. The driven gear of each pair is fixed to the same shaft as the driver of the next. So those two gears turn together.\n\nStart with one pair. A motor turns a small 12-tooth gear, called a [[pinion]]. It drives a wheel with 36 teeth. Speed × teeth is the same on both gears. So the wheel turns at a third of the motor's speed. That is a ratio of 3 : 1: three turns in for one turn out. Each meshed pair like this is one [[stage]] of the train. A stage's ratio is the driven gear's teeth ÷ the driver's teeth.\n\nNow fix a second 12-tooth pinion to the wheel's shaft. Two gears fixed to one shaft must turn at the same speed.[^1] So the second pinion turns at a third of the motor's speed. It has the same 12 teeth as the motor's pinion, yet it turns three times slower. It drives a second 36-tooth wheel. That wheel divides the speed by 3 again. Nine turns of the motor make three turns of the middle shaft and one turn of the output. So the overall ratio is 3 × 3 = 9, written 9 : 1.\n\nAdding the ratios would give 6 : 1, and that is wrong. The second stage divides the speed the first stage leaves, not the motor's speed. To find any compound train's ratio, work out each stage's ratio and multiply them together.[^2]\n\nWhy use two stages at all? One pair stops at about 10 : 1.[^3] Past that, the wheel grows huge beside its pinion. So a bigger ratio takes a second stage.\n\nDirection goes stage by stage too. With outside teeth on side-by-side shafts, each stage is one mesh. So each stage flips the direction. The two gears fixed to a shaft turn the same way.\n\nA train that cuts the speed raises the torque. That is where a winch's pull comes from, and it has a cost. An ideal train has no friction, so it has nowhere to lose energy. At a steady speed, the work out each second equals the work in. So the power stays the same. Power is torque × turning speed. So a stage that divides the speed by 3 multiplies the torque by 3.\n\nTake a 5 kN pull on a drum of 0.2 m radius. The drum needs 5000 × 0.2 = 1000 N m. Through an ideal 50 : 1 train, the motor needs only 1000 ÷ 50 = 20 N m. It pays in speed: it turns 50 times for each turn of the drum. This ideal train is a model. Real gears lose some power to friction at every mesh. So a real motor needs more torque than this. **Two gears fixed to one shaft turn together. So a compound train's overall ratio is its stage ratios multiplied.**"
+  },
+  "analogy": {
+   "text": "Take 20% off a price, then 10% off what is left. The second cut works on the reduced price. So the two cuts multiply: 0.8 × 0.9 = 0.72 of the price. That is 28% off, not 30%. A compound train works the same way. Its second stage divides the speed the first stage leaves. So the ratios multiply rather than add.",
+   "breaks": "A price cut is simply lost. Nothing comes back in return. An ideal gear stage gives back in torque exactly what it takes in speed. So the power stays the same."
+  },
+  "practice": {
+   "text": "- Isolate and lock off a gearbox before you turn it by hand. A winch's load can drive its train backwards. So land the load or hold it securely first. Keep fingers clear of every mesh.\n- Sketch the train from the motor out. Mark which gears are fixed to the same shaft.\n- For each stage, divide the driven gear's teeth by the driver's teeth.\n- Multiply the stage ratios to get the overall ratio.\n- Output speed = motor speed ÷ overall ratio.\n- Ideal output torque = motor torque × overall ratio. A real box gives less. Friction takes some at each mesh.\n- Direction: each mesh between outside-toothed gears on side-by-side shafts flips it. Gears fixed to one shaft turn the same way.\n\n**Rule of thumb:** gears fixed to one shaft share one speed. A train that cuts the speed by some ratio raises the torque by up to that ratio. Friction takes some of that gain.\n\n**Worked example:** a motor turns a 14-tooth pinion at 960 rev/min. It drives a 42-tooth wheel. A 15-tooth pinion on that shaft drives a 75-tooth wheel. Stage ratios: 42 ÷ 14 = 3 and 75 ÷ 15 = 5. Overall ratio: 3 × 5 = 15. Output speed: 960 ÷ 15 = 64 rev/min. There are two meshes, so the output turns the motor's way. If the motor gives 10 N m, the output gets at most 10 × 15 = 150 N m.\n\n**Common mistakes**\n- Adding the stage ratios. In the example, 3 + 5 = 8 would give 120 rev/min. That is nearly twice the real speed.\n- Treating the two gears on a shaft as meshed. They turn together, the same way and at the same speed.\n- Expecting two pinions with the same teeth to turn at the same speed. Where each sits in the train decides its speed.\n- Expecting a train to raise both speed and torque. It trades one for the other.\n- Leaving a pull in kN. Turn it into newtons before you work out the torque in N m."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "Mechanisms: Gears",
+    "url": "https://www.notesandsketches.co.uk/Gears.html",
+    "quote": "As both gears are keyed onto shaft B, they must revolve at the same velocity."
+   },
+   {
+    "n": 2,
+    "title": "Advanced Gears | REV ION Build System | REV Robotics Documentation",
+    "url": "https://docs.revrobotics.com/ion-build/motion/gears/advanced-gears",
+    "quote": "To calculate the total reduction of a compound reduction, identify the reduction of each stage and then multiply each reduction together."
+   },
+   {
+    "n": 3,
+    "title": "Gears",
+    "url": "https://www.me.iitb.ac.in/~ramesh/courses/ME423/Gears.pdf",
+    "quote": "A practical limit on train value for one pair of gears is 10 to 1"
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: quantity -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .lead { max-width: 34rem; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.08rem; font-weight: 400; line-height: 1.6; }\n  #stepbox > .act { margin-top: 6px; font-weight: 600; color: var(--k-muted); }\n  .nw { white-space: nowrap; }\n  .scene, .barsv { display: block; width: 100%; max-width: 26rem; margin-inline: auto; }\n  .scene { touch-action: pan-y; }\n  .scene .gear { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.3; stroke-linejoin: round; }\n  .scene .gear.back { fill: var(--k-sunk); }\n  .scene .gear.sel { stroke: var(--k-accent2); stroke-width: 3; }\n  .scene .mark, .scene .knob, .scene .head { fill: var(--k-ink); }\n  .scene .pill { fill: var(--k-bg); stroke: var(--k-strong); stroke-width: 1.2; }\n  .scene .chip { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 1.8; }\n  .scene .chev { fill: var(--k-accent2); }\n  .scene .can { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.2; }\n  .scene .peg { fill: var(--k-strong); }\n  .scene .dir { fill: none; stroke: var(--k-ink); stroke-width: 2; stroke-linecap: round; }\n  .scene .dim { stroke: var(--k-ink); stroke-width: 1.4; stroke-linecap: round; }\n  .scene .cable { stroke: var(--k-ink); stroke-width: 2; }\n  .scene .drum { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.5; }\n  .scene .load, .scene .box { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.4; }\n  .scene .shaft { stroke: var(--k-strong); stroke-width: 6; stroke-linecap: round; }\n  .scene .arm { stroke: var(--k-strong); stroke-width: 7; stroke-linecap: round; }\n  .scene .hole { fill: none; stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 5 4; }\n  .scene .cnt { font: 700 14px var(--k-font); fill: var(--k-ink); }\n  .scene .cnt.sm { font-size: 13px; stroke: var(--k-panel); stroke-width: 2.5; stroke-linejoin: round; paint-order: stroke; }\n  .scene .lab, .barsv .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }\n  .scene .cap, .barsv .cap { font: 400 13px var(--k-font); fill: var(--k-muted); }\n  .barsv .base { stroke: var(--k-strong); stroke-width: 1.2; }\n  .scene #art * { pointer-events: none; }\n  .scene .grab { fill: transparent; stroke: none; cursor: grab; touch-action: none; }\n  .scene .hit { fill: transparent; stroke: none; cursor: ns-resize; touch-action: none; }\n  .scene .grab:focus, .scene .hit:focus { outline: none; }\n  .scene .grab:focus-visible, .scene .hit:focus-visible { stroke: var(--k-accent); stroke-width: 3; }\n  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(6.5rem, 1fr)); gap: 8px; max-width: 26rem; margin-inline: auto; }\n  .tile { background: var(--k-panel); border: 1px solid var(--k-line); border-radius: var(--k-r); padding: 8px 10px; }\n  .tile .k-label { display: block; margin-bottom: 2px; }\n  .tile b { font-size: 1.15rem; line-height: 1.3; overflow-wrap: normal; word-break: normal; hyphens: none; }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; }\n  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }\n  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-inline: 16px; font-size: .95rem; white-space: nowrap; }\n  .picks { gap: 8px; align-items: stretch; }\n  .picks .k-btn { flex: 1 1 8.5rem; min-height: 48px; font-size: 1.05rem; white-space: normal; overflow-wrap: normal; word-break: normal; hyphens: none; }\n  .picks.col { flex-direction: column; }\n  .picks.col .k-btn { flex: 0 0 auto; }\n  .picks .k-btn[aria-pressed=\"true\"] { border-color: var(--k-accent2); box-shadow: inset 0 0 0 1.5px var(--k-accent2), 0 2px 0 var(--k-line); }\n  .picks .k-btn[aria-pressed=\"true\"]::before { content: \"\\2713\"; margin-right: .45em; font-weight: 800; }\n  .answers .k-answer { max-width: 20rem; }\n  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }\n  .fb.right { color: var(--k-good); }\n  .why, .done { line-height: 1.6; }\n  .done strong { color: var(--k-accent2); }\n  .done .row { margin-top: 14px; }\n  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }\n</style>\n\n<p class=\"lead\">Gear trains seen face on, meshing tooth in tooth, with two gears fixed to each middle shaft. Every tooth count, speed and load is an example.</p>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <p class=\"act\" id=\"act\"></p>\n    <svg class=\"scene\" id=\"scene\" viewBox=\"0 0 340 220\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"art\"></g><g id=\"ui\"></g></svg>\n    <div class=\"tiles\" id=\"tiles\"></div>\n    <div id=\"barbox\"><svg class=\"barsv\" id=\"bars\" viewBox=\"0 0 340 128\" width=\"100%\" role=\"img\" aria-label=\"\"></svg></div>\n    <div class=\"replay\" id=\"replay\"></div>\n    <div class=\"row picks\" id=\"picks\"></div>\n    <div class=\"answers\" id=\"answers\"></div>\n    <div class=\"row acts\" id=\"acts\"></div>\n    <p class=\"fb\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p><strong id=\"finish\"></strong></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<script>\n  // ---------- helpers ----------\n  const TAU = 2 * Math.PI, NB = ' ';\n  const r2 = (v) => Math.round(v * 100) / 100;\n  const clamp01 = (p) => Math.min(1, Math.max(0, p));\n  // How far a move timed from t0 to t1 has got at T seconds: 0 before, 1 after, eased between.\n  const tw = (T, t0, t1) => (T >= t1 ? 1 : T <= t0 ? 0 : K.ease(clamp01((T - t0) / (t1 - t0))));\n  const sym = (x, P) => x - P * Math.round(x / P);\n  const near = (a, b) => Math.abs(a - b) <= 1e-9 * Math.max(1, Math.abs(a), Math.abs(b));\n  const whole = (v) => Math.abs(v - Math.round(v)) < 1e-9;\n  const r1 = (v) => Math.round(v * 10) / 10;\n  // One rounding everywhere: whole numbers plain, others to one place (1450, 483.3, 120.8).\n  const num = (v) => (whole(v) ? String(Math.round(v)) : String(r1(v)));\n  // A ratio as so many to 1: whole numbers plain, others to two places.\n  const ratioText = (r) => (whole(r) ? String(Math.round(r)) : r.toFixed(2)) + NB + ':' + NB + '1';\n  const turnsText = (n) => n + NB + (n === 1 ? 'turn' : 'turns');\n  const rpmText = (v) => num(v) + NB + 'rev/min';\n  const nmText = (v) => num(v) + NB + 'N' + NB + 'm';\n  const NS = 'https://www.notesandsketches.co.uk/Gears.html';\n  const REV = 'https://docs.revrobotics.com/ion-build/motion/gears/advanced-gears';\n\n  // ---------- the trains: tooth counts shaft by shaft, the motor's first. A middle shaft holds the\n  // wheel driven by the stage before it, then the pinion keyed beside it that drives the next. ----------\n  const TEETH = {\n    two: [[12], [36, 12], [36]],\n    speed: [[15], [45, 12], [48]],\n    winch: [[12], [60, 10], [100]],\n    split: [[12], [48, 12], [60]],\n    equal: [[15], [15 * Math.sqrt(36), 15], [15 * Math.sqrt(36)]],\n    crank: [[48], [16, 40], [10]],\n    three: [[12], [24, 12], [36, 12], [60]],\n  };\n  // A stage's ratio is the driven gear's teeth ÷ the driver's teeth; the train's is them multiplied.\n  const stagesOf = (t) => t.slice(1).map((ts, k) => ts[0] / t[k][t[k].length - 1]);\n  const overall = (t) => stagesOf(t).reduce((a, b) => a * b, 1);\n  const added = (t) => stagesOf(t).reduce((a, b) => a + b, 0);\n  // The winch examples: the drum's torque is the cable's pull × the drum's radius.\n  const W8 = { kN: 5, r: 0.2 }, W9 = { kN: 4, r: 0.25, ratio: 40 };\n  const drumTorque = (w) => w.kN * 1000 * w.r;\n  const T2 = TEETH.two, TS = TEETH.speed, T3 = TEETH.three;\n\n  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------\n  // pic: the train drawn. open(T): the motion as a SHOW screen opens; run(T): the motion after a right\n  // answer. Every typed answer and slip is worked from the tooth counts.\n  const STEPS = [\n    { kind: 'tap', name: 'The fastest gear', pic: 'two', cnt: true, rdur: 2.4,\n      task: 'The motor turns the first 12\\u2011tooth pinion. Which gear turns fastest?', act: 'Tap a gear.',\n      read: 'The motor turns the first 12\\u2011tooth pinion. Which gear turns fastest?',\n      opts: ['The motor pinion', 'The 36\\u2011tooth wheel', 'The second pinion', 'The output wheel'], gears: [0, 1, 2, 3], want: 'The motor pinion',\n      hint: 'A gear with three times its driver\\'s teeth turns at a third of the driver\\'s speed.',\n      hints: { 'The second pinion': 'It is fixed to the 36\\u2011tooth wheel\\'s shaft. So it turns with that wheel.' },\n      why: 'The 36\\u2011tooth wheel turns at a third of the motor\\'s speed. The second pinion turns with it. The output wheel turns at a third of that again: a ninth of the motor\\'s speed. So the motor pinion turns fastest.',\n      run: (T) => ({ al: tw(T, 0.1, 2.4) * 3 * TAU }) },\n    { show: true, name: 'One shaft, one speed', pic: 'two', cnt: true, dur: 4.6,\n      text: 'The second pinion is fixed to the wheel\\'s shaft. So the two turn together, the same way and at the same speed. Nine turns of the motor pinion make three turns of that shaft. Those three turns make one turn of the output wheel. Each meshed pair is one stage.',\n      act: 'Turn the motor.',\n      read: 'After nine turns of the motor pinion, the wheel and the second pinion both show three turns. The output wheel shows one.',\n      open: (T) => ({ al: tw(T, 0.6, 4.6) * 9 * TAU }) },\n    { kind: 'typed', name: 'Count the turns', pic: 'two', cnt: true, hideCnt: [1, 2, 3], ans: 'cnt', unit: 'turns', decimals: 0, rdur: 0.8,\n      answer: 18 / overall(T2),\n      slips: [{ value: 18 / stagesOf(T2)[0], hint: 'That is the middle shaft. The second stage divides by 3 again.' },\n        { value: 18 / added(T2), hint: 'You added the ratios, 3 + 3. Each stage divides. So multiply them.' },\n        { value: 18 * overall(T2), hint: 'That makes the output faster than the motor. Divide by the ratios.' }],\n      task: 'The motor pinion turns 18 times. How many turns does the output wheel make?',\n      hint: 'Work one stage at a time. The second pinion turns with the wheel.',\n      why: '18 ÷ 3 = 6 turns of the middle shaft. So the second pinion turns 6 times too. Then 6 ÷ 3 = 2 turns of the output wheel.',\n      open: () => ({ al: 18 * TAU }),\n      run: (T) => ({ al: 0, q: tw(T, 0.1, 0.8) }) },\n    { show: true, name: 'Ratios multiply', pic: 'drag', tiles: 'ratio', dur: 3.8,\n      text: 'Each stage divides the speed by its ratio. That ratio is the driven gear\\'s teeth ÷ the driver\\'s teeth. The second stage starts from the speed the first stage leaves. So the overall ratio is `3 × 3 = 9`, written `9 : 1`.',\n      act: 'Drag a tooth count.',\n      read: 'With 12, 36, 12 and 36 teeth, the stages read 3 : 1 and 3 : 1. The overall ratio reads 9 : 1.',\n      open: (T) => ({ al: tw(T, 0.6, 3.8) * 1.5 * TAU, t0: K.arrive(T, 1.2), t1: K.arrive(T, 1.8), t2: K.arrive(T, 2.4) }) },\n    { kind: 'typed', name: 'The motor\\'s speed', pic: 'speed', tiles: 'speed', rpm: 1450, ans: 'spd', unit: 'rev/min', decimals: 1, rdur: 2.2,\n      answer: r1(1450 / overall(TS)),\n      slips: [{ value: r1(1450 / added(TS)), hint: 'You added the ratios, 3 + 4. Multiply them.' },\n        { value: r1(1450 / stagesOf(TS)[0]), hint: 'That is the middle shaft. Divide by the second stage\\'s 4 as well.' },\n        { value: 1450 * overall(TS), hint: 'That makes the output faster than the motor. Divide by the ratio.' }],\n      task: 'A motor turns at 1450 rev/min. Its 15-tooth pinion drives a 45-tooth wheel. A 12-tooth pinion on that shaft drives a 48-tooth wheel. How fast does the output wheel turn?',\n      hint: 'Find each stage\\'s ratio and multiply them. Then divide the motor\\'s speed by that.',\n      why: '45 ÷ 15 = 3 and 48 ÷ 12 = 4. So the overall ratio is 3 × 4 = 12. Then 1450 ÷ 12 = 120.8 rev/min.',\n      run: (T) => ({ al: tw(T, 0.1, 2.2) * TAU }) },\n    { show: true, name: 'Speed for torque', pic: 'twoD', bars: true, dur: 4.2,\n      text: 'Each stage divides the speed by its ratio. It multiplies the torque by the same ratio. So along the train, the speed bars fall as the torque bars rise. Their product is the power. It stays the same all the way through an ideal train.',\n      act: 'Turn the motor.',\n      read: 'From the motor to the drum, the speed bar falls to a ninth. The torque bar grows nine times. The power bar keeps one length.',\n      open: (T) => ({ al: tw(T, 0.6, 4.2) * 2 * TAU, b0: K.arrive(T, 0.9), b1: K.arrive(T, 1.6), b2: K.arrive(T, 2.3) }) },\n    { kind: 'pick', name: 'Faster and stronger', pic: 'twoD', bars: true, col: true, rdur: 2.2,\n      task: 'Can a gear train make its output turn faster than the motor and with more torque?',\n      opts: ['Yes, with enough stages', 'No, it trades one for the other', 'Yes, with an idler gear'], want: 'No, it trades one for the other',\n      hint: 'Watch the power bar. Adding stages cannot make it grow.',\n      hints: { 'Yes, with an idler gear': 'An idler flips the direction but leaves the ratio unchanged.' },\n      why: 'Power is torque × speed. In an ideal train it stays the same. Friction only takes some away. So the output can turn faster only with less torque. It gets more torque only by turning slower.',\n      run: (T) => ({ al: tw(T, 0.1, 2.2) * 1.5 * TAU }) },\n    { show: true, name: 'The winch drum', pic: 'winch', tiles: 'torque', dur: 4.2,\n      text: 'The load pulls on the cable at the drum\\'s rim. So the drum needs a torque of pull × radius. That is `5000 N × 0.2 m = 1000 N m`. An ideal `50 : 1` train divides that by 50. So the motor gives just `20 N m`.',\n      read: 'The load pulls on the cable at the drum\\'s rim. So the drum needs a torque of pull × radius. That is 5000 N × 0.2 m = 1000 N m. An ideal 50 : 1 train divides that by 50. So the motor gives just 20 N m.',\n      open: (T) => ({ al: tw(T, 0.6, 4.2) * 4 * TAU, t0: K.arrive(T, 1.2), t1: K.arrive(T, 1.8) }) },\n    { kind: 'typed', name: 'The motor\\'s torque', pic: 'box', tiles: 'torque', ans: 'trq', unit: 'N m', decimals: 0, rdur: 2.2,\n      answer: drumTorque(W9) / W9.ratio,\n      slips: [{ value: drumTorque(W9), hint: 'That is the drum\\'s torque. The train divides it by 40 for the motor.' },\n        { value: drumTorque(W9) * W9.ratio, hint: 'That multiplies at the motor. The motor turns faster, so it needs less torque.' },\n        { value: W9.kN * W9.r / W9.ratio, hint: 'Turn 4 kN into 4000 N first.' }],\n      task: 'A winch drum of 0.25 m radius takes a 4 kN pull. Its ideal train is 40 : 1. What torque must the motor give?',\n      hint: 'Work out the drum\\'s torque first: pull × radius.',\n      why: '4000 × 0.25 = 1000 N m at the drum. Then 1000 ÷ 40 = 25 N m at the motor.',\n      run: (T) => ({ al: tw(T, 0.1, 2.2) * W9.ratio * 0.1 * TAU }) },\n    { show: true, name: 'Split the ratio', pic: 'split', tiles: 'ratio', dur: 3.8,\n      text: 'One pair stops at about `10 : 1`. Past that, the wheel grows huge beside its pinion. So a bigger ratio takes a second stage. To get `20 : 1` from two stages, pick stage ratios that multiply to 20, such as `4 × 5`. A 12-tooth pinion into a 48-tooth wheel gives `4 : 1`. A 12-tooth pinion into a 60-tooth wheel gives `5 : 1`.',\n      read: 'One pair stops at about 10 : 1. Past that, the wheel grows huge beside its pinion. So a bigger ratio takes a second stage. To get 20 : 1 from two stages, pick stage ratios that multiply to 20, such as 4 × 5. A 12-tooth pinion into a 48-tooth wheel gives 4 : 1. A 12-tooth pinion into a 60-tooth wheel gives 5 : 1.',\n      open: (T) => ({ al: tw(T, 0.6, 3.8) * 1.5 * TAU, t0: K.arrive(T, 1.2), t1: K.arrive(T, 1.8), t2: K.arrive(T, 2.4) }) },\n    { kind: 'typed', name: 'Two equal stages', pic: 'equal', hide: true, ans: 'tth', unit: 'teeth', decimals: 0, rdur: 2.4,\n      answer: TEETH.equal[1][0],\n      slips: [{ value: 15 * 36 / 2, hint: 'You halved 36. Equal stages multiply. So each stage needs the ratio that makes 36 when multiplied by itself.' },\n        { value: 15 * 36, hint: 'That makes one stage do all of 36 : 1. Each stage needs only part of it.' }],\n      task: 'You need 36 : 1 from two equal stages. Each pinion has 15 teeth. How many teeth must each wheel have?',\n      hint: 'Which ratio multiplied by itself makes 36?',\n      why: '6 × 6 = 36, so each stage is 6 : 1. Each wheel has 15 × 6 = 90 teeth.',\n      run: (T) => ({ gear: tw(T, 0.1, 0.8), al: tw(T, 0.9, 2.4) * TAU }) },\n    { kind: 'tap', name: 'Speeding up', pic: 'crank', rdur: 2.4,\n      task: 'The crank turns the 48\\u2011tooth wheel. Which gear turns fastest?', act: 'Tap a gear.',\n      read: 'The crank turns the 48\\u2011tooth wheel. Which gear turns fastest?',\n      opts: ['The 48\\u2011tooth wheel', 'The 16\\u2011tooth pinion', 'The 40\\u2011tooth wheel', 'The 10\\u2011tooth pinion'], gears: [0, 1, 2, 3], want: 'The 10\\u2011tooth pinion',\n      hint: 'A small gear driven by a big one turns faster.',\n      hints: { 'The 16\\u2011tooth pinion': 'The second stage speeds things up again.', 'The 40\\u2011tooth wheel': 'It shares a shaft with the 16\\u2011tooth pinion. So it turns at the same speed.' },\n      why: '48 ÷ 16 = 3. So the 16\\u2011tooth pinion and the 40\\u2011tooth wheel turn 3 times as fast as the crank. Then 40 ÷ 10 = 4. So the 10\\u2011tooth pinion turns 3 × 4 = 12 times as fast. When a train speeds up at every stage, its last gear is the fastest.',\n      run: (T) => ({ al: tw(T, 0.1, 2.4) * 0.35 * TAU }) },\n    { kind: 'typed', name: 'Three stages', pic: 'three', tiles: 'speed3', rpm: 2400, hideDir: 'always', noTurn: true, ans: 'thr', unit: 'rev/min', decimals: 0, rdur: 0.6,\n      answer: 2400 / overall(T3),\n      slips: [{ value: 2400 / added(T3), hint: 'You added the ratios, 2 + 3 + 5. Multiply them.' },\n        { value: 2400 * overall(T3), hint: 'That makes the output faster than the motor. Divide by the ratio.' }],\n      task: 'A motor turns at 2400 rev/min. Its three stages are 2 : 1, 3 : 1 and 5 : 1. How fast does the output turn?',\n      hint: 'Multiply the three stage ratios first.',\n      why: '2 × 3 × 5 = 30. Then 2400 ÷ 30 = 80 rev/min.' },\n    { kind: 'pick', name: 'Which way', pic: 'three', hideDir: true, rdur: 2.2,\n      task: 'The motor turns clockwise. Which way does the output turn?',\n      opts: ['Clockwise', 'Anticlockwise'], want: 'Anticlockwise',\n      hint: 'Each stage is one mesh. Each mesh flips the direction. Count the stages.',\n      why: 'Three stages make three flips. The two gears on each shaft turn the same way, so they add no flip. So the output turns anticlockwise.',\n      run: (T) => ({ arr: tw(T, 0.1, 0.6), al: tw(T, 0.3, 2.2) * 1.5 * TAU }) },\n  ];\n  STEPS.forEach((d) => { if (d.kind === 'typed') d.want = num(d.answer) + ' ' + d.unit; });\n  const FINISH = 'Two gears fixed to one shaft turn together. So a compound train\\'s overall ratio is its stage ratios multiplied.';\n\n  // ---------- building a train (pure) ----------\n  // A gear: T teeth of module m (px per tooth of pitch diameter) at (x, y). Pitch radius mT/2; tips one module out.\n  const rP = (g) => g.m * g.T / 2, rO = (g) => rP(g) + g.m, rR = (g) => rP(g) - 1.25 * g.m;\n  let TT = [12, 36, 12, 36];   // the tooth counts Dan drags on screen 4\n  const SPEC = {\n    two: () => ({ teeth: T2, motor: true, names: ['motor pinion', '36-tooth wheel', 'second pinion', 'output wheel'] }),\n    twoD: () => ({ teeth: T2, motor: true, mMax: 3.6, drum: { rd: 15 } }),\n    speed: () => ({ teeth: TS, motor: true }),\n    winch: () => ({ teeth: TEETH.winch, motor: true, ang: [-35, 0], side: { 0: 180 }, drum: { rd: 22, rad: W8.r + NB + 'm', pull: W8.kN + NB + 'kN' } }),\n    split: () => ({ teeth: TEETH.split, motor: true }),\n    equal: () => ({ teeth: TEETH.equal, motor: true, hide: [1, 3] }),\n    crank: () => ({ teeth: TEETH.crank, crank: true }),\n    three: () => ({ teeth: T3, motor: true }),\n    drag: () => ({ teeth: [[TT[0]], [TT[1], TT[2]], [TT[3]]], motor: true, hMax: 180, drag: true, vb: [-108, 232] }),\n    box: () => ({ box: true }),\n  };\n  function build(spec) {\n    if (spec.box) return { spec, box: true, gears: [], ratio: [], stages: [], pairs: [], shafts: [] };\n    const sh = spec.teeth, n = sh.length, G = [], inn = [], out = [];\n    sh.forEach((ts, s) => { inn[s] = G.length; ts.forEach((T) => G.push({ T, s })); out[s] = G.length - 1; });\n    // shaft centres at module 1: each stage's centres sit a pitch radius apart, along its angle\n    const px = [0], py = [0];\n    for (let k = 0; k < n - 1; k++) {\n      const a = ((spec.ang && spec.ang[k]) || 0) * Math.PI / 180, L = (G[out[k]].T + G[inn[k + 1]].T) / 2;\n      px.push(px[k] + L * Math.cos(a)); py.push(py[k] + L * Math.sin(a));\n    }\n    let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;\n    G.forEach((g) => { const r = g.T / 2 + 1; x0 = Math.min(x0, px[g.s] - r); x1 = Math.max(x1, px[g.s] + r); y0 = Math.min(y0, py[g.s] - r); y1 = Math.max(y1, py[g.s] + r); });\n    const m = Math.min(spec.mMax || 4.2, (spec.w || 310) / (x1 - x0), (spec.hMax || 200) / (y1 - y0));\n    const ox = 172 - m * (x0 + x1) / 2, oy = -m * (y0 + y1) / 2;\n    G.forEach((g) => { g.m = m; g.x = ox + m * px[g.s]; g.y = oy + m * py[g.s]; });\n    const stages = [], stageOf = [];\n    for (let k = 0; k < n - 1; k++) { stages.push([out[k], inn[k + 1]]); stageOf[out[k]] = k; stageOf[inn[k + 1]] = k; }\n    // Layers: of the two gears on a middle shaft, the smaller sits in front, with its stage.\n    const rank = [0];\n    for (let k = 1; k < n - 1; k++) rank[k] = rank[k - 1] + (G[out[k]].T < G[inn[k]].T ? 1 : -1);\n    const R = (k) => rank[stageOf[k]], top = Math.max.apply(null, rank);\n    const order = G.map((g, k) => k).sort((a, b) => R(a) - R(b) || a - b);\n    // Each gear's turn per turn of the motor (+ clockwise) and the angle of its marked tooth, passed\n    // stage by stage: teeth roll one for one, so a driven gear turns T_driver / T_driven as far, the\n    // other way, with a gap facing the driver's tooth. A gear keyed to a shaft turns with it.\n    const ratio = [], base = [];\n    ratio[0] = 1; base[0] = -Math.PI / 2;\n    stages.forEach((e, k) => {\n      const p = e[0], c = e[1];\n      if (ratio[p] == null) { ratio[p] = ratio[inn[k]]; base[p] = -Math.PI / 2; }\n      const P = G[p], C = G[c], q = P.T / C.T, psi = Math.atan2(C.y - P.y, C.x - P.x);\n      ratio[c] = -q * ratio[p];\n      base[c] = psi * (1 + q) + Math.PI + Math.PI / C.T - q * base[p];\n    });\n    const miss = (e) => {\n      const A = G[e[0]], C = G[e[1]], q = A.T / C.T, psi = Math.atan2(C.y - A.y, C.x - A.x);\n      return sym(base[e[1]] - (psi * (1 + q) + Math.PI + Math.PI / C.T - q * base[e[0]]), TAU / C.T);\n    };\n    const B = { spec, gears: G, n, inn, out, stages, ratio, base, order, miss, layer: R, m, last: inn[n - 1], pairs: [], front: {},\n      back: G.map((g, k) => (top - R(k)) % 2 === 1), hidden: spec.hide || [], motor: !!spec.motor, crank: !!spec.crank, drag: !!spec.drag, vb: spec.vb || null, names: spec.names };\n    for (let s = 1; s < n - 1; s++) { const a = inn[s], b = out[s]; B.pairs.push([a, b]); const f = R(b) > R(a) ? b : a; B.front[s] = { f, b: f === a ? b : a }; }\n    if (spec.drum) {\n      // The cable hangs from the side of the drum that rises as the motor turns forward, so forward turns lift the load.\n      const L = G[B.last], r = Math.abs(ratio[B.last]), rd = spec.drum.rd;\n      B.drum = Object.assign({}, spec.drum, { x: L.x, y: L.y, cx: L.x - Math.sign(ratio[B.last]) * rd, top0: L.y + rO(L) + 14,\n        lim: [-0.1 * TAU / r, 0.7 * TAU / r], lift: (al) => rd * r * al });\n    }\n    // Where each tooth count sits: at the centre, or on the face of a gear whose centre is covered.\n    const clearOf = (k, x, y, pad) => G.every((h) => h.s === G[k].s || Math.hypot(h.x - x, h.y - y) > rO(h) + pad);\n    B.cnt = G.map((g, k) => {\n      const f = B.front[g.s], isBack = !!f && f.b === k, isDrum = !!B.drum && k === B.last;\n      if (!isBack && !isDrum) return { x: g.x, y: g.y };\n      const inner = isBack ? rO(G[f.f]) : B.drum.rd + 6, rc = (inner + rR(g)) / 2;\n      if (rR(g) - inner >= 24) {\n        for (const a of (isDrum ? [-90, -45, -135] : [180, -90, 0, -135, -45])) {\n          const ar = a * Math.PI / 180, hw = (String(g.T).length * 9 + 14) / 2;\n          const q = isDrum ? rc : Math.max(rc, rR(g) - Math.abs(Math.cos(ar)) * hw - Math.abs(Math.sin(ar)) * 11 - 3);\n          const x = g.x + q * Math.cos(ar), y = g.y + q * Math.sin(ar);\n          if (clearOf(k, x, y, 18)) return { x, y };\n        }\n      }\n      for (const a of [90, 180, 0, -90]) {\n        const ar = a * Math.PI / 180, q = rO(g) + 15, x = g.x + q * Math.cos(ar), y = g.y + q * Math.sin(ar);\n        if (clearOf(k, x, y, 18)) return { x, y };\n      }\n      return { x: g.x, y: g.y + rO(g) + 15 };\n    });\n    // Each gear's arrow sits outside its teeth, on top; a front gear's sits below it on the face behind.\n    B.side = G.map((g, k) => {\n      const f = B.front[g.s];\n      if (spec.side && spec.side[k] != null) return spec.side[k];\n      if (f && f.f === k) return rR(G[f.b]) - rO(g) >= 22 ? 90 : null;\n      return -90;\n    });\n    B.tag = G.map((g, k) => (B.side[k] === 90 ? { x: g.x, y: g.y + rO(g) + 27 } : { x: g.x, y: g.y - rO(g) - 16 }));\n    // Each shaft's speed (from the meshes) and torque (each stage multiplies it by its ratio), both relative to the motor.\n    B.shafts = [];\n    let tq = 1;\n    for (let s = 0; s < n; s++) {\n      if (s > 0) tq *= G[inn[s]].T / G[out[s - 1]].T;\n      B.shafts.push({ x: G[inn[s]].x, sp: Math.abs(ratio[inn[s]]), tq });\n    }\n    B.stageR = stages.map((e) => G[e[1]].T / G[e[0]].T);\n    if (B.motor) B.cap = capPos(B);\n    return B;\n  }\n  // The word \"motor\" under its housing, clear of every gear.\n  function capPos(B) {\n    const g = B.gears[0], rc = rO(g) + 9, w = 5 * 7.6, x = Math.min(Math.max(g.x, 4 + w / 2), 336 - w / 2);\n    const clear = (y) => B.gears.every((h) => Math.hypot(Math.max(Math.abs(h.x - x) - w / 2, 0), Math.max(y - 13 - h.y, h.y - y, 0)) > rO(h) + 3);\n    for (let j = 0; j < 8; j++) { const y = g.y + rc + 16 + 5 * j; if (clear(y)) return { x, y }; }\n    return { x, y: g.y - rc - 6 };\n  }\n  const BOARDS = {};\n  function boardOf(key) {\n    const id = key === 'drag' ? 'drag:' + TT.join() : key;\n    return BOARDS[id] || (BOARDS[id] = build(SPEC[key]()));\n  }\n  const board = (i) => boardOf(STEPS[i].pic);\n\n  // ---------- each step's state and motion ----------\n  // res: 'right', 'wrong', 'shown' or 'empty'; free: Dan has turned the motor himself (ma: its angle,\n  // md: how far it has turned in all); ba, bd: where the motion stood at Check.\n  const blank = () => ({ pick: null, res: null, why: false, tries: 0, hint: '', free: false, ma: 0, md: 0, ba: 0, bd: 0 });\n  const solved = (st) => !!st && (st.res === 'right' || st.res === 'shown');\n  function motion(i, st, T) {\n    const d = STEPS[i], sv = !d.show && solved(st);\n    if (st.free) return { al: st.ma, di: st.md, sv, free: true };\n    let o;\n    if (!sv) { o = Object.assign({}, d.open ? d.open(T) : {}); if (o.al == null) o.al = 0; o.di = Math.abs(o.al); }\n    else { const r = d.run ? d.run(T) : {}, ra = r.al || 0; o = Object.assign({}, r, { al: (st.ba || 0) + ra, di: (st.bd || 0) + Math.abs(ra) }); }\n    o.sv = sv;\n    return o;\n  }\n  const fade = (mo, k) => (mo.free || mo[k] == null ? 1 : mo[k]);\n\n  // ---------- drawing ----------\n  const el = (id) => document.getElementById(id);\n  const svg = el('scene'), art = el('art'), ui = el('ui'), bars = el('bars');\n  let EXT = [0, 0], REC = null, into = null, LAST = null;\n  const add = (node) => (into || art).appendChild(node);\n  const ext = (a, b) => { if (a < EXT[0]) EXT[0] = a; if (b > EXT[1]) EXT[1] = b; };\n  function part(a, rise, draw) { if (a <= 0) return; const g = add(K.svg('g')); K.fade(g, a, rise); const keep = into; into = g; draw(); into = keep; }\n  // Text; without an anchor it is kept inside the board's edges.\n  function txt(x, y, s, cls, anchor) {\n    if (!anchor) { const w = String(s).length * 7.6; x = Math.min(Math.max(x, 4 + w / 2), 336 - w / 2); }\n    add(K.svg('text', { class: cls, x: r2(x), y: r2(y), 'text-anchor': anchor || 'middle' }, String(s)));\n    ext(y - 13, y + 4);\n    REC.texts.push(String(s));\n  }\n  const pt = (q, a) => r2(q * Math.cos(a)) + ' ' + r2(q * Math.sin(a));\n  const PATHS = {};\n  // A gear's outline round its centre, tooth 0 pointing along angle 0, and that tooth alone (the marked tooth).\n  function paths(T, m) {\n    const key = T + '/' + m;\n    if (PATHS[key]) return PATHS[key];\n    const r = m * T / 2, ro = r + m, rr = r - 1.25 * m, p = TAU / T, aR = 0.28 * p, aT = 0.12 * p;\n    let d = 'M' + pt(rr, -aR);\n    for (let k = 0; k < T; k++) {\n      const c = k * p;\n      d += ' L' + pt(ro, c - aT) + ' L' + pt(ro, c + aT) + ' L' + pt(rr, c + aR) + ' A' + r2(rr) + ' ' + r2(rr) + ' 0 0 1 ' + pt(rr, c + p - aR);\n    }\n    return (PATHS[key] = { body: d + 'Z', mark: 'M' + pt(rr - 0.2 * m, -aR) + ' L' + pt(ro, -aT) + ' L' + pt(ro, aT) + ' L' + pt(rr - 0.2 * m, aR) + 'Z' });\n  }\n  function gearBody(g, th, cls) {\n    const P = paths(g.T, g.m), Gp = add(K.svg('g', { transform: 'translate(' + r2(g.x) + ' ' + r2(g.y) + ') rotate(' + r2(th * 180 / Math.PI) + ')' }));\n    Gp.appendChild(K.svg('path', { class: cls, d: P.body }));\n    Gp.appendChild(K.svg('path', { class: 'mark', d: P.mark }));\n    ext(g.y - rO(g), g.y + rO(g));\n    REC.gears++;\n  }\n  const tri = (x, y, s) => 'M' + r2(x - 5) + ' ' + r2(y) + ' L' + r2(x + 5) + ' ' + r2(y) + ' L' + r2(x) + ' ' + r2(y + 6 * s) + 'Z';\n  // A gear's tooth count on a small tag; on screen 4 the tag is a handle with arrows to drag.\n  function countAt(B, k) {\n    const g = B.gears[k], c = B.cnt[k], s = String(g.T), w = s.length * 9 + 14;\n    // A gear too small for the tag carries its count on its face in smaller type, so its teeth and meshes stay in view.\n    if (!B.drag && c.x === g.x && c.y === g.y && w / 2 + 2 > rR(g)) { txt(c.x, c.y + 4.5, s, 'cnt sm', 'middle'); return; }\n    add(K.svg('rect', { class: B.drag ? 'chip' : 'pill', x: r2(c.x - w / 2), y: r2(c.y - 11), width: w, height: 22, rx: 11 }));\n    if (B.drag) {\n      add(K.svg('path', { class: 'chev', d: tri(c.x, c.y - 15, -1) }));\n      add(K.svg('path', { class: 'chev', d: tri(c.x, c.y + 15, 1) }));\n      ext(c.y - 22, c.y + 22);\n    }\n    txt(c.x, c.y + 5, s, 'cnt', 'middle');\n  }\n  // The way a gear turns: an arc just outside its teeth, its head leading.\n  function arrow(g, sideDeg, s) {\n    const ra = rO(g) + 5, a0 = sideDeg * Math.PI / 180, sp = Math.min(0.55, 24 / ra), hl = 7 / ra;\n    const a1 = a0 - s * sp, a2 = a0 + s * sp, ae = a2 - s * hl;\n    const P = (a, q) => [g.x + q * Math.cos(a), g.y + q * Math.sin(a)];\n    const p1 = P(a1, ra), pe = P(ae, ra), tip = P(a2, ra), b1 = P(ae, ra - 4.5), b2 = P(ae, ra + 4.5), top = P(a0, ra);\n    add(K.svg('path', { class: 'dir', d: 'M' + r2(p1[0]) + ' ' + r2(p1[1]) + ' A' + r2(ra) + ' ' + r2(ra) + ' 0 0 ' + (s > 0 ? 1 : 0) + ' ' + r2(pe[0]) + ' ' + r2(pe[1]) }));\n    add(K.svg('path', { class: 'head', d: 'M' + r2(tip[0]) + ' ' + r2(tip[1]) + ' L' + r2(b1[0]) + ' ' + r2(b1[1]) + ' L' + r2(b2[0]) + ' ' + r2(b2[1]) + 'Z' }));\n    const ys = [p1[1], tip[1], b1[1], b2[1], top[1]];\n    ext(Math.min.apply(null, ys) - 2, Math.max.apply(null, ys) + 2);\n    REC.arrows.push(s);\n  }\n  // A wheel still to be found: a dashed space where it goes.\n  function placeholder(B, k) {\n    const g = B.gears[k], f = B.front[g.s], up = !!f && f.b === k, h = up ? 92 : 64;\n    add(K.svg('rect', { class: 'hole', x: r2(g.x - 48), y: r2(g.y - h / 2), width: 96, height: h, rx: 10 }));\n    ext(g.y - h / 2, g.y + h / 2);\n    txt(g.x, up ? g.y - rO(B.gears[f.f]) - 10 : g.y + 5, '?' + NB + 'teeth', 'lab', 'middle');\n    REC.holes++;\n  }\n  function crankAt(B, th0) {\n    const g = B.gears[0], a = th0 + Math.PI / 4, q = rR(g) * 0.68, x = g.x + q * Math.cos(a), y = g.y + q * Math.sin(a);\n    add(K.svg('line', { class: 'arm', x1: r2(g.x + 13 * Math.cos(a)), y1: r2(g.y + 13 * Math.sin(a)), x2: r2(x), y2: r2(y) }));\n    add(K.svg('circle', { class: 'knob', cx: r2(x), cy: r2(y), r: 8 }));\n    countAt(B, 0);\n  }\n  // The winch drum on the output shaft, its cable and the load, which rises as the cable winds on.\n  function drumAt(B, th, al) {\n    const D = B.drum, L = B.gears[B.last], lift = D.lift(al), a = th[B.last];\n    add(K.svg('circle', { class: 'drum', cx: r2(L.x), cy: r2(L.y), r: D.rd }));\n    add(K.svg('circle', { class: 'knob', cx: r2(L.x + 0.62 * D.rd * Math.cos(a)), cy: r2(L.y + 0.62 * D.rd * Math.sin(a)), r: 3 }));\n    add(K.svg('circle', { class: 'peg', cx: r2(L.x), cy: r2(L.y), r: 3 }));\n    const top = D.top0 - lift, x = D.cx;\n    add(K.svg('line', { class: 'cable', x1: r2(x), y1: r2(L.y), x2: r2(x), y2: r2(top) }));\n    add(K.svg('rect', { class: 'load', x: r2(x - 19), y: r2(top), width: 38, height: 24, rx: 3 }));\n    txt(x, top + 17, 'load', 'lab', 'middle');\n    if (D.rad) {\n      const c = Math.SQRT1_2, ex = L.x + D.rd * c, ey = L.y - D.rd * c;\n      add(K.svg('line', { class: 'dim', x1: r2(L.x), y1: r2(L.y), x2: r2(ex), y2: r2(ey) }));\n      add(K.svg('line', { class: 'dim', x1: r2(ex - 4 * c), y1: r2(ey - 4 * c), x2: r2(ex + 4 * c), y2: r2(ey + 4 * c) }));\n      txt(ex + 6, ey - 4, D.rad, 'lab', 'start');\n    }\n    if (D.pull) {\n      const b = top + 24;\n      add(K.svg('line', { class: 'dim', x1: r2(x), y1: r2(b + 3), x2: r2(x), y2: r2(b + 16) }));\n      add(K.svg('path', { class: 'head', d: 'M' + r2(x - 5) + ' ' + r2(b + 15) + ' L' + r2(x + 5) + ' ' + r2(b + 15) + ' L' + r2(x) + ' ' + r2(b + 24) + 'Z' }));\n      txt(x - 9, b + 19, D.pull, 'lab', 'end');\n    }\n    ext(D.top0 - D.lift(D.lim[1]) - 2, D.top0 - D.lift(D.lim[0]) + 24 + (D.pull ? 28 : 4));\n    REC.lift = lift;\n  }\n  function drawTrain(B, d, st, mo, said) {\n    const G = B.gears, sv = mo.sv, al = mo.al, th = G.map((g, k) => B.base[k] + B.ratio[k] * al);\n    const hv = d.hide ? (sv ? fade(mo, 'gear') : 0) : 1;\n    const vis = G.map((g, k) => (B.hidden.indexOf(k) >= 0 ? hv : 1));\n    const sel = d.kind === 'tap' && st.pick != null ? d.gears[d.opts.indexOf(st.pick)] : -1;\n    if (B.motor) {\n      const g = G[0];\n      add(K.svg('circle', { class: 'can', cx: r2(g.x), cy: r2(g.y), r: r2(rO(g) + 9) }));\n      ext(g.y - rO(g) - 9, g.y + rO(g) + 9);\n      txt(B.cap.x, B.cap.y, 'motor', 'cap', 'middle');\n    }\n    B.order.forEach((k) => {\n      if (vis[k] <= 0) return;\n      part(vis[k], 0, () => {\n        gearBody(G[k], th[k], 'gear' + (B.back[k] ? ' back' : '') + (k === sel ? ' sel' : ''));\n        if (!(B.crank && k === 0)) countAt(B, k);\n      });\n    });\n    if (hv < 1) part(1 - hv, 0, () => B.hidden.forEach((k) => placeholder(B, k)));\n    if (B.crank) crankAt(B, th[0]);\n    if (B.drum) drumAt(B, th, al);\n    const shown = [];\n    G.forEach((g, k) => {\n      if (B.side[k] == null || vis[k] < 0.5) return;\n      const a = k === 0 || !d.hideDir ? 1 : d.hideDir === 'always' ? 0 : sv ? fade(mo, 'arr') : 0;\n      shown[k] = a >= 0.5;\n      if (a > 0) part(a, 0, () => arrow(g, B.side[k], Math.sign(B.ratio[k])));\n    });\n    if (d.cnt) G.forEach((g, k) => {\n      const n = Math.floor(mo.di * Math.abs(B.ratio[k]) / TAU + 1e-7), t = B.tag[k];\n      if ([].concat(d.hideCnt).indexOf(k) >= 0) {\n        const q = sv ? fade(mo, 'q') : 0;\n        if (q < 0.5) part(1 - 2 * q, 0, () => txt(t.x, t.y, '?' + NB + 'turns', 'lab'));\n        else part(2 * q - 1, 0, () => txt(t.x, t.y, turnsText(n), 'lab'));\n        REC.turns.push(q < 0.5 ? '?' + NB + 'turns' : turnsText(n));\n      } else { txt(t.x, t.y, turnsText(n), 'lab'); REC.turns.push(turnsText(n)); }\n    });\n    // in words\n    const dirW = (k) => (shown[k] ? (B.ratio[k] > 0 ? ' clockwise' : ' anticlockwise') : '');\n    const gw = (k) => (vis[k] >= 0.5 ? 'a ' + G[k].T + '-tooth gear' : 'a wheel of ? teeth');\n    said.push((B.crank ? 'A crank turns ' : 'A motor turns ') + gw(0) + dirW(0) + '.');\n    for (let s = 1; s < B.n; s++) {\n      const a = B.inn[s], b = B.out[s];\n      said.push('That drives ' + gw(a) + dirW(a) + (b !== a ? ', and ' + gw(b) + ' fixed to the same shaft turns with it' : '') + '.');\n    }\n    if (B.drum) said.push('The last shaft carries a winch drum' + (B.drum.rad ? ' of ' + B.drum.rad.replace(NB, ' ') + ' radius' : '') + ', and its cable holds a load' + (B.drum.pull ? ' pulling with ' + B.drum.pull.replace(NB, ' ') : '') + '.');\n    if (d.cnt && B.names) said.push('The counters read: ' + G.map((g, k) => B.names[k] + ' ' + REC.turns[k].replace(/ /g, ' ')).join(', ') + '.');\n    if (sel >= 0) said.push('Picked: ' + st.pick.toLowerCase() + '.');\n  }\n  // Screen 9: a motor, an ideal 40 : 1 train in its box and a winch drum, seen from the side.\n  function drawBox(mo, said) {\n    const rd = 26, lift = rd * mo.al / W9.ratio, x = 234, top = 60 - lift;\n    add(K.svg('line', { class: 'shaft', x1: 60, y1: 0, x2: 90, y2: 0 }));\n    add(K.svg('line', { class: 'shaft', x1: 190, y1: 0, x2: 264, y2: 0 }));\n    add(K.svg('rect', { class: 'box', x: 8, y: -26, width: 56, height: 52, rx: 8 }));\n    txt(36, 5, 'motor', 'lab', 'middle');\n    add(K.svg('rect', { class: 'box', x: 86, y: -32, width: 104, height: 64, rx: 8 }));\n    txt(138, -6, 'ideal train', 'lab', 'middle');\n    txt(138, 16, ratioText(W9.ratio), 'lab', 'middle');\n    add(K.svg('rect', { class: 'drum', x: 210, y: -rd, width: 48, height: 2 * rd, rx: 4 }));\n    add(K.svg('line', { class: 'cable', x1: x, y1: rd, x2: x, y2: r2(top) }));\n    add(K.svg('rect', { class: 'load', x: x - 19, y: r2(top), width: 38, height: 24, rx: 3 }));\n    txt(x, top + 17, 'load', 'lab', 'middle');\n    const b = top + 24;\n    add(K.svg('line', { class: 'dim', x1: x, y1: r2(b + 3), x2: x, y2: r2(b + 16) }));\n    add(K.svg('path', { class: 'head', d: 'M' + (x - 5) + ' ' + r2(b + 15) + ' L' + (x + 5) + ' ' + r2(b + 15) + ' L' + x + ' ' + r2(b + 24) + 'Z' }));\n    txt(x - 9, b + 19, W9.kN + NB + 'kN', 'lab', 'end');\n    add(K.svg('line', { class: 'dim', x1: 270, y1: 0, x2: 270, y2: -rd }));\n    add(K.svg('line', { class: 'dim', x1: 266, y1: 0, x2: 274, y2: 0 }));\n    add(K.svg('line', { class: 'dim', x1: 266, y1: -rd, x2: 274, y2: -rd }));\n    txt(278, -8, W9.r + NB + 'm', 'lab', 'start');\n    ext(-32, 60 + 24 + 28);\n    ext(60 - rd * 0.1 * TAU - 2, 60);\n    REC.lift = lift;\n    said.push('A motor drives an ideal ' + W9.ratio + ' : 1 train. The train turns a winch drum of ' + W9.r + ' m radius. A load hangs from its cable and pulls with ' + W9.kN + ' kN.');\n  }\n  // The whole picture for step i in state st, T seconds into its motion; returns it in words.\n  function scene(i, st, T) {\n    const d = STEPS[i], B = board(i), mo = motion(i, st, T), said = [];\n    REC = { texts: [], turns: [], arrows: [], gears: 0, holes: 0, lift: 0 };\n    EXT = [Infinity, -Infinity];\n    art.textContent = ''; into = null;\n    if (B.box) drawBox(mo, said); else drawTrain(B, d, st, mo, said);\n    LAST = mo;\n    return said.join(' ');\n  }\n  // Each step's board height, from everything it ever shows (before and after its answer).\n  const VB = {};\n  function vbOf(i) {\n    const B = board(i);\n    if (B.vb) return B.vb;\n    if (VB[i]) return VB[i];\n    let lo = Infinity, hi = -Infinity;\n    [blank(), Object.assign(blank(), { res: 'right' })].forEach((st) => { scene(i, st, Infinity); lo = Math.min(lo, EXT[0]); hi = Math.max(hi, EXT[1]); });\n    lo = Math.floor(lo - 6); hi = Math.ceil(hi + 6);\n    return (VB[i] = [lo, hi - lo]);\n  }\n\n  // ---------- readout tiles and the bars ----------\n  const TILES = [0, 1, 2].map(() => {\n    const lab = K.el('span', { class: 'k-label' }), val = K.el('b'), t = K.el('div', { class: 'tile' }, lab, val);\n    el('tiles').appendChild(t);\n    return { el: t, lab, val };\n  });\n  function tilesOf(i, st) {\n    const d = STEPS[i], sv = solved(st), B = board(i);\n    if (d.tiles === 'ratio') { const r = B.stageR; return [['First stage', ratioText(r[0])], ['Second stage', ratioText(r[1])], ['Overall', ratioText(r[0] * r[1])]]; }\n    if (d.tiles === 'speed') { const v = B.shafts.map((s) => d.rpm * s.sp); return [['Motor', rpmText(v[0])], ['Middle shaft', sv ? rpmText(v[1]) : '?'], ['Output wheel', sv ? rpmText(v[2]) : '?' + NB + 'rev/min']]; }\n    if (d.tiles === 'speed3') { const v = B.shafts.map((s) => d.rpm * s.sp); return [['Motor', rpmText(v[0])], ['Output', sv ? rpmText(v[v.length - 1]) : '?' + NB + 'rev/min']]; }\n    if (d.tiles === 'torque') {\n      const box = !!B.box, dt = drumTorque(box ? W9 : W8), mt = dt / (box ? W9.ratio : B.shafts[B.shafts.length - 1].tq), hide = d.kind === 'typed' && !sv;\n      return [['Torque at the drum', hide ? '?' : nmText(dt)], ['Torque at the motor', hide ? '?' + NB + 'N' + NB + 'm' : nmText(mt)]];\n    }\n    return [];\n  }\n  function paintTiles(i, mo) {\n    const list = !finished && STEPS[i].tiles ? tilesOf(i, S[i]) : [];\n    el('tiles').hidden = !list.length;\n    TILES.forEach((t, k) => {\n      const v = list[k];\n      t.el.hidden = !v;\n      if (!v) return;\n      t.lab.textContent = v[0]; t.val.textContent = v[1];\n      K.fade(t.el, fade(mo, 't' + k), 4);\n    });\n  }\n  const BARKEY = [['Speed', 'cat1'], ['Torque', 'cat2'], ['Power', 'cat3']];\n  function paintBars(i, mo) {\n    const d = STEPS[i];\n    // the bars sit in a div: .hidden does nothing on an <svg>\n    const off = !d.bars || finished;\n    el(\"barbox\").hidden = off;\n    if (off) return;\n    const B = board(i), sh = B.shafts, val = [sh.map((s) => s.sp), sh.map((s) => s.tq), sh.map((s) => s.sp * s.tq)];\n    const mx = val.map((v) => Math.max.apply(null, v));\n    bars.textContent = '';\n    const put = (tag, a, text) => { const n = bars.appendChild(K.svg(tag, a)); if (text) n.textContent = text; return n; };\n    BARKEY.forEach((q, j) => {\n      const x = 46 + j * 98;\n      put('rect', { x, y: 6, width: 12, height: 12, rx: 2, style: 'fill:var(--k-' + q[1] + ')' });\n      put('text', { class: 'lab', x: x + 18, y: 17 }, q[0]);\n    });\n    sh.forEach((s, c) => {\n      const a = fade(mo, 'b' + c);\n      val.forEach((v, j) => {\n        const h = Math.max(0, 62 * (v[c] / mx[j]) * a);\n        put('rect', { x: r2(s.x + (j - 1) * 14 - 5.5), y: r2(104 - h), width: 11, height: r2(h), style: 'fill:var(--k-' + BARKEY[j][1] + ')' });\n      });\n      put('line', { class: 'base', x1: r2(s.x - 24), y1: 104, x2: r2(s.x + 24), y2: 104 });\n      put('text', { class: 'cap', x: r2(s.x), y: 121, 'text-anchor': 'middle' }, ['motor', 'middle', 'drum'][c]);\n    });\n    const end = sh[sh.length - 1];\n    bars.setAttribute('aria-label', 'Speed, torque and power on the motor, middle and drum shafts. From the motor to the drum the speed bar falls ' +\n      num(1 / end.sp) + ' times and the torque bar grows ' + num(end.tq) + ' times. The power bars are all the same height.');\n  }\n\n  // ---------- state, motion and controls ----------\n  let S = STEPS.map(blank);\n  let T = Infinity, motionEnd = 0, lastStep = -1, finished = false, lastDone = false;\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n  const quiet = () => REDUCE || testing();\n  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const at = () => Math.round(stepper.get());\n  const hintFor = (d, st) => (d.hints && d.hints[st.pick]) || d.hint;\n\n  function paint(i) {\n    if (i == null) i = at();\n    const v = vbOf(i), words = scene(i, S[i], T);\n    svg.setAttribute('viewBox', '0 ' + r2(v[0]) + ' 340 ' + r2(v[1]));\n    svg.setAttribute('aria-label', words);\n    placeUI(i);\n    paintTiles(i, LAST);\n    paintBars(i, LAST);\n  }\n  const anim = K.anim({ button: false, label: 'Turning', step: (dt) => {\n    if (finished) return false;\n    T += dt;\n    paint();\n    return T < motionEnd;\n  } });\n  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });\n  function play(dur) {\n    if (quiet()) { T = Infinity; anim.pause(); paint(); return; }\n    motionEnd = dur; T = 0; anim.play();\n  }\n  // A right answer: the motion after it starts from wherever the picture stands now.\n  function startRun(i, before) {\n    const st = S[i], cur = motion(i, before, T);\n    st.ba = cur.al; st.bd = cur.di;\n    play(STEPS[i].rdur);\n  }\n  function enter(id) {\n    if (REDUCE) return;\n    const box = el(id);\n    box.classList.remove('enter'); void box.offsetWidth; box.classList.add('enter');\n  }\n  function goFree(i) {\n    const st = S[i];\n    if (st.free) return;\n    const cur = motion(i, st, T);\n    st.ma = cur.al; st.md = cur.di; st.free = true; anim.pause(); T = Infinity;\n  }\n\n  // Turning the motor by its rim (or with the arrow keys, a tooth at a time).\n  const canTurn = (i) => !finished && !STEPS[i].noTurn && (STEPS[i].show || solved(S[i])) && !board(i).box;\n  function turnBy(dA) {\n    const i = at(), st = S[i], B = board(i);\n    if (!canTurn(i) || !dA) return;\n    goFree(i);\n    let na = st.ma + dA;\n    if (B.drum) na = K.clamp(na, B.drum.lim[0], B.drum.lim[1]);\n    st.md += Math.abs(na - st.ma); st.ma = na;\n    paint();\n  }\n  function bindGrab(c) {\n    let held = null, last = 0;\n    const angleAt = (e) => {\n      const ctm = svg.getScreenCTM();\n      if (!ctm) return null;\n      const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse()), g = board(at()).gears[0];\n      if (!g) return null;\n      const dx = q.x - g.x, dy = q.y - g.y;\n      return Math.hypot(dx, dy) < 6 ? null : Math.atan2(dy, dx);\n    };\n    c.addEventListener('pointerdown', (e) => {\n      if (!canTurn(at())) return;\n      const a = angleAt(e);\n      if (a == null) return;\n      held = e.pointerId; last = a;\n      try { c.setPointerCapture(e.pointerId); } catch (err) { /* the turn still follows the pointer over the gear */ }\n      e.preventDefault();\n    });\n    c.addEventListener('pointermove', (e) => {\n      if (held !== e.pointerId) return;\n      const a = angleAt(e);\n      if (a == null) return;\n      const dA = sym(a - last, TAU);\n      last = a;\n      turnBy(dA);\n    });\n    const up = (e) => { if (held === e.pointerId) held = null; };\n    c.addEventListener('pointerup', up);\n    c.addEventListener('pointercancel', up);\n    c.addEventListener('lostpointercapture', () => { held = null; });\n    c.addEventListener('keydown', (e) => {\n      const by = { ArrowRight: 1, ArrowUp: 1, ArrowLeft: -1, ArrowDown: -1 }[e.key];\n      if (!by) return;\n      e.preventDefault();\n      const g = board(at()).gears[0];\n      if (g) turnBy(by * TAU / g.T);\n    });\n  }\n  // Dragging a tooth count up or down on screen 4 (or the arrow keys, a tooth at a time).\n  function setTeeth(k, n) {\n    n = Math.round(K.clamp(n, 10, 60));\n    if (TT[k] === n || !board(at()).drag) return;\n    goFree(at());\n    TT[k] = n;\n    paint();\n  }\n  function bindChip(c) {\n    let held = null, y0 = 0, t0 = 0;\n    const k = () => +c.dataset.k;\n    c.addEventListener('pointerdown', (e) => {\n      if (!board(at()).drag) return;\n      held = e.pointerId; y0 = e.clientY; t0 = TT[k()];\n      try { c.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows the pointer over the tag */ }\n      e.preventDefault();\n    });\n    c.addEventListener('pointermove', (e) => { if (held === e.pointerId) setTeeth(k(), t0 + Math.round((y0 - e.clientY) / 7)); });\n    const up = (e) => { if (held === e.pointerId) held = null; };\n    c.addEventListener('pointerup', up);\n    c.addEventListener('pointercancel', up);\n    c.addEventListener('lostpointercapture', () => { held = null; });\n    c.addEventListener('keydown', (e) => {\n      const by = { ArrowUp: 1, ArrowRight: 1, ArrowDown: -1, ArrowLeft: -1 }[e.key];\n      if (!by) return;\n      e.preventDefault();\n      setTeeth(k(), TT[k()] + by);\n    });\n  }\n  const CHIPNAME = ['motor pinion', 'first wheel', 'second pinion', 'output wheel'];\n  let grab = null;\n  const chips = [];\n  function placeUI(i) {\n    const B = board(i), ok = canTurn(i);\n    if (!grab) { grab = ui.appendChild(K.svg('circle', { class: 'grab', tabindex: '0', 'aria-label': 'The motor pinion. Turn it by its rim, or with the arrow keys.' })); bindGrab(grab); }\n    grab.style.display = ok ? '' : 'none';\n    grab.setAttribute('tabindex', ok ? '0' : '-1');\n    if (ok) {\n      const g = B.gears[0];\n      grab.setAttribute('cx', r2(g.x)); grab.setAttribute('cy', r2(g.y)); grab.setAttribute('r', r2(Math.max(rO(g) + 6, 24)));\n      grab.setAttribute('aria-label', (B.crank ? 'The crank\\'s wheel' : 'The motor pinion') + '. Turn it by its rim, or with the arrow keys.');\n    }\n    const want = B.drag && !finished ? B.gears.length : 0;\n    while (chips.length < want) {\n      const c = ui.appendChild(K.svg('rect', { class: 'hit', tabindex: '0', width: 44, height: 44, rx: 8 }));\n      c.dataset.k = chips.length; bindChip(c); chips.push(c);\n    }\n    chips.forEach((c, k) => {\n      const on = k < want;\n      c.style.display = on ? '' : 'none';\n      c.setAttribute('tabindex', on ? '0' : '-1');\n      if (!on) return;\n      const p = B.cnt[k];\n      c.setAttribute('x', r2(p.x - 22)); c.setAttribute('y', r2(p.y - 22));\n      c.setAttribute('aria-label', 'Teeth on the ' + CHIPNAME[k] + ': ' + B.gears[k].T + '. Drag up or down, or use the arrow keys.');\n    });\n  }\n  // Tapping a gear on the picture picks it.\n  svg.addEventListener('click', (e) => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.kind !== 'tap' || solved(st)) return;\n    const ctm = svg.getScreenCTM();\n    if (!ctm) return;\n    const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse()), B = board(i);\n    let hit = -1;\n    for (let j = B.order.length - 1; j >= 0 && hit < 0; j--) { const k = B.order[j], g = B.gears[k]; if (Math.hypot(q.x - g.x, q.y - g.y) <= rO(g)) hit = k; }\n    const o = d.gears.indexOf(hit);\n    if (o < 0) return;\n    st.pick = d.opts[o]; st.res = null;\n    K.refresh();\n  });\n\n  // Answers: up to four choices; a typed field for each figure.\n  const pickBtns = [0, 1, 2, 3].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || (d.kind !== 'pick' && d.kind !== 'tap') || k >= d.opts.length || solved(st)) return;\n    st.pick = d.opts[k]; st.res = null;\n  } }));\n  const ANS = {};\n  STEPS.forEach((d, i) => {\n    if (d.kind !== 'typed') return;\n    el('answers').appendChild(K.el('div', { id: 'ans-' + d.ans }));\n    const a = K.answer({ id: 'a-' + d.ans, unit: d.unit, answer: d.answer, decimals: d.decimals, slips: d.slips, into: '#ans-' + d.ans,\n      onCheck: (r) => {\n        const st = S[i];\n        if (solved(st)) return;\n        const before = Object.assign({}, st, { res: null });\n        if (r.state === 'right') { st.res = 'right'; startRun(i, before); }\n        else if (r.state === 'wrong') {\n          st.tries += 1; st.hint = r.hint || d.hint;\n          if (st.tries >= 2) { st.res = 'shown'; st.why = true; a.reveal(); startRun(i, before); } else st.res = 'wrong';\n        } else { st.res = null; st.hint = ''; }\n        K.refresh();\n      } });\n    ANS[d.ans] = a;\n  });\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || solved(st)) return;\n    if (d.kind === 'typed') { ANS[d.ans].check(); return; }\n    if (st.pick == null) { st.res = 'empty'; return; }\n    const before = Object.assign({}, st, { res: null });\n    st.res = st.pick === d.want ? 'right' : 'wrong';\n    if (st.res === 'right') startRun(i, before);\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    const d = STEPS[at()], st = S[at()];\n    if (d.show || finished || (d.kind === 'typed' && !solved(st) && st.tries === 0)) return;\n    st.why = !st.why;\n  } });\n  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {\n    const d = STEPS[at()], st = S[at()];\n    if (!d.show || finished) return;\n    st.free = false; st.ma = 0; st.md = 0;\n    play(d.dur);\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && !solved(S[i]))) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true; anim.pause(); T = Infinity;\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S = STEPS.map(blank); finished = false; lastStep = -1; TT = [12, 36, 12, 36];\n    Object.keys(ANS).forEach((k) => ANS[k].reset());\n    stepper.set(0, true);\n  } });\n\n  // ---------- words (built with K.el, never innerHTML): *a key term*, `kept on one line` ----------\n  function write(node, s) {\n    node.textContent = '';\n    String(s || '').split('`').forEach((seg, k) => {\n      if (!seg) return;\n      if (k % 2) { node.appendChild(K.el('span', { class: 'nw' }, seg)); return; }\n      const re = /\\*([^*]+)\\*/g;\n      let from = 0, m;\n      while ((m = re.exec(seg))) {\n        if (m.index > from) node.appendChild(document.createTextNode(seg.slice(from, m.index)));\n        node.appendChild(K.el('span', { class: 'term' }, m[1]));\n        from = m.index + m[0].length;\n      }\n      if (from < seg.length) node.appendChild(document.createTextNode(seg.slice(from)));\n    });\n    return node;\n  }\n  write(el('finish'), FINISH);\n\n  K.update((p) => {\n    const i = Math.round(p.step), d = STEPS[i], st = S[i];\n    if (!anim.playing()) T = Infinity;\n    if (i !== lastStep) {\n      lastStep = i; enter('stepbox');\n      st.free = false; st.ma = 0; st.md = 0;\n      if (d.show) play(d.dur); else { anim.pause(); T = Infinity; }\n    }\n    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }\n    const sv = solved(st);\n    el('stepbox').hidden = finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    write(task, d.show ? d.text : d.task);\n    el('act').hidden = !d.act || (!d.show && sv);\n    write(el('act'), d.act || '');\n    paint(i);\n    replayBtn.el.hidden = !d.show || REDUCE;\n    el('replay').hidden = replayBtn.el.hidden;\n    const opts = d.kind === 'pick' || d.kind === 'tap' ? d.opts : [];\n    const picks = el('picks');\n    picks.hidden = !opts.length;\n    picks.classList.toggle('col', !!d.col);\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(opts[k]);\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n    STEPS.forEach((x, k) => { if (x.kind === 'typed') el('ans-' + x.ans).hidden = finished || k !== i; });\n    el('answers').hidden = d.kind !== 'typed';\n    el('acts').hidden = !!d.show;\n    checkBtn.el.hidden = sv;\n    const fb = el('fb');\n    fb.hidden = !!d.show;\n    fb.className = 'fb' + (st.res === 'right' ? ' right' : '');\n    write(fb, d.show ? '' : st.res === 'right' ? 'That\\'s it.' : st.res === 'shown' ? 'Here is the working.' :\n      st.res === 'wrong' ? (d.kind === 'typed' ? st.hint : hintFor(d, st)) : st.res === 'empty' ? (d.kind === 'tap' ? 'Tap a gear, or one of the names.' : 'Tap one of the answers.') : '');\n    const why = el('why');\n    why.hidden = !!d.show || !st.why;\n    write(why, d.show ? '' : d.why);\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n    whyBtn.el.hidden = d.kind === 'typed' && !sv && st.tries === 0;\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !sv);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const solvedSt = () => Object.assign(blank(), { res: 'right' });\n  const IX = (name) => STEPS.findIndex((d) => d.name === name);\n  const KEYS = ['two', 'twoD', 'speed', 'winch', 'split', 'equal', 'crank', 'three', 'drag'];\n  // A step drawn in the state given: what it shows.\n  function drawn(i, st, t) { try { scene(i, st, t); return REC; } finally { paint(); } }\n  const tl = (name, st) => tilesOf(IX(name), st).map((t) => t[1]).join();\n  const rt = (s) => s + NB + ':' + NB + '1';\n\n  K.check('As both gears are keyed onto one shaft, they revolve at the same velocity: on every train drawn the two gears on a middle shaft turn at one speed and the same way, and nine turns of the motor pinion read 9, 3, 3 and 1 turns', () => {\n    const same = KEYS.every((key) => { const B = boardOf(key); return B.pairs.length > 0 && B.pairs.every((q) => near(B.ratio[q[0]], B.ratio[q[1]])); });\n    return same && drawn(IX('One shaft, one speed'), blank(), Infinity).turns.join() === [9, 3, 3, 1].map(turnsText).join();\n  }, { source: NS });\n  K.check('To find a compound train\\'s total reduction, find each stage\\'s reduction and multiply them together: the speeds passed mesh by mesh give 9, 12, 50, 20, 36 and 30 overall, 1/12 for the crank train, and the tiles read 3 : 1, 3 : 1 and 9 : 1, then 4 : 1, 5 : 1 and 20 : 1', () => {\n    const ov = (key) => { const B = boardOf(key); return 1 / Math.abs(B.ratio[B.last]); };\n    const ok = [['two', 9], ['speed', 12], ['winch', 50], ['split', 20], ['equal', 36], ['three', 30], ['crank', 1 / 12]].every((q) => near(ov(q[0]), q[1]) && near(ov(q[0]), overall(TEETH[q[0]])));\n    return ok && tl('Ratios multiply', blank()) === ['3', '3', '9'].map(rt).join() && tl('Split the ratio', blank()) === ['4', '5', '20'].map(rt).join();\n  }, { source: REV });\n  K.check('At every mesh speed × teeth is the same on both gears and the direction flips, so two stages turn the output the motor\\'s way and three turn it anticlockwise; the fastest gear is the motor pinion on screen 1 and the 10-tooth pinion on screen 12', () => {\n    const mesh = KEYS.every((key) => { const B = boardOf(key); return B.stages.every((e) => near(Math.abs(B.ratio[e[0]]) * B.gears[e[0]].T, Math.abs(B.ratio[e[1]]) * B.gears[e[1]].T) && B.ratio[e[0]] * B.ratio[e[1]] < 0); });\n    const fast = (key) => { const B = boardOf(key); let k = 0; B.ratio.forEach((r, j) => { if (Math.abs(r) > Math.abs(B.ratio[k]) + 1e-9) k = j; }); return k; };\n    const a = STEPS[IX('The fastest gear')], b = STEPS[IX('Speeding up')], th = boardOf('three');\n    return mesh && boardOf('two').ratio[3] > 0 && th.ratio[th.last] < 0 && STEPS[IX('Which way')].want === 'Anticlockwise' &&\n      a.opts[a.gears.indexOf(fast('two'))] === a.want && b.opts[b.gears.indexOf(fast('crank'))] === b.want;\n  });\n  K.check('Each typed answer and slip is worked from the tooth counts: 2 turns (6, 3, 162), 120.8 rev/min (207.1, 483.3, 17400), 25 N m (1000, 40000, 0.025), 90 teeth (270, 540) and 80 rev/min (240, 72000)', () => {\n    const one = (name, ans, sl) => {\n      const d = STEPS[IX(name)], sp = { answer: d.answer, decimals: d.decimals, unit: d.unit, slips: d.slips };\n      return near(d.answer, ans) && d.slips.length === sl.length && K.answer.grade(d.want, sp).state === 'right' &&\n        d.slips.every((s, j) => near(s.value, sl[j]) && K.answer.grade(String(sl[j]), sp).state === 'wrong');\n    };\n    return one('Count the turns', 2, [6, 3, 162]) && one('The motor\\'s speed', 120.8, [207.1, 483.3, 17400]) && one('The motor\\'s torque', 25, [1000, 40000, 0.025]) &&\n      one('Two equal stages', 90, [270, 540]) && one('Three stages', 80, [240, 72000]);\n  });\n  K.check('An ideal train keeps the power, torque × speed, the same on every shaft: speed falls to a ninth as torque grows nine times; 5000 N × 0.2 m = 1000 N m at the drum is 20 N m at an ideal 50 : 1 motor, and 4000 N × 0.25 m through 40 : 1 is 25 N m', () => {\n    const sh = boardOf('twoD').shafts;\n    return sh.every((s) => near(s.sp * s.tq, 1)) && near(sh[2].sp, 1 / 9) && near(sh[2].tq, 9) && boardOf('winch').shafts.every((s) => near(s.sp * s.tq, 1)) &&\n      tl('The winch drum', blank()) === [nmText(1000), nmText(20)].join() && tl('The motor\\'s torque', solvedSt()) === [nmText(1000), nmText(25)].join();\n  });\n  K.check('Turning the motor forward winds the cable onto the drum and lifts the load: two motor turns lift it by the drum\\'s radius × two ninths of a turn', () => {\n    const D = boardOf('twoD').drum, a = drawn(IX('Speed for torque'), blank(), Infinity).lift;\n    return a > 0 && near(a, D.rd * 2 * TAU / 9) && near(D.cx, D.x - D.rd);\n  });\n  K.check('Before an answer nothing gives it away: the middle-shaft and output counters read \"? turns\", the output speeds and the motor\\'s torque read \"?\", the wheels hide behind \"? teeth\", and only the motor shows its way round; after it, each is shown', () => {\n    const u = (n) => drawn(IX(n), blank(), Infinity), s = (n) => drawn(IX(n), solvedSt(), Infinity);\n    const c0 = u('Count the turns'), c1 = drawn(IX('Count the turns'), Object.assign(solvedSt(), { ba: 18 * TAU, bd: 18 * TAU }), Infinity), e0 = u('Two equal stages'), e1 = s('Two equal stages');\n    const w0 = u('Which way'), w1 = s('Which way'), h1 = s('Three stages');\n    return [1, 2, 3].every((k) => c0.turns[k] === '?' + NB + 'turns') && c0.texts.indexOf(turnsText(2)) < 0 && c1.turns[3] === turnsText(2) && c1.turns[1] === turnsText(6) &&\n      tl('The motor\\'s speed', blank()).split(',')[2].indexOf('?') === 0 && tl('The motor\\'s speed', solvedSt()).split(',')[2] === rpmText(1450 / 12) &&\n      tl('The motor\\'s torque', blank()).split(',')[1].indexOf('?') === 0 && tl('Three stages', blank()).split(',')[1].indexOf('?') === 0 && tl('Three stages', solvedSt()).split(',')[1] === rpmText(80) &&\n      e0.holes === 2 && e0.texts.indexOf('90') < 0 && e1.holes === 0 && e1.texts.indexOf('90') >= 0 &&\n      w0.arrows.length === 1 && w1.arrows.length > 1 && h1.arrows.length === 1;\n  });\n  K.check('Every mesh is drawn with its gears touching at their pitch circles and tooth in gap, gears on one shaft share a centre, and no two gears in one layer overlap unless they mesh', () =>\n    KEYS.every((key) => {\n      const B = boardOf(key), G = B.gears;\n      const pitch = B.stages.every((e) => Math.abs(Math.hypot(G[e[0]].x - G[e[1]].x, G[e[0]].y - G[e[1]].y) - rP(G[e[0]]) - rP(G[e[1]])) < 1e-6 && Math.abs(B.miss(e)) < 1e-6);\n      const keyed = B.pairs.every((q) => near(G[q[0]].x, G[q[1]].x) && near(G[q[0]].y, G[q[1]].y));\n      const meshed = (a, b) => B.stages.some((e) => (e[0] === a && e[1] === b) || (e[0] === b && e[1] === a));\n      const apart = G.every((g, a) => G.every((h, b) => b <= a || g.s === h.s || B.layer(a) !== B.layer(b) || meshed(a, b) || Math.hypot(g.x - h.x, g.y - h.y) > rO(g) + rO(h) + 1));\n      return pitch && keyed && apart;\n    }));\n  K.check('Dragged tooth counts set the ratios: 10 into 60 twice reads 6 : 1, 6 : 1 and 36 : 1, and 60 into 10 twice speeds up, reading 0.17 : 1, 0.17 : 1 and 0.03 : 1', () => {\n    const keep = TT.slice();\n    try {\n      TT = [10, 60, 10, 60]; const a = tl('Ratios multiply', blank());\n      TT = [60, 10, 60, 10]; const b = tl('Ratios multiply', blank());\n      return a === ['6', '6', '36'].map(rt).join() && b === ['0.17', '0.17', '0.03'].map(rt).join();\n    } finally { TT = keep; paint(); }\n  });\n  K.check('Every demonstration is over within 5 s of its screen opening and nothing moves during the 0.35 s screen fade; every answer\\'s motion is over within 2.5 s', () => {\n    const J = (i, st, t) => JSON.stringify(motion(i, st, t), (k, v) => (typeof v === 'number' ? Math.round(v * 1e6) / 1e6 : v));\n    return STEPS.every((d, i) => {\n      const b = blank(), r = solvedSt();\n      const open = !d.show ? true : d.dur >= 3 && d.dur <= 5 && J(i, b, d.dur) === J(i, b, Infinity) && J(i, b, 0.35) === J(i, b, 0);\n      const run = d.show ? true : d.rdur <= 2.5 && J(i, r, d.rdur) === J(i, r, Infinity);\n      return open && run;\n    });\n  });\n\n  K.ready();\n</script>",
+  "title": "The two-stage train",
+  "brief": "The one thing you should see is the middle shaft's two gears counting the same turns, so the second stage divides a speed already slowed, when you turn the motor.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "As both gears are keyed onto one shaft, they revolve at the same velocity: on every train drawn the two gears on a middle shaft turn at one speed and the same way, and nine turns of the motor pinion read 9, 3, 3 and 1 turns",
+     "ok": true,
+     "source": "https://www.notesandsketches.co.uk/Gears.html"
+    },
+    {
+     "label": "To find a compound train's total reduction, find each stage's reduction and multiply them together: the speeds passed mesh by mesh give 9, 12, 50, 20, 36 and 30 overall, 1/12 for the crank train, and the tiles read 3 : 1, 3 : 1 and 9 : 1, then 4 : 1, 5 : 1 and 20 : 1",
+     "ok": true,
+     "source": "https://docs.revrobotics.com/ion-build/motion/gears/advanced-gears"
+    },
+    {
+     "label": "At every mesh speed × teeth is the same on both gears and the direction flips, so two stages turn the output the motor's way and three turn it anticlockwise; the fastest gear is the motor pinion on screen 1 and the 10-tooth pinion on screen 12",
+     "ok": true
+    },
+    {
+     "label": "Each typed answer and slip is worked from the tooth counts: 2 turns (6, 3, 162), 120.8 rev/min (207.1, 483.3, 17400), 25 N m (1000, 40000, 0.025), 90 teeth (270, 540) and 80 rev/min (240, 72000)",
+     "ok": true
+    },
+    {
+     "label": "An ideal train keeps the power, torque × speed, the same on every shaft: speed falls to a ninth as torque grows nine times; 5000 N × 0.2 m = 1000 N m at the drum is 20 N m at an ideal 50 : 1 motor, and 4000 N × 0.25 m through 40 : 1 is 25 N m",
+     "ok": true
+    },
+    {
+     "label": "Turning the motor forward winds the cable onto the drum and lifts the load: two motor turns lift it by the drum's radius × two ninths of a turn",
+     "ok": true
+    },
+    {
+     "label": "Before an answer nothing gives it away: the middle-shaft and output counters read \"? turns\", the output speeds and the motor's torque read \"?\", the wheels hide behind \"? teeth\", and only the motor shows its way round; after it, each is shown",
+     "ok": true
+    },
+    {
+     "label": "Every mesh is drawn with its gears touching at their pitch circles and tooth in gap, gears on one shaft share a centre, and no two gears in one layer overlap unless they mesh",
+     "ok": true
+    },
+    {
+     "label": "Dragged tooth counts set the ratios: 10 into 60 twice reads 6 : 1, 6 : 1 and 36 : 1, and 60 into 10 twice speeds up, reading 0.17 : 1, 0.17 : 1 and 0.03 : 1",
+     "ok": true
+    },
+    {
+     "label": "Every demonstration is over within 5 s of its screen opening and nothing moves during the 0.35 s screen fade; every answer's motion is over within 2.5 s",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step"
+   ],
+   "readouts": [],
+   "outputs": [],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Step",
+     "min": 0,
+     "max": 13,
+     "step": 1,
+     "steps": [
+      "The fastest gear",
+      "One shaft, one speed",
+      "Count the turns",
+      "Ratios multiply",
+      "The motor's speed",
+      "Speed for torque",
+      "Faster and stronger",
+      "The winch drum",
+      "The motor's torque",
+      "Split the ratio",
+      "Two equal stages",
+      "Speeding up",
+      "Three stages",
+      "Which way"
+     ],
+     "value": 0
+    }
+   ],
+   "actions": [
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Answer 4",
+    "Check",
+    "Why?",
+    "Play again",
+    "Back",
+    "Continue",
+    "Start again",
+    "Turning"
+   ],
+   "answers": [
+    {
+     "id": "a-cnt",
+     "answer": 2,
+     "accept": [],
+     "ok": true
+    },
+    {
+     "id": "a-spd",
+     "answer": 120.8,
+     "accept": [],
+     "ok": true
+    },
+    {
+     "id": "a-trq",
+     "answer": 25,
+     "accept": [],
+     "ok": true
+    },
+    {
+     "id": "a-tth",
+     "answer": 90,
+     "accept": [],
+     "ok": true
+    },
+    {
+     "id": "a-thr",
+     "answer": 80,
+     "accept": [],
+     "ok": true
+    }
+   ],
+   "written": [],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 2
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-11-03T04:17:24.586Z",
+  "applied": [
+   {
+    "path": "explain.text",
+    "problem": "\"Sits on the same shaft\" does not make two gears turn together (gears can run free on a shaft); \"work out equals work in\" holds only at steady speed, not while the gears speed up; the direction flip holds for outside teeth on side-by-side shafts, not bevel or worm meshes."
+   },
+   {
+    "path": "practice.text",
+    "problem": "\"Gears on one shaft turn the same way\" fails for gears running free on a shaft, as in many gearboxes; only gears fixed to it do. \"Each mesh flips it\" holds for outside teeth on side-by-side shafts, not for bevel or worm meshes."
+   },
+   {
+    "path": "interactive.whatAmILookingAt",
+    "problem": "Screen 7 hint: an idler does not pass on the speed unchanged in rev/min (it turns at its own speed set by its teeth); what it leaves unchanged is the ratio between the gears either side of it."
+   }
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}

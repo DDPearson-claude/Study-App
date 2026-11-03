@@ -1,0 +1,1025 @@
+<!-- kind: quantity -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead { max-width: 34rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.08rem; font-weight: 400; line-height: 1.6; }
+  #stepbox > .act { margin-top: 6px; font-weight: 600; color: var(--k-muted); }
+  .nw { white-space: nowrap; }
+  .scene { display: block; width: 100%; max-width: 26rem; margin-inline: auto; touch-action: pan-y; }
+  .scene .cloth { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 5; }
+  .scene .ground, .scene .rail { stroke: var(--k-strong); stroke-width: 3; }
+  .scene .body { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.6; }
+  .scene .ball0, .scene .mini0 { fill: #F7F5F0; stroke: #5B6573; stroke-width: 1.6; }
+  .scene .ball1, .scene .mini1 { fill: var(--k-cat1); stroke: var(--k-ink); stroke-width: 1.6; }
+  .scene .body2, .scene .mini2 { fill: var(--k-fill3); stroke: var(--k-ink); stroke-width: 1.6; }
+  .scene .mini0, .scene .mini1, .scene .mini2 { stroke-width: 1.2; }
+  .scene .wheel { fill: var(--k-strong); }
+  .scene .stick { stroke: var(--k-muted); stroke-width: 5; stroke-linecap: round; }
+  .scene .ghost { fill: none; stroke: var(--k-accent2); stroke-width: 1.5; stroke-dasharray: 3 3; }
+  .scene .aimline { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 4 4; }
+  .scene .ref { stroke: var(--k-muted); stroke-width: 1.2; stroke-dasharray: 5 4; fill: none; }
+  .scene .arc { stroke: var(--k-ink); stroke-width: 1.3; fill: none; }
+  .scene .link { stroke: var(--k-muted); stroke-width: 1.2; stroke-dasharray: 2 2; }
+  .scene .leg { stroke: var(--k-accent2); stroke-width: 1.6; stroke-dasharray: 4 3; }
+  .scene .mo line { stroke: var(--k-accent2); stroke-width: 3; }
+  .scene .mo path { fill: var(--k-accent2); }
+  .scene .tot line { stroke: var(--k-amber-line); stroke-width: 4; }
+  .scene .tot path, .scene .zdot { fill: var(--k-amber-line); }
+  .scene .bad line { stroke: var(--k-warn); stroke-width: 4; }
+  .scene .bad path { fill: var(--k-warn); }
+  .scene .push line { stroke: var(--k-ink); stroke-width: 2.2; }
+  .scene .push path { fill: var(--k-ink); }
+  .scene .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .badt { font: 600 13px var(--k-font); fill: var(--k-warn); }
+  .scene .cap { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .wl { font: 700 13px var(--k-font); fill: var(--k-ink); }
+  .scene #art * { pointer-events: none; }
+  .scene .hit { fill: transparent; stroke: none; cursor: grab; touch-action: none; }
+  .scene .hit:focus { outline: none; }
+  .scene .hit:focus-visible { stroke: var(--k-accent); stroke-width: 2.5; }
+  .facts, .kebox, .parts { max-width: 26rem; margin-inline: auto; }
+  .facts > * + *, .kebox > * + *, .parts > * + * { margin-top: 6px; }
+  .tbl { display: grid; gap: 4px 12px; align-items: baseline; font-size: .95rem; line-height: 1.35; }
+  .tbl.c1 { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); }
+  .tbl.c2 { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr) minmax(0, 1fr); }
+  .tbl .th { font-size: .78rem; font-weight: 700; color: var(--k-accent); text-transform: uppercase; letter-spacing: .04em; }
+  .tbl .nm, .tbl .cell { min-width: 0; overflow-wrap: normal; word-break: normal; hyphens: none; }
+  .tbl .cell { font-weight: 600; }
+  .tbl .cell.stack { display: inline-grid; }
+  .tbl .cell.stack > span { grid-area: 1 / 1; }
+  .tbl .cell .sizer { visibility: hidden; }
+  .sw { display: inline-block; width: .8em; height: .8em; border-radius: 50%; border: 1.5px solid var(--k-ink); margin-right: .4em; vertical-align: -.05em; }
+  .sw0 { background: #F7F5F0; } .sw1 { background: var(--k-cat1); } .sw2 { background: var(--k-fill3); }
+  .kerow { display: grid; grid-template-columns: 3.8rem minmax(0, 1fr) 3.8rem; gap: 8px; align-items: center; font-size: .95rem; }
+  .kerow b { text-align: right; }
+  .meter { height: 12px; background: var(--k-sunk); border-radius: 6px; overflow: hidden; }
+  .meter i { display: block; height: 100%; width: 0; background: var(--k-accent2); border-radius: 6px; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-inline: 16px; font-size: .95rem; white-space: nowrap; }
+  .picks { gap: 8px; align-items: stretch; }
+  .picks .k-btn { flex: 1 1 8.5rem; min-height: 48px; font-size: 1.05rem; white-space: normal; overflow-wrap: normal; word-break: normal; hyphens: none; }
+  .picks.col { flex-direction: column; }
+  .picks.col .k-btn { flex: 0 0 auto; }
+  .picks .k-btn[aria-pressed="true"] { border-color: var(--k-accent2); box-shadow: inset 0 0 0 1.5px var(--k-accent2), 0 2px 0 var(--k-line); }
+  .picks .k-btn[aria-pressed="true"]::before { content: "\2713"; margin-right: .45em; font-weight: 800; }
+  .answers .k-answer { max-width: 20rem; }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .why, .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }
+</style>
+
+<p class="lead">Every mass and speed here is an example.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <p class="act" id="act"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 300" width="100%" role="img" aria-label=""><g id="art"></g><g id="ui"></g></svg>
+    <div class="k-controls" id="ctl"></div>
+    <div class="facts" id="facts"></div>
+    <div class="kebox" id="ke"></div>
+    <div class="parts" id="parts"></div>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="answers" id="answers"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<script>
+  // ---------- helpers ----------
+  const NB = ' ', MINUS = '−', DEG = '°';
+  const BBC = 'https://www.bbc.co.uk/bitesize/guides/zytb8mn/revision/2';
+  const OSX = 'https://openstax.org/books/physics/pages/8-3-elastic-and-inelastic-collisions';
+  const LIGHT = 0.2, HEAVY = 0.4, RL = 11, RH = 14;
+  // Time is slowed: a ball covers 60 drawing units a second for each m/s. The hit itself is
+  // slowed far more (TAU seconds), so the pushes can be seen; the balls barely move while it lasts.
+  const KPX = 60, TAU = 0.5, POST = 1.5, VMIN = 0.5, VMAX = 4, LEAD = 1.2;
+  const r2 = (v) => Math.round(v * 100) / 100;
+  const r1 = (v) => Math.round(v * 10) / 10;
+  const c01 = (p) => Math.min(1, Math.max(0, p));
+  const tw = (T, t0, t1) => (T >= t1 ? 1 : T <= t0 ? 0 : K.ease(c01((T - t0) / (t1 - t0))));
+  const arr = (T, t0) => tw(T, t0, t0 + 0.6);
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const near = (a, b, tol) => Math.abs(a - b) <= (tol != null ? tol : 1e-9 * Math.max(1, Math.abs(a), Math.abs(b)));
+  const rad = (dg) => dg * Math.PI / 180;
+  // One rounding everywhere: speeds to one place, or two where needed (2.0, 1.73); momenta and
+  // energies to at most two places (0.4, 0.17, 1.2).
+  const spd = (v) => { const a = r2(Math.abs(v)); if (a >= 10) return String(Math.round(a)); return Math.abs(a * 10 - Math.round(a * 10)) < 1e-6 ? a.toFixed(1) : a.toFixed(2); };
+  const mag = (v) => String(r2(Math.abs(v)));
+  const sg = (v) => (r2(v) > 0 ? '+' : r2(v) < 0 ? MINUS : '');
+  const thou = (v) => String(Math.round(Math.abs(v))).replace(/\B(?=(\d{3})+(?!\d))/g, NB);
+  const KGMS = NB + 'kg' + NB + 'm/s', MS = NB + 'm/s';
+  const kgs = (m) => String(m) + NB + 'kg';
+  const jj = (x) => mag(x) + NB + 'J';
+  const keOf = (o, V) => 0.5 * o.m * (V.x * V.x + V.y * V.y);
+  const hyp = (V) => Math.hypot(V.x, V.y);
+  const degOf = (V) => Math.atan2(V.y, V.x) * 180 / Math.PI;
+
+  // ---------- the pictures ----------
+  const TB1 = { x0: 6, x1: 334, y0: 0, y1: 100, Y: 50 };     // a straight shot
+  const TB2 = { x0: 6, x1: 334, y0: 0, y1: 150, Y: 82 };     // a glancing shot
+  const TW1 = { x0: 6, x1: 334, y0: 0, y1: 104, Y: 66 };     // the railway
+  const CANNON = { mc: 96, mb: 4, vb: 120 };
+  const rOf = (m) => (m > LIGHT ? RH : RL);
+  const momFmt = (d) => (d.pic === 'wagons' ? (p) => sg(p) + thou(p) : d.pic === 'cannon' ? (p) => sg(p) + String(Math.round(Math.abs(p))) : (p) => sg(p) + mag(p));
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  const OPT13 = ['The cue ball stops, the struck ball leaves at 2.0 m/s', 'The cue ball rolls on at 0.5 m/s, the struck ball at 1.5 m/s',
+    'The cue ball rolls on at 0.5 m/s, the struck ball at 1.0 m/s', 'Both roll on together at 1.0 m/s'];
+  const STEPS = [
+    { kind: 'pick', name: 'What does the cue ball do?', pic: 'shot', m: [LIGHT, LIGHT], v: 2, e: 1, sc: 70, ox: 50, noArrow: true, col: true,
+      task: 'Two equal balls, set to ideal bouncy, so no kinetic energy is lost in the bounce. A cue ball at 2.0 m/s hits a still one dead centre. What does the cue ball do?',
+      read: 'Two equal balls are set to ideal bouncy, so no kinetic energy is lost in the bounce. A cue ball at 2.0 m/s hits a still one dead centre. What does the cue ball do?',
+      opts: ['It stops, and the other ball goes on at its speed', 'Both roll on together at half speed', 'It bounces back the way it came'],
+      want: 'It stops, and the other ball goes on at its speed',
+      hint: 'Think about the kinetic energy as well as the momentum.',
+      hints: { 'Both roll on together at half speed': 'That is what balls do when they stick. These are set to ideal bouncy.',
+        'It bounces back the way it came': 'Then the struck ball would leave faster than the cue ball came in. It would have more energy than the shot had.' },
+      why: 'Each ball is an example 0.2 kg. Before the hit, the shot carries 0.2 × 2.0 = 0.4 kg m/s of momentum. It also carries ½ × 0.2 × 2.0² = 0.4 J of kinetic energy. The struck ball leaving at 2.0 m/s carries both, exactly. Rolling on together at 1.0 m/s keeps the 0.4 kg m/s but only 0.2 J. An ideal bouncy hit keeps both. So the cue ball stops dead.' },
+    { show: true, name: 'Momentum has a direction', pic: 'pair', m: [LIGHT, LIGHT], u: [2, -1.5], pull: true, sc: 70, ox: 170,
+      text: 'A ball\'s *momentum* is its mass × its velocity, in kg m/s. Velocity has a direction, so momentum has one too. Call one way positive. Then a ball going the other way has negative momentum.',
+      act: 'Pull back either ball.',
+      read: 'A ball\'s momentum is its mass × its velocity, in kg m/s. Call one way positive. A ball going the other way has negative momentum. A 0.2 kg ball at 2.0 m/s to the right carries +0.4 kg m/s. An equal ball at 1.5 m/s to the left carries −0.3 kg m/s. Nose to tail, the arrows total 0.1 kg m/s to the right.' },
+    { kind: 'typed', name: 'The total', pic: 'pair', m: [HEAVY, LIGHT], u: [2, -3], sc: 70, ox: 170, askTotal: true, ans: 'tot', unit: 'kg m/s', decimals: 1,
+      answer: r2(HEAVY * 2 - LIGHT * 3),
+      slips: [{ value: r2(HEAVY * 2 + LIGHT * 3), hint: 'You added the sizes. The ball rolling left counts as negative.' },
+        { value: -r2(HEAVY * 2 - LIGHT * 3), hint: 'Right is positive here. The heavier ball\'s arrow is the longer one.' }],
+      task: 'Take right as positive. A 0.4 kg ball rolls right at 2.0 m/s. A 0.2 kg ball rolls left at 3.0 m/s. What is their total momentum?',
+      hint: 'Give each ball\'s momentum its sign, then add.',
+      why: '0.4 × 2.0 = 0.8 kg m/s to the right. 0.2 × 3.0 = 0.6 kg m/s to the left. That is −0.6 kg m/s. The total is 0.8 − 0.6 = 0.2 kg m/s, to the right.' },
+    { show: true, name: 'The total survives', pic: 'shot', m: [LIGHT, LIGHT], v: 2, e: 1, sc: 70, ox: 50, pull: true,
+      text: 'In a hit, each ball\'s momentum changes. The total does not. The two balls push on each other equally hard, in opposite directions, for the same time. So what one ball loses, the other gains. That holds while nothing outside pushes.',
+      act: 'Pull back and play a shot.',
+      read: 'In a hit, each ball\'s momentum changes, but the total does not. The two balls push on each other equally hard, in opposite directions, for the same time. So the cue ball\'s arrow shrinks to nothing as the struck ball\'s grows to the same length. For a 2.0 m/s shot, the total stays 0.4 kg m/s forward.' },
+    { kind: 'typed', name: 'They stick', pic: 'shot', m: [HEAVY, LIGHT], v: 3, e: 0, sc: 70, ox: 40, ans: 'stk', unit: 'm/s', decimals: 1,
+      answer: r2(HEAVY * 3 / (HEAVY + LIGHT)),
+      slips: [{ value: 3 / 2, hint: 'You halved the speed. Divide the momentum by the joined mass instead.' },
+        { value: r2(HEAVY * 3 / LIGHT), hint: 'They move as one, so divide by both masses together.' }],
+      task: 'A 0.4 kg ball at 3.0 m/s hits a still 0.2 kg ball. They stick together. How fast do they move off?',
+      hint: 'Find the momentum before. Then divide it by the joined mass.',
+      why: 'Before the hit, 0.4 × 3.0 = 1.2 kg m/s. After it, the joined 0.6 kg carries the same 1.2 kg m/s. So it moves at 1.2 ÷ 0.6 = 2.0 m/s.' },
+    { show: true, name: 'Energy is not kept', pic: 'shot', m: [HEAVY, LIGHT], v: 3, e: 0, sc: 70, ox: 40, pull: true, bounce: true, ke: true, kmax: 0.5 * HEAVY * VMAX * VMAX,
+      text: '*Kinetic energy*, ½mv², behaves differently. In a hit, some of it goes into squashing the balls. A perfectly springy ball would give it all back. These balls stick. So 1.8 J before becomes 1.2 J after. The other 0.6 J leaves as heat and sound. The momentum total stays 1.2 kg m/s. A hit that keeps all its kinetic energy is *elastic*. One that loses some is *inelastic*.',
+      act: 'Slide the bounce up towards ideal bouncy.',
+      read: 'Kinetic energy, ½mv², is not kept the way momentum is. In a hit, some of it can go into squashing the balls and leave as heat and sound. A hit that keeps all its kinetic energy is elastic. One that loses some is inelastic. At ideal bouncy, the kinetic energy bar ends as long as it started. Towards sticky, it ends shorter. At sticky, it ends a third shorter, 1.8 J down to 1.2 J. The total momentum arrow is the same at every setting.' },
+    { kind: 'typed', name: 'Energy lost', pic: 'shot', m: [LIGHT, LIGHT], v: 4, e: 0, sc: 70, ox: 50, ke: true, kmax: 0.5 * LIGHT * 16, ans: 'nrg', unit: 'J', decimals: 1,
+      answer: r2(0.5 * LIGHT * 16 - 0.5 * (2 * LIGHT) * 4),
+      slips: [{ value: 0, hint: 'Momentum is kept, but kinetic energy is not. Work out the speed after first.' },
+        { value: r2(0.5 * LIGHT * 16), hint: 'That is all of it. The joined balls still move.' },
+        { value: r2(0.5 * LIGHT * 16 - 0.5 * LIGHT * 4), hint: 'Both balls move after the hit. Count the kinetic energy of all 0.4 kg.' }],
+      task: 'A 0.2 kg ball at 4.0 m/s hits an equal still ball, and they stick. How much kinetic energy is lost?',
+      hint: 'Find the speed after from the momentum. Then compare the kinetic energies.',
+      why: 'The momentum is 0.2 × 4.0 = 0.8 kg m/s. So the joined 0.4 kg moves at 0.8 ÷ 0.4 = 2.0 m/s. Before, ½ × 0.2 × 4.0² = 1.6 J. After, ½ × 0.4 × 2.0² = 0.8 J. So 1.6 − 0.8 = 0.8 J is lost. That is half of it.' },
+    { show: true, name: 'Light into heavy', pic: 'shot', m: [LIGHT, HEAVY], v: 3, e: 1, sc: 70, ox: 70, pull: true, heavySw: true,
+      text: 'On a bouncy enough hit, a light ball comes back off a heavier one. Its arrow points backwards. So its momentum is negative. The heavy ball then carries more forward momentum than the whole shot had. The total still comes out the same.',
+      act: 'Flip the heavy-ball switch off and on, and play a shot each way.',
+      read: 'On a bouncy enough hit, a light ball comes back off a heavier one. Its momentum is then negative. So the heavy ball carries more forward momentum than the whole shot had. A 0.2 kg ball at 3.0 m/s hits a still 0.4 kg ball. The light ball comes back at 1.0 m/s, carrying −0.2 kg m/s. The heavy ball leaves at 2.0 m/s, carrying 0.8 kg m/s. The total, 0.6 kg m/s forward, is what the shot started with.' },
+    { kind: 'typed', name: 'Bounce back', pic: 'shot', m: [LIGHT, HEAVY], v: 3, e: 0.8, sc: 70, ox: 70, given: [true, false], ans: 'bnc', unit: 'm/s', decimals: 1,
+      answer: r2((LIGHT * 3 + LIGHT * 0.6) / HEAVY),
+      slips: [{ value: r2((LIGHT * 3 - LIGHT * 0.6) / HEAVY), hint: 'The light ball came back, so its momentum after is negative.' },
+        { value: r2(LIGHT * 3 / HEAVY), hint: 'The light ball still moves after the hit. Count its momentum too.' }],
+      task: 'A 0.2 kg ball at 3.0 m/s hits a still 0.4 kg ball. It comes back at 0.6 m/s. How fast does the 0.4 kg ball move off?',
+      hint: 'Give the light ball\'s momentum after the hit its minus sign.',
+      why: 'Before, 0.2 × 3.0 = 0.6 kg m/s. After, the light ball carries 0.2 × 0.6 = 0.12 kg m/s backwards. That is −0.12 kg m/s. The heavy ball must carry 0.6 + 0.12 = 0.72 kg m/s. So it moves at 0.72 ÷ 0.4 = 1.8 m/s.' },
+    { show: true, name: 'Glancing hits', pic: 'shot', glance: true, m: [LIGHT, LIGHT], v: 2, e: 1, aim: 60, sc: 110, ox: 60, hUp: 44, pull: true, aimDrag: true, parts: 'mom',
+      text: 'On a *glancing hit*, split each arrow into a part along the cue ball\'s first line and a part across it. Each direction keeps its own total. Before the hit, nothing moves across. So after it, the across parts cancel.',
+      act: 'Drag the aim off-centre and play a shot.',
+      read: 'On a glancing hit, split each arrow into a part along the cue ball\'s first line and a part across it. Each direction keeps its own total. A 0.2 kg cue ball at 2.0 m/s carries 0.4 kg m/s along its line. It leaves at 1.73 m/s, 30° to one side. The struck ball leaves at 1.00 m/s, 60° to the other side. Along the line, 0.3 + 0.1 = 0.4 kg m/s. Across it, 0.17 kg m/s one way cancels 0.17 kg m/s the other.' },
+    { kind: 'typed', name: 'Along the line', pic: 'shot', glance: true, m: [LIGHT, LIGHT], v: 3, e: 1, aim: 60, sc: 110, ox: 60, hUp: 30, parts: 'spd', path1: true, given: [false, true],
+      ans: 'alg', unit: 'm/s', decimals: 2,
+      answer: r2(3 - 1.5 * Math.cos(rad(60))),
+      slips: [{ value: 3 - 1.5, hint: 'Only the struck ball\'s along part counts. That is 1.5 × cos 60°.' },
+        { value: r2(3 - r2(1.5 * Math.sin(rad(60)))), hint: 'That takes away the across part. Along the line, use cos 60°.' }],
+      task: 'A 0.2 kg cue ball at 3.0 m/s hits an equal still ball off-centre. The struck ball leaves at 1.5 m/s, 60° from the cue ball\'s first line. How fast does the cue ball now move along that line?',
+      hint: 'The masses are equal. So compare the along parts of the speeds.',
+      why: 'Along the line, the cue ball had 3.0 m/s. The struck ball\'s along part is 1.5 × cos 60° = 0.75 m/s. The masses are equal. So the cue ball keeps 3.0 − 0.75 = 2.25 m/s along the line. Its across part is 1.5 × sin 60° = 1.30 m/s. It points the other way, to cancel the struck ball\'s.' },
+    { kind: 'typed', name: 'The cannon', pic: 'cannon', sc: 80 / 480, ox: 110, ans: 'can', unit: 'm/s', decimals: 1,
+      answer: r2(CANNON.mb * CANNON.vb / CANNON.mc),
+      slips: [{ value: CANNON.vb, hint: 'The cannon is far heavier than the ball, so it moves far slower.' },
+        { value: r2(CANNON.mb * CANNON.vb / (CANNON.mc + CANNON.mb)), hint: 'Only the cannon rolls back. Divide by its 96 kg alone.' },
+        { value: 0, hint: 'The total stays zero. That needs the cannon to move back.' }],
+      task: 'A 96 kg cannon stands still on smooth, level ground. It fires a 4.0 kg ball at 120 m/s. How fast does the cannon roll back?',
+      hint: 'The total before is zero, so the two momenta after must cancel.',
+      why: 'Before firing, nothing moves. So the total is zero. The ball carries 4.0 × 120 = 480 kg m/s forward. So the cannon carries 480 kg m/s back. It moves at 480 ÷ 96 = 5.0 m/s.' },
+    { kind: 'pick', name: 'Which cannot happen?', pic: 'shot', m: [LIGHT, LIGHT], v: 2, e: 1, sc: 70, ox: 50, col: true, outcome: [0.5, 1.0],
+      task: 'A 0.2 kg cue ball at 2.0 m/s hits an equal still ball dead centre. Which of these can never happen?',
+      read: 'A 0.2 kg cue ball at 2.0 m/s hits an equal still ball dead centre. Which of these four outcomes can never happen?',
+      opts: OPT13, want: OPT13[2],
+      hint: 'Total each ball\'s momentum after, and compare it with 0.4 kg m/s.',
+      hints: { [OPT13[0]]: 'Total each ball\'s momentum after. That one keeps 0.4 kg m/s.',
+        [OPT13[1]]: 'Its total is 0.1 + 0.3 = 0.4 kg m/s. Some kinetic energy is lost. A real hit allows that.',
+        [OPT13[3]]: 'That is a sticking hit. And 0.4 × 1.0 = 0.4 kg m/s.' },
+      why: 'Before the hit, the total is 0.2 × 2.0 = 0.4 kg m/s. The third outcome totals 0.2 × 0.5 + 0.2 × 1.0 = 0.1 + 0.2 = 0.3 kg m/s. Nothing outside pushed, so the total cannot fall. That outcome cannot happen. The other three all keep 0.4 kg m/s.' },
+    { kind: 'typed', name: 'Coupling wagons', pic: 'wagons', sc: 90 / 60000, ox: 40, ans: 'wag', unit: 'm/s', decimals: 1,
+      answer: r2((30000 * 2 - 20000 * 1) / 50000),
+      slips: [{ value: r2((30000 * 2 + 20000 * 1) / 50000), hint: 'The wagon rolling left counts as negative.' },
+        { value: r1(40000 / 30000), hint: 'You divided by the 30 t wagon alone. Coupled, they move as one 50 t.' },
+        { value: r2(40000 / 20000), hint: 'Coupled, they move as one 50 t. Divide the total momentum by 50 000 kg.' }],
+      task: 'A 30 t wagon rolls right at 2.0 m/s. A 20 t wagon rolls left at 1.0 m/s. They meet and couple. How fast do they move on together?',
+      hint: 'Take right as positive, and give the left-rolling wagon a minus sign.',
+      why: '30 000 kg × 2.0 m/s = 60 000 kg m/s to the right. 20 000 kg × 1.0 m/s = 20 000 kg m/s to the left. The total is 60 000 − 20 000 = 40 000 kg m/s, to the right. Divided by 50 000 kg, that is 0.8 m/s to the right.' },
+  ];
+  STEPS.forEach((d) => { if (d.kind === 'typed') d.want = d.answer.toFixed(d.decimals) + ' ' + d.unit; });
+  const FINISH = 'When things collide with no outside push, their total momentum stays the same. Kinetic energy may be lost. The momentum total is not.';
+
+  // ---------- one shot: two bodies, a hit, then apart ----------
+  function cfgOf(i, st) {
+    const d = STEPS[i];
+    if (d.pic === 'wagons') {
+      return { TB: TW1, e: 0, k: 40, sc: d.sc, wag: true, balls: [{ m: 30000, r: 42, x: 80, y: TW1.Y, vx: 2, vy: 0 }, { m: 20000, r: 32, x: 240, y: TW1.Y, vx: -1, vy: 0 }] };
+    }
+    const g = !!d.glance, TB = g ? TB2 : TB1, m0 = d.m[0], m1 = d.heavySw ? (st.heavy ? HEAVY : LIGHT) : d.m[1];
+    const r0 = rOf(m0), r1x = rOf(m1), b = g ? (r0 + r1x) * Math.sin(rad(st.aim)) : 0;
+    return { TB, glance: g, e: st.e, k: KPX, sc: d.sc, balls: [{ m: m0, r: r0, x: g ? 90 : 80, y: TB.Y - b, vx: st.v, vy: 0 }, { m: m1, r: r1x, x: g ? 190 : 170, y: TB.Y, vx: 0, vy: 0 }] };
+  }
+  // How long a body can keep going before it, or its arrow, nears the edge of the picture.
+  function room(c, P, v, o) {
+    const k = c.k, vx = v.x * k, vy = v.y * k, TB = c.TB, sp = Math.hypot(vx, vy);
+    if (sp < 1e-9) return Infinity;
+    const L = Math.hypot(v.x, v.y) * o.m * c.sc;
+    const lim = (s, rt, lo, hi) => (rt > 1e-9 ? (hi - s) / rt : rt < -1e-9 ? (lo - s) / rt : Infinity);
+    // every ball and every arrow stays inside the cloth, clear of the cushions
+    let t = lim(P.x, vx, TB.x0 + 8 + o.r, TB.x1 - 8 - o.r);
+    if (c.glance) {
+      const ox = (o.r + 1 + L) * vx / sp, oy = (o.r + 1 + L) * vy / sp;
+      t = Math.min(t, lim(P.y, vy, TB.y0 + 8 + o.r, TB.y1 - 8 - o.r), lim(P.x + ox, vx, TB.x0 + 6, TB.x1 - 6), lim(P.y + oy, vy, TB.y0 + 6, TB.y1 - 6));
+    } else t = Math.min(t, lim(P.x + Math.sign(vx) * L, vx, TB.x0 + 6, TB.x1 - 6));
+    return Math.max(0, t);
+  }
+  // The rule: in the hit the bodies push on each other along the line joining their centres, equally
+  // hard and for the same time. The bounce e sets how fast they part compared with how fast they met.
+  function simulate(c) {
+    const A = c.balls[0], B = c.balls[1], k = c.k, D = A.r + B.r;
+    const dx = B.x - A.x, dy = B.y - A.y, wx = (B.vx - A.vx) * k, wy = (B.vy - A.vy) * k;
+    const qa = wx * wx + wy * wy, qb = 2 * (dx * wx + dy * wy), qc = dx * dx + dy * dy - D * D;
+    const S = { c, tc: Infinity, end: 0, done: 0 };
+    if (qa > 1e-12) { const disc = qb * qb - 4 * qa * qc; if (disc >= 0) { const t = (-qb - Math.sqrt(disc)) / (2 * qa); if (t >= 0) S.tc = t; } }
+    if (S.tc === Infinity) return S;
+    const tc = S.tc;
+    S.Ac = { x: A.x + A.vx * k * tc, y: A.y + A.vy * k * tc };
+    S.Bc = { x: B.x + B.vx * k * tc, y: B.y + B.vy * k * tc };
+    S.n = { x: (S.Bc.x - S.Ac.x) / D, y: (S.Bc.y - S.Ac.y) / D };
+    const un = (A.vx - B.vx) * S.n.x + (A.vy - B.vy) * S.n.y;
+    S.J = (1 + c.e) * A.m * B.m / (A.m + B.m) * un;
+    S.vA = { x: A.vx - S.J / A.m * S.n.x, y: A.vy - S.J / A.m * S.n.y };
+    S.vB = { x: B.vx + S.J / B.m * S.n.x, y: B.vy + S.J / B.m * S.n.y };
+    S.post = Math.min(POST, room(c, S.Ac, S.vA, A), room(c, S.Bc, S.vB, B));
+    S.end = tc + TAU + S.post;
+    S.done = Math.max(S.end, tc + TAU + (c.glance ? 1.0 : 0.6));
+    return S;
+  }
+  // Where everything is, tau seconds into the shot: before, during and after the hit.
+  function at(S, tau) {
+    const c = S.c, A = c.balls[0], B = c.balls[1], k = c.k;
+    const t = Math.max(0, Math.min(tau, S.tc === Infinity ? 0 : S.end));
+    if (S.tc === Infinity || t < S.tc) {
+      return { P: [{ x: A.x + A.vx * k * t, y: A.y + A.vy * k * t }, { x: B.x + B.vx * k * t, y: B.y + B.vy * k * t }], V: [{ x: A.vx, y: A.vy }, { x: B.vx, y: B.vy }], push: 0, phase: 0 };
+    }
+    if (t < S.tc + TAU) {
+      const s = (t - S.tc) / TAU;
+      return { P: [S.Ac, S.Bc], V: [{ x: lerp(A.vx, S.vA.x, s), y: lerp(A.vy, S.vA.y, s) }, { x: lerp(B.vx, S.vB.x, s), y: lerp(B.vy, S.vB.y, s) }],
+        push: Math.sin(Math.PI * s), phase: 1, C: { x: S.Ac.x + S.n.x * A.r, y: S.Ac.y + S.n.y * A.r } };
+    }
+    const h = (t - S.tc - TAU) * k;
+    return { P: [{ x: S.Ac.x + S.vA.x * h, y: S.Ac.y + S.vA.y * h }, { x: S.Bc.x + S.vB.x * h, y: S.Bc.y + S.vB.y * h }], V: [S.vA, S.vB], push: 0, phase: 2 };
+  }
+  function pairOf(i, st) {
+    const d = STEPS[i], u = d.pull ? [st.v, -st.v2] : d.u;
+    return { TB: TB1, sc: d.sc, balls: d.m.map((m, j) => ({ m, r: rOf(m), x: j ? 240 : 100, y: TB1.Y, vx: u[j], vy: 0 })) };
+  }
+  const leadOf = (S1) => Math.max(LEAD, 3.1 - S1.done);
+
+  // ---------- state of a step's picture (pure) ----------
+  // mode: 'demo' (a SHOW step's opening), 'idle' (before a shot), 'shot' (Dan's own shot),
+  // 'run' (the answer's motion), 'end' (the end of the shot, as the bounce slider sets it).
+  const fresh = (d) => ({ pick: null, res: null, why: false, tries: 0, hint: '', mode: 'idle', v: d.v || (d.u ? Math.abs(d.u[0]) : 2), v2: d.u ? Math.abs(d.u[1]) : 1.5, e: d.e != null ? d.e : 1, heavy: true, aim: d.aim || 0 });
+  const solved = (st) => !!st && (st.res === 'right' || st.res === 'shown');
+  function view(i, st, T) {
+    const d = STEPS[i], sv = !d.show && solved(st);
+    const v = { d, sv, arrow: d.noArrow ? 0 : 1, stick: 0, after: 0, wedge: 0, lab: d.show || d.kind === 'pick' || sv ? 1 : 0, tot: 1, out: 0, tau: 0, copies: [1, 1] };
+    if (d.pic === 'pair') {
+      v.pc = pairOf(i, st);
+      v.stick = d.pull ? 1 : 0;
+      if (st.mode === 'demo') { v.arrow = arr(T, 0.2); v.copies = [arr(T, 1.0), arr(T, 1.6)]; v.tot = arr(T, 2.3); }
+      else if (d.askTotal) { v.tot = sv ? (st.mode === 'run' ? tw(T, 0.1, 0.9) : 1) : 0; v.lab = sv ? (st.mode === 'run' ? arr(T, 0.2) : 1) : 0; }
+      return v;
+    }
+    if (d.pic === 'cannon') {
+      v.tau = st.mode === 'run' ? T - 0.3 : st.mode === 'end' ? Infinity : 0;
+      if (sv && st.mode === 'run') v.lab = arr(T, 0.2);
+      return v;
+    }
+    v.cfg = cfgOf(i, st); v.S = simulate(v.cfg);
+    if (st.mode === 'demo') { const lead = leadOf(v.S); v.arrow = d.noArrow ? 0 : arr(T, 0.2); v.stick = d.pull ? 1 - tw(T, lead - 0.05, lead + 0.15) : 0; v.tau = T - lead; }
+    else if (st.mode === 'shot') { v.stick = 1 - tw(T, 0, 0.15); v.tau = T - 0.15; }
+    else if (st.mode === 'run') { v.tau = T - 0.3; v.lab = d.kind === 'pick' ? 1 : arr(T, 0.1); }
+    else if (st.mode === 'end') v.tau = Infinity;
+    else { v.tau = 0; v.stick = d.pull ? 1 : 0; }
+    if (d.outcome) { v.tau = 0; v.out = sv ? (st.mode === 'run' ? arr(T, 0.2) : 1) : 0; }
+    v.f = at(v.S, v.tau);
+    if (v.S.tc !== Infinity) {
+      v.after = tw(v.tau, v.S.tc + TAU, v.S.tc + TAU + 0.6);
+      v.wedge = tw(v.tau, v.S.tc + TAU + 0.4, v.S.tc + TAU + 1.0);
+    }
+    return v;
+  }
+
+  // ---------- what the tables under the picture say (pure) ----------
+  function vtxt(V, g) {
+    const s = hyp(V);
+    if (s < 0.005) return 'still';
+    if (!g || Math.abs(V.y) < 1e-6) return spd(V.x) + MS + ' ' + (V.x > 0 ? 'right' : 'left');
+    return spd(s) + MS + ' at ' + Math.round(Math.abs(degOf(V))) + DEG;
+  }
+  function facts(i, st, v) {
+    const d = v.d, F = { speed: null, ke: null, parts: null }, hold = d.show ? '–' : '?';
+    if (d.pic === 'pair') {
+      const c = v.pc, nm = ['Left ball, ', 'Right ball, '];
+      F.speed = { cols: ['Speed'], rows: c.balls.map((o, j) => ({ name: nm[j] + kgs(o.m), sw: j, cells: [{ t: vtxt({ x: o.vx, y: 0 }) }] })) };
+      return F;
+    }
+    if (d.pic === 'cannon') {
+      const vc = CANNON.mb * CANNON.vb / CANNON.mc;
+      F.speed = { cols: ['Before', 'After'], rows: [
+        { name: 'Ball, ' + kgs(CANNON.mb.toFixed(1)), sw: 1, cells: [{ t: 'still' }, { t: vtxt({ x: CANNON.vb, y: 0 }) }] },
+        { name: 'Cannon, ' + kgs(CANNON.mc), sw: 0, cells: [{ t: 'still' }, v.sv ? { t: vtxt({ x: -vc, y: 0 }), a: v.lab } : { t: '?' }] }] };
+      return F;
+    }
+    const c = v.cfg, S = v.S, g = !!c.glance;
+    const fin = [S.vA, S.vB], u = c.balls.map((o) => ({ x: o.vx, y: o.vy }));
+    const nm = c.wag ? ['30' + NB + 't wagon', '20' + NB + 't wagon'] : ['Cue ball, ' + kgs(c.balls[0].m), 'Struck ball, ' + kgs(c.balls[1].m)];
+    const sw = c.wag ? [0, 2] : [0, 1];
+    const aft = (j) => {
+      if (d.given && d.given[j]) return { t: vtxt(fin[j], g) };
+      if (v.after > 0.001) return { t: vtxt(fin[j], g), a: v.after };
+      return { t: hold, full: d.show ? vtxt(fin[j], g) : null };
+    };
+    F.speed = d.outcome ? { cols: ['Before'], rows: c.balls.map((o, j) => ({ name: nm[j], sw: sw[j], cells: [{ t: vtxt(u[j], g) }] })) }
+      : { cols: ['Before', 'After'], rows: c.balls.map((o, j) => ({ name: nm[j], sw: sw[j], cells: [{ t: vtxt(u[j], g) }, aft(j)] })) };
+    if (d.ke) {
+      const kb = keOf(c.balls[0], u[0]) + keOf(c.balls[1], u[1]), ka = keOf(c.balls[0], fin[0]) + keOf(c.balls[1], fin[1]);
+      const q = !d.show && !v.sv;
+      F.ke = { max: d.kmax, b: kb, bt: jj(kb), a: q ? null : ka, aa: q ? 0 : v.after, at: q ? '?' : v.after > 0.001 ? jj(ka) : hold };
+    }
+    if (d.parts) {
+      const A = c.balls[0], B = c.balls[1], mo = d.parts === 'mom';
+      const f = mo ? (x) => mag(x) : (x) => (Math.abs(r2(x)) < 0.005 ? '0' : spd(x));
+      const w = mo ? [A.m, B.m] : [1, 1];
+      const al = [w[0] * fin[0].x, w[1] * fin[1].x], ac = [w[0] * fin[0].y, w[1] * fin[1].y];
+      const show = v.after > 0.001 && (d.show || v.sv);
+      const cell = (s) => (show ? { t: s, a: v.after } : { t: hold, full: d.show ? s : null });
+      F.parts = { title: mo ? 'Momentum parts, kg m/s' : 'Speed parts, m/s', cols: ['Before', 'After'], rows: [
+        { name: 'Along the line', cells: [{ t: f(w[0] * u[0].x) }, cell(f(al[0]) + ' + ' + f(al[1]) + ' = ' + f(al[0] + al[1]))] },
+        { name: 'Across it', cells: [{ t: '0' }, cell(f(ac[0]) + ' ' + MINUS + ' ' + f(ac[1]) + ' = ' + f(ac[0] + ac[1]))] }] };
+    }
+    return F;
+  }
+
+  // ---------- drawing ----------
+  const el = (id) => document.getElementById(id);
+  const svg = el('scene'), art = el('art'), ui = el('ui');
+  let REC = null, into = null;
+  const add = (n) => (into || art).appendChild(n);
+  function part(a, fn) { if (a <= 0.001) return; const g = add(K.svg('g')); K.fade(g, a, 0); const keep = into; into = g; fn(); into = keep; }
+  const TW = (s) => String(s).length * 7.6;
+  function txt(x, y, s, cls, anchor) {
+    if (!anchor) { const w = TW(s); x = Math.min(Math.max(x, 4 + w / 2), 336 - w / 2); }
+    add(K.svg('text', { class: cls, x: r2(x), y: r2(y), 'text-anchor': anchor || 'middle' }, String(s)));
+    REC.texts.push(String(s));
+  }
+  function line(x1, y1, x2, y2, cls) { add(K.svg('line', { class: cls, x1: r2(x1), y1: r2(y1), x2: r2(x2), y2: r2(y2) })); }
+  function dot(x, y, r, cls) { add(K.svg('circle', { class: cls, cx: r2(x), cy: r2(y), r })); }
+  function arrow(x1, y1, x2, y2, cls) {
+    const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+    if (L < 0.8) return;
+    const ux = dx / L, uy = dy / L, big = cls === 'tot' || cls === 'bad', hl = Math.min(big ? 10 : 9, L), hw = big ? 5.5 : 4.8;
+    const bx = x2 - ux * hl, by = y2 - uy * hl;
+    const g = add(K.svg('g', { class: cls }));
+    if (L > hl + 0.5) g.appendChild(K.svg('line', { x1: r2(x1), y1: r2(y1), x2: r2(bx + ux), y2: r2(by + uy) }));
+    g.appendChild(K.svg('path', { d: 'M' + r2(x2) + ' ' + r2(y2) + 'L' + r2(bx - uy * hw) + ' ' + r2(by + ux * hw) + 'L' + r2(bx + uy * hw) + ' ' + r2(by - ux * hw) + 'Z' }));
+  }
+  // A label beside an arrow: past its tip when it fits, else behind its tail.
+  function side(xTip, xTail, y, s, cls) {
+    const w = TW(s);
+    let x;
+    if (xTip >= xTail) x = xTip + 7 + w <= 336 ? xTip + 7 : xTail - 7 - w >= 4 ? xTail - 7 - w : 336 - w;
+    else x = xTip - 7 - w >= 4 ? xTip - 7 - w : xTail + 7 + w <= 336 ? xTail + 7 : 4;
+    txt(x, y + 4.5, s, cls, 'start');
+  }
+
+  // The panel beside the table: each body's arrow, added nose to tail, and the total.
+  function row1D(y, title, items, o) {
+    if (title) txt(8, y + 13, title, 'cap', 'start');
+    const rec = { title, copies: [], total: null };
+    REC.rows.push(rec);
+    part(o.a == null ? 1 : o.a, () => {
+      let cx = o.ox, prevY = null;
+      items.forEach((it, k) => {
+        const ly = y + 26 + 13 * k, L = it.p * o.sc, a = o.ia ? o.ia[k] : 1;
+        if (Math.abs(L) < 0.8) return;
+        const x0 = cx;
+        part(a, () => {
+          if (prevY != null) line(x0, prevY + 5, x0, ly - 4, 'link');
+          dot(x0, ly, 3.5, 'mini' + it.j);
+          arrow(x0, ly, x0 + L, ly, 'mo');
+          if (o.lab > 0.001) { part(o.lab, () => side(x0 + L, x0, ly, o.fmt(it.p), 'lab')); if (o.lab >= 0.5 && a >= 0.5) rec.copies.push(o.fmt(it.p)); }
+        });
+        prevY = ly; cx += L;
+      });
+      const tl = y + 58 + (items.filter((it) => Math.abs(it.p * o.sc) >= 0.8).length > 1 ? 3 : 0), sum = items.reduce((s, it) => s + it.p, 0), TL = sum * o.sc;
+      if (o.q) { txt(o.ox, tl + 4.5, 'total ?' + KGMS, 'lab', 'start'); rec.total = 'total ?'; return; }
+      const ta = o.ta == null ? 1 : o.ta;
+      part(ta, () => {
+        if (Math.abs(TL) < 0.8) dot(o.ox, tl, 4, 'zdot'); else arrow(o.ox, tl, o.ox + TL, tl, o.cls || 'tot');
+        const s = 'total ' + o.fmt(sum) + KGMS + (o.note || '');
+        if (o.lab > 0.001) { part(o.lab, () => side(o.ox + TL, o.ox, tl, s, o.cls === 'bad' ? 'badt' : 'lab')); if (o.lab >= 0.5 && ta >= 0.5) rec.total = s; }
+      });
+      rec.sum = sum;
+    });
+  }
+  function row2D(y, title, items, o) {
+    txt(8, y + 13, title, 'cap', 'start');
+    const rec = { title, copies: [], total: null };
+    REC.rows.push(rec);
+    part(o.a, () => {
+      const yb = y + 24 + o.hUp;
+      let cx = o.ox, cy = yb, sx = 0, sy = 0;
+      items.forEach((it) => {
+        const px = it.p.x * o.sc, py = it.p.y * o.sc;
+        sx += it.p.x; sy += it.p.y;
+        if (Math.hypot(px, py) < 0.8) return;
+        dot(cx, cy, 3.5, 'mini' + it.j);
+        arrow(cx, cy, cx + px, cy + py, 'mo');
+        cx += px; cy += py;
+      });
+      const tl = yb + 15, TL = sx * o.sc, s = 'total ' + mag(sx) + KGMS;
+      arrow(o.ox, tl, o.ox + TL, tl, 'tot');
+      if (o.lab > 0.001) { part(o.lab, () => side(o.ox + TL, o.ox, tl, s, 'lab')); if (o.lab >= 0.5) rec.total = s; }
+      rec.sum = sx; rec.across = sy;
+    });
+  }
+  // Each step's layout: the picture, its key, then the panel's rows.
+  function layout(i) {
+    const d = STEPS[i];
+    const top = d.pic === 'cannon' || d.pic === 'wagons' ? 104 : d.glance ? TB2.y1 : TB1.y1;
+    if (d.noArrow) return { top, H: top + 4 };
+    const keyY = top + 20, key2 = d.glance ? keyY + 18 : null, pY = (key2 || keyY) + 26;
+    const r0 = pY + 8, one = d.pic === 'pair';
+    const H = one ? r0 + 72 : d.glance ? r0 + 66 + 24 + d.hUp + 32 : r0 + 138;
+    return { top, keyY, key2, pY, rows: one ? [r0] : [r0, r0 + 66], H };
+  }
+
+  function momArrow(c, j, p, V, v) {
+    const o = c.balls[j], px = o.m * V.x * c.sc, py = o.m * V.y * c.sc, L = Math.hypot(px, py);
+    if (L < 0.8) return;
+    if (!c.glance) { const y = j ? p.y + o.r + 6 : p.y - o.r - 6; arrow(p.x, y, p.x + px, y, 'mo'); return; }
+    const sx = p.x + px / L * (o.r + 1), sy = p.y + py / L * (o.r + 1);
+    arrow(sx, sy, sx + px, sy + py, 'mo');
+    // its parts: across first, then along, so they stay clear of the angle marks
+    if (v.after > 0.001 && Math.abs(py) > 0.8 && Math.abs(px) > 0.8) part(v.after, () => { line(sx, sy, sx, sy + py, 'leg'); line(sx, sy + py, sx + px, sy + py, 'leg'); });
+  }
+  function pushes(C, n) {
+    arrow(C.x, C.y, C.x + n.x * 14, C.y + n.y * 14, 'push');
+    arrow(C.x, C.y, C.x - n.x * 14, C.y - n.y * 14, 'push');
+  }
+  // The angle between a path and the cue ball's first line, marked inside its wedge.
+  function wedge(P, V, who) {
+    if (hyp(V) < 1e-6) return;
+    const th = Math.atan2(V.y, V.x), dg = Math.round(Math.abs(th) * 180 / Math.PI), R0 = 30, ux = Math.cos(th), uy = Math.sin(th);
+    line(P.x, P.y, P.x + 72 * ux, P.y + 72 * uy, 'ref');
+    if (who === 'B') line(P.x, P.y, P.x + 72, P.y, 'ref');
+    if (dg < 3) return;
+    add(K.svg('path', { class: 'arc', d: 'M' + r2(P.x + R0) + ' ' + r2(P.y) + ' A' + R0 + ' ' + R0 + ' 0 0 ' + (th > 0 ? 1 : 0) + ' ' + r2(P.x + R0 * ux) + ' ' + r2(P.y + R0 * uy) }));
+    if (dg >= 30) { txt(P.x + 60 * Math.cos(th / 2), P.y + 60 * Math.sin(th / 2) + 4.5, dg + DEG, 'lab', 'middle'); REC.angles[who] = dg; }
+  }
+
+  function drawKey(L, d, v) {
+    const y = L.keyY;
+    arrow(10, y - 4, 32, y - 4, 'mo');
+    txt(38, y, 'momentum', 'cap', 'start');
+    if (d.pic !== 'pair' && d.pic !== 'cannon') { arrow(124, y - 4, 140, y - 4, 'push'); txt(146, y, 'push in the hit', 'cap', 'start'); }
+    if (L.key2) { line(10, L.key2 - 4, 32, L.key2 - 4, 'leg'); txt(38, L.key2, 'parts along and across the line', 'cap', 'start'); }
+  }
+
+  function drawPool(i, st, v, said) {
+    const d = v.d, c = v.cfg, TB = c.TB, f = v.f, S = v.S, A = c.balls[0], B = c.balls[1];
+    add(K.svg('rect', { class: 'cloth', x: TB.x0, y: TB.y0, width: TB.x1 - TB.x0, height: TB.y1 - TB.y0, rx: 6 }));
+    if (c.glance) {
+      line(TB.x0 + 4, A.y, TB.x1 - 4, A.y, 'ref');
+      txt(12, A.y - 14, 'first line', 'lab', 'start');
+      if (S.tc !== Infinity) {
+        part(Math.max(v.wedge, d.path1 ? 1 : 0), () => wedge(S.Bc, S.vB, 'B'));
+        part(v.wedge, () => wedge(S.Ac, S.vA, 'A'));
+      }
+      if (d.aimDrag) {
+        const gx = B.x - (A.r + B.r) * Math.cos(rad(st.aim));
+        add(K.svg('circle', { class: 'ghost', cx: r2(gx), cy: r2(A.y), r: A.r }));
+        if (!finished) REC.hits.push({ kind: 'aim', x: gx - 22, y: A.y - 22, w: 44, h: 44, aria: 'The aim: the dashed circle marks where the cue ball will touch the struck ball, ' + st.aim + DEG + ' off centre. Drag it round the struck ball, or use the arrow keys.' });
+      }
+    }
+    if (d.pull && v.stick > 0.001) part(v.stick, () => line(A.x - A.r - 5, A.y, A.x - A.r - 5 - 15 * st.v, A.y, 'stick'));
+    if (d.pull && !finished) REC.hits.push({ kind: 'pull', j: 0, dir: 1, bx: A.x, x: A.x - 82, y: A.y - 22, w: 82 + A.r + 8, h: 44, aria: 'The cue ball, set for a ' + spd(st.v) + ' m/s shot. Pull back from it and let go to play the shot, or use the arrow keys and Enter.' });
+    if (d.noArrow && f.P[0].x + A.r + 10 < f.P[1].x - B.r) line(f.P[0].x + A.r + 4, A.y, f.P[1].x - B.r - 4, A.y, 'aimline');
+    f.P.forEach((p, j) => dot(p.x, p.y, c.balls[j].r, 'ball' + j));
+    if (f.push > 0.01 && v.arrow > 0.5) part(f.push, () => pushes(f.C, S.n));
+    part(v.arrow, () => f.P.forEach((p, j) => momArrow(c, j, p, f.V[j], v)));
+    const nm = ['The cue ball', 'The struck ball'];
+    f.P.forEach((p, j) => said.push(nm[j] + ', ' + kgs(c.balls[j].m) + ', ' + (hyp(f.V[j]) < 0.005 ? 'is still.' : 'moves ' + vtxt(f.V[j], c.glance) + '.')));
+    said.unshift('A pool table seen from above.' + (c.glance ? ' The cue ball is aimed ' + st.aim + DEG + ' off centre.' : ''));
+  }
+  function drawPair(i, st, v, said) {
+    const d = v.d, c = v.pc;
+    add(K.svg('rect', { class: 'cloth', x: TB1.x0, y: TB1.y0, width: TB1.x1 - TB1.x0, height: TB1.y1 - TB1.y0, rx: 6 }));
+    c.balls.forEach((o, j) => {
+      const dir = j ? -1 : 1, s = j ? st.v2 : st.v;
+      if (d.pull && v.stick > 0.001) part(v.stick, () => line(o.x - dir * (o.r + 5), o.y, o.x - dir * (o.r + 5 + 15 * s), o.y, 'stick'));
+      if (d.pull && !finished) REC.hits.push({ kind: 'pull', j, dir, bx: o.x, x: j ? o.x - o.r - 8 : o.x - 82, y: o.y - 22, w: 82 + o.r + 8, h: 44, aria: 'The ' + (j ? 'right' : 'left') + ' ball, rolling ' + spd(s) + ' m/s. Pull back from it to change its speed, or use the arrow keys.' });
+    });
+    c.balls.forEach((o, j) => dot(o.x, o.y, o.r, 'ball' + j));
+    part(v.arrow, () => c.balls.forEach((o, j) => momArrow(c, j, o, { x: o.vx, y: 0 }, v)));
+    said.push('A pool table seen from above. Two balls roll towards each other.');
+    c.balls.forEach((o, j) => said.push('The ' + (j ? 'right' : 'left') + ' ball, ' + kgs(o.m) + ', rolls ' + vtxt({ x: o.vx, y: 0 }) + '.'));
+  }
+  function drawCannon(i, st, v, said) {
+    const run = Math.max(0, Math.min(v.tau, 2.0)), ka = 4, vc = CANNON.mb * CANNON.vb / CANNON.mc, sc = v.d.sc;
+    const cx = 170 - vc * ka * run, bx = 232 + CANNON.vb * ka * run;
+    line(6, 100, 334, 100, 'ground');
+    add(K.svg('rect', { class: 'body', x: r2(cx - 36), y: 62, width: 66, height: 14, rx: 3 }));
+    add(K.svg('rect', { class: 'body', x: r2(cx - 32), y: 46, width: 86, height: 18, rx: 9 }));
+    dot(cx - 20, 86, 13, 'wheel'); dot(cx + 18, 86, 13, 'wheel');
+    if (bx < 352) dot(bx, 55, 7, 'ball1');
+    part(v.arrow, () => {
+      arrow(cx, 36, cx - CANNON.mb * CANNON.vb * sc, 36, 'mo');
+      if (bx < 352) arrow(bx + 8, 55, bx + 8 + CANNON.mb * CANNON.vb * sc, 55, 'mo');
+    });
+    said.push('A cannon on wheels, seen from the side, on level ground. ' + (bx < 352 ? 'Its ball has just left the muzzle, moving right. ' : 'Its ball has flown off to the right. ') + 'The cannon\'s arrow points back.');
+  }
+  function drawWagons(i, st, v, said) {
+    const c = v.cfg, f = v.f, S = v.S;
+    line(6, 96, 334, 96, 'rail');
+    f.P.forEach((p, j) => {
+      const o = c.balls[j];
+      add(K.svg('rect', { class: j ? 'body2' : 'body', x: r2(p.x - o.r), y: 50, width: o.r * 2, height: 32, rx: 3 }));
+      dot(p.x - o.r + 12, 88, 7, 'wheel'); dot(p.x + o.r - 12, 88, 7, 'wheel');
+      txt(p.x, 71, (j ? '20' : '30') + NB + 't', 'wl', 'middle');
+    });
+    if (f.push > 0.01) part(f.push, () => pushes({ x: f.P[0].x + c.balls[0].r, y: 66 }, { x: 1, y: 0 }));
+    part(v.arrow, () => f.P.forEach((p, j) => { const L = c.balls[j].m * f.V[j].x * c.sc, y = j ? 26 : 40; if (Math.abs(L) >= 0.8) arrow(p.x, y, p.x + L, y, 'mo'); }));
+    said.push('Two railway wagons on a level track, seen from the side.');
+    f.P.forEach((p, j) => said.push('The ' + (j ? '20' : '30') + ' t wagon ' + (hyp(f.V[j]) < 0.005 ? 'is still.' : 'moves ' + vtxt(f.V[j]) + '.')));
+  }
+
+  function drawPanel(i, st, v, L) {
+    const d = v.d, fm = momFmt(d), base = { ox: d.ox, sc: d.sc, fmt: fm, lab: v.lab };
+    txt(8, L.pY, 'Total momentum, arrows nose to tail', 'cap', 'start');
+    const y0 = L.rows[0], y1 = L.rows[1];
+    if (d.pic === 'pair') {
+      const items = v.pc.balls.map((o, j) => ({ p: o.m * o.vx, j }));
+      row1D(y0, '', items, Object.assign({}, base, { ia: v.copies, ta: v.tot, q: d.askTotal && !v.sv }));
+      return;
+    }
+    if (d.pic === 'cannon') {
+      const p = CANNON.mb * CANNON.vb;
+      row1D(y0, 'Before firing', [], base);
+      row1D(y1, 'After firing', [{ p, j: 1 }, { p: -p, j: 0 }], base);
+      return;
+    }
+    const c = v.cfg, S = v.S, jj2 = c.wag ? [0, 2] : [0, 1];
+    row1D(y0, 'Before the hit', c.balls.map((o, j) => ({ p: o.m * o.vx, j: jj2[j] })), base);
+    if (d.outcome) {
+      if (v.out > 0.001) row1D(y1, 'The third outcome', d.outcome.map((s, j) => ({ p: LIGHT * s, j })), Object.assign({}, base, { a: v.out, cls: 'bad', note: ', not +0.4' }));
+      else { txt(8, y1 + 13, 'After the hit', 'cap', 'start'); txt(d.ox, y1 + 32.5, '?', 'lab', 'start'); }
+      return;
+    }
+    const fin = [S.vA, S.vB];
+    if (v.after > 0.001) {
+      if (c.glance) row2D(y1, 'After the hit', c.balls.map((o, j) => ({ p: { x: o.m * fin[j].x, y: o.m * fin[j].y }, j })), Object.assign({}, base, { a: v.after, hUp: d.hUp }));
+      else row1D(y1, 'After the hit', c.balls.map((o, j) => ({ p: o.m * fin[j].x, j: jj2[j] })), Object.assign({}, base, { a: v.after }));
+    } else {
+      txt(8, y1 + 13, 'After the hit', 'cap', 'start');
+      if (!d.show) txt(d.ox, y1 + 32.5, '?', 'lab', 'start');
+    }
+  }
+
+  // The whole picture for step i in state st, T seconds into its motion; returns it in words.
+  function scene(i, st, T) {
+    const d = STEPS[i], v = view(i, st, T), L = layout(i), said = [];
+    REC = { texts: [], rows: [], angles: {}, hits: [], v, F: facts(i, st, v), L };
+    art.textContent = ''; into = null;
+    if (d.pic === 'pair') drawPair(i, st, v, said);
+    else if (d.pic === 'cannon') drawCannon(i, st, v, said);
+    else if (d.pic === 'wagons') drawWagons(i, st, v, said);
+    else drawPool(i, st, v, said);
+    if (!d.noArrow) { drawKey(L, d, v); drawPanel(i, st, v, L); }
+    return said.join(' ');
+  }
+
+  // ---------- the tables under the picture ----------
+  function fillTable(box, title, T1) {
+    box.textContent = '';
+    box.hidden = !T1;
+    if (!T1) return;
+    box.appendChild(K.el('span', { class: 'k-label' }, title));
+    const g = K.el('div', { class: 'tbl c' + T1.cols.length });
+    box.appendChild(g);
+    g.appendChild(K.el('span', { class: 'th' }, ''));
+    T1.cols.forEach((t) => g.appendChild(K.el('span', { class: 'th' }, t)));
+    T1.rows.forEach((r) => {
+      const n = K.el('span', { class: 'nm' });
+      if (r.sw != null) n.appendChild(K.el('i', { class: 'sw sw' + r.sw, 'aria-hidden': 'true' }));
+      n.appendChild(document.createTextNode(r.name));
+      g.appendChild(n);
+      r.cells.forEach((c) => { const b = c.full && c.full !== c.t ? K.el('b', { class: 'cell stack' }, K.el('span', { class: 'sizer', 'aria-hidden': 'true' }, c.full), K.el('span', {}, c.t)) : K.el('b', { class: 'cell' }, c.t); if (c.a != null && c.a < 1) b.style.opacity = Math.max(0, c.a).toFixed(3); g.appendChild(b); });
+    });
+  }
+  function fillKE(box, E) {
+    box.textContent = '';
+    box.hidden = !E;
+    if (!E) return;
+    box.appendChild(K.el('span', { class: 'k-label' }, 'Kinetic energy, all balls'));
+    [['Before', E.b, 1, E.bt], ['After', E.a, E.aa, E.at]].forEach((r) => {
+      const fill = K.el('i');
+      fill.style.width = (r[1] == null ? 0 : Math.min(100, 100 * r[1] / E.max) * r[2]).toFixed(2) + '%';
+      box.appendChild(K.el('div', { class: 'kerow' }, K.el('span', {}, r[0]), K.el('div', { class: 'meter' }, fill), K.el('b', {}, r[3])));
+    });
+  }
+
+  // ---------- state, motion and controls ----------
+  let ST = STEPS.map(fresh);
+  let T = Infinity, motionEnd = 0, lastStep = -1, finished = false, lastDone = false, HITS = [];
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  const quiet = () => REDUCE || testing();
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const cur = () => Math.round(stepper.get());
+  const hintFor = (d, st) => (d.hints && d.hints[st.pick]) || d.hint;
+  const ctlB = K.control({ id: 'bounce', label: 'Bounce', hint: 'How fast the balls part ÷ how fast they met', min: 0, max: 1, step: 0.1, value: 0,
+    fmt: (x) => (x >= 0.999 ? 'Ideal bouncy' : x <= 0.001 ? 'Sticky' : K.fmt(x, { decimals: 1 })), snap: [0, 1], into: '#ctl' });
+  const ctlH = K.toggle({ id: 'heavy', label: 'Heavy struck ball', hint: '0.4 kg instead of 0.2 kg', value: true, into: '#ctl' });
+
+  function paint(i) {
+    if (i == null) i = cur();
+    const L = layout(i), words = scene(i, ST[i], T);
+    svg.setAttribute('viewBox', '0 -6 340 ' + r2(L.H + 6));
+    svg.setAttribute('aria-label', words);
+    HITS = REC.hits;
+    placeUI();
+    const F = finished ? {} : REC.F;
+    fillTable(el('facts'), 'Speeds', F.speed);
+    fillKE(el('ke'), F.ke);
+    fillTable(el('parts'), F.parts ? F.parts.title : '', F.parts);
+  }
+  const anim = K.anim({ button: false, label: 'Moving', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur) {
+    if (quiet()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function demoDur(i) { const d = STEPS[i]; if (d.pic === 'pair') return 3.2; const S1 = simulate(cfgOf(i, ST[i])); return leadOf(S1) + S1.done + 0.05; }
+  function runDur(i) {
+    const d = STEPS[i];
+    if (d.pic === 'pair') return 1.0;
+    if (d.pic === 'cannon') return 2.4;
+    if (d.outcome) return 0.9;
+    return 0.3 + simulate(cfgOf(i, ST[i])).done + 0.05;
+  }
+  const shotDur = (i) => 0.15 + simulate(cfgOf(i, ST[i])).done + 0.05;
+  function startShot(i) { ST[i].mode = 'shot'; play(shotDur(i)); }
+  function toIdle(i) { ST[i].mode = 'idle'; anim.pause(); T = Infinity; }
+  function startRun(i) { ST[i].mode = 'run'; play(runDur(i)); }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter'); void box.offsetWidth; box.classList.add('enter');
+  }
+  function enterStep(i) {
+    const d = STEPS[i], st = ST[i];
+    lastStep = i; enter('stepbox');
+    if (d.show) {
+      const f0 = fresh(d);
+      st.v = f0.v; st.v2 = f0.v2; st.e = f0.e; st.heavy = true; st.aim = f0.aim; st.mode = 'demo';
+    } else st.mode = solved(st) ? 'end' : 'idle';
+    if (d.bounce) ctlB.set(st.e, true);
+    if (d.heavySw) ctlH.set(st.heavy, true);
+    if (d.show) play(demoDur(i)); else { anim.pause(); T = Infinity; }
+  }
+
+  // Dan's hands on the table: pull back from a ball for speed; drag the aim round the struck ball.
+  const svgPt = (e) => { const ctm = svg.getScreenCTM(); return ctm ? new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse()) : null; };
+  let DRAG = null;
+  const HITEL = [];
+  function aimAt(i, p) {
+    const c = cfgOf(i, ST[i]), B = c.balls[1];
+    const a = Math.atan2(B.y - p.y, B.x - p.x) * 180 / Math.PI;
+    return K.clamp(Math.round(a / 5) * 5, 0, 75);
+  }
+  function setSpeed(i, h, s) { const st = ST[i]; if (h.j) st.v2 = K.clamp(s, VMIN, VMAX); else st.v = K.clamp(s, VMIN, VMAX); }
+  function release(h) { const i = cur(); if (h.kind === 'pull' && STEPS[i].pic === 'shot') startShot(i); else paint(); }
+  function bindHit(r) {
+    const H = () => HITS[+r.dataset.k];
+    r.addEventListener('pointerdown', (e) => {
+      const h = H();
+      if (!h) return;
+      const p = svgPt(e);
+      if (!p) return;
+      toIdle(cur());
+      DRAG = { pid: e.pointerId, h: Object.assign({}, h), x0: p.x, y0: p.y, moved: false };
+      try { r.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows the pointer over the target */ }
+      e.preventDefault();
+      paint();
+    });
+    r.addEventListener('pointermove', (e) => {
+      if (!DRAG || DRAG.pid !== e.pointerId) return;
+      const p = svgPt(e);
+      if (!p) return;
+      if (!DRAG.moved && Math.hypot(p.x - DRAG.x0, p.y - DRAG.y0) < 3) return;
+      DRAG.moved = true;
+      const i = cur(), h = DRAG.h;
+      if (h.kind === 'aim') ST[i].aim = aimAt(i, p);
+      else setSpeed(i, h, Math.round((h.bx - p.x) * h.dir / 7.5) / 2);
+      paint();
+    });
+    r.addEventListener('pointerup', (e) => { if (!DRAG || DRAG.pid !== e.pointerId) return; const h = DRAG.h; DRAG = null; release(h); });
+    r.addEventListener('pointercancel', (e) => { if (DRAG && DRAG.pid === e.pointerId) DRAG = null; });
+    r.addEventListener('keydown', (e) => {
+      const h = H();
+      if (!h) return;
+      const i = cur(), st = ST[i];
+      if (h.kind === 'pull' && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); toIdle(i); release(h); return; }
+      const by = { ArrowRight: 1, ArrowUp: 1, ArrowLeft: -1, ArrowDown: -1 }[e.key];
+      if (!by) return;
+      e.preventDefault();
+      toIdle(i);
+      if (h.kind === 'aim') st.aim = K.clamp(st.aim + 5 * by, 0, 75);
+      else setSpeed(i, h, (h.j ? st.v2 : st.v) + 0.5 * by);
+      paint();
+    });
+  }
+  function placeUI() {
+    while (HITEL.length < HITS.length) {
+      const r = ui.appendChild(K.svg('rect', { class: 'hit', tabindex: '0', rx: 8 }));
+      r.dataset.k = HITEL.length; bindHit(r); HITEL.push(r);
+    }
+    HITEL.forEach((r, k) => {
+      const h = HITS[k];
+      r.style.display = h ? '' : 'none';
+      r.setAttribute('tabindex', h ? '0' : '-1');
+      if (!h) return;
+      r.setAttribute('x', r2(h.x)); r.setAttribute('y', r2(h.y)); r.setAttribute('width', r2(h.w)); r.setAttribute('height', r2(h.h));
+      r.setAttribute('aria-label', h.aria);
+    });
+  }
+
+  // Answers: up to four choices; a typed field for each figure.
+  const pickBtns = [0, 1, 2, 3].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = cur(), d = STEPS[i], st = ST[i];
+    if (finished || d.kind !== 'pick' || k >= d.opts.length || solved(st)) return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+  const FIELDS = {};
+  STEPS.forEach((d, i) => {
+    if (d.kind !== 'typed') return;
+    el('answers').appendChild(K.el('div', { id: 'ans-' + d.ans }));
+    const a = K.answer({ id: 'a-' + d.ans, unit: d.unit, answer: d.answer, decimals: d.decimals, slips: d.slips, into: '#ans-' + d.ans,
+      onCheck: (r) => {
+        const st = ST[i];
+        if (solved(st)) return;
+        if (r.state === 'right') { st.res = 'right'; startRun(i); }
+        else if (r.state === 'wrong') {
+          st.tries += 1; st.hint = r.hint || d.hint;
+          if (st.tries >= 2) { st.res = 'shown'; st.why = true; a.reveal(); startRun(i); } else st.res = 'wrong';
+        } else { st.res = null; st.hint = ''; }
+        K.refresh();
+      } });
+    FIELDS[d.ans] = a;
+  });
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = cur(), d = STEPS[i], st = ST[i];
+    if (finished || d.show || solved(st)) return;
+    if (d.kind === 'typed') { FIELDS[d.ans].check(); return; }
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = st.pick === d.want ? 'right' : 'wrong';
+    if (st.res === 'right') startRun(i); else st.tries += 1;
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    const d = STEPS[cur()], st = ST[cur()];
+    if (d.show || finished || (!solved(st) && st.tries === 0)) return;
+    st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const i = cur(), d = STEPS[i], st = ST[i];
+    if (!d.show || finished) return;
+    st.mode = 'demo';
+    play(demoDur(i));
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, cur() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = cur();
+    if (finished || (!STEPS[i].show && !solved(ST[i]))) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true; anim.pause(); T = Infinity;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    ST = STEPS.map(fresh); finished = false; lastStep = -1;
+    Object.keys(FIELDS).forEach((k) => FIELDS[k].reset());
+    stepper.set(0, true);
+  } });
+
+  // ---------- words (built with K.el, never innerHTML): *a key term*, `kept on one line` ----------
+  function write(node, s) {
+    node.textContent = '';
+    String(s || '').split('`').forEach((seg, k) => {
+      if (!seg) return;
+      if (k % 2) { node.appendChild(K.el('span', { class: 'nw' }, seg)); return; }
+      const re = /\*([^*]+)\*/g;
+      let from = 0, m;
+      while ((m = re.exec(seg))) {
+        if (m.index > from) node.appendChild(document.createTextNode(seg.slice(from, m.index)));
+        node.appendChild(K.el('span', { class: 'term' }, m[1]));
+        from = m.index + m[0].length;
+      }
+      if (from < seg.length) node.appendChild(document.createTextNode(seg.slice(from)));
+    });
+    return node;
+  }
+  write(el('finish'), FINISH);
+
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = ST[i];
+    if (!anim.playing()) T = Infinity;
+    if (i !== lastStep) enterStep(i);
+    else {
+      if (d.bounce && Math.abs(ctlB.get() - st.e) > 1e-9) { st.e = ctlB.get(); st.mode = 'end'; anim.pause(); T = Infinity; }
+      if (d.heavySw && ctlH.get() !== st.heavy) { st.heavy = ctlH.get(); startShot(i); }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const sv = solved(st);
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    el('act').hidden = !d.act;
+    write(el('act'), d.act || '');
+    ctlB.el.hidden = !d.bounce;
+    ctlH.el.hidden = !d.heavySw;
+    el('ctl').hidden = finished || (!d.bounce && !d.heavySw);
+    paint(i);
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    const opts = d.kind === 'pick' ? d.opts : [];
+    const picks = el('picks');
+    picks.hidden = !opts.length;
+    picks.classList.toggle('col', !!d.col);
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    STEPS.forEach((x, k) => { if (x.kind === 'typed') el('ans-' + x.ans).hidden = finished || k !== i; });
+    el('answers').hidden = d.kind !== 'typed';
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = sv;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (st.res === 'right' ? ' right' : '');
+    write(fb, d.show ? '' : st.res === 'right' ? 'That\'s it.' : st.res === 'shown' ? 'Here is the working.' :
+      st.res === 'wrong' ? (d.kind === 'typed' ? st.hint : hintFor(d, st)) : st.res === 'empty' ? 'Tap one of the answers.' : '');
+    const why = el('why');
+    why.hidden = !!d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    whyBtn.el.hidden = !sv && st.tries === 0;
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !sv);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const IX = (name) => STEPS.findIndex((d) => d.name === name);
+  const openSt = (i) => fresh(STEPS[i]);
+  const doneSt = (i) => Object.assign(fresh(STEPS[i]), { res: 'right', mode: 'end' });
+  function drawn(i, st, t) { try { scene(i, st, t == null ? Infinity : t); return REC; } finally { paint(); } }
+  const momOf = (c, V) => ({ x: c.balls[0].m * V[0].x + c.balls[1].m * V[1].x, y: c.balls[0].m * V[0].y + c.balls[1].m * V[1].y });
+  const shotSteps = STEPS.map((d, i) => i).filter((i) => STEPS[i].pic === 'shot' || STEPS[i].pic === 'wagons');
+  function everyShot(fn) {
+    for (const i of shotSteps) for (let s = VMIN; s <= VMAX + 1e-9; s += 0.5) for (const e of [0, 0.3, 0.8, 1]) for (const heavy of [false, true]) for (const aim of [0, 30, 60, 75]) {
+      const c = cfgOf(i, Object.assign(fresh(STEPS[i]), { v: s, e, heavy, aim })), S1 = simulate(c);
+      if (S1.tc === Infinity || !fn(c, S1)) return false;
+    }
+    return true;
+  }
+
+  K.check('In a closed system, total momentum before an event = total momentum after: every shot drawn, at every speed, bounce, mass and aim, keeps its total before, during and after the hit', () =>
+    everyShot((c, S1) => {
+      const b = momOf(c, c.balls.map((o) => ({ x: o.vx, y: o.vy }))), tol = 1e-9 * Math.max(1, Math.abs(b.x));
+      return [S1.tc * 0.5, S1.tc + TAU * 0.3, S1.tc + TAU * 0.8, Infinity].every((t) => { const m = momOf(c, at(S1, t).V); return near(m.x, b.x, tol) && near(m.y, b.y, tol); });
+    }), { source: BBC });
+  K.check('A closed system is not affected by external forces: in each hit the two pushes are equal and opposite, so one body gains exactly what the other loses', () =>
+    everyShot((c, S1) => {
+      const A = c.balls[0], B = c.balls[1], tol = 1e-9 * Math.max(1, A.m * A.vx);
+      return near(A.m * (S1.vA.x - A.vx), -B.m * (S1.vB.x - B.vx), tol) && near(A.m * (S1.vA.y - A.vy), -B.m * (S1.vB.y - B.vy), tol);
+    }), { source: BBC });
+  K.check('Momentum is conserved, but kinetic energy is not conserved: below ideal bouncy every hit ends with less kinetic energy than it began with, and at ideal bouncy with the same', () =>
+    everyShot((c, S1) => {
+      const kb = keOf(c.balls[0], { x: c.balls[0].vx, y: 0 }) + keOf(c.balls[1], { x: c.balls[1].vx, y: 0 }), ka = keOf(c.balls[0], S1.vA) + keOf(c.balls[1], S1.vB);
+      return c.e >= 1 ? near(ka, kb, 1e-9 * Math.max(1, kb)) : ka < kb - 1e-9 * Math.max(1, kb);
+    }), { source: OSX });
+  K.check('Each screen\'s figures come from the rule: 2.0 m/s dead centre stops the cue ball; sticking gives 2.0 m/s and 1.8 J to 1.2 J; light into heavy gives −1.0 and 2.0 m/s, and −0.6 and 1.8 m/s at a bounce of 0.8; a 60° glancing hit gives 1.73 m/s at 30° and 1.0 m/s at 60°; the cannon 5.0 m/s; the wagons 0.8 m/s', () => {
+    const fin = (n, over) => { const i = IX(n), st = Object.assign(fresh(STEPS[i]), over || {}), c = cfgOf(i, st); return { c, S: simulate(c) }; };
+    const a = fin('What does the cue ball do?'), b = fin('They stick'), e1 = fin('Energy is not kept', { e: 1 }), n = fin('Energy lost');
+    const l = fin('Light into heavy'), k = fin('Bounce back'), g = fin('Glancing hits'), h = fin('Along the line'), w = fin('Coupling wagons');
+    const ke = (x, V) => keOf(x.c.balls[0], V[0]) + keOf(x.c.balls[1], V[1]);
+    const pair = drawn(IX('Momentum has a direction'), openSt(IX('Momentum has a direction'))).rows[0];
+    return near(a.S.vA.x, 0, 1e-12) && near(a.S.vB.x, 2) && near(b.S.vA.x, 2) && near(b.S.vB.x, 2) &&
+      near(ke(b, [{ x: 3, y: 0 }, { x: 0, y: 0 }]), 1.8) && near(ke(b, [b.S.vA, b.S.vB]), 1.2) && near(ke(e1, [e1.S.vA, e1.S.vB]), 1.8) &&
+      near(ke(n, [{ x: 4, y: 0 }, { x: 0, y: 0 }]) - ke(n, [n.S.vA, n.S.vB]), 0.8) &&
+      near(l.S.vA.x, -1) && near(l.S.vB.x, 2) && near(k.S.vA.x, -0.6) && near(k.S.vB.x, 1.8) &&
+      near(hyp(g.S.vA), Math.sqrt(3)) && near(degOf(g.S.vA), -30) && near(hyp(g.S.vB), 1) && near(degOf(g.S.vB), 60) &&
+      r2(LIGHT * g.S.vA.x) === 0.3 && r2(LIGHT * g.S.vB.x) === 0.1 && r2(-LIGHT * g.S.vA.y) === 0.17 && r2(LIGHT * g.S.vB.y) === 0.17 &&
+      near(h.S.vA.x, 2.25) && near(h.S.vB.x, 0.75) && r2(-h.S.vA.y) === 1.3 && near(hyp(h.S.vB), 1.5) &&
+      near(CANNON.mb * CANNON.vb / CANNON.mc, 5) && near(w.S.vA.x, 0.8) && near(w.S.vB.x, 0.8) &&
+      pair.copies[0] === '+0.4' && pair.copies[1] === MINUS + '0.3' && pair.total === 'total +0.1' + KGMS;
+  });
+  K.check('Each typed answer and slip is worked from the lesson\'s figures: 0.2 kg m/s (1.4, −0.2), 2.0 m/s (1.5, 6.0), 0.8 J (0, 1.6, 1.2), 1.8 m/s (1.2, 1.5), 2.25 m/s (1.5, 1.70), 5.0 m/s (120, 4.8, 0) and 0.8 m/s (1.6, 1.3, 2.0)', () => {
+    const one = (name, ans, sl, want) => {
+      const d = STEPS[IX(name)], sp = { answer: d.answer, decimals: d.decimals, unit: d.unit, slips: d.slips };
+      return near(d.answer, ans) && d.want === want && d.slips.length === sl.length && K.answer.grade(d.want, sp).state === 'right' &&
+        d.slips.every((x, j) => near(x.value, sl[j]) && K.answer.grade(String(sl[j]), sp).state === 'wrong');
+    };
+    return one('The total', 0.2, [1.4, -0.2], '0.2 kg m/s') && one('They stick', 2, [1.5, 6], '2.0 m/s') && one('Energy lost', 0.8, [0, 1.6, 1.2], '0.8 J') &&
+      one('Bounce back', 1.8, [1.2, 1.5], '1.8 m/s') && one('Along the line', 2.25, [1.5, 1.7], '2.25 m/s') && one('The cannon', 5, [120, 4.8, 0], '5.0 m/s') &&
+      one('Coupling wagons', 0.8, [1.6, 1.3, 2], '0.8 m/s');
+  });
+  K.check('Before an answer nothing gives it away: each asked figure reads "?" and no momentum is labelled; after it, each shows its figure', () => {
+    const F = (n, done) => { const i = IX(n); return drawn(i, done ? doneSt(i) : openSt(i)); };
+    const cell = (R, j, k) => R.F.speed.rows[j].cells[k].t;
+    const tot = F('The total'), tot2 = F('The total', true), stk = F('They stick'), stk2 = F('They stick', true);
+    const nrg = F('Energy lost'), nrg2 = F('Energy lost', true), bnc = F('Bounce back'), bnc2 = F('Bounce back', true);
+    const alg = F('Along the line'), alg2 = F('Along the line', true), can = F('The cannon'), can2 = F('The cannon', true), wag = F('Coupling wagons'), wag2 = F('Coupling wagons', true);
+    const quietRows = (R) => R.rows.every((r) => !r.copies.length && (!r.total || r.total === 'total ?'));
+    return tot.rows[0].total === 'total ?' && quietRows(tot) && tot2.rows[0].total === 'total +0.2' + KGMS &&
+      cell(stk, 0, 1) === '?' && cell(stk, 1, 1) === '?' && quietRows(stk) && cell(stk2, 1, 1) === '2.0' + MS + ' right' &&
+      nrg.F.ke.at === '?' && quietRows(nrg) && nrg2.F.ke.at === '0.8' + NB + 'J' &&
+      cell(bnc, 0, 1) === '0.6' + MS + ' left' && cell(bnc, 1, 1) === '?' && cell(bnc2, 1, 1) === '1.8' + MS + ' right' &&
+      cell(alg, 0, 1) === '?' && cell(alg, 1, 1) === '1.5' + MS + ' at 60' + DEG && alg.angles.B === 60 && alg.F.parts.rows[0].cells[1].t === '?' &&
+      alg2.F.parts.rows[0].cells[1].t === '2.25 + 0.75 = 3.0' && alg2.F.parts.rows[1].cells[1].t === '1.3 ' + MINUS + ' 1.3 = 0' &&
+      cell(can, 1, 1) === '?' && quietRows(can) && cell(can2, 1, 1) === '5.0' + MS + ' left' &&
+      cell(wag, 0, 1) === '?' && quietRows(wag) && cell(wag2, 0, 1) === '0.8' + MS + ' right';
+  });
+  K.check('The choices follow the rule: two equal balls at ideal bouncy leave the cue ball still, and of the four outcomes only the third, at 0.3 kg m/s, misses the 0.4 kg m/s total', () => {
+    const i0 = IX('What does the cue ball do?'), i1 = IX('Which cannot happen?'), d1 = STEPS[i1];
+    const R = drawn(i1, doneSt(i1)), totals = [[0, 2], [0.5, 1.5], [0.5, 1.0], [1, 1]].map((x) => LIGHT * (x[0] + x[1]));
+    return STEPS[i0].want === STEPS[i0].opts[0] && drawn(i0, doneSt(i0)).F.speed.rows[0].cells[1].t === 'still' && d1.want === OPT13[2] &&
+      totals.filter((t) => !near(t, 0.4, 1e-9)).length === 1 && near(totals[2], 0.3) && R.rows[1].total === 'total +0.3' + KGMS + ', not +0.4';
+  });
+  K.check('Every demonstration is over within 5 s and settles; every answer\'s motion is over within 3.5 s; the cue ball on the first screen stops within 3 s of Check', () => {
+    const J = (i, st, t) => JSON.stringify(scene(i, st, t)) + JSON.stringify(REC.F) + REC.texts.join('|');
+    try {
+      const ok = STEPS.every((d, i) => {
+        const b = Object.assign(openSt(i), { mode: 'demo' }), r = Object.assign(doneSt(i), { mode: 'run' });
+        if (d.show) { const D = demoDur(i); return D >= 3 && D <= 5 && J(i, b, D) === J(i, b, Infinity); }
+        const R = runDur(i); return R <= 3.5 && J(i, r, R) === J(i, r, Infinity);
+      });
+      const i0 = IX('What does the cue ball do?'), S0 = simulate(cfgOf(i0, openSt(i0)));
+      return ok && 0.3 + S0.tc + TAU < 3;
+    } finally { paint(); }
+  });
+
+  K.ready();
+</script>

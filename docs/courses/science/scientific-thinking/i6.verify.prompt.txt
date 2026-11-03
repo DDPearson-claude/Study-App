@@ -1,0 +1,351 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Scientific thinking: gears, balances, collisions, frames, light
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i6 "Mirrors" — A flat mirror sends light off at the angle it arrives, so its image sits as far behind the mirror as the object is in front. [mechanism]
+Later ideas in the course (every claim must stay true after Dan has learned each of them):
+- i7 Refraction and prisms — Light bends at the edge of water or glass because it changes speed, and Snell's law, linking the two angles, says by how much.
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] Reflection of waves - Reflection and refraction - AQA - GCSE Physics (Single Science) Revision - AQA - BBC Bitesize — https://www.bbc.co.uk/bitesize/guides/zw42ng8/revision/1
+    "The law of reflection states that: angle of incidence = angle of reflection"
+[R2] 2.1 Images Formed by Plane Mirrors - University Physics Volume 3 | OpenStax — https://openstax.org/books/university-physics-volume-3/pages/2-1-images-formed-by-plane-mirrors
+    "This means that the distance PB from the object to the mirror is the same as the distance BQ from the mirror to the image."
+[R3] Role of physics lecture demonstrations in conceptual learning | Phys. Rev. ST Phys. Educ. Res. — https://journals.aps.org/prper/abstract/10.1103/PhysRevSTPER.9.020113
+    "In the context of demonstrations, the “elicit, confront, resolve” cycle is better known as “predict, observe, explain” (POE)"
+Notes (claims, and the sources that support them):
+- The law of reflection: the angle of incidence equals the angle of reflection. [R1]
+- In a flat mirror the image is as far behind the mirror as the object is in front of it. [R2]
+- Physics teaching uses a predict, observe, explain cycle: students commit to a prediction, see the outcome, then resolve any conflict between the two. [R3]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i6",
+ "title": "Mirrors",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the ray to the eye meeting the mirror at equal angles, and its dashed line back ending at the same image point, when you drag the eye along the bench.",
+  "title": "The mirror bench",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Step",
+    "min": 0,
+    "max": 13,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [],
+  "whatAmILookingAt": "A short lesson in fourteen small screens on a flat mirror, seen from above. Some screens show an idea and the rest ask you to try it. The mirror is a straight line with a handle that turns it. On the early screens a torch shines a beam at it. Later an object, drawn as a small lamp, and an eye stand in front of it, and you can drag either. Light is drawn as rays, straight lines with arrows. Where a ray strikes the mirror, a thin line stands at 90° to the surface. That is the normal, and both angles are measured from it and labelled. Here is the rule the picture follows. A ray leaves the mirror at the same angle to the normal as it arrives. The eye cannot tell that the light bounced, so it traces each ray straight back. Dashed lines carry the reflected rays back behind the mirror. Because the angles are equal, every traced-back ray from one point meets at the same spot. That spot is the image, as far behind the mirror as the object is in front. No light travels along the dashed lines, so the image is seen only from where reflected light arrives. Drag the eye past the mirror's end, and no ray reaches it, and a note says the image cannot be seen from here. A switch adds a second mirror at 45° below the first, making a periscope, and a readout adds up the folded path. A readout that would give a puzzle's answer shows \"?\" until the answer is checked. Any row of readouts wraps onto two lines on a phone. The screens, in order. Screen 1, do, Which way?: a torch beam striking the mirror at a slant, with four paths drawn faintly away from the mirror. \"A torch beam strikes a flat mirror at a slant. Which way does it leave?\" Choices, in a column: At the same slant, tipped the other way (right); Straight back along the beam; Straight out, square to the mirror; Along the mirror's surface. Hint on Straight back along the beam: \"That happens only when the beam strikes square on.\" Hint on Straight out, square to the mirror: \"Only a beam that arrives square on leaves square.\" Hint on Along the mirror's surface: \"A mirror sends light back off it, not along it.\" Read: \"A torch beam strikes a flat mirror at a slant. Which way does it leave?\" Why: a mirror sends light off at the same slant it arrives at, on the other side. After Check the beam plays and reflects. Screen 2, show, Equal angles: the torch, the mirror and the normal where the beam strikes, both angles labelled. Words: \"Draw the normal, a line at 90° to the mirror where the ray strikes. Both angles are measured from it. The angle the ray leaves at, the angle of reflection, equals the angle it arrives at, the angle of incidence.\" Then \"Drag the torch.\" Read: \"Wherever the torch points, the beam arrives and leaves at equal angles to the normal, 35° and 35° here.\" Still: the torch at 35° to the normal. Screen 3, do, typed, From the normal: a beam striking the mirror, its angle to the surface labelled 25°, the normal drawn and the angle of reflection showing \"?\". \"A beam strikes a mirror at 25° to the mirror's surface. What is the angle of reflection?\" A typed answer: 65°, a whole number. Slips: 25°, \"That is measured from the surface. Both angles are measured from the normal.\"; 115°, \"That adds 90°. Take 25° from 90° instead.\" Hint: \"Measure from the normal, at 90° to the surface.\" Read: \"A beam strikes a mirror at 25° to the mirror's surface. What is the angle of reflection?\" Why: the normal is at 90° to the surface, so the beam arrives 90 − 25 = 65° from the normal. It leaves at the same angle on the other side, 65°. The angle shows \"?\" until the answer is checked. Screen 4, show, Turn the mirror: the torch held still and the mirror turned by its handle, the old and new reflected beams both drawn. Words: \"Turn the mirror 10°, and the angle of incidence changes by 10°, so the angle of reflection does too. The angle between the arriving and leaving beams is the two together, so it changes by 20°. With the torch still, the reflected beam turns twice as far as the mirror.\" Then \"Turn the mirror by its handle.\" Read: \"With the torch held still, turning the mirror 10° turns the reflected beam 20°.\" Still: the mirror turned 10°. Screen 5, do, typed, Follow the target: a torch beam reflecting off the mirror onto a target, which then slides round. \"A torch beam reflects off a mirror onto a target. The target moves 30° round the mirror. How far must you turn the mirror to keep the beam on it?\" A typed answer: 15°, a whole number. Slips: 30°, \"Turning the mirror turns the beam twice as far.\"; 60°, \"The mirror turns half as far as the beam, not twice.\" Hint: \"The beam turns twice as far as the mirror.\" Read: \"A torch beam reflects off a mirror onto a target. The target moves 30° round the mirror. How far must you turn the mirror to keep the beam on it?\" Why: turning the mirror by an angle turns the beam by twice that angle. So the mirror turns half of 30°, which is 15°. After Check the mirror turns 15° and the beam lands on the target. Screen 6, show, Where the image sits: the lamp 40 cm in front of the mirror and the eye off to one side, with the ray from lamp to mirror to eye and its dashed line back. Words: \"Your eye cannot tell that light bounced. It traces each ray straight back. Because the angles are equal, every traced-back ray from one point meets at one spot behind the mirror. That spot is the image, as far behind as the object is in front.\" Then \"Drag the eye.\" Read: \"As the eye moves, the ray bounces off a different spot on the mirror. Its dashed line back still ends at the same image, 40 cm behind the mirror, with the lamp 40 cm in front.\" Still: the eye to one side of the lamp. Screen 7, do, Find the image: the lamp, the mirror and the eye off to one side, no rays drawn. \"Where does this eye see the lamp's image?\" Choices, in a column: Behind the mirror, straight across from the lamp, as far back (right); On the mirror's surface, where the ray bounces; On the eye's straight line through the lamp; It moves whenever the eye moves. Hint on On the mirror's surface: \"Trace the ray into the eye straight back. It carries on past the mirror.\" Hint on On the eye's straight line through the lamp: \"That line ends at the lamp itself. Trace back the reflected ray instead.\" Hint on It moves whenever the eye moves: \"Every eye's traced-back ray passes through the same spot.\" Read: \"A lamp stands in front of a mirror, and an eye looks in from one side. Where does this eye see the lamp's image?\" Why: the eye traces the reflected ray straight back. The equal angles send that line, from any eye, through the spot straight across the mirror from the lamp, as far behind as the lamp is in front. After Check the ray and its dashed line back appear. Screen 8, show, A worked example: a person standing 1.5 m in front of a wall mirror, with their image behind it. Words: \"Stand 1.5 m in front of a mirror. Your image is 1.5 m behind it. So it looks 1.5 + 1.5 = 3.0 m away from you.\" Screen 9, do, typed, Step closer: the person 1.2 m from the mirror, an arrow showing a step of 0.4 m towards it. \"You stand 1.2 m from a mirror, then step 0.4 m closer. How far away does your image look now?\" A typed answer: 1.6 m, to one decimal place. Slips: 2.0 m, \"Your image steps closer too.\"; 0.8 m, \"That is your distance from the mirror. Add the image's distance behind it.\"; 2.4 m, \"That was before the step.\" Hint: \"Find your new distance from the mirror, then double it.\" Read: \"You stand 1.2 m from a mirror, then step 0.4 m closer. How far away does your image look now?\" Why: you are now 1.2 − 0.4 = 0.8 m in front of the mirror. Your image is 0.8 m behind it. So it looks 0.8 + 0.8 = 1.6 m away. The distance shows \"?\" until the answer is checked. Screen 10, show, Only where the light goes: the lamp, the mirror, its image and the eye. Words: \"No light really comes from behind the mirror. So the image is seen only by an eye that reflected light reaches. Past the mirror's end, no reflected ray arrives.\" Then \"Drag the eye past the end of the mirror.\" Read: \"With the eye past the end of the mirror, no reflected ray reaches it. A note says the image cannot be seen from here.\" Still: the eye past the mirror's end. Screen 11, do, Who sees it?: a short mirror on a wall, a lamp in front of it, and three people, A and B in front of the mirror and C to one side, close to the wall, past the mirror's end. \"Which of them can see the lamp's image?\" Choices, in a column: A and B (right); All three; Only C; Only B. Hint on All three: \"Draw C's line to the image. It misses the mirror.\" Hint on Only C: \"C sees the lamp itself. C's line to the image misses the mirror.\" Hint on Only B: \"A's line to the image also crosses the mirror.\" Read: \"A lamp stands in front of a short wall mirror. A and B stand in front of the mirror, and C to one side, close to the wall, past its end. Which of them can see the lamp's image?\" Why: an eye sees the image only if its straight line to the image crosses the mirror, because only then does reflected light reach it. A's and B's lines cross the mirror. C's line misses it. After Check each person's line to the image appears. Screen 12, show, Two mirrors: the switch turns on a second mirror at 45° below the first, making a periscope. Words: \"A mirror at 45° turns light through 90°, because it arrives and leaves at 45° to the normal. Two such mirrors, one above the other, make a periscope. The second mirror makes an image of the first one's image, so the final image is as far away as the whole folded path.\" Then \"Switch on the second mirror.\" Read: \"Light from a lamp 10 m from the top mirror drops 1.5 m to the lower mirror, then travels 0.1 m to the eye. The image looks 10 + 1.5 + 0.1 = 11.6 m away.\" Still: the second mirror on. Screen 13, do, mixed, typed, The periscope: the periscope from screen 12 with its distances labelled and the folded path showing \"?\". \"A periscope's mirrors are 2 m apart. An object is 30 m from the top mirror, and your eye is 0.1 m from the lower mirror. How far away does the object's image look?\" A typed answer: 32.1 m, to one decimal place. Slips: 30 m, \"That is only the first leg. The light still drops and travels out to your eye.\"; 32 m, \"Add the last 0.1 m, from the lower mirror to your eye.\"; 2.1 m, \"Count the 30 m too. The image is as far as the whole path.\" Hint: \"Add every leg of the folded path.\" Read: \"A periscope's mirrors are 2 m apart. An object is 30 m from the top mirror, and your eye is 0.1 m from the lower mirror. How far away does the object's image look?\" Why: the top mirror puts a first image 30 m behind it. That image is 30 + 2 = 32 m from the lower mirror, so the lower mirror puts the final image 32 m behind itself. Your eye is 0.1 m in front of it, so the image looks 32 + 0.1 = 32.1 m away. The path shows \"?\" until the answer is checked. Screen 14, do, mixed, typed, A knocked mirror: the periscope's top mirror turned slightly off 45°, the light it sends down leaning off vertical, its angle showing \"?\". \"A periscope's top mirror is knocked 2° off its 45°. How far off vertical does it now send the light down?\" A typed answer: 4°, a whole number. Slips: 2°, \"The light turns twice as far as the mirror.\"; 1°, \"Double the mirror's turn, rather than halve it.\" Hint: \"Turning a mirror turns the reflected light twice as far.\" Read: \"A periscope's top mirror is knocked 2° off its 45°. How far off vertical does it now send the light down?\" Why: the light arriving is still level. Turning the mirror 2° changes the angle to the normal by 2° on the way in and 2° on the way out. So the light it sends down turns 2 × 2 = 4° off vertical. The angle shows \"?\" until the answer is checked.",
+  "ignores": "The dashed lines behind the mirror show where rays seem to come from. No light travels along them. The picture is flat and seen from above. The mirror is perfectly flat and sends back all the light that strikes it. A real mirror soaks up a little, so its image is a little dimmer than the object. In a glass mirror the shiny layer sits behind the glass, and the glass's front face adds a faint second reflection. The lamp and the eye are drawn as points. Real eyes come in pairs, and each pupil has some width. Curved mirrors, which make images bigger or smaller, are left out, and so is light as a wave. Every distance and angle is an example figure.",
+  "numbers": [
+   {
+    "label": "Screen, 1 to 14 (the stepper)",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Angle between the normal and the mirror, degrees",
+    "value": 90,
+    "kind": "constant"
+   },
+   {
+    "label": "Screen 2 example angle of incidence, degrees",
+    "value": 35,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 2 angle of reflection, degrees",
+    "value": 35,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 3 beam's angle to the surface, degrees",
+    "value": 25,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 3 answer: angle of reflection, 90 − 25, degrees",
+    "value": 65,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 3 slip: measured from the surface, degrees",
+    "value": 25,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 3 slip: 90 + 25, degrees",
+    "value": 115,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 4 mirror's turn, degrees",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 4 reflected beam's turn, 2 × 10, degrees",
+    "value": 20,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 5 target's move, degrees",
+    "value": 30,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 5 answer: mirror's turn, 30 ÷ 2, degrees",
+    "value": 15,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 5 slip: the full 30, degrees",
+    "value": 30,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 5 slip: 2 × 30, degrees",
+    "value": 60,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 6 lamp in front of the mirror, cm",
+    "value": 40,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 6 image behind the mirror, cm",
+    "value": 40,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 8 and explanation: you in front of the mirror, m",
+    "value": 1.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 8 and explanation: your image behind it, m",
+    "value": 1.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 8 and explanation: image from you, 1.5 + 1.5, m",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 9 first distance from the mirror, m",
+    "value": 1.2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 9 step closer, m",
+    "value": 0.4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 9 new distance, 1.2 − 0.4, m",
+    "value": 0.8,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 9 answer: image from you, 0.8 + 0.8, m",
+    "value": 1.6,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 9 slip: 2.4 − 0.4, m",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 9 slip: before the step, 1.2 + 1.2, m",
+    "value": 2.4,
+    "kind": "computed"
+   },
+   {
+    "label": "Periscope mirror's angle, degrees",
+    "value": 45,
+    "kind": "assumed"
+   },
+   {
+    "label": "Turn at a 45° mirror, 2 × 45, degrees",
+    "value": 90,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12 lamp from the top mirror, m",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 12 gap between mirrors, m",
+    "value": 1.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 12 and 13 eye from the lower mirror, m",
+    "value": 0.1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 12 folded path, 10 + 1.5 + 0.1, m",
+    "value": 11.6,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 13 object from the top mirror, m",
+    "value": 30,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 13 gap between mirrors, m",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 13 first image from the lower mirror, 30 + 2, m",
+    "value": 32,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 13 answer: folded path, 32 + 0.1, m",
+    "value": 32.1,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 13 slip: 2 + 0.1, m",
+    "value": 2.1,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 14 top mirror's knock, degrees",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 14 answer: light's turn, 2 × 2, degrees",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 14 slip: 2 ÷ 2, degrees",
+    "value": 1,
+    "kind": "computed"
+   },
+   {
+    "label": "Practice nameplate to the mirror, m",
+    "value": 0.3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Practice mirror to your eye, m",
+    "value": 0.4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Practice nameplate's image from you, 0.3 + 0.4, m",
+    "value": 0.7,
+    "kind": "computed"
+   },
+   {
+    "label": "Practice beam's move, degrees",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "Practice mirror's turn, 10 ÷ 2, degrees",
+    "value": 5,
+    "kind": "computed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "A flat mirror sends light off at the same angle it arrives. Your eye then traces that light straight back. So you see the object's image behind the mirror, as far behind it as the object is in front.\n\nStart with the angles. Light travels through air in straight lines, so draw it as rays. Where a ray strikes the mirror, draw a line at 90° to the surface. That line is the [[normal]], and both angles are measured from it. The angle the ray arrives at, the angle of incidence, equals the angle it leaves at, the angle of reflection.[^1] That is the [[law of reflection]]. A ray 25° from the surface is 90 − 25 = 65° from the normal, so it leaves at 65° on the other side. Turn the mirror 10°, and the angle of incidence changes by 10°, so the angle of reflection changes by 10° too. The angle between the arriving and leaving rays is the two angles together, so it changes by 20°. With the arriving ray held still, the reflected ray turns twice as far as the mirror.\n\nNow the image. Your eye cannot tell that light bounced. It judges where light comes from by tracing each ray straight back. Light from one point of an object spreads out, and each ray strikes the mirror at its own spot. Because its angles are equal, each traced-back ray is the incoming ray flipped across the mirror's line. So every one passes through the same point, straight across the mirror from the object point. That point is the [[image]], as far behind the mirror as the object is in front.[^2] Stand 1.5 m in front of a mirror, and your image is 1.5 m behind it, 1.5 + 1.5 = 3.0 m from you. No light really comes from behind the mirror. So the image is seen only by an eye that reflected light reaches. A mirror at 45° turns light through 90°, because the light arrives and leaves at 45° to the normal. Two such mirrors, one above the other, make a periscope. The second mirror makes an image of the first image, so the final image sits as far away as the whole folded path.\n\nRays, a perfectly flat mirror and a point object make this a teaching model. Real mirrors soak up a little light and are not perfectly flat, so real images are a little dimmer and softer. **A flat mirror sends light off at the angle it arrives, so its image sits as far behind the mirror as the object is in front.**[^2]"
+ },
+ "analogy": {
+  "text": "One way to bank a ball off a cushion into a pocket is to aim at the pocket's mirror copy. That copy sits as far behind the cushion as the pocket is in front. A ball that rolls without spin leaves the cushion at about the angle it arrived. So the straight line to the copy is the ball's real path, folded at the cushion. A mirror's image works the same way. The eye looks along the straight line to the image, and the light really took that line folded at the mirror.",
+  "breaks": "A real ball leaves a cushion at only roughly its arriving angle. Spin, speed and the cushion's give all change it. Light off a flat, smooth mirror keeps the equal angles. And a ball takes one path, while light spreads from every point of an object, so many rays meet at its image."
+ },
+ "practice": {
+  "text": "- Treat a mirror as a second source of any beam it can catch. Keep a laser's reflection out of everyone's eyes.\n- Draw the mirror, and the normal where the ray strikes.\n- Measure both angles from the normal. If you are given the angle to the surface, take it from 90°.\n- To find an image, draw a line from the object square to the mirror. Carry it on as far again behind the mirror.\n- To check who can see the image, draw a straight line from each eye to it. If the line crosses the mirror, that eye sees the image.\n- With two mirrors, find the first image. Then treat it as the object for the second mirror.\n\n**Rule of thumb:** turn a mirror, and its reflected beam turns twice as far. To move a reflected spot 10°, turn the mirror 10 ÷ 2 = 5°. Your own image is twice your distance from the mirror.\n\n**Worked example:** you use an inspection mirror to read a nameplate behind a panel. The light travels 0.3 m from the nameplate to the mirror, then 0.4 m on to your eye. The image sits 0.3 m behind the mirror, along the line you look down. So the nameplate looks 0.3 + 0.4 = 0.7 m away, as if its light had come to you in a straight line.\n\n**Common mistakes**\n- Measuring the angles from the mirror's surface instead of the normal.\n- Turning a mirror by the whole angle you want the beam to move.\n- Putting the image on the mirror's surface, or on your line of sight to the object.\n- Expecting the image to be seen from anywhere. Only an eye that reflected light reaches sees it.\n- Counting only the first leg of a folded path."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "simplified",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "sources": [
+  {
+   "n": 1,
+   "title": "Reflection of waves - Reflection and refraction - AQA - GCSE Physics (Single Science) Revision - AQA - BBC Bitesize",
+   "url": "https://www.bbc.co.uk/bitesize/guides/zw42ng8/revision/1",
+   "quote": "The law of reflection states that: angle of incidence = angle of reflection"
+  },
+  {
+   "n": 2,
+   "title": "2.1 Images Formed by Plane Mirrors - University Physics Volume 3 | OpenStax",
+   "url": "https://openstax.org/books/university-physics-volume-3/pages/2-1-images-formed-by-plane-mirrors",
+   "quote": "This means that the distance PB from the object to the mirror is the same as the distance BQ from the mirror to the image."
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }

@@ -1,0 +1,635 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Scientific thinking: gears, balances, collisions, frames, light
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i4 "Collisions" — When things collide with no outside push, total momentum, mass times velocity with its direction, stays the same, even when kinetic energy is lost. [quantity]
+Later ideas in the course (every claim must stay true after Dan has learned each of them):
+- i5 Structures — A frame of pinned bars built from triangles cannot fold, and balancing the forces joint by joint shows which bars are pulled and which pushed.
+- i6 Mirrors — A flat mirror sends light off at the angle it arrives, so its image sits as far behind the mirror as the object is in front.
+- i7 Refraction and prisms — Light bends at the edge of water or glass because it changes speed, and Snell's law, linking the two angles, says by how much.
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] Conservation of momentum - Momentum - Higher - AQA - GCSE Physics (Single Science) Revision - AQA - BBC Bitesize — https://www.bbc.co.uk/bitesize/guides/zytb8mn/revision/2
+    "In a closed system: total momentum before an event = total momentum after the event"
+[R2] Conservation of momentum - Momentum - Higher - AQA - GCSE Physics (Single Science) Revision - AQA - BBC Bitesize — https://www.bbc.co.uk/bitesize/guides/zytb8mn/revision/2
+    "A ‘closed system’ is something that is not affected by external forces."
+[R3] Momentum calculations - Momentum - Higher - AQA - GCSE Physics (Single Science) Revision - AQA - BBC Bitesize — https://www.bbc.co.uk/bitesize/guides/zytb8mn/revision/1
+    "Momentum can be calculated using the equation: momentum = mass × velocity"
+[R4] 8.3 Elastic and Inelastic Collisions - Physics | OpenStax — https://openstax.org/books/physics/pages/8-3-elastic-and-inelastic-collisions
+    "Momentum is conserved, but kinetic energy is not conserved."
+[R5] Role of physics lecture demonstrations in conceptual learning | Phys. Rev. ST Phys. Educ. Res. — https://journals.aps.org/prper/abstract/10.1103/PhysRevSTPER.9.020113
+    "In the context of demonstrations, the “elicit, confront, resolve” cycle is better known as “predict, observe, explain” (POE)"
+Notes (claims, and the sources that support them):
+- In a closed system, total momentum before an event equals total momentum after it. [R1]
+- A closed system is one not affected by external forces. [R2]
+- Momentum is mass times velocity, and it is a vector, so direction matters as well as size. [R3]
+- In an inelastic collision momentum is still conserved but kinetic energy is not. [R4]
+- Physics teaching uses a predict, observe, explain cycle: students commit to a prediction, see the outcome, then resolve any conflict between the two. [R5]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i4",
+ "title": "Collisions",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is each ball's momentum arrow changing in the hit while the total arrow beside the table, the arrows added nose to tail, stays exactly the same, when you pull back and play a shot.",
+  "title": "The pool table",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Step",
+    "min": 0,
+    "max": 13,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [],
+  "whatAmILookingAt": "A short lesson in fourteen small screens on a pool table seen from above. Some screens show an idea and the rest ask you to try it. Each ball carries an arrow for its momentum, before the hit and after it. Beside the table, the arrows are added nose to tail into one total arrow, drawn once for before and once for after. A bounce slider runs from ideal bouncy to sticky. A kinetic energy bar shows the total for all the balls, before and after. A heavy-ball switch makes one ball heavy. Drag the cue ball's aim, then pull back for speed and let go to play the shot. Pull-back speeds run from 0.5 to 4.0 m/s in steps of 0.5 m/s. Each ball is an example 0.2 kg, and the heavy ball is 0.4 kg. Here is the rule the picture follows. A ball's momentum is its mass × its velocity, in kg m/s. Its arrow points the way the ball moves and grows with its momentum. Take one way as positive, and a ball going the other way has negative momentum. During a hit, the two balls push on each other equally hard, in opposite directions, for the same time. So one ball's gain in momentum is the other's loss, and the total arrow is the same before and after. The bounce slider sets how fast the balls part compared with how fast they met. At ideal bouncy they part as fast as they met. At sticky they do not part at all, and move off as one. A ball's kinetic energy is ½mv², and the bar adds up every ball's. It ends as long as it started only at ideal bouncy. On a glancing hit, the balls push each other along the line joining their centres, so the struck ball leaves along that line. Each arrow then splits into a part along the cue ball's first line and a part across it. The parts in each direction keep their own total. The screens, in order. Screen 1, do, What does the cue ball do?: two equal balls, the bounce slider at ideal bouncy, the arrows hidden. The cue ball rolls at 2.0 m/s straight at the middle of a still ball. \"Two equal balls, set to ideal bouncy. A cue ball at 2.0 m/s hits a still one dead centre. What does the cue ball do?\" Choices, in a column: It stops, and the other ball goes on at its speed (right); Both roll on together at half speed; It bounces back the way it came. Hint on Both roll on together at half speed: \"That is what balls do when they stick. These are set to ideal bouncy.\" Hint on It bounces back the way it came: \"Then the struck ball would leave faster than the cue ball came in, with more energy than the shot had.\" Read: \"Two equal balls are set to ideal bouncy. A cue ball at 2.0 m/s hits a still one dead centre. What does the cue ball do?\" Why: each ball is an example 0.2 kg. Before the hit, the shot carries 0.2 × 2.0 = 0.4 kg m/s of momentum and ½ × 0.2 × 2.0² = 0.4 J of kinetic energy. The struck ball leaving at 2.0 m/s carries both, exactly. Rolling on together at 1.0 m/s keeps the 0.4 kg m/s but only 0.2 J. An ideal bouncy hit keeps both, so the cue ball stops dead. After Check the shot plays and the cue ball stops. Screen 2, show, Momentum has a direction: two equal balls rolling towards each other, each with its momentum arrow, and beside the table the two arrows added nose to tail. Words: \"A ball's momentum is its mass × its velocity, in kg m/s. Velocity has a direction, so momentum has one too. Call one way positive. Then a ball going the other way has negative momentum.\" Then \"Pull back either ball.\" Read: \"A 0.2 kg ball at 2.0 m/s to the right carries +0.4 kg m/s. An equal ball at 1.5 m/s to the left carries −0.3 kg m/s. Nose to tail, the arrows total 0.1 kg m/s to the right.\" Screen 3, do, typed, The total: a 0.4 kg ball rolling right and a 0.2 kg ball rolling left, with their arrows, and the total arrow showing \"?\". \"Take right as positive. A 0.4 kg ball rolls right at 2.0 m/s. A 0.2 kg ball rolls left at 3.0 m/s. What is their total momentum?\" A typed answer: 0.2 kg m/s, to one decimal place. Slips: 1.4 kg m/s, \"You added the sizes. The ball rolling left counts as negative.\"; −0.2 kg m/s, \"Right is positive here, and the heavier ball's arrow is the longer.\" Hint: \"Give each ball's momentum its sign, then add.\" Why: 0.4 × 2.0 = 0.8 kg m/s to the right. 0.2 × 3.0 = 0.6 kg m/s to the left, so −0.6 kg m/s. The total is 0.8 − 0.6 = 0.2 kg m/s, to the right. The total arrow shows \"?\" until the answer is checked. Screen 4, show, The total survives: the shot from screen 1, with every arrow showing. Words: \"In a hit, each ball's momentum changes, but the total does not. The two balls push on each other equally hard, in opposite directions, for the same time. So what one ball loses, the other gains. That holds while nothing outside pushes.\" Then \"Pull back and play a shot.\" Read: \"The cue ball's arrow shrinks to nothing as the struck ball's arrow grows to the same length. The total arrow beside the table stays at 0.4 kg m/s forward.\" Screen 5, do, typed, They stick: the heavy ball as the cue ball, the bounce slider at sticky. \"A 0.4 kg ball at 3.0 m/s hits a still 0.2 kg ball. They stick together. How fast do they move off?\" A typed answer: 2.0 m/s, to one decimal place. Slips: 1.5 m/s, \"You halved the speed. Share the momentum by the joined mass instead.\"; 6.0 m/s, \"They move as one, so divide by both masses together.\" Hint: \"Find the momentum before, then share it by the joined mass.\" Why: before the hit, 0.4 × 3.0 = 1.2 kg m/s. After it, the joined 0.6 kg carries the same 1.2 kg m/s, so it moves at 1.2 ÷ 0.6 = 2.0 m/s. The speed readout shows \"?\" until the answer is checked. Screen 6, show, Energy is not kept: the same sticking hit, with the kinetic energy bar. Words: \"Kinetic energy, ½mv², behaves differently. In a hit, some of it goes into squashing the balls. A perfectly springy ball would give it all back. These stick, so 1.8 J before becomes 1.2 J after, and 0.6 J leaves as heat and sound. The momentum total stays 1.2 kg m/s.\" Then \"Slide the bounce from ideal bouncy to sticky.\" Read: \"At ideal bouncy, the kinetic energy bar ends as long as it started. Towards sticky it ends shorter, a third shorter at sticky. The total momentum arrow is the same at every setting.\" Screen 7, do, typed, Energy lost: two equal balls, the bounce slider at sticky, the kinetic energy bar showing \"?\" after. \"A 0.2 kg ball at 4.0 m/s hits an equal still ball, and they stick. How much kinetic energy is lost?\" A typed answer: 0.8 J, to one decimal place. Slips: 0 J, \"Momentum is kept, but kinetic energy is not. Work out the speed after first.\"; 1.6 J, \"That is all of it. The joined balls still move.\"; 1.2 J, \"Both balls move after the hit. Count the kinetic energy of all 0.4 kg.\" Hint: \"Find the speed after from the momentum, then compare the kinetic energies.\" Why: the momentum is 0.2 × 4.0 = 0.8 kg m/s, so the joined 0.4 kg moves at 0.8 ÷ 0.4 = 2.0 m/s. Before, ½ × 0.2 × 4.0² = 1.6 J. After, ½ × 0.4 × 2.0² = 0.8 J. So 1.6 − 0.8 = 0.8 J is lost, half of it. The bar after shows \"?\" until the answer is checked. Screen 8, show, Light into heavy: the heavy ball as the struck ball, the bounce slider at ideal bouncy. Words: \"On a bouncy enough hit, a light ball comes back off a heavier one. Its arrow points backwards, so its momentum is negative. So the heavy ball carries more forward momentum than the whole shot had. The total still comes out the same.\" Then \"Flip the heavy-ball switch and play a shot.\" Read: \"A 0.2 kg ball at 3.0 m/s hits a still 0.4 kg ball. The light ball comes back at 1.0 m/s, carrying −0.2 kg m/s. The heavy ball leaves at 2.0 m/s, carrying 0.8 kg m/s. The total, 0.6 kg m/s forward, is what the shot started with.\" Screen 9, do, typed, Bounce back: the heavy ball as the struck ball, the bounce slider part way, the heavy ball's speed showing \"?\". \"A 0.2 kg ball at 3.0 m/s hits a still 0.4 kg ball and comes back at 0.6 m/s. How fast does the 0.4 kg ball move off?\" A typed answer: 1.8 m/s, to one decimal place. Slips: 1.2 m/s, \"The light ball came back, so its momentum after is negative.\"; 1.5 m/s, \"The light ball still moves after the hit. Count its momentum too.\" Hint: \"Give the light ball's momentum after the hit its minus sign.\" Why: before, 0.2 × 3.0 = 0.6 kg m/s. After, the light ball carries 0.2 × 0.6 = 0.12 kg m/s backwards, so −0.12 kg m/s. The heavy ball must carry 0.6 + 0.12 = 0.72 kg m/s, so it moves at 0.72 ÷ 0.4 = 1.8 m/s. The heavy ball's speed shows \"?\" until the answer is checked. Screen 10, show, Glancing hits: two equal balls, ideal bouncy, the cue ball aimed off-centre. Each arrow after the hit splits into its part along the cue ball's first line and its part across it. Words: \"On a glancing hit, split each arrow into a part along the cue ball's first line and a part across it. Each direction keeps its own total. Before the hit nothing moves across, so after it the across parts cancel.\" Then \"Drag the aim off-centre and play a shot.\" Read: \"A 0.2 kg cue ball at 2.0 m/s carries 0.4 kg m/s along its line. It leaves at 1.73 m/s, 30° to one side. The struck ball leaves at 1.00 m/s, 60° to the other side. Along the line, 0.3 + 0.1 = 0.4 kg m/s. Across it, 0.17 kg m/s one way cancels 0.17 kg m/s the other.\" Screen 11, do, typed, Along the line: two equal balls, the struck ball's path drawn at 60° to the cue ball's first line, the cue ball's along part showing \"?\". \"A 0.2 kg cue ball at 3.0 m/s hits an equal still ball off-centre. The struck ball leaves at 1.5 m/s, 60° from the cue ball's first line. How fast does the cue ball now move along that line?\" A typed answer: 2.25 m/s, to two decimal places. Slips: 1.5 m/s, \"Only the struck ball's along part counts, 1.5 × cos 60°.\"; 1.70 m/s, \"That takes away the across part. Along the line, use cos 60°.\" Hint: \"The masses are equal, so compare the speeds' along parts.\" Why: along the line, the cue ball had 3.0 m/s. The struck ball's along part is 1.5 × cos 60° = 0.75 m/s. The masses are equal, so the cue ball keeps 3.0 − 0.75 = 2.25 m/s along the line. Its across part is 1.5 × sin 60° = 1.30 m/s, the other way, to cancel the struck ball's. The along part shows \"?\" until the answer is checked. Screen 12, do, mixed, typed, The cannon: a cannon on wheels seen from the side, a ball leaving its muzzle with its arrow, and the cannon's arrow pointing back. \"A 96 kg cannon stands still on smooth, level ground. It fires a 4.0 kg ball at 120 m/s. How fast does the cannon roll back?\" A typed answer: 5.0 m/s, to one decimal place. Slips: 120 m/s, \"The cannon is far heavier than the ball, so it moves far slower.\"; 4.8 m/s, \"Only the cannon rolls back. Divide by its 96 kg alone.\"; 0 m/s, \"The total stays zero. That needs the cannon to move back.\" Hint: \"The total before is zero, so the two momenta after must cancel.\" Why: before firing nothing moves, so the total is zero. The ball carries 4.0 × 120 = 480 kg m/s forward. So the cannon carries 480 kg m/s back, and moves at 480 ÷ 96 = 5.0 m/s. The cannon's speed shows \"?\" until the answer is checked. Screen 13, do, mixed, Which cannot happen?: two equal 0.2 kg balls, the cue ball at 2.0 m/s heading for the still one dead centre. \"Which of these can never happen?\" Choices, in a column: The cue ball stops, the struck ball leaves at 2.0 m/s; The cue ball rolls on at 0.5 m/s, the struck ball at 1.5 m/s; The cue ball rolls on at 0.5 m/s, the struck ball at 1.0 m/s (right); Both roll on together at 1.0 m/s. Hint on the first: \"Total each ball's momentum after. That one keeps 0.4 kg m/s.\" Hint on the second: \"Its total is 0.1 + 0.3 = 0.4 kg m/s. Some kinetic energy is lost, which a real hit allows.\" Hint on the fourth: \"That is a sticking hit, and 0.4 × 1.0 = 0.4 kg m/s.\" Read: \"A 0.2 kg cue ball at 2.0 m/s hits an equal still ball dead centre. Which of these four outcomes can never happen?\" Why: before the hit, the total is 0.2 × 2.0 = 0.4 kg m/s. The third outcome totals 0.2 × 0.5 + 0.2 × 1.0 = 0.1 + 0.2 = 0.3 kg m/s. Nothing outside pushed, so the total cannot fall, and that outcome cannot happen. The other three all keep 0.4 kg m/s. Screen 14, do, mixed, typed, Coupling wagons: two railway wagons on a level track rolling towards each other, each with its arrow, the speed after showing \"?\". \"A 30 t wagon rolls right at 2.0 m/s. A 20 t wagon rolls left at 1.0 m/s. They meet and couple. How fast do they move on together?\" A typed answer: 0.8 m/s, to one decimal place. Slips: 1.6 m/s, \"The wagon rolling left counts as negative.\"; 1.3 m/s, \"You divided by the 30 t wagon alone. Coupled, they move as one 50 t.\"; 2.0 m/s, \"You divided by the 20 t wagon alone. Coupled, they move as one 50 t.\" Hint: \"Take right as positive, and give the left-rolling wagon a minus sign.\" Why: 30 000 kg × 2.0 m/s = 60 000 kg m/s to the right. 20 000 kg × 1.0 m/s = 20 000 kg m/s to the left. The total is 60 000 − 20 000 = 40 000 kg m/s, to the right. Shared by 50 000 kg, that is 0.8 m/s to the right. The speed shows \"?\" until the answer is checked.",
+  "ignores": "Time is slowed down, and each arrow's length is drawn in proportion to its momentum. The balls slide without spin, and the cloth's drag is left out. Over the short time of a hit, the cloth's push is tiny beside the balls' push on each other, so each hit is treated as closed. A cushion is an outside push, so a ball off a cushion changes the total. The picture stops before any ball reaches one. Real pool balls are nearly bouncy, never perfectly, so the ideal bouncy end is an ideal. On a glancing hit the balls are taken as perfectly smooth, so they push only along the line joining their centres. Real balls grip a little and set each other spinning. Every mass and speed is an example figure, not a real ball's or wagon's.",
+  "numbers": [
+   {
+    "label": "Screen, 1 to 14 (the stepper)",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Slowest pull-back speed, m/s",
+    "value": 0.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Fastest pull-back speed, m/s",
+    "value": 4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Each ball's mass, kg",
+    "value": 0.2,
+    "kind": "assumed"
+   },
+   {
+    "label": "The heavy ball's mass, kg",
+    "value": 0.4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screens 1, 4 and 13: cue ball's speed, m/s",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screens 1, 4 and 13: momentum, 0.2 × 2.0, kg m/s",
+    "value": 0.4,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 1 kinetic energy, ½ × 0.2 × 2.0², J",
+    "value": 0.4,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 1 sticking speed, 0.4 ÷ 0.4, m/s",
+    "value": 1,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 1 sticking kinetic energy, ½ × 0.4 × 1.0², J",
+    "value": 0.2,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 2 left-rolling ball's speed, m/s",
+    "value": 1.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 2 its momentum, kg m/s",
+    "value": -0.3,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 2 total, 0.4 − 0.3, kg m/s",
+    "value": 0.1,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 3 heavy ball's speed, m/s",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 3 light ball's speed, m/s",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 3 heavy ball's momentum, kg m/s",
+    "value": 0.8,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 3 light ball's momentum, kg m/s",
+    "value": -0.6,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 3 answer, 0.8 − 0.6, kg m/s",
+    "value": 0.2,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 3 slip: sizes added, 0.8 + 0.6, kg m/s",
+    "value": 1.4,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 3 slip: signs swapped, kg m/s",
+    "value": -0.2,
+    "kind": "computed"
+   },
+   {
+    "label": "Screens 5 and 6: heavy cue ball's speed, m/s",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screens 5 and 6: momentum, 0.4 × 3.0, kg m/s",
+    "value": 1.2,
+    "kind": "computed"
+   },
+   {
+    "label": "Screens 5 and 6: joined mass, 0.4 + 0.2, kg",
+    "value": 0.6,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 5 answer, 1.2 ÷ 0.6, m/s",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 5 slip: speed halved, m/s",
+    "value": 1.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 5 slip: light ball's mass only, 1.2 ÷ 0.2, m/s",
+    "value": 6,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 6 kinetic energy before, ½ × 0.4 × 3.0², J",
+    "value": 1.8,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 6 kinetic energy after, ½ × 0.6 × 2.0², J",
+    "value": 1.2,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 6 kinetic energy lost, 1.8 − 1.2, J",
+    "value": 0.6,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 7 cue ball's speed, m/s",
+    "value": 4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 7 momentum, 0.2 × 4.0, kg m/s",
+    "value": 0.8,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 7 speed after, 0.8 ÷ 0.4, m/s",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 7 kinetic energy before, J",
+    "value": 1.6,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 7 kinetic energy after, J",
+    "value": 0.8,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 7 answer, 1.6 − 0.8, J",
+    "value": 0.8,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 7 slip: nothing lost, J",
+    "value": 0,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 7 slip: one ball after, 1.6 − 0.4, J",
+    "value": 1.2,
+    "kind": "computed"
+   },
+   {
+    "label": "Screens 8 and 9: light cue ball's speed, m/s",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screens 8 and 9: momentum before, 0.2 × 3.0, kg m/s",
+    "value": 0.6,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 8 light ball's speed back, m/s",
+    "value": 1,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 8 light ball's momentum after, kg m/s",
+    "value": -0.2,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 8 heavy ball's speed, m/s",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 8 heavy ball's momentum, kg m/s",
+    "value": 0.8,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 9 light ball's speed back, m/s",
+    "value": 0.6,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 9 light ball's momentum after, kg m/s",
+    "value": -0.12,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 9 heavy ball's momentum, 0.6 + 0.12, kg m/s",
+    "value": 0.72,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 9 answer, 0.72 ÷ 0.4, m/s",
+    "value": 1.8,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 9 slip: bounce taken as forward, 0.48 ÷ 0.4, m/s",
+    "value": 1.2,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 9 slip: light ball left out, 0.6 ÷ 0.4, m/s",
+    "value": 1.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 10 cue ball's speed after, m/s",
+    "value": 1.73,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 10 cue ball's angle after, degrees",
+    "value": 30,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 10 struck ball's speed, m/s",
+    "value": 1,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 10 struck ball's angle, degrees",
+    "value": 60,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 10 cue ball's along momentum, 0.2 × 1.73 × cos 30°, kg m/s",
+    "value": 0.3,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 10 struck ball's along momentum, 0.2 × 1.00 × cos 60°, kg m/s",
+    "value": 0.1,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 10 each across momentum, kg m/s",
+    "value": 0.17,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 11 cue ball's speed, m/s",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 11 struck ball's speed, m/s",
+    "value": 1.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 11 struck ball's angle, degrees",
+    "value": 60,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 11 struck ball's along part, 1.5 × cos 60°, m/s",
+    "value": 0.75,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 11 answer, 3.0 − 0.75, m/s",
+    "value": 2.25,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 11 across part, 1.5 × sin 60°, m/s",
+    "value": 1.3,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 11 slip: whole speed, 3.0 − 1.5, m/s",
+    "value": 1.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 11 slip: across part, 3.0 − 1.30, m/s",
+    "value": 1.7,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12 cannon's mass, kg",
+    "value": 96,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 12 ball's mass, kg",
+    "value": 4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 12 ball's speed, m/s",
+    "value": 120,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 12 ball's momentum, 4.0 × 120, kg m/s",
+    "value": 480,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12 answer, 480 ÷ 96, m/s",
+    "value": 5,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12 slip: ball's speed, m/s",
+    "value": 120,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12 slip: both masses, 480 ÷ 100, m/s",
+    "value": 4.8,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12 slip: nothing moves, m/s",
+    "value": 0,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 13 outcome speeds, cue ball, m/s",
+    "value": 0.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 13 outcome speeds, struck ball, m/s",
+    "value": 1.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 13 impossible outcome's struck ball, m/s",
+    "value": 1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 13 cue ball's momentum in it, kg m/s",
+    "value": 0.1,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 13 struck ball's momentum in the second, kg m/s",
+    "value": 0.3,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 13 impossible total, 0.1 + 0.2, kg m/s",
+    "value": 0.3,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 14 first wagon, t",
+    "value": 30,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 14 first wagon's speed, m/s",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 14 second wagon, t",
+    "value": 20,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 14 second wagon's speed, m/s",
+    "value": 1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 14 first wagon's momentum, kg m/s",
+    "value": 60000,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 14 second wagon's momentum, kg m/s",
+    "value": 20000,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 14 total, kg m/s",
+    "value": 40000,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 14 joined mass, kg",
+    "value": 50000,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 14 answer, 40 000 ÷ 50 000, m/s",
+    "value": 0.8,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 14 slip: left wagon added, 80 000 ÷ 50 000, m/s",
+    "value": 1.6,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 14 slip: first wagon only, 40 000 ÷ 30 000, m/s",
+    "value": 1.3,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 14 slip: second wagon only, 40 000 ÷ 20 000, m/s",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Practice trolley, kg",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Practice trolley's speed, m/s",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Practice still trolley, kg",
+    "value": 1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Practice momentum, 2 × 3, kg m/s",
+    "value": 6,
+    "kind": "computed"
+   },
+   {
+    "label": "Practice speed after, 6 ÷ 3, m/s",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Practice kinetic energy before, J",
+    "value": 9,
+    "kind": "computed"
+   },
+   {
+    "label": "Practice kinetic energy after, J",
+    "value": 6,
+    "kind": "computed"
+   },
+   {
+    "label": "Practice kinetic energy lost, J",
+    "value": 3,
+    "kind": "computed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "When things collide and nothing outside pushes on them, their total momentum stays the same. Each one's share changes. Kinetic energy may be lost, but the momentum total is not.\n\nA ball's momentum is its mass × its velocity, in kg m/s. Velocity has a direction, so momentum has one too. Pick one way as positive, and a ball going the other way counts as negative. Now think about the hit itself. Each ball pushes on the other. By Newton's third law the two pushes are equal and opposite. They also last exactly as long, since each ball touches the other only while the other touches it. So whatever momentum one ball gains, the other loses. The total cannot change unless something outside pushes, such as a cushion or a hand. A set of things with no outside push is a [[closed system]].[^1] In one, total momentum before a hit equals total momentum after.[^2] On the pool table, each ball's arrow changes in the hit, but the total arrow beside the table does not.\n\nTry it with numbers. A 0.4 kg ball at 3.0 m/s hits a still 0.2 kg ball, and they stick. Before, the momentum is 0.4 × 3.0 = 1.2 kg m/s. After, the joined 0.6 kg carries the same 1.2 kg m/s, so it moves at 1.2 ÷ 0.6 = 2.0 m/s. Now the kinetic energy, ½mv². Before, ½ × 0.4 × 3.0² = 1.8 J. After, ½ × 0.6 × 2.0² = 1.2 J. So 0.6 J has gone from the movement. Here is why energy can go when momentum cannot. In the hit, some movement energy goes into squashing the balls. A perfectly springy ball would give it all back as it springs out. These balls stick, so part of it stays as heat and sound. The pushes still give equal and opposite momentum, so the momentum total stays.[^3]\n\nA hit that keeps all the kinetic energy is an [[elastic collision]]. One that loses some is an [[inelastic collision]]. Textbooks add that a sticking hit loses the most kinetic energy. Neither quantity is kept ball by ball. The momentum total is kept for the whole set in every hit, and the kinetic energy total only in an elastic collision. On a glancing hit, split each momentum into a part along the first line and a part across it. The pushes are equal and opposite, so their parts in any direction are too. So each direction keeps its own total. The ideal bouncy hit is a teaching model. Real pool balls lose a little kinetic energy in every hit. **With no outside push, total momentum before a hit equals total momentum after, even when kinetic energy is lost.[^2]**"
+ },
+ "analogy": {
+  "text": "Connect a charged capacitor across an equal, empty one. Charge flows until both sit at the same voltage. The total charge is kept, as the momentum total is. But the stored energy, ½CV², falls to half, lost as heat in the wiring. Two equal balls that stick do the same. They keep their momentum and lose half their kinetic energy.",
+  "breaks": "Charge has a sign but no direction in space, so there is no glancing version with along and across parts. And through a plain wire the two capacitors always end at one voltage, like balls that stick. There is no bouncy version where all the energy comes back."
+ },
+ "practice": {
+  "text": "- Where moving loads or wagons are involved, keep clear and follow the site's safe system of work first. These sums describe a hit. They do not make one safe.\n- Sketch the set-up before and after the hit. Pick one direction as positive.\n- Put every mass in kg and every speed in m/s.\n- Write each momentum, mass × velocity, with its sign.\n- Set the total before equal to the total after, and solve for the unknown.\n- If things join, they share one velocity, so use their total mass.\n- On a glancing hit, do the sum along the first line and across it separately.\n- Check the kinetic energy. After a hit it cannot be more than before, unless something like a spring or an explosion adds energy.\n- Read the answer's sign. A minus means the other way.\n\n**Rule of thumb:** with no outside push, the momentum total is kept in every hit. The kinetic energy total is kept only in an ideal bouncy one. Two equal balls in an ideal bouncy head-on hit swap velocities.\n\n**Worked example:** a 2 kg trolley at 3 m/s runs into a still 1 kg trolley, and they couple. Momentum before: 2 × 3 = 6 kg m/s. After, 3 kg carries the same 6 kg m/s, so it moves at 6 ÷ 3 = 2 m/s. Kinetic energy before: ½ × 2 × 3² = 9 J. After: ½ × 3 × 2² = 6 J. So 3 J went into heat, sound and the coupling.\n\n**Common mistakes**\n- Adding momenta as sizes, forgetting that the other direction counts as negative.\n- Expecting each object to keep its own momentum or its own kinetic energy.\n- Dividing by one mass when the objects join.\n- Writing the unit as kg/m/s or kg m/s². It is kg m/s.\n- Mixing momentum up with moment. A moment turns things. Momentum is mass × velocity.\n- Calling momentum a force. A push changes an object's momentum. Momentum is what the moving object carries.\n- Assuming kinetic energy is kept because momentum is."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "simplified",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "sources": [
+  {
+   "n": 1,
+   "title": "Conservation of momentum - Momentum - Higher - AQA - GCSE Physics (Single Science) Revision - AQA - BBC Bitesize",
+   "url": "https://www.bbc.co.uk/bitesize/guides/zytb8mn/revision/2",
+   "quote": "A ‘closed system’ is something that is not affected by external forces."
+  },
+  {
+   "n": 2,
+   "title": "Conservation of momentum - Momentum - Higher - AQA - GCSE Physics (Single Science) Revision - AQA - BBC Bitesize",
+   "url": "https://www.bbc.co.uk/bitesize/guides/zytb8mn/revision/2",
+   "quote": "In a closed system: total momentum before an event = total momentum after the event"
+  },
+  {
+   "n": 3,
+   "title": "8.3 Elastic and Inelastic Collisions - Physics | OpenStax",
+   "url": "https://openstax.org/books/physics/pages/8-3-elastic-and-inelastic-collisions",
+   "quote": "Momentum is conserved, but kinetic energy is not conserved."
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }

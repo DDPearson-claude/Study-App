@@ -1,0 +1,155 @@
+{
+  "ok": true,
+  "reachChecked": true,
+  "problems": [],
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "As both gears are keyed onto one shaft, they revolve at the same velocity: on every train drawn the two gears on a middle shaft turn at one speed and the same way, and nine turns of the motor pinion read 9, 3, 3 and 1 turns",
+        "ok": true,
+        "source": "https://www.notesandsketches.co.uk/Gears.html"
+      },
+      {
+        "label": "To find a compound train's total reduction, find each stage's reduction and multiply them together: the speeds passed mesh by mesh give 9, 12, 50, 20, 36 and 30 overall, 1/12 for the crank train, and the tiles read 3 : 1, 3 : 1 and 9 : 1, then 4 : 1, 5 : 1 and 20 : 1",
+        "ok": true,
+        "source": "https://docs.revrobotics.com/ion-build/motion/gears/advanced-gears"
+      },
+      {
+        "label": "At every mesh speed × teeth is the same on both gears and the direction flips, so two stages turn the output the motor's way and three turn it anticlockwise; the fastest gear is the motor pinion on screen 1 and the 10-tooth pinion on screen 12",
+        "ok": true
+      },
+      {
+        "label": "Each typed answer and slip is worked from the tooth counts: 2 turns (6, 3, 162), 120.8 rev/min (207.1, 483.3, 17400), 25 N m (1000, 40000, 0.025), 90 teeth (270, 540) and 80 rev/min (240, 72000)",
+        "ok": true
+      },
+      {
+        "label": "An ideal train keeps the power, torque × speed, the same on every shaft: speed falls to a ninth as torque grows nine times; 5000 N × 0.2 m = 1000 N m at the drum is 20 N m at an ideal 50 : 1 motor, and 4000 N × 0.25 m through 40 : 1 is 25 N m",
+        "ok": true
+      },
+      {
+        "label": "Turning the motor forward winds the cable onto the drum and lifts the load: two motor turns lift it by the drum's radius × two ninths of a turn",
+        "ok": true
+      },
+      {
+        "label": "Before an answer nothing gives it away: the middle-shaft and output counters read \"? turns\", the output speeds and the motor's torque read \"?\", the wheels hide behind \"? teeth\", and only the motor shows its way round; after it, each is shown",
+        "ok": true
+      },
+      {
+        "label": "Every mesh is drawn with its gears touching at their pitch circles and tooth in gap, gears on one shaft share a centre, and no two gears in one layer overlap unless they mesh",
+        "ok": true
+      },
+      {
+        "label": "Dragged tooth counts set the ratios: 10 into 60 twice reads 6 : 1, 6 : 1 and 36 : 1, and 60 into 10 twice speeds up, reading 0.17 : 1, 0.17 : 1 and 0.03 : 1",
+        "ok": true
+      },
+      {
+        "label": "Every demonstration is over within 5 s of its screen opening and nothing moves during the 0.35 s screen fade; every answer's motion is over within 2.5 s",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step"
+    ],
+    "readouts": [],
+    "outputs": [],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Step",
+        "min": 0,
+        "max": 13,
+        "step": 1,
+        "steps": [
+          "The fastest gear",
+          "One shaft, one speed",
+          "Count the turns",
+          "Ratios multiply",
+          "The motor's speed",
+          "Speed for torque",
+          "Faster and stronger",
+          "The winch drum",
+          "The motor's torque",
+          "Split the ratio",
+          "Two equal stages",
+          "Speeding up",
+          "Three stages",
+          "Which way"
+        ],
+        "value": 0
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Answer 4",
+      "Check",
+      "Why?",
+      "Play again",
+      "Back",
+      "Continue",
+      "Start again",
+      "Turning"
+    ],
+    "answers": [
+      {
+        "id": "a-cnt",
+        "answer": 2,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-spd",
+        "answer": 120.8,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-trq",
+        "answer": 25,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-tth",
+        "answer": 90,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "a-thr",
+        "answer": 80,
+        "accept": [],
+        "ok": true
+      }
+    ],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ],
+    "foreign": [],
+    "unreachable": []
+  }
+}

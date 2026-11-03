@@ -1,0 +1,436 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Scientific thinking: gears, balances, collisions, frames, light
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i5 "Structures" — A frame of pinned bars built from triangles cannot fold, and balancing the forces joint by joint shows which bars are pulled and which pushed. [structure]
+Later ideas in the course (every claim must stay true after Dan has learned each of them):
+- i6 Mirrors — A flat mirror sends light off at the angle it arrives, so its image sits as far behind the mirror as the object is in front.
+- i7 Refraction and prisms — Light bends at the edge of water or glass because it changes speed, and Snell's law, linking the two angles, says by how much.
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] Chapter 6 ANALYSIS OF STRUCTURES — https://athena.ecs.csus.edu/~grandajj/e70/CHAP06.PDF
+    "A truss is said to be rigid if it is designed in such a way that it will not greatly deform or collapse under a small load. A triangular truss consisting of three members connected at three joints is clearly a rigid truss."
+[R2] Trusses — https://www.civil.iitb.ac.in/~minamdar/ce102/Files/Trusses.pdf
+    "In a simple truss, m = 2j - 3 # where m is the total number of members and j is the number of joints."
+[R3] Chapter 6 ANALYSIS OF STRUCTURES — https://athena.ecs.csus.edu/~grandajj/e70/CHAP06.PDF
+    "If the force exerted by a member on a pin is directed toward that pin, the member is in compression ; if it is directed away from the pin, the member is in tension"
+[R4] Moments and balanced objects - Moments, levers and gears - AQA - GCSE Physics (Single Science) Revision - AQA - BBC Bitesize — https://www.bbc.co.uk/bitesize/guides/ztjpb82/revision/2
+    "If an object is balanced, the total clockwise moment about a pivot is equal to the total anticlockwise moment about that pivot."
+[R5] GCSE SCIENCE Physics equations and maths skills Booklet 1 — https://filestore.aqa.org.uk/resources/science/AQA-GCSE-SCIENCE-BOOKLET1-PHYSICS-EQUATIONS-MATHS-SKILLS.PDF
+    "moment of a force = force × distance normal to direction of force"
+[R6] Moments - Forces and movement - KS3 Physics - BBC Bitesize — https://www.bbc.co.uk/bitesize/articles/z96g3j6
+    "It is very important to remember that the distance from the pivot is measured at a right angle, or perpendicular , to the line of action of the force."
+[R7] 9.2 The Second Condition for Equilibrium - College Physics 2e | OpenStax — https://openstax.org/books/college-physics-2e/pages/9-2-the-second-condition-for-equilibrium
+    "The point can be the physical pivot point of a system or any other point in space—but it must be the same point for all torques."
+[R8] Role of physics lecture demonstrations in conceptual learning | Phys. Rev. ST Phys. Educ. Res. — https://journals.aps.org/prper/abstract/10.1103/PhysRevSTPER.9.020113
+    "In the context of demonstrations, the “elicit, confront, resolve” cycle is better known as “predict, observe, explain” (POE)"
+Notes (claims, and the sources that support them):
+- A truss of three members joined at three joints is rigid: it will not greatly deform or collapse under a small load. [R1]
+- In a simple truss the members m and joints j are related by m = 2j - 3. [R2]
+- A member whose force on a pin points toward the pin is in compression; if it points away from the pin, it is in tension. [R3]
+- A balanced object has total clockwise moment about a pivot equal to total anticlockwise moment about that pivot. [R4]  (from an idea this one builds on)
+- A moment of a force is the force multiplied by the distance, measured at right angles to the direction of the force. [R5]  (from an idea this one builds on)
+- The distance in a moment is measured from the pivot, at a right angle to the line of action of the force. [R6]  (from an idea this one builds on)
+- For a balanced object, moments may be taken about the pivot or any other point, but it must be the same point for every force. [R7]  (from an idea this one builds on)
+- Physics teaching uses a predict, observe, explain cycle: students commit to a prediction, see the outcome, then resolve any conflict between the two. [R8]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i5",
+ "title": "Structures",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is a square of pinned bars folding flat while a triangle keeps its shape, until one diagonal bar locks the square, when you drag a joint.",
+  "title": "The frame on two supports",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Step",
+    "min": 0,
+    "max": 13,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [],
+  "whatAmILookingAt": "A short lesson in fourteen small screens on a frame of bars. Some screens show an idea and the rest ask you to try it. Each bar is a straight line between two joints, and each joint is a ring you can drag. The joints are pins, free to turn like hinges. The frame stands on two supports. A pin support under the left foot can push any way. A roller under the right foot can only push straight up. A counter reads the frame's bars against 2j − 3, where j is the number of joints. A load can hang from any joint, and the supports' pushes then appear as arrows with their sizes. Tap a joint, and its forces are drawn nose to tail beside the frame. Each bar's arrow at that pin is labelled pull or push. Here is the rule the picture follows. A bar fixes the distance between its two pins and nothing else. On a flat page each joint can move two ways, across and up, so j joints have 2j ways to move. Three of them, two slides and a turn, move the whole frame without changing its shape, and the supports stop those. Each bar stops one of the rest. So a frame keeps its shape when its bars, placed where each locks something, number at least 2j − 3. Short of that, it has a way left to move, and the drag folds it. Under a load, every joint is in balance. So the forces at a joint, drawn nose to tail, close into a triangle, or a longer shape where more bars meet. Each bar pushes or pulls only along its own length. If its arrow at a pin points away from the pin, the bar pulls, in tension. If it points into the pin, the bar pushes, in compression. The supports' pushes come from moments about one support for the whole frame, as for a mobile's bar. A readout that would give a puzzle's answer shows \"?\" until the answer is checked. Any row of readouts wraps onto two lines on a phone. The screens, in order. Screen 1, do, Which holds?: a square frame and a triangle frame of pinned bars side by side, each standing on a pin support and a roller, with a hand arrow pushing sideways at the top of each. \"Push sideways on the top of each frame. Which one keeps its shape?\" Choices, in a column: The triangle (right); The square; Both keep their shape; Neither keeps its shape. Hint on The square: \"Its four corners are hinges. Nothing stops it leaning over.\" Hint on Both keep their shape: \"Watch the square's corners. They turn freely.\" Hint on Neither keeps its shape: \"Three bars of fixed length fit together only one way.\" Read: \"A square frame and a triangle frame of pinned bars each stand on two supports. Push sideways on the top of each. Which one keeps its shape?\" Why: every joint is a pin, free to turn like a hinge. The square's four bars can lean over together into a diamond, so it folds. Three bars of fixed length make one triangle and no other, so the triangle cannot change shape. After Check both frames are pushed. The square folds flat and the triangle holds. Screen 2, show, Triangles hold: both frames again, the square folded over. Words: \"A pin lets bars turn at a joint, like a hinge. So a bar fixes only the distance between its two pins. Three fixed lengths make one triangle and no other, so a triangle of pinned bars is rigid. Four fixed lengths make a square or a thin diamond, so a square folds.\" Then \"Drag any joint.\" Read: \"Dragged by one joint, the square leans over until it folds flat. The triangle's joints will not move.\" Screen 3, show, Counting ways to move: the triangle and the square, with a counter under each reading its bars against 2j − 3. Words: \"On a flat page, each joint can move two ways, across and up. Three of those ways slide or turn the whole frame without changing its shape. Each bar stops one of the rest. So a frame of j joints needs at least 2j − 3 bars to hold its shape.\" Then \"Tap the triangle, then the square.\" Read: \"The triangle has 3 joints and 3 bars, and 2 × 3 − 3 = 3, so it holds. The square has 4 joints and 4 bars, one short of 2 × 4 − 3 = 5, so it folds.\" Screen 4, do, typed, Lock the square: the square frame on its two supports, its counter showing \"?\". \"A square frame has 4 joints. What is the fewest bars it needs to hold its shape?\" A typed answer: 5 bars, a whole number. Slips: 4 bars, \"That is what the square has now, and it folds.\"; 8 bars, \"That counts all 2 × 4 ways to move. Three of them only slide or turn the whole frame.\"; 6 bars, \"That joins every pair of joints. One of those bars is spare.\" Hint: \"Use 2j − 3, with j the number of joints.\" Why: 2 × 4 − 3 = 5 bars. The square has 4, so one way to move is left, and it folds. A diagonal is the fifth bar. It splits the square into two triangles. After Check the diagonal appears, and dragging a joint no longer moves it. The counter shows \"?\" until the answer is checked. Screen 5, do, typed, Grow the frame: two square bays side by side on the supports, with a diagonal in the left bay only, the right bay leaning. \"This frame has 6 joints and 8 bars. How many more bars does it need to hold its shape?\" A typed answer: 1 bar, a whole number. Slips: 4 bars, \"2 × 6 − 8 leaves out the three ways that only slide or turn the whole frame.\"; 9 bars, \"9 is the total it needs. It already has 8.\"; 0 bars, \"The right bay still leans over. Count again against 2j − 3.\" Hint: \"Find 2j − 3, then take away the 8 bars it has.\" Read: \"A frame of two square bays has 6 joints and 8 bars. How many more bars does it need to hold its shape?\" Why: 2 × 6 − 3 = 9 bars. It has 8, so it needs 1 more, a diagonal across the right bay. Each new joint brings two ways to move, so it needs two new bars. That is why a frame grown one triangle at a time keeps the count right. After Check the second diagonal appears and the right bay locks. Screen 6, show, The supports push back: the triangle frame, its sloping bars at 30° to level, the pin support under its left foot and the roller under its right foot. Words: \"Hang a load on a joint, and the supports push back. Find those pushes first. Treat the whole frame as one body and take moments about one support, as for a mobile's bar. The pin can push any way, but the roller only straight up.\" Then \"Hang the load on a joint.\" Read: \"A 10 kN load hangs from the top joint, midway between the supports. Each support pushes up with 5 kN.\" Screen 7, do, typed, Off centre: a longer frame of five triangles on the supports, 6 m between them, with 4 joints along the bottom 2 m apart and 3 along the top. A 12 kN load hangs from the bottom joint 2 m from the left support. The reaction arrows show \"?\". \"A frame spans 6 m between its supports. A 12 kN load hangs from a joint 2 m from the left support. How hard does the left support push up?\" A typed answer: 8 kN, a whole number. Slips: 4 kN, \"That is the right support's share. The support nearer the load carries more.\"; 6 kN, \"Half each is right only for a load in the middle.\" Hint: \"Take moments about the right support.\" Read: \"A frame spans 6 m between its supports. A 12 kN load hangs from a joint 2 m from the left support. How hard does the left support push up?\" Why: the load is 6 − 2 = 4 m from the right support. Its moment about that support is 12 × 4 = 48 kN m. The left support's push, 6 m away, must balance it, so it is 48 ÷ 6 = 8 kN. The right support takes the rest, 12 − 8 = 4 kN. The reactions show \"?\" until the answer is checked. Screen 8, show, Pull or push: one bar between two pins, with an arrow at each pin. Words: \"Each bar in a loaded frame is pulled or pushed along its length. Look at its arrow at a pin. If it points away from the pin, the bar pulls, and it is in tension. If it points into the pin, the bar pushes, and it is in compression.\" Then \"Drag one pin to stretch or squash the bar.\" Read: \"A stretched bar pulls its pins towards each other, so its arrow at each pin points away from that pin, labelled pull. A squashed bar pushes its pins apart, so each arrow points into its pin, labelled push.\" Screen 9, do, Which is pulled?: the triangle frame from screen 6 with its 10 kN load at the top joint, the bar arrows hidden. \"A triangle frame carries a load at its top joint. Which bar is in tension?\" Choices, in a column: The bottom bar (right); The two sloping bars; All three bars; None of them. Hint on The two sloping bars: \"The load presses them down onto the supports. They are squashed.\" Hint on All three bars: \"The load squashes the sloping bars. Only one bar is stretched.\" Hint on None of them: \"Something must stop the two feet sliding apart.\" Read: \"A triangle frame carries a load at its top joint. Which bar is in tension?\" Why: the load presses the top joint down and squashes both sloping bars. Squashed, they push their feet outwards. The roller cannot push sideways, so the bottom bar holds the feet together, by pulling. After Check, every bar's arrows and its pull or push label appear. Screen 10, show, Joint by joint: the same frame and load, with the top joint's three forces drawn nose to tail beside it. Words: \"At each joint the forces balance, so drawn nose to tail they close into a triangle. Start at a joint with only two unknown bars, such as the top joint. The two bars slope equally, so each one's up part holds half the load, 5 kN. That up part is the bar's force × sin 30°, so each bar pushes with 5 ÷ 0.5 = 10 kN.\" Then \"Tap the top joint.\" Read: \"At the top joint, the 10 kN load and the two sloping bars' 10 kN pushes close into a triangle with three equal sides. Both arrows point into the pin, so both sloping bars are in compression.\" Screen 11, do, typed, The bottom bar: the left foot of the same frame, with the support's 5 kN push up, the sloping bar's 10 kN push into the foot, and the bottom bar's force showing \"?\". \"At the left foot, the support pushes up with 5 kN. The sloping bar pushes into the foot with 10 kN, at 30° above level. What is the force in the bottom bar?\" A typed answer: 8.66 kN, to two decimal places. Slips: 10 kN, \"That is the sloping bar's whole force. The bottom bar balances only its across part.\"; 5 kN, \"That is the up part, 10 × sin 30°. Use the across part.\"; 11.55 kN, \"Multiply by cos 30°, rather than divide.\" Hint: \"Balance the across parts at the foot.\" Read: \"At the left foot, the support pushes up with 5 kN. The sloping bar pushes into the foot with 10 kN, at 30° above level. What is the force in the bottom bar?\" Why: the sloping bar's across part is 10 × cos 30° = 8.66 kN, pushing the foot outwards. Its up part, 10 × sin 30° = 5 kN, matches the support's push. So the bottom bar must pull the foot inwards with 8.66 kN. Its arrow points away from the pin, so it is in tension. The force shows \"?\" until the answer is checked. Screen 12, show, A screw is a ramp: a screw whose thread unrolls, one turn at a time, into a ramp. Words: \"A screw's thread is a ramp wrapped round a shaft. One turn of thread, unrolled, runs as far as the screw's circumference and climbs one pitch, the gap between threads. With friction ignored, the work in equals the work out. So the load lifted is bigger than the push by the ramp's length ÷ its climb.\" Then \"Play the unrolling.\" Read: \"One turn of a 20 mm screw's thread unrolls into a ramp 62.8 mm long that climbs 2 mm. With friction ignored, a push along the thread lifts 31.4 times its size.\" Still: the thread fully unrolled. Screen 13, do, mixed, Same count: two frames of two square bays each. Frame A has a diagonal in each bay. Frame B has both diagonals crossed in its left bay and none in its right. \"Both frames have 6 joints and 9 bars, as 2j − 3 asks. Which one folds?\" Choices, in a column: Frame B, both diagonals in one bay (right); Frame A, a diagonal in each bay; Neither, since both have 9 bars; Both of them. Hint on Frame A: \"Each of its bays is two triangles. Nothing in it can lean.\" Hint on Neither: \"The count says how many bars, not where. Look at Frame B's right bay.\" Hint on Both of them: \"Frame A's two bays are both split into triangles.\" Read: \"Two frames of two square bays each have 6 joints and 9 bars. Frame A has a diagonal in each bay. Frame B has both diagonals in its left bay. Which one folds?\" Why: the count says how many bars a frame needs, not where they go. Frame B's second diagonal locks nothing the first had not, so it is spare. Its right bay is a square with no diagonal, so it folds. After Check, Frame B's right bay leans over. Screen 14, do, mixed, typed, A steeper frame: a triangle frame on the two supports, its sloping bars at 45° to level, a 12 kN load at its top joint, each sloping bar's force showing \"?\". \"A triangle frame on two supports carries 12 kN at its top joint. Its sloping bars are at 45° to level. What force is in each sloping bar?\" A typed answer: 8.49 kN, to two decimal places. Slips: 6 kN, \"That is each bar's up part. The bar slopes, so its force is bigger.\"; 12 kN, \"The two sloping bars share the load.\"; 4.24 kN, \"Divide the up part by sin 45°, rather than multiply.\" Hint: \"Each sloping bar's up part holds half the load.\" Read: \"A triangle frame on two supports carries 12 kN at its top joint. Its sloping bars are at 45° to level. What force is in each sloping bar?\" Why: the two bars slope equally, so they share the load equally. Each up part is 12 ÷ 2 = 6 kN. The up part is the force × sin 45°, so the force is 6 ÷ 0.707 = 8.49 kN. Both arrows point into the top joint, so both bars are in compression. At each foot the bottom bar then pulls with 8.49 × cos 45° = 6.00 kN. The forces show \"?\" until the answer is checked.",
+  "ignores": "The bars are drawn weightless, and every load hangs at a joint. The pins turn with no friction. Real frames are bolted or welded, so their joints resist turning a little, and their bars bend a little as well as stretching or squashing. The bars stretch and squash too little to see, so the picture keeps their lengths fixed. Nothing here breaks. A long, thin bar in compression can bow sideways and fail well below the force that would crush it, and the picture does not show that. Everything is drawn flat. A real frame also needs bracing across its width. The screw is a single thread, so one turn moves it one pitch, and its friction is left out. Real screws lose a good part of the push to friction. Every load, length and angle is an example figure, not a real frame's.",
+  "numbers": [
+   {
+    "label": "Screen, 1 to 14 (the stepper)",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Ways a joint can move on a flat page",
+    "value": 2,
+    "kind": "constant",
+    "source": 1
+   },
+   {
+    "label": "Whole-frame moves the supports take away",
+    "value": 3,
+    "kind": "constant",
+    "source": 1
+   },
+   {
+    "label": "Triangle's joints",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Triangle's bars",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Bars a triangle needs, 2 × 3 − 3",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Square's joints",
+    "value": 4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Square's bars",
+    "value": 4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 4 answer: bars a square needs, 2 × 4 − 3",
+    "value": 5,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 4 slip: 2 × 4, bars",
+    "value": 8,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 4 slip: a bar between every pair, bars",
+    "value": 6,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 5 frame's joints",
+    "value": 6,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 5 frame's bars",
+    "value": 8,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 5 bars needed, 2 × 6 − 3",
+    "value": 9,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 5 answer: bars to add, 9 − 8",
+    "value": 1,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 5 slip: 2 × 6 − 8, bars",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 5 slip: none added, bars",
+    "value": 0,
+    "kind": "computed"
+   },
+   {
+    "label": "Triangle frame's slope, degrees",
+    "value": 30,
+    "kind": "assumed"
+   },
+   {
+    "label": "Triangle frame's load at the top joint, kN",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "Each support's push, 10 ÷ 2, kN",
+    "value": 5,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 7 span between supports, m",
+    "value": 6,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 7 gap between bottom joints, m",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 7 frame's joints",
+    "value": 7,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 7 load, kN",
+    "value": 12,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 7 load's distance from left support, m",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 7 load's distance from right support, 6 − 2, m",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 7 load's moment, 12 × 4, kN m",
+    "value": 48,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 7 answer: left support's push, 48 ÷ 6, kN",
+    "value": 8,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 7 right support's push, 12 − 8, kN",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 7 slip: half each, kN",
+    "value": 6,
+    "kind": "computed"
+   },
+   {
+    "label": "sin 30°",
+    "value": 0.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Each sloping bar's push, 5 ÷ 0.5, kN",
+    "value": 10,
+    "kind": "computed"
+   },
+   {
+    "label": "cos 30°",
+    "value": 0.866,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 11 answer: bottom bar's pull, 10 × cos 30°, kN",
+    "value": 8.66,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 11 slip: divided by cos 30°, 10 ÷ 0.866, kN",
+    "value": 11.55,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12 screw's diameter, mm",
+    "value": 20,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 12 screw's pitch, mm",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 12 ramp's length, π × 20, mm",
+    "value": 62.8,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12 lift for each push, 62.8 ÷ 2",
+    "value": 31.4,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 13 each frame's joints",
+    "value": 6,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 13 each frame's bars",
+    "value": 9,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 14 load, kN",
+    "value": 12,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 14 slope, degrees",
+    "value": 45,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 14 each bar's up part, 12 ÷ 2, kN",
+    "value": 6,
+    "kind": "computed"
+   },
+   {
+    "label": "sin 45° and cos 45°",
+    "value": 0.707,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 14 answer: each sloping bar's push, 6 ÷ 0.707, kN",
+    "value": 8.49,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 14 slip: multiplied by sin 45°, kN",
+    "value": 4.24,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 14 bottom bar's pull, 8.49 × cos 45°, kN",
+    "value": 6,
+    "kind": "computed"
+   },
+   {
+    "label": "Practice load at the top joint, kN",
+    "value": 20,
+    "kind": "assumed"
+   },
+   {
+    "label": "Practice slope, degrees",
+    "value": 60,
+    "kind": "assumed"
+   },
+   {
+    "label": "Practice each support's push, 20 ÷ 2, kN",
+    "value": 10,
+    "kind": "computed"
+   },
+   {
+    "label": "sin 60°",
+    "value": 0.866,
+    "kind": "computed"
+   },
+   {
+    "label": "Practice each sloping bar's push, 10 ÷ 0.866, kN",
+    "value": 11.55,
+    "kind": "computed"
+   },
+   {
+    "label": "cos 60°",
+    "value": 0.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Practice bottom bar's pull, 11.55 × 0.5, kN",
+    "value": 5.77,
+    "kind": "computed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "A frame of bars joined by pins holds its shape when it is built from triangles. Put a load on it, and each bar is either pulled or pushed along its length. Balancing the forces at each joint in turn tells you which, and how hard.\n\nStart with why triangles hold. A pin lets the bars turn at a joint, like a hinge. So a bar fixes only one thing, the distance between its two pins. Three fixed lengths make one triangle and no other, so a triangle of three pinned bars is rigid.[^2] Four fixed lengths can make a square or a thin diamond, so a square folds. You can count this. On a flat page each joint can move two ways, across and up, so j joints have 2j ways to move. Three of those ways, two slides and a turn, move the whole frame without changing its shape, and the supports stop those. Each of the other ways changes the shape, and each bar stops one. Each way left to move is a [[degree of freedom]], and a frame with one left can fold. So a frame needs at least 2j − 3 bars to hold its shape. A simple frame, grown one triangle at a time, has exactly m = 2j − 3, where m is the number of bars.[^1] A square has 4 joints, so it needs 5 bars. With only 4 it has a degree of freedom left, and a diagonal as the fifth bar locks it. The count tells you how many bars, not where they go. Each one must lock something, as a diagonal does when it splits a square into two triangles.\n\nNow the forces. First find the supports' pushes, treating the whole frame as one body. Total clockwise moment about one support equals total anticlockwise moment about it, just as on a mobile's bar.[^3] Then go joint by joint. The count says why that works for a simple frame. Its j joints give 2j balance equations, two each, and its m bars and three support pushes are m + 3 = 2j unknowns. Each joint is in balance, so its forces drawn nose to tail close into a triangle. Start at a joint with only two unknown bars. Take a triangle frame on two supports, its sloping bars at 30° to level, with 10 kN hung from the top joint. Each support pushes up 5 kN. At the top joint, the two sloping bars slope equally, so each one's up part holds half the load, 5 kN. That up part is the bar's force × sin 30°, so each bar carries 5 ÷ 0.5 = 10 kN. At a foot, the same bar's across part is 10 × cos 30° = 8.66 kN, pushing the foot outwards. The roller cannot push sideways, so the bottom bar must pull the feet together, with 8.66 kN. To tell a pull from a push, look at the bar's arrow at the pin. Pointing away from the pin, the bar is in [[tension]]. Pointing into the pin, it is in [[compression]].[^4] Here the sloping bars push and the bottom bar pulls.\n\nWeightless bars, frictionless pins and loads only at joints make this a teaching model. Real joints are bolted or welded, and real bars bend a little as well. **A frame of pinned bars built from triangles holds its shape, and balancing the forces joint by joint shows which bars are pulled and which pushed.**"
+ },
+ "analogy": {
+  "text": "Working out a frame joint by joint is like working out a circuit's branch currents node by node. At every node, the currents in equal the currents out. At every joint, the forces balance. Each balance gives an equation, and with enough equations every unknown comes out. Guess a direction for each one. If the answer comes out negative, it runs the other way: for a current, the other way round its branch, and for a bar, a push instead of a pull.",
+  "breaks": "A node gives one equation, because a current has only a size and a sense along its wire. A joint gives two, across and up, because a force can point any way on the page. And a circuit has nothing like a frame folding. A missing wire leaves a current with nowhere to flow, not a shape free to move."
+ },
+ "practice": {
+  "text": "- Where a frame carries a real load, such as a lifting beam or a scaffold, keep to its marked safe working load and the site's lifting plan first. These sums explain a frame. They do not make one safe.\n- Count the joints and bars. Check the bars against 2j − 3, and look for any four-sided bay with no diagonal.\n- Draw the whole frame with its loads. Find the supports' pushes by taking moments about one support.\n- Pick a joint with only two unknown bars. Draw its forces nose to tail, or balance the across parts and the up parts separately.\n- Solve for the two bar forces.\n- Read each bar's arrow at that pin. Away from the pin is tension. Into the pin is compression.\n- Move to a joint that now has only two unknowns, and repeat.\n- Check the last joint. Its forces should balance with nothing left over.\n\n**Rule of thumb:** a four-sided bay with no diagonal will lean over under a sideways push. In a simple triangle frame loaded at its top, the sloping bars push and the bottom bar pulls. The flatter the sloping bars, the harder they work.\n\n**Worked example:** a triangle frame on two supports carries 20 kN at its top joint, with its sloping bars at 60° to level. Each support pushes up 20 ÷ 2 = 10 kN. At the top joint, each sloping bar's up part holds 10 kN, so its force is 10 ÷ sin 60° = 10 ÷ 0.866 = 11.55 kN. Its arrow points into the top joint, so it is in compression. At a foot, its across part is 11.55 × cos 60° = 11.55 × 0.5 = 5.77 kN. So the bottom bar pulls with 5.77 kN, in tension.\n\n**Common mistakes**\n- Counting 2j bars and forgetting the three the supports take away.\n- Trusting the count alone. A spare bar in one bay cannot lock another.\n- Starting at a joint with three unknown bars, or before the supports' pushes are known.\n- Using cos where the up part needs sin, or multiplying when the bar's force needs a divide.\n- Reading pull or push from where an arrow sits on the drawing, rather than from which way it points at the pin.\n- Letting a roller push sideways. On level ground it only pushes straight up."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "simplified",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "sources": [
+  {
+   "n": 1,
+   "title": "Trusses",
+   "url": "https://www.civil.iitb.ac.in/~minamdar/ce102/Files/Trusses.pdf",
+   "quote": "In a simple truss, m = 2j - 3 # where m is the total number of members and j is the number of joints."
+  },
+  {
+   "n": 2,
+   "title": "Chapter 6 ANALYSIS OF STRUCTURES",
+   "url": "https://athena.ecs.csus.edu/~grandajj/e70/CHAP06.PDF",
+   "quote": "A truss is said to be rigid if it is designed in such a way that it will not greatly deform or collapse under a small load. A triangular truss consisting of three members connected at three joints is clearly a rigid truss."
+  },
+  {
+   "n": 3,
+   "title": "Moments and balanced objects - Moments, levers and gears - AQA - GCSE Physics (Single Science) Revision - AQA - BBC Bitesize",
+   "url": "https://www.bbc.co.uk/bitesize/guides/ztjpb82/revision/2",
+   "quote": "If an object is balanced, the total clockwise moment about a pivot is equal to the total anticlockwise moment about that pivot."
+  },
+  {
+   "n": 4,
+   "title": "Chapter 6 ANALYSIS OF STRUCTURES",
+   "url": "https://athena.ecs.csus.edu/~grandajj/e70/CHAP06.PDF",
+   "quote": "If the force exerted by a member on a pin is directed toward that pin, the member is in compression ; if it is directed away from the pin, the member is in tension"
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }
