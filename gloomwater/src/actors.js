@@ -50,7 +50,7 @@ export function create(ctx) {
     bob: { visible: false, pos: new THREE.Vector3(), state: 'floating', prev: '', stateT: 0, dipT: 0, spin: 0 },
     catchFish: null, catchBig: false, eatFish: null, eatT: 0, celebratePending: false, brazierFlare: 0,
     prevVel: new THREE.Vector3(), accLocal: new THREE.Vector3(), prevHeading: 0, turn: 0, pitch: 0, roll: 0, y: 0,
-    lastCreel: -1, creelT: 0, t: 0, snapT: 0, puffAt: -9, arriveFrame: -1,
+    lastCreel: -1, creelT: 0, t: 0, snapT: 0, puffAt: -9, arriveFrame: -1, brazierDelay: 0,
   };
   const tmp = new THREE.Vector3(), tmp2 = new THREE.Vector3(), tip = new THREE.Vector3(), end = new THREE.Vector3(), camPos = new THREE.Vector3();
   const localVel = new THREE.Vector3();
@@ -144,7 +144,7 @@ export function create(ctx) {
             }
           } catch { st.eatFish = null; }
           wick.setPose('eat');
-        } else if (action === 'render') { releaseCatch(); st.brazierFlare = 1; }
+        } else if (action === 'render') { releaseCatch(); wick.setPose('toss'); st.brazierDelay = 0.42; }
         else if (action === 'release' || action === 'sell' || action === 'keep') { /* catch card closes → showCatch(null) from the owner */ }
       });
       bus.on('fish:landed', ({ isNew, isRecord } = {}) => { if (isNew || isRecord) st.celebratePending = true; });
@@ -209,6 +209,8 @@ export function create(ctx) {
       if (env.autoBase === 'reel' && st.line.tension > 0.85) env.autoBase = 'strain';
       env.tension = st.line.tension;
       env.speed = speed; env.moving = speed > 0.6 && !env.fishingBusy; env.heading = heading;
+      const phase = ctx.survival && !ctx.survival.isStub ? ctx.survival.getPhaseInfo?.()?.phase : null;
+      env.warm = phase === 'dusk' && !env.moving && !env.fishingBusy && ctx.flow === 'playing';
       if (cam && playerOk()) env.camYaw = Math.atan2(-(camPos.x - px), -(camPos.z - pz)); else env.camYaw = null;
       if (ctx.flow === 'dead' && !wick.dead) wick.setPose('die');
       if (st.celebratePending && !st.catchFish && wick.pose !== 'eat') { st.celebratePending = false; wick.setPose('celebrate'); }
@@ -276,9 +278,9 @@ export function create(ctx) {
       const glow = lit ? (0.22 + 0.78 * lv) * flick * (1 + st.boost * 1.6) : 0;
       lanternLight.intensity = 9.5 * glow;
       lanternLight.distance = Math.max(7, st.radiusCur * 2.1 + 3);
-      raft.glassMat.opacity = 0.12 + 0.5 * Math.min(1.5, glow);
-      raft.halo.material.opacity = 0.42 * Math.min(1.6, glow);
-      raft.halo.scale.setScalar(3.2 * (0.6 + 0.4 * Math.min(1.5, glow)) * (1 + st.boost * 0.6));
+      raft.glassMat.opacity = 0.1 + 0.38 * Math.min(1.5, glow);
+      raft.halo.material.opacity = 0.26 * Math.min(1.6, glow);
+      raft.halo.scale.setScalar(2.2 * (0.6 + 0.4 * Math.min(1.5, glow)) * (1 + st.boost * 0.8));
       raft.lflame.group.visible = lit;
       raft.lflame.group.scale.setScalar(0.45 + 0.55 * lv * (1 + st.boost * 0.5));
       raft.lflame.outerMat.uniforms.uT.value = t * 1.1; raft.lflame.innerMat.uniforms.uT.value = t * 1.3;
@@ -297,15 +299,15 @@ export function create(ctx) {
       pool.mesh.visible = pu.uK.value > 0.01;
       if (pool.mesh.visible) pool.layout(px, pz, R, hasWater() ? H : null, 0.07);
       // brazier
+      if (st.brazierDelay > 0) { st.brazierDelay -= dt; if (st.brazierDelay <= 0) { st.brazierFlare = 1; raft.brazier.flame.group.getWorldPosition(tmp); ctx.models?.puff?.(tmp, { color: 0xffa040, count: 8, size: 0.45, smokeColor: 0x2a2026 }); } }
       st.brazierFlare = Math.max(0, st.brazierFlare - dt * 0.6);
       const bz = raft.brazier;
       bz.coalsMat.color.set(0xff5a20).multiplyScalar(1.5 + Math.sin(t * 2.3) * 0.3 + st.brazierFlare * 2);
       bz.flame.group.scale.setScalar(0.85 + st.brazierFlare * 1.4 + Math.sin(t * 5) * 0.05);
       bz.flame.outerMat.uniforms.uT.value = t * 1.2; bz.flame.innerMat.uniforms.uT.value = t * 1.4;
       if (st.brazierFlare > 0.6 && Math.random() < dt * 30) { bz.flame.group.getWorldPosition(tmp); ctx.models?.emitEmber?.(tmp, { color: 0xffa040, vy: 2.2, spread: 0.8, size: 0.08, lifeT: 0.9, alpha: 1, jitter: 0.1 }); }
-      // L1 chime + L3 bulbs
-      const chime = raft.details[0].userData.chime;
-      if (chime) chime.rotation.set(raft.lanternPivot.rotation.x * 0.8 + Math.sin(t * 1.3) * 0.05, 0, raft.lanternPivot.rotation.z * 0.8);
+      // pennant / chime / trophies, L3 bulbs
+      raft.animate(t, -localVel.x, -localVel.z);
       const bulbMat = raft.details[2].userData.bulbMat;
       if (bulbMat) bulbMat.color.set(0xffc36a).multiplyScalar(2 + Math.sin(t * 2.2) * 0.4);
       // creel tails / auto raft level (cheap, ~2 Hz)
@@ -314,6 +316,7 @@ export function create(ctx) {
         st.creelT = 0.5;
         const n = ctx.state?.run?.creel?.length || 0;
         if (n !== st.lastCreel) { st.lastCreel = n; raft.setCreelCount(n); }
+        const lg = ctx.state?.run?.legendaries; raft.setTrophies(lg ? Object.keys(lg).filter((k) => lg[k]).length : 0);
         autoRaftLevel();
       }
 
@@ -347,7 +350,11 @@ export function create(ctx) {
       st.lantern = v; st.out = v <= 0.001;
     },
     setLightRadius(m) { if (Number.isFinite(m)) st.radius = clamp(m, 0, 40); },
-    setVitality(k) { st.vitality = clamp(Number.isFinite(k) ? k : 1, 0, 1); wick.setVitality(st.vitality); },
+    setVitality(k) {
+      st.vitality = clamp(Number.isFinite(k) ? k : 1, 0, 1);
+      const hp = ctx.state?.run?.hp; // vitality = hp / maxHp, so k / hp = one Ember's share
+      wick.setVitality(st.vitality, Number.isFinite(hp) && hp > 0 && st.vitality > 0 ? st.vitality / hp : undefined);
+    },
     setCharacter(c) {
       const data = typeof c === 'string' ? characterById(c) : c;
       if (!data) return;
@@ -400,6 +407,7 @@ export function create(ctx) {
   function onBobberState(state, prev) {
     const B = st.bob;
     if (state === 'bite') {
+      wick.ringBell(1.6);
       ctx.water?.splash?.(B.pos.x, B.pos.z, { size: 0.35, count: 8 });
       ctx.water?.addRipple?.(B.pos.x, B.pos.z, 1.2);
     } else if (state === 'floating' && prev === 'flying') {
@@ -417,7 +425,7 @@ export function create(ctx) {
       case 'nibble': {
         const d = Math.pow(Math.max(0, Math.sin(t * 9 + Math.sin(t * 2.7) * 2)), 6);
         y = h - 0.02 - d * 0.08; tx = d * 0.25; tipI = 2.8 + d * 2; halo = 0.6 + d * 0.3;
-        B.dipT -= dt; if (d > 0.85 && B.dipT <= 0) { B.dipT = 0.4; ctx.water?.addRipple?.(x, z, 0.35); }
+        B.dipT -= dt; if (d > 0.85 && B.dipT <= 0) { B.dipT = 0.4; ctx.water?.addRipple?.(x, z, 0.35); wick.ringBell(0.5); }
         break;
       }
       case 'bite':

@@ -9,6 +9,7 @@ import {
   bezierPts, spike, blob, lumpy, smoothNormals, hexColor,
 } from './models-kit.js';
 
+export const GLOOM_RIM = 0x8a76bd; // DESIGN §19: gloomlings are rim-lit violet (#6b5b8f), lifted a touch for readability
 export const KIND_DEFAULTS = {
   wisp: { tint: 0x07080d, eye: 0xe8f1f2, radius: 0.42, hover: 0.8 },
   mite: { tint: 0x0a0a10, eye: 0xd6f59a, radius: 0.26, hover: 0.1 },
@@ -87,10 +88,8 @@ export function miteGeometry(detail = 1) {
 }
 export function miteEyes() {
   const parts = [];
-  for (const side of [1, -1]) {
-    parts.push(blob(0.022, 0.022, 0.016, [side * 0.035, 0.12, 0.215], 6, 5));
-    parts.push(blob(0.013, 0.013, 0.01, [side * 0.06, 0.135, 0.195], 5, 4));
-  }
+  parts.push(blob(0.03, 0.026, 0.02, [0.02, 0.125, 0.215], 7, 5));
+  parts.push(blob(0.012, 0.012, 0.01, [-0.04, 0.13, 0.205], 5, 4));
   const g = mergeGeos(parts); attr(g, 'aLeg', 2, [0, 0]);
   return g;
 }
@@ -269,7 +268,7 @@ void gwDeform(inout vec3 p, inout vec3 n) {
 
 // ------------------------------------------------------------------ hand (elite)
 function handGeometry() {
-  const parts = [], accent = [];
+  const parts = [], accent = [], rings = [];
   const fmats = [];
   const tag = (g, finger, len) => { attr(g, 'aFinger', 1, finger); attr(g, 'aLen', 1, len); attr(g, 'aDrip', 2, [0, 0]); return g; };
   const arm = tube(bezierPts([[0, -2.2, -0.1], [0, -0.6, -0.12], [0, 0.95, 0]], 10), (u) => 0.42 - u * 0.1, 10, { capEnd: false });
@@ -284,6 +283,10 @@ function handGeometry() {
     const f = tube(bezierPts([[0, -0.05, 0], [0, L * 0.5, 0.0], [0, L, -0.01]], 12), (u) => r * (1 - u * 0.45) * (1 + 0.12 * Math.sin(u * TAU * 1.5)), 7);
     parts.push(tag(f, i, L));
     accent.push(tag(spike([0, L - 0.03, 0.0], [0, 1, 0.35], r * 0.5, 0.2, 5), i, L));
+    if (i === 1 || i === 3) { // tarnished brass rings on two fingers (DESIGN §19.7)
+      const ring = new THREE.TorusGeometry(r * 1.05, 0.03, 6, 14); ring.rotateX(Math.PI / 2); ring.translate(0, L * 0.32, 0);
+      rings.push(tag(ring, i, L));
+    }
     const m = new THREE.Matrix4().compose(new THREE.Vector3(x, y, 0.02), new THREE.Quaternion().setFromEuler(new THREE.Euler(i === 4 ? 0.35 : 0, 0, rz)), new THREE.Vector3(1, 1, 1));
     fmats.push(m);
   });
@@ -294,7 +297,7 @@ function handGeometry() {
     parts.push(d);
   }
   const geo = mergeGeos(parts);
-  return { geo, fmats, accent: mergeGeos(accent) };
+  return { geo, fmats, accent: mergeGeos(accent), rings: mergeGeos(rings) };
 }
 const HAND_PARS = /* glsl */`
 uniform float uT, uCurl[5]; uniform mat4 uFM[5];
@@ -405,6 +408,23 @@ void gwDeform(inout vec3 p, inout vec3 n) {
 // ------------------------------------------------------------------ factory
 export function createCreatureFactory(ctx, models) {
   const cache = {};
+  const variantCache = {};
+  const wardenVariant = (id) => (id === 'the_shard_abbot' ? 'abbot' : id === 'the_lightless_ferryman' ? 'ferryman' : id === 'the_veiled_gardener' || id === 'the_sporeshroud' ? 'gardener' : 'wickeater');
+  function wardenExtras(variant) {
+    if (variantCache[variant]) return variantCache[variant];
+    const glow = [], dark = [];
+    const tagA = (g, side = 0, along = 0) => attr(g, 'aArm', 2, [side, along]);
+    if (variant === 'wickeater') { // candle stubs set in the hem like teeth
+      for (let k = 0; k < 11; k++) { const a = k / 11 * TAU + 0.15, r = 1.47, h = 0.22 + (k % 3) * 0.12; glow.push(tagA(xf(new THREE.CylinderGeometry(0.07, 0.085, h, 6), { p: [Math.cos(a) * r, 0.05 + h / 2, Math.sin(a) * r] }))); }
+    } else if (variant === 'abbot') { // shelved crystal on the shoulders and back
+      for (let k = 0; k < 9; k++) { const side = k % 2 ? 1 : -1, y = 2.6 + (k % 4) * 0.25; glow.push(tagA(spike([side * (0.6 + (k % 3) * 0.22), y, -0.35 - (k % 2) * 0.2], [side * 0.4, 1, -0.3], 0.1, 0.6 + (k % 3) * 0.25, 4))); }
+    } else if (variant === 'ferryman') { // the pole for a boat that isn't there
+      dark.push(tagA(xf(new THREE.CylinderGeometry(0.06, 0.06, 6.2, 6), { p: [1.62, 1.2, 0.85], r: [0.15, 0, -0.12] }), 1, 1.05));
+    } else { // veiled gardener: hanging veils of mould
+      for (let k = 0; k < 8; k++) { const a = -0.9 + k * 0.26; dark.push(tagA(tube(bezierPts([[Math.sin(a) * 0.85, 4.4, Math.cos(a) * 0.6], [Math.sin(a) * 1.0, 3.6, Math.cos(a) * 0.8], [Math.sin(a) * 1.05, 2.7, Math.cos(a) * 0.85]], 6), (u) => 0.06 * (1 - u * 0.6), 4))); }
+    }
+    return (variantCache[variant] = { glow: glow.length ? mergeGeos(glow) : null, dark: dark.length ? mergeGeos(dark) : null });
+  }
   const geoFor = (kind) => {
     if (cache[kind]) return cache[kind];
     let r;
@@ -412,7 +432,7 @@ export function createCreatureFactory(ctx, models) {
     else if (kind === 'mite') { const g = miteGeometry(1); r = { body: g, outline: smoothNormals(g), eyes: miteEyes() }; }
     else if (kind === 'moth') { r = mothGeometry(1); }
     else if (kind === 'eel') { const e = eelGeometry(1); r = { body: e.body, outline: smoothNormals(e.body), eyes: e.eyes }; }
-    else if (kind === 'hand') { const h = handGeometry(); r = { body: h.geo, outline: smoothNormals(h.geo), eyes: null, fmats: h.fmats, accent: h.accent }; }
+    else if (kind === 'hand') { const h = handGeometry(); r = { body: h.geo, outline: smoothNormals(h.geo), eyes: null, fmats: h.fmats, accent: h.accent, rings: h.rings }; }
     else { const w = wardenGeometry(); r = { body: w.geo, outline: smoothNormals(w.geo), eyes: w.eyes, dark: w.dark, accent: w.accent }; }
     cache[kind] = r;
     return r;
@@ -423,7 +443,9 @@ export function createCreatureFactory(ctx, models) {
     const k = enemy ? enemy.model : kind;
     const kk = KIND_DEFAULTS[k] ? k : 'wisp';
     const d = KIND_DEFAULTS[kk];
-    return { kind: kk, tint: hexColor(opts?.tint ?? enemy?.tint, d.tint), eye: hexColor(opts?.eyeColor ?? enemy?.eyeColor, d.eye), scale: opts?.scale ?? enemy?.scale ?? 1, d };
+    const zone = opts?.zone ?? ctx.state?.run?.zone;
+    const v = (enemy?.variants && zone && enemy.variants[zone]) || {};
+    return { kind: kk, id: enemy?.id || null, tint: hexColor(opts?.tint ?? v.tint ?? enemy?.tint, d.tint), eye: hexColor(opts?.eyeColor ?? v.eyeColor ?? enemy?.eyeColor, d.eye), scale: opts?.scale ?? v.scale ?? enemy?.scale ?? 1, d };
   };
 
   function createCreature(kindIn = 'wisp', opts = {}) {
@@ -452,8 +474,8 @@ export function createCreatureFactory(ctx, models) {
     const tint = new THREE.Color(R.tint);
     const pale = tint.getHSL({}).l > 0.45; // bone-pale variants (pale grasp, pyrewing)
     const bodyMat = deformToon(kind === 'moth'
-      ? { color: tint, map: mothTextures().map, rim: 0.4, side: THREE.DoubleSide, emissive: R.eye, emissiveIntensity: 1.6 }
-      : { color: tint, rim: pale ? 0.3 : kind === 'warden' ? 0.4 : 0.55, rimPower: kind === 'warden' ? 0.62 : 0.5, steps: 3 }, spec);
+      ? { color: tint, map: mothTextures().map, rim: 0.55, rimColor: GLOOM_RIM, side: THREE.DoubleSide, emissive: R.eye, emissiveIntensity: 1.15 }
+      : { color: tint, rim: pale ? 0.3 : kind === 'warden' ? 0.7 : 0.9, rimColor: pale ? PALE : GLOOM_RIM, rimPower: kind === 'warden' ? 0.6 : 0.5, steps: 3 }, spec);
     if (kind === 'moth') { bodyMat.emissiveMap = mothTextures().ems; bodyMat.alphaTest = 0.45; }
     mats.push(bodyMat);
     const body = new THREE.Mesh(G.body, bodyMat); body.name = 'body';
@@ -463,13 +485,22 @@ export function createCreatureFactory(ctx, models) {
     body.add(outlineMesh(G.outline, om));
     let eyeMat = null, eyes = null;
     if (G.eyes) {
-      eyeMat = deformGlow(R.eye, kind === 'warden' ? 3.2 : 2.6, spec); mats.push(eyeMat);
+      eyeMat = deformGlow(R.eye, kind === 'warden' ? 2.6 : 1.8, spec); mats.push(eyeMat);
       eyes = new THREE.Mesh(G.eyes, eyeMat); eyes.name = 'eyes'; rig.add(eyes);
     }
     if (G.accent) {
       const am = deformGlow(pale ? 0xc9a65a : 0xd8d2c0, pale ? 1.1 : 0.85, spec); mats.push(am);
       const acc = new THREE.Mesh(G.accent, am); acc.name = 'claws'; rig.add(acc);
       acc.add(outlineMesh(G.accent, om));
+    }
+    if (G.rings) {
+      const rm = deformToon({ color: 0x9a7a3a, rim: 0.6, emissive: 0x24180a }, spec); mats.push(rm);
+      rig.add(new THREE.Mesh(G.rings, rm));
+    }
+    if (kind === 'warden') {
+      const X = wardenExtras(wardenVariant(R.id));
+      if (X.glow) { const xm = deformGlow(R.id === 'the_shard_abbot' ? R.eye : 0xe9dfc6, R.id === 'the_shard_abbot' ? 1.3 : 0.75, spec); mats.push(xm); const m = new THREE.Mesh(X.glow, xm); m.add(outlineMesh(X.glow, om)); rig.add(m); }
+      if (X.dark) { const m = new THREE.Mesh(X.dark, bodyMat); m.add(outlineMesh(X.dark, om)); rig.add(m); }
     }
     let darkMesh = null;
     if (G.dark) { const dm = deformToon({ color: 0x000000, rim: 0 }, spec); mats.push(dm); darkMesh = new THREE.Mesh(G.dark, dm); rig.add(darkMesh); }
@@ -519,7 +550,7 @@ export function createCreatureFactory(ctx, models) {
         } else dieK = THREE.MathUtils.damp(dieK, 0, 10, dt);
         FX.uGwDissolve.value = dieK;
         eyeK = THREE.MathUtils.damp(eyeK, st === 'die' ? 0 : st === 'attack' ? 1.6 : 1, 8, dt);
-        if (eyeMat) eyeMat.color.set(R.eye).multiplyScalar((kind === 'warden' ? 3.2 : 2.6) * eyeK);
+        if (eyeMat) eyeMat.color.set(R.eye).multiplyScalar((kind === 'warden' ? 2.6 : 1.8) * eyeK);
         for (const s of sprites) s.material.opacity = (kind === 'warden' ? 0.55 : 0.25) * Math.min(1.5, eyeK);
         // per-kind body motion
         const recoil = st === 'hurt' ? Math.max(0, 1 - stateT / 0.3) : 0;

@@ -11,9 +11,13 @@ const clamp = THREE.MathUtils.clamp;
 const smooth = (a, b, x) => THREE.MathUtils.smoothstep(x, a, b);
 const wrapPi = (a) => Math.atan2(Math.sin(a), Math.cos(a));
 
-export const ONE_SHOT = { cast: 0.5, hookset: 0.42, eat: 1.7, flare: 0.95, zap: 0.38, hurt: 0.55, celebrate: 1.5, levelup: 1.35, die: 1e9 };
+export const ONE_SHOT = { cast: 0.5, hookset: 0.42, eat: 1.7, flare: 0.95, zap: 0.38, hurt: 0.55, celebrate: 1.5, levelup: 1.35, toss: 0.8, die: 1e9 };
+const BRAZIER_YAW = Math.atan2(-0.74, 0.68); // raft-local direction from the Wick's spot to the brazier
 export const CONTINUOUS = new Set(['idle', 'paddle', 'charge', 'wait', 'reel', 'strain', 'catch']);
-const BUILDS = { wick: [1, 1, 1], taper: [0.86, 1.2, 0.86], stub: [0.82, 0.8, 0.82], tallow: [1.2, 0.95, 1.2], ashwick: [0.97, 1.03, 0.97], glimmer: [1, 1, 1] };
+const BUILDS = { wick: [1, 1, 1], taper: [0.86, 1.12, 0.86], stub: [1.04, 0.94, 1.04], tallow: [1.12, 0.88, 1.12], ashwick: [0.97, 1.03, 0.97], glimmer: [1, 1, 1] };
+// per-character flame shape [width, height] and eye shape [w, h] (DESIGN §11/§19.7)
+const FLAMES = { stub: [1.45, 1.55], tallow: [1.15, 0.72], taper: [0.9, 1.1] };
+const EYES = { ashwick: [1.25, 0.38] };
 const DEFAULT_LOOK = { flame: 0xffb347, cloak: 0x4a2e24, eyes: 0xffb347, hat: 'none', wax: 0xe9dfc6 };
 
 const ROD_PARS = /* glsl */`
@@ -54,8 +58,8 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
   // ---------------------------------------------------------------- palette + materials
   // Rigid parts are merged per bone into vertex-coloured meshes (few draw calls); the palette
   // is repainted by setLook() so every character look still works.
-  const PAL = { WAX: 0, CLOAK: 1, DARK: 2, FACE: 3, CLASP: 4, HAT: 5, WICK: 6, WOOD: 7, CORK: 8, METAL: 9 };
-  const palette = [DEFAULT_LOOK.wax, DEFAULT_LOOK.cloak, 0x1c1512, 0x0b0807, 0xb08a4a, 0x2a1c16, 0x0a0806, 0x2e2015, 0x8a6a48, 0x4a4d52].map((c) => new THREE.Color(c));
+  const PAL = { WAX: 0, CLOAK: 1, DARK: 2, FACE: 3, CLASP: 4, HAT: 5, WICK: 6, WOOD: 7, CORK: 8, METAL: 9, PATCH: 10, BONE: 11 };
+  const palette = [DEFAULT_LOOK.wax, DEFAULT_LOOK.cloak, 0x1c1512, 0x0b0807, 0xb08a4a, 0x2a1c16, 0x0a0806, 0x4a3a2a, 0x8a6a48, 0x4a4d52, 0x6a4a34, 0xdcd2b8].map((c) => new THREE.Color(c));
   const painted = [];
   const tag = (g, idx) => attr(g, 'aPal', 1, idx);
   function repaint(g) {
@@ -93,11 +97,12 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
     const p = cloakGeo.attributes.position;
     for (let i = 0; i < p.count; i++) {
       const x = p.getX(i), y = p.getY(i), z = p.getZ(i);
-      if (y < 0.11) { const a = Math.atan2(z, x); p.setY(i, y - Math.max(0, Math.sin(a * 7 + 0.5)) * 0.035 - Math.max(0, Math.sin(a * 11)) * 0.015); }
+      if (y < 0.11) { const a = Math.atan2(z, x); p.setY(i, y - Math.pow(Math.max(0, Math.sin(a * 2 + 0.7)), 6) * 0.06 - Math.pow(Math.max(0, Math.sin(a * 2 - 0.9)), 8) * 0.045 - Math.max(0, Math.sin(a * 9)) * 0.008); }
     }
     cloakGeo.computeVertexNormals();
   }
-  const bodyGeo = build([tag(cloakGeo, PAL.CLOAK), tag(xf(new THREE.TorusGeometry(0.14, 0.035, 6, 20), { r: [Math.PI / 2, 0, 0], p: [0, 0.5, 0] }), PAL.CLOAK), tag(blob(0.025, 0.025, 0.015, [0, 0.47, 0.17], 8, 6), PAL.CLASP)]);
+  attr(cloakGeo, 'aPal', 1, (x, y, z) => { const a = Math.atan2(z, x); return ((a > 2.1 && a < 2.7 && y > 0.17 && y < 0.3) || (a > -0.9 && a < -0.35 && y > 0.28 && y < 0.4)) ? PAL.PATCH : PAL.CLOAK; });
+  const bodyGeo = build([cloakGeo, tag(xf(new THREE.TorusGeometry(0.14, 0.036, 6, 20), { r: [Math.PI / 2, 0, 0], p: [0, 0.5, 0] }), PAL.WAX), tag(blob(0.025, 0.025, 0.015, [0, 0.47, 0.17], 8, 6), PAL.CLASP)]);
   const cloak = new THREE.Mesh(bodyGeo, cloakMat); cloak.name = 'cloak';
   cloak.add(outlineMesh(smoothNormals(bodyGeo), cloakOutline));
   body.add(cloak);
@@ -120,7 +125,7 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
     for (let i = 0; i < p.count; i++) { const x = p.getX(i), y = p.getY(i), z = p.getZ(i); if (y > 0.28) { const a = Math.atan2(z, x); p.setY(i, y + Math.sin(a * 5 + 1) * 0.007 + Math.sin(a * 9) * 0.004); } }
     headGeo.computeVertexNormals(); }
   const headParts = [tag(headGeo, PAL.WAX)];
-  [[0.75, 0.1], [2.35, 0.07], [3.5, 0.12], [4.45, 0.09], [5.4, 0.11], [1.62, 0.05]].forEach(([a, len]) => {
+  [[0.85, 0.1], [2.45, 0.07], [3.6, 0.12], [5.3, 0.09]].forEach(([a, len]) => {
     const r = 0.196, x = Math.cos(a) * r, z = Math.sin(a) * r;
     headParts.push(tag(blob(0.022, len * 0.65, 0.02, [x, 0.285 - len * 0.55, z], 8, 6, [0, -a, 0]), PAL.WAX));
     headParts.push(tag(blob(0.026, 0.026, 0.024, [x * 1.01, 0.285 - len * 1.12, z * 1.01], 8, 6), PAL.WAX));
@@ -142,12 +147,13 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
     hats.hood = { obj: hood, flameY: 0.37 };
   }
   { // tall: crooked chimney hat with an open top
-    const pts = [[0.2, 0.25], [0.21, 0.27], [0.16, 0.36], [0.12, 0.47], [0.095, 0.58], [0.085, 0.64]];
+    const pts = [[0.2, 0.25], [0.19, 0.3], [0.17, 0.4], [0.16, 0.5], [0.155, 0.6], [0.15, 0.64], [0.12, 0.655], [0.0, 0.645]];
     const g = new THREE.LatheGeometry(pts.map((p) => new THREE.Vector2(p[0], p[1])), 18);
-    const pp = g.attributes.position; for (let i = 0; i < pp.count; i++) { const y = pp.getY(i); pp.setX(i, pp.getX(i) + Math.pow(Math.max(0, y - 0.3), 2) * 0.6); }
+    const pp = g.attributes.position; for (let i = 0; i < pp.count; i++) { const y = pp.getY(i); pp.setX(i, pp.getX(i) + Math.pow(Math.max(0, y - 0.3), 2) * 0.35); if (y > 0.63) { const a = Math.atan2(pp.getZ(i), pp.getX(i)); pp.setY(i, y + Math.sin(a * 5) * 0.008); } }
     g.computeVertexNormals();
-    const tall = outlineOf(new THREE.Mesh(build([tag(g, PAL.HAT), tag(xf(new THREE.CylinderGeometry(0.29, 0.29, 0.02, 22), { p: [0, 0.26, 0] }), PAL.HAT)]), hatMat), 0.012);
-    hats.tall = { obj: tall, flameY: 0.66, flameX: 0.105 };
+    const drip2 = [blob(0.02, 0.05, 0.02, [0.13, 0.5, 0.05], 6, 5), blob(0.024, 0.024, 0.022, [0.135, 0.45, 0.05], 6, 5), blob(0.018, 0.04, 0.018, [-0.06, 0.55, 0.09], 6, 5)];
+    const tall = outlineOf(new THREE.Mesh(build([tag(g, PAL.WAX), ...drip2.map((d) => tag(d, PAL.WAX)), tag(xf(new THREE.TorusGeometry(0.2, 0.025, 5, 20), { r: [Math.PI / 2, 0, 0], p: [0, 0.265, 0] }), PAL.WAX)]), headMat), 0.014);
+    hats.tall = { obj: tall, flameY: 0.67, flameX: 0.04 };
   }
   { // brim: wide floppy brim + low crown with a hole
     const crown = new THREE.LatheGeometry([[0.19, 0.27], [0.185, 0.33], [0.15, 0.38], [0.07, 0.395]].map((p) => new THREE.Vector2(p[0], p[1])), 20);
@@ -160,7 +166,7 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
 
   // flame ------------------------------------------------------------
   const flameAnchor = new THREE.Group(); flameAnchor.position.set(0, 0.355, 0); head.add(flameAnchor);
-  const flame = makeFlame({ color: DEFAULT_LOOK.flame, size: 1, glow: 1.0 });
+  const flame = makeFlame({ color: DEFAULT_LOOK.flame, size: 1, glow: 0.75 });
   flameAnchor.add(flame.group);
   mats.push(...flame.mats);
 
@@ -171,7 +177,7 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
   const rodGeo = new THREE.CylinderGeometry(0.0055, 0.017, ROD_L, 6, 18); rodGeo.translate(0, ROD_L / 2, 0);
   { const p = rodGeo.attributes.position; for (let i = 0; i < p.count; i++) { const y = p.getY(i); p.setX(i, p.getX(i) + Math.sin(y * 2.3) * 0.012); } } // crooked
   const rodAll = build([tag(rodGeo, PAL.WOOD), tag(xf(new THREE.CylinderGeometry(0.022, 0.024, 0.3, 8), { p: [0, 0.02, 0] }), PAL.CORK),
-    tag(xf(new THREE.CylinderGeometry(0.042, 0.042, 0.035, 12), { r: [0, 0, Math.PI / 2], p: [0, 0.22, 0.045] }), PAL.METAL)]);
+    tag(xf(new THREE.CylinderGeometry(0.042, 0.042, 0.035, 12), { r: [0, 0, Math.PI / 2], p: [0, 0.22, 0.045] }), PAL.BONE)]);
   const rodMat = M(deformToon({ color: 0xffffff, vertexColors: true, rim: 0.35 }, rodSpec));
   const rodOutline = M(deformOutline({ thickness: 0.006 }, rodSpec));
   const rodMount = new THREE.Group(); arms.r.hand.add(rodMount);
@@ -180,6 +186,9 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
   const crank = new THREE.Group(); crank.position.set(0.025, 0.22, 0.045); rod.add(crank);
   crank.add(new THREE.Mesh(build([tag(xf(new THREE.BoxGeometry(0.012, 0.07, 0.012), { p: [0, 0.03, 0] }), PAL.METAL), tag(xf(new THREE.SphereGeometry(0.014, 6, 5), { p: [0.012, 0.062, 0] }), PAL.CORK)]), rigidMat));
   const rodTipLocal = new THREE.Vector3(0, ROD_L, 0);
+  const bellMat = M(toonMaterial({ color: 0xc09048, rim: 0.6, emissive: 0x3a2408 }));
+  const rodBell = new THREE.Group(); rod.add(rodBell);
+  rodBell.add(new THREE.Mesh(xf(new THREE.LatheGeometry([[0, 0], [0.012, -0.004], [0.018, -0.02], [0.024, -0.036], [0.021, -0.038]].map((p) => new THREE.Vector2(p[0], p[1])), 8), { p: [0, -0.012, 0] }), bellMat));
   const tipGlint = glowSprite({ color: 0xfff0d0, size: 0.09, opacity: 0.6 }); rod.add(tipGlint); mats.push(tipGlint.material);
   // stowed rod in the bow holder (raft space)
   const stowed = new THREE.Group(); stowed.name = 'rodStowed';
@@ -213,8 +222,8 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
   let charge = 0, reelK = 0, reelLat = 0, aimYaw = null, aimHold = 0, pointYaw = null;
   let vitality = 1, flameK = 1, flameOut = false, blinkT = 2, blink = 0, paddlePhase = 0, crankPhase = 0, facing = 0;
   let look = { ...DEFAULT_LOOK }, buildS = BUILDS.wick, flameBaseY = 0.355, flameBaseX = 0;
-  let flash = 0, smokeT = 0, catchBig = false, holding = false;
-  const flameCol = new THREE.Color(DEFAULT_LOOK.flame);
+  let flash = 0, smokeT = 0, catchBig = false, holding = false, flameShape = [1, 1], eyeShape = [1, 1], lastEmber = 0.21, bellSwing = 0, bellV = 0, dripT = 4;
+  const flameCol = new THREE.Color(DEFAULT_LOOK.flame), baseFlameCol = new THREE.Color(DEFAULT_LOOK.flame);
   const tmpV = new THREE.Vector3(), tmpV2 = new THREE.Vector3(), tmpQ = new THREE.Quaternion(), tmpM = new THREE.Matrix4();
 
   function setLook(l = {}) {
@@ -227,9 +236,10 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
     for (const g of painted) repaint(g);
     eyeMat.color.set(hexColor(look.eyes, DEFAULT_LOOK.eyes)).multiplyScalar(3);
     flameCol.set(hexColor(look.flame, DEFAULT_LOOK.flame));
-    flame.outerMat.uniforms.uColor.value.copy(flameCol);
-    flame.innerMat.uniforms.uColor.value.copy(flameCol).lerp(new THREE.Color(0xfff2c8), 0.6);
-    flame.halo.material.color.copy(flameCol);
+    baseFlameCol.copy(flameCol);
+    flameShape = look.flameShape || FLAMES[look.id] || [1, 1];
+    eyeShape = look.eyeShape || EYES[look.id] || [1, 1];
+    applyFlameColor();
     const charred = (look.id === 'ashwick') || new THREE.Color(look.wax).getHSL({}).l < 0.4;
     headMat.userData.charred = charred; headMat.emissiveIntensity = 1;
     for (const [k, h] of Object.entries(hats)) h.obj.visible = k === look.hat;
@@ -237,11 +247,13 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
     flameBaseY = h?.flameY ?? 0.355; flameBaseX = h?.flameX ?? 0;
     wickStr.visible = !h || look.hat === 'hood';
     const b = Array.isArray(look.build) ? look.build : typeof look.build === 'number' ? [look.build, look.build, look.build] : BUILDS[look.id] || BUILDS.wick;
-    buildS = b;
+    const sc = Number.isFinite(look.scale) && look.scale > 0 ? look.scale : 1;
+    buildS = [b[0] * sc, b[1] * sc, b[2] * sc];
   }
 
   function setPose(name) {
     if (!name) { explicitBase = null; return; }
+    if (name === 'render') name = 'toss';
     if (ONE_SHOT[name] !== undefined) {
       if (dead && name !== 'die') return;
       if (action === name && actionT < 0.15) return;
@@ -254,6 +266,18 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
     if (CONTINUOUS.has(name)) explicitBase = name;
   }
   function revive() { dead = false; action = null; flameOut = false; explicitBase = null; cur.melt = 0; }
+  // Flame colour follows vitality (DESIGN §19.7): the look's colour when healthy, orange-red and
+  // shorter below 50%, a guttering pale blue at the last Ember.
+  const RED = new THREE.Color(0xff5a2a), BLUE = new THREE.Color(0x9fd8ff), CORE = new THREE.Color(0xfff2c8), CORE_BLUE = new THREE.Color(0xe8f6ff);
+  function applyFlameColor() {
+    const v = vitality;
+    if (v <= lastEmber) flameCol.copy(BLUE);
+    else if (v < 0.5) flameCol.copy(baseFlameCol).lerp(RED, Math.min(1, (0.5 - v) / Math.max(0.05, 0.5 - lastEmber) * 1.2));
+    else flameCol.copy(baseFlameCol);
+    flame.outerMat.uniforms.uColor.value.copy(flameCol);
+    flame.innerMat.uniforms.uColor.value.copy(flameCol).lerp(v <= lastEmber ? CORE_BLUE : CORE, 0.6);
+    flame.halo.material.color.copy(flameCol);
+  }
   function sparks(n) {
     const p = flame.group.getWorldPosition(tmpV);
     for (let i = 0; i < n; i++) ctx.models?.emitEmber?.(p, { color: flameCol.getHex(), vy: 2.2, spread: 1.6, size: 0.1, sizeGrow: -0.04, lifeT: 0.9, alpha: 1, jitter: 0.15 });
@@ -283,9 +307,10 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
       }
       case 'wait': {
         o.rod = 1.0 + Math.sin(t * 0.9) * 0.03; o.rRaise = 0.95; o.rOut = 0.25; o.lRaise = 0.45; o.lOut = 0.3;
-        o.pitch = 0.06; o.sq = breathe; o.hPitch = 0.12; o.hRoll = Math.sin(t * 0.55) * 0.1 + Math.max(0, Math.sin(t * 0.21)) * 0.12;
+        o.pitch = 0.04; o.sq = breathe - 0.02; o.hPitch = 0.12; o.y = -0.075;
+        o.legL = -1.2 + Math.sin(t * 1.6) * 0.22; o.legR = -1.2 + Math.sin(t * 1.6 + 2.1) * 0.22; o.hRoll = Math.sin(t * 0.55) * 0.1 + Math.max(0, Math.sin(t * 0.21)) * 0.12;
         o.hYaw = Math.sin(t * 0.3) * 0.08;
-        if (env.fishingState === 'bite') { o.y = 0.015 * Math.abs(Math.sin(t * 18)); o.eye = 1.35; o.hPitch = 0.2; o.flame = 0.25; }
+        if (env.fishingState === 'bite') { o.y = -0.06 + 0.015 * Math.abs(Math.sin(t * 18)); o.eye = 1.35; o.hPitch = 0.2; o.flame = 0.25; o.legL = -0.6; o.legR = -0.5; }
         break;
       }
       case 'reel': {
@@ -316,6 +341,7 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
         break;
       }
       default: { // idle
+        if (env.warm) { o.sq = breathe; o.rRaise = 1.15; o.lRaise = 1.15; o.rOut = 0.08; o.lOut = 0.08; o.rod = -0.5; o.pitch = 0.1; o.hPitch = 0.1; o.hRoll = Math.sin(t * 0.5) * 0.08; o.lStretch = 1.15; o.rStretch = 1.15; o.flame = 0.1; break; }
         o.sq = breathe; o.roll = Math.sin(t * 0.9) * 0.03;
         o.hYaw = Math.sin(t * 0.37) * 0.32 + Math.sin(t * 0.13) * 0.22; o.hRoll = Math.sin(t * 0.5) * 0.06; o.hPitch = Math.sin(t * 0.29) * 0.05;
         o.rod = -0.42 + Math.sin(t * 0.8) * 0.04; o.rRaise = 0.55; o.rOut = 0.18;
@@ -344,7 +370,14 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
         const k = a / ONE_SHOT.eat, chomp = Math.max(0, Math.sin(a * 15)) * smooth(0.12, 0.25, k) * (1 - smooth(0.8, 0.95, k));
         o.rRaise = 1.85; o.rOut = 0.05; o.lRaise = 1.75; o.lOut = 0.05; o.rStretch = 1.15; o.lStretch = 1.15;
         o.hPitch = -0.1 + chomp * 0.25; o.sq = chomp * 0.06 - 0.03; o.y = 0; o.eye = 0.25 + (1 - chomp) * 0.2;
-        o.flame = smooth(0.7, 1, k) * 0.7; o.glow = 1 + smooth(0.7, 1, k) * 0.5;
+        o.flame = smooth(0.7, 1, k) * 0.4 * (1 - smooth(0.92, 1, k) * 0.5); o.glow = 1 + smooth(0.7, 1, k) * 0.5;
+        break;
+      }
+      case 'toss': {
+        const k = a / ONE_SHOT.toss, wind = smooth(0, 0.35, k), fling = smooth(0.35, 0.55, k), back = smooth(0.7, 1, k);
+        o.lRaise = 0.3 + wind * 1.1 - fling * 0.3 - back * 0.8; o.lOut = 0.2 + fling * 0.5; o.lStretch = 1 + fling * 0.4 * (1 - back);
+        o.twist = -0.3 * wind + 0.5 * fling * (1 - back); o.pitch = 0.12 * fling * (1 - back);
+        o.flame = smooth(0.5, 0.65, k) * 0.4 * (1 - back * 0.6); o.eye = 1.1;
         break;
       }
       case 'flare': {
@@ -415,6 +448,7 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
     let face = 0;
     if (pointYaw !== null && aimHold > 0) { aimHold -= dt; face = wrapPi(pointYaw - env.heading); if (aimHold <= 0) pointYaw = null; }
     else if (base === 'catch' && Number.isFinite(env.camYaw)) face = wrapPi(env.camYaw - env.heading);
+    else if (action === 'toss' || (base === 'idle' && env.warm)) face = BRAZIER_YAW;
     else if (aimYaw !== null && base !== 'paddle' && base !== 'idle') face = wrapPi(aimYaw - env.heading);
     else if (aimYaw !== null && base === 'idle' && env.fishingBusy) face = wrapPi(aimYaw - env.heading);
     facing += wrapPi(face - facing) * (1 - Math.exp(-7 * dt));
@@ -439,7 +473,7 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
     if (blinkT <= 0) { blink = 0.13; blinkT = 2.2 + Math.random() * 3.5; }
     blink = Math.max(0, blink - dt);
     const open = clamp(cur.eye, 0.05, 1.6) * (blink > 0 ? 0.12 : 1);
-    eyes.scale.set(1 + (cur.eye > 1 ? (cur.eye - 1) * 0.3 : 0), open, 1);
+    eyes.scale.set((1 + (cur.eye > 1 ? (cur.eye - 1) * 0.3 : 0)) * eyeShape[0], open * eyeShape[1], 1);
     eyes.position.y = 0.14 + cur.eyeLift;
     eyeMat.color.set(hexColor(look.eyes, DEFAULT_LOOK.eyes)).multiplyScalar(3 * clamp(cur.glow, 0, 3) * (0.35 + 0.65 * Math.max(0.15, vitality)));
     // props
@@ -454,18 +488,27 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
     if (!out) flameOut = false;
     flame.group.visible = !out;
     const fs = (0.5 + 0.5 * flameK) * Math.max(0.15, 1 + cur.flame) * (1 + Math.sin(t * 11.3) * 0.03 * (2 - flameK));
-    flame.group.scale.setScalar(fs);
+    const lowH = vitality < 0.5 ? 0.78 + 0.44 * vitality : 1;
+    flame.group.scale.set(fs * flameShape[0], fs * flameShape[1] * lowH, fs * flameShape[0]);
     flame.outerMat.uniforms.uT.value = t; flame.innerMat.uniforms.uT.value = t * 1.13;
-    const wild = (1 - flameK) * 0.9 + Math.max(0, cur.flame) * 0.25;
+    const wild = (1 - flameK) * 0.9 + Math.max(0, cur.flame) * 0.25 + (vitality <= lastEmber ? 0.9 : vitality < 0.5 ? 0.25 : 0);
     flame.outerMat.uniforms.uWild.value = wild; flame.innerMat.uniforms.uWild.value = wild;
     flame.outerMat.uniforms.uI.value = 1.6 + flameK * 0.9 + Math.max(0, cur.flame) * 0.8;
-    flame.halo.material.opacity = (0.25 + 0.35 * flameK) * Math.min(2, 1 + Math.max(0, cur.flame) * 0.6);
-    flame.halo.scale.setScalar(1.0 * (1 + Math.max(0, cur.flame) * 0.4));
+    flame.halo.material.opacity = (0.18 + 0.27 * flameK) * Math.min(2, 1 + Math.max(0, cur.flame) * 0.6);
+    flame.halo.scale.setScalar(0.75 * (1 + Math.max(0, cur.flame) * 0.5));
     // lean flame against motion
     const lx = clamp(-(env.localVel?.x || 0) * 0.018 - cur.roll * 0.15, -0.3, 0.3), lz = clamp(-(env.localVel?.z || 0) * 0.018 + cur.pitch * 0.1, -0.3, 0.3);
     flame.outerMat.uniforms.uLean.value.set(lx, lz); flame.innerMat.uniforms.uLean.value.set(lx * 0.7, lz * 0.7);
     flameAnchor.position.set(flameBaseX, flameBaseY - cur.melt * 0.08, 0);
     if (out && dead) { smokeT -= dt; if (smokeT <= 0) { smokeT = 0.35; ctx.models?.emitSmoke?.(flame.group.getWorldPosition(tmpV), { color: 0x2a2630, vy: 0.35, spread: 0.12, size: 0.16, sizeGrow: 0.3, lifeT: 2.0, alpha: 0.35, jitter: 0.03 }); } }
+    // rod bell swing (spring) + the odd wax drip falling from the head
+    bellV += (-30 * bellSwing - 2.5 * bellV) * dt + (base === 'reel' || base === 'strain' ? Math.sin(t * 23) * 3 * dt : 0);
+    bellSwing += bellV * dt;
+    dripT -= dt;
+    if (dripT <= 0 && !dead) {
+      dripT = 6 + Math.random() * 8;
+      if (base === 'idle' || base === 'wait') { head.updateWorldMatrix(true, false); tmpV.set(0.17 * (Math.random() < 0.5 ? 1 : -1), 0.12, 0.05).applyMatrix4(head.matrixWorld); ctx.models?.emitSmoke?.(tmpV, { color: palette[PAL.WAX].getHex(), vy: -1.5, spread: 0, size: 0.045, sizeGrow: 0, lifeT: 0.32, alpha: 0.95, jitter: 0 }); }
+    }
     // cloak flutter
     cloakU.uT.value = t;
     cloakU.uWind.value.set(clamp(-(env.localVel?.x || 0) * 0.08, -0.6, 0.6), clamp(-(env.localVel?.z || 0) * 0.08, -0.6, 0.6));
@@ -493,6 +536,9 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
       if (l > 1e-4) { const k = clamp(0.03 + (tension || 0) * 0.34, 0, 0.42) * clamp(l / (tmpV2.length() + 1e-4), 0, 1); bx += tmpV2.x / l * k; bz += tmpV2.z / l * k; }
     }
     bend.x = damp(bend.x, bx, 14, 1 / 60); bend.y = damp(bend.y, bz, 14, 1 / 60);
+    const u = 0.86, L = ROD_L;
+    rodBell.position.set(bend.x * L * u * u + 0.012, L * u - 0.5 * (bend.x * bend.x + bend.y * bend.y) * L * u * u * u, bend.y * L * u * u);
+    rodBell.rotation.set(bellSwing * 0.6, 0, bellSwing);
   }
   function getRodTip(out = new THREE.Vector3()) {
     if (!rod.visible) { stowed.updateWorldMatrix(true, false); return stowedTip.getWorldPosition(out); }
@@ -510,7 +556,12 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
     setReel(k, lat = 0) { reelK = Math.max(0, Number(k) || 0); reelLat = Number(lat) || 0; },
     setAim(y) { aimYaw = (y === null || y === undefined || !Number.isFinite(y)) ? null : y; },
     pointAt(y, hold = 0.5) { pointYaw = y; aimHold = hold; },
-    setVitality(k) { vitality = clamp(Number.isFinite(k) ? k : 1, 0, 1); },
+    setVitality(k, emberFrac) {
+      const v = clamp(Number.isFinite(k) ? k : 1, 0, 1);
+      if (Number.isFinite(emberFrac)) lastEmber = emberFrac + 1e-3;
+      if (v !== vitality) { vitality = v; applyFlameColor(); }
+    },
+    ringBell(s = 1) { bellV += 6 * s; },
     setHolding(on, big = false) { holding = !!on; catchBig = !!big; },
     get pose() { return action || base; },
     get dead() { return dead; },

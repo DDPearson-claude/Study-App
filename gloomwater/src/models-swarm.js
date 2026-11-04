@@ -7,7 +7,7 @@ import * as THREE from 'three';
 import { INK } from './toon.js';
 import { deformToon, deformGlow, deformOutline, fxUniforms, smoothNormals } from './models-kit.js';
 import {
-  KIND_DEFAULTS, wispGeometry, wispEyes, WISP_PARS, miteGeometry, miteEyes, MITE_PARS, mothGeometry, mothTextures,
+  KIND_DEFAULTS, GLOOM_RIM, wispGeometry, wispEyes, WISP_PARS, miteGeometry, miteEyes, MITE_PARS, mothGeometry, mothTextures,
   MOTH_PARS, eelGeometry, EEL_PARS,
 } from './models-creatures.js';
 
@@ -34,7 +34,7 @@ uniform float uOpacity;
 varying float vA; varying vec2 vUv;
 void main() {
   float d = length(vUv * 2.0 - 1.0);
-  float a = smoothstep(1.0, 0.15, d) * vA * uOpacity;
+  float a = (1.0 - smoothstep(0.15, 1.0, d)) * vA * uOpacity;
   if (a < 0.003) discard;
   gl_FragColor = vec4(0.0, 0.0, 0.0, a);
 }`;
@@ -60,9 +60,10 @@ export function createSwarmFactory(ctx, models, resolve) {
     const uniforms = { uT: models.swarmTime, uMove: { value: 0.65 }, uAtk: { value: 0 }, uArch: { value: 0 }, ...fxUniforms({ edge: R.eye, scale: 7 }) };
     const spec = { key: 'sw_' + kind, uniforms, pars: G.pars, fx: 'instanced' };
     const mats = [];
+    const paleTint = new THREE.Color(R.tint).getHSL({}).l > 0.45;
     const bodyMat = deformToon(kind === 'moth'
-      ? { color: 0xffffff, map: mothTextures().map, rim: 0.4, side: THREE.DoubleSide, emissive: R.eye, emissiveIntensity: 1.5 }
-      : { color: 0xffffff, rim: 0.55, rimPower: 0.5 }, spec);
+      ? { color: 0xffffff, map: mothTextures().map, rim: 0.55, rimColor: GLOOM_RIM, side: THREE.DoubleSide, emissive: R.eye, emissiveIntensity: 1.1 }
+      : { color: 0xffffff, rim: paleTint ? 0.3 : 0.9, rimColor: paleTint ? 0xe8f1f2 : GLOOM_RIM, rimPower: 0.5 }, spec);
     if (kind === 'moth') { bodyMat.emissiveMap = mothTextures().ems; bodyMat.alphaTest = 0.45; }
     mats.push(bodyMat);
     const object3d = new THREE.Group(); object3d.name = 'swarm:' + kind;
@@ -74,7 +75,7 @@ export function createSwarmFactory(ctx, models, resolve) {
     for (let i = 0; i < max; i++) { tint.toArray(colArr, i * 3); eye.toArray(eyeArr, i * 3); fxArr[i * 3 + 2] = (i * 0.618034) % 1; }
     const outlineMat = deformOutline({ thickness: kind === 'mite' ? 0.018 : kind === 'eel' ? 0.03 : 0.024, color: tint.getHSL({}).l > 0.45 ? 0x1a1610 : INK }, spec); mats.push(outlineMat);
     const outline = new THREE.InstancedMesh(G.outline, outlineMat, max); outline.instanceMatrix = im; outline.renderOrder = -1;
-    const eyeMat = deformGlow(0xffffff, kind === 'moth' ? 2.2 : 2.6, spec); mats.push(eyeMat);
+    const eyeMat = deformGlow(0xffffff, kind === 'moth' ? 1.5 : kind === 'wisp' ? 1.45 : 1.7, spec); mats.push(eyeMat); // pinpricks, not bloom blobs
     const eyes = new THREE.InstancedMesh(G.eyes, eyeMat, max); eyes.instanceMatrix = im;
     eyes.instanceColor = new THREE.InstancedBufferAttribute(eyeArr, 3);
     const shGeo = new THREE.PlaneGeometry(2, 2); shGeo.setAttribute('aFx', aFx);

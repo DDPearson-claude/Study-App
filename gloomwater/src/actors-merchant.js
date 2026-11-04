@@ -53,11 +53,12 @@ export function createMerchant(ctx) {
   bob.add(new THREE.Mesh(mergeGeos(cores), lotusGlowMat));
 
   // ---------------------------------------------------------------- Old Murk (toad)
-  const skin = 0x45552f, belly = 0x8f8a58, moss = 0x5f7d36;
+  const skin = 0x4d5a3f, belly = 0x8f8a5e, moss = 0x5f7d36, lichen = 0xb9c79a;
+  const lichenAt = (x, y, z) => Math.sin(x * 7.3 + 1.1) * Math.sin(y * 8.9 + 0.4) * Math.sin(z * 7.7 + 2.3) > 0.42;
   const murk = new THREE.Group(); murk.position.set(0, 0.22, -0.3); bob.add(murk);
   const skinMat = M(toonMaterial({ color: 0xffffff, vertexColors: true, rim: 0.38, rimPower: 0.6 }));
   const bodyG = lumpy(blob(0.72, 0.62, 0.66, [0, 0.62, -0.05], 18, 14), 0.04, 6, 2);
-  const tint = (g, top, bot) => paint(g, (x, y) => (y < 0.55 && Math.abs(x) < 0.45 && g === bodyG ? bot : top));
+  const tint = (g, top, bot) => paint(g, (x, y, z) => (y < 0.55 && Math.abs(x) < 0.45 && z > 0 && g === bodyG ? bot : lichenAt(x, y, z) ? lichen : top));
   tint(bodyG, skin, belly);
   const feet = [];
   for (const side of [1, -1]) {
@@ -70,14 +71,19 @@ export function createMerchant(ctx) {
   // head (separate so it can turn)
   const head = new THREE.Group(); head.position.set(0, 1.0, 0.32); murk.add(head);
   const headG = lumpy(blob(0.55, 0.36, 0.46, [0, 0.0, 0.05], 18, 12), 0.025, 7, 4);
-  paint(headG, (x, y) => (y < -0.12 ? belly : skin));
+  paint(headG, (x, y, z) => (y < -0.12 ? belly : lichenAt(x * 1.3, y * 1.3 + 0.5, z * 1.3) ? lichen : skin));
   const browL = blob(0.17, 0.13, 0.15, [0.27, 0.27, 0.12], 10, 8), browR = blob(0.17, 0.13, 0.15, [-0.27, 0.27, 0.12], 10, 8);
   paint(browL, skin); paint(browR, skin);
   const mouthG = paint(tube(bezierPts([[-0.5, -0.04, 0.2], [-0.2, -0.12, 0.52], [0.2, -0.12, 0.52], [0.5, -0.04, 0.2]], 16), 0.022, 5), 0x0b0d08);
   const pipeG = paint(mergeGeos([tube(bezierPts([[0.35, -0.1, 0.42], [0.55, -0.16, 0.6], [0.62, -0.05, 0.72]], 6), 0.018, 5), xf(new THREE.CylinderGeometry(0.045, 0.035, 0.09, 8), { p: [0.63, -0.02, 0.74] })]), 0x2a1a10);
-  const headMesh = new THREE.Mesh(mergeGeos([headG, browL, browR, mouthG, pipeG]), skinMat); outlineSmooth(headMesh, 0.025); head.add(headMesh);
+  const lipG = paint(tube(bezierPts([[-0.42, -0.1, 0.26], [-0.18, -0.2, 0.5], [0.18, -0.2, 0.5], [0.42, -0.1, 0.26]], 14), (u) => 0.03 + Math.sin(u * Math.PI) * 0.03, 6), 0x5a6448);
+  const headMesh = new THREE.Mesh(mergeGeos([headG, browL, browR, mouthG, lipG, pipeG]), skinMat); outlineSmooth(headMesh, 0.025); head.add(headMesh);
+  // tongue (flicks at passing moths)
+  const tongue = new THREE.Group(); tongue.position.set(0, -0.12, 0.45); head.add(tongue);
+  tongue.add(new THREE.Mesh(xf(tube(bezierPts([[0, 0, 0], [0, 0.05, 0.35], [0, 0.12, 0.7]], 8), (u) => 0.035 * (1 - u * 0.4), 5), {}), M(toonMaterial({ color: 0xc87a86, rim: 0.4 }))));
+  tongue.scale.set(1, 1, 0.001); tongue.visible = false;
   // eyes: pale-gold glowing orbs under heavy lids
-  const eyeMat = M(glowMaterial(0xd9c46a, 1.6));
+  const eyeMat = M(glowMaterial(0xe8e08a, 1.7));
   const pupilMat = M(new THREE.MeshBasicMaterial({ color: 0x0a0806, fog: true }));
   const lidMat = M(toonMaterial({ color: skin, rim: 0.35 }));
   const lids = [], balls = [], pupils = [];
@@ -104,7 +110,11 @@ export function createMerchant(ctx) {
   }
   for (let i = 0; i < 5; i++) mossG.push(lumpy(blob(0.07, 0.05, 0.07, [(rnd() - 0.5) * 0.5, 1.32, 0.25 + rnd() * 0.15], 6, 5), 0.015, 22, i + 30));
   const mossMat = M(toonMaterial({ color: moss, rim: 0.4 }));
-  const bodyMesh = new THREE.Mesh(mergeGeos([...bodyParts, ...mossG.map((g) => paint(g, moss))]), skinMat); outlineSmooth(bodyMesh, 0.03); murk.add(bodyMesh);
+  const shawl = new THREE.LatheGeometry([[0.42, 1.3], [0.62, 1.18], [0.76, 1.02], [0.8, 0.86]].map((p) => new THREE.Vector2(p[0], p[1])), 22, Math.PI * 0.55, Math.PI * 1.9);
+  { const sp = shawl.attributes.position; for (let i = 0; i < sp.count; i++) { const x = sp.getX(i), y = sp.getY(i), z = sp.getZ(i); if (y < 0.9) { const a = Math.atan2(z, x); sp.setY(i, y - Math.max(0, Math.sin(a * 6)) * 0.12 - ((i * 37) % 7) * 0.008); } } shawl.computeVertexNormals(); }
+  shawl.translate(0, -0.05, -0.05);
+  const bodyMesh = new THREE.Mesh(mergeGeos([...bodyParts, ...mossG.map((g) => paint(g, moss)), paint(shawl, (x, y, z) => (Math.sin(x * 23) * Math.sin(z * 19) > 0.8 ? 0x2a1e28 : 0x4a3646))]), skinMat);
+  bodyMesh.material.side = THREE.DoubleSide; outlineSmooth(bodyMesh, 0.03); murk.add(bodyMesh);
 
   // ---------------------------------------------------------------- towering pack
   const pack = new THREE.Group(); pack.position.set(0, 0, -0.55); murk.add(pack);
@@ -117,6 +127,19 @@ export function createMerchant(ctx) {
   packParts.push(paint(xf(new THREE.CylinderGeometry(0.1, 0.12, 0.3, 8), { p: [0.6, 2.05, 0.15] }), 0x7a6a4a));
   packParts.push(paint(xf(new THREE.CylinderGeometry(0.08, 0.08, 0.22, 8), { p: [0.4, 3.12, 0.05] }), 0x4a5a6a));
   for (const y of [1.55, 2.1, 2.55]) packParts.push(paint(xf(new THREE.TorusGeometry(0.47, 0.022, 4, 16), { p: [0, y, -0.03], r: [Math.PI / 2, 0, 0], s: [1, 0.75, 1] }), 0x8c7552));
+  // jars of murky bait
+  for (const [x, y, z, h] of [[-0.48, 2.42, 0.2, 0.2], [-0.32, 2.4, 0.28, 0.15], [0.42, 2.38, 0.24, 0.18]]) { packParts.push(paint(xf(new THREE.CylinderGeometry(0.075, 0.08, h, 8), { p: [x, y, z] }), 0x3a5a3a)); packParts.push(paint(xf(new THREE.CylinderGeometry(0.06, 0.06, 0.03, 8), { p: [x, y + h / 2 + 0.015, z] }), 0x6a5034)); }
+  // coiled rope on the flank
+  for (let i = 0; i < 3; i++) packParts.push(paint(xf(new THREE.TorusGeometry(0.17 - i * 0.015, 0.028, 5, 14), { p: [0.66, 1.55 + i * 0.05, 0.0], r: [0, 0, Math.PI / 2 - 0.2] }), 0x8c7552));
+  // empty birdcage
+  const cage = [xf(new THREE.TorusGeometry(0.13, 0.008, 4, 12), { p: [-0.7, 2.0, 0.1], r: [Math.PI / 2, 0, 0] }), xf(new THREE.CylinderGeometry(0.004, 0.004, 0.12, 3), { p: [-0.7, 2.37, 0.1] })];
+  for (let i = 0; i < 7; i++) { const a = i / 7 * TAU; cage.push(tube(bezierPts([[-0.7 + Math.cos(a) * 0.13, 2.0, 0.1 + Math.sin(a) * 0.13], [-0.7 + Math.cos(a) * 0.13, 2.22, 0.1 + Math.sin(a) * 0.13], [-0.7, 2.32, 0.1]], 5), 0.006, 3)); }
+  packParts.push(paint(mergeGeos(cage), 0x3a3a3c));
+  // dead lanterns, rods, a crooked umbrella
+  for (const [x, y, z] of [[0.62, 2.62, -0.15], [-0.55, 1.2, 0.3]]) { packParts.push(paint(xf(new THREE.ConeGeometry(0.07, 0.06, 6), { p: [x, y + 0.12, z] }), 0x2a2c2e)); packParts.push(paint(xf(new THREE.CylinderGeometry(0.055, 0.06, 0.16, 6), { p: [x, y, z] }), 0x3c3a36)); }
+  for (const [x, rz] of [[-0.3, 0.32], [-0.2, 0.42]]) packParts.push(paint(xf(new THREE.CylinderGeometry(0.012, 0.016, 2.2, 5), { p: [x - 0.3, 2.7, -0.25], r: [0.15, 0, rz] }), 0x3a2717));
+  packParts.push(paint(tube(bezierPts([[-0.15, 2.9, -0.2], [-0.25, 3.5, -0.3], [-0.45, 3.85, -0.35], [-0.6, 3.8, -0.2]], 8), 0.014, 4), 0x2a1c12));
+  packParts.push(paint(xf(new THREE.ConeGeometry(0.38, 0.22, 9, 1, true), { p: [-0.45, 3.82, -0.33], r: [0.25, 0, 0.5] }), 0x2e2a36));
   for (let i = 0; i < 7; i++) { const x = -0.4 + i * 0.13, len = 0.3 + rnd() * 0.4; packParts.push(paint(tube(bezierPts([[x, 2.33, 0.3], [x + 0.03, 2.33 - len * 0.5, 0.33], [x - 0.02, 2.33 - len, 0.31]], 5), (u) => 0.018 * (1 - u * 0.7), 3), moss)); }
   // lamp pole (merged into the pack) + green lamp + bell
   packParts.push(paint(tube(bezierPts([[0.35, 2.4, -0.1], [0.5, 3.4, -0.05], [0.7, 3.75, 0.3], [1.05, 3.62, 0.62]], 14), (u) => 0.04 - u * 0.015, 6), 0x2b1e14));
@@ -130,10 +153,17 @@ export function createMerchant(ctx) {
     ...[0, 1, 2, 3, 4, 5].map((i) => xf(new THREE.BoxGeometry(0.01, 0.22, 0.01), { p: [Math.cos(i / 6 * TAU) * 0.08, -0.26, Math.sin(i / 6 * TAU) * 0.08] })),
   ]), ironMat);
   lampPivot.add(lampIron);
-  const lampGlow = new THREE.Mesh(new THREE.SphereGeometry(0.065, 10, 8), M(glowMaterial(0x7dffa0, 1.8))); lampGlow.position.y = -0.26; lampPivot.add(lampGlow);
-  const lampHalo = glowSprite({ color: 0x7dffa0, size: 2.0, opacity: 0.35 }); lampHalo.position.y = -0.26; lampPivot.add(lampHalo); mats.push(lampHalo.material);
-  const light = new THREE.PointLight(0x7dffa0, 0, 11, 1.6); light.position.y = -0.26; light.name = 'merchantLamp'; lampPivot.add(light);
-  const bellPivot = new THREE.Group(); bellPivot.position.set(0.55, 3.58, 0.02); pack.add(bellPivot);
+  const lampGlow = new THREE.Mesh(new THREE.SphereGeometry(0.065, 10, 8), M(glowMaterial(0x8fd47a, 1.8))); lampGlow.position.y = -0.26; lampPivot.add(lampGlow);
+  const lampHalo = glowSprite({ color: 0x8fd47a, size: 2.0, opacity: 0.35 }); lampHalo.position.y = -0.26; lampPivot.add(lampHalo); mats.push(lampHalo.material);
+  const light = new THREE.PointLight(0x8fd47a, 0, 11, 1.6); light.position.y = -0.26; light.name = 'merchantLamp'; lampPivot.add(light);
+  // fish-bone wind chime under the lamp arm
+  const fchime = new THREE.Group(); fchime.position.set(0.8, 3.6, 0.42); pack.add(fchime);
+  { const bones = []; for (let i = 0; i < 4; i++) { bones.push(xf(new THREE.CylinderGeometry(0.004, 0.004, 0.2, 3), { p: [(i - 1.5) * 0.05, -0.1, 0] })); bones.push(spike([(i - 1.5) * 0.05, -0.32, 0], [0, 1, 0], 0.018, 0.12, 4)); bones.push(xf(new THREE.BoxGeometry(0.05, 0.006, 0.006), { p: [(i - 1.5) * 0.05, -0.27, 0] })); }
+    fchime.add(new THREE.Mesh(mergeGeos(bones), M(toonMaterial({ color: 0xe0d6bc, rim: 0.4 })))); }
+  // hand bell on a post at the bow of the barge
+  const bellPost = new THREE.Mesh(mergeGeos([xf(new THREE.CylinderGeometry(0.03, 0.04, 1.1, 6), { p: [-1.05, 0.75, 1.0] }), tube(bezierPts([[-1.05, 1.28, 1.0], [-0.95, 1.38, 1.05], [-0.82, 1.35, 1.1]], 5), 0.018, 4)]), M(toonMaterial({ color: 0x2b1e14, rim: 0.3 })));
+  outlineSmooth(bellPost, 0.012); bob.add(bellPost);
+  const bellPivot = new THREE.Group(); bellPivot.position.set(-0.82, 1.32, 1.1); bob.add(bellPivot);
   const bellMat = M(toonMaterial({ color: 0xa8803a, rim: 0.6, emissive: 0x2a1a05 }));
   const bell = new THREE.Mesh(mergeGeos([xf(new THREE.LatheGeometry([[0.0, 0.0], [0.05, -0.01], [0.07, -0.06], [0.085, -0.13], [0.11, -0.17], [0.1, -0.18]].map((p) => new THREE.Vector2(p[0], p[1])), 12), { p: [0, -0.05, 0] }), xf(new THREE.CylinderGeometry(0.004, 0.004, 0.06, 4), { p: [0, -0.02, 0] })]), bellMat);
   addOutline(bell, { thickness: 0.01 }); bellPivot.add(bell);
@@ -147,7 +177,7 @@ export function createMerchant(ctx) {
   // ---------------------------------------------------------------- behaviour
   const position = new THREE.Vector3();          // mooring spot (truth for gameplay)
   const from = new THREE.Vector3(), to = new THREE.Vector3(), tmp = new THREE.Vector3();
-  let bodyYaw = 0, present = false, mode = 'hidden', modeT = 0, modeDur = 1, yaw = 0, yawFrom = 0, ring = 0, blinkT = 3, blink = 0, sacT = 2, sacK = 0, smokeT = 0, lookYaw = 0, t = 0, fade = 0;
+  let tongueT = 6, tongueK = 0, bodyYaw = 0, present = false, mode = 'hidden', modeT = 0, modeDur = 1, yaw = 0, yawFrom = 0, ring = 0, blinkT = 3, blink = 0, sacT = 2, sacK = 0, smokeT = 0, lookYaw = 0, t = 0, fade = 0;
   const ease = (x) => 1 - Math.pow(1 - x, 3), easeIn = (x) => x * x * x;
   function awayDir(out, p, y) {
     const pl = ctx.player?.position;
@@ -245,6 +275,10 @@ export function createMerchant(ctx) {
       light.intensity = 3.2 * fade * flick;
       lampHalo.material.opacity = 0.35 * fade * flick;
       ember.scale.setScalar(0.8 + Math.sin(t * 2.3) * 0.25);
+      fchime.rotation.set(Math.sin(t * 1.4) * 0.12 + bob.rotation.x * 2, 0, Math.sin(t * 1.1) * 0.15);
+      tongueT -= dt;
+      if (tongueT <= 0) { tongueT = 7 + Math.random() * 9; tongueK = 0.001; }
+      if (tongueK > 0) { tongueK += dt / 0.32; const e = Math.sin(Math.min(1, tongueK) * Math.PI); tongue.visible = e > 0.02; tongue.scale.set(1, 1, Math.max(0.001, e)); tongue.rotation.x = -0.3 + e * 0.2; if (tongueK >= 1) { tongueK = 0; tongue.visible = false; } }
       lotusSprites.forEach((sp, i) => { sp.material.opacity = 0.4 * fade * (0.8 + Math.sin(t * 1.4 + i) * 0.2); });
       if (light.parent !== lampPivot) { lampGlow.getWorldPosition(light.position); light.parent?.worldToLocal(light.position); }
       smokeT -= dt;
