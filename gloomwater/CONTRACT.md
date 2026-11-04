@@ -825,10 +825,20 @@ Binding additions for DESIGN §25 (from the brief's §12 and §12.1). Each item 
 
 ### 13.0 The v3 build, rollout and compatibility
 
-- **One data flag.** `data.V3_ENABLED` (true when `globalThis.GW_V3 === true` before data.js evaluates; the v3 build sets it in template.html, or the default flips in the commit that lands P1's code). With it off every v1 / v2 table is bit-identical (validate-data passes 1 and 2). With it on, data applies the v3 tables before the lookup maps are built: `BALANCE` gains every `BALANCE_V3` key; `SPECIES` becomes the v3 roster (53, minus the species that need §24's places when `WALK_ENABLED` is off); `RELICS`, `CHALLENGES`, `BOONS`, `CHARACTERS`, `BAITS`, `SUPPLIES`, `TIPS`, `MERCHANT_LINES`, `TEXT` are patched; `ZONES[mossmere].arena.places` / `.watchLamps` and `ZONES[].homeward` are set; §24's place and lamp entries receive `PLACE_SYNC_V3` / `WALK_SYNC_V3`. The v3 exports themselves (§13.8) always exist, so tools can read them in any build.
+- **One data flag and a phase.** `data.V3_ENABLED` (true when `globalThis.GW_V3 === true` before data.js evaluates; the v3 build sets it in template.html) and `data.V3_PHASE` (1–4, from `globalThis.GW_V3_PHASE`, default 4 so tools see the whole design; each phase's build sets its number). With the flag off every v1 / v2 export hashes identically to c0e0ab9 (validate-data passes 1 and 2 compare `tools/tests/v1-exports.json`). With it on, data applies the v3 tables before the lookup maps are built, **phase by phase**, so a phase's build never carries a later phase's content:
+
+| lands in | data patch (applied inside `if (V3_ENABLED)`) |
+|---|---|
+| **P1** | `BALANCE` gains every `BALANCE_V3` block except `residents`, `markedFish` (P2), `farWater`, `liveWell` (P3) (`V3_BLOCK_PHASE`); the v3 `bite` keys merge into v1's `BALANCE.bite`; `STATS` gains `shock`, `absorb`, `pipBonus`, `dragAt` (and `stride`); `SPECIES` = the 32 phase-1 species (+ §24's 8 kept fish when `WALK_ENABLED`); the renames (`pale_leviathan` → `lantern_swallower`, `pale_marrow` → `last_candle`, `tide_chart` → Murk's Chum; Pg0 renames the ids in saves); the `spot_catch` bounty becomes `signCatch`; the 6 Angler Boons and the `angler` tags; each Wick's `fishing` half; P1 tips, text and Murk's lines; the Mossmere's rust accent and its two buoy watch-lamps; §24's place sync ▲ and watch lamps (with §24); `arena.giantSpots` (the stopgap, `RAFT_FALLBACK_V3`) in every lake whose places are not in the build, and raft watch lamps for §24's lakes without §24 |
+| **P2** | `residents`, `markedFish`; `ZONES[mossmere].arena.places` (the 8), the Cupped Hands' collision in `arena.pillars`, `arena.cracks` (the Moon-Eye); the `sturgeon` shape; species → 36 (→ 44 with §24) |
+| **P3** | `farWater`, `liveWell`; `RELICS` = `RELICS_V3` (cuts, shelves, × 0.55 / × 0.7 costs, 3 new); `CHALLENGES` = `CHALLENGES_V3`; `ZONES[].homeward`; the welcome purse; species → 39 (→ 47 with §24) |
+| **P4** | the Moon Cistern; the six P4 species (→ 41 / 53) |
+
+  `PLACES` / `PLACE_BY_ID` are rebuilt to hold every place in the build with its v3 fields (the Mossmere's from P2; §24's with §24). validate-data runs every phase with and without §24 (§13.10). The v3 exports themselves (§13.8) always exist, so tools can read them in any build.
 - **Who reads the flag:** data, main (hub entry, below) and tools. Every other module feature-detects v3 fields (`species.size`, `place.holdsGiants`, `BALANCE.nightModes`…) with `?.` / `??` and behaves as v1 / v2 without them.
-- **Rollout by phase (DESIGN §25.14).** P1 and P2 run **inside today's run flow** (title → New Descent → run → death screen): `run.nightMode` is chosen on New Descent (run 1 is all-still, `outing: 'first'`), a snuff ends the run through today's death flow, records bank at the measuring moment, and P2's residents, Marked Fish, places and Tally records persist in meta. **P3** switches to the hub flow by feature detection: main uses §13.1 when `data.V3_ENABLED && data.COVE && ctx.progression.createExpedition` all exist; otherwise today's flow stays.
-- **Landing v0.** If §24's foot core is not in the build, world reports the cove's mode as `'raft'` (`world.getMode()`), the Wick stays on the raft, and every station's pill is offered from the water's edge; the APIs below are unchanged.
+- **Rollout by phase (DESIGN §25.14).** P1 and P2 run **inside today's run flow** (title → New Descent → run → death screen): `ctx.game.startNewRun({character, nightMode})` → `progression.createRun({…, nightMode, outing})` with `outing: 'first'` and every night still when `meta.runs === 0`, else Lantern preselected on the New Descent mode cards; a snuff ends the run through today's death flow (the death screen is titled *Snuffed*; Lantern's Embers at 0 show the *Scorched* card and the run continues); records bank at the measuring moment; P2's residents, Marked Fish, places and Tally records persist in meta. Gear in P1–P2 (and inside The Long Descent) is today's per-run `UPGRADES`; the v3 fight stats that `UPGRADES` lack (shock, pips, absorb, drag) and the tackle rating come from `data.upgradeTiers(levels)` (§13.7 progression). Memories in P1–P2 follow `MEMORIES_V3.interim` (discoveries instantly; the death screen pays v1 `memoriesFor` without its species row and with the v3 per-night values); relic costs stay v1 until P3. **Pg0** (P1) migrates only the renamed ids in saves (§13.2). **P3** switches to the hub flow by feature detection: main uses §13.1 when `data.V3_ENABLED && data.COVE && ctx.progression.createExpedition` all exist; otherwise today's flow stays.
+- **The place kit is built in P2, raft-first.** The Mossmere's places use §24's place schema and rule engine (`targets`, `rhythm`, `foul`, `dropIn`, place membership, kept-species gating by `place` / `cond`, discovery, mastery, Astir, Known Places). No §24 code exists yet, so P2 builds that kit (DESIGN §25.14.3 F14, Pg11, U16) against `data.placeAtV3`; §24's walking lakes then reuse it unchanged.
+- **Landing v0** (only while §24's foot controller is missing; DESIGN §25.4.7). `world.getMode()` returns `'raft'` in the cove; the Wick stays on the raft. Land stations are offered from **pill posts on the quay's south parapet** (`COVE.v0.posts`, each within the raft's 5 m interact range of raft-reachable water, validated); Murk, the raft mooring and the jetty are already at the water. The walls and the pond are shown by flying the `wall` / `pond` camera from a post (the camera does not follow the Wick there). The quay, galleries and walls are drawn by the cove's own extrusion builder (`COVE.land: 'extrude'`, world-cove.js), which needs neither §24's grid mesher nor its foot controller. The APIs below are unchanged; when the foot core lands, `getMode()` returns `'foot'` and the posts are hidden.
 - **The Long Descent** is a run with `run.outing === 'descent'`. Inside it every module behaves as v1 / v2 (phases `BALANCE.phases`, oil `BALANCE.drain.oilPhase`, the Embers death model, per-run `UPGRADES` and `run.shells`, `memoriesFor`, per-descent §24 state) while v3 fishing (size, favour, classes, ceremony, records) applies. Modules branch on `run.outing` and `run.nightMode`, never on the flag alone.
 - **Precedence of position fields:** v3 expeditions save `run.pos` (§13.2); `player.restore()` reads `run.pos ?? run.flags.pos` (v2's field stays for The Long Descent).
 
@@ -837,18 +847,22 @@ Binding additions for DESIGN §25 (from the brief's §12 and §12.1). Each item 
 ```js
 ctx.flow: 'boot' | 'title' | 'hub' | 'playing' | 'dead'      // + 'hub' (the Landing)
 ctx.game += {
-  setOut({zone, nightMode, character, tray}),   // Map Table confirm (ui) → §13.4 Set Out
+  planSetOut({zone, nightMode, character, outing}) -> {ok, msg},   // Map Table confirm (ui): stores meta.pendingSetOut, the Waystone flares; no zone change
+  cancelSetOut(),                                // clears the plan (Map Table "Change plan")
+  setOut(plan),                                  // called by player when the Set Out glide crosses COVE.archLineZ → §13.4 Set Out
   returnHome({via: 'stone' | 'barge'}),          // player / progression after the Homeward hold or Ride home → §13.4 Return home
-  startLongDescent({character}),                 // Map Table, once all four Waystones are lit
+  startLongDescent({character}),                 // Map Table, once all four Waystones are lit (no glide plan: it runs at once)
   toHub(),                                       // after Homecoming / Snuffed summaries close (ui)
+  slowmo(seconds, scale),                        // the leap reveal (0.25 s at 0.35): main owns ctx.time.timeScale and restores it
   // kept: continueRun() (resumes a saved expedition), toTitle(), save(), pause(), resume(), togglePause(), wipeAll(), hasSavedRun()
-  // kept for P1–P2 and inside The Long Descent: startNewRun(), endRun(cause), victory()
+  // kept for P1–P2 and inside The Long Descent: startNewRun({character, nightMode}), endRun(cause), victory()
 }
 ```
 - **Main loop:** `running = (flow === 'playing' || flow === 'hub') && !paused && !blocking`. In the hub, player, actors, models, world, water, render, audio, ui, progression and fishing (cove mode) get the real dt; **survival and combat return early** when `ctx.flow === 'hub'`. The 30 s autosave timer runs only in `playing`.
-- **Boot:** load the save → `progression.migrateSave(save)` (§13.2) → flow `title` → `zone:change {zone: 'cove', hub: true, prev: null, from: 'boot'}` (world builds the cove so the title orbits it) → `ui.showTitle()`. The boot overlay offers **Begin** (no saved expedition) or **Continue** (a saved expedition), plus Settings. Begin → flow `hub` → `hub:enter {from: 'boot'}`. Continue → §13.4 Continue.
+- **The measuring ceremony is a cinematic state** (`ctx.cinematic = true` from `fishing.startCeremony` until the card opens). While it is set, main gives **survival and combat dt 0** (no phase clock, drains, enemies, director or swarm window progress) and fishing freezes its bite timers; actors, render, ui and audio get real dt. During an active swarm window every class plays the short 1.2 s variant (`BALANCE.ceremony.cinematic.duringSwarm`). The catch card that follows is today's blocking modal.
+- **Boot:** `core.loadSave()` returns the raw envelope `{version, meta, run}` (`schema` is never filled in from `defaultMeta()`), then `progression.migrateSave(save)` (§13.2) → flow `title` → `zone:change {zone: 'cove', hub: true, prev: null, from: 'boot'}` (world builds the cove so the title orbits it) → `ui.showTitle()`. The boot overlay offers **Begin** (no saved expedition) or **Continue** (a saved expedition), plus Settings. Begin → flow `hub` → `hub:enter {from: 'boot'}`. Continue → §13.4 Continue.
 - **`toTitle()`** from the hub: save, flow `title`, overlay (no zone change); Begin then emits `hub:enter {from: 'title'}`. From an expedition: save the run (with `run.pos`), set `state.run = null` in memory (the run stays in the save), `zone:change {zone: 'cove', hub: true, prev, from: 'title'}`, flow `title`, overlay with Continue.
-- **Pointer routing in the hub:** pointerdown → `ui` station glyph (tap-to-walk, `player.walkTo(stationId)`) → `actors.pickMerchant(ndc)` (Trade) → `fishing.onPointerDown()` (jetty cast and the test buoy). No zap in the hub (`combat.onPointerDown` is not called). Keyboard: `E` → `player.interact()` / `interactHold` as §12.5.
+- **Pointer routing in the hub:** pointerdown → `ui` station glyph (tap-to-walk, `player.walkTo(stationId)`) → `world.pickFrame(ndc)` (only in the `wall` camera: opens `ui.openMount(speciesId)`) → `actors.pond.pick(ndc)` (only in the `pond` camera: `ui.openPond(uid)`; a tap on the pond never reaches fishing) → `actors.pickMerchant(ndc)` (Trade) → `fishing.onPointerDown()` (jetty cast and the test buoy, only while the Wick stands on the jetty or the raft). No zap in the hub (`combat.onPointerDown` is not called). Keyboard: `E` → `player.interact()` / `interactHold` as §12.5.
 - **Autosave** (main): §13.6.
 
 ### 13.2 State (v3)
@@ -880,8 +894,13 @@ state.meta.journal[speciesId] += { pbLength, pbWeight, pbZ, bestSetup: [{family,
                                    mounted: {prize, trophy, elder}, released: {prize, trophy, elder} }
 state.meta.rumours     = { rumourId: 0..3 | 'solved' }, state.meta.pinnedRumour = rumourId | null
 state.meta.expeditions = number;  state.meta.firstOutingDone = bool
+state.meta.pendingSetOut = { zone, nightMode, character, outing } | null    // the Map Table plan, until the glide crosses the arch line (§13.4)
+state.meta.tray        = { bait: {baitId: n}, supplies: {supplyId: n}, lure: lureId|null, equipped: baitId|lureId|null }
+                         // filled at home (Murk's Bait / Supplies tabs, owned lures) and by the Set Out tray step; moved into run.bait /
+                         // run.flags.supplies / run.lure at createExpedition and emptied; nothing in it ever comes back (a Snuff loses it too)
+state.meta.v3ids       = bool                                             // Pg0 (P1) renamed the ids
 state.meta.records    += { legendGrowth: { speciesId: [{expedition, weight}] }, longDescent: { fewestDays, deepestSnuff } }
-state.meta.cosmetics   = { id: true }, state.meta.equipped = { cloak?, pennant?, lanternGlass?, rodCharm? }
+state.meta.cosmetics   = { id: true }, state.meta.equipped = { cloak?, pennant?, lanternGlass?, rodTassel? }   // rodTassel: the Knotted Rod Tassel (rod_tassel)
 state.meta.relicsFound = { reed_pole?, seedlight_glass?, tuning_fork?, deep_line? }   // P4 Found Relics
 state.meta.chartFog    = { zoneId: string }                        // P4: 64×64 bit mask per lake (base64)
 // ui
@@ -906,12 +925,11 @@ Fish += { z, sizeClass, ancient, length /*cm*/, weight /*kg*/, name? /*Elders*/,
 
 **Ownership:** progression writes meta and `run.marked / tally / conditions / pressure / farWater`; survival writes `run.scorched / lampWatch` and the phase clock; combat writes `run.levelBank`; player writes `run.pos` through `writeSave`.
 
-**Save schema and migration** (progression, `migrateSave(save) -> save`, called by main at boot before anything reads meta; the envelope's `version` becomes 3, `core.VERSION = 3`, same `SAVE_KEY`). From a v1 / v2 save:
-1. **Keep** `journal` (caught counts; `biggest` kg becomes `pbWeight`, `pbLength` = (W / k)^(1/3) from the species' body k; no class seals are granted from legacy catches), records, relics, Wicks (`unlocks`), challenges and their progress, Memories, settings, `seenTips`.
-2. **Rename** ids everywhere they appear (journal keys, `run.legendaries`, bait counts, unlocks): `pale_leviathan` → `lantern_swallower`, `pale_marrow` → `last_candle` (the bait displayed as "Drowned Marrow"), `tide_chart` → `murks_chum` (data `RENAMES`).
-3. **Refund** the Memories spent on the cut relics `old_debt`, `waystone_sporewood`, `waystone_glasswater`, `waystone_paleabyss` (sum of the costs of the owned levels), then remove them.
-4. **Add** the new meta fields with their defaults (`tackle` / `fitted` all 0, `outfit` all 0, the Mossmere Waystone lit, Waystones and gates for every lake in `meta.deepestZone` lit / open, residents rolled on first Set Out) and the **welcome purse** of 200 Shells (once).
-5. **A run in progress** ends at the next title as a "return home": its creel is sold at standard price into `meta.shells`, its tally is paid, it is cleared; no fish marked for home exist in a legacy run.
+**Save schema and migration** (progression, `migrateSave(save) -> save`, called by main at boot before anything reads meta). `core.loadSave()` returns the raw envelope `{version, meta, run}`; `defaultMeta()` is merged **after** migration and never supplies `schema`. Data: `RENAMES`.
+- **Pg0 (P1): ids only.** If `!meta.v3ids`: rename ids everywhere they appear (journal keys, `run.legendaries`, `run.bait`, unlocks such as `bait:pale_marrow`): `pale_leviathan` → `lantern_swallower`, `pale_marrow` → `last_candle`, `tide_chart` → `murks_chum`; set `meta.v3ids = true`. Nothing else changes in P1–P2 (relics, challenges and the run stay v1).
+- **Pg3 (P3): the rest, once** (`core.VERSION = 3`, same `SAVE_KEY`). **Detection:** `version < 3 && (meta.runs > 0 || meta.journal has any entry)` → **legacy**; otherwise **fresh**.
+  - **Fresh:** `meta.shells = 20`, `schema = 3`, `firstOutingDone = false` (no welcome purse; the First Outing plays).
+  - **Legacy:** 1. **keep** `journal` (caught counts; `biggest` kg becomes `pbWeight`, `pbLength` = (W / k)^(1/3) from the species' body k; no class seals are granted from legacy catches), records, relics, Wicks (`unlocks`), challenges and their progress, Memories, settings, `seenTips`; 2. run Pg0 if it has not run; 3. **refund** the Memories spent on the cut relics `old_debt`, `waystone_sporewood`, `waystone_glasswater`, `waystone_paleabyss` (sum of the costs of the owned levels), then remove them; 4. **add** the new meta fields with their defaults: `tackle` / `fitted` all 0 and `outfit` all 0 (v1 upgrades were per run, so the `RENAMES.upgradesTo*` maps grant nothing: they record where each catalogue entry went), the Mossmere Waystone lit, and the Waystone and gate of each deeper lake **lit / open only if `meta.journal` holds the legendary of the lake before it**; the **welcome purse** of 200 Shells (once); `firstOutingDone = true` (a veteran never replays the First Outing); `schema = 3`; 5. **a run in progress** ends at the next title as a "return home": its `run.shells` are added to `meta.shells`, its creel is sold at standard price into `meta.shells`, it is paid by v1 `memoriesFor(summary)` (it has no expedition tally), and it is cleared; no fish marked for home exist in a legacy run.
 
 ### 13.3 Zone `cove` and the `zone:change` guard
 
@@ -919,15 +937,15 @@ The hub is entered by `zone:change {zone: 'cove', hub: true, prev, from: 'boot' 
 
 | module | on `zone:change {hub: true}` | on the next lake `zone:change` (prev `'cove'`) |
 |---|---|---|
-| world | build `COVE` (never fall back to `ZONES[0]`); apply growth states from meta (`setGrowth`) | dispose the cove; build the lake as now |
+| world | build `COVE` (never fall back to `ZONES[0]`): world-layout and world-art use theme `'cove'` (`COVE.theme`; `themeOf` must not clamp `index −1` to the Mossmere), so no islands, hero landmarks, lamp-posts, lily pads or dock buoys of a lake are built; the land by extrusion (`COVE.land`); apply growth states from meta (`setGrowth`) | dispose the cove; build the lake as now |
 | water | `applyZonePalette(COVE.palette)`; `setPondHole({x, z, r})`; Moonfall discs off | `setPondHole(null)` |
-| render | grade `COVE.grade`; mode `cove`; the title orbit uses the cove | as now |
+| render | grade `COVE.grade`; mode `cove`; the title orbit uses the cove (`BALANCE.cameras.title.orbit`, southern arc only) | as now |
 | ui | hide the lake HUD, show the hub HUD and the station pill (`hud.setVisible` follows `hub` too, not only `playing`) | lake HUD |
 | audio | no `descend` sting; play `homecoming` (from `home`) or the snuff motif (from `snuffed`); start the cove ambience | play the `setout` sting instead of `descend` |
 | actors | place Murk at the home dock with `merchant.arrive(dock, yaw, {instant: true})` **after** this event (the leave-on-zone-change branch skips when `hub`); raft at the mooring; freeze both; spawn pond fish (`actors.pond.set(meta.pond.fish)`) | as now (Murk follows at 0:20) |
 | progression | no zone discovery, challenge zone hooks, Waystone or gate logic; the expedition summary is already banked | `createExpedition` already ran |
 | challenges | ignore | as now |
-| player | foot mode (raft in Landing v0); spawn at the hearth (`boot`, `snuffed`) or on the jetty (`home`, `title`); no drains | spawn at `arena.spawn` (new expedition) or at the saved `run.pos` (Continue) |
+| player | foot mode (raft in Landing v0); spawn at the hearth (`boot`, `snuffed`), on the raft at the mooring for the Homecoming glide-in (`home`; on the jetty when the glide is skipped), or on the jetty (`title`); no drains | spawn at `arena.spawn` (new expedition) or at the saved `run.pos` (Continue) |
 | fishing | cove mode: species pool = `COVE.fishing.species` (the Quayling); the test buoy; sales refused | as now |
 | survival / combat | idle (return early in `hub`) | as now |
 
@@ -935,10 +953,10 @@ The hub is entered by `zone:change {zone: 'cove', hub: true, prev, from: 'boot' 
 
 ### 13.4 Event order
 
-- **Set Out:** Set Out confirmed (`game.setOut`) → `progression.createExpedition({zone, nightMode, character, outing})` sets `state.run` → `expedition:start {zone, nightMode, character, outing: 'first' | 'normal' | 'descent'}` → flow `playing` → `zone:change {zone, prev: 'cove'}` → `run:start {continued: false}` (legacy alias, removed once listeners migrate) → save.
-- **Return home:** Homeward stone hold complete, or Ride home → `game.returnHome({via})` → `expedition:end {result: 'home', summary}` → `run:end {summary}` (legacy) → `progression.bankExpedition(summary)` banks the summary into meta (creel sold, tally paid, marked fish moved to a pending Homecoming list) and sets `state.run = null` → flow `hub` → `zone:change {zone: 'cove', hub: true, prev, from: 'home'}` → `hub:enter {from: 'home', summary}` → Homecoming (ui; each choice calls `progression.hangFish / keepInPond / sellMarked`, emitting `mount:hang` / `pond:add`) → save.
+- **Set Out (two steps):** Map Table confirm (ui) → `game.planSetOut(config)` stores `meta.pendingSetOut` (the chosen Waystone flares; save) → the player taps *Board* on the raft (refused without a plan) or *Set Out now* on the card → `player.walkTo('raft')` (foot) → board → `player.glide(COVE.setOutPath, {duration: EXPEDITION.setOut.glide})` with render's `setout` (then `gate`) camera → when the raft crosses `COVE.archLineZ`, player calls `game.setOut(plan)` → `progression.createExpedition({zone, nightMode, character, outing})` sets `state.run` (moving `meta.tray` into the run) and clears the plan → `expedition:start {zone, nightMode, character, outing: 'first' | 'normal' | 'descent'}` → flow `playing` → `zone:change {zone, prev: 'cove'}` → `run:start {continued: false}` (legacy alias, removed once listeners migrate) → save. A reload with a plan but no run lands at the hub with the plan kept.
+- **Return home:** Homeward stone hold complete, or Ride home → `game.returnHome({via})` → `expedition:end {result: 'home', summary}` → `run:end {summary}` (legacy) → `progression.bankExpedition(summary)` banks the summary into meta (creel sold, tally paid, marked fish moved to a pending Homecoming list) and sets `state.run = null` → flow `hub` → `zone:change {zone: 'cove', hub: true, prev, from: 'home'}` (the Wick spawns on the raft at the start of `COVE.homeInPath`) → `hub:enter {from: 'home', summary}` → `player.glide(COVE.homeInPath)` and moor (skippable: the Wick snaps to the jetty) → Homecoming (ui; each choice calls `progression.hangFish / keepInPond / sellMarked`, emitting `mount:hang` / `pond:add`; the `hang` camera frames the frame and places the Wick at the wing's foot, it does not walk) → save.
 - **Snuffed:** `lantern:out` → 25 s guttering (survival `guttering`) → `player:died {cause: 'snuffed'}` (v3 expeditions; `progression.tryRevive()` first: Second Wick once per expedition) → `expedition:end {result: 'snuffed', summary}` → `run:end` → bank (creel and fish marked for home lost, Elder Log lines marked lost, tally × 0.5) → flow `hub` → `zone:change {…, from: 'snuffed'}` → `hub:enter {from: 'snuffed', summary}` → Snuffed summary → save.
-- **Scorched** (Lantern only): Embers reach 0 → survival emits `player:scorched {night, x, z}` instead of `player:died` → combat `killAll('scorched')` and stops the director until dawn → survival `spendOil(30, 'scorched')`, sets `run.scorched` and a forced `run.lampWatch` (anchored within 10 m of x, z; fishing allowed; no Cinders) → `lampwatch:start {forced: true}` → at dawn: `lampwatch:end`, Embers mend, `run.scorched = null`. No flow change; save on the phase change.
+- **Scorched** (Lantern only): Embers reach 0 → survival emits `player:scorched {night, x, z}` instead of `player:died` → combat `killAll('scorched')` and stops the director until dawn → survival `spendOil(30, 'scorched')`, sets `run.scorched` and a forced `run.lampWatch` (anchored within 10 m of x, z; fishing allowed; no Cinders) → `lampwatch:start {forced: true}` → at dawn: `lampwatch:end`, Embers mend, `run.scorched = null`. If a fish is hooked when Embers hit 0, the swarm still withdraws and the oil is still spent at once, but the anchor point is taken where the Wick stands when the fight ends (landed or lost): the fight is never cut short. No flow change; save on the phase change.
 - **Continue:** boot → a saved run → restore it → flow `playing` → `zone:change {zone, prev, continued: true}` → `run:start {continued: true}` → the player snaps to `run.pos` (or resolves Snuffed, §13.6, if the save was guttering or at 0 oil). No saved run → flow `hub` → `hub:enter {from: 'boot'}`.
 - **Gate passage within an expedition** (calm or dawn): `progression.travel(nextZone)` (toll on the first passage; `waystone:lit {zone}` the first time) → `zone:change {zone, prev}` (survival adds the Arrival Hush to that lake's first calm) → save. The +10 tally is credited at the end of the first full calm in the new lake.
 - **The Long Descent:** `game.startLongDescent({character})` → `progression.createExpedition({zone: 'mossmere', nightMode: 'gloomtide', character, outing: 'descent'})` (which builds today's run shape: `run.shells` = 20, per-run `UPGRADES`, the twig rod) → `expedition:start {outing: 'descent', nightMode: 'gloomtide'}` → flow `playing` → `zone:change {zone: 'mossmere', prev: 'cove'}` → `run:start` → save. Death → `player:died` → v1 `endRun` → death summary → `game.toHub()` → `zone:change {…, hub: true, from: 'snuffed'}` → `hub:enter {from: 'snuffed', summary}`. Victory → `victory` → victory screen; closing it → `game.toHub()` with `from: 'home'` (the Lantern-Swallower is hung on its gilded chain).
@@ -950,17 +968,17 @@ The hub is entered by `zone:change {zone: 'cove', hub: true, prev, from: 'boot' 
 | `expedition:start` | `{zone, nightMode, character, outing: 'first'\|'normal'\|'descent'}` | main → progression, ui, audio, challenges |
 | `expedition:end` | `{result: 'home'\|'snuffed', summary: ExpeditionSummary}` | main → progression, ui, audio, challenges |
 | `hub:enter` | `{from: 'boot'\|'home'\|'snuffed'\|'title', summary?}` | main → ui (Homecoming / Snuffed / nothing), audio, actors, player |
-| `fish:measured` | `{speciesId, z, sizeClass, ancient, length, weight, favours, records: [{kind:'pb'\|'classFirst'\|'place'\|'oldLedger'\|'elderLog'\|'bestSetup'\|'resident', …}], name?, place, fish}` — fired **at the seal stamp**, before the catch card; records are already written | progression (fishing asks it at the stamp) → ui (banners), audio (bell), challenges, world (Tally Post) |
+| `fish:measured` | `{speciesId, z, sizeClass, ancient, length, weight, favours, records: [{kind:'pb'\|'classFirst'\|'place'\|'oldLedger'\|'elderLog'\|'bestSetup'\|'resident', …}], name?, place, fish, cove: bool}` — fired **at the seal stamp** by `progression.measure(fish)`; records are already written and saved; `fish:landed {measured: true}` follows at once and opens the card | progression (fishing calls `measure` at the stamp) → ui (banners), audio (bell), challenges, world (Tally Post), main (save) |
 | `fish:marked` | `{uid, speciesId, nights}` (marked for home) / `fish:released-listless` `{uid, speciesId}` (the Live Well clock ran out) | progression → ui |
 | `fish:escaped-big` | `{speciesId, z, sizeClass, length, progress, cause: 'snap'\|'thrown'\|'spooled'\|'fouled'\|'slack', place, markedFish: bool}` (Prize+ only; drives the near-miss card) | fishing → ui, progression (Marked Fish), challenges |
 | `mount:hang` | `{speciesId, z, frame, replaced: MountEntry\|null}` | progression → world (mount batch rebuild), ui, audio |
 | `pond:add` / `pond:release` | `{speciesId, z}` | progression → actors (pond), ui |
-| `resident:show` | `{place, zone, kind: 'boil'\|'pass'\|'leap', x, z, speciesId, z}` | fishing → water (sign), audio, ui (edge marker) |
+| `resident:show` | `{place, zone, kind: 'boil'\|'pass'\|'leap', x, z, speciesId, sizeZ}` (`sizeZ` is the size score; `x, z` the position) | fishing → audio, ui (edge marker); fishing-fx draws it (a `leap` is a short-lived `createFish` model inside the pre-roll's +1 call) |
 | `resident:landed` / `resident:roll` | `{place, zone, speciesId, z}` | progression → ui, world (Tally Post) |
 | `farwater:dawn` | `{day, favour, murk, oilPrice, render, nightBurn}` | progression → ui (HUD gauge), survival, fishing |
 | `condition:change` | `{zone, day, archetype, tomorrow}` (each calm start; `tomorrow` at dawn) | progression → world, water, fishing, audio, ui |
-| `moonfall` | `{state: 'start'\|'end', place: 'ferry_market'}` | world → fishing (sight fish), water, audio |
-| `sign:spawn` / `sign:end` | `{id, kind: 'rise'\|'boil'\|'nervous'\|'strike'\|'bubbles'\|'glow', x, z, sizeClass?}` | fishing → water, audio |
+| `moonfall` | `{state: 'start'\|'end', place: 'ferry_market', reveal: ['bell_pool']}` | progression (owns the schedule: 25% and 70% of the calm, 20 s, 30 s in Moonmist; the Tuning Fork's extra one) → world (renders: shaft swing, `water.setClear`), fishing (sight fish), audio |
+| `sign:spawn` / `sign:end` | `{id, kind: 'rise'\|'boil'\|'nervous'\|'strike'\|'bubbles'\|'glow', x, z, sizeClass?}` — informational (audio, tips, ui); fishing-fx draws signs and pre-rolled fish itself and asks water only for ripples and wakes (`addRipple` / `addWake`) | fishing → audio, ui |
 | `lampwatch:start` / `lampwatch:end` | `{lampId, zone, forced}` | survival → combat (no swarm tonight), ui, audio |
 | `player:scorched` | `{night, x, z}` (Lantern, Embers at 0) | survival → combat, ui, audio, progression |
 | `swarm:window` | `{state: 'open'\|'close', night, mode}` | combat → ui (Embers arc, Flare), audio, world |
@@ -970,14 +988,14 @@ The hub is entered by `zone:change {zone: 'cove', hub: true, prev, from: 'boot' 
 | `rumour:new` / `rumour:solved` | `{id, tier}` | progression → ui |
 | `ledger:refresh` / `ledger:complete` | `{slot, req}` | progression → ui |
 
-**Changed payloads (additive):** `zone:change` + `hub`, `from`, `continued`; `fishing:bite` + `{sizeClass, biteTell}`; `fishing:hook` + `{pips}`; `fishing:caught` + `{z, sizeClass, ancient, length, favours}` (`weight` stays kg); `fish:landed` + `{measured: true}` (it follows `fish:measured`); `player:died` cause + `'snuffed'`; `phase:change` + `{nightMode, swarm: bool}` on the night; `run:start` / `run:end` kept as legacy aliases of `expedition:start` / `expedition:end` until every listener migrates. **Tips** may trigger on any v3 event (`event` or `event:<disc>` as §12.3).
+**Changed payloads (additive):** `zone:change` + `hub`, `from`, `continued`; `fishing:bite` + `{sizeClass, biteTell}`; `fishing:hook` + `{pips}`; `fishing:caught` + `{fish, z, sizeClass, ancient, length, favours}` (`weight` stays kg; **informational only**: fishing already holds the Fish from `progression.makeFish`, and nothing is written on it); `fish:landed` + `{measured: true}` (it follows `fish:measured`); `player:died` cause + `'snuffed'`; `phase:change` + `{nightMode, swarm: bool}` on the night; `run:start` / `run:end` kept as legacy aliases of `expedition:start` / `expedition:end` until every listener migrates. **Tips** may trigger on any v3 event (`event` or `event:<disc>` as §12.3).
 
 `ExpeditionSummary = { result, outing, nightMode, zone, startZone, days, nights, fishCaught, pbs: [speciesId], classFirsts: [{speciesId, sizeClass}], places: [placeId], marked: [Fish], creel: [Fish], creelShells, tally: {dawns, stillNights, swarmNights, lakesCrossed, ledger, total, mult}, memories, shellsEarned, markedFishCreated: [id], nearMisses: [string], nextGoal: string, records: [string], challengesCompleted }`.
 
 ### 13.6 Saving (v3)
 
-- **In expeditions** (main): every 30 s of play, on every `phase:change`, on `visibilitychange: hidden` and on `pagehide`, plus v1's `fish:landed`, `shop:buy`, `relic:buy`, `zone:change`. Before every autosave main calls `ctx.player.writeSave?.(state.run)` (writes `run.pos {zone, x, z, y, mode, mooring}`; on walking lakes also `run.flags.raft`). Oil and the phase clock are in `run` already (survival).
-- **In the hub:** on `hub:enter`, after Homecoming resolves, on every purchase (tackle, outfit, lure, pond tier, relic), on `mount:hang` / `pond:add` / `pond:release`, on `fish:measured` (cove), and on `visibilitychange` / `pagehide`. The 30 s timer does not run.
+- **In expeditions** (main): every 30 s of play, on every `phase:change`, on `visibilitychange: hidden` and on `pagehide`, on **`fish:measured`** (so a reload after the stamp keeps the PB and class first), plus v1's `fish:landed`, `shop:buy`, `relic:buy`, `zone:change`. P1–P2 runs use the same triggers. Before every autosave main calls `ctx.player.writeSave?.(state.run)` (writes `run.pos {zone, x, z, y, mode, mooring}`; on walking lakes also `run.flags.raft`). Oil and the phase clock are in `run` already (survival).
+- **In the hub:** on `hub:enter`, after Homecoming resolves, on every purchase (tackle, outfit, lure, pond tier, relic, home bait and supplies into `meta.tray`), on `planSetOut` / `cancelSetOut`, on `mount:hang` / `pond:add` / `pond:release`, on `fish:measured` (cove), and on `visibilitychange` / `pagehide`. The 30 s timer does not run.
 - **Load rules:** `player.restore(run.pos ?? run.flags.pos)` snaps to the nearest walkable cell (foot, body-eroded) or water cell (raft) by `walkGridFor` within 6 m, else the nearest lit sister-candle, else the zone spawn. A save made while **guttering or at 0 oil resolves as Snuffed** on load (§13.4 Snuffed, from `expedition:end`). Closing the tab never moves you closer to home.
 
 ### 13.7 Module APIs (v3)
@@ -989,11 +1007,22 @@ The hub is entered by `zone:change {zone: 'cove', hub: true, prev, from: 'boot' 
 migrateSave(save) -> save                                   // §13.2
 createExpedition({zone, nightMode, character, outing}) -> run   // 'descent' builds today's run shape (run.shells, UPGRADES)
 summarizeExpedition(result) -> ExpeditionSummary;  bankExpedition(summary)        // bank sets state.run = null
-getStats(run = ctx.state.run) -> Stats                      // no run: base + Wick + meta.tackle (absolute TACKLE stats) + meta.outfit + relics
+getStats(run = ctx.state.run) -> Stats                      // P3 expeditions and the hub: data.tackleStats(meta.fitted, meta.fitted.drag) REPLACES the STATS
+                                                            //   base for castMax, hookWindow, slackTime (T0 1.4 s, as simulated), lineStrength, reelSpeed,
+                                                            //   sweetZone, creelSize and adds shock, pipBonus, absorb, dragAt; then Wick, relics, Boons and
+                                                            //   outfit add as today. P1–P2 runs and The Long Descent: today's computeStats(UPGRADES) plus
+                                                            //   shock / pipBonus / absorb / dragAt from data.tackleStats(data.upgradeTiers(run.upgrades))
 shells (getter: meta.shells in expeditions, run.shells in The Long Descent); addShells(n, reason)
 // size, records, measuring
-makeFish(speciesId, z, quality, {favours, place}) -> Fish   // CHANGED: z replaces weight; length / weight / value / food / oil from data helpers
-measure(fish) -> {records}                                  // writes PB, class first, seals, Old Ledger, Elder Log, best setup, place Tally; emits fish:measured
+makeFish(speciesId, z, quality, {favours, place}) -> Fish   // CHANGED: called by FISHING directly at the landing (it returns the Fish, with uid);
+                                                            //   z replaces weight; length / weight / value / food / oil from data helpers (fishYieldV3 applies yield.factor)
+measure(fish) -> {records}                                  // called by fishing at the seal stamp. Does every duty v1's landFish did on fishing:caught:
+                                                            //   journal (count, PB, class first, seals, Old Ledger, best setup, last lengths), Elder Log,
+                                                            //   place Tally and mastery, instant Memories (MEMORIES_V3 / interim), XP, bounty / challenge /
+                                                            //   Ledger hooks, the gate and victory; adds the Fish to the creel; then emits fish:measured
+                                                            //   and fish:landed {measured: true} (ui opens the card). In the cove (no run): journal and
+                                                            //   records only, no creel; the card offers Release only.
+refundBait(baitId) -> bool                                  // fishing on a lapsed bite under "let it pass" (the cast's general bait comes back)
 markForHome(uid) -> {ok, msg, nights};  unmark(uid)          // needs a free Live Well slot (TACKLE creel liveWell); legendaries need none
 getLiveWell() -> {slots, used, fish: [{uid, speciesId, nightsLeft}]}
 cutStrip(uid) -> {ok, strips: 3}                            // creel screen: a fish → 3 Cut Strip baits
@@ -1005,6 +1034,11 @@ getTackle() -> {owned, fitted, catalogue: TACKLE, proofs: {tier: {done, label}},
 buyTackle(slot, tier) -> {ok, msg};  fitTackle(slot, tier);  setDrag('light'|'set'|'firm')     // drag only with Reel T2+
 buyOutfit(item) -> {ok, msg};  buyLure(lureId) -> {ok, msg};  equipLure(lureId) | equipBait(baitId)   // a lure OR a bait
 getTackleRating(zoneId, fitted = meta.fitted) -> {sizeClass, next}   // from BALANCE.tackleRating (matched-set fallback)
+// Set Out (P3): the plan lives in meta between the Map Table and the arch line
+planSetOut({zone, nightMode, character, outing}) -> {ok, msg};  getPendingSetOut() -> plan|null;  cancelSetOut()
+getTray() / addToTray({bait|supply|lure, id, n})            // home purchases; createExpedition moves meta.tray into the run and empties it
+// the Moonfall schedule (P2): progression emits `moonfall` (§13.5); world only renders
+getMoonfall() -> {active, k, place, nextAt}
 // lakes, Waystones, travel
 getWaystones() -> [{zone, lit, gateOpen, toll}]             // CHANGED meaning (sea-gate stones)
 travel(zoneId) -> {ok, msg}                                 // within an expedition: open gate, lit Waystone or first-time toll
@@ -1026,7 +1060,7 @@ getRelics() -> [{...relic, shelf: 'fishing'|'gloom', level, found?}];  buyRelic(
 getLanding() -> {growth flags, frames: [{speciesId, frame, state: 'unknown'|'named'|'mounted', seal}], pond, waystones, legends}
 tryRevive()  // CHANGED: Second Wick once per expedition, every mode
 ```
-Listens to `fishing:caught` → `makeFish` → at the stamp `measure()` → `fish:measured` → (card) → `fish:landed`. Owns the expedition tally, Far Water day state, the Live Well clock (decrements at each dawn, releases with `fish:released-listless`), residents (re-roll on the next Set Out after a landing, or after 3 in-lake days), Marked Fish, pressure (−0.12 per catch, floor −0.6, reset at dawn), rumours and today's rumour (seeded by the real date), conditions (seeded by expedition, day and lake), Murk's in-lake days (1, 2, 3, then odd days), the oil price and the crossing tally rule. Banks discoveries instantly (Memories) and the tally on return.
+**The catch hand-off:** fishing calls `makeFish(…)` when the fish is landed and holds the returned Fish → `fishing:caught {fish, …}` (informational; progression writes nothing on it) → `fishing.startCeremony(fish)` → at the stamp fishing calls `progression.measure(fish)` → `fish:measured` → `fish:landed {measured: true}` → ui opens the card (Keep / Eat / Render / Mark for home in expeditions; Release only in the cove) → main saves on `fish:measured`. Owns the expedition tally, Far Water day state, the Live Well clock (decrements at each dawn, releases with `fish:released-listless`), residents (re-roll on the next Set Out after a landing, or after 3 in-lake days), Marked Fish, pressure (−0.12 per catch, floor −0.6, reset at dawn), rumours and today's rumour (seeded by the real date), conditions (seeded by expedition, day and lake), Murk's in-lake days (1, 2, 3, then odd days), the oil price and the crossing tally rule. Banks discoveries instantly (Memories) and the tally on return.
 
 **fishing**
 ```
@@ -1037,14 +1071,21 @@ view += { favour: {mu, notches, terms: [{family, id, value}], quiet: bool},     
           measure: {phase: 'scoop'|'pose'|'cord'|'banners'|'card', length, sizeClass, seal}|null,
           lure: lureId|null, drag: 'light'|'set'|'firm', place, cove: bool }
 rollSize(species, mu, {place, maxClass}) -> z               // z ~ N(mu, 1) truncated [−2, 3.6], clamped by maxZFor / giant water
-favourAt(point, species?) -> {mu, terms}                    // the one formula (BALANCE.favour); also used by the Set Out card and tools
-preroll({species, z, pos, path}) -> handle; dropPreroll(handle)   // the one "see the big one" primitive (rise rings, boils, glow trails, residents, sight, Moonfall, reflections, Marked Fish)
+favourAt(point, species?) -> {mu, terms}                    // the one formula (BALANCE.favour). With a species: its full μ (the roll). Without: the
+                                                            //   float's μ = species-independent terms + each species-specific term as the max over the
+                                                            //   bait's eligible pool at that point (a pinned / today's rumour species instead when eligible),
+                                                            //   so the float never reveals the rolled species (BALANCE.favour.float)
+preroll({species, z, pos, path}) -> handle; dropPreroll(handle)   // the one "see the big one" primitive (rise rings, boils, glow trails, residents, sight, Moonfall,
+                                                            //   reflections, Marked Fish). ONE owner: fishing-fx draws every sign and pre-rolled silhouette from a
+                                                            //   per-fish instance buffer (position, heading, length, species tint; ≤ 10 live, +1 call) and asks
+                                                            //   water only for ripples / wakes (addRipple, addWake); a resident's leap is a short-lived createFish model
 signs -> [{id, kind, position, ttl, prerolled?}]            // replaces `spots` (kept as an alias for one release)
+armChum()                                                   // Murk's Chum (market, on purchase): the next cast spawns a 30 s nervous sign at the bobber
 letItPass state; pips; old tricks; the runner (P3) and sulker (P4) surge kinds via fishing-reel.js
-startCeremony(fish) -> Promise                              // scoop → pose → cord → stamp (calls progression.measure) → banners → card
-cove mode: species = COVE.fishing.species; testBuoy cast → a fixed-pull practice fight (no fish, no rewards)
+startCeremony(fish) -> Promise                              // sets ctx.cinematic; scoop → pose → cord → stamp (calls progression.measure) → banners → card
+cove mode: species = COVE.fishing.species; testBuoy cast → COVE.testBuoy.practice (a Reedjaw at z 1.4, no escape, ≤ 20 s; no fish, no rewards)
 ```
-Size scales the species' `difficulty` before `createReel` (DESIGN §25.6.5; `BALANCE.size.fight`, Elder age by lake); the reel model adds stamina × 1.4, easing by load, the fatigue clock (Elder floor 0.8) and the old trick (`BALANCE.size.reel`). The 1.45× mid-fight mesh boost is removed (`fishing.js:663`). Night Rise and every favour term come from `BALANCE.favour`; place caps from `place.maxClass` / `species.maxClass`; Elders roll only in `holdsGiants` water, at residents and Marked Fish (and the P4 Underdepth). Lantern rules: a slam never snaps the line; while hooked, `combat` never targets the line or a fish not marked for home. The slack budget applies only in combat modes. Asks progression for every record.
+Size scales the species' `difficulty` before `createReel` (DESIGN §25.6.5; `BALANCE.size.fight`, Elder age by lake); the reel model adds stamina × 1.4, easing by load, the fatigue clock (Elder floor 0.8), the old trick (`BALANCE.size.reel`; its kind is a 50/50 pull / leap read dressed by the species' style, `mixedRead`) and **drag on every fight from T0** (`BALANCE.size.reel.drag`): while tension T > `stats.dragAt` and rising, the reel absorbs dT × `stats.absorb` and progress slips 0.08 per unit absorbed; **Spooled** = progress 0 with cumulative slip > 0.5, any species. Rod `shock` scales the hold multiplier (× (1 − shock)); `pips` = 3 / 2 (+ `stats.pipBonus`). The 1.45× mid-fight mesh boost is removed (`fishing.js:663`), and so are the 0.12 m floor and the 6 m cap on the fish length used for splash and wake (`fishing.js:662`; a 0.08 m Cupbearer and an 8.5–9.7 m legend size their splash truly). Night Rise and every favour term come from `BALANCE.favour`; place membership from `data.placeAtV3`; place caps from `place.maxClass` / `species.maxClass` (a `giantsKept` place lifts both caps for its kept species only); Elders roll only in `holdsGiants` water, `arena.giantSpots` (the stopgap), at residents and Marked Fish (and the P4 Underdepth). **dropIn targets** (`BALANCE.placesV3.dropIn`): inside `rule.lock` of the target the cast lands at its centre at y 0 without the arc, obstacle and open-water tests; the hooked fish is held inside the target disc + 0.7 m and drawn only outside obstacle collision. **Let it pass:** a lapsed bite with no hook attempt calls `progression.refundBait(id)` and banks +0.15 favour for the next cast in the same place or within 6 m of the lapsed bobber (cap +0.3, reset on a hook or after 60 s). **The hard rule:** in Still and Lantern a slam never snaps the line; while `state ∈ {reeling, landing}` no knockback or shove moves the Wick or the raft, a zap tap never releases the reel, and `lineBroken()` ignores distance added by combat; **a creelsnatch never acts while a fish is hooked and never takes a fish marked for home (every mode)**. The slack budget applies only in combat modes. Asks progression for every record.
 
 **survival**
 ```
@@ -1054,61 +1095,78 @@ duration source: with V3 on, every run except The Long Descent (P1–P2 runs inc
                  The Long Descent and V3-off builds use BALANCE.phases (+ §24's BALANCE.travel.arrivalHush)
 oilContext -> 'raft'|'foot'|'lamp'                           // BALANCE.oil.context; 'lamp' inside a lit sister-candle's light or at the moored raft
 guttering (bool), gutterLeft (s)                            // 0 oil → Last Flicker (+12, once per day) → 25 s guttering (light 2.5 m, no casting) → snuffed
-lampWatch -> {lampId, forced}|null                          // checked at dusk end (Lantern only): inside a watch lamp's pool → no swarm tonight; fishing ≤ 10 m
+lampWatch -> {lampId, forced}|null                          // checked at dusk end (Lantern only): inside a watch lamp's pool (r 6, world.getWatchLamps) → no swarm
+                                                            //   tonight; casts beyond 10 m refused; leaving the pool by > 10 m cancels it (lampwatch:end) and the
+                                                            //   swarm window starts at the current k; a forced (Scorched) watch is anchored
 spendOil(n, reason) -> bool (v2, unchanged); scorch() (internal; §13.4 Scorched)
 ```
 In the hub: returns early (no clock, no drains). Satiety → Well-fed (`BALANCE.wellFed`: no starvation; ≥ 60% gives reelSpeed +0.08, sweetZone +0.01, +1 dawn mend in combat modes). Only oil snuffs in Still and Lantern (`BALANCE.nightModes[mode].snuffBy`); Embers at 0 in Lantern → Scorched. Night oil × the Far Water night factor.
 
 **combat**
 ```
-nightMode (getter: run.nightMode); swarmTonight (bool); swarmActive (bool: inside the window now)
+nightMode (getter: run.nightMode); swarmTonight (bool); swarmActive (bool: inside the window now, or a Gloomtide calm raid; render's night camera follows it)
 pendingOptions / chooseBoon unchanged; bankedLevels (= run.levelBank); offerBanked() -> BoonOption[]|null   // ui calls it on the measuring card or at the dawn bell
 ```
-Director: `difficultyFor()` × `BALANCE.nightModes[mode].mult`, only inside `swarmWindow(mode, night, outing)` (data helper; Lantern k 0.05 → 0.50 on even nights, Gloomtide whole night, Still never, First Outing never); Lantern first elite at Heat ≥ 3, one formation per swarm, Wardens every 2nd swarm night (nights 4, 8) at hp × 0.75 withdrawing when the window closes; calm raids only in Gloomtide; Heat = max(day − 1, arrival offset) + 3 × zone with offsets from `EXPEDITION.deepStarts.heatOffset`; the linger rule in combat modes. Lantern threat model: fodder contact drains oil not Embers, a creelsnatch takes one fish not marked for home and never acts while a fish is hooked, slams never snap, Embers lost only to telegraphed hits; Scorched per §13.4. XP per mode (`BALANCE.xpModes`, Still fish XP × 1.4 with no zone factor, discovery XP ≤ +12 per day); **level-ups earned while fishing, sailing or walking are banked** (`levelup:banked`), immediate only during a swarm; Angler-tagged offers capped at the Still rate in combat modes; Kindles only in combat modes; deep-start picks and Draft levels non-Angler. Still / Lantern legend fights: the Glass Sovereign without spawns; the Lantern-Swallower's Grasping Dark as two telegraphed snags (hand silhouette 1 s ahead, +0.2 tension). In the hub: returns early.
+Director: `difficultyFor()` × `BALANCE.nightModes[mode].mult`, only inside `swarmWindow(mode, night, outing)` (data helper; Lantern k 0.05 → 0.50 on even nights, Gloomtide whole night, Still never, First Outing never); Lantern first elite at Heat ≥ 3, one formation per swarm, Wardens every 2nd swarm night (nights 4, 8) at hp × 0.75 withdrawing when the window closes; calm raids only in Gloomtide; Heat = max(day − 1, arrival offset) + 3 × zone with offsets from `EXPEDITION.deepStarts.heatOffset`; the linger rule in combat modes. Lantern threat model: fodder contact drains oil not Embers, a creelsnatch takes one fish not marked for home and never acts while a fish is hooked, slams never snap, Embers lost only to telegraphed hits; **while `fishing.state ∈ {reeling, landing}` no knockback (`knockPlayer`, slam knock) or Bulwark shove moves the Wick or the raft**, and `combat.onPointerDown` does not release the reel (in Still and Lantern a tap while hooked is ignored by combat); Scorched per §13.4. Gloomtide keeps today's slams and creelsnatch, except that a fish marked for home is never taken (`threat.creelsnatch: 'unmarked'`). XP per mode (`BALANCE.xpModes`, Still fish XP × 1.4 with no zone factor, discovery XP ≤ +12 per day); **level-ups earned while fishing, sailing or walking are banked** (`levelup:banked`), immediate only during a swarm; Angler-tagged offers capped at the Still rate in combat modes; Kindles only in combat modes; deep-start picks and Draft levels non-Angler. Still / Lantern legend fights: the Glass Sovereign without spawns; the Lantern-Swallower's Grasping Dark as two telegraphed snags (hand silhouette 1 s ahead, +0.2 tension). In the hub: returns early.
 
 **player**
 ```
 interactable ids += 'station:<stationId>' | 'homeward' | 'rideHome'                 CHANGED
-walkTo(stationId) -> bool                                  // hub only: BFS on the cove's walk grid (tap-to-walk)
+walkTo(stationId) -> bool                                  // hub only: BFS on the cove's walk grid (tap-to-walk); stations only (incl. the four wall_* wing stations)
+glide(path, {duration, onLine?: {z, fn}}) -> Promise        // scripted raft travel along waypoints (COVE.setOutPath / homeInPath): no input, no collision,
+                                                            //   camera by render's setout / gate; onLine fires once when the raft crosses z (game.setOut at COVE.archLineZ)
 writeSave(run) / restore(pos)                              // CHANGED: run.pos {zone, x, z, y, mode, mooring}
+getMode() -> 'foot' | 'raft'                               // in the cove 'raft' while §24's foot controller is missing (Landing v0)
 ```
-Hub mode: foot movement (§24 controller), no drains, spawn at the hearth (`boot`, `snuffed`) or on the jetty (`home`, `title`), station pills within `COVE.stations` ranges (Murk 5 m, walls 4 m, others interact range). The **Homeward Waystone**: within 4 m during calm or dawn, a 1 s hold → `game.returnHome({via: 'stone'})`; **Ride home** from Murk's barge while moored in calm → `game.returnHome({via: 'barge'})`.
+Hub mode: foot movement (§24's foot controller: DESIGN §25.14.4 S0 builds it in P3 if §24 has not), no drains, spawn per §13.3, station pills within `COVE.stations` ranges (Murk 5 m, wall wings 4 m, others interact range); *Board* needs `meta.pendingSetOut`. Landing v0: on the raft, pills from `COVE.v0.posts` within 5 m. The **Homeward Waystone**: within 4 m during calm or dawn, a 1 s hold → `game.returnHome({via: 'stone'})`; **Ride home** from Murk's barge while moored in calm → `game.returnHome({via: 'barge'})`.
 
 **world**
 ```
 setZone('cove')                                            // builds COVE (never ZONES[0]); getZone() -> COVE in the hub
-getStations() -> [{id, name, position, pill, range}];  getHomeward() -> {position, radius} (the lake's stone)
-getWatchLamps() -> [{id, position, radius, lit}]           // Mossmere buoy-lamps; lamps with watch: true elsewhere
+getStations() -> [{id, name, position, pill, range}];  getHomeward() -> {position, radius} (the lake's stone: ZONES[].homeward; a r 0.6
+                                                            //   lantern-stone with a raft collision circle on raft lakes and a walk BLOCK (h 1.4) on foot lakes)
+getWatchLamps() -> [{id, position, radius, lit}]           // P1: ZONES[].arena.watchLamps (the Mossmere's drawn dock buoy-lamps; raft fallbacks for §24's
+                                                            //   lakes without §24) or §24 lamps with watch: true; radius 6 (BALANCE.nightModes.lampWatch.radius)
+getGiantSpots() -> [{id, kind, x, z, r}]                   // the stopgap's holdsGiants water in a lake whose places are not in the build (arena.giantSpots)
+getDepth(x, z)                                             // CHANGED (every lake, raft lakes too): inside a place's water clamped to place.water.depth (as §24.4)
+pickFrame(ndc) -> speciesId|null                           // hub, `wall` camera only: raycast against the mount batch and the frame atlas quads
 setGrowth(landing)                                         // visibility / emissive only: frames, wings, sailcloth, stair, lanterns, keepsakes, legends
-setMounts(entries)                                         // asks models.buildMountBatch; rebuilt on Homecoming or Swap only
+setMounts(entries)                                         // asks models.buildMountBatch; rebuilt on Homecoming, Swap, pond:add and pond:release
 setCondition(archetype)                                    // particles, fog, uniforms; no geometry movement
-moonfall -> {active, k}; setTallyPost(placeId, record)     // ≤ 2 live canvas sprites
+setMoonfall({state, k}) ; setTallyPost(placeId, record)    // render-only (progression owns the schedule and emits `moonfall`); Tally Posts stand at
+                                                            //   place.tallyAt (raft places: a flood-gauge stone, collision r 0.4) or the place's stand (§24); ≤ 2 live canvas sprites
 getPlaces() includes the Mossmere's 8 (+ the P4 secret) with v3 fields
 ```
-Owns the cove build (§25.4.6 reuse table, budget §25.4.7), the Mossmere place props (the Cupped Hands, chains, the door, the buoy-lantern row), the condition presets, Moonfall (shaft swing + `water.setClear`) and P4's wow happenings; no gameplay state (progression owns it).
+Owns the cove build (§25.4.6 reuse table, budget §25.4.7; the land by extrusion of `COVE.walk` shapes in world-cove.js, theme `'cove'`), the Mossmere place props (the Cupped Hands with their water-level bowl, chains, the `gatehouse_face` dressing, the buoy-lantern row as surface glow decals + float caps), the Mossmere re-dress (`MOSSMERE_V3.redress`: bridge arch spans and deck, the Sluice Veil card and aqueduct segments, bollards and buoy-lanterns in place of street lamp-posts, the toll-tower), authored cracks (`arena.cracks`, read before the procedural ones: the Moon-Eye), the condition presets, Moonfall's rendering (shaft swing + `water.setClear`) and P4's wow happenings; no gameplay state (progression owns it, Moonfall's schedule included).
 
 **water**
 ```
 applyZonePalette(COVE.palette) on zone:change {hub: true}  // no ZONES[0] fallback
-setPondHole({x, z, r} | null)                              // one vec4 uPondHole: the lake shader discards inside the disc
-setClear([{x, z, r, k}] | [])                              // uClear[2] + the 256² floor painting (128², radius × 0.7 on low)
+setPondHole({x, z, r} | null)                              // one vec4 uPondHole; the discard is compiled only under material.defines.POND_HOLE, set on
+                                                            //   zone:change {hub: true} and removed on leaving (needsUpdate), so no lake shader carries a discard
+setClear([{x, z, r, k, paint: {atlas, cell, rect: [x0, z0, w, h]}}] | [])   // uClear[2]; each disc samples its own cell of one painting atlas (256², 2 cells;
+                                                            //   128² and radius × 0.7 on low), mapped by its world rect (MOSSMERE_V3.happening.clear)
+setBand({x, z, angle, width, k} | null)                    // P4 the Alignment: one vec4 + vec2 band-mask uniform (not uClear discs)
 setGlowtide(k 0..1)                                        // night sparkle; off on low
-addSign(kind, x, z, size) -> id; removeSign(id)           // pooled decals through the ripple and wake arrays (no new uniform arrays)
+addRipple / addWake (kept)                                 // fishing-fx calls these for signs; water draws no sign of its own (one owner: fishing-fx)
 setCondition({swell, rain})                                // Hush swell × 0.2, Drizzle rings
 ```
 The pond surface (transparent, after the pond fish, no depth write) and the floor disc at y −0.7 are water's (+2 calls).
 
 **render**
 ```
-modes += 'trophy' | 'cove' | 'gate' | 'wall' | 'hang' | 'pond' | 'setout' | 'vista' (P4)   // numbers in BALANCE.cameras
-setTrophyTarget({length, landmark}) ; setTimescaleHook(fn)                                 // the leap reveal (0.25 s at 0.35)
+modes += 'trophy' | 'cove' | 'gate' | 'wall' | 'hang' | 'pond' | 'setout' | 'vista' (P4)   // every number in BALANCE.cameras, in render's convention
+setTrophyTarget({length, landmark})                                                        // landmark = data.landmarkOf(place) | null
 ```
-Presets: sail 24° / 15 m / aimY 1.4 / fov 52; fish 28° / 13 m; `walk` 34° (§24.5 v3); the reel camera follows line distance and fight state only, never size class; `trophy` distance `clamp(1.2 + 1.6·L, 1.6, 16)` m, yaw toward `place.landmark`, crane to 50° above 4 m; the title orbits the cove.
+`BALANCE.cameras` presets carry render's full parameter set (`elev, dist, aim, aimY, fov, ahead, stiff`; pitch = atan((dist·sin elev − aimY) / (dist·cos elev + aim)), not elev) and a `portrait {elev, dist, fov}` that replaces v1's widening on foot and in the cove; raft presets keep v1's widening. sail 24° / 15 m / aim 6.5 / aimY 1.4 / fov 52; fish 28° / 13 m; `walk` 34° (§24.5 v3); the reel camera follows line distance and fight state only, never size class; **the night overview blends in only while `combat.swarmActive`** (quiet nights, Stillnights and lamp-watches keep sail / fish with the night grade); `trophy` distance `clamp(1.2 + 1.6·L, 1.6, 16)` m, crane to 50° above 4 m, yaw toward the landmark by at most ±35° from north (on foot the occlusion cone and terrain clamp stay on; no landmark → no yaw change); `gate` only during glides or at its look spot on the jetty root with no line out; `wall` focuses the nearest wing (aimY = its middle frame band); `hang` focuses the frame centre; the title orbits a southern arc of the cove. The leap reveal's slow motion goes through `ctx.game.slowmo(0.25, 0.35)` (main owns `ctx.time.timeScale`).
 
 **models**
 ```
-createFish(speciesOrId, {z} | weightKg) -> FishVisual      // CHANGED: {z} → true length L in metres (sizeLength), no ±22% scaling
-buildMountBatch(entries: [{speciesId, z, position, yaw, frame}]) -> {object3d, dispose()}   // ≈ 9–12 calls whatever the count; LOD ≤ 600 tris beyond 12 m
+createFish(speciesOrId, {z} | weightKg) -> FishVisual      // CHANGED: {z} → true length L in metres (sizeLength), no ±22% scaling; the 0.12 m floor drops to 0.04 m
+buildMountBatch(entries: [{speciesId, z, position, yaw, frame, view}]) -> {near: Object3D[], far: Object3D, dispose()}
+                                                            // per wall: one full-detail batch per wing (≤ 12 fish) + one LOD batch (≤ 600 tris per fish) for
+                                                            //   everything else; world swaps them by wing distance (no rebuild); ≤ 12 calls, ≤ 80k tris in view;
+                                                            //   mount view per frame: side profile, rays dorsal-up, jellies hanging (data.frameFor(sp).view)
 fish shapes += 'sturgeon'; params += pattern 'marks', barbels, needleSnout; age marks (P4) by sizeClass
 ```
 
@@ -1116,7 +1174,7 @@ fish shapes += 'sturgeon'; params += pattern 'marks', barbels, needleSnout; age 
 ```
 setPose(name) += 'measurePalm' | 'measureArms' | 'measureHang' | 'measureAlongside';  showCord(lengthM, k 0..1)
 merchant.arrive(position, yaw, {instant}); merchant.freeze(on); raft.freeze(on)   // ≈ 26 → 8 and → 4 calls
-pond: { set(entries), update(dt) }                          // ≤ 6 live (2 on low), looping paths inside the hole
+pond: { set(entries), update(dt), pick(ndc) -> uid|null }  // ≤ 6 live (2 on low), looping paths inside the hole; pick only in the `pond` camera
 setDozingWicks(characterIds)                               // one merged static silhouette
 setBench({tackle, outfit})                                 // rod rack, spools, reel, creel, pegs; the Long Oars on the raft
 ```
@@ -1126,10 +1184,14 @@ Murk's look follows `COVE.murkLook` (A10): skin #5a5444, lichen flecks #b8b0a0, 
 ```
 showTitle() (boot overlay: Begin | Continue | Settings over the cove)
 showSetOut() / openTackle() / showHomecoming(summary) / showSnuffed(summary) / showNearMiss(data) / openMount(speciesId) / openPond()
-showMeasure(view.measure) (overlay) ; catch card += favours, Mark for home (nights), banked Boon pick
+showMeasure(view.measure) (overlay, during ctx.cinematic) ; catch card += favours, banked Boon pick; Mark for home (nights) from P3 (in P1–P2 nothing is marked:
+  every creel fish is "not marked" and the legendary trophy slot stays theft-proof)
+P1–P2: New Descent mode cards (run 1: the First Outing card only; from run 2 Still / Lantern / Gloomtide with Lantern preselected); the death screen titled Snuffed;
+  the Scorched card (Lantern, Embers at 0)
 hub HUD (Shells, Memories, station pill, tap-to-walk glyphs) ; lake HUD by mode (BALANCE.nightModes[mode].hud) ; the float's favour (notches, long-press list, "gone quiet")
 HUD += Far Water ◆ gauge, the Homeward stone's distance, Live Well nights ; Journal += ruler, seal grid, best setup, Elder Log, mount book, Places, rumours
-Challenges tabs: Fishing | Paths | The Measure | Gloom ; pause += quick links to every station screen, Set Out, Title
+Challenges tabs: Fishing | Paths | The Measure | Gloom ; pause += quick links (in the hub: every station screen, Set Out, Title; in a lake: Journal,
+  Challenges, Settings, Title only, because tackle and outfit are only fitted at home)
 ```
 No modal opens while the Wick moves or has a line out (banked level-ups wait for the card or the dawn bell).
 
@@ -1137,7 +1199,7 @@ No modal opens while the Wick moves or has a line out (banked level-ups wait for
 
 ### 13.8 Data schema (v3) and the data-exports table
 
-**Applied to the v1 / v2 tables when `V3_ENABLED` is on** (data owns the patch; consumers read the patched tables):
+**Applied to the v1 / v2 tables when `V3_ENABLED` is on**, by `V3_PHASE` (§13.0's table; data owns the patch; consumers read the patched tables):
 ```js
 SPECIES[] += { size: {L50 /*cm*/, sigma, body, k /*g/cm³*/} | legends {L50, W50 /*kg*/, sigma: 0.02} | Pilgrim Salmon {L50: {zoneId: cm}},
                style: 'steady'|'darter'|'sinker'|'thrasher'|'leaper'|'runner'|'sulker',   // behavior stays the reel core's base until runner / sulker land
@@ -1146,18 +1208,31 @@ SPECIES[] += { size: {L50 /*cm*/, sigma, body, k /*g/cm³*/} | legends {L50, W50
                weather?: 'hush'|'drip'|'mist',                 // a hard condition gate (DESIGN §25.8.1; the brief's `cond`)
                maxClass?: 'prize'|'trophy', spots?: {placeId: mult}, zones?: [zoneId] /*Wanderers*/, oldTrick?, phase: 1..4, src: 'v1'|'walk'|'v3' }
                // §24's place / cond stay; kept-fish conds add 'live' | 'target' | 'litRow' | 'relit' (KEPT_CONDS)
-ZONES[mossmere].arena.places = MOSSMERE_V3.places (8 + the P4 secret); .arena.watchLamps = [{id: 'se_buoy'|'w_buoy', x, z}]; palette.accent = 0x8a4b3a
-ZONES[].homeward = {x, z, at}                                    // the Homeward Waystone (≥ 25 m of path from spawn, validated)
-places[] (Mossmere and §24 via PLACE_SYNC_V3) += { holdsGiants?, giantsNonLegend?, giantsWhile?, giantsAt?, maxClass?, tally?, weather?, live?,
-               secret?, ownResident?, kept?: [speciesId], attractAdd?, turnFavour?, reveal?, happening? }
+ZONES[mossmere].arena.places = MOSSMERE_V3.places (8 from P2 + the P4 secret); .arena.cracks = [{id, x, z, width, swing}] (P2)
+ZONES[].arena.watchLamps = [{id, name?, x, z, radius: 6, dock}]  // P1: the Mossmere's drawn dock buoy-lamps; §24's lakes without §24: RAFT_FALLBACK_V3
+ZONES[].arena.giantSpots = [{id, kind: 'ring'|'disc', x, z, r}]  // the stopgap holdsGiants water in a lake whose places are not in the build (3 per lake)
+palette.accent = 0x8a4b3a (Mossmere)
+ZONES[].homeward = {x, z, at, radius: 0.6}                       // P3: the Homeward Waystone, a blocking lantern-stone (≥ 25 m from spawn, clear of stands,
+                                                                 //   slots, lamps, posts and buoys by 1.5 m and of barge pads by 3.8 m; validated)
+places[] (Mossmere and §24 via PLACE_SYNC_V3) += { holdsGiants?, giantsKept?, giantsNonLegend?, giantsWhile?, giantsAt?, giantsDuring?, maxClass?, tally?,
+               tallyAt?: {x, z} (raft places; §24 places use their stand), landmark?: {x, y, z} (data.landmarkOf), weather?, live?, secret?, ownResident?,
+               kept?: [speciesId], attractAdd?, turnFavour?, reveal?, happening?, dropIn?, bowl?: {…, y: 0, dropIn}, spill?: {r: [r0, r1]} }
+               // giantsKept: only the place's kept species may roll past the elsewhere clamp and the place's maxClass there
+               // dropIn: a locked target inside obstacle collision (BALANCE.placesV3.dropIn); its centre must be open water (margin 0.5)
+               // PLACE_SYNC_V3 waterDepth: [lo, hi] replaces a §24 place's water.depth (▲ the Lullaby 0.4–0.85, the Ferry Slip 0.45–0.95)
                rule.type += 'sight' {biteR, bite, spookOthers, glowIsSize?, softCast?} | 'drift' {lane, speed, seamRarity}
-arena.lamps[] += { watch?: true }                                // two per walking lake (WALK_SYNC_V3.watchLamps)
+arena.lamps[] += { watch?: true, radius?: 6 }                    // two per walking lake (WALK_SYNC_V3.watchLamps), no holdsGiants water within 10 m
+arena.shoreNotch = [{a, w, depth, len}]                          // a: centre angle in degrees, atan2(z, x) (270 = north at x 0); w: metres of arc at R;
+                                                                 //   depth: water depth along it; len: metres beyond R. world-layout cuts the noisy
+                                                                 //   shoreR, the cliff ring and its collision over that width (COVE: a 278°, the Moon Cistern a 0°)
+STATS += { shock, absorb, pipBonus, dragAt }                     // the v3 fight stats (BALANCE_V3.stats; TACKLE tiers replace them in P3)
 BALANCE += BALANCE_V3 keys (every key new; v3 keys for an existing block are merged into it, never replacing v1 keys: see `bite` below)
 BAITS: pale_marrow → { id: 'last_candle', name: 'Last Candle' }; SUPPLIES: tide_chart → murks_chum
-RELICS[] += { shelf: 'fishing'|'gloom', baseCosts, perExpedition?, memMultOn? } (costs × 0.55 / × 0.7); cut: old_debt, waystone_*
+RELICS[] += { shelf: 'fishing'|'gloom', baseCosts, perExpedition?, memMultOn? } (costs × 0.55 / × 0.7); cut: old_debt, waystone_*   // P3 (with Pg3's refund)
+BOUNTIES spot_catch → { type: 'signCatch', text: 'Catch {n} fish cast inside a sign on the water.' }   // P1 (feeding spots are cut)
 BOONS += BOONS_V3 (6 Angler boons); tags += 'angler' on ANGLER_POOL
 CHARACTERS[].fishing = { id, name, desc, …effect keys }          // the fishing half of each quirk
-CHALLENGES = CHALLENGES_V3 (48 with WALK on): tab, alt (either-path), scope 'expedition'|'total'; new types nightsOut, lightWaystone,
+CHALLENGES = CHALLENGES_V3 (P3; 48 with WALK on): tab, alt (either-path), scope 'expedition'|'total'; new types nightsOut, lightWaystone,
              nightSpeciesClass, classCatch, lakeSet, elderEveryLake, oldLedger, markedHome, classZoneCharacters, catchSpecies
 TIPS += TIPS_V3; MERCHANT_LINES += MERCHANT_LINES_V3; TEXT.v3 = TEXT_V3; TEXT.challengeTabs
 ```
@@ -1167,20 +1242,22 @@ TIPS += TIPS_V3; MERCHANT_LINES += MERCHANT_LINES_V3; TEXT.v3 = TEXT_V3; TEXT.ch
 | export | contents | brief block | phase | main consumers | status |
 |---|---|---|---|---|---|
 | `V3_ENABLED` | the v3 flag (`globalThis.GW_V3 === true`) | — | P1 | data, main, tools | in data |
+| `V3_PHASE`, `V3_BLOCK_PHASE` | the phase a build carries (1–4, `globalThis.GW_V3_PHASE`, default 4); BALANCE_V3 blocks that land after P1 | — | P1 | data, tools | in data |
+| `RAFT_FALLBACK_V3` | per lake: `giants` (the stopgap's 3 holdsGiants waters), `watchLamps` and `homeward` for raft builds of §24's lakes | §7.0 stopgap | P1 / P3 | data (applied), world, fishing, survival, player, validator | in data |
 | `SIZE_CLASSES` | `[{id, label, zMax, bite, seal, ceremony, chime, named?}]` small → elder | §6.1, §5.4, §5.8 | P1 | fishing, ui, progression | in data |
 | `BALANCE.size` | z (sd, min, max), tail, ancient, reachZ, giant clamp, `classMaxZ`, k by body, value / yield, `fight` (g, exponents, elderStep, elderStaminaExp, `elderAge` by lake), `reel` (staminaMult, easeByLoad, fatigue, oldTrick, runner, sulker, foul), legend sizes | `BALANCE.size` | P1 | fishing, fishing-reel, models, progression, tools | in data (`BALANCE_V3.size`) |
 | `BALANCE.favour` | cap 1.8, notches, families and every term | §5.1, §6.1 | P1 | fishing, ui, tools | in data |
 | `BALANCE.signs` | six sign kinds and their rules | §5.1 | P1 | fishing, water | in data |
 | `BALANCE.bite` (v3 keys) | dragUnder, holdMult, letItPass, pips, leapReveal | §5.4 | P1 | fishing, ui | in data as `BALANCE_V3.bite`: **must be merged into v1 `BALANCE.bite`** (v1 keys kept), not assigned over it |
 | `BALANCE.ceremony` | beats, poses, wick height, trophy camera, mm below 20 cm, near-miss estimate | §5.8 | P1 | fishing, actors, render, ui | in data |
-| `BALANCE.records` | Old Ledger z 2.3 (+5), seals 144 + 4, escape estimate, Tally Posts, Elder Log fields | §6.3 | P1 / P2 | progression, ui, world | in data |
+| `BALANCE.records` | Old Ledger z 2.3 (+5), seals 143 + 4 (the Lampwarden caps at Trophy: no Elder seal), escape estimate, Tally Posts, Elder Log fields | §6.3 | P1 / P2 | progression, ui, world | in data |
 | `BALANCE.oil` | the context table (raft / foot / lamp × phase), Last Flicker, gutter, snuffBy, checks | §3.4 | P1 | survival | in data |
 | `BALANCE.wellFed` | drain × 0.5, at 0.6, effects, dawn mend in combat, no starvation | §9.1 | P1 | survival, ui | in data |
 | `BALANCE.farWater` | favour / shows / Murk / oil price / render / night burn rules + the day table + targets | §3.4 | P3 | progression, survival, fishing, ui, tools | in data |
 | `BALANCE.liveWell` | nights by Creel tier [3, 3, 4, 4, 5]; legend rules | §3.4 | P3 | progression, ui | in data |
 | `BALANCE.nightModes` | order, `default: 'lantern'`, firstOuting, per-mode window / mult / Wardens / threat / Scorched / XP / tally / HUD, `lampWatch`, `legendQuiet`, the hard rule | §4.1–§4.8 | P1 | combat, survival, fishing, ui | in data |
 | `BALANCE.xpModes` | discovery XP, banked offers, levels per day, deep-start picks | §4.4 | P1 / P3 | combat | in data |
-| `BALANCE.cameras` | sail, fish, reel rule, trophy, cove, gate, wall, hang, pond, setout, title, vista | §3.7.5, §11 row 19 | P1 / P3 | render | in data (the brief's "cameras") |
+| `BALANCE.cameras` | every preset in render's convention (elev, dist, aim, aimY, fov, ahead, stiff, portrait), the night rule (follows `swarmActive`), trophy yaw limit, gate triggers, wall / hang focus, the title orbit | §3.7.5, §11 row 19 | P1 / P3 | render | in data (the brief's "cameras") |
 | `BALANCE.residents` / `BALANCE.markedFish` | resident z, weights, shows, re-roll; Marked Fish (≤ 6, start progress) | §7.0, §5.7 | P2 | fishing, progression | in data |
 | `BALANCE.placesV3` | new fields and rules, `sight` / `drift` numbers, giants per lake, discovery / mastery, Tally styles, persistence flags, the P1 stopgap | §7.0 | P1 / P2 | fishing, world, progression, tools | in data |
 | `BALANCE.tackleRating` | generated table (125 loadouts × 4 lakes), written by `tools/sim/reel-v3.mjs --write-rating` | §5.6 | P1 / P3 | progression, ui | in data (null until written; matched-set fallback in `TACKLE.rating`) |
@@ -1198,37 +1275,38 @@ TIPS += TIPS_V3; MERCHANT_LINES += MERCHANT_LINES_V3; TEXT.v3 = TEXT_V3; TEXT.ch
 | `EXPEDITION` | phases and `calmByMode`, Arrival Hush, Murk, Set Out, First Outing, Homeward stones, gates, deep starts, linger, Snuffed, tally, Homecoming, save, length | §3.2–§3.8 | P1 / P3 | survival, progression, player, main, ui | in data |
 | `LONG_DESCENT` | unlock, Gloomtide, today's phases and Heat, its own purse, per-run UPGRADES, rewards | §3.9 | P3 | progression, combat, survival | in data |
 | `ECONOMY_V3` | income per lake-day, the tackle timeline, welcome purse, cosmetics | §9.1–§9.3 | P3 | progression, tools (T3) | in data |
-| `MEMORIES_V3` | every Memories source, the pool, per-hour targets, relic shelves, Gloom relics, cut relics | §9.4 | P1 / P3 | progression, tools | in data |
+| `MEMORIES_V3` | every Memories source, the pool (≈ 4,550), per-hour targets, relic shelves, Gloom relics, cut relics, `interim` (the P1–P2 rule) | §9.4 | P1 / P3 | progression, tools | in data |
 | `RELICS_V3` | relics with shelves and v3 costs (+ the 3 new) | §9.4 | P3 | data (applied), progression, ui | in data |
 | `ANGLER_POOL`, `BOONS_V3` | the 15-boon Angler pool; the 6 new boons | §4.4 | P1 | combat, ui | in data |
 | `CHARACTERS_V3` | fishing halves per Wick | §4.5 | P1 | combat, fishing, survival, ui | in data |
 | `GLOOM_TAB`, `CHALLENGES_V3`, `CHALLENGE_TABS_V3` | the 9 Gloom-tab ids; 48 challenges with rewrites and tier V; tab names | §3.6, §11 | P3 | progression, ui | in data |
-| `COSMETICS_V3` | rod charm, Ashen Cloak, Murk's cosmetic shelf | §3.9, §9.2, §11 | P3 | progression, ui | in data |
+| `COSMETICS_V3` | the Knotted Rod Tassel (`rod_tassel`), the Ashen Cloak, Murk's cosmetic shelf | §3.9, §9.2, §11 | P3 | progression, ui | in data |
 | `LEDGER` | 3 slots, refresh rules, templates (combat ones mode-gated), in-lake bounty share | §10, §15 | P3 | progression, ui | in data |
-| `COVE` | the Landing: arena and walk, stations, test buoy, cove fishing, sea-gate, Waystones, walls / wings / frames, seals, pond, growth, palette, grade, green budget, Murk's look, lights, budget, fallback | §3.7 | P3 | world, water, render, player, actors, ui, fishing, validator | in data |
-| `RENAMES` | save migration v3: species / bait / supply renames, refunded relics, upgrade → tackle / outfit / lure maps, cut upgrades, combat kit, welcome purse, run-in-progress rule, meta additions | Pg3 | P3 | progression (`migrateSave`) | in data |
+| `COVE` | the Landing: arena (shoreNotch a 278°) and walk, theme `'cove'`, stations (+ four wall wings), the test buoy and its practice fight, `setOutPath` / `homeInPath` / `archLineZ`, cove fishing, sea-gate, Waystones, walls / wings (lower 10.5 + chimney breast 3 + 10.5; upper 12 + 12) / frames and `frameHeight`, seals, pond, growth, palette, grade, green budget, Murk's look, lights, budget (mount batch near / far), `land: 'extrude'`, `v0` (Landing v0 posts) | §3.7 | P3 | world, water, render, player, actors, ui, fishing, validator | in data |
+| `RENAMES` | save migration: Pg0 ids (P1); Pg3 detection (legacy / fresh), fresh purse 20, legacy rules (welcome purse 200, `firstOutingDone`, run shells and tally, gates by journal legendaries, no tackle grants), refunded relics, where each upgrade went, combat kit, meta additions | Pg0 / Pg3 | P1 / P3 | progression (`migrateSave`) | in data |
 | `TEXT_V3`, `TIPS_V3`, `MERCHANT_LINES_V3` | player-facing text (modes, Set Out, Homecoming, Snuffed, tips, Murk's lines) | §2–§5 | P1–P3 | ui | in data |
-| helpers `sizeL50`, `sizeLength`, `sizeWeight`, `sizeClassOf`, `isAncient`, `maxZFor`, `reachOf`, `favourNotches`, `classOdds`, `fishValueV3`, `fishYieldV3`, `farWaterFor`, `swarmTonight`, `swarmWindow`, `tallyFor`, `frameFor` | pure functions (lengths in cm, weights in kg); `swarmWindow(mode, night, outing)` returns `[k0, k1]` or null | §3.4, §4.1, §5.1, §6.1–§6.2, §3.7.3 | P1–P3 | fishing, progression, combat, ui, models, tools | in data |
-| `FOUND_RELICS` | Reed Pole `reed_pole`, Seedlight Glass `seedlight_glass`, Tuning Fork `tuning_fork`, Deep Line `deep_line` (where found, what they open) | §7.7 | P4 | progression, world, fishing, ui | **to add** (rewards already named in `MOSSMERE_V3` / `WALK_SYNC_V3.secrets`) |
-| `VISTAS` | 2 per lake: `{id, zone, x, z, name}`; hold 1.5 s; +1 Memory the first time | §7.7 | P4 | player, world, render, progression | **to add** |
-| `REMNANTS` | 12 (3 per lake): `{id, zone, x, z, vignette, rumour}` | §7.7 | P4 | world, progression, ui | **to add** |
-| `AGE_MARKS` | the 10 headline species' growing detail by class | §6.4 | P4 | models, ui-fishart | **to add** (or a `size.ageMark` field per species) |
+| helpers `sizeL50`, `sizeLength`, `sizeWeight`, `sizeClassOf`, `isAncient`, `maxZFor`, `reachOf`, `favourNotches`, `classOdds`, `fishValueV3`, `fishYieldV3`, `farWaterFor`, `swarmTonight`, `swarmWindow`, `tallyFor`, `frameFor` | pure functions (lengths in cm, weights in kg); `swarmWindow(mode, night, outing)` returns `[k0, k1]` or null; `fishYieldV3` applies `size.yield.factor` 0.784; `frameFor` returns `{id, width, height, reach, view}` (Wanderers from their largest reach) | §3.4, §4.1, §5.1, §6.1–§6.2, §3.7.3 | P1–P3 | fishing, progression, combat, ui, models, tools | in data |
+| helpers `placeAtV3`, `landmarkOf`, `sealsFor`, `tackleStats`, `upgradeTiers` | **the one place-membership helper** for v3 (`placeAtV3(zone, x, z)`: the zone's `arena.places`, then §24's; v2's `placeAt` stays for v2 code); the trophy camera's target; the seals a species can earn; a loadout's fight stats (shared by the reel sim and `getStats`); P1–P2 / Long Descent effective tiers from `UPGRADES` levels | §5.6, §6.3, §7 | P1–P3 | fishing, progression, render, ui, tools | in data |
+| `FOUND_RELICS` | Reed Pole `reed_pole`, Seedlight Glass `seedlight_glass`, Tuning Fork `tuning_fork`, Deep Line `deep_line` (where found, what they open) | §7.7 | P4 | progression, world, fishing, ui | in data |
+| `VISTAS` | 2 per lake: `{id, zone, x, z, name}`; hold 1.5 s; +1 Memory the first time | §7.7 | P4 | player, world, render, progression | in data (rules; stands authored in P4 with the §24 owner) |
+| `REMNANTS` | 12 (3 per lake): `{id, zone, x, z, vignette, rumour}` | §7.7 | P4 | world, progression, ui | in data (rules; positions authored in P4) |
+| `AGE_MARKS` | the 10 headline species' growing detail by class | §6.4 | P4 | models, ui-fishart | in data |
 
-**Data notes for the data author** (from this check): `BALANCE_V3.bite` must merge into the v1 `BALANCE.bite` rather than replace it (the apply loop assigns every `BALANCE_V3` key, and `bite` already exists in v1). `COVE.walkSpeed` 5.2 is the brief's stale figure; the foot speed is §24's `BALANCE.walk.speedMult` 0.84 × raft speed 6 = 5.0 m/s (stations stay within ≈ 5 s). The Moon Cistern's `holdsGiants` makes four giant places in the Mossmere from P4: the "exactly 3 per lake" rule counts non-secret places only.
+**Resolved data notes:** `BALANCE_V3.bite` merges into v1's `BALANCE.bite` (v1 keys kept; validated). `COVE.walkSpeed` is §24's 0.84 × 6 = 5.04 m/s. The Moon Cistern's `holdsGiants` makes four giant places in the Mossmere from P4: the "exactly 3 per lake" rule counts non-secret places only.
 
 ### 13.9 Performance (v3)
 
 - Whole frame ≤ 150 draw calls (limit 250) in every scenario, measured on a mid laptop and a mid phone. **The Landing** (perf scenario `cove`): ≈ 130 high / ≈ 93 low with the pond, the lower wall and the arch in one view (budgets 140 / 100; DESIGN §25.4.7). **In-lake worlds**: raft lakes ≤ 50 / 39 (Sporewood ≤ 62 / 49), walking lakes ≤ 66 / 52 (§25.8.8); the worst case (night on foot in the Pallid, Lantern swarm, 2 Tally Posts, the Candle Tide) = 132.
 - **No new dynamic lights** (≤ 4: the Wick's lantern, Murk's lamp, two world accents; at the Landing the hearth and the selected Waystone). Lamps, frame candles, shrine lanterns and pond lamps are emissive plus `water.setLights` streaks (≤ 6).
-- The mount batch is ≤ 12 calls whatever the count (LOD ≤ 600 triangles beyond 12 m); it is rebuilt only on Homecoming or Swap. The cove builds in ≤ 150 ms desktop / ≤ 600 ms phone under the zone flash. Signs reuse the ripple and wake arrays (no new uniform arrays); `uClear[2]`, `uPondHole` and `uGlowtide` are the only new water uniforms. One wow happening active per lake, ≤ 1 call each. Pre-rolled fish and Tally Posts add ≤ 3 calls.
+- The mount batch is a near / far pair per wall (the wing in view at full detail, everything else at ≤ 600-triangle LOD), swapped by wing distance without a rebuild: ≤ 12 calls and ≤ 80k triangles in view; it is rebuilt only on Homecoming, Swap, `pond:add` and `pond:release`. The pond hole's `discard` is compiled only under `POND_HOLE` while in the cove, so no lake's big opaque water draw loses early-Z on tile-based phone GPUs; `tools/perf.mjs` measures a raft lake, a walking lake and the cove with and without the define. The cove builds in ≤ 150 ms desktop / ≤ 600 ms phone under the zone flash. Signs reuse the ripple and wake arrays (no new uniform arrays); `uClear[2]`, `uPondHole` and `uGlowtide` are the only new water uniforms. One wow happening active per lake, ≤ 1 call each. Pre-rolled fish and Tally Posts add ≤ 3 calls.
 
 ### 13.10 Testing and validation (v3)
 
-- `node tools/validate-data.mjs` gains a v3 pass (data's `--v3`, run with `GW_V3`): σ 0.09–0.175; ceiling ≤ 2.8× median; ≥ 2 giant-tail species per lake; legend length ≥ 1.4× the lake's longest ceiling; no green-teal fish colours (the existing guard: hue 65–195° with saturation ≥ 0.15); favour cap 1.8 and the worked examples; every place has a no-bait calm species; every kept species has a rumour and a condition; exactly 3 `holdsGiants` places per lake (non-secret), in reachable water; every Homeward stone ≥ 25 m of path from spawn; two watch lamps per lake; `COVE.walk` passes §24's rules (reachability, enclosure, 14 m south clearance); every wall wing packs in 12 × 3.6 m; catalogue totals (18,610 / 3,680 / 1,710); no `BALANCE_V3` key replaces a v1 key's contents. Passes 1 and 2 stay bit-identical with the flag off.
+- `node tools/validate-data.mjs`: passes 1 and 2 compare every export of the flag-off builds with `tools/tests/v1-exports.json` (generated from c0e0ab9; `--refresh-fingerprint` only on purpose). Pass 3 also builds **every phase with and without §24** and checks what each carries (species 32 / 36 / 39 / 41 raft and 40 / 44 / 47 / 53 with §24; challenges; relic cuts from P3; BALANCE blocks by `V3_BLOCK_PHASE`; places, props, homeward, the sturgeon shape), **3 giant sources and 2 watch lamps per lake in every build**, no holdsGiants water within 10 m of a watch lamp, **an Elder route for every Elder seal** (kept place with `giantsKept` / holdsGiants, or holdsGiants / stopgap water whose depth band and hours the species can use), the Mossmere's places against world-layout (no island overlap, ≥ 80% open, open dropIn centres, Tally stones, landmarks, the Sluice lane clear of the gate), Moonfall's discs and atlas cells, the reel (every Elder-capable species lands an Ancient on full T4 within 180 × 1.15 s with < 2% time-outs, known gaps listed), `tackleStats` against the sim's loadouts, camera presets in render's convention, the Landing's water side (v0 posts in raft reach, the test buoy within ±50° of up-screen, the glide paths clear of the barge, the buoy and the Waystones), the yield factor from the favour mix. The v3 pass (data's `--v3`, run with `GW_V3`): σ 0.09–0.175; ceiling ≤ 2.8× median; ≥ 2 giant-tail species per lake; legend length ≥ 1.4× the lake's longest ceiling; no green-teal fish colours (the existing guard: hue 65–195° with saturation ≥ 0.15); favour cap 1.8 and the worked examples; every place has a no-bait calm species; every kept species has a rumour and a condition; exactly 3 `holdsGiants` places per lake (non-secret), in reachable water; every Homeward stone ≥ 25 m of path from spawn; two watch lamps per lake; `COVE.walk` passes §24's rules (reachability, enclosure, 14 m south clearance); every wall wing packs in its own width × 3.6 m in 2D (frame heights by mount view); catalogue totals (18,610 / 3,680 / 1,710); no `BALANCE_V3` key replaces a v1 key's contents. Passes 1 and 2 stay bit-identical with the flag off.
 - `tools/sim/reel-v3.mjs` (T1: `--gate --k 400`, `--rating`, `--elders`, `--write-rating`), the pacing sim (T5) and the balance sim's expedition model (T3) per DESIGN §25.14.
 - `tools/perf.mjs` scenarios `cove` (T4) and `night-foot` (T6); `tools/hue-report.mjs` on a Landing shot that includes Murk's barge (≤ 2% green-teal chroma) and on each lake.
 - `tools/scenario-run.mjs` traces the §13.4 event orders (Set Out, return home, Snuffed, Scorched, Continue, gate passage, The Long Descent) on the bus and fails on any reordering.
 
 ### 13.11 Debug hooks (v3)
 
-fishing `forceBite({speciesId, z, place})` (extends v1's `forceBite()`), `instantCatch(speciesId?, {z})`, `setFavour(mu | null)`, `sign(kind)`, `preroll(speciesId, z)`; survival `setDay(n)` (Far Water), `snuff()`, `scorch()`, `lampWatch(lampId)`; combat `mode(name)` (test only: switches `run.nightMode`), `swarmNow()`; progression `giveTackle(slot, tier)`, `giveOutfit(item, level)`, `lightWaystone(zone)`, `openGateFor(zone)`, `rollResident(zone, place, z?)`, `addMarkedFish(speciesId, z, place)`, `condition(zone, archetype)`, `todaysRumour(id)`, `migrate(saveJson)`, `homecoming()`; world `growth(flags)`, `moonfall()`, `cove()`; player `walkTo(stationId)`; ui `ui()` += `{hub, screen}`. `window.__gw.debug.v3()` returns `{flow, outing, nightMode, day, farWater, favour, pressure, liveWell, residents}`.
+fishing `forceBite({speciesId, z, place})` (extends v1's `forceBite()`), `instantCatch(speciesId?, {z})`, `setFavour(mu | null)`, `sign(kind)`, `preroll(speciesId, z)`; survival `setDay(n)` (Far Water), `snuff()`, `scorch()`, `lampWatch(lampId)`; combat `mode(name)` (test only: switches `run.nightMode`), `swarmNow()`; progression `giveTackle(slot, tier)`, `giveOutfit(item, level)`, `lightWaystone(zone)`, `openGateFor(zone)`, `rollResident(zone, place, z?)`, `addMarkedFish(speciesId, z, place)`, `condition(zone, archetype)`, `todaysRumour(id)`, `migrate(saveJson)`, `homecoming()`; world `growth(flags)`, `giantSpots()`, `cove()`, `v0(on)` (force Landing v0); progression `moonfall()` (fires the next Moonfall now), `planSetOut(plan)`, `phase()` (reads `data.V3_PHASE`); player `walkTo(stationId)`; ui `ui()` += `{hub, screen}`. `window.__gw.debug.v3()` returns `{flow, outing, nightMode, day, farWater, favour, pressure, liveWell, residents}`.
