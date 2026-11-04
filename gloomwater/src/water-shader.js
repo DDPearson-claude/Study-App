@@ -165,6 +165,10 @@ void main() {
 
   // ---- shore (arena rim) and the lake's depth field (shallows read lighter: read the lake)
   float dShore = uArenaR - length(xz);
+  if (uDepthOn > 0.5) {
+    vec2 stc = xz * uDepthScale + 0.5;
+    if (stc.x > 0.0 && stc.y > 0.0 && stc.x < 1.0 && stc.y < 1.0) dShore = texture2D(uDepthTex, stc).g * 32.0 - 16.0;
+  }
   shallow = 1.0 - smoothstep(0.0, 16.0, dShore);
   float depthAt = 1.0;
   if (uDepthOn > 0.5) {

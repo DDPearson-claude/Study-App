@@ -297,9 +297,11 @@ export function create(ctx) {
   // ---------------------------------------------------------------- depth field
   // world.getDepth() baked into a small texture over the arena, a few rows per frame so a
   // zone change never hitches. Shallows read lighter, trenches and pools read as ink.
+  // G holds the signed distance to world's (noisy) shoreline, ±16 m, so the shore foam and the
+  // dark cliff reflection follow the real cliff line instead of a fixed circle.
   const DEPTH_RES = 128;
-  const depthData = new Uint8Array(DEPTH_RES * DEPTH_RES);
-  const depthTex = new THREE.DataTexture(depthData, DEPTH_RES, DEPTH_RES, THREE.RedFormat, THREE.UnsignedByteType);
+  const depthData = new Uint8Array(DEPTH_RES * DEPTH_RES * 2);
+  const depthTex = new THREE.DataTexture(depthData, DEPTH_RES, DEPTH_RES, THREE.RGFormat, THREE.UnsignedByteType);
   depthTex.minFilter = depthTex.magFilter = THREE.LinearFilter;
   depthTex.wrapS = depthTex.wrapT = THREE.ClampToEdgeWrapping;
   depthTex.generateMipmaps = false;
@@ -325,7 +327,11 @@ export function create(ctx) {
           const x = ((c + 0.5) / DEPTH_RES) * 2 * S - S;
           let d = Number(w.getDepth(x, z));
           if (!isFinite(d)) d = 1;
-          depthData[r * DEPTH_RES + c] = Math.round(clamp(d, 0, 1) * 255);
+          const i = (r * DEPTH_RES + c) * 2;
+          depthData[i] = Math.round(clamp(d, 0, 1) * 255);
+          let sr = typeof w.getShoreRadius === 'function' ? Number(w.getShoreRadius(Math.atan2(z, x))) : NaN;
+          if (!isFinite(sr) || sr <= 0) sr = Number(U.uArenaR.value) || 60;
+          depthData[i + 1] = Math.round(clamp((sr - Math.hypot(x, z) + 16) / 32, 0, 1) * 255);
         }
       }
     } catch (err) {
