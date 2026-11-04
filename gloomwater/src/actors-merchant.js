@@ -22,11 +22,11 @@ export function createMerchant(ctx) {
   // ---------------------------------------------------------------- lily-barge
   const padTex = canvasTexture(256, 256, (g, w, h) => {
     const grd = g.createRadialGradient(128, 128, 10, 128, 128, 128);
-    grd.addColorStop(0, '#5c625a'); grd.addColorStop(0.7, '#3f4540'); grd.addColorStop(1, '#262a28');
+    grd.addColorStop(0, '#8a6842'); grd.addColorStop(0.7, '#60452b'); grd.addColorStop(1, '#3a291b');   // withered autumn-bronze pad
     g.fillStyle = grd; g.fillRect(0, 0, w, h);
-    g.strokeStyle = 'rgba(196,204,200,0.3)'; g.lineWidth = 2;
+    g.strokeStyle = 'rgba(200,170,120,0.3)'; g.lineWidth = 2;
     for (let i = 0; i < 22; i++) { const a = i / 22 * TAU; g.beginPath(); g.moveTo(128, 128); g.quadraticCurveTo(128 + Math.cos(a + 0.15) * 70, 128 + Math.sin(a + 0.15) * 70, 128 + Math.cos(a) * 126, 128 + Math.sin(a) * 126); g.stroke(); }
-    g.fillStyle = 'rgba(16,18,22,0.28)'; for (let i = 0; i < 40; i++) { g.beginPath(); g.arc(Math.random() * w, Math.random() * h, 2 + Math.random() * 6, 0, TAU); g.fill(); }
+    g.fillStyle = 'rgba(26,16,10,0.3)'; for (let i = 0; i < 40; i++) { g.beginPath(); g.arc(Math.random() * w, Math.random() * h, 2 + Math.random() * 6, 0, TAU); g.fill(); }
   });
   mats.push({ dispose: () => padTex.dispose() });
   const padG = new THREE.CircleGeometry(2.3, 40, 0.32, TAU - 0.64);
@@ -36,7 +36,7 @@ export function createMerchant(ctx) {
   const pad = new THREE.Mesh(padG, M(toonMaterial({ color: 0xffffff, map: padTex, rim: 0.12, rimPower: 0.8, side: THREE.DoubleSide })));
   bob.add(pad);
   const rimPts = []; for (let i = 0; i <= 40; i++) { const a = 0.32 + (i / 40) * (TAU - 0.64) + Math.PI / 2; rimPts.push(new THREE.Vector3(Math.cos(a) * 2.3, 0.22 + Math.sin(a * 9) * 0.015, -Math.sin(a) * 2.3)); }
-  const planks = [paint(tube(rimPts, 0.05, 5, { capEnd: true, capStart: true }), 0x2e322f)];
+  const planks = [paint(tube(rimPts, 0.05, 5, { capEnd: true, capStart: true }), 0x4a3422)];
   for (let i = 0; i < 5; i++) planks.push(paint(xf(new THREE.BoxGeometry(0.3, 0.07, 1.5), { p: [-0.62 + i * 0.31, 0.2, -0.35], r: [0, (i - 2) * 0.02, 0] }), [0x3a2a1c, 0x33251a, 0x3e2d1e][i % 3]));
   const plat = new THREE.Mesh(mergeGeos(planks), M(toonMaterial({ color: 0xffffff, vertexColors: true, rim: 0.12, rimPower: 0.8 })));
   outlineSmooth(plat, 0.02); bob.add(plat);
@@ -53,7 +53,8 @@ export function createMerchant(ctx) {
   bob.add(new THREE.Mesh(mergeGeos(cores), lotusGlowMat));
 
   // ---------------------------------------------------------------- Old Murk (toad)
-  const skin = 0x4f514a, belly = 0x948d7c, moss = 0x5d625a, lichen = 0xc2c6bc;
+  // umber toad with rust-moss and ochre lichen: warm against the cold slate water by temperature, not by light
+  const skin = 0x575047, belly = 0x9c907a, moss = 0x7a5838, ochre = 0xa87e40, lichen = 0xc8bca2;
   const lichenAt = (x, y, z) => Math.sin(x * 7.3 + 1.1) * Math.sin(y * 8.9 + 0.4) * Math.sin(z * 7.7 + 2.3) > 0.42;
   const murk = new THREE.Group(); murk.position.set(0, 0.22, -0.3); bob.add(murk);
   const skinMat = M(toonMaterial({ color: 0xffffff, vertexColors: true, rim: 0.38, rimPower: 0.6 }));
@@ -74,9 +75,9 @@ export function createMerchant(ctx) {
   paint(headG, (x, y, z) => (y < -0.12 ? belly : lichenAt(x * 1.3, y * 1.3 + 0.5, z * 1.3) ? lichen : skin));
   const browL = blob(0.17, 0.13, 0.15, [0.27, 0.27, 0.12], 10, 8), browR = blob(0.17, 0.13, 0.15, [-0.27, 0.27, 0.12], 10, 8);
   paint(browL, skin); paint(browR, skin);
-  const mouthG = paint(tube(bezierPts([[-0.5, -0.04, 0.2], [-0.2, -0.12, 0.52], [0.2, -0.12, 0.52], [0.5, -0.04, 0.2]], 16), 0.022, 5), 0x0b0d08);
+  const mouthG = paint(tube(bezierPts([[-0.5, -0.04, 0.2], [-0.2, -0.12, 0.52], [0.2, -0.12, 0.52], [0.5, -0.04, 0.2]], 16), 0.022, 5), 0x0d0a08);
   const pipeG = paint(mergeGeos([tube(bezierPts([[0.35, -0.1, 0.42], [0.55, -0.16, 0.6], [0.62, -0.05, 0.72]], 6), 0.018, 5), xf(new THREE.CylinderGeometry(0.045, 0.035, 0.09, 8), { p: [0.63, -0.02, 0.74] })]), 0x2a1a10);
-  const lipG = paint(tube(bezierPts([[-0.42, -0.1, 0.26], [-0.18, -0.2, 0.5], [0.18, -0.2, 0.5], [0.42, -0.1, 0.26]], 14), (u) => 0.03 + Math.sin(u * Math.PI) * 0.03, 6), 0x5c5d55);
+  const lipG = paint(tube(bezierPts([[-0.42, -0.1, 0.26], [-0.18, -0.2, 0.5], [0.18, -0.2, 0.5], [0.42, -0.1, 0.26]], 14), (u) => 0.03 + Math.sin(u * Math.PI) * 0.03, 6), 0x645a4c);
   const headMesh = new THREE.Mesh(mergeGeos([headG, browL, browR, mouthG, lipG, pipeG]), skinMat); outlineSmooth(headMesh, 0.025); head.add(headMesh);
   // tongue (flicks at passing moths)
   const tongue = new THREE.Group(); tongue.position.set(0, -0.12, 0.45); head.add(tongue);
@@ -97,7 +98,7 @@ export function createMerchant(ctx) {
   }
   head.add(new THREE.Mesh(mergeGeos(balls), eyeMat), new THREE.Mesh(mergeGeos(pupils), pupilMat));
   // throat sac
-  const sac = new THREE.Mesh(blob(0.26, 0.17, 0.22, [0, 0, 0], 12, 8), M(toonMaterial({ color: 0xb0a874, rim: 0.4 })));
+  const sac = new THREE.Mesh(blob(0.26, 0.17, 0.22, [0, 0, 0], 12, 8), M(toonMaterial({ color: 0xb09a74, rim: 0.4 })));
   sac.position.set(0, -0.25, 0.32); head.add(sac);
   const ember = new THREE.Mesh(new THREE.SphereGeometry(0.03, 6, 5), M(glowMaterial(0xff7a30, 2.2))); ember.position.set(0.63, 0.03, 0.74); head.add(ember);
   // moss tufts + hanging strands
@@ -113,7 +114,7 @@ export function createMerchant(ctx) {
   const shawl = new THREE.LatheGeometry([[0.42, 1.3], [0.62, 1.18], [0.76, 1.02], [0.8, 0.86]].map((p) => new THREE.Vector2(p[0], p[1])), 22, Math.PI * 0.55, Math.PI * 1.9);
   { const sp = shawl.attributes.position; for (let i = 0; i < sp.count; i++) { const x = sp.getX(i), y = sp.getY(i), z = sp.getZ(i); if (y < 0.9) { const a = Math.atan2(z, x); sp.setY(i, y - Math.max(0, Math.sin(a * 6)) * 0.12 - ((i * 37) % 7) * 0.008); } } shawl.computeVertexNormals(); }
   shawl.translate(0, -0.05, -0.05);
-  const bodyMesh = new THREE.Mesh(mergeGeos([...bodyParts, ...mossG.map((g) => paint(g, moss)), paint(shawl, (x, y, z) => (Math.sin(x * 23) * Math.sin(z * 19) > 0.8 ? 0x2a1e28 : 0x4a3646))]), skinMat);
+  const bodyMesh = new THREE.Mesh(mergeGeos([...bodyParts, ...mossG.map((g, i) => paint(g, i % 3 === 0 ? ochre : moss)), paint(shawl, (x, y, z) => (Math.sin(x * 23) * Math.sin(z * 19) > 0.8 ? 0x2a1e28 : 0x4a3646))]), skinMat);
   bodyMesh.material.side = THREE.DoubleSide; outlineSmooth(bodyMesh, 0.03); murk.add(bodyMesh);
 
   // ---------------------------------------------------------------- towering pack
@@ -285,7 +286,7 @@ export function createMerchant(ctx) {
       if (smokeT <= 0 && fade > 0.5) {
         smokeT = 0.45 + Math.random() * 0.5;
         ember.getWorldPosition(tmp); tmp.y += 0.05;
-        ctx.models?.emitSmoke?.(tmp, { color: 0x6a7068, vy: 0.4, spread: 0.15, size: 0.22, sizeGrow: 0.5, lifeT: 2.4, alpha: 0.28, jitter: 0.03 });
+        ctx.models?.emitSmoke?.(tmp, { color: 0x6e6860, vy: 0.4, spread: 0.15, size: 0.22, sizeGrow: 0.5, lifeT: 2.4, alpha: 0.28, jitter: 0.03 });
       }
     },
     ringBell(s = 2) { ring = Math.max(ring, s); },

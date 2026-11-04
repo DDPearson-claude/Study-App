@@ -46,7 +46,7 @@ const GRADE_COL = ['tint', 'warm'];
 const GRADE_DEFAULT = {
   exposure: 1.0, bloomStrength: 0.85, bloomRadius: 0.6, bloomThreshold: 0.72, tintAmount: 0.18,
   vignette: 0.38, saturation: 0.85, grain: 0.05, contrast: 1.04, fringe: 0.4, paper: 0.5, warmAmount: 0.14, lift: 0.6,
-  tint: 0x48526e, warm: 0xffc58c,
+  tint: 0x4c5278, warm: 0xffc58c,
 };
 
 const isReal = (m) => !!m && !m.isStub;
@@ -79,7 +79,7 @@ export function create(ctx) {
   const z0 = ctx.data?.ZONES?.[0]?.palette;
   const scene = new THREE.Scene();
   scene.name = 'gloomwater';
-  scene.fog = new THREE.FogExp2(z0?.fog ?? 0x222a3a, z0?.fogDensity ?? 0.016);
+  scene.fog = new THREE.FogExp2(z0?.fog ?? 0x262f40, z0?.fogDensity ?? 0.016);
   const bg = new THREE.Color().copy(scene.fog.color);
   scene.background = bg;
 

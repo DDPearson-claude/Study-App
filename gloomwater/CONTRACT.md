@@ -334,7 +334,8 @@ paddle animation when moving. The Wick (ORIGINAL): small round candle-creature, 
 cloak, a living flame on its head (= vitality), two glowing amber eyes in a shadowed
 face, stubby legs, long bent rod. Raft: lashed dark planks, crooked pole with a
 hanging iron lantern (main light), tiny brazier, wicker creel, oar. Old Murk: hunched
-mossy toad with a towering pack and a dim green lamp on a lily-barge, rings a bell.
+umber toad with rust-moss and ochre lichen, a towering pack and a dim sage-green lamp (the
+game's one deliberate green trace) on a withered bronze lily-barge, rings a bell.
 
 ### player (`player.js`)
 ```
@@ -487,7 +488,12 @@ export const BALANCE = { phases:{calm,dusk,gloomtide,dawn}, drain:{...}, damage:
   move:{accel, drag, turnRate}, xp:{...}, reel:{...}, cast:{...}, combat:{...}, ... }
 export const ZONES = [{ id, name, subtitle, index, arena:{radius, islands, pillars, seed},
   unlock:{shells, requires:[...]}, drain:{oil, satiety}, gloom, valueMult,
-  palette:{fog, fogDensity, water, waterDeep, foam, glow, accent, ambient, ink, far, light}, description }]
+  palette:{fog, fogDensity, water, waterDeep, foam, glow, accent, ambient, ink, far, light, lamp?},
+  grade:{exposure, bloomStrength, bloomRadius, bloomThreshold, tint, tintAmount, vignette, saturation, grain}, description }]
+// palette.lamp (optional, falls back to glow): the cold light of island lamps, dock/decor buoys,
+// statue orbs and the rings' lit windows (world-art) and the dock halos (world). Keep it cold
+// (Mossmere #c8d2f0) so no lamp competes with the Wick's lantern or the Cinders. UI may read it
+// as --zone-lamp.
 export const SPECIES = [{ id, name, zone, rarity:'common'|'uncommon'|'rare'|'legendary',
   weight:[min,max], value, food, oil, time:'any'|'calm'|'gloom', depth:[min,max] /*0..1*/,
   bait:null|baitId, difficulty:{power, surgeEvery, surgeTime, stamina, sweet, erratic, window},
@@ -556,9 +562,10 @@ violent surges), leaper (surges = leaps; slack risk).
   + `toon.addOutline`); minimal faces — glowing eyes.
 - **Layered depth:** 4–6 parallax silhouette rings of cavern architecture fading from
   ink-dark to luminous mist in the zone's fog colour.
-- **Limited palettes:** Mossmere moonlit slate + silver (green only as a trace); Sporewood Pools dusky plum +
-  amber/pink spores; Glasswater Vault saturated indigo + ice-cyan/violet crystals; Pale Abyss
-  near-black + bone-white + sickly gold.
+- **Limited palettes:** Mossmere moonlit slate + silver with a lilac-silver accent; Sporewood Pools dusky plum +
+  amber/pink spores; Glasswater Vault saturated indigo + ice-blue/violet crystals; Pale Abyss
+  near-black + bone-white + sickly gold. **Palette rule:** green/teal (hue 65–195°) only as rare
+  trace accents (Murk's sage lamp); glows stay at hue ≥ 200° (DESIGN §19.1).
 - **Light is life:** the warm amber lantern is the only warm light in a cold world.
   Bloom on glows, drifting motes, light shafts, vignette, fine grain. The swarm reads
   as ink against the lantern's warm pool.

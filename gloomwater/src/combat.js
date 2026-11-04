@@ -307,7 +307,7 @@ export function create(ctx) {
   C.recoverFish = (fish, pos) => {
     let ok = false;
     try { ok = ctx.progression?.addToCreel?.(fish) === true; } catch (e) { C.report('addToCreel', e); }
-    if (ok) { ctx.bus.emit('toast', { text: `Recovered your ${speciesOf(fish.speciesId)?.name || 'fish'}.`, kind: 'good' }); fx.burst(pos.x, 0.6, pos.z, lin(0xbcd0f4, 2), 12, 3, 0.14, 0.5); }
+    if (ok) { ctx.bus.emit('toast', { text: `Recovered your ${speciesOf(fish.speciesId)?.name || 'fish'}.`, kind: 'good' }); fx.burst(pos.x, 0.6, pos.z, lin(0xd0c8f4, 2), 12, 3, 0.14, 0.5); }
     else if (ctx.time.gameT > fullWarnT) { fullWarnT = ctx.time.gameT + 4; C.floatText(pos.clone(), 'Creel full', 'bad'); }
     return ok;
   };

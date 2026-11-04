@@ -13,7 +13,7 @@ const V = (x, y, z) => new THREE.Vector3(x, y, z);
 
 // Per-theme material colours (linear arrays built at runtime from hex).
 const KIT = {
-  mossmere: { rock: 0x1a1e26, rockHi: 0x2c323e, moss: 0x343937, mossHi: 0x5f665e, wood: 0x2e241b, woodHi: 0x4a3a2a, stone: 0x404858, iron: 0x121418, bone: 0x9ea2a8, organic: 0x383d3b },
+  mossmere: { rock: 0x1a1e26, rockHi: 0x2c323e, moss: 0x3a3836, mossHi: 0x67625a, wood: 0x2e241b, woodHi: 0x4a3a2a, stone: 0x404858, iron: 0x121418, bone: 0x9ea2a8, organic: 0x3c3a38 },
   sporewood: { rock: 0x221824, rockHi: 0x3c2a3e, moss: 0x4a2c4e, mossHi: 0x7a4a72, wood: 0x2a1c22, stone: 0x4a3a4c, iron: 0x140e14, bone: 0xb9a2a6, organic: 0x9a8794, cap: 0x3c2242, capHi: 0x6a3a5c },
   glasswater: { rock: 0x11152a, rockHi: 0x1f2542, moss: 0x262f58, mossHi: 0x3c4a82, wood: 0x1c1d2c, stone: 0x404a70, iron: 0x0c0e1a, bone: 0x8a96c0, organic: 0x2a3466 },
   paleabyss: { rock: 0x191815, rockHi: 0x2c2a25, moss: 0x48443a, mossHi: 0x8a8370, wood: 0x231f1a, stone: 0x5a564c, iron: 0x111010, bone: 0xd9d0bb, organic: 0xcfc6ae },
@@ -31,7 +31,10 @@ export function domeY(L, r) {
  */
 export function buildArena(ctx, L, opts = {}) {
   const zone = L.zone || {};
-  const pal = Object.assign({ fog: 0x222a3a, fogDensity: 0.016, water: 0x1b2230, waterDeep: 0x07090f, foam: 0xd0d9ea, glow: 0xa9b9f0, accent: 0xd6dccd, ambient: 0x3a4560, ink: 0x05070a, far: 0x7a8aac, light: 0xd6e0f4 }, zone.palette || {});
+  const pal = Object.assign({ fog: 0x262f40, fogDensity: 0.016, water: 0x232b3a, waterDeep: 0x080b12, foam: 0xd6deee, glow: 0xa9b9f0, accent: 0xc4b8ec, lamp: 0xc8d2f0, ambient: 0x46526a, ink: 0x05070a, far: 0x8292b4, light: 0xdae2f4 }, zone.palette || {});
+  // optional `lamp` key: cold light for island lamps, buoys, statue orbs and the rings' lit windows
+  // (falls back to `glow`), so lamps never compete with the Wick's lantern or the Cinders
+  if (zone.palette && zone.palette.lamp == null) pal.lamp = pal.glow;
   const theme = L.theme;
   const K = {}; for (const [k, v] of Object.entries(KIT[theme] || KIT.mossmere)) K[k] = lin(v);
   const PL = {}; for (const [k, v] of Object.entries(pal)) if (typeof v === 'number' && k !== 'fogDensity') PL[k] = lin(v);
@@ -310,9 +313,9 @@ export function buildArena(ctx, L, opts = {}) {
       const lx = x + Math.cos(-ry) * 0.75, lz = z + Math.sin(-ry) * 0.75, ly = y + h - 0.35;
       kit.org.push(prep(new THREE.ConeGeometry(0.26, 0.22, 6), { matrix: mat(lx, ly + 0.3, lz), color: K.iron }));
       if (light) {
-        kit.glow.push(prep(new THREE.OctahedronGeometry(0.17, 0), { matrix: mat(lx, ly, lz, 0, 0, 0, [1, 1.4, 1]), color: scaleArr(PL.glow, 2.4) }));
-        halos.add(lx, ly, lz, scaleArr(PL.glow, 1.3), 2.6);
-        addAnchor(lx, ly, lz, pal.glow, 3.5, 12);
+        kit.glow.push(prep(new THREE.OctahedronGeometry(0.17, 0), { matrix: mat(lx, ly, lz, 0, 0, 0, [1, 1.4, 1]), color: scaleArr(PL.lamp, 2.4) }));
+        halos.add(lx, ly, lz, scaleArr(PL.lamp, 1.3), 2.6);
+        addAnchor(lx, ly, lz, pal.lamp, 3.5, 12);
       }
     },
     reeds(x, z, n = 5, h = 1.6) {
@@ -439,9 +442,9 @@ export function buildArena(ctx, L, opts = {}) {
       }
       // cradled orb of light
       const ox = x + fx * s * 0.9, oz = z + fz * s * 0.9, oy = y0 + s * 1.2;
-      kit.glow.push(prep(new THREE.IcosahedronGeometry(s * 0.2, 1), { matrix: mat(ox, oy, oz), color: scaleArr(PL.glow, 2.4) }));
-      halos.add(ox, oy, oz, scaleArr(PL.glow, 0.9), s * 3);
-      addAnchor(ox, oy, oz, pal.glow, 4, 14);
+      kit.glow.push(prep(new THREE.IcosahedronGeometry(s * 0.2, 1), { matrix: mat(ox, oy, oz), color: scaleArr(PL.lamp, 2.4) }));
+      halos.add(ox, oy, oz, scaleArr(PL.lamp, 0.9), s * 3);
+      addAnchor(ox, oy, oz, pal.lamp, 4, 14);
     },
     rib(x, z, r, h, rot) {
       const span = h * rng.range(0.35, 0.6);
@@ -596,7 +599,7 @@ export function buildArena(ctx, L, opts = {}) {
         const body = new THREE.CylinderGeometry(4.2, 5.2, 38, 8, 3);
         hero.ink.push(prep(body, { matrix: mat(tx, 15, tz, 0, face, sd * 0.03), color: inkC }));
         hero.ink.push(prep(new THREE.ConeGeometry(5.6, 14 + (sd > 0 ? 0 : 6), 8), { matrix: mat(tx, 34 + 7 + (sd > 0 ? 0 : 3), tz, 0, face, 0), color: inkC }));
-        hero.glow.push(prep(new THREE.BoxGeometry(0.7, 2.2, 0.3), { matrix: mat(tx - Math.sin(face) * -4.3, 22, tz - Math.cos(face) * -4.3, 0, face, 0), color: scaleArr(PL.glow, 1.6) }));
+        hero.glow.push(prep(new THREE.BoxGeometry(0.7, 2.2, 0.3), { matrix: mat(tx - Math.sin(face) * -4.3, 22, tz - Math.cos(face) * -4.3, 0, face, 0), color: scaleArr(PL.lamp, 1.6) }));
       }
       const arch = taperTube([V(-13, 26, 0), V(-8, 33, 0), V(0, 35.5, 0), V(6, 34, 0)], () => 1.6, 6, 16);
       hero.ink.push(prep(arch, { matrix: mat(x, 0, z, 0, face, 0), color: inkC }));
@@ -696,12 +699,12 @@ export function buildArena(ctx, L, opts = {}) {
   buoyGlass.scale(1, 1.5, 1); buoyGlass.translate(0, 1.0, 0);
   prep(buoyGlass, { color: [1, 1, 1] });
   const buoyMat = M(inkToon({ color: 0xffffff, vertexColors: true, rim: 0.5, rimColor: pal.light, steps: 3 }, { fogScale: 0.9 }));
-  const buoyGlowMat = M(glowMaterial(pal.glow, 2.2));
+  const buoyGlowMat = M(glowMaterial(pal.lamp, 2.2));
   const nDecorBuoys = theme === 'paleabyss' ? 4 : 6;
   const buoyT = makeFloatType(buoyBody, buoyMat, L.docks.length + nDecorBuoys, 'buoys');
   const buoyG = makeFloatType(buoyGlass, buoyGlowMat, L.docks.length + nDecorBuoys, 'buoyLamps');
   const dockBuoys = [];
-  for (const d of L.docks) dockBuoys.push(addFloater([buoyT, buoyG], d.buoy.x, d.buoy.z, { halo: scaleArr(PL.glow, 0.9), haloSize: 2.4, haloY: 1.0, bob: 0.8 }));
+  for (const d of L.docks) dockBuoys.push(addFloater([buoyT, buoyG], d.buoy.x, d.buoy.z, { halo: scaleArr(PL.lamp, 0.9), haloSize: 2.4, haloY: 1.0, bob: 0.8 }));
   const openPts = (n, minD, test) => {
     const out = [];
     for (let tries = 0; tries < n * 40 && out.length < n; tries++) {
@@ -733,7 +736,7 @@ export function buildArena(ctx, L, opts = {}) {
     return true;
   };
   for (const p of openPts(nDecorBuoys, 14, (x, z) => clearOf(x, z, 3) && Math.hypot(x - L.spawn.x, z - L.spawn.z) > 6)) {
-    addFloater([buoyT, buoyG], p.x, p.z, { halo: scaleArr(PL.glow, 0.8), haloSize: 2.2, haloY: 1.0, bob: 0.8 });
+    addFloater([buoyT, buoyG], p.x, p.z, { halo: scaleArr(PL.lamp, 0.8), haloSize: 2.2, haloY: 1.0, bob: 0.8 });
   }
   if (theme === 'mossmere') {
     const pad = new THREE.CylinderGeometry(0.55, 0.55, 0.04, 12, 1, false, 0.3, TAU - 0.6);
@@ -822,7 +825,8 @@ export function buildArena(ctx, L, opts = {}) {
     const stoneMesh = new THREE.Mesh(G(merge(stones)), rockMat);
     stoneMesh.name = 'gateStones';
     const sol = new THREE.Mesh(stoneMesh.geometry, olRock); sol.renderOrder = -1; stoneMesh.add(sol);
-    const glyphMat = M(new THREE.MeshBasicMaterial({ color: new THREE.Color(pal.glow), fog: true, toneMapped: false }));
+    const glyphHex = mixHex(pal.glow, pal.accent, 0.5);   // gate filigree leans to the lake's accent
+    const glyphMat = M(new THREE.MeshBasicMaterial({ color: new THREE.Color(glyphHex), fog: true, toneMapped: false }));
     const glyphMesh = new THREE.Mesh(G(merge(glyphs)), glyphMat);
     const vort = M(vortexMaterial());
     vort.uniforms.uGlow.value.set(pal.glow); vort.uniforms.uFoam.value.set(pal.foam); vort.uniforms.uDeep.value.set(pal.waterDeep);
@@ -840,7 +844,7 @@ export function buildArena(ctx, L, opts = {}) {
     halos.commit();
     const anchor = addAnchor(L.gate.x, 1.5, L.gate.z, pal.glow, 0, 22);
     anchor.gate = true;
-    const glowC = lin(pal.glow);
+    const glowC = lin(pal.glow), glyphC = lin(glyphHex);
     const st = { state: 'sealed', open: 0, seal: 1, vis: 1, burst: 0 };
     return {
       group: gg, anchor,
@@ -860,7 +864,7 @@ export function buildArena(ctx, L, opts = {}) {
         gg.visible = st.vis > 0.02;
         if (!gg.visible) { halos.setColor(haloI, 0, 0, 0); anchor.intensity = 0; return; }
         const o = st.open, glowAmt = (0.18 + 0.82 * o + st.burst * 1.2) * env.glowK;
-        glyphMat.color.setRGB(glowC[0] * (0.4 + 2.2 * o) * glowAmt, glowC[1] * (0.4 + 2.2 * o) * glowAmt, glowC[2] * (0.4 + 2.2 * o) * glowAmt);
+        glyphMat.color.setRGB(glyphC[0] * (0.4 + 2.2 * o) * glowAmt, glyphC[1] * (0.4 + 2.2 * o) * glowAmt, glyphC[2] * (0.4 + 2.2 * o) * glowAmt);
         vort.uniforms.uTime.value = t; vort.uniforms.uOpen.value = o * st.vis; vort.uniforms.uSeal.value = st.vis * (1 - o);
         colM.uniforms.uTime.value = t; colM.uniforms.uOpen.value = o * (0.8 + st.burst);
         column.visible = o > 0.01;
@@ -907,8 +911,9 @@ export function buildArena(ctx, L, opts = {}) {
 
   const PCFG = {
     mossmere: [
-      { count: 380, box: [64, 14, 64], yMin: 0.2, size: 0.11, vel: [0.12, 0.06, 0.05], sway: 0.9, twinkle: 0.8, colorA: mixHex(pal.light, pal.glow, 0.3), colorB: pal.accent },
-      { count: 80, box: [76, 5, 76], yMin: 0.4, size: 0.24, vel: [0.05, 0.02, -0.04], sway: 1.8, twinkle: 2.4, colorA: pal.glow, colorB: pal.accent },
+      // silver-grey drift (dimmer and greyer than enemy eyes and the spot pulse), a few lilac/periwinkle big motes
+      { count: 380, box: [64, 14, 64], yMin: 0.2, size: 0.1, vel: [0.12, 0.06, 0.05], sway: 0.9, twinkle: 0.8, colorA: mixHex(mixHex(pal.light, pal.far, 0.45), 0x8a8e96, 0.25), colorB: mixHex(pal.light, pal.far, 0.3), opacity: 0.8 },
+      { count: 80, box: [76, 5, 76], yMin: 0.4, size: 0.22, vel: [0.05, 0.02, -0.04], sway: 1.8, twinkle: 2.4, colorA: pal.glow, colorB: pal.accent, opacity: 0.85 },
     ],
     sporewood: [
       { count: 440, box: [64, 16, 64], yMin: 0.0, size: 0.13, vel: [0.05, 0.32, 0.03], sway: 1.0, twinkle: 0.6, colorA: pal.glow, colorB: pal.accent },
@@ -937,7 +942,7 @@ export function buildArena(ctx, L, opts = {}) {
   const tmpA = new THREE.Color(), tmpB = new THREE.Color(), tmpC = new THREE.Color();
   const C = (hex) => new THREE.Color(hex);
   const base = {
-    ink: C(pal.ink), fog: C(pal.fog), far: C(pal.far), light: C(pal.light), glow: C(pal.glow), ambient: C(pal.ambient),
+    ink: C(pal.ink), fog: C(pal.fog), far: C(pal.far), light: C(pal.light), glow: C(pal.glow), lamp: C(pal.lamp), ambient: C(pal.ambient),
     cold: C(0x0a1430), warm: C(0xffc49a), mistWarm: C(0xc08a6a),
   };
   const farLum = new THREE.Color(), inkNear = new THREE.Color(), mistC = new THREE.Color();
@@ -956,7 +961,7 @@ export function buildArena(ctx, L, opts = {}) {
       u.uColor.value.copy(inkNear).lerp(farLum, f);
       u.uMist.value.copy(inkNear).lerp(env.fog, 0.5 + 0.5 * t).lerp(farLum, 0.15 + 0.65 * t);
       u.uRim.value.copy(farLum).lerp(base.light, 0.45).multiplyScalar((1.25 - 0.6 * t) * (1 - 0.55 * n));
-      u.uGlow.value.copy(base.glow).multiplyScalar((1.7 - 0.7 * t) * env.glowK);
+      u.uGlow.value.copy(base.lamp).multiplyScalar((1.7 - 0.7 * t) * env.glowK);
       u.uVault.value.copy(base.ink).lerp(env.fog, 0.3 + 0.25 * t);
     }
     const du = domeMat.uniforms;

@@ -276,7 +276,7 @@ export function create(ctx) {
       case 'waiting':
         // spook: tapping the water before the plunge
         emit('fishing:miss', { reason: 'early' });
-        fx.pulse(V.bob.x, V.bob.z, { color: 0x8d9aa0, r0: 0.2, r1: 1.4, duration: 0.6, alpha: 0.6 });
+        fx.pulse(V.bob.x, V.bob.z, { color: 0x8e96a4, r0: 0.2, r1: 1.4, duration: 0.6, alpha: 0.6 });
         call(() => ctx.water?.addRipple?.(V.bob.x, V.bob.z, 0.6));
         toLost(num(BAL('cast').spookReelIn, 1.5));
         break;
@@ -411,7 +411,7 @@ export function create(ctx) {
     }
     if (S.spot) {
       S.rareSpot = !!S.spot.rare;
-      fx.pulse(x, z, { color: S.rareSpot ? 0xffd98a : 0xbcd0f4, r0: 0.3, r1: 2.6, duration: 1.1, alpha: 0.9, width: 0.08 });
+      fx.pulse(x, z, { color: S.rareSpot ? 0xffd98a : 0xd0c8f4, r0: 0.3, r1: 2.8, duration: 1.2, alpha: 1, width: 0.12 });   // lilac-moon: apart from motes and enemy eyes
     }
     view.inSpot = !!S.spot;
     if (S.clean) {
@@ -589,7 +589,7 @@ export function create(ctx) {
           fx.pulse(V.raft.x, V.raft.z, { color: 0xd8e0ff, r0: 0.6, r1: 7, duration: 1.4, width: 0.09, alpha: 0.8 });
         } else if (sp?.boss && sp.id === 'glass_sovereign') {
           call(() => ctx.audio?.play?.('charge_ping', { volume: 0.7, pitch: 0.55 }));
-          fx.pulse(F.fv ? V.fish.x : V.bob.x, F.fv ? V.fish.z : V.bob.z, { color: 0x5cc8ff, r0: 0.4, r1: 4, duration: 0.9, width: 0.05, alpha: 0.8 });
+          fx.pulse(F.fv ? V.fish.x : V.bob.x, F.fv ? V.fish.z : V.bob.z, { color: 0x5cbcff, r0: 0.4, r1: 4, duration: 0.9, width: 0.05, alpha: 0.8 });
         }
         if (ctx.isMobile) call(() => navigator.vibrate?.(25));
         break;
@@ -619,7 +619,7 @@ export function create(ctx) {
       case 'dive':
         // Leviathan: slack makes it dive instead of escaping
         call(() => ctx.water?.splash?.(V.fish.x, V.fish.z, { size: 1.6, count: 22 }));
-        fx.pulse(V.fish.x, V.fish.z, { color: 0x2a3a40, r0: 0.5, r1: 4, duration: 1, width: 0.12, alpha: 0.9 });
+        fx.pulse(V.fish.x, V.fish.z, { color: 0x2a3040, r0: 0.5, r1: 4, duration: 1, width: 0.12, alpha: 0.9 });
         call(() => ctx.render?.shake?.(0.2, 0.4));
         break;
       default: break;   // snap / slack / landed are handled after step()
@@ -1121,7 +1121,7 @@ export function create(ctx) {
     let tip = null;
     try { tip = ctx.actors?.getRodTip?.(); } catch { /* optional */ }
     if (!(tip && Number.isFinite(tip.x))) tip = V.tip.set(raft.x, 1.8, raft.z);
-    const col = key === 'mid' ? 0xffc27a : key === 'deep' ? 0xb48cff : key === 'blocked' ? 0xff7a6a : key === 'anchoring' ? 0x8d9aa0 : 0xa8c8f0;
+    const col = key === 'mid' ? 0xffc27a : key === 'deep' ? 0xb48cff : key === 'blocked' ? 0xff7a6a : key === 'anchoring' ? 0x8e96a4 : 0xa8c8f0;
     fx.setArc(!view.anchoring, tip, V.target.x, V.target.z, num(C.arcHeight, 0.25) * S.castDist, col, 0.75);
   }
 

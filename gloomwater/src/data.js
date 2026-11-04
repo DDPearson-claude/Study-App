@@ -351,9 +351,9 @@ export const ZONES = [
     unlock: { shells: 0, requires: [] },
     drain: { oil: 1.0, satiety: 1.0 }, gloom: 1.0, valueMult: 1,
     legendary: 'belled_matriarch', warden: 'the_wickeater', gateName: 'The Moss Sluice',
-    palette: { fog: 0x222a3a, fogDensity: 0.016, water: 0x1b2230, waterDeep: 0x07090f, foam: 0xd0d9ea,
-      glow: 0xa9b9f0, accent: 0xd6dccd, ambient: 0x3a4560, ink: 0x05070a, far: 0x7a8aac, light: 0xd6e0f4 },
-    grade: { exposure: 1.0, bloomStrength: 0.85, bloomRadius: 0.6, bloomThreshold: 0.72, tint: 0x48526e, tintAmount: 0.18, vignette: 0.4, saturation: 0.84, grain: 0.05 },
+    palette: { fog: 0x262f40, fogDensity: 0.016, water: 0x232b3a, waterDeep: 0x080b12, foam: 0xd6deee,
+      glow: 0xa9b9f0, accent: 0xc4b8ec, lamp: 0xc8d2f0, ambient: 0x46526a, ink: 0x05070a, far: 0x8292b4, light: 0xdae2f4 },
+    grade: { exposure: 1.02, bloomStrength: 0.85, bloomRadius: 0.6, bloomThreshold: 0.72, tint: 0x4c5278, tintAmount: 0.18, vignette: 0.38, saturation: 0.9, grain: 0.05 },
     description: 'The outer moat of the Lamplit Kingdom, drowned to the arches. Moss drinks the old stone and roots hang from the vault like the beards of sleeping giants. The fish here are forgiving. The dark, for now, only watches.',
   },
   {
@@ -421,7 +421,7 @@ export const ZONES = [
     drain: { oil: 1.4, satiety: 1.3 }, gloom: 1.27, valueMult: 2.2,
     legendary: 'glass_sovereign', warden: 'the_shard_abbot', gateName: 'The Vault Seal',
     palette: { fog: 0x14173e, fogDensity: 0.012, water: 0x141b46, waterDeep: 0x04051c, foam: 0xc8e2ff,
-      glow: 0x5cc8ff, accent: 0xb48cff, ambient: 0x30387e, ink: 0x03040e, far: 0x5460bc, light: 0xd6e2ff },
+      glow: 0x5cbcff, accent: 0xb48cff, ambient: 0x30387e, ink: 0x03040e, far: 0x5460bc, light: 0xd6e2ff },
     grade: { exposure: 1.05, bloomStrength: 1.15, bloomRadius: 0.55, bloomThreshold: 0.65, tint: 0x2e3494, tintAmount: 0.2, vignette: 0.35, saturation: 1.0, grain: 0.04 },
     description: 'Here the kingdom poured its light into crystal and shelved it like books. The water is cold and clear as a held breath. Every shard remembers a colour, and none remember why.',
   },
@@ -623,7 +623,7 @@ export const SPECIES = [
   { id: 'prism_minnow', name: 'Prism Minnow', zone: 'glasswater', rarity: 'common', tier: 2,
     weight: [0.05, 0.3], value: 24, food: 26, oil: 32, time: 'any', depth: [0, 0.6], bait: null, behavior: 'darter',
     difficulty: diff(2, 'darter'),
-    model: { shape: 'minnow', body: 0x8fb8e8, belly: 0xeaf6ff, fin: 0x5cc8ff, glow: 0x5cc8ff, pattern: 'scales', eyes: 'normal', scale: 0.45 },
+    model: { shape: 'minnow', body: 0x8fb8e8, belly: 0xeaf6ff, fin: 0x5cbcff, glow: 0x5cbcff, pattern: 'scales', eyes: 'normal', scale: 0.45 },
     lore: 'When the school turns at once, for an instant the water remembers the colour of the sky.' },
   { id: 'glassgill_perch', name: 'Glassgill Perch', zone: 'glasswater', rarity: 'common', tier: 3,
     weight: [0.5, 2], value: 28, food: 32, oil: 30, time: 'any', depth: [0.15, 1], bait: null, behavior: 'steady',
@@ -649,7 +649,7 @@ export const SPECIES = [
   { id: 'shardspine_eel', name: 'Shardspine Eel', zone: 'glasswater', rarity: 'rare', tier: 4,
     weight: [2, 6], value: 130, food: 36, oil: 56, time: 'gloom', depth: [0.4, 1], bait: null, behavior: 'thrasher',
     difficulty: diff(4, 'thrasher'),
-    model: { shape: 'eel', body: 0x1a1f4a, belly: 0x6a7ad0, fin: 0x5cc8ff, glow: 0x5cc8ff, pattern: 'bands', eyes: 'glow', scale: 1.35 },
+    model: { shape: 'eel', body: 0x1a1f4a, belly: 0x6a7ad0, fin: 0x5cbcff, glow: 0x5cbcff, pattern: 'bands', eyes: 'glow', scale: 1.35 },
     hint: 'Hunts by the sound of breaking, and only in the Gloomtide.',
     lore: 'Crystal grows along its spine like frost on a window. It hunts by the sound of breaking.' },
   { id: 'blind_scrivener', name: 'The Blind Scrivener', zone: 'glasswater', rarity: 'rare', tier: 4,
@@ -671,7 +671,7 @@ export const SPECIES = [
       ],
       cue: 'The whole Vault rings like struck glass. The swarm keeps coming (spawn rate × legendFightRateMult).',
     },
-    model: { shape: 'koi', body: 0xa8b8ff, belly: 0xf4f7ff, fin: 0x5cc8ff, glow: 0x5cc8ff, pattern: 'scales', eyes: 'glow', scale: 2.1 },
+    model: { shape: 'koi', body: 0xa8b8ff, belly: 0xf4f7ff, fin: 0x5cbcff, glow: 0x5cbcff, pattern: 'scales', eyes: 'glow', scale: 2.1 },
     hint: 'In the Gloomtide, in the deepest water, a Prism Moth draws a crown of light.',
     lore: 'It swallowed the Vault\'s last light and never let it go. Each scale is a window with no one behind it.' },
 
@@ -903,14 +903,14 @@ export const ENEMIES = [
   // ---------------------------------------------------------------- fodder & specialists
   { id: 'gloomling', name: 'Gloomling', model: 'wisp', zoneMin: 0, dayMin: 1, hp: 4, speed: 2.6, damage: 1, oilDrain: 2, xp: 1,
     behavior: 'chase', pack: 1, weights: [10, 6, 4, 3], flies: true, burstOnContact: true, auraTaken: 1,
-    telegraph: { lungeAt: 3, pause: 0.35, lungeMult: 2.5, lungeTime: 0.5 }, tint: 0x07080d, eyeColor: 0xe8f1f2, scale: 1,
+    telegraph: { lungeAt: 3, pause: 0.35, lungeMult: 2.5, lungeTime: 0.5 }, tint: 0x07080d, eyeColor: 0xecf0f6, scale: 1,
     variants: { sporewood: { eyeColor: 0xffd9c4 }, glasswater: { eyeColor: 0xc9e8ff }, paleabyss: { eyeColor: 0xeae4d3 } },
     desc: 'A fist-sized curl of living ink with two pinprick eyes. It flares its eyes before it lunges.',
     lore: "It doesn't hate you. It's only cold, and you're the only warm thing for miles." },
   { id: 'inkmite', name: 'Inkmite', model: 'mite', zoneMin: 0, dayMin: 2, hp: 1.5, speed: 3.9, damage: 1, oilDrain: 1, xp: 0.5,
     behavior: 'pack', pack: 6, packPerHeat: 0.34, packMax: 10, weights: [5, 4, 3, 2], waterBound: true, burstOnContact: true, zigzag: 1.2, auraTaken: 1,
-    tint: 0x0a0a10, eyeColor: 0xe6e9ff, scale: 0.8,
-    variants: { sporewood: { name: 'Spore Tick', eyeColor: 0xff7fb0, tint: 0x150a14 }, glasswater: { name: 'Shard Mite', eyeColor: 0x5cc8ff, tint: 0x0a0f24 }, paleabyss: { name: 'Ash Mite', eyeColor: 0xeae4d3, tint: 0x0c0b09 } },
+    tint: 0x0a0a10, eyeColor: 0xf2b6c8, scale: 0.8,
+    variants: { sporewood: { name: 'Spore Tick', eyeColor: 0xff7fb0, tint: 0x150a14 }, glasswater: { name: 'Shard Mite', eyeColor: 0x5cbcff, tint: 0x0a0f24 }, paleabyss: { name: 'Ash Mite', eyeColor: 0xeae4d3, tint: 0x0c0b09 } },
     desc: 'Soot-black ticks that skitter in clutches, zig-zagging. Islands break the pack.',
     lore: 'Alone, a crumb of soot. Together, a tide that knows your name.' },
   { id: 'duskmantle', name: 'Duskmantle', model: 'moth', zoneMin: 0, dayMin: 2, hp: 3, speed: 3.4, damage: 0, oilDrain: 1.2, xp: 2,
@@ -922,8 +922,8 @@ export const ENEMIES = [
   { id: 'creelsnatch', name: 'Creelsnatch', model: 'eel', zoneMin: 0, dayMin: 3, hp: 8, speed: 4.5, damage: 1, oilDrain: 0, xp: 3,
     behavior: 'leap', pack: 1, weights: [2, 2, 2, 1.5], depthMin: 0.4, maxAlive: 2, maxAlivePerHeat: 0.167, steals: true, leapSpeed: 10,
     telegraph: { circle: [3, 6], circleRadius: [6, 9], surface: 1.0, leap: 0.6 }, fleeTime: 3, auraImmuneSubmerged: true, zapAirborneMult: 2, auraTaken: 1,
-    tint: 0x07080d, eyeColor: 0xe6e9ff, scale: 1,
-    variants: { glasswater: { name: 'Prism Eel', eyeColor: 0x5cc8ff, tint: 0x05081a, feint: 0.8 } },
+    tint: 0x07080d, eyeColor: 0xf2b6c8, scale: 1,
+    variants: { glasswater: { name: 'Prism Eel', eyeColor: 0x5cbcff, tint: 0x05081a, feint: 0.8 } },
     desc: 'A ribbon of shadow with hook-teeth. It surfaces, hisses, then leaps the raft to steal from your creel.',
     lore: 'It has never once been hungry. It just likes holding things that were yours.' },
   { id: 'sporeling', name: 'Sporeling Drift', model: 'wisp', zoneMin: 1, dayMin: 1, hp: 6, speed: 2.8, damage: 1, oilDrain: 2, xp: 1.5,
@@ -935,7 +935,7 @@ export const ENEMIES = [
   { id: 'weeping_inkwell', name: 'Weeping Inkwell', model: 'wisp', zoneMin: 0, dayMin: 6, hp: 11, speed: 1.8, damage: 0, oilDrain: 0, xp: 4,
     behavior: 'artillery', pack: 1, weights: [1.5, 2.5, 2.5, 2], flies: true, maxAlive: 3, maxAlivePerHeat: 0.125, auraTaken: 1,
     artillery: { hold: [13, 18], every: 5.0, flight: 1.2, lead: 0.6, ringRadius: 2.4, damage: 1, slick: { radius: 2.4, time: 6, speedMult: 0.6, lightMult: 0.8 } },
-    tint: 0x07080d, eyeColor: 0xe8f1f2, scale: 1.5,
+    tint: 0x07080d, eyeColor: 0xecf0f6, scale: 1.5,
     desc: 'A bowed figure with a swollen ink-sac. It keeps its distance and lobs ink: a dark ring marks where it lands.',
     lore: 'It never comes close. It only grieves at you from the dark, and its grief has weight.' },
   { id: 'belljar_tick', name: 'Bell-Jar Tick', model: 'mite', zoneMin: 1, dayMin: 8, hp: 28, speed: 1.7, damage: 1, oilDrain: 3, xp: 5,
@@ -958,10 +958,10 @@ export const ENEMIES = [
     flareStagger: { time: 2, damageTaken: 1.5 }, zapStagger: 3, snapsLine: true, knock: 4,
     zoneMods: {
       sporewood: { name: 'Mould-Gloved Hand', sporeCloud: { lightMult: 0.8, time: 4 }, eyeColor: 0xffb46a },
-      glasswater: { name: 'The Undertow Grasp', tipsCreel: 2, eyeColor: 0x5cc8ff },
+      glasswater: { name: 'The Undertow Grasp', tipsCreel: 2, eyeColor: 0x5cbcff },
       paleabyss: { name: 'The Ringed Grasp', pair: true, pairGap: 1.0, tint: 0xd8d2c0, eyeColor: 0xe8c66a, grip: { time: 3, oilPerSec: 3, zapsToBreak: 3 } },
     },
-    tint: 0x07080d, eyeColor: 0xe8f1f2, scale: 1,
+    tint: 0x07080d, eyeColor: 0xecf0f6, scale: 1,
     desc: 'A colossal dripping hand. Ink stains the water under you first: move, or flare it while it rises.',
     lore: 'It reaches for the surface the way it reached for the lantern, the night everything fell.' },
 
@@ -994,7 +994,7 @@ export const ENEMIES = [
       { id: 'reliquary', every: 14, enemy: 'belljar_tick', count: 2 },
     ],
     phase2: { at: 0.5, mirror: { every: 12, duration: 6, images: 2 } },
-    tint: 0x03040e, eyeColor: 0x5cc8ff, scale: 1.2,
+    tint: 0x03040e, eyeColor: 0x5cbcff, scale: 1.2,
     desc: 'Robed in shelved crystal like a walking library. It rings out expanding hymns of glass with gaps to slip through.',
     lore: 'It catalogued every light the kingdom kept. You are an omission it means to correct.' },
   { id: 'the_lightless_ferryman', name: 'The Lightless Ferryman', model: 'warden', zoneMin: 3, dayMin: 1, hp: 1400, speed: 1.7, damage: 2, oilDrain: 30, xp: 200,
@@ -1312,7 +1312,7 @@ export const BOUNTIES = [
 // =====================================================================================
 export const QUALITY = {
   normal:  { id: 'normal',  label: 'Common',     valueMult: 1,   yieldMult: 1,    threshold: 0,    chance: 0,    color: 0xd8d2c0 },
-  fine:    { id: 'fine',    label: 'Fine',       valueMult: 1.4, yieldMult: 1.1,  threshold: 0.45, chance: 0.05, color: 0x9cc8f4 },
+  fine:    { id: 'fine',    label: 'Fine',       valueMult: 1.4, yieldMult: 1.1,  threshold: 0.45, chance: 0.05, color: 0xa6c6e6 },
   perfect: { id: 'perfect', label: 'Shimmering', valueMult: 2.5, yieldMult: 1.25, threshold: 0.78, chance: 0.01, color: 0xffe2a8 },
 };
 
@@ -1328,7 +1328,7 @@ export const JOURNAL_PERKS = {
 export const FISH_SHAPES = ['minnow', 'perch', 'carp', 'pike', 'eel', 'angler', 'ray', 'puffer', 'jelly', 'crayfish', 'koi', 'ghost', 'leviathan'];
 export const CREATURE_KINDS = ['wisp', 'mite', 'moth', 'eel', 'hand', 'warden'];
 export const RARITY_WEIGHTS = { common: 70, uncommon: 24, rare: 6 };   // fish pool per species; uncommon ×(1+2rb), rare ×(1+4rb)
-export const RARITY_COLORS = { common: 0xd8d2c0, uncommon: 0x8ec4f4, rare: 0xb48cff, epic: 0xff8fc0, legendary: 0xe8c66a };
+export const RARITY_COLORS = { common: 0xd8d2c0, uncommon: 0xa6c6e6, rare: 0xb48cff, epic: 0xff8fc0, legendary: 0xe8c66a };
 export const DEPTH_BANDS = { shallow: [0, 0.35], mid: [0.35, 0.75], deep: [0.75, 1] };   // reticle label + colour (DESIGN §5.1)
 
 // =====================================================================================

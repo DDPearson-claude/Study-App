@@ -14,7 +14,7 @@ export const GradeShader = {
     uTime: { value: 0 },
     uSaturation: { value: 0.85 },
     uContrast: { value: 1.0 },
-    uTint: { value: new THREE.Color(0x48526e) },
+    uTint: { value: new THREE.Color(0x4c5278) },
     uTintAmount: { value: 0.18 },
     uWarm: { value: new THREE.Color(0xffc48a) },
     uWarmAmount: { value: 0.12 },
@@ -83,6 +83,10 @@ export const GradeShader = {
       // split tone in perceptual space
       float pl = sqrt(l);
       float sh = 1.0 - smoothstep(0.02, 0.42, pl);
+      // warm light owns its pixels: the cold shadow tint stays off clearly warm pixels (the lantern
+      // pool's dim rings, embers, Cinders), so amber does not muddy to rose on slate/indigo lakes
+      float warmPx = clamp((col.r - col.b) / max(col.r, 1e-4) * 1.4 - 0.4, 0.0, 1.0) * smoothstep(0.0, 0.02, col.r);
+      sh *= 1.0 - 0.75 * warmPx;
       float hi = smoothstep(0.38, 0.95, pl);
       vec3 tintN = uTint / max(gwLum(uTint), 1e-4);
       vec3 warmN = uWarm / max(gwLum(uWarm), 1e-4);

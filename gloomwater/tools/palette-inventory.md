@@ -297,3 +297,35 @@ What this says:
 - Content teal that appears in every lake: uncommon/Fine `0x9fe8d8`, the shallow depth band
   `0x9fe8d8`, the spot silhouette rim `0x9fd8c8`, the vortex `0x6ff5e0`, Murk's green and the
   UI glows. Each covers few pixels, but they are bright, saturated and in the HUD focus areas.
+
+## 12. Resolution: the "Moonlit slate" pass (branch `gw-palette`)
+
+Every entry above was revisited; the palette rule is now in DESIGN §19.1 (green/teal only as rare
+trace accents). Where each channel ended up:
+
+1. **Zone palette:** Mossmere fog `0x262f40`, water `0x232b3a`, waterDeep `0x080b12`, foam
+   `0xd6deee`, glow `0xa9b9f0` (periwinkle moon-silver), accent `0xc4b8ec` (lilac-silver), new
+   optional `lamp` `0xc8d2f0` (island lamps, buoys, statue orbs, lit ring windows, dock halos; other
+   lakes fall back to `glow`), ambient `0x46526a`, far `0x8292b4`, light `0xdae2f4`. Glasswater glow
+   `0x5cbcff` (hue 205, ice not aqua). Sporewood and Pallid Deep unchanged.
+2. **Grade:** Mossmere tint `0x4c5278` ×0.18, saturation 0.9, exposure 1.02. Night keeps a fifth of
+   each lake's tint (`world.js sendGrade`: lerp to NIGHT_TINT by 0.8·night). The grade keeps its
+   cold shadow tint off clearly warm pixels (`render-grade.js` warmPx), so the lantern pool does not
+   muddy to rose. Dawn tints shadows only 20% toward DAWN_TINT (no extra tintAmount) and warms the highlights instead
+   (warmAmount +0.16), so dawn is warm light over cool water rather than orange mud in every lake.
+3. **Fallback copies:** `world.js`, `world-art.js`, `water.js`, `render.js`, `render-grade.js`,
+   `fishing-fx.js`, `fishing.js` all carry the new Mossmere values. (UI fallbacks are for the UI
+   author: see DESIGN §21.1 colour tokens.)
+4. **KIT.mossmere:** slate rock, pewter stone, grey/dun lichen (moss `0x3a3836`, mossHi
+   `0x67625a`, organic `0x3c3a38`).
+5. **Content:** Mossmere and Glasswater fish off mint/aqua; inkmite/creelsnatch eyes pale cold rose
+   `0xf2b6c8`; duskmantle `0xb8ccff`; Wickeater `0xdbe2ff`; uncommon/Fine pale moonstone `0xa6c6e6` (apart from Glasswater's ice-blue); shallow band
+   and cast arc `0xa8c8f0`; spot pulse and recovered fish lilac-moon `0xd0c8f4`; Mossmere motes
+   silver-grey (big motes periwinkle/lilac); vortex `0x9aa6ff`/`0xdcdfff`; PALE `0xecf0f6`;
+   toon glow defaults `0xc6d2f0`; Wick guttering flame `0xa2c8ff`. Old Murk is an umber toad
+   (`0x575047`, rust-moss `0x7a5838`, ochre `0xa87e40`, lichen `0xc8bca2`) on a withered bronze pad;
+   his sage lamp `0xa6d4a0` is the one deliberate green trace, and its water reflection is a short
+   dim pinpoint (streak 0.45, intensity 1.5).
+6. **Water shader and lantern pool:** the lantern's light-pool decal fill leans gold (`actors.js`, lerp
+   to `0xffc46a`); warm lights lean gold on the water; inside a light pool the cold base drains to
+   warm grey (poolK ×20, cap 0.92); mist strokes and crests carry a silver sheen lifted toward foam.

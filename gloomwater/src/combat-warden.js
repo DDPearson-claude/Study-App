@@ -8,7 +8,7 @@ import { DECAL, lin } from './combat-fx.js';
 const TAU = Math.PI * 2;
 const COL = {
   pale: lin(0xe9e2cf, 1.2), paleHot: lin(0xf4efe2, 2.4), ink: lin(0x040508, 1), amber: lin(0xffb04a, 2.4), amberDim: lin(0xff9a3a, 1.1),
-  glass: lin(0xa8d4ff, 2.6), glassDim: lin(0x5cc8ff, 0.9), gold: lin(0xe8c66a, 2.4), goldDim: lin(0xe8c66a, 0.9), smoke: lin(0x1a1712, 1),
+  glass: lin(0xa8d4ff, 2.6), glassDim: lin(0x5cbcff, 0.9), gold: lin(0xe8c66a, 2.4), goldDim: lin(0xe8c66a, 0.9), smoke: lin(0x1a1712, 1),
   spore: lin(0xffb46a, 1.3),
 };
 const tmpC = new THREE.Color();

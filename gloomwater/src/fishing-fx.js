@@ -18,7 +18,7 @@ const COL = {
   bone: 0xe9e2cf,
   shallow: 0xa8c8f0, mid: 0xffc27a, deep: 0xb48cff, deepRim: 0xe8c66a,
   rareA: 0xb48cff, rareB: 0xffd98a, legend: 0xffd27a, legendB: 0xfff0c0,
-  ink: 0x05080a, blocked: 0xff7a6a, anchor: 0x8d9aa0,
+  ink: 0x05080a, blocked: 0xff7a6a, anchor: 0x8e96a4,
 };
 
 // ------------------------------------------------------------------ shared GLSL bits
@@ -479,7 +479,7 @@ export function createFishingFx(ctx) {
 
   // ---------------------------------------------------------------- legend pool
   const poolU = {
-    uInk: { value: new THREE.Color(0x020405) }, uRing: { value: new THREE.Color(0xcfe0dc) }, uGold: { value: new THREE.Color(COL.legend) },
+    uInk: { value: new THREE.Color(0x020405) }, uRing: { value: new THREE.Color(0xd8dce6) }, uGold: { value: new THREE.Color(COL.legend) },
     uR: { value: 3.2 }, uHalf: { value: 5 }, uActive: { value: 0 }, uDim: { value: 1 }, uTime: time, uAlpha: { value: 1 },
   };
   const poolMat = new THREE.ShaderMaterial({ uniforms: poolU, vertexShader: RETICLE_VS, fragmentShader: POOL_FS, transparent: true, depthWrite: false });

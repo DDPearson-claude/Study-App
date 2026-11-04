@@ -5,7 +5,7 @@
 import * as THREE from 'three';
 
 export const INK = 0x07080d;          // outline / silhouette ink colour
-export const PALE = 0xe8f1f2;          // bone-white highlight colour
+export const PALE = 0xecf0f6;          // cold moon-white highlight colour (no cyan cast)
 
 const gradientCache = new Map();
 /** Stepped gradient map for MeshToonMaterial (NearestFilter = hard bands). */
