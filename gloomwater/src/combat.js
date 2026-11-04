@@ -307,7 +307,7 @@ export function create(ctx) {
   C.recoverFish = (fish, pos) => {
     let ok = false;
     try { ok = ctx.progression?.addToCreel?.(fish) === true; } catch (e) { C.report('addToCreel', e); }
-    if (ok) { ctx.bus.emit('toast', { text: `Recovered your ${speciesOf(fish.speciesId)?.name || 'fish'}.`, kind: 'good' }); fx.burst(pos.x, 0.6, pos.z, lin(0x9fe8d8, 2), 12, 3, 0.14, 0.5); }
+    if (ok) { ctx.bus.emit('toast', { text: `Recovered your ${speciesOf(fish.speciesId)?.name || 'fish'}.`, kind: 'good' }); fx.burst(pos.x, 0.6, pos.z, lin(0xbcd0f4, 2), 12, 3, 0.14, 0.5); }
     else if (ctx.time.gameT > fullWarnT) { fullWarnT = ctx.time.gameT + 4; C.floatText(pos.clone(), 'Creel full', 'bad'); }
     return ok;
   };
@@ -365,7 +365,7 @@ export function create(ctx) {
     if (!e || !e.alive || e.invuln || !(amount > 0)) return 0;
     if (e.submerged && !o.force) return 0;
     if (e.damageFilter && !e.damageFilter(o)) {
-      if (!o.aura && Math.random() < 0.3) fx.burst(e.position.x, 3, e.position.z, lin(0x9fe8ff, 1.6), 3, 2, 0.12, 0.3);
+      if (!o.aura && Math.random() < 0.3) fx.burst(e.position.x, 3, e.position.z, lin(0xb8ccff, 1.6), 3, 2, 0.12, 0.3);
       return 0;
     }
     let dmg = amount;

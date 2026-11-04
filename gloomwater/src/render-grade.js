@@ -14,7 +14,7 @@ export const GradeShader = {
     uTime: { value: 0 },
     uSaturation: { value: 0.85 },
     uContrast: { value: 1.0 },
-    uTint: { value: new THREE.Color(0x2e6b63) },
+    uTint: { value: new THREE.Color(0x48526e) },
     uTintAmount: { value: 0.18 },
     uWarm: { value: new THREE.Color(0xffc48a) },
     uWarmAmount: { value: 0.12 },

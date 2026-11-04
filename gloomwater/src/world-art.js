@@ -13,7 +13,7 @@ const V = (x, y, z) => new THREE.Vector3(x, y, z);
 
 // Per-theme material colours (linear arrays built at runtime from hex).
 const KIT = {
-  mossmere: { rock: 0x182222, rockHi: 0x2a3835, moss: 0x2b4a35, mossHi: 0x4d7650, wood: 0x2e241b, woodHi: 0x4a3a2a, stone: 0x3b4845, iron: 0x121616, bone: 0x8f9a86, organic: 0x2f4a33 },
+  mossmere: { rock: 0x1a1e26, rockHi: 0x2c323e, moss: 0x343937, mossHi: 0x5f665e, wood: 0x2e241b, woodHi: 0x4a3a2a, stone: 0x404858, iron: 0x121418, bone: 0x9ea2a8, organic: 0x383d3b },
   sporewood: { rock: 0x221824, rockHi: 0x3c2a3e, moss: 0x4a2c4e, mossHi: 0x7a4a72, wood: 0x2a1c22, stone: 0x4a3a4c, iron: 0x140e14, bone: 0xb9a2a6, organic: 0x9a8794, cap: 0x3c2242, capHi: 0x6a3a5c },
   glasswater: { rock: 0x11152a, rockHi: 0x1f2542, moss: 0x262f58, mossHi: 0x3c4a82, wood: 0x1c1d2c, stone: 0x404a70, iron: 0x0c0e1a, bone: 0x8a96c0, organic: 0x2a3466 },
   paleabyss: { rock: 0x191815, rockHi: 0x2c2a25, moss: 0x48443a, mossHi: 0x8a8370, wood: 0x231f1a, stone: 0x5a564c, iron: 0x111010, bone: 0xd9d0bb, organic: 0xcfc6ae },
@@ -31,7 +31,7 @@ export function domeY(L, r) {
  */
 export function buildArena(ctx, L, opts = {}) {
   const zone = L.zone || {};
-  const pal = Object.assign({ fog: 0x1a3436, fogDensity: 0.016, water: 0x1f3d3b, waterDeep: 0x081719, foam: 0xbfe3d4, glow: 0x6ff5c8, accent: 0xd6f59a, ambient: 0x3d6662, ink: 0x050c0d, far: 0x5a9488, light: 0xcff7e6 }, zone.palette || {});
+  const pal = Object.assign({ fog: 0x222a3a, fogDensity: 0.016, water: 0x1b2230, waterDeep: 0x07090f, foam: 0xd0d9ea, glow: 0xa9b9f0, accent: 0xd6dccd, ambient: 0x3a4560, ink: 0x05070a, far: 0x7a8aac, light: 0xd6e0f4 }, zone.palette || {});
   const theme = L.theme;
   const K = {}; for (const [k, v] of Object.entries(KIT[theme] || KIT.mossmere)) K[k] = lin(v);
   const PL = {}; for (const [k, v] of Object.entries(pal)) if (typeof v === 'number' && k !== 'fogDensity') PL[k] = lin(v);
@@ -223,7 +223,7 @@ export function buildArena(ctx, L, opts = {}) {
     // cone now points down with its base at y=0
     wobble(base, 0.12, 2.2, 3);
     const g = G(base);
-    const m = M(inkToon({ color: mixHex(pal.ink, KIT[theme]?.rock ?? 0x1b2626, 0.6), rim: 0.6, rimColor: pal.far, steps: 3, flatShading: true }, { fogScale: 0.45, fogMax: 0.7 }));
+    const m = M(inkToon({ color: mixHex(pal.ink, KIT[theme]?.rock ?? 0x1b1e24, 0.6), rim: 0.6, rimColor: pal.far, steps: 3, flatShading: true }, { fogScale: 0.45, fogMax: 0.7 }));
     const im = new THREE.InstancedMesh(g, m, count);
     const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), s = new THREE.Vector3(), p = new THREE.Vector3(), e = new THREE.Euler();
     for (let i = 0; i < count; i++) {

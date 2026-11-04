@@ -22,11 +22,11 @@ export function createMerchant(ctx) {
   // ---------------------------------------------------------------- lily-barge
   const padTex = canvasTexture(256, 256, (g, w, h) => {
     const grd = g.createRadialGradient(128, 128, 10, 128, 128, 128);
-    grd.addColorStop(0, '#4f7a3e'); grd.addColorStop(0.7, '#355a2c'); grd.addColorStop(1, '#22401f');
+    grd.addColorStop(0, '#5c625a'); grd.addColorStop(0.7, '#3f4540'); grd.addColorStop(1, '#262a28');
     g.fillStyle = grd; g.fillRect(0, 0, w, h);
-    g.strokeStyle = 'rgba(160,200,120,0.35)'; g.lineWidth = 2;
+    g.strokeStyle = 'rgba(196,204,200,0.3)'; g.lineWidth = 2;
     for (let i = 0; i < 22; i++) { const a = i / 22 * TAU; g.beginPath(); g.moveTo(128, 128); g.quadraticCurveTo(128 + Math.cos(a + 0.15) * 70, 128 + Math.sin(a + 0.15) * 70, 128 + Math.cos(a) * 126, 128 + Math.sin(a) * 126); g.stroke(); }
-    g.fillStyle = 'rgba(20,30,15,0.25)'; for (let i = 0; i < 40; i++) { g.beginPath(); g.arc(Math.random() * w, Math.random() * h, 2 + Math.random() * 6, 0, TAU); g.fill(); }
+    g.fillStyle = 'rgba(16,18,22,0.28)'; for (let i = 0; i < 40; i++) { g.beginPath(); g.arc(Math.random() * w, Math.random() * h, 2 + Math.random() * 6, 0, TAU); g.fill(); }
   });
   mats.push({ dispose: () => padTex.dispose() });
   const padG = new THREE.CircleGeometry(2.3, 40, 0.32, TAU - 0.64);
@@ -36,7 +36,7 @@ export function createMerchant(ctx) {
   const pad = new THREE.Mesh(padG, M(toonMaterial({ color: 0xffffff, map: padTex, rim: 0.12, rimPower: 0.8, side: THREE.DoubleSide })));
   bob.add(pad);
   const rimPts = []; for (let i = 0; i <= 40; i++) { const a = 0.32 + (i / 40) * (TAU - 0.64) + Math.PI / 2; rimPts.push(new THREE.Vector3(Math.cos(a) * 2.3, 0.22 + Math.sin(a * 9) * 0.015, -Math.sin(a) * 2.3)); }
-  const planks = [paint(tube(rimPts, 0.05, 5, { capEnd: true, capStart: true }), 0x2a4a24)];
+  const planks = [paint(tube(rimPts, 0.05, 5, { capEnd: true, capStart: true }), 0x2e322f)];
   for (let i = 0; i < 5; i++) planks.push(paint(xf(new THREE.BoxGeometry(0.3, 0.07, 1.5), { p: [-0.62 + i * 0.31, 0.2, -0.35], r: [0, (i - 2) * 0.02, 0] }), [0x3a2a1c, 0x33251a, 0x3e2d1e][i % 3]));
   const plat = new THREE.Mesh(mergeGeos(planks), M(toonMaterial({ color: 0xffffff, vertexColors: true, rim: 0.12, rimPower: 0.8 })));
   outlineSmooth(plat, 0.02); bob.add(plat);
@@ -53,7 +53,7 @@ export function createMerchant(ctx) {
   bob.add(new THREE.Mesh(mergeGeos(cores), lotusGlowMat));
 
   // ---------------------------------------------------------------- Old Murk (toad)
-  const skin = 0x4d5a3f, belly = 0x8f8a5e, moss = 0x5f7d36, lichen = 0xb9c79a;
+  const skin = 0x4f514a, belly = 0x948d7c, moss = 0x5d625a, lichen = 0xc2c6bc;
   const lichenAt = (x, y, z) => Math.sin(x * 7.3 + 1.1) * Math.sin(y * 8.9 + 0.4) * Math.sin(z * 7.7 + 2.3) > 0.42;
   const murk = new THREE.Group(); murk.position.set(0, 0.22, -0.3); bob.add(murk);
   const skinMat = M(toonMaterial({ color: 0xffffff, vertexColors: true, rim: 0.38, rimPower: 0.6 }));
@@ -76,7 +76,7 @@ export function createMerchant(ctx) {
   paint(browL, skin); paint(browR, skin);
   const mouthG = paint(tube(bezierPts([[-0.5, -0.04, 0.2], [-0.2, -0.12, 0.52], [0.2, -0.12, 0.52], [0.5, -0.04, 0.2]], 16), 0.022, 5), 0x0b0d08);
   const pipeG = paint(mergeGeos([tube(bezierPts([[0.35, -0.1, 0.42], [0.55, -0.16, 0.6], [0.62, -0.05, 0.72]], 6), 0.018, 5), xf(new THREE.CylinderGeometry(0.045, 0.035, 0.09, 8), { p: [0.63, -0.02, 0.74] })]), 0x2a1a10);
-  const lipG = paint(tube(bezierPts([[-0.42, -0.1, 0.26], [-0.18, -0.2, 0.5], [0.18, -0.2, 0.5], [0.42, -0.1, 0.26]], 14), (u) => 0.03 + Math.sin(u * Math.PI) * 0.03, 6), 0x5a6448);
+  const lipG = paint(tube(bezierPts([[-0.42, -0.1, 0.26], [-0.18, -0.2, 0.5], [0.18, -0.2, 0.5], [0.42, -0.1, 0.26]], 14), (u) => 0.03 + Math.sin(u * Math.PI) * 0.03, 6), 0x5c5d55);
   const headMesh = new THREE.Mesh(mergeGeos([headG, browL, browR, mouthG, lipG, pipeG]), skinMat); outlineSmooth(headMesh, 0.025); head.add(headMesh);
   // tongue (flicks at passing moths)
   const tongue = new THREE.Group(); tongue.position.set(0, -0.12, 0.45); head.add(tongue);
@@ -128,7 +128,7 @@ export function createMerchant(ctx) {
   packParts.push(paint(xf(new THREE.CylinderGeometry(0.08, 0.08, 0.22, 8), { p: [0.4, 3.12, 0.05] }), 0x4a5a6a));
   for (const y of [1.55, 2.1, 2.55]) packParts.push(paint(xf(new THREE.TorusGeometry(0.47, 0.022, 4, 16), { p: [0, y, -0.03], r: [Math.PI / 2, 0, 0], s: [1, 0.75, 1] }), 0x8c7552));
   // jars of murky bait
-  for (const [x, y, z, h] of [[-0.48, 2.42, 0.2, 0.2], [-0.32, 2.4, 0.28, 0.15], [0.42, 2.38, 0.24, 0.18]]) { packParts.push(paint(xf(new THREE.CylinderGeometry(0.075, 0.08, h, 8), { p: [x, y, z] }), 0x3a5a3a)); packParts.push(paint(xf(new THREE.CylinderGeometry(0.06, 0.06, 0.03, 8), { p: [x, y + h / 2 + 0.015, z] }), 0x6a5034)); }
+  for (const [x, y, z, h] of [[-0.48, 2.42, 0.2, 0.2], [-0.32, 2.4, 0.28, 0.15], [0.42, 2.38, 0.24, 0.18]]) { packParts.push(paint(xf(new THREE.CylinderGeometry(0.075, 0.08, h, 8), { p: [x, y, z] }), 0x3e4652)); packParts.push(paint(xf(new THREE.CylinderGeometry(0.06, 0.06, 0.03, 8), { p: [x, y + h / 2 + 0.015, z] }), 0x6a5034)); }
   // coiled rope on the flank
   for (let i = 0; i < 3; i++) packParts.push(paint(xf(new THREE.TorusGeometry(0.17 - i * 0.015, 0.028, 5, 14), { p: [0.66, 1.55 + i * 0.05, 0.0], r: [0, 0, Math.PI / 2 - 0.2] }), 0x8c7552));
   // empty birdcage
@@ -146,16 +146,16 @@ export function createMerchant(ctx) {
   const packMesh = new THREE.Mesh(mergeGeos(packParts), M(toonMaterial({ color: 0xffffff, vertexColors: true, rim: 0.16, rimPower: 0.75 })));
   outlineSmooth(packMesh, 0.022); pack.add(packMesh);
   const lampPivot = new THREE.Group(); lampPivot.position.set(1.05, 3.6, 0.62); pack.add(lampPivot);
-  const ironMat = M(toonMaterial({ color: 0x2b302c, rim: 0.5 }));
+  const ironMat = M(toonMaterial({ color: 0x2b2e32, rim: 0.5 }));
   const lampIron = new THREE.Mesh(mergeGeos([
     xf(new THREE.TorusGeometry(0.03, 0.007, 4, 8), { p: [0, -0.04, 0] }), xf(new THREE.ConeGeometry(0.1, 0.09, 6), { p: [0, -0.12, 0] }),
     xf(new THREE.CylinderGeometry(0.08, 0.09, 0.03, 6), { p: [0, -0.38, 0] }),
     ...[0, 1, 2, 3, 4, 5].map((i) => xf(new THREE.BoxGeometry(0.01, 0.22, 0.01), { p: [Math.cos(i / 6 * TAU) * 0.08, -0.26, Math.sin(i / 6 * TAU) * 0.08] })),
   ]), ironMat);
   lampPivot.add(lampIron);
-  const lampGlow = new THREE.Mesh(new THREE.SphereGeometry(0.065, 10, 8), M(glowMaterial(0x8fd47a, 1.8))); lampGlow.position.y = -0.26; lampPivot.add(lampGlow);
-  const lampHalo = glowSprite({ color: 0x8fd47a, size: 2.0, opacity: 0.35 }); lampHalo.position.y = -0.26; lampPivot.add(lampHalo); mats.push(lampHalo.material);
-  const light = new THREE.PointLight(0x8fd47a, 0, 11, 1.6); light.position.y = -0.26; light.name = 'merchantLamp'; lampPivot.add(light);
+  const lampGlow = new THREE.Mesh(new THREE.SphereGeometry(0.065, 10, 8), M(glowMaterial(0xa6d4a0, 1.8))); lampGlow.position.y = -0.26; lampPivot.add(lampGlow);
+  const lampHalo = glowSprite({ color: 0xa6d4a0, size: 2.0, opacity: 0.35 }); lampHalo.position.y = -0.26; lampPivot.add(lampHalo); mats.push(lampHalo.material);
+  const light = new THREE.PointLight(0xa6d4a0, 0, 11, 1.6); light.position.y = -0.26; light.name = 'merchantLamp'; lampPivot.add(light);
   // fish-bone wind chime under the lamp arm
   const fchime = new THREE.Group(); fchime.position.set(0.8, 3.6, 0.42); pack.add(fchime);
   { const bones = []; for (let i = 0; i < 4; i++) { bones.push(xf(new THREE.CylinderGeometry(0.004, 0.004, 0.2, 3), { p: [(i - 1.5) * 0.05, -0.1, 0] })); bones.push(spike([(i - 1.5) * 0.05, -0.32, 0], [0, 1, 0], 0.018, 0.12, 4)); bones.push(xf(new THREE.BoxGeometry(0.05, 0.006, 0.006), { p: [(i - 1.5) * 0.05, -0.27, 0] })); }

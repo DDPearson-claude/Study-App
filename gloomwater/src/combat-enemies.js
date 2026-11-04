@@ -18,7 +18,7 @@ const COL = {
   ember: lin(0xffa040, 2.4), emberDim: lin(0xff7a2a, 1.6), pale: lin(0xe9e2cf, 1.0), paleHot: lin(0xf4efe2, 2.2),
   white: lin(0xffffff, 3.2), ink: lin(0x040508, 1), inkSoft: lin(0x0a0a12, 1), gold: lin(0xe8c66a, 2.6),
   spore: lin(0xffb46a, 1.2), sporeCloud: lin(0x6b3a5e, 0.9), glass: lin(0xc9e8ff, 1.6), slick: lin(0x05060c, 1),
-  oil: lin(0xffb347, 2.4), fishGlow: lin(0x9fe8d8, 1.6),
+  oil: lin(0xffb347, 2.4), fishGlow: lin(0xbcd0f4, 1.6),
 };
 const tmpC = new THREE.Color();
 
