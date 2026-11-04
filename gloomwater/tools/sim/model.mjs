@@ -30,11 +30,11 @@ export const SKILLS = {
     spookNibble: 0.05, spookFeint: 0.25,    // early-tap chance per nibble / per feint
     cleanCast: 0.3, castTime: 1.5, inSpot: 0.55, deepBias: 1.0, sailEff: 0.7,
     merchantTrip: 16, duskFish: 4, battery: 0, duskTopUp: 0.6, burnAt: 0.25, burnRemember: 0.7,
-    legendDay: 2, bountyComplete: 0.35, descend: 'asap',
-    zapRate: 0.22, zapFloor: 0.1, zapAim: 0.8, flareCrowd: 5, flareOnStain: 0.4,
-    dodge: { gloomling: 0.12, inkmite: 0.06, sporeling: 0.10, silent_choir: 0.08, belljar_tick: 0.15, glob: 0.7, slam: 0.65, eel: 0.2 },
+    legendDay: 2, bountyComplete: 0.35, descend: 'cautious',
+    zapRate: 0.22, zapFloor: 0.1, zapAim: 0.8, flareCrowd: 6, flareOilMin: 0.3, flareOnStain: 0.4,
+    dodge: { gloomling: 0.12, inkmite: 0.06, sporeling: 0.10, silent_choir: 0.08, belljar_tick: 0.15, glob: 0.8, slam: 0.75, eel: 0.2 },
     kite: 0.97, cinderEff: 0.62, mothPeel: 2.6, eelZap: 0.45, inkwellHunt: 0, handFocus: 0.45,
-    wardenInLight: 0.55, wardenFocus: 0.55, wardenHitEvery: 24,
+    wardenInLight: 0.55, wardenFocus: 0.55, wardenHitEvery: 40,
     boonNoise: 30, rerollUse: 0.3, upgradeNoise: 0.35,
   },
   skilled: {
@@ -45,13 +45,28 @@ export const SKILLS = {
     cleanCast: 0.65, castTime: 1.0, inSpot: 0.85, deepBias: 1.8, sailEff: 0.85,
     merchantTrip: 11, duskFish: 9, battery: 1, duskTopUp: 0.85, burnAt: 0.35, burnRemember: 1,
     legendDay: 1, bountyComplete: 0.55, descend: 'ready',
-    zapRate: 0.4, zapFloor: 0.2, zapAim: 0.92, flareCrowd: 7, flareOnStain: 0.85,
-    dodge: { gloomling: 0.32, inkmite: 0.18, sporeling: 0.28, silent_choir: 0.22, belljar_tick: 0.35, glob: 0.9, slam: 0.9, eel: 0.5 },
+    zapRate: 0.4, zapFloor: 0.2, zapAim: 0.92, flareCrowd: 8, flareOilMin: 0.35, flareOnStain: 0.85,
+    dodge: { gloomling: 0.32, inkmite: 0.18, sporeling: 0.28, silent_choir: 0.22, belljar_tick: 0.35, glob: 0.93, slam: 0.92, eel: 0.5 },
     kite: 0.88, cinderEff: 0.85, mothPeel: 1.2, eelZap: 0.8, inkwellHunt: 4, handFocus: 0.7,
-    wardenInLight: 0.75, wardenFocus: 0.75, wardenHitEvery: 60,
+    wardenInLight: 0.75, wardenFocus: 0.75, wardenHitEvery: 90,
     boonNoise: 6, rerollUse: 1, upgradeNoise: 0.05,
   },
 };
+
+/** A player who starts "average" and learns: blend t in [0,1] of the way toward "skilled". */
+export function blendSkill(t, id = 'learner') {
+  const a = SKILLS.average, b = SKILLS.skilled;
+  const mix = (x, y) => (typeof x === 'number' && typeof y === 'number' ? x + (y - x) * t : (t < 0.5 ? x : y));
+  const out = { id: `${id}${t.toFixed(2)}` };
+  for (const k of Object.keys(a)) {
+    if (k === 'id') continue;
+    if (a[k] && typeof a[k] === 'object') { out[k] = {}; for (const kk of Object.keys(a[k])) out[k][kk] = mix(a[k][kk], b[k][kk]); }
+    else out[k] = mix(a[k], b[k]);
+  }
+  out.reel.id = `r${Math.round(t * 10)}`;    // reel cache bucket
+  out.battery = Math.round(out.battery);
+  return out;
+}
 
 // ===================================================================================== stats
 const LEVELLED = (list, levels) => list.filter((x) => levels[x.id]).map((x) => [x, levels[x.id]]);
@@ -420,8 +435,10 @@ function trade(meta, run, sk, strat, rng) {
 }
 
 // ===================================================================================== calm (day)
+const drainCache = new Map();
+function drainMultFor(day, zone) { const k = day * 8 + zone; let v = drainCache.get(k); if (v == null) { v = D.difficultyFor(day, zone, 0.5).drainMult; drainCache.set(k, v); } return v; }
 function drainFor(meta, run, st, secs, phase) {
-  const diff = D.difficultyFor(run.day, run.zone, 0.5);
+  const diff = { drainMult: drainMultFor(run.day, run.zone) };
   const zone = zoneOf(run);
   run.oil = Math.max(0, run.oil - st.oilDrain * B.drain.oilPhase[phase] * zone.drain.oil * diff.drainMult * secs);
   run.sat = Math.max(0, run.sat - st.satietyDrain * zone.drain.satiety * diff.drainMult * secs);
@@ -515,6 +532,10 @@ function maybeDescend(meta, run, sk, strat) {
   if (policy === 'never') return false;
   const zone = zoneOf(run), next = D.ZONES[run.zone + 1];
   if (!next || !run.legendaries[zone.legendary]) return false;
+  if (policy === 'cautious') {   // average: wait one night in a new lake and descend with most Embers intact (or after 4 nights)
+    const st = computeStats(meta, run);
+    if (!(run.nightInZone >= 4 || (run.nightInZone >= 2 && run.hp >= 0.6 * st.maxHp))) return false;
+  }
   if (policy === 'ready') {   // skilled: take the lake's Warden night first unless the build is clearly ahead; never overstay
     const last = run.nightLog[run.nightLog.length - 1];
     const st = computeStats(meta, run);
@@ -535,9 +556,11 @@ function maybeDescend(meta, run, sk, strat) {
 
 // ===================================================================================== night (Gloomtide damage race)
 const ENEMY = D.ENEMY_BY_ID;
+const PROJ_EFF = 0.8;   // homing projectiles: travel time, volley overkill, misses on lunging targets
+const CHAIN_AREA = Math.PI * (20 * 20 - 3 * 3) / 4;   // effective annulus area per chain search (enemies cluster toward the raft ≈ ×4 density)
 function weaponParams(id, lvl) { const b = D.BOON_BY_ID[id]; return lvl >= 6 && b.kindle ? b.kindle.params : b.levels[Math.min(lvl, b.maxLevel) - 1]; }
 
-export function simulateNight(meta, run, sk, strat, rng) {
+export function simulateNight(meta, run, sk, strat, rng, opts = {}) {
   const z = run.zone, day = run.day, zone = zoneOf(run);
   run.nightInZone++;
   const L = D.gloomtideLength(day);
@@ -577,7 +600,8 @@ export function simulateNight(meta, run, sk, strat, rng) {
     cohorts.push(c);
     return c;
   }
-  const alive = () => cohorts.reduce((a, c) => a + c.n, 0) + latched.length;
+  let aliveN = 0;
+  const alive = () => aliveN + latched.length;
   const lightR = () => {
     if (run.oil <= 0) return B.light.emberGlow;
     const of = run.oil / st.maxOil;
@@ -639,10 +663,11 @@ export function simulateNight(meta, run, sk, strat, rng) {
       resolve(cur);
       hits++;
       if (hits > chainN) break;
-      if (cur.n > 0 && rng() < 0.6) continue;            // next member of the same pack
-      let nx = null;
-      for (const c of cohorts) if (c !== cur && c.n > 0 && Math.abs(c.dist - cur.dist) <= chainRange && visible(c, lr) && (!nx || c.dist < nx.dist)) nx = c;
-      if (!nx || rng() > 0.85) break;
+      if (cur.n > 0 && chainRange >= 2 && rng() < 0.6) continue;   // next member of the same pack (packs spread ≈ 2.5 m)
+      let nx = null, nNear = 0;
+      for (const c of cohorts) if (c !== cur && c.n > 0 && Math.abs(c.dist - cur.dist) <= chainRange && visible(c, lr)) { nNear += c.n; if (!nx || c.dist < nx.dist) nx = c; }
+      // enemies arrive from every side: a radial neighbour is only a spatial neighbour with probability ∝ density
+      if (!nx || rng() > 1 - Math.exp(-nNear * Math.PI * chainRange * chainRange / CHAIN_AREA)) break;
       cur = nx;
     }
   }
@@ -689,13 +714,15 @@ export function simulateNight(meta, run, sk, strat, rng) {
   }
 
   // ---------------------------------------------------------------- main loop
-  while (t < L && !run.dead) {
-    const k = t / L;
+  // a hooked legendary holds the Gloomtide open until the fight resolves (the hush spawns nothing)
+  while ((t < L || (fight && !fight.done && fight.end !== Infinity && t < fight.end + 0.5)) && !run.dead) {
+    const k = Math.min(1, t / L);
     const lr = lightR();
     const of = run.oil / st.maxOil;
     const dark = run.oil <= 0;
     const anch = anchored();
     const moving = anch ? 0 : 0.65;
+    if (opts.debug && Math.abs(t % 5) < 1e-9) { let near = 99, inL = 0; for (const c of cohorts) { if (c.n > 0) { near = Math.min(near, c.dist); if (c.dist <= lr) inL += c.n; } } console.log(`t ${t} alive ${alive()} inLight ${inL} near ${near.toFixed(1)} lr ${lr.toFixed(1)} oil ${run.oil.toFixed(0)} hp ${run.hp} kills ${killsNight} contacts ${contactsN} hands ${hands.length}`); }
     if (anch) anchT += dt;
     // ---- legend fight bookkeeping
     if (fight && !fight.done && t >= fight.start && fight.end === Infinity) {
@@ -722,12 +749,12 @@ export function simulateNight(meta, run, sk, strat, rng) {
       const e = ENEMY[pickW(rng, d0.kinds, (x) => x.w).id];
       let pack = e.pack || 1;
       if (e.packPerHeat) pack = Math.min(e.packMax || 10, Math.floor(pack + e.packPerHeat * H));
-      const kindAlive = cohorts.filter((c) => c.id === e.id).reduce((a, c) => a + c.n, 0);
+      let kindAlive = 0; if (e.maxAlive) for (const c of cohorts) if (c.id === e.id) kindAlive += c.n;
       const kindMax = e.maxAlive ? e.maxAlive + Math.floor((e.maxAlivePerHeat || 0) * H) : Infinity;
       if (alive() + pack > d0.maxAlive || (e.maxAlive && kindAlive + 1 > kindMax)) break;
       if (e.depthMin && zone.arena.depthShare && rng() > (zone.arena.depthShare[1] + zone.arena.depthShare[2]) / 100) { credit -= pack; continue; }
       spawnCohort(e, pack, U(rng, ...B.combat.spawnRing));
-      spawnedN += pack;
+      spawnedN += pack; aliveN += pack;
       credit -= pack;
     }
     // ---- formations
@@ -747,7 +774,7 @@ export function simulateNight(meta, run, sk, strat, rng) {
       else if (f.id === 'hush') { for (let i = 0; i < f.count.trios; i++) spawnCohort(e, 3, 24); hushT = f.duration; }
     }
     // ---- elites (Drowned Hand)
-    if (t >= eliteAt && !warden?.alive) {
+    if (t >= eliteAt && !warden?.alive && !(anch && B.combat.legendPausesElites)) {
       eliteAt = t + d0.eliteEvery;
       const pair = !!ENEMY.drowned_hand.zoneMods?.[zone.id]?.pair;
       for (let i = 0; i < (pair ? 2 : 1); i++) hands.push({ hp: enemyHp(ENEMY.drowned_hand), dmg: 0, phase: 'stain', timer: ENEMY.drowned_hand.telegraph.stain + i, slams: 0, age: 0, vuln: false, stagger: 0, flareTried: false });
@@ -755,7 +782,7 @@ export function simulateNight(meta, run, sk, strat, rng) {
     // ---- Warden
     if (t >= bossAt && !warden && !(fight && !fight.done && legSp.final)) {
       const we = ENEMY[d0.boss];
-      warden = { e: we, hp: enemyHp(we), dmg: 0, alive: true, age: 0, brood: 0, hitT: 0, p2: false };
+      warden = { e: we, hp: we.hp * (d0.bossHpMult ?? d0.hpMult), dmg: 0, alive: true, age: 0, brood: 0, hitT: 0, p2: false };
     }
     // ---- movement & behaviour
     for (const c of cohorts) {
@@ -863,7 +890,7 @@ export function simulateNight(meta, run, sk, strat, rng) {
           wTimers[id] = 0; break;
         }
         case 'motes': {
-          while (due(p.cooldown)) for (let i = 0; i < p.count; i++) single(p.damage * dm, p.range, lr, { chainN: p.pierce || 0, chainRange: 2 });
+          while (due(p.cooldown)) for (let i = 0; i < p.count; i++) if (rng() < PROJ_EFF) single(p.damage * dm, p.range, lr, { chainN: p.pierce || 0, chainRange: 2 });
           break;
         }
         case 'trail': {
@@ -874,7 +901,7 @@ export function simulateNight(meta, run, sk, strat, rng) {
           wTimers[id] = 0; break;
         }
         case 'hook': {
-          while (due(p.cooldown)) single(p.damage * dm, 16, lr, { chainN: p.bounces + (p.returns ? 1 : 0), chainRange: p.bounceRange });
+          while (due(p.cooldown)) if (rng() < PROJ_EFF) single(p.damage * dm, 16, lr, { chainN: p.bounces + (p.returns ? 1 : 0), chainRange: p.bounceRange });
           break;
         }
         case 'spark': {
@@ -958,7 +985,8 @@ export function simulateNight(meta, run, sk, strat, rng) {
     if (flareCd <= 0 && !dark && (run.oil >= st.flareCost || run.flareCharges > 0)) {
       let near = 0; for (const c of cohorts) if (c.dist <= st.flareRadius) near += c.n;
       const stain = hands.find((h) => h.phase === 'stain' && !h.flareTried);
-      let go = near >= sk.flareCrowd || latched.length >= 2 || (run.hp <= 2 && near >= 3);
+      const emergency = (run.hp <= 2 && near >= 3) || latched.length >= 3;
+      let go = emergency || ((near >= sk.flareCrowd || latched.length >= 2) && of >= sk.flareOilMin);
       if (stain) { stain.flareTried = true; if (rng() < sk.flareOnStain) go = true; }
       if (go) flare();
     }
@@ -1003,7 +1031,8 @@ export function simulateNight(meta, run, sk, strat, rng) {
       if (warden.dmg >= warden.hp) {
         warden.alive = false; warden.killedAt = t;
         run.stats.bossesSlain++; meta.totalBosses++; meta.wardensKilled[warden.e.id] = true;
-        run.heartwax++; statsDirty(); run.hp = Math.min(st.maxHp, run.hp + B.heal.heartwax);
+        if (!(B.heal.heartwaxOnce && run.wardensKilled[warden.e.id])) { run.heartwax++; statsDirty(); run.hp = Math.min(st.maxHp, run.hp + B.heal.heartwax); }
+        run.wardensKilled[warden.e.id] = true;
         run.oil = Math.min(st.maxOil, run.oil + B.combat.wardenOil);
         earnShells(run, warden.e.shells, 'warden');
         gainXp(warden.e.xp * xpScale * st.xpMult);
@@ -1028,7 +1057,7 @@ export function simulateNight(meta, run, sk, strat, rng) {
     // timers
     iframes -= dt; flareCd -= dt; flareBoost -= dt; dimSlick -= dt; dimSpore -= dt; hushT -= dt; spinHurt -= dt;
     // prune
-    if (cohorts.length > 40 && (t * 4) % 8 === 0) for (let i = cohorts.length - 1; i >= 0; i--) if (cohorts[i].n <= 0 && !cohorts[i].stolen) cohorts.splice(i, 1);
+    { let w = 0; aliveN = 0; for (let i = 0; i < cohorts.length; i++) { const c = cohorts[i]; if (c.n > 0) { cohorts[w++] = c; aliveN += c.n; } } cohorts.length = w; }
     t += dt;
   }
   // dawn: lying cinders from the last 20 s auto-collect; survivors dissolve; a living Warden withdraws
@@ -1036,7 +1065,7 @@ export function simulateNight(meta, run, sk, strat, rng) {
     let late = 0; for (const [tt, x] of recentLost) if (tt >= t - B.xp.cinderLife) late += x;
     gainXp(late);
   }
-  const nl = { contacts: contactsN, dodged: dodgedN, hitSrc, maxHp: st.maxHp, spawned: spawnedN, anch: anchT, day, zone: z, heat: H, kills: killsNight, emberLost, oilNet: run.oil - oilStart, xp: xpGained, level: run.level, boss: d0.boss, bossKilled: !!(warden && !warden.alive), bossKillTime: warden?.killedAt != null ? warden.killedAt - bossAt : null, dead: run.dead };
+  const nl = { wardenDps: warden ? warden.dmg / Math.max(1, warden.age) : null, wardenHp: warden?.hp, contacts: contactsN, dodged: dodgedN, hitSrc, maxHp: st.maxHp, spawned: spawnedN, anch: anchT, day, zone: z, heat: H, kills: killsNight, emberLost, oilNet: run.oil - oilStart, xp: xpGained, level: run.level, boss: d0.boss, bossKilled: !!(warden && !warden.alive), bossKillTime: warden?.killedAt != null ? warden.killedAt - bossAt : null, dead: run.dead };
   run.nightLog.push(nl);
   run.stats.slainNightMax = Math.max(run.stats.slainNightMax, killsNight);
   return nl;

@@ -95,7 +95,7 @@ export const BALANCE = {
   },
 
   // ---- Healing (DESIGN §6.5). Dawn: +stats.dawnHeal, +wellFed if satiety ≥ wellFedAt.
-  heal: { wellFed: 1, wellFedAt: 0.7, kindleHeal: 1, heartwax: 1 },
+  heal: { wellFed: 1, wellFedAt: 0.7, kindleHeal: 1, heartwax: 1, heartwaxOnce: true },   // heartwaxOnce: only the FIRST kill of each Warden per run grants Heartwax
 
   // ---- resource:low edges (fraction of max; hp in Embers) with re-arm hysteresis.
   low: { oil: 0.25, oilRearm: 0.35, satiety: 0.20, satietyRearm: 0.30, hp: 2 },
@@ -167,15 +167,17 @@ export const BALANCE = {
     dusk: { rateMult: 0.3, maxAlive: 6, kinds: ['gloomling', 'sporeling'] },
     night: { buildUntil: 0.12, buildMult: 0.5, crescendoFrom: 0.8, crescendoMult: 1.4, quietFrom: 0.93, swellPeriod: 20, swellAmp: 0.25 },
     director: {
-      heatPerZone: 3,           // Heat H = (day − 1) + 3 × zoneIndex
+      heatPerZone: 3,           // Heat H = (day − 1) + 3 × zoneIndex + linger
+      lingerFrom: 4, lingerHeat: 1,   // linger = +1 Heat for every night in the same lake beyond the 4th (anti-camping)
       baseRate: 0.75,           // spawnRate = baseRate × zone.gloom × (1 + ratePerHeat×H) × nightCurve(k)
       ratePerHeat: 0.12,
       maxAliveBase: 30, maxAlivePerHeat: 6, maxAliveCap: 150,
       hpLin: 0.20, hpQuad: 0.025,                 // hpMult = 1 + 0.20H + 0.025H²
+      bossHpLin: 0.3,                             // Wardens: hp = base × bossHpMult, bossHpMult = 1 + 0.3H (linear: kill time stays ≈ 45–65 s)
       speedPerHeat: 0.03, speedCap: 1.45,
-      damageStep: 8, damageStepAdd: 0.5,          // damageMult = 1 + 0.5 × floor(H/8)
+      damageStep: 12, damageStepAdd: 0.5,         // damageMult = 1 + 0.5 × floor(H/12)
       drainPerHeat: 0.04,                          // drainMult = 1 + 0.04H
-      eliteFromDay: 2, eliteBase: 42, elitePerHeat: 2, eliteMin: 15, eliteFirstAt: 0.25,
+      eliteFromDay: 2, eliteBase: 42, elitePerHeat: 2, eliteMin: 22, eliteFirstAt: 0.25,
       bossEvery: 3,             // Warden on nightInZone 3, 6, 9 …
       bossAt: 0.35,             // gloomtide k at which the Warden rises (3 s banner before)
       bossRateMult: 0.6,        // spawn rate × while a Warden lives; no formations, elites paused
@@ -183,6 +185,7 @@ export const BALANCE = {
     },
     reelingRateMult: 0.8,       // spawn rate × while a fish is hooked at night
     legendFightRateMult: 0.65,  // … while a legendary is hooked
+    legendPausesElites: true,   // no NEW elite hands rise while a legendary is hooked (its own summons still come)
     oilDrips: { every: 15, base: 3, perZone: 1.5 }, // the first kill after every 15 s of night drops an oil drip: 3 + 1.5z oil
     eliteOil: 15, wardenOil: 40,
     stragglers: { fromDay: 5, fromZone: 1, perCalm: 1, kind: 'creelsnatch', window: [0.3, 0.8] },   // calm raid
@@ -280,10 +283,11 @@ export const BALANCE = {
     baitMult: [1, 1.3, 1.6, 2.0],     // general baits only; legend baits fixed
     weightSkew: 1.6,                  // t = U^skew (heavy bait: skew / (1 + weightBias)); w = min + (max−min)·t
     sizeK: [0.75, 1.25],              // value/food/oil multiplier across t = 0..1
-    newSpeciesShells: 1.5,            // first catch ever: +round(1.5 × species.value) Shells
+    newSpeciesShells: 1.0,            // first catch ever: +round(1.0 × species.value) Shells (non-legendary only)
+    newSpeciesLegendary: false,       // legendaries pay no first-catch Shells (their sale already ≈ the next toll)
     mercy: { perRelease: 0.02, cap: 0.10 },   // release: +rarityBonus for the rest of the day
     streak: { perStep: 0.10, maxSteps: 5 },   // perfect-hook streak: value × (1 + 0.1 × min(streak, 5))
-    trophyMemories: [15, 30, 50, 0],  // legendary still in the creel at run end (Leviathan: victory instead)
+    trophyMemories: [10, 20, 35, 0],  // legendary still in the creel at run end (Leviathan: victory instead)
     legendTheftProof: true,
     burnFishTime: 0.8,                // Burn-a-fish quick action animation (s); does not pause
   },
@@ -299,6 +303,9 @@ export const BALANCE = {
 
   // ---- Journal rewards (DESIGN §16).
   journal: { halfZone: 4, newSpeciesMemories: 3, masteryAt: 10, masteryMemories: 2, halfZoneMemories: 10 },
+
+  // ---- Memories per run (DESIGN §17.1, memoriesFor). Challenge rewards are paid separately.
+  memories: { nightBase: 3, nightPerZone: 1.5, depth: [0, 15, 35, 60], fishPer: 2, legend: 15, slainPer: 25, elite: 2, warden: 15, victoryFirst: 150, victoryAfter: 100 },
 
   // ---- Descent Gate travel (DESIGN §14).
   travel: { phases: ['calm', 'dawn'], murkFollows: true, oneWay: true, descendTime: 2.5 },
@@ -376,8 +383,8 @@ export const ZONES = [
       spawn: { x: 0, z: 50, yaw: 0 },
       docks: [{ x: 20, z: 57 }, { x: 56, z: 18 }, { x: 52, z: -34 }, { x: -36, z: -50 }, { x: -57, z: 8 }],
     },
-    unlock: { shells: 120, requires: [{ type: 'legendary', id: 'belled_matriarch', label: 'Land the Belled Matriarch' }] },
-    drain: { oil: 1.2, satiety: 1.15 }, gloom: 1.13, valueMult: 1.8,
+    unlock: { shells: 180, requires: [{ type: 'legendary', id: 'belled_matriarch', label: 'Land the Belled Matriarch' }] },
+    drain: { oil: 1.2, satiety: 1.15 }, gloom: 1.13, valueMult: 1.5,
     legendary: 'drifting_grove', warden: 'the_veiled_gardener', gateName: 'The Mycelium Veil',
     palette: { fog: 0x2b1b30, fogDensity: 0.019, water: 0x2a1a2e, waterDeep: 0x0d0710, foam: 0xf3d3e0,
       glow: 0xffb46a, accent: 0xff7fb0, ambient: 0x5b3f63, ink: 0x0b060d, far: 0x80588a, light: 0xffd9c4 },
@@ -410,8 +417,8 @@ export const ZONES = [
       spawn: { x: 0, z: 58, yaw: 0 },
       docks: [{ x: 21.9, z: 60.1 }, { x: 64, z: -2.2 }, { x: 17.6, z: -61.5 }, { x: -53.1, z: -35.8 }, { x: -50.4, z: 39.4 }],
     },
-    unlock: { shells: 300, requires: [{ type: 'legendary', id: 'drifting_grove', label: 'Land the Drifting Grove' }] },
-    drain: { oil: 1.4, satiety: 1.3 }, gloom: 1.27, valueMult: 3.0,
+    unlock: { shells: 420, requires: [{ type: 'legendary', id: 'drifting_grove', label: 'Land the Drifting Grove' }] },
+    drain: { oil: 1.4, satiety: 1.3 }, gloom: 1.27, valueMult: 2.2,
     legendary: 'glass_sovereign', warden: 'the_shard_abbot', gateName: 'The Vault Seal',
     palette: { fog: 0x131a3c, fogDensity: 0.012, water: 0x131c3e, waterDeep: 0x04061a, foam: 0xc9e8ff,
       glow: 0x5ff2ff, accent: 0xb48cff, ambient: 0x2f3a78, ink: 0x03040e, far: 0x5062b0, light: 0xd8e8ff },
@@ -441,8 +448,8 @@ export const ZONES = [
       spawn: { x: 0, z: 66, yaw: 0 },
       docks: [{ x: 48, z: 56 }, { x: -48, z: 56 }, { x: 70, z: 20 }, { x: -70, z: 20 }],
     },
-    unlock: { shells: 650, requires: [{ type: 'legendary', id: 'glass_sovereign', label: 'Land the Glass Sovereign' }] },
-    drain: { oil: 1.65, satiety: 1.45 }, gloom: 1.4, valueMult: 4.5,
+    unlock: { shells: 900, requires: [{ type: 'legendary', id: 'glass_sovereign', label: 'Land the Glass Sovereign' }] },
+    drain: { oil: 1.65, satiety: 1.45 }, gloom: 1.4, valueMult: 3.0,
     legendary: 'pale_leviathan', warden: 'the_lightless_ferryman', gateName: null,
     palette: { fog: 0x1c1b18, fogDensity: 0.022, water: 0x14130f, waterDeep: 0x030302, foam: 0xe9e2cf,
       glow: 0xe8c66a, accent: 0xeae4d3, ambient: 0x3a3833, ink: 0x020202, far: 0xa8a18c, light: 0xf0dca0 },
@@ -709,7 +716,7 @@ export const SPECIES = [
   { id: 'pale_leviathan', name: 'The Pale Leviathan', zone: 'paleabyss', rarity: 'legendary', tier: 5, final: true,
     epithet: 'The Well Beneath the Kingdom',
     weight: [120, 300], value: 2500, food: 100, oil: 150, time: 'gloom', depth: [0.85, 1], bait: 'pale_marrow', behavior: 'sinker',
-    difficulty: { power: 2.5, surgeEvery: 6.2, surgeTime: 1.8, stamina: 38, sweet: 0.62, erratic: 0.55, window: 0.45 },  // hand-tuned
+    difficulty: { power: 2.5, surgeEvery: 6.2, surgeTime: 1.8, stamina: 44, sweet: 0.62, erratic: 0.55, window: 0.45 },  // hand-tuned
     boss: {
       enrage: 110,
       noSlackEscape: true,                 // phases I-III: slack makes it dive instead of escaping
@@ -773,7 +780,7 @@ export const UPGRADES = [
     effects: { hookWindow: 0.12, slackTime: 0.3 }, desc: 'Feels every twitch. More time to strike, more forgiveness on a slack line.' },
   { id: 'line_gut', name: 'Braided Gut Line', category: 'line', icon: 'line', maxLevel: 4, costs: [40, 110, 260, 520], zone: null,
     effects: { lineStrength: 0.15 }, desc: 'Twisted strands that take a surge without parting.' },
-  { id: 'line_silver', name: 'Silverthread', category: 'line', icon: 'line', maxLevel: 2, costs: [480, 800], zone: 'paleabyss',
+  { id: 'line_silver', name: 'Silverthread', category: 'line', icon: 'line', maxLevel: 2, costs: [480, 800], zone: 'glasswater',
     effects: { lineStrength: 0.25, slackTime: 0.2 }, desc: 'Spun from something that should not exist. Strong enough for the deepest thing.' },
   { id: 'reel_brass', name: 'Brass Spool Reel', category: 'reel', icon: 'reel', maxLevel: 4, costs: [50, 130, 280, 520], zone: null,
     effects: { reelSpeed: 0.15 }, desc: 'Gears from a drowned clock. Bring them in faster.' },
@@ -834,51 +841,51 @@ export const SUPPLIES = [
 // requires: meta thresholds that reveal it {bestDay, runs, deepestZone, bestLevel}.
 // =====================================================================================
 export const RELICS = [
-  { id: 'oilskin_flask', name: 'Cracked Oilskin', icon: 'oil', maxLevel: 3, costs: [25, 70, 160], effects: { maxOil: 15 }, unlock: null,
+  { id: 'oilskin_flask', name: 'Cracked Oilskin', icon: 'oil', maxLevel: 3, costs: [35, 95, 215], effects: { maxOil: 15 }, unlock: null,
     desc: 'It leaks, but only a little, and only when it is sad. +15 max oil.' },
-  { id: 'salt_glass_lens', name: 'Salt-Glass Lens', icon: 'lens', maxLevel: 3, costs: [40, 110, 240], effects: { lightRadius: 0.6, auraDps: 0.15 }, unlock: null,
+  { id: 'salt_glass_lens', name: 'Salt-Glass Lens', icon: 'lens', maxLevel: 3, costs: [55, 150, 325], effects: { lightRadius: 0.6, auraDps: 0.15 }, unlock: null,
     desc: 'Fitted to a lantern long since drowned. The light it bends still finds its way back. +0.6 m light, +0.15 burn.' },
-  { id: 'bent_tin_spoon', name: 'Bent Tin Spoon', icon: 'spoon', maxLevel: 3, costs: [25, 70, 160], effects: { maxSatiety: 15, satietyDrain: -0.006 }, unlock: null,
+  { id: 'bent_tin_spoon', name: 'Bent Tin Spoon', icon: 'spoon', maxLevel: 3, costs: [35, 95, 215], effects: { maxSatiety: 15, satietyDrain: -0.006 }, unlock: null,
     desc: 'Someone ate every meal with this, slowly, to make it last.' },
-  { id: 'mended_creel', name: 'Mended Creel', icon: 'creel', maxLevel: 2, costs: [35, 150], effects: { creelSize: 1 }, unlock: null,
+  { id: 'mended_creel', name: 'Mended Creel', icon: 'creel', maxLevel: 2, costs: [45, 200], effects: { creelSize: 1 }, unlock: null,
     desc: "Patched with reed, ribbon, and a lock of someone's hair. +1 creel slot." },
-  { id: 'old_debt', name: "Murk's Old Debt", icon: 'shell', maxLevel: 4, costs: [20, 50, 110, 220], effects: {}, special: 'startShells:30', unlock: null,
+  { id: 'old_debt', name: "Murk's Old Debt", icon: 'shell', maxLevel: 4, costs: [25, 70, 150, 295], effects: {}, special: 'startShells:30', unlock: null,
     desc: 'He owes you. He will not say for what. +30 starting Shells per level.' },
-  { id: 'heartwood_oar', name: 'Heartwood Oar', icon: 'oar', maxLevel: 3, costs: [30, 80, 180], effects: { moveSpeed: 0.3 }, unlock: null,
+  { id: 'heartwood_oar', name: 'Heartwood Oar', icon: 'oar', maxLevel: 3, costs: [40, 110, 245], effects: { moveSpeed: 0.3 }, unlock: null,
     desc: 'Carved from the last tree that grew in sunlight. It still leans toward it. +0.3 raft speed.' },
-  { id: 'seven_knots', name: 'Line of Seven Knots', icon: 'line', maxLevel: 3, costs: [30, 90, 200], effects: { lineStrength: 0.1 }, unlock: null,
+  { id: 'seven_knots', name: 'Line of Seven Knots', icon: 'line', maxLevel: 3, costs: [40, 120, 270], effects: { lineStrength: 0.1 }, unlock: null,
     desc: 'Each knot was tied by a different Wick. None have come undone.' },
-  { id: 'first_wick_stub', name: 'Stub of the First Wick', icon: 'ember', maxLevel: 2, costs: [90, 260], effects: { maxHp: 1 }, unlock: null, requires: { bestDay: 3 },
+  { id: 'first_wick_stub', name: 'Stub of the First Wick', icon: 'ember', maxLevel: 2, costs: [120, 350], effects: { maxHp: 1 }, unlock: null, requires: { bestDay: 3 },
     desc: 'Barely a thumb of wax. It remembers being tall. +1 Ember.' },
-  { id: 'two_headed_coin', name: 'Two-Headed Coin', icon: 'coin', maxLevel: 3, costs: [50, 140, 300], effects: { rarityBonus: 0.03, luck: 0.1 }, unlock: null, requires: { runs: 2 },
+  { id: 'two_headed_coin', name: 'Two-Headed Coin', icon: 'coin', maxLevel: 3, costs: [70, 190, 405], effects: { rarityBonus: 0.03, luck: 0.1 }, unlock: null, requires: { runs: 2 },
     desc: 'Lucky, they said. It came up heads every time. Even the last time.' },
-  { id: 'drifters_bundle', name: "Drifter's Bundle", icon: 'bundle', maxLevel: 2, costs: [40, 120], effects: {}, special: 'startKit', unlock: null, requires: { runs: 2 },
+  { id: 'drifters_bundle', name: "Drifter's Bundle", icon: 'bundle', maxLevel: 2, costs: [55, 160], effects: {}, special: 'startKit', unlock: null, requires: { runs: 2 },
     desc: "I: start with 8 Mire Worms and 3 Lumen Moss. II: also the starting zone's legend bait." },
-  { id: 'tinderbox', name: "Grandsire's Tinderbox", icon: 'xp', maxLevel: 3, costs: [35, 90, 200], effects: { xpMult: 0.05, pickupRadius: 0.5 }, unlock: null, requires: { bestLevel: 8 },
+  { id: 'tinderbox', name: "Grandsire's Tinderbox", icon: 'xp', maxLevel: 3, costs: [45, 120, 270], effects: { xpMult: 0.05, pickupRadius: 0.5 }, unlock: null, requires: { bestLevel: 8 },
     desc: 'Dry wood, flint, and the patience of someone long gone. +5% cinders, +0.5 m magnet.' },
-  { id: 'steady_hook', name: "Grandmother's Hook", icon: 'hook', maxLevel: 3, costs: [30, 90, 200], effects: { hookWindow: 0.08, sweetZone: 0.012 }, unlock: 'perfect_10_run',
+  { id: 'steady_hook', name: "Grandmother's Hook", icon: 'hook', maxLevel: 3, costs: [40, 120, 270], effects: { hookWindow: 0.08, sweetZone: 0.012 }, unlock: 'perfect_10_run',
     desc: 'Blunted with use. It still remembers exactly when to bite.' },
-  { id: 'barnacle_cloak', name: 'Barnacle Cloak', icon: 'ward', maxLevel: 3, costs: [60, 160, 340], effects: { armor: 0.05 }, unlock: 'untouched',
+  { id: 'barnacle_cloak', name: 'Barnacle Cloak', icon: 'ward', maxLevel: 3, costs: [80, 215, 460], effects: { armor: 0.05 }, unlock: 'untouched',
     desc: 'Heavy, wet, and very hard to bite through. +5% ward.' },
-  { id: 'ember_in_resin', name: 'Ember in Resin', icon: 'flare', maxLevel: 3, costs: [40, 110, 240], effects: { flareCooldown: -1.5, flareRadius: 0.5 }, unlock: 'bonfire_night',
+  { id: 'ember_in_resin', name: 'Ember in Resin', icon: 'flare', maxLevel: 3, costs: [55, 150, 325], effects: { flareCooldown: -1.5, flareRadius: 0.5 }, unlock: 'bonfire_night',
     desc: 'A spark from a flare that once saved someone. It is still warm.' },
-  { id: 'shimmer_scale', name: 'Shimmering Scale', icon: 'scale', maxLevel: 3, costs: [50, 140, 300], effects: { rarityBonus: 0.02 }, special: 'shimmer:0.04', unlock: 'shimmering',
+  { id: 'shimmer_scale', name: 'Shimmering Scale', icon: 'scale', maxLevel: 3, costs: [70, 190, 405], effects: { rarityBonus: 0.02 }, special: 'shimmer:0.04', unlock: 'shimmering',
     desc: 'It never stops catching light. Neither, now, will your catches.' },
-  { id: 'remembrance', name: 'Remembrance', icon: 'memory', maxLevel: 3, costs: [80, 200, 400], effects: {}, special: 'memMult:0.08', unlock: 'kindled',
+  { id: 'remembrance', name: 'Remembrance', icon: 'memory', maxLevel: 3, costs: [110, 270, 540], effects: {}, special: 'memMult:0.08', unlock: 'kindled',
     desc: 'The water remembers a little more of you each time. +8% Memories per level.' },
-  { id: 'listening_bobber', name: 'The Listening Bobber', icon: 'bobber', maxLevel: 1, costs: [120], effects: { nibbleTells: 1 }, unlock: 'catch_100',
+  { id: 'listening_bobber', name: 'The Listening Bobber', icon: 'bobber', maxLevel: 1, costs: [160], effects: { nibbleTells: 1 }, unlock: 'catch_100',
     desc: 'Painted with a small ear. It hears the difference between hunger and curiosity.' },
-  { id: 'torn_ledger', name: 'Torn Ledger Page', icon: 'ledger', maxLevel: 3, costs: [45, 120, 260], effects: { sellMult: 0.06 }, unlock: 'shells_1000_run',
+  { id: 'torn_ledger', name: 'Torn Ledger Page', icon: 'ledger', maxLevel: 3, costs: [60, 160, 350], effects: { sellMult: 0.06 }, unlock: 'shells_1000_run',
     desc: "A page from Old Murk's accounts. Your name is on it, crossed out, then written in again." },
-  { id: 'gamblers_wick', name: "Gambler's Wick", icon: 'reroll', maxLevel: 2, costs: [60, 180], effects: { rerolls: 1 }, unlock: 'kindle_one',
+  { id: 'gamblers_wick', name: "Gambler's Wick", icon: 'reroll', maxLevel: 2, costs: [80, 245], effects: { rerolls: 1 }, unlock: 'kindle_one',
     desc: 'Burns at both ends. One more chance to choose. +1 reroll per run.' },
-  { id: 'second_wick', name: 'Second Wick', icon: 'revive', maxLevel: 1, costs: [300], effects: {}, special: 'secondWick', unlock: 'into_the_vault',
+  { id: 'second_wick', name: 'Second Wick', icon: 'revive', maxLevel: 1, costs: [405], effects: {}, special: 'secondWick', unlock: 'into_the_vault',
     desc: 'Once per run, a killing blow leaves you at 1 Ember with 40 oil and a free flare.' },
-  { id: 'waystone_sporewood', name: 'Waystone: Sporewood', icon: 'waystone', maxLevel: 1, costs: [120], effects: {}, special: 'waystone:sporewood', unlock: null, requires: { deepestZone: 1 },
+  { id: 'waystone_sporewood', name: 'Waystone: Sporewood', icon: 'waystone', maxLevel: 1, costs: [160], effects: {}, special: 'waystone:sporewood', unlock: null, requires: { deepestZone: 1 },
     desc: 'Charcoal pressed against a mossy stone. Begin a descent in Sporewood Pools with 160 Shells and 9 banked levels.' },
-  { id: 'waystone_glasswater', name: 'Waystone: Glasswater', icon: 'waystone', maxLevel: 1, costs: [260], effects: {}, special: 'waystone:glasswater', unlock: null, requires: { deepestZone: 2 },
+  { id: 'waystone_glasswater', name: 'Waystone: Glasswater', icon: 'waystone', maxLevel: 1, costs: [350], effects: {}, special: 'waystone:glasswater', unlock: null, requires: { deepestZone: 2 },
     desc: 'A rubbing of a cold, clear stone. Begin in the Glasswater Vault with 450 Shells and 18 banked levels.' },
-  { id: 'waystone_paleabyss', name: 'Waystone: Pallid Deep', icon: 'waystone', maxLevel: 1, costs: [450], effects: {}, special: 'waystone:paleabyss', unlock: null, requires: { deepestZone: 3 },
+  { id: 'waystone_paleabyss', name: 'Waystone: Pallid Deep', icon: 'waystone', maxLevel: 1, costs: [610], effects: {}, special: 'waystone:paleabyss', unlock: null, requires: { deepestZone: 3 },
     desc: 'A stone no Wick should have reached. It still points down. Begin in the Pallid Deep with 950 Shells and 28 banked levels.' },
 ];
 
@@ -925,9 +932,9 @@ export const ENEMIES = [
     tint: 0x1a0d1c, eyeColor: 0xffb46a, scale: 1,
     desc: 'Three puffball gloomlings that circle outside your light, then dive one by one. A popped one hurts its kin.',
     lore: 'They circle three times, the old way, before they come to pay respects.' },
-  { id: 'weeping_inkwell', name: 'Weeping Inkwell', model: 'wisp', zoneMin: 0, dayMin: 6, hp: 14, speed: 1.8, damage: 0, oilDrain: 0, xp: 4,
-    behavior: 'artillery', pack: 1, weights: [1.5, 2.5, 2.5, 2], flies: true, maxAlive: 3, maxAlivePerHeat: 0.167, auraTaken: 1,
-    artillery: { hold: [13, 18], every: 4.0, flight: 1.2, lead: 0.6, ringRadius: 2.4, damage: 1, slick: { radius: 2.4, time: 6, speedMult: 0.6, lightMult: 0.8 } },
+  { id: 'weeping_inkwell', name: 'Weeping Inkwell', model: 'wisp', zoneMin: 0, dayMin: 6, hp: 11, speed: 1.8, damage: 0, oilDrain: 0, xp: 4,
+    behavior: 'artillery', pack: 1, weights: [1.5, 2.5, 2.5, 2], flies: true, maxAlive: 3, maxAlivePerHeat: 0.125, auraTaken: 1,
+    artillery: { hold: [13, 18], every: 5.0, flight: 1.2, lead: 0.6, ringRadius: 2.4, damage: 1, slick: { radius: 2.4, time: 6, speedMult: 0.6, lightMult: 0.8 } },
     tint: 0x07080d, eyeColor: 0xe8f1f2, scale: 1.5,
     desc: 'A bowed figure with a swollen ink-sac. It keeps its distance and lobs ink: a dark ring marks where it lands.',
     lore: 'It never comes close. It only grieves at you from the dark, and its grief has weight.' },
@@ -959,7 +966,7 @@ export const ENEMIES = [
     lore: 'It reaches for the surface the way it reached for the lantern, the night everything fell.' },
 
   // ---------------------------------------------------------------- Wardens (boss nights)
-  { id: 'the_wickeater', name: 'The Wickeater', model: 'warden', zoneMin: 0, dayMin: 1, hp: 1200, speed: 1.5, damage: 2, oilDrain: 20, xp: 60,
+  { id: 'the_wickeater', name: 'The Wickeater', model: 'warden', zoneMin: 0, dayMin: 1, hp: 1000, speed: 1.5, damage: 1, oilDrain: 20, xp: 60,
     behavior: 'warden', boss: true, zone: 'mossmere', shells: 40, weights: [0, 0, 0, 0], auraTaken: 1,
     abilities: [
       { id: 'inhale', every: 9, telegraph: 1.5, radius: 10, pull: 3.5, duration: 2, maw: 2.5, mawDamage: 2, mawOil: 25 },
@@ -969,7 +976,7 @@ export const ENEMIES = [
     tint: 0x050c0d, eyeColor: 0x6ff5c8, scale: 1,
     desc: 'A colossal hooded gloom with a hollow, teal-lit maw and candle stubs in its hem like teeth. It inhales.',
     lore: 'It has eaten a thousand little flames. It remembers none of their names and all of their warmth.' },
-  { id: 'the_veiled_gardener', name: 'The Veiled Gardener', model: 'warden', zoneMin: 1, dayMin: 1, hp: 1500, speed: 1.5, damage: 2, oilDrain: 20, xp: 90,
+  { id: 'the_veiled_gardener', name: 'The Veiled Gardener', model: 'warden', zoneMin: 1, dayMin: 1, hp: 1100, speed: 1.5, damage: 2, oilDrain: 20, xp: 90,
     behavior: 'warden', boss: true, zone: 'sporewood', shells: 80, weights: [0, 0, 0, 0], auraTaken: 1,
     abilities: [
       { id: 'veil', every: 10, telegraph: 1.2, radius: 6, duration: 4, lightMult: 0.6, auraMult: 0.6 },
@@ -980,7 +987,7 @@ export const ENEMIES = [
     tint: 0x0b060d, eyeColor: 0xffb46a, scale: 1.1,
     desc: 'A towering figure draped in plum veils of mould, an amber glow where a face should be. It charges along a glowing line.',
     lore: 'It still walks the garden paths, carrying flowers that have become something else.' },
-  { id: 'the_shard_abbot', name: 'The Shard Abbot', model: 'warden', zoneMin: 2, dayMin: 1, hp: 1500, speed: 1.6, damage: 2, oilDrain: 25, xp: 130,
+  { id: 'the_shard_abbot', name: 'The Shard Abbot', model: 'warden', zoneMin: 2, dayMin: 1, hp: 1200, speed: 1.6, damage: 2, oilDrain: 25, xp: 130,
     behavior: 'warden', boss: true, zone: 'glasswater', shells: 140, weights: [0, 0, 0, 0], auraTaken: 1,
     abilities: [
       { id: 'hymnRing', every: 8, telegraph: 1.0, count: 12, gaps: 2, speed: 7, damage: 1 },
@@ -990,7 +997,7 @@ export const ENEMIES = [
     tint: 0x03040e, eyeColor: 0x5ff2ff, scale: 1.2,
     desc: 'Robed in shelved crystal like a walking library. It rings out expanding hymns of glass with gaps to slip through.',
     lore: 'It catalogued every light the kingdom kept. You are an omission it means to correct.' },
-  { id: 'the_lightless_ferryman', name: 'The Lightless Ferryman', model: 'warden', zoneMin: 3, dayMin: 1, hp: 1600, speed: 1.7, damage: 2, oilDrain: 30, xp: 200,
+  { id: 'the_lightless_ferryman', name: 'The Lightless Ferryman', model: 'warden', zoneMin: 3, dayMin: 1, hp: 1400, speed: 1.7, damage: 2, oilDrain: 30, xp: 200,
     behavior: 'warden', boss: true, zone: 'paleabyss', shells: 220, weights: [0, 0, 0, 0], auraTaken: 1,
     abilities: [
       { id: 'poleSweep', every: 7, telegraph: 1.0, arcDeg: 120, length: 10, damage: 2 },
@@ -1522,9 +1529,16 @@ export function gloomtideLength(day = 1) {
   return Math.min(BALANCE.gloomMax, BALANCE.phases.gloomtide + BALANCE.gloomGrowth * (Math.max(1, day | 0) - 1));
 }
 
-/** Gloom Heat: the single night-scaling axis. H = (day − 1) + 3 × zoneIndex. */
-export function heatFor(day = 1, zoneIndex = 0) {
-  return (Math.max(1, day | 0) - 1) + BALANCE.combat.director.heatPerZone * zoneIdx(zoneIndex);
+/**
+ * Gloom Heat: the single night-scaling axis. H = (day − 1) + 3 × zoneIndex + linger, where
+ * linger = lingerHeat × max(0, nightInZone − lingerFrom). nightInZone = Gloomtides since the last
+ * zone:change (1-based, tonight included); when omitted it is assumed on-pace (= day in the first
+ * lake, 0 deeper), so callers that track it should pass it.
+ */
+export function heatFor(day = 1, zoneIndex = 0, nightInZone = null) {
+  const D = BALANCE.combat.director, z = zoneIdx(zoneIndex), dayN = Math.max(1, day | 0);
+  const niz = nightInZone ?? (z === 0 ? dayN : 0);
+  return (dayN - 1) + D.heatPerZone * z + D.lingerHeat * Math.max(0, niz - D.lingerFrom);
 }
 
 /** Night intensity over gloomtide progress k (build-up, 20 s swell, crescendo, hush). t = seconds in. */
@@ -1555,7 +1569,7 @@ export function difficultyFor(day = 1, zoneIndex = 0, k = 0.5, opts = {}) {
   const D = BALANCE.combat.director;
   const z = zoneIdx(zoneIndex);
   const dayN = Math.max(1, day | 0);
-  const H = heatFor(dayN, z);
+  const H = heatFor(dayN, z, (opts && opts.nightInZone) || null);
   const L = gloomtideLength(dayN);
   const kk = clamp01(k ?? 0.5);
   const spawnRate = +(D.baseRate * ZONES[z].gloom * (1 + D.ratePerHeat * H) * nightCurve(kk, kk * L)).toFixed(3);
@@ -1578,7 +1592,7 @@ export function difficultyFor(day = 1, zoneIndex = 0, k = 0.5, opts = {}) {
   const boss = niz % D.bossEvery === 0 ? (ZONES[z].warden || null) : null;
   return {
     spawnRate, maxAlive, hpMult, speedMult, damageMult, drainMult, kinds, eliteEvery, boss,
-    elites, heat: H, xpScale: +(1 + BALANCE.xp.heatScale * H).toFixed(3),
+    elites, heat: H, xpScale: +(1 + BALANCE.xp.heatScale * H).toFixed(3), bossHpMult: +(1 + D.bossHpLin * H).toFixed(3),
     formationAt: dayN >= D.formationsFromDay ? D.formationAt.slice() : [], bossAt: D.bossAt, eliteFirstAt: D.eliteFirstAt,
     gloomtide: L, day: dayN, zoneIndex: z, k: kk,
   };
@@ -1611,21 +1625,22 @@ export function memoriesFor(summary = {}) {
   const nights = Math.max(0, s.nightsSurvived ?? (day - 1));
   const endured = s.deepestEnduredIndex ?? (nights > 0 ? zi : -1);
   const L = TEXT.memoryLabels;
+  const M = BALANCE.memories;
   const rows = [
-    { label: L.nights, value: Math.round(nights * (3 + 1.5 * zi)) },
-    { label: L.depth, value: endured >= 0 ? [0, 15, 35, 60][Math.min(3, endured)] : 0 },
-    { label: L.fish, value: Math.floor((s.fishCaught || 0) / 2) },
+    { label: L.nights, value: Math.round(nights * (M.nightBase + M.nightPerZone * zi)) },
+    { label: L.depth, value: endured >= 0 ? M.depth[Math.min(3, endured)] : 0 },
+    { label: L.fish, value: Math.floor((s.fishCaught || 0) / M.fishPer) },
     { label: L.species, value: BALANCE.journal.newSpeciesMemories * (s.newSpecies || 0) },
-    { label: L.legendaries, value: 20 * countOf(s.legendaries) },
+    { label: L.legendaries, value: M.legend * countOf(s.legendaries) },
     { label: L.bounties, value: BALANCE.bounty.memoriesEach * countOf(s.bountiesDone) },
-    { label: L.enemies, value: Math.floor((s.enemiesSlain || 0) / 25) },
-    { label: L.elites, value: 2 * (s.elitesSlain || 0) },
-    { label: L.wardens, value: 15 * (s.bossesSlain || 0) },
+    { label: L.enemies, value: Math.floor((s.enemiesSlain || 0) / M.slainPer) },
+    { label: L.elites, value: M.elite * (s.elitesSlain || 0) },
+    { label: L.wardens, value: M.warden * (s.bossesSlain || 0) },
   ];
   if (Array.isArray(s.trophies) && s.trophies.length) {
     rows.push({ label: L.trophies, value: s.trophies.reduce((a, t) => a + (BALANCE.economy.trophyMemories[t | 0] || 0), 0) });
   }
-  if (s.victory) rows.push({ label: L.victory, value: s.firstVictory === false ? 100 : 150 });
+  if (s.victory) rows.push({ label: L.victory, value: s.firstVictory === false ? M.victoryAfter : M.victoryFirst });
   let subtotal = rows.reduce((a, r) => a + r.value, 0);
   if (s.memMult > 0) {
     const extra = Math.round(subtotal * s.memMult);

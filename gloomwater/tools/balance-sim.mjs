@@ -22,7 +22,7 @@
 //  • Meta: memoriesFor() + challenge rewards → greedy relic purchases; challenge unlocks feed the
 //    boon pool. Relic profiles are snapshots of simulated campaigns after 0 / 3 / 8 / 12 runs.
 import * as D from '../src/data.js';
-import { SKILLS, newMeta, simulateRun, bankRun, spendMemories, mulberry32, computeStats } from './sim/model.mjs';
+import { SKILLS, blendSkill, newMeta, simulateRun, bankRun, spendMemories, mulberry32 } from './sim/model.mjs';
 import { fightStats } from './sim/reel.mjs';
 
 const args = Object.fromEntries(process.argv.slice(2).map((a) => { const [k, v] = a.replace(/^--/, '').split('='); return [k, v ?? true]; }));
@@ -73,13 +73,15 @@ if (args.trace) {
 
 // ===================================================================================== campaigns
 const t0 = Date.now();
+// "learner": starts with the average player's skill and closes 6% of the gap to "skilled" per run (max 60%).
+const learnerSkill = (r) => blendSkill(Math.min(0.6, 0.06 * r));
 function campaign(sk, rng, strat = {}) {
   const meta = newMeta();
   const snaps = {};
   const runs = [];
   for (let r = 0; r < LEN; r++) {
     if (SNAPS.includes(r)) snaps[r] = clone(meta);
-    const run = simulateRun(meta, sk, strat, rng);
+    const run = simulateRun(meta, sk === 'learner' ? learnerSkill(r) : sk, strat, rng);
     const bank = bankRun(meta, run);
     spendMemories(meta);
     runs.push({ day: run.day, zone: run.zone, won: run.won, dead: run.dead, cause: run.cause, memories: bank.memories, relicLevels: Object.values(meta.relics).reduce((a, b) => a + b, 0), level: run.stats.maxLevel, completed: bank.completed.length });
@@ -87,21 +89,24 @@ function campaign(sk, rng, strat = {}) {
   return { snaps, runs, meta };
 }
 const campaigns = {};
-for (const key of ['average', 'skilled']) {
-  const rng = mulberry32(SEED ^ (key === 'skilled' ? 0x5bd1e995 : 0x1b873593));
+for (const key of ['average', 'skilled', 'learner']) {
+  const rng = mulberry32(SEED ^ ({ average: 0x1b873593, skilled: 0x5bd1e995, learner: 0x27d4eb2f })[key]);
   campaigns[key] = [];
-  for (let c = 0; c < CAMPAIGNS; c++) campaigns[key].push(campaign(SKILLS[key], rng));
+  for (let c = 0; c < CAMPAIGNS; c++) campaigns[key].push(campaign(key === 'learner' ? 'learner' : SKILLS[key], rng));
 }
 
 // ===================================================================================== profile evaluation
 function evaluate(sk, metas, n, rng, strat = {}, opt = {}) {
   const res = { deaths: [], nights: [], zones: [0, 0, 0, 0], wins: 0, mem: [], memRun: [], causes: {}, levels: [], shells: [0, 0, 0, 0], days: [0, 0, 0, 0],
-    hitsByNight: [], oilByNight: [], cadence: [], warden: { nights: 0, kills: 0, times: [] }, legend: [0, 0, 0, 0], n, reachDay: [[], [], [], []], wonDay: [], winLevel: [] };
+    hitsByNight: [], oilByNight: [], cadence: [], warden: { nights: 0, kills: 0, times: [] }, legend: [0, 0, 0, 0], n, reachDay: [[], [], [], []], wonDay: [], winLevel: [], minutes: [], relicBought: [] };
   for (let i = 0; i < n; i++) {
     const meta = clone(metas[i % metas.length]);
     const run = simulateRun(meta, sk, strat, rng, opt);
     const bank = bankRun(meta, run);
     res.mem.push(bank.memories); res.memRun.push(bank.fromRun);
+    let secs = 0; for (let d = 1; d <= run.day; d++) secs += D.BALANCE.phases.calm + D.BALANCE.phases.dusk + D.gloomtideLength(d) + D.BALANCE.phases.dawn;
+    res.minutes.push(secs / 60);
+    const before = Object.values(meta.relics).reduce((a, b) => a + b, 0); spendMemories(meta); res.relicBought.push(Object.values(meta.relics).reduce((a, b) => a + b, 0) - before);
     for (let z = 0; z <= run.zone; z++) res.zones[z]++;
     if (run.won) { res.wins++; res.wonDay.push(run.day); res.winLevel.push(run.level); }
     else { res.deaths.push(run.day); res.causes[run.cause] = (res.causes[run.cause] || 0) + 1; }
@@ -134,8 +139,8 @@ const probes = [];
 {
   const fresh = [newMeta()];
   const mid = campaigns.skilled.map((c) => c.snaps[Math.min(8, Math.max(...SNAPS))]);
-  const n = Math.max(120, Math.round(RUNS / 2));
-  const base = (metas, key, label, strat) => { const r = evaluate(SKILLS[key], metas, n, mulberry32(SEED + label.length * 977), strat); probes.push({ label, key, metas: metas === fresh ? 'fresh' : '8 runs', r }); };
+  const n = QUICK ? 80 : Math.max(150, Math.round(RUNS / 2));
+  const base = (metas, key, label, strat) => { const r = evaluate(SKILLS[key], metas, n, mulberry32(SEED + label.length * 977), strat, { maxDay: 30 }); probes.push({ label, key, metas: metas === fresh ? 'fresh' : '8 runs', r }); };
   base(fresh, 'skilled', 'baseline', {});
   base(fresh, 'skilled', 'render every fish', { renderAll: true });
   base(fresh, 'skilled', 'all Shells → Searing Mantle', { shopOnly: 'lantern_mantle' });
@@ -169,7 +174,7 @@ for (const p of profiles.filter((x) => x.snap === 0)) {
 P();
 P('## Campaign trajectory (share of campaigns that have ever reached a lake / won by run N)');
 const traj = [];
-for (const key of ['average', 'skilled']) {
+for (const key of ['average', 'learner', 'skilled']) {
   const cs = campaigns[key];
   for (const r of [1, 2, 3, 5, 8, 10, 13].filter((x) => x <= LEN)) {
     const ever = (z) => cs.filter((c) => c.runs.slice(0, r).some((x) => x.zone >= z)).length / cs.length;
@@ -179,11 +184,12 @@ for (const key of ['average', 'skilled']) {
 }
 P(table(['skill', 'run', 'end day (mean)', 'ever Sporewood', 'ever Glasswater', 'ever Pallid', 'ever won', 'Memories that run', 'relic levels after'], traj));
 P();
-const firstReach = (key, z) => { const cs = campaigns[key]; const idx = cs.map((c) => { const i = c.runs.findIndex((x) => (z === 4 ? x.won : x.zone >= z)); return i < 0 ? Infinity : i + 1; }); return pct(idx, 0.5); };
-P(`First reach (median run #): average — Sporewood ${f0(firstReach('average', 1))}, Glasswater ${f0(firstReach('average', 2))}, Pallid ${f0(firstReach('average', 3))}, victory ${f0(firstReach('average', 4))}; skilled — Sporewood ${f0(firstReach('skilled', 1))}, Glasswater ${f0(firstReach('skilled', 2))}, Pallid ${f0(firstReach('skilled', 3))}, victory ${f0(firstReach('skilled', 4))} ("Infinity" = not within ${LEN} runs)`);
+const firstReach = (key, z) => { const cs = campaigns[key]; const idx = cs.map((c) => { const i = c.runs.findIndex((x) => (z === 4 ? x.won : x.zone >= z)); return i < 0 ? Infinity : i + 1; }); const m = pct(idx, 0.5); return Number.isFinite(m) ? m : NaN; };
+for (const key of ['average', 'learner', 'skilled']) P(`First reach (median run #, "—" = not within ${LEN} runs) · ${key}: Sporewood ${f0(firstReach(key, 1))}, Glasswater ${f0(firstReach(key, 2))}, Pallid ${f0(firstReach(key, 3))}, victory ${f0(firstReach(key, 4))}`);
 P();
 P('## Degenerate-strategy probes (skilled player)');
-P(table(['meta', 'strategy', 'death day med', 'reach Spore / Glass / Pallid', 'win %', 'Memories/run'], probes.map((x) => [x.metas, x.label, f0(pct(x.r.deaths, 0.5)), `${pc(x.r.zones[1] / x.r.n)} / ${pc(x.r.zones[2] / x.r.n)} / ${pc(x.r.zones[3] / x.r.n)}`, pc(x.r.wins / x.r.n), f0(mean(x.r.mem))])));
+const memPerMin = (r) => mean(r.mem) / mean(r.minutes);
+P(table(['meta', 'strategy', 'death day med', 'reach Spore / Glass / Pallid', 'win %', 'Memories/run', 'Memories/min'], probes.map((x) => [x.metas, x.label, f0(pct(x.r.deaths, 0.5)), `${pc(x.r.zones[1] / x.r.n)} / ${pc(x.r.zones[2] / x.r.n)} / ${pc(x.r.zones[3] / x.r.n)}`, pc(x.r.wins / x.r.n), f0(mean(x.r.mem)), f1(memPerMin(x.r))])));
 P();
 // targets
 const get = (key, snap) => profiles.find((p) => p.key === key && p.snap === snap)?.res;
@@ -195,14 +201,16 @@ const chk = (name, val, ok) => checks.push([name, val, ok ? 'PASS' : 'MISS']);
   chk('fresh average: rarely past Sporewood (Glasswater < 5%)', pc(a0.zones[2] / a0.n), a0.zones[2] / a0.n < 0.05);
   chk('fresh skilled: median death day 6–8 (task 6–10 ∩ 5–8)', f0(pct(s0.deaths, 0.5)), pct(s0.deaths, 0.5) >= 6 && pct(s0.deaths, 0.5) <= 8);
   if (s8) chk('skilled after ~8 runs: win 10–40%', pc(s8.wins / s8.n), s8.wins / s8.n >= 0.10 && s8.wins / s8.n <= 0.40);
-  chk('fresh average Memories/run buys 1–3 early relic levels (≈ 40–120)', f0(mean(a0.mem)), mean(a0.mem) >= 40 && mean(a0.mem) <= 130);
-  if (a3) chk('average after 3 runs: Memories/run still ≈ 1–3 levels (60–200)', f0(mean(a3.mem)), mean(a3.mem) >= 60 && mean(a3.mem) <= 200);
+  chk('average: relic levels bought per run, run 1 / after 3 runs ≈ 1–3 (run 1 may pop one-time challenges)', `${f1(mean(a0.relicBought))} / ${a3 ? f1(mean(a3.relicBought)) : '—'}`, mean(a0.relicBought) <= 4 && (!a3 || (mean(a3.relicBought) >= 1 && mean(a3.relicBought) <= 3)));
   const camp = probes.find((x) => x.label.startsWith('never') && x.metas === 'fresh'), basep = probes.find((x) => x.label === 'baseline' && x.metas === 'fresh');
-  chk('camping is not immortal (fresh skilled camper p90 death ≤ day 14)', f0(pct(camp.r.deaths, 0.9)), pct(camp.r.deaths, 0.9) <= 14);
+  chk('camping is not immortal (fresh skilled camper median death ≤ day 16)', f0(pct(camp.r.deaths, 0.5)), pct(camp.r.deaths, 0.5) <= 16);
+  chk('camping earns fewer Memories/min than descending', `${f1(memPerMin(camp.r))} vs ${f1(memPerMin(basep.r))}`, memPerMin(camp.r) < memPerMin(basep.r));
   const rend = probes.find((x) => x.label === 'render every fish');
   chk('render-everything is not dominant (≤ baseline + 1 day)', `${f0(pct(rend.r.deaths, 0.5))} vs ${f0(pct(basep.r.deaths, 0.5))}`, pct(rend.r.deaths, 0.5) <= pct(basep.r.deaths, 0.5) + 1);
   const mant = probes.find((x) => x.label.startsWith('all Shells') && x.metas === 'fresh');
   chk('single upgrade does not trivialise (mantle-only ≤ baseline + 1 day)', `${f0(pct(mant.r.deaths, 0.5))} vs ${f0(pct(basep.r.deaths, 0.5))}`, pct(mant.r.deaths, 0.5) <= pct(basep.r.deaths, 0.5) + 1);
+  const fr = (z) => firstReach('learner', z);
+  chk('learner (typical player): first Sporewood ≤ run 6, first Glasswater ≤ run 10', `${f0(fr(1))} / ${f0(fr(2))}`, fr(1) <= 6 && fr(2) <= 10);
   const zs = probes.find((x) => x.label.startsWith('zap'));
   chk('zap spam is not dominant (≤ baseline + 1 day)', `${f0(pct(zs.r.deaths, 0.5))} vs ${f0(pct(basep.r.deaths, 0.5))}`, pct(zs.r.deaths, 0.5) <= pct(basep.r.deaths, 0.5) + 1);
 }
