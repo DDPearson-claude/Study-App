@@ -269,10 +269,18 @@ cheaper bloom. Auto quality: mobile→low/medium; drop a tier if fps < 40 sustai
 mesh; getHeight(x, z) -> y; addRipple(x, z, strength=1); splash(x, z, {size, color, count})
 addWake(x, z, dirX, dirZ, strength)      // V-wake / foam streak behind the moving raft
 setPalette({deep, shallow, foam, glow, fogColor}); setLights([{position, color, intensity}]) // ≤6
+setSky({stars, density, color, nebula, nebulaVeil, nebulaK, neb1, neb2, band})   // extra: starlight
 ```
-`setLights` entries may also carry `radius` (lit pool, m; else `distance`), `streak`, `ring` (0..1 reach
-ring); world passes the lantern with `radius = survival.lightRadius, ring: 0.5`. The shore foam
-follows `world.getShoreRadius(angle)` when world provides it.
+`setLights` entries may also carry `radius` (lit pool, m; else `distance`) and `streak`; world passes
+the lantern with `radius = survival.lightRadius`. A light's pool fades out softly at its reach: **no
+light ever draws a reach ring on the water** (a legacy `ring` field is accepted and ignored; DESIGN
+§19.1). `setSky` (world calls it with the vault dome's values, DESIGN §19.1 Starlight): `stars`
+brightness (0 = off), `density` star-count multiplier, `color` base star colour, `nebula` / `nebulaVeil`
+colours and `nebulaK` strength, `neb1` / `neb2` Vector4 (unit direction xyz, strength w), `band`
+Vector3 normal of the milky-way great circle; the water mirrors those stars and nebulae (round,
+nudged and broken up by the ripples, faded under light pools, behind mirrored silhouettes and in
+foam). Brightness eases; directions snap. The shore foam follows `world.getShoreRadius(angle)` when
+world provides it.
 Water must cover the whole arena (follow the camera/player or be large); getHeight
 must match the shader's displacement. Stylised: ink-dark water, banded fresnel toward
 fog colour, painterly streak reflections of lights, caustic shimmer, ≥24 ripple rings,
@@ -509,10 +517,16 @@ export const ZONES = [{ id, name, subtitle, index, arena:{radius, islands, pilla
   unlock:{shells, requires:[...]}, drain:{oil, satiety}, gloom, valueMult,
   palette:{fog, fogDensity, water, waterDeep, foam, glow, accent, ambient, ink, far, light, lamp?},
   grade:{exposure, bloomStrength, bloomRadius, bloomThreshold, tint, tintAmount, vignette, saturation, grain}, description }]
-// palette.lamp (optional, falls back to glow): the cold light of island lamps, dock/decor buoys,
-// statue orbs and the rings' lit windows (world-art) and the dock halos (world). Keep it cold
-// (Mossmere #c8d2f0) so no lamp competes with the Wick's lantern or the Cinders. UI may read it
-// as --zone-lamp.
+// palette.lamp (optional, falls back to glow): the cold light of lamps ON THE WATER: dock/decor
+// buoys and the dock halos (world). Keep it cold (Mossmere #aeb2f0) so nothing at water level
+// competes with the Wick's lantern, its pool or the Cinders. UI may read it as --zone-lamp.
+// palette.candle (optional, falls back to lamp): the warm amber pinpoints ON STONE: the parallax
+// rings' lit windows, hero-landmark windows and braziers, island lamp heads, statue orbs and
+// candles on ruins (world-art); their accent lights lean pale gold (candle mixed 35% toward light).
+// palette.nebula (optional, default #d296ae): the vault's nebula glow, its haze on the far rings
+// and its reflection in the water. palette.stars (optional, 0–3, default 1): starlight brightness
+// and density (vault dome + water reflection; world brightens it toward night, fades it at dawn).
+// No palette colour may sit in the green/teal band, hue 65–195° (validate-data enforces it).
 export const SPECIES = [{ id, name, zone, rarity:'common'|'uncommon'|'rare'|'legendary',
   weight:[min,max], value, food, oil, time:'any'|'calm'|'gloom', depth:[min,max] /*0..1*/,
   bait:null|baitId, difficulty:{power, surgeEvery, surgeTime, stamina, sweet, erratic, window},
@@ -581,13 +595,16 @@ violent surges), leaper (surges = leaps; slack risk).
   + `toon.addOutline`); minimal faces — glowing eyes.
 - **Layered depth:** 4–6 parallax silhouette rings of cavern architecture fading from
   ink-dark to luminous mist in the zone's fog colour.
-- **Limited palettes:** Mossmere moonlit slate + silver with a lilac-silver accent; Sporewood Pools dusky plum +
-  amber/pink spores; Glasswater Vault saturated indigo + ice-blue/violet crystals; Pale Abyss
-  near-black + bone-white + sickly gold. **Palette rule:** green/teal (hue 65–195°) only as rare
-  trace accents (Murk's sage lamp); glows stay at hue ≥ 200° (DESIGN §19.1).
-- **Light is life:** the warm amber lantern is the only warm light in a cold world.
-  Bloom on glows, drifting motes, light shafts, vignette, fine grain. The swarm reads
-  as ink against the lantern's warm pool.
+- **Limited palettes ("Starlit", DESIGN §19):** every cave vault is a starry indigo night sky that
+  the water mirrors. The Mossmere deep indigo + lavender mist + pale stone + candle amber; Sporewood
+  Pools violet-magenta + autumn-ochre caps + gold spores + nebula pink; Glasswater Vault sapphire
+  indigo + lavender crystal, the most starlight; The Pallid Deep near-black violet + bone-pale stone +
+  amber candles. **Palette rule:** green/teal (hue 65–195°) only as a rare trace accent (Murk's sage
+  lamp); glows stay at hue ≥ 200° or in the amber/gold band (DESIGN §19.1).
+- **Light is life:** the warm amber lantern is the only warm light that lights the water; candle
+  amber elsewhere stays as small pinpoints on stone (windows, candles, braziers). Its pool is a soft
+  wash that fades out at the reach: never a ring. Bloom on glows, drifting motes, light shafts,
+  vignette, fine grain. The swarm reads as ink against the lantern's warm pool.
 - **UI:** thin ornate bone-white linework, serif type (Cinzel / Cormorant Garamond,
   Georgia fallback), ink-wash panels, restrained motion.
 - **Originality:** no Hollow Knight characters (no white horned masks), names

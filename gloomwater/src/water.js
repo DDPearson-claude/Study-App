@@ -58,11 +58,11 @@ export function create(ctx) {
     uWaveT: { value: 0 },
     uWaveA: { value: waveA },
     uWaveB: { value: waveB },
-    uDeep: { value: new THREE.Color(0x080b12) },
-    uShallow: { value: new THREE.Color(0x232b3a) },
-    uFoam: { value: new THREE.Color(0xd6deee) },
-    uGlow: { value: new THREE.Color(0xa9b9f0) },
-    uSky: { value: new THREE.Color(0x262f40) },
+    uDeep: { value: new THREE.Color(0x070919) },
+    uShallow: { value: new THREE.Color(0x1e2458) },
+    uFoam: { value: new THREE.Color(0xd6d6e4) },
+    uGlow: { value: new THREE.Color(0xb2b4ec) },
+    uSky: { value: new THREE.Color(0x262c64) },
     uArenaR: { value: 60 },
     uRip: { value: rip },
     uRipN: { value: 0 },
@@ -79,6 +79,11 @@ export function create(ctx) {
     uDepthTex: { value: null },
     uDepthScale: { value: 1 / 140 },
     uDepthOn: { value: 0 },
+    // starlight mirrored in the lake (world.setSky feeds these; DESIGN §19.1)
+    uStars: { value: 0 }, uStarDen: { value: 1 }, uStarCol: { value: new THREE.Color(0xe4e2ff) },
+    uNeb: { value: new THREE.Color(0xd296ae) }, uNebV: { value: new THREE.Color(0x433e74) }, uNebK: { value: 0 },
+    uNeb1: { value: new THREE.Vector4(0, 0.2, -1, 0) }, uNeb2: { value: new THREE.Vector4(0, 0.5, -1, 0) },
+    uBandN: { value: new THREE.Vector3(1, 0, 0) },
   }]);
   // merge() clones values — re-point the typed arrays so writes land in the live uniforms
   uniforms.uWaveA.value = waveA; uniforms.uWaveB.value = waveB;
@@ -128,10 +133,33 @@ export function create(ctx) {
     material.needsUpdate = true;
   }
 
+  // ---------------------------------------------------------------- starlit sky (extra API)
+  /**
+   * setSky({stars, density, color, nebula, nebulaVeil, nebulaK, neb1, neb2, band}) — the stars and
+   * nebulae the lake mirrors (world sends the vault dome's values). stars: brightness (0 = off),
+   * density: star-count multiplier, neb1/neb2: Vector4 (direction xyz, strength w), band: Vector3
+   * normal of the milky-way great circle. Brightness eases; directions snap.
+   */
+  const skyTgt2 = { stars: 0, den: 1, nebK: 0 };
+  let skyEver = false;
+  function setSky(o = {}) {
+    if (!o || typeof o !== 'object') return;
+    if (Number.isFinite(o.stars)) skyTgt2.stars = Math.max(0, o.stars);
+    if (Number.isFinite(o.density)) skyTgt2.den = clamp(o.density, 0, 3);
+    if (Number.isFinite(o.nebulaK)) skyTgt2.nebK = Math.max(0, o.nebulaK);
+    setColor(U.uStarCol.value, o.color);
+    setColor(U.uNeb.value, o.nebula);
+    setColor(U.uNebV.value, o.nebulaVeil);
+    if (o.neb1?.isVector4) U.uNeb1.value.copy(o.neb1);
+    if (o.neb2?.isVector4) U.uNeb2.value.copy(o.neb2);
+    if (o.band?.isVector3) U.uBandN.value.copy(o.band);
+    if (!skyEver) { skyEver = true; U.uStars.value = skyTgt2.stars; U.uStarDen.value = skyTgt2.den; U.uNebK.value = skyTgt2.nebK; }
+  }
+
   // ---------------------------------------------------------------- palette
   const palTgt = {
-    deep: new THREE.Color(0x080b12), shallow: new THREE.Color(0x232b3a), foam: new THREE.Color(0xd6deee),
-    glow: new THREE.Color(0xa9b9f0), fogColor: null,
+    deep: new THREE.Color(0x070919), shallow: new THREE.Color(0x1e2458), foam: new THREE.Color(0xd6d6e4),
+    glow: new THREE.Color(0xb2b4ec), fogColor: null,
   };
   const skyTgt = new THREE.Color();
   let fogColorAt = -999;
@@ -367,9 +395,10 @@ export function create(ctx) {
     lpU[n * 4] = x; lpU[n * 4 + 1] = isFinite(y) ? y : 2; lpU[n * 4 + 2] = z;
     lpU[n * 4 + 3] = clamp(Number(radius) || 10, 1, 40);
     lcU[n * 4] = colTmp.r * k * 0.5; lcU[n * 4 + 1] = colTmp.g * k * 0.5; lcU[n * 4 + 2] = colTmp.b * k * 0.5;
-    // w packs streak gain (integer part, ×100) and rim-ring strength (fraction)
+    // w packs the streak gain (integer part, ×100); the old reach-ring fraction is gone for good
+    // (`ring` is accepted and ignored: no light draws a ring on the water, DESIGN §19.1)
     const sg = (typeof streak === 'number' && isFinite(streak) ? clamp(streak, 0, 4) : 1) * 2.4;
-    lcU[n * 4 + 3] = Math.floor(sg * 100) + clamp(Number(ring) || 0, 0, 0.99);
+    lcU[n * 4 + 3] = Math.floor(sg * 100);
     return n + 1;
   }
   function lanternReach() {
@@ -382,7 +411,7 @@ export function create(ctx) {
     const isLantern = isReal(ctx.actors) && L === ctx.actors.lanternLight;
     let r = Number(radius);
     if (!isFinite(r) || r <= 0) r = isLantern ? (lanternReach() ?? (L.distance > 0 ? L.distance * 0.75 : 9)) : (L.distance > 0 ? L.distance * 0.75 : 10);
-    return writeLight(n, lightTmp.x, lightTmp.y, lightTmp.z, L.color, L.intensity, r, streak, ring ?? (isLantern ? 0.5 : 0));
+    return writeLight(n, lightTmp.x, lightTmp.y, lightTmp.z, L.color, L.intensity, r, streak, ring);
   }
   function packLights(t) {
     let n = 0;
@@ -400,7 +429,7 @@ export function create(ctx) {
     } else {
       // fallback until world feeds us: the lantern, and the merchant's lamp if we can find it
       const lantern = isReal(ctx.actors) ? ctx.actors.lanternLight : null;
-      if (lantern?.isLight) n = writeLightObject(n, lantern, 1.2, 0.5);
+      if (lantern?.isLight) n = writeLightObject(n, lantern, 1.2);
       const m = isReal(ctx.actors) ? ctx.actors.merchant : null;
       if (m && m.present === true && m.object3d?.traverse) {
         if (merchantScanObj !== m.object3d || t - merchantScanAt > 3) {
@@ -640,6 +669,9 @@ export function create(ctx) {
       if (override) skyTgt.copy(palTgt.fogColor);
       else if (fog) skyTgt.copy(fog.color);
       U.uSky.value.lerp(skyTgt, override ? a : Math.max(a, 0.25));
+      U.uStars.value += (skyTgt2.stars - U.uStars.value) * a;
+      U.uStarDen.value += (skyTgt2.den - U.uStarDen.value) * a;
+      U.uNebK.value += (skyTgt2.nebK - U.uNebK.value) * a;
 
       // player-relative bits
       const pl = isReal(ctx.player) ? ctx.player : null;
@@ -702,6 +734,7 @@ export function create(ctx) {
     splash,
     setPalette,
     setLights,
+    setSky,
     /** Optional override of the foam circles (default: world.getObstacles()). null = back to world. */
     setObstacles(list) { manualObstacles = Array.isArray(list) ? list : null; obstaclesDirty = true; },
     /** Drip from the cavern roof at (x, z) (extra): a falling droplet that rings on impact. */

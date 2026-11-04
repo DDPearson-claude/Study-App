@@ -11,8 +11,8 @@ import { buildArena } from './world-art.js';
 const GATE_STATES = new Set(['hidden', 'sealed', 'open']);
 const FALLBACK_ZONE = {
   id: 'mossmere', index: 0, name: 'The Mossmere', arena: { radius: 60, islands: 6, pillars: 10, seed: 1307 },
-  palette: { fog: 0x262f40, fogDensity: 0.016, water: 0x232b3a, waterDeep: 0x080b12, foam: 0xd6deee, glow: 0xa9b9f0, accent: 0xc4b8ec, lamp: 0xc8d2f0, ambient: 0x46526a, ink: 0x05070a, far: 0x8292b4, light: 0xdae2f4 },
-  grade: { tint: 0x4c5278 },
+  palette: { fog: 0x262c64, fogDensity: 0.016, water: 0x1e2458, waterDeep: 0x070919, foam: 0xd6d6e4, glow: 0xb2b4ec, accent: 0xd6d6e4, lamp: 0xaeb2f0, candle: 0xed9e3b, ambient: 0x3c4284, ink: 0x06071a, far: 0x7e81b4, light: 0xcfd0f2, nebula: 0xd296ae, stars: 1.0 },
+  grade: { tint: 0x2a3478 },
 };
 
 export function create(ctx) {
@@ -21,8 +21,8 @@ export function create(ctx) {
 
   // lights: hemisphere + directional "crack light" + two accent point lights (always present
   // so the light count — and therefore shader programs — never changes)
-  const hemi = new THREE.HemisphereLight(0x9ca8bc, 0x0a0c12, 1.4);
-  const dir = new THREE.DirectionalLight(0xdae2f4, 2.0);
+  const hemi = new THREE.HemisphereLight(0x8a8cc4, 0x0a0b1a, 1.4);
+  const dir = new THREE.DirectionalLight(0xcfd0f2, 2.0);
   dir.position.set(-10, 80, -20);
   group.add(hemi, dir, dir.target);
   const accents = [0, 1].map(() => {
@@ -40,9 +40,12 @@ export function create(ctx) {
   let fogPush = 0, gradeTimer = 0, paletteTimer = 0, pickTimer = 0;
   const lastGrade = {};
   const mood = { night: 0.18, warm: 0.1 };
-  const env = { night: 0, warm: 0, fog: new THREE.Color(), fogDensity: 0.016, glowK: 1, shaftK: 1, partK: 1 };
+  const env = { night: 0, warm: 0, fog: new THREE.Color(), fogDensity: 0.016, glowK: 1, shaftK: 1, partK: 1, starK: 1, starDen: 1, nebK: 1 };
   const col = { fog: new THREE.Color(), nightFog: new THREE.Color(), dawnFog: new THREE.Color(), a: new THREE.Color(), b: new THREE.Color() };
-  const COLD = new THREE.Color(0x0a1430), WARM = new THREE.Color(0xffc49a), NIGHT_TINT = new THREE.Color(0x1a2c5c), DAWN_TINT = new THREE.Color(0xff9a5a);
+  // Starlit moods (DESIGN §19.1): night sinks to ink-indigo with more stars; dawn is a pale gold
+  // light over lavender mist with rose-lavender shadows (never orange-brown)
+  const COLD = new THREE.Color(0x0b0d2e), WARM = new THREE.Color(0xf2cfa4), NIGHT_TINT = new THREE.Color(0x1e2466), DAWN_TINT = new THREE.Color(0xb898c0);
+  const DAWN_MIST = new THREE.Color(0x9a92c8), GRADE_WARM = new THREE.Color(0xf4cc96), GRADE_WARM_DAWN = new THREE.Color(0xf0c8a8);
   const zc = {}; // zone colours (THREE.Color)
 
   // ------------------------------------------------------------------ helpers
@@ -100,6 +103,8 @@ export function create(ctx) {
     for (const k of ['fog', 'far', 'light', 'glow', 'ambient', 'ink', 'water', 'waterDeep', 'foam', 'accent']) zc[k] = new THREE.Color(p[k]);
     zc.lamp = new THREE.Color((z.palette ? z.palette.lamp : p.lamp) ?? p.glow);   // optional cold lamp colour (island lamps, buoys, statue orbs, lit windows)
     zc.fogDensity = p.fogDensity || 0.016;
+    zc.stars = Number.isFinite(p.stars) ? p.stars : 1;
+    zc.nebula = new THREE.Color(p.nebula ?? 0xd296ae);
   }
 
   function buildVisuals() {
@@ -181,7 +186,7 @@ export function create(ctx) {
     const n = mood.night, w = mood.warm;
     // fog
     col.nightFog.copy(zc.fog).multiplyScalar(0.3).lerp(COLD, 0.45);
-    col.dawnFog.copy(zc.fog).lerp(WARM, 0.13).multiplyScalar(1.12);
+    col.dawnFog.copy(zc.fog).lerp(DAWN_MIST, 0.22).lerp(WARM, 0.06).multiplyScalar(1.1);
     col.fog.copy(zc.fog).lerp(col.nightFog, n).lerp(col.dawnFog, w * 0.55);
     fogPush = Math.max(0, fogPush - dt * 1.4);
     const density = zc.fogDensity * (1 + 0.5 * n - 0.1 * w) * (1 + fogPush);
@@ -190,6 +195,11 @@ export function create(ctx) {
     env.glowK = (1 - 0.42 * n) * (isTitle ? 1.1 : 1);
     env.shaftK = (1 - 0.9 * n) * (1 + 0.35 * w) * (isTitle ? 1.2 : 1);
     env.partK = 1 - 0.38 * n;
+    // starlight: brighter and denser as the night deepens, fading out into the dawn
+    const stars = Number.isFinite(zc.stars) ? zc.stars : 1;
+    env.starK = stars * (0.8 + 0.6 * n) * (1 - 0.7 * w) * (isTitle ? 1.1 : 1);
+    env.starDen = (0.65 + 0.35 * stars) * (1 + 0.4 * n) * (1 - 0.3 * w);
+    env.nebK = (0.6 + 0.25 * n) * (1 - 0.55 * w);
     const s = scene();
     if (s) {
       if (!s.fog) s.fog = new THREE.FogExp2(col.fog.getHex(), density);
@@ -216,7 +226,7 @@ export function create(ctx) {
     // apart by hue at the Gloomtide, not only by brightness
     // dawn warms the highlights (warm split-tone) more than the shadows: shadows that go orange read
     // as mud on slate water, cool shadows under warm light read as a pearl dawn
-    col.a.set(g.tint ?? 0x4c5278).lerp(NIGHT_TINT, n * 0.8).lerp(DAWN_TINT, w * 0.2);
+    col.a.set(g.tint ?? 0x2a3478).lerp(NIGHT_TINT, n * 0.8).lerp(DAWN_TINT, w * 0.2);
     const grade = {
       exposure: (g.exposure ?? 1) * (1 - 0.2 * n + 0.05 * w),
       bloomStrength: (g.bloomStrength ?? 0.9) * (1 + 0.15 * n + 0.1 * w),
@@ -227,21 +237,33 @@ export function create(ctx) {
       vignette: (g.vignette ?? 0.38) + 0.16 * n,
       saturation: (g.saturation ?? 0.85) * (1 - 0.2 * n + 0.08 * w),
       grain: (g.grain ?? 0.05) + 0.02 * n,
-      warmAmount: (g.warmAmount ?? 0.14) + 0.16 * w,
+      // a light warm split-tone: the lantern owns warmth; stars, foam and pale stone stay cool-white
+      warmAmount: (g.warmAmount ?? 0.07) + 0.16 * w,
+      warm: col.b.copy(GRADE_WARM).lerp(GRADE_WARM_DAWN, w).getHex(),
     };
     let changed = force;
-    for (const k in grade) if (!changed && Math.abs((lastGrade[k] ?? -99) - grade[k]) > (k === 'tint' ? 0 : 0.004)) changed = true;
+    for (const k in grade) if (!changed && Math.abs((lastGrade[k] ?? -99) - grade[k]) > (k === 'tint' || k === 'warm' ? 0 : 0.004)) changed = true;
     if (!changed) return;
     Object.assign(lastGrade, grade);
     try { ctx.render?.setGrade?.(grade); } catch (e) { /* optional */ }
   }
 
+  const skyCol = { star: new THREE.Color(), neb: new THREE.Color(), nebV: new THREE.Color() };
   function sendPalette() {
     const n = mood.night;
     col.a.copy(zc.waterDeep).multiplyScalar(1 - 0.55 * n);
-    col.b.copy(zc.water).lerp(COLD, 0.25 * n).multiplyScalar(1 - 0.5 * n).lerp(WARM, mood.warm * 0.08);
+    col.b.copy(zc.water).lerp(COLD, 0.25 * n).multiplyScalar(1 - 0.5 * n).lerp(DAWN_MIST, mood.warm * 0.06);
     try {
       ctx.water?.setPalette?.({ deep: col.a.getHex(), shallow: col.b.getHex(), foam: zc.foam.getHex(), glow: zc.glow.getHex(), fogColor: env.fog.getHex() });
+    } catch (e) { /* optional */ }
+    // the lake mirrors the vault's stars and nebula (same directions as the dome, DESIGN §19.1)
+    try {
+      if (arena?.sky && typeof ctx.water?.setSky === 'function') {
+        skyCol.star.copy(zc.light).lerp(col.b.setRGB(0.86, 0.87, 1), 0.5);
+        skyCol.neb.copy(zc.nebula);
+        skyCol.nebV.copy(zc.far).lerp(zc.nebula, 0.25).multiplyScalar(0.55);
+        ctx.water.setSky({ stars: env.starK, density: env.starDen, color: skyCol.star, nebula: skyCol.neb, nebulaVeil: skyCol.nebV, nebulaK: env.nebK, neb1: arena.sky.neb1, neb2: arena.sky.neb2, band: arena.sky.band });
+      }
     } catch (e) { /* optional */ }
   }
 
@@ -289,9 +311,9 @@ export function create(ctx) {
       const s = wl[i++];
       lan.getWorldPosition(s.position);
       s.color.copy(lan.color); s.intensity = lan.intensity; s.distance = lan.distance || 14;
-      // the water's lit pool + warm reach ring follow the gameplay light radius, not the PointLight falloff
+      // the water's lit pool follows the gameplay light radius, not the PointLight falloff (no reach ring)
       const lr = ctx.survival && !ctx.survival.isStub ? Number(ctx.survival.lightRadius) : NaN;
-      s.radius = Number.isFinite(lr) && lr > 0 ? lr : undefined; s.ring = 0.5;
+      s.radius = Number.isFinite(lr) && lr > 0 ? lr : undefined; s.ring = 0;
       waterLights.push(s);
     }
     const m = ctx.actors?.merchant;
@@ -311,6 +333,7 @@ export function create(ctx) {
         const s = wl[i++];
         s.position.set(a.anchor.x, a.anchor.y, a.anchor.z); s.color.copy(a.anchor.color);
         s.intensity = a.anchor.intensity * a.k * env.glowK; s.distance = a.anchor.distance;
+        s.streak = 0.7;   // a candle's column on the water stays a gold thread, never a white pillar
         waterLights.push(s);
       }
     }

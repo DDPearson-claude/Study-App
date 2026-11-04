@@ -4,6 +4,7 @@
 // All effects animate in shaders from a shared uniform clock (no per-frame allocations).
 import * as THREE from 'three';
 import { toonMaterial } from './toon.js';
+import { STARLIGHT_GLSL } from './starlight-glsl.js';
 
 const NOISE_GLSL = /* glsl */`
 float gwH(vec3 p){ p = fract(p * 0.3183099 + 0.1); p *= 17.0; return fract(p.x * p.y * p.z * (p.x + p.y + p.z)); }
@@ -63,19 +64,21 @@ export function ringMaterial(tex, { repeat = 1, offset = 0, texelY = 1 / 512 } =
     uniforms: {
       uMap: { value: tex }, uRepeat: { value: repeat }, uOffset: { value: offset }, uTexelY: { value: texelY },
       uColor: { value: new THREE.Color() }, uRim: { value: new THREE.Color() }, uRimAmt: { value: 0.6 },
-      uGlow: { value: new THREE.Color() }, uGlowAmt: { value: 1 }, uMist: { value: new THREE.Color() },
+      uGlow: { value: new THREE.Color() }, uGlowHi: { value: new THREE.Color() }, uGlowAmt: { value: 1 }, uMist: { value: new THREE.Color() },
       uMistBot: { value: -4 }, uMistTop: { value: 20 }, uMistAmt: { value: 0.5 }, uTopDark: { value: 0.75 },
       uVault: { value: new THREE.Color() }, uVaultLo: { value: 30 }, uVaultHi: { value: 90 }, uVaultAmt: { value: 0.5 },
       uTime: { value: 0 }, uOpacity: { value: 1 },
+      // the nebula glow bleeding into the haze in front of the far rings (Starlit, DESIGN §19.1)
+      uNeb: { value: new THREE.Color(0x000000) }, uNeb1: { value: new THREE.Vector4(0, 0.2, -1, 0) }, uNeb2: { value: new THREE.Vector4(0, 0.4, -1, 0) },
     },
     vertexShader: /* glsl */`
-      varying vec2 vUv; varying float vY;
-      void main(){ vUv = uv; vec4 wp = modelMatrix * vec4(position, 1.0); vY = wp.y; gl_Position = projectionMatrix * viewMatrix * wp; }`,
+      varying vec2 vUv; varying float vY; varying vec3 vDirW;
+      void main(){ vUv = uv; vec4 wp = modelMatrix * vec4(position, 1.0); vY = wp.y; vDirW = wp.xyz; gl_Position = projectionMatrix * viewMatrix * wp; }`,
     fragmentShader: /* glsl */`
       uniform sampler2D uMap; uniform float uRepeat, uOffset, uTexelY, uRimAmt, uGlowAmt, uMistBot, uMistTop, uMistAmt, uTopDark, uTime, uOpacity;
       uniform float uVaultLo, uVaultHi, uVaultAmt;
-      uniform vec3 uColor, uRim, uGlow, uMist, uVault;
-      varying vec2 vUv; varying float vY;
+      uniform vec3 uColor, uRim, uGlow, uGlowHi, uMist, uVault, uNeb; uniform vec4 uNeb1, uNeb2;
+      varying vec2 vUv; varying float vY; varying vec3 vDirW;
       void main(){
         vec2 uv = vec2(vUv.x * uRepeat + uOffset, vUv.y);
         vec2 s = texture2D(uMap, uv).rg;
@@ -88,10 +91,14 @@ export function ringMaterial(tex, { repeat = 1, offset = 0, texelY = 1 / 512 } =
         col = mix(col, uVault, smoothstep(uVaultLo, uVaultHi, vY) * uVaultAmt);
         float m = (1.0 - smoothstep(uMistBot, uMistTop, vY)) * uMistAmt;
         col = mix(col, uMist, m);
+        vec3 dw = normalize(vDirW);
+        float nm = pow(max(dot(dw, uNeb1.xyz), 0.0), 9.0) * uNeb1.w + pow(max(dot(dw, uNeb2.xyz), 0.0), 16.0) * uNeb2.w;
+        col += uNeb * nm * (0.25 + 0.75 * m);
         col += uRim * rim * uRimAmt * (1.0 - m * 0.6) * mix(1.0, 0.55, topness);
         float tw = 0.7 + 0.3 * sin(uTime * 1.7 + floor(uv.x * 400.0) * 12.9898 + floor(uv.y * 90.0) * 4.1);
         float gl = s.g / max(a, 0.001);
-        col = mix(col, uGlow * tw * uGlowAmt, clamp(gl, 0.0, 1.0));
+        // windows in the standing ruins burn candle amber; lamps in the hanging ruins overhead stay cold
+        col = mix(col, mix(uGlow, uGlowHi, topness) * tw * uGlowAmt, clamp(gl, 0.0, 1.0));
         gl_FragColor = vec4(col, a * uOpacity);
         #include <tonemapping_fragment>
         #include <colorspace_fragment>
@@ -100,49 +107,60 @@ export function ringMaterial(tex, { repeat = 1, offset = 0, texelY = 1 / 512 } =
   });
 }
 
-// ------------------------------------------------------------------ vault dome
-export function domeMaterial() {
+// ------------------------------------------------------------------ vault dome (the starlit sky)
+// The cave vault reads as a deep indigo night sky (DESIGN §19.1 Starlight): a horizon -> zenith
+// gradient, lattice stars that twinkle (denser along a faint milky-way band), one or two soft
+// pink-magenta nebulae low behind the hero landmark, faint rock texture only near the zenith and
+// the ceiling cracks as soft moon-glows. Zero extra draw calls (it is the existing dome).
+// opts.low: two star layers, no band dust (phones / quality low).
+export function domeMaterial({ low = false } = {}) {
   return new THREE.ShaderMaterial({
+    defines: { SL_LAYERS: low ? 2 : 3 },
     uniforms: {
       uHorizon: { value: new THREE.Color() }, uMid: { value: new THREE.Color() }, uZenith: { value: new THREE.Color() },
-      uWorm: { value: new THREE.Color() }, uWormAmt: { value: 1 }, uCrack: { value: new THREE.Color() },
+      uCrack: { value: new THREE.Color() },
       uCracks: { value: [new THREE.Vector4(), new THREE.Vector4(), new THREE.Vector4(), new THREE.Vector4()] },
       uTime: { value: 0 }, uBand: { value: 0.42 },
+      uStarCol: { value: new THREE.Color(0xe4e2ff) }, uStars: { value: 1 }, uStarDen: { value: 1 },
+      uNeb: { value: new THREE.Color(0xd296ae) }, uNebV: { value: new THREE.Color(0x433e74) }, uNebK: { value: 1 },
+      uNeb1: { value: new THREE.Vector4(0, 0.2, -1, 1) }, uNeb2: { value: new THREE.Vector4(0.6, 0.45, -0.6, 0.5) },
+      uBandN: { value: new THREE.Vector3(0.5, 0.3, 0.8).normalize() }, uBandCol: { value: new THREE.Color(0x433e74) },
     },
     vertexShader: /* glsl */`
       varying vec3 vDir;
       void main(){ vDir = normalize(position); gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
     fragmentShader: /* glsl */`
-      uniform vec3 uHorizon, uMid, uZenith, uWorm, uCrack; uniform vec4 uCracks[4]; uniform float uTime, uWormAmt, uBand;
+      uniform vec3 uHorizon, uMid, uZenith, uCrack, uStarCol, uNeb, uNebV, uBandCol; uniform vec4 uCracks[4];
+      uniform float uTime, uBand, uStars, uStarDen, uNebK; uniform vec4 uNeb1, uNeb2; uniform vec3 uBandN;
       varying vec3 vDir;
       ${NOISE_GLSL}
+      ${STARLIGHT_GLSL}
       void main(){
         vec3 d = normalize(vDir);
+        float px = length(fwidth(d));
         float e = d.y;
-        vec3 col = mix(uHorizon, uMid, smoothstep(0.0, uBand, e));
+        vec3 col = mix(uHorizon, uMid, smoothstep(-0.05, uBand, e));
         col = mix(col, uZenith, smoothstep(uBand * 0.8, 0.85, e));
+        // faint vault rock only high overhead: the sky stays clean where the camera sees it
         float n = gwN(d * 9.0) * 0.6 + gwN(d * 31.0) * 0.4;
-        float rock = smoothstep(0.12, 0.5, e);
-        col *= 1.0 + (n - 0.5) * 0.7 * rock;
-        // drip-streaks
-        float az = atan(d.z, d.x);
-        col *= 1.0 - 0.18 * rock * smoothstep(0.55, 0.95, gwN(vec3(az * 30.0, e * 3.0, 1.7)));
-        // glow-worms
-        vec2 g = vec2(az * 38.0, e * 46.0);
-        vec2 id = floor(g); vec2 f = fract(g) - 0.5;
-        float h = gwH2(id);
-        vec2 o = vec2(gwH2(id + 3.1), gwH2(id + 7.7)) - 0.5;
-        float dd = length(f - o * 0.6);
-        float worm = smoothstep(0.1, 0.0, dd) * step(0.86, h) * smoothstep(0.22, 0.45, e);
-        worm *= 0.55 + 0.45 * sin(uTime * (0.6 + h * 1.5) + h * 40.0);
-        col += uWorm * worm * uWormAmt * (0.6 + h);
-        // ceiling cracks: hot core + soft halo
+        float rock = smoothstep(0.55, 0.9, e);
+        col *= 1.0 + (n - 0.5) * 0.45 * rock;
+        // milky-way band: a faint lavender veil the fine stars crowd into
+        float band = slBand(d, uBandN) * smoothstep(-0.12, 0.1, e);
+        float veil = band * (0.55 + 0.45 * gwN(d * 6.0 + 4.0));
+        col += uBandCol * veil * 0.5 * uNebK;
+        // nebulae (low behind the hero landmark), additive glow over the gradient
+        col += slNebula(d, uNeb1, uNeb2, uNeb, uNebV) * uNebK;
+        // stars: thinned by the horizon haze, dimmed where the nebula glows brightest
+        float haze = smoothstep(-0.18, 0.12, e);
+        float nebM = slNebMask(d, uNeb1, uNeb2);
+        if (uStars > 0.001 && haze > 0.0) col += slStars(d, px, uTime, uStarDen * (1.0 + 0.8 * min(nebM, 1.0)), uStarCol, max(band, min(nebM, 1.0) * 0.6)) * uStars * haze;
+        // ceiling cracks: soft moon-glows (no hot white core)
         for (int i = 0; i < 4; i++) {
           vec4 c = uCracks[i];
           if (c.w <= 0.0) continue;
           float k = distance(d, normalize(c.xyz));
-          float jag = gwN(vec3(d.xz * 60.0, float(i))) * 0.012;
-          col += uCrack * c.w * (exp(-k * k * 900.0) * 1.6 + smoothstep(0.022, 0.0, k + jag) * 2.5 + exp(-k * k * 60.0) * 0.18);
+          col += uCrack * c.w * (exp(-k * k * 2600.0) * 0.9 + exp(-k * k * 180.0) * 0.22 + exp(-k * k * 22.0) * 0.06);
         }
         gl_FragColor = vec4(col, 1.0);
         #include <tonemapping_fragment>
