@@ -223,7 +223,7 @@ function collectInPage() {
     const cs = getComputedStyle(el);
     if (direct) {
       out.texts.push({
-        el: label(el), text: direct.slice(0, 40), box: box(r), family: cs.fontFamily.split(',')[0].replace(/["']/g, '').trim(), stack: cs.fontFamily,
+        el: label(el), layer: (el.closest('.gw-world, .gw-hud, .gw-fx, .gw-banner-layer, .gw-modal-layer, .gw-toasts')?.className || '').split(' ')[0], text: direct.slice(0, 40), box: box(r), family: cs.fontFamily.split(',')[0].replace(/["']/g, '').trim(), stack: cs.fontFamily,
         size: parseFloat(cs.fontSize), weight: cs.fontWeight, style: cs.fontStyle, caps: cs.fontVariantCaps, transform: cs.textTransform,
         tracking: cs.letterSpacing, lineHeight: cs.lineHeight, color: cs.color, opacity: +op.toFixed(3), shadow: cs.textShadow !== 'none',
       });
@@ -242,7 +242,9 @@ function collectInPage() {
 }
 
 function summarise(m) {
-  const t = m.texts;
+  // deliberately dimmed text (the HUD at 28% under a modal, a screen at 8% under its child) is
+  // reported as `dimmed` and kept out of the size / contrast stats
+  const t = m.texts.filter((x) => x.opacity >= 0.3);
   const sizes = t.map((x) => x.size).sort((a, b) => a - b);
   const fam = {};
   for (const x of t) { const f = (fam[x.family] = fam[x.family] || { n: 0, min: 1e9, max: 0, sizes: {} }); f.n++; f.min = Math.min(f.min, x.size); f.max = Math.max(f.max, x.size); f.sizes[x.size] = (f.sizes[x.size] || 0) + 1; }
@@ -250,7 +252,7 @@ function summarise(m) {
   const small = m.targets.filter((x) => !x.disabled && (x.box.w < 44 || x.box.h < 44));
   const main = m.panels.filter((p) => /gw-panel|gw-lu\b|gw-death-inner|gw-victory-card|gw-title-inner/.test(p.el)).sort((a, b) => b.cover - a.cover)[0];
   return {
-    texts: t.length, minSize: sizes[0] ?? null, medianSize: sizes[sizes.length >> 1] ?? null,
+    texts: t.length, dimmed: m.texts.length - t.length, minSize: sizes[0] ?? null, medianSize: sizes[sizes.length >> 1] ?? null,
     under14: t.filter((x) => x.size < 14).length, under12: t.filter((x) => x.size < 12).length,
     families: fam, contrastMin: cr[0] ? +cr[0].toFixed(2) : null, contrastMedian: cr.length ? +cr[cr.length >> 1].toFixed(2) : null,
     under4_5: cr.filter((c) => c < 4.5).length, under3: cr.filter((c) => c < 3).length,
