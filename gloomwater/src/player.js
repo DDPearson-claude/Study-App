@@ -13,8 +13,7 @@
 //   pull(x, z, speed, duration = 0) drag the raft toward a point (Wickeater inhale); duration 0 =
 //                                    this frame only (call every frame while it pulls)
 //   root(seconds)                   no movement (Ringed Grasp grip)
-//   inSlick (bool)                  raft is inside an ink slick: from combat.speedMult (<1), else
-//                                    combat.inSlick?.(position) or combat.slicks [{x,z,r}|{position,radius}]
+//   inSlick (bool)                  raft is inside an ink slick (combat.speedMult < 1)
 //   (combat.rooted === true also stops the raft)
 //   cutLineK (0..1)                 progress of the "hold to cut the line" bail-out while reeling
 //   inputMag (0..1)                 current steering input strength
@@ -136,27 +135,6 @@ export function create(ctx) {
     ctx.bus.emit('interact:change', { id: next?.id || null, label: next?.label || '' });
   }
 
-  // ---------------------------------------------------------------- slicks (combat-owned hazard; optional)
-  function checkSlick() {
-    const c = ctx.combat;
-    if (!real(c)) return false;
-    try {
-      if (typeof c.inSlick === 'function') return c.inSlick(position) === true;
-      const arr = c.slicks;
-      if (Array.isArray(arr)) {
-        for (let i = 0; i < arr.length; i++) {
-          const s = arr[i];
-          if (!s) continue;
-          const sx = num(s.x, num(s.position?.x, NaN)), sz = num(s.z, num(s.position?.z, NaN));
-          const r = num(s.r, num(s.radius, 2.4));
-          if (!Number.isFinite(sx)) continue;
-          const dx = position.x - sx, dz = position.z - sz;
-          if (dx * dx + dz * dz < r * r) return true;
-        }
-      }
-    } catch { /* ignore */ }
-    return false;
-  }
 
   // ---------------------------------------------------------------- contact response
   function contact(nx, nz) {
@@ -246,8 +224,7 @@ export function create(ctx) {
     let hazardMult = 1;
     const sm = c ? c.speedMult : undefined;
     if (typeof sm === 'number' && Number.isFinite(sm) && sm > 0) hazardMult = Math.min(1, sm);
-    api.inSlick = hazardMult < 0.999 || checkSlick();
-    if (api.inSlick && hazardMult >= 0.999) hazardMult = M('slickMult');
+    api.inSlick = hazardMult < 0.999;
     const blocked = locked || rootT > 0 || (c ? c.rooted === true : false);
 
     // ---- boat feel: v += (target − v)(1 − e^(−rate·dt))
