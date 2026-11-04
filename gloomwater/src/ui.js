@@ -4,7 +4,7 @@
 // and full screens), ui-icons.js (SVG glyphs/ornaments), ui-fishart.js (fish drawings).
 import * as THREE from 'three';
 import css from './ui.css';
-import { icon, ORN } from './ui-icons.js';
+import { icon, ORN, ornamentCss } from './ui-icons.js';
 import { createHud } from './ui-hud.js';
 import { createScreens } from './ui-screens.js';
 
@@ -15,7 +15,7 @@ export function create(ctx) {
   root.classList.add('gw-ui');
   const style = document.createElement('style');
   style.id = 'gw-ui-style';
-  style.textContent = css;
+  style.textContent = css + ornamentCss();   // the ornament drawings as --orn-* mask images
   document.head.appendChild(style);
 
   const isTouch = (() => {

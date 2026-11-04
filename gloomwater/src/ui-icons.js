@@ -104,37 +104,231 @@ const ALIASES = { food_loaf: 'food', gear: 'rod', bait: 'worm', supplies: 'oil',
 export function icon(name, { size = null, cls = '', title = '' } = {}) {
   const key = ICONS[name] ? name : ICONS[ALIASES[name]] ? ALIASES[name] : 'star';
   const sz = size ? ` width="${size}" height="${size}"` : '';
-  return `<svg class="gw-ico ${cls}" viewBox="0 0 24 24"${sz} fill="none" stroke="currentColor" stroke-width="1.55" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${title ? `<title>${title}</title>` : ''}${ICONS[key]}</svg>`;
+  return `<svg class="gw-ico ${cls}" viewBox="0 0 24 24"${sz} fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${title ? `<title>${title}</title>` : ''}${ICONS[key]}</svg>`;
 }
 export const hasIcon = (name) => !!(ICONS[name] || ALIASES[name]);
 
-// ---------------------------------------------------------------- ornaments
-export const ORN = {
-  divider: `<svg class="gw-divider" viewBox="0 0 240 16" preserveAspectRatio="xMidYMid meet" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round">
-    <path d="M6 8h82" stroke-opacity=".55"/><path d="M152 8h82" stroke-opacity=".55"/>
-    <path d="M88 8c5 0 8-5 4.5-6.5S87 3.5 90 5" /><path d="M152 8c-5 0-8-5-4.5-6.5S153 3.5 150 5"/>
-    <path d="M88 8c5 0 8 5 4.5 6.5S87 12.5 90 11" stroke-opacity=".6"/><path d="M152 8c-5 0-8 5-4.5 6.5s5.5-2 2.5-3.5" stroke-opacity=".6"/>
-    <path d="M120 1.5l6.5 6.5-6.5 6.5-6.5-6.5z"/><path d="M120 5l3 3-3 3-3-3z" fill="currentColor" stroke="none" fill-opacity=".8"/>
-    <circle cx="104" cy="8" r="1.4" fill="currentColor" stroke="none"/><circle cx="136" cy="8" r="1.4" fill="currentColor" stroke="none"/>
-    <circle cx="4" cy="8" r="1" fill="currentColor" stroke="none" fill-opacity=".6"/><circle cx="236" cy="8" r="1" fill="currentColor" stroke="none" fill-opacity=".6"/></svg>`,
-  corner: `<svg viewBox="0 0 44 44" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round">
-    <path d="M2.5 42V16C2.5 8.5 8.5 2.5 16 2.5h26"/><path d="M7 36V18c0-6 5-11 11-11h18" stroke-opacity=".45"/>
-    <path d="M11 30c0-9 6-16.5 17-17.5" stroke-opacity=".7"/><path d="M28 12.5c3 0 4.5 2.4 3 4s-4 .3-3-1.6"/>
-    <path d="M11 30c0 3-2.4 4.5-4 3s-.3-4 1.6-3" stroke-opacity=".7"/><circle cx="16" cy="16" r="1.6" fill="currentColor" stroke="none"/></svg>`,
-  titleTop: `<svg class="gw-title-orn" viewBox="0 0 420 70" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round">
-    <path d="M20 62c40 0 70-6 100-22s58-30 90-30 60 14 90 30 60 22 100 22" stroke-opacity=".5"/>
-    <path d="M60 64c30-1 56-6 80-17" stroke-opacity=".35"/><path d="M360 64c-30-1-56-6-80-17" stroke-opacity=".35"/>
-    <path d="M210 10V2" /><path d="M204 18h12l-2-6h-8z"/><path d="M203 18l2 14h10l2-14"/><path d="M205 32h10l-1.5 4h-7z"/>
-    <circle cx="210" cy="25" r="7" class="gw-orn-glow" stroke="none"/>
-    <path d="M210 21.5c1 1.4 2 2.2 2 3.6a2 2 0 0 1-4 0c0-1.4 1-2.2 2-3.6z" fill="currentColor" stroke="none" class="gw-orn-flame"/>
-    <path d="M150 30c6-3 9-9 5-11s-6 3-3 4" stroke-opacity=".7"/><path d="M270 30c-6-3-9-9-5-11s6 3 3 4" stroke-opacity=".7"/>
-    <circle cx="120" cy="40" r="1.5" fill="currentColor" stroke="none" fill-opacity=".7"/><circle cx="300" cy="40" r="1.5" fill="currentColor" stroke="none" fill-opacity=".7"/></svg>`,
-  titleBottom: `<svg class="gw-title-orn" viewBox="0 0 420 40" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round">
-    <path d="M30 12c20 0 20 6 40 6s20-6 40-6 20 6 40 6 20-6 40-6" stroke-opacity=".45"/><path d="M230 12c20 0 20 6 40 6s20-6 40-6 20 6 40 6 20-6 40-6" stroke-opacity=".45"/>
-    <path d="M210 4l7 8-7 8-7-8z"/><path d="M210 20v8" stroke-opacity=".6"/><path d="M210 31c.9 1.3 1.6 2 1.6 3a1.6 1.6 0 0 1-3.2 0c0-1 .7-1.7 1.6-3z" fill="currentColor" stroke="none" fill-opacity=".7"/>
-    <circle cx="20" cy="12" r="1.2" fill="currentColor" stroke="none" fill-opacity=".5"/><circle cx="400" cy="12" r="1.2" fill="currentColor" stroke="none" fill-opacity=".5"/></svg>`,
-  rule: `<svg class="gw-rule" viewBox="0 0 300 8" preserveAspectRatio="none" aria-hidden="true"><path d="M0 4 Q150 1 300 4 Q150 7 0 4z" fill="currentColor"/></svg>`,
+// ---------------------------------------------------------------- the ink brush
+// "Drowned Filigree": every ornament is pale ink drawn with a pen, not a hairline. A centre line
+// (absolute M/C path) is turned into a filled outline whose width swells and tapers, so each
+// stroke has thick and thin and pointed ends. The left half of a symmetric piece is authored
+// once and mirrored. Motifs: fishing line, hooks, floats, reeds, water rings and wax.
+const nums = (d) => d.match(/-?\d*\.?\d+(?:e-?\d+)?/g).map(Number);
+function segsOf(d) {
+  const v = nums(d);
+  const out = [];
+  let x = v[0], y = v[1];
+  for (let i = 2; i + 5 < v.length; i += 6) { out.push([x, y, v[i], v[i + 1], v[i + 2], v[i + 3], v[i + 4], v[i + 5]]); x = v[i + 4]; y = v[i + 5]; }
+  return out;
+}
+const bz = (s, t) => { const u = 1 - t, a = u * u * u, b = 3 * u * u * t, c = 3 * u * t * t, e = t * t * t; return [a * s[0] + b * s[2] + c * s[4] + e * s[6], a * s[1] + b * s[3] + c * s[5] + e * s[7]]; };
+const bzd = (s, t) => { const u = 1 - t; return [3 * u * u * (s[2] - s[0]) + 6 * u * t * (s[4] - s[2]) + 3 * t * t * (s[6] - s[4]), 3 * u * u * (s[3] - s[1]) + 6 * u * t * (s[5] - s[3]) + 3 * t * t * (s[7] - s[5])]; };
+const r2 = (v) => Math.round(v * 100) / 100;
+const pt2 = (q) => `${r2(q[0])} ${r2(q[1])}`;
+/** Mirror a centre line (all coordinates are x,y pairs) about x = W / 2. */
+const flip = (d, W) => { let i = 0; return d.replace(/-?\d*\.?\d+(?:e-?\d+)?/g, (m) => (i++ % 2 === 0 ? r2(W - Number(m)) : m)); };
+
+/** A pen stroke along `d`: width `w` at its fullest, `min` at the ends, fullest at `peak` (0..1). */
+export function brush(d, { w = 2, min = 0.3, peak = 0.5, pow = 1, n = 16 } = {}) {
+  const segs = segsOf(d);
+  const P = [];
+  segs.forEach((s, si) => {
+    for (let i = si ? 1 : 0; i <= n; i++) {
+      const t = i / n, p = bz(s, t);
+      let [dx, dy] = bzd(s, t);
+      if (Math.abs(dx) + Math.abs(dy) < 1e-6) [dx, dy] = bzd(s, t < 0.5 ? t + 0.01 : t - 0.01);
+      const L = Math.hypot(dx, dy) || 1;
+      P.push([p[0], p[1], -dy / L, dx / L]);
+    }
+  });
+  const len = [0];
+  for (let i = 1; i < P.length; i++) len.push(len[i - 1] + Math.hypot(P[i][0] - P[i - 1][0], P[i][1] - P[i - 1][1]));
+  const total = len[len.length - 1] || 1;
+  const pk = Math.max(0.001, Math.min(0.999, peak));
+  const A = [], B = [];
+  P.forEach((p, i) => {
+    const t = len[i] / total;
+    const s = t < pk ? 0.5 * t / pk : 0.5 + 0.5 * (t - pk) / (1 - pk);
+    const hw = (min + (w - min) * Math.pow(Math.sin(Math.PI * s), pow)) / 2;
+    A.push([p[0] + p[2] * hw, p[1] + p[3] * hw]);
+    B.push([p[0] - p[2] * hw, p[1] - p[3] * hw]);
+  });
+  return `M${A.map(pt2).join('L')}L${B.reverse().map(pt2).join('L')}Z`;
+}
+/** A filled dot (a bead, a drop of wax, a rivet). */
+const dot = (x, y, r) => `M${r2(x - r)} ${r2(y)}A${r} ${r} 0 1 0 ${r2(x + r)} ${r2(y)}A${r} ${r} 0 1 0 ${r2(x - r)} ${r2(y)}Z`;
+/** A closed calligraphic ring: a broad nib held at `nib` radians makes it thick and thin. */
+function ring(cx, cy, rx, ry, { w = 3, min = 0.8, nib = -0.7, n = 72 } = {}) {
+  const A = [], B = [];
+  for (let i = 0; i < n; i++) {
+    const a = (i / n) * Math.PI * 2;
+    const x = cx + rx * Math.cos(a), y = cy + ry * Math.sin(a);
+    const tx = -rx * Math.sin(a), ty = ry * Math.cos(a), L = Math.hypot(tx, ty) || 1;
+    const nx = ty / L, ny = -tx / L;
+    const hw = (min + (w - min) * Math.abs(Math.sin(Math.atan2(ty, tx) - nib))) / 2;
+    A.push([x + nx * hw, y + ny * hw]); B.push([x - nx * hw, y - ny * hw]);
+  }
+  return `M${A.map(pt2).join('L')}ZM${B.reverse().map(pt2).join('L')}Z`;
+}
+/** A float (bobber) standing on the water: antenna, a hollow cap, a painted lower half. */
+function bobber(x, y, s = 1, { ring: rings = true } = {}) {
+  const k = (v) => r2(v * s);
+  const out = [];
+  out.push([brush(`M${x} ${y - k(15)} C${x} ${y - k(13)} ${x} ${y - k(11)} ${x} ${y - k(8.6)}`, { w: 1.5 * s, min: 0.5 * s, peak: 0.7 }), 1]);
+  // cap: hollow upper half (ink rim), body: solid lower half; joined by a band
+  out.push([`M${r2(x - k(5.4))} ${r2(y - k(1))}C${r2(x - k(5.4))} ${r2(y - k(6.4))} ${r2(x - k(2.6))} ${r2(y - k(9))} ${x} ${r2(y - k(9))}C${r2(x + k(2.6))} ${r2(y - k(9))} ${r2(x + k(5.4))} ${r2(y - k(6.4))} ${r2(x + k(5.4))} ${r2(y - k(1))}Z`, 0.32]);
+  out.push([brush(`M${r2(x - k(5.4))} ${r2(y - k(1))} C${r2(x - k(5.4))} ${r2(y - k(6.4))} ${r2(x - k(2.6))} ${r2(y - k(9))} ${x} ${r2(y - k(9))} C${r2(x + k(2.6))} ${r2(y - k(9))} ${r2(x + k(5.4))} ${r2(y - k(6.4))} ${r2(x + k(5.4))} ${r2(y - k(1))}`, { w: 1.4 * s, min: 0.7 * s, peak: 0.5 }), 1]);
+  out.push([`M${r2(x - k(5.6))} ${r2(y - k(0.6))}C${r2(x - k(5.6))} ${r2(y + k(4.6))} ${r2(x - k(2.4))} ${r2(y + k(7.6))} ${x} ${r2(y + k(7.6))}C${r2(x + k(2.4))} ${r2(y + k(7.6))} ${r2(x + k(5.6))} ${r2(y + k(4.6))} ${r2(x + k(5.6))} ${r2(y - k(0.6))}Z`, 1]);
+  if (rings) {
+    out.push([brush(`M${r2(x - k(11))} ${r2(y + k(8.6))} C${r2(x - k(6))} ${r2(y + k(11.6))} ${r2(x + k(6))} ${r2(y + k(11.6))} ${r2(x + k(11))} ${r2(y + k(8.6))}`, { w: 1.3 * s, min: 0.2 * s }), 0.8]);
+    out.push([brush(`M${r2(x - k(18))} ${r2(y + k(10))} C${r2(x - k(9))} ${r2(y + k(15.4))} ${r2(x + k(9))} ${r2(y + k(15.4))} ${r2(x + k(18))} ${r2(y + k(10))}`, { w: 0.9 * s, min: 0.15 * s }), 0.45]);
+  }
+  return out;
+}
+
+/** Assemble a symmetric ornament: `half` parts are mirrored about the centre, `mid` parts are not. */
+function piece(W, H, half, mid = [], { cls = '', ratio = 'xMidYMid meet' } = {}) {
+  const parts = [];
+  for (const p of half) {
+    if (p.dot) { parts.push([dot(p.dot[0], p.dot[1], p.dot[2]), p.o ?? 1]); parts.push([dot(W - p.dot[0], p.dot[1], p.dot[2]), p.o ?? 1]); continue; }
+    parts.push([brush(p.d, p), p.o ?? 1]);
+    parts.push([brush(flip(p.d, W), p), p.o ?? 1]);
+  }
+  for (const p of mid) parts.push(Array.isArray(p) ? p : p.dot ? [dot(p.dot[0], p.dot[1], p.dot[2]), p.o ?? 1] : [p.raw || brush(p.d, p), p.o ?? 1]);
+  return { W, H, parts, cls, ratio };
+}
+const byOpacity = (parts) => {
+  const g = new Map();
+  for (const [d, o] of parts) { if (!g.has(o)) g.set(o, []); g.get(o).push(d); }
+  return [...g].map(([o, ds]) => `<path d="${ds.join('')}"${o < 1 ? ` fill-opacity="${o}"` : ''}/>`).join('');
 };
+/** Inline SVG markup (ink in currentColor). */
+const inline = (pc, cls = pc.cls) => `<svg class="gw-orn ${cls}" viewBox="0 0 ${pc.W} ${pc.H}" preserveAspectRatio="${pc.ratio}" aria-hidden="true" fill="currentColor" fill-rule="evenodd">${byOpacity(pc.parts)}</svg>`;
+/** A data: URL of the same drawing, for CSS masks (the colour comes from the element). */
+const maskUrl = (pc) => `url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${pc.W} ${pc.H}" preserveAspectRatio="${pc.ratio}" fill="#000" fill-rule="evenodd">${byOpacity(pc.parts)}</svg>`)}")`;
+
+// ---------------------------------------------------------------- the ornament family
+const P_ = {};
+// Selection twin (left of an item; the right one is the same drawing flipped): a scroll of line
+// curls off a swelling cast of fishing line that ends at a float standing beside the item.
+P_.twin = piece(64, 30, [], [
+  { d: 'M17 16 C11 16 6 14.4 6 11 C6 8 9.4 6.8 11.2 8.4 C12.6 9.7 11.8 11.8 10 11.6', w: 2, min: 0.35, peak: 0.25 },
+  { d: 'M17 16 C26 15 36 16.8 46 15.6', w: 1.7, min: 0.55, peak: 0.45 },
+  { d: 'M27 15.6 C25.4 12.6 22.6 10.4 19.6 9.4', w: 1.3, min: 0.1, peak: 0.35, o: 0.75 },
+  { dot: [3, 15.4, 1.1], o: 0.7 },
+  ...bobber(52.5, 15.6, 0.92).map(([raw, o]) => ({ raw, o })),
+]);
+// Heading crest: a float hangs on its line; slack line sweeps out to both sides and curls into
+// scrolls, reeds rise off it, and the line runs out to a bead.
+P_.crest = piece(320, 46, [
+  { d: 'M150 24 C136 27 124 21 110 21 C97 21 90 28.5 94.5 33 C98 36.4 103.8 33.4 101.4 29.6', w: 2.8, min: 0.4, peak: 0.32 },
+  { d: 'M110 21 C84 20.4 54 24.6 20 24.4', w: 1.5, min: 0.2, peak: 0.12 },
+  { d: 'M126 23.4 C122.6 17.6 116.4 12.6 108.4 9.6', w: 1.9, min: 0.1, peak: 0.35, o: 0.85 },
+  { d: 'M131.5 24.6 C131 19 132.4 14.6 135.4 11', w: 1.3, min: 0.1, peak: 0.4, o: 0.7 },
+  { dot: [16, 24.4, 1.5] },
+  { dot: [62, 22.6, 1.1], o: 0.8 },
+], [
+  { d: 'M160 1 C160 4 160 7 160 10', w: 1.1, min: 0.25, peak: 0.9, o: 0.7 },
+  ...bobber(160, 25, 1.25).map(([raw, o]) => ({ raw, o })),
+]);
+// Closing flourish: a drop falls into rings; line runs out to each side and lifts into a curl.
+P_.flourish = piece(320, 30, [
+  { d: 'M136 17 C114 14 92 13.4 70 15.6 C58 16.8 50 13.6 52 9.6 C53.6 6.6 58.4 7.2 57.8 10.4', w: 2.2, min: 0.3, peak: 0.22 },
+  { d: 'M70 15.6 C52 17.6 34 18 16 17', w: 1.1, min: 0.15, peak: 0.1 },
+  { dot: [12, 17, 1.2] },
+], [
+  { raw: 'M160 3.2C161.6 6.2 163.6 7.8 163.6 10.2A3.6 3.6 0 0 1 156.4 10.2C156.4 7.8 158.4 6.2 160 3.2Z', o: 1 },
+  { d: 'M146 16 C150.6 21.4 169.4 21.4 174 16', w: 1.7, min: 0.25 },
+  { d: 'M148 15 C152 11.6 168 11.6 172 15', w: 0.8, min: 0.2, o: 0.45 },
+  { d: 'M132 18 C140 26.6 180 26.6 188 18', w: 1.2, min: 0.15, o: 0.6 },
+]);
+// Section rule: a single tapered stroke (stretched to fit; thick at the label, thin outward).
+P_.taper = { W: 200, H: 8, parts: [['M0 4C60 3.95 150 3.1 200 2.9L200 5.1C150 4.9 60 4.05 0 4Z', 1]], cls: '', ratio: 'none' };
+// Swash: a short brushed underline (primary actions, the active tab).
+P_.swash = piece(120, 12, [], [
+  { d: 'M6 7.4 C28 4.6 46 8.4 60 6.2 C74 4 92 8.2 114 5.6', w: 2.2, min: 0.25, peak: 0.5 },
+  { dot: [3.2, 7.6, 1] }, { dot: [116.8, 5.4, 1] },
+]);
+// Medallion ring (level-up cards, the HUD level, the journal plate).
+P_.ring = { W: 100, H: 100, cls: '', ratio: 'xMidYMid meet', parts: [
+  [ring(50, 50, 44, 44, { w: 4.2, min: 1, nib: -0.75 }), 1],
+  [ring(50, 50, 38.5, 38.5, { w: 1, min: 0.5, nib: -0.75 }), 0.35],
+  [dot(50, 3.2, 2.1), 1], [dot(50, 96.8, 2.1), 1],
+  [brush('M50 94 C50 98 48 99.6 46.4 99', { w: 1.2, min: 0.2 }), 0.8],
+] };
+// Water ripple under a chosen tile / a leaping fish.
+P_.ripple = piece(200, 30, [], [
+  { d: 'M60 13 C78 22.4 122 22.4 140 13', w: 2.2, min: 0.2 },
+  { d: 'M66 11.6 C84 5.2 116 5.2 134 11.6', w: 0.9, min: 0.15, o: 0.4 },
+  { d: 'M26 15 C60 31 140 31 174 15', w: 1.5, min: 0.1, o: 0.6 },
+  { d: 'M4 17.6 C50 34 150 34 196 17.6', w: 0.9, min: 0.05, o: 0.3 },
+]);
+// Wax seal (the NEW / RECORD stamps): a wobbly disc with two drips and an inner rim.
+P_.seal = (() => {
+  const n = 64, R = 30, pts = [];
+  for (let i = 0; i < n; i++) {
+    const a = (i / n) * Math.PI * 2;
+    const r = R * (1 + 0.045 * Math.sin(a * 5 + 0.6) + 0.03 * Math.sin(a * 9 + 2.1) + 0.02 * Math.sin(a * 13));
+    pts.push([36 + r * Math.cos(a), 34 + r * Math.sin(a)]);
+  }
+  const disc = `M${pts.map(pt2).join('L')}Z`;
+  const drips = 'M23 56C22.6 62 24.4 66 26.2 66C28 66 28.6 61.6 28 57.4ZM44.6 59C44.6 64.4 46 70 48 70C50 70 50.6 64 49.6 58Z';
+  return { W: 72, H: 72, cls: '', ratio: 'xMidYMid meet', parts: [[disc + ring(36, 34, 23.5, 23.5, { w: 1.6, min: 0.6, nib: -0.6 }), 1], [drips, 0.99]] };
+})();
+// The title lock-up: a lantern-float hangs from a long line above the name; reeds and rings
+// mark the waterline below it, where the name is mirrored.
+P_.titleCrest = piece(560, 96, [
+  { d: 'M266 66 C236 76 196 80 156 75 C124 71 106 62 111 52 C115 44.6 125.6 46.6 123.2 54', w: 3.2, min: 0.4, peak: 0.3 },
+  { d: 'M156 75 C120 79 80 80.4 30 78', w: 1.6, min: 0.2, peak: 0.12 },
+  { d: 'M196 77.4 C190 68 180.6 60 168 54.4', w: 2.1, min: 0.1, peak: 0.35, o: 0.85 },
+  { d: 'M204.6 77.8 C204.4 69 207 61.6 212 55.6', w: 1.5, min: 0.1, peak: 0.4, o: 0.7 },
+  { d: 'M88 79.4 C85.6 73.4 81.4 69.4 76 67', w: 1.2, min: 0.1, peak: 0.4, o: 0.6 },
+  { dot: [25, 78, 1.8] }, { dot: [56, 79.2, 1.2], o: 0.8 },
+], [
+  { d: 'M280 0 C280 12 280 24 280 33', w: 1.3, min: 0.4, peak: 0.95, o: 0.75 },
+  // lantern: bail, cap, glass (the flame is drawn by the page), base, and a hook below
+  { d: 'M272.4 40 C272.4 33.4 287.6 33.4 287.6 40', w: 1.6, min: 0.6 },
+  { raw: 'M270 44.4L290 44.4L287 40L273 40Z', o: 1 },
+  { d: 'M272 45 C271 52 271 61 272 68', w: 1.8, min: 0.9 },
+  { d: 'M288 45 C289 52 289 61 288 68', w: 1.8, min: 0.9 },
+  { raw: 'M269 68L291 68L288.4 72.6L271.6 72.6Z', o: 1 },
+  { d: 'M280 72.6 C280 78 280 82 280 86 C280 91.4 274 92 273.4 88 C273.2 86.6 274.4 85.4 275.6 86', w: 1.7, min: 0.3, peak: 0.6 },
+]);
+P_.waterline = piece(560, 46, [
+  { d: 'M280 18 C200 17.4 110 17 26 18.4', w: 1.8, min: 0.2, peak: 0.02 },
+  { d: 'M54 18.6 C52 12 47 5.6 38.6 1.4', w: 2.2, min: 0.1, peak: 0.3, o: 0.9 },
+  { d: 'M62 18.4 C62 11 64 5 68 0.4', w: 1.8, min: 0.1, peak: 0.3, o: 0.8 },
+  { d: 'M70 18.2 C71.6 13.4 75 9.6 79.6 7', w: 1.4, min: 0.1, peak: 0.35, o: 0.65 },
+  { d: 'M46 18.8 C42 14.6 37 12.4 31.4 12', w: 1.2, min: 0.1, peak: 0.4, o: 0.55 },
+  { dot: [20, 18.6, 1.6] },
+], [
+  { d: 'M252 22 C262 30.4 298 30.4 308 22', w: 1.9, min: 0.2 },
+  { d: 'M232 24 C246 37 314 37 328 24', w: 1.3, min: 0.12, o: 0.6 },
+  { d: 'M206 26 C230 44 330 44 354 26', w: 0.9, min: 0.06, o: 0.32 },
+]);
+
+/** The ornaments as inline SVG (currentColor). */
+export const ORN = {
+  crest: inline(P_.crest, 'gw-orn-crest'),
+  divider: inline(P_.crest, 'gw-orn-crest'),
+  flourish: inline(P_.flourish, 'gw-orn-flourish'),
+  twin: inline(P_.twin, 'gw-orn-twin'),
+  swash: inline(P_.swash, 'gw-orn-swash'),
+  ring: inline(P_.ring, 'gw-orn-ring'),
+  ripple: inline(P_.ripple, 'gw-orn-ripple'),
+  seal: inline(P_.seal, 'gw-orn-seal'),
+  titleTop: `<svg class="gw-orn gw-title-orn" viewBox="0 0 560 96" aria-hidden="true" fill="currentColor" fill-rule="evenodd"><defs><radialGradient id="gwOrnGlow"><stop offset="0" stop-color="#ffb347" stop-opacity=".6"/><stop offset=".45" stop-color="#ff9a3c" stop-opacity=".18"/><stop offset="1" stop-color="#ff9a3c" stop-opacity="0"/></radialGradient></defs><circle cx="280" cy="56" r="40" fill="url(#gwOrnGlow)" class="gw-orn-glow"/>${byOpacity(P_.titleCrest.parts)}<path class="gw-orn-flame" d="M280 49c2 3 4.4 4.8 4.4 8.2a4.4 4.4 0 0 1-8.8 0c0-3.4 2.4-5.2 4.4-8.2z"/></svg>`,
+  titleBottom: inline(P_.waterline, 'gw-title-water'),
+  corner: '',
+  rule: inline(P_.taper, 'gw-rule'),
+};
+/** CSS custom properties holding the same drawings as mask images (appended to ui.css). */
+export function ornamentCss() {
+  const v = Object.entries({ twin: P_.twin, crest: P_.crest, flourish: P_.flourish, taper: P_.taper, swash: P_.swash, ring: P_.ring, ripple: P_.ripple, seal: P_.seal })
+    .map(([k, pc]) => `--orn-${k}:${maskUrl(pc)};`).join('');
+  return `\n.gw-ui{${v}}\n`;
+}
+
 
 // ---------------------------------------------------------------- portraits
 const hex = (n, d = '#888') => (typeof n === 'number' && isFinite(n) ? '#' + (n >>> 0).toString(16).padStart(6, '0').slice(-6) : (typeof n === 'string' ? n : d));

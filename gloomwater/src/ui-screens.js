@@ -179,6 +179,7 @@ export function createScreens(K) {
       wrap.innerHTML = `<div class="gw-title-veil"></div>
         <div class="gw-title-inner">
           <div class="gw-logo">${ORN.titleTop}<h1 class="gw-logotype" aria-label="${esc(T.title || 'GLOOMWATER')}">${[...(T.title || 'GLOOMWATER')].map((c, i) => `<span style="--i:${i}">${esc(c)}</span>`).join('')}</h1>${ORN.titleBottom}
+          <div class="gw-logo-mirror" aria-hidden="true"><i>${[...(T.title || 'GLOOMWATER')].map((c, i) => `<span style="--i:${i}">${esc(c)}</span>`).join('')}</i></div>
           <p class="gw-tagline">${esc(entry.state.tagline)}</p></div>
           <div class="gw-title-lower">
           <nav class="gw-title-menu"></nav>
@@ -326,7 +327,7 @@ export function createScreens(K) {
         <div class="gw-catch-yield"><span>${icon('shell')}<b>${fmt(y.sell)}</b><small>to Old Murk</small></span><span>${icon('food')}<b>+${fmt(y.food)}</b><small>satiety</small></span><span>${icon('oil')}<b>+${fmt(y.oil)}</b><small>oil</small></span></div>
         ${full ? `<div class="gw-catch-full">${esc(D().TEXT?.creelFull || 'Your creel is full.')} <button type="button" class="gw-link" data-room>${s.room ? 'Hide the creel' : 'Make room…'}</button></div>` : ''}`;
       const art = content.querySelector('.gw-catch-art');
-      art.appendChild(fishCanvas(sp, K.vw < 520 ? 260 : 330, K.vw < 520 ? 140 : 172, { pad: 0.06 }));
+      art.appendChild(fishCanvas(sp, K.vw < 520 ? 300 : 400, K.vw < 520 ? 156 : 208, { pad: 0.06 }));
       if (fish.quality === 'perfect') art.classList.add('gw-shimmer');
       content.querySelector('[data-room]')?.addEventListener('click', () => { s.room = !s.room; sfx('ui_click'); entry.render(); });
       if (full && s.room) {
