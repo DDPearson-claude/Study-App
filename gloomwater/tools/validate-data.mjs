@@ -3,6 +3,7 @@
 // Checks CONTRACT.md §8 (hybrid sail · fish · survive the swarm) plus the cross-references
 // DESIGN.md relies on. Usage:  node tools/validate-data.mjs   (exit code 1 on any failure)
 import * as D from '../src/data.js';
+import * as WL from './walk-lib.mjs';
 
 const errors = [];
 const warnings = [];
@@ -27,7 +28,8 @@ const STAT_KEYS = ['maxHp', 'maxOil', 'maxSatiety', 'oilDrain', 'satietyDrain', 
   'flareRadius', 'flareCooldown', 'zapCost', 'zapDamage', 'damageMult', 'cooldownMult', 'critChance', 'moveSpeed',
   'pickupRadius', 'xpMult', 'luck', 'rerolls', 'dawnHeal', 'castMax', 'lineStrength', 'reelSpeed', 'sweetZone',
   'biteSpeed', 'hookWindow', 'rarityBonus', 'creelSize', 'sellMult', 'foodMult', 'oilYieldMult', 'armor', 'slackTime',
-  'nibbleTells'];
+  'nibbleTells',
+  'stride'];   // v2 (walking): + m/s on foot (DESIGN §24.3)
 const FMTS = new Set(['int', 'pct', 'x', 'm', 's', 'num']);
 for (const k of STAT_KEYS) {
   const s = D.STATS[k];
@@ -162,10 +164,10 @@ checkLevelled(D.RELICS, 'relic');
 for (const u of D.UPGRADES) ok(u.zone === null || u.zone === undefined || ZONE_IDS.includes(u.zone), `upgrade ${u.id} zone ${u.zone}`);
 for (const r of D.RELICS) {
   ok(r.unlock === null || !!D.CHALLENGE_BY_ID[r.unlock], `relic ${r.id} unlock ${r.unlock} is not a challenge`);
-  if (r.special) ok(/^(startShells:\d+|startKit|shimmer:[\d.]+|memMult:[\d.]+|secondWick|waystone:(sporewood|glasswater|paleabyss))$/.test(r.special), `relic ${r.id} special '${r.special}' unknown`);
+  if (r.special) ok(/^(startShells:\d+|startKit|shimmer:[\d.]+|memMult:[\d.]+|secondWick|waystone:(sporewood|glasswater|paleabyss)|lampRadius:[\d.]+|placesRevealed)$/.test(r.special), `relic ${r.id} special '${r.special}' unknown`);
   ok(Object.keys(r.effects || {}).length > 0 || !!r.special, `relic ${r.id} does nothing`);
 }
-for (const s of D.SUPPLIES) for (const k of Object.keys(s.give || {})) ok(['oil', 'satiety', 'hp', 'flareCharges', 'spots'].includes(k), `supply ${s.id} give key ${k}`);
+for (const s of D.SUPPLIES) for (const k of Object.keys(s.give || {})) ok(['oil', 'satiety', 'hp', 'flareCharges', 'spots', 'lampPlace'].includes(k), `supply ${s.id} give key ${k}`);
 
 // ---------------------------------------------------------------------------- ENEMIES
 for (const e of D.ENEMIES) {
@@ -217,7 +219,7 @@ for (const c of D.CHARACTERS) {
 }
 
 // ---------------------------------------------------------------------------- CHALLENGES (+ unlock cross-refs)
-ok(D.CHALLENGES.length >= 24 && D.CHALLENGES.length <= 30, 'CHALLENGES must hold 24–30 goals');
+ok(D.CHALLENGES.length >= 24 && D.CHALLENGES.length <= 40, 'CHALLENGES must hold 24–40 goals (v2: + tier IV Paths Underfoot)');
 const unlockTargetExists = (key) => {
   const [kind, id] = key.split(':');
   return ({ character: D.CHARACTER_BY_ID, boon: D.BOON_BY_ID, relic: D.RELIC_BY_ID, bait: D.BAIT_BY_ID })[kind]?.[id];
@@ -282,10 +284,220 @@ for (const s of memCases) {
   ok(Math.abs(m.breakdown.reduce((a, r) => a + r.value, 0) - m.total) < 1e-9, 'memoriesFor total ≠ Σ breakdown');
 }
 
+
+// ---------------------------------------------------------------------------- v2 (walking, DESIGN §24)
+const MODES = ['raft', 'mixed', 'foot'];
+const SHAPE_KINDS = ['disc', 'ring', 'rect', 'poly', 'path'];
+const SHAPE_TAGS = ['ground', 'ramp', 'jetty', 'bridge'];
+const RULES = ['rhythm', 'sequence', 'deed', 'targets', 'moving', 'drifters', 'cue', 'plumb', 'reflection', 'phaseWindow'];
+const MOD_KEYS = ['waitMult', 'rarity', 'quality', 'weightBias', 'surgeEveryMult', 'erraticMult', 'hookWindowMult', 'hookWindowAdd',
+  'nibbleTells', 'bandAmpMult', 'bandNoiseMult', 'darterJumpMult', 'legendEnrageAdd'];
+const COND_RULE = { buff: 'sequence', deed: 'deed', reflection: 'reflection', plumbBottom: 'plumb', window: 'phaseWindow' };
+const DEED_KINDS = ['winch', 'strike', 'light', 'sequence', 'rope', 'offer'];
+const WB = B.walk, LB = B.lamps;
+for (const [k, o] of [['walk', B.walk], ['places', B.places], ['lamps', B.lamps]]) ok(isObj(o), `BALANCE.${k} missing (v2)`);
+ok(isObj(B.combat.foot) && isNum(B.combat.foot.contactRadius), 'BALANCE.combat.foot missing (v2)');
+for (const k of ['speedMult', 'accel', 'decel', 'turnRate', 'radius', 'stepUp', 'stepDown', 'maxSlope']) ok(isNum(WB?.[k]) && WB[k] > 0, `BALANCE.walk.${k}`);
+ok(isNum(B.travel?.arrivalHush) && B.travel.arrivalHush >= 0, 'BALANCE.travel.arrivalHush');
+ok(D.ZONES[0].mode === 'raft' && !D.ZONES[0].arena.walk, 'the Mossmere stays raft-only (no walk layout)');
+const placeIds = new Set();
+const castBase = D.STATS.castMax.base;
+const highCast = (y) => (y > WB.highCast.from ? Math.min(WB.highCast.cap, WB.highCast.perM * (y - WB.highCast.from)) : 0);
+const ptIn = (p, R) => p && isNum(p.x) && isNum(p.z) && Math.hypot(p.x, p.z) < R;
+const speciesOk = (zid, place, d0, d1, phase) => D.SPECIES.filter((sp) => sp.zone === zid && sp.rarity !== 'legendary' && !sp.bait
+  && (!sp.place || (sp.place === place && !sp.cond)) && (phase === 'calm' ? sp.time !== 'gloom' : true) && sp.depth[0] <= d1 && d0 <= sp.depth[1]);
+let walkCells = 0;
+for (const z of D.ZONES) {
+  const A = z.arena, R = A.radius, tag = `${z.id} (v2)`;
+  ok(MODES.includes(z.mode), `${z.id}.mode must be raft|mixed|foot (got ${z.mode})`);
+  if (z.phases) ok(isNum(z.phases.calm) && z.phases.calm >= B.phases.calm && z.phases.calm <= 150, `${tag} phases.calm override`);
+  if (z.mode === 'raft') continue;
+  const W = A.walk;
+  if (!ok(isObj(W) && Array.isArray(W.shapes) && W.shapes.length > 0, `${tag} needs arena.walk.shapes`)) continue;
+  ok(['raft', 'foot'].includes(A.spawnMode) && (z.mode === 'mixed' ? A.spawnMode === 'raft' : A.spawnMode === 'foot'), `${tag} spawnMode must be raft (mixed) / foot (foot)`);
+  ok(isObj(A.raft) && ['free', 'ferry', 'beached', 'none'].includes(A.raft.mode), `${tag} raft.mode`);
+  ok(z.mode !== 'mixed' || A.raft.mode === 'free', `${tag} a mixed lake needs a free raft`);
+  // ---- shapes
+  const sids = new Set(), shortcutIds = new Set((A.shortcuts || []).map((c) => c.id));
+  for (const sh of [...W.shapes, ...(W.holes || []), ...(W.blocks || [])]) {
+    ok(SHAPE_KINDS.includes(sh.kind), `${tag} shape ${sh.id} kind ${sh.kind}`);
+    const [x0, z0, x1, z1] = D.walkShapeBounds(sh);
+    ok([x0, z0, x1, z1].every(isNum) && Math.max(Math.abs(x0), Math.abs(x1), Math.abs(z0), Math.abs(z1)) <= R + 12, `${tag} shape ${sh.id} far outside the lake`);
+  }
+  for (const sh of W.shapes) {
+    ok(isStr(sh.id) && !sids.has(sh.id), `${tag} shape id ${sh.id} missing/duplicate`); sids.add(sh.id);
+    ok(SHAPE_TAGS.includes(sh.tag), `${tag} shape ${sh.id} tag ${sh.tag}`);
+    if (sh.needs) ok(shortcutIds.has(sh.needs), `${tag} shape ${sh.id} needs unknown shortcut ${sh.needs}`);
+    if (sh.kind === 'path') {
+      ok(sh.w >= 2.4 - 1e-9, `${tag} walkway ${sh.id} narrower than 2.4 m`);
+      for (let i = 0; i + 1 < sh.pts.length; i++) {
+        const [ax, az, ay = sh.y ?? 0] = sh.pts[i], [bx, bz, by = sh.y ?? 0] = sh.pts[i + 1];
+        ok(Math.abs(by - ay) / Math.max(1e-6, Math.hypot(bx - ax, bz - az)) <= WB.maxSlope + 1e-9, `${tag} ramp ${sh.id} steeper than maxSlope`);
+      }
+    }
+    if (sh.kind === 'ring') ok(sh.r1 - sh.r0 >= 2.4 - 1e-9, `${tag} ring ${sh.id} narrower than 2.4 m`);
+  }
+  for (const h of W.holes || []) ok(isNum(h.depth) && h.depth > 0 && h.depth <= 1, `${tag} hole ${h.id} depth`);
+  // ---- shortcuts, deeds, drops
+  const deedById = Object.fromEntries((A.deeds || []).map((d) => [d.id, d]));
+  for (const c of A.shortcuts || []) {
+    ok(!!deedById[c.deed] && deedById[c.deed].opens === c.id, `${tag} shortcut ${c.id} must be opened by its deed ${c.deed}`);
+    ok(W.shapes.some((sh) => sh.needs === c.id), `${tag} shortcut ${c.id} gates no shape`);
+  }
+  for (const d of A.deeds || []) {
+    ok(DEED_KINDS.includes(d.kind), `${tag} deed ${d.id} kind ${d.kind}`);
+    ok((d.points ? d.points.length >= 2 : true) && (d.at || d.points), `${tag} deed ${d.id} needs at / points`);
+    if (d.opens) ok(shortcutIds.has(d.opens), `${tag} deed ${d.id} opens unknown ${d.opens}`);
+    if (d.place) ok((A.places || []).some((p) => p.id === d.place), `${tag} deed ${d.id} names unknown place ${d.place}`);
+  }
+  // ---- grids
+  const G = D.walkGridFor(z), GO = D.walkGridFor(z, { open: WL.openAll(z) });
+  const seeds = WL.footSeeds(G, z);
+  ok(seeds.length > 0 && seeds.every((k) => WL.isWalk(G, k)), `${tag} spawn / mooring stands must be walkable`);
+  const dist = WL.walkDistances(G, z, seeds), distO = WL.walkDistances(GO, z, WL.footSeeds(GO, z));
+  const reach = (p, g = G, dd = dist) => { const k = g.idx(p.x, p.z); return k >= 0 && WL.isWalk(g, k) && dd[k] < Infinity; };
+  const yAt = (p) => G.top[G.idx(p.x, p.z)];
+  for (const d of A.deeds || []) for (const q of d.points || [d.at]) ok(reach(q), `${tag} deed ${d.id} point (${q.x},${q.z}) not reachable on foot (shortcuts closed)`);
+  for (const d of A.drops || []) {
+    const a = G.idx(d.from.x, d.from.z), b = G.idx(d.to.x, d.to.z);
+    ok(WL.isWalk(G, a) && WL.isWalk(G, b), `${tag} drop ${d.id} ends must be walkable`);
+    const h = G.top[a] - G.top[b];
+    ok(h > WB.stepDown && h <= WB.drop.max + 1e-6, `${tag} drop ${d.id} height ${h.toFixed(2)} outside (stepDown, drop.max]`);
+  }
+  // pools must be enclosed (never 4-adjacent to lake water)
+  const { n } = G;
+  let leaks = 0;
+  for (let k = 0; k < n * n; k++) {
+    if (!(G.flags[k] & D.WALK_FLAGS.POOL)) continue;
+    const i = k % n, j = (k / n) | 0;
+    for (const [di, dj] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const q = (j + dj) * n + (i + di); if (G.flags[q] & D.WALK_FLAGS.WATER) leaks++; }
+  }
+  ok(leaks === 0, `${tag} ${leaks} enclosed-pool cells touch open lake water (holes must sit inside ground)`);
+  // raft component
+  const RM = WL.raftMask(G), raftStart = z.mode === 'mixed' ? G.idx(A.spawn.x, A.spawn.z)
+    : A.raft.mode === 'ferry' ? G.idx(A.moorings.find((m) => m.id === A.raft.start)?.slot.x ?? 0, A.moorings.find((m) => m.id === A.raft.start)?.slot.z ?? 0) : -1;
+  const RC = raftStart >= 0 ? WL.component(G, RM, raftStart) : null;
+  if (z.mode === 'mixed') ok(RC && RC[raftStart], `${tag} raft spawn must be open water`);
+  if (A.raft.mode === 'ferry') ok(A.moorings.some((m) => m.id === A.raft.start), `${tag} ferry raft start mooring`);
+  for (const m of A.moorings || []) {
+    ok(reach(m.stand), `${tag} mooring ${m.id} stand not walkable/reachable`);
+    ok(RC && RC[G.idx(m.slot.x, m.slot.z)] === 1, `${tag} mooring ${m.id} slot not raft-reachable`);
+    ok(Math.hypot(m.stand.x - m.slot.x, m.stand.z - m.slot.z) <= WB.moor.range + 2, `${tag} mooring ${m.id} stand too far from its slot`);
+  }
+  // gate
+  if (A.gate) {
+    if (A.gateAccess === 'raft') ok(RC && RC[G.idx(A.gate.x, A.gate.z)] === 1, `${tag} raft gate not raft-reachable`);
+    else {
+      let gok = false;
+      for (let k = 0; k < n * n && !gok; k++) if (WL.isWalk(G, k) && dist[k] < Infinity) { const [x, zz] = WL.cellXZ(G, k); if (Math.hypot(x - A.gate.x, zz - A.gate.z) <= A.gate.r + WB.gateFootRange) gok = true; }
+      ok(gok, `${tag} foot gate has no reachable cell within r + ${WB.gateFootRange} m`);
+    }
+  }
+  // docks: on foot lakes every dock is within trade range of a reachable walkway; on mixed lakes raft-reachable
+  for (const d of A.docks || []) {
+    let near = false;
+    const k0 = G.idx(d.x, d.z), r = Math.ceil(WB.tradeRange / G.cell);
+    for (let dj = -r; dj <= r && !near; dj++) for (let di = -r; di <= r && !near; di++) {
+      const k = k0 + dj * n + di; if (WL.isWalk(G, k) && dist[k] < Infinity && Math.hypot(di, dj) * G.cell <= WB.tradeRange - 1) near = true;
+    }
+    ok(WL.isLakeWater(G, k0), `${tag} dock (${d.x},${d.z}) must be open water`);
+    if (z.mode === 'foot') ok(near, `${tag} dock (${d.x},${d.z}) has no reachable walkway within trade range`);
+    else ok(RC && RC[k0] === 1, `${tag} dock (${d.x},${d.z}) not raft-reachable`);
+  }
+  // lamps
+  const lampById = Object.fromEntries((A.lamps || []).map((l) => [l.id, l]));
+  ok((A.lamps || []).length >= 3, `${tag} needs ≥ 3 Waylamps`);
+  for (const l of A.lamps || []) ok(reach(l), `${tag} lamp ${l.id} not reachable on foot (shortcuts closed)`);
+  const lampDist = WL.walkDistances(G, z, (A.lamps || []).map((l) => G.idx(l.x, l.z)));
+  let worst = 0, unreach = 0, walk = 0;
+  for (let k = 0; k < n * n; k++) {
+    if (!WL.isWalk(G, k)) continue; walk++;
+    if (dist[k] === Infinity) { unreach++; continue; }
+    worst = Math.max(worst, lampDist[k]);
+  }
+  walkCells += walk;
+  ok(worst <= LB.maxPathToLamp, `${tag} a reachable walkway is ${worst.toFixed(0)} m from the nearest Waylamp (max ${LB.maxPathToLamp})`);
+  warn(unreach / Math.max(1, walk) <= 0.06, `${tag} ${((100 * unreach) / Math.max(1, walk)).toFixed(1)}% of walkable cells unreachable (decor only)`);
+  // places
+  ok(Array.isArray(A.places) && A.places.length >= 4, `${tag} needs ≥ 4 places`);
+  const legendPlaces = (A.places || []).filter((p) => p.legend);
+  ok(legendPlaces.length === 1, `${tag} exactly one place holds the legend pool`);
+  for (const p of A.places || []) {
+    const pt = `${tag} place ${p.id}`;
+    ok(isStr(p.id) && !placeIds.has(p.id), `${pt} id missing/duplicate`); placeIds.add(p.id);
+    ok(isStr(p.name) && isStr(p.lore) && isStr(p.look), `${pt} name/lore/look`);
+    ok(['foot', 'raft', 'both'].includes(p.access), `${pt} access`);
+    ok(isObj(p.water) && SHAPE_KINDS.includes(p.water.kind) && Array.isArray(p.water.depth) && p.water.depth[0] >= 0 && p.water.depth[1] <= 1 && p.water.depth[0] <= p.water.depth[1], `${pt} water {kind, depth:[a,b]}`);
+    if (p.lamp) ok(!!lampById[p.lamp], `${pt} lamp ${p.lamp} unknown`);
+    for (const sid of Object.keys(p.attract || {})) ok(D.SPECIES_BY_ID[sid]?.zone === z.id, `${pt} attracts ${sid} (not a ${z.id} species)`);
+    for (const k of Object.keys(p.mods || {})) ok(MOD_KEYS.includes(k), `${pt} mods key ${k}`);
+    // water cells inside the place area
+    const wcells = [];
+    const [x0, z0, x1, z1] = D.walkShapeBounds(p.water);
+    for (let zz = z0; zz <= z1; zz += G.cell) for (let x = x0; x <= x1; x += G.cell) if (D.placeContains(p, x, zz)) { const k = G.idx(x, zz); if (WL.isAnyWater(G, k) && !(G.flags[k] & D.WALK_FLAGS.BRIDGE)) wcells.push([x, zz]); }
+    ok(wcells.length >= 3, `${pt} has no fishable water inside its area`);
+    if (p.stand === null) ok(p.rule?.type === 'moving' || p.access === 'raft', `${pt} only roaming or raft places may have no stand`);
+    if (p.access !== 'raft' && p.stand !== null) {
+      if (ok(p.stand && reach(p.stand), `${pt} stand not walkable / reachable on foot (shortcuts closed)`)) {
+        const reachM = castBase + highCast(yAt(p.stand));
+        const nearest = Math.min(...wcells.map(([x, zz]) => Math.hypot(x - p.stand.x, zz - p.stand.z)));
+        ok(nearest <= reachM, `${pt} water ${nearest.toFixed(1)} m from its stand > base reach ${reachM.toFixed(1)} m`);
+        if (p.lamp) { const ld = WL.walkDistances(G, z, [G.idx(p.stand.x, p.stand.z)])[G.idx(lampById[p.lamp].x, lampById[p.lamp].z)]; ok(ld <= 35, `${pt} its lamp is ${ld.toFixed(0)} m away (≤ 35)`); }
+      }
+    }
+    if (p.access !== 'foot' && p.raftStand) ok(RC && RC[G.idx(p.raftStand.x, p.raftStand.z)] === 1, `${pt} raftStand not raft-reachable`);
+    // species: ≥ 1 calm-eligible species, per target too
+    ok(speciesOk(z.id, p.id, p.water.depth[0], p.water.depth[1], 'calm').length >= 1, `${pt} yields no species in calm`);
+    if (p.legend) ok(D.placeContains(p, A.legendPool.x, A.legendPool.z) && A.legendPool.r <= 5, `${pt} must contain the legend pool`);
+    const r = p.rule;
+    if (r) {
+      ok(RULES.includes(r.type) && isStr(r.name), `${pt} rule type ${r?.type}`);
+      for (const k of Object.keys(r.mods || {})) ok(MOD_KEYS.includes(k), `${pt} rule mods key ${k}`);
+      if (r.deed) ok(deedById[r.deed]?.place === p.id, `${pt} rule deed ${r.deed} must exist and name this place`);
+      if (r.type === 'rhythm') ok(r.period > r.warn + r.live && r.live > 0, `${pt} rhythm period > warn + live`);
+      if (r.type === 'sequence') ok(deedById[r.deed]?.kind === 'sequence' && r.window > 0 && r.buff > 0, `${pt} sequence needs a sequence deed`);
+      if (r.type === 'targets') for (const t of r.targets || []) {
+        ok(D.placeContains(p, t.x, t.z), `${pt} target ${t.id} outside the place`);
+        const k = G.idx(t.x, t.z); ok(WL.isAnyWater(G, k), `${pt} target ${t.id} is not water`);
+        if (isNum(t.depth)) ok(speciesOk(z.id, p.id, t.depth, t.depth, 'any').length >= 1, `${pt} target ${t.id} yields nothing at depth ${t.depth}`);
+      }
+      if (r.type === 'moving') ok(isObj(r.arc) && r.speed > 0 && r.r > 0, `${pt} moving arc/speed/r`);
+      if (r.type === 'drifters') ok(r.lane.every(([x, zz]) => Math.hypot(x, zz) < R - 2) && r.perDay >= 1, `${pt} drifters lane inside the lake`);
+      if (r.type === 'plumb') ok(r.depth[0] >= p.water.depth[0] - 1e-9 && r.depth[1] <= p.water.depth[1] + 1e-9, `${pt} plumb depth inside place depth`);
+    }
+  }
+  // place-kept species
+  for (const sp of D.SPECIES.filter((x) => x.place && x.zone === z.id)) {
+    const p = (A.places || []).find((q) => q.id === sp.place);
+    if (!ok(!!p, `species ${sp.id} place ${sp.place} is not a ${z.id} place`)) continue;
+    ok(sp.rarity === 'rare' && !sp.bait, `species ${sp.id} (place-kept) must be a bait-free rare`);
+    ok(sp.depth[0] <= p.water.depth[1] && p.water.depth[0] <= sp.depth[1], `species ${sp.id} depth never overlaps ${p.id}`);
+    if (sp.cond) ok(COND_RULE[sp.cond] === p.rule?.type, `species ${sp.id} cond '${sp.cond}' needs a ${COND_RULE[sp.cond]} rule at ${p.id}`);
+  }
+  if (A.spotStyle) ok(isNum(A.spotStyle.live) && isNum(A.spotStyle.warn) && Array.isArray(A.spotStyle.every), `${tag} spotStyle`);
+  // shortcuts open: everything still reachable
+  for (const p of A.places || []) if (p.stand) ok(reach(p.stand, GO, distO), `${tag} place ${p.id} unreachable with shortcuts open`);
+}
+for (const sp of D.SPECIES) if (sp.place) ok(placeIds.has(sp.place), `species ${sp.id} names unknown place ${sp.place}`);
+ok(D.PLACES.length === placeIds.size && Object.keys(D.PLACE_BY_ID).length === placeIds.size, 'PLACES / PLACE_BY_ID incomplete');
+ok(D.CHALLENGE_BY_ID.complete_chronicle?.params?.n === D.SPECIES.length, 'complete_chronicle must ask for every species');
+const masterAll = D.CHALLENGES.find((c) => c.id === 'every_still_place');
+if (masterAll) ok(masterAll.params.n === D.PLACES.length, 'every_still_place must ask for every place');
+for (const f of D.WALK_FORMATIONS || []) {
+  ok(!!D.ENEMY_BY_ID[f.enemy] && !D.FORMATION_BY_ID[f.id], `walk formation ${f.id} enemy / id clash`);
+  ok(Array.isArray(f.modes) && f.modes.every((m) => MODES.includes(m) && m !== 'raft'), `walk formation ${f.id} modes`);
+}
+for (const b of D.WALK_BOUNTIES || []) ok(!D.BOUNTY_BY_ID[b.id] && isStr(b.text) && isNum(b.base) && Array.isArray(b.modes), `walk bounty ${b.id}`);
+for (const k of ['placeNew']) ok(isNum(B.memories[k]), `BALANCE.memories.${k}`);
+ok(D.memoriesFor({ placesNew: 3 }).total === 3 * B.memories.placeNew, 'memoriesFor counts placesNew');
+checks++;
+console.log(`  v2 walk: ${placeIds.size} places, ${walkCells} walkable cells, ${D.SPECIES.filter((x) => x.place).length} place-kept species`);
+
 // ---------------------------------------------------------------------------- lookups, tips, text
 for (const [map, arr] of [['SPECIES_BY_ID', 'SPECIES'], ['ZONE_BY_ID', 'ZONES'], ['ENEMY_BY_ID', 'ENEMIES'], ['UPGRADE_BY_ID', 'UPGRADES'],
   ['RELIC_BY_ID', 'RELICS'], ['BAIT_BY_ID', 'BAITS'], ['SUPPLY_BY_ID', 'SUPPLIES'], ['BOON_BY_ID', 'BOONS'], ['CHARACTER_BY_ID', 'CHARACTERS'],
-  ['CHALLENGE_BY_ID', 'CHALLENGES'], ['BOUNTY_BY_ID', 'BOUNTIES'], ['FORMATION_BY_ID', 'FORMATIONS']]) {
+  ['CHALLENGE_BY_ID', 'CHALLENGES'], ['BOUNTY_BY_ID', 'BOUNTIES'], ['FORMATION_BY_ID', 'FORMATIONS'], ['PLACE_BY_ID', 'PLACES'],
+  ['WALK_FORMATION_BY_ID', 'WALK_FORMATIONS'], ['WALK_BOUNTY_BY_ID', 'WALK_BOUNTIES']]) {
   if (!D[map] || !D[arr]) continue;
   const ids = D[arr].map((x) => x.id);
   ok(new Set(ids).size === ids.length, `${arr} has duplicate ids`);
@@ -307,7 +519,7 @@ const scan = (v, path) => {
   seen.add(v);
   for (const [k, c] of Object.entries(v)) if (!/^(id|icon|behavior|weapon|model|shape|type|trigger|mechanic)$/.test(k)) scan(c, `${path}.${k}`);
 };
-for (const k of ['ZONES', 'SPECIES', 'BAITS', 'UPGRADES', 'SUPPLIES', 'RELICS', 'ENEMIES', 'BOONS', 'CHARACTERS', 'CHALLENGES', 'BOUNTIES', 'TIPS', 'MERCHANT_LINES', 'EPITAPHS', 'TEXT', 'FORMATIONS']) scan(D[k], k);
+for (const k of ['ZONES', 'SPECIES', 'BAITS', 'UPGRADES', 'SUPPLIES', 'RELICS', 'ENEMIES', 'BOONS', 'CHARACTERS', 'CHALLENGES', 'BOUNTIES', 'TIPS', 'MERCHANT_LINES', 'EPITAPHS', 'TEXT', 'FORMATIONS', 'WALK_FORMATIONS', 'WALK_BOUNTIES']) scan(D[k], k);
 checks++;
 
 // ---------------------------------------------------------------------------- report

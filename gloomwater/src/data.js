@@ -27,7 +27,7 @@ export const STATS = {
   damageMult:    { label: 'Damage',          base: 1,    fmt: 'x',   min: 0.2,  max: 5 },
   cooldownMult:  { label: 'Cooldowns',       base: 1,    fmt: 'x',   min: 0.4,  max: 2 },
   critChance:    { label: 'Critical Chance', base: 0.05, fmt: 'pct', min: 0,    max: 0.75 },
-  moveSpeed:     { label: 'Raft Speed',      base: 6,    fmt: 'num', min: 2,    max: 11 },
+  moveSpeed:     { label: 'Speed',           base: 6,    fmt: 'num', min: 2,    max: 11 },   // raft top speed; on foot × BALANCE.walk.speedMult (§24.3)
   pickupRadius:  { label: 'Cinder Magnet',   base: 4,    fmt: 'm',   min: 1,    max: 20 },
   xpMult:        { label: 'Cinder Gain',     base: 1,    fmt: 'x',   min: 0.2,  max: 4 },
   luck:          { label: 'Luck',            base: 0,    fmt: 'num', min: 0,    max: 2 },
@@ -47,6 +47,7 @@ export const STATS = {
   armor:         { label: 'Ward',            base: 0,    fmt: 'pct', min: 0,    max: 0.6 },
   slackTime:     { label: 'Slack Grace',     base: 1.6,  fmt: 's',   min: 0.6,  max: 3 },
   nibbleTells:   { label: 'Nibble Sense',    base: 0,    fmt: 'int', min: 0,    max: 2 },
+  stride:        { label: 'Stride',          base: 0,    fmt: 'num', min: -2,   max: 3 },   // v2 (walking): + m/s on foot (§24.3)
 };
 
 // =====================================================================================
@@ -319,6 +320,9 @@ export const BALANCE = {
 // −Z = north = up-screen. arena: radius, seed, layout + depth recipe inputs, islands &
 // pillars as collision circles {x, z, r, name?, kind}, deep pools, legend pool, gate,
 // spawn, merchant docks (day 1 = docks[0]; yaw faces the lake centre).
+// v2 (walking, DESIGN §24): ARENA_V2 / ZONE_V2 near the end of this file add `mode`, `phases`
+// and the walk layout (walk, places, lamps, moorings, deeds, shortcuts, drops, raft) to
+// sporewood, glasswater and paleabyss. Fields marked `v2:` below were moved for the walk maps.
 // unlock = what the PREVIOUS zone's Descent Gate demands: requires[] opens the gate,
 // shells is the toll paid at the whirlpool. gloom = spawn-rate factor for this lake.
 // valueMult scales bounty rewards & elite Shell drops only (species values are final).
@@ -360,28 +364,27 @@ export const ZONES = [
     id: 'sporewood', index: 1, name: 'Sporewood Pools', subtitle: 'A Garden That Forgot the Sun',
     arena: {
       radius: 65, seed: 2711, layout: 'twoBasins', shelf: 8, depthShare: [30, 40, 30], noise: 0.08,
-      reef: { x: 0, zFrom: -42, zTo: 38, width: 6, depth: 0.15 },   // shallow cap-reef mat splitting the basins
+      reef: { x: 0, zFrom: -30, zTo: 38, width: 6, depth: 0.15 },   // shallow cap-reef mat splitting the basins (v2: ends at z −30 so the Veil Reach is deep)
       deepPools: [
-        { name: 'Lullaby Pool', x: -28, z: -8, r: 16, depth: 0.85 },
-        { name: 'Grove Well', x: 28, z: -16, r: 14, depth: 0.95 },
+        { name: 'Lullaby Pool', x: -28, z: -1, r: 11, depth: 0.85 },     // v2: was (-28,-8) r16 (now clear of the Gillback)
+        { name: 'Murmur Basin', x: 26, z: 4, r: 11, depth: 0.8 },        // v2: the Grove Well is now an enclosed lagoon on Mother Cap Isle
       ],
-      legendPool: { x: 28, z: -16, r: 3.2, name: 'Grove Well' },
+      legendPool: { x: 32, z: -30, r: 3.2, name: 'Grove Well' },        // v2: was (28,-16); inside the Root Nave lagoon
       islands: [
         { name: 'Cap Reef I', x: 0, z: 32, r: 4.5, kind: 'cap' },
         { name: 'Cap Reef II', x: 0, z: 10, r: 5, kind: 'cap' },
         { name: 'Cap Reef III', x: 0, z: -14, r: 5, kind: 'cap' },
-        { name: 'Cap Reef IV', x: 0, z: -36, r: 4.5, kind: 'cap' },
-        { name: 'West Lily Cap', x: -44, z: -30, r: 5, kind: 'lily' },
+        { name: 'Cap Reef IV', x: 0, z: -34, r: 4, kind: 'cap' },            // v2: was (0,-36) r4.5
         { name: 'East Lily Cap', x: 46, z: -2, r: 4, kind: 'lily' },
-        { name: 'South Lily Cap', x: -16, z: 40, r: 4, kind: 'lily' },
+        { name: 'South Lily Cap', x: -16, z: 42, r: 3.5, kind: 'lily' },      // v2: West Lily Cap removed (the Gillback is land now)
       ],
-      pillars: [
-        { x: -41, z: 21, r: 1.6, kind: 'stalk' }, { x: -35, z: 22, r: 1.2, kind: 'stalk' }, { x: -38, z: 28, r: 2.0, kind: 'stalk' }, { x: -44, z: 27, r: 1.4, kind: 'stalk' },
-        { x: 35, z: 23, r: 1.4, kind: 'stalk' }, { x: 41, z: 24, r: 2.0, kind: 'stalk' }, { x: 37, z: 30, r: 1.2, kind: 'stalk' }, { x: 43, z: 30, r: 1.6, kind: 'stalk' },
+      pillars: [   // v2: the Lanternstalks stand on the two southern groves
+        { x: -30, z: 17, r: 1.4, kind: 'stalk' }, { x: -55, z: 22, r: 1.6, kind: 'stalk' }, { x: -33, z: 44, r: 2.0, kind: 'stalk' }, { x: -46, z: 40.5, r: 1.4, kind: 'stalk' },
+        { x: 30, z: 20, r: 1.4, kind: 'stalk' }, { x: 54, z: 24, r: 2.0, kind: 'stalk' }, { x: 33, z: 44, r: 1.2, kind: 'stalk' }, { x: 42, z: 43, r: 1.6, kind: 'stalk' },
       ],
-      gate: { name: 'The Mycelium Veil', x: 30, z: -47, r: 4.5 },
-      spawn: { x: 0, z: 50, yaw: 0 },
-      docks: [{ x: 20, z: 57 }, { x: 56, z: 18 }, { x: 52, z: -34 }, { x: -36, z: -50 }, { x: -57, z: 8 }],
+      gate: { name: 'The Mycelium Veil', x: 0, z: -53, r: 4.5 },          // v2: was (30,-47); north, behind the Hyphae Bridge
+      spawn: { x: 0, z: 52, yaw: 0 },
+      docks: [{ x: 19, z: 35 }, { x: -22, z: 29 }, { x: -16.7, z: -13.1 }, { x: 16.9, z: -12 }, { x: 26, z: 4 }],   // v2: beside the four jetties + the Murmur Basin
     },
     unlock: { shells: 180, requires: [{ type: 'legendary', id: 'belled_matriarch', label: 'Land the Belled Matriarch' }] },
     drain: { oil: 1.2, satiety: 1.15 }, gloom: 1.13, valueMult: 1.5,
@@ -395,7 +398,7 @@ export const ZONES = [
     id: 'glasswater', index: 2, name: 'Glasswater Vault', subtitle: 'Where the Kingdom Kept Its Light',
     arena: {
       radius: 70, seed: 4421, layout: 'ringTrench', shelf: 7, depthShare: [30, 20, 50], noise: 0.06,
-      plateau: { r: 22, depth: 0.2 },                               // shallow, eel-free centre
+      plateau: { r: 20, depth: 0.45 },                              // v2: the plateau is now the Orrery Floor (land, r 20); this is the moat shelf
       trench: { rInner: 26, rOuter: 48, depth: 0.92 },              // the deep ring
       deepPools: [],
       legendPool: { x: 0, z: -37, r: 3.2, name: 'North Trench' },
@@ -410,12 +413,13 @@ export const ZONES = [
       pillars: [
         { x: 8.66, z: 5, r: 1.2, kind: 'reliquary' }, { x: 0, z: 10, r: 1.2, kind: 'reliquary' }, { x: -8.66, z: 5, r: 1.2, kind: 'reliquary' },
         { x: -8.66, z: -5, r: 1.2, kind: 'reliquary' }, { x: 0, z: -10, r: 1.2, kind: 'reliquary' }, { x: 8.66, z: -5, r: 1.2, kind: 'reliquary' },
-        { x: 56, z: 0, r: 1.8, kind: 'shelf' }, { x: 28, z: 48.5, r: 1.8, kind: 'shelf' }, { x: -28, z: 48.5, r: 1.8, kind: 'shelf' },
-        { x: -56, z: 0, r: 1.8, kind: 'shelf' }, { x: -28, z: -48.5, r: 1.8, kind: 'shelf' }, { x: 28, z: -48.5, r: 1.8, kind: 'shelf' },
+        // v2: bookcases stand on the Reading Terraces, clear of the ramps and chapels
+        { x: 56, z: 0, r: 1.8, kind: 'shelf' }, { x: 51.96, z: 30, r: 1.8, kind: 'shelf' }, { x: -51.96, z: 30, r: 1.8, kind: 'shelf' },
+        { x: -51.96, z: -30, r: 1.8, kind: 'shelf' }, { x: 0, z: -63.5, r: 1.8, kind: 'shelf' }, { x: 51.96, z: -30, r: 1.8, kind: 'shelf' },
       ],
       gate: { name: 'The Vault Seal', x: 0, z: 0, r: 5 },
-      spawn: { x: 0, z: 58, yaw: 0 },
-      docks: [{ x: 21.9, z: 60.1 }, { x: 64, z: -2.2 }, { x: 17.6, z: -61.5 }, { x: -53.1, z: -35.8 }, { x: -50.4, z: 39.4 }],
+      spawn: { x: 0, z: 51, yaw: 0 },                                         // v2: on foot, on the Lower Gallery (was (0,58) on the raft)
+      docks: [{ x: 15, z: 43.5 }, { x: 44.5, z: -8 }, { x: 8, z: -44.5 }, { x: -44.5, z: 8 }, { x: -32, z: 31 }],   // v2: in the moat, ≤ 5 m from a walkway
     },
     unlock: { shells: 420, requires: [{ type: 'legendary', id: 'drifting_grove', label: 'Land the Drifting Grove' }] },
     drain: { oil: 1.4, satiety: 1.3 }, gloom: 1.27, valueMult: 2.2,
@@ -429,24 +433,21 @@ export const ZONES = [
     id: 'paleabyss', index: 3, name: 'The Pallid Deep', subtitle: 'Where the Kingdom Laid Its Light to Rest',
     arena: {
       radius: 78, seed: 9001, layout: 'drop', shelf: 6, depthShare: [10, 30, 60], noise: 0.06,
-      causeway: { x: 0, zFrom: 30, zTo: 70, width: 8, depth: 0.2 },   // the only shallows
+      causeway: null,                                                  // v2: the causeway is now land (the Spine); the only shallows are at the Landing
       deepPools: [{ name: 'The Well', x: 0, z: -52, r: 12, depth: 1.0 }],
       legendPool: { x: 0, z: -52, r: 3.2, name: 'The Well' },
       islands: [
         { name: 'The Kneeling West', x: -24, z: -44, r: 10, kind: 'giant' },
         { name: 'The Kneeling East', x: 24, z: -44, r: 10, kind: 'giant' },
-        { name: 'Funeral Barge', x: -40, z: 10, r: 4, kind: 'wreck' },
-        { name: 'Candle Barge', x: 42, z: 4, r: 4, kind: 'wreck' },
-        { name: 'Bier Barge', x: -10, z: -20, r: 4, kind: 'wreck' },
+        { name: 'Funeral Barge', x: -42, z: 12, r: 4, kind: 'wreck' },   // v2: was (-40,10), clear of the rib feet
+        { name: 'Candle Barge', x: 42, z: 4, r: 4, kind: 'wreck' },   // v2: the Bier Barge is a walkable deck now (ARENA_V2)
       ],
-      pillars: [   // the Rib Arches: 9 bone pillars on an arc r 32, −120°…+120° from north, open toward the causeway
-        { x: -27.7, z: 16, r: 1.5, kind: 'rib' }, { x: -32, z: 0, r: 1.5, kind: 'rib' }, { x: -27.7, z: -16, r: 1.5, kind: 'rib' },
-        { x: -16, z: -27.7, r: 1.5, kind: 'rib' }, { x: 0, z: -32, r: 1.5, kind: 'rib' }, { x: 16, z: -27.7, r: 1.5, kind: 'rib' },
-        { x: 27.7, z: -16, r: 1.5, kind: 'rib' }, { x: 32, z: 0, r: 1.5, kind: 'rib' }, { x: 27.7, z: 16, r: 1.5, kind: 'rib' },
-      ],
+      // v2: the Rib Arches are 8 ribs whose two feet (r 28.5 and r 35.5) straddle the Rib Walk (r 30.5–33.5)
+      pillars: [165, 195, 225, 255, 285, 315, 345, 375].flatMap((a) => [28.5, 35.5].map((r) => ({
+        x: Math.round(r * Math.cos(a * Math.PI / 180) * 100) / 100, z: Math.round(r * Math.sin(a * Math.PI / 180) * 100) / 100, r: 1.2, kind: 'rib' }))),
       gate: null,   // final lake: the Well is the finale
-      spawn: { x: 0, z: 66, yaw: 0 },
-      docks: [{ x: 48, z: 56 }, { x: -48, z: 56 }, { x: 70, z: 20 }, { x: -70, z: 20 }],
+      spawn: { x: 0, z: 68, yaw: 0 },                                         // v2: on foot, on the Landing of Last Rafts
+      docks: [{ x: 12, z: 58 }, { x: 34, z: 55.5 }, { x: -31, z: 19.5 }, { x: 31, z: 19.5 }, { x: 4.5, z: -36.5 }],   // v2: beside the walkways
     },
     unlock: { shells: 900, requires: [{ type: 'legendary', id: 'glass_sovereign', label: 'Land the Glass Sovereign' }] },
     drain: { oil: 1.65, satiety: 1.45 }, gloom: 1.4, valueMult: 3.0,
@@ -732,6 +733,60 @@ export const SPECIES = [
     model: { shape: 'leviathan', body: 0xd8d2c0, belly: 0xf6f2e6, fin: 0x8a8270, glow: 0xe8c66a, pattern: 'scales', eyes: 'glow', scale: 3.5 },
     hint: 'Only Drowned Marrow. Only in the Gloomtide. Only in the deepest water of the Pallid Deep.',
     lore: 'Older than the kingdom above. The kingdom fell into it the way a coin falls into a well.' },
+
+  // ---------------------------------------------------------------- v2 (walking, DESIGN §24.7): place-kept species
+  // `place`: eligible ONLY when the bobber lands in that place's water (fishing v1 must skip species with a place).
+  // `cond`: extra gate read by fishing v2 — buff (Gill Harp sings), deed (the place's deed is done), reflection
+  // (cast hit a reflected fish), plumbBottom (plumbed to the bottom ledger), window (inside the place's phase window).
+  // Rolled as rare with weight × BALANCE.places.exclusiveWeight. They count as rares everywhere else.
+  { id: 'harpstring_eel', name: 'Harpstring Eel', zone: 'sporewood', rarity: 'rare', tier: 3, place: 'gill_harp', cond: 'buff',
+    weight: [0.6, 2.4], value: 74, food: 22, oil: 44, time: 'any', depth: [0.4, 0.85], bait: null, behavior: 'darter',
+    difficulty: diff(3, 'darter'),
+    model: { shape: 'eel', body: 0x3a1f3e, belly: 0xffc9de, fin: 0xff7fb0, glow: 0xff9fc4, pattern: 'stripes', eyes: 'glow', scale: 1.1 },
+    hint: 'It only leaves the gill-strings while the Gill Harp sings.',
+    lore: 'It lives between the gill-strings and comes out only when the chord is right. It has perfect pitch and no patience.' },
+  { id: 'hushcap_koi', name: 'Hushcap Koi', zone: 'sporewood', rarity: 'rare', tier: 3, place: 'spore_shrine', cond: 'deed',
+    weight: [1, 4], value: 78, food: 26, oil: 46, time: 'calm', depth: [0.6, 1], bait: null, behavior: 'darter',
+    difficulty: diff(3, 'darter'),
+    model: { shape: 'koi', body: 0x2b1b30, belly: 0xe9d6f0, fin: 0xffb46a, glow: 0xffd28a, pattern: 'spots', eyes: 'glow', scale: 1.05 },
+    hint: 'In the Spore Shrine, once all three of its lanterns burn.',
+    lore: 'It glows only in the dark the shrine keeps. Light the lanterns and the dark comes up to look at you.' },
+  { id: 'the_unreflected', name: 'The Unreflected', zone: 'glasswater', rarity: 'rare', tier: 4, place: 'mirror_pool', cond: 'reflection',
+    weight: [1, 4], value: 145, food: 30, oil: 56, time: 'any', depth: [0.5, 1], bait: null, behavior: 'darter',
+    difficulty: diff(4, 'darter'),
+    model: { shape: 'pike', body: 0xc9e8ff, belly: 0xffffff, fin: 0x5062b0, glow: 0x9fe8ff, pattern: 'none', eyes: 'blind', scale: 1.1 },
+    hint: 'Cast where its reflection swims, not where it seems to be.',
+    lore: 'It has no reflection. In the Mirror Pool it is the only thing that does.' },
+  { id: 'the_footnote', name: 'The Footnote', zone: 'glasswater', rarity: 'rare', tier: 4, place: 'well_of_ledgers', cond: 'plumbBottom',
+    weight: [2, 6], value: 140, food: 40, oil: 54, time: 'any', depth: [0.9, 1], bait: null, behavior: 'sinker',
+    difficulty: diff(4, 'sinker'),
+    model: { shape: 'angler', body: 0x1b2246, belly: 0xd8e8ff, fin: 0x0b1030, glow: 0x5ff2ff, pattern: 'bands', eyes: 'glow', scale: 1.15 },
+    hint: 'At the very bottom of the Well of Ledgers. Only a perfect cast reaches it.',
+    lore: 'Every ledger has one: a small thing at the very bottom that explains everything above it.' },
+  { id: 'rainglass_darter', name: 'Rainglass Darter', zone: 'glasswater', rarity: 'rare', tier: 4, place: 'stilled_cascade',
+    weight: [0.3, 1.2], value: 135, food: 20, oil: 60, time: 'calm', depth: [0.75, 0.95], bait: null, behavior: 'darter',
+    difficulty: diff(4, 'darter'),
+    model: { shape: 'minnow', body: 0x9fe8ff, belly: 0xffffff, fin: 0xb48cff, glow: 0xc9e8ff, pattern: 'spots', eyes: 'normal', scale: 0.6 },
+    hint: 'Under the Stilled Cascade, while the light lasts.',
+    lore: 'Rain that fell into the cascade the moment it froze, and decided to stay.' },
+  { id: 'the_clapper', name: 'The Clapper', zone: 'paleabyss', rarity: 'rare', tier: 4, place: 'sunken_belfry',
+    weight: [3, 9], value: 225, food: 46, oil: 70, time: 'any', depth: [0.8, 1], bait: null, behavior: 'thrasher',
+    difficulty: diff(4, 'thrasher'),
+    model: { shape: 'carp', body: 0x4a4436, belly: 0xe9e2cf, fin: 0x2a261c, glow: 0xe8c66a, pattern: 'bands', eyes: 'glow', scale: 1.3 },
+    hint: 'It lives in the drowned bell. Listen for it.',
+    lore: 'When it turns over in the bell, the bell rings, and everything else in the Deep goes quiet to listen.' },
+  { id: 'wax_bearer', name: 'The Wax-Bearer', zone: 'paleabyss', rarity: 'rare', tier: 4, place: 'bier_barge', cond: 'deed',
+    weight: [2, 6], value: 220, food: 30, oil: 80, time: 'any', depth: [0.7, 0.9], bait: null, behavior: 'leaper',
+    difficulty: diff(4, 'leaper'),
+    model: { shape: 'eel', body: 0xd8d2c0, belly: 0xfff6e0, fin: 0x8a8070, glow: 0xffe2a8, pattern: 'none', eyes: 'glow', scale: 1.2 },
+    hint: 'In the hold of the Bier Barge, once the dead have been given something.',
+    lore: 'It carries a drop of candle-wax on its brow, as the dead were sent off. No one knows whose.' },
+  { id: 'the_unpaid_fare', name: 'The Unpaid Fare', zone: 'paleabyss', rarity: 'rare', tier: 4, place: 'ferry_slip', cond: 'window',
+    weight: [4, 12], value: 240, food: 50, oil: 78, time: 'calm', depth: [0.8, 1], bait: null, behavior: 'sinker',
+    difficulty: diff(4, 'sinker'),
+    model: { shape: 'ghost', body: 0x2a2822, belly: 0xa8a18c, fin: 0x14130f, glow: 0xe8c66a, pattern: 'none', eyes: 'glow', scale: 1.35 },
+    hint: 'It waits in the Empty Ferry Slip, but only at dusk.',
+    lore: 'A coin-eyed fish that waits for a ferry that never brings anyone. It will settle for you.' },
 ];
 // =====================================================================================
 // BAITS (DESIGN §5.2–§5.3, §13.4) — consumed one charge per cast (legend baits: consumed only when
@@ -767,6 +822,10 @@ export const BAITS = [
     desc: 'Its wings split light into seven sorrows. Keep it in the dark until you need it.', bonus: {} },
   { id: 'pale_marrow', name: 'Drowned Marrow', price: 320, count: 1, zoneMin: 3, zone: 'paleabyss', unlock: null, legend: true, icon: 'bone',
     desc: 'The marrow of something that should not have died. Only one thing down here is hungry enough.', bonus: { gloomDraw: 0.35 } },
+  // v2 (walking, §24.10)
+  { id: 'wick_worm', name: 'Wick-Worms', price: 30, count: 4, zoneMin: 1, unlock: 'strange_waters', legend: false, icon: 'worm',
+    desc: 'Soft worms that glow like a stub of tallow. The fish of the hidden waters cannot leave them alone.',
+    bonus: { rarityBonus: 0.06, attract: ['harpstring_eel', 'hushcap_koi', 'the_unreflected', 'the_footnote', 'rainglass_darter', 'the_clapper', 'wax_bearer', 'the_unpaid_fare'] } },
 ];
 
 // =====================================================================================
@@ -810,6 +869,9 @@ export const UPGRADES = [
     effects: { rarityBonus: 0.05, biteSpeed: 0.08 }, desc: 'A bent spoon that catches the light. Rarer fish come to look.' },
   { id: 'lure_feather', name: 'Trembling Feather', category: 'lure', icon: 'feather', maxLevel: 2, costs: [80, 220], zone: null,
     effects: { nibbleTells: 1, hookWindow: 0.08 }, desc: 'It shivers a heartbeat before the real bite.' },
+  // v2 (walking, §24.10)
+  { id: 'boots_cork', name: 'Cork-Soled Boots', category: 'feet', icon: 'boots', maxLevel: 3, costs: [45, 120, 280], zone: 'sporewood',
+    effects: { stride: 0.35 }, desc: 'Soles of drowned cork. Quieter on stone, quicker on the long way round. +0.35 m/s on foot.' },
 ];
 
 // =====================================================================================
@@ -831,6 +893,9 @@ export const SUPPLIES = [
     desc: 'Your next two flares cost no oil.' },
   { id: 'tide_chart', name: 'Tide Chart', price: 40, give: { spots: 2 }, zoneMin: 0, limitPerVisit: 1, icon: 'map',
     desc: 'Two rich feeding spots surface now and stay until dusk.' },
+  // v2 (walking, §24.10)
+  { id: 'stake_lantern', name: 'Stake Lantern', price: 40, give: { lampPlace: 1 }, zoneMin: 1, limitPerVisit: 1, icon: 'lamp',
+    desc: 'Drive it into any stone. It burns until dawn, and the dark keeps a little distance.' },
 ];
 
 // =====================================================================================
@@ -887,6 +952,13 @@ export const RELICS = [
     desc: 'A rubbing of a cold, clear stone. Begin in the Glasswater Vault with 450 Shells and 18 banked levels.' },
   { id: 'waystone_paleabyss', name: 'Waystone: Pallid Deep', icon: 'waystone', maxLevel: 1, costs: [700], effects: {}, special: 'waystone:paleabyss', unlock: null, requires: { deepestZone: 3 },
     desc: 'A stone no Wick should have reached. It still points down. Begin in the Pallid Deep with 950 Shells and 28 banked levels.' },
+  // v2 (walking, §24.10)
+  { id: 'roadworn_soles', name: 'Roadworn Soles', icon: 'boots', maxLevel: 3, costs: [45, 125, 280], effects: { stride: 0.2 }, unlock: 'first_footfall',
+    desc: 'Worn through by someone who walked every road down here, and kept walking. +0.2 m/s on foot.' },
+  { id: 'lamplighters_hook', name: "Lamplighter's Hook", icon: 'lamp', maxLevel: 2, costs: [90, 245], effects: {}, special: 'lampRadius:1', unlock: 'a_place_that_knows',
+    desc: 'The brass hook carried on the last round. Waylamps you light throw 1 m more light per level.' },
+  { id: 'floor_map_rubbing', name: 'Floor-Map Rubbing', icon: 'map', maxLevel: 1, costs: [185], effects: {}, special: 'placesRevealed', unlock: 'the_long_way_round',
+    desc: 'Charcoal rubbed over a worn floor-map. Every Place in a lake shows on your markers from the first day.' },
 ];
 
 // =====================================================================================
@@ -1199,6 +1271,16 @@ export const BOONS = [
     desc: 'Your light becomes a wall: +1.5 burn and +2 m radius.', lore: 'Nothing moves in it that you did not allow.' },
   { id: 'gilded_hook', name: 'Gilded Hook', icon: 'gold', rarity: 'legendary', maxLevel: 1, kind: 'stat', effects: { rarityBonus: 0.10, sellMult: 0.15, hookWindow: 0.10 }, unlock: 'cartographer', tags: ['fishing', 'luck'],
     desc: 'Rarer fish, a longer hook window, and Old Murk pays 15% more.', lore: 'Gold remembers being treasure. So do the fish.' },
+
+  // ---------------------------------------------------------------- v2 (walking, §24.10): foot passives (challenge unlocks)
+  { id: 'vantage', name: 'Vantage', icon: 'height', rarity: 'common', maxLevel: 3, kind: 'stat', effects: {}, unlock: 'hidden_waters', tags: ['foot', 'damage'],
+    desc: 'On high ground you hit harder, your light widens and your zaps reach farther.', lore: 'The dark has to climb to reach you. Let it.',
+    proc: { on: 'high', levels: [
+      { damageMult: 0.08, lightRadius: 0.5, zapRange: 2 }, { damageMult: 0.16, lightRadius: 1.0, zapRange: 4 }, { damageMult: 0.24, lightRadius: 1.5, zapRange: 6 } ] } },
+  { id: 'kindred_lamps', name: 'Kindred Lamps', icon: 'lamp', rarity: 'rare', maxLevel: 3, kind: 'stat', effects: {}, unlock: 'lamplighters_round', tags: ['light', 'foot'],
+    desc: 'Lit Waylamps burn with your flame: they scorch what enters them, and catch faster and cheaper.', lore: 'Every lamp you lit remembers whose hand it was.',
+    proc: { on: 'lamp', levels: [
+      { auraFrac: 0.4, lightTime: 0.7, costMult: 0.75 }, { auraFrac: 0.6, lightTime: 0.45, costMult: 0.5 }, { auraFrac: 0.8, lightTime: 0.25, costMult: 0, flareOnLight: true } ] } },
 ];
 
 // =====================================================================================
@@ -1277,7 +1359,18 @@ export const CHALLENGES = [
   { id: 'four_silences', tier: 3, name: 'Four Silences', desc: 'Silence all four Wardens.', type: 'bossDistinct', params: { ids: ['the_wickeater', 'the_veiled_gardener', 'the_shard_abbot', 'the_lightless_ferryman'] }, scope: 'total', reward: { unlock: 'boon:moonless_calm', memories: 60 } },
   { id: 'many_flames', tier: 3, name: 'Many Flames', desc: 'Reach the Glasswater Vault with 3 different Wicks.', type: 'reachZoneCharacters', params: { zone: 'glasswater', n: 3 }, scope: 'total', reward: { unlock: null, memories: 50 } },
   { id: 'light_comes_up', tier: 3, name: 'The Light Comes Up', desc: 'Land the Pale Leviathan.', type: 'victory', params: {}, scope: 'total', reward: { unlock: null, memories: 100 } },
-  { id: 'complete_chronicle', tier: 3, name: 'The Complete Chronicle', desc: 'Name every species in the Journal.', type: 'journal', params: { n: 32 }, scope: 'total', reward: { unlock: null, memories: 200 } },
+  { id: 'complete_chronicle', tier: 3, name: 'The Complete Chronicle', desc: 'Name every species in the Journal.', type: 'journal', params: { n: 40 }, scope: 'total', reward: { unlock: null, memories: 200 } },   // v2: 32 → 40 (8 place-kept species)
+  // ---- IV. Paths Underfoot (v2 walking, §24.10; runs 2–20+)
+  { id: 'first_footfall', tier: 4, name: 'First Footfall', desc: 'Step ashore from your raft.', type: 'footAshore', params: { n: 1 }, scope: 'total', reward: { unlock: 'relic:roadworn_soles', memories: 5 } },
+  { id: 'hidden_waters', tier: 4, name: 'Hidden Waters', desc: 'Discover 6 Places.', type: 'placeFound', params: { n: 6 }, scope: 'total', reward: { unlock: 'boon:vantage', memories: 10 } },
+  { id: 'lamplighters_round', tier: 4, name: "Lamplighter's Round", desc: 'Light 4 Waylamps in one descent.', type: 'lampLit', params: { n: 4 }, scope: 'run', reward: { unlock: 'boon:kindred_lamps', memories: 15 } },
+  { id: 'strange_waters', tier: 4, name: 'Strange Waters', desc: 'Land 3 different place-kept fish.', type: 'placeSpecies', params: { n: 3 }, scope: 'total', reward: { unlock: 'bait:wick_worm', memories: 15 } },
+  { id: 'a_place_that_knows', tier: 4, name: 'A Place That Knows You', desc: 'Master a Place.', type: 'placeMastered', params: { n: 1 }, scope: 'total', reward: { unlock: 'relic:lamplighters_hook', memories: 15 } },
+  { id: 'the_long_way_round', tier: 4, name: 'The Long Way Round', desc: 'Open 3 shortcuts in one descent.', type: 'shortcutOpen', params: { n: 3 }, scope: 'run', reward: { unlock: 'relic:floor_map_rubbing', memories: 10 } },
+  { id: 'held_the_span', tier: 4, name: 'Held the Span', desc: 'Disperse 60 gloomlings on bridges in a single Gloomtide.', type: 'slayOnTag', params: { tag: 'bridge', n: 60 }, scope: 'run', reward: { unlock: null, memories: 20 } },
+  { id: 'far_from_any_lamp', tier: 4, name: 'Far From Any Lamp', desc: "Endure a Gloomtide on foot in the Glasswater Vault or deeper without standing in a Waylamp's light.", type: 'nightNoLamp', params: { zoneMin: 2 }, scope: 'run', reward: { unlock: null, memories: 20 } },
+  { id: 'every_lamp', tier: 4, name: 'Every Lamp in the Vault', desc: 'Light every Waylamp in the Glasswater Vault in one descent.', type: 'lampLitZone', params: { zone: 'glasswater' }, scope: 'run', reward: { unlock: null, memories: 25 } },
+  { id: 'every_still_place', tier: 4, name: 'Every Still Place', desc: 'Master every Place in the three lower lakes.', type: 'placeMastered', params: { n: 21 }, scope: 'total', reward: { unlock: null, memories: 50 } },
 ];
 
 // =====================================================================================
@@ -1636,6 +1729,7 @@ export function memoriesFor(summary = {}) {
     { label: L.enemies, value: Math.floor((s.enemiesSlain || 0) / M.slainPer) },
     { label: L.elites, value: M.elite * (s.elitesSlain || 0) },
     { label: L.wardens, value: M.warden * (s.bossesSlain || 0) },
+    { label: L.places || 'New places found', value: (M.placeNew || 0) * (s.placesNew || 0) },   // v2 (walking, §24.9)
   ];
   if (Array.isArray(s.trophies) && s.trophies.length) {
     rows.push({ label: L.trophies, value: s.trophies.reduce((a, t) => a + (BALANCE.economy.trophyMemories[t | 0] || 0), 0) });
@@ -1649,6 +1743,625 @@ export function memoriesFor(summary = {}) {
   }
   const breakdown = rows.filter((r) => r.value > 0);
   return { total: subtotal, breakdown };
+}
+
+// =====================================================================================
+// v2 (walking) — DESIGN §24 "Exploration on foot". Everything below is ADDITIVE: it extends
+// BALANCE / ZONES / TIPS / TEXT in place and adds new exports. Mossmere stays raft-only.
+// Modules read every field here defensively (`?.` / `??`); without it they behave as v1.
+// =====================================================================================
+
+// ---- On-foot controller, transitions, cast-from-height, camera (§24.2–§24.5; player, render, fishing).
+BALANCE.walk = {
+  speedMult: 0.82,            // foot top speed = stats.moveSpeed × speedMult + stats.stride  (4.9 m/s base)
+  accel: 10, decel: 14,       // 1/s velocity lerp toward target / toward 0: 0→90% in 0.23 s, stops in ≈ 0.25 m
+  turnRate: 12, faceMinSpeed: 0.15,
+  radius: 0.4,                // foot collision radius (walkways are ≥ 2.4 m wide)
+  stepUp: 0.45, stepDown: 0.6, maxSlope: 0.6,   // per-move height limits; ramps ≤ 0.6 rise/run (31°)
+  uphillSlow: 0.2,            // speed × (1 − uphillSlow × slope / maxSlope)
+  pushInto: 0.2,              // s of stick held into a mooring ring / boarding tip / drop edge to cross it
+  drop: { max: 3.5, time: 0.35, perM: 0.08, iframes: 0.2 },   // one-way hop-downs (arena.drops)
+  moor: { range: 3.0, maxSpeed: 2.0, time: 0.6 },   // raft within range of a mooring slot and slower than maxSpeed
+  board: { range: 3.0, time: 0.5 },
+  hopIframes: 0.3,            // i-frames while hopping on/off the raft
+  towBell: { speed: 6, etaMin: 3, etaMax: 12 },     // ring a jetty bell: the moored raft is towed to that mooring
+  castStopSpeed: 1.0,         // the cast meter starts once foot speed < this (no anchor brake on foot)
+  highCast: { from: 1.0, perM: 0.5, cap: 4 },       // castMax + min(cap, perM × (standY − from)) when standY > from
+  poolCast: true,             // aiming into an enclosed pool narrower than castMax: the meter spans near rim → far rim
+  aimAssist: { within: 2.0, pull: 1.0, lock: 1.6 }, // small targets pull the reticle; holes/rows lock within `lock`
+  interactRange: 2.4,         // lamps, deeds, bells, Ashore / Board pills
+  tradeRange: 5,              // = BALANCE.move.interactRange (Murk's barge, from foot or raft)
+  gateFootRange: 2.5,         // foot gate: Descend within gate.r + this of the gate centre
+  stepEvery: 0.34,            // s between player:step events at top speed
+  lanternHeight: 1.55,        // lantern hook height above the ground on the Lantern Crook
+  fallIntoWater: false,       // never: knockback slides along edges (the Wick is a candle)
+  camera: {
+    walk: { elev: 40, dist: 12.5, aim: 3.0, aimY: 0.9, fov: 50, ahead: 0.35, stiff: 4.4 },
+    walkNight: { elev: 54, dist: 20, aim: 1.5, aimY: 0.4, fov: 52, ahead: 0.25, stiff: 4.6 },
+    highFrom: 4, highDist: 1.5, highElev: 3,        // standing ≥ highFrom m: dist + highDist, elev + highElev
+    focusRate: 5, focusDeadband: 0.25,              // camera focus y follows ground y (spring), ignoring steps < deadband
+    yawFixed: true,                                 // camera yaw never turns on foot: controls stay screen-relative
+  },
+  occlusion: { nearR: 0.8, farR: 2.6, floorPad: 0.35, xray: true, lowSouthDist: 14, lowSouthMax: 3.5 },
+};
+
+// ---- Places: the unique fishing locations (§24.7; fishing, progression, ui).
+BALANCE.places = {
+  base: { waitMult: 0.75, rarity: 0.10, quality: 0.06 },     // bobber inside any place's water
+  astir: { waitMult: 0.55, rarity: 0.25, quality: 0.15 },    // today's Astir place (replaces base)
+  astirPerDay: 1, astirFromZone: 1,                          // one per walking lake per day, seeded, never the legend place
+  stackWithSpot: 'max',                                      // place vs feeding spot: per field, the stronger applies
+  exclusiveWeight: 8,                                        // place-kept species: rare weight × this
+  discoverRadius: 8, markerRange: 45, fishHereRange: 2.0,
+  mastery: { catches: 4, minQuality: 'fine', memories: 10 }, // 4 catches in one descent incl. ≥ 1 fine → +10 Memories, Known Place
+  depthOverride: true,                                       // world.getDepth inside place water stays within place.water.depth
+};
+
+// ---- Waylamps: lamps you kindle on walking maps (§24.8–§24.9; survival, combat, progression, ui).
+BALANCE.lamps = {
+  lightTime: 1.0, lightCost: 8, costZoneScaled: true,        // oil = lightCost × zone.drain.oil (9.6 / 11.2 / 13.2)
+  range: 2.4, radius: 6,                                     // kindle within range; light pool radius (m)
+  slow: 0.7,                                                 // enemies inside a lit pool move × this (min with the lantern's 0.75)
+  darknessShelter: true, revealChoir: true,                  // no darkness damage ticks inside; the Silent Choir shows inside
+  snuffSlamRadius: 4, snuffMoths: 3, snuffTime: 6,           // a slam within 4 m, or 3 latched moths for 6 s, snuffs it
+  relightCost: 6,                                            // × zone.drain.oil, any phase
+  revealPlaces: 2,                                           // kindling marks the 2 nearest undiscovered places
+  knownPlacePreLit: true,                                    // a mastered place's lamp starts lit in every later run
+  hop: { phases: ['calm', 'dawn'], time: 2.0, oil: 4 },      // lamp-line hop between lit lamps (and the moored raft)
+  stake: { radius: 5, until: 'dawn' },                       // Stake Lantern supply: a temporary lamp, not a hop node
+  maxPathToLamp: 68,                                         // map rule (validated): every reachable foot cell ≤ 68 m path from a lamp
+};
+
+// ---- The swarm on foot (§24.8; combat). Rates, hp, Heat and kinds are unchanged.
+BALANCE.combat.foot = {
+  contactRadius: 1.5, contactDy: 1.6,                        // vs 1.8 on the raft
+  crawl: { climb: 1.2, drop: 3.5, haul: 0.8, haulAuraTaken: 1.5, landSpeed: 0.85 },
+  spawn: { flyer: [22, 34], crawl: [16, 28], crawlPathMax: 40, flyerOverWater: 0.7, emerge: 0.9, emergeWithin: 18, fallbackMinDist: 16, unreachable: 'flyer' },
+  flow: { cell: 1, every: 0.35, cellsPerFrame: 9000, directWithin: 5 },
+  leashPath: 45,
+  eel: { reach: 6, maxHeight: 3, poolMinR: 6, flop: 1.2, flopZapMult: 2 },
+  inkwell: { hold: [11, 15], perchFromWalk: 3 },
+  hand: { stainRadius: 2.8 },
+  warden: { telegraphAdd: 0.3, abbotGaps: 3, abbotAlignDeg: 20, sweepLength: 8, imagesNearWalk: 3, eclipseSnuffRadius: 20 },
+  highGround: { minHeight: 2.0, zapRangeAdd: 3, globFlightAdd: 0.3 },
+  pickupAdd: 0.5, cinderDrift: 2.0, fishDrift: 1.0, settleInland: 0.5,
+};
+
+// ---- Day length on walking maps (§24.11; survival).
+BALANCE.travel.arrivalHush = 30;      // + s to the first calm in each newly entered lake (zone index ≥ 1); no calm raid that day
+BALANCE.memories.placeNew = 2;        // run-end Memories per Place discovered for the first time ever (memoriesFor)
+
+// ---- Zone modes and phase overrides.
+export const ZONE_V2 = {
+  mossmere: { mode: 'raft' },
+  sporewood: { mode: 'mixed' },
+  glasswater: { mode: 'foot', phases: { calm: 125 } },
+  paleabyss: { mode: 'foot', phases: { calm: 125 } },
+};
+
+// ---- Walk layouts. Shapes (painter's order) → walkGridFor(). Angles in degrees: x = cx + r·cos a,
+// z = cz + r·sin a (a = 90 is south / toward the camera, 270 is north). y = walk-surface height (m).
+const wp = (x, z) => ({ x, z });
+const wr = (v) => Math.round(v * 100) / 100;
+const wpolar = (cx, cz, r, a) => wp(wr(cx + r * Math.cos(a * Math.PI / 180)), wr(cz + r * Math.sin(a * Math.PI / 180)));
+const wradial = (id, a, r0, r1, y0, y1, w, extra = {}) => {
+  const c = Math.cos(a * Math.PI / 180), s = Math.sin(a * Math.PI / 180);
+  return { id, kind: 'path', pts: [[wr(c * r0), wr(s * r0), y0], [wr(c * r1), wr(s * r1), y1]], w, ...extra };
+};
+
+export const ARENA_V2 = {
+  // ================================================================== Sporewood Pools — raft + walking
+  sporewood: {
+    spawnMode: 'raft', gateAccess: 'raft',
+    raft: { mode: 'free' },
+    walk: {
+      cell: 0.5,
+      shapes: [
+        { id: 'mc_isle', name: 'Mother Cap Isle', kind: 'poly', y: 0.8, tag: 'ground', pts: [[12, -20], [24, -13], [40, -12], [54, -20], [62, -32], [50, -42], [36, -42], [28, -40], [18, -34], [13, -28]] },
+        { id: 'mc_nave', name: 'The Root Nave', kind: 'disc', x: 32, z: -30, r: 9.5, y: 2.4, tag: 'ground' },
+        { id: 'mc_stair', name: 'Gill Stair', kind: 'path', pts: [[18.5, -21.5, 0.8], [25.5, -26.5, 2.4]], w: 3, tag: 'ramp' },
+        { id: 'mc_ridge', name: 'Root Ridge', kind: 'path', pts: [[31, -38.5, 2.4], [21, -44, 6.0]], w: 3, tag: 'ramp' },
+        { id: 'mc_anchor', name: 'Veil Anchor (east)', kind: 'disc', x: 17.5, z: -44, r: 3, y: 6.0, tag: 'ground' },
+        { id: 'mc_jetty', name: 'Rootfoot Jetty', kind: 'path', pts: [[17, -18.5, 0.8], [10.5, -10.5, 0.8]], w: 2.6, tag: 'jetty' },
+        { id: 'gb_isle', name: 'The Gillback', kind: 'poly', y: 0.8, tag: 'ground', pts: [[-12, -20], [-26, -13], [-44, -14], [-56, -24], [-62, -34], [-56, -44], [-44, -52], [-30, -48], [-18, -38], [-13, -28]] },
+        { id: 'gb_crown', name: 'Gill Crown', kind: 'disc', x: -36, z: -36, r: 9, y: 4.2, tag: 'ground' },
+        { id: 'gb_rampA', kind: 'path', pts: [[-27, -19.5, 0.8], [-31.5, -29, 4.2]], w: 3, tag: 'ramp' },
+        { id: 'gb_rampB', kind: 'path', pts: [[-48.5, -21.5, 0.8], [-42, -30, 4.2]], w: 3, tag: 'ramp' },
+        { id: 'gb_shrine', name: 'Shrine Terrace', kind: 'disc', x: -41, z: -45.5, r: 5.5, y: 4.2, tag: 'ground' },   // the Crown's north lobe, against the cliff
+        { id: 'gb_ridge', name: 'Gill Ridge', kind: 'path', pts: [[-30, -42, 4.2], [-21, -44, 6.0]], w: 3, tag: 'ramp' },
+        { id: 'gb_anchor', name: 'Veil Anchor (west)', kind: 'disc', x: -17.5, z: -44, r: 3, y: 6.0, tag: 'ground' },
+        { id: 'gb_jetty', name: 'Gill Jetty', kind: 'path', pts: [[-16.5, -19.5, 0.8], [-10.5, -11.5, 0.8]], w: 2.6, tag: 'jetty' },
+        { id: 'hy_west', kind: 'path', pts: [[-15, -44, 6], [-3.5, -44, 6]], w: 2.6, tag: 'bridge', raftPass: true },
+        { id: 'hy_east', kind: 'path', pts: [[3.5, -44, 6], [15, -44, 6]], w: 2.6, tag: 'bridge', raftPass: true },
+        { id: 'hy_mid', name: 'Hyphae Bridge', kind: 'path', pts: [[-3.5, -44, 6], [3.5, -44, 6]], w: 2.6, tag: 'bridge', raftPass: true, needs: 'hyphae_bridge' },
+        { id: 'lg_isle', name: 'Lanternstalk Grove', kind: 'poly', y: 0.8, tag: 'ground', pts: [[-26, 14], [-40, 11], [-56, 16], [-68, 30], [-50, 58], [-34, 46], [-27, 32]] },
+        { id: 'lg_house', name: 'The Drowned Greenhouse', kind: 'rect', x: -44, z: 31, w: 13, d: 13, y: 1.2, tag: 'ground' },
+        { id: 'lg_jetty', name: 'Stalk Jetty', kind: 'path', pts: [[-28, 25, 0.8], [-18.5, 24.5, 0.8]], w: 2.6, tag: 'jetty' },
+        { id: 'bc_isle', name: 'Bellcap Copse', kind: 'poly', y: 0.8, tag: 'ground', pts: [[24, 18], [38, 14], [54, 18], [68, 30], [46, 58], [30, 46], [24, 32]] },
+        { id: 'bc_harp', name: 'Harp Ring', kind: 'disc', x: 43, z: 32, r: 9, y: 1.2, tag: 'ground' },
+        { id: 'bc_jetty', name: 'Copse Jetty', kind: 'path', pts: [[25, 30.5, 0.8], [16.5, 31, 0.8]], w: 2.6, tag: 'jetty' },
+      ],
+      holes: [
+        { id: 'grove_well', kind: 'disc', x: 32, z: -30, r: 5, depth: 0.95 },
+        { id: 'shrine_pool', kind: 'disc', x: -40, z: -45, r: 2.4, depth: 0.8 },
+        { id: 'gh_row1', kind: 'rect', x: -48.5, z: 30, w: 2, d: 9, depth: 0.45 },
+        { id: 'gh_row2', kind: 'rect', x: -45.5, z: 30, w: 2, d: 9, depth: 0.45 },
+        { id: 'gh_row3', kind: 'rect', x: -42.5, z: 30, w: 2, d: 9, depth: 0.45 },
+        { id: 'gh_row4', kind: 'rect', x: -39.5, z: 30, w: 2, d: 9, depth: 0.45 },
+        { id: 'harp_pool', kind: 'disc', x: 43, z: 32, r: 5.2, depth: 0.75 },
+      ],
+      blocks: [   // glass frames between the greenhouse rows
+        { kind: 'rect', x: -47, z: 30, w: 1, d: 9 }, { kind: 'rect', x: -44, z: 30, w: 1, d: 9 }, { kind: 'rect', x: -41, z: 30, w: 1, d: 9 },
+      ],
+    },
+    moorings: [
+      { id: 'rootfoot', name: 'Rootfoot Jetty', stand: wp(11.2, -11.4), slot: wp(8.1, -7.5), yaw: 0.68, bell: true },
+      { id: 'gill', name: 'Gill Jetty', stand: wp(-11.2, -12.4), slot: wp(-8.2, -8.5), yaw: -0.64, bell: true },
+      { id: 'stalk', name: 'Stalk Jetty', stand: wp(-19.5, 24.6), slot: wp(-14.8, 24.4), yaw: -1.57, bell: true },
+      { id: 'copse', name: 'Copse Jetty', stand: wp(17.5, 31), slot: wp(12.7, 31.2), yaw: 1.57, bell: true },
+    ],
+    lamps: [
+      { id: 'nave_lamp', name: 'Root Nave', x: 32, z: -21.5, place: 'grove_well' },
+      { id: 'crown_lamp', name: 'Gill Crown', x: -36, z: -36, place: 'spore_shrine' },
+      { id: 'yard_lamp', name: 'Lantern Yard', x: -38, z: 42, place: 'drowned_greenhouse' },
+      { id: 'harp_lamp', name: 'Harp Ring', x: 36, z: 26, place: 'gill_harp' },
+      { id: 'anchor_lamp', name: 'Veil Anchor', x: 17.5, z: -44 },
+    ],
+    deeds: [
+      { id: 'hyphae_counterweight', name: 'Swollen Counterweight', kind: 'winch', at: wp(18, -42), opens: 'hyphae_bridge', resets: 'run' },
+      { id: 'shrine_lanterns', name: 'Dead Spore-Lanterns', kind: 'light', points: [wp(46, -22), wp(-38, 47), wp(56, 27)], resets: 'run', place: 'spore_shrine' },
+      { id: 'harp_curtains', name: 'Gill Curtains', kind: 'sequence', points: [wpolar(43, 32, 7.2, 90), wpolar(43, 32, 7.2, 210), wpolar(43, 32, 7.2, 330)], resets: 'day', place: 'gill_harp' },
+    ],
+    shortcuts: [{ id: 'hyphae_bridge', name: 'The Hyphae Bridge', deed: 'hyphae_counterweight' }],
+    drops: [{ id: 'crown_drop', name: 'Crown Lip', from: wp(-27.9, -33.5), to: wp(-25, -32.5) }],
+    places: [
+      { id: 'grove_well', name: 'The Grove Well', access: 'foot', legend: true, lamp: 'nave_lamp', stand: wp(31, -23.5),
+        water: { kind: 'disc', x: 32, z: -30, r: 5, depth: [0.9, 0.95] },
+        attract: { velvet_ray: 2, plumgill_perch: 1.5 },
+        rule: { type: 'rhythm', name: 'Root Breath', period: 16, warn: 1.5, live: 6, mods: { waitMult: 0.6 } },
+        lore: 'The Mother Cap drinks here, ten breaths at a time.',
+        look: 'An enclosed lagoon inside a ring of root arches. On each exhale the arches loosen and amber spores rain onto the water.' },
+      { id: 'lullaby_pool', name: 'The Lullaby Pool', access: 'both', stand: wp(-30, -15), raftStand: wp(-28, 8),
+        water: { kind: 'disc', x: -28, z: -1, r: 8, depth: [0.6, 0.85] },
+        attract: { sleepspore_jelly: 3, velvet_ray: 1.5 },
+        mods: { surgeEveryMult: 1.3, erraticMult: 0.6, hookWindowMult: 0.85 },
+        rule: null,
+        lore: 'Fish sleep here with their mouths open.',
+        look: 'The open West Basin; a slow hum and drifting sleep-spores over violet water. Castable from the raft or from the Gillback beach.' },
+      { id: 'puffball_vent', name: 'The Puffball Vent', access: 'raft', stand: null, raftStand: wp(0, -21),
+        water: { kind: 'disc', x: 0, z: -25, r: 5, depth: [0.45, 0.55] },
+        attract: { sporebelly_puffer: 3, capshell_crayfish: 1.5 },
+        rule: { type: 'rhythm', name: 'Vent Burst', period: 20, warn: 2, live: 6, burst: true, mods: { rarity: 0.25, waitMult: 0.7 } },
+        lore: 'Every twenty breaths the reef sneezes.',
+        look: 'A ring of pink puffball pods on the reef mat. A hiss, a six-metre spore geyser, then settling water full of stunned fish.' },
+      { id: 'drowned_greenhouse', name: 'The Drowned Greenhouse', access: 'foot', lamp: 'yard_lamp', stand: wp(-44, 36.5),
+        water: { kind: 'rect', x: -44, z: 30, w: 11, d: 9, depth: [0.4, 0.5] },
+        attract: { capshell_crayfish: 2, plumgill_perch: 2, sporebelly_puffer: 1.5 },
+        rule: { type: 'targets', name: 'The Lit Row', lock: 1.6,
+          targets: [
+            { id: 'row1', kind: 'rect', x: -48.5, z: 30, w: 2, d: 9 }, { id: 'row2', kind: 'rect', x: -45.5, z: 30, w: 2, d: 9 },
+            { id: 'row3', kind: 'rect', x: -42.5, z: 30, w: 2, d: 9 }, { id: 'row4', kind: 'rect', x: -39.5, z: 30, w: 2, d: 9 } ],
+          lit: { every: 15, line: 0.6, mods: { waitMult: 0.5, quality: 0.12 } } },
+        lore: 'Rows of glass, rows of water, and one row that still remembers the sun.',
+        look: 'A roofless greenhouse of cracked panes. Four flooded beds run up-screen; one glows pink with fish behind the glass, and the glow moves on every 15 s.' },
+      { id: 'gill_harp', name: 'The Gill Harp', access: 'foot', lamp: 'harp_lamp', stand: wp(43, 39.2),
+        water: { kind: 'disc', x: 43, z: 32, r: 5.2, depth: [0.7, 0.8] },
+        attract: { velvet_ray: 2.5, threadling_eel: 2 },
+        rule: { type: 'sequence', name: 'Serenade', deed: 'harp_curtains', window: 15, buff: 45, failDim: 5, mods: { waitMult: 0.5, nibbleTells: 1 } },
+        lore: 'Walk the strings in the order she hums them.',
+        look: 'A pool under the Bellcap, a 14 m pink-gilled cap. Three luminous gill-curtains hang around the ring and pulse in a new order each day.' },
+      { id: 'spore_shrine', name: 'The Spore Shrine', access: 'foot', lamp: 'crown_lamp', stand: wp(-38.5, -41.5),
+        water: { kind: 'disc', x: -40, z: -45, r: 2.4, depth: [0.75, 0.85] },
+        attract: { mildew_angler: 2, sleepspore_jelly: 1.5 },
+        rule: { type: 'deed', name: 'Three Lanterns', deed: 'shrine_lanterns', mode: 'permanent', gloomInCalm: true, mods: { rarity: 0.25, quality: 0.15 } },
+        lore: 'A shrine that kept its own night.',
+        look: 'A veiled pool on a high terrace. Each spore-lantern lit on another island adds a strand of light to the veil; with all three it burns away.' },
+    ],
+  },
+
+  // ================================================================== Glasswater Vault — mostly on foot
+  glasswater: {
+    spawnMode: 'foot', gateAccess: 'foot',
+    raft: { mode: 'ferry', start: 'harbour' },     // the raft is fenced into the east/south moat by the low spokes
+    walk: {
+      cell: 0.5,
+      shapes: [
+        { id: 'gw_terrace', name: 'Reading Terraces', kind: 'ring', x: 0, z: 0, r0: 54, r1: 66, a0: 105, a1: 435, y: 4.0, tag: 'ground' },
+        { id: 'gw_gallery', name: 'Lower Gallery', kind: 'ring', x: 0, z: 0, r0: 48, r1: 54, y: 1.2, tag: 'ground' },
+        ...[20, 60, 120, 160, 230, 270, 300, 340].map((a) => wradial(`gw_ramp${a}`, a, 49.5, 57.5, 1.2, 4.0, 3, { tag: 'ramp' })),
+        { id: 'gw_bellramp', kind: 'path', pts: [[59.5, 18.5, 4.0], [60, 9.5, 7.0]], w: 3, tag: 'ramp' },
+        { id: 'gw_bellchapel', name: 'Chapel of the Struck Hour', kind: 'disc', x: 60, z: 6, r: 4.2, y: 7.0, tag: 'ground' },
+        { id: 'gw_ledgerramp', kind: 'path', pts: [[-48, 34, 4.0], [-44.5, 38.5, 7.0]], w: 3, tag: 'ramp' },
+        { id: 'gw_ledgerlip', name: 'Ledger Stair', kind: 'disc', x: -41, z: 41, r: 5, y: 7.0, tag: 'ground' },
+        { id: 'gw_orrery', name: 'Orrery Floor', kind: 'disc', x: 0, z: 0, r: 20, y: 1.5, tag: 'ground' },
+        // spokes: low bridges over the moat (they fence the raft)
+        wradial('sp90a', 90, 19.5, 23, 1.5, 1.45, 3.5, { tag: 'bridge' }),
+        wradial('sp90m', 90, 23, 31, 1.45, 1.38, 3.5, { tag: 'bridge', name: 'The Sundered Span', needs: 'sundered_span' }),
+        wradial('sp90b', 90, 31, 48.5, 1.38, 1.2, 3.5, { tag: 'bridge' }),
+        wradial('sp30a', 30, 19.5, 26, 1.5, 1.43, 3.5, { tag: 'bridge' }),
+        wradial('sp30b', 30, 40, 48.5, 1.29, 1.2, 3.5, { tag: 'bridge', name: 'The Broken Hymnal' }),
+        wradial('sp330', 330, 19.5, 48.5, 1.5, 1.2, 3.5, { tag: 'bridge', name: "Lamplighters' Bridge" }),
+        wradial('sp270a', 270, 19.5, 31.6, 1.5, 1.38, 3.5, { tag: 'bridge', name: 'Chandelier Causeway' }),
+        wradial('sp270b', 270, 42.4, 48.5, 1.27, 1.2, 3.5, { tag: 'bridge' }),
+        { id: 'crown_ring', name: 'The Crown', kind: 'ring', x: 0, z: -37, r0: 3.6, r1: 6.0, y: 1.15, tag: 'bridge' },
+        wradial('sp210a', 210, 19.5, 28, 1.5, 1.41, 3.5, { tag: 'bridge' }),
+        wradial('sp210m', 210, 28, 40, 1.41, 1.29, 3.5, { tag: 'bridge', name: 'The Bridge of Names', needs: 'names_bridge' }),
+        wradial('sp210b', 210, 40, 48.5, 1.29, 1.2, 3.5, { tag: 'bridge' }),
+        wradial('sp150', 150, 19.5, 48.5, 1.5, 1.2, 3.5, { tag: 'bridge', name: "Mapmakers' Bridge" }),
+        ...[30, 90, 150, 210, 270, 330].map((a) => wradial(`font${a}`, a, 11.4, 14.6, 1.5, 1.5, 2.4, { tag: 'bridge' })),
+      ],
+      holes: [
+        { id: 'vault_seal', kind: 'disc', x: 0, z: 0, r: 5, depth: 1.0 },
+        { id: 'font_ring', kind: 'ring', x: 0, z: 0, r0: 12, r1: 14, depth: 0.25 },
+        { id: 'mirror_pool', kind: 'disc', x: -58.5, z: 0, r: 3.8, depth: 0.7 },
+        { id: 'ledger_well', kind: 'disc', x: -41, z: 41, r: 2.2, depth: 1.0 },
+        { id: 'cascade_basin', kind: 'disc', x: -29, z: -51, r: 4.2, depth: 0.85 },
+      ],
+      blocks: [],
+    },
+    moorings: [
+      { id: 'harbour', name: 'The Harbour Steps', stand: wp(8, 48.6), slot: wp(8, 45), yaw: 0, bell: true },
+      { id: 'ferry_steps', name: 'The Ferry Steps', stand: wp(5.5, 18.8), slot: wp(6.5, 22.2), yaw: 3.14, bell: true },
+    ],
+    lamps: [
+      { id: 'harbour_lamp', name: 'Harbour Steps', x: 3, z: 50.5 },
+      { id: 'orrery_lamp', name: 'Orrery Floor', x: 3, z: 7.5, place: 'font_ring' },
+      { id: 'north_lamp', name: 'North Terrace', x: 0, z: -57.5, place: 'fallen_chandelier' },
+      { id: 'mirror_lamp', name: 'Chapel of Unseen Hours', x: -57, z: 10, place: 'mirror_pool' },
+      { id: 'hour_lamp', name: 'Chapel of the Struck Hour', x: 60, z: 3.5, place: 'bell_window' },
+      { id: 'ledger_lamp', name: 'Ledger Stair', x: -44, z: 41.5, place: 'well_of_ledgers' },
+      { id: 'cascade_lamp', name: 'Stilled Cascade', x: -38, z: -48, place: 'stilled_cascade' },
+      { id: 'hymnal_lamp', name: 'Hymnal Steps', x: 43.3, z: 25, place: 'broken_hymnal' },
+    ],
+    deeds: [
+      { id: 'span_winch', name: 'Span Winch', kind: 'winch', at: wp(2.5, 18.3), opens: 'sundered_span', resets: 'run' },
+      { id: 'tuning_pillar', name: 'Tuning Pillar', kind: 'strike', at: wpolar(0, 0, 50.5, 205), opens: 'names_bridge', resets: 'run' },
+      { id: 'chandelier_arms', name: 'Candle-Arms', kind: 'light', points: [0, 60, 120, 180, 240, 300].map((a) => wpolar(0, -37, 4.6, a)), resets: 'dawn', place: 'fallen_chandelier' },
+      { id: 'bell_rope', name: 'Bell Rope', kind: 'rope', at: wp(61.8, 7.6), cooldown: 40, resets: 'never', place: 'bell_window' },
+    ],
+    shortcuts: [
+      { id: 'sundered_span', name: 'The Sundered Span', deed: 'span_winch' },
+      { id: 'names_bridge', name: 'The Bridge of Names', deed: 'tuning_pillar' },
+    ],
+    drops: [],
+    places: [
+      { id: 'fallen_chandelier', name: 'The Fallen Chandelier', access: 'foot', legend: true, lamp: 'north_lamp', stand: wp(0, -32.4),
+        water: { kind: 'disc', x: 0, z: -37, r: 3.5, depth: [0.9, 0.95] },
+        attract: { mirror_pike: 1.5, shardspine_eel: 1.5 },
+        rule: { type: 'deed', name: 'Lit Arms', deed: 'chandelier_arms', mode: 'dawn', perStep: { rarity: 0.04 }, mods: { nibbleTells: 1, legendEnrageAdd: 15 } },
+        lore: 'It fell in one breath. It has been holding that breath ever since.',
+        look: 'A drowned chandelier whose crown breaks the surface of the trench; you stand on its rim. Six candle-arms can be relit by walking past them.' },
+      { id: 'mirror_pool', name: 'The Mirror Pool', access: 'foot', lamp: 'mirror_lamp', stand: wp(-58.5, 4.6),
+        water: { kind: 'disc', x: -58.5, z: 0, r: 3.8, depth: [0.65, 0.75] },
+        attract: { mirror_pike: 3 },
+        rule: { type: 'reflection', name: 'Reflection', fish: 3, hitR: 1.5, wait: [2, 4], missWaitMult: 1.6, flash: 0.3, axis: 'x', mods: { rarity: 0.2 } },
+        lore: 'Nothing swims in the water. Everything swims in the ceiling.',
+        look: 'The flooded nave of the Chapel of Unseen Hours under a crystal canopy. Three fish silhouettes swim in the canopy and show on the water mirrored across an etched brass line.' },
+      { id: 'bell_window', name: 'The Bell-Chapel Window', access: 'foot', lamp: 'hour_lamp', stand: wp(56.6, 6),
+        water: { kind: 'disc', x: 40, z: 13, r: 5, depth: [0.85, 0.95] },
+        attract: { chime_jelly: 3, mirror_pike: 2 },
+        rule: { type: 'deed', name: 'The Struck Hour', deed: 'bell_rope', mode: 'window', window: 12, mods: { waitMult: 0.4 } },
+        lore: 'Strike the hour and the water remembers.',
+        look: 'A round window seven metres up in the east chapel, looking down over the moat. Pull the rope: the bell tolls and a patch of water below shivers.' },
+      { id: 'well_of_ledgers', name: 'The Well of Ledgers', access: 'foot', lamp: 'ledger_lamp', stand: wp(-41, 44.6),
+        water: { kind: 'disc', x: -41, z: 41, r: 2.2, depth: [0.5, 1.0] },
+        attract: { blind_scrivener: 3, mirror_pike: 1.5 },
+        rule: { type: 'plumb', name: 'Plumb Line', depth: [0.5, 1.0], bottomAt: 0.95, bottomMods: { rarity: 0.1 } },
+        lore: 'Every depth was written down.',
+        look: 'A narrow shaft through shelved stone, its south face broken open so you can see the water far below. The cast drops straight down; the charge chooses how deep.' },
+      { id: 'stilled_cascade', name: 'The Stilled Cascade', access: 'foot', lamp: 'cascade_lamp', stand: wp(-34.5, -49),
+        water: { kind: 'disc', x: -29, z: -51, r: 4.2, depth: [0.8, 0.9] },
+        attract: { glassgill_perch: 2, prism_minnow: 1.5 },
+        mods: { bandAmpMult: 0.25, bandNoiseMult: 0.3, darterJumpMult: 0.5, quality: 0.1, waitMult: 1.4 },
+        rule: null,
+        lore: 'The falls froze mid-word.',
+        look: 'A basin under a waterfall turned to cyan crystal in mid-pour. The water is so still the sweet band barely moves.' },
+      { id: 'broken_hymnal', name: 'The Broken Hymnal', access: 'foot', lamp: 'hymnal_lamp', stand: wpolar(0, 0, 40.6, 30),
+        water: { kind: 'disc', x: 28.6, z: 16.5, r: 6, depth: [0.85, 0.95] },
+        attract: { prism_minnow: 2, mirror_pike: 1.5, shardspine_eel: 2 },
+        rule: { type: 'cue', name: 'Hymn Echo', kind: 'chime', every: [3.5, 5], lead: 1.0, mods: { hookWindowAdd: 0.15, nibbleTells: 1 } },
+        lore: 'The bridge sang as it fell, and never quite finished.',
+        look: 'The tilted outer stub of a collapsed crystal bridge. Shards still chime every few seconds, and fish bite exactly one second after a chime.' },
+      { id: 'burning_glass', name: 'The Burning Glass', access: 'both', stand: null,
+        water: { kind: 'ring', x: 0, z: 0, r0: 25.5, r1: 32.5, a0: 250, a1: 340, depth: [0.85, 0.95] },
+        attract: {},
+        rule: { type: 'moving', name: 'Focused Light', arc: { x: 0, z: 0, r: 29, a0: 250, a1: 340 }, speed: 0.8, r: 3.5, phases: ['calm'], mods: { rarity: 0.2, waitMult: 0.6, quality: 0.08 } },
+        lore: 'A lens the size of a chapel, still trying to light the water.',
+        look: 'A great lens hung high in the vault throws a 7 m pool of focused light that sweeps the north trench and back, about 70 s each way.' },
+      { id: 'font_ring', name: 'The Font Ring', access: 'foot', lamp: 'orrery_lamp', stand: wp(0, 16),
+        water: { kind: 'ring', x: 0, z: 0, r0: 12, r1: 14, depth: [0.2, 0.3] },
+        attract: { prism_minnow: 2, glassblown_puffer: 2 },
+        mods: { waitMult: 0.5, rarity: -0.1 },
+        rule: null,
+        lore: 'Votive fry, small as wishes.',
+        look: 'A shallow ring channel around the Vault Seal, crossed by six footbridges. Quick, cheap, eel-free fish one step from the hub.' },
+    ],
+  },
+
+  // ================================================================== The Pallid Deep — mostly on foot
+  paleabyss: {
+    spawnMode: 'foot', gateAccess: null,
+    raft: { mode: 'beached', at: { x: 6, z: 72, yaw: 0.3 } },     // "Nothing floats in the Pallid Deep."
+    spotStyle: { id: 'breath', name: 'The Breathing Deep', warn: 2, live: 8, every: [40, 70], nearWalk: 14, minDist: 12, maxDist: 45, r: 3.5, mods: { rarity: 0.3, weightBias: 0.5 } },
+    walk: {
+      cell: 0.5,
+      shapes: [
+        { id: 'pd_landing', name: 'Landing of Last Rafts', kind: 'poly', y: 0.4, tag: 'ground', pts: [[-26, 60], [26, 60], [34, 70], [0, 82], [-34, 70]] },
+        { id: 'pd_spine', name: 'The Spine', kind: 'path', pts: [[0, 62, 0.6], [0, 31, 0.8]], w: 4, tag: 'ground' },
+        { id: 'pd_plaza', name: 'Cairn Plaza', kind: 'disc', x: 0, z: 22, r: 9, y: 1.0, tag: 'ground' },
+        { id: 'pd_pier', name: 'Long Pier of Names', kind: 'path', pts: [[2, 46, 0.7], [32, 50, 0.9]], w: 2.6, tag: 'ground' },
+        { id: 'pd_pierend', kind: 'disc', x: 34, z: 50, r: 3, y: 0.9, tag: 'ground' },
+        { id: 'pd_ribwalk', name: 'The Rib Walk', kind: 'ring', x: 0, z: 0, r0: 30.5, r1: 33.5, a0: 150, a1: 390, y: 1.0, tag: 'ground' },
+        { id: 'pd_bearW', name: "Pallbearers' Bridge", kind: 'path', pts: [[-7, 18.5, 1.0], [-27.7, 16, 1.0]], w: 3, tag: 'ground' },
+        { id: 'pd_bearE', name: "Pallbearers' Bridge", kind: 'path', pts: [[7, 18.5, 1.0], [27.7, 16, 1.0]], w: 3, tag: 'ground' },
+        { id: 'pd_bierA', name: 'Bier Causeway', kind: 'path', pts: [[-1, 13.5, 1.0], [-4.5, 2, 1.2]], w: 3, tag: 'ground' },
+        { id: 'pd_bierM', name: 'The Sunken Span', kind: 'path', pts: [[-4.5, 2, 1.2], [-7, -8, 1.3]], w: 3, tag: 'ground', needs: 'bier_span' },
+        { id: 'pd_bierB', kind: 'path', pts: [[-7, -8, 1.3], [-9.5, -16.5, 1.5]], w: 3, tag: 'ground' },
+        { id: 'pd_barge', name: 'The Bier Barge', kind: 'disc', x: -10, z: -20, r: 4, y: 1.5, tag: 'ground' },
+        { id: 'pd_bierlink', kind: 'path', pts: [[-12, -22.5, 1.5], [-15.6, -27.6, 1.0]], w: 3, tag: 'ground' },
+        { id: 'pd_stair', name: 'North Stair', kind: 'path', pts: [[0, -33, 1.0], [0, -37.6, 1.0]], w: 3.5, tag: 'ground' },
+        { id: 'pd_lip', name: 'The Well Lip', kind: 'ring', x: 0, z: -52, r0: 12, r1: 15, y: 1.0, tag: 'ground' },
+        { id: 'pd_armW', name: 'West Forearm', kind: 'path', pts: [[-12.6, -48, 1.0], [-3, -44.6, 6.0]], w: 2.6, tag: 'ramp' },
+        { id: 'pd_armE', name: 'East Forearm', kind: 'path', pts: [[12.6, -48, 1.0], [3, -44.6, 6.0]], w: 2.6, tag: 'ramp' },
+        { id: 'pd_hands', name: 'The Joined Hands', kind: 'disc', x: 0, z: -44, r: 3.5, y: 6.0, tag: 'ground' },
+        { id: 'pd_plank', name: 'Plank Walk', kind: 'path', pts: [[-32, -1.5, 1.0], [-50.5, -15.5, 2.5]], w: 2.6, tag: 'ground' },
+        { id: 'pd_alms', name: 'The Drowned Almshouse', kind: 'rect', x: -58, z: -20, w: 16, d: 14, y: 2.5, tag: 'ground' },
+        { id: 'pd_wallwalk', name: 'Wall Walk', kind: 'path', pts: [[-52.5, -26.5, 2.5], [-43, -40, 1.0]], w: 2.6, tag: 'ground' },
+        { id: 'pd_slippath', name: 'Slip Path', kind: 'path', pts: [[-26.5, -19.5, 1.0], [-40, -40, 1.0]], w: 2.6, tag: 'ground' },
+        { id: 'pd_sliphead', name: 'The Empty Ferry Slip', kind: 'disc', x: -42, z: -42, r: 3, y: 1.0, tag: 'ground' },
+        { id: 'pd_slipW', kind: 'path', pts: [[-44, -44.5, 1.0], [-47, -57, 1.0]], w: 2.4, tag: 'ground' },
+        { id: 'pd_slipE', kind: 'path', pts: [[-50, -44.5, 1.0], [-53, -56, 1.0]], w: 2.4, tag: 'ground' },
+        { id: 'pd_belfrypier', name: 'Belfry Pier', kind: 'path', pts: [[32.5, -3, 1.0], [53, -20.4, 1.2]], w: 2.6, tag: 'ground' },
+        { id: 'pd_belfry', name: 'The Sunken Belfry', kind: 'ring', x: 56, z: -22, r0: 2.2, r1: 4.6, y: 1.2, tag: 'ground' },
+        { id: 'pd_chainwalk', name: 'Chain Walk', kind: 'path', pts: [[27, -19.5, 1.0], [40, -37, 2.0]], w: 2.6, tag: 'ground' },
+        { id: 'pd_plinth', name: 'The Chain Garden', kind: 'disc', x: 44, z: -42, r: 6, y: 2.0, tag: 'ground' },
+        { id: 'pd_bellchain', name: 'Rust Walk', kind: 'path', pts: [[55, -26, 1.2], [47, -37.5, 2.0]], w: 2.6, tag: 'ground' },
+        { id: 'pd_shroudW', name: 'Shroud Walk', kind: 'path', pts: [[-13.5, -57, 1.0], [-34, -58.5, 1.0], [-42.8, -44.6, 1.0]], w: 2.6, tag: 'ground' },
+        { id: 'pd_shroudE', name: 'Shroud Walk', kind: 'path', pts: [[13.5, -57, 1.0], [34, -55, 1.5], [41, -46, 2.0]], w: 2.6, tag: 'ground' },
+      ],
+      holes: [
+        { id: 'bier_hold', kind: 'disc', x: -10, z: -20, r: 1.8, depth: 0.8 },
+        { id: 'alms_cradle', kind: 'disc', x: -63, z: -24, r: 1.4, depth: 0.3 },
+        { id: 'alms_cookpot', kind: 'disc', x: -58, z: -24, r: 1.4, depth: 0.4 },
+        { id: 'alms_bed', kind: 'disc', x: -53, z: -23, r: 1.4, depth: 0.6 },
+        { id: 'alms_chest', kind: 'disc', x: -62, z: -16, r: 1.4, depth: 0.8 },
+        { id: 'alms_shrine', kind: 'disc', x: -55, z: -16, r: 1.4, depth: 0.7 },
+      ],
+      blocks: [{ kind: 'disc', x: 44, z: -42, r: 1.5 }],   // the chain anchor post
+    },
+    moorings: [],
+    lamps: [
+      { id: 'landing_lamp', name: 'Landing of Last Rafts', x: -5, z: 66 },
+      { id: 'plaza_lamp', name: 'Cairn Plaza', x: 4, z: 24 },
+      { id: 'pier_lamp', name: 'Long Pier', x: 34, z: 50, place: 'long_pier' },
+      { id: 'bier_lamp', name: 'Bier Barge', x: -7.5, z: -18, place: 'bier_barge' },
+      { id: 'lip_lamp', name: 'The Well Lip', x: 6, z: -39, place: 'the_well' },
+      { id: 'alms_lamp', name: 'The Almshouse', x: -56, z: -20, place: 'drowned_almshouse' },
+      { id: 'slip_lamp', name: 'Ferry Slip', x: -42, z: -42, place: 'ferry_slip' },
+      { id: 'chain_lamp', name: 'Chain Garden', x: 40, z: -40, place: 'chain_garden' },
+      { id: 'belfry_lamp', name: 'Sunken Belfry', x: 56, z: -18.5, place: 'sunken_belfry' },
+    ],
+    deeds: [
+      { id: 'bone_winch', name: 'Bone Winch', kind: 'winch', at: wp(-8.5, -11), opens: 'bier_span', resets: 'run' },
+      { id: 'bier_offer', name: 'The Bier', kind: 'offer', at: wp(-12.5, -18.5), cost: { fish: 'lowest' }, resets: 'dusk', place: 'bier_barge' },
+    ],
+    shortcuts: [{ id: 'bier_span', name: 'The Sunken Span', deed: 'bone_winch' }],
+    drops: [],
+    places: [
+      { id: 'the_well', name: 'The Well', access: 'foot', legend: true, lamp: 'lip_lamp', stand: wp(0, -38.5), altStand: { x: 0, z: -44, name: 'The Joined Hands' },
+        water: { kind: 'disc', x: 0, z: -52, r: 11.5, depth: [0.95, 1.0] },
+        attract: { lampwarden_angler: 1.5, shroud_ray: 1.5 },
+        rule: null,
+        lore: 'Two who kneel. One who breathes below.',
+        look: 'The black Well between the kneeling giants. Fish from the low Lip (room to move, eels reach you) or climb a forearm to the Joined Hands (6 m up, eel-proof, two narrow ways in).' },
+      { id: 'long_pier', name: 'The Long Pier of Names', access: 'foot', lamp: 'pier_lamp', stand: wp(35.5, 50),
+        water: { kind: 'disc', x: 41, z: 50, r: 6, depth: [0.75, 0.85] },
+        attract: { shroud_ray: 1.5, gilt_eyed_eel: 1.5 },
+        rule: { type: 'drifters', name: 'Candles for the Named', lane: [[41, 34], [41, 62]], every: [20, 30], speed: 0.6, hitR: 1.5, perDay: 3, give: { oil: 6 }, nextBite: { rarity: 0.2 } },
+        lore: "Every candle a promise someone couldn't keep.",
+        look: 'A long pier lined with names. Little candle-rafts drift past its end; land your bobber beside one to relight it.' },
+      { id: 'drowned_almshouse', name: 'The Drowned Almshouse', access: 'foot', lamp: 'alms_lamp', stand: wp(-58, -20),
+        water: { kind: 'rect', x: -58, z: -20, w: 14, d: 12, depth: [0.3, 0.8] },
+        attract: {},
+        rule: { type: 'targets', name: 'Five Rooms', lock: 1.6,
+          targets: [
+            { id: 'cradle', name: 'The Cradle', kind: 'disc', x: -63, z: -24, r: 1.4, depth: 0.3, attract: { ossuary_fry: 4 } },
+            { id: 'cookpot', name: 'The Cookpot', kind: 'disc', x: -58, z: -24, r: 1.4, depth: 0.4, attract: { bonecrook_crayfish: 4 } },
+            { id: 'bed', name: 'The Bed', kind: 'disc', x: -53, z: -23, r: 1.4, depth: 0.6, attract: { pallid_wraithfin: 3 } },
+            { id: 'chest', name: 'The Chest', kind: 'disc', x: -62, z: -16, r: 1.4, depth: 0.8, attract: { gilt_eyed_eel: 3 } },
+            { id: 'shrine', name: 'The Shrine', kind: 'disc', x: -55, z: -16, r: 1.4, depth: 0.7, attract: { funeral_veil: 3 } } ] },
+        lore: 'Five rooms, five lives, and every one of them kept a fish.',
+        look: 'A roofless upper floor with five holes in the boards, each over a different drowned room. Aim near a hole and the reticle locks onto it.' },
+      { id: 'chain_garden', name: 'The Chain Garden', access: 'foot', lamp: 'chain_lamp', stand: wp(44, -36.5),
+        water: { kind: 'ring', x: 44, z: -42, r0: 6, r1: 12, depth: [0.85, 0.95] },
+        attract: { gilt_eyed_eel: 1.5, lampwarden_angler: 1.5 },
+        rule: { type: 'rhythm', name: 'The Thing Below Turns', period: 30, warn: 1.5, live: 8,
+          near: { points: [wp(40, -51), wp(53, -44), wp(50, -50)], r: 4 }, mods: { weightBias: 0.6, rarity: 0.15 },
+          foul: { chance: 0.15, spike: 0.15, warn: 0.3 } },
+        lore: 'Something turns over in its sleep.',
+        look: 'A plinth with a great anchor post; three iron chains plunge into the water around it. Rust snows down and the chains groan before something below rolls over.' },
+      { id: 'sunken_belfry', name: 'The Sunken Belfry', access: 'foot', lamp: 'belfry_lamp', stand: wp(56, -18.5),
+        water: { kind: 'disc', x: 56, z: -22, r: 2.2, depth: [0.85, 0.95] },
+        attract: { lampwarden_angler: 2, gilt_eyed_eel: 1.5 },
+        rule: { type: 'cue', name: 'Rung from Below', kind: 'toll', noPlunge: true, lead: 0, mods: { hookWindowAdd: 0.1, rarity: 0.2 } },
+        lore: 'The bell rings when something touches it.',
+        look: 'The crown of a drowned bell tower; you stand on its parapet over the bell-mouth. No plunge and no "!": the bell tolls and a bone-white ring pulses across the water.' },
+      { id: 'bier_barge', name: 'The Bier Barge', access: 'foot', lamp: 'bier_lamp', stand: wp(-10, -17),
+        water: { kind: 'disc', x: -10, z: -20, r: 1.8, depth: [0.75, 0.85] },
+        attract: { funeral_veil: 2 },
+        rule: { type: 'deed', name: 'Grave Goods', deed: 'bier_offer', mode: 'untilDusk', lockedBefore: true, gloomInCalm: true, mods: { rarity: 0.25, quality: 0.15 } },
+        lore: 'Give the dead a fish, and they open the hold.',
+        look: 'A funeral barge with a lidded hold in its deck. Lay your cheapest fish on the bier and the lid slides back until dusk.' },
+      { id: 'ferry_slip', name: 'The Empty Ferry Slip', access: 'foot', lamp: 'slip_lamp', stand: wp(-42, -42.5),
+        water: { kind: 'path', pts: [[-47, -46], [-50, -55]], w: 3.5, depth: [0.85, 0.95] },
+        attract: { shroud_ray: 1.5 },
+        rule: { type: 'phaseWindow', name: 'The Last Ferry', phases: ['dusk'], firstCastOnly: true, guarantee: 'rare', wait: 2 },
+        lore: 'At dusk the ferry comes. It brings no one.',
+        look: 'Two stone arms around an empty slip. At dusk the water shows a boat that is not there; the first cast into it brings up something rare.' },
+    ],
+  },
+};
+for (const z of ZONES) {
+  if (ZONE_V2[z.id]) Object.assign(z, ZONE_V2[z.id]);
+  if (ARENA_V2[z.id]) Object.assign(z.arena, ARENA_V2[z.id]);
+}
+export const PLACES = ZONES.flatMap((z) => (z.arena.places || []).map((p) => ({ ...p, zone: z.id })));
+
+// ---- Foot-only formations and bounty templates (combat v2 / progression v2 append these;
+// v1 never reads them). `modes` = lake modes where the template may appear.
+export const WALK_FORMATIONS = [
+  { id: 'edgerise', name: 'The Stirring Edge', zoneMin: 1, dayMin: 2, weight: 3, modes: ['mixed', 'foot'], footOnly: true, enemy: 'gloomling', enemyByZone: { sporewood: 'sporeling' },
+    count: { base: 6, perHeat: 1 }, ringRadius: [4, 10], telegraph: 1.2, requiresWaterShare: 0.5,
+    banner: 'The water at your feet stirs.', answer: 'Step inland, or flare as they rise.' },
+  { id: 'snuffers', name: 'Lamp-Snuffers', zoneMin: 1, dayMin: 2, weight: 2, modes: ['mixed', 'foot'], footOnly: true, enemy: 'duskmantle',
+    count: { base: 4, perHeatHalf: 1 }, target: 'lamp', lampWithin: 25,
+    banner: 'Wings, drawn to the lamp.', answer: 'Zap them off the lamp, or let it go dark.' },
+];
+export const WALK_BOUNTIES = [
+  { id: 'place_catch', type: 'placeCatch', text: 'Bring me {n} fish from {place}.', params: { n: [1, 2] }, base: 26, perN: 10, weight: 3, zoneMin: 1, dayMin: 1, modes: ['mixed', 'foot'] },
+  { id: 'place_species', type: 'placeSpecies', text: 'They whisper of a {species} at {place}. Bring it to me.', params: { reachableOnly: true }, base: 55, weight: 1, zoneMin: 1, dayMin: 1, modes: ['mixed', 'foot'] },
+  { id: 'astir_catch', type: 'astirCatch', text: '{place} is astir today. Bring me {n} fish from it.', params: { n: 2 }, base: 34, weight: 2, zoneMin: 1, dayMin: 1, modes: ['mixed', 'foot'] },
+  { id: 'light_lamp', type: 'lampLit', text: 'Light the Waylamp at {lamp} before dusk.', params: { unlitOnly: true }, base: 20, weight: 2, zoneMin: 1, dayMin: 1, modes: ['mixed', 'foot'] },
+  { id: 'lamp_vigil', type: 'nightInLamp', text: "Keep tonight's vigil inside the light of {lamp}.", params: { share: 0.75 }, base: 50, weight: 1, zoneMin: 2, dayMin: 1, modes: ['foot'] },
+];
+
+// ---- Tips, text, Murk (ui / progression).
+TIPS.push(
+  { id: 'moor_walk',   trigger: 'interact:change:moor',     text: 'Push into a jetty, or tap Ashore, to step off. Some pools no raft can reach.' },
+  { id: 'foot_basics', trigger: 'player:mode',              text: 'On foot you stop on a coin. The water is for fishing; the stone is for walking.' },
+  { id: 'tow_bell',    trigger: 'interact:change:bell',     text: "Ring a jetty's bell to call your raft to it." },
+  { id: 'lamp_light',  trigger: 'interact:change:lamp',     text: 'Hold E or Light to kindle a Waylamp. It burns for the rest of the descent.' },
+  { id: 'lamp_hop',    trigger: 'lamp:lit',                 text: 'From a lit Waylamp you can hop to any other you have lit. Not after dusk.' },
+  { id: 'place_found', trigger: 'place:discover',           text: 'A Place: still water with its own rule and its own fish. Master it.' },
+  { id: 'high_cast',   trigger: 'walk:high',                text: 'High ground casts farther, and only stairs bring the mites up to you.' },
+  { id: 'shortcut',    trigger: 'shortcut:open',            text: 'A way is open. It stays open for the rest of this descent.' },
+  { id: 'edge_eels',   trigger: 'foot:eelEdge',             text: 'Eels only reach you near open water. Step back from the edge, or zap.' },
+  { id: 'astir',       trigger: 'place:astir',              text: 'Murk says a Place is astir today. Its water runs rich until dusk.' },
+);
+TEXT.challengeTiers[4] = 'Paths Underfoot';
+TEXT.memoryLabels.places = 'New places found';
+TEXT.walk = {
+  ashore: 'Ashore', board: 'Board', ringBell: 'Ring Bell', light: 'Light', hop: 'Hop', fishHere: 'Fish here',
+  winch: 'Turn', strike: 'Strike', rope: 'Pull', offer: 'Offer',
+  placeFound: 'A new water: {name}', placeMastered: '{name} remembers you.', knownPlace: 'Known Place', placesTitle: 'Places',
+  astirBanner: '{name} is astir today.', duskLamp: 'Nearest Waylamp {m} m · ≈ {s} s',
+  noLamp: 'No lamp within reach. Find high ground, or plant a Stake Lantern.',
+  shortcutOpen: '{name} is open.', lampSnuffed: 'The Waylamp at {name} goes dark.',
+  raftBeached: 'Nothing floats in the Pallid Deep. The raft stays with the others.',
+  raftFerry: "Your raft can't climb stairs. It can still cross the moat to the Ferry Steps.",
+  arrivalHush: 'The Gloom has not found you yet.',
+};
+MERCHANT_LINES.astir = [
+  '{place} is stirring today. Go, before it remembers it is tired.',
+  'Something woke at {place}. Bring me what it brings you.',
+  '{place} has its mouth open today. I would not waste it.',
+];
+
+// ---- The walk grid (world builds from this; validate-data and tools read it too). Pure and
+// deterministic: same zone + same open shortcuts → same grid. Painter's order: ground shapes
+// (later overwrite earlier) → holes (enclosed pools carved from ground) → bridges (over water,
+// pools or ground) → obstacles (islands, pillars, walk.blocks) block. Shapes whose `needs`
+// shortcut is not open are skipped.
+export const WALK_FLAGS = { GROUND: 1, WATER: 2, POOL: 4, BLOCK: 8, RAFTPASS: 16, VOID: 32, BRIDGE: 64 };
+const DEG = Math.PI / 180;
+function segDistT(px, pz, ax, az, bx, bz) {
+  const dx = bx - ax, dz = bz - az, L2 = dx * dx + dz * dz;
+  const t = L2 > 0 ? Math.max(0, Math.min(1, ((px - ax) * dx + (pz - az) * dz) / L2)) : 0;
+  return [Math.hypot(px - (ax + dx * t), pz - (az + dz * t)), t];
+}
+function inPolygon(px, pz, pts) {
+  let c = false;
+  for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
+    const [xi, zi] = pts[i], [xj, zj] = pts[j];
+    if ((zi > pz) !== (zj > pz) && px < ((xj - xi) * (pz - zi)) / (zj - zi) + xi) c = !c;
+  }
+  return c;
+}
+/** Surface height of a walk shape at (x, z), or NaN outside it (disc|ring|rect|poly|path). */
+export function walkShapeHeight(s, x, z) {
+  switch (s.kind) {
+    case 'disc': return Math.hypot(x - s.x, z - s.z) <= s.r ? (s.y ?? 0) : NaN;
+    case 'ring': {
+      const dx = x - s.x, dz = z - s.z, d = Math.hypot(dx, dz);
+      if (d < s.r0 || d > s.r1) return NaN;
+      if (s.a0 != null) {
+        let a = Math.atan2(dz, dx) / DEG; if (a < 0) a += 360;
+        let rel = a - (((s.a0 % 360) + 360) % 360); if (rel < 0) rel += 360;
+        if (rel > s.a1 - s.a0) return NaN;
+      }
+      return s.y ?? 0;
+    }
+    case 'rect': {
+      const c = Math.cos((s.yaw || 0) * DEG), sn = Math.sin((s.yaw || 0) * DEG), dx = x - s.x, dz = z - s.z;
+      return Math.abs(dx * c + dz * sn) <= s.w / 2 && Math.abs(-dx * sn + dz * c) <= s.d / 2 ? (s.y ?? 0) : NaN;
+    }
+    case 'poly': return inPolygon(x, z, s.pts) ? (s.y ?? 0) : NaN;
+    case 'path': {
+      let best = Infinity, by = NaN; const P = s.pts;
+      for (let i = 0; i + 1 < P.length; i++) {
+        const [d, t] = segDistT(x, z, P[i][0], P[i][1], P[i + 1][0], P[i + 1][1]);
+        if (d < best) { best = d; const y0 = P[i][2] ?? s.y ?? 0, y1 = P[i + 1][2] ?? s.y ?? 0; by = y0 + (y1 - y0) * t; }
+      }
+      return best <= s.w / 2 ? by : NaN;
+    }
+    default: return NaN;
+  }
+}
+/** Axis-aligned bounds [x0, z0, x1, z1] of a walk shape. */
+export function walkShapeBounds(s) {
+  switch (s.kind) {
+    case 'disc': return [s.x - s.r, s.z - s.r, s.x + s.r, s.z + s.r];
+    case 'ring': return [s.x - s.r1, s.z - s.r1, s.x + s.r1, s.z + s.r1];
+    case 'rect': { const h = Math.hypot(s.w, s.d) / 2; return [s.x - h, s.z - h, s.x + h, s.z + h]; }
+    case 'poly': case 'path': {
+      const pad = s.kind === 'path' ? s.w / 2 : 0; let a = Infinity, b = Infinity, c = -Infinity, d = -Infinity;
+      for (const p of s.pts) { a = Math.min(a, p[0]); b = Math.min(b, p[1]); c = Math.max(c, p[0]); d = Math.max(d, p[1]); }
+      return [a - pad, b - pad, c + pad, d + pad];
+    }
+    default: return [0, 0, 0, 0];
+  }
+}
+/** True when (x, z) lies in a place's water area (place.water uses the walk-shape kinds). */
+export function placeContains(place, x, z) { return !!place?.water && !Number.isNaN(walkShapeHeight(place.water, x, z)); }
+/** The place whose water contains (x, z) in this zone, or null. */
+export function placeAt(zone, x, z) { return (zone?.arena?.places || []).find((p) => placeContains(p, x, z)) || null; }
+/**
+ * Rasterise a zone's walk layout. Returns {cell, n, ox, oz, top:Float32Array (NaN = no ground),
+ * flags:Uint8Array (WALK_FLAGS), shape:Int16Array (painting shape index, −1), pool:Int16Array
+ * (hole index, −1), idx(x, z) → cell index | −1}. opts.open = {shortcutId: true}.
+ */
+export function walkGridFor(zoneOrId, opts = {}) {
+  const zone = typeof zoneOrId === 'string' ? ZONES.find((z) => z.id === zoneOrId) : zoneOrId;
+  const A = zone.arena, W = A.walk, F = WALK_FLAGS;
+  const cell = opts.cell ?? W?.cell ?? 0.5, R = A.radius, half = R + 2;
+  const n = Math.ceil((2 * half) / cell), ox = -half, oz = -half, N = n * n, open = opts.open || {};
+  const top = new Float32Array(N).fill(NaN), flags = new Uint8Array(N), shape = new Int16Array(N).fill(-1), pool = new Int16Array(N).fill(-1);
+  for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) flags[j * n + i] = Math.hypot(ox + (i + 0.5) * cell, oz + (j + 0.5) * cell) <= R - 0.5 ? F.WATER : F.VOID;
+  const met = (s) => !s.needs || !!open[s.needs];
+  const paint = (s, fn) => {
+    const [x0, z0, x1, z1] = walkShapeBounds(s);
+    const i0 = Math.max(0, Math.floor((x0 - ox) / cell)), i1 = Math.min(n - 1, Math.ceil((x1 - ox) / cell));
+    const j0 = Math.max(0, Math.floor((z0 - oz) / cell)), j1 = Math.min(n - 1, Math.ceil((z1 - oz) / cell));
+    for (let j = j0; j <= j1; j++) for (let i = i0; i <= i1; i++) {
+      const k = j * n + i; if (flags[k] & F.VOID) continue;
+      const y = walkShapeHeight(s, ox + (i + 0.5) * cell, oz + (j + 0.5) * cell);
+      if (!Number.isNaN(y)) fn(k, y);
+    }
+  };
+  const shapes = W?.shapes || [];
+  shapes.forEach((s, si) => { if (s.tag !== 'bridge' && met(s)) paint(s, (k, y) => { top[k] = y; flags[k] = (flags[k] & ~F.WATER) | F.GROUND; shape[k] = si; }); });
+  (W?.holes || []).forEach((h, hi) => paint(h, (k) => { if (flags[k] & F.GROUND) { top[k] = NaN; flags[k] = (flags[k] & ~F.GROUND) | F.POOL; shape[k] = -1; pool[k] = hi; } }));
+  shapes.forEach((s, si) => {
+    if (s.tag !== 'bridge' || !met(s)) return;
+    paint(s, (k, y) => {
+      const wet = flags[k] & (F.WATER | F.POOL);
+      top[k] = y; flags[k] |= F.GROUND; shape[k] = si;
+      if (wet) { flags[k] |= F.BRIDGE; if (s.raftPass) flags[k] |= F.RAFTPASS; }
+    });
+  });
+  for (const o of [...(A.islands || []), ...(A.pillars || []), ...(W?.blocks || [])]) paint(o.kind === 'rect' ? { ...o, y: 0 } : { kind: 'disc', x: o.x, z: o.z, r: o.r, y: 0 }, (k) => { flags[k] |= F.BLOCK; });
+  const idx = (x, z) => { const i = Math.floor((x - ox) / cell), j = Math.floor((z - oz) / cell); return i < 0 || j < 0 || i >= n || j >= n ? -1 : j * n + i; };
+  return { cell, n, ox, oz, top, flags, shape, pool, idx };
 }
 
 // =====================================================================================
@@ -1667,4 +2380,7 @@ export const CHARACTER_BY_ID = byId(CHARACTERS);
 export const CHALLENGE_BY_ID = byId(CHALLENGES);
 export const BOUNTY_BY_ID = byId(BOUNTIES);
 export const FORMATION_BY_ID = byId(FORMATIONS);
+export const PLACE_BY_ID = byId(PLACES);                       // v2 (walking): every place, with .zone
+export const WALK_FORMATION_BY_ID = byId(WALK_FORMATIONS);
+export const WALK_BOUNTY_BY_ID = byId(WALK_BOUNTIES);
 export const LEGENDARY_BY_ZONE = Object.fromEntries(ZONES.map((z) => [z.id, SPECIES.find((s) => s.zone === z.id && s.rarity === 'legendary')?.id || null]));

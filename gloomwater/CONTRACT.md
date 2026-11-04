@@ -225,13 +225,15 @@ it observes. Player position is NOT saved (a continued run respawns at the zone 
 | `relic:buy` | `{relicId, level}` | progression |
 | `victory` | `{}` | progression |
 | `toast` | `{text, kind:'info'|'good'|'bad'|'lore'}` | anyone → ui |
+| *v2 (walking)* | `player:mode`, `player:step`, `player:hop`, `raft:called/arrive`, `walk:high`, `foot:eelEdge`, `place:*`, `lamp:*`, `shortcut:open`, `deed:done` | see §12.3 |
 | `ui:modal` | `{open, id}` | ui |
 
 ## 7. Module APIs
 
 **Space.** Metres; **water surface y = 0**; each zone is a roughly circular cavern
 lake centred on the origin, radius `zone.arena.radius` (~55–80 m) with obstacle
-islands/pillars. The raft moves; `ctx.player.position` is the truth. Heading/yaw:
+islands/pillars. The raft moves; `ctx.player.position` is the truth. **v2 (walking, §12.1):**
+y = 0 stays the only water, but on foot `player.position.y` is the ground height (0 on the raft). Heading/yaw:
 radians about +Y, **yaw 0 faces −Z**, positive yaw turns toward −X (three.js
 convention: `object.rotation.y = yaw`). All models face **+Z** locally (so
 `lookAt(target)` points them at it) — the raft/Wick group is rotated so the raft's
@@ -585,3 +587,146 @@ vectors; dispose removed objects; spatial loops kept O(enemies × weapons).
   `setPhase(name)`; combat `spawn(idOrKind)`, `killAll()`, `levelUp()`, `giveBoon(id)`;
   progression `addShells(n)`, `addMemories(n)`, `unlockZone(id)`, `giveFish(id)`,
   `openGate()`, `completeChallenge(id)`; ui `ui()`.
+
+## 12. v2 (walking) — exploration on foot
+
+Binding additions for DESIGN §24. **Compatibility rules:** every v2 field and call is optional (`?.` / `??`); without it a module behaves exactly as v1. The Mossmere (`mode: 'raft'`) has no walk layout and must behave identically to v1 (QA §24.13 #1). Data lands before code: until fishing v2 ships, **fishing v1 must skip species that have `place`** (one-line eligibility filter); v1 ignores every other v2 field. `WALK_FORMATIONS` and `WALK_BOUNTIES` are separate exports precisely so v1 combat and progression never pick them.
+
+### 12.1 Space (v2)
+
+Water surface **y = 0 is still the only water** (one plane; enclosed pools are the same plane seen through holes in land). Land (walk surfaces) is at y 0.35–9 m. `ctx.player.position` is the truth: **y = the ground height on foot**, 0 on the raft. Anything drawn "on the surface" uses `world.groundY(x, z)` where there is ground, else 0. The camera yaw stays fixed (screen-up = −Z) on foot too, so `input.move` / `input.joy` stay screen-relative. Angles in walk data are degrees with x = cx + r·cos a, z = cz + r·sin a (a = 90° is +Z, south, toward the camera).
+
+### 12.2 State (v2)
+
+```js
+state.run.flags.lamps     = { lampId: 'lit' | 'snuffed' }            // progression (saved); survival/combat read
+state.run.flags.shortcuts = { shortcutId: true }                     // progression (saved); world re-bakes on change
+state.run.flags.deeds     = { deedId: {done, step, day, at} }        // progression (saved): lantern / arm counts, offering day, rope cooldown
+state.run.flags.places    = { placeId: {found, catches, fine} }      // progression (saved): this descent's mastery count
+state.run.flags.astir     = { zoneId: placeId }                      // progression (saved), re-picked each calm
+state.run.stats.placesNew, lampsLit                                   // progression
+state.meta.places = { placeId: {found, catches, mastered, biggest} } // progression (saved); Known Places = mastered
+state.meta.settings.cameraXray = true                                 // ui writes, render reads
+// player mode, raft position, current place are live only (position is still not saved)
+```
+
+### 12.3 Events (v2)
+
+| event | payload | emitter → main consumers |
+|---|---|---|
+| `player:mode` | `{mode:'raft'\|'foot', prev, mooring, reason:'ashore'\|'board'\|'spawn'}` | player → actors, render, water, ui, audio, progression |
+| `player:step` | `{surface:'mycel'\|'plank'\|'crystal'\|'bone'\|'stone', speed}` (≤ 4/s) | player → audio |
+| `player:hop` | `{kind:'ashore'\|'board'\|'drop'\|'lamp', from, to}` | player → actors, audio |
+| `raft:called` / `raft:arrive` | `{mooring, eta?}` | player → actors, ui, audio |
+| `walk:high` | `{y}` (first time on ground ≥ 2 m each zone) | player → ui (tip) |
+| `foot:eelEdge` | `{}` (first eel surfacing near a Wick on foot) | combat → ui (tip) |
+| `place:enter` / `place:leave` | `{id, name}` (5 Hz check of the Wick's position) | player → ui, audio |
+| `place:discover` | `{id, name, zone, first}` | progression → ui, audio, challenges |
+| `place:astir` | `{id, name, zone}` (each calm on walking lakes) | progression → ui, fishing, world |
+| `place:mastered` | `{id, name, zone}` | progression → ui, audio, challenges |
+| `lamp:lit` / `lamp:snuffed` | `{id, name, first?}` / `{id, by:'slam'\|'moths'\|'eclipse'}` | progression (lit) / combat (snuffed) → world, ui, audio, challenges |
+| `shortcut:open` | `{id, name}` | progression → world (re-bake), ui, audio, challenges |
+| `deed:done` | `{id, kind, step, of}` | progression → world, fishing, ui, audio |
+
+Changed payloads (additive fields): `player:anchor` + `mode`; `interact:change` + `hold` (bool) and new ids (below); `fishing:land` and `fishing:caught` + `{place, mode, height}`; `fish:landed` + `place`; `enemy:slain` + `tag` (world tag under it).
+
+### 12.4 Data schema (v2)
+
+```js
+STATS.stride                          // + m/s on foot (base 0)
+ZONES[i].mode: 'raft'|'mixed'|'foot'; ZONES[i].phases?: {calm}          // ZONE_V2, merged into ZONES at load
+ZONES[i].arena (+ ARENA_V2, merged at load):
+  spawnMode: 'raft'|'foot'; gateAccess: 'raft'|'foot'|null
+  raft: {mode:'free'|'ferry'|'beached'|'none', start?: mooringId, at?: {x, z, yaw}}
+  walk: { cell: 0.5,
+    shapes: [{id, name?, kind:'disc'|'ring'|'rect'|'poly'|'path', x,z,r | x,z,r0,r1,a0?,a1? | x,z,w,d,yaw? | pts[[x,z]] | pts[[x,z,y?]],w,
+              y?, tag:'ground'|'ramp'|'jetty'|'bridge', raftPass?, needs?: shortcutId}],
+    holes:  [{id, kind…, depth}],           // enclosed pools carved from ground
+    blocks: [{kind:'disc'|'rect', …}] }      // non-walkable props on land
+  moorings:  [{id, name, stand:{x,z}, slot:{x,z}, yaw, bell}]
+  lamps:     [{id, name, x, z, place?}]
+  deeds:     [{id, name, kind:'winch'|'strike'|'light'|'sequence'|'rope'|'offer', at?|points?, opens?, place?, resets:'run'|'day'|'dawn'|'dusk'|'never', cooldown?, cost?}]
+  shortcuts: [{id, name, deed}]
+  drops:     [{id, name, from:{x,z}, to:{x,z}}]
+  places:    [{id, name, access:'foot'|'raft'|'both', stand:{x,z}|null, raftStand?, altStand?, legend?, lamp?,
+               water:{kind…, depth:[d0,d1]}, attract:{speciesId: mult}, mods?:{…}, rule:{type, name, …}|null, lore, look}]
+  spotStyle?: {id, name, warn, live, every:[a,b], nearWalk, minDist, maxDist, r, mods}
+SPECIES[].place?: placeId; SPECIES[].cond?: 'buff'|'deed'|'reflection'|'plumbBottom'|'window'
+BALANCE.walk, BALANCE.places, BALANCE.lamps, BALANCE.combat.foot, BALANCE.travel.arrivalHush, BALANCE.memories.placeNew
+UPGRADES category 'feet'; SUPPLIES give.lampPlace; RELICS special 'lampRadius:N' | 'placesRevealed'
+BOONS proc.on 'high' | 'lamp'; tag 'foot'; CHALLENGES tier 4 (types in DESIGN §24.10); TEXT.walk; MERCHANT_LINES.astir
+export WALK_FORMATIONS, WALK_BOUNTIES, PLACES (flat, with .zone), PLACE_BY_ID, WALK_FORMATION_BY_ID, WALK_BOUNTY_BY_ID, ZONE_V2, ARENA_V2
+export WALK_FLAGS = {GROUND:1, WATER:2, POOL:4, BLOCK:8, RAFTPASS:16, VOID:32, BRIDGE:64}
+export walkGridFor(zoneOrId, {open, cell}) -> {cell, n, ox, oz, top:Float32Array(NaN = no ground), flags:Uint8Array, shape:Int16Array, pool:Int16Array, idx(x,z)}
+export walkShapeHeight(shape, x, z) -> y | NaN;  walkShapeBounds(shape) -> [x0, z0, x1, z1]
+export placeContains(place, x, z) -> bool;       placeAt(zone, x, z) -> place | null
+```
+`walkGridFor` is the single source of truth for land: world renders and collides from it, and `tools/validate-data.mjs` / `tools/walkmap.mjs` check and print it. Painter's order: ground shapes (later overwrite earlier, skipping unmet `needs`) → holes → bridges → islands / pillars / blocks set BLOCK. One walkable layer per cell.
+
+### 12.5 Module APIs (v2)
+
+**world**
+```
+getMode() -> 'raft'|'mixed'|'foot'; hasTerrain (getter)
+getWalkGrid() -> walkGridFor result for the current zone and open shortcuts (re-baked on shortcut:open)
+groundY(x, z) -> number | NaN;  getGround(x, z) -> {y, shapeId, tag, surface} | null;  isWalkable(x, z, r = 0) -> bool
+moveFoot(pos, dx, dz, {radius}) -> {moved, edge:{nx, nz}|null}      // mutates pos incl. y; never leaves walkable ground
+castClear(from:Vector3, to:Vector3, apexH) -> bool                  // the cast arc clears land
+getSpawn() -> {position (y = ground on foot), yaw, mode}                                    CHANGED (+mode)
+getGate() -> {position, radius, access}                                                     CHANGED (+access)
+getMerchantDock(day) -> {position, yaw, stand|null}                                         CHANGED (+stand)
+getMoorings(); getLamps(); getPlaces(); placeAt(x, z) -> place|null; getDeeds(); getShortcuts()
+getTagAt(x, z) -> shape tag | 'water' | null;  distToOpenWater(x, z) -> m;  getFlow(x, z, out) -> out (unit dir) | null
+randomGroundPoint({from, minDist, maxDist, clearance, reachable}) -> Vector3|null
+randomWaterPoint({…, nearWalk?, castable?:'foot'|'raft'})                                   CHANGED (+options)
+isOpenWater / collide / getDepth: honour land, pools, raftPass, place depth                 CHANGED (semantics, §24.4)
+setLampState(id, 'unlit'|'lit'|'snuffed'); setDeedState(id, state)   // visuals only; progression owns the state
+getAstir() -> placeId|null
+```
+**player**
+```
+mode ('raft'|'foot'); state ('sail'|'walk'|'hop'|'drop'); groundY; topSpeed; place (current place id|null)
+raft -> {position, heading, moored, mooringId, visible}   (live; mirrors position while on the raft)
+interactable ids += 'ashore'|'board'|'bell'|'lamp'|'hop'|'deed:<id>'|'fishHere'                   CHANGED
+ashore(mooringId?); board(); ringBell(mooringId); hopTo(lampId) -> {ok, msg}; setMode(mode, {position, yaw, mooringId})
+knock / push / pull / root: on foot they slide along walkway edges and never leave ground
+```
+**actors**: follow `player.mode` and `player.raft`; `setRaftVisible(bool)`; poses + `walk`, `hop`, `drop`, `kindle`, `offer`; `getRodTip()` / `getLanternPos()` valid on foot; the lantern PointLight is re-parented (never added). **models**: unchanged API.
+
+**render**: camera modes `walk`, `walkNight` (numbers in `BALANCE.walk.camera`), focus y follows `player.position.y`; `pickSurface(ndc) -> {point, kind:'ground'|'water', id}|null`; updates the occlusion uniforms each frame. **toon** (integrator): `OCCLUSION` uniforms and `occludable(material)`.
+
+**water**: unchanged API. Hull foam and the fallback wake use `player.raft` and run only in raft mode; `setLights` may include up to two lit Waylamps (world merges them; still ≤ 6).
+
+**fishing**
+```
+view.place (id|null), view.reach (m, incl. High Cast), view.hint += 'blocked'|'high'|'locked'|'plumb'
+onPointerDown(opts?) {aimAt?: Vector3}            // the Fish-here pill aims at a place
+cast origin at the rod tip; arc clearance via world.castClear; pool-scaled meter; aim assist / lock; place kit (DESIGN §24.7)
+```
+**combat**
+```
+enemy movement class from data (flies → fly; behavior 'leap' → swim; waterBound → crawl); flow field via world.getFlow
+spawn / leash / contact / aura per BALANCE.combat.foot when player.mode === 'foot'; WALK_FORMATIONS appended on foot
+blockers -> [{x, z, r}] (standing hands) ; never writes player.position ; reads player.topSpeed (Comet Keel, Burning Wake)
+lampAt(x, z) -> lamp|null (slow, choir reveal, snuff); emits lamp:snuffed, foot:eelEdge
+```
+**survival**: phase durations read `zone.phases?.calm ?? BALANCE.phases.calm`; Arrival Hush; `spendOil(n, reason) -> bool` (kindle, relight, hop); darkness never ticks while the Wick stands in a lit Waylamp; dusk lamp readout data `getDuskLamp() -> {lampId, meters, seconds}|null`.
+
+**progression**
+```
+getPlaces() -> [{...place, found, catches, mastered, astir, known}]; getAstir(zoneId) -> placeId|null
+lightLamp(id) -> {ok, msg} (spends oil via survival.spendOil); doDeed(id, opts) -> {ok, msg}; offerFish() -> Fish|null
+isShortcutOpen(id); getLampState(id); getDeedState(id)
+new challenge types and bounty types (DESIGN §24.10); Known Places applied in createRun; placesNew in the summary
+```
+**ui**: pills for the new interactable ids (hold ring for `lamp`, `deed:*` and `fishHere`), the Hop radial (keys 1–9), place / lamp / raft edge markers, the Astir banner, the Journal Places tab, the dusk lamp readout, reticle variants, tier IV challenges. **audio**: SFX `step_mycel, step_plank, step_crystal, step_bone, step_stone, hop, land, winch, span_grow, harp_note, chime, toll_deep, lamp_kindle, lamp_snuff, lamp_hop, bell_rope` (procedural, same rules as §7).
+
+**main**: pointerdown routing unchanged (zap → merchant → fishing); a press on ground aims the cast toward that point (fishing resolves it). `E` → `player.interact()` (all new pills). No new keys outside ui's radial.
+
+### 12.6 Performance (v2)
+
+Land ≤ 20 draw calls per walking lake; whole frame ≤ 150 at 150 enemies; **no new dynamic lights** (≤ 4 still); occlusion 0 draw calls (+ 1–2 for the x-ray Wick); walk grid ≤ 1 MB, baked ≤ 60 ms desktop / 200 ms phone during the zone flash; foot mover ≤ 0.15 ms / frame; flow field ≤ 1.7 ms per frame for ≤ 3 frames at ≤ 3 Hz, only on foot at dusk / Gloomtide.
+
+### 12.7 Debug hooks (v2)
+
+world `walkGrid()`, `openShortcut(id)`; player `tp(x, z)`, `foot(on)`; progression `lightLamp(id)`, `discoverAll()`, `astir(id)`, `masterPlace(id)`; fishing `place()` (the place under the reticle). `node tools/walkmap.mjs <zone> [--open]` prints a lake's map and walk times; `node tools/validate-data.mjs` checks every v2 rule.
