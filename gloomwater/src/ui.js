@@ -249,7 +249,7 @@ export function create(ctx) {
       else if (!on && t.held) { t.held = false; t.deadline = now + t.left; t.timer = setTimeout(() => dropToast(t), t.left); t.el.classList.remove('gw-held'); }
     }
   }
-  let toastsYield = false;
+  let toastsYield = '';
   function dropToast(entry, fast = false) {
     if (!entry || entry.dead) return;
     entry.dead = true;
@@ -322,8 +322,14 @@ export function create(ctx) {
     // toasts already up step aside while a banner owns the top of the screen or a blocking modal
     // (catch card, level-up, shop) opens over them; they come back with their time left
     const showing = !blocked && !!bannerEl && !bannerEl.classList.contains('gw-out');
-    const yieldNow = showing || (blocked && ctx.flow === 'playing');
-    if (yieldNow !== toastsYield) { toastsYield = yieldNow; yieldToasts(yieldNow); }
+    const reason = showing ? 'banner' : blocked && ctx.flow === 'playing' ? 'modal' : '';
+    if (reason !== toastsYield) {
+      // re-evaluate on every change of reason, so a toast raised under a modal still steps aside
+      // for the banner that follows it
+      if (toastsYield) yieldToasts(false);
+      if (reason) yieldToasts(true);
+      toastsYield = reason;
+    }
     if (blocked) return;
     if (bannerEl) {
       bannerT += dt;
