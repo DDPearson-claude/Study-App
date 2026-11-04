@@ -200,16 +200,27 @@ export function create(ctx) {
   function flushHeldToasts(force = false) {
     if (!heldToasts.length) return;
     const now = performance.now();
-    while (heldToasts.length && (force || !bannerBusy() || now - heldToasts[0].at > 5000)) {
-      const q = heldToasts.shift();
+    while (heldToasts.length) {
+      const q = heldToasts[0];
+      const ready = force || (q.modal ? !hasBlocking() : (!bannerBusy() || now - q.at > 5000));
+      if (!ready) break;
+      heldToasts.shift();
+      if (q.modal && now - q.at > 30000) continue;   // stale news from behind a long modal
+      if (!force && hasBlocking() && !q.modal) { q.modal = true; heldToasts.push(q); continue; }
       toast(q.text, q.kind, { ...q.opts, now: true });
     }
   }
+  const HOLD_BEHIND_MODAL = new Set(['info', 'lore', 'tip']);
   function toast(text, kind = 'info', opts = {}) {
     if (!text) return;
-    if (!opts.now && kind !== 'bad' && ctx.flow === 'playing' && !hasBlocking() && bannerBusy()) {
-      if (!heldToasts.some((q) => q.text === text) && heldToasts.length < 6) heldToasts.push({ text, kind, opts, at: performance.now() });
-      return;
+    if (ctx.flow === 'dead' && kind !== 'good') return;   // the death summary says it all
+    if (!opts.now && ctx.flow === 'playing') {
+      // flavour waits behind blocking modals (shop, catch card, level-up) and banners; warnings never wait
+      const modal = hasBlocking() && HOLD_BEHIND_MODAL.has(kind);
+      if (modal || (kind !== 'bad' && !hasBlocking() && bannerBusy())) {
+        if (!heldToasts.some((q) => q.text === text) && heldToasts.length < 6) heldToasts.push({ text, kind, opts, at: performance.now(), modal });
+        return;
+      }
     }
     const now = performance.now();
     const key = kind + '|' + text;
@@ -547,7 +558,7 @@ export function create(ctx) {
       hud.reset();
       if (continued) toast('The descent continues.', 'lore');
     });
-    on('run:end', () => { closeAll(); catchQ.length = 0; levelQ.length = 0; clearBanners(); heldToasts.length = 0; tipQ.length = 0; hud.setVisible(false); });
+    on('run:end', () => { closeAll(); catchQ.length = 0; levelQ.length = 0; clearBanners(); heldToasts.length = 0; tipQ.length = 0; for (const t of [...toasts]) dropToast(t, true); hud.setVisible(false); });
     on('zone:change', ({ zone, prev }) => {
       closeModal('descend'); closeModal('shop');
       const z = zoneData(zone);
@@ -718,7 +729,8 @@ export function create(ctx) {
             }
           }
         }
-        layers.toasts.classList.toggle('gw-low', hasBlocking());
+        layers.toasts.classList.toggle('gw-low', hasBlocking() && ctx.flow === 'playing');
+        layers.toasts.classList.toggle('gw-dead', ctx.flow === 'dead');
         const S = settings();
         root.classList.toggle('gw-calm-fx', S.reducedFlashing === true);
         root.classList.toggle('gw-no-dmg', S.damageNumbers === false);
