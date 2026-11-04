@@ -6,6 +6,40 @@
 
 **Vocabulary (ours, always):** the **Wick** (player), **Old Murk** (toad merchant), **Shells** (run currency), **Embers** (health, shown as small flames), **Cinders** (XP dropped by gloomlings; the contract's "embers (XP)" are called Cinders in-game so they never clash with health), **Memories** (meta currency), **Relics** (permanent upgrades), **Boons** (level-up picks), **Kindles** (level-6 weapon fusions), the **Gloom** and **Gloomtide** (the night), **gloomlings** (night enemies; never "shades" in UI text), **Wardens** (night bosses), **Waystones** (start deeper), the **Shrine of Drowned Lanterns**.
 
+> **Precedence (v3).** §25 is the binding v3 spec and **overrides §1–§24 and the appendices wherever they conflict**. §25.12 says, section by section, what is kept, modified, replaced or cut; §25.13 lists the edits made inside §24. Inside The Long Descent (the prestige mode, §25.3.7) §1–§24's run rules still apply. v3 vocabulary: §25.0.4.
+
+**Contents**
+
+| § | section | in v3 (§25.12) |
+|---|---|---|
+| 1 | Vision & pillars | replaced by §25.1 (premise and tone kept) |
+| 2 | Core loop | replaced by §25.2–§25.3 (kept for The Long Descent) |
+| 3 | Controls | modified (hub walking, station pills, float long-press, drag preset) |
+| 4 | Sailing & arenas | modified (Mossmere places, Homeward Waystones, the `COVE` arena) |
+| 5 | Fishing | modified; §5.7 feeding spots cut (signs), §5.8 weight replaced (size model) |
+| 6 | Survival | modified; §6.7 death replaced (Snuffed, Scorched) |
+| 7 | Night swarm | kept, demoted to night modes (§25.5) |
+| 8 | Lantern combat | kept (hidden by day, §25.5.7) |
+| 9 | Economy & creel decisions | replaced / modified (§25.7.3, §25.10) |
+| 10 | Boons & levelling | modified (XP per mode, Angler pool, banked level-ups) |
+| 11 | Characters | modified (fishing halves) |
+| 12 | Challenges & unlocks | modified (48, Gloom tab, tier V) |
+| 13 | Merchant visits & shop | modified (Gear Bench, Ledger, combat kit) |
+| 14 | Zones & gates | modified (Waystones, permanent gates) |
+| 15 | Bounties | modified (+ Murk's Ledger) |
+| 16 | Journal | modified (rulers, seals, Elder Log, mount book) |
+| 17 | Meta: Memories, Relics, Waystones | replaced / modified (§25.10.4) |
+| 18 | Pacing targets | replaced by §25.9 (kept for The Long Descent) |
+| 19 | Art direction | modified (fish, Mossmere harbour, the Landing, Murk off green, cameras) |
+| 20 | Audio direction | modified |
+| 21 | UI/UX | modified (new screens, HUD by mode) |
+| 22 | Originality notes | modified (+ §25.15.3) |
+| 23 | Implementation notes (§23.1 who reads what, incl. §24–§25) | modified |
+| 24 | Exploration on foot (v2, behind `WALK_ENABLED`) | kept, edited in place (§25.13) |
+| 25 | **Fishing & discovery first (v3)**: decision log, expeditions, the Landing, night modes, fishing craft, size, places, progression, economy, supersession, phase plan | **binding** |
+| A | Balance simulation | modified (T1, T3, T5) |
+| B | The foot profile | kept |
+
 ---
 
 ## 1. Vision & pillars
@@ -1309,7 +1343,7 @@ Thin ornate **bone-white linework** (#e9e2cf at 80%) on **ink-wash panels** (nea
 ## 23. Implementation notes
 
 ### 23.1 Who reads what
-*Walking build: who reads the v2 tables is listed in §24.12; CONTRACT §12 has the APIs.*
+*Walking build (§24): who reads the v2 tables is listed in §24.12; CONTRACT §12 has the APIs. v3 (§25): the second table below lists what each module reads from the v3 tables and which §25 rules it implements; CONTRACT §13 has the APIs and §13.8 every v3 data export. v3 tables are applied only when `data.V3_ENABLED` is on; until then read every v3 field defensively.*
 
 | module | reads from data.js | key rules in this doc |
 |---|---|---|
@@ -1322,7 +1356,26 @@ Thin ornate **bone-white linework** (#e9e2cf at 80%) on **ink-wash panels** (nea
 | ui | everything with text: `TEXT`, `TIPS`, `MERCHANT_LINES`, `EPITAPHS`, `RARITY_COLORS` | §3, §21 |
 | audio | moods and SFX | §20 |
 
+**v3 (§25) additions, by module** (v1 / v2 reads above stay; The Long Descent keeps them as they are):
+
+| module | reads from data.js (v3) | key rules in §25 | phase |
+|---|---|---|---|
+| main | `V3_ENABLED`, `COVE` (feature detection with `progression.createExpedition`), `EXPEDITION.save` | §25.3.2 saving, §25.14.1 rollout | P1 / P3 |
+| player | `EXPEDITION.homeward`, `COVE.arena` (walk, spawn, jettySpawn, moorings), `COVE.stations`, `COVE.tapToWalk` | §25.3.1, §25.4.1–§25.4.2 | P3 |
+| world | `COVE` (arena, palette, grade, walls, wings, frames, waystones, seaGate, growth, budget), `MOSSMERE_V3` (via `ZONES[mossmere].arena.places / watchLamps`), `CONDITIONS.looks`, `PLACE_SYNC_V3` / `WALK_SYNC_V3` (applied), `ZONES[].homeward` | §25.4, §25.8 | P2 / P3 |
+| water | `COVE.palette`, `MOSSMERE_V3.happening.clear`, `CONDITIONS.looks` | §25.4.6 pond pass, §25.8.4 Moonfall, §25.8.3 Glowtide | P1–P3 |
+| render | `BALANCE.cameras`, `BALANCE.ceremony.camera`, `COVE.grade` | §25.4.5, §25.6.8, §25.7.5 | P1 / P3 |
+| models / actors | `SPECIES[].size`, `SIZE_CLASSES`, `BALANCE.ceremony.poses`, `FISH_SHAPES_V3`, `COVE.pond`, `COVE.murkLook`, `ELDER_NAMES` | §25.7.1, §25.6.8, §25.4.6 | P1–P3 |
+| survival | `EXPEDITION.phases` / `calmByMode` / `arrivalHush`, `BALANCE.oil`, `BALANCE.wellFed`, `BALANCE.farWater.nightBurn`, `BALANCE.nightModes` (snuffBy, lampWatch) | §25.3.2–§25.3.3, §25.5.2 | P1 / P3 |
+| combat | `BALANCE.nightModes`, `BALANCE.xpModes`, `swarmTonight` / `swarmWindow`, `ANGLER_POOL`, `BOONS_V3`, `CHARACTERS[].fishing`, `EXPEDITION.deepStarts` | §25.5 | P1 / P3 |
+| fishing | `BALANCE.size` (z, fight, reel, value), `BALANCE.favour`, `BALANCE.signs`, `BALANCE.bite` (v3 keys), `BALANCE.ceremony`, `BALANCE.residents`, `BALANCE.markedFish`, `BALANCE.placesV3`, `SPECIES[].size / style / family / prefers / weather / maxClass`, place fields, `CONDITIONS`, `TACKLE`, `LURES`, `COVE.fishing`, `COVE.testBuoy`; helpers `sizeLength`, `sizeWeight`, `sizeClassOf`, `isAncient`, `maxZFor`, `favourNotches`, `classOdds` | §25.6, §25.7, §25.8 | P1–P4 |
+| progression | `EXPEDITION`, `LONG_DESCENT`, `TACKLE`, `OUTFIT`, `LURES`, `COMBAT_KIT`, `BALANCE.farWater`, `BALANCE.liveWell`, `BALANCE.records`, `BALANCE.tackleRating`, `MEMORIES_V3`, `ECONOMY_V3`, `RELICS` (shelves), `CHALLENGES` (48, tabs), `LEDGER`, `RUMOURS`, `TODAYS_RUMOUR`, `RENAMES` (save migration); helpers `fishValueV3`, `fishYieldV3`, `farWaterFor`, `tallyFor`, `frameFor` | §25.3, §25.7.3–§25.7.4, §25.9–§25.11 | P1–P3 |
+| ui | `TEXT_V3`, `TIPS_V3`, `MERCHANT_LINES_V3`, `CHALLENGE_TABS_V3`, `SIZE_CLASSES` (seals), `BALANCE.favour.notches`, `BALANCE.nightModes[mode].hud`, `COVE.stations` | §25.4.2, §25.5.7, §25.6.1, §25.6.8, §25.14 (U-items) | P1–P4 |
+| audio | (event-driven; no new tables) | §25.12 row 20, §25.14 (Au-items) | P1–P3 |
+
 **`getStats(run)`** = STATS base + character effects + upgrades × level + relics × level + stat boons × level + journal perks + `run.flags.heartwax` (maxHp) + Mercy (rarityBonus), then clamp to each STATS `min…max`. Special relic keys are applied by `createRun` / `memoriesFor` / survival as described.
+
+*v3:* with no run (the hub), `getStats()` = STATS base + the selected Wick + `meta.tackle` (absolute tier stats, `TACKLE`) + `meta.outfit` (`OUTFIT` × level) + relics (no Boons); during an expedition the same plus Boons, Well-fed and journal perks. `createExpedition({zone, nightMode, character, outing})` replaces `createRun` outside The Long Descent (CONTRACT §13.7); The Long Descent still uses `createRun` with its own purse and per-run UPGRADES.
 
 **`createRun({startZone, character})`**: shells = 20 + 30 × old_debt level + character kit shells + Waystone purse; bait = character kit + Drifter's Bundle; `boons = {[startBoon]: 1}`; zonesUnlocked = all lakes ≤ start; hp/oil/satiety at max; `xpNext = xpForLevel(1)`; `flags = {zoneEnteredDay: 1, streak: 0, mercy: 0, heartwax: 0, wounded: {}}`; Waystone banked levels → Kindling Draft at run start.
 
@@ -1335,6 +1388,8 @@ fishing `forceBite()`, `instantCatch(id?)`; survival `skipPhase()`, `god(on)`, `
 ## 24. Exploration on foot (v2, revision 2)
 
 *The descent becomes a journey that changes how you move: the Mossmere is sailed, Sporewood Pools is sailed and walked, and the Glasswater Vault and the Pallid Deep are walked to interesting, unique fishing locations. Everything here ships behind one flag, `WALK_ENABLED` (CONTRACT §12.0): with it off every v1 table is bit-identical; with it on the walk tables merge in. Every number is in `src/data.js` (`BALANCE.walk / places / lamps / combat.foot`, `ZONE_V2`, `ARENA_V2`, `WALK_*`, `walkGridFor`). `node tools/walkmap.mjs <zone> [--open] [--variant=id]` prints the maps and walk times below straight from data; `node tools/validate-data.mjs` checks every v1 table and every rule in this section on the body-eroded walk grid; `node tools/balance-foot.mjs` runs the foot profile against v1 (Appendix B). §24.15 lists what changed in this revision and why.*
+
+*v3 (§25) builds on this section and edits it in place: every v3 change is marked "v3" below and listed in §25.13. Where §24 says "descent" scope, v3 expeditions read "expedition" scope; The Long Descent keeps §24 exactly as written.*
 
 ### 24.0 Decisions at a glance
 
@@ -1349,7 +1404,7 @@ fishing `forceBite()`, `instantCatch(id?)`; survival `skipPhase()`, `god(on)`, `
 | 7 | **Sister-candles** (internal id `lamps`): fallen candles of Wicks who went out down here. You **share your flame** with one (12 × zone oil drain); it burns the rest of the descent in the lake's own **cold** colour, slows the swarm a little, halves the darkness tick inside its light and reveals the Silent Choir. Once each **dawn** you may **flame-leap**, free, to any sister you have relit. | Lighting the way is a real oil decision; the dawn leap means "choose where tomorrow starts", not teleport-fishing. The premise also explains the victory: every candle relights gold. |
 | 8 | **Night on foot:** flyers unchanged; crawlers follow a flow field over the 0.5 m walk grid; eels reach only a Wick near open water. **Killers keep their raft values** (stain 3.2 m, telegraphs, inkwell hold 13–18 m); Warden attacks are aligned with walkways so a 1-D escape exists. | High ground and chokepoints are real tactics without softening what ends runs. |
 | 9 | **Camera:** fixed yaw everywhere on foot (shop and death too); `walk` / `walkNight` framings with their own portrait numbers; the **pool framing** lifts the fish camera over the near rim; a dither cone and one x-ray proxy keep the Wick readable; a terrain clamp keeps the camera out of rock. | Readable on a 390 px phone; controls never drift. |
-| 10 | **Day length unchanged** (120 s calm everywhere). **Arrival Hush** only where walking is long: +30 s on the first calm in Glasswater and the Pallid Deep, +10 s in Sporewood; no calm raid that day. | The dawn leap and the places' bonuses pay for the walking (Appendix B: catches and Shells per day within ±7% of v1). |
+| 10 | **Day length unchanged** (120 s calm everywhere). **Arrival Hush** only where walking is long: +30 s on the first calm in Glasswater and the Pallid Deep, +10 s in Sporewood; no calm raid that day. **v3:** expeditions use calm 180 s (185 s in Glasswater and the Pallid Deep) and a +30 s Arrival Hush in every lake on expedition day 1 and on the first calm after passing a gate (§25.3.2); the values in this row stay for The Long Descent. | The dawn leap and the places' bonuses pay for the walking (Appendix B: catches and Shells per day within ±7% of v1). |
 | 11 | **Cut on purpose:** wading, falls / "sputter", raised still pools, grapnels, Shell-cost repairs, camera yaw hints, a fog-of-war chart screen. | Scope and clarity (§24.14). |
 
 ### 24.1 Map modes
@@ -1357,16 +1412,17 @@ fishing `forceBite()`, `instantCatch(id?)`; survival `skipPhase()`, `god(on)`, `
 | | The Mossmere | Sporewood Pools | Glasswater Vault | The Pallid Deep |
 |---|---|---|---|---|
 | `mode` | `raft` | `mixed` | `foot` | `foot` |
-| you start | on the raft (0, 46) | on the raft (0, 52) | on foot, Lower Gallery (0, 51) | on foot, Landing of Last Rafts (0, 68) |
+| you start | on the raft (0, 46) | on the raft (0, 52) | on foot, Lower Gallery (0, 51) | on foot, Shore of Last Rafts (0, 68) (v3 name) |
 | raft | free (as now) | free; moor at 4 jetties, tow-bells | `skiff`: moored at the Harbour Steps; fenced by the low spokes into the east / south moat; moors at the Skiff Steps on the hub | `beached` at (6, 72) among hundreds of others |
 | gate | sail in (as now) | sail in: The Mycelium Veil (0, −53) | on foot: within r + 2.5 m of the Vault Seal | none (the finale is the Bottomless) |
 | calm | 120 s | 120 s (+10 Arrival Hush) | 120 s (+30) | 120 s (+30) |
+| calm in v3 expeditions (§25.3.2) | 180 s (+30 on day 1 / after a gate) | 180 s (+30) | 185 s (+30) | 185 s (+30) |
 | walkable / pools / water | 0 / 0 / 100% | 30 / 1.9 / 68% | 49 / 2.2 / 49% | 17 / 0.3 / 83% |
-| places | Bell Pool (legend, as now) | 6 | 8 | 7 (+ the Breathing Deep) |
+| places | Bell Pool (legend, as now); v3: 8 + 1 secret (§25.8.4) | 6 | 8 | 7 (+ the Breathing Deep) |
 | per-descent variant | — | — | one of three bridges has fallen | the Sunken Road, or one Pallbearers' Walk, is under water |
 | night choice | open water vs. the Gatehouse | raft mobility vs. high ground (Gill Crown) | eel-free hub loop vs. the long gallery | the Brink (flat line, eels) vs. the Joined Hands (steep line, eel-proof) |
 
-**Saving and continuing.** Walking lakes save the Wick's position, mode and raft (`run.flags.pos`, `run.flags.raft`) on every autosave (phase changes, catches, purchases, zone changes, every 30 s, hide / pagehide), plus the day's per-place counters (candle-rafts relit, the Last Ferry, the leap), the planted Stake Lantern and the Arrival Hush. A continue snaps to the nearest walkable cell (or raft water) and falls back to the nearest lit candle, so quitting is never a free escape from a dead end and never a teleport to the spawn at night.
+**Saving and continuing.** Walking lakes save the Wick's position, mode and raft (`run.flags.pos`, `run.flags.raft`) on every autosave (phase changes, catches, purchases, zone changes, every 30 s, hide / pagehide), plus the day's per-place counters (candle-rafts relit, the Last Ferry, the leap), the planted Stake Lantern and the Arrival Hush. A continue snaps to the nearest walkable cell (or raft water) and falls back to the nearest lit candle, so quitting is never a free escape from a dead end and never a teleport to the spawn at night. **v3:** expeditions save the position in `run.pos {zone, x, z, y, mode, mooring}` (CONTRACT §13.2), in every lake and including y; restore reads `run.pos ?? run.flags.pos`.
 
 ### 24.2 Controls & transitions
 
@@ -1450,13 +1506,13 @@ world.moveFoot(position, (v + ext)·dt, {radius})   // displacement this frame; 
 
 | mode (render `MODES`; numbers in `BALANCE.walk.camera`) | elev° | dist m | aim | aimY | fov | ahead s | stiff |
 |---|---|---|---|---|---|---|---|
-| `walk` (day, on foot) | 40 | 12.5 | 3.0 | 0.9 | 50 | 0.35 | 4.4 |
+| `walk` (day, on foot) | 40 (**v3: 34**, §25.12 row 19) | 12.5 | 3.0 | 0.9 | 50 | 0.35 | 4.4 |
 | `walkNight` (Gloomtide on foot; blended by nightK) | 56 | 16.5 | 1.5 | 0.4 | 52 | 0.25 | 4.6 |
 | portrait `walk` / `walkNight` (replace v1's portrait widening on foot) | 44 / 58 | 12 / 15.5 | | | 60 / 62 | | |
 | high ground (blend from 3 m to 5 m) | + 3° | + 1.5 m | | | | | |
 
 - **Yaw stays fixed** (screen-up = −Z) on foot in every mode, shop and death included. Every layout is authored for a camera looking north.
-- **Focus height** follows the ground on a spring (5/s) that ignores steps under 0.25 m; `camPos.y ≥ max(1.2, focusY + 2.5)`. A **terrain clamp** samples grid tops along focus → camera and raises the elevation or shortens the distance when rock is in the way, and keeps the camera inside R − 2 (Murk's dock on the east terrace, the Landing, the south-west terraces).
+- **Focus height** follows the ground on a spring (5/s) that ignores steps under 0.25 m; `camPos.y ≥ max(1.2, focusY + 2.5)`. A **terrain clamp** samples grid tops along focus → camera and raises the elevation or shortens the distance when rock is in the way, and keeps the camera inside R − 2 (Murk's dock on the east terrace, the Shore of Last Rafts, the south-west terraces).
 - **Pool framing (fish and reel).** On walking lakes the elevation is `clamp(max(base, max_i atan((top_i + 0.3) / d_i) + 8°), base, 75°)`, with `top_i` sampled every 0.5 m from the bobber toward the camera (+z) out to 12 m; whenever that lifts the camera above the base framing, or the Wick stands ≥ 2 m above the water, the focus moves to the bobber. Because every hole has a sill ≤ 1 m on its south side and its higher ground lies beyond the sill, the required elevation stays under 75°: validate-data checks that **≥ 60% of every stand's castable place water** is seen by this camera, and that ≥ 60% of each legend pool is both castable and seen from both of the Bottomless's stances.
 - **Occlusion:** a dithered see-through cone from the camera to the Wick (r 0.8 → 2.6 m) discards 4×4 Bayer fragments of `occludable` world materials, never the floor at or below the Wick's feet; `occludable()` gives those materials their own program cache key and outline material, and the dither reads an instancing-aware world position. Backstop: **one x-ray proxy** (a billboard silhouette of the Wick and its lantern) drawn after world opaques and before the Wick, at 40% bone-white.
 - **Authoring rules (validated):** within 14 m south of every stand (±4 m sideways) nothing rises more than 3.5 m above it; every hole's south 120° near rim is ≤ 1 m above the water; walkable spaces have no solid roofs (the Mirror Nave is roofed with open crystal ribs); each place's water lies within ±50° of up-screen or within 6 m of its stand, so the reticle never sits in the joystick corner.
@@ -1577,7 +1633,7 @@ x: -70 (left) … 70 (right); one char = 2.5 m, one row = 4 m; north (−z) is u
 
 - **Per-descent variant (one of three, seeded):** *Mapmakers' Bridge has fallen*; *Copyists' Bridge has fallen*; *the Tuning Pillar is cracked* (the Tuned Bridge cannot grow). Every place, candle, deed, mooring, the gate and every dock stay reachable under each, with shortcuts closed and open (validated). The fallen bridge changes the day's routes and which moat sectors the skiff reaches.
 - **The skiff:** moored at the Harbour Steps; the low spokes fence it into the east / south moat. Day 1: cross to the **Skiff Steps** on the hub in ≈ 5 s of sailing (instead of ≈ 20 s of walking) to turn the Span Winch; fish the south-east trench; a moat refuge at night (its raft nights use the water flow field, §24.8).
-- **Gate:** the Vault Seal (0, 0) r 5: Descend within 7.5 m of its centre, on foot. On descending, the raft follows through the Seal's whirl and is beached at the Pallid landing.
+- **Gate:** the Vault Seal (0, 0) r 5: Descend within 7.5 m of its centre, on foot. On descending, the raft follows through the Seal's whirl and is beached at the Shore of Last Rafts.
 - **Murk's docks** (in the moat, ≤ 4 m from a walkway): (15, 43.5) by the harbour (day 1), (44.5, 8) east, (8, −44.5) north, (−44.5, 8) west, (−33.5, 32) south-west. **Sister-candles (8):** Harbour Steps, Orrery Floor, North Terrace, and one at each of the Mirror Nave, the Bell-Chapel Window, the Well of Ledgers, the Stilled Cascade and the Broken Hymnal.
 - **Three wings.** East (Broken Hymnal 12.3 s from spawn, Bell-Chapel Window 8.2 s beyond it, the Burning Glass), west (Well of Ledgers 14.6 s, Mirror Nave 8.0 s beyond it, the Stilled Cascade), centre (Votive Font, Fallen Chandelier). East ↔ west on foot costs 26–34 s, so a day picks a wing (the Astir place and Murk pull you) and the next dawn's flame-leap chooses where tomorrow starts.
 - **Shortcuts:** spawn → hub (the Votive Font) 20.6 → 6.8 s and spawn → Fallen Chandelier 26.3 → 17.2 s once the Span is lowered; the Tuned Bridge makes hub → north-west wing direct.
@@ -1634,7 +1690,7 @@ x: -78 (left) … 78 (right); one char = 2.5 m, one row = 4 m; north (−z) is u
 
 | piece | where (m) | what |
 |---|---|---|
-| **Landing of Last Rafts** | bone-ash beach y 0.4 (south) | spawn (0, 68); the raft beached at (6, 72) among hundreds of others. |
+| **Shore of Last Rafts** (v3 name; was "Landing of Last Rafts"; ids `pd_landing`, `landing_lamp` unchanged) | bone-ash beach y 0.4 (south) | spawn (0, 68); the raft beached at (6, 72) among hundreds of others. |
 | **The Spine** | vertebra causeway (0, 62) → (0, 31), 4 m, y 0.6–0.8 | the **Long Pier of Names** branches east (2, 46) → (34, 50). |
 | **Cairn Plaza** | disc (0, 22) r 9, y 1 | **Pallbearers' Walks** west and east to the ends of the Rib Walk; **the Bier Road** north to the Bier Barge (−10, −20), its middle (**the Sunken Road**) under water until the **Bone Windlass** (−8.5, −11) is turned. |
 | **The Rib Walk** | ring r 30.5–33.5, 150° → 390° through the north, y 1 | under eight ribs whose feet straddle the walk; branches: Plank Walk to the Almshouse, Slip Path, the Pilgrim Road to the Brink, Chain Walk, Belfry Pier. |
@@ -1642,10 +1698,10 @@ x: -78 (left) … 78 (right); one char = 2.5 m, one row = 4 m; north (−z) is u
 | **the outer places** | W: Drowned Almshouse (−58, −20) y 2.5 with the Wall Walk to the Ferry Slip; NW: Empty Ferry Slip (−42, −42); NE: Chain Garden plinth (44, −42) y 2 with the Rust Walk to the Sunken Belfry (56, −22) | |
 
 - **Per-descent variant:** *the Sunken Road is under water* (weight 2; the windlass raises it), or *the west* / *the east Pallbearers' Walk is under water* (weight 1 each; the Sunken Road is up from the start and the windlass raises the drowned walk instead). Validated reachable under each.
-- **Murk's docks:** (12, 58) Landing (day 1), (34, 55.5) pier end, (−10.5, 25) and (10.5, 25) by the Plaza, (−5.5, −35.5) beside the Pilgrim Road (nearest the finale, 6.3 m from the Brink stand). **Sister-candles (9):** Landing, Cairn Plaza, the Brink, and one at each of the Long Pier, the Bier Barge, the Almshouse, the Ferry Slip, the Chain Garden and the Sunken Belfry. There is deliberately no candle on the Joined Hands: relighting the giants' dead lantern is the victory.
+- **Murk's docks:** (12, 58) Shore of Last Rafts (day 1), (34, 55.5) pier end, (−10.5, 25) and (10.5, 25) by the Plaza, (−5.5, −35.5) beside the Pilgrim Road (nearest the finale, 6.3 m from the Brink stand). **Sister-candles (9):** Shore of Last Rafts, Cairn Plaza, the Brink, and one at each of the Long Pier, the Bier Barge, the Almshouse, the Ferry Slip, the Chain Garden and the Sunken Belfry. There is deliberately no candle on the Joined Hands: relighting the giants' dead lantern is the victory.
 - **Walk times:** spawn → Plaza 9.1 s, → Long Pier 11.3 s, → the Brink 29.4 s (24.4 s with the Sunken Road raised), → the Joined Hands 36.8 s. From the Brink: Bier Barge 6.9 s, Ferry Slip 10.3 s, Chain Garden 11.4 s, Almshouse 16.0 s, Sunken Belfry 16.5 s. Almshouse ↔ Ferry Slip 6.0 s; Chain Garden ↔ Belfry 5.4 s.
 - **Wayside:** 48 memorial candles along the roads; walking past one lights it (+0.5 oil), it stays lit for the descent, marks the routes you have walked and feeds the victory cascade.
-- **Finale flow:** buy Drowned Marrow → reach the Brink or the Hands before the Gloomtide → hook during the Gloomtide (§24.8, "The finale on foot").
+- **Finale flow:** buy Last Candle (v3 name; was Drowned Marrow) → reach the Brink or the Hands before the Gloomtide → hook during the Gloomtide (§24.8, "The finale on foot").
 - **First visit:** the Spine leads straight at the giants, visible from the beach. Tip `foot_spawn`.
 
 ### 24.7 Places: the unique fishing locations
@@ -1681,38 +1737,38 @@ Depth inside a place's water stays within `place.water.depth`. Every place yield
 
 | place | access · stand | water | favours | rule (twist) · B twist | rewards |
 |---|---|---|---|---|---|
-| **The Mother's Cup** *(legend pool)* — "The Mother Cap drinks here, ten breaths at a time." | foot · cloister south (32, −21.8), y 2.4, behind the water-steps | lagoon (32, −30) r 5 @ 0.90–0.95 | Velvet Ray × 2, Plumgill × 1.5; **The Drifting Grove** | **Root Breath** (`rhythm` 16 s): 1.5 s warning, 6 s exhale: wait × 0.6. *(legend: no B)* | the legend |
-| **The Lullaby** — "Fish sleep here with their mouths open." | both · north beach of Lanternstalk Grove (−32, 13.5), casting north, or the raft | West Basin core (−28, −1) r 8 @ 0.60–0.85 | Sleepspore Jelly × 3 (Lumen Moss), Velvet Ray × 1.5 | **The Hum** (`mods`): surge interval × 1.3, erratic × 0.6, hook window × 0.85. B: deeper sleep (× 1.5 / × 0.5 / × 0.75). | Sleepspore farming |
-| **The Puffball Vent** — "Every twenty breaths the reef sneezes." | raft · (0, −21.8) | reef patch (0, −25) r 5 @ 0.45–0.55 | Sporebelly Puffer × 3, Capshell × 1.5 | **Vent Burst** (`rhythm` 20 s, burst): 2 s hiss, a geyser throws out any bobber, then 6 s of settling water: rarity +0.25, wait × 0.7. B: a restless reef (14 s, 1.5 s hiss). | timing on the raft |
-| **The Drowned Greenhouse** — "Rows of glass, rows of water, and one row that still remembers the sun." | foot · south walkway (−44, 36.5), y 1.0 | 4 flooded beds (2 × 9 m) @ 0.40–0.50 | Capshell × 2, Plumgill × 2, Sporebelly × 1.5 | **The Lit Row** (`targets`): the lock picks a bed; one bed glows (rotates every 15 s) and a sun-patch drifts along it; release within ±0.08 of the meter's tick: wait × 0.5, quality +0.12. B: the sun flickers (every 9 s). | the food / oil tap; Shimmering farming |
-| **The Gill Harp** — "Walk the strings in the order she hums them." | foot · Harp Green south (43, 39.2) | pool (43, 32) r 5.2 @ 0.70–0.80 | Velvet Ray × 2.5, Threadling Eel × 2 (Spore Cake) | **Serenade** (`sequence`): three gill-curtains (east, west and north of the pool, touchR 1.2) pulse in a new order each day; walk through them in order within 15 s → 45 s of song: wait × 0.5, nibble tells +1. B: a quicker tune (10 s window, 60 s song). | **Harpstring Eel** (while it sings) |
-| **The Veilwater** — "A pool that kept its own night." | foot · Veil Ledge east (−36.3, −45.2), y 4.2, casting west | veiled pool (−40, −45) r 2.4 @ 0.75–0.85 behind fallen steps | Mildew Angler × 2, Sleepspore × 1.5 | **Burn the Veil** (`deed`, permanent): relight the Spent Sporelights on the other three islands (46, −22), (−38, 47), (56, 27) (pills); with all three the veil burns away: rarity +0.25, quality +0.15, gloom-only species bite in calm. B: one sporelight is already lit. | **Hushcap Koi**; a reason to visit every island |
+| **The Mother's Cup** *(legend pool)* — "The Mother Cap drinks here, ten breaths at a time." | foot · cloister south (32, −21.8), y 2.4, behind the water-steps | lagoon (32, −30) r 5 @ 0.90–0.95 | Velvet Ray × 2, Plumgill × 1.5; **The Drifting Grove** | **Root Breath** (`rhythm` 16 s): 1.5 s warning, 6 s exhale: wait × 0.6. *(legend: no B)* | the legend. **v3:** `holdsGiants` for non-legend casts (Velvet Ray and Mildew Elders); its breathing made visible (spores rain on the exhale, with a ring of rises) |
+| **The Lullaby** — "Fish sleep here with their mouths open." | both · north beach of Lanternstalk Grove (−32, 13.5), casting north, or the raft | West Basin core (−28, −1) r 8 @ 0.60–0.85 | Sleepspore Jelly × 3 (Lumen Moss), Velvet Ray × 1.5 | **The Hum** (`mods`): surge interval × 1.3, erratic × 0.6, hook window × 0.85. B: deeper sleep (× 1.5 / × 0.5 / × 0.75). | Sleepspore farming. **v3:** the rule becomes `sight`: sleepers float visibly under a lily-cap canopy, mouths open; a soft cast (charge < 0.5) beside the one you want; `holdsGiants` |
+| **The Puffball Vent** — "Every twenty breaths the reef sneezes." | raft · (0, −21.8) | reef patch (0, −25) r 5 @ 0.45–0.55 | Sporebelly Puffer × 3, Capshell × 1.5 | **Vent Burst** (`rhythm` 20 s, burst): 2 s hiss, a geyser throws out any bobber, then 6 s of settling water: rarity +0.25, wait × 0.7. B: a restless reef (14 s, 1.5 s hiss). | timing on the raft. **v3:** `maxClass` Prize (fry water); fires twice as often in Spore-fall |
+| **The Drowned Greenhouse** — "Rows of glass, rows of water, and one row that still remembers the sun." | foot · south walkway (−44, 36.5), y 1.0 | 4 flooded beds (2 × 9 m) @ 0.40–0.50 | Capshell × 2, Plumgill × 2, Sporebelly × 1.5 | **The Lit Row** (`targets`): the lock picks a bed; one bed glows (rotates every 15 s) and a sun-patch drifts along it; release within ±0.08 of the meter's tick: wait × 0.5, quality +0.12. B: the sun flickers (every 9 s). | the food / oil tap; Shimmering farming. **v3:** + kept species **The Remembered Sun** on the Lit Row (P4) |
+| **The Gill Harp** — "Walk the strings in the order she hums them." | foot · Harp Green south (43, 39.2) | pool (43, 32) r 5.2 @ 0.70–0.80 | Velvet Ray × 2.5, Threadling Eel × 2 (Spore Cake) | **Serenade** (`sequence`): three gill-curtains (east, west and north of the pool, touchR 1.2) pulse in a new order each day; walk through them in order within 15 s → 45 s of song: wait × 0.5, nibble tells +1. B: a quicker tune (10 s window, 60 s song). | **Harpstring Eel** (while it sings). **v3:** `holdsGiants` while it sings; its music-box notes carry 25 m as a sound beacon |
+| **The Veilwater** — "A pool that kept its own night." | foot · Veil Ledge east (−36.3, −45.2), y 4.2, casting west | veiled pool (−40, −45) r 2.4 @ 0.75–0.85 behind fallen steps | Mildew Angler × 2, Sleepspore × 1.5 | **Burn the Veil** (`deed`, permanent): relight the Spent Sporelights on the other three islands (46, −22), (−38, 47), (56, 27) (pills); with all three the veil burns away: rarity +0.25, quality +0.15, gloom-only species bite in calm. B: one sporelight is already lit. | **Hushcap Koi**; a reason to visit every island. **v3:** Mildew Angler × 2; today's-rumour favourite at night |
 
 #### Glasswater Vault (8 places)
 
 | place | access · stand | water | favours | rule (twist) · B twist | rewards |
 |---|---|---|---|---|---|
-| **The Fallen Chandelier** *(legend pool)* — "It fell in one breath. It has been holding that breath ever since." | foot · the Coronet's south edge (0, −31) | trench inside the coronet (0, −37) r 3.5 @ 0.90–0.95 | Mirror Pike × 1.5, Shardspine × 1.5; **The Glass Sovereign** | **Lit Arms** (`deed`, resets at dawn): six arms on the Coronet (touchR 0.9) relight as you walk past: +0.04 rarity each; all six: nibble tells +1 and the Sovereign's enrage +15 s. | the legend |
-| **The Mirror Nave** — "Nothing swims in the water. Everything swims in the ceiling." | foot · chapel south (−58.5, 6.5), y 4, behind the fallen step | nave pool (−58.5, 0) r 3.8 @ 0.65–0.75 | Mirror Pike × 3 | **Reflection**: two silhouettes swim along the open crystal ribs and show on the water **mirrored across a north–south brass line** (x flips: the screen's sideways axis). Land within 0.9 m of a true position → a bite in 2–4 s (rarity +0.2); elsewhere wait × 1.6; true positions flash 0.5 s. Hit area ≈ 11% of the pool. B: three fish, 0.75 m. | **The Unreflected** |
-| **The Bell-Chapel Window** — "Strike the hour and the water remembers." | foot · the chapel's west window (56.6, 6), y 7 (High Cast +3 m) | trench patch (44, −6) r 4, north-west of the sill | Chime Jelly × 3 (Glass Larvae), Mirror Pike × 2 | **The Struck Hour** (`deed` window): pull the bell rope (40 s cooldown): 12 s of shiver: wait × 0.4. B: 8 s, 25 s cooldown. | fast rares from an eel-proof perch (steep line) |
-| **The Well of Ledgers** — "Every depth was written down." | foot · shaft north rim (−41, 37.2), y 7 | shaft (−41, 41) r 2.2 @ 0.50–1.00, its south face fallen in | Blind Scrivener × 3 (Ember Roe), Mirror Pike × 1.5 | **Plumb Line**: the bobber drops to the shaft centre; the charge picks depth 0.5 → 1.0; a Clean Cast reaches the bottom ledger (rarity +0.1). B: 0.6 → 1.0, bottom at 0.9. | **The Footnote** (bottom ledger only) |
-| **The Stilled Cascade** — "The falls froze mid-word." | foot · terrace west of the basin (−33.6, −49.6), y 4 | basin (−29, −51) r 4.2 @ 0.80–0.90, open to the gallery | Glassgill × 2, Prism Minnow × 1.5 | **Stillness** (`mods`): sweet-band drift × 0.25, band noise × 0.3, darter jumps × 0.5, quality +0.1, wait × 1.4. B: slightly less still, slightly quicker. | **Rainglass Darter** (calm) |
-| **The Broken Hymnal** — "The bridge sang as it fell, and never quite finished." | foot · outer stub end (35.2, 20.3) | trench beyond the stub (30.5, 13.5) r 6 @ 0.85–0.95 | Prism Minnow × 2, Mirror Pike × 1.5, Shardspine × 2 (night) | **The Unfinished Chord** (`cue` chime): shards chime every 3.5–5 s; bites land exactly 1.0 s after a chime: hook window +0.15, nibble tells +1. B: faster chimes, 0.6 s lead. | perfect-hook streaks |
-| **The Burning Glass** — "A lens the size of a chapel, still trying to light the water." | both · no fixed stand | a 3.5 m pool of focused light sweeping the north trench along r 29 from 250° to 340° and back at 0.65 m/s (≈ 70 s each way), calm only | — | **Focused Light** (`moving`): landing inside: rarity +0.2, wait × 0.6, quality +0.08. B: faster and smaller (1.0 m/s, 2.8 m). | a roaming bonus visible from anywhere |
-| **The Votive Font** — "Votive fry, small as wishes." | foot · the hub south (0, 16.3), behind the font's low step | ring channel r 12–14 @ 0.20–0.30 | Prism Minnow × 2, Glassblown Puffer × 2 | **Quick** (`mods`): wait × 0.5, rarity −0.10. Eel-free. B: quicker and poorer. | the emergency oil / food tap |
+| **The Fallen Chandelier** *(legend pool)* — "It fell in one breath. It has been holding that breath ever since." | foot · the Coronet's south edge (0, −31) | trench inside the coronet (0, −37) r 3.5 @ 0.90–0.95 | Mirror Pike × 1.5, Shardspine × 1.5; **The Glass Sovereign** | **Lit Arms** (`deed`, resets at dawn): six arms on the Coronet (touchR 0.9) relight as you walk past: +0.04 rarity each; all six: nibble tells +1 and the Sovereign's enrage +15 s. | the legend. **v3:** `holdsGiants` (trench rim, non-legend casts) |
+| **The Mirror Nave** — "Nothing swims in the water. Everything swims in the ceiling." | foot · chapel south (−58.5, 6.5), y 4, behind the fallen step | nave pool (−58.5, 0) r 3.8 @ 0.65–0.75 | Mirror Pike × 3 | **Reflection**: two silhouettes swim along the open crystal ribs and show on the water **mirrored across a north–south brass line** (x flips: the screen's sideways axis). Land within 0.9 m of a true position → a bite in 2–4 s (rarity +0.2); elsewhere wait × 1.6; true positions flash 0.5 s. Hit area ≈ 11% of the pool. B: three fish, 0.75 m. | **The Unreflected**. **v3:** the reflections are pre-rolled fish drawn at their true size: pick the biggest; `holdsGiants` |
+| **The Bell-Chapel Window** — "Strike the hour and the water remembers." | foot · the chapel's west window (56.6, 6), y 7 (High Cast +3 m) | trench patch (44, −6) r 4, north-west of the sill | Chime Jelly × 3 (Glass Larvae), Mirror Pike × 2 | **The Struck Hour** (`deed` window): pull the bell rope (40 s cooldown): 12 s of shiver: wait × 0.4. B: 8 s, 25 s cooldown. | fast rares from an eel-proof perch (steep line). **v3:** no tackle gate; + kept species **The Sexton** during the Struck Hour (P4) |
+| **The Well of Ledgers** — "Every depth was written down." | foot · shaft north rim (−41, 37.2), y 7 | shaft (−41, 41) r 2.2 @ 0.50–1.00, its south face fallen in | Blind Scrivener × 3 (Ember Roe), Mirror Pike × 1.5 | **Plumb Line**: the bobber drops to the shaft centre; the charge picks depth 0.5 → 1.0; a Clean Cast reaches the bottom ledger (rarity +0.1). B: 0.6 → 1.0, bottom at 0.9. | **The Footnote** (bottom ledger only). **v3:** `holdsGiants` on the bottom ledger (Clean Cast plumb) |
+| **The Stilled Cascade** — "The falls froze mid-word." | foot · terrace west of the basin (−33.6, −49.6), y 4 | basin (−29, −51) r 4.2 @ 0.80–0.90, open to the gallery | Glassgill × 2, Prism Minnow × 1.5 | **Stillness** (`mods`): sweet-band drift × 0.25, band noise × 0.3, darter jumps × 0.5, quality +0.1, wait × 1.4. B: slightly less still, slightly quicker. | **Rainglass Darter** (calm). **v3:** in Shard-chime the frozen falls thaw for 40 s (a material scroll, no geometry): wait × 0.4, favour +0.3 |
+| **The Broken Hymnal** — "The bridge sang as it fell, and never quite finished." | foot · outer stub end (35.2, 20.3) | trench beyond the stub (30.5, 13.5) r 6 @ 0.85–0.95 | Prism Minnow × 2, Mirror Pike × 1.5, Shardspine × 2 (night) | **The Unfinished Chord** (`cue` chime): shards chime every 3.5–5 s; bites land exactly 1.0 s after a chime: hook window +0.15, nibble tells +1. B: faster chimes, 0.6 s lead. | perfect-hook streaks. **v3:** Vesper Gar × 3 at night (P4) |
+| **The Burning Glass** — "A lens the size of a chapel, still trying to light the water." | both · no fixed stand | a 3.5 m pool of focused light sweeping the north trench along r 29 from 250° to 340° and back at 0.65 m/s (≈ 70 s each way), calm only | — | **Focused Light** (`moving`): landing inside: rarity +0.2, wait × 0.6, quality +0.08. B: faster and smaller (1.0 m/s, 2.8 m). | a roaming bonus visible from anywhere. **v3:** P4: folded into the Alignment as the fan's brightest band |
+| **The Votive Font** — "Votive fry, small as wishes." | foot · the hub south (0, 16.3), behind the font's low step | ring channel r 12–14 @ 0.20–0.30 | Prism Minnow × 2, Glassblown Puffer × 2 | **Quick** (`mods`): wait × 0.5, rarity −0.10. Eel-free. B: quicker and poorer. | the emergency oil / food tap. **v3:** `maxClass` Prize (fry water) |
 
 #### The Pallid Deep (7 places + the Breathing Deep)
 
 | place | access · stand | water | favours | rule (twist) · B twist | rewards |
 |---|---|---|---|---|---|
-| **The Bottomless** *(legend pool, the finale)* — "Two who kneel. One who breathes below." | foot · two stances: **the Brink** (0, −38.5), y 1, casting north 9–17 m over open water (**flat line**: sweet band +0.03; eels from the Bottomless reach you); **the Joined Hands** (0, −57.9), y 6, casting south 3–9 m (**steep line**: sweet −0.03, surge warning −0.1 s; eel-proof; crawlers only by the two forearms) | (0, −52) r 11.5 @ 0.95–1.00 | Lampwarden × 1.5 (gloom, Ember Roe), Shroud Ray × 1.5; **The Pale Leviathan** | the legend rule is unchanged; the two gold eye-glints still open at night before you own Drowned Marrow. **Its first surge breathes in every candle within 30 m.** **Victory:** the Wick's flame relights the giants' lantern, then every candle and memorial candle in the Deep relights gold, from the Wick outward. | the run |
-| **The Long Pier of Names** — "Every candle a promise someone couldn't keep." | foot · pier end (35.5, 50) | (39.8, 45.2) r 6 @ 0.75–0.85, north-east of the pier end | Shroud Ray × 1.5, Gilt-Eyed × 1.5 | **For the Named** (`drifters`): candle-rafts drift north → south past x 41 every 20–30 s; land within 1.5 m of one to relight it: +6 oil and the next bite +0.2 rarity; 3 a day. B: more, faster, smaller (4 a day, +4 oil). | oil on the long walk out |
+| **The Bottomless** *(legend pool, the finale)* — "Two who kneel. One who breathes below." | foot · two stances: **the Brink** (0, −38.5), y 1, casting north 9–17 m over open water (**flat line**: sweet band +0.03; eels from the Bottomless reach you); **the Joined Hands** (0, −57.9), y 6, casting south 3–9 m (**steep line**: sweet −0.03, surge warning −0.1 s; eel-proof; crawlers only by the two forearms) | (0, −52) r 11.5 @ 0.95–1.00 | Lampwarden × 1.5 (gloom, Ember Roe), Shroud Ray × 1.5; **The Lantern-Swallower** (v3 name; was the Pale Leviathan) | the legend rule is unchanged; the two gold eye-glints still open at night before you own Last Candle (v3 name; was Drowned Marrow). **Its first surge breathes in every candle within 30 m.** **Victory:** the Wick's flame relights the giants' lantern, then every candle and memorial candle in the Deep relights gold, from the Wick outward. | the run. **v3:** `holdsGiants` for non-legend casts; P4: the Underdepth |
+| **The Long Pier of Names** — "Every candle a promise someone couldn't keep." | foot · pier end (35.5, 50) | (39.8, 45.2) r 6 @ 0.75–0.85, north-east of the pier end | Shroud Ray × 1.5, Gilt-Eyed × 1.5 | **For the Named** (`drifters`): candle-rafts drift north → south past x 41 every 20–30 s; land within 1.5 m of one to relight it: +6 oil and the next bite +0.2 rarity; 3 a day. B: more, faster, smaller (4 a day, +4 oil). | oil on the long walk out. **v3:** + kept species **The Namesake** after relighting 3 candle-rafts in a day (P4) |
 | **The Drowned Almshouse** — "Five rooms, five lives, and every one of them kept a fish." | foot · upper floor (−58, −20), y 2.5 | 5 floor holes r 1.4, each with a broken step on its south side: Cradle 0.3, Cookpot 0.4, Bed 0.6, Chest 0.8, Shrine 0.7 | Cradle → Ossuary Fry × 4, Cookpot → Bonecrook × 4, Bed → Wraithfin × 3, Chest → Gilt-Eyed × 3, Shrine → Funeral Veil × 3 (gloom) | **Five Rooms** (`targets`): aim near a hole and the reticle locks; the cast drops in. B: two pairs of rooms swap their fish. | species on demand |
-| **The Chain Garden** — "Something turns over in its sleep." | foot · plinth (44, −36.5), y 2 | ring around the plinth r 6–12 @ 0.85–0.95 | Gilt-Eyed × 1.5, Lampwarden × 1.5 (night) | **The Thing Below Turns** (`rhythm` 30 s): 1.5 s warning, then for 8 s casts within 4 m of a chain get weight bias +0.6, rarity +0.15; 15% per surge to foul the line. B: 22 s, 25% foul. | heavy-fish bounties |
+| **The Chain Garden** — "Something turns over in its sleep." | foot · plinth (44, −36.5), y 2 | ring around the plinth r 6–12 @ 0.85–0.95 | Gilt-Eyed × 1.5, Lampwarden × 1.5 (night) | **The Thing Below Turns** (`rhythm` 30 s): 1.5 s warning, then for 8 s casts within 4 m of a chain get weight bias +0.6, rarity +0.15; 15% per surge to foul the line. B: 22 s, 25% foul. **v3:** at the Turn the Lantern-Swallower passes under the plinth as a 9 m shadow; casting at the chains during the pass gives **favour +0.6** (replaces weight bias +0.6; rarity +0.15 and the foul stay). | heavy-fish bounties. **v3:** `holdsGiants`; + kept species **Candlewake Sturgeon** at night (P4) |
 | **The Sunken Belfry** — "The bell rings when something touches it." | foot · parapet (56, −18.4), y 1.0 (a dead end) | bell-mouth (56, −22) r 2.2 @ 0.85–0.95 | Lampwarden × 2 (night), Gilt-Eyed × 1.5 | **Rung from Below** (`cue` toll): no plunge, no "!"; the bell tolls and a bone-white ring pulses: rarity +0.2, hook window +0.1. B: the toll comes 0.4 s early. | **The Clapper** |
 | **The Bier Barge** — "Give the dead a fish, and they open the hold." | foot · deck (−10, −17), y 1.5 | lidded hold (−10, −21.2) r 1.6 @ 0.75–0.85 | Funeral Veil × 2 | **Grave Goods** (`deed` offer, until dusk): lay your lowest-value fish on the bier; the hold opens until dusk: rarity +0.25, quality +0.15, gloom species bite in calm. B: the dead want your **best** fish (rarity +0.35, quality +0.2). | **The Wax-Bearer** |
-| **The Empty Ferry Slip** — "At dusk the ferry comes. It brings no one." | foot · slip head (−42, −42.5) (a dead end) | the slip channel @ 0.85–0.95 | Shroud Ray × 1.5 (calm) | **The Last Ferry** (`phaseWindow` dusk, **once a descent**): the first cast in during dusk is a guaranteed rare (the Unpaid Fare when awake) with a 2 s wait. The catch: you start the night at a dead end. B: the ferry comes at dawn. | **The Unpaid Fare** |
-| **The Breathing Deep** (the Deep's feeding spots, `spotStyle`) | anywhere | bubble domes r 3.5 placed by **path**: ≤ 8 s of walking to a point within castMax − 2 m of the dome; every 40 s (70 s at night) | — | 2 s warning, **12 s** live: rarity +0.3, weight bias +0.5; a dome that expires uncast respawns at half the interval. Tide Chart: 2 domes that breathe until dusk; domes count as feeding spots for `spot_catch`. | |
+| **The Empty Ferry Slip** — "At dusk the ferry comes. It brings no one." | foot · slip head (−42, −42.5) (a dead end) | the slip channel @ 0.85–0.95 | Shroud Ray × 1.5 (calm) | **The Last Ferry** (`phaseWindow` dusk, **once a descent**; v3: once an expedition): the first cast in during dusk is a guaranteed rare (the Unpaid Fare when awake) with a 2 s wait. The catch: you start the night at a dead end. B: the ferry comes at dawn. | **The Unpaid Fare**. **v3:** `holdsGiants` (the farthest water holds the biggest fish); at dusk the absent ferry is drawn as a faint additive outline |
+| **The Breathing Deep** (the Deep's feeding spots, `spotStyle`) | anywhere | bubble domes r 3.5 placed by **path**: ≤ 8 s of walking to a point within castMax − 2 m of the dome; every 40 s (70 s at night) | — | 2 s warning, **12 s** live: rarity +0.3, weight bias +0.5 (**v3:** a live window, favour +0.4 instead of the weight bias); a dome that expires uncast respawns at half the interval. Tide Chart: 2 domes that breathe until dusk; domes count as feeding spots for `spot_catch`. | |
 
 #### Place-kept species (WALK_SPECIES; Journal 32 → 40)
 
@@ -1721,13 +1777,13 @@ Depth inside a place's water stays within `place.water.depth`. Every place yield
 | **Harpstring Eel** | Sporewood · Gill Harp · while it sings | any | 0.4–0.85 | 0.6–2.4 | 74 / 22 / 44 | darter · 3 |
 | **Hushcap Koi** | Sporewood · Veilwater · veil burned | calm | 0.6–1 | 1–4 | 78 / 26 / 46 | darter · 3 |
 | **The Unreflected** | Glasswater · Mirror Nave · reflection hit | any | 0.5–1 | 1–4 | 145 / 30 / 56 | darter · 4 |
-| **The Footnote** | Glasswater · Well of Ledgers · bottom ledger | any | 0.9–1 | 2–6 | 140 / 40 / 54 | sinker · 4 |
+| **The Footnote** | Glasswater · Well of Ledgers · bottom ledger | any | 0.9–1 | 2–6 | 140 / 40 / 54 | sinker (v3: *sulker*, P4) · 4 |
 | **Rainglass Darter** | Glasswater · Stilled Cascade | calm | 0.75–0.95 | 0.3–1.2 | 135 / 20 / 60 | darter · 4 |
 | **The Clapper** | Pallid · Sunken Belfry | any | 0.8–1 | 3–9 | 225 / 46 / 70 | thrasher · 4 |
 | **The Wax-Bearer** | Pallid · Bier Barge · hold open | any | 0.7–0.9 | 2–6 | 220 / 30 / 80 | leaper · 4 |
-| **The Unpaid Fare** | Pallid · Ferry Slip · the Last Ferry | calm | 0.8–1 | 4–12 | 240 / 50 / 78 | sinker · 4 |
+| **The Unpaid Fare** | Pallid · Ferry Slip · the Last Ferry | calm | 0.8–1 | 4–12 | 240 / 50 / 78 | sinker (v3: *sulker*, P4) · 4 |
 
-**Awake per descent** (seeded, at zone entry): Sporewood 1 of 2, Glasswater 2 of 3, the Pallid Deep 1 of 3. An asleep species never bites; the Journal and Murk say so ("It sleeps this descent"), and `place_species` bounties only name awake ones. They count as rares everywhere else, pay ≈ 15% over each lake's rares and need no bait; Wick-Worms attract all eight. A lake's Journal perk needs its place-kept fish too.
+**v3:** sizes, styles and values for these eight follow the size model (§25.7.6 rows 21, 22, 33–35, 45–47); the kg column is the v1 / v2 weight range. **Awake per descent** (v3: per expedition; seeded, at zone entry): Sporewood 1 of 2, Glasswater 2 of 3, the Pallid Deep 1 of 3. An asleep species never bites; the Journal and Murk say so ("It sleeps this descent"), and `place_species` bounties only name awake ones. They count as rares everywhere else, pay ≈ 15% over each lake's rares and need no bait; Wick-Worms attract all eight. A lake's Journal perk needs its place-kept fish too.
 
 ### 24.8 Night on foot
 
@@ -1749,17 +1805,17 @@ Spawn rate, `maxAlive`, hp, speed, damage, drains, Heat, formation and elite tim
 - **Killers keep their raft values:** stain 3.2 m, every Warden telegraph as on the raft, inkwells hold at 13–18 m, but each perch keeps a reachable walkway within zap range − 2 m so they can be hunted. On foot the geometry is aligned instead of softened: the Shard Abbot's Hymn Ring keeps a gap within ±20° of the walkway tangent at the Wick; the Ferryman's Pole Sweep runs along the walkway; the Veiled Gardener's charge crosses the walkway (or stops at land edges) so a sidestep along it clears the lane; the Ferryman's inhale pulls along the walkway, never over an edge; Eclipse also darkens candles within 20 m for its 4 s.
 - **Formations on foot** (`WALK_FORMATIONS`, from the same two picks per night): **The Stirring Edge** (a 4–10 m ring rising from water where ≥ 50% of the circle is lake; "Step inland, or flare as they rise.") and **Candle-Snuffers** (duskmantles fly to a lit candle within 25 m; 3 latched for 6 s darken it; a zap peels one and refunds 1 oil).
 
-**Sister-candles (`BALANCE.lamps`).** Sporewood 5, Glasswater 8, Pallid 9 (validated: every reachable walkway ≤ 68 m of path from a candle — or, in Sporewood, from a mooring).
+**Sister-candles (`BALANCE.lamps`).** Sporewood 5, Glasswater 8, Pallid 9 (validated: every reachable walkway ≤ 68 m of path from a candle — or, in Sporewood, from a mooring). **v3:** two candles per walking lake carry `watch: true` for lamp-watch (Lantern mode, §25.5.2): Sporewood `harp_lamp` and `crown_lamp`, Glasswater `harbour_lamp` and `hymnal_lamp`, the Pallid Deep `plaza_lamp` and `pier_lamp` (data `WALK_SYNC_V3.watchLamps`; the Mossmere's are the dock buoy-lamps `se_buoy` and `w_buoy`). A watch candle's pool exists only while it is lit.
 
 | rule | value |
 |---|---|
 | share flame | stand within 2.4 m and hold 1.0 s; costs **12 × zone oil drain (14.4 / 16.8 / 19.8 oil)**; any phase; damage interrupts it |
-| lasts | the rest of the descent (`run.flags.lamps`) |
+| lasts | the rest of the descent (`run.flags.lamps`); v3: the rest of the expedition (every Set Out starts with all candles unlit) |
 | light | r 6 m (+1 per level of the Trimmer's Shears), cold and steady in the lake's accent colour; enemies inside move × 0.7 (the lower of this and your light's × 0.75 applies); the Silent Choir shows inside; **darkness ticks at half rate inside** (never stops); lights land (lamp term + one instanced decal) |
 | also | sharing marks the 2 nearest undiscovered places; lit candles join `water.setLights` (the two nearest; still ≤ 6) |
 | flame-leap | **once each dawn, free**, from any lit candle (or the moored raft) to any other lit candle; the radial shows them in their true directions; never in calm, dusk or the Gloomtide |
 | darkened by | a hand slam within 4 m, 3 latched moths for 6 s, Eclipse (temporary), and **a gloom legendary's first surge (every candle within 30 m of its pool: "It breathes the candles in")**; relight 6 × zone drain |
-| Known Places | a mastered place starts each later descent **discovered, with its candle's first share free** — you still walk there and hold |
+| Known Places | a mastered place starts each later descent (v3: expedition) **discovered, with its candle's first share free** — you still walk there and hold |
 | Stake Lantern | a supply you plant with a pill on any walkway (`run.flags.stake`): until dawn it slows what enters its 5 m light and shows the Choir; **no darkness shelter**; not a leap node |
 | not a haven against | slams, globs, Wardens, eels: candles soften fodder, and fodder ends few runs |
 
@@ -1772,11 +1828,11 @@ Spawn rate, `maxAlive`, hp, speed, damage, drains, Heat, formation and elite tim
 | | Harp Green loop (r 7.1, 45 m) | low, room to circle around the pool |
 | Glasswater | inside the Votive Font (loop r 7.4, 46 m) | eel-free; crawlers only by the open spokes and the Skiff Steps; pillars split packs |
 | | Lower Gallery (loop r 51, 320 m) | the long kiting circuit with 8 ramps and 6 spokes |
-| Pallid | Cairn Plaza (r 8) and the Landing (r 8) | room to circle; deep water all round (eels) |
+| Pallid | Cairn Plaza (r 8) and the Shore of Last Rafts (r 8) | room to circle; deep water all round (eels) |
 | | the Rib Walk loop (≈ 175 m through the Plaza) | four branches; in the walk-under-water variants the Bier Road closes the loop instead |
 | | the Brink and the Hands (≈ 75 m loop) | the finale ground: low Brink with eels, high Hands without |
 
-**The finale on foot.** The Pale Leviathan's fight is unchanged (§5.6: no new elites while hooked, Grasping Dark summons two Ringed Grasps through the stone, Eclipse, the Ferryman cannot rise). You are anchored as on the raft, and a planted Wick is never moved off its ledge. **Its first surge breathes in every candle within 30 m**, so the fight is never fought inside a candle's slow or half-rate darkness, whichever stance you chose. The two stances are a real trade: **the Brink** gives a flat line (sweet band +0.03: skilled land ≈ 50% at line strength 1.9, against 43% on the raft) but eels leap from the Bottomless and crawlers come by three roads; **the Joined Hands** are eel-proof and reached only by the two forearms, but the line runs steep (sweet −0.03, warnings −0.1 s: ≈ 30%) and a slam there has nowhere to slide (`balance-foot.mjs --reel`). Because 72% of the Pallid swarm flies, funnelling crawlers trims only ≈ 20% of the bag: the finale stays gated by gear (Silverthread) and build. **Victory:** every candle and memorial candle in the Deep relights gold, from the Wick outward (folded into the existing candle beat).
+**The finale on foot.** The Lantern-Swallower's (v3 name; was the Pale Leviathan) fight is unchanged (§5.6: no new elites while hooked, Grasping Dark summons two Ringed Grasps through the stone, Eclipse, the Ferryman cannot rise; **v3:** in Still and Lantern there are no spawns and Grasping Dark becomes two telegraphed snags, §25.5.6). You are anchored as on the raft, and a planted Wick is never moved off its ledge. **Its first surge breathes in every candle within 30 m**, so the fight is never fought inside a candle's slow or half-rate darkness, whichever stance you chose. The two stances are a real trade: **the Brink** gives a flat line (sweet band +0.03: skilled land ≈ 50% at line strength 1.9, against 43% on the raft) but eels leap from the Bottomless and crawlers come by three roads; **the Joined Hands** are eel-proof and reached only by the two forearms, but the line runs steep (sweet −0.03, warnings −0.1 s: ≈ 30%) and a slam there has nowhere to slide (`balance-foot.mjs --reel`). Because 72% of the Pallid swarm flies, funnelling crawlers trims only ≈ 20% of the bag: the finale stays gated by gear (Silverthread) and build. **Victory:** every candle and memorial candle in the Deep relights gold, from the Wick outward (folded into the existing candle beat).
 
 **Dusk readout:** from Murk's 85% bell the HUD shows "Nearest sister-candle 34 m · ≈ 7 s" and "Open ground 9 s" with a faint ghost path. Starting dusk farther than 68 m from any lit candle or the moored raft shows (bad) "No candle within reach. Find open ground, or plant a Stake Lantern."
 
@@ -1786,13 +1842,13 @@ Spawn rate, `maxAlive`, hp, speed, damage, drains, Heat, formation and elite tim
 
 | hook | rule | why it is fun |
 |---|---|---|
-| **Discovery** | the Wick within 8 m of a place's stand or water (or a cast into it) → `place:discover`, toast, a **Places** page in the Journal (rule line, vignette, place-kept silhouette, mastery stars); first time ever: +2 Memories at run end | curiosity pays; the map fills in across runs |
+| **Discovery** | the Wick within 8 m of a place's stand or water (or a cast into it) → `place:discover`, toast, a **Places** page in the Journal (rule line, vignette, place-kept silhouette, mastery stars); first time ever: +2 Memories at run end (v3: instantly) | curiosity pays; the map fills in across runs |
 | **Astir** | each calm one non-legend place per walking lake is Astir (seeded; never twice running): wait × 0.55, rarity +0.25, quality +0.15; Murk names it on arrival | daily routing variety |
-| **Variants & twists** | per descent: the lake's map variant (a fallen bridge, a road under water), each non-legend place's A or B twist, and which place-kept fish are awake (4 of 8) | fixed maps stay unsolved: the routes and the hunt change every descent |
-| **Mastery** | 4 catches in one place in one descent, at least one Fine → `place:mastered`, +10 Memories, and a **Known Place**: discovered from day 1 with a free first share of its candle in every later descent | map mastery that saves oil, not walking |
+| **Variants & twists** | per descent (v3: per expedition): the lake's map variant (a fallen bridge, a road under water), each non-legend place's A or B twist, and which place-kept fish are awake (4 of 8) | fixed maps stay unsolved: the routes and the hunt change every descent |
+| **Mastery** | 4 catches in one place in one descent (v3: expedition), at least one Fine → `place:mastered`, +10 Memories, and a **Known Place**: discovered from day 1 with a free first share of its candle in every later descent (v3: expedition) | map mastery that saves oil, not walking |
 | **Place-kept species** | 8 rares tied to a place and a condition, weight × 8 when eligible and awake | a Journal hunt with clear, learnable puzzles |
 | **Sister-candles & the dawn leap** | share flame with oil (§24.8); one free flame-leap each dawn to any lit candle | light the way on day 1, choose where each later day starts |
-| **Shortcuts** | 4 (the Hyphae Strand, the Sundered Span, the Tuned Bridge, the Sunken Road): a free deed, usually on the far side, opens a route for the descent; the Surveyor's Chalk relic opens the one nearest your arrival | metroidvania "open it from the other side" |
+| **Shortcuts** | 4 (the Hyphae Strand, the Sundered Span, the Tuned Bridge, the Sunken Road): a free deed, usually on the far side, opens a route for the descent; the Surveyor's Chalk relic opens the one nearest your arrival. **v3:** opened shortcuts **persist across expeditions** (`meta.shortcuts`); the Chalk opens the shortcut nearest your arrival for good on your first arrival in that lake | metroidvania "open it from the other side" |
 | **Deeds** | sporelights, harp curtains, the chandelier's arms, the bell rope, the bier offering | prepare a place for the night or the legend |
 | **Wayside** | Pallid memorial candles (+0.5 oil, lit for the descent, mark your routes, feed the victory cascade), Glasswater drifting pages (1–2 Shells or lore), Sporewood puffballs (+2 satiety); the day's eel raid threatens walkway edges | the roads have something to do after discovery is spent |
 | **Murk on foot** | his docks sit beside walkways; trading still costs the walk to his dock (never a leap destination) | the "spot vs. Murk" tension of §4.5 survives |
@@ -1807,16 +1863,16 @@ Spawn rate, `maxAlive`, hp, speed, damage, drains, Heat, formation and elite tim
 
 | kind | id · name | numbers | unlock / where |
 |---|---|---|---|
-| upgrade | `boots_cork` **Cork-Soled Boots** (`feet`) | stride +0.35 per level; 45 / 120 / 280 Shells | from Sporewood |
+| upgrade | `boots_cork` **Cork-Soled Boots** (`feet`) | stride +0.35 per level; 45 / 120 / 280 Shells (v3: a persistent outfit item, 80 / 240 / 600, §25.6.6) | from Sporewood (v3: once the Sporewood Waystone is lit) |
 | supply | `stake_lantern` **Stake Lantern** | 40 base; `give {stake: 1}`; planted with a pill; slow + Choir only | from Sporewood |
 | bait | `wick_worm` **Wick-Worms** | 30, × 4; rarity +0.06; attracts the 8 place-kept species | *Strange Waters* |
 | relic | `roadworn_soles` **Roadworn Soles** | stride +0.2 per level; 45 / 125 / 280 | *First Footfall* |
 | relic | `trimmers_shears` **The Trimmer's Shears** | candle light +1 m per level (`lampRadius:1`); 90 / 245 | *A Place That Knows You* |
-| relic | `surveyors_chalk` **The Surveyor's Chalk** | in each walking lake the shortcut nearest your arrival starts open (`shortcutStart:1`); 185 | *The Long Way Round* |
+| relic | `surveyors_chalk` **The Surveyor's Chalk** | in each walking lake the shortcut nearest your arrival starts open (`shortcutStart:1`; v3: opened for good on the first arrival); 185 | *The Long Way Round* |
 | weapon | `undertow_crook` **Undertow Crook** (common, 5 levels, tags foot, area, close) | a 2.5 m, 120° sweep every 1.8 s (L5: 3.2 m, 200°, 1.3 s), damage 6 → 15; **on foot it knocks crawlers off the walkway**: they re-haul for 0.8 s taking × 1.5 aura, and a fall of more than 2 m stuns them 1 s; on the raft it sweeps the deck edge. **Kindle** (with Vantage) **Riptide Crook**: a full-circle sweep every 1.2 s, damage 20, knock 4.5 m, 1.5 s stun on any fall, hauling crawlers take × 2 aura | *Held the Crossing* |
 | boon | `vantage` **Vantage** (common, 3 levels, tags foot, light) | on high ground: zap range +2 / 4 / 6 m and **crawlers hauling up to you take × 1.5 / 2 / 2.5 aura** (L3 +0.5 m light) | *Hidden Waters* |
 | boon | `kindred_flames` **Kindred Flames** (rare, 3 levels, tags light, foot) | lit candles burn enemies inside at 0.4 / 0.6 / 0.8 × your aura; share time 0.7 / 0.45 / 0.25 s; **first shares** cost × 0.75 / 0.5 / 0 (relights full price); L3: each candle fires one free flare per Gloomtide when something enters it | *Four Shared Flames* |
-| Wick | `wayfarer` **The Wayfarer** — "Who Walked Every Road" (tier IV capstone) | stride +0.8, raft speed −1; starts with the Undertow Crook and 2 Wick-Worms; quirk **First Flame**: the first sister-candle you share with in each lake costs no oil; a re-tint of the base model | *Every Still Place* |
+| Wick | `wayfarer` **The Wayfarer** — "Who Walked Every Road" (tier IV capstone) | stride +0.8, raft speed −1; starts with the Undertow Crook and 2 Wick-Worms; quirk **First Flame**: the first sister-candle you share with in each lake costs no oil; a re-tint of the base model; **v3:** + the fishing half *Shore Sense* (on foot, signs show from 50% farther), §25.5.5 | *Every Still Place* |
 
 All of these are challenge-locked, so **the run-1 boon pool is unchanged** (18 of 32), and foot-tagged boons are **never** offered in raft-only lakes. New archetype tag **Kindred**: Kindred Flames, Tolling Bell, Lantern Pulse, Brighter Wick.
 
@@ -1826,18 +1882,18 @@ All of these are challenge-locked, so **the run-1 boon pool is unchanged** (18 o
 |---|---|---|---|---|---|
 | 31 | **First Footfall** | Step ashore from your raft. | `footAshore` {n:1} | total | `relic:roadworn_soles` + 5 |
 | 32 | **Hidden Waters** | Discover 6 Places. | `placeFound` {n:6} | total | `boon:vantage` + 10 |
-| 33 | **Four Shared Flames** | Share your flame with 4 sister-candles in one descent. | `lampLit` {n:4} | run | `boon:kindred_flames` + 15 |
+| 33 | **Four Shared Flames** | Share your flame with 4 sister-candles in one descent (v3: expedition). | `lampLit` {n:4} | run | `boon:kindred_flames` + 15 |
 | 34 | **Strange Waters** | Land 3 different place-kept fish. | `placeSpecies` {n:3} | total | `bait:wick_worm` + 15 |
 | 35 | **A Place That Knows You** | Master a Place. | `placeMastered` {n:1} | total | `relic:trimmers_shears` + 15 |
-| 36 | **The Long Way Round** | Open 3 shortcuts in one descent. | `shortcutOpen` {n:3} | run | `relic:surveyors_chalk` + 10 |
-| 37 | **Held the Crossing** | Disperse 60 gloomlings on bridges in a single Gloomtide. | `slayOnTag` {tag:bridge, n:60} | run | `boon:undertow_crook` + 20 |
-| 38 | **Far From Any Candle** | Endure a Gloomtide on foot in the Glasswater Vault or deeper without standing in a sister-candle's light. | `nightNoLamp` {zoneMin:2} | run | 20 |
-| 39 | **Every Candle in the Vault** | Share your flame with every sister-candle in the Glasswater Vault in one descent. | `lampLitZone` {zone:glasswater} | run | 25 |
+| 36 | **The Long Way Round** | Open 3 shortcuts in one descent (v3: "Open 3 shortcuts", scope total, since they persist). | `shortcutOpen` {n:3} | run | `relic:surveyors_chalk` + 10 |
+| 37 | **Held the Crossing** | Disperse 60 gloomlings on bridges in a single Gloomtide (v3: Gloom tab). | `slayOnTag` {tag:bridge, n:60} | run | `boon:undertow_crook` + 20 |
+| 38 | **Far From Any Candle** | Endure a Gloomtide on foot in the Glasswater Vault or deeper without standing in a sister-candle's light (v3: Gloom tab). | `nightNoLamp` {zoneMin:2} | run | 20 |
+| 39 | **Every Candle in the Vault** | Share your flame with every sister-candle in the Glasswater Vault in one descent (v3: expedition). | `lampLitZone` {zone:glasswater} | run | 25 |
 | 40 | **Every Still Place** | Master every Place in the three lower lakes. | `placeMastered` {n:21} | total | `character:wayfarer` + 50 |
 
 Challenge sources: `footAshore` ← first `player:mode {reason:'ashore'}`; `placeFound` / `placeMastered` ← `place:discover` (first ever) / `place:mastered`; `placeSpecies` ← `journal:new` for a species with `place`; `lampLit` ← `lamp:lit {first:true}` (relights and free Known-Place shares do not count; they do count for `lampLitZone`); `shortcutOpen` ← `shortcut:open` (the Chalk's free one does not count); `slayOnTag` ← `enemy:slain` with `tag === 'bridge'`, reset each Gloomtide; `nightNoLamp` ← dawn with no frame inside a lit candle since the Gloomtide began, on foot, zone ≥ zoneMin.
 
-**Bounties** (`WALK_BOUNTIES`, types in `WALK_BOUNTY_TYPES`; rewards use the §15 formula): `place_catch` "Bring me {n} fish from {place}." (26, w 3), `place_species` "They whisper of a {species} at {place}." (55, w 1, awake species only), `astir_catch` (34, w 2), `light_lamp` "Share your flame with the sister-candle at {lamp} before dusk." (20, w 2), `lamp_vigil` "Keep tonight's vigil inside the light of {lamp}." (50, w 1, foot lakes).
+**Bounties** (`WALK_BOUNTIES`, types in `WALK_BOUNTY_TYPES`; rewards use the §15 formula): `place_catch` "Bring me {n} fish from {place}." (26, w 3), `place_species` "They whisper of a {species} at {place}." (55, w 1, awake species only), `astir_catch` (34, w 2), `light_lamp` "Share your flame with the sister-candle at {lamp} before dusk." (20, w 2), `lamp_vigil` "Keep tonight's vigil inside the light of {lamp}." (50, w 1, foot lakes) (v3: combat modes only).
 
 **Tips** (`WALK_TIPS`; every trigger validated against the event list and its discriminator): `moor_walk` (`interact:change:ashore`), `foot_basics` (`player:mode:ashore`), `foot_spawn` (`player:mode:spawn`, emitted only for foot spawns), `tow_bell`, `lamp_light`, `lamp_hop` (dawn leap), `place_found`, `high_cast`, `shortcut`, `edge_eels`, `astir`, `legend_snuff` (`lamp:snuffed:legend`). **Text:** `WALK_TEXT` (pills Share flame / Flame-leap / Plant…, banners, toasts), `TEXT.challengeTiers[4]`, `TEXT.memoryLabels.places`, `MERCHANT_LINES.astir`.
 
@@ -1845,8 +1901,8 @@ Challenge sources: `footAshore` ← first `player:mode {reason:'ashore'}`; `plac
 
 | key | before | after | applies | why |
 |---|---|---|---|---|
-| calm length | 120 | **120 (unchanged)** | everywhere | Appendix B: with the dawn leap and the places' bonuses, catches and Shells per day stay within ±7% of v1; the run length is the user's constraint. `ZONES[].phases.calm` stays as a knob. |
-| Arrival Hush | — | +30 s in Glasswater and the Pallid Deep, +10 s in Sporewood, on the first calm in the lake; no calm raid that day | walking lakes | the first day in a lake is the exploratory one; Sporewood's walks are short and its arrival is the run-1 wall, so it gets only 10 s |
+| calm length | 120 | **120 (unchanged)**; v3 expeditions: 180 (185 in the foot lakes), §25.3.2 | everywhere | Appendix B: with the dawn leap and the places' bonuses, catches and Shells per day stay within ±7% of v1; the run length is the user's constraint. `ZONES[].phases.calm` stays as a knob. |
+| Arrival Hush | — | +30 s in Glasswater and the Pallid Deep, +10 s in Sporewood, on the first calm in the lake; no calm raid that day; v3 expeditions: +30 s in every lake on day 1 and on the first calm after a gate | walking lakes | the first day in a lake is the exploratory one; Sporewood's walks are short and its arrival is the run-1 wall, so it gets only 10 s |
 | drains | — | unchanged; sharing flame costs oil | — | walking costs time; light costs oil |
 | foot speed / accel | — | 0.84 × raft speed; accel 6, decel 8 | on foot | short-window reach equal to the raft's; dodges need anticipation (Appendix B kinematics) |
 | contact radius | 1.8 | 1.6 on foot | on foot | the Wick is a smaller target; its dodges are no easier |
@@ -1857,7 +1913,7 @@ Challenge sources: `footAshore` ← first `player:mode {reason:'ashore'}`; `plac
 | pickup radius | 4 | +0.5 m; water cinders drift to the Wick's own area or fly to it | on foot | level-up cadence stays at 24 / 32 s (Appendix B) |
 | cast meter start | below 2 m/s | below 1 m/s | on foot | no anchor brake on foot |
 
-**Explicitly unchanged:** the Heat model, `difficultyFor`, the XP curve, light and aura, reel / bite / quality models, tolls, valueMult, Warden hp, legend rules, every Mossmere number, raft handling and every v1 table while `WALK_ENABLED` is off.
+**Explicitly unchanged:** the Heat model, `difficultyFor`, the XP curve, light and aura, reel / bite / quality models, tolls, valueMult, Warden hp, legend rules, every Mossmere number, raft handling and every v1 table while `WALK_ENABLED` is off. (**v3** changes the size, bite and reel models, XP per mode, the oil table and the Mossmere's places with `V3_ENABLED`: §25.)
 
 #### Changes to existing rules (edited in place, marked "walking build" there)
 
@@ -2003,6 +2059,1493 @@ No new dynamic lights (≤ 4); walk grid + derived fields ≈ 2.5 MB per lake; f
 | 29 | Contact shadows under every enemy within 10 m on the blob-shadow instancing; the ring at the Wick's feet. |
 | 30 | The Burning Glass moves at 0.65 m/s (≈ 70 s each way, as the text says). |
 
+
+---
+
+## 25. Fishing & discovery first (v3)
+
+*v3 turns GLOOMWATER into a fishing-and-discovery game with a home: out-and-back **expeditions** from **the Landing**, a walkable lantern-lit 3D cove, into four hand-authored lakes full of remarkable places and resident giants, with a size model you can see and a night swarm you opt into. This section is the binding spec. Its source is the approved lead-design brief v3 (`tools/out/pivot/BRIEF-v3.md`, final revision after four panel proposals, three judges and two adversarial critiques); every rule, number, table, id and name of the brief is kept here and the argument is dropped (one short "why" per decision). The binding APIs are CONTRACT §13. Numbers are targets for `src/data.js`; land rates come from `reel-v3-sim.mjs`, sizes, odds and the value factor from `roster-v3.mjs` (both in `tools/out/pivot/`, adopted by `tools/sim/reel-v3.mjs` in T1). "Hour" always means **hours of play**, not hours of fishing.*
+
+### 25.0 Decision log, precedence and vocabulary
+
+#### 25.0.1 What the user asked for, and where v3 answers it
+
+| # | the user's request (verbatim, in order) | v3 answer |
+|---|---|---|
+| 1 | "create me a really fun 3D fishing survival game in HTML with great graphics and really addictive progression but make sure the progression is challenging. Take inspiration from hollowknights art style." | §25.1 pillars 2 and 6; the challenge lives in Prize / Trophy / Elder fish, gear gates and Far Water (§25.6, §25.9); the mood only, never the content (§25.15.3) |
+| 2 | Hybrid raft fishing by day + a survivors-like night swarm + roguelite meta (summary of the request) | kept whole: Gloomtide is a night mode (§25.5), The Long Descent is today's one-way roguelite (§25.3.7), Boons and levels per expedition (§25.3.5) |
+| 3 | "a combination of raft fishing for some maps, raft and walking for some and mostly walking to interesting unique fishing locations for others" | still holds: the Mossmere raft-only, Sporewood raft and walking, Glasswater and the Pallid Deep mostly on foot (§24); the Landing is walked (§25.4) |
+| 4 | "far too many green heus" (fixed by the Moonlit slate palette) | still holds, now for fish, glows, Old Murk and the home cove too: green and teal only as rare accents (§25.4.5, §25.7.7, A10) |
+| 5 | "The focus has to be on the fishing and the beautiful interesting environment. Less about the combat its a nice to have but I want the experience to be finding cool locations with interesting fish species and big sizes etc" | sets the pillar order (§25.1): places, fish and visible size first; combat optional per expedition and never gates a fish (§25.5.3) |
+| 6 | "Go with the expeditions and home base idea" | out-and-back Expeditions from a persistent home, the Landing, replace the one-way descent as the default; the descent survives as The Long Descent (§25.3) |
+| 7 | "Yes, make the home base a 3D cove" | the Landing is a small, walkable, lantern-lit 3D cove, not a menu (§25.4) |
+
+#### 25.0.2 The brief's open questions, answered by the user (all = the recommended defaults)
+
+| # | question | answer (binding) | where |
+|---|---|---|---|
+| Q1 | Default night mode from the 2nd expedition | **Lantern** (a light swarm), with **Still** offered side by side on an equal card. The First Outing is always all-still. One data constant (`BALANCE.nightModes.default`) flips it to Still if playtests ask. | §25.5.1, §25.5.8 |
+| Q2 | Tackle in The Long Descent | **Per-run gear and its own purse** (a pure roguelite): today's UPGRADES from Murk, a twig rod start, 20 starting Shells; persistent tackle, outfit and Shells are ignored. | §25.3.7 |
+| Q3 | How hard the early lakes' biggest fish stay | **Hard until late-game tackle** (come back later): an Elder Reedjaw lands ≈ 0% on starter tackle, 55% on T3, 82% on T4; smaller species' Elders stay catchable on the lake's own tackle. | §25.6.6, §25.9.2 |
+
+#### 25.0.3 Precedence and scope
+
+1. **§25 overrides §1–§24 (and Appendix A / B) wherever they conflict.** The supersession table (§25.12) lists every earlier section as kept, modified, replaced or cut, with the §25 rule that wins. Anything §25 does not touch stays as written.
+2. **§24 is edited in place** where v3 renames or retunes a §24 place, id, name or number; each such edit is marked "v3" there and listed in the sync table (§25.13). §24's remaining rules (foot controller, walk grid, places kit, night on foot) are the base v3 builds on.
+3. **The Long Descent** (§25.3.7) is today's game: inside it, §1–§24's run rules (phases, Heat, `difficultyFor`, per-run UPGRADES, `memoriesFor`, per-descent §24 state) apply unchanged except where §25.3.7 says otherwise. v3's fishing model (size, favour, classes, ceremony, records) applies in every mode.
+4. **Scope words:** wherever §1–§24 say "run" or "descent" scope (challenges, per-descent variants, twists, awake species, the Last Ferry, lit sister-candles), v3 reads **expedition** scope; The Long Descent keeps descent scope.
+5. **Code names vs player names.** Players see *the Landing*. Code uses `hub` (the flow), `cove` (the zone id and camera mode) and `hub:enter` (the event), because `landing` is already a fishing state in eight modules. The §24 lamps are **sister-candles** (code `lamps`); where the brief says "Waylamp" it means a sister-candle.
+6. **Two kinds of "marked" fish, kept apart in code:** a fish **marked for home** is a Prize+ catch you carry in a Live Well slot this expedition (`run.marked[]`, UI "Mark for home"); a **Marked Fish** (capitalised, "still out there") is an escaped Trophy+ fish that persists at its place across expeditions (`meta.markedFish[]`).
+
+#### 25.0.4 Vocabulary added by v3 (every existing term is kept)
+
+the **Landing** (home cove; code `hub` / `cove`) · **expedition** · **First Outing** · **Set Out** · **Homecoming** · **Snuffed** · **Scorched** · night modes **Still / Lantern / Gloomtide** (a quiet night is a **Stillnight**) · **Night Rise** · **Far Water** · **favour** (μ) · size classes **Small / Keeper / Prize / Trophy / Elder** (an **Ancient** is an Elder with z ≥ 3.2) · **Elder Log** · **Old Ledger** · **Marked Fish** · **resident** · **Tally Post** · **Long Wall** · **frame** · **keep-pond** · **Gear Bench** · **tackle** (Rod / Line / Reel / Creel tiers) · **outfit** · **Map Table** · **Homeward Waystone** · **Live Well** · **lamp-watch** · **tackle rating** · **proof catch** · **The Long Descent** · **Well-fed** · **Quayling** · **signs** · **the float's favour** · **Astir** (kept from §24) · **Murk's Ledger** · **today's rumour** · **the Lantern-Swallower** (was the Pale Leviathan) · **Last Candle** (was Drowned Marrow).
+
+### 25.1 Pillars (ranked)
+
+When pillars conflict, the higher one wins. These replace §1's pillar list; §1's premise and tone stay, and the loop sentence becomes "set out, find remarkable places, land remarkable fish, bring them home".
+
+1. **Remarkable places, remarkable fish.** Every lake is a set of hand-authored *places*, each with a twist, a story and, at three per lake, a resident giant. Exploration means finding them; fishing means solving them.
+2. **Size is the challenge, and you can see it.** Ordinary catches stay relaxing (commons land ≥ 97% for a novice). The challenge lives in **Prize, Trophy and Elder** fish, which need place, conditions, presentation, tackle and skill at once. The setup is readable (the float's favour notches, §25.6.1) and size is honest at every stage: bite, breach, fight, measuring cord, wall.
+3. **Home grows with what you bring back.** The Landing is the visible spine of progression: one framed slot per species on the Long Wall, a pond of living trophies, lit Waystones, a tackle rack, a shrine of relit lanterns. Records are written at the measuring moment and kept forever. Mounts must survive the trip home.
+4. **How far you dare to go.** Oil still equals light and light still equals life, but oil and the Live Well now measure *how long and how far* an expedition runs. **Far Water** makes every extra day out both more rewarding and more expensive, in every mode.
+5. **Night is the big-fish hour, and the swarm is optional.** **Night Rise** brings giants shallow in every mode. Fighting is a per-expedition choice (Still, Lantern or Gloomtide) and never gates a fish, a place, a size class or the odds.
+6. **Hand-inked melancholy, ours alone.** Silhouettes, rim light, ink outlines and bioluminescence, with original names, places, systems and HUD. Not Hollow Knight's content, not Dredge's loop, not a real fishing game's signature systems (§25.15.3).
+7. **One thumb, one button.** Hold-to-reel stays the only core fight input. At most one new fight verb per lake, introduced one at a time; everything playable one-handed on a phone.
+
+**Decisions that shape the pillars (with the short why):**
+
+| decision | rule | why |
+|---|---|---|
+| Night is the climax of every day | Night Rise favour +0.25; ≥ 2 night-only species per lake; glow trails. In the default mode the swarm takes only the first half of every second night; the last 45 s of every night are always uninterrupted fishing. | request 5: night is a fishing opportunity first |
+| Persistent collection is made visible | over the first 15 hours the felt spine is three tracks: **tackle tiers** (what you can hold), **Waystones** (where you can go), **the Landing filling up**; the Long Wall gives the long tail a visible slot per species | progress you can see and walk around in |
+| Reuse what is built; cut what fights it | cut: the mid-fight drag dial, rod sweep, diver/snag world tags, count-down sink rigs, the net QTE, pointer-target scatter casting, lure sizes, diet tags, morphs, geometry-moving weather | each adds a verb or system the phone, the originality rules or the merged ring geometry cannot afford |
+| Big sizes, honestly and stretched | true scale (a 22 cm minnow *looks* small next to a 0.85 m Wick), a stretched size tail (an Elder is 1.6–2.0× a typical Keeper's length), legendaries ≥ 1.4× anything else in their lake, frames sized per species, a camera that never zooms by class; the 1.45× mid-fight mesh boost goes | request 5's "big sizes" must read on screen |
+| Failure stings without wiping the collection | §25.3.4: you lose the creel, the fish you were carrying home and half the expedition tally; never a record, a species, banked Shells, tackle, outfit, places, shortcuts or access | the sting lands on the fish you were proudest of |
+| Challenge comes mainly from fishing, and stays | Elder fights get steeper above the Elder cut and every Elder plays one "old trick", so full tackle lands headline Elders only 69–82% (skilled) and Ancients 43–51% | request 1: progression stays challenging (Q3) |
+
+### 25.2 Core loop and a typical session
+
+#### 25.2.1 The loops (replaces §2)
+
+| scale | loop |
+|---|---|
+| **cast** (5 s – 3 min) | read signs and the float's favour → cast → wait (the bite tell shows the class) → hook → fight (size-scaled) → **measure** (cord, chime, seal; records written) → keep / eat / render / release / **mark for home** |
+| **day** (5 min) | calm 180 s: sail or walk to places, follow signs, Murk moors · dusk 20 s: *Last Light*, big fish start to rise · night 90 s: **Night Rise**, night species, the swarm only if your mode calls it · dawn 10 s: Murk's bell, tomorrow's forecast, banked Boon picks |
+| **expedition** (3–5 days, 16–26 min) | at the Landing: choose lake, Wick, night mode (from the 2nd expedition), tray → **Set Out** through the sea-gate → days in the lake (optionally pass an open gate one lake deeper) → each dawn the water improves and the way home costs more (**Far Water**) → **Return home** at the lake's Homeward Waystone or on Murk's barge, *or* the lantern gutters (**Snuffed**) |
+| **home** (1–3 min) | **Homecoming**: hang fish marked for home in their species' frames or release them into the keep-pond; Murk buys the rest; the tally is paid · fit tackle and outfit at the Gear Bench, try it on the test buoy from the jetty · relics at the Shrine · plan at the Map Table |
+| **campaign** (15–40 h) | land each lake's legendary → its gate opens → pass through once (toll) → the next lake's Waystone lights at home · tackle tiers gated by **proof catches** · Elders and Ancients in every lake · the Long Wall's four wings fill · The Long Descent |
+
+#### 25.2.2 First session, minute by minute (The Wick; the game at the end of P3)
+
+| clock | where | beat |
+|---|---|---|
+| 0:00 | Landing | Title overlay over a slow orbit of the cove: one lit hearth, a bare specimen board on the harbour wall, a silted pond, the raft at the jetty. "Begin." |
+| 0:05 | Landing | The Wick wakes by the hearth. Tip: *walk*. The jetty end glows; a test buoy bobs beyond it. |
+| 0:15 | jetty | Tip: *hold on the water to cast*. The first cast goes into the cove. |
+| 0:22 | jetty | A quick **double pop** (Small). A 4 s fight, then the **measuring moment**: palm pose, the cord ticks to 13 cm, "Quayling, Small". First Journal page (+3 Memories). Murk, from his barge: "Lives in my front yard. I don't buy those. The real water's through the gate." |
+| 0:40 | Landing | Map Table → the **First Outing** card, fixed: The Mossmere · The Wick · "Every night of your first outing is still." No mode choice yet. Set Out. |
+| 0:50 | Landing | The Wick boards the raft. A 3 s glide under the bare sea-gate arch, past the lit Mossmere Waystone. Zone flash. |
+| 1:05 | Mossmere | Spawn in the south (day 1 calm: 180 + 30 s Arrival Hush). The Homeward Waystone glints at the south-east dock, 25 m away. |
+| 1:20 | | Murk's bell. He moors at that dock, beside the Homeward stone. |
+| 1:30 | | First lake bite: a Dusk Minnow (Small). |
+| 1:40–3:40 | | 3–4 species. A **boil** near the Cupped Hands draws you east: first place ("The Cupped Hands", ink title card, 1.2 s). The aqueduct coughs, the bowl overflows, fry spill, and the float shows **◆◆◇◇◇** (place 0.15 + live window 0.4). A slow **drag-under** tell: the first **Prize**, a 31 cm Dusk Minnow (≈ 55% of players have a Prize within 5 minutes of the lake). Ink-stamp seal; record written; "Mark for home?" (1 Live Well slot, "keeps 3 nights"). |
+| 3:50 | | Murk: rumour tier 1 ("When the old aqueduct coughs, the stone hands overflow."). Sell 2 fish. |
+| 4:20 | dusk | *Last Light*: "The big ones come up at dusk." |
+| 4:40–6:10 | night 1 | Still. Glowtide: wakes sparkle and a night fish shows as a moving light. Night Rise. *Lampsipper* rises to your lantern (new species). |
+| 6:10 | dawn | Murk: "Moonfall twice tomorrow." Far Water ◆◇◇◇. |
+| 6:20–9:20 | day 2 | **Moonfall** at 25% of the calm: the Ferry-Market goes glass-clear (moored barges, a toll-house clock, cart wheels). Four fish circle at true scale; you cast to the biggest, a 65 cm **Trophy** Candlefin (oxblood wax). The Belled Matriarch is visible in the Bell Pool. Under the Span is discovered. Heartmoss bought (40). |
+| 9:40–11:10 | night 2 | Still (First Outing). A Gloam Eel (Prize) follows a glow trail. |
+| 11:20–14:20 | day 3 | Matriarch attempt (sim on starter tackle: 56% novice / 82% skilled). Under the Span, a Trophy Reedjaw escapes at 84%: **near-miss card** ("Snapped at 84%. Your tackle is rated Trophy here, and that was a big one. Let go on the hiss."). It becomes a **Marked Fish**, still under the bridge. |
+| ≈ 14:30 | | **Ride home** on Murk's barge (day 3 is a Murk day; he casts off at 85% of the calm, ≈ 14:53), or hold at the Homeward stone. |
+| ≈ 15:00 | Landing | **Homecoming**: the Prize Dusk Minnow goes onto the Mossmere specimen board (close-up at 1.7 m with the Wick beside it, then a pull back to the whole wing); the Trophy Candlefin fills its plaque. Murk buys the creel. Memories ≈ 18: tally 10 (2 dawns × 3, 2 still nights, a Ledger request 2) + first mounts 8 (Prize 2, Trophy 6). Gear Bench: buy and fit **Braided Gut (Line T1, 120)** and try it on the test buoy. |
+| ≈ 16:00 | | The Map Table now offers night modes (Lantern preselected). The session ends with two fish on the wall and a Marked Fish waiting "under the bridge". |
+
+Notable events: ≈ 22 in 16 minutes (8 species, 4 places, 3 class firsts, PBs, two mounts, the first legend attempt), one every ≈ 45 s. Named species in the first 30 minutes stay ≤ 9 (Quayling, Dusk Minnow, Mossback, Crayfish, Weeping Carp, Candlefin, Reedjaw, Lampsipper, Gloam Eel).
+
+#### 25.2.3 A mid-game session (≈ hour 5, Sporewood, Still mode, Tallow)
+
+| clock | beat |
+|---|---|
+| 0:00–1:30 | Landing: a Trophy Plumgill goes into its plaque. Map Table: today's rumour says *an Elder Mildew Angler turns at the Mother's Cup rim*; the forecast says *Spore-fall tomorrow*. Fit Line T3 (Glass-Gut; proof was a Sporewood Trophy). Two test-buoy pulls. Set Out: Sporewood, Still. |
+| 1:30–5:00 | Day 1 (210 s): moor at the Copse Jetty, walk to the Gill Harp, play the curtains (sequence), land a Harpstring Eel (Prize). Light two sister-candles. |
+| 5:00–6:50 | Dusk and night at the Mother's Cup rim (a giant place) with Ember Roe at the bottom of the band: float **◆◆◆◆◇** (place 0.15 + Night Rise 0.25 + rumour 0.3 + bait 0.35 + depth 0.25 = 1.3 → Trophy 19%, Elder 9%). A water-dome tell: an Elder. With Line T3 on a T2 Rod and Reel a skilled player lands it ≈ 15–30% of the time (between the T2 and T3 rows of §25.6.6): it escapes at 71% and becomes a Marked Fish ("Old Hushwing, ~110 cm"). |
+| 7:00–12:00 | Day 2: Spore-fall doubles the Puffball Vent. Far Water ◆◇◇◇ (+0.06). The Lullaby's sleepers: a Trophy Velvet Ray chosen by sight. Pressure (the float says "The water here has gone quiet") pushes you on every 3–4 catches. One Old Ledger record (Murk's bell rings across the lake). |
+| 12:00–14:20 | Day 3, a Murk day. The Live Well holds the Velvet Ray (night 1 of 4) and a Prize Harpstring Eel. Staying to day 5 would mean no Murk on day 4 and oil at × 2 on day 5. You **ride home** at ≈ 14:20. |
+| 14:40–16:10 | Homecoming: the Velvet Ray fills its arch, the Harpstring Eel goes to the pond. Memories ≈ 28 (tally 10, first mounts 8, the Old Ledger record 5, class firsts ≈ 5). The Map Table marks Old Hushwing at the Mother's Cup. |
+
+#### 25.2.4 Time budget of a 4-day expedition (4 full days, 20.5 min in the lake + ≈ 2 min at the Landing)
+
+| mode | exploring (sail, walk, places, sister-candles) | fishing (cast → measure, incl. night) | fighting | menus and ceremonies | fight share of play |
+|---|---|---|---|---|---|
+| **Still** | 7.5 min | 10.5 | 0 | 2.5 | 0% |
+| **Lantern** (default from the 2nd expedition) | 7.5 | 9.6 | 1.35 (two 40.5 s swarm windows) | 2.05 | ≈ 6% |
+| **Gloomtide** (21.1 min in the lake: nights 90 / 96 / 102 / 108 s) | 6.0 | 6.3 | 6.8 (four full nights + calm raids) | 2.0 | ≈ 29% |
+
+### 25.3 Macro structure: expeditions from the Landing
+
+**The decision.** The one-way roguelite descent of request 2 becomes **out-and-back expeditions**. Per-expedition risk, per-expedition Boons and levels and an optional swarm are kept. **Tackle, outfit, Shells, the Journal, records, places, shortcuts and lake access persist.** The original one-way descent is kept intact as **The Long Descent** (§25.3.7). The hybrid of request 2 (raft fishing by day, a survivors-like night, roguelite meta) is all still here; the meta now has a home you walk around in, and trophy hunting no longer resets every run.
+
+#### 25.3.1 Reaching the four lakes: unlock order, travel, Waystones
+
+| step | rule |
+|---|---|
+| **Waystones** (vocabulary kept, meaning sharpened) | Four standing stones at the foot of the Landing's sea-gate, one per lake. A lit Waystone is a lake you can **start an expedition in**. The Mossmere's is lit from the start. Waystone relics (purse, banked levels) are cut. |
+| **Opening the next lake** | Land a lake's legendary (legend rule unchanged, §5.6) → its **Descent Gate opens for good**. |
+| **Lighting the next Waystone** | During any expedition, pass through that open gate once and pay its **toll once** (180 / 420 / 900 Shells, unchanged). You arrive in the new lake *on that expedition*, and its Waystone lights at home for every later expedition. The first visit to each lake is always a journey, never a menu jump. |
+| **Going deeper mid-expedition** | Any open gate whose Waystone is lit is a free passage one lake deeper: one-way within an expedition, calm or dawn only. **+10 tally per lake crossed, paid only if the expedition then completes a full calm in the destination lake** (no gate-hopping for Memories). The deeper lake's drains, Heat and fish apply. |
+| **Travel out** | Map Table → Set Out (the chosen Waystone flares) → board the raft → sail (or auto-glide, 3 s) north under the sea-gate arch → zone flash → that lake's spawn. Murk follows and moors at 0:20 of day 1. |
+| **Travel home** | **Homeward Waystone**: one lantern-stone per lake, **≥ 25 m of path from the spawn** (validated), beside a dock or walkway: Mossmere at the south-east dock (24, 38); Sporewood at the Copse Jetty stand (17, 31); Glasswater at the Skiff Steps (5, 18); the Pallid Deep at the Cairn Plaza sister-candle (4, 24). Within 4 m during **calm or dawn**, hold the pill for 1 s. Or **Ride home** from Murk's barge while he is moored (calm only). Both sleep through dusk and night, like the gate. |
+| **Deep starts** | Starting in a deeper lake gives **3 / 6 / 9 banked Boon picks** (Sporewood / Glasswater / Pallid) in every mode: Angler-pool picks in Still; in Lantern and Gloomtide the full pool, with Angler-tagged picks capped at the same 3 / 6 / 9. Gloomtide also keeps today's Kindling Draft (9 / 18 / 28 levels), but **Draft levels may only take non-Angler offers**. |
+| **Heat on deep starts** (combat modes) | Heat = max(day − 1, arrival offset) + 3 × zone, with offsets 0 / 4 / 8 / 12 by lake in Gloomtide and 0 / 2 / 4 / 6 in Lantern, so a Pallid start faces today's arrival Heat (≥ 18 in Gloomtide), not day-1 Heat. |
+
+#### 25.3.2 The expedition
+
+| phase | what happens |
+|---|---|
+| **First Outing** (expedition 1 only) | Fixed card: the Mossmere, The Wick, every night still. No mode cards. From expedition 2 the Map Table shows the three mode cards with **Lantern** preselected and a one-line explanation under each. |
+| **Set Out** (Map Table) | Choose a lake (lit Waystones only), a Wick (unlocked), a **night mode** (Still / Lantern / Gloomtide, locked for the expedition) and a bait/lure tray. The card shows tomorrow's condition per lake, today's rumour, known residents and Marked Fish, and the **tackle rating** of your fitted set in that lake ("Mossmere: Trophy · Elders 15%"). |
+| **Days** | Calm 180 s (185 s in the two foot lakes; **+30 s Arrival Hush** on day 1 and on the first calm after passing a gate, in every lake), dusk 20 s, night 90 s (Gloomtide: 90 + 6/day, max 120), dawn 10 s: 5 min per day, 5.5 min for day 1. Murk moors in the lake (days 1 and 2, then odd days only, §25.3.3): buys fish, sells bait, supplies and, in combat modes only, the combat kit; posts in-lake bounties; takes Ledger turn-ins. **Tackle and outfit are only sold and fitted at home.** |
+| **Return home** | Homeward Waystone or Murk's barge, calm or dawn → Homecoming (§25.3.6). |
+| **Snuffed** | Oil hits 0 → *Last Flicker* (+12, once per day) → 25 s of **guttering** (light 2.5 m; no casting because you cannot see the bobber; you can still move and render a fish to relight) → snuffed. **Only oil can snuff you in Still and Lantern.** In Gloomtide, Embers reaching 0 also snuffs (today's stakes). The *Second Wick* relic relights once per expedition in every mode. The Wick wakes at the Landing's hearth: "Murk found your raft drifting." |
+| **Length** | Open-ended, shaped by Far Water. Built for 3–5 days (16–26 min); a one-day outing (≈ 6 min) is a first-class phone session. Combat modes keep the linger rule (+1 Heat per night after the 4th night in one lake). |
+| **Saving** | Autosave every 30 s, on every phase change, on `visibilitychange: hidden` and on `pagehide`, including the Wick's position (`run.pos {x, z, y, mode, mooring}`), oil and the phase clock. *Continue* restores you exactly where you were (snapped to the nearest walkable or water cell by `walkGridFor`). A save made while guttering or at 0 oil resolves as Snuffed on load. Closing the tab never moves you closer to home. |
+
+#### 25.3.3 Far Water: why "one more day" is a real decision (every mode)
+
+The lake forgets you are there, and the lantern remembers how far you are from home. Both begin with the first dawn of an expedition (day 2). Knobs: `BALANCE.farWater`.
+
+| | rule | day 2 | day 3 | day 4 | day 5 | day 6+ |
+|---|---|---|---|---|---|---|
+| **reward** | lake-wide favour (an *Hour* favour, §25.7.2) | +0.06 | +0.12 | +0.18 | +0.24 (cap) | +0.24 |
+| | resident shows per calm at each giant place (§25.8.1) | +1 | +2 | +3 (cap) | +3 | +3 |
+| **cost** | Murk moors | yes | yes | **no** | yes | odd days only |
+| | Murk's oil price | × 1.0 | × 1.0 | — | × 2.0 | + 0.5 per day after day 3 |
+| | oil from rendering a fish | 90% | 80% | 70% | 60% (floor) | 60% |
+| | night oil burn (night n) | × 1.0 | × 1.15 | × 1.30 | × 1.45 | + 0.15 per night |
+| HUD | the Homeward stone's distance and **Far Water ◆◆◇◇** next to the oil gauge | | | | | |
+
+**The oil table** (`BALANCE.oil`; oil/s = 0.17 × zone oil drain × context × night factor; it replaces `BALANCE.drain.oilPhase` outside The Long Descent):
+
+| context | calm / dawn | dusk | night |
+|---|---|---|---|
+| on the raft (sailing or moored) | 0.35 | 0.5 | **1.0** (all modes) |
+| on foot | 1.0 | 1.0 | 1.4 |
+| inside a lit sister-candle's light, or standing at the moored raft | 0.35 | 0.35 | 0.7 |
+
+*Mossmere check (raft only):* a day burns 10.7 (calm) + 1.7 (dusk) + 15.3 (night) + 0.6 (dawn) = **28.3 oil** (30.1 on day 1). A rendered Mossmere common gives ≈ 17 oil at 100%. Commons you must render per day: 1.8 (day 1) · 1.9 (day 2) · 2.3 (day 3) · 2.8 (day 4) · 3.5 (day 5) · 3.7 (day 6), out of ≈ 5 fish landed. By day 5 you are eating most of your catch, with no Murk on day 4 and double-price oil on day 5. *Glasswater check:* 53 oil per day if you spend the night at a lit sister-candle, 68 in the open (both with ≈ 85 s of the calm spent inside candle light or at a mooring); a full 100-oil lantern on foot away from candles lasts 7 min by day and 5 min at night.
+
+**The Live Well clock** (`BALANCE.liveWell`). A fish marked for home is alive and must reach home alive. It keeps for **3 nights** (Creel T0–T1), **4** (T2–T3) or **5** (T4) after it is marked. At the dawn after its last night you release it ("It had grown listless. You let it go."): the record stays, the mount does not happen. Legendaries need no Live Well slot and never expire. There is no spoilage, no value decay and no cargo grid (§25.15.3).
+
+**Targets for the balance sim (T3):** snuffed ≤ 3% of expeditions for players home by day 3 and 6–10% for players who push past day 4 (Still); Lantern +2 points; median expedition still 3–5 days; ≥ 25% of expeditions end on Murk's barge.
+
+#### 25.3.4 Exactly what persists across a failed expedition
+
+| thing | written when | kept if you return | kept if **Snuffed** |
+|---|---|---|---|
+| Journal names, field notes (incl. your best setup per species), class seals, personal bests (cm and kg), Old Ledger records, the **Elder Log** entry | at the **measuring moment** (the seal stamp) | yes | **yes**: an Elder lost on the way home keeps the line "*Sank with the creel, night 4*" |
+| Shells | the moment Murk pays (in-lake sale, bounty, Warden) | yes | **yes** (no unbanked Shells exist) |
+| Memories from discoveries (species, class firsts, places, rumours, Old Ledger, legends, challenges, first releases) | the moment it happens | yes | **yes** |
+| Tackle tiers, outfit tiers, lures owned, relics, Wicks, challenges, Waystones, open gates, **opened shortcuts**, Known Places, Tally Post records, residents, Marked Fish | on purchase or event | yes | **yes** |
+| **Creel** (unsold fish) | — | sold to Murk at home | **lost** (it sinks) |
+| **Fish marked for home** (Prize+ you chose to bring home; theft-proof; in Live Well slots) | — | hung in their species' frame or released into the keep-pond (first-mount Memories) | **lost**, with no mount and no first-mount Memories |
+| **Expedition tally** (dawns, nights, lakes crossed, Ledger requests) | on return | 100% | **50%** |
+| Bait, consumed lures, supplies, combat kit, level, Boons, Kindles, Heartwax, lit sister-candles, the lake's Astir state, Far Water | — | end with the expedition | end with the expedition |
+
+A typical snuff costs **less than a day's catch plus whatever you chose to carry home**. The sting lands on *the fish you were proudest of*, never on the collection.
+
+#### 25.3.5 How the existing roguelite systems map onto expeditions
+
+| system | in v3 |
+|---|---|
+| **Memories → Relics** | Same currency and the same Shrine (now a 3D alcove at the Landing). Discoveries bank instantly; the expedition tally is paid on return. Relics split into a **Fishing & Exploration shelf** and a **Gloom shelf** (effects that only matter in combat modes). Cut: Waystone relics × 3 and Murk's Old Debt; their Memories are refunded on save migration. New relics: §25.10.4. |
+| **Boons and Kindles** | Per expedition (they reset at home). Levels come from fish and discovery XP in every mode, and from Cinders in combat modes. **Level-ups earned while fishing, sailing or walking are banked** and offered on the next measuring card or at the dawn bell, never as a modal while you move or have a line in the water. Level-ups during a swarm keep today's immediate offer. **Angler pool**: the 9 existing fishing, movement and oil boons plus 6 new (§25.5.4). Kindles exist only in combat modes. |
+| **Wicks (6)** | Chosen per expedition at the Map Table. Stats unchanged. Every quirk gets a fishing half (§25.5.5), including §24's sixth Wick, the Wayfarer. Unlocks get either-path requirements. |
+| **Challenges** | Today's 30, plus §24's tier IV (10) and a new tier V *The Measure* (8) = **48**. "Run" scope becomes "expedition" scope. **Nine** combat-only challenges move to a **Gloom** tab and unlock only combat things (§25.10.5). |
+| **Waystones** | The Landing's sea-gate stones (§25.3.1). |
+| **Wardens, Heat, formations, elites** | Unchanged inside Gloomtide; scaled inside Lantern (§25.5.1); absent in Still. Heat uses the arrival offset (§25.3.1). |
+| **Trophy or Toll** | Generalised into **Mark for home**: any Prize+ fish, and every legendary, can be marked. |
+| **Records** (meta) | Extended: per species (length, weight, class firsts, best setup), per place (Tally Posts), the Elder Log (with Ancients), the Old Ledger, legend growth lines. |
+| **The death screen** | Becomes the **Snuffed** summary: what was kept, what sank, near-miss lines, one tip. |
+| **Per-run upgrades from Murk** | The four all-mode ones become persistent **outfit** tiers at the Gear Bench (§25.6.6). The five combat ones stay per expedition as Murk's **combat kit**, sold only in combat modes at 40% of today's prices. |
+
+#### 25.3.6 Homecoming
+
+1. The raft glides in under the arch (2 s, `setout` camera reversed) and moors (2 s). Skippable at any point to step 4.
+2. **Each fish marked for home**, biggest first: *Hang* (its species' frame; it replaces the mounted fish only if longer or of a higher class, otherwise the game asks), *Keep-pond* (≤ 1.4 m, if a slot is free) or *Sell*. Hanging plays the `hang` close-up (the Wick stands beside the frame, an iron-hook clink, a candle lights, then the pull back to the whole wing). The first time a species is brought home at a class (hung or kept in the pond): Prize +2 / Trophy +6 / Elder +15 Memories. Legendaries always hang under the arch.
+3. Murk buys the rest of the creel at standard price (shown).
+4. **Summary card**: days, nights, fish landed, PBs, class firsts, places, the tally lines, Marked Fish created, and one "next goal" line (e.g. "Line T2 needs a Mossmere Prize: done. 450 Shells."). Then you are free to walk, fish from the jetty, or try new tackle on the test buoy.
+
+#### 25.3.7 The Long Descent (prestige mode)
+
+| rule | value |
+|---|---|
+| unlock | all four Waystones lit |
+| shape | **today's game**: Gloomtide every night, start in the Mossmere, descend through each gate, land the Lantern-Swallower to win. No return home except victory or snuff. Today's phases (calm 120, dusk 14, night 90 + 6/day, dawn 8), today's Heat and `difficultyFor`, no Far Water. |
+| purse | its own: starts at **20 Shells** (`BALANCE.economy.startShells`). Shells earned in the descent stay in it; persistent Shells neither enter nor leave. |
+| tackle | today's per-run UPGRADES catalogue from Murk (twig rod start). Persistent tackle and outfit are ignored (Q2). |
+| fish | fish marked for home and mounts are off, except that a victorious run brings the Lantern-Swallower home on a gilded chain |
+| what still counts | Journal, records, class seals, Elder Log, places, challenges, Memories (today's `memoriesFor` plus discoveries) |
+| rewards | +200 Memories on the first win, the *Ashen Cloak* cosmetic for every Wick, a gilded fifth stone rising in the sea-gate, and its own records board (fewest days, deepest snuff) at the Trials Board |
+
+*Why:* request-2 players keep the full roguelite with records that mean something, while the default structure serves request 5.
+
+### 25.4 The Landing: a 3D cove you walk around in
+
+**Name.** *The Landing*: plain, a little sad, and doubly true (where the last Wicks landed, and where you land fish). In code the flow is `hub` and the zone is `cove` (data export `COVE`, **not** in `ZONES`).
+
+**Fiction.** An old ferry landing tucked under the kingdom's outer wall: a sheltered pocket of still water behind a broken **sea-gate arch**. The four Waystones stand at the arch's feet, and a channel beyond them runs out into the dark toward every lake. The harbour wall above the quay was where the ferrymen pinned their best catches; it is bare now. Old Murk keeps his barge here between expeditions. The Wicks who are not out on the water doze by the hearth.
+
+#### 25.4.1 Layout
+
+Coordinates follow the game's convention: x east, z south, −z is north (up-screen). The camera yaw is fixed, looking north, as everywhere else, so **everything you want to look at faces south**: the harbour wall (the Long Wall) on the land side and the sea-gate arch on the water side, **side by side**, 4 m apart.
+
+```
+                         N (up-screen)                 channel out into the dark (shoreNotch)
+   cliff ─────────────────────────────────────────────┐          ║
+   ┌─ UPPER GALLERY y 6.0 ── UPPER WALL z −21.5 ──────┐ │          ║
+   │  [ Glasswater wing ][ Pallid wing ]  (sailcloth) │ │ ╔══ SEA-GATE ARCH z −18 ══╗  span x −2…14, crown y 9.5
+   └──────────────────────────────────────────────────┘ │ ║ legends hang y 3.5–7.5  ║
+  stair x −32 (silted until Glasswater lights)          │ ║ ◆W1  ◆W2   ◆W3  ◆W4     ║  Waystones on a sill, z −15
+   ┌─ LOWER GALLERY y 1.8 ── LOWER WALL z −14.5 ──────┐ │ ╚═════════════════════════╝
+   │  [ Mossmere wing ] ▮hearth stack▮ [ Sporewood ]  │ │
+   └────────────── ramp x −10 ────────────────────────┘ │      THE COVE (raft water, depth 0.2–1.0)
+   LOWER QUAY  y 0.6    [S]  [B] [T] [H]earth  [L] [M]ap      ▣ Murk's barge (4, −6.5)
+                              (o) keep-pond          ═══ jetty ═══▶ raft (6, 2)    ⊙ test buoy (10, 6)
+   ───── low parapet, bollard lanterns ≤ 1 m; shallows; nothing above 1 m for ≥ 14 m south ─────
+```
+
+| element | position (x, z) · height | notes |
+|---|---|---|
+| arena | **R 42** round cavern, seed 7707, layout `cove` (shallows 0.2–0.5, channel 0.6–1.0), one `shoreNotch` at the north for the channel | world's existing cliff ring, 3 parallax rings (2 on low), stalactites, 2 shafts |
+| **Lower Quay** (walk `rect`) | x −30…−4, z −6…+8, y 0.6 | the main floor. A 1.2 m retaining wall along z −6 holds the hearth, bench and Trials Board; the south edge has a low parapet and bollard lanterns (≤ 1 m) |
+| **Lower Gallery** (walk `rect`) | x −33.5…−6, z −14…−6, y 1.8 | viewing floor for the lower wall; ramp `path` (−10, −2.5, 0.6) → (−10, −6.5, 1.8), w 3 (slope 0.30) |
+| **Lower wall** | south face z −14.5, x −30…−6, y 1.8 → 6.0 | **Mossmere wing** x −30…−18 and **Sporewood wing** x −18…−6, either side of the hearth's chimney stack; 3 rows of frames each |
+| **Upper Gallery** (walk `rect`) | x −33.5…−6, z −21…−15.5, y 6.0 | cut into the cliff. Stair `path` (−32, −6, 1.8) → (−32, −16, 6.0), w 2.4 (slope 0.42); silted shut until the Glasswater Waystone lights |
+| **Upper wall** | south face z −21.5, x −30…−6, y 6.0 → 10.0 | **Glasswater wing** x −30…−18 and **Pallid wing** x −18…−6 |
+| **Sea-gate arch** | legs at x −3 and 15, z −18; crown y 9.5 | new geometry (§25.4.6). Three legendaries hang on chains beneath it at y 3.5–6.5; the Lantern-Swallower (8.5 m) hangs lengthwise above them at y ≈ 7 inside the 16 m span (the hung set spans y 3.5–7.5). You sail out beneath your legends on every expedition. |
+| **Waystones** W1–W4 | (0, −15) (4.5, −15.3) (9, −15.3) (13, −15) on a low stone sill | each glows its lake's colour when lit |
+| **Jetty** and **raft mooring** | `path` (−4, 2) → (4, 2), w 2.6; raft at (6, 2) | §24 board / ashore with one mooring ring. **You can cast from the jetty** (§25.4.2). A **test buoy** is moored at (10, 6). |
+| **Murk's barge** | (4, −6.5), Customs Steps `path` (−4, −3) → (0, −5) | trade within 5 m; his chalk tally board stands on deck |
+| **Keep-pond** (walk `hole`, depth 0.7) | centre (−16, 3.5), r 2.8 (r 4.0 at pond tier 3), stone rim at y 0.6 | rendered by its own pond pass (§25.4.6) |
+| **Map Table** + **Journal lectern** | (−9, 2) and (−6.5, −2) | the table top is a 512² chart canvas on its own material |
+| **Hearth** | (−18, −4.5), chimney stack up the lower wall at x −18 | the cove's one warm PointLight; respawn point after a snuff; dozing Wicks; the two Wanderers' frames hang on the chimney breast |
+| **Trials Board** | (−23, −5.4) on the retaining wall | pinned challenge cards |
+| **Gear Bench** | (−26, −5) on the retaining wall | rod rack, line spools, reel vice, creel and Live Well, outfit pegs: all show your owned tiers |
+| **Shrine of Drowned Lanterns** | (−30, 0), a small roofless alcove at the quay's west end | an iron frame with **one drowned lantern per relic level** (≈ 60, counted from data; one InstancedMesh) |
+
+Walking distances from the hearth (at §24's base foot speed, 0.84 × 6 = 5.0 m/s): Trials Board 5 m, Gear Bench 8 m, keep-pond 8 m, Map Table 11 m, Shrine 12.8 m, Murk 14 m, the raft 25 m, the lower wall ≈ 12 m, the upper wall ≈ 26 m. Every station is within ≈ 5 s. **Tap-to-walk** (hub only): tap a station's glyph to auto-walk there (BFS on the tiny walk grid). `validate-data` runs §24's rules on `COVE.walk`: reachability, enclosure, and nothing above 1 m within 14 m south of any walkway (the quay's south edge is 21 m from the cliff at x −30; the portrait camera, 15.6 m behind the Wick, stays ≥ 5 m inside the ring).
+
+#### 25.4.2 Stations, interactions and the screens they open
+
+| station | interaction (one contextual pill, ≥ 56 px; E on desktop) | opens / does |
+|---|---|---|
+| **Map Table** | *Plan* | **Set Out** screen (replaces New Descent: First Outing card, then lake, Wick, night mode, tray, forecast, rumour, tackle rating). The chart of the selected lake shows discovered places, residents, Marked Fish, rumour "?" marks and your best fish per place. |
+| **Raft** | *Board* / *Cast off* | after Set Out: board, then sail out under the arch past the chosen Waystone. "Set Out now" on the card auto-walks, boards and glides (≈ 6 s). |
+| **Jetty** | cast (as in any lake) | **cove fishing**: one cove-only species, the **Quayling** (Small–Keeper only, a Journal entry, Memories only for its first catch, never sold), so the first cast and the first measuring moment happen at ≈ 0:20. Cast at the **test buoy** for a fixed-pull practice fight that shows your fitted tackle's tension band, drag preset and shock (no rewards). |
+| **Murk's barge** | *Trade* | the existing **Shop** screen, minus the Gear tab: Sell · Bait · Supplies · **Murk's Ledger** (3 persistent requests) · Rumours · Cosmetics (post-game). |
+| **Gear Bench** | *Tackle* | **Tackle** screen (built from the Shop's Gear tab): buy and fit Rod / Line / Reel / Creel tiers and the four outfit items, lures, proof-catch status, tackle rating per lake, drag preset (Reel T2+). |
+| **Shrine** | *Shrine* | the existing **Shrine** screen (relics). The 3D lanterns mirror relic levels. |
+| **Journal lectern** | *Journal* | the existing **Journal** (also on the HUD everywhere): field guide, size rulers, class seals, best setups, Elder Log, places, mount book. |
+| **Trials Board** | *Trials* | the existing **Challenges** screen with tabs Fishing / Paths / The Measure / Gloom. |
+| **The walls** | walk within 4 m of a wing | `wall` camera. Tap a frame: plaque (species, cm, kg, class, place, expedition, day, Wick; Elders show their name), *Swap* (another mounted fish of that species from the mount book) or *Empty*. |
+| **Keep-pond** | walk to the rim | `pond` camera. Tap a fish: name card, *Release to the cove* (frees a slot; the record stays). |
+| **Hearth** | *Rest* | Settings, save, swap to a dozing Wick (the same as choosing at the Map Table). |
+| **Pause menu** | — | quick links to every station screen (accessibility and phone fast path), *Set Out*, *Title*. |
+
+The **title screen** is now only the boot overlay ("Begin" / "Continue" / Settings) over a slow orbit of the cove. *Continue* resumes a saved expedition at its saved position, or drops you at the hearth.
+
+#### 25.4.3 The Long Wall: one framed slot per species
+
+Each of the four wings holds **one frame per non-legendary species of its lake** (11 / 11 / 12 / 12; the two Wanderers hang on the chimney breast; 48 frames in all). Every frame is a **painted ruler** for its species: width = 1.1 × the species' "said to reach" length, cm ticks, the Prize / Trophy / Elder bands in ink wash, the Old Ledger mark and a Wick-height silhouette (0.85 m). Until you name the species the frame shows a "?" ink silhouette; once named, its silhouette and name; once you bring one home, **your fish at true size** against the ruler. The frame's seal shows the best class mounted: an ink stamp (Prize), oxblood wax (Trophy), black wax with a ribbon (Elder), plus a gold thread for an **Ancient** (z ≥ 3.2).
+
+| frame | used for species whose "said to reach" is | size | count |
+|---|---|---|---|
+| **specimen board** | ≤ 0.6 m | 1.2 × 0.6 m, up to 4 species of one lake | 1 per lake (+1 Wanderer) |
+| **plaque** | 0.6–1.4 m | 0.7–1.5 m wide | 2–4 per lake |
+| **arch** | 1.4–2.4 m | 1.5–2.6 m wide | 4–6 per lake |
+| **great arch** | > 2.4 m | 3.3–4.1 m wide (Gilt-Eyed Eel, Wax-Bearer, Candlewake Sturgeon) | Pallid only |
+
+Packing check (from `roster-v3.mjs`): each wing fits in 12 × 3.6 m as three rows with the largest frames lowest; the widest row is the Pallid's three great arches at 12.0 m. `validate-data` packs every wing from data. In hour 1 the specimen board and a plaque fill first, so the first Homecoming shows a small fish on a small frame, not a speck in an empty arch.
+
+#### 25.4.4 How the Landing grows (visible, tied to progress, never bought except the pond)
+
+| trigger | what changes in the cove |
+|---|---|
+| **start** | One lit hearth and two bollard lanterns. The Mossmere Waystone glows rust and moon-silver; the other three are dark. The **Mossmere wing** shows 11 "?" frames; the Sporewood wing is under lashed sailcloth; the upper stair is silted shut. The keep-pond is silted and dark. The Map Table shows only the Mossmere. The rod rack holds the Willow Switch. |
+| **each species named** | its frame inks in the species' silhouette and name |
+| **each fish hung** | it appears at true size against its ruler, with a small candle beneath it (instanced emissive), so the wall literally glows brighter as it fills; the seal upgrades with class; Elders get a hand-lettered name card |
+| **a wing completed** (every species of that lake mounted at Prize or better) | the wing's lintel lights in the lake's colour; the lake's Journal perk activates (same rule as today's perks) |
+| **first live Prize+ brought home** | the Wick pulls the silt-gate (a 3 s beat): the pond clears and its floor lamp lights. Pond tier 1 holds **3** fish. |
+| **pond tiers** (the only Landing purchases) | Tier 2: **5** fish, 300 Shells, needs 15 species named; stone steps, a second floor lamp. Tier 3: **6** fish and r 4.0, 1,200 Shells, needs the Glasswater Waystone; a painted drowned-mosaic floor. Pond fish are capped at **1.4 m** (bigger fish go to the wall). |
+| **each Waystone lit** | the stone glows its lake's colour (Mossmere rust #b0603e with moon-silver #a9b9f0, amber #ffb46a, sapphire #5cbcff, ember-gold #e8c66a); one more bollard lantern; a keepsake from that lake (a rust buoy-bell, a potted amber glowcap, a singing crystal on the Map Table, 30 candle-rafts drifting in the cove); and **that lake's wing opens** (Sporewood: the sailcloth drops; Glasswater: the upper stair is dug out and the Upper Gallery opens; Pallid: its sailcloth drops) |
+| **each legendary brought home** | it hangs under the sea-gate arch (the Lantern-Swallower along the lintel). Rematch landings update its weight plaque. |
+| **relic levels** | one drowned lantern relights per relic level |
+| **tackle and outfit tiers** | the rod rack, line spools, reel and creel switch to the owned tier's model (the rod geometry from `actors-wick`, retinted and rescaled); boots and chimney glass hang on pegs; the Long Oars appear on the moored raft |
+| **Wicks unlocked** | they doze around the hearth as ink silhouettes (one merged static mesh) |
+| **Old Ledger records beaten** | your name is chalked over the old figures on Murk's tally board |
+| **places discovered / mastered** | the Map Table's chart inks vignettes and stars |
+| **Wardens silenced** (combat modes) | a keepsake for each on the hearth mantel (cosmetic only) |
+| **the Lantern-Swallower landed** | the ember from its belly: a warm shaft opens through the cove ceiling (the game's one warm daylight). Every lamp burns gold, and the title card changes. |
+
+About **150 visible changes over 25–40 hours** (48 frames that fill and upgrade, ≈ 60 lanterns, 4 legends, 4 wings opening, keepsakes, pond tiers). The home keeps growing until the collection is done.
+
+#### 25.4.5 Look, inside the less-green palette
+
+**"Lamplit slate, hearth amber, oxblood wax."** Slate-ink water and stone, bone-white ink trim, umber wood, rust iron. The hearth's amber (#ffb347) is the one warm light, the same rule as the lakes. Oxblood (#8a3a3a) is the accent: wax seals, Murk's awning, the raft pennant. The only saturated colours are the lit Waystones and completed wing lintels, which are earned. Green and teal: **only** verdigris on Murk's hand bell (≤ 2% chromatic weight, checked by the hue report on a Landing screenshot **that includes Murk's barge**).
+
+| `COVE.palette` key | value | | `COVE.grade` | value |
+|---|---|---|---|---|
+| fog / fogDensity | #1d2230 / 0.014 | | exposure | 1.0 |
+| water / waterDeep | #1a1f2c / #06080d | | bloom str / radius / thr | 0.9 / 0.6 / 0.7 |
+| foam | #d8dce6 | | tint × amount | #3a3048 × 0.14 (ink-violet) |
+| glow (hearth) | #ffb347 | | vignette | 0.42 |
+| accent (oxblood) | #8a3a3a | | saturation | 0.82 |
+| ambient / ink / far | #404659 / #04050a / #6d7894 | | grain | 0.05 |
+| light (crack light) / lamp | #e2d6c4 / #ffd8a0 | | | |
+
+**Old Murk is recoloured (A10, P1):** skin #4d5a3f → grey-umber #5a5444; moss #5f7d36 → pale lichen flecks #b8b0a0; lichen #b9c79a → #c8c0b0; lamp glow, halo and PointLight #8fd47a → warm white #ffe2b0; the tip "Sail to his green lamp" becomes "Sail to his lantern". The palette merge already moved his skin, moss and lichen off green (today: skin 0x575047, moss 0x7a5838, lichen 0xc8bca2), so A10's remaining work is mainly the lamp (today 0xa6d4a0, sage); the targets above are binding. This retires "Murk's sage lamp" as the game's deliberate green trace (§19, CONTRACT §9); the only green left at home is the bell's verdigris.
+
+**Mood.** No day/night clock at the Landing: a fixed "lamplit hush" grade. After a snuff it opens in a grey-dawn grade for the summary, then eases back.
+
+**Lights (≤ 4 PointLights, unchanged budget):** the Wick's lantern, Murk's lamp, the hearth (world accent 1), and a Waystone light (world accent 2, coloured like the lake selected at the Map Table). Bollard lanterns, frame candles, shrine lanterns and pond lamps are emissive plus `water.setLights` streaks (≤ 6).
+
+**Cameras (render `MODES`, numbers in `BALANCE.cameras`):** `cove` (hub walk: elev 26°, dist 13.5, aimY 2.4, fov 50; portrait +7° and fov 60, as render already does), `gate` (within 6 m of the jetty head: elev 12°, dist 11, aimY 5, the whole arch, stones and legends), `wall` (elev 14°, dist 6, aimY at the frame row, fov 46), `hang` (Homecoming close-up, distance clamp(1.2 + 1.6·L, 1.6, 7) m with the Wick beside the frame, then a pull back to `wall`), `pond` (elev 55°, dist 6, aimY 0, fov 44), `setout` (elev 10°, dist 14, aimY 6, looking up at the arch during the glide), `title` (slow orbit). *Visibility check:* from the quay, `cove` puts the camera ≈ 8.9 m up and 12 m south of the Wick with the top of the frame 1° below horizontal, so at the arch (≈ 30 m ahead) you see up to y ≈ 8.4: the stones, the hung legends (y 3.5–7.5) and the lower wall's frames. The upper wall reads from the Lower Gallery; the full arch reads from the jetty (`gate`) and in every glide. A phone-portrait screenshot is part of the P3 gate (T4).
+
+#### 25.4.6 How it is built cheaply (reuse table)
+
+| need | reuse / build |
+|---|---|
+| the cove itself | `world.setZone('cove')` resolves the `COVE` export in data.js: a zone's shape (arena, palette, grade, walk layout) that **is not in `ZONES`**. Every `zone:change` listener branches on `hub: true` (CONTRACT §13.3) so nothing falls back to `ZONES[0]`. world-art's builders cover cliffs, parallax rings (3; 2 on low), stalactites, shafts, mist, particles and foam rings. The `shoreNotch` for the channel ships with the cove (P3). |
+| quay, galleries, ramp, stair | the §24 walk-shape extrusion (land meshes extend down to y −2), the same code as the walking lakes, merged into 2 meshes |
+| the two walls | one procedural merged geometry (wall slabs, buttresses, chimney stack), toon + outline: 2 calls. Frames: one merged mesh using a 1024² canvas atlas of painted rulers (silhouette, ticks, bands, seal): 1 call |
+| sea-gate arch | **new** geometry from world-art's `taperTube` helper and the ink material (the Mossmere hero arch is a far, broken silhouette with towers 26 m apart and no crown, so it is not reused): 2 calls |
+| Waystones | **new** small builder: 4 stones using the gate stones' geometry recipe, glyphs as vertex colours, and a per-stone emissive attribute driven by a 4-float uniform for lit state and colour (`buildGate` merges all glyphs into one zone-coloured material, so it cannot do per-stone colours): 2 calls |
+| lamps, frame candles, shrine lanterns | dock lantern-post geometry and the raft lantern as InstancedMeshes: 3 calls |
+| hearth | the raft brazier mesh at 2×, a flame sprite and the existing ember particles: 3 calls |
+| bench, table, lectern, Trials Board, Murk's chalk board | models-kit box/plank builders, merged: 2 calls. The Map Table chart is its own material (512² canvas): +1 call |
+| keep-pond | a §24 `hole` plus a stone torus rim, and **the pond pass** (Wa5): the global water shader discards fragments inside the pond disc (one `vec4 uPondHole`), a floor-painting disc sits at y −0.7 (1 call), the pond fish swim between (normal opaque meshes, depth-tested), and a small transparent pond-surface mesh with ripples, fresnel reflection and a depth tint draws after them (1 call, no depth write). Without this the opaque lake plane (renderOrder −10, depth-writing at y 0) would hide the fish. |
+| pond fish | `models.createFish(species, {z})` at true length (≤ 1.4 m), swum by **actors** on looping paths inside the hole (uSwim 0.6). Up to 6 (2 live on low; the rest rest on the floor, baked into the mount batch, visible through the pond pass). |
+| mounted fish | **`models.buildMountBatch(entries)`** (new): every mounted fish and legend is built from its stored {species, z}, frozen in a mounting pose and merged by material: body skins packed into one 1024² atlas (skins are 256×128, 32 slots; a second atlas page past 32), an emissive atlas for skins that glow, fins on the shared fin atlas with colour in vertex colours, one translucent material for jelly and ghost bodies, bones and their outline, eyes, one outline (per-fish thickness in a vertex attribute), and lure glows as one instanced quad mesh. **≈ 9–12 draw calls whatever the count.** LOD: ≤ 600 triangles per fish beyond 12 m. Rebuilt only on Homecoming or Swap. |
+| Murk at home | `actors.merchant.arrive(dock, yaw, {instant:true})` plus a new `merchant.freeze()` that merges his static pack and barge (≈ 26 → ≈ 8 calls). Freeze also applies in the lakes whenever he is moored and the Wick is > 12 m away. |
+| raft at the mooring | `actors.raft.freeze()` (≈ 4 calls) while the Wick is on foot |
+| the Wick on foot | §24's foot controller, Lantern Crook, walk camera and occlusion cone. The Landing is the simplest possible consumer (flat, three levels, one ramp, one stair, one hole, no drops or bridges), so it is the ideal first integration target for §24's foot core. |
+| dozing Wicks | `setCharacter` looks rendered once, merged into one static silhouette mesh (2 calls) |
+| survival, combat | idle in the hub (no phase clock, no drains, no swarm) |
+
+#### 25.4.7 Phone budget (measured by `tools/perf.mjs` scenario `cove`)
+
+| item | high | low |
+|---|---|---|
+| post-processing | 15 | 10 |
+| water + pond pass (floor disc, pond surface) | 4 | 4 |
+| cliffs and parallax rings | 5 | 4 |
+| stalactites, shafts | 3 | 2 |
+| quay, galleries, ramp, stair | 2 | 2 |
+| walls + frame atlas | 3 | 3 |
+| sea-gate arch + Waystones | 4 | 4 |
+| lamps, frame candles, shrine lanterns | 3 | 3 |
+| hearth (brazier, flame, embers) | 3 | 2 |
+| bench, table, lectern, boards + Map Table chart | 3 | 3 |
+| lake keepsakes (bell, glowcap, crystal, candle-rafts) | 4 | 3 |
+| mantel keepsakes | 1 | 1 |
+| dozing Wicks | 2 | 2 |
+| particles (mist, motes, foam rings) | 3 | 2 |
+| Wick on foot + lantern pool | 15 | 15 |
+| moored raft (frozen) | 4 | 4 |
+| Murk and barge (frozen) | 8 | 8 |
+| mount batch (walls + legends) | 12 | 9 |
+| pond fish (6 live high; 2 live low) | 36 when in view | 12 |
+| **total (worst case: pond, lower wall and arch in one view)** | **≈ 130 (budget 140)** | **≈ 93 (budget 100)** |
+| PointLights | 4 | 4 |
+| zone build time | ≤ 150 ms desktop / ≤ 600 ms phone, hidden by the zone flash | |
+
+**Fallback: Landing v0** (only if §24's foot core slips past the start of P3; world then reports the cove's mode as `'raft'`, and `'foot'` once the foot core is in the build). The Wick stays on the raft, every station sits on the water's edge, and you sail up to each one (the same pills). The layout and every asset are identical, so v0 becomes the walking cove with no rework once §24 lands.
+
+### 25.5 Combat's place: night modes
+
+#### 25.5.1 Three night modes, chosen per expedition at the Map Table (from the 2nd expedition)
+
+The phase stays `gloomtide` internally, so gloom-time species, music and fishing rules keep working. The UI calls a quiet night a **Stillnight**. Modes cannot be switched mid-expedition (otherwise players would flip to Still while carrying a trophy). The First Outing is always all-still. Data: `BALANCE.nightModes`.
+
+| | **Still** | **Lantern** (default) | **Gloomtide** (classic) |
+|---|---|---|---|
+| swarm nights | none | even nights (2, 4, 6…); Murk forecasts it at dawn: "The Gloom stirs tonight." | every night |
+| swarm window | 0 | **night k 0.05 → 0.50** (40.5 s). The last 45 s of every night are always quiet: Night Rise and glow trails, uninterrupted. | the whole night (90 s + 6 s per day, max 120), as now |
+| intensity vs `difficultyFor()` | — | spawnRate × 0.55, hpMult × 0.8, maxAlive × 0.6, elite interval × 2 (first elite at Heat ≥ 3), 1 formation per swarm | × 1.0 (§7) |
+| Wardens | none | every 2nd swarm night (nights 4, 8) at hp × 0.75; it withdraws when the window closes | nights 3, 6, 9, as now |
+| what the swarm threatens | — | **your light and your unmarked fish, never a fight in progress**: fodder contact drains oil (not Embers); a creelsnatch takes one fish *not* marked for home and **never acts while a fish is hooked**; a hand slam costs Embers and knockback but **never snaps the line**; Embers are lost only to telegraphed hits | Embers first (today's death model), then oil and the creel; slams snap non-legendary lines, as now |
+| Embers reach 0 | — | **Scorched**, never Snuffed: the swarm withdraws for the night, the lantern loses 30 oil, you keep a forced lamp-watch until dawn (anchored within 10 m of where you stand; fishing allowed; no Cinders), Embers mend at dawn | Snuffed, as now |
+| night fishing | the full 90 s, with Night Rise | 4.5 s before the window, inside it (spawn × 0.8 while hooked, as now) and 45 s after | inside the swarm, as now |
+| calm raids (day combat) | off | off | on, as now |
+| Embers lost per swarm night (on-curve) | — | 0–1 | §18.4 table |
+| snuffed per expedition (target) | ≤ 3% home by day 3; 6–10% past day 4 | Still + 2 points | 25–55% (first 5 h), 20–35% later |
+| fight share of play | 0% | ≈ 6% (target 4–7%) | ≈ 29% (target 28–32%) |
+
+#### 25.5.2 Lamp-watch: the in-world skip
+
+(Renamed from "vigil" so it does not clash with §24's *vigil grounds*, which are where you fight.) At the moment dusk ends, if the Wick is **inside one of the lake's two watch-lamps' pools**, that night's swarm does not come. The Mossmere's watch-lamps are the buoy-lamps at the south-east and west docks ((24, 38) and (−48, 14); ids `se_buoy`, `w_buoy` on `ZONES[mossmere].arena.watchLamps`); in the other lakes two sister-candles per lake are flagged `watch` (▲, §24.8: Sporewood `harp_lamp` and `crown_lamp`, Glasswater `harbour_lamp` and `hymnal_lamp`, the Pallid Deep `plaza_lamp` and `pier_lamp`), and a watch candle's pool exists only while it is lit (its light radius, §24.8). You may fish only within 10 m of the lamp (Night Rise still applies), and you earn no Cinders. The cost is the location: the night's giants are where they are, and you are pinned to two spots per lake. **Lantern mode only**; Gloomtide ignores lamp-watch. Every other sister-candle keeps §24's rules exactly (shelter from darkness, slower fodder, never a safe night). The HUD shows "Nearest watch-lamp 34 m · ≈ 7 s" from Murk's 85% bell (§24.8's dusk line, reused).
+
+#### 25.5.3 The hard rule
+
+> **No species, place, size class, favour (μ) or fishing tool exists only with combat on.**
+
+- **Cut:** Gloom-fed (a best-of-2 weight roll) and Ashwick's best-of-3.
+- **Levels are normalised** across modes (§25.5.4), Angler-tagged offers are capped at the Still rate in combat modes, and Kindling Draft levels may only take non-Angler offers (§25.3.1).
+- **Combat pays in combat-shaped things only:** Cinders and levels, +4 tally Memories per Lantern swarm night endured (Gloomtide: today's `nightsSurvived × (3 + zoneIndex)`), Wardens (Heartwax, Warden's Gift, Shells 40 / 80 / 140 / 220, Gloom-shelf relic reveals), Gloom-tab challenges (combat boons, Gloom relics, cosmetics: cloak dyes, raft pennants, Warden keepsakes on the Landing's mantel). The tally difference keeps Still's Memories/h within 15% of Lantern's (§25.10.4).
+- **Murk's Ledger** offers combat requests only in combat modes. In-lake bounty templates that need a swarm (`unscathed`, `disperse`, `no_flare`, `break_hand`, `warden`, §24's `lamp_vigil`) are offered only in combat modes.
+
+#### 25.5.4 Levels and Boons in each mode
+
+| | Still | Lantern | Gloomtide |
+|---|---|---|---|
+| XP sources | fish XP × 1.4 with **no zone factor**; discoveries +2 per new species, +4 per new place, +2 per class first (≤ +12 per day) | fish XP × 1.0 (zone factor kept), Cinders on swarm nights, the same discoveries | as now (Cinders, fish XP × 1), the same discoveries |
+| level-ups per day of an expedition | ≈ 3 · 2 · 1 · 1 on days 1–4 (Mossmere: 5 fish ≈ 29 XP a day against `xpForLevel` 5, 7.9, 11.4, 15.5, 20.2 …) | ≈ 3 · 2.5 · 1.5 · 2 (swarm nights add Cinders) | today's cadence |
+| when offered | banked: on the next measuring card or at the dawn bell | banked while fishing; immediate during a swarm | as Lantern |
+| offer pool | Angler pool and non-combat passives only | weapons join from the first swarm night; Angler-tagged offers capped at the Still rate | today's pool, same cap |
+| Kindles | — | yes | yes |
+
+**Angler pool** = Steady Reel, Hungry Waters, Lucky Knot, Gutsfire, Lantern on the Line, Gilded Hook, Swift Oars, Slow Burn, Brighter Wick, plus 6 new: **Long Cast** (castMax +1.5 per level), **Patient Line** (slack grace +0.2 s), **Feather Touch** (hook window +0.06), **Night Eyes** (glow trails visible 50% farther; night bite speed +10%), **Wanderer's Stride** (stride +0.3; foot oil burn −10%), **Quiet Hands** (the Clean Cast window widens from charge ≥ 0.92 to ≥ 0.88). No boon adds favour directly or opens a place.
+
+#### 25.5.5 Wick quirks get a fishing half (all modes)
+
+| Wick | unlock (either-path) | fishing half (new) | combat half (combat modes, unchanged) |
+|---|---|---|---|
+| The Wick | free | *Curious*: places reveal from 16 m (not 8); the first new species each day gives +1 reroll | first level-up of each night offers 4 cards |
+| Taper | Steady Hands (land 25 fish) | *Angler's Ember*: fish give double XP (as now) | flare cooldown refund (as now) |
+| Stub | Down the Sluice (light the Sporewood Waystone) | *Quick Feet*: stride +0.4; a cast within 5 s of stopping counts as Clean at charge ≥ 0.8 | Fanned Flame |
+| Tallow | The Long Vigil: **spend 5 nights out in one expedition** (any mode) | *Slow Melt*: oil burn × 0.8 on foot | i-frames, Gutter-burst |
+| Ashwick | Unwarded: **silence a Warden or land 3 night-only species at Prize or better** | *Burned Once*: the first surge of every fight is telegraphed 0.3 s longer | Cinder Heart |
+| The Wayfarer (§24) | Every Still Place: master every place in the three lower lakes (21) | *Shore Sense*: on foot, signs show from 50% farther; the first sister-candle lit in each lake costs no oil (§24's First Flame) | §24's start boon (Undertow Crook) |
+
+#### 25.5.6 Legend fights without a swarm
+
+In Still and Lantern, the Glass Sovereign's night fight runs without spawns, and the Lantern-Swallower's *Grasping Dark* becomes **two telegraphed snags**: a hand silhouette rises under the water 1 s ahead, then a +0.2 tension spike; release through it as you would a surge. In Gloomtide both fights are unchanged.
+
+#### 25.5.7 The day screen carries no combat UI
+
+| element | Still | Lantern | Gloomtide |
+|---|---|---|---|
+| lantern-aura ring | never | hidden in calm and dawn; fades in through dusk on swarm nights only | hidden in calm and dawn except during calm raids; on from dusk |
+| Embers arc | hidden | shown from dusk on swarm nights, or for 4 s after any hit | always |
+| Flare button | hidden | shown from dusk on swarm nights | always |
+| Burn button | shown only when oil < 25% (as *Relight*) | same, plus during swarms | always |
+| satiety bar | replaced by a small **Well-fed** glyph | same | same |
+
+#### 25.5.8 The default: Lantern from the 2nd expedition, under four conditions
+
+1. **The First Outing is all still**, so a new player's first ≈ 16 minutes are pure fishing, places and the first Homecoming.
+2. **Still is offered without stigma**: an equal card on Set Out with a one-line explanation, no fishing penalty, and Memories within 15%.
+3. **Lamp-watch is an in-world skip** (§25.5.2).
+4. **In Lantern, combat never costs a hooked fish or the expedition**: no line snaps, no theft while hooked, Scorched instead of Snuffed, and the last 45 s of every night are quiet.
+
+If playtests show players opting out in droves, flip the default to Still (Q1). It is one data constant (`BALANCE.nightModes.default`).
+
+### 25.6 Fishing craft
+
+#### 25.6.1 Reading the water: six signs and the float's favour
+
+The **feeding-spot mote columns are cut** (they turned reading the water into "sail to the pillar" and added teal pillars). In their place, one vocabulary of **six signs**, each with a fixed meaning. At most 6 are alive at once, built from pooled decals plus the existing ripple and wake arrays: no new uniform arrays, no lights.
+
+| sign | looks and sounds like | tells you | cast rule | effect |
+|---|---|---|---|---|
+| **Rise ring** | rings every 4–9 s; **ring radius ∝ the fish's length**; a "plip" (small) or deep "gulp" (big) | a surface feeder, and its class from the ring size | land within 2.5 m, ≤ 3 s after a rise | wait × 0.5; that pre-rolled fish bites |
+| **Boil** | a dark back turns the surface; ellipse size = class (Prize / Trophy / Elder); a low "glunk" | **one big fish** (a pre-rolled Prize+, or a place's resident) | within 3 m in the next 8 s | that fish bites with 60% chance |
+| **Nervous water** | fry skitter out of a patch | a predator under a bait ball | at the patch edge | predators × 3, favour +0.3 |
+| **Strike splash** | one heavy slap, heard off-screen and panned | a big runner or leaper just fed | within 4 m in the next 10 s | favour +0.6, predators × 3 |
+| **Bubble trail** | strings of bubbles creeping along the bottom | a bottom feeder or sulker (P4: also leads to secrets) | at the head of the trail | bottom feeders × 2, favour +0.2 |
+| **Glow trail** *(night only)* | a moving light under the surface; brightness ∝ size | a pre-rolled night fish | lead it by 1–3 m | that fish bites 70% |
+
+- **Spawn:** 2–4 signs alive in calm (the same slots, counts and lifetimes as `BALANCE.spots`, renamed in use to signs), within castMax + 15 m of the Wick, favouring places (≥ 50% inside place water in the walking lakes).
+- **Visible shadows** stay special: inside `sight` places, in Glasswater's clear water, and as residents surfacing. Blind casting while reading signs is the main mode; there is no approach shadow before every bite.
+- **The Pallid Deep** keeps the Breathing Deep domes (§24) as its sign style. **Legend pools** keep the faint still ring and the edge marker; the tall golden column becomes a low gold glimmer.
+- **Murk's Chum** (supply, replaces the Tide Chart): 30 Shells × supplyMult, 1 per visit. Your next cast creates a nervous-water sign for 30 s.
+
+**The float's favour (U13, P1).** The size odds the player is meant to master are shown, not hidden. When the bobber settles, the float icon shows **0–5 ink notches** for the current favour μ (bands < 0.15 · 0.15–0.45 · 0.45–0.8 · 0.8–1.2 · 1.2–1.6 · ≥ 1.6). Long-press (or hover) lists the active favours by family in plain words: "*Place: Astir · Hour: Night Rise, Far Water · Match: today's rumour · Tackle: Ember Roe, deep band.*" When a place's pressure reaches −0.36 (three catches there today) the float shows a dimmed glyph and the line "*The water here has gone quiet.*" The **measuring card prints the favours that applied** to that fish, and each species' Journal field note stores **your best setup** (the favours present when you set its PB). `fishing.view.favour = {mu, notches, terms: [{family, id, value}]}`. The families and values are in §25.7.2.
+
+#### 25.6.2 Casting (kept)
+
+The ping-pong meter (charge = distance), the depth reticle, the Clean Cast (charge ≥ 0.92: wait × 0.85, rarity +0.05, favour +0.1) and §24's pool-scaled meter, aim assist and locks are all unchanged. Pointer-target scatter casting and count-down sink rigs are **cut**.
+
+#### 25.6.3 Bait and lures
+
+- **Baits** stay consumables (existing BAITS, attract lists and legend baits). One addition: **Cut Strip**. In the creel screen, turn any fish into 3 strips; predators: attract × 2, favour +0.3. This gives "catch small to catch big" without a new system. A bait's `weightBias` becomes favour of the same value (Ember Roe 0.35).
+- **Lures** are permanent tackle. You equip a lure *or* a bait. A snap loses the lure, and a new one costs 25% of its price. Each species gets **one** `family` tag (insect / predator / bottom / glow), read only by lures.
+
+| lure | depth | family attract | favour | price | sold from |
+|---|---|---|---|---|---|
+| Feather Fly | surface | insect × 2; rise-ring casts get wait × 0.5 | — | 40 | start |
+| Glimmer Spoon (was an upgrade) | mid | predator × 2.5 | +0.2 on predators | 90 | start |
+| Bone Jig | bottom | bottom × 2.5 | +0.2 on bottom feeders | 120 | start |
+| Moth Popper | surface | night species × 2 | +0.2 at night | 260 | Sporewood lit |
+| Lantern Lure | mid–deep | glow × 2.5 | +0.4 | 1,200 | Glasswater lit |
+
+#### 25.6.4 The bite and the hook
+
+| class | bite tell (bobber animation + sound, readable with sound off) |
+|---|---|
+| Small | quick **double pop** |
+| Keeper | the classic plunge (as now) |
+| Prize | a slow 0.4 s **drag-under** before the "!" |
+| Trophy | the bobber **lies flat**, then slides away |
+| Elder | a **dome of water bulges up** under the bobber first |
+
+- **Let it pass:** if the bite window lapses with no tap, the bait is kept and the next cast in the same water gets favour +0.15 (cap +0.3, reset on a hook or after 60 s). The bite tell becomes a decision without slowing ordinary play.
+- **Window:** Prize+ fish hold the bait 10% longer. The perfect-hook rule (≤ 0.4 × window) is unchanged; the Rod's hook-window multiplier widens it.
+- **Hook-hold pips** (Prize+ only, shown on the hook icon): a perfect hook gives 3, a normal hook 2, and Rod T3+ adds +1. A pip is lost each time tension drops below 0.15 during a surge or leap. At 0 the hook is thrown. The existing slack escape stays. The pips make "almost had it" visible and fair.
+- Nibbles, gold double-dip tells, feints and the spook rule are unchanged.
+
+#### 25.6.5 The fight
+
+**Size scales the species before `createReel`** (the reel core is unchanged). With g = e^(0.2·z):
+
+| class (z used in the sim) | g | power × g^1.6 (sinkers, sulkers g^1.15) | stamina | surge time × √g | sweet band × g^−0.5 | erratic + 0.08·z | surge interval × g^−0.6 |
+|---|---|---|---|---|---|---|---|
+| Small (−0.8) | 0.85 | 0.77 | × g = 0.85 | 0.92 | 1.08 | 0 | 1.10 |
+| Keeper (0.4) | 1.08 | 1.14 | 1.08 | 1.04 | 0.96 | 0.03 | 0.95 |
+| Prize (1.4) | 1.32 | 1.57 | 1.32 | 1.15 | 0.87 | 0.11 | 0.85 |
+| Trophy (2.2) | 1.55 | 2.02 | 1.55 | 1.25 | 0.80 | 0.18 | 0.77 |
+| **Elder** (2.95) | 1.80 | **× 1.08 × g^(1.6 + age·(z − 2.65))** | **× g^1.3** = 2.15 | 1.34 | 0.75 | 0.24 | 0.70 |
+| **Ancient** (3.35) | 1.95 | (same rule) | × g^1.3 = 2.39 | 1.40 | 0.72 | 0.27 | 0.67 |
+
+**Above the Elder cut, fights get steeper and every Elder has one old trick.**
+- *Elder age* is per lake: Mossmere 1.2 · Sporewood 0.9 · Glasswater 0.7 · Pallid Deep 0.35. Old water keeps its oldest fish hard: an early lake's Elders need late tackle (Q3), and a deep lake's Elders are already hard by species.
+- *Fatigue clock* (all non-legendaries): after 60 s, power × max(0.6, 1 − 0.01·(t − 60)). For Elders the floor is **0.8**, so an Elder never simply gives up.
+- *Old trick* (every Elder, once, when progress first passes 55%): a short-warning surge (warning × 0.6, power × 1.3) whose kind the player must read, followed 0.9 s later by a second surge. Each species' style dresses it: a **double run** (runners, darters), a **sulk under the place's feature** (sinkers, sulkers; at the Gatehouse Door and the Chain Garden a foul window), a **second leap after the reveal** (leapers), a **head-down bore** (thrashers, steady).
+
+**Reel-model edits (fishing-reel.js):** global stamina × 1.4 (fights were 5–10 s, too short to have an arc; legends too); easing uses load, `target = −0.55 / (0.8 + 0.2·pw/LS)`, so a better line really lets you ease a big fish; the fatigue clock above. Fight lengths on full tackle (sim, skilled): Trophies 20–40 s, Elders ≈ 1–2 min, Ancients ≈ 3 min, the longest non-legend fights in the game (T1 targets: Elder median ≤ 120 s, Ancient ≤ 180 s on a phone, tuned by the stamina exponent above the cut). **Leap reveal:** the first breach of a Prize+ fish plays 0.25 s at timescale 0.35 with a rim-light flash; the size of what you have hooked is revealed there.
+
+**Fight styles, one new verb per lake.** Hold-to-reel stays the only core input. Nothing is added mid-fight in the Mossmere.
+
+| lake | styles in play | what is new | phase |
+|---|---|---|---|
+| The Mossmere | steady, darter, sinker, thrasher, leaper (all existing) | size scaling, bite tells, pips, old tricks; the **fouled line** at the Gatehouse Door (§24's existing `foul` rule: a clank 0.3 s before a +0.15 tension spike; release through it as you would a surge) | P1–P2 |
+| Sporewood Pools | + **runner** (Velvet Ray, Pilgrim Salmon) | *let it run*: a 0.8 s line-hiss tell, then a run of surgeTime × 2√g. Holding drives T × 1.8 into drag slip; releasing loses progress at 0.05·pw/LS per s; after the run, 2 s of × 1.5 progress ("it turns"). Simulated in `tools/sim/reel-v3.mjs` first. | **P3, never cut** |
+| Glasswater Vault | + **sulker** (Blind Scrivener, The Footnote) | *pump*: every 10–14 s a 4–6 s × √g sulk (the line goes still, a low thud, a ◆ glyph). Holding gains nothing and T creeps +0.3·pw/LS; release ≥ 0.3 s then hold, and each lift gives +0.04·RS/√g progress. | P4 |
+| The Pallid Deep | heavy runners (Candlewake Sturgeon), heavy sulkers (Lampwarden, Unpaid Fare), fouled lines at the Chain Garden, toll cues | combinations, not new inputs | P4 |
+
+**Drag** is a tackle setting, never a dial. Reel T0–T1 is fixed at *Set*. From T2, choose **Light / Set / Firm** (dragAt 0.70 / 0.80 / 0.90) at the bench, or tap the reel icon before casting (one tap cycles). Light makes runners safe but slow; Firm is fast but risky.
+
+**Cut:** the mid-fight drag dial, rod sweep on the joystick, divers and snags (they need world tags and a simulated fish position), the cut-line button (cutting stays "hold movement 0.6 s"), the net ring QTE, the thrasher head-shake.
+
+#### 25.6.6 Gear: tackle tiers and outfit (persistent, bought and fitted at the Gear Bench)
+
+Tackle is sold **per slot**, so a tackle or outfit purchase lands every ≈ 15–90 minutes (§25.10.2). Tiers are kept forever. **T2–T4 need a proof catch.** Gear is earned by fishing, not grinding. `reel-v3-sim.mjs` simulates any mixed loadout; the numbers below are matched sets unless stated. Data: `TACKLE`, `OUTFIT`, `LURES`.
+
+| tier | **Rod** (castMax · hook window · slack grace · **shock** · pips) | **Line** (strength) | **Reel** (reelSpeed · sweet band · drag · absorb) | **Creel** (slots · Live Well slots · nights kept) | price per slot (Rod / Line / Reel · Creel) | proof catch | on sale |
+|---|---|---|---|---|---|---|---|
+| T0 | Willow Switch 16 · ×1.00 · 1.4 s · 0 · — | Twine 1.00 | Wooden Winch 1.00 · .16 · fixed Set · .30 | Wicker 4 · 1 · 3 | start | — | — |
+| T1 | Ashwood 17.5 · ×1.04 · 1.6 s · .08 · — | Braided Gut 1.15 | Brass Spool 1.12 · .17 · fixed Set · .45 | Lidded 5 · 1 · 3 | 120 · 70 | — | start |
+| T2 | Whalebone 19 · ×1.08 · 1.8 s · .15 · — | Waxed Silk 1.32 | Clockwork 1.25 · .18 · presets · .58 | Double 6 · 2 · 4 | 450 · 270 | any **Mossmere Prize** | start |
+| T3 | Glassreed 20.5 · ×1.12 · 2.0 s · .22 · +1 pip | **Glass-Gut** 1.52 (invisible in clear water) | Whisper Drag 1.40 · .19 · presets · .68 | Wellbox 7 · 2 · 4 | 1,400 · 840 | a **Sporewood Trophy** or a **Glasswater Prize** | Sporewood lit |
+| T4 | Lantern-Spine 22 · ×1.16 · 2.2 s · .30 · +1 pip | Silverthread 1.75 (+0.2 s slack) | Tidewheel 1.55 · .20 · presets · .76 | Ferry Hamper 8 · 3 · 5 | 3,200 · 1,920 | a **Glasswater Trophy** | Glasswater lit |
+
+*Shock* is the Rod's surge absorb (`surgeHoldMult × (1 − shock)`). *Nights kept* is the Live Well clock (§25.3.3).
+
+**Outfit** (the four all-mode per-run upgrades, now persistent; no proof catch):
+
+| item | per level | prices (levels I / II / III) | on sale |
+|---|---|---|---|
+| Thick-Glass Chimney | max oil +15, oil burn −5% | 80 / 240 / 600 | start |
+| Rendering Brazier | oil and food from rendering and eating +10% | 80 / 240 / 600 | start |
+| Long Oars | raft speed +0.5, pickup radius +0.5 | 80 / 240 / 600 | start |
+| Cork-Soled Boots | stride +0.35 m/s on foot (§24) | 80 / 240 / 600 | Sporewood lit |
+
+- **Catalogues:** tackle 18,610 Shells (Rod, Line and Reel 5,170 each, Creel 3,100); outfit 3,680; lures 1,710.
+- **Clear water (Glasswater):** lines below Glass-Gut get wait × 1.12 and favour −0.1, so the clear lake asks for its own line.
+- The creel range (4–8 slots) equals today's per-run Woven Creel range, so persistence adds no carrying power to Gloomtide.
+
+**Tackle rating** (shown on the Gear Bench and the Set Out card): for your *fitted* set, the largest class a skilled player lands ≥ 50% of the time against the lake's **reference species** (Reedjaw Pike · Mildew Angler · Mirror Pike · Gilt-Eyed Eel), plus the land rate of the next class (from `--gate --k 400`; Glasswater T3 sits on the 50% line and reads Elder in some seeds). A generated table (`BALANCE.tackleRating`, 125 loadouts × 4 lakes, written by `tools/sim/reel-v3.mjs --write-rating`) holds mixed loadouts.
+
+| matched set | Mossmere | Sporewood | Glasswater | Pallid Deep |
+|---|---|---|---|---|
+| T0 | Trophy (Elder 0%) | Prize (Trophy 20%) | Keeper (Prize 42%) | Keeper (Prize 39%) |
+| T1 | Trophy (Elder 0%) | Prize (Trophy 46%) | Prize (Trophy 40%) | Prize (Trophy 27%) |
+| T2 | Trophy (Elder 15%) | Trophy (Elder 12%) | Trophy (Elder 11%) | Trophy (Elder 2%) |
+| T3 | Elder (55%) | Elder (51%) | Trophy (Elder 49%) | Trophy (Elder 37%) |
+| T4 | Elder (82%) | Elder (75%) | Elder (79%) | Elder (69%) |
+
+**The gear gate is real** (`reel-v3-sim.mjs --gate --k 400`, skilled; Prize / Trophy / Elder / Ancient land %):
+
+| reference species | T0 | T1 | T2 | T3 | T4 |
+|---|---|---|---|---|---|
+| Reedjaw Pike (Mossmere) | 77/52/0/0 | 89/76/0/0 | 94/87/15/0 | 100/99/55/0 | 100/100/82/44 |
+| Mildew Angler (Sporewood) | 56/20/0/0 | 61/46/0/0 | 77/58/12/0 | 99/88/51/0 | 100/94/75/51 |
+| Mirror Pike (Glasswater) | 42/14/0/0 | 70/40/0/0 | 85/72/11/0 | 98/94/49/0 | 100/98/79/46 |
+| Gilt-Eyed Eel (Pallid Deep) | 39/3/0/0 | 68/27/0/0 | 85/66/2/0 | 96/92/37/0 | 100/98/69/43 |
+
+Full tackle lands headline Elders **69–82%** and Ancients **43–51%** (the Mossmere's 82% sits 2 points over the 65–80% target band, inside the sim's ±2.5% at k 400; T1 re-checks it once each Elder's real old trick is simulated). Not every species is this hard: commons and uncommons are landable as Elders on their own lake's tackle (Mossmere commons on T1: 64 / 84 / 89% novice / skilled / expert), which is where most first Elders come from. The **return trip** is real: with full tackle, the Mossmere's Elder Reedjaw is still a one-in-five loss and its Ancients a coin flip.
+
+**Legendaries** (authored fights; novice / skilled / expert land %):
+
+| legend | T0 | T1 | T2 | T3 | T4 | notes |
+|---|---|---|---|---|---|---|
+| The Belled Matriarch | 56/82/85 | 84/90/91 | 99/100/100 | 100 | 100 | fair on starter tackle |
+| The Drifting Grove | 31/76/89 | 64/87/95 | 84/94/97 | 97/98/99 | 100 | |
+| The Glass Sovereign | 4/47/74 | 20/64/86 | 38/80/93 | 85/98/99 | 100 | |
+| The Lantern-Swallower | 0 | 0 | 0 | 0/14/50 | 27/83/98 | T3 Rod and Reel + **Line T4**: 5/41/78 · + Reel T4: 20/77/97 |
+
+#### 25.6.7 Failure that teaches
+
+| failure | readable cause | what you see |
+|---|---|---|
+| Snapped | T ≥ 1.0 for 0.12 s (as now) | the line whips, the lure is lost |
+| Thrown hook | pips reach 0, or slack longer than the grace | the hook flies back with a glint |
+| Spooled | progress reaches 0 during a runner's run with the drag slipping | the reel screams empty |
+| Fouled | a chain wrap during a foul window (Gatehouse Door, Chain Garden) | the line goes dead, then parts |
+
+- **Near-miss card** (always, for Prize+): silhouette, estimated class and length (±8%), % landed, cause, the tackle rating here, one tip. Example: "Reedjaw Pike · Trophy · ~108 cm. Snapped at 84%. Your tackle is rated Trophy here (Elders 0%). Let go on the hiss."
+- **Marked Fish ("still out there")**: an escaped **Trophy+** fish keeps its z and lives at the place it escaped from, behaving like a resident there (§25.8.1; it replaces that place's resident if there is one), with a hook-glint on its shows. Its next fight starts at `min(0.3, 0.5 × P_escape)` (the legendary `wounded` rule, reused). Up to **6** persist in meta; the Map Table marks them.
+
+#### 25.6.8 Landing and measuring: the signature beat
+
+| t | beat (Small/Keeper ≈ 1.2 s, tap to skip · Prize ≈ 2.4 s · Trophy ≈ 3.5 s · Elder ≈ 5 s, skippable after 0.6 s) |
+|---|---|
+| 0.0–0.6 s | **scoop**: a water sheet and a splash at true scale; the `trophy` camera eases in to `clamp(1.2 + 1.6·L, 1.6, 16)` m and frames fish and Wick against the place's landmark |
+| 0.6–1.4 s | **pose by length** (the Wick is 0.85 m): **Palm** < 0.25 m (cupped, close-up) · **Arms** 0.25–0.85 m (held up, as now) · **Hang** 0.85–2.0 m (head-up from the rod tip) · **Alongside** > 2.0 m and every legendary (it lies beside the raft or pier while the Wick walks its length; above 4 m the camera cranes to 50°) |
+| 1.4–2.8 s | **the knotted cord** unrolls along the fish. The centimetres tick up with rising pitch, a chime rings as the count crosses each class threshold, and the **seal stamps**: Prize = a bone-white **ink stamp** of a knotted cord · Trophy = an **oxblood wax seal** · Elder = a **black wax seal with a ribbon** (Ancient: a gold thread), and the fish gets a name ("Old Ninefin", from per-species syllable tables) |
+| at the stamp | **records are written** (PB, class first, place record, Old Ledger, Elder Log, best setup): never lost after this instant (`fish:measured`) |
+| 2.8–3.6 s | banners: "New best: 112 cm (was 97)" · "First Trophy Reedjaw" · "Old Ledger beaten" (Murk's bell rings across the lake) |
+| card | the favours that applied (§25.6.1) · **Keep** (Prize+: a "Mark for home" ribbon toggle; needs a free Live Well slot, shows its nights) · **Eat** · **Render** · **Release** (+luck, as now; the first release of a species at Prize / Trophy / Elder banks +1 / +3 / +8 Memories) · a banked Boon pick if one is waiting. Cut Strip lives in the creel screen. |
+
+P4 adds the **postcard catch card**: the ui-fishart plate painted over a silhouette strip of the place's landmark.
+
+#### 25.6.9 Target land rates (hooked fish)
+
+Lake columns are the sim's averages for that lake's *rare* species (novice / skilled / expert), today's 32-species data, on the lake's curve tackle T(i + 1) unless stated. The reel sim runs once per night mode (combat interrupts fishing).
+
+| class | target | Mossmere T1 | Sporewood T2 | Glasswater T3 |
+|---|---|---|---|---|
+| Small and Keeper, commons | **≥ 97** / 99 / 100 | 100/100/100 | 100/100/100 | 100/100/100 |
+| Keeper, rares | 85 / 95 / 99 | 97/97/99 | 99/100/100 | 98/100/98 |
+| Prize | 70 / 90 / 97 | 77/93/95 | 88/87/91 | 92/91/94 |
+| Trophy | 45 / 75 / 90 | 50/89/92 | 77/74/76 | 72/85/88 |
+| Elder on curve tackle | **0–15 / 15–35 / 25–45** | 2/21/23 | 13/29/41 | 0/14/29 |
+| Elder on arrival tackle T(i) | ≈ 0–10 (a wall: it becomes a Marked Fish) | T0: 0/14/21 | T1: 0/9/13 | T2: 0/0/0 |
+| Elder on T4, reference species, skilled | **65–80** | 82 | 75 | 79 (Pallid: 69) |
+| Ancient on T4, reference species, skilled | **40–55** | 44 | 51 | 46 (Pallid: 43) |
+
+Known gaps (the sim says so): Keeper rares are too easy for novices until the runner (P3) and sulker (P4) land; the Blind Scrivener's Elder (33% on T4) and the Lampwarden (capped at Trophy, 65% on T4) are retuned when the sulker is simulated. Runner and sulker are added to `tools/sim/reel-v3.mjs` **before** their code.
+
+### 25.7 Species and the size system
+
+#### 25.7.1 One size model (replaces §5.8's weight roll)
+
+On the bite, roll a **size score** `z ~ Normal(μ, 1)`, truncated to [−2.0, 3.6]. Then (data: `BALANCE.size`):
+
+```
+length L = L50 · e^(σ·z + 0.06·max(0, z − 1.04)²)     σ = the species' length spread (0.09 … 0.175)
+weight W = k · L³                                     (k per body shape, so weight has the long tail)
+class    = z < −0.25 Small · < 1.04 Keeper · < 1.88 Prize · < 2.65 Trophy · ≥ 2.65 Elder   (Ancient: an Elder with z ≥ 3.2)
+```
+
+The squared term **stretches the top of the curve**, so big fish look big: an Elder (z 3.0) is **1.6–2.0× the length of a typical Keeper** (z 0.4) for every species, and the "said to reach" ceiling (z 3.6) is 2.0–2.8× the median. Classes are cut on **z**, so a class means the same rarity on every species. **One ladder everywhere** (data, UI, Murk's lines, challenges): **Small · Keeper · Prize · Trophy · Elder.** An Elder always gets a name; an Ancient is an Elder with a gold thread on its seal, not a sixth rung. `sizeK` and the ±22% model scaling are cut.
+
+| μ | Small | Keeper | Prize | Trophy | Elder* | (of which Ancient) | what it looks like |
+|---|---|---|---|---|---|---|---|
+| 0 | 38.7% | 46.0 | 12.2 | 2.7 | 0.4 | 0.1 | blind casting in open water |
+| 0.5 | 22.2 | 48.2 | 21.2 | 6.9 | 1.5 | 0.3 | a place at dusk with the right bait |
+| 1.0 | 10.5 | 41.3 | 29.6 | 14.1 | 4.5 | 0.9 | right place, right window, right lure |
+| 1.5 | 4.1 | 28.8 | 33.1 | 23.1 | 10.9 | 2.7 | Astir place, condition matched, night, bottom of the band |
+| 1.8 (cap) | 2.1 | 21.1 | 32.0 | 28.1 | 16.8 | 4.7 | everything at once |
+
+\* **Elders exist only where giants live:** places flagged `holdsGiants` (3 per lake, §25.8), their **residents**, Marked Fish, and P4's Underdepth casts. Everywhere else z is clamped to 2.64 (a top Trophy). Fry water (the Puffball Vent, the Votive Font) caps at Prize; the Lampwarden caps at Trophy. **Finding where the giants live is the exploration goal.** *P1 stopgap:* until the Mossmere's places exist (P2), the existing legend-pool rims (non-legend casts) and `deepPools` of every lake are `holdsGiants`, so Elders exist from the first build.
+
+#### 25.7.2 Favour μ (one formula, shown on the float by family)
+
+| family | source | favour |
+|---|---|---|
+| **Place** | inside any place / today's **Astir** place (instead) | +0.15 / +0.35 |
+| | a place's live window (rhythm live, sight fish, the Turn, a dome…) | +0.2 … +0.6 (per place, §25.8) |
+| **Hour** | dusk *Last Light* or dawn | +0.2 |
+| | night: **Night Rise** (every mode) | +0.25 |
+| | **Hush** condition (lake-wide, §25.8.2) | +0.2 |
+| | **Far Water** (§25.3.3) | +0.06 per dawn out (cap +0.24) |
+| **Match** | the species' field-note condition | +0.3 |
+| | **today's rumour** target (that species at that place) | +0.3 |
+| **Tackle** | bait / lure | Ember Roe +0.35 · Cut Strip +0.3 (predators) · Glimmer Spoon, Bone Jig, Moth Popper +0.2 (their family) · Lantern Lure +0.4 |
+| | bobber in the lower third of the species' depth band | +0.25 |
+| | Clean Cast | +0.1 |
+| | line below Glass-Gut in clear water (Glasswater) | −0.1 |
+| **Signs** | strike splash / nervous water / bubble trail | +0.6 / +0.3 / +0.2 |
+| | let it pass | +0.15 per lapsed bite (cap +0.3) |
+| **Pressure** | each catch from this place today | **−0.12** (floor −0.6, reset at dawn) |
+| **cap** | | **+1.8** |
+
+**Arithmetic check.** A *decent* cast (place 0.15 + dusk 0.2 + family lure 0.2 = 0.55, ◆◆◇◇◇) gives Prize 22%, Trophy 7.4%, Elder 1.7% where giants live. A *full setup* (Astir 0.35 + window 0.4 + night 0.25 + condition 0.3 + Ember Roe 0.35 + depth 0.25 + clean 0.1 = 2.0, capped at 1.8, ◆◆◆◆◆) gives Elder 16.8%, Ancient 4.7%. **Setup is what you master, and the float tells you how you are doing.**
+
+**Pacing, in hours of play** (the pacing sim T5 owns these, with the setup-favour distribution and residents included): ≈ 65 casts per hour of play (≈ 27 min of fishing at ≈ 25 s per cast incl. fight and ceremony); about a third in giant water at an average favour ≈ 0.5 gives ≈ 0.3 Elder bites per hour; residents add ≈ 0.3–0.5 (≈ 1–1.5 resident hooks per expedition × 12.4% Elder × 2.67 expeditions per hour). So **≈ 0.6–0.8 Elder hooks per hour of play**. Targets: first Elder hooked h1–3; first Elder landed h2–6 (usually a common or uncommon species at a giant place); first headline-predator Elder (a lake's reference species) h6–10; first Ancient h12+.
+
+**Legendaries** are single individuals with **authored** sizes (σ 0.02, so their records are to the gram), **each ≥ 1.4× the longest "said to reach" in its lake** (a `validate-data` rule). Each later landing is **+7% heavier** (length +2.3%), capped at × 1.5 weight.
+
+#### 25.7.3 Value, food and oil from size
+
+```
+fish.value = round(species.value × 0.66 × clamp(e^(0.45·z), 0.6, 6) × classBonus × QUALITY.valueMult × streak)
+             classBonus: Trophy 1.25, Elder 1.6, otherwise 1
+fish.food / fish.oil = species.food / oil × clamp(e^(0.3·z), 0.7, 2.5) × QUALITY.yieldMult  (× Far Water on rendered oil)
+```
+
+The factor 0.66 is normalised against the **real favour mix**, not μ = 0: over an assumed mix (25% of sold fish at μ 0, 30% at 0.3, 25% at 0.6, 15% at 1.0, 5% at 1.5; a third in giant water) the size × class multiplier averages **1.428**, and today's `sizeK` averages 0.942, so 0.942 / 1.428 = 0.66 keeps income per fish equal to today's (`roster-v3.mjs`). The balance sim (T3) recomputes it per lake from simulated favour. Example: an Elder Reedjaw (z 2.8) = 34 × 0.66 × 3.53 × 1.6 ≈ **127 Shells**, about two days of early Mossmere income from one fish. `sizeK` is cut. Quality tiers (Fine, Shimmering) and the perfect-hook streak are kept.
+
+#### 25.7.4 Records (all written at the measuring moment, all permanent)
+
+| record | rule |
+|---|---|
+| personal best | per species, length and weight; "New best: 112 cm (was 97)" |
+| best setup | the favours present when you set the PB, stored in the species' field note |
+| class seals | Journal grid: 48 non-legendary lake and Wanderer species × Prize / Trophy / Elder = **144 seals**, plus 4 legend seals (the Quayling has no seals: it never grows past Keeper) |
+| **Elder Log** | every Elder: generated name, cm, kg, place, expedition number, day, Wick; Ancients marked. Lost-on-the-way-home Elders keep their line ("Sank with the creel, night 4"). |
+| **Old Ledger** | a figure in Murk's ledger "since before the Fall" at **z 2.3** (mid-Trophy) for every species. Beating it rings Murk's bell across the lake and gives +5 Memories; your Wick's name is chalked over the old one on his barge at home. |
+| said to reach | the ceiling (z 3.6), drawn as a dotted silhouette on the Journal ruler and on the species' wall frame once you land a Trophy of that species |
+| the one that got away | biggest escape per species (estimated ±8%) |
+| place records | your best fish per place, inked on that place's **Tally Post** in the world (§25.8.1) |
+| legend growth | a growth line per legend ("Expedition 3: 241 kg · Expedition 9: 296 kg") |
+
+#### 25.7.5 Size you can see (3D and UI)
+
+| moment | what shows the size | cost |
+|---|---|---|
+| **bite** | class bite tells (§25.6.4); rise-ring radius, boil ellipse and glow-trail brightness scale with the pre-rolled fish | bobber animation variants; pooled decals |
+| **fight** | **the 1.45× mid-fight boost is cut** (`fishing.js:663`). The model is the true length in metres (`createFish(species, {z})` → the stretched L). Splash (`0.6 + L·0.6`, existing), wake and the under-water shadow decal scale with length. **The reel camera pulls back by line distance and fight state only, never by class**, so an Elder looks bigger on screen than a Keeper. | 0 calls |
+| **breach** | leap reveal for Prize+: 0.25 s at timescale 0.35, rim flash, a thump pitched by size | 1 tween |
+| **landing** | pose by length (palm / arms / hang / alongside), the knotted cord with class chimes, the `trophy` camera at `clamp(1.2 + 1.6·L, 1.6, 16)` m framing fish and Wick against the place's landmark | actors poses + 1 cord mesh |
+| **age marks** (P4) | one detail grows with class on 10 headline species: Mossback's lichen tuft blooms · Weeping Carp's barbels become ribbons · Gutter Crayfish gains buttons · Capshell's hat grows · Sporebelly becomes a perfect sphere · Reedjaw's scars · Shardspine's crest · Bonecrook's crown fragment · Bridgechain gains chain links · Candlewake lights one more scute-candle per class | parameters in `models-fish` and `ui-fishart` |
+| **Journal** | per-species ruler: class bands in ink wash, ticks for your last 12 catches, your best, the Old Ledger mark, the dotted "said to reach". Plates show a small Wick silhouette at true relative scale. | canvas |
+| **home** | your fish at true size against its species' painted ruler on the Long Wall; legends under the arch; pond fish swimming at true size | §25.4 |
+
+*Scale note:* the built Wick is **0.85 m**. All "Wicks long" framing uses 0.85 m. An Elder Reedjaw (122–178 cm) is 1.4–2.1 Wicks; the Lantern-Swallower (850 cm) is 10 Wicks.
+
+#### 25.7.6 The roster: 53 species
+
+**Grammar** (learnable per lake): 3–4 everyday commons → uncommons → rares, of which **≥ 2 are night-only** → **3–5 place-kept** fish, each tied to one place and one condition → 1 legendary. Plus 2 Wanderers and the Landing's Quayling. **No filler: every new fish is tied to a place, a condition or the night.** Morphs (colour-variant checklists) are cut outright (they echo Dredge's aberrant collection and real hunting games' morph lists). Each lake has **two giant-tail species** (σ ≥ 0.16), whose Elders are about twice a Keeper's length.
+
+| lake | commons | uncommons | rares (incl. kept) | legend | total | place-kept | night-only (non-legend) | giant-tail |
+|---|---|---|---|---|---|---|---|---|
+| The Mossmere | 4 | 2 | 5 | 1 | 12 | 3 | 2 (Lampsipper, Gloam Eel) | Weeping Carp, Bridgechain Sturgeon |
+| Sporewood Pools | 3 | 3 | 5 | 1 | 12 | 3 | 2 (Nightbloom Carp, Mildew Angler) | Nightbloom Carp, Mildew Angler |
+| Glasswater Vault | 3 | 2 | 7 | 1 | 13 | 4 | 2 (Shardspine Eel, Vesper Gar) | Mirror Pike, Blind Scrivener |
+| The Pallid Deep | 3 | 2 | 7 | 1 | 13 | 5 | 3 (Funeral Veil, Lampwarden, Candlewake) | Gilt-Eyed Eel, Candlewake Sturgeon |
+| Wanderers | | | 2 | | 2 | | 1 (Hearthfish) | |
+| the Landing | 1 | | | | 1 | | | |
+| **total** | 14 | 9 | 26 | 4 | **53** | **15** | **10** | 8 |
+
+**Phasing:** today's 32 → **36** in P2 (the Mossmere's 4 new fish with its places) → **44** with §24's 8 place-kept fish (the §24 lake builds, `WALK_ENABLED`) → **47** in P3 (2 Wanderers and the Quayling) → **53** in P4 (6 more, each hung on an existing §24 place or the night).
+
+Columns (all sizes from `roster-v3.mjs`): median = L50 / W50 · σ = length spread · Trophy from = z 1.88 · Elder from = z 2.65 · said to reach = z 3.6 (legends: fully grown, × 1.5 weight) · E/K = Elder (z 3.0) length ÷ Keeper (z 0.4) length · value = base Shells before × 0.66 and size. Styles in *italics* are re-mapped. Place references use §24 place ids and the §25.8.4 Mossmere ids. All palettes off-green (§25.7.7). The `id` column gives the data id (existing ids unchanged; new ids per the CONTRACT §13 data-exports table).
+
+| # | species · `id` | lake · where / condition | rarity · time · depth | style | median | σ | Trophy from | Elder from | said to reach | E/K | value | look (signature trait · palette) | status |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 1 | Dusk Minnow `dusk_minnow` | Mossmere · anywhere | C · any · 0–.55 | darter | 22 cm / 106 g | .12 | 29 / 238 g | 35 / 441 g | 50 / 1.3 kg | 1.72 | 5 | pewter schools flecked rust like thrown pennies | recolour |
+| 2 | Mossback Perch `mossback_perch` | Mossmere · anywhere | C · any · .1–1 | steady | 36 / 607 g | .13 | 48 / 1.4 kg | 59 / 2.7 kg | 85 / 8.0 kg | 1.77 | 7 | slate perch; a pale lichen tuft that blooms with class (age mark) | recolour |
+| 3 | Gutter Crayfish `gutter_crayfish` | Mossmere · shallows | C · any · 0–.45 | sinker | 19 / 206 g | .10 | 24 / 411 g | 29 / 727 g | 40 / 2.0 kg | 1.63 | 6 | drowned buttons on the shell, one more per class (age mark) | existing |
+| 4 | **Lampsipper** `lampsipper` | Mossmere · shallows, × 2 inside your light | C · **night** · 0–.5 | darter | 26 / 176 g | .12 | 34 / 393 g | 42 / 728 g | 59 / 2.1 kg | 1.72 | 9 | upturned mouth, two moth-wing eye-spots; rises to your lantern | new · P2 |
+| 5 | Weeping Carp `weeping_carp` | Mossmere · mid–deep | U · any · .35–1 | sinker | 56 / 2.8 kg | .16 | 79 / 7.9 kg | 100 / 16 kg | 148 / 52 kg | 1.91 | 15 | pewter and ivory, tear-streaks; barbels lengthen into ribbons (age mark) | recolour · giant tail |
+| 6 | Candlefin Koi `candlefin_koi` | Mossmere · calm; × 3 Lily Maze | U · calm · .25–.85 | darter | 46 / 1.5 kg | .13 | 61 / 3.5 kg | 76 / 6.5 kg | 109 / 19 kg | 1.77 | 18 | ivory koi, fin edges lit with heatless flame | existing |
+| 7 | Reedjaw Pike `reedjaw_pike` | Mossmere · deep | R · any · .55–1 | thrasher | 70 / 2.6 kg | .15 | 97 / 6.8 kg | 122 / 13.5 kg | 178 / 42 kg | 1.86 | 34 | slate-blue, reed-barred in ink; old ones carry pale scars (age mark) | recolour · reference species |
+| 8 | Gloam Eel `gloam_eel` | Mossmere · deep · Lumen Moss; × 2 Buoy Lights | R · night · .4–1 | leaper | 72 / 597 g | .13 | 96 / 1.4 kg | 119 / 2.7 kg | 170 / 7.9 kg | 1.77 | 42 | ink eel with **moon-violet** photophores (was mint) | recolour, resized |
+| 9 | **Old Portcullis** `old_portcullis` | Mossmere · **Gatehouse Door** target | R · any · .6–1 | sinker + fouled line | 58 / 3.1 kg | .15 | 80 / 8.3 kg | 101 / 16 kg | 147 / 51 kg | 1.86 | 40 | catfish whose barbels hang like a broken portcullis; iron-rust mottle | new · P2 (kept) |
+| 10 | **Cupbearer** `cupbearer` | Mossmere · **Cupped Hands** bowl (1 m disc) while it is full | R · calm · .3–.5 | darter | 80 mm / 5 g | .09 | 99 mm / 10 g | 119 mm / 17 g | 164 mm / 44 g | 1.59 | 48 | thumb-sized, violet-gold veil fins; **measured in millimetres** | new · P2 (kept) |
+| 11 | **Bridgechain Sturgeon** `bridgechain_sturgeon` | Mossmere · **Under the Span**, in Mirror Hush | R · any · .6–1 | sinker | 70 / 2.1 kg | .16 | 99 / 5.8 kg | 125 / 12 kg | 185 / 38 kg | 1.91 | 55 | rust scutes in a line like chain links (age mark); the Mossmere's longest | new · P2 (kept) · giant tail |
+| 12 | The Belled Matriarch `belled_matriarch` | Mossmere · Bell Pool · Heartmoss | L · calm | steady (boss) | 260 / 230 kg | — | — | — | 298 / 345 kg | — | 140 | a harbour bell grown into her skull; tarnished-bronze scales, pale moon glow (was mint) | recolour, resized (1.41× the lake's longest) |
+| 13 | Sporebelly Puffer `sporebelly_puffer` | Sporewood · shallows; × 3 Puffball Vent | C · any · 0–.6 | thrasher | 25 / 469 g | .10 | 31 / 935 g | 38 / 1.7 kg | 53 / 4.5 kg | 1.63 | 13 | sighs spores; Trophy+ puff into a perfect sphere (age mark) | existing |
+| 14 | Plumgill Perch `plumgill_perch` | Sporewood · anywhere | C · any · .15–1 | steady | 40 / 832 g | .13 | 53 / 2.0 kg | 66 / 3.7 kg | 95 / 11 kg | 1.77 | 14 | bruise-plum gills | existing |
+| 15 | Capshell Crayfish `capshell_crayfish` | Sporewood · shallows | C · any · 0–.45 | sinker | 24 / 415 g | .10 | 30 / 828 g | 37 / 1.5 kg | 51 / 4.0 kg | 1.63 | 12 | wears a mushroom hat that grows with it (age mark) | existing |
+| 16 | Velvet Ray `velvet_ray` | Sporewood · mid–deep; × 2 `mothers_cup`, `gill_harp` | U · any · .35–.9 | *runner* | 67 / 3.6 kg | .14 | 91 / 9.0 kg | 113 / 18 kg | 164 / 53 kg | 1.81 | 32 | plum velvet wings, pale eye-rings | existing |
+| 17 | Threadling Eel `threadling_eel` | Sporewood · Spore Cake | U · any · .3–.85 | darter | 86 / 1.0 kg | .13 | 115 / 2.4 kg | 142 / 4.6 kg | 203 / 13.5 kg | 1.77 | 34 | blind, root-like, stitched bands | existing, resized |
+| 18 | **Nightbloom Carp** `nightbloom_carp` | Sporewood · anywhere | U · **night** · .3–1 | sinker | 58 / 3.1 kg | .17 | 83 / 9.2 kg | 106 / 19 kg | 158 / 64 kg | 1.96 | 40 | plum carp whose scales open like amber spore-lamps at night | new · P4 · giant tail |
+| 19 | Mildew Angler `mildew_angler` | Sporewood · deep; × 2 `veilwater` | R · night · .5–1 | sinker | 60 / 5.4 kg | .16 | 85 / 15 kg | 107 / 31 kg | 158 / 99 kg | 1.91 | 66 | its lure is one soft lit mushroom | existing · reference · giant tail |
+| 20 | Sleepspore Jelly `sleepspore_jelly` | Sporewood · Lumen Moss; × 3 `lullaby` | R · calm · .2–.75 | darter | 33 / 719 g | .09 | 41 / 1.4 kg | 49 / 2.3 kg | 68 / 6.2 kg | 1.59 | 62 | pink-white bell with a sleeping fry inside | existing |
+| 21 | Harpstring Eel `harpstring_eel` | Sporewood · `gill_harp` while it sings | R · any · .4–.85 | darter | 82 / 882 g | .13 | 109 / 2.1 kg | 135 / 4.0 kg | 194 / 12 kg | 1.77 | 74 | rose-striped; its fins hum on the line | §24 (kept) |
+| 22 | Hushcap Koi `hushcap_koi` | Sporewood · `veilwater`, its deed done | R · calm · .6–1 | darter | 50 / 1.9 kg | .13 | 67 / 4.4 kg | 82 / 8.4 kg | 118 / 25 kg | 1.77 | 78 | dusk-dark koi, lit only in the dark the place keeps | §24 (kept) |
+| 23 | **The Remembered Sun** `the_remembered_sun` | Sporewood · `drowned_greenhouse`, Clean Cast within 0.6 m of the Lit Row's centre line | R · calm · .4–.5 | leaper | 45 / 1.4 kg | .13 | 60 / 3.2 kg | 74 / 6.1 kg | 106 / 18 kg | 1.77 | 80 | the one warm fish in the Pools: a pale-gold sun-disc on its flank | new · P4 (kept ▲) |
+| 24 | The Drifting Grove `drifting_grove` | Sporewood · `mothers_cup` · Glowcap Bulb | L · calm | leaper (boss) | 300 / 320 kg | — | — | — | 344 / 480 kg | — | 320 | a meadow on her back that blooms when she dives | resized (1.47×) |
+| 25 | Prism Minnow `prism_minnow` | Glasswater · shallows | C · any · 0–.6 | darter | 23 / 122 g | .12 | 30 / 272 g | 37 / 504 g | 52 / 1.4 kg | 1.72 | 24 | schools flash ice-blue at once (sapphire, not aqua) | recolour glow |
+| 26 | Glassgill Perch `glassgill_perch` | Glasswater · anywhere | C · any · .15–1 | steady | 43 / 1.0 kg | .13 | 57 / 2.4 kg | 71 / 4.6 kg | 102 / 14 kg | 1.77 | 28 | a heart visible through its side | existing |
+| 27 | Glassblown Puffer `glassblown_puffer` | Glasswater · shallows | C · any · 0–.55 | thrasher | 27 / 590 g | .10 | 34 / 1.2 kg | 41 / 2.1 kg | 57 / 5.7 kg | 1.63 | 26 | rings like a wineglass when it puffs | existing |
+| 28 | Chime Jelly `chime_jelly` | Glasswater · Glass Larvae; × 3 `bell_window` | U · calm · .25–.85 | darter | 36 / 933 g | .09 | 44 / 1.8 kg | 53 / 3.0 kg | 74 / 8.0 kg | 1.59 | 56 | chimes when it brushes crystal | existing |
+| 29 | Mirror Pike `mirror_pike` | Glasswater · deep; × 3 `mirror_nave` | U · any · .5–1 | *runner* | 75 / 3.2 kg | .17 | 108 / 9.4 kg | 137 / 20 kg | 205 / 65 kg | 1.96 | 62 | mirror flank that shows a tired little candle | existing · reference · giant tail |
+| 30 | Shardspine Eel `shardspine_eel` | Glasswater · deep | R · night · .4–1 | thrasher | 85 / 983 g | .14 | 115 / 2.5 kg | 144 / 4.8 kg | 208 / 15 kg | 1.81 | 130 | crystal frost along the spine; the crest grows (age mark) | existing, resized |
+| 31 | **Vesper Gar** `vesper_gar` | Glasswater · deep; × 3 `broken_hymnal` | R · **night** · .5–1 | darter | 70 / 2.6 kg | .15 | 97 / 6.8 kg | 122 / 13.5 kg | 178 / 42 kg | 1.86 | 135 | needle jaw; violet glass fins ring on every surge | new · P4 |
+| 32 | The Blind Scrivener `blind_scrivener` | Glasswater · Ember Roe; `well_of_ledgers` | R · any · .6–1 | *sulker* | 64 / 6.6 kg | .16 | 90 / 18 kg | 114 / 37 kg | 169 / 120 kg | 1.91 | 120 | eyeless, one violet lure | existing · giant tail |
+| 33 | The Unreflected `the_unreflected` | Glasswater · `mirror_nave`, reflection hit | R · any · .5–1 | darter | 60 / 2.8 kg | .13 | 80 / 6.6 kg | 99 / 13 kg | 142 / 37 kg | 1.77 | 145 | ice-pale and blind; casts no reflection | §24 (kept) |
+| 34 | The Footnote `the_footnote` | Glasswater · `well_of_ledgers`, bottom ledger | R · any · .9–1 | *sulker* | 51 / 1.7 kg | .13 | 68 / 4.1 kg | 84 / 7.7 kg | 121 / 23 kg | 1.77 | 140 | tiny script-like marks along the flank | §24 (kept) |
+| 35 | Rainglass Darter `rainglass_darter` | Glasswater · `stilled_cascade` | R · calm · .75–.95 | darter | 39 / 593 g | .11 | 50 / 1.3 kg | 61 / 2.3 kg | 86 / 6.3 kg | 1.68 | 135 | raindrop spots that catch the light | §24 (kept) |
+| 36 | **The Sexton** `the_sexton` | Glasswater · `bell_window` during the Struck Hour | R · any · .85–.95 | thrasher | 66 / 4.6 kg | .15 | 91 / 12 kg | 115 / 24 kg | 168 / 76 kg | 1.86 | 150 | deep indigo, a pale bell-shaped patch per flank; a muffled toll each surge | new · P4 (kept ▲) |
+| 37 | The Glass Sovereign `glass_sovereign` | Glasswater · `fallen_chandelier` · Prism Moth | L · night | leaper (boss) | 300 / 210 kg | — | — | — | 344 / 315 kg | — | 600 | each scale a window with no one behind it | resized (1.44×) |
+| 38 | Ossuary Fry `ossuary_fry` | Pallid · shallows; Almshouse Cradle | C · any · 0–.6 | darter | 23 / 122 g | .12 | 30 / 272 g | 37 / 504 g | 52 / 1.4 kg | 1.72 | 42 | bone-pale and blind | existing |
+| 39 | Pallid Wraithfin `pallid_wraithfin` | Pallid · anywhere | C · any · .1–1 | steady | 46 / 973 g | .13 | 61 / 2.3 kg | 76 / 4.4 kg | 109 / 13 kg | 1.77 | 48 | ghost-ribbon fins | existing |
+| 40 | Bonecrook Crayfish `bonecrook_crayfish` | Pallid · shallows; Almshouse Cookpot | C · any · 0–.5 | sinker | 27 / 590 g | .10 | 34 / 1.2 kg | 41 / 2.1 kg | 57 / 5.7 kg | 1.63 | 44 | a shell of fallen things; a crown fragment at Trophy+ (age mark) | existing |
+| 41 | Gilt-Eyed Eel `gilt_eyed_eel` | Pallid · deep | U · any · .4–1 | thrasher | 131 / 3.6 kg | .16 | 185 / 10 kg | 234 / 21 kg | 345 / 66 kg | 1.91 | 92 | two gold coins for eyes | existing · reference · giant tail |
+| 42 | Shroud Ray `shroud_ray` | Pallid · deep | U · any · .45–1 | leaper | 82 / 6.6 kg | .14 | 111 / 17 kg | 139 / 32 kg | 201 / 98 kg | 1.81 | 88 | burial-cloth wings | existing |
+| 43 | Funeral Veil `funeral_veil` | Pallid · mid; Almshouse Shrine | R · night · .3–.9 | darter | 42 / 741 g | .09 | 52 / 1.4 kg | 62 / 2.4 kg | 86 / 6.4 kg | 1.59 | 190 | widow-veil threads | existing |
+| 44 | Lampwarden Angler `lampwarden_angler` | Pallid · Ember Roe; `sunken_belfry`, `the_bottomless` | R · night · .6–1 | *sulker* | 72 / 9.3 kg | .14 | 98 / 23 kg | — (caps at Trophy) | 122 / 45 kg (cap) | — | 210 | the last lamp hangs from its jaw | existing, capped |
+| 45 | The Clapper `the_clapper` | Pallid · `sunken_belfry` toll cue | R · any · .8–1 | thrasher | 66 / 4.6 kg | .15 | 91 / 12 kg | 115 / 24 kg | 168 / 76 kg | 1.86 | 225 | bell-bronze carp; the bell rings when it turns | §24 (kept) |
+| 46 | The Wax-Bearer `wax_bearer` | Pallid · `bier_barge`, hold open | R · any · .7–.9 | leaper | 127 / 3.3 kg | .13 | 169 / 7.7 kg | 209 / 15 kg | 300 / 43 kg | 1.77 | 220 | a drop of candle-wax on its brow | §24 (kept) |
+| 47 | The Unpaid Fare `the_unpaid_fare` | Pallid · `ferry_slip` at dusk | R · calm · .8–1 | *sulker* | 87 / 6.6 kg | .14 | 118 / 17 kg | 147 / 32 kg | 213 / 97 kg | 1.81 | 240 | coin-eyed, dark ghost-ribbon body | §24 (kept) |
+| 48 | **Candlewake Sturgeon** `candlewake_sturgeon` | Pallid · `chain_garden` during the Turn | R · **night** · .85–.95 | runner | 133 / 14 kg | .175 | 193 / 43 kg | 247 / 91 kg | 370 / 304 kg | 1.98 | 250 | bone scutes like unlit candles, one lit per class (age mark); the biggest non-legendary | new · P4 (kept ▲) · giant tail |
+| 49 | **The Namesake** `the_namesake` | Pallid · `long_pier` after relighting 3 candle-rafts that day | R · any · .75–.85 | steady | 62 / 3.1 kg | .13 | 83 / 7.3 kg | 102 / 14 kg | 147 / 41 kg | 1.77 | 230 | bone-white with gold calligraphic marks; each catch logged under a name from the pier | new · P4 (kept ▲) |
+| 50 | **The Lantern-Swallower** `lantern_swallower` (was the Pale Leviathan, `pale_leviathan`) | Pallid · `the_bottomless` · Last Candle `last_candle` (was Drowned Marrow, `pale_marrow`) | L · night | sinker (boss) | 850 / 3,200 kg | — | — | — | 973 / 4,800 kg | — | 2,500 | older than the kingdom; it swallowed the great lantern, and the ember still glows in its belly | renamed, resized (10 Wicks; 2.3×) |
+| 51 | **Pilgrim Salmon** `pilgrim_salmon` | Wanderer · Sporewood and deeper: dawn and the first 30 s of calm within 20 m of the lake's Homeward Waystone; once per lake per **real day** | R · dawn · .3–.8 | runner | 66 / 2.2 kg (Sporewood) · 76 / 3.3 kg · 87 / 4.9 kg | .13 | 88 / 5.1 kg | 109 / 9.7 kg | 156 / 29 kg (Pallid: 206 cm) | 1.77 | 30 × lake valueMult | rust hooked jaw, frayed fins; grows each lake down | new · P3 |
+| 52 | **Hearthfish** `hearthfish` | Wanderer · any lake: cast inside your own light with oil ≥ 75% | R · night · any | leaper | 32 / 492 g | .12 | 42 / 1.1 kg | 51 / 2.0 kg | 73 / 5.8 kg | 1.72 | 28 × lake valueMult | a coal-glow in its belly that brightens near your lantern | new · P3 |
+| 53 | **Quayling** `quayling` | the Landing · cast from the jetty | C · any · any | darter | 14 / 27 g | .10 | — | — | 15.5 cm / 37 g (Keeper cap) | — | 0 (Murk won't buy it) | a quayside minnow with rust-flecked fins and one curious eye | new · P3 (cove only) |
+
+Place-kept fish follow §24's rule: eligible only at their place and condition, rolled as rare with weight × 8, no bait needed (Wick-Worms attract them all). ▲ = a data-only addition to a §24 place (applied in §24, §25.13). Weights use W = k·L³ per body shape (minnow .010, perch .013, crayfish .030, carp .016, koi .015, pike .0075, eel .0016, angler .025, ray .012 incl. tail, puffer .030, jelly .020, ghost .010, sturgeon .006 g/cm³). **Legend rule check** (`roster-v3.mjs`): Matriarch 260 cm vs the Mossmere's longest ceiling 185 cm = 1.41×; Drifting Grove 300 vs 203 = 1.47×; Glass Sovereign 300 vs 208 = 1.44×; Lantern-Swallower 850 vs 370 = 2.30×. New shape needed: `sturgeon` (scutes and a shovel snout, from the leviathan profile; P2). Old Portcullis uses `carp` with long barbels, Vesper Gar uses `pike` with a needle snout, The Namesake and The Footnote share a `marks` pattern.
+
+#### 25.7.7 Fish palettes: off-green, distinct per lake
+
+The "changes" column gives the brief's targets (A3, binding). The "from" values are the pre-palette colours: the palette merge already moved these fish off green (e.g. Mossback 0x585e56, Reedjaw 0x474e58, Gloam Eel 0x161b2a with glow 0xb4c4ff, Prism Minnow glow 0x5cbcff today), so A3 only nudges them onto the targets below.
+
+| lake | fish hue story | changes |
+|---|---|---|
+| The Mossmere | slate, pewter, rust, ivory | Mossback 0x4f6b4a → slate 0x585e66, rust fins; Reedjaw 0x3e5a4c → slate-blue 0x3e4a5c, ink bars; Weeping Carp 0x5d6e66 → pewter 0x646a74; Dusk Minnow 0x6f8f86 → pewter 0x7a8494; Gloam Eel body 0x14302c → ink 0x16142a, glow 0x6ff5c8 → moon-violet 0xb9a8ff; Matriarch 0x4a5e4f / glow 0x9ff0c0 → bronze 0x6a5a44 / pale moon 0xd8d0ff |
+| Sporewood Pools | plum, amber, rose, cream | unchanged |
+| Glasswater Vault | indigo, ice, violet; glows **sapphire, not aqua** | every glow in hue 150–190° (0x5ff2ff) → sapphire 0x5cbcff or violet 0xb48cff |
+| The Pallid Deep | bone, ink, gold, one oxblood | unchanged |
+| the Landing | the Quayling: pewter with rust fins | new |
+
+`validate-data` rule: no fish model colour (body / belly / fin / glow) in the green-teal band. The brief's rule (hue 90–190°, saturation > 0.25) is subsumed by the stricter guard already in the validator (§19.1: hue 65–195° with saturation ≥ 0.15 fails, for fish models, character looks, zone palettes and rarity colours), which stays. Green survives only as a pale lichen fleck in the Mossback's texture (saturation ≤ 0.13).
+
+### 25.8 World and locations
+
+#### 25.8.1 Principles, new place fields and the shared kit
+
+- **Fixed, hand-authored lakes** (§24 decision 3). Variety comes from **conditions × Astir × residents × night × rumours × Far Water**, so knowledge persists and pays. §24's per-descent variety (map variant, A/B twists, awake place-kept species) rolls **per expedition** (at the expedition's first entry into each lake).
+- **Places carry the size game:** `holdsGiants` (exactly 3 per lake, not counting P4 secrets), one persistent **resident** at each of those three, and per-place **pressure**.
+- **§24's 21 places are kept**, keyed by their ids (`mothers_cup`, `lullaby`, `puffball_vent`, `drowned_greenhouse`, `gill_harp`, `veilwater` · `fallen_chandelier`, `mirror_nave`, `bell_window`, `well_of_ledgers`, `stilled_cascade`, `broken_hymnal`, `burning_glass`, `votive_font` · `the_bottomless`, `long_pier`, `drowned_almshouse`, `chain_garden`, `sunken_belfry`, `bier_barge`, `ferry_slip`). v3's changes to them are data-only (▲) and are applied in §24 itself (§25.13). v3 adds the Mossmere's 8 raft places (§25.8.4) and 4 secrets (P4).
+- **Structural changes to §24 (▲):** opened **shortcuts persist across expeditions** (`meta.shortcuts`; the lakes are fixed and every expedition starts at the same spawn, so re-opening the Sundered Span on every Glasswater trip would be a chore). **Lit sister-candles still reset** each expedition, so their oil stays a range decision; Known Places keep their candle's first share free, as in §24. Two sister-candles per lake are flagged `watch` (§25.5.2). The Pallid spawn area "Landing of Last Rafts" is renamed **"Shore of Last Rafts"** (name clash with the Landing). Flame-leaps follow §24 (dawn-only, once a day). Day lengths follow §25.3.2 (calm 180 / 185).
+- **Budget:** §25.8.8. No new PointLights (lamps use `water.setLights`, ≤ 6), **one wow happening active per lake**, a low-tier off switch for floor paintings and the night sparkle. **No geometry-moving weather** (Highwater, The Low Breath and the Belfry lift are cut).
+
+**New place fields and rules** (two new rule types and five fields; data on `arena.places[]`, CONTRACT §13.8):
+
+| field / rule | meaning |
+|---|---|
+| `holdsGiants` | Elders may roll here (§25.7.1); 3 per lake; this place has a resident |
+| `maxClass` | default `trophy` outside giant places; fry water `prize` |
+| `resident` | **only at the 3 `holdsGiants` places**, persistent in `meta.residents[lake][place] = {species, z}`. Species from the place's favoured list (weights common 1, uncommon 2, rare or kept 3). **z ~ N(1.6, 0.6) truncated to [1.88, 3.6]**: always Trophy or better, **Elder 12.4%, Ancient 1.1%**, mean z 2.27. It shows itself twice per calm, once at dusk and once at night (that is, 2 calm shows + 1 dusk + 1 night; Far Water adds +1 calm show per dawn out, cap +3): a boil, a pass or a leap. A cast within 3 m of a show in the next 8 s gives it a 60% bite chance. Landing it gives the place record and a "Resident" stamp; **a new resident is rolled on your next Set Out to that lake**. A resident not landed re-rolls after **3 in-lake days spent in that lake** (counted across expeditions). A Marked Fish at a place replaces its resident. |
+| `tally` | the Tally Post style (flood-gauge stone / notched cap stem / brass ruler / bone tablet) |
+| rule `sight` | the place's fish are **visible** and pre-rolled (species and z), drawn at true size. Landing within 1.2 m of one means it bites in 2–4 s; others spook for 30 s. |
+| rule `drift` | the bobber drifts along a lane at 1.5 m/s; each seam crossed +0.08 rarity; bites roll during the drift |
+| `weather` on rules or species (the brief's `cond`) | live only in a named condition archetype (Hush / Drip / Mist); data names it `weather` because §24's `SPECIES[].cond` already names place states (buff, deed, reflection, plumbBottom, window) |
+
+**One pre-rolled fish primitive** (fishing): `preroll({species, z, pos, path})`, drawn with the existing circling silhouettes and the shadow decal sized by length, **on top of the water** with a depth tint (the existing spot-fish technique; the lake plane is opaque). It drives rise rings, boils, glow trails, residents, `sight` places, Moonfall, the Mirror Nave's reflections and Marked Fish. One implementation serves every "see the big one" moment.
+
+**Tally Posts.** Each place gets a lake-styled marker on which your best fish there is inked (species glyph, cm, kg). It persists across expeditions. Each is a 128×64 canvas sprite built on approach, at most 2 live. *The world remembers your fish.*
+
+**Discovery** (§24.9, kept): within 8 m or casting in → a 1.2 s ink title card, the sound beacon swells, the Journal's Places page fills (+2 Memories, instantly). Mastery (4 catches in one expedition, one Fine+) → +10 and a Known Place.
+
+**Astir:** §24's daily Astir place in the walking lakes, plus one Mossmere place per day (new).
+
+**Rumours** (≈ 24, 6 per lake; data `RUMOURS`): three tiers, vague → the place → the condition. Sources: Murk (one per visit when you sell at least one fish; he prefers undiscovered places and unsolved conditions) and the Well of Ledgers' lines (plus Remnants in P4). Pin one at a time (edge marker). Solving one gives +3 Memories and a Journal stamp. Plus **today's rumour** (one per real date, at the Map Table, always naming a `holdsGiants` place and often its resident: "An Elder Velvet Ray turns in the Lullaby", favour +0.3 for that species at that place that day).
+
+#### 25.8.2 Conditions: one system, three archetypes, per-lake looks
+
+Each calm rolls: **none 40% · Hush 20% · Drip 20% · Mist 20%**, seeded by expedition, day and lake (data `CONDITIONS`). Every lake rolls every archetype; none is a lake's identity. Murk names tomorrow's at dawn, and the Map Table shows day 1's for every lake. The build is one fishing uniform set, a particle preset and a fog tweak (≤ 4 draw calls). Nothing moves geometry.
+
+| archetype | effect | Mossmere | Sporewood | Glasswater | Pallid Deep |
+|---|---|---|---|---|---|
+| **Hush** | favour +0.2 lake-wide, wait × 1.2, `sight` range × 2 | *Mirror Hush* (swell × 0.2, sharp reflections) | *Damp Hush* (the Greenhouse glass fogs, every row glows dimly) | *Clear Hush* (shafts × 1.5) | *Breathless* (ash hangs still) |
+| **Drip** | wait × 0.8, commons × 1.3, rhythm places faster | *Drizzle* (300 instanced streaks, 120 on low; the aqueduct coughs every 25 s) | *Spore-fall* (spores × 2 falling; Puffball Vent × 2) | *Shard-chime* (crystals pulse in a chord; ▲ the Stilled Cascade thaws for 40 s) | *Ash-fall* (ash × 2; Breathing Deep × 1.5) |
+| **Mist** | rarity +0.08; gloom species may bite in calm at weight × 0.3; sound beacons × 1.5 | *Moonmist* (3 low mist cards; Moonfall lasts 30 s) | *Bloom-haze* | *Prism-fog* | *Pall* (fog × 1.3) |
+
+#### 25.8.3 Night: the big-fish hour in every mode
+
+- **Night Rise:** favour +0.25 on every night cast. Dusk *Last Light*: +0.2.
+- **Glowtide visuals:** a water-shader sparkle term (noise × ripple and wake energy × `uGlowtide`, ≈ 8 ALU, 0 draw calls, off on low). Wakes, rain rings, the bobber and a thrashing fish light up. Night fish show as **glow trails**.
+- **Night places:** the Buoy Lights (Mossmere, new), `veilwater` (Sporewood), `fallen_chandelier` and `broken_hymnal` (Glasswater), `long_pier` during the Candle Tide and `sunken_belfry` (Pallid).
+- On a quiet night (Still, a Lantern still night, the Lantern window's quiet tail, a lamp-watch), gloomlings appear only as ink drifts far out, silhouettes against the glow.
+
+#### 25.8.4 The Mossmere (raft only): 8 places + 1 secret
+
+**Identity:** *the gate and the harbour.* The night the lantern fell, the ferries never left: the harbour drowned with its barges still moored, its bells still hung, its toll-gate still shut. Hushed, iron, tidal. **Palette** (the slate-and-rust rework): pewter-slate water #232b3a, **rust iron #8a4b3a as the leading accent** (chains, bells, buoys, the gate, the bridge), moon-silver #a9b9f0 as the secondary glow (Moonfall), lavender only in the Cupbearer's fins, verdigris only on the cracked bell. Distinct from Glasswater by saturation and value (low-saturation pewter and rust vs saturated sapphire and indigo). **Landmarks:** the Sunken Gate and its leaning toll-tower (N), the **Moon-Eye** ceiling fissure and its silver shaft (NW, over the Ferry-Market), the **Sluice Veil** (a curtain of water spilling from a broken aqueduct down the E cliff), the Toppled Bridge (W, the in-lake landmark).
+
+**Signature wow: Moonfall** (P2). Twice per calm (at 25% and 70%), 20 s (30 s in Moonmist), the Moon-Eye shaft swings onto the Ferry-Market. The water there turns **glass-clear** over a drowned **ferry-market**: moored cargo barges, a toll-house clock stopped at the hour of the Fall, cart wheels, bollards and rust buoy-bells, with the Bell Pool's harbour bell at its edge, and fish circling at true scale. *Build:* water shader `uClear[2]` discs (x, z, r, k) blending toward a 256² canvas floor painting sampled at world xz with view-ray parallax × depth (128² on low, radius × 0.7). The circling fish are pre-rolled silhouettes drawn as depth-tinted decals on top of the water (§25.8.1). The shaft is the existing additive quad.
+
+| # | place · `id` | where (x, z) | why it is cool | fish and giants | twist (rule) | class cap | build |
+|---|---|---|---|---|---|---|---|
+| a | **The Bell Pool** *(legend)* `bell_pool` | (−4, −14) | a drowned harbour bell 9 m down, revealed in Moonfall with the Matriarch circling it **at today's rolled weight** | Weeping Carp × 2; the Belled Matriarch (legend rule unchanged) | Moonfall reveal; legend rule | Trophy | existing |
+| b | **Under the Span** `under_the_span` | the Toppled Bridge's 3 arch gaps (−36.5, −2.5), (−29.5, 0.5), (−22.5, 3.5) | rust chains hang from the break; fish hold in the arches' shade | Mossback × 2, Reedjaw × 2; **Bridgechain Sturgeon** (kept, Mirror Hush) | `targets` lock at 1.6 m on each gap; threading a gap with a Clean Cast: favour +0.3, rarity +0.2 | **Elder (holdsGiants)** | existing piers + merged chain strands |
+| c | **The Cupped Hands** `cupped_hands` | (16, 18), stone hands 6 m tall | a giant's hands hold a bowl under the broken aqueduct; when it coughs, the bowl overflows, fry spill, and the big fish wait below | the bowl (1 m `targets` disc): Dusk Minnow × 3, **Cupbearer** (kept, while full); below: Weeping Carp × 2, Reedjaw | `rhythm` 60 s (25 s in Drizzle), 3 s warning (the spout gurgles), 6 s live: below the hands wait × 0.5, favour +0.4 | Trophy | **new** geometry: two hands, a bowl and the aqueduct spout (inside W4, +1 call) |
+| d | **The Gatehouse Door** `gatehouse_door` | the Drowned Gatehouse's flooded doorway (22, −3.5), 1.4 m disc | cast through a drowned door into the dark of a tower | **Old Portcullis** (kept), Weeping Carp × 2 | `targets` + §24's `foul` (15% per surge: a clank 0.3 s before a +0.15 spike) | Trophy | a door frame cut into the existing island mesh |
+| e | **The Ferry-Market** `ferry_market` | between the Sisters (−24, −29), r 5 | the drowned market lies 3 m down: barges, the toll-house clock, cart wheels | in Moonfall: 3–5 pre-rolled fish (Candlefin × 2, Weeping Carp × 1.5; one Prize+ guaranteed, 25% one Trophy+); its resident circles among them | `sight` during Moonfall: pick the one you want | **Elder (holdsGiants, in Moonfall)** | uClear disc + floor painting |
+| f | **The Sluice Run** `sluice_run` | lane (0, −44) → (0, −31) below the Moss Sluice | water pours through the sluice's broken teeth: a lane of white seams | Reedjaw × 2; Gloam Eel × 2 at dusk (`gloomInCalm` at dusk) | `drift` 12 m along the lane | **Elder (holdsGiants)** | pooled foam-seam decals |
+| g | **The Lily Maze** `lily_maze` | lee of Mossbell Isle (−38, 22), r 8 | notched pads with koi glowing under them like lanterns under snow | Candlefin × 3, Weeping Carp | `sight`: **the size of the glow is the size of the fish**. Open from day 1 at its edge; P4: the Reed Pole lets the raft push into the heart (r 3). | Trophy | existing instanced pads (local density × 2) + glow-buds |
+| h | **The Buoy Lights** *(night)* `buoy_lights` | the old channel along the west shore, x −50…−46, z −14…+10 | at night the drowned channel-buoys' lanterns still burn *under* the water, in two rows | Gloam Eel × 2, Lampsipper × 2 | `targets` on the buoy rows, night only: favour +0.2, gloom species × 2 | Trophy | one InstancedMesh of 24 emissive buoy-lanterns (1 call) |
+| S1 | **The Moon Cistern** *(secret, P4)* `moon_cistern` | behind the Sluice Veil, E cliff (58, 4) | you sail straight through the falling water into a round cistern lit by its own moonbeam | its own resident (Reedjaw-weighted) | bites only inside a beam wandering at 0.3 m/s | Elder (a fourth giant place, secret, outside the count of 3) | an arena `shoreNotch` (data) + a veil without collision. Clues: a bubble trail, Murk's rumour, the dock at (49, 6). **Reward: the Reed Pole.** |
+
+The first hour has 8 places to find, solve and record: request 3's raft-only lake is kept, and it is no longer empty. The Mossmere's places live on `ZONES[mossmere].arena.places` (v3 data) with the §24 place schema plus the fields above; its three giant places are `under_the_span`, `ferry_market` and `sluice_run`.
+
+#### 25.8.5 Sporewood Pools, Glasswater Vault and the Pallid Deep: changes to §24's places
+
+All are data changes on §24's own place entries, already written into §24.7 (marked "v3") and listed in §25.13. Giant places: Sporewood `mothers_cup`, `lullaby`, `gill_harp`; Glasswater `fallen_chandelier`, `mirror_nave`, `well_of_ledgers`; Pallid `the_bottomless`, `chain_garden`, `ferry_slip`.
+
+**Sporewood Pools** (*the gardens*, kept growing after the sun went out; warm, drowsy, overgrown; palette plum #2a1a2e, amber #ffb46a, rose #ff7fb0, rare cream mycelium). **Signature wow: The Bloom** (P4, at dusk): the Mother Cap's gills light from stem to crown in 6 s, amber spores fall, and hundreds of fish rise across the reef channels for 20 s (wait × 0.6, favour +0.2). *Build:* an emissive uniform swept by vertex y (0 calls), the existing spore system flipped to falling × 2, rises through `water.addRipple` at 6 per second, one instanced 200-quad glint mesh (1 call).
+
+| §24 place | verdict | v3 change |
+|---|---|---|
+| `mothers_cup` The Mother's Cup *(legend)* | keep | ▲ `holdsGiants` for non-legend casts (Velvet Ray and Mildew Elders); its breathing made visible (spores rain on the exhale, with a ring of rises) |
+| `lullaby` The Lullaby | **modify ▲** | becomes `sight`: sleepers float visibly under a lily-cap canopy, mouths open; a soft cast (charge < 0.5) beside the one you want. ▲ `holdsGiants`. |
+| `puffball_vent` The Puffball Vent | keep | `maxClass` Prize (fry water). Fires twice as often in Spore-fall. |
+| `drowned_greenhouse` The Drowned Greenhouse | keep | ▲ kept species **The Remembered Sun** on the Lit Row (P4) |
+| `gill_harp` The Gill Harp | keep | ▲ `holdsGiants` while it sings; its music-box notes carry 25 m as a sound beacon |
+| `veilwater` The Veilwater | keep | Hushcap Koi (kept), Mildew Angler × 2; today's-rumour favourite at night |
+| *The Seed Vault* `seed_vault` (secret, P4 ▲) | new | through the Rootmat Shallows (needs the Reed Pole); rows of glowing seed-pods. **Reward: Seedlight Glass.** |
+
+**Glasswater Vault** (*the keepers of light*, who could not let go; crisp, echoing, exact; palette indigo #141b46, sapphire #5cbcff (not aqua), violet #b48cff; a full spectrum appears only during the Alignment). **Signature wow: The Alignment** (P4, every 90 s of calm, 15 s): the Orrery ring locks onto the main shaft and the beam splits into a 7-band fan that sweeps the moat. The brightest band is the Burning Glass. The bands write into `uClear` at k 0.3, so fish show in the light. *Build:* 3 merged additive quads with a canvas spectrum gradient (1 call); the Orrery already rotates.
+
+| §24 place | verdict | v3 change |
+|---|---|---|
+| `fallen_chandelier` The Fallen Chandelier *(legend)* | keep | ▲ `holdsGiants` (trench rim, non-legend) |
+| `mirror_nave` The Mirror Nave | **modify ▲** | the reflections are pre-rolled fish drawn **at their true size**: pick the biggest reflection. ▲ `holdsGiants`. |
+| `bell_window` The Bell-Chapel Window | keep | High Cast perch (no tackle gate); ▲ kept species **The Sexton** during the Struck Hour (P4) |
+| `well_of_ledgers` The Well of Ledgers | keep | ▲ `holdsGiants` on the bottom ledger (Clean Cast plumb) |
+| `stilled_cascade` The Stilled Cascade | **modify ▲** | in Shard-chime the frozen falls thaw for 40 s (a material scroll, no geometry): wait × 0.4, favour +0.3 |
+| `broken_hymnal` The Broken Hymnal | keep | Vesper Gar × 3 at night (P4) |
+| `burning_glass` The Burning Glass | keep | P4: folded into the Alignment as the fan's brightest band |
+| `votive_font` The Votive Font | keep | `maxClass` Prize; the quick food tap |
+| *The Unlit Stacks* `unlit_stacks` (secret, P4 ▲) | new | a door in light-ink under the Ledger Stair that only the Seedlight Glass shows. **Reward: the Tuning Fork.** |
+
+**The Pallid Deep** (*the farewells*: where the kingdom sent its dead, and finally itself; vast, still, reverent; palette near-black #14130f, ember-gold #e8c66a, bone #eae4d3, one oxblood ribbon colour). **Signature wow: The Candle Tide** (P4, from dusk): 600 memorial candle-rafts (200 on low) push off the bone terraces, drift on slow currents and gather around the Bottomless at night. The Long Pier's drifters come 3× as often. *Build:* one InstancedMesh with paths in the vertex shader and flicker in the fragment shader (1 call). The victory "every candle lights gold" reuses the uniform.
+
+| §24 place | verdict | v3 change |
+|---|---|---|
+| `the_bottomless` The Bottomless *(legend, the finale)* | keep | ▲ `holdsGiants` (non-legend casts); P4: the Underdepth |
+| `long_pier` The Long Pier of Names | keep | ▲ kept species **The Namesake** after relighting 3 candle-rafts in a day (P4) |
+| `drowned_almshouse` The Drowned Almshouse | keep | species on demand (five rooms) |
+| `chain_garden` The Chain Garden | **modify ▲** | at the Turn, the Lantern-Swallower passes under the plinth as a 9 m shadow; casting at the chains during the pass: favour +0.6 (replaces weightBias +0.6). ▲ kept **Candlewake Sturgeon** at night (P4). ▲ `holdsGiants`. |
+| `sunken_belfry` The Sunken Belfry | keep | no lift (geometry-moving events are cut) |
+| `bier_barge` The Bier Barge | keep | — |
+| `ferry_slip` The Empty Ferry Slip | keep | at dusk the absent ferry is drawn as a faint additive outline; ▲ `holdsGiants` (a dead end at the lake's edge: the farthest water holds the biggest fish) |
+| The Breathing Deep (sign style) | keep | its domes are live windows (favour +0.4, replacing weight bias +0.5) |
+| *The Lantern Hold* `lantern_hold` (secret, P4 ▲) | new | opened by the Tuning Fork's note at the Belfry through a §24 `needs` shape (a walk-grid toggle, nothing moves). **Reward: the Deep Line.** |
+
+#### 25.8.6 P4: Found Relics, Vistas, the Chart, Remnants
+
+- **Found Relics** (found in secrets, never bought; a Shrine category shown as owned): **Reed Pole** `reed_pole` (the Lily Maze heart; the Rootmat Shallows), **Seedlight Glass** `seedlight_glass` (glints from +2 m; the light-ink door), **Tuning Fork** `tuning_fork` (the Belfry note; one extra Moonfall a day when struck at the Bell Pool), **Deep Line** `deep_line` (the **Underdepth**: one cast per legend pool per day in all four legend pools, favour +0.8 with Elders allowed). They give later expeditions reasons to return to earlier lakes.
+- **Vistas** (2 per lake): **raise the lantern** (hold 1.5 s at a vista stand). The light sweeps out, places in line of sight get a "?" on the chart, +1 Memory the first time. *There is no sitting and no sketching* (too close to Hollow Knight's bench-and-quill ritual).
+- **The Chart** at the Map Table. P3: the static lake outline (from arena data and `walkGridFor`) with discovered places, residents, Marked Fish, rumour marks and best fish. P4 ▲: fog-of-war **inked live as you move** (a 64×64 mask per lake in meta). Never updated at a rest point.
+- **Remnants** (optional, 12: 3 per lake): a glinting object, a one-line vignette and a rumour.
+
+#### 25.8.7 Reaching places on foot (unchanged)
+
+§24.2–§24.6 (controls, foot controller, terrain, camera, the three maps) apply unchanged except the v3 edits marked in §24 (§25.13): Shore of Last Rafts, `walk` camera elevation, calm and Arrival Hush values, persistent shortcuts, watch candles.
+
+#### 25.8.8 World budget (in-lake draw calls, high / low)
+
+| item | technique | raft lakes (Mossmere; Sporewood's water) | walking lakes (Glasswater, Pallid) |
+|---|---|---|---|
+| today's world | — | 30–36 / 24–28 | 30–36 / 24–28 |
+| §24 land (walkways, rails, lamps, place and deed props) | §24's own line | — (Sporewood's islands ≤ 12 / 10) | ≤ 20 / 16 |
+| Mossmere place props (hands, chains, door, buoy row) | merged into the ring geometry; one instanced buoy row | +4 / +3 | (inside §24's land line) |
+| signs | pooled decals + the existing ripple and wake arrays | +2 / +2 | +2 / +2 |
+| residents, `sight` fish, glow trails, Moonfall fish | the existing silhouettes and shadow decal, on top of the water | +1 / +1 | +1 / +1 |
+| conditions | 1 instanced streak mesh + ≤ 3 mist cards | ≤ +4 / +2 | ≤ +4 / +2 |
+| wow happening (one per lake) | §25.8.4–§25.8.5 | +1 / +1 | +1 / +1 |
+| Tally Posts | canvas sprites, ≤ 2 live | +2 / +2 | +2 / +2 |
+| Moonfall, Glowtide, Alignment light in water | water-shader terms | 0 / off or reduced | 0 |
+| **world total** | | **≤ 50 / 39** (Sporewood ≤ 62 / 49) | **≤ 66 / 52** |
+
+**Frame check, the worst case** (night on foot in the Pallid, Lantern swarm, 2 Tally Posts, the Candle Tide): post 15 + water 2 + world 66 + Wick on foot 15 + beached raft (frozen) 4 + Murk (frozen beyond 12 m) 8 + hooked fish 6 + swarm 10 + combat fx 6 = **132 ≤ 150** (CONTRACT §10's frame target, §12.6). T6 adds this scenario to `tools/perf.mjs`.
+
+### 25.9 Progression and the challenge curve
+
+#### 25.9.1 The tracks
+
+| track | currency / gate | what you see | full by |
+|---|---|---|---|
+| **Tackle** (Rod, Line, Reel, Creel) | Shells + proof catches | the bench rack; tackle ratings per lake | Rod, Line and Reel T4 ≈ h13.3 (Creel T4 ≈ h16.7) |
+| **Outfit** (Chimney, Brazier, Oars, Boots) | Shells | pegs at the bench, oars on the raft | ≈ h14.6 |
+| **Waystones** (lake access) | land the legendary + pay the toll once | stones lit in the sea-gate, bollard lanterns, keepsakes, wings opening | Pallid lit ≈ h7.7; the Lantern-Swallower h10–14 |
+| **The Landing** | bringing fish home | 48 frames filling and upgrading, 4 legends under the arch, a 6-fish pond, ≈ 150 visible changes | h25–40 |
+| **Collection** | catching | 53 species, 144 class seals, the Elder Log (with Ancients), 29 places (+4 secrets), Old Ledger × 48, Tally Posts | h25–40 |
+| **Relics** | Memories | the Shrine's ≈ 60 lanterns relight | fishing shelf ≈ h35; Gloom shelf extra |
+| **Wicks, boons, baits** | challenges (either-path) | dozing Wicks at the hearth | ≈ h8 (the Wayfarer ≈ h15–20) |
+
+#### 25.9.2 Gates
+
+| gate | requirement |
+|---|---|
+| next lake | its legendary landed (gate opens for good) → pass through on an expedition, toll once (180 / 420 / 900) |
+| tackle T2 / T3 / T4 | Shells + proof (a Mossmere Prize / a Sporewood Trophy or Glasswater Prize / a Glasswater Trophy) + the lake lit (T3 Sporewood, T4 Glasswater) |
+| Elders | a `holdsGiants` place or resident + a favour setup + tackle: commons and uncommons are landable as Elders on their own lake's curve; **headline Elders need T3+** (≥ 50% skilled) and stay hard on T4 (Q3) |
+| legendaries | the legend rule + tackle: Matriarch fair on T0, Grove T1–T2, Sovereign T2–T3, **the Lantern-Swallower needs Line T4** (with T3 Rod and Reel 5 / 41 / 78%; full T4 27 / 83 / 98%) |
+| pond tiers | species named + Shells; tier 3 also needs Glasswater lit |
+| The Long Descent | all four Waystones lit |
+| secrets | Found Relics (P4) |
+
+#### 25.9.3 Hour 1 / hour 5 / hour 15 (replaces §18.1–§18.3)
+
+| | **Hour 1** | **Hour 5** | **Hour 15** |
+|---|---|---|---|
+| where | the Landing and the Mossmere (raft): the First Outing + 2 expeditions | Sporewood (raft + walking), a first look at Glasswater | the Pallid Deep, plus Elder and Ancient hunts back in earlier lakes; The Long Descent unlocked |
+| tackle | T0 → T1 | T2 set, Line T3 (h5.1) | Rod, Line and Reel T4 (h13.3), outfit III (h14.6) |
+| the Landing | the Mossmere board and 1–2 plaques filled, pond cleared, 1 Waystone lit | Mossmere wing ≈ 70% filled, Sporewood wing open, pond 3–5, 2–3 stones lit, ≈ 10 lanterns | all four wings open, ≈ 30–35 of 48 frames filled, 2–3 legends under the arch, pond 6, ≈ 25 lanterns |
+| what is hard | reading signs and the float's favour, bite tells, first Prize and Trophy fights on starter tackle (Mossmere rare Trophies on T1: 50 / 89% novice / skilled); headline Elders are a wall (Reedjaw 0% on T1) and become Marked Fish; the Matriarch (56 / 82% on T0) | **conditions and places**: rhythm, sequence and deed twists; finding the kept fish (condition-locked); the runner verb; Trophies one tier under (Mildew Trophy 46% skilled on T1 → 58% on T2 → 88% on T3); Sporewood Elders (12% on T2); the Drifting Grove; **Far Water** decisions; saving 420 for the toll while buying T2 | **Elder recipes** (giant place + favour ≥ 1.2 + T4) and **Elder fights that stay hard on full tackle** (headline Elders 69–82%, Ancients 43–51%, each with an old trick); the Lantern-Swallower (27 / 83 / 98% on full T4); legend rematches that grow +7% each landing; deep-lake Old Ledger records; range on foot (5 min of lantern at night away from sister-candles); long Pallid expeditions under Far Water |
+| typical failure | a late hook; holding through a surge; a Prize thrown at its last pip; an Elder Reedjaw snapping on starter tackle | a Trophy snapped one tier under; no kept species (wrong condition); a marked Trophy released at its last night because you stayed for day 5 | an Elder lost to its old trick at 60–80%; an Ancient snapped; guttering far from a candle; the Brittle Line phase |
+| land rate of hooked fish | commons ≥ 97%, Prize 77–93%, Trophy 50–89% | Keepers ≥ 95%, Trophy 58–90%, Elder on curve 15–35% | Trophy ≥ 90%, headline Elders 65–80% (T4), Ancients 40–55% |
+| new species / hour | ≈ 8 | ≈ 3 | ≈ 1 (53 by ≈ h20) |
+| something notable | every ≈ 1 min | every 2–4 min | every 6–10 min at random, plus 1–2 headline goals per session (today's rumour, the Ledger, Old Ledger records, Marked Fish, empty frames) |
+| snuffed | ≈ 1–3% (short expeditions, still nights) | ≈ 4–8% (Lantern) | ≈ 6–10% (Lantern, long foot expeditions) |
+
+#### 25.9.4 What keeps it challenging
+
+1. **Big fish are hard and stay hard.** Size scales the fight, Elders get steeper above the cut (per-lake Elder age, a fatigue floor of 0.8) and every Elder plays an old trick. Full tackle lands headline Elders 69–82% and Ancients 43–51%; the return trip to the Mossmere's Elder Reedjaw is still a one-in-five loss on T4.
+2. **Giants live in specific places, under specific conditions.** Residents persist until landed; pressure (−0.12 per catch) stops camping; the float shows how good your setup is, so the recipe is learnable rather than luck.
+3. **Gear is earned by fishing.** Proof catches make each tier a feat, not a purchase.
+4. **Bringing it home is a risk in every mode.** Far Water squeezes oil and Murk's visits, the Live Well clock runs, and oil range matters on foot. Combat adds Scorched oil loss in Lantern and today's full stakes in Gloomtide.
+5. **Legend fights are gear-and-skill walls** (the Lantern-Swallower: 27% for a novice even on full T4), and each one grows on rematch.
+6. **Visible ceilings:** the Old Ledger mark (z 2.3) for every species, Elders (0.4% at base), Ancients (0.1%), and the dotted "said to reach" (z 3.6), a near-asymptote you see on the page and on the wall.
+7. **Opt-in difficulty:** Lantern → Gloomtide → The Long Descent, each with its own records.
+8. **Never hopeless:** commons always land, the bare hook is free, Last Flicker comes once a day, pity bites at low oil, Murk's Pity once per expedition, the near-miss card always names the cause and a fix, and Marked Fish come back weakened.
+
+#### 25.9.5 QA pacing targets (replace §18.4 outside The Long Descent)
+
+| metric | target |
+|---|---|
+| expedition length | median 20 min (3–5 days); a one-day outing ≈ 6 min; a home visit ≤ 2.5 min median |
+| first cast and first measuring moment | ≤ 0:30 (the Landing's jetty) |
+| first Prize / first Trophy | ≤ 5 min in the Mossmere for ≥ 55% of players / ≤ h1 for ≥ 60% |
+| first Elder hooked / landed / headline-predator Elder / Ancient | h1–3 / h2–6 / h6–10 / h12+ (owned by T5) |
+| legendaries (first landing) | 0.6–1.2 / 2.5–4 / 5–7 / 10–14 h |
+| species named | ≤ 9 in the first 30 min · 44 by h12 · 53 by h20+ |
+| notable events | every 1–3 min in hour 1; personal bests ≈ 2–4 per 20-min session until h10 (a 1/n record process; T5 measures); ≥ 1 Trophy per 2 sessions from h3 |
+| places | Mossmere 6 of 8 by h2; all 29 by h14; first mastery by h2 |
+| fight share | Still 0% · Lantern 4–7% · Gloomtide 28–32% |
+| snuffed per expedition | Still ≤ 3% (home by day 3) / 6–10% (past day 4) · Lantern Still + 2 · Gloomtide 25–55% early |
+| Memories / h | 120–180 (Still within 15% of Lantern) |
+| Shells / h | §25.10.1 (Still +3%, Gloomtide −8%) |
+| shortest profitable loop | no loop earns > 1.5× the median Memories/h or Shells/h (T3 checks gate hops, one-day outings, Ledger refreshes, the Pilgrim Salmon, cove fishing) |
+| land rates | §25.6.9 per mode (the reel sim runs once per night mode, since combat interrupts fishing) |
+
+### 25.10 Economy
+
+#### 25.10.1 Income and expense per in-lake day (average player, Lantern)
+
+Assumptions: a 5-minute day; a 4-day expedition plus 2 min at home = **10.7 in-lake days per hour**. Fish landed per day include night fishing and fall with depth (longer fights, more walking). Commons go to oil and food first. Shells per sold fish = the lake's sold-species mix × 0.66 × 1.428 (size and class, at the real favour mix, §25.7.3) × ≈ 1.15 (quality), which keeps income per fish equal to today's.
+
+| lake | fish landed / day | eaten or rendered | marked for home | sold | Shells / sold fish | fish Shells | Ledger and bounties | gross | bait and supplies | **net / day** | **net / hour** |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| The Mossmere | 5.0 | 1.2 | 0.3 | 3.5 | 17 | 60 | 15 | 75 | 8 | **67** | **717** |
+| Sporewood Pools | 4.6 | 1.4 | 0.3 | 2.9 | 35 | 102 | 25 | 127 | 16 | **111** | **1,188** |
+| Glasswater Vault | 4.2 | 1.8 | 0.3 | 2.1 | 69 | 145 | 40 | 185 | 38 | **147** | **1,573** |
+| The Pallid Deep | 3.8 | 1.8 | 0.3 | 1.7 | 114 | 194 | 60 | 254 | 55 | **199** | **2,129** |
+
+Mode adjustments: Still +3% (no combat kit); Lantern as shown (combat kit ≈ 60–120 Shells per expedition, roughly offset by Warden Shells); Gloomtide −8% (more kit, less fishing time). Long expeditions render more of the catch under Far Water (§25.3.3); the balance sim (T3) owns the per-day curve. **Satiety:** drain 0.10 × 0.5 × zone, so 15 per Mossmere day; one eaten common keeps you ≥ 60% (**Well-fed**: reelSpeed +0.08, sweetZone +0.01, +1 dawn mend in combat modes; data `BALANCE.wellFed`). There is never a starvation penalty.
+
+#### 25.10.2 Cumulative Shells and the tackle timeline (check)
+
+Lake time spans (average player): Mossmere 0–1.5 h, Sporewood 1.5–4.5 h, Glasswater 4.5–8.5 h, Pallid 8.5 h+. Cumulative net (incl. the 20 starting Shells): 1,096 at h1.5 · 4,660 at h4.5 · 10,952 at h8.5 · 22,661 at h14 · 26,919 at h16. Purchases in a sensible order, each placed at the first moment income covers it:
+
+| hour | cumulative net | purchase | cumulative spend |
+|---|---|---|---|
+| 0.6 | 450 | T1 Line, Rod, Reel, Creel | 430 |
+| 0.8 | 594 | Outfit: Chimney I + Brazier I | 590 |
+| 1.0 | 701 | Heartmoss × 2 | 670 |
+| 1.2 | 880 | Sluice toll | 850 |
+| 1.7 | 1,333 | T2 Line (proof: a Mossmere Prize) | 1,300 |
+| 2.1 / 2.4 / 2.7 | 1,808 / 2,224 / 2,521 | T2 Reel, T2 Rod, T2 Creel | 1,750 / 2,200 / 2,470 |
+| 2.9 | 2,759 | Feather Fly, Glimmer Spoon, Bone Jig | 2,720 |
+| 3.0 | 2,937 | Glowcap × 2 | 2,900 |
+| 3.2 | 3,115 | Outfit: Oars I + Boots I | 3,060 |
+| 3.4 | 3,412 | Pond tier 2 | 3,360 |
+| 3.8 | 3,828 | Glasswater toll | 3,780 |
+| 4.2 | 4,303 | Outfit: Chimney II + Brazier II | 4,260 |
+| 5.1 | 5,682 | **T3 Line** (proof: a Sporewood Trophy) | 5,660 |
+| 6.0 / 6.9 | 7,098 / 8,513 | T3 Reel, T3 Rod → the Sovereign at 85 / 98% | 7,060 / 8,460 |
+| 7.1 | 8,828 | Prism Moth × 2 | 8,800 |
+| 7.7 | 9,772 | Pallid toll | 9,700 |
+| 8.4 | 10,873 | Moth Popper, T3 Creel | 10,800 |
+| 10.0 | 14,039 | **T4 Line** (proof: a Glasswater Trophy) | 14,000 |
+| 10.3 | 14,677 | Last Candle × 2 → Lantern-Swallower attempts (5 / 41 / 78%) | 14,640 |
+| 11.8 / 13.3 | 17,871 / 21,064 | T4 Reel, T4 Rod (27 / 83 / 98%) | 17,840 / 21,040 |
+| 13.5 | 21,597 | Outfit: Oars II + Boots II | 21,520 |
+| 14.6 | 23,938 | Outfit III × 4 | 23,920 |
+| 15.2 | 25,216 | Pond tier 3 | 25,120 |
+| 15.8 | 26,387 | Lantern Lure | 26,320 |
+| 16.7 | 28,303 | T4 Creel | 28,240 |
+
+Income and the main sinks (28,240) meet at ≈ h16.7. Post-game Shells go to legend rematch baits and a **cosmetic shelf** at Murk (raft pennants, cloak dyes, lantern-glass tints, 200–1,500 each, ≈ 6,000 in all). These never touch fishing power.
+
+#### 25.10.3 Price list (replaces §13.2's Gear tab and adds to §13.3–§13.4)
+
+| item | price |
+|---|---|
+| tackle T1 / T2 / T3 / T4 per slot | Rod, Line, Reel 120 / 450 / 1,400 / 3,200 · Creel 70 / 270 / 840 / 1,920 (catalogue 18,610) |
+| outfit (4 items × 3 levels) | 80 / 240 / 600 each (catalogue 3,680) |
+| lures (permanent) | Feather Fly 40 · Glimmer Spoon 90 · Bone Jig 120 · Moth Popper 260 · Lantern Lure 1,200 (a lost lure costs 25% to replace) |
+| baits | as today (Mire Worms 8 … Glass Larvae 48; × baitMult per lake) · Wick-Worms 30 (§24) · Cut Strip free (from a fish) |
+| legend baits (per attempt) | Heartmoss 40 · Glowcap Bulb 90 · Prism Moth 170 · **Last Candle** 320 (was Drowned Marrow) |
+| tolls (once per lake, forever) | 180 / 420 / 900 |
+| supplies (× supplyMult; oil × Far Water from day 5) | oil flask 18 · oil cask 50 · moss cake 14 · mushroom loaf 38 · Stake Lantern 40 (§24) · **Murk's Chum** 30 (1 per visit) · combat modes only: Wax Patch 45, Flare Powder 30 |
+| combat kit (per expedition, combat modes only, at 40% of today's prices) | Searing Mantle 22 / 56 / 120 / 224 · Moth-Dust Lens 36 / 80 / 168 · Flint Striker 22 / 60 / 132 · Barnacle Hull 44 / 100 / 208 · Ember Hearth 104 / 240 |
+| moved to persistent tackle and outfit (removed from the run shop) | Ashwood Rod, Whalebone Tip, Braided Gut, Silverthread, Brass Spool, Whisper Drag, Woven Creel, Glimmer Spoon, Thick-Glass Chimney, Rendering Brazier, Long Oars, Cork-Soled Boots · cut: Trembling Feather, Frost-Moss Lining (the Torn Ledger relic covers sellMult) |
+| the Landing | keep-pond tier 2: 300 · tier 3: 1,200 |
+
+The Tide Chart supply is replaced by Murk's Chum (§25.6.1).
+
+#### 25.10.4 Memories (replaces §17.1 outside The Long Descent)
+
+| source | Memories | banked |
+|---|---|---|
+| new species | 3 | instantly |
+| class first per species | Prize 1 · Trophy 4 · Elder 12 | instantly |
+| first Ancient in each lake | 10 | instantly |
+| first mount per species and class (hung or kept in the pond) | Prize 2 · Trophy 6 · Elder 15 | on return |
+| first release per species and class | Prize 1 · Trophy 3 · Elder 8 | instantly |
+| place discovered / mastered | 2 / 10 | instantly |
+| rumour solved · Old Ledger beaten | 3 · 5 | instantly |
+| legendary: first landing / rematch | 15 / 8 | instantly |
+| challenges (48) | ≈ 1,170 in all (today's 831 + tier IV 185 + tier V 155) | instantly |
+| **expedition tally** | 3 per dawn reached in the lake · 1 per still night (Still, the First Outing, a still Lantern night, a lamp-watch) or **4 per Lantern swarm night** (Gloomtide: `nightsSurvived × (3 + zoneIndex)`) · 10 per lake crossed (only if a full calm follows in that lake) · 2 per Ledger request | on return (× 0.5 if snuffed) |
+
+**Mid-game hour (≈ h5):** species 9 + class firsts 13 + places 9 + rumours 3 + Old Ledger 4 + first mounts 8 + first releases 3 + tally 64 (Lantern: 12 + 10 + 2 = 24 per 4-day expedition × 2.67; Still: 18 × 2.67 = 48) + challenges ≈ 25 + legends ≈ 5 = **≈ 143/h in Lantern, ≈ 127/h in Still** (−11%, inside the ±15% target).
+
+**Totals and the relic curve.** The one-time pool is ≈ 4,600 Memories (challenges 1,170 · species 159 · class firsts 816 · first mounts 1,104 · first releases 576 · places 348 · rumours 72 · Old Ledger 240 · legends 60 · Ancients 40), plus the tally (≈ 48–64/h). Estimate: ≈ 2,700 earned by h15 and ≈ 4,800 by h35 (the Elder-heavy third of the pool comes late). **Relic shelves** (data: `RELICS[].shelf`, costs in `MEMORIES_V3.shelves`): the **Fishing & Exploration shelf** (kept relics plus §24's and the new ones, ≈ 46 levels) costs ≈ 8,800 at today's prices; **× 0.55 → ≈ 4,840**, so its first 25 levels (≈ 2,000) arrive by ≈ h12 and the shelf completes ≈ h35 if nothing is spent on the Gloom shelf. The **Gloom shelf** (Salt-Glass Lens, Stub of the First Wick, Grandsire's Tinderbox, Barnacle Cloak, Ember in Resin; ≈ 14 levels) costs ≈ 3,125 × 0.7 ≈ **2,190**, an extra sink for combat players (swarm-night tally, Wardens, 9 Gloom challenges ≈ 220). The Shrine's lantern count is the total relic levels, **read from data** (≈ 60). **Remembrance's** `memMult` multiplies the **expedition tally only**.
+
+**New relics:** *Measuring Cord* `measuring_cord` (60 / 180: L1 the bite tell also shows an estimated length; L2 Prize+ hooks get +1 pip) · *Murk's Spyglass* `murks_spyglass` (150: forecast two days ahead in every lake; the Map Table marks known residents) · *Rumour Shell* `rumour_shell` (120 / 300: +1 rumour tier per Murk visit). *Second Wick* relights once per expedition in every mode. Seven Knots is halved (lineStrength +0.05 per level). **Cut and refunded on migration:** Murk's Old Debt, Waystone: Sporewood / Glasswater / Pallid Deep.
+
+#### 25.10.5 Challenges: 48 (rewrites, the Gloom tab, tier V)
+
+"Run" or "descent" scope = expedition scope. Rewrites (ids unchanged):
+
+| # | challenge | v3 |
+|---|---|---|
+| 2 | First Dawn `first_dawn` | "Spend your first night out" (any mode) |
+| 4 / 11 | Three Long Nights `three_nights` / The Long Vigil `long_vigil` | nights out in one expedition, any mode (11 still unlocks Tallow) |
+| 9 | Unwarded `unwarded` | either path: silence a Warden **or** land 3 night-only species at Prize or better (Ashwick) |
+| 10 / 25 / 26 | reach a lake (`down_the_sluice`, `into_the_vault`, `pallid_arrival`) | "Light the … Waystone" |
+| 15 | Night Angler `night_angler` | land 3 fish during a single night (any mode) |
+| 19 | Heavyweight `heavy_catch` | "Land a non-legendary fish over 15 kg" (Shimmerfly bait) |
+| 21 | Murk's Favourite `shells_1000_run` | earn 1,000 Shells in one expedition |
+| 22 | What the Flame Remembers `kindle_one` | either path: Kindle a weapon **or** raise an Angler boon to level 5 (Gambler's Wick) |
+| 28 | Many Flames `many_flames` | "Land a Trophy in the Glasswater Vault with 3 different Wicks" |
+| 29 | The Light Comes Up `light_comes_up` | "Land the Lantern-Swallower" |
+| 30 | The Complete Chronicle `complete_chronicle` | 53 names (every species in the build) |
+| §24: 33 / 36 / 39 | Four Shared Flames / The Long Way Round / Every Candle in the Vault | 33 and 39 per expedition; 36 becomes "Open 3 shortcuts" (they now persist) |
+| §24: 40 | Every Still Place | master every place in the three lower lakes (21 places); unlocks the Wayfarer |
+
+**Gloom tab** (combat-only, combat rewards only; 9): 5 Unclenched, 8 Gloombreaker, 12 Untouched, 13 Bonfire Night, 14 Full Flame, 24 Lamplighter's Vengeance, 27 Four Silences, §24's 37 Held the Crossing, 38 Far From Any Candle. The other tabs are Fishing (the remaining tiers I–III), Paths (§24's tier IV minus 37 and 38) and The Measure (tier V).
+
+**Tier V *The Measure*** (new, 8):
+
+| # | challenge · `id` | goal | reward |
+|---|---|---|---|
+| 41 | First Prize `first_prize` | land your first Prize | +5, reveals Measuring Cord |
+| 42 | First Trophy `first_trophy` | land your first Trophy | +10 |
+| 43 | First Elder `first_elder` | land your first Elder | +20 |
+| 44 | Ten Trophies `ten_trophies` | land 10 Trophies | +15, reveals Rumour Shell |
+| 45 | A Full Board `a_full_board` | a Prize of every non-legendary species in one lake | +30, rod charm (cosmetic) |
+| 46 | Elders of Every Water `elders_everywhere` | an Elder in every lake | +40 |
+| 47 | Older Than the Ledger `old_ledger_five` | beat 5 Old Ledger records | +20, reveals Murk's Spyglass |
+| 48 | Brought Home `brought_home` | bring 3 marked fish home from one expedition | +15 |
+
+(The brief names 41–44; the names of 45–48 are the data's.) §24's tier IV ids: 33 `shared_flame`, 36 `the_long_way_round`, 37 `held_the_crossing`, 38 `far_from_any_candle`, 39 `every_candle`, 40 `every_still_place`.
+
+### 25.11 Retention hooks
+
+| hook | rule | why it pulls |
+|---|---|---|
+| **The empty frame** | one frame per species on the Long Wall, a "?" until named, an ink silhouette until filled, a seal that upgrades Prize → Trophy → Elder (gold thread for an Ancient) | there is always a visible gap on the wall until the collection is complete |
+| **Marked Fish: "still out there"** | escaped Trophy+ fish persist (≤ 6) at their place, with their size and progress, and come back weakened | the strongest one-more-expedition hook: "the 131 cm Reedjaw that broke your Braided Gut" |
+| **Residents** | three giants per lake that stay until you land them (or 3 in-lake days pass), shown on the Map Table | a named target waiting at a known place |
+| **Far Water** | each dawn out improves the water and raises the cost of the way home | "one more day" is a real decision every expedition |
+| **Old Ledger records** | one figure per species at z 2.3; Murk's bell rings across the lake when you beat it; your name is chalked on his barge at home | concrete targets anchored to a character |
+| **Today's rumour** (real date) | one Elder target per calendar day at the Map Table, always at a giant place, favour +0.3 there | a reason to play today |
+| **Murk's Ledger** | 3 persistent requests (class, variety, condition, release, bring-home, Old Ledger); **one refreshes per completed in-lake day**, a lapsed slot after a real day; combat requests only in combat modes (data `LEDGER`) | medium-term goals that survive any snuff |
+| **Rumours** | tiered (vague → place → condition), one pinned | the treasure map to places and kept fish |
+| **The forecast** | Murk names tomorrow's condition ("Drizzle in the Mossmere tomorrow: the stone hands overflow every 25 s") | plan the next expedition before you leave this one |
+| **Tally Posts** | your best fish inked on every place's post | "the world remembers your fish" |
+| **Proof catches and the test buoy** | the Homecoming card names the next tier's proof and price; new tackle can be felt on the test buoy at once | gear progress always has a fishing goal and an immediate payoff |
+| **Legend rematches** | each later landing +7% (cap × 1.5), with a growth line | bosses worth fighting again, with melancholy |
+| **Collection** | 53 species, 144 seals, the Elder Log with Ancients, 29 places (+4 secrets), Old Ledger × 48 | the long tail |
+| **The Landing grows** | ≈ 150 visible changes (§25.4.4) until the end | progress you can walk around in |
+| **The Long Descent** | today's roguelite, with its own records | the prestige run for request-2 players |
+
+In-lake bounties (§15) stay, re-weighted to ≈ 85% fishing templates (combat templates only in combat modes, §25.5.3); Murk's 3-slot Ledger is the persistent layer above them.
+
+### 25.12 Supersession table: what happens to §1–§24
+
+**Kept** = unchanged in v3 · **modified** = the section stands except for the listed change, and the §25 rule wins where they differ · **replaced** = the §25 rule replaces the section outside The Long Descent (inside it, the old section still applies) · **cut** = gone in every mode. Global renames apply everywhere in §1–§24 without further edits: *the Pale Leviathan* → **the Lantern-Swallower** (id `lantern_swallower`), *Drowned Marrow* → **Last Candle** (id `last_candle`), *Landing of Last Rafts* → **Shore of Last Rafts**, run / descent scope → expedition scope (§25.0.3).
+
+| § | section | verdict | change | §25 rule |
+|---|---|---|---|---|
+| header | vocabulary | modified | add the v3 terms; keep every existing term; Shells are persistent outside The Long Descent; Waystones mean "lakes you can start an expedition in" | §25.0.4 |
+| 1 | vision & pillars | **replaced** (premise and tone kept) | ranked pillars; loop sentence "set out, find remarkable places, land remarkable fish, bring them home" | §25.1 |
+| 2.1 | the calm, moment to moment | modified | mote columns → six signs; Murk's lamp is a lantern, not green; the catch card adds Mark for home and the favours | §25.6.1, §25.6.8 |
+| 2.2 | the Gloomtide, moment to moment | modified | a swarm only in combat modes (Lantern window, Gloomtide whole night) | §25.5.1 |
+| 2.3 | per day | **replaced** | 180 (185) / 20 / 90 / 10 s, +30 s Arrival Hush | §25.2.1, §25.3.2 |
+| 2.4 | per run (a descent) | **replaced** | out-and-back expeditions; the descent survives as The Long Descent | §25.3, §25.3.7 |
+| 2.5 | meta | modified | persistent tackle, outfit, Shells, places, shortcuts; Waystones = sea-gate stones; Journal 53 | §25.3.4, §25.3.5 |
+| 3.1–3.2 | controls | modified | Landing walking (§24 controls), tap-to-walk in the hub, the station pill, long-press on the float (favour list), tap the reel icon to cycle the drag preset (Reel T2+); no new mid-fight inputs; cutting stays "hold movement 0.6 s" | §25.4.2, §25.6.1, §25.6.5 |
+| 3.3 | pointer priority | modified | in the hub: station glyph (tap-to-walk) → Murk's barge → fishing (jetty cast); no zap | CONTRACT §13.1 |
+| 3.4 | accessibility | kept | bite tells are readable with sound off; the float uses notches, not colour | §25.6.4 |
+| 4.1–4.2 | raft handling, anchoring | kept | — | — |
+| 4.3 | arenas and the depth recipe | modified | + the `COVE` arena (R 42, layout `cove`, `shoreNotch`), not in `ZONES` | §25.4.1 |
+| 4.4 | the four arenas | modified | Mossmere `arena.places` (8) and the buoy-lantern row; a Homeward Waystone per lake (≥ 25 m from spawn) | §25.8.4, §25.3.1 |
+| 4.5 | how the arena creates decisions | modified | spots → signs and places; Murk on days 1–2 then odd days | §25.6.1, §25.3.3 |
+| 4.6 | docks and gate | modified | gates open for good; Murk's docks kept; the Homeward stone | §25.3.1 |
+| 5.1 | aim and the cast meter | kept | the Clean Cast also gives favour +0.1 | §25.6.2 |
+| 5.2 | which fish bites | modified | favour μ and place caps feed the roll; z is rolled on the bite | §25.7.1, §25.7.2 |
+| 5.3 | waiting, bite, hook window | modified | class bite tells; let it pass; Prize+ window +10%; hook-hold pips | §25.6.4 |
+| 5.4 | species | modified | 32 → 53 with `size {L50, sigma, k}`, `family`, recolours, resizes, renames | §25.7.6 |
+| 5.5 | the reel model | modified | size scaling before `createReel` with Elder age, step and stamina; stamina × 1.4; easing by load; fatigue clock (Elder floor 0.8); old tricks; Rod shock; drag presets; runner (P3) and sulker (P4) | §25.6.5 |
+| 5.6 | legendaries | modified | authored sizes ≥ 1.4× the lake's longest; +7% growth per landing; Still and Lantern snags; legend rule unchanged | §25.7.2, §25.5.6 |
+| 5.7 | feeding spots | **cut / replaced** | mote columns cut → six signs; Tide Chart → Murk's Chum | §25.6.1 |
+| 5.8 | weight and quality | **weight replaced**, quality kept | stretched z model; value / food / oil from z (× 0.66); `sizeK` cut | §25.7.1, §25.7.3 |
+| 5.9 | night fishing | modified | Night Rise in every mode; the slack budget only matters in combat modes | §25.8.3 |
+| 5.10 | `fishing.view` | modified | + `favour`, `sizeClass` (after the first breach), `pips`, `biteTell` | §25.6.1, CONTRACT §13.7 |
+| 6.1 | day phases | modified | 180 (185 foot lakes) / 20 / 90 / 10; +30 s Arrival Hush on expedition day 1 and after a gate; no clock at the Landing | §25.3.2 |
+| 6.2 | drains | modified | the oil context table (raft / foot / candle × calm / dusk / night; raft night 1.0 in all modes) and Far Water | §25.3.3 |
+| 6.3 | the light | kept | guttering keeps a 2.5 m light | §25.3.2 |
+| 6.4 | damage, i-frames, armor | modified | Embers only in combat modes; starvation cut | §25.5.1, §25.10.1 |
+| 6.5 | healing | modified | satiety → Well-fed (+1 dawn mend in combat modes) | §25.10.1 |
+| 6.6 | warnings | kept | — | — |
+| 6.7 | death and Second Wick | **replaced** | Snuffed (oil only in Still and Lantern; Embers too in Gloomtide), Scorched in Lantern; wake at the Landing's hearth; Second Wick once per expedition | §25.3.2, §25.5.1 |
+| 6.8 | anti-frustration | kept | plus Murk's Pity once per expedition | §25.9.4 |
+| 7 | night swarm | kept (demoted) | night-mode multipliers on `difficultyFor`, `swarmWindow(k)` (Lantern k 0.05 → 0.50), the Lantern Warden cadence, fodder → oil in Lantern, no snaps or hooked theft in Lantern, Heat arrival offsets | §25.5.1, §25.3.1 |
+| 8.1–8.4, 8.6 | lantern combat | kept | aura ring hidden in calm and dawn; Flare and Embers hidden in Still; Burn shows as *Relight* below 25% oil | §25.5.7 |
+| 8.5 | oil through the night | modified | outside The Long Descent the passive burn follows the oil context table (raft night 1.0, foot 1.4, inside a candle's light 0.7) × the Far Water night factor; the table's burn column stays for The Long Descent | §25.3.3 |
+| 9.1 | fish → Shells, food, oil | **replaced** | value / food / oil from z | §25.7.3 |
+| 9.2 | the creel is your battery | modified | the creel is carry capacity with Live Well slots and nights; Trophy-or-Toll → Mark for home | §25.3.3, §25.6.6 |
+| 9.3 | daily budget | **replaced** | the oil table, Far Water and the per-lake income table | §25.3.3, §25.10.1 |
+| 10.1–10.2 | XP, offers, rerolls | modified | XP per mode; the Angler-offer cap; banked level-ups; deep-start picks | §25.5.4, §25.3.1 |
+| 10.3–10.6 | weapons, Kindles, passives, archetypes | kept (combat modes) | Kindles only in combat modes; the Angler pool +6 boons | §25.5.4 |
+| 11 | characters | modified | quirks gain fishing halves (incl. the Wayfarer); either-path unlocks; Ashwick's Gloom-fed variant does not exist | §25.5.5 |
+| 12.1 | the checklist | modified | 30 → 48 (+§24 tier IV, + tier V *The Measure*), a Gloom tab (9), rewrites | §25.10.5 |
+| 12.2 | challenge types → bus sources | modified | expedition scope; new types for tier V | CONTRACT §13.5 |
+| 13.1 | Murk's schedule | modified | in-lake days 1 and 2, then odd days; at home between expeditions; lamp warm white | §25.3.2, §25.3.3, §25.4.5 |
+| 13.2 | shop tabs, upgrades | modified | the Gear tab moves to the Gear Bench (Tackle screen); the UPGRADES table becomes TACKLE / OUTFIT / LURES and the combat kit (per expedition, combat modes, 40% prices); Trembling Feather and Frost-Moss Lining cut | §25.4.2, §25.6.6, §25.10.3 |
+| 13.3 | supplies | modified | Tide Chart → Murk's Chum; Wax Patch and Flare Powder combat modes only; oil × Far Water from day 5 | §25.10.3 |
+| 13.4 | baits | modified | + Cut Strip; Drowned Marrow → Last Candle; `weightBias` → favour | §25.6.3 |
+| 14 | zones and gates | modified | gates open for good; toll once; Waystones lit by legend + toll; the crossing tally rule; `COVE` (not in `ZONES`) | §25.3.1 |
+| 15 | bounties | modified | in-lake bounties ≈ 85% fishing templates (combat templates only in combat modes) + Murk's 3-slot persistent Ledger; in-lake bounties pay Shells only (the old +2 Memories per bounty is replaced by +2 tally per Ledger request) | §25.11, §25.5.3, §25.10.4 |
+| 16 | Journal | modified | ruler, class seals, field notes and best setup from your own catches, Elder Log, places page, rumours, mount book; a lake perk needs a Prize of every non-legendary species in that lake (= a completed wing); the first-catch Shells, the half-lake +10 and the 10-catch card +2 stay (outside the §25.10.4 pool estimate, ≈ +136 one-time) | §25.7.4, §25.4.4 |
+| 17.1 | Memories | **replaced** | instant Memories + the expedition tally (crossing rule) | §25.10.4 |
+| 17.2 | relics | modified | shelves (× 0.55 / × 0.7); new relics; lantern count from data; `memMult` on the tally only; Old Debt and Waystone relics cut and refunded; Seven Knots halved | §25.10.4 |
+| 17.3 | Waystones and the Kindling Draft | **replaced** | Waystones = sea-gate stones; Descent Purse cut; banked levels → deep-start Boon picks; the Kindling Draft kept in Gloomtide (non-Angler offers only) | §25.3.1 |
+| 17.4 | records | modified | extended per species, per place, Elder Log, Old Ledger, legend growth | §25.7.4 |
+| 18.1–18.3 | runs 1 / 5 / 10 | **replaced** | first session, mid-game session, hour 1 / 5 / 15 | §25.2.2, §25.2.3, §25.9.3 |
+| 18.4 | QA targets | **replaced** (kept for The Long Descent) | v3 QA pacing targets | §25.9.5 |
+| 19 | art direction | modified | the palette rule stays (validator guard hue 65–195°, sat ≥ 0.15); fish recolours; the Mossmere as a rust-and-iron harbour; the Landing palette; Murk off green (§19.1's "Old Murk's sage lamp" trace and §19.7's Murk colours become A10's: the only green left is bell verdigris); camera presets sail 24° / 15 m / aimY 1.4 / fov 52, fish 28° / 13 m, walk 34°, plus `trophy`, `cove`, `gate`, `wall`, `hang`, `pond`, `setout`, `vista`; per-lake hue pairs with verdigris ≤ 2% | §25.7.7, §25.8.4, §25.4.5 |
+| 20 | audio | modified | measuring cord ticks and class chimes, seal stamp, bite-tell sounds, Night Rise motif, Stillnight bed, cove ambience, Homecoming and mount stings, sign sounds, condition loops; no "descend" sting on hub transitions | §25.14 (Au1–Au3) |
+| 21 | UI | modified | day HUD by mode; the float's favour; Far Water and Live Well readouts; new screens Set Out, Tackle, Homecoming, Snuffed, near-miss card, measuring overlay, mount and pond dialogs; the title becomes the boot overlay over the Landing; Murk's edge marker (`--mk-merchant`) and portrait lamp turn warm white with A10, and the `merchant` tip reads "Sail to his lantern"; edge markers point at signs, residents and the Homeward stone instead of spots | §25.5.7, §25.14 (U1–U15) |
+| 22 | originality | modified | + §25.15.3; renames (Last Candle, the Lantern-Swallower); the Mossmere's harbour re-theme | §25.15.3 |
+| 23.1 | who reads what, `getStats`, `createRun` | modified | v3 rows added; `createExpedition` replaces `createRun` outside The Long Descent (copies `meta.tackle` and `meta.outfit` into stats via `getStats`); flow `hub` | §23.1, CONTRACT §13 |
+| 23.2–23.3 | optional extensions, debug hooks | modified | v3 fields read defensively; v3 debug hooks | CONTRACT §13.11 |
+| 24 | exploration on foot | kept (owner), **edited in place** | calm 180 / 185 and a 30 s Arrival Hush in v3; shortcuts persist; lit sister-candles reset per expedition; 2 `watch` candles per lake; "Shore of Last Rafts"; place fields `holdsGiants` / `maxClass` / `resident` / `tally`; rules `sight` and `drift`; 4 kept-species additions (P4); `walk` camera 34°; a static Chart (P3) and fog-of-war (P4); 3 secrets (P4) | §25.13 |
+| App. A | balance sim | modified | the expedition and fishing-economy model with per-mode profiles (T3); the reel sim becomes `reel-v3-sim.mjs` (T1); the pacing sim (T5) | §25.14 (T1, T3, T5) |
+| App. B | the foot profile | kept | re-run with v3 day lengths when T3 lands | §25.14 (T3) |
+
+### 25.13 §24 sync table: the edits made in §24
+
+Every edit is marked "v3" in §24. Ids are unchanged everywhere (saves and data keep them); only display names and numbers move.
+
+| §24 location | before | after (v3) | why |
+|---|---|---|---|
+| intro | — | a note that v3 edits are marked in place and listed here | traceability |
+| §24.0 #10, §24.1 calm row, §24.11 calm and Arrival Hush rows | calm 120 s; Arrival Hush +10 s Sporewood, +30 s foot lakes | v3 expeditions: calm 180 s (185 s in Glasswater and the Pallid Deep), +30 s Arrival Hush in every lake on expedition day 1 and the first calm after a gate; §24's values stay for The Long Descent | §25.3.2 day lengths |
+| §24.1, §24.5, §24.6 (Pallid pieces, Murk's docks, candles, the Glasswater descent), §24.8 vigil grounds | "Landing of Last Rafts", "the Landing", "the Pallid landing" | **Shore of Last Rafts** (ids `pd_landing`, `landing_lamp` unchanged) | name clash with the Landing (the hub) |
+| §24.1 saving | `run.flags.pos` | v3 expeditions save `run.pos` (CONTRACT §13.2); restore reads `run.pos ?? run.flags.pos` | one position field for expeditions and the hub |
+| §24.5 camera table | `walk` elev 40° | **34°** (portrait 44° and `walkNight` unchanged) | §25 camera presets (§19 row of §25.12) |
+| §24.6 Pallid finale flow, §24.7 the Bottomless, §24.8 the finale on foot | the Pale Leviathan; Drowned Marrow | **the Lantern-Swallower**; **Last Candle**; in Still and Lantern its Grasping Dark becomes two telegraphed snags | renames; §25.5.6 |
+| §24.7 Sporewood places | — | `mothers_cup` `holdsGiants` (non-legend) and visible breathing; `lullaby` becomes `sight` (soft cast, charge < 0.5) and `holdsGiants`; `puffball_vent` `maxClass` Prize and × 2 in Spore-fall; `drowned_greenhouse` + The Remembered Sun (P4); `gill_harp` `holdsGiants` while it sings, 25 m beacon; `veilwater` Mildew Angler × 2 and today's-rumour favourite at night | §25.8.5 |
+| §24.7 Glasswater places | — | `fallen_chandelier` `holdsGiants` (trench rim); `mirror_nave` reflections are true-size pre-rolled fish, `holdsGiants`; `bell_window` + The Sexton (P4), no tackle gate; `well_of_ledgers` `holdsGiants` on the bottom ledger; `stilled_cascade` thaws 40 s in Shard-chime (wait × 0.4, favour +0.3); `broken_hymnal` Vesper Gar × 3 at night (P4); `burning_glass` folded into the Alignment (P4); `votive_font` `maxClass` Prize | §25.8.5 |
+| §24.7 Pallid places | Chain Garden weight bias +0.6; the Breathing Deep weight bias +0.5; the Last Ferry once a descent | `the_bottomless` `holdsGiants` (non-legend), the Underdepth (P4); `long_pier` + The Namesake (P4); `chain_garden` favour +0.6 during the Turn's pass, + Candlewake Sturgeon (P4), `holdsGiants`; `ferry_slip` `holdsGiants`, the ferry's outline at dusk, the Last Ferry once an expedition; the Breathing Deep's domes favour +0.4 | §25.8.5 |
+| §24.7 place-kept species | awake per descent; the Footnote and the Unpaid Fare `sinker` | awake per expedition; both become *sulkers* in P4; v3 sizes from §25.7.6 replace the kg column | §25.7.6, §25.6.5 |
+| §24.8 sister-candles | lit for the rest of the descent; Known Places each later descent | the rest of the expedition (reset on every Set Out); Known Places each later expedition; two candles per walking lake carry `watch` (lamp-watch): Sporewood `harp_lamp`, `crown_lamp`; Glasswater `harbour_lamp`, `hymnal_lamp`; Pallid `plaza_lamp`, `pier_lamp` (data `WALK_SYNC_V3.watchLamps`) | §25.8.1, §25.5.2 |
+| §24.9 hooks | discovery Memories at run end; shortcuts for the descent; the Surveyor's Chalk each descent; variants, twists and awake per descent | discovery Memories instantly; shortcuts persist (`meta.shortcuts`); the Chalk opens the nearest shortcut for good on your first arrival in that lake; variants, twists and awake roll per expedition | §25.8.1, §25.10.4 |
+| §24.10 content | Cork-Soled Boots 45 / 120 / 280 per run; challenges 33 / 36 / 39 per descent; 37 / 38 on the main list; `lamp_vigil` in every mode; the Wayfarer's quirk | Boots = outfit, 80 / 240 / 600, persistent, from Sporewood lit; 33 and 39 per expedition, 36 "Open 3 shortcuts"; 37 and 38 on the Gloom tab; `lamp_vigil` only in combat modes; + the fishing half *Shore Sense* | §25.6.6, §25.10.5, §25.5.5 |
+
+### 25.14 Phase plan and per-module work list
+
+**The places come before the home.** Request 5 is "finding cool locations with interesting fish species and big sizes", and the Mossmere's raft places need nothing from §24's foot controller, while the cove does. So the order is **P1** (the feel shift inside today's run structure) → **P2** (the Mossmere's places and giants) → **P3** (expeditions and the walkable 3D cove, the Landing; needs §24's foot core) → **P4** (wonder and depth). P1 + P2 deliver request 5 inside today's run structure; P3 delivers requests 6 and 7; P4 is content on a working loop.
+
+Effort: **S** ≤ 2 days · **M** 3–6 days · **L** 1–2 weeks (one implementer). Ids are the brief's (R render, Wa water, W world, A actors / models, F fishing, S player / survival, C combat, Pg progression, U ui, Au audio, D data, T tools). An item split across phases (C6, Pg3, U11, T1, T2, T5, F10) is listed in each phase with its part.
+
+#### 25.14.1 Phases, gates and how the game stays playable
+
+| phase | goal | length (parallel modules) | playable after the phase | gate (all must pass) |
+|---|---|---|---|---|
+| **P1: the feel shift** | angler-first inside today's run structure, testable at once: cameras, no combat UI by day, honest stretched size, the z model with the **float's favour**, bite tells, pips, steeper Elders with old tricks, the ceremony, night modes (Lantern window, no snaps, Scorched), the oil table, Well-fed, signs, recolours (Murk too), banked level-ups, and the **`holdsGiants` stopgap** (legend-pool rims and deep pools) so Elders exist from the first build | ≈ 2–3 weeks | today's runs (title → New Descent → run → death screen), now with the night-mode cards on New Descent from run 2 (run 1 is all-still, the First Outing rule), the v3 day clock, size classes, the ceremony and Snuffed in place of the darkness death | the common gate below, plus: reel-sim targets §25.6.9 and §25.6.6 (Mossmere and Sporewood on 32 species); `tools/scenario-run.mjs` full flow in each night mode with 0 page / console errors |
+| **P2: the Mossmere's places and giants** | the 8 places and their props, `holdsGiants`, persistent residents, `sight` and `drift`, the pre-roll primitive, `uClear` and **Moonfall**, conditions, rumours, today's rumour, forecasts, Tally Posts, Marked Fish and the near-miss card, the Mossmere's 4 new species (→ 36) | ≈ 3 weeks (no §24 dependency) | P1's runs, with a Mossmere full of places, residents and Moonfall; residents, Marked Fish, places and Tally records persist in meta across runs | the common gate, plus: the T5 pacing sim on the Mossmere (first Prize ≤ 5 min for ≥ 55%, places 6 of 8 by h2); Moonfall and the wow-event draw calls inside §25.8.8 |
+| **P3: expeditions and the Landing** | the hub flow and contract, the cove, the walls and mount batch, the pond pass, Homecoming and Snuffed, persistence, tackle and outfit at the Gear Bench, Far Water and the Live Well, First Outing and Set Out, Continue with position, the Ledger, 48 challenges, relic shelves, The Long Descent, save migration, cove fishing, **the runner** with Sporewood, §24's place data ▲, species → 47 | ≈ 4–5 weeks (needs §24's foot core; fallback Landing v0) | the full v3 game: boot → the Landing → Set Out → expedition → Homecoming / Snuffed → the Landing; The Long Descent from the Map Table once all four Waystones are lit; an old save migrates and continues | the common gate, plus: the balance sim T3 (snuff rates, Memories/h, Shells/h, the shortest profitable loop, the tackle timeline §25.10.2); perf scenario `cove` ≤ 140 / ≤ 100 calls; the hue report on a Landing shot including Murk's barge; a phone-portrait shot showing the arch, stones and legends |
+| **P4: wonder and depth** | the sulker, the other three wow happenings, species → 53, age marks, Found Relics and secrets, Vistas, the Chart's fog, legend growth, Remnants, the postcard card | ≈ 4–6 weeks (content) | the full game plus content; each P4 item ships independently (cut order §25.15.4) | the common gate, plus: the sulker in `tools/sim/reel-v3.mjs` before its code (Blind Scrivener Elder and Lampwarden retuned); perf scenario night on foot (T6) ≤ 150 calls with the Candle Tide |
+
+**The common gate** (every phase): `node tools/validate-data.mjs` (both passes, plus the v3 pass), `node tools/check.mjs`, the hue report (≤ 2% green-teal chroma per lake and on the Landing, Murk included), the draw-call scenarios (`tools/perf.mjs`; §25.4.7, §25.8.8), the reel-sim land-rate targets (§25.6.9) and, from P3, the balance sim (T3).
+
+**Rollout rules.**
+1. **Data first, behind a flag.** v3 tables merge into data.js behind `data.V3_ENABLED` (the same pattern as `WALK_ENABLED`, CONTRACT §13.0): with it off every v1 / v2 table is bit-identical (validate-data pass 1). The flag turns on in the commit that lands P1's fishing, survival, combat and ui code.
+2. **P1 and P2 run inside today's run structure.** "Expedition" in P1–P2 means today's run; `run.nightMode` is chosen on the New Descent screen; a snuff ends the run through today's death flow (the screen is titled *Snuffed*); records, class firsts and Memories bank at the measuring moment; residents, Marked Fish, places and Tally records (P2) persist in meta.
+3. **P3 switches the structure by feature detection**, not a second flag: main enters the hub only when `ctx.progression.createExpedition` and `data.COVE` exist (CONTRACT §13.1); until then the title and New Descent flow stay. The Landing v0 (raft-only stations) is the fallback while §24's foot core is missing.
+4. **P4 items are independent**; each can ship or be cut on its own (§25.15.4).
+
+#### 25.14.2 P1 work list: the feel shift
+
+| id | module | item | effort | depends on | acceptance test (what the QA scenario checks) |
+|---|---|---|---|---|---|
+| D1 | data.js | `BALANCE.size` (cuts, tail 0.06, truncation, favour table, value factor 0.66, Elder age per lake, step, stamina exponent, fatigue floor, old trick), species `size` / `family`, phases, the oil context table, `wellFed`, `nightModes`, cameras, recolours, `holdsGiants` stopgap flags | M | — | validate-data v3 pass: σ in 0.09–0.175, ceiling ≤ 2.8× median, ≥ 2 giant-tail species per lake, legend length ≥ 1.4× the lake's longest ceiling, favour cap 1.8, no green-teal fish colour; pass 1 bit-identical with `V3_ENABLED` off |
+| T1 (P1) | tools | `tools/sim/reel-v3.mjs` adopts `reel-v3-sim.mjs` (the brief's T1 adoption into `tools/sim/`) (z scaling, Elder age / step / stamina, fatigue, old tricks, pips, Rod shock, per-slot loadouts, no net check) and writes `BALANCE.tackleRating` | M | — | `node tools/sim/reel-v3.mjs --gate --k 400` reproduces the §25.6.6 gate table within ±2.5 points; `--rating` writes 125 loadouts × 4 lakes; Elder median fight ≤ 120 s, Ancient ≤ 180 s |
+| T2 (P1) | tools | `validate-data` P1 rules: σ range, ceiling ratio, giant-tail count, legend rule, green-teal fish colours (the existing stricter guard), favour cap | S | D1 | the validator fails a seeded bad species (σ 0.2, a teal glow, a legend 1.3× the longest) and passes the real data |
+| R1 | render | camera presets: sail 24° / 15 m / aimY 1.4 / fov 52; fish 28° / 13 m; **the reel camera follows line distance and fight state only, never size class** | S | — | screenshots at 960×540 and 390 px portrait match `BALANCE.cameras`; a forced Keeper and a forced Elder at the same line length give the same reel-camera distance (± 0.1 m) |
+| R2 | render | `trophy` mode (distance `clamp(1.2 + 1.6L, 1.6, 16)` m, yaw toward `place.landmark`, crane to 50° above 4 m); a timescale hook for the leap reveal | S | F3 | landing a forced 0.2 m, 1.2 m and 8.5 m fish puts the camera at 1.6, 3.12 and 14.8 m, cranes to 50° on the last; the leap reveal runs 0.25 s at timescale 0.35 |
+| Wa1 | water | Glowtide sparkle term with a low-tier switch | S | — | at night the raft's wake and a hooked fish sparkle on high; the term is absent on low; 0 added draw calls |
+| Wa2 | water | sign decals through the existing ripple and wake arrays (no new uniform arrays) | S | F6 (lands with it) | six sign kinds render with ≤ 6 alive; shader uniform count unchanged; +2 draw calls at most |
+| W1 | world | remove the mote-column visuals; the legend pool's column becomes a low glimmer | S | F6 | no mote column in any lake screenshot; the legend pool shows a still ring and a low gold glimmer; the edge marker still points at it |
+| A1 | actors / models | honest stretched scale: `createFish(species, {z})` → L50·e^(σz + 0.06·max(0, z − 1.04)²) in metres; remove the ±22% weight scaling | S | D1 | a Dusk Minnow at z 0.4 measures 0.231 m and at z 3.0 measures 0.397 m in the scene (bounding box ± 3%) |
+| A2 | actors / models | measuring poses palm / arms / hang / alongside; the knotted-cord prop | M | — | forced catches at 0.2 / 0.6 / 1.5 / 3.0 m play palm / arms / hang / alongside; the cord spans the fish's length |
+| A3 | actors / models | recolour the green fish and glows (data) | S | D1 | the hue report on a Mossmere and a Glasswater catch close-up: ≤ 2% green-teal chroma; the §25.7.7 targets in data |
+| A10 | actors / models | **Old Murk off green**: skin #5a5444, lichen flecks #b8b0a0, lamp glow, halo and PointLight #ffe2b0; the merchant tip says "his lantern" | S | — | a screenshot with Murk moored passes the hue report; the tip text reads "Sail to his lantern" |
+| F1 | fishing | stretched z model (replaces `rollWeight`), the favour stack by family, classes and Ancient, place caps, pressure, the `holdsGiants` stopgap | M | D1 | 10,000 seeded rolls at μ 0 / 1.0 / 1.8 reproduce the §25.7.1 class table within ±1 point; z never exceeds 2.64 outside giant water; pressure −0.12 per catch floors at −0.6 and resets at dawn |
+| F2 | fishing | size → difficulty before `createReel` (Elder age per lake, step × 1.08, stamina g^1.3, old tricks); reel edits (stamina × 1.4, easing by load, fatigue clock with the Elder floor 0.8) | M | T1 | the in-game reel driven by the sim's skilled bot on a forced Elder Reedjaw lands within ±5 points of the sim on T0 / T2 / T4; every Elder plays exactly one old trick after 55% progress |
+| F3 | fishing | cut the 1.45× boost (`fishing.js:663`); leap reveal for Prize+ | S | A1 | a hooked fish's mesh length equals `createFish` length at every moment of the fight; a Prize+ breach triggers the reveal once |
+| F4 | fishing | class bite tells, let it pass, hook-hold pips | M | F1 | each class shows its tell with sound off; a lapsed bite keeps the bait and adds favour +0.15 (cap +0.3, reset on a hook or after 60 s); pips start at 3 / 2 (+1 on Rod T3+) and a throw happens at 0 |
+| F5 | fishing | ceremony orchestration; records written at the seal stamp (`fish:measured`); favours on the card; best setup per species | M | A2, U3, Pg1 | `fish:measured` fires exactly once per landed fish, before the card; reloading the page after the stamp keeps the PB and class first; the card lists the favour terms that applied |
+| F6 | fishing | signs replace feeding spots | M | Wa2 | 2–4 signs alive in calm within castMax + 15 m; each sign's cast rule gives its effect (e.g. a boil cast within 3 m in 8 s bites 60% over 500 seeded casts) |
+| F7 | fishing | Night Rise; mode rules (Lantern: slams never snap, no creelsnatch while hooked; the slack budget only in combat modes) | S | C1 | every night cast carries favour +0.25 in each mode; in Lantern a scripted slam during a fight never snaps the line and a creelsnatch never targets while hooked |
+| F13 | fishing | `fishing.view.favour {mu, notches, terms[]}`; the "gone quiet" flag at pressure ≤ −0.36 | S | F1 | notches follow the six bands; three catches at one place in a day raise the "gone quiet" flag |
+| S1 | survival | phases 180 (185) / 20 / 90 / 10, +30 s on expedition day 1 | S | D1 | `getPhaseInfo().duration` reads 210 / 20 / 90 / 10 on Mossmere day 1 and 185 in a foot lake's later calm; the HUD clock matches |
+| S2 | survival | the oil context table; guttering → snuffed; only oil snuffs in Still and Lantern | S | D1 | a Mossmere raft day burns 28.3 ± 0.5 oil (30.1 on day 1) with no casts; 0 oil → Last Flicker (+12, once a day) → 25 s guttering (no casting) → Snuffed; Embers at 0 in Still / Lantern never snuff |
+| S3 | survival | satiety → Well-fed (no starvation) | S | D1 | satiety 0 for a full day causes no damage; satiety ≥ 60% shows Well-fed and applies reelSpeed +0.08, sweetZone +0.01 |
+| S6 | survival | lamp-watch detection at dusk end (2 watch-lamps per lake) | S | C1 | in Lantern, standing in a Mossmere dock buoy-lamp's pool when dusk ends cancels that night's swarm; casts beyond 10 m are refused; no Cinders drop |
+| C1 | combat | night modes: `difficultyFor` multipliers, `swarmWindow(k)` (Lantern 0.05 → 0.50), the Lantern Warden cadence, fodder → oil, lamp-watch; the First Outing all still | M | D1 | in Lantern, spawns only on even nights between k 0.05 and 0.50 at the scaled rates, Wardens on nights 4 and 8 at hp × 0.75; Still spawns nothing; run 1 is all still |
+| C2 | combat | aura ring hidden in calm and dawn; Flare and Embers by mode | S | U1 | the §25.5.7 table holds in screenshots of each mode at calm, dusk and night |
+| C3 | combat | XP per mode (Still × 1.4, no zone factor, discovery cap), the Angler-offer cap, 6 new Angler boons, **banked level-ups** outside swarms | M | D1 | no level-up modal opens while moving or with a line out; banked picks appear on the next measuring card or at dawn; Still offers only Angler and non-combat passives |
+| C4 | combat | Still and Lantern legend snags (the Lantern-Swallower) | S | — | in Still and Lantern, Grasping Dark produces two telegraphed snags (1 s warning, +0.2 tension) and no spawns; Gloomtide unchanged |
+| C6 (P1) | combat | Lantern stakes: **Scorched** (oil −30, forced lamp-watch, no Cinders), slams never snap, no creelsnatch while hooked | S | C1 | Embers to 0 in Lantern → Scorched: swarm withdraws, oil −30, anchored within 10 m until dawn, Embers mend at dawn; the expedition continues |
+| Pg1 | progression | value / food / oil from z (× 0.66); class firsts; instant Memories; first-release Memories | M | F1 | an Elder Reedjaw at z 2.8 sells for 127 ± 1 Shells at normal quality; class-first and first-release Memories bank at once (visible in meta before the run ends) |
+| U1 | ui | day HUD by mode (no ring, Embers or Flare in calm; the Well-fed glyph) | S | — | calm screenshots in all three modes show no combat UI; the satiety bar is replaced by the glyph |
+| U2 | ui | bite-tell legibility, pips, a class estimate after the breach, catch card (class, cm, kg, favours, Mark for home with its nights) | M | F4 | on a 390 px phone the tell, the pips and the class estimate are readable; the card shows cm, kg, class, favours and a Mark-for-home toggle with its nights |
+| U3 | ui | measuring overlay (cord ticks, seals, record banners) | M | — | the overlay timings match §25.6.8 per class and are skippable (tap; Elder after 0.6 s) |
+| U13 | ui | **the float's favour**: 0–5 ink notches, long-press list by family, the "gone quiet" line | S | F13 | long-press lists the terms by family in plain words; notches update when a sign or the hour changes the favour |
+| U14 | ui | banked Boon picks on the measuring card and at the dawn bell (never a modal while moving or with a line out) | S | C3 | a scripted level-up while reeling shows its pick on the next card |
+| Au1 | audio | cord ticks and class chimes, seal stamp, bite-tell sounds ("plip" vs "gulp"), Night Rise motif, Stillnight bed | S | — | each sound fires on its event; a Stillnight plays the bed, not the gloom mood |
+
+#### 25.14.3 P2 work list: the Mossmere's places and giants
+
+| id | module | item | effort | depends on | acceptance test |
+|---|---|---|---|---|---|
+| D3 | data.js | Mossmere places; conditions; `holdsGiants` / `maxClass` / `resident` / `tally`; ≈ 24 rumours; species → 36 | M | — | validate-data: exactly 3 `holdsGiants` places per lake (secrets excluded), in reachable water; every place has a no-bait calm species; every kept species has a rumour and a condition |
+| T2 (P2) | tools | validate the place fields, rumours, kept-species conditions and giant-place count | S | D3 | seeded bad data (4 giant places, a kept species with no rumour) fails |
+| T5 (P2) | tools | pacing sim on the Mossmere (the naturalist roster sim on places, conditions, residents and the favour distribution): first Elder, PBs per session, Trophies per session | M | D3 | first Prize ≤ 5 min for ≥ 55% of simulated players; Mossmere places 6 of 8 by h2; first Elder hooked h1–3 |
+| Wa3 | water | `uClear[2]` discs + a 256² floor-painting sampler (128² and radius × 0.7 on low); Moonfall first, then the Alignment | M | — | a clear disc shows the Ferry-Market painting with parallax at 960×540; low tier uses 128² and the smaller radius; uniform budget respected |
+| Wa4 | water | condition hooks (Hush swell × 0.2, Drizzle ripples) | S | W5 | Mirror Hush flattens the swell to 20%; Drizzle adds rain rings |
+| W4 | world | Mossmere place props (the new Cupped Hands with the aqueduct spout, chains, the door, the buoy-lantern row), Tally Post sprites | M | D3 | each prop sits at its §25.8.4 coordinates; ≤ +4 / +3 calls; Tally Posts ≤ 2 live, each showing the best fish there |
+| W5 | world | conditions: 3 archetypes × 4 lake presets (particles, fog, uniforms), no geometry movement | M | D3 | `debug.condition(id)` shows each preset in each lake; ≤ 4 calls; no mesh moves |
+| W6 | world | Moonfall (shaft swing, `uClear` discs, the Ferry-Market floor painting) | M | Wa3, F9 | Moonfall fires at 25% and 70% of the calm for 20 s (30 s in Moonmist) and shows 3–5 pre-rolled fish, one Prize+ guaranteed |
+| A5 | actors / models | `raft.freeze()` and `merchant.freeze()` (≈ 26 → 8 and → 4 calls): at home, and in lakes whenever moored with the Wick > 12 m away | S | — | draw calls drop by the stated amounts when frozen and return on unfreeze with no pop |
+| A8 | actors / models | `sturgeon` shape, `marks` pattern, barbel and needle-snout flags | M | — | the Bridgechain Sturgeon, Old Portcullis and a `marks` fish render with their traits in a catch close-up |
+| F8 | fishing | near-miss data; Marked Fish (the `wounded` rule; ≤ 6 in meta; resident behaviour at their place) | S | Pg3 (meta) | an escaped Trophy+ becomes a Marked Fish at its place with its z; its next fight starts at `min(0.3, 0.5 × P_escape)`; a seventh replaces the oldest |
+| F9 | fishing | the pre-rolled fish primitive (decals on top of the water); rules `sight` and `drift`; **persistent residents** (N(1.6, 0.6) truncated at 1.88; re-roll on landing or after 3 in-lake days); `holdsGiants` | M | D3 | 10,000 resident rolls give Elder 12.4% ± 1 and Ancient 1.1% ± 0.3; a resident shows twice in each calm, once at dusk and once at night (+1 calm show per dawn out, cap +3); `sight` bites in 2–4 s within 1.2 m; `drift` adds +0.08 rarity per seam |
+| Pg3 (P2) | progression | meta: residents and Marked Fish | M | — | residents and Marked Fish survive a reload and a death; the Map Table data lists them |
+| Pg9 | progression | persistent places, Tally records, rumours, today's rumour, forecasts | M | D3 | today's rumour is the same all day (real date) and always names a giant place; Murk gives one rumour per visit when you sell; tomorrow's condition is announced at dawn |
+| U4 | ui | near-miss card (with the tackle rating) | S | F8 | every Prize+ escape shows silhouette, class, length ±8%, % landed, cause, rating and one tip |
+| U11 (P2) | ui | Places page and rumours | M | Pg9 | the Journal's Places page fills on discovery; a pinned rumour shows an edge marker |
+| Au3 | audio | condition loops, sign sounds (a panned strike slap), Moonfall shimmer, place beacons (≤ 2 live) | S | — | a strike splash off-screen pans to its side; ≤ 2 beacons play at once |
+
+#### 25.14.4 P3 work list: expeditions and the Landing
+
+| id | module | item | effort | depends on | acceptance test |
+|---|---|---|---|---|---|
+| D2 | data.js | `TACKLE`, `OUTFIT`, `LURES`, `COVE` (arena, walk, palette, grade, wall wings, growth table), `BALANCE.farWater`, `liveWell`, relic shelves, 48 `CHALLENGES`, Ledger templates, the tally, the Quayling and Wanderers (→ 47), `tackleRating`; §24's place data ▲ (giant places, `sight`, `maxClass`, `watch` candles) | M | — | validate-data: catalogues 18,610 / 3,680 / 1,710; every wall wing packs in 12 × 3.6 m; `COVE.walk` passes §24's reachability, enclosure and 14 m south rules; each Homeward stone ≥ 25 m of path from spawn |
+| T2 (P3) | tools | validate the cove walk, the wall packing, the Homeward stones, the watch lamps (two per lake) | S | D2 | seeded bad data (a Homeward stone 20 m from spawn, an oversize wing) fails |
+| T1 (P3) | tools | the runner in `tools/sim/reel-v3.mjs` before its code | M | — | Velvet Ray and Pilgrim Salmon land rates on T1–T3 inside §25.6.9's bands; Keeper rares for novices move toward 85% |
+| T3 | tools | `balance-sim`: expedition and economy model with Still / Lantern / Gloomtide profiles (Shells/h, Memories/h, snuff rate by expedition length, fight share, the tackle timeline, Far Water, the value factor per lake, the **shortest profitable loop**) | L | D2 | snuffed ≤ 3% (home by day 3) and 6–10% (past day 4) in Still, Lantern +2; median expedition 3–5 days; ≥ 25% of expeditions end on Murk's barge; Memories/h 120–180 with Still within 15%; no loop > 1.5× median |
+| T4 | tools | perf scenario `cove` (≤ 140 / ≤ 100 calls), the hue report on Landing shots including Murk's barge, a phone-portrait screenshot | S | W2 | `tools/perf.mjs --scenario cove` reports ≤ 140 high / ≤ 100 low with pond, lower wall and arch in one view |
+| T5 (P3) | tools | the pacing sim on all lakes | M | D3 | §25.9.5 targets (species 44 by h12, all 29 places by h14, first headline Elder h6–10, first Ancient h12+) |
+| T6 | tools | perf scenario night on foot (Pallid, Lantern swarm, Tally Posts, the wow event): ≤ 150 calls | S | W7 or a stub | ≤ 150 calls on high with a stubbed or real Candle Tide |
+| R3 | render | `cove`, `gate`, `wall`, `hang`, `pond`, `setout` modes; `title` orbits the cove; phone-portrait check of arch visibility | S | W2 | each mode's numbers match §25.4.5; from the quay the stones and hung legends are on screen at 960×540 and in portrait |
+| Wa5 | water | **pond pass**: `uPondHole` discard in the lake shader, floor-painting disc at y −0.7, transparent pond surface drawn after the pond fish (+2 calls) | S | W2 | pond fish are visible through the pond surface from the `pond` camera; outside the disc the lake renders as before |
+| Wa6 | water | `applyZonePalette` resolves `COVE` on `zone:change {hub:true}` (no `ZONES[0]` fallback) | S | D2 | the cove's water uses `COVE.palette` (fog #1d2230, water #1a1f2c); no Mossmere colour leaks |
+| W2 | world | **COVE builder**: `world.setZone('cove')` resolves `COVE` (R 42, the channel `shoreNotch`); quay, galleries, ramp and stair from the walk-shape extrusion; the two walls and the frame atlas; the new sea-gate arch (`taperTube`); 4 new Waystones (per-stone emissive); instanced lamps, candles and shrine lanterns; hearth, bench, table, lectern, boards, the chart material; pond rim; keepsakes. Budget §25.4.7. | L | §24 foot core, Wa5, A4 | the cove builds in ≤ 150 ms desktop / ≤ 600 ms phone; every element at its §25.4.1 position; draw calls inside §25.4.7 |
+| W3 | world | Landing growth states from meta flags (visibility and emissive only: frames, wings, sailcloth, stair, lanterns, keepsakes) | M | Pg3 | seeded metas (start, one Waystone lit, all lit, the Lantern-Swallower landed) show the §25.4.4 states; nothing is rebuilt except the mount batch |
+| A4 | actors / models | **`models.buildMountBatch(entries)`**: frozen mounting pose; body and emissive atlases, fins on the shared atlas with vertex colours, one translucent material, bones and outline, per-fish outline thickness attribute, instanced lure glows; LOD ≤ 600 triangles beyond 12 m; ≈ 9–12 calls | M | A1 | 48 mounts + 4 legends draw in ≤ 12 calls; rebuilt only on Homecoming or Swap; a second atlas page past 32 skins |
+| A6 | actors / models | `actors.pond`: up to 6 fish (≤ 1.4 m) on looping paths inside the pond hole (2 live on low, the rest resting in the batch) | M | A1, A4, Wa5 | 6 fish swim on high, 2 on low; none leaves the hole; a 1.5 m fish is refused for the pond |
+| A7 | actors / models | dozing Wicks: one merged static silhouette | S | — | unlocked Wicks appear by the hearth in 2 calls |
+| F10 (P3) | fishing | the runner surge kind | M | T1 | the line-hiss tell 0.8 s before each run; holding drives drag slip; releasing loses progress at 0.05·pw/LS per s; "it turns" gives 2 s of × 1.5 progress; Spooled when progress hits 0 |
+| F12 | fishing | cove fishing: the Quayling pool, the test-buoy practice fight, no sale | S | S4 | a jetty cast lands a Quayling (never above Keeper, never sellable); a test-buoy cast runs a fixed-pull fight with no rewards |
+| S4 | player / survival | hub mode (no clock or drains), foot movement, tap-to-walk, station pills, spawn at the hearth or jetty by `from` | M | §24 foot core | in the hub oil and satiety never change; tap a station glyph and the Wick walks there (≤ ≈ 5 s from the hearth); spawn at the hearth after `boot` / `snuffed`, on the jetty after `home` / `title` |
+| S5 | player / survival | Homeward Waystone (≥ 25 m from spawn) and Ride home; gate passage within an expedition; the crossing tally rule | S | Pg2 | a 1 s hold within 4 m at calm returns home; refused at dusk and night; a gate crossing pays +10 tally only after a full calm in the new lake |
+| S7 | player / survival | **Far Water** (favour, resident shows, Murk's odd days, oil price, rendered oil, night burn) and the **Live Well clock** | M | Pg2 | days 2–6 apply the §25.3.3 table exactly; a fish marked on night 1 with Creel T0 is released at the dawn after night 3 |
+| S8 | player / survival | save and restore `run.pos`, oil and the phase clock on autosave, phase change, `visibilitychange` and `pagehide`; snap with `walkGridFor`; guttering or 0 oil → Snuffed on load | S | Pg2 | reload mid-calm resumes within ≤ 30 s of position and clock; reload while guttering resolves as Snuffed at the hearth |
+| C5 | combat | off in the hub; The Long Descent = Gloomtide + per-run UPGRADES + its own purse | S | Pg8 | no spawns, aura or Cinders in the hub; a Long Descent run uses today's phases and Heat |
+| C6 (P3) | combat | Heat arrival offsets, deep-start picks, Draft levels non-Angler | S | C1 | a Gloomtide Pallid start faces Heat ≥ 18 on night 1; a Glasswater start banks 6 picks; Draft offers contain no Angler boon |
+| Pg3 (P3) | progression | meta: shells, tackle, outfit, lures, mounts, pond, Landing flags, Waystones, shortcuts, Elder Log, places, Ledger; **save migration** (keep the Journal and records; refund cut relics; rename `pale_leviathan` → `lantern_swallower` and `pale_marrow` → `last_candle`; welcome purse 200 Shells; a run in progress ends at the next title as a "return home") | M | — | a v1 and a v2 save load: Journal, records, relics, Wicks and challenges kept; Old Debt and Waystone relic Memories refunded; 200 Shells added once; the old run becomes a return home |
+| Pg2 | progression | **expedition lifecycle**: `createExpedition`, First Outing, Set Out, Homecoming, Snuffed summary, gate passage, tally rules; event order per CONTRACT §13.4 | L | Pg3, S4 | the CONTRACT §13.4 event order holds for Set Out, return home, Snuffed, Scorched and Continue (bus trace in `tools/scenario-run.mjs`); a snuff loses the creel, fish marked for home and half the tally, nothing else |
+| Pg4 | progression | tackle tiers and outfit, proof catches, `BALANCE.tackleRating` | M | T1 | T2 is refused until a Mossmere Prize is measured; the rating shown matches `tackleRating` for the fitted loadout |
+| Pg5 | progression | Murk's 3-slot Ledger (refresh per completed in-lake day); in-lake bounties re-weighted (combat templates by mode) | M | — | three requests persist across expeditions and a snuff; one refreshes per completed in-lake day; no combat request in Still |
+| Pg6 | progression | 48 challenges, rewrites, the Gloom tab (9) | M | — | `getChallenges()` returns 48 with tabs Fishing / Paths / The Measure / Gloom; Gloom-tab rewards are combat-only |
+| Pg7 | progression | relic shelves (× 0.55 fishing, × 0.7 Gloom), new relics, lantern count from data, `memMult` on the tally only | S | — | shelf costs are the old costs × 0.55 / × 0.7 (rounded); the Shrine lantern count equals total relic levels in data |
+| Pg8 | progression | The Long Descent | S | Pg2 | unlocks with four Waystones; starts with 20 Shells and the twig rod; persistent Shells unchanged by it; victory adds +200 Memories once and hangs the Lantern-Swallower |
+| U5 | ui | hub HUD (Shells, Memories), the station pill, tap-to-walk glyphs | M | S4 | pills ≥ 56 px; the lake HUD is hidden in the hub |
+| U6 | ui | **Set Out** screen (First Outing card; modes from the 2nd expedition) | M | Pg2 | expedition 1 shows only the First Outing card; expedition 2 shows three mode cards with Lantern preselected, the forecast, today's rumour and the tackle rating |
+| U7 | ui | **Tackle** screen (tiers, outfit, tackle rating per lake) | M | Pg4 | buying and fitting update the bench models and the rating; proof status is shown per tier |
+| U8 | ui | Homecoming and Snuffed summaries; mount and pond dialogs | M | Pg2 | Homecoming hangs biggest first and asks before replacing a better mount; the Snuffed summary lists kept and sunk items |
+| U9 | ui | Journal: ruler, seal grid, best setup, Elder Log, field notes, mount book | M | Pg1 | the seal grid shows 144 + 4 slots; the ruler shows the last 12 catches and the dotted "said to reach" after a Trophy |
+| U10 | ui | the title as the boot overlay over the cove; pause quick links | S | R3 | boot shows Begin / Continue / Settings over the cove orbit; pause lists every station screen |
+| U11 (P3) | ui | the Chart at the Map Table | M | Pg9 | the chart shows the lake outline, discovered places, residents, Marked Fish, rumour marks and best fish per place |
+| U15 | ui | HUD: Far Water ◆ gauge, the Homeward stone's distance, Live Well nights | S | S7 | from day 2 the gauge and distance show beside the oil; each Live Well fish shows nights left |
+| Au2 | audio | cove ambience (hearth, lapping water, far bell, harp motif), Homecoming and mount stings; no `descend` sting on hub transitions | S | — | entering the cove never plays `descend`; Set Out plays `setout` |
+
+#### 25.14.5 P4 work list: wonder and depth
+
+| id | module | item | effort | depends on | acceptance test |
+|---|---|---|---|---|---|
+| D4 | data.js | species → 53; secrets; Found Relics; Vistas | M | §24 owner | validate-data: 53 species; legend rule holds with Candlewake (850 vs 370 = 2.30×); every secret has a clue and a reward |
+| T1 (P4) | tools | the sulker in `tools/sim/reel-v3.mjs` before its code; retune the Blind Scrivener's Elder and the Lampwarden | M | — | Blind Scrivener Elder on T4 and Lampwarden Trophy on T4 inside §25.6.9's bands |
+| T2 (P4) | tools | validate secrets, Found Relic gates, Vistas, the P4 species' places and conditions | S | D4 | seeded bad data (a secret with no clue) fails |
+| F10 (P4) | fishing | the sulker surge kind (pump) | M | T1 | every 10–14 s a 4–6 s × √g sulk with a ◆ glyph; holding gains nothing; each lift after a ≥ 0.3 s release gives +0.04·RS/√g |
+| F11 | fishing | legend growth (+7% per landing, cap × 1.5) | S | Pg3 | each rematch landing weighs 7% more, capped at × 1.5; the growth line is recorded |
+| R4 | render | `vista` mode (raise the lantern) | S | — | a 1.5 s hold at a vista stand plays the sweep; places in line of sight get "?" on the chart |
+| W7 | world | The Bloom, The Alignment, The Candle Tide (one per lake, ≤ 1 call each) | L | Wa3 | each fires on its schedule with ≤ 1 call; 600 (200 on low) candle-rafts |
+| W8 | world | secrets (`shoreNotch`, §24 `needs` shapes), 12 Remnants | M | §24 owner | each secret opens only with its Found Relic or note; Remnants give a vignette and a rumour |
+| A9 | actors / models | age marks on 10 headline species | M | A1 | each of the 10 shows its detail growing from Keeper to Elder |
+| Pg10 | progression | Found Relics; the Chart's fog mask | M | W8 | a 64×64 fog mask per lake inks live as you move and persists; Found Relics show as owned in the Shrine |
+| U12 | ui | postcard catch card (landmark strip) | S | — | the card paints the place's landmark strip behind the fish plate |
+
+The six P4 species (Nightbloom Carp, The Remembered Sun, Vesper Gar, The Sexton, Candlewake Sturgeon, The Namesake) are data plus models (D4, A8) on existing places.
+
+#### 25.14.6 External dependencies
+
+§24's foot core (`walkGridFor`, `world.moveFoot`, the player foot state, walk camera, board / ashore) for S4 and W2 (fallback: Landing v0, §25.4.7) · §24's lake builds for every non-Mossmere place change · the palette rework for lake palettes (Murk's recolour is A10 here).
+
+### 25.15 Risks, cuts and originality
+
+#### 25.15.1 Risks
+
+| risk | mitigation |
+|---|---|
+| §24's foot controller lands late, and the Landing cannot be walked | Landing v0 (raft-and-quay, the same assets). The Landing is also the simplest first consumer of §24's controller, so integrate it there first. P1 and P2 do not depend on §24 at all. |
+| Scope: 53 species, 29 places, 4 wow happenings, the cove | Phasing. **P1 + P2 deliver request 5 inside today's run structure**; **P3 delivers the expeditions-and-home decision**; P4 is content on a working loop. |
+| Landing draw calls (pond, wall and arch in one view) | The mount batch (A4) is the linchpin, so measure it in week 1 of P3. Fallback: the 12 nearest mounts in 3D, the rest as painted plates in the frame atlas. |
+| The pond pass misbehaves on some GPUs (discard in the lake shader) | The alternative is ready: draw pond fish after the water with depth test off, clipped to the pond disc, with a depth tint via `onBeforeCompile`. |
+| True scale makes small fish hard to read in the water | Splash and wake by length, bite tells, the `trophy` camera, the palm pose, the float's favour; a phone QA pass in P1 |
+| The lower camera hurts cast-distance judgement on phones | Phone QA in P1; fallback fish preset 30° / 13.5 m; the depth reticle and range ring stay |
+| Steeper Elders feel unfair on arrival tackle | The bite tell (water dome) and the tackle rating warn first; *let it pass* keeps the bait; an escaped Elder becomes a Marked Fish that comes back weakened; commons and uncommons stay landable as Elders early |
+| Far Water and the Live Well read as punishment | Both are shown on the HUD from day 2, the reward side is shown first (favour, resident shows), and the knobs are data (`BALANCE.farWater`, `liveWell`) with T3 targets |
+| Persistent Shells inflate | Tackle 18,610 + outfit 3,680 + lures, tolls, pond and legend baits (28,240) meet income at ≈ h16.7 (§25.10.2); a post-game cosmetic shelf; T3 owns the numbers |
+| Gloomtide balance drifts with persistence | Heat arrival offsets, Draft levels non-Angler, the creel range equals today's, combat kit stays per expedition, The Long Descent has its own purse and ignores persistent tackle |
+| Drift toward Dredge (home port, sell, night danger, lose cargo, encyclopedia) | Selling is *not* why you go home (Murk buys in every lake). Home is a walkable cove of mounts at true size and living fish. No grid, no aberrant fish or morphs, no panic or sanity, no spoilage or value decay (the Live Well limits nights for a living fish). Size classes, the measuring ceremony, on-foot places, legend boss fights, run Boons and lantern oil as light come first. |
+| The snuff sting is too soft or too harsh | Knobs: the tally loss (0.5), loss of fish marked for home (100%), Live Well nights, Far Water costs |
+| Lantern as default annoys players who want calm | The First Outing is all still; one constant flips the default to Still (Q1) |
+| Save migration for current players | Keep the Journal, records, relics, Wicks and challenges; refund cut relics; renames mapped; a 200-Shell welcome purse; the current run ends at the next title as a "return home" |
+| Novice Keeper rares stay too easy until P3 and P4 (sim) | Runner in P3, sulker in P4, both simulated first; until then the challenge sits on Prize+ as designed |
+| Tone of mounting fish in a tender world | Mounts are framed as keeping a memory (a candle under each frame, plaques with the Wick's name); a "likeness" fiction is a writing choice, not a system change |
+
+#### 25.15.2 Already cut (decided)
+
+Morphs (all 56) · geometry-moving weather (Highwater, The Low Breath, the Belfry lift) · the mid-fight drag dial · rod sweep · divers and snags · the cut-line button · count-down sink rigs · the net ring QTE (and the sim's net check) · pointer-target scatter casting · lure sizes and diet tags · the Live Fry well · Lamp Moths · moth fall · the thrasher head-shake · Gloom-fed and Ashwick's best-of-3 · approach shadows on every bite · the "Raise Lantern to reveal shadows" verb · the taxidermy fee · a Homecoming currency · Grand Astir · Waystone relics and Murk's Old Debt · per-expedition outfit purchases · line snaps and hooked theft in Lantern · the Bell-Chapel tackle gate · sit-and-sketch Vistas · the Wishing Font · the Moon-Eyed Koi · the Grey Stilt guide and the ambient-life set (optional later) · 40 rumours (now ≈ 24) · 36 commissions (now 3 Ledger slots) · satiety starvation · the feeding-spot mote columns · the Mossmere's "drowned high street" imagery (fountain, street lamp-posts), the Weeping Curtain and rain as its identity · the name "the Pale Leviathan".
+
+#### 25.15.3 Originality guardrails (add to §22)
+
+- **Hollow Knight:** the mood only (ink, rim light, silhouettes, melancholy). No rest-point map updating, no buying maps, no sit-and-sketch ritual (the Vista is *raising the lantern*; the Chart inks live). The Mossmere is a **drowned ferry harbour** (rust, iron, barges, a toll-gate, buoy-lanterns), not a rain-soaked city: no fountain, no street lamp-posts, no perpetual rain as a lake's identity (Drip is one condition every lake can roll). No "Pale + noun" names (the finale is the Lantern-Swallower), no masks, no "Archives". Avoid "bottled light" phrasing in new text.
+- **Dredge:** no grid cargo, no mutated or aberrant fish (morphs cut), no panic or sanity meter, no spoilage or value decay, and Murk is never called a "collector". Drowned Marrow → Last Candle ("Marrow" echoes Dredge's home-port names now that we too have a home).
+- **Real fishing games:** no bronze / silver / gold / diamond medal ladder (our seals are an ink stamp, oxblood wax and black wax with a ribbon), no per-species leucistic or melanistic morph checklist, and shadow-picking is never the main loop (blind casting plus signs and the float's favour is). The Live Well and drag presets are genre conventions.
+
+#### 25.15.4 Cut order if the schedule slips, and the never-cut list
+
+**Cut in this order:** 1. Remnants · 2. Vistas · 3. the Chart's fog (keep the static chart) · 4. secrets and Found Relics (and the Underdepth) · 5. The Candle Tide, The Alignment, The Bloom (Moonfall stays) · 6. the six P4 species (Nightbloom Carp, The Remembered Sun, Vesper Gar, The Sexton, Candlewake Sturgeon, The Namesake; if Candlewake goes, the Unpaid Fare moves to σ 0.16 as the Pallid's second giant-tail species) · 7. age marks · 8. the sulker (size scaling and old tricks still carry Glasswater) · 9. the pond's tier-3 floor painting · 10. today's rumour · 11. legend growth.
+
+**Never cut:** **the Mossmere's places and giants** (P2, including Moonfall and persistent residents); all of P1, including the float's favour and the steeper Elders; the size model and the ceremony; the Landing's core (Long Wall frames, keep-pond and its pond pass, Map Table, Gear Bench, Murk, raft, sea-gate, jetty casting); Far Water and the Live Well; night modes and the hard rule; the runner.
 
 ---
 
