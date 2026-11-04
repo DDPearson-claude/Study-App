@@ -148,7 +148,7 @@ export function domeMaterial() {
         #include <tonemapping_fragment>
         #include <colorspace_fragment>
       }`,
-    side: THREE.BackSide, depthWrite: false, fog: false,
+    side: THREE.BackSide, depthWrite: true, fog: false,
   });
 }
 
