@@ -255,6 +255,11 @@ export default async function (api) {
 
   // ------------------------------------------------------------------ pause
   step('pause');
+  // the catch kept across the reload can leave a level-up pending (it depends on the fish's XP):
+  // the picker follows combat's pending pick and would reopen over closeAll() and take the Esc,
+  // so pick through it first, as a player would
+  await frames(4);
+  await pickAllLevelUps();
   await g(() => { if (window.__gw.ui.isBlocking()) window.__gw.ui.closeAll(); });
   await frames(2);
   await page.keyboard.press('Escape');
