@@ -3,6 +3,7 @@
 // boon icons, the crescent day/phase clock, Shells / creel / bait, action buttons, the
 // touch joystick, off-screen edge markers and the fishing gauges. Imported only by ui.js.
 import * as THREE from 'three';
+import { drawFish } from './ui-fishart.js';
 
 const PHASES = ['calm', 'dusk', 'gloomtide', 'dawn'];
 const DEG = Math.PI / 180;
@@ -73,6 +74,8 @@ export function createHud(K) {
       <path class="gw-glass-bars" d="M30.5 40v62M49.5 40v62"/>
       <g class="gw-cracks"><path d="M24 52l6 5-2 6 5 4"/><path d="M56 60l-5 3 1 6-4 3"/><path d="M33 98l3-6 5 1 2-5"/></g>
       <path class="gw-lan-base" d="M22 102h36l4 9H18z"/><path class="gw-lan-foot" d="M20 111h40l-4 7H24z"/>
+      <path class="gw-lan-orn" d="M25 33c-6 0-8.5 3.5-6 7.5M55 33c6 0 8.5 3.5 6 7.5M18 111c-4.5 1.8-4.5 6.5 0 7.5M62 111c4.5 1.8 4.5 6.5 0 7.5M21 102c-3 -2 -3 -6 0 -8M59 102c3 -2 3 -6 0 -8"/>
+      <circle class="gw-lan-rivet" cx="31" cy="37" r="1"/><circle class="gw-lan-rivet" cx="40" cy="37" r="1"/><circle class="gw-lan-rivet" cx="49" cy="37" r="1"/>
     </svg>
     <div class="gw-oil-n" title="Lantern oil">100</div>
     <div class="gw-sat-n" title="Satiety">100</div>
@@ -80,8 +83,8 @@ export function createHud(K) {
   <div class="gw-actions">
     <button class="gw-pill" type="button"><span class="gw-pill-ico"></span><span class="gw-pill-label">Trade</span><kbd>E</kbd></button>
     <div class="gw-act-row">
-      <button class="gw-burn" type="button" aria-label="Burn a fish (R)">${icon('brazier', { cls: 'gw-burn-ico' })}<span class="gw-burn-label">Burn</span><kbd>R</kbd></button>
-      <button class="gw-flare" type="button" aria-label="Flare (Space)"><span class="gw-flare-ring"></span><span class="gw-flare-core">${icon('flare')}</span><span class="gw-flare-label">Flare</span><kbd>Space</kbd></button>
+      <button class="gw-burn" type="button" aria-label="Burn a fish (R)">${icon('brazier', { cls: 'gw-burn-ico' })}<canvas class="gw-burn-fish" width="44" height="24"></canvas><span class="gw-burn-label">Burn</span><kbd>R</kbd></button>
+      <button class="gw-flare" type="button" aria-label="Flare (Space)"><span class="gw-flare-ring"></span><span class="gw-flare-core">${icon('flare')}</span><span class="gw-flare-label">Flare</span><i class="gw-flare-charges"></i><kbd>Space</kbd></button>
     </div>
   </div>
   <div class="gw-joyzone"><div class="gw-joy-hint"></div><div class="gw-joy-base"><div class="gw-joy-knob"></div></div></div>
@@ -119,6 +122,7 @@ export function createHud(K) {
     bait: $('.gw-st-bait'), baitIco: $('.gw-bait-ico'), baitName: $('.gw-bait-name'), baitCount: $('.gw-bait-count'), streak: $('.gw-streak'),
     cluster: $('.gw-cluster'), embers: $('.gw-embers'), satFill: $('.gw-sat-fill'), satDrips: [...el.querySelectorAll('.gw-sat-drips path')],
     oil: $('.gw-oil'), lanFl: $('.gw-lan-fl'), lanGlow: $('.gw-lan-glow'), flrFill: $('.gw-flr-fill'), oilN: $('.gw-oil-n'), satN: $('.gw-sat-n'),
+    burnFish: $('.gw-burn-fish'), flareCharges: $('.gw-flare-charges'),
     pill: $('.gw-pill'), pillLabel: $('.gw-pill-label'), pillIco: $('.gw-pill-ico'), burn: $('.gw-burn'), burnLabel: $('.gw-burn-label'),
     flare: $('.gw-flare'), joyzone: $('.gw-joyzone'), joyBase: $('.gw-joy-base'), joyKnob: $('.gw-joy-knob'), joyHint: $('.gw-joy-hint'),
     markers: $('.gw-markers'), fishui: $('.gw-fishui'), charge: $('.gw-charge'), chargeF: $('.gw-charge .f'), chargeDepth: $('.gw-charge-depth'),
@@ -530,7 +534,9 @@ export function createHud(K) {
     // ---- flare ring + button
     const ready = Math.max(0, Math.min(1, num(safe(() => ctx.combat?.flareReady?.(), 1), 1)));
     const cost = stat('flareCost');
-    const canAfford = oil >= cost;
+    const charges = Math.max(0, Math.round(num(r.flags?.flareCharges, num(r.flareCharges, 0))));
+    const canAfford = oil >= cost || charges > 0;
+    setText(R.flareCharges, 'flC', charges ? `×${charges}` : '');
     const rq = q(ready, 100);
     setAttr(R.flrFill, 'flrF', 'stroke-dasharray', `${(rq * 100).toFixed(0)} 100`);
     toggle(R.cluster, 'cl', 'gw-flare-ready', ready >= 1 && canAfford);
@@ -542,6 +548,12 @@ export function createHud(K) {
     const bf = K.burnable();
     toggle(R.burn, 'bn', 'gw-disabled', !bf);
     const bOil = bf ? Math.round(num(bf.oil) * stat('oilYieldMult')) : 0;
+    const bKey = bf ? `${bf.uid}|${bf.speciesId}` : '';
+    if (last.get('bnF') !== bKey) {
+      last.set('bnF', bKey);
+      R.burn.classList.toggle('gw-has-fish', !!bf);
+      if (bf) { try { drawFish(R.burnFish, K.speciesData(bf.speciesId), { w: 44, h: 24, pad: 0.04 }); } catch { /* optional */ } }
+    }
     setText(R.burnLabel, 'bnL', bf ? `+${bOil}` : 'Burn');
     setAttr(R.burn, 'bnT', 'title', bf ? `Burn ${K.speciesData(bf.speciesId)?.name || 'a fish'} for +${bOil} oil (R)` : 'Burn a fish (R) — the creel is empty');
 
