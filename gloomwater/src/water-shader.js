@@ -86,7 +86,7 @@ varying vec3 vGradH;
 #else
 #define SL_LAYERS 2
 #endif
-#define SL_DV vec3(1.0, 0.55, 1.0)
+#define SL_DV vec3(1.0, 0.68, 1.0)
 #define SL_NEB_CHEAP 1
 ${STARLIGHT_GLSL}
 
@@ -397,7 +397,9 @@ void main() {
     float brk = smoothstep(0.06, 0.32, rip);
     vec3 skyR = slStars(Rs, spx, uTime, uStarDen * 0.6, uStarCol, slBand(Rs, uBandN)) * (uStars * 1.25 * brk);
 #ifndef GW_LOW
-    skyR += slNebula(Rs, uNeb1, uNeb2, uNeb, uNebV) * (uNebK * 0.9);
+    // the nebula sits low in the sky, so only the far (grazing) water mirrors it
+    float lowSky = 1.0 - smoothstep(0.12, 0.42, Rs.y);
+    if (lowSky > 0.01) skyR += slNebula(Rs, uNeb1, uNeb2, uNeb, uNebV) * (uNebK * 0.6 * lowSky);
 #endif
     col += skyR * starVis * mirror;
   }

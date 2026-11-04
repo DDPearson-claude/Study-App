@@ -458,9 +458,9 @@ export const ZONES = [
     drain: { oil: 1.65, satiety: 1.45 }, gloom: 1.4, valueMult: 3.0,
     legendary: 'pale_leviathan', warden: 'the_lightless_ferryman', gateName: null,
     // "Candle requiem" (DESIGN §19.6): near-black violet, bone-pale stone, amber candles, few stars
-    palette: { fog: 0x201a32, fogDensity: 0.022, water: 0x161226, waterDeep: 0x050409, foam: 0xe6e0d6,
-      glow: 0xf0b45e, accent: 0xe6e0d6, lamp: 0xc6c0d8, candle: 0xed9e3b, ambient: 0x3c3458, ink: 0x030206, far: 0xa69cc0, light: 0xece2d2,
-      nebula: 0xa87a98, stars: 0.6 },
+    palette: { fog: 0x241c3c, fogDensity: 0.022, water: 0x181430, waterDeep: 0x05040a, foam: 0xe6e0d6,
+      glow: 0xf0b45e, accent: 0xe6e0d6, lamp: 0xc6c0d8, candle: 0xed9e3b, ambient: 0x3e3660, ink: 0x030206, far: 0xa89ec8, light: 0xece2d2,
+      nebula: 0xa87a98, stars: 0.7 },
     grade: { exposure: 0.97, bloomStrength: 0.95, bloomRadius: 0.8, bloomThreshold: 0.7, tint: 0x3a2c60, tintAmount: 0.18, vignette: 0.5, saturation: 0.85, grain: 0.07 },
     description: 'The deepest water. The kingdom set its dead adrift here with a candle each, and the candles went out long ago. Two veiled giants kneel in the mist, and the ribs of something larger than a cathedral arch overhead. Something below is breathing.',
   },

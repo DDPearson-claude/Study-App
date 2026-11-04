@@ -198,7 +198,7 @@ export function create(ctx) {
     // starlight: brighter and denser as the night deepens, fading out into the dawn
     const stars = Number.isFinite(zc.stars) ? zc.stars : 1;
     env.starK = stars * (0.8 + 0.6 * n) * (1 - 0.7 * w) * (isTitle ? 1.1 : 1);
-    env.starDen = (0.65 + 0.35 * stars) * (1 + 0.4 * n) * (1 - 0.3 * w);
+    env.starDen = (0.65 + 0.35 * stars) * (1 + 0.28 * n) * (1 - 0.3 * w);
     env.nebK = (0.6 + 0.25 * n) * (1 - 0.55 * w);
     const s = scene();
     if (s) {
@@ -262,7 +262,8 @@ export function create(ctx) {
         skyCol.star.copy(zc.light).lerp(col.b.setRGB(0.86, 0.87, 1), 0.5);
         skyCol.neb.copy(zc.nebula);
         skyCol.nebV.copy(zc.far).lerp(zc.nebula, 0.25).multiplyScalar(0.55);
-        ctx.water.setSky({ stars: env.starK, density: env.starDen, color: skyCol.star, nebula: skyCol.neb, nebulaVeil: skyCol.nebV, nebulaK: env.nebK, neb1: arena.sky.neb1, neb2: arena.sky.neb2, band: arena.sky.band });
+        // the water's night stars brighten less than the vault's, so gloomling eyes stay the brightest specks on it
+        ctx.water.setSky({ stars: env.starK * (1 - 0.25 * mood.night), density: env.starDen, color: skyCol.star, nebula: skyCol.neb, nebulaVeil: skyCol.nebV, nebulaK: env.nebK, neb1: arena.sky.neb1, neb2: arena.sky.neb2, band: arena.sky.band });
       }
     } catch (e) { /* optional */ }
   }

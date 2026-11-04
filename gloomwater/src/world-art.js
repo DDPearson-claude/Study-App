@@ -21,15 +21,16 @@ const KIT = {
   paleabyss: { rock: 0x18161e, rockHi: 0x2c2a34, moss: 0x46424e, mossHi: 0x8a8494, wood: 0x221e22, stone: 0x7c7684, iron: 0x111014, bone: 0xddd4c4, organic: 0xd2c8b6 },
 };
 
-// Per-lake sky (DESIGN §19.2): nebula 1 low, just left of north where the camera looks, so its
-// glow spills behind the hero landmark's left flank and the title camera opens on it (azimuth from
-// north in radians, + = east; elevation; strength); nebula 2 higher on the other side. Glasswater
+// Per-lake sky (DESIGN §19.2): nebula 1 low, left of north (the title camera opens looking ~30° west
+// of north), so its glow spills behind the hero landmark's left flank and the far water mirrors it
+// at the left of the sail view (azimuth from north in radians, + = east; elevation; strength);
+// nebula 2 higher on the other side. Glasswater
 // has the most sky, the Pallid Deep the least (one dim ash-rose cloud).
 const SKY = {
-  mossmere: { az1: -0.35, el1: 0.16, w1: 0.95, az2: 0.75, el2: 0.48, w2: 0.4 },
-  sporewood: { az1: 0.2, el1: 0.2, w1: 1.25, az2: -0.8, el2: 0.42, w2: 0.7 },
-  glasswater: { az1: -0.3, el1: 0.2, w1: 0.95, az2: 0.8, el2: 0.52, w2: 0.85 },
-  paleabyss: { az1: -0.25, el1: 0.13, w1: 0.5, az2: 0.9, el2: 0.5, w2: 0.0 },
+  mossmere: { az1: -0.55, el1: 0.16, w1: 0.95, az2: 0.75, el2: 0.48, w2: 0.4 },
+  sporewood: { az1: -0.3, el1: 0.2, w1: 1.25, az2: 0.7, el2: 0.42, w2: 0.7 },
+  glasswater: { az1: -0.5, el1: 0.2, w1: 0.95, az2: 0.8, el2: 0.52, w2: 0.85 },
+  paleabyss: { az1: -0.45, el1: 0.13, w1: 0.5, az2: 0.9, el2: 0.5, w2: 0.0 },
 };
 
 export function domeY(L, r) {
