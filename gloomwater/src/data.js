@@ -2620,6 +2620,12 @@ export function walkGridFor(zoneOrId, opts = {}) {
 // camera mode, COVE export) and `hub:enter` (event), because `landing` is a fishing state.
 // =====================================================================================
 export const V3_ENABLED = globalThis.GW_V3 === true;
+// Which phase's data a v3 build carries (DESIGN §25.14.1, CONTRACT §13.0): 1 the feel shift · 2 the Mossmere's places
+// and giants · 3 expeditions and the Landing · 4 wonder and depth. Set `globalThis.GW_V3_PHASE` (1–4) before this
+// module evaluates; the default 4 carries everything, so tools see the whole design. Each phase's build sets it.
+export const V3_PHASE = Math.max(1, Math.min(4, Math.floor(Number(globalThis.GW_V3_PHASE ?? 4)) || 4));
+// BALANCE_V3 blocks that join BALANCE after P1 (every other block lands with P1's code; validated per phase).
+export const V3_BLOCK_PHASE = { residents: 2, markedFish: 2, farWater: 3, liveWell: 3 };
 
 const v3clone = (o) => JSON.parse(JSON.stringify(o));
 const v3r = (v, d = 2) => Math.round(v * 10 ** d) / 10 ** d;
@@ -2659,7 +2665,9 @@ export const BALANCE_V3 = {
     legend: { sigma: 0.02, minRatio: 1.4, growthWeight: 0.07, growthLength: 0.023, growthCap: 1.5 },   // authored; ≥ 1.4× the lake's longest reach; +7% per landing, cap × 1.5 weight
     // value / food / oil from z (brief §6.2): value = round(species.value × factor × clamp(e^(perZ·z)) × classBonus × QUALITY.valueMult × streak)
     value: { factor: 0.66, perZ: 0.45, clamp: [0.6, 6], classBonus: { trophy: 1.25, elder: 1.6 } },
-    yield: { perZ: 0.3, clamp: [0.7, 2.5] },                              // food / oil × clamp(e^(0.3z)) × QUALITY.yieldMult (× Far Water on rendered oil)
+    // food / oil = species.food|oil × factor × clamp(e^(0.3z)) × QUALITY.yieldMult (× Far Water on rendered oil). factor = sizeKMean /
+    // mix (0.942 / 1.201) keeps the average yield at today's (a Mossmere common renders ≈ 17 oil, brief §3.4; validated from the mix).
+    yield: { perZ: 0.3, clamp: [0.7, 2.5], factor: 0.784, mix: 1.201 },
     valueMix: { mu: [[0, 0.25], [0.3, 0.3], [0.6, 0.25], [1.0, 0.15], [1.5, 0.05]], giantShare: 1 / 3, sizeKMean: 0.942, multiplier: 1.428 },   // the normaliser behind 0.66 (roster-v3)
     // size → fight (brief §5.5), applied to species.difficulty BEFORE createReel; g = e^(gPerZ · z)
     fight: {
@@ -2676,7 +2684,16 @@ export const BALANCE_V3 = {
       fatigue: { after: 60, perS: 0.01, floor: 0.6, elderFloor: 0.8 },    // non-legendaries: power × max(floor, 1 − perS·(t − after))
       oldTrick: { at: 0.55, warnMult: 0.6, powerMult: 1.3, secondAfter: 0.9, mixedRead: true,   // every Elder, once, when progress first passes 55%
         byStyle: { runner: 'doubleRun', darter: 'doubleRun', sinker: 'sulk', sulker: 'sulk', leaper: 'secondLeap', thrasher: 'bore', steady: 'bore' } },
-      targets: { elderMedian: 120, ancientMedian: 180 },                  // s on a phone, full tackle (T1 targets)
+      // s on a phone, full tackle (T1 targets). "Ancients ≈ 3 min" is checked as median ≤ 180 × 1.15 (T4, skilled) with < 2%
+      // time-outs for every species that can be an Elder (validated at k 160); knownGaps are the brief's own gaps, retuned with
+      // their verbs (the runner P3, the sulker P4) or kept as an Ancient wall by the brief's own table.
+      targets: { elderMedian: 120, ancientMedian: 180, ancientTolerance: 1.15, maxTimeouts: 0.02,
+        knownGaps: { blind_scrivener: 'sulker (P4)', the_footnote: 'sulker (P4)', the_unpaid_fare: 'sulker (P4)', candlewake_sturgeon: 'runner (P3), retuned in P4',
+          shardspine_eel: 'the brief\'s reel-v3-elders table: T4 Elder 60 / Ancient 1 (an Ancient wall by design)' } },
+      // Drag (every fight from T0; the sims' land rates depend on it): while tension T > dragAt and rising, the reel absorbs
+      // dT × absorb (Reel tier) and progress slips slipPerAbsorb per unit absorbed. Spooled = progress 0 with cumulative slip
+      // > 0.5, any species (the runner only makes it likelier). dragAt = the fitted preset (Set 0.80 below Reel T2).
+      drag: { from: 'TACKLE.drag', slipPerAbsorb: 0.08, spooled: { progress: 0, slip: 0.5, species: 'any' } },
       // fight verbs, one per lake (P3 runner, P4 sulker; simulated in tools/sim/reel-v3.mjs before their code)
       runner: { hissTell: 0.8, runTime: 'surgeTime × 2√g', holdTMult: 1.8, releaseLossPerS: 0.05, turnTime: 2, turnMult: 1.5, phase: 3 },
       sulker: { every: [10, 14], time: [4, 6], holdCreep: 0.3, minRelease: 0.3, liftGain: 0.04, phase: 4 },
@@ -2696,6 +2713,12 @@ export const BALANCE_V3 = {
       depthLowerThird: 0.25, cleanCast: 0.1 },
     signs: { strike: 0.6, nervous: 0.3, bubbles: 0.2, letItPass: 0.15, letItPassCap: 0.3 },
     pressure: { perCatch: -0.12, floor: -0.6, quietAt: -0.36, reset: 'dawn' },   // "The water here has gone quiet." at 3 catches
+    // The float is shown before the bite, so it must not leak the rolled species: its μ = the species-independent terms
+    // (place, hour incl. Far Water and Hush, signs, pressure, Clean Cast, a bait's or lure's base term) + each species-specific
+    // term (depth lower third, family lures, Cut Strip, Match condition, today's rumour) taken as the maximum over the bait's
+    // eligible pool at that point; a pinned rumour's species (or today's rumour species) is used instead when it is eligible
+    // there. The roll then uses the full μ of the rolled species; the measuring card lists the terms that actually applied.
+    float: { speciesTerms: 'maxOverEligible', prefer: ['pinnedRumour', 'todaysRumour'], card: 'rolledSpeciesTerms' },
     examples: [                                                           // validated against the notches and the class odds (brief §5.1, §6.1, §2)
       { name: 'decent', terms: [0.15, 0.2, 0.2], mu: 0.55, notches: 2 },
       { name: 'first Prize at the Cupped Hands', terms: [0.15, 0.4], mu: 0.55, notches: 2 },
@@ -2723,7 +2746,9 @@ export const BALANCE_V3 = {
   bite: {
     dragUnder: 0.4,                                   // Prize: a slow 0.4 s drag-under before the "!"
     holdMultFrom: 'prize', holdMult: 1.1,             // Prize+ fish hold the bait 10% longer
-    letItPass: { favour: 0.15, cap: 0.3, resetAfter: 60, keepsBait: true },
+    // a lapsed bite (no hook attempt) refunds the cast's general bait (progression.refundBait) and adds +0.15 favour to the next
+    // cast in the same water (the same place, or within 6 m of the lapsed bobber), cap +0.3, reset on a hook or after 60 s
+    letItPass: { favour: 0.15, cap: 0.3, resetAfter: 60, keepsBait: 'refund', sameWater: { place: true, radius: 6 } },
     pips: { fromClass: 'prize', perfect: 3, normal: 2, rodBonusFrom: 3, lowTension: 0.15, legendaries: false },
     leapReveal: { fromClass: 'prize', time: 0.25, timescale: 0.35, rimFlash: true },
   },
@@ -2733,6 +2758,11 @@ export const BALANCE_V3 = {
     skipAfter: 0.6,
     beats: { scoop: [0, 0.6], pose: [0.6, 1.4], cord: [1.4, 2.8], banners: [2.8, 3.6] },
     poses: [{ id: 'palm', below: 0.25 }, { id: 'arms', below: 0.85 }, { id: 'hang', below: 2.0 }, { id: 'alongside', below: Infinity }],   // by length (m); legends always alongside
+    alongside: { foot: 'walksLength', raft: 'cordUnrolls' },              // on the raft (deck ≈ 2 × 2.6 m) the Wick stays on deck; the cord unrolls along the fish and the camera tracks it
+    // The ceremony is a cinematic state: gameplay modules freeze (survival's phase clock and drains, combat's enemies and
+    // director, fishing's bite timers) while actors, render, ui and audio run in real time. During an active swarm window every
+    // class plays the short 1.2 s variant so the arena is never hidden for long.
+    cinematic: { freezes: ['survival', 'combat', 'fishingTimers'], realTime: ['actors', 'render', 'ui', 'audio'], duringSwarm: 1.2 },
     wickHeight: 0.85,
     camera: { base: 1.2, perM: 1.6, min: 1.6, max: 16, craneAbove: 4, craneElev: 50 },   // trophy distance clamp(1.2 + 1.6·L, 1.6, 16) m
     ancientThread: 'gold', mmBelow: 20,                                  // lengths under 20 cm print in mm (the Cupbearer, the Quayling's fry)
@@ -2740,7 +2770,10 @@ export const BALANCE_V3 = {
   },
   records: {
     oldLedgerZ: 2.3, oldLedgerMemories: 5,            // a figure "since before the Fall" at mid-Trophy for every species
-    seals: { classes: ['prize', 'trophy', 'elder'], species: 48, total: 144, legend: 4 },
+    // 48 species × 3 classes, minus the Lampwarden's Elder seal (it caps at Trophy, brief §6.1, as the Quayling's Keeper cap
+    // drops its seals) = 143, plus 4 legend seals. Every other Elder seal has a route (validated: kept place with giantsKept, or a
+    // holdsGiants place whose water depth and hours the species can use).
+    seals: { classes: ['prize', 'trophy', 'elder'], species: 48, total: 143, legend: 4, noElder: ['lampwarden_angler'] },
     escapeEstimate: 0.08,
     tallyPosts: { live: 2, canvas: [128, 64] },
     elderLog: ['name', 'cm', 'kg', 'place', 'expedition', 'day', 'wick', 'ancient', 'lost'],
@@ -2799,7 +2832,10 @@ export const BALANCE_V3 = {
       window: [0.05, 0.50], quietTail: 45,                                 // night k 0.05 → 0.50 (40.5 s); the last 45 s are always quiet
       mult: { spawnRate: 0.55, hpMult: 0.8, maxAlive: 0.6, eliteEvery: 2 }, firstEliteHeat: 3, formationsPerSwarm: 1,
       wardens: { everySwarmNight: 2, hpMult: 0.75, withdrawAtClose: true }, calmRaids: false,
-      threat: { fodder: 'oil', creelsnatch: 'unmarkedOnly', whileHooked: false, slamSnaps: false, embersFrom: 'telegraphed' },
+      threat: { fodder: 'oil', creelsnatch: 'unmarkedOnly', whileHooked: false, slamSnaps: false, embersFrom: 'telegraphed',
+        // the hard rule, closed: while fishing.state is reeling or landing no knockback or shove moves the Wick or the raft,
+        // zap taps never release the reel, and a Scorched lets the fight finish before the forced lamp-watch anchors
+        knockWhileHooked: false, zapReleasesReel: false, scorchedWhileHooked: 'fightFirst' },
       embersZero: 'scorched', scorched: { oil: -30, lampWatchR: 10, cinders: false, mendAtDawn: true },
       snuffBy: ['oil'], heatOffset: [0, 2, 4, 6], xp: { fishMult: 1.0, zoneFactor: true, cinders: 'swarmNights' }, kindles: true,
       pool: 'all', anglerCap: 'still', reelingSpawnMult: 0.8,
@@ -2808,13 +2844,15 @@ export const BALANCE_V3 = {
     },
     gloomtide: {
       swarmNights: 'all', window: [0, 1], growth: 6, max: 120, mult: { spawnRate: 1, hpMult: 1, maxAlive: 1, eliteEvery: 1 },
-      wardens: { every: 3 }, calmRaids: true, threat: { slamSnaps: true, creelsnatch: 'any', whileHooked: true },
+      wardens: { every: 3 }, calmRaids: true, threat: { slamSnaps: true, creelsnatch: 'unmarked', whileHooked: true },   // a fish marked for home is theft-proof in every mode
       embersZero: 'snuffed', snuffBy: ['oil', 'embers'], heatOffset: [0, 4, 8, 12],
       xp: { fishMult: 1.0, zoneFactor: true, cinders: true }, kindles: true, pool: 'all', anglerCap: 'still',
       tally: { night: 'nightsSurvived × (3 + zoneIndex)' }, snuffTarget: { early: [0.25, 0.55], later: [0.2, 0.35] }, fightShare: [0.28, 0.32],
       hud: { ring: 'calmRaidOrDusk', embers: 'always', flare: 'always', burn: 'always', wellFed: true },
     },
-    lampWatch: { modes: ['lantern'], at: 'duskEnd', fishWithin: 10, cinders: false, hudFromMurkBell: 0.85, perLake: 2 },
+    // a watch lamp's pool is r 6; leaving it by more than 10 m during the night cancels the watch and the swarm window starts
+    // at the current k (a forced Scorched watch is anchored and cannot be left)
+    lampWatch: { modes: ['lantern'], at: 'duskEnd', radius: 6, fishWithin: 10, leaveCancels: 10, cinders: false, hudFromMurkBell: 0.85, perLake: 2 },
     legendQuiet: { glass_sovereign: 'noSpawns', lantern_swallower: { snags: 2, lead: 1.0, spike: 0.2 } },   // Still and Lantern
     hardRule: 'No species, place, size class, favour (μ) or fishing tool exists only with combat on.',
   },
@@ -2826,19 +2864,39 @@ export const BALANCE_V3 = {
     deepStartPicks: { sporewood: 3, glasswater: 6, paleabyss: 9 }, draftNonAngler: true,
   },
 
-  // ---- Cameras (brief §3.7.5, §11 row 19, render MODES): deg / m / m / deg.
+  // ---- Cameras in render's own convention (render.js MODES / PARAM_KEYS; brief §3.7.5, §11 row 19): the camera orbits the
+  // focus (the Wick's feet unless `focus` says otherwise) at `elev` degrees and `dist` metres, and looks at focus + aim metres
+  // along the view + aimY metres up, so the pitch is atan((dist·sin elev − aimY) / (dist·cos elev + aim)), not elev. Every
+  // preset carries all of elev, dist, aim, aimY, fov, ahead, stiff; `portrait` replaces render's v1 widening (fov + 22,
+  // dist × 1.38, elev + 7) on foot and in the cove, as §24.5 does; raft presets keep v1's widening.
   cameras: {
-    sail: { elev: 24, dist: 15, aimY: 1.4, fov: 52 },
-    fish: { elev: 28, dist: 13 }, fishFallback: { elev: 30, dist: 13.5 },
-    reel: { by: ['lineDistance', 'fightState'], neverBy: 'sizeClass' },
-    trophy: { base: 1.2, perM: 1.6, min: 1.6, max: 16, craneAbove: 4, craneElev: 50, yawTo: 'landmark' },
-    cove: { elev: 26, dist: 13.5, aimY: 2.4, fov: 50, portrait: { elevAdd: 7, fov: 60 } },
-    gate: { elev: 12, dist: 11, aimY: 5, within: 6 },
-    wall: { elev: 14, dist: 6, aimY: 'frameRow', fov: 46, within: 4 },
-    hang: { base: 1.2, perM: 1.6, min: 1.6, max: 7, then: 'wall' },
-    pond: { elev: 55, dist: 6, aimY: 0, fov: 44 },
-    setout: { elev: 10, dist: 14, aimY: 6 },
-    title: { orbit: true },
+    sail: { elev: 24, dist: 15, aim: 6.5, aimY: 1.4, fov: 52, ahead: 0.55, stiff: 3.6 },
+    fish: { elev: 28, dist: 13, aim: -2.5, aimY: 0.4, fov: 48, ahead: 0.1, stiff: 3.0 }, fishFallback: { elev: 30, dist: 13.5 },
+    reel: { elev: 25, dist: 10, aim: -3, aimY: 0.7, fov: 44, ahead: 0, stiff: 3.4, by: ['lineDistance', 'fightState'], neverBy: 'sizeClass' },
+    // the night overview (render MODES.night) blends in only while combat.swarmActive is true (a swarm window or a Gloomtide
+    // calm raid), never on the phase alone: Stillnights, Lantern's quiet nights and tail and lamp-watches keep sail / fish
+    // framings with the night grade, so true-scale fish and glow trails stay readable at the big-fish hour
+    night: { follows: 'swarmActive', blend: 1.6 },
+    // trophy: distance clamp(1.2 + 1.6·L, 1.6, 16) m, crane to 50° above 4 m; yaw swings toward the place's landmark by at
+    // most ±35° from north and eases back after the card. On foot the occlusion cone and terrain clamp stay on. No landmark
+    // (P1, or no place) → no yaw change.
+    trophy: { elev: 18, aim: 0, aimY: 0.6, fov: 44, ahead: 0, stiff: 2.4, base: 1.2, perM: 1.6, min: 1.6, max: 16, craneAbove: 4, craneElev: 50,
+      yawTo: 'landmarkOf(place)', yawMax: 35, onFoot: { occlusion: true, terrainClamp: true } },
+    // hub walk: camera 5.9 m above the Wick's feet and 12.1 m south; pitch ≈ 16°; top of frame ≈ 9° above horizontal
+    cove: { elev: 26, dist: 13.5, aim: 0, aimY: 2.4, fov: 50, ahead: 0.2, stiff: 2.6, portrait: { elev: 33, dist: 14, fov: 60 } },
+    // the arch close-up: only during the Set Out / Homecoming glides, or while the Wick stands at the look spot on the jetty
+    // root with no line out and the fishing state idle (never while fishing or boarding)
+    gate: { elev: 12, dist: 11, aim: 0, aimY: 5, fov: 50, ahead: 0, stiff: 2.0, portrait: { elev: 16, dist: 13, fov: 62 },
+      triggers: ['glide', 'lookSpot'], lookSpot: { x: -3.5, z: 2, r: 1.5 } },
+    // focus = the nearest wing's centre on its gallery floor; aimY = the wing's middle frame band (row 2) above that floor
+    wall: { elev: 14, dist: 6, aim: 0, aimY: 2.1, fov: 46, ahead: 0, stiff: 2.4, portrait: { elev: 18, dist: 7.5, fov: 60 }, focus: 'nearestWing', within: 4 },
+    // Homecoming close-up: focus = the frame's centre on the wall face (the Wick is placed at the wing's foot, never walked
+    // there); distance clamp(1.2 + 1.6·L, 1.6, 7) m; then a 1.2 s pull back to `wall`
+    hang: { elev: 10, aim: 0, aimY: 0, fov: 44, ahead: 0, stiff: 2.4, base: 1.2, perM: 1.6, min: 1.6, max: 7, then: 'wall', focus: 'frameCentre', wick: 'wingFoot' },
+    pond: { elev: 55, dist: 6, aim: 0, aimY: 0, fov: 44, ahead: 0, stiff: 2.4, portrait: { elev: 62, dist: 7, fov: 58 }, focus: 'pondCentreY0' },
+    setout: { elev: 10, dist: 14, aim: 0, aimY: 6, fov: 50, ahead: 0, stiff: 2.0, focus: 'raft' },
+    // the boot overlay: a ping-pong arc over the southern half only (the cove is authored for a north-looking camera)
+    title: { orbit: { centre: { x: -4, z: -6 }, radius: 24, height: 9, lookAt: { x: -4, y: 4.5, z: -12 }, arcDeg: [-55, 55], period: 90 }, fov: 42, stiff: 2.2 },
     vista: { phase: 4 },
   },
 
@@ -2863,8 +2921,27 @@ export const BALANCE_V3 = {
     giantsPerLake: 3, mossmereAstirPerDay: 1,
     discovery: { radius: 8, memories: 2, titleCard: 1.2 }, mastery: { catches: 4, minQuality: 'fine', memories: 10 },
     tally: { mossmere: 'floodGauge', sporewood: 'capStem', glasswater: 'brassRuler', paleabyss: 'boneTablet' },
-    shortcutsPersist: true, waylampsReset: true, stopgapGiants: ['legendPoolRim', 'deepPools'],   // P1: until the Mossmere's places exist
+    shortcutsPersist: true, waylampsReset: true,
+    // giantsKept: at a place with this flag its kept species alone may roll past the elsewhere clamp and the place's maxClass
+    // (an Elder route for a kept rare at a place without residents); every other species there keeps both caps
+    giantsKept: { field: 'giantsKept', appliesTo: 'kept species' },
+    // the stopgap, per lake: a lake whose places are not in the build (the Mossmere before P2; the other three whenever §24's
+    // builds are off) uses RAFT_FALLBACK_V3[zone].giants as its holdsGiants water (the legend-pool rim r 3.2–9, deep pools
+    // ≥ 15 m from it, and authored discs to make 3), with one resident each; it ends per lake when that lake's places load
+    stopgap: { from: 'RAFT_FALLBACK_V3', sources: 3, rim: [3.2, 9], endsWhen: 'lakePlacesLoaded', residents: true },
+    // dropIn targets (the Cupped Hands' bowl, the Gatehouse Door): inside rule.lock of the target the cast lands at the target
+    // centre at y 0 without the arc, obstacle and open-water tests; a hooked fish is held inside the target disc (+ hold m) and
+    // is drawn only where it is outside obstacle collision; the line runs from the rod tip to the target
+    dropIn: { lock: 'rule.lock', landsAt: 'targetCentre', skips: ['arc', 'obstacle', 'openWater'], hold: 0.7, centreOpenMargin: 0.5 },
   },
+
+  // ---- P1–P2 and The Long Descent: effective tackle tiers from per-run UPGRADES (data.upgradeTiers): tier = floor(4 × levels / max
+  // levels) over the slot's upgrades (rod 6 → T4 at 6; line 6; reel 7; creel 4). Fixes shock, pips, absorb and the rating index.
+  upgradeTiers: { slots: { rod: ['rod_ashwood', 'rod_whalebone'], line: ['line_gut', 'line_silver'], reel: ['reel_brass', 'reel_drag'], creel: ['creel_wicker'] },
+    uses: ['shock', 'pipBonus', 'absorb', 'dragAt', 'tackleRating'] },
+  // v3 fight stats (STATS keys added by the v3 build; T0 values are the base, TACKLE tiers replace them)
+  stats: { shock: { label: 'Shock', base: 0, fmt: 'pct', min: 0, max: 0.6 }, absorb: { label: 'Drag Absorb', base: 0.30, fmt: 'pct', min: 0, max: 0.95 },
+    pipBonus: { label: 'Hook Pips', base: 0, fmt: 'int', min: 0, max: 2 }, dragAt: { label: 'Drag Set', base: 0.80, fmt: 'pct', min: 0.6, max: 0.95 } },
 
   // ---- Generated by tools/sim/reel-v3.mjs --write-rating (skilled, k 400): for each lake and each fitted
   // loadout index rod·25 + line·5 + reel, the largest class landed ≥ 50% against the lake's reference
@@ -2917,6 +2994,8 @@ export const FISH_PALETTES = {
 const SZK = BALANCE_V3.size.k;
 const v1sp = (id) => SPECIES.find((s) => s.id === id) || WALK_SPECIES.find((s) => s.id === id);
 const sz = (L50, sigma, body) => ({ L50, sigma, body, k: SZK[body] });
+// retunes for new species (reel-v3 at k 400, T4 skilled: Ancient 40–55% with a median ≤ 180 s; validated for every Elder-capable species)
+const diffMul = (d, m) => Object.fromEntries(Object.entries(d).map(([k, v]) => [k, k in m ? Math.round(v * m[k] * 100) / 100 : v]));
 const legendSize = (L50, W50) => ({ L50, W50, sigma: BALANCE_V3.size.legend.sigma, body: 'legend', k: v3r(W50 * 1000 / L50 ** 3, 6) });
 // clone a v1 / §24 species (never aliased) and add the v3 fields
 function sv3(srcId, v3, patch = {}) {
@@ -2963,7 +3042,7 @@ export const SPECIES_V3 = [
       lore: 'An ink eel strung with moon-violet lights. It rises only when the Gloom does. Some say it is the Gloom, slowly learning to be a fish.' }),
   {
     id: 'old_portcullis', name: 'Old Portcullis', zone: 'mossmere', rarity: 'rare', tier: 3, value: 40, food: 30, oil: 30, time: 'any',
-    depth: [0.6, 1], bait: null, behavior: 'sinker', difficulty: diff(3, 'sinker'), place: 'gatehouse_door', cond: 'target', foul: true,
+    depth: [0.6, 1], bait: null, behavior: 'sinker', difficulty: diffMul(diff(3, 'sinker'), { stamina: 0.7 }), place: 'gatehouse_door', cond: 'target', foul: true,   // Ancient 43% / 172 s (was 2% / 289 s)
     size: sz(58, 0.15, 'carp'), family: 'bottom', prefers: 'mist', phase: 2, src: 'v3',
     model: { shape: 'carp', body: 0x5a4438, belly: 0xc8b8a0, fin: 0x2e2622, glow: null, pattern: 'spots', eyes: 'normal', scale: 1.15, barbels: 'long' },
     hint: 'Cast through the drowned door of the Gatehouse. Mind the chains.',
@@ -2977,7 +3056,7 @@ export const SPECIES_V3 = [
     lore: 'A thumb-sized fish with violet-gold veil fins that lives only in the giant\'s bowl. It is measured in millimetres, and very proud of every one.' },
   {
     id: 'bridgechain_sturgeon', name: 'Bridgechain Sturgeon', zone: 'mossmere', rarity: 'rare', tier: 3, value: 55, food: 34, oil: 30, time: 'any',
-    depth: [0.6, 1], bait: null, behavior: 'sinker', difficulty: diff(3, 'sinker'), place: 'under_the_span', weather: 'hush',
+    depth: [0.6, 1], bait: null, behavior: 'sinker', difficulty: diffMul(diff(3, 'sinker'), { stamina: 0.7 }), place: 'under_the_span', weather: 'hush',   // Ancient 42% / 168 s (was 2% / 289 s)
     size: sz(70, 0.16, 'sturgeon'), family: 'bottom', prefers: 'hush', phase: 2, src: 'v3',
     model: { shape: 'sturgeon', body: 0x4a4e58, belly: 0xcfcabd, fin: 0x8a4b3a, glow: null, pattern: 'bands', eyes: 'normal', scale: 1.3 },
     hint: 'Under the broken bridge, but only when the water goes still as a mirror.',
@@ -3034,7 +3113,7 @@ export const SPECIES_V3 = [
   sv3('rainglass_darter', { size: sz(39, 0.11, 'minnow'), family: 'insect', prefers: 'drip', phase: 3, src: 'walk' }),
   {
     id: 'the_sexton', name: 'The Sexton', zone: 'glasswater', rarity: 'rare', tier: 4, value: 150, food: 42, oil: 60, time: 'any',
-    depth: [0.85, 0.95], bait: null, behavior: 'thrasher', difficulty: diff(4, 'thrasher'), place: 'bell_window', cond: 'deed',
+    depth: [0.85, 0.95], bait: null, behavior: 'thrasher', difficulty: diffMul(diff(4, 'thrasher'), { stamina: 0.65 }), place: 'bell_window', cond: 'deed',   // Ancient 40% / 145 s (was 1% / 293 s)
     size: sz(66, 0.15, 'carp'), family: 'bottom', prefers: 'hush', phase: 4, src: 'v3', proposal: true,
     model: { shape: 'carp', body: 0x1e2350, belly: 0xd0d8f0, fin: 0x3a3f7a, glow: 0xa8d4ff, pattern: 'spots', eyes: 'glow', scale: 1.25, bellPatch: true },
     hint: 'Under the Bell-Chapel Window, during the Struck Hour.',
@@ -3115,83 +3194,127 @@ export const ELDER_NAMES = {
     eel: ['tail', 'coil'], angler: ['lamp', 'wing'], ray: ['wing', 'cloak'], puffer: ['belly', 'spine'], jelly: ['bell', 'veil'], ghost: ['veil', 'fin'], sturgeon: ['scute', 'snout'] },
 };
 
+// Tally Post stones (flood gauges), one per Mossmere place: open water ≥ 1 m from any obstacle, outside every place, ≈ 1.2 m beyond
+// the place's edge on its camera side where possible (validated); collision r 0.4 (world adds it with the place props in P2).
+const TALLY_AT = { bell_pool: { x: -4, z: -6.8 }, under_the_span: { x: -31.5, z: 5.3 }, cupped_hands: { x: 16, z: 26.2 }, gatehouse_door: { x: 22, z: -0.6 },
+  ferry_market: { x: -21.4, z: -21.5 }, sluice_run: { x: -3.2, z: -31.4 }, lily_maze: { x: -40.5, z: 33.2 }, buoy_lights: { x: -44.8, z: -10 } };
 // ---- The Mossmere (raft only): 8 places + 1 secret on the existing arena (brief §7.3). Identity: the gate and
 // the harbour, a drowned ferry harbour of rust, iron, barges, a toll-gate and buoy-lanterns. Same place schema
-// as §24 (CONTRACT §12.4) plus the v3 fields: holdsGiants (Elders may roll; a resident lives here), maxClass,
-// tally (Tally Post style), live (the place's live-window favour), happening (Moonfall). All access 'raft'.
+// as §24 (CONTRACT §12.4) plus the v3 fields: holdsGiants (Elders may roll; a resident lives here), giantsKept (only the
+// kept species may roll Elders here), maxClass, tally (Tally Post style) and tallyAt (its flood-gauge stone, in open water,
+// collision r 0.4), landmark (what the trophy camera frames), live (the place's live-window favour), happening (Moonfall).
+// All access 'raft'. On every lake world.getDepth inside a place's water is clamped to place.water.depth (CONTRACT §13.7),
+// so the authored bands hold whatever the recipe's depth noise says. Footprints stay clear of island collision (validated
+// against world-layout: island discs never overlap a place disc; ≥ 80% of a place's water is open; dropIn targets have an
+// open centre). Places, props and cracks join the arena in P2 (the Moon Cistern in P4); the watch-lamps from P1.
 export const MOSSMERE_V3 = {
   palette: { accent: 0x8a4b3a },                     // rust iron leads (chains, bells, buoys, the gate, the bridge); moon-silver stays the glow
   landmarks: [
     { id: 'sunken_gate', name: 'The Sunken Gate', x: 0, z: -54, note: 'and its leaning toll-tower (N)' },
-    { id: 'moon_eye', name: 'The Moon-Eye', x: -24, z: -29, note: 'a ceiling fissure; its silver shaft falls on the Ferry-Market (NW)' },
+    { id: 'moon_eye', name: 'The Moon-Eye', x: -21.4, z: -25.9, note: 'a ceiling fissure; its silver shaft falls on the Ferry-Market (NW)' },
     { id: 'sluice_veil', name: 'The Sluice Veil', x: 58, z: 4, note: 'water spilling from a broken aqueduct down the east cliff' },
     { id: 'toppled_bridge', name: 'The Toppled Bridge', x: -29.5, z: 0.5, note: 'the in-lake landmark (W)' },
   ],
-  props: [                                           // new collision added with the places (arena.pillars when V3 is on)
+  props: [                                           // new collision added with the places (arena.pillars when V3 ≥ P2)
     { x: 16, z: 18, r: 2.2, kind: 'hands', name: 'The Cupped Hands' },
   ],
-  happening: {                                        // the signature wow: Moonfall (P2)
-    id: 'moonfall', name: 'Moonfall', at: [0.25, 0.70], time: 20, timeMist: 30, place: 'ferry_market', reveal: ['bell_pool'],
-    clear: { discs: 2, k: 1, floor: 256, floorLow: 128, lowRadiusMult: 0.7 }, fish: [3, 5], guaranteePrize: 1, trophyChance: 0.25,
+  // art-only props (no collision of their own: they sit inside existing collision) and the harbour re-dress (W9, P2)
+  dressing: [
+    { id: 'gatehouse_face', kind: 'gatehouseFace', x: 22, z: -3.6, yawDeg: 0, w: 4, h: 3.5, note: 'a stone wall-face with a flooded door frame on the Drowned Gatehouse\'s south rim (inside the island collision); the tower column art stays', calls: 0 },
+  ],
+  redress: [                                         // P2 world item W9; draw calls counted in DESIGN §25.8.8
+    { id: 'span_arches', what: 'arch spans and a broken deck over the four bridge piers; the chains hang from the break', calls: 1 },
+    { id: 'sluice_veil', what: 'the Sluice Veil: a scrolling water-curtain card down the east cliff and two aqueduct segments (the Cupped Hands\' spout hangs from the near one)', calls: 2 },
+    { id: 'bollards', what: 'street lamp-posts on islands and the three lamp pylons become rust bollards and buoy-lanterns (the dock-buoy InstancedMesh; the lamp-post mesh is removed)', calls: 0 },
+    { id: 'toll_tower', what: 'a leaning toll-tower on the Sunken Gate', calls: 1 },
+  ],
+  // the Moon-Eye's shaft is an authored crack (world-layout reads arena.cracks before its procedural ones)
+  cracks: [{ id: 'moon_eye', x: -21.4, z: -25.9, width: 2.2, swing: { toward: 'bell_pool', deg: 14, time: 3 } }],
+  happening: {                                        // the signature wow: Moonfall (P2). progression owns the schedule; world renders it
+    id: 'moonfall', name: 'Moonfall', at: [0.25, 0.70], time: 20, timeMist: 30, place: 'ferry_market', reveal: ['bell_pool'], owner: 'progression',
+    // two clear discs, each with its own floor painting: one 256² atlas with 2 cells (128² cells on low, radius × 0.7)
+    clear: { k: 1, atlas: 256, atlasLow: 128, lowRadiusMult: 0.7,
+      discs: [
+        { place: 'ferry_market', x: -21.4, z: -25.9, r: 3.2, paint: { cell: 0, rect: [-24.6, -29.1, 6.4, 6.4], shows: 'moored barges, a toll-house clock stopped at the hour of the Fall, cart wheels' } },
+        { place: 'bell_pool', x: -4, z: -14, r: 3.2, paint: { cell: 1, rect: [-7.2, -17.2, 6.4, 6.4], shows: 'the drowned harbour bell, verdigris on its crack' } },
+      ] },
+    fish: [3, 5], guaranteePrize: 1, trophyChance: 0.25,
   },
-  watchLamps: [{ id: 'se_buoy', name: 'South-East Buoy-Lamp', x: 24, z: 38 }, { id: 'w_buoy', name: 'West Buoy-Lamp', x: -48, z: 14 }],
+  // the watch-lamps are the two dock buoy-lamps as world-layout draws them (dock + buoy offset), pool r 6
+  watchLamps: [{ id: 'se_buoy', name: 'South-East Buoy-Lamp', x: 19.8, z: 37.8, radius: 6, dock: 0 }, { id: 'w_buoy', name: 'West Buoy-Lamp', x: -46.7, z: 10.1, radius: 6, dock: 4 }],
   places: [
-    { id: 'bell_pool', name: 'The Bell Pool', access: 'raft', stand: null, legend: true, x: -4, z: -14,
+    { id: 'bell_pool', name: 'The Bell Pool', access: 'raft', stand: null, legend: true, x: -4, z: -14, phase: 2,
       water: { kind: 'disc', x: -4, z: -14, r: 6, depth: [0.8, 1] }, attract: { weeping_carp: 2 },
-      rule: null, reveal: 'moonfall', maxClass: 'trophy', tally: 'floodGauge', build: 'existing',
+      rule: null, reveal: 'moonfall', maxClass: 'trophy', tally: 'floodGauge', tallyAt: TALLY_AT.bell_pool, build: 'existing',
+      landmark: { x: -4, y: 2, z: -14 },
       lore: 'A harbour bell lies nine metres down. In Moonfall you can see her circling it, at whatever she weighs today.',
-      look: 'the drowned harbour bell at the Ferry-Market\'s edge, verdigris on its crack' },
-    { id: 'under_the_span', name: 'Under the Span', access: 'raft', stand: null, x: -29.5, z: 0.5,
-      water: { kind: 'path', pts: [[-40, -4], [-19, 5]], w: 8, depth: [0.6, 0.9] }, attract: { mossback_perch: 2, reedjaw_pike: 2 },
+      look: 'the drowned harbour bell on the pool\'s floor, verdigris on its crack, seen only in Moonfall\'s second disc' },
+    { id: 'under_the_span', name: 'Under the Span', access: 'raft', stand: null, x: -29.5, z: 0.5, phase: 2,
+      water: { kind: 'path', pts: [[-40, -4], [-19, 5]], w: 8, depth: [0.45, 0.9] }, attract: { mossback_perch: 2, reedjaw_pike: 2 },   // brief 0.6–0.9; 0.45 adds the shallow lip under the broken deck, the night-only Lampsipper's only Elder water
       rule: { type: 'targets', name: 'Threading the Span', lock: 1.6, clean: { favour: 0.3, rarity: 0.2 },
         targets: [{ id: 'gap_w', kind: 'disc', x: -36.5, z: -2.5, r: 1.6 }, { id: 'gap_m', kind: 'disc', x: -29.5, z: 0.5, r: 1.6 }, { id: 'gap_e', kind: 'disc', x: -22.5, z: 3.5, r: 1.6 }] },
-      holdsGiants: true, maxClass: 'elder', tally: 'floodGauge', build: 'existing piers + merged chain strands',
+      holdsGiants: true, maxClass: 'elder', tally: 'floodGauge', tallyAt: TALLY_AT.under_the_span, build: 'the re-dressed bridge (W9: arch spans and deck over the existing piers) + merged chain strands',
+      landmark: { x: -29.5, y: 3, z: 0.5 },
       lore: 'Rust chains hang from the break where the bridge went down. The fish hold in the dark under its three arches.',
       look: 'three dark arch gaps under hanging chains' },
-    { id: 'cupped_hands', name: 'The Cupped Hands', access: 'raft', stand: null, x: 16, z: 18,
+    { id: 'cupped_hands', name: 'The Cupped Hands', access: 'raft', stand: null, x: 16, z: 18, phase: 2,
       water: { kind: 'disc', x: 16, z: 18, r: 7, depth: [0.35, 0.8] }, attract: { weeping_carp: 2, reedjaw_pike: 1 },
-      bowl: { id: 'bowl', kind: 'disc', x: 16, z: 18, r: 0.5, depth: [0.3, 0.5], attract: { dusk_minnow: 3 }, dropIn: true },
-      rule: { type: 'rhythm', name: 'The Aqueduct Coughs', period: 60, periodDrip: 25, warn: 3, live: 6, below: { waitMult: 0.5 }, mods: { waitMult: 0.5 } },
-      live: 0.4, maxClass: 'trophy', tally: 'floodGauge', build: 'new: two stone hands 6 m tall, a bowl and the aqueduct spout (+1 call)',
+      // the hands cup a pool AT WATER LEVEL (y 0; §24.4's one water plane): the bowl is a dropIn target inside the hands'
+      // collision; the aqueduct spout pours into it from above, and "overflow" is a spill ring (r 2.2–4) where the fry spill out
+      bowl: { id: 'bowl', kind: 'disc', x: 16, z: 18, r: 0.5, y: 0, depth: [0.3, 0.5], attract: { dusk_minnow: 3 }, dropIn: true },
+      spill: { r: [2.2, 4], during: 'live' },
+      rule: { type: 'rhythm', name: 'The Aqueduct Coughs', period: 60, periodDrip: 25, warn: 3, live: 6, lock: 1.6, below: { waitMult: 0.5, ring: [2.2, 4] }, mods: { waitMult: 0.5 } },
+      live: 0.4, maxClass: 'trophy', giantsKept: true, tally: 'floodGauge', tallyAt: TALLY_AT.cupped_hands, build: 'new: two stone hands 6 m tall cupping a water-level pool under the aqueduct spout (+1 call); the spout hangs from W9\'s aqueduct segment',
+      landmark: { x: 16, y: 4, z: 18 },
       lore: 'A giant\'s hands hold a bowl under the broken aqueduct. When it coughs, the bowl overflows, the fry spill out, and the big fish wait below.',
       look: 'two stone hands rising from the water, a spout gurgling above them' },
-    { id: 'gatehouse_door', name: 'The Gatehouse Door', access: 'raft', stand: null, x: 22, z: -3.5,
-      water: { kind: 'disc', x: 22, z: -3.5, r: 0.7, depth: [0.6, 1] }, attract: { weeping_carp: 2 }, dropIn: true,
+    { id: 'gatehouse_door', name: 'The Gatehouse Door', access: 'raft', stand: null, x: 22, z: -2.5, phase: 2,
+      water: { kind: 'disc', x: 22, z: -2.5, r: 0.7, depth: [0.6, 1] }, attract: { weeping_carp: 2 }, dropIn: true,
       rule: { type: 'targets', name: 'The Drowned Door', lock: 1.6, foul: { chance: 0.15, warn: 0.3, spike: 0.15 },
-        targets: [{ id: 'door', kind: 'disc', x: 22, z: -3.5, r: 0.7 }] },
-      maxClass: 'trophy', tally: 'floodGauge', build: 'a door frame cut into the Drowned Gatehouse',
+        targets: [{ id: 'door', kind: 'disc', x: 22, z: -2.5, r: 0.7 }] },
+      maxClass: 'trophy', giantsKept: true, tally: 'floodGauge', tallyAt: TALLY_AT.gatehouse_door, build: 'the gatehouse_face dressing: a wall-face with a flooded door frame on the island\'s south rim (the door\'s threshold water is 10.5 m from the island centre, outside its 8.84 m collision)',
+      landmark: { x: 22, y: 2, z: -3.6 },
       lore: 'Cast through a drowned door into the dark of a tower. Something in there clanks its chains when it turns.',
       look: 'a flooded doorway in the Gatehouse wall, chains trailing into the dark' },
-    { id: 'ferry_market', name: 'The Ferry-Market', access: 'raft', stand: null, x: -24, z: -29,
-      water: { kind: 'disc', x: -24, z: -29, r: 5, depth: [0.4, 0.7] }, attract: { candlefin_koi: 2, weeping_carp: 1.5 },
+    { id: 'ferry_market', name: 'The Ferry-Market', access: 'raft', stand: null, x: -21.4, z: -25.9, phase: 2,
+      water: { kind: 'disc', x: -21.4, z: -25.9, r: 3.2, depth: [0.4, 0.7] }, attract: { candlefin_koi: 2, weeping_carp: 1.5 },
       rule: { type: 'sight', name: 'Moonfall', during: 'moonfall', fish: [3, 5], guaranteePrize: 1, trophyChance: 0.25 },
-      holdsGiants: true, giantsDuring: 'moonfall', maxClass: 'elder', tally: 'floodGauge', build: 'uClear disc + floor painting',
+      holdsGiants: true, giantsDuring: 'moonfall', maxClass: 'elder', tally: 'floodGauge', tallyAt: TALLY_AT.ferry_market, build: 'Moonfall disc 0 (uClear + its atlas cell)',
+      landmark: { x: -21.4, y: 6, z: -25.9 },
       lore: 'The drowned market lies three metres down: moored barges, a toll-house clock stopped at the hour of the Fall, cart wheels.',
       look: 'glass-clear water over barges and a stopped clock, in the moon\'s shaft' },
-    { id: 'sluice_run', name: 'The Sluice Run', access: 'raft', stand: null, x: 0, z: -37.5,
-      water: { kind: 'path', pts: [[0, -44], [0, -31]], w: 4, depth: [0.55, 0.9] }, attract: { reedjaw_pike: 2, gloam_eel: 2 },
-      rule: { type: 'drift', name: 'The Broken Teeth', lane: [[0, -44], [0, -31]], length: 12, speed: 1.5, seamRarity: 0.08, gloomInCalm: 'dusk' },
-      holdsGiants: true, maxClass: 'elder', tally: 'floodGauge', build: 'pooled foam-seam decals',
+    { id: 'sluice_run', name: 'The Sluice Run', access: 'raft', stand: null, x: 0, z: -35, phase: 2,
+      water: { kind: 'path', pts: [[0, -41], [0, -29]], w: 4, depth: [0.55, 0.9] }, attract: { reedjaw_pike: 2, gloam_eel: 2 },
+      // the lane starts 8 m south of the gate centre: outside its Descend pill (5.4 m) and stone ring (6.6 m)
+      rule: { type: 'drift', name: 'The Broken Teeth', lane: [[0, -41], [0, -29]], length: 12, speed: 1.5, seamRarity: 0.08, gloomInCalm: 'dusk' },
+      holdsGiants: true, maxClass: 'elder', tally: 'floodGauge', tallyAt: TALLY_AT.sluice_run, build: 'pooled foam-seam decals',
+      landmark: { x: 0, y: 4, z: -54 },
       lore: 'Water pours through the sluice\'s broken teeth in a lane of white seams. The bobber rides it, and so do the hunters.',
       look: 'white seams racing south from the Moss Sluice' },
-    { id: 'lily_maze', name: 'The Lily Maze', access: 'raft', stand: null, x: -38, z: 22,
-      water: { kind: 'disc', x: -38, z: 22, r: 8, depth: [0.3, 0.6] }, attract: { candlefin_koi: 3, weeping_carp: 1 },
+    { id: 'lily_maze', name: 'The Lily Maze', access: 'raft', stand: null, x: -40.5, z: 24.5, phase: 2,
+      water: { kind: 'disc', x: -40.5, z: 24.5, r: 7.5, depth: [0.3, 0.6] }, attract: { candlefin_koi: 3, weeping_carp: 1 },
       rule: { type: 'sight', name: 'Lanterns Under Snow', glowIsSize: true, heart: { r: 3, needs: 'reed_pole', phase: 4 } },
-      maxClass: 'trophy', tally: 'floodGauge', build: 'existing instanced pads (local density × 2) + glow-buds',
+      maxClass: 'trophy', tally: 'floodGauge', tallyAt: TALLY_AT.lily_maze, build: 'existing instanced pads (local density × 2) + glow-buds',
+      landmark: { x: -30, y: 3, z: 14 },
       lore: 'Notched pads in the lee of Mossbell Isle, and koi glowing under them like lanterns under snow. The size of the glow is the size of the fish.',
       look: 'notched lily pads with soft glows beneath' },
-    { id: 'buoy_lights', name: 'The Buoy Lights', access: 'raft', stand: null, night: true, x: -48, z: -2,
+    { id: 'buoy_lights', name: 'The Buoy Lights', access: 'raft', stand: null, night: true, x: -48, z: -2, phase: 2,
       water: { kind: 'rect', x: -48, z: -2, w: 4, d: 24, depth: [0.4, 0.8] }, attract: { gloam_eel: 2, lampsipper: 2 },
       rule: { type: 'targets', name: 'The Old Channel', phases: ['gloomtide'], favour: 0.2, gloomMult: 2,
         targets: [{ id: 'row_w', kind: 'rect', x: -49.2, z: -2, w: 1, d: 24 }, { id: 'row_e', kind: 'rect', x: -46.8, z: -2, w: 1, d: 24 }], buoys: 24 },
-      maxClass: 'trophy', tally: 'floodGauge', build: 'one InstancedMesh of 24 emissive buoy-lanterns (1 call)',
+      maxClass: 'trophy', tally: 'floodGauge', tallyAt: TALLY_AT.buoy_lights,
+      // the lake plane is opaque (water.js), so nothing below y 0 shows: the "under-water" lanterns are on-surface, depth-tinted
+      // glow decals (the pre-roll technique) under 24 small emissive float caps at y ≈ 0 (one InstancedMesh): 1 call
+      build: 'on-surface depth-tinted glow decals + 24 emissive float caps at y 0 (one InstancedMesh, 1 call)',
+      landmark: { x: -48, y: 1, z: -14 },
       lore: 'At night the drowned channel-buoys still burn under the water, in two rows, showing the way to a harbour mouth that is not there.',
       look: 'two rows of lanterns burning under the black water' },
     { id: 'moon_cistern', name: 'The Moon Cistern', access: 'raft', stand: null, secret: true, phase: 4, x: 58, z: 4,
       water: { kind: 'disc', x: 63, z: 4, r: 5, depth: [0.6, 1] }, attract: { reedjaw_pike: 3 },
       rule: { type: 'moving', name: 'The Wandering Beam', speed: 0.3, r: 1.5, beamOnly: true },
-      holdsGiants: true, ownResident: true, maxClass: 'elder', tally: 'floodGauge', reward: 'reed_pole',
-      needs: { shoreNotch: { a: 0, w: 10 }, veil: 'noCollision' }, clues: ['bubbles', 'rumour', 'dock (49, 6)'],
+      holdsGiants: true, ownResident: true, maxClass: 'elder', tally: 'floodGauge', tallyAt: { x: 63, z: 8.4 }, reward: 'reed_pole',
+      needs: { shoreNotch: { a: 0, w: 10, depth: 0.8, len: 12 }, veil: 'noCollision' }, clues: ['bubbles', 'rumour', 'dock (49, 6)'],
+      landmark: { x: 63, y: 5, z: 4 },
       lore: 'Sail straight through the falling water into a round cistern lit by its own moonbeam.',
       look: 'a curtain of falling water, and silver light behind it' },
   ],
@@ -3199,31 +3322,33 @@ export const MOSSMERE_V3 = {
 // §24's 21 places, kept by id; v3 changes are data-only proposals (▲) to the §24 owner, applied when V3 is on.
 export const PLACE_SYNC_V3 = {
   mothers_cup:       { holdsGiants: true, giantsNonLegend: true, breathing: 'spores on the exhale, a ring of rises' },
-  lullaby:           { holdsGiants: true, rule: { type: 'sight', name: 'The Sleepers', softCast: 0.5, canopy: 'lily-cap' } },
+  lullaby:           { holdsGiants: true, rule: { type: 'sight', name: 'The Sleepers', softCast: 0.5, canopy: 'lily-cap' }, waterDepth: [0.4, 0.85] },   // ▲ shallow sleepers' rim: the Capshell Crayfish's only Elder water
   puffball_vent:     { maxClass: 'prize', dripPeriodMult: 0.5 },
-  drowned_greenhouse:{ kept: ['the_remembered_sun'] },
+  drowned_greenhouse:{ kept: ['the_remembered_sun'], giantsKept: true },
   gill_harp:         { holdsGiants: true, giantsWhile: 'buff', beacon: 25 },
-  veilwater:         { rumourAtNight: true, kept: ['hushcap_koi'], attractAdd: { mildew_angler: 2 } },
+  veilwater:         { rumourAtNight: true, kept: ['hushcap_koi'], attractAdd: { mildew_angler: 2 }, giantsKept: true },
   fallen_chandelier: { holdsGiants: true, giantsNonLegend: true, giantsAt: 'trench rim' },
   mirror_nave:       { holdsGiants: true, reflections: 'prerolled, true size: pick the biggest' },
-  bell_window:       { highCastPerch: true, tackleGate: false, kept: ['the_sexton'] },
+  bell_window:       { highCastPerch: true, tackleGate: false, kept: ['the_sexton'], giantsKept: true },
   well_of_ledgers:   { holdsGiants: true, giantsAt: 'bottomLedger' },
-  stilled_cascade:   { thaw: { weather: 'drip', time: 40, waitMult: 0.4, favour: 0.3 } },
+  stilled_cascade:   { thaw: { weather: 'drip', time: 40, waitMult: 0.4, favour: 0.3 }, giantsKept: true },
   broken_hymnal:     { attractAdd: { vesper_gar: 3 }, nightOnlyAdd: true },
   burning_glass:     { alignment: { phase: 4, band: 'brightest' } },
   votive_font:       { maxClass: 'prize' },
   the_bottomless:    { holdsGiants: true, giantsNonLegend: true, underdepth: { phase: 4 } },
-  long_pier:         { kept: ['the_namesake'] },
+  long_pier:         { kept: ['the_namesake'], giantsKept: true },
   drowned_almshouse: {},
   chain_garden:      { holdsGiants: true, turnFavour: 0.6, replaces: 'mods.weightBias', shadow: 9, kept: ['candlewake_sturgeon'] },
-  sunken_belfry:     { lift: false },
-  bier_barge:        {},
-  ferry_slip:        { holdsGiants: true, ghostFerry: 'dusk' },
+  sunken_belfry:     { lift: false, giantsKept: true },
+  bier_barge:        { giantsKept: true },
+  ferry_slip:        { holdsGiants: true, ghostFerry: 'dusk', waterDepth: [0.45, 0.95] },   // ▲ the slip's ramp runs up into the shallows: the Ossuary Fry's and the Bonecrook's Elder water
 };
 // §24 structural changes routed through its owner (▲): renames, watch lamps, Homeward Waystones, persistence.
 export const WALK_SYNC_V3 = {
   renames: { 'paleabyss.lamp.landing_lamp': 'Shore of Last Rafts', 'paleabyss.shape.pd_landing': 'Shore of Last Rafts' },
-  watchLamps: { mossmere: ['se_buoy', 'w_buoy'], sporewood: ['harp_lamp', 'crown_lamp'], glasswater: ['harbour_lamp', 'hymnal_lamp'], paleabyss: ['plaza_lamp', 'pier_lamp'] },
+  // ▲ no holdsGiants water within lampWatch.fishWithin (10 m) of a watch lamp (validated): the Sporewood's are the Greenhouse and
+  // Gill Crown lamps (the Gill Harp lamp stood 3 m from a giant place, so a lamp-watch there cost nothing)
+  watchLamps: { mossmere: ['se_buoy', 'w_buoy'], sporewood: ['house_lamp', 'crown_lamp'], glasswater: ['harbour_lamp', 'hymnal_lamp'], paleabyss: ['plaza_lamp', 'pier_lamp'] },
   shortcutsPersist: true, waylampsReset: true, knownPlaceStartsLit: true,
   breathingDeep: { live: 0.4 },
   secrets: [
@@ -3254,10 +3379,46 @@ export const AGE_MARKS = {
 // Vistas (raise the lantern; never sit, never sketch) and Remnants: rules now, stands authored in P4 with the §24 owner.
 export const VISTAS = { perLake: 2, hold: 1.5, reveals: 'places in line of sight get a "?" on the Chart', memories: 1, sit: false, sketch: false, camera: 'vista', phase: 4, list: [] };
 export const REMNANTS = { perLake: 3, total: 12, gives: ['vignette', 'rumour'], optional: true, phase: 4, list: [] };
+// Apply a §24 place's PLACE_SYNC_V3 entry in place (rule merged, waterDepth into water.depth); used by PLACES_V3 and the apply block.
+function v3syncPlace(p) {
+  const sync = PLACE_SYNC_V3[p.id]; if (!sync) return p;
+  const { rule, waterDepth, ...rest } = v3clone(sync);
+  Object.assign(p, rest);
+  if (rule) p.rule = { ...(p.rule || {}), ...rule };
+  if (waterDepth && p.water) p.water = { ...p.water, depth: waterDepth };
+  return p;
+}
+// Raft-lake fallbacks (DESIGN §25.8.1, §25.14): what a lake uses when its places are not in the build — the Mossmere before P2,
+// the other three whenever §24's lake builds are off (P1–P3 and Landing v0 may ship without §24). Authored on the v1 arenas with
+// world-layout (open water, clear of docks, spawn and gate): `giants` = the stopgap holdsGiants water (the legend-pool rim, deep
+// pools ≥ 15 m from it, discs to make 3), one resident each; `watchLamps` = two dock buoy-lamps (pool r 6) with no giant water
+// within 10 m; `homeward` = a Homeward Waystone beside a dock ≥ 25 m from the spawn, ≥ 1.5 m from posts and buoys, ≥ 3.8 m from
+// the barge pad (validated in the non-walk v3 pass).
+export const RAFT_FALLBACK_V3 = {
+  mossmere: {
+    giants: [{ id: 'mm_legend_rim', kind: 'ring', x: -4, z: -14, r: [3.2, 9] }, { id: 'mm_deep_centre', kind: 'disc', x: 4, z: 6, r: 6 }, { id: 'mm_deep_west', kind: 'disc', x: -16, z: 14, r: 6 }],
+    until: 2,   // the Mossmere's places replace it from P2; its watch-lamps and Homeward stone are MOSSMERE_V3's / EXPEDITION's in every build
+  },
+  sporewood: {
+    giants: [{ id: 'sw_legend_rim', kind: 'ring', x: 28, z: -16, r: [3.2, 9] }, { id: 'sw_lullaby_pool', kind: 'disc', x: -28, z: -8, r: 16, deepPool: 'Lullaby Pool' }, { id: 'sw_deep_south', kind: 'disc', x: -27, z: 21, r: 6 }],
+    watchLamps: [{ id: 'sw_dock0_buoy', x: 15.4, z: 54.2, radius: 6, dock: 0 }, { id: 'sw_dock1_buoy', x: 52.7, z: 20.5, radius: 6, dock: 1 }],
+    homeward: { x: 50.8, z: 21, at: 'beside the east dock', radius: 0.6 },
+  },
+  glasswater: {
+    giants: [{ id: 'gw_legend_rim', kind: 'ring', x: 0, z: -37, r: [3.2, 9] }, { id: 'gw_deep_west', kind: 'disc', x: -34, z: -34, r: 6 }, { id: 'gw_deep_south', kind: 'disc', x: -8, z: 36, r: 6 }],
+    watchLamps: [{ id: 'gw_dock0_buoy', x: 17.9, z: 59, radius: 6, dock: 0 }, { id: 'gw_dock4_buoy', x: -50.6, z: 35.2, radius: 6, dock: 4 }],
+    homeward: { x: -44.6, z: 41, at: 'beside the south-west dock', radius: 0.6 },
+  },
+  paleabyss: {
+    giants: [{ id: 'pd_legend_rim', kind: 'ring', x: 0, z: -52, r: [3.2, 9] }, { id: 'pd_deep_east', kind: 'disc', x: 16, z: -12, r: 6 }, { id: 'pd_shelf_west', kind: 'disc', x: -58, z: -36, r: 6, note: 'a shelf disc from 0.26 to 0.82 deep: the Ossuary Fry and the Bonecrook have Elder water in raft builds' }],
+    watchLamps: [{ id: 'pd_dock0_buoy', x: 42.4, z: 54.7, radius: 6, dock: 0 }, { id: 'pd_dock1_buoy', x: -47.6, z: 50.3, radius: 6, dock: 1 }],
+    homeward: { x: 40.8, z: 55.9, at: 'beside the south-east dock', radius: 0.6 },
+  },
+};
 // All 29 places (+4 secrets) with the v3 fields applied, for tools and the Journal (always computed; copies).
 export const PLACES_V3 = [
   ...MOSSMERE_V3.places.map((p) => ({ ...v3clone(p), zone: 'mossmere' })),
-  ...PLACES.map((p) => { const q = { ...v3clone(p), ...v3clone(PLACE_SYNC_V3[p.id] || {}) }; if (PLACE_SYNC_V3[p.id]?.rule) q.rule = { ...v3clone(p.rule || {}), ...PLACE_SYNC_V3[p.id].rule }; return q; }),
+  ...PLACES.map((p) => v3syncPlace(v3clone(p))),
 ];
 export const PLACE_V3_BY_ID = Object.fromEntries(PLACES_V3.map((p) => [p.id, p]));
 
@@ -3417,11 +3578,20 @@ export const EXPEDITION = {
   phases: { calm: 180, dusk: 20, gloomtide: 90, dawn: 10 }, calmByMode: { raft: 180, mixed: 180, foot: 185 },
   arrivalHush: 30, hushOn: ['firstDay', 'firstCalmAfterGate'], dayMinutes: 5, day1Minutes: 5.5,
   murk: { day1ArriveAt: 20, warnAt: 0.85, sells: ['sell', 'bait', 'supplies', 'ledger'], combatKit: 'combatModes', tackle: false },
-  setOut: { needs: 'litWaystone', chooses: ['zone', 'character', 'nightMode', 'tray'], card: ['forecast', 'rumour', 'residents', 'marked', 'tackleRating'], glide: 3, autoWalk: 6 },
+  // Set Out is two steps (CONTRACT §13.1, §13.4): the Map Table confirm stores a plan (meta.pendingSetOut; the chosen Waystone
+  // flares); Board (or "Set Out now") walks the Wick to the raft, boards and glides COVE.setOutPath; at the arch line
+  // game.setOut(plan) runs. Board is refused without a plan. The tray = meta.tray, filled at home (Murk's bait and supplies,
+  // owned lures) and moved into the run at createExpedition; nothing in it comes back (it ends with the expedition).
+  setOut: { needs: 'litWaystone', chooses: ['zone', 'character', 'nightMode', 'tray'], card: ['forecast', 'rumour', 'residents', 'marked', 'tackleRating'], glide: 3, autoWalk: 6,
+    plan: 'meta.pendingSetOut', boardNeedsPlan: true, trigger: 'archLine', tray: { bait: 'counts', supplies: 'counts', lure: 'owned id or null', equipped: 'bait or lure id' } },
   firstOuting: { zone: 'mossmere', character: 'wick', nightMode: 'still', modeCards: false, line: 'Every night of your first outing is still.' },
   homeward: {
-    stones: { mossmere: { x: 24, z: 38, at: 'the south-east dock' }, sporewood: { x: 17.2, z: 31, at: 'the Copse Jetty stand' },
-      glasswater: { x: 5.2, z: 18, at: 'the Skiff Steps' }, paleabyss: { x: 4, z: 24, at: 'the Cairn Plaza lamp' } },
+    // beside (not on) the dock, stand or lamp: ≥ 1.5 m from stands, slots, lamps, posts and buoys and ≥ 3.8 m from a barge pad
+    // (validated). r 0.6 lantern-stone: raft lakes add a collision circle; walking lakes a walk BLOCK (h 1.4). Raft builds of the
+    // §24 lakes use RAFT_FALLBACK_V3[zone].homeward.
+    stones: { mossmere: { x: 27.9, z: 39, at: 'beside the south-east dock' }, sporewood: { x: 21.1, z: 30, at: 'at the landward end of the Copse Jetty' },
+      glasswater: { x: 3.2, z: 18, at: 'beside the Skiff Steps' }, paleabyss: { x: 4, z: 26, at: 'beside the Cairn Plaza lamp' } },
+    radius: 0.6, block: { h: 1.4 }, clearOf: { stand: 1.5, post: 1.5, lamp: 1.5, buoy: 1.5, bargePad: 3.8 },
     minPathFromSpawn: 25, range: 4, hold: 1, phases: ['calm', 'dawn'], rideHome: { phases: ['calm'], whileMoored: true },
   },
   gates: { open: 'forever', toll: 'once', tolls: { sporewood: 180, glasswater: 420, paleabyss: 900 },
@@ -3484,7 +3654,14 @@ export const MEMORIES_V3 = {
   firstMount: { prize: 2, trophy: 6, elder: 15 }, firstRelease: { prize: 1, trophy: 3, elder: 8 },
   place: { found: 2, mastered: 10 }, rumourSolved: 3, oldLedger: 5, legend: { first: 15, rematch: 8 },
   challenges: { total: 1171, v1: 831, tier4: 185, tier5: 155 },   // the brief prints 1,170; 831 + 185 + 155 = 1,171
-  pool: { total: 4600, parts: { challenges: 1171, species: 159, classFirsts: 816, firstMounts: 1104, firstReleases: 576, places: 348, rumours: 72, oldLedger: 240, legends: 60, ancients: 40 } },
+  // the one-time pool: 48 species' class rewards minus the Lampwarden's Elder ones (it caps at Trophy: −12 −15 −8); the brief's ≈ 4,600 → ≈ 4,550
+  pool: { total: 4550, parts: { challenges: 1171, species: 159, classFirsts: 804, firstMounts: 1089, firstReleases: 568, places: 348, rumours: 72, oldLedger: 240, legends: 60, ancients: 40 } },
+  // P1–P2 (today's run structure, before the expedition tally): discoveries bank instantly (new species, class firsts, first
+  // releases, places, rumours, Old Ledger); the death screen still pays v1 memoriesFor(summary) with its species row removed
+  // (new species already paid) and its nights row replaced per night by the v3 tally's values (a still night 1, a Lantern swarm
+  // night 4, Gloomtide v1's nightBase + perZone). Relic costs, shelves and the relic cuts stay v1 until P3 (RELICS_V3 is P3 data).
+  interim: { phases: [1, 2], instant: ['newSpecies', 'classFirst', 'firstRelease', 'place', 'rumourSolved', 'oldLedger'], runSummary: 'memoriesFor',
+    drop: ['newSpecies'], nights: { still: 1, lanternStill: 1, lanternSwarm: 4, gloomtide: 'v1' }, relics: 'v1' },
   perHour: { target: [120, 180], stillWithin: 0.15, midGame: { lantern: 143, still: 127 } },
   shelves: { fishing: { costMult: 0.55, levels: 46, base: 8800 }, gloom: { costMult: 0.7, levels: 14, base: 3125 } },
   gloomRelics: ['salt_glass_lens', 'first_wick_stub', 'tinderbox', 'barnacle_cloak', 'ember_in_resin'],
@@ -3625,10 +3802,13 @@ export const LEDGER = {
 // ---- The Landing: a walkable 3D cove (brief §3.7). Not in ZONES or ZONE_BY_ID; entered by
 // zone:change {zone: 'cove', hub: true}. x east, z south (−z = north, up-screen); y = walk height (m).
 export const COVE = {
-  id: 'cove', index: -1, hub: true, name: 'The Landing', subtitle: 'A Drowned Ferry Cove', mode: 'foot',
+  id: 'cove', index: -1, hub: true, theme: 'cove', name: 'The Landing',   // theme 'cove': world-layout / world-art build no Mossmere set-pieces here (themeOf must not clamp −1 to the Mossmere) subtitle: 'A Drowned Ferry Cove', mode: 'foot',
   description: 'An old ferry landing tucked under the kingdom\'s outer wall: a sheltered pocket of still water behind a broken sea-gate. The ferrymen pinned their best catches to the harbour wall. It is bare now.',
   arena: {
-    radius: 42, seed: 7707, layout: 'cove', shallows: [0.2, 0.5], channel: [0.6, 1.0], shoreNotch: [{ a: 270, w: 14, depth: 0.8 }],
+    // shoreNotch (CONTRACT §13.8): a = centre angle in degrees, atan2(z, x) convention (270 = north at x 0); w = metres of arc at R;
+    // depth = water depth along it; len = metres it runs beyond R (the cliff ring and its collision open over that width).
+    // a 278° puts the notch at x ≈ 6, so the channel runs straight north through the arch (legs x −3 / 15, centre x 6).
+    radius: 42, seed: 7707, layout: 'cove', shallows: [0.2, 0.5], channel: [0.6, 1.0], shoreNotch: [{ a: 278, w: 14, depth: 0.8, len: 12 }],
     parallax: 3, parallaxLow: 2, stalactites: true, shafts: 2,
     islands: [], pillars: [], deepPools: [], legendPool: null, gate: null,
     spawn: { x: -18, z: -2.5, yawDeg: 180, mode: 'foot', at: 'hearth' }, jettySpawn: { x: 3, z: 2, yawDeg: 0, mode: 'foot' },
@@ -3666,11 +3846,22 @@ export const COVE = {
     { id: 'gear_bench', name: 'Gear Bench', x: -26, z: -5, pill: 'Tackle', opens: 'tackle' },
     { id: 'shrine', name: 'Shrine of Drowned Lanterns', x: -30, z: 0, pill: 'Shrine', opens: 'shrine', lanterns: 'totalRelicLevels' },
     { id: 'murk', name: "Murk's Barge", x: 4, z: -6.5, pill: 'Trade', opens: 'shop', range: 5, tabs: ['sell', 'bait', 'supplies', 'ledger', 'rumours', 'cosmetics'] },
-    { id: 'raft', name: 'Raft', x: 6, z: 2, pill: 'Board', opens: 'setOutGlide' },
+    { id: 'raft', name: 'Raft', x: 6, z: 2, pill: 'Board', opens: 'setOutGlide', needs: 'pendingSetOut' },
+    // the walls: one station per wing, on its gallery facing the wall (range 4); taps on frames route through world.pickFrame
+    { id: 'wall_mossmere', name: 'Mossmere wing', x: -24.75, z: -11.5, pill: 'Look', opens: 'wall', range: 4, wing: 'mossmere' },
+    { id: 'wall_sporewood', name: 'Sporewood wing', x: -11.25, z: -11.5, pill: 'Look', opens: 'wall', range: 4, wing: 'sporewood' },
+    { id: 'wall_glasswater', name: 'Glasswater wing', x: -24, z: -18.5, pill: 'Look', opens: 'wall', range: 4, wing: 'glasswater', needs: 'cove_stair' },
+    { id: 'wall_paleabyss', name: 'Pallid wing', x: -12, z: -18.5, pill: 'Look', opens: 'wall', range: 4, wing: 'paleabyss', needs: 'cove_stair' },
     { id: 'jetty', name: 'Jetty', x: 3, z: 2, pill: null, opens: 'coveFishing' },
     { id: 'pond', name: 'Keep-Pond', x: -16, z: 3.5, pill: null, opens: 'pond', camera: 'pond' },
   ],
-  testBuoy: { x: 10, z: 6, fight: 'fixedPull', rewards: false },
+  // NNE of the jetty head (4, 2): 4.5 m away, 27° from up-screen (§24.5: cast water within ±50° of up-screen), clear of the
+  // Set Out path and 4.9 m from Murk's barge; the practice fight is a Reedjaw at z 1.4 that cannot escape, capped at 20 s
+  testBuoy: { x: 6, z: -2, fight: 'fixedPull', rewards: false, practice: { species: 'reedjaw_pike', z: 1.4, escape: false, cap: 20, shows: ['tensionBand', 'dragPreset', 'shock'] } },
+  // scripted raft glides (player.glide): out under the arch through the Waystone sill's gap (W2 4.5 / W3 9 at z −15.3, stone r 0.4:
+  // 3.7 m clear), east of Murk's barge (≥ 3.9 m from its pad centre); Homecoming runs it backwards and moors at the jetty
+  setOutPath: [[6, 2], [11, 1], [11, -9], [6.75, -13], [6.75, -18], [6.75, -24]], archLineZ: -18, homeInPath: [[6.75, -24], [6.75, -13], [11, -9], [11, 1], [6, 2]],
+  homecoming: { spawn: 'raftAtMooring', skipped: 'jettySpawn' },
   fishing: { species: ['quayling'], sale: false, memoriesFirstOnly: true },
   seaGate: { legs: [{ x: -3, z: -18 }, { x: 15, z: -18 }], crown: 9.5, span: 16, legendsY: [3.5, 6.5], swallowerY: 7, build: 'taperTube' },
   waystones: [
@@ -3680,16 +3871,24 @@ export const COVE = {
     { zone: 'paleabyss', x: 13, z: -15, colour: 0xe8c66a, keepsake: '30 candle-rafts drifting in the cove', opensWing: 'sailcloth' },
   ],
   // The Long Wall: one framed slot per non-legendary species, a painted ruler 1.1 × the species' reach.
+  // the hearth (−18, −4.5) sits on the quay against the z −6 retaining wall; its chimney breast is a 3 m stretch of the LOWER WALL
+  // (x −19.5…−16.5) behind the Lower Gallery, carrying the stack to the Upper Gallery's parapet; both Wanderer frames hang on it,
+  // one above the other. The lower wings shrink to 10.5 m either side; the upper wings keep 12 m (the Pallid row needs 12.0 m).
   walls: {
     lower: { z: -14.5, x: [-30, -6], y: [1.8, 6.0], from: 'cv_gallery' },
     upper: { z: -21.5, x: [-30, -6], y: [6.0, 10.0], from: 'cv_upper' },
-    chimney: { x: -18, wanderers: ['pilgrim_salmon', 'hearthfish'] },
+    chimney: { x: [-19.5, -16.5], wall: 'lower', wanderers: ['pilgrim_salmon', 'hearthfish'], stacked: true },
   },
   wings: {
-    mossmere: { wall: 'lower', x: [-30, -18], openAt: 'start' }, sporewood: { wall: 'lower', x: [-18, -6], openAt: 'sporewood', cover: 'sailcloth' },
+    mossmere: { wall: 'lower', x: [-30, -19.5], openAt: 'start' }, sporewood: { wall: 'lower', x: [-16.5, -6], openAt: 'sporewood', cover: 'sailcloth' },
     glasswater: { wall: 'upper', x: [-30, -18], openAt: 'glasswater', cover: 'stair' }, paleabyss: { wall: 'upper', x: [-18, -6], openAt: 'paleabyss', cover: 'sailcloth' },
   },
-  wing: { w: 12, h: 3.6, rows: 3, gap: 0.4, largestLowest: true },
+  wing: { h: 3.6, rows: 3, gap: 0.4, rowGap: 0.15, largestLowest: true },   // each wing's width is its x span; frames pack in 2D (width and height)
+  // frame height by mount view: side profile (default) = ratio × reach + margin; rays dorsal-up (ratio 0.56); jellies hang bell-up
+  // (height 1.1 × reach + 0.15, width max(0.66, 0.6 × reach + 0.2)). The Wick silhouette (0.85 m) is painted at true height beside
+  // any frame shorter than it. Wanderer frames size from their largest reach over their lakes.
+  frameHeight: { margin: 0.2, min: 0.45, ratio: { minnow: 0.22, perch: 0.3, carp: 0.32, koi: 0.3, pike: 0.18, eel: 0.09, angler: 0.35, ray: 0.56, puffer: 0.45,
+    crayfish: 0.25, ghost: 0.25, sturgeon: 0.16, jelly: 1.1 }, views: { ray: 'dorsal', jelly: 'hanging' } },
   frames: [   // by "said to reach" length (m); width = 1.1 × reach (the specimen board holds up to 4 small species of one lake)
     { id: 'board', name: 'specimen board', maxReach: 0.6, width: 1.2, height: 0.6, holds: 4 },
     { id: 'plaque', name: 'plaque', maxReach: 1.4, widthRange: [0.66, 1.54] },
@@ -3729,8 +3928,26 @@ export const COVE = {
     low: { post: 10, water: 4, cliffs: 4, stalactites: 2, quay: 2, walls: 3, gate: 4, lamps: 3, hearth: 2, furniture: 3, keepsakes: 3, mantel: 1, wicks: 2, particles: 2,
       wickOnFoot: 15, raft: 4, murk: 8, mounts: 9, pond: 12, total: 93, cap: 100 },
     pointLights: 4, buildMs: { desktop: 150, phone: 600 }, mountLodTris: 600, mountLodFrom: 12,
+    // the mount batch is a near / far pair per wall: the wing in view at full detail (≤ 12 fish, ≈ 2.3k tris each with the outline)
+    // + every other mount and legend at LOD (≤ 600 tris, 1.2k with the outline); pairs swap by wing distance (no rebuild)
+    mountBatch: { near: 9, far: 3, maxTris: 80000, rebuildOn: ['homecoming', 'swap', 'pond:add', 'pond:release'] },
   },
+  // the cove's land is built by direct extrusion of COVE.walk shapes (rect boxes, path ribbons, ramp wedges) in world-cove.js; it does
+  // not need §24's grid mesher. walkGridFor (data) gives collision and tap-to-walk.
+  land: 'extrude',
   fallback: 'landingV0',
+  // Landing v0 (only while §24's foot controller is not in the build): world.getMode() = 'raft'; the Wick stays on the raft and
+  // every land station is offered from a pill post (a bollard lantern) on the quay's south parapet, within the raft's 5 m interact
+  // range of raft-reachable water (validated); the walls and the pond are shown by flying the wall / pond camera from a post; the
+  // layout, the land builder and every asset are the full Landing's, so v0 needs no rework when the foot core lands.
+  v0: {
+    mode: 'raft', range: 5,
+    posts: [
+      { id: 'shrine', x: -29, z: 7.6 }, { id: 'gear_bench', x: -25.5, z: 7.6 }, { id: 'trials', x: -22, z: 7.6 }, { id: 'hearth', x: -18.5, z: 7.6 },
+      { id: 'pond', x: -15.5, z: 7.6, camera: 'pond' }, { id: 'wall', x: -12, z: 7.6, camera: 'wall', opens: 'wall' }, { id: 'map_table', x: -9, z: 7.6 }, { id: 'lectern', x: -5.5, z: 7.6 },
+    ],
+    atWater: ['murk', 'raft', 'jetty'],
+  },
 };
 
 // ---- Save migration (brief Pg3, §13.1): keep the Journal, records, relics, Wicks and challenges; refund cut
@@ -3748,6 +3965,17 @@ export const RENAMES = {
   upgradesCut: ['lure_feather', 'creel_frost'],
   combatKit: ['lantern_mantle', 'lantern_lens', 'lantern_striker', 'raft_hull', 'raft_hearth'],
   welcomePurse: 200, runInProgress: 'returnHome', keep: ['journal', 'records', 'relics', 'wicks', 'challenges', 'memories', 'settings'],
+  // Pg0 (P1): ids only (species, baits, supplies in journal keys, run.legendaries, run.bait, unlocks); marks meta.v3ids = true.
+  // Pg3 (P3): the rest, once. core.loadSave() returns the envelope {version, meta, run}; schema is never merged from defaultMeta.
+  pg0: ['species', 'baits', 'supplies'],
+  detect: { legacy: 'version < 3 && (meta.runs > 0 || journal not empty)', fresh: 'otherwise' },
+  fresh: { shells: 20, schema: 3, firstOutingDone: false },                    // a brand-new player: no welcome purse, the First Outing
+  legacy: { welcomePurse: 200, firstOutingDone: true, schema: 3,               // a veteran never replays the First Outing
+    runShells: 'addToMeta',                                                   // a v1 run in progress: its run.shells join meta.shells …
+    runTally: 'memoriesFor',                                                  // … and it is paid by v1 memoriesFor (it had no expedition tally)
+    gates: 'legendaryInJournal',                                              // gates (and Waystones) open only for lakes whose legendary meta.journal holds
+    tackle: 'none' },                                                         // v1 upgrades were per run: persistent tackle and outfit start at T0 / level 0 for everyone
+  // upgradesTo* say where each v1 catalogue entry went (validated: each maps once); they grant nothing on migration
   metaAdds: ['shells', 'tackle', 'outfit', 'lures', 'mounts', 'pond', 'landing', 'waystones', 'shortcuts', 'residents', 'markedFish', 'elderLog', 'places', 'ledger'],
 };
 
@@ -3774,12 +4002,12 @@ export const TEXT_V3 = {
   },
 };
 export const TIPS_V3 = [
-  { id: 'v3_walk', trigger: 'hub:enter', text: 'Walk the Landing. The jetty end glows: cast from it.' },
-  { id: 'v3_cast_cove', trigger: 'interact:change:jetty', text: 'Hold on the water to cast.' },
-  { id: 'v3_favour', trigger: 'fishing:cast', text: 'The notches on your float show how much the water favours you.' },
-  { id: 'v3_mark', trigger: 'fish:measured', text: 'Mark a Prize or bigger for home. It must survive the nights.' },
-  { id: 'v3_farwater', trigger: 'farwater:dawn', text: 'Far Water: the fishing gets better, the way home costs more.' },
-  { id: 'v3_resident', trigger: 'resident:show', text: 'A resident giant showed itself. Cast within 3 m, quickly.' },
+  { id: 'v3_walk', phase: 3, trigger: 'hub:enter', text: 'Walk the Landing. The jetty end glows: cast from it.' },
+  { id: 'v3_cast_cove', phase: 3, trigger: 'interact:change:jetty', text: 'Hold on the water to cast.' },
+  { id: 'v3_favour', phase: 1, trigger: 'fishing:cast', text: 'The notches on your float show how much the water favours you.' },
+  { id: 'v3_mark', phase: 3, trigger: 'fish:measured', text: 'Mark a Prize or bigger for home. It must survive the nights.' },
+  { id: 'v3_farwater', phase: 3, trigger: 'farwater:dawn', text: 'Far Water: the fishing gets better, the way home costs more.' },
+  { id: 'v3_resident', phase: 2, trigger: 'resident:show', text: 'A resident giant showed itself. Cast within 3 m, quickly.' },
 ];
 export const MERCHANT_LINES_V3 = {
   frontYard: ["Lives in my front yard. I don't buy those. The real water's through the gate."],
@@ -3836,7 +4064,7 @@ export function fishValueV3(sp, z, opts = {}) {
 export function fishYieldV3(sp, z, kind = 'oil', opts = {}) {
   const Y = SZB.yield, m = Math.min(Y.clamp[1], Math.max(Y.clamp[0], Math.exp(Y.perZ * z)));
   const fw = kind === 'oil' && opts.day ? farWaterFor(opts.day).render : 1;
-  return sp[kind] * m * (opts.quality ?? 1) * fw;
+  return sp[kind] * Y.factor * m * (opts.quality ?? 1) * fw;
 }
 /** Far Water on expedition day d (brief §3.4). */
 export function farWaterFor(day = 1) {
@@ -3868,61 +4096,124 @@ export function tallyFor(s = {}) {
   const raw = lines.reduce((a, l) => a + l.value, 0) * (1 + (s.memMult || 0));
   return { total: Math.round(raw * (s.snuffed ? T.snuffedMult : 1)), raw, lines };
 }
-/** The Long Wall frame for a species (brief §3.7.3): {id, width (m)}. */
+/** The Long Wall frame for a species (brief §3.7.3): {id, width, height (m), reach (m), view}. Wanderers size from their largest reach. */
 export function frameFor(sp) {
-  const reachM = reachOf(sp, sp.zones?.[0]) / 100;
-  const f = COVE.frames.find((q) => reachM <= q.maxReach);
-  return { id: f.id, width: f.id === 'board' ? f.width : v3r(1.1 * reachM, 2), reach: v3r(reachM, 2) };
+  const reachM = Math.max(...(sp.zones?.length ? sp.zones : [sp.zone]).map((z) => reachOf(sp, z))) / 100;
+  const f = COVE.frames.find((q) => reachM <= q.maxReach), H = COVE.frameHeight, shape = sp.model?.shape;
+  const view = H.views[shape] || 'side';
+  if (f.id === 'board') return { id: f.id, width: f.width, height: f.height, reach: v3r(reachM, 2), view };
+  if (view === 'hanging') return { id: f.id, width: v3r(Math.max(0.66, 0.6 * reachM + 0.2), 2), height: v3r(1.1 * reachM + 0.15, 2), reach: v3r(reachM, 2), view };
+  return { id: f.id, width: v3r(1.1 * reachM, 2), height: v3r(Math.max(H.min, (H.ratio[shape] ?? 0.3) * reachM + H.margin), 2), reach: v3r(reachM, 2), view };
+}
+/** Which seals a species can earn (brief §6.3): the Quayling none; a species capped below Elder loses its Elder seal. */
+export function sealsFor(sp) {
+  if (sp.cove || sp.rarity === 'legendary') return [];
+  return BALANCE_V3.records.seals.classes.filter((c) => c !== 'elder' || !(BALANCE_V3.records.seals.noElder.includes(sp.id) || (sp.maxClass && SZB.classMaxZ[sp.maxClass] < SZB.fight.elderZ)));
+}
+/** The one place-membership helper for v3 consumers: the place of `zone` whose water contains (x, z), or null. Searches the zone's
+ *  arena.places (the Mossmere's v3 places from P2; §24's places in walking builds) and then §24's ARENA_V2 (v2's placeAt stays for v2). */
+export function placeAtV3(zone, x, z) {
+  const id = typeof zone === 'string' ? zone : zone?.id;
+  const list = ZONES.find((q) => q.id === id)?.arena?.places || ARENA_V2[id]?.places || [];
+  return list.find((p) => placeContains(p, x, z)) || null;
+}
+/** What the trophy camera frames at a place: its authored landmark, else its own centre 2 m up (§24's places), else null. */
+export function landmarkOf(place) {
+  if (!place) return null;
+  return place.landmark ? { ...place.landmark } : { x: place.x ?? place.water?.x ?? 0, y: 2, z: place.z ?? place.water?.z ?? 0 };
+}
+/** Fight stats of a tackle loadout (the reel sim and progression.getStats share it). TACKLE tier values REPLACE the STATS base for
+ *  castMax, hookWindow, slackTime, lineStrength, reelSpeed, sweetZone and creelSize; Wick, relics, Boons and outfit then add. */
+export function tackleStats(t = {}, drag = 'set') {
+  const r = TACKLE.rod[t.rod | 0], l = TACKLE.line[t.line | 0], e = TACKLE.reel[t.reel | 0], c = TACKLE.creel[t.creel | 0];
+  const preset = e.drag === 'presets' ? (TACKLE.drag.presets[drag] ?? TACKLE.drag.presets.set) : TACKLE.drag.presets[TACKLE.drag.fixed];
+  return { castMax: r.castMax, hookWindow: r.hookWindow, slackTime: r.slackTime + (l.slackAdd || 0), shock: r.shock, pipBonus: r.pips,
+    lineStrength: l.lineStrength, reelSpeed: e.reelSpeed, sweetZone: e.sweetZone, absorb: e.absorb, dragAt: preset, creelSize: c.creelSize };
+}
+/** P1–P2 and The Long Descent (per-run UPGRADES, no tiers): the effective tackle tier per slot from owned upgrade levels. Only shock,
+ *  pips, absorb and the tackle rating come from it; the other stats stay computeStats(UPGRADES). */
+export function upgradeTiers(levels = {}) {
+  const T = BALANCE_V3.upgradeTiers, out = {};
+  for (const [slot, ids] of Object.entries(T.slots)) {
+    const n = ids.reduce((a, id) => a + (levels[id] | 0), 0), max = ids.reduce((a, id) => a + (UPGRADES.find((u) => u.id === id)?.maxLevel | 0), 0);
+    out[slot] = Math.min(4, Math.floor((n * 4) / Math.max(1, max) + 1e-9));
+  }
+  return out;
 }
 
-// ---- Apply (only when the v3 build is active). Runs after the walking merge, before the lookup maps.
+// ---- Apply (only when the v3 build is active). Runs after the walking merge, before the lookup maps. Gated by V3_PHASE so each
+// phase's build carries exactly its data (DESIGN §25.14.1 "which data lands when"; validate-data runs a pass per phase):
+//   P1  BALANCE_V3 (minus V3_BLOCK_PHASE blocks), v3 STATS keys, the 32 P1 species (+ §24's 8 kept fish with §24), the renames
+//       (Pg0 migrates the ids), Murk's Chum, Angler Boons and tags, the Wicks' fishing halves, P1 tips, text, the Mossmere's rust
+//       accent and buoy watch-lamps, §24 place sync and watch lamps (when §24 is in), raft fallbacks (stopgap giants, watch lamps)
+//   P2  + residents / Marked Fish blocks, the Mossmere's 8 places, props and Moon-Eye crack, the sturgeon shape, species → 36
+//   P3  + farWater / liveWell, RELICS_V3 (cuts, shelves, costs), CHALLENGES_V3, Homeward stones, the welcome purse, species → 47
+//   P4  + the Moon Cistern and the six P4 species (→ 53)
 if (V3_ENABLED) {
+  const P = V3_PHASE;
   const keepWalk = (x) => WALK_ENABLED || !x.needsWalk;
   const walkPlace = new Set(PLACES.map((p) => p.id));
-  Object.assign(STATS, WALK_STATS);                                    // stride exists in v3 (Boots, Quick Feet) even without §24
+  Object.assign(STATS, WALK_STATS);                                    // stride exists in v3 (Boots, Wanderer's Stride, Quick Feet) even without §24
+  for (const [k, v] of Object.entries(BALANCE_V3.stats)) STATS[k] = { ...v };   // shock, absorb, pipBonus, dragAt (T0 values)
   for (const [k, v] of Object.entries(BALANCE_V3)) {                 // new blocks are assigned; an existing block (bite) gains the v3 keys only (validated)
+    if ((V3_BLOCK_PHASE[k] ?? 1) > P) continue;
     if (BALANCE[k] && typeof BALANCE[k] === 'object' && !Array.isArray(BALANCE[k])) Object.assign(BALANCE[k], v); else BALANCE[k] = v;
   }
-  BALANCE.economy.welcomePurse = ECONOMY_V3.welcomePurse;
+  // species: §24's kept fish come with §24's lake builds; everything else by phase; nothing kept at a §24 place without §24
   SPECIES.length = 0;
-  SPECIES.push(...SPECIES_V3.filter((s) => WALK_ENABLED || !(s.src === 'walk' || (s.place && walkPlace.has(s.place)))));
-  FISH_SHAPES.push('sturgeon');
+  SPECIES.push(...SPECIES_V3.filter((s) => (s.src === 'walk' ? WALK_ENABLED : s.phase <= P) && (WALK_ENABLED || !(s.src === 'walk' || (s.place && walkPlace.has(s.place))))));
+  if (P >= 2) FISH_SHAPES.push('sturgeon');
+  // renames (originality; Pg0 renames the ids in saves in P1) and the feeding-spot cut (Murk's Chum, the sign bounty)
   for (const b of BAITS) if (b.id === 'pale_marrow') Object.assign(b, { id: 'last_candle', name: 'Last Candle', desc: 'A candle-end that never quite went out. Something in the deepest water remembers what it was for.' });
   const tc = SUPPLIES.findIndex((s) => s.id === 'tide_chart');
   if (tc >= 0) SUPPLIES.splice(tc, 1, { id: 'murks_chum', name: "Murk's Chum", price: 30, give: { chum: 1 }, limitPerVisit: 1, icon: 'bait',
     desc: 'A pail of scraps. Your next cast stirs up nervous water for 30 s: a predator under a bait ball.' });
-  RELICS.length = 0; RELICS.push(...RELICS_V3.filter(keepWalk));
+  const sb = BOUNTIES.find((x) => x.id === 'spot_catch');
+  if (sb) Object.assign(sb, { type: 'signCatch', text: 'Catch {n} fish cast inside a sign on the water.' });
+  if (P >= 3) { RELICS.length = 0; RELICS.push(...RELICS_V3.filter(keepWalk)); }
   BOONS.push(...BOONS_V3);
   for (const b of BOONS) if (ANGLER_POOL.includes(b.id) && !b.tags.includes('angler')) b.tags = [...b.tags, 'angler'];
   for (const c of CHARACTERS) if (CHARACTERS_V3[c.id]) c.fishing = v3clone(CHARACTERS_V3[c.id].fishing);
-  CHALLENGES.length = 0;
-  CHALLENGES.push(...CHALLENGES_V3.filter(keepWalk).map((c) => (c.id === 'complete_chronicle' ? { ...c, params: { ...c.params, n: SPECIES.length } } : c)));
-  TIPS.push(...TIPS_V3);
+  if (P >= 3) {
+    CHALLENGES.length = 0;
+    CHALLENGES.push(...CHALLENGES_V3.filter(keepWalk));
+    BALANCE.economy.welcomePurse = ECONOMY_V3.welcomePurse;
+  }
+  { const chron = CHALLENGES.find((c) => c.id === 'complete_chronicle'); if (chron) chron.params = { ...chron.params, n: SPECIES.length }; }
+  TIPS.push(...TIPS_V3.filter((t) => (t.phase ?? 1) <= P));
   Object.assign(MERCHANT_LINES, MERCHANT_LINES_V3);
   TEXT.v3 = TEXT_V3; TEXT.premise = TEXT_V3.premise; TEXT.challengeTabs = CHALLENGE_TABS_V3;
-  // zones: the Mossmere's places, props and rust accent; the legendary rename; place sync (▲) on the §24 lakes
+  // the Mossmere: rust accent and buoy watch-lamps (P1); places, props and the Moon-Eye crack (P2; the Moon Cistern P4)
   const moss = ZONES[0];
   Object.assign(moss.palette, MOSSMERE_V3.palette);
-  moss.arena.places = MOSSMERE_V3.places.map((p) => ({ ...v3clone(p), zone: 'mossmere' }));
-  moss.arena.pillars.push(...MOSSMERE_V3.props.map((p) => ({ ...p })));
   moss.arena.watchLamps = v3clone(MOSSMERE_V3.watchLamps);
+  if (P >= 2) {
+    moss.arena.places = MOSSMERE_V3.places.filter((p) => (p.phase ?? 2) <= P).map((p) => ({ ...v3clone(p), zone: 'mossmere' }));
+    moss.arena.pillars.push(...MOSSMERE_V3.props.map((p) => ({ ...p })));
+    moss.arena.cracks = v3clone(MOSSMERE_V3.cracks);
+  }
+  // raft fallbacks: a lake with no places in this build gets the stopgap giant water; §24's lakes without §24 get raft watch lamps
+  // and a raft Homeward stone (CONTRACT §13.8)
   for (const z of ZONES) {
-    z.homeward = { ...EXPEDITION.homeward.stones[z.id] };
+    const F = RAFT_FALLBACK_V3[z.id], hasPlaces = (z.arena.places || []).length > 0;
+    if (!hasPlaces && F) z.arena.giantSpots = v3clone(F.giants);
+    if (z.id !== 'mossmere' && !WALK_ENABLED && F) z.arena.watchLamps = v3clone(F.watchLamps);
+    if (P >= 3) z.homeward = { ...((z.id !== 'mossmere' && !WALK_ENABLED) ? F.homeward : EXPEDITION.homeward.stones[z.id]), radius: EXPEDITION.homeward.radius };
     if (z.legendary === 'pale_leviathan') z.legendary = 'lantern_swallower';
   }
+  // §24's lakes (walking builds): place sync ▲, watch lamps, renames
   for (const [zid, a] of Object.entries(ARENA_V2)) {
-    for (const p of a.places || []) {
-      const s = PLACE_SYNC_V3[p.id]; if (!s) continue;
-      const { rule, ...rest } = v3clone(s);
-      Object.assign(p, rest); if (rule) p.rule = { ...(p.rule || {}), ...rule };
-    }
-    for (const l of a.lamps || []) if (WALK_SYNC_V3.watchLamps[zid]?.includes(l.id)) l.watch = true;
+    for (const p of a.places || []) v3syncPlace(p);
+    for (const l of a.lamps || []) if (WALK_SYNC_V3.watchLamps[zid]?.includes(l.id)) Object.assign(l, { watch: true, radius: BALANCE_V3.nightModes.lampWatch.radius });
   }
   for (const [path, name] of Object.entries(WALK_SYNC_V3.renames)) {
     const [zid, kind, id] = path.split('.'), A = ARENA_V2[zid];
     const hit = kind === 'lamp' ? A?.lamps?.find((l) => l.id === id) : A?.walk?.shapes?.find((s) => s.id === id);
     if (hit) hit.name = name;
   }
+  // PLACES / PLACE_BY_ID: every place in this build with its v3 fields (§24's places only with §24; the Mossmere's from P2)
+  PLACES.length = 0;
+  PLACES.push(...(moss.arena.places || []), ...(WALK_ENABLED ? Object.entries(ARENA_V2).flatMap(([zid, a]) => (a.places || []).map((p) => ({ ...p, zone: zid }))) : []));
 }
 export const SPECIES_V3_COUNT = SPECIES_V3.length;   // 53
 
