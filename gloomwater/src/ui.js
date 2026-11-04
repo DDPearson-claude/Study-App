@@ -276,6 +276,7 @@ export function create(ctx) {
     }
     return bannerKinds.get(title) || null;
   }
+  const PHASE_KINDS = new Set(['phase', 'gloom', 'dawn']);
   function banner(title, subtitle = '', opts = {}) {
     if (!title) return;
     title = String(title);
@@ -290,6 +291,8 @@ export function create(ctx) {
       return;
     }
     lastBannerTitle = title; lastBannerAt = now;
+    // a newer phase banner makes any still-waiting one stale (dusk → gloomtide in quick succession)
+    if (PHASE_KINDS.has(kind)) for (let i = bannerQ.length - 1; i >= 0; i--) if (PHASE_KINDS.has(bannerQ[i].kind)) bannerQ.splice(i, 1);
     if (bannerQ.length >= 3) { const i = bannerQ.findIndex((b) => b.kind !== 'area'); bannerQ.splice(i >= 0 ? i : 0, 1); }
     bannerQ.push({ title, subtitle, kind, dur: opts.dur || (kind === 'area' ? 3.6 : kind === 'formation' ? 1.8 : 2.9) });
   }
