@@ -60,7 +60,7 @@ A day is 232 s on day 1 and 262 s from day 6 onward.
 1. Start in the Mossmere (or a Waystone lake) with your chosen Wick, its start boon and kit.
 2. Each lake has a **legendary** fish. Buy its **legend bait** from Murk, cast into the **legend pool** at the right time: the bite is guaranteed; the boss fight is the test.
 3. Landing it opens the **Descent Gate**. Pay its Shell toll at the whirlpool and sink to the next lake: richer fish and Shells, and the swarm's **Heat** jumps by +3, like skipping three nights.
-4. Every third night in a lake a **Warden** rises. Kill it for **Heartwax** (+1 max Ember for the run), a **Warden's Gift** pick, Shells and oil.
+4. Every third night in a lake a **Warden** rises. Kill it for **Heartwax** (+1 max Ember for the run, first kill of each Warden only), a **Warden's Gift** pick, Shells and oil. Lingering in a lake past its 4th night adds +1 extra Heat per night, so a lake cannot be camped forever.
 5. Four lakes. Landing the **Pale Leviathan** in the Pallid Deep wins the run (endless play continues if you choose).
 6. Death ends the run: Memories are tallied and banked. Nothing earned is ever taken away.
 
@@ -284,7 +284,7 @@ Mean wait at base stats is 8.5 s (4.7 s in a spot).
 | **Shroud Ray** `shroud_ray` | uncommon | any | 0.45–1 | — | 4–12 | 88 / 44 / 48 | leaper | 1.5 · 4.81 · 1.2 · 12.5 · 0.76 · 0.4 · 0.62 | ray |
 | **Funeral Veil** `funeral_veil` | rare | gloom | 0.3–0.9 | — | 0.8–3 | 190 / 24 / 74 | darter | 1.35 · 3.15 · 0.83 · 12.5 · 0.8 · 0.45 · 0.62 | jelly |
 | **Lampwarden Angler** `lampwarden_angler` | rare | gloom | 0.6–1 | `ember_roe` | 6–16 | 210 / 50 / 70 | sinker | 2.34 · 6.82 · 2.04 · 18.4 · 0.68 · 0.35 · 0.52 | angler |
-| **The Pale Leviathan** `pale_leviathan` | legendary | gloom | 0.85–1 | `pale_marrow` | 120–300 | 2500 / 100 / 150 | sinker | 2.5 · 6.2 · 1.8 · 38 · 0.62 · 0.55 · 0.45 | leviathan |
+| **The Pale Leviathan** `pale_leviathan` | legendary | gloom | 0.85–1 | `pale_marrow` | 120–300 | 2500 / 100 / 150 | sinker | 2.5 · 6.2 · 1.8 · 44 · 0.62 · 0.55 · 0.45 | leviathan |
 
 **Model params** (models.createFish): `shape` ∈ FISH_SHAPES; `body / belly / fin` hex colours; `glow` hex or null (no emissive); `pattern` ∈ scales · stripes · bands · spots · none; `eyes` ∈ normal · glow · blind; `scale` 1.0 ≈ a 40 cm fish at mid weight (legendaries 2.0–3.5).
 
@@ -341,7 +341,7 @@ During the warning `view.surgeWarn` ramps 0 → 1, telegraphed on three channels
 
 **Visibility.** The legend pool is always drawn as a faint ring of unnaturally still water. When you own its bait and the time is right, it raises a column of slow golden motes visible from anywhere, gets an edge marker, and shows the toast "A golden stillness gathers far out…" once per day.
 
-**Shared fight rules.** Legendaries don't tire until their final phase; phases trigger on progress P; after `enrage` seconds of fighting: power ×1.25, surge interval ×0.75, warnings shortened (min 0.55 s). During a legendary fight a hand slam does **not** snap the line: it deals its damage and spikes tension +0.25 instead.
+**Shared fight rules.** Legendaries don't tire until their final phase; phases trigger on progress P; after `enrage` seconds of fighting: power ×1.25, surge interval ×0.75, warnings shortened (min 0.55 s). During a legendary fight a hand slam does **not** snap the line: it deals its damage and spikes tension +0.25 instead. While a legendary is hooked no **new** elite hands rise (`BALANCE.combat.legendPausesElites`; its own summons still come), and a gloom-time fight holds the Gloomtide open until it resolves (the hush spawns nothing): an anchored Wick cannot dodge, so the fish must be the fight.
 
 **Wounded.** If a legendary escapes: `run.flags.wounded[id] = min(0.4, 0.5 × P at escape)`; its next hook starts at that progress, gets +0.1 s on the hook window, and the pool goes dim for 20 s.
 
@@ -421,7 +421,7 @@ The light radius and aura are specified in §8.1 (they are combat). Survival own
 | Dawn | `stats.dawnHeal` (base 1), +1 if satiety ≥ 70% ("Well-fed") |
 | Kindling Heart (boon) | +1 max and +1 now |
 | Undying Ember (legendary boon) | +2 max and +2 now |
-| Heartwax (Warden kill) | +1 max Ember for the rest of the run (`run.flags.heartwax`, added by getStats) and +1 now |
+| Heartwax (Warden kill) | +1 max Ember for the rest of the run (`run.flags.heartwax`, added by getStats) and +1 now; only the **first** kill of each Warden per run (`BALANCE.heal.heartwaxOnce`) |
 | Wax Patch (Murk) | +1, one per visit |
 | A Warm Breath (fallback card) | +1 |
 
@@ -445,9 +445,9 @@ hp ≤ 0 → if the *Second Wick* relic is owned and unused this run (`progressi
 
 ### 7.1 The one-number model: Gloom Heat
 ```
-H = (day − 1) + 3 × zoneIndex
+H = (day − 1) + 3 × zoneIndex + max(0, nightInZone − 4)        // linger: +1 per night beyond a lake's 4th
 ```
-Each night adds 1. Descending adds 3, like skipping three nights at once. Staying keeps H climbing while XP falls behind the level curve, so camping is allowed but discouraged; descending is a real decision about whether your build is ready. A Waystone start begins on day 1 at H = 3z with banked levels (§17.3).
+Each night adds 1. Descending adds 3, like skipping three nights at once. Staying keeps H climbing while XP falls behind the level curve, so camping is allowed but discouraged; descending is a real decision about whether your build is ready. A Waystone start begins on day 1 at H = 3z with banked levels (§17.3). **Linger** (`director.lingerFrom` 4, `lingerHeat` 1): from a lake's 5th night each further night adds +1 more Heat, so camping the Mossmere ends around day 15 even for a strong build (balance sim) and earns ~45% fewer Memories per minute than descending. `heatFor(day, zoneIndex, nightInZone)` takes the night count; without it the night is assumed on-pace (= day in the first lake, no linger deeper).
 
 ### 7.2 The director: `difficultyFor(day, zoneIndex, k, {nightInZone})`
 ```
@@ -455,40 +455,41 @@ L          = gloomtideLength(day);  t = k·L
 shape(k)   = k < 0.12 → 0.5 (build-up) | k ≥ 0.93 → 0 (hush) | else (k ≥ 0.80 ? 1.4 : 1) × (1 + 0.25·sin(2π·t/20))
 spawnRate  = 0.75 × zone.gloom × (1 + 0.12·H) × shape(k)        individuals / s   (zone.gloom 1.0 / 1.13 / 1.27 / 1.4)
 maxAlive   = min(150, 30 + 6·H)
-hpMult     = 1 + 0.20·H + 0.025·H²
+hpMult     = 1 + 0.24·H + 0.025·H²
+bossHpMult = 1 + 0.30·H                                           (Wardens only: hp = base × bossHpMult)
 speedMult  = min(1.45, 1 + 0.03·H)
-damageMult = 1 + 0.5·floor(H/8)          → Embers per hit = max(1, floor(base × damageMult)), Wardens ≤ 3
+damageMult = 1 + 0.5·floor(H/12)         → Embers per hit = max(1, floor(base × damageMult)), Wardens ≤ 3
 drainMult  = 1 + 0.04·H
-eliteEvery = day < 2 ? 0 : max(15, 42 − 2·H) s, first elite at k = 0.25
+eliteEvery = day < 2 ? 0 : max(22, 42 − 2·H) s, first elite at k = 0.25; paused while a Warden lives or a legendary is hooked
 boss       = nightInZone % 3 == 0 ? zone.warden : null           (nightInZone falls back to day)
 xpScale    = 1 + 0.10·H                                           (× every cinder)
 kinds      = [{id, w}] of available non-elite enemies;  elites = [{id, w}]
 ```
 `nightInZone` = Gloomtides since the last `zone:change`, 1-based (combat counts it; optional 4th argument). Descending before a lake's third night skips its Warden: faster, but you lose its rewards.
 
-**Spawning.** Each frame of the gloomtide: `credit += spawnRate × dt × (darkness ? 1.3 : 1) × (hooked ? 0.8 : 1) × (legendary hooked ? 0.65 : 1) × (Warden alive ? 0.6 : 1) × (1 + bait.gloomDraw)`. While `credit ≥ 1`: pick a kind by weight; pack size = `pack` (inkmite: +1 per 3 H, max 10); if `alive + pack > maxAlive` or the kind's own `maxAlive` (+1 per 6 H) is reached, defer (credit is capped at 10); otherwise spawn and subtract the pack size. An enemy's availability: `zoneIndex > zoneMin`, or `zoneIndex == zoneMin && day ≥ dayMin`.
+**Spawning.** Each frame of the gloomtide: `credit += spawnRate × dt × (darkness ? 1.3 : 1) × (hooked ? 0.8 : 1) × (legendary hooked ? 0.65 : 1) × (Warden alive ? 0.6 : 1) × (1 + bait.gloomDraw)`. While `credit ≥ 1`: pick a kind by weight; pack size = `pack` (inkmite: +1 per 3 H, max 10); if `alive + pack > maxAlive` or the kind's own `maxAlive` (+`maxAlivePerHeat`·H) is reached, defer (credit is capped at 10); otherwise spawn and subtract the pack size. An enemy's availability: `zoneIndex > zoneMin`, or `zoneIndex == zoneMin && day ≥ dayMin`.
 
 **Placement.** `world.randomWaterPoint({from: raft, minDist: 22, maxDist: 34, clearance: 1})` (`depthMin: 0.4` for eels); at most 35% behind the camera (+Z half); packs spread 2.5 m; 12 ring samples, then any water ≥ 18 m away, so hugging the shore naturally narrows the spawn arc. Spawns fade up from a ripple over 0.6 s.
 
 **Dusk scouts.** Rate × 0.3 of the k = 0.5 rate, max 6 alive, gloomlings only (sporelings in Sporewood and deeper). **Calm stragglers**: from lake index ≥ 1 or day ≥ 5, one creelsnatch raid per calm at k ∈ [0.3, 0.8], only if the creel holds fish. **Dawn**: `killAll('dawn')`: everything dissolves without drops; lying cinders auto-collect; a living Warden withdraws (no reward, no penalty).
 
-| day | zone | Heat H | gloomtide s | ≈ spawns/night | maxAlive | hpMult | speedMult | damageMult | drainMult | eliteEvery s | xpScale |
-|---|---|---|---|---|---|---|---|---|---|---|---|
-| 1 | mossmere | 0 | 90 | 61 | 30 | 1 | 1 | 1 | 1 | — | 1 |
-| 2 | mossmere | 1 | 96 | 75 | 36 | 1.225 | 1.03 | 1 | 1.04 | 40 | 1.1 |
-| 3 | mossmere | 2 | 102 | 87 | 42 | 1.5 | 1.06 | 1 | 1.08 | 38 | 1.2 |
-| 4 | mossmere | 3 | 108 | 100 | 48 | 1.825 | 1.09 | 1 | 1.12 | 36 | 1.3 |
-| 5 | mossmere | 4 | 114 | 116 | 54 | 2.2 | 1.12 | 1 | 1.16 | 34 | 1.4 |
-| 6 | mossmere | 5 | 120 | 134 | 60 | 2.625 | 1.15 | 1 | 1.2 | 32 | 1.5 |
-| 8 | mossmere | 7 | 120 | 154 | 72 | 3.625 | 1.21 | 1 | 1.28 | 28 | 1.7 |
-| 4 | sporewood | 6 | 108 | 143 | 66 | 3.1 | 1.18 | 1 | 1.24 | 30 | 1.6 |
-| 6 | sporewood | 8 | 120 | 185 | 78 | 4.2 | 1.24 | 1.5 | 1.32 | 26 | 1.8 |
-| 8 | glasswater | 13 | 120 | 272 | 108 | 7.825 | 1.39 | 1.5 | 1.52 | 16 | 2.3 |
-| 9 | glasswater | 14 | 120 | 285 | 114 | 8.7 | 1.42 | 1.5 | 1.56 | 15 | 2.4 |
-| 11 | paleabyss | 19 | 120 | 384 | 144 | 13.825 | 1.45 | 2 | 1.76 | 15 | 2.9 |
-| 13 | paleabyss | 21 | 120 | 413 | 150 | 16.225 | 1.45 | 2 | 1.84 | 15 | 3.1 |
+| day | zone | night in lake | Heat H | gloomtide s | ≈ spawns/night | maxAlive | hpMult | Warden hp × | speedMult | damageMult | drainMult | eliteEvery s | xpScale |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 1 | mossmere | 1 | 0 | 90 | 61 | 30 | 1 | 1 | 1 | 1 | 1 | — | 1 |
+| 2 | mossmere | 2 | 1 | 96 | 75 | 36 | 1.265 | 1.3 | 1.03 | 1 | 1.04 | 40 | 1.1 |
+| 3 | mossmere | 3 | 2 | 102 | 87 | 42 | 1.58 | 1.6 | 1.06 | 1 | 1.08 | 38 | 1.2 |
+| 4 | mossmere | 4 | 3 | 108 | 100 | 48 | 1.945 | 1.9 | 1.09 | 1 | 1.12 | 36 | 1.3 |
+| 5 | mossmere | 5 | 5 | 114 | 126 | 60 | 2.825 | 2.5 | 1.15 | 1 | 1.2 | 32 | 1.5 |
+| 6 | mossmere | 6 | 7 | 120 | 154 | 72 | 3.905 | 3.1 | 1.21 | 1 | 1.28 | 28 | 1.7 |
+| 8 | mossmere | 8 | 11 | 120 | 194 | 96 | 6.665 | 4.3 | 1.33 | 1 | 1.44 | 22 | 2.1 |
+| 4 | sporewood | 1 | 6 | 108 | 143 | 66 | 3.34 | 2.8 | 1.18 | 1 | 1.24 | 30 | 1.6 |
+| 6 | sporewood | 3 | 8 | 120 | 185 | 78 | 4.52 | 3.4 | 1.24 | 1 | 1.32 | 26 | 1.8 |
+| 8 | glasswater | 1 | 13 | 120 | 272 | 108 | 8.345 | 4.9 | 1.39 | 1.5 | 1.52 | 22 | 2.3 |
+| 9 | glasswater | 2 | 14 | 120 | 285 | 114 | 9.26 | 5.2 | 1.42 | 1.5 | 1.56 | 22 | 2.4 |
+| 11 | paleabyss | 1 | 19 | 120 | 384 | 144 | 14.585 | 6.7 | 1.45 | 1.5 | 1.76 | 22 | 2.9 |
+| 13 | paleabyss | 3 | 21 | 120 | 412 | 150 | 17.065 | 7.3 | 1.45 | 1.5 | 1.84 | 22 | 3.1 |
 
-*Spawns/night integrates `spawnRate` over the whole gloomtide (pack members counted individually). Zone rows assume a typical arrival day (Sporewood day 4, Glasswater day 8, Pallid Deep day 11); boss nights follow `nightInZone`, not this table.*
+*Spawns/night integrates `spawnRate` over the whole gloomtide (pack members counted individually). Mossmere rows assume the Wick never left (from night 5 the linger term adds Heat); deeper rows assume a typical arrival day (Sporewood day 4, Glasswater day 8, Pallid Deep day 11); boss nights follow `nightInZone`.*
 
 ### 7.3 Formations
 From day 2, at gloomtide k = 0.35 and k = 0.65, one weighted pick each (skipped while a Warden lives). Each shows a small banner. They teach the counters.
@@ -512,7 +513,7 @@ From day 2, at gloomtide k = 0.35 and k = 0.65, one weighted pick each (skipped 
 | **Duskmantle** `duskmantle` | moth | The Mossmere, day 2 | 3 | 3.4 | 0 | 1.2/s latched | 2 | 1 | 3 / 3 / 2.5 / 2 | latch |
 | **Creelsnatch** `creelsnatch` | eel | The Mossmere, day 3 | 8 | 4.5 | 1 | 0 | 3 | 1 | 2 / 2 / 2 / 1.5 | leap |
 | **Sporeling Drift** `sporeling` | wisp | Sporewood Pools, day 1 | 6 | 2.8 | 1 | 2 | 1.5 | 3 | 0 / 6 / 3 / 2 | orbitDive |
-| **Weeping Inkwell** `weeping_inkwell` | wisp ×1.5 | The Mossmere, day 6 | 14 | 1.8 | 0 | 0 | 4 | 1 | 1.5 / 2.5 / 2.5 / 2 | artillery |
+| **Weeping Inkwell** `weeping_inkwell` | wisp ×1.5 | The Mossmere, day 6 | 11 | 1.8 | 0 | 0 | 4 | 1 | 1.5 / 2.5 / 2.5 / 2 | artillery |
 | **Bell-Jar Tick** `belljar_tick` | mite ×2 | Sporewood Pools, day 8 | 28 | 1.7 | 1 | 3 | 5 | 2 | 0 / 1.5 / 3 / 2.5 | bulwark |
 | **Silent Choir** `silent_choir` | wisp ×1.1 | Glasswater Vault, day 12 | 7 | 2.8 | 1 | 4 | 2 | 3 | 0 / 0 / 1.5 / 6 | stalk |
 | **Drowned Hand** `drowned_hand` | hand | The Mossmere, day 2 | 60 | 0 | 2 | 10 | 15 | 1 | elite timer | slam |
@@ -523,34 +524,34 @@ From day 2, at gloomtide k = 0.35 and k = 0.65, one weighted pick each (skipped 
 - **Duskmantle** (`latch`, flies). Erratic flutter toward the lantern; **speeds up ×1.15 inside the light**. Up to 4 latch on: each multiplies the light radius by 0.88 (total floor 0.5) and drains 1.2 oil/s; the aura burns latched moths at 50%. A zap peels one off (+1 oil refund); a flare clears all. The death-spiral accelerant. Re-skins: Veil Moth (Glasswater), Pyrewing (Pallid Deep).
 - **Creelsnatch** (`leap`, eel). Spawns only at depth ≥ 0.4. Circles 6–9 m out, submerged (immune to the aura) for 3–6 s, then **surfaces for 1.0 s** (eyes glow, hiss, tightening ripple ring) and leaps across the raft (0.6 s airborne, **zap ×2**). Crossing the raft costs 1 Ember and **steals** a random non-legendary fish (`progression.removeFromCreel()`, `enemy:steal`), then it flees for 3 s; kill it to drop the fish, floating for 20 s. Glasswater re-skin *Prism Eel*: its first leap is a 0.8 s feint splash.
 - **Sporeling Drift** (`orbitDive`, trios). Orbits at 9 m (outside base light) for 2 s, then dives one at a time 0.5 s apart with a rising chime. **Death burst** r 2.2 m deals 3 × damageMult to *other* gloomlings (chain pops). A contact burst dims your light ×0.85 for 3 s.
-- **Weeping Inkwell** (`artillery`). Holds 13–18 m away (retreats as your light grows). Every 4 s lobs a glob (1.2 s flight) at your position 0.6 s ahead: a **2.4 m dark ring** marks the landing. A hit costs 1 Ember and leaves an **ink slick** (r 2.4 m, 6 s: raft speed ×0.6, light ×0.8). Max 3 (+1 per 6 H). The anti-turtle unit: keep moving, hunt it with zaps and projectiles.
+- **Weeping Inkwell** (`artillery`). Holds 13–18 m away (retreats as your light grows). Every 5 s lobs a glob (1.2 s flight) at your position 0.6 s ahead: a **2.4 m dark ring** marks the landing. A hit costs 1 Ember and leaves an **ink slick** (r 2.4 m, 6 s: raft speed ×0.6, light ×0.8). Max 3 (+1 per 8 H). The anti-turtle unit: keep moving, hunt it with zaps and projectiles.
 - **Bell-Jar Tick** (`bulwark`, pairs). Takes **×0.25 from the aura** (×0.6 once below 50% hp, "cracked"), ×1 from weapons, **×1.5 from zaps**. Contact shoves the raft 3 m and does not consume it: it re-hits after 1 s. Beats aura-only builds.
 - **Silent Choir** (`stalk`, trios). **Invisible outside the light** except gold pinprick eyes; gathers at the light edge until 3+ are present, then advances together; when your oil < 35% they **rush** ×1.6. Punishes low oil; the Lighthouse Beam reveals them.
 
 ### 7.5 Elites: the Drowned Hand
-On the elite timer (`eliteEvery`, first at k = 0.25, from day 2). **Telegraph:** an ink stain spreads under your current position (r 3.2 m) over **1.4 s**; the hand breaches (0.6 s, vulnerable); then **slams** for 2 Embers, 10 oil and a 4 m knock (and snaps a non-legendary line). It stays 3 s as an obstacle (aura applies), then repeats: up to 3 slams or ≈ 16 s, then sinks (escapes, no reward). **Counter:** a **flare during the stain or breach staggers it for 2 s and it takes +50% damage**; 3 zaps during the breach also stagger. **Reward:** a great cinder (15 × xpScale), **15 oil**, 6 × valueMult Shells, `elitesSlain`.
+On the elite timer (`eliteEvery`, first at k = 0.25, from day 2; paused while a Warden lives or a legendary is hooked). **Telegraph:** an ink stain spreads under your current position (r 3.2 m) over **1.4 s**; the hand breaches (0.6 s, vulnerable); then **slams** for 2 Embers, 10 oil and a 4 m knock (and snaps a non-legendary line). It stays 3 s as an obstacle (aura applies), then repeats: up to 3 slams or ≈ 16 s, then sinks (escapes, no reward). **Counter:** a **flare during the stain or breach staggers it for 2 s and it takes +50% damage**; 3 zaps during the breach also stagger. **Reward:** a great cinder (15 × xpScale), **15 oil**, 6 × valueMult Shells, `elitesSlain`.
 
 Per-lake twists (`zoneMods`): *Mould-Gloved Hand* (Sporewood): a slam leaves a spore cloud (light ×0.8 for 4 s). *The Undertow Grasp* (Glasswater): a landed slam tips 2 fish from the creel. *Ringed Grasp* (Pallid Deep): rises in **pairs** 1 s apart; a landed slam **grips** (no movement for 3 s, 3 oil/s; 3 zaps break it).
 
 ### 7.6 Wardens (night bosses)
-Boss nights: `nightInZone` 3, 6, 9 … The Warden rises at k = 0.35 after a 3 s banner ("{name} — A Warden rises from the Gloom"). `hp = base × hpMult`. While it lives: spawn rate ×0.6, no formations, elites paused. Contact: 2 Embers (≤ 3 after damageMult) and its oil drain. **Target: 40–55 s to kill with an on-curve build**; an under-built first run usually only outlasts it. If it survives to dawn it withdraws.
+Boss nights: `nightInZone` 3, 6, 9 … The Warden rises at k = 0.35 after a 3 s banner ("{name} — A Warden rises from the Gloom"). `hp = base × bossHpMult` (1 + 0.3·H: linear, because single-target damage grows roughly linearly with level; quadratic hpMult made every Warden past the first unkillable in the balance sim). While it lives: spawn rate ×0.6, no formations, elites paused. Contact: 2 Embers (the Wickeater 1: it is the teaching Warden; ≤ 3 after damageMult) and its oil drain. **Target: 40–55 s to kill with an on-curve build**; an under-built first run usually only outlasts it. If it survives to dawn it withdraws.
 
 | Warden | lake | base hp | speed | Embers / oil on contact | cinders | Shells | abilities (cooldown · telegraph) | phase 2 (≤ 50% hp) |
 |---|---|---|---|---|---|---|---|---|
-| **The Wickeater** `the_wickeater` | mossmere | 1200 | 1.5 | 2 / 20 | 60 | 40 | inhale 9 s · 1.5 s<br>brood 12 s (6 gloomling) | abilities: [{id:snuff,radius:6,lightMult:0.6}]<br>inhaleEvery: 7 |
-| **The Veiled Gardener** `the_veiled_gardener` | sporewood | 1500 | 1.5 | 2 / 20 | 90 | 80 | veil 10 s · 1.2 s<br>charge 14 s · 1.2 s<br>brood 11 s (6 sporeling) | veilDuration: 8<br>veilDrift: 1.5 |
-| **The Shard Abbot** `the_shard_abbot` | glasswater | 1500 | 1.6 | 2 / 25 | 130 | 140 | hymnRing 8 s · 1 s<br>reliquary 14 s (2 belljar_tick) | mirror: {every:12,duration:6,images:2} |
-| **The Lightless Ferryman** `the_lightless_ferryman` | paleabyss | 1600 | 1.7 | 2 / 30 | 200 | 220 | poleSweep 7 s · 1 s<br>eclipse 14 s · 1.5 s<br>brood 10 s (6 silent_choir) | abilities: [{id:inhale,every:9,telegraph:1.5,radius:12,pull:3.5,duration:2,maw:2.5,mawDamage:2,mawOil:25}] |
+| **The Wickeater** `the_wickeater` | mossmere | 1000 | 1.5 | 1 / 20 | 60 | 40 | inhale 9 s · 1.5 s<br>brood 12 s (6 gloomling) | abilities: [{id:snuff,radius:6,lightMult:0.6}]<br>inhaleEvery: 7 |
+| **The Veiled Gardener** `the_veiled_gardener` | sporewood | 1100 | 1.5 | 2 / 20 | 90 | 80 | veil 10 s · 1.2 s<br>charge 14 s · 1.2 s<br>brood 11 s (6 sporeling) | veilDuration: 8<br>veilDrift: 1.5 |
+| **The Shard Abbot** `the_shard_abbot` | glasswater | 1200 | 1.6 | 2 / 25 | 130 | 140 | hymnRing 8 s · 1 s<br>reliquary 14 s (2 belljar_tick) | mirror: {every:12,duration:6,images:2} |
+| **The Lightless Ferryman** `the_lightless_ferryman` | paleabyss | 1400 | 1.7 | 2 / 30 | 200 | 220 | poleSweep 7 s · 1 s<br>eclipse 14 s · 1.5 s<br>brood 10 s (6 silent_choir) | abilities: [{id:inhale,every:9,telegraph:1.5,radius:12,pull:3.5,duration:2,maw:2.5,mawDamage:2,mawOil:25}] |
 
 - **The Wickeater.** *Inhale* (every 9 s, 1.5 s tell: maw brightens, water streaks inward): pulls the raft at 3.5 m/s within 10 m for 2 s; entering the 2.5 m maw costs 2 Embers and 25 oil. *Brood*: 6 gloomlings every 12 s. Phase 2: *Snuff*, a 6 m wax-smoke ring around it (light ×0.6 inside); Inhale every 7 s.
 - **The Veiled Gardener.** *Veil of Spores* (10 s, 1.2 s tell): a spore cloud at your position (r 6 m, 4 s; light and aura ×0.6). *Procession Charge* (14 s, 1.2 s tell): an amber line glows 25 m across the water, then it charges along it at 14 m/s (2 Embers). *Brood*: two sporeling trios every 11 s. Phase 2: veils last 8 s and drift toward you.
 - **The Shard Abbot.** *Hymn Ring* (8 s, 1.0 s chime): 12 glass shards expand at 7 m/s with **2 gaps**; 1 Ember each. *Reliquary*: 2 Bell-Jar ticks every 14 s. Phase 2: *Mirror*: splits into 2 images for 6 s every 12 s; only the image inside your light or beam takes damage; both cast rings.
 - **The Lightless Ferryman.** *Pole Sweep* (7 s, 1.0 s tell): a 120° arc, 10 m long, lights up on the water, then sweeps (2 Embers). *Eclipse* (14 s, 1.5 s tell): light ×0.4 for 4 s and the choir rushes. *Toll* (its brood): two choir trios every 10 s. Phase 2 adds the Wickeater's Inhale at 12 m. Never rises while the Pale Leviathan is hooked.
 
-**Warden rewards:** **Heartwax** (+1 max Ember for the run, mend 1), a **Warden's Gift** pick (3 options, all rare or better, or a Kindle if eligible; it does not consume XP), Shells (40 / 80 / 140 / 220), 40 oil, a great cinder, `boss:slain`, `bossesSlain`.
+**Warden rewards:** **Heartwax** (+1 max Ember for the run, mend 1; first kill of each Warden per run only), a **Warden's Gift** pick (3 options, all rare or better, or a Kindle if eligible; it does not consume XP), Shells (40 / 80 / 140 / 220), 40 oil, a great cinder, `boss:slain`, `bossesSlain`.
 
 ### 7.7 What escalates, and what ends runs
-Escalators in the order a player notices them: count (rate, maxAlive) → toughness (quadratic hpMult) → new archetypes (moths and mites night 2, eels night 3, inkwells / ticks / choir when you linger or descend) → formations (2 per night) → elites (every 40 s, shrinking to every 15 s) → Warden nights → night length (90 → 120 s) → oil burn (drainMult) → hits worth more Embers once H ≥ 8 (hands 3) and H ≥ 16 (everything 2).
+Escalators in the order a player notices them: count (rate, maxAlive) → toughness (quadratic hpMult) → new archetypes (moths and mites night 2, eels night 3, inkwells / ticks / choir when you linger or descend) → formations (2 per night) → elites (every 40 s, shrinking to every 22 s) → Warden nights → night length (90 → 120 s) → oil burn (drainMult) → hits worth more Embers once H ≥ 12 (hands 3) and H ≥ 24 (everything 2, past a typical finale).
 
 **Run killers** (target share of first-run deaths): the **Gloom ≈ 65%** (usually a moth-dimmed light leads to leaks, then a hand slam), **darkness ≈ 25%**, **starvation ≈ 10%**. The death spiral (low oil → small weak light → leaks → contact drains → less oil) is intentional, and it has exits: Burn-a-fish, oil drips and elite oil, the Gutter-burst, a flare if you can still afford one, Last Flicker, Second Wick.
 
@@ -580,12 +581,12 @@ The radius falls more slowly than the burn: half oil still gives 78% of the radi
 | Heat | typical night | R @ oil 100% | R @ oil 50% | R @ oil 25% |
 |---|---|---|---|---|
 | 0 | Mossmere N1 | 0.63 | 1.36 | 2.35 |
-| 1 | Mossmere N2 | 0.79 | 1.72 | 2.96 |
-| 2 | Mossmere N3 | 1.00 | 2.17 | 3.73 |
-| 3 | Mossmere N4 | 1.25 | 2.71 | 4.67 |
-| 6 | Sporewood entry | 2.30 | 4.99 | 8.58 |
-| 9 | Sporewood N4 | 3.85 | 8.36 | 14.37 |
-| 12 | Glasswater entry | 5.99 | 12.98 | 22.33 |
+| 1 | Mossmere N2 | 0.82 | 1.78 | 3.06 |
+| 2 | Mossmere N3 | 1.05 | 2.28 | 3.93 |
+| 3 | Mossmere N4 | 1.33 | 2.89 | 4.97 |
+| 6 | Sporewood entry | 2.48 | 5.37 | 9.25 |
+| 9 | Sporewood N4 | 4.14 | 8.98 | 15.45 |
+| 12 | Glasswater entry | 6.40 | 13.87 | 23.86 |
 
 **Meaning:** the lantern alone holds the dark for about two nights at full oil, and for no nights at half oil. That is the fishing ↔ combat link. After that, the build carries you. Per-enemy AoE damage the build should reach to keep R ≤ 0.6 at 75% oil: ≈ 4 dps (H 3, ~L13), 6.6 (H 6, ~L15), 8.7 (H 8, ~L22), 14.7 (H 12, ~L25), 19 (H 14, ~L34), 28 (H 18, ~L38), 36 (H 21, ~L46). An on-curve build gets there with the aura plus one or two AoE weapons; single-target builds fall behind on density, which is the build lesson. Recommend `ctx.debug.threat?.()` to print the live R.
 
@@ -617,8 +618,8 @@ Zap is the precision tool (eels, moths, inkwells, hand staggers); flare is the p
 | Mossmere N1 | H0, 90 s | 23 | 15 | 32 (×2) | 6 | 76 | 18 | 0 | -58 |
 | Mossmere N4 | H3, 108 s | 30 | 20 | 48 (×3) | 21 | 119 | 21 | 45 | -53 |
 | Sporewood N3-in-zone | H8, 120 s | 48 | 20 | 48 (×3) | 30 | 146 | 36 | 60 | -50 |
-| Glasswater N2-in-zone | H14, 120 s | 66 | 20 | 56 (×3.5) | 40 | 182 | 48 | 105 | -29 |
-| Pallid Deep N2-in-zone | H20, 120 s | 90 | 20 | 56 (×3.5) | 55 | 221 | 60 | 105 | -56 |
+| Glasswater N2-in-zone | H14, 120 s | 66 | 20 | 56 (×3.5) | 40 | 182 | 48 | 60 | -74 |
+| Pallid Deep N2-in-zone | H20, 120 s | 90 | 20 | 56 (×3.5) | 55 | 221 | 60 | 120 (4 pairs) | -41 |
 
 *Burn, drips and elite oil are computed from data; zap/flare/contact columns are on-curve play estimates (base stats, no oil upgrades).*
 
@@ -647,7 +648,7 @@ release → +0.02 rarityBonus until the next day:start (cap +0.10; run.flags.mer
 - Base **4 slots** (`creelSize`). Murk buys only while moored during the calm; anything caught after he leaves rides overnight.
 - Fish in the creel are your **only night oil reserve** (Burn-a-fish), and they are what creelsnatch eels steal. Fish kept for money and fish kept as oil compete for the same slots.
 - **Theft**: `enemy:steal` takes a random non-legendary fish; kill the thief to drop it. Undertow Grasp tips 2. Legendaries are theft-proof.
-- **Trophy or Toll**: a landed legendary can be sold (its price roughly pays the next gate's toll) or kept in a slot until the run ends, when it is mounted for +15 / +30 / +50 Memories and appears on the raft in later runs (first time). A slot lost and Shells lost now, for permanent progress.
+- **Trophy or Toll**: a landed legendary can be sold (its price covers most of the next gate's toll: ≈ 70% / 75% / 65%) or kept in a slot until the run ends, when it is mounted for +10 / +20 / +35 Memories and appears on the raft in later runs (first time). A slot lost and Shells lost now, for permanent progress.
 
 ### 9.3 Daily budget (staying above ~60% oil)
 | lake (typical days) | fish landed / day | oil need / day (base stats) | satiety / day | fish spent surviving (on-curve Chimney + Brazier) | left to keep or sell | Shells / day (sales + bounties + drops) |
@@ -809,23 +810,23 @@ When a weapon is at L5 and you own its paired passive at any level, a legendary 
 | 4 | **Three Long Nights** `three_nights` | Endure 3 Gloomtides in one descent. | `nights` {n:3} | run | `boon:lantern_pulse` + 10 Memories |
 | 5 | **Unclenched** `break_a_hand` | Break a Drowned Hand. | `slayElite` {n:1} | total | `boon:smouldering_floats` + 8 Memories |
 | 6 | **Steady Hands** `steady_hands` | Land 25 fish across all descents. | `catch` {n:25} | total | `character:taper` + 10 Memories |
-| 7 | **Naturalist** `naturalist` | Name 8 species in the Journal. | `journal` {n:8} | total | `boon:lucky_knot` + 15 Memories |
+| 7 | **Naturalist** `naturalist` | Name 8 species in the Journal. | `journal` {n:8} | total | `boon:lucky_knot` + 10 Memories |
 | 8 | **Gloombreaker** `gloombreaker` | Disperse 500 gloomlings across all descents. | `slay` {n:500} | total | 15 Memories |
 
 **The Long Vigil**
 
 | # | challenge | goal | type · params | scope | reward |
 |---|---|---|---|---|---|
-| 9 | **Unwarded** `unwarded` | Silence a Warden. | `boss` {n:1} | total | `character:ashwick` + 20 Memories |
-| 10 | **Down the Sluice** `down_the_sluice` | Reach Sporewood Pools. | `reachZone` {zone:sporewood} | total | `character:stub` + 20 Memories |
+| 9 | **Unwarded** `unwarded` | Silence a Warden. | `boss` {n:1} | total | `character:ashwick` + 15 Memories |
+| 10 | **Down the Sluice** `down_the_sluice` | Reach Sporewood Pools. | `reachZone` {zone:sporewood} | total | `character:stub` + 15 Memories |
 | 11 | **The Long Vigil** `long_vigil` | Endure 5 Gloomtides in one descent. | `nights` {n:5} | run | `character:tallow` + 20 Memories |
-| 12 | **Untouched** `untouched` | Endure a Gloomtide (night 2 or later) without losing an Ember. | `nightNoDamage` {n:1,minDay:2} | run | `relic:barnacle_cloak` + 15 Memories |
+| 12 | **Untouched** `untouched` | Endure a Gloomtide (night 2 or later) without losing an Ember. | `nightNoDamage` {n:1,minDay:2} | run | `relic:barnacle_cloak` + 10 Memories |
 | 13 | **Bonfire Night** `bonfire_night` | Disperse 200 gloomlings in a single Gloomtide. | `slayNight` {n:200} | run | `relic:ember_in_resin` + 20 Memories |
 | 14 | **Full Flame** `full_flame` | Raise a weapon Boon to level 5. | `boonLevel` {kind:weapon,level:5} | run | `boon:little_maelstrom` + 15 Memories |
 | 15 | **Night Angler** `night_angler` | Land 3 fish during a single Gloomtide. | `nightCatch` {n:3} | run | `boon:lantern_on_the_line` + 15 Memories |
-| 16 | **Clockwork Wrist** `perfect_10_run` | Set 10 perfect hooks in one descent. | `perfectHooks` {n:10} | run | `relic:steady_hook` + 15 Memories |
+| 16 | **Clockwork Wrist** `perfect_10_run` | Set 10 perfect hooks in one descent. | `perfectHooks` {n:10} | run | `relic:steady_hook` + 10 Memories |
 | 17 | **Kindled** `kindled` | Reach level 15 in one descent. | `level` {n:15} | run | `relic:remembrance` + 20 Memories |
-| 18 | **Shimmering** `shimmering` | Land a Shimmering fish. | `quality` {quality:perfect} | total | `relic:shimmer_scale` + 10 Memories |
+| 18 | **Shimmering** `shimmering` | Land a Shimmering fish. | `quality` {quality:perfect} | total | `relic:shimmer_scale` + 5 Memories |
 | 19 | **Heavyweight** `heavy_catch` | Land a non-legendary fish over 8 kg. | `weight` {kg:8,excludeLegendary:true} | total | `bait:shimmerfly` + 10 Memories |
 | 20 | **Old Hand** `catch_100` | Land 100 fish across all descents. | `catch` {n:100} | total | `relic:listening_bobber` + 20 Memories |
 | 21 | **Murk's Favourite** `shells_1000_run` | Earn 1000 Shells in one descent. | `shells` {n:1000} | run | `relic:torn_ledger` + 20 Memories |
@@ -844,9 +845,9 @@ When a weapon is at L5 and you own its paired passive at any level, a legendary 
 | 29 | **The Light Comes Up** `light_comes_up` | Land the Pale Leviathan. | `victory` {} | total | 100 Memories |
 | 30 | **The Complete Chronicle** `complete_chronicle` | Name every species in the Journal. | `journal` {n:32} | total | 200 Memories |
 
-*Totals: 30 challenges, 861 Memories; unlocks: 4 Wicks, 11 boons, 9 relics, 1 bait.*
+*Totals: 30 challenges, 831 Memories; unlocks: 4 Wicks, 11 boons, 9 relics, 1 bait.*
 
-Run 1 typically pops 3–4 (First Light, First Dawn, Kindling, often Three Long Nights): a new boon in the pool and a relic within reach, so run 2 starts with something new. Every relic, boon, Wick and bait that a challenge unlocks names that challenge in its locked state ("Unlocked by: Unclenched — Break a Drowned Hand").
+Run 1 typically pops 6–8 in the balance sim (First Light, First Dawn, Kindling, Unclenched, Shimmering, often Clockwork Wrist and Down the Sluice): a new boon in the pool and a relic within reach, so run 2 starts with something new. Every relic, boon, Wick and bait that a challenge unlocks names that challenge in its locked state ("Unlocked by: Unclenched — Break a Drowned Hand").
 
 ### 12.2 Challenge types → bus sources (progression)
 | type | counts | source |
@@ -893,7 +894,7 @@ On completion: `meta.challenges[id] = true`, add `reward.memories` to meta.memor
 | **Ashwood Rod** `rod_ashwood` | rod | 3 | 40 / 120 / 300 | castMax +3 | always |
 | **Whalebone Tip** `rod_whalebone` | rod | 3 | 45 / 130 / 320 | hookWindow +0.12, slackTime +0.3 | always |
 | **Braided Gut Line** `line_gut` | line | 4 | 40 / 110 / 260 / 520 | lineStrength +0.15 | always |
-| **Silverthread** `line_silver` | line | 2 | 480 / 800 | lineStrength +0.25, slackTime +0.2 | once The Pallid Deep is unlocked |
+| **Silverthread** `line_silver` | line | 2 | 480 / 800 | lineStrength +0.25, slackTime +0.2 | once Glasswater Vault is unlocked (so the finale line can be bought before the last toll) |
 | **Brass Spool Reel** `reel_brass` | reel | 4 | 50 / 130 / 280 / 520 | reelSpeed +0.15 | always |
 | **Whisper Drag** `reel_drag` | reel | 3 | 60 / 150 / 340 | sweetZone +0.02 | always |
 | **Thick-Glass Chimney** `lantern_chimney` | lantern | 3 | 45 / 130 / 300 | oilDrain -0.012, maxOil +15 | always |
@@ -909,7 +910,7 @@ On completion: `meta.challenges[id] = true`, add `reward.memories` to meta.memor
 | **Glimmer Spoon** `lure_glimmer` | lure | 3 | 70 / 190 / 420 | rarityBonus +0.05, biteSpeed +0.08 | always |
 | **Trembling Feather** `lure_feather` | lure | 2 | 80 / 220 | nibbleTells +1, hookWindow +0.08 | always |
 
-*Buying every level of every upgrade costs **12,665 Shells**; a winning run earns roughly 4,000 Shells (sales, bounties, drops, Wardens, legendary sales), of which ~1,900 is left for gear after tolls, legend baits and supplies. That is ~15% of the catalogue, so every build is a choice, and you can never max anything in the lake you are standing in.*
+*Buying every level of every upgrade costs **12,665 Shells**. In the balance sim (Appendix A) a winning skilled run earns ≈ 9,000 Shells (sales, bounties, drops, Wardens, legendary sales) and spends ≈ 38% of the catalogue on gear after tolls, legend baits and supplies, so every build is still a choice, and you can never max anything in the lake you are standing in.*
 
 ### 13.3 Supplies
 | supply | base price | gives | stocked from | limit |
@@ -945,9 +946,9 @@ General baits spend one charge per cast; a species whose `bait` names a bait is 
 | # | lake | toll to enter | gate opens when | drain oil / satiety | gloom | valueMult | legendary | Warden | gate |
 |---|---|---|---|---|---|---|---|---|---|
 | 0 | **The Mossmere** `mossmere` — *Shallows of the Sunken Gate* | — | (start) | 1 / 1 | 1 | 1 | The Belled Matriarch | The Wickeater | The Moss Sluice |
-| 1 | **Sporewood Pools** `sporewood` — *A Garden That Forgot the Sun* | 120 | Land the Belled Matriarch | 1.2 / 1.15 | 1.13 | 1.8 | The Drifting Grove | The Veiled Gardener | The Mycelium Veil |
-| 2 | **Glasswater Vault** `glasswater` — *Where the Kingdom Kept Its Light* | 300 | Land the Drifting Grove | 1.4 / 1.3 | 1.27 | 3 | The Glass Sovereign | The Shard Abbot | The Vault Seal |
-| 3 | **The Pallid Deep** `paleabyss` — *Where the Kingdom Laid Its Light to Rest* | 650 | Land the Glass Sovereign | 1.65 / 1.45 | 1.4 | 4.5 | The Pale Leviathan | The Lightless Ferryman | — (final lake) |
+| 1 | **Sporewood Pools** `sporewood` — *A Garden That Forgot the Sun* | 180 | Land the Belled Matriarch | 1.2 / 1.15 | 1.13 | 1.5 | The Drifting Grove | The Veiled Gardener | The Mycelium Veil |
+| 2 | **Glasswater Vault** `glasswater` — *Where the Kingdom Kept Its Light* | 420 | Land the Drifting Grove | 1.4 / 1.3 | 1.27 | 2.2 | The Glass Sovereign | The Shard Abbot | The Vault Seal |
+| 3 | **The Pallid Deep** `paleabyss` — *Where the Kingdom Laid Its Light to Rest* | 900 | Land the Glass Sovereign | 1.65 / 1.45 | 1.4 | 3 | The Pale Leviathan | The Lightless Ferryman | — (final lake) |
 
 - **Gate requirements** (`unlock.requires` of the *next* lake): land the current lake's legendary **this run** (`run.legendaries`). When met: `run.gateOpen = true`, `world.setGateState('open')`, `gate:open {zone}`, toast. Until then the gate is `'sealed'` and the Descend dialog lists what is missing (`getGateInfo().requirements`).
 - **Descend:** sail into the open gate (within 1.2 × its radius) → interact "Descend" → `ui.openDescend()` shows the toll, the next lake's card, and a warning that the Gloom grows (+3 Heat). Allowed during **calm and dawn** only (the gate sleeps through dusk and the gloomtide). Confirm → `progression.travel(nextZone)`: pay the toll (first visit: `zone:unlock`), `zone:change {zone, prev}` (world rebuild, player respawn at the new spawn, area-title banner), `run.flags.zoneEnteredDay = day`, `run.gateOpen = false`. One-way. Boons, level, creel, upgrades and Shells carry over.
@@ -957,7 +958,7 @@ General baits spend one charge per cast; a species whose `bait` names a bait is 
 
 ## 15. Bounties (Old Murk's ledger)
 - When Murk moors he offers up to 2 new bounties (max 3 active), auto-accepted, due at the end of day + 2. Failing costs nothing.
-- Reward = `round(base × zone.valueMult × (1 + 0.04·(day − 1)))` (+ perN × n for species bounties), paid instantly on completion (`bounty:complete`). Each completed bounty adds 4 Memories at run end.
+- Reward = `round(base × zone.valueMult × (1 + 0.04·(day − 1)))` (+ perN × n for species bounties), paid instantly on completion (`bounty:complete`). Each completed bounty adds 2 Memories at run end.
 - Template pick: weighted, filtered by lake and day; the `warden` bounty only on boss nights; `legend_hunt` is offered once you can afford the lake's legend bait (+6 Memories). Species targets are chosen from the current lake's commons/uncommons reachable without bait; heavy targets use the 75th weight percentile.
 - Shape: `{ id, templateId, text, zone, target, count, progress, reward:{shells}, expiresDay }`.
 
@@ -986,7 +987,7 @@ General baits spend one charge per cast; a species whose `bait` names a bait is 
 ## 16. Journal
 - One page per species, grouped by lake (tabs). Discovered: the fish drawn in ink, name, epithet (legendaries), lore line, biggest weight, times caught, first day/run, its depth band, time and bait.
 - **Undiscovered entries are ink silhouettes with a hint line** (species `hint`, or generated: "Rises only in the Gloomtide · deep water · answers Lumen Moss"). Hints are goals.
-- **Rewards:** first catch ever: +round(1.5 × species.value) Shells immediately and +3 Memories at run end (`newSpecies`, with a "+3 Memories" toast now); half a lake (4 of 8): +10 Memories immediately; **a whole lake: a permanent perk** (below); 10 catches of one species: a gold-inked card and +2 Memories once; all 32: *The Complete Chronicle*.
+- **Rewards:** first catch ever: +round(1.0 × species.value) Shells immediately (non-legendary species only: `BALANCE.economy.newSpeciesLegendary` false) and +3 Memories at run end (`newSpecies`, with a "+3 Memories" toast now); half a lake (4 of 8): +10 Memories immediately; **a whole lake: a permanent perk** (below); 10 catches of one species: a gold-inked card and +2 Memories once; all 32: *The Complete Chronicle*.
 
 | zone complete | perk | effect |
 |---|---|---|
@@ -1002,53 +1003,53 @@ General baits spend one charge per cast; a species whose `bait` names a bait is 
 ### 17.1 Memories (`memoriesFor(summary)`)
 | breakdown line | formula |
 |---|---|
-| Nights endured | nightsSurvived × (3 + 1.5 × zoneIndex) |
-| Deepest water endured | [0, 15, 35, 60][deepest lake where a full gloomtide was survived] (0 if none) |
+| Nights endured | nightsSurvived × (3 + 1.0 × zoneIndex) |
+| Deepest water endured | [0, 10, 25, 45][deepest lake where a full gloomtide was survived] (0 if none) |
 | Fish landed | floor(fishCaught / 2) |
 | New names in the Journal | 3 × newSpecies |
-| Legends hauled up | 20 per legendary |
-| Bounties honoured | 4 per bounty |
-| Gloomlings dispersed | floor(enemiesSlain / 25) |
-| Hands broken | 2 per elite |
+| Legends hauled up | 15 per legendary |
+| Bounties honoured | 2 per bounty |
+| Gloomlings dispersed | floor(enemiesSlain / 50) |
+| Hands broken | 1 per elite |
 | Wardens silenced | 15 per Warden |
-| Trophies mounted | 15 / 30 / 50 per legendary kept to run end (by lake) |
+| Trophies mounted | 10 / 20 / 35 per legendary kept to run end (by lake) |
 | The light came up | +150 the first victory, +100 after |
 | Remembrance | round(subtotal × memMult) as its own line |
 
-Plus challenge Memories, paid the moment each challenge completes. Typical: run 1 ≈ 55 + ≈ 28 from challenges; run 5 ≈ 150–200; a Glasswater run ≈ 350; a victory ≈ 750+. All Memories are banked on death; nothing is ever taken away.
+Plus challenge Memories, paid the moment each challenge completes. All constants live in `BALANCE.memories`. Typical (balance sim): an average player's run 1 ≈ 165 (≈ 100 of it one-time challenge Memories), later runs ≈ 75–85; a skilled player's deep runs ≈ 300–400; a victory run ≈ 450–550. All Memories are banked on death; nothing is ever taken away.
 
 ### 17.2 Relics (Shrine of Drowned Lanterns)
 "Every Wick that fell left something behind." Each relic hangs in the Shrine as a small drowned lantern that relights as it levels. Hidden relics appear as unlit lanterns with their reveal condition. `special` keys: `startShells:N` (+N starting Shells per level), `startKit` (I: 8 Mire Worms + 3 Lumen Moss; II: also the starting lake's legend bait), `shimmer:N` (quality score per level), `memMult:N`, `secondWick` (§6.7), `waystone:<zone>` (§17.3).
 
 | relic | levels | costs (Memories) | effect per level | revealed by |
 |---|---|---|---|---|
-| **Cracked Oilskin** `oilskin_flask` | 3 | 25 / 70 / 160 | maxOil +15 | always |
-| **Salt-Glass Lens** `salt_glass_lens` | 3 | 40 / 110 / 240 | lightRadius +0.6, auraDps +0.15 | always |
-| **Bent Tin Spoon** `bent_tin_spoon` | 3 | 25 / 70 / 160 | maxSatiety +15, satietyDrain -0.006 | always |
-| **Mended Creel** `mended_creel` | 2 | 35 / 150 | creelSize +1 | always |
-| **Murk's Old Debt** `old_debt` | 4 | 20 / 50 / 110 / 220 | special `startShells:30` | always |
-| **Heartwood Oar** `heartwood_oar` | 3 | 30 / 80 / 180 | moveSpeed +0.3 | always |
-| **Line of Seven Knots** `seven_knots` | 3 | 30 / 90 / 200 | lineStrength +0.1 | always |
-| **Stub of the First Wick** `first_wick_stub` | 2 | 90 / 260 | maxHp +1 | bestDay ≥ 3 |
-| **Two-Headed Coin** `two_headed_coin` | 3 | 50 / 140 / 300 | rarityBonus +0.03, luck +0.1 | runs ≥ 2 |
-| **Drifter's Bundle** `drifters_bundle` | 2 | 40 / 120 | special `startKit` | runs ≥ 2 |
-| **Grandsire's Tinderbox** `tinderbox` | 3 | 35 / 90 / 200 | xpMult +0.05, pickupRadius +0.5 | bestLevel ≥ 8 |
-| **Grandmother's Hook** `steady_hook` | 3 | 30 / 90 / 200 | hookWindow +0.08, sweetZone +0.012 | Clockwork Wrist (`perfect_10_run`) |
-| **Barnacle Cloak** `barnacle_cloak` | 3 | 60 / 160 / 340 | armor +0.05 | Untouched (`untouched`) |
-| **Ember in Resin** `ember_in_resin` | 3 | 40 / 110 / 240 | flareCooldown -1.5, flareRadius +0.5 | Bonfire Night (`bonfire_night`) |
-| **Shimmering Scale** `shimmer_scale` | 3 | 50 / 140 / 300 | rarityBonus +0.02; special `shimmer:0.04` | Shimmering (`shimmering`) |
-| **Remembrance** `remembrance` | 3 | 80 / 200 / 400 | special `memMult:0.08` | Kindled (`kindled`) |
-| **The Listening Bobber** `listening_bobber` | 1 | 120 | nibbleTells +1 | Old Hand (`catch_100`) |
-| **Torn Ledger Page** `torn_ledger` | 3 | 45 / 120 / 260 | sellMult +0.06 | Murk's Favourite (`shells_1000_run`) |
-| **Gambler's Wick** `gamblers_wick` | 2 | 60 / 180 | rerolls +1 | What the Flame Remembers (`kindle_one`) |
-| **Second Wick** `second_wick` | 1 | 300 | special `secondWick` | Into the Vault (`into_the_vault`) |
-| **Waystone: Sporewood** `waystone_sporewood` | 1 | 120 | special `waystone:sporewood` | deepestZone ≥ 1 |
-| **Waystone: Glasswater** `waystone_glasswater` | 1 | 260 | special `waystone:glasswater` | deepestZone ≥ 2 |
-| **Waystone: Pallid Deep** `waystone_paleabyss` | 1 | 450 | special `waystone:paleabyss` | deepestZone ≥ 3 |
+| **Cracked Oilskin** `oilskin_flask` | 3 | 40 / 110 / 245 | maxOil +15 | always |
+| **Salt-Glass Lens** `salt_glass_lens` | 3 | 65 / 170 / 375 | lightRadius +0.6, auraDps +0.15 | always |
+| **Bent Tin Spoon** `bent_tin_spoon` | 3 | 40 / 110 / 245 | maxSatiety +15, satietyDrain -0.006 | always |
+| **Mended Creel** `mended_creel` | 2 | 50 / 230 | creelSize +1 | always |
+| **Murk's Old Debt** `old_debt` | 4 | 30 / 80 / 170 / 340 | special `startShells:30` | always |
+| **Heartwood Oar** `heartwood_oar` | 3 | 45 / 125 / 280 | moveSpeed +0.3 | always |
+| **Line of Seven Knots** `seven_knots` | 3 | 45 / 140 / 310 | lineStrength +0.1 | always |
+| **Stub of the First Wick** `first_wick_stub` | 2 | 140 / 400 | maxHp +1 | bestDay ≥ 3 |
+| **Two-Headed Coin** `two_headed_coin` | 3 | 80 / 220 / 465 | rarityBonus +0.03, luck +0.1 | runs ≥ 2 |
+| **Drifter's Bundle** `drifters_bundle` | 2 | 65 / 185 | special `startKit` | runs ≥ 2 |
+| **Grandsire's Tinderbox** `tinderbox` | 3 | 50 / 140 / 310 | xpMult +0.05, pickupRadius +0.5 | bestLevel ≥ 8 |
+| **Grandmother's Hook** `steady_hook` | 3 | 45 / 140 / 310 | hookWindow +0.08, sweetZone +0.012 | Clockwork Wrist (`perfect_10_run`) |
+| **Barnacle Cloak** `barnacle_cloak` | 3 | 90 / 245 / 530 | armor +0.05 | Untouched (`untouched`) |
+| **Ember in Resin** `ember_in_resin` | 3 | 65 / 170 / 375 | flareCooldown -1.5, flareRadius +0.5 | Bonfire Night (`bonfire_night`) |
+| **Shimmering Scale** `shimmer_scale` | 3 | 80 / 220 / 465 | rarityBonus +0.02; special `shimmer:0.04` | Shimmering (`shimmering`) |
+| **Remembrance** `remembrance` | 3 | 125 / 310 / 620 | special `memMult:0.08` | Kindled (`kindled`) |
+| **The Listening Bobber** `listening_bobber` | 1 | 185 | nibbleTells +1 | Old Hand (`catch_100`) |
+| **Torn Ledger Page** `torn_ledger` | 3 | 70 / 185 / 400 | sellMult +0.06 | Murk's Favourite (`shells_1000_run`) |
+| **Gambler's Wick** `gamblers_wick` | 2 | 90 / 280 | rerolls +1 | What the Flame Remembers (`kindle_one`) |
+| **Second Wick** `second_wick` | 1 | 465 | special `secondWick` | Into the Vault (`into_the_vault`) |
+| **Waystone: Sporewood** `waystone_sporewood` | 1 | 185 | special `waystone:sporewood` | deepestZone ≥ 1 |
+| **Waystone: Glasswater** `waystone_glasswater` | 1 | 400 | special `waystone:glasswater` | deepestZone ≥ 2 |
+| **Waystone: Pallid Deep** `waystone_paleabyss` | 1 | 700 | special `waystone:paleabyss` | deepestZone ≥ 3 |
 
-*All relics at max cost **7,775 Memories**. The path to a first victory needs roughly 1,200–1,600 of it.*
+*All relics at max cost **12,050 Memories** (costs ×1.55 vs the first draft). In the balance sim a skilled player's first victory arrives at ≈ 25–30 relic levels (≈ 2,500–3,000 Memories, run ≈ 8).*
 
-**Modelled Memories trajectory** (average player): run 1 ≈ 80 (Oilskin I + Salt-Glass I), runs 2–4 ≈ 100–150 each (Old Debt, Spoon, Creel, Heartwood Oar, Stub of the First Wick), runs 5–7 ≈ 150–250 (Sporewood reached; Tinderbox, Two-Headed Coin, Waystone: Sporewood), runs 8–12 ≈ 250–400 (Glasswater, Second Wick, Waystone: Glasswater, Remembrance), first victory around runs 12–20 (≈ 4–6 hours).
+**Simulated Memories trajectory** (Appendix A): an average player banks ≈ 170 on run 1 (3–4 relic levels, most of it one-time challenge Memories), then ≈ 75 per run (1–2 levels); a learning player ≈ 90–190 per run (≈ 15 levels by run 8, Glasswater around run 9); a skilled player ≈ 300–500 per run (≈ 26 levels by run 8, first victory around run 8).
 
 ### 17.3 Waystones and the Kindling Draft
 - Owning `waystone:<zone>` and `meta.deepestZone ≥` that lake's index lets the New Descent screen start there: day 1 in that lake (H = 3z), every lake above pre-unlocked, starting Shells + the **Descent Purse** (160 / 450 / 950), Murk moored at calm 0.
@@ -1076,7 +1077,7 @@ Biggest fish per species, best day, deepest lake, most Shells in a run, highest 
 | 3:44 | Dawn | Leftovers dissolve, cinders fly in. *First Dawn* pops (Tolling Bell enters the pool). Oil ≈ 30–45%. |
 | 3:52–5:52 | Day 2 | New dock. The player learns they **must** render ≈ 2 fish. A bounty. |
 | 6:06–7:42 | Gloomtide 2 (96 s) | Inkmites and moths. **First Drowned Hand ≈ 6:30**: the stain teaches movement. First Closing Ring. 0–2 hits. |
-| 7:50–9:50 | Day 3 | "A bell tolls beneath the calm" (legend hint). Heartmoss (40) is a stretch on run 1. |
+| 7:50–9:50 | Day 3 | "A bell tolls beneath the calm" (legend hint). Heartmoss (40) is affordable by day 2; the Sporewood toll (180) usually needs her sale plus savings. |
 | 10:04–11:46 | **Gloomtide 3 (Warden)** | A creelsnatch steals a fish. **The Wickeater rises ≈ 10:40.** A weak build outlasts it at 2–3 Embers; a strong one kills it (Heartwax, Gift). *Three Long Nights* pops. |
 | 11:54–13:54 | Day 4 | Low on Embers; the oil crunch. |
 | 14:08–15:56 | Gloomtide 4 (108 s) | Two hands, two formations, ≈ 48 alive. **Median first death ≈ 15:00.** |
@@ -1085,7 +1086,7 @@ Biggest fish per species, best day, deepest lake, most Shells in a run, highest 
 Something new arrives every 1.5–3 minutes: a species, a level, an enemy type, a formation, a bounty, a zone reveal, a challenge.
 
 ### 18.2 Run 5 (≈ 1 hour played)
-≈ 5–7 relic levels, Taper and often Ashwick unlocked, 22 boons in the pool. Knows where the legend pool is, uses Burn-a-fish, flares hands mid-stain. Lands the Belled Matriarch on day 3 (calm), kills the Wickeater on night 3, pays the toll on day 4 → **Sporewood at H 6**: gloomlings jump from 7 to 12 hp, inkwells force movement, sporelings orbit. Dies Sporewood night 5–6, often to the Veiled Gardener. ≈ 24–28 minutes, ≈ 150–200 Memories, *Down the Sluice* unlocks Stub.
+≈ 5–7 relic levels, Taper and often Ashwick unlocked, 22 boons in the pool. Knows where the legend pool is, uses Burn-a-fish, flares hands mid-stain. Lands the Belled Matriarch on day 3 (calm), kills the Wickeater on night 3, pays the toll on day 4 → **Sporewood at H 6**: gloomlings jump from 8 to 13 hp, inkwells force movement, sporelings orbit. Dies Sporewood night 5–6, often to the Veiled Gardener. ≈ 24–28 minutes, ≈ 100–150 Memories, *Down the Sluice* unlocks Stub.
 
 ### 18.3 Run 10 (≈ 3–4 hours played)
 10–14 relic levels, all five Wicks, has found Kindles, a Waystone to Sporewood. Either a full descent (Glasswater by day 7–8; ticks punish aura-only builds; the Abbot's Mirror teaches using light on purpose; strong runs reach the Pallid Deep on day 11) or a 30-minute Waystone attempt. Ends in the Pallid Deep (choir + Ferryman Eclipse) or a first victory in the run 12–20 window. A full victory ≈ 50–60 min (13–15 days); a Waystone victory ≈ 30–35 min.
@@ -1093,17 +1094,17 @@ Something new arrives every 1.5–3 minutes: a species, a level, an enemy type, 
 ### 18.4 QA targets (tune toward these)
 | metric | target |
 |---|---|
-| median first-run death | night 4 (≈ 15 min); 80% of first runs end on nights 3–5 |
-| level-up cadence | every 23–35 s on nights 1–3; 30–40 s when descending on time; ~60 s when camping |
+| median first-run death | night 4 (≈ 15 min); 80% of first runs end on nights 3–5 (sim: average player day 4, p10–p90 3–5; skilled day 7) |
+| level-up cadence | every 23–35 s on nights 1–3; 30–40 s when descending on time; ~60 s when camping (sim: 24 s skilled, 32 s average on nights 2–3) |
 | hits per night (on-curve) | N1 0 · N2 0–1 · N3 1–2 · N4–5 1–2 · first night in a new lake 2–3 |
 | Warden kill time (on-curve) | 40–55 s |
 | oil net per night | −30 to −70 (≈ 1.5–3 fish) |
-| first Warden kill | runs 3–5 |
-| first Sporewood / Glasswater / Pallid Deep | runs 3–6 / 6–10 / 9–14 |
-| first victory | runs 12–20 (≈ 4–6 h) |
-| death causes | Gloom ≈ 65%, darkness ≈ 25%, starvation ≈ 10% |
+| first Warden kill | runs 3–5 (sim: a skilled player kills on ≈ 48% of boss nights from run 1; a never-improving average player ≈ 4%) |
+| first Sporewood / Glasswater / Pallid Deep | sim: learner (typical) runs 2 / 9 / 13+; skilled 1 / 1 / 3. Sporewood is often seen on run 1 and is usually fatal there |
+| first victory | skilled ≈ run 8 (26% of runs win with 8 runs of relics); typical players after run 13 |
+| death causes | Gloom ≈ 65%, darkness ≈ 25%, starvation ≈ 10% (sim: ≈ 100% Gloom; see Appendix A.5) |
 
-**The five knobs to turn first:** (1) `director.ratePerHeat` 0.12 (count growth); (2) `hpLin / hpQuad` 0.20 / 0.025 (toughness; watch the R table); (3) oil drips interval and value (night oil net); (4) `xp.curve.quad` (pick cadence); (5) Warden base hp (kill time).
+**The five knobs to turn first:** (1) `director.ratePerHeat` 0.12 (count growth); (2) `hpLin / hpQuad` 0.24 / 0.025 (toughness; watch the R table); (3) oil drips interval and value (night oil net); (4) `xp.curve.quad` (pick cadence); (5) Warden base hp and `bossHpLin` (kill time). Rerun `node tools/balance-sim.mjs` after any change (Appendix A).
 
 ---
 
@@ -1290,7 +1291,132 @@ Thin ornate **bone-white linework** (#e9e2cf at 80%) on **ink-wash panels** (nea
 **`createRun({startZone, character})`**: shells = 20 + 30 × old_debt level + character kit shells + Waystone purse; bait = character kit + Drifter's Bundle; `boons = {[startBoon]: 1}`; zonesUnlocked = all lakes ≤ start; hp/oil/satiety at max; `xpNext = xpForLevel(1)`; `flags = {zoneEnteredDay: 1, streak: 0, mercy: 0, heartwax: 0, wounded: {}}`; Waystone banked levels → Kindling Draft at run start.
 
 ### 23.2 Optional extensions (always read defensively)
-`difficultyFor(…, {nightInZone})` and its extra return fields; enemy fields `flies, waterBound, pack, packPerHeat, maxAlive, auraTaken, telegraph, variants, zoneMods, abilities, phase2`; boon fields `kindle, proc, onPick, levels[].note`; character `quirk`; species `boss, hint, epithet, tier`; bait `zone, legend, attract, weightBias, shimmer, gloomDraw`; `fishing.view.surgeKind / decoy / shards / bandsHidden`; `fishing:escaped {cut:true}`; `progression.tryRevive?.()`; `survival.spawnEnemy?.()` for scripted summons; `ctx.debug.threat?.()`; ui's Burn-a-fish (R) and Kindling Draft; settings `reelToggle`, `reducedFlashing`.
+`difficultyFor(…, {nightInZone})` and its extra return fields; enemy fields `flies, waterBound, pack, packPerHeat, maxAlive, auraTaken, telegraph, variants, zoneMods, abilities, phase2`; boon fields `kindle, proc, onPick, levels[].note`; character `quirk`; species `boss, hint, epithet, tier`; bait `zone, legend, attract, weightBias, shimmer, gloomDraw`; `fishing.view.surgeKind / decoy / shards / bandsHidden`; `fishing:escaped {cut:true}`; `progression.tryRevive?.()`; `survival.spawnEnemy?.()` for scripted summons; `ctx.debug.threat?.()`; ui's Burn-a-fish (R) and Kindling Draft; settings `reelToggle`, `reducedFlashing`. Balance-pass additions: `difficultyFor(…).bossHpMult` (Warden hp = base × bossHpMult), `heatFor(day, zoneIndex, nightInZone)` (linger Heat), `BALANCE.combat.director.{lingerFrom, lingerHeat, bossHpLin}`, `BALANCE.combat.legendPausesElites`, `BALANCE.heal.heartwaxOnce`, `BALANCE.economy.newSpeciesLegendary`, `BALANCE.memories` (all `memoriesFor` constants).
 
 ### 23.3 Debug hooks (contract §11) used by this design
 fishing `forceBite()`, `instantCatch(id?)`; survival `skipPhase()`, `god(on)`, `setPhase(name)`; combat `spawn(idOrKind)`, `killAll()`, `levelUp()`, `giveBoon(id)`; progression `addShells(n)`, `addMemories(n)`, `unlockZone(id)`, `giveFish(id)`, `openGate()`, `completeChallenge(id)`; ui `ui()`.
+
+---
+
+## Appendix A. Balance simulation (audit pass)
+
+`tools/balance-sim.mjs` is a seeded Monte-Carlo model of whole runs and whole campaigns. It reads every number from `src/data.js` and follows the rules in this document. Treat it as a **relative** instrument: it shows where a curve bends and which knob moves it. It does not replace playtests. `tools/validate-data.mjs` checks the data against CONTRACT §8 and the cross-references (22,295 checks).
+
+### A.1 Rerun
+
+```
+node tools/validate-data.mjs                 # schema + cross-references; exit 1 on any failure
+node tools/balance-sim.mjs                   # full report, seed 20261104 (≈ 4 min)
+node tools/balance-sim.mjs --quick           # smaller samples (≈ 2 min)
+node tools/balance-sim.mjs --reel            # per-species fight table: P(land) and time at on-curve gear
+node tools/balance-sim.mjs --trace=skilled   # one annotated run, night by night
+node tools/balance-sim.mjs --runs=800 --campaigns=60 --len=14 --seed=7 --json
+```
+
+### A.2 What is modelled
+
+| layer | model |
+|---|---|
+| reel (`tools/sim/reel.mjs`) | The §5.5 per-frame tension model at 30 Hz: bands, drifting sweet band, surges with warnings, leaps, sinker drag, snap and slack, tiring, enrage, and the legendary phase mechanics (double surge, shrink, decoy, flicker, mixed surges, brittle, drag, no-slack dive). It is driven by a bot angler with a perception delay, perception noise, missed warnings, misread leaps and attention lapses. Results are memoised per species × gear × skill. |
+| fishing day | Cast, flight, wait (§5.3), nibbles, feints and early taps, a lognormal hook reaction against the bite window, depth-band species picks with rarity weights, spots, bait, quality and weight. Catch rule: eat if satiety < 40%, render if oil < 40%, otherwise keep and sell to Murk. Top up oil from the creel at dusk. One Murk trip per calm. |
+| economy | Gear is bought greedily by value per Shell, keeping a reserve for the legend bait or the toll. Supplies, Wax Patch and general bait are bought as needed. Bounties use expected value. Elite and Warden Shells, Trophy or Toll, Murk's Pity. |
+| night | A 0.25 s step. Enemy cohorts spawn from `difficultyFor()` on the 22–34 m ring and walk in. The aura (auraDps × oil fraction) burns everything inside the light. All 10 weapon types and their Kindles are modelled. Single-target projectiles carry a 0.8 efficiency factor, and chain or bounce targets depend on how dense the swarm is. Zaps, flares, hands (stain, breach, slam, stagger), Wardens, formations, moths, eels, inkwells, ticks, the choir, i-frames, armor, Gutter-burst, Last Flicker, darkness, starvation, Burn-a-fish and the cinder magnet are included. Cinders become levels, and each level is a boon pick under the §10.2 offer rules. |
+| meta | `memoriesFor()` plus challenge rewards, then greedy relic purchases. Challenge unlocks feed the boon pool. Each relic profile is a snapshot of 48 simulated campaigns after 0, 3, 8 or 12 runs. |
+
+**Player assumptions** (`SKILLS` in `tools/sim/model.mjs`):
+
+| | average | skilled |
+|---|---|---|
+| reel perception delay / noise | 0.22 s / 0.05 | 0.14 s / 0.025 |
+| surge warnings noticed / leaps misread | 80% / 30% | 95% / 8% |
+| hook reaction (median) | 0.36 s | 0.27 s |
+| casts into spots | 55% | 85% |
+| slam / glob / lunge dodge | 75% / 80% / 12% | 92% / 93% / 32% |
+| zaps per second / flare when ≥ N close | 0.22 / 6 | 0.40 / 8 |
+| cinder collection | 62% | 85% |
+| descent policy | after 1 night in a lake with ≥ 60% Embers (or after 4 nights) | takes the lake's Warden night unless untouched (or after 4 nights) |
+
+A third player, the **learner**, starts with the average skill and closes 6% of the gap to skilled each run, up to 60%. It stands in for the typical player in the campaign rows.
+
+### A.3 Final results (seed 20261104; 500 runs per profile; 48 campaigns × 13 runs per skill)
+
+| profile | relic lv | death day med (p10–p90) | reach Spore / Glass / Pallid | win % | Memories/run | level med |
+|---|---|---|---|---|---|---|
+| average · fresh | 0 | 4 (3–5) | 58% / 1% / 0% | 0% | 170 | 13 |
+| average · after 3 runs | 7.0 | 4 (3–5) | 65% / 0% / 0% | 0% | 74 | 14 |
+| average · after 8 runs | 12.4 | 4 (3–5) | 77% / 1% / 0% | 0% | 72 | 14 |
+| average · after 12 runs | 15.8 | 4 (3–5) | 86% / 2% / 0% | 0% | 76 | 14 |
+| skilled · fresh | 0 | 7 (5–9) | 100% / 86% / 9% | 1% | 491 | 27 |
+| skilled · after 3 runs | 16.3 | 8 (5–12) | 100% / 97% / 46% | 7% | 284 | 34 |
+| skilled · after 8 runs | 26.4 | 9 (7–12) | 100% / 99% / 74% | **26%** | 338 | 41 |
+| skilled · after 12 runs | 32.6 | 9 (7–12) | 100% / 100% / 84% | 45% | 373 | 41 |
+
+**Shells per day by lake** (all sources): average 135–148 in the Mossmere and 142–177 in Sporewood; skilled 234–259 / 403–574 / 608–968 / 932–1,138 from the Mossmere down to the Pallid Deep. A winning skilled run earns ≈ 9,000 Shells and spends ≈ 38% of the gear catalogue.
+
+**Night pacing** (fresh profiles):
+
+| | Embers lost N1 / N2 / N3 / N4 / N5 / N6 | oil net per night N1–N5 | level-up cadence, nights 2–3 | Warden killed |
+|---|---|---|---|---|
+| average | 0.0 / 1.4 / 3.2 / 2.9 / 3.2 / 4.0 | −22 / −33 / −63 / −42 / −42 | every 32 s | 4% of boss nights |
+| skilled | 0.0 / 0.1 / 1.1 / 1.0 / 2.8 / 2.1 | −39 / −40 / −34 / −45 / −40 | every 24 s | 48% (median 53 s) |
+
+**Where Embers are lost:**
+
+| | swarm contact | hand slam | inkwell glob | Warden | eel |
+|---|---|---|---|---|---|
+| average · fresh | 5% | 58% | 15% | 20% | 2% |
+| skilled · fresh | 18% | 20% | 51% | 10% | 1% |
+| skilled · after 8 runs | 4% | 22% | 62% | 12% | 0% |
+
+**Campaigns** (median run of the first arrival): average — Sporewood run 1, never Glasswater within 13 runs; learner — Sporewood 2, Glasswater 9, Pallid Deep > 13 (15% by run 13); skilled — Sporewood 1, Glasswater 1, Pallid Deep 3, **first victory run 8** (54% of skilled campaigns have won by run 8 and 96% by run 13).
+
+**Degenerate-strategy probes** (skilled):
+
+| meta | strategy | death day med | win % | Memories/min |
+|---|---|---|---|---|
+| fresh | baseline | 7 | 1% | 17.2 |
+| fresh | render every fish | 7 | 0% | 16.0 |
+| fresh | all Shells on Searing Mantle | 6 | 0% | 16.8 |
+| fresh | zap spam ×3 | 7 | 0% | 16.9 |
+| fresh | never descend (camp) | 15 | 0% | 9.6 |
+| 8 runs | baseline | 9 | 28% | 8.5 |
+| 8 runs | never descend (camp) | 19 | 0% | 5.7 |
+| 8 runs | all Shells on Searing Mantle | 9 | 0% | 6.9 |
+
+No single strategy dominates. Rendering every fish is capped by maxOil and starves the Shell economy. A mantle-only build cannot buy line for the legendaries. Zap spam burns oil. Camping dies around day 15–19 to linger Heat and earns about 45% fewer Memories per minute than descending.
+
+**Targets:** fresh average median death on day 4 ✓ (3–6); fresh average reaches Glasswater 1% ✓; fresh skilled median day 7 ✓ (6–8); skilled with 8 runs of relics wins 26% ✓ (10–40%); the average player buys 3.3 relic levels after run 1, which includes the one-time challenge burst, and 1.2 per run after that ✓ (1–3); every degenerate-strategy probe passes ✓.
+
+### A.4 Changes made in this pass (before → after)
+
+| area | change | why |
+|---|---|---|
+| first-catch Shells | `newSpeciesShells` 1.5 → **1.0**, and **no first-catch Shells for legendaries** (`newSpeciesLegendary: false`) | A run-1 Matriarch paid 210 Shells on top of her sale, so the first toll was free and 72% of first-time players reached Sporewood on day 3 |
+| tolls | 120 / 300 / 650 → **180 / 420 / 900** | A legendary's sale (≈ 130–180, 320, 600) now covers only part of the next toll. Trophy or Toll stays a real choice and the gate is a real economic barrier |
+| zone `valueMult` (bounties, elite Shells) | 1 / 1.8 / 3 / 4.5 → **1 / 1.5 / 2.2 / 3** | Deep-lake bounties paid 150–240 Shells each, and deep Shell income ran 4–5× this document's §9.3 table |
+| Heartwax | **once per Warden per run** (`heal.heartwaxOnce`) | A camper killed the Wickeater every 3rd night and stacked maxHp to the clamp of 12, which made camping immortal |
+| linger Heat | **+1 Heat per night beyond a lake's 4th** (`director.lingerFrom` 4, `lingerHeat` 1; `heatFor(day, z, nightInZone)`) | Fresh skilled campers survived to day 22–28 and earned more Memories per run than descenders |
+| Warden hp | hp × hpMult → hp × **bossHpMult = 1 + 0.3·H**; base 1200 / 1500 / 1500 / 1600 → **1000 / 1100 / 1200 / 1400** | Under quadratic hpMult the simulated kill rates were 8% / 4% / 0% / 0% (target: 40–55 s on-curve). Now skilled kills in ≈ 53 s at the median |
+| Wickeater contact | 2 → **1** Ember | It killed 55–60% of first-time players on night 3 on its own. Now it teaches tells; its maw still costs 2 |
+| elite floor | `eliteMin` 15 → **22** s | With pairs of Ringed Grasp every 15 s, a hand was always slamming; the first Pallid night was 85–100% fatal |
+| hits worth more | `damageStep` 8 → **12** (hands 3 Embers from H 12, everything 2 from H 24) | At H ≥ 16 every glob cost 2 and every slam 4, a cliff at exactly the finale |
+| legendary fights | **no new elite hands while a legendary is hooked** (`combat.legendPausesElites`); a hooked gloom legendary holds the Gloomtide open until it resolves | An anchored Wick cannot dodge (dodge × 0.35), so night legend fights were decided by hands, not by the fish |
+| Silverthread | appears from **Glasswater** (was Pallid Deep) | Players had no way to buy finale line before the 900 toll plus the 320 bait |
+| Pale Leviathan | stamina 38 → **44** | Paired with the night extension, the first attempt stays a coin flip for a geared skilled player (≈ 50% at LS 2.1, ≈ 78% once wounded) |
+| Weeping Inkwell | hp 14 → **11**, lob every 4 s → **5 s**, cap +1 per 6 H → **+1 per 8 H** | It was the top killer for every skill from Sporewood on. Only zaps and hunting reach it, and its hp grows quadratically while zap damage grows linearly |
+| swarm toughness | `hpLin` 0.20 → **0.24** | The swarm almost never reached the raft (≤ 5% of Embers lost); this pushes it toward the "build matters" intent |
+| Memories per run | nights 3 + 1.5z → 3 + **1.0**z; depth 15/35/60 → **10/25/45**; legends 20 → **15**; bounties 4 → **2**; kills /25 → **/50**; hands 2 → **1**; trophies 15/30/50 → **10/20/35** (now `BALANCE.memories`) | Skilled players earned 450–650 per run, 2–3× the §17 trajectory |
+| challenge Memories | perfect_10_run 15 → 10, shimmering 10 → 5, naturalist 15 → 10, untouched 15 → 10, down_the_sluice 20 → 15, unwarded 20 → 15 (861 → 831 total) | The run-1 burst for an average player bought 4–5 relic levels |
+| relic costs | all costs × 1.35 × 1.15 ≈ **× 1.55** (7,775 → 12,050 total) | Skilled players won 46–60% after 8 runs; the target is 10–40% |
+
+### A.5 Findings and risks for implementers
+
+1. **The swarm itself rarely kills.** Fodder makes up 4–18% of Embers lost. Weapons and the aura win the raw damage race by about 3–6× at every Heat for an on-curve build, and fodder only leaks when a build lags far behind or the light collapses. Deaths come from telegraphed hits: hand slams (55–60% for average players) and inkwell globs (50–60% for skilled players). **The night's difficulty therefore rests on tell readability and dodge windows.** Playtest the stain (1.4 s + 0.6 s breach) and the glob ring (1.2 s) early. If fodder should matter more, the knobs are `hpLin` (now 0.24), `ratePerHeat` (0.12) or projectile damage.
+2. **Darkness and starvation never kill in the sim** (§18.4 wants about 25% and 10%). Oil sits at 50–65% through each night: renders, drips, elite oil and Burn-a-fish cover the burn. If the oil pillar should bite harder, raise `oilDrain` (0.14) before touching yields. `oilDrain` 0.17 together with `hpLin` 0.26 was tested and still met every target, with skilled players winning 15% after 8 runs.
+3. **Inkwell targeting.** Nearest-first weapons never shoot inkwells that hold 13–18 m away. Combat may give homing motes and the hook a 25% chance to prefer an artillery target; if it does, rerun the sim, because inkwells are the main skilled-player killer.
+4. **Legendary fights at night.** Implement `legendPausesElites` and keep the Gloomtide open while a gloom legendary is hooked. Leviathan fights run 85–125 s. DESIGN previously did not say what happens to a fight at dawn.
+5. **The Pale Leviathan is a gear gate.** Skilled landing chance is ≈ 2% at line strength 1.6, ≈ 30% at 1.9 and ≈ 50% at 2.1; a learner at 50% skill is ≈ 15% at 1.9 and ≈ 30% at 2.1. Silverthread from Glasswater is what makes it reachable. The wounded carry-over is large (a 0.3 start roughly doubles the chance), so get `woundedCarry` right.
+6. **Formation ambiguity.** `tide.packSize {base:18, perHeat:1}` is simulated as a **total** of 18 + H mites split into 3–4 packs. Read as a per-pack size it is 3–4× that. Formations bypass `maxAlive` in the sim.
+7. **The skill axis outweighs relics.** A player who never improves stays at a median death on day 4 even with 16 relic levels, though Sporewood arrivals rise from 58% to 86%. The learner reaches Glasswater around run 9. Most of the gap is dodge rates, so readable tells and the death-screen tips (§6.8) matter more than numbers.
+8. **The economy is richer than §9.3 claimed.** Fish sales are about 2× higher because elite oil means fewer fish need rendering. The gear catalogue is still only ≈ 38% buyable in a winning run, so every build remains a choice.
+9. **Integration.** `difficultyFor` gains `bossHpMult`, and `heatFor` takes `nightInZone` (combat should pass it). Progression must apply `heartwaxOnce`, no first-catch Shells for legendaries, and `BALANCE.memories`.

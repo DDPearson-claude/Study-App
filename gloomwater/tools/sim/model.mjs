@@ -582,6 +582,7 @@ export function simulateNight(meta, run, sk, strat, rng, opts = {}) {
   const floats = [];
   const vortices = [];
   const recentLost = [];
+  let oilAcc = 0, oilMin = 1, oilStartFrac = run.oil / st.maxOil;
   let xpGained = 0, spawnedN = 0, anchT = 0, contactsN = 0, dodgedN = 0, iframeAbsorb = 0;
   const nextElite = d0.eliteEvery > 0 ? d0.eliteFirstAt * L : Infinity;
   let eliteAt = nextElite;
@@ -724,6 +725,7 @@ export function simulateNight(meta, run, sk, strat, rng, opts = {}) {
     const moving = anch ? 0 : 0.65;
     if (opts.debug && Math.abs(t % 5) < 1e-9) { let near = 99, inL = 0; for (const c of cohorts) { if (c.n > 0) { near = Math.min(near, c.dist); if (c.dist <= lr) inL += c.n; } } console.log(`t ${t} alive ${alive()} inLight ${inL} near ${near.toFixed(1)} lr ${lr.toFixed(1)} oil ${run.oil.toFixed(0)} hp ${run.hp} kills ${killsNight} contacts ${contactsN} hands ${hands.length}`); }
     if (anch) anchT += dt;
+    oilAcc += of * dt; oilMin = Math.min(oilMin, of);
     // ---- legend fight bookkeeping
     if (fight && !fight.done && t >= fight.start && fight.end === Infinity) {
       const r = castOnce(meta, run, sk, st, rng, { legend: legSp, gloom: true });
@@ -1065,7 +1067,7 @@ export function simulateNight(meta, run, sk, strat, rng, opts = {}) {
     let late = 0; for (const [tt, x] of recentLost) if (tt >= t - B.xp.cinderLife) late += x;
     gainXp(late);
   }
-  const nl = { wardenDps: warden ? warden.dmg / Math.max(1, warden.age) : null, wardenHp: warden?.hp, contacts: contactsN, dodged: dodgedN, hitSrc, maxHp: st.maxHp, spawned: spawnedN, anch: anchT, day, zone: z, heat: H, kills: killsNight, emberLost, oilNet: run.oil - oilStart, xp: xpGained, level: run.level, boss: d0.boss, bossKilled: !!(warden && !warden.alive), bossKillTime: warden?.killedAt != null ? warden.killedAt - bossAt : null, dead: run.dead };
+  const nl = { oilMean: oilAcc / Math.max(1, t), oilMin, oilStartFrac, wardenDps: warden ? warden.dmg / Math.max(1, warden.age) : null, wardenHp: warden?.hp, contacts: contactsN, dodged: dodgedN, hitSrc, maxHp: st.maxHp, spawned: spawnedN, anch: anchT, day, zone: z, heat: H, kills: killsNight, emberLost, oilNet: run.oil - oilStart, xp: xpGained, level: run.level, boss: d0.boss, bossKilled: !!(warden && !warden.alive), bossKillTime: warden?.killedAt != null ? warden.killedAt - bossAt : null, dead: run.dead };
   run.nightLog.push(nl);
   run.stats.slainNightMax = Math.max(run.stats.slainNightMax, killsNight);
   return nl;

@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 // tools/balance-sim.mjs — seeded Monte-Carlo pacing simulation for GLOOMWATER (hybrid design).
 //
-//   node tools/balance-sim.mjs                 full report (≈ 1–2 min)
-//   node tools/balance-sim.mjs --quick         smaller samples (≈ 20 s)
+//   node tools/balance-sim.mjs                 full report (≈ 4 min)
+//   node tools/balance-sim.mjs --quick         smaller samples (≈ 2 min)
 //   node tools/balance-sim.mjs --runs=800 --campaigns=60 --len=14 --seed=7
 //   node tools/balance-sim.mjs --trace=skilled  one annotated run, day by day
 //   node tools/balance-sim.mjs --reel          species fight table (P(land), time) at on-curve gear
@@ -21,6 +21,8 @@
 //    → levels → boon picks; oil/satiety drains, Last Flicker, darkness, starvation, Burn-a-fish.
 //  • Meta: memoriesFor() + challenge rewards → greedy relic purchases; challenge unlocks feed the
 //    boon pool. Relic profiles are snapshots of simulated campaigns after 0 / 3 / 8 / 12 runs.
+//  • Players: tools/sim/model.mjs SKILLS (average, skilled) + a "learner" who starts average and
+//    closes 6% of the gap to skilled per run (cap 60%). All skill assumptions are listed there.
 import * as D from '../src/data.js';
 import { SKILLS, blendSkill, newMeta, simulateRun, bankRun, spendMemories, mulberry32 } from './sim/model.mjs';
 import { fightStats } from './sim/reel.mjs';
@@ -98,7 +100,7 @@ for (const key of ['average', 'skilled', 'learner']) {
 // ===================================================================================== profile evaluation
 function evaluate(sk, metas, n, rng, strat = {}, opt = {}) {
   const res = { deaths: [], nights: [], zones: [0, 0, 0, 0], wins: 0, mem: [], memRun: [], causes: {}, levels: [], shells: [0, 0, 0, 0], days: [0, 0, 0, 0],
-    hitsByNight: [], oilByNight: [], cadence: [], warden: { nights: 0, kills: 0, times: [] }, legend: [0, 0, 0, 0], n, reachDay: [[], [], [], []], wonDay: [], winLevel: [], minutes: [], relicBought: [] };
+    hitsByNight: [], oilByNight: [], cadence: [], warden: { nights: 0, kills: 0, times: [] }, legend: [0, 0, 0, 0], n, reachDay: [[], [], [], []], wonDay: [], winLevel: [], minutes: [], relicBought: [], hitSrc: {} };
   for (let i = 0; i < n; i++) {
     const meta = clone(metas[i % metas.length]);
     const run = simulateRun(meta, sk, strat, rng, opt);
@@ -116,6 +118,7 @@ function evaluate(sk, metas, n, rng, strat = {}, opt = {}) {
     for (const id of Object.keys(run.legendaries)) res.legend[D.ZONE_BY_ID[D.SPECIES_BY_ID[id].zone].index]++;
     run.nightLog.forEach((nl, j) => {
       (res.hitsByNight[j] ||= []).push(nl.emberLost);
+      for (const [k, v] of Object.entries(nl.hitSrc || {})) { const g = k.startsWith('contact:') ? 'swarm contact' : k === 'glob' ? 'inkwell glob' : k === 'slam' ? 'hand slam' : k; res.hitSrc[g] = (res.hitSrc[g] || 0) + v; }
       if (!nl.dead) (res.oilByNight[j] ||= []).push(nl.oilNet);
       const prevLvl = j ? run.nightLog[j - 1].level : null;
       if (j < 3 && prevLvl != null && nl.level > prevLvl && !nl.dead) res.cadence.push(D.gloomtideLength(nl.day) / (nl.level - prevLvl));
@@ -171,6 +174,9 @@ for (const p of profiles.filter((x) => x.snap === 0)) {
   const r = p.res;
   P(`- ${label(p)}: Embers lost per night N1–N6 = ${[0, 1, 2, 3, 4, 5].map((j) => f1(mean(r.hitsByNight[j] || []))).join(' / ')}; oil net per survived night N1–N5 = ${[0, 1, 2, 3, 4].map((j) => f0(mean(r.oilByNight[j] || []))).join(' / ')}; level-up every ${f0(pct(r.cadence, 0.5))} s on nights 2–3; Warden killed on ${pc(r.warden.kills / Math.max(1, r.warden.nights))} of boss nights (median ${f0(pct(r.warden.times, 0.5))} s)`);
 }
+P();
+P('## Where Embers are lost (share of all Embers lost at night)');
+P(table(['profile', 'swarm contact', 'hand slam', 'inkwell glob', 'warden', 'eel', 'darkness'], profiles.filter((p) => p.snap === 0 || p.snap === 8).map((p) => { const h = p.res.hitSrc, tot = Object.values(h).reduce((a, b) => a + b, 0) || 1; return [label(p), ...['swarm contact', 'hand slam', 'inkwell glob', 'warden', 'eel', 'dark'].map((k) => pc((h[k] || 0) / tot))]; })));
 P();
 P('## Campaign trajectory (share of campaigns that have ever reached a lake / won by run N)');
 const traj = [];

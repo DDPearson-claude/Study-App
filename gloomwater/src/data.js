@@ -15,7 +15,7 @@ export const STATS = {
   maxHp:         { label: 'Embers',          base: 5,    fmt: 'int', min: 1,    max: 12 },
   maxOil:        { label: 'Lantern Oil',     base: 100,  fmt: 'int', min: 40,   max: 260 },
   maxSatiety:    { label: 'Satiety',         base: 100,  fmt: 'int', min: 40,   max: 220 },
-  oilDrain:      { label: 'Oil Burn',        base: 0.14, fmt: 'num', min: 0.05, max: 1 },
+  oilDrain:      { label: 'Oil Burn',        base: 0.17, fmt: 'num', min: 0.05, max: 1 },
   satietyDrain:  { label: 'Hunger',          base: 0.10, fmt: 'num', min: 0.04, max: 1 },
   lightRadius:   { label: 'Light Radius',    base: 8,    fmt: 'm',   min: 3,    max: 18 },
   auraDps:       { label: 'Lantern Burn',    base: 2.0,  fmt: 'num', min: 0,    max: 40 },
@@ -172,7 +172,7 @@ export const BALANCE = {
       baseRate: 0.75,           // spawnRate = baseRate × zone.gloom × (1 + ratePerHeat×H) × nightCurve(k)
       ratePerHeat: 0.12,
       maxAliveBase: 30, maxAlivePerHeat: 6, maxAliveCap: 150,
-      hpLin: 0.20, hpQuad: 0.025,                 // hpMult = 1 + 0.20H + 0.025H²
+      hpLin: 0.24, hpQuad: 0.025,                 // hpMult = 1 + 0.24H + 0.025H²
       bossHpLin: 0.3,                             // Wardens: hp = base × bossHpMult, bossHpMult = 1 + 0.3H (linear: kill time stays ≈ 45–65 s)
       speedPerHeat: 0.03, speedCap: 1.45,
       damageStep: 12, damageStepAdd: 0.5,         // damageMult = 1 + 0.5 × floor(H/12)
@@ -284,7 +284,7 @@ export const BALANCE = {
     weightSkew: 1.6,                  // t = U^skew (heavy bait: skew / (1 + weightBias)); w = min + (max−min)·t
     sizeK: [0.75, 1.25],              // value/food/oil multiplier across t = 0..1
     newSpeciesShells: 1.0,            // first catch ever: +round(1.0 × species.value) Shells (non-legendary only)
-    newSpeciesLegendary: false,       // legendaries pay no first-catch Shells (their sale already ≈ the next toll)
+    newSpeciesLegendary: false,       // legendaries pay no first-catch Shells (their sale already covers most of the next toll)
     mercy: { perRelease: 0.02, cap: 0.10 },   // release: +rarityBonus for the rest of the day
     streak: { perStep: 0.10, maxSteps: 5 },   // perfect-hook streak: value × (1 + 0.1 × min(streak, 5))
     trophyMemories: [10, 20, 35, 0],  // legendary still in the creel at run end (Leviathan: victory instead)
@@ -305,13 +305,13 @@ export const BALANCE = {
   journal: { halfZone: 4, newSpeciesMemories: 3, masteryAt: 10, masteryMemories: 2, halfZoneMemories: 10 },
 
   // ---- Memories per run (DESIGN §17.1, memoriesFor). Challenge rewards are paid separately.
-  memories: { nightBase: 3, nightPerZone: 1.5, depth: [0, 15, 35, 60], fishPer: 2, legend: 15, slainPer: 25, elite: 2, warden: 15, victoryFirst: 150, victoryAfter: 100 },
+  memories: { nightBase: 3, nightPerZone: 1.0, depth: [0, 10, 25, 45], fishPer: 2, legend: 15, slainPer: 50, elite: 1, warden: 15, victoryFirst: 150, victoryAfter: 100 },
 
   // ---- Descent Gate travel (DESIGN §14).
   travel: { phases: ['calm', 'dawn'], murkFollows: true, oneWay: true, descendTime: 2.5 },
 
   // ---- Bounty ledger (DESIGN §15).
-  bounty: { offer: 2, maxActive: 3, durationDays: 2, dayGrowth: 0.04, memoriesEach: 4 },
+  bounty: { offer: 2, maxActive: 3, durationDays: 2, dayGrowth: 0.04, memoriesEach: 2 },
 };
 
 // =====================================================================================
@@ -841,51 +841,51 @@ export const SUPPLIES = [
 // requires: meta thresholds that reveal it {bestDay, runs, deepestZone, bestLevel}.
 // =====================================================================================
 export const RELICS = [
-  { id: 'oilskin_flask', name: 'Cracked Oilskin', icon: 'oil', maxLevel: 3, costs: [35, 95, 215], effects: { maxOil: 15 }, unlock: null,
+  { id: 'oilskin_flask', name: 'Cracked Oilskin', icon: 'oil', maxLevel: 3, costs: [40, 110, 245], effects: { maxOil: 15 }, unlock: null,
     desc: 'It leaks, but only a little, and only when it is sad. +15 max oil.' },
-  { id: 'salt_glass_lens', name: 'Salt-Glass Lens', icon: 'lens', maxLevel: 3, costs: [55, 150, 325], effects: { lightRadius: 0.6, auraDps: 0.15 }, unlock: null,
+  { id: 'salt_glass_lens', name: 'Salt-Glass Lens', icon: 'lens', maxLevel: 3, costs: [65, 170, 375], effects: { lightRadius: 0.6, auraDps: 0.15 }, unlock: null,
     desc: 'Fitted to a lantern long since drowned. The light it bends still finds its way back. +0.6 m light, +0.15 burn.' },
-  { id: 'bent_tin_spoon', name: 'Bent Tin Spoon', icon: 'spoon', maxLevel: 3, costs: [35, 95, 215], effects: { maxSatiety: 15, satietyDrain: -0.006 }, unlock: null,
+  { id: 'bent_tin_spoon', name: 'Bent Tin Spoon', icon: 'spoon', maxLevel: 3, costs: [40, 110, 245], effects: { maxSatiety: 15, satietyDrain: -0.006 }, unlock: null,
     desc: 'Someone ate every meal with this, slowly, to make it last.' },
-  { id: 'mended_creel', name: 'Mended Creel', icon: 'creel', maxLevel: 2, costs: [45, 200], effects: { creelSize: 1 }, unlock: null,
+  { id: 'mended_creel', name: 'Mended Creel', icon: 'creel', maxLevel: 2, costs: [50, 230], effects: { creelSize: 1 }, unlock: null,
     desc: "Patched with reed, ribbon, and a lock of someone's hair. +1 creel slot." },
-  { id: 'old_debt', name: "Murk's Old Debt", icon: 'shell', maxLevel: 4, costs: [25, 70, 150, 295], effects: {}, special: 'startShells:30', unlock: null,
+  { id: 'old_debt', name: "Murk's Old Debt", icon: 'shell', maxLevel: 4, costs: [30, 80, 170, 340], effects: {}, special: 'startShells:30', unlock: null,
     desc: 'He owes you. He will not say for what. +30 starting Shells per level.' },
-  { id: 'heartwood_oar', name: 'Heartwood Oar', icon: 'oar', maxLevel: 3, costs: [40, 110, 245], effects: { moveSpeed: 0.3 }, unlock: null,
+  { id: 'heartwood_oar', name: 'Heartwood Oar', icon: 'oar', maxLevel: 3, costs: [45, 125, 280], effects: { moveSpeed: 0.3 }, unlock: null,
     desc: 'Carved from the last tree that grew in sunlight. It still leans toward it. +0.3 raft speed.' },
-  { id: 'seven_knots', name: 'Line of Seven Knots', icon: 'line', maxLevel: 3, costs: [40, 120, 270], effects: { lineStrength: 0.1 }, unlock: null,
+  { id: 'seven_knots', name: 'Line of Seven Knots', icon: 'line', maxLevel: 3, costs: [45, 140, 310], effects: { lineStrength: 0.1 }, unlock: null,
     desc: 'Each knot was tied by a different Wick. None have come undone.' },
-  { id: 'first_wick_stub', name: 'Stub of the First Wick', icon: 'ember', maxLevel: 2, costs: [120, 350], effects: { maxHp: 1 }, unlock: null, requires: { bestDay: 3 },
+  { id: 'first_wick_stub', name: 'Stub of the First Wick', icon: 'ember', maxLevel: 2, costs: [140, 400], effects: { maxHp: 1 }, unlock: null, requires: { bestDay: 3 },
     desc: 'Barely a thumb of wax. It remembers being tall. +1 Ember.' },
-  { id: 'two_headed_coin', name: 'Two-Headed Coin', icon: 'coin', maxLevel: 3, costs: [70, 190, 405], effects: { rarityBonus: 0.03, luck: 0.1 }, unlock: null, requires: { runs: 2 },
+  { id: 'two_headed_coin', name: 'Two-Headed Coin', icon: 'coin', maxLevel: 3, costs: [80, 220, 465], effects: { rarityBonus: 0.03, luck: 0.1 }, unlock: null, requires: { runs: 2 },
     desc: 'Lucky, they said. It came up heads every time. Even the last time.' },
-  { id: 'drifters_bundle', name: "Drifter's Bundle", icon: 'bundle', maxLevel: 2, costs: [55, 160], effects: {}, special: 'startKit', unlock: null, requires: { runs: 2 },
+  { id: 'drifters_bundle', name: "Drifter's Bundle", icon: 'bundle', maxLevel: 2, costs: [65, 185], effects: {}, special: 'startKit', unlock: null, requires: { runs: 2 },
     desc: "I: start with 8 Mire Worms and 3 Lumen Moss. II: also the starting zone's legend bait." },
-  { id: 'tinderbox', name: "Grandsire's Tinderbox", icon: 'xp', maxLevel: 3, costs: [45, 120, 270], effects: { xpMult: 0.05, pickupRadius: 0.5 }, unlock: null, requires: { bestLevel: 8 },
+  { id: 'tinderbox', name: "Grandsire's Tinderbox", icon: 'xp', maxLevel: 3, costs: [50, 140, 310], effects: { xpMult: 0.05, pickupRadius: 0.5 }, unlock: null, requires: { bestLevel: 8 },
     desc: 'Dry wood, flint, and the patience of someone long gone. +5% cinders, +0.5 m magnet.' },
-  { id: 'steady_hook', name: "Grandmother's Hook", icon: 'hook', maxLevel: 3, costs: [40, 120, 270], effects: { hookWindow: 0.08, sweetZone: 0.012 }, unlock: 'perfect_10_run',
+  { id: 'steady_hook', name: "Grandmother's Hook", icon: 'hook', maxLevel: 3, costs: [45, 140, 310], effects: { hookWindow: 0.08, sweetZone: 0.012 }, unlock: 'perfect_10_run',
     desc: 'Blunted with use. It still remembers exactly when to bite.' },
-  { id: 'barnacle_cloak', name: 'Barnacle Cloak', icon: 'ward', maxLevel: 3, costs: [80, 215, 460], effects: { armor: 0.05 }, unlock: 'untouched',
+  { id: 'barnacle_cloak', name: 'Barnacle Cloak', icon: 'ward', maxLevel: 3, costs: [90, 245, 530], effects: { armor: 0.05 }, unlock: 'untouched',
     desc: 'Heavy, wet, and very hard to bite through. +5% ward.' },
-  { id: 'ember_in_resin', name: 'Ember in Resin', icon: 'flare', maxLevel: 3, costs: [55, 150, 325], effects: { flareCooldown: -1.5, flareRadius: 0.5 }, unlock: 'bonfire_night',
+  { id: 'ember_in_resin', name: 'Ember in Resin', icon: 'flare', maxLevel: 3, costs: [65, 170, 375], effects: { flareCooldown: -1.5, flareRadius: 0.5 }, unlock: 'bonfire_night',
     desc: 'A spark from a flare that once saved someone. It is still warm.' },
-  { id: 'shimmer_scale', name: 'Shimmering Scale', icon: 'scale', maxLevel: 3, costs: [70, 190, 405], effects: { rarityBonus: 0.02 }, special: 'shimmer:0.04', unlock: 'shimmering',
+  { id: 'shimmer_scale', name: 'Shimmering Scale', icon: 'scale', maxLevel: 3, costs: [80, 220, 465], effects: { rarityBonus: 0.02 }, special: 'shimmer:0.04', unlock: 'shimmering',
     desc: 'It never stops catching light. Neither, now, will your catches.' },
-  { id: 'remembrance', name: 'Remembrance', icon: 'memory', maxLevel: 3, costs: [110, 270, 540], effects: {}, special: 'memMult:0.08', unlock: 'kindled',
+  { id: 'remembrance', name: 'Remembrance', icon: 'memory', maxLevel: 3, costs: [125, 310, 620], effects: {}, special: 'memMult:0.08', unlock: 'kindled',
     desc: 'The water remembers a little more of you each time. +8% Memories per level.' },
-  { id: 'listening_bobber', name: 'The Listening Bobber', icon: 'bobber', maxLevel: 1, costs: [160], effects: { nibbleTells: 1 }, unlock: 'catch_100',
+  { id: 'listening_bobber', name: 'The Listening Bobber', icon: 'bobber', maxLevel: 1, costs: [185], effects: { nibbleTells: 1 }, unlock: 'catch_100',
     desc: 'Painted with a small ear. It hears the difference between hunger and curiosity.' },
-  { id: 'torn_ledger', name: 'Torn Ledger Page', icon: 'ledger', maxLevel: 3, costs: [60, 160, 350], effects: { sellMult: 0.06 }, unlock: 'shells_1000_run',
+  { id: 'torn_ledger', name: 'Torn Ledger Page', icon: 'ledger', maxLevel: 3, costs: [70, 185, 400], effects: { sellMult: 0.06 }, unlock: 'shells_1000_run',
     desc: "A page from Old Murk's accounts. Your name is on it, crossed out, then written in again." },
-  { id: 'gamblers_wick', name: "Gambler's Wick", icon: 'reroll', maxLevel: 2, costs: [80, 245], effects: { rerolls: 1 }, unlock: 'kindle_one',
+  { id: 'gamblers_wick', name: "Gambler's Wick", icon: 'reroll', maxLevel: 2, costs: [90, 280], effects: { rerolls: 1 }, unlock: 'kindle_one',
     desc: 'Burns at both ends. One more chance to choose. +1 reroll per run.' },
-  { id: 'second_wick', name: 'Second Wick', icon: 'revive', maxLevel: 1, costs: [405], effects: {}, special: 'secondWick', unlock: 'into_the_vault',
+  { id: 'second_wick', name: 'Second Wick', icon: 'revive', maxLevel: 1, costs: [465], effects: {}, special: 'secondWick', unlock: 'into_the_vault',
     desc: 'Once per run, a killing blow leaves you at 1 Ember with 40 oil and a free flare.' },
-  { id: 'waystone_sporewood', name: 'Waystone: Sporewood', icon: 'waystone', maxLevel: 1, costs: [160], effects: {}, special: 'waystone:sporewood', unlock: null, requires: { deepestZone: 1 },
+  { id: 'waystone_sporewood', name: 'Waystone: Sporewood', icon: 'waystone', maxLevel: 1, costs: [185], effects: {}, special: 'waystone:sporewood', unlock: null, requires: { deepestZone: 1 },
     desc: 'Charcoal pressed against a mossy stone. Begin a descent in Sporewood Pools with 160 Shells and 9 banked levels.' },
-  { id: 'waystone_glasswater', name: 'Waystone: Glasswater', icon: 'waystone', maxLevel: 1, costs: [350], effects: {}, special: 'waystone:glasswater', unlock: null, requires: { deepestZone: 2 },
+  { id: 'waystone_glasswater', name: 'Waystone: Glasswater', icon: 'waystone', maxLevel: 1, costs: [400], effects: {}, special: 'waystone:glasswater', unlock: null, requires: { deepestZone: 2 },
     desc: 'A rubbing of a cold, clear stone. Begin in the Glasswater Vault with 450 Shells and 18 banked levels.' },
-  { id: 'waystone_paleabyss', name: 'Waystone: Pallid Deep', icon: 'waystone', maxLevel: 1, costs: [610], effects: {}, special: 'waystone:paleabyss', unlock: null, requires: { deepestZone: 3 },
+  { id: 'waystone_paleabyss', name: 'Waystone: Pallid Deep', icon: 'waystone', maxLevel: 1, costs: [700], effects: {}, special: 'waystone:paleabyss', unlock: null, requires: { deepestZone: 3 },
     desc: 'A stone no Wick should have reached. It still points down. Begin in the Pallid Deep with 950 Shells and 28 banked levels.' },
 ];
 
@@ -1252,19 +1252,19 @@ export const CHALLENGES = [
   { id: 'three_nights', tier: 1, name: 'Three Long Nights', desc: 'Endure 3 Gloomtides in one descent.', type: 'nights', params: { n: 3 }, scope: 'run', reward: { unlock: 'boon:lantern_pulse', memories: 10 } },
   { id: 'break_a_hand', tier: 1, name: 'Unclenched', desc: 'Break a Drowned Hand.', type: 'slayElite', params: { n: 1 }, scope: 'total', reward: { unlock: 'boon:smouldering_floats', memories: 8 } },
   { id: 'steady_hands', tier: 1, name: 'Steady Hands', desc: 'Land 25 fish across all descents.', type: 'catch', params: { n: 25 }, scope: 'total', reward: { unlock: 'character:taper', memories: 10 } },
-  { id: 'naturalist', tier: 1, name: 'Naturalist', desc: 'Name 8 species in the Journal.', type: 'journal', params: { n: 8 }, scope: 'total', reward: { unlock: 'boon:lucky_knot', memories: 15 } },
+  { id: 'naturalist', tier: 1, name: 'Naturalist', desc: 'Name 8 species in the Journal.', type: 'journal', params: { n: 8 }, scope: 'total', reward: { unlock: 'boon:lucky_knot', memories: 10 } },
   { id: 'gloombreaker', tier: 1, name: 'Gloombreaker', desc: 'Disperse 500 gloomlings across all descents.', type: 'slay', params: { n: 500 }, scope: 'total', reward: { unlock: null, memories: 15 } },
   // ---- II. The Long Vigil (runs 3–8)
-  { id: 'unwarded', tier: 2, name: 'Unwarded', desc: 'Silence a Warden.', type: 'boss', params: { n: 1 }, scope: 'total', reward: { unlock: 'character:ashwick', memories: 20 } },
-  { id: 'down_the_sluice', tier: 2, name: 'Down the Sluice', desc: 'Reach Sporewood Pools.', type: 'reachZone', params: { zone: 'sporewood' }, scope: 'total', reward: { unlock: 'character:stub', memories: 20 } },
+  { id: 'unwarded', tier: 2, name: 'Unwarded', desc: 'Silence a Warden.', type: 'boss', params: { n: 1 }, scope: 'total', reward: { unlock: 'character:ashwick', memories: 15 } },
+  { id: 'down_the_sluice', tier: 2, name: 'Down the Sluice', desc: 'Reach Sporewood Pools.', type: 'reachZone', params: { zone: 'sporewood' }, scope: 'total', reward: { unlock: 'character:stub', memories: 15 } },
   { id: 'long_vigil', tier: 2, name: 'The Long Vigil', desc: 'Endure 5 Gloomtides in one descent.', type: 'nights', params: { n: 5 }, scope: 'run', reward: { unlock: 'character:tallow', memories: 20 } },
-  { id: 'untouched', tier: 2, name: 'Untouched', desc: 'Endure a Gloomtide (night 2 or later) without losing an Ember.', type: 'nightNoDamage', params: { n: 1, minDay: 2 }, scope: 'run', reward: { unlock: 'relic:barnacle_cloak', memories: 15 } },
+  { id: 'untouched', tier: 2, name: 'Untouched', desc: 'Endure a Gloomtide (night 2 or later) without losing an Ember.', type: 'nightNoDamage', params: { n: 1, minDay: 2 }, scope: 'run', reward: { unlock: 'relic:barnacle_cloak', memories: 10 } },
   { id: 'bonfire_night', tier: 2, name: 'Bonfire Night', desc: 'Disperse 200 gloomlings in a single Gloomtide.', type: 'slayNight', params: { n: 200 }, scope: 'run', reward: { unlock: 'relic:ember_in_resin', memories: 20 } },
   { id: 'full_flame', tier: 2, name: 'Full Flame', desc: 'Raise a weapon Boon to level 5.', type: 'boonLevel', params: { kind: 'weapon', level: 5 }, scope: 'run', reward: { unlock: 'boon:little_maelstrom', memories: 15 } },
   { id: 'night_angler', tier: 2, name: 'Night Angler', desc: 'Land 3 fish during a single Gloomtide.', type: 'nightCatch', params: { n: 3 }, scope: 'run', reward: { unlock: 'boon:lantern_on_the_line', memories: 15 } },
-  { id: 'perfect_10_run', tier: 2, name: 'Clockwork Wrist', desc: 'Set 10 perfect hooks in one descent.', type: 'perfectHooks', params: { n: 10 }, scope: 'run', reward: { unlock: 'relic:steady_hook', memories: 15 } },
+  { id: 'perfect_10_run', tier: 2, name: 'Clockwork Wrist', desc: 'Set 10 perfect hooks in one descent.', type: 'perfectHooks', params: { n: 10 }, scope: 'run', reward: { unlock: 'relic:steady_hook', memories: 10 } },
   { id: 'kindled', tier: 2, name: 'Kindled', desc: 'Reach level 15 in one descent.', type: 'level', params: { n: 15 }, scope: 'run', reward: { unlock: 'relic:remembrance', memories: 20 } },
-  { id: 'shimmering', tier: 2, name: 'Shimmering', desc: 'Land a Shimmering fish.', type: 'quality', params: { quality: 'perfect' }, scope: 'total', reward: { unlock: 'relic:shimmer_scale', memories: 10 } },
+  { id: 'shimmering', tier: 2, name: 'Shimmering', desc: 'Land a Shimmering fish.', type: 'quality', params: { quality: 'perfect' }, scope: 'total', reward: { unlock: 'relic:shimmer_scale', memories: 5 } },
   { id: 'heavy_catch', tier: 2, name: 'Heavyweight', desc: 'Land a non-legendary fish over 8 kg.', type: 'weight', params: { kg: 8, excludeLegendary: true }, scope: 'total', reward: { unlock: 'bait:shimmerfly', memories: 10 } },
   { id: 'catch_100', tier: 2, name: 'Old Hand', desc: 'Land 100 fish across all descents.', type: 'catch', params: { n: 100 }, scope: 'total', reward: { unlock: 'relic:listening_bobber', memories: 20 } },
   { id: 'shells_1000_run', tier: 2, name: "Murk's Favourite", desc: 'Earn 1000 Shells in one descent.', type: 'shells', params: { n: 1000 }, scope: 'run', reward: { unlock: 'relic:torn_ledger', memories: 20 } },
