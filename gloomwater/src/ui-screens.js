@@ -363,7 +363,7 @@ export function createScreens(K) {
   function openLevelUp(options) {
     let opts = Array.isArray(options) && options.length ? options : safe(() => ctx.combat?.pendingOptions, null);
     if (!Array.isArray(opts) || !opts.length) return;
-    K.openModal('levelup', (entry, body) => {
+    const lu = K.openModal('levelup', (entry, body) => {
       const s = entry.state;
       const r = run();
       const list = s.options;
@@ -422,6 +422,16 @@ export function createScreens(K) {
         if (code === 'KeyS') { skip(t); return true; }
         return false;
       } });
+    // stay in step with combat when a pick is resolved or rerolled elsewhere (debug, auto-draft, API)
+    if (lu && !K.isStub(ctx.combat)) {
+      lu.tick = () => {
+        const s = lu.state;
+        if (s.locked) return;
+        const po = safe(() => ctx.combat?.pendingOptions, null);
+        if (!Array.isArray(po) || !po.length) { K.markResolved(K.optionsSig(s.options), s.ref); K.closeModal('levelup'); return; }
+        if (po !== s.ref) { s.options = po; s.ref = po; lu.render(); }
+      };
+    }
   }
   function choose(entry, i) {
     const s = entry?.state;
