@@ -32,15 +32,19 @@ const TIER_ORDER = ['low', 'medium', 'high'];
 const MODES = {
   title: { elev: 15, dist: 15.5, aim: 0, aimY: 2.9, fov: 42, ahead: 0, stiff: 2.2 },
   sail:  { elev: 32, dist: 16.5, aim: 6.5, aimY: 0.6, fov: 50, ahead: 0.55, stiff: 3.6 },
-  // fish / reel look a little behind the raft so it sits at ~45–65% height, clear of the
-  // bottom-centre lantern cluster and reel gauge, with the bobber still well below the clock
-  fish:  { elev: 34, dist: 14.0, aim: -2.5, aimY: 0.4, fov: 48, ahead: 0.1, stiff: 3.0 },
-  reel:  { elev: 25, dist: 10.0, aim: -3.0, aimY: 0.7, fov: 44, ahead: 0, stiff: 3.4 },
+  fish:  { elev: 34, dist: 14.0, aim: 0.8, aimY: 0.4, fov: 48, ahead: 0.1, stiff: 3.0 },
+  reel:  { elev: 25, dist: 10.0, aim: 0.4, aimY: 0.7, fov: 44, ahead: 0, stiff: 3.4 },
   night: { elev: 53, dist: 24.0, aim: 2.0, aimY: 0.0, fov: 52, ahead: 0.35, stiff: 4.2 },
   shop:  { elev: 18, dist: 10.0, aim: 0, aimY: 1.5, fov: 44, ahead: 0, stiff: 2.4 },
   death: { elev: 36, dist: 12.5, aim: 0, aimY: 0.6, fov: 46, ahead: 0, stiff: 1.4 },
 };
 const PARAM_KEYS = ['elev', 'dist', 'aim', 'aimY', 'fov', 'ahead', 'stiff'];
+// When the line runs up-screen (away from the camera) the fish / reel framing looks a little behind
+// the raft and leans less toward the bobber, so the raft sits above the reel gauge (≈62%) and the
+// bottom-centre lantern cluster with the bobber still below the clock. Casts toward the camera keep
+// the plain framing (the bobber is then below the raft on screen).
+const UPCAST = { fish: { aim: -2.5, w: 0.3 }, reel: { aim: -4.0, w: 0.25 } };
+const BASE_W = { fish: 0.44, reel: 0.4 };
 
 const GRADE_NUM = ['exposure', 'bloomStrength', 'bloomRadius', 'bloomThreshold', 'tintAmount', 'vignette',
   'saturation', 'grain', 'contrast', 'fringe', 'paper', 'warmAmount', 'lift'];
@@ -302,6 +306,7 @@ export function create(ctx) {
   const cur = {}, tgt = {};
   for (const k of PARAM_KEYS) cur[k] = tgt[k] = MODES.title[k];
   let yaw = 0.55, titleYaw = 0.55, deathYaw = 0, deathT0 = 0;
+  let upCast = 1;
   let mode = 'title', prevMode = 'title';
   let time = 0, modeT = 0;
   const fX = { x: 0, v: 0 }, fY = { x: 0, v: 0 }, fZ = { x: 8, v: 0 };
@@ -386,6 +391,12 @@ export function create(ctx) {
       let sep = 6;
       if (b && p) sep = Math.hypot(b.x - p.x, b.z - p.z);
       else if (mode === 'fish') sep = (Number(ctx.fishing?.view?.castDist) || 8) * 0.6;
+      // how far up-screen the line runs: +1 straight away from the camera, -1 toward it
+      let along = 1;
+      if (b && p && sep > 0.5) along = (-Math.sin(yaw) * (b.x - p.x) - Math.cos(yaw) * (b.z - p.z)) / sep;
+      else if (mode === 'fish' && isFinite(Number(ctx.fishing?.view?.aim))) along = Math.cos(Number(ctx.fishing.view.aim) - yaw);
+      upCast = smoothstep(-0.1, 0.7, along);
+      tgt.aim = lerp(base.aim, UPCAST[mode].aim, upCast);
       sep = clamp(sep, 0, 40);
       if (mode === 'fish') {
         tgt.dist = Math.max(base.dist, 8.5 + sep * 0.78);
@@ -425,7 +436,7 @@ export function create(ctx) {
     if (mode === 'fish' || mode === 'reel') {
       const b = bobber();
       if (b) {
-        const w = mode === 'reel' ? 0.28 : 0.3;
+        const w = lerp(BASE_W[mode], UPCAST[mode].w, upCast);
         out.x = lerp(p.x, b.x, w); out.z = lerp(p.z, b.z, w);
       } else if (mode === 'fish') {
         const aim = Number(ctx.fishing?.view?.aim);
