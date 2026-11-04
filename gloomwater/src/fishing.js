@@ -95,6 +95,34 @@ export function create(ctx) {
   let reported = 0;
   function report(e) { if (reported++ < 5) { console.error('[fishing]', e); ctx.errors?.push?.(`fishing: ${e?.message || e}`); } }
 
+  // non-allocating actor / water helpers for per-frame paths (pre-built argument objects)
+  const LINE = { visible: false, end: null, tension: 0, slack: 0 };
+  const BOB = { visible: false, position: null, state: 'floating' };
+  const FOPT = { swim: 1, struggle: 0, flop: 0 };
+  function aLine(visible, end = null, tension = 0, slack = 0) {
+    const a = ctx.actors; if (!a || typeof a.setLine !== 'function') return;
+    LINE.visible = visible; LINE.end = end; LINE.tension = tension; LINE.slack = slack;
+    try { a.setLine(LINE); } catch (e) { report(e); }
+  }
+  function aBob(visible, position = null, st = 'floating') {
+    const a = ctx.actors; if (!a || typeof a.setBobber !== 'function') return;
+    BOB.visible = visible; BOB.position = position; BOB.state = st;
+    try { a.setBobber(BOB); } catch (e) { report(e); }
+  }
+  function aCall(name, x, y) {
+    const a = ctx.actors; const f = a && a[name]; if (typeof f !== 'function') return;
+    try { f.call(a, x, y); } catch (e) { report(e); }
+  }
+  function waterH(x, z) {
+    const w = ctx.water; if (!w || typeof w.getHeight !== 'function') return 0;
+    try { const v = w.getHeight(x, z); return typeof v === 'number' && Number.isFinite(v) ? v : 0; } catch { return 0; }
+  }
+  function fishUpd(fv, dt, t, swim, struggle, flop = 0) {
+    if (!fv || typeof fv.update !== 'function') return;
+    FOPT.swim = swim; FOPT.struggle = struggle; FOPT.flop = flop;
+    try { fv.update(dt, t, FOPT); } catch (e) { report(e); }
+  }
+
   function stats() {
     if (S.stats && S.clock - S.statsT < 0.5) return S.stats;
     const base = {};
@@ -219,11 +247,11 @@ export function create(ctx) {
     resetView();
     fx.hideTransient();
     fx.setShadow(false);
-    call(() => ctx.actors?.setLine?.({ visible: false }));
-    call(() => ctx.actors?.setBobber?.({ visible: false }));
-    call(() => ctx.actors?.setAim?.(null));
-    call(() => ctx.actors?.setCharge?.(0));
-    call(() => ctx.actors?.setReel?.(0, 0));
+    aLine(false);
+    aBob(false);
+    aCall('setAim', null);
+    aCall('setCharge', 0);
+    aCall('setReel', 0, 0);
     if (state !== 'idle') setState('idle');
   }
 
@@ -290,8 +318,8 @@ export function create(ctx) {
     if (S.catchFv) releaseCatch();
     if (state === 'lost') {   // a new cast interrupts the reel-in
       api.bobberPos = null;
-      call(() => ctx.actors?.setBobber?.({ visible: false }));
-      call(() => ctx.actors?.setLine?.({ visible: false }));
+      aBob(false);
+      aLine(false);
     }
     S.pressT = S.clock;
     S.meterT = -1; S.charge = 0;
@@ -359,7 +387,7 @@ export function create(ctx) {
     fx.hideTransient();
     setState('casting');
     emit('fishing:cast', { power, target: V.target.clone() });
-    call(() => ctx.actors?.setCharge?.(0));
+    aCall('setCharge', 0);
     if (instant) land();
   }
 
@@ -672,7 +700,7 @@ export function create(ctx) {
     const pz = raft.z + V.lineDir.z * F.dist + V.perp.z * F.lat;
     const ox = V.fish.x, oz = V.fish.z;
     // vertical: riding the surface with its back out; thrash in pull surges; leap arcs
-    const wy = num(call(() => ctx.water?.getHeight?.(px, pz)), 0);
+    const wy = waterH(px, pz);
     let y = wy - 0.01 * L + Math.sin(F.phase * 3.1) * 0.015 * (1 + warn * 2);
     let pitch = 0;
     if (F.leap) {
@@ -707,7 +735,7 @@ export function create(ctx) {
       o.position.copy(V.fish);
       o.rotation.set(-pitch, F.yaw, 0, 'YXZ');
       const struggle = surging ? 1.4 : warn > 0 ? 0.5 + warn * 0.6 : 0.25 + (reel?.T || 0) * 0.4;
-      call(() => F.fv.update?.(dt, t, { swim: 1.2, struggle }));
+      fishUpd(F.fv, dt, t, 1.2, struggle);
     }
     // wake & ripples
     const speed = dt > 0 ? Math.hypot(dx, dz) / dt : 0;
@@ -733,7 +761,7 @@ export function create(ctx) {
     const o = f.fv.object3d;
     o.position.copy(f.pos);
     o.rotation.set(0.4 * k, Math.atan2(f.dir.x, f.dir.z), 0, 'YXZ');
-    call(() => f.fv.update?.(dt, t, { swim: 2, struggle: 0.3 }));
+    fishUpd(f.fv, dt, t, 2, 0.3);
     if (state === 'lost' || state === 'idle') fx.setShadow(true, f.pos.x, f.pos.z, S.fishLen * 1.2, Math.atan2(f.dir.x, f.dir.z), 0.42 * (1 - k));
   }
 
@@ -775,14 +803,14 @@ export function create(ctx) {
     let tipY = 1.8;
     if (lift > 0) { try { const tp = ctx.actors?.getRodTip?.(); if (tp && Number.isFinite(tp.y)) tipY = tp.y; } catch { /* optional */ } }
     const lx = lerp(F.landFrom.x, tx, e), lz = lerp(F.landFrom.z, tz, e);
-    const wy = num(call(() => ctx.water?.getHeight?.(lx, lz)), 0);
+    const wy = waterH(lx, lz);
     V.fish.set(lx, lerp(wy - 0.02 * L, Math.max(0.6, tipY - L * 0.6), lift) + Math.abs(Math.sin(S.stateT * 10)) * 0.06 * (1 - lift), lz);
     if (F.fv) {
       const o = F.fv.object3d;
       o.position.copy(V.fish);
       const yaw = Math.atan2(-V.lineDir.x, -V.lineDir.z);
       o.rotation.set(-0.6 * lift, yaw, Math.sin(S.stateT * 12) * 0.3 * (1 - lift), 'YXZ');
-      call(() => F.fv.update?.(dt, t, { swim: 1, struggle: 1.2 + lift * 0.5 }));
+      fishUpd(F.fv, dt, t, 1, 1.2 + lift * 0.5);
     }
     view.tension = damp(view.tension, 0.3, 4, dt);
     view.progress = 1; view.stamina = 0;
@@ -813,9 +841,9 @@ export function create(ctx) {
     S.reel = null; S.holding = false;
     api.bobberPos = null;
     resetView();
-    call(() => ctx.actors?.setLine?.({ visible: false }));
-    call(() => ctx.actors?.setBobber?.({ visible: false }));
-    call(() => ctx.actors?.setReel?.(0, 0));
+    aLine(false);
+    aBob(false);
+    aCall('setReel', 0, 0);
     setState('idle');
     if (fv) { fv.object3d.scale.setScalar(1); call(() => ctx.actors?.showCatch?.(fv)); }
     emit('fishing:caught', {
@@ -932,7 +960,7 @@ export function create(ctx) {
       const tx = tip && Number.isFinite(tip.x) ? tip.x : raft.x, ty = tip && Number.isFinite(tip.y) ? tip.y : 1.8, tz = tip && Number.isFinite(tip.z) ? tip.z : raft.z;
       fv.object3d.position.set(tx, ty - fv.length * 0.55, tz);
       fv.object3d.rotation.set(-Math.PI / 2 + Math.sin(t * 3) * 0.1, Math.sin(t * 0.8) * 0.6, 0, 'YXZ');
-      call(() => fv.update?.(realDt, t, { swim: 0.4, struggle: 0.4 + Math.max(0, Math.sin(t * 2)) * 0.4 }));
+      fishUpd(fv, realDt, t, 0.4, 0.4 + Math.max(0, Math.sin(t * 2)) * 0.4);
     }
   }
 
@@ -1081,8 +1109,8 @@ export function create(ctx) {
     S.band = bandOf(depthAt(V.target.x, V.target.z));
     view.charge = S.charge; view.castDist = S.castDist; view.aim = S.aimYaw;
     view.hint = view.anchoring ? 'anchoring' : S.band;
-    call(() => ctx.actors?.setAim?.(S.aimYaw));
-    call(() => ctx.actors?.setCharge?.(S.charge));
+    aCall('setAim', S.aimYaw);
+    aCall('setCharge', S.charge);
     // visuals
     const raft = raftPos();
     const clean = S.charge >= num(C.cleanAt, 0.92) ? 1 : 0;
@@ -1101,9 +1129,9 @@ export function create(ctx) {
     S.flightT += dt;
     const u = clamp(S.flightT / S.flightDur, 0, 1);
     V.bob.set(lerp(V.from.x, V.to.x, u), lerp(V.from.y, 0, u) + 4 * S.arcH * u * (1 - u), lerp(V.from.z, V.to.z, u));
-    call(() => ctx.actors?.setBobber?.({ visible: true, position: V.bob, state: 'flying' }));
-    call(() => ctx.actors?.setLine?.({ visible: true, end: V.bob, tension: 0.1, slack: 0.15 }));
-    call(() => ctx.actors?.setAim?.(S.aimYaw));
+    aBob(true, V.bob, 'flying');
+    aLine(true, V.bob, 0.1, 0.15);
+    aCall('setAim', S.aimYaw);
     if (u >= 1) land();
   }
 
@@ -1148,21 +1176,21 @@ export function create(ctx) {
       if (S.dipKind === 'tell') { const k = S.dipT; dip = (k > 0.34 || (k < 0.22 && k > 0)) ? num(Bt.nibbleDip, 0.06) : 0; if (k > 0.22 && k <= 0.34) bobState = 'floating'; }
       else dip = S.dipKind === 'feint' ? num(Bt.feintDip, 0.12) : num(Bt.nibbleDip, 0.06);
     } else view.tell = null;
-    const h = num(call(() => ctx.water?.getHeight?.(V.bob.x, V.bob.z)), 0);
+    const h = waterH(V.bob.x, V.bob.z);
     V.tmp.set(V.bob.x, h - dip, V.bob.z);
-    call(() => ctx.actors?.setBobber?.({ visible: true, position: V.tmp, state: bobState }));
-    call(() => ctx.actors?.setLine?.({ visible: true, end: V.tmp, tension: 0.05, slack: 0.7 }));
-    call(() => ctx.actors?.setAim?.(Math.atan2(-(V.bob.x - V.raft.x), -(V.bob.z - V.raft.z))));
+    aBob(true, V.tmp, bobState);
+    aLine(true, V.tmp, 0.05, 0.7);
+    aCall('setAim', Math.atan2(-(V.bob.x - V.raft.x), -(V.bob.z - V.raft.z)));
     if (S.stateT >= S.waitDur) bite();
   }
 
   function updateBite(dt) {
     if (lineBroken()) { cancel('moved'); return; }
     view.biteWindow = clamp(1 - S.stateT / S.window, 0, 1);
-    const h = num(call(() => ctx.water?.getHeight?.(V.bob.x, V.bob.z)), 0);
+    const h = waterH(V.bob.x, V.bob.z);
     V.tmp.set(V.bob.x, h - num(BAL('bite').plunge, 0.25), V.bob.z);
-    call(() => ctx.actors?.setBobber?.({ visible: true, position: V.tmp, state: 'bite' }));
-    call(() => ctx.actors?.setLine?.({ visible: true, end: V.tmp, tension: 0.4, slack: 0.1 }));
+    aBob(true, V.tmp, 'bite');
+    aLine(true, V.tmp, 0.4, 0.1);
     if (S.stateT > S.window) {
       emit('fishing:miss', { reason: 'late' });
       call(() => ctx.water?.addRipple?.(V.bob.x, V.bob.z, 0.5));
@@ -1223,10 +1251,10 @@ export function create(ctx) {
     bobberPosV.set(V.lineEnd.x, 0, V.lineEnd.z);
     api.bobberPos = bobberPosV;
     const slack = reel.T < 0.15 ? (0.15 - reel.T) / 0.15 : 0;
-    call(() => ctx.actors?.setBobber?.({ visible: !leaping, position: bobberPosV, state: 'hooked' }));
-    call(() => ctx.actors?.setLine?.({ visible: true, end: V.lineEnd, tension: reel.T, slack }));
-    call(() => ctx.actors?.setReel?.(S.holding ? 0.4 + 0.6 * clamp(reel.T, 0, 1) : 0, clamp(F.lat / 3, -1, 1)));
-    call(() => ctx.actors?.setAim?.(Math.atan2(-(V.fish.x - V.raft.x), -(V.fish.z - V.raft.z))));
+    aBob(!leaping, bobberPosV, 'hooked');
+    aLine(true, V.lineEnd, reel.T, slack);
+    aCall('setReel', S.holding ? 0.4 + 0.6 * clamp(reel.T, 0, 1) : 0, clamp(F.lat / 3, -1, 1));
+    aCall('setAim', Math.atan2(-(V.fish.x - V.raft.x), -(V.fish.z - V.raft.z)));
     const strain = reel.T > 0.85 || (reel.surge && S.holding);
     if (strain !== S.strainPose) { S.strainPose = strain; call(() => ctx.actors?.setPose?.(strain ? 'strain' : 'reel')); }
   }
@@ -1252,17 +1280,17 @@ export function create(ctx) {
       const e = k * k;
       V.tmp.set(lerp(V.bob.x, tx, e), lerp(0, ty, e * e), lerp(V.bob.z, tz, e));
       const vis = k < 0.97;
-      call(() => ctx.actors?.setBobber?.({ visible: vis, position: V.tmp, state: k < 0.3 ? 'floating' : 'flying' }));
-      call(() => ctx.actors?.setLine?.({ visible: vis, end: V.tmp, tension: 0.15, slack: 0.3 * (1 - k) }));
+      aBob(vis, V.tmp, k < 0.3 ? 'floating' : 'flying');
+      aLine(vis, V.tmp, 0.15, 0.3 * (1 - k));
     } else {
-      call(() => ctx.actors?.setBobber?.({ visible: false }));
-      call(() => ctx.actors?.setLine?.({ visible: false }));
+      aBob(false);
+      aLine(false);
     }
     if (k >= 1) {
       api.bobberPos = null;
-      call(() => ctx.actors?.setBobber?.({ visible: false }));
-      call(() => ctx.actors?.setLine?.({ visible: false }));
-      call(() => ctx.actors?.setAim?.(null));
+      aBob(false);
+      aLine(false);
+      aCall('setAim', null);
       setState('idle');
     }
   }
