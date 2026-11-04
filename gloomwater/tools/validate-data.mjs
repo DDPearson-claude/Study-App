@@ -31,6 +31,23 @@ const REQUIRED_EXPORTS = ['STATS', 'BALANCE', 'ZONES', 'SPECIES', 'BAITS', 'UPGR
   'SPECIES_BY_ID', 'ZONE_BY_ID', 'ENEMY_BY_ID', 'UPGRADE_BY_ID', 'RELIC_BY_ID', 'BAIT_BY_ID', 'SUPPLY_BY_ID',
   'BOON_BY_ID', 'CHARACTER_BY_ID', 'CHALLENGE_BY_ID'];
 for (const k of REQUIRED_EXPORTS) ok(k in D, `missing export ${k}`);
+
+// ---------------------------------------------------------------------------- the flag-off fingerprint (passes 1 and 2)
+// Every export of the c0e0ab9 data.js must hash identically with V3 off (v1 in pass 1, the walking build in pass 2): v3 may only
+// add exports and act inside `if (V3_ENABLED)`. `--refresh-fingerprint` rewrites tools/tests/v1-exports.json from this build.
+if (!V3) {
+  const { fingerprint } = await import('./fingerprint.mjs');
+  const fs = await import('node:fs');
+  const FP_PATH = new URL('./tests/v1-exports.json', import.meta.url);
+  const REF = JSON.parse(fs.readFileSync(FP_PATH, 'utf8'));
+  const key = WALK ? 'walk' : 'v1', now = fingerprint(D, REF.names);
+  if (process.argv.includes('--refresh-fingerprint')) {
+    REF[key] = now; REF.refreshed = new Date().toISOString().slice(0, 10);
+    fs.writeFileSync(FP_PATH, JSON.stringify(REF, null, 1) + '\n'); console.log(`  fingerprint (${key}) refreshed`);
+  } else {
+    for (const n of REF.names) ok(now[n] === REF[key][n], `flag-off fingerprint: export ${n} changed from ${REF.from} in the ${key} build (v3 must stay behind V3_ENABLED; refresh only on purpose with --refresh-fingerprint)`);
+  }
+}
 ok(D.V3_ENABLED === V3, `V3_ENABLED must be ${V3} in this pass`);
 
 // ---------------------------------------------------------------------------- STATS (contract §8 list)
@@ -38,7 +55,7 @@ const STAT_KEYS = ['maxHp', 'maxOil', 'maxSatiety', 'oilDrain', 'satietyDrain', 
   'flareRadius', 'flareCooldown', 'zapCost', 'zapDamage', 'damageMult', 'cooldownMult', 'critChance', 'moveSpeed',
   'pickupRadius', 'xpMult', 'luck', 'rerolls', 'dawnHeal', 'castMax', 'lineStrength', 'reelSpeed', 'sweetZone',
   'biteSpeed', 'hookWindow', 'rarityBonus', 'creelSize', 'sellMult', 'foodMult', 'oilYieldMult', 'armor', 'slackTime',
-  'nibbleTells', ...(WALK ? ['stride'] : [])];   // v2 (walking): stride, + m/s on foot (DESIGN §24.3)
+  'nibbleTells', ...(WALK ? ['stride'] : []), ...(V3 ? ['shock', 'absorb', 'pipBonus', 'dragAt'] : [])];   // v2 (walking): stride, + m/s on foot (DESIGN §24.3); v3: the fight stats tiers replace (CONTRACT §13.7)
 const FMTS = new Set(['int', 'pct', 'x', 'm', 's', 'num']);
 for (const k of STAT_KEYS) {
   const s = D.STATS[k];
@@ -733,9 +750,10 @@ if (WALK) {
     if (A.wayside) ok(isStr(A.wayside.kind) && isObj(A.wayside.give) && isNum(A.wayside.touchR), `${tag} wayside`);
   }
   for (const sp of D.SPECIES) if (sp.place) ok(placeIds.has(sp.place) || (V3 && sp.zone === 'mossmere' && D.MOSSMERE_V3.places.some((p) => p.id === sp.place)), `species ${sp.id} names unknown place ${sp.place}`);
-  ok(D.PLACES.length === placeIds.size && Object.keys(D.PLACE_BY_ID).length === placeIds.size, 'PLACES / PLACE_BY_ID incomplete');
+  const mossPlacesIn = V3 ? (D.ZONES[0].arena.places || []).length : 0;   // v3: PLACES also holds the Mossmere's places in the build
+  ok(D.PLACES.length === placeIds.size + mossPlacesIn && Object.keys(D.PLACE_BY_ID).length === placeIds.size + mossPlacesIn, 'PLACES / PLACE_BY_ID incomplete');
   ok(D.CHALLENGE_BY_ID.complete_chronicle?.params?.n === D.SPECIES.length, 'complete_chronicle must ask for every species');
-  ok(D.CHALLENGE_BY_ID.every_still_place?.params?.n === D.PLACES.length, 'every_still_place must ask for every place');
+  ok(D.CHALLENGE_BY_ID.every_still_place?.params?.n === placeIds.size, 'every_still_place must ask for every §24 place');
   const TYPES4 = ['footAshore', 'placeFound', 'lampLit', 'placeSpecies', 'placeMastered', 'shortcutOpen', 'slayOnTag', 'nightNoLamp', 'lampLitZone'];
   for (const c of D.WALK_CHALLENGES) ok(c.tier === 4 && TYPES4.includes(c.type), `tier IV challenge ${c.id} type ${c.type}`);
   for (const b of D.WALK_BOONS) ok(b.tags.includes('foot'), `v2 boon ${b.id} must carry the foot tag (offer weighting)`);
@@ -751,6 +769,7 @@ if (WALK) {
 // ---------------------------------------------------------------------------- v3 (BRIEF-v3, DESIGN §25, CONTRACT §13) — pass 3 only
 if (V3) {
   const WL = await import('./walk-lib.mjs');
+  const WLY = await import('../src/world-layout.js');
   const T0 = Date.now();
   const near = (a, b) => Math.hypot(a.x - b.x, a.z - b.z);
   const within = (v, target, tol) => Math.abs(v - target) <= tol + 1e-9;
@@ -947,7 +966,9 @@ if (V3) {
   ok(JSON.stringify(D.SIZE_CLASSES.map((c) => c.bite)) === '["doublePop","plunge","dragUnder","flatSlide","dome"]', 'one bite tell per class');
   ok(B3.bite.pips.perfect === 3 && B3.bite.pips.normal === 2 && B3.bite.pips.rodBonusFrom === 3 && D.TACKLE.rod.every((r) => r.pips === (r.tier >= 3 ? 1 : 0)), 'hook-hold pips: 3 / 2, +1 from Rod T3');
   ok(JSON.stringify(D.SIZE_CLASSES.map((c) => c.ceremony)) === '[1.2,1.2,2.4,3.5,5]' && JSON.stringify(B3.ceremony.poses.map((p) => p.below)) === JSON.stringify([0.25, 0.85, 2.0, null].map((v) => v ?? Infinity)) || B3.ceremony.poses[3].below === Infinity, 'ceremony times and poses by length');
-  ok(B3.ceremony.wickHeight === 0.85 && B3.records.oldLedgerZ === 2.3 && B3.records.seals.total === 144 && B3.records.seals.species * 3 === 144, 'the Wick is 0.85 m; Old Ledger at z 2.3; 48 × 3 = 144 seals');
+  const sealSpecies = S.filter((s) => D.sealsFor(s).length > 0), sealTotal = sealSpecies.reduce((a, s) => a + D.sealsFor(s).length, 0);
+  ok(B3.ceremony.wickHeight === 0.85 && B3.records.oldLedgerZ === 2.3 && B3.records.seals.total === sealTotal && sealTotal === 143 && sealSpecies.length === 48, `the Wick is 0.85 m; Old Ledger at z 2.3; 48 species × 3 − the Lampwarden's Elder = ${sealTotal} seals (143)`);
+  ok(S.every((s) => !s.maxClass || s.cove || D.sealsFor(s).length === (SZ.classMaxZ[s.maxClass] >= SZ.fight.elderZ ? 3 : B3.records.seals.classes.filter((c) => c !== 'elder').length)) && D.sealsFor(byId.lampwarden_angler).join() === 'prize,trophy', 'a species capped below Elder has no Elder seal');
   ok(S.filter((s) => s.rarity !== 'legendary' && !s.cove).length === B3.records.seals.species, 'the seal grid covers the 48 non-legendary lake and Wanderer species');
 
   // ---- oil, Far Water, the Live Well (brief §3.4)
@@ -964,7 +985,14 @@ if (V3) {
       && within(f.render, row.render, 1e-9) && within(f.nightBurn, row.nightBurn, 1e-9), `Far Water day ${row.day}: formulas reproduce the brief table`);
   }
   ok(D.farWaterFor(1).favour === 0 && D.farWaterFor(1).murk && D.farWaterFor(7).murk && !D.farWaterFor(8).murk && within(D.farWaterFor(7).oilPrice, 3, 1e-9), 'Far Water starts at the first dawn; Murk odd days only after day 3');
-  const common = B3.oil.checks.renderedCommon;
+  // a Mossmere common's rendered oil = mean species.oil × factor × E[clamp(e^(0.3z))] over the favour mix (brief ≈ 17)
+  const YY = SZ.yield, Ey = (mu, cap) => { let nn = 0, dd = 0; for (let z = SZ.z.min; z <= cap; z += 0.002) { const p = Math.exp(-0.5 * (z - mu) ** 2); nn += p * Math.min(YY.clamp[1], Math.max(YY.clamp[0], Math.exp(YY.perZ * z))); dd += p; } return nn / dd; };
+  let ymix = 0; for (const [mu, w] of VM.mu) ymix += w * ((1 - VM.giantShare) * Ey(mu, SZ.elsewhereMaxZ) + VM.giantShare * Ey(mu, SZ.z.max));
+  ok(within(ymix, YY.mix, 0.002) && within(VM.sizeKMean / ymix, YY.factor, 0.002), `yield factor: sizeK ${VM.sizeKMean} / mix ${ymix.toFixed(3)} = ${(VM.sizeKMean / ymix).toFixed(3)} (data ${YY.factor} / ${YY.mix})`);
+  const mossCommons = S.filter((s) => s.zone === 'mossmere' && s.rarity === 'common');
+  const common = mossCommons.reduce((a, s) => a + s.oil, 0) / mossCommons.length * YY.factor * ymix;
+  ok(within(common, B3.oil.checks.renderedCommon, 0.1), `a Mossmere common renders ${common.toFixed(2)} oil on average (brief ${B3.oil.checks.renderedCommon})`);
+  ok(within(D.fishYieldV3({ oil: 10 }, 0), 10 * YY.factor * 1, 1e-9), 'fishYieldV3 applies the yield factor');
   B3.farWater.rendersPerDay.forEach((exp, i) => {
     const day = i + 1, f = D.farWaterFor(day), oil = dayOil('mossmere', 'raft', f.nightBurn, P3.calm + (day === 1 ? D.EXPEDITION.arrivalHush : 0));
     ok(within(oil / (common * f.render), exp, 0.06), `Mossmere commons rendered on day ${day}: ${(oil / (common * f.render)).toFixed(2)} (brief ${exp})`);
@@ -984,7 +1012,10 @@ if (V3) {
   for (const z of LAKES) {
     const ids = D.WALK_SYNC_V3.watchLamps[z];
     ok(ids?.length === 2, `${z}: two watch-lamps`);
-    if (z === 'mossmere') ok(ids.every((id) => D.MOSSMERE_V3.watchLamps.some((l) => l.id === id)) && D.MOSSMERE_V3.watchLamps.every((l) => D.ZONES[0].arena.docks.some((d) => near(d, l) < 0.01)), 'the Mossmere watch-lamps are the buoy-lamps at the south-east and west docks');
+    if (z === 'mossmere') {
+      const LM = WLY.buildLayout(D.ZONES[0]);
+      ok(ids.every((id) => D.MOSSMERE_V3.watchLamps.some((l) => l.id === id)) && D.MOSSMERE_V3.watchLamps.every((l) => near(LM.docks[l.dock].buoy, l) < 0.1 && l.radius === NM.lampWatch.radius), 'the Mossmere watch-lamps are the drawn buoy-lamps of the south-east and west docks (dock + buoy offset), pool r 6');
+    }
     else for (const id of ids) ok(D.ARENA_V2[z].lamps.some((l) => l.id === id && l.watch === true), `${z} watch-lamp ${id} must be a flagged sister-candle`);
   }
   // the hard rule: nothing fishing exists only with combat on
@@ -1079,9 +1110,34 @@ if (V3) {
     ok(near(st, A.spawn) >= E3.homeward.minPathFromSpawn, `${z} Homeward Waystone (${st.x}, ${st.z}) is ${near(st, A.spawn).toFixed(1)} m from the spawn in a straight line (≥ ${E3.homeward.minPathFromSpawn} m of path)`);
     ok(D.ZONE_BY_ID[z].homeward?.x === st.x, `${z}.homeward set in the v3 build`);
   }
-  ok(near(E3.homeward.stones.mossmere, D.ZONES[0].arena.docks[0]) < 0.01 && near(E3.homeward.stones.paleabyss, D.ARENA_V2.paleabyss.lamps.find((l) => l.id === 'plaza_lamp')) < 0.01
-    && near(E3.homeward.stones.sporewood, D.ARENA_V2.sporewood.moorings.find((m) => m.id === 'copse').stand) < 0.3 && near(E3.homeward.stones.glasswater, D.ARENA_V2.glasswater.moorings.find((m) => m.id === 'skiff_steps').stand) < 0.3,
-  'Homeward Waystones stand at the SE dock, the Copse Jetty stand, the Skiff Steps and the Cairn Plaza lamp');
+  // beside, not on: clear of stands, slots, lamps, posts, buoys and barge pads; open raft water (Mossmere) or walkable ground that
+  // still lets the Wick reach every mooring stand with the stone's block in place (§24 lakes)
+  const HCL = E3.homeward.clearOf;
+  const stoneClear = (zone, st, label) => {
+    const A = D.walkArenaFor(zone), L = WLY.buildLayout(D.ZONE_BY_ID[zone]);
+    const hits = [];
+    for (const m of A.moorings || []) { if (near(st, m.stand) < HCL.stand) hits.push(`stand ${m.id}`); if (near(st, m.slot) < HCL.stand + 1) hits.push(`slot ${m.id}`); }
+    for (const l of (D.ARENA_V2[zone]?.lamps || [])) if (near(st, l) < HCL.lamp) hits.push(`lamp ${l.id}`);
+    for (const d of L.docks) { if (near(st, d) < HCL.bargePad) hits.push('barge pad'); if (near(st, d.buoy) < HCL.buoy) hits.push('buoy'); for (const p of d.posts) if (near(st, p) < HCL.post) hits.push('post'); }
+    ok(hits.length === 0, `${label} Homeward stone (${st.x}, ${st.z}) is too close to ${hits.join(', ')}`);
+    return L;
+  };
+  for (const [z, st] of Object.entries(E3.homeward.stones)) {
+    const L = stoneClear(z, st, z);
+    if (z === 'mossmere') ok(WLY.isOpenWaterL(L, [...L.obstacles, ...L.gateObstacles], st.x, st.z, E3.homeward.radius + 0.6), `mossmere Homeward stone must stand in open water`);
+    else {
+      const A = D.ARENA_V2[z], blocks = A.walk.blocks || (A.walk.blocks = []);
+      blocks.push({ kind: 'disc', x: st.x, z: st.z, r: E3.homeward.radius, h: E3.homeward.block.h });
+      const G = D.walkGridFor(z), M = WL.erode(G), dist = WL.walkDistances(G, D.ZONE_BY_ID[z], WL.footSeeds(G, D.ZONE_BY_ID[z], M), M);
+      blocks.pop();
+      let near4 = false; for (let k = 0; k < G.n * G.n; k++) if (M[k] && dist[k] < Infinity) { const [x, zz] = WL.cellXZ(G, k); if (Math.hypot(x - st.x, zz - st.z) <= E3.homeward.range) { near4 = true; break; } }
+      ok(near4, `${z} Homeward stone: no walkable cell within ${E3.homeward.range} m once it stands`);
+      { const G0 = D.walkGridFor(z), M0 = WL.erode(G0), d0 = WL.walkDistances(G0, D.ZONE_BY_ID[z], WL.footSeeds(G0, D.ZONE_BY_ID[z], M0), M0); let lost = 0;
+        for (let k = 0; k < G.n * G.n; k++) if (d0[k] < Infinity && !(dist[k] < Infinity) && M[k]) lost++;
+        ok(lost === 0, `${z} Homeward stone cuts ${lost} walkable cells off the rest of the lake`); }
+    }
+  }
+  ok(E3.homeward.radius === 0.6 && E3.homeward.block.h > 1, 'Homeward stones: r 0.6 lantern-stones that block');
   ok(E3.firstOuting.zone === 'mossmere' && E3.firstOuting.character === 'wick' && E3.firstOuting.nightMode === 'still', 'the First Outing: the Mossmere, The Wick, every night still');
   ok(E3.snuffed.loses.join() === 'creel,marked' && !E3.snuffed.keeps.includes('creel') && E3.snuffed.keeps.includes('records') && E3.snuffed.keeps.includes('shells'), 'Snuffed: lose the creel and the marked fish, never a record or banked Shells');
   const LD = D.LONG_DESCENT;
@@ -1133,8 +1189,9 @@ if (V3) {
   const M3 = D.MEMORIES_V3, chSum = (f) => D.CHALLENGES.filter(f).reduce((a, c) => a + c.reward.memories, 0);
   ok(chSum((c) => c.tier <= 3) === M3.challenges.v1 && chSum((c) => c.tier === 4) === M3.challenges.tier4 && chSum((c) => c.tier === 5) === M3.challenges.tier5 && chSum(() => true) === M3.challenges.total, `challenge Memories ${chSum((c) => c.tier <= 3)} + ${chSum((c) => c.tier === 4)} + ${chSum((c) => c.tier === 5)} = ${chSum(() => true)} (brief 831 + 185 + 155 = 1,170)`);
   const n48 = B3.records.seals.species, nPlaces = D.PLACES_V3.filter((p) => !p.secret).length;
-  const parts = { challenges: M3.challenges.total, species: S.length * M3.newSpecies, classFirsts: n48 * (M3.classFirst.prize + M3.classFirst.trophy + M3.classFirst.elder),
-    firstMounts: n48 * (M3.firstMount.prize + M3.firstMount.trophy + M3.firstMount.elder), firstReleases: n48 * (M3.firstRelease.prize + M3.firstRelease.trophy + M3.firstRelease.elder),
+  const sumSeals = (tab) => S.reduce((a, s) => a + D.sealsFor(s).reduce((x, c) => x + tab[c], 0), 0);
+  const parts = { challenges: M3.challenges.total, species: S.length * M3.newSpecies, classFirsts: sumSeals(M3.classFirst),
+    firstMounts: sumSeals(M3.firstMount), firstReleases: sumSeals(M3.firstRelease),
     places: nPlaces * (M3.place.found + M3.place.mastered), rumours: D.RUMOURS.length * M3.rumourSolved, oldLedger: n48 * M3.oldLedger, legends: 4 * M3.legend.first, ancients: 4 * M3.firstAncientPerLake };
   for (const [k, v] of Object.entries(parts)) ok(v === M3.pool.parts[k], `Memories pool ${k}: ${v} (brief ${M3.pool.parts[k]})`);
   const pool = Object.values(parts).reduce((a, b) => a + b, 0);
@@ -1259,7 +1316,10 @@ if (V3) {
   // ---- the Landing (brief §3.7)
   const C = D.COVE, CA = C.arena;
   ok(!D.ZONE_BY_ID.cove && !D.ZONES.some((z) => z.id === 'cove') && C.id === 'cove' && C.hub === true, 'COVE is not in ZONES / ZONE_BY_ID');
-  ok(CA.radius === 42 && CA.seed === 7707 && CA.layout === 'cove' && CA.shoreNotch.length === 1 && CA.shoreNotch[0].a === 270, 'the cove: R 42, seed 7707, a shoreNotch to the north');
+  const SN = CA.shoreNotch[0], legX = C.seaGate.legs.map((l) => l.x), archX = (legX[0] + legX[1]) / 2;
+  ok(CA.radius === 42 && CA.seed === 7707 && CA.layout === 'cove' && CA.shoreNotch.length === 1 && isNum(SN.a) && isNum(SN.w) && isNum(SN.depth) && isNum(SN.len), 'the cove: R 42, seed 7707, one shoreNotch {a, w, depth, len}');
+  ok(Math.abs(CA.radius * Math.cos(SN.a * Math.PI / 180) - archX) <= 0.5 && Math.sin(SN.a * Math.PI / 180) < -0.95, `the channel notch (a ${SN.a}°) lines up with the arch centre x ${archX} (x at R = ${(CA.radius * Math.cos(SN.a * Math.PI / 180)).toFixed(1)})`);
+  ok(C.theme === 'cove' && C.index === -1, 'COVE carries theme "cove" (no Mossmere set-pieces by index fallback)');
   for (const k of [...PALETTE_KEYS, 'lamp']) ok(k in C.palette, `COVE.palette.${k}`);
   for (const [k, v] of Object.entries(C.palette)) if (k !== 'fogDensity') palCheck(`COVE.palette.${k}`, v);
   for (const k of Object.keys(D.ZONES[0].grade)) ok(k in C.grade, `COVE.grade.${k}`);
@@ -1284,6 +1344,7 @@ if (V3) {
     const label = `COVE [stair ${openK ? 'open' : 'silted'}]`;
     ok(seed >= 0, `${label}: the hearth spawn fits the Wick`);
     for (const st of C.stations) {
+      if (st.needs === 'cove_stair' && !openK) continue;
       if (st.id === 'murk') { let best = Infinity; for (let k = 0; k < G.n * G.n; k++) if (M[k] && dist[k] < Infinity) { const [x, zz] = WL.cellXZ(G, k); if (Math.hypot(x - st.x, zz - st.z) <= st.range - 0.5) best = Math.min(best, dist[k]); } ok(best < Infinity, `${label}: no walkway within trade range of Murk's barge`); continue; }
       if (st.id === 'raft') { const m = CA.moorings[0]; ok(reach(m.stand) < Infinity && near(m.stand, m.slot) - D.BALANCE.move.raftRadius <= D.BALANCE.walk.board.range, `${label}: the raft mooring`); continue; }
       const d = reach(st, st.id === 'pond' ? CA.walk.holes[0].r + 1.2 : D.BALANCE.walk.interactRange + 0.4);
@@ -1320,12 +1381,22 @@ if (V3) {
     const boards = fr.filter((f) => f.id === 'board'), frames = [...fr.filter((f) => f.id !== 'board').map((f) => f.width), ...Array.from({ length: Math.ceil(boards.length / 4) }, () => C.frames[0].width)];
     ok(fr.every((f) => f.id !== 'great' || z === 'paleabyss'), `${z}: great arches only in the Pallid wing`);
     for (const f of fr.filter((x) => x.id !== 'board')) { const t = C.frames.find((c) => c.id === f.id); ok(f.width >= t.widthRange[0] - 0.01 && f.width <= t.widthRange[1] + 0.01, `frame ${f.id} for ${f.id === 'great' ? 'a great arch' : f.id}: ${f.width} m outside ${t.widthRange}`); }
-    const rows = [0, 0, 0], counts = [0, 0, 0];
-    for (const w of frames.sort((a, b) => b - a)) { let placed = false; for (let r = 0; r < C.wing.rows && !placed; r++) { const need = rows[r] + (counts[r] ? C.wing.gap : 0) + w; if (need <= C.wing.w + 1e-6) { rows[r] = need; counts[r]++; placed = true; } } ok(placed, `${z} wing: a ${w.toFixed(2)} m frame does not fit in 3 rows of ${C.wing.w} m`); }
-    ok(C.wings[z] && C.wings[z].x[1] - C.wings[z].x[0] === C.wing.w, `${z} wing spans ${C.wing.w} m of wall`);
+    const W = C.wings[z].x[1] - C.wings[z].x[0];
+    const items = [...fr.filter((f) => f.id !== 'board').map((f) => ({ w: f.width, h: f.height })), ...Array.from({ length: Math.ceil(boards.length / 4) }, () => ({ w: C.frames[0].width, h: C.frames[0].height }))];
+    const rows = [0, 0, 0], counts = [0, 0, 0], heights = [0, 0, 0];
+    for (const it of items.sort((a, b) => b.w - a.w)) { let placed = false; for (let r = 0; r < C.wing.rows && !placed; r++) { const need = rows[r] + (counts[r] ? C.wing.gap : 0) + it.w; if (need <= W + 1e-6) { rows[r] = need; counts[r]++; heights[r] = Math.max(heights[r], it.h); placed = true; } } ok(placed, `${z} wing: a ${it.w.toFixed(2)} m frame does not fit in 3 rows of ${W} m`); }
+    const hSum = heights.reduce((a, b) => a + b, 0) + (C.wing.rows - 1) * C.wing.rowGap;
+    ok(hSum <= C.wing.h + 1e-6, `${z} wing: rows ${heights.map((h) => h.toFixed(2)).join(' / ')} m tall need ${hSum.toFixed(2)} m (≤ ${C.wing.h})`);
+    ok(fr.every((f) => isNum(f.height) && f.height > 0 && ['side', 'dorsal', 'hanging'].includes(f.view)), `${z}: every frame has a height and a mount view`);
   }
   ok(within(D.frameFor(byId.gilt_eyed_eel).width + D.frameFor(byId.candlewake_sturgeon).width + D.frameFor(byId.wax_bearer).width + 2 * C.wing.gap, 12.0, 0.05), 'the widest row: the Pallid\'s three great arches at 12.0 m');
   ok(JSON.stringify(C.walls.chimney.wanderers) === '["pilgrim_salmon","hearthfish"]', 'the two Wanderers hang on the chimney breast');
+  { const ch = C.walls.chimney, cw = ch.x[1] - ch.x[0], wf = ch.wanderers.map((id) => D.frameFor(byId[id]));
+    ok(cw >= 3 - 1e-9 && ch.wall === 'lower' && ch.x[0] <= C.stations.find((x) => x.id === 'hearth').x && ch.x[1] >= C.stations.find((x) => x.id === 'hearth').x, `the chimney breast is ${cw} m of the lower wall behind the hearth (≥ 3 m)`);
+    ok(wf.every((f) => f.width <= cw + 1e-9) && wf.reduce((a, f) => a + f.height, 0) + C.wing.rowGap <= C.wing.h, `both Wanderer frames fit the chimney breast stacked (${wf.map((f) => `${f.width}×${f.height}`).join(', ')} m)`);
+    ok(within(D.frameFor(byId.pilgrim_salmon).reach, D.reachOf(byId.pilgrim_salmon, 'paleabyss') / 100, 0.01), 'Wanderer frames size from their largest reach (the Pilgrim Salmon\'s Pallid 206 cm)');
+    const wl = Object.values(C.wings).filter((w) => w.wall === 'lower').map((w) => w.x).concat([ch.x]).sort((a, b) => a[0] - b[0]);
+    ok(wl.every((x, i) => i === 0 || within(x[0], wl[i - 1][1], 1e-9)) && within(wl[0][0], C.walls.lower.x[0], 1e-9) && within(wl[wl.length - 1][1], C.walls.lower.x[1], 1e-9), 'the lower wall is exactly Mossmere wing + chimney breast + Sporewood wing'); }
   ok(within(C.walkSpeed, D.BALANCE.walk.speedMult * D.STATS.moveSpeed.base, 0.01), `COVE.walkSpeed ${C.walkSpeed} must be §24's foot speed (${(D.BALANCE.walk.speedMult * D.STATS.moveSpeed.base).toFixed(2)} m/s)`);
 
   // ---- save migration (brief Pg3)
@@ -1359,6 +1430,166 @@ if (V3) {
   scan3(D.SPECIES.map((s) => ({ name: s.name, epithet: s.epithet, hint: s.hint, lore: s.lore })), 'SPECIES');
   checks++;
 
+  // ---- phases (DESIGN §25.14.1, CONTRACT §13.0): each phase's build carries exactly its data, with and without §24
+  const PH = {};
+  { const f0 = [globalThis.GW_WALK, globalThis.GW_V3, globalThis.GW_V3_PHASE];
+    for (const walk of [false, true]) for (const p of [1, 2, 3, 4]) {
+      globalThis.GW_WALK = walk; globalThis.GW_V3 = true; globalThis.GW_V3_PHASE = p;
+      PH[`${walk ? 'w' : 'r'}${p}`] = await import(`../src/data.js?v3p${p}${walk ? 'w' : 'r'}`);
+    }
+    [globalThis.GW_WALK, globalThis.GW_V3, globalThis.GW_V3_PHASE] = f0; }
+  const EXPECT = { species: { r: [32, 36, 39, 41], w: [40, 44, 47, 53] }, challenges: { r: [30, 30, 38, 38], w: [40, 40, 48, 48] }, mossPlaces: [0, 8, 8, 9] };
+  for (const [key, R] of Object.entries(PH)) {
+    const walk = key[0] === 'w', p = +key[1], tag = `v3 P${p}${walk ? ' + §24' : ' (raft)'}`;
+    ok(R.V3_PHASE === p && R.WALK_ENABLED === walk, `${tag}: evaluated with the intended flags`);
+    ok(R.SPECIES.length === EXPECT.species[key[0]][p - 1], `${tag}: ${R.SPECIES.length} species (expected ${EXPECT.species[key[0]][p - 1]})`);
+    ok(R.SPECIES.every((s) => (s.src === 'walk' ? walk : s.phase <= p)), `${tag}: every species belongs to this phase (or arrives with §24)`);
+    ok(R.CHALLENGES.length === EXPECT.challenges[key[0]][p - 1] && (p >= 3) === !!R.CHALLENGE_BY_ID.first_prize, `${tag}: challenges ${R.CHALLENGES.length} (v1 / §24 sets until P3, the 48 from P3)`);
+    ok((p >= 3) === !R.RELIC_BY_ID.old_debt && (p >= 3) === !!R.RELIC_BY_ID.measuring_cord, `${tag}: relic cuts, shelves and costs only from P3 (the refund lands with Pg3)`);
+    ok(Object.keys(R.BALANCE_V3).every((k) => ((R.V3_BLOCK_PHASE[k] ?? 1) <= p) === (k in R.BALANCE)), `${tag}: BALANCE_V3 blocks join BALANCE by V3_BLOCK_PHASE`);
+    ok(R.FISH_SHAPES.includes('sturgeon') === (p >= 2), `${tag}: the sturgeon shape from P2`);
+    ok((R.ZONES[0].arena.places || []).length === EXPECT.mossPlaces[p - 1] && R.ZONES[0].arena.pillars.some((o) => o.kind === 'hands') === (p >= 2), `${tag}: the Mossmere's places and props from P2 (the Moon Cistern P4)`);
+    ok(R.ZONES.every((z) => !!z.homeward === (p >= 3)), `${tag}: Homeward stones from P3`);
+    ok(R.BAIT_BY_ID.last_candle && !R.BAIT_BY_ID.pale_marrow && R.SPECIES_BY_ID.lantern_swallower && R.SUPPLY_BY_ID.murks_chum && R.BOUNTY_BY_ID.spot_catch.type === 'signCatch', `${tag}: renames (Pg0 migrates ids in P1), Murk's Chum and the sign bounty from P1`);
+    ok(R.TIPS.filter((t) => t.id.startsWith('v3_')).every((t) => t.phase <= p), `${tag}: tips of later phases are not in the build`);
+    ok(R.CHALLENGE_BY_ID.complete_chronicle.params.n === R.SPECIES.length, `${tag}: the Chronicle asks for every species in the build`);
+    // every lake has exactly 3 giant sources (its holdsGiants places, else the raft stopgap) and 2 watch lamps
+    for (const z of R.ZONES) {
+      const gp = (z.arena.places || []).filter((q) => q.holdsGiants && !q.secret).length, gs = (z.arena.giantSpots || []).length;
+      ok((gp > 0) !== (gs > 0) && (gp || gs) === 3, `${tag} ${z.id}: 3 giant sources (places ${gp}, stopgap ${gs})`);
+      const lamps = z.id === 'mossmere' || !walk ? (z.arena.watchLamps || []) : (R.ARENA_V2[z.id]?.lamps || []).filter((l) => l.watch);
+      ok(lamps.length === 2 && lamps.every((l) => l.radius === R.BALANCE_V3.nightModes.lampWatch.radius), `${tag} ${z.id}: two watch lamps with pool r 6 (got ${lamps.length})`);
+      // lamp-watch costs the giants: no holdsGiants water (place or stopgap) within fishWithin of a watch lamp
+      const fw = R.BALANCE_V3.nightModes.lampWatch.fishWithin;
+      for (const l of lamps) {
+        let dmin = Infinity;
+        for (const q of (z.arena.places || []).filter((x) => x.holdsGiants && !x.secret)) { const [x0, z0, x1, z1] = R.walkShapeBounds(q.water, fw + 1); for (let zz = z0; zz <= z1; zz += 0.5) for (let x = x0; x <= x1; x += 0.5) if (R.placeContains(q, x, zz)) dmin = Math.min(dmin, Math.hypot(x - l.x, zz - l.z)); }
+        for (const g of z.arena.giantSpots || []) dmin = Math.min(dmin, Math.max(0, Math.hypot(g.x - l.x, g.z - l.z) - (Array.isArray(g.r) ? g.r[1] : g.r)));
+        ok(dmin >= fw, `${tag} ${z.id}: watch lamp ${l.id} is ${dmin.toFixed(1)} m from giant water (≥ ${fw} m: a lamp-watch costs the night's giants)`);
+      }
+    }
+  }
+  ok(!('V3_PHASE' in V1) || V1.V3_PHASE === 4, 'V3_PHASE defaults to 4 (tools see the whole design)');
+  // raft fallbacks: open water, clear of docks and the gate; Homeward stones placed as the §24 ones are
+  for (const [zid, F] of Object.entries(D.RAFT_FALLBACK_V3)) {
+    const Z1 = V1.ZONE_BY_ID[zid], L = WLY.buildLayout(Z1), obs = [...L.obstacles, ...L.gateObstacles];
+    ok(F.giants.length === 3 && F.giants[0].kind === 'ring' && near(F.giants[0], Z1.arena.legendPool) < 0.01, `${zid} stopgap: the legend-pool rim + 2 more giant waters`);
+    for (const g of F.giants.slice(1)) {
+      const r = g.r; let open = 0, n = 0;
+      for (let a = 0; a < 360; a += 30) for (const rr of [0, r / 2, r]) { n++; if (WLY.isOpenWaterL(L, obs, g.x + rr * Math.cos(a * Math.PI / 180), g.z + rr * Math.sin(a * Math.PI / 180), 0.3)) open++; }
+      ok(open / n >= 0.9 && !L.docks.some((d) => near(d, g) < r + 4) && near(g, L.spawn) >= 16, `${zid} stopgap ${g.id}: open water clear of docks and the spawn (${open}/${n})`);
+    }
+    if (zid === 'mossmere') { ok(F.until === 2, 'the Mossmere stopgap ends in P2'); continue; }
+    for (const l of F.watchLamps) ok(near(L.docks[l.dock].buoy, l) < 0.1, `${zid} raft watch lamp ${l.id} is its dock's drawn buoy-lamp`);
+    const st = F.homeward, A1 = Z1.arena;
+    ok(near(st, L.spawn) >= E3.homeward.minPathFromSpawn && WLY.isOpenWaterL(L, obs, st.x, st.z, E3.homeward.radius + 0.6) && !L.docks.some((d) => near(d, st) < HCL.bargePad || near(d.buoy, st) < HCL.buoy || d.posts.some((q) => near(q, st) < HCL.post)), `${zid} raft Homeward stone (${st.x}, ${st.z}): open water ≥ 25 m from the spawn, clear of barge, buoy and posts`);
+    ok(A1 && true, `${zid} raft arena`);
+  }
+
+  // ---- Elder seals: every species that can earn one has a route (kept place with giantsKept or holdsGiants; else a holdsGiants
+  // place, or raft builds' stopgap water, whose depth band and hours it can use)
+  const elderRoute = (R, sp, depthOfSpot) => {
+    const zs = sp.zones?.length ? sp.zones : [sp.zone];
+    const overlap = (band) => sp.depth[0] <= band[1] && band[0] <= sp.depth[1];
+    const placesOf = (z) => (R.ZONE_BY_ID[z]?.arena?.places || []).filter((q) => !q.secret);
+    if (sp.place) { const q = zs.flatMap(placesOf).find((x) => x.id === sp.place); return !!q && !!(q.holdsGiants || q.giantsKept) && overlap(q.water.depth); }
+    for (const z of zs) {
+      for (const q of placesOf(z)) if (q.holdsGiants && overlap(q.water.depth) && !(q.giantsDuring === 'moonfall' && sp.time === 'gloom')) return true;
+      for (const g of R.ZONE_BY_ID[z]?.arena?.giantSpots || []) if (overlap(depthOfSpot(z, g))) return true;
+    }
+    return false;
+  };
+  const spotDepth = {};
+  const depthOfSpot = (z, g) => {
+    const key = `${z}:${g.id}`; if (spotDepth[key]) return spotDepth[key];
+    const L = WLY.buildLayout(V1.ZONE_BY_ID[z]), obs = [...L.obstacles, ...L.gateObstacles], R2 = Array.isArray(g.r) ? g.r : [0, g.r]; let lo = 9, hi = -9;
+    for (let a = 0; a < 360; a += 10) for (let r = R2[0]; r <= R2[1]; r += 0.5) { const x = g.x + r * Math.cos(a * Math.PI / 180), zz = g.z + r * Math.sin(a * Math.PI / 180); if (!WLY.isOpenWaterL(L, obs, x, zz, 0.3)) continue; const d = WLY.depthAt(L, x, zz); lo = Math.min(lo, d); hi = Math.max(hi, d); }
+    return (spotDepth[key] = [lo, hi]);
+  };
+  for (const [R, tag] of [[D, 'v3 + §24'], [NW, 'v3 raft (no §24)']]) {
+    const miss = R.SPECIES.filter((sp) => R.sealsFor(sp).includes('elder') && !elderRoute(R, sp, depthOfSpot)).map((sp) => sp.id);
+    ok(miss.length === 0, `${tag}: Elder seals with no Elder water: ${miss.join(', ')}`);
+  }
+  ok(['cupped_hands', 'gatehouse_door'].every((id) => D.PLACE_V3_BY_ID[id].giantsKept) && ['drowned_greenhouse', 'veilwater', 'bell_window', 'stilled_cascade', 'long_pier', 'sunken_belfry', 'bier_barge'].every((id) => D.PLACE_V3_BY_ID[id].giantsKept) && D.PLACES_V3.filter((q) => q.giantsKept).every((q) => !q.holdsGiants && S.some((x) => x.place === q.id)), 'giantsKept on exactly the places whose kept species had no Elder water (and never on a giant place)');
+  ok(JSON.stringify(D.PLACE_V3_BY_ID.lullaby.water.depth) === '[0.4,0.85]' && JSON.stringify(D.PLACE_V3_BY_ID.ferry_slip.water.depth) === '[0.45,0.95]' && JSON.stringify(D.ARENA_V2.paleabyss.places.find((q) => q.id === 'ferry_slip').water.depth) === '[0.45,0.95]' && JSON.stringify(W2.ARENA_V2.paleabyss.places.find((q) => q.id === 'ferry_slip').water.depth) !== '[0.45,0.95]', 'shallow giant water (▲): the Lullaby rim and the Ferry Slip ramp, applied only in v3');
+
+  // ---- the Mossmere's places against world-layout (the arena the raft actually sails)
+  { const LM = WLY.buildLayout(D.ZONES[0]), obsM = [...LM.obstacles, ...LM.gateObstacles], islands = LM.obstacles.filter((o) => o.kind === 'island');
+    for (const q of D.MOSSMERE_V3.places.filter((x) => !x.secret)) {
+      const w = q.water;
+      if (w.kind === 'disc') for (const o of islands) ok(Math.hypot(o.x - w.x, o.z - w.z) >= o.r + w.r - (q.dropIn ? w.r : 0), `Mossmere place ${q.id} overlaps an island's collision (${o.x}, ${o.z})`);
+      let n = 0, open = 0; const [x0, z0, x1, z1] = D.walkShapeBounds(w);
+      for (let zz = z0; zz <= z1; zz += 0.5) for (let x = x0; x <= x1; x += 0.5) if (D.placeContains(q, x, zz)) { n++; if (WLY.isOpenWaterL(LM, obsM, x, zz, 0.3)) open++; }
+      if (!q.dropIn) ok(open / n >= 0.8, `Mossmere place ${q.id}: only ${(100 * open / n).toFixed(0)}% of its water is open in world-layout (≥ 80%)`);
+      for (const t of (q.dropIn ? q.rule.targets : [])) ok(WLY.isOpenWaterL(LM, obsM, t.x, t.z, B3.placesV3.dropIn.centreOpenMargin), `Mossmere dropIn target ${q.id}.${t.id}: its centre must be open water (margin ${B3.placesV3.dropIn.centreOpenMargin})`);
+      ok(isObj(q.tallyAt) && WLY.isOpenWaterL(LM, obsM, q.tallyAt.x, q.tallyAt.z, 1.0) && !D.MOSSMERE_V3.places.some((x) => !x.secret && D.placeContains(x, q.tallyAt.x, q.tallyAt.z)), `Mossmere place ${q.id}: its Tally Post stone stands in open water outside every place`);
+      ok(isObj(q.landmark) && isNum(q.landmark.y) && D.landmarkOf(q).x === q.landmark.x, `Mossmere place ${q.id} has a landmark for the trophy camera`);
+    }
+    const bowl = D.PLACE_V3_BY_ID.cupped_hands.bowl, hands = D.MOSSMERE_V3.props.find((o) => o.kind === 'hands');
+    ok(bowl.dropIn && bowl.y === 0 && near(bowl, hands) + bowl.r <= hands.r, 'the Cupped Hands\' bowl is a water-level (y 0) dropIn pool inside the hands\' collision');
+    const lane = D.PLACE_V3_BY_ID.sluice_run.rule.lane, gate = LM.gate;
+    ok(Math.min(...lane.map(([x, zz]) => Math.hypot(x - gate.x, zz - gate.z))) >= gate.radius * 1.2 + 2.5, `the Sluice Run's lane starts ${Math.min(...lane.map(([x, zz]) => Math.hypot(x - gate.x, zz - gate.z))).toFixed(1)} m from the gate (clear of its pill and stone ring)`);
+    const MF = D.MOSSMERE_V3.happening, discs = MF.clear.discs;
+    ok(MF.owner === 'progression' && discs.length === 2 && discs.every((c) => { const q = D.PLACE_V3_BY_ID[c.place]; const [rx, rz, rw, rh] = c.paint.rect; return q && rx <= c.x - c.r + 1e-9 && rz <= c.z - c.r + 1e-9 && rx + rw >= c.x + c.r - 1e-9 && rz + rh >= c.z + c.r - 1e-9 && D.placeContains(q, c.x, c.z); }) && new Set(discs.map((c) => c.paint.cell)).size === 2, 'Moonfall: two clear discs in their places, each with its own painting cell covering it');
+    ok(near(D.MOSSMERE_V3.cracks[0], D.PLACE_V3_BY_ID.ferry_market) < 0.01 && near(D.MOSSMERE_V3.landmarks.find((l) => l.id === 'moon_eye'), D.PLACE_V3_BY_ID.ferry_market) < 0.01, 'the Moon-Eye\'s authored crack and landmark stand over the Ferry-Market');
+    ok(D.MOSSMERE_V3.redress.reduce((a, r) => a + r.calls, 0) === 4 && D.PLACE_V3_BY_ID.buoy_lights.build.includes('y 0'), 'the harbour re-dress (W9) is 4 calls; the buoy-lanterns draw at the surface'); }
+
+  // ---- the reel: every species that can be an Elder lands an Ancient on full T4 inside ≈ 3 min (skilled, k 160)
+  { const RT = SZ.reel.targets, KR = 160, slow = [];
+    const mulR = (a) => function () { a |= 0; a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+    for (const sp of S.filter((x) => D.sealsFor(x).includes('elder') && !RT.knownGaps[x.id])) {
+      const c = SIM.CLASSES[5], zone = sp.zone ?? sp.zones[0], d = SIM.scaleDifficulty(sp.difficulty, sp.behavior, c.z, zone), g = SIM.loadout(4);
+      let seed = 0; for (const ch of sp.id + 'skilled' + g.id + c.z) seed = (seed * 31 + ch.charCodeAt(0)) | 0;
+      const rng = mulR(seed), ts = []; let to = 0;
+      for (let i = 0; i < KR; i++) { const r = SIM.fight({ ...sp, zone }, d, g, SIM.SK.skilled, c.ci, c.z, rng); if (r.landed) ts.push(r.time); else if (r.reason === 'timeout') to++; }
+      ts.sort((a, b) => a - b); const med = ts.length ? ts[ts.length >> 1] : Infinity;
+      if (!(med <= RT.ancientMedian * RT.ancientTolerance) || to / KR >= RT.maxTimeouts) slow.push(`${sp.id} (median ${Math.round(med)} s, ${to} time-outs)`);
+    }
+    ok(slow.length === 0, `Ancients on full T4 (skilled) must land within ${RT.ancientMedian} × ${RT.ancientTolerance} s with < ${100 * RT.maxTimeouts}% time-outs: ${slow.join('; ')}`);
+    ok(Object.keys(RT.knownGaps).every((id) => byId[id]), 'reel known gaps name real species'); }
+
+  // ---- tackle stats and the P1–P2 tier mapping
+  { const t0 = D.tackleStats({}), g0 = SIM.loadout(0), t4 = D.tackleStats({ rod: 4, line: 4, reel: 4, creel: 4 }, 'firm');
+    ok(t0.slackTime === g0.slackTime && t0.shock === g0.shock && t0.absorb === g0.dragQ && t0.lineStrength === g0.LS && t0.reelSpeed === g0.RS && t0.pipBonus === g0.pipBonus && t0.dragAt === 0.8, 'tackleStats(T0) is the reel sim\'s T0 loadout (slack 1.4: tiers replace the STATS base)');
+    ok(t4.dragAt === 0.9 && t4.creelSize === 8 && within(t4.slackTime, 2.4, 1e-9), 'tackleStats(T4, firm): drag preset from Reel T2, Silverthread adds slack');
+    const ups = Object.fromEntries(D.UPGRADES.map((u) => [u.id, u.maxLevel]));
+    ok(JSON.stringify(D.upgradeTiers({})) === '{"rod":0,"line":0,"reel":0,"creel":0}' && JSON.stringify(D.upgradeTiers(ups)) === '{"rod":4,"line":4,"reel":4,"creel":4}', 'upgradeTiers: no upgrades → T0, every level → T4');
+    for (const k of ['shock', 'absorb', 'pipBonus', 'dragAt']) ok(k in D.STATS && !(k in V1.STATS) && !(k in W2.STATS), `STATS.${k} exists only in v3 builds`); }
+
+  // ---- cameras: every framing preset carries render's full parameter set
+  for (const [k, c] of Object.entries(B3.cameras)) {
+    if (['night', 'fishFallback', 'vista', 'title'].includes(k)) continue;
+    const need = ['elev', 'aim', 'aimY', 'fov', 'ahead', 'stiff', ...(['trophy', 'hang'].includes(k) ? ['base', 'perM', 'min', 'max'] : ['dist'])];
+    ok(need.every((q) => isNum(c[q])), `BALANCE.cameras.${k} needs ${need.filter((q) => !isNum(c[q])).join(', ')} (render's elev / dist / aim / aimY / fov / ahead / stiff)`);
+    if (c.portrait) ok(['elev', 'dist', 'fov'].every((q) => isNum(c.portrait[q])), `BALANCE.cameras.${k}.portrait {elev, dist, fov}`);
+  }
+  ok(B3.cameras.night.follows === 'swarmActive' && B3.cameras.trophy.yawMax <= 35 && isObj(B3.cameras.title.orbit) && B3.cameras.title.orbit.arcDeg[1] - B3.cameras.title.orbit.arcDeg[0] < 180, 'the night camera follows the swarm, the trophy yaw is limited, the title arc stays south');
+  { const cv = B3.cameras.cove, pitch = Math.atan((cv.dist * Math.sin(cv.elev * Math.PI / 180) - cv.aimY) / (cv.dist * Math.cos(cv.elev * Math.PI / 180) + cv.aim)) * 180 / Math.PI;
+    ok(within(pitch, 16.2, 0.3) && pitch - cv.fov / 2 < -8, `the cove camera (render's model): pitch ${pitch.toFixed(1)}°, top of frame ${(cv.fov / 2 - pitch).toFixed(1)}° above horizontal (the arch, stones and legends in view)`); }
+
+  // ---- the Landing's water side: v0 posts, the test buoy, the Set Out glide
+  { const G = D.walkGridFor(C), RMk = WL.raftMask(G), slot = CA.moorings[0].slot;
+    let sk = -1, sd = Infinity; for (let k = 0; k < G.n * G.n; k++) if (RMk[k]) { const [x, zz] = WL.cellXZ(G, k), dd = Math.hypot(x - slot.x, zz - slot.z); if (dd < sd) { sd = dd; sk = k; } }
+    const RC2 = WL.component(G, RMk, sk);
+    const raftCells = []; for (let k = 0; k < G.n * G.n; k++) if (RC2[k]) raftCells.push(WL.cellXZ(G, k));
+    ok(raftCells.length > 0 && sd <= 2.5, `the cove: raft water within ${sd.toFixed(1)} m of the mooring slot`);
+    for (const p of C.v0.posts) ok(raftCells.some(([x, zz]) => Math.hypot(x - p.x, zz - p.z) <= C.v0.range), `Landing v0: post ${p.id} (${p.x}, ${p.z}) is out of the raft's ${C.v0.range} m reach`);
+    ok(C.v0.posts.every((p, i) => C.v0.posts.every((o, j) => i === j || near(p, o) >= 3)) && ['map_table', 'lectern', 'hearth', 'trials', 'gear_bench', 'shrine', 'pond', 'wall'].every((id) => C.v0.posts.some((p) => p.id === id)), 'Landing v0: one post per land station, ≥ 3 m apart');
+    const head = { x: 4, z: 2 }, tb = C.testBuoy, ang = Math.atan2(tb.x - head.x, -(tb.z - head.z)) * 180 / Math.PI;
+    ok(Math.abs(ang) <= 50 && near(head, tb) >= D.BALANCE.cast.minDist && near(head, tb) <= D.TACKLE.rod[0].castMax && near(tb, C.stations.find((x) => x.id === 'murk')) >= 4, `the test buoy is ${near(head, tb).toFixed(1)} m from the jetty head at ${ang.toFixed(0)}° from up-screen (≤ 50°, in cast range, clear of the barge)`);
+    const segD = (p, a, b) => { const dx = b[0] - a[0], dz = b[1] - a[1], t = Math.max(0, Math.min(1, ((p.x - a[0]) * dx + (p.z - a[1]) * dz) / (dx * dx + dz * dz))); return Math.hypot(p.x - a[0] - t * dx, p.z - a[1] - t * dz); };
+    const pathMin = (path, p) => Math.min(...path.slice(1).map((b, i) => segD(p, path[i], b)));
+    const barge = C.stations.find((x) => x.id === 'murk'), rr = D.BALANCE.move.raftRadius;
+    for (const [nm, path] of [['setOutPath', C.setOutPath], ['homeInPath', C.homeInPath]]) {
+      ok(pathMin(path, barge) >= 2.3 + rr, `COVE.${nm} passes ${pathMin(path, barge).toFixed(1)} m from Murk's barge (≥ pad 2.3 + raft ${rr})`);
+      ok(pathMin(path, tb) >= rr + 0.4, `COVE.${nm} clears the test buoy`);
+      ok(C.waystones.every((w) => pathMin(path, w) >= 1.1 + 0.4), `COVE.${nm} threads the Waystone sill (≥ 1.5 m from every stone)`);
+      ok(path.every(([x, zz]) => { const k = G.idx(x, zz); return k >= 0 && !(G.flags[k] & D.WALK_FLAGS.GROUND); }), `COVE.${nm} stays on water`);
+    }
+    const cross = C.setOutPath.find(([, zz]) => zz === C.archLineZ);
+    ok(!!cross && cross[0] > legX[0] + 2 && cross[0] < legX[1] - 2, 'the Set Out glide crosses the arch line between its legs');
+    ok(C.stations.filter((x) => x.opens === 'wall').length === 4 && C.stations.find((x) => x.id === 'raft').needs === 'pendingSetOut', 'four wall stations; Board needs a Set Out plan'); }
+
   // ---- v3 without §24 (V3 on, WALK off): nothing needs a §24 place, a walk challenge or a walk relic
   ok(NW.SPECIES.length === 41 && NW.SPECIES.every((s) => !s.place || NW.MOSSMERE_V3.places.some((p) => p.id === s.place)), `v3 without §24: 41 species, none kept at a §24 place (got ${NW.SPECIES.length})`);
   ok(NW.CHALLENGES.length === 38 && NW.CHALLENGES.every((c) => c.tier !== 4), 'v3 without §24: 38 challenges (no tier IV)');
@@ -1380,7 +1611,7 @@ console.log(`validate-data${V3 ? ' --v3 (V3_ENABLED and WALK_ENABLED on)' : WALK
 if (!WALK && !process.argv.includes('--v1')) {
   const { spawnSync } = await import('node:child_process');
   for (const pass of ['--walk', '--v3']) {
-    const r = spawnSync(process.execPath, [new URL(import.meta.url).pathname, pass], { stdio: 'inherit' });
+    const r = spawnSync(process.execPath, [new URL(import.meta.url).pathname, pass, ...(pass === '--walk' && process.argv.includes('--refresh-fingerprint') ? ['--refresh-fingerprint'] : [])], { stdio: 'inherit' });
     if (r.status !== 0) process.exit(r.status ?? 1);
   }
   process.exit(0);
