@@ -11,6 +11,8 @@ import * as modelsMod from './models.js';
 import * as actorsMod from './actors.js';
 import * as progressionMod from './progression.js';
 import * as survivalMod from './survival.js';
+import * as playerMod from './player.js';
+import * as combatMod from './combat.js';
 import * as fishingMod from './fishing.js';
 import * as audioMod from './audio.js';
 import * as uiMod from './ui.js';
@@ -18,10 +20,10 @@ import * as uiMod from './ui.js';
 const MODULES = [
   ['render', renderMod], ['water', waterMod], ['world', worldMod], ['models', modelsMod],
   ['actors', actorsMod], ['progression', progressionMod], ['survival', survivalMod],
-  ['fishing', fishingMod], ['audio', audioMod], ['ui', uiMod],
+  ['player', playerMod], ['combat', combatMod], ['fishing', fishingMod], ['audio', audioMod], ['ui', uiMod],
 ];
-const GAMEPLAY = new Set(['fishing', 'survival', 'progression']);
-const UPDATE_ORDER = ['fishing', 'survival', 'progression', 'actors', 'models', 'world', 'water', 'audio', 'ui', 'render'];
+const GAMEPLAY = new Set(['player', 'fishing', 'survival', 'combat', 'progression']);
+const UPDATE_ORDER = ['player', 'fishing', 'survival', 'combat', 'progression', 'actors', 'models', 'world', 'water', 'audio', 'ui', 'render'];
 
 // ------------------------------------------------------------------ stub
 function makeStub(label) {
@@ -57,7 +59,7 @@ const ctx = {
   time: { dt: 0, gameDt: 0, t: 0, gameT: 0, timeScale: 1, frame: 0 },
   flow: 'boot',
   paused: false,
-  input: { down: false, x: 0, y: 0, ndc: new THREE.Vector2(), pressed: false, released: false, keys: new Set() },
+  input: { down: false, x: 0, y: 0, ndc: new THREE.Vector2(), pressed: false, released: false, keys: new Set(), move: new THREE.Vector2(), joy: new THREE.Vector2() },
   debug: {},
   isMobile,
   errors: [],
@@ -76,9 +78,11 @@ const game = {
   hasSavedRun: () => !!(savedRun && savedRun.active),
   startNewRun(opts = {}) {
     const startZone = opts.startZone || 'mossmere';
+    const character = opts.character || ctx.state.meta.lastCharacter || null;
     let run;
-    try { run = ctx.progression.createRun({ startZone }); } catch (e) { report('createRun', e); }
+    try { run = ctx.progression.createRun({ startZone, character }); } catch (e) { report('createRun', e); }
     if (!run || run.isStub) run = fallbackRun(startZone);
+    if (run.character) ctx.state.meta.lastCharacter = run.character;
     ctx.state.run = run;
     savedRun = null;
     ctx.state.meta.runs = (ctx.state.meta.runs || 0) + 1;
@@ -158,8 +162,9 @@ function fallbackRun(startZone) {
     active: true, id: 'run_' + Date.now(), seed: (Math.random() * 1e9) | 0, playTime: 0,
     day: 1, phase: 'calm', phaseTime: 0, zone: startZone, zonesUnlocked: [startZone],
     hp: 5, oil: 100, satiety: 100, shells: 0, bait: {}, equippedBait: null, creel: [],
-    upgrades: {}, legendaries: {}, bounties: [],
-    stats: { fishCaught: 0, fishLost: 0, perfectHooks: 0, enemiesSlain: 0, shellsEarned: 0, biggest: null, newSpecies: 0, damageTaken: 0 },
+    upgrades: {}, legendaries: {}, bounties: [], gateOpen: false, character: null,
+    level: 1, xp: 0, xpNext: 10, boons: {}, rerollsUsed: 0,
+    stats: { fishCaught: 0, fishLost: 0, perfectHooks: 0, enemiesSlain: 0, elitesSlain: 0, bossesSlain: 0, shellsEarned: 0, biggest: null, newSpecies: 0, damageTaken: 0, nightsSurvived: 0, nightsNoDamage: 0, maxLevel: 1 },
     flags: {},
   };
 }
@@ -207,7 +212,7 @@ function safe(fn, fallback) { try { const v = fn(); return v && v.isStub ? fallb
 let pointerActive = false;
 function pressAction() {
   if (!gameAcceptsInput()) return;
-  if (safe(() => ctx.survival.onPointerDown?.(input.ndc), false) === true) return;
+  if (safe(() => ctx.combat.onPointerDown?.(input.ndc), false) === true) return;
   if (safe(() => ctx.actors.pickMerchant?.(input.ndc), false) === true && safe(() => ctx.progression.canShop?.(), false) === true) {
     ctx.ui.openShop?.();
     return;
@@ -253,21 +258,27 @@ window.addEventListener('keydown', (e) => {
     if (ctx.flow === 'playing') { game.togglePause(); e.preventDefault(); }
     return;
   }
+  if (MOVE_KEYS.has(e.code)) e.preventDefault();
   if (!gameAcceptsInput()) return;
-  if (e.code === 'Space') { input.down = true; input.pressed = true; pressActionKeyboard(); e.preventDefault(); }
-  else if (e.code === 'KeyF') { safe(() => ctx.survival.flare?.(), null); e.preventDefault(); }
+  if (e.code === 'Space' || e.code === 'KeyF') { safe(() => ctx.combat.flare?.(), null); e.preventDefault(); }
+  else if (e.code === 'KeyE') { safe(() => ctx.player.interact?.(), null); e.preventDefault(); }
 });
-window.addEventListener('keyup', (e) => {
-  input.keys.delete(e.code);
-  if (e.code === 'Space' && input.down) { input.down = false; input.released = true; releaseAction(); }
-});
-function pressActionKeyboard() {
-  // keyboard never zaps enemies or opens the shop: it only drives the rod
-  pointerActive = true;
-  safe(() => ctx.fishing.onPointerDown?.(), null);
+window.addEventListener('keyup', (e) => { input.keys.delete(e.code); });
+const MOVE_KEYS = new Set(['KeyW', 'KeyA', 'KeyS', 'KeyD', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']);
+function updateMoveInput() {
+  const k = input.keys;
+  let x = 0, y = 0;
+  if (k.has('KeyD') || k.has('ArrowRight')) x += 1;
+  if (k.has('KeyA') || k.has('ArrowLeft')) x -= 1;
+  if (k.has('KeyW') || k.has('ArrowUp')) y += 1;
+  if (k.has('KeyS') || k.has('ArrowDown')) y -= 1;
+  input.move.set(x, y);
+  if (input.move.lengthSq() > 1) input.move.normalize();
 }
 window.addEventListener('blur', () => {
   input.keys.clear();
+  input.move.set(0, 0);
+  input.joy.set(0, 0);
   if (input.down) { input.down = false; input.released = true; releaseAction(); }
 });
 
@@ -299,6 +310,7 @@ function frame(now) {
   time.dt = realDt;
   time.t += realDt;
   time.frame++;
+  updateMoveInput();
   const blocking = safe(() => ctx.ui.isBlocking?.(), false) === true;
   const running = ctx.flow === 'playing' && !ctx.paused && !blocking;
   time.gameDt = running ? realDt * time.timeScale : 0;

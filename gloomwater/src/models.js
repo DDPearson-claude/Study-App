@@ -22,6 +22,19 @@ export function create(ctx) {
         dispose() { g.parent?.remove(g); },
       };
     },
+    createSwarm(kind = 'wisp', max = 100) {
+      const geo = new THREE.SphereGeometry(kind === 'mite' ? 0.2 : 0.4, 10, 8);
+      const mesh = new THREE.InstancedMesh(geo, toonMaterial({ color: 0x0b0b12, rim: 0.5 }), max);
+      mesh.count = 0; mesh.frustumCulled = false;
+      const m = new THREE.Matrix4(), q = new THREE.Quaternion(), e = new THREE.Euler(), s = new THREE.Vector3(), pos = new THREE.Vector3();
+      return {
+        object3d: mesh, max,
+        setCount(n) { mesh.count = Math.min(n, max); },
+        set(i, position, yaw = 0, scale = 1) { e.set(0, yaw, 0); q.setFromEuler(e); s.setScalar(scale); pos.copy(position); pos.y += 0.8; m.compose(pos, q, s); mesh.setMatrixAt(i, m); mesh.instanceMatrix.needsUpdate = true; },
+        update() {},
+        dispose() { mesh.parent?.remove(mesh); geo.dispose(); },
+      };
+    },
     createCreature(kind = 'wisp') {
       const g = new THREE.Group();
       const body = new THREE.Mesh(new THREE.SphereGeometry(kind === 'hand' ? 1.2 : 0.4, 12, 10), toonMaterial({ color: 0x0b0b12, rim: 0.5 }));

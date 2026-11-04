@@ -75,7 +75,7 @@ function outlineMaterial(thickness, color) {
     shader.uniforms.gwThickness = { value: thickness };
     shader.vertexShader = shader.vertexShader
       .replace('#include <common>', '#include <common>\nuniform float gwThickness;')
-      .replace('#include <begin_vertex>', '#include <begin_vertex>\ntransformed += normalize(objectNormal) * gwThickness;');
+      .replace('#include <begin_vertex>', '#include <begin_vertex>\ntransformed += normalize(normal) * gwThickness;');
   };
   mat.customProgramCacheKey = () => 'gwOutline';
   outlineMatCache.set(key, mat);

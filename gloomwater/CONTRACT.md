@@ -1,16 +1,27 @@
-# GLOOMWATER — Architecture Contract
+# GLOOMWATER — Architecture Contract (hybrid: sail · fish · survive the swarm)
 
-This is the binding interface contract for every module of the game. Modules are
-written in parallel by different authors; **if it's not in here, don't depend on it**.
-If you must add something another module needs, add it as an *optional* extra and
-call it defensively (`ctx.x.fn?.()`).
+This is the binding interface contract for every module. Modules are written in
+parallel by different authors; **if it's not in here, don't depend on it**. If you
+need something extra from another module, call it defensively (`ctx.x.fn?.()`) and
+degrade gracefully.
 
-Game pitch: a lantern-lit 3D fishing survival roguelite. A tiny candle-headed
-wanderer ("the Wick") drifts on a raft across drowned caverns beneath a fallen
-kingdom. Fish to eat, render fish into lantern oil, sell fish for Shells, survive
-the nightly **Gloomtide** when shadow creatures come for your light, and descend
-through four zones toward the legendary **Pale Leviathan**. Death ends the run;
-**Memories** earned carry over to buy permanent **Relics** at the Shrine.
+**Pitch.** A lantern-lit 3D fishing-survival roguelite. A tiny candle-headed wanderer,
+**the Wick**, sails a raft across drowned cavern lakes beneath a fallen kingdom.
+- **Day (calm):** sail freely around the lake, chase shimmering fishing spots, anchor
+  and fish (skill-based cast → bite → tension reel). Eat fish (hunger), render fish
+  into lantern oil (light), or keep them to sell to **Old Murk**, the toad merchant
+  whose barge moors somewhere on the lake each day.
+- **Night (Gloomtide):** a Megabonk/survivors-style swarm. Shades pour in from the
+  dark; the lantern's light **auto-burns** anything inside it, the **flare** is the
+  active skill, taps **zap** single shades. Slain shades drop **embers** (XP) →
+  level up → **pick 1 of 3 Boons** (stat boosts and lantern "weapons" like orbiting
+  wisps or chain sparks). Survive until dawn. Nights escalate every day.
+- **Run:** four zones, each a new lake; a **Descent Gate** (whirlpool) opens when the
+  zone's requirements are met (e.g. land its legendary). Final legendary: the
+  **Pale Leviathan**. Death ends the run.
+- **Meta:** **Memories** buy permanent **Relics** at the Shrine; **Challenges**
+  (Megabonk-style checklist) unlock new **Wicks** (characters), new Boons, Relics and
+  baits; a fish **Journal** to complete; **Waystones** to start deeper.
 
 ---------------------------------------------------------------------------------
 
@@ -21,511 +32,556 @@ gloomwater/
   build.mjs            bundler -> single-file index.html (integrator)
   index.html           BUILT OUTPUT – never edit by hand
   CONTRACT.md          this file
-  DESIGN.md            game design doc (design team)
-  src/template.html    page shell: canvas host, #ui root, fonts, loader  (integrator)
-  src/main.js          bootstrap, loop, input routing, flow, debug API  (integrator)
-  src/core.js          bus, rng, math, storage helpers                  (integrator)
-  src/toon.js          shared toon/ink/glow material toolkit            (integrator)
-  src/data.js          ALL content & balance tables                     (design team)
-  src/render.js        renderer, camera rig, post-processing            (render author)
-  src/water.js         water surface, ripples, splashes                 (render author)
-  src/world.js         per-zone cavern environments, lighting, particles(world author)
-  src/models.js        procedural fish + creature meshes                (actors author)
-  src/actors.js        Wick, raft, lantern, rod/line/bobber, merchant   (actors author)
-  src/fishing.js       fishing state machine, reel minigame, species pick (fishing author)
-  src/survival.js      day/Gloomtide cycle, resources, enemies, combat  (survival author)
-  src/progression.js   economy, creel, shop, zones, journal, bounties, relics (progression author)
-  src/ui.js + ui.css   all DOM UI: HUD, menus, catch card, tips          (ui author)
-  src/audio.js         procedural WebAudio music + SFX                  (audio author)
+  DESIGN.md            game design doc (design team) – implement it faithfully
+  src/template.html    page shell (integrator)
+  src/main.js          bootstrap, loop, input routing, flow, debug API (integrator)
+  src/core.js          bus, rng, math, storage helpers (integrator)
+  src/toon.js          shared toon/ink/glow material toolkit (integrator)
+  src/data.js          ALL content & balance tables (design team)
+  src/render.js        renderer, camera rig, post-processing        (render author)
+  src/water.js         water surface, ripples, splashes, wakes      (render author)
+  src/world.js         per-zone lake arenas: layout, collision, environment art (world author)
+  src/models.js        procedural fish, creatures, instanced swarms  (actors author)
+  src/actors.js        Wick, raft, lantern, rod/line/bobber, merchant (actors author)
+  src/player.js        raft movement controller, interactions        (survival author)
+  src/survival.js      day/night clock, oil/satiety/embers, damage, death (survival author)
+  src/combat.js        swarm director, enemy AI, aura/zap/flare, XP, boons & weapons (combat author)
+  src/fishing.js       fishing state machine, reel minigame, spots, species pick (fishing author)
+  src/progression.js   stats, economy, creel, shop, zones/gate, journal, bounties, relics,
+                       characters, challenges, unlocks (progression author)
+  src/ui.js + ui.css   all DOM UI (ui author)
+  src/audio.js         procedural WebAudio music + SFX (audio author)
   tools/playtest.mjs   headless Chromium smoke test + screenshots
+  tools/scenario-full.mjs  full-flow integration scenario
   tools/stub.js        universal stub for isolated builds
 ```
 
 Rules:
-- Edit **only your own files**. You may create extra helper files named
-  `src/<yourmodule>-*.js` (e.g. `src/world-props.js`) imported only by your module.
+- Edit **only your own files**. You may add helper files `src/<yourmodule>-*.js`
+  imported only by your module.
 - Imports allowed: `three`, `three/examples/jsm/...`, `./core.js`, `./toon.js`,
-  `./data.js`, your own helper files, and (ui only) `./ui.css` (imported as a text
-  string by the bundler: `import css from './ui.css'`).
-- **Never import another gameplay module directly.** Reach other modules at runtime
-  through `ctx` (`ctx.water.addRipple(...)`). This keeps the build modular and lets
-  `build.mjs --stub=` replace any module.
-- No network requests of any kind, no external assets. Everything is procedural
-  (geometry, textures via canvas, audio via WebAudio). Google Fonts are linked in the
-  template with serif fallbacks; never rely on them loading.
-- Plain modern JS (ES2020), no TypeScript. three.js version **0.170.0** (WebGL2).
-- `localStorage` only through `core.storage` / `core.loadSave` / `core.writeSave`
-  (always wrapped in try/catch).
-- Be robust: a missing optional call must never crash the frame. Guard with `?.`.
+  `./data.js`, your own helpers, and (ui only) `./ui.css` (imported as a text string).
+- **Never import another gameplay module.** Reach others at runtime through `ctx`.
+- No network, no external assets: geometry, textures (canvas), audio (WebAudio) are
+  all procedural. Google Fonts are linked with serif fallbacks; never rely on them.
+- Plain ES2020 JS. three.js **0.170.0** (WebGL2).
+- `localStorage` only through `core.storage` / `loadSave` / `writeSave`.
+- Robust: a missing optional call must never crash the frame. Guard with `?.`.
 
 ## 2. Module shape & lifecycle
 
-Every module file exports:
-
 ```js
-export function create(ctx) {
-  // build objects, but do NOT touch other modules yet (they may not exist)
-  return {
-    init() {},          // called once after ALL modules are created (safe to use ctx.*)
-    update(dt, t) {},   // called every frame (see dt semantics below)
-    ...publicApi,
-  };
+export function create(ctx) {      // build objects; do NOT touch other modules yet
+  return { init() {}, update(dt, t) {}, ...publicApi };
 }
 ```
+Creation order: `render, water, world, models, actors, progression, survival, player,
+combat, fishing, audio, ui`. Then every `init()` (safe to use `ctx.*`), then the loop.
+A module whose `create`/`init` throws is replaced by a universal stub.
 
-`main.js` creates modules in this order and stores them on `ctx`:
-`render, water, world, models, actors, progression, survival, fishing, audio, ui`.
-Then calls every `init()`, then starts the loop. If a module's `create`/`init`
-throws, main logs it and substitutes the universal stub so the game keeps running.
-
-**dt semantics** (main passes):
-| module | `dt` passed to `update(dt, t)` |
+**dt semantics**
+| modules | `dt` passed to `update(dt, t)` |
 |---|---|
-| render, water, world, models, actors, audio, ui | `ctx.time.dt` – real frame time (clamped ≤ 0.05 s). Visual ambience keeps living even while paused/menus are open. |
-| fishing, survival, progression | `ctx.time.gameDt` – 0 whenever the game is paused, a blocking UI is open, or flow ≠ `'playing'`. Gameplay timers must use this. |
+| render, water, world, models, actors, audio, ui | `ctx.time.dt` — real frame time (≤ 0.05 s); ambience keeps living while paused |
+| player, fishing, survival, combat, progression | `ctx.time.gameDt` — 0 when paused, a blocking UI is open (shop, level-up picker…), or flow ≠ `'playing'` |
 
-`t` is total real seconds. Also available: `ctx.time.gameT` (accumulated game time),
-`ctx.time.timeScale` (debug speed-up, multiplies gameDt).
+`t` = total real seconds; `ctx.time.gameT` = accumulated game time; `ctx.time.timeScale`.
 
-Frame order: input → fishing → survival → progression → actors → models → world →
-water → audio → ui → render.update → render.render().
+Frame order: input → player → fishing → survival → combat → progression → actors →
+models → world → water → audio → ui → render.update → render.render().
 
 ## 3. The `ctx` object
 
 ```js
 ctx = {
-  THREE,                 // the three namespace
-  bus,                   // event bus (core.createBus): on/once/off/emit
-  state: { meta, run },  // see §5 (run is null when not in a run)
-  data,                  // the data.js namespace (import * as data)
+  THREE, bus, data,                      // data = import * as data from './data.js'
+  state: { meta, run },                  // §5 (run null between runs)
   time: { dt, gameDt, t, gameT, timeScale, frame },
-  flow: 'boot',          // 'boot' | 'title' | 'playing' | 'dead' | 'victory'
-  paused: false,
-  input: {               // pointer is unified mouse/touch/pen
-    down: false, x: 0, y: 0,          // CSS px
-    ndc: Vector2,                     // -1..1, y up
-    pressed: false, released: false,  // true only on the frame it happened
-    keys: Set<string>,                // currently held KeyboardEvent.code
+  flow: 'boot'|'title'|'playing'|'dead', paused: false,
+  input: {
+    down, x, y, ndc: Vector2, pressed, released,   // primary pointer (mouse/touch/pen)
+    keys: Set<code>,
+    move: Vector2,   // keyboard WASD/arrows, x right, y up(=forward on screen), length ≤ 1
+    joy: Vector2,    // virtual joystick (ui writes it on touch), same convention
   },
-  game: { startNewRun({startZone}), continueRun(), endRun(cause), toTitle(),
-          victory(), pause(), resume(), togglePause(), save(), wipeAll() },
-  debug: {},             // modules may register debug/cheat functions here
-  isMobile: boolean,     // coarse pointer / small screen
-  // modules:
-  render, water, world, models, actors, progression, survival, fishing, audio, ui,
+  game: { startNewRun({startZone, character}), continueRun(), endRun(cause), toTitle(),
+          victory(), pause(), resume(), togglePause(), save(), wipeAll(), hasSavedRun() },
+  debug: {}, isMobile, errors: [],
+  render, water, world, models, actors, progression, survival, player, combat, fishing, audio, ui,
 }
-window.__gw = ctx        // for tests / console
+window.__gw = ctx
 ```
+Movement input is **screen-relative**: `move`/`joy` up = away from the camera.
+`player` converts it to world space using the camera yaw.
 
 ## 4. Flow, input routing, saving (main.js)
 
-- Boot → `flow='title'`; `ui.showTitle()`. Title offers Continue (if a run save
-  exists), New Descent (with Waystone start-zone choice when unlocked), Shrine,
-  Journal, Settings. The 3D scene renders behind the title (camera mode `title`).
-- `game.startNewRun({startZone})`: `state.run = progression.createRun({startZone})`,
-  `flow='playing'`, emit `run:start {continued:false}`, save.
-- `game.continueRun()`: restore saved run, `flow='playing'`, emit `run:start {continued:true}`.
-- `game.endRun(cause)` (main calls this on `player:died`): `summary = progression.summarizeRun(cause)`
-  (applies Memories + meta stats), `state.run.active=false`, `flow='dead'`, emit
-  `run:end {summary}`, save (run cleared), `ui.showDeath(summary)`.
-- `game.victory()` (main calls this on `victory` event): `flow` stays `'playing'` after
-  the victory screen is dismissed (endless continue). ui.showVictory(summary).
-- `game.toTitle()`: save, `flow='title'`, `ui.showTitle()`.
-- main (not progression) increments `meta.runs` on new run and `meta.deaths`,
-  `meta.bestDay` on death, `meta.victory/victories` on victory. `summarizeRun` handles
-  Memories, journal-derived records, `deepestZone`, `totalFish`, `memoriesEarnedTotal`.
-- Autosave: on `phase:change`, on `fish:landed`, on `shop:buy`, every 30 s of play,
-  and on `visibilitychange` hidden / `pagehide`.
+- Boot → `flow='title'`; `ui.showTitle()` (Continue / New Descent with character +
+  Waystone choice / Shrine / Challenges / Journal / Settings). Scene renders behind.
+- `startNewRun({startZone, character})`: `run = progression.createRun(...)`,
+  `flow='playing'`, emit `zone:change {zone, prev:null}` then `run:start {continued:false}`.
+  main increments `meta.runs`.
+- `continueRun()`: restore saved run; same events with `continued:true`.
+- `endRun(cause)` (on `player:died`): `summary = progression.summarizeRun(cause)`;
+  main updates `meta.deaths`, `meta.bestDay`; `run.active=false`; `flow='dead'`;
+  emit `run:end {summary}`; save; `ui.showDeath(summary)`.
+- `victory()` (on `victory`): `meta.victory=true`, `meta.victories++`, `ui.showVictory(summary)`;
+  play continues (endless) after the screen closes.
+- `toTitle()`: save, `flow='title'`, `ui.showTitle()`.
+- Autosave on `phase:change`, `fish:landed`, `shop:buy`, `relic:buy`, `zone:change`,
+  every 30 s of play, on `visibilitychange` hidden and `pagehide`.
 
-Input routing (pointer events on the canvas host; the `#ui` layer sits above with
-`pointer-events:none` except on interactive elements):
-1. First user gesture anywhere → `audio.unlock()`.
-2. If `flow !== 'playing'` or `paused` or `ui.isBlocking()` → game ignores the pointer.
-3. pointerdown: `if (survival.onPointerDown(ndc)) return;` (tap an enemy to zap it) →
-   `if (actors.pickMerchant(ndc) && progression.canShop()) { ui.openShop(); return; }` →
-   `fishing.onPointerDown()`.
-4. pointermove: `fishing.onPointerMove?.(ndc)`.
-5. pointerup / pointercancel: `fishing.onPointerUp()`.
-Keyboard: `ui.handleKey(code)` first (returns true if consumed: menus, J/C/Esc...).
-Else `Space` down/up acts as pointer down/up for fishing (aim = last pointer x),
-`KeyF` → `survival.flare()`, `Escape`/`KeyP` → `game.togglePause()`.
+**Pointer** (events on the canvas host; `#ui` sits above with `pointer-events:none`
+except interactive elements — the touch joystick zone is a UI element, so joystick
+touches never reach the canvas):
+1. First gesture → `audio.unlock()`.
+2. Ignore if `flow!=='playing'`, `paused`, or `ui.isBlocking()`.
+3. pointerdown: `combat.onPointerDown(ndc)` (zap a shade) → if false:
+   `actors.pickMerchant(ndc) && progression.canShop()` → `ui.openShop()` → else
+   `fishing.onPointerDown()` (fishing reads `ctx.input.ndc` to aim at the water).
+4. pointermove → `fishing.onPointerMove(ndc)`; pointerup/cancel → `fishing.onPointerUp()`.
+
+**Keyboard**: `ui.handleKey(code)` first (true = consumed). Else: `WASD`/arrows →
+`input.move` (main recomputes every frame); `Space` or `KeyF` → `combat.flare()`;
+`KeyE` → `player.interact()`; `Escape`/`KeyP` → pause toggle.
 
 ## 5. State schema & ownership
 
 ```js
-state.meta = {                // persists forever (core.defaultMeta)
-  memories, memoriesEarnedTotal, relics:{relicId:level}, journal:{speciesId:{caught,biggest,firstDay,firstRun}},
-  bestDay, deepestZone /*index*/, runs, deaths, victory, victories, totalFish,
-  tutorialDone, seenTips:{tipId:true}, unlocks:{}, settings:{master,music,sfx,quality,screenShake}
+state.meta = {
+  memories, memoriesEarnedTotal, relics:{relicId:level},
+  journal:{speciesId:{caught, biggest, firstDay, firstRun}},
+  challenges:{challengeId:true}, challengeProgress:{challengeId:number},  // progression
+  unlocks:{ 'character:<id>':true, 'boon:<id>':true, 'relic:<id>':true, 'bait:<id>':true },
+  bestDay, deepestZone /*index*/, runs, deaths, victory, victories, totalFish, totalSlain,
+  bestLevel, tutorialDone, seenTips:{tipId:true}, lastCharacter,
+  settings:{ master, music, sfx, quality, screenShake, damageNumbers },
 }
-state.run = {                 // one descent; null between runs
-  active:true, id, seed, playTime,
-  day:1, phase:'calm', phaseTime:0,          // owned by survival
-  zone:'mossmere', zonesUnlocked:['mossmere'],// owned by progression
-  hp, oil, satiety,                           // owned by survival (max = progression.getStats())
-  shells, bait:{baitId:count}, equippedBait,  // owned by progression
-  creel:[Fish], upgrades:{upgradeId:level}, legendaries:{speciesId:true},
-  bounties:[Bounty], stats:{ fishCaught, fishLost, perfectHooks, enemiesSlain,
-    shellsEarned, biggest:{speciesId,weight}|null, newSpecies, damageTaken },
-  flags:{}
+state.run = {
+  active:true, id, seed, playTime, character:'<characterId>',
+  day:1, phase:'calm', phaseTime:0,              // survival
+  hp, oil, satiety,                              // survival (max from getStats)
+  zone:'mossmere', zonesUnlocked:['mossmere'], gateOpen:false,   // progression
+  shells, bait:{baitId:count}, equippedBait, creel:[Fish], upgrades:{id:level},
+  legendaries:{speciesId:true}, bounties:[Bounty],                // progression
+  level:1, xp:0, xpNext, boons:{boonId:level}, rerollsUsed:0,     // combat
+  stats:{ fishCaught, fishLost, perfectHooks, enemiesSlain, elitesSlain, bossesSlain,
+          shellsEarned, biggest:{speciesId,weight}|null, newSpecies, damageTaken,
+          nightsSurvived, nightsNoDamage, maxLevel },
+  flags:{},
 }
-Fish = { uid, speciesId, weight /*kg*/, quality:'normal'|'fine'|'perfect', value, food, oil, caughtDay }
+Fish = { uid, speciesId, weight, quality:'normal'|'fine'|'perfect', value, food, oil, caughtDay }
 ```
-Only the owner mutates a field; others call the owner's API
-(e.g. eating → `survival.addSatiety(n)`, never `run.satiety += n` from progression).
-Exception: `run.stats.*` counters may be incremented by whoever observes the event.
+Only the owner mutates a field; others call the owner's API (e.g. eating →
+`survival.addSatiety(n)`). Any module may increment `run.stats.*` counters for events
+it observes. Player position is NOT saved (a continued run respawns at the zone spawn).
 
 ## 6. Events (bus)
 
-Emit exactly these names/payloads (add new ones only as optional extras).
-| event | payload | emitted by |
+| event | payload | emitter |
 |---|---|---|
+| `boot` / `flow:change` | `{}` / `{flow, prev}` | main |
 | `run:start` | `{continued}` | main |
 | `run:end` | `{summary}` | main |
-| `phase:change` | `{phase, prev, day}` phases: `calm`→`dusk`→`gloomtide`→`dawn`→(day+1) `calm` | survival |
+| `phase:change` | `{phase, prev, day}` — `calm`→`dusk`→`gloomtide`→`dawn`→ (day+1) `calm` | survival |
 | `day:start` | `{day}` | survival |
-| `resource:low` | `{resource:'oil'|'satiety'|'hp'}` (edge-triggered) | survival |
+| `resource:low` | `{resource:'oil'|'satiety'|'hp'}` edge-triggered | survival |
 | `player:damage` | `{amount, source}` | survival |
 | `player:heal` | `{amount}` | survival |
-| `player:died` | `{cause}` cause: `'darkness'|'starvation'|'gloom'|...` | survival |
+| `player:died` | `{cause:'darkness'|'starvation'|'gloom'|...}` | survival |
 | `lantern:out` / `lantern:lit` | `{}` | survival |
-| `flare` | `{position:Vector3, radius}` | survival |
-| `enemy:spawn` | `{enemy}` | survival |
-| `enemy:hit` | `{enemy, position}` | survival |
-| `enemy:slain` | `{enemy, position}` | survival |
-| `enemy:steal` | `{enemy, fish}` (a fish taken from the creel) | survival |
+| `player:anchor` | `{anchored}` | player |
+| `interact:change` | `{id:'merchant'|'gate'|null, label}` | player |
+| `enemy:spawn` | `{enemy}` | combat |
+| `enemy:hit` | `{enemy, position, amount, crit}` | combat |
+| `enemy:slain` | `{enemy, position}` | combat |
+| `enemy:steal` | `{enemy, fish}` | combat |
+| `boss:spawn` / `boss:slain` | `{enemy}` | combat |
+| `flare` | `{position, radius}` | combat |
+| `xp:gain` | `{amount, total}` (throttled/aggregated ≤ 10/s) | combat |
+| `levelup` | `{level, options:[BoonOption]}` | combat |
+| `boon:chosen` | `{boonId, level}` | combat |
 | `fishing:state` | `{state, prev}` | fishing |
 | `fishing:cast` | `{power, target:Vector3}` | fishing |
-| `fishing:land` | `{position}` bobber touched water | fishing |
-| `fishing:nibble` | `{}` | fishing |
-| `fishing:bite` | `{speciesId}` | fishing |
+| `fishing:land` | `{position}` | fishing |
+| `fishing:nibble` / `fishing:bite` | `{}` / `{speciesId}` | fishing |
 | `fishing:hook` | `{speciesId, perfect}` | fishing |
-| `fishing:miss` | `{reason:'early'|'late'}` | fishing |
+| `fishing:miss` | `{reason:'early'|'late'|'moved'}` | fishing |
 | `fishing:surge` | `{strength}` | fishing |
 | `fishing:caught` | `{speciesId, weight, quality}` | fishing |
 | `fishing:escaped` | `{speciesId, reason:'slack'|'snap'}` | fishing |
-| `fish:landed` | `{fish, isNew, isRecord, species}` after progression processed a catch | progression |
-| `fish:action` | `{action:'keep'|'eat'|'render'|'sell'|'release', fish, gained}` | progression |
+| `fish:landed` | `{fish, isNew, isRecord, species}` | progression |
+| `fish:action` | `{action, fish, gained}` | progression |
 | `shells:change` | `{shells, delta}` | progression |
 | `merchant:arrive` / `merchant:leave` | `{}` | progression |
 | `shop:buy` | `{itemId, item}` | progression |
+| `gate:open` | `{zone}` (next zone now reachable) | progression |
 | `zone:unlock` | `{zone}` | progression |
-| `zone:change` | `{zone, prev}` (zone ids) | progression (on travel) & main (on run start, prev=null) |
+| `zone:change` | `{zone, prev}` | progression (travel) & main (run start) |
 | `journal:new` | `{speciesId}` | progression |
 | `bounty:new` / `bounty:complete` | `{bounty}` | progression |
+| `challenge:complete` | `{challenge}` | progression |
+| `unlock` | `{key, label}` e.g. `character:ashwick` | progression |
 | `relic:buy` | `{relicId, level}` | progression |
-| `victory` | `{}` (final legendary landed) | progression |
-| `toast` | `{text, kind:'info'|'good'|'bad'|'lore'}` | anyone → ui shows |
+| `victory` | `{}` | progression |
+| `toast` | `{text, kind:'info'|'good'|'bad'|'lore'}` | anyone → ui |
 | `ui:modal` | `{open, id}` | ui |
 
 ## 7. Module APIs
 
-Coordinates: metres, **water surface y = 0**, raft centred on origin, the Wick stands
-at about `(0, 0.35, 0.2)` facing **−Z** (out over the lake). The camera sits behind
-(+Z) and above. Casts land in front: `z ∈ [-4, -castMax]`, aimed within ±35° of −Z.
-The merchant's barge moors at about `(4.2, 0, -1.5)` (screen right). All models face
-**+Z** (so `object.lookAt(target)` points them at the target), up is +Y.
-Enemies approach from the dark at 20–40 m. Cavern walls/background from ~30 m to
-~150 m; ceiling ~25–40 m up.
+**Space.** Metres; **water surface y = 0**; each zone is a roughly circular cavern
+lake centred on the origin, radius `zone.arena.radius` (~55–80 m) with obstacle
+islands/pillars. The raft moves; `ctx.player.position` is the truth. Heading/yaw:
+radians about +Y, **yaw 0 faces −Z**, positive yaw turns toward −X (three.js
+convention: `object.rotation.y = yaw`). All models face **+Z** locally (so
+`lookAt(target)` points them at it) — the raft/Wick group is rotated so the raft's
+bow faces its heading. The **camera keeps a fixed world yaw by default** (looking
+toward −Z), elevated behind/above the raft, so screen-up ≈ world −Z.
 
 ### render (`render.js`)
 ```
 renderer, scene, camera, canvas
-setQuality('low'|'medium'|'high'|'auto')
-setGrade({ exposure, bloomStrength, bloomRadius, bloomThreshold, tint:hex, tintAmount,
-           vignette, saturation, grain })          // partial objects merge
-shake(intensity=0.3, duration=0.35)                 // respects meta.settings.screenShake
-flash(hex=0xffffff, strength=0.5, duration=0.25)    // full-screen additive flash
-projectToScreen(vec3) -> {x, y, visible}            // CSS px in viewport
-raycast(ndc, objects, recursive=true) -> Intersection[]
-getCameraMode() -> string
-render()                                            // composer render (main calls last)
+setQuality('low'|'medium'|'high'|'auto'); setGrade({exposure, bloomStrength, bloomRadius,
+  bloomThreshold, tint, tintAmount, vignette, saturation, grain})   // partial merge, eased
+shake(intensity=0.3, duration=0.35); flash(hex=0xffffff, strength=0.5, duration=0.25)
+projectToScreen(vec3) -> {x, y, visible}; raycast(ndc, objects, recursive=true)
+groundPoint(ndc, y=0) -> Vector3|null     // pointer ray ∩ horizontal plane (fishing aim)
+getCameraMode(); getYaw() -> camera yaw (for screen-relative movement)
+render()
 ```
-- Owns `scene.fog` (`FogExp2`) and the clear colour; world sets `scene.fog.color/density`.
-- Camera mode is auto-selected each frame from ctx: flow `title`→`title` (slow drifting
-  wide shot), `dead`→`death` (slow rising crane), fishing state `reeling`→`reel`
-  (closer, framed toward `ctx.fishing.bobberPos`), shop open (`ctx.ui.isShopOpen?.()`)
-  →`shop` (look toward merchant), otherwise `fish` (over-the-shoulder, lake ahead).
-  Smoothly blend between modes; subtle raft sway; portrait screens widen FOV so the
-  raft + lake stay readable on phones.
-- Post chain: RenderPass → UnrealBloomPass → custom grade pass (vignette, film grain,
-  split-tone tint, gentle chromatic fringe at edges, faint paper texture) → OutputPass.
-  `low` quality: pixelRatio ≤1, half-res bloom or none. Auto: mobile→low/medium.
+Owns `scene.fog` (FogExp2) + clear colour (world sets colour/density). Camera modes,
+auto-selected each frame and smoothly blended, all following `ctx.player.position`:
+`title` (slow cinematic orbit of the raft), `sail` (default: elevated 3/4 chase,
+~13 m back/9 m up, pitch ~35°, horizon & layered cavern visible), `fish` (closer,
+framing raft + `ctx.fishing.bobberPos`), `reel` (tighter, dramatic), `night`
+(higher/wider during gloomtide so the swarm is readable), `shop` (toward merchant),
+`death` (slow rising crane). Portrait screens widen FOV/pull back. Subtle sway.
+Post: RenderPass → UnrealBloomPass → grade pass (vignette, film grain, split-tone,
+edge chromatic fringe, faint paper texture) → OutputPass. Low quality: pixelRatio ≤1,
+cheaper bloom. Auto quality: mobile→low/medium; drop a tier if fps < 40 sustained.
 
 ### water (`water.js`)
 ```
-mesh
-getHeight(x, z) -> y                // gentle swell, used to bob raft/bobber/props
-addRipple(x, z, strength=1)          // expanding ring(s) (≥16 concurrent)
-splash(x, z, {size=1, color, count}) // droplet particles + ring
-setPalette({deep, shallow, foam, glow, fogColor})   // hex numbers
-setLights([{position:Vector3, color:hex|Color, intensity}])  // ≤6 lights reflected as
-                                     // glittering streaks (lantern, merchant lamp, glows)
+mesh; getHeight(x, z) -> y; addRipple(x, z, strength=1); splash(x, z, {size, color, count})
+addWake(x, z, dirX, dirZ, strength)      // V-wake / foam streak behind the moving raft
+setPalette({deep, shallow, foam, glow, fogColor}); setLights([{position, color, intensity}]) // ≤6
 ```
-Stylised (not realistic): dark ink water, banded fresnel toward fog colour, streaky
-painted light reflections, soft caustic shimmer, ripple rings, foam lines at the raft.
+Water must cover the whole arena (follow the camera/player or be large); getHeight
+must match the shader's displacement. Stylised: ink-dark water, banded fresnel toward
+fog colour, painterly streak reflections of lights, caustic shimmer, ≥24 ripple rings,
+foam where water meets islands (optional), wakes.
 
 ### world (`world.js`)
 ```
 group
-setZone(zoneId, {instant=false})   // cross-fade/rebuild environment for a zone
-getZone() -> zone data object
+setZone(zoneId, {instant})          // build the zone's lake arena + environment (dispose old)
+getZone() -> zone data
+bounds -> {radius}
+getSpawn() -> {position:Vector3, yaw}
+getDepth(x, z) -> 0..1              // 0 shallow shore … 1 deepest; drives species depth bands
+collide(position:Vector3, radius) -> Vector3   // pushes position out of obstacles/shore (mutates+returns)
+isOpenWater(x, z, radius) -> bool
+randomWaterPoint({from, minDist=0, maxDist=Infinity, depthMin=0, depthMax=1, clearance=1}) -> Vector3
+getMerchantDock(day) -> {position, yaw}       // mooring spot (varies by day)
+getGate() -> {position, radius}               // Descent Gate whirlpool location
+setGateState('hidden'|'sealed'|'open')        // visual state of the gate
+getObstacles() -> [{x, z, r}]                 // collision circles (for AI steering)
 ```
-Listens to `zone:change`; reads `ctx.survival.getPhaseInfo()` every frame to darken
-and cool the scene through dusk/Gloomtide and warm it at dawn. Owns hemisphere,
-directional "crack-light", and ≤3 accent point lights; sets `scene.fog`, calls
-`ctx.render.setGrade(...)` and `ctx.water.setPalette(...)` for its zone; feeds glow
-positions to `ctx.water.setLights(...)` together with `ctx.actors.lanternLight`.
-Builds per-zone: layered parallax silhouettes (4–6 depth layers of cavern
-architecture), ceiling stalactites, shoreline props, floating set pieces, drifting
-particles (spores/motes/embers), light shafts. Uses InstancedMesh for repeats.
+Listens to `zone:change`. Reads `ctx.survival.getPhaseInfo()` each frame to darken/cool
+for dusk/gloomtide and warm at dawn; owns hemisphere + directional crack-light + ≤2
+accent point lights; drives `scene.fog`, `render.setGrade`, `water.setPalette`, and
+`water.setLights` (merge `ctx.actors.lanternLight`, the merchant lamp, its own glows).
+Art: islands/pillars/wrecks/roots/fungi/crystals per zone (toon + ink outlines,
+InstancedMesh), cliffs ringing the lake, **4–6 parallax silhouette rings** beyond the
+cliffs (ink-dark near → luminous misty far, painted canvas alpha textures or shapes),
+ceiling stalactites, drifting particles, light shafts, the gate whirlpool.
 
 ### models (`models.js`)
 ```
 createFish(speciesOrId, weightKg) -> FishVisual
-createCreature(kind) -> CreatureVisual      // kind: 'wisp' | 'eel' | 'moth' | 'hand'
-FishVisual    = { object3d, length, update(dt, t, {swim=1, struggle=0, flop=0}), setGlow(k), dispose() }
-CreatureVisual= { object3d, radius, update(dt, t, {state:'idle'|'move'|'attack'|'hurt'|'die', k}), hit(), dispose() }
+createCreature(kind) -> CreatureVisual                 // any kind, individually animated
+createSwarm(kind, max) -> Swarm                        // instanced hordes: 'wisp'|'mite'|'moth'|'eel'
+FishVisual     = { object3d, length, update(dt,t,{swim=1, struggle=0, flop=0}), setGlow(k), dispose() }
+CreatureVisual = { object3d, radius, update(dt,t,{state:'idle'|'move'|'attack'|'hurt'|'die', k}), hit(), dispose() }
+Swarm          = { object3d, max, setCount(n), set(i, position, yaw, scale=1, hurt=0, fade=0, phase=0),
+                   update(dt, t), dispose() }           // hurt 0..1 = white flash, fade 0..1 = dissolve
 ```
-Fish shapes (data `model.shape`): `minnow, perch, carp, pike, eel, angler, ray, puffer,
-jelly, crayfish, koi, ghost, leviathan`. Params: `{shape, body, belly, fin, glow|null,
-pattern:'none'|'stripes'|'spots'|'scales'|'bands', eyes:'normal'|'glow'|'blind', scale}`.
-Visual size scales with weight relative to the species range. Creatures: `wisp` inky
-flying shade with pale pinprick eyes & trailing tendrils; `eel` long shadow eel that
-leaps from water; `moth` dusty grey-violet moth with glowing eye-spots; `hand` a huge
-dripping shadow hand/claw rising from the water (late-game threat).
+Creature kinds: `wisp` (inky shade, pale pinprick eyes, trailing tendrils), `mite`
+(tiny skittering shadow tick, packs), `moth` (dusty violet moth, glowing eye-spots,
+eats light), `eel` (shadow eel arcing out of the water), `hand` (huge dripping shadow
+hand rising from the water — elite), `warden` (colossal hooded shade with a hollow
+glowing maw — night boss). Fish shapes: `minnow, perch, carp, pike, eel, angler, ray,
+puffer, jelly, crayfish, koi, ghost, leviathan`; params `{shape, body, belly, fin, glow,
+pattern, eyes, scale}`. Swarms ≤ 3–4 draw calls each (body + outline + eyes instanced).
 
 ### actors (`actors.js`)
 ```
 group, raft, wick, lanternLight (PointLight)
-getRodTip() -> Vector3 (new vector, world space)
-setLine({visible, end:Vector3|null, tension:0..1, slack:0..1})   // fishing line rod-tip → end
-setBobber({visible, position:Vector3, state:'flying'|'floating'|'nibble'|'bite'|'hooked'})
-setPose(name)   // 'idle'|'charge'|'cast'|'wait'|'hookset'|'reel'|'strain'|'catch'|'eat'|'flare'|'hurt'|'die'|'celebrate'
-setCharge(k)    // 0..1 wind-up amount while charging
-setReel(k, lateral)   // reel effort 0..1, lateral pull -1..1
-setAim(angle)   // radians, 0 = straight ahead (−Z), + = right
-setLanternLevel(k)    // 0..1 oil fraction -> light intensity/radius/flame size; 0 = out
-setLightRadius(m)     // gameplay safe-radius hint (visual light distance)
-setVitality(k)  // 0..1 hp fraction -> the Wick's head-flame size/colour
-showCatch(fishVisual|null)   // Wick holds the fish up; null hides/clears
-merchant: { arrive(), leave(), present, position:Vector3, object3d }
+getRodTip() -> Vector3 (new, world)
+setLine({visible, end, tension, slack}); setBobber({visible, position, state})  // states: flying|floating|nibble|bite|hooked
+setPose(name)  // idle|paddle|charge|cast|wait|hookset|reel|strain|catch|eat|flare|zap|hurt|die|celebrate|levelup
+setCharge(k); setReel(k, lateral); setAim(worldYaw|null)   // Wick turns to face cast direction
+setLanternLevel(k 0..1); setLightRadius(m); setVitality(k 0..1)
+setCharacter(characterData)     // look: flame colour, cloak colour, hat/hood variant, eye colour
+showCatch(fishVisual|null)
+merchant: { arrive(position, yaw), leave(), present, position, object3d }
 pickMerchant(ndc) -> bool
-setRaftLevel(n) // 0..3 cosmetic raft upgrades
+setRaftLevel(n 0..3)
 ```
-The Wick (ORIGINAL character): small round-bodied candle-creature, dark cloak/mantle,
-a living candle flame on top of its head (flame = vitality), two small glowing amber
-eyes in a shadowed face, little stubby legs, holds a long bent rod. The raft: lashed
-dark planks, a crooked pole with a hanging iron lantern (main light), a tiny brazier,
-a wicker creel. Merchant "Old Murk": a hunched mossy toad with a towering pack of
-wares and a dim green lamp, riding a lily-barge, rings a bell on arrival.
+Each frame actors places the raft group at `ctx.player.position`, `rotation.y =
+ctx.player.heading`, adds wave bob/tilt (water.getHeight) and lean from velocity,
+paddle animation when moving. The Wick (ORIGINAL): small round candle-creature, dark
+cloak, a living flame on its head (= vitality), two glowing amber eyes in a shadowed
+face, stubby legs, long bent rod. Raft: lashed dark planks, crooked pole with a
+hanging iron lantern (main light), tiny brazier, wicker creel, oar. Old Murk: hunched
+mossy toad with a towering pack and a dim green lamp on a lily-barge, rings a bell.
 
-### fishing (`fishing.js`)
+### player (`player.js`)
 ```
-state            // 'idle'|'charging'|'casting'|'waiting'|'bite'|'reeling'|'landing'|'lost'
-view = { charge, castDist, aim, tension, sweetMin, sweetMax, danger, progress, surge,
-         surgeWarn, stamina, biteWindow, speciesId|null, rarity|null, hint }   // read by ui
-bobberPos        // Vector3 | null
-spots            // [{position:Vector3, radius, strength, ttl}] shimmering hot spots
-onPointerDown(), onPointerMove(ndc), onPointerUp(), cancel(reason)
-isBusy() -> bool // anything but idle
+position (Vector3, live), velocity (Vector3), heading (yaw), speed, anchored (bool)
+getForward() -> Vector3; teleport(position, yaw)
+interactable -> {id:'merchant'|'gate', label} | null; interact() -> bool
+isNear(id) -> bool
 ```
-Flow: hold → charge (ping-pong meter, timing matters) with aim from pointer x →
-release casts (ballistic bobber, splash, ripples) → waiting (nibbles = small dips;
-tapping on a nibble spooks the fish) → bite (bobber plunges + `!`; tap within the
-reaction window; perfect early tap = bonus) → reeling minigame (hold to reel/raise
-tension, release to ease; progress only within the safe band, double in the sweet
-zone; telegraphed surges spike tension → release or snap; zero tension too long →
-slack escape) → landing (fish lifted, `fishing:caught`) → idle. Species chosen with
-`data` weights by zone, distance, phase, bait, spots and `progression.getStats()`.
-Owns hooked-fish visuals (via `ctx.models.createFish`, splashes/leaps during surges),
-spot visuals, cast aim reticle on the water. Drives actors (pose, line, bobber, aim).
+Movement: combine `input.move` + `input.joy` (screen-relative, rotate by
+`render.getYaw()`), accelerate toward `dir * stats.moveSpeed` with boat-like inertia
+& drag, heading turns toward velocity, `world.collide`. Anchored (no movement) while
+`fishing.state` ∈ {bite, reeling, landing}; movement input while charging/casting/
+waiting → `fishing.cancel('moved')`. Emits wakes (`water.addWake`) and paddle ripples.
+Interactions: within ~5 m of the moored merchant → `merchant` ("Trade"); within the
+open gate radius → `gate` ("Descend"). `interact()` → `ui.openShop()` /
+`ui.openDescend()`. Respawn at `world.getSpawn()` on `zone:change`.
 
 ### survival (`survival.js`)
 ```
-getPhaseInfo() -> { phase, day, time, duration, k /*0..1*/, isNight, nextPhase }
-damage(n, source), heal(n), addOil(n), addSatiety(n)
-flare() -> bool       // lantern burst: costs oil, cooldown, kills/knocks back enemies in radius
-onPointerDown(ndc) -> bool   // tap enemy to zap it (costs a little oil); true if consumed
-enemies              // live enemy list [{id, kind, position, hp, ...}]
+getPhaseInfo() -> {phase, day, time, duration, k, isNight, nextPhase}
+damage(n, source) ; heal(n); addOil(n); addSatiety(n)
+isInvulnerable() -> bool
+lightRadius      // current effective light/aura radius in metres
 ```
-Runs the clock (phase durations from data), resource drains (scaled by phase/zone/
-stats/difficulty), starvation & darkness damage, i-frames, death (`player:died`),
-enemy spawning/AI/visuals (via `ctx.models.createCreature`), flare VFX. Calls
-`ctx.actors.setLanternLevel`, `setLightRadius`, `setVitality` every frame. Emits
-`resource:low` edge events. Debug: `ctx.debug.skipPhase()`, `ctx.debug.god(on)`,
-`ctx.debug.spawn(kind)`.
+Clock (phase durations from data), drains (× phase/zone/difficulty/stats), starvation
+& darkness damage, i-frames + armor, dawn heal per design, death → `player:died`.
+Each frame: `actors.setLanternLevel(oil/maxOil)`, `actors.setLightRadius(r)` where
+r = `stats.lightRadius × f(oil)`, `actors.setVitality(hp/maxHp)`. `resource:low` edges.
+Debug: `ctx.debug.skipPhase()`, `ctx.debug.god(on)`, `ctx.debug.setPhase(name)`.
+
+### combat (`combat.js`)
+```
+enemies -> [{id, kind, enemyId, position, hp, maxHp, elite, boss}]
+onPointerDown(ndc) -> bool        // tap/click a shade within ~48 px → zap it (costs oil)
+flare() -> bool; flareReady() -> 0..1
+addXp(n); level, xp, xpNext (getters on run)
+pendingOptions -> BoonOption[] | null; chooseBoon(boonId); reroll() -> BoonOption[]|null
+getBoons() -> [{boon, level}]
+killAll(reason)
+BoonOption = { boonId, name, desc, rarity, level /*the level it will become*/, isNew, icon }
+```
+Spawn director from `data.difficultyFor(day, zoneIndex, k)` during dusk (sparse) and
+gloomtide (full), spawn points via `world.randomWaterPoint` on a ring 22–34 m from the
+player, steering around `world.getObstacles()`. Enemy behaviours per data (wisp chase,
+mite packs, moth latches onto the lantern draining oil, eel leaps to bite/steal a fish
+via `progression.removeFromCreel`, hand elite with telegraph, warden boss). **Aura:**
+enemies within `survival.lightRadius` take `stats.auraDps` × oil-fraction per second.
+Zap & flare per stats; boon weapons (`data.BOONS` with `weapon`) implemented here with
+VFX (toon glows/lines). Embers drop from slain enemies, glide to the raft inside
+`stats.pickupRadius`, grant XP × `stats.xpMult`; on level-up compute 3 options from
+`data.BOONS` (respect unlocks, maxLevel, rarity weights, `stats.luck`) → set
+`pendingOptions`, emit `levelup` (ui shows picker; game paused while open).
+Dawn: remaining shades dissolve (`killAll('dawn')`), embers auto-collect. Calls
+`survival.damage()` for hits; uses `models.createSwarm` for hordes and
+`createCreature` for elites/bosses. Debug: `ctx.debug.spawn(idOrKind)`,
+`ctx.debug.killAll()`, `ctx.debug.levelUp()`, `ctx.debug.giveBoon(id)`.
+
+### fishing (`fishing.js`)
+```
+state   // idle|charging|casting|waiting|bite|reeling|landing|lost
+view = { charge, castDist, aim, tension, sweetMin, sweetMax, danger, progress, surge,
+         surgeWarn, stamina, biteWindow, speciesId|null, rarity|null, hint }
+bobberPos (Vector3|null); spots [{position, radius, strength, ttl, rare}]
+onPointerDown(); onPointerMove(ndc); onPointerUp(); cancel(reason); isBusy()
+```
+Aim: `render.groundPoint(ndc)` → direction from raft to that point (world yaw) and
+shown as a reticle + range ring around the raft; hold → ping-pong charge meter
+(timing skill) → release casts (distance = charge × castMax, ballistic bobber,
+splash/ripples). Bite logic, reel tension model, surges, snap/slack, legendary boss
+mechanics, quality — exactly as DESIGN.md. Species by zone, **depth at the bobber
+(`world.getDepth`)**, phase, bait, spots and stats. Spots spawn via
+`world.randomWaterPoint` and are visible from afar (shimmering mote columns) so the
+player sails to them. Owns hooked-fish visuals (models.createFish, leaps/splashes),
+reticle, spot visuals. Calls `progression.consumeBait()` per cast.
+Debug: `ctx.debug.forceBite()`, `ctx.debug.instantCatch(speciesId?)`.
 
 ### progression (`progression.js`)
 ```
-getStats(run = ctx.state.run) -> Stats            // all data.STATS keys, base + upgrades + relics
-createRun({startZone='mossmere'}) -> run          // fresh run with relic start bonuses applied
-summarizeRun(cause) -> RunSummary                 // applies Memories & meta records
+getStats(run = ctx.state.run) -> Stats   // base + character + upgrades + relics + boons (stat boons)
+createRun({startZone='mossmere', character}) -> run
+summarizeRun(cause) -> RunSummary        // applies Memories & meta records & challenge progress
 makeFish(speciesId, weight, quality) -> Fish
-addToCreel(fish) -> bool, removeFromCreel(uid) -> Fish|null
-fishAction(fishOrUid, action) -> {ok, msg, gained}  // 'keep'|'eat'|'render'|'sell'|'release'
-canShop() -> bool                                  // merchant present & run active
+addToCreel(fish) -> bool; removeFromCreel(uid?) -> Fish|null   // no uid = random fish (eel theft)
+fishAction(fishOrUid, action) -> {ok, msg, gained}   // keep|eat|render|sell|release
+canShop() -> bool                         // merchant present & player near
 shop: { getItems() -> ShopItem[], buy(itemId) -> {ok, msg} }
-getZones() -> [{...zone, unlocked, current, canTravel, reason}], travel(zoneId) -> {ok, msg}
-getJournal() -> [{species, discovered, caught, biggest}]
-getBounties() -> Bounty[]
-getRelics() -> [{...relic, level, nextCost, canBuy, maxed}], buyRelic(id) -> {ok, msg}
-getWaystones() -> zoneId[]                         // zones available as run start points
-equipBait(baitId) -> {ok,msg}
-getEquippedBait() -> bait data object | null       // the equipped bait if any are left
-consumeBait() -> baitId | null                     // fishing calls on each cast (and per DESIGN rules); null = fishing bare hook
+getZones() -> [{...zone, unlocked, current, canTravel, reason}]; travel(zoneId) -> {ok, msg}
+getGateInfo() -> {open, nextZone, requirements:[{label, done}]}
+getJournal(); getBounties(); getRelics(); buyRelic(id)
+getCharacters() -> [{...character, unlocked, reason}]
+getChallenges() -> [{...challenge, done, progress, target}]
+getWaystones() -> zoneId[]; equipBait(id); getEquippedBait(); consumeBait() -> baitId|null
+isUnlocked(key) -> bool
 ```
-Listens to `fishing:caught` → builds Fish, updates journal/records/bounties → emits
-`fish:landed`. Controls merchant arrival/departure on phase changes
-(`ctx.actors.merchant.arrive()/leave()`), emits `victory` on landing the final
-legendary. RunSummary = `{cause, day, zone, fishCaught, shellsEarned, newSpecies,
-enemiesSlain, legendaries, memories, breakdown:[{label, value}], records:[string]}`.
-ShopItem = `{id, name, desc, category, price, level, maxLevel, canBuy, reason}`.
+RunSummary = `{cause, day, zone, character, level, fishCaught, shellsEarned, newSpecies,
+enemiesSlain, legendaries, memories, breakdown:[{label, value}], records:[string],
+challengesCompleted:[challenge]}`. ShopItem = `{id, name, desc, category, price, level,
+maxLevel, canBuy, reason}`.
+Listens to `fishing:caught` → Fish, journal, records, bounties → `fish:landed`.
+Merchant: arrives at `calm` start at `world.getMerchantDock(day)` (calls
+`actors.merchant.arrive(pos, yaw)`, emits `merchant:arrive`), leaves at dusk. Gate:
+evaluates zone requirements → `run.gateOpen`, `world.setGateState`, `gate:open`.
+Challenges tracked from bus events (run-scope and lifetime) → `challenge:complete`
++ `unlock`. Emits `victory` on landing the final legendary.
+Debug: `ctx.debug.addShells(n)`, `addMemories(n)`, `unlockZone(id)`, `giveFish(id)`,
+`openGate()`, `completeChallenge(id)`.
 
 ### ui (`ui.js`, `ui.css`)
 ```
-isBlocking() -> bool    // any modal open (pauses gameplay)
-isShopOpen() -> bool
-handleKey(code) -> bool
-showTitle(), showDeath(summary), showVictory(summary)
-openShop(), openCreel(), openJournal(), openShrine(), openSettings(), openPause(), closeAll()
-showCatch(fish, {isNew, isRecord, species})   // catch card: Keep / Eat / Render / Release
-toast(text, kind), floatText(worldPos, text, cssColor), banner(title, subtitle)
+isBlocking(); isShopOpen(); handleKey(code) -> bool
+showTitle(); showDeath(summary); showVictory(summary)
+openShop(); openCreel(); openJournal(); openShrine(); openChallenges(); openSettings();
+openPause(); openDescend(); openLevelUp(options); closeAll()
+showCatch(fish, {isNew, isRecord, species}); toast(text, kind); floatText(worldPos, text, css);
+damageNumber(worldPos, amount, crit); banner(title, subtitle)
 ```
-Builds everything inside `#ui`. Listens to bus (`fish:landed` → catch card,
-`zone:change` → area title banner, `phase:change` → "Gloomtide rises" banners,
-`toast`, damage vignette pulses, first-run contextual tips stored in `meta.seenTips`).
-HUD: embers (hearts as small flames), lantern oil gauge, satiety gauge, shells,
-day + phase clock, zone name, bait, creel count, buttons for Creel/Journal/Pause
-and "Trade" when the merchant is present. Fishing UI reads `ctx.fishing.view`
-(charge meter, bite prompt at the bobber, reel tension gauge with sweet band,
-surge warnings, progress). Must work with touch (≥44px targets) and keyboard.
+Everything inside `#ui`. HUD: Embers (flames), oil gauge, satiety gauge, shells,
+day/phase clock, zone, XP bar + level, owned boon icons, bait, creel count, flare
+button with cooldown (essential on touch), Creel/Journal/Pause buttons, interaction
+prompt button (from `player.interactable`), off-screen edge markers for the merchant,
+the open gate and fishing spots. Touch: floating virtual joystick in the lower-left
+zone writing `ctx.input.joy`. Fishing UI from `ctx.fishing.view` (charge meter, bite
+prompt at bobber, reel tension gauge with sweet band, surges, progress). Level-up:
+1-of-3 Boon cards (+ reroll if available) → `combat.chooseBoon`. Catch card (Keep / Eat /
+Render / Release). Title: character select (locked ones show their challenge),
+Waystones, Challenges checklist, Shrine, Journal, Settings. Death/victory summaries.
+Area-title banners, tips (`data.TIPS`, `meta.seenTips`). ≥44 px touch targets.
+The level-up picker opens automatically on `levelup` (listen to the bus).
+Debug: `ctx.debug.ui()` → `{openModal, tips}`.
 
 ### audio (`audio.js`)
 ```
-unlock()                      // resume AudioContext on first gesture
-play(name, {volume=1, pitch=1, pan=0})
-setMood(mood)                 // optional manual override; otherwise auto from ctx
-applySettings()               // read meta.settings volumes
+unlock(); play(name, {volume, pitch, pan}); setMood(mood); applySettings()
 ```
-SFX names: `ui_click, ui_hover, ui_open, ui_close, cast_whoosh, bobber_plop, nibble,
-bite, hook, reel_tick, line_strain, line_snap, splash_small, splash_big,
-catch_fanfare, new_species, coin, buy, eat, render_oil, flare, enemy_spawn,
-enemy_hit, enemy_die, player_hurt, heartbeat, gloom_rise, dawn, merchant_bell,
-zone_travel, death, victory, denied`.
-Moods (auto-picked each frame from flow/phase/fishing): `title, calm, dusk, gloom,
-reel, boss, death, victory`. Subscribes to the bus to trigger most SFX itself.
-Fully procedural (oscillators, filtered noise, generated reverb impulse). Melancholic,
-sparse, original music: soft plucked/harp-like minor-key motifs, low drones, drips.
+SFX: `ui_click, ui_hover, ui_open, ui_close, cast_whoosh, bobber_plop, nibble, bite,
+hook, reel_tick, line_strain, line_snap, splash_small, splash_big, catch_fanfare,
+new_species, coin, buy, eat, render_oil, flare, zap, aura_burn, enemy_spawn, enemy_hit,
+enemy_die, player_hurt, heartbeat, gloom_rise, dawn, merchant_bell, xp_pickup, levelup,
+boon_pick, paddle, anchor, boss_roar, challenge_complete, unlock, gate_open, descend,
+death, victory, denied`. Moods auto-picked from ctx: `title, calm, dusk, gloom, reel,
+boss, death, victory` (+ per-zone colour). Subscribes to the bus for most SFX
+(throttle high-frequency ones like enemy_hit / xp_pickup). Procedural only;
+melancholic, original.
 
 ## 8. Data schema (`data.js`)
 
 ```js
 export const STATS = { key: { label, base, fmt:'int'|'pct'|'x'|'m'|'s'|'num' } }
-// Required keys (exact names):
-// maxHp, maxOil, maxSatiety, oilDrain, satietyDrain, lightRadius, flareCost,
-// flareRadius, flareCooldown, zapCost, zapDamage, castMax, lineStrength, reelSpeed,
-// sweetZone, biteSpeed, hookWindow, rarityBonus, creelSize, sellMult, foodMult,
-// oilYieldMult, armor, slackTime, nibbleTells
-export const BALANCE = { phases:{calm,dusk,gloomtide,dawn} /*seconds*/, ... }
-export const ZONES = [{ id, name, subtitle, index, unlock:{shells, requires?}, drain:{oil, satiety},
-  gloom /*enemy multiplier*/, valueMult, palette:{ fog, fogDensity, water, waterDeep, foam, glow,
-  accent, ambient, ink, far, light }, description }]
+export const BALANCE = { phases:{calm,dusk,gloomtide,dawn}, drain:{...}, damage:{...},
+  move:{accel, drag, turnRate}, xp:{...}, reel:{...}, cast:{...}, combat:{...}, ... }
+export const ZONES = [{ id, name, subtitle, index, arena:{radius, islands, pillars, seed},
+  unlock:{shells, requires:[...]}, drain:{oil, satiety}, gloom, valueMult,
+  palette:{fog, fogDensity, water, waterDeep, foam, glow, accent, ambient, ink, far, light}, description }]
 export const SPECIES = [{ id, name, zone, rarity:'common'|'uncommon'|'rare'|'legendary',
-  weight:[min,max], value, food, oil, time:'any'|'calm'|'gloom', dist:[min,max] /*0..1 of castMax*/,
-  bait:null|baitId, difficulty:{ power, surgeEvery, surgeTime, stamina, sweet /*mult*/,
-  erratic, window /*s*/ }, behavior:'steady'|'darter'|'sinker'|'thrasher'|'leaper',
-  model:{shape, body, belly, fin, glow, pattern, eyes, scale}, lore }]
-export const BAITS = [{ id, name, desc, price, bonus:{...} }]
-export const UPGRADES = [{ id, name, desc, category, maxLevel, costs:[], effects:{statKey: perLevel}, zone? }]
-export const SUPPLIES = [{ id, name, desc, price, give:{oil|satiety|hp|...} }]
-export const RELICS = [{ id, name, desc, maxLevel, costs:[], effects:{statKey: perLevel} | special }]
-export const ENEMIES = [{ id, name, model:'wisp'|'eel'|'moth'|'hand', zoneMin, hp, speed, damage,
-  oilDrain, behavior, ... }]
-export const BOUNTIES = [ templates ]
-export const TIPS = [{ id, text, trigger }]
-export function difficultyFor(day, zoneIndex) -> { spawnInterval, maxEnemies, hpMult, speedMult,
-  damageMult, drainMult, kinds:[enemyId] }
-export function memoriesFor(summaryLike) -> { total, breakdown:[{label, value}] }
+  weight:[min,max], value, food, oil, time:'any'|'calm'|'gloom', depth:[min,max] /*0..1*/,
+  bait:null|baitId, difficulty:{power, surgeEvery, surgeTime, stamina, sweet, erratic, window},
+  behavior:'steady'|'darter'|'sinker'|'thrasher'|'leaper', model:{...}, lore, final?, boss? }]
+export const BAITS, UPGRADES, SUPPLIES, RELICS   // costs.length === maxLevel; effects on STATS keys
+export const ENEMIES = [{ id, name, model:'wisp'|'mite'|'moth'|'eel'|'hand'|'warden', zoneMin, hp,
+  speed, damage, oilDrain, xp, behavior, elite?, boss? }]
+export const BOONS = [{ id, name, desc, icon, rarity:'common'|'rare'|'epic'|'legendary', maxLevel,
+  kind:'stat'|'weapon', effects?:{statKey: perLevel}, weapon?:'orbit'|'spark'|'motes'|'trail'|'nova'|'beam'|...,
+  levels?:[{...per-level weapon params}], unlock:null|'<challengeId>', tags:[] }]
+export const CHARACTERS = [{ id, name, title, desc, unlock:null|'<challengeId>', effects:{...},
+  startBoon:null|boonId, startKit:{shells, bait:{}, ...}, look:{flame, cloak, eyes, hat} }]
+export const CHALLENGES = [{ id, name, desc, type, params:{...}, scope:'run'|'total',
+  reward:{ unlock:'character:<id>'|'boon:<id>'|'relic:<id>'|'bait:<id>'|null, memories } }]
+export const BOUNTIES, TIPS = [{id, text, trigger}], MERCHANT_LINES, EPITAPHS, TEXT, QUALITY,
+  FISH_SHAPES, CREATURE_KINDS, lookup maps *_BY_ID
+export function difficultyFor(day, zoneIndex, k /*0..1 through the night*/) -> { spawnRate /*enemies/s*/,
+  maxAlive, hpMult, speedMult, damageMult, drainMult, kinds:[{id, w}], eliteEvery /*s|0*/, boss:enemyId|null }
+export function xpForLevel(level) -> xp needed to go from level to level+1
+export function memoriesFor(summary) -> { total, breakdown:[{label, value}] }
 ```
-Effects are additive per level on the STATS keys.
 
-**STATS semantics** (all modules must agree):
+**STATS keys & semantics** (exact names; effects are additive per level):
 | key | meaning |
 |---|---|
 | maxHp | max Embers (hearts, integer) |
 | maxOil / maxSatiety | gauge capacity |
-| oilDrain | oil units/s during `calm` (× phase, zone, difficulty multipliers) |
-| satietyDrain | satiety units/s (× zone, difficulty) |
-| lightRadius | metres of protective lantern light at full oil (scaled by oil fraction) |
+| oilDrain | oil/s during calm (× phase, zone, difficulty) |
+| satietyDrain | satiety/s (× zone, difficulty) |
+| lightRadius | metres of lantern light at full oil (scaled by oil fraction); aura range |
+| auraDps | damage/s dealt to enemies inside the light (× oil fraction) |
 | flareCost / flareRadius / flareCooldown | oil per flare, burst radius m, seconds |
-| zapCost / zapDamage | oil per tap-zap on an enemy, damage per zap |
+| zapCost / zapDamage | oil per tap-zap, damage per zap |
+| damageMult | multiplier on all damage dealt to enemies |
+| cooldownMult | multiplier on flare & weapon cooldowns (<1 faster) |
+| critChance | 0..1 chance for double damage |
+| moveSpeed | raft top speed m/s |
+| pickupRadius | ember magnet radius m |
+| xpMult | XP multiplier |
+| luck | shifts boon option rarity upward |
+| rerolls | level-up rerolls per run |
+| dawnHeal | Embers restored at dawn |
 | castMax | max cast distance m |
-| lineStrength | tension capacity multiplier (higher = tension rises slower, snaps later) |
+| lineStrength | tension capacity multiplier |
 | reelSpeed | reel progress multiplier |
-| sweetZone | sweet-band width as a fraction of the tension gauge (before species `sweet` mult) |
-| biteSpeed | divides waiting time before bites |
-| hookWindow | multiplies the bite reaction window |
-| rarityBonus | additive luck shifting weights toward rarer species (0 = none) |
+| sweetZone | sweet-band width fraction (× species `sweet`) |
+| biteSpeed | divides waiting time |
+| hookWindow | multiplies bite reaction window |
+| rarityBonus | additive luck toward rarer fish |
 | creelSize | creel slots |
 | sellMult / foodMult / oilYieldMult | multipliers on Shells / satiety / oil from fish |
-| armor | chance 0..0.6 to negate an incoming hit |
-| slackTime | seconds at ~zero tension before a hooked fish slips away |
-| nibbleTells | ≥1: real bites get an early visual tell (nibbles become readable) |
+| armor | chance 0..0.6 to negate a hit |
+| slackTime | seconds at ~zero tension before a fish slips |
+| nibbleTells | ≥1: real bites get an early visual tell |
 
-**Species `difficulty` semantics**: `power` (0.5–3) tension gain multiplier while
-reeling and surge strength; `surgeEvery` mean seconds between surges; `surgeTime`
-seconds a surge lasts; `stamina` seconds of safe-band reeling needed at reelSpeed 1
-(sweet zone counts double); `sweet` multiplier on sweet-band width (<1 harder);
-`erratic` 0..1 noise/jitter in tension & movement; `window` bite reaction seconds
-(× hookWindow). `behavior` flavours the pattern: steady (regular surges), darter
-(short frequent surges, lateral dashes), sinker (constant heavy pull, few surges),
-thrasher (long violent surges), leaper (surges = leaps out of the water; slack risk).
+**Species `difficulty`**: `power` (0.5–3) tension gain while reeling & surge strength;
+`surgeEvery` mean s between surges; `surgeTime` surge length s; `stamina` s of safe-band
+reeling at reelSpeed 1 (sweet counts double); `sweet` × sweet-band width; `erratic`
+0..1 jitter; `window` bite reaction s (× hookWindow). `behavior`: steady, darter
+(short frequent surges, lateral dashes), sinker (heavy constant pull), thrasher (long
+violent surges), leaper (surges = leaps; slack risk).
 
 ## 9. Art direction — "hand-inked melancholy" (inspired by, never copying, Hollow Knight)
 
-Look: a hand-painted 2.5D storybook rendered in 3D.
-- **Silhouette first.** Foreground props and characters read as near-black ink shapes
-  with pale rim light (`toon.toonMaterial({rim})` + `toon.addOutline`). Faces are
-  minimal: glowing eyes only.
-- **Layered depth.** 4–6 parallax planes of cavern architecture (arches, spires,
-  roots, hanging chains, broken bridges, giant fungi/crystals per zone) that fade
-  from ink-dark near layers to luminous misty far layers in the zone's fog colour.
-- **Limited palettes.** Each zone = one dominant desaturated hue + one bioluminescent
-  accent + bone-white highlights. Mossmere: teal/moss green. Sporewood Pools:
-  dusky plum + amber/pink spores. Glasswater Vault: indigo + cyan/violet crystals.
-  The Pale Abyss: near-black + bone-white + sickly gold.
-- **Light is life.** The warm amber lantern is the only warm light in a cold world.
-  Bloom on glows, drifting motes, soft light shafts from cracks above, vignette,
-  fine grain.
-- **UI:** thin ornate bone-white linework, serif display type (Cinzel /
-  Cormorant Garamond with Georgia fallback), ink-wash panels, elegant flourishes,
-  restrained motion (fades, slow rises).
-- **Originality:** do NOT reproduce Hollow Knight characters (no white horned
-  masks), names (Hallownest, Geo, Soul, Charms, Masks, etc.), locations, music, or
-  its HUD layout (mask icons + soul vessel). Use our own names: Shells, Embers,
-  Memories, Relics, the Wick, Old Murk, the Gloom.
+- **Silhouette first:** near-black ink shapes with pale rim light (`toon.toonMaterial`
+  + `toon.addOutline`); minimal faces — glowing eyes.
+- **Layered depth:** 4–6 parallax silhouette rings of cavern architecture fading from
+  ink-dark to luminous mist in the zone's fog colour.
+- **Limited palettes:** Mossmere teal/moss green; Sporewood Pools dusky plum +
+  amber/pink spores; Glasswater Vault indigo + cyan/violet crystals; Pale Abyss
+  near-black + bone-white + sickly gold.
+- **Light is life:** the warm amber lantern is the only warm light in a cold world.
+  Bloom on glows, drifting motes, light shafts, vignette, fine grain. The swarm reads
+  as ink against the lantern's warm pool.
+- **UI:** thin ornate bone-white linework, serif type (Cinzel / Cormorant Garamond,
+  Georgia fallback), ink-wash panels, restrained motion.
+- **Originality:** no Hollow Knight characters (no white horned masks), names
+  (Hallownest, Geo, Soul, Charms, Masks…), places, music or HUD layout.
 
 ## 10. Performance budget
 
-60 fps on a mid laptop, playable on phones. ≤ ~250 draw calls, ≤ 4 dynamic point
-lights total (lantern + merchant + ≤2 world accents), no shadow maps (use blob
-shadows), InstancedMesh for repeats, particles as a few `THREE.Points` systems,
-dispose what you remove, no per-frame allocations in hot paths (reuse vectors).
+60 fps mid laptop, playable on phones. ≤ ~250 draw calls; ≤ 4 dynamic point lights
+(lantern, merchant, ≤ 2 world accents); no shadow maps (blob shadows); InstancedMesh
+for repeats & hordes (up to ~150 live enemies); Points for particles/embers; reuse
+vectors; dispose removed objects; spatial loops kept O(enemies × weapons).
 
 ## 11. Testing
 
-- `node build.mjs` → `index.html`. `--dev` for readable traces. `--only=fishing,actors`
-  builds with every other module stubbed; `--out=tools/out/x.html` to avoid clobbering.
-- `node tools/playtest.mjs [--html=path] [--shots=dir] [--script=file.mjs]` launches
-  headless Chromium (software WebGL), reports console errors, page errors, and takes
-  screenshots. Look at the screenshots (they are PNG files you can Read).
-- Debug API in the page: `window.__gw` (= ctx), `ctx.debug.*` cheats, e.g.
-  `__gw.game.startNewRun({})`, `__gw.time.timeScale = 8`.
-- Required debug hooks (register in `init()`), used by integration scenarios:
-  fishing: `ctx.debug.forceBite()` (next/at-once real bite when waiting),
-  `ctx.debug.instantCatch(speciesId?)` (skip to a landed catch);
-  survival: `ctx.debug.skipPhase()`, `ctx.debug.god(on)`, `ctx.debug.spawn(enemyIdOrKind)`;
-  progression: `ctx.debug.addShells(n)`, `ctx.debug.addMemories(n)`,
-  `ctx.debug.unlockZone(zoneId)`, `ctx.debug.giveFish(speciesId)` (adds to creel);
-  ui: `ctx.debug.ui()` returns `{openModal: id|null, tips: [...]}`.
+- `node build.mjs` → `index.html`; `--dev` readable; `--only=a,b` stubs the rest;
+  `--out=tools/out/x.html`.
+- `node tools/playtest.mjs [--html=] [--shots=] [--script=] [--mobile]` — headless
+  Chromium (software WebGL), reports errors, takes screenshots (Read the PNGs).
+- `window.__gw` = ctx. Required debug hooks (registered in `init()`):
+  fishing `forceBite()`, `instantCatch(speciesId?)`; survival `skipPhase()`, `god(on)`,
+  `setPhase(name)`; combat `spawn(idOrKind)`, `killAll()`, `levelUp()`, `giveBoon(id)`;
+  progression `addShells(n)`, `addMemories(n)`, `unlockZone(id)`, `giveFish(id)`,
+  `openGate()`, `completeChallenge(id)`; ui `ui()`.

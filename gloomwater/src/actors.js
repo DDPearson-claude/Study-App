@@ -4,26 +4,31 @@ import { toonMaterial, glowSprite } from './toon.js';
 
 export function create(ctx) {
   const group = new THREE.Group(); group.name = 'actors';
+  const rig = new THREE.Group(); rig.name = 'raftRig'; group.add(rig); // follows the player
   const raft = new THREE.Mesh(new THREE.BoxGeometry(3, 0.25, 3), toonMaterial({ color: 0x2a2018 }));
-  group.add(raft);
+  rig.add(raft);
   const wick = new THREE.Mesh(new THREE.CapsuleGeometry(0.22, 0.35, 4, 10), toonMaterial({ color: 0x14161c }));
-  wick.position.set(0, 0.55, 0.2); group.add(wick);
+  wick.position.set(0, 0.55, 0.2); rig.add(wick);
   const lanternLight = new THREE.PointLight(0xffb560, 6, 14, 1.6);
-  lanternLight.position.set(-1.1, 2.1, 0.9); group.add(lanternLight);
-  const flame = glowSprite({ color: 0xffb560, size: 0.8 }); flame.position.copy(lanternLight.position); group.add(flame);
-  const rodTip = new THREE.Object3D(); rodTip.position.set(0.5, 2.0, -1.2); group.add(rodTip);
+  lanternLight.position.set(-1.1, 2.1, 0.9); rig.add(lanternLight);
+  const flame = glowSprite({ color: 0xffb560, size: 0.8 }); flame.position.copy(lanternLight.position); rig.add(flame);
+  const rodTip = new THREE.Object3D(); rodTip.position.set(0.5, 2.0, 1.2); rig.add(rodTip);
   const lineGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]);
   const line = new THREE.Line(lineGeo, new THREE.LineBasicMaterial({ color: 0xdfe8ea })); line.visible = false; group.add(line);
   const bobber = new THREE.Mesh(new THREE.SphereGeometry(0.09, 10, 8), toonMaterial({ color: 0xd04030 })); bobber.visible = false; group.add(bobber);
   const merchantObj = new THREE.Mesh(new THREE.SphereGeometry(0.7, 12, 10), toonMaterial({ color: 0x3a5a30 }));
   merchantObj.position.set(4.2, 0.5, -1.5); merchantObj.visible = false; group.add(merchantObj);
   const merchant = { present: false, position: merchantObj.position, object3d: merchantObj,
-    arrive() { merchant.present = true; merchantObj.visible = true; }, leave() { merchant.present = false; merchantObj.visible = false; } };
+    arrive(pos, yaw = 0) { if (pos) merchantObj.position.set(pos.x, 0.5, pos.z); merchantObj.rotation.y = yaw; merchant.present = true; merchantObj.visible = true; },
+    leave() { merchant.present = false; merchantObj.visible = false; } };
   const tmp = new THREE.Vector3();
   return {
     group, raft, wick, lanternLight, merchant,
     init() { ctx.render.scene.add(group); },
-    update(dt, t) { raft.position.y = (ctx.water.getHeight?.(0, 0) || 0); wick.position.y = 0.55 + raft.position.y; },
+    update(dt, t) {
+      const p = ctx.player?.position;
+      if (p && !ctx.player.isStub) { rig.position.set(p.x, ctx.water.getHeight?.(p.x, p.z) || 0, p.z); rig.rotation.y = ctx.player.heading || 0; }
+    },
     getRodTip() { return rodTip.getWorldPosition(new THREE.Vector3()); },
     setLine({ visible = false, end = null } = {}) {
       line.visible = !!visible && !!end;
@@ -37,5 +42,6 @@ export function create(ctx) {
     showCatch() {},
     pickMerchant(ndc) { return merchant.present && ctx.render.raycast(ndc, [merchantObj]).length > 0; },
     setRaftLevel() {},
+    setCharacter() {},
   };
 }

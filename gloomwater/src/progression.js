@@ -12,14 +12,15 @@ export function create(ctx) {
     for (const r of D().RELICS || []) add(r.effects, ctx.state.meta.relics?.[r.id] || 0);
     return out;
   }
-  function createRun({ startZone = 'mossmere' } = {}) {
+  function createRun({ startZone = 'mossmere', character = null } = {}) {
     const s = getStats({ upgrades: {} });
     return {
       active: true, id: uid('run'), seed: (Math.random() * 1e9) | 0, playTime: 0,
       day: 1, phase: 'calm', phaseTime: 0, zone: startZone, zonesUnlocked: [startZone],
       hp: s.maxHp ?? 5, oil: s.maxOil ?? 100, satiety: s.maxSatiety ?? 100,
-      shells: 0, bait: {}, equippedBait: null, creel: [], upgrades: {}, legendaries: {}, bounties: [],
-      stats: { fishCaught: 0, fishLost: 0, perfectHooks: 0, enemiesSlain: 0, shellsEarned: 0, biggest: null, newSpecies: 0, damageTaken: 0 },
+      shells: 0, bait: {}, equippedBait: null, creel: [], upgrades: {}, legendaries: {}, bounties: [], gateOpen: false,
+      character: character || (D().CHARACTERS || [])[0]?.id || null, level: 1, xp: 0, xpNext: D().xpForLevel?.(1) ?? 10, boons: {}, rerollsUsed: 0,
+      stats: { fishCaught: 0, fishLost: 0, perfectHooks: 0, enemiesSlain: 0, elitesSlain: 0, bossesSlain: 0, shellsEarned: 0, biggest: null, newSpecies: 0, damageTaken: 0, nightsSurvived: 0, nightsNoDamage: 0, maxLevel: 1 },
       flags: {},
     };
   }
@@ -41,7 +42,7 @@ export function create(ctx) {
     getStats, createRun, makeFish,
     summarizeRun(cause) { const r = ctx.state.run || {}; return { cause, day: r.day, zone: r.zone, fishCaught: r.stats?.fishCaught || 0, shellsEarned: 0, newSpecies: 0, enemiesSlain: 0, legendaries: 0, memories: 0, breakdown: [], records: [] }; },
     addToCreel(fish) { const r = ctx.state.run; if (!r || r.creel.length >= getStats().creelSize) return false; r.creel.push(fish); return true; },
-    removeFromCreel(id) { const r = ctx.state.run; const i = r?.creel.findIndex((f) => f.uid === id); return i >= 0 ? r.creel.splice(i, 1)[0] : null; },
+    removeFromCreel(id) { const r = ctx.state.run; if (!r?.creel.length) return null; const i = id ? r.creel.findIndex((f) => f.uid === id) : Math.floor(Math.random() * r.creel.length); return i >= 0 ? r.creel.splice(i, 1)[0] : null; },
     fishAction() { return { ok: true, msg: '', gained: {} }; },
     canShop() { return false; },
     shop: { getItems: () => [], buy: () => ({ ok: false, msg: 'baseline' }) },
@@ -52,6 +53,10 @@ export function create(ctx) {
     getRelics: () => (D().RELICS || []).map((r) => ({ ...r, level: 0, nextCost: r.costs?.[0] ?? 0, canBuy: false, maxed: false })),
     buyRelic: () => ({ ok: false, msg: 'baseline' }),
     getWaystones: () => ['mossmere'],
+    getGateInfo: () => ({ open: false, nextZone: null, requirements: [] }),
+    getCharacters: () => (D().CHARACTERS || []).map((c, i) => ({ ...c, unlocked: i === 0, reason: '' })),
+    getChallenges: () => (D().CHALLENGES || []).map((c) => ({ ...c, done: false, progress: 0, target: 1 })),
+    isUnlocked: () => false,
     equipBait: () => ({ ok: false, msg: 'baseline' }),
     getEquippedBait: () => null,
     consumeBait: () => null,

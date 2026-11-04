@@ -13,7 +13,7 @@ export function create(ctx) {
       hud.textContent = r ? `Day ${r.day} · ${r.phase}\nHP ${r.hp}  Oil ${r.oil.toFixed(0)}  Food ${r.satiety.toFixed(0)}\nShells ${r.shells}  Fishing: ${ctx.fishing.state}` : `flow: ${ctx.flow}`;
     },
     isBlocking() { return false; }, isShopOpen() { return false; }, handleKey() { return false; },
-    showTitle() {}, showDeath() {}, showVictory() {}, openShop() {}, openCreel() {}, openJournal() {}, openShrine() {}, openSettings() {}, openPause() {}, closeAll() {},
-    showCatch() {}, toast() {}, floatText() {}, banner() {},
+    showTitle() {}, showDeath() {}, showVictory() {}, openShop() {}, openCreel() {}, openJournal() {}, openShrine() {}, openSettings() {}, openPause() {}, openChallenges() {}, openDescend() {}, openLevelUp() {}, closeAll() {},
+    showCatch() {}, toast() {}, floatText() {}, damageNumber() {}, banner() {},
   };
 }

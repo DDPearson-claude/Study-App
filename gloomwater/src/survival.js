@@ -32,7 +32,7 @@ export function create(ctx) {
     heal(n) { const r = ctx.state.run; if (r) r.hp = Math.min(stats().maxHp, r.hp + n); },
     addOil(n) { const r = ctx.state.run; if (r) r.oil = Math.min(stats().maxOil, r.oil + n); },
     addSatiety(n) { const r = ctx.state.run; if (r) r.satiety = Math.min(stats().maxSatiety, r.satiety + n); },
-    flare() { return false; },
-    onPointerDown() { return false; },
+    isInvulnerable() { return false; },
+    lightRadius: 9,
   };
 }

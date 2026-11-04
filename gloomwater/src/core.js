@@ -103,10 +103,15 @@ export function defaultMeta() {
     victory: false,
     victories: 0,
     totalFish: 0,
+    totalSlain: 0,
+    bestLevel: 0,
     tutorialDone: false,
     seenTips: {},           // tipId -> true
-    unlocks: {},            // misc permanent unlock flags (waystones etc.)
-    settings: { master: 0.8, music: 0.6, sfx: 0.9, quality: 'auto', screenShake: true },
+    challenges: {},         // challengeId -> true
+    challengeProgress: {},  // challengeId -> number (lifetime-scope progress)
+    unlocks: {},            // 'character:<id>' | 'boon:<id>' | 'relic:<id>' | 'bait:<id>' -> true
+    lastCharacter: null,
+    settings: { master: 0.8, music: 0.6, sfx: 0.9, quality: 'auto', screenShake: true, damageNumbers: true },
   };
 }
 

@@ -12,6 +12,7 @@ export function create(ctx) {
     update() {},
     getHeight(x, z) { const t = ctx.time.t; return Math.sin(x * 0.4 + t * 0.9) * 0.04 + Math.cos(z * 0.35 + t * 0.7) * 0.04; },
     addRipple() {},
+    addWake() {},
     splash() {},
     setPalette(p = {}) { if (p.deep !== undefined) mat.color.setHex(p.deep); },
     setLights() {},
