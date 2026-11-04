@@ -308,12 +308,14 @@ depthShare; DESIGN §4.3–4.6); procedural placement only fills fields that are
 `getMerchantDock(day)`: day 1 → `docks[0]`, then `(seed + 2·day) % n`, never yesterday's dock.
 Listens to `zone:change`. Reads `ctx.survival.getPhaseInfo()` each frame to darken/cool
 for dusk/gloomtide and warm at dawn; owns hemisphere + directional crack-light + ≤2
-accent point lights; drives `scene.fog`, `render.setGrade`, `water.setPalette`, and
+accent point lights; drives `scene.fog`, `render.setGrade` (incl. the warm split-tone colour),
+`water.setPalette`, `water.setSky` (the vault's stars and nebulae, DESIGN §19.1 Starlight) and
 `water.setLights` (merge `ctx.actors.lanternLight`, the merchant lamp, its own glows).
 Art: islands/pillars/wrecks/roots/fungi/crystals per zone (toon + ink outlines,
 InstancedMesh), cliffs ringing the lake, **4–6 parallax silhouette rings** beyond the
 cliffs (ink-dark near → luminous misty far, painted canvas alpha textures or shapes),
-ceiling stalactites, drifting particles, light shafts, the gate whirlpool.
+ceiling stalactites, drifting particles, light shafts, the gate whirlpool. The vault dome is a
+starlit night sky (`starlight-glsl.js`, shared with the water; no extra draw calls).
 
 ### models (`models.js`)
 ```

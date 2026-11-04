@@ -389,10 +389,10 @@ export const ZONES = [
     drain: { oil: 1.2, satiety: 1.15 }, gloom: 1.13, valueMult: 1.5,
     legendary: 'drifting_grove', warden: 'the_veiled_gardener', gateName: 'The Mycelium Veil',
     // "Ember garden" (DESIGN §19.4): violet-magenta haze, autumn-ochre caps, gold spores, nebula-pink accents
-    palette: { fog: 0x46235c, fogDensity: 0.019, water: 0x2e1844, waterDeep: 0x0e0716, foam: 0xeed8e6,
+    palette: { fog: 0x402258, fogDensity: 0.019, water: 0x2c1842, waterDeep: 0x0e0716, foam: 0xeed8e6,
       glow: 0xe8ac4c, accent: 0xe090bc, lamp: 0xc8aee6, candle: 0xed9e3b, ambient: 0x5c3a7c, ink: 0x0d0614, far: 0x9c74b8, light: 0xf2d8ea,
       nebula: 0xe48cbc, stars: 0.8 },
-    grade: { exposure: 1.03, bloomStrength: 1.0, bloomRadius: 0.75, bloomThreshold: 0.68, tint: 0x5a2c78, tintAmount: 0.2, vignette: 0.4, saturation: 0.95, grain: 0.05 },
+    grade: { exposure: 1.03, bloomStrength: 1.0, bloomRadius: 0.75, bloomThreshold: 0.68, tint: 0x5a2c78, tintAmount: 0.2, vignette: 0.4, saturation: 0.92, grain: 0.05 },
     description: 'Beneath the royal gardens the fungi kept growing long after the gardeners stopped. Towers of cap and gill rise from sweet, warm water, and the air is thick with spores that glow like embers that never learned to burn.',
   },
   {

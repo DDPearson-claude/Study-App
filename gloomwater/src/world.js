@@ -263,7 +263,10 @@ export function create(ctx) {
         skyCol.neb.copy(zc.nebula);
         skyCol.nebV.copy(zc.far).lerp(zc.nebula, 0.25).multiplyScalar(0.55);
         // the water's night stars brighten less than the vault's, so gloomling eyes stay the brightest specks on it
-        ctx.water.setSky({ stars: env.starK * (1 - 0.25 * mood.night), density: env.starDen, color: skyCol.star, nebula: skyCol.neb, nebulaVeil: skyCol.nebV, nebulaK: env.nebK, neb1: arena.sky.neb1, neb2: arena.sky.neb2, band: arena.sky.band });
+        // and the lakes' water starlight differs less than their skies' (√stars): Glasswater's water does not
+        // turn to glitter, the Pallid Deep's still shows a few
+        const ws = Math.sqrt(Math.max(0.3, Number.isFinite(zc.stars) ? zc.stars : 1));
+        ctx.water.setSky({ stars: env.starK / ws * (1 - 0.25 * mood.night), density: env.starDen, color: skyCol.star, nebula: skyCol.neb, nebulaVeil: skyCol.nebV, nebulaK: env.nebK, neb1: arena.sky.neb1, neb2: arena.sky.neb2, band: arena.sky.band });
       }
     } catch (e) { /* optional */ }
   }
