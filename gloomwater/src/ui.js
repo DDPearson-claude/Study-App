@@ -241,7 +241,7 @@ export function create(ctx) {
     entry.deadline = now + dur;
     entry.timer = setTimeout(() => dropToast(entry), dur);
   }
-  /** Toasts already on screen when a banner rises step aside (hidden, timers paused) until it ends. */
+  /** Toasts already on screen when a banner rises or a modal opens step aside (hidden, timers paused). */
   function yieldToasts(on) {
     const now = performance.now();
     for (const t of toasts) {
@@ -316,8 +316,11 @@ export function create(ctx) {
     // banners wait behind blocking modals (level-up, catch card, shop, death) instead of bleeding through
     const blocked = hasBlocking();
     layers.banner.classList.toggle('gw-hidden', blocked);
+    // toasts already up step aside while a banner owns the top of the screen or a blocking modal
+    // (catch card, level-up, shop) opens over them; they come back with their time left
     const showing = !blocked && !!bannerEl && !bannerEl.classList.contains('gw-out');
-    if (showing !== toastsYield) { toastsYield = showing; yieldToasts(showing); }
+    const yieldNow = showing || (blocked && ctx.flow === 'playing');
+    if (yieldNow !== toastsYield) { toastsYield = yieldNow; yieldToasts(yieldNow); }
     if (blocked) return;
     if (bannerEl) {
       bannerT += dt;
