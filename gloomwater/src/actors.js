@@ -181,10 +181,13 @@ export function create(ctx) {
       const yaw = heading + Math.PI, c = Math.cos(yaw), s = Math.sin(yaw);
       raft.yawGroup.position.set(px, 0, pz);
       raft.yawGroup.rotation.y = yaw;
-      const sample = (lx, lz) => H(px + lx * c + lz * s, pz - lx * s + lz * c);
-      const hF = sample(0, 1.25), hB = sample(0, -1.25), hL = sample(0.95, 0), hR = sample(-0.95, 0);
+      // water height under the bow / stern / left / right (raft-local → world)
+      const hF = H(px + 1.25 * s, pz + 1.25 * c), hB = H(px - 1.25 * s, pz - 1.25 * c);
+      const hL = H(px + 0.95 * c, pz - 0.95 * s), hR = H(px - 0.95 * c, pz + 0.95 * s);
       const avg = (hF + hB + hL + hR) / 4;
       localVel.set(vx * c - vz * s, 0, vx * s + vz * c);
+      const dHead = Math.atan2(Math.sin(heading - st.prevHeading), Math.cos(heading - st.prevHeading));
+      if (dt > 0 && Math.abs(dHead) / dt > 8) { st.prevHeading = heading; st.turn = 0; st.accLocal.set(0, 0, 0); st.prevVel.copy(localVel); } // teleport / respawn
       if (dt > 0) {
         st.accLocal.x = damp(st.accLocal.x, (localVel.x - st.prevVel.x) / dt, 6, dt);
         st.accLocal.z = damp(st.accLocal.z, (localVel.z - st.prevVel.z) / dt, 6, dt);
@@ -212,6 +215,13 @@ export function create(ctx) {
       const phase = ctx.survival && !ctx.survival.isStub ? ctx.survival.getPhaseInfo?.()?.phase : null;
       env.warm = phase === 'dusk' && !env.moving && !env.fishingBusy && ctx.flow === 'playing';
       if (cam && playerOk()) env.camYaw = Math.atan2(-(camPos.x - px), -(camPos.z - pz)); else env.camYaw = null;
+      // once the float is out, face it directly (independent of any yaw convention used by setAim)
+      env.targetYaw = null;
+      if (env.fishingBusy || st.line.visible) {
+        const tx = st.bob.visible ? st.bob.pos.x : st.line.hasEnd && st.line.visible ? st.line.end.x : null;
+        const tz = st.bob.visible ? st.bob.pos.z : st.line.end.z;
+        if (tx !== null && st.bob.state !== 'flying' && Math.hypot(tx - px, tz - pz) > 1.2) env.targetYaw = Math.atan2(-(tx - px), -(tz - pz));
+      }
       if (ctx.flow === 'dead' && !wick.dead) wick.setPose('die');
       if (st.celebratePending && !st.catchFish && wick.pose !== 'eat') { st.celebratePending = false; wick.setPose('celebrate'); }
       wick.update(dt, t, env);
@@ -225,7 +235,8 @@ export function create(ctx) {
           wick.getRodTip(tip);
           obj.position.set(tip.x, tip.y - fv.length * 0.5 - 0.12, tip.z);
           tmp.subVectors(camPos, obj.position);
-          obj.rotation.set(-Math.PI / 2, Math.atan2(-tmp.z, tmp.x), 0, 'YXZ');
+          // hang head-up, flank toward the camera (rays present their disc instead)
+          obj.rotation.set(-Math.PI / 2, fv.shape === 'ray' ? Math.atan2(-tmp.x, -tmp.z) : Math.atan2(-tmp.z, tmp.x), 0, 'YXZ');
           obj.scale.setScalar(1);
           try { fv.update?.(dt, t, { swim: 0.2, struggle: 0.35 + Math.max(0, Math.sin(t * 2.1)) * 0.4 }); } catch { /* visual */ }
         } else {

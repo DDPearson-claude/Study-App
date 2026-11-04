@@ -449,6 +449,7 @@ export function createWick(ctx, { raftDeck, deckY = 0.24 }) {
     if (pointYaw !== null && aimHold > 0) { aimHold -= dt; face = wrapPi(pointYaw - env.heading); if (aimHold <= 0) pointYaw = null; }
     else if (base === 'catch' && Number.isFinite(env.camYaw)) face = wrapPi(env.camYaw - env.heading);
     else if (action === 'toss' || (base === 'idle' && env.warm)) face = BRAZIER_YAW;
+    else if (Number.isFinite(env.targetYaw) && base !== 'paddle' && base !== 'catch') face = wrapPi(env.targetYaw - env.heading);
     else if (aimYaw !== null && base !== 'paddle' && base !== 'idle') face = wrapPi(aimYaw - env.heading);
     else if (aimYaw !== null && base === 'idle' && env.fishingBusy) face = wrapPi(aimYaw - env.heading);
     facing += wrapPi(face - facing) * (1 - Math.exp(-7 * dt));
