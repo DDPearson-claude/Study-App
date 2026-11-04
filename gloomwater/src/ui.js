@@ -241,7 +241,7 @@ export function create(ctx) {
     entry.deadline = now + dur;
     entry.timer = setTimeout(() => dropToast(entry), dur);
   }
-  /** Toasts already on screen when a banner rises step aside (hidden, timers paused) until it ends. */
+  /** Toasts already on screen when a banner rises or a modal opens step aside (hidden, timers paused). */
   function yieldToasts(on) {
     const now = performance.now();
     for (const t of toasts) {
@@ -249,7 +249,7 @@ export function create(ctx) {
       else if (!on && t.held) { t.held = false; t.deadline = now + t.left; t.timer = setTimeout(() => dropToast(t), t.left); t.el.classList.remove('gw-held'); }
     }
   }
-  let toastsYield = false;
+  let toastsYield = '';
   function dropToast(entry, fast = false) {
     if (!entry || entry.dead) return;
     entry.dead = true;
@@ -276,6 +276,7 @@ export function create(ctx) {
     }
     return bannerKinds.get(title) || null;
   }
+  const PHASE_KINDS = new Set(['phase', 'gloom', 'dawn']);
   function banner(title, subtitle = '', opts = {}) {
     if (!title) return;
     title = String(title);
@@ -290,6 +291,8 @@ export function create(ctx) {
       return;
     }
     lastBannerTitle = title; lastBannerAt = now;
+    // a newer phase banner makes any still-waiting one stale (dusk → gloomtide in quick succession)
+    if (PHASE_KINDS.has(kind)) for (let i = bannerQ.length - 1; i >= 0; i--) if (PHASE_KINDS.has(bannerQ[i].kind)) bannerQ.splice(i, 1);
     if (bannerQ.length >= 3) { const i = bannerQ.findIndex((b) => b.kind !== 'area'); bannerQ.splice(i >= 0 ? i : 0, 1); }
     bannerQ.push({ title, subtitle, kind, dur: opts.dur || (kind === 'area' ? 3.6 : kind === 'formation' ? 1.8 : 2.9) });
   }
@@ -316,8 +319,17 @@ export function create(ctx) {
     // banners wait behind blocking modals (level-up, catch card, shop, death) instead of bleeding through
     const blocked = hasBlocking();
     layers.banner.classList.toggle('gw-hidden', blocked);
+    // toasts already up step aside while a banner owns the top of the screen or a blocking modal
+    // (catch card, level-up, shop) opens over them; they come back with their time left
     const showing = !blocked && !!bannerEl && !bannerEl.classList.contains('gw-out');
-    if (showing !== toastsYield) { toastsYield = showing; yieldToasts(showing); }
+    const reason = showing ? 'banner' : blocked && ctx.flow === 'playing' ? 'modal' : '';
+    if (reason !== toastsYield) {
+      // re-evaluate on every change of reason, so a toast raised under a modal still steps aside
+      // for the banner that follows it
+      if (toastsYield) yieldToasts(false);
+      if (reason) yieldToasts(true);
+      toastsYield = reason;
+    }
     if (blocked) return;
     if (bannerEl) {
       bannerT += dt;
