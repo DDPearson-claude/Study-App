@@ -2,7 +2,13 @@
 // tools/validate-data.mjs — schema & consistency validation for src/data.js.
 // Checks CONTRACT.md §8 (hybrid sail · fish · survive the swarm) plus the cross-references
 // DESIGN.md relies on. Usage:  node tools/validate-data.mjs   (exit code 1 on any failure)
-import * as D from '../src/data.js';
+//
+// Two passes: (1) the v1 tables with WALK_ENABLED off — every v1 table must stay exactly as v1 (QA §24.13 #1);
+// (2) a child process with `--walk` re-checks every table with the walking build on and runs the v2 map
+// checks (DESIGN §24, CONTRACT §12). `--v1` skips pass 2; `--walk` runs pass 2 only.
+const WALK = process.argv.includes('--walk');
+if (WALK) globalThis.GW_WALK = true;
+const D = await import(WALK ? '../src/data.js?walk' : '../src/data.js');
 
 const errors = [];
 const warnings = [];
@@ -27,7 +33,7 @@ const STAT_KEYS = ['maxHp', 'maxOil', 'maxSatiety', 'oilDrain', 'satietyDrain', 
   'flareRadius', 'flareCooldown', 'zapCost', 'zapDamage', 'damageMult', 'cooldownMult', 'critChance', 'moveSpeed',
   'pickupRadius', 'xpMult', 'luck', 'rerolls', 'dawnHeal', 'castMax', 'lineStrength', 'reelSpeed', 'sweetZone',
   'biteSpeed', 'hookWindow', 'rarityBonus', 'creelSize', 'sellMult', 'foodMult', 'oilYieldMult', 'armor', 'slackTime',
-  'nibbleTells'];
+  'nibbleTells', ...(WALK ? ['stride'] : [])];   // v2 (walking): stride, + m/s on foot (DESIGN §24.3)
 const FMTS = new Set(['int', 'pct', 'x', 'm', 's', 'num']);
 for (const k of STAT_KEYS) {
   const s = D.STATS[k];
@@ -162,10 +168,10 @@ checkLevelled(D.RELICS, 'relic');
 for (const u of D.UPGRADES) ok(u.zone === null || u.zone === undefined || ZONE_IDS.includes(u.zone), `upgrade ${u.id} zone ${u.zone}`);
 for (const r of D.RELICS) {
   ok(r.unlock === null || !!D.CHALLENGE_BY_ID[r.unlock], `relic ${r.id} unlock ${r.unlock} is not a challenge`);
-  if (r.special) ok(/^(startShells:\d+|startKit|shimmer:[\d.]+|memMult:[\d.]+|secondWick|waystone:(sporewood|glasswater|paleabyss))$/.test(r.special), `relic ${r.id} special '${r.special}' unknown`);
+  if (r.special) ok(/^(startShells:\d+|startKit|shimmer:[\d.]+|memMult:[\d.]+|secondWick|waystone:(sporewood|glasswater|paleabyss)|lampRadius:\d+|shortcutStart:\d+)$/.test(r.special) && (WALK || !/^(lampRadius|shortcutStart)/.test(r.special)), `relic ${r.id} special '${r.special}' unknown`);
   ok(Object.keys(r.effects || {}).length > 0 || !!r.special, `relic ${r.id} does nothing`);
 }
-for (const s of D.SUPPLIES) for (const k of Object.keys(s.give || {})) ok(['oil', 'satiety', 'hp', 'flareCharges', 'spots'].includes(k), `supply ${s.id} give key ${k}`);
+for (const s of D.SUPPLIES) for (const k of Object.keys(s.give || {})) ok(['oil', 'satiety', 'hp', 'flareCharges', 'spots', ...(WALK ? ['stake'] : [])].includes(k), `supply ${s.id} give key ${k}`);
 
 // ---------------------------------------------------------------------------- ENEMIES
 for (const e of D.ENEMIES) {
@@ -205,7 +211,7 @@ for (const b of D.BOONS) {
 }
 
 // ---------------------------------------------------------------------------- CHARACTERS
-ok(D.CHARACTERS.length === 5, 'need exactly 5 characters');
+ok(D.CHARACTERS.length === 5 + (WALK ? D.WALK_CHARACTERS.length : 0), `need exactly ${5 + (WALK ? D.WALK_CHARACTERS.length : 0)} characters`);
 ok(D.CHARACTERS.filter((c) => c.unlock === null).length === 1, 'exactly one character must be unlocked from the start');
 for (const c of D.CHARACTERS) {
   ok(c.startBoon === null || !!D.BOON_BY_ID[c.startBoon], `character ${c.id} startBoon ${c.startBoon} unknown`);
@@ -217,7 +223,7 @@ for (const c of D.CHARACTERS) {
 }
 
 // ---------------------------------------------------------------------------- CHALLENGES (+ unlock cross-refs)
-ok(D.CHALLENGES.length >= 24 && D.CHALLENGES.length <= 30, 'CHALLENGES must hold 24–30 goals');
+ok(D.CHALLENGES.length >= 24 && D.CHALLENGES.length <= (WALK ? 40 : 30), `CHALLENGES must hold 24–${WALK ? 40 : 30} goals${WALK ? ' (v2: + tier IV Paths Underfoot)' : ''}`);
 const unlockTargetExists = (key) => {
   const [kind, id] = key.split(':');
   return ({ character: D.CHARACTER_BY_ID, boon: D.BOON_BY_ID, relic: D.RELIC_BY_ID, bait: D.BAIT_BY_ID })[kind]?.[id];
@@ -285,7 +291,8 @@ for (const s of memCases) {
 // ---------------------------------------------------------------------------- lookups, tips, text
 for (const [map, arr] of [['SPECIES_BY_ID', 'SPECIES'], ['ZONE_BY_ID', 'ZONES'], ['ENEMY_BY_ID', 'ENEMIES'], ['UPGRADE_BY_ID', 'UPGRADES'],
   ['RELIC_BY_ID', 'RELICS'], ['BAIT_BY_ID', 'BAITS'], ['SUPPLY_BY_ID', 'SUPPLIES'], ['BOON_BY_ID', 'BOONS'], ['CHARACTER_BY_ID', 'CHARACTERS'],
-  ['CHALLENGE_BY_ID', 'CHALLENGES'], ['BOUNTY_BY_ID', 'BOUNTIES'], ['FORMATION_BY_ID', 'FORMATIONS']]) {
+  ['CHALLENGE_BY_ID', 'CHALLENGES'], ['BOUNTY_BY_ID', 'BOUNTIES'], ['FORMATION_BY_ID', 'FORMATIONS'],
+  ...(WALK ? [['PLACE_BY_ID', 'PLACES'], ['WALK_FORMATION_BY_ID', 'WALK_FORMATIONS'], ['WALK_BOUNTY_BY_ID', 'WALK_BOUNTIES']] : [])]) {
   if (!D[map] || !D[arr]) continue;
   const ids = D[arr].map((x) => x.id);
   ok(new Set(ids).size === ids.length, `${arr} has duplicate ids`);
@@ -307,15 +314,416 @@ const scan = (v, path) => {
   seen.add(v);
   for (const [k, c] of Object.entries(v)) if (!/^(id|icon|behavior|weapon|model|shape|type|trigger|mechanic)$/.test(k)) scan(c, `${path}.${k}`);
 };
-for (const k of ['ZONES', 'SPECIES', 'BAITS', 'UPGRADES', 'SUPPLIES', 'RELICS', 'ENEMIES', 'BOONS', 'CHARACTERS', 'CHALLENGES', 'BOUNTIES', 'TIPS', 'MERCHANT_LINES', 'EPITAPHS', 'TEXT', 'FORMATIONS']) scan(D[k], k);
+for (const k of ['ZONES', 'SPECIES', 'BAITS', 'UPGRADES', 'SUPPLIES', 'RELICS', 'ENEMIES', 'BOONS', 'CHARACTERS', 'CHALLENGES', 'BOUNTIES', 'TIPS', 'MERCHANT_LINES', 'EPITAPHS', 'TEXT', 'FORMATIONS', ...(WALK ? ['ARENA_V2', 'WALK_FORMATIONS', 'WALK_BOUNTIES'] : [])]) scan(D[k], k);
 checks++;
+
+// ---------------------------------------------------------------------------- v2 (walking, DESIGN §24) — pass 2 only
+if (WALK) {
+  const WL = await import('./walk-lib.mjs');
+  if (!ok(WL.D === D, 'walk-lib must share the walking data instance')) process.exit(1);
+  const B = D.BALANCE, WB = B.walk, LB = B.lamps, PB = B.places, FB = B.combat.foot, F = D.WALK_FLAGS, EPS = WB.eps;
+  const MODES = ['raft', 'mixed', 'foot'];
+  const SHAPE_KINDS = ['disc', 'ring', 'rect', 'poly', 'path'];
+  const SHAPE_TAGS = ['ground', 'ramp', 'jetty', 'bridge'];
+  const RULES = ['rhythm', 'sequence', 'deed', 'targets', 'moving', 'drifters', 'cue', 'plumb', 'reflection', 'phaseWindow'];
+  const MOD_KEYS = ['waitMult', 'rarity', 'quality', 'weightBias', 'surgeEveryMult', 'erraticMult', 'hookWindowMult', 'hookWindowAdd',
+    'nibbleTells', 'bandAmpMult', 'bandNoiseMult', 'darterJumpMult', 'legendEnrageAdd', 'sweetAdd', 'surgeWarnAdd'];
+  const COND_RULE = { buff: 'sequence', deed: 'deed', reflection: 'reflection', plumbBottom: 'plumb', window: 'phaseWindow' };
+  const DEED_KINDS = ['winch', 'strike', 'light', 'sequence', 'rope', 'offer'];
+  const RESETS = ['run', 'day', 'dawn', 'dusk', 'never'];
+  const MODE_RESET = { permanent: 'run', dawn: 'dawn', untilDusk: 'dusk', window: 'never' };
+  const RAFT_MODES = ['free', 'skiff', 'beached', 'none'];
+  const speed = WL.footSpeed();
+  const near = (a, b) => Math.hypot(a.x - b.x, a.z - b.z);
+  const halfStep = (v) => Math.abs((((v / WB.heightQuant) % 1) + 1) % 1 - 0.5) < 1e-6;
+
+  // ---- BALANCE (v2) and the review rules that live in numbers
+  for (const [k, o] of [['walk', WB], ['places', PB], ['lamps', LB], ['combat.foot', FB]]) ok(isObj(o), `BALANCE.${k} missing (v2)`);
+  for (const k of ['speedMult', 'accel', 'decel', 'turnRate', 'radius', 'stepUp', 'stepDown', 'maxSlope', 'heightQuant', 'eps']) ok(isNum(WB[k]) && WB[k] > 0, `BALANCE.walk.${k}`);
+  ok(WB.stepUp === WB.stepDown, 'steps must be symmetric (stepUp === stepDown); only authored drops are one-way');
+  for (const [name, v] of [['walk.stepUp', WB.stepUp], ['walk.drop.max', WB.drop.max], ['walk.steepLine.from', WB.steepLine.from], ['combat.foot.crawl.climb', FB.crawl.climb],
+    ['combat.foot.crawl.drop', FB.crawl.drop], ['combat.foot.eel.maxHeight', FB.eel.maxHeight], ['combat.foot.highGround.minHeight', FB.highGround.minHeight]])
+    ok(halfStep(v), `height threshold ${name} = ${v} must sit on a half-step of heightQuant ${WB.heightQuant} (never within eps of a quantised height)`);
+  ok(WB.eps < WB.heightQuant / 2 - 1e-9, 'eps must be < heightQuant / 2');
+  // anticipation on foot (MF11): 90% speed no sooner than 0.35 s, a glide of at least 0.5 m
+  ok(Math.log(10) / WB.accel >= 0.35 && (D.STATS.moveSpeed.base * WB.speedMult) / WB.decel >= 0.5, 'foot accel/decel too snappy (90% in ≥ 0.35 s, stop ≥ 0.5 m)');
+  const hand = D.ENEMY_BY_ID.drowned_hand, ink = D.ENEMY_BY_ID.weeping_inkwell;
+  ok(FB.hand.stainRadius === hand.telegraph.stainRadius, 'killers keep raft values: combat.foot.hand.stainRadius must equal the raft stain radius');
+  ok(FB.warden.telegraphAdd === 0, 'killers keep raft values: combat.foot.warden.telegraphAdd must be 0');
+  ok(JSON.stringify(FB.inkwell.hold) === JSON.stringify(ink.artillery.hold), 'killers keep raft values: inkwells hold at the raft distance');
+  ok(!('globFlightAdd' in (FB.highGround || {})), 'no slower globs on high ground (killers keep raft values)');
+  ok(FB.contactRadius >= 1.6 && FB.contactRadius <= B.damage.contactRadius, 'combat.foot.contactRadius in [1.6, raft]');
+  ok(FB.flow.cell === (D.walkArenaFor('glasswater').walk.cell), 'the crawler flow field runs on the walk grid (same cell)');
+  ok(FB.boonWeightRaftLake === 0, 'foot-tagged boons are never offered in raft-only lakes');
+  ok(JSON.stringify(LB.hop.phases) === '["dawn"]' && LB.hop.perDay === 1, 'Flame-leap: dawn only, once a day');
+  ok(LB.darknessShelter > 0 && LB.darknessShelter < 1, 'darkness shelter is partial (a rate multiplier in (0, 1))');
+  ok(LB.stake.shelter === false, 'the Stake Lantern gives no darkness shelter');
+  ok(LB.lightCost >= 12, 'sharing flame costs ≥ 12 × zone oil drain');
+  ok(isObj(B.travel.arrivalHush) && (B.travel.arrivalHush.sporewood ?? 0) <= 10, 'Arrival Hush is per lake and ≤ 10 s in Sporewood');
+  ok(D.ZONES[0].mode === 'raft' && !D.ARENA_V2.mossmere && !D.ZONES[0].arena.walk, 'the Mossmere stays raft-only (no walk layout)');
+  for (const e of D.ENEMIES) ok(['fly', 'crawl', 'swim', 'static'].includes(D.ENEMY_MOVE[e.id]), `ENEMY_MOVE.${e.id} must be fly|crawl|swim|static`);
+  for (const e of D.ENEMIES) if (D.ENEMY_MOVE[e.id] === 'crawl') ok(e.waterBound === true, `${e.id}: crawlers are the waterBound enemies`);
+  ok(D.WALK_SHORE.pad + D.WALK_SHORE.cliffGap >= 2, 'land stays ≥ 2 m inside the cliff base (pad + cliffGap ≥ 2)');
+
+  // ---- tips: every trigger is a real event + discriminator (ui matches `event` and `event:<phase|resource|reason|state|id>`)
+  const EV = {
+    'run:start': null, 'player:anchor': null, 'fishing:cast': null, 'fishing:nibble': null, 'fishing:hook': null, 'fishing:surge': null, 'fish:landed': null,
+    'merchant:arrive': null, 'enemy:slain': null, 'levelup': null, 'lantern:out': null, 'enemy:steal': null, 'gate:open': null, 'boss:spawn': null,
+    'journal:new': null, 'zone:unlock': null, 'lamp:lit': null, 'place:discover': null, 'walk:high': null, 'shortcut:open': null, 'foot:eelEdge': null, 'place:astir': null,
+    'fishing:miss': ['early', 'late', 'moved'], 'fishing:escaped': ['slack', 'snap'], 'phase:change': ['calm', 'dusk', 'gloomtide', 'dawn'],
+    'resource:low': ['oil', 'satiety', 'hp'], 'enemy:spawn': ['elite'], 'interact:change': ['merchant', 'gate', 'ashore', 'board', 'bell', 'lamp', 'hop', 'fishHere', 'stake', 'deed'],
+    'player:mode': ['ashore', 'board', 'spawn'], 'lamp:snuffed': ['slam', 'moths', 'eclipse', 'legend'],
+  };
+  for (const t of D.TIPS) {
+    const parts = t.trigger.split(':'), ev = parts.slice(0, 2).join(':'), disc = parts[2];
+    ok(ev in EV, `tip ${t.id}: unknown trigger event ${ev}`);
+    if (disc !== undefined) ok(Array.isArray(EV[ev]) && EV[ev].includes(disc), `tip ${t.id}: ${ev} has no discriminator '${disc}'`);
+  }
+  ok(!D.TIPS.some((t) => t.trigger === 'player:mode'), "no tip on bare 'player:mode' (it would fire on raft spawns)");
+
+  // ---- names: no head noun reused across lakes (places, rules, landmarks, candles, deeds, shortcuts, moorings, vigils)
+  const STOP = /^(the|of|a|an|from|for|and|to|in|at)$/i;
+  const head = (name) => {
+    let s = String(name).replace(/\(.*?\)/g, '').replace(/\b(I|II|III|IV|V)\b/g, '').trim();
+    const of = s.match(/^(.*?)\s+of\s+/i); if (of) s = of[1];
+    const w = s.split(/[\s-]+/).filter((x) => x && !STOP.test(x)); return (w[w.length - 1] || '').replace(/['’]s$/, '').toLowerCase();
+  };
+  const nouns = new Map();   // noun → Set(zone)
+  const addName = (zid, name, what) => { if (!isStr(name)) return; const h = head(name); if (!h) return; if (!nouns.has(h)) nouns.set(h, new Map()); nouns.get(h).set(zid, `${what} "${name}"`); };
+  for (const z of D.ZONES) {
+    const A = z.arena;
+    for (const o of [...(A.islands || []), ...(A.deepPools || [])]) addName(z.id, o.name, 'landmark');
+    if (A.gate) addName(z.id, A.gate.name, 'gate'); if (A.legendPool) addName(z.id, A.legendPool.name, 'legend pool');
+    if (!A.walk) continue;
+    for (const s of A.walk.shapes) addName(z.id, s.name, 'shape');
+    for (const p of A.places || []) { addName(z.id, p.name, 'place'); addName(z.id, p.rule?.name, 'rule'); addName(z.id, p.standName, 'stand'); addName(z.id, p.altStand?.name, 'stand'); }
+    for (const l of A.lamps || []) addName(z.id, l.name, 'candle');
+    for (const x of [...(A.deeds || []), ...(A.shortcuts || []), ...(A.moorings || []), ...(A.vigils || [])]) addName(z.id, x.name, 'name');
+  }
+  for (const [h, m] of nouns) ok(m.size <= 1, `head noun '${h}' reused across lakes: ${[...m.entries()].map(([z, w]) => `${z}: ${w}`).join(' / ')}`);
+
+  // ---- per walking lake
+  const placeIds = new Set();
+  let walkCells = 0, gridChecks = 0;
+  const speciesOk = (zid, place, d0, d1, phase) => D.SPECIES.filter((sp) => sp.zone === zid && sp.rarity !== 'legendary' && !sp.bait
+    && (!sp.place || (sp.place === place && !sp.cond)) && (phase === 'calm' ? sp.time !== 'gloom' : true) && sp.depth[0] <= d1 && d0 <= sp.depth[1]);
+  for (const z of D.ZONES) {
+    const A = z.arena, R = A.radius, tag = `${z.id} (v2)`;
+    ok(MODES.includes(z.mode), `${z.id}.mode must be raft|mixed|foot (got ${z.mode})`);
+    if (z.phases) ok(isNum(z.phases.calm) && z.phases.calm >= B.phases.calm && z.phases.calm <= 150, `${tag} phases.calm override`);
+    if (z.mode === 'raft') continue;
+    const Wk = A.walk;
+    if (!ok(isObj(Wk) && Array.isArray(Wk.shapes) && Wk.shapes.length > 0, `${tag} needs arena.walk.shapes`)) continue;
+    ok(['raft', 'foot'].includes(A.spawnMode) && (z.mode === 'mixed' ? A.spawnMode === 'raft' : A.spawnMode === 'foot'), `${tag} spawnMode must be raft (mixed) / foot (foot)`);
+    ok(isObj(A.raft) && RAFT_MODES.includes(A.raft.mode), `${tag} raft.mode must be one of ${RAFT_MODES}`);
+    ok(z.mode !== 'mixed' || A.raft.mode === 'free', `${tag} a mixed lake needs a free raft`);
+    if (A.raft.at) ok(isNum(A.raft.at.yawDeg) && !('yaw' in A.raft.at), `${tag} raft.at needs yawDeg (degrees), not yaw`);
+    ok(D.shoreRFor(z)?.(1.23) === R, `${tag} shoreRFor must be the exact circle R on walking lakes`);
+    // shapes
+    const sids = new Set(), shortcutIds = new Set((A.shortcuts || []).map((c) => c.id));
+    for (const sh of [...Wk.shapes, ...(Wk.holes || []), ...(Wk.blocks || [])]) {
+      ok(SHAPE_KINDS.includes(sh.kind), `${tag} shape ${sh.id} kind ${sh.kind}`);
+      const [x0, z0, x1, z1] = D.walkShapeBounds(sh);
+      ok([x0, z0, x1, z1].every(isNum) && Math.max(Math.abs(x0), Math.abs(x1), Math.abs(z0), Math.abs(z1)) <= R + 12, `${tag} shape ${sh.id} far outside the lake`);
+    }
+    for (const sh of Wk.shapes) {
+      ok(isStr(sh.id) && !sids.has(sh.id), `${tag} shape id ${sh.id} missing/duplicate`); sids.add(sh.id);
+      ok(SHAPE_TAGS.includes(sh.tag), `${tag} shape ${sh.id} tag ${sh.tag}`);
+      if (sh.needs) ok(shortcutIds.has(sh.needs), `${tag} shape ${sh.id} needs unknown shortcut ${sh.needs}`);
+      if (sh.kind === 'path') {
+        ok(sh.w >= 2.4 - 1e-9, `${tag} walkway ${sh.id} narrower than 2.4 m`);
+        for (let i = 0; i + 1 < sh.pts.length; i++) {
+          const [ax, az, ay = sh.y ?? 0] = sh.pts[i], [bx, bz, by = sh.y ?? 0] = sh.pts[i + 1];
+          ok(Math.abs(by - ay) / Math.max(1e-6, Math.hypot(bx - ax, bz - az)) <= WB.maxSlope + 1e-9, `${tag} ramp ${sh.id} steeper than maxSlope ${WB.maxSlope}`);
+        }
+      }
+      if (sh.kind === 'ring') ok(sh.r1 - sh.r0 >= 2.4 - 1e-9, `${tag} ring ${sh.id} narrower than 2.4 m`);
+    }
+    for (const h of Wk.holes || []) {
+      ok(isNum(h.depth) && h.depth > 0 && h.depth <= 1, `${tag} hole ${h.id} depth`);
+      if (h.lip) ok(isNum(h.lip.w) && h.lip.w > 0 && h.lip.y <= 1.0 + EPS && h.lip.y >= 0.35 && (h.lip.a1 ?? 150) - (h.lip.a0 ?? 30) >= 120 - 1e-9, `${tag} hole ${h.id} lip must be a ≥ 120° south band at y 0.35–1.0`);
+    }
+    for (const b of Wk.blocks || []) ok(isNum(b.h), `${tag} block at (${b.x},${b.z}) needs a height h`);
+    const vids = new Set();
+    for (const v of Wk.variants || []) {
+      ok(isStr(v.id) && !vids.has(v.id) && isStr(v.name) && isNum(v.weight) && v.weight > 0, `${tag} variant ${v.id} id/name/weight`); vids.add(v.id);
+      for (const s of v.fallen || []) ok(sids.has(s), `${tag} variant ${v.id} fells unknown shape ${s}`);
+      for (const [sc, ids] of Object.entries(v.swap || {})) { ok(shortcutIds.has(sc), `${tag} variant ${v.id} swaps unknown shortcut ${sc}`); for (const s of ids) ok((v.fallen || []).includes(s), `${tag} variant ${v.id} raises ${s}, which is not fallen`); }
+    }
+    // deeds, shortcuts, drops
+    const deedById = Object.fromEntries((A.deeds || []).map((d) => [d.id, d]));
+    for (const c of A.shortcuts || []) {
+      ok(!!deedById[c.deed] && deedById[c.deed].opens === c.id, `${tag} shortcut ${c.id} must be opened by its deed ${c.deed}`);
+      ok(Wk.shapes.some((sh) => sh.needs === c.id), `${tag} shortcut ${c.id} gates no shape`);
+    }
+    for (const d of A.deeds || []) {
+      ok(DEED_KINDS.includes(d.kind), `${tag} deed ${d.id} kind ${d.kind}`);
+      ok((d.points ? d.points.length >= 2 : true) && (d.at || d.points), `${tag} deed ${d.id} needs at / points`);
+      ok(['pill', 'touch'].includes(d.trigger), `${tag} deed ${d.id} trigger must be 'pill' or 'touch'`);
+      if (d.trigger === 'touch') ok(isNum(d.touchR) && d.touchR > 0 && d.touchR <= 1.5, `${tag} touch deed ${d.id} needs touchR (0, 1.5]`);
+      if (d.kind === 'sequence') ok(d.trigger === 'touch', `${tag} sequence deed ${d.id} is walked through (touch)`);
+      ok(RESETS.includes(d.resets), `${tag} deed ${d.id} resets ${d.resets}`);
+      if (d.opens) ok(shortcutIds.has(d.opens) && d.resets === 'run', `${tag} deed ${d.id} opens unknown ${d.opens} / must reset per run`);
+      if (d.place) ok((A.places || []).some((p) => p.id === d.place), `${tag} deed ${d.id} names unknown place ${d.place}`);
+    }
+    const stands = [];   // {p, st, name}
+    for (const p of A.places || []) for (const st of [p.stand, p.altStand].filter(Boolean)) if (p.access !== 'raft') stands.push({ p, st, alt: st === p.altStand });
+    // moorings
+    for (const m of A.moorings || []) {
+      ok(isNum(m.yawDeg) && !('yaw' in m), `${tag} mooring ${m.id} needs yawDeg (degrees)`);
+      ok(near(m.stand, m.slot) - B.move.raftRadius <= WB.board.range + 1e-9, `${tag} mooring ${m.id}: stand → slot ${near(m.stand, m.slot).toFixed(2)} m − raft radius > board.range ${WB.board.range}`);
+    }
+    // ---- grids: every reachability check on the body-eroded grid, shortcuts closed and open, every variant
+    let G0 = null, M0 = null, dist0 = null;
+    for (const vId of WL.variantsOf(z)) for (const openK of [false, true]) {
+      const G = D.walkGridFor(z, { open: openK ? WL.openAll(z) : {}, variant: vId }), M = WL.erode(G);
+      const seeds = WL.footSeeds(G, z, M), dist = WL.walkDistances(G, z, seeds, M);
+      const label = `${tag} [${vId || 'base'}, shortcuts ${openK ? 'open' : 'closed'}]`;
+      if (!vId && !openK) { G0 = G; M0 = M; dist0 = dist; }
+      gridChecks++;
+      ok(seeds.length === (A.spawnMode === 'foot' ? 1 : (A.moorings || []).length), `${label} spawn / mooring stands must fit the Wick`);
+      const reach = (p, rr) => { const k = WL.snap(G, M, p.x, p.z, rr); return k >= 0 && dist[k] < Infinity; };
+      for (const { p, st, alt } of stands) ok(reach(st, 0.6), `${label} place ${p.id}${alt ? ' altStand' : ''} stand (${st.x},${st.z}) unreachable for the Wick (r ${WB.radius})`);
+      for (const l of A.lamps || []) ok(reach(l, WB.interactRange - 0.4), `${label} candle ${l.id} unreachable`);
+      for (const d of A.deeds || []) for (const q of d.points || [d.at]) ok(reach(q, d.trigger === 'touch' ? d.touchR : WB.interactRange - 0.4), `${label} deed ${d.id} (${q.x},${q.z}) unreachable`);
+      for (const m of A.moorings || []) ok(reach(m.stand, 0.6), `${label} mooring ${m.id} stand unreachable`);
+      if (A.gate && A.gateAccess === 'foot') {
+        let g = false;
+        for (let k = 0; k < G.n * G.n && !g; k++) if (M[k] && dist[k] < Infinity) { const [x, zz] = WL.cellXZ(G, k); if (Math.hypot(x - A.gate.x, zz - A.gate.z) <= A.gate.r + WB.gateFootRange) g = true; }
+        ok(g, `${label} foot gate: no reachable cell within r + ${WB.gateFootRange} m of ${A.gate.name}`);
+      }
+      if (z.mode === 'foot') for (const d of A.docks || []) {
+        const k0 = G.idx(d.x, d.z), r = Math.ceil(WB.tradeRange / G.cell); let nearW = false;
+        for (let dj = -r; dj <= r && !nearW; dj++) for (let di = -r; di <= r && !nearW; di++) { const k = k0 + dj * G.n + di; if (M[k] && dist[k] < Infinity && Math.hypot(di, dj) * G.cell <= WB.tradeRange - 1) nearW = true; }
+        ok(nearW, `${label} dock (${d.x},${d.z}) has no reachable walkway within trade range − 1 m`);
+      }
+    }
+    const G = G0, M = M0, dist = dist0, { n } = G;
+    // pools enclosed; shore; height rules
+    let leaks = 0, beyond = 0, oneWay = 0, nearStep = 0, nearClimb = 0;
+    for (let k = 0; k < n * n; k++) {
+      const f = G.flags[k];
+      if (!(f & F.VOID)) { const [x, zz] = WL.cellXZ(G, k); if (Math.hypot(x, zz) > R - D.WALK_SHORE.pad + 1e-9) beyond++; }
+      if (f & F.POOL) { const i = k % n, j = (k / n) | 0; for (const [di, dj] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const q = (j + dj) * n + (i + di); if (G.flags[q] & F.WATER) leaks++; } }
+      if (!WL.isWalk(G, k)) continue;
+      const i = k % n, j = (k / n) | 0, t = G.top[k];
+      for (const [di, dj] of [[1, 0], [0, 1], [1, 1], [-1, 1]]) {
+        const q = (j + dj) * n + (i + di); if (!WL.isWalk(G, q)) continue;
+        if (D.walkStepOK(t, G.top[q]) !== D.walkStepOK(G.top[q], t)) oneWay++;
+        if (Math.abs(Math.abs(G.top[q] - t) - WB.stepUp) <= EPS) nearStep++;
+      }
+      for (const [di, dj] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) if (WL.isLakeWater(G, (j + dj) * n + (i + di)) && Math.abs(t - FB.crawl.climb) <= EPS) nearClimb++;
+    }
+    ok(leaks === 0, `${tag} ${leaks} enclosed-pool cells touch open lake water (holes must sit inside ground)`);
+    ok(beyond === 0, `${tag} ${beyond} cells beyond R − ${D.WALK_SHORE.pad} m are not VOID`);
+    ok(oneWay === 0, `${tag} ${oneWay} one-way walkable pairs (only authored drops may be one-way)`);
+    ok(nearStep === 0 && nearClimb === 0, `${tag} cells within eps of a threshold: ${nearStep} step pairs, ${nearClimb} climb edges`);
+    for (const d of A.drops || []) {
+      const a = G.idx(d.from.x, d.from.z), b = G.idx(d.to.x, d.to.z);
+      ok(WL.isWalk(G, a) && WL.isWalk(G, b), `${tag} drop ${d.id} ends must be walkable`);
+      const h = G.top[a] - G.top[b];
+      ok(h > WB.stepUp + EPS && h <= WB.drop.max && Math.abs(h - WB.drop.max) > EPS, `${tag} drop ${d.id} height ${h.toFixed(2)} outside (stepUp, drop.max]`);
+    }
+    // every ramp can be walked end to end (painter's order: ramps after the platforms they climb onto)
+    for (const sh of Wk.shapes) if (sh.kind === 'path' && sh.pts.some((p) => p.length > 2 && Math.abs(p[2] - sh.pts[0][2]) > WB.stepUp)) {
+      const e0 = sh.pts[0], e1 = sh.pts[sh.pts.length - 1], a = WL.snap(G, M, e0[0], e0[1], 1.0), b = WL.snap(G, M, e1[0], e1[1], 1.0);
+      const L = sh.pts.slice(1).reduce((s2, p, i) => s2 + Math.hypot(p[0] - sh.pts[i][0], p[1] - sh.pts[i][1]), 0);
+      const dd = a >= 0 && b >= 0 ? WL.walkDistances(G, z, [a], M)[b] : Infinity;
+      ok(dd <= 1.3 * L + 2, `${tag} ramp ${sh.id} cannot be walked end to end (${Number.isFinite(dd) ? dd.toFixed(1) + ' m' : 'cut'}; length ${L.toFixed(1)} m)`);
+    }
+    // candles: coverage
+    ok((A.lamps || []).length >= 3, `${tag} needs ≥ 3 sister-candles`);
+    const safePts = [...(A.lamps || []), ...(z.mode === 'mixed' ? (A.moorings || []).map((m) => m.stand) : [])];   // mixed lakes: the moored raft counts
+    const lampDist = WL.walkDistances(G, z, safePts.map((l) => WL.snap(G, M, l.x, l.z, WB.interactRange)).filter((k) => k >= 0), M);
+    let worst = 0, unreach = 0, walk = 0;
+    for (let k = 0; k < n * n; k++) {
+      if (!WL.isWalk(G, k) || (G.flags[k] & F.SILL)) continue; walk++;
+      if (!M[k]) continue;
+      if (dist[k] === Infinity) { unreach++; continue; }
+      worst = Math.max(worst, lampDist[k]);
+    }
+    walkCells += walk;
+    ok(worst <= LB.maxPathToLamp, `${tag} a reachable walkway is ${worst.toFixed(0)} m from the nearest sister-candle${z.mode === 'mixed' ? ' or mooring' : ''} (max ${LB.maxPathToLamp})`);
+    warn(unreach / Math.max(1, walk) <= 0.06, `${tag} ${((100 * unreach) / Math.max(1, walk)).toFixed(1)}% of walkable cells unreachable (decor only)`);
+    // pill separation and touch stations
+    const lamps = A.lamps || [], pills = (A.deeds || []).filter((d) => d.trigger === 'pill').flatMap((d) => (d.points || [d.at]).map((q) => ({ ...q, id: d.id })));
+    const touches = (A.deeds || []).filter((d) => d.trigger === 'touch').flatMap((d) => (d.points || [d.at]).map((q) => ({ ...q, id: d.id, r: d.touchR })));
+    const standPts = [...stands.map(({ p, st }) => ({ ...st, id: p.id })), ...(A.moorings || []).map((m) => ({ ...m.stand, id: m.id }))];
+    for (const l of lamps) {
+      for (const s of standPts) {
+        ok(near(l, s) >= LB.minFromStand - 1e-9, `${tag} candle ${l.id} is ${near(l, s).toFixed(1)} m from the ${s.id} stand (≥ ${LB.minFromStand}: pills overlap)`);
+        ok(!(Math.abs(l.x - s.x) <= 1.5 && l.z - s.z > 0 && l.z - s.z <= 6), `${tag} candle ${l.id} stands south of the ${s.id} stand (camera line)`);
+      }
+      for (const q of pills) ok(near(l, q) >= 3 - 1e-9, `${tag} candle ${l.id} is ${near(l, q).toFixed(1)} m from deed ${q.id} (pills overlap)`);
+      for (const d of A.docks || []) ok(near(l, d) >= LB.minFromDock - 1e-9, `${tag} candle ${l.id} too close to a dock`);
+    }
+    for (const q of pills) for (const s of standPts) ok(near(q, s) >= 3 - 1e-9, `${tag} deed ${q.id} is ${near(q, s).toFixed(1)} m from the ${s.id} stand (pills overlap)`);
+    for (const t of touches) for (const s of [...standPts, ...lamps]) ok(near(t, s) >= t.r + 1 - 1e-9, `${tag} ${t.id} station (${t.x},${t.z}) is within touchR + 1 m of ${s.id}`);
+    for (const d of A.docks || []) for (const s of standPts) ok(near(d, s) >= WB.tradeRange + 0.5 - 1e-9, `${tag} dock (${d.x},${d.z}) is ${near(d, s).toFixed(1)} m from the ${s.id} stand (trade pill would cover it)`);
+    // vigil grounds: open ground within reach of every stand that is not a designated dead end
+    const vigilCells = [];
+    for (const v of A.vigils || []) {
+      if (v.kind === 'disc') {
+        let tot = 0, good = 0;
+        for (let zz = v.z - v.r; zz <= v.z + v.r; zz += G.cell) for (let x = v.x - v.r; x <= v.x + v.r; x += G.cell) {
+          if (Math.hypot(x - v.x, zz - v.z) > v.r) continue; tot++; const k = G.idx(x, zz); if (WL.isWalk(G, k) && dist[k] < Infinity) { good++; if (M[k]) vigilCells.push(k); }
+        }
+        ok(v.r >= WB.vigil.discMin && good / Math.max(1, tot) >= WB.vigil.discFill, `${tag} vigil ${v.id}: disc r ${v.r} only ${((100 * good) / Math.max(1, tot)).toFixed(0)}% open ground`);
+      } else {
+        let len = 0, bad = 0;
+        for (let i = 0; i < v.pts.length; i++) {
+          const [ax, az] = v.pts[i], [bx, bz] = v.pts[(i + 1) % v.pts.length], L = Math.hypot(bx - ax, bz - az); len += L;
+          for (let s = 0; s <= L; s += 0.5) { const k = WL.snap(G, M, ax + (bx - ax) * (s / L), az + (bz - az) * (s / L), 0.8); if (k < 0 || dist[k] === Infinity) bad++; else vigilCells.push(k); }
+        }
+        ok(bad === 0 && len >= WB.vigil.loopMin, `${tag} vigil loop ${v.id}: ${bad} breaks, length ${len.toFixed(0)} m (≥ ${WB.vigil.loopMin})`);
+      }
+    }
+    if (z.mode === 'mixed') for (const m of A.moorings || []) { const k = WL.snap(G, M, m.stand.x, m.stand.z, 0.6); if (k >= 0) vigilCells.push(k); }   // the raft is the open ground
+    const vigDist = WL.walkDistances(G, z, vigilCells, M);
+    for (const { p, st } of stands) if (!p.deadEnd) {
+      const k = WL.snap(G, M, st.x, st.z, 0.6);
+      ok(k >= 0 && vigDist[k] / speed <= WB.vigil.maxSeconds, `${tag} place ${p.id}: open ground is ${(vigDist[k] / speed).toFixed(1)} s away (≤ ${WB.vigil.maxSeconds} s, or mark it deadEnd)`);
+    }
+    // raft component
+    const RM = WL.raftMask(G), raftStart = z.mode === 'mixed' ? G.idx(A.spawn.x, A.spawn.z)
+      : A.raft.mode === 'skiff' ? G.idx(A.moorings.find((m) => m.id === A.raft.start)?.slot.x ?? 0, A.moorings.find((m) => m.id === A.raft.start)?.slot.z ?? 0) : -1;
+    const RC = raftStart >= 0 ? WL.component(G, RM, raftStart) : null;
+    if (z.mode === 'mixed') ok(RC && RC[raftStart], `${tag} raft spawn must be open water`);
+    if (A.raft.mode === 'skiff') ok(A.moorings.some((m) => m.id === A.raft.start), `${tag} skiff start mooring`);
+    for (const m of A.moorings || []) ok(RC && RC[G.idx(m.slot.x, m.slot.z)] === 1, `${tag} mooring ${m.id} slot not raft-reachable`);
+    if (A.gate && A.gateAccess === 'raft') ok(RC && RC[G.idx(A.gate.x, A.gate.z)] === 1, `${tag} raft gate not raft-reachable`);
+    if (z.mode === 'mixed') for (const d of A.docks || []) ok(WL.isLakeWater(G, G.idx(d.x, d.z)) && RC && RC[G.idx(d.x, d.z)] === 1, `${tag} dock (${d.x},${d.z}) not raft-reachable`);
+    else for (const d of A.docks || []) ok(WL.isLakeWater(G, G.idx(d.x, d.z)), `${tag} dock (${d.x},${d.z}) must be open water`);
+    // places
+    ok(Array.isArray(A.places) && A.places.length >= 4, `${tag} needs ≥ 4 places`);
+    ok((A.places || []).filter((p) => p.legend).length === 1, `${tag} exactly one place holds the legend pool`);
+    const lampById = Object.fromEntries(lamps.map((l) => [l.id, l]));
+    for (const p of A.places || []) {
+      const pt = `${tag} place ${p.id}`;
+      ok(isStr(p.id) && !placeIds.has(p.id), `${pt} id missing/duplicate`); placeIds.add(p.id);
+      ok(isStr(p.name) && isStr(p.lore) && isStr(p.look), `${pt} name/lore/look`);
+      ok(['foot', 'raft', 'both'].includes(p.access), `${pt} access`);
+      ok(isObj(p.water) && SHAPE_KINDS.includes(p.water.kind) && Array.isArray(p.water.depth) && p.water.depth[0] >= 0 && p.water.depth[1] <= 1 && p.water.depth[0] <= p.water.depth[1], `${pt} water {kind, depth:[a,b]}`);
+      if (p.lamp) ok(!!lampById[p.lamp], `${pt} candle ${p.lamp} unknown`);
+      for (const sid of Object.keys(p.attract || {})) ok(D.SPECIES_BY_ID[sid]?.zone === z.id, `${pt} attracts ${sid} (not a ${z.id} species)`);
+      for (const k of Object.keys({ ...(p.mods || {}), ...(p.standMods || {}), ...(p.altStand?.mods || {}) })) ok(MOD_KEYS.includes(k), `${pt} mods key ${k}`);
+      if (p.stand === null) ok(p.rule?.type === 'moving' || p.access === 'raft', `${pt} only roaming or raft places may have no stand`);
+      if (!p.legend && p.rule?.type !== 'moving') ok(isObj(p.alt), `${pt} needs an alt (B) twist`);
+      if (p.alt) for (const k of Object.keys(p.alt)) ok(k in (p.rule || {}) || k in p || ['startStep', 'swap', 'cost', 'cooldown'].includes(k), `${pt} alt key ${k} overrides nothing`);
+      if (p.deadEnd) ok(p.deadEnd === true, `${pt} deadEnd`);
+      // fishing holes have low south rims (lips)
+      for (const h of Wk.holes || []) if (D.placeContains(p, (h.x ?? 0) + (h.kind === 'ring' ? (h.r0 + h.r1) / 2 : 0), h.z ?? 0)) {
+        const rim = []; const [x0, z0, x1, z1] = D.walkShapeBounds(h, 1);
+        for (let zz = z0; zz <= z1; zz += G.cell) for (let x = x0; x <= x1; x += G.cell) {
+          const k = G.idx(x, zz); if (!WL.isWalk(G, k) || Wk.shapes[G.shape[k]]?.tag === 'bridge') continue; const i = k % n, j = (k / n) | 0;   // footbridges excepted
+          const adjPool = G.pool[(j - 1) * n + i] === Wk.holes.indexOf(h);   // the near rim: land whose northern neighbour is this pool
+          if (!adjPool) continue; const [cx, cz] = WL.cellXZ(G, k); const a = ((Math.atan2(cz - (h.z ?? 0), cx - (h.x ?? 0)) / Math.PI * 180) + 360) % 360;
+          if (a >= 30 && a <= 150) rim.push(G.top[k]);
+        }
+        ok(rim.length === 0 || Math.max(...rim) <= 1.0 + EPS, `${pt} hole ${h.id}: south rim up to ${Math.max(...rim).toFixed(1)} m above the water (≤ 1 m; add a lip)`);
+      }
+      // castable, visible, up-screen, the camera line south of the stand
+      if (p.rule?.type !== 'moving') for (const st of [p.stand, p.altStand].filter(Boolean)) {
+        if (p.access === 'raft') continue;
+        const sname = st === p.altStand ? `${pt} altStand` : `${pt} stand`;
+        const { sy, cells } = WL.castable(G, z, p, st);
+        if (!ok(Number.isFinite(sy), `${sname} not on ground`)) continue;
+        const vis = cells.filter((c) => c.vis).length;
+        ok(cells.length >= 3, `${sname}: only ${cells.length} castable water cells (reach ${WL.castReach(sy).toFixed(1)} m, minDist ${B.cast.minDist}, arc clearance)`);
+        ok(vis / Math.max(1, cells.length) >= PB.minVisible, `${sname}: the fish camera sees ${vis}/${cells.length} castable cells (≥ ${PB.minVisible * 100}%)`);
+        let tx, tz;
+        if (p.legend) { tx = A.legendPool.x; tz = A.legendPool.z; }
+        else { tx = cells.reduce((a, c) => a + c.x, 0) / Math.max(1, cells.length); tz = cells.reduce((a, c) => a + c.z, 0) / Math.max(1, cells.length); }
+        const ang = Math.abs(Math.atan2(tx - st.x, -(tz - st.z)) * 180 / Math.PI), dd = Math.hypot(tx - st.x, tz - st.z);
+        ok(ang <= PB.upScreenDeg || dd <= PB.nearTarget, `${sname}: its water lies ${ang.toFixed(0)}° from up-screen at ${dd.toFixed(1)} m (≤ ${PB.upScreenDeg}° or ≤ ${PB.nearTarget} m)`);
+        if (p.legend) {
+          const LP = A.legendPool, inL = (x, zz) => Math.hypot(x - LP.x, zz - LP.z) <= LP.r;
+          let tot = 0; for (let k = 0; k < n * n; k++) { if (!WL.isAnyWater(G, k) || (G.flags[k] & F.BRIDGE)) continue; const [x, zz] = WL.cellXZ(G, k); if (inL(x, zz)) tot++; }
+          const good = WL.castable(G, z, p, st, inL).cells.filter((c) => c.vis).length;
+          ok(good / Math.max(1, tot) >= 0.6, `${sname}: only ${good}/${tot} legend-pool cells have a clear arc and are seen by the camera (≥ 60%)`);
+        }
+        // nothing tall in the camera line south of a stand (props are occludable, the fish framing does not rely on it)
+        const O = WB.occlusion; let tall = null;
+        for (let dz = 0.5; dz <= O.lowSouthDist && !tall; dz += 0.5) for (let dx = -O.lowSouthHalfW; dx <= O.lowSouthHalfW && !tall; dx += 0.5) {
+          const h = WL.solidHeight(G, z, st.x + dx, st.z + dz); if (h > sy + O.lowSouthMax) tall = `${h.toFixed(1)} m at (${st.x + dx}, ${st.z + dz})`;
+        }
+        ok(!tall, `${sname}: something ${tall} rises > ${O.lowSouthMax} m above the stand within ${O.lowSouthDist} m south`);
+      }
+      if (p.access !== 'foot' && p.raftStand) ok(RC && RC[G.idx(p.raftStand.x, p.raftStand.z)] === 1, `${pt} raftStand not raft-reachable`);
+      ok(speciesOk(z.id, p.id, p.water.depth[0], p.water.depth[1], 'calm').length >= 1, `${pt} yields no species in calm`);
+      if (p.legend) ok(D.placeContains(p, A.legendPool.x, A.legendPool.z) && A.legendPool.r <= 5, `${pt} must contain the legend pool`);
+      const r = p.rule;
+      if (r) {
+        ok(RULES.includes(r.type) && isStr(r.name), `${pt} rule type ${r?.type}`);
+        for (const k of Object.keys(r.mods || {})) ok(MOD_KEYS.includes(k), `${pt} rule mods key ${k}`);
+        if (r.deed) ok(deedById[r.deed]?.place === p.id, `${pt} rule deed ${r.deed} must exist and name this place`);
+        if (r.type === 'deed') ok(MODE_RESET[r.mode] === deedById[r.deed]?.resets, `${pt} rule mode ${r.mode} needs its deed to reset '${MODE_RESET[r.mode]}' (got ${deedById[r.deed]?.resets})`);
+        if (r.type === 'deed' && r.mode === 'window') ok(isNum(deedById[r.deed]?.cooldown), `${pt} window deed needs a cooldown`);
+        if (r.type === 'rhythm') ok(r.period > r.warn + r.live && r.live > 0, `${pt} rhythm period > warn + live`);
+        if (r.type === 'sequence') ok(deedById[r.deed]?.kind === 'sequence' && deedById[r.deed]?.resets === 'day' && r.window > 0 && r.buff > 0, `${pt} sequence needs a daily sequence deed`);
+        if (r.type === 'targets') {
+          ok(['bed', 'hole'].includes(r.lockPicks), `${pt} targets lock picks 'bed' or 'hole'`);
+          if (r.lit) ok(isNum(r.lit.chargeTol) && !('line' in r.lit), `${pt} lit rows: the bonus is a charge tick (chargeTol), not a lateral line the lock would give away`);
+          for (const t of r.targets || []) {
+            ok(D.placeContains(p, t.x, t.z), `${pt} target ${t.id} outside the place`);
+            ok(WL.isAnyWater(G, G.idx(t.x, t.z)), `${pt} target ${t.id} is not water`);
+            if (isNum(t.depth)) ok(speciesOk(z.id, p.id, t.depth, t.depth, 'any').length >= 1, `${pt} target ${t.id} yields nothing at depth ${t.depth}`);
+          }
+        }
+        if (r.type === 'moving') ok(isObj(r.arc) && r.speed > 0 && r.r > 0, `${pt} moving arc/speed/r`);
+        if (r.type === 'drifters') ok(r.lane.every(([x, zz]) => Math.hypot(x, zz) < R - 2) && r.perDay >= 1, `${pt} drifters lane inside the lake`);
+        if (r.type === 'plumb') ok(r.depth[0] >= p.water.depth[0] - 1e-9 && r.depth[1] <= p.water.depth[1] + 1e-9, `${pt} plumb depth inside place depth`);
+        if (r.type === 'reflection') {
+          const area = p.water.kind === 'disc' ? Math.PI * p.water.r ** 2 : 1;
+          ok(['flipX', 'flipZ'].includes(r.mirror) && (r.fish * Math.PI * r.hitR ** 2) / area <= 0.15, `${pt} reflection: mirror flipX|flipZ, hit circles ≤ 15% of the pool`);
+        }
+        if (r.type === 'phaseWindow') ok(isNum(r.perDescent) && r.perDescent >= 1, `${pt} phaseWindow needs perDescent (the Last Ferry is not a daily rare)`);
+      }
+    }
+    // place-kept species
+    for (const sp of D.SPECIES.filter((x) => x.place && x.zone === z.id)) {
+      const p = (A.places || []).find((q) => q.id === sp.place);
+      if (!ok(!!p, `species ${sp.id} place ${sp.place} is not a ${z.id} place`)) continue;
+      ok(sp.rarity === 'rare' && !sp.bait, `species ${sp.id} (place-kept) must be a bait-free rare`);
+      ok(sp.depth[0] <= p.water.depth[1] && p.water.depth[0] <= sp.depth[1], `species ${sp.id} depth never overlaps ${p.id}`);
+      if (sp.cond) ok(COND_RULE[sp.cond] === p.rule?.type, `species ${sp.id} cond '${sp.cond}' needs a ${COND_RULE[sp.cond]} rule at ${p.id}`);
+    }
+    const kept = D.SPECIES.filter((x) => x.place && x.zone === z.id).length;
+    ok(isInt(PB.awake[z.id]) && PB.awake[z.id] >= 1 && PB.awake[z.id] <= kept, `${tag} awake place-kept species per descent in [1, ${kept}]`);
+    if (A.spotStyle) {
+      const S = A.spotStyle;
+      ok(isNum(S.live) && isNum(S.warn) && Array.isArray(S.every) && isNum(S.walkSecondsMax) && isNum(S.castInset), `${tag} spotStyle (live, warn, every, walkSecondsMax, castInset)`);
+      ok(isObj(S.tideChart) && S.countsAsSpot === true, `${tag} spotStyle must define the Tide Chart and count as a feeding spot (spot_catch bounties)`);
+    }
+    if (A.wayside) ok(isStr(A.wayside.kind) && isObj(A.wayside.give) && isNum(A.wayside.touchR), `${tag} wayside`);
+  }
+  for (const sp of D.SPECIES) if (sp.place) ok(placeIds.has(sp.place), `species ${sp.id} names unknown place ${sp.place}`);
+  ok(D.PLACES.length === placeIds.size && Object.keys(D.PLACE_BY_ID).length === placeIds.size, 'PLACES / PLACE_BY_ID incomplete');
+  ok(D.CHALLENGE_BY_ID.complete_chronicle?.params?.n === D.SPECIES.length, 'complete_chronicle must ask for every species');
+  ok(D.CHALLENGE_BY_ID.every_still_place?.params?.n === D.PLACES.length, 'every_still_place must ask for every place');
+  const TYPES4 = ['footAshore', 'placeFound', 'lampLit', 'placeSpecies', 'placeMastered', 'shortcutOpen', 'slayOnTag', 'nightNoLamp', 'lampLitZone'];
+  for (const c of D.WALK_CHALLENGES) ok(c.tier === 4 && TYPES4.includes(c.type), `tier IV challenge ${c.id} type ${c.type}`);
+  for (const b of D.WALK_BOONS) ok(b.tags.includes('foot'), `v2 boon ${b.id} must carry the foot tag (offer weighting)`);
+  for (const f of D.WALK_FORMATIONS) {
+    ok(!!D.ENEMY_BY_ID[f.enemy] && !D.FORMATION_BY_ID[f.id], `walk formation ${f.id} enemy / id clash`);
+    ok(Array.isArray(f.modes) && f.modes.every((m) => MODES.includes(m) && m !== 'raft'), `walk formation ${f.id} modes`);
+  }
+  for (const b of D.WALK_BOUNTIES) ok(!D.BOUNTY_BY_ID[b.id] && isStr(b.text) && isNum(b.base) && Array.isArray(b.modes) && D.WALK_BOUNTY_TYPES.includes(b.type), `walk bounty ${b.id} (type ${b.type})`);
+  ok(isNum(B.memories.placeNew) && D.memoriesFor({ placesNew: 3 }).total === 3 * B.memories.placeNew, 'memoriesFor counts placesNew');
+  console.log(`  v2 walk: ${placeIds.size} places, ${walkCells} walkable cells, ${gridChecks} eroded grids (variants × shortcuts), ${D.SPECIES.filter((x) => x.place).length} place-kept species`);
+}
 
 // ---------------------------------------------------------------------------- report
 for (const w of warnings) console.log('  warn:', w);
 if (errors.length) {
   for (const e of errors.slice(0, 80)) console.log('  FAIL:', e);
   if (errors.length > 80) console.log(`  … and ${errors.length - 80} more`);
-  console.log(`validate-data: ${errors.length} failure(s) in ${checks} checks`);
+  console.log(`validate-data${WALK ? ' --walk' : ''}: ${errors.length} failure(s) in ${checks} checks`);
   process.exit(1);
 }
-console.log(`validate-data: OK (${checks} checks; ${D.SPECIES.length} species, ${D.BOONS.length} boons, ${D.CHARACTERS.length} characters, ${D.CHALLENGES.length} challenges, ${D.RELICS.length} relics, ${D.UPGRADES.length} upgrades, ${D.ENEMIES.length} enemies)`);
+console.log(`validate-data${WALK ? ' --walk (WALK_ENABLED on)' : ' (v1 tables, WALK_ENABLED off)'}: OK (${checks} checks; ${D.SPECIES.length} species, ${D.BOONS.length} boons, ${D.CHARACTERS.length} characters, ${D.CHALLENGES.length} challenges, ${D.RELICS.length} relics, ${D.UPGRADES.length} upgrades, ${D.ENEMIES.length} enemies)`);
+if (!WALK && !process.argv.includes('--v1')) {
+  const { spawnSync } = await import('node:child_process');
+  const r = spawnSync(process.execPath, [new URL(import.meta.url).pathname, '--walk'], { stdio: 'inherit' });
+  process.exit(r.status ?? 1);
+}

@@ -66,8 +66,8 @@ A day is 232 s on day 1 and 262 s from day 6 onward.
 
 ### 2.5 Meta
 - **Memories** → **Relics** at the Shrine (permanent stat and utility upgrades, Waystones).
-- **Challenges** (a 30-goal checklist) → new **Wicks**, new **boons** in the pool, new **relics**, a new **bait**, plus Memories.
-- **Journal**: 32 species to name, zone-completion perks, mastery.
+- **Challenges** (a 30-goal checklist; 40 in the walking build, tier IV *Paths Underfoot*, §24.10) → new **Wicks**, new **boons** in the pool, new **relics**, a new **bait**, plus Memories.
+- **Journal**: 32 species to name (40 in the walking build: + 8 place-kept fish, §24.7; a Places tab), zone-completion perks, mastery.
 - **Waystones**: start deeper with a Shell purse and banked levels.
 - Records and near-miss lines on the death screen ("Sporewood toll: 34 Shells away").
 
@@ -86,7 +86,7 @@ A day is 232 s on day 1 and 262 s from day 6 onward.
 | click during a bite | Set the hook |
 | hold / release while hooked | Reel / ease |
 | Space or F | **Flare** |
-| E | Interact: Trade / Descend |
+| E | Interact: Trade / Descend (walking build: also Ashore, Board, Ring Bell, Share flame (hold), Flame-leap, deeds, Plant; §24.2) |
 | R | **Burn a fish** (render the lowest-value non-legendary fish in the creel) |
 | C / J | Creel / Journal |
 | Esc or P | Pause |
@@ -161,6 +161,8 @@ then max with every deepPool:  d = max(d, pool.depth · smoothstep(pool.r, pool.
 The **bobber's depth decides the fish**, not the raft's, so casting from the shallows over a drop-off is a learnable trick. Spots spawn at depth ≥ 0.2; legend pools sit at depth ≥ 0.8; creelsnatch eels spawn only at depth ≥ 0.4.
 
 ### 4.4 The four arenas
+*Walking build (`WALK_ENABLED`, §24): `ARENA_V2` replaces the three lower lakes' islands, pillars, deep pools, legend pool, gate, spawn and docks and adds their walk maps (§24.6). The cells below are the v1 values and stay authoritative for v1 builds and for the Mossmere.*
+
 |  | The Mossmere | Sporewood Pools | Glasswater Vault | The Pallid Deep |
 |---|---|---|---|---|
 | radius · seed · layout | R 60 · 1307 · `bowl` | R 65 · 2711 · `twoBasins` | R 70 · 4421 · `ringTrench` | R 78 · 9001 · `drop` |
@@ -232,7 +234,7 @@ Mean wait at base stats is 8.5 s (4.7 s in a spot).
 - **Perfect-hook streak**: `run.flags.streak` +1 on a perfect hook, reset on a normal hook or any miss. Sale value × (1 + 0.1 × min(streak, 5)); the HUD shows up to five flame pips by the bait icon.
 
 ### 5.4 Species
-32 species, 8 per lake (3 common, 2 uncommon, 2 rare, 1 legendary). `value / food / oil` are at mean weight and normal quality, already scaled by lake. Difficulty columns are the contract semantics (§8 of the contract). Difficulty is derived from an authoring tier × behaviour (× legendary), with the duty cap applied; the two finale fish are hand-tuned. Each lake's commons are roughly as hard as the previous lake's rares.
+32 species, 8 per lake (3 common, 2 uncommon, 2 rare, 1 legendary), plus, in the walking build, 8 place-kept rares in the three lower lakes (§24.7) for 40. `value / food / oil` are at mean weight and normal quality, already scaled by lake. Difficulty columns are the contract semantics (§8 of the contract). Difficulty is derived from an authoring tier × behaviour (× legendary), with the duty cap applied; the two finale fish are hand-tuned. Each lake's commons are roughly as hard as the previous lake's rares.
 
 **The Mossmere** (`mossmere`)
 
@@ -406,7 +408,7 @@ satiety/s = stats.satietyDrain × zone.drain.satiety × diff.drainMult          
 The light radius and aura are specified in §8.1 (they are combat). Survival owns the value: `survival.lightRadius` each frame, `actors.setLanternLevel(oil/maxOil)`, `actors.setLightRadius(r)`, `actors.setVitality(hp/maxHp)`.
 
 ### 6.4 Damage, i-frames, armor (`BALANCE.damage`)
-- **Contact**: an enemy within 1.8 m of the raft centre (or an AoE ability) calls `survival.damage(n, source)`. `n = max(1, floor(enemy.damage × diff.damageMult))`, Wardens capped at 3. Enemies with damage 0 (moths, inkwell bodies) never cost Embers.
+- **Contact**: an enemy within 1.8 m of the raft centre (walking build: 1.6 m and |Δy| ≤ 1.6 m of the Wick on foot, §24.8) (or an AoE ability) calls `survival.damage(n, source)`. `n = max(1, floor(enemy.damage × diff.damageMult))`, Wardens capped at 3. Enemies with damage 0 (moths, inkwell bodies) never cost Embers.
 - **Oil on contact**: `enemy.oilDrain × diff.drainMult` (per second while latched or gripping).
 - **Armor**: one roll per Ember-damage event: `random < stats.armor` (cap 0.6) → "Warded" float text, no Ember lost; the oil drain still applies.
 - **I-frames**: 1.2 s after losing an Ember (Tallow +0.6). Contacts during i-frames drain 50% oil and no Embers. The Wick flickers.
@@ -799,7 +801,7 @@ When a weapon is at L5 and you own its paired passive at any level, a legendary 
 
 ## 12. Challenges & unlocks
 
-### 12.1 The checklist (30)
+### 12.1 The checklist (30; 40 in the walking build, tier IV *Paths Underfoot* in §24.10)
 **First Flickers**
 
 | # | challenge | goal | type · params | scope | reward |
@@ -843,9 +845,9 @@ When a weapon is at L5 and you own its paired passive at any level, a legendary 
 | 27 | **Four Silences** `four_silences` | Silence all four Wardens. | `bossDistinct` {ids:[the_wickeater,the_veiled_gardener,the_shard_abbot,the_lightless_ferryman]} | total | `boon:moonless_calm` + 60 Memories |
 | 28 | **Many Flames** `many_flames` | Reach the Glasswater Vault with 3 different Wicks. | `reachZoneCharacters` {zone:glasswater,n:3} | total | 50 Memories |
 | 29 | **The Light Comes Up** `light_comes_up` | Land the Pale Leviathan. | `victory` {} | total | 100 Memories |
-| 30 | **The Complete Chronicle** `complete_chronicle` | Name every species in the Journal. | `journal` {n:32} | total | 200 Memories |
+| 30 | **The Complete Chronicle** `complete_chronicle` | Name every species in the Journal. | `journal` {n:32} (walking build: every species, 40) | total | 200 Memories |
 
-*Totals: 30 challenges, 831 Memories; unlocks: 4 Wicks, 11 boons, 9 relics, 1 bait.*
+*Totals: 30 challenges, 831 Memories; unlocks: 4 Wicks, 11 boons, 9 relics, 1 bait. The walking build's tier IV adds 10 challenges, 185 Memories, a Wick, 3 boons, 3 relics and 1 bait (§24.10).*
 
 Run 1 typically pops 6–8 in the balance sim (First Light, First Dawn, Kindling, Unclenched, Shimmering, often Clockwork Wrist and Down the Sluice): a new boon in the pool and a relic within reach, so run 2 starts with something new. Every relic, boon, Wick and bait that a challenge unlocks names that challenge in its locked state ("Unlocked by: Unclenched — Break a Drowned Hand").
 
@@ -951,7 +953,7 @@ General baits spend one charge per cast; a species whose `bait` names a bait is 
 | 3 | **The Pallid Deep** `paleabyss` — *Where the Kingdom Laid Its Light to Rest* | 900 | Land the Glass Sovereign | 1.65 / 1.45 | 1.4 | 3 | The Pale Leviathan | The Lightless Ferryman | — (final lake) |
 
 - **Gate requirements** (`unlock.requires` of the *next* lake): land the current lake's legendary **this run** (`run.legendaries`). When met: `run.gateOpen = true`, `world.setGateState('open')`, `gate:open {zone}`, toast. Until then the gate is `'sealed'` and the Descend dialog lists what is missing (`getGateInfo().requirements`).
-- **Descend:** sail into the open gate (within 1.2 × its radius) → interact "Descend" → `ui.openDescend()` shows the toll, the next lake's card, and a warning that the Gloom grows (+3 Heat). Allowed during **calm and dawn** only (the gate sleeps through dusk and the gloomtide). Confirm → `progression.travel(nextZone)`: pay the toll (first visit: `zone:unlock`), `zone:change {zone, prev}` (world rebuild, player respawn at the new spawn, area-title banner), `run.flags.zoneEnteredDay = day`, `run.gateOpen = false`. One-way. Boons, level, creel, upgrades and Shells carry over.
+- **Descend:** sail into the open gate (within 1.2 × its radius; walking build: in Glasswater walk to within r + 2.5 m) → interact "Descend" → `ui.openDescend()` shows the toll, the next lake's card, and a warning that the Gloom grows (+3 Heat). Allowed during **calm and dawn** only (the gate sleeps through dusk and the gloomtide). Confirm → `progression.travel(nextZone)`: pay the toll (first visit: `zone:unlock`), `zone:change {zone, prev}` (world rebuild, player respawn at the new spawn, area-title banner), `run.flags.zoneEnteredDay = day`, `run.gateOpen = false`. One-way. Boons, level, creel, upgrades and Shells carry over.
 - **Waystone starts** (§17.3) pre-unlock every lake above the start.
 
 ---
@@ -1307,6 +1309,8 @@ Thin ornate **bone-white linework** (#e9e2cf at 80%) on **ink-wash panels** (nea
 ## 23. Implementation notes
 
 ### 23.1 Who reads what
+*Walking build: who reads the v2 tables is listed in §24.12; CONTRACT §12 has the APIs.*
+
 | module | reads from data.js | key rules in this doc |
 |---|---|---|
 | player | `BALANCE.move`, `STATS.moveSpeed`, `ZONES[].arena.spawn` | §4.1–4.2 |
@@ -1327,6 +1331,678 @@ Thin ornate **bone-white linework** (#e9e2cf at 80%) on **ink-wash panels** (nea
 
 ### 23.3 Debug hooks (contract §11) used by this design
 fishing `forceBite()`, `instantCatch(id?)`; survival `skipPhase()`, `god(on)`, `setPhase(name)`; combat `spawn(idOrKind)`, `killAll()`, `levelUp()`, `giveBoon(id)`; progression `addShells(n)`, `addMemories(n)`, `unlockZone(id)`, `giveFish(id)`, `openGate()`, `completeChallenge(id)`; ui `ui()`.
+
+## 24. Exploration on foot (v2, revision 2)
+
+*The descent becomes a journey that changes how you move: the Mossmere is sailed, Sporewood Pools is sailed and walked, and the Glasswater Vault and the Pallid Deep are walked to interesting, unique fishing locations. Everything here ships behind one flag, `WALK_ENABLED` (CONTRACT §12.0): with it off every v1 table is bit-identical; with it on the walk tables merge in. Every number is in `src/data.js` (`BALANCE.walk / places / lamps / combat.foot`, `ZONE_V2`, `ARENA_V2`, `WALK_*`, `walkGridFor`). `node tools/walkmap.mjs <zone> [--open] [--variant=id]` prints the maps and walk times below straight from data; `node tools/validate-data.mjs` checks every v1 table and every rule in this section on the body-eroded walk grid; `node tools/balance-foot.mjs` runs the foot profile against v1 (Appendix B). §24.15 lists what changed in this revision and why.*
+
+### 24.0 Decisions at a glance
+
+| # | decision | why |
+|---|---|---|
+| 1 | **Lake modes:** Mossmere `raft` (unchanged), Sporewood `mixed` (sail between four walkable islands, moor at jetties, walk to secluded pools), Glasswater `foot` (a walked rotunda; a small skiff is fenced into one moat sector), Pallid Deep `foot` (bone roads; the raft is beached). | The user's layout. Run 1 and the median first death (night 4) happen in the untouched Mossmere. |
+| 2 | **One water plane at y = 0 is kept.** Height comes only from land (0.35–7 m, quantised to 0.1 m). Every "special" water is a y = 0 pool carved out of land, and **every hole has a low south rim** (a sill ≤ 1 m above the water) so the fixed camera can see into it. | Water, ripples, wakes, the depth bake, species depth bands, eels and the bobber all assume y = 0 (§24.4). The sill rule is what makes enclosed pools readable (§24.5). |
+| 3 | **Fixed, hand-authored layouts** rasterised by one pure function (`walkGridFor`) that world, combat, the validator, the map tool and the simulator share — **plus per-descent variety**: one rolled map variant per walking lake (a bridge has fallen, a road is under water), an A/B twist per place, which place-kept fish are awake, and the daily Astir place. | Learnable like a metroidvania map, but not solved by run 5. |
+| 4 | **Walking:** 0.84 × raft speed (5.0 m/s base) + `stride`; accel 6/s, decel 8/s (90% speed in 0.38 s, stops in ≈ 0.6 m) — the same short-window reach as the raft. No jump, no swimming, **no falling into water**. | Dodges still need anticipation; the kinematic check in Appendix B keeps foot nights within ±10% of raft nights. |
+| 5 | **The lantern goes with the Wick** on a Lantern Crook; it is the only warm, flickering light in the game. | Oil = light = life follows the player; the same PointLight is re-parented. |
+| 6 | **Places:** 21 unique fishing locations (6 / 8 / 7) from a 10-rule kit. Each has a base bonus, favoured species, one twist and a B variant of that twist; 8 hold **place-kept species** (Journal 32 → 40), 4 of them awake per descent. | "Interesting unique fishing locations" that pay for the walk and stay fresh. |
+| 7 | **Sister-candles** (internal id `lamps`): fallen candles of Wicks who went out down here. You **share your flame** with one (12 × zone oil drain); it burns the rest of the descent in the lake's own **cold** colour, slows the swarm a little, halves the darkness tick inside its light and reveals the Silent Choir. Once each **dawn** you may **flame-leap**, free, to any sister you have relit. | Lighting the way is a real oil decision; the dawn leap means "choose where tomorrow starts", not teleport-fishing. The premise also explains the victory: every candle relights gold. |
+| 8 | **Night on foot:** flyers unchanged; crawlers follow a flow field over the 0.5 m walk grid; eels reach only a Wick near open water. **Killers keep their raft values** (stain 3.2 m, telegraphs, inkwell hold 13–18 m); Warden attacks are aligned with walkways so a 1-D escape exists. | High ground and chokepoints are real tactics without softening what ends runs. |
+| 9 | **Camera:** fixed yaw everywhere on foot (shop and death too); `walk` / `walkNight` framings with their own portrait numbers; the **pool framing** lifts the fish camera over the near rim; a dither cone and one x-ray proxy keep the Wick readable; a terrain clamp keeps the camera out of rock. | Readable on a 390 px phone; controls never drift. |
+| 10 | **Day length unchanged** (120 s calm everywhere). **Arrival Hush** only where walking is long: +30 s on the first calm in Glasswater and the Pallid Deep, +10 s in Sporewood; no calm raid that day. | The dawn leap and the places' bonuses pay for the walking (Appendix B: catches and Shells per day within ±7% of v1). |
+| 11 | **Cut on purpose:** wading, falls / "sputter", raised still pools, grapnels, Shell-cost repairs, camera yaw hints, a fog-of-war chart screen. | Scope and clarity (§24.14). |
+
+### 24.1 Map modes
+
+| | The Mossmere | Sporewood Pools | Glasswater Vault | The Pallid Deep |
+|---|---|---|---|---|
+| `mode` | `raft` | `mixed` | `foot` | `foot` |
+| you start | on the raft (0, 46) | on the raft (0, 52) | on foot, Lower Gallery (0, 51) | on foot, Landing of Last Rafts (0, 68) |
+| raft | free (as now) | free; moor at 4 jetties, tow-bells | `skiff`: moored at the Harbour Steps; fenced by the low spokes into the east / south moat; moors at the Skiff Steps on the hub | `beached` at (6, 72) among hundreds of others |
+| gate | sail in (as now) | sail in: The Mycelium Veil (0, −53) | on foot: within r + 2.5 m of the Vault Seal | none (the finale is the Bottomless) |
+| calm | 120 s | 120 s (+10 Arrival Hush) | 120 s (+30) | 120 s (+30) |
+| walkable / pools / water | 0 / 0 / 100% | 30 / 1.9 / 68% | 49 / 2.2 / 49% | 17 / 0.3 / 83% |
+| places | Bell Pool (legend, as now) | 6 | 8 | 7 (+ the Breathing Deep) |
+| per-descent variant | — | — | one of three bridges has fallen | the Sunken Road, or one Pallbearers' Walk, is under water |
+| night choice | open water vs. the Gatehouse | raft mobility vs. high ground (Gill Crown) | eel-free hub loop vs. the long gallery | the Brink (flat line, eels) vs. the Joined Hands (steep line, eel-proof) |
+
+**Saving and continuing.** Walking lakes save the Wick's position, mode and raft (`run.flags.pos`, `run.flags.raft`) on every autosave (phase changes, catches, purchases, zone changes, every 30 s, hide / pagehide), plus the day's per-place counters (candle-rafts relit, the Last Ferry, the leap), the planted Stake Lantern and the Arrival Hush. A continue snaps to the nearest walkable cell (or raft water) and falls back to the nearest lit candle, so quitting is never a free escape from a dead end and never a teleport to the spawn at night.
+
+### 24.2 Controls & transitions
+
+| action | touch | mouse & keyboard |
+|---|---|---|
+| walk | the same floating joystick (analog: half stick = half speed) | WASD / arrows |
+| cast, hook, reel, zap, flare, burn | unchanged (§3) | unchanged |
+| go ashore (raft → foot) | push into a jetty's glowing mooring ring (0.4 s, within 35° of its normal), or tap **Ashore** | push, or E |
+| board (foot → raft) | walk onto the boarding tip and push toward the raft (0.4 s), or tap **Board** | same, or E |
+| hop down a marked drop | push into the fallen-balustrade edge (0.4 s) | same |
+| at dusk and in the Gloomtide | drops and Ashore / Board work **only** by pill or E (sliding along walls never crosses by accident) | E |
+| ring a tow-bell, turn a winch, strike, pull a rope, make an offering, plant a Stake Lantern, Descend | the contextual pill (≥ 56 px) | E |
+| share flame with a sister-candle (1.0 s), deeds that hold (0.6 s) | **hold** the pill (a ring fills) | hold E |
+| flame-leap (once each dawn) | **Leap** pill at a lit candle → a radial of lit candles **in their true map directions** (56 px targets) | E, then 1–9 |
+| fish here (optional) | within 2 m of a place's stand: hold the pill to charge a cast aimed at that place, release to cast | — (pointer casting works everywhere) |
+
+**State machine** (player):
+```
+raft.sail ─ Ashore (within moor.range 3 m of a mooring slot, speed < 2 m/s, fishing idle) ─▶ hop 0.6 s ─▶ foot.walk
+foot.walk ─ Board (|stand − slot| − raft radius ≤ 3 m, validated) ─▶ hop 0.5 s ─▶ raft.sail
+foot.walk ─ push into a drop edge 0.4 s ─▶ drop (0.35 s + 0.08 s/m) ─▶ foot.walk
+any switch: 3 s cooldown; crossing i-frames (0.3 s hop, 0.2 s drop) only in calm and dawn
+```
+- **Ashore / Board:** the raft glides to the slot and turns bow-out (`yawDeg`); the lantern PointLight is re-parented between the raft pole and the Lantern Crook; `player:mode {reason}`. Allowed in every phase (boarding at night is a legitimate escape in Sporewood), but not as an i-frame dance: no night i-frames and a 3 s cooldown.
+- **Tow-bell** (every mooring): ringing it tows the raft to this mooring; ETA = clamp(path / 6, 3, 12) s.
+- **Murk** still trades within 5 m of his barge, from the raft or on foot; his dock rotation is v1's. Every dock is open water ≤ 4 m from a reachable walkway, and ≥ 5.5 m from every stand (validated), so his pill never hides a stand's.
+- **Interaction priority (one pill):** `gate > merchant > board | ashore > deed | candle | bell | leap | stake > fishHere`, except that **Fish here outranks Leap and a lit candle's pill within 2 m of a stand**. Candles stand ≥ 3 m from stands, docks 2.5 m, pill deeds 3 m, walk-through stations touchR + 1 m (validated), and never in the camera line south of a stand.
+- **Holds:** the pill sends `player.interactHold(true/false)` on pointerdown / up and E sends it on keydown / keyup; damage cancels a hold. The Fish-here pill calls `fishing.onPointerDown({aimAt})` / `onPointerUp()` directly.
+- **Never:** falling into water, swimming, ledge deaths, knock-offs. Knockback, ink-slick shoves, Grasps and the Ferryman's pull move the Wick only through player APIs, which slide along walkway edges (§24.8).
+- **In the fiction:** on foot the Wick unhooks the iron lantern onto a crooked staff on its back and carries the creel as a basket.
+
+### 24.3 On-foot controller
+
+| `BALANCE.walk` | value | feel and reason |
+|---|---|---|
+| top speed | `stats.moveSpeed × 0.84 + stats.stride` | 5.0 m/s base; Long Oars and friends help on foot too; `stride` comes only from foot items. |
+| accel / decel | 6 / 8 per s | 0 → 90% in 0.38 s; stops in ≈ 0.6 m. In the 0.4–1.0 s that dodges are decided the Wick covers what the raft covers (≈ 1.0 m in 0.4 s, ≈ 4 m in 1 s); it reverses faster but tops out lower. |
+| turn rate | 12 rad/s (faces input above 0.15 m/s) | |
+| body radius | 0.4 m | every reachability check runs on the grid eroded by this body (§24.4) |
+| steps | **symmetric 0.45 m** up and down; ramps ≤ 0.5 rise/run; uphill × (1 − 0.2 · slope/0.5) | stairs are drawn as treads, collide as ramps |
+| drops | one way, ≤ 3.55 m, at marked fallen balustrades only | shortcuts down, never back up |
+| cast meter starts below | 1.0 m/s (no anchor brake on foot) | |
+| High Cast | castMax + min(4, 0.5 × (standY − 1)) above 1 m | chapels and anchors are vantage points |
+| **steep line** | standing ≥ 4.95 m above the bobber: sweet band −0.03, surge warning −0.1 s | height trades reach and eel-proof footing for a harder fight |
+| interact range | 2.4 m (candles, deeds, bells, pills); trade 5 m | |
+
+**Integration (per frame, player):**
+```
+dir    = rotateY(input.move + input.joy, render.getYaw()), |dir| ≤ 1       // yaw fixed: screen-relative
+target = dir · topSpeed · uphill · (slick ? 0.6 : 1) · (locked | rooted | pinned | hopping ? 0 : 1)
+v     += (target − v)(1 − e^(−(|dir| > 0.15 ? accel : decel)·dt));  ext *= e^(−4.5·dt)   // knock / push / pull velocity
+world.moveFoot(position, (v + ext)·dt, {radius})   // displacement this frame; slides along edges; never leaves ground; sets y
+```
+**Fishing on foot** keeps §4.2: movement cancels charging / casting / waiting; bite / reeling / landing lock movement; holding movement 0.6 s while reeling cuts the line; `player:anchor` fires when planted. A planted Wick is never moved off its walkway.
+
+**Casting from land.** Aim, meter, Clean Cast, bite, reel and quality models are unchanged. Additions (fishing):
+- **Origin** = the rod tip (ground + 1.9 m); the arc ends on the water at y 0 and must clear land and props (sampled s = 0.15…0.95, fail where a solid is above the arc − 0.15 m); the target steps back 0.5 m along the ray as today. Casting over stone is fine.
+- **Pool-scaled meter:** the meter maps onto the **first contiguous water run** along the aim ray when that run is shorter than the reach (near edge → far edge), so a 4 m font or the water inside the Coronet is as aimable as the open lake.
+- **Locks drop in:** holes and greenhouse beds lock within 1.6 m; a locked cast (and a plumbed one) drops in from above, so it never needs a ballistic arc over the floor. Aim assist pulls the reticle up to 1 m toward a place target within 2 m, but **never** for reflections, drifters or moving targets.
+- **Spots on walking lakes** spawn only on water within castMax − 2 m of a reachable walkway (and in foot lakes half of them inside a place's water ≥ 10 m from the Wick). Place and spot never stack (per field, the stronger applies).
+
+### 24.4 Terrain & water model
+
+**The water plane stays at y = 0 (decision).** Reasons: (1) water.js's swell, `getHeight`, ripples, wakes, reflections and the depth bake are built around one plane, and the fragment shader is near its uniform budget; (2) fishing (`groundPoint(ndc, 0)`, the arc and splash), fish depth bands, eels, mites and the spawn ring assume y 0; (3) a second plane would need another water mesh and shader, 3-D aiming against several planes and per-plane enemy rules, for little gameplay; (4) height variety does not need it: land runs y 0.35–7 m and every special water is a y 0 pool ringed by land, opened to the camera by its sill.
+
+**Walk layout schema** (`ARENA_V2[zone].walk`, CONTRACT §12.4): `shapes[]` (disc / ring / rect / poly / path; per-point y makes a ramp; tags ground / ramp / jetty / bridge; `raftPass`; `needs` a shortcut), `holes[]` (enclosed pools, each with a `lip` — its south band of width w at y ≤ 1), `blocks[]` (props with a height), `variants[]` (per-descent fallen shapes, and which shortcut raises them). Ramps are listed after the platforms they climb onto, so they meet them flush (validated: every ramp can be walked end to end).
+
+**Rasterisation (`walkGridFor(zone, {open, variant})`, 0.5 m cells, painter's order):** ground shapes → holes, then each hole's sill band → bridges → islands (at `obstacleRadius`, the same radius world collides with), pillars, blocks and candle posts set BLOCK. Heights are quantised to 0.1 m and every threshold sits on a half-step, so no rule ever compares within eps of a threshold; everyone compares through `walkHeightLE` / `walkStepOK`. Output: `top` (Float32, NaN = no ground), `flags` (GROUND, WATER, POOL, BLOCK, RAFTPASS, VOID, BRIDGE, SILL), `shape`, `pool`. One walkable layer per cell. The largest grid (Pallid, 320²) is ≈ 0.9 MB (≈ 2.5 MB with world's derived fields); the three lakes bake in 12–40 ms in Node on a desktop (budget 60 ms desktop / 200 ms phone); world bakes on `zone:change` under the zone flash and re-bakes only the changed box on `shortcut:open`.
+
+**The cavern edge is one shape.** Walking lakes use the exact circle R (`shoreRFor`), not the noisy v1 shoreline: the grid is VOID beyond R − 0.5 and world's cliff base stands at ≥ R + 1.5 with outward-only noise and leans in only above 9 m, so land always ends ≥ 2 m inside the cliff base, and the walk grid, raft collision, depth, shore foam and cliffs agree. Raft lakes keep v1's shoreline.
+
+**Movement rules on the grid** (player, crawler flow field, validator, map tool, simulator): 8-neighbour moves on walkable cells, no corner cutting, symmetric steps ≤ 0.45 m, authored drops. Every reachability check uses cells where the 0.4 m body fits (eroded grid). Player collision is the body circle against that boundary, smoothed with a bilinear distance-to-edge field (world's choice of algorithm; the contract fixes the result: smooth slide, no leaving ground, y = ground).
+
+**Layers.** Under a bridge there are two surfaces; `surfaceY(x, z, layer)` and `getFlow(x, z, layer)` take the layer. Swimmers, cinders on the water, ripples, the bobber and the raft live on `'water'`; walkers on `'land'`. Non-`raftPass` bridges are solid for swimmers and the raft.
+
+**Depth** (`world.getDepth`): 0 on land; inside a hole, the hole's depth; inside a place's water, clamped to `place.water.depth`; elsewhere today's recipe, faded to 0 within 2.5 m of land (shore foam along every walkway), with no fade inside POOL cells and a 256² bake on walking lakes so 2.4 m jetties do not grow foam halos.
+
+**Raft navigation:** open water = WATER cells, or BRIDGE cells with RAFTPASS; `world.collideRaft` pushes the raft out of land with the land-distance field. The Hyphae Strand (y 6) lets the raft pass under; the Glasswater spokes (y ≈ 1.3) do not, which fences the skiff into its sector.
+
+### 24.5 Camera & readability
+
+| mode (render `MODES`; numbers in `BALANCE.walk.camera`) | elev° | dist m | aim | aimY | fov | ahead s | stiff |
+|---|---|---|---|---|---|---|---|
+| `walk` (day, on foot) | 40 | 12.5 | 3.0 | 0.9 | 50 | 0.35 | 4.4 |
+| `walkNight` (Gloomtide on foot; blended by nightK) | 56 | 16.5 | 1.5 | 0.4 | 52 | 0.25 | 4.6 |
+| portrait `walk` / `walkNight` (replace v1's portrait widening on foot) | 44 / 58 | 12 / 15.5 | | | 60 / 62 | | |
+| high ground (blend from 3 m to 5 m) | + 3° | + 1.5 m | | | | | |
+
+- **Yaw stays fixed** (screen-up = −Z) on foot in every mode, shop and death included. Every layout is authored for a camera looking north.
+- **Focus height** follows the ground on a spring (5/s) that ignores steps under 0.25 m; `camPos.y ≥ max(1.2, focusY + 2.5)`. A **terrain clamp** samples grid tops along focus → camera and raises the elevation or shortens the distance when rock is in the way, and keeps the camera inside R − 2 (Murk's dock on the east terrace, the Landing, the south-west terraces).
+- **Pool framing (fish and reel).** On walking lakes the elevation is `clamp(max(base, max_i atan((top_i + 0.3) / d_i) + 8°), base, 75°)`, with `top_i` sampled every 0.5 m from the bobber toward the camera (+z) out to 12 m; whenever that lifts the camera above the base framing, or the Wick stands ≥ 2 m above the water, the focus moves to the bobber. Because every hole has a sill ≤ 1 m on its south side and its higher ground lies beyond the sill, the required elevation stays under 75°: validate-data checks that **≥ 60% of every stand's castable place water** is seen by this camera, and that ≥ 60% of each legend pool is both castable and seen from both of the Bottomless's stances.
+- **Occlusion:** a dithered see-through cone from the camera to the Wick (r 0.8 → 2.6 m) discards 4×4 Bayer fragments of `occludable` world materials, never the floor at or below the Wick's feet; `occludable()` gives those materials their own program cache key and outline material, and the dither reads an instancing-aware world position. Backstop: **one x-ray proxy** (a billboard silhouette of the Wick and its lantern) drawn after world opaques and before the Wick, at 40% bone-white.
+- **Authoring rules (validated):** within 14 m south of every stand (±4 m sideways) nothing rises more than 3.5 m above it; every hole's south 120° near rim is ≤ 1 m above the water; walkable spaces have no solid roofs (the Mirror Nave is roofed with open crystal ribs); each place's water lies within ±50° of up-screen or within 6 m of its stand, so the reticle never sits in the joystick corner.
+- **Readability on foot:** at night the 0.6 m Wick body is small (≈ 2% of frame height on a 390 px landscape phone at 16.5 m), so the **ground ring** is what you find: 1.0 m with a heading notch, plus a thin amber rim on the Wick (both on the existing ring and outline, no new draw calls). The Wick's lantern is the **only amber, flickering light**: sister-candles burn a cold, steady light in the lake's accent colour with an ink-edged ground decal (one instanced draw) and light land through the lamp term in the land materials. Enemies within 10 m draw contact shadows on the surface below them, so height never lies about distance. QA #20: on a 390 px phone with 150 enemies and 3 candles on screen, a tester finds the Wick in under 0.5 s.
+
+### 24.6 The three maps
+
+Each map is printed by `node tools/walkmap.mjs <zone>` (shortcuts closed, base variant). Letters are the places in data order; times are walking times at 5.0 m/s on the body-eroded grid. Sister-candles are `L`; `,` marks a hole's low sill.
+
+#### Sporewood Pools — "Raft & Root" (raft + walking), R 65
+
+**Feel:** an archipelago. The raft is your horse; the four islands are groves hiding secret pools. Warm plum water, amber spores, cap tops and root cloisters.
+
+```
+x: -65 (left) … 65 (right); one char = 2.5 m, one row = 4 m; north (−z) is up-screen
+ -65                     #############
+ -61                ###~~~~~~~~~~~~~~~~~###
+ -57             ##~~~~~~~~~~~~~~~~~~~~~~~~~##
+ -53           ##~~~~~~~~~~~~~~G~~~~~~~~~~~~~~##
+ -49         ##::.~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~##
+ -45        #:oof:...~^^^^====~~=====^^*~~~~~~~~~~#
+ -41      #...:,::::...~~~~~~~~~~~~~~L~~~::~.......##
+ -37     #...::::L:::...~~~~~~@@@~~~~~~~..:::::......#
+ -33    #.....::::::.....~~~~~@@@~~~~~...L:ooo::......#
+ -29   #.....:::::::......~~~~~~~~~~~...::oooo::......##
+ -25   #~....:.....:......~~~~~~~~~~.....:,,,,:.......~#
+ -21  #~~~~................~~~~c~~~~.......:a....*...~~~#
+ -17  ~~~~~~............~.~~~@@@@~~~~..............~~~~~#
+ -13 #~~~~~~~~~~~~~~~~~~M~.~~@@@@@~~.~M~~~~.....~~~~~~~~~#
+  -9 #~~~~~~~~~~~~~~~~~~~~~~R~~@~~R~~~~~~~~~~~~~~~~~~~~~~#
+  -5 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~@@@~~~~~~#
+  -1 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~@@@@~~~~~#
+   3 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~M~~~~~~~~~~~~~~~#
+   7 #~~~~~~~~~~~~~~~~~~~~~~~@@@@~~~~~~~~~~~~~~~~~~~~~~~~#
+  11 #~~~~~~~~~.~~~~~~~~~~~~~@@@@@~~~~~~~~~~~~~~~~~~~~~~~#
+  15 #~~~~........b..~~~~~~~~~~@~~~~~~~~~~~~~....~~~~~~~##
+  19  #~.......@.....~~~~~~~~~~~~~~~~~~~~..@.....@....~~#
+  23  #..@...........~~~~R~~~~~~~~~~~~~~~.......*...@@.##
+  27   #..@.@ooo.....~~~~~~~~~~@~~~~~~~~~.......o....*.#
+  31    #...@ooo.....~M~~~~~~@@@@~~~R..........oooo...#
+  35     #...d.L....~~~~~~~~~~@@@~~~~~~~~~....*ooo.*.#
+  39      #........~~~~~@@~~~~~~~~~~~~~M~~.....Le...#
+  43       #.....@@~~~~@@@@~~~~~~~~~~~~~~~~.@......#
+  47        ##..*~~~~~~~~~~~~~~~~~~~~~~~~~~~.....##
+  51          ##~~~~~~~~~~~~~~~S~~~~~~~~~~~~~~.##
+  55            ##~~~~~~~~~~~~~~~~~~~~~~~~~~~##
+  59               ##~~~~~~~~~~~~~~~~~~~~~##
+  63                  ####~~~~~~~~~~#####
+```
+
+| piece | where (m) | what |
+|---|---|---|
+| **The Rootstool** (NE) | beach y 0.8 around **the Root Cloister** (32, −30) r 9.5, y 2.4 | the lagoon of **the Mother's Cup** r 5 (legend pool (32, −30)), its south rim broken into low water-steps (sill r 5–7, y 0.8). **Gill Climb** from the beach (19.5, −24) to the cloister's west side; **Root Ridge** (31, −38.5) → (21, −44) up to the east **Veil Anchor** (17.5, −44) y 6 with the **Swollen Counterweight**. **Rootfoot Jetty** (17, −18.5) → (10.5, −10.5). The hero Mother Cap rises beyond the NE shore. |
+| **The Gillback** (NW, a fallen cap gills-up) | beach y 0.8; **Gill Crown** (−36, −36) r 9 y 4.2 with its north lobe, **the Veil Ledge** (−41, −45.5) | two ramps from the south beach; **Gill Ridge** to the west Veil Anchor; the **Crown Lip** drop (one way, 3.4 m) to the east beach; **Gill Jetty** (−16.5, −19.5) → (−10.5, −11.5). |
+| **The Hyphae Strand** | (−15, −44) → (15, −44), y 6, the raft passes under | its middle (within 3.5 m of x = 0) grows once the counterweight is burst; frames the gate behind it. |
+| **Lanternstalk Grove** (SW) | beach y 0.8 | **the Drowned Greenhouse** (−44, 31) 13 × 13 m at y 1.0 with four flooded beds; four Lanternstalks clear of every camera line; **Stalk Jetty** (−28, 25) → (−18.5, 24.5); the north beach is the Lullaby's foot stand. |
+| **Bellcap Copse** (SE) | beach y 0.8 | **Harp Green** (43, 32) r 9, y 1.0 around the Gill Harp pool r 5.2 under the 14 m Bellcap; **Copse Jetty** (25, 30.5) → (16.5, 31). |
+| **open water** | the Lullaby (−28, −1) r 11 @ 0.85; Murmur Basin (26, 4) r 11 @ 0.8; reef mat x ≈ 0, z −30…38 @ 0.15; the Veil Reach north channel @ 0.7 | Cap Reef rocks I–IV stay raft obstacles. |
+
+- **Spawn** on the raft at (0, 52). **Gate:** the Mycelium Veil (0, −53) r 4.5, sailed into up the Veil Reach and under the Hyphae Strand. **Moorings:** Rootfoot, Gill, Stalk, Copse (each with a tow-bell; stand → slot ≤ 3 m + hull). **Murk's docks:** (20, 37.5) Copse side (day 1), (−23, 31.5) Stalk, (−16.7, −13.1) Gill, (16.9, −12) Rootfoot, (26, 4) Murmur Basin (raft-only). **Sister-candles (5):** the Mother's Cup, Gill Crown, the Greenhouse, the Gill Harp, Veil Anchor; in a mixed lake the moored raft also counts as safety for the dusk rule.
+- **Walk times** from the island's jetty: the Mother's Cup 6.2 s, the Lullaby (north beach) 4.2 s, the Greenhouse 6.0 s, the Gill Harp 5.8 s, the Veilwater 9.7 s. Sailing between jetties takes 5–13 s.
+- **Sample day 2 (≈ 115 s):** sail to the Copse Jetty (5 s) → walk to the Gill Harp (6 s) → Serenade (≈ 10 s) → 2 catches (36 s) → board, sail to the Stalk Jetty (7 s) → Greenhouse (6 s) → 2 catches → trade at the Stalk dock → dusk on the raft or on the Gill Crown.
+- **Wayside:** puffballs along the island paths (4 a day, +2 satiety each, burst by walking into them).
+- **First visit:** area banner, then tip `moor_walk` when the Ashore pill first shows. The Copse ring glows and the Gill Harp's curtains are visible from the water.
+
+#### Glasswater Vault — "The Rotunda" (mostly on foot), R 70
+
+**Feel:** a flooded rotunda library. Strong architecture, three wings, bridges in various states of repair, precise and puzzle-like fishing. Hub-and-spoke: once its spans are mended the Orrery Floor is never more than two bridges from anywhere.
+
+```
+x: -70 (left) … 70 (right); one char = 2.5 m, one row = 4 m; north (−z) is up-screen
+ -70                       #############
+ -66                  ##~~~~~~~:::::~~~~~~###
+ -62               ##~~~:::::::::@:::::::::~~~##
+ -58            ##~~~::::::::::::L::::::::::::~~~##
+ -54          ##~~:::oo::::::::..:.::::::::::::::~~##
+ -50         #~~::L:eoo::.................:::::::::~~#
+ -46       #~~::::::,,,.....~~~~~=~~M~~....:::::::::~~##
+ -42      #~~:::::::....~~~~~~~~*=*~~~~~~~~....:::::::~~#
+ -38     #~~::::::....~~@@@@~~~*~~~*~~~@@@@~~....::::::~~#
+ -34    #~~::::::...~~~@@@@@~~~=*~*~~~@@@@@@~~~...::::::~~#
+ -30   #~~::@::...~~~~~@@@@@~~~~~a~~~~~@@@@~~~~~...::@@::~~#
+ -26   #~:::::...~~~~~~~~~~~~~~~~=~~~~~~~~~~~~~~~~..::::::~#
+ -22  #~::::::.*~===~~~~~~~~~~~~~=~~~~~~~~~~~~~===~..:::::~~#
+ -18  #~:::::...~~~~~~~~~~~~~~.......~~~~~~~===~~~~..::::::~#
+ -14 #~~:::::..~~~~~~~~==~~~....o=.....~~~==~~~~~~~~..:::::~~#
+ -10 #~:::::...~~~~~~~~~~=...oo@...@o...==~~~~~~~~~~...:::::~#
+  -6 #~:::::..~~~~~~~~~~~~..=.........o..~~~~~~~~~~~...:::::~#
+  -2 #~::oo:..~~@@@@~~~~~...o...oGo...o..~~~~~@@@@@~~..:::::~#
+   2 #~:,oo,..~~@@@@~~~~~...o...oGo...o..~~~~~~@@@@~~..::L::~#
+   6 #~:L:b:..~M~~~~~~~~~~..=........=...~~~~~~~~~~M...:c^*:~#
+  10 #~:::::...M~~~~~~~~~==..,o.....o,..==~~~~~~~~~M...::^:~~#
+  14 #~~:::::..~~~~~~~===~~~...,,.,,...~~~=~~~~~~~~~..:::::~~#
+  18  #~::::::..~~~===~~~~~~~~*.Lh...~~~~~~~~~~~~~~..::::::~#
+  22  #~~:::::..~==~~~~~~~~~~~~~~=~~R~~~~~~~~~~f==...:::::~~#
+  26   #~::::::..~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~.L.::::::~#
+  30   #~~::@:::..~~M~~~@@@@~~~~~=~~~~~@@@@~~~~~...::@@::~##
+  34    #~~::::::...M~~~@@@@~~~~~=~~~~~@@@@~~~~...::::::~~#
+  38     #~~:::^^dL...~~~~~~~~~~~=~~~~~~~~~~~....::::::~~#
+  42      #~~::^oo^:....~~~~~~~~~=~~~~~M~~~....:::::::~##
+  46       ##~~:,,:::::.....~~~~~=~~R~~....:::::::::~~##
+  50         #~~:::::::::........SL......::::::::::~~#
+  54          ##~~::::::::::~~~~~~~~~~~:::::::::~~~##
+  58            ##~~~::::::~~~~~~~~~~~~~::::::~~~##
+  62               ##~~~~::~~~~~~~~~~~~~::~~~~##
+  66                  ###~~~~~~~~~~~~~~~~~###
+  70                       #############
+```
+
+| piece | where (m) | what |
+|---|---|---|
+| **Orrery Floor** (hub) | disc r 20, y 1.5 (above the crawler climb, so crawlers enter only by the spokes and the Skiff Steps) | the **Vault Seal** gate pool r 5 at the centre; **the Votive Font** channel r 12–14 crossed by six footbridges (30°, 90°, … 330°; r 11.4–15.8) with its south rim sunk into a low step; **six reliquary pillars at r 10 between the footbridges** (0°, 60°, … 300°), so every bridge lands on open floor and the Seal's Descend ring (r ≤ 7.5) is reachable. |
+| **Moat of Volumes** | water r 20–48 (shelf 20–26 @ 0.45, trench 26–48 @ 0.92) | six Bookshelf Monoliths stand on the terraces. |
+| **six spokes** | bridges r 20 → 48 at 30°, 90°, 150°, 210°, 270°, 330°; 3.5 m wide; y 1.5 → 1.2 | **S 90° The Sundered Span:** r 23–31 missing until the **Span Winch** on the hub (−6.5, 17.5) is turned. **ESE 30° The Broken Hymnal:** collapsed r 26–40 for good. **ENE 330° Copyists' Bridge** and **WSW 150° Mapmakers' Bridge:** intact (unless this descent's variant fells one). **N 270° Chandelier Causeway:** forks into **the Coronet**, a ring walk r 3.6–6 around the legend pool (0, −37). **WNW 210° The Tuned Bridge:** r 28–40 missing until the **Tuning Pillar** on the gallery (−45.8, −21.3) is struck (a crystal span grows in 3 s). |
+| **Lower Gallery** | ring r 48–54, y 1.2, continuous | spawn (0, 51); the **Harbour Steps** mooring (8, 45). Crawlers climb onto it from the moat. |
+| **Reading Terraces** | ring r 54–66, y 4, open in the south arc | eight ramps up from the gallery (20°, 60°, 120°, 160°, 230°, 270°, 300°, 340°). |
+| **chapels and wells** | on the terraces | **Chapel of the Struck Hour** (60, 6) y 7 (its west window looks north-west over the moat); **Chapel of Unseen Hours** with **the Mirror Nave** (−58.5, 0) under open crystal ribs; **Ledger Stair** (−41, 41) r 5.5 y 7 around the Well of Ledgers shaft, whose south face has fallen in (a sill to y 0.8), reached by a ramp that ends 2 m inside the platform; **the Stilled Cascade** basin (−29, −51), open to the gallery on its south side. |
+
+- **Per-descent variant (one of three, seeded):** *Mapmakers' Bridge has fallen*; *Copyists' Bridge has fallen*; *the Tuning Pillar is cracked* (the Tuned Bridge cannot grow). Every place, candle, deed, mooring, the gate and every dock stay reachable under each, with shortcuts closed and open (validated). The fallen bridge changes the day's routes and which moat sectors the skiff reaches.
+- **The skiff:** moored at the Harbour Steps; the low spokes fence it into the east / south moat. Day 1: cross to the **Skiff Steps** on the hub in ≈ 5 s of sailing (instead of ≈ 20 s of walking) to turn the Span Winch; fish the south-east trench; a moat refuge at night (its raft nights use the water flow field, §24.8).
+- **Gate:** the Vault Seal (0, 0) r 5: Descend within 7.5 m of its centre, on foot. On descending, the raft follows through the Seal's whirl and is beached at the Pallid landing.
+- **Murk's docks** (in the moat, ≤ 4 m from a walkway): (15, 43.5) by the harbour (day 1), (44.5, 8) east, (8, −44.5) north, (−44.5, 8) west, (−33.5, 32) south-west. **Sister-candles (8):** Harbour Steps, Orrery Floor, North Terrace, and one at each of the Mirror Nave, the Bell-Chapel Window, the Well of Ledgers, the Stilled Cascade and the Broken Hymnal.
+- **Three wings.** East (Broken Hymnal 12.3 s from spawn, Bell-Chapel Window 8.2 s beyond it, the Burning Glass), west (Well of Ledgers 14.6 s, Mirror Nave 8.0 s beyond it, the Stilled Cascade), centre (Votive Font, Fallen Chandelier). East ↔ west on foot costs 26–34 s, so a day picks a wing (the Astir place and Murk pull you) and the next dawn's flame-leap chooses where tomorrow starts.
+- **Shortcuts:** spawn → hub (the Votive Font) 20.6 → 6.8 s and spawn → Fallen Chandelier 26.3 → 17.2 s once the Span is lowered; the Tuned Bridge makes hub → north-west wing direct.
+- **Wayside:** drifting pages along the walkways (6 a day; 1–2 Shells, or a line of lore).
+- **First visit:** tip `foot_spawn`; text "Your raft can't climb stairs. It can still cross the moat to the Skiff Steps." The raised Span leaf and the Winch's glint are visible across the moat.
+
+#### The Pallid Deep — "Bone Roads" (mostly on foot), R 78
+
+**Feel:** a pilgrimage. Long, lonely causeways over black water with memorial candles along every walkway. The finale is fought at **the Bottomless**, before two giants kneeling at the north wall, from the low Brink or high on their joined hands.
+
+```
+x: -78 (left) … 78 (right); one char = 2.5 m, one row = 4 m; north (−z) is up-screen
+ -78                          ##############
+ -74                     ##~~~~~~~~~~~~~~~~~~~###
+ -70                 ##~@@@@@~~~~~~~~~~~~~~~@@@@@~##
+ -66               #~~~@@@@@@@~~~~~~~~~~~~~@@@@@@@@~~##
+ -62            ##~~~~@@@@@@@@@~~~~^^^~~~~@@@@@@@@@~~~~##
+ -58           #~.~~~~@@@@@@@@@.::~~a~~::.~@@@@@@@@~~~~~~##
+ -54         #~.~~.~~~~@@@@@@@~.~~~~~~~~~..@@@@@@@~~~~~~~~~#
+ -50        #~~~.~.~~~~~~@@~..~.~~~~~~~~~.....@@~~~~~~~~~~~~##
+ -46       #~~~~.~.~~~~....~~~~..~~~~~~~~.~~~~~.........~~~~~~#
+ -42     #~~~~~~~~Lg.~~~~~~~~~~~..~~~~~..~~~~~~~~~~~L.@..~~~~~~#
+ -38     #~~~~~~~~.~~.~~~~~~~~~~~~~.a.~L~~~~~~~~~~~~L.d.~~~~~~~~#
+ -34    #~~~~~~~~.~~~~.~~~~~~~~~@~M~.~~~@~~~~~~~~~~.~~~~.~~~~~~~~#
+ -30   #~~~~~~~~.~~~~~~.~~~~~~....~~~~~....~~~~~~~.~~~~~~.~~~~~~~#
+ -26  #~~~:::::::~~~~~~~.~@~....~~~~~~~~~~~..~@~~.~~~~~~~~..~~~~~~#
+ -22  #~~~::Lc:o:~~~~~~~~...~~~.o.~~~~~~~~~~~....~~~~~~~~.oo.~~~~~#
+ -18  ~~~~::Lc:::~~~~~~~~..~~~~Lf*~~~~~~~~~~~~~.~~~~~~~~.~.eL~~~~~~#
+ -14 #~~~~::::::::~~~~~~..~~~~~~..~~~~~~~~~~~~~..~~~~~.~~~~~~~~~~~~#
+ -10 #~~~~~~~~~~~~~.~~@~.~~~~~~~~*~~~~~~~~~~~~~~.~@~..~~~~~~~~~~~~~#
+  -6 #~~~~~~~~~~~~~~~.~..~~~~~~~~~~~~~~~~~~~~~~~~...~~~~~~~~~~~~~~~~
+  -2 #~~~~~~~~~~~~~~~~~.~~~~~~~~~~~~~~~~~~~~~~~~~.~~~~~~~~~~~~~~~~~~
+   2 #~~~~~~~~~~~~~~~~~.~~~~~~~~~~.~~~~~~~~~~~~~~.~~@@@~~~~~~~~~~~~~
+   6 #~~~~~~~~~~~~~~~~~..@~~~~~~~~~.~~~~~~~~~~~@~.~~@@@~~~~~~~~~~~~#
+  10 #~~~~~~~~~~~~@@@~~~.~~~~~~~~~~.~~~~~~~~~~~~.~@~~~~~~~~~~~~~~~~#
+  14 #~~~~~~~~~~~~@@@~~~..~~~~~~~~~...~~~~~~~~~..~~~~~~~~~~~~~~~~~~#
+  18  ~~~~~~~~~~~~~~~~~~~~~~.................~~~~~~~~~~~~~~~~~~~~~~#
+  22  #~~~~~~~~~~~~~~~~~~~~~~~~~~.....L.~~~~~~~~~~~~~~~~~~~~~~~~~~#
+  26  #~~~~~~~~~~~~~~~~~~~~~~~~~M.....L.M~~~~~~~~~~~~~~~~~~~~~~~~~#
+  30   #~~~~~~~~~~~~~~~~~~~~~~~~~~~...~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+  34    #~~~~~~~~~~~~~~~~~~~~~~~~~~~.~~~~~~~~~~~~~~~~~~~~~~~~~~~##
+  38     #~~~~~~~~~~~~~~~~~~~~~~~~~~.~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+  42     ##~~~~~~~~~~~~~~~~~~~~~~~~~.~~~~~~~~~~~~~~~~~~~~~~~~~~#
+  46       #~~~~~~~~~~~~~~~~~~~~~~~~......~~~~~~~L~~~~~~~~~~~##
+  50        #~~~~~~~~~~~~~~~~~~~~~~~.~~~~~~~~~....b~~~~~~~~~##
+  54         #~~~~~~~~~~~~~~~~~~~~~~.~~~~~~~~~~~~~M~~~~~~~~#
+  58           #~~~~~~~~~~~~~~~~~~~~.~~~~M~~~~~~~~~~~~~~~##
+  62            ##~~~~~~~.......................~~~~~~~##
+  66               ##~~~..........L.S............~~~~##
+  70                 ###~...........S...........~~##
+  74                     ###~~.............~~####
+  78                          ##############
+```
+
+| piece | where (m) | what |
+|---|---|---|
+| **Landing of Last Rafts** | bone-ash beach y 0.4 (south) | spawn (0, 68); the raft beached at (6, 72) among hundreds of others. |
+| **The Spine** | vertebra causeway (0, 62) → (0, 31), 4 m, y 0.6–0.8 | the **Long Pier of Names** branches east (2, 46) → (34, 50). |
+| **Cairn Plaza** | disc (0, 22) r 9, y 1 | **Pallbearers' Walks** west and east to the ends of the Rib Walk; **the Bier Road** north to the Bier Barge (−10, −20), its middle (**the Sunken Road**) under water until the **Bone Windlass** (−8.5, −11) is turned. |
+| **The Rib Walk** | ring r 30.5–33.5, 150° → 390° through the north, y 1 | under eight ribs whose feet straddle the walk; branches: Plank Walk to the Almshouse, Slip Path, the Pilgrim Road to the Brink, Chain Walk, Belfry Pier. |
+| **The Bottomless** | (0, −52) r 12 @ 1.0, legend pool r 3.2 at its centre | **the Brink**: a horseshoe r 12–15 at y 1 through the south (340° → 200°), with the Pilgrim Road arriving at its south and the Brink candle (6, −39). **The Kneeling West / East** (±25.5, −60.5) r 10 kneel at the north wall, facing the camera; their **forearms** rise from the Brink's two ends ((±12.7, −56.6) → (±2.4, −60.2), y 1 → 6) to **the Joined Hands** (0, −61) r 3.5, y 6, held out over the north half of the water. Brink + forearms + Hands form one ≈ 75 m loop. **Shroud Walks** leave the Brink's west and east sides, south of the giants, for the Ferry Slip and the Chain Garden. |
+| **the outer places** | W: Drowned Almshouse (−58, −20) y 2.5 with the Wall Walk to the Ferry Slip; NW: Empty Ferry Slip (−42, −42); NE: Chain Garden plinth (44, −42) y 2 with the Rust Walk to the Sunken Belfry (56, −22) | |
+
+- **Per-descent variant:** *the Sunken Road is under water* (weight 2; the windlass raises it), or *the west* / *the east Pallbearers' Walk is under water* (weight 1 each; the Sunken Road is up from the start and the windlass raises the drowned walk instead). Validated reachable under each.
+- **Murk's docks:** (12, 58) Landing (day 1), (34, 55.5) pier end, (−10.5, 25) and (10.5, 25) by the Plaza, (−5.5, −35.5) beside the Pilgrim Road (nearest the finale, 6.3 m from the Brink stand). **Sister-candles (9):** Landing, Cairn Plaza, the Brink, and one at each of the Long Pier, the Bier Barge, the Almshouse, the Ferry Slip, the Chain Garden and the Sunken Belfry. There is deliberately no candle on the Joined Hands: relighting the giants' dead lantern is the victory.
+- **Walk times:** spawn → Plaza 9.1 s, → Long Pier 11.3 s, → the Brink 29.4 s (24.4 s with the Sunken Road raised), → the Joined Hands 36.8 s. From the Brink: Bier Barge 6.9 s, Ferry Slip 10.3 s, Chain Garden 11.4 s, Almshouse 16.0 s, Sunken Belfry 16.5 s. Almshouse ↔ Ferry Slip 6.0 s; Chain Garden ↔ Belfry 5.4 s.
+- **Wayside:** 48 memorial candles along the roads; walking past one lights it (+0.5 oil), it stays lit for the descent, marks the routes you have walked and feeds the victory cascade.
+- **Finale flow:** buy Drowned Marrow → reach the Brink or the Hands before the Gloomtide → hook during the Gloomtide (§24.8, "The finale on foot").
+- **First visit:** the Spine leads straight at the giants, visible from the beach. Tip `foot_spawn`.
+
+### 24.7 Places: the unique fishing locations
+
+**How a place works (fishing).** When the bobber lands, `place = placeAt(zone, x, z)`:
+```
+base   : wait × 0.75, rarity +0.10, quality +0.06          (BALANCE.places.base; feeding spots are × 0.55 / +0.10 / +0.08)
+astir  : wait × 0.55, rarity +0.25, quality +0.15          (today's Astir place, replaces base)
+spot   : per field the STRONGER of place and feeding spot applies; they never stack
+attract: per-species weight multipliers (× 1.5 … × 4)
+mods   : per-place constants on the bite and reel model (waitMult, surgeEveryMult, erraticMult, hookWindowMult/Add, nibbleTells,
+         bandAmpMult, bandNoiseMult, darterJumpMult, weightBias, quality, rarity, legendEnrageAdd, sweetAdd, surgeWarnAdd)
+stance : standMods / altStand.mods (the Bottomless), and the steep line on any stand ≥ 4.95 m above the bobber
+rule   : one twist from the kit below; `alt` = its B twist, run this descent with chance 0.5 (never on legend places)
+place-kept species: eligible only here, under their `cond`, only while awake this descent (4 of 8), rolled as rare with weight × 8
+```
+Depth inside a place's water stays within `place.water.depth`. Every place yields at least one calm species without bait, has ≥ 60% of its castable water in view of the fish camera from every stand, and lies within ±50° of up-screen or 6 m of its stand (validated). **Discovery:** the Wick within 8 m of the stand or of the water shape, or a cast into it.
+
+| rule `type` | parameters | what it does |
+|---|---|---|
+| `rhythm` | period, warn, live, burst?, near?, foul?, mods | a repeating window: casts landing while it is live get `mods`. `burst`: a bobber in the area when the warning ends is thrown out (bait refunded). `near`: only within r of listed points. `foul`: a hooked fish may wrap a chain (tension spike, clank 0.3 s before). |
+| `sequence` | deed (walk-through stations, touchR), window, buff, failDim, mods | walk through the stations in today's order within `window` s → `mods` for `buff` s; a wrong one dims them all for `failDim` s. Stations stand ≥ touchR + 1 m from every stand, candle and mooring. |
+| `deed` | deed, mode (`permanent` / `untilDusk` / `dawn` / `window`), perStep?, lockedBefore?, gloomInCalm?, mods | something done in the world boosts (or unlocks) the water; the deed's `resets` matches the mode (validated). Deeds are `pill` (hold or tap) or `touch` (walk past within touchR). |
+| `targets` | targets[{rect/disc, depth?, attract?}], lock, lockPicks, lit? | sub-areas with their own depth and species; the lock picks a hole (or a bed) and the cast drops in. `lit`: one bed glows and a patch of light drifts along it; the meter shows a **tick** where the patch lies; releasing within ±0.08 of it gets `mods`. |
+| `moving` | arc, speed, r, phases, mods | a travelling target; the bonus is decided at landing, so lead it (no aim assist). |
+| `drifters` | lane, every, speed, hitR, perDay, give, nextBite | small floating targets cross a lane; landing within hitR of one triggers `give` and buffs the next bite (no aim assist). |
+| `cue` | kind `chime` / `toll`, every?, lead, noPlunge?, mods | bites are announced differently: `chime` = a bite lands exactly `lead` s after a chime; `toll` = no plunge and no "!", a bell toll and a bone-white ring (shown with sound off). |
+| `plumb` | depth, bottomAt, bottomMods | the bobber drops to the shaft centre; the charge picks the depth; charge ≥ bottomAt reaches the bottom ledger. |
+| `reflection` | fish, hitR, wait, missWaitMult, flash, mirror, mods | fish are invisible; their silhouettes swim along the ribs and show mirrored on the water. Landing within hitR of a fish's true position guarantees a bite in `wait` s; elsewhere wait × missWaitMult. True positions flash for `flash` s on landing. Hit circles cover ≤ 15% of the pool (validated). |
+| `phaseWindow` | phases, firstCastOnly, guarantee, wait, perDescent | during the listed phase the first cast is a guaranteed `guarantee` rarity, at most `perDescent` times a descent. |
+
+#### Sporewood Pools (6 places)
+
+| place | access · stand | water | favours | rule (twist) · B twist | rewards |
+|---|---|---|---|---|---|
+| **The Mother's Cup** *(legend pool)* — "The Mother Cap drinks here, ten breaths at a time." | foot · cloister south (32, −21.8), y 2.4, behind the water-steps | lagoon (32, −30) r 5 @ 0.90–0.95 | Velvet Ray × 2, Plumgill × 1.5; **The Drifting Grove** | **Root Breath** (`rhythm` 16 s): 1.5 s warning, 6 s exhale: wait × 0.6. *(legend: no B)* | the legend |
+| **The Lullaby** — "Fish sleep here with their mouths open." | both · north beach of Lanternstalk Grove (−32, 13.5), casting north, or the raft | West Basin core (−28, −1) r 8 @ 0.60–0.85 | Sleepspore Jelly × 3 (Lumen Moss), Velvet Ray × 1.5 | **The Hum** (`mods`): surge interval × 1.3, erratic × 0.6, hook window × 0.85. B: deeper sleep (× 1.5 / × 0.5 / × 0.75). | Sleepspore farming |
+| **The Puffball Vent** — "Every twenty breaths the reef sneezes." | raft · (0, −21.8) | reef patch (0, −25) r 5 @ 0.45–0.55 | Sporebelly Puffer × 3, Capshell × 1.5 | **Vent Burst** (`rhythm` 20 s, burst): 2 s hiss, a geyser throws out any bobber, then 6 s of settling water: rarity +0.25, wait × 0.7. B: a restless reef (14 s, 1.5 s hiss). | timing on the raft |
+| **The Drowned Greenhouse** — "Rows of glass, rows of water, and one row that still remembers the sun." | foot · south walkway (−44, 36.5), y 1.0 | 4 flooded beds (2 × 9 m) @ 0.40–0.50 | Capshell × 2, Plumgill × 2, Sporebelly × 1.5 | **The Lit Row** (`targets`): the lock picks a bed; one bed glows (rotates every 15 s) and a sun-patch drifts along it; release within ±0.08 of the meter's tick: wait × 0.5, quality +0.12. B: the sun flickers (every 9 s). | the food / oil tap; Shimmering farming |
+| **The Gill Harp** — "Walk the strings in the order she hums them." | foot · Harp Green south (43, 39.2) | pool (43, 32) r 5.2 @ 0.70–0.80 | Velvet Ray × 2.5, Threadling Eel × 2 (Spore Cake) | **Serenade** (`sequence`): three gill-curtains (east, west and north of the pool, touchR 1.2) pulse in a new order each day; walk through them in order within 15 s → 45 s of song: wait × 0.5, nibble tells +1. B: a quicker tune (10 s window, 60 s song). | **Harpstring Eel** (while it sings) |
+| **The Veilwater** — "A pool that kept its own night." | foot · Veil Ledge east (−36.3, −45.2), y 4.2, casting west | veiled pool (−40, −45) r 2.4 @ 0.75–0.85 behind fallen steps | Mildew Angler × 2, Sleepspore × 1.5 | **Burn the Veil** (`deed`, permanent): relight the Spent Sporelights on the other three islands (46, −22), (−38, 47), (56, 27) (pills); with all three the veil burns away: rarity +0.25, quality +0.15, gloom-only species bite in calm. B: one sporelight is already lit. | **Hushcap Koi**; a reason to visit every island |
+
+#### Glasswater Vault (8 places)
+
+| place | access · stand | water | favours | rule (twist) · B twist | rewards |
+|---|---|---|---|---|---|
+| **The Fallen Chandelier** *(legend pool)* — "It fell in one breath. It has been holding that breath ever since." | foot · the Coronet's south edge (0, −31) | trench inside the coronet (0, −37) r 3.5 @ 0.90–0.95 | Mirror Pike × 1.5, Shardspine × 1.5; **The Glass Sovereign** | **Lit Arms** (`deed`, resets at dawn): six arms on the Coronet (touchR 0.9) relight as you walk past: +0.04 rarity each; all six: nibble tells +1 and the Sovereign's enrage +15 s. | the legend |
+| **The Mirror Nave** — "Nothing swims in the water. Everything swims in the ceiling." | foot · chapel south (−58.5, 6.5), y 4, behind the fallen step | nave pool (−58.5, 0) r 3.8 @ 0.65–0.75 | Mirror Pike × 3 | **Reflection**: two silhouettes swim along the open crystal ribs and show on the water **mirrored across a north–south brass line** (x flips: the screen's sideways axis). Land within 0.9 m of a true position → a bite in 2–4 s (rarity +0.2); elsewhere wait × 1.6; true positions flash 0.5 s. Hit area ≈ 11% of the pool. B: three fish, 0.75 m. | **The Unreflected** |
+| **The Bell-Chapel Window** — "Strike the hour and the water remembers." | foot · the chapel's west window (56.6, 6), y 7 (High Cast +3 m) | trench patch (44, −6) r 4, north-west of the sill | Chime Jelly × 3 (Glass Larvae), Mirror Pike × 2 | **The Struck Hour** (`deed` window): pull the bell rope (40 s cooldown): 12 s of shiver: wait × 0.4. B: 8 s, 25 s cooldown. | fast rares from an eel-proof perch (steep line) |
+| **The Well of Ledgers** — "Every depth was written down." | foot · shaft north rim (−41, 37.2), y 7 | shaft (−41, 41) r 2.2 @ 0.50–1.00, its south face fallen in | Blind Scrivener × 3 (Ember Roe), Mirror Pike × 1.5 | **Plumb Line**: the bobber drops to the shaft centre; the charge picks depth 0.5 → 1.0; a Clean Cast reaches the bottom ledger (rarity +0.1). B: 0.6 → 1.0, bottom at 0.9. | **The Footnote** (bottom ledger only) |
+| **The Stilled Cascade** — "The falls froze mid-word." | foot · terrace west of the basin (−33.6, −49.6), y 4 | basin (−29, −51) r 4.2 @ 0.80–0.90, open to the gallery | Glassgill × 2, Prism Minnow × 1.5 | **Stillness** (`mods`): sweet-band drift × 0.25, band noise × 0.3, darter jumps × 0.5, quality +0.1, wait × 1.4. B: slightly less still, slightly quicker. | **Rainglass Darter** (calm) |
+| **The Broken Hymnal** — "The bridge sang as it fell, and never quite finished." | foot · outer stub end (35.2, 20.3) | trench beyond the stub (30.5, 13.5) r 6 @ 0.85–0.95 | Prism Minnow × 2, Mirror Pike × 1.5, Shardspine × 2 (night) | **The Unfinished Chord** (`cue` chime): shards chime every 3.5–5 s; bites land exactly 1.0 s after a chime: hook window +0.15, nibble tells +1. B: faster chimes, 0.6 s lead. | perfect-hook streaks |
+| **The Burning Glass** — "A lens the size of a chapel, still trying to light the water." | both · no fixed stand | a 3.5 m pool of focused light sweeping the north trench along r 29 from 250° to 340° and back at 0.65 m/s (≈ 70 s each way), calm only | — | **Focused Light** (`moving`): landing inside: rarity +0.2, wait × 0.6, quality +0.08. B: faster and smaller (1.0 m/s, 2.8 m). | a roaming bonus visible from anywhere |
+| **The Votive Font** — "Votive fry, small as wishes." | foot · the hub south (0, 16.3), behind the font's low step | ring channel r 12–14 @ 0.20–0.30 | Prism Minnow × 2, Glassblown Puffer × 2 | **Quick** (`mods`): wait × 0.5, rarity −0.10. Eel-free. B: quicker and poorer. | the emergency oil / food tap |
+
+#### The Pallid Deep (7 places + the Breathing Deep)
+
+| place | access · stand | water | favours | rule (twist) · B twist | rewards |
+|---|---|---|---|---|---|
+| **The Bottomless** *(legend pool, the finale)* — "Two who kneel. One who breathes below." | foot · two stances: **the Brink** (0, −38.5), y 1, casting north 9–17 m over open water (**flat line**: sweet band +0.03; eels from the Bottomless reach you); **the Joined Hands** (0, −57.9), y 6, casting south 3–9 m (**steep line**: sweet −0.03, surge warning −0.1 s; eel-proof; crawlers only by the two forearms) | (0, −52) r 11.5 @ 0.95–1.00 | Lampwarden × 1.5 (gloom, Ember Roe), Shroud Ray × 1.5; **The Pale Leviathan** | the legend rule is unchanged; the two gold eye-glints still open at night before you own Drowned Marrow. **Its first surge breathes in every candle within 30 m.** **Victory:** the Wick's flame relights the giants' lantern, then every candle and memorial candle in the Deep relights gold, from the Wick outward. | the run |
+| **The Long Pier of Names** — "Every candle a promise someone couldn't keep." | foot · pier end (35.5, 50) | (39.8, 45.2) r 6 @ 0.75–0.85, north-east of the pier end | Shroud Ray × 1.5, Gilt-Eyed × 1.5 | **For the Named** (`drifters`): candle-rafts drift north → south past x 41 every 20–30 s; land within 1.5 m of one to relight it: +6 oil and the next bite +0.2 rarity; 3 a day. B: more, faster, smaller (4 a day, +4 oil). | oil on the long walk out |
+| **The Drowned Almshouse** — "Five rooms, five lives, and every one of them kept a fish." | foot · upper floor (−58, −20), y 2.5 | 5 floor holes r 1.4, each with a broken step on its south side: Cradle 0.3, Cookpot 0.4, Bed 0.6, Chest 0.8, Shrine 0.7 | Cradle → Ossuary Fry × 4, Cookpot → Bonecrook × 4, Bed → Wraithfin × 3, Chest → Gilt-Eyed × 3, Shrine → Funeral Veil × 3 (gloom) | **Five Rooms** (`targets`): aim near a hole and the reticle locks; the cast drops in. B: two pairs of rooms swap their fish. | species on demand |
+| **The Chain Garden** — "Something turns over in its sleep." | foot · plinth (44, −36.5), y 2 | ring around the plinth r 6–12 @ 0.85–0.95 | Gilt-Eyed × 1.5, Lampwarden × 1.5 (night) | **The Thing Below Turns** (`rhythm` 30 s): 1.5 s warning, then for 8 s casts within 4 m of a chain get weight bias +0.6, rarity +0.15; 15% per surge to foul the line. B: 22 s, 25% foul. | heavy-fish bounties |
+| **The Sunken Belfry** — "The bell rings when something touches it." | foot · parapet (56, −18.4), y 1.0 (a dead end) | bell-mouth (56, −22) r 2.2 @ 0.85–0.95 | Lampwarden × 2 (night), Gilt-Eyed × 1.5 | **Rung from Below** (`cue` toll): no plunge, no "!"; the bell tolls and a bone-white ring pulses: rarity +0.2, hook window +0.1. B: the toll comes 0.4 s early. | **The Clapper** |
+| **The Bier Barge** — "Give the dead a fish, and they open the hold." | foot · deck (−10, −17), y 1.5 | lidded hold (−10, −21.2) r 1.6 @ 0.75–0.85 | Funeral Veil × 2 | **Grave Goods** (`deed` offer, until dusk): lay your lowest-value fish on the bier; the hold opens until dusk: rarity +0.25, quality +0.15, gloom species bite in calm. B: the dead want your **best** fish (rarity +0.35, quality +0.2). | **The Wax-Bearer** |
+| **The Empty Ferry Slip** — "At dusk the ferry comes. It brings no one." | foot · slip head (−42, −42.5) (a dead end) | the slip channel @ 0.85–0.95 | Shroud Ray × 1.5 (calm) | **The Last Ferry** (`phaseWindow` dusk, **once a descent**): the first cast in during dusk is a guaranteed rare (the Unpaid Fare when awake) with a 2 s wait. The catch: you start the night at a dead end. B: the ferry comes at dawn. | **The Unpaid Fare** |
+| **The Breathing Deep** (the Deep's feeding spots, `spotStyle`) | anywhere | bubble domes r 3.5 placed by **path**: ≤ 8 s of walking to a point within castMax − 2 m of the dome; every 40 s (70 s at night) | — | 2 s warning, **12 s** live: rarity +0.3, weight bias +0.5; a dome that expires uncast respawns at half the interval. Tide Chart: 2 domes that breathe until dusk; domes count as feeding spots for `spot_catch`. | |
+
+#### Place-kept species (WALK_SPECIES; Journal 32 → 40)
+
+| species | lake · place · condition | time | depth | kg | value / food / oil | behaviour · tier |
+|---|---|---|---|---|---|---|
+| **Harpstring Eel** | Sporewood · Gill Harp · while it sings | any | 0.4–0.85 | 0.6–2.4 | 74 / 22 / 44 | darter · 3 |
+| **Hushcap Koi** | Sporewood · Veilwater · veil burned | calm | 0.6–1 | 1–4 | 78 / 26 / 46 | darter · 3 |
+| **The Unreflected** | Glasswater · Mirror Nave · reflection hit | any | 0.5–1 | 1–4 | 145 / 30 / 56 | darter · 4 |
+| **The Footnote** | Glasswater · Well of Ledgers · bottom ledger | any | 0.9–1 | 2–6 | 140 / 40 / 54 | sinker · 4 |
+| **Rainglass Darter** | Glasswater · Stilled Cascade | calm | 0.75–0.95 | 0.3–1.2 | 135 / 20 / 60 | darter · 4 |
+| **The Clapper** | Pallid · Sunken Belfry | any | 0.8–1 | 3–9 | 225 / 46 / 70 | thrasher · 4 |
+| **The Wax-Bearer** | Pallid · Bier Barge · hold open | any | 0.7–0.9 | 2–6 | 220 / 30 / 80 | leaper · 4 |
+| **The Unpaid Fare** | Pallid · Ferry Slip · the Last Ferry | calm | 0.8–1 | 4–12 | 240 / 50 / 78 | sinker · 4 |
+
+**Awake per descent** (seeded, at zone entry): Sporewood 1 of 2, Glasswater 2 of 3, the Pallid Deep 1 of 3. An asleep species never bites; the Journal and Murk say so ("It sleeps this descent"), and `place_species` bounties only name awake ones. They count as rares everywhere else, pay ≈ 15% over each lake's rares and need no bait; Wick-Worms attract all eight. A lake's Journal perk needs its place-kept fish too.
+
+### 24.8 Night on foot
+
+Spawn rate, `maxAlive`, hp, speed, damage, drains, Heat, formation and elite timing all come from `difficultyFor()` **unchanged**. What changes is *where* enemies appear, *how* they cross terrain (`BALANCE.combat.foot`, `ENEMY_MOVE`), and *how the Wick is moved*:
+
+| class (`ENEMY_MOVE`) | enemies | spawns | moves |
+|---|---|---|---|
+| `fly` | gloomling, duskmantle, sporeling, inkwell, choir, all four Wardens | the 22–34 m ring, 70% over water or void | unchanged; y = max(ground + hover, the approach blend toward the Wick's height within 14 → 6 m) |
+| `crawl` | inkmite and re-skins, bell-jar tick (the `waterBound` ones) | on foot: **lake** water (never pools) 16–28 m away with walking path ≤ 40 m; they emerge over 0.9 s within 18 m path. **On the raft in mixed and foot lakes: only in the raft's water component, water path ≤ 40 m.** Summons (the Abbot's ticks, Ringed Grasps) use the same rule. | `world.moveCrawler`: the land flow field on foot, the water flow field on raft nights; climbs out of water or up any edge ≤ 1.25 m with a 0.8 s haul (× 1.5 aura taken); higher ground only by ramps and bridges; drops ≤ 3.55 m; × 0.9 on land |
+| `swim` | creelsnatch | only while the Wick is within 6 m of open lake water and ≤ 3 m above it (else the credit re-rolls a flyer); the day's eel raid follows the same rule | leaps across the walkway; on stone it flops 1.2 s (zaps × 2) and wriggles back |
+| `static` | the Drowned Hand | the stain spreads under the Wick: **r 3.2, as on the raft** | while standing (3 s) it blocks the walkway (`combat.blockers`) |
+
+- **The Wick is moved only through player APIs** (CONTRACT §12.5): `knock`, `push`, `pull`, `root`, `pushOut(x, z, r)`, `pin(t, x, z)`. On foot they resolve through `moveFoot` and slide along walkway edges; the raft resolves them as v1 (raft lakes) or with `collideRaft` (walking lakes). Floats, stolen fish and cinders use `world.settle`; crawlers use `world.moveCrawler`. The v1 `world.collide` stays exactly as it is for the Mossmere.
+- **Raft nights in walking lakes** (Sporewood, the skiff) use the bounded water flow field over the raft's water component, so crawler packs follow the Veil Reach and the reef gaps around the islands instead of grinding on a shore. The Mossmere keeps v1 circle steering.
+- **Unreachable** (no path ≤ 40 m, e.g. the Wick on the Joined Hands with both forearms blocked): crawler credit re-rolls as flyers; a crawler with no path for 6 s despawns with 50% credit refunded. **Leash** for crawlers uses path distance (45 m).
+- **Contact** on foot: 1.6 m and |Δy| ≤ 1.6 m (1.8 m on the raft). The aura and inside-light slow test horizontal distance with |Δy| ≤ 0.5 × light radius.
+- **Cinders** that land on water drift (2 m/s) to the nearest walkable cell **of the Wick's own area within 12 m of path**, otherwise they fly to the Wick; stolen fish drift at 1 m/s. Pickup radius +0.5 m on foot.
+- **High ground** (≥ 1.95 m above all adjacent water): zap range +3 m. That is all; globs are not slowed. Its cost is the dead end and the steep line.
+- **Killers keep their raft values:** stain 3.2 m, every Warden telegraph as on the raft, inkwells hold at 13–18 m, but each perch keeps a reachable walkway within zap range − 2 m so they can be hunted. On foot the geometry is aligned instead of softened: the Shard Abbot's Hymn Ring keeps a gap within ±20° of the walkway tangent at the Wick; the Ferryman's Pole Sweep runs along the walkway; the Veiled Gardener's charge crosses the walkway (or stops at land edges) so a sidestep along it clears the lane; the Ferryman's inhale pulls along the walkway, never over an edge; Eclipse also darkens candles within 20 m for its 4 s.
+- **Formations on foot** (`WALK_FORMATIONS`, from the same two picks per night): **The Stirring Edge** (a 4–10 m ring rising from water where ≥ 50% of the circle is lake; "Step inland, or flare as they rise.") and **Candle-Snuffers** (duskmantles fly to a lit candle within 25 m; 3 latched for 6 s darken it; a zap peels one and refunds 1 oil).
+
+**Sister-candles (`BALANCE.lamps`).** Sporewood 5, Glasswater 8, Pallid 9 (validated: every reachable walkway ≤ 68 m of path from a candle — or, in Sporewood, from a mooring).
+
+| rule | value |
+|---|---|
+| share flame | stand within 2.4 m and hold 1.0 s; costs **12 × zone oil drain (14.4 / 16.8 / 19.8 oil)**; any phase; damage interrupts it |
+| lasts | the rest of the descent (`run.flags.lamps`) |
+| light | r 6 m (+1 per level of the Trimmer's Shears), cold and steady in the lake's accent colour; enemies inside move × 0.7 (the lower of this and your light's × 0.75 applies); the Silent Choir shows inside; **darkness ticks at half rate inside** (never stops); lights land (lamp term + one instanced decal) |
+| also | sharing marks the 2 nearest undiscovered places; lit candles join `water.setLights` (the two nearest; still ≤ 6) |
+| flame-leap | **once each dawn, free**, from any lit candle (or the moored raft) to any other lit candle; the radial shows them in their true directions; never in calm, dusk or the Gloomtide |
+| darkened by | a hand slam within 4 m, 3 latched moths for 6 s, Eclipse (temporary), and **a gloom legendary's first surge (every candle within 30 m of its pool: "It breathes the candles in")**; relight 6 × zone drain |
+| Known Places | a mastered place starts each later descent **discovered, with its candle's first share free** — you still walk there and hold |
+| Stake Lantern | a supply you plant with a pill on any walkway (`run.flags.stake`): until dawn it slows what enters its 5 m light and shows the Choir; **no darkness shelter**; not a leap node |
+| not a haven against | slams, globs, Wardens, eels: candles soften fodder, and fodder ends few runs |
+
+**Vigil grounds** (validated: every stand except the designated dead ends — the Ferry Slip and the Sunken Belfry — is within 14 s of a vigil, and the dusk readout shows "Open ground 9 s"):
+
+| lake | ground | why fight there |
+|---|---|---|
+| Sporewood | the raft (every mooring) | raft nights with the water flow field: the Veil Reach and reef gaps funnel crawler packs |
+| | Gill Crown (−36, −36) r 8, y 4.2 | eel-proof, crawlers only by two ramps and the Veil Ledge; one-way drop out |
+| | Harp Green loop (r 7.1, 45 m) | low, room to circle around the pool |
+| Glasswater | inside the Votive Font (loop r 7.4, 46 m) | eel-free; crawlers only by the open spokes and the Skiff Steps; pillars split packs |
+| | Lower Gallery (loop r 51, 320 m) | the long kiting circuit with 8 ramps and 6 spokes |
+| Pallid | Cairn Plaza (r 8) and the Landing (r 8) | room to circle; deep water all round (eels) |
+| | the Rib Walk loop (≈ 175 m through the Plaza) | four branches; in the walk-under-water variants the Bier Road closes the loop instead |
+| | the Brink and the Hands (≈ 75 m loop) | the finale ground: low Brink with eels, high Hands without |
+
+**The finale on foot.** The Pale Leviathan's fight is unchanged (§5.6: no new elites while hooked, Grasping Dark summons two Ringed Grasps through the stone, Eclipse, the Ferryman cannot rise). You are anchored as on the raft, and a planted Wick is never moved off its ledge. **Its first surge breathes in every candle within 30 m**, so the fight is never fought inside a candle's slow or half-rate darkness, whichever stance you chose. The two stances are a real trade: **the Brink** gives a flat line (sweet band +0.03: skilled land ≈ 50% at line strength 1.9, against 43% on the raft) but eels leap from the Bottomless and crawlers come by three roads; **the Joined Hands** are eel-proof and reached only by the two forearms, but the line runs steep (sweet −0.03, warnings −0.1 s: ≈ 30%) and a slam there has nowhere to slide (`balance-foot.mjs --reel`). Because 72% of the Pallid swarm flies, funnelling crawlers trims only ≈ 20% of the bag: the finale stays gated by gear (Silverthread) and build. **Victory:** every candle and memorial candle in the Deep relights gold, from the Wick outward (folded into the existing candle beat).
+
+**Dusk readout:** from Murk's 85% bell the HUD shows "Nearest sister-candle 34 m · ≈ 7 s" and "Open ground 9 s" with a faint ghost path. Starting dusk farther than 68 m from any lit candle or the moored raft shows (bad) "No candle within reach. Find open ground, or plant a Stake Lantern."
+
+### 24.9 Risk/reward & progression hooks
+
+**The core trade on foot:** the best water (place-kept fish, legend pools, deep edges) sits at dead ends and edges; the safest ground is not where the best fish are. Every walking choice costs calm seconds, and every candle costs oil.
+
+| hook | rule | why it is fun |
+|---|---|---|
+| **Discovery** | the Wick within 8 m of a place's stand or water (or a cast into it) → `place:discover`, toast, a **Places** page in the Journal (rule line, vignette, place-kept silhouette, mastery stars); first time ever: +2 Memories at run end | curiosity pays; the map fills in across runs |
+| **Astir** | each calm one non-legend place per walking lake is Astir (seeded; never twice running): wait × 0.55, rarity +0.25, quality +0.15; Murk names it on arrival | daily routing variety |
+| **Variants & twists** | per descent: the lake's map variant (a fallen bridge, a road under water), each non-legend place's A or B twist, and which place-kept fish are awake (4 of 8) | fixed maps stay unsolved: the routes and the hunt change every descent |
+| **Mastery** | 4 catches in one place in one descent, at least one Fine → `place:mastered`, +10 Memories, and a **Known Place**: discovered from day 1 with a free first share of its candle in every later descent | map mastery that saves oil, not walking |
+| **Place-kept species** | 8 rares tied to a place and a condition, weight × 8 when eligible and awake | a Journal hunt with clear, learnable puzzles |
+| **Sister-candles & the dawn leap** | share flame with oil (§24.8); one free flame-leap each dawn to any lit candle | light the way on day 1, choose where each later day starts |
+| **Shortcuts** | 4 (the Hyphae Strand, the Sundered Span, the Tuned Bridge, the Sunken Road): a free deed, usually on the far side, opens a route for the descent; the Surveyor's Chalk relic opens the one nearest your arrival | metroidvania "open it from the other side" |
+| **Deeds** | sporelights, harp curtains, the chandelier's arms, the bell rope, the bier offering | prepare a place for the night or the legend |
+| **Wayside** | Pallid memorial candles (+0.5 oil, lit for the descent, mark your routes, feed the victory cascade), Glasswater drifting pages (1–2 Shells or lore), Sporewood puffballs (+2 satiety); the day's eel raid threatens walkway edges | the roads have something to do after discovery is spent |
+| **Murk on foot** | his docks sit beside walkways; trading still costs the walk to his dock (never a leap destination) | the "spot vs. Murk" tension of §4.5 survives |
+
+**Memories added (one-time):** challenges +185; place discovery 21 × 2 = 42; mastery 21 × 10 = 210; ≈ +437 against ≈ +960 of new relic sinks, so meta progression does not speed up.
+
+**Records:** places mastered, biggest fish per place, most candles lit in one descent. **Death-screen lines:** "The Gill Harp: 1 catch from mastery." · "When the Gloomtide rose you were 48 m from the nearest candle." **Top-damage tips:** eels on foot → "Eels reached you at the water's edge 4 times. At night, fish enclosed pools or stand back from the edge."; slams on a walkway → "Hands caught you on a narrow walkway. Step along it, not sideways."
+
+### 24.10 New content (data tables, merged with WALK_ENABLED)
+
+**STATS:** `stride` (Stride, base 0, −2…3, m/s on foot only); `moveSpeed`'s label becomes "Speed".
+
+| kind | id · name | numbers | unlock / where |
+|---|---|---|---|
+| upgrade | `boots_cork` **Cork-Soled Boots** (`feet`) | stride +0.35 per level; 45 / 120 / 280 Shells | from Sporewood |
+| supply | `stake_lantern` **Stake Lantern** | 40 base; `give {stake: 1}`; planted with a pill; slow + Choir only | from Sporewood |
+| bait | `wick_worm` **Wick-Worms** | 30, × 4; rarity +0.06; attracts the 8 place-kept species | *Strange Waters* |
+| relic | `roadworn_soles` **Roadworn Soles** | stride +0.2 per level; 45 / 125 / 280 | *First Footfall* |
+| relic | `trimmers_shears` **The Trimmer's Shears** | candle light +1 m per level (`lampRadius:1`); 90 / 245 | *A Place That Knows You* |
+| relic | `surveyors_chalk` **The Surveyor's Chalk** | in each walking lake the shortcut nearest your arrival starts open (`shortcutStart:1`); 185 | *The Long Way Round* |
+| weapon | `undertow_crook` **Undertow Crook** (common, 5 levels, tags foot, area, close) | a 2.5 m, 120° sweep every 1.8 s (L5: 3.2 m, 200°, 1.3 s), damage 6 → 15; **on foot it knocks crawlers off the walkway**: they re-haul for 0.8 s taking × 1.5 aura, and a fall of more than 2 m stuns them 1 s; on the raft it sweeps the deck edge. **Kindle** (with Vantage) **Riptide Crook**: a full-circle sweep every 1.2 s, damage 20, knock 4.5 m, 1.5 s stun on any fall, hauling crawlers take × 2 aura | *Held the Crossing* |
+| boon | `vantage` **Vantage** (common, 3 levels, tags foot, light) | on high ground: zap range +2 / 4 / 6 m and **crawlers hauling up to you take × 1.5 / 2 / 2.5 aura** (L3 +0.5 m light) | *Hidden Waters* |
+| boon | `kindred_flames` **Kindred Flames** (rare, 3 levels, tags light, foot) | lit candles burn enemies inside at 0.4 / 0.6 / 0.8 × your aura; share time 0.7 / 0.45 / 0.25 s; **first shares** cost × 0.75 / 0.5 / 0 (relights full price); L3: each candle fires one free flare per Gloomtide when something enters it | *Four Shared Flames* |
+| Wick | `wayfarer` **The Wayfarer** — "Who Walked Every Road" (tier IV capstone) | stride +0.8, raft speed −1; starts with the Undertow Crook and 2 Wick-Worms; quirk **First Flame**: the first sister-candle you share with in each lake costs no oil; a re-tint of the base model | *Every Still Place* |
+
+All of these are challenge-locked, so **the run-1 boon pool is unchanged** (18 of 32), and foot-tagged boons are **never** offered in raft-only lakes. New archetype tag **Kindred**: Kindred Flames, Tolling Bell, Lantern Pulse, Brighter Wick.
+
+**Challenges, tier IV "Paths Underfoot"** (30 → 40; *The Complete Chronicle* asks for every species):
+
+| # | challenge | goal | type · params | scope | reward |
+|---|---|---|---|---|---|
+| 31 | **First Footfall** | Step ashore from your raft. | `footAshore` {n:1} | total | `relic:roadworn_soles` + 5 |
+| 32 | **Hidden Waters** | Discover 6 Places. | `placeFound` {n:6} | total | `boon:vantage` + 10 |
+| 33 | **Four Shared Flames** | Share your flame with 4 sister-candles in one descent. | `lampLit` {n:4} | run | `boon:kindred_flames` + 15 |
+| 34 | **Strange Waters** | Land 3 different place-kept fish. | `placeSpecies` {n:3} | total | `bait:wick_worm` + 15 |
+| 35 | **A Place That Knows You** | Master a Place. | `placeMastered` {n:1} | total | `relic:trimmers_shears` + 15 |
+| 36 | **The Long Way Round** | Open 3 shortcuts in one descent. | `shortcutOpen` {n:3} | run | `relic:surveyors_chalk` + 10 |
+| 37 | **Held the Crossing** | Disperse 60 gloomlings on bridges in a single Gloomtide. | `slayOnTag` {tag:bridge, n:60} | run | `boon:undertow_crook` + 20 |
+| 38 | **Far From Any Candle** | Endure a Gloomtide on foot in the Glasswater Vault or deeper without standing in a sister-candle's light. | `nightNoLamp` {zoneMin:2} | run | 20 |
+| 39 | **Every Candle in the Vault** | Share your flame with every sister-candle in the Glasswater Vault in one descent. | `lampLitZone` {zone:glasswater} | run | 25 |
+| 40 | **Every Still Place** | Master every Place in the three lower lakes. | `placeMastered` {n:21} | total | `character:wayfarer` + 50 |
+
+Challenge sources: `footAshore` ← first `player:mode {reason:'ashore'}`; `placeFound` / `placeMastered` ← `place:discover` (first ever) / `place:mastered`; `placeSpecies` ← `journal:new` for a species with `place`; `lampLit` ← `lamp:lit {first:true}` (relights and free Known-Place shares do not count; they do count for `lampLitZone`); `shortcutOpen` ← `shortcut:open` (the Chalk's free one does not count); `slayOnTag` ← `enemy:slain` with `tag === 'bridge'`, reset each Gloomtide; `nightNoLamp` ← dawn with no frame inside a lit candle since the Gloomtide began, on foot, zone ≥ zoneMin.
+
+**Bounties** (`WALK_BOUNTIES`, types in `WALK_BOUNTY_TYPES`; rewards use the §15 formula): `place_catch` "Bring me {n} fish from {place}." (26, w 3), `place_species` "They whisper of a {species} at {place}." (55, w 1, awake species only), `astir_catch` (34, w 2), `light_lamp` "Share your flame with the sister-candle at {lamp} before dusk." (20, w 2), `lamp_vigil` "Keep tonight's vigil inside the light of {lamp}." (50, w 1, foot lakes).
+
+**Tips** (`WALK_TIPS`; every trigger validated against the event list and its discriminator): `moor_walk` (`interact:change:ashore`), `foot_basics` (`player:mode:ashore`), `foot_spawn` (`player:mode:spawn`, emitted only for foot spawns), `tow_bell`, `lamp_light`, `lamp_hop` (dawn leap), `place_found`, `high_cast`, `shortcut`, `edge_eels`, `astir`, `legend_snuff` (`lamp:snuffed:legend`). **Text:** `WALK_TEXT` (pills Share flame / Flame-leap / Plant…, banners, toasts), `TEXT.challengeTiers[4]`, `TEXT.memoryLabels.places`, `MERCHANT_LINES.astir`.
+
+### 24.11 Tuning changes, with reasons
+
+| key | before | after | applies | why |
+|---|---|---|---|---|
+| calm length | 120 | **120 (unchanged)** | everywhere | Appendix B: with the dawn leap and the places' bonuses, catches and Shells per day stay within ±7% of v1; the run length is the user's constraint. `ZONES[].phases.calm` stays as a knob. |
+| Arrival Hush | — | +30 s in Glasswater and the Pallid Deep, +10 s in Sporewood, on the first calm in the lake; no calm raid that day | walking lakes | the first day in a lake is the exploratory one; Sporewood's walks are short and its arrival is the run-1 wall, so it gets only 10 s |
+| drains | — | unchanged; sharing flame costs oil | — | walking costs time; light costs oil |
+| foot speed / accel | — | 0.84 × raft speed; accel 6, decel 8 | on foot | short-window reach equal to the raft's; dodges need anticipation (Appendix B kinematics) |
+| contact radius | 1.8 | 1.6 on foot | on foot | the Wick is a smaller target; its dodges are no easier |
+| crawler spawn ring | 22–34 m | lake water 16–28 m with path ≤ 40 m; raft nights in walking lakes: the raft's water component | walking lakes | arrival time parity; no grinding on shores |
+| crawler land speed | × 1 | × 0.9 on land, 0.8 s haul | on foot | a 5 m/s Wick can barely kite late mites |
+| creelsnatch | depth ≥ 0.4 | also needs the Wick within 6 m of open water and ≤ 3 m above it; flop 1.2 s on stone | on foot | enclosed pools and inland ground are eel-free; edges are the risk |
+| killers | — | **unchanged**: stain 3.2, telegraphs, inkwell hold 13–18 m | on foot | they end runs; only their geometry aligns with walkways |
+| pickup radius | 4 | +0.5 m; water cinders drift to the Wick's own area or fly to it | on foot | level-up cadence stays at 24 / 32 s (Appendix B) |
+| cast meter start | below 2 m/s | below 1 m/s | on foot | no anchor brake on foot |
+
+**Explicitly unchanged:** the Heat model, `difficultyFor`, the XP curve, light and aura, reel / bite / quality models, tolls, valueMult, Warden hp, legend rules, every Mossmere number, raft handling and every v1 table while `WALK_ENABLED` is off.
+
+#### Changes to existing rules (edited in place, marked "walking build" there)
+
+1. **§2.5 / §5.4 / §12.1 / §16:** in the walking build the Journal holds **40** species (8 / 10 / 11 / 11), *The Complete Chronicle* asks for every species (`params.n` = `SPECIES.length`), the checklist holds 40 challenges in four tiers, there are 6 Wicks, and a lake's Journal perk needs its place-kept fish.
+2. **§3:** E also drives the new contextual actions; holding E holds them.
+3. **§4.4 / §4.6:** in the walking build `ARENA_V2` replaces the three lower lakes' islands, pillars, deep pools, legend pool, gate, spawn and docks (§24.6); the v1 table stays authoritative for v1 builds and for the Mossmere.
+4. **§6.4:** contact radius is 1.6 m and |Δy| ≤ 1.6 m on foot (1.8 m on the raft).
+5. **§14:** in Glasswater the gate is entered on foot (Descend within r + 2.5 m).
+6. **CONTRACT §5:** walking lakes save the Wick's position (`run.flags.pos`).
+7. **CONTRACT §7 "Space":** the water surface is still y = 0, but `player.position.y` is the ground on foot.
+8. **`memoriesFor()`** gains a `placesNew` row (0 unless the walking build reports places).
+
+### 24.12 Per-module implementation checklist (v2)
+
+**Prerequisite (world, P0):** build every lake from its authored data — `islands` / `pillars` arrays, `deepPools`, `legendPool`, `gate`, `spawn`, `docks` (main's world now does) — then, with `WALK_ENABLED`, the walk layout and this descent's variant. Nothing in §24 lines up without it.
+
+| module | work |
+|---|---|
+| **world** (+ `world-walk.js`) | Read `WALK_ENABLED`. On `zone:change` bake `walkGridFor(zone, {open, variant})`, a bilinear distance-to-edge field per walkable component (foot), a land-distance field (raft, spots, foam) and an open-water distance field (eels). Collision: `moveFoot` (displacement, body 0.4, `walkStepOK`), v1 `collide` kept for raft lakes, `collideRaft`, `moveCrawler`, `settle`. Flow fields: bounded Dijkstra (bucket queue, integer costs) on the 0.5 m grid to path 45 m, `land` and `water` layers, ≤ 9k cells / frame over ≤ 3 frames at ≤ 3 Hz, dusk + Gloomtide in mixed and foot lakes. Cavern: the exact circle (`shoreRFor`) for grid, collision, depth, foam radius and cliffs (base ≥ R + 1.5, lean-in only above 9 m). Land meshes from the grid (marching squares per height band; sills as broken steps; ink lips on drop edges; walkway-edge ink strips), drawn before water, `occludable`; lamp term + one instanced candle decal; one instanced place-FX mesh and one Points for every rule visual; wayside props instanced; deed props, candles (unlit / lit cold / darkened), the beached raft, the giants facing south. API per CONTRACT §12.5 (`surfaceY`, `getFlow(…, layer)`, `waterComponent`, `getVigils`, `getVariant`…). **No gameplay state**: progression owns deeds, candles, Astir and variants; world renders them. |
+| **player** | `mode` raft / foot, the foot controller (§24.3: speed 0.84, accel 6 / decel 8), crossings (push 0.4 s within 35°, 3 s cooldown, night pill-only, no night i-frames), drops, tow-bells, the dawn flame-leap (once, free, angle-true radial data), deeds and candle shares through `interactHold`, Stake Lantern planting, `position.y` = ground, `raft {…}`, `topSpeed`, place proximity (stand or water within 8 m, 5 Hz) → `place:enter/leave`. The only movers of the Wick: `knock / push / pull / root / pushOut / pin` (on foot via `moveFoot`). `writeSave(flags)` / `restore(pos)` (snap to walkable or raft water, else the nearest lit candle). Events `player:mode` (spawn only on foot spawns), `player:step`, `player:hop`, `raft:called / arrive`, `walk:high`. |
+| **actors / models** | Follow `player.mode`; walk cycle, hop / drop / kindle / offer / sweep poses; the lantern PointLight re-parented to the Crook (1.55 m); the 1.0 m ground ring with a heading notch and the thin amber rim on foot; contact shadows for enemies within 10 m on the blob-shadow instancing; the moored / beached raft with an empty hook; place-kept fish models from `SPECIES[].model`; the Wayfarer re-tint. |
+| **render / water / toon** | `walk` / `walkNight` modes with their own portrait numbers; focus-y spring; the pool framing (land profile toward +z from the bobber, ≤ 75°, focus on the bobber); terrain clamp inside R − 2; fixed yaw in every mode on foot (shop and death included); occlusion uniforms; `pickSurface`. toon: `occludable()` with its own program cache keys and outline material, instancing-aware `vWorldPos`; the x-ray proxy (one billboard, after world opaques, before the Wick). water: land before water on walking lakes, `DEPTH_RES` 256 (or a land-distance channel), no shore fade in POOL cells, hull foam / wake only in raft mode, candles in `setLights` with their accent colour. |
+| **fishing** | The place kit (§24.7) incl. awake species, `alt` twists, stance mods and the steep line; place-kept species only at their place, under `cond`, while awake. Rod-tip origin, High Cast, arc clearance (`world.castClear`), cast over stone, the first-water-run meter, locks that drop in, aim assist off for reflection / drifters / moving, the lit-row charge tick, plumb, reflection visuals (rib silhouettes, mirrored x), moving light, candle-rafts, chime / toll presentation, the Last Ferry (`perDescent`), the Breathing Deep by path, the Tide Chart on spotStyle lakes; the legend's first surge → `progression.snuffLamps(pool, 30, 'legend')`, victory → `relightAll('victory')`; `onPointerDown({aimAt})` / `onPointerUp()` for the Fish-here pill; events carry `{place, mode, height, stance}`. |
+| **combat** | Never writes `player.position`: replace the four v1 call sites with `player.pull / pushOut / knock / pin` (CONTRACT §12.5 table). `ENEMY_MOVE` classes; land flow on foot, water flow on raft nights in walking lakes (spawns in the raft's component, path ≤ 40); v1 circle steering in raft lakes; crawler spawns on lake water by path, haul, land speed, unreachable → flyer, path leash; summons through the crawler rule; eel reach and flop; flyer height; contact 1.6 with |Δy|; cinder / float / fish settling via `world.settle`; killers at raft values with walkway-aligned Warden geometry and huntable inkwell perches; `WALK_FORMATIONS`; candle slow / darkening (via progression); Kindred Flames, Vantage, the Undertow Crook and its Kindle; foot-tagged boons never offered in raft lakes; `slayOnTag`; contact shadows data. |
+| **survival** | `getPhaseInfo()` with `duration` (the only phase-length source) and `hush`; Arrival Hush per lake (recorded in `run.flags.hush`, no calm raid that day); darkness × 0.5 inside lit candles; `spendOil` for shares and relights; `getDuskLamp()` and `getOpenGround()` for the dusk readout; the Stake Lantern without shelter. |
+| **progression** | Owns `run.flags.lamps / shortcuts / deeds / places / astir / variant / twists / awake / day / window / hush / stake / wayside` and `meta.places`; `rollDescent` at zone entry (variant, twists, awake, Known Places discovered, the Surveyor's Chalk); `lightLamp` (Known Place free first share, Kindred Flames first-share discount, the Wayfarer's First Flame), `snuffLamps`, `relightAll`, `doDeed`, `offerFish` (lowest, or highest under the B twist), wayside takes, new challenge types and bounties, the new upgrade / supply / relics / bait / boons / Wick, `placesNew` in the summary, mastery Memories, Journal Places tab data (asleep species). |
+| **ui** | Pills (Ashore, Board, Ring Bell, Share flame with hold ring, Leap radial angle-true, Turn / Strike / Pull / Offer, Plant, Fish here) with `interactHold` and the Fish-here pointer path; the priority rule (Fish here over Leap / a lit candle within 2 m of a stand); edge markers (raft when ashore > 25 m, places, candles); Astir and variant banners; Places tab; the dusk readout (candle + open ground); reticle variants (locked hole, plumb depth, lit-row tick); HUD clock from `getPhaseInfo().duration`; tier IV challenges; tips. |
+| **audio** | Footsteps per surface, hop / land, winch, crystal span, harp-curtain notes, shard chimes, the drowned toll, candle share / darken / leap, bell rope, crook sweep, page, puffball, memorial candle. |
+
+**Performance (CONTRACT §12.6) — draw-call ledger per walking lake** (estimates for implementers to measure against; whole frame ≤ 150 at 150 enemies on a mid laptop and a mid phone):
+
+| item | Sporewood | Glasswater | Pallid |
+|---|---|---|---|
+| v1 scene (water, sky, cliffs, swarm at 150, Wick, raft, Murk, fx, UI-in-scene) | ≈ 105 | ≈ 105 | ≈ 105 |
+| land tops + sides (3 style materials) + their outlines | 6 | 6 | 6 |
+| ink lips + walkway-edge strips (merged) | 1 | 1 | 1 |
+| rails / posts / candle posts (instanced) + outlines | 2 | 2 | 2 |
+| candle glow Points + one candle decal | 2 | 2 | 2 |
+| place props (≤ 6 merged per lake) + deed props (≤ 3) | 4 | 5 | 5 |
+| place-FX instanced mesh + rule Points | 2 | 2 | 2 |
+| wayside instanced | 1 | 1 | 1 |
+| x-ray proxy | 1 | 1 | 1 |
+| contact shadows (on the blob-shadow instancing) | 0 | 0 | 0 |
+| **total** | **≈ 124** | **≈ 125** | **≈ 125** |
+
+No new dynamic lights (≤ 4); walk grid + derived fields ≈ 2.5 MB per lake; foot mover ≤ 0.15 ms / frame; flow fields ≤ 1.7 ms per frame for ≤ 3 frames at ≤ 3 Hz at dusk and in the Gloomtide in mixed and foot lakes (either mode); occlusion 0 draw calls.
+
+### 24.13 QA scenarios
+
+| # | scenario | expected |
+|---|---|---|
+| 1 | Mossmere run 1, and all four lakes with `WALK_ENABLED` off, with and without v2 code (seeded replay, `tools/scenario-full.mjs`) | identical camera, positions, fishing timings and director output |
+| 2 | Sporewood: sail into the Copse ring at 1.5 m/s and push toward land 0.4 s | Ashore; lantern moves to the Crook; `player:mode {reason:'ashore'}`; tip `moor_walk` |
+| 3 | Sporewood: ashore at the Copse, ring the Stalk bell; board / ashore / board quickly at dusk | towed in ≤ 12 s; the second switch waits 3 s; no i-frames at dusk |
+| 4 | Sporewood: burst the counterweight, cross the Hyphae Strand, sail under it | the middle grows; the raft still passes under at y 6 |
+| 5 | Relight the three sporelights, fish the Veilwater at noon | veil gone; rarity +0.25; a Mildew Angler can bite in calm; Hushcap Koi eligible if awake |
+| 6 | Gill Harp: walk the curtains (east / west / north) in the right and a wrong order; walk from the Copse Jetty to the stand | right: 45 s song; wrong: all dim 5 s; the approach touches no curtain |
+| 7 | Glasswater day 1: board the skiff, sail to the Skiff Steps, turn the Span Winch, walk to the Vault Seal and Descend | the Span lowers; the Descend ring is reachable from every footbridge |
+| 8 | Glasswater: try to sail the skiff past a low spoke; repeat under each of the three variants | blocked by every standing spoke; the fallen bridge opens its sector |
+| 9 | Mirror Nave: cast at a visible reflection vs at its true (x-mirrored) position | true: bite in 2–4 s, the Unreflected eligible if awake; reflection: wait × 1.6; true positions flash 0.5 s |
+| 10 | Well of Ledgers: release at charge 0.5 and at a Clean Cast, watching the bobber | depths ≈ 0.75 and ≥ 0.95; the bobber visible through the fallen south face; the Footnote only on the latter |
+| 11 | Night on the Joined Hands with Ash Mites in the water | no eel spawns; mites arrive only by the forearms; with both forearms blocked, mite credit re-rolls as flyers |
+| 12 | Night on the Brink edge | eels may leap; a landed eel flops 1.2 s; zap × 2 |
+| 13 | Hand slam beside a walkway edge, ink-slick shove, Grasp pin, Ferryman inhale (watch `player.position` writes) | only player APIs move the Wick; it slides along the edge; never enters the water |
+| 14 | Share flame at dusk, stand in it at 0 oil; plant a Stake Lantern and stand in it at 0 oil | darkness ticks every 16 s in the candle, every 8 s in the stake; the Choir shows in both |
+| 15 | Flame-leap in calm, at dusk, twice in one dawn | refused, refused, second refused |
+| 16 | Pallid: offer a fish at the bier (A and B twists), fish the hold until dusk | lowest (A) / highest (B) fish removed; hold open until dusk; one offering a day |
+| 17 | Ferry Slip at dusk on two days | day 1 first cast: guaranteed rare in 2 s; day 2: normal |
+| 18 | Legend fights on foot (Mother's Cup, Fallen Chandelier with all arms lit, the Bottomless from the Brink and from the Hands) | §5.6 unchanged; candles within 30 m darken on the first surge; enrage 105 s with all arms; Brink sweet band +0.03, Hands −0.03 and warnings −0.1 s; victory relights every candle gold |
+| 19 | Phone (390 px, touch): walk the gallery, cast into the Votive Font and an Almshouse hole, the Lullaby from the north beach | analog joystick; hole lock with a short press drops in; the bobber stays on screen and above the joystick corner |
+| 20 | Performance: Pallid Deep, 150 enemies, on foot, high and low quality, **on a mid laptop and a mid phone**; find-the-Wick test with 3 candles on screen | ≤ 150 draw calls; ≥ 60 fps; flow-field frames ≤ 1.7 ms extra; the Wick found in < 0.5 s |
+| 21 | Continue a saved run in Glasswater mid-Gloomtide, and at the Ferry Slip after the Last Ferry | resume where the Wick stood ≤ 30 s earlier, at night; the Ferry's use and the day's candle-rafts persist; candles, shortcuts, variant, twists and awake species as saved |
+| 22 | `node tools/validate-data.mjs` | pass 1: v1 tables unchanged; pass 2: every rule of §24 on the eroded grid for every variant × shortcut state |
+| 23 | `node tools/balance-foot.mjs` | every acceptance row PASS (Appendix B) |
+
+### 24.14 Risks, knobs and cut ideas
+
+**Risks**
+1. **Scope:** three hand-built maps, a foot controller, ten place rules, occlusion and flow fields. Build order: (1) world builds from data; (2) walk grid, foot controller, camera (pool framing, clamp), x-ray proxy; (3) the Pallid Deep (simplest geometry, proves the finale on foot); (4) places with modifier-only rules, then `targets`, `plumb`, `rhythm`, `deed`; (5) Glasswater with shortcuts, variants and the skiff; (6) Sporewood with moorings, tow-bells and raft-night water flow; (7) the remaining rules, discovery, Astir, candles and the dawn leap; (8) the combat foot pass, re-running `balance-foot.mjs` after each.
+2. **The foot profile is a model.** Appendix B drives the unmodified v1 model with walking's inputs; its assumptions (time inside candles, narrow-walkway share, place-cast shares) are listed in `FOOT_ASSUME` and must be replaced with playtest telemetry. It has already moved the calm (125 → 120 s), the foot speed (0.82 → 0.84) and Sporewood's hush (30 → 10 s).
+3. **Glasswater's ring is big:** east ↔ west wings are 26–34 s apart. The hub, the dawn leap and Murk's walkway docks mitigate it; if day 1 still feels rushed, raise `ZONES.glasswater.phases.calm` toward 130.
+4. **Precise casting on touch:** first-run meter, drop-in locks, the pool framing and the up-screen rule; playtest on a phone early.
+5. **Merge order:** data can land before code because it is inert with `WALK_ENABLED` off; flip the flag only together with world, player and fishing v2.
+
+**Knobs, in this order:** `BALANCE.lamps.darknessShelter` (0.5 → 0.7 makes oil bite harder; Appendix A.5.2's `oilDrain` stays the first darkness knob) · `walk.speedMult` (0.82–0.86) · `combat.foot.contactRadius` (1.5–1.8) · `ZONES[].phases.calm` (120–135) · `lamps.lightCost` (10–14) · `places.base` (0.7–0.8 wait, +0.08–0.15 rarity) · `combat.foot.crawl.landSpeed` (0.8–1.0) · `places.exclusiveWeight` (6–12) · `lamps.slow` / Kindred Flames `auraFrac`.
+
+**Cut ideas (possible later add-ons):** wading fords; falls into water with an oil cost; raised still pools (a second water material); grapnel zip lines; Shell-cost bridge repairs; camera yaw hints; a fog-of-war "Lantern Chart" screen; a flowing-river drift place.
+
+### 24.15 Revision 2: what changed after review
+
+**Must-fix**
+
+| # | finding | change |
+|---|---|---|
+| 1 | Glasswater gate / hub unreachable (pillars on the footbridges); Ledger ramp seam; validator ignored the body | Reliquaries moved to 0°…300° between the footbridges; footbridges run to r 15.8; the hub candle and Span Winch moved off the walking lines; the Ledger ramp is painted after its platform and ends 2 m inside it (slope ≤ 0.5). validate-data runs every reachability check (spawn / moorings, stands and alt stands, candles, deeds, moorings, the foot gate, docks) on the grid **eroded by the 0.4 m body**, for every variant × shortcuts closed / open (18 grids), and checks that every ramp can be walked end to end. |
+| 2 | Finale stances could not cast and see | The giants kneel at the north wall ((±25.5, −60.5)), their forearms rise from the Brink's ends to the Joined Hands (0, −61) over the north water; the Pilgrim Road and the Brink candle stay south. The Brink is a horseshoe (no thin water crack anywhere; the Hands connect only by the forearms). The Brink stand casts north over open water; the Hands' stand casts 3–9 m south over open water. validate-data requires ≥ 60% of the legend pool castable (arc, minDist) **and** seen by the fish camera from both stances (now 90% / 95%). |
+| 3 | The fish camera could not see into holes | The **pool framing** (render, §24.5) plus a data-backed **sill rule**: every fishing hole has a `lip` (south 120° band ≤ 1 m above the water; validated on the near rim); the Ledger shaft's fallen south face is real geometry (lip w 3.3); the Mirror Nave is roofed with open ribs. validate-data runs the same camera model and requires ≥ 60% of castable place water seen from every stand (worst now 76%, the Bell-Chapel Window). |
+| 4 | Combat wrote `player.position` and called the raft-radius collide on the Wick | CONTRACT §12.5 names the four call sites and replaces them with `player.pull / pushOut / knock / pin`; on foot they resolve through `moveFoot`. world keeps `collide()` exactly as v1 for raft lakes and adds `collideRaft`, `moveCrawler` and `settle` for crawlers, floats, cinders and stolen fish. |
+| 5 | Raft-night enemies could not path around polygon land | On the raft in mixed and foot lakes the same bounded flow field runs on a water layer of the raft's water component; crawler and eel spawns are restricted to that component with water path ≤ 40 m; the Mossmere keeps v1 circle steering; the perf budget now runs flow fields at dusk and in the Gloomtide in mixed and foot lakes in either mode. |
+| 6 | Two cavern edges | Walking lakes use the exact circle (`shoreRFor`) everywhere (grid, raft collision, depth, foam, cliffs; cliff base ≥ R + 1.5, outward-only noise, lean-in above 9 m); `obstacleRadius()` is shared by the grid and world collision; validate-data checks no land beyond R − 0.5 and pad + cliffGap ≥ 2 m. The Pallid Landing poly was pulled inside the circle; the giants no longer touch the Brink. |
+| 7 | Position and mode not saved | `run.flags.pos` / `run.flags.raft` written on every autosave; continue snaps to the nearest walkable cell (or raft water), else the nearest lit candle; per-day place counters, the Last Ferry's use, the leap, the stake and the hush are saved (CONTRACT §12.2). |
+| 8 | Merging the data changed v1 | One flag, `WALK_ENABLED`, read by data and world. With it off every v1 table and arena field is bit-identical (validate-data pass 1 = the v1 validator's 22,295 checks); all replacements live in `ARENA_V2` / `WALK_*` and merge only with it on. Place-kept species exist only in the walking build, so no v1 fishing filter or perk exclusion is needed in the interim build. |
+| 9 | Float32 thresholds, one-way edges | Heights are quantised to 0.1 m in `walkGridFor`; every threshold sits on a half-step (0.45, 1.25, 3.55, 3.05, 1.95, 4.95); one compare helper (`walkHeightLE` / `walkStepOK`, eps 0.02) for grid, mover, flow, validator and tools; steps symmetric (0.45 both ways). validate-data flags cells within eps of a threshold and any one-way pair (none). *Instead of authoring the gallery at 1.15, the climb threshold moved to 1.25: same effect (the 1.2 m gallery is climbable with a 0.05 m margin), and it holds for every height by construction.* |
+| 10 | The Gill Harp stand on a curtain station | Curtains at 30° / 150° / 270° (east, west, north); sequence and light deeds carry `trigger` and `touchR`; validated ≥ touchR + 1 m from every stand, candle and mooring. |
+| 11 | Foot nights softened the killers | Stain 3.2, telegraphAdd 0, no glob slowdown, inkwell hold 13–18 m with walkway-near perches; only alignment remains (Abbot gap, Pole Sweep, the Gardener's charge across the walkway). Foot accel 6 / decel 8, contact 1.6, crawler land speed 0.9; speed 0.84 (tuned, see 12). balance-foot.mjs replaces fixed dodge rates with a kinematic check (raft and foot, open water and walkways) and foot Embers lost per night land at −9% (Glasswater) and +4% (Pallid) of v1. validate-data asserts the killer values. |
+| 12 | No simulation of foot days, nights or campaigns | `tools/balance-foot.mjs` (Appendix B): day routes on the eroded walk grid × 1.2, kinematic dodges, eel availability, crawler arrival by path, candle time share, corridor pinning, candle oil, Known Places across campaigns. Every acceptance row passes; it moved three numbers (speed 0.82 → 0.84, calm 125 → 120 everywhere, Sporewood hush 30 → 10). |
+| 13 | Candles became a teleport map and a fortress | Flame-leap at dawn only, once, free, angle-true radial; Known Place = discovered with a free first share, not pre-lit; darkness at half rate inside (never stops); the Stake Lantern gives slow and Choir only; Kindred Flames L3: one free flare per candle per Gloomtide, discounts first shares only; share cost 12 × zone drain (14–20 oil). |
+| 14 | The finale inside a lamp; stances no choice | A gloom legendary's first surge darkens every candle within 30 m; victory relights all gold. Brink flat line (sweet +0.03), Hands steep line (sweet −0.03, warnings −0.1 s, the general rule above 4.95 m); `--reel`: skilled ≈ 50% vs ≈ 30% (raft 43%). *I used ±0.03 instead of the suggested −0.05 / +0.05: those gave 25% vs 53%, which makes the Hands a trap rather than a choice.* The Mother's Cup candle moved 11 m from its stand. |
+| 15 | The Wick is a dot at night; candles compete | walkNight dist 16.5, elev 56; portrait numbers of its own; 1.0 m ring with a heading notch and a thin amber rim; candles cold, steady, accent-coloured with an ink-edged decal (one instanced draw) and the land lamp term; only the Wick's light is amber and flickers; QA #20 adds the find-the-Wick test. |
+
+**Should-fix**
+
+| # | change |
+|---|---|
+| 1 | `occludable()` sets its own program cache keys and a separate occludable outline material; x-ray = one proxy after world opaques, before the Wick (or stencil); instancing-aware `vWorldPos` (CONTRACT §12.5 toon). |
+| 2 | Land draws before water on walking lakes; `DEPTH_RES` 256 (or a land-distance channel); no shore fade in POOL cells. |
+| 3 | `survival.getPhaseInfo().duration` is the only phase-length source; `.hush`; `run.flags.hush` persisted. |
+| 4 | Ownership aligned: progression owns deeds, candles, Astir, variants; world renders. Place proximity = stand or water within 8 m. `player.interactHold(down)`; the Fish-here pill calls `fishing.onPointerDown/Up`. |
+| 5 | `surfaceY(x, z, layer)` and `getFlow(x, z, layer, out)`; non-raftPass bridges solid for swimmers; separate water and land flow layers. |
+| 6 | Flow fields on the 0.5 m walk grid, path ≤ 45 m, bucket queue with integer costs (`combat.foot.flow`); validated to share the walk cell. |
+| 7 | Per-instance ground y for decals; explicit `ENEMY_MOVE` (Wardens fly, the Hand is static); summons through the crawler rule; flyer y over the ground; the Gardener charges across the walkway. |
+| 8 | Fixed yaw in shop and death on foot; terrain clamp along focus → camera, inside R − 2. |
+| 9 | All nine checks added to validate-data: tip triggers (fixed to `interact:change:ashore`, `player:mode:ashore`, a foot-only `player:mode:spawn` tip), pill overlaps (candles ≥ 3 m from stands, 2.5 m from docks, deeds 3 m, docks ≥ 5.5 m from stands, candle posts are blocks, never south of a stand), the 14 m south rule (two Lanternstalks moved), deed `resets` ↔ rule mode and `trigger`, `yawDeg` everywhere, stand → slot − hull ≤ board range (three moorings moved), bounty types, castable = reach + minDist + arc, Tide Chart / spot_catch on spotStyle lakes. |
+| 10 | Lamp-light term in land materials (≤ 10 lights) + one instanced decal; the Stake Lantern is an item planted with a pill (`run.flags.stake`). |
+| 11 | Partial darkness shelter, first on the knob list; the Last Ferry once a descent (and its "× 3 weight" text removed); foot boons weight 0 in raft lakes; place uplift measured in Appendix B. |
+| 12 | Land meshes from the grid (marching squares per height band), memory restated (≈ 2.5 MB). |
+| 13 | One instanced place-FX mesh + one Points for every rule visual; per-lake draw-call ledger (§24.12); QA #20 on a mid phone. |
+| 14 | Locked targets drop in (no arc); the lit row is a charge tick, not a lateral line; assist off for reflection / drifters / moving; the meter's "pool" is the first contiguous water run along the ray. |
+| 15 | Portrait numbers of their own (fov ≤ 62°), verified with `playtest.mjs --mobile`. |
+| 16 | The Lullaby's foot stand moved to the north beach of Lanternstalk Grove (casting north); the Bell window looks north-west from the chapel's west wall; validated up-screen rule (±50° or ≤ 6 m), which also moved the Cascade stand and the Hymnal / Long Pier water. |
+| 17 | Candles 3–11 m east / west of their stands (never south), validated ≥ 3 m; Fish here outranks Leap and a lit candle's pill within 2 m of a stand. |
+| 18 | Mirror Nave: 2 fish, hit radius 0.9 (≈ 11% of the pool, validated ≤ 15%), mirrored across a north–south line (x flips), 0.5 s flash. |
+| 19 | The greenhouse lock picks the bed; the bonus needs the charge within ±0.08 of the meter's tick. |
+| 20 | Cinders drift to the Wick's own walkable area within 12 m of path, else fly to the Wick; cadence checked in Appendix B (24 s / 32 s unchanged). |
+| 21 | Breathing Deep domes placed by path (≤ 8 s of walking), live 12 s, a missed dome respawns at half the interval. |
+| 22 | No crossing i-frames at dusk or at night; 3 s between mode switches; push-to-cross 0.4 s within 35°; at dusk and night crossings only by pill or E. |
+| 23 | Per-descent variants (Glasswater: one of three bridges down; Pallid: the Sunken Road or a Pallbearers' Walk under water), an A/B twist on every non-legend place, 4 of 8 place-kept species awake. All validated. |
+| 24 | Wayside content: Pallid memorial candles (+0.5 oil, persist, victory cascade), Glasswater pages (1–2 Shells or lore), Sporewood puffballs (+2 satiety); the day's eel raid threatens walkway edges. |
+| 25 | No head noun reused across lakes (validated, Mossmere included): the Mother's Cup, the Lullaby, the Veilwater, the Root Cloister, the Rootstool, Gill Climb, Veil Ledge, Harp Green, the Hyphae Strand; the Mirror Nave, the Votive Font, the Coronet, Copyists' Bridge, the Tuned Bridge, the Skiff Steps, Stillness, the Unfinished Chord; the Bottomless, the Brink, the Bier Road, the Sunken Road, the Pilgrim Road, Pallbearers' Walks, the Bone Windlass, For the Named. Waylamps are now **sister-candles** (Share flame, Flame-leap); Kindred Flames, the Trimmer's Shears, Four Shared Flames, Held the Crossing, Candle-Snuffers. |
+| 26 | The Undertow Crook (a terrain weapon with its own Kindle), Vantage reworked (hauling crawlers burn hotter), the Surveyor's Chalk replaces the Floor-Map Rubbing, the Wayfarer Wick is the tier IV capstone. |
+| 27 | Arrival Hush per lake: 10 s in Sporewood, 30 s in the foot lakes; average fresh Glasswater reach 0–1% (Appendix B). |
+| 28 | Vigil grounds authored and validated: every stand except the two dead ends is within 14 s of a loop ≥ 40 m or a disc r ≥ 8 m (or a mooring in Sporewood); `survival.getOpenGround()` feeds the dusk readout. |
+| 29 | Contact shadows under every enemy within 10 m on the blob-shadow instancing; the ring at the Wick's feet. |
+| 30 | The Burning Glass moves at 0.65 m/s (≈ 70 s each way, as the text says). |
+
 
 ---
 
@@ -1452,3 +2128,53 @@ No single strategy dominates. Rendering every fish is capped by maxOil and starv
 7. **The skill axis outweighs relics.** A player who never improves stays at a median death on day 4 even with 16 relic levels, though Sporewood arrivals rise from 58% to 86%. The learner reaches Glasswater around run 9. Most of the gap is dodge rates, so readable tells and the death-screen tips (§6.8) matter more than numbers.
 8. **The economy is richer than §9.3 claimed.** Fish sales are about 2× higher because elite oil means fewer fish need rendering. The gear catalogue is still only ≈ 38% buyable in a winning run, so every build remains a choice.
 9. **Integration.** `difficultyFor` gains `bossHpMult`, and `heatFor` takes `nightInZone` (combat should pass it). Progression must apply `heartwaxOnce`, no first-catch Shells for legendaries, and `BALANCE.memories`.
+
+## Appendix B. The foot profile (walking build)
+
+`tools/balance-foot.mjs` drives the unmodified v1 model (`tools/sim/model.mjs`) twice on the same seeds: once as today (raft everywhere) and once with the walking build's inputs per lake. It reads every number from `src/data.js` and the walk maps through `walkGridFor`. Like Appendix A it is a **relative** instrument.
+
+```
+node tools/balance-foot.mjs                  # v1 vs walking build, two seeds pooled (≈ 10 min)
+node tools/balance-foot.mjs --quick          # smaller samples
+node tools/balance-foot.mjs --route          # day routes from the walk maps
+node tools/balance-foot.mjs --kin            # kinematic dodge table
+node tools/balance-foot.mjs --reel           # the Pale Leviathan from the Brink and from the Hands
+```
+
+| layer | what the walking build changes in the model |
+|---|---|
+| days | A day plan per lake on the body-eroded grid: dawn candle (the free flame-leap lands at the candle nearest today's Astir place) → the Astir place → the nearest other place → Murk's dock of the day → a vigil candle, path time × 1.2. Walking replaces the raft's relocation between catches and its Murk trip (Sporewood: the walking legs come on top of 60% of v1's sailing). Casts in places count as feeding spots by strength (base place 0.6, Astir 1.2 spot-equivalents; outside places 30% of v1's spot casts). Sharing flame costs 12 × zone drain per candle (2 a stay for average, 4 for skilled), Known Places make first shares free run to run, memorial candles give oil back, Arrival Hush on the first calm in a lake. |
+| nights | Kinematic dodges: escape probability from a hand stain (3.2 m, 2.0 s), an inkwell glob (2.4 m ring, 1.2 s, 0.6 s lead) and a Warden lane (1.5 m half-lane, 1.0 s; aligned with walkways) for the raft (top 6 m/s, accel 3/s, glide) and for the Wick (top 5.0 m/s, accel 6/s) in the open and on walkways (one-dimensional escapes), with each skill's reaction time and missed tells; the model's calibrated raft dodge rates are scaled by the ratio of kinematic failures. Contact 1.6 m; crawlers × 0.9 land speed × straight / path distance; eels only within reach of open water; darkness at half rate for the share of the night spent inside a candle; kiting slowed on narrow walkways. Sporewood nights are half on the raft. |
+| campaigns | 48 campaigns × 13 runs per skill and seed; Known Places accumulate; the tier IV relics are not bought (their Memories go to v1 relics, which errs toward harder). |
+
+Assumptions the maps cannot give (`FOOT_ASSUME`): share of a night on walkways narrower than 4 m (Sporewood 15%, Glasswater 30%, Pallid 50%); within reach of open water (80 / 55 / 85%); inside a lit candle (average 30%, skilled 50%); casts in places (60 / 85%) and in the Astir place (20 / 35%); crawler straight / path ratio (0.85 / 0.8 / 0.75). Replace them with telemetry.
+
+**Day routes** (walking per day, × 1.2): Sporewood 8 s (jetty legs; sailing as v1), Glasswater 42 s, the Pallid Deep 41 s — against ≈ 41 s of relocation and Murk trips on the raft for a skilled player.
+
+**Kinematic dodges** (escape once the tell is seen; raft / foot open / foot walkway): average — slam 93 / 92 / 88%, glob 76 / 70 / 56%, Warden lane 74 / 69 / 71%; skilled — slam 98 / 98 / 97%, glob 95 / 95 / 93%, Warden lane 92 / 94 / 95%.
+
+**Results** (seeds 20261104 and 7 pooled; 300 runs per profile and 48 campaigns × 13 runs per seed):
+
+| profile | death day med (p10–p90) | reach Spore / Glass / Pallid | win % | level-up every |
+|---|---|---|---|---|
+| v1 · average fresh | 4 (3–5) | 63% / 0% / 0% | 0% | 32 s |
+| walk · average fresh | 4 (3–5) | 60% / 0% / 0% | 0% | 32 s |
+| v1 · skilled fresh | 7 (5–9) | 100% / 84% / 9% | 0% | 24 s |
+| walk · skilled fresh | 7 (5–10) | 100% / 85% / 19% | 0% | 24 s |
+| v1 · skilled after 8 runs | 9 (6–12) | 100% / 99% / 70% | 22% | 24 s |
+| walk · skilled after 8 runs | 10 (7–12) | 100% / 99% / 81% | 25% | 24 s |
+
+First victory (median run of the skilled campaigns): v1 9 (44% won by run 8, 85% by run 13) · walk 9 (49%, 95%). The learner first reaches Glasswater at run 9 (v1) / 10 (walk) and never reaches the Pallid Deep within 13 runs in either build.
+
+| lake (skilled, fresh + after 8 runs) | catches / day | Shells / day | Embers lost / night | oil net / night |
+|---|---|---|---|---|
+| The Mossmere | 6.0 → 6.0 (0%) | 237 → 239 (+1%) | 0.1 → 0.1 | −43 → −43 |
+| Sporewood Pools | 6.0 → 6.4 (+7%) | 452 → 457 (+1%) | 1.2 → 1.2 (−4%) | −50 → −49 |
+| Glasswater Vault | 5.7 → 5.8 (+2%) | 727 → 742 (+2%) | 3.1 → 2.8 (−9%) | −56 → −55 |
+| The Pallid Deep | 5.8 → 5.8 (+1%) | 1014 → 1042 (+3%) | 5.0 → 5.1 (+4%) | −37 → −44 |
+
+**Acceptance** (all PASS): average fresh median death day 4 (3–5); average fresh Glasswater reach ≤ 3%; skilled fresh day 7; skilled after 8 runs wins 10–40% (25%); first win in runs 7–9 (9); the learner reaches the Pallid Deep at run ≥ 12; Embers lost per night within ±10% of v1 in Glasswater and the Pallid Deep; catches and Shells per day within ±10% of v1 in all three walking lakes; level-up cadence within ±10%; darkness's share of deaths does not drop (it is 0% in both builds — the model's oil economy never lets darkness kill, Appendix A.5 #2 — so the knob for it stays `oilDrain`, then `lamps.darknessShelter`).
+
+**What the profile changed.** With the first revision's day numbers (speed 0.82, calm 125 s in the foot lakes, +30 s hush in Sporewood) foot days came out 5–18% richer than v1 while skilled campaigns first won about one run later (median run 10–11 against 9–10), mostly from slower Glasswater nights on narrow walkways. Dropping the calm overrides brought every lake's catches and Shells within ±7%; speed 0.84 (with accel 6 / decel 8 and Warden lanes aligned with walkways) brought the night and campaign rows back to v1's. Per-seed results swing by ±1–2 runs on the first win; the pooled pair is the number to trust.
+
+**The Bottomless's stances** (`--reel`, line strength 1.9, reel 1.45, sweet zone 0.2): skilled land 43% from the raft (v1), ≈ 50% from the Brink (flat line) and ≈ 30% from the Joined Hands (steep line); the average player is at 2–3% everywhere (the finale is a skill and gear gate).
