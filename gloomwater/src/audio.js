@@ -1,4 +1,4 @@
-// audio.js — placeholder (to be implemented per CONTRACT.md)
-export function create(ctx) {
-  return { init() {}, update() {} };
+// audio.js — BASELINE (integrator). Silent; the audio author replaces it.
+export function create() {
+  return { init() {}, update() {}, unlock() {}, play() {}, setMood() {}, applySettings() {} };
 }

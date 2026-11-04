@@ -372,6 +372,8 @@ getBounties() -> Bounty[]
 getRelics() -> [{...relic, level, nextCost, canBuy, maxed}], buyRelic(id) -> {ok, msg}
 getWaystones() -> zoneId[]                         // zones available as run start points
 equipBait(baitId) -> {ok,msg}
+getEquippedBait() -> bait data object | null       // the equipped bait if any are left
+consumeBait() -> baitId | null                     // fishing calls on each cast (and per DESIGN rules); null = fishing bare hook
 ```
 Listens to `fishing:caught` → builds Fish, updates journal/records/bounties → emits
 `fish:landed`. Controls merchant arrival/departure on phase changes
@@ -520,3 +522,10 @@ dispose what you remove, no per-frame allocations in hot paths (reuse vectors).
   screenshots. Look at the screenshots (they are PNG files you can Read).
 - Debug API in the page: `window.__gw` (= ctx), `ctx.debug.*` cheats, e.g.
   `__gw.game.startNewRun({})`, `__gw.time.timeScale = 8`.
+- Required debug hooks (register in `init()`), used by integration scenarios:
+  fishing: `ctx.debug.forceBite()` (next/at-once real bite when waiting),
+  `ctx.debug.instantCatch(speciesId?)` (skip to a landed catch);
+  survival: `ctx.debug.skipPhase()`, `ctx.debug.god(on)`, `ctx.debug.spawn(enemyIdOrKind)`;
+  progression: `ctx.debug.addShells(n)`, `ctx.debug.addMemories(n)`,
+  `ctx.debug.unlockZone(zoneId)`, `ctx.debug.giveFish(speciesId)` (adds to creel);
+  ui: `ctx.debug.ui()` returns `{openModal: id|null, tips: [...]}`.
