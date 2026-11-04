@@ -234,12 +234,22 @@ export function create(ctx) {
     const el = h('div', `gw-toast gw-toast--${kind}`, `${glyph ? icon(glyph, { cls: 'gw-toast-ico' }) : ''}<span>${esc(text)}</span>`);
     if (opts.title) el.insertAdjacentHTML('afterbegin', `<b class="gw-toast-title">${esc(opts.title)}</b>`);
     layers.toasts.appendChild(el);
-    const entry = { el, dead: false };
+    const entry = { el, dead: false, held: false };
     toasts.push(entry);
     requestAnimationFrame(() => el.classList.add('gw-in'));
     const dur = opts.dur || (kind === 'lore' ? 5600 : kind === 'tip' ? 6500 : kind === 'bad' ? 3800 : 3400);
+    entry.deadline = now + dur;
     entry.timer = setTimeout(() => dropToast(entry), dur);
   }
+  /** Toasts already on screen when a banner rises step aside (hidden, timers paused) until it ends. */
+  function yieldToasts(on) {
+    const now = performance.now();
+    for (const t of toasts) {
+      if (on && !t.held) { t.held = true; t.left = Math.max(1200, t.deadline - now); clearTimeout(t.timer); t.el.classList.add('gw-held'); }
+      else if (!on && t.held) { t.held = false; t.deadline = now + t.left; t.timer = setTimeout(() => dropToast(t), t.left); t.el.classList.remove('gw-held'); }
+    }
+  }
+  let toastsYield = false;
   function dropToast(entry, fast = false) {
     if (!entry || entry.dead) return;
     entry.dead = true;
@@ -306,6 +316,8 @@ export function create(ctx) {
     // banners wait behind blocking modals (level-up, catch card, shop, death) instead of bleeding through
     const blocked = hasBlocking();
     layers.banner.classList.toggle('gw-hidden', blocked);
+    const showing = !blocked && !!bannerEl && !bannerEl.classList.contains('gw-out');
+    if (showing !== toastsYield) { toastsYield = showing; yieldToasts(showing); }
     if (blocked) return;
     if (bannerEl) {
       bannerT += dt;

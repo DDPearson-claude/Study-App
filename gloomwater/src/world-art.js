@@ -591,7 +591,8 @@ export function buildArena(ctx, L, opts = {}) {
   // ---------------- hero landmarks just beyond the cliffs (real 3D parallax against the rings)
   const hero = { ink: [], glow: [] };
   {
-    const ga = Math.atan2(L.gate.z, L.gate.x); // landmarks rise behind the Descent Gate
+    // landmarks rise behind the Descent Gate (north, i.e. up-screen, for a gate at the lake centre)
+    const ga = Math.hypot(L.gate.x, L.gate.z) < L.R * 0.2 ? -Math.PI / 2 : Math.atan2(L.gate.z, L.gate.x);
     const at = (a, extra) => { const r = L.shoreR(a) + extra; return [Math.cos(a) * r, Math.sin(a) * r]; };
     const inkC = mixArr(PL.ink, K.rock, 0.6);
     if (theme === 'mossmere') {
@@ -898,7 +899,7 @@ export function buildArena(ctx, L, opts = {}) {
   const ringSrc = [];
   for (const o of L.islands) ringSrc.push({ x: o.x, z: o.z, r: o.r * 1.08 + 0.1, seed: o.seed });
   for (const p of L.pillars) ringSrc.push({ x: p.x, z: p.z, r: p.r * 0.9, seed: p.seed });
-  for (const s of L.gate.stones) ringSrc.push({ x: s.x, z: s.z, r: s.r * 0.9, seed: s.a * 10 });
+  if (!L.gate.none) for (const s of L.gate.stones) ringSrc.push({ x: s.x, z: s.z, r: s.r * 0.9, seed: s.a * 10 });   // no foam round the final lake's absent stones
   for (const d of L.docks) for (const p of d.posts) ringSrc.push({ x: p.x, z: p.z, r: 0.25, seed: p.x });
   const foam = createShoreRings(ringSrc);
   G(foam.geo); M(foam.mat);
