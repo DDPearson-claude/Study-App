@@ -71,10 +71,11 @@ export function buildArena(ctx, L, opts = {}) {
   const olRock = M(outlineMat(0.11, INK));
   const olOrg = M(outlineMat(0.06, INK));
 
-  const kit = { rock: [], org: [], glow: [] };
+  const kit = { rock: [], org: [], glow: [], fine: [] };
   const colorRock = (mossAmt = 1, wet = true) => (x, y, z, nx, ny, nz) => {
     const n = fbm3(x * 0.35, y * 0.35, z * 0.35, 2);
     let c = mixArr(K.rock, K.rockHi, n * 0.9);
+    c = scaleArr(c, 0.86 + 0.14 * Math.sin(y * 2.6 + n * 5.0));
     if (mossAmt > 0) {
       const m = Math.max(0, Math.min(1, (ny - 0.45) / 0.35)) * mossAmt * (0.6 + 0.6 * vnoise3(x * 0.8, y * 0.8, z * 0.8));
       c = mixArr(c, mixArr(K.moss, K.mossHi, n), Math.min(1, m));
@@ -259,7 +260,14 @@ export function buildArena(ctx, L, opts = {}) {
   mark('stal+shafts');
   // ==================================================================== ISLANDS
   const islandRock = (o, mossAmt = 1) => {
-    kit.rock.push(prep(rockGeo(rng, { r: o.r, h: o.h, detail: 2, rough: 0.3 }), { matrix: mat(o.x, o.h * 0.22 - 0.25, o.z, 0, o.rot, 0), colorFn: colorRock(mossAmt) }));
+    const main = prep(rockGeo(rng, { r: o.r, h: o.h, detail: o.r > 5 ? 3 : 2, rough: 0.34 }), { matrix: mat(o.x, o.h * 0.22 - 0.25, o.z, 0, o.rot, 0), colorFn: colorRock(mossAmt) });
+    o._pos = main.attributes.position.array.slice();
+    kit.rock.push(main);
+    // a tilted stacked slab breaks the dome silhouette
+    if (o.r > 3.6) {
+      const a = o.rot + rng() * TAU, d = o.r * rng.range(0.1, 0.35), sr = o.r * rng.range(0.32, 0.5);
+      kit.rock.push(prep(rockGeo(rng, { r: sr, h: sr * rng.range(0.8, 1.5), detail: 1, rough: 0.3, flare: 0.05 }), { matrix: mat(o.x + Math.cos(a) * d, o.h * 0.62, o.z + Math.sin(a) * d, rng.range(-0.35, 0.35), rng() * TAU, rng.range(-0.35, 0.35)), colorFn: colorRock(mossAmt * 0.7, false) }));
+    }
     const k = 2 + ((rng() * 3) | 0);
     for (let i = 0; i < k; i++) {
       const a = o.rot + (i / k) * TAU + rng.range(-0.4, 0.4), d = o.r * rng.range(0.55, 0.85), s = o.r * rng.range(0.22, 0.4);
@@ -267,10 +275,18 @@ export function buildArena(ctx, L, opts = {}) {
     }
   };
   const topOf = (o, f = 0.55) => o.h * f + 0.2; // approximate surface height near island centre
+  // actual rock surface height under (x,z): highest main-rock vertex nearby
+  const surf = (o, x, z) => {
+    const a = o._pos; if (!a) return topOf(o);
+    const rr = Math.max(0.9, o.r * 0.2), r2 = rr * rr;
+    let best = -Infinity;
+    for (let i = 0; i < a.length; i += 3) { const dx = a[i] - x, dz = a[i + 2] - z; if (dx * dx + dz * dz < r2 && a[i + 1] > best) best = a[i + 1]; }
+    return Number.isFinite(best) ? best - 0.15 : 0;
+  };
 
   // ---------------- theme prop builders
   const P = {
-    column(x, z, r, h, broken = true) {
+    column(x, z, r, h, broken = true, baseY = 0) {
       const hh = h;
       const g = new THREE.CylinderGeometry(r * 0.82, r, hh, 12, 6, false);
       const pp = g.attributes.position;
@@ -282,8 +298,8 @@ export function buildArena(ctx, L, opts = {}) {
         pp.setXYZ(i, pp.getX(i) * flute, yy, pp.getZ(i) * flute);
       }
       g.computeVertexNormals();
-      kit.rock.push(prep(g, { matrix: mat(x, hh / 2 - 0.4, z, rng.range(-0.05, 0.05), rng() * TAU, rng.range(-0.05, 0.05)), colorFn: (px, py) => mixArr(K.stone, K.moss, py < 1.6 ? 0.55 : py > hh * 0.75 ? 0.25 : 0.05) }));
-      if (!broken) kit.rock.push(prep(new THREE.BoxGeometry(r * 2.3, r * 0.5, r * 2.3), { matrix: mat(x, hh - 0.2, z, 0, rng() * TAU, 0), color: K.stone }));
+      kit.rock.push(prep(g, { matrix: mat(x, baseY + hh / 2 - 0.4, z, rng.range(-0.05, 0.05), rng() * TAU, rng.range(-0.05, 0.05)), colorFn: (px, py) => mixArr(K.stone, K.moss, py - baseY < 1.6 ? 0.55 : py - baseY > hh * 0.75 ? 0.25 : 0.05) }));
+      if (!broken) kit.rock.push(prep(new THREE.BoxGeometry(r * 2.3, r * 0.5, r * 2.3), { matrix: mat(x, baseY + hh - 0.2, z, 0, rng() * TAU, 0), color: K.stone }));
     },
     lamp(x, y, z, h = 3.2, light = true) {
       const post = new THREE.CylinderGeometry(0.07, 0.11, h, 6);
@@ -303,7 +319,7 @@ export function buildArena(ctx, L, opts = {}) {
       for (let i = 0; i < n; i++) {
         const a = rng() * TAU, d = rng() * 0.7, hh = h * rng.range(0.6, 1.2);
         const g = new THREE.ConeGeometry(0.05, hh, 4);
-        kit.org.push(prep(g, { matrix: mat(x + Math.cos(a) * d, hh / 2 - 0.1, z + Math.sin(a) * d, rng.range(-0.2, 0.2), 0, rng.range(-0.2, 0.2)), color: mixArr(K.organic, K.mossHi, rng() * 0.4) }));
+        kit.fine.push(prep(g, { matrix: mat(x + Math.cos(a) * d, hh / 2 - 0.1, z + Math.sin(a) * d, rng.range(-0.2, 0.2), 0, rng.range(-0.2, 0.2)), color: mixArr(K.organic, K.mossHi, rng() * 0.4) }));
       }
     },
     pilings(x, z, r) {
@@ -407,11 +423,11 @@ export function buildArena(ctx, L, opts = {}) {
       }
       halos.add(x, h * 0.5, z, scaleArr(PL.glow, 0.35), r * 4);
     },
-    statue(x, z, s, sunk = 0.3) {
+    statue(x, z, s, sunk = 0.3, baseY = 0) {
       const ry = rng() * TAU;
       const body = latheGeo([[s * 0.95, -s * 0.5], [s * 0.9, s * 0.4], [s * 0.7, s * 1.2], [s * 0.45, s * 1.75], [s * 0.42, s * 2.05], [s * 0.01, s * 2.3]], 12);
       wobble(body, s * 0.05, 1.5, x);
-      const y0 = -sunk * s * 2;
+      const y0 = baseY - sunk * s * 2;
       kit.rock.push(prep(body, { matrix: mat(x, y0, z, rng.range(-0.08, 0.08), ry, rng.range(-0.1, 0.1)), colorFn: (px, py) => mixArr(K.stone, K.moss, py < 0.6 ? 0.5 : 0.1) }));
       // hood + void face
       kit.rock.push(prep(new THREE.SphereGeometry(s * 0.5, 10, 8, 0, TAU, 0, Math.PI * 0.62), { matrix: mat(x, y0 + s * 2.0, z, 0.25, ry, 0), color: K.stone }));
@@ -448,7 +464,7 @@ export function buildArena(ctx, L, opts = {}) {
       const branch = (p, dir, len, w, depth) => {
         const end = p.clone().addScaledVector(dir, len);
         const mid = p.clone().lerp(end, 0.5).add(V(rng.range(-0.2, 0.2) * len, 0, rng.range(-0.2, 0.2) * len));
-        kit.org.push(prep(taperTube([p, mid, end], (t) => w * (1 - t * 0.45), 4, 3), { colorFn: (px, py) => mixArr(scaleArr(K.organic, 0.6), K.organic, Math.min(1, Math.max(0, py / (s * 2)))) }));
+        kit.fine.push(prep(taperTube([p, mid, end], (t) => w * (1 - t * 0.45), 4, 3), { colorFn: (px, py) => mixArr(scaleArr(K.organic, 0.6), K.organic, Math.min(1, Math.max(0, py / (s * 2)))) }));
         if (depth > 0) for (let k = 0; k < 2; k++) {
           const d2 = dir.clone().add(V(rng.range(-0.7, 0.7), rng.range(0.2, 0.6), rng.range(-0.7, 0.7))).normalize();
           branch(end, d2, len * 0.7, w * 0.62, depth - 1);
@@ -471,10 +487,9 @@ export function buildArena(ctx, L, opts = {}) {
   // ---------------- islands per theme
   for (const o of L.islands) {
     islandRock(o, theme === 'paleabyss' ? 0.6 : 1);
-    const top = topOf(o);
     if (theme === 'mossmere') {
-      if (o.big) { P.column(o.x + o.r * 0.25, o.z - o.r * 0.1, 0.55, 4.2 + rng() * 2, true); P.column(o.x - o.r * 0.3, o.z + o.r * 0.2, 0.5, 2.4, true); }
-      if (o.big || rng() < 0.55) P.lamp(o.x + rng.range(-0.3, 0.3) * o.r, top * 0.9, o.z + rng.range(-0.3, 0.3) * o.r, rng.range(2.8, 3.8));
+      if (o.big) { const c1x = o.x + o.r * 0.25, c1z = o.z - o.r * 0.1, c2x = o.x - o.r * 0.3, c2z = o.z + o.r * 0.2; P.column(c1x, c1z, 0.55, 3.2 + rng() * 2, true, surf(o, c1x, c1z)); P.column(c2x, c2z, 0.5, 1.8, true, surf(o, c2x, c2z)); }
+      if (o.big || rng() < 0.55) { const lx = o.x + rng.range(-0.3, 0.3) * o.r, lz = o.z + rng.range(-0.3, 0.3) * o.r; P.lamp(lx, surf(o, lx, lz), lz, rng.range(2.8, 3.8)); }
       const nr = 3 + ((rng() * 4) | 0);
       for (let i = 0; i < nr; i++) { const a = rng() * TAU, d = o.r * rng.range(1.05, 1.35); P.reeds(o.x + Math.cos(a) * d, o.z + Math.sin(a) * d, 4 + ((rng() * 4) | 0), rng.range(1.0, 1.9)); }
     } else if (theme === 'sporewood') {
@@ -482,30 +497,33 @@ export function buildArena(ctx, L, opts = {}) {
       for (let i = 0; i < nm; i++) {
         const a = rng() * TAU, d = o.r * rng.range(0, 0.45);
         const cap = rng.range(1.8, 3.6) * (o.big && i === 0 ? 1.6 : 1);
-        const m = P.mushroom(o.x + Math.cos(a) * d, top * 0.8, o.z + Math.sin(a) * d, cap * rng.range(1.6, 2.6), cap, { gillColor: rng() < 0.7 ? PL.glow : PL.accent });
+        const mx = o.x + Math.cos(a) * d, mz = o.z + Math.sin(a) * d;
+        const m = P.mushroom(mx, surf(o, mx, mz), mz, cap * rng.range(1.6, 2.6), cap, { gillColor: rng() < 0.7 ? PL.glow : PL.accent });
         if (i === 0) addAnchor(m.x, m.y - 0.6, m.z, pal.glow, 3.2, 13);
       }
       const np = (rng() * 3) | 0;
-      for (let i = 0; i < np; i++) { const a = rng() * TAU, d = o.r * rng.range(0.4, 0.8); P.pod(o.x + Math.cos(a) * d, top * 0.5, o.z + Math.sin(a) * d, rng.range(0.5, 0.9)); }
+      for (let i = 0; i < np; i++) { const a = rng() * TAU, d = o.r * rng.range(0.4, 0.8); const px = o.x + Math.cos(a) * d, pz = o.z + Math.sin(a) * d; P.pod(px, surf(o, px, pz), pz, rng.range(0.5, 0.9)); }
     } else if (theme === 'glasswater') {
       const nc = o.big ? 3 : 1 + ((rng() * 2) | 0);
       for (let i = 0; i < nc; i++) {
         const a = rng() * TAU, d = o.r * rng.range(0, 0.55);
-        const tint = P.crystals(o.x + Math.cos(a) * d, top * 0.7, o.z + Math.sin(a) * d, rng.range(1.6, 3.4) * (o.big && i === 0 ? 1.6 : 1), 5 + ((rng() * 4) | 0));
-        if (i === 0) addAnchor(o.x + Math.cos(a) * d, top + 2, o.z + Math.sin(a) * d, new THREE.Color().setRGB(tint[0], tint[1], tint[2]).getHex(), 3.5, 13);
+        const cx = o.x + Math.cos(a) * d, cz = o.z + Math.sin(a) * d, cy = surf(o, cx, cz);
+        const tint = P.crystals(cx, cy, cz, rng.range(1.6, 3.4) * (o.big && i === 0 ? 1.6 : 1), 5 + ((rng() * 4) | 0));
+        if (i === 0) addAnchor(cx, cy + 2, cz, new THREE.Color().setRGB(tint[0], tint[1], tint[2]).getHex(), 3.5, 13);
       }
-      if (o.big) P.statue(o.x - o.r * 0.2, o.z + o.r * 0.15, 1.3, 0.05);
+      if (o.big) { const sx = o.x - o.r * 0.2, sz = o.z + o.r * 0.15; P.statue(sx, sz, 1.3, 0.05, surf(o, sx, sz)); }
     } else {
       const nc = 1 + ((rng() * 3) | 0);
-      for (let i = 0; i < nc; i++) { const a = rng() * TAU, d = o.r * rng.range(0.1, 0.6); P.coral(o.x + Math.cos(a) * d, top * 0.7, o.z + Math.sin(a) * d, rng.range(0.9, 1.6), 2); }
+      for (let i = 0; i < nc; i++) { const a = rng() * TAU, d = o.r * rng.range(0.1, 0.6); const cx = o.x + Math.cos(a) * d, cz = o.z + Math.sin(a) * d; P.coral(cx, surf(o, cx, cz) + 0.2, cz, rng.range(0.9, 1.6), 2); }
       const nb = 1 + ((rng() * 2) | 0);
       for (let i = 0; i < nb; i++) { const a = rng() * TAU, d = o.r * rng.range(0.2, 0.7); P.rib(o.x + Math.cos(a) * d, o.z + Math.sin(a) * d, 0.35, rng.range(2.5, 4.5), rng() * TAU); }
       const nk = 3 + ((rng() * 6) | 0);
-      for (let i = 0; i < nk; i++) { const a = rng() * TAU, d = o.r * rng.range(0.15, 0.75); P.candle(o.x + Math.cos(a) * d, top * (0.95 - d / o.r * 0.6), o.z + Math.sin(a) * d, 1.3, rng() < 0.6); }
-      if (o.big) addAnchor(o.x, top + 1.5, o.z, pal.glow, 3, 12);
+      for (let i = 0; i < nk; i++) { const a = rng() * TAU, d = o.r * rng.range(0.15, 0.75); const cx = o.x + Math.cos(a) * d, cz = o.z + Math.sin(a) * d; P.candle(cx, surf(o, cx, cz) + 0.1, cz, 1.3, rng() < 0.6); }
+      if (o.big) addAnchor(o.x, surf(o, o.x, o.z) + 1.5, o.z, pal.glow, 3, 12);
     }
   }
 
+  for (const o of L.islands) delete o._pos;
   // ---------------- pillars / wrecks
   for (const p of L.pillars) {
     const s = p.h;
@@ -647,6 +665,7 @@ export function buildArena(ctx, L, opts = {}) {
   };
   addStatic(kit.rock, rockMat, olRock, 'rocks');
   addStatic(kit.org, orgMat, olOrg, 'organics');
+  addStatic(kit.fine, orgMat, null, 'fine');
   addStatic(kit.glow, glowMat, null, 'glows');
   const heroMat = M(inkToon({ color: 0xffffff, vertexColors: true, flatShading: true, rim: 0.6, rimColor: pal.far, rimPower: 0.5, steps: 3 }, { fogScale: 0.5, fogMax: 0.72 }));
   addStatic(hero.ink, heroMat, null, 'landmarks');
@@ -878,7 +897,7 @@ export function buildArena(ctx, L, opts = {}) {
   group.add(foam.mesh);
   // low mist sheets drifting over the water
   const sheetSrc = [];
-  for (let i = 0; i < (low ? 8 : 16); i++) {
+  for (let i = 0; i < (low ? 6 : 12); i++) {
     const a = rng() * TAU, d = Math.sqrt(rng()) * R * 0.9;
     sheetSrc.push({ x: Math.cos(a) * d, y: rng.range(0.35, 1.6), z: Math.sin(a) * d, size: rng.range(14, 28), phase: rng() * TAU, drift: rng.range(0.5, 1.5) });
   }
@@ -1012,6 +1031,7 @@ export function buildArena(ctx, L, opts = {}) {
 
   function dispose() {
     group.parent?.remove(group);
+    group.traverse((o) => { if (o.isInstancedMesh) o.dispose(); });
     for (const g of bin.geos) g.dispose();
     for (const m of bin.mats) m.dispose();
     for (const t of bin.texs) t.dispose();

@@ -178,7 +178,7 @@ export function create(ctx) {
     if (!zone) return;
     const n = mood.night, w = mood.warm;
     // fog
-    col.nightFog.copy(zc.fog).multiplyScalar(0.36).lerp(COLD, 0.42);
+    col.nightFog.copy(zc.fog).multiplyScalar(0.3).lerp(COLD, 0.45);
     col.dawnFog.copy(zc.fog).lerp(WARM, 0.13).multiplyScalar(1.12);
     col.fog.copy(zc.fog).lerp(col.nightFog, n).lerp(col.dawnFog, w * 0.55);
     fogPush = Math.max(0, fogPush - dt * 1.4);
@@ -212,7 +212,7 @@ export function create(ctx) {
     const n = mood.night, w = mood.warm;
     col.a.set(g.tint ?? 0x2e6b63).lerp(NIGHT_TINT, n).lerp(DAWN_TINT, w * 0.7);
     const grade = {
-      exposure: (g.exposure ?? 1) * (1 - 0.14 * n + 0.05 * w),
+      exposure: (g.exposure ?? 1) * (1 - 0.2 * n + 0.05 * w),
       bloomStrength: (g.bloomStrength ?? 0.9) * (1 + 0.15 * n + 0.1 * w),
       bloomRadius: g.bloomRadius ?? 0.6,
       bloomThreshold: g.bloomThreshold ?? 0.72,
@@ -231,8 +231,8 @@ export function create(ctx) {
 
   function sendPalette() {
     const n = mood.night;
-    col.a.copy(zc.waterDeep).multiplyScalar(1 - 0.4 * n);
-    col.b.copy(zc.water).lerp(COLD, 0.25 * n).multiplyScalar(1 - 0.35 * n).lerp(WARM, mood.warm * 0.08);
+    col.a.copy(zc.waterDeep).multiplyScalar(1 - 0.55 * n);
+    col.b.copy(zc.water).lerp(COLD, 0.25 * n).multiplyScalar(1 - 0.5 * n).lerp(WARM, mood.warm * 0.08);
     try {
       ctx.water?.setPalette?.({ deep: col.a.getHex(), shallow: col.b.getHex(), foam: zc.foam.getHex(), glow: zc.glow.getHex(), fogColor: env.fog.getHex() });
     } catch (e) { /* optional */ }
