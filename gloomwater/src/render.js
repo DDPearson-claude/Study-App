@@ -138,12 +138,13 @@ export function create(ctx) {
   let bloomScale = 1;
   const auto = { active: false, frames: 0, time: 0, warm: 1.5, last: 0, drops: 0, checks: 0, bad: 0 };
 
+  let prScale = 1;   // debug.renderScale(): render below CSS resolution (headless regression runs)
   function effectivePixelRatio() {
     const t = TIERS[tierName];
     let pr = Math.min(window.devicePixelRatio || 1, t.pr);
     const px = W * H * pr * pr;
     if (px > t.maxPx) pr = Math.sqrt(t.maxPx / (W * H));
-    return Math.max(0.5, pr);
+    return prScale < 1 ? Math.max(0.2, pr * prScale) : Math.max(0.5, pr);
   }
 
   function resize(w = innerWidth, h = innerHeight) {
@@ -629,6 +630,7 @@ export function create(ctx) {
     init() {
       const q = ctx.state?.meta?.settings?.quality;
       setQuality(typeof q === 'string' ? q : 'auto');
+      if (ctx.debug) ctx.debug.renderScale = (x = 1) => { prScale = clamp(Number(x) || 1, 0.2, 1); resize(W, H); return prScale; };
       const bus = ctx.bus;
       if (!bus) return;
       const on = (evt, fn) => bus.on(evt, (p) => { try { fn(p || {}); } catch (e) { console.error('[render]', evt, e); } });
