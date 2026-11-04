@@ -140,6 +140,10 @@ touches never reach the canvas):
    `actors.pickMerchant(ndc) && progression.canShop()` → `ui.openShop()` → else
    `fishing.onPointerDown()` (fishing reads `ctx.input.ndc` to aim at the water).
 4. pointermove → `fishing.onPointerMove(ndc)`; pointerup/cancel → `fishing.onPointerUp()`.
+5. Multi-touch: main tracks the pointer whose press reached `fishing.onPointerDown()`; only that
+   pointer's move/up/cancel go to fishing. Other pointers zap / open the shop and never reach
+   fishing while that hold lasts. `input.ndc`/`input.down` follow that (primary) pointer.
+`ctx.isMobile` = touch device (`(pointer: coarse)`), never inferred from the viewport size.
 
 **Keyboard**: `ui.handleKey(code)` first (true = consumed). Else: `WASD`/arrows →
 `input.move` (main recomputes every frame); `Space` or `KeyF` → `combat.flare()`;
@@ -266,6 +270,9 @@ mesh; getHeight(x, z) -> y; addRipple(x, z, strength=1); splash(x, z, {size, col
 addWake(x, z, dirX, dirZ, strength)      // V-wake / foam streak behind the moving raft
 setPalette({deep, shallow, foam, glow, fogColor}); setLights([{position, color, intensity}]) // ≤6
 ```
+`setLights` entries may also carry `radius` (lit pool, m; else `distance`), `streak`, `ring` (0..1 reach
+ring); world passes the lantern with `radius = survival.lightRadius, ring: 0.5`. The shore foam
+follows `world.getShoreRadius(angle)` when world provides it.
 Water must cover the whole arena (follow the camera/player or be large); getHeight
 must match the shader's displacement. Stylised: ink-dark water, banded fresnel toward
 fog colour, painterly streak reflections of lights, caustic shimmer, ≥24 ripple rings,
@@ -286,7 +293,11 @@ getMerchantDock(day) -> {position, yaw}       // mooring spot (varies by day)
 getGate() -> {position, radius}               // Descent Gate whirlpool location
 setGateState('hidden'|'sealed'|'open')        // visual state of the gate
 getObstacles() -> [{x, z, r}]                 // collision circles (for AI steering)
+getShoreRadius(angle) -> m                    // extra: the noisy cliff line (water's shore foam)
 ```
+Layout comes from `zone.arena` (islands/pillars arrays, gate, spawn, docks, deepPools, layout recipe,
+depthShare; DESIGN §4.3–4.6); procedural placement only fills fields that are missing.
+`getMerchantDock(day)`: day 1 → `docks[0]`, then `(seed + 2·day) % n`, never yesterday's dock.
 Listens to `zone:change`. Reads `ctx.survival.getPhaseInfo()` each frame to darken/cool
 for dusk/gloomtide and warm at dawn; owns hemisphere + directional crack-light + ≤2
 accent point lights; drives `scene.fog`, `render.setGrade`, `water.setPalette`, and
@@ -364,6 +375,10 @@ Clock (phase durations from data), drains (× phase/zone/difficulty/stats), star
 Each frame: `actors.setLanternLevel(oil/maxOil)`, `actors.setLightRadius(r)` where
 r = `stats.lightRadius × f(oil)`, `actors.setVitality(hp/maxHp)`. `resource:low` edges.
 Debug: `ctx.debug.skipPhase()`, `ctx.debug.god(on)`, `ctx.debug.setPhase(name)`.
+Extras others use: `setPhase(name)` (public; the Leviathan landing jumps to dawn), `lanternOut`,
+`appliesCombatLight = true` (lightRadius already folds in `combat.lightMult` and `combat.lightAdd`),
+`holdingGloomtide` (a gloom-time legendary on the line holds the Gloomtide in its hush until it
+resolves), `damage()` returns the Embers actually lost (0 when warded / i-framed).
 
 ### combat (`combat.js`)
 ```
@@ -376,6 +391,10 @@ getBoons() -> [{boon, level}]
 killAll(reason)
 BoonOption = { boonId, name, desc, rarity, level /*the level it will become*/, isNew, icon }
 ```
+Extras others use: `lightMult` (= `lightDims × flareBoost`; `lightDims` includes the legendary
+Eclipse `fishing.lightMult` under the shared dim floor), `lightAdd` (Gutsfire), `auraRadius`,
+`freeFlare()` (a free burst: no oil, no cooldown — the Second Wick revive), `pendingCount`,
+`levelUpKind` ('level'|'gift'|'draft'), `speedMult`, `rooted`. `addXp(n)` also feeds `xp:gain`.
 Spawn director from `data.difficultyFor(day, zoneIndex, k)` during dusk (sparse) and
 gloomtide (full), spawn points via `world.randomWaterPoint` on a ring 22–34 m from the
 player, steering around `world.getObstacles()`. Enemy behaviours per data (wisp chase,

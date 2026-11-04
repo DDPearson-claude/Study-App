@@ -23,8 +23,8 @@
 //   lantern:out, lantern:lit, toast; extras: player:warded {source}, player:burst {position, radius,
 //   push, stun, damage}, player:revive {}, lantern:flicker {oil}.
 // Gutter-burst (DESIGN §6.4): on every Ember lost survival emits player:damage (combat knocks its
-//   gloomlings on it) plus player:burst {position, radius, push, stun, damage} and calls
-//   combat.gutterBurst?.(payload); survival draws the ring only if combat does not (no lightMult).
+//   gloomlings on it) plus player:burst {position, radius, push, stun, damage}; survival draws the
+//   ring only if combat does not (no lightMult).
 // run.stats.damageSources {source: Embers} is kept for the death screen's "top damage source".
 import * as THREE from 'three';
 import { clamp, damp, rand } from './core.js';
@@ -344,7 +344,6 @@ export function create(ctx) {
     const p = playerPos(new THREE.Vector3());
     const payload = { position: p, radius, push: num(G.push, 5), stun: num(G.stun, 0.5), damage: !!q.burstDamage || big, source: big ? 'revive' : 'gutter' };
     const c = ctx.combat;
-    if (real(c) && typeof c.gutterBurst === 'function') { try { c.gutterBurst(payload); } catch (e) { console.error('[survival] combat.gutterBurst threw', e); } }
     emit('player:burst', payload);
     // a full combat module draws the Gutter-burst knock itself (on player:damage); avoid a doubled ring
     if (!big && real(c) && 'lightMult' in c) return;

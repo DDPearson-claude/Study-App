@@ -237,9 +237,9 @@ export function create(ctx) {
     const rr = r + (C.B?.move?.raftRadius ?? 1.6) * 0.8;
     const dx = p.x - x, dz = p.z - z, d = Math.hypot(dx, dz);
     if (d >= rr || d < 1e-4) return;
+    // a solid obstacle while it lingers: a positional correction like world.collide (the raft
+    // controller owns its velocity, so writing player.velocity here would be discarded)
     p.x = x + dx / d * rr; p.z = z + dz / d * rr;
-    const v = ctx.player.velocity;
-    if (v) { const vn = v.x * dx / d + v.z * dz / d; if (vn < 0) { v.x -= vn * dx / d; v.z -= vn * dz / d; } }
   };
   C.gripPlayer = (e, g) => {
     grip = { e, t: g.time ?? 3, oil: g.oilPerSec ?? 3, zaps: 0, need: g.zapsToBreak ?? 3, x: C.raft.x, z: C.raft.z };
