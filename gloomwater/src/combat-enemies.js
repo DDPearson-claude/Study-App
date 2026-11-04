@@ -18,7 +18,7 @@ const COL = {
   ember: lin(0xffa040, 2.4), emberDim: lin(0xff7a2a, 1.6), pale: lin(0xe9e2cf, 1.0), paleHot: lin(0xf4efe2, 2.2),
   white: lin(0xffffff, 3.2), ink: lin(0x040508, 1), inkSoft: lin(0x0a0a12, 1), gold: lin(0xe8c66a, 2.6),
   spore: lin(0xffb46a, 1.2), sporeCloud: lin(0x6b3a5e, 0.9), glass: lin(0xc9e8ff, 1.6), slick: lin(0x05060c, 1),
-  oil: lin(0xffb347, 2.4), fishGlow: lin(0x9fe8d8, 1.6),
+  oil: lin(0xffb347, 2.4), fishGlow: lin(0xd0c8f4, 1.6),
 };
 const tmpC = new THREE.Color();
 
@@ -120,7 +120,7 @@ export function createEnemies(C) {
     e.variant = variant; e.mods = mods;
     e.name = mods?.name || variant?.name || def.name;
     e.tint = mods?.tint ?? variant?.tint ?? def.tint ?? 0x07080d;
-    e.eye = mods?.eyeColor ?? variant?.eyeColor ?? def.eyeColor ?? 0xe8f1f2; e.curEye = -1;
+    e.eye = mods?.eyeColor ?? variant?.eyeColor ?? def.eyeColor ?? 0xecf0f6; e.curEye = -1;
     e.scale = (variant?.scale ?? def.scale ?? 1) * (opts.scale || 1);
     e.radius = (MODEL_R[e.kind] || 0.4) * e.scale;
     e.elite = !!def.elite; e.boss = !!def.boss;

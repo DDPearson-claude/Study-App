@@ -16,9 +16,9 @@ const PARTICLES = 192;
 
 const COL = {
   bone: 0xe9e2cf,
-  shallow: 0x9fe8d8, mid: 0xffc27a, deep: 0xb48cff, deepRim: 0xe8c66a,
+  shallow: 0xa8c8f0, mid: 0xffc27a, deep: 0xb48cff, deepRim: 0xe8c66a,
   rareA: 0xb48cff, rareB: 0xffd98a, legend: 0xffd27a, legendB: 0xfff0c0,
-  ink: 0x05080a, blocked: 0xff7a6a, anchor: 0x8d9aa0,
+  ink: 0x05080a, blocked: 0xff7a6a, anchor: 0x8e96a4,
 };
 
 // ------------------------------------------------------------------ shared GLSL bits
@@ -401,7 +401,7 @@ export function createFishingFx(ctx) {
     uSpot: { value: Array.from({ length: MAX_SLOTS }, () => new THREE.Vector4(0, 0, 0, 0)) },
     uSpotB: { value: Array.from({ length: MAX_SLOTS }, () => new THREE.Vector4(0, 2.6, 6, 0)) },
     uTime: time, uScale: scale,
-    uColA: { value: new THREE.Color(0x6ff5c8) }, uColB: { value: new THREE.Color(COL.bone) },
+    uColA: { value: new THREE.Color(0xa9b9f0) }, uColB: { value: new THREE.Color(COL.bone) },
     uColRareA: { value: new THREE.Color(COL.rareA) }, uColRareB: { value: new THREE.Color(COL.rareB) },
     uColLegend: { value: new THREE.Color(COL.legend) }, uColLegendB: { value: new THREE.Color(COL.legendB) },
   };
@@ -469,7 +469,7 @@ export function createFishingFx(ctx) {
       g.setAttribute('aCorner', new THREE.BufferAttribute(corner, 2));
     });
     const mat = new THREE.ShaderMaterial({
-      uniforms: { ...spotU, uInk: { value: new THREE.Color(COL.ink) }, uRim: { value: new THREE.Color(0x9fd8c8) } },
+      uniforms: { ...spotU, uInk: { value: new THREE.Color(COL.ink) }, uRim: { value: new THREE.Color(0xb8c6de) } },
       vertexShader: SIL_VS, fragmentShader: SIL_FS, transparent: true, depthWrite: false, side: THREE.DoubleSide,
     });
     const mesh = new THREE.Mesh(geo, mat);
@@ -479,7 +479,7 @@ export function createFishingFx(ctx) {
 
   // ---------------------------------------------------------------- legend pool
   const poolU = {
-    uInk: { value: new THREE.Color(0x020405) }, uRing: { value: new THREE.Color(0xcfe0dc) }, uGold: { value: new THREE.Color(COL.legend) },
+    uInk: { value: new THREE.Color(0x020405) }, uRing: { value: new THREE.Color(0xd8dce6) }, uGold: { value: new THREE.Color(COL.legend) },
     uR: { value: 3.2 }, uHalf: { value: 5 }, uActive: { value: 0 }, uDim: { value: 1 }, uTime: time, uAlpha: { value: 1 },
   };
   const poolMat = new THREE.ShaderMaterial({ uniforms: poolU, vertexShader: RETICLE_VS, fragmentShader: POOL_FS, transparent: true, depthWrite: false });
@@ -566,7 +566,7 @@ export function createFishingFx(ctx) {
   const tmpCol = new THREE.Color();
 
   // ---------------------------------------------------------------- fish shadow
-  const shU = { uInk: { value: new THREE.Color(0x010203) }, uRim: { value: new THREE.Color(0xcfe7e0) }, uAlpha: { value: 0.5 }, uWig: { value: 0 }, uRimK: { value: 0.6 } };
+  const shU = { uInk: { value: new THREE.Color(0x010203) }, uRim: { value: new THREE.Color(0xd2dbe8) }, uAlpha: { value: 0.5 }, uWig: { value: 0 }, uRimK: { value: 0.6 } };
   const shMat = new THREE.ShaderMaterial({ uniforms: shU, vertexShader: RETICLE_VS, fragmentShader: SHADOW_FS, transparent: true, depthWrite: false });
   const shadow = flatQuad(shMat, 2); shadow.name = 'fish-shadow';
   group.add(shadow); disposables.push(shadow.geometry, shMat);
@@ -577,7 +577,7 @@ export function createFishingFx(ctx) {
   const fx = {
     group,
     MAX_SLOTS,
-    setZoneColor(hex) { try { spotU.uColA.value.set(hex ?? 0x6ff5c8); } catch { /* bad colour */ } },
+    setZoneColor(hex) { try { spotU.uColA.value.set(hex ?? 0xa9b9f0); } catch { /* bad colour */ } },
     setSlot(i, x, z, strength, kind, highlight = 0, radius = 2.6, height = 6) {
       if (i < 0 || i >= MAX_SLOTS) return;
       spotU.uSpot.value[i].set(x, z, Math.max(0, strength), kind);

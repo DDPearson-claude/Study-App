@@ -197,7 +197,7 @@ The **bobber's depth decides the fish**, not the raft's, so casting from the sha
 ### 5.1 Aim & the cast meter (`BALANCE.cast`)
 - **Aim.** While charging, each frame: `P = render.groundPoint(ndc)` (keep the last value if null); `dir = normalize(P − raft)` on the xz-plane; `aimYaw = atan2(−dir.x, −dir.z)`; `actors.setAim(aimYaw)`.
 - **Meter.** A triangle wave with period 1.6 s: `ph = (t mod period)/period; charge = ph < 0.5 ? 2·ph : 2 − 2·ph` (0→1 in 0.8 s, back in 0.8 s). It starts once the raft is slower than 2 m/s. `view.charge = charge`.
-- **Reticle.** On the water at `raft + dir · max(minDist, charge·castMax)`: a thin bone-white ring, tinted and labelled by `DEPTH_BANDS` of `world.getDepth` there (shallow < 0.35 pale teal, mid < 0.75 amber, deep violet with a gold rim). A dotted range ring at `castMax` around the raft. A spot under the reticle brightens. `view.hint` = 'shallow' | 'mid' | 'deep'.
+- **Reticle.** On the water at `raft + dir · max(minDist, charge·castMax)`: a thin bone-white ring, tinted and labelled by `DEPTH_BANDS` of `world.getDepth` there (shallow < 0.35 pale moon-blue, mid < 0.75 amber, deep violet with a gold rim). A dotted range ring at `castMax` around the raft. A spot under the reticle brightens. `view.hint` = 'shallow' | 'mid' | 'deep'.
 - **Release.** A press shorter than 0.12 s never casts (back to idle). Otherwise `castDist = max(3, charge × stats.castMax)`, target = `raft + dir·castDist`. If the target is not open water (`world.isOpenWater(x, z, 0.5)`), step back along the ray in 0.5 m steps to the last open point; if none ≥ minDist, cancel with the toast "No open water there".
 - **Clean Cast** (charge ≥ 0.92, about a 0.13 s window at each peak): bite wait × 0.85 and +0.05 rarity for this cast; "Clean Cast" float text.
 - **Flight**: `flightBase + flightPerM·dist` s on a ballistic arc of height `arcHeight·dist`; on landing: splash, ripples, `fishing:land {position}`, then sample `depth = world.getDepth(bobber)`.
@@ -1112,34 +1112,37 @@ Something new arrives every 1.5–3 minutes: a species, a level, an enemy type, 
 
 ### 19.1 Global rules
 - **Silhouette first.** Near-black ink shapes with a pale rim light (`toon.toonMaterial` + `toon.addOutline`); faces are minimal: glowing eyes only.
-- **One warm light.** The Wick's amber lantern (≈ #ffb347) is the only warm light in each cold lake; Murk's lamp is a dim green. The swarm reads as ink against the lantern's warm pool, rim-lit violet (#6b5b8f).
+- **One warm light.** The Wick's amber lantern (≈ #ffb347) is the only warm light in each cold lake; Murk's lamp is a dim sage. The swarm reads as ink against the lantern's warm pool, rim-lit violet (#8a76bd). Warm light owns the pixels it touches: inside a light pool the water drains its cold cast to warm grey and warm lights lean gold, and the grade keeps its cold shadow tint off warm pixels, so the pool, embers and Cinders read amber-gold, never rose, on slate and indigo water.
+- **Palette rule.** Green and teal (hue 65–195°) appear only as rare, deliberate trace accents: Old Murk's sage lamp (#a6d4a0) and a breath of sage on the Mossback Perch. No lake fog, water, grade, glow, lamp, mote, spot, enemy eye, rarity, weapon or UI accent may sit in that band, and glows stay at hue ≥ 200° (ice, never aqua). Check new art with `tools/hue-report.mjs` (green+teal ≤ 1% per frame).
 - **Layered depth.** Inside the lake: islands and pillars (toon, outlined, fog on). At R: cliffs. Beyond the cliffs: **4–6 parallax silhouette rings** at R+15, +30, +50, +75, +100 m and a backdrop card at ≈ R+140, fading from `ink` to luminous `far`. FogExp2 at ≈ 0.02 swallows anything past ≈ 90 m, so rings beyond 40 m use `toon.silhouetteMaterial(color, {fog:false})` with a pre-mixed value ladder: ring 1 `lerp(ink, fog, 0.35)` (fog on), ring 2 `lerp(ink, fog, 0.6)`, ring 3 (hero) `lerp(fog, far, 0.25)` with emissive `glow`/`accent` details, ring 4 `lerp(fog, far, 0.6)` with feathered bottoms, backdrop: vertical gradient (top `fog × 0.5`, horizon band `far`, bottom `fog`). Between rings, 2–3 **mist cards** (wide planes at y 0–6, colour `fog`, opacity 0.25–0.4, slowly drifting canvas-noise alpha) sell the parallax.
 - **Composition.** The camera looks north, so each lake's **hero set piece sits beyond the north shore**, framed by darker flanking shapes, with clear negative-space windows. Ceilings at 25–35 m with stalactites and hanging details.
-- **Phase response** (world reads `survival.getPhaseInfo()`): *dusk* ambient ×0.75, light ×0.6, fog 20% toward `ink`, glow particles ×1.2 (the world lights its lamps); *gloomtide* ambient ×0.45, light ×0.25, fogDensity ×1.35, fog 35% toward `ink`, grade exposure ×0.85, saturation ×0.8, tint toward #1c1838 (+0.15), vignette +0.12, most glow particles ×0.4 except the lake's gloom tell; *dawn* light 30% toward #ffe0b8 and ×1.3, then ease back.
+- **Phase response** (world reads `survival.getPhaseInfo()`): *dusk* ambient ×0.75, light ×0.6, fog 20% toward `ink`, glow particles ×1.2 (the world lights its lamps); *gloomtide* ambient ×0.45, light ×0.25, fogDensity ×1.35, fog 35% toward `ink`, grade exposure ×0.85, saturation ×0.8, tint 80% of the way to the night blue #1a2c5c (a fifth of the lake's own tint survives, so the lakes still differ by hue at night) with tintAmount → 0.32, vignette +0.12, most glow particles ×0.4 except the lake's gloom tell; *dawn* light 30% toward #ffe0b8 and ×1.3, then ease back; the grade warms the highlights (warm split-tone +0.16) more than the shadows (tint only 20% toward #ff9a5a, no extra tint amount), so dawn reads as warm light over cool water, a pearl dawn, never orange mud.
 - **Budget.** Merge each ring into 1–2 geometries or InstancedMesh (≈ 30–45 world draw calls), ≤ 2 world accent lights, light shafts as additive quads with `toon.glowTexture`.
 
 ### 19.2 Palettes and grades (from `ZONES`)
 | key | The Mossmere | Sporewood Pools | Glasswater Vault | The Pallid Deep |
 |---|---|---|---|---|
-| `fog` | #1a3436 | #2b1b30 | #131a3c | #1c1b18 |
+| `fog` | #262f40 | #2b1b30 | #14173e | #1c1b18 |
 | `fogDensity` | 0.016 | 0.019 | 0.012 | 0.022 |
-| `water` | #1f3d3b | #2a1a2e | #131c3e | #14130f |
-| `waterDeep` | #081719 | #0d0710 | #04061a | #030302 |
-| `foam` | #bfe3d4 | #f3d3e0 | #c9e8ff | #e9e2cf |
-| `glow` | #6ff5c8 | #ffb46a | #5ff2ff | #e8c66a |
-| `accent` | #d6f59a | #ff7fb0 | #b48cff | #eae4d3 |
-| `ambient` | #3d6662 | #5b3f63 | #2f3a78 | #3a3833 |
-| `ink` | #050c0d | #0b060d | #03040e | #020202 |
-| `far` | #5a9488 | #80588a | #5062b0 | #a8a18c |
-| `light` | #cff7e6 | #ffd9c4 | #d8e8ff | #f0dca0 |
-| grade | exp 1, bloom 0.85/0.6/0.72, tint #2e6b63×0.18, vig 0.38, sat 0.85, grain 0.05 | exp 1.02, bloom 1.05/0.75/0.68, tint #6b3a6e×0.2, vig 0.4, sat 0.9, grain 0.05 | exp 1.05, bloom 1.15/0.55/0.65, tint #2a3a8a×0.2, vig 0.35, sat 0.95, grain 0.04 | exp 0.95, bloom 0.9/0.8/0.7, tint #5a4e2a×0.12, vig 0.5, sat 0.6, grain 0.07 |
+| `water` | #232b3a | #2a1a2e | #141b46 | #14130f |
+| `waterDeep` | #080b12 | #0d0710 | #04051c | #030302 |
+| `foam` | #d6deee | #f3d3e0 | #c8e2ff | #e9e2cf |
+| `glow` | #a9b9f0 | #ffb46a | #5cbcff | #e8c66a |
+| `accent` | #c4b8ec | #ff7fb0 | #b48cff | #eae4d3 |
+| `lamp` (optional, falls back to `glow`) | #c8d2f0 | = glow | = glow | = glow |
+| `ambient` | #46526a | #5b3f63 | #30387e | #3a3833 |
+| `ink` | #05070a | #0b060d | #03040e | #020202 |
+| `far` | #8292b4 | #80588a | #5460bc | #a8a18c |
+| `light` | #dae2f4 | #ffd9c4 | #d6e2ff | #f0dca0 |
+| grade | exp 1.02, bloom 0.85/0.6/0.72, tint #4c5278×0.18, vig 0.38, sat 0.9, grain 0.05 | exp 1.02, bloom 1.05/0.75/0.68, tint #6b3a6e×0.2, vig 0.4, sat 0.9, grain 0.05 | exp 1.05, bloom 1.15/0.55/0.65, tint #2e3494×0.2, vig 0.35, sat 1.0, grain 0.04 | exp 0.95, bloom 0.9/0.8/0.7, tint #5a4e2a×0.12, vig 0.5, sat 0.6, grain 0.07 |
 
-### 19.3 The Mossmere (moss-teal, mint glow, lime lichen)
-- **Hero (north, beyond the Moss Sluice):** *The Sunken Gate*: a colossal half-drowned round arch on box piers with a broken portcullis hanging askew; beside it a bell tower leaning 12° with a cracked bell glowing faint mint (accent light #1).
+### 19.3 The Mossmere (moonlit slate, silver glow, lilac-silver accent)
+- **Palette intent ("Moonlit slate").** Cold, luminous blue-grey water and haze (hue ≈ 220°), pewter stone with grey and dun lichen; every glow is pale moonlight silver with a faint periwinkle cast (`glow` #a9b9f0), lamps, buoys, statue orbs and lit windows burn a colder moon-silver (`lamp` #c8d2f0), and a faint lilac-silver (`accent` #c4b8ec) is used sparingly: the bigger motes, lily glow-buds, the gate filigree. Ripples carry a silver sheen (the water's mist strokes lift toward `foam`). The Mossmere reads silver + lilac, Glasswater indigo + ice-blue, so the two blue lakes stay apart; the Mossmere is the less saturated of the two. At night its grade keeps a fifth of its slate-lilac tint. Green survives only as a trace (Old Murk's dim sage lamp, a breath of sage on the Mossback Perch), so the Wick's amber lantern is the one warm, saturated colour in the frame; Old Murk's umber hide is the one warm *surface*.
+- **Hero (north, beyond the Moss Sluice):** *The Sunken Gate*: a colossal half-drowned round arch on box piers with a broken portcullis hanging askew; beside it a bell tower leaning 12° with a cracked bell glowing faint moon-silver (accent light #1).
 - **In the lake:** the *Drowned Gatehouse* island (half-sunk tower), the *Toppled Bridge* piers with chains dangling from the break, pylons and statue stumps, the two *Sisters* rocks; the *Bell Pool*'s sunken temple bell visible as a dim shape under the water.
-- **Shore & rings:** moss-bearded cliffs, drowned arcades with hanging roots (TubeGeometry on Catmull-Rom curves) and moss "beards" (alpha planes), a far colonnade, a slow waterfall curtain (scrolling noise alpha) from a ceiling crack.
-- **Floating:** notched lily pads (instanced 30–50, a few with mint glow-buds), driftwood, a half-sunk pair of stone hands cupping an empty bowl.
-- **Particles:** ≈ 150 drowsy mint motes on slow sine paths, ≈ 60 falling moss flecks. **Shafts:** 2–3 pale mint shafts, 15–25°, flickering.
+- **Shore & rings:** lichen-bearded cliffs, drowned arcades with hanging roots (TubeGeometry on Catmull-Rom curves) and moss "beards" (alpha planes), a far colonnade, a slow waterfall curtain (scrolling noise alpha) from a ceiling crack.
+- **Floating:** notched grey-dun lily pads (instanced 30–50, a few with lilac-silver glow-buds), driftwood, a half-sunk pair of stone hands cupping an empty bowl.
+- **Particles:** ≈ 380 small drowsy silver-grey motes on slow sine paths (dimmer and greyer than enemy eyes and the lilac spot pulse, so neither is mistaken for a mote at night), ≈ 80 larger periwinkle and lilac motes. **Shafts:** 2–3 pale moonlight shafts, 15–25°, flickering.
 - **Gloom tell:** motes die out except a handful; roots sway at 2× amplitude.
 
 ### 19.4 Sporewood Pools (dusky plum, amber spores, pink accent)
@@ -1150,12 +1153,12 @@ Something new arrives every 1.5–3 minutes: a species, a level, an enemy type, 
 - **Particles:** ≈ 250 spores (70% amber, 30% pink) rising in lazy spirals; occasional puff bursts. **Light:** soft glow pools under caps, one faint rose-white shaft.
 - **Gloom tell:** cap glow drops to 30%; spores turn grey-violet and *fall*.
 
-### 19.5 Glasswater Vault (indigo, cyan crystals, violet accent)
-- **Hero:** *The Prism Orrery*: a vast ring of instanced octahedra on a torus, hung by four long chains, turning at 0.02 rad/s around a pulsing cyan heart crystal (accent light #1).
+### 19.5 Glasswater Vault (saturated indigo, ice-blue crystals, violet accent)
+- **Hero:** *The Prism Orrery*: a vast ring of instanced octahedra on a torus, hung by four long chains, turning at 0.02 rad/s around a pulsing ice-blue heart crystal (accent light #1). Glasswater's `glow` #5cbcff sits at hue ≈ 205°: ice, never aqua.
 - **In the lake:** six *Bookshelf Monoliths* (crystal slabs holding thin crystal "volumes") on the trench, the *Reliquary Ring* of pillars around the *Vault Seal* (a glass dome over the gate), shelf crystals near the shore; the trench reads as a darker ring of water.
-- **Shore & rings:** faceted crystal cliffs, a colonnade of glass pillars with pointed arches (some shattered), a fallen chandelier half-sunk, a far forest of needle spires with violet-to-cyan edge gradients; an indigo backdrop with slow cyan aurora bands.
+- **Shore & rings:** faceted crystal cliffs, a colonnade of glass pillars with pointed arches (some shattered), a fallen chandelier half-sunk, a far forest of needle spires with violet-to-ice-blue edge gradients; an indigo backdrop with slow ice-blue aurora bands.
 - **Floating:** drifting shards that bob and spin, sealed vials of bottled light, a few pale floating pages.
-- **Particles:** ≈ 180 cyan/violet glints falling slowly with a twinkle. **Shafts:** 3–4 crisp narrow beams, each split into 2–3 tinted beams (refraction).
+- **Particles:** ≈ 180 ice-blue/violet glints falling slowly with a twinkle. **Shafts:** 3–4 crisp narrow beams, each split into 2–3 tinted beams (refraction).
 - **Gloom tell:** crystals go dark one by one from far to near; the Orrery stops turning.
 
 ### 19.6 The Pallid Deep (near-black, bone-white, sickly gold)
@@ -1167,12 +1170,12 @@ Something new arrives every 1.5–3 minutes: a species, a level, an enemy type, 
 - **Gloom tell:** the Ribcage "inhales" (scale y 1.0 → 1.02 over 6 s), gold dims, the water goes to pure ink; before the player owns Drowned Marrow, two gold eye-glints may open far out in the fog during the gloomtide. **Victory:** every memorial candle lights gold, one by one, from the raft outward.
 
 ### 19.7 Characters
-- **The Wick** (≈ 0.6 m): an egg-shaped body in a **patched umber-rust cloak** (#4a2e24, hem frayed into 3–4 points) with a pale wax collar; head a short fat **ivory candle** (#e9dfc6) with a melted rim and 3–4 drips; a deep **hollow face recess** (ink-dark inset, no mask plate) holding **two small glowing amber eyes**. A living flame on top = vitality: tall amber when healthy, orange-red and shorter below 50%, a guttering pale blue (#9fd8ff) at 1 Ember; it flares 1.4× when eating or rendering. Stubby legs dangle over the edge while waiting; a long bent driftwood rod with a bone reel and a tiny brass bell. Idle: a wax drip falls (plip), the cloak breathes, the head tilts toward splashes, hands warmed at the brazier at dusk. *Not-the-Knight check:* no horns, no white mask, no black oval eyes, no grey-blue cloak. The candle head is the signature.
+- **The Wick** (≈ 0.6 m): an egg-shaped body in a **patched umber-rust cloak** (#4a2e24, hem frayed into 3–4 points) with a pale wax collar; head a short fat **ivory candle** (#e9dfc6) with a melted rim and 3–4 drips; a deep **hollow face recess** (ink-dark inset, no mask plate) holding **two small glowing amber eyes**. A living flame on top = vitality: tall amber when healthy, orange-red and shorter below 50%, a guttering pale blue (#a2c8ff) at 1 Ember; it flares 1.4× when eating or rendering. Stubby legs dangle over the edge while waiting; a long bent driftwood rod with a bone reel and a tiny brass bell. Idle: a wax drip falls (plip), the cloak breathes, the head tilts toward splashes, hands warmed at the brazier at dusk. *Not-the-Knight check:* no horns, no white mask, no black oval eyes, no grey-blue cloak. The candle head is the signature.
 - **The raft:** lashed dark planks, a crooked pole with a hanging iron lantern (the main light), a tiny brazier, a lidded wicker creel, a bone rod-rest, an oar, an oxblood pennant, a small chime. Raft levels 1–3 add an outrigger, a second lantern hook, a canvas awning. Mounted trophies hang from the pole.
-- **Old Murk:** a hunched, enormous mossy toad (#4d5a3f with lichen patches #b9c79a), heavy-lidded faintly glowing pale-yellow eyes (#e8e08a), a drooping lip, a moth-eaten shawl; a towering teetering pack (jars of murky bait, empty birdcages, coiled rope, dead lanterns, rods, a crooked umbrella, a fish-bone wind chime); a dim green lamp (#8fd47a) on a hooked pole; a lily-pad barge with a hand bell on a post. Slow blinks, throat-sac swells before speaking, an occasional tongue-flick at a passing moth.
-- **Gloomlings:** near-black ink bodies (#07080d) with a faint violet rim and distinctive eyes (per-lake eye colours in data). *Gloomling*: a fist-sized curl of living ink, pinprick eyes, a smoke tail. *Inkmite*: soot-black ticks with one lime glint, moving like spilled grain. *Duskmantle*: powder-violet moth whose wings carry two pale-blue painted eyes. *Creelsnatch*: a ribbon of shadow with lime hook-teeth. *Sporeling*: puffball gloomlings trailing amber spores. *Weeping Inkwell*: a tall bowed figure with a swollen ink-sac under its chin, black tears running into the water. *Bell-Jar Tick*: a hound-sized tick under a cracked glass bell-jar, a pinned moth still inside. *Silent Choir*: tall veiled figures in rows; outside the light only gold pinpricks. *Drowned Hand*: a colossal dripping hand rising from an ink stain, tarnished brass rings on two fingers.
-- **Wardens** (model `warden`): *The Wickeater*: a colossal hooded gloom with a hollow teal-lit maw and candle stubs in its hem like teeth. *The Veiled Gardener*: towering, draped in plum veils of mould, an amber glow where a face should be. *The Shard Abbot*: robed in shelved crystal like a walking library. *The Lightless Ferryman*: a hooded giant poling a boat that isn't there, a dull gold coin for each eye.
-- **Weapon VFX** (toon glows and lines, additive): amber coals with ink comet-tails; pale seeds of light; a low orange ribbon of fire on black water; a barbed iron hook on a glowing thread; white-gold forks; a green-bronze bell with frost-blue rings; the light itself throbbing outward as an ink-edged ring; cracked cork bobbers with ember light; an ink spiral rimmed with foam; hard pale lighthouse shafts.
+- **Old Murk:** a hunched, enormous umber toad (#575047, with tufts of rust-moss #7a5838 and ochre #a87e40 and pale lichen patches #c8bca2), warm against the cold water by temperature, not by light; heavy-lidded faintly glowing pale-yellow eyes (#e8e08a), a drooping lip, a moth-eaten shawl; a towering teetering pack (jars of murky bait, empty birdcages, coiled rope, dead lanterns, rods, a crooked umbrella, a fish-bone wind chime); a dim sage-green lamp (#a6d4a0, the game's one deliberate green light; its reflection on the water is a short, dim pinpoint, never a column) on a hooked pole; a withered autumn-bronze lily-pad barge (#8a6842 → #3a291b) with a hand bell on a post. Slow blinks, throat-sac swells before speaking, an occasional tongue-flick at a passing moth.
+- **Gloomlings:** near-black ink bodies (#07080d) with a faint violet rim (#8a76bd) and distinctive eyes (per-lake eye colours in data; Mossmere eyes are moon-white or pale cold rose, never a mote's silver-grey, and never near danger red or the Cinder amber). *Gloomling*: a fist-sized curl of living ink, pinprick eyes, a smoke tail. *Inkmite*: soot-black ticks with one pale cold-rose glint (#f2b6c8), moving like spilled grain. *Duskmantle*: powder-violet moth whose wings carry two pale-blue painted eyes. *Creelsnatch*: a ribbon of shadow with hook-teeth and cold-rose eyes (#f2b6c8). *Sporeling*: puffball gloomlings trailing amber spores. *Weeping Inkwell*: a tall bowed figure with a swollen ink-sac under its chin, black tears running into the water. *Bell-Jar Tick*: a hound-sized tick under a cracked glass bell-jar, a pinned moth still inside. *Silent Choir*: tall veiled figures in rows; outside the light only gold pinpricks. *Drowned Hand*: a colossal dripping hand rising from an ink stain, tarnished brass rings on two fingers.
+- **Wardens** (model `warden`): *The Wickeater*: a colossal hooded gloom with a hollow moon-lit maw and candle stubs in its hem like teeth. *The Veiled Gardener*: towering, draped in plum veils of mould, an amber glow where a face should be. *The Shard Abbot*: robed in shelved crystal like a walking library. *The Lightless Ferryman*: a hooded giant poling a boat that isn't there, a dull gold coin for each eye.
+- **Weapon VFX** (toon glows and lines, additive): amber coals with ink comet-tails; pale seeds of light; a low orange ribbon of fire on black water; a barbed iron hook on a glowing thread; white-gold forks; an old bronze bell with frost-blue rings; the light itself throbbing outward as an ink-edged ring; cracked cork bobbers with ember light; an ink spiral rimmed with periwinkle foam (#9aa6ff, hot core #dcdfff); hard pale lighthouse shafts.
 
 ---
 
@@ -1198,13 +1201,42 @@ Something new arrives every 1.5–3 minutes: a species, a level, an enemy type, 
 ### 21.1 Style
 Thin ornate **bone-white linework** (#e9e2cf at 80%) on **ink-wash panels** (near-black, 70–85% opacity, soft paper texture), serif type (Cinzel for titles, Cormorant Garamond for body; Georgia fallback), restrained motion (fades and 150–250 ms eases), rarity colours from `RARITY_COLORS`. Nothing loud; nothing that copies another game's HUD.
 
+**Colour tokens** (Moonlit slate; the UI follows §19's palette rule: no mint, teal or lime anywhere, the only green is Murk's sage lamp marker and portrait lamp). The Fine badge, positive stat chips, lore toast title and shop kicker, banner/logotype/loader glows, panel haze, gate and spot markers, shallow depth label, reel shards, Murk portrait body and the `--zone-glow` / `--zone-accent` fallbacks must all move off mint/teal to these values; only the merchant marker and the portrait's lamp stay sage.
+
+| token | value | used for |
+|---|---|---|
+| `--bone` / text | #e9e2cf (keep it warm) | linework, body text |
+| `--muted` | #9aa3b4 (pewter) | secondary text |
+| `--ink` | #06080c | outlines, deepest panel ink |
+| `--bg` | #0b0e15 | screen backgrounds |
+| `--panel` / `--panel-hi` | rgba(18,23,34,.82) / rgba(30,37,52,.9) | ink-wash panels |
+| `--panel-haze` | rgba(70,82,110,.18) | the panel/modal radial haze (was a teal haze) |
+| `--line` | rgba(196,206,226,.22) | hairlines on panels |
+| `--zone-glow` / `--zone-accent` / `--zone-fog` / `--zone-lamp` | runtime from `palette.glow` / `.accent` / `.fog` / `.lamp ?? .glow`; fallbacks #a9b9f0 / #c4b8ec / #262f40 / #c8d2f0 | day-arc calm segment, zone cards, waystones |
+| `--amber` / `--amber-hi` / `--ember` | #ffb347 / #ffd98a / #ff8a3d | the lantern, oil, Cinders, flare (readability: unchanged) |
+| `--blood` / `--danger-deep` | #e0533d / #5a0a14 | danger, low HP (unchanged) |
+| `--r-common` … `--r-legendary` | #d8d2c0 · #a6c6e6 · #b48cff · #ff8fc0 · #e8c66a | `RARITY_COLORS` (uncommon is a pale moonstone, apart from Glasswater's ice-blue) |
+| `--q-fine` | #a6c6e6, border rgba(166,198,230,.5) | Fine quality badge (`QUALITY.fine`) |
+| `--q-perfect` | #ffe2a8 | Shimmering quality |
+| `--depth-shallow` / `-mid` / `-deep` | #a8c8f0 / #ffc27a / #b48cff | charge-meter depth label (matches the reticle) |
+| `--chip-pos` | #d6e2f6, border rgba(170,190,235,.32) | positive stat chips |
+| `--lore` | #ccc4ea (lilac-silver) | lore toast title, shop kicker |
+| `--halo` | rgba(180,196,240,.35) | banner and logotype glow, loader title glow |
+| `--mk-gate` | #c0bcf0, glow rgba(182,184,238,.45) | gate edge marker (the gate's periwinkle-lilac filigree) |
+| `--mk-spot` | #d0c8f4, glow rgba(208,200,244,.3) | spot edge marker (the lilac-moon spot pulse) |
+| `--mk-merchant` | #a6d4a0, glow rgba(166,212,160,.4) | Murk's edge marker: the one sage-green UI trace (his lamp) |
+| `--reel-shard` | #e8f4ff → #5cbcff, glow rgba(92,188,255,.85) | Glass Sovereign reel shards |
+| loader | background #0c1018, title glow rgba(180,196,240,.35) | boot screen |
+| Murk portrait | body #2a241e / #1e1a16 / #0f0c0a, strokes rgba(200,180,150,.5), lamp #d2ecc8 → #8fbf88, flame #e0f4d6 | shop and merchant portrait (umber toad, sage lamp) |
+| fish-art fallback | body #6e7684, belly #d8dae0, fin #3c4452 | journal/catch art when a species has no model colours |
+
 ### 21.2 HUD (playing)
 - **Bottom-centre "lantern cluster"** (the original signature layout): a vertical lantern-glass **oil gauge** (amber fill that dims and narrows as it empties; cracks glow at ≤ 25%); a curved **wax-drip satiety bar** hugging its left side; a row of small **Ember flames** in an arc above the lantern (the last one gutters blue). Flare cooldown is a ring around the lantern's cap on desktop.
 - **Top edge:** a hairline **cinder ribbon** (XP) across the full width with a small diamond **level** medallion at its left end; owned boon icons in two tiny rows beneath it (weapons, then passives; level pips; Kindled icons gilded).
 - **Top-centre:** the **day/phase clock**: a thin crescent arc with four segment ticks (calm, dusk, gloomtide, dawn), a moving bead, "Day N", the lake name small beneath. During the gloomtide the arc shows the hush tick near its end.
 - **Top-right:** Shells (shell glyph), creel count (n / size), equipped bait (tap to cycle), perfect-streak flame pips; then 44 px Creel / Journal / Pause icons.
 - **Right side (touch) / bottom-right (desktop):** Flare button (72 px with radial cooldown), Burn button (shows the fish to be burned), contextual Trade / Descend pill.
-- **Edge markers** (off-screen, at the screen border with distance): Murk's green lamp, the gate (dim while sealed, bright when open), the nearest two spots (shimmer), the legend pool (gold, when active), elites and Wardens (red eye), a floating stolen fish.
+- **Edge markers** (off-screen, at the screen border with distance): Murk's green (sage) lamp, the gate (dim while sealed, bright when open), the nearest two spots (shimmer), the legend pool (gold, when active), elites and Wardens (red eye), a floating stolen fish.
 - **World-space:** damage numbers (setting), "Warded", "Clean Cast", float texts, interaction prompts.
 
 ### 21.3 Fishing UI (from `fishing.view`)

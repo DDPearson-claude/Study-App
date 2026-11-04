@@ -301,10 +301,13 @@ void main() {
   vec2 vp = vec2(-vd.y, vd.x);
   float stroke = wNoise(vec2(dot(xz, vp) * 0.09, dot(xz, vd) * 0.75 + uTime * 0.03));
   stroke = smoothstep(0.62, 0.82, stroke) * smoothstep(0.02, 0.25, fres) * (1.0 - smoothstep(60.0, 140.0, camD));
-  col += uSky * stroke * 0.45;
+  // sheen: the mist colour lifted toward the lake's foam (silver on slate, ice on indigo), scaled by
+  // the mist's own brightness so night water stays ink
+  vec3 sheen = mix(uSky, uFoam * dot(uSky, vec3(0.2126, 0.7152, 0.0722)) * 2.6, 0.4);
+  col += sheen * stroke * 0.5;
   // swell crests catch the mist: thin pale ink strokes on the faces turned to the eye
   float crest = smoothstep(0.62, 0.88, wNoise(xz * vec2(0.35, 0.9) + vGradH.z * 6.0 + uTime * 0.05));
-  col += uSky * crest * smoothstep(0.0, 0.25, vGradH.z + 0.08) * 0.22 * near * (1.0 - refl);
+  col += sheen * crest * smoothstep(0.0, 0.25, vGradH.z + 0.08) * 0.26 * near * (1.0 - refl);
 
   // ---- lights: warm pools and dashed vertical streaks
   vec3 pool = vec3(0.0);
@@ -331,7 +334,12 @@ void main() {
     }
     vec3 L = normalize(lp.xyz - P);
     float diff = 0.3 + 0.7 * max(dot(N, L), 0.0);
-    pool += lc.rgb * pk * diff * 0.42;
+    // warm lights lean gold on the water: amber laid over cold blue water otherwise drifts to
+    // copper/rose, so the lantern pool would not match the HUD lantern amber
+    vec3 lcol = lc.rgb;
+    float warmth = clamp((lcol.r - lcol.b) / max(lcol.r, 1e-4) * 1.6 - 0.6, 0.0, 1.0);
+    lcol *= mix(vec3(1.0), vec3(0.9, 1.14, 0.7), warmth);
+    pool += lcol * pk * diff * 0.42;
 
     // streak: the mirror point sits between the light's foot and the eye
     vec2 toCam = cameraPosition.xz - lp.xz;
@@ -351,9 +359,15 @@ void main() {
       float dash = wNoise(vec2(along * 3.3 - uTime * 1.1 + float(i) * 17.0, across * 1.1 + uTime * 0.3));
       dash = smoothstep(0.34, 0.6, dash);
       float core = exp(-across * across / (w * w * 0.15));
-      streak += lc.rgb * (floor(lc.w) * 0.01) * prof * (dash * 0.8 + core * 0.75 * dash + 0.08) * (1.0 - 0.5 * fb);
+      streak += lcol * (floor(lc.w) * 0.01) * prof * (dash * 0.8 + core * 0.75 * dash + 0.08) * (1.0 - 0.5 * fb);
     }
   }
+
+  // ---- warm light owns the water it touches: inside a light pool the lake's cold cast drains
+  // to grey before the pool is added, so the lantern reads amber on slate/indigo water
+  // (amber + blue would otherwise mix to rose)
+  float poolK = clamp(dot(pool, vec3(0.2126, 0.7152, 0.0722)) * 20.0, 0.0, 0.92);
+  col = mix(col, vec3(dot(col, vec3(0.2126, 0.7152, 0.0722))) * vec3(1.1, 1.0, 0.72), poolK);
 
   // ---- caustic shimmer (bioluminescent everywhere faintly, golden inside light pools)
 #ifndef GW_LOW

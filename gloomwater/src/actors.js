@@ -76,7 +76,8 @@ export function create(ctx) {
     raft.lflame.outerMat.uniforms.uColor.value.copy(lc);
     raft.halo.material.color.copy(lc);
     raft.glassMat.color.copy(lc).multiplyScalar(1.6);
-    pool.mat.uniforms.uColor.value.copy(lc).lerp(new THREE.Color(0xff8a3a), 0.35);
+    // the pool fill leans gold: added over cold slate/indigo water, a redder amber reads copper/rose
+    pool.mat.uniforms.uColor.value.copy(lc).lerp(new THREE.Color(0xffc46a), 0.45);
     pool.mat.uniforms.uRing.value.copy(lc).lerp(new THREE.Color(0xffe2b0), 0.35);
   }
   function autoRaftLevel() {

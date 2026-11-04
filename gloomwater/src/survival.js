@@ -49,7 +49,7 @@ const FALLBACK = {
   stats: { maxHp: 5, maxOil: 100, maxSatiety: 100, oilDrain: 0.14, satietyDrain: 0.1, lightRadius: 8, armor: 0, dawnHeal: 1 },
 };
 const WARM = 0xffb347, HURT = 0xff6a3d, WARD = 0xcfe6ff, MEND = 0xffd9a0, GOLD = 0xffd27a;
-const GUTTER = 0x9fd8ff, WAX = 0xe9dfc6;   // darkness ticks gutter pale blue; starvation ticks are wax
+const GUTTER = 0xa2c8ff, WAX = 0xe9dfc6;   // darkness ticks gutter pale blue; starvation ticks are wax
 
 const num = (v, d) => (typeof v === 'number' && Number.isFinite(v) ? v : d);
 const real = (m) => !!m && !m.isStub;

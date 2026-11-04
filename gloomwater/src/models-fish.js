@@ -478,7 +478,7 @@ const SHAPES = {
 function cssColor(c) { return '#' + c.getHexString(); }
 function bodyTexture(M, shape, parts) {
   const W = 256, H = 128;
-  const body = C(hexColor(M.body, 0x6a7a80)), belly = C(hexColor(M.belly, 0xd8d8d0)), fin = C(hexColor(M.fin, 0x333840));
+  const body = C(hexColor(M.body, 0x6e7684)), belly = C(hexColor(M.belly, 0xd8d8d0)), fin = C(hexColor(M.fin, 0x333840));
   const glow = M.glow !== null && M.glow !== undefined;
   const map = document.createElement('canvas'); map.width = W; map.height = H;
   const g = map.getContext('2d');
@@ -574,7 +574,7 @@ function eyeGeos(eyes, type, glowCol) {
       glow.push(blob(r * 1.05, r * 1.05, r * 1.05, [x, y, z], 10, 8));
       basic.push(paint(blob(r * 0.22, r * 0.7, r * 0.3, [x + side * r * 0.85, y, z + r * 0.1], 6, 6), 0x050403));
     } else if (type === 'blind') {
-      basic.push(paint(blob(r * 1.08, r * 1.08, r * 1.08, [x, y, z], 10, 8), (px, py) => (py > y + r * 0.3 ? 0xf2f0e6 : 0xbcc4c0)));
+      basic.push(paint(blob(r * 1.08, r * 1.08, r * 1.08, [x, y, z], 10, 8), (px, py) => (py > y + r * 0.3 ? 0xf2f0e6 : 0xbcc0c8)));
     } else {
       basic.push(paint(blob(r, r, r, [x, y, z], 10, 8), 0xd8d0b0));
       basic.push(paint(blob(r * 0.7, r * 0.7, r * 0.7, [x + side * r * 0.42, y, z + r * 0.05], 8, 6), 0x050505));
@@ -585,7 +585,7 @@ function eyeGeos(eyes, type, glowCol) {
 }
 
 // ------------------------------------------------------------------ factory
-const DEFAULT_MODEL = { shape: 'minnow', body: 0x6f8f86, belly: 0xd9e8dc, fin: 0x34544f, glow: null, pattern: 'scales', eyes: 'normal', scale: 0.6 };
+const DEFAULT_MODEL = { shape: 'minnow', body: 0x7a8494, belly: 0xdde2e8, fin: 0x3c4452, glow: null, pattern: 'scales', eyes: 'normal', scale: 0.6 };
 
 export function createFishFactory(ctx) {
   const cache = new Map();

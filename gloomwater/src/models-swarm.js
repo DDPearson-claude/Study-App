@@ -63,7 +63,7 @@ export function createSwarmFactory(ctx, models, resolve) {
     const paleTint = new THREE.Color(R.tint).getHSL({}).l > 0.45;
     const bodyMat = deformToon(kind === 'moth'
       ? { color: 0xffffff, map: mothTextures().map, rim: 0.55, rimColor: GLOOM_RIM, side: THREE.DoubleSide, emissive: R.eye, emissiveIntensity: 1.1 }
-      : { color: 0xffffff, rim: paleTint ? 0.3 : 0.9, rimColor: paleTint ? 0xe8f1f2 : GLOOM_RIM, rimPower: 0.5 }, spec);
+      : { color: 0xffffff, rim: paleTint ? 0.3 : 0.9, rimColor: paleTint ? 0xecf0f6 : GLOOM_RIM, rimPower: 0.5 }, spec);
     if (kind === 'moth') { bodyMat.emissiveMap = mothTextures().ems; bodyMat.alphaTest = 0.45; }
     mats.push(bodyMat);
     const object3d = new THREE.Group(); object3d.name = 'swarm:' + kind;

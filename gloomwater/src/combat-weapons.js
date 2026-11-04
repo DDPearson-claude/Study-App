@@ -12,7 +12,7 @@ const COL = {
   mote: lin(0xfff0c8, 2.0), moteHalo: lin(0xffd890, 1.4), moth: lin(0xffe7a0, 2), flame: lin(0xff9a3a, 1.9), flameHot: lin(0xffc870, 2.6),
   thread: lin(0xffd27a, 2.2), hook: lin(0xf4efe2, 3), spark: lin(0xbfe4ff, 3.4), sparkGlow: lin(0x8fc8ff, 2.2),
   frost: lin(0xcfe8ff, 1.8), frostHot: lin(0xe8f6ff, 2.6), pulse: lin(0xffb860, 2.2), pulseHot: lin(0xffe0a8, 2.8),
-  mine: lin(0xff7a30, 3.2), blast: lin(0xffa040, 2.8), vortex: lin(0x6ff5e0, 1.4), vortexHot: lin(0xb8fff0, 2.2),
+  mine: lin(0xff7a30, 3.2), blast: lin(0xffa040, 2.8), vortex: lin(0x9aa6ff, 1.4), vortexHot: lin(0xdcdfff, 2.2),
   beam: lin(0xfff2d0, 2.4), beamCore: lin(0xffffff, 3.4), line: lin(0xffb050, 2.4), ink: lin(0x040508, 1),
 };
 
